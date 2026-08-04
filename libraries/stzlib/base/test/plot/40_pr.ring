@@ -5,6 +5,7 @@
 # Extracted from stzPlotTest.ring, block #40.
 
 load "../../stzBase.ring"
+load "../_expect.ring"
 
 pr()
 
@@ -21,10 +22,8 @@ oPlot {
 	SetBarWidth(2)
 	SetCategorySpace(3)
 	Show()
-}
-#-->
-'
-↑                                  
+Shows(oPlot, '
+▲                                  
 │ ||         ||            XX      
 │ || XX      || XX      || XX ~~   
 │ || XX      || XX ~~   || XX ~~   
@@ -32,11 +31,12 @@ oPlot {
 │ || XX ~~   || XX ~~   || XX ~~   
 │ || XX ~~   || XX ~~   || XX ~~   
 │ || XX ~~   || XX ~~   || XX ~~   
-╰─────────────────────────────────>
+╰─────────────────────────────────►
     Jan        Feb        Mar      
                                    
 || Team_a   XX Team_b   ~~ Team_c  
-'
+')
+}
 
 pf()
 # Executed in 0.02 second(s) in Ring 1.23

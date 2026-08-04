@@ -5,6 +5,7 @@
 # Extracted from stzPlotTest.ring, block #44.
 
 load "../../stzBase.ring"
+load "../_expect.ring"
 
 pr()
 
@@ -23,18 +24,17 @@ oPlot {
 	SetHeight(3)
 	SetMaxWidth(50)
 	Show()
-}
-#-->
-'
-↑                   
+Shows(oPlot, '
+▲                   
 │  ▒    ▓  ▒▓       
 │ █▒▓ █▒▓  ▒▓       
 │ █▒▓ █▒▓ █▒▓       
-╰──────────────────>
+╰──────────────────►
    X   Y   Z        
                     
 ██ A   ▒▒ B   ▓▓ C  
-'
+')
+}
 
 pf()
 # Executed in 0.02 second(s) in Ring 1.23

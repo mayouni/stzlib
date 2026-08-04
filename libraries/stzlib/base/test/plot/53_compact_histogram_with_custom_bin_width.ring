@@ -1,9 +1,56 @@
 # Narrative
 # --------
-# (retired) plot: stzPlot R4 stack overflow on IsHashList recursion; deeper rework needed.
+# Compact histogram with custom bin width
 #
-#SKIP retired -- see header
+# Extracted from stzPlotTest.ring, block #53.
+#ERR Error (R14) : Calling Method without definition: removedfromend
 
 load "../../stzBase.ring"
+load "../_expect.ring"
 
-? "(retired test; see header for rationale)"
+
+pr()
+
+aWeights = [
+	150, 155, 160, 152, 158, 162, 165,
+	159, 157, 161, 163, 156, 154, 164,
+	166, 153, 151, 167, 168, 149
+]
+
+oPlot = new stzHistogram(aWeights)
+oPlot {
+
+	UseSum()
+	AddValues()
+
+    	SetBarWidth(3)
+    	SetBarInterSpace(1)
+	SetLabelInterSpace(0)
+
+    	Show()
+Shows(oPlot, '
+▲
+│  ███                           ███
+│  ███                           ███
+│  ███         ███   ███   ███   ███
+│  ███   ███   ███   ███   ███   ███
+│  ███   ███   ███   ███   ███   ███
+│  ███   ███   ███   ███   ███   ███
+│  ███   ███   ███   ███   ███   ███
+│  ███   ███   ███   ███   ███   ███
+│  ███   ███   ███   ███   ███   ███
+│  ███   ███   ███   ███   ███   ███
+╰────────────────────────────────────►
+   149  152.2 155.3 158.5 161.7 164.8
+  152.2 155.3 158.5 161.7 164.8  168
+')
+}
+
+#TODO #ERR See why lables are not displayed
+
+pf()
+# Executed in 0.29 second(s) in Ring 1.23
+
+#===============================#
+#  TEST OF Surface CHART CLASS  #
+#===============================#

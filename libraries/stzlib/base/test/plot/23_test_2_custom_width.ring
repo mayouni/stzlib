@@ -5,6 +5,7 @@
 # Extracted from stzPlotTest.ring, block #23.
 
 load "../../stzBase.ring"
+load "../_expect.ring"
 
 
 pr()
@@ -12,16 +13,15 @@ pr()
 oPlot = new stzHBarPlot([ :A = 5, :B = 8, :C = 3, :D = 2, :E = 4 ])
 oPlot.Setwidth(40)
 oPlot.Show()
-#-->
-'
-  ^                                         
+Shows(oPlot, '
+  ▲                                         
 A │ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇               
 B │ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
 C │ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇                         
 D │ ▇▇▇▇▇▇▇▇▇▇                              
 E │ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇                    
-  ╰────────────────────────────────────────>
-'
+  ╰────────────────────────────────────────►
+')
 
 # Note: Hight can not changed with SetHight() in horizontal bars
 # but we can define a maximum number of horizontal bars with SetMawHight()
@@ -33,14 +33,13 @@ E │ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
 
 oPlot.SetMaxHeight(3)
 oPlot.Show()
-#-->
-'
-  ^                                         
+Shows(oPlot, '
+  ▲                                         
 A │ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇               
 B │ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇
 C │ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇                         
-  ╰────────────────────────────────────────>
-'
+  ╰────────────────────────────────────────►
+')
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.23

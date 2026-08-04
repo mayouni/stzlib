@@ -5,6 +5,7 @@
 # Extracted from stzPlotTest.ring, block #62.
 
 load "../../stzBase.ring"
+load "../_expect.ring"
 
 
 pr()
@@ -13,8 +14,7 @@ oPlot10 = new stzSurfacePlot([
     :Total = 100
 ])
 oPlot10.AddPercent().Show()
-#-->
-'
+Shows(oPlot10, '
 ╭──────────────────────────────────────╮
 │                                      │
 │                                      │
@@ -27,7 +27,7 @@ oPlot10.AddPercent().Show()
 │                                      │
 │                                      │
 ╰──────────────────────────────────────╯
-'
+')
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.23

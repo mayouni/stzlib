@@ -5,6 +5,7 @@
 # Extracted from stzPlotTest.ring, block #70.
 
 load "../../stzBase.ring"
+load "../_expect.ring"
 
 
 pr()
@@ -34,8 +35,7 @@ oPlot = new stzScatterPlot([
 
 oPlot.WithoutXYAxis()
 oPlot.Show()
-#-->
-'                                    
+Shows(oPlot, '
                  ●     ●    ●             
                  ●  ●  ●  ● ●             
                                           
@@ -47,7 +47,7 @@ oPlot.Show()
 ● ●  ●  ●  ●           ●          ●    ●  
            ●           ●          ●    ●  
              ● ●  ●  ●  ●  ●  ●  ●     ●  
-'
+')
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.23

@@ -5,6 +5,7 @@
 # Extracted from stzPlotTest.ring, block #41.
 
 load "../../stzBase.ring"
+load "../_expect.ring"
 
 pr()
 
@@ -19,23 +20,21 @@ oPlot {
 	SetValues(True)
 	SetBarWidth(2)
 	Show()
-}
-#-->
-'
-↑                          
-│    20              22    
-│    ▒▒   18         ▒▒    
-│    ▒▒   ██ 14   15 ▒▒    
-│ 12 ▒▒   ██ ▒▒   ██ ▒▒    
+Shows(oPlot, '
+▲                          
+│    ▒▒              ▒▒    
+│    ▒▒   ██         ▒▒    
+│    ▒▒   ██ ▒▒   ██ ▒▒    
 │ ██ ▒▒   ██ ▒▒   ██ ▒▒    
 │ ██ ▒▒   ██ ▒▒   ██ ▒▒    
 │ ██ ▒▒   ██ ▒▒   ██ ▒▒    
 │ ██ ▒▒   ██ ▒▒   ██ ▒▒    
-╰─────────────────────────>
+╰─────────────────────────►
   Store1  Store2  Store3   
                            
 ██ Product1   ▒▒ Product2  
-'
+')
+}
 
 pf()
 # Executed in 0.04 second(s) in Ring 1.22

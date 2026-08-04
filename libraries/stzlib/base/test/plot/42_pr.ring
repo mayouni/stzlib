@@ -5,6 +5,7 @@
 # Extracted from stzPlotTest.ring, block #42.
 
 load "../../stzBase.ring"
+load "../_expect.ring"
 
 pr()
 
@@ -19,23 +20,21 @@ oPlot {
 	SetPercent(True)
 	SetBarWidth(1)
 	Show()
-}
-#-->
-'
+Shows(oPlot, '
 ▲                       
-│21.7%  19.3%           
-│  █      █    17.16%   
-│  █      █14%   █ ▒    
-│  11.7%  █ ▒    █ ▒    
-│  █ ▒    █ ▒    █ ▒    
-│  █ ▒    █ ▒    █ ▒    
-│  █ ▒    █ ▒    █ ▒    
-│  █ ▒    █ ▒    █ ▒    
+│ █     █               
+│ █     █     █ ▒       
+│ █     █ ▒   █ ▒       
+│ █ ▒   █ ▒   █ ▒       
+│ █ ▒   █ ▒   █ ▒       
+│ █ ▒   █ ▒   █ ▒       
+│ █ ▒   █ ▒   █ ▒       
 ╰──────────────────────►
-  2021   2022   2023    
+  2021  2022  2023      
                         
 ██ Desktop   ▒▒ Mobile  
-'
+')
+}
 
 pf()
 # Executed in 0.24 second(s) in Ring 1.22

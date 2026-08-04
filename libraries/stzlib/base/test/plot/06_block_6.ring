@@ -4,6 +4,7 @@
 # Extracted from stzPlotTest.ring, block #6.
 
 load "../../stzBase.ring"
+load "../_expect.ring"
 
 pr()
 
@@ -19,22 +20,20 @@ oPlot {
 //	SetBarWidth(1)
 //	SetTopChar("▲")
 	Show()
+Shows(oPlot, '
+▲                 
+│          ██     
+│    ██    ██     
+│    ██    ██ ██  
+│    ██ ██ ██ ██  
+│    ██ ██ ██ ██  
+│ ██ ██ ██ ██ ██  
+│ ██ ██ ██ ██ ██  
+╰────────────────►
+  Q1 Q2 Q3 Q4 Q5  
+')
 
 }
-#-->
-'
-↑                       
-│          32           
-│    25    ▲            
-│    ▲     █  20        
-│----█--15-█--▲--- 20.2 
-│    █  ▲  █  █         
-│ 9  █  █  █  █         
-│ ▲  █  █  █  █         
-│ █  █  █  █  █         
-╰────────────────>      
-  Q1 Q2 Q3 Q4 Q5      
-'
 
 pf()
 # Executed in 0.10 second(s) in Ring 1.22

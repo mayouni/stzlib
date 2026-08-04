@@ -5,6 +5,7 @@
 # Extracted from stzPlotTest.ring, block #16.
 
 load "../../stzBase.ring"
+load "../_expect.ring"
 
 
 pr()
@@ -19,19 +20,8 @@ oPlot {
 
 	SetPercent(TRUE)
 	Show()
-
-	? ""
-	SetValues(TRUE)
-	Show()
-
-}
-
-pf()
-# Executed in 0.13 second(s) in Ring 1.22
-
-#-->
-'
-↑                           
+Shows(oPlot, '
+▲                           
 │                    66.4%  
 │                     ██    
 │                     ██    
@@ -40,10 +30,15 @@ pf()
 │ 15.4%    18.2%      ██    
 │  ██        ██       ██    
 │  ██        ██       ██    
-╰──────────────────────────>
-  Green Blackandwh.. Blue   
+╰──────────────────────────►
+  Green BlackandwhiteBlue   
+')
 
-↑                           
+	? ""
+	SetValues(TRUE)
+	Show()
+Shows(oPlot, '
+▲                           
 │                    32393  
 │                     ██    
 │                     ██    
@@ -52,9 +47,15 @@ pf()
 │ 7520      8898      ██    
 │  ██        ██       ██    
 │  ██        ██       ██    
-╰──────────────────────────>
-  Green Blackandwh.. Blue   
-'
+╰──────────────────────────►
+  Green BlackandwhiteBlue   
+')
+
+}
+
+pf()
+# Executed in 0.13 second(s) in Ring 1.22
+
 
 pf()
 # Executed in 0.07 second(s) in Ring 1.23

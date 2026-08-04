@@ -5,6 +5,7 @@
 # Extracted from stzPlotTest.ring, block #48.
 
 load "../../stzBase.ring"
+load "../_expect.ring"
 
 pr()
 
@@ -24,27 +25,23 @@ oPlot {
 	SetLegendLayout(:Vertical)
 
 	Show()
+Shows(oPlot, '
+▲                                   
+│                   |||             
+│                   |||             
+│                   |||             
+│ ███           ███ |||             
+│ ███ |||       ███ |||             
+│ ███ ||| XXX   ███ ||| XXX         
+│ ███ ||| XXX   ███ ||| XXX         
+╰──────────────────────────────────►
+      Q1            Q2              
+                                    
+██ Desktop   || Mobile   XX Tablet  
+')
 	SetLegend(False)
 
 }
-#-->
-'
-↑                            
-│                   88       
-│                   |||      
-│                   |||      
-│ 45            42  |||      
-│ ███ 35        ███ |||      
-│ ███ ||| 15    ███ ||| 18   
-│ ███ ||| XXX   ███ ||| XXX  
-│ ███ ||| XXX   ███ ||| XXX  
-╰───────────────────────────>
-      Q1            Q2       
-                             
-██ Desktop                   
-|| Mobile                    
-XX Tablet   
-'
 pf()
 #--> Executed in 0.02 second(s) in Ring 1.23
 #--> Executed in 0.05 second(s) in Ring 1.22

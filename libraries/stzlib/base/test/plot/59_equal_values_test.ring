@@ -5,6 +5,7 @@
 # Extracted from stzPlotTest.ring, block #59.
 
 load "../../stzBase.ring"
+load "../_expect.ring"
 
 
 pr()
@@ -18,9 +19,7 @@ oPlot6 = new stzSurfacePlot([
 oPlot6 {
 	AddPercent()
 	Show()
-}
-#-->
-'
+Shows(oPlot6, '
 ╭───────────────────┬──────────────────╮
 │                   │                  │
 │        Q1         │       Q3         │
@@ -33,7 +32,8 @@ oPlot6 {
 │                   │                  │
 │                   │                  │
 ╰───────────────────┴──────────────────╯
-'
+')
+}
 
 pf()
 # Executed in 0.03 second(s) in Ring 1.23
