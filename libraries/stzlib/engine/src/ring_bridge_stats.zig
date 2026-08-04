@@ -1562,6 +1562,13 @@ fn ring_PlotBar(p: *anyopaque) callconv(.c) void {
         if (o.len > 10) opts.show_values = if (o[10] != 0) 1 else 0;
         if (o.len > 11) opts.show_percent = if (o[11] != 0) 1 else 0;
         if (o.len > 12) opts.show_average = if (o[12] != 0) 1 else 0;
+        // THE CHOSEN CHARACTERS RIDE AS CODEPOINTS, on the end of the same list.
+        // A character is one number, so it needs no second string argument and no
+        // allocation; zero means the caller left it alone.
+        if (o.len > 13) opts.bar_char = @intFromFloat(o[13]);
+        if (o.len > 14) opts.top_char = @intFromFloat(o[14]);
+        if (o.len > 15) opts.h_axis_char = @intFromFloat(o[15]);
+        if (o.len > 16) opts.v_axis_char = @intFromFloat(o[16]);
     }
 
     const txt = plot_mod.renderBar(allocator, vals, lab, opts) catch {
@@ -1660,6 +1667,7 @@ fn ring_PlotScatter(p: *anyopaque) callconv(.c) void {
         if (o.len > 4) opts.show_h_axis = if (o[4] != 0) 1 else 0;
         if (o.len > 5) opts.show_v_axis = if (o[5] != 0) 1 else 0;
         if (o.len > 6) opts.show_letters = if (o[6] != 0) 1 else 0;
+        if (o.len > 7) opts.point_char = @intFromFloat(o[7]);
     }
 
     const txt = plot_mod.renderScatter(allocator, hs, vs, opts) catch {
@@ -1684,6 +1692,8 @@ fn ring_PlotMBar(p: *anyopaque) callconv(.c) void {
     }
     const snames = strParam(p, 4);
     const cats = strParam(p, 5);
+    // one glyph per series, newline-joined; empty means the house palette
+    const schars = strParam(p, 7);
 
     var opts = plot_mod.MBarOptions{};
     if (listToF64(p, 6)) |o| {
@@ -1702,7 +1712,7 @@ fn ring_PlotMBar(p: *anyopaque) callconv(.c) void {
         if (o.len > 11) opts.show_legend = if (o[11] != 0) 1 else 0;
     }
 
-    const txt = plot_mod.renderMBar(allocator, vals, ns, nc, snames, cats, opts) catch {
+    const txt = plot_mod.renderMBar(allocator, vals, ns, nc, snames, cats, opts, schars) catch {
         rs(p, "");
         return;
     };
@@ -1748,6 +1758,8 @@ fn ring_PlotHistogram(p: *anyopaque) callconv(.c) void {
         if (o.len > 9) opts.show_labels = if (o[9] != 0) 1 else 0;
         if (o.len > 10) opts.show_frequency = if (o[10] != 0) 1 else 0;
         if (o.len > 11) opts.show_percent = if (o[11] != 0) 1 else 0;
+        if (o.len > 12) opts.bar_char = @intFromFloat(o[12]);
+        if (o.len > 13) opts.final_bar_char = @intFromFloat(o[13]);
     }
 
     const txt = plot_mod.renderHistogram(allocator, counts, edges, opts) catch {
@@ -1822,6 +1834,9 @@ fn ring_PlotHBar(p: *anyopaque) callconv(.c) void {
         if (o.len > 9) opts.show_axis_labels = if (o[9] != 0) 1 else 0;
         if (o.len > 10) opts.show_values = if (o[10] != 0) 1 else 0;
         if (o.len > 11) opts.show_percent = if (o[11] != 0) 1 else 0;
+        if (o.len > 12) opts.bar_char = @intFromFloat(o[12]);
+        if (o.len > 13) opts.h_axis_char = @intFromFloat(o[13]);
+        if (o.len > 14) opts.v_axis_char = @intFromFloat(o[14]);
     }
 
     const txt = plot_mod.renderHBar(allocator, vals, lab, opts) catch {

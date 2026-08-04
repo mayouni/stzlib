@@ -437,7 +437,19 @@ func StzCapitalize(str)
 	func Capitalize(str)
 		return StzCapitalize(str)
 
-	func Capitalise(str)
+	# THE CODEPOINT OF A CHARACTER, and 0 when there is no character.
+#
+# The plots let a caller choose the glyph they draw with, and those choices cross
+# into the engine as numbers rather than as text -- one field beside the widths,
+# no second string argument, no allocation. 0 is the "caller said nothing" value,
+# so an unset character has to answer 0 rather than raise.
+func StzCharCode(c)
+	if NOT isString(c) or c = ""
+		return 0
+	ok
+	return StzUnicode(c)
+
+func Capitalise(str)
 		return StzCapitalize(str)
 
 	func @Capitalize(str)

@@ -581,7 +581,13 @@ class stzHistogram from stzObject
 			@nBarInterSpace, @nLabelInterSpace, @nAxisPadding, @nVAxisWidth,
 			iff(@bShowHAxis, 1, 0), iff(@bShowVAxis, 1, 0),
 			iff(@bShowLabels, 1, 0),
-			iff(@bShowFrequency, 1, 0), iff(@bShowPercent, 1, 0)
+			iff(@bShowFrequency, 1, 0), iff(@bShowPercent, 1, 0),
+		# THE CHARACTERS THE CALLER CHOSE, as codepoints on the end of the options.
+		# They were dropped when this renderer moved to the engine: SetBarChar and
+		# its siblings went on setting an attribute nothing read any more, so they
+		# silently did nothing. The Ring renderer below still honoured them, which
+		# is how the parity guard would have caught it -- had any case set one.
+			StzCharCode(@cBarChar), StzCharCode(@cFinalBarChar)
 		]
 
 		_cOut_ = StzEnginePlotHistogram(@anValues, _aEdges_, _aOpts_)

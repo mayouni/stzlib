@@ -601,8 +601,19 @@ class stzMBarPlot from stzBarPlot
 			iff(@bShowLegend, 1, 0)
 		]
 
+		# ONE GLYPH PER SERIES -- a list, so it cannot ride in the options with the
+		# single characters. Empty means the engine picks from its own palette.
+		_cChars_ = ""
+		# the glyph lives on the SERIES, next to its name and its values
+		for _i_ = 1 to @nSeries
+			if _i_ > 1
+				_cChars_ += nl
+			ok
+			_cChars_ += @aSeriesData[_i_][:Char]
+		next
+
 		_cOut_ = StzEnginePlotMBar(_aFlat_, @nSeries, @nCategories,
-			_cSeries_, _cCats_, _aOpts_)
+			_cSeries_, _cCats_, _aOpts_, _cChars_)
 		if NOT isString(_cOut_) or _cOut_ = ""
 			StzRaise("stzMBarPlot: the engine could not render this plot.")
 		ok
