@@ -338,6 +338,61 @@ Scenario("The surface plot is a treemap, and the engine cuts the same tiles")
 	Then("...and stzSquarePlot matches", PpSameSubSurf(:stzSquarePlot), TRUE)
 EndScenario()
 
+Scenario("A plot drawn with the caller's own characters is still the same plot")
+
+	# -- THE GAP THIS SUITE HAD, AND WHAT FELL THROUGH IT --
+	#
+	# Every scene above compares the engine against the Ring renderer on DEFAULT
+	# settings. None of them ever called SetBarChar. So when the renderers moved to
+	# the engine and the chosen characters were left behind on the Ring side, the
+	# guard went on passing: both implementations drew █, one because it was told to
+	# and one because it knew nothing else.
+	#
+	# Six setters across four classes had quietly become no-ops -- SetBarChar,
+	# SetTopChar, SetAxisChars, SetFinalBarChar, SetSeriesChars, SetPointChar. Nothing
+	# raised. The examples that demonstrate them printed the default glyph next to a
+	# comment promising a custom one, and 04_pr.ring even carried a #TODO wondering
+	# why its top character never appeared.
+	#
+	# So each case below sets a character AND checks two things: that the picture
+	# still matches the Ring renderer, and that the chosen character is actually in
+	# it. The second half is the one that matters -- two renderers agreeing on the
+	# wrong glyph is exactly the state this suite was already in.
+
+	Given("a bar plot told to draw with X")
+	When("the engine renders it")
+
+	Then("the pictures match", PpCharSame(:VBar, :Bar, "X"), TRUE)
+	Then("...and an X is drawn", PpCharDrawn(:VBar, :Bar, "X"), TRUE)
+
+	Given("the other characters a bar plot lets you choose")
+
+	Then("a top character matches", PpCharSame(:VBar, :Top, "*"), TRUE)
+	Then("...and is drawn", PpCharDrawn(:VBar, :Top, "*"), TRUE)
+	Then("axis characters match", PpCharSame(:VBar, :Axis, "!"), TRUE)
+	Then("...and are drawn", PpCharDrawn(:VBar, :Axis, "!"), TRUE)
+
+	Given("the same for every other plot in the family")
+
+	Then("the horizontal bar matches", PpCharSame(:HBar, :Bar, "="), TRUE)
+	Then("...and draws its character", PpCharDrawn(:HBar, :Bar, "="), TRUE)
+	Then("the histogram matches", PpCharSame(:Hist, :Bar, "#"), TRUE)
+	Then("...and draws its character", PpCharDrawn(:Hist, :Bar, "#"), TRUE)
+	Then("its final bar matches", PpCharSame(:Hist, :Final, "^"), TRUE)
+	Then("...and is drawn", PpCharDrawn(:Hist, :Final, "^"), TRUE)
+	Then("the scatter plot matches", PpCharSame(:Scatter, :Point, "+"), TRUE)
+	Then("...and draws its points", PpCharDrawn(:Scatter, :Point, "+"), TRUE)
+	Then("the multi-series plot matches", PpCharSame(:MBar, :Series, "@"), TRUE)
+	Then("...and draws its series", PpCharDrawn(:MBar, :Series, "@"), TRUE)
+
+	# THE NEGATIVE SIBLING: left alone, none of these plots draws any of those
+	# characters. Without this, every assertion above would still pass against a
+	# renderer that scattered "X" over the canvas for its own reasons.
+	Then("an untouched plot draws no X", PpCharDrawn(:VBar, :None, "X"), FALSE)
+	Then("...nor the scatter a +", PpCharDrawn(:Scatter, :None, "+"), FALSE)
+	Then("...nor the histogram a #", PpCharDrawn(:Hist, :None, "#"), FALSE)
+EndScenario()
+
 Summary()
 
 #-- helpers (Pp-prefixed) ------------------------------------------------------
@@ -492,3 +547,41 @@ func PpSurfJunctions(paData)
 	_ppC_ += PpCountOf(_ppTxt_, char(226) + char(148) + char(164))
 	_ppC_ += PpCountOf(_ppTxt_, char(226) + char(148) + char(188))
 	return _ppC_
+
+# Build one plot of the given kind, with one character set on it.
+func PpCharPlot(cKind, cWhat, cChar)
+	_ppP_ = NULL
+	if cKind = :VBar
+		_ppP_ = new stzVBarPlot([ :A = 5, :B = 8, :C = 3 ])
+	but cKind = :HBar
+		_ppP_ = new stzHBarPlot([ :A = 5, :B = 8, :C = 3 ])
+	but cKind = :Hist
+		_ppP_ = new stzHistogram([ 1, 2, 2, 3, 3, 3, 4, 4, 5 ])
+	but cKind = :Scatter
+		_ppP_ = new stzScatterPlot([ [1,2], [3,5], [6,9], [5,4] ])
+	else
+		_ppP_ = new stzMultiBarPlot([ :A = [ :Q1 = 5, :Q2 = 3 ], :B = [ :Q1 = 2, :Q2 = 4 ] ])
+	ok
+
+	if cWhat = :Bar
+		_ppP_.SetBarChar(cChar)
+	but cWhat = :Top
+		_ppP_.SetTopChar(cChar)
+	but cWhat = :Axis
+		_ppP_.SetAxisChars(cChar, cChar)
+	but cWhat = :Final
+		_ppP_.SetFinalBarChar(cChar)
+	but cWhat = :Point
+		_ppP_.SetPointChar(cChar)
+	but cWhat = :Series
+		_ppP_.SetSeriesChars([ cChar, cChar ])
+	ok
+	return _ppP_
+
+func PpCharSame(cKind, cWhat, cChar)
+	_ppQ_ = PpCharPlot(cKind, cWhat, cChar)
+	return _ppQ_.ToString() = _ppQ_.ToStringInRing()
+
+func PpCharDrawn(cKind, cWhat, cChar)
+	_ppR2_ = PpCharPlot(cKind, cWhat, cChar)
+	return StzFindFirst(cChar, _ppR2_.ToString()) > 0

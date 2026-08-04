@@ -341,7 +341,13 @@ class stzScatterPlot from stzObject
 		_aOpts_ = [
 			@nMaxWidth, @nMaxHeight, @nHAxisHeight, 2,
 			iff(@bShowHAxis, 1, 0), iff(@bShowVAxis, 1, 0),
-			iff(@bShowHLetter or @bShowVLetter, 1, 0)
+			iff(@bShowHLetter or @bShowVLetter, 1, 0),
+		# THE CHARACTERS THE CALLER CHOSE, as codepoints on the end of the options.
+		# They were dropped when this renderer moved to the engine: SetBarChar and
+		# its siblings went on setting an attribute nothing read any more, so they
+		# silently did nothing. The Ring renderer below still honoured them, which
+		# is how the parity guard would have caught it -- had any case set one.
+			StzCharCode(@cPointChar)
 		]
 
 		_cOut_ = StzEnginePlotScatter(@anHValues, @anVValues, _aOpts_)

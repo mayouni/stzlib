@@ -727,7 +727,14 @@ class stzBarPlot from stzObject
 			iff(@bShowHAxis, 1, 0), iff(@bShowVAxis, 1, 0),
 			iff(@bShowLabels, 1, 0), iff(@bShowAxisLabels, 1, 0),
 			iff(@bShowValues, 1, 0), iff(@bShowPercent, 1, 0),
-			iff(@bShowAverage, 1, 0)
+			iff(@bShowAverage, 1, 0),
+		# THE CHARACTERS THE CALLER CHOSE, as codepoints on the end of the options.
+		# They were dropped when this renderer moved to the engine: SetBarChar and
+		# its siblings went on setting an attribute nothing read any more, so they
+		# silently did nothing. The Ring renderer below still honoured them, which
+		# is how the parity guard would have caught it -- had any case set one.
+			StzCharCode(@cBarChar), StzCharCode(@cTopChar),
+			StzCharCode(@cHAxisChar), StzCharCode(@cVAxisChar)
 		]
 
 		_cOut_ = StzEnginePlotBar(@anValues, _cLabels_, _aOpts_)

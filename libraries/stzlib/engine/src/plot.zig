@@ -25,6 +25,19 @@ pub const PlotError = error{ OutOfMemory, BadShape };
 
 /// Every knob the bar renderer has. The defaults are the ones stzBarPlot has always
 /// carried, so a host that sets nothing gets the picture it used to get.
+
+/// A CHARACTER THE CALLER CHOSE, or the renderer's own.
+///
+/// The plots let a caller swap the glyph they draw with -- SetBarChar, SetTopChar,
+/// SetPointChar and the rest. Those crossed as CODEPOINTS rather than as text: a
+/// character is one number, it rides in the options struct beside the widths, and
+/// nothing has to allocate to carry it. Zero means "the caller said nothing", which
+/// is why it is the default on every one of these fields.
+fn chosen(cp: u32, dflt: u21) u21 {
+    if (cp == 0 or cp > 0x10FFFF) return dflt;
+    return @intCast(cp);
+}
+
 pub const BarOptions = extern struct {
     height: u32 = 7,
     bar_width: u32 = 2,
@@ -39,6 +52,10 @@ pub const BarOptions = extern struct {
     show_values: u8 = 0,
     show_percent: u8 = 0,
     show_average: u8 = 0,
+    bar_char: u32 = 0,
+    top_char: u32 = 0,
+    h_axis_char: u32 = 0,
+    v_axis_char: u32 = 0,
 };
 
 /// The horizontal bar renderer's knobs. Different defaults from the vertical one --
@@ -57,6 +74,9 @@ pub const HBarOptions = extern struct {
     show_axis_labels: u8 = 1,
     show_values: u8 = 0,
     show_percent: u8 = 0,
+    bar_char: u32 = 0,
+    h_axis_char: u32 = 0,
+    v_axis_char: u32 = 0,
 };
 
 const CH_HBAR: u21 = '▇';
@@ -268,12 +288,12 @@ pub fn renderBar(
     if (show_v) {
         cv.put(1, 1, CH_VARROW);
         var r = v_axis_start;
-        while (r <= bars_end_row) : (r += 1) cv.put(r, 1, CH_VAXIS);
+        while (r <= bars_end_row) : (r += 1) cv.put(r, 1, chosen(opts.v_axis_char, CH_VAXIS));
     }
     if (show_h) {
-        cv.put(h_axis_row, 1, if (show_v) CH_ORIGIN else CH_HAXIS);
+        cv.put(h_axis_row, 1, if (show_v) CH_ORIGIN else chosen(opts.h_axis_char, CH_HAXIS));
         var c: usize = 2;
-        while (c < total_w) : (c += 1) cv.put(h_axis_row, c, CH_HAXIS);
+        while (c < total_w) : (c += 1) cv.put(h_axis_row, c, chosen(opts.h_axis_char, CH_HAXIS));
         cv.put(h_axis_row, total_w, CH_HARROW);
     }
 
@@ -298,8 +318,10 @@ pub fn renderBar(
         var r = bars_end_row;
         var done: usize = 0;
         while (done < bh) : (done += 1) {
+            // the TOP row of a bar can carry its own glyph -- SetTopChar
+            const glyph = if (done + 1 == bh) chosen(opts.top_char, chosen(opts.bar_char, CH_BAR)) else chosen(opts.bar_char, CH_BAR);
             var c: usize = 0;
-            while (c < bw) : (c += 1) cv.put(r, col + off + c, CH_BAR);
+            while (c < bw) : (c += 1) cv.put(r, col + off + c, glyph);
             if (r == 0) break;
             r -= 1;
         }
@@ -560,12 +582,12 @@ pub fn renderHBar(
     if (show_v) {
         cv.put(1, v_axis_col, CH_VARROW);
         var r = bars_start_row;
-        while (r <= bars_end_row) : (r += 1) cv.put(r, v_axis_col, CH_VAXIS);
+        while (r <= bars_end_row) : (r += 1) cv.put(r, v_axis_col, chosen(opts.v_axis_char, CH_VAXIS));
     }
     if (show_h) {
-        cv.put(h_axis_row, v_axis_col, if (show_v) CH_ORIGIN else CH_HAXIS);
+        cv.put(h_axis_row, v_axis_col, if (show_v) CH_ORIGIN else chosen(opts.h_axis_char, CH_HAXIS));
         var c = v_axis_col + 1;
-        while (c < total_w) : (c += 1) cv.put(h_axis_row, c, CH_HAXIS);
+        while (c < total_w) : (c += 1) cv.put(h_axis_row, c, chosen(opts.h_axis_char, CH_HAXIS));
         cv.put(h_axis_row, total_w, CH_HARROW);
     }
 
@@ -580,7 +602,7 @@ pub fn renderHBar(
             if (bw > bars_w) bw = bars_w;
         }
         var k: usize = 0;
-        while (k < bw) : (k += 1) cv.put(r, bars_start + k, CH_HBAR);
+        while (k < bw) : (k += 1) cv.put(r, bars_start + k, chosen(opts.bar_char, CH_HBAR));
 
         if (labels_col != 0 and i < labels.items.len) {
             // RIGHT-ALIGNED against the axis, not left-aligned: the labels sit in a
@@ -753,6 +775,8 @@ pub const HistOptions = extern struct {
     show_labels: u8 = 1,
     show_frequency: u8 = 0,
     show_percent: u8 = 0,
+    bar_char: u32 = 0,
+    final_bar_char: u32 = 0,
 };
 
 /// A BIN EDGE AS TEXT: round to one decimal, then compact.
@@ -910,8 +934,9 @@ pub fn renderHistogram(
         while (j <= h) : (j += 1) {
             const rr = axis_row - j;
             if (rr < 1) break;
+            const glyph = if (j == h) chosen(opts.final_bar_char, chosen(opts.bar_char, CH_BAR)) else chosen(opts.bar_char, CH_BAR);
             var k: usize = 0;
-            while (k < opts.bar_width) : (k += 1) cv.put(rr, bx + k, CH_BAR);
+            while (k < opts.bar_width) : (k += 1) cv.put(rr, bx + k, glyph);
         }
 
         if (show_val or show_pct) {
@@ -1062,7 +1087,27 @@ pub fn renderMBar(
     series_joined: []const u8,
     cats_joined: []const u8,
     opts: MBarOptions,
+    series_chars: []const u8,
 ) ![]u8 {
+    // ONE GLYPH PER SERIES, chosen by the caller (SetSeriesChars) or taken from the
+    // house palette. This is a list rather than a single character, so it cannot ride
+    // in the options struct with the others; it comes as its own newline-joined
+    // argument, the same shape the names and categories already use.
+    var chars = std.ArrayList(u21){};
+    defer chars.deinit(alloc);
+    if (series_chars.len > 0) {
+        var cit = std.mem.splitScalar(u8, series_chars, '\n');
+        while (cit.next()) |piece| {
+            var pi = std.unicode.Utf8Iterator{ .bytes = piece, .i = 0 };
+            try chars.append(alloc, pi.nextCodepoint() orelse 0);
+        }
+    }
+    const glyphOf = struct {
+        fn f(list: []const u21, idx: usize) u21 {
+            if (idx < list.len and list[idx] != 0) return list[idx];
+            return SERIES_GLYPHS[idx % SERIES_GLYPHS.len];
+        }
+    }.f;
     if (nseries == 0 or ncats == 0 or values.len < nseries * ncats) return PlotError.BadShape;
 
     var snames = std.ArrayList([]const u8){};
@@ -1159,7 +1204,7 @@ pub fn renderMBar(
                 if (h == 0) h = 1;
                 if (h > opts.height) h = opts.height;
             }
-            const glyph = SERIES_GLYPHS[sIdx % SERIES_GLYPHS.len];
+            const glyph = glyphOf(chars.items, sIdx);
             var j: usize = 0;
             while (j < h) : (j += 1) {
                 const rr = bars_end_row - j;
@@ -1199,7 +1244,7 @@ pub fn renderMBar(
     if (show_leg) {
         var lx: usize = 1;
         for (0..nseries) |i| {
-            const glyph = SERIES_GLYPHS[i % SERIES_GLYPHS.len];
+            const glyph = glyphOf(chars.items, i);
             cv.put(legend_row, lx, glyph);
             cv.put(legend_row, lx + 1, glyph);
             const raw = if (i < snames.items.len) snames.items[i] else "";
@@ -1217,7 +1262,7 @@ test "a grouped bar plot renders exactly what the Ring implementation rendered" 
     const alloc = testing.allocator;
     // Sales/Costs over Q1/Q2, series-major
     const vals = [_]f64{ 25, 35, 15, 20 };
-    const out = try renderMBar(alloc, &vals, 2, 2, "Sales\nCosts", "Q1\nQ2", .{});
+    const out = try renderMBar(alloc, &vals, 2, 2, "Sales\nCosts", "Q1\nQ2", .{}, "");
     defer alloc.free(out);
 
     // ground truth captured from stzMultiBarPlot. Note the LEGEND sets the width:
@@ -1242,7 +1287,7 @@ test "THE LEGEND CAN DECIDE THE WIDTH, and each series gets its own glyph" {
     const alloc = testing.allocator;
     // one series: the bars need very little, the legend a bit more
     const one = [_]f64{ 25, 35 };
-    const a = try renderMBar(alloc, &one, 1, 2, "Sales", "Q1\nQ2", .{});
+    const a = try renderMBar(alloc, &one, 1, 2, "Sales", "Q1\nQ2", .{}, "");
     defer alloc.free(a);
     var it = std.mem.splitScalar(u8, a, '\n');
     const first = it.next().?;
@@ -1250,7 +1295,7 @@ test "THE LEGEND CAN DECIDE THE WIDTH, and each series gets its own glyph" {
 
     // three series: three DIFFERENT glyphs, and the legend is what sets 33 columns
     const three = [_]f64{ 25, 35, 30, 15, 20, 18, 10, 15, 12 };
-    const b = try renderMBar(alloc, &three, 3, 3, "Sales\nCosts\nProfit", "Q1\nQ2\nQ3", .{});
+    const b = try renderMBar(alloc, &three, 3, 3, "Sales\nCosts\nProfit", "Q1\nQ2\nQ3", .{}, "");
     defer alloc.free(b);
     var it2 = std.mem.splitScalar(u8, b, '\n');
     try testing.expectEqual(@as(usize, 33), cpLen(it2.next().?));
@@ -1269,6 +1314,7 @@ pub const ScatterOptions = extern struct {
     show_h_axis: u8 = 1,
     show_v_axis: u8 = 1,
     show_letters: u8 = 1,
+    point_char: u32 = 0,
 };
 
 const CH_POINT: u21 = '●';
@@ -1447,7 +1493,7 @@ pub fn renderScatter(
         if (rr >= plot_start_row and rr <= plot_end_row and
             cc >= plot_start_col and cc <= plot_end_col)
         {
-            cv.put(rr, cc, CH_POINT);
+            cv.put(rr, cc, chosen(opts.point_char, CH_POINT));
         }
     }
 
