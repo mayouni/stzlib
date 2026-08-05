@@ -1,5 +1,6 @@
 pub const matrix = @import("matrix.zig");
 pub const linalg = @import("linalg.zig");
+pub const sparse = @import("sparse.zig");
 pub const ring_bridge = @import("ring_bridge_matrix.zig");
 
 comptime {
@@ -81,4 +82,5 @@ comptime {
 test {
     _ = matrix;
     _ = linalg;
+    _ = sparse;
 }
