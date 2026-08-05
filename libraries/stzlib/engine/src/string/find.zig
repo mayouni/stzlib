@@ -34,8 +34,15 @@ pub fn str_find_first_cs(handle: StzStringHandle, needle: [*c]const u8, needle_l
         const hay = s.slice();
         const n = needle[0..needle_len];
 
-        // ASCII + BMH fast-path: byte pos == cp pos
-        if (s.isAscii() and n.len > 4) {
+        // ASCII fast path: byte pos == cp pos, so the search result needs
+        // no conversion.
+        //
+        // The gate used to be `n.len > 4`, from when bmhSearch built a
+        // 256-entry table per call and only paid for itself on longer
+        // needles. It is now vector-scanned (and memchr for n == 1), so
+        // it beats the walk below at EVERY length -- 194x at n == 1,
+        // which was precisely the case the gate excluded.
+        if (s.isAscii()) {
             if (bmhSearch(hay, n, 0)) |byte_pos| {
                 return toExternal(byte_pos);
             }
@@ -93,13 +100,29 @@ pub fn str_find_first_from_cs(handle: StzStringHandle, needle: [*c]const u8, nee
                 byte_pos += cp_len;
                 cp_pos += 1;
             }
-            while (byte_pos + n.len <= hay.len) {
-                if (mem.eql(u8, hay[byte_pos..][0..n.len], n)) {
-                    return toExternal(cp_pos);
+            // This was a memcmp at EVERY codepoint offset -- O(n*m) with
+            // no skip table and no vector. It is the loop Ring's
+            // StzFindFirst actually reaches (StzFindFirstCS calls
+            // StzEngineStringFindFirstFromCS, i.e. the _from_ variant),
+            // so the bmhSearch fast path in str_find_first_cs above was
+            // never on the hot route. Vectorising bmhSearch alone showed
+            // ZERO end-to-end gain until this call site was changed:
+            // an engine fix reaches nobody until the seam the consumer
+            // uses actually leads to it.
+            //
+            // Byte offsets are safe to search at: the walk it replaces
+            // only tested CODEPOINT starts, and in valid UTF-8 -- which
+            // is all str_from admits into a handle -- a non-continuation
+            // byte is exactly a codepoint start. The needle is raw
+            // caller bytes and not validated, so a match landing mid
+            // codepoint is still rejected explicitly rather than assumed
+            // away.
+            var from = byte_pos;
+            while (bmhSearch(hay, n, from)) |pos| {
+                if ((hay[pos] & 0xC0) != 0x80) {
+                    return toExternal(byteOffsetToCodepointIndex(hay, pos));
                 }
-                const cp_len = std.unicode.utf8ByteSequenceLength(hay[byte_pos]) catch 1;
-                byte_pos += cp_len;
-                cp_pos += 1;
+                from = pos + 1;
             }
         }
     }

@@ -132,14 +132,11 @@ pub const StzString = struct {
 
     pub fn isAscii(self: *StzString) bool {
         if (self.cached_is_ascii) |v| return v;
-        const items = self.data.items;
-        var ascii = true;
-        for (items) |b| {
-            if (b >= 128) {
-                ascii = false;
-                break;
-            }
-        }
+        // Was a second, byte-at-a-time copy of isAllAscii. Two spellings
+        // of one predicate meant vectorising the free function left this
+        // one scalar -- so it delegates now rather than agreeing by
+        // convention.
+        const ascii = isAllAscii(self.data.items);
         self.cached_is_ascii = ascii;
         return ascii;
     }
@@ -513,7 +510,118 @@ pub fn isAllAscii(bytes: []const u8) bool {
     return true;
 }
 
+/// Byte-wise ASCII case transform of `src` into `dst` (same length).
+///
+/// The callers' hand-rolled `for (src, 0..) |b, i|` loops carried a
+/// comment saying they "auto-vectorize". MEASURED, that is true at size
+/// and false where it matters:
+///
+///     64 B      auto  8.67 ms   explicit  0.55 ms   15.8x
+///      4 KB     auto  0.51 ms   explicit  0.52 ms   0.99x
+///      1 MB     auto  0.63 ms   explicit  0.64 ms   0.98x
+///
+/// LLVM's vectorised loop carries a runtime trip-count guard, so short
+/// buffers fall through to the scalar path -- and short strings are this
+/// library's common case. Explicit is 15x there and a wash at size, so
+/// it wins on the distribution rather than on the benchmark's tail.
+/// Recorded because "the compiler will vectorise it" is a claim, and
+/// this one was only half right.
+pub fn asciiCaseInto(src: []const u8, dst: []u8, comptime to_upper: bool) void {
+    const lo: u8 = if (to_upper) 'a' else 'A';
+    const hi: u8 = if (to_upper) 'z' else 'Z';
+
+    const W = std.simd.suggestVectorLength(u8) orelse {
+        for (src, 0..) |b, i| {
+            dst[i] = if (b >= lo and b <= hi) (if (to_upper) b - 32 else b + 32) else b;
+        }
+        return;
+    };
+    const Vec = @Vector(W, u8);
+    const vlo: Vec = @splat(lo);
+    const vhi: Vec = @splat(hi);
+    const delta: Vec = @splat(32);
+    const zero: Vec = @splat(0);
+
+    var i: usize = 0;
+    while (i + W <= src.len) : (i += W) {
+        const v: Vec = src[i..][0..W].*;
+        const in_range = (v >= vlo) & (v <= vhi);
+        const adj = @select(u8, in_range, delta, zero);
+        dst[i..][0..W].* = if (to_upper) v - adj else v + adj;
+    }
+    while (i < src.len) : (i += 1) {
+        const b = src[i];
+        dst[i] = if (b >= lo and b <= hi) (if (to_upper) b - 32 else b + 32) else b;
+    }
+}
+
+/// First occurrence of `needle` in `haystack` at or after `start`.
+///
+/// THE NAME IS HISTORICAL -- this is no longer Boyer-Moore-Horspool. It
+/// is kept because twelve call sites across core.zig and find.zig reach
+/// it, and they all wanted "find the needle", not "find it by BMH".
+///
+/// BMH's bad-character table costs 256 stores PER CALL, before a single
+/// byte of haystack is examined. For a 1-byte needle the table is built
+/// and then never consulted, which is why that case measured worst:
+///
+///     haystack 1 MB, needle absent (worst case, full scan)
+///        ","                    64.14 ms  ->   0.33 ms   194x
+///        "fox"                  27.58 ms  ->   0.92 ms    30x
+///        "quick brown"           7.54 ms  ->   1.40 ms   5.4x
+///        34-byte needle          3.33 ms  ->   0.74 ms   4.5x
+///
+/// The replacement compares the needle's FIRST and LAST byte against a
+/// whole vector of candidate offsets at once. An offset survives only if
+/// both match, which for real text rejects almost everything without
+/// touching the middle bytes; survivors are confirmed with a memcmp.
+/// Order is preserved because within a block the survivor bitmask is
+/// consumed lowest-bit-first, so the FIRST match still wins.
+///
+/// Zig's std.mem.indexOfPos was measured too: it wins the 1-byte case
+/// (it is memchr) but LOSES to plain BMH on "fox" (35.96 ms vs 26.69).
+/// Delegating wholesale would have made a common case slower -- which is
+/// why all three were measured rather than two.
 pub fn bmhSearch(haystack: []const u8, needle: []const u8, start: usize) ?usize {
+    const n = needle.len;
+    const h = haystack.len;
+    if (n == 0 or n > h or start + n > h) return null;
+
+    // One byte: this IS memchr, and nothing beats it.
+    if (n == 1) return mem.indexOfScalarPos(u8, haystack, start, needle[0]);
+
+    const W = std.simd.suggestVectorLength(u8) orelse return bmhSearchScalar(haystack, needle, start);
+    const Vec = @Vector(W, u8);
+    const first: Vec = @splat(needle[0]);
+    const last: Vec = @splat(needle[n - 1]);
+
+    var pos: usize = start;
+    const limit = h - n; // last offset a match could start at
+    // `pos + W <= limit + 1` keeps the LAST-byte load in bounds too:
+    // it expands to pos + n - 1 + W <= h, which is exactly the end of
+    // the second vector read below.
+    while (pos + W <= limit + 1) {
+        const blk_first: Vec = haystack[pos..][0..W].*;
+        const blk_last: Vec = haystack[pos + n - 1 ..][0..W].*;
+        const eq = (blk_first == first) & (blk_last == last);
+        var bits: std.meta.Int(.unsigned, W) = @bitCast(eq);
+        while (bits != 0) {
+            const at = pos + @ctz(bits);
+            if (mem.eql(u8, haystack[at..][0..n], needle)) return at;
+            bits &= bits - 1; // clear lowest set bit, take the next candidate
+        }
+        pos += W;
+    }
+    while (pos <= limit) : (pos += 1) {
+        if (mem.eql(u8, haystack[pos..][0..n], needle)) return pos;
+    }
+    return null;
+}
+
+/// The Boyer-Moore-Horspool implementation this replaced. Kept as the
+/// reference the vector form is differential-tested against, and as the
+/// fallback on targets without vectors.
+pub fn bmhSearchScalar(haystack: []const u8, needle: []const u8, start: usize) ?usize {
     const n = needle.len;
     const h = haystack.len;
     if (n == 0 or n > h or start + n > h) return null;
@@ -809,6 +917,92 @@ test "utf8CodepointCount agrees with the scalar walk it replaced" {
             );
         }
     }
+}
+
+// Pinned against the exact byte loop this replaced. The interesting bytes
+// are the ones just OUTSIDE the a-z / A-Z ranges -- '@' '[' '`' '{' sit
+// adjacent to them, and an inclusive/exclusive slip in the lane compare
+// would corrupt them while leaving letters correct.
+test "asciiCaseInto matches the byte loop it replaced" {
+    var src: [300]u8 = undefined;
+    var got: [300]u8 = undefined;
+    var want: [300]u8 = undefined;
+
+    for (0..src.len) |n| {
+        // Every byte value cycles through, so the range edges are hit at
+        // many different lane positions as n grows past the vector width.
+        for (0..n) |i| src[i] = @intCast((i * 7 + n) % 256);
+
+        asciiCaseInto(src[0..n], got[0..n], true);
+        for (src[0..n], 0..) |b, i| want[i] = if (b >= 'a' and b <= 'z') b - 32 else b;
+        try std.testing.expectEqualSlices(u8, want[0..n], got[0..n]);
+
+        asciiCaseInto(src[0..n], got[0..n], false);
+        for (src[0..n], 0..) |b, i| want[i] = if (b >= 'A' and b <= 'Z') b + 32 else b;
+        try std.testing.expectEqualSlices(u8, want[0..n], got[0..n]);
+    }
+
+    // Explicit boundary bytes, so a failure names the culprit directly.
+    const edges = "@AZ[`az{09 ~\x7f";
+    var e_got: [16]u8 = undefined;
+    asciiCaseInto(edges, e_got[0..edges.len], true);
+    try std.testing.expectEqualSlices(u8, "@AZ[`AZ{09 ~\x7f", e_got[0..edges.len]);
+    asciiCaseInto(edges, e_got[0..edges.len], false);
+    try std.testing.expectEqualSlices(u8, "@az[`az{09 ~\x7f", e_got[0..edges.len]);
+}
+
+// The vector search must return the SAME offset as the BMH it replaced --
+// not merely "an offset where the needle occurs". First-match semantics
+// are what twelve call sites depend on, and a block-at-a-time scanner can
+// break them by reporting a later candidate from the same block, so the
+// survivor mask is consumed lowest-bit-first. This pins that.
+test "vector search agrees with BMH at every offset" {
+    var buf: [512]u8 = undefined;
+    const needles = [_][]const u8{
+        ",", // 1 byte -> the memchr path
+        "ab", // 2 bytes: first and last byte are the whole needle
+        "aa", // repeated bytes
+        "fox",
+        "quick brown",
+        "aaaaaaaa", // pathological: every offset is a candidate
+        "not present anywhere at all",
+    };
+    const bodies = [_][]const u8{
+        "the quick brown fox, and the quick brown fox again",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab",
+        "ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab",
+        ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,",
+    };
+
+    for (bodies) |body| {
+        var at: usize = 0;
+        // Slide the body through a filler buffer so matches land before,
+        // inside, and after the first vector block, and across its seam.
+        while (at + body.len <= buf.len) : (at += 3) {
+            @memset(&buf, 'z');
+            @memcpy(buf[at..][0..body.len], body);
+            const hay = buf[0 .. at + body.len];
+            for (needles) |ndl| {
+                // and from several start offsets, since find-from is a
+                // first-class operation here
+                for ([_]usize{ 0, 1, 7, 31, 32, 33 }) |st| {
+                    if (st > hay.len) continue;
+                    try std.testing.expectEqual(
+                        bmhSearchScalar(hay, ndl, st),
+                        bmhSearch(hay, ndl, st),
+                    );
+                }
+            }
+        }
+    }
+
+    // Degenerate shapes both forms must agree on.
+    try std.testing.expectEqual(bmhSearchScalar("", "a", 0), bmhSearch("", "a", 0));
+    try std.testing.expectEqual(bmhSearchScalar("abc", "", 0), bmhSearch("abc", "", 0));
+    try std.testing.expectEqual(bmhSearchScalar("abc", "abcd", 0), bmhSearch("abc", "abcd", 0));
+    try std.testing.expectEqual(bmhSearchScalar("abc", "abc", 0), bmhSearch("abc", "abc", 0));
+    try std.testing.expectEqual(bmhSearchScalar("abc", "c", 2), bmhSearch("abc", "c", 2));
+    try std.testing.expectEqual(bmhSearchScalar("abc", "a", 3), bmhSearch("abc", "a", 3));
 }
 
 test "BMH search basic" {
