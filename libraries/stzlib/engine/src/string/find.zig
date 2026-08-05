@@ -92,14 +92,24 @@ pub fn str_find_first_from_cs(handle: StzStringHandle, needle: [*c]const u8, nee
                 return toExternal(byteOffsetToCodepointIndex(hay_folded, pos));
             }
         } else {
-            // Case-sensitive
-            var byte_pos: usize = 0;
-            var cp_pos: usize = 0;
-            while (cp_pos < internal_start and byte_pos < hay.len) {
-                const cp_len = std.unicode.utf8ByteSequenceLength(hay[byte_pos]) catch 1;
-                byte_pos += cp_len;
-                cp_pos += 1;
-            }
+            // Case-sensitive.
+            //
+            // Resolving the start codepoint used to be a hand-rolled walk
+            // from byte 0 on EVERY call. Ring's StzFindCS collects all
+            // occurrences by calling this function once per hit with an
+            // advancing start, so that walk made finding all matches
+            // QUADRATIC -- measured 29 / 115 / 462 ms as the input
+            // doubled, which is 4x per doubling, not 2x.
+            //
+            // The handle already carries cpToByteCached, a forward-walking
+            // (cp_index -> byte_offset) cache built for exactly this
+            // access pattern; this function just wasn't using it. With it
+            // the sweep is amortised O(1) per call and the whole loop
+            // becomes linear. Null means the index is past the end, which
+            // is the same "no match" the old walk produced by running
+            // byte_pos to hay.len and finding nothing.
+            const byte_pos = s.cpToByteCached(internal_start) orelse return -1;
+
             // This was a memcmp at EVERY codepoint offset -- O(n*m) with
             // no skip table and no vector. It is the loop Ring's
             // StzFindFirst actually reaches (StzFindFirstCS calls
@@ -120,7 +130,19 @@ pub fn str_find_first_from_cs(handle: StzStringHandle, needle: [*c]const u8, nee
             var from = byte_pos;
             while (bmhSearch(hay, n, from)) |pos| {
                 if ((hay[pos] & 0xC0) != 0x80) {
-                    return toExternal(byteOffsetToCodepointIndex(hay, pos));
+                    // NOT byteOffsetToCodepointIndex(hay, pos): that
+                    // counts from byte 0, which is O(position) per call
+                    // and left the sweep quadratic even after the start
+                    // walk was cached -- vectorising it only divided the
+                    // constant by the lane count, it did not change the
+                    // shape. Counting from byte_pos instead measures the
+                    // GAP since this call's start, and those gaps sum to
+                    // the length of the string across the whole sweep.
+                    const cp = internal_start + if (s.isAscii())
+                        pos - byte_pos // 1 byte per codepoint
+                    else
+                        utf8CodepointCount(hay[byte_pos..pos]);
+                    return toExternal(cp);
                 }
                 from = pos + 1;
             }
