@@ -197,6 +197,9 @@ class stzPivotTable from stzList
 
 	def SetColumnOrder(paOrder)
 		@aColumnOrder = paOrder
+		# every other setter here drops the generated result, and this one did
+		# not -- so an order set after a first Show() was simply not applied
+		@bIsGenerated = FALSE
 
 	  #-----------------------------#
 	 #  PIVOT TABLE GENERATION     #
@@ -290,20 +293,41 @@ class stzPivotTable from stzList
 		_nIncColTotal = 0
 		if @bShowTotalRow _nIncColTotal = 1 ok
 
+		# THE PRESENTATION OPTIONS CROSS TOO.
+		#
+		# SetTotalLabel, SetNullValue and SetColumnOrder were honoured only by the
+		# Ring fallback below. This fast path takes over for exactly the shapes
+		# _CanUseEngine() accepts -- one column label, one value, one or two row
+		# labels -- which is the common pivot, so the three setters did nothing at
+		# all on the path most tables actually take.
+		#
+		# The wanted column order crosses newline-joined: one string is one
+		# argument, and the list is empty in almost every call.
+		_cOrder_ = ""
+		_nOrd_ = len(@aColumnOrder)
+		for _iO_ = 1 to _nOrd_
+			if _iO_ > 1
+				_cOrder_ += nl
+			ok
+			_cOrder_ += ("" + @aColumnOrder[_iO_])
+		next
+
 		_nRowLabels = len(@aRowLabels)
 
 		if _nRowLabels = 1
 			_pResult = StzEnginePivotCrossTab1(
 				_pSrcHandle, _nRowCol1,
 				_nColCol, _nValCol, _nAggInt,
-				_nIncRowTotal, _nIncColTotal
+				_nIncRowTotal, _nIncColTotal,
+				@cTotalLabel, @cCellNullValue, _cOrder_
 			)
 		else
 			_nRowCol2 = @oSourceTable.FindCol(@aRowLabels[2]) - 1
 			_pResult = StzEnginePivotCrossTab2(
 				_pSrcHandle, _nRowCol1, _nRowCol2,
 				_nColCol, _nValCol, _nAggInt,
-				_nIncRowTotal, _nIncColTotal
+				_nIncRowTotal, _nIncColTotal,
+				@cTotalLabel, @cCellNullValue, _cOrder_
 			)
 		ok
 
