@@ -18,6 +18,7 @@ const str_from = core.str_from;
 const str_free = core.str_free;
 const casefoldAlloc = core.casefoldAlloc;
 const decodeCodepoint = core.decodeCodepoint;
+const asciiCaseInto = core.asciiCaseInto;
 
 // ─── ToUpper ───
 
@@ -35,9 +36,7 @@ pub fn str_to_upper(handle: StzStringHandle) callconv(.c) StzStringHandle {
                 setError(.out_of_memory);
                 return r;
             };
-            for (src, 0..) |b, i| {
-                r.data.items[i] = if (b >= 'a' and b <= 'z') b - 32 else b;
-            }
+            asciiCaseInto(src, r.data.items, true);
             r.cached_is_ascii = true;
             r.cached_cp_count = src.len;
             return r;
@@ -70,9 +69,7 @@ pub fn str_to_lower(handle: StzStringHandle) callconv(.c) StzStringHandle {
                 setError(.out_of_memory);
                 return r;
             };
-            for (src, 0..) |b, i| {
-                r.data.items[i] = if (b >= 'A' and b <= 'Z') b + 32 else b;
-            }
+            asciiCaseInto(src, r.data.items, false);
             r.cached_is_ascii = true;
             r.cached_cp_count = src.len;
             return r;
