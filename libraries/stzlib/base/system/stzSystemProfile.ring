@@ -604,6 +604,20 @@ class stzSystemProfile from stzObject
 		_c_ += "bits: " + @nBits + _nl_
 		_c_ += "endianness: " + @cEndianness + _nl_
 		_c_ += "cpu_count: " + @nCpuCount + _nl_
+
+		# MEMORY BELONGS IN THE FORMAT TOO. _StzPopulateLive() observes cpu count,
+		# memory and language version the same way and by the same call; the format
+		# carried the first and the third and dropped the second, so a profile saved
+		# from a live system came back claiming a machine with no memory at all.
+		#
+		# mem_free is a SNAPSHOT taken when the profile was populated, not a live
+		# gauge -- it is written because Resources() presents it beside mem_total
+		# and a reader who gets one without the other cannot tell which. The note
+		# below travels with it; FromString() skips comment lines.
+		_c_ += "# mem_free is a snapshot from when this profile was taken" + _nl_
+		_c_ += "mem_total: " + @nMemTotalBytes + _nl_
+		_c_ += "mem_free: " + @nMemFreeBytes + _nl_
+
 		_c_ += "language_version: " + @cLangVersion + _nl_
 		_c_ += "capabilities: " + _StzJoinComma(@oCaps.List()) + _nl_
 		return _c_
@@ -654,6 +668,10 @@ class stzSystemProfile from stzObject
 				This.SetEndianness(_cVal_)
 			but _cKey_ = "cpu_count"
 				This.SetCpuCount(number(_cVal_))
+			but _cKey_ = "mem_total"
+				This.SetMemTotalBytes(number(_cVal_))
+			but _cKey_ = "mem_free"
+				This.SetMemFreeBytes(number(_cVal_))
 			but _cKey_ = "language_version"
 				This.SetLanguageVersion(_cVal_)
 			but _cKey_ = "capabilities"
