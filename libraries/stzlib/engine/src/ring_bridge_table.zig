@@ -238,20 +238,32 @@ fn ring_PivotGroupBy3(p: *anyopaque) callconv(.c) void {
 }
 
 // Pivot: cross tab (table, row_col, col_col, value_col, agg_func, inc_row_total, inc_col_total)
+// The last three arguments are the PRESENTATION options -- totals label, empty-cell
+// fill, and the wanted column order newline-joined. They were honoured only by the
+// Ring fallback until now, so a pivot small enough to take this fast path silently
+// ignored three of its own setters.
 fn ring_PivotCrossTab1(p: *anyopaque) callconv(.c) void {
     const rows = [_]i64{@intFromFloat(g(p, 2))};
-    rcp(p, @ptrCast(pivot.stz_pivot_cross_tab(
+    const lab_n: usize = @intCast(gss(p, 8));
+    const nul_n: usize = @intCast(gss(p, 9));
+    const ord_n: usize = @intCast(gss(p, 10));
+    rcp(p, @ptrCast(pivot.stz_pivot_cross_tab_with(
         getTC(p, 1), &rows, 1,
         @intFromFloat(g(p, 3)), @intFromFloat(g(p, 4)),
         @intFromFloat(g(p, 5)), @intFromFloat(g(p, 6)), @intFromFloat(g(p, 7)),
+        gs(p, 8), lab_n, gs(p, 9), nul_n, gs(p, 10), ord_n,
     )), HT);
 }
 fn ring_PivotCrossTab2(p: *anyopaque) callconv(.c) void {
     const rows = [_]i64{ @intFromFloat(g(p, 2)), @intFromFloat(g(p, 3)) };
-    rcp(p, @ptrCast(pivot.stz_pivot_cross_tab(
+    const lab_n: usize = @intCast(gss(p, 9));
+    const nul_n: usize = @intCast(gss(p, 10));
+    const ord_n: usize = @intCast(gss(p, 11));
+    rcp(p, @ptrCast(pivot.stz_pivot_cross_tab_with(
         getTC(p, 1), &rows, 2,
         @intFromFloat(g(p, 4)), @intFromFloat(g(p, 5)),
         @intFromFloat(g(p, 6)), @intFromFloat(g(p, 7)), @intFromFloat(g(p, 8)),
+        gs(p, 9), lab_n, gs(p, 10), nul_n, gs(p, 11), ord_n,
     )), HT);
 }
 

@@ -200,6 +200,23 @@ pub fn multiGroupBy(
 
 // ─── Cross-tabulation (pivot) ───
 
+/// HOW THE RESULT IS PRESENTED, as opposed to how it is computed.
+///
+/// These three came from setters on the Ring face -- SetTotalLabel, SetNullValue,
+/// SetColumnOrder -- that the Ring fallback honoured and this fast path did not.
+/// They belong here rather than in a post-pass on the returned table: a face in any
+/// language asks for a pivot and gets the pivot it asked for, labels and all.
+pub const CrossTabOptions = struct {
+    /// What the totals row and column are called. Empty keeps "TOTAL".
+    total_label: []const u8 = "",
+    /// What fills a cell with no matching source rows. Empty keeps the numeric 0,
+    /// which is what every existing caller gets today.
+    null_value: []const u8 = "",
+    /// Column values to put first, in this order. Any not listed keep their own
+    /// order behind them, and any listed value that does not occur is skipped.
+    col_order: []const []const u8 = &.{},
+};
+
 pub fn crossTab(
     src: *const StzTable,
     row_cols: []const usize,
@@ -208,6 +225,20 @@ pub fn crossTab(
     agg_func: AggFunc,
     include_row_total: bool,
     include_col_total: bool,
+) !*StzTable {
+    return crossTabWith(src, row_cols, col_col, value_col, agg_func,
+        include_row_total, include_col_total, .{});
+}
+
+pub fn crossTabWith(
+    src: *const StzTable,
+    row_cols: []const usize,
+    col_col: usize,
+    value_col: usize,
+    agg_func: AggFunc,
+    include_row_total: bool,
+    include_col_total: bool,
+    opts: CrossTabOptions,
 ) !*StzTable {
     if (row_cols.len == 0 or col_col >= src.numColumns() or value_col >= src.numColumns())
         return error.InvalidColumn;
@@ -292,6 +323,41 @@ pub fn crossTab(
         }
     }
 
+    // ── THE CALLER'S COLUMN ORDER, applied before the columns are named.
+    //
+    // Done here rather than by shuffling the finished table: the column index is
+    // also the accumulator's key, so reordering afterwards would have to move the
+    // data too. Listed values come first in the order given; everything else keeps
+    // its own order behind them.
+    var order_map: []usize = try allocator.alloc(usize, unique_col_keys.len);
+    defer allocator.free(order_map);
+    for (0..unique_col_keys.len) |i| order_map[i] = i;
+
+    if (opts.col_order.len > 0) {
+        var taken = try allocator.alloc(bool, unique_col_keys.len);
+        defer allocator.free(taken);
+        @memset(taken, false);
+        var at: usize = 0;
+        for (opts.col_order) |want| {
+            for (unique_col_keys, 0..) |ck, ci| {
+                if (!taken[ci] and std.mem.eql(u8, ck, want)) {
+                    order_map[at] = ci;
+                    taken[ci] = true;
+                    at += 1;
+                    break;
+                }
+            }
+        }
+        for (0..unique_col_keys.len) |ci| {
+            if (!taken[ci]) {
+                order_map[at] = ci;
+                at += 1;
+            }
+        }
+    }
+
+    const total_name = if (opts.total_label.len > 0) opts.total_label else "TOTAL";
+
     // Step 4: Build result table
     const num_data_cols = unique_col_keys.len;
     const total_cols = row_cols.len + num_data_cols + @as(usize, if (include_row_total) 1 else 0);
@@ -307,13 +373,14 @@ pub fn crossTab(
     }
 
     // Add data columns (named by unique col values)
-    for (unique_col_keys) |ck| {
+    for (order_map) |ci| {
+        const ck = unique_col_keys[ci];
         _ = try result.addColumn(ck.ptr, ck.len);
     }
 
     // Add total column
     if (include_row_total) {
-        _ = try result.addColumn("TOTAL", 5);
+        _ = try result.addColumn(total_name.ptr, total_name.len);
     }
 
     // Add data rows
@@ -340,14 +407,20 @@ pub fn crossTab(
 
         // Set aggregated values
         var row_total: f64 = 0;
-        for (0..num_data_cols) |ci| {
+        for (0..num_data_cols) |slot| {
+            const ci = order_map[slot];
             const cell_key = CellKey{ .row_idx = ri, .col_idx = ci };
             if (accum.getPtr(cell_key)) |vals| {
                 const agg = computeAgg(vals.items, agg_func);
-                try result.setCellFloat(row_cols.len + ci, dest_ri, agg);
+                try result.setCellFloat(row_cols.len + slot, dest_ri, agg);
                 row_total += agg;
+            } else if (opts.null_value.len > 0) {
+                // an EMPTY cell is not a zero, and a caller who says so gets to
+                // say what it looks like instead
+                try result.setCellString(row_cols.len + slot, dest_ri,
+                    opts.null_value.ptr, opts.null_value.len);
             } else {
-                try result.setCellFloat(row_cols.len + ci, dest_ri, 0);
+                try result.setCellFloat(row_cols.len + slot, dest_ri, 0);
             }
         }
 
@@ -360,11 +433,12 @@ pub fn crossTab(
     if (include_col_total) {
         const total_ri = try result.addRow();
 
-        // Set "TOTAL" label in first row column
-        try result.setCellString(0, total_ri, "TOTAL", 5);
+        // Set the totals label in first row column
+        try result.setCellString(0, total_ri, total_name.ptr, total_name.len);
 
         // Calculate column totals
-        for (0..num_data_cols) |ci| {
+        for (0..num_data_cols) |slot| {
+            const ci = order_map[slot];
             var col_total: f64 = 0;
             for (0..unique_row_keys.len) |ri| {
                 const cell_key = CellKey{ .row_idx = ri, .col_idx = ci };
@@ -372,7 +446,7 @@ pub fn crossTab(
                     col_total += computeAgg(vals.items, agg_func);
                 }
             }
-            try result.setCellFloat(row_cols.len + ci, total_ri, col_total);
+            try result.setCellFloat(row_cols.len + slot, total_ri, col_total);
         }
 
         // Grand total
@@ -455,7 +529,140 @@ pub fn stz_pivot_cross_tab(
     ) catch null;
 }
 
+/// The C entry above, plus the three presentation options.
+///
+/// The column order arrives newline-joined rather than as an array of pointers:
+/// one string is one argument across the Ring boundary, and the alternative is
+/// marshalling a list of strings for something that is almost always empty.
+pub export fn stz_pivot_cross_tab_with(
+    t: ?*const StzTable,
+    row_cols: [*]const i64,
+    num_row_cols: usize,
+    col_col: i64,
+    value_col: i64,
+    agg_func: u8,
+    include_row_total: i32,
+    include_col_total: i32,
+    total_label: [*]const u8,
+    total_label_len: usize,
+    null_value: [*]const u8,
+    null_value_len: usize,
+    col_order: [*]const u8,
+    col_order_len: usize,
+) callconv(.c) ?*StzTable {
+    const tbl = t orelse return null;
+    if (num_row_cols == 0 or col_col < 0 or value_col < 0) return null;
+
+    const cols = allocator.alloc(usize, num_row_cols) catch return null;
+    defer allocator.free(cols);
+    for (0..num_row_cols) |i| {
+        if (row_cols[i] < 0) return null;
+        cols[i] = @intCast(row_cols[i]);
+    }
+
+    var order = std.ArrayList([]const u8){};
+    defer order.deinit(allocator);
+    if (col_order_len > 0) {
+        var it = std.mem.splitScalar(u8, col_order[0..col_order_len], '\n');
+        while (it.next()) |piece| {
+            if (piece.len > 0) order.append(allocator, piece) catch return null;
+        }
+    }
+
+    const func: AggFunc = @enumFromInt(@as(u8, @intCast(@min(agg_func, 8))));
+    return crossTabWith(
+        tbl,
+        cols,
+        @intCast(col_col),
+        @intCast(value_col),
+        func,
+        include_row_total != 0,
+        include_col_total != 0,
+        .{
+            .total_label = total_label[0..total_label_len],
+            .null_value = null_value[0..null_value_len],
+            .col_order = order.items,
+        },
+    ) catch null;
+}
+
 // ─── Tests ───
+
+test "crossTab presentation options: label, null fill and column order" {
+    const t = try StzTable.init();
+    defer t.deinit();
+    _ = try t.addColumn("city", 4);
+    _ = try t.addColumn("year", 4);
+    _ = try t.addColumn("sales", 5);
+
+    // Gabes has no 2023 row -- that is the empty cell the null value fills
+    inline for (.{
+        .{ "Tunis", "2023", 10 },
+        .{ "Tunis", "2024", 5 },
+        .{ "Gabes", "2024", 3 },
+    }) |row| {
+        const ri = try t.addRow();
+        try t.setCellString(0, ri, row[0], row[0].len);
+        try t.setCellString(1, ri, row[1], row[1].len);
+        try t.setCellFloat(2, ri, row[2]);
+    }
+
+    const row_cols = [_]usize{0};
+
+    // the totals carry the caller's word for them, in the column name AND the row
+    {
+        const r = try crossTabWith(t, &row_cols, 1, 2, .sum, true, true,
+            .{ .total_label = "GRAND" });
+        defer r.deinit();
+        try std.testing.expectEqualStrings("GRAND", r.columnName(r.numColumns() - 1).?);
+        var buf: [64]u8 = undefined;
+        const last = r.getCell(0, r.num_rows - 1).?;
+        try std.testing.expectEqualStrings("GRAND", buf[0..last.toString(&buf)]);
+    }
+
+    // an empty cell is not a zero when the caller says what it is instead
+    {
+        const r = try crossTabWith(t, &row_cols, 1, 2, .sum, false, false,
+            .{ .null_value = "n/a" });
+        defer r.deinit();
+        var found = false;
+        for (0..r.num_rows) |ri| {
+            var buf: [64]u8 = undefined;
+            const c = r.getCell(1, ri).?;
+            if (std.mem.eql(u8, buf[0..c.toString(&buf)], "n/a")) found = true;
+        }
+        try std.testing.expect(found);
+    }
+
+    // ...and stays a zero when they do not, which is what every older caller sees
+    {
+        const r = try crossTabWith(t, &row_cols, 1, 2, .sum, false, false, .{});
+        defer r.deinit();
+        for (0..r.num_rows) |ri| {
+            var buf: [64]u8 = undefined;
+            const c = r.getCell(1, ri).?;
+            try std.testing.expect(!std.mem.eql(u8, buf[0..c.toString(&buf)], "n/a"));
+        }
+    }
+
+    // the caller's order wins, and a value it does not mention follows behind
+    {
+        const order = [_][]const u8{"2024"};
+        const r = try crossTabWith(t, &row_cols, 1, 2, .sum, false, false,
+            .{ .col_order = &order });
+        defer r.deinit();
+        try std.testing.expectEqualStrings("2024", r.columnName(1).?);
+        try std.testing.expectEqualStrings("2023", r.columnName(2).?);
+    }
+
+    // and without an order the columns come out as they always did
+    {
+        const r = try crossTabWith(t, &row_cols, 1, 2, .sum, false, false, .{});
+        defer r.deinit();
+        try std.testing.expectEqualStrings("2023", r.columnName(1).?);
+        try std.testing.expectEqualStrings("2024", r.columnName(2).?);
+    }
+}
 
 test "pivot multi group by" {
     const t = try StzTable.init();
