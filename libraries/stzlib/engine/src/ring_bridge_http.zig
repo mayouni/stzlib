@@ -103,10 +103,37 @@ var last_request_status: i32 = 0;
 
 /// StzEngineHttpParallelGet(cUrlsBlob) -> joined "<status>:<body>\x1E..."
 /// Ring side splits on \x1E and parses the prefix.
+///
+/// The last four arguments carry the CLIENT the batch belongs to:
+/// StzEngineHttpParallelGet(cUrls, cHeaders, cOpts, nConnectMs, nRequestMs).
+/// A batched GET used to send none of them, so the client's user agent, cookies,
+/// auth, proxy, TLS settings and timeouts were silently dropped the moment you
+/// asked for more than one URL.
 fn ring_HttpParallelGet(p: *anyopaque) callconv(.c) void {
     const urls_ptr: [*]const u8 = @ptrCast(gs(p, 1));
     const urls_len: usize = @intCast(gss(p, 1));
-    const n = http.http_parallel_get(urls_ptr, urls_len, &body_buf, BODY_CAP);
+    // THE CONFIGURATION IS OPTIONAL. This primitive shipped taking one argument
+    // and callers still pass one; reading a parameter that was never supplied is
+    // not a graceful degradation, it is a crash.
+    const argc = R.ring_vm_api_paracount(p);
+    var hdr_ptr: [*]const u8 = "";
+    var hdr_len: usize = 0;
+    var opt_ptr: [*]const u8 = "";
+    var opt_len: usize = 0;
+    var connect_ms: u32 = 0;
+    var request_ms: u32 = 0;
+    if (argc >= 2) {
+        hdr_ptr = @ptrCast(gs(p, 2));
+        hdr_len = @intCast(gss(p, 2));
+    }
+    if (argc >= 3) {
+        opt_ptr = @ptrCast(gs(p, 3));
+        opt_len = @intCast(gss(p, 3));
+    }
+    if (argc >= 4) connect_ms = @intFromFloat(gn(p, 4));
+    if (argc >= 5) request_ms = @intFromFloat(gn(p, 5));
+    const n = http.http_parallel_get_ex(urls_ptr, urls_len, hdr_ptr, hdr_len,
+        opt_ptr, opt_len, connect_ms, request_ms, &body_buf, BODY_CAP);
     if (n > 0) {
         rs2(p, &body_buf, @intCast(n));
     } else {

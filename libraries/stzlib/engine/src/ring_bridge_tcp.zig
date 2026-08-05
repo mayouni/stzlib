@@ -77,7 +77,10 @@ fn ring_TcpListen(p: *anyopaque) callconv(.c) void {
 
 fn ring_TcpAccept(p: *anyopaque) callconv(.c) void {
     const s = getServer(p, 1);
-    const c = tcp.tcp_accept(s);
+    const c = if (R.ring_vm_api_paracount(p) >= 2)
+        tcp.tcp_accept_timeout(s, @intFromFloat(gn(p, 2)))
+    else
+        tcp.tcp_accept(s);
     if (c) |client| {
         R.ring_vm_api_retcpointer(p, @ptrCast(client), TCP_CLIENT);
     } else {

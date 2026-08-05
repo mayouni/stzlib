@@ -401,7 +401,18 @@ class stzHttpClient from stzNetwork
 			if _i_ > 1 _cBlob_ += char(10) ok
 			_cBlob_ += aUrls[_i_]
 		next
-		_cJoined_ = StzEngineHttpParallelGet(_cBlob_)
+		# THE BATCH IS STILL THIS CLIENT. Its headers, options and timeouts
+		# apply to each URL exactly as they would to a single Get_() -- they
+		# were dropped here, so a client holding a bearer token sent 32
+		# unauthenticated requests, a configured proxy was bypassed, and every
+		# per-client timeout fell back to the process default.
+		_cJoined_ = StzEngineHttpParallelGet(
+			_cBlob_,
+			This._ComposeHeaderBlob(),
+			This._ComposeOptionsBlob(),
+			@connect_timeout_ms,
+			@request_timeout_ms
+		)
 		# Split on the RECORD_SEPARATOR (ASCII 0x1E).
 		_aRaw_ = @split(_cJoined_, char(30))
 		_aR_ = []

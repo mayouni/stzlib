@@ -69,6 +69,37 @@ class stzTcpServer from stzNetwork
         ok
         return _oClient_
 
+    # Accept, but give up after nMs and return NULL.
+    #
+    # AcceptOne() blocks for ever, so a caller whose point is "nothing should
+    # have connected" has no way to say so -- it hangs instead of answering.
+    # A timeout reports itself as the error "accept timed out", distinct from a
+    # real accept failure -- a null handle still arrives in Ring as a TcpClient
+    # value, so the error string is the only thing that can be tested.
+    def AcceptOneWithin(nMs)
+        if not @is_listening
+            @last_error = "Not listening"
+            return NULL
+        ok
+        pClient = StzEngineTcpAccept(@hServer, nMs)
+        if StzEngineTcpLastError() != ""
+            @last_error = StzEngineTcpLastError()
+            return NULL
+        ok
+        _oClient_ = new stzTcpClient
+        _oClient_.@hClient = pClient
+        _oClient_.@is_connected = True
+        @clients + _oClient_
+        if @on_client_connect_callback != ""
+            call @on_client_connect_callback()
+        ok
+        return _oClient_
+
+    # TRUE when the last AcceptOneWithin() simply saw nothing in time, as
+    # opposed to failing.
+    def AcceptTimedOut()
+        return @last_error = "accept timed out"
+
     def StopListening()
         if @is_listening and @hServer != NULL
             StzEngineTcpServerClose(@hServer)
