@@ -147,18 +147,59 @@ pub fn stz_matrix_add_matrix(a: ?*StzMatrix, b: ?*const StzMatrix) callconv(.c) 
     return 0;
 }
 
+/// C = A*B, row-major, SIMD over the output row.
+///
+/// THE LOOP ORDER IS THE WHOLE OPTIMISATION. The obvious i-j-k form
+/// accumulates one output element at a time and reads B down a COLUMN
+/// (`b[k*N + j]` with k moving), so every one of the K reads lands in a
+/// different cache line -- at n=512 that is a miss per multiply, and the
+/// measured rate was 1.98 GFLOP/s on hardware that should do far better.
+///
+/// Reordered to i-k-j, the inner loop walks a ROW of B and a ROW of C
+/// contiguously, which is both cache-friendly and vectorisable: one
+/// scalar from A is broadcast against a run of B.
+///
+/// THE ARITHMETIC IS UNCHANGED, BIT FOR BIT. Each output element still
+/// sums its K products in ascending k; only the place the partial sum
+/// lives moves (a register, now a memory cell). Floating-point addition
+/// is not associative, so that mattered -- had the order changed, every
+/// oracle tolerance in the numeric tier would have had to be re-argued.
+/// The guard asserts equality against a scalar reference, not nearness.
+const VEC_WIDTH = 4;
+const Vec = @Vector(VEC_WIDTH, f64);
+
 pub fn stz_matrix_multiply(a: ?*const StzMatrix, b: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
     const ma = a orelse return null;
     const mb = b orelse return null;
     if (ma.cols != mb.rows) return null;
     const result = StzMatrix.init(gpa, ma.rows, mb.cols) catch return null;
-    for (0..ma.rows) |i| {
-        for (0..mb.cols) |j| {
-            var sum: f64 = 0.0;
-            for (0..ma.cols) |k| {
-                sum += ma.at(i, k) * mb.at(k, j);
+
+    const m = ma.rows;
+    const k_dim = ma.cols;
+    const n = mb.cols;
+    const av = ma.data;
+    const bv = mb.data;
+    const cv = result.data;
+    // init() already zeroed cv, which i-k-j relies on.
+
+    for (0..m) |i| {
+        const c_row = cv[i * n .. i * n + n];
+        for (0..k_dim) |k| {
+            const aik = av[i * k_dim + k];
+            // NO `if (aik == 0) continue` here, tempting as it is on
+            // sparse-ish data: 0 * inf is NaN, so skipping would change
+            // the answer for non-finite inputs and cost the bit-identity
+            // property above. Sparsity gets its own path, not a branch
+            // that quietly makes the dense one approximate.
+            const b_row = bv[k * n .. k * n + n];
+            const splat: Vec = @splat(aik);
+            var j: usize = 0;
+            while (j + VEC_WIDTH <= n) : (j += VEC_WIDTH) {
+                const bvec: Vec = b_row[j..][0..VEC_WIDTH].*;
+                const cvec: Vec = c_row[j..][0..VEC_WIDTH].*;
+                c_row[j..][0..VEC_WIDTH].* = cvec + splat * bvec;
             }
-            result.setAt(i, j, sum);
+            while (j < n) : (j += 1) c_row[j] += aik * b_row[j];
         }
     }
     return result;
