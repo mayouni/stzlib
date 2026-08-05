@@ -132,7 +132,10 @@ class stzListParser from stzParser
 		This.Parse( This.StartPosition(), pnEnd, This.NumberOfSteps() )
 
 	def SetNumberOfSteps(pnSteps)
-		@nSteps = pnSteps
+		# @nSteps used to be written here and read by nothing: the live attribute
+		# is @nStep, which Parse() below sets and NumberOfSteps() returns. It was
+		# not even declared -- the assignment created it -- so the class carried a
+		# dead twin one letter away from the real one.
 		This.Parse( This.StartPosition(), This.EndPosition(), pnSteps )
 
 	  #----------------------#
@@ -144,14 +147,35 @@ class stzListParser from stzParser
 			@nCurrentPosition = n
 
 		but isString(n) and n = :Default
-			@nCurrentPosition = @nDefaultCurrentPosition
+			@nCurrentPosition = This._DefaultOrFirstParsed()
 		ok
 
 	def CurrentPosition()
 		return @nCurrentPosition
 
+	# BACK TO WHERE A FRESH PARSE STARTS.
+	#
+	# This hardcoded 1, which ignored SetDefaultCurrentPosition() outright and --
+	# worse -- could leave the parser on a position that is not in the parse at
+	# all: parse 3..8 by 2, reset, and it sat on position 1, which its own
+	# SetCurrentPosition() REFUSES, while CurrentItem() went on reading outside
+	# the parsed range. Reset() calls this, so Reset() inherited both.
+	#
+	# SetCurrentPosition(:Default) meant the same thing and did something else,
+	# so the two now share one rule.
 	def ResetCurrentPosition()
-		@nCurrentPosition = 1
+		@nCurrentPosition = This._DefaultOrFirstParsed()
+
+	# The declared default when it is actually in the parse; otherwise the first
+	# parsed position -- which is exactly where Parse() itself leaves the cursor.
+	def _DefaultOrFirstParsed()
+		if StzFindFirst(@nDefaultCurrentPosition, @anParsedPositions) > 0
+			return @nDefaultCurrentPosition
+		ok
+		if len(@anParsedPositions) > 0
+			return @anParsedPositions[1]
+		ok
+		return @nDefaultCurrentPosition
 
   	  #-----------------------#
 	 #   NEXT NTH POSITION   #
