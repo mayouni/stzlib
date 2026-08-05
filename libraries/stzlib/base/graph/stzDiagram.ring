@@ -410,18 +410,38 @@ class stzDiagram from stzGraph
 
 	def SetSplines(pcType)
 
+	    # A VALUE THIS DOES NOT RECOGNISE USED TO RESET THE SPLINE TO THE DEFAULT,
+	    # so SetSplines("ortho") followed by SetSplines("dashed") left you with
+	    # "spline" -- not the ortho you asked for and not the dashed you asked for
+	    # either. A rejected value now leaves the knob alone, which is what every
+	    # other validating setter here does (SetTheme, SetLayoutPreset).
 	    _cType_ = StzLower(pcType)
 	    if StzFindFirst(_cType_, $acSplineTypes) > 0
 	        @cSplineType = _cType_
-	    else
-		@cSplineType = $cDefaultSplineType
 	    ok
 
+	    # THESE TWO ARE NAMED FOR A DIFFERENT GRAPHVIZ ATTRIBUTE than the one they
+	    # reach. A spline is the ROUTE an edge takes (ortho, curved, polyline); a
+	    # line style is how it is DRAWN (dashed, dotted, bold). Both names read as
+	    # the second and both delegated to the first, so SetEdgeLineStyle("dashed")
+	    # -- the obvious call -- was swallowed.
+	    #
+	    # Routing on the value keeps every call that works today working: a spline
+	    # name still sets the spline, and a pen style now sets the pen style
+	    # instead of vanishing.
 	    def SetEdgeLineStyle(pcType)
-		This.SetSplines(pcType)
+		This._SetEdgeLine(pcType)
 
 	    def SetEdgeLineType(pcType)
-		This.SetSplines(pcType)
+		This._SetEdgeLine(pcType)
+
+	    def _SetEdgeLine(pcType)
+		_cWanted_ = StzLower(pcType)
+		if StzFindFirst(_cWanted_, $acSplineTypes) > 0
+			This.SetSplines(_cWanted_)
+		but StzFindFirst(_cWanted_, $acEdgePenStyles) > 0
+			This.SetEdgePenStyle(_cWanted_)
+		ok
 
 	    def SetEdgeSpline(pcType)
 		This.SetSplines(pcType)
@@ -2238,7 +2258,10 @@ class stzDiagram from stzGraph
 		_cStyl_ += '    style: ' + @cEdgeStyle + NL
 		_cStyl_ += '    color: ' + @cEdgeColor + NL
 		_cStyl_ += '    spline: ' + @cSplineType + NL
-		_cStyl_ += '    penwidth: ' + @nEdgePenWidth + NL + NL
+		_cStyl_ += '    penwidth: ' + @nEdgePenWidth + NL
+		# the nodes block below has carried its penstyle all along; the edges
+		# block did not, so a stylesheet could not round-trip one
+		_cStyl_ += '    penstyle: ' + @cEdgePenStyle + NL + NL
 		
 		_cStyl_ += 'nodes' + NL
 		_cStyl_ += '    penwidth: ' + @nNodePenWidth + NL
@@ -2333,7 +2356,7 @@ class stzDiagramToStzDiag from stzObject
 
 		# Generating the diagram title
 
-		if @oDiagram.Title() != ""
+		if @oDiagram.Title() != "" or trim(@oDiagram.Subtitle()) != ""
 		    _cTitle_ = @oDiagram.Title()
 		    _cSubtitle_ = @oDiagram.Subtitle()
 		    if trim(_cSubtitle_) != ""
@@ -2533,8 +2556,9 @@ class stzDiagramToDot from stzObject
 		# Graph attributes
 		_cOutput_ += This._GenerateGraphAttributes(_cTheme_)
 		
-		# Add title/subtitle if present
-		if @oDiagram.Title() != ""
+		# Add title/subtitle if present -- EITHER of them is enough, a subtitle on
+		# its own used to be dropped here without a word
+		if @oDiagram.Title() != "" or @oDiagram.Subtitle() != ""
 		    _cOutput_ += '    labelloc="t";' + NL
 		    _cTitle_ = NL + @oDiagram.Title()
 		    if @oDiagram.Subtitle() != ""
