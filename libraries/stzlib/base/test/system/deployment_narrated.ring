@@ -342,6 +342,65 @@ chk("the kiosk site got its OWN engine (stz_kiosk.wasm), not the phone's",
 StzDirDeleteAll(cBase)
 
 ? ""
+? "-- WHAT A SITE DECLARES, EVERY RENDERING OF IT SHOWS"
+#
+# A site has three renderings -- the structured Config(), the human ConfigText()
+# and the serialized ConfigJson() that SaveConfigTo() writes -- and an audit of
+# all nine setters against all three found them disagreeing.
+#
+# CAPACITY AND PROVIDER appeared in NONE of them, and they are exactly what
+# _SiteFeasibility() reads to decide whether a part fits a site or has to be
+# provisioned. A site could be declared, printed and saved without the two facts
+# that decide whether the deployment is possible at all -- and a site restored
+# from such a config reports "capacity not declared -- assumed ok", turning a
+# SHORTFALL into a pass.
+#
+# STATUS was carried by Config() and ConfigJson() but not by ConfigText(), so the
+# human reading of a site disagreed with both machine readings of it.
+
+oDS = new stzDeploymentSite("edge-1")
+oDS.SetKind(:LocalRepo)
+oDS.SetEndpoint("https://api.example.app")
+oDS.SetStoreAt("/srv/app")
+oDS.SetLaunchWith("systemctl restart app")
+oDS.SetStatusWith("systemctl is-active app")
+oDS.SetProvider("hetzner")
+oSpec = new stzResourceSpec()
+oSpec.SetMemory(4096)  oSpec.SetCompute(8)  oSpec.SetStorage(500)
+oDS.SetCapacity(oSpec)
+
+cDText = oDS.ConfigText()
+cDJson = oDS.ConfigJson()
+
+chk("the human rendering shows the status command", StzFindFirst("systemctl is-active app", cDText) > 0)
+chk("...and the capacity", StzFindFirst("4096MB / 8 vCPU / 500GB", cDText) > 0)
+chk("...and the provider", StzFindFirst("hetzner", cDText) > 0)
+
+chk("the saved config carries the provider", StzFindFirst(char(34) + "provider" + char(34) + ": " + char(34) + "hetzner" + char(34), cDJson) > 0)
+chk("...and the capacity as NUMBERS, not as a sentence", StzFindFirst(char(34) + "memoryMB" + char(34) + ": 4096", cDJson) > 0)
+chk("...vcpu too", StzFindFirst(char(34) + "vcpu" + char(34) + ": 8", cDJson) > 0)
+chk("...and storage", StzFindFirst(char(34) + "storageGB" + char(34) + ": 500", cDJson) > 0)
+
+# THE NEGATIVE SIBLING. Every check above would also pass if the renderings simply
+# printed everything they could find; these two say the fields track what was
+# actually declared, and that an UNDECLARED capacity says so rather than reading
+# as a zero-sized host.
+oBare = new stzDeploymentSite("bare")
+cBJson = oBare.ConfigJson()
+chk("an undeclared capacity serialises as null, not as zeroes",
+	StzFindFirst(char(34) + "capacity" + char(34) + ": null", cBJson) > 0 and
+	StzFindFirst("memoryMB", cBJson) = 0)
+chk("...and an unset provider is empty, not absent",
+	StzFindFirst(char(34) + "provider" + char(34) + ": " + char(34) + char(34), cBJson) > 0)
+chk("...and its human rendering claims no capacity line at all",
+	StzFindFirst("capacity:", oBare.ConfigText()) = 0)
+
+# and the structured form agrees with both of them
+aDCfg = oDS.Config()
+chk("the structured config carries capacity and provider too",
+	StzFindFirst("hetzner", "" + @@(aDCfg)) > 0 and StzFindFirst("4096MB", "" + @@(aDCfg)) > 0)
+
+? ""
 ? "=========================================="
 ? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
 ? "=========================================="
