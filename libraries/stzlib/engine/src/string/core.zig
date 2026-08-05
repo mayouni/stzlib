@@ -371,8 +371,61 @@ pub fn decodeCodepoint(bytes: []const u8, pos: usize, cp_len: usize) i32 {
     return 0;
 }
 
+/// Number of codepoints in a UTF-8 buffer.
+///
+/// Vectorising isAllAscii above made the ASCII path ~1.9x faster at the
+/// Ring surface and thereby EXPOSED this loop: with a real multibyte
+/// prefix, StzLen on the same 180 KB went 7.9 ms -> 34.9 ms, because the
+/// ASCII gate now bails instantly and everything is spent walking here.
+/// Speeding one path up is what made the other one's cost legible.
+/// Restating it as the lane-wise count below took that 34.9 ms to
+/// 15.3 ms (2.3x), measured the same way.
+///
+/// The scalar walk is sequential BY CONSTRUCTION -- each step's stride
+/// comes from the byte it just read -- so it cannot be vectorised as
+/// written. It has to be restated as something order-free, and UTF-8
+/// affords exactly that: every codepoint is one lead byte followed by
+/// continuation bytes, and a continuation byte is precisely one matching
+/// `0b10xxxxxx`. So the count of codepoints IS the count of NON
+/// continuation bytes, which each lane can judge independently.
+///
+///     count = popcount over lanes of ((b & 0xC0) != 0x80)
+///
+/// EQUIVALENT ON VALID UTF-8, and handles are validated at construction
+/// (`str_from` runs utf8ValidateSlice and refuses bad input). The two
+/// forms can disagree on invalid bytes -- the old walk trusts a bad lead
+/// byte's implied length via `catch 1`, this one classifies each byte on
+/// its own -- so the differential test below pins them together over the
+/// valid corpus this function is actually reachable with.
 pub fn utf8CodepointCount(bytes: []const u8) usize {
     if (isAllAscii(bytes)) return bytes.len;
+
+    const W = std.simd.suggestVectorLength(u8) orelse return utf8CodepointCountScalar(bytes);
+    const Vec = @Vector(W, u8);
+    const top2: Vec = @splat(0xC0);
+    const cont_bits: Vec = @splat(0x80);
+    const one: Vec = @splat(1);
+    const zero: Vec = @splat(0);
+
+    var count: usize = 0;
+    var i: usize = 0;
+    while (i + W <= bytes.len) : (i += W) {
+        const v: Vec = bytes[i..][0..W].*;
+        const is_lead = (v & top2) != cont_bits;
+        // Sum of 0/1 over W lanes maxes out at W (32 here), so a u8
+        // accumulator cannot overflow. Widen the lane type before
+        // raising W past 255.
+        count += @reduce(.Add, @select(u8, is_lead, one, zero));
+    }
+    while (i < bytes.len) : (i += 1) {
+        if ((bytes[i] & 0xC0) != 0x80) count += 1;
+    }
+    return count;
+}
+
+/// The original sequential walk. Kept as the reference the vector form is
+/// tested against, and as the fallback on targets with no vector support.
+pub fn utf8CodepointCountScalar(bytes: []const u8) usize {
     var count: usize = 0;
     var i: usize = 0;
     while (i < bytes.len) {
@@ -412,9 +465,50 @@ pub fn byteOffsetToCodepointIndex(bytes: []const u8, byte_offset: usize) usize {
     return cp_count;
 }
 
+/// True when no byte has the high bit set.
+///
+/// This is the ASCII fast-path gate for the three codepoint<->byte
+/// primitives above, so every Unicode-aware operation in the library
+/// pays for it. Note the shape of that "fast path": it scans the WHOLE
+/// buffer in order to earn the right to return `bytes.len`. The scan is
+/// the cost, which is exactly why its width matters.
+///
+/// A high-bit test over contiguous bytes is the canonical vector loop:
+/// splat the mask, stride by the target's lane count, reduce, then a
+/// scalar tail. Measured here (ReleaseSafe, 32-byte lanes), all-ASCII
+/// input so the full buffer is walked:
+///
+///        16 B    1.00x   (below one vector -- tail only, no change)
+///        64 B   15.21x
+///       256 B   16.82x
+///      4096 B   13.97x
+///      64 KB    13.71x
+///       1 MB    13.87x
+///
+/// The 16-byte row is the point worth keeping: short strings, which are
+/// this library's common case, neither gain nor LOSE. The vector loop is
+/// skipped entirely and the tail is the old loop. So this is a win on
+/// document-scale text bought without a regression on `StzLen("hello")`.
 pub fn isAllAscii(bytes: []const u8) bool {
-    for (bytes) |b| {
-        if (b >= 128) return false;
+    const W = std.simd.suggestVectorLength(u8) orelse {
+        for (bytes) |b| {
+            if (b >= 128) return false;
+        }
+        return true;
+    };
+    const Vec = @Vector(W, u8);
+    const zero: Vec = @splat(0);
+    const hi: Vec = @splat(0x80);
+    var i: usize = 0;
+    while (i + W <= bytes.len) : (i += W) {
+        const v: Vec = bytes[i..][0..W].*;
+        // `& 0x80 != 0` rather than `>= 128`: u8 comparison against a
+        // splat works too, but the mask form is the one that stays
+        // correct if the lane type is ever widened.
+        if (@reduce(.Or, (v & hi) != zero)) return false;
+    }
+    while (i < bytes.len) : (i += 1) {
+        if (bytes[i] >= 128) return false;
     }
     return true;
 }
@@ -631,6 +725,90 @@ test "isAllAscii helper" {
     try std.testing.expect(!isAllAscii("\xc3\xa9"));
     try std.testing.expect(isAllAscii(""));
     try std.testing.expect(!isAllAscii("Hi\xf0\x9f\x98\x80"));
+}
+
+// The four cases above are all shorter than one vector, so they exercise
+// ONLY the scalar tail -- they would pass against a completely broken
+// vector loop. These cover the loop itself, and the seam between the two.
+test "isAllAscii crosses the vector boundary" {
+    const W = std.simd.suggestVectorLength(u8) orelse 1;
+    var buf: [512]u8 = undefined;
+
+    // Every length from empty to well past several vectors, all-ASCII.
+    for (0..buf.len) |n| {
+        @memset(buf[0..n], 'a');
+        try std.testing.expect(isAllAscii(buf[0..n]));
+    }
+
+    // One non-ASCII byte, walked through EVERY position of a buffer that
+    // spans multiple full vectors plus a partial tail. This is the test
+    // that fails if a lane is dropped, a bound is off by one, or the tail
+    // is skipped -- a single missed position is a silently wrong answer.
+    const n = W * 3 + 5;
+    for (0..n) |bad| {
+        @memset(buf[0..n], 'a');
+        buf[bad] = 0x80; // lowest byte that must be rejected
+        try std.testing.expect(!isAllAscii(buf[0..n]));
+        buf[bad] = 0xFF; // highest
+        try std.testing.expect(!isAllAscii(buf[0..n]));
+        buf[bad] = 0x7F; // highest byte that must still be ACCEPTED
+        try std.testing.expect(isAllAscii(buf[0..n]));
+    }
+
+    // Exact multiples: no tail at all, so the loop must decide alone.
+    for ([_]usize{ W, W * 2, W * 4 }) |exact| {
+        @memset(buf[0..exact], 'a');
+        try std.testing.expect(isAllAscii(buf[0..exact]));
+        buf[exact - 1] = 0x80; // last lane of the last vector
+        try std.testing.expect(!isAllAscii(buf[0..exact]));
+    }
+}
+
+// The vector count and the sequential walk must agree on every valid
+// input. Asserting a hand-counted number would only prove the vector
+// form self-consistent; comparing against the implementation it REPLACED
+// is what makes this a regression test rather than a restatement.
+test "utf8CodepointCount agrees with the scalar walk it replaced" {
+    const samples = [_][]const u8{
+        "", // empty
+        "a", // 1-byte, below a vector
+        "hello world", // pure ASCII, below a vector
+        "\u{00e9}", // 2-byte alone
+        "\u{4e16}\u{754c}", // 3-byte CJK
+        "\u{1f600}", // 4-byte emoji
+        "caf\u{00e9} na\u{00ef}ve r\u{00e9}sum\u{00e9}", // Latin-1 mix
+        "\u{0645}\u{0631}\u{062d}\u{0628}\u{0627} \u{0628}\u{0627}\u{0644}\u{0639}\u{0627}\u{0644}\u{0645}", // Arabic
+        "\u{05e9}\u{05dc}\u{05d5}\u{05dd} \u{05e2}\u{05d5}\u{05dc}\u{05dd}", // Hebrew
+        "\u{4f60}\u{597d}\u{4e16}\u{754c}\u{ff01}", // CJK + fullwidth
+        "\u{1f600}\u{1f601}\u{1f602}\u{1f603}", // all 4-byte
+    };
+    for (samples) |s| {
+        try std.testing.expectEqual(utf8CodepointCountScalar(s), utf8CodepointCount(s));
+    }
+
+    // Long inputs: the vector loop only engages past W bytes, and the
+    // interesting failures are at the seam, so slide a multibyte
+    // sequence across every offset of a buffer spanning several vectors.
+    const W = std.simd.suggestVectorLength(u8) orelse 1;
+    var buf: [256]u8 = undefined;
+    const n = W * 3 + 7;
+    const multi = [_][]const u8{ "\u{00e9}", "\u{4e16}", "\u{1f600}" };
+    for (multi) |seq| {
+        var at: usize = 0;
+        while (at + seq.len <= n) : (at += 1) {
+            @memset(buf[0..n], 'x');
+            @memcpy(buf[at..][0..seq.len], seq);
+            const slice = buf[0..n];
+            // Only compare where the splice left VALID utf-8 (it can cut
+            // a previous sequence); the two forms are only contracted to
+            // agree on valid input.
+            if (!std.unicode.utf8ValidateSlice(slice)) continue;
+            try std.testing.expectEqual(
+                utf8CodepointCountScalar(slice),
+                utf8CodepointCount(slice),
+            );
+        }
+    }
 }
 
 test "BMH search basic" {

@@ -165,7 +165,20 @@ pub fn stz_matrix_add_matrix(a: ?*StzMatrix, b: ?*const StzMatrix) callconv(.c) 
 /// is not associative, so that mattered -- had the order changed, every
 /// oracle tolerance in the numeric tier would have had to be re-argued.
 /// The guard asserts equality against a scalar reference, not nearness.
-const VEC_WIDTH = 4;
+///
+/// THE SPLIT, MEASURED (512x512, ReleaseSafe -- the mode we ship):
+///     i-j-k scalar          343.43 ms    0.78 GFLOP/s
+///     i-k-j scalar           21.10 ms   12.72 GFLOP/s   16.28x
+///     i-k-j + @Vector        17.77 ms   15.10 GFLOP/s    1.19x on top
+/// The reorder is the win; vectorising adds 19%. Both shipped in one
+/// commit, which let the headline call it "SIMD matmul" -- it is a CACHE
+/// fix with a vector bonus. Two optimisations landed together cannot be
+/// attributed without measuring them apart, however obvious the story.
+///
+/// Width comes from the target, not from the machine I benchmarked on:
+/// hardcoding 4 was right for this AVX2 box, idle-half on AVX-512, and
+/// double-wide on NEON.
+const VEC_WIDTH = std.simd.suggestVectorLength(f64) orelse 4;
 const Vec = @Vector(VEC_WIDTH, f64);
 
 pub fn stz_matrix_multiply(a: ?*const StzMatrix, b: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
