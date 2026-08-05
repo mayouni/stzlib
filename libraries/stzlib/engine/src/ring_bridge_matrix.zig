@@ -2,6 +2,7 @@ const std = @import("std");
 const matrix = @import("matrix.zig");
 const linalg = @import("linalg.zig");
 const nmm = @import("neural_matmul.zig");
+const sparse = @import("sparse.zig");
 const R = @import("ring_api.zig");
 
 const g = R.ring_vm_api_getnumber;
@@ -373,8 +374,121 @@ fn ring_SvdFull(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// ---- sparse (CSR) -------------------------------------------------
+// Registered HERE, in the matrix library, because the handle table is
+// per-DLL: these functions take and return StzMatrix handles, so they
+// have to live where those handles resolve.
+
+fn getS(p: *anyopaque, n: c_int) ?*sparse.StzSparse {
+    const ptr = gcp(p, n, MH);
+    if (ptr) |raw| return @ptrCast(@alignCast(raw));
+    return null;
+}
+
+// StzEngineSparseFromMatrix(matrixHandle, tol) -> sparse handle
+fn ring_SparseFromMatrix(p: *anyopaque) callconv(.c) void {
+    const m = getMC(p, 1) orelse {
+        rcp(p, @ptrFromInt(0), MH);
+        return;
+    };
+    const sp = sparse.fromDense(std.heap.c_allocator, m, g(p, 2)) catch {
+        rcp(p, @ptrFromInt(0), MH);
+        return;
+    };
+    rcp(p, @ptrCast(sp), MH);
+}
+
+fn ring_SparseFree(p: *anyopaque) callconv(.c) void {
+    const raw = R.releaseHandle(p, 1);
+    if (raw) |ptr| {
+        const h: *sparse.StzSparse = @ptrCast(@alignCast(ptr));
+        h.deinit();
+    }
+}
+
+fn ring_SparseNnz(p: *anyopaque) callconv(.c) void {
+    const sp = getS(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    rn(p, @floatFromInt(sp.nnz()));
+}
+
+fn ring_SparseDensity(p: *anyopaque) callconv(.c) void {
+    const sp = getS(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    rn(p, sp.density());
+}
+
+fn ring_SparseRows(p: *anyopaque) callconv(.c) void {
+    const sp = getS(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    rn(p, @floatFromInt(sp.rows));
+}
+
+fn ring_SparseCols(p: *anyopaque) callconv(.c) void {
+    const sp = getS(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    rn(p, @floatFromInt(sp.cols));
+}
+
+// StzEngineSparseToMatrix(sparseHandle) -> matrix handle
+fn ring_SparseToMatrix(p: *anyopaque) callconv(.c) void {
+    const sp = getS(p, 1) orelse {
+        rcp(p, @ptrFromInt(0), MH);
+        return;
+    };
+    const m = sparse.toDense(std.heap.c_allocator, sp) catch {
+        rcp(p, @ptrFromInt(0), MH);
+        return;
+    };
+    rcp(p, @ptrCast(m), MH);
+}
+
+// StzEngineSparseMultiply(sparseHandle, denseHandle) -> matrix handle
+fn ring_SparseMultiply(p: *anyopaque) callconv(.c) void {
+    const sp = getS(p, 1) orelse {
+        rcp(p, @ptrFromInt(0), MH);
+        return;
+    };
+    const b = getMC(p, 2) orelse {
+        rcp(p, @ptrFromInt(0), MH);
+        return;
+    };
+    const out = sparse.spmm(std.heap.c_allocator, sp, b) catch {
+        rcp(p, @ptrFromInt(0), MH);
+        return;
+    };
+    if (out) |m| rcp(p, @ptrCast(m), MH) else rcp(p, @ptrFromInt(0), MH);
+}
+
+// NO SEPARATE MATVEC AT THE BRIDGE. A matrix-vector product is
+// SparseMultiply with a 1-column B, and the two agree exactly: at n=1
+// spmm's vector loop never runs and only its scalar tail executes,
+// which IS the spmv inner loop. Passing the vector as an n*1 HANDLE
+// also matches stz_matrix_solve, and keeps the vector out of Ring's
+// boxed lists -- measured elsewhere at ~60 ms per 262k doubles, a cost
+// no bridge design avoids.
+//
+// sparse.spmv stays in the Zig module: it is the primitive a future
+// engine-side PageRank or power method wants, where nothing crosses.
+
 pub fn ringlib_init(p: *anyopaque) callconv(.c) void {
     const funcs = [_]R.Reg{
+        .{ .name = "stzengine" ++ "sparsefrommatrix", .func = &ring_SparseFromMatrix },
+        .{ .name = "stzengine" ++ "sparsefree", .func = &ring_SparseFree },
+        .{ .name = "stzengine" ++ "sparsennz", .func = &ring_SparseNnz },
+        .{ .name = "stzengine" ++ "sparsedensity", .func = &ring_SparseDensity },
+        .{ .name = "stzengine" ++ "sparserows", .func = &ring_SparseRows },
+        .{ .name = "stzengine" ++ "sparsecols", .func = &ring_SparseCols },
+        .{ .name = "stzengine" ++ "sparsetomatrix", .func = &ring_SparseToMatrix },
+        .{ .name = "stzengine" ++ "sparsemultiply", .func = &ring_SparseMultiply },
         .{ .name = "stzengine" ++ "matrixsvdfull", .func = &ring_SvdFull },
         .{ .name = "stzengine" ++ "matrixnew", .func = &ring_New },
         .{ .name = "stzengine" ++ "matrixfree", .func = &ring_Free },
