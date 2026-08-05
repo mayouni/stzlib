@@ -65,7 +65,10 @@ fn ensureInit() void {
 var total_opens = std.atomic.Value(u64).init(0);
 var total_reuses = std.atomic.Value(u64).init(0);
 var last_http_version: i32 = 0; // 1 = HTTP/1.x, 2 = HTTP/2, 3 = HTTP/3
-var last_body_len: usize = 0;
+// THREADLOCAL: parallel GET runs one of these per thread, and each worker reads
+// its own result immediately after its own request. A shared global here means the
+// last thread to finish decides how many bytes every other worker copies out.
+threadlocal var last_body_len: usize = 0;
 
 // Response headers captured per request (raw "Name: Value\r\n" lines).
 const HDR_CAP: usize = 64 * 1024;

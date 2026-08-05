@@ -184,6 +184,43 @@ pub fn tcp_accept(server: ?*TcpServer) callconv(.c) ?*TcpClient {
     return c;
 }
 
+/// Accept, but give up after `timeout_ms` and return null with no error set.
+///
+/// WITHOUT THIS THERE IS NO WAY TO ASSERT THAT NOTHING CONNECTED. tcp_accept
+/// blocks forever, so a test whose point is "no connection should have arrived"
+/// hangs instead of failing -- which is how a regression in the HTTP batch first
+/// showed up: the guard that caught it caught it by never finishing.
+///
+/// A timeout reports through last_error like every other failure here, because a
+/// null handle still reaches Ring as a TcpClient value and cannot be tested. The
+/// message is its own -- "accept timed out" -- so a caller who is WAITING to see
+/// nothing can tell that apart from an accept that actually broke.
+pub fn tcp_accept_timeout(server: ?*TcpServer, timeout_ms: u32) callconv(.c) ?*TcpClient {
+    clearError();
+    const s = server orelse {
+        setError("null handle");
+        return null;
+    };
+
+    var pfd = [_]std.posix.pollfd{.{
+        .fd = s.listener.stream.handle,
+        .events = std.posix.POLL.IN,
+        .revents = 0,
+    }};
+    const ready = std.posix.poll(&pfd, @intCast(timeout_ms)) catch |err| {
+        var fbuf: [200]u8 = undefined;
+        const msg = std.fmt.bufPrint(&fbuf, "accept poll failed: {s}", .{@errorName(err)}) catch "accept failed";
+        setError(msg);
+        return null;
+    };
+    if (ready == 0) {
+        setError("accept timed out");
+        return null;
+    }
+
+    return tcp_accept(server);
+}
+
 pub fn tcp_server_close(server: ?*TcpServer) callconv(.c) void {
     const s = server orelse return;
     s.listener.deinit();

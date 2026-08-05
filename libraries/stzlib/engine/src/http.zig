@@ -17,7 +17,7 @@ const resilience = @import("resilience.zig");
 
 var last_error_buf: [512]u8 = undefined;
 var last_error_len: usize = 0;
-var last_body_len_v: usize = 0;
+threadlocal var last_body_len_v: usize = 0;
 
 pub fn http_last_body_len() callconv(.c) usize {
     return last_body_len_v;
@@ -272,6 +272,15 @@ const gpa = std.heap.c_allocator;
 
 const ParallelJob = struct {
     url: []const u8,
+    /// The client's headers and options, shared by every job in the batch. A
+    /// batched GET is still the SAME client -- its user agent, cookies, auth,
+    /// proxy and TLS settings apply to each URL exactly as they would to a
+    /// single Get_(). They were dropped here, so a client holding a bearer
+    /// token sent 32 unauthenticated requests without a word.
+    headers: []const u8 = "",
+    opts: []const u8 = "",
+    connect_ms: u32 = 0,
+    request_ms: u32 = 0,
     status: i32,
     body: std.ArrayList(u8),
     done: bool,
@@ -284,7 +293,9 @@ fn parallelWorker(job: *ParallelJob) void {
         return;
     };
     defer gpa.free(buf);
-    const status = doRequest(0, job.url, "", "", "", buf.ptr, buf.len, def_connect_ms, def_request_ms, "");
+    const cms = if (job.connect_ms == 0) def_connect_ms else job.connect_ms;
+    const rms = if (job.request_ms == 0) def_request_ms else job.request_ms;
+    const status = doRequest(0, job.url, "", "", job.headers, buf.ptr, buf.len, cms, rms, job.opts);
     job.status = status;
     if (status > 0) {
         job.body.appendSlice(gpa, buf[0..last_body_len_v]) catch {
@@ -295,6 +306,23 @@ fn parallelWorker(job: *ParallelJob) void {
 }
 
 pub fn http_parallel_get(urls_ptr: [*]const u8, urls_len: usize, out: [*]u8, out_max: usize) callconv(.c) i32 {
+    return http_parallel_get_ex(urls_ptr, urls_len, "", 0, "", 0, 0, 0, out, out_max);
+}
+
+/// Batched GET carrying the client's own headers, options and timeouts -- the same
+/// four things a single request sends. Zero timeouts mean the engine defaults.
+pub fn http_parallel_get_ex(
+    urls_ptr: [*]const u8,
+    urls_len: usize,
+    headers_ptr: [*]const u8,
+    headers_len: usize,
+    opts_ptr: [*]const u8,
+    opts_len: usize,
+    connect_ms: u32,
+    request_ms: u32,
+    out: [*]u8,
+    out_max: usize,
+) callconv(.c) i32 {
     last_error_len = 0;
     if (urls_len == 0) {
         setError("empty URL list");
@@ -332,7 +360,16 @@ pub fn http_parallel_get(urls_ptr: [*]const u8, urls_len: usize, out: [*]u8, out
     defer gpa.free(threads);
 
     for (jobs, 0..) |*j, i| {
-        j.* = .{ .url = url_buf[i], .status = 0, .body = .{}, .done = false };
+        j.* = .{
+            .url = url_buf[i],
+            .headers = headers_ptr[0..headers_len],
+            .opts = opts_ptr[0..opts_len],
+            .connect_ms = connect_ms,
+            .request_ms = request_ms,
+            .status = 0,
+            .body = .{},
+            .done = false,
+        };
         threads[i] = std.Thread.spawn(.{}, parallelWorker, .{j}) catch {
             j.status = -1;
             j.done = true;
@@ -363,6 +400,12 @@ pub fn http_parallel_get(urls_ptr: [*]const u8, urls_len: usize, out: [*]u8, out
 }
 
 // ── tests ────────────────────────────────────────────────────
+
+// NOTE: the tests below are NOT run by `zig build test`. engine.zig, the test
+// root, never imports this module -- the test target does not link curl, and
+// this file reaches it through curlcore. They compile only into the DLL. The
+// batched-GET behaviour is asserted from Ring instead, in
+// base/test/network/55_http_parallel_narrated.ring, where it actually runs.
 
 test "http: empty URL is rejected" {
     var body_buf: [64]u8 = undefined;
