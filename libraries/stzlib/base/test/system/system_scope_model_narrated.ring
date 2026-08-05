@@ -131,6 +131,40 @@ chk("role survives as deployment", oBack.Role() = "deployment")
 chk("capabilities survive -- gpio present, process absent", oBack.Can(:gpio) and oBack.Lacks(:process))
 chk("the capability count matches the original", oBack.CapabilitiesQ().NumberOfCapabilities() = oEsp.CapabilitiesQ().NumberOfCapabilities())
 
+# -- THE WHOLE RESOURCES FACET SURVIVES, not three quarters of it --
+#
+# An audit ran all eleven profile setters against all five renderings. The format
+# carried cpu_count and language_version but NOT the memory pair -- yet
+# _StzPopulateLive() observes all four the same way, in the same call. So a
+# profile saved from a live system came back claiming a machine with no memory,
+# and nothing said so.
+oMem = new stzSystemProfile("mem-probe")
+oMem.SetOSName("linux")
+oMem.SetCpuCount(8)
+oMem.SetMemTotalBytes(17179869184)
+oMem.SetMemFreeBytes(4294967296)
+cMem = oMem.ToStzSystem()
+
+chk("the format writes the total memory", StzFindFirst("mem_total: 17179869184", cMem) > 0)
+chk("...and the free snapshot", StzFindFirst("mem_free: 4294967296", cMem) > 0)
+chk("...saying which of the two is a snapshot", StzFindFirst("snapshot", cMem) > 0)
+
+oMemBack = new stzSystemProfile("x")
+oMemBack.FromString(cMem)
+chk("total memory survives the round trip", oMemBack.MemTotalBytes() = 17179869184)
+chk("...and so does the free snapshot", oMemBack.MemFreeBytes() = 4294967296)
+chk("...alongside the cpu count that always did", oMemBack.CpuCount() = 8)
+
+# THE NEGATIVE SIBLING: the reader must not invent memory that was never written.
+# Without this, a parser that defaulted to some number would pass every check above.
+oNoMem = new stzSystemProfile("y")
+oNoMem.FromString("name: bare" + nl + "os: linux")
+chk("a profile with no memory lines reports none", oNoMem.MemTotalBytes() = 0 and oNoMem.MemFreeBytes() = 0)
+
+# ...and the comment line is a comment, not a field: it must survive the parser
+# without becoming one.
+chk("the snapshot note does not parse as data", oMemBack.Name() = "mem-probe")
+
 ? ""
 ? "-- Scene 9: a declared profile with NO capabilities line defaults by class --"
 cMobileText = "name: my-android-app" + char(10) + "os: android" + char(10) + "arch: arm64" + char(10) + "bits: 64"
