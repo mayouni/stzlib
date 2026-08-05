@@ -62,6 +62,45 @@ Scenario("L3: brute-force lockout")
 
 	When("the lockout window passes (t=1000+900)")
 	Then("the correct password works again", oAuth.LoginAt("victim", "goodpw", 1900) != "", TRUE)
+
+	# -- AND THE WINDOW IS THE ONE THAT WAS ASKED FOR --
+	#
+	# The scene above sets the lockout to 900 seconds, which is also the DEFAULT.
+	# So every check in it passes whether SetLockoutSecondsQ() is honoured or does
+	# nothing at all -- the one control that decides how long a brute-forcer is
+	# held out had no assertion that could fail.
+	#
+	# This one uses a window that cannot be confused with the default, and pins
+	# BOTH sides of the boundary: still locked at the last second inside it, free
+	# at the first second past it.
+
+	Given("a second account with a SIXTY second lockout")
+	oShort = new stzAuth()
+	oShort.SetMaxAttemptsQ(2)
+	oShort.SetLockoutSecondsQ(60)
+	oShort.Register("bilal", "goodpw")
+
+	When("two wrong logins arrive at t=1000")
+	oShort.LoginAt("bilal", "x", 1000)
+	oShort.LoginAt("bilal", "x", 1000)
+
+	Then("the account is locked", oShort.IsLockedOutAt("bilal", 1000), TRUE)
+	Then("...still locked at the last second of the window", oShort.IsLockedOutAt("bilal", 1059), TRUE)
+	Then("...free at the first second past it", oShort.IsLockedOutAt("bilal", 1060), FALSE)
+	Then("...and the correct password is taken again", oShort.LoginAt("bilal", "goodpw", 1060) != "", TRUE)
+
+	# THE NEGATIVE SIBLING: the same failures under the DEFAULT window are still
+	# locked out at t=1060. Without this the checks above would also pass if the
+	# lockout ignored its setting and expired on some shorter fixed schedule.
+	Given("a third account left on the default window")
+	oDef = new stzAuth()
+	oDef.SetMaxAttemptsQ(2)
+	oDef.Register("chaima", "goodpw")
+	oDef.LoginAt("chaima", "x", 1000)
+	oDef.LoginAt("chaima", "x", 1000)
+
+	Then("it is STILL locked where the 60s account was free", oDef.IsLockedOutAt("chaima", 1060), TRUE)
+	Then("...and only frees at its own, longer window", oDef.IsLockedOutAt("chaima", 1900), FALSE)
 	Then("...and success cleared the failure counter", oAuth.FailedAttempts("victim"), 0)
 
 	Given("a fresh victim")
