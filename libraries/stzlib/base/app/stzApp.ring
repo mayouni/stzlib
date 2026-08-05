@@ -253,12 +253,12 @@ class stzApp from stzObject
     def GoalQ(pcGoal)
         for i = 1 to len(@aGoals)
             if @aGoals[i][1] = pcGoal
-                oG = new stzAppGoal(@aGoals[i][1])
-                oG.Means      = @aGoals[i][2]
-                oG.ReachedBy  = @aGoals[i][3]
-                oG.Within     = @aGoals[i][4]
-                oG.Respecting = @aGoals[i][5]
-                return oG
+                _oG_ = new stzAppGoal(@aGoals[i][1])
+                _oG_.Means      = @aGoals[i][2]
+                _oG_.ReachedBy  = @aGoals[i][3]
+                _oG_.Within     = @aGoals[i][4]
+                _oG_.Respecting = @aGoals[i][5]
+                return _oG_
             ok
         next
         return NULL
@@ -359,15 +359,16 @@ class stzApp from stzObject
 
     def BodyQ()
         if len(@aBody) = 0  return NULL  ok
-        oB = new stzAppBody(@aBody[1])
-        oB.Graph = @aBody[2]
-        oB.Files = @aBody[3]
-        return oB
+        _oB_ = new stzAppBody(@aBody[1])
+        _oB_.Graph = @aBody[2]
+        _oB_.Files = @aBody[3]
+        _oB_.Keep  = @aBody[4]
+        return _oB_
 
     # the body as DATA (the Q form above returns the object)
     def Body()
         if len(@aBody) = 0  return []  ok
-        return [ :label = @aBody[1], :graph = @aBody[2], :files = @aBody[3] ]
+        return [ :label = @aBody[1], :graph = @aBody[2], :files = @aBody[3], :keep = @aBody[4] ]
 
     def Save()
         if len(@aBody) = 0  return This  ok
@@ -794,6 +795,11 @@ class stzAppBody from stzObject
     @aKinds = []
     Graph = ""
     Files = ""
+    # Keep is the third thing SetBody's brace collects (Graph / Files / Keep).
+    # It was gathered into the body and then surfaced by nothing -- not here, not
+    # in Body(), not in BodyQ() -- so a world that said "Keep = :everything" had
+    # no way to be asked what it keeps.
+    Keep  = ""
     def init(paKinds)
         @aKinds = paKinds
     def Label()
