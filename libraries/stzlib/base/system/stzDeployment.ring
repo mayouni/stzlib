@@ -369,13 +369,25 @@ class stzDeploymentSite from stzObject
 
 	# the access config as inspectable DATA -- the LINK between the programming
 	# environment and this site (connection + storage + control).
+	# CAPACITY AND PROVIDER BELONG HERE. They are exactly what _SiteFeasibility()
+	# reads to decide whether a part fits a site or has to be provisioned -- and
+	# they appeared in NONE of the three renderings below. A site could be
+	# declared, printed and saved without the two facts that decide whether the
+	# deployment is possible, and a reloaded site would report "capacity not
+	# declared -- assumed ok", turning a SHORTFALL into a pass.
 	def Config()
+		_cap_ = "(undeclared)"
+		if This.HasCapacity()
+			_cap_ = @oCapacity.Text()
+		ok
 		return [
 			[ "name",    @cName ],
 			[ "kind",    @cKind ],
 			[ "connection", [ [ "endpoint", @cEndpoint ], [ "protocol", This.Protocol() ], [ "auth", @cAuthRef ] ] ],
 			[ "storage", @cStorage ],
-			[ "control", [ [ "launch", @cLaunch ], [ "status", @cStatusCmd ] ] ]
+			[ "control", [ [ "launch", @cLaunch ], [ "status", @cStatusCmd ] ] ],
+			[ "capacity", _cap_ ],
+			[ "provider", @cProvider ]
 		]
 
 	def ConfigText()
@@ -388,6 +400,17 @@ class stzDeploymentSite from stzObject
 		_c_ += "  storage:    " + _StzSiteOr(@cStorage, "(unset)") + nl
 		if @cLaunch != ""
 			_c_ += "  launch:     " + @cLaunch + nl
+		ok
+		# status was carried by Config() and ConfigJson() and missing only here --
+		# the human reading of a site disagreed with both machine readings of it
+		if @cStatusCmd != ""
+			_c_ += "  status:     " + @cStatusCmd + nl
+		ok
+		if This.HasCapacity()
+			_c_ += "  capacity:   " + @oCapacity.Text() + nl
+		ok
+		if @cProvider != ""
+			_c_ += "  provider:   " + @cProvider + nl
 		ok
 		return _c_
 
@@ -403,7 +426,18 @@ class stzDeploymentSite from stzObject
 		_c_ += ", " + _q_ + "auth" + _q_ + ": " + _q_ + @cAuthRef + _q_ + " }," + nl
 		_c_ += "  " + _q_ + "storage" + _q_ + ": " + _q_ + @cStorage + _q_ + "," + nl
 		_c_ += "  " + _q_ + "control" + _q_ + ": { " + _q_ + "launch" + _q_ + ": " + _q_ + @cLaunch + _q_
-		_c_ += ", " + _q_ + "status" + _q_ + ": " + _q_ + @cStatusCmd + _q_ + " }" + nl
+		_c_ += ", " + _q_ + "status" + _q_ + ": " + _q_ + @cStatusCmd + _q_ + " }," + nl
+
+		# capacity crosses as NUMBERS here and as text in ConfigText(): this is the
+		# form a machine reads back, and "4096MB / 8 vCPU / 500GB" is a sentence.
+		if This.HasCapacity()
+			_c_ += "  " + _q_ + "capacity" + _q_ + ": { " + _q_ + "memoryMB" + _q_ + ": " + @oCapacity.MemoryMB()
+			_c_ += ", " + _q_ + "vcpu" + _q_ + ": " + @oCapacity.ComputeVCPU()
+			_c_ += ", " + _q_ + "storageGB" + _q_ + ": " + @oCapacity.StorageGB() + " }," + nl
+		else
+			_c_ += "  " + _q_ + "capacity" + _q_ + ": null," + nl
+		ok
+		_c_ += "  " + _q_ + "provider" + _q_ + ": " + _q_ + @cProvider + _q_ + nl
 		_c_ += "}" + nl
 		return _c_
 
