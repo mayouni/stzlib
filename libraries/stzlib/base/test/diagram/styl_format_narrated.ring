@@ -86,6 +86,50 @@ catch
 done
 chk("a style file that isn't there REFUSES", bMissing = 1)
 
+# -- THE EDGE PEN STYLE, which used to reach nothing --
+#
+# SetEdgePenStyle takes the Graphviz vocabulary (solid, dashed, dotted, bold,
+# invis) and mirrors SetNodePenStyle, which has always worked -- there is no
+# SetNodeStyle, so the node side has only a pen style. SetEdgeStyle is a
+# different layer: it takes SEMANTIC values, and :Conditional resolves to dashed.
+#
+# _GetEdgeStyle() read only the semantic one, and read it whenever it was
+# "not empty" -- which is every diagram ever made, because it is born holding
+# $cDefaultEdgeStyle. So the pen style was shadowed on every path. It set an
+# attribute, its accessor read the value back, and nothing ever drew it.
+#
+# Each check below comes in two halves, because a knob that agrees with the
+# default proves nothing: the chosen style must be IN the DOT, and the style it
+# replaced must be OUT of it.
+
+oPen = new stzDiagram("pen")
+oPen.AddNode(:A)  oPen.AddNode(:B)  oPen.AddEdge(:A, :B)
+oPen.SetEdgePenStyle("bold")
+cPen = oPen.ToDot()
+chk("an edge pen style reaches the DOT", StzFindFirst("style=bold", cPen) > 0)
+chk("...and displaces the default", StzFindFirst("style=solid", cPen) = 0)
+
+oSem = new stzDiagram("sem")
+oSem.AddNode(:A)  oSem.AddNode(:B)  oSem.AddEdge(:A, :B)
+oSem.SetEdgeStyle(:Conditional)
+chk("a semantic style still resolves", StzFindFirst("style=dashed", oSem.ToDot()) > 0)
+
+oBoth = new stzDiagram("both")
+oBoth.AddNode(:A)  oBoth.AddNode(:B)  oBoth.AddEdge(:A, :B)
+oBoth.SetEdgePenStyle("dotted")
+oBoth.SetEdgeStyle(:Conditional)
+cBoth = oBoth.ToDot()
+chk("the semantic style wins over the pen", StzFindFirst("style=dashed", cBoth) > 0)
+chk("...and the pen style gives way", StzFindFirst("style=dotted", cBoth) = 0)
+
+# THE NEGATIVE SIBLING: untouched, an edge is solid. Without this every check
+# above would still pass against a diagram that emitted bold unconditionally.
+oPlain = new stzDiagram("plain")
+oPlain.AddNode(:A)  oPlain.AddNode(:B)  oPlain.AddEdge(:A, :B)
+cPlain = oPlain.ToDot()
+chk("an untouched edge is solid", StzFindFirst("style=solid", cPlain) > 0)
+chk("...and carries no pen style of its own", StzFindFirst("style=bold", cPlain) = 0)
+
 remove("_rt.stzstyl")
 
 ? ""

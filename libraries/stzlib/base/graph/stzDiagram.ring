@@ -2707,11 +2707,38 @@ class stzDiagramToDot from stzObject
 		
 		return _cEdgeColor_
 	
+	# THE EDGE STYLE COMES FROM TWO SETTERS, and both have to reach the DOT.
+	#
+	# SetEdgePenStyle takes the Graphviz vocabulary -- solid, dashed, dotted, bold,
+	# invis -- and is the exact counterpart of SetNodePenStyle, which does reach it
+	# (there is no SetNodeStyle; the node side has only the pen style). SetEdgeStyle
+	# takes SEMANTIC values instead, where :Conditional resolves to dashed, so the
+	# two are different layers over one attribute rather than aliases.
+	#
+	# Only the semantic one was ever read here. SetEdgePenStyle set an attribute
+	# that nothing emitted: it drew nothing and raised nothing, and its accessor
+	# went on reporting the value back, which is what kept it looking alive.
+	#
+	# The pen style is the base; a semantic style set on top of it wins.
+	#
+	# "Set on top of it" has to mean CHANGED FROM ITS DEFAULT. @cEdgeStyle is born
+	# holding $cDefaultEdgeStyle, so a test for "not empty" is true on every diagram
+	# ever made -- which is precisely what shadowed the pen style, and why wiring it
+	# in underneath was not enough on its own.
 	def _GetEdgeStyle()
 		_cEdgeStyle_ = "solid"
 
-		if @oDiagram.@cEdgeStyle != "" and @oDiagram.@cEdgeStyle != NULL
-			_cEdgeStyle_ = StzResolveEdgeStyle(@oDiagram.@cEdgeStyle)
+		if @oDiagram.@cEdgePenStyle != "" and @oDiagram.@cEdgePenStyle != NULL
+			_cEdgeStyle_ = @oDiagram.@cEdgePenStyle
+		ok
+
+		_bSemanticSet_ = @oDiagram.@cEdgeStyle != "" and @oDiagram.@cEdgeStyle != NULL and
+		                 StzLower("" + @oDiagram.@cEdgeStyle) != StzLower("" + $cDefaultEdgeStyle)
+
+		if _bSemanticSet_ or @oDiagram.@cEdgePenStyle = "" or @oDiagram.@cEdgePenStyle = "solid"
+			if @oDiagram.@cEdgeStyle != "" and @oDiagram.@cEdgeStyle != NULL
+				_cEdgeStyle_ = StzResolveEdgeStyle(@oDiagram.@cEdgeStyle)
+			ok
 		ok
 
 		return _cEdgeStyle_
