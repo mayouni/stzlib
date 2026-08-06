@@ -17,7 +17,7 @@ oPlot = new stzSurfacePlot([
     :Support = 10
 ])
 
-oPlot.AddPercent().AddLegend().AddValues().Show()
+oPlot.AddPercent().AddValues().Show()
 Shows(oPlot, '
 ╭──────────────────────────┬───────────╮
 │                          │           │

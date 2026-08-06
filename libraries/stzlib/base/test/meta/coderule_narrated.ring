@@ -44,7 +44,9 @@ Scenario("FROZEN behaviour: StzCheckCode reproduces the house findings")
 
 	cGood = "class Foo" + nl + "def BazQ()" + nl + "	return This" + nl
 	Then("clean source passes", StzCodeIsClean(cGood), TRUE)
-	Then("StzCodeRuleNames lists the house rules (6 after P7)", len(StzCodeRuleNames()), 6)
+	Then("StzCodeRuleNames lists the house rules (8 with the knob rules)", len(StzCodeRuleNames()), 8)
+	Then("...including dead-knob", StzFindFirst("dead-knob", StzCodeRuleNames()) > 0, TRUE)
+	Then("...and setter-resets-on-reject", StzFindFirst("setter-resets-on-reject", StzCodeRuleNames()) > 0, TRUE)
 EndScenario()
 
 Scenario("THE PAYOFF: the model sees what the text scan cannot")
@@ -87,6 +89,55 @@ Scenario("multiple violations across a fuller source come back sorted by line")
 	     LinesNonDecreasing(aF), TRUE)
 EndScenario()
 
+Scenario("The knob rules: a setting that cannot change anything")
+
+	# -- WHY THESE RULES EXIST --
+	#
+	# Nine hand audits of this library kept finding the same defect: a public
+	# setting that does nothing. SetBarChar("=") and the bars keep their old
+	# character; SetTotalLabel("GRAND") and the table still says TOTAL. Nothing
+	# raises. The setter runs, stores the value, and no code ever looks at it
+	# again. Every one of those was invisible until a person went looking.
+	#
+	# The law is one sentence: IF YOU CAN SET IT, IT MUST BE ABLE TO CHANGE
+	# SOMETHING. These two rules are the mechanical half.
+
+	Given("a class with one live knob and three broken ones")
+	cKnobs = KnobFixture()
+	aK = StzCheckCode(cKnobs)
+
+	# 1. WRITTEN AND READ BY NOTHING. The twin is named because that is how the
+	#    real one hid: @nSteps beside @nStep, one letter apart, and the setter
+	#    wrote the dead one.
+	Then("the dead attribute is an error", KnobSev(aK, "nsteps"), "error")
+	Then("...and the message names the live twin", KnobSaysTwin(aK, "nsteps"), TRUE)
+
+	# 2. READ ONLY BY ITS OWN GETTER -- it answers you and changes nothing. A
+	#    warning, not an error: another class may call that getter.
+	Then("the getter-only attribute is a warning", KnobSev(aK, "cgetteronly"), "warning")
+
+	# 3. A REJECTED VALUE MUST NOT DESTROY A GOOD ONE.
+	Then("the resetting setter is caught", KnobHasRule(aK, "setter_resets_on_reject"), TRUE)
+
+	# THE NEGATIVE SIBLING, and the one that matters most: a rule that flags
+	# everything is worse than no rule. The live knob -- written by a setter and
+	# read by the renderer -- must not appear at all.
+	Then("the LIVE knob is not flagged", KnobSev(aK, "clive"), "")
+
+	# ...nor may a comparison be mistaken for a write. Ring spells equality and
+	# assignment the same way, and reading "if @x = :Foo" as an assignment hides
+	# the very consumer this rule looks for -- which a first version did.
+	Then("a comparison is a read, not a write", KnobSev(aK, "cmode"), "")
+
+	Given("the shapes the audit actually found, in their pre-fix form")
+
+	# The self-check that matters: run the rule over the real code as it stood
+	# BEFORE each fix, and it must fire. A detector nobody tested against a known
+	# positive is a detector that fires on nothing.
+	Then("it would have caught the parser's dead twin", KnobCaught(:Parser), TRUE)
+	Then("...and the diagram's getter-only pen style", KnobCaught(:Diagram), TRUE)
+EndScenario()
+
 Summary()
 
 
@@ -120,3 +171,111 @@ func LinesNonDecreasing aF
 		if aF[i][:line] < aF[i-1][:line] return FALSE ok
 	next
 	return TRUE
+
+# -- knob-rule helpers ---------------------------------------------------------
+
+# One class: a live knob, a dead one with a twin, a getter-only one, a setter
+# that resets on refusal, and a comparison that must not read as a write.
+func KnobFixture()
+	_nl_ = char(10)
+	_c_ = "class stzKnobDemo from stzObject" + _nl_
+	_c_ += "	@nStep = 1" + _nl_
+	_c_ += "	@cLive = ''" + _nl_
+	_c_ += "	@cMode = ''" + _nl_
+	_c_ += "	@cGetterOnly = ''" + _nl_
+	_c_ += "	def SetNumberOfSteps(pnSteps)" + _nl_
+	_c_ += "		@nSteps = pnSteps" + _nl_
+	_c_ += "		This.Parse(pnSteps)" + _nl_
+	_c_ += "	def SetLive(pcVal)" + _nl_
+	_c_ += "		@cLive = pcVal" + _nl_
+	_c_ += "	def SetMode(pcVal)" + _nl_
+	_c_ += "		@cMode = pcVal" + _nl_
+	_c_ += "	def SetGetterOnly(pcVal)" + _nl_
+	_c_ += "		@cGetterOnly = pcVal" + _nl_
+	_c_ += "	def GetterOnly()" + _nl_
+	_c_ += "		return @cGetterOnly" + _nl_
+	_c_ += "	def SetSplines(pcType)" + _nl_
+	_c_ += "		if StzFindFirst(pcType, $acTypes) > 0" + _nl_
+	_c_ += "			@cSplineType = pcType" + _nl_
+	_c_ += "		else" + _nl_
+	_c_ += "			@cSplineType = $cDefault" + _nl_
+	_c_ += "		ok" + _nl_
+	_c_ += "	def Render()" + _nl_
+	_c_ += "		if @cMode = :Wide" + _nl_
+	_c_ += "			return @cLive + @cSplineType" + _nl_
+	_c_ += "		ok" + _nl_
+	_c_ += "		return @cLive" + _nl_
+	return _c_
+
+# the severity reported for an attribute, or "" when it was not flagged
+func KnobSev(paFindings, pcAttr)
+	_n_ = len(paFindings)
+	for _i_ = 1 to _n_
+		if "" + paFindings[_i_][:rule] != "dead_knob"
+			loop
+		ok
+		if StzFindFirst("@" + pcAttr + " ", "" + paFindings[_i_][:message]) > 0
+			return "" + paFindings[_i_][:severity]
+		ok
+	next
+	return ""
+
+func KnobSaysTwin(paFindings, pcAttr)
+	_n_ = len(paFindings)
+	for _i_ = 1 to _n_
+		if StzFindFirst("@" + pcAttr + " ", "" + paFindings[_i_][:message]) > 0
+			return StzFindFirst("one letter away", "" + paFindings[_i_][:message]) > 0
+		ok
+	next
+	return FALSE
+
+func KnobHasRule(paFindings, pcRule)
+	_n_ = len(paFindings)
+	for _i_ = 1 to _n_
+		if "" + paFindings[_i_][:rule] = pcRule
+			return TRUE
+		ok
+	next
+	return FALSE
+
+# Would the rule have caught the real thing, in the real file, as it stood
+# before the fix? The fixtures are written out by the guard itself so the check
+# does not depend on git being reachable.
+func KnobCaught(pWhich)
+	_cSrc_ = ""
+	if pWhich = :Parser
+		_cSrc_ = KnobParserPreFix()
+	else
+		_cSrc_ = KnobDiagramPreFix()
+	ok
+	_aF_ = StzCheckCode(_cSrc_)
+	return KnobHasRule(_aF_, "dead_knob")
+
+# stzListParser as it was: the setter wrote @nSteps, Parse() set @nStep.
+func KnobParserPreFix()
+	_nl_ = char(10)
+	_c_ = "class stzListParser from stzObject" + _nl_
+	_c_ += "	@nStep = 1" + _nl_
+	_c_ += "	def SetNumberOfSteps(pnSteps)" + _nl_
+	_c_ += "		@nSteps = pnSteps" + _nl_
+	_c_ += "		This.Parse(This.StartPosition(), This.EndPosition(), pnSteps)" + _nl_
+	_c_ += "	def NumberOfSteps()" + _nl_
+	_c_ += "		return @nStep" + _nl_
+	return _c_
+
+# stzDiagram as it was: the edge pen style answered its getter and drew nothing,
+# while its NODE counterpart reached the emitter.
+func KnobDiagramPreFix()
+	_nl_ = char(10)
+	_c_ = "class stzDiagram from stzObject" + _nl_
+	_c_ += "	@cEdgePenStyle = 'solid'" + _nl_
+	_c_ += "	@cNodePenStyle = 'solid'" + _nl_
+	_c_ += "	def SetEdgePenStyle(pcStyle)" + _nl_
+	_c_ += "		@cEdgePenStyle = pcStyle" + _nl_
+	_c_ += "	def SetNodePenStyle(pcStyle)" + _nl_
+	_c_ += "		@cNodePenStyle = pcStyle" + _nl_
+	_c_ += "	def EdgePenStyle()" + _nl_
+	_c_ += "		return @cEdgePenStyle" + _nl_
+	_c_ += "	def ToDot()" + _nl_
+	_c_ += "		return 'style=' + @cNodePenStyle" + _nl_
+	return _c_

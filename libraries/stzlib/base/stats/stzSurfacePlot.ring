@@ -41,8 +41,10 @@ class stzSurfacePlot from stzObject
 	@anValues = []
 	@acLabels = []
 	@acCanvas = []
-	@bShowLegend = FALSE
-	@aLegend = []
+	# NO LEGEND HERE. There were three public ways to ask for one --
+	# AddLegend(), SetLegend(), IncludeLegend() -- all writing a flag that
+	# nothing read, and an @aLegend list nothing filled. A surface plot has
+	# never drawn a legend. stzMBarPlot has a real one if you need the shape.
 
 def init(paData)
 	if NOT isList(paData)
@@ -158,18 +160,6 @@ def init(paData)
 
 	def SetLabels(bShow)
 		@bShowLabels = bShow
-		return This
-
-	def AddLegend()
-		@bShowLegend = TRUE
-		return This
-
-	def SetLegend(bShow)
-		@bShowLegend = bShow
-		return This
-
-	def IncludeLegend()
-		@bShowLegend = TRUE
 		return This
 
 	def SetWidth(nWidth)
