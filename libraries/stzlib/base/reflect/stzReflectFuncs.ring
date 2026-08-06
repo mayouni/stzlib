@@ -2061,8 +2061,21 @@ func _StzParseThenSamples(pcFile)
 	return _aOut_
 
 # String-blind ( vs ) balance of a line (fail-safe: mis-balance -> skip).
+#
+# The arguments were REVERSED -- `StzFindCS(pcStr, "(", 1)` asks for the whole
+# line inside the one-character string "(", which is never found. Both terms
+# were 0, so this returned 0 for every input, and both callers read that as
+# "balanced": the continuation loop above never ran, so a multi-line Then(...)
+# sample was never joined and was dropped by the 3-argument check downstream.
+# Single-line samples kept working, which is why it stayed hidden.
+#
+# A survivor of the 2026-07-18 needle-first migration, in the shape that
+# migration is most likely to leave: the call still COMPILES and still RETURNS
+# A NUMBER, so nothing points at it -- it just quietly answers 0 forever.
+# Grep for a find whose SECOND argument is a short literal; the haystack is
+# almost never three characters long.
 func _StzParenBalance(pcStr)
-	return len(StzFindCS(pcStr, "(", 1)) - len(StzFindCS(pcStr, ")", 1))
+	return len(StzFindCS("(", pcStr, 1)) - len(StzFindCS(")", pcStr, 1))
 
 # Split `Then( a, b, c )` into its 3 top-level args (string-aware commas).
 func _StzSplitThenArgs(pcCall)
