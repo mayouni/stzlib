@@ -3082,21 +3082,33 @@ func StzFindCS(pThing, paIn, pCaseSensitive)
 		paIn = paIn[2]
 	ok
 
-	# String haystack -> engine-backed walk (no Q() wrap).
+	# String haystack -> ONE engine call for ALL positions.
+	#
+	# This was a Ring loop calling FindFirstFrom once per hit, which was
+	# wrong twice over:
+	#
+	#   OVERLAPPING. It advanced by the needle's LENGTH after each hit, so
+	#   StzFindCS("aa", "aaaa") answered [1, 3] while the class surface,
+	#   stzString("aaaa").Find("aa"), answered [1, 2, 3]. Two spellings of
+	#   one operation disagreeing. Overlapping is the Softanza behaviour
+	#   (see the BoundedBy family, which relies on it), so the global was
+	#   the outlier -- the engine primitive had it right all along.
+	#
+	#   COST. n matches meant n crossings, and each call re-resolved its
+	#   start position, which made collecting all occurrences quadratic.
+	#
+	# str_find_cs walks the string ONCE, counting codepoints incrementally,
+	# and hands back every position. Both problems are the same fix.
 	if isString(paIn) and isString(pThing) and pThing != ""
 		_bCase_ = CaseSensitive(pCaseSensitive)
 		_pH_ = StzEngineString(paIn)
-		_pS_ = StzEngineString(pThing)
-		_nSubLen_ = StzEngineStringCount(_pS_)
-		StzEngineStringFree(_pS_)
+		_pFcRes_ = StzEngineStringFindCS(_pH_, pThing, _bCase_)
 		_aResult_ = []
-		_nPos_ = 1
-		while TRUE
-			_nFound_ = StzEngineStringFindFirstFromCS(_pH_, pThing, _nPos_, _bCase_)
-			if _nFound_ < 1 exit ok
-			_aResult_ + _nFound_
-			_nPos_ = _nFound_ + _nSubLen_
-		end
+		_nFcCount_ = StzEngineFindResultCount(_pFcRes_)
+		for _nFcI_ = 1 to _nFcCount_
+			_aResult_ + StzEngineFindResultGet(_pFcRes_, _nFcI_)
+		next
+		StzEngineFindResultFree(_pFcRes_)
 		StzEngineStringFree(_pH_)
 		return _aResult_
 	ok
