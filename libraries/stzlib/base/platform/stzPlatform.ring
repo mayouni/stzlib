@@ -634,10 +634,19 @@ class stzPlatform from stzObject
 			@cWhy = "identity '" + pcUser + "' already exists."
 			return FALSE
 		ok
+		# THE ROUNDS ARE STORED WITH THE RECORD, not read from the platform at
+		# verification time. They were not, and the consequence was silent: raise
+		# SetKdfRounds -- which this class's own header invites -- and every
+		# identity already registered could no longer log in, refused with
+		# "identity/secret mismatch", which reads as a wrong password.
+		#
+		# A KDF cost is a property of the hash that was made, not of the machine
+		# checking it later. Storing it is also what lets the cost be raised over
+		# time without locking anyone out.
 		_cSalt_ = StzEngineCryptoRandomHex(16)
 		_cHash_ = StzEngineCryptoPbkdf2("" + pcSecret, _cSalt_, @nKdfRounds, 32)
 		@oDb.Exec("INSERT INTO stz_identity (user, secret) VALUES ('" +
-		          This._Sql(pcUser) + "', '" + _cSalt_ + ":" + _cHash_ + "')")
+		          This._Sql(pcUser) + "', '" + @nKdfRounds + ":" + _cSalt_ + ":" + _cHash_ + "')")
 		return TRUE
 
 	# Returns a session token, or "" (Why() explains) on refusal. The
@@ -655,15 +664,37 @@ class stzPlatform from stzObject
 		          _cToken_ + "', '" + This._Sql(pcUser) + "', " + StzEngineTimeNowMs() + ")")
 		return _cToken_
 
-	# stored = "salt:hash"; re-derive and constant-time compare.
+	# stored = "rounds:salt:hash"; re-derive at THOSE rounds and compare in
+	# constant time.
+	#
+	# A two-part "salt:hash" is a record written before the rounds were stored:
+	# it is verified at the platform's current setting, which is exactly what
+	# used to happen to every record. So nothing that works today stops working,
+	# and everything written from now on survives a change of cost.
 	def _SecretMatches(pcStored, pcSecret)
-		_nSep_ = StzFindFirst(":", pcStored)
-		if _nSep_ = 0
+		_aParts_ = StzSplit("" + pcStored, ":")
+		_nParts_ = len(_aParts_)
+
+		_nRounds_ = @nKdfRounds
+		_cSalt_ = ""
+		_cHash_ = ""
+
+		if _nParts_ = 3
+			_nRounds_ = 0 + _aParts_[1]
+			_cSalt_ = _aParts_[2]
+			_cHash_ = _aParts_[3]
+		but _nParts_ = 2
+			_cSalt_ = _aParts_[1]
+			_cHash_ = _aParts_[2]
+		else
 			return FALSE
 		ok
-		_cSalt_ = StzLeft(pcStored, _nSep_ - 1)
-		_cHash_ = StzMidToEnd(pcStored, _nSep_ + 1)
-		_cTry_ = StzEngineCryptoPbkdf2("" + pcSecret, _cSalt_, @nKdfRounds, 32)
+
+		if _nRounds_ < 1
+			return FALSE
+		ok
+
+		_cTry_ = StzEngineCryptoPbkdf2("" + pcSecret, _cSalt_, _nRounds_, 32)
 		return StzEngineCryptoConstEqual(_cTry_, _cHash_) = 1
 
 	def SessionUser(pcToken)
