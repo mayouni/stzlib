@@ -42,15 +42,26 @@ next
 chk("...and each position really does begin the needle", bSpellsFox)
 
 ? ""
-? "-- Scene 2: the global find is NON-overlapping, and stays so --"
-chk("'aa' in 'aaaa' is [1, 3]", SameList(StzFindCS("aa", "aaaa", TRUE), [1, 3]))
-chk("'ab' in 'ababab' is [1, 3, 5]", SameList(StzFindCS("ab", "ababab", TRUE), [1, 3, 5]))
-# Pinned because the speed work replaced the search underneath this and an
-# overlapping engine primitive was RIGHT THERE. NOTE: the class surface
-# stzString.Find("aa") answers [1,2,3] -- overlapping -- so the two disagree.
-# That disagreement is recorded here rather than silently resolved by an
-# optimisation; whichever way it is settled should be a deliberate change
-# with this line updated, not a side effect.
+? "-- Scene 2: find is OVERLAPPING, and both surfaces say so --"
+chk("'aa' in 'aaaa' is [1, 2, 3]", SameList(StzFindCS("aa", "aaaa", TRUE), [1, 2, 3]))
+# The global used to answer [1, 3]: its Ring loop advanced by the needle's
+# LENGTH after each hit, so the third "aa" -- the one starting inside the
+# second -- was never looked for. The class surface used the engine
+# primitive and answered [1, 2, 3] all along. Overlapping is the Softanza
+# behaviour (the BoundedBy family depends on it), so the global was the
+# outlier, and this is what the disagreement is settled AS.
+oFindS = new stzString("aaaa")
+chk("...and the class surface agrees, character for character",
+	SameList(StzFindCS("aa", "aaaa", TRUE), oFindS.Find("aa")))
+# THE POINT OF THIS ASSERTION: the two spellings drifted apart silently for
+# as long as nobody compared them. Comparing them is now a test, so the next
+# person to optimise one of the two cannot quietly re-fork them.
+chk("non-overlapping patterns are unaffected",
+	SameList(StzFindCS("ab", "ababab", TRUE), [1, 3, 5]))
+chk("case-insensitive overlaps the same way",
+	SameList(StzFindCS("AA", "aAaA", FALSE), [1, 2, 3]))
+chk("Last and Nth derive from that same list",
+	StzFindLast("aa", "aaaa") = 3 and StzFindNth("aa", "aaaa", 2) = 2)
 
 ? ""
 ? "-- Scene 3: absent needles, and needles longer than the string --"
