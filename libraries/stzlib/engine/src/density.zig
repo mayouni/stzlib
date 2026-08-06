@@ -65,6 +65,7 @@
 //! NEGATED: t-SNE descends its buffer, and this term is being maximised.
 
 const std = @import("std");
+const similarity = @import("similarity.zig");
 
 /// Below this a radius is treated as "everything coincident" rather than fed to log().
 const MIN_RADIUS: f64 = 1e-12;
@@ -169,11 +170,9 @@ pub fn meanLogRadius(edges: []const Edge, x: []const f64, n: usize, d: usize, al
     @memset(acc, 0);
     @memset(tot, 0);
     for (edges) |e| {
-        var s: f64 = 0;
-        for (0..d) |t| {
-            const diff = x[e.i * d + t] - x[e.j * d + t];
-            s += diff * diff;
-        }
+        // Was this loop written out in index form. See the note on the dense
+        // variant below.
+        const s = similarity.stz_sim_euclidean_sq(x[e.i * d ..].ptr, x[e.j * d ..].ptr, @intCast(d));
         acc[e.i] += e.w * s;
         acc[e.j] += e.w * s;
         tot[e.i] += e.w;
@@ -336,11 +335,19 @@ pub fn buildTargetDense(
         for (i + 1..n) |j| {
             const w = pmat[i * n + j];
             if (w <= 0) continue;
-            var s: f64 = 0;
-            for (0..d) |t| {
-                const diff = x[i * d + t] - x[j * d + t];
-                s += diff * diff;
-            }
+            // A squared euclidean distance, written out here in index form
+            // inside an O(n^2) loop while similarity.zig held the same sum
+            // lane-parallel. It is the fifth place in this engine that had
+            // its own copy of one of these; it delegates now.
+            //
+            // Lane summation re-associates, so this is not bit-identical --
+            // the same trade the ann change made, and acceptable for the same
+            // reason: these are distances between data points, all terms
+            // non-negative and of like magnitude, so the cancellation regime
+            // that makes re-association matter cannot arise. The result feeds
+            // a @log of a mean radius in t-SNE/UMAP calibration, whose guards
+            // assert behaviour, not last bits.
+            const s = similarity.stz_sim_euclidean_sq(x[i * d ..].ptr, x[j * d ..].ptr, @intCast(d));
             centered[i] += w * s;
             centered[j] += w * s;
             total[i] += w;
