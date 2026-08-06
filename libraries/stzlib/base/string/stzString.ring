@@ -2220,6 +2220,26 @@ class stzString from stzObject
 				_csNorm_ = 1
 			ok
 		ok
+		# A plain string needle -- by far the common case -- goes straight to
+		# the engine on the handle this object already holds.
+		#
+		# It used to build `new stzStringFinder(This)` on EVERY call, and Ring
+		# copies an object when it is assigned to an attribute, so each Find()
+		# duplicated the entire string. That made the CLASS surface SLOWER than
+		# the bare global: 26.70 ms against 12.36 for 200 finds over 180 KB,
+		# even though the class is the one holding a resident engine handle.
+		# A helper object that copies the payload to look at it is the
+		# wrap-to-validate anti-pattern wearing a delegation costume.
+		#
+		# The finder is still used for the shapes it actually adds -- a LIST of
+		# needles (FindManyCS) and the [:Of, needle] named-param form -- where
+		# one copy per call is not on any hot path.
+		if isString(pcSubStr)
+			if pcSubStr = "" return [] ok
+			return This._DrainFind(
+				StzEngineStringFindCS(@pEngine, pcSubStr, @CaseSensitive(_csNorm_)) )
+		ok
+
 		_oFaFinder_ = new stzStringFinder(This)
 		return _oFaFinder_.FindCS(pcSubStr, _csNorm_)
 

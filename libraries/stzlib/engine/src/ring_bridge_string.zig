@@ -469,11 +469,35 @@ fn ring_StringSplitAllCS(p: *anyopaque) callconv(.c) void {
 }
 
 // NOTE: Zig-side bulk list returns (ring_vm_api_newlist + add* + retlist) for
-// FindAll/Split were prototyped here but REMOVED: the built list is lost
-// through deep Ring call chains (a VM-level fragility -- the bridge builds the
-// list correctly, yet the nested caller receives an empty list). FindAll/Split
-// use the correct result-handle drain instead; the real win for list-returning
-// ops is laziness (not materializing), not a Zig-side bulk build.
+// FindAll/Split were prototyped here and REMOVED. RETRIED AND RE-REMOVED
+// 2026-08-06, with the reason corrected -- the original note blamed a
+// VM-level fragility ("the built list is lost through deep Ring call chains,
+// the nested caller receives an empty list"), and THAT DOES NOT REPRODUCE on
+// Ring 1.27: a bulk FindPositions returned the right list at call depths 0-3
+// and through an object method.
+//
+// The real reason is simply that it is SLOWER. 180 KB haystack, 4000 matches,
+// x200, handle held:
+//
+//     result handle + per-item drain   ~105 ms
+//     Zig-side bulk build + retlist    ~177 ms   (1.7x WORSE, stable)
+//
+// `retlist` copies the list across the return boundary, and that copy costs
+// more than 4000 FFI calls plus in-place Ring appends. So the drain stands.
+//
+// Worth knowing WHY this keeps getting retried: the drain really is the
+// dominant cost -- of a find returning 4000 matches, the engine search is
+// 1.95 ms, the drain 101 ms, and marshalling the haystack 6.4 ms. It is 92%
+// of the work and it LOOKS like the obvious thing to bulk away. It is not
+// bulk-able through this boundary; making it cheaper needs a route that does
+// not hand a large Ring list back across a return at all.
+//
+// (ring_StringRegexExtractAllList above IS a working bulk return and is
+// faster than its drain -- because that drain returned per-item HANDLES, and
+// Ring's managed-pointer tracking is O(n) per handle, making it quadratic.
+// Positions are plain numbers with no such tracking, so the comparison does
+// not carry over. Same shape, different cost model -- check which one you are
+// in before assuming the fix transfers.)
 
 fn ring_StrListCount(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.stz_strlist_count(getStrListHandle(p, 1))));
