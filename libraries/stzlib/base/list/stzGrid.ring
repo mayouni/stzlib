@@ -166,7 +166,12 @@ class stzGrid From stzObject
 		def SetCurrentPosition(_nCol_, _nRow_)
 			This.SetCurrentNode(_nCol_, _nRow_)
 
+		# SetCurrenCell is missing the T of Current. It stays, because someone may
+		# have typed it, but the name a caller would actually reach for now exists.
 		def SetCurrenCell(_nCol_, _nRow_)
+			This.SetCurrentNode(_nCol_, _nRow_)
+
+		def SetCurrentCell(_nCol_, _nRow_)
 			This.SetCurrentNode(_nCol_, _nRow_)
 
 	#-- MOVEMENT METHODS
@@ -1229,6 +1234,26 @@ class stzGrid From stzObject
 		
 	def EmptyChar()
 		return @cEmptyChar
+
+	# THE FIFTH CHARACTER. The grid draws with five -- obstacle, path, current,
+	# empty and NEIGHBOUR -- and four of them had a setter and a reader. The
+	# neighbour character had neither, though ShowNeighbors() draws with it, so
+	# the one mark you cannot choose is the one marking what is next to you.
+	def SetNeighborChar(_cChar_)
+		if isString(_cChar_) and IsChar(_cChar_)
+			@cNeighborChar = _cChar_
+		else
+			stzRaise("Neighbor character must be a single character!")
+		ok
+
+		def SetNeighbourChar(_cChar_)
+			This.SetNeighborChar(_cChar_)
+
+	def NeighborChar()
+		return @cNeighborChar
+
+		def NeighbourChar()
+			return @cNeighborChar
 			
 	#TODO // Add this method AddRandomPath()
 
@@ -2006,11 +2031,17 @@ class stzGrid From stzObject
 			ok
 		next
 		
-		# Draw with the specified character
-		This.ShowPath(@aPath, _cChar_)
+		# Draw with the specified character.
+		#
+		# ShowPath RETURNS the picture it drew as well as printing it; this threw
+		# that away, so nothing could ask what had been drawn -- which is why the
+		# neighbour mark had no way to be checked. The path is restored before
+		# returning, so the result is held first.
+		_cDrawn_ = This.ShowPath(@aPath, _cChar_)
 		
 		# Restore original path
 		@aPath = _aOldPath_
+		return _cDrawn_
 
 		def ShowCells(aNodes, _cChar_)
 			This.ShowNodes(aNodes, _cChar_)
