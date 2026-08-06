@@ -57,4 +57,67 @@ Scenario("the Commons stores NO plaintext secret")
 	$oDb.Close()
 EndScenario()
 
+Scenario("Raising the KDF cost does not lock anybody out")
+
+	# -- WHY THIS SCENE EXISTS --
+	#
+	# The record used to be "salt:hash" and verification re-derived at the
+	# platform's CURRENT @nKdfRounds. So the cost was a property of the machine
+	# checking the password rather than of the hash that was made -- and this
+	# class's own header invites tuning it ("tunable via SetKdfRounds()").
+	#
+	# Call SetKdfRounds after anyone has registered and every one of them is
+	# refused, with "identity/secret mismatch", which reads exactly like a wrong
+	# password. Silent, misleading, and unfixable without re-registering everyone.
+	#
+	# The scene above could not see it: it sets the rounds BEFORE registering and
+	# never changes them, so both sides always agreed.
+
+	Given("an identity registered at 20000 rounds")
+	oKdfDb = new stzDatabase(":memory:")
+	oKdf = StzPlatformQ("cost-change")
+	oKdf.SetKdfRounds(20000)
+	oKdf.OpenCommonsOn(oKdfDb)
+	Then("registration succeeds", oKdf.RegisterIdentity("ali", "s3cret"), TRUE)
+	Then("...and the secret opens a session", len(oKdf.OpenSession("ali", "s3cret")) > 0, TRUE)
+
+	# THE RECORD CARRIES ITS OWN COST. Without this the check below could pass
+	# for the wrong reason -- for instance if the rounds were being ignored
+	# altogether.
+	cKdfRow = oKdfDb.Value("SELECT secret FROM stz_identity WHERE user = 'ali'")
+	Then("the stored record begins with the rounds it was made at", StzLeft(cKdfRow, 6), "20000:")
+	Then("...and still holds no plaintext", StzFindFirst("s3cret", cKdfRow), 0)
+
+	When("the platform raises its cost to 30000")
+	oKdf.SetKdfRounds(30000)
+
+	Then("the identity still logs in", len(oKdf.OpenSession("ali", "s3cret")) > 0, TRUE)
+
+	# THE NEGATIVE SIBLING: the fix must not have turned verification into a
+	# formality. A wrong secret is still refused, at either cost.
+	Then("...but a wrong secret is still refused", oKdf.OpenSession("ali", "nope"), "")
+
+	When("a NEW identity registers at the raised cost")
+	oKdf.RegisterIdentity("bilal", "other")
+	cKdfRow2 = oKdfDb.Value("SELECT secret FROM stz_identity WHERE user = 'bilal'")
+	Then("its record carries the new cost", StzLeft(cKdfRow2, 6), "30000:")
+	Then("...and it logs in beside the old one", len(oKdf.OpenSession("bilal", "other")) > 0, TRUE)
+	Then("...while the first still does too", len(oKdf.OpenSession("ali", "s3cret")) > 0, TRUE)
+
+	# A RECORD WRITTEN BEFORE THE ROUNDS WERE STORED is a two-part "salt:hash".
+	# It is verified at the platform's current setting -- exactly what used to
+	# happen to every record -- so nothing that works today stops working.
+	Given("a legacy two-part record, as the old code wrote them")
+	oKdf.SetKdfRounds(20000)
+	cLegacySalt = StzEngineCryptoRandomHex(16)
+	cLegacyHash = StzEngineCryptoPbkdf2("legacypw", cLegacySalt, 20000, 32)
+	oKdfDb.Exec("INSERT INTO stz_identity (user, secret) VALUES ('old', '" +
+	            cLegacySalt + ":" + cLegacyHash + "')")
+
+	Then("it still opens a session", len(oKdf.OpenSession("old", "legacypw")) > 0, TRUE)
+	Then("...and still refuses a wrong secret", oKdf.OpenSession("old", "nope"), "")
+
+	oKdfDb.Close()
+EndScenario()
+
 Summary()
