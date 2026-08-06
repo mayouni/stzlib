@@ -3329,6 +3329,35 @@ fn ring_StringFindCS(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.str_find_cs(h, s, l, case)), FIND_HANDLE);
 }
 
+// Bulk FindCS: one call returns a native Ring list of the 1-based positions,
+// instead of a result handle Ring drains one StzEngineFindResultGet at a time.
+//
+// The drain is where a find spends its time -- of a 180 KB find returning
+// 4000 matches, the engine search is 1.95 ms and the drain 101 ms.
+//
+// THIS WAS TRIED, MEASURED SLOWER, AND REVERTED ONCE -- on an UNFAIR
+// benchmark. That comparison built the drain's list inline while the bulk
+// version paid a Ring function-return copy, so it charged the bulk path for
+// a copy the drain path also pays in real use (every caller returns the list
+// out of StzFindCS). Re-measured through an identical return path, which is
+// the only comparison that means anything.
+fn ring_StringFindPositionsCS(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const h = getHandle(p, 1);
+    const s = ring_vm_api_getstring(p, 2);
+    const l = ring_vm_api_getstringsize(p, 2);
+    const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    const res = string.str_find_cs(h, s, l, case);
+    if (res) |r| {
+        // Already 1-based (toExternal applied engine-side), so no +1 here.
+        for (r.positions.items) |v| {
+            R.ring_list_adddouble(out, @floatFromInt(v));
+        }
+        string.stz_find_result_free(res);
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
 fn ring_StringFindLastCS(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
@@ -4233,6 +4262,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringfindfirstcs", .func = &ring_StringFindFirstCS },
     .{ .name = "stzenginestringfindfirstfromcs", .func = &ring_StringFindFirstFromCS },
     .{ .name = "stzenginestringfindcs", .func = &ring_StringFindCS },
+    .{ .name = "stzenginestringfindpositionscs", .func = &ring_StringFindPositionsCS },
     .{ .name = "stzenginestringfindlastcs", .func = &ring_StringFindLastCS },
     .{ .name = "stzenginestringcountofcs", .func = &ring_StringCountOfCS },
     .{ .name = "stzenginestringcontainscs", .func = &ring_StringContainsCS },

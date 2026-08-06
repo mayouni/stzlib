@@ -2236,8 +2236,10 @@ class stzString from stzObject
 		# one copy per call is not on any hot path.
 		if isString(pcSubStr)
 			if pcSubStr = "" return [] ok
-			return This._DrainFind(
-				StzEngineStringFindCS(@pEngine, pcSubStr, @CaseSensitive(_csNorm_)) )
+			# One call, finished Ring list -- see the note in stzStringFinder
+			# on why the per-item drain lost 1.7-2.1x once both paths were
+			# measured through the same return boundary.
+			return StzEngineStringFindPositionsCS(@pEngine, pcSubStr, @CaseSensitive(_csNorm_))
 		ok
 
 		_oFaFinder_ = new stzStringFinder(@pEngine)
