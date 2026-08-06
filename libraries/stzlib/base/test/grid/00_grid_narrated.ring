@@ -51,6 +51,49 @@ Scenario("Absolute movement")
     Then("MoveToFirstNode returns to [1,1]", ListEq(o.CurrentPosition(), [ 1, 1 ]), TRUE)
 EndScenario()
 
+Scenario("Every mark the grid draws with can be chosen")
+
+	# -- WHY THIS SCENE EXISTS --
+	#
+	# A matrix ran all fifteen stzGrid setters against the picture, on a grid that
+	# actually HAD an obstacle, a path and a current node -- because an earlier
+	# probe used an empty grid, found SetObstacleChar and SetPathChar changed
+	# nothing, and called them dead. There was simply nothing on the board for
+	# them to draw. A knob about obstacles needs an obstacle before it can be
+	# judged.
+	#
+	# All fifteen were alive. What was missing was a door: the grid draws with
+	# FIVE characters and only four could be set. ShowNeighbors() marked
+	# neighbours with a character no caller could name.
+
+	Given("a grid with an obstacle, a path and a current node")
+	oG = GridFixture()
+
+	# the four that always worked -- their negative sibling is the default, which
+	# must differ, or these would pass against a setter that did nothing
+	Then("the obstacle mark is drawn", GridDraws(oG, "#", :Obstacle), TRUE)
+	Then("...and is not there by default", GridDraws(GridFixture(), "#", :None), FALSE)
+	Then("the path mark is drawn", GridDraws(oG, "+", :Path), TRUE)
+	Then("the current mark is drawn", GridDraws(oG, "@", :Current), TRUE)
+	Then("the empty mark is drawn", GridDraws(oG, "~", :Empty), TRUE)
+
+	# THE FIFTH, which had neither setter nor reader
+	Given("a grid asked to show what is next to the current node")
+	Then("the neighbour mark answers its reader", NeighborCharOf("*"), "*")
+	Then("...and it is drawn with", NeighborDrawn("*"), TRUE)
+	Then("...while the default is not", NeighborDrawn("N") and NOT NeighborDrawnWith("*", "N"), TRUE)
+
+	# A REJECTED VALUE IS REFUSED, not quietly swapped for a default -- the shape
+	# its four siblings already had.
+	Then("a non-character is refused", NeighborRefuses("too long"), TRUE)
+
+	Given("the cell alias nobody could spell")
+	# SetCurrenCell is missing the T of Current. Both spellings now reach the
+	# same place; the old one stays because someone may have typed it.
+	Then("the spelled-out name works", CellAliasPos(:Spelled), "[ 2, 3 ]")
+	Then("...and so does the old one", CellAliasPos(:Typo), "[ 2, 3 ]")
+EndScenario()
+
 Summary()
 
 func Grid aDims
@@ -67,3 +110,63 @@ func ListEq aA, aE
         ok
     next
     return TRUE
+
+# -- grid mark helpers ---------------------------------------------------------
+
+func GridFixture()
+	_g_ = new stzGrid([ 5, 4 ])
+	_g_.AddObstacle(2, 2)
+	_g_.AddPathNode(1, 1)
+	_g_.SetCurrentNode(4, 1)
+	return _g_
+
+func GridDraws(poGrid, pcChar, pWhich)
+	switch pWhich
+	on :Obstacle
+		poGrid.SetObstacleChar(pcChar)
+	on :Path
+		poGrid.SetPathChar(pcChar)
+	on :Current
+		poGrid.SetCurrentChar(pcChar)
+	on :Empty
+		poGrid.SetEmptyChar(pcChar)
+	on :None
+		# nothing set -- the negative sibling
+	off
+	return StzFindFirst(pcChar, poGrid.ToString()) > 0
+
+func NeighborCharOf(pcChar)
+	_g_ = new stzGrid([ 5, 4 ])
+	_g_.SetNeighborChar(pcChar)
+	return _g_.NeighborChar()
+
+# ShowNeighbors() prints, so the mark is looked for in what ShowNodes would
+# draw: set the mark, then read the picture the grid renders for those nodes.
+func NeighborDrawn(pcChar)
+	return NeighborDrawnWith(pcChar, pcChar)
+
+func NeighborDrawnWith(pcSet, pcLookFor)
+	_g_ = new stzGrid([ 5, 4 ])
+	_g_.SetCurrentNode(3, 2)
+	_g_.SetNeighborChar(pcSet)
+	_cOut_ = _g_.ShowNodes(_g_.Neighbors(), _g_.NeighborChar())
+	return StzFindFirst(pcLookFor, _cOut_) > 0
+
+func NeighborRefuses(pcBad)
+	_g_ = new stzGrid([ 5, 4 ])
+	_bRaised_ = FALSE
+	try
+		_g_.SetNeighborChar(pcBad)
+	catch
+		_bRaised_ = TRUE
+	done
+	return _bRaised_
+
+func CellAliasPos(pWhich)
+	_g_ = new stzGrid([ 5, 4 ])
+	if pWhich = :Spelled
+		_g_.SetCurrentCell(2, 3)
+	else
+		_g_.SetCurrenCell(2, 3)
+	ok
+	return "" + @@(_g_.CurrentPosition())
