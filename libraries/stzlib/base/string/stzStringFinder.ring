@@ -16,32 +16,73 @@
 class stzStringFinder from stzObject
 
 	@oString
+	@pEngineOnly		# engine handle when built the cheap way; 0 otherwise
 
 	  #===================#
 	 #   INITIALIZATION  #
 	#===================#
 
-	def init(pStrOrStzStrObj)
-		if isString(pStrOrStzStrObj)
-			@oString = new stzString(pStrOrStzStrObj)
-		but isObject(pStrOrStzStrObj)
-			@oString = pStrOrStzStrObj
+	# Accepts a string, an stzString, OR a bare engine handle (a number).
+	#
+	# THE HANDLE FORM EXISTS BECAUSE THE OBJECT FORM COPIES. Ring duplicates an
+	# object when it is assigned to an attribute, so `new stzStringFinder(This)`
+	# copied the entire string -- and stzString creates a finder per call in 20
+	# methods, making its class surface SLOWER than the bare global functions
+	# (26.70 ms vs 12.36 for 200 finds over 180 KB) despite being the side that
+	# holds a resident engine handle.
+	#
+	# Seventeen of this class's uses of @oString are `.Engine()` -- a number.
+	# Passing that number directly costs nothing, and the full stzString is
+	# rebuilt LAZILY (from the engine's own bytes) only for the handful of
+	# methods that need more: Content, NumberOfChars, IsEmpty, StartsWithCS,
+	# EndsWithCS, SubStrings, _FindSubStr.
+	def init(pStrOrStzStrObjOrHandle)
+		@pEngineOnly = 0
+		if isNumber(pStrOrStzStrObjOrHandle)
+			@pEngineOnly = pStrOrStzStrObjOrHandle
+		but isString(pStrOrStzStrObjOrHandle)
+			@oString = new stzString(pStrOrStzStrObjOrHandle)
+		but isObject(pStrOrStzStrObjOrHandle)
+			@oString = pStrOrStzStrObjOrHandle
 		else
-			StzRaise("Can't create stzStringFinder! Parameter must be a string or stzString object.")
+			StzRaise("Can't create stzStringFinder! Parameter must be a string, an stzString object, or an engine handle.")
 		ok
+
+	# The engine handle, without materialising anything.
+	def _Engine()
+		if @pEngineOnly != 0
+			return @pEngineOnly
+		ok
+		return @oString.Engine()
+
+	# The stzString, materialised on FIRST need from the engine's own bytes
+	# when this finder was built from a bare handle. Everything that is not
+	# just a handle read goes through here, so the copy is paid only by the
+	# callers that genuinely need the object.
+	def _Str()
+		# `isObject`, not `isNull`: an attribute that was never assigned is not
+		# NULL in Ring, so an isNull test reports "already materialised" and
+		# hands back a non-object -- which surfaces far away as R13 "Object is
+		# required" inside whichever method happened to need the string.
+		if NOT isObject(@oString)
+			if @pEngineOnly != 0
+				@oString = new stzString( StzEngineStringData(@pEngineOnly) )
+			ok
+		ok
+		return @oString
 
 	  #===============================#
 	 #     CONTENT ACCESS            #
 	#===============================#
 
 	def Content()
-		return @oString.Content()
+		return This._Str().Content()
 
 	def NumberOfChars()
-		return @oString.NumberOfChars()
+		return This._Str().NumberOfChars()
 
 	def IsEmpty()
-		return @oString.IsEmpty()
+		return This._Str().IsEmpty()
 
 	  #===============================#
 	 #     CONTAINS                  #
@@ -62,7 +103,7 @@ class stzStringFinder from stzObject
 		ok
 
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		return StzEngineStringContainsCS(@oString.Engine(), pcSubStr, _bCase_)
+		return StzEngineStringContainsCS(This._Engine(), pcSubStr, _bCase_)
 
 	def Contains(pcSubStr)
 		return This.ContainsCS(pcSubStr, 1)
@@ -125,7 +166,7 @@ class stzStringFinder from stzObject
 		# tried but loses the list through deep Ring call chains -- a VM-level
 		# fragility; the drain is correct and findall is Ring-list-bound
 		# anyway, so bulk gave no real gain here.)
-		pResult = StzEngineStringFindCS(@oString.Engine(), pcSubStr, _bCase_)
+		pResult = StzEngineStringFindCS(This._Engine(), pcSubStr, _bCase_)
 		_nCount_ = StzEngineFindResultCount(pResult)
 		if _nCount_ = 0
 			StzEngineFindResultFree(pResult)
@@ -181,7 +222,7 @@ class stzStringFinder from stzObject
 		ok
 
 		# Direct engine call — single FFI instead of N iterated find-next
-		_pH_ = @oString.Engine()
+		_pH_ = This._Engine()
 		_nResult_ = StzEngineStringFindNthCS(_pH_, pcSubStr, _n_, pCaseSensitive)
 		return _nResult_
 
@@ -205,7 +246,7 @@ class stzStringFinder from stzObject
 		ok
 
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		_nResult_ = @oString._FindSubStr(pcSubStr, 1, _bCase_)
+		_nResult_ = This._Str()._FindSubStr(pcSubStr, 1, _bCase_)
 
 		return _nResult_
 
@@ -223,7 +264,7 @@ class stzStringFinder from stzObject
 		ok
 
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		_nResult_ = StzEngineStringFindLastCS(@oString.Engine(), pcSubStr, _bCase_)
+		_nResult_ = StzEngineStringFindLastCS(This._Engine(), pcSubStr, _bCase_)
 		# Engine returns 1-based (INDEX_BASE=1), -1 for not found
 		if _nResult_ > 0
 			return _nResult_
@@ -240,7 +281,7 @@ class stzStringFinder from stzObject
 
 	def NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		return StzEngineStringCountOfCS(@oString.Engine(), pcSubStr, _bCase_)
+		return StzEngineStringCountOfCS(This._Engine(), pcSubStr, _bCase_)
 
 	def NumberOfOccurrence(pcSubStr)
 		return This.NumberOfOccurrenceCS(pcSubStr, 1)
@@ -303,7 +344,7 @@ class stzStringFinder from stzObject
 			return 0
 		ok
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		return StzEngineStringStartsWithCS(@oString.Engine(), pcSubStr, _bCase_)
+		return StzEngineStringStartsWithCS(This._Engine(), pcSubStr, _bCase_)
 
 	def StartsWith(pcSubStr)
 		return This.StartsWithCS(pcSubStr, 1)
@@ -313,7 +354,7 @@ class stzStringFinder from stzObject
 			return 0
 		ok
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		return StzEngineStringEndsWithCS(@oString.Engine(), pcSubStr, _bCase_)
+		return StzEngineStringEndsWithCS(This._Engine(), pcSubStr, _bCase_)
 
 	def EndsWith(pcSubStr)
 		return This.EndsWithCS(pcSubStr, 1)
@@ -431,14 +472,14 @@ class stzStringFinder from stzObject
 	#===============================#
 
 	def SubStringsCS(pCaseSensitive)
-		_cStr_ = @oString.Content()
+		_cStr_ = This._Str().Content()
 		if _cStr_ = ""
 			return []
 		ok
 
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
-		pResult = StzEngineStringAllSubstringsCS(@oString.Engine(), _bCase_)
+		pResult = StzEngineStringAllSubstringsCS(This._Engine(), _bCase_)
 		_cJoined_ = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 
@@ -453,7 +494,7 @@ class stzStringFinder from stzObject
 
 	def DuplicatesCS(pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		_pH_ = @oString.Engine()
+		_pH_ = This._Engine()
 		_pR_ = StzEngineStringDuplicateSubstringsCS(_pH_, _bCase_)
 		_cJoined_ = StzEngineStringData(_pR_)
 		StzEngineStringFree(_pR_)
@@ -512,7 +553,7 @@ class stzStringFinder from stzObject
 		# accepted WITHOUT eval() -- this is the W path that replaced the retired
 		# ...WXT() raw-eval forms. Idempotent for plain-DSL predicates.
 		pcCondition = _StzNormalizeCharCond(pcCondition)
-		_cFcwResult_ = StzEngineStringFindCharsW(@oString.Content(), pcCondition)
+		_cFcwResult_ = StzEngineStringFindCharsW(This._Str().Content(), pcCondition)
 		return _ParseCSVNumbers(_cFcwResult_)
 
 	def FindCharsW(pcCondition)
@@ -533,13 +574,13 @@ class stzStringFinder from stzObject
 	# with the list W-DSL, then maps the matching indices back to positions.
 	def FindSubStringsWCS(pcCondition, pCaseSensitive)
 		_cNorm_ = _StzNormalizeSubStringCond(pcCondition)
-		_nN_ = @oString.NumberOfChars()
+		_nN_ = This._Str().NumberOfChars()
 		if _nN_ = 0 return [] ok
 		# ENGINE-BACKED enumeration: SubStrings() returns every substring in
 		# the same (i,j) order this loop used, without the O(n^2) per-Section
 		# engine round-trips. Positions are reconstructed by the same nested
 		# counter (pure Ring arithmetic, no round-trips).
-		_aSubs_ = @oString.SubStrings()
+		_aSubs_ = This._Str().SubStrings()
 		_aPos_ = []
 		for _iSsw_ = 1 to _nN_
 			for _jSsw_ = _iSsw_ to _nN_
@@ -569,7 +610,7 @@ class stzStringFinder from stzObject
 	# if none).
 	def IndexOfCS(pcSubStr, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		_pH_ = @oString.Engine()
+		_pH_ = This._Engine()
 		return StzEngineStringFindFirstCS(_pH_, pcSubStr, _bCase_)
 
 	def IndexOf(pcSubStr)
@@ -581,7 +622,7 @@ class stzStringFinder from stzObject
 
 	# The positions of every occurrence of the given char.
 	def FindAllChar(pcChar)
-		_pH_ = @oString.Engine()
+		_pH_ = This._Engine()
 		pHChar = StzEngineString(pcChar)
 		_nCp_ = StzEngineStringCharAt(pHChar, 1)
 		StzEngineStringFree(pHChar)
@@ -610,7 +651,7 @@ class stzStringFinder from stzObject
 		_nL_ = len(pcPrefixes)
 		for _i_ = 1 to _nL_
 			_s_ = pcPrefixes[_i_]
-			if isString(_s_) and _s_ != "" and @oString.StartsWithCS(_s_, pCaseSensitive)
+			if isString(_s_) and _s_ != "" and This._Str().StartsWithCS(_s_, pCaseSensitive)
 				return 1
 			ok
 		next
@@ -629,7 +670,7 @@ class stzStringFinder from stzObject
 		_nL_ = len(pcSuffixes)
 		for _i_ = 1 to _nL_
 			_s_ = pcSuffixes[_i_]
-			if isString(_s_) and _s_ != "" and @oString.EndsWithCS(_s_, pCaseSensitive)
+			if isString(_s_) and _s_ != "" and This._Str().EndsWithCS(_s_, pCaseSensitive)
 				return 1
 			ok
 		next
@@ -643,7 +684,7 @@ class stzStringFinder from stzObject
 	#===============================#
 
 	def BetweenNth(pcOpen, pcClose, _n_)
-		_pH_ = @oString.Engine()
+		_pH_ = This._Engine()
 		# Engine uses 0-based nth; Softanza uses 1-based
 		_pR_ = StzEngineStringBetweenNth(_pH_, pcOpen, pcClose, _n_ - 1)
 		_c_ = StzEngineStringData(_pR_)
@@ -655,7 +696,7 @@ class stzStringFinder from stzObject
 	#===============================#
 
 	def CharsBetween(nFrom, nTo)
-		_pH_ = @oString.Engine()
+		_pH_ = This._Engine()
 		_pR_ = StzEngineStringCharsBetween(_pH_, nFrom, nTo)
 		_c_ = StzEngineStringData(_pR_)
 		StzEngineStringFree(_pR_)
@@ -667,7 +708,7 @@ class stzStringFinder from stzObject
 
 	# Find the first match of the given regex pattern.
 	def FindFirstRegex(pcPattern)
-		_pH_ = @oString.Engine()
+		_pH_ = This._Engine()
 		return StzEngineStringRegexFindFirst(_pH_, pcPattern, 0)
 
 		def FindRegex(pcPattern)
@@ -679,7 +720,7 @@ class stzStringFinder from stzObject
 		if _bCase_ = 0
 			_nFlags_ = 1
 		ok
-		_pH_ = @oString.Engine()
+		_pH_ = This._Engine()
 		return StzEngineStringRegexFindFirst(_pH_, pcPattern, _nFlags_)
 
 		def FindRegexCS(pcPattern, pCaseSensitive)
@@ -687,7 +728,7 @@ class stzStringFinder from stzObject
 
 	# Find every match of the given regex pattern.
 	def FindAllRegex(pcPattern)
-		_pH_ = @oString.Engine()
+		_pH_ = This._Engine()
 		pResult = StzEngineStringRegexFindAll(_pH_, pcPattern, 0)
 		if pResult = NULL
 			return []
@@ -709,7 +750,7 @@ class stzStringFinder from stzObject
 		if _bCase_ = 0
 			_nFlags_ = 1
 		ok
-		_pH_ = @oString.Engine()
+		_pH_ = This._Engine()
 		pResult = StzEngineStringRegexFindAll(_pH_, pcPattern, _nFlags_)
 		if pResult = NULL
 			return []
