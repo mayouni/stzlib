@@ -186,6 +186,44 @@ done
 chk("an unknown fluency mode REFUSES", bFl = 1)
 
 ? ""
+? "-- Scene 7: the checkpoint lifetime, across its RANGE and back again --"
+#
+# Scene 5 above proves a TTL of 1 expires a checkpoint. That is one point on a
+# line: it cannot tell "the setting is read" from "any non-zero TTL expires
+# everything". These walk the range, and then turn the knob back.
+#
+# Every call is CHAINED. ConversationQ() hands back a COPY -- Ring copies a list
+# on assignment, objects inside it included -- so a setter called on a held
+# variable mutates the copy and vanishes. Writing this the natural way
+# (oC = ...ConversationQ("x") then oC.SetCheckpointTTL(1)) silently does nothing.
+
+chk("TTL 0 never expires, however many turns pass", LiveAfter(0, 3) = 1)
+chk("TTL 1 expires on the first turn after", LiveAfter(1, 1) = 0)
+chk("TTL 2 survives that turn...", LiveAfter(2, 1) = 1)
+chk("...and expires on the second", LiveAfter(2, 2) = 0)
+chk("TTL 3 survives two...", LiveAfter(3, 2) = 1)
+chk("...and expires on the third", LiveAfter(3, 3) = 0)
+
+# THE KNOB TURNS BACK. Expiry is computed when the list is read, not stamped on
+# the checkpoint, so lowering and raising the policy is not destructive -- and
+# the audit record never lost the entry either way.
+oBk = new stzKnowledgeGraph("ttl-back")
+oBk.AddConversationQ("b").SetGoal(StzGoalQ().RequireOne("kitchenB", "led-by"))
+oBk.AskIn("b")
+oBk.ReplyIn("b", 7)
+oBk.ConversationQ("b").SetCheckpointTTL(1)
+oBk.AskIn("b")
+chk("with a TTL the checkpoint has left the live list",
+	len(oBk.ConversationQ("b").Checkpoints()) = 0)
+oBk.ConversationQ("b").SetCheckpointTTL(0)
+chk("...and setting the TTL back to 0 brings it back",
+	len(oBk.ConversationQ("b").Checkpoints()) = 1)
+chk("...with nothing expired any more",
+	oBk.ConversationQ("b").NumberOfExpiredCheckpoints() = 0)
+chk("...and the audit record never lost it",
+	len(oBk.ConversationQ("b").AllCheckpoints()) = 1)
+
+? ""
 ? "=========================================="
 ? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
 ? "=========================================="
@@ -200,3 +238,16 @@ func chk(cLabel, bCond)
 		nFail++
 		? "  [FAIL] " + cLabel
 	ok
+
+# How many checkpoints are still LIVE with this TTL, after this many more turns?
+# One refused reply makes one checkpoint; the asks that follow age it.
+func LiveAfter(pnTTL, pnAsks)
+	_oK_ = new stzKnowledgeGraph("ttl-range")
+	_oK_.AddConversationQ("r").SetGoal(StzGoalQ().RequireOne("kitchenR", "led-by"))
+	_oK_.AskIn("r")
+	_oK_.ReplyIn("r", 7)
+	_oK_.ConversationQ("r").SetCheckpointTTL(pnTTL)
+	for _i_ = 1 to pnAsks
+		_oK_.AskIn("r")
+	next
+	return len(_oK_.ConversationQ("r").Checkpoints())
