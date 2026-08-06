@@ -18,6 +18,7 @@
 // english).
 
 const std = @import("std");
+const ascii = @import("../ascii.zig");
 const core = @import("core.zig");
 const wb = @import("word_break.zig");
 const unicode = core.unicode;
@@ -158,7 +159,7 @@ var envs: [langs.len]?*SN_env = [_]?*SN_env{null} ** langs.len;
 fn asciiEqlFold(a: []const u8, b: []const u8) bool {
     if (a.len != b.len) return false;
     for (a, b) |x, y| {
-        const lx = if (x >= 'A' and x <= 'Z') x + 32 else x;
+        const lx = ascii.lower(x);
         if (lx != y) return false; // table names are already lowercase
     }
     return true;
@@ -182,7 +183,7 @@ fn lowerInto(word: []const u8, buf: []u8) []const u8 {
         const b = word[i];
         if (b < 0x80) {
             if (oi >= buf.len) return word;
-            buf[oi] = if (b >= 'A' and b <= 'Z') b + 32 else b;
+            buf[oi] = ascii.lower(b);
             oi += 1;
             i += 1;
             continue;

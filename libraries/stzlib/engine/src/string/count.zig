@@ -5,6 +5,7 @@
 // All functions use C calling convention.
 
 const std = @import("std");
+const ascii = @import("../ascii.zig");
 const core = @import("core.zig");
 const wb = @import("word_break.zig");
 const mem = core.mem;
@@ -680,7 +681,7 @@ pub fn str_count_consonants(handle: StzStringHandle) callconv(.c) c_int {
         if (off + cp_len > src.len) break;
         if (cp_len == 1) {
             const c = src[off];
-            const lower = if (c >= 'A' and c <= 'Z') c + 32 else c;
+            const lower = ascii.lower(c);
             if (lower >= 'a' and lower <= 'z') {
                 if (lower != 'a' and lower != 'e' and lower != 'i' and lower != 'o' and lower != 'u') {
                     count += 1;

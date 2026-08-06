@@ -8,6 +8,7 @@
 // C ABI: stz_list_* prefix.
 
 const std = @import("std");
+const ascii = @import("ascii.zig");
 const allocator = std.heap.c_allocator;
 const value_mod = @import("value.zig");
 const StzValue = value_mod.StzValue;
@@ -185,8 +186,8 @@ fn strEqlCI(a_ptr: [*]const u8, a_len: usize, b_ptr: [*]const u8, b_len: usize) 
     const a = a_ptr[0..a_len];
     const b = b_ptr[0..b_len];
     for (a, b) |ca, cb| {
-        const la = if (ca >= 'A' and ca <= 'Z') ca + 32 else ca;
-        const lb = if (cb >= 'A' and cb <= 'Z') cb + 32 else cb;
+        const la = ascii.lower(ca);
+        const lb = ascii.lower(cb);
         if (la != lb) return false;
     }
     return true;
@@ -198,8 +199,8 @@ fn strCompareCI(a_ptr: [*]const u8, a_len: usize, b_ptr: [*]const u8, b_len: usi
         const a = a_ptr[0..min_len];
         const b = b_ptr[0..min_len];
         for (a, b) |ca, cb| {
-            const la = if (ca >= 'A' and ca <= 'Z') ca + 32 else ca;
-            const lb = if (cb >= 'A' and cb <= 'Z') cb + 32 else cb;
+            const la = ascii.lower(ca);
+            const lb = ascii.lower(cb);
             if (la < lb) return -1;
             if (la > lb) return 1;
         }
@@ -253,7 +254,7 @@ fn hashValueInto(h: *std.hash.Wyhash, v: *const StzValue, cs: bool) void {
                 h.update(s.ptr[0..s.len]);
             } else {
                 for (s.ptr[0..s.len]) |c| {
-                    const lc: u8 = if (c >= 'A' and c <= 'Z') c + 32 else c;
+                    const lc: u8 = ascii.lower(c);
                     h.update(&[_]u8{lc});
                 }
             }
@@ -1298,7 +1299,7 @@ fn classifyStrsFast(arr: []const []u8, cs: bool) ?*StzList {
         var folded: ?[]u8 = null;
         if (!cs) {
             const fb = allocator.alloc(u8, s.len) catch continue;
-            for (s, 0..) |c, j| fb[j] = if (c >= 'A' and c <= 'Z') c + 32 else c;
+            for (s, 0..) |c, j| fb[j] = ascii.lower(c);
             key = fb;
             folded = fb;
         }

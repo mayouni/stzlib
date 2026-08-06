@@ -18,6 +18,7 @@
 // C ABI: stz_expr_* prefix.
 
 const std = @import("std");
+const ascii = @import("ascii.zig");
 const char = @import("char.zig");
 const unicode = @import("unicode.zig");
 const alloc = std.heap.page_allocator;
@@ -308,7 +309,7 @@ fn isDigit(c: u8) bool {
 }
 
 fn toLower(c: u8) u8 {
-    return if (c >= 'A' and c <= 'Z') c + 32 else c;
+    return ascii.lower(c);
 }
 
 fn tokenize(src: []const u8, pos: *usize) Token {
@@ -1109,7 +1110,7 @@ pub fn eval(prog: *const Program, ctx: *EvalCtx) Val {
                     ok = true;
                     for (0..a.data.s.len) |j| {
                         const ch = a.data.s.ptr[j];
-                        const lc = if (ch >= 'A' and ch <= 'Z') ch + 32 else ch;
+                        const lc = ascii.lower(ch);
                         if (!(lc == 'a' or lc == 'e' or lc == 'i' or lc == 'o' or lc == 'u')) { ok = false; break; }
                     }
                 }
@@ -1123,7 +1124,7 @@ pub fn eval(prog: *const Program, ctx: *EvalCtx) Val {
                     for (0..a.data.s.len) |j| {
                         const ch = a.data.s.ptr[j];
                         const is_alpha = (ch >= 'A' and ch <= 'Z') or (ch >= 'a' and ch <= 'z');
-                        const lc = if (ch >= 'A' and ch <= 'Z') ch + 32 else ch;
+                        const lc = ascii.lower(ch);
                         const is_vow = (lc == 'a' or lc == 'e' or lc == 'i' or lc == 'o' or lc == 'u');
                         if (!(is_alpha and !is_vow)) { ok = false; break; }
                     }
@@ -1200,7 +1201,7 @@ pub fn eval(prog: *const Program, ctx: *EvalCtx) Val {
                     const s = a.data.s;
                     if (ctx.allocScratch(s.len)) |buf| {
                         for (0..s.len) |j| {
-                            buf[j] = if (s.ptr[j] >= 'a' and s.ptr[j] <= 'z') s.ptr[j] - 32 else s.ptr[j];
+                            buf[j] = ascii.upper(s.ptr[j]);
                         }
                         push(&stack, &sp, Val.initStr(buf.ptr, buf.len));
                     } else push(&stack, &sp, a);

@@ -1,4 +1,5 @@
 const std = @import("std");
+const ascii = @import("ascii.zig");
 
 // ── Paragraph splitting ────────────────────────────────────────
 
@@ -181,7 +182,7 @@ fn countSyllables(word: []const u8) u32 {
     var count: u32 = 0;
     var prev_vowel = false;
     for (word) |ch| {
-        const lower = if (ch >= 'A' and ch <= 'Z') ch + 32 else ch;
+        const lower = ascii.lower(ch);
         const is_vowel = lower == 'a' or lower == 'e' or lower == 'i' or lower == 'o' or lower == 'u' or lower == 'y';
         if (is_vowel and !prev_vowel) count += 1;
         prev_vowel = is_vowel;

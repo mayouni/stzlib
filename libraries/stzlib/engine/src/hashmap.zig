@@ -6,6 +6,7 @@
 // C ABI: stz_hashmap_* prefix.
 
 const std = @import("std");
+const ascii = @import("ascii.zig");
 const allocator = std.heap.c_allocator;
 const value_mod = @import("value.zig");
 const StzValue = value_mod.StzValue;
@@ -75,8 +76,8 @@ pub const StzHashMap = struct {
 fn asciiEqlCI(a: []const u8, b: []const u8) bool {
     if (a.len != b.len) return false;
     for (a, b) |ca, cb| {
-        const la = if (ca >= 'A' and ca <= 'Z') ca + 32 else ca;
-        const lb = if (cb >= 'A' and cb <= 'Z') cb + 32 else cb;
+        const la = ascii.lower(ca);
+        const lb = ascii.lower(cb);
         if (la != lb) return false;
     }
     return true;

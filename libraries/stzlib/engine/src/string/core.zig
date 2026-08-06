@@ -8,6 +8,7 @@ pub const mem = std.mem;
 
 pub const gpa = std.heap.c_allocator;
 pub const unicode = @import("../unicode.zig");
+pub const ascii = @import("../ascii.zig");
 
 // ─── Error Reporting ───
 
@@ -169,9 +170,9 @@ pub const StzString = struct {
         // of one predicate meant vectorising the free function left this
         // one scalar -- so it delegates now rather than agreeing by
         // convention.
-        const ascii = isAllAscii(self.data.items);
-        self.cached_is_ascii = ascii;
-        return ascii;
+        const is_ascii = isAllAscii(self.data.items);
+        self.cached_is_ascii = is_ascii;
+        return is_ascii;
     }
 
     pub fn cpCount(self: *StzString) usize {
@@ -559,34 +560,7 @@ pub fn isAllAscii(bytes: []const u8) bool {
 /// it wins on the distribution rather than on the benchmark's tail.
 /// Recorded because "the compiler will vectorise it" is a claim, and
 /// this one was only half right.
-pub fn asciiCaseInto(src: []const u8, dst: []u8, comptime to_upper: bool) void {
-    const lo: u8 = if (to_upper) 'a' else 'A';
-    const hi: u8 = if (to_upper) 'z' else 'Z';
-
-    const W = std.simd.suggestVectorLength(u8) orelse {
-        for (src, 0..) |b, i| {
-            dst[i] = if (b >= lo and b <= hi) (if (to_upper) b - 32 else b + 32) else b;
-        }
-        return;
-    };
-    const Vec = @Vector(W, u8);
-    const vlo: Vec = @splat(lo);
-    const vhi: Vec = @splat(hi);
-    const delta: Vec = @splat(32);
-    const zero: Vec = @splat(0);
-
-    var i: usize = 0;
-    while (i + W <= src.len) : (i += W) {
-        const v: Vec = src[i..][0..W].*;
-        const in_range = (v >= vlo) & (v <= vhi);
-        const adj = @select(u8, in_range, delta, zero);
-        dst[i..][0..W].* = if (to_upper) v - adj else v + adj;
-    }
-    while (i < src.len) : (i += 1) {
-        const b = src[i];
-        dst[i] = if (b >= lo and b <= hi) (if (to_upper) b - 32 else b + 32) else b;
-    }
-}
+pub const asciiCaseInto = ascii.caseInto;
 
 /// First occurrence of `needle` in `haystack` at or after `start`.
 ///
@@ -651,40 +625,13 @@ pub fn bmhSearch(haystack: []const u8, needle: []const u8, start: usize) ?usize 
     return null;
 }
 
-pub fn asciiLower(b: u8) u8 {
-    return if (b >= 'A' and b <= 'Z') b | 0x20 else b;
-}
+// These three now live in ascii.zig, dependency-free, because the same
+// arithmetic was hand-written in autodiff/bayes/bytes/expr as well and only
+// this copy was ever maintained. Kept as aliases so existing callers and the
+// tests below are undisturbed.
+pub const asciiLower = ascii.lower;
+pub const ciEqlAscii = ascii.eqlIgnoreCase;
 
-/// `a` equals `b_lower` ignoring ASCII case. `b_lower` must ALREADY be lower.
-pub fn ciEqlAscii(a: []const u8, b_lower: []const u8) bool {
-    if (a.len != b_lower.len) return false;
-    for (a, b_lower) |x, y| {
-        if (asciiLower(x) != y) return false;
-    }
-    return true;
-}
-
-/// Case-insensitive search over ASCII text, WITHOUT materialising a folded
-/// copy of the haystack. `needle_lower` must already be lowercased.
-///
-/// The case-insensitive find paths all began by casefolding the whole
-/// haystack through utf8proc -- an allocation and a full transform on EVERY
-/// call, because Ring rebuilds the handle each time so nothing can be cached
-/// across calls. Measured at 180 KB: casefold 4.76 ms of a 6.04 ms
-/// case-insensitive find, i.e. 79% of the work was preparing to search
-/// rather than searching.
-///
-/// For ASCII, that preparation is pure waste: casefolding ASCII is exactly
-/// lowercasing, so the folded text is the same LENGTH and every position maps
-/// 1:1 -- the fold could only ever have changed which bytes were compared,
-/// which is something a comparison can do by itself. So this lowercases each
-/// candidate block IN REGISTERS as it scans, and never writes a second
-/// haystack anywhere.
-///
-/// Same first/last-byte candidate filter as bmhSearch, with both the loaded
-/// blocks lowered before comparing. Non-ASCII input still goes the utf8proc
-/// route -- there, folding genuinely can change length (SS -> ss) and the
-/// position mapping with it.
 pub fn bmhSearchCiAscii(haystack: []const u8, needle_lower: []const u8, start: usize) ?usize {
     const n = needle_lower.len;
     const h = haystack.len;
@@ -1120,11 +1067,11 @@ test "asciiCaseInto matches the byte loop it replaced" {
         for (0..n) |i| src[i] = @intCast((i * 7 + n) % 256);
 
         asciiCaseInto(src[0..n], got[0..n], true);
-        for (src[0..n], 0..) |b, i| want[i] = if (b >= 'a' and b <= 'z') b - 32 else b;
+        for (src[0..n], 0..) |b, i| want[i] = ascii.upper(b);
         try std.testing.expectEqualSlices(u8, want[0..n], got[0..n]);
 
         asciiCaseInto(src[0..n], got[0..n], false);
-        for (src[0..n], 0..) |b, i| want[i] = if (b >= 'A' and b <= 'Z') b + 32 else b;
+        for (src[0..n], 0..) |b, i| want[i] = ascii.lower(b);
         try std.testing.expectEqualSlices(u8, want[0..n], got[0..n]);
     }
 

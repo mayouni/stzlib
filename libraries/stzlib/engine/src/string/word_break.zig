@@ -27,6 +27,7 @@
 // separators and are skipped. That is what WordIter yields.
 
 const std = @import("std");
+const ascii = @import("../ascii.zig");
 const unicode = @import("../unicode.zig");
 
 // utf8proc General_Category integer values (mirror of unicode.zig's CAT_*).
@@ -382,7 +383,7 @@ fn isAbbrevBefore(src: []const u8, dot_start: usize) bool {
     var k: usize = 0;
     while (k < n) : (k += 1) {
         const c = src[s + k];
-        buf[k] = if (c >= 'A' and c <= 'Z') c + 32 else c;
+        buf[k] = ascii.lower(c);
     }
     const w = buf[0..n];
     const abbrevs = [_][]const u8{ "mr", "mrs", "ms", "dr", "prof", "st", "vs", "etc", "eg", "ie", "inc", "ltd", "no", "fig", "al", "jr", "sr" };

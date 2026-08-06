@@ -22,6 +22,7 @@
 //   extracted text if needed)
 
 const std = @import("std");
+const ascii = @import("ascii.zig");
 
 const gpa = std.heap.c_allocator;
 
@@ -584,7 +585,7 @@ fn eqIgnoreCase(a: []const u8, b: []const u8) bool {
 }
 
 fn toLower(c: u8) u8 {
-    return if (c >= 'A' and c <= 'Z') c + 32 else c;
+    return ascii.lower(c);
 }
 
 fn isTagNameChar(c: u8) bool {

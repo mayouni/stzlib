@@ -5,6 +5,7 @@
 // oriented by construction. Used for fuzzy name matching and search.
 
 const std = @import("std");
+const ascii = @import("../ascii.zig");
 const core = @import("core.zig");
 const mem = core.mem;
 const gpa = core.gpa;
@@ -22,7 +23,7 @@ pub fn str_soundex(handle: ?*StzString) callconv(.c) ?*StzString {
     const result = str_new() orelse return null;
     if (src.len == 0) return result;
     // First letter uppercase
-    const first: u8 = if (src[0] >= 'a' and src[0] <= 'z') src[0] - 32 else src[0];
+    const first: u8 = ascii.upper(src[0]);
     result.data.appendSlice(gpa, &[_]u8{first}) catch return result;
     const map = [26]u8{ '0', '1', '2', '3', '0', '1', '2', '0', '0', '2', '2', '4', '5', '5', '0', '1', '2', '6', '2', '3', '0', '1', '0', '2', '0', '2' };
     var count: usize = 1;
@@ -60,7 +61,7 @@ pub fn str_metaphone(handle: ?*StzString) callconv(.c) ?*StzString {
     var buf: [256]u8 = undefined;
     const wlen = @min(src.len, 256);
     for (0..wlen) |i| {
-        buf[i] = if (src[i] >= 'a' and src[i] <= 'z') src[i] - 32 else src[i];
+        buf[i] = ascii.upper(src[i]);
     }
     const word = buf[0..wlen];
 

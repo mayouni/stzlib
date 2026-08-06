@@ -7,6 +7,7 @@
 //     word/sentence counts (WordIter/SentenceIter) and a syllable heuristic.
 
 const std = @import("std");
+const ascii = @import("../ascii.zig");
 const core = @import("core.zig");
 const wb = @import("word_break.zig");
 const gpa = core.gpa;
@@ -31,7 +32,7 @@ fn buildSw() void {
 
 fn lowerAscii(w: []const u8, buf: []u8) []const u8 {
     if (w.len > buf.len) return w;
-    for (w, 0..) |c, i| buf[i] = if (c >= 'A' and c <= 'Z') c + 32 else c;
+    for (w, 0..) |c, i| buf[i] = ascii.lower(c);
     return buf[0..w.len];
 }
 
@@ -92,7 +93,7 @@ pub fn str_is_stopword(handle: StzStringHandle) callconv(.c) c_int {
 }
 
 fn isVowel(c: u8) bool {
-    const l = if (c >= 'A' and c <= 'Z') c + 32 else c;
+    const l = ascii.lower(c);
     return l == 'a' or l == 'e' or l == 'i' or l == 'o' or l == 'u' or l == 'y';
 }
 

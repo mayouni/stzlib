@@ -11,6 +11,7 @@
 // exactly. Words are tokenized through the UAX#29 seam (WordIter).
 
 const std = @import("std");
+const ascii = @import("../ascii.zig");
 const core = @import("core.zig");
 const wb = @import("word_break.zig");
 const mem = core.mem;
@@ -91,7 +92,7 @@ fn normalize(word: []const u8, buf: []u8) []const u8 {
     if (alldig) return if (word.len == 4) "!YEAR" else "!DIGITS";
     if (isDigit(word[0])) return "!DIGITS";
     if (word.len > buf.len) return word;
-    for (word, 0..) |c, i| buf[i] = if (c >= 'A' and c <= 'Z') c + 32 else c;
+    for (word, 0..) |c, i| buf[i] = ascii.lower(c);
     return buf[0..word.len];
 }
 
