@@ -32,6 +32,7 @@ class stzTimeLine from stzObject
 	# Display properties
 	@nVizWidth = 52
 	@nVizMinWidth = 30
+	@nVizMinHeight = 3
 	@nVizHeight = 5 # Will adjust autumatically to the required hight
 
 	@cAxisChar = char(226) + char(148) + char(128)
@@ -1440,7 +1441,12 @@ class stzTimeLine from stzObject
 		@nVizWidth = max([@nVizMinWidth, n])
 		
 	def SetVizHeight(n)
-		@nVizHeight = max([@nVizHeight, n])
+		# max() AGAINST ITSELF was a ratchet: the height could only ever go UP,
+		# so SetVizHeight(20) then SetVizHeight(5) left 20 and the smaller value
+		# was swallowed without a word. Its sibling SetVizWidth floors against a
+		# MINIMUM, which is what was meant here too -- 3 rows, the floor this
+		# class already applies when a height arrives through ToStringXT.
+		@nVizHeight = max([@nVizMinHeight, n])
 		
 	def VizWidth()
 		return @nVizWidth

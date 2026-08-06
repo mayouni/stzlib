@@ -3,7 +3,8 @@
 # #  SetVizWidth and SetVizHeight  #
 #
 # Extracted from stzcalendartest.ring, block #48.
-#ERR Error (C22) : Function redefinition, function is already defined!
+# (was #ERR C22 under Ring 1.24 -- the redefinition clash is gone in 1.27,
+#  and the height can be LOWERED now, which this example never tries.)
 
 load "../../stzBase.ring"
 

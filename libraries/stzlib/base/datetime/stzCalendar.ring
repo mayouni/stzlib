@@ -42,6 +42,7 @@ class stzCalendar from stzObject
 
 	# Display dimensions
 	@nVizMinWidth = 40
+	@nVizMinHeight = 3
 	@nVizWidth = 50
 	@nVizHeight = 10
 
@@ -1948,7 +1949,12 @@ def CompareWith(_oOtherCal_)
 		@nVizWidth = max([@nVizMinWidth, n])
 		
 	def SetVizHeight(n)
-		@nVizHeight = max([@nVizHeight, n])
+		# max() AGAINST ITSELF was a ratchet: the height could only ever go UP,
+		# so SetVizHeight(20) then SetVizHeight(5) left 20 and the smaller value
+		# was swallowed without a word. Its sibling SetVizWidth floors against a
+		# MINIMUM, which is what was meant here too -- 3 rows, the floor this
+		# class already applies when a height arrives through ToStringXT.
+		@nVizHeight = max([@nVizMinHeight, n])
 		
 	def VizWidth()
 		return @nVizWidth
