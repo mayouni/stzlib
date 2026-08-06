@@ -1108,8 +1108,10 @@ class stzRecursiveRegexMaker from stzObject
 
 	@aLevels = []
 	@bNamedRecursion = FALSE
-	@aParentStack = []  # Tracks current parent levels during declarative setup
-	@nParentIndex = 0
+	# @aParentStack / @nParentIndex lived here to track parents during a
+	# declarative setup that was replaced: nothing ever pushed to the stack, so
+	# the index it derived was always 0, and nothing read it either.
+	# AddChildLevel() finds a parent BY NAME (pvtFindLevelByName).
 
 	def init()
 		This.EnableNamedRecursion()
@@ -1123,7 +1125,6 @@ class stzRecursiveRegexMaker from stzObject
 			:quant   = ""
 		]
 
-		@nParentIndex = len(@aParentStack)
 
 	def AddChildLevel(cParentName, cChildName, _cPattern_)
 		_nParent_ = pvtFindLevelByName(cParentName)
