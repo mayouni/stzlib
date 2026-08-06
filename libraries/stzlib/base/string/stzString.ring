@@ -2223,7 +2223,7 @@ class stzString from stzObject
 		# A plain string needle -- by far the common case -- goes straight to
 		# the engine on the handle this object already holds.
 		#
-		# It used to build `new stzStringFinder(This)` on EVERY call, and Ring
+		# It used to build `new stzStringFinder(@pEngine)` on EVERY call, and Ring
 		# copies an object when it is assigned to an attribute, so each Find()
 		# duplicated the entire string. That made the CLASS surface SLOWER than
 		# the bare global: 26.70 ms against 12.36 for 200 finds over 180 KB,
@@ -2240,7 +2240,7 @@ class stzString from stzObject
 				StzEngineStringFindCS(@pEngine, pcSubStr, @CaseSensitive(_csNorm_)) )
 		ok
 
-		_oFaFinder_ = new stzStringFinder(This)
+		_oFaFinder_ = new stzStringFinder(@pEngine)
 		return _oFaFinder_.FindCS(pcSubStr, _csNorm_)
 
 	#@ aka  locate, search for, position of, index of, where is
@@ -2303,14 +2303,14 @@ class stzString from stzObject
 			return This.FindInSectionCS(pcSubStr, _n1_, _n2_, pCaseSensitive)
 
 	def FindNthCS(n, pcSubStr, pCaseSensitive)
-		_oFnFinder_ = new stzStringFinder(This)
+		_oFnFinder_ = new stzStringFinder(@pEngine)
 		return _oFnFinder_.FindNthCS(n, pcSubStr, pCaseSensitive)
 
 	def FindNth(n, pcSubStr)
 		return This.FindNthCS(n, pcSubStr, 1)
 
 	def FindLastCS(pcSubStr, pCaseSensitive)
-		_oFlFinder_ = new stzStringFinder(This)
+		_oFlFinder_ = new stzStringFinder(@pEngine)
 		return _oFlFinder_.FindLastCS(pcSubStr, pCaseSensitive)
 
 	# The last occurrence of the substring: the position(s).
@@ -7116,7 +7116,7 @@ class stzString from stzObject
 	#===============================#
 
 	def ContainsTheseCS(pacSubStrings, pCaseSensitive)
-		_oCtFinder_ = new stzStringFinder(This)
+		_oCtFinder_ = new stzStringFinder(@pEngine)
 		return _oCtFinder_.ContainsTheseCS(pacSubStrings, pCaseSensitive)
 
 	def ContainsThese(pacSubStrings)
@@ -7127,7 +7127,7 @@ class stzString from stzObject
 	#===============================#
 
 	def FindManyCS(pacSubStrings, pCaseSensitive)
-		_oFmFinder_ = new stzStringFinder(This)
+		_oFmFinder_ = new stzStringFinder(@pEngine)
 		return _oFmFinder_.FindManyCS(pacSubStrings, pCaseSensitive)
 
 	# Find the occurrences of each of the given substrings.
@@ -7152,13 +7152,13 @@ class stzString from stzObject
 			   (lower(pCaseSensitive[1]) = "cs" or lower(pCaseSensitive[1]) = "casesensitive")
 				if pCaseSensitive[2] = FALSE or pCaseSensitive[2] = 0 _bCase_ = 0 ok
 			ok
-			_oF_ = new stzStringFinder(This)
+			_oF_ = new stzStringFinder(@pEngine)
 			return _oF_.FindAsSectionsCS(_cSub_, _bCase_)
 		ok
 		if isList(pcSubStr)
 			return This.FindManyAsSectionsCS(pcSubStr, pCaseSensitive)
 		ok
-		_oFasFinder_ = new stzStringFinder(This)
+		_oFasFinder_ = new stzStringFinder(@pEngine)
 		return _oFasFinder_.FindAsSectionsCS(pcSubStr, pCaseSensitive)
 
 	def FindAsSections(pcSubStr)
@@ -8415,7 +8415,7 @@ class stzString from stzObject
 	# --- IndexOf ---
 
 	def IndexOfCS(pcSubStr, pCaseSensitive)
-		_oIoFinder_ = new stzStringFinder(This)
+		_oIoFinder_ = new stzStringFinder(@pEngine)
 		return _oIoFinder_.IndexOfCS(pcSubStr, pCaseSensitive)
 
 	def IndexOf(pcSubStr)
@@ -8424,14 +8424,14 @@ class stzString from stzObject
 	# --- FindAllChar ---
 
 	def FindAllChar(pcChar)
-		_oFacFinder_ = new stzStringFinder(This)
+		_oFacFinder_ = new stzStringFinder(@pEngine)
 		return _oFacFinder_.FindAllChar(pcChar)
 
 	# --- StartsWithAny / EndsWithAny ---
 
 	# TRUE if the string starts with ANY of the given prefixes.
 	def StartsWithAnyCS(pcPrefixes, pCaseSensitive)
-		_oSwFinder_ = new stzStringFinder(This)
+		_oSwFinder_ = new stzStringFinder(@pEngine)
 		return _oSwFinder_.StartsWithAnyCS(pcPrefixes, pCaseSensitive)
 
 	def StartsWithAny(pcPrefixes)
@@ -8480,7 +8480,7 @@ class stzString from stzObject
 		return AFalseObject()
 
 	def EndsWithAnyCS(pcSuffixes, pCaseSensitive)
-		_oEwFinder_ = new stzStringFinder(This)
+		_oEwFinder_ = new stzStringFinder(@pEngine)
 		return _oEwFinder_.EndsWithAnyCS(pcSuffixes, pCaseSensitive)
 
 	def EndsWithAny(pcSuffixes)
@@ -8489,7 +8489,7 @@ class stzString from stzObject
 	# --- FindBetweenAsSection ---
 
 	def FindBetweenAsSectionCS(pcBound1, pcBound2, pCaseSensitive)
-		_oFbasFinder_ = new stzStringFinder(This)
+		_oFbasFinder_ = new stzStringFinder(@pEngine)
 		return _oFbasFinder_.FindBetweenAsSectionCS(pcBound1, pcBound2, pCaseSensitive)
 
 	def FindBetweenAsSection(pcBound1, pcBound2)
@@ -8573,7 +8573,7 @@ class stzString from stzObject
 			_aFbbPair_ = This._SameCharBoundPair(pacBounds)
 			return This._BoundedContentSpansOC(_aFbbPair_[1], _aFbbPair_[2])
 		ok
-		_oFbbasFinder_ = new stzStringFinder(This)
+		_oFbbasFinder_ = new stzStringFinder(@pEngine)
 		return _oFbbasFinder_.FindBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
 
 	def FindBoundedByAsSections(pacBounds)
@@ -18223,7 +18223,7 @@ class stzString from stzObject
 	# --- FindDuplicatesAsSections ---
 
 	def FindDuplicatesAsSectionsCS(pCaseSensitive)
-		_oFdasFinder_ = new stzStringFinder(This)
+		_oFdasFinder_ = new stzStringFinder(@pEngine)
 		return _oFdasFinder_.FindDuplicatesAsSectionsCS(pCaseSensitive)
 
 	def FindDuplicatesAsSections()
@@ -18232,7 +18232,7 @@ class stzString from stzObject
 	# --- FindW (conditional) ---
 
 	def FindCharsWCS(pcCondition, pCaseSensitive)
-		_oFcwFinder_ = new stzStringFinder(This)
+		_oFcwFinder_ = new stzStringFinder(@pEngine)
 		return _oFcwFinder_.FindCharsWCS(pcCondition, pCaseSensitive)
 
 	def FindCharsW(pcCondition)
@@ -18244,7 +18244,7 @@ class stzString from stzObject
 	# which is the single engine-backed form. Pass the predicate to FindCharsW.)
 
 	def FindWCS(pcCondition, pCaseSensitive)
-		_oFwFinder_ = new stzStringFinder(This)
+		_oFwFinder_ = new stzStringFinder(@pEngine)
 		return _oFwFinder_.FindWCS(pcCondition, pCaseSensitive)
 
 	def FindW(pcCondition)
@@ -18254,34 +18254,34 @@ class stzString from stzObject
 
 	# The chars between the two given positions, as a list.
 	def CharsBetween(_nFrom_, nTo)
-		_oCbFinder_ = new stzStringFinder(This)
+		_oCbFinder_ = new stzStringFinder(@pEngine)
 		return _oCbFinder_.CharsBetween(_nFrom_, nTo)
 
 	# --- Regex find ---
 
 	def FindFirstRegex(pcPattern)
-		_oFfrFinder_ = new stzStringFinder(This)
+		_oFfrFinder_ = new stzStringFinder(@pEngine)
 		return _oFfrFinder_.FindFirstRegex(pcPattern)
 
 		def FindRegex(pcPattern)
 			return This.FindFirstRegex(pcPattern)
 
 	def FindFirstRegexCS(pcPattern, pCaseSensitive)
-		_oFfrcsFinder_ = new stzStringFinder(This)
+		_oFfrcsFinder_ = new stzStringFinder(@pEngine)
 		return _oFfrcsFinder_.FindFirstRegexCS(pcPattern, pCaseSensitive)
 
 		def FindRegexCS(pcPattern, pCaseSensitive)
 			return This.FindFirstRegexCS(pcPattern, pCaseSensitive)
 
 	def FindAllRegex(pcPattern)
-		_oFarFinder_ = new stzStringFinder(This)
+		_oFarFinder_ = new stzStringFinder(@pEngine)
 		return _oFarFinder_.FindAllRegex(pcPattern)
 
 		def FindAllRegexMatches(pcPattern)
 			return This.FindAllRegex(pcPattern)
 
 	def FindAllRegexCS(pcPattern, pCaseSensitive)
-		_oFarcsFinder_ = new stzStringFinder(This)
+		_oFarcsFinder_ = new stzStringFinder(@pEngine)
 		return _oFarcsFinder_.FindAllRegexCS(pcPattern, pCaseSensitive)
 
 		def FindAllRegexMatchesCS(pcPattern, pCaseSensitive)
