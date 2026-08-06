@@ -651,6 +651,84 @@ pub fn bmhSearch(haystack: []const u8, needle: []const u8, start: usize) ?usize 
     return null;
 }
 
+pub fn asciiLower(b: u8) u8 {
+    return if (b >= 'A' and b <= 'Z') b | 0x20 else b;
+}
+
+/// `a` equals `b_lower` ignoring ASCII case. `b_lower` must ALREADY be lower.
+pub fn ciEqlAscii(a: []const u8, b_lower: []const u8) bool {
+    if (a.len != b_lower.len) return false;
+    for (a, b_lower) |x, y| {
+        if (asciiLower(x) != y) return false;
+    }
+    return true;
+}
+
+/// Case-insensitive search over ASCII text, WITHOUT materialising a folded
+/// copy of the haystack. `needle_lower` must already be lowercased.
+///
+/// The case-insensitive find paths all began by casefolding the whole
+/// haystack through utf8proc -- an allocation and a full transform on EVERY
+/// call, because Ring rebuilds the handle each time so nothing can be cached
+/// across calls. Measured at 180 KB: casefold 4.76 ms of a 6.04 ms
+/// case-insensitive find, i.e. 79% of the work was preparing to search
+/// rather than searching.
+///
+/// For ASCII, that preparation is pure waste: casefolding ASCII is exactly
+/// lowercasing, so the folded text is the same LENGTH and every position maps
+/// 1:1 -- the fold could only ever have changed which bytes were compared,
+/// which is something a comparison can do by itself. So this lowercases each
+/// candidate block IN REGISTERS as it scans, and never writes a second
+/// haystack anywhere.
+///
+/// Same first/last-byte candidate filter as bmhSearch, with both the loaded
+/// blocks lowered before comparing. Non-ASCII input still goes the utf8proc
+/// route -- there, folding genuinely can change length (SS -> ss) and the
+/// position mapping with it.
+pub fn bmhSearchCiAscii(haystack: []const u8, needle_lower: []const u8, start: usize) ?usize {
+    const n = needle_lower.len;
+    const h = haystack.len;
+    if (n == 0 or n > h or start + n > h) return null;
+
+    const W = std.simd.suggestVectorLength(u8) orelse {
+        var p = start;
+        while (p + n <= h) : (p += 1) {
+            if (ciEqlAscii(haystack[p..][0..n], needle_lower)) return p;
+        }
+        return null;
+    };
+    const Vec = @Vector(W, u8);
+    const first: Vec = @splat(needle_lower[0]);
+    const last: Vec = @splat(needle_lower[n - 1]);
+    const up_a: Vec = @splat('A');
+    const up_z: Vec = @splat('Z');
+    const case_bit: Vec = @splat(0x20);
+    const zero: Vec = @splat(0);
+
+    var pos: usize = start;
+    const limit = h - n;
+    while (pos + W <= limit + 1) {
+        const bf: Vec = haystack[pos..][0..W].*;
+        const bl: Vec = haystack[pos + n - 1 ..][0..W].*;
+        // Set bit 5 only on A-Z. Doing it unconditionally would also alter
+        // '@' -> '`' and the other punctuation adjacent to the letter range.
+        const lf = bf | @select(u8, (bf >= up_a) & (bf <= up_z), case_bit, zero);
+        const ll = bl | @select(u8, (bl >= up_a) & (bl <= up_z), case_bit, zero);
+        const eq = (lf == first) & (ll == last);
+        var bits: std.meta.Int(.unsigned, W) = @bitCast(eq);
+        while (bits != 0) {
+            const at = pos + @ctz(bits);
+            if (ciEqlAscii(haystack[at..][0..n], needle_lower)) return at;
+            bits &= bits - 1;
+        }
+        pos += W;
+    }
+    while (pos <= limit) : (pos += 1) {
+        if (ciEqlAscii(haystack[pos..][0..n], needle_lower)) return pos;
+    }
+    return null;
+}
+
 /// The Boyer-Moore-Horspool implementation this replaced. Kept as the
 /// reference the vector form is differential-tested against, and as the
 /// fallback on targets without vectors.
@@ -1111,6 +1189,65 @@ test "vector search agrees with BMH at every offset" {
     try std.testing.expectEqual(bmhSearchScalar("abc", "abc", 0), bmhSearch("abc", "abc", 0));
     try std.testing.expectEqual(bmhSearchScalar("abc", "c", 2), bmhSearch("abc", "c", 2));
     try std.testing.expectEqual(bmhSearchScalar("abc", "a", 3), bmhSearch("abc", "a", 3));
+}
+
+// The ASCII case-insensitive path skips utf8proc entirely, so it has to be
+// pinned against the thing it replaced: lowercase BOTH sides, then do an
+// ordinary search. If the two ever disagree, the fast path is not a fast
+// path, it is a different function.
+//
+// The bytes that matter are the ones ADJACENT to the letter ranges: '@' is
+// 'A'-1, '[' is 'Z'+1, '`' is 'a'-1, '{' is 'z'+1. Setting bit 5
+// unconditionally -- the obvious way to lowercase -- corrupts exactly those,
+// and leaves every letter correct, so a test using only words would pass.
+test "ASCII case-insensitive search agrees with fold-then-search" {
+    const bodies = [_][]const u8{
+        "Fox in a BOX, fOx on a RoCk, FOX by the dock",
+        "@AZ[`az{ @az[`AZ{ @AZ[`az{ @az[`AZ{ @AZ[`az{ @az[`AZ{",
+        "aAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaAaA",
+        "0123456789 ~!#$%^&*()_+-= 0123456789 ~!#$%^&*()_+-=",
+        "The Quick Brown Fox Jumps Over The Lazy Dog Repeatedly And Often",
+        "",
+        "A",
+    };
+    const needles = [_][]const u8{
+        "fox", "FOX", "FoX", "a", "A", "aa", "AA", "@az[", "[`AZ{",
+        "the quick", "THE QUICK", "zzz", "0123", "~!#",
+    };
+
+    var lower_hay: [128]u8 = undefined;
+    var lower_ndl: [128]u8 = undefined;
+
+    for (bodies) |body| {
+        if (body.len > lower_hay.len) continue;
+        for (body, 0..) |b, i| lower_hay[i] = asciiLower(b);
+
+        for (needles) |ndl| {
+            if (ndl.len > lower_ndl.len) continue;
+            for (ndl, 0..) |b, i| lower_ndl[i] = asciiLower(b);
+
+            // Every start offset, since the vector loop and its scalar tail
+            // split differently depending on where the search begins.
+            var start: usize = 0;
+            while (start <= body.len) : (start += 1) {
+                const expected = bmhSearch(lower_hay[0..body.len], lower_ndl[0..ndl.len], start);
+                const got = bmhSearchCiAscii(body, lower_ndl[0..ndl.len], start);
+                try std.testing.expectEqual(expected, got);
+            }
+        }
+    }
+}
+
+test "ciEqlAscii is case-blind for letters and exact for everything else" {
+    try std.testing.expect(ciEqlAscii("FoX", "fox"));
+    try std.testing.expect(ciEqlAscii("fox", "fox"));
+    try std.testing.expect(!ciEqlAscii("fo", "fox"));
+    // The adjacent-byte cases again, this time on the verifier rather than
+    // the scanner: '@' and '`' differ ONLY in bit 5, so a naive `| 0x20`
+    // comparison would call them equal.
+    try std.testing.expect(!ciEqlAscii("@", "`"));
+    try std.testing.expect(!ciEqlAscii("[", "{"));
+    try std.testing.expect(ciEqlAscii("A", "a"));
 }
 
 test "BMH search basic" {

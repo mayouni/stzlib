@@ -21,6 +21,13 @@ const ciEqlUnicode = core.ciEqlUnicode;
 const ciMatch = core.ciMatch;
 const bmhSearch = core.bmhSearch;
 const isAllAscii = core.isAllAscii;
+const asciiCaseInto = core.asciiCaseInto;
+const bmhSearchCiAscii = core.bmhSearchCiAscii;
+
+// Longest needle the ASCII case-insensitive fast path will lowercase into a
+// stack buffer. Anything longer falls back to the utf8proc fold -- correct
+// either way, and a needle that size is not the case worth tuning for.
+const CI_NEEDLE_MAX: usize = 512;
 const decodeCodepoint = core.decodeCodepoint;
 const byteOffsetToCodepointIndex = core.byteOffsetToCodepointIndex;
 const str_new = core.str_new;
@@ -83,7 +90,18 @@ pub fn str_find_first_from_cs(handle: StzStringHandle, needle: [*c]const u8, nee
         const internal_start = toInternal(@intCast(start_cp));
 
         if (case == 0) {
-            // Case-insensitive
+            // ASCII: no fold, no allocation -- see the note in str_find_cs.
+            // Start offset is a byte offset too, ASCII being 1:1.
+            if (isAllAscii(hay) and isAllAscii(n) and n.len <= CI_NEEDLE_MAX) {
+                var nbuf: [CI_NEEDLE_MAX]u8 = undefined;
+                asciiCaseInto(n, nbuf[0..n.len], false);
+                if (internal_start > hay.len) return -1;
+                if (bmhSearchCiAscii(hay, nbuf[0..n.len], internal_start)) |pos| {
+                    return toExternal(pos);
+                }
+                return -1;
+            }
+            // Non-ASCII: casefold, then search the folded text.
             const hay_folded = casefoldAlloc(hay) orelse return -1;
             defer gpa.free(hay_folded);
             const n_folded = casefoldAlloc(n) orelse return -1;
@@ -95,7 +113,7 @@ pub fn str_find_first_from_cs(handle: StzStringHandle, needle: [*c]const u8, nee
                 byte_pos += cp_len;
                 cp_pos += 1;
             }
-            if (mem.indexOfPos(u8, hay_folded, byte_pos, n_folded)) |pos| {
+            if (bmhSearch(hay_folded, n_folded, byte_pos)) |pos| {
                 return toExternal(byteOffsetToCodepointIndex(hay_folded, pos));
             }
         } else {
@@ -270,7 +288,21 @@ pub fn str_find_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len: us
         // one left as the original O(n*m) walk, which is the usual way a
         // "we already optimised find" belief turns out to be half true.
         if (case == 0) {
-            // Case-insensitive: casefold both, then search the folded text.
+            // ASCII: fold nothing. See bmhSearchCiAscii -- casefolding ASCII
+            // is lowercasing, so positions are unchanged and the whole
+            // utf8proc pass (79% of this call's cost, measured) is avoidable.
+            if (isAllAscii(hay) and isAllAscii(n) and n.len <= CI_NEEDLE_MAX) {
+                var nbuf: [CI_NEEDLE_MAX]u8 = undefined;
+                asciiCaseInto(n, nbuf[0..n.len], false);
+                var from: usize = 0;
+                while (bmhSearchCiAscii(hay, nbuf[0..n.len], from)) |bpos| {
+                    // ASCII: byte offset IS the codepoint index.
+                    r.positions.append(gpa, toExternal(bpos)) catch break;
+                    from = bpos + 1; // one codepoint; overlapping is the contract
+                }
+                return r;
+            }
+            // Non-ASCII: casefold both, then search the folded text.
             // Positions are in the FOLDED codepoint space, which is
             // pre-existing behaviour (folding can change length: SS -> ss).
             const hay_folded = casefoldAlloc(hay) orelse return r;
