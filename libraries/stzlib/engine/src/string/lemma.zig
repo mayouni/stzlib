@@ -14,6 +14,7 @@
 // language = @embedFile lemmatization-<l>.txt + one row in `langs`.
 
 const std = @import("std");
+const ascii = @import("../ascii.zig");
 const core = @import("core.zig");
 const wb = @import("word_break.zig");
 const unicode = core.unicode;
@@ -91,7 +92,7 @@ fn langIndex(name: []const u8) usize {
     if (name.len == 0) return 0;
     var buf: [16]u8 = undefined;
     if (name.len > buf.len) return 0;
-    for (name, 0..) |c, i| buf[i] = if (c >= 'A' and c <= 'Z') c + 32 else c;
+    for (name, 0..) |c, i| buf[i] = ascii.lower(c);
     const key = buf[0..name.len];
     for (langs, 0..) |L, i| {
         if (mem.eql(u8, key, L.name)) return i;
@@ -108,7 +109,7 @@ fn lowerUnicode(word: []const u8, buf: []u8) []const u8 {
         const b = word[i];
         if (b < 0x80) {
             if (oi >= buf.len) return word;
-            buf[oi] = if (b >= 'A' and b <= 'Z') b + 32 else b;
+            buf[oi] = ascii.lower(b);
             oi += 1;
             i += 1;
             continue;

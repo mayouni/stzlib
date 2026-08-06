@@ -1,4 +1,5 @@
 const std = @import("std");
+const ascii = @import("ascii.zig");
 
 // ── Natural Language Utilities ──────────────────────────────
 // Word/sentence boundary detection, basic stemming, word counting,
@@ -51,7 +52,7 @@ pub fn syllable_count_word(ptr: [*]const u8, len: usize) callconv(.c) i32 {
     var count: i32 = 0;
     var prev_vowel = false;
     for (0..len) |i| {
-        const c = if (data[i] >= 'A' and data[i] <= 'Z') data[i] + 32 else data[i];
+        const c = ascii.lower(data[i]);
         const is_vowel = c == 'a' or c == 'e' or c == 'i' or c == 'o' or c == 'u' or c == 'y';
         if (is_vowel and !prev_vowel) count += 1;
         prev_vowel = is_vowel;

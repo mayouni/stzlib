@@ -6,6 +6,7 @@
 // All functions use C calling convention.
 
 const std = @import("std");
+const ascii = @import("../ascii.zig");
 const core = @import("core.zig");
 const mem = core.mem;
 const gpa = core.gpa;
@@ -494,7 +495,7 @@ pub fn str_to_sentence_case(handle: StzStringHandle) callconv(.c) StzStringHandl
         if (cp_len == 1 and !first_letter_done) {
             const c = src[off];
             if ((c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z')) {
-                const upper = if (c >= 'a' and c <= 'z') c - 32 else c;
+                const upper = ascii.upper(c);
                 result.data.appendSlice(gpa, &[_]u8{upper}) catch break;
                 first_letter_done = true;
                 off += 1;
@@ -535,11 +536,11 @@ pub fn str_to_alternating_case(handle: StzStringHandle) callconv(.c) StzStringHa
         if ((c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z')) {
             if (letter_idx % 2 == 0) {
                 // lowercase
-                const lower = if (c >= 'A' and c <= 'Z') c + 32 else c;
+                const lower = ascii.lower(c);
                 result.data.appendSlice(gpa, &[_]u8{lower}) catch break;
             } else {
                 // uppercase
-                const upper = if (c >= 'a' and c <= 'z') c - 32 else c;
+                const upper = ascii.upper(c);
                 result.data.appendSlice(gpa, &[_]u8{upper}) catch break;
             }
             letter_idx += 1;

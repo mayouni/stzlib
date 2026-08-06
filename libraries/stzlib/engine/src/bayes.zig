@@ -23,6 +23,7 @@
 //! only finds their index.
 
 const std = @import("std");
+const ascii = @import("ascii.zig");
 const wb = @import("string/word_break.zig");
 const unicode = @import("unicode.zig");
 
@@ -85,7 +86,7 @@ fn isAscii(s: []const u8) bool {
 fn lowerDup(alloc: std.mem.Allocator, w: []const u8) ![]u8 {
     if (isAscii(w)) {
         const buf = try alloc.alloc(u8, w.len);
-        for (w, 0..) |b, i| buf[i] = if (b >= 'A' and b <= 'Z') b + 32 else b;
+        ascii.caseInto(w, buf[0..w.len], false);
         return buf;
     }
     const big = try alloc.alloc(u8, w.len * 4);

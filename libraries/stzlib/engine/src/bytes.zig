@@ -5,6 +5,7 @@
 // All functions use C ABI for Ring FFI compatibility.
 
 const std = @import("std");
+const ascii = @import("ascii.zig");
 const mem = std.mem;
 const base64 = std.base64;
 const gpa = std.heap.c_allocator;
@@ -158,18 +159,14 @@ pub fn stz_bytes_resize(h: ?*Bytes, n: c_int) callconv(.c) void {
 pub fn stz_bytes_to_lower(h: ?*Bytes, buf: [*c]u8, buf_len: usize) callconv(.c) usize {
     const b = h orelse return 0;
     if (b.data.items.len > buf_len) return 0;
-    for (b.data.items, 0..) |c, i| {
-        buf[i] = if (c >= 'A' and c <= 'Z') c + 32 else c;
-    }
+    ascii.caseInto(b.data.items, buf[0..b.data.items.len], false);
     return b.data.items.len;
 }
 
 pub fn stz_bytes_to_upper(h: ?*Bytes, buf: [*c]u8, buf_len: usize) callconv(.c) usize {
     const b = h orelse return 0;
     if (b.data.items.len > buf_len) return 0;
-    for (b.data.items, 0..) |c, i| {
-        buf[i] = if (c >= 'a' and c <= 'z') c - 32 else c;
-    }
+    ascii.caseInto(b.data.items, buf[0..b.data.items.len], true);
     return b.data.items.len;
 }
 

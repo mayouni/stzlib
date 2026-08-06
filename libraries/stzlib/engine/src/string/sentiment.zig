@@ -10,6 +10,7 @@
 // @embedFile; the booster/negation word lists are inline. English.
 
 const std = @import("std");
+const ascii = @import("../ascii.zig");
 const core = @import("core.zig");
 const mem = core.mem;
 const gpa = core.gpa;
@@ -80,7 +81,7 @@ fn lowerStrip(t: []const u8, buf: []u8) []const u8 {
     // if nothing wordish (pure punctuation, e.g. an emoticon), keep the raw token
     const src = if (s < e) t[s..e] else t;
     if (src.len > buf.len) return src;
-    for (src, 0..) |c, i| buf[i] = if (c >= 'A' and c <= 'Z') c + 32 else c;
+    for (src, 0..) |c, i| buf[i] = ascii.lower(c);
     return buf[0..src.len];
 }
 

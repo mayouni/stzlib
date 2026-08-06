@@ -16,6 +16,7 @@
 //     run_length_encode/decode, truncate_words, reverse_each_word.
 
 const std = @import("std");
+const ascii = @import("../ascii.zig");
 const core = @import("core.zig");
 const mem = core.mem;
 const gpa = core.gpa;
@@ -941,7 +942,7 @@ fn isSmallWord(word: []const u8, small_words: []const []const u8) bool {
     var buf: [16]u8 = undefined;
     if (word.len > 16) return false;
     for (word, 0..) |c, i| {
-        buf[i] = if (c >= 'A' and c <= 'Z') c + 32 else c;
+        buf[i] = ascii.lower(c);
     }
     const lower = buf[0..word.len];
     for (small_words) |sw| {

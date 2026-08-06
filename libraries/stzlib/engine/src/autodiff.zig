@@ -28,6 +28,7 @@
 //! and every one of them is approximate.
 
 const std = @import("std");
+const ascii = @import("ascii.zig");
 
 pub const MAX_VARS = 64;
 
@@ -279,8 +280,8 @@ fn isIdentPart(c: u8) bool {
 fn eqIgnoreCase(a: []const u8, b: []const u8) bool {
     if (a.len != b.len) return false;
     for (a, b) |x, y| {
-        const lx = if (x >= 'A' and x <= 'Z') x + 32 else x;
-        const ly = if (y >= 'A' and y <= 'Z') y + 32 else y;
+        const lx = ascii.lower(x);
+        const ly = ascii.lower(y);
         if (lx != ly) return false;
     }
     return true;

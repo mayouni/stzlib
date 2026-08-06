@@ -10,6 +10,7 @@
 // the ~30MB full DB). Multiword lemmas use spaces. Lookup key is ASCII-lowercased.
 
 const std = @import("std");
+const ascii = @import("../ascii.zig");
 const core = @import("core.zig");
 const gpa = core.gpa;
 const StzStringHandle = core.StzStringHandle;
@@ -42,7 +43,7 @@ fn build() void {
 
 fn lowerAscii(w: []const u8, buf: []u8) []const u8 {
     if (w.len > buf.len) return w;
-    for (w, 0..) |c, i| buf[i] = if (c >= 'A' and c <= 'Z') c + 32 else c;
+    for (w, 0..) |c, i| buf[i] = ascii.lower(c);
     return buf[0..w.len];
 }
 

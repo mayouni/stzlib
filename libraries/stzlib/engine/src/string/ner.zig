@@ -12,6 +12,7 @@
 // public domain), ner_places.txt (countries/capitals + major cities).
 
 const std = @import("std");
+const ascii = @import("../ascii.zig");
 const core = @import("core.zig");
 const wb = @import("word_break.zig");
 const pos = @import("pos.zig");
@@ -76,7 +77,7 @@ fn isProper(tag: []const u8) bool {
 // lowercase ASCII into buf
 fn lower(w: []const u8, buf: []u8) []const u8 {
     if (w.len > buf.len) return w;
-    for (w, 0..) |c, i| buf[i] = if (c >= 'A' and c <= 'Z') c + 32 else c;
+    for (w, 0..) |c, i| buf[i] = ascii.lower(c);
     return buf[0..w.len];
 }
 

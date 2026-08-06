@@ -17,6 +17,7 @@
 //   Transforms: pluralize, to_pig_latin, to_nato, mask_email
 
 const std = @import("std");
+const ascii = @import("../ascii.zig");
 const core = @import("core.zig");
 const wb = @import("word_break.zig");
 
@@ -300,7 +301,7 @@ fn foldWholeAlloc(raw: []const u8, cs: c_int, is_ascii: bool) ?[]u8 {
     if (cs != 0) return null;
     if (is_ascii) {
         const buf = gpa.alloc(u8, raw.len) catch return casefoldAlloc(raw);
-        for (raw, 0..) |ch, idx| buf[idx] = if (ch >= 'A' and ch <= 'Z') ch + 32 else ch;
+        for (raw, 0..) |ch, idx| buf[idx] = ascii.lower(ch);
         return buf;
     }
     return casefoldAlloc(raw);
@@ -336,7 +337,7 @@ fn asciiFoldInto(word: []const u8, buf: []u8) ?[]u8 {
     while (i < word.len) : (i += 1) {
         const ch = word[i];
         if (ch >= 0x80) return null;
-        buf[i] = if (ch >= 'A' and ch <= 'Z') ch + 32 else ch;
+        buf[i] = ascii.lower(ch);
     }
     return buf[0..word.len];
 }
@@ -528,7 +529,7 @@ pub fn str_char_freq(handle: StzStringHandle, cs: c_int, n_top: c_int) callconv(
         var probe_owned: ?[]u8 = null;
         if (cs == 0) {
             if (ch.len == 1 and ch[0] < 0x80) {
-                cbuf[0] = if (ch[0] >= 'A' and ch[0] <= 'Z') ch[0] + 32 else ch[0];
+                cbuf[0] = ascii.lower(ch[0]);
                 probe = cbuf[0..1];
             } else if (casefoldAlloc(ch)) |f| {
                 probe = f;
@@ -678,7 +679,7 @@ pub fn str_word_ngram_freq(handle: StzStringHandle, n_gram: c_int, cs: c_int, n_
             if (allAscii(g)) {
                 foldbuf.clearRetainingCapacity();
                 foldbuf.appendSlice(gpa, g) catch continue;
-                for (foldbuf.items, 0..) |ch, idx| foldbuf.items[idx] = if (ch >= 'A' and ch <= 'Z') ch + 32 else ch;
+                for (foldbuf.items, 0..) |ch, idx| foldbuf.items[idx] = ascii.lower(ch);
                 probe = foldbuf.items;
             } else if (casefoldAlloc(g)) |f| {
                 probe = f;
