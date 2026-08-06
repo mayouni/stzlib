@@ -30,6 +30,7 @@
 //! subsequent direction.
 
 const std = @import("std");
+const similarity = @import("similarity.zig");
 
 /// An accepted line-search step. A NAMED type: two functions returning the same
 /// anonymous struct give two DIFFERENT types in Zig, and zoom() returning into
@@ -82,10 +83,21 @@ const Ctx = struct {
     }
 };
 
+// The engine's ONE dot product. This was a fourth hand-rolled copy of
+// arithmetic similarity.zig already held lane-parallel; nine call sites here
+// reach it, including the two-loop recursion that runs per iteration per
+// history entry.
+//
+// LANE SUMMATION RE-ASSOCIATES, so this is NOT bit-identical, and that needed
+// deciding rather than assuming. It is defensible here for a reason specific
+// to L-BFGS: the algorithm is ITERATIVE and self-correcting -- a different
+// last bit changes the trajectory it takes, not the minimum it converges to,
+// and every acceptance test (Wolfe conditions, the sy > eps curvature check)
+// is a comparison against a tolerance rather than an exact value. Partial
+// sums in lanes are also better conditioned than one running scalar, which
+// is the direction you want in a gradient inner product.
 fn dot(a: []const f64, b: []const f64) f64 {
-    var s: f64 = 0;
-    for (a, b) |x, y| s += x * y;
-    return s;
+    return similarity.stz_sim_dot_product(a.ptr, b.ptr, @intCast(a.len));
 }
 
 fn infNorm(a: []const f64) f64 {

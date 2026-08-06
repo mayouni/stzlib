@@ -21,6 +21,7 @@
 // C ABI: stz_numbuf_* prefix. Handles are opaque pointers.
 
 const std = @import("std");
+const similarity = @import("similarity.zig");
 const allocator = std.heap.c_allocator;
 const stats = @import("stats.zig");
 
@@ -179,9 +180,17 @@ pub fn stz_numbuf_dot(b: ?*const StzNumBuffer, other: ?*const StzNumBuffer) call
     const buf = b orelse return 0;
     const o = other orelse return 0;
     if (buf.data.len != o.data.len) return 0;
-    var sum: f64 = 0;
-    for (buf.data, o.data) |x, y| sum += x * y;
-    return sum;
+    // Delegates to the engine's one dot product, exactly as the variance
+    // below defers its divisor to stats.zig -- this file already knew the
+    // law for CONVENTIONS and was still keeping its own IMPLEMENTATION.
+    //
+    // Lane summation re-associates, so values can move in the last bits.
+    // Accepted deliberately: a dot product over lanes keeps small terms
+    // together in separate partial sums instead of losing them under a
+    // growing scalar, so where the two differ the lane form is generally the
+    // MORE accurate one -- 1e16 followed by 63 ones gives 1e16 sequentially
+    // and 1e16+56 in lanes, and 1e16+56 is the closer answer.
+    return similarity.stz_sim_dot_product(buf.data.ptr, o.data.ptr, @intCast(buf.data.len));
 }
 
 /// Variance, WITH THE CONVENTION ASKED OF THE ONE AUTHORITY (stats.zig), not
