@@ -87,6 +87,35 @@ pub export fn stz_sim_euclidean(a_ptr: [*]const f64, b_ptr: [*]const f64, dim: i
     return @sqrt(sum);
 }
 
+/// Squared euclidean distance -- the same sum as above WITHOUT the final
+/// @sqrt.
+///
+/// Added because callers that want the square kept re-deriving it, badly:
+/// density.zig had this loop written out inline in index form inside an
+/// O(n^2) double loop, and squaring the rooted result back would have thrown
+/// away a bit of precision for no reason. Ranking and comparison work
+/// (nearest-neighbour, radius tests) never needs the root -- sqrt is
+/// monotone -- so this is the primitive most callers actually wanted.
+pub export fn stz_sim_euclidean_sq(a_ptr: [*]const f64, b_ptr: [*]const f64, dim: i32) f64 {
+    if (dim <= 0) return 0.0;
+    const n: usize = @intCast(dim);
+    const a = a_ptr[0..n];
+    const b = b_ptr[0..n];
+
+    var acc: V = @splat(0);
+    var i: usize = 0;
+    while (i + LANES <= n) : (i += LANES) {
+        const d = @as(V, a[i..][0..LANES].*) - @as(V, b[i..][0..LANES].*);
+        acc += d * d;
+    }
+    var sum = @reduce(.Add, acc);
+    while (i < n) : (i += 1) {
+        const d = a[i] - b[i];
+        sum += d * d;
+    }
+    return sum;
+}
+
 pub export fn stz_sim_manhattan(a_ptr: [*]const f64, b_ptr: [*]const f64, dim: i32) f64 {
     if (dim <= 0) return 0.0;
     const n: usize = @intCast(dim);
