@@ -581,12 +581,32 @@ class stzVirtualSystem from stzObject
 	def GenerateUpdatePlan()
 		return new stzUpdatePlan(@aHistory, @oBridge)
 
-	def ShowHistory()
-		? "Rehearsed operations (" + len(@aHistory) + "):"
+	# THE REHEARSAL, AS TEXT.
+	#
+	# ShowHistory() printed and returned nothing, so the one record of what a
+	# rehearsal did could not be captured -- not into a log, not into a report,
+	# not into an assertion. It is built here and printed there.
+	def HistoryText()
+		_c_ = "Rehearsed operations (" + len(@aHistory) + "):" + nl
 		_n_ = len(@aHistory)
 		for _i_ = 1 to _n_
-			? "  " + _i_ + ". " + @aHistory[_i_].Describe() + "  [" + @aHistory[_i_].Actor() + "]"
+			_oOp_ = @aHistory[_i_]
+			_c_ += "  " + _i_ + ". " + _oOp_.Describe() + "  [" + _oOp_.Actor() + "]"
+
+			# AN OPERATION RECORDS WHO AND WHY. The actor was stamped and shown;
+			# the intent had a setter and a reader and appeared in no output at
+			# all, so a rehearsal could be asked why it did something and answer
+			# nowhere. Shown only when one was given, so a history without
+			# intents reads exactly as it did before.
+			if _oOp_.Intent() != ""
+				_c_ += " -- " + _oOp_.Intent()
+			ok
+			_c_ += nl
 		next
+		return _c_
+
+	def ShowHistory()
+		? This.HistoryText()
 
 	# Rebuild the working state from the base + a kept prefix of operations.
 	def _Rebuild(paOps)
