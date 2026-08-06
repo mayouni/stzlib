@@ -89,6 +89,9 @@ class stzReactiveStream from stzObject
 		def OnRecieved(_Rf_)
 			return OnPassed(_Rf_)
 
+		def OnReceived(_Rf_)
+			return OnPassed(_Rf_)
+
 		def Subscribe(_Rf_)
 			return OnPassed(_Rf_)
 
@@ -151,6 +154,11 @@ class stzReactiveStream from stzObject
 		def Send(data)
 			return This.Recieve(data)
 
+		# Recieve has i before e, and so did every way of listening to it.
+		# The old spellings stay; these are the ones a caller reaches for.
+		def Receive(data)
+			return This.Recieve(data)
+
 		#>
 
 	def RecieveMany(paData)
@@ -180,6 +188,9 @@ class stzReactiveStream from stzObject
 			return This.RecieveMany(paData)
 
 		def SendMany(paData)
+			return This.RecieveMany(paData)
+
+		def ReceiveMany(paData)
 			return This.RecieveMany(paData)
 
 		def EmitMany(paData)
@@ -340,29 +351,42 @@ class stzReactiveStream from stzObject
 			call _fHandler_(@currentBufferCount, @bufferSize)
 		next
 		
+		# WHATEVER IS LOST IS COUNTED. Only :DROP used to increment @droppedCount,
+		# so a stream on the DEFAULT :BUFFER strategy discarded every item past
+		# capacity while OverflowStats() reported "dropped 0" -- the one number a
+		# caller reads to learn whether data was lost said none had been. :LATEST
+		# under-reported the same way: it evicts the oldest to make room, and an
+		# evicted item is gone whatever the reason for evicting it.
+		#
+		# The strategies also no longer PRINT. A library has no business writing to
+		# the console while data flows, and there is already a seam for saying so:
+		# the OnOverflow handlers are called just above, with the count and the
+		# ceiling, before this switch runs.
 		switch @overflowStrategy
 		case :BUFFER
-		    # Block until buffer has space (simulate)
-		    ? "⚠️ Overflow: Buffering data (buffer full: " + @currentBufferCount + "/" + @bufferSize + ")"
-			
+			# The buffer is full and does not grow, so the new item is refused.
+			# (BUFFER_EXPAND names an expansion this does not implement -- the
+			# item is discarded, and is now counted as discarded.)
+			@droppedCount++
+		
 		case :DROP
 			# Drop the new data
 			@droppedCount++
-			? "⚠️ Overflow: Dropping data item (dropped so far: " + @droppedCount + ")"
-			
+		
 		case :LATEST
-			# Drop oldest, keep latest
+			# Drop oldest, keep latest -- the evicted item is a loss too
 			if len(@buffer) > 0
 				del(@buffer, 1)  # Remove oldest
 				@currentBufferCount--
+				@droppedCount++
 			ok
 			@buffer + data
 			@currentBufferCount++
-			? "⚠️ Overflow: Keeping latest, dropped oldest"
-			
+		
 		case :BLOCK
-			# In real implementation, this would block the producer
-			? "⚠️ Overflow: Would block producer (simulated)"
+			# Nothing here blocks a producer: Ring's face is single-threaded and
+			# the item has nowhere to wait, so it is refused -- and counted.
+			@droppedCount++
 		end
 
 		def HandleBackpressure(data)
