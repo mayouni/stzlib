@@ -3102,6 +3102,24 @@ func StzFindCS(pThing, paIn, pCaseSensitive)
 	if isString(paIn) and isString(pThing) and pThing != ""
 		_bCase_ = CaseSensitive(pCaseSensitive)
 		_pH_ = StzEngineString(paIn)
+		# THE DRAIN STAYS HERE, and only here -- measured, not assumed.
+		#
+		# stzString.FindCS uses the bulk StzEngineStringFindPositionsCS and is
+		# 1.40x faster for it, because it holds a PERSISTENT @pEngine and can
+		# `return <bulk call>` with nothing in between. This function cannot:
+		# its handle is temporary and must be freed before returning, which
+		# forces `_a_ = bulk(...)` / free / `return _a_` -- and that
+		# intermediate assignment copies the whole list. The in-place drain
+		# below builds the list once and copies it once.
+		#
+		# Same operation, opposite answers, for a reason that is entirely
+		# about handle LIFETIME rather than about find:
+		#
+		#     class  (persistent handle)  361 -> 258 ms   bulk WINS 1.40x
+		#     global (temp handle)        237 -> 325 ms   bulk LOSES 1.37x
+		#
+		# 5 runs each; the first 2-run reading of this was noise in both
+		# directions and said the opposite for the class.
 		_pFcRes_ = StzEngineStringFindCS(_pH_, pThing, _bCase_)
 		_aResult_ = []
 		_nFcCount_ = StzEngineFindResultCount(_pFcRes_)

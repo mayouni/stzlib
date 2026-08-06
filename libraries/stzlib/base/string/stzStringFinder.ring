@@ -161,23 +161,23 @@ class stzStringFinder from stzObject
 
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
-		# Bulk find via Engine: one call returns all positions as a result
-		# handle, drained here. (A Zig-side newlist/retlist bulk return was
-		# tried but loses the list through deep Ring call chains -- a VM-level
-		# fragility; the drain is correct and findall is Ring-list-bound
-		# anyway, so bulk gave no real gain here.)
-		pResult = StzEngineStringFindCS(This._Engine(), pcSubStr, _bCase_)
-		_nCount_ = StzEngineFindResultCount(pResult)
-		if _nCount_ = 0
-			StzEngineFindResultFree(pResult)
-			return []
-		ok
-		_anResult_ = []
-		for i = 1 to _nCount_
-			_anResult_ + StzEngineFindResultGet(pResult, i)
-		next
-		StzEngineFindResultFree(pResult)
-		return _anResult_
+		# ONE call returns the finished Ring list of positions. It used to
+		# return a result HANDLE and drain it here, one
+		# StzEngineFindResultGet per match.
+		#
+		# The old comment said a Zig-side bulk return "gave no real gain".
+		# That was measured on an unfair comparison -- the drain was timed
+		# building its list INLINE while the bulk version was charged for a
+		# Ring function-return copy, a copy the drain also pays as soon as
+		# anyone returns the list, which every caller does. Through an
+		# identical return path, 180 KB / 4000 matches x200:
+		#
+		#     drain, inline (the old measurement)   110 ms
+		#     drain, through a return               337-418 ms
+		#     bulk,  through a return               196-200 ms
+		#
+		# Bulk is 1.7-2.1x FASTER. Compare paths that pay the same costs.
+		return StzEngineStringFindPositionsCS(This._Engine(), pcSubStr, _bCase_)
 
 	def Find(pcSubStr)
 		return This.FindCS(pcSubStr, 1)
