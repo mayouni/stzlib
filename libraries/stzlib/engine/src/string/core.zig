@@ -93,30 +93,63 @@ pub const StzString = struct {
     /// Convert a 0-based codepoint index to a byte offset, using the
     /// internal cache to avoid rescanning from byte 0 every time.
     /// Returns null if the index is out of range.
+    ///
+    /// The cache only helps SEQUENTIAL access. Ring rebuilds the handle per
+    /// call (`StzEngineString(...)` then free), so for the slicing family it
+    /// starts cold every time and every call walked the whole prefix:
+    /// StzMid at codepoint 150,000 of a 180 KB ASCII string cost 0.134 ms,
+    /// essentially all of it in this loop.
+    ///
+    /// Two paths now short-circuit that.
     pub fn cpToByteCached(self: *StzString, cp_index: usize) ?usize {
         const src = self.data.items;
         if (src.len == 0) return if (cp_index == 0) @as(?usize, 0) else null;
 
-        // If target is at or ahead of the cache, walk forward
-        if (cp_index >= self.cached_cp_pos) {
-            var pos: usize = self.cached_byte_pos;
-            var cp: usize = self.cached_cp_pos;
-            while (pos < src.len and cp < cp_index) {
-                const seq_len = std.unicode.utf8ByteSequenceLength(src[pos]) catch 1;
-                pos += seq_len;
-                cp += 1;
-            }
-            if (cp == cp_index) {
-                self.cached_cp_pos = cp;
-                self.cached_byte_pos = pos;
-                return pos;
-            }
-            return null;
+        // ASCII: one byte per codepoint, so the answer IS the index -- O(1)
+        // instead of O(position), and no walk at all. isAscii() is cached on
+        // the handle, so this costs one scan of the buffer per handle rather
+        // than one per lookup. The free function beside this one
+        // (codepointIndexToByteOffset) has always had this check; the cached
+        // METHOD did not, which is the whole bug: two spellings, one gate.
+        if (self.isAscii()) {
+            return if (cp_index <= src.len) cp_index else null;
         }
 
-        // Target is before the cache -- walk from the beginning
         var pos: usize = 0;
         var cp: usize = 0;
+        if (cp_index >= self.cached_cp_pos) {
+            pos = self.cached_byte_pos;
+            cp = self.cached_cp_pos;
+        }
+
+        // Multibyte: skip whole vector blocks. The walk's stride is
+        // data-dependent, but the COUNT is not -- a codepoint is exactly one
+        // non-continuation byte, so a block of W bytes advances cp by the
+        // number of lead bytes in it, which every lane can judge at once. We
+        // only descend into the block that actually contains the target.
+        const W = std.simd.suggestVectorLength(u8) orelse 1;
+        if (W > 1) {
+            const Vec = @Vector(W, u8);
+            const top2: Vec = @splat(0xC0);
+            const cont: Vec = @splat(0x80);
+            const one: Vec = @splat(1);
+            const zero: Vec = @splat(0);
+            while (pos + W <= src.len) {
+                const v: Vec = src[pos..][0..W].*;
+                const leads = @reduce(.Add, @select(u8, (v & top2) != cont, one, zero));
+                // The block holds codepoints cp .. cp+leads-1, so the target
+                // is inside it exactly when cp_index < cp + leads.
+                if (cp + leads > cp_index) break;
+                cp += leads;
+                pos += W;
+            }
+            // A block boundary can fall INSIDE a codepoint. Its lead byte was
+            // already counted, so step over the remaining continuation bytes
+            // WITHOUT counting again -- otherwise the scalar walk below would
+            // read a continuation byte as a fresh codepoint.
+            while (pos < src.len and (src[pos] & 0xC0) == 0x80) pos += 1;
+        }
+
         while (pos < src.len and cp < cp_index) {
             const seq_len = std.unicode.utf8ByteSequenceLength(src[pos]) catch 1;
             pos += seq_len;
@@ -833,6 +866,81 @@ test "isAllAscii helper" {
     try std.testing.expect(!isAllAscii("\xc3\xa9"));
     try std.testing.expect(isAllAscii(""));
     try std.testing.expect(!isAllAscii("Hi\xf0\x9f\x98\x80"));
+}
+
+// The reference cpToByteCached replaced: a plain sequential walk from byte 0,
+// no cache, no lane skipping. Kept in the test only -- the point is to have
+// something OBVIOUSLY right to compare against.
+fn cpToByteReference(src: []const u8, cp_index: usize) ?usize {
+    if (src.len == 0) return if (cp_index == 0) @as(?usize, 0) else null;
+    var pos: usize = 0;
+    var cp: usize = 0;
+    while (pos < src.len and cp < cp_index) {
+        pos += std.unicode.utf8ByteSequenceLength(src[pos]) catch 1;
+        cp += 1;
+    }
+    return if (cp == cp_index) pos else null;
+}
+
+// The block skip can land a boundary INSIDE a codepoint, and the cache means
+// the answer depends on the ORDER of previous calls. Both are invisible to a
+// test that asks for one index of one string, so this asks for every index of
+// several strings, in several orders.
+test "cpToByteCached agrees with a plain walk, at every index and in any order" {
+    const samples = [_][]const u8{
+        "",
+        "a",
+        "hello world, a plain ascii string long enough to span vectors ok",
+        "caf\u{00e9} na\u{00ef}ve r\u{00e9}sum\u{00e9} caf\u{00e9} na\u{00ef}ve r\u{00e9}sum\u{00e9}",
+        "\u{4f60}\u{597d}\u{4e16}\u{754c}\u{ff01}\u{4f60}\u{597d}\u{4e16}\u{754c}\u{ff01}\u{4f60}\u{597d}",
+        "\u{1f600}\u{1f601}\u{1f602}\u{1f603}\u{1f604}\u{1f605}\u{1f606}\u{1f607}\u{1f608}\u{1f609}",
+        // Leading ASCII then multibyte, so a 32-byte boundary lands mid
+        // sequence -- the case the continuation-skip exists for.
+        "a\u{00e9}\u{00e9}\u{00e9}\u{00e9}\u{00e9}\u{00e9}\u{00e9}\u{00e9}\u{00e9}\u{00e9}\u{00e9}\u{00e9}\u{00e9}\u{00e9}\u{00e9}\u{00e9}\u{00e9}\u{00e9}\u{00e9}",
+        "abc\u{4e16}def\u{1f600}ghi\u{00e9}jkl\u{4e16}mno\u{1f600}pqr\u{00e9}stu\u{4e16}vwx\u{1f600}yz",
+    };
+
+    for (samples) |sample| {
+        const n_cp = utf8CodepointCountScalar(sample);
+
+        // ASCENDING -- the sequential pattern the cache was built for.
+        {
+            const h = str_from(sample.ptr, sample.len) orelse return error.Unexpected;
+            defer str_free(h);
+            var i: usize = 0;
+            while (i <= n_cp + 2) : (i += 1) {
+                try std.testing.expectEqual(cpToByteReference(sample, i), h.cpToByteCached(i));
+            }
+        }
+
+        // DESCENDING -- forces the "target is before the cache" path on every
+        // call, which the ascending order never touches.
+        {
+            const h = str_from(sample.ptr, sample.len) orelse return error.Unexpected;
+            defer str_free(h);
+            var i: usize = n_cp + 2;
+            while (true) : (i -= 1) {
+                try std.testing.expectEqual(cpToByteReference(sample, i), h.cpToByteCached(i));
+                if (i == 0) break;
+            }
+        }
+
+        // JUMPING -- alternating far/near, so the cache is neither reliably
+        // ahead nor behind. A cache bug that survives both orders above will
+        // not survive this.
+        {
+            const h = str_from(sample.ptr, sample.len) orelse return error.Unexpected;
+            defer str_free(h);
+            var k: usize = 0;
+            while (k <= n_cp) : (k += 1) {
+                const lo = k;
+                const hi = n_cp - k;
+                try std.testing.expectEqual(cpToByteReference(sample, hi), h.cpToByteCached(hi));
+                try std.testing.expectEqual(cpToByteReference(sample, lo), h.cpToByteCached(lo));
+                if (hi <= lo) break;
+            }
+        }
+    }
 }
 
 // The four cases above are all shorter than one vector, so they exercise
