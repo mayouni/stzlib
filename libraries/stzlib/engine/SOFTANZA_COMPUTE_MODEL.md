@@ -3,20 +3,23 @@
 Status: doctrine, written 2026-08-07, after the fact. Everything below
 shipped and is guarded; every number was measured on the dev machine
 (Core 5 210H, 8 cores / 12 threads, RTX 3050 + Intel iGPU) in ReleaseSafe,
-the mode we ship. Nothing here is a plan.
+the mode we ship. Nothing here is a plan. (The fourth width was added
+the same day, after D0–D6 of the distribution plan shipped — like the
+rest of this document, after the fact, from measured numbers.)
 
 ## The model in one paragraph
 
-Softanza's engine runs the same computation at three widths — SIMD lanes
-inside one core, threads across the machine's cores, and GPU kernels beside
-the CPU — under ONE dispatch discipline: every path is admitted only where a
-measurement says it wins, the admission thresholds live in one calibration
-store, and correctness is split into exactly two classes: results that are
-bit-identical by construction, and results whose last-bit movement is
-justified in writing, per site, before it ships. The user calls the same
-function either way and sees nothing but the speed.
+Softanza's engine runs the same computation at four widths — SIMD lanes
+inside one core, threads across the machine's cores, GPU kernels beside
+the CPU, and message-passing nodes across machines — under ONE dispatch
+discipline: every path is admitted only where a measurement says it wins,
+the admission thresholds live in one calibration store, and correctness is
+split into exactly two classes: results that are bit-identical by
+construction, and results whose last-bit movement is justified in writing,
+per site, before it ships. The user calls the same function either way and
+sees nothing but the speed.
 
-## The three layers
+## The four widths
 
 **Lanes** (`@Vector`, one core). The scan and kernel loops — matmul rows,
 UTF-8 counting, search candidate filters, compensated summation — run 4 f64
@@ -43,6 +46,22 @@ f64 solver tier's bit-stability arguments are worth more than a marginal
 transfer-bound win. Resident-chain matmul measured 294 GFLOP/s on the dev
 GPU; the same WGSL reaches the browser through the WASM edge.
 
+**Machines** (nodes, D0–D6). Share-nothing OS processes exchanging STZM
+frames over reactor TCP (or the same mbedTLS termination HTTPS uses) —
+Ring is single-threaded, so the process IS the concurrency unit, and
+Erlang's defining property comes free. The wire's measured floor on
+loopback: 1.98 ms round trip busy-polled, 2.01 ms on the engine await
+(the path a mailbox actually rides), ~13,000 msg/s with 64 frames
+pipelined, serialization 2% of end-to-end on a 384-f64 embedding — the
+in-house stzb encoding, chosen over msgpack by the pre-written rule
+(codec cost near-tie; bytes are loopback-noise; unpack, i.e. rebuilding
+the Ring value, dominates both). Mailboxes are bounded in the ENGINE with
+counted overflow; supervisors restart under declared strategies and
+escalate past a counted budget; a partitioned node IS down (timeout →
+:Down, the same observable as dead); moving a node is one Deploy line,
+and the final guard runs semantic search with the indexer moved and
+killed mid-run — same assertions, clean timeout, supervised rebirth.
+
 ## The finding that unifies them
 
 Standalone elementwise work — saxpy and friends — was measured and KILLED
@@ -53,6 +72,15 @@ same verdict because it is the same verdict: acceleration pays on
 compute-dense work and on resident chains, and streaming a big buffer
 through one cheap operation pays nowhere.** Any future backend should be
 interrogated against this symmetry first.
+
+The fourth width supplied the law's third witness: a 2 ms loopback round
+trip is millions of local flops, so the wire eats chatty fine-grained
+messaging exactly as PCIe ate one-shot elementwise and the memory wall ate
+streaming threads. Distribution pays on COARSE work units and RESIDENT
+remote state — the semantic indexer holds its model and embedded corpus,
+and one Ask carries a whole query — never on streaming cheap calls
+through the boundary. Same verdict, third instance; the boundary law
+now stands on three independent boundaries.
 
 ## One dispatch discipline
 
@@ -69,7 +97,11 @@ interrogated against this symmetry first.
   behavior that was measured and shipped. `src/calibrate_tool.zig` probes
   the real production functions on the user's machine and writes the file;
   run it on a quiet machine, delete the file to return to defaults. The
-  `gpu.*` namespace is reserved so the GPU store converges on the same file.
+  `gpu.*` namespace is reserved so the GPU store converges on the same
+  file, and the `net.*` namespace carries the wire's D0-measured floor
+  (`net.stzm.rtt_loopback_us = 2000`, `msgs_per_sec_loopback = 12000`,
+  `ser_ns_per_kb = 13000`) — the seeds a future auto-`Distribute()`
+  admission will be gated on, per site, like every other width.
 - **Thresholds are honest in both directions.** The calibrator's first live
   run LOWERED two gates (parallel already pays at n=203 matmul and n=812
   LU — sizes the spikes never probed) and its conservative rule can only
@@ -99,6 +131,13 @@ stability exactly — smaller distance, then smaller index — and the fixture
 that proves it uses quantized coordinates so equal distances actually
 occur. A tie path tested only with continuous random data is not tested.
 
+Delivery semantics live in class two, documented rather than wished away:
+the node plane is AT-MOST-ONCE and says so. An Ask's timeout is mandatory
+(a non-positive one is refused — infinite waits do not exist), a timed-out
+Ask may still have been handled, and its late reply is discarded by
+correlation id, never mis-delivered. Anything stronger would be a promise
+the wire cannot keep.
+
 ## Without ceremony
 
 The user-visible API of all of the above is: nothing. No flags, no session
@@ -123,7 +162,17 @@ fixture, which is the only acceptable direction.
   tolerances — refused until a measurement makes the case).
 - Any parallelism below a measured gate (small work stays serial,
   unconditionally).
+- On the fourth width, the hard 20% of Erlang that serves almost no
+  application: exactly-once delivery (at-most-once is the honest default;
+  at-least-once is an opt-in idempotency key the RECEIVER checks),
+  consensus / global state / netsplit healing (apps that need a
+  consistent shared store use a database, which is good at it), hot code
+  loading (the delivery plane's job), and vendored brokers (a second
+  event loop to replace ~300 lines of framing over a reactor we already
+  fuzz).
 - A second spelling of anything. One dot product, one summation authority,
-  one ASCII case table, one calibration store. The recurring engine defect
-  was never slow code; it was the same operation written twice with only
-  one copy maintained. The model exists to have one copy of everything.
+  one ASCII case table, one calibration store — and one signer, one
+  capability lattice, one TLS channel, shared by the federation and the
+  node plane alike. The recurring engine defect was never slow code; it
+  was the same operation written twice with only one copy maintained. The
+  model exists to have one copy of everything.
