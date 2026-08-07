@@ -1,5 +1,6 @@
 pub const neural = @import("neural.zig");
 pub const neural_embed = @import("neural_embed.zig");
+pub const neural_gpu = @import("neural_gpu.zig");
 pub const ring_bridge = @import("ring_bridge_neural.zig");
 
 comptime {
