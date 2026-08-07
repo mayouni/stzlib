@@ -693,6 +693,39 @@ AND updating.
 
 ---
 
+## POST-G6: THE CONSTRUCTIVE ROUTE, BUILT — AND MEASURED HONEST (2026-08-07)
+
+The G6 correction said the forward pass exists and its matmul share could
+route through the shipped plane. Built: `engine/src/neural_gpu.zig` in
+stz_neural.dll (own device — the per-DLL law), fed by ggml's OWN
+extra-compute hook (vendored traits.cpp patch, NOTICE'd; stz_matrix links
+a return-0 stub). Weights dequantize (F32/F16/Q8_0) + transpose ONCE and
+stay resident keyed by (data ptr, model generation); activations stream
+through two reused buffers; the verdict is shape-deterministic so ggml's
+worker threads agree (thread 0 computes, the per-node barrier holds the
+rest); a mid-node device death is kept-promise'd by a scalar fallback and
+latches the state to CPU-forever. Guard:
+`base/test/neural/neural_gpu_routing_narrated.ring` (17 asserts): the
+tiny parity fixture never even WAKES the device; on a real MiniLM the
+hook claims 36 nodes above an explicit line and zero below it; the two
+routes agree at cos 0.99992 (NOT bit-parity — Q8_0 CPU kernels quantize
+activations, the GPU computes full f32, different rounding by design);
+the routed path is deterministic.
+
+**And the end-to-end verdict is a LOSS at MiniLM scale: 0.45–0.67x.**
+The census's 2.7–4.8x was measured on RESIDENT chains; per-NODE
+interception pays an activation upload, a staged readback and a sync on
+every matmul while ggml's CPU ops interleave — a graph that hops
+CPU↔GPU per node is not a resident chain. G0's transfer law, resurfacing
+at graph level, caught by the guard's own timing. So the SHIPPED default
+threshold is set where a node can actually pay (~1.5 GFLOP of work —
+bert-large at long sequences), MiniLM-class forwards stay entirely on
+CPU BY MEASUREMENT, and the guard asserts exactly that as the shipped
+behavior. The real small-model win is the RESIDENT BACKBONE — every op
+on-device, one upload, one readback — recorded here as the follow-up
+that earns the 2.7–4.8x, when a workload justifies building LN/GELU/
+attention kernels on the plane.
+
 ## THE PLANE IS COMPLETE — G0 through G6, 2026-08-07
 
 One day, one plan of record, every phase gated by measurement: the

@@ -15,6 +15,16 @@
 const std = @import("std");
 const matrix = @import("matrix.zig");
 
+// The vendored traits.cpp routes big MUL_MATs to stz_neural_gpu_try_mul_mat
+// (the wgpu path in stz_neural.dll). THIS DLL (stz_matrix) links the same
+// traits.cpp but carries no GPU path -- the stub keeps every mul_mat on
+// ggml's CPU kernels here.
+pub export fn stz_neural_gpu_try_mul_mat(ith: c_int, op: ?*anyopaque) callconv(.c) c_int {
+    _ = ith;
+    _ = op;
+    return 0;
+}
+
 const c = @cImport({
     @cInclude("ggml.h");
     @cInclude("ggml-cpu.h");

@@ -9,7 +9,17 @@ tensor_traits::~tensor_traits() {}
 extra_buffer_type::~extra_buffer_type() {}
 }  // namespace ggml::cpu
 
+// STZ PATCH (GPU routing, 2026-08-07): big MUL_MAT nodes may be claimed by
+// the wgpu path compiled into the SAME DLL (neural_gpu.zig in stz_neural;
+// stz_matrix links a return-0 stub). The callee's verdict is shape-
+// deterministic so every worker thread agrees; thread 0 computes, the rest
+// are held by ggml's per-node barrier. See vendor/ggml/NOTICE.
+extern "C" int stz_neural_gpu_try_mul_mat(int ith, struct ggml_tensor * op);
+
 bool ggml_cpu_extra_compute_forward(struct ggml_compute_params * params, struct ggml_tensor * op) {
+    if (op->op == GGML_OP_MUL_MAT && stz_neural_gpu_try_mul_mat(params->ith, op)) {
+        return true;
+    }
     // STZ PATCH: short-circuit -- no extra buffer types are compiled in (no
     // GGML_USE_CPU_REPACK/AMX/KLEIDIAI). Avoids the function-local-static
     // std::vector init (Meyers) that crashes without C++ static-init support.

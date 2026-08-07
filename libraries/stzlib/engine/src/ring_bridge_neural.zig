@@ -3,6 +3,7 @@ const neural = @import("neural.zig");
 const embed = @import("neural_embed.zig");
 const gen = @import("neural_gen.zig");
 const gex = @import("gguf_export.zig");
+const ngpu = @import("neural_gpu.zig");
 const R = @import("ring_api.zig");
 
 const rn = R.ring_vm_api_retnumber;
@@ -196,7 +197,44 @@ fn ring_NeuralVocabToken(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retstring(p, t);
 }
 
+// ---------------- GPU routing knobs (neural_gpu.zig) ----------------
+
+fn ring_GpuRuntimePath(p: *anyopaque) callconv(.c) void {
+    const ptr = gs(p, 1);
+    const len: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
+    ngpu.neural_gpu_set_runtime_path(ptr, len);
+    rn(p, 1);
+}
+
+fn ring_GpuSetThreshold(p: *anyopaque) callconv(.c) void {
+    ngpu.neural_gpu_set_threshold(R.ring_vm_api_getnumber(p, 1));
+    rn(p, 1);
+}
+
+fn ring_GpuThreshold(p: *anyopaque) callconv(.c) void {
+    rn(p, ngpu.neural_gpu_threshold());
+}
+
+fn ring_GpuState(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(ngpu.neural_gpu_state()));
+}
+
+fn ring_GpuCounter(p: *anyopaque) callconv(.c) void {
+    rn(p, ngpu.neural_gpu_counter(@intFromFloat(R.ring_vm_api_getnumber(p, 1))));
+}
+
+fn ring_GpuCountersReset(p: *anyopaque) callconv(.c) void {
+    ngpu.neural_gpu_counters_reset();
+    rn(p, 1);
+}
+
 pub const regs = [_]R.Reg{
+    .{ .name = "stzengineneuralgpuruntimepath", .func = &ring_GpuRuntimePath },
+    .{ .name = "stzengineneuralgpusetthreshold", .func = &ring_GpuSetThreshold },
+    .{ .name = "stzengineneuralgputhreshold", .func = &ring_GpuThreshold },
+    .{ .name = "stzengineneuralgpustate", .func = &ring_GpuState },
+    .{ .name = "stzengineneuralgpucounter", .func = &ring_GpuCounter },
+    .{ .name = "stzengineneuralgpucountersreset", .func = &ring_GpuCountersReset },
     .{ .name = "stzengineneuralvocabtoken", .func = &ring_NeuralVocabToken },
     .{ .name = "stzengineneuralmodeltensorname", .func = &ring_NeuralModelTensorName },
     .{ .name = "stzengineneuraltokenize", .func = &ring_NeuralTokenize },

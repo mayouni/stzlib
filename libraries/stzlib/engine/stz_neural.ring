@@ -16,6 +16,11 @@ ok
 
 if fexists($cStzNeuralLib)
     $pStzNeuralHandle = LoadLib($cStzNeuralLib)
+    # GPU routing (post-G6 constructive route): record WHERE the wgpu runtime
+    # lives -- a string store only, zero startup cost. The device initializes
+    # lazily at the first matmul big enough to clear the calibrated threshold;
+    # machines without a GPU (or without the runtime) stay silently on CPU.
+    StzEngineNeuralGpuRuntimePath($cEngineDir + "/zig-out/bin/wgpu_native.dll")
 else
     ? "WARNING: stz_neural not found at: " + $cStzNeuralLib
     $pStzNeuralHandle = NULL

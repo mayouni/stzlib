@@ -37,3 +37,11 @@ SOFTANZA BUILD FLAG (engine/build.zig addGgml, -fno-sanitize=undefined): ggml's
 own C relies on pointer arithmetic that UBSan flags as UB (e.g. null+offset in
 graph/hash-set traversal in ggml_build_forward_expand). It is vendored upstream
 code that runs in production (llama.cpp); we don't subject it to our UBSan.
+
+SOFTANZA PATCH (src/ggml-cpu/traits.cpp, 2026-08-07): ggml_cpu_extra_compute_forward
+now first offers GGML_OP_MUL_MAT nodes to `stz_neural_gpu_try_mul_mat` -- the wgpu
+GPU router compiled into stz_neural.dll (engine/src/neural_gpu.zig). stz_matrix.dll
+links the same file and provides a return-0 stub (neural_matmul.zig), keeping its
+matmuls on the CPU kernels. The callee's verdict is shape-deterministic so ggml's
+worker threads agree; thread 0 computes, the others are held by the per-node
+barrier in ggml-cpu.c. The pre-existing short-circuit patch below it is unchanged.
