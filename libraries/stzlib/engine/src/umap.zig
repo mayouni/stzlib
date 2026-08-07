@@ -38,6 +38,7 @@
 //! optimiser should use it.
 
 const std = @import("std");
+const calibstore = @import("calib.zig");
 const ann = @import("ann.zig");
 const lbfgs = @import("lbfgs.zig");
 const density = @import("density.zig");
@@ -367,7 +368,7 @@ fn knn(
 // 2048, ~3x at n=1024; gate at the measured n >= 1024, PROVISIONAL until
 // the calibration store (M5). This only ever runs below ANN_MIN_N (8192),
 // so the worst remaining serial case (n=1023) costs ~25 ms.
-pub var knn_exact_parallel_min_n: usize = 1024;
+pub var knn_gate = calibstore.Gate.init("cpu.knn.allpairs_par_min_n", 1024);
 const KNN_WORKERS = 8;
 
 const KnnBand = struct {
@@ -414,7 +415,7 @@ fn knnExact(
     idx_out: []u32,
     dist_out: []f64,
 ) !void {
-    if (n >= knn_exact_parallel_min_n) {
+    if (n >= knn_gate.valueUsize()) {
         const cpus = std.Thread.getCpuCount() catch 1;
         const nt = @min(KNN_WORKERS, cpus);
         if (nt > 1) {
@@ -2315,8 +2316,7 @@ test "BELOW THE THRESHOLD THE ANSWER IS BIT-IDENTICAL to the exact scan" {
 
 test "threaded knnExact is bit-identical to serial, indices and distances" {
     const alloc = std.testing.allocator;
-    const saved = knn_exact_parallel_min_n;
-    defer knn_exact_parallel_min_n = saved;
+    defer knn_gate.reset();
 
     const n = 203; // odd, so the last band is uneven
     const d = 5;
@@ -2338,9 +2338,9 @@ test "threaded knnExact is bit-identical to serial, indices and distances" {
     const db = try alloc.alloc(f64, n * k);
     defer alloc.free(db);
 
-    knn_exact_parallel_min_n = std.math.maxInt(usize);
+    knn_gate.overrideUsize(std.math.maxInt(usize));
     try knnExact(alloc, x, n, d, k, ia, da);
-    knn_exact_parallel_min_n = 2;
+    knn_gate.overrideUsize(2);
     try knnExact(alloc, x, n, d, k, ib, db);
 
     for (ia, ib) |p1, q1| try std.testing.expectEqual(p1, q1);

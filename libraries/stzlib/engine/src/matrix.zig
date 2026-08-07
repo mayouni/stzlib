@@ -1,4 +1,5 @@
 const std = @import("std");
+const calib = @import("calib.zig");
 const linalg = @import("linalg.zig");
 const eigen_general = @import("eigen_general.zig");
 
@@ -237,10 +238,13 @@ const MAX_MM_THREADS = 12;
 /// costs ~0.42 ms (measured), which the floors below keep under ~10% of
 /// the compute. PROVISIONAL until the shared calibration store (M5) makes
 /// this per-machine; the numbers are one machine's truth, honestly labeled.
+pub var mm_par_min_flops = calib.Gate.init("cpu.matmul.par_min_flops", 2.0 * 256.0 * 256.0 * 256.0);
+pub var mm_full_min_flops = calib.Gate.init("cpu.matmul.full_width_min_flops", 2.0 * 512.0 * 512.0 * 512.0);
+
 fn matmulThreads(flops: f64, rows: usize) usize {
-    const t: usize = if (flops < 2.0 * 256.0 * 256.0 * 256.0)
+    const t: usize = if (flops < mm_par_min_flops.value())
         1 // below the measured crossover: serial always wins
-    else if (flops < 2.0 * 512.0 * 512.0 * 512.0)
+    else if (flops < mm_full_min_flops.value())
         6
     else
         MAX_MM_THREADS;

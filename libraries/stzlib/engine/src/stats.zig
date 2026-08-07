@@ -1,4 +1,5 @@
 const std = @import("std");
+const calib = @import("calib.zig");
 const allocator = std.heap.c_allocator;
 const math = std.math;
 
@@ -96,8 +97,8 @@ const SUM_LANES = 8;
 // The heavier kernel admits earlier (more work per element amortises the
 // spawn), which is why the two gates differ. PROVISIONAL until M5's shared
 // calibration store. Tests may lower them.
-pub var stats_parallel_min_sum: usize = 4 * 1024 * 1024;
-pub var stats_parallel_min_css: usize = 1024 * 1024;
+pub var sum_gate = calib.Gate.init("cpu.stats.sum_par_min_n", 4 * 1024 * 1024);
+pub var css_gate = calib.Gate.init("cpu.stats.css_par_min_n", 1024 * 1024);
 const STATS_WORKERS = 8;
 
 const RedJob = struct {
@@ -165,7 +166,7 @@ fn threadedReduce(data: []const f64, mean: f64, which: u8) ?f64 {
 /// form -- summing in several independent groups is if anything better
 /// conditioned. The pathological case is pinned by a test below.
 pub fn compensatedSum(data: []const f64) f64 {
-    if (data.len >= stats_parallel_min_sum) {
+    if (data.len >= sum_gate.valueUsize()) {
         if (threadedReduce(data, 0, 0)) |v| return v;
     }
     return compensatedSumSerial(data);
@@ -279,7 +280,7 @@ pub fn centeredSumOfSquaresOf(comptime T: type, data: []const T, mean: f64) f64 
 }
 
 pub fn centeredSumOfSquares(data: []const f64, mean: f64) f64 {
-    if (data.len >= stats_parallel_min_css) {
+    if (data.len >= css_gate.valueUsize()) {
         if (threadedReduce(data, mean, 1)) |v| return v;
     }
     return centeredSumOfSquaresSerial(data, mean);
@@ -1062,11 +1063,9 @@ test "one centered sum of squares, whatever the storage" {
 
 test "threaded reductions: pathological exactness and serial agreement" {
     const alloc = std.testing.allocator;
-    const saved_sum = stats_parallel_min_sum;
-    const saved_css = stats_parallel_min_css;
     defer {
-        stats_parallel_min_sum = saved_sum;
-        stats_parallel_min_css = saved_css;
+        sum_gate.reset();
+        css_gate.reset();
     }
 
     // The pathological case the lane version pins, now through THREADS
@@ -1075,7 +1074,7 @@ test "threaded reductions: pathological exactness and serial agreement" {
     defer alloc.free(patho);
     patho[0] = 1e16;
     for (patho[1..]) |*v| v.* = 1.0;
-    stats_parallel_min_sum = 16;
+    sum_gate.overrideUsize(16);
     try std.testing.expectEqual(@as(f64, 1e16 + 4095.0), compensatedSum(patho));
 
     // Mixed-sign data: threaded within 1e-12 relative of serial (grouping
@@ -1087,16 +1086,16 @@ test "threaded reductions: pathological exactness and serial agreement" {
         seed = seed *% 6364136223846793005 +% 1442695040888963407;
         v.* = @as(f64, @floatFromInt((seed >> 33) % 2000)) / 999.0 - 1.0;
     }
-    stats_parallel_min_sum = std.math.maxInt(usize);
+    sum_gate.overrideUsize(std.math.maxInt(usize));
     const ser = compensatedSum(data);
-    stats_parallel_min_sum = 16;
+    sum_gate.overrideUsize(16);
     const par = compensatedSum(data);
     const denom = @max(@abs(ser), 1e-300);
     try std.testing.expect(@abs(par - ser) / denom < 1e-12);
 
-    stats_parallel_min_css = std.math.maxInt(usize);
+    css_gate.overrideUsize(std.math.maxInt(usize));
     const css_ser = centeredSumOfSquares(data, 0.001);
-    stats_parallel_min_css = 16;
+    css_gate.overrideUsize(16);
     const css_par = centeredSumOfSquares(data, 0.001);
     try std.testing.expect(@abs(css_par - css_ser) / @max(css_ser, 1e-300) < 1e-12);
 }
