@@ -19,6 +19,7 @@
 // This module holds the algorithms; matrix.zig keeps the C ABI and asks here.
 
 const std = @import("std");
+const calib = @import("calib.zig");
 
 /// An LU factorisation with partial pivoting: PA = LU.
 ///
@@ -108,7 +109,7 @@ fn axpyNeg(dst: []f64, src: []const f64, factor: f64) void {
 // The gate sits where the measurement supports it, PROVISIONAL until the
 // shared calibration store (M5). Tests may lower it to exercise the
 // parallel path on small fixtures.
-pub var lu_parallel_min_n: usize = 1024;
+pub var lu_gate = calib.Gate.init("cpu.lu.par_min_n", 1024);
 const LU_WORKERS = 8;
 const LU_MIN_ROWS_PER_STEP = 64; // triangle tail: barrier tax exceeds work
 
@@ -187,7 +188,7 @@ pub fn decompose(allocator: std.mem.Allocator, data: []const f64, n: usize) !LU 
         .quit = std.atomic.Value(bool).init(false),
     };
     var workers: [LU_WORKERS]std.Thread = undefined;
-    if (n >= lu_parallel_min_n) {
+    if (n >= lu_gate.valueUsize()) {
         const cpus = std.Thread.getCpuCount() catch 1;
         const want = @min(LU_WORKERS, cpus);
         var wt: usize = 0;
@@ -3273,14 +3274,13 @@ test "parallel decompose is bit-identical to serial, pivots included" {
             (if (idx / n == idx % n) @as(f64, 3.0) else 0.0);
     }
 
-    const saved = lu_parallel_min_n;
-    defer lu_parallel_min_n = saved;
+    defer lu_gate.reset();
 
-    lu_parallel_min_n = std.math.maxInt(usize); // force serial
+    lu_gate.overrideUsize(std.math.maxInt(usize)); // force serial
     var f_ser = try decompose(alloc, data, n);
     defer f_ser.deinit();
 
-    lu_parallel_min_n = 8; // force parallel (min-rows tail still applies)
+    lu_gate.overrideUsize(8); // force parallel (min-rows tail still applies)
     var f_par = try decompose(alloc, data, n);
     defer f_par.deinit();
 
@@ -3296,10 +3296,10 @@ test "parallel decompose is bit-identical to serial, pivots included" {
         const c = idx % n;
         if (r == 2) v.* = data[0 * n + c] + data[1 * n + c];
     }
-    lu_parallel_min_n = std.math.maxInt(usize);
+    lu_gate.overrideUsize(std.math.maxInt(usize));
     var s_ser = try decompose(alloc, data, n);
     defer s_ser.deinit();
-    lu_parallel_min_n = 8;
+    lu_gate.overrideUsize(8);
     var s_par = try decompose(alloc, data, n);
     defer s_par.deinit();
     try std.testing.expect(s_ser.singular);

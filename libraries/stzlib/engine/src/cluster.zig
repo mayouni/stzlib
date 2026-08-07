@@ -28,6 +28,7 @@
 //! `<` and `>` where Ring had `<` and `>`, so a tie resolves the same way.
 
 const std = @import("std");
+const calib = @import("calib.zig");
 const similarity = @import("similarity.zig");
 
 inline fn dist(a: []const f64, b: []const f64) f64 {
@@ -65,7 +66,7 @@ inline fn dist(a: []const f64, b: []const f64) f64 {
 // The parallel path is also gated on k <= TOPK_SCRATCH: this function is
 // allocation-free by contract, so per-thread candidate lists live on the
 // stack. A larger k falls back to the serial scan, correct as ever.
-pub var topk_parallel_min_work: usize = 8_000_000;
+pub var topk_gate = calib.Gate.init("cpu.topk.par_min_work", 8_000_000);
 const TOPK_WORKERS = 8;
 const TOPK_SCRATCH = 64;
 
@@ -119,7 +120,7 @@ pub fn topK(
     if (n == 0 or d == 0 or k == 0) return 0;
     const take = @min(k, n);
 
-    if (n * d >= topk_parallel_min_work and take <= TOPK_SCRATCH) {
+    if (n * d >= topk_gate.valueUsize() and take <= TOPK_SCRATCH) {
         const cpus = std.Thread.getCpuCount() catch 1;
         const nt = @min(TOPK_WORKERS, cpus);
         if (nt > 1) {
@@ -427,8 +428,7 @@ test "kmeans refuses when there are not k distinct points" {
 
 test "threaded topK is output-identical to serial, ties included" {
     const gpa2 = std.testing.allocator;
-    const saved = topk_parallel_min_work;
-    defer topk_parallel_min_work = saved;
+    defer topk_gate.reset();
 
     // Quantized coordinates so equal distances OCCUR; n not divisible by 8
     // so the last chunk is uneven.
@@ -445,12 +445,12 @@ test "threaded topK is output-identical to serial, ties included" {
 
     var ia: [12]i32 = undefined;
     var da: [12]f64 = undefined;
-    topk_parallel_min_work = std.math.maxInt(usize); // force serial
+    topk_gate.overrideUsize(std.math.maxInt(usize)); // force serial
     const na = topK(pts, n, d, &q, 12, &ia, &da);
 
     var ib: [12]i32 = undefined;
     var db: [12]f64 = undefined;
-    topk_parallel_min_work = 1; // force parallel
+    topk_gate.overrideUsize(1); // force parallel
     const nb = topK(pts, n, d, &q, 12, &ib, &db);
 
     try std.testing.expectEqual(na, nb);
