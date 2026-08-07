@@ -378,7 +378,7 @@ class stzReactiveSystem from stzObject
 			_delay_ = IMMEDIATE
 		ok
 
-		_timerId_ = "timeout_" + random(999999)
+		_timerId_ = "timeout_" + StzEngineRandomInt(0, 999999)
 		_timer_ = new stzRingTimer(_timerId_, _delay_, _callback_, self, true, self)
 		_timer_.Start()
 		This.AddTimer(_timer_)
@@ -416,7 +416,7 @@ class stzReactiveSystem from stzObject
 			_interval_ = DEFAULT_TIMER_DELAY
 		ok
 
-		_timerId_ = "interval_" + random(999999)
+		_timerId_ = "interval_" + StzEngineRandomInt(0, 999999)
 		_timer_ = new stzRingTimer(_timerId_, _interval_, _callback_, self, false, self)
 		_timer_.Start()
 		AddTimer(_timer_)

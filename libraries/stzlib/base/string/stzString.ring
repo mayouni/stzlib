@@ -13189,7 +13189,7 @@ class stzString from stzObject
 		if _nFrom_ < 1 _nFrom_ = 0 ok
 		if _nFrom_ >= _nLen_ return 0 ok
 		_nSpan_ = _nLen_ - _nFrom_
-		return _nFrom_ + 1 + (random(_nSpan_ - 1))
+		return _nFrom_ + 1 + (StzEngineRandomInt(0, _nSpan_ - 1))
 
 	# FindNextSTCS(pcSub, nStartAt, pCaseSensitive): forward search
 	# from nStartAt with case flag.

@@ -442,7 +442,7 @@ class stzStochasticSolver from stzObject
 
         for sim = 1 to _nSimulations_
             # Sample scenario based on probabilities
-            _nRand_ = random(100) / 100.0
+            _nRand_ = StzEngineRandomInt(0, 100) / 100.0
             _nCumProb_ = 0
             _selectedScenario_ = @aScenarios[1]
             _nScenarios11Len_ = len(@aScenarios)

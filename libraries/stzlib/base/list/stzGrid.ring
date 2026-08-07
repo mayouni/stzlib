@@ -2665,7 +2665,7 @@ class stzGrid From stzObject
 				ok
 				
 				# Add obstacle with probability based on density
-				if random(100) < _nObstacleDensity_
+				if StzEngineRandomInt(0, 100) < _nObstacleDensity_
 					This.AddObstacle(x, y)
 				ok
 			next
@@ -2711,7 +2711,7 @@ class stzGrid From stzObject
 				ok
 				
 				# Add obstacle with 30% probability
-				if random(100) < 30
+				if StzEngineRandomInt(0, 100) < 30
 					This.AddObstacle(x, y)
 				ok
 			next

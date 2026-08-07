@@ -75,6 +75,10 @@ fn retPositions(p: *anyopaque, positions: []const i64) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+fn ring_ListRandomSeed(p: *anyopaque) callconv(.c) void {
+    list.stz_list_random_seed(@intFromFloat(R.ring_vm_api_getnumber(p, 1)));
+}
+
 // Lifecycle
 fn ring_New(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(list.stz_list_new()), HL);
@@ -1314,6 +1318,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistissorteddescending", .func = &ring_IsSortedDescending },
     .{ .name = "stzenginelistrepeat", .func = &ring_Repeat },
     .{ .name = "stzenginelistshuffle", .func = &ring_Shuffle },
+    .{ .name = "stzenginelistrandomseed", .func = &ring_ListRandomSeed },
     .{ .name = "stzenginelistrandomitems", .func = &ring_RandomItems },
     .{ .name = "stzenginelistsection", .func = &ring_Section },
     .{ .name = "stzenginelistswap", .func = &ring_Swap },

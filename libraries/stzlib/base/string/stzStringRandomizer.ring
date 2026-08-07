@@ -43,7 +43,7 @@ class stzStringRandomizer from stzObject
 		_nLen_ = len(_acChars_)
 
 		for i = _nLen_ to 2 step -1
-			_j_ = random(i - 1) + 1
+			_j_ = StzEngineRandomInt(0, i - 1) + 1
 			_cTemp_ = _acChars_[i]
 			_acChars_[i] = _acChars_[_j_]
 			_acChars_[_j_] = _cTemp_
@@ -74,7 +74,7 @@ class stzStringRandomizer from stzObject
 		if _nLen_ = 0
 			return ""
 		ok
-		_n_ = random(_nLen_ - 1) + 1
+		_n_ = StzEngineRandomInt(0, _nLen_ - 1) + 1
 		return @oString.NthChar(_n_)
 
 	def RandomChars(_n_)
@@ -105,7 +105,7 @@ class stzStringRandomizer from stzObject
 
 		# Shuffle unique chars and take first n
 		for i = _nAvailable_ to 2 step -1
-			_j_ = random(i - 1) + 1
+			_j_ = StzEngineRandomInt(0, i - 1) + 1
 			_cTemp_ = _acUnique_[i]
 			_acUnique_[i] = _acUnique_[_j_]
 			_acUnique_[_j_] = _cTemp_
@@ -131,7 +131,7 @@ class stzStringRandomizer from stzObject
 			return ""
 		ok
 
-		_nStart_ = random(_nMax_ - _nLen_) + 1
+		_nStart_ = StzEngineRandomInt(0, _nMax_ - _nLen_) + 1
 		return @oString.Section(_nStart_, _nStart_ + _nLen_ - 1)
 
 		def RandomSubString(_nLen_)
@@ -148,7 +148,7 @@ class stzStringRandomizer from stzObject
 		if _nLen_ = 0
 			return ""
 		ok
-		_n_ = random(_nLen_ - 1) + 1
+		_n_ = StzEngineRandomInt(0, _nLen_ - 1) + 1
 		return _acWords_[_n_]
 
 	  #===============================#
@@ -161,7 +161,7 @@ class stzStringRandomizer from stzObject
 		_nLen_ = len(_acWords_)
 
 		for i = _nLen_ to 2 step -1
-			_j_ = random(i - 1) + 1
+			_j_ = StzEngineRandomInt(0, i - 1) + 1
 			_cTemp_ = _acWords_[i]
 			_acWords_[i] = _acWords_[_j_]
 			_acWords_[_j_] = _cTemp_
@@ -197,7 +197,7 @@ class stzStringRandomizer from stzObject
 
 		for i = 1 to _nLen_
 			_c_ = _acChars_[i]
-			if random(1) = 1
+			if StzEngineRandomInt(0, 1) = 1
 				_cResult_ += StzUpper(_c_)
 			else
 				_cResult_ += StzLower(_c_)
@@ -221,7 +221,7 @@ class stzStringRandomizer from stzObject
 
 	def RandomInsert(cStr)
 		_nLen_ = @oString.NumberOfChars()
-		_nPos_ = random(_nLen_) + 1
+		_nPos_ = StzEngineRandomInt(0, _nLen_) + 1
 
 		if _nPos_ > _nLen_
 			@oString.Update(@oString.Content() + cStr)
@@ -250,7 +250,7 @@ class stzStringRandomizer from stzObject
 
 		# Pick n random indices to remove (shuffle and take first n)
 		for i = _nLen_ to 2 step -1
-			_j_ = random(i - 1) + 1
+			_j_ = StzEngineRandomInt(0, i - 1) + 1
 			_nTemp_ = _anIndices_[i]
 			_anIndices_[i] = _anIndices_[_j_]
 			_anIndices_[_j_] = _nTemp_

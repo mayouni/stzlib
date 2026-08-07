@@ -5343,7 +5343,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		_nPos_ = 0
-		if random(1) = 0
+		if StzEngineRandomInt(0, 1) = 0
 			_nPos_ = This.AnyNumberBefore(_n_)
 
 		else
@@ -5447,7 +5447,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		_nPos_ = 0
-		if random(1) = 0
+		if StzEngineRandomInt(0, 1) = 0
 			_nPos_ = This.AnyNumberBefore(_n_)
 
 		else
@@ -5629,7 +5629,7 @@ class stzListOfNumbers from stzList
 			return This.Number(1)
 		ok
 
-		_nRandom_ = random(_n_ - 1)
+		_nRandom_ = StzEngineRandomInt(0, _n_ - 1)
 		if _nRandom_ = 0
 			_nRandom_ = 1
 		ok
@@ -5672,7 +5672,7 @@ class stzListOfNumbers from stzList
 			return This.Number(1)
 		ok
 
-		_nRandom_ = random(_n_ - 1)
+		_nRandom_ = StzEngineRandomInt(0, _n_ - 1)
 		if _nRandom_ = 0
 			_nRandom_ = 1
 		ok
@@ -5802,7 +5802,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		_n_--
-		_nRandom_ = random(_n_)
+		_nRandom_ = StzEngineRandomInt(0, _n_)
 		if _nRandom_ = 0
 			_nRandom_ = 1
 		ok
@@ -5846,7 +5846,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		_n_--
-		_nRandom_ = random(_n_)
+		_nRandom_ = StzEngineRandomInt(0, _n_)
 		if _nRandom_ = 0
 			_nRandom_ = 1
 		ok

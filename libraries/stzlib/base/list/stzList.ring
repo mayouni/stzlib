@@ -7018,7 +7018,7 @@ class stzList from stzObject
 	def rndItems()
 		_nRiN_ = This.NumberOfItems()
 		if _nRiN_ = 0 return [] ok
-		_nRiK_ = random(_nRiN_ - 1) + 1
+		_nRiK_ = StzEngineRandomInt(0, _nRiN_ - 1) + 1
 		return This.NRandomItems(_nRiK_)
 
 		def RandomItems()
@@ -7032,7 +7032,7 @@ class stzList from stzObject
 		#-- shuffle the positions 1.._nRrN_ and remove the first n of them
 		_anRrIdx_ = 1 : _nRrN_
 		for _iRr_ = _nRrN_ to 2 step -1
-			_jRr_ = random(_iRr_ - 1) + 1
+			_jRr_ = StzEngineRandomInt(0, _iRr_ - 1) + 1
 			_xRr_ = _anRrIdx_[_iRr_]
 			_anRrIdx_[_iRr_] = _anRrIdx_[_jRr_]
 			_anRrIdx_[_jRr_] = _xRr_
@@ -7054,7 +7054,7 @@ class stzList from stzObject
 	def rndRemoveItems()
 		_nRr2N_ = This.NumberOfItems()
 		if _nRr2N_ = 0 return This ok
-		_nRr2K_ = random(_nRr2N_ - 1) + 1
+		_nRr2K_ = StzEngineRandomInt(0, _nRr2N_ - 1) + 1
 		return This.rndRemoveNItems(_nRr2K_)
 
 		def rndRemoveItemsQ()
