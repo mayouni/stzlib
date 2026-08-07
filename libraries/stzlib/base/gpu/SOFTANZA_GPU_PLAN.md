@@ -489,3 +489,50 @@ answers identically through the CPU. The existing
 Next: **G4** — the declarative surface (stzGpu / stzGpuBuffer /
 stzKernelMaker, W-string → WGSL); further seams (batch knn surfaces,
 umap/tsne neighbour phases) ride on calibration work in G5.
+
+---
+
+## G4 STATUS — shipped 2026-08-07: the declarative surface
+
+The level-1 vision from §0, working as sketched (suite:
+`base/test/gpu/gpu_declarative_narrated.ring`, 20 asserts green; all four
+GPU guards green together — 136 asserts):
+
+    k = StzKernelMakerQ()
+    k.TakesVector(:A)  k.TakesVector(:B)  k.TakesScalar(:alpha)
+    k.ReturnsVector(:C)
+    k.ForEachElement('{ @C = alpha * @A + @B }')
+    aC = oG.Run(k, [ :A = a1, :B = a2, :alpha = 2.5 ])
+
+    b2 = oG.UploadQ(aBig).ApplyQ(kDouble).ApplyWithQ(kShift, [:d = 100])
+    aOut = b2.Download()
+
+- **The transpiler is ENGINE substance** (`gpu_wgsl.zig`): a line-based
+  spec (what the maker's declarations collapse into) → validated WGSL on
+  the house binding contract (tile@0, params@1 with n + scalars packed in
+  declaration order, inputs read at @2.., output read_write last). Any
+  binding gets the declarative surface; Ring's stzKernelMaker is one face.
+- **The W lessons enforced**: the body is LITERAL — one assignment, the
+  declared names, arithmetic, and a 16-function whitelist. Refusals name
+  the offender (undeclared vector, unknown identifier, reading the output,
+  uncalled function, foreign character, wrong LHS — each guarded). The
+  transpile is documented BY ITS OUTPUT: ToWGSL() returns the kernel
+  verbatim.
+- **Authoring needs no device**: transpile is pure text, so kernels can be
+  written and inspected on GPU-less machines (CI included); only the data
+  paths require a device, and they raise a clear message without one.
+- **Residency proven by the transfer counter, not claimed**: the suite's
+  3-op chain (upload → x2 → +100 → download) moves EXACTLY up + down
+  bytes across the bus — zero transfer between links.
+- **The faces keep the house laws**: stzGpuBuffer's state is two numbers
+  (gen-keyed engine id + count), so copy-on-assign is harmless and stale
+  ids answer by name; a missing scalar binding RAISES (a missing Ring
+  hashlist key silently reads 0 — scanned explicitly); one-shot Run() is
+  documented as the doorway, not the fast path (G0's 92% transfer share,
+  stated in the class header).
+- Ring lesson collected: a `func` after a `class` in the same file becomes
+  a METHOD of that class — shared helpers must precede the class.
+
+Remaining phases: **G5** (WASM/WebGPU edge convergence + deployment
+gates + real calibration passes) and **G6** (the separate ggml-Vulkan
+decision for the neural tier).

@@ -77,6 +77,11 @@ ok
     load "number/stzComplex.ring"
     load "number/stzFourier.ring"
     load "number/stzVectorIndex.ring"
+
+    # gpu/ -- the declarative GPU surface (G4, SOFTANZA_GPU_PLAN.md)
+    load "gpu/stzKernelMaker.ring"
+    load "gpu/stzGpuBuffer.ring"
+    load "gpu/stzGpu.ring"
     load "number/stzPolynomial.ring"
     load "number/stzMathFunction.ring"
     load "number/stzObjective.ring"
