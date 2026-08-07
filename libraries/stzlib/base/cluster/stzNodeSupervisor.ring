@@ -52,6 +52,7 @@ class stzNodeSupervisor from stzObject
 	@aChildNames = []
 	@aChildScripts = []
 	@aChildPorts = []
+	@aChildHosts = []
 	@aChildJobs = []       # current spawn job id (0 = not running)
 	@aChildRestarts = []   # restarts counted, per child
 	@aChildMisses = []     # consecutive heartbeat misses
@@ -76,9 +77,27 @@ class stzNodeSupervisor from stzObject
 		@aChildNames + StzLower("" + pcName)
 		@aChildScripts + ("" + pcScript)
 		@aChildPorts + (0 + pnPort)
+		@aChildHosts + "127.0.0.1"
 		@aChildJobs + 0
 		@aChildRestarts + 0
 		@aChildMisses + 0
+		return This
+
+	# Where the child's name resolves on the plane (deployment moves it).
+	def SetChildHost(pcName, pcHost)
+		_i_ = This._ChildIndex(StzLower("" + pcName))
+		if _i_ > 0
+			@aChildHosts[_i_] = StzLower("" + pcHost)
+		ok
+		return This
+
+	# Kill a child's OS process (deployment/testing); the death is then
+	# observed and handled by the next Cycle() like any other death.
+	def KillChild(pcName)
+		_i_ = This._ChildIndex(StzLower("" + pcName))
+		if _i_ > 0 and @aChildJobs[_i_] != 0
+			@oSpawner.KillSpawn(@aChildJobs[_i_], 9)
+		ok
 		return This
 
 	def Strategy(pcStrategy)
@@ -223,7 +242,7 @@ class stzNodeSupervisor from stzObject
 		@aChildJobs[i] = @oSpawner.SubmitSpawn([ @cRingExe,
 			@aChildScripts[i], "" + @aChildPorts[i] ])
 		@aChildMisses[i] = 0
-		NodeRegister(@aChildNames[i], "127.0.0.1", @aChildPorts[i])
+		NodeRegister(@aChildNames[i], @aChildHosts[i], @aChildPorts[i])
 
 	def _HasExited(i)
 		# JobState: -1 still running, 0 result ready (= process exited),

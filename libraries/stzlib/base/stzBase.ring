@@ -701,6 +701,7 @@ ok
     load "cluster/stzNode.ring"
     load "cluster/stzNodePlane.ring"
     load "cluster/stzNodeSupervisor.ring"
+    load "cluster/stzNodeApp.ring"
 
 # Loading files related to NATURAL module
 

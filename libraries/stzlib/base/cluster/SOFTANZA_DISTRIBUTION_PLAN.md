@@ -307,6 +307,31 @@ the W-string spirit), not only closures.
 description (declare → describe → redeclare identically) is not
 declarative yet.
 
+**D4 RESULT (2026-08-07, DONE).** Guard: `base/test/cluster/
+d4_declarative_narrated.ring` (21 assertions). The kill criterion is
+the guard's first scenario: declare → Describe() → 
+StzNodeAppFromDescription() → Describe(), byte-identical through the
+encoder. The description is plain nested lists; handlers are Ring code
+STRINGS (the W-string spirit -- a closure cannot cross an OS process
+boundary; code-as-data can, and is inspectable on the way).
+`stzNodeApp` (base/cluster/stzNodeApp.ring) keeps the sketch's fluent
+chain via Node()-makes-current (Ring copies objects on assignment, so
+handing out spec objects would silently swallow declarations).
+RunLocal() proven as the real pseudo-distributed mode: generated node
+scripts become child OS processes under a REAL stzNodeSupervisor;
+stz.info shows the DECLARED inbox (cap 64, dropnewest) inside the
+running process; a boom kill heals through supervision with declared
+behavior intact. Deploy("calc", "127.0.0.2") moved a node in one line:
+the move RIDES SUPERVISION (regenerate script at the new host → kill →
+counted respawn → registry re-points), the same Ask by name computed
+the same answer, and the node itself reported serving from the new
+host; the sibling never noticed. StopAll() removes the generated
+artifacts. Ring trap recorded for the house book: a method called
+mid-expression shares the caller's method-local namespace
+(case-insensitively) -- `_BaseRing()`'s local `nL` (= 40) clobbered
+the caller's `nl` newline var through the call, turning every
+generated newline into the literal "40".
+
 **D5 — governance + security integration.**
 Signed frames via `stzRequestSigner`, mTLS via the existing mbedTLS
 channel, admission via the `stzSystemActor` capability lattice, and
