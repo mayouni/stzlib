@@ -700,6 +700,7 @@ ok
 
     load "cluster/stzNode.ring"
     load "cluster/stzNodePlane.ring"
+    load "cluster/stzNodeSupervisor.ring"
 
 # Loading files related to NATURAL module
 
