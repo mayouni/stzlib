@@ -28,6 +28,97 @@ Scenario("Setters mutate the corresponding fields")
     Then("emptyLoopPatience updates",      oTm.@emptyLoopPatience, 200)
 EndScenario()
 
+Scenario("...and the fields make the loop behave differently")
+
+    # The scenario above checks that the assignment happened. That is worth
+    # having and is not enough: it would pass just as well for a field nothing
+    # reads. These two drive an idle RunLoop and MEASURE it.
+    #
+    # Monotonic clock, and the bands come from measurement rather than from the
+    # comment: 20 idle iterations took ~145ms at 5ms and ~1117ms at 50ms (~7.7x),
+    # and patience 30 outlasted patience 0 by ~30x. Asserting 3x leaves room for
+    # a loaded machine while still failing outright if the knob does nothing.
+
+    Given("an idle loop run at two different check frequencies")
+    nFast = IdleMs(5, 20)
+    nSlow = IdleMs(50, 20)
+    Then("a slower check really does wait longer", nSlow > nFast * 3, TRUE)
+
+    Given("an idle loop run at two different patience levels")
+    nImpatient = IdleMs(10, 0)
+    nPatient   = IdleMs(10, 30)
+    Then("more patience really does keep it alive longer", nPatient > nImpatient * 3, TRUE)
+EndScenario()
+
+Scenario("A wait the loop cannot perform is refused")
+
+    # Zero was the dangerous value. _WaitTick does
+    # sleep(@checkFrequency / MS_PER_SECOND), so a frequency of 0 is no wait at
+    # all: 200 idle iterations ran in 2ms instead of ~2000, a loop spinning flat
+    # out on the knob whose whole job is to make it wait.
+    #
+    # A non-number was the confusing one -- it survived the setter and raised
+    # R41 "Invalid numeric string" deep inside RunLoop, nowhere near the call
+    # that caused it.
+
+    Given("a manager on its default check frequency")
+    oV = new stzTimerManager()
+    nWas = oV.@checkFrequency
+
+    When("it is asked to wait for zero")
+    oV.SetCheckFrequency(0)
+    Then("the refusal keeps the working value", oV.@checkFrequency, nWas)
+
+    When("it is asked to wait for a negative time")
+    oV.SetCheckFrequency(-25)
+    Then("the refusal keeps the working value", oV.@checkFrequency, nWas)
+
+    When("it is handed something that is not a number")
+    oV.SetCheckFrequency("soon")
+    Then("the refusal keeps the working value", oV.@checkFrequency, nWas)
+
+    # ...and the loop that used to spin now still waits, which is the point of
+    # refusing rather than merely disliking.
+    Then("an idle loop still takes real time", IdleMs(0, 20) > 20, TRUE)
+
+    # THE NEGATIVE SIBLING: refusing must not mean refusing everything.
+    When("it is given a workable frequency")
+    oV.SetCheckFrequency(25)
+    Then("it takes it", oV.@checkFrequency, 25)
+
+    # Patience is a COUNT, not a duration, and zero is its documented default --
+    # so the two setters must NOT validate alike.
+    Given("a manager asked for zero patience")
+    oP = new stzTimerManager()
+    oP.SetPatience(5)
+    oP.SetPatience(0)
+    Then("zero patience is legal", oP.@emptyLoopPatience, 0)
+    When("it is asked for negative patience")
+    oP.SetPatience(-5)
+    Then("that is refused", oP.@emptyLoopPatience, 0)
+EndScenario()
+
+Scenario("The setters chain, like every other setter in the module")
+
+    # They used to return whatever the last expression evaluated to -- a STRING,
+    # as it happens -- so they could not be strung together the way
+    # SetAutoConclude and its neighbours can.
+
+    Given("a manager configured in one chain")
+    oCh = new stzTimerManager()
+    oCh.SetCheckFrequency(30).SetPatience(7)
+
+    Then("the chain reached the first setter", oCh.@checkFrequency, 30)
+    Then("...and the second", oCh.@emptyLoopPatience, 7)
+    oOne = new stzTimerManager()
+    Then("a setter answers with the object", isObject(oOne.SetPatience(1)), TRUE)
+
+    # SetReactor chains too. NULL is its documented no-reactor-use-the-poller
+    # value, so passing it must stay legal.
+    oRct = new stzTimerManager()   # not oR: Ring folds that name onto the or operator
+    Then("SetReactor(NULL) is still allowed and chains", isObject(oRct.SetReactor(NULL)), TRUE)
+EndScenario()
+
 Scenario("AddTimer / RemoveTimer mutate the timers list in place")
     Given("a manager with no timers and two fully-Init'd timer stubs")
     oTm = new stzTimerManager()
@@ -209,3 +300,16 @@ Scenario("A subclass must fill what the inherited accessor reads")
 EndScenario()
 
 Summary()
+
+#-- helpers --------------------------------------------------------------------
+
+# Wall time of an idle RunLoop at a given check frequency and patience.
+# Monotonic clock: StzEngineTimeNow* is epoch WALL time and unfit for durations.
+func IdleMs(pnFreq, pnPatience)
+	_o_ = new stzTimerManager()
+	_o_.SetCheckFrequency(pnFreq)
+	_o_.SetPatience(pnPatience)
+	_n0_ = StzEngineWatchTimestampNs()
+	_o_.RunLoop(NULL)
+	return (StzEngineWatchTimestampNs() - _n0_) / 1000000
+
