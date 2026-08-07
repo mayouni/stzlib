@@ -68,6 +68,20 @@ class stzVectorIndex from stzObject
 	@nSeed = 42
 	@aVectors = []
 
+	# -- the G3 silent seam (SOFTANZA_GPU_PLAN.md) --
+	# For a big enough :Euclidean corpus, SearchExact() runs its full scan on
+	# the GPU: the corpus is uploaded ONCE (resident buffer), each query then
+	# moves only d floats in and reads k pairs back -- d flops per byte, the
+	# compute-dense shape G0 approved. Below the calibrated threshold, or in
+	# :Cosine mode (the CPU index normalizes internally), or on any GPU
+	# refusal, the CPU path answers exactly as before. Distances come back
+	# f32 instead of f64 -- same squared-Euclidean contract, parity banded
+	# by the seam guard.
+	@nGpuCorpus_ = 0
+	@nGpuQuery_ = 0
+	@nGpuDist_ = 0
+	@bGpuTried_ = FALSE
+
 	# paVectors is a list of equal-length lists of numbers -- one row per vector.
 	def init(paVectors)
 		if NOT isList(paVectors) or len(paVectors) = 0
@@ -210,6 +224,16 @@ class stzVectorIndex from stzObject
 		ok
 		This._Ensure()
 
+		# the silent seam: an exact scan on a resident GPU corpus. Any
+		# refusal (evicted buffer, lost device) falls through to the CPU
+		# path below -- same answer, later.
+		if bExact and @nGpuCorpus_ > 0
+			_aG_ = This._QueryGpu(paQuery, nK)
+			if isList(_aG_)
+				return _aG_
+			ok
+		ok
+
 		if bExact
 			_aFlat_ = StzEngineAnnSearchExact(@pIndex, paQuery, nK)
 		else
@@ -248,9 +272,104 @@ class stzVectorIndex from stzObject
 		if @pIndex = NULL
 			StzRaise("stzVectorIndex: the index could not be built.")
 		ok
+		This._EnsureGpu(_aFlat_)
+
+	# Decide ONCE per build whether this corpus earns a resident GPU copy.
+	# The decision is the calibration store's (threshold on nCount*nDim,
+	# seeded conservatively from G0's floors if nobody calibrated); the
+	# residency investment is build-time, so the gate is build-time too --
+	# once the corpus is resident, every exact query uses it.
+	def _EnsureGpu(paFlat)
+		if @bGpuTried_
+			return
+		ok
+		@bGpuTried_ = TRUE
+		if @cMetric != :Euclidean
+			# the CPU index normalizes :Cosine rows internally; the raw
+			# vectors here would compute the WRONG distances. CPU keeps.
+			return
+		ok
+		# the threshold is consulted BEFORE the device: Init() costs ~300 ms
+		# of adapter/device creation, and a small corpus must never pay it.
+		# CalibGet works without a device; the conservative seed comes from
+		# G0's measured floors (~8x above the computed crossover) until a
+		# real calibration pass refines it.
+		_nThresh_ = StzEngineGpuCalibGet("pairdist")
+		if _nThresh_ = 0
+			_nThresh_ = 4000000
+			StzEngineGpuCalibSet("pairdist", _nThresh_)
+		ok
+		if @nCount * @nDim < _nThresh_
+			return
+		ok
+		if StzEngineGpuIsAvailable() = 0
+			StzEngineGpuInit($cStzGpuRuntime)
+		ok
+		# the canonical gate has the final say (device present + threshold)
+		if StzEngineGpuShouldDispatch("pairdist", @nCount * @nDim) = 0
+			return
+		ok
+		@nGpuCorpus_ = StzEngineGpuBufferNew(@nCount * @nDim * 4)
+		if @nGpuCorpus_ = 0
+			return
+		ok
+		if StzEngineGpuBufferUploadList(@nGpuCorpus_, paFlat) != 0
+			This._DropGpu()
+			return
+		ok
+		@nGpuQuery_ = StzEngineGpuBufferNew(@nDim * 4)
+		@nGpuDist_ = StzEngineGpuBufferNew(@nCount * 4)
+		if @nGpuQuery_ = 0 or @nGpuDist_ = 0
+			This._DropGpu()
+		ok
+
+	# One exact query on the resident corpus: query up (d floats), pairdist
+	# (1 x nCount), top-k selected ENGINE-side (a Ring-side scan of the
+	# distance vector would eat the win). NULL on any refusal -> CPU path.
+	def _QueryGpu(paQuery, nK)
+		if StzEngineGpuBufferUploadList(@nGpuQuery_, paQuery) != 0
+			This._DropGpu()
+			return NULL
+		ok
+		if StzEngineGpuOpPairDist(@nGpuQuery_, @nGpuCorpus_, @nGpuDist_, 1, @nCount, @nDim) != 0
+			This._DropGpu()
+			return NULL
+		ok
+		_aFlat_ = StzEngineGpuOpTopK(@nGpuDist_, @nCount, nK)
+		if _aFlat_[1] != 0
+			This._DropGpu()
+			return NULL
+		ok
+		_aOut_ = []
+		_nP_ = (len(_aFlat_) - 1) / 2
+		for _i_ = 1 to _nP_
+			# engine indices are 0-based; Ring lists start at 1
+			_aOut_ + [ _aFlat_[(_i_ - 1) * 2 + 2] + 1,
+			           _aFlat_[(_i_ - 1) * 2 + 3] ]
+		next
+		return _aOut_
+
+	def _DropGpu()
+		# frees the device buffers; leaves @bGpuTried_ alone -- after a
+		# runtime refusal the index stays CPU (no thrash); a config change
+		# via _Drop() re-opens the question.
+		if @nGpuCorpus_ > 0
+			StzEngineGpuBufferFree(@nGpuCorpus_)
+			@nGpuCorpus_ = 0
+		ok
+		if @nGpuQuery_ > 0
+			StzEngineGpuBufferFree(@nGpuQuery_)
+			@nGpuQuery_ = 0
+		ok
+		if @nGpuDist_ > 0
+			StzEngineGpuBufferFree(@nGpuDist_)
+			@nGpuDist_ = 0
+		ok
 
 	def _Drop()
 		if @pIndex != NULL
 			StzEngineAnnFree(@pIndex)
 			@pIndex = NULL
 		ok
+		This._DropGpu()
+		@bGpuTried_ = FALSE

@@ -282,6 +282,41 @@ fn ring_OpDot(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// TopK(hDistances, n, k) -> [status, idx0, dist0, idx1, dist1, ...]
+// (indices 0-based -- the engine's truth; faces translate to 1-based).
+fn ring_OpTopK(p: *anyopaque) callconv(.c) void {
+    const n = gn(p, 2);
+    const k: usize = @intFromFloat(gn(p, 3));
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    if (k == 0 or k > 65536) {
+        R.ring_list_adddouble(out, gpu.BAD_ARG);
+        R.ring_vm_api_retlist(p, out);
+        return;
+    }
+    const idx = allocator.alloc(f64, k) catch {
+        R.ring_list_adddouble(out, gpu.BAD_ARG);
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    defer allocator.free(idx);
+    const dist = allocator.alloc(f64, k) catch {
+        R.ring_list_adddouble(out, gpu.BAD_ARG);
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    defer allocator.free(dist);
+    var count: i32 = 0;
+    const st = ops.stz_gpu_op_topk(@intFromFloat(gn(p, 1)), n, @floatFromInt(k), idx.ptr, dist.ptr, &count);
+    R.ring_list_adddouble(out, @floatFromInt(st));
+    if (st == gpu.OK) {
+        for (0..@intCast(count)) |i| {
+            R.ring_list_adddouble(out, idx[i]);
+            R.ring_list_adddouble(out, dist[i]);
+        }
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuinit", .func = &ring_Init },
     .{ .name = "stzenginegpushutdown", .func = &ring_Shutdown },
@@ -317,6 +352,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuopsoftmax", .func = &ring_OpSoftmax },
     .{ .name = "stzenginegpuopsum", .func = &ring_OpSum },
     .{ .name = "stzenginegpuopdot", .func = &ring_OpDot },
+    .{ .name = "stzenginegpuoptopk", .func = &ring_OpTopK },
 };
 
 pub fn registerAll(pState: *anyopaque) void {
