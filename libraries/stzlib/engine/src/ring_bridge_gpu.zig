@@ -5,6 +5,7 @@
 const std = @import("std");
 const gpu = @import("gpu.zig");
 const ops = @import("gpu_ops.zig");
+const wgsl = @import("gpu_wgsl.zig");
 const R = @import("ring_api.zig");
 
 const gn = R.ring_vm_api_getnumber;
@@ -153,8 +154,8 @@ fn ring_BufferDownloadList(p: *anyopaque) callconv(.c) void {
 // ---------------- kernels
 
 fn ring_KernelCompile(p: *anyopaque) callconv(.c) void {
-    const wgsl = getStr(p, 1);
-    rn(p, @floatFromInt(gpu.stz_gpu_kernel_compile(wgsl.ptr, @floatFromInt(wgsl.len))));
+    const text = getStr(p, 1);
+    rn(p, @floatFromInt(gpu.stz_gpu_kernel_compile(text.ptr, @floatFromInt(text.len))));
 }
 
 // Dispatch(nKernel, aBufferIds, wx, wy) -> status
@@ -282,6 +283,69 @@ fn ring_OpDot(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// ---------------- G4 declarative surface
+
+// WgslElementwise(cSpec) -> generated WGSL text, or "" (reason via WgslError).
+// Pure text work, needs no device -- ToWGSL() works on GPU-less machines.
+fn ring_WgslElementwise(p: *anyopaque) callconv(.c) void {
+    const spec = getStr(p, 1);
+    var buf: [8192]u8 = undefined;
+    const n = wgsl.stz_gpu_wgsl_elementwise(spec.ptr, @floatFromInt(spec.len), &buf, buf.len);
+    if (n < 0) {
+        R.ring_vm_api_retstring2(p, &buf, 0);
+        return;
+    }
+    R.ring_vm_api_retstring2(p, &buf, @intCast(n));
+}
+
+fn ring_WgslError(p: *anyopaque) callconv(.c) void {
+    var buf: [256]u8 = undefined;
+    const n = wgsl.stz_gpu_wgsl_error(&buf, buf.len);
+    R.ring_vm_api_retstring2(p, &buf, @intCast(n));
+}
+
+// DispatchParams(hKernel, nElems, aScalars, aBufIds, wx) -> status.
+// Packs the params uniform the generated kernels expect: u32 n, u32 pad,
+// then the declared scalars as f32 IN DECLARATION ORDER.
+fn ring_DispatchParams(p: *anyopaque) callconv(.c) void {
+    const kernel: i64 = @intFromFloat(gn(p, 1));
+    const nelems: u32 = @intFromFloat(gn(p, 2));
+    var blob: [64]u8 = @splat(0);
+    std.mem.writeInt(u32, blob[0..4], nelems, .little);
+    var blen: usize = 8;
+    if (R.gl(p, 3)) |lst| {
+        const ns: usize = @intCast(R.ringListSize(lst));
+        if (ns > 14) {
+            rn(p, gpu.BAD_ARG);
+            return;
+        }
+        for (0..ns) |i| {
+            const item = R.ring_list_getitem_gc(null, lst, @intCast(i + 1)) orelse continue;
+            const v: f32 = @floatCast(R.ring_item_getnumber(item));
+            std.mem.writeInt(u32, blob[8 + i * 4 ..][0..4], @bitCast(v), .little);
+        }
+        blen = 8 + ns * 4;
+    }
+    const bl = R.gl(p, 4) orelse {
+        rn(p, gpu.BAD_ARG);
+        return;
+    };
+    const nb: usize = @intCast(R.ringListSize(bl));
+    if (nb == 0 or nb > 8) {
+        rn(p, gpu.BAD_ARG);
+        return;
+    }
+    var ids: [8]i64 = undefined;
+    for (0..nb) |i| {
+        const item = R.ring_list_getitem_gc(null, bl, @intCast(i + 1)) orelse {
+            rn(p, gpu.BAD_ARG);
+            return;
+        };
+        ids[i] = @intFromFloat(R.ring_item_getnumber(item));
+    }
+    rn(p, @floatFromInt(gpu.stz_gpu_dispatch_params(kernel, &blob, @floatFromInt(blen), &ids, @intCast(nb), gn(p, 5), 1)));
+}
+
 // TopK(hDistances, n, k) -> [status, idx0, dist0, idx1, dist1, ...]
 // (indices 0-based -- the engine's truth; faces translate to 1-based).
 fn ring_OpTopK(p: *anyopaque) callconv(.c) void {
@@ -353,6 +417,9 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuopsum", .func = &ring_OpSum },
     .{ .name = "stzenginegpuopdot", .func = &ring_OpDot },
     .{ .name = "stzenginegpuoptopk", .func = &ring_OpTopK },
+    .{ .name = "stzenginegpuwgslelementwise", .func = &ring_WgslElementwise },
+    .{ .name = "stzenginegpuwgslerror", .func = &ring_WgslError },
+    .{ .name = "stzenginegpudispatchparams", .func = &ring_DispatchParams },
 };
 
 pub fn registerAll(pState: *anyopaque) void {
