@@ -185,11 +185,41 @@ class stzTimerManager from stzObject
 		@checkFrequency = DEFAULT_TIMER_CHECK
 		@emptyLoopPatience = DEFAULT_PATIENCE
 
+	# HOW LONG THE LOOP WAITS BETWEEN TICKS, in milliseconds.
+	#
+	# It used to take anything. Zero was the dangerous one: _WaitTick does
+	# sleep(@checkFrequency / MS_PER_SECOND), so a frequency of 0 is no wait at
+	# all -- 200 idle iterations in 2ms instead of 2000, a loop spinning flat
+	# out on a knob whose entire job is to make it wait. A non-number was the
+	# confusing one: it survived the setter and raised R41 "Invalid numeric
+	# string" inside RunLoop, nowhere near the call that caused it.
+	#
+	# A refused value leaves the old one alone. Answering a bad value by
+	# destroying a good one is its own defect.
 	def SetCheckFrequency(freq)
+		if NOT isNumber(freq)
+			return This
+		ok
+		if freq <= 0
+			return This
+		ok
 		@checkFrequency = freq
+		return This
 
+	# HOW MANY consecutive idle iterations the loop tolerates before it stops.
+	# A count, not a duration -- RunLoop compares it against _emptyLoopCount_.
+	# Zero is meaningful and is the default (PATIENCE_NONE, mirroring libuv's
+	# uv_run: return as soon as there is no work), so only negatives and
+	# non-numbers are refused.
 	def SetPatience(patience)
+		if NOT isNumber(patience)
+			return This
+		ok
+		if patience < 0
+			return This
+		ok
 		@emptyLoopPatience = patience
+		return This
 
 	# NOTE: the stored reactor is a COPY (Ring attribute assignment
 	# copies objects) that SHARES the engine handle -- safe because the
@@ -199,6 +229,7 @@ class stzTimerManager from stzObject
 	# as a parameter instead (params are by-reference).
 	def SetReactor(poReactor)
 		@oReactor = poReactor
+		return This
 
 	# The inter-tick wait: a real libuv timer on the engine loop when
 	# the reactor is present; Ring sleep() as the no-DLL fallback.
