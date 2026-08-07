@@ -88,7 +88,11 @@ chk("4x4 sparse times 3x2 dense returns nothing", pNull = NULL)
 
 ? ""
 ? "-- Scene 5: and it is actually faster, at real densities --"
-nSpN = 256
+# n=512, not the original 256: M1 threaded the dense multiply and 256^2
+# dropped to ~2 ms, under this guard's own >=3 ms timing-honesty floor.
+# The fixture grows so the floor holds against the faster dense -- scale
+# the work until it is measurable, never lower the floor.
+nSpN = 512
 aBig = []
 for i = 1 to nSpN
 	aRowB = []
