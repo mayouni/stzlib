@@ -328,6 +328,61 @@ capability no vendored engine could have given.
 
 ---
 
+## 3b. Foresight: a game / gamification plane is coming (2026-08-08)
+
+The author has flagged a FUTURE task — a game engine, for videogame
+development and for business gamification — and asked whether it should
+inform these choices. It does, in a disciplined way, and the discipline
+is the point: **take the cheap doors, refuse the expensive speculation.**
+G6's law applies to our own future too — building for a workload that
+does not exist yet is premature by definition. But a door left shut here
+becomes a rewrite there, and THAT is a real cost, not a speculative one.
+
+**What it VALIDATES (no change, now with a second reason):**
+- wgpu and GLFW are game-grade choices already — GLFW exists to serve
+  exactly this, and wgpu is a modern game-class GPU API. Nothing in the
+  vendor table would be picked differently.
+- The compute↔render zero-copy composition, named as this plane's
+  differentiator, is what GPU particles, culling and physics-on-compute
+  need. A game engine makes it MORE valuable, not less.
+- The tier ladder holds and splits cleanly: gamification lives on tiers
+  1–2 (SVG dashboards, PNG reports, progress visuals riding dataviz);
+  videogames live on tiers 3–4 (window, browser).
+- Much of a game engine is ASSEMBLY of planes that exist — the reactive
+  layer + event bus (base/reactive/), stzStateMachine (game/UI states),
+  the distribution plane (multiplayer), the multicore tier and SIMD
+  loops (physics/collision), stzKnowledgeGraph + rules (gamification's
+  actual substance: points, badges, challenges, progression). Graphics
+  turned out to be assembly; games look the same.
+
+**THE CHEAP DOORS — decided now because retrofitting them is expensive:**
+1. **The atlas is a TEXTURE atlas, not a font atlas** (GR2). Glyphs are
+   its first tenant; sprites and tilesets are the same shape. Naming it
+   for fonts would guarantee a rewrite.
+2. **Display lists and scenes hold RETAINED, reusable GPU buffers**
+   (GR2/GR3/GR4). A still is drawn once; a frame loop redraws 60×/s and
+   must not re-upload static geometry each time. The G-plane's residency
+   discipline already says this — the canvas API must not quietly
+   violate it by rebuilding per call.
+3. **The mesh vertex format is EXTENSIBLE** (GR3) — extra attributes
+   (skin weights, instance data) must be addable without breaking the
+   pipeline contract. Skeletal animation stays OUT; its door stays open.
+4. **Transform state is separate from render state** (GR3), so a physics
+   step (or any simulation) can write transforms without touching
+   material/mesh data.
+5. **Presentation is a LOOP WITH INPUT from the start** (GR5), with
+   delta time and vsync control — not "render once and show a window."
+   This is the one that would hurt most as a retrofit: a frame loop
+   bolted onto a render-once API is a rewrite, not an addition.
+
+**WHAT IS REFUSED as speculation** (until the game plane is actually
+specified and planned like this one): an ECS or entity model, vendored
+physics (Box2D/Jolt class), skeletal animation, sprite-specific APIs,
+and AUDIO — which is not a graphics concern at all and would be its own
+sibling plane with its own vendor question (miniaudio is the obvious
+first candidate; noted, not chosen). None of these are designed for
+here; they are simply not designed AGAINST.
+
 ## 4. Risks, named now
 
 - **Scope gravity.** Graphics engines die of feature accretion. The
