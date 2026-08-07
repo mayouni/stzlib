@@ -24,9 +24,21 @@ pub fn stz_random_seed(s: u64) callconv(.c) void {
 pub fn stz_random_int(min: i64, max: i64) callconv(.c) i64 {
     ensureSeeded();
     if (min >= max) return min;
-    const range: u64 = @intCast(max - min + 1);
-    const r = prng.random().intRangeLessThan(u64, 0, range);
-    return min + @as(i64, @intCast(r));
+    // Span arithmetic is MODULAR on purpose. `max - min + 1` overflowed i64
+    // for spans wider than 2^63 (e.g. minInt..maxInt), which panicked in
+    // ReleaseSafe. `max -% min` bit-cast to u64 is the exact span for ANY
+    // i64 pair, because the true span always fits in u64.
+    const span: u64 = @bitCast(max -% min);
+    if (span == std.math.maxInt(u64)) {
+        // The full [minInt, maxInt] range: every i64 equally likely.
+        return @bitCast(prng.random().int(u64));
+    }
+    // Unchanged draw path for every range that worked before -- seeded
+    // sequences must not move for an edge fix.
+    const r = prng.random().intRangeLessThan(u64, 0, span + 1);
+    // Wrapping add is exact here: min + r lands in [min, max] by
+    // construction, so the modular result IS the mathematical one.
+    return min +% @as(i64, @bitCast(r));
 }
 
 pub fn stz_random_float(min: f64, max: f64) callconv(.c) f64 {
@@ -108,13 +120,20 @@ pub fn stz_random_n_unique_in_range(n: usize, min: i64, max: i64, buf: [*]i64) c
         return actual_n;
     }
 
+    // Same rejection sampling as always -- draw, skip duplicates -- so the
+    // draw ORDER and distribution are untouched. Only the membership test
+    // changed: it was a linear scan over everything accepted so far, making
+    // the whole fill O(n^2); a hash set makes it O(n) expected. At n=5000
+    // from a wide range that is ~12.5M comparisons replaced by 5000 probes.
+    if (actual_n > std.math.maxInt(u32)) return 0;
+    var seen = std.AutoHashMap(i64, void).init(allocator);
+    defer seen.deinit();
+    seen.ensureTotalCapacity(@intCast(actual_n)) catch return 0;
     var count: usize = 0;
-    outer: while (count < actual_n) {
+    while (count < actual_n) {
         const candidate = stz_random_int(min, max);
-        var j: usize = 0;
-        while (j < count) : (j += 1) {
-            if (buf[j] == candidate) continue :outer;
-        }
+        const gop = seen.getOrPutAssumeCapacity(candidate);
+        if (gop.found_existing) continue;
         buf[count] = candidate;
         count += 1;
     }
@@ -299,5 +318,39 @@ test "exponential: positive, mean 1/lambda, bulk equals scalar sequence" {
     stz_random_seed(55);
     for (bulk) |b| {
         try std.testing.expectApproxEqAbs(stz_random_exp(3.0), b, 0);
+    }
+}
+
+test "random int survives the extremes of i64" {
+    stz_random_seed(1);
+    // The full span used to overflow the range computation and panic.
+    var i: usize = 0;
+    while (i < 50) : (i += 1) {
+        _ = stz_random_int(std.math.minInt(i64), std.math.maxInt(i64));
+    }
+    // Narrow ranges pressed against both ends stay in range.
+    i = 0;
+    while (i < 200) : (i += 1) {
+        const hi = stz_random_int(std.math.maxInt(i64) - 3, std.math.maxInt(i64));
+        try std.testing.expect(hi >= std.math.maxInt(i64) - 3);
+        const lo = stz_random_int(std.math.minInt(i64), std.math.minInt(i64) + 3);
+        try std.testing.expect(lo <= std.math.minInt(i64) + 3);
+        const mid = stz_random_int(-2, 1);
+        try std.testing.expect(mid >= -2 and mid <= 1);
+    }
+}
+
+test "n unique above the pool cutoff: unique, in range, complete" {
+    stz_random_seed(7);
+    var buf: [5000]i64 = undefined;
+    // range 1e6 > 10000 forces the rejection path (the old O(n^2) one).
+    const got = stz_random_n_unique_in_range(5000, 1, 1_000_000, &buf);
+    try std.testing.expectEqual(@as(usize, 5000), got);
+    var seen = std.AutoHashMap(i64, void).init(std.testing.allocator);
+    defer seen.deinit();
+    for (buf[0..got]) |v| {
+        try std.testing.expect(v >= 1 and v <= 1_000_000);
+        const gop = try seen.getOrPut(v);
+        try std.testing.expect(!gop.found_existing);
     }
 }
