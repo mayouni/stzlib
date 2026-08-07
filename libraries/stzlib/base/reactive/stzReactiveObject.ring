@@ -68,6 +68,83 @@ class stzReactiveObject from stzObject
 	# Attribute storage - for standalone objects
 	@aAttributesOfStandaloneObjects = []           # Internal Attribute storage: [name, value] pairs
 
+	# WHAT WENT WRONG, and where.
+	#
+	# Five try/catch blocks in this class used to drop the error entirely --
+	# three of them a bare comment, two an `if` whose whole body was a comment.
+	# The cost was not theoretical: the class's own notes record a watcher bug
+	# that "arity-crashed on every trigger and the error was swallowed by
+	# TriggerAttributeWatchers' try/catch", and a broken eval in
+	# ComputeAttribute sat behind another of them for as long as it existed.
+	#
+	# The record is BOUNDED and counts what it drops, so a runaway watcher
+	# cannot grow it without limit and cannot quietly lose the first failure --
+	# which is the one worth reading.
+	@aErrors = []               # [ [ cWhere, cMsg ], ... ], newest last
+	@nErrorsSeen = 0            # total, including any dropped
+	@nErrorsDropped = 0
+	@nMaxErrors = 50
+	@fOnError = NULL            # optional handler: f(cWhere, cMsg)
+
+	#-- THE ERROR RECORD --------------------------------------------------------
+
+	# Hand it a handler and nothing is printed: f(cWhere, cMsg).
+	def OnError(fCallback)
+		@fOnError = fCallback
+		return This
+
+	def Errors()
+		return @aErrors
+
+	def LastError()
+		if len(@aErrors) = 0
+			return ""
+		ok
+		return @aErrors[len(@aErrors)][2]
+
+	# Which operation failed -- "Batch", "Watcher:name", "Computed:greeting"...
+	def LastErrorWhere()
+		if len(@aErrors) = 0
+			return ""
+		ok
+		return @aErrors[len(@aErrors)][1]
+
+	# Everything seen, not merely everything KEPT. A bounded record that
+	# reported only its own length would under-count exactly when it matters.
+	def ErrorCount()
+		return @nErrorsSeen
+
+	def ErrorsDropped()
+		return @nErrorsDropped
+
+	def HasErrors()
+		return @nErrorsSeen > 0
+
+	def ClearErrors()
+		@aErrors = []
+		@nErrorsSeen = 0
+		@nErrorsDropped = 0
+		return This
+
+	# The one door every swallowed error now goes through: recorded always,
+	# reported to a handler if there is one, otherwise printed unless the mode
+	# in force is the one that asks for silence.
+	def _RecordError(_cWhere_, _cMsg_)
+		@nErrorsSeen++
+
+		if len(@aErrors) < @nMaxErrors
+			@aErrors + [ "" + _cWhere_, "" + _cMsg_ ]
+		else
+			@nErrorsDropped++
+		ok
+
+		if @fOnError != NULL
+			call @fOnError(_cWhere_, _cMsg_)
+
+		but DEFAULT_ERROR_HANDLING != ERROR_IGNORE
+			? "[stzReactiveObject." + _cWhere_ + "] " + _cMsg_
+		ok
+
 	def Init(existingObject, reactiveEngine)
 	    if existingObject != NULL
 	        @wrappedObject = existingObject
@@ -115,7 +192,10 @@ class stzReactiveObject from stzObject
 					f = @aAsyncOperations[i][5]
 					call f(_cError_)
 				catch
-					# Error in error handler - just log it (#tODO)
+					# An error raised BY an error handler. It still gets
+					# recorded -- a handler that throws is exactly the case
+					# nobody finds out about otherwise.
+					This._RecordError("BraceError", CatchError())
 				done
 			ok
 		next
@@ -275,12 +355,21 @@ class stzReactiveObject from stzObject
 		try
 			call fnUpdates()
 		catch
-			# Handle batch error with default error handling
+			This._RecordError("Batch", CatchError())
 		done
-		
+
 		@bBatchMode = BATCH_MODE_OFF
-		
-		# Process all accumulated changes at once
+
+		# BATCH IS NOT ATOMIC, and cannot be made so from here. SetAttribute
+		# writes the value immediately and queues only the reactive
+		# NOTIFICATION, so by the time this catch runs the changes are already
+		# in storage. Discarding @aPendingChanges would not undo them -- it
+		# would just skip the watchers and bindings, leaving the data changed
+		# and everything that reacts to it unaware. Worse than either.
+		#
+		# So a failed batch still propagates what it managed to change, and now
+		# it REPORTS. Making Batch genuinely all-or-nothing means deferring the
+		# writes themselves, which is a redesign, not an error-handling fix.
 		ProcessBatchChanges()
 		return self
 
@@ -446,10 +535,7 @@ class stzReactiveObject from stzObject
 	                f = @aAttributeWatchers[i][2]
 	                call f(this, _cAttribute_, oldValue, _newValue_)  # Pass 'this' as first parameter
 	            catch
-	                # Handle watcher error based on error handling mode
-	                if DEFAULT_ERROR_HANDLING = ERROR_LOG
-	                    # Log the error
-	                ok
+	                This._RecordError("Watcher:" + _cAttribute_, CatchError())
 	            done
 	        ok
 	    next
@@ -484,10 +570,7 @@ class stzReactiveObject from stzObject
 						_oTargetObj_.SetAttributeValue(_cTargetAttr_, _newValue_)
 					ok
 				catch
-					# Handle binding error based on error handling mode
-					if DEFAULT_ERROR_HANDLING = ERROR_LOG
-						# Log binding error
-					ok
+					This._RecordError("Binding:" + _cAttribute_ + "->" + _cTargetAttr_, CatchError())
 				done
 			ok
 		next
@@ -508,18 +591,30 @@ class stzReactiveObject from stzObject
 	                SetAttributeInStorage(_cAttribute_, _newValue_)
 	                UpdateAttributeCache(_cAttribute_, _newValue_)
 	                
-	                # Set as object attribute for compatibility
-	                AddAttribute(this, _cAttribute_)
-	                eval("this." + _cAttribute_ + " = newValue")
+	                # Set as object attribute for compatibility.
+	                #
+	                # This was AddAttribute(this, attr) followed by an eval, and
+	                # it raised on every recompute after the first: adding an
+	                # attribute that already exists is R54. The catch below ate
+	                # it, so what never ran was invisible -- the eval, and
+	                # TriggerAttributeWatchers below it, which is why a watcher
+	                # on a COMPUTED attribute never fired at all and the plain
+	                # field kept the value from the first computation forever.
+	                #
+	                # StzReactiveSetAttr is the cure and was already in this
+	                # file, written for this exact trap: it adds only when the
+	                # attribute is absent, and it does the reflection from
+	                # GLOBAL scope, where Ring's builtins are builtins rather
+	                # than inherited methods. Using it also retires the eval,
+	                # whose string had already survived one rename by naming a
+	                # local that no longer existed.
+	                StzReactiveSetAttr(this, _cAttribute_, _newValue_)
 	
 	                # Only trigger watchers for computed attributes (no duplicate processing)
 	                TriggerAttributeWatchers(_cAttribute_, _cOldValue_, _newValue_)
 	
 	            catch
-	                # Handle computation error based on error handling mode
-	                if DEFAULT_ERROR_HANDLING = ERROR_LOG
-	                    # Log computation error
-	                ok
+	                This._RecordError("Computed:" + _cAttribute_, CatchError())
 	            done
 	            exit
 	        ok
