@@ -1,0 +1,23 @@
+wgpu-native v29.0.1.1 (official prebuilt, Windows x86_64 MSVC release)
+
+Source:   https://github.com/gfx-rs/wgpu-native/releases/tag/v29.0.1.1
+Asset:    wgpu-windows-x86_64-msvc-release.zip (17,062,968 bytes)
+Released: 2026-06-23
+Git commit (wgpu-native): 6aed50955d934ac36049ba8d002034841633ae02
+
+Checksums (SHA-256):
+  release zip:            7e67d7445c42aeb85e30f88930fd8d7d83ee769e3390aeb1ada75ebf3cf78132
+  lib/wgpu_native.dll:    5e26249c40dcdac43f5adca3195fcf40e4ec6c67472b38510165f411fcc198e7
+
+Vendored files (subset of the zip; the 54 MB static lib and the .pdb are
+deliberately NOT vendored -- the DLL is the shipping shape, per the plan):
+  include/webgpu/webgpu.h   -- the standard WebGPU C header (the ABI)
+  include/webgpu/wgpu.h     -- wgpu-native extensions
+  lib/wgpu_native.dll       -- the runtime
+  lib/wgpu_native.dll.lib   -- COFF import library (links under both msvc and gnu ABIs)
+
+Why a prebuilt binary (a first for this repo): wgpu-native is Rust; the
+vendor decision and its reasoning live in
+libraries/stzlib/base/gpu/SOFTANZA_GPU_PLAN.md section 1. Runner-up
+(OpenCL ICD loader, Zig-compilable) documented there for the day the
+trade changes.
