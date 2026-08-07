@@ -663,6 +663,20 @@ Killed by **K2** and **K3**, despite K1 passing:
   (neural_embed.zig is at the model-loading milestone; the forward pass
   is its next). Vendoring a second GPU stack for a workload that does
   not exist is premature by definition.
+
+  **CORRECTION (2026-08-07, same day, next session): the K3 premise was
+  WRONG.** The forward pass HAS been implemented for some time — full
+  BERT-family encoder, NER head, reranker, and a generative decoder —
+  and this record repeated neural_embed.zig's STALE HEADER ("the forward
+  pass is the next milestone") without reading the file's 900 lines.
+  The derive-from-the-label lesson, again. What survives unchanged: the
+  NO-GO stands on **K2 alone** (the SDK invariant is independent and
+  sufficient), and K1's measured 1.9–4.8x makes the constructive route
+  (matmul share through the shipped stz_gpu plane) MORE actionable, not
+  less — the workload it would serve exists and now has numeric parity
+  coverage (`base/test/neural/bert_parity_narrated.ring`: a committed
+  83 KB synthetic BERT + an independent numpy forward; tokenizer ids
+  exact, embeddings within a measured 1.6e-7).
 - **The constructive route the numbers DO support:** when the forward
   pass lands, its matmul-shaped ~85% can run through the ALREADY-SHIPPED
   stz_gpu plane (the lawful @import pattern gives stz_neural.dll its own

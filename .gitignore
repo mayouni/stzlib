@@ -3,6 +3,10 @@
 
 # Neural model files (large; downloaded on demand)
 *.gguf
+# EXCEPTION: the BERT-parity test fixture is a tiny (83 KB) SYNTHETIC model,
+# committed so CI verifies the forward pass with no model download -- the
+# rule above exists to keep real (multi-MB) models out, not fixtures.
+!libraries/stzlib/base/test/neural/tiny_bert.gguf
 
 # stzApp/stzPlatform test-run artifacts
 **/test/**/.stzapp/

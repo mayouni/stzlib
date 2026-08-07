@@ -1,11 +1,19 @@
-// Softanza Engine -- Neural embeddings (ggml), model loading + inspection
+// Softanza Engine -- Neural embeddings (ggml): GGUF loading, WordPiece
+// tokenization, and the FULL BERT-family forward pass.
 //
-// MILESTONE 2a: runtime GGUF model loading -- the capability that defines the
-// neural tier (classical models are @embedFile'd; neural models are LARGE and
-// load from disk at runtime). Opens a BERT-family GGUF (e.g. all-MiniLM-L6-v2),
-// reads its architecture + hyperparameters + tensor inventory. The BERT forward
-// pass + WordPiece tokenizer + mean-pooling (-> the embedding vector) is the next
-// milestone, built on the model handle established here.
+// Grown from milestone 2a (model loading + inspection) through the complete
+// encoder: dual-scheme WordPiece (classic "##" / SentencePiece metaspace,
+// auto-detected), the transformer backbone (embeddings + LayerNorm, MHA with
+// learned positions or ALiBi, GELU/GEGLU FFN, post-LN residuals), mean-pooled
+// L2-normalized sentence embeddings, token-level hidden states (the NER
+// substrate), and a cross-encoder reranking head. NUMERIC PARITY against an
+// independent reference is guarded by base/test/neural/bert_parity_narrated.ring
+// (tiny committed GGUF + numpy forward, band measured at 1.6e-7).
+//
+// NOTE (2026-08-07): this header once said the forward pass was "the next
+// milestone" long after it had shipped -- and the stale claim propagated into
+// the GPU plan's G6 decision record. Headers describe code that MOVES;
+// derive state from the code.
 
 const std = @import("std");
 const c = @cImport({
