@@ -178,14 +178,21 @@ class stzHttpTask from stzReactiveTask
 	    
 	    # Check if we got a valid result
 	    if _result_ != HTTP_RESPONSE_NULL and _result_ != HTTP_RESPONSE_EMPTY
+	        @result = _result_
 	        @status = TASK_COMPLETED
 	        if @onComplete != HTTP_RESPONSE_NULL
-	            call @onComplete(_result_)
+	            call @onComplete(@result)
 	        ok
 	    else
 	        @status = TASK_ERROR
+
+	        # Recorded on the task, not only handed to a handler that may not
+	        # exist. Error() is inherited from stzReactiveTask, and an inherited
+	        # accessor that answers "" for a task that failed is worse than no
+	        # accessor at all.
+	        @errorMsg = HTTP_ERROR_REQUEST_FAILED
 	        if @onError != HTTP_RESPONSE_NULL
-	            call @onError(HTTP_ERROR_REQUEST_FAILED)
+	            call @onError(@errorMsg)
 	        ok
 	    ok
 			

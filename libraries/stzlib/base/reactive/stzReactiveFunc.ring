@@ -46,8 +46,14 @@ class stzFunctionTask from stzReactiveTask
 		@params = params
 		
 	def Execute()
+		# THE STATUS AND THE REASON LIVE ON THE TASK, not in locals. Writing
+		# _status_ here dropped it the moment Execute() returned, so every
+		# accessor inherited from stzReactiveTask -- Status(), Result(),
+		# Error(), HasFailed() -- answered as though the task had never run.
+		# stzHttpTask had exactly this fix applied in July ("store the status on
+		# the TASK, not in a local"); its sibling here was missed.
 		try
-			_status_ = TASK_RUNNING
+			@status = TASK_RUNNING
 			if len(@params) = NO_PARAMS
 				_result_ = call @f()
 			else
@@ -77,20 +83,25 @@ class stzFunctionTask from stzReactiveTask
 					_result_ = call @f() # Fallback for more than MAX_FUNCTION_PARAMS
 				end
 			ok
-			_status_ = TASK_COMPLETED
+			@result = _result_
+			@status = TASK_COMPLETED
 			if @onComplete != NULL
-				call @onComplete(_result_)
+				call @onComplete(@result)
 			ok
 
 		catch
-			_status_ = TASK_ERROR
+			@status = TASK_ERROR
+
+			# The real reason, recorded whether or not anyone is listening. It
+			# used to be read only INSIDE the "is a handler registered" branch,
+			# so a task with no Catch_() kept nothing at all -- and there was no
+			# accessor to have asked with.
+			@errorMsg = CatchError()
+			if NOT (isString(@errorMsg) and @errorMsg != EMPTY_ERROR_MSG)
+				@errorMsg = DEFAULT_ERROR_MSG
+			ok
+
 			if @onError != NULL
-				# Pass the actual error message instead of generic text
-				_errorMsg_ = CatchError()
-				if isString(_errorMsg_) and _errorMsg_ != EMPTY_ERROR_MSG
-					call @onError(_errorMsg_)
-				else
-					call @onError(DEFAULT_ERROR_MSG)
-				ok
+				call @onError(@errorMsg)
 			ok
 		done
