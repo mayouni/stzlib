@@ -713,7 +713,13 @@ pub export fn neural_gen_start_x(text: [*c]const u8, len: usize, max_new: c_int,
     g_stream_temp = @floatCast(temp);
     g_stream_topp = @floatCast(top_p);
     g_stream_topk = top_k;
-    g_prng = std.Random.DefaultPrng.init(@intCast(@as(u32, @bitCast(seed))));
+    // The seed space is 32-bit BECAUSE THE EXPORTED ABI SAYS c_int, end to
+    // end (neural_gen_start and friends are public C symbols; widening the
+    // parameter is an ABI break, not an edge fix). 2^32 distinct sampling
+    // streams is ample for generation reproducibility, and DefaultPrng's
+    // splitmix expansion gives a 32-bit seed a full-quality state. The
+    // audit note calling this a truncation defect was a misdiagnosis.
+    g_prng = std.Random.DefaultPrng.init(@as(u32, @bitCast(seed)));
     g_stream_active = true;
     return 1;
 }
