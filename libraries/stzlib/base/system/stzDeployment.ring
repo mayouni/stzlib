@@ -97,6 +97,10 @@ class stzResourceSpec from stzObject
 	@nMem = 0    # MB
 	@nCpu = 0    # vCPU
 	@nDisk = 0   # GB
+	# GPU, both roles (G5, SOFTANZA_GPU_PLAN.md): a REQUIREMENT declares
+	# need ("" / "required" / "optional"), a CAPACITY declares presence.
+	@cGpu = ""
+	@bGpuPresent = FALSE
 
 	def init()
 		@nMem = 0
@@ -122,6 +126,37 @@ class stzResourceSpec from stzObject
 		@nDisk = pnGB
 		return This
 
+	# requirement role: this part MUST have a GPU (Deploy refuses without one)
+	def SetGpuRequired()
+		This.SetGpuRequiredQ()
+
+	def SetGpuRequiredQ()
+		@cGpu = "required"
+		return This
+
+	# requirement role: this part USES a GPU when present, falls back to CPU
+	# otherwise (Deploy proceeds and logs the degrade)
+	def SetGpuOptional()
+		This.SetGpuOptionalQ()
+
+	def SetGpuOptionalQ()
+		@cGpu = "optional"
+		return This
+
+	# capacity role: this host HAS a GPU
+	def SetGpuPresent(bFlag)
+		This.SetGpuPresentQ(bFlag)
+
+	def SetGpuPresentQ(bFlag)
+		@bGpuPresent = bFlag
+		return This
+
+	def GpuNeed()
+		return @cGpu
+
+	def HasGpu()
+		return @bGpuPresent
+
 	def MemoryMB()
 		return @nMem
 	def ComputeVCPU()
@@ -130,10 +165,13 @@ class stzResourceSpec from stzObject
 		return @nDisk
 
 	def IsEmpty()
-		return @nMem = 0 and @nCpu = 0 and @nDisk = 0
+		return @nMem = 0 and @nCpu = 0 and @nDisk = 0 and @cGpu = ""
 
 	# does THIS capacity meet the given REQUIREMENT (every dimension covered)?
 	def Meets(poReq)
+		if poReq.GpuNeed() = "required" and NOT @bGpuPresent
+			return FALSE
+		ok
 		return @nMem >= poReq.MemoryMB() and @nCpu >= poReq.ComputeVCPU() and @nDisk >= poReq.StorageGB()
 
 	# aggregate: sum two requirements (many parts on one host)
@@ -142,10 +180,23 @@ class stzResourceSpec from stzObject
 		_r_.SetMemory(@nMem + poOther.MemoryMB())
 		_r_.SetCompute(@nCpu + poOther.ComputeVCPU())
 		_r_.SetStorage(@nDisk + poOther.StorageGB())
+		# the merged gpu need is the STRONGER of the two
+		if @cGpu = "required" or poOther.GpuNeed() = "required"
+			_r_.SetGpuRequiredQ()
+		but @cGpu = "optional" or poOther.GpuNeed() = "optional"
+			_r_.SetGpuOptionalQ()
+		ok
 		return _r_
 
 	def Text()
-		return "" + @nMem + "MB / " + @nCpu + " vCPU / " + @nDisk + "GB"
+		_c_ = "" + @nMem + "MB / " + @nCpu + " vCPU / " + @nDisk + "GB"
+		if @cGpu != ""
+			_c_ += " / gpu " + @cGpu
+		ok
+		if @bGpuPresent
+			_c_ += " / +gpu"
+		ok
+		return _c_
 
 	def Show()
 		? This.Text()
@@ -1028,6 +1079,7 @@ class stzDeployment from stzObject
 		_recs_ = []
 		_undo_ = []
 		_failed_ = FALSE
+		_gated_ = []   # parts whose GPU admission has been checked
 		_n_ = len(_steps_)
 		for _i_ = 1 to _n_
 			_st_ = _steps_[_i_]
@@ -1036,6 +1088,19 @@ class stzDeployment from stzObject
 				_recs_ + [ _st_[1], "skipped" ]
 				@oLog.Record(:warn, "step skipped (an earlier step failed)", _flds_)
 				loop
+			ok
+			# the GPU ADMISSION gate (G5): checked once per part, BEFORE its
+			# first step -- an admission question, not a provisioning action,
+			# so it fires whether or not the site is scriptable.
+			if StzFindFirst(_st_[3], _gated_) = 0
+				_gated_ + _st_[3]
+				_req_ = @oDelivery.RequirementFor(_st_[3])
+				if isObject(_req_) and NOT This._GpuGateOk(_req_, This.SiteFor(_st_[3]), _st_[3])
+					_recs_ + [ _st_[1], "FAILED" ]
+					@oLog.Record(:error, "step FAILED (the gpu admission gate refused)", _flds_)
+					_failed_ = TRUE
+					loop
+				ok
 			ok
 			if NOT _bMay_
 				_recs_ + [ _st_[1], "rehearsed" ]
@@ -1097,6 +1162,46 @@ class stzDeployment from stzObject
 			return poSite.Status() = "launched"
 		ok
 		return TRUE
+
+	# -- the GPU capability gate (G5, SOFTANZA_GPU_PLAN.md) -----------------
+	# A part's requirement declares SetGpuRequired() or SetGpuOptional().
+	#   required + no GPU at the site -> the provision step FAILS (Deploy
+	#                                    refuses; the run rolls back)
+	#   optional + no GPU             -> Deploy proceeds; the degrade is
+	#                                    LOGGED (the part's seams fall back
+	#                                    to CPU and COUNT it -- G1's law)
+	# The site's GPU truth: its declared capacity if any; a LIVE PROBE of
+	# this machine when the site is local; absent otherwise (a remote site
+	# that never declared a GPU is honestly treated as having none).
+	def _GpuGateOk(poReq, poSite, pcPart)
+		_cNeed_ = poReq.GpuNeed()
+		if _cNeed_ = ""
+			return TRUE
+		ok
+		if This._SiteHasGpu(poSite)
+			@oLog.Record(:info, "gpu present at the site", [ [ :part, pcPart ], [ :site, poSite.Name() ] ])
+			return TRUE
+		ok
+		if _cNeed_ = "required"
+			@oLog.Record(:error, "part REQUIRES a gpu and the site has none -- refused", [ [ :part, pcPart ], [ :site, poSite.Name() ] ])
+			return FALSE
+		ok
+		@oLog.Record(:warn, "no gpu at the site -- part deploys DEGRADED (cpu fallback)", [ [ :part, pcPart ], [ :site, poSite.Name() ] ])
+		return TRUE
+
+	def _SiteHasGpu(poSite)
+		_oCap_ = poSite.CapacityOf()
+		if isObject(_oCap_) and _oCap_.HasGpu()
+			return TRUE
+		ok
+		if poSite.IsLocal()
+			# the local machine can answer for ITSELF -- probe the device
+			if StzEngineGpuIsAvailable() = 0
+				StzEngineGpuInit($cStzGpuRuntime)
+			ok
+			return StzEngineGpuIsAvailable() = 1
+		ok
+		return FALSE
 
 	def _JoinNames(paList)
 		_s_ = ""

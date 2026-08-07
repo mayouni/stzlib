@@ -291,10 +291,14 @@ class stzVectorIndex from stzObject
 		ok
 		# the threshold is consulted BEFORE the device: Init() costs ~300 ms
 		# of adapter/device creation, and a small corpus must never pay it.
-		# CalibGet works without a device; the conservative seed comes from
-		# G0's measured floors (~8x above the computed crossover) until a
-		# real calibration pass refines it.
+		# Order of authority: an already-set value > the persisted
+		# calibration (the default file loads without a device) > the
+		# conservative G0 seed. A real Calibrate() pass replaces the seed.
 		_nThresh_ = StzEngineGpuCalibGet("pairdist")
+		if _nThresh_ = 0
+			StzGpuLoadCalibrationDefault()
+			_nThresh_ = StzEngineGpuCalibGet("pairdist")
+		ok
 		if _nThresh_ = 0
 			_nThresh_ = 4000000
 			StzEngineGpuCalibSet("pairdist", _nThresh_)
@@ -304,6 +308,10 @@ class stzVectorIndex from stzObject
 		ok
 		if StzEngineGpuIsAvailable() = 0
 			StzEngineGpuInit($cStzGpuRuntime)
+		ok
+		if StzEngineGpuIsAvailable() = 1
+			# per-adapter truth may refine the default-file threshold
+			StzGpuLoadCalibrationForAdapter()
 		ok
 		# the canonical gate has the final say (device present + threshold)
 		if StzEngineGpuShouldDispatch("pairdist", @nCount * @nDim) = 0

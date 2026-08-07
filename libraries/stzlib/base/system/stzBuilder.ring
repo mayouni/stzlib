@@ -182,6 +182,8 @@ func _StzWasmGroupFor(pcCapKey)
 		return "pattern"
 	but _c_ = "graph"
 		return "graph"
+	but _c_ = "gpukernels"
+		return "gpu"
 	ok
 	return ""
 

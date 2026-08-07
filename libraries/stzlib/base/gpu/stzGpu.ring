@@ -204,6 +204,82 @@ class stzGpu from stzObject
 		ok
 		return new stzGpuBuffer([_nOut_, _nElems_])
 
+	# ---- calibration (G5) -----------------------------------------------
+
+	# Measure where the GPU actually starts winning ON THIS MACHINE, store
+	# the crossover in the calibration store, and persist it (the faces
+	# auto-load it in later sessions). Warm-min discipline throughout --
+	# G0's clock inversion means sustained numbers flatter the GPU.
+	# Returns [ nThreshold, [ [nProblemSize, nCpuMs, nGpuMs], ... ] ].
+	def Calibrate()
+		return This.CalibrateWith([1000, 2000, 4000, 8000, 16000])
+
+	# The same, on a caller-chosen ladder of corpus sizes (d fixed at 64:
+	# a representative embedding width; problem size = n*d).
+	def CalibrateWith(paRungs)
+		This._RequireDevice()
+		_nDim_ = 64
+		_aReport_ = []
+		_nCross_ = 0
+		_nRungs_ = ring_len(paRungs)
+		for _i_ = 1 to _nRungs_
+			_aRes_ = This._CalibRung(paRungs[_i_], _nDim_)
+			_aReport_ + [ paRungs[_i_] * _nDim_, _aRes_[1], _aRes_[2] ]
+			# crossover = the FIRST rung the GPU wins with a 30% margin;
+			# the margin absorbs run-to-run noise (transfer is a band)
+			if _nCross_ = 0 and _aRes_[2] * 1.3 <= _aRes_[1]
+				_nCross_ = paRungs[_i_] * _nDim_
+			ok
+		next
+		if _nCross_ = 0
+			# the GPU never won on this ladder: route everything CPU
+			_nCross_ = 999999999999
+		ok
+		StzEngineGpuCalibSet("pairdist", _nCross_)
+		StzGpuSaveCalibration(["pairdist"])
+		return [ _nCross_, _aReport_ ]
+
+	def LoadCalibration()
+		StzGpuLoadCalibrationDefault()
+		This._EnsureInit()
+		StzGpuLoadCalibrationForAdapter()
+
+	# one rung: warm-min per-query ms through the REAL seam, both routes
+	def _CalibRung(pnCount, pnDim)
+		_aVecs_ = []
+		for _i_ = 0 to pnCount-1
+			_aRow_ = []
+			for _j_ = 0 to pnDim-1
+				_aRow_ + ((_i_*7 + _j_*13) % 32)
+			next
+			_aVecs_ + _aRow_
+		next
+		_aQry_ = []
+		for _j_ = 0 to pnDim-1
+			_aQry_ + ((_j_*3 + 11) % 32)
+		next
+		StzEngineGpuCalibSet("pairdist", 999999999999)
+		_oCpu_ = new stzVectorIndex(_aVecs_)
+		_oCpu_.SearchExact(_aQry_, 5)
+		_nCpu_ = This._MinQueryMs(_oCpu_, _aQry_)
+		StzEngineGpuCalibSet("pairdist", 1)
+		_oGpu_ = new stzVectorIndex(_aVecs_)
+		_oGpu_.SearchExact(_aQry_, 5)
+		_nGpu_ = This._MinQueryMs(_oGpu_, _aQry_)
+		return [ _nCpu_, _nGpu_ ]
+
+	def _MinQueryMs(poIdx, paQry)
+		_nBest_ = 999999999
+		for _r_ = 1 to 3
+			_nT0_ = StzEngineWatchTimestampNs()
+			poIdx.SearchExact(paQry, 5)
+			_nMs_ = (StzEngineWatchTimestampNs() - _nT0_) / 1000000
+			if _nMs_ < _nBest_
+				_nBest_ = _nMs_
+			ok
+		next
+		return _nBest_
+
 	# ---- internals ------------------------------------------------------
 
 	def _EnsureInit()
@@ -213,6 +289,9 @@ class stzGpu from stzObject
 		@bTriedInit_ = TRUE
 		if StzEngineGpuIsAvailable() = 0
 			StzEngineGpuInit($cStzGpuRuntime)
+		ok
+		if StzEngineGpuIsAvailable() = 1
+			StzGpuLoadCalibrationForAdapter()
 		ok
 
 	def _RequireDevice()

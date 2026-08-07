@@ -29,6 +29,7 @@ const want_agg = wants("aggregation");
 const want_numtheory = wants("numtheory");
 const want_pattern = wants("pattern");
 const want_graph = wants("graph");
+const want_gpu = wants("gpu");
 
 // Import a group's source module ONLY when the group is on, so an off group's
 // code is not in the compilation at all (a true subset, not a gated surface).
@@ -36,6 +37,7 @@ const solver = if (want_solver) @import("solver.zig") else struct {};
 const numtheory = if (want_numtheory) @import("numtheory.zig") else struct {};
 const pattern = if (want_pattern) @import("pattern.zig") else struct {};
 const graph = if (want_graph) @import("graph.zig") else struct {};
+const gpu_wgsl = if (want_gpu) @import("gpu_wgsl.zig") else struct {};
 
 // -- marshalling heap (always present): a bump allocator over a static buffer in
 //    linear memory. 16-aligned so marshalled f64 views are aligned; kept small
@@ -132,6 +134,21 @@ fn pat_geo_ratio(ptr: u32, len: usize) callconv(.c) f64 {
     return pattern.geometric_ratio(v, len);
 }
 
+// -- gpu group (the W->WGSL transpiler -- G5 edge convergence) -----------------
+// The SAME zero-allocation transpiler that stz_gpu.dll carries: a spec string
+// in linear memory becomes the SAME WGSL text the native engine emits, and
+// the page feeds it to navigator.gpu. Kernel authoring converges; execution
+// is the browser's WebGPU (the same API family wgpu-native implements).
+fn wgsl_elementwise(spec_ptr: u32, spec_len: usize, out_ptr: u32, out_cap: usize) callconv(.c) i32 {
+    const spec: [*]const u8 = @ptrFromInt(@as(usize, spec_ptr));
+    const out: [*]u8 = @ptrFromInt(@as(usize, out_ptr));
+    return gpu_wgsl.stz_gpu_wgsl_elementwise(spec, @floatFromInt(spec_len), out, @floatFromInt(out_cap));
+}
+fn wgsl_error(out_ptr: u32, out_cap: usize) callconv(.c) i32 {
+    const out: [*]u8 = @ptrFromInt(@as(usize, out_ptr));
+    return gpu_wgsl.stz_gpu_wgsl_error(out, @floatFromInt(out_cap));
+}
+
 // Export exactly the requested groups. Unlisted wrappers are never referenced,
 // so they are never analyzed and their (possibly absent) module deps never
 // checked -- the binary carries only the plan's subset.
@@ -158,6 +175,10 @@ comptime {
         @export(&pat_arith_diff, .{ .name = "stz_arith_diff" });
         @export(&pat_is_geo, .{ .name = "stz_is_geometric" });
         @export(&pat_geo_ratio, .{ .name = "stz_geo_ratio" });
+    }
+    if (want_gpu) {
+        @export(&wgsl_elementwise, .{ .name = "stz_gpu_wgsl_elementwise" });
+        @export(&wgsl_error, .{ .name = "stz_gpu_wgsl_error" });
     }
     if (want_graph) {
         // graph.zig's functions are already callconv(.c) with a pointer/handle

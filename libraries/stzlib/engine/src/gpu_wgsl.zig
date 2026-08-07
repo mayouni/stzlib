@@ -32,9 +32,34 @@
 //! (Ring is case-insensitive; the kernel must agree with the face).
 
 const std = @import("std");
-const gpu = @import("gpu.zig");
 
-const alloc = std.heap.c_allocator;
+// ZERO-ALLOCATION by design: this module also compiles into stz.wasm
+// (freestanding wasm32, no libc, no allocator) -- the edge authors kernels
+// with the SAME code. Everything builds in fixed stack buffers through the
+// overflow-checked Cursor below.
+
+const Cursor = struct {
+    buf: []u8,
+    len: usize = 0,
+    overflow: bool = false,
+
+    fn put(self: *Cursor, s: []const u8) void {
+        if (self.overflow or self.len + s.len > self.buf.len) {
+            self.overflow = true;
+            return;
+        }
+        @memcpy(self.buf[self.len..][0..s.len], s);
+        self.len += s.len;
+    }
+
+    fn putc(self: *Cursor, ch: u8) void {
+        self.put(&[_]u8{ch});
+    }
+
+    fn items(self: *const Cursor) []const u8 {
+        return self.buf[0..self.len];
+    }
+};
 
 pub const MAX_VECS = 6; // inputs + the output must fit the 8-buffer dispatch
 pub const MAX_SCALARS = 14; // 64-byte params uniform: 8B (n+pad) + 14*4B
@@ -171,8 +196,8 @@ pub fn stz_gpu_wgsl_elementwise(spec: [*]const u8, spec_len: f64, out: [*]u8, ca
     if (rhs.len == 0) return fail("empty expression", .{});
 
     // ---- transpile the rhs token by token
-    var expr: std.ArrayList(u8) = .{};
-    defer expr.deinit(alloc);
+    var expr_buf: [4096]u8 = undefined;
+    var expr = Cursor{ .buf = &expr_buf };
     var i: usize = 0;
     while (i < rhs.len) {
         const ch = rhs[i];
@@ -189,9 +214,9 @@ pub fn stz_gpu_wgsl_elementwise(spec: [*]const u8, spec_len: f64, out: [*]u8, ca
                 else
                     return fail("undeclared vector '@{s}'", .{nm.slice()});
             }
-            expr.appendSlice(alloc, "v_") catch return -1;
-            expr.appendSlice(alloc, nm.slice()) catch return -1;
-            expr.appendSlice(alloc, "[i]") catch return -1;
+            expr.put("v_");
+            expr.put(nm.slice());
+            expr.put("[i]");
             i = j;
         } else if (std.ascii.isAlphabetic(ch) or ch == '_') {
             // scalar or whitelisted function
@@ -201,8 +226,8 @@ pub fn stz_gpu_wgsl_elementwise(spec: [*]const u8, spec_len: f64, out: [*]u8, ca
             if (!lowerInto(&nm, rhs[i..j]))
                 return fail("name too long at '{s}'", .{rhs[i..@min(i + 8, rhs.len)]});
             if (nameIn(scalars[0..], n_scalars, nm.slice()) != null) {
-                expr.appendSlice(alloc, "p.s_") catch return -1;
-                expr.appendSlice(alloc, nm.slice()) catch return -1;
+                expr.put("p.s_");
+                expr.put(nm.slice());
             } else {
                 var is_func = false;
                 for (FUNC_WHITELIST) |f| {
@@ -218,30 +243,31 @@ pub fn stz_gpu_wgsl_elementwise(spec: [*]const u8, spec_len: f64, out: [*]u8, ca
                 while (k < rhs.len and (rhs[k] == ' ' or rhs[k] == '\t')) : (k += 1) {}
                 if (k >= rhs.len or rhs[k] != '(')
                     return fail("function '{s}' needs '('", .{nm.slice()});
-                expr.appendSlice(alloc, nm.slice()) catch return -1;
+                expr.put(nm.slice());
             }
             i = j;
         } else if (std.ascii.isDigit(ch) or ch == '.') {
             var j = i;
             while (j < rhs.len and (std.ascii.isDigit(rhs[j]) or rhs[j] == '.')) : (j += 1) {}
-            expr.appendSlice(alloc, rhs[i..j]) catch return -1;
+            expr.put(rhs[i..j]);
             i = j;
         } else if (ch == '+' or ch == '-' or ch == '*' or ch == '/' or ch == '%' or
             ch == '(' or ch == ')' or ch == ',' or ch == ' ' or ch == '\t')
         {
-            expr.append(alloc, ch) catch return -1;
+            expr.putc(ch);
             i += 1;
         } else {
             return fail("character '{c}' is not part of the elementwise language", .{ch});
         }
     }
 
-    // ---- emit the kernel
-    var w: std.ArrayList(u8) = .{};
-    defer w.deinit(alloc);
+    if (expr.overflow) return fail("expression too long", .{});
+
+    // ---- emit the kernel straight into the caller's buffer
+    var w = Cursor{ .buf = out[0..@intFromFloat(cap)] };
     const put = struct {
-        fn f(l: *std.ArrayList(u8), s: []const u8) void {
-            l.appendSlice(alloc, s) catch {};
+        fn f(l: *Cursor, s: []const u8) void {
+            l.put(s);
         }
     }.f;
 
@@ -280,13 +306,11 @@ pub fn stz_gpu_wgsl_elementwise(spec: [*]const u8, spec_len: f64, out: [*]u8, ca
     put(&w, "  if (i < p.n) { v_");
     put(&w, out_name.slice());
     put(&w, "[i] = ");
-    put(&w, expr.items);
+    put(&w, expr.items());
     put(&w, "; }\n}\n");
 
-    if (w.items.len > @as(usize, @intFromFloat(cap)))
-        return fail("kernel too large for the output buffer", .{});
-    @memcpy(out[0..w.items.len], w.items);
-    return @intCast(w.items.len);
+    if (w.overflow) return fail("kernel too large for the output buffer", .{});
+    return @intCast(w.len);
 }
 
 test "transpile basics" {
