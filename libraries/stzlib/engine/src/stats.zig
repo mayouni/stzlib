@@ -77,6 +77,70 @@ pub const Compensated = struct {
 // the target actually has, so this is a tuning number and not a portability one.
 const SUM_LANES = 8;
 
+// --- Threaded reductions (M3 of the multicore tier) ---
+//
+// Per-thread chunks run the SAME compensated kernels below and the partials
+// are combined compensated -- threads are just BIGGER independent groups
+// than the SIMD lanes this file already justified ("summing in several
+// independent groups is if anything better conditioned"). The pathological
+// case stays EXACT through the threaded path, uneven chunks included; the
+// tests pin it. Worst observed grouping drift on mixed-sign data: ~1e-14
+// relative, the same order the lane split already introduces.
+//
+// GATES FROM MEASUREMENT (tools/stats_spike.zig, two runs, ship bar =
+// >= 1.5x on BOTH):
+//
+//     compensatedSum   256k 0.14-0.21x | 1M ~1.0x | 4M 1.6-1.8x | 16M 2.2-2.5x
+//     centeredSS       256k 0.54-0.94x | 1M 1.6-1.9x | 4M 2.5-3.0x | 16M 2.8-3.9x
+//
+// The heavier kernel admits earlier (more work per element amortises the
+// spawn), which is why the two gates differ. PROVISIONAL until M5's shared
+// calibration store. Tests may lower them.
+pub var stats_parallel_min_sum: usize = 4 * 1024 * 1024;
+pub var stats_parallel_min_css: usize = 1024 * 1024;
+const STATS_WORKERS = 8;
+
+const RedJob = struct {
+    data: []const f64,
+    mean: f64,
+    out: *f64,
+    which: u8, // 0 = compensated sum, 1 = centered sum of squares
+    fn run(self: *const RedJob) void {
+        self.out.* = if (self.which == 0)
+            compensatedSumSerial(self.data)
+        else
+            centeredSumOfSquaresSerial(self.data, self.mean);
+    }
+};
+
+fn threadedReduce(data: []const f64, mean: f64, which: u8) ?f64 {
+    const cpus = std.Thread.getCpuCount() catch return null;
+    const nt = @min(STATS_WORKERS, cpus);
+    if (nt < 2) return null;
+    var partials: [STATS_WORKERS]f64 = undefined;
+    var jobs: [STATS_WORKERS]RedJob = undefined;
+    var threads: [STATS_WORKERS]std.Thread = undefined;
+    const chunk = data.len / nt;
+    var spawned: usize = 0;
+    for (0..nt) |t| {
+        const lo = t * chunk;
+        const hi = if (t == nt - 1) data.len else lo + chunk;
+        jobs[t] = .{ .data = data[lo..hi], .mean = mean, .out = &partials[t], .which = which };
+        // Compact handles (threads[spawned], not threads[t]): a failed spawn
+        // computes its chunk inline, and an index-aligned join would join an
+        // UNDEFINED slot -- the M1 lesson, kept.
+        threads[spawned] = std.Thread.spawn(.{}, RedJob.run, .{&jobs[t]}) catch {
+            jobs[t].run();
+            continue;
+        };
+        spawned += 1;
+    }
+    for (threads[0..spawned]) |th| th.join();
+    var acc = Compensated{};
+    for (partials[0..nt]) |v| acc.add(v);
+    return acc.value();
+}
+
 /// THE SUMMATION. Lane-parallel Neumaier: SUM_LANES independent compensated
 /// accumulators run down the data at once and are combined -- themselves
 /// compensated -- at the end.
@@ -101,6 +165,13 @@ const SUM_LANES = 8;
 /// form -- summing in several independent groups is if anything better
 /// conditioned. The pathological case is pinned by a test below.
 pub fn compensatedSum(data: []const f64) f64 {
+    if (data.len >= stats_parallel_min_sum) {
+        if (threadedReduce(data, 0, 0)) |v| return v;
+    }
+    return compensatedSumSerial(data);
+}
+
+fn compensatedSumSerial(data: []const f64) f64 {
     const V = @Vector(SUM_LANES, f64);
     var total: V = @splat(0);
     var c: V = @splat(0);
@@ -208,6 +279,13 @@ pub fn centeredSumOfSquaresOf(comptime T: type, data: []const T, mean: f64) f64 
 }
 
 pub fn centeredSumOfSquares(data: []const f64, mean: f64) f64 {
+    if (data.len >= stats_parallel_min_css) {
+        if (threadedReduce(data, mean, 1)) |v| return v;
+    }
+    return centeredSumOfSquaresSerial(data, mean);
+}
+
+fn centeredSumOfSquaresSerial(data: []const f64, mean: f64) f64 {
     return centeredSumOfSquaresOf(f64, data, mean);
 }
 
@@ -980,4 +1058,45 @@ test "one centered sum of squares, whatever the storage" {
         varianceOf(&base, .sample),
         varianceOf(&off, .sample),
     );
+}
+
+test "threaded reductions: pathological exactness and serial agreement" {
+    const alloc = std.testing.allocator;
+    const saved_sum = stats_parallel_min_sum;
+    const saved_css = stats_parallel_min_css;
+    defer {
+        stats_parallel_min_sum = saved_sum;
+        stats_parallel_min_css = saved_css;
+    }
+
+    // The pathological case the lane version pins, now through THREADS
+    // (chunk boundaries land in the middle of the ones).
+    const patho = try alloc.alloc(f64, 4096);
+    defer alloc.free(patho);
+    patho[0] = 1e16;
+    for (patho[1..]) |*v| v.* = 1.0;
+    stats_parallel_min_sum = 16;
+    try std.testing.expectEqual(@as(f64, 1e16 + 4095.0), compensatedSum(patho));
+
+    // Mixed-sign data: threaded within 1e-12 relative of serial (grouping
+    // moves the last bits, never more -- measured ~1e-14).
+    const data = try alloc.alloc(f64, 100_000);
+    defer alloc.free(data);
+    var seed: u64 = 17;
+    for (data) |*v| {
+        seed = seed *% 6364136223846793005 +% 1442695040888963407;
+        v.* = @as(f64, @floatFromInt((seed >> 33) % 2000)) / 999.0 - 1.0;
+    }
+    stats_parallel_min_sum = std.math.maxInt(usize);
+    const ser = compensatedSum(data);
+    stats_parallel_min_sum = 16;
+    const par = compensatedSum(data);
+    const denom = @max(@abs(ser), 1e-300);
+    try std.testing.expect(@abs(par - ser) / denom < 1e-12);
+
+    stats_parallel_min_css = std.math.maxInt(usize);
+    const css_ser = centeredSumOfSquares(data, 0.001);
+    stats_parallel_min_css = 16;
+    const css_par = centeredSumOfSquares(data, 0.001);
+    try std.testing.expect(@abs(css_par - css_ser) / @max(css_ser, 1e-300) < 1e-12);
 }
