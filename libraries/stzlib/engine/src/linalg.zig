@@ -84,6 +84,75 @@ fn axpyNeg(dst: []f64, src: []const f64, factor: f64) void {
     for (dst, src) |*d, s| d.* -= factor * s;
 }
 
+// --- Parallel elimination for decompose (M2 of the multicore tier) ---
+//
+// LU's k loop is SEQUENTIAL (each pivot depends on the previous step), so
+// only the per-k elimination fans out: rows k+1..n are independent axpys.
+// Workers are spawned ONCE per factorisation and synchronised with a
+// spinning generation barrier -- spawn-per-k would cost n * ~0.4 ms and
+// drown the work (measured, cpu_spike).
+//
+// MEASURED (tools/lu_spike.zig, two runs on the shared dev box):
+//     n=256   parallel LOSES at every config (0.45-0.72x)  -> serial
+//     n=512   1.16-1.40x, real but thin                    -> serial
+//     n=1024  2.8-3.4x                                     -> parallel
+//     n=1536  2.4-3.0x (one T4 reading collapsed to 1.34x under machine
+//             contention; T8 held on both runs -- T8 chosen for robustness
+//             on shared machines, not for the best quiet-machine number)
+//
+// BIT-IDENTICAL to the serial path, value-for-value AND pivot-for-pivot:
+// pivot search stays on the main thread, each row is eliminated by exactly
+// one worker in the same axpy order, no cross-thread reduction. The parity
+// test below pins it, singular case included.
+//
+// The gate sits where the measurement supports it, PROVISIONAL until the
+// shared calibration store (M5). Tests may lower it to exercise the
+// parallel path on small fixtures.
+pub var lu_parallel_min_n: usize = 1024;
+const LU_WORKERS = 8;
+const LU_MIN_ROWS_PER_STEP = 64; // triangle tail: barrier tax exceeds work
+
+const LuPar = struct {
+    lu: []f64,
+    n: usize,
+    k: std.atomic.Value(usize),
+    gen: std.atomic.Value(usize),
+    done: std.atomic.Value(usize),
+    nt: usize,
+    quit: std.atomic.Value(bool),
+};
+
+fn luEliminateRows(lu: []f64, n: usize, k: usize, r0: usize, r1: usize) void {
+    const pivot = lu[k * n + k];
+    var r = r0;
+    while (r < r1) : (r += 1) {
+        const factor = lu[r * n + k] / pivot;
+        lu[r * n + k] = factor;
+        if (factor != 0.0) {
+            axpyNeg(lu[r * n + k + 1 .. r * n + n], lu[k * n + k + 1 .. k * n + n], factor);
+        }
+    }
+}
+
+fn luWorker(sh: *LuPar, tid: usize) void {
+    var seen: usize = 0;
+    while (true) {
+        while (sh.gen.load(.acquire) == seen) {
+            if (sh.quit.load(.acquire)) return;
+            std.atomic.spinLoopHint();
+        }
+        seen = sh.gen.load(.acquire);
+        const n = sh.n;
+        const k = sh.k.load(.acquire);
+        const rows = n - (k + 1);
+        const per = (rows + sh.nt - 1) / sh.nt;
+        const r0 = k + 1 + tid * per;
+        const r1 = @min(r0 + per, n);
+        if (r0 < r1) luEliminateRows(sh.lu, n, k, r0, r1);
+        _ = sh.done.fetchAdd(1, .release);
+    }
+}
+
 /// Factorise a square row-major matrix. `data` is copied, not modified.
 ///
 /// Partial pivoting -- choosing the largest-magnitude candidate in the column as
@@ -105,6 +174,32 @@ pub fn decompose(allocator: std.mem.Allocator, data: []const f64, n: usize) !LU 
     // uniformly tiny entries singular, when scaling cannot change rank
     var largest_entry: f64 = 0;
     for (data) |v| largest_entry = @max(largest_entry, @abs(v));
+
+    // Parallel workers exist for the whole factorisation or not at all;
+    // the per-step branch below only decides who runs a given elimination.
+    var par = LuPar{
+        .lu = lu,
+        .n = n,
+        .k = std.atomic.Value(usize).init(0),
+        .gen = std.atomic.Value(usize).init(0),
+        .done = std.atomic.Value(usize).init(0),
+        .nt = 0,
+        .quit = std.atomic.Value(bool).init(false),
+    };
+    var workers: [LU_WORKERS]std.Thread = undefined;
+    if (n >= lu_parallel_min_n) {
+        const cpus = std.Thread.getCpuCount() catch 1;
+        const want = @min(LU_WORKERS, cpus);
+        var wt: usize = 0;
+        while (wt < want) : (wt += 1) {
+            workers[par.nt] = std.Thread.spawn(.{}, luWorker, .{ &par, par.nt }) catch break;
+            par.nt += 1;
+        }
+    }
+    defer if (par.nt > 0) {
+        par.quit.store(true, .release);
+        for (workers[0..par.nt]) |th| th.join();
+    };
 
     for (0..n) |k| {
         // find the pivot
@@ -151,15 +246,19 @@ pub fn decompose(allocator: std.mem.Allocator, data: []const f64, n: usize) !LU 
             sign = -sign;
         }
 
-        // eliminate below, storing the multipliers in place as L
-        const pivot = lu[k * n + k];
-        for (k + 1..n) |r| {
-            const factor = lu[r * n + k] / pivot;
-            lu[r * n + k] = factor;
-            if (factor == 0.0) continue;
-            // The row tail is contiguous and r != k always, so source and
-            // destination never alias.
-            axpyNeg(lu[r * n + k + 1 .. r * n + n], lu[k * n + k + 1 .. k * n + n], factor);
+        // eliminate below, storing the multipliers in place as L. Parallel
+        // dispatch runs the SAME luEliminateRows the serial arm uses --
+        // one code path, split or not. (The old inline loop moved into
+        // luEliminateRows verbatim; the row tail is contiguous and r != k
+        // always, so source and destination never alias.)
+        const rows_below = n - (k + 1);
+        if (par.nt > 1 and rows_below >= LU_MIN_ROWS_PER_STEP) {
+            par.k.store(k, .release);
+            par.done.store(0, .release);
+            par.gen.store(par.gen.load(.acquire) + 1, .release);
+            while (par.done.load(.acquire) < par.nt) std.atomic.spinLoopHint();
+        } else if (rows_below > 0) {
+            luEliminateRows(lu, n, k, k + 1, n);
         }
     }
 
@@ -3160,4 +3259,50 @@ test "ON AN ILL-CONDITIONED MATRIX, LU HOLDS UP -- and I had assumed otherwise" 
     // otherwise would be pinning luck.
     try testing.expect(lu_err > 1e-8);
     try testing.expect(qr_err > 1e-8);
+}
+
+test "parallel decompose is bit-identical to serial, pivots included" {
+    const alloc = std.testing.allocator;
+    const n = 96;
+    const data = try alloc.alloc(f64, n * n);
+    defer alloc.free(data);
+    var seed: u64 = 11;
+    for (data, 0..) |*v, idx| {
+        seed = seed *% 6364136223846793005 +% 1442695040888963407;
+        v.* = @as(f64, @floatFromInt((seed >> 33) % 1000)) / 999.0 +
+            (if (idx / n == idx % n) @as(f64, 3.0) else 0.0);
+    }
+
+    const saved = lu_parallel_min_n;
+    defer lu_parallel_min_n = saved;
+
+    lu_parallel_min_n = std.math.maxInt(usize); // force serial
+    var f_ser = try decompose(alloc, data, n);
+    defer f_ser.deinit();
+
+    lu_parallel_min_n = 8; // force parallel (min-rows tail still applies)
+    var f_par = try decompose(alloc, data, n);
+    defer f_par.deinit();
+
+    try std.testing.expectEqual(f_ser.singular, f_par.singular);
+    try std.testing.expectEqual(f_ser.sign, f_par.sign);
+    for (f_ser.perm, f_par.perm) |x, y| try std.testing.expectEqual(x, y);
+    for (f_ser.lu, f_par.lu) |x, y| try std.testing.expect(x == y);
+
+    // And a SINGULAR case through the parallel path: row 3 = row 1 + row 2
+    // must be flagged, identically to serial.
+    for (data, 0..) |*v, idx| {
+        const r = idx / n;
+        const c = idx % n;
+        if (r == 2) v.* = data[0 * n + c] + data[1 * n + c];
+    }
+    lu_parallel_min_n = std.math.maxInt(usize);
+    var s_ser = try decompose(alloc, data, n);
+    defer s_ser.deinit();
+    lu_parallel_min_n = 8;
+    var s_par = try decompose(alloc, data, n);
+    defer s_par.deinit();
+    try std.testing.expect(s_ser.singular);
+    try std.testing.expectEqual(s_ser.singular, s_par.singular);
+    for (s_ser.lu, s_par.lu) |x, y| try std.testing.expect(x == y);
 }
