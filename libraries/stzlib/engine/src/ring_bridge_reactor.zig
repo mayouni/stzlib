@@ -327,6 +327,33 @@ fn ring_ReactorServerWrite(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(reactor.reactor_server_write(r, sid, conn_id, data_ptr, data_len, close_after)));
 }
 
+/// StzEngineReactorServerSetInbox(reactor, nServerId, nCap, nPolicy) ->
+/// 0 or -2. Bounded inbox (D1): nPolicy 1 DropOldest, 2 DropNewest,
+/// 3 Refuse (close). nCap 0 = unbounded.
+fn ring_ReactorServerSetInbox(p: *anyopaque) callconv(.c) void {
+    const r = getReactor(p, 1);
+    const sid: u64 = @intFromFloat(gn(p, 2));
+    const cap: u64 = @intFromFloat(gn(p, 3));
+    const policy: i32 = @intFromFloat(gn(p, 4));
+    rn(p, @floatFromInt(reactor.reactor_server_set_inbox(r, sid, cap, policy)));
+}
+
+/// StzEngineReactorServerOverflow(reactor, nServerId) -> counted
+/// overflow events since birth (-1 unknown server).
+fn ring_ReactorServerOverflow(p: *anyopaque) callconv(.c) void {
+    const r = getReactor(p, 1);
+    const sid: u64 = @intFromFloat(gn(p, 2));
+    rn(p, @floatFromInt(reactor.reactor_server_overflow(r, sid)));
+}
+
+/// StzEngineReactorServerPendingData(reactor, nServerId) -> data events
+/// currently queued (-1 unknown server).
+fn ring_ReactorServerPendingData(p: *anyopaque) callconv(.c) void {
+    const r = getReactor(p, 1);
+    const sid: u64 = @intFromFloat(gn(p, 2));
+    rn(p, @floatFromInt(reactor.reactor_server_pending_data(r, sid)));
+}
+
 /// StzEngineReactorServerCloseConn(reactor, nServerId, nConnId) -> 0/-1.
 fn ring_ReactorServerCloseConn(p: *anyopaque) callconv(.c) void {
     const r = getReactor(p, 1);
@@ -556,6 +583,9 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginereactorserverlastconn", .func = ring_ReactorServerLastConn },
     .{ .name = "stzenginereactorserverlastdata", .func = ring_ReactorServerLastData },
     .{ .name = "stzenginereactorserverwrite", .func = ring_ReactorServerWrite },
+    .{ .name = "stzenginereactorserversetinbox", .func = ring_ReactorServerSetInbox },
+    .{ .name = "stzenginereactorserveroverflow", .func = ring_ReactorServerOverflow },
+    .{ .name = "stzenginereactorserverpendingdata", .func = ring_ReactorServerPendingData },
     .{ .name = "stzenginereactorservercloseconn", .func = ring_ReactorServerCloseConn },
     .{ .name = "stzenginereactorserverstop", .func = ring_ReactorServerStop },
     .{ .name = "stzenginereactorsubmitspawn", .func = ring_ReactorSubmitSpawn },

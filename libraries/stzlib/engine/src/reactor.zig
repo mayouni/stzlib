@@ -1002,6 +1002,14 @@ const Server = struct {
     // listener -- one outbound Conn, the same event queue, the same write/
     // close/framing paths. A link is a link, whichever side dialed.
     is_client: bool = false,
+    // Bounded inbox (distribution D1): a cap on QUEUED data events with a
+    // declared overflow policy. Overflow is a COUNTED, observable event,
+    // never silent (the incident-analysis law). cap 0 = unbounded, which
+    // is exactly the pre-D1 behavior.
+    inbox_cap: usize = 0,
+    inbox_policy: i32 = 0, // 1 DropOldest, 2 DropNewest, 3 Refuse (hang up)
+    n_data_events: usize = 0, // data events currently queued
+    n_overflow: u64 = 0, // overflow events counted since birth
     tcp_buf: ?[]u8 = null, // opaque listener uv_tcp_t
     listener_inited: bool = false,
     listener_closed: bool = false,
@@ -1327,11 +1335,54 @@ fn tlsFlush(conn: *Conn) void {
     enqueueRawWrite(conn, data, false);
 }
 
+// Append a data event under the bounded-inbox discipline (loop thread).
+// Takes ownership of `data`. Returns false when the conn was closed
+// (:Refuse) -- the caller must stop feeding this conn.
+fn pushDataEvent(conn: *Conn, data: []u8) bool {
+    const s = conn.server;
+    const r = s.reactor;
+    r.mutex.lock();
+    if (s.inbox_cap > 0 and s.n_data_events >= s.inbox_cap) {
+        s.n_overflow += 1;
+        switch (s.inbox_policy) {
+            1 => { // DropOldest: evict the oldest queued data event
+                var i: usize = 0;
+                while (i < s.events.items.len) : (i += 1) {
+                    if (s.events.items[i].kind == .data) {
+                        const ev = s.events.orderedRemove(i);
+                        if (ev.data) |d| gpa.free(d);
+                        s.n_data_events -= 1;
+                        break;
+                    }
+                }
+            },
+            3 => { // Refuse: reject AND hang up -- the sender OBSERVES it
+                r.mutex.unlock();
+                gpa.free(data);
+                closeConn(conn);
+                return false;
+            },
+            else => { // DropNewest: the incoming message is the loss
+                r.mutex.unlock();
+                gpa.free(data);
+                return true;
+            },
+        }
+    }
+    s.events.append(gpa, .{ .kind = .data, .conn_id = conn.id, .data = data }) catch {
+        gpa.free(data);
+        r.mutex.unlock();
+        return true;
+    };
+    s.n_data_events += 1;
+    r.mutex.unlock();
+    return true;
+}
+
 // Feed DECRYPTED plaintext into the same framing/emit path a plain conn uses.
 // (Shared by the plain-HTTP path and the TLS ssl_read loop.)
 fn feedPlaintext(conn: *Conn, bytes: []const u8) void {
     const s = conn.server;
-    const r = s.reactor;
     if (s.http_mode) {
         conn.inbox.appendSlice(gpa, bytes) catch {
             closeConn(conn);
@@ -1348,11 +1399,7 @@ fn feedPlaintext(conn: *Conn, bytes: []const u8) void {
             };
             std.mem.copyForwards(u8, conn.inbox.items[0 .. conn.inbox.items.len - req_len], conn.inbox.items[req_len..]);
             conn.inbox.shrinkRetainingCapacity(conn.inbox.items.len - req_len);
-            r.mutex.lock();
-            s.events.append(gpa, .{ .kind = .data, .conn_id = conn.id, .data = req }) catch {
-                gpa.free(req);
-            };
-            r.mutex.unlock();
+            if (!pushDataEvent(conn, req)) return;
         }
     } else if (s.stzm_mode) {
         conn.inbox.appendSlice(gpa, bytes) catch {
@@ -1378,11 +1425,7 @@ fn feedPlaintext(conn: *Conn, bytes: []const u8) void {
             };
             std.mem.copyForwards(u8, conn.inbox.items[0 .. conn.inbox.items.len - flen], conn.inbox.items[flen..]);
             conn.inbox.shrinkRetainingCapacity(conn.inbox.items.len - flen);
-            r.mutex.lock();
-            s.events.append(gpa, .{ .kind = .data, .conn_id = conn.id, .data = frame }) catch {
-                gpa.free(frame);
-            };
-            r.mutex.unlock();
+            if (!pushDataEvent(conn, frame)) return;
             if (!stzm.magicOk(conn.inbox.items)) {
                 closeConn(conn);
                 return;
@@ -1393,11 +1436,7 @@ fn feedPlaintext(conn: *Conn, bytes: []const u8) void {
             closeConn(conn);
             return;
         };
-        r.mutex.lock();
-        s.events.append(gpa, .{ .kind = .data, .conn_id = conn.id, .data = chunk }) catch {
-            gpa.free(chunk);
-        };
-        r.mutex.unlock();
+        _ = pushDataEvent(conn, chunk);
     }
 }
 
@@ -2153,6 +2192,7 @@ pub fn reactor_server_poll(r_opt: ?*Reactor, sid: u64, out: [*]u8, max: usize) c
     const s = r.servers.get(sid) orelse return -2;
     if (s.events.items.len == 0) return 0;
     const ev = s.events.orderedRemove(0);
+    if (ev.kind == .data and s.n_data_events > 0) s.n_data_events -= 1;
     srv_last_conn = ev.conn_id;
     srv_last_len = 0;
     if (ev.data) |d| {
@@ -2175,6 +2215,41 @@ pub fn reactor_server_await(r_opt: ?*Reactor, sid: u64, timeout_ms: u64, out: [*
         if (std.time.nanoTimestamp() >= deadline) return 0;
         std.Thread.sleep(1 * std.time.ns_per_ms);
     }
+}
+
+/// Configure the bounded inbox (distribution D1): at most `cap` DATA
+/// events queued; on overflow the declared policy applies -- 1 DropOldest
+/// (evict the oldest queued message), 2 DropNewest (the incoming message
+/// is the loss), 3 Refuse (reject AND close the conn, so the sender
+/// observes it). cap 0 = unbounded (the default). Every overflow is
+/// counted (reactor_server_overflow). Returns 0 or -2 (unknown server).
+pub fn reactor_server_set_inbox(r_opt: ?*Reactor, sid: u64, cap: u64, policy: i32) callconv(.c) i32 {
+    const r = r_opt orelse return -2;
+    r.mutex.lock();
+    defer r.mutex.unlock();
+    const s = r.servers.get(sid) orelse return -2;
+    s.inbox_cap = @intCast(cap);
+    s.inbox_policy = policy;
+    return 0;
+}
+
+/// Overflow events counted on this server's inbox since birth (drops or
+/// refusals, per the declared policy). -1 = unknown server.
+pub fn reactor_server_overflow(r_opt: ?*Reactor, sid: u64) callconv(.c) i64 {
+    const r = r_opt orelse return -1;
+    r.mutex.lock();
+    defer r.mutex.unlock();
+    const s = r.servers.get(sid) orelse return -1;
+    return @intCast(s.n_overflow);
+}
+
+/// Data events currently queued (the inbox depth). -1 = unknown server.
+pub fn reactor_server_pending_data(r_opt: ?*Reactor, sid: u64) callconv(.c) i64 {
+    const r = r_opt orelse return -1;
+    r.mutex.lock();
+    defer r.mutex.unlock();
+    const s = r.servers.get(sid) orelse return -1;
+    return @intCast(s.n_data_events);
 }
 
 /// Queue a write to a connection; close_after != 0 closes it once the
