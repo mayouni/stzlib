@@ -436,3 +436,56 @@ Parity guard (`base/test/gpu/gpu_ops_narrated.ring`, 37 asserts green):
 Next: **G3** — silent seams: wire these ops behind knn/ann/embeddings
 faces with threshold dispatch (calibration store) + residency chains;
 guards assert BOTH sides of the threshold.
+
+---
+
+## G3 STATUS — shipped 2026-08-07: the first silent seam
+
+**`stzVectorIndex.SearchExact()` now runs its full scan on the GPU when
+the corpus earns residency.** Measured on this machine: 2.2 ms/query
+GPU-routed vs 39.4 ms CPU on a 50k×128 corpus — **17.9x**, same method,
+same contract, nothing visible but speed.
+
+Why THIS seam and not the obvious ones — the shape argument from G0,
+applied honestly:
+- A single-query scan over host data is O(1) flop per byte moved — the
+  KILLED shape. What changes the class is **residency**: the corpus
+  uploads ONCE at build; each query then moves d floats in and k pairs
+  out while doing n·d flops — d flops per byte, compute-dense at real
+  embedding widths. Residency is not an optimization of the seam, it IS
+  the seam.
+- The missing piece was **top-k engine-side** (`stz_gpu_op_topk`,
+  read-back + bounded insertion, ties to the LOWER index like the CPU
+  scan): a Ring-side pass over 100k distances would have eaten the win.
+- stzKnn.Classify stays CPU for now: no batch surface exists, and f32
+  distance ties could flip a CLASSIFICATION — a visible behavior change,
+  which "silent" forbids. Noted for the calibration era.
+
+The seam's discipline (in `stzVectorIndex._EnsureGpu/_QueryGpu`):
+- **The threshold is consulted BEFORE the device**: CalibGet works
+  without a device, so a small corpus never pays the ~300 ms Init. The
+  gate is build-time (residency is a build-time investment); seed
+  threshold n·d = 4M (conservative, ~8x above G0's computed crossover)
+  until a calibration pass refines it.
+- **:Cosine keeps the CPU** — the CPU index normalizes rows internally;
+  raw rows on the GPU would compute WRONG distances. Guarded as a
+  negative sibling, not just documented.
+- **Any refusal falls through to the CPU path** (eviction → STALE, lost
+  device, failed upload): same answer, later. After a runtime refusal
+  the index stays CPU (no thrash); a config change re-opens the question.
+- f32 distances vs the CPU's f64: same squared-Euclidean contract;
+  indices agree exactly on separated data (both sides tie-break on the
+  lower index), distance band measured at 1.47e-7 → asserted < 1e-5.
+
+Guard: `base/test/gpu/gpu_seams_narrated.ring` (17 asserts, green; loads
+the FULL stzBase because the seam lives in a library face). Both sides
+of the threshold asserted by MECHANISM: below the line zero dispatches
+and zero residency; above it 3 live buffers, the dispatch counter moves
+1:1 with queries, and the answers match the forced-CPU twin. Plus: the
+approximate path never touches the GPU, and a mid-life Shutdown()
+answers identically through the CPU. The existing
+`numeric_vector_index_narrated.ring` suite stays 28/28 green.
+
+Next: **G4** — the declarative surface (stzGpu / stzGpuBuffer /
+stzKernelMaker, W-string → WGSL); further seams (batch knn surfaces,
+umap/tsne neighbour phases) ride on calibration work in G5.

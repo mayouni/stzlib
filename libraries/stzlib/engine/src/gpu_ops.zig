@@ -503,6 +503,67 @@ pub fn stz_gpu_op_softmax(in: i64, out: i64, nf: f64) callconv(.c) i32 {
     return stz_gpu_op_scale_inplace(out, 1.0 / total, nf);
 }
 
+// ---------------------------------------------------------------- top-k select
+
+/// The k smallest values in a device buffer of n f32s, with their 0-based
+/// indices -- the half of a knn/semantic-search answer that must NOT cross
+/// into Ring as raw data (a Ring-side scan of 100k distances would eat the
+/// GPU's win). Reads the buffer back engine-side and selects here.
+///
+/// Selection: insertion into a sorted k-array -- O(n) when the data is not
+/// pathological (most values fail the `worst` test in one compare), O(n*k)
+/// worst case, and k is single-digits-to-dozens in every real caller.
+/// Ties break on the LOWER index, so the answer is deterministic.
+///
+/// out_idx/out_dist must hold k entries; returns the filled count via
+/// out_count (min(k, n)).
+pub fn stz_gpu_op_topk(dbuf: i64, nf: f64, kf: f64, out_idx: [*]f64, out_dist: [*]f64, out_count: *i32) callconv(.c) i32 {
+    const gate = gateAvailable();
+    if (gate != gpu.OK) return gate;
+    const n: usize = @intFromFloat(nf);
+    const k: usize = @intFromFloat(kf);
+    out_count.* = 0;
+    if (n == 0 or k == 0) return gpu.BAD_ARG;
+    const st = checkBuf(dbuf, n);
+    if (st != gpu.OK) return st;
+
+    const vals = alloc.alloc(f32, n) catch return gpu.GPU_ERROR;
+    defer alloc.free(vals);
+    const rst = gpu.stz_gpu_buffer_read(dbuf, @ptrCast(vals.ptr), @floatFromInt(n * 4));
+    if (rst != gpu.OK) return rst;
+
+    const want = @min(k, n);
+    const best_d = alloc.alloc(f32, want) catch return gpu.GPU_ERROR;
+    defer alloc.free(best_d);
+    const best_i = alloc.alloc(usize, want) catch return gpu.GPU_ERROR;
+    defer alloc.free(best_i);
+
+    var filled: usize = 0;
+    for (vals, 0..) |v, i| {
+        if (filled == want and v >= best_d[filled - 1]) continue;
+        // find insertion point (strictly-less keeps ties on the lower index,
+        // because later i can only displace a strictly GREATER value)
+        var pos = filled;
+        while (pos > 0 and v < best_d[pos - 1]) : (pos -= 1) {}
+        if (pos == want) continue;
+        const last = @min(filled, want - 1);
+        var j: usize = last;
+        while (j > pos) : (j -= 1) {
+            best_d[j] = best_d[j - 1];
+            best_i[j] = best_i[j - 1];
+        }
+        best_d[pos] = v;
+        best_i[pos] = i;
+        if (filled < want) filled += 1;
+    }
+    for (0..filled) |i| {
+        out_idx[i] = @floatFromInt(best_i[i]);
+        out_dist[i] = @as(f64, best_d[i]);
+    }
+    out_count.* = @intCast(filled);
+    return gpu.OK;
+}
+
 test {
     _ = gpu;
 }
