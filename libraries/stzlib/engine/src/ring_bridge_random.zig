@@ -21,6 +21,58 @@ fn ring_Bool(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(random.stz_random_bool(g(p, 1))));
 }
 
+fn ring_Gauss(p: *anyopaque) callconv(.c) void {
+    rn(p, random.stz_random_gauss(g(p, 1), g(p, 2)));
+}
+
+fn ring_Exp(p: *anyopaque) callconv(.c) void {
+    rn(p, random.stz_random_exp(g(p, 1)));
+}
+
+// Bulk draws return a NATIVE Ring list built engine-side (newlist +
+// adddouble + retlist) -- one FFI call for n draws instead of n round
+// trips. The callee holds nothing that must be freed before returning, so
+// this is the shape that measured FASTEST for value results; the older
+// comma-separated-string bulk return above predates that measurement and
+// is kept only for its existing callers.
+fn retDoubles(p: *anyopaque, vals: []const f64) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (vals) |v| R.ring_list_adddouble(out, v);
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn ring_NGauss(p: *anyopaque) callconv(.c) void {
+    const std = @import("std");
+    const n: usize = @intFromFloat(g(p, 1));
+    if (n == 0 or n > 10_000_000) {
+        retDoubles(p, &[_]f64{});
+        return;
+    }
+    const buf = std.heap.c_allocator.alloc(f64, n) catch {
+        retDoubles(p, &[_]f64{});
+        return;
+    };
+    defer std.heap.c_allocator.free(buf);
+    _ = random.stz_random_n_gauss(n, g(p, 2), g(p, 3), buf.ptr);
+    retDoubles(p, buf);
+}
+
+fn ring_NExp(p: *anyopaque) callconv(.c) void {
+    const std = @import("std");
+    const n: usize = @intFromFloat(g(p, 1));
+    if (n == 0 or n > 10_000_000) {
+        retDoubles(p, &[_]f64{});
+        return;
+    }
+    const buf = std.heap.c_allocator.alloc(f64, n) catch {
+        retDoubles(p, &[_]f64{});
+        return;
+    };
+    defer std.heap.c_allocator.free(buf);
+    const got = random.stz_random_n_exp(n, g(p, 2), buf.ptr);
+    retDoubles(p, buf[0..got]);
+}
+
 fn ring_NInRange(p: *anyopaque) callconv(.c) void {
     const n: usize = @intFromFloat(g(p, 1));
     const min: i64 = @intFromFloat(g(p, 2));
@@ -130,6 +182,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginerandomint", .func = &ring_Int },
     .{ .name = "stzenginerandomfloat", .func = &ring_Float },
     .{ .name = "stzenginerandombool", .func = &ring_Bool },
+    .{ .name = "stzenginerandomgauss", .func = &ring_Gauss },
+    .{ .name = "stzenginerandomexp", .func = &ring_Exp },
+    .{ .name = "stzenginerandomngauss", .func = &ring_NGauss },
+    .{ .name = "stzenginerandomnexp", .func = &ring_NExp },
     .{ .name = "stzenginerandomninrange", .func = &ring_NInRange },
     .{ .name = "stzenginerandomnuniqueinrange", .func = &ring_NUniqueInRange },
 };

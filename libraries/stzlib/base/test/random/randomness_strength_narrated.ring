@@ -106,6 +106,69 @@ chk("a string shuffle repeats under the same seed", c1 = c2)
 chk("...and it is a full-length permutation", StzLen(c1) = 10)
 
 ? ""
+? "-- Scene 5: gaussian draws, on the SAME governed stream --"
+# Bands are arithmetic, not vibes: at n=20000 the mean's stderr is 0.0071
+# and the sd's ~0.005, so |mean|<0.04 and sd in [0.96,1.04] are >5-sigma
+# bands -- unreachable by a healthy sampler's luck, instantly failed by a
+# broken one.
+SeedRandom(2026)
+nSum = 0
+nSumSq = 0
+nIn1Sd = 0
+for i = 1 to 20000
+	g = RandomNormal(0, 1)
+	nSum += g
+	nSumSq += g * g
+	if g > -1 and g < 1 nIn1Sd++ ok
+next
+nMean = nSum / 20000
+nSd = sqrt(nSumSq / 20000 - nMean * nMean)
+chk("mean of 20k standard normals is ~0", fabs(nMean) < 0.04)
+chk("sd of 20k standard normals is ~1", nSd > 0.96 and nSd < 1.04)
+chk("~68% fall within one sigma", nIn1Sd > 13000 and nIn1Sd < 14200)
+? "   mean " + nMean + ", sd " + nSd + ", within-1sd " + nIn1Sd
+
+SeedRandom(9)
+g1 = RandomGaussian(100, 15)
+SeedRandom(9)
+g2 = RandomGaussian(100, 15)
+chk("a gaussian draw repeats under the same seed", g1 = g2)
+
+# The bulk form IS the scalar sequence -- same stream, same order. If the
+# List form kept its own generator or order, every value would look right
+# and this would fail.
+SeedRandom(31)
+aBulk = RandomNormalList(5, 10, 2)
+SeedRandom(31)
+bSameSeq = TRUE
+for i = 1 to 5
+	if aBulk[i] != RandomNormal(10, 2) bSameSeq = FALSE ok
+next
+chk("RandomNormalList equals N scalar draws exactly", bSameSeq)
+
+? ""
+? "-- Scene 6: exponential draws --"
+SeedRandom(77)
+nSumE = 0
+bAllPos = TRUE
+for i = 1 to 20000
+	e = RandomExponential(2)
+	if e <= 0 bAllPos = FALSE ok
+	nSumE += e
+next
+chk("every exponential draw is positive", bAllPos)
+chk("mean of 20k Exp(2) draws is ~0.5", nSumE/20000 > 0.47 and nSumE/20000 < 0.53)
+
+SeedRandom(13)
+aBulkE = RandomExponentialList(5, 3)
+SeedRandom(13)
+bSameE = TRUE
+for i = 1 to 5
+	if aBulkE[i] != RandomExponential(3) bSameE = FALSE ok
+next
+chk("RandomExponentialList equals N scalar draws exactly", bSameE)
+
+? ""
 ? "=========================================="
 ? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
 ? "=========================================="
