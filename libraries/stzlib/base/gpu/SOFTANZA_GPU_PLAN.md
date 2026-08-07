@@ -384,3 +384,55 @@ green on this machine + a 9-assert no-GPU probe of the same surface):
 
 Next: **G2** — the op library (matmulF32, pairwise-distance, reductions,
 softmax) with per-op parity bands from measurement, on this layer.
+
+---
+
+## G2 STATUS — shipped 2026-08-07: the op library
+
+Seven ops in `engine/src/gpu_ops.zig`, all operating on G1 buffer ids
+(upload once → chain → read back once; every op is submit-only except the
+reductions, whose scalar answer lives on the CPU by definition):
+**matmulF32** (16×16 tiled), **pairdist** (squared L2 rows×rows — the
+embedding kernel; no sqrt, knn ranks on squared distance), **axpby / mul /
+scale-inplace** (the chain links G0 admitted only inside resident chains),
+**softmax** (max-shifted, 3 dispatches: max-reduce, fused exp+partials,
+scale), **sum / dot** (per-workgroup shared-mem partials, f64 fold on CPU
+in fixed ascending order — deterministic, and EXACT for integer data).
+
+Mechanics worth recording:
+- WGSL lives as comptime constants compiled through the G1 compile-cache
+  per call — a text-hash lookup against a 60 µs dispatch floor. Ops are
+  self-healing across device re-init (Shutdown/SelectAdapter clears
+  pipelines; the next call recompiles). No epoch bookkeeping.
+- Ops bind params at @binding(1) via `stz_gpu_dispatch_params` (a second
+  shared uniform, same queue-ordering argument as the tile uniform);
+  data buffers at @binding(2..). Tile uniform stays at @binding(0), so
+  every op inherits G1's TDR tiling unchanged.
+- Availability gates FIRST, then buffer checks: a dead device answers
+  FALLBACK (counted at the refusing layer), not STALE-because-ids-died.
+- OUT must be distinct from inputs (WebGPU usage-scope validation).
+
+Parity guard (`base/test/gpu/gpu_ops_narrated.ring`, 37 asserts green):
+- **Exact witnesses per op**: integer / dyadic data where every f32
+  intermediate is exactly representable ⇒ bit-equality against Ring
+  references, including RAGGED shapes (20×48×36 matmul, d=10 pairdist)
+  that exercise the tile tails. A later change that breaks one changed
+  the math, full stop.
+- **Tolerance bands SET FROM MEASUREMENT** on non-dyadic (/251) data:
+  matmul k=64 measured 4.05e-7 → band 1e-5 (25x); sum 100k measured
+  1.28e-8 → band 5e-7 (39x); softmax measured 8.06e-7 → band 2e-5 (25x).
+  The first draft used /256 dyadics and measured a literal ZERO — the
+  "tolerance" scene was testing nothing; the measurement pass caught the
+  scene design, which is what measurement passes are for.
+- **Cross-adapter check**: the iGPU (Vulkan) produced BIT-IDENTICAL
+  errors to the 3050 (4.04718e-7 / 8.05825e-7) — the kernels fix the
+  accumulation order, so parity is driver-stable, not driver-lucky.
+- Negatives: too-small buffers → BAD_ARG, freed → STALE, shut-down
+  device → [FALLBACK, 0], zero fallbacks across the whole happy path.
+- Chain scene: axpby → mul → scale → sum with no syncs between links,
+  exact final scalar — queue ordering carries resident chains through
+  the ops layer.
+
+Next: **G3** — silent seams: wire these ops behind knn/ann/embeddings
+faces with threshold dispatch (calibration store) + residency chains;
+guards assert BOTH sides of the threshold.
