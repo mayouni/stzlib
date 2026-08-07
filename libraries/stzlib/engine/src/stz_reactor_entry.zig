@@ -1,4 +1,5 @@
 pub const reactor = @import("reactor.zig");
+pub const stzm = @import("stzm.zig");
 pub const ring_bridge = @import("ring_bridge_reactor.zig");
 
 comptime {
@@ -11,4 +12,5 @@ fn ringlib_init(pState: ?*anyopaque) callconv(.c) void {
 
 test {
     _ = reactor;
+    _ = stzm;
 }

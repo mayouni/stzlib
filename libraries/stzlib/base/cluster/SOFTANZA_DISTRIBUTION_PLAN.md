@@ -102,7 +102,7 @@ out of scope by definition):**
   question this plan leaves open is the serialization format, decided by
   measurement in D0.
 
-## The wire (sketch, finalized in D0)
+## The wire (finalized by D0's measurement)
 
 One frame format, `STZM`, over reactor TCP (or its TLS listener):
 
@@ -114,9 +114,11 @@ magic "STZM" | u8 version | u8 flags | u32 payload_len
 - Length-prefixed, so partial reads are trivially reassembled on the
   reactor's stream callbacks; the HTTP framing module is the house
   precedent for doing this correctly under fuzzing.
-- Payload = one serialized Ring value. D0 measures an in-house
-  binary encoding (type tag + length, recursive) against vendored
-  msgpack on real message shapes; the loser is not built. The
+- Payload = one serialized Ring value. **Decided by D0's measurement:
+  the payload encoding is STZB, the in-house tag+length format**
+  (see the D0 result below). The msgpack subset survives ONLY as the
+  D0 guard's measurement instrument; D1+ speaks stzb exclusively, and
+  the FLAG_MSGPACK bit stays reserved to that instrument. The
   f64 boundary law from the perf grind applies: epoch nanos cross as
   ms-exact strings, never as raw f64.
 - `flags` carries: signed, reply-expected, idempotency-key-present,
@@ -168,6 +170,42 @@ before building on it); serialization > 50% of end-to-end cost for the
 embedding shape (fix the encoding before framing anything else).
 Windows law to respect: sleeps quantize at ~15.6 ms outside a reactor
 process — all waiting happens ON reactor polls, never sleep loops.
+
+**D0 RESULT (2026-08-07, DONE).** Guard: `base/test/cluster/
+d0_message_plane_narrated.ring` (27 assertions, two real OS processes,
+echo peer `_d0_echo_server.ring`). Both kill criteria passed with wide
+margin on the reference machine (loopback, release build):
+- Round trip (small command frame): **1.98 ms median busy-poll, 2.01 ms
+  median engine-await** (p95 4.0 ms) — kill line was 5 ms.
+- Sustained throughput: **~13,000 msg/s** with 64 frames pipelined on
+  one link.
+- Serialization share of end-to-end on the 384-f64 embedding: **2%**
+  for both candidates — kill line was 50%.
+- **Encoding verdict: STZB wins** by the rule written before the
+  numbers (codec cost primary, frame bytes tiebreaker): 125 us vs
+  126-131 us total pack+unpack on the heavy shapes — a near-tie in
+  cost — while msgpack packs ~40% smaller (4,932 B vs 7,958 B). On
+  loopback, bytes are noise; unpack (rebuilding the Ring value)
+  dominates codec cost for both, so the byte advantage buys nothing
+  measurable. If a future REMOTE phase shows wire bytes dominating,
+  this verdict names its own revisit condition; until then D1+ builds
+  on stzb only.
+- Seeds written as compiled defaults in `engine/src/stzm.zig`:
+  `net.stzm.rtt_loopback_us = 2000`, `net.stzm.msgs_per_sec_loopback =
+  12000`, `net.stzm.ser_ns_per_kb = 13000`.
+- Substrate grown (not rewritten): `stzm.zig` — pure, fuzz-shaped
+  frame + codec module in the http_framing mold (7 unit tests, hostile
+  headers/payloads fail closed); a persistent CLIENT CHANNEL in the
+  reactor (`reactor_connect` — a Server citizen with no listener: one
+  outbound conn, the same events/write/framing paths as a listener, so
+  `ServerPoll/Write/Stop` work identically on both ends of a link);
+  STZM framing mode on the listener (mode 2); Ring-value pack/unpack
+  bridges (`StzEngineStzmPack/Unpack`).
+- Defect found by the spike and pinned in the guard: `stopServer` had a
+  use-after-free — reaping a no-listener server frees it synchronously
+  and the old code kept touching it; the redial storm panicked the loop
+  thread. Fixed (conns close first, reap is the last touch), with a
+  deterministic 15-cycle dead-port regression scenario.
 
 **D1 — node + mailbox, one machine.**
 `stzNode`: spawn (reactor `SubmitSpawn`), bounded inbox with the three

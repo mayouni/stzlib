@@ -20,6 +20,7 @@
 const std = @import("std");
 const curlcore = @import("curlcore.zig"); // curl-backed (Schannel TLS) fetch
 const framing = @import("http_framing.zig"); // untrusted-input HTTP parser (fuzzed)
+const stzm = @import("stzm.zig"); // STZM message-plane framing (distribution D0)
 const c = @cImport({
     @cInclude("uv.h");
     @cInclude("mbedtls/ssl.h");
@@ -980,7 +981,7 @@ const SrvEvent = struct {
     data: ?[]u8 = null, // owned by the queue until polled
 };
 
-const CtlKind = enum { start_server, server_write, conn_close, stop_server };
+const CtlKind = enum { start_server, start_connect, server_write, conn_close, stop_server };
 
 const Ctl = struct {
     kind: CtlKind,
@@ -996,6 +997,11 @@ const Server = struct {
     host: []u8,
     port: u16, // requested port; actual bound port in bound_port
     http_mode: bool,
+    stzm_mode: bool = false, // frame complete STZM messages per data event
+    // A CLIENT CHANNEL (distribution D0): the same Server citizen with no
+    // listener -- one outbound Conn, the same event queue, the same write/
+    // close/framing paths. A link is a link, whichever side dialed.
+    is_client: bool = false,
     tcp_buf: ?[]u8 = null, // opaque listener uv_tcp_t
     listener_inited: bool = false,
     listener_closed: bool = false,
@@ -1023,7 +1029,8 @@ const Conn = struct {
     server: *Server,
     tcp_buf: []u8, // opaque uv_tcp_t
     scratch: []u8, // per-read buffer libuv fills
-    inbox: std.ArrayList(u8) = .{}, // http framing buffer (PLAINTEXT)
+    inbox: std.ArrayList(u8) = .{}, // framing buffer (PLAINTEXT)
+    creq_buf: ?[]u8 = null, // outbound uv_connect_t (client channels only)
     closing: bool = false,
     // TLS termination (null on a plain-HTTP conn). The socket carries
     // CIPHERTEXT: received bytes go into net_in for mbedTLS to decrypt;
@@ -1054,6 +1061,7 @@ fn freeConn(conn: *Conn) void {
     conn.net_out.deinit(gpa);
     gpa.free(conn.tcp_buf);
     gpa.free(conn.scratch);
+    if (conn.creq_buf) |b| gpa.free(b);
     conn.inbox.deinit(gpa);
     gpa.destroy(conn);
 }
@@ -1110,6 +1118,7 @@ fn freeServer(s: *Server) void {
 fn runCtl(op: Ctl) void {
     switch (op.kind) {
         .start_server => startServer(op.server),
+        .start_connect => startConnect(op.server),
         .server_write => startWrite(op),
         .conn_close => {
             const s = op.server;
@@ -1177,6 +1186,100 @@ fn finishBind(s: *Server, status: c_int) void {
     s.bind_status = @intCast(status);
     s.bind_done = true;
     r.mutex.unlock();
+}
+
+// ── client channel (loop thread): dial out, then be a Conn ───
+//
+// A channel is a Server with is_client=true and no listener: startConnect
+// creates its single Conn and dials; once connected the Conn behaves
+// exactly like an accepted one -- same read framing, same events, same
+// write/close paths. Link-up is reported as an .accept event; a failed
+// dial reports .closed (unreachable and dead are the same observable).
+
+fn connectFailed(s: *Server) void {
+    // No Conn exists yet: emit .closed with conn 0 so the dialer observes
+    // the failure instead of waiting on a link that never forms.
+    s.reactor.mutex.lock();
+    s.events.append(gpa, .{ .kind = .closed, .conn_id = 0 }) catch {};
+    s.reactor.mutex.unlock();
+}
+
+fn startConnect(s: *Server) void {
+    const r = s.reactor;
+    var addr: c.struct_sockaddr_in = undefined;
+    // Same address discipline as startServer: dotted IPv4 + the localhost
+    // alias. Name resolution for name@host remotes is a D2 concern.
+    const host = if (std.mem.eql(u8, s.host, "localhost")) "127.0.0.1" else s.host;
+    var host_buf: [64]u8 = undefined;
+    const host_z = std.fmt.bufPrintZ(&host_buf, "{s}", .{host}) catch {
+        connectFailed(s);
+        return;
+    };
+    if (c.uv_ip4_addr(host_z.ptr, s.port, &addr) != 0) {
+        connectFailed(s);
+        return;
+    }
+    const conn = gpa.create(Conn) catch {
+        connectFailed(s);
+        return;
+    };
+    const tcp_buf = gpa.alloc(u8, uv_handle_size(c.UV_TCP)) catch {
+        gpa.destroy(conn);
+        connectFailed(s);
+        return;
+    };
+    const scratch = gpa.alloc(u8, SRV_SCRATCH) catch {
+        gpa.free(tcp_buf);
+        gpa.destroy(conn);
+        connectFailed(s);
+        return;
+    };
+    const creq = gpa.alloc(u8, uv_req_size(c.UV_CONNECT)) catch {
+        gpa.free(scratch);
+        gpa.free(tcp_buf);
+        gpa.destroy(conn);
+        connectFailed(s);
+        return;
+    };
+    conn.* = .{ .id = 0, .server = s, .tcp_buf = tcp_buf, .scratch = scratch, .creq_buf = creq };
+    if (uv_tcp_init(&r.loop, tcp_buf.ptr) != 0) {
+        freeConn(conn);
+        connectFailed(s);
+        return;
+    }
+    setData(tcp_buf.ptr, conn);
+    r.mutex.lock();
+    conn.id = s.next_conn_id;
+    s.next_conn_id += 1;
+    const put_ok = blk: {
+        s.conns.put(conn.id, conn) catch break :blk false;
+        break :blk true;
+    };
+    r.mutex.unlock();
+    if (!put_ok) {
+        closeConn(conn); // in no map: close still frees via onConnClosed
+        connectFailed(s);
+        return;
+    }
+    setData(creq.ptr, conn);
+    if (uv_tcp_connect(creq.ptr, tcp_buf.ptr, @ptrCast(&addr), onChanConnect) != 0) {
+        closeConn(conn); // emits .closed via onConnClosed (conn is mapped)
+    }
+}
+
+fn onChanConnect(req: *anyopaque, status: c_int) callconv(.c) void {
+    const slot: *?*anyopaque = @ptrCast(@alignCast(req));
+    const conn: *Conn = @ptrCast(@alignCast(slot.*.?));
+    if (status != 0) {
+        closeConn(conn); // refused/unreachable -> .closed event
+        return;
+    }
+    const s = conn.server;
+    const r = s.reactor;
+    r.mutex.lock();
+    s.events.append(gpa, .{ .kind = .accept, .conn_id = conn.id }) catch {};
+    r.mutex.unlock();
+    if (uv_read_start(conn.tcp_buf.ptr, onSrvAlloc, onSrvRead) != 0) closeConn(conn);
 }
 
 // ── TLS termination (mbedTLS over the libuv byte streams) ────
@@ -1250,6 +1353,40 @@ fn feedPlaintext(conn: *Conn, bytes: []const u8) void {
                 gpa.free(req);
             };
             r.mutex.unlock();
+        }
+    } else if (s.stzm_mode) {
+        conn.inbox.appendSlice(gpa, bytes) catch {
+            closeConn(conn);
+            return;
+        };
+        if (conn.inbox.items.len > SRV_MAX_INBOX) {
+            closeConn(conn);
+            return;
+        }
+        // A framed link has no resync point: bytes that provably are not an
+        // STZM frame poison the whole stream, so the conn dies loudly.
+        if (!stzm.magicOk(conn.inbox.items)) {
+            closeConn(conn);
+            return;
+        }
+        while (stzm.frameLen(conn.inbox.items)) |flen| {
+            // one WHOLE frame (header + payload) per data event -- the
+            // consumer reads flags/correlation from the header
+            const frame = gpa.dupe(u8, conn.inbox.items[0..flen]) catch {
+                closeConn(conn);
+                return;
+            };
+            std.mem.copyForwards(u8, conn.inbox.items[0 .. conn.inbox.items.len - flen], conn.inbox.items[flen..]);
+            conn.inbox.shrinkRetainingCapacity(conn.inbox.items.len - flen);
+            r.mutex.lock();
+            s.events.append(gpa, .{ .kind = .data, .conn_id = conn.id, .data = frame }) catch {
+                gpa.free(frame);
+            };
+            r.mutex.unlock();
+            if (!stzm.magicOk(conn.inbox.items)) {
+                closeConn(conn);
+                return;
+            }
         }
     } else {
         const chunk = gpa.dupe(u8, bytes) catch {
@@ -1508,33 +1645,39 @@ fn onConnClosed(handle: [*c]c.uv_handle_t) callconv(.c) void {
 
 fn stopServer(s: *Server) void {
     s.stopping = true;
+    const r = s.reactor;
+    // Close every live connection; each close reaps toward teardown.
+    // Collect ALL ids first (closes complete asynchronously, so the map
+    // still holds closing conns -- re-collecting would spin forever).
+    var ids: std.ArrayList(u64) = .{};
+    defer ids.deinit(gpa);
+    r.mutex.lock();
+    var it = s.conns.iterator();
+    while (it.next()) |e| {
+        ids.append(gpa, e.key_ptr.*) catch break;
+    }
+    r.mutex.unlock();
+    for (ids.items) |cid| {
+        r.mutex.lock();
+        const conn = s.conns.get(cid);
+        r.mutex.unlock();
+        if (conn) |cn| closeConn(cn);
+    }
+    // The listener step goes LAST: on a server with no live uv handles
+    // (a client channel whose conn is already gone, or a listener whose
+    // close already landed) the reap frees `s` SYNCHRONOUSLY -- nothing
+    // may touch `s` after it. The old order did, and the redial loop of
+    // the D0 spike turned that use-after-free into a loop-thread panic.
     if (s.listener_inited and !s.listener_closed) {
         const tcp = s.tcp_buf.?.ptr;
         if (c.uv_is_closing(@ptrCast(@alignCast(tcp))) == 0) {
             c.uv_close(@ptrCast(@alignCast(tcp)), onListenerClosed);
         }
     } else {
-        s.reactor.mutex.lock();
+        r.mutex.lock();
         s.listener_closed = true;
-        reapServerLocked(s);
-        s.reactor.mutex.unlock();
-    }
-    // Close every live connection; each close reaps toward teardown.
-    // Collect ALL ids first (closes complete asynchronously, so the map
-    // still holds closing conns -- re-collecting would spin forever).
-    var ids: std.ArrayList(u64) = .{};
-    defer ids.deinit(gpa);
-    s.reactor.mutex.lock();
-    var it = s.conns.iterator();
-    while (it.next()) |e| {
-        ids.append(gpa, e.key_ptr.*) catch break;
-    }
-    s.reactor.mutex.unlock();
-    for (ids.items) |cid| {
-        s.reactor.mutex.lock();
-        const conn = s.conns.get(cid);
-        s.reactor.mutex.unlock();
-        if (conn) |cn| closeConn(cn);
+        reapServerLocked(s); // may free s -- last touch
+        r.mutex.unlock();
     }
 }
 
@@ -1569,10 +1712,10 @@ pub fn reactor_server_last_len() callconv(.c) usize {
     return srv_last_len;
 }
 
-/// Start a TCP/HTTP listener on host:port (dotted IPv4 or "localhost";
-/// port 0 = ephemeral). http_mode != 0 frames complete HTTP/1.1 requests.
-/// Blocks briefly for the bind result. Returns server id (>0) or the
-/// negative uv error code.
+/// Start a TCP listener on host:port (dotted IPv4 or "localhost"; port 0
+/// = ephemeral). Framing mode: 0 raw stream chunks, 1 complete HTTP/1.1
+/// requests, 2 complete STZM message frames. Blocks briefly for the bind
+/// result. Returns server id (>0) or the negative uv error code.
 pub fn reactor_listen(
     r_opt: ?*Reactor,
     host_ptr: [*]const u8,
@@ -1598,7 +1741,8 @@ pub fn reactor_listen(
         .reactor = r,
         .host = host,
         .port = port,
-        .http_mode = http_mode != 0,
+        .http_mode = http_mode == 1,
+        .stzm_mode = http_mode == 2,
         .tcp_buf = tcp_buf,
         .conns = std.AutoHashMap(u64, *Conn).init(gpa),
     };
@@ -1639,6 +1783,59 @@ pub fn reactor_listen(
         if (std.time.nanoTimestamp() >= deadline) return -1;
         std.Thread.sleep(1 * std.time.ns_per_ms);
     }
+}
+
+/// Open a persistent CLIENT CHANNEL to host:port (distribution D0). Mode:
+/// 0 raw stream chunks, 2 complete STZM frames per data event. Returns a
+/// channel id (>0) immediately -- the dial is async: poll the channel with
+/// reactor_server_poll/await; link-up arrives as an .accept event, a
+/// failed dial as .closed. Writes go through reactor_server_write with the
+/// conn id from the .accept event; reactor_server_stop closes the channel.
+pub fn reactor_connect(
+    r_opt: ?*Reactor,
+    host_ptr: [*]const u8,
+    host_len: usize,
+    port: u16,
+    mode: i32,
+) callconv(.c) i64 {
+    const r = r_opt orelse return -1;
+    if (r.stopping.load(.acquire)) return -1;
+    const s = gpa.create(Server) catch return -1;
+    const host = gpa.dupe(u8, host_ptr[0..host_len]) catch {
+        gpa.destroy(s);
+        return -1;
+    };
+    r.mutex.lock();
+    s.* = .{
+        .id = r.next_id,
+        .reactor = r,
+        .host = host,
+        .port = port,
+        .http_mode = mode == 1,
+        .stzm_mode = mode == 2,
+        .is_client = true,
+        .conns = std.AutoHashMap(u64, *Conn).init(gpa),
+        // no listener exists: its half of the reap handshake is satisfied
+        // from birth, and nothing waits on a bind
+        .listener_closed = true,
+        .bind_done = true,
+    };
+    r.next_id += 1;
+    const id = s.id;
+    r.servers.put(id, s) catch {
+        r.mutex.unlock();
+        freeServer(s);
+        return -1;
+    };
+    r.ctl.append(gpa, .{ .kind = .start_connect, .server = s }) catch {
+        _ = r.servers.remove(id);
+        r.mutex.unlock();
+        freeServer(s);
+        return -1;
+    };
+    r.mutex.unlock();
+    _ = c.uv_async_send(&r.wake);
+    return @intCast(id);
 }
 
 // Build a server's shared TLS credentials + config from cert/key(/ca) file
@@ -1732,7 +1929,8 @@ pub fn reactor_listen_tls(
         .reactor = r,
         .host = host,
         .port = port,
-        .http_mode = http_mode != 0,
+        .http_mode = http_mode == 1,
+        .stzm_mode = http_mode == 2,
         .tcp_buf = tcp_buf,
         .conns = std.AutoHashMap(u64, *Conn).init(gpa),
         .tls = true,

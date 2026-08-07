@@ -342,6 +342,195 @@ fn ring_ReactorServerStop(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(reactor.reactor_server_stop(r, sid)));
 }
 
+/// StzEngineReactorConnect(reactor, cHost, nPort, nMode) -> channel id
+/// (>0) or -1. Async dial: link-up arrives as an :accept event on
+/// ServerPoll/Await, a failed dial as :closed. nMode: 0 raw, 2 STZM
+/// frames. The channel then uses the same ServerWrite/Poll/Stop calls.
+fn ring_ReactorConnect(p: *anyopaque) callconv(.c) void {
+    const r = getReactor(p, 1);
+    const host_ptr: [*]const u8 = @ptrCast(gs(p, 2));
+    const host_len: usize = @intCast(gss(p, 2));
+    const port: u16 = @intFromFloat(gn(p, 3));
+    const mode: i32 = @intFromFloat(gn(p, 4));
+    rn(p, @floatFromInt(reactor.reactor_connect(r, host_ptr, host_len, port, mode)));
+}
+
+// ── STZM serialization (distribution D0) ─────────────────────
+//
+// One Ring value (number/string/list, nested) crosses the boundary ONCE,
+// here: pack walks the Ring value into a complete STZM frame; unpack
+// parses a frame back into a Ring value. Both payload encoding candidates
+// are live behind nEncoding so the D0 spike can measure them against each
+// other on identical values; the loser is deleted, not kept.
+
+const stzmw = @import("stzm.zig");
+
+const STZM_CAP: usize = 4 * 1024 * 1024;
+var stzm_buf: [STZM_CAP]u8 = undefined;
+var stzm_last_status: f64 = 0; // 0 ok, -1 malformed/unsupported/overflow
+var stzm_last_corr: f64 = 0;
+var stzm_last_flags: f64 = 0;
+
+const ITEMTYPE_STRING: c_uint = 1;
+const ITEMTYPE_NUMBER: c_uint = 2;
+const ITEMTYPE_LIST: c_uint = 4;
+
+const PackError = error{ Overflow, Unsupported };
+
+fn stzmPackList(e: *stzmw.Emit, enc: stzmw.Enc, pList: *anyopaque) PackError!void {
+    const n: u32 = @intCast(R.ringListSize(pList));
+    try e.listBegin(enc, n);
+    var i: c_uint = 1;
+    while (i <= n) : (i += 1) {
+        const itemType = R.ring_list_gettype_gc(null, pList, i);
+        if (itemType == ITEMTYPE_NUMBER) {
+            const pItem = R.ring_list_getitem_gc(null, pList, i) orelse return error.Unsupported;
+            try e.num(enc, R.ring_item_getnumber(pItem));
+        } else if (itemType == ITEMTYPE_STRING) {
+            const pItem = R.ring_list_getitem_gc(null, pList, i) orelse return error.Unsupported;
+            const sPtr = R.ringItemStringPtr(pItem) orelse return error.Unsupported;
+            const sLen = R.ringItemStringSize(pItem);
+            try e.str(enc, sPtr[0..sLen]);
+        } else if (itemType == ITEMTYPE_LIST) {
+            const pSub = R.ring_list_getlist_gc(null, pList, i) orelse return error.Unsupported;
+            try stzmPackList(e, enc, pSub);
+        } else {
+            // objects/pointers do not cross the wire -- messages are VALUES
+            return error.Unsupported;
+        }
+    }
+}
+
+/// StzEngineStzmPack(vValue, nEncoding, nCorrelationId, nFlags) -> the
+/// complete STZM frame bytes ("" on failure; see StzmLastStatus).
+/// nEncoding: 0 = stzb (in-house tag+length), 1 = msgpack. The encoding
+/// bit is carried in the frame flags so the receiver needs no side channel.
+fn ring_StzmPack(p: *anyopaque) callconv(.c) void {
+    stzm_last_status = 0;
+    const enc: stzmw.Enc = if (gn(p, 2) == 1) .msgpack else .stzb;
+    const corr: u64 = @intFromFloat(gn(p, 3));
+    var flags: u8 = @intFromFloat(gn(p, 4));
+    if (enc == .msgpack) flags |= stzmw.FLAG_MSGPACK else flags &= ~stzmw.FLAG_MSGPACK;
+    var e = stzmw.Emit{ .buf = stzm_buf[stzmw.HEADER_LEN..] };
+    const ok = blk: {
+        if (R.ring_vm_api_isnumber(p, 1) != 0) {
+            e.num(enc, gn(p, 1)) catch break :blk false;
+        } else if (R.ring_vm_api_isstring(p, 1) != 0) {
+            const sp: [*]const u8 = @ptrCast(gs(p, 1));
+            const sn: usize = @intCast(gss(p, 1));
+            e.str(enc, sp[0..sn]) catch break :blk false;
+        } else if (R.ring_vm_api_islist(p, 1) != 0) {
+            const pList = R.gl(p, 1) orelse break :blk false;
+            stzmPackList(&e, enc, pList) catch break :blk false;
+        } else break :blk false;
+        break :blk true;
+    };
+    if (!ok) {
+        stzm_last_status = -1;
+        rs(p, @constCast(""));
+        return;
+    }
+    stzmw.writeHeader(stzm_buf[0..], flags, @intCast(e.pos), corr);
+    rs2(p, &stzm_buf, @intCast(stzmw.HEADER_LEN + e.pos));
+}
+
+fn stzmUnpackListInto(cur: *stzmw.Cursor, enc: stzmw.Enc, pList: *anyopaque, count: u32) stzmw.ParseError!void {
+    var i: u32 = 0;
+    while (i < count) : (i += 1) {
+        const tok = try cur.next(enc);
+        switch (tok) {
+            .num => |v| R.ring_list_adddouble(pList, v),
+            .str => |s| R.ring_list_addstring2(pList, s.ptr, @intCast(s.len)),
+            .list => |n| {
+                const pSub = R.ring_list_newlist(pList) orelse return error.Malformed;
+                try stzmUnpackListInto(cur, enc, pSub, n);
+            },
+        }
+    }
+}
+
+/// StzEngineStzmUnpack(cFrame) -> the Ring value carried by the frame
+/// ("" + StzmLastStatus() = -1 on a malformed frame). Correlation id and
+/// flags of the frame are readable via StzmLastCorrelation/StzmLastFlags.
+fn ring_StzmUnpack(p: *anyopaque) callconv(.c) void {
+    stzm_last_status = 0;
+    const bp: [*]const u8 = @ptrCast(gs(p, 1));
+    const bn: usize = @intCast(gss(p, 1));
+    const bytes = bp[0..bn];
+    const flen = stzmw.frameLen(bytes) orelse {
+        stzm_last_status = -1;
+        rs(p, @constCast(""));
+        return;
+    };
+    const h = stzmw.parseHeader(bytes).?;
+    stzm_last_corr = @floatFromInt(h.corr_id);
+    stzm_last_flags = @floatFromInt(h.flags);
+    const enc: stzmw.Enc = if (h.flags & stzmw.FLAG_MSGPACK != 0) .msgpack else .stzb;
+    var cur = stzmw.Cursor{ .bytes = bytes[stzmw.HEADER_LEN..flen] };
+    const tok = cur.next(enc) catch {
+        stzm_last_status = -1;
+        rs(p, @constCast(""));
+        return;
+    };
+    switch (tok) {
+        .num => |v| rn(p, v),
+        .str => |s| rs2(p, @constCast(s.ptr), @intCast(s.len)),
+        .list => |n| {
+            const pList = R.ring_vm_api_newlist(p) orelse {
+                stzm_last_status = -1;
+                rs(p, @constCast(""));
+                return;
+            };
+            stzmUnpackListInto(&cur, enc, pList, n) catch {
+                stzm_last_status = -1;
+                // the partial list is VM-owned for this call; return it
+                // anyway is wrong -- report the malformed status with ""
+                rs(p, @constCast(""));
+                return;
+            };
+            R.ring_vm_api_retlist(p, pList);
+        },
+    }
+}
+
+/// StzEngineStzmFrameLen(cBytes) -> total length of the first complete
+/// frame in cBytes, or 0 if incomplete / not a frame.
+fn ring_StzmFrameLen(p: *anyopaque) callconv(.c) void {
+    const bp: [*]const u8 = @ptrCast(gs(p, 1));
+    const bn: usize = @intCast(gss(p, 1));
+    const flen = stzmw.frameLen(bp[0..bn]) orelse 0;
+    rn(p, @floatFromInt(flen));
+}
+
+/// StzEngineStzmLastStatus() -> 0 ok, -1 the last pack/unpack failed.
+fn ring_StzmLastStatus(p: *anyopaque) callconv(.c) void {
+    rn(p, stzm_last_status);
+}
+
+/// StzEngineStzmLastCorrelation() -> correlation id of the last unpacked frame.
+fn ring_StzmLastCorrelation(p: *anyopaque) callconv(.c) void {
+    rn(p, stzm_last_corr);
+}
+
+/// StzEngineStzmLastFlags() -> flags byte of the last unpacked frame.
+fn ring_StzmLastFlags(p: *anyopaque) callconv(.c) void {
+    rn(p, stzm_last_flags);
+}
+
+/// StzEngineStzmNetDefaults() -> [ rtt_us, msgs_per_sec, ser_ns_per_kb ]
+/// -- the net.* calibration gates (OVERRIDE > FILE > DEFAULT), seeded by
+/// the D0 spike. Observable from Ring so guards can assert the seed exists.
+fn ring_StzmNetDefaults(p: *anyopaque) callconv(.c) void {
+    const pList = R.ring_vm_api_newlist(p) orelse {
+        rn(p, -1);
+        return;
+    };
+    R.ring_list_adddouble(pList, stzmw.g_net_rtt_us.value());
+    R.ring_list_adddouble(pList, stzmw.g_net_msgs_per_sec.value());
+    R.ring_list_adddouble(pList, stzmw.g_net_ser_ns_per_kb.value());
+    R.ring_vm_api_retlist(p, pList);
+}
+
 const regs = [_]R.Reg{
     .{ .name = "stzenginereactorversion", .func = ring_ReactorVersion },
     .{ .name = "stzenginereactorselftest", .func = ring_ReactorSelfTest },
@@ -374,6 +563,14 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginereactorspawnpoll", .func = ring_ReactorSpawnPoll },
     .{ .name = "stzenginereactorspawnlaststatus", .func = ring_ReactorSpawnLastStatus },
     .{ .name = "stzenginereactorspawnkill", .func = ring_ReactorSpawnKill },
+    .{ .name = "stzenginereactorconnect", .func = ring_ReactorConnect },
+    .{ .name = "stzenginestzmpack", .func = ring_StzmPack },
+    .{ .name = "stzenginestzmunpack", .func = ring_StzmUnpack },
+    .{ .name = "stzenginestzmframelen", .func = ring_StzmFrameLen },
+    .{ .name = "stzenginestzmlaststatus", .func = ring_StzmLastStatus },
+    .{ .name = "stzenginestzmlastcorrelation", .func = ring_StzmLastCorrelation },
+    .{ .name = "stzenginestzmlastflags", .func = ring_StzmLastFlags },
+    .{ .name = "stzenginestzmnetdefaults", .func = ring_StzmNetDefaults },
     .{ .name = "stzenginereactorsubmitcurl", .func = ring_ReactorSubmitCurl },
     .{ .name = "stzenginereactorcurlawait", .func = ring_ReactorCurlAwait },
     .{ .name = "stzenginereactorcurlpoll", .func = ring_ReactorCurlPoll },

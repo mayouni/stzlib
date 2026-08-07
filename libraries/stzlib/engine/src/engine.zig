@@ -742,4 +742,5 @@ test {
     _ = relations;
     _ = statemachine;
     _ = tracectx;
+    _ = @import("stzm.zig"); // STZM message-plane framing (pure, no C deps)
 }
