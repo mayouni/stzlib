@@ -39,7 +39,11 @@ class stzReactiveStream from stzObject
 	@autoConcludeEnabled = STREAM_STATE_ACTIVE
 	@pendingDataCount = 0
 	@autoConcludeDelay = 100  # milliseconds to wait for more data
-	@autoConcludeTimer = NULL
+
+	# The id of a pending auto-conclude timer, "" when none. It used to hold a
+	# stzRingTimer OBJECT whose callback could not see this object at all --
+	# see ScheduleAutoConclude.
+	@autoConcludeTimer = ""
 
 	def Init(id, sourceType, engine)
 		@streamId = id
@@ -207,10 +211,16 @@ class stzReactiveStream from stzObject
 	def SetAutoConclude(enabled)
 		@autoConcludeEnabled = enabled
 		
-		# Cancel any pending timer if disabling
-		if not enabled and @autoConcludeTimer != NULL
-			@oEngine.TimerManager().RemoveTimer(@autoConcludeTimer.@timerId)
-			@autoConcludeTimer = NULL
+		# Cancel any pending timer if disabling.
+		#
+		# This called @oEngine.TimerManager(), a method that exists nowhere in
+		# the library -- the engine holds @timerManager as an ATTRIBUTE, and
+		# ScheduleAutoConclude below reached it that way. So turning the feature
+		# OFF raised R14 exactly when it had something to turn off, and passed
+		# quietly when it had nothing. Cancelling is an id now, no manager.
+		if not enabled and @autoConcludeTimer != ""
+			StzReaxisStopTimer(@autoConcludeTimer)
+			@autoConcludeTimer = ""
 		ok
 		
 		return self
@@ -219,31 +229,64 @@ class stzReactiveStream from stzObject
 		def SetAutoComplete(enabled)
 			return This.SetAutoConclude(enabled)
 
-	# Set the delay before auto-conclusion triggers
+	# Set the delay before auto-conclusion triggers.
+	#
+	# It used to take anything at all: -500 and "not a number" both went
+	# straight through to a timer deadline. A refused value leaves the delay
+	# ALONE rather than resetting it -- a setter that answers a value it
+	# dislikes by destroying a good one is its own defect.
 	def SetAutoConcludeDelay(pnMilliseconds)
+		if NOT isNumber(pnMilliseconds)
+			return self
+		ok
+		if pnMilliseconds < 0
+			return self
+		ok
 		@autoConcludeDelay = pnMilliseconds
 		return self
 
 	# Real-world timer implementation for auto-conclusion
+	# THE CALLBACK MUST BE HANDED THE OBJECT; it cannot reach for it.
+	#
+	# This built a stzRingTimer whose callback was `func() { if
+	# @pendingDataCount = 0 ... }`. A Ring lambda has its own scope, and
+	# stzRingTimer stores the object it is given but then invokes
+	# `call @callback()` with NO arguments -- so the object was kept and never
+	# passed. The callback raised R24 "Using uninitialized variable:
+	# @pendingdatacount" on its first and only run, inside the timer runner,
+	# where nothing reported it. Auto-conclude never concluded anything.
+	#
+	# The detached-timer helpers are the cure and were already in this module:
+	# F5 added them for the settle watchers for this exact reason, and
+	# StzReaxisTickDetached passes the argument list through to the callback.
+	# The same RunLoop drives them.
 	def ScheduleAutoConclude()
 		# Cancel existing timer if running
-		if @autoConcludeTimer != NULL
-			@oEngine.@timerManager.RemoveTimer(@autoConcludeTimer.@timerId)
-			@autoConcludeTimer = NULL
+		if @autoConcludeTimer != ""
+			StzReaxisStopTimer(@autoConcludeTimer)
+			@autoConcludeTimer = ""
 		ok
-		
-		# Create one-time timer using existing timer system
-		_timerId_ = "autoconclude_" + @streamId + "_" + StzEngineRandomInt(0, 9999)
-		@autoConcludeTimer = new stzRingTimer(_timerId_, @autoConcludeDelay, func() {
-			# Timer callback - check if we should auto-conclude
-			if @pendingDataCount = 0 and @autoConcludeEnabled
-				AutoConclude()
-			ok
-			@autoConcludeTimer = NULL  # Clean up timer reference
-		}, @oEngine, true, self)  # true = one-time timer
-		
-		@oEngine.@timerManager.AddTimer(@autoConcludeTimer)
-		@autoConcludeTimer.Start()
+
+		@autoConcludeTimer = StzReaxisRunAfterXT(@autoConcludeDelay,
+			func(oSelf) {
+				oSelf.ClearAutoConcludeTimer()
+				if oSelf.PendingDataCount() = 0 and oSelf.AutoConcludeEnabled()
+					oSelf.AutoConclude()
+				ok
+			},
+			[ self ])
+
+	# Read by the auto-conclude callback, which is HANDED this object and so
+	# must ask it rather than reach into it.
+	def PendingDataCount()
+		return @pendingDataCount
+
+	def AutoConcludeEnabled()
+		return @autoConcludeEnabled
+
+	def ClearAutoConcludeTimer()
+		@autoConcludeTimer = ""
+		return This
 
 	
 		def ScheduleAutoComplete()
