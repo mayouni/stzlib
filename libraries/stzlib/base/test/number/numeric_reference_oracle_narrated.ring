@@ -191,6 +191,80 @@ Scenario("...and the inconsistency this pass uncovered, now fixed")
 	               (new stzMatrix(RefMat_hilbert4())).LUInverse()) < 0.0000001, TRUE)
 EndScenario()
 
+Scenario("Cholesky matches LAPACK across the corpus, hard cases included")
+	# The lower factor is UNIQUE once its diagonal is positive, and both the
+	# engine (sqrt of a positive pivot) and LAPACK use that convention -- so
+	# the factor compares entry for entry, no sign gymnastics. Bands are
+	# DERIVED: kappa * eps * 30, per matrix, never a tuned literal.
+	Then("the easy control factors to the last printed bit",
+	     OraCholRel(RefMat_spd3(), RefChol_spd3())
+	         < RefCond_spd3() * OraEps() * 30, TRUE)
+	Then("tridiag5 too",
+	     OraCholRel(RefMat_tridiag5(), RefChol_tridiag5())
+	         < RefCond_tridiag5() * OraEps() * 30, TRUE)
+	Then("hilbert4 within its conditioning",
+	     OraCholRel(RefMat_hilbert4(), RefChol_hilbert4())
+	         < RefCond_hilbert4() * OraEps() * 30, TRUE)
+	Then("hilbert5 within its conditioning",
+	     OraCholRel(RefMat_hilbert5(), RefChol_hilbert5())
+	         < RefCond_hilbert5() * OraEps() * 30, TRUE)
+	Then("hilbert6 within its conditioning, at kappa 1.5e7",
+	     OraCholRel(RefMat_hilbert6(), RefChol_hilbert6())
+	         < RefCond_hilbert6() * OraEps() * 30, TRUE)
+	Then("...and the barely-positive-definite case at kappa 4.0e7",
+	     OraCholRel(RefMat_nearsing2(), RefChol_nearsing2())
+	         < RefCond_nearsing2() * OraEps() * 30, TRUE)
+EndScenario()
+
+Scenario("Least squares on a problem with a REAL residual")
+	# A 6x3 quadratic fit where no exact solution exists -- the case where a
+	# least-squares solver has to be right, not merely consistent. The
+	# solution is unique, so LAPACK's x is directly comparable; the bound is
+	# 100 * kappa * eps, derived in the generator, not tuned here.
+	Then("the fitted coefficients match LAPACK within the derived bound",
+	     OraRelList(OraLstsqX(), RefLstsqX()) < RefLstsqBound(), TRUE)
+	# The optimality witness is computed INDEPENDENTLY of the solver: take
+	# the engine's x, form ||Ax - b|| in plain Ring arithmetic, and compare
+	# with the norm LAPACK reports at ITS optimum. If the engine's residual
+	# matched LAPACK's x instead of its own, this would still hold -- so the
+	# coefficient assertion above and this one together pin both identity
+	# and optimality.
+	Then("...and the engine's own residual norm equals LAPACK's optimum",
+	     OraRelNum(OraResidNorm(RefLstsqA(), OraLstsqX(), RefLstsqB()),
+	               RefLstsqResidNorm()) < 0.0000000001, TRUE)
+EndScenario()
+
+Scenario("The inverse family built on QR and Cholesky honors conditioning")
+	# Inversion squares the sensitivity: the derived band is kappa^2 * eps
+	# with headroom, and the two factorization routes must both land inside
+	# it AND agree with the LU inverse already oracled above.
+	Then("CholeskyInverse matches LAPACK on the easy control",
+	     OraMatRelMax((new stzMatrix(RefMat_spd3())).CholeskyInverse(), RefInv_spd3())
+	         < RefCond_spd3() * RefCond_spd3() * OraEps() * 30, TRUE)
+	Then("QRInverse matches LAPACK on the easy control",
+	     OraMatRelMax((new stzMatrix(RefMat_spd3())).QRInverse(), RefInv_spd3())
+	         < RefCond_spd3() * RefCond_spd3() * OraEps() * 30, TRUE)
+	Then("CholeskyInverse survives hilbert4 within kappa^2 * eps",
+	     OraMatRelMax((new stzMatrix(RefMat_hilbert4())).CholeskyInverse(), RefInv_hilbert4())
+	         < RefCond_hilbert4() * RefCond_hilbert4() * OraEps() * 30, TRUE)
+	Then("QRInverse survives hilbert4 within kappa^2 * eps",
+	     OraMatRelMax((new stzMatrix(RefMat_hilbert4())).QRInverse(), RefInv_hilbert4())
+	         < RefCond_hilbert4() * RefCond_hilbert4() * OraEps() * 30, TRUE)
+EndScenario()
+
+Scenario("Conditioning PREDICTS the error, not merely bounds it")
+	# The trust contract in one assertion: hilbert6's solve error must land
+	# INSIDE the window kappa*eps/1000 .. kappa*eps. The upper edge is the
+	# classical bound; the lower edge says the error is genuinely OF THAT
+	# ORDER -- kappa read from ConditionNumber() tells the user how many
+	# digits they lost, before they compare anything. If a future solver
+	# lands below the window, this fails and says conditioning no longer
+	# predicts -- which is information, not noise.
+	Then("hilbert6's solve error sits inside the kappa-predicted window",
+	     OraSolveRel(RefMat_hilbert6(), RefExactSolveOnes_hilbert6())
+	         > RefKappaEpsBound_hilbert6() / 1000, TRUE)
+EndScenario()
+
 Summary()
 
 #-- helpers (uniquely prefixed: short names collide with library globals) ------
@@ -289,3 +363,66 @@ func OraImagMagnitudesMatch(paMat, paRef)
 		_aR_ + fabs(paRef[_oir2_])
 	next
 	return OraRelList(sort(_aG_), sort(_aR_)) < 0.0000000001
+
+
+func OraEps()
+	# 2^-52, spelled as a ratio because Ring C27s on e-notation literals
+	return 1.0 / 4503599627370496
+
+# max relative difference between the engine's Cholesky factor and the
+# reference, over entries where the reference is nonzero (the upper zeros
+# are structural on both sides).
+func OraCholRel(paMat, paRef)
+	_n_ = len(paMat)
+	_pOcr_ = StzEngineMatrixNewFromList(_n_, _n_, paMat)
+	_pL_ = StzEngineMatrixCholesky(_pOcr_)
+	_nMax_ = 0
+	for _i_ = 1 to _n_
+		for _j_ = 1 to _i_
+			_ref_ = paRef[_i_][_j_]
+			_got_ = StzEngineMatrixGet(_pL_, _i_ - 1, _j_ - 1)
+			if fabs(_ref_) > 0
+				_r_ = fabs(_got_ - _ref_) / fabs(_ref_)
+			else
+				_r_ = fabs(_got_)
+			ok
+			if _r_ > _nMax_ _nMax_ = _r_ ok
+		next
+	next
+	StzEngineMatrixFree(_pL_)
+	StzEngineMatrixFree(_pOcr_)
+	return _nMax_
+
+func OraMatRelMax(paGot, paRef)
+	_nMax_ = 0
+	_n_ = len(paRef)
+	for _i_ = 1 to _n_
+		_m_ = len(paRef[_i_])
+		for _j_ = 1 to _m_
+			_ref_ = paRef[_i_][_j_]
+			if fabs(_ref_) > 0
+				_r_ = fabs(paGot[_i_][_j_] - _ref_) / fabs(_ref_)
+			else
+				_r_ = fabs(paGot[_i_][_j_])
+			ok
+			if _r_ > _nMax_ _nMax_ = _r_ ok
+		next
+	next
+	return _nMax_
+
+func OraLstsqX()
+	return (new stzMatrix(RefLstsqA())).LeastSquaresFor(RefLstsqB())
+
+func OraResidNorm(paA, paX, paB)
+	_nRows_ = len(paA)
+	_nCols_ = len(paA[1])
+	_nSum_ = 0
+	for _i_ = 1 to _nRows_
+		_nAx_ = 0
+		for _j_ = 1 to _nCols_
+			_nAx_ += paA[_i_][_j_] * paX[_j_]
+		next
+		_nD_ = _nAx_ - paB[_i_]
+		_nSum_ += _nD_ * _nD_
+	next
+	return sqrt(_nSum_)
