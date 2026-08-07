@@ -341,3 +341,46 @@ decomposition in G2 before admission. No op enters the silent tier on vibes.
 Scope confirmed as planned: f32-tolerant domains only; the f64 solver tier
 stays CPU. The silent-service scope does NOT shrink to batch-only — the
 resident-chain criterion passed on both adapters.
+
+---
+
+## G1 STATUS — shipped 2026-08-07: stz_gpu.dll, the lifecycle layer
+
+Delivered (guard: `base/test/gpu/gpu_lifecycle_narrated.ring`, 62 asserts
+green on this machine + a 9-assert no-GPU probe of the same surface):
+
+- **`stz_gpu.dll`** (engine domain `stz_gpu`; `src/gpu.zig` +
+  `ring_bridge_gpu.zig`, loader `engine/stz_gpu.ring`, registered in
+  stzRingLibs). wgpu_native.dll is loaded at **Init() time via LoadLibrary,
+  never linked** — the DLL loads everywhere, and a machine without the
+  runtime or an adapter degrades to counted fallback. CI-safe by
+  construction; the guard is deliberately STANDALONE (loads only the engine
+  bridge) so an unrelated face breakage cannot mask a GPU regression.
+- **Generation-keyed handles**: buffer ids are (gen<<32)|slot; free AND
+  evict bump the generation, so stale ids answer STALE — never a silently
+  reused pointer (the handle-cliff lesson applied to VRAM). 200-cycle
+  churn guard: live-count and byte accounting return exactly to baseline,
+  200/200 freed ids detected stale.
+- **Bounded VRAM cache, FIFO eviction**, budget settable; eviction is
+  COUNTED and the guard names the victim (oldest live) and its negative
+  sibling (big budget ⇒ zero evictions).
+- **WGSL compile-cache** keyed by kernel text hash: 1 compile + N hits,
+  counted separately; malformed WGSL refuses AND counts a device error.
+- **TDR-safe tiling**: every kernel binds a layer-owned tile uniform at
+  @binding(0) (xoff in workgroups; user buffers start at @binding(1));
+  dispatches over the tile limit split along x — one shared uniform serves
+  all tiles because writeBuffer/submit are queue-ordered. Guard: wx=16 at
+  limit 4 ⇒ EXACTLY 4 submits and a bit-exact result.
+- **Calibration store** (op name → crossover threshold): ShouldDispatch
+  answers CPU when the device is absent, the op is uncalibrated, or n is
+  below the line; GPU only above a measured line. Warm-min basis per G0's
+  clock inversion.
+- **Instruments** (house names): gpu.dispatch.count/ms, gpu.transfer.bytes,
+  gpu.fallback.count, compiles/hits, submits, evictions, live buffers,
+  device errors. Counter reset preserves structural gauges (live count).
+- **Dispatch is asynchronous** (returns after submit; Sync() or a read
+  completes) — residency chains run upload-once → N dispatches → read-once,
+  which is the entire G0 case for the GPU paying at all.
+
+Next: **G2** — the op library (matmulF32, pairwise-distance, reductions,
+softmax) with per-op parity bands from measurement, on this layer.

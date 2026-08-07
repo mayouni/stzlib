@@ -14,6 +14,7 @@ const Domain = struct {
     needs_ggml: bool = false,
     needs_mbedtls: bool = false,
     needs_treesitter: bool = false,
+    needs_wgpu: bool = false,
 };
 
 // Core (stk_*): minimal, fast, constrained environments
@@ -105,6 +106,10 @@ const base_domains = [_]Domain{
     .{ .name = "stz_statemachine", .entry = "src/stz_statemachine_entry.zig", .needs_ring = true },
     // Modern/neural tier: vendored ggml (CPU-only) for runtime GGUF inference.
     .{ .name = "stz_neural", .entry = "src/stz_neural_entry.zig", .needs_ring = true, .needs_ggml = true },
+    // GPU plane lifecycle (G1). Headers only: wgpu_native.dll is loaded at
+    // RUNTIME (LoadLibrary in gpu.zig), never linked, so this DLL loads on
+    // GPU-less machines and degrades to counted fallback.
+    .{ .name = "stz_gpu", .entry = "src/stz_gpu_entry.zig", .needs_ring = true, .needs_wgpu = true },
 };
 
 fn addUtf8proc(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
@@ -926,6 +931,14 @@ pub fn build(b: *std.Build) void {
         if (dom.needs_mbedtls) addMbedtls(mod, lib, b, target.result.os.tag, false);
         if (dom.needs_treesitter) addTreeSitter(mod, lib, b);
         if (dom.needs_ggml) addGgml(mod, lib, b);
+        if (dom.needs_wgpu) {
+            mod.addIncludePath(b.path("vendor/wgpu/include"));
+            // Ship the vendored runtime next to the engine DLLs so the Ring
+            // loader can hand stz_gpu an absolute path to it.
+            if (target.result.os.tag == .windows) {
+                b.getInstallStep().dependOn(&b.addInstallBinFile(b.path("vendor/wgpu/lib/wgpu_native.dll"), "wgpu_native.dll").step);
+            }
+        }
         b.installArtifact(lib);
     }
 

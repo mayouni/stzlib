@@ -84,6 +84,9 @@ load "../../engine/stz_statemachine.ring"
 # Modern / neural tier (vendored ggml runtime)
 load "../../engine/stz_neural.ring"
 
+# GPU plane lifecycle (vendored wgpu-native, loaded at Init time)
+load "../../engine/stz_gpu.ring"
+
 load "../../engine/stzMeta.ring"
 
 # Initialize the meta-engine (named params, error catalog, aliases)
