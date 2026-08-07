@@ -1089,6 +1089,48 @@ func StzRandom(_n_)
 	func Random01()
 		return StzRandom01()
 
+# ─── Exponential draws (F3 of the random audit) ───
+#
+# The normal distribution already had a face (RandomNormal, further down,
+# now engine-backed); the exponential had none. Same engine stream as every
+# other draw, so SeedRandom() governs it. The List form is ONE engine call
+# returning a native list, and draws in the same order as N scalar calls --
+# the guard asserts that equivalence.
+
+func StzRandomExponential(pLambda)
+	if CheckingParams()
+		if NOT isNumber(pLambda)
+			StzRaise("Incorrect param type! pLambda must be a number.")
+		ok
+	ok
+	if pLambda <= 0
+		StzRaise("Can't proceed! pLambda must be positive.")
+	ok
+	return StzEngineRandomExp(pLambda)
+
+	func RandomExponential(pLambda)
+		return StzRandomExponential(pLambda)
+
+	func ARandomExponential(pLambda)
+		return StzRandomExponential(pLambda)
+
+func StzRandomExponentialList(_n_, pLambda)
+	if CheckingParams()
+		if NOT (isNumber(_n_) and isNumber(pLambda))
+			StzRaise("Incorrect param types! n and pLambda must be numbers.")
+		ok
+	ok
+	if _n_ < 1
+		return []
+	ok
+	if pLambda <= 0
+		StzRaise("Can't proceed! pLambda must be positive.")
+	ok
+	return StzEngineRandomNExp(_n_, pLambda)
+
+	func RandomExponentialList(_n_, pLambda)
+		return StzRandomExponentialList(_n_, pLambda)
+
 func StzSRandom(_n_)
 	if CheckingParams()
 		if NOT isNumber(_n_)
@@ -4719,13 +4761,14 @@ func RandomUniformList(n, nMin, nMax)
 
 # Box-Muller: a normal deviate with the given mean and stddev
 func RandomNormal(nMean, nStd)
-	_nU1_ = StzRandom01()
-	if _nU1_ < 0.000000001
-		_nU1_ = 0.000000001
-	ok
-	_nU2_ = StzRandom01()
-	_nZ_ = sqrt(-2 * log(_nU1_)) * cos(2 * 3.14159265358979 * _nU2_)
-	return nMean + nStd * _nZ_
+	# Was a Ring-side Box-Muller over two engine uniforms -- a second
+	# spelling of a sampler the engine now owns (ziggurat, one FFI call,
+	# same seeded stream). Delegated rather than kept, per the house law:
+	# two spellings of one operation stay equally correct while diverging
+	# in cost and care. Seeded VALUES differ from the old sampler (a
+	# different algorithm draws differently); the distribution and the
+	# seed-reproducibility contract are what this function promises.
+	return StzEngineRandomGauss(nMean, nStd)
 
 	func ARandomNormal(nMean, nStd)
 		return RandomNormal(nMean, nStd)
@@ -4734,8 +4777,9 @@ func RandomNormal(nMean, nStd)
 		return RandomNormal(nMean, nStd)
 
 func RandomNormalList(n, nMean, nStd)
-	_aOut_ = []
-	for _i_ = 1 to n
-		_aOut_ + RandomNormal(nMean, nStd)
-	next
-	return _aOut_
+	if n < 1
+		return []
+	ok
+	# One engine call, native list back; draw order identical to n scalar
+	# RandomNormal() calls (asserted in the strength guard).
+	return StzEngineRandomNGauss(n, nMean, nStd)

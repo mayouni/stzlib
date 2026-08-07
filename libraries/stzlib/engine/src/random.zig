@@ -36,6 +36,40 @@ pub fn stz_random_float(min: f64, max: f64) callconv(.c) f64 {
     return min + r * (max - min);
 }
 
+// ─── C ABI: Gaussian / Exponential (F3 of the random audit) ───
+//
+// The library had ONLY uniform draws (int/float/bool/weighted) -- no normal,
+// no exponential -- which a stats/ML tier cannot live on. Both ride Zig's
+// std ziggurat samplers on the SAME seeded stream as everything else, so
+// SeedRandom() governs them too and "seed once, reproduce everything" stays
+// true. The N-variants fill a caller buffer and draw in the same order as N
+// scalar calls would -- the bulk form IS the scalar sequence, and the guard
+// asserts exactly that.
+
+pub fn stz_random_gauss(mean: f64, stddev: f64) callconv(.c) f64 {
+    ensureSeeded();
+    return mean + stddev * prng.random().floatNorm(f64);
+}
+
+pub fn stz_random_exp(lambda: f64) callconv(.c) f64 {
+    ensureSeeded();
+    if (lambda <= 0) return 0;
+    return prng.random().floatExp(f64) / lambda;
+}
+
+pub fn stz_random_n_gauss(n: usize, mean: f64, stddev: f64, buf: [*]f64) callconv(.c) usize {
+    ensureSeeded();
+    for (buf[0..n]) |*v| v.* = mean + stddev * prng.random().floatNorm(f64);
+    return n;
+}
+
+pub fn stz_random_n_exp(n: usize, lambda: f64, buf: [*]f64) callconv(.c) usize {
+    ensureSeeded();
+    if (lambda <= 0) return 0;
+    for (buf[0..n]) |*v| v.* = prng.random().floatExp(f64) / lambda;
+    return n;
+}
+
 // ─── C ABI: N Random Integers in Range ───
 
 pub fn stz_random_n_in_range(n: usize, min: i64, max: i64, buf: [*]i64) callconv(.c) usize {
@@ -206,4 +240,64 @@ test "random weighted" {
     const weights = [_]f64{ 1.0, 0.0, 0.0 };
     const idx = stz_random_weighted(&weights, 3);
     try std.testing.expectEqual(@as(usize, 0), idx);
+}
+
+test "gaussian: seeded moments inside bands, bulk equals scalar sequence" {
+    stz_random_seed(4242);
+    var sum: f64 = 0;
+    var sumsq: f64 = 0;
+    const N = 20000;
+    var i: usize = 0;
+    while (i < N) : (i += 1) {
+        const v = stz_random_gauss(0, 1);
+        sum += v;
+        sumsq += v * v;
+    }
+    const mean = sum / N;
+    const sd = @sqrt(sumsq / N - mean * mean);
+    // stderr(mean)=0.0071, stderr(sd)~0.005: these bands are >5 sigma wide,
+    // set from arithmetic, not from a run that happened to pass.
+    try std.testing.expect(@abs(mean) < 0.04);
+    try std.testing.expect(sd > 0.96 and sd < 1.04);
+
+    // mean/stddev transform actually applies
+    stz_random_seed(7);
+    const a = stz_random_gauss(10, 2);
+    stz_random_seed(7);
+    const z = stz_random_gauss(0, 1);
+    try std.testing.expectApproxEqAbs(10 + 2 * z, a, 1e-12);
+
+    // bulk IS the scalar sequence
+    var bulk: [8]f64 = undefined;
+    stz_random_seed(99);
+    _ = stz_random_n_gauss(8, 1.5, 0.5, &bulk);
+    stz_random_seed(99);
+    for (bulk) |b| {
+        try std.testing.expectApproxEqAbs(stz_random_gauss(1.5, 0.5), b, 0);
+    }
+}
+
+test "exponential: positive, mean 1/lambda, bulk equals scalar sequence" {
+    stz_random_seed(1234);
+    var sum2: f64 = 0;
+    const N = 20000;
+    var i: usize = 0;
+    while (i < N) : (i += 1) {
+        const v = stz_random_exp(2.0);
+        try std.testing.expect(v > 0);
+        sum2 += v;
+    }
+    const mean = sum2 / N;
+    try std.testing.expect(mean > 0.47 and mean < 0.53); // true 0.5, stderr 0.0035
+
+    try std.testing.expectEqual(@as(f64, 0), stz_random_exp(0));
+    try std.testing.expectEqual(@as(f64, 0), stz_random_exp(-1));
+
+    var bulk: [8]f64 = undefined;
+    stz_random_seed(55);
+    _ = stz_random_n_exp(8, 3.0, &bulk);
+    stz_random_seed(55);
+    for (bulk) |b| {
+        try std.testing.expectApproxEqAbs(stz_random_exp(3.0), b, 0);
+    }
 }
