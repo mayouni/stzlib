@@ -834,10 +834,43 @@ binary-searching the dispatch chain (the five kernels all COMPILED
 fine, which is what made it confusing); fixed with a real reference
 plus the rule written into that kernel's own comment.
 
-Follow-ups, unforced: wire the backbone behind `neural_embed_text`
-under a calibrated threshold (today it is opt-in via
-`StzEngineNeuralBackboneEmbed`), batch the embedding gather, and widen
-scope to GEGLU/ALiBi if a workload asks for it.
+### WIRED IN (2026-08-07): the seam is silent, and the gate is measured
+
+`neural_embed_routed` is now THE embedding entry point — every call in
+the library (EmbeddingOf, the semantic index, stzText) comes through it,
+and the ENGINE picks the route. Guard:
+`base/test/neural/neural_embed_seam_narrated.ring` (16 asserts).
+
+**The gate is a measured crossover in TOKENS**, not a flag — because at
+this scale the GPU genuinely loses on short input:
+
+| tokens | 11 | 20 | 29 | 47 | 74 | 119 | 182 | 254 |
+|---|---|---|---|---|---|---|---|---|
+| routed vs CPU | 0.76x | 1.02x | 1.34x | 1.59x | 1.67x | 1.57x | **1.94x** |
+
+Break-even sits near 20 tokens; the shipped default is **32** — past it
+with a real margin, never at it. Below the line the CPU keeps the work,
+and the guard asserts that side by the route counters, not by vibe.
+
+Measured at the face: 98 tokens, 24.3 ms CPU → 16.8 ms routed (1.45x),
+with cosine 0.99990 between the two routes — callers cannot tell which
+one served them, which is the definition of a silent seam.
+
+**One correctness obligation the wiring created and pays**: the backbone
+produces ONLY the pooled vector, so the routed path INVALIDATES the
+per-token hidden states (`neural_token_dim()` reads 0 afterwards).
+Leaving them populated would let a later token-level read return the
+PREVIOUS text's states — a silent wrong answer no caller could see
+coming. Zero is the honest answer, and the guard asserts it.
+
+**And a guard had to learn to isolate its subject**: with two GPU paths
+now live, `neural_gpu_routing_narrated` (the per-node router) saw ZERO
+claimed nodes, because the backbone took the work before ggml ever built
+a graph. It now pushes the backbone's gate out of reach for its own
+scenes — a guard must exercise the path it is about.
+
+Remaining, unforced: batch the embedding gather, and widen scope to
+GEGLU/ALiBi if a workload asks for it.
 
 One day, one plan of record, every phase gated by measurement: the
 go/no-go spike (GO, with elementwise killed honestly), the lifecycle
