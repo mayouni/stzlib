@@ -726,7 +726,74 @@ on-device, one upload, one readback — recorded here as the follow-up
 that earns the 2.7–4.8x, when a workload justifies building LN/GELU/
 attention kernels on the plane.
 
-## THE PLANE IS COMPLETE — G0 through G6, 2026-08-07
+## THE RESIDENT BACKBONE — criteria written 2026-08-07, BEFORE measuring
+
+The per-node route's follow-up: run the WHOLE encoder on-device (embeddings
+gathered, every LN / matmul / softmax / GELU / residual a dispatch, mean-pool
+on-device) so a forward pays ONE upload and ONE readback — the shape the
+census's 2.7–4.8x was actually measured on.
+
+Cost is real: LayerNorm, row-softmax attention, GELU, bias-add and pooling
+kernels, plus a chain executor. So the gate is decided first, by spike:
+
+- **R1 — the floor must clear a REAL bar.** The matmul spine alone (6
+  layers of MiniLM's matmuls, resident, ONE sync) must beat the CPU's FULL
+  forward (36.6 ms measured) by **≥2x**. The backbone can only be SLOWER
+  than its own spine — the other kernels add dispatches. Below 2x there is
+  no headroom for them, and the answer is NO-GO.
+- **R2 — the plane's contract holds.** New kernels must fit the shipped
+  binding contract (tile@0, params@1, ≤8 buffers, 64-byte params). Needing
+  lifecycle surgery makes this a different phase, not this one.
+- **R3 — parity ≥ 0.999 cosine** vs the CPU forward, the same standard the
+  per-node route met.
+- **R4 — counted degradation** to the per-node route / CPU on any refusal.
+
+### R1 SPIKE RESULT (2026-08-07) — FAILED, then PASSED once the real
+### prerequisite was built. GREEN LIGHT, with the design settled.
+
+`base/test/gpu/backbone_spine_spike.ring` times MiniLM's 6-layer matmul
+spine resident, one sync — the backbone's FLOOR (its other kernels can
+only add).
+
+| | spine, warm-min | vs CPU full forward (36.6 ms) |
+|---|---|---|
+| one submit per op (as shipped) | 23.7 ms | 1.55x — **R1 FAILS** |
+| batched into one pass | **17.2 ms** | **2.12x — R1 PASSES** |
+
+The diagnostic that turned it: the spine's 180 dispatches split 36 big
+projection/FFN matmuls (12.3 ms — real compute) against 144 tiny per-head
+attention matmuls (**11.3 ms unbatched for a sliver of the FLOPs**). That
+is submission cost, not work — G0's own 60 µs-per-submit vs 9 µs-in-pass
+number, at graph scale. Judging the backbone by that would have repeated
+the census-vs-bridge error: an implementation artifact mistaken for a
+design verdict. So the prerequisite got built (below), and the same spine
+re-measured at 17.2 ms — attention's share collapsing 11.3 → 4.7 ms.
+Ceiling if attention were free: 2.9x.
+
+**BUILT NOW — batched passes in the lifecycle layer** (`stz_gpu_batch_begin`
+/ `_end` / `_active`; guard `gpu_batch_narrated.ring`, 13 asserts). One
+pass, one submit, bind groups held until it lands. The correctness catch
+that shaped it: tile/params uniforms are written with queue.writeBuffer,
+which orders against SUBMITS, not against dispatches inside a pass — a
+batch sharing one params buffer would hand EVERY dispatch the last value
+written, silently. Each batched dispatch therefore takes its own uniform
+slot from a pool, and the guard proves it by running 8 ops with 8
+DIFFERENT alphas and asserting element-by-element equality with the
+unbatched run (plus the collapse-onto-the-last-alpha failure named as its
+negative sibling). A multi-tile dispatch can't share one slot, so it
+falls through to the immediate path — correct, just not amortized.
+This is independently valuable: every G4 `ApplyQ` chain gets it (60 small
+matmuls measured 2.35x faster batched).
+
+**Remaining backbone design, settled by the spike** (the build, next
+increment): keep Q/K/V whole and write ONE FUSED multi-head attention
+kernel — a workgroup per (head, query row) doing scores → softmax →
+context — which removes the per-head slicing that would otherwise have
+demanded buffer offsets in the op API (R2's "different phase" trap).
+Plus LayerNorm, bias-add, GELU, and a fused mean-pool + L2 kernel; the
+embedding gather stays a CPU-side gather + one upload. R3 (≥0.999
+cosine) and R4 (counted degradation) then guard it exactly as the
+per-node route was guarded.
 
 One day, one plan of record, every phase gated by measurement: the
 go/no-go spike (GO, with elementwise killed honestly), the lifecycle

@@ -181,6 +181,18 @@ fn ring_Dispatch(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(gpu.stz_gpu_dispatch(kernel, &ids, @intCast(n), gn(p, 3), gn(p, 4))));
 }
 
+fn ring_BatchBegin(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gpu.stz_gpu_batch_begin()));
+}
+
+fn ring_BatchEnd(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gpu.stz_gpu_batch_end()));
+}
+
+fn ring_BatchActive(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gpu.stz_gpu_batch_active()));
+}
+
 fn ring_Sync(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(gpu.stz_gpu_sync()));
 }
@@ -405,6 +417,9 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpukernelcompile", .func = &ring_KernelCompile },
     .{ .name = "stzenginegpudispatch", .func = &ring_Dispatch },
     .{ .name = "stzenginegpusync", .func = &ring_Sync },
+    .{ .name = "stzenginegpubatchbegin", .func = &ring_BatchBegin },
+    .{ .name = "stzenginegpubatchend", .func = &ring_BatchEnd },
+    .{ .name = "stzenginegpubatchactive", .func = &ring_BatchActive },
     .{ .name = "stzenginegpucalibset", .func = &ring_CalibSet },
     .{ .name = "stzenginegpucalibget", .func = &ring_CalibGet },
     .{ .name = "stzenginegpushoulddispatch", .func = &ring_ShouldDispatch },

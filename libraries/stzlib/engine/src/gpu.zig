@@ -378,6 +378,21 @@ fn closeDevice() void {
         k.layout = null;
     }
     kernels.clearRetainingCapacity();
+    if (g_batching) {
+        // a device going away mid-batch: drop the encoding, keep no dangling
+        // references (nothing was submitted, so nothing is owed)
+        g_batching = false;
+        if (g_batch_pass) |p| fns.wgpuComputePassEncoderRelease(p);
+        if (g_batch_enc) |e| fns.wgpuCommandEncoderRelease(e);
+        g_batch_pass = null;
+        g_batch_enc = null;
+        for (0..g_batch_n) |i| {
+            if (g_batch_bgs[i]) |bg| fns.wgpuBindGroupRelease(bg);
+            g_batch_bgs[i] = null;
+        }
+        g_batch_n = 0;
+    }
+    releasePool();
     if (tile_uniform) |t| fns.wgpuBufferRelease(t);
     tile_uniform = null;
     if (params_uniform) |t| fns.wgpuBufferRelease(t);
@@ -659,6 +674,92 @@ pub fn stz_gpu_dispatch(kernel: i64, buf_ids: [*]const i64, nbufs: i32, wx: f64,
     return dispatchInternal(kernel, null, buf_ids, nbufs, wx, wy);
 }
 
+// ---------------- batched passes
+//
+// G0 measured ~60 us per submit+wait against ~9 us for a dispatch INSIDE a
+// pass: a chain of many small ops pays 7x more in submission than in work.
+// Batch mode encodes every dispatch into ONE pass and submits once at End.
+//
+// The correctness catch, and why this needs its own uniform slots: the tile
+// and params uniforms are written with queue.writeBuffer, which is ordered
+// against SUBMITS, not against dispatches within a pass. Sharing one buffer
+// across a batch would give every dispatch the LAST value written. So each
+// batched dispatch takes its OWN small uniform pair from a pool; the pool
+// and the bind groups stay alive until the submit completes.
+
+const BATCH_MAX = 512;
+var g_batching = false;
+var g_batch_enc: c.WGPUCommandEncoder = null;
+var g_batch_pass: c.WGPUComputePassEncoder = null;
+var g_batch_n: usize = 0;
+var g_batch_bgs: [BATCH_MAX]c.WGPUBindGroup = @splat(null);
+var g_pool_tile: [BATCH_MAX]c.WGPUBuffer = @splat(null);
+var g_pool_params: [BATCH_MAX]c.WGPUBuffer = @splat(null);
+
+fn poolSlot(i: usize) bool {
+    if (g_pool_tile[i] != null) return true;
+    var td = std.mem.zeroes(c.WGPUBufferDescriptor);
+    td.usage = c.WGPUBufferUsage_Uniform | c.WGPUBufferUsage_CopyDst;
+    td.size = 16;
+    g_pool_tile[i] = fns.wgpuDeviceCreateBuffer(device, &td);
+    var pd = std.mem.zeroes(c.WGPUBufferDescriptor);
+    pd.usage = c.WGPUBufferUsage_Uniform | c.WGPUBufferUsage_CopyDst;
+    pd.size = PARAMS_BYTES;
+    g_pool_params[i] = fns.wgpuDeviceCreateBuffer(device, &pd);
+    return g_pool_tile[i] != null and g_pool_params[i] != null;
+}
+
+fn releasePool() void {
+    for (0..BATCH_MAX) |i| {
+        if (g_pool_tile[i]) |b| fns.wgpuBufferRelease(b);
+        if (g_pool_params[i]) |b| fns.wgpuBufferRelease(b);
+        g_pool_tile[i] = null;
+        g_pool_params[i] = null;
+    }
+}
+
+/// Open a batch. Dispatches accumulate into one pass until End.
+pub fn stz_gpu_batch_begin() callconv(.c) i32 {
+    if (!available) {
+        counters[CTR_FALLBACK_COUNT] += 1;
+        return FALLBACK;
+    }
+    if (g_batching) return OK; // already open: idempotent
+    g_batch_enc = fns.wgpuDeviceCreateCommandEncoder(device, null);
+    if (g_batch_enc == null) return GPU_ERROR;
+    g_batch_pass = fns.wgpuCommandEncoderBeginComputePass(g_batch_enc, null);
+    if (g_batch_pass == null) return GPU_ERROR;
+    g_batch_n = 0;
+    g_batching = true;
+    return OK;
+}
+
+/// Close the batch: end the pass, submit ONCE, release the slots.
+pub fn stz_gpu_batch_end() callconv(.c) i32 {
+    if (!g_batching) return BAD_ARG;
+    g_batching = false;
+    fns.wgpuComputePassEncoderEnd(g_batch_pass);
+    fns.wgpuComputePassEncoderRelease(g_batch_pass);
+    g_batch_pass = null;
+    const cmd = fns.wgpuCommandEncoderFinish(g_batch_enc, null);
+    fns.wgpuCommandEncoderRelease(g_batch_enc);
+    g_batch_enc = null;
+    fns.wgpuQueueSubmit(queue, 1, &cmd);
+    fns.wgpuCommandBufferRelease(cmd);
+    counters[CTR_SUBMIT_COUNT] += 1;
+    // the pass is submitted; its bind groups may go
+    for (0..g_batch_n) |i| {
+        if (g_batch_bgs[i]) |bg| fns.wgpuBindGroupRelease(bg);
+        g_batch_bgs[i] = null;
+    }
+    g_batch_n = 0;
+    return OK;
+}
+
+pub fn stz_gpu_batch_active() callconv(.c) i32 {
+    return if (g_batching) 1 else 0;
+}
+
 /// The ops-family variant: a params blob (<= PARAMS_BYTES) lands in the
 /// shared params uniform, bound at @binding(1); user buffers start at
 /// @binding(2). Same queue-ordering argument as the tile uniform: write
@@ -681,17 +782,29 @@ fn dispatchInternal(kernel: i64, params: ?[]const u8, buf_ids: [*]const i64, nbu
 
     var timer = std.time.Timer.start() catch unreachable;
 
+    // In a batch, this dispatch gets its OWN uniform slots (see the note on
+    // stz_gpu_batch_begin): queue writes are ordered against the submit, not
+    // against dispatches inside the pass.
+    const batched = g_batching and g_batch_n < BATCH_MAX;
+    var tile_buf = tile_uniform;
+    var params_buf = params_uniform;
+    if (batched) {
+        if (!poolSlot(g_batch_n)) return GPU_ERROR;
+        tile_buf = g_pool_tile[g_batch_n];
+        params_buf = g_pool_params[g_batch_n];
+    }
+
     var entries: [MAX_BIND_BUFFERS + 2]c.WGPUBindGroupEntry = undefined;
     entries[0] = std.mem.zeroes(c.WGPUBindGroupEntry);
     entries[0].binding = 0;
-    entries[0].buffer = tile_uniform;
+    entries[0].buffer = tile_buf;
     entries[0].size = 16;
     var base: usize = 1;
     if (params) |p| {
-        fns.wgpuQueueWriteBuffer(queue, params_uniform, 0, p.ptr, p.len);
+        fns.wgpuQueueWriteBuffer(queue, params_buf, 0, p.ptr, p.len);
         entries[1] = std.mem.zeroes(c.WGPUBindGroupEntry);
         entries[1].binding = 1;
-        entries[1].buffer = params_uniform;
+        entries[1].buffer = params_buf;
         entries[1].size = PARAMS_BYTES;
         base = 2;
     }
@@ -709,12 +822,29 @@ fn dispatchInternal(kernel: i64, params: ?[]const u8, buf_ids: [*]const i64, nbu
     bgdesc.entries = &entries;
     const bg = fns.wgpuDeviceCreateBindGroup(device, &bgdesc);
     if (bg == null) return GPU_ERROR;
-    defer fns.wgpuBindGroupRelease(bg);
 
     const total_x: u64 = @intFromFloat(wx);
     const y: u32 = @intFromFloat(wy);
     // bound the PER-SUBMIT workgroup count: chunk_x * y <= tile_limit
     const allowed_x: u64 = @max(1, tile_limit / @max(y, 1));
+
+    // BATCHED: one dispatch encoded into the open pass, no submit here.
+    // A dispatch needing MORE than one tile can't batch (its tiles want
+    // different xoff values from one uniform slot), so it falls through to
+    // the immediate path -- correct either way, just not amortized.
+    if (batched and total_x <= allowed_x) {
+        const tile = [4]u32{ 0, 0, 0, 0 };
+        fns.wgpuQueueWriteBuffer(queue, tile_buf, 0, &tile, 16);
+        fns.wgpuComputePassEncoderSetPipeline(g_batch_pass, k.pipeline);
+        fns.wgpuComputePassEncoderSetBindGroup(g_batch_pass, 0, bg, 0, null);
+        fns.wgpuComputePassEncoderDispatchWorkgroups(g_batch_pass, @intCast(total_x), y, 1);
+        g_batch_bgs[g_batch_n] = bg; // released after the batch submits
+        g_batch_n += 1;
+        counters[CTR_DISPATCH_COUNT] += 1;
+        counters[CTR_DISPATCH_MS] += @as(f64, @floatFromInt(timer.read())) / 1e6;
+        return OK;
+    }
+    defer fns.wgpuBindGroupRelease(bg);
 
     var off: u64 = 0;
     while (off < total_x) {
