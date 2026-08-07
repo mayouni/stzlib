@@ -819,7 +819,10 @@ class stzKnowledgeGraph from stzGraph
 		ok
 		
 		# Insights
-		if This.CyclicDependencies()
+		# Was This.CyclicDependencies(), which is defined nowhere -- the
+		# method is HasCyclicDependencies() (stzGraph.ring:2075). Same typo
+		# as stzWorkflow.ValidateDeadlock() carried.
+		if This.HasCyclicDependencies()
 			_aExplanation_[:insights] + "Contains circular relationships (cycles detected)"
 		else
 			_aExplanation_[:insights] + "Acyclic structure (no circular dependencies)"
