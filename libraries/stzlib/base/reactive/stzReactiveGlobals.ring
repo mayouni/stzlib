@@ -232,8 +232,13 @@ ERROR_THROW = "throw"
 ERROR_CALLBACK = "callback"
 ERROR_DEFAULT = ERROR_LOG
 
-# Default error messages
+# Default error messages -- the FALLBACK only. Both stzReactiveFunc and
+# stzReactiveTask report CatchError(), Ring's real reason, and reach for these
+# just when it comes back empty. stzReactiveTask used to send the fixed sentence
+# for every failure there is, which is how a class whose every path was broken
+# still looked like it was merely failing.
 DEFAULT_ERROR_MSG = "Function execution failed"
+DEFAULT_TASK_ERROR_MSG = "Task execution failed"
 EMPTY_ERROR_MSG = ""
 
 #--------------------------#

@@ -52,6 +52,8 @@ class stzReactiveTask from stzObject
 	@result = NULL
 	@oEngine = NULL
 	@errorHandling = DEFAULT_ERROR_HANDLING
+	@errorMsg = ""
+	@bReported = FALSE
 
 	def init(id, f, engine, errorMode)
 		# Initializes a task with an ID, function, and engine reference.
@@ -76,30 +78,101 @@ class stzReactiveTask from stzObject
 		
 	def Execute()
 		# Executes the task, handling success and error cases.
+		#
+		# THE call KEYWORD IS NOT OPTIONAL. Ring invokes a function held in a
+		# variable only through `call`; without it the name is looked up as a
+		# global function and raises R3. Both callback invocations below were
+		# missing it.
+		#
+		# The failure that produced is worth stating exactly, because it is not
+		# the obvious one. A Ring lambda IS a string -- `func { }` evaluates to
+		# "_ring_anonymous_func_NNN" -- so the body dispatch took the isString
+		# arm, which was already right, and the task DID run. It computed its
+		# answer, set TASK_COMPLETED, and then raised R3 trying to hand the
+		# result to Then_(). The catch below turned that into TASK_ERROR and
+		# printed a fixed sentence. A task that had succeeded reported failure,
+		# threw its result away, and said nothing about why.
+		#
+		# The dispatch that used to stand here asked whether the function was a
+		# string and called it differently either way. Both arms need `call`, so
+		# once the second was corrected the two were identical and the question
+		# had no purpose.
 		try
 			@status = TASK_RUNNING
-			if isString(@taskFunc)
-				@result = call @taskFunc()
-			else
-				@result = @taskFunc()
-			ok
+			@result = call @taskFunc()
 			@status = TASK_COMPLETED
 			if @onComplete != NULL
-				@onComplete(@result)
+				call @onComplete(@result)
 			ok
 
 		catch
 			@status = TASK_ERROR
-			_errorMsg_ = "Task execution failed"
-			
+
+			# The REAL reason, not a fixed sentence. CatchError() is Ring's, and
+			# it answers "Error (R1) : Can't divide by zero" where this used to
+			# say "Task execution failed" for every failure there is.
+			@errorMsg = CatchError()
+			if NOT (isString(@errorMsg) and @errorMsg != EMPTY_ERROR_MSG)
+				@errorMsg = DEFAULT_TASK_ERROR_MSG
+			ok
+
+			# ...and every mode reports. The old chain ended at `ok`, so a task
+			# set to ERROR_CALLBACK with no Catch_() -- and any mode this chain
+			# did not name -- dropped the failure without a word.
+			#
+			# The last arm is written as "not the mode that wants silence"
+			# rather than "is the mode that logs", so that a mode nobody
+			# foresaw lands on REPORT and not on swallow. That polarity is the
+			# whole point: a fallback should fail loud.
+			@bReported = FALSE
+
 			if @errorHandling = ERROR_THROW
-				raise(_errorMsg_)
-			but @errorHandling = ERROR_LOG
-				? _errorMsg_
+				@bReported = TRUE
+				raise(@errorMsg)
+
 			but @errorHandling = ERROR_CALLBACK and @onError != NULL
-				@onError(_errorMsg_)
+				@bReported = TRUE
+				call @onError(@errorMsg)
+
+			but @errorHandling != ERROR_IGNORE
+				# ERROR_LOG is the documented default and prints by design.
+				# The message is on the object either way -- see Error() -- so
+				# stdout is no longer the only channel, and ERROR_IGNORE can
+				# stay genuinely silent without losing the reason.
+				@bReported = TRUE
+				? @errorMsg
 			ok
 		done
-		
+
+	#-- WHAT HAPPENED, AFTER THE FACT ------------------------------------------
+	#
+	# The class recorded a status, a result and (now) an error, and offered no
+	# way to read any of them. A caller whose task failed could not ask what
+	# went wrong; a caller whose task succeeded could not collect the answer
+	# unless they had registered a handler first.
+
+	def Status()
+		return @status
+
+	def Result()
+		return @result
+
+	# "" when the task has not failed.
+	def Error()
+		return @errorMsg
+
+	def HasFailed()
+		return @status = TASK_ERROR
+
+	# Did the failure reach anyone -- a raise, a handler, or stdout? Only
+	# ERROR_IGNORE answers FALSE, and it is the one mode that asked to. Without
+	# this the fallback arm had no observable effect at all: removing it left
+	# every assertion green, because recording a reason is not reporting it.
+	def WasReported()
+		return @bReported
+
+	def Succeeded()
+		return @status = TASK_COMPLETED
+
 	def Cleanup()
 		# Cleans up task resources (overridable in sub
