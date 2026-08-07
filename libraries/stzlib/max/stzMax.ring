@@ -19,7 +19,22 @@
     load "common/stzListOfWalkers.ring"
     load "common/stzWalker2D.ring"
     load "common/stzListOfWalkers2D.ring"
-    load "common/stzParser.ring"
+    # NOT LOADED: common/stzParser.ring
+    #
+    # It declares `class stzParser from stzList`, but the BASE layer -- which
+    # this file loads first, at line 14 -- already declares `class stzParser
+    # from stzObject` in base/list/stzListParser.ring as the parent of
+    # stzListParser. Loading both is C26 (class redefinition) plus three C22s
+    # (Value, FirstItem, LastItem), and those five errors took the WHOLE max
+    # layer down: stzMax.ring itself then failed with C27 at this line, so
+    # `load "max/stzMax.ring"` had never once parsed.
+    #
+    # base/list/stzListParser.ring supersedes it -- same parse-positions idea,
+    # maintained, and reachable from the base layer. The file stays on disk for
+    # reference (its only caller is max/test/stzParserTest.ring, which is not
+    # loaded by anything).
+    #
+    # load "common/stzParser.ring"
 
     load "common/stzGlobalHelp.ring"
 

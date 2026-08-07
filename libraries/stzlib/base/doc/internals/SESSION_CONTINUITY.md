@@ -28,6 +28,10 @@
 - **15 tests all passing** (`zig build test --summary all`)
 - Filled 4 empty Core stubs: stkGlobals, stkStringCommons, stkListCommons, stkObjectCommons
 - Updated `stzlib.ring`: supports `$STZ_LAYER = :core | :base | :max`
+  - **Corrected 2026-08-07.** It never did. Ring's `load` is a compile-time
+    directive, so all three branches were compiled in regardless of the flag.
+    The layer is now chosen by file: `core/stkLib.ring`, `stzlib.ring` (base),
+    `max/stxLib.ring`.
 - Commit: `e18cbcb2`
 
 ## Session 2 (2026-05-13): Phase 3
@@ -153,13 +157,14 @@ Three levels of granularity on both Ring side and Engine side:
 
 **Level 1 -- Full library:**
 ```ring
-load "stzlib.ring"             # all modules, all engine DLLs
+load "max/stxLib.ring"         # all modules, all engine DLLs
 ```
 
-**Level 2 -- One layer:**
+**Level 2 -- One layer:** one entry FILE per layer. There is no flag --
+`load` is compile-time, so a `$STZ_LAYER` branch would compile all three.
 ```ring
-$STZ_LAYER = :core
-load "stzlib.ring"             # core modules + stz_string.dll
+load "core/stkLib.ring"        # core modules only
+load "stzlib.ring"             # base (+ core underneath) -- the default
 ```
 
 **Level 3 -- One module:**
