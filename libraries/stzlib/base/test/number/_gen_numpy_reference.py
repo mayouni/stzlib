@@ -159,6 +159,15 @@ for name, a in CORPUS.items():
     print(f"\treturn {rank}")
     print()
 
+    # Cholesky: the lower factor is UNIQUE once its diagonal is positive, and
+    # both our engine (sqrt of a positive pivot) and LAPACK use that
+    # convention -- so the factor is directly comparable, entry for entry.
+    if sym and np.all(np.linalg.eigvalsh(a) > 0):
+        chol = np.linalg.cholesky(a)
+        print(f"func RefChol_{name}()         # lower factor, positive diagonal")
+        print(f"	return {ring_matrix(chol)}")
+        print()
+
     # a solve, on a right-hand side of all ones -- the classic ill-conditioning demo
     if abs(det) > 1e-300:
         b = np.ones(n)
@@ -207,3 +216,37 @@ for name, a in CORPUS.items():
         print(f"func RefLapackRelErr_{name}()     # LAPACK's own relative error")
         print(f"\treturn {ring_num(lap_rel)}")
         print()
+
+
+# ---- Least squares: an OVERDETERMINED fixture with a unique solution ----
+#
+# A is the 6x3 polynomial Vandermonde on nodes 0..5 (fit a quadratic to six
+# points), b is fixed data with a genuine residual -- so this exercises the
+# QR path on a problem where "the answer" is a well-defined unique vector,
+# unlike a consistent system where any solver looks good.
+A_ls = np.vander(np.arange(6.0), 3, increasing=True)   # [1, x, x^2]
+b_ls = np.array([1.0, 2.0, 0.0, 5.0, 4.0, 3.0])
+x_ls, res_ls, rank_ls, sv_ls = np.linalg.lstsq(A_ls, b_ls, rcond=None)
+cond_ls = sv_ls[0] / sv_ls[-1]
+resid_norm = float(np.linalg.norm(A_ls @ x_ls - b_ls))
+
+print("# ---- lstsq: 6x3 quadratic fit, unique solution, real residual ----")
+print("func RefLstsqA()")
+print(f"	return {ring_matrix(A_ls)}")
+print()
+print("func RefLstsqB()")
+print(f"	return {ring_list(b_ls)}")
+print()
+print(f"func RefLstsqX()              # LAPACK lstsq solution, cond(A) = {cond_ls:.4e}")
+print(f"	return {ring_list(x_ls)}")
+print()
+print("func RefLstsqResidNorm()      # ||Ax - b|| at the optimum")
+print(f"	return {ring_num(resid_norm)}")
+print()
+# The least-squares sensitivity with a residual involves kappa^2 terms; at
+# this small kappa the dominant term is kappa * eps on the solution. Factor
+# 100 headroom keeps the bound DERIVED (from conditioning) rather than tuned
+# (to a passing run).
+print(f"func RefLstsqBound()          # 100 * kappa * eps = {100 * cond_ls * EPS:.6e}")
+print(f"	return {ring_num(100 * cond_ls * EPS)}")
+print()
