@@ -174,5 +174,26 @@ class stzReactiveTask from stzObject
 	def Succeeded()
 		return @status = TASK_COMPLETED
 
+	#-- AN OUTCOME PRODUCED OUTSIDE Execute() -----------------------------------
+	#
+	# Not every task computes. stzReactiveObject.SetAsync already HAS the value
+	# it is going to store, and its attempt to wrap one in a task function --
+	# `func { return _newValue_ }` -- raised R24, because a Ring lambda cannot
+	# read a caller's local. These two let a caller that did the work itself
+	# still report it through the same task surface, so Status()/Result()/
+	# Error() mean the same thing however the work happened.
+
+	def Complete(pResult)
+		@status = TASK_COMPLETED
+		@result = pResult
+		@errorMsg = ""
+		return This
+
+	def Fail(pcMsg)
+		@status = TASK_ERROR
+		@errorMsg = "" + pcMsg
+		@bReported = TRUE      # the caller is reporting it, right here
+		return This
+
 	def Cleanup()
 		# Cleans up task resources (overridable in sub

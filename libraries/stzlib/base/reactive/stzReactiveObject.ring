@@ -223,6 +223,10 @@ class stzReactiveObject from stzObject
 			ok
 		ok
 
+		# Watch() and Computed() both answer the object; this did not, so a
+		# configuration chain broke at the one call most likely to be in it.
+		return This
+
 	def @(paAttr)
 		This.SetAttribute(paAttr[1], paAttr[2])
 
@@ -286,13 +290,38 @@ class stzReactiveObject from stzObject
 	#-----------------------#
 
 	# Watch Attribute changes
+	# A CALLBACK THAT IS NOT ONE IS REFUSED AT REGISTRATION.
+	#
+	# It used to be stored and only fail when the attribute next changed --
+	# recorded now that the catches report, but reported against the WATCHER
+	# rather than against the call that registered it. isFunction is the test
+	# that works here: a Ring lambda IS a string ("_ring_anonymous_func_NNN"),
+	# so isString cannot tell one from "not a function", and isFunction can.
 	def Watch(_cAttribute_, fCallback)
+		if NOT (isString(fCallback) and isFunction(fCallback))
+			This._RecordError("Watch:" + _cAttribute_, WATCH_ERROR_NOT_A_FUNCTION)
+			return This
+		ok
+
 		_cAttribute_ = StzLower(_cAttribute_)
 		@aAttributeWatchers + [_cAttribute_, fCallback]
 		return self
 
 	# Create computed Attribute that auto-updates
+	# The dependency list is walked by find() on every attribute change, so a
+	# non-list is not a problem here -- it is a "Bad parameter type!" raised
+	# from UpdateDependentComputedAttributes on some LATER, unrelated set, a
+	# long way from the registration that caused it.
 	def Computed(_cAttribute_, _fnComputer_, _aDependencies_)
+		if NOT (isString(_fnComputer_) and isFunction(_fnComputer_))
+			This._RecordError("Computed:" + _cAttribute_, COMPUTED_ERROR_NOT_A_FUNCTION)
+			return This
+		ok
+		if NOT isList(_aDependencies_)
+			This._RecordError("Computed:" + _cAttribute_, COMPUTED_ERROR_DEPS_NOT_LIST)
+			return This
+		ok
+
 	    _cAttribute_ = StzLower(_cAttribute_)
 	    @aComputedAttributes + [_cAttribute_, _fnComputer_, _aDependencies_]
 	    
@@ -301,7 +330,16 @@ class stzReactiveObject from stzObject
 	    return self
 
 	# Bind Attribute to another reactive object
+	# THE TARGET HAS TO BE ABLE TO TAKE THE BINDING. A plain object raised R14
+	# "Calling Method without definition: setattributevalue" from inside this
+	# setter, so binding to the wrong kind of thing crashed the caller instead
+	# of being refused.
 	def BindTo(oTargetObject, _cSourceAttribute_, _cTargetAttribute_)
+		if NOT isObject(oTargetObject)
+			This._RecordError("BindTo:" + _cSourceAttribute_, BIND_ERROR_TARGET_NOT_OBJECT)
+			return This
+		ok
+
 		if _cTargetAttribute_ = NULL
 			_cTargetAttribute_ = _cSourceAttribute_
 		ok
@@ -311,11 +349,20 @@ class stzReactiveObject from stzObject
 
 		@aAttributeBindings + [_cSourceAttribute_, oTargetObject, _cTargetAttribute_]
 		
-		# Initial sync with immediate binding
+		# Initial sync with immediate binding. A target that cannot take it is
+		# recorded rather than raised: the binding is already registered, and
+		# UpdateBoundAttributes reports the same way on every later change.
 		_sourceValue_ = GetAttributeValue(_cSourceAttribute_)
 		if DEFAULT_SYNC_MODE = BIND_AUTO_SYNC
-			oTargetObject.SetAttributeValue(_cTargetAttribute_, _sourceValue_)
+			try
+				oTargetObject.SetAttributeValue(_cTargetAttribute_, _sourceValue_)
+			catch
+				This._RecordError("BindTo:" + _cSourceAttribute_ + "->" + _cTargetAttribute_,
+				                  CatchError())
+			done
 		ok
+
+		return This
 
 	# Async Attribute update
 	def SetAsync(_cAttribute_, _newValue_, fnSuccess, fnError)
@@ -328,23 +375,36 @@ class stzReactiveObject from stzObject
 			_fnErrorCallback_ = func(error) { }
 		ok
 		
-		_task_ = new stzReactiveTask(_taskId_, func {
-			return _newValue_
-		}, this)
-		
-		_task_.Then_(func @result {
-			SetAttribute(_cAttribute_, @result)
-			if fnSuccess != NULL
-				call fnSuccess(@result)
-			ok
-		})
-		
-		_task_.Catch_(func error {
-			call _fnErrorCallback_(error)
-		})
+		# FOUR arguments, not three. stzReactiveTask.init takes
+		# (id, f, engine, errorMode) and this passed (id, f, this), so every
+		# call raised R19 "Calling function with less number of parameters" on
+		# the construction itself, before anything else could run. SetAsync had
+		# never worked. The engine is @oEngine, not `this`.
+		_task_ = new stzReactiveTask(_taskId_, NULL, @oEngine, ERROR_CALLBACK)
 		
 		@aAsyncOperations + [_cAttribute_, _newValue_, fnSuccess, _task_, _fnErrorCallback_]
-		_task_.Execute()
+
+		# THE SET HAPPENS HERE, in the open.
+		#
+		# There is nothing to compute -- the value is already in hand -- and the
+		# two lambdas this used to lean on could not work. The task function
+		# `func { return _newValue_ }` raised R24 reading a caller's local, and
+		# the Then_ handler called a bare SetAttribute(...), which inside a
+		# lambda's own scope is a global-function lookup rather than this
+		# object's method. A Then_ handler receives one argument, so it could
+		# not have been handed the object either.
+		try
+			This.SetAttribute(_cAttribute_, _newValue_)
+			_task_.Complete(_newValue_)
+			if fnSuccess != NULL
+				call fnSuccess(_newValue_)
+			ok
+		catch
+			_task_.Fail(CatchError())
+			This._RecordError("SetAsync:" + _cAttribute_, _task_.Error())
+			call _fnErrorCallback_(_task_.Error())
+		done
+
 		return _task_
 
 	# Batch multiple Attribute updates
