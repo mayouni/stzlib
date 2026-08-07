@@ -215,6 +215,37 @@ class stzReactor from stzObject
 		This._Ensure()
 		return StzEngineReactorListen(@pHandle, cHost, nPort, 1)
 
+	# STZM message-plane listener (distribution D0): each :data event is
+	# ONE complete STZM frame (header + payload). Unpack with StzmUnpack().
+	def ListenStzm(cHost, nPort)
+		This._Ensure()
+		return StzEngineReactorListen(@pHandle, cHost, nPort, 2)
+
+	# Persistent CLIENT CHANNEL to a peer (distribution D0). The dial is
+	# async: the channel id comes back immediately; link-up arrives as an
+	# :accept event on ServerPoll/Await (a failed dial as :closed). The
+	# channel then speaks the SAME calls a listener does -- ServerWrite to
+	# send, ServerPoll to receive, ServerStop to hang up. A link is a link,
+	# whichever side dialed.
+	def ConnectStzm(cHost, nPort)
+		This._Ensure()
+		return StzEngineReactorConnect(@pHandle, cHost, nPort, 2)
+
+	# Raw-stream client channel (:data events carry stream chunks).
+	def ConnectRaw(cHost, nPort)
+		This._Ensure()
+		return StzEngineReactorConnect(@pHandle, cHost, nPort, 0)
+
+	# Block up to nTimeoutMs for the channel's link-up. Returns the conn id
+	# (> 0) to write on, or 0 (dial failed or timed out).
+	def WaitLinkUp(nChanId, nTimeoutMs)
+		This._Ensure()
+		aEv = This.ServerAwait(nChanId, nTimeoutMs)
+		if len(aEv) = 3 and aEv[1] = :accept
+			return aEv[2]
+		ok
+		return 0
+
 	# TLS-terminating HTTP listener: each connection runs an mbedTLS
 	# handshake (server cert cCertPath + key cKeyPath) before the plaintext
 	# HTTP framing -- so the events Ring drains are DECRYPTED requests and
