@@ -567,6 +567,23 @@ pub export fn neural_embed_text(text: [*c]const u8, len: usize) callconv(.c) c_i
     return @intCast(n_embd);
 }
 
+/// Install a sentence vector computed ELSEWHERE (the GPU backbone) into the
+/// shared embedding slot, so neural_embed_at() reads it like any other.
+///
+/// It also INVALIDATES the per-token hidden states: the backbone produces
+/// only the pooled vector, so leaving g_tok_emb populated would let a later
+/// neural_token_value() hand back the PREVIOUS text's states -- a stale read
+/// that no caller could see coming. Zero tokens is the honest answer.
+pub fn installEmbedding(vec: []const f32) bool {
+    g_emb.clearRetainingCapacity();
+    g_emb.ensureTotalCapacity(gpa, vec.len) catch return false;
+    for (vec) |v| g_emb.appendAssumeCapacity(v);
+    g_tok_emb.clearRetainingCapacity();
+    g_tok_emb_ntok = 0;
+    g_tok_emb_ndim = 0;
+    return true;
+}
+
 pub export fn neural_embed_at(i: c_int) callconv(.c) f64 {
     const idx: usize = @intCast(i);
     if (idx >= g_emb.items.len) return 0;

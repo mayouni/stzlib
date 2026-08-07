@@ -408,6 +408,75 @@ pub export fn neural_backbone_supported() callconv(.c) c_int {
     return 1;
 }
 
+// ---------------------------------------------------------------- the routing gate
+//
+// The SILENT SEAM (G3's pattern): every embedding call goes through
+// neural_embed_routed, which sends long-enough sequences to the backbone and
+// leaves everything else on ggml's CPU kernels. The line is in TOKENS and it
+// is MEASURED, not guessed -- on the dev machine (RTX 3050, MiniLM-L6-v2):
+//
+//     tokens   11     20     29     47     74    119    182    254
+//     ratio  0.755  1.021  1.341  1.585  1.671  1.567  1.942
+//
+// The backbone LOSES below ~20 tokens (its per-call floor is not free) and
+// only earns a real margin from ~29. The default sits at 32: past break-even
+// with room, never AT it. Below the line the CPU keeps the work, and the
+// guard asserts that side too.
+var g_min_tokens: f64 = 32;
+var g_used_backbone: f64 = 0;
+var g_used_cpu: f64 = 0;
+
+pub export fn neural_backbone_set_min_tokens(n: f64) callconv(.c) void {
+    if (n >= 2) g_min_tokens = n;
+}
+
+pub export fn neural_backbone_min_tokens() callconv(.c) f64 {
+    return g_min_tokens;
+}
+
+/// 0 = embeddings served by the backbone, 1 = served by the CPU forward.
+pub export fn neural_backbone_route_count(which: c_int) callconv(.c) f64 {
+    return if (which == 0) g_used_backbone else g_used_cpu;
+}
+
+pub export fn neural_backbone_route_reset() callconv(.c) void {
+    g_used_backbone = 0;
+    g_used_cpu = 0;
+}
+
+/// THE routed entry point: same contract as neural_embed_text (returns the
+/// dimension, vector readable via neural_embed_at), but sends work to the
+/// GPU backbone when the sequence is long enough to pay for it. Any refusal
+/// -- unsupported architecture, no device, a failed dispatch -- falls
+/// through to the CPU forward with the same answer.
+pub export fn neural_embed_routed(text: [*c]const u8, len: usize) callconv(.c) c_int {
+    const n_tok = embed.neural_tokenize(text, len);
+    if (@as(f64, @floatFromInt(n_tok)) >= g_min_tokens and neural_backbone_supported() == 1) {
+        const n_embd: usize = @intCast(embed.neural_model_n_embd());
+        if (n_embd > 0) {
+            const ids = gpa.alloc(i32, @intCast(n_tok)) catch {
+                g_used_cpu += 1;
+                return embed.neural_embed_text(text, len);
+            };
+            defer gpa.free(ids);
+            for (0..@intCast(n_tok)) |i| ids[i] = embed.neural_token_at(@intCast(i));
+            const vec = gpa.alloc(f32, n_embd) catch {
+                g_used_cpu += 1;
+                return embed.neural_embed_text(text, len);
+            };
+            defer gpa.free(vec);
+            if (neural_backbone_forward(ids.ptr, n_tok, vec.ptr) == 1 and
+                embed.installEmbedding(vec))
+            {
+                g_used_backbone += 1;
+                return @intCast(n_embd);
+            }
+        }
+    }
+    g_used_cpu += 1;
+    return embed.neural_embed_text(text, len);
+}
+
 // ---------------------------------------------------------------- the pass
 
 var g_kernels: [5]i64 = @splat(0);

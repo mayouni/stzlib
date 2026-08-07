@@ -140,10 +140,12 @@ fn ring_NeuralTokenAt(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(embed.neural_token_at(i)));
 }
 
+// THE SEAM: every embedding in the library comes through here, and the
+// engine decides CPU vs GPU backbone by the MEASURED token threshold.
 fn ring_NeuralEmbed(p: *anyopaque) callconv(.c) void {
     const ptr = gs(p, 1);
     const len: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
-    rn(p, @floatFromInt(embed.neural_embed_text(ptr, len)));
+    rn(p, @floatFromInt(nbb.neural_embed_routed(ptr, len)));
 }
 fn ring_NeuralEmbedAt(p: *anyopaque) callconv(.c) void {
     const i: c_int = @intFromFloat(R.ring_vm_api_getnumber(p, 1));
@@ -260,6 +262,24 @@ fn ring_BackboneEmbed(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+fn ring_BackboneSetMinTokens(p: *anyopaque) callconv(.c) void {
+    nbb.neural_backbone_set_min_tokens(R.ring_vm_api_getnumber(p, 1));
+    rn(p, 1);
+}
+
+fn ring_BackboneMinTokens(p: *anyopaque) callconv(.c) void {
+    rn(p, nbb.neural_backbone_min_tokens());
+}
+
+fn ring_BackboneRouteCount(p: *anyopaque) callconv(.c) void {
+    rn(p, nbb.neural_backbone_route_count(@intFromFloat(R.ring_vm_api_getnumber(p, 1))));
+}
+
+fn ring_BackboneRouteReset(p: *anyopaque) callconv(.c) void {
+    nbb.neural_backbone_route_reset();
+    rn(p, 1);
+}
+
 fn ring_BackboneSupported(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(nbb.neural_backbone_supported()));
 }
@@ -267,6 +287,10 @@ fn ring_BackboneSupported(p: *anyopaque) callconv(.c) void {
 pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralbackboneembed", .func = &ring_BackboneEmbed },
     .{ .name = "stzengineneuralbackbonesupported", .func = &ring_BackboneSupported },
+    .{ .name = "stzengineneuralbackbonesetmintokens", .func = &ring_BackboneSetMinTokens },
+    .{ .name = "stzengineneuralbackbonemintokens", .func = &ring_BackboneMinTokens },
+    .{ .name = "stzengineneuralbackboneroutecount", .func = &ring_BackboneRouteCount },
+    .{ .name = "stzengineneuralbackboneroutereset", .func = &ring_BackboneRouteReset },
     .{ .name = "stzengineneuralgpuruntimepath", .func = &ring_GpuRuntimePath },
     .{ .name = "stzengineneuralgpusetthreshold", .func = &ring_GpuSetThreshold },
     .{ .name = "stzengineneuralgputhreshold", .func = &ring_GpuThreshold },

@@ -65,6 +65,12 @@ else
     ? ""
     ? "-- Scene 2: a real MiniLM -- the hook claims above the line, not below --"
     chk("MiniLM loads", StzEngineNeuralModelLoad(cModel) = 1)
+    # ISOLATE THE SUBJECT: since the embedding seam shipped, a long text goes
+    # to the RESIDENT BACKBONE, which never builds a ggml graph -- so the
+    # per-node hook would see nothing and this scene would measure the wrong
+    # thing. Push the backbone's gate out of reach; scene by scene, a guard
+    # must exercise the path it is about.
+    StzEngineNeuralBackboneSetMinTokens(1000000)
     cText = ""
     for i = 1 to 13
         cText += "the quick brown fox jumps over the lazy dog and runs away "
@@ -146,6 +152,7 @@ else
     StzEngineNeuralEmbed(cText)
     chk("at the SHIPPED default, MiniLM claims nothing -- CPU keeps it, by measurement",
         StzEngineNeuralGpuCounter(C_CLAIMED) = 0)
+    StzEngineNeuralBackboneSetMinTokens(32)   # restore the shipped seam gate
     StzEngineNeuralModelFree()
 ok
 
