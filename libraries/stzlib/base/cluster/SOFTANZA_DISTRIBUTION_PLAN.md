@@ -277,6 +277,27 @@ reply), the restart is COUNTED, and the budget escalates when exceeded.
 *Kill criteria:* none — this phase is pure semantics; if it needs new
 I/O primitives something upstream was wrong.
 
+**D3 RESULT (2026-08-07, DONE).** Guard: `base/test/cluster/
+d3_supervision_narrated.ring` (25 assertions, real kills of real
+processes). As predicted, ZERO new I/O primitives were needed --
+`stzNodeSupervisor` (base/cluster/stzNodeSupervisor.ring) is pure
+policy over the existing observations (spawn JobState for exits, plane
+Asks for heartbeats), keeping the house contracts: Name_() + Cycle(),
+hostable on any stzAgentHost. Proven, by STATE rather than counters
+alone: the mid-conversation kill fails the in-flight Ask plainly (no
+ghost reply) and the child answers again ~3.0 s after death, restart
+counted exactly once; :OneForOne leaves the sibling's accumulated
+state INTACT while :AllForOne wipes it (a fresh process has no
+memory -- the strongest possible restart witness); the budget (2 per
+window) escalates on the third kill with the child named in the
+reason, exactly 2 restarts ever counted, post-escalation cycles
+restart NOTHING and the child stays observably down; heartbeats (300
+ms interval, tolerance 2) catch the WEDGED node -- alive, dispatch
+loop spinning forever, invisible to process-exit detection -- kill it,
+and have it answering again ~3.1 s after the wedge; monitors receive
+[ node.down, child, restarts ] through the plane itself (asserted by
+content on a subscribing watcher node).
+
 **D4 — the declarative surface + pseudo-distributed RunLocal.**
 `stzNodeApp` as sketched above. `RunLocal()` runs the whole topology on
 one machine; `Deploy(node, host)` moves one node with zero caller
