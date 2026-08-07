@@ -699,6 +699,7 @@ ok
 # over the STZM wire fixed by D0 (SOFTANZA_DISTRIBUTION_PLAN.md).
 
     load "cluster/stzNode.ring"
+    load "cluster/stzNodePlane.ring"
 
 # Loading files related to NATURAL module
 
