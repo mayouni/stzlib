@@ -269,6 +269,15 @@ FUNC_ERROR_TOO_MANY_PARAMS = "Reactive call has too many params:"
 OBJECT_STANDALONE = NULL        # For objects created from scratch
 OBJECT_WRAPPER = "wrapper"      # For wrapping existing objects
 
+# Refusals the configuration surface can report. Each used to be a raise from
+# somewhere else entirely -- a watcher that failed on the next change, a
+# "Bad parameter type!" out of find() on an unrelated set, an R14 from inside
+# BindTo -- rather than a refusal naming the call that was wrong.
+WATCH_ERROR_NOT_A_FUNCTION    = "Watch callback is not a function"
+COMPUTED_ERROR_NOT_A_FUNCTION = "Computed computer is not a function"
+COMPUTED_ERROR_DEPS_NOT_LIST  = "Computed dependencies must be a list"
+BIND_ERROR_TARGET_NOT_OBJECT  = "Bind target must be a reactive object"
+
 #-----------------#
 #  HTTP CONSTANTS #
 #-----------------#
