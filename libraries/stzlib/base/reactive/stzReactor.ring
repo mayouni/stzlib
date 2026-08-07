@@ -342,6 +342,30 @@ class stzReactor from stzObject
 		This._Ensure()
 		return StzEngineReactorServerCloseConn(@pHandle, nServerId, nConnId)
 
+	# Bounded inbox (distribution D1): cap the QUEUED data events with a
+	# declared overflow policy -- :DropOldest / :DropNewest / :Refuse
+	# (reject and hang up, so the sender observes it). nCap 0 = unbounded.
+	# Overflow is COUNTED (ServerOverflow), never silent.
+	def ServerSetInbox(nServerId, nCap, cPolicy)
+		This._Ensure()
+		nPol = 0
+		if cPolicy = :DropOldest
+			nPol = 1
+		but cPolicy = :DropNewest
+			nPol = 2
+		but cPolicy = :Refuse
+			nPol = 3
+		ok
+		return StzEngineReactorServerSetInbox(@pHandle, nServerId, nCap, nPol)
+
+	def ServerOverflow(nServerId)
+		This._Ensure()
+		return StzEngineReactorServerOverflow(@pHandle, nServerId)
+
+	def ServerPendingData(nServerId)
+		This._Ensure()
+		return StzEngineReactorServerPendingData(@pHandle, nServerId)
+
 	def ServerStop(nServerId)
 		This._Ensure()
 		return StzEngineReactorServerStop(@pHandle, nServerId)

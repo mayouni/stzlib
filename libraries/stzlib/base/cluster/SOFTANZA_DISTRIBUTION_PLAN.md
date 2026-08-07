@@ -216,6 +216,28 @@ exit is observable) rather than wedging.
 *Kill criteria:* if per-message dispatch overhead exceeds the D0
 round-trip itself, the mailbox layer is too heavy — thin it before D2.
 
+**D1 RESULT (2026-08-07, DONE).** Guard: `base/test/cluster/
+d1_node_mailbox_narrated.ring` (23 assertions, SIX real child
+processes). Kill criterion passed wide: node-echo round trip 1.06 ms
+median vs 0.97 ms raw echo measured side by side in the same run —
+**dispatch overhead 0.09 ms**, an order of magnitude under one D0
+round-trip. FIFO proven by CONTENT (1..50 drained in exact order, deep
+equality through the encoder). Overflow counted EXACTLY — 20/20/1
+across the three policies — and each policy keeps the messages it
+promises: :DropNewest the FIRST cap (survivors 1..10), :DropOldest the
+LAST cap (survivors 21..30), :Refuse hangs up so the SENDER observes
+the refusal (:closed), and a fresh link finds the node alive with
+survivors 1..5 and exactly one counted refusal. A raising handler dies
+LOUDLY: link closed + OS process exit observed, no wedge. `stz.stop`
+is the built-in clean shutdown, asserted via the exit marker.
+Placement note: the bounded inbox lives in the ENGINE (a cap on queued
+data events at the framing point, shared by raw/http/stzm modes) —
+bounding in Ring would have left the engine queue unbounded, a bound
+that lies. `stzNode` (base/cluster/stzNode.ring) carries On/Run
+dispatch, replies only when FLAG_REPLY_EXPECTED is set (the D2 Ask
+contract, honored early), counts unhandled tags, and does NOT catch
+handler errors, by design.
+
 **D2 — registry + location-transparent Send/Ask.**
 Name → transport resolution: same-app child (loopback TCP), or
 `name@host` (remote TCP/TLS). One code path from the caller's side;

@@ -695,6 +695,11 @@ ok
 
     load "cluster/stzRequestClassifier.ring"
 
+# cluster/ -- THE DISTRIBUTION PLANE (D-phases): message-passing nodes
+# over the STZM wire fixed by D0 (SOFTANZA_DISTRIBUTION_PLAN.md).
+
+    load "cluster/stzNode.ring"
+
 # Loading files related to NATURAL module
 
     load "natural/stzChainOfTruth.ring"
