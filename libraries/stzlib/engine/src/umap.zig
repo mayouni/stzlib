@@ -358,6 +358,53 @@ fn knn(
 }
 
 /// Exact k nearest neighbours, per point, by full scan. O(n^2).
+// --- Threaded all-pairs (M4 of the multicore tier) ---
+//
+// Each point's row is fully independent: its distances, its selection, its
+// k output slots. OUTPUT PARTITION, so the parallel result is BIT-IDENTICAL
+// to serial -- indices and distances both, asserted below and in
+// tools/knn_spike.zig. Measured there (two runs): T8 = 6.1-6.7x at n >=
+// 2048, ~3x at n=1024; gate at the measured n >= 1024, PROVISIONAL until
+// the calibration store (M5). This only ever runs below ANN_MIN_N (8192),
+// so the worst remaining serial case (n=1023) costs ~25 ms.
+pub var knn_exact_parallel_min_n: usize = 1024;
+const KNN_WORKERS = 8;
+
+const KnnBand = struct {
+    x: []const f64,
+    n: usize,
+    d: usize,
+    k: usize,
+    i0: usize,
+    i1: usize,
+    cand: []f64,
+    idx_out: []u32,
+    dist_out: []f64,
+    fn run(self: *const KnnBand) void {
+        var i = self.i0;
+        while (i < self.i1) : (i += 1) {
+            knnExactRow(self.x, self.n, self.d, self.k, i, self.cand, self.idx_out, self.dist_out);
+        }
+    }
+};
+
+fn knnExactRow(x: []const f64, n: usize, d: usize, k: usize, i: usize, cand: []f64, idx_out: []u32, dist_out: []f64) void {
+    for (0..n) |j| cand[j] = if (j == i) std.math.inf(f64) else @sqrt(sqDist(x[i * d ..][0..d], x[j * d ..][0..d]));
+    for (0..k) |slot| {
+        var best: usize = 0;
+        var bestv = std.math.inf(f64);
+        for (0..n) |j| {
+            if (cand[j] < bestv) {
+                bestv = cand[j];
+                best = j;
+            }
+        }
+        idx_out[i * k + slot] = @intCast(best);
+        dist_out[i * k + slot] = bestv;
+        cand[best] = std.math.inf(f64);
+    }
+}
+
 fn knnExact(
     alloc: std.mem.Allocator,
     x: []const f64,
@@ -367,24 +414,37 @@ fn knnExact(
     idx_out: []u32,
     dist_out: []f64,
 ) !void {
+    if (n >= knn_exact_parallel_min_n) {
+        const cpus = std.Thread.getCpuCount() catch 1;
+        const nt = @min(KNN_WORKERS, cpus);
+        if (nt > 1) {
+            // one candidate buffer per worker -- rows share nothing else
+            const cands = try alloc.alloc(f64, n * nt);
+            defer alloc.free(cands);
+            var jobs: [KNN_WORKERS]KnnBand = undefined;
+            var threads: [KNN_WORKERS]std.Thread = undefined;
+            const per = (n + nt - 1) / nt;
+            var spawned: usize = 0;
+            for (0..nt) |t| {
+                const lo = @min(t * per, n);
+                const hi = @min(lo + per, n);
+                if (lo >= hi) break;
+                jobs[t] = .{ .x = x, .n = n, .d = d, .k = k, .i0 = lo, .i1 = hi, .cand = cands[t * n .. (t + 1) * n], .idx_out = idx_out, .dist_out = dist_out };
+                threads[spawned] = std.Thread.spawn(.{}, KnnBand.run, .{&jobs[t]}) catch {
+                    jobs[t].run();
+                    continue;
+                };
+                spawned += 1;
+            }
+            for (threads[0..spawned]) |th| th.join();
+            return;
+        }
+    }
+
     const cand = try alloc.alloc(f64, n);
     defer alloc.free(cand);
     for (0..n) |i| {
-        for (0..n) |j| cand[j] = if (j == i) std.math.inf(f64) else @sqrt(sqDist(x[i * d ..][0..d], x[j * d ..][0..d]));
-        // partial selection of the k smallest, same bounded scan the KNN slice used
-        for (0..k) |slot| {
-            var best: usize = 0;
-            var bestv = std.math.inf(f64);
-            for (0..n) |j| {
-                if (cand[j] < bestv) {
-                    bestv = cand[j];
-                    best = j;
-                }
-            }
-            idx_out[i * k + slot] = @intCast(best);
-            dist_out[i * k + slot] = bestv;
-            cand[best] = std.math.inf(f64);
-        }
+        knnExactRow(x, n, d, k, i, cand, idx_out, dist_out);
     }
 }
 
@@ -2251,4 +2311,38 @@ test "BELOW THE THRESHOLD THE ANSWER IS BIT-IDENTICAL to the exact scan" {
         try testing.expectEqual(ei[t], gi[t]);
         try testing.expectEqual(ed[t], gd[t]);
     }
+}
+
+test "threaded knnExact is bit-identical to serial, indices and distances" {
+    const alloc = std.testing.allocator;
+    const saved = knn_exact_parallel_min_n;
+    defer knn_exact_parallel_min_n = saved;
+
+    const n = 203; // odd, so the last band is uneven
+    const d = 5;
+    const k = 7;
+    const x = try alloc.alloc(f64, n * d);
+    defer alloc.free(x);
+    var seed: u64 = 31;
+    for (x) |*v| {
+        seed = seed *% 6364136223846793005 +% 1442695040888963407;
+        v.* = @as(f64, @floatFromInt((seed >> 33) % 100)) / 99.0;
+    }
+
+    const ia = try alloc.alloc(u32, n * k);
+    defer alloc.free(ia);
+    const da = try alloc.alloc(f64, n * k);
+    defer alloc.free(da);
+    const ib = try alloc.alloc(u32, n * k);
+    defer alloc.free(ib);
+    const db = try alloc.alloc(f64, n * k);
+    defer alloc.free(db);
+
+    knn_exact_parallel_min_n = std.math.maxInt(usize);
+    try knnExact(alloc, x, n, d, k, ia, da);
+    knn_exact_parallel_min_n = 2;
+    try knnExact(alloc, x, n, d, k, ib, db);
+
+    for (ia, ib) |p1, q1| try std.testing.expectEqual(p1, q1);
+    for (da, db) |p1, q1| try std.testing.expect(p1 == q1);
 }
