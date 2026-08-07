@@ -208,3 +208,136 @@ kill criteria; not part of the wgpu commitment.
 - **CI has no GPU**: every guard must pass on the fallback path too; GPU
   assertions gate on IsAvailable() and the fallback guard asserts
   correctness-without-device explicitly.
+
+---
+
+## G0 RESULTS — measured 2026-08-07. VERDICT: GO, with the scope the numbers dictate
+
+Environment: wgpu-native v29.0.1.1 (pinned prebuilt, SHA-256 recorded in
+`engine/vendor/wgpu/VERSION`), Zig 0.15.2, ReleaseSafe (the shipped mode).
+Spike: `engine/tools/gpu_spike.zig` (build line in its header). Both adapters
+ran on the SAME backend (Vulkan) to remove the backend confound. Machine was
+shared with other sessions — recorded as-is, variance noted where it moved.
+
+Methodology: monotonic clock; per op 3 warmups + 5 timed reps (min AND
+median), then 3 s continuous with the first 1 s discarded ("sustained");
+CPU samples inner-loop scaled to ≥1 ms; every GPU op timed as
+submit+wait-idle (the price a real call pays, submission overhead included);
+chain10 = 10 dispatches in ONE compute pass, amortized /10 = the
+resident-chain number. Every GPU result verified against the CPU f32
+reference: max rel err 6.9e-8 (saxpy), 3.3e-7 (matmul 2048²) — f32
+accumulation-order noise, nothing else.
+
+### CPU baselines (this machine, this session — remeasured, not quoted)
+
+| op | n | f32 | f64 (the shipped tier) |
+|---|---|---|---|
+| saxpy | 4096 | 0.0003 ms | 0.0006 ms |
+| saxpy | 4.2M | 1.25 ms (40 GB/s) | 2.65 ms (38 GB/s) |
+| matmul | 128 | 0.145 ms (28.9 GF/s) | 0.269 ms (15.6 GF/s) |
+| matmul | 512 | 13.9 ms (19.3 GF/s) | 22.8 ms (11.8 GF/s) |
+| matmul | 1024 | 101.5 ms (21.2 GF/s) | 329 ms (6.5 GF/s) |
+| matmul | 2048 | 1742 ms (9.9 GF/s) | 3563 ms (4.8 GF/s) |
+
+The engine's recorded 15.6 GFLOP/s f64 reproduces at n=128; at 512 today it
+read 11.8 (shared machine). Above 1024 the i-k-j loop falls off the cache
+cliff — the CPU number the GPU must beat at scale is 5–7 GF/s f64, ~10-21 f32.
+
+### Decomposition — RTX 3050 Laptop (Vulkan), warm-min / sustained, ms
+
+| matmul n | upload | dispatch | chain10/op | readback | GPU GF/s (chain) |
+|---|---|---|---|---|---|
+| 64 | 0.056 | 0.059 / 0.070 | 0.012 | 0.049 | 41 |
+| 128 | 0.073 | 0.095 / 0.083 | 0.025 | 0.056 | 155 |
+| 256 | 0.14 | 0.25 / 0.18 | 0.12 | 0.087 | 250 |
+| 512 | 0.32 | 1.82 / 1.11 | 0.96 | 0.22 | 280 |
+| 1024 | 1.11 | 18.9 / 8.4 | 7.3 | 0.85 | 294 |
+| 2048 | 5.0 (5→19 across runs) | 64.6 / 62.1 | 58.5 | 3.06 | 293 |
+
+| saxpy n | upload (2 bufs) | dispatch | chain10/op | readback |
+|---|---|---|---|---|
+| 4096 | 0.061 | 0.060 | 0.009 | 0.051 |
+| 262144 | 0.33 | 0.082 | 0.026 | 0.19 |
+| 1.05M | 1.10 | 0.174 | 0.111 | 0.67 |
+| 4.2M | 4.35 | 0.53 | 0.43 | 2.79 |
+
+Transfers: upload ≈7.6 GB/s, readback ≈5–6 GB/s. Submission floor ≈55–70 µs
+per submit+wait; INSIDE one pass a dispatch costs ~9 µs — pass-batching
+amortizes ~7x of the submission overhead (G1 design input).
+
+### Decomposition — Intel iGPU (Vulkan), warm-min / sustained, ms
+
+| matmul n | upload | dispatch | chain10/op | readback | GPU GF/s (chain) |
+|---|---|---|---|---|---|
+| 64 | 0.34 | 0.24 / 0.33 | 0.089 | 0.26 | 4.8 |
+| 128 | 0.20 | 0.62 / 0.78 | 0.11–0.26 | 0.13 | 37 |
+| 256 | 0.23 | 2.83 / 0.85 | 0.57 | 0.16 | 57 |
+| 512 | 0.45 | 4.4 / 4.4 (first-ever run 19.4: cold clocks) | 4.2 | 0.23 | 64 |
+| 1024 | 1.33 | 32.9 / 33.8 | 33.6 | 0.53 | 64 |
+| 2048 | 5.0 | 272.7 / 274.6 | 274 | 2.10 | 62 |
+
+saxpy 4.2M: upload 5–7, dispatch 1.6–1.8, chain10/op 0.79–0.87, readback
+2.0–3.4. Submission floor ≈220–420 µs. Note: the iGPU's shared memory did
+NOT make transfer cheap through wgpu — staging copies still happen (upload
+~5 GB/s). The "iGPU = free transfer" hope is dead until/unless G1 measures
+mapped-at-creation buffers.
+
+### Kill criteria, applied
+
+**KILLED — standalone elementwise (saxpy and its whole family).** Transfer
+share is 92% of one-shot cost at 4M elements on the 3050 (7.2 of 7.7 ms) —
+the same 92% the string-drain measured at FFI speed, now over PCIe. One-shot
+GPU saxpy LOSES to CPU f32 at every size tested (6.2x worse at 4M, 570x at
+4K). Even fully resident, the chain win peaks at 2.9x (4M) and only crosses
+CPU at ~256K elements. Elementwise ops are admitted ONLY as links inside
+resident chains between compute-dense ops, never as a dispatch of their own.
+
+**KILLED — anything below the dispatch floor.** One submit+wait costs
+~60 µs (3050) / ~250 µs (iGPU) before any math. matmul n=64 and n=128
+one-shot stay CPU on both adapters. The calibrated threshold gate is not
+optional politeness; it is where most of the op catalog actually lives.
+
+**KEPT — f32 matmul and the compute-dense family** (ops doing O(n) work per
+element moved: matmul, pairwise-distance, attention-shaped blocks).
+Resident-chain matmul at 1024² runs 294 GFLOP/s on the 3050 — 45x the CPU
+f64 tier, 14x CPU f32 — and 64 GF/s on the bare iGPU (9x / 2.9x). The kill
+criterion ("resident chain must beat CPU under ~1024²") passes on BOTH
+adapters with room: the chain crosses CPU at n≈128 (3050) / n≈256 (iGPU).
+And this is the FLOOR — a plain 16×16 tile, ~5% of the 3050's peak; G2
+tuning has headroom, the decision doesn't depend on it.
+
+**CONDITIONAL — FFT-at-scale, reductions, softmax.** Between the two poles
+measured here (O(1) and O(n) work per element); each gets this same
+decomposition in G2 before admission. No op enters the silent tier on vibes.
+
+### Calibrated crossover points (this machine; G3 recalibrates per install)
+
+| | RTX 3050 | Intel iGPU |
+|---|---|---|
+| matmul one-shot (upload+dispatch+readback) | n ≈ 192–256 | n ≈ 384–512 |
+| matmul resident-chain | n ≈ 128 | n ≈ 256 |
+| elementwise one-shot | NEVER | NEVER |
+| elementwise inside resident chain | ~256K elems | ~1M elems |
+
+### Findings G1 must inherit
+
+1. **Pipeline compile is 5–34 ms cold, 0.4 ms warm** (driver shader cache).
+   The WGSL compile-cache is justified by measurement, not principle.
+2. **The clock inversion.** On this laptop the GPU idles at low clocks:
+   warm-min dispatch at 1024² is 2.3x SLOWER than sustained (18.9 vs
+   8.4 ms). A sporadic one-shot call pays the slow number — calibration must
+   store the WARM-MIN (conservative), and "sustained" flatters any op that
+   ships as occasional calls. (Opposite direction from CPU thermal lying.)
+3. **Pass-batching is the cheap residency win**: 10 dispatches in one pass
+   amortize submission ~7x (3050). Chains should coalesce into one pass
+   whenever dependencies allow.
+4. **Transfer variance is real**: the 2048² upload moved 5→19 ms across
+   otherwise-identical runs. Calibration should treat transfer cost as a
+   band, not a point.
+5. f32 GPU vs f64 CPU parity: rel err ≤3.3e-7 vs the f32 reference; vs the
+   f64 tier the difference is f32 representation itself — the tolerance-band
+   work in G2 starts from these measured figures.
+
+Scope confirmed as planned: f32-tolerant domains only; the f64 solver tier
+stays CPU. The silent-service scope does NOT shrink to batch-only — the
+resident-chain criterion passed on both adapters.
