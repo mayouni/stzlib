@@ -536,3 +536,57 @@ GPU guards green together — 136 asserts):
 Remaining phases: **G5** (WASM/WebGPU edge convergence + deployment
 gates + real calibration passes) and **G6** (the separate ggml-Vulkan
 decision for the neural tier).
+
+---
+
+## G5 STATUS — shipped 2026-08-07: the edge converges, the thresholds are measured
+
+**Edge convergence, PROVEN in a browser, not asserted.** The transpiler
+went zero-allocation (fixed stack cursors, no libc) and now compiles into
+stz.wasm as the `gpu` group (31.5 KB total; capability key `GpuKernels`
+in the builder's map; exports `stz_gpu_wgsl_elementwise` / `_error`).
+The proof harness (`base/test/gpu/edge_proof/`, run 2026-08-07, 5/5):
+
+1. stz.wasm transpiled the same spec to **byte-identical WGSL** to the
+   native engine's;
+2. the browser's WebGPU ran that kernel text and its results were
+   **exactly equal** to the native wgpu-native run's (256 f32-exact
+   values).
+
+Same spec → same kernel → same numbers, native and edge. The plan's
+"the SAME WGSL runs in-browser" claim is now a measured fact.
+
+**Calibration is measured, persisted, and consumed.**
+`stzGpu.Calibrate()` walks a corpus-size ladder through the REAL G3
+seam, both routes, warm-min per rung (the G0 clock inversion), stores
+the first rung the GPU wins by ≥30%, and persists it under
+`engine/data/` — `gpu_calib_default.txt` (loadable BEFORE any device;
+the seam's cheap precheck reads it) + `gpu_calib_<adapter>.txt`
+(per-adapter truth, loaded after Init). Measured here: the GPU wins
+from n·d = 64k — the conservative 4M seed was **62x too cautious**;
+the calibration pass genuinely changes routing. Authority order in the
+faces: explicit CalibSet > persisted file > seed — the loaders are
+FILL-ONLY, because a persisted value overriding an in-process explicit
+one broke the seam guard the moment both existed (caught by the guard
+sweep; the fix is semantic, not a patch).
+
+**The deployment gate is an ADMISSION check.** stzResourceSpec carries
+GPU on both roles (a requirement's SetGpuRequired/SetGpuOptional, a
+capacity's SetGpuPresent; Meets/Plus/IsEmpty/Text extended). The gate
+fires in Run() before a part's FIRST step — NOT inside the provision
+op, which only exists for scriptable sites; the first draft put it
+there and the gate never ran, while the refuse-scene passed by
+COINCIDENCE on an unrelated store failure. The log-by-name assertion
+is what caught it, and the guard now asserts "the gpu admission gate
+refused" verbatim. Semantics: required + gpu-less site → the step
+FAILS and the deploy refuses; optional + gpu-less → proceeds with the
+degrade LOGGED (runtime falls back and counts, G1's law); a LOCAL site
+answers by probing the real device; a remote site's GPU is its declared
+capacity, absent otherwise.
+
+Guards: `gpu_calibration_narrated.ring` (10) +
+`gpu_deploy_gate_narrated.ring` (16); the six GPU guards together =
+**162 asserts green**; the pre-existing deployment suite stays green.
+
+Remaining: **G6** — the separate ggml-Vulkan go/no-go for the neural
+tier, with its own measurement and kill criteria.

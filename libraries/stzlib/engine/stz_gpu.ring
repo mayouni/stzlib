@@ -56,3 +56,108 @@ else
     ? "WARNING: stz_gpu not found at: " + $cStzGpuLib
     $pStzGpuHandle = NULL
 ok
+
+# ---- calibration persistence (G5) ------------------------------------
+#
+# Measured crossovers survive the process in small text files under the
+# engine's data/ dir: gpu_calib_default.txt (the last calibrated machine,
+# loadable BEFORE any device exists -- cheap prechecks read it) and
+# gpu_calib_<adapter>.txt (per-adapter truth, loaded after Init). Format:
+# one "op<TAB>threshold" per line. Faces call the two Load functions at
+# their natural moments; both are idempotent.
+
+$bStzGpuCalibDefaultLoaded_ = FALSE
+$bStzGpuCalibAdapterLoaded_ = FALSE
+
+func StzGpuCalibFileDefault()
+	return $cEngineDir + "/data/gpu_calib_default.txt"
+
+func StzGpuCalibFileForAdapter()
+	if StzEngineGpuIsAvailable() = 0
+		return ""
+	ok
+	_cName_ = StzEngineGpuAdapterName(StzEngineGpuSelectedAdapter())
+	_cSafe_ = ""
+	_nL_ = len(_cName_)
+	for _i_ = 1 to _nL_
+		_c_ = substr(_cName_, _i_, 1)
+		if isalnum(_c_)
+			_cSafe_ += _c_
+		else
+			_cSafe_ += "_"
+		ok
+	next
+	return $cEngineDir + "/data/gpu_calib_" + _cSafe_ + ".txt"
+
+# loadable WITHOUT a device -- the pre-Init precheck's file.
+# FILL-ONLY: a persisted value never overrides one set in THIS process
+# (an explicit CalibSet -- a guard's, a tuner's -- outranks the disk).
+func StzGpuLoadCalibrationDefault()
+	if $bStzGpuCalibDefaultLoaded_
+		return
+	ok
+	$bStzGpuCalibDefaultLoaded_ = TRUE
+	_StzGpuCalibFillFromFile(StzGpuCalibFileDefault())
+
+# per-adapter truth; call after a successful Init (idempotent, FILL-ONLY)
+func StzGpuLoadCalibrationForAdapter()
+	if $bStzGpuCalibAdapterLoaded_
+		return
+	ok
+	_cCalF_ = StzGpuCalibFileForAdapter()
+	if _cCalF_ = ""
+		return
+	ok
+	$bStzGpuCalibAdapterLoaded_ = TRUE
+	_StzGpuCalibFillFromFile(_cCalF_)
+
+# fill-only: set an op's threshold from the file ONLY where none is set yet
+func _StzGpuCalibFillFromFile pcPath
+	if NOT fexists(pcPath)
+		return
+	ok
+	_aLines_ = str2list(read(pcPath))
+	_nL_ = len(_aLines_)
+	for _i_ = 1 to _nL_
+		_aParts_ = split(_aLines_[_i_], char(9))
+		if len(_aParts_) = 2
+			if StzEngineGpuCalibGet(_aParts_[1]) = 0
+				StzEngineGpuCalibSet(_aParts_[1], 0 + _aParts_[2])
+			ok
+		ok
+	next
+
+# raw overwrite (the calibration round-trip's own tool; faces use the
+# fill-only loaders above)
+func _StzGpuCalibLoadFile pcPath
+	if NOT fexists(pcPath)
+		return
+	ok
+	_aLines_ = str2list(read(pcPath))
+	_nL_ = len(_aLines_)
+	for _i_ = 1 to _nL_
+		_aParts_ = split(_aLines_[_i_], char(9))
+		if len(_aParts_) = 2
+			StzEngineGpuCalibSet(_aParts_[1], 0 + _aParts_[2])
+		ok
+	next
+
+# persist the given ops' current thresholds (default + per-adapter files)
+func StzGpuSaveCalibration paOps
+	_cOut_ = ""
+	_nL_ = len(paOps)
+	for _i_ = 1 to _nL_
+		_nT_ = StzEngineGpuCalibGet(paOps[_i_])
+		if _nT_ > 0
+			_cOut_ += paOps[_i_] + char(9) + _nT_ + char(10)
+		ok
+	next
+	if _cOut_ = ""
+		return FALSE
+	ok
+	write(StzGpuCalibFileDefault(), _cOut_)
+	_cCalF_ = StzGpuCalibFileForAdapter()
+	if _cCalF_ != ""
+		write(_cCalF_, _cOut_)
+	ok
+	return TRUE

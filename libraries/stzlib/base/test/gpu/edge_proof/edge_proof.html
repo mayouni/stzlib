@@ -1,0 +1,106 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>stz G5 edge convergence proof</title>
+<style>
+  body { font-family: ui-monospace, monospace; margin: 2rem; background: #101418; color: #d8dee6; }
+  .ok { color: #6ec06e; } .fail { color: #e06c75; } h1 { font-size: 1.1rem; }
+  pre { background: #181e24; padding: .8rem; overflow-x: auto; max-height: 14rem; }
+</style>
+<h1>G5 edge convergence: same spec &rarr; same WGSL &rarr; same numbers</h1>
+<div id="log">running...</div>
+<pre id="wgsl"></pre>
+<script type="module">
+import { spec, nativeWgsl, alpha, a, b, expected } from "./fixture.js";
+
+const log = document.getElementById("log");
+const lines = [];
+let passes = 0, fails = 0;
+function chk(label, cond) {
+  lines.push(`<div class="${cond ? "ok" : "fail"}">[${cond ? "OK" : "FAIL"}] ${label}</div>`);
+  cond ? passes++ : fails++;
+  log.innerHTML = lines.join("");
+}
+function done() {
+  lines.push(`<div><b>TOTAL: ${passes + fails} checks, ${passes} pass, ${fails} fail</b></div>`);
+  log.innerHTML = lines.join("");
+  document.title = fails === 0 ? "EDGE PROOF PASS" : "EDGE PROOF FAIL";
+}
+
+try {
+  // ---- 1. the WASM transpiler authors the kernel ON THE EDGE
+  const memory = new WebAssembly.Memory({ initial: 32 });
+  const { instance } = await WebAssembly.instantiateStreaming(
+    fetch("./stz.wasm"), { env: { memory } });
+  const E = instance.exports;
+  chk("stz.wasm loaded (abi " + E.stz_abi_version() + ")", E.stz_abi_version() === 1);
+
+  const enc = new TextEncoder();
+  const specBytes = enc.encode(spec);
+  const specPtr = E.stz_alloc(specBytes.length);
+  new Uint8Array(memory.buffer, specPtr, specBytes.length).set(specBytes);
+  const outPtr = E.stz_alloc(4096);
+  const n = E.stz_gpu_wgsl_elementwise(specPtr, specBytes.length, outPtr, 4096);
+  chk("wasm transpiler produced a kernel (" + n + " chars)", n > 0);
+  const wasmWgsl = new TextDecoder().decode(new Uint8Array(memory.buffer, outPtr, n));
+  chk("the edge WGSL is BYTE-IDENTICAL to the native engine's", wasmWgsl === nativeWgsl);
+  document.getElementById("wgsl").textContent = wasmWgsl;
+
+  // ---- 2. the browser's WebGPU runs that exact kernel text
+  if (!navigator.gpu) {
+    chk("navigator.gpu present (WebGPU unavailable in this browser)", false);
+    done();
+  } else {
+    const adapter = await navigator.gpu.requestAdapter();
+    chk("WebGPU adapter acquired", !!adapter);
+    const device = await adapter.requestDevice();
+    const module = device.createShaderModule({ code: wasmWgsl });
+    const pipeline = device.createComputePipeline({ layout: "auto",
+      compute: { module, entryPoint: "main" } });
+
+    const N = a.length;
+    const mk = (usage, size) => device.createBuffer({ size, usage });
+    const tile = mk(GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST, 16);
+    const params = mk(GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST, 64);
+    const bufA = mk(GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST, N * 4);
+    const bufB = mk(GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST, N * 4);
+    const bufC = mk(GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC, N * 4);
+    const stage = mk(GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST, N * 4);
+
+    device.queue.writeBuffer(tile, 0, new Uint32Array([0, 0, 0, 0]));
+    const pbuf = new ArrayBuffer(64);
+    new Uint32Array(pbuf, 0, 2).set([N, 0]);
+    new Float32Array(pbuf, 8, 1).set([alpha]);
+    device.queue.writeBuffer(params, 0, pbuf);
+    device.queue.writeBuffer(bufA, 0, new Float32Array(a));
+    device.queue.writeBuffer(bufB, 0, new Float32Array(b));
+
+    const bind = device.createBindGroup({ layout: pipeline.getBindGroupLayout(0),
+      entries: [
+        { binding: 0, resource: { buffer: tile } },
+        { binding: 1, resource: { buffer: params } },
+        { binding: 2, resource: { buffer: bufA } },
+        { binding: 3, resource: { buffer: bufB } },
+        { binding: 4, resource: { buffer: bufC } },
+      ] });
+
+    const encdr = device.createCommandEncoder();
+    const pass = encdr.beginComputePass();
+    pass.setPipeline(pipeline);
+    pass.setBindGroup(0, bind);
+    pass.dispatchWorkgroups(Math.ceil(N / 256));
+    pass.end();
+    encdr.copyBufferToBuffer(bufC, 0, stage, 0, N * 4);
+    device.queue.submit([encdr.finish()]);
+
+    await stage.mapAsync(GPUMapMode.READ);
+    const got = Array.from(new Float32Array(stage.getMappedRange()));
+    let exact = true;
+    for (let i = 0; i < N; i++) if (got[i] !== expected[i]) { exact = false; break; }
+    chk("browser WebGPU results EXACTLY equal the native GPU results (" + N + " values)", exact);
+    done();
+  }
+} catch (e) {
+  chk("unexpected failure: " + e.message, false);
+  done();
+}
+</script>
