@@ -148,6 +148,13 @@ pub export fn neural_model_n_vocab() callconv(.c) c_int {
     return @intCast(c.gguf_get_arr_n(ctx, id));
 }
 
+// The model's LayerNorm epsilon -- exported so the GPU backbone normalizes
+// with the SAME constant the CPU graph uses (a hardcoded 1e-12 there would
+// silently diverge on any model that states another value).
+pub export fn neural_model_ln_eps() callconv(.c) f32 {
+    return kvArchF32(".attention.layer_norm_epsilon", 1e-12);
+}
+
 pub export fn neural_model_n_tensors() callconv(.c) c_int {
     const ctx = g_gguf orelse return 0;
     return @intCast(c.gguf_get_n_tensors(ctx));

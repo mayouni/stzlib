@@ -795,6 +795,50 @@ embedding gather stays a CPU-side gather + one upload. R3 (≥0.999
 cosine) and R4 (counted degradation) then guard it exactly as the
 per-node route was guarded.
 
+### BUILT AND SHIPPED (2026-08-07): the backbone runs, at 1.5x
+
+`engine/src/neural_backbone.zig` — the five kernels above and an
+executor; guard `base/test/neural/neural_backbone_narrated.ring`
+(14 asserts). The design held: keeping Q/K/V whole meant no buffer
+offsets were ever needed.
+
+**Correctness judged against GROUND TRUTH, not the sibling path.** The
+tiny synthetic BERT's numpy reference is the judge, so a bug shared by
+both engine paths would still fail here: **cosine 0.999999986**, worst
+element 8.3e-5. On MiniLM, cosine 0.99992 vs the CPU forward (R3 met).
+Out-of-scope architectures are REFUSED, not mishandled — jina-bert-v2
+(ALiBi + GEGLU) is detected and declined, and the caller keeps its CPU
+path (R4, asserted both ways).
+
+**It IS a resident chain, and the counter proves it**: a 9-token
+forward moves 1152 bytes up + 128 bytes down, with ONE batched submit
+for the whole encoder. No per-layer round trips — the thing the
+per-node router could never be.
+
+**Speed: 1.50–1.58x** on MiniLM (24.1–24.8 ms vs 36–39 ms CPU) over
+three runs. The spine spike predicted 2.12x; the delivered number is
+lower because that spike measured MATMULS ONLY, while the real encoder
+adds LayerNorms, GELU, attention and pooling — dispatches the floor
+never counted. R1 was a floor on cost, not a promise of speed, and
+saying so is the difference between a measurement and a sales figure.
+Its purpose still held: it said there was headroom, and there was.
+
+**The bug worth remembering** (it cost this phase's debugging):
+`layout: "auto"` builds a bind-group layout ONLY from bindings the
+shader statically READS. The pool kernel DECLARED the tile uniform at
+@binding(0) and never referenced it, so its layout had no binding 0 —
+every bind group built for it was invalid, and the failure surfaced far
+away as `wgpuQueueSubmit: BindGroup is invalid`, naming no kernel. **A
+kernel must READ the tile uniform, not merely declare it.** Found by
+binary-searching the dispatch chain (the five kernels all COMPILED
+fine, which is what made it confusing); fixed with a real reference
+plus the rule written into that kernel's own comment.
+
+Follow-ups, unforced: wire the backbone behind `neural_embed_text`
+under a calibrated threshold (today it is opt-in via
+`StzEngineNeuralBackboneEmbed`), batch the embedding gather, and widen
+scope to GEGLU/ALiBi if a workload asks for it.
+
 One day, one plan of record, every phase gated by measurement: the
 go/no-go spike (GO, with elementwise killed honestly), the lifecycle
 DLL, the op library with exact witnesses, the 17.9x silent seam, the
