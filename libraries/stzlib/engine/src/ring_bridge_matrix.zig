@@ -39,6 +39,7 @@ fn ring_Free(p: *anyopaque) callconv(.c) void {
     const raw = R.releaseHandle(p, 1);
     if (raw) |ptr| {
         const h: ?*matrix.StzMatrix = @ptrCast(@alignCast(ptr));
+        nmm.noteMutation(h); // drop resident tensors before the address can recycle
         matrix.stz_matrix_free(h);
     }
 }
@@ -49,7 +50,9 @@ fn ring_Cols(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(matrix.stz_matrix_cols(getMC(p, 1))));
 }
 fn ring_Set(p: *anyopaque) callconv(.c) void {
-    matrix.stz_matrix_set(getM(p, 1), @intFromFloat(g(p, 2)), @intFromFloat(g(p, 3)), g(p, 4));
+    const mm = getM(p, 1);
+    nmm.noteMutation(mm);
+    matrix.stz_matrix_set(mm, @intFromFloat(g(p, 2)), @intFromFloat(g(p, 3)), g(p, 4));
 }
 fn ring_Get(p: *anyopaque) callconv(.c) void {
     rn(p, matrix.stz_matrix_get(getMC(p, 1), @intFromFloat(g(p, 2)), @intFromFloat(g(p, 3))));
@@ -67,24 +70,34 @@ fn ring_Mean(p: *anyopaque) callconv(.c) void {
     rn(p, matrix.stz_matrix_mean(getMC(p, 1)));
 }
 fn ring_AddScalar(p: *anyopaque) callconv(.c) void {
-    matrix.stz_matrix_add_scalar(getM(p, 1), g(p, 2));
+    const mm = getM(p, 1);
+    nmm.noteMutation(mm);
+    matrix.stz_matrix_add_scalar(mm, g(p, 2));
 }
 fn ring_MultiplyScalar(p: *anyopaque) callconv(.c) void {
-    matrix.stz_matrix_multiply_scalar(getM(p, 1), g(p, 2));
+    const mm = getM(p, 1);
+    nmm.noteMutation(mm);
+    matrix.stz_matrix_multiply_scalar(mm, g(p, 2));
 }
 // args: handle, op(0=add,1=mul), r1, r2, c1, c2, val  (rows/cols 1-based, inclusive)
 fn ring_UpdateRegion(p: *anyopaque) callconv(.c) void {
-    matrix.stz_matrix_update_region(getM(p, 1), @intFromFloat(g(p, 2)), @intFromFloat(g(p, 3)), @intFromFloat(g(p, 4)), @intFromFloat(g(p, 5)), @intFromFloat(g(p, 6)), g(p, 7));
+    const mm = getM(p, 1);
+    nmm.noteMutation(mm);
+    matrix.stz_matrix_update_region(mm, @intFromFloat(g(p, 2)), @intFromFloat(g(p, 3)), @intFromFloat(g(p, 4)), @intFromFloat(g(p, 5)), @intFromFloat(g(p, 6)), g(p, 7));
 }
 fn ring_AddMatrix(p: *anyopaque) callconv(.c) void {
-    rn(p, @floatFromInt(matrix.stz_matrix_add_matrix(getM(p, 1), getMC(p, 2))));
+    const mm = getM(p, 1);
+    nmm.noteMutation(mm);
+    rn(p, @floatFromInt(matrix.stz_matrix_add_matrix(mm, getMC(p, 2))));
 }
 fn ring_Multiply(p: *anyopaque) callconv(.c) void {
     const ptr = matrix.stz_matrix_multiply(getMC(p, 1), getMC(p, 2));
     if (ptr) |m| rcp(p, @ptrCast(m), MH) else rcp(p, @ptrFromInt(0), MH);
 }
 fn ring_MulGgml(p: *anyopaque) callconv(.c) void {
-    rn(p, @floatFromInt(nmm.stz_neural_matmul_into(getMC(p, 1), getMC(p, 2), getM(p, 3))));
+    const mres = getM(p, 3);
+    nmm.noteMutation(mres); // the result write mutates arg 3
+    rn(p, @floatFromInt(nmm.stz_neural_matmul_into(getMC(p, 1), getMC(p, 2), mres)));
 }
 fn ring_Transpose(p: *anyopaque) callconv(.c) void {
     const ptr = matrix.stz_matrix_transpose(getMC(p, 1));
@@ -98,7 +111,9 @@ fn ring_Inverse(p: *anyopaque) callconv(.c) void {
     if (ptr) |m| rcp(p, @ptrCast(m), MH) else rcp(p, @ptrFromInt(0), MH);
 }
 fn ring_Power(p: *anyopaque) callconv(.c) void {
-    matrix.stz_matrix_power(getM(p, 1), g(p, 2));
+    const mm = getM(p, 1);
+    nmm.noteMutation(mm);
+    matrix.stz_matrix_power(mm, g(p, 2));
 }
 // Solve Ax = b. Both arguments are matrix handles (A square n*n, b n*1) and the
 // result is a new n*1 handle, or NULL for a singular A or mismatched shapes --
@@ -479,6 +494,19 @@ fn ring_SparseMultiply(p: *anyopaque) callconv(.c) void {
 // sparse.spmv stays in the Zig module: it is the primitive a future
 // engine-side PageRank or power method wants, where nothing crosses.
 
+fn ring_MulGgmlStats(p: *anyopaque) callconv(.c) void {
+    var vals: [4]f64 = undefined;
+    nmm.stz_neural_matmul_stats(&vals);
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (vals) |v| R.ring_list_adddouble(out, v);
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn ring_MulGgmlStatsReset(p: *anyopaque) callconv(.c) void {
+    nmm.stz_neural_matmul_stats_reset();
+    rn(p, 1);
+}
+
 pub fn ringlib_init(p: *anyopaque) callconv(.c) void {
     const funcs = [_]R.Reg{
         .{ .name = "stzengine" ++ "sparsefrommatrix", .func = &ring_SparseFromMatrix },
@@ -507,6 +535,8 @@ pub fn ringlib_init(p: *anyopaque) callconv(.c) void {
         .{ .name = "stzengine" ++ "matrixmultiply", .func = &ring_Multiply },
         .{ .name = "stzengine" ++ "matrixtranspose", .func = &ring_Transpose },
         .{ .name = "stzengine" ++ "matrixmulggml", .func = &ring_MulGgml },
+        .{ .name = "stzengine" ++ "matrixmulggmlstats", .func = &ring_MulGgmlStats },
+        .{ .name = "stzengine" ++ "matrixmulggmlstatsreset", .func = &ring_MulGgmlStatsReset },
         .{ .name = "stzengine" ++ "matrixdeterminant", .func = &ring_Determinant },
         .{ .name = "stzengine" ++ "matrixinverse", .func = &ring_Inverse },
         .{ .name = "stzengine" ++ "matrixsolve", .func = &ring_Solve },
