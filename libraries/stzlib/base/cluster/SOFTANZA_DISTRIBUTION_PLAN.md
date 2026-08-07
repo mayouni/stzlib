@@ -248,6 +248,24 @@ results and identical caller code.
 *Kill criteria:* any API where the caller must know locality to write
 correct code = the phase failed its one job.
 
+**D2 RESULT (2026-08-07, DONE).** Guard: `base/test/cluster/
+d2_location_transparency_narrated.ring` (16 assertions). The kill
+criterion is proven BY CONSTRUCTION: one test body `D2Body(cAddr)` --
+ping/reply, 10 sends + FIFO drain, nested echo -- runs against a local
+child ("worker") and a remote-simulated child ("far@127.0.0.1"), and
+the two result sets are byte-identical through the encoder. The
+surface: `stzNodeRegistry` (base/cluster/stzNodePlane.ring) with bare
+`NodeRegister` / `Send` / `Ask` globals over one default plane.
+Honesty proven alongside: Ask refuses a non-positive timeout
+(:BadTimeout -- infinite waits do not exist); a timed-out Ask's LATE
+reply is discarded by correlation id, never mis-delivered (at-most-once
+residue); :Down (registered, unreachable OR died mid-conversation --
+same observable, including after re-dial to a dead port) is distinct
+from :Unknown (never registered); Send reports failure, not silence.
+Links are cached per name and re-dialed transparently after :closed;
+re-registering a name MOVES it (the cached link drops) -- the mechanism
+`Deploy()` will ride in D4.
+
 **D3 — supervision.**
 `stzNodeSupervisor` (grown from `stzClusterSupervisor`, not beside it):
 `:OneForOne` / `:AllForOne`, max-restarts-per-window budget, escalation
