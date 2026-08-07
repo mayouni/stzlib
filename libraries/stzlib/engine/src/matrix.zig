@@ -181,21 +181,14 @@ pub fn stz_matrix_add_matrix(a: ?*StzMatrix, b: ?*const StzMatrix) callconv(.c) 
 const VEC_WIDTH = std.simd.suggestVectorLength(f64) orelse 4;
 const Vec = @Vector(VEC_WIDTH, f64);
 
-pub fn stz_matrix_multiply(a: ?*const StzMatrix, b: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
-    const ma = a orelse return null;
-    const mb = b orelse return null;
-    if (ma.cols != mb.rows) return null;
-    const result = StzMatrix.init(gpa, ma.rows, mb.cols) catch return null;
-
-    const m = ma.rows;
-    const k_dim = ma.cols;
-    const n = mb.cols;
-    const av = ma.data;
-    const bv = mb.data;
-    const cv = result.data;
-    // init() already zeroed cv, which i-k-j relies on.
-
-    for (0..m) |i| {
+/// The i-k-j kernel over output rows [r0, r1). Extracted so the serial and
+/// threaded paths run the IDENTICAL code: each output row is produced by
+/// exactly one caller, in the same k order, so a row-banded parallel run is
+/// BIT-IDENTICAL to the serial one by construction -- the multicore law:
+/// partition the OUTPUT and bit-identity is free; reduce across threads and
+/// a justification is owed. There is no cross-thread reduction here.
+fn multiplyRows(av: []const f64, bv: []const f64, cv: []f64, k_dim: usize, n: usize, r0: usize, r1: usize) void {
+    for (r0..r1) |i| {
         const c_row = cv[i * n .. i * n + n];
         for (0..k_dim) |k| {
             const aik = av[i * k_dim + k];
@@ -215,6 +208,89 @@ pub fn stz_matrix_multiply(a: ?*const StzMatrix, b: ?*const StzMatrix) callconv(
             while (j < n) : (j += 1) c_row[j] += aik * b_row[j];
         }
     }
+}
+
+const RowBand = struct {
+    av: []const f64,
+    bv: []const f64,
+    cv: []f64,
+    k_dim: usize,
+    n: usize,
+    r0: usize,
+    r1: usize,
+    fn run(self: *const RowBand) void {
+        multiplyRows(self.av, self.bv, self.cv, self.k_dim, self.n, self.r0, self.r1);
+    }
+};
+
+const MAX_MM_THREADS = 12;
+
+/// Thread count for a multiply of the given work, from the cpu spike's
+/// measured table (engine/tools/cpu_spike.zig, Core 5 210H, 2026-08-07):
+///
+///     n=128: 12 threads ran 0.63x -- parallel LOSES below the crossover
+///     n=256: caps ~2.9x around T6-T12
+///     n=512+: full width wins (4.8x at 512, 7.15x at 1024)
+///
+/// Work is measured in flops (2*m*k*n) so rectangular shapes gate the same
+/// way as the square sizes that were measured. Spawn+join of 8 threads
+/// costs ~0.42 ms (measured), which the floors below keep under ~10% of
+/// the compute. PROVISIONAL until the shared calibration store (M5) makes
+/// this per-machine; the numbers are one machine's truth, honestly labeled.
+fn matmulThreads(flops: f64, rows: usize) usize {
+    const t: usize = if (flops < 2.0 * 256.0 * 256.0 * 256.0)
+        1 // below the measured crossover: serial always wins
+    else if (flops < 2.0 * 512.0 * 512.0 * 512.0)
+        6
+    else
+        MAX_MM_THREADS;
+    if (t == 1) return 1;
+    const cpus = std.Thread.getCpuCount() catch 1;
+    return @max(1, @min(t, @min(cpus, rows)));
+}
+
+pub fn stz_matrix_multiply(a: ?*const StzMatrix, b: ?*const StzMatrix) callconv(.c) ?*StzMatrix {
+    const ma = a orelse return null;
+    const mb = b orelse return null;
+    if (ma.cols != mb.rows) return null;
+    const result = StzMatrix.init(gpa, ma.rows, mb.cols) catch return null;
+
+    const m = ma.rows;
+    const k_dim = ma.cols;
+    const n = mb.cols;
+    // init() already zeroed result.data, which i-k-j relies on.
+
+    const flops = 2.0 * @as(f64, @floatFromInt(m)) * @as(f64, @floatFromInt(k_dim)) * @as(f64, @floatFromInt(n));
+    const nt = matmulThreads(flops, m);
+
+    if (nt <= 1) {
+        multiplyRows(ma.data, mb.data, result.data, k_dim, n, 0, m);
+        return result;
+    }
+
+    var bands: [MAX_MM_THREADS]RowBand = undefined;
+    var threads: [MAX_MM_THREADS]std.Thread = undefined;
+    const band = (m + nt - 1) / nt;
+    var spawned: usize = 0;
+    var t: usize = 0;
+    while (t < nt) : (t += 1) {
+        const r0 = t * band;
+        if (r0 >= m) break;
+        const r1 = @min(r0 + band, m);
+        bands[t] = .{ .av = ma.data, .bv = mb.data, .cv = result.data, .k_dim = k_dim, .n = n, .r0 = r0, .r1 = r1 };
+        // Handles are stored COMPACTLY at threads[spawned], not threads[t]:
+        // if spawn t=2 fails (computed inline below) but t=3 succeeds, a
+        // t-indexed join would join the UNDEFINED slot 2. bands[] stays
+        // t-indexed -- each spawned thread already holds its own pointer.
+        threads[spawned] = std.Thread.spawn(.{}, RowBand.run, .{&bands[t]}) catch {
+            // A failed spawn falls back to computing the band inline --
+            // the answer must not depend on thread availability.
+            multiplyRows(ma.data, mb.data, result.data, k_dim, n, r0, r1);
+            continue;
+        };
+        spawned += 1;
+    }
+    for (threads[0..spawned]) |th| th.join();
     return result;
 }
 
@@ -1186,4 +1262,44 @@ test "matrix null safety" {
     try std.testing.expect(stz_matrix_multiply(null, null) == null);
     try std.testing.expect(stz_matrix_transpose(null) == null);
     try std.testing.expect(stz_matrix_inverse(null) == null);
+}
+
+test "threaded matmul is bit-identical to the serial kernel" {
+    const shapes = [_][3]usize{
+        .{ 300, 300, 300 }, // gate -> 6 threads
+        .{ 600, 600, 600 }, // gate -> full width
+        .{ 3, 500, 500 }, // fewer rows than threads: bands capped by m
+        .{ 700, 50, 900 }, // rectangular, above gate by flops
+        .{ 130, 130, 130 }, // below gate: serial path (control)
+    };
+    for (shapes) |sh| {
+        const m = sh[0];
+        const k = sh[1];
+        const n = sh[2];
+        const a = stz_matrix_new(@intCast(m), @intCast(k)).?;
+        defer stz_matrix_free(a);
+        const b = stz_matrix_new(@intCast(k), @intCast(n)).?;
+        defer stz_matrix_free(b);
+        var seed: u64 = 9;
+        for (a.data) |*v| {
+            seed = seed *% 6364136223846793005 +% 1442695040888963407;
+            v.* = @as(f64, @floatFromInt((seed >> 33) % 1000)) / 999.0 - 0.5;
+        }
+        for (b.data) |*v| {
+            seed = seed *% 6364136223846793005 +% 1442695040888963407;
+            v.* = @as(f64, @floatFromInt((seed >> 33) % 1000)) / 999.0 - 0.5;
+        }
+
+        const threaded = stz_matrix_multiply(a, b).?;
+        defer stz_matrix_free(threaded);
+
+        // Serial reference through the SAME kernel, single band.
+        const ref = StzMatrix.init(gpa, m, n) catch unreachable;
+        defer ref.deinit();
+        multiplyRows(a.data, b.data, ref.data, k, n, 0, m);
+
+        for (threaded.data, ref.data) |x, y| {
+            try std.testing.expect(x == y);
+        }
+    }
 }
