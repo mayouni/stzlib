@@ -4,6 +4,7 @@
 // staging engine-side -- ONE crossing per upload, per the residency law.
 const std = @import("std");
 const gpu = @import("gpu.zig");
+const ops = @import("gpu_ops.zig");
 const R = @import("ring_api.zig");
 
 const gn = R.ring_vm_api_getnumber;
@@ -201,6 +202,86 @@ fn ring_ShouldDispatch(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(gpu.stz_gpu_should_dispatch(name.ptr, @floatFromInt(name.len), gn(p, 2))));
 }
 
+// ---------------- G2 op library
+
+fn ring_OpMatmul(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(ops.stz_gpu_op_matmul(
+        @intFromFloat(gn(p, 1)),
+        @intFromFloat(gn(p, 2)),
+        @intFromFloat(gn(p, 3)),
+        gn(p, 4),
+        gn(p, 5),
+        gn(p, 6),
+    )));
+}
+
+fn ring_OpPairDist(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(ops.stz_gpu_op_pairdist(
+        @intFromFloat(gn(p, 1)),
+        @intFromFloat(gn(p, 2)),
+        @intFromFloat(gn(p, 3)),
+        gn(p, 4),
+        gn(p, 5),
+        gn(p, 6),
+    )));
+}
+
+fn ring_OpAxpby(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(ops.stz_gpu_op_axpby(
+        gn(p, 1),
+        @intFromFloat(gn(p, 2)),
+        gn(p, 3),
+        @intFromFloat(gn(p, 4)),
+        @intFromFloat(gn(p, 5)),
+        gn(p, 6),
+    )));
+}
+
+fn ring_OpMul(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(ops.stz_gpu_op_mul(
+        @intFromFloat(gn(p, 1)),
+        @intFromFloat(gn(p, 2)),
+        @intFromFloat(gn(p, 3)),
+        gn(p, 4),
+    )));
+}
+
+fn ring_OpScaleInPlace(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(ops.stz_gpu_op_scale_inplace(
+        @intFromFloat(gn(p, 1)),
+        gn(p, 2),
+        gn(p, 3),
+    )));
+}
+
+fn ring_OpSoftmax(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(ops.stz_gpu_op_softmax(
+        @intFromFloat(gn(p, 1)),
+        @intFromFloat(gn(p, 2)),
+        gn(p, 3),
+    )));
+}
+
+// Reductions return [status, value] -- the status is part of the answer,
+// not a side channel.
+fn ring_OpSum(p: *anyopaque) callconv(.c) void {
+    var val: f64 = 0;
+    const st = ops.stz_gpu_op_sum(@intFromFloat(gn(p, 1)), gn(p, 2), &val);
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_list_adddouble(out, @floatFromInt(st));
+    R.ring_list_adddouble(out, val);
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn ring_OpDot(p: *anyopaque) callconv(.c) void {
+    var val: f64 = 0;
+    const st = ops.stz_gpu_op_dot(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2)), gn(p, 3), &val);
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_list_adddouble(out, @floatFromInt(st));
+    R.ring_list_adddouble(out, val);
+    R.ring_vm_api_retlist(p, out);
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuinit", .func = &ring_Init },
     .{ .name = "stzenginegpushutdown", .func = &ring_Shutdown },
@@ -228,6 +309,14 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpucalibset", .func = &ring_CalibSet },
     .{ .name = "stzenginegpucalibget", .func = &ring_CalibGet },
     .{ .name = "stzenginegpushoulddispatch", .func = &ring_ShouldDispatch },
+    .{ .name = "stzenginegpuopmatmul", .func = &ring_OpMatmul },
+    .{ .name = "stzenginegpuoppairdist", .func = &ring_OpPairDist },
+    .{ .name = "stzenginegpuopaxpby", .func = &ring_OpAxpby },
+    .{ .name = "stzenginegpuopmul", .func = &ring_OpMul },
+    .{ .name = "stzenginegpuopscaleinplace", .func = &ring_OpScaleInPlace },
+    .{ .name = "stzenginegpuopsoftmax", .func = &ring_OpSoftmax },
+    .{ .name = "stzenginegpuopsum", .func = &ring_OpSum },
+    .{ .name = "stzenginegpuopdot", .func = &ring_OpDot },
 };
 
 pub fn registerAll(pState: *anyopaque) void {

@@ -136,6 +136,8 @@ var adapters: []c.WGPUAdapter = &.{};
 var device: c.WGPUDevice = null;
 var queue: c.WGPUQueue = null;
 var tile_uniform: c.WGPUBuffer = null; // the ONE shared StzTile uniform
+pub const PARAMS_BYTES: usize = 64;
+var params_uniform: c.WGPUBuffer = null; // shared op-params uniform (see dispatch_params)
 var available = false;
 var selected_adapter: i32 = -1;
 
@@ -349,6 +351,13 @@ fn openDeviceOn(idx: usize) i32 {
     tile_uniform = fns.wgpuDeviceCreateBuffer(device, &tdesc);
     if (tile_uniform == null) return 0;
 
+    var pdesc2 = std.mem.zeroes(c.WGPUBufferDescriptor);
+    pdesc2.label = sv("stz_params");
+    pdesc2.usage = c.WGPUBufferUsage_Uniform | c.WGPUBufferUsage_CopyDst;
+    pdesc2.size = PARAMS_BYTES;
+    params_uniform = fns.wgpuDeviceCreateBuffer(device, &pdesc2);
+    if (params_uniform == null) return 0;
+
     selected_adapter = @intCast(idx);
     available = true;
     return 1;
@@ -371,6 +380,8 @@ fn closeDevice() void {
     kernels.clearRetainingCapacity();
     if (tile_uniform) |t| fns.wgpuBufferRelease(t);
     tile_uniform = null;
+    if (params_uniform) |t| fns.wgpuBufferRelease(t);
+    params_uniform = null;
     if (queue) |q| fns.wgpuQueueRelease(q);
     queue = null;
     if (device) |d| fns.wgpuDeviceRelease(d);
@@ -439,6 +450,12 @@ pub fn stz_gpu_tile_limit() callconv(.c) f64 {
 pub fn stz_gpu_counter(which: i32) callconv(.c) f64 {
     if (which < 0 or which >= N_COUNTERS) return -1;
     return counters[@intCast(which)];
+}
+
+/// For higher layers (the op library) refusing an op because the device is
+/// absent: the refusal must be COUNTED at the layer that refuses.
+pub fn countFallback() void {
+    counters[CTR_FALLBACK_COUNT] += 1;
 }
 
 pub fn stz_gpu_counters_reset() callconv(.c) void {
@@ -639,6 +656,20 @@ const MAX_BIND_BUFFERS = 8; // default WebGPU maxStorageBuffersPerShaderStage
 /// into ceil-sized chunks; before each chunk the shared tile uniform gets the
 /// chunk's x-offset IN WORKGROUPS (queue-ordered, so one buffer serves all).
 pub fn stz_gpu_dispatch(kernel: i64, buf_ids: [*]const i64, nbufs: i32, wx: f64, wy: f64) callconv(.c) i32 {
+    return dispatchInternal(kernel, null, buf_ids, nbufs, wx, wy);
+}
+
+/// The ops-family variant: a params blob (<= PARAMS_BYTES) lands in the
+/// shared params uniform, bound at @binding(1); user buffers start at
+/// @binding(2). Same queue-ordering argument as the tile uniform: write
+/// params, then submit -- one shared buffer serves every op in a chain.
+pub fn stz_gpu_dispatch_params(kernel: i64, params: [*]const u8, params_len: f64, buf_ids: [*]const i64, nbufs: i32, wx: f64, wy: f64) callconv(.c) i32 {
+    const n: usize = @intFromFloat(params_len);
+    if (n == 0 or n > PARAMS_BYTES) return BAD_ARG;
+    return dispatchInternal(kernel, params[0..n], buf_ids, nbufs, wx, wy);
+}
+
+fn dispatchInternal(kernel: i64, params: ?[]const u8, buf_ids: [*]const i64, nbufs: i32, wx: f64, wy: f64) i32 {
     if (!available) {
         counters[CTR_FALLBACK_COUNT] += 1;
         return FALLBACK;
@@ -650,22 +681,31 @@ pub fn stz_gpu_dispatch(kernel: i64, buf_ids: [*]const i64, nbufs: i32, wx: f64,
 
     var timer = std.time.Timer.start() catch unreachable;
 
-    var entries: [MAX_BIND_BUFFERS + 1]c.WGPUBindGroupEntry = undefined;
+    var entries: [MAX_BIND_BUFFERS + 2]c.WGPUBindGroupEntry = undefined;
     entries[0] = std.mem.zeroes(c.WGPUBindGroupEntry);
     entries[0].binding = 0;
     entries[0].buffer = tile_uniform;
     entries[0].size = 16;
+    var base: usize = 1;
+    if (params) |p| {
+        fns.wgpuQueueWriteBuffer(queue, params_uniform, 0, p.ptr, p.len);
+        entries[1] = std.mem.zeroes(c.WGPUBindGroupEntry);
+        entries[1].binding = 1;
+        entries[1].buffer = params_uniform;
+        entries[1].size = PARAMS_BYTES;
+        base = 2;
+    }
     const nb: usize = @intCast(nbufs);
     for (0..nb) |i| {
         const slot = slotOf(buf_ids[i]) orelse return STALE;
-        entries[i + 1] = std.mem.zeroes(c.WGPUBindGroupEntry);
-        entries[i + 1].binding = @intCast(i + 1);
-        entries[i + 1].buffer = buffers.items[slot].buf;
-        entries[i + 1].size = buffers.items[slot].size;
+        entries[i + base] = std.mem.zeroes(c.WGPUBindGroupEntry);
+        entries[i + base].binding = @intCast(i + base);
+        entries[i + base].buffer = buffers.items[slot].buf;
+        entries[i + base].size = buffers.items[slot].size;
     }
     var bgdesc = std.mem.zeroes(c.WGPUBindGroupDescriptor);
     bgdesc.layout = k.layout;
-    bgdesc.entryCount = nb + 1;
+    bgdesc.entryCount = nb + base;
     bgdesc.entries = &entries;
     const bg = fns.wgpuDeviceCreateBindGroup(device, &bgdesc);
     if (bg == null) return GPU_ERROR;

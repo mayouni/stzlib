@@ -20,6 +20,18 @@
 #   6 queue submits     7 evictions             8 live buffers
 #   9 device errors
 #
+# The G2 op library (all ops take BUFFER IDS -- upload once, chain,
+# read back once; every op is submit-only except the reductions):
+#   StzEngineGpuOpMatmul(hA, hB, hC, m, k, n)        C = A*B, row-major f32
+#   StzEngineGpuOpPairDist(hA, hB, hD, m, n, d)      squared L2, rows x rows
+#   StzEngineGpuOpAxpby(alpha, hA, beta, hB, hOut, n)
+#   StzEngineGpuOpMul(hA, hB, hOut, n)               Hadamard
+#   StzEngineGpuOpScaleInPlace(hV, alpha, n)
+#   StzEngineGpuOpSoftmax(hIn, hOut, n)              max-shifted, 3 passes
+#   StzEngineGpuOpSum(hA, n)  -> [status, value]     f64 fold of partials
+#   StzEngineGpuOpDot(hA, hB, n) -> [status, value]
+# OUT buffers must be distinct from inputs (WebGPU aliasing validation).
+#
 # Kernel binding contract (every kernel compiled through this layer):
 #   @group(0) @binding(0)  var<uniform> tile : StzTile   -- layer-owned
 #       struct StzTile { xoff : u32, p0 : u32, p1 : u32, p2 : u32 }
