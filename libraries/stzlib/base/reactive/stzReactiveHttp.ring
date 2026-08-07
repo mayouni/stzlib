@@ -19,8 +19,19 @@ class stzReactiveHttp from stzObject
 	def Init(engine)
 		@oEngine = engine
 
+	# The reactor is what makes the request path ASYNC -- _CanAsync answers
+	# FALSE without one and every verb falls back to the blocking task. NULL is
+	# therefore a legitimate value: it means "no reactor, go blocking".
+	#
+	# Anything that is neither is refused rather than stored, because a bad
+	# reactor does not fail here; it fails later inside _SubmitAsync or
+	# DrainPending, a long way from the call that caused it.
 	def SetReactor(poReactor)
+		if poReactor != NULL and NOT isObject(poReactor)
+			return This
+		ok
 		@oReactor = poReactor
+		return This
 
 	def PendingCount()
 		return len(@aPending)
@@ -85,6 +96,13 @@ class stzReactiveHttp from stzObject
 	# the whole request; DrainPending dispatches the body on completion.
 	def _SubmitAsync(cMethod, url, data, onSuccess, onError)
 		_nCode_ = This._MethodCode(cMethod)
+		if _nCode_ < 0
+			if onError != NULL
+				call onError(HTTP_ERROR_UNKNOWN_METHOD + " " + StzUpper("" + cMethod))
+			ok
+			return -1
+		ok
+
 		_cBody_ = ""
 		if isString(data) and data != ""
 			_cBody_ = data
@@ -99,6 +117,15 @@ class stzReactiveHttp from stzObject
 		@aPending + [ _nJob_, onSuccess, onError ]
 		return _nJob_
 
+	# A verb this path cannot issue answers -1, not 0.
+	#
+	# The fallback used to be `return 0`, which is GET -- so an unrecognised
+	# method silently became a different request than the one asked for. The
+	# four public verbs all pass literals, so nothing reaches it today; that is
+	# what makes it worth closing now rather than after something does.
+	#
+	# HEAD is mapped and the reactor supports it, though no public Head() method
+	# offers it yet.
 	def _MethodCode(cMethod)
 		_cM_ = StzUpper("" + cMethod)
 		if _cM_ = "GET"     return 0 ok
@@ -106,7 +133,16 @@ class stzReactiveHttp from stzObject
 		if _cM_ = "PUT"     return 2 ok
 		if _cM_ = "DELETE"  return 3 ok
 		if _cM_ = "HEAD"    return 4 ok
-		return 0
+		return -1
+
+	# The failure text a callback receives. It keeps the familiar wording so a
+	# caller matching on it still matches, and adds the STATUS when one is
+	# known -- DrainPending has it in hand and used to throw it away, so a 404
+	# and a 500 reached the caller as the same seven words.
+	#
+	# A refused connection has no status at all, and none is invented.
+	def _HttpFailure(pnStatus)
+		return StzHttpFailureText(pnStatus)
 
 	# Called by the run loop each tick: dispatch every finished job. The
 	# curl path returns the BODY directly (headers stripped) and reports
@@ -139,7 +175,7 @@ class stzReactiveHttp from stzObject
 				ok
 			else
 				if _fErr_ != NULL
-					call _fErr_(HTTP_ERROR_REQUEST_FAILED)
+					call _fErr_(This._HttpFailure(_nStatus_))
 				ok
 			ok
 		next
@@ -150,6 +186,7 @@ class stzHttpTask from stzReactiveTask
 	@url = HTTP_RESPONSE_EMPTY
 	@method = HTTP_GET
 	@data = HTTP_RESPONSE_NULL
+	@lastStatus = 0   # HTTP status of the blocking request, 0 = never got one
 	
 	def Init(id, url, method, data, engine)
 		super.Init(id, HTTP_RESPONSE_NULL, engine, DEFAULT_ERROR_HANDLING)
@@ -189,72 +226,56 @@ class stzHttpTask from stzReactiveTask
 	        # Recorded on the task, not only handed to a handler that may not
 	        # exist. Error() is inherited from stzReactiveTask, and an inherited
 	        # accessor that answers "" for a task that failed is worse than no
-	        # accessor at all.
-	        @errorMsg = HTTP_ERROR_REQUEST_FAILED
+	        # accessor at all. The status comes through the same helper the
+	        # async drain uses, so both paths word a failure the same way.
+	        @errorMsg = StzHttpFailureText(@lastStatus)
 	        if @onError != HTTP_RESPONSE_NULL
 	            call @onError(@errorMsg)
 	        ok
 	    ok
 			
-	# Helper methods for HTTP operations
+	# THE BLOCKING PATH, ENGINE-BACKED.
+	#
+	# These called Ring's download() and then the raw libcurl.ring API --
+	# curl_easy_init / curl_easy_setopt / CURLOPT_* / curl_easy_perform_silent.
+	# The library dropped that extension when HTTP moved into the Zig engine
+	# (stzHttpClient and stzNetwork both say so: "previously loaded
+	# libcurl.ring"), and nothing loads it now. Every verb here raised R3
+	# "Calling Function without definition" on its first line.
+	#
+	# This is the path taken when there is no reactor -- which is exactly what
+	# SetReactor(NULL) selects, and what the reactor switch falls back TO. The
+	# switch had an off position that could not work.
 	def PerformHttpGet(url)
-	    _result_ = download(url)
-	    if _result_ = HTTP_RESPONSE_NULL
-	        _result_ = HTTP_RESPONSE_EMPTY
-	    ok
-	    return _result_
+	    return This._EngineRequest(0, url, HTTP_RESPONSE_EMPTY)
 
 	def PerformHttpPost(url, data)
-	    return PerformHttpWithData(url, HTTP_POST, data)
+	    return This._EngineRequest(1, url, data)
 
 	def PerformHttpPut(url, data)
-	    return PerformHttpWithData(url, HTTP_PUT, data)
+	    return This._EngineRequest(2, url, data)
 
 	def PerformHttpDelete(url)
-	    return PerformHttpWithData(url, HTTP_DELETE, HTTP_RESPONSE_NULL)
+	    return This._EngineRequest(3, url, HTTP_RESPONSE_EMPTY)
 
-	def PerformHttpWithData(url, method, data)
-	    # Initialize curl
-	    _curl_ = curl_easy_init()
-	    if _curl_ = HTTP_RESPONSE_NULL
+	# One door for all four. The codes are the engine's own -- GET 0, POST 1,
+	# PUT 2, DELETE 3 -- the same numbering the reactor's SubmitHttp takes and
+	# the same _MethodCode produces. Zero timeouts mean "engine default".
+	def _EngineRequest(pnCode, purl, pData)
+	    _cBody_ = HTTP_RESPONSE_EMPTY
+	    if isString(pData)
+	        _cBody_ = pData
+	    ok
+
+	    _cOut_ = StzEngineHttpRequestEx(pnCode, "" + purl, "", "", _cBody_, 0, 0, "")
+	    @lastStatus = StzEngineHttpLastStatus()
+
+	    # A non-2xx is a failure here, as it is on the async path. Returning the
+	    # body would make Execute() call the SUCCESS handler with an error page.
+	    if @lastStatus < 200 or @lastStatus > 299
 	        return HTTP_RESPONSE_EMPTY
 	    ok
-	    
-	    # Set basic options
-	    curl_easy_setopt(_curl_, CURLOPT_USERAGENT, USER_AGENT_REACTIVE)
-	    curl_easy_setopt(_curl_, CURLOPT_URL, url)
-	    curl_easy_setopt(_curl_, CURLOPT_TIMEOUT, CURL_TIMEOUT_DEFAULT)
-	    curl_easy_setopt(_curl_, CURLOPT_CONNECTTIMEOUT, CURL_CONNECT_TIMEOUT_DEFAULT)
-	    
-	    # Set method-specific options
-	    if method = HTTP_POST
-	        curl_easy_setopt(_curl_, CURLOPT_POST, 1)
-	    elseif method = HTTP_PUT
-	        curl_easy_setopt(_curl_, CURLOPT_CUSTOMREQUEST, HTTP_PUT)
-	    elseif method = HTTP_DELETE
-	        curl_easy_setopt(_curl_, CURLOPT_CUSTOMREQUEST, HTTP_DELETE)
+	    if _cOut_ = HTTP_RESPONSE_NULL
+	        return HTTP_RESPONSE_EMPTY
 	    ok
-	    
-	    # Set POST/PUT data
-	    if data != HTTP_RESPONSE_NULL and data != HTTP_RESPONSE_EMPTY
-	        if isString(data)
-	            postData = data
-	        else
-	            # Convert list/object to query string format
-	            postData = HTTP_RESPONSE_EMPTY
-	            # Simple conversion - extend as needed
-	        ok
-	        curl_easy_setopt(_curl_, CURLOPT_POSTFIELDS, postData)
-	    ok
-	    
-	    # Perform request and get response content
-	    _result_ = curl_easy_perform_silent(_curl_)
-	    
-	    # Cleanup
-	    curl_easy_cleanup(_curl_)
-	    
-	    # Return result or empty string on failure
-	    if _result_ = HTTP_RESPONSE_NULL
-	        _result_ = HTTP_RESPONSE_EMPTY
-	    ok
-	    return _result_
+	    return _cOut_

@@ -297,6 +297,9 @@ HTTP_RESPONSE_NULL = NULL
 
 # HTTP Errors
 HTTP_ERROR_REQUEST_FAILED = "HTTP request failed"
+# A verb the request path cannot issue. It used to become a silent GET.
+HTTP_ERROR_UNKNOWN_METHOD = "HTTP method not supported:"
+
 HTTP_ERROR_CURL_INIT_FAILED = "Failed to initialize HTTP client"
 HTTP_ERROR_INVALID_RESPONSE = "Invalid HTTP response"
 
@@ -482,6 +485,16 @@ $aReaxisDetachedTimers = []
 $nReaxisDetachedSeq = 0
 
 # Register a detached one-shot timer; returns its id string.
+# The failure text an HTTP callback receives. ONE definition for both request
+# paths -- the reactor drain and the blocking task -- so the wording cannot
+# drift between them. The STATUS is added when one is known; a refused
+# connection has none, and none is invented.
+func StzHttpFailureText(pnStatus)
+	if isNumber(pnStatus) and pnStatus > 0
+		return HTTP_ERROR_REQUEST_FAILED + " (status " + pnStatus + ")"
+	ok
+	return HTTP_ERROR_REQUEST_FAILED
+
 func StzReaxisRunAfter(nDelayMs, fCallback)
 	return StzReaxisRunAfterXT(nDelayMs, fCallback, [])
 
