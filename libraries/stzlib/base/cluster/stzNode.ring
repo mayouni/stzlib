@@ -31,6 +31,7 @@ func StzNodeQ(pcName, pnPort)
 class stzNode from stzObject
 
 	@cName = "node"
+	@cHost = "127.0.0.1"
 	@nPort = 0
 	@oReactor = NULL
 	@nSrv = 0
@@ -38,13 +39,23 @@ class stzNode from stzObject
 	@aHandlerFns = []
 	@nProcessed = 0
 	@nUnhandled = 0
+	@nInboxCap = 0
+	@cInboxPolicy = "none"
 	@bStop = FALSE
 
+	# pcName speaks the plane's address vocabulary: "indexer" binds
+	# loopback; "indexer@10.0.0.7" binds that interface (the deployed
+	# form -- same vocabulary Send/Ask resolve).
 	def init(pcName, pnPort)
-		@cName = "" + pcName
+		@cName = StzLower("" + pcName)
+		nAt = StzFindFirst("@", @cName)
+		if nAt > 0
+			@cHost = StzRight(@cName, StzLen(@cName) - nAt)
+			@cName = StzLeft(@cName, nAt - 1)
+		ok
 		@nPort = 0 + pnPort
 		@oReactor = new stzReactor()
-		@nSrv = @oReactor.ListenStzm("127.0.0.1", @nPort)
+		@nSrv = @oReactor.ListenStzm(@cHost, @nPort)
 
 	def Name_()
 		return @cName
@@ -57,6 +68,8 @@ class stzNode from stzObject
 	# applies (:DropOldest / :DropNewest / :Refuse) and the event is
 	# COUNTED. Declare BEFORE Run().
 	def SetInbox(nCap, cPolicy)
+		@nInboxCap = 0 + nCap
+		@cInboxPolicy = StzLower("" + cPolicy)
 		@oReactor.ServerSetInbox(@nSrv, nCap, cPolicy)
 		return This
 
@@ -115,6 +128,18 @@ class stzNode from stzObject
 		if cTag = "stz.stop"
 			@bStop = TRUE
 			@nProcessed++
+			return
+		ok
+		if cTag = "stz.info"
+			# the node's declaration, observable from OUTSIDE: identity,
+			# binding, and the inbox contract it actually runs under
+			@nProcessed++
+			if (nFlags & 2) = 2
+				vInfo = [ @cName, @cHost, @nInboxCap, @cInboxPolicy,
+					@nProcessed, This.Overflow() ]
+				cR = StzEngineStzmPack(vInfo, 0, nCorr, 0)
+				@oReactor.ServerWrite(@nSrv, nConn, cR, FALSE)
+			ok
 			return
 		ok
 		nH = 0
