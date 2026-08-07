@@ -174,6 +174,12 @@ fn shapeEligible(op: *c.ggml_tensor) bool {
 
 // ---------------------------------------------------------------- device
 
+/// Shared with the resident backbone: BOTH GPU paths in this DLL must come
+/// up through the same one-time init (this module owns the runtime path).
+pub fn ensureDevicePub() bool {
+    return ensureDevice() == ST_OK;
+}
+
 fn ensureDevice() u8 {
     const cur = g_state.load(.acquire);
     if (cur != ST_UNKNOWN) return cur;

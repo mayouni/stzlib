@@ -4,6 +4,7 @@ const embed = @import("neural_embed.zig");
 const gen = @import("neural_gen.zig");
 const gex = @import("gguf_export.zig");
 const ngpu = @import("neural_gpu.zig");
+const nbb = @import("neural_backbone.zig");
 const R = @import("ring_api.zig");
 
 const rn = R.ring_vm_api_retnumber;
@@ -228,7 +229,44 @@ fn ring_GpuCountersReset(p: *anyopaque) callconv(.c) void {
     rn(p, 1);
 }
 
+// BackboneEmbed(cText) -> the pooled vector as a Ring list ([] if the
+// backbone did not run: no device, unsupported model shape, any refusal).
+// Tokenizes through the SAME tokenizer the CPU path uses, so only the
+// numeric core differs between the two routes.
+fn ring_BackboneEmbed(p: *anyopaque) callconv(.c) void {
+    const ptr = gs(p, 1);
+    const len: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const n_tok = embed.neural_tokenize(ptr, len);
+    const n_embd: usize = @intCast(embed.neural_model_n_embd());
+    if (n_tok < 2 or n_embd == 0) {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    }
+    const ids = std.heap.c_allocator.alloc(i32, @intCast(n_tok)) catch {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    defer std.heap.c_allocator.free(ids);
+    for (0..@intCast(n_tok)) |i| ids[i] = embed.neural_token_at(@intCast(i));
+    const vec = std.heap.c_allocator.alloc(f32, n_embd) catch {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    defer std.heap.c_allocator.free(vec);
+    if (nbb.neural_backbone_forward(ids.ptr, n_tok, vec.ptr) == 1) {
+        for (vec) |v| R.ring_list_adddouble(out, @floatCast(v));
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn ring_BackboneSupported(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(nbb.neural_backbone_supported()));
+}
+
 pub const regs = [_]R.Reg{
+    .{ .name = "stzengineneuralbackboneembed", .func = &ring_BackboneEmbed },
+    .{ .name = "stzengineneuralbackbonesupported", .func = &ring_BackboneSupported },
     .{ .name = "stzengineneuralgpuruntimepath", .func = &ring_GpuRuntimePath },
     .{ .name = "stzengineneuralgpusetthreshold", .func = &ring_GpuSetThreshold },
     .{ .name = "stzengineneuralgputhreshold", .func = &ring_GpuThreshold },
