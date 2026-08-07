@@ -221,6 +221,17 @@ class stzReactor from stzObject
 		This._Ensure()
 		return StzEngineReactorListen(@pHandle, cHost, nPort, 2)
 
+	# TLS-terminating STZM listener (D5): the same framed message plane
+	# over the same mbedTLS termination the HTTPS listener uses. A
+	# non-empty cCaPath verifies client certs; bRequireClient makes a
+	# valid one MANDATORY (mutual TLS node links).
+	def ListenStzmTls(cHost, nPort, cCertPath, cKeyPath, cCaPath, bRequireClient)
+		This._Ensure()
+		_nReq_ = 0
+		if bRequireClient  _nReq_ = 1  ok
+		return StzEngineReactorListenTls(@pHandle, cHost, nPort, 2,
+			"" + cCertPath, "" + cKeyPath, "" + cCaPath, _nReq_)
+
 	# Persistent CLIENT CHANNEL to a peer (distribution D0). The dial is
 	# async: the channel id comes back immediately; link-up arrives as an
 	# :accept event on ServerPoll/Await (a failed dial as :closed). The
@@ -235,6 +246,19 @@ class stzReactor from stzObject
 	def ConnectRaw(cHost, nPort)
 		This._Ensure()
 		return StzEngineReactorConnect(@pHandle, cHost, nPort, 0)
+
+	# STZM channel over CLIENT-role TLS (the mTLS counterpart of
+	# ListenTls, on the persistent link): this node PRESENTS
+	# cCertPath/cKeyPath for the peer's mutual check ("" for none) and
+	# VALIDATES the peer against cCaPath when bVerify. Link-up (:accept)
+	# fires only when the handshake COMPLETES -- an up channel is a
+	# SECURE channel.
+	def ConnectStzmTls(cHost, nPort, cCertPath, cKeyPath, cCaPath, bVerify)
+		This._Ensure()
+		_nV_ = 0
+		if bVerify  _nV_ = 1  ok
+		return StzEngineReactorConnectTls(@pHandle, cHost, nPort, 2,
+			"" + cCertPath, "" + cKeyPath, "" + cCaPath, _nV_)
 
 	# Block up to nTimeoutMs for the channel's link-up. Returns the conn id
 	# (> 0) to write on, or 0 (dial failed or timed out).

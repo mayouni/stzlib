@@ -1284,6 +1284,36 @@ fn onChanConnect(req: *anyopaque, status: c_int) callconv(.c) void {
     }
     const s = conn.server;
     const r = s.reactor;
+    if (s.tls) {
+        // CLIENT-role TLS on the channel: per-conn ssl context over the
+        // same byte BIOs the server termination uses; the handshake runs
+        // through tlsProcess as ciphertext flows. Link-up (.accept) is
+        // emitted only when the handshake COMPLETES.
+        const ssl = gpa.create(c.mbedtls_ssl_context) catch {
+            closeConn(conn);
+            return;
+        };
+        c.mbedtls_ssl_init(ssl);
+        if (c.mbedtls_ssl_setup(ssl, s.tls_conf) != 0) {
+            c.mbedtls_ssl_free(ssl);
+            gpa.destroy(ssl);
+            closeConn(conn);
+            return;
+        }
+        // SNI + hostname verification target = the host we dialed
+        var hbuf: [256]u8 = undefined;
+        if (std.fmt.bufPrintZ(&hbuf, "{s}", .{s.host})) |host_z| {
+            _ = c.mbedtls_ssl_set_hostname(ssl, host_z.ptr);
+        } else |_| {}
+        c.mbedtls_ssl_set_bio(ssl, conn, tlsBioSend, tlsBioRecv, null);
+        conn.ssl = ssl;
+        if (uv_read_start(conn.tcp_buf.ptr, onSrvAlloc, onSrvRead) != 0) {
+            closeConn(conn);
+            return;
+        }
+        tlsProcess(conn); // pump the ClientHello out
+        return;
+    }
     r.mutex.lock();
     s.events.append(gpa, .{ .kind = .accept, .conn_id = conn.id }) catch {};
     r.mutex.unlock();
@@ -1450,6 +1480,15 @@ fn tlsProcess(conn: *Conn) void {
             const rc = c.mbedtls_ssl_handshake(conn.ssl);
             if (rc == 0) {
                 conn.hs_done = true;
+                // A TLS CLIENT CHANNEL's link-up means "the SECURE channel
+                // is ready", not "TCP connected" -- the .accept event is
+                // deferred to here so callers only write post-handshake.
+                if (conn.server.is_client) {
+                    const s = conn.server;
+                    s.reactor.mutex.lock();
+                    s.events.append(gpa, .{ .kind = .accept, .conn_id = conn.id }) catch {};
+                    s.reactor.mutex.unlock();
+                }
                 break;
             }
             if (rc == c.MBEDTLS_ERR_SSL_WANT_READ or rc == c.MBEDTLS_ERR_SSL_WANT_WRITE) break;
@@ -1859,6 +1898,122 @@ pub fn reactor_connect(
         .listener_closed = true,
         .bind_done = true,
     };
+    r.next_id += 1;
+    const id = s.id;
+    r.servers.put(id, s) catch {
+        r.mutex.unlock();
+        freeServer(s);
+        return -1;
+    };
+    r.ctl.append(gpa, .{ .kind = .start_connect, .server = s }) catch {
+        _ = r.servers.remove(id);
+        r.mutex.unlock();
+        freeServer(s);
+        return -1;
+    };
+    r.mutex.unlock();
+    _ = c.uv_async_send(&r.wake);
+    return @intCast(id);
+}
+
+// CLIENT-role TLS credentials + config for a channel (mirror of
+// setupServerTls; same persistent structs, freed by freeServerTls).
+// cert/key = THIS node's cert presented for the peer's mutual check
+// (both optional); ca + verify = validate the peer against that anchor.
+fn setupChanTls(s: *Server, cert_path: []const u8, key_path: []const u8, ca_path: []const u8, verify: bool) i32 {
+    const entropy = gpa.create(c.mbedtls_entropy_context) catch return -11;
+    s.tls_entropy = entropy;
+    c.mbedtls_entropy_init(entropy);
+    const drbg = gpa.create(c.mbedtls_ctr_drbg_context) catch return -11;
+    s.tls_drbg = drbg;
+    c.mbedtls_ctr_drbg_init(drbg);
+    const pers = "softanza-chan-tls";
+    if (c.mbedtls_ctr_drbg_seed(drbg, c.mbedtls_entropy_func, entropy, pers, pers.len) != 0) return -12;
+
+    const conf = gpa.create(c.mbedtls_ssl_config) catch return -11;
+    s.tls_conf = conf;
+    c.mbedtls_ssl_config_init(conf);
+    if (c.mbedtls_ssl_config_defaults(conf, c.MBEDTLS_SSL_IS_CLIENT, c.MBEDTLS_SSL_TRANSPORT_STREAM, c.MBEDTLS_SSL_PRESET_DEFAULT) != 0) return -15;
+    c.mbedtls_ssl_conf_rng(conf, c.mbedtls_ctr_drbg_random, drbg);
+
+    if (cert_path.len > 0 and key_path.len > 0) {
+        var cbuf: [1024]u8 = undefined;
+        var kbuf: [1024]u8 = undefined;
+        const cert_z = std.fmt.bufPrintZ(&cbuf, "{s}", .{cert_path}) catch return -10;
+        const key_z = std.fmt.bufPrintZ(&kbuf, "{s}", .{key_path}) catch return -10;
+        const clicert = gpa.create(c.mbedtls_x509_crt) catch return -11;
+        s.tls_srvcert = clicert;
+        c.mbedtls_x509_crt_init(clicert);
+        if (c.mbedtls_x509_crt_parse_file(clicert, cert_z.ptr) != 0) return -13;
+        const pk = gpa.create(c.mbedtls_pk_context) catch return -11;
+        s.tls_pk = pk;
+        c.mbedtls_pk_init(pk);
+        if (c.mbedtls_pk_parse_keyfile(pk, key_z.ptr, null, c.mbedtls_ctr_drbg_random, drbg) != 0) return -14;
+        if (c.mbedtls_ssl_conf_own_cert(conf, clicert, pk) != 0) return -16;
+    }
+
+    if (ca_path.len > 0) {
+        var abuf: [1024]u8 = undefined;
+        const ca_z = std.fmt.bufPrintZ(&abuf, "{s}", .{ca_path}) catch return -10;
+        const cacert = gpa.create(c.mbedtls_x509_crt) catch return -11;
+        s.tls_cacert = cacert;
+        c.mbedtls_x509_crt_init(cacert);
+        if (c.mbedtls_x509_crt_parse_file(cacert, ca_z.ptr) != 0) return -17;
+        c.mbedtls_ssl_conf_ca_chain(conf, cacert, null);
+        c.mbedtls_ssl_conf_authmode(conf, if (verify) c.MBEDTLS_SSL_VERIFY_REQUIRED else c.MBEDTLS_SSL_VERIFY_OPTIONAL);
+    } else {
+        c.mbedtls_ssl_conf_authmode(conf, c.MBEDTLS_SSL_VERIFY_NONE);
+    }
+    return 0;
+}
+
+/// Like reactor_connect, but the channel runs CLIENT-role TLS over the
+/// same mbedTLS termination the listeners use (mutual when cert/key are
+/// given; peer verified against ca when verify != 0). Link-up (.accept)
+/// fires only when the HANDSHAKE completes -- a TLS channel that is "up"
+/// is a channel that is SECURE. Returns channel id (>0) or a negative
+/// setup error (-10..-17).
+pub fn reactor_connect_tls(
+    r_opt: ?*Reactor,
+    host_ptr: [*]const u8,
+    host_len: usize,
+    port: u16,
+    mode: i32,
+    cert_ptr: [*]const u8,
+    cert_len: usize,
+    key_ptr: [*]const u8,
+    key_len: usize,
+    ca_ptr: [*]const u8,
+    ca_len: usize,
+    verify: i32,
+) callconv(.c) i64 {
+    const r = r_opt orelse return -1;
+    if (r.stopping.load(.acquire)) return -1;
+    const s = gpa.create(Server) catch return -1;
+    const host = gpa.dupe(u8, host_ptr[0..host_len]) catch {
+        gpa.destroy(s);
+        return -1;
+    };
+    s.* = .{
+        .id = 0,
+        .reactor = r,
+        .host = host,
+        .port = port,
+        .http_mode = mode == 1,
+        .stzm_mode = mode == 2,
+        .is_client = true,
+        .tls = true,
+        .conns = std.AutoHashMap(u64, *Conn).init(gpa),
+        .listener_closed = true,
+        .bind_done = true,
+    };
+    const trc = setupChanTls(s, cert_ptr[0..cert_len], key_ptr[0..key_len], ca_ptr[0..ca_len], verify != 0);
+    if (trc != 0) {
+        freeServer(s);
+        return trc;
+    }
+    r.mutex.lock();
+    s.id = r.next_id;
     r.next_id += 1;
     const id = s.id;
     r.servers.put(id, s) catch {
