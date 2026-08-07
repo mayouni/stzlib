@@ -17,9 +17,23 @@ class stzReactiveFunc from stzObject
 		@originalFunc = f
 		@oEngine = engine
 
+	# THE SYNCHRONOUS CALL. It has to actually call.
+	#
+	# This built the task, handed it to AddTask, and returned it unexecuted. Its
+	# async sibling below calls Execute() on the local task; this one relied on
+	# the engine running it later, and the engine never saw it: @oEngine is an
+	# attribute, so AddTask appends to a COPY of the reactive system. Measured --
+	# the real engine's task list stayed at zero, and after Start() the wrapped
+	# function had run zero times. Call_ did nothing whatsoever.
+	#
+	# AddTask is kept because CallAsync does the same and both are equally
+	# copy-bound; that is the engine-identity problem, not this method's, and
+	# papering over it here would hide it. Execute() on the LOCAL task is what
+	# makes the result real, which is exactly how CallAsync has always worked.
 	def Call_(params) #TODO //#WARNING May confuse user with the normal Ring call() function
 		_task_ = new stzFunctionTask(FUNC_CALL_SYNC, @originalFunc, params, @oEngine)
 		@oEngine.AddTask(_task_)
+		_task_.Execute()
 		return _task_
 		
 	# CallAsync() for normal operations
@@ -54,6 +68,21 @@ class stzFunctionTask from stzReactiveTask
 		# the TASK, not in a local"); its sibling here was missed.
 		try
 			@status = TASK_RUNNING
+
+			# THE SHAPE IS CHECKED BEFORE THE SWITCH, so a refusal says what
+			# was wrong. Anything but a list used to reach len() and surface
+			# as "Bad parameter type!", and more than MAX_FUNCTION_PARAMS fell
+			# to an `other` arm that called the function with NO arguments --
+			# reported as "Calling function with LESS number of parameters",
+			# the opposite of what had happened.
+			if NOT isList(@params)
+				raise(FUNC_ERROR_PARAMS_NOT_LIST)
+			ok
+			if len(@params) > MAX_FUNCTION_PARAMS
+				raise(FUNC_ERROR_TOO_MANY_PARAMS + " " + len(@params) +
+				      " (the limit is " + MAX_FUNCTION_PARAMS + ")")
+			ok
+
 			if len(@params) = NO_PARAMS
 				_result_ = call @f()
 			else
@@ -80,7 +109,10 @@ class stzFunctionTask from stzReactiveTask
 				case 10
 					_result_ = call @f(@params[1], @params[2], @params[3], @params[4], @params[5], @params[6], @params[7], @params[8], @params[9], @params[10])
 				other
-					_result_ = call @f() # Fallback for more than MAX_FUNCTION_PARAMS
+					# Unreachable: the count is refused above. Kept as a
+					# guard, and it refuses rather than silently calling
+					# with no arguments.
+					raise(FUNC_ERROR_TOO_MANY_PARAMS + " " + len(@params))
 				end
 			ok
 			@result = _result_

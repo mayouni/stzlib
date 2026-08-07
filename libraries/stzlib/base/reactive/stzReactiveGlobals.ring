@@ -254,6 +254,13 @@ FUNC_CALL_CHUNKED = "func_call_chunked"
 MAX_FUNCTION_PARAMS = 10
 NO_PARAMS = 0
 
+# Refusals a reactive function call can report. The param switch used to end
+# in an `other` arm that called the function with NO arguments, so passing
+# eleven surfaced as R19 "Calling function with LESS number of parameters" --
+# the opposite of what the caller had done.
+FUNC_ERROR_PARAMS_NOT_LIST = "Reactive call params must be a list"
+FUNC_ERROR_TOO_MANY_PARAMS = "Reactive call has too many params:"
+
 #---------------------------#
 #  REACTIVE OBJECT CONSTANTS #
 #---------------------------#
