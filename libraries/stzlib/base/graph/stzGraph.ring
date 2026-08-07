@@ -11,7 +11,11 @@
 $acGraphTypes = ["structural", "flow", "semantic", "dependency"]
 $cDefaultGraphType = "structural"
 
-$acGraphDefaultValidators = ["dag", "reachability", "completeness"]
+# "bottleneck" joined this list when the bottleneck rule left :completeness
+# for a group named after what it measures (see stzGraphRule.ring). Adding it
+# here is what keeps the move behaviour-neutral for a default Validate():
+# the same properties are still checked, each now under an honest name.
+$acGraphDefaultValidators = ["dag", "reachability", "completeness", "bottleneck"]
 
 func StzGraphQ(cGraphName)
 	return new stzGraph(cGraphName)
@@ -819,6 +823,33 @@ class stzGraph from stzObject
 			ok
 
 			This.AddEdgeXTT(pcFromNodeId, pcToNodeId, "", [])
+
+	# CONNECT UNLESS THE EDGE IS ALREADY THERE. Returns TRUE if it added the
+	# edge, FALSE if it was already present.
+	#
+	# stzGraph is a SIMPLE graph: AddEdge raises "Edge already exists" on a
+	# second arrow between the same pair, and that is deliberate -- a workflow
+	# or a knowledge graph that wants two distinct relations between the same
+	# two nodes needs a different model, not a silently doubled edge.
+	#
+	# But "connect these two if they aren't connected yet" is an ordinary
+	# thing to want, and it forced every caller to write the EdgeExists()
+	# guard by hand -- or to wrap the call in a try/catch that also swallows
+	# the two failures that DO matter here. So the duplicate case, and only
+	# the duplicate case, is answered instead of raised: a missing node still
+	# raises, and a constraint violation still raises.
+	def ConnectIfAbsent(pcFromNodeId, pcToNodeId)
+		if This.EdgeExists(pcFromNodeId, pcToNodeId)
+			return FALSE
+		ok
+		This.AddEdgeXTT(pcFromNodeId, pcToNodeId, "", [])
+		return TRUE
+
+		def AddEdgeIfAbsent(pcFromNodeId, pcToNodeId)
+			return This.ConnectIfAbsent(pcFromNodeId, pcToNodeId)
+
+		def ConnectIfNotConnected(pcFromNodeId, pcToNodeId)
+			return This.ConnectIfAbsent(pcFromNodeId, pcToNodeId)
 
 	def ConnectSequence(paNodes)
 		if NOT isList(paNodes)
@@ -2078,13 +2109,26 @@ class stzGraph from stzObject
 			return StzEngineGraphHasCycle(@pEngineGraph)
 		ok
 
+		# THE PURE-RING FALLBACK. It only runs when the graph engine DLL is
+		# absent, which is why the three defects fixed below (2026-08-07)
+		# survived: every measurement of this method was really measuring
+		# StzEngineGraphHasCycle above it. Forced onto this branch, the
+		# fallback did not return a wrong answer -- it RAISED, on the first
+		# graph of any shape, so it had never produced a verdict at all.
+
 		_acVisited_ = []
 		_acRecStack_ = []
 
 		_nLen_ = len(@aNodes)
 		for i = 1 to _nLen_
 			_aNode_ = @aNodes[i]
-			if StzFindFirst(_acVisited_, _aNode_["id"]) = 0
+
+			# (1) StzFindFirst is NEEDLE-FIRST -- StzFindFirst(item, list).
+			# This read (list, item), so it searched the visited LIST inside
+			# the node id STRING and answered 0 forever. The DFS therefore
+			# re-ran from every node: O(V) redundant traversals, and the
+			# answer only stayed right because the DFS is idempotent.
+			if StzFindFirst(_aNode_["id"], _acVisited_) = 0
 				if This._HasCycleDFS(_aNode_["id"], _acVisited_, _acRecStack_)
 					return 1
 				ok
@@ -2113,9 +2157,25 @@ class stzGraph from stzObject
 			ok
 		end
 
+		# (2) The pop called stzleft() -- a STRING op -- on a list. That is
+		# an R21 straight out of StzLeft's "" + _cStr_ widening, and it fired
+		# on the FIRST node popped, so nothing downstream ever ran. Exactly
+		# the bug already fixed in _FindAllPathsDFS (see the note at ~1990);
+		# this sibling was missed.
+		#
+		# (3) Even spelled with a list op it would not have worked: Ring
+		# passes lists by REFERENCE, so REBINDING pacRecStack to a new list
+		# pointed the local elsewhere and left the caller's stack untouched.
+		# The stack could then only grow, and a re-convergent (diamond)
+		# graph would report a cycle it does not have. ring_del() pops the
+		# caller's list in place -- the idiom already used at ~2952.
+		#
+		# The guard is > 0, not > 1: at depth 1 the stack holds exactly the
+		# node being left, and leaving it must clear it. Keeping that last
+		# entry made the NEXT root see a stale ancestor.
 		_nLen_ = len(pacRecStack)
-		if _nLen_ > 1
-			pacRecStack = stzleft(pacRecStack, len(pacRecStack) - 1)
+		if _nLen_ > 0
+			ring_del(pacRecStack, _nLen_)
 		ok
 
 		return 0
@@ -2124,6 +2184,24 @@ class stzGraph from stzObject
 	#  REACHABILITY & CONNECTIVITY  #
 	#-------------------------------#
 
+	# THE OTHER NODES YOU CAN GET TO FROM pcNodeId, FOLLOWING OUT-EDGES.
+	#
+	# THE START NODE IS NEVER IN THE RESULT -- not even when a cycle genuinely
+	# returns to it. ReachableFrom("a") on a<->b is ["b"], and on a self-loop
+	# a->a it is []. That is the definition, deliberately: the answer is "what
+	# else does this reach", and callers across the library read it that way.
+	#
+	# So DO NOT use this to ask "is this node on a cycle?" -- the obvious
+	# reading of an empty-or-absent result is wrong. HasCyclicDependencies()
+	# answers that for the graph; for one node, ask whether pcNodeId appears
+	# in ReachableFrom() of any of its own neighbours.
+	#
+	# Both implementations below now agree on that definition AND on the order
+	# of the result (node-insertion order). They did not: the engine excluded
+	# the start node while the pure-Ring fallback INCLUDED it and returned
+	# BFS-discovery order, so the same call answered ["b"] or ["a","b"]
+	# depending on whether the graph DLL happened to be loaded (measured
+	# 2026-08-07). The engine is the shipped path, so it defines the contract.
 	def ReachableFrom(pcNodeId)
 		if NOT This.NodeExists(pcNodeId)
 			return []
@@ -2134,16 +2212,14 @@ class stzGraph from stzObject
 			return _cEngResult_
 		ok
 
-		_acReachable_ = []
 		_acVisited_ = []
 		_acQueue_ = [pcNodeId]
 		_acVisited_ + pcNodeId
 		_nQueueIdx_ = 1
-	
+
 		while _nQueueIdx_ <= len(_acQueue_)
 			_cCurrent_ = _acQueue_[_nQueueIdx_]
-			_acReachable_ + _cCurrent_
-			
+
 			_acNeighbors_ = This.Neighbors(_cCurrent_)
 			_nLen_ = len(_acNeighbors_)
 			for i = 1 to _nLen_
@@ -2154,10 +2230,23 @@ class stzGraph from stzObject
 					_acQueue_ + _cNeighbor_
 				ok
 			end
-			
+
 			_nQueueIdx_ += 1
 		end
-		
+
+		# Emit in node-insertion order, minus the start node -- the engine
+		# walks its node array and skips `i == start`, and @aNodes is the
+		# array it was built from, so this is the same list in the same order.
+		_acReachable_ = []
+		_cStart_ = StzLower(pcNodeId)
+		_nNodesLen_ = len(@aNodes)
+		for i = 1 to _nNodesLen_
+			_cId_ = @aNodes[i][:id]
+			if _cId_ != _cStart_ and StzFindFirst(_cId_, _acVisited_) > 0
+				_acReachable_ + _cId_
+			ok
+		next
+
 		return _acReachable_
 
 		def ReachableFromNode(pcNodeId)
@@ -4531,9 +4620,14 @@ class stzGraph from stzObject
 			_acIssues_ = This._FlattenViolations(_aViolations_)
 			_acAffected_ = This._ExtractAffectedNodes(_aViolations_)
 			
+			# :domain mirrors :ruleGroup because stzWorkflow's own validators
+			# name this same field :domain. Emitting both means a caller that
+			# validates across the two classes no longer has to know which one
+			# answered. Neither key is removed.
 			return [
 				:status = "fail",
 				:ruleGroup = _cValidator_,
+				:domain = _cValidator_,
 				:issueCount = len(_aViolations_),
 				:issues = _acIssues_,
 				:affectedNodes = _acAffected_
@@ -4547,6 +4641,7 @@ class stzGraph from stzObject
 		return [
 			:status = "pass",
 			:ruleGroup = _cValidator_,
+			:domain = _cValidator_,
 			:issueCount = 0,
 			:issues = [],
 			:affectedNodes = []

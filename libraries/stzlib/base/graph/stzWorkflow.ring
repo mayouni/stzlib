@@ -449,20 +449,32 @@ class stzWorkflow from stzDiagram
 	
 	def ValidateDeadlock()
 		# Check for cycles in sequential workflow
+		#
+		# The call here was This.CyclicDependencies(), which is defined
+		# NOWHERE in the library -- the method is HasCyclicDependencies()
+		# (stzGraph.ring:2075). Every call raised R14 "Calling Method without
+		# definition", so the deadlock validator had never once returned a
+		# verdict. stzKnowledgeGraph.ring carried the identical typo.
 		if This.IsSequential()
-			if This.CyclicDependencies()
+			if This.HasCyclicDependencies()
 				return [
 					:status = "fail",
 					:domain = "deadlock",
-					:issues = ["Workflow contains cycles"]
+					:ruleGroup = "deadlock",
+					:issueCount = 1,
+					:issues = ["Workflow contains cycles"],
+					:affectedNodes = []
 				]
 			ok
 		ok
-		
+
 		return [
 			:status = "pass",
 			:domain = "deadlock",
-			:issues = []
+			:ruleGroup = "deadlock",
+			:issueCount = 0,
+			:issues = [],
+			:affectedNodes = []
 		]
 	
 	def ValidateSLA()
@@ -475,9 +487,15 @@ class stzWorkflow from stzDiagram
 			_aIssues_ + ("Step " + _aViolation_[:step] + " exceeds SLA by " + _aViolation_[:overrun] + "h")
 		end
 		
+		# :ruleGroup is emitted alongside :domain because stzGraph's own
+		# _ValidateSingle names this same field :ruleGroup. A caller that
+		# validated across both classes had to know which one answered, and
+		# got NULL from whichever key it did not guess. Both are emitted now;
+		# neither is removed, so existing readers are untouched.
 		return [
 			:status = iif(len(_aIssues_) = 0, "pass", "fail"),
 			:domain = "sla",
+			:ruleGroup = "sla",
 			:issueCount = len(_aIssues_),
 			:issues = _aIssues_,
 			:affectedNodes = This._ExtractStepIds(_acViolations_)
@@ -496,6 +514,7 @@ class stzWorkflow from stzDiagram
 		return [
 			:status = iif(len(_aIssues_) = 0, "pass", "fail"),
 			:domain = "bottleneck",
+			:ruleGroup = "bottleneck",
 			:issueCount = len(_aIssues_),
 			:issues = _aIssues_,
 			:affectedNodes = This._ExtractStepIds(_acBottlenecks_)

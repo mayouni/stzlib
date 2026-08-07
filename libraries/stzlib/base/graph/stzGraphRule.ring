@@ -17,7 +17,8 @@ $aGraphRules = [
 	:semantic = [],
 	:structural = [],
 	:reachability = [],
-	:completeness = []
+	:completeness = [],
+	:bottleneck = []
 ]
 
 # The .stzrulf files already loaded into this process.
@@ -31,6 +32,75 @@ $aGraphRules = [
 # two different spellings would still double-load.
 
 $acStzRulfLoaded = []
+
+#=======================#
+#  DEFAULT GRAPH RULES  #
+#=======================#
+#
+# These MUST stay above the first `func` in this file. Ring treats statements
+# that follow a function definition as part of that function's body, so when
+# this block sat at the foot of the file it was unreachable code inside
+# ValidationFunc_AllNodesReachable() and never executed. The rule groups were
+# empty for the library's whole history, and the validators built on them
+# reported "pass" unconditionally.
+#
+# RegisterRule and the ValidationFunc_/ConstraintFunc_ builders are defined
+# below; Ring hoists function definitions, so calling them from here is fine.
+
+# DAG rules
+RegisterRule(:dag, "no_cycles_Constraint", [
+	:type = :Constraint,
+	:function = ConstraintFunc_NoCycles(),
+	:params = [],
+	:message = "Operation would create a cycle",
+	:severity = :error
+])
+
+RegisterRule(:dag, "acyclic_state", [
+	:type = :Validation,
+	:function = ValidationFunc_IsAcyclic(),
+	:params = [],
+	:message = "Graph must be acyclic",
+	:severity = :error
+])
+
+# Reachability rules
+RegisterRule(:reachability, "all_connected", [
+	:type = :Validation,
+	:function = ValidationFunc_IsConnected(),
+	:params = [],
+	:message = "Graph must be fully connected",
+	:severity = :warning
+])
+
+# Completeness rules
+#
+# COMPLETENESS NOW MEANS COMPLETENESS. This group used to hold exactly one
+# rule -- no_bottlenecks -- which is the property ValidateBottleneck already
+# reports, under a name that promises something else entirely. A caller
+# picking a validator by name got a degree-distribution check when it asked
+# whether the graph was complete.
+#
+# So the bottleneck rule moved to its own :bottleneck group (below, where its
+# name is honest), and :completeness got the rule its name implies: nothing
+# is left dangling. Nothing stopped being checked -- :bottleneck joined
+# $acGraphDefaultValidators, so a default Validate() still runs it.
+RegisterRule(:completeness, "no_orphan_nodes", [
+	:type = :Validation,
+	:function = ValidationFunc_NoOrphanNodes(),
+	:params = [],
+	:message = "Graph contains orphan nodes (no incoming and no outgoing edge)",
+	:severity = :warning
+])
+
+# Bottleneck rules
+RegisterRule(:bottleneck, "no_bottlenecks", [
+	:type = :Validation,
+	:function = ValidationFunc_NoBottlenecks(),
+	:params = [],
+	:message = "Graph contains bottleneck nodes",
+	:severity = :warning
+])
 
 #-------------#
 #  FUNCTIONS  #
@@ -340,16 +410,51 @@ func ValidationFunc_NoBottlenecks()
 func ValidationFunc_AllNodesReachable()
 	return func(oGraph, paRuleParams) {
 		_cStart_ = paRuleParams[:start]
-		
+
 		if NOT oGraph.NodeExists(_cStart_)
 			return [FALSE, "Start node does not exist"]
 		ok
-		
+
+		# ReachableFrom() NEVER RETURNS THE START NODE (see its contract in
+		# stzGraph.ring), so the count to beat is every OTHER node, not every
+		# node. Compared against NodeCount() this rule could not pass on any
+		# graph at all -- a perfect 3-node chain answers 2 < 3 and reported
+		# "Not all nodes reachable". It is not registered in any default group
+		# today, so nothing had run it; the trap is fixed here rather than
+		# left for whoever registers it first.
 		_aReachable_ = oGraph.ReachableFrom(_cStart_)
-		_nTotal_ = oGraph.NodeCount()
-		
-		if len(_aReachable_) < _nTotal_
+		_nOthers_ = oGraph.NodeCount() - 1
+
+		if len(_aReachable_) < _nOthers_
 			return [FALSE, "Not all nodes reachable from " + _cStart_]
+		ok
+		return [TRUE, ""]
+	}
+
+# NO ORPHAN NODES -- what :completeness actually asks.
+#
+# An orphan is a node with no incoming AND no outgoing edge. In a graph that
+# has no edges at all every node is trivially an orphan and the answer is
+# meaningless, so that case passes: the rule speaks about nodes left out of
+# a structure, and a graph with no structure leaves nobody out.
+func ValidationFunc_NoOrphanNodes()
+	return func(oGraph, paRuleParams) {
+		if oGraph.NumberOfEdges() = 0
+			return [TRUE, ""]
+		ok
+
+		_acOrphans_ = []
+		_aNodes_ = oGraph.Nodes()
+		_nLen_ = len(_aNodes_)
+		for _i_ = 1 to _nLen_
+			_cId_ = _aNodes_[_i_][:id]
+			if len(oGraph.Neighbors(_cId_)) = 0 and len(oGraph.Incoming(_cId_)) = 0
+				_acOrphans_ + _cId_
+			ok
+		next
+
+		if len(_acOrphans_) > 0
+			return [FALSE, "Orphan nodes: " + JoinXT(_acOrphans_, ", ")]
 		ok
 		return [TRUE, ""]
 	}
@@ -357,41 +462,14 @@ func ValidationFunc_AllNodesReachable()
 #=======================#
 #  DEFAULT GRAPH RULES  #
 #=======================#
-
-# DAG rules
-RegisterRule(:dag, "no_cycles_Constraint", [
-	:type = :Constraint,
-	:function = ConstraintFunc_NoCycles(),
-	:params = [],
-	:message = "Operation would create a cycle",
-	:severity = :error
-])
-
-RegisterRule(:dag, "acyclic_state", [
-	:type = :Validation,
-	:function = ValidationFunc_IsAcyclic(),
-	:params = [],
-	:message = "Graph must be acyclic",
-	:severity = :error
-])
-
-# Reachability rules
-RegisterRule(:reachability, "all_connected", [
-	:type = :Validation,
-	:function = ValidationFunc_IsConnected(),
-	:params = [],
-	:message = "Graph must be fully connected",
-	:severity = :warning
-])
-
-# Completeness rules
-RegisterRule(:completeness, "no_bottlenecks", [
-	:type = :Validation,
-	:function = ValidationFunc_NoBottlenecks(),
-	:params = [],
-	:message = "Graph contains bottleneck nodes",
-	:severity = :warning
-])
+#
+# MOVED TO THE TOP OF THIS FILE. They used to sit here -- which is AFTER the
+# `return` inside func ValidationFunc_AllNodesReachable() above, so Ring read
+# every one of them as unreachable code inside that function rather than as
+# top-level statements. They never ran. $aGraphRules[:dag], [:reachability]
+# and [:completeness] were all empty at runtime, which made ValidateReachability
+# and ValidateCompleteness return "pass" on any input at all -- including a
+# graph whose IsConnected() is 0. See the block after $acStzRulfLoaded.
 
 #=====================================================#
 #  STZGRAPHRULE -- THE OBJECT FACE OF THE RULE ENGINE  #
