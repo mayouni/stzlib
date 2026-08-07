@@ -42,6 +42,18 @@ class stzNode from stzObject
 	@nInboxCap = 0
 	@cInboxPolicy = "none"
 	@bStop = FALSE
+	# D5 -- security by REUSE (one vocabulary, nothing minted):
+	# stzRequestSigner authenticates senders; the stzSystemActor lattice
+	# authorizes them. Refusals are COUNTED and, on an Ask, OBSERVABLE
+	# (a [ stz.denied, why ] reply), never silent.
+	@oSigner = NULL        # the shared-keyring signer (verification side)
+	@bRequireSigned = FALSE
+	@nRejected = 0         # bad signature / replay / unsigned-when-required
+	@nDenied = 0           # capability refusals
+	@aActorNames = []      # verified kid -> actor identity
+	@aActorObjs = []
+	@aAdmitTags = []       # tag -> required capability KIND
+	@aAdmitKinds = []
 
 	# pcName speaks the plane's address vocabulary: "indexer" binds
 	# loopback; "indexer@10.0.0.7" binds that interface (the deployed
@@ -78,6 +90,40 @@ class stzNode from stzObject
 		@aHandlerFns + pfHandler
 		return This
 
+	#-- security (D5: reuse, never mint) -----------------------------------
+
+	# Verify signed messages against this signer's keyring (the SAME
+	# stzRequestSigner discipline the federation uses -- HMAC-SHA256,
+	# freshness window, nonce replay cache).
+	def SecureWith(poSigner)
+		@oSigner = poSigner
+		return This
+
+	# Reject UNSIGNED messages too (counted; denied reply on an Ask).
+	def RequireSigned(bYes)
+		@bRequireSigned = bYes
+		return This
+
+	# Register an actor identity (stzSystemActor): the verified key id
+	# names the actor whose capability KINDS gate admitted tags.
+	def AddActor(poActor)
+		@aActorNames + StzLower(poActor.Name())
+		@aActorObjs + poActor
+		return This
+
+	# Serving pcTag requires the sender's actor to hold pcKind
+	# (effectful / sensing / compute / inference -- the ONE lattice).
+	def Admit(pcTag, pcKind)
+		@aAdmitTags + StzLower("" + pcTag)
+		@aAdmitKinds + StzLower("" + pcKind)
+		return This
+
+	def Rejected()
+		return @nRejected
+
+	def Denied()
+		return @nDenied
+
 	#-- observability ------------------------------------------------------
 
 	def Processed()
@@ -111,8 +157,9 @@ class stzNode from stzObject
 	def Stop()
 		@bStop = TRUE
 
-	# One message: unpack, route by tag, reply if the frame asked for it.
-	# A raising handler propagates -- the node dies LOUDLY, on purpose.
+	# One message: unpack, authenticate + authorize (D5), route by tag,
+	# reply if the frame asked for it. A raising handler propagates --
+	# the node dies LOUDLY, on purpose.
 	def _Dispatch(nConn, cFrame)
 		vMsg = StzEngineStzmUnpack(cFrame)
 		if StzEngineStzmLastStatus() != 0
@@ -121,6 +168,42 @@ class stzNode from stzObject
 		ok
 		nCorr = StzEngineStzmLastCorrelation()
 		nFlags = StzEngineStzmLastFlags()
+		# authentication: a signed message is [ stz.signed, env, real ];
+		# the envelope is verified over the CANONICAL packed bytes of the
+		# real message (bad MAC, stale ts, or replayed nonce all fail)
+		cKid = ""
+		bSigned = FALSE
+		bWrapped = FALSE
+		if isList(vMsg) and ring_len(vMsg) = 3
+			if isString(vMsg[1]) and StzLower(vMsg[1]) = "stz.signed"
+				bWrapped = TRUE
+			ok
+		ok
+		if bWrapped
+			if isNull(@oSigner)
+				This._Refuse(nConn, nCorr, nFlags, "no-signer")
+				return
+			ok
+			aEnv = vMsg[2]
+			vReal = vMsg[3]
+			cSigTag = ""
+			if isList(vReal) and ring_len(vReal) > 0 and isString(vReal[1])
+				cSigTag = StzLower(vReal[1])
+			ok
+			cBody = StzEngineStzmPack(vReal, 0, 0, 0)
+			if NOT @oSigner.VerifyEnvelope("STZM", cSigTag, cBody, aEnv, 30000)
+				This._Refuse(nConn, nCorr, nFlags, "signature")
+				return
+			ok
+			bSigned = TRUE
+			cKid = StzLower("" + aEnv[:kid])
+			vMsg = vReal
+		else
+			if @bRequireSigned
+				This._Refuse(nConn, nCorr, nFlags, "unsigned")
+				return
+			ok
+		ok
 		cTag = ""
 		if isList(vMsg) and ring_len(vMsg) > 0 and isString(vMsg[1])
 			cTag = StzLower(vMsg[1])
@@ -132,15 +215,47 @@ class stzNode from stzObject
 		ok
 		if cTag = "stz.info"
 			# the node's declaration, observable from OUTSIDE: identity,
-			# binding, and the inbox contract it actually runs under
+			# binding, the inbox contract, and the security counters
 			@nProcessed++
 			if (nFlags & 2) = 2
 				vInfo = [ @cName, @cHost, @nInboxCap, @cInboxPolicy,
-					@nProcessed, This.Overflow() ]
+					@nProcessed, This.Overflow(), @nRejected, @nDenied ]
 				cR = StzEngineStzmPack(vInfo, 0, nCorr, 0)
 				@oReactor.ServerWrite(@nSrv, nConn, cR, FALSE)
 			ok
 			return
+		ok
+		# authorization: an admitted tag demands a capability KIND the
+		# sender's VERIFIED actor identity must hold (the one lattice)
+		nAdm = 0
+		nLenA = ring_len(@aAdmitTags)
+		for i = 1 to nLenA
+			if @aAdmitTags[i] = cTag
+				nAdm = i
+				exit
+			ok
+		next
+		if nAdm > 0
+			nAct = 0
+			nLenN = ring_len(@aActorNames)
+			for i = 1 to nLenN
+				if @aActorNames[i] = cKid
+					nAct = i
+					exit
+				ok
+			next
+			bMay = FALSE
+			if bSigned and nAct > 0
+				bMay = @aActorObjs[nAct].Can(@aAdmitKinds[nAdm])
+			ok
+			if NOT bMay
+				@nDenied++
+				if (nFlags & 2) = 2
+					cD = StzEngineStzmPack([ "stz.denied", "capability" ], 0, nCorr, 0)
+					@oReactor.ServerWrite(@nSrv, nConn, cD, FALSE)
+				ok
+				return
+			ok
 		ok
 		nH = 0
 		nLen = ring_len(@aHandlerTags)
@@ -162,4 +277,12 @@ class stzNode from stzObject
 		if (nFlags & 2) = 2
 			cReply = StzEngineStzmPack(vRes, 0, nCorr, 0)
 			@oReactor.ServerWrite(@nSrv, nConn, cReply, FALSE)
+		ok
+
+	# An authentication refusal: COUNTED, and observable on an Ask.
+	def _Refuse(nConn, nCorr, nFlags, cWhy)
+		@nRejected++
+		if (nFlags & 2) = 2
+			cD = StzEngineStzmPack([ "stz.denied", cWhy ], 0, nCorr, 0)
+			@oReactor.ServerWrite(@nSrv, nConn, cD, FALSE)
 		ok

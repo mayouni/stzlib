@@ -342,6 +342,33 @@ minted here.
 *Kill criteria:* any new crypto primitive or a second signer = refused
 by construction.
 
+**D5 RESULT (2026-08-07, DONE).** Guard: `base/test/cluster/
+d5_security_narrated.ring` (21 assertions). The kill criterion held BY
+CONSTRUCTION: zero new crypto, zero new signers -- the signed-message
+form is `[ stz.signed, <stzRequestSigner envelope>, <message> ]`, the
+signature computed over the CANONICAL packed bytes of the real message
+(the signer's own HMAC-SHA256 + freshness window + nonce replay cache,
+untouched); authorization is the stzSystemActor lattice, untouched
+(the verified key id names the actor; an admitted tag demands a
+capability KIND). Proven against a real worker process: signed asks
+served; unsigned refused; a TAMPERED message fails the MAC; a REPLAYED
+envelope is refused the second time; the LLM actor (inference-only, by
+the load-bearing rule) is :Denied on the :effectful-admitted tag while
+free on unadmitted ones. Every refusal is COUNTED on the node
+(stz.info gains rejected/denied) and observable to an asker as
+:Denied -- never silent, never a hang. The wire: the STZM plane now
+runs over the SAME mbedTLS termination HTTPS uses -- `ListenStzmTls` +
+the new client-role TLS channel (`reactor_connect_tls`; link-up fires
+only when the HANDSHAKE completes, so an up channel IS a secure
+channel); frames cross mutual TLS byte-identical, a plaintext dialer
+is ejected at the handshake, and a wrong trust anchor aborts the link.
+Scope note, in the open: stzComputeFederation is NOT yet re-expressed
+over the node plane -- the unification shipped at the VOCABULARY level
+(one signer, one lattice, one TLS channel, now shared by both); moving
+the federation's facet discovery onto the node registry is deferred
+until a heterogeneous-peer need materializes, and its HTTP transport
+remains, as the plan already allowed.
+
 **D6 — doctrine.**
 `SOFTANZA_COMPUTE_MODEL.md` gains its fourth width, written after the
 fact like the rest of it, with the measured numbers. The boundary law

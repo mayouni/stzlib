@@ -382,6 +382,28 @@ fn ring_ReactorConnect(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(reactor.reactor_connect(r, host_ptr, host_len, port, mode)));
 }
 
+/// StzEngineReactorConnectTls(reactor, cHost, nPort, nMode, cCertPath,
+/// cKeyPath, cCaPath, nVerify) -> channel id (>0) or negative setup
+/// error. Client-role TLS on the persistent channel: link-up (:accept)
+/// fires only when the handshake completes. cCert/cKey = this node's
+/// cert for the peer's mutual check (both "" for none); cCaPath +
+/// nVerify=1 validates the peer.
+fn ring_ReactorConnectTls(p: *anyopaque) callconv(.c) void {
+    const r = getReactor(p, 1);
+    const host_ptr: [*]const u8 = @ptrCast(gs(p, 2));
+    const host_len: usize = @intCast(gss(p, 2));
+    const port: u16 = @intFromFloat(gn(p, 3));
+    const mode: i32 = @intFromFloat(gn(p, 4));
+    const cert_ptr: [*]const u8 = @ptrCast(gs(p, 5));
+    const cert_len: usize = @intCast(gss(p, 5));
+    const key_ptr: [*]const u8 = @ptrCast(gs(p, 6));
+    const key_len: usize = @intCast(gss(p, 6));
+    const ca_ptr: [*]const u8 = @ptrCast(gs(p, 7));
+    const ca_len: usize = @intCast(gss(p, 7));
+    const verify: i32 = @intFromFloat(gn(p, 8));
+    rn(p, @floatFromInt(reactor.reactor_connect_tls(r, host_ptr, host_len, port, mode, cert_ptr, cert_len, key_ptr, key_len, ca_ptr, ca_len, verify)));
+}
+
 // ── STZM serialization (distribution D0) ─────────────────────
 //
 // One Ring value (number/string/list, nested) crosses the boundary ONCE,
@@ -594,6 +616,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginereactorspawnlaststatus", .func = ring_ReactorSpawnLastStatus },
     .{ .name = "stzenginereactorspawnkill", .func = ring_ReactorSpawnKill },
     .{ .name = "stzenginereactorconnect", .func = ring_ReactorConnect },
+    .{ .name = "stzenginereactorconnecttls", .func = ring_ReactorConnectTls },
     .{ .name = "stzenginestzmpack", .func = ring_StzmPack },
     .{ .name = "stzenginestzmunpack", .func = ring_StzmUnpack },
     .{ .name = "stzenginestzmframelen", .func = ring_StzmFrameLen },

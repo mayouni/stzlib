@@ -53,14 +53,40 @@ class stzNodeRegistry from stzObject
 	@aPorts = []
 	@aChans = []           # cached [ nChan, nConn ] per name, [] = not dialed
 	@nCorr = 0
-	@cStatus = :Ok         # :Ok / :Timeout / :Down / :Unknown / :BadTimeout
+	@cStatus = :Ok         # :Ok/:Timeout/:Down/:Unknown/:BadTimeout/:Denied
 	@nDialMs = 2000        # per-dial budget inside Send/Ask
+	@oSigner = NULL        # D5: sign every outgoing message (reuse, not mint)
+	@cKeyId = ""
 
 	def init()
 		@oReactor = new stzReactor()
 
 	def LastStatus()
 		return @cStatus
+
+	# D5 -- sign everything this plane sends, as pcKeyId, with the SAME
+	# stzRequestSigner discipline the federation uses. The receiver
+	# verifies against the shared keyring; a denial comes back as an
+	# observable :Denied, never a silent drop.
+	def SecureWith(poSigner, pcKeyId)
+		@oSigner = poSigner
+		@cKeyId = "" + pcKeyId
+		return This
+
+	# Wrap an outgoing message in the signed envelope form. The signature
+	# covers the CANONICAL packed bytes of the real message; the path is
+	# its tag.
+	def _Outgoing(pMsg)
+		if isNull(@oSigner)
+			return pMsg
+		ok
+		cTag = ""
+		if isList(pMsg) and ring_len(pMsg) > 0 and isString(pMsg[1])
+			cTag = StzLower(pMsg[1])
+		ok
+		cBody = StzEngineStzmPack(pMsg, 0, 0, 0)
+		aEnv = @oSigner.SignNow(@cKeyId, "STZM", cTag, cBody)
+		return [ "stz.signed", aEnv, pMsg ]
 
 	# Declare where a node lives. Re-registering a name moves it (the
 	# cached link is dropped so the next call dials the new place).
@@ -86,7 +112,7 @@ class stzNodeRegistry from stzObject
 			return FALSE
 		ok
 		@cStatus = :Ok
-		cFrame = StzEngineStzmPack(pMsg, 0, 0, 0)
+		cFrame = StzEngineStzmPack(This._Outgoing(pMsg), 0, 0, 0)
 		@oReactor.ServerWrite(_aL_[1], _aL_[2], cFrame, FALSE)
 		return TRUE
 
@@ -107,7 +133,7 @@ class stzNodeRegistry from stzObject
 		ok
 		@nCorr++
 		nWant = @nCorr
-		cFrame = StzEngineStzmPack(pMsg, 0, nWant, 2)
+		cFrame = StzEngineStzmPack(This._Outgoing(pMsg), 0, nWant, 2)
 		@oReactor.ServerWrite(_aL_[1], _aL_[2], cFrame, FALSE)
 		nDeadline = StzEngineWatchTimestampMs() + nTimeoutMs
 		while StzEngineWatchTimestampMs() < nDeadline
@@ -116,6 +142,13 @@ class stzNodeRegistry from stzObject
 				if aEv[1] = :data
 					vR = StzEngineStzmUnpack(aEv[3])
 					if StzEngineStzmLastCorrelation() = nWant
+						# a refusal is an OBSERVABLE verdict, not a value
+						if isList(vR) and ring_len(vR) = 2
+							if isString(vR[1]) and StzLower(vR[1]) = "stz.denied"
+								@cStatus = :Denied
+								return ""
+							ok
+						ok
 						@cStatus = :Ok
 						return vR
 					ok
