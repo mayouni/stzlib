@@ -240,7 +240,7 @@ class stzReactiveObject from stzObject
 	# Async Attribute update
 	def SetAsync(_cAttribute_, _newValue_, fnSuccess, fnError)
 		_cAttribute_ = StzLower(_cAttribute_)
-		_taskId_ = "attr_" + _cAttribute_ + "_" + string(random(999999))
+		_taskId_ = "attr_" + _cAttribute_ + "_" + string(StzEngineRandomInt(0, 999999))
 		
 		# Ensure fnError has a value for error handling
 		_fnErrorCallback_ = fnError
@@ -288,7 +288,7 @@ class stzReactiveObject from stzObject
 	def StreamAttribute(_cAttribute_)
 		_cAttribute_ = StzLower(_cAttribute_)
 		
-		_streamId_ = StzLower(ring_classname(self)) + "_" + _cAttribute_ + "_" + random(999999)
+		_streamId_ = StzLower(ring_classname(self)) + "_" + _cAttribute_ + "_" + StzEngineRandomInt(0, 999999)
 		_stream_ = @oEngine.CreateStream(_streamId_)
 		
 		# Watcher contract is f(oSelf, attr, old, new) -- the old 3-arg

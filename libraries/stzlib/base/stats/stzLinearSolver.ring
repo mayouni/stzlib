@@ -580,7 +580,7 @@ class stzLinearSolver from stzObject
 				_aChild_ = this.crossover(_aParent1_, _aParent2_)
 				
 				# Mutation
-				if random(100)/100 < _nMutationRate_
+				if StzEngineRandomInt(0, 100)/100 < _nMutationRate_
 					_aChild_ = this.mutate(_aChild_)
 				ok
 				
@@ -967,7 +967,7 @@ class stzLinearSolver from stzObject
 			for j = 1 to _nLen_
 				_nLower_ = @variables[j][:lowerBound]  
 				_nUpper_ = @variables[j][:upperBound]
-				_nValue_ = _nLower_ + random(_nUpper_ - _nLower_)
+				_nValue_ = _nLower_ + StzEngineRandomInt(0, _nUpper_ - _nLower_)
 				_aIndividual_ + [_aVarNames_[j], _nValue_]
 			next
 			_aPopulation_ + _aIndividual_
@@ -1016,15 +1016,15 @@ class stzLinearSolver from stzObject
 	def TournamentSelection(_aPopulation_, _aFitness_)
 
 		_nSize_ = len(_aPopulation_)
-		_nIndex1_ = random(_nSize_) + 1
-		_nIndex2_ = random(_nSize_) + 1
+		_nIndex1_ = StzEngineRandomInt(0, _nSize_) + 1
+		_nIndex2_ = StzEngineRandomInt(0, _nSize_) + 1
 		
-		_nIndex1_ = random(_nSize_)
+		_nIndex1_ = StzEngineRandomInt(0, _nSize_)
 		if _nIndex1_ = 0
 			_nIndex1_ = 1
 		ok
 
-		_nIndex2_ = random(_nSize_)
+		_nIndex2_ = StzEngineRandomInt(0, _nSize_)
 		if _nIndex2_ = 0
 			_nIndex2_ = 1
 		ok
@@ -1039,7 +1039,7 @@ class stzLinearSolver from stzObject
 		_aChild_ = []
 		_nLen_ = len(_aParent1_)
 		for i = 1 to _nLen_
-			if random(2) = 1
+			if StzEngineRandomInt(0, 2) = 1
 				_aChild_ + _aParent1_[i]
 			else
 				_aChild_ + _aParent2_[i] 
@@ -1049,7 +1049,7 @@ class stzLinearSolver from stzObject
 
 
 	def Mutate(_aIndividual_)
-		_nIndex_ = random(len(_aIndividual_))
+		_nIndex_ = StzEngineRandomInt(0, len(_aIndividual_))
 		if _nIndex_ = 0
 			_nIndex_ = 1
 		ok
@@ -1062,7 +1062,7 @@ class stzLinearSolver from stzObject
 			if @variables[i][:name] = _cVarName_
 				_nLower_ = @variables[i][:lowerBound]
 				_nUpper_ = @variables[i][:upperBound]
-				_nNewValue_ = _nLower_ + random(_nUpper_ - _nLower_)
+				_nNewValue_ = _nLower_ + StzEngineRandomInt(0, _nUpper_ - _nLower_)
 				_aIndividual_[_nIndex_][2] = _nNewValue_
 				exit
 			ok

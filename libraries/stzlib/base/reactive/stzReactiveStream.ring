@@ -233,7 +233,7 @@ class stzReactiveStream from stzObject
 		ok
 		
 		# Create one-time timer using existing timer system
-		_timerId_ = "autoconclude_" + @streamId + "_" + random(9999)
+		_timerId_ = "autoconclude_" + @streamId + "_" + StzEngineRandomInt(0, 9999)
 		@autoConcludeTimer = new stzRingTimer(_timerId_, @autoConcludeDelay, func() {
 			# Timer callback - check if we should auto-conclude
 			if @pendingDataCount = 0 and @autoConcludeEnabled

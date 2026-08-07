@@ -3133,13 +3133,43 @@ pub fn stz_list_repeat(list_arg: ?*const StzList, count: usize) callconv(.c) ?*S
 
 // ─── Shuffle ───
 
+// ─── Shared randomness for shuffle/pick ───
+//
+// These three ops used to build a PRNG PER CALL, seeded from the clock.
+// Two defects in one: (1) UNSEEDABLE -- SeedRandom() could make number and
+// pick draws reproducible while a shuffle never was, so "seed once" was a
+// lie for the most user-visible random op; (2) two fleet workers hitting
+// the same timestamp tick produced IDENTICAL "random" choices (the R8
+// worker fleet is a real deployment shape).
+//
+// One module-level generator now serves all three, with an exported seed
+// (StzEngineListRandomSeed, called by Ring's SeedRandom face so ONE seed
+// governs the library) and a crypto-seeded default so unseeded runs are
+// independent across processes rather than correlated by clock.
+var g_list_prng: std.Random.DefaultPrng = std.Random.DefaultPrng.init(0);
+var g_list_seeded: bool = false;
+
+fn listRng() std.Random {
+    if (!g_list_seeded) {
+        var sd: [8]u8 = undefined;
+        std.crypto.random.bytes(&sd);
+        g_list_prng = std.Random.DefaultPrng.init(@bitCast(sd));
+        g_list_seeded = true;
+    }
+    return g_list_prng.random();
+}
+
+pub fn stz_list_random_seed(s: u64) callconv(.c) void {
+    g_list_prng = std.Random.DefaultPrng.init(s);
+    g_list_seeded = true;
+}
+
 pub fn stz_list_shuffle(list_arg: ?*StzList) callconv(.c) i32 {
     const l = list_arg orelse return -1;
     const n = l.len();
     if (n <= 1) return 0;
 
-    var prng = std.Random.DefaultPrng.init(@truncate(@as(u128, @bitCast(std.time.nanoTimestamp()))));
-    const rng = prng.random();
+    const rng = listRng();
 
     var i: usize = n - 1;
     while (i > 0) : (i -= 1) {
@@ -3158,8 +3188,7 @@ pub fn stz_list_random_item(list_arg: ?*const StzList) callconv(.c) ?*const StzV
     const n = l.len();
     if (n == 0) return null;
 
-    var prng = std.Random.DefaultPrng.init(@truncate(@as(u128, @bitCast(std.time.nanoTimestamp()))));
-    const idx = prng.random().intRangeLessThan(usize, 0, n);
+    const idx = listRng().intRangeLessThan(usize, 0, n);
     return l.get(idx);
 }
 
@@ -3169,8 +3198,7 @@ pub fn stz_list_random_items(list_arg: ?*const StzList, count: usize) callconv(.
     if (n == 0 or count == 0) return null;
 
     const result = stz_list_new() orelse return null;
-    var prng = std.Random.DefaultPrng.init(@truncate(@as(u128, @bitCast(std.time.nanoTimestamp()))));
-    const rng = prng.random();
+    const rng = listRng();
 
     const pick = @min(count, n);
     const indices = allocator.alloc(usize, n) catch {

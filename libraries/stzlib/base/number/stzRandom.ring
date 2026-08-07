@@ -17,10 +17,16 @@
 # 	PERCENT FUNCTIONS
 
 
-_nRingMaxRandom = 999_999_999 # Based on my testing of Ring random() function
-			      #NOTE// if you seed the Ring random() function
-			      # with a value greater than that, you will get ""
-			      # as a result! Example : random(9_999_999_999)
+# Default upper bound for unbounded RandomNumber() draws. Historical name:
+# this USED to be "the max Ring's random() can take, based on my testing" --
+# that belief is PLATFORM-DEPENDENT and was falsified by measurement on
+# Windows (2026-08-07): the builtin's ceiling there is 32767 (15-bit C rand),
+# max of random(2e9) over 100k draws = 32767, and random(9_999_999_999)
+# raises a runtime error. That is WHY the library no longer draws through
+# the builtin anywhere -- all 40 call sites now route to StzEngineRandomInt
+# (Xoshiro256++, full-range, unbiased). The constant survives only as the
+# default range of RandomNumber(), which the engine handles effortlessly.
+_nRingMaxRandom = 999_999_999
 
 _nRingMaxSeed = 1_999_999_999 # Idem
 
@@ -1094,6 +1100,15 @@ func StzSRandom(_n_)
 		StzRaise("Can't proceed. n must be less than " + RingMaxSeed() + ".")
 	ok
 
+	# ONE seed governs both worlds. Before 2026-08-07 this seeded only Ring's
+	# builtin stream while the library drew from the ENGINE stream (Xoshiro,
+	# seeded separately via StzEngineRandomSeed) -- so "seed then run" was
+	# reproducible for some operations and not others, depending on which of
+	# the two generators a given method happened to reach. All library draws
+	# now route to the engine; the builtin is still seeded here so user code
+	# calling Ring's random() directly stays reproducible under the same seed.
+	StzEngineRandomSeed(_n_)
+	StzEngineListRandomSeed(_n_)
 	return srandom(_n_)
 
 func StzRandomXT(_n_, _nSeed_)
@@ -1134,6 +1149,9 @@ func SeedRandom(_n_)
 		StzRaise("Can't proceed. n must be less than " + RingMaxSeed() + ".")
 	ok
 
+	# See StzSRandom: one seed, both generators.
+	StzEngineRandomSeed(_n_)
+	StzEngineListRandomSeed(_n_)
 	srandom(_n_)
 
 #---

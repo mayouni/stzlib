@@ -161,7 +161,7 @@ class stzListGetter from stzObject
 
 	# One item picked at random.
 	def RandomItem()
-		_nRdN_ = random(This.NumberOfItems() - 1) + 1
+		_nRdN_ = StzEngineRandomInt(0, This.NumberOfItems() - 1) + 1
 		return This.NthItem(_nRdN_)
 
 	# n items picked at random.
@@ -188,7 +188,7 @@ class stzListGetter from stzObject
 		ok
 		_anNriIdx_ = 1 : _nNriLen_
 		for _iNri2_ = _nNriLen_ to 2 step -1
-			_jNri_ = random(_iNri2_ - 1) + 1
+			_jNri_ = StzEngineRandomInt(0, _iNri2_ - 1) + 1
 			_nNriTmp_ = _anNriIdx_[_iNri2_]
 			_anNriIdx_[_iNri2_] = _anNriIdx_[_jNri_]
 			_anNriIdx_[_jNri_] = _nNriTmp_

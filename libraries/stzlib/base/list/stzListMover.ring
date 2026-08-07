@@ -257,7 +257,7 @@ class stzListMover from stzObject
 		_aShufContent_ = This.Content()
 		_nShufLen_ = len(_aShufContent_)
 		for _iShuf_ = _nShufLen_ to 2 step -1
-			_jShuf_ = random(_iShuf_ - 1) + 1
+			_jShuf_ = StzEngineRandomInt(0, _iShuf_ - 1) + 1
 			_shufTemp_ = _aShufContent_[_iShuf_]
 			_aShufContent_[_iShuf_] = _aShufContent_[_jShuf_]
 			_aShufContent_[_jShuf_] = _shufTemp_

@@ -55,7 +55,7 @@ func SometimesWhen(p)
 	$cOneOrManyLoops = :One
 	$bRequiresStopValue = 0
 
-	$bRandomPass = random(1)
+	$bRandomPass = StzEngineRandomInt(0, 1)
 
 	$bExecuteCode = 1
 
