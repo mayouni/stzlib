@@ -45,19 +45,49 @@ inline fn dist(a: []const f64, b: []const f64) f64 {
 /// and the thing that decides the vote when the K-th and (K+1)-th are equidistant.
 ///
 /// Returns how many were filled (min(k, n)).
-pub fn topK(
+// --- Threaded top-k (M4 of the multicore tier) ---
+//
+// The scan chunks across threads, each running the SAME stable insertion
+// below over its slice, and a merge that reproduces the serial tie
+// semantics exactly: smaller distance first, equal distances -> smaller
+// index (chunks are index-ordered and the merge prefers the earlier chunk
+// on ties). Output-identical to serial, TIES INCLUDED -- proven in
+// tools/knn_spike.zig on a quantized fixture built to collide, and pinned
+// by the test below.
+//
+// GATE FROM MEASUREMENT (knn_spike, two runs, bar >= 1.5x on both):
+//     n*d = 1.6M   1.05-1.66x  -> FAILS the bar, stays serial
+//     n*d = 8M     2.4-2.6x    -> admitted
+//     n*d = 12.8M  2.2-2.7x    -> admitted
+// The gate is WORK (n*d), not n, so a 100k x 128 scan rates the same as an
+// 800k x 16 one. PROVISIONAL until the shared calibration store (M5).
+//
+// The parallel path is also gated on k <= TOPK_SCRATCH: this function is
+// allocation-free by contract, so per-thread candidate lists live on the
+// stack. A larger k falls back to the serial scan, correct as ever.
+pub var topk_parallel_min_work: usize = 8_000_000;
+const TOPK_WORKERS = 8;
+const TOPK_SCRATCH = 64;
+
+const TopKChunk = struct {
     points: []const f64,
-    n: usize,
     d: usize,
     query: []const f64,
-    k: usize,
-    out_idx: []i32,
-    out_dist: []f64,
-) usize {
-    if (n == 0 or d == 0 or k == 0) return 0;
-    const take = @min(k, n);
-    var have: usize = 0;
+    take: usize,
+    base: usize,
+    idx: [TOPK_SCRATCH]i32 = undefined,
+    dst: [TOPK_SCRATCH]f64 = undefined,
+    have: usize = 0,
+    fn run(self: *TopKChunk) void {
+        self.have = scanInto(self.points, self.points.len / self.d, self.d, self.query, self.take, self.base, self.idx[0..self.take], self.dst[0..self.take]);
+    }
+};
 
+/// The stable insertion scan over one index-ordered slice; `base` converts
+/// local positions to global 1-based indices. This IS the old topK body --
+/// serial callers pass base=0 over the whole range.
+fn scanInto(points: []const f64, n: usize, d: usize, query: []const f64, take: usize, base: usize, out_idx: []i32, out_dist: []f64) usize {
+    var have: usize = 0;
     var i: usize = 0;
     while (i < n) : (i += 1) {
         const dd = dist(query, points[i * d ..][0..d]);
@@ -71,10 +101,72 @@ pub fn topK(
                 out_idx[m] = out_idx[m - 1];
             }
             out_dist[p] = dd;
-            out_idx[p] = @intCast(i + 1); // Ring is 1-based
+            out_idx[p] = @intCast(base + i + 1); // Ring is 1-based
         }
     }
     return have;
+}
+
+pub fn topK(
+    points: []const f64,
+    n: usize,
+    d: usize,
+    query: []const f64,
+    k: usize,
+    out_idx: []i32,
+    out_dist: []f64,
+) usize {
+    if (n == 0 or d == 0 or k == 0) return 0;
+    const take = @min(k, n);
+
+    if (n * d >= topk_parallel_min_work and take <= TOPK_SCRATCH) {
+        const cpus = std.Thread.getCpuCount() catch 1;
+        const nt = @min(TOPK_WORKERS, cpus);
+        if (nt > 1) {
+            var jobs: [TOPK_WORKERS]TopKChunk = undefined;
+            var threads: [TOPK_WORKERS]std.Thread = undefined;
+            const rows = n / nt;
+            var spawned: usize = 0;
+            for (0..nt) |t| {
+                const lo = t * rows;
+                const hi = if (t == nt - 1) n else lo + rows;
+                jobs[t] = .{ .points = points[lo * d .. hi * d], .d = d, .query = query, .take = take, .base = lo };
+                // Compact handles (the M1 lesson); a failed spawn runs inline.
+                threads[spawned] = std.Thread.spawn(.{}, TopKChunk.run, .{&jobs[t]}) catch {
+                    jobs[t].run();
+                    continue;
+                };
+                spawned += 1;
+            }
+            for (threads[0..spawned]) |th| th.join();
+
+            // k-way merge: min distance wins; on equal distance the EARLIER
+            // chunk (lower global indices) wins, matching serial stability.
+            var pos: [TOPK_WORKERS]usize = .{0} ** TOPK_WORKERS;
+            var have: usize = 0;
+            while (have < take) {
+                var best_j: usize = std.math.maxInt(usize);
+                var best_d: f64 = std.math.inf(f64);
+                for (0..nt) |jix| {
+                    if (pos[jix] < jobs[jix].have) {
+                        const dd = jobs[jix].dst[pos[jix]];
+                        if (dd < best_d) {
+                            best_d = dd;
+                            best_j = jix;
+                        }
+                    }
+                }
+                if (best_j == std.math.maxInt(usize)) break;
+                out_dist[have] = jobs[best_j].dst[pos[best_j]];
+                out_idx[have] = jobs[best_j].idx[pos[best_j]];
+                pos[best_j] += 1;
+                have += 1;
+            }
+            return have;
+        }
+    }
+
+    return scanInto(points, n, d, query, take, 0, out_idx, out_dist);
 }
 
 // ─── K MEANS ─────────────────────────────────────────────────────────────────
@@ -331,4 +423,37 @@ test "kmeans refuses when there are not k distinct points" {
     var cnt: [3]usize = undefined;
     const r = kmeansRun(&pts, 3, 2, 3, 10, &cent, &asg, &cnt);
     try std.testing.expectEqual(@as(usize, 1), r.seeded); // only one distinct
+}
+
+test "threaded topK is output-identical to serial, ties included" {
+    const gpa2 = std.testing.allocator;
+    const saved = topk_parallel_min_work;
+    defer topk_parallel_min_work = saved;
+
+    // Quantized coordinates so equal distances OCCUR; n not divisible by 8
+    // so the last chunk is uneven.
+    const n = 10_007;
+    const d = 4;
+    const pts = try gpa2.alloc(f64, n * d);
+    defer gpa2.free(pts);
+    var seed: u64 = 21;
+    for (pts) |*v| {
+        seed = seed *% 6364136223846793005 +% 1442695040888963407;
+        v.* = @as(f64, @floatFromInt((seed >> 33) % 6));
+    }
+    const q = [_]f64{ 2, 2, 2, 2 };
+
+    var ia: [12]i32 = undefined;
+    var da: [12]f64 = undefined;
+    topk_parallel_min_work = std.math.maxInt(usize); // force serial
+    const na = topK(pts, n, d, &q, 12, &ia, &da);
+
+    var ib: [12]i32 = undefined;
+    var db: [12]f64 = undefined;
+    topk_parallel_min_work = 1; // force parallel
+    const nb = topK(pts, n, d, &q, 12, &ib, &db);
+
+    try std.testing.expectEqual(na, nb);
+    for (ia[0..na], ib[0..nb]) |x, y| try std.testing.expectEqual(x, y);
+    for (da[0..na], db[0..nb]) |x, y| try std.testing.expect(x == y);
 }
