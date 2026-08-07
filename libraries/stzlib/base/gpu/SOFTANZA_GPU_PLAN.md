@@ -590,3 +590,102 @@ Guards: `gpu_calibration_narrated.ring` (10) +
 
 Remaining: **G6** — the separate ggml-Vulkan go/no-go for the neural
 tier, with its own measurement and kill criteria.
+
+---
+
+## G6 — the ggml-Vulkan decision
+
+### Kill criteria, written 2026-08-07 BEFORE the measurement
+
+The question: vendor ggml's Vulkan backend so the neural tier (BERT-family
+embeddings, the generative decoder) runs its ggml graphs on the GPU.
+
+- **K1 — workload eligibility by proxy.** The tier's compute is matmul at
+  BERT-class shapes (hidden 384–1536, seq ≤ 512) plus token-by-token
+  matvec for decoding. The already-shipped wgpu path is a fair PROXY
+  CEILING for ggml-Vulkan on this silicon (same GPU, same f32). If the
+  proxy cannot beat the tier's ACTUAL ggml CPU route by ≥2x on the
+  forward-pass census, a second GPU stack cannot pay: NO-GO.
+- **K2 — the vendoring invariant.** This repo builds with `zig build`,
+  no cmake, no external SDK. ggml-Vulkan requires its GLSL shader set
+  compiled to SPIR-V at build time (Vulkan SDK's glslc + ggml's
+  vulkan-shaders-gen tool). Unless pinned pre-generated artifacts make
+  the SDK unnecessary for BUILDING and for UPDATING the vendored ggml:
+  NO-GO on principle, whatever the speed.
+- **K3 — decisive margin for a second stack.** ggml-Vulkan would be a
+  SECOND GPU surface — its own device/VRAM/TDR story OUTSIDE
+  stz_gpu.dll's counted-fallback discipline. That duplication must buy
+  ≥2x END-TO-END on the tier's real jobs (bulk embedding), not merely
+  per-op wins: below that, NO-GO.
+- **K4 — CI.** CPU must remain the load-time default with the backend
+  behind runtime opt-in; a backend that cannot be isolated: NO-GO.
+
+### The measurement (2026-08-07, `base/test/gpu/g6_census_bench.ring`)
+
+The tier's shipped ggml route (`StzEngineMatrixMulGgml`, bridge overhead
+included — that IS today's per-call price) against the shipped wgpu op on
+resident buffers, warm-min of 5, RTX 3050:
+
+| shape m×k×n | census role | ggml-cpu ms | wgpu ms | ratio |
+|---|---|---|---|---|
+| 128×384×384 | attn qkv/proj, seq 128 | 1.81 | 0.40 | 4.6x |
+| 128×384×1536 | ffn up, seq 128 | 5.20 | 1.07 | 4.8x |
+| 128×1536×384 | ffn down, seq 128 | 5.19 | 1.10 | 4.7x |
+| 512×384×1536 | ffn up, seq 512 | 8.80 | 3.23 | 2.7x |
+| 4096×384×1536 | batch embed | 45.9 | 24.2 | 1.9x |
+| 1×384×1536 | decode matvec | 2.85 | 0.28 | (10.3x)* |
+| 1×1536×384 | decode matvec down | 2.87 | 0.37 | (7.8x)* |
+
+\* the matvec rows measure the BRIDGE, not ggml: MulGgml re-converts and
+re-transposes B on every call (~0.02 ms of actual compute inside 2.85 ms).
+Honest read of decode: a matvec is 1 flop per weight byte — G0's killed
+shape — and at MiniLM scale (590 KB of weights per matmul) the CPU serves
+it from cache faster than any dispatch floor. Decode stays CPU at small-
+model scale, full stop. (The bridge-overhead finding is real and now has
+its own task: resident tensor handles for MulGgml.)
+
+Forward-pass and batch shapes: 1.9–4.8x for the GPU as shipped, and the
+2.7–4.8x band survives even granting the CPU implausibly generous pure-
+compute numbers — K1 PASSES for the embedding workload.
+
+### DECISION: NO-GO on vendoring ggml-Vulkan — the wgpu plane is the route
+
+Killed by **K2** and **K3**, despite K1 passing:
+
+- **K2 kills it on the invariant.** ggml-Vulkan's build compiles a GLSL
+  shader set to SPIR-V via the Vulkan SDK's glslc plus ggml's own
+  generator tool (our vendored ggml has the backend pruned entirely).
+  Pinning pre-generated SPIR-V would vendor a build product this repo
+  cannot regenerate without installing the SDK — every ggml update would
+  re-require it. That is cmake-by-another-name; the invariant holds.
+- **K3 cannot even be measured yet** — and that is itself the decision:
+  the BERT forward pass ggml-Vulkan would accelerate is NOT IMPLEMENTED
+  (neural_embed.zig is at the model-loading milestone; the forward pass
+  is its next). Vendoring a second GPU stack for a workload that does
+  not exist is premature by definition.
+- **The constructive route the numbers DO support:** when the forward
+  pass lands, its matmul-shaped ~85% can run through the ALREADY-SHIPPED
+  stz_gpu plane (the lawful @import pattern gives stz_neural.dll its own
+  device context; one GPU discipline, counted fallback, no second
+  stack) — the measured 2.7–4.8x is exactly the win ggml-Vulkan was
+  supposed to buy, without the SDK, without the second surface.
+
+**Revisit triggers**, recorded so nobody relearns this: (a) a real
+large-model generative workload arrives (weights ≫ CPU cache; decode
+becomes bandwidth-bound at GB scale, where the 3050's 168 GB/s vs
+~40 GB/s CPU is a genuine 4x ceiling), or (b) upstream ggml ships
+prebuilt SPIR-V artifacts that make the SDK unnecessary for building
+AND updating.
+
+---
+
+## THE PLANE IS COMPLETE — G0 through G6, 2026-08-07
+
+One day, one plan of record, every phase gated by measurement: the
+go/no-go spike (GO, with elementwise killed honestly), the lifecycle
+DLL, the op library with exact witnesses, the 17.9x silent seam, the
+declarative surface with the engine-resident transpiler, the browser-
+proven edge convergence with measured calibration and the deployment
+admission gate, and a NO-GO where the numbers and the invariants said
+no. 162 guard asserts stand behind it. The f64 solver tier never moved
+off the CPU — by decision, start to finish.
