@@ -62,6 +62,12 @@ func StzNodeAppFromDescription(aDesc)
 		if _aN_[7] > 0
 			_oApp_.InboxOf(_aN_[2], _aN_[7], _aN_[8])
 		ok
+		if ring_len(_aN_) >= 9
+			if ring_len(_aN_[9]) > 0
+				_oApp_.Node(_aN_[2])
+				_oApp_.Boot(_aN_[9])
+			ok
+		ok
 	next
 	_aGroups_ = aDesc[4]
 	_nGroups_ = ring_len(_aGroups_)
@@ -75,7 +81,7 @@ class stzNodeApp from stzObject
 
 	@cName = "app"
 	# one spec ROW per node: [ cName, cHost, nPort, aOn, aRequires,
-	#                          nInboxCap, cInboxPolicy ]
+	#                          nInboxCap, cInboxPolicy, cBootCode ]
 	@aSpecs = []
 	@nCurrent = 0          # the node fluent On/Requires/At* apply to
 	@aGroups = []          # [ [ aNames, cStrategy ], ... ]
@@ -103,7 +109,7 @@ class stzNodeApp from stzObject
 				return This
 			ok
 		next
-		@aSpecs + [ cN, "", 0, [], [], 0, "none" ]
+		@aSpecs + [ cN, "", 0, [], [], 0, "none", "" ]
 		@nCurrent = ring_len(@aSpecs)
 		return This
 
@@ -124,6 +130,15 @@ class stzNodeApp from stzObject
 			next
 		ok
 		@aSpecs[@nCurrent][5] = _a_
+		return This
+
+	# Node BOOT code (a Ring code string, top-level in the generated
+	# process, after handlers, before Run). This is where a node builds
+	# its RESIDENT state -- and because it runs on EVERY (re)start, a
+	# supervised restart rebuilds that state: a fresh process has no
+	# memory, so its boot must know how to make some.
+	def Boot(pcRingCode)
+		@aSpecs[@nCurrent][8] = "" + pcRingCode
 		return This
 
 	def AtHost(pcHost)
@@ -165,7 +180,8 @@ class stzNodeApp from stzObject
 		nLen = ring_len(@aSpecs)
 		for i = 1 to nLen
 			aNodes + [ "node", @aSpecs[i][1], @aSpecs[i][2], @aSpecs[i][3],
-				@aSpecs[i][4], @aSpecs[i][5], @aSpecs[i][6], @aSpecs[i][7] ]
+				@aSpecs[i][4], @aSpecs[i][5], @aSpecs[i][6], @aSpecs[i][7],
+				@aSpecs[i][8] ]
 		next
 		return [ "app", @cName, aNodes, @aGroups,
 			[ @nBudgetMax, @nBudgetWindowMs ] ]
@@ -223,6 +239,14 @@ class stzNodeApp from stzObject
 			return FALSE
 		ok
 		return @oSup.Escalated()
+
+	# Kill a node's OS process (chaos/testing); supervision observes the
+	# death on its next Cycle and heals it like any other.
+	def KillNode(pcName)
+		if NOT isNull(@oSup)
+			@oSup.KillChild(pcName)
+		ok
+		return This
 
 	# ONE line moves a node; nothing else changes for any caller.
 	def Deploy(pcName, pcHost)
@@ -289,6 +313,9 @@ class stzNodeApp from stzObject
 			cCode += 'oNode.On("' + aOn[h][1] + '", func aMsg {' + cNlChar +
 				aOn[h][2] + cNlChar + '})' + cNlChar
 		next
+		if ring_len(@aSpecs[i][8]) > 0
+			cCode += @aSpecs[i][8] + cNlChar
+		ok
 		cCode += 'oNode.Run(' + @nNodeTtlMs + ')' + cNlChar
 		write(cFile, cCode)
 		if StzFindFirst(cFile, @aScriptFiles) = 0

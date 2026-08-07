@@ -378,6 +378,31 @@ fine-grained messaging — same verdict, third instance. Distribution
 pays on coarse work units and resident remote state, never on streaming
 cheap calls through the boundary.
 
+**D6 RESULT (2026-08-07, DONE — THE PLAN'S FINISH LINE CROSSED).**
+The success scene, exactly as stated up front, passed 20/20:
+`base/test/cluster/d6_semantic_search_node_narrated.ring` runs the
+neural module's semantic-search demo as an `stzNodeApp` — the indexer
+node's declared BOOT code loads the MiniLM GGUF and embeds the corpus
+(so a fresh process rebuilds its resident state), and the SAME
+meaning-not-keywords assertions flow through `Ask("indexer", ...)`.
+`Deploy("indexer", "127.0.0.2")` is the ONE changed line: the
+identical assertion body ran again with byte-identical results
+(booleans AND winning texts), and the indexer itself reported serving
+from the second host. The mid-run kill produced exactly what the plan
+demanded: the in-flight Ask failed plainly within its timeout (no
+ghost reply, no hang), supervision counted a restart, and the reborn
+indexer answered every semantic assertion again. (127.0.0.2 stands in
+for the second machine — RunLocal is the pseudo-distributed mode; a
+real second host changes latency, not semantics, which D2/D4 proved is
+invisible to callers.) The declarative surface gained the `Boot()`
+slot this scene required (a node's resident state is part of its
+declaration — restartable by construction). And the doctrine shipped:
+`engine/SOFTANZA_COMPUTE_MODEL.md` now describes FOUR widths, carries
+the wire's measured floor and the `net.*` seeds, states at-most-once
+as a class-two correctness contract, records the refused hard-20% in
+its deliberate absences, and gives the boundary law its third witness
+in writing.
+
 ## The dispatch discipline carries over
 
 - **Gates from measurement:** D0's numbers seed `net.*` defaults; the
