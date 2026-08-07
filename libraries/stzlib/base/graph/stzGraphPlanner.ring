@@ -1658,7 +1658,7 @@ class stzGraphPlanner from stzObject
 		catch
 			return FALSE
 		done
-? @@NL(paConstraints)	
+
 		_nLen_ = len(paConstraints)
 		for i = 1 to _nLen_
 			_aConstraint_ = paConstraints[i]

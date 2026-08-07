@@ -681,8 +681,31 @@ class stzRegex from stzObject
 
 		#>
 
+	# Z = each match WITH its position, the position as a number. ZZ() below is
+	# the same thing with the position as a section [start, end].
+	#
+	# This used to print @@(FindMatches()) and return nothing, which made the four
+	# aliases below -- every one of them named ...AndTheirPositions -- answer NULL
+	# while dumping to the console. Nothing carried a position at all.
 	def MatchesZ()
-		? @@(This.FindMatches())
+
+		_aResults_ = []
+		_nPos_ = 1
+
+		while This.MatchAt(@cStr, _nPos_)
+			_cMatch_ = StzEngineRegexCaptureText(@pRegexHandle, 1)
+
+			if _cMatch_ != ""
+				_nStart_ = StzEngineRegexCaptureStart(@pRegexHandle, 1)
+				_nEnd_ = StzEngineRegexCaptureEnd(@pRegexHandle, 1)
+				_nPos_ = _nEnd_ + 1
+				_aResults_ + [ _cMatch_, _nStart_ ]
+			else
+				break
+			ok
+		end
+
+		return _aResults_
 
 
 		#< @FunctionAlternativeForms

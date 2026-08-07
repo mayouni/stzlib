@@ -23,7 +23,8 @@
 func StzCodeRuleNames()
 	return [ "no-len-method", "q-returns-object", "no-aggressive-verbs",
 	         "engine-first", "q-has-plain-twin", "no-case-collision",
-	         "dead-knob", "setter-resets-on-reject" ]
+	         "dead-knob", "setter-resets-on-reject",
+	         "setter-only-moves-one-way", "misspelled-name", "library-prints" ]
 
 func StzCheckCodeFile(pcPath)
 	return StzCheckCode(read(pcPath))
@@ -96,24 +97,104 @@ func StzCheckProjectKnobs(pcDir)
 		catch
 			loop
 		done
-		_aK_ = _StzCheckDeadKnobs(_cSrc_)
-		_aR_ = _StzCheckSetterResets(_cSrc_)
-		_nK_ = len(_aK_)
-		for _j_ = 1 to _nK_
-			_aOut_ + [ :rule = _aK_[_j_][:rule], :subject = :code,
-			           :where = _cPath_ + ":" + _aK_[_j_][:line],
-			           :severity = _aK_[_j_][:severity],
-			           :message = _aK_[_j_][:message] ]
-		next
-		_nR_ = len(_aR_)
-		for _j_ = 1 to _nR_
-			_aOut_ + [ :rule = _aR_[_j_][:rule], :subject = :code,
-			           :where = _cPath_ + ":" + _aR_[_j_][:line],
-			           :severity = _aR_[_j_][:severity],
-			           :message = _aR_[_j_][:message] ]
+		# ONE list of passes, walked once. This used to be a copy-pasted block per
+		# rule, and when three new rules were added to StzCheckCode() they were not
+		# added here -- so the project walk reported a clean library by running two
+		# rules out of five. A list cannot half-land that way.
+		_aPasses_ = _StzTextPassFindings(_cSrc_)
+		_nP_ = len(_aPasses_)
+		for _j_ = 1 to _nP_
+			_aOut_ + [ :rule = _aPasses_[_j_][:rule], :subject = :code,
+			           :where = _cPath_ + ":" + _aPasses_[_j_][:line],
+			           :severity = _aPasses_[_j_][:severity],
+			           :message = _aPasses_[_j_][:message] ]
 		next
 	next
 	return _aOut_
+
+# THE text-pass rule set, in one place. Both entry points read it from here:
+# StzCheckCode() for a snippet, StzCheckProjectKnobs() for a tree. These are the
+# rules that need statement-level detail -- which attribute a line assigns,
+# whether an else-branch overwrites it -- that the class/method/call graph the
+# graph rules run on does not carry.
+func _StzTextPassFindings(pcSource)
+	_aOut_ = []
+
+	# DOCUMENTATION IS NOT CODE. Almost every method in this library carries a
+	# worked sample in a /* */ block -- real Ring lines, showing real calls. The
+	# text passes had no idea those blocks existed, so they read the samples as
+	# statements: 245 of 259 reported prints were documentation. The same blindness
+	# runs the other way for the knob rules, where a sample that merely MENTIONS an
+	# attribute counted as a consumer and could hide a dead one.
+	#
+	# Blanked, not removed -- line numbers have to survive, or every finding points
+	# at the wrong line.
+	_cClean_ = _StzStripBlockComments(pcSource)
+
+	_aPasses_ = [
+		_StzCheckDeadKnobs(_cClean_),
+		_StzCheckSetterResets(_cClean_),
+		_StzCheckOneWaySetters(_cClean_),
+		_StzCheckMisspelledNames(_cClean_),
+		_StzCheckLibraryPrints(_cClean_)
+	]
+	_nP_ = len(_aPasses_)
+	for _i_ = 1 to _nP_
+		_aOne_ = _aPasses_[_i_]
+		_nQ_ = len(_aOne_)
+		for _j_ = 1 to _nQ_
+			_aOut_ + _aOne_[_j_]
+		next
+	next
+	return _aOut_
+
+# Blank out every /* ... */ region, keeping the line structure intact so a
+# finding's :line still points where a reader would look. Comment characters
+# become nothing rather than spaces -- no pass cares about a line's width, and
+# an emptied line simply matches no rule.
+#
+# Block state is carried ACROSS lines, which is the whole point: a sample opens
+# on one line and closes several lines later, and a per-line strip cannot see it.
+func _StzStripBlockComments(pcSource)
+	_cSrc_ = StzReplace("" + pcSource, char(13), "")
+	if len(StzFindCS("/*", _cSrc_, TRUE)) = 0
+		return _cSrc_
+	ok
+
+	_acLines_ = StzSplit(_cSrc_, char(10))
+	_nLen_ = len(_acLines_)
+	_bIn_ = FALSE
+	_cOut_ = ""
+
+	for _i_ = 1 to _nLen_
+		_cKept_ = ""
+		_cRest_ = _acLines_[_i_]
+
+		while TRUE
+			if _bIn_
+				_nEnd_ = StzFindFirst("*/", _cRest_)
+				if _nEnd_ = 0
+					exit   # the block runs on into the next line
+				ok
+				_bIn_ = FALSE
+				_cRest_ = StzMidToEnd(_cRest_, _nEnd_ + 2)
+			else
+				_nSt_ = StzFindFirst("/*", _cRest_)
+				if _nSt_ = 0
+					_cKept_ += _cRest_
+					exit
+				ok
+				if _nSt_ > 1
+					_cKept_ += StzMid(_cRest_, 1, _nSt_ - 1)
+				ok
+				_bIn_ = TRUE
+				_cRest_ = StzMidToEnd(_cRest_, _nSt_ + 2)
+			ok
+		end
+
+		_cOut_ += _cKept_ + char(10)
+	next
+	return _cOut_
 
 # TRUE when a whole project has no ERROR-severity finding (warnings advise).
 func StzProjectIsClean(pcDir)
@@ -157,19 +238,13 @@ func StzCheckCode(pcSource)
 		_aFindings_ + _aQ_[_i_]
 	next
 
-	# 3. the knob rules -- also text passes: they need statement-level detail
-	#    (WHICH attribute a line assigns, and whether an else-branch overwrites
-	#    it) that the class/method/call graph does not carry.
-	_aK_ = _StzCheckDeadKnobs(_cSrc_)
+	# 3. the text-pass rules -- knobs, ratchets, names, prints. They come from
+	#    _StzTextPassFindings() so that this entry point and the project walk can
+	#    never disagree about which rules exist.
+	_aK_ = _StzTextPassFindings(_cSrc_)
 	_nK_ = len(_aK_)
 	for _i_ = 1 to _nK_
 		_aFindings_ + _aK_[_i_]
-	next
-
-	_aR_ = _StzCheckSetterResets(_cSrc_)
-	_nR_ = len(_aR_)
-	for _i_ = 1 to _nR_
-		_aFindings_ + _aR_[_i_]
 	next
 
 	return _StzCodeSortByLine(_aFindings_)
@@ -778,5 +853,278 @@ func _StzKnobLower(paNames)
 	_n_ = len(paNames)
 	for _i_ = 1 to _n_
 		_aOut_ + StzLower("" + paNames[_i_])
+	next
+	return _aOut_
+
+#=====================================================================#
+#  THREE SHAPES THE HAND AUDITS KEPT FINDING                          #
+#=====================================================================#
+# Sixteen module audits followed the first two knob rules. The gate caught the
+# defect twice; the other fourteen were found by a person -- and each was a
+# SHAPE that came back. These are the three that recurred often enough, and
+# precisely enough, to be worth a rule.
+
+# SETTER-ONLY-MOVES-ONE-WAY: max() or min() against the attribute being set.
+#
+#     @nVizHeight = max([@nVizHeight, n])
+#
+# That is a ratchet: the value can only ever rise, and a smaller one is
+# swallowed without a word. The sibling setter one line up floors against a
+# MINIMUM -- max([@nVizMinHeight, n]) -- which is what was meant. The same line
+# had propagated into two classes, and the demo that exercised it only ever
+# raised the value, where a ratchet and a working setter agree.
+func _StzCheckOneWaySetters(pcSource)
+	_aOut_ = []
+	_acLines_ = StzSplit(StzReplace("" + pcSource, char(13), ""), char(10))
+	_nLen_ = len(_acLines_)
+	_cMethod_ = ""
+
+	for _i_ = 1 to _nLen_
+		_cD_ = _StzKnobDefName(_acLines_[_i_])
+		if _cD_ != ""
+			_cMethod_ = _cD_
+			loop
+		ok
+		if _cMethod_ = "" or NOT _StzKnobIsSetterName(_cMethod_)
+			loop
+		ok
+
+		_cL_ = _StzKnobStrip(_acLines_[_i_])
+		_cA_ = _StzKnobAssignedAt(_cL_)
+		if _cA_ = ""
+			loop
+		ok
+
+		_cLow_ = StzLower(_cL_)
+		if len(StzFindCS("max(", _cLow_, FALSE)) = 0 and
+		   len(StzFindCS("min(", _cLow_, FALSE)) = 0
+			loop
+		ok
+
+		# the attribute has to appear on the RIGHT of the assignment too
+		_nEq_ = StzFindFirst("=", _cL_)
+		if _nEq_ = 0
+			loop
+		ok
+		_cRhs_ = StzMidToEnd(_cL_, _nEq_ + 1)
+		_aRhs_ = _StzKnobAttrsIn(_cRhs_)
+		if StzFindFirst(_cA_, _aRhs_) = 0
+			loop
+		ok
+
+		_aOut_ + [ :rule = :setter_only_moves_one_way, :line = _i_,
+		           :severity = :error,
+		           :message = _cMethod_ + "() bounds @" + _cA_ + " against ITSELF" +
+		           " -- the value can only move one way, and the other direction is" +
+		           " swallowed. A floor belongs in a separate minimum." ]
+	next
+	return _aOut_
+
+# MISSPELLED-NAME: a method whose name carries a known misspelling while the
+# correctly spelled name does NOT exist.
+#
+# Recieve, RecieveMany, OnRecieved, SetCurrenCell -- four across three classes,
+# and in every case the name a caller reaches for simply was not there. The old
+# spelling is not the defect; the MISSING one is, so a file that offers both is
+# left alone.
+
+# TRUE when a name carries the camel segment "Curren" -- capital C, and the next
+# character opens the next word (or the name ends). Current and Currency are the
+# correct spellings and never fire.
+func _StzNameHasCamelCurren(pcName)
+	_c_ = "" + pcName
+	if len(StzFindCS("Current", _c_, TRUE)) > 0 or
+	   len(StzFindCS("Currenc", _c_, TRUE)) > 0
+		return FALSE
+	ok
+	_aAt_ = StzFindCS("Curren", _c_, TRUE)
+	_n_ = len(_aAt_)
+	for _i_ = 1 to _n_
+		_nAfter_ = _aAt_[_i_] + 6
+		if _nAfter_ > StzLen(_c_)
+			return TRUE
+		ok
+		# Uppercase = a character that DIFFERS from its own lowercase form. Ring
+		# raises R41 comparing strings with >=, and ascii() raises on anything that
+		# is not exactly one character -- this needs neither.
+		_cNext_ = StzMid(_c_, _nAfter_, _nAfter_)
+		if _cNext_ != "" and _cNext_ != StzLower(_cNext_)
+			return TRUE
+		ok
+	next
+	return FALSE
+
+func _StzMisspellings()
+	return [
+		[ "recieve",   "receive"   ],
+		[ "recieved",  "received"  ],
+		[ "seperat",   "separat"   ],
+		[ "occurence", "occurrence"],
+		[ "lenght",    "length"    ],
+		[ "adress",    "address"   ],
+		[ "sucess",    "success"   ],
+		[ "retreive",  "retrieve"  ],
+		[ "existance", "existence" ],
+		[ "independant","independent" ]
+	]
+
+func _StzCheckMisspelledNames(pcSource)
+	_aOut_ = []
+	_cSrc_ = StzReplace("" + pcSource, char(13), "")
+	_acLines_ = StzSplit(_cSrc_, char(10))
+	_nLen_ = len(_acLines_)
+	_cLowSrc_ = StzLower(_cSrc_)
+	_aPairs_ = _StzMisspellings()
+	_nP_ = len(_aPairs_)
+	_acSeen_ = []
+
+	for _i_ = 1 to _nLen_
+		_cD_ = _StzKnobDefName(_acLines_[_i_])
+		if _cD_ = ""
+			loop
+		ok
+		_cLowD_ = StzLower(_cD_)
+
+		for _k_ = 1 to _nP_
+			if len(StzFindCS(_aPairs_[_k_][1], _cLowD_, FALSE)) = 0
+				loop
+			ok
+			_cRight_ = StzReplace(_cLowD_, _aPairs_[_k_][1], _aPairs_[_k_][2])
+			# already offered? then the old spelling is a kept alias, not a gap
+			if len(StzFindCS("def " + _cRight_ + "(", _cLowSrc_, FALSE)) > 0
+				loop
+			ok
+			if StzFindFirst(_cLowD_, _acSeen_) > 0
+				loop
+			ok
+			_acSeen_ + _cLowD_
+			_aOut_ + [ :rule = :misspelled_name, :line = _i_,
+			           :severity = :warning,
+			           :message = _cD_ + "() is misspelled and " + _cRight_ +
+			           "() does not exist -- the name a caller reaches for is missing" ]
+		next
+
+		# "Curren" without the t: SetCurrenCell.
+		#
+		# This must read the CAMEL segment, not the lowercased name. Occurrence
+		# contains c-u-r-r-e-n -- O-c-CURREN-ce -- so a lowercase search called
+		# every CountOccurrencesOf() in the library a typo: 878 findings, all of
+		# them noise, from one fragment that is a real English substring.
+		# The segment only counts when it OPENS a camel word.
+		if _StzNameHasCamelCurren(_cD_)
+			_cRight2_ = StzReplace(_cLowD_, "curren", "current")
+			if len(StzFindCS("def " + _cRight2_ + "(", _cLowSrc_, FALSE)) = 0
+				_aOut_ + [ :rule = :misspelled_name, :line = _i_,
+				           :severity = :warning,
+				           :message = _cD_ + "() is missing the T of Current, and " +
+				           _cRight2_ + "() does not exist" ]
+			ok
+		ok
+	next
+	return _aOut_
+
+# LIBRARY-PRINTS: a class method that writes to the console while it works.
+#
+# A stream at capacity printed four different warnings from inside its overflow
+# switch -- with non-ASCII glyphs, against the house rule on console output --
+# while an OnOverflow handler seam sat right above it, already being called.
+# A library that prints during data flow is doing the caller's job.
+#
+# Methods whose whole purpose is to display are exempt: Show*, Narrate, Explain,
+# Display, Print, Dump, and anything named *Report.
+func _StzPrintExemptMethod(pcName)
+	_c_ = StzLower("" + pcName)
+
+	# a leading underscore marks an internal helper, it does not change what the
+	# method is FOR: _showFormattedPivotTable1D displays, like ShowTable does.
+	while StzLeft(_c_, 1) = "_"
+		_c_ = StzMidToEnd(_c_, 2)
+	end
+
+	_aEx_ = [ "show", "narrate", "explain", "display", "print", "dump",
+	          "trace", "log", "report", "emit" ]
+	_n_ = len(_aEx_)
+	for _i_ = 1 to _n_
+		if StzLeft(_c_, len(_aEx_[_i_])) = _aEx_[_i_]
+			return TRUE
+		ok
+	next
+	if StzRight(_c_, 6) = "report"
+		return TRUE
+	ok
+	return FALSE
+
+# A print the caller ASKED for is not the library talking over you.
+#
+#     if @bDebugMode
+#         ? "Tokens parsed: " + len(@aTokens)
+#     ok
+#
+# That is the correct shape -- a knob, off by default, that the caller turns on
+# -- and the regex classes use it consistently. Flagging it would have buried
+# the handful of unconditional prints under a hundred correct ones.
+func _StzUnderADebugFlag(pacOpenIfs)
+	_aWords_ = [ "debug", "verbose", "trace", "tracing" ]
+	_n_ = len(pacOpenIfs)
+	_nW_ = len(_aWords_)
+	for _i_ = 1 to _n_
+		for _j_ = 1 to _nW_
+			if len(StzFindCS(_aWords_[_j_], "" + pacOpenIfs[_i_], FALSE)) > 0
+				return TRUE
+			ok
+		next
+	next
+	return FALSE
+
+func _StzCheckLibraryPrints(pcSource)
+	_aOut_ = []
+	_acLines_ = StzSplit(StzReplace("" + pcSource, char(13), ""), char(10))
+	_nLen_ = len(_acLines_)
+	_cMethod_ = ""
+	_bInClass_ = FALSE
+	_acOpenIfs_ = []
+
+	for _i_ = 1 to _nLen_
+		if _StzKnobClassName(_acLines_[_i_]) != ""
+			_bInClass_ = TRUE
+			_cMethod_ = ""
+			_acOpenIfs_ = []
+			loop
+		ok
+		_cD_ = _StzKnobDefName(_acLines_[_i_])
+		if _cD_ != ""
+			_cMethod_ = _cD_
+			_acOpenIfs_ = []
+			loop
+		ok
+
+		# Which if-blocks is this line inside? Pushed on "if", popped on "ok" --
+		# enough to answer the only question that matters below: is the print
+		# CONDITIONAL on a debug flag.
+		_cT_ = StzLower(ring_trim(StzReplace(_StzKnobStrip(_acLines_[_i_]), char(9), " ")))
+		if StzLeft(_cT_, 3) = "if "
+			_acOpenIfs_ + _cT_
+		but _cT_ = "ok" and len(_acOpenIfs_) > 0
+			del(_acOpenIfs_, len(_acOpenIfs_))
+		ok
+
+		if NOT _bInClass_ or _cMethod_ = ""
+			loop
+		ok
+		if _StzPrintExemptMethod(_cMethod_)
+			loop
+		ok
+		if _StzUnderADebugFlag(_acOpenIfs_)
+			loop
+		ok
+
+		_cL_ = ring_trim(StzReplace(_StzKnobStrip(_acLines_[_i_]), char(9), " "))
+		if StzLeft(_cL_, 2) != "? "
+			loop
+		ok
+		_aOut_ + [ :rule = :library_prints, :line = _i_,
+		           :severity = :warning,
+		           :message = _cMethod_ + "() writes to the console -- a library" +
+		           " reports through its return value or a handler, not stdout" ]
 	next
 	return _aOut_

@@ -44,9 +44,10 @@ Scenario("FROZEN behaviour: StzCheckCode reproduces the house findings")
 
 	cGood = "class Foo" + nl + "def BazQ()" + nl + "	return This" + nl
 	Then("clean source passes", StzCodeIsClean(cGood), TRUE)
-	Then("StzCodeRuleNames lists the house rules (8 with the knob rules)", len(StzCodeRuleNames()), 8)
+	Then("StzCodeRuleNames lists the house rules (11 with the knob rules)", len(StzCodeRuleNames()), 11)
 	Then("...including dead-knob", StzFindFirst("dead-knob", StzCodeRuleNames()) > 0, TRUE)
 	Then("...and setter-resets-on-reject", StzFindFirst("setter-resets-on-reject", StzCodeRuleNames()) > 0, TRUE)
+	Then("...and the three shapes learned after them", NNamed(["setter-only-moves-one-way", "misspelled-name", "library-prints"]), 3)
 EndScenario()
 
 Scenario("THE PAYOFF: the model sees what the text scan cannot")
@@ -136,6 +137,85 @@ Scenario("The knob rules: a setting that cannot change anything")
 	# positive is a detector that fires on nothing.
 	Then("it would have caught the parser's dead twin", KnobCaught(:Parser), TRUE)
 	Then("...and the diagram's getter-only pen style", KnobCaught(:Diagram), TRUE)
+EndScenario()
+
+Scenario("Documentation is not code")
+
+	# -- THE BLIND SPOT UNDER ALL OF THEM --
+	#
+	# Almost every method in this library carries a worked sample in a /* */
+	# block: real Ring lines, showing real calls, sitting inside the method body.
+	# The text passes had never heard of block comments, so they read those
+	# samples as statements. On the first honest run of the print rule, 245 of
+	# 259 findings were documentation.
+	#
+	# It runs the other way too, and quieter: a sample that merely MENTIONS an
+	# attribute counted as a consumer, so a doc block could hide a dead knob from
+	# the very rule written to find it.
+
+	Given("a method whose body holds a doc sample and a real statement")
+	cDoc = DocFixture()
+
+	# lines as a string: Then() compares values, not lists
+	Then("the sample's print is not a print", PrintLines(cDoc), "6,10")
+
+	# Blanked, never removed. If the stripper dropped the lines instead of
+	# emptying them, every finding after the first comment would point at the
+	# wrong place -- and be harder to disbelieve than a wrong finding, because
+	# the line it names does exist.
+	Then("line numbers survive the blanking", StzLen(StzSplit(_StzStripBlockComments(cDoc), char(10))) >= 10, TRUE)
+	Then("...and code beside an inline block is kept", StzFindFirst("x = 1", _StzStripBlockComments(cDoc)) > 0, TRUE)
+EndScenario()
+
+Scenario("Three more shapes, learned from three more audits")
+
+	# The knob rules shipped, and sixteen module audits followed. The gate found
+	# the defect twice; the rest a person found by hand -- and each was a SHAPE
+	# that came back. These are the three that recurred often enough to teach.
+
+	Given("a class carrying one of each, and a correct sibling for each")
+	cThree = ThreeFixture()
+	aT = StzCheckCode(cThree)
+
+	# 1. A RATCHET. max() against the attribute being set: the value can only
+	#    ever rise, and the other direction is swallowed without a word.
+	Then("bounding a knob against itself is an error", RuleSev(aT, "setter_only_moves_one_way"), "error")
+	Then("...and the message names the method", SaysIn(aT, "setter_only_moves_one_way", "SetHeight"), TRUE)
+
+	# THE NEGATIVE SIBLING: flooring against a separate MINIMUM is what was
+	# meant, and is the shape the real fix took. It must not fire.
+	Then("a floor against a minimum is fine", SaysIn(aT, "setter_only_moves_one_way", "SetWidth"), FALSE)
+
+	# 2. A NAME THAT IS NOT THERE. Recieve, RecieveMany, OnRecieved,
+	#    SetCurrenCell -- four across three classes, and in every case the name a
+	#    caller reaches for simply did not exist.
+	Then("a misspelling with no correct twin is flagged", SaysIn(aT, "misspelled_name", "Recieve"), TRUE)
+	Then("...and so is Curren without its T", SaysIn(aT, "misspelled_name", "SetCurrenCell"), TRUE)
+
+	# THE NEGATIVE SIBLINGS. The old spelling is not the defect, the MISSING one
+	# is -- so a class offering both is left alone. And Occurrence contains
+	# c-u-r-r-e-n, which is how a lowercase search called every
+	# CountOccurrencesOf() in the library a typo: 878 findings, all noise.
+	Then("a kept alias beside the right name is fine", SaysIn(aT, "misspelled_name", "Seperate"), FALSE)
+	Then("...and Occurrence is spelled correctly", SaysIn(aT, "misspelled_name", "Occurrence"), FALSE)
+
+	# 3. A LIBRARY TALKING OVER ITS CALLER.
+	Then("an unconditional print is flagged", SaysIn(aT, "library_prints", "Work"), TRUE)
+
+	# THE NEGATIVE SIBLINGS, and the one that decided the rule's worth: a print
+	# the caller ASKED for is not the library talking. 152 of the 183 surviving
+	# findings sat behind "if @bDebugMode" -- the correct shape, off by default.
+	Then("a print behind a debug flag is not flagged", SaysIn(aT, "library_prints", "Parse"), FALSE)
+	Then("...nor is one in a method whose job is to display", SaysIn(aT, "library_prints", "ShowIt"), FALSE)
+	Then("...even when the display helper is internal", SaysIn(aT, "library_prints", "_showTable"), FALSE)
+
+	Given("the shapes as they really stood, before each fix")
+
+	# The same self-check the knob rules got: run each rule over the real code as
+	# it was, and it must fire. Three commits, three known positives.
+	Then("it would have caught the calendar's ratchet", ThreeCaught(:Ratchet), TRUE)
+	Then("...the stream's three missing spellings", ThreeCaught(:Spelling), 3)
+	Then("...and its four prints from inside an overflow", ThreeCaught(:Prints), 4)
 EndScenario()
 
 Summary()
@@ -278,4 +358,186 @@ func KnobDiagramPreFix()
 	_c_ += "		return @cEdgePenStyle" + _nl_
 	_c_ += "	def ToDot()" + _nl_
 	_c_ += "		return 'style=' + @cNodePenStyle" + _nl_
+	return _c_
+
+
+#-- the three shapes learned after the knob rules -----------------------------
+
+# A method body holding a doc sample (lines 3-5), a real print (6), code either
+# side of an inline block (8), and a second real print (10).
+func DocFixture()
+	_nl_ = char(10)
+	_q_ = char(34)
+	_c_ = "class stzDocDemo from stzObject" + _nl_          # 1
+	_c_ += "	def Go()" + _nl_                              # 2
+	_c_ += "		/*" + _nl_                                 # 3
+	_c_ += "		? oX.Go()   #--> 42" + _nl_                # 4  documentation
+	_c_ += "		*/" + _nl_                                 # 5
+	_c_ += "		? " + _q_ + "live" + _q_ + _nl_            # 6  a real print
+	_c_ += "	def Mid()" + _nl_                             # 7
+	_c_ += "		x = 1 /* inline */ + 2" + _nl_             # 8
+	_c_ += "	def Tail()" + _nl_                            # 9
+	_c_ += "		? " + _q_ + "also live" + _q_ + _nl_       # 10 a real print
+	return _c_
+
+# which lines the print rule flags, as "6,10"
+func PrintLines(pcSource)
+	_aF_ = StzCheckCode(pcSource)
+	_c_ = ""
+	_n_ = len(_aF_)
+	for _i_ = 1 to _n_
+		if "" + _aF_[_i_][:rule] != "library_prints"
+			loop
+		ok
+		if _c_ != ""
+			_c_ += ","
+		ok
+		_c_ += "" + _aF_[_i_][:line]
+	next
+	return _c_
+
+# One class carrying a ratchet, a missing spelling and a bare print -- each
+# beside the CORRECT sibling that must stay silent.
+func ThreeFixture()
+	_nl_ = char(10)
+	_q_ = char(34)
+	_c_ = "class stzThreeDemo from stzObject" + _nl_
+	_c_ += "	@nHeight = 3" + _nl_
+	_c_ += "	@nWidth = 3" + _nl_
+	_c_ += "	@nMinWidth = 3" + _nl_
+	_c_ += "	@bDebugMode = FALSE" + _nl_
+
+	# 1a. the ratchet: bounded against ITSELF
+	_c_ += "	def SetHeight(pn)" + _nl_
+	_c_ += "		@nHeight = max([@nHeight, pn])" + _nl_
+	# 1b. the correct sibling: floored against a separate minimum
+	_c_ += "	def SetWidth(pn)" + _nl_
+	_c_ += "		@nWidth = max([@nMinWidth, pn])" + _nl_
+
+	# 2a. a misspelling with no correct twin
+	_c_ += "	def Recieve(pV)" + _nl_
+	_c_ += "		return pV" + _nl_
+	# 2b. Curren without its T
+	_c_ += "	def SetCurrenCell(pV)" + _nl_
+	_c_ += "		return pV" + _nl_
+	# 2c. a kept alias BESIDE the right name -- not a gap
+	_c_ += "	def Seperate()" + _nl_
+	_c_ += "		return This.Separate()" + _nl_
+	_c_ += "	def Separate()" + _nl_
+	_c_ += "		return TRUE" + _nl_
+	# 2d. Occurrence: correctly spelled, and contains c-u-r-r-e-n
+	_c_ += "	def CountOccurrences()" + _nl_
+	_c_ += "		return 0" + _nl_
+
+	# 3a. a bare print in a working method
+	_c_ += "	def Work()" + _nl_
+	_c_ += "		? " + _q_ + "working" + _q_ + _nl_
+	# 3b. a print the caller asked for
+	_c_ += "	def Parse()" + _nl_
+	_c_ += "		if @bDebugMode" + _nl_
+	_c_ += "			? " + _q_ + "parsing" + _q_ + _nl_
+	_c_ += "		ok" + _nl_
+	# 3c/3d. methods whose job IS to display, one of them internal
+	_c_ += "	def ShowIt()" + _nl_
+	_c_ += "		? " + _q_ + "shown" + _q_ + _nl_
+	_c_ += "	def _showTable()" + _nl_
+	_c_ += "		? " + _q_ + "table" + _q_ + _nl_
+	# ...and the readers, so the knob rules stay quiet about this fixture
+	_c_ += "	def Render()" + _nl_
+	_c_ += "		return @nHeight + @nWidth + @nMinWidth" + _nl_
+	return _c_
+
+# the severity a rule reported, or "" when it never fired
+func RuleSev(paFindings, pcRule)
+	_n_ = len(paFindings)
+	for _i_ = 1 to _n_
+		if "" + paFindings[_i_][:rule] = pcRule
+			return "" + paFindings[_i_][:severity]
+		ok
+	next
+	return ""
+
+# TRUE when SOME finding of that rule names pcText
+func SaysIn(paFindings, pcRule, pcText)
+	_n_ = len(paFindings)
+	for _i_ = 1 to _n_
+		if "" + paFindings[_i_][:rule] != pcRule
+			loop
+		ok
+		if StzFindFirst(pcText, "" + paFindings[_i_][:message]) > 0
+			return TRUE
+		ok
+	next
+	return FALSE
+
+func NNamed(pacWanted)
+	_n_ = len(pacWanted)
+	_nFound_ = 0
+	for _i_ = 1 to _n_
+		if StzFindFirst(pacWanted[_i_], StzCodeRuleNames()) > 0
+			_nFound_++
+		ok
+	next
+	return _nFound_
+
+# THE SELF-CHECK. Each rule run over the real code as it stood before its fix,
+# reproduced here so the guard needs no git.
+func ThreeCaught(pWhich)
+	if pWhich = :Ratchet
+		return SaysIn(StzCheckCode(RatchetPreFix()), "setter_only_moves_one_way", "SetVizHeight")
+	ok
+	_aF_ = StzCheckCode(StreamPreFix())
+	_cWant_ = "misspelled_name"
+	if pWhich = :Prints
+		_cWant_ = "library_prints"
+	ok
+	_nCount_ = 0
+	_n_ = len(_aF_)
+	for _i_ = 1 to _n_
+		if "" + _aF_[_i_][:rule] = _cWant_
+			_nCount_++
+		ok
+	next
+	return _nCount_
+
+# stzCalendar as it was: SetVizWidth floored against a minimum, SetVizHeight
+# against ITSELF -- one line apart, and only the second could not go down.
+func RatchetPreFix()
+	_nl_ = char(10)
+	_c_ = "class stzCalendar from stzObject" + _nl_
+	_c_ += "	@nVizWidth = 21" + _nl_
+	_c_ += "	@nVizMinWidth = 21" + _nl_
+	_c_ += "	@nVizHeight = 3" + _nl_
+	_c_ += "	def SetVizWidth(pn)" + _nl_
+	_c_ += "		@nVizWidth = max([@nVizMinWidth, pn])" + _nl_
+	_c_ += "	def SetVizHeight(pn)" + _nl_
+	_c_ += "		@nVizHeight = max([@nVizHeight, pn])" + _nl_
+	_c_ += "	def Show()" + _nl_
+	_c_ += "		return @nVizWidth + @nVizHeight + @nVizMinWidth" + _nl_
+	return _c_
+
+# stzReactiveStream as it was: three names with i before e, and an overflow
+# switch that printed four different warnings past a handler seam.
+func StreamPreFix()
+	_nl_ = char(10)
+	_q_ = char(34)
+	_c_ = "class stzReactiveStream from stzObject" + _nl_
+	_c_ += "	@buffer = []" + _nl_
+	_c_ += "	def OnRecieved(pF)" + _nl_
+	_c_ += "		return pF" + _nl_
+	_c_ += "	def Recieve(pV)" + _nl_
+	_c_ += "		return pV" + _nl_
+	_c_ += "	def RecieveMany(paV)" + _nl_
+	_c_ += "		return paV" + _nl_
+	_c_ += "	def HandleOverflow(pS)" + _nl_
+	_c_ += "		if pS = :Expand" + _nl_
+	_c_ += "			? " + _q_ + "buffer expanded" + _q_ + _nl_
+	_c_ += "		but pS = :Reject" + _nl_
+	_c_ += "			? " + _q_ + "newest rejected" + _q_ + _nl_
+	_c_ += "		but pS = :Evict" + _nl_
+	_c_ += "			? " + _q_ + "oldest evicted" + _q_ + _nl_
+	_c_ += "		else" + _nl_
+	_c_ += "			? " + _q_ + "blocked" + _q_ + _nl_
+	_c_ += "		ok" + _nl_
+	_c_ += "		return @buffer" + _nl_
 	return _c_

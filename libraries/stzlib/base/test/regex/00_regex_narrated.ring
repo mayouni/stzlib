@@ -70,6 +70,39 @@ Scenario("Partial matching -- as you type")
     Then("...and a complete one is not partial", Rgx("^\d{3}-\d{2}-\d{4}$").IsPartialMatch("123-45-6789"), FALSE)
 EndScenario()
 
+Scenario("Z hands back positions; it does not print them")
+
+	# The library documents Z() and ZZ() as DATA suffixes: both answer positions,
+	# the first as numbers, the second as sections. Every other ...Z() in the
+	# library returns.
+	#
+	# MatchesZ() printed @@(FindMatches()) and returned nothing -- so it answered
+	# NULL while dumping to the console, and so did its four aliases, every one of
+	# them named ...AndTheirPositions. Nothing in the family carried a position at
+	# all. A code rule found it: a library reports through its return value.
+
+	Given("three runs of digits in a string")
+	oRx = new stzRegex("[0-9]+")
+	oRx.MatchXT("a12b345c6", 1, :MatchFirstOccurrenceIfNotGoPartial, [])
+
+	Then("Matches gives the values", @@(oRx.Matches()), '[ "12", "345", "6" ]')
+
+	# Z: each value WITH its position, the position as a number.
+	Then("MatchesZ gives value and position", @@(oRx.MatchesZ()), '[ [ "12", 2 ], [ "345", 5 ], [ "6", 9 ] ]')
+	Then("...as DATA, not as console output", isList(oRx.MatchesZ()), TRUE)
+	Then("...one entry per match", len(oRx.MatchesZ()), 3)
+
+	# THE NEGATIVE SIBLING: ZZ must stay different, or Z could simply be ZZ under
+	# another name and the assertion above would prove nothing.
+	Then("ZZ gives the position as a SECTION instead", @@(oRx.MatchesZZ()), '[ [ "12", [ 2, 4 ] ], [ "345", [ 5, 8 ] ], [ "6", [ 9, 10 ] ] ]')
+
+	# ...and the four aliases were the reason this mattered: they are the names a
+	# caller actually reaches for.
+	Then("ValuesAndTheirPositions agrees", @@(oRx.ValuesAndTheirPositions()), @@(oRx.MatchesZ()))
+	Then("...and so does MatchesAndTheirPositions", @@(oRx.MatchesAndTheirPositions()), @@(oRx.MatchesZ()))
+	Then("...and it is not empty", len(oRx.MatchingSubStringsAndTheirPositions()), 3)
+EndScenario()
+
 Summary()
 
 func Rgx cPattern
