@@ -1,0 +1,16 @@
+SheenBidi 3.0.0 -- UAX#9 bidirectional algorithm (Apache-2.0, see LICENSE)
+
+Source:   https://github.com/Tehreer/SheenBidi/releases/tag/v3.0.0
+Tarball:  v3.0.0.tar.gz (source archive)
+SHA-256:  86c56014034739ba39a24c23eb00323b0bf6f737354f665786015fca842af786
+
+Vendored (GR2 of SOFTANZA_GRAPHICS_PLAN.md): Source/ + Headers/ + LICENSE.
+Unity build, one translation unit, pure C, zero dependencies:
+
+    zig cc -c vendor/sheenbidi/Source/SheenBidi.c -O2 -DSB_CONFIG_UNITY \
+        -I vendor/sheenbidi/Headers -I vendor/sheenbidi/Source
+
+Role in the text pipeline: SheenBidi REORDERS (paragraph -> visual runs
+with levels), HarfBuzz SHAPES each run, stb_truetype RASTERS the glyph
+ids. Runner-up recorded in the plan: a pure-Zig UAX#9 verified against
+Unicode's BidiTest.txt, if this vendoring ever disappoints.

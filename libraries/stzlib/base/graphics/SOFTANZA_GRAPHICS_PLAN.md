@@ -624,3 +624,83 @@ Next: **GR2** — the 2D layer WITH the text pipeline (display list →
 GPU batch AND SVG emitter; HarfBuzz + SheenBidi vendored — harfbuzz.cc
 already compile-proven and shaping in GR0; the lam-alef glyph-id
 witness becomes the guard corpus).
+
+---
+
+## GR2a STATUS — shipped 2026-08-09: the text pipeline (bidi → shape → raster)
+
+GR2 split at its natural seam: the TEXT PIPELINE first (the phase's
+named acceptance test, its vendors pre-proven in GR0), the display
+list + SVG/GPU twin renderers next. Guard:
+`base/test/gpu/gpu_text_narrated.ring` — **41 asserts green**, and the
+whole suite runs with NO device, no download, no system font: this
+suite IS its own CI coverage. DLL-load-sensitive guards re-swept green
+(render lifecycle 74, lifecycle 62, ops 37) — the harfbuzz
+static-initializer caution produced no load-time incident.
+
+**Vendored, pinned, compiled into stz_gpu.dll:**
+- **HarfBuzz 14.3.0** (`vendor/harfbuzz/VERSION.txt`): the SHAPER
+  closure only — harfbuzz.cc + its include tree (+ the hb-subset
+  HEADERS that hb-open-type.hh demands), NOT the subset .cc machinery,
+  repacker, or tools. One C++ TU, `zig c++ -fno-exceptions -fno-rtti`,
+  no cmake/SDK/config — the largest C++ vendor in the house, accepted
+  in writing by the plan of record. Two Windows lessons collected:
+  a vendor-root `VERSION` file on a C include path COLLIDES with C++'s
+  `<version>` header on case-insensitive filesystems (renamed
+  VERSION.txt for stb + harfbuzz); a bare `text` import shadowed
+  bridge locals.
+- **SheenBidi 3.0.0** (`vendor/sheenbidi/VERSION`): UAX#9, pure C
+  unity build, zero deps.
+- stb_truetype (GR1's vendor) now EXERCISED as the raster stage.
+
+**The engine entry** (`src/gpu_text.zig`, CPU-side, device-free):
+`textLayout(font, utf8, size_px)` = SheenBidi visual-order runs →
+HarfBuzz shaping per run WITH full-paragraph context (item window, so
+joining sees across run edges) → positioned GLYPH IDS with byte
+clusters; `glyphBitmap(font, gid, size)` rasters BY GLYPH ID (em-mapped
+scale shared with layout: hb scale px·64 / stbtt
+ScaleForMappingEmToPixels — metrics and bitmaps agree by construction).
+Fonts are gen-keyed handles from memory blobs, validated by BOTH
+consumers (hb face glyph count AND stbtt init). Single-line contract
+(first paragraph) documented; line breaking is a later increment.
+
+**The committed fixture** (`base/test/gpu/fixtures/`): Amiri Regular
+1.003 subset (OFL, license committed beside it) — Basic Latin + Arabic
+U+060C..066F + bidi controls, GSUB/GPOS retained: 131,820 bytes, 1,449
+glyphs, SHA-256 in fixtures/README.md. Generated deterministically by
+`engine/tools/font_subset_gen.c` (hb-subset compiled from the SAME
+pinned tarball; all inputs SHA-pinned in the tool header). CI never
+regenerates.
+
+**The guard corpus, asserted by MECHANISM** (glyph ids and run
+structure, never pixels):
+- Latin: 8 chars → 8 real glyph ids, x strictly advancing, clusters
+  ascending.
+- Arabic joining: beh's MEDIAL form id ≠ its isolated form id; the
+  joined word is measurably narrower than its letters apart;
+  word-initial seen ≠ isolated seen.
+- **lam-alef, the finding worth recording**: Tahoma fuses the pair
+  into ONE glyph (GR0's smoke); **Amiri substitutes TWO dedicated
+  lam-alef pieces** — both are the mandatory ligature working. The
+  witness that holds across correct fonts (probed against generic
+  contexts before asserting): every output glyph differs from the
+  isolated forms AND from the generic joined forms (lam-initial from
+  lam+beh, alef-final from beh+alef). A fusion-count assertion would
+  have been font-lore, not mechanism.
+- Mixed direction "abc سوفتانزا xyz": 3 visual runs; Latin clusters
+  ascend, the Arabic segment's clusters DESCEND as x advances (RTL
+  made visual, inside LTR). Clusters are BYTE indices — 'z' at 23.
+- Raster: the ligature piece inks (coverage above half-ink asserted);
+  whitespace answers [0×0] ink-free — a valid answer, not an error.
+- Refusals by name (stale font, double free, zero size, empty text,
+  garbage font bytes); layout is deterministic (ids AND positions).
+
+Cross-compile: gpu_text.zig build-objs clean for x86_64-linux-gnu and
+aarch64-macos.
+
+Remaining in GR2 — **GR2b**: the display list (rect/circle/line/
+polyline/path) with its TWO renderers (GPU batch through the GR1
+surface, SVG emitter as the sister backend), gradients, the TEXTURE
+atlas (glyphs its first tenant — the §3b door), text drawn onto both
+backends through THIS pipeline, and the PlutoVG kill line for the CPU
+rasterizer.

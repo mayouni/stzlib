@@ -17,6 +17,7 @@ const Domain = struct {
     needs_wgpu: bool = false,
     needs_zlib: bool = false, // vendored zlib compiled in (GR1: the PNG encoder)
     needs_stb: bool = false, // vendored stb_truetype + stb_image (GR1 text/texture)
+    needs_textshape: bool = false, // vendored HarfBuzz + SheenBidi (GR2 text pipeline)
 };
 
 // Core (stk_*): minimal, fast, constrained environments
@@ -113,7 +114,7 @@ const base_domains = [_]Domain{
     // GPU plane lifecycle (G1). Headers only: wgpu_native.dll is loaded at
     // RUNTIME (LoadLibrary in gpu.zig), never linked, so this DLL loads on
     // GPU-less machines and degrades to counted fallback.
-    .{ .name = "stz_gpu", .entry = "src/stz_gpu_entry.zig", .needs_ring = true, .needs_wgpu = true, .needs_zlib = true, .needs_stb = true },
+    .{ .name = "stz_gpu", .entry = "src/stz_gpu_entry.zig", .needs_ring = true, .needs_wgpu = true, .needs_zlib = true, .needs_stb = true, .needs_textshape = true },
 };
 
 fn addUtf8proc(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
@@ -528,6 +529,24 @@ fn addZlib(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) 
 fn addStb(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
     mod.addIncludePath(b.path("vendor/stb"));
     lib.addCSourceFiles(.{ .files = &.{"vendor/stb/stz_stb_impl.c"}, .flags = &.{} });
+}
+
+// The GR2 text pipeline's two vendored stages: SheenBidi (UAX#9 reorder,
+// pure C unity build) + HarfBuzz (OpenType shaping, ONE C++ TU -- the
+// amalgamation, compiled by zig c++ with no cmake/SDK/config; see
+// vendor/harfbuzz/VERSION). stb_truetype (the raster stage) rides needs_stb.
+fn addTextShape(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
+    mod.addIncludePath(b.path("vendor/sheenbidi/Headers"));
+    lib.addCSourceFiles(.{
+        .files = &.{"vendor/sheenbidi/Source/SheenBidi.c"},
+        .flags = &.{ "-DSB_CONFIG_UNITY", "-Ivendor/sheenbidi/Source" },
+    });
+    mod.addIncludePath(b.path("vendor/harfbuzz"));
+    lib.addCSourceFiles(.{
+        .files = &.{"vendor/harfbuzz/harfbuzz.cc"},
+        .flags = &.{ "-fno-exceptions", "-fno-rtti" },
+    });
+    lib.linkLibCpp();
 }
 
 fn addRing(b: *std.Build, mod: *std.Build.Module, lib: *std.Build.Step.Compile, ring_dir: []const u8) void {
@@ -966,6 +985,7 @@ pub fn build(b: *std.Build) void {
         if (dom.needs_ggml) addGgml(mod, lib, b);
         if (dom.needs_zlib) addZlib(mod, lib, b);
         if (dom.needs_stb) addStb(mod, lib, b);
+        if (dom.needs_textshape) addTextShape(mod, lib, b);
         if (dom.needs_wgpu) {
             mod.addIncludePath(b.path("vendor/wgpu/include"));
             // Ship the vendored runtime next to the engine DLLs so the Ring

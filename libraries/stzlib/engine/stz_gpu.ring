@@ -82,6 +82,25 @@
 #       (GR0: z1 = same pixels at half the cost of z6; z6 = archival)
 #   StzEngineGpuImageDecode(cBytes) -> [w, h, cRgbaBytes] or []
 #       (stb_image: PNG/JPG/BMP/GIF/TGA/PSD, always RGBA8 out)
+#
+# ---- GR2 text pipeline (CPU-side: fonts and layout need NO device) ---
+#
+# THE pipeline: SheenBidi reorders (UAX#9 visual runs), HarfBuzz shapes
+# (joining, mandatory ligatures, GSUB/GPOS -- codepoints in, GLYPH IDS
+# out), stb_truetype rasters BY GLYPH ID. One engine entry serves every
+# renderer, so GPU and SVG output cannot disagree about where letters
+# sit. Per-codepoint Arabic is WRONG, not degraded -- never bypass this.
+#
+#   StzEngineGpuFontLoad(cFontBytes) -> id (0 = refusal; TTF/OTF memory)
+#   StzEngineGpuFontFree(id) / StzEngineGpuFontGlyphCount(id)
+#   StzEngineGpuTextLayout(hFont, cUtf8, nSizePx)
+#       -> [nWidthPx, nRunCount, [ [gid, x, y, byteCluster], ... ]]
+#       or [] on refusal. Glyphs in VISUAL left-to-right order; first
+#       paragraph only (single-line contract); baseline y=0, y positive
+#       up (HarfBuzz convention); 1/64 px precision.
+#   StzEngineGpuGlyphBitmap(hFont, nGlyphId, nSizePx)
+#       -> [w, h, xoff, yoff, cGrayBytes] ([0,0,0,0,""] = ink-free glyph,
+#       a valid answer). Same em->px scale contract as TextLayout.
 
 if isWindows()
     $cStzGpuLib = $cEngineDir + "/zig-out/bin/stz_gpu.dll"
