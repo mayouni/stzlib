@@ -54,7 +54,7 @@ var registered = false;
 
 fn ensureRegistered() void {
     if (!registered) {
-        gpu.on_device_close = &onDeviceClose;
+        gpu.registerDeviceCloseHook(&onDeviceClose);
         registered = true;
     }
 }

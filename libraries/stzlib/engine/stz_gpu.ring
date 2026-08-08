@@ -101,6 +101,50 @@
 #   StzEngineGpuGlyphBitmap(hFont, nGlyphId, nSizePx)
 #       -> [w, h, xoff, yoff, cGrayBytes] ([0,0,0,0,""] = ink-free glyph,
 #       a valid answer). Same em->px scale contract as TextLayout.
+#
+# ---- GR2b display list: ONE model, TWO renderers ---------------------
+#
+# A scene is a painter-ordered list of shapes and text in PIXEL space
+# (y DOWN, like SVG and like a screen). From that ONE list:
+#   ToSvg  -> vector text. No device. The CI-safe floor, always works.
+#   ToPng  -> tessellate, draw in ONE pass through the GR1 surface, read
+#             back, encode. "" when there is no device -- and the refusal
+#             is COUNTED (gpu.fallback.count), so a face can drop to the
+#             SVG tier knowing why.
+# Neither backend owns the geometry -- the display list does -- so they
+# cannot disagree about WHERE anything sits. Text goes through the GR2a
+# pipeline on BOTH sides: Arabic is correct on both or broken on both.
+#
+# Colors are PACKED 0xRRGGBBAA numbers (exact in Ring's f64). Point
+# lists are FLAT: [x0,y0, x1,y1, ...].
+#
+#   StzEngineGpuSceneNew(w, h) -> id (0 = refusal) / SceneFree(id)
+#   StzEngineGpuSceneClear(id, nRGBA)
+#   StzEngineGpuSceneRect(id, x, y, w, h, nRGBA)
+#   StzEngineGpuSceneRectGradient(id, x, y, w, h, nRGBA0, nRGBA1, bVertical)
+#   StzEngineGpuSceneCircle(id, cx, cy, r, nRGBA)
+#   StzEngineGpuSceneLine(id, x1, y1, x2, y2, nWidth, nRGBA)
+#   StzEngineGpuScenePolyline(id, aFlatPts, nWidth, nRGBA)
+#   StzEngineGpuScenePolygon(id, aFlatPts, nRGBA)   -- simple polygons
+#   StzEngineGpuSceneText(id, hFont, cUtf8, x, y, nSizePx, nRGBA)
+#       (x,y) is the BASELINE origin, as the text pipeline reports it
+#   StzEngineGpuSceneToSvg(id) -> SVG text
+#   StzEngineGpuSceneToPng(id, nLevel) -> PNG bytes
+#   StzEngineGpuSceneToPixels(id) -> raw RGBA8 of the GPU tier
+#   StzEngineGpuSceneCommandCount(id)
+#   StzEngineGpuSceneStats(id)
+#       -> [commands, shapeVerts, textVerts, drawSegments, builds]
+#       `builds` is the RETAINED-BUFFER witness: it increments only when
+#       the display list actually changed (a still redraws for free; a
+#       future frame loop must not re-upload static geometry 60x/s).
+#   StzEngineGpuCircleSegments(nRadius) -> the tessellation count chosen
+#       BY THE ERROR BOUND: chord sagitta <= 0.15 px at any radius. SVG
+#       emits a true <circle>, so this bound IS the honest parity band
+#       between the two backends for curves.
+#   StzEngineGpuAtlasStats() -> [w, h, entries, uploads]
+#   StzEngineGpuAtlasReset()
+#       The atlas is a TEXTURE atlas, not a font atlas -- glyphs are its
+#       first tenant; sprites are the same shape.
 
 if isWindows()
     $cStzGpuLib = $cEngineDir + "/zig-out/bin/stz_gpu.dll"
