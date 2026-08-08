@@ -413,3 +413,146 @@ here; they are simply not designed AGAINST.
 - **CI has no GPU**: every guard passes through the SVG tier and the
   counted-refusal paths; GPU assertions gate on availability, exactly
   as the 162-assert G-plane suite already demonstrates.
+
+---
+
+## GR0 RESULTS — measured 2026-08-08. VERDICT: GO, and the render surface needs no lifecycle surgery
+
+Environment: the SAME pinned wgpu-native v29.0.1.1, Zig 0.15.2,
+ReleaseSafe. Spike: `engine/tools/gr0_render_spike.zig` (build line in
+its header; zlib compiled from the vendored C sources into the exe).
+Both adapters on Vulkan (the G0 same-backend discipline). Machine
+shared with other sessions — recorded as-is.
+
+Methodology: G0's exactly — monotonic clock, 3 warmups + 5 timed reps
+(min AND median), 3 s sustained with the first 1 s discarded, GPU ops
+timed as submit+wait-idle, CPU samples inner-loop scaled to ≥1 ms.
+
+**Correctness before speed, on BOTH adapters:** offscreen pixel checks
+pass (clear color exact, shaded-triangle interpolation present,
+checker cells EXACT under nearest sampling); the 10k-rect batch is
+**BYTE-IDENTICAL to the naive CPU fill — 0 mismatches of 8,294,400**
+(integer-aligned opaque quads, painter order; the strongest possible
+seed for GR4's ToSVG/ToPNG parity claim); the PNG encoder's output is
+the artifact the pixel checks read back, written and eyeballable.
+
+### Still frame (clear + shaded triangle + textured quad), warm-min / sustained, ms
+
+| | render | readback | PNG z1 | PNG z6 | TOTAL (z1) | TOTAL (z6) |
+|---|---|---|---|---|---|---|
+| 3050, 800×600 | 0.075 / 0.081 | 0.31 / 0.35 (6.3 GB/s) | 8.2 | 14.2 | **8.6** | 14.6 |
+| 3050, 1920×1080 | 0.142 / 0.081 | 1.54 / 1.62 (5.4 GB/s) | 27.5 | 55.2 | **29.1** | 56.9 |
+| iGPU, 800×600 | 0.31 / 0.31 | 0.65 / 0.75 | 8.3 | 14.2 | **9.3** | 15.2 |
+| iGPU, 1920×1080 | 0.56 / 0.53 | 1.85 / 2.20 | 27.9 | 54.5 | **30.4** | 57.0 |
+
+PNG sizes at 1080p: 516 KB (z1) / 327 KB (z6). Render pipeline compile
+(cold): 7–13 ms per pipeline — the G1 text-keyed compile-cache is
+justified for RENDER pipelines by the same measurement.
+
+### KILL CRITERION 1 (≤ ~50 ms for a simple 1080p still): **PASSES — 29.1 ms**
+
+The decomposition is the finding: the GPU raster part is **1.7 ms of
+the 29** (render 0.14 + readback 1.54); **95% of the cost is CPU zlib
+deflate**, resolution-bound and scene-independent. zlib level 6 would
+total 56.9 ms — over the line — so the level is a decided knob: **GR1
+defaults PNG encode to level 1** (z6 stays an opt-in archival knob).
+Demoting the GPU tier would not have moved this number — SVG+CPU 2D
+pays the identical encode price for raster output; the criterion's
+target (the GPU raster tier) costs 3% of the budget. Named GR1
+headroom, not assumed: PNG filter heuristics (Sub/Up) recover most of
+the z6 ratio at z1-class speed. And the window tier (GR5) pays no
+encode at all — 0.08–0.6 ms/frame leaves hundreds of fps of headroom.
+
+### 10k-primitive 2D batch vs naive CPU fill (1920×1080), ms
+
+| | build verts | upload 1.44 MB | draw (warm/sus) | readback | CPU fill (warm-min/med) |
+|---|---|---|---|---|---|
+| 3050 | 0.073 | 0.31 | 1.24 / 0.62 | 1.37 | 2.90 / 3.90 |
+| iGPU | 0.074 | 0.53 | 6.44 / 1.47 | 0.99 | 2.96 / 3.90 |
+
+Read honestly: the 3050 wins draw-only 2.3x warm (4.6x sustained), but
+END-TO-END to a PNG the readback eats the win — 1.0x at 10k rects.
+The iGPU warm-min draw LOSES (0.5x) — the G0 clock inversion again
+(sustained 1.47 ms says the silicon is fine; a sporadic call pays the
+idle-clock price). Consequences, recorded as decisions: (a) the 2D
+PNG tier at THIS primitive count is not a GPU story — it becomes one
+at higher counts (CPU fill scales linearly with covered pixels; the
+draw is far from saturated) and in the window tier where readback
+vanishes; (b) GR2's CPU rasterizer is not a fallback afterthought —
+at 10k-primitive stills it is co-equal; (c) calibration stores
+warm-min, exactly as the G-plane law says.
+
+### KILL CRITERION 2 (render must not demand lifecycle surgery): **PASSES, witnessed**
+
+- Vertex/index/staging buffers are the SAME `wgpuDeviceCreateBuffer`
+  the gen-keyed table already wraps — new usage flags, same slots.
+  Textures/views/samplers/render pipelines are new SLOT KINDS in the
+  same table shape (id = (gen<<32)|slot, VRAM accounting w·h·4), not
+  a new model.
+- Bind groups reuse the same @group/@binding structure; texture and
+  sampler entries are additional FIELDS on the same WGPUBindGroupEntry
+  the layer already builds. The compute-side tile@0/params@1 contract
+  simply does not govern render pipelines (render passes are not
+  TDR-tiled dispatches) — no collision, no surgery.
+- **The composition witness ran**: a compute pass wrote the vertex
+  buffer (Storage|Vertex usage) a render pass consumed, same encoder,
+  **ONE submit**, pixel-verified at two uniform values. The plan's
+  differentiator — simulate on compute, draw on render, zero copies —
+  is a demonstrated fact, and it is exactly the batched-pass shape G1
+  already ships (a render pass is a sibling of a compute pass on the
+  same encoder; the uniform-slot-pool lesson carries).
+- Honestly named additions (additions, not re-plans): pass-level verbs
+  the compute path never needed (SetVertexBuffer/SetPipeline/Draw
+  inside a render pass), texture readback's 256-byte row alignment
+  (handled + de-padded in the spike), and RenderPassDescriptor
+  sentinels (depthSlice, multisample.count/mask, maxAnisotropy) that
+  zeroed structs get WRONG — recorded so GR1 doesn't rediscover them.
+
+### Front-loaded risk (a): harfbuzz.cc under zig c++ — **CONFIRMED, stronger than asked**
+
+HarfBuzz 14.3.0 (official release tarball, SHA-256
+`16070d77cfc4ba1f1e7327e83bf9b3f55898081cabdb94e56a33e04fc8874eae`):
+`zig c++ -c src/harfbuzz.cc -O2 -fno-exceptions -fno-rtti` compiles
+with **zero errors** (9 benign warnings), no cmake, no SDK, no config
+step: 38.9 s native Windows (13.9 MB .o), and CROSS-COMPILES from this
+one machine to linux-x86_64 (31.0 s) and macos-aarch64 (32.5 s) — the
+all-OS contract grounded, not assumed. Then the real proof: a C
+program linked against the object **shaped real Arabic through the C
+ABI** — an 8-codepoint word into 8 positioned glyphs, and the
+lam-alef pair (U+0644 U+0627) into **ONE ligature glyph** — GR2's
+kill criterion pre-passed with its own witness mechanism (2 cp → 1
+glyph id is the GSUB assertion the guard corpus names). Still owed to
+GR2: the static-initializer walk (the ggml ctor checklist) before
+harfbuzz.cc lives inside a DLL, and the committed OFL subset-font
+fixture so CI never touches a system font.
+
+### Front-loaded risk (b): per-OS wgpu-native prebuilts — **CONFIRMED at the pinned tag**
+
+The v29.0.1.1 release (the exact tag in vendor/wgpu/VERSION) ships
+official release zips for every target the plan names: linux-x86_64
+(16.0 MB), linux-aarch64 (15.8 MB), macos-x86_64 (13.6 MB),
+macos-aarch64 (13.7 MB) — plus windows aarch64/i686/gnu variants and
+android/ios beyond the contract. No official checksums asset exists
+(only a commit-sha file), so pinning = the discipline already in
+vendor/wgpu/VERSION: record asset name + SHA-256 computed at
+vendoring time, per OS, same file. GR5 extends the VERSION file; no
+new mechanism.
+
+### What GR1 inherits (calibrated numbers)
+
+1. Offscreen render at still-frame scale is ~0.1–0.6 ms — negligible;
+   **readback (1.5–2.2 ms at 1080p, 4.5–6.3 GB/s) and PNG encode
+   (27–55 ms) are the budget**. Optimize the encoder, not the pass.
+2. PNG defaults: zlib level 1; z6 = opt-in archival; filter
+   heuristics = named headroom.
+3. Render-pipeline compile 7–13 ms cold → same compile-cache, keyed
+   the same way.
+4. Texture readback rows align to 256 bytes (800×600 pads 3200→3328;
+   1080p is naturally aligned) — the de-pad belongs engine-side.
+5. Retained-buffer discipline held even in the spike (static scene
+   geometry uploaded once; the frame loop re-encodes only) — the §3b
+   door stays open by construction.
+6. iGPU warm-min draw pays the clock inversion (6.4 ms warm vs 1.5
+   sustained) — calibration stores warm-min, and sporadic one-shot 2D
+   GPU calls on iGPU-class machines are exactly where the CPU
+   rasterizer keeps the work.
