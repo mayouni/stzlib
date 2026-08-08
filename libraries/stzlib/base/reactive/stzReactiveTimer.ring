@@ -269,8 +269,15 @@ class stzTimerManager from stzObject
 	    while @isRunning and not @shouldStop
 	        _activeCount_ = 0
 
-	        # Process timers safely by collecting completed ones first
-	        _completedIndices_ = []
+	        # Process timers safely by collecting completed ones first.
+	        #
+	        # BY ID, NOT BY INDEX. CheckAndTick RUNS the callback, and a
+	        # callback can stop timers -- StopTimer really removes them now --
+	        # so the list can be shorter one line after the bound was checked.
+	        # An index collected before a tick then names a different timer, or
+	        # none at all: this loop raised R2 the moment a demo stopped its
+	        # timers from inside one of them.
+	        _acCompletedIds_ = []
 	        _nLenTimers_ = len(@timers)
 
 	        for i = 1 to _nLenTimers_
@@ -287,9 +294,11 @@ class stzTimerManager from stzObject
 	            if @timers[i].CheckAndTick()
 	                _activeCount_++
 	            else
-	                # Mark for removal if it's a one-time timer
-	                if @timers[i].@isOneTime
-	                    _completedIndices_ + i
+	                # Mark for removal if it's a one-time timer. The tick just
+	                # ran a callback, so the bound is re-checked before this
+	                # index is used again.
+	                if i <= len(@timers) and @timers[i].@isOneTime
+	                    _acCompletedIds_ + @timers[i].@timerId
 	                ok
 	            ok
 	            # A callback may have stopped the whole system; bail now
@@ -299,12 +308,19 @@ class stzTimerManager from stzObject
 	            ok
 	        next
 	        
-	        # Remove completed timers in reverse order to maintain indices
-	        for i = len(_completedIndices_) to 1 step -1
-	            _index_ = _completedIndices_[i]
-	            if _index_ >= 1 and _index_ <= len(@timers)
-	                del(@timers, _index_)
-	            ok
+	        # Remove the completed one-shots by the id each of them gave, which
+	        # survives any shuffling the callbacks did. Deliberately not
+	        # RemoveTimer(): that stops the whole loop when the list empties,
+	        # and whether an idle loop keeps going is the patience setting's
+	        # decision, not this one's.
+	        _nDone_ = len(_acCompletedIds_)
+	        for _iDone_ = 1 to _nDone_
+	            for _k_ = len(@timers) to 1 step -1
+	                if @timers[_k_].@timerId = _acCompletedIds_[_iDone_]
+	                    del(@timers, _k_)
+	                    exit
+	                ok
+	            next
 	        next
 	        
 	        # F5: drain async HTTP completions on the same loop, so

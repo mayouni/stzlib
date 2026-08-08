@@ -345,24 +345,57 @@ class stzReactiveSystem from stzObject
 		This.AddTask(_task_)
 		return _task_
 
-	def RunAfterXT(_nDelay_, _cUnit_, _callback_)
+	# Milliseconds from a value and a unit name, or -1 when it cannot be
+	# converted.
+	#
+	# RunAfterXT and RunEveryXT each carried their own copy of this switch, and
+	# both ended at `ok` with no else -- so a unit neither recognised became
+	# MILLISECONDS without a word. RunAfterXT(5, :hours) scheduled five
+	# milliseconds instead of five hours: off by a factor of 3,600,000, silently.
+	# Hours are converted now, and a unit this cannot convert is refused rather
+	# than quietly turned into the smallest one there is.
+	#
+	# (seconds and minutes scale UP, not down -- the old code divided, so
+	# RunAfterXT(1, :seconds) asked for 0.001ms and fired instantly.)
+	def _DelayInMs(_nValue_, _cUnit_)
+		if NOT isNumber(_nValue_)
+			return -1
+		ok
+		if _nValue_ < 0
+			return -1
+		ok
 		if isNull(_cUnit_)
-			_cUnit_ = "milliseconds"
+			return _nValue_
 		ok
 
-		# Convert to milliseconds (the timer's native unit). seconds and
-		# minutes scale UP, not down -- the old code divided, so
-		# RunAfterXT(1, :seconds) asked for 0.001ms and fired instantly.
-		if _cUnit_ = "seconds" or _cUnit_ = "second"
-			_nDelay_ = _nDelay_ * 1000
-
-		but _cUnit_ = "minutes" or _cUnit_ = "minute"
-			_nDelay_ = _nDelay_ * 60000
+		_c_ = StzLower("" + _cUnit_)
+		if _c_ = "ms" or _c_ = "millisecond" or _c_ = "milliseconds"
+			return _nValue_
 		ok
+		if _c_ = "second" or _c_ = "seconds"
+			return _nValue_ * SECOND
+		ok
+		if _c_ = "minute" or _c_ = "minutes"
+			return _nValue_ * MINUTE
+		ok
+		if _c_ = "hour" or _c_ = "hours"
+			return _nValue_ * HOUR
+		ok
+		return -1
 
-		return This.RunAfter(_nDelay_, _callback_)
+	def RunAfterXT(_nDelay_, _cUnit_, _callback_)
+		_nMs_ = This._DelayInMs(_nDelay_, _cUnit_)
+		if _nMs_ < 0
+			return ""
+		ok
+		return This.RunAfter(_nMs_, _callback_)
 
+		# This alias had NO BODY. It was declared and the next line was the
+		# next method, so every call did nothing and answered nothing --
+		# scheduling no timer at all, where SetTimeout one screen down
+		# delegates correctly.
 		def SetTimeoutXT(_nDelay_, _cUnit_, _callback_)
+			return This.RunAfterXT(_nDelay_, _cUnit_, _callback_)
 
 	def RunAfter(_delay_, _callback_)
 		# Sets a one-time timer with a delay and callback.
@@ -388,19 +421,11 @@ class stzReactiveSystem from stzObject
 			return This.RunAfter(_delay_, _callback_)
 
 	def RunEveryXT(_nInterval_, _cUnit_, _callback_)
-		if isNull(_cUnit_)
-			_cUnit_ = "milliseconds"
+		_nMs_ = This._DelayInMs(_nInterval_, _cUnit_)
+		if _nMs_ < 0
+			return ""
 		ok
-
-		# Convert to milliseconds (see RunAfterXT) -- scale up, not down.
-		if _cUnit_ = "seconds" or _cUnit_ = "second"
-			_nInterval_ = _nInterval_ * 1000
-
-		but _cUnit_ = "minutes" or _cUnit_ = "minute"
-			_nInterval_ = _nInterval_ * 60000
-		ok
-
-		return This.RunEvery(_nInterval_, _callback_)
+		return This.RunEvery(_nMs_, _callback_)
 
 	def RunEvery(_interval_, _callback_)
 		# Sets a periodic timer with an interval and callback.
@@ -419,19 +444,33 @@ class stzReactiveSystem from stzObject
 		_timerId_ = "interval_" + StzEngineRandomInt(0, 999999)
 		_timer_ = new stzRingTimer(_timerId_, _interval_, _callback_, self, false, self)
 		_timer_.Start()
-		AddTimer(_timer_)
-		return _timer_
+		This.AddTimer(_timer_)
+
+		# THE ID, not the object -- as RunAfter answers, and as every caller
+		# already assumed: the demos name this `intervalId` and `cIntervalID`.
+		# Handing back the object handed back something that could not control
+		# the timer: AddTimer stores a COPY, so Stop() on the returned object
+		# stopped a copy while the manager kept firing the real one.
+		return _timerId_
 
 		def SetInterval(_interval_, _callback_)
 			return This.RunEvery(_interval_, _callback_)
 
+	# Stops the timer whether it is named by id or handed as an object.
+	#
+	# The object branch used to be just _timer_.Stop(), which set a flag on
+	# whatever the caller was holding. The manager stores a COPY, so the copy
+	# it is running never heard about it and went on firing. Removing it from
+	# the manager BY ID is what actually stops a timer -- proven: the id path
+	# takes the registration from one to zero.
 	def StopTimer(_timer_)
-
 		if isString(_timer_)
 			@timerManager.RemoveTimer(_timer_)
 		else
 			_timer_.Stop()
+			@timerManager.RemoveTimer(_timer_.@timerId)
 		ok
+		return This
 
 	def StopAllTimers()
 	   @timerManager.StopAllTimers()
