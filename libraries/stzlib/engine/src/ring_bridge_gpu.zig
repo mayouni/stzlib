@@ -7,6 +7,9 @@ const gpu = @import("gpu.zig");
 const ops = @import("gpu_ops.zig");
 const wgsl = @import("gpu_wgsl.zig");
 const render = @import("gpu_render.zig");
+// named gtext: these directories sit on C include paths, and a bare `text`
+// local already exists in older bridge fns
+const gtext = @import("gpu_text.zig");
 const R = @import("ring_api.zig");
 
 const gn = R.ring_vm_api_getnumber;
@@ -539,6 +542,68 @@ fn ring_ImageDecode(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// ---------------- GR2 text pipeline (CPU-side: works with NO device)
+
+// FontLoad(cFontBytes) -> gen-keyed id (0 = refusal)
+fn ring_FontLoad(p: *anyopaque) callconv(.c) void {
+    const bytes = getStr(p, 1);
+    rn(p, @floatFromInt(gtext.fontLoad(bytes)));
+}
+
+fn ring_FontFree(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gtext.fontFree(@intFromFloat(gn(p, 1)))));
+}
+
+fn ring_FontGlyphCount(p: *anyopaque) callconv(.c) void {
+    rn(p, gtext.fontGlyphCount(@intFromFloat(gn(p, 1))));
+}
+
+// TextLayout(hFont, cUtf8, nSizePx) ->
+//   [nWidth, nRunCount, [ [gid, x, y, byteCluster], ... ]]  or [] on refusal.
+// Glyphs come in VISUAL left-to-right order (bidi already applied); gids
+// are GLYPH ids (post-shaping), never codepoints.
+fn ring_TextLayout(p: *anyopaque) callconv(.c) void {
+    const font: i64 = @intFromFloat(gn(p, 1));
+    const utf8 = getStr(p, 2);
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const layout = gtext.textLayout(font, utf8, gn(p, 3)) catch {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    defer layout.deinit();
+    R.ring_list_adddouble(out, layout.width);
+    R.ring_list_adddouble(out, @floatFromInt(layout.run_count));
+    const gl = R.ring_list_newlist(out) orelse {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    for (layout.glyphs) |g| {
+        const item = R.ring_list_newlist(gl) orelse continue;
+        R.ring_list_adddouble(item, @floatFromInt(g.gid));
+        R.ring_list_adddouble(item, g.x);
+        R.ring_list_adddouble(item, g.y);
+        R.ring_list_adddouble(item, @floatFromInt(g.cluster));
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
+// GlyphBitmap(hFont, nGlyphId, nSizePx) -> [w, h, xoff, yoff, cGrayBytes]
+// or [] on refusal. Whitespace glyphs answer [0,0,0,0,""] -- ink-free, valid.
+fn ring_GlyphBitmap(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const bm = gtext.glyphBitmap(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2)), gn(p, 3)) catch {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    defer bm.deinit();
+    R.ring_list_adddouble(out, @floatFromInt(bm.w));
+    R.ring_list_adddouble(out, @floatFromInt(bm.h));
+    R.ring_list_adddouble(out, @floatFromInt(bm.xoff));
+    R.ring_list_adddouble(out, @floatFromInt(bm.yoff));
+    R.ring_list_addstring2(out, bm.gray.ptr, @intCast(bm.gray.len));
+    R.ring_vm_api_retlist(p, out);
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuinit", .func = &ring_Init },
     .{ .name = "stzenginegpushutdown", .func = &ring_Shutdown },
@@ -597,6 +662,12 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegputargetread", .func = &ring_TargetRead },
     .{ .name = "stzenginegpupngencode", .func = &ring_PngEncode },
     .{ .name = "stzenginegpuimagedecode", .func = &ring_ImageDecode },
+    // GR2 text pipeline
+    .{ .name = "stzenginegpufontload", .func = &ring_FontLoad },
+    .{ .name = "stzenginegpufontfree", .func = &ring_FontFree },
+    .{ .name = "stzenginegpufontglyphcount", .func = &ring_FontGlyphCount },
+    .{ .name = "stzenginegputextlayout", .func = &ring_TextLayout },
+    .{ .name = "stzenginegpuglyphbitmap", .func = &ring_GlyphBitmap },
 };
 
 pub fn registerAll(pState: *anyopaque) void {

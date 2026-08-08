@@ -1,0 +1,31 @@
+HarfBuzz 14.3.0 -- the text SHAPER (MIT-style, see COPYING)
+
+Source:   https://github.com/harfbuzz/harfbuzz/releases/tag/14.3.0
+Asset:    harfbuzz-14.3.0.tar.xz (19,819,024 bytes)
+SHA-256:  16070d77cfc4ba1f1e7327e83bf9b3f55898081cabdb94e56a33e04fc8874eae
+
+Vendored (GR2 of SOFTANZA_GRAPHICS_PLAN.md): the SHAPER closure only --
+src/*.cc *.hh *.h from the tarball, the OT/ source tree, and the
+hb-subset*.hh/.h HEADERS (hb-open-type.hh includes them), but NOT the
+subset .cc implementations, the graph/ repacker, tools, tests, or the
+python generators. ONE translation unit builds it all:
+
+    zig c++ -c vendor/harfbuzz/harfbuzz.cc -O2 -fno-exceptions -fno-rtti
+
+(~49 s on the dev machine, zero errors -- proven in GR0 before vendoring,
+re-proven from this tree.) No cmake, no SDK, no config header: harfbuzz.cc
+carries its own OT shaper and defaults every optional backend (freetype,
+glib, graphite2, coretext, directwrite, gdi) to OFF unless HAVE_* macros
+say otherwise -- we define none.
+
+The fixture SUBSETTER (hb-subset) is deliberately NOT vendored: the
+committed Arabic subset font under base/test/gpu/fixtures/ is generated
+by engine/tools/font_subset_gen.c, which compiles harfbuzz-subset.cc
+from THIS SAME pinned tarball at regeneration time (see the tool header).
+CI never regenerates; it uses the committed fixture.
+
+Why the largest C++ vendor in the house is justified: OpenType shaping
+(Arabic joining, mandatory ligatures, GSUB/GPOS) is a decade-deep
+specialty; writing a shaper was REJECTED in the plan of record --
+presentation-forms tricks produce WRONG Arabic on modern fonts. This is
+exactly what wise vendoring is for.
