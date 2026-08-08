@@ -409,6 +409,18 @@ in writing.
   calibrate tool learns to probe them; a future auto-`Distribute()` of
   library workloads is admitted per-site only where measured work beats
   marshal + wire (the same admission the GPU seam and thread gates use).
+  **DONE (2026-08-08): `StzNetCalibrate()`** (base/cluster/
+  stzNetCalibrate.ring, guard `net_calibration_narrated.ring`, 11
+  asserts) probes THIS machine's wire floor with the D0 instrument
+  class -- two real OS processes, real frames, the real Ring-value
+  boundary (which is why it is Ring-driven: the Zig tool has no Ring VM
+  and no second process) -- and MERGES `net.stzm.*` into the one
+  `stz_calibration.txt`, preserving foreign namespaces verbatim and
+  replacing stale net lines. The guard proves FILE-beats-DEFAULT
+  through a fresh process reading a sentinel value, and its first run
+  independently reproduced the compiled seeds (1994 us / 13,214 msg/s /
+  12,838 ns-per-KB vs seeds 2000 / 12,000 / 13,000): two instruments,
+  same truth.
 - **Two correctness classes, unchanged:** a distributed result is either
   bit-identical to the local computation (partitioned work merged
   deterministically — the M4 tie discipline extends to merge-from-nodes)
