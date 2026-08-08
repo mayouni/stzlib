@@ -305,6 +305,10 @@ ok
 
     load "graph/stzWorkflow.ring"
 
+    # BPMN drawing, straight to SVG -- the first renderer here that needs no
+    # graphviz. Implements the versioned BPMN layout law; see the file header.
+    load "graph/stzBpmnDiagram.ring"
+
 # Loading files related to the ENGINE WRAPPER modules
 
     load "common/stzStateMachine.ring"
@@ -702,6 +706,7 @@ ok
     load "cluster/stzNodePlane.ring"
     load "cluster/stzNodeSupervisor.ring"
     load "cluster/stzNodeApp.ring"
+    load "cluster/stzNetCalibrate.ring"
 
 # Loading files related to NATURAL module
 
