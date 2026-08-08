@@ -704,3 +704,88 @@ surface, SVG emitter as the sister backend), gradients, the TEXTURE
 atlas (glyphs its first tenant — the §3b door), text drawn onto both
 backends through THIS pipeline, and the PlutoVG kill line for the CPU
 rasterizer.
+
+---
+
+## GR2b STATUS — shipped 2026-08-09: one display list, two renderers
+
+GR2 is complete. Guard: `base/test/gpu/gpu_scene_narrated.ring` —
+**69 asserts green**, of which everything up to the GPU scene runs with
+NO device (the SVG tier IS the CI coverage, as the plan promised).
+Reachable suites re-swept: text 41, render lifecycle 74, lifecycle 62,
+ops 37, seams 17, neural backbone 14 — **314 assertions green**.
+
+**The model owns the geometry; the backends only draw it.** A scene
+(`engine/src/gpu_scene.zig`) is a painter-ordered list of commands in
+PIXEL space (y down). `ToSvg` emits vector text with no device;
+`ToPng`/`ToPixels` tessellate and draw through the GR1 surface. Neither
+backend computes positions of its own, so they cannot drift apart — and
+text goes through the GR2a pipeline on BOTH sides, so Arabic is correct
+on both or broken on both. Shapes: rect, rect-gradient, circle, line,
+polyline, polygon, text.
+
+**Decisions worth their reasons:**
+- **The curve parity band is COMPUTED, not hoped for.** Circle segment
+  count = ceil(π / acos(1 − 0.15/r)), so the chord sagitta never
+  exceeds 0.15 px at any radius. SVG emits a true `<circle>`, so that
+  bound IS the honest geometric difference between the tiers — a
+  number, not an adjective. Unit test asserts it across r = 1…2000;
+  the guard checks the rendered pixels honour it (filled inside the
+  rim, background outside).
+- **Polygon fill is ear clipping** (n−2 triangles, verified on a
+  concave L), not a triangle fan that would spill outside any reflex
+  corner. A self-intersecting outline runs out of ears and stops —
+  an honest partial fill rather than garbage, and that case is exactly
+  the PlutoVG line, still standing unspent.
+- **Alpha arrived without costing exactness.** Both pipelines blend
+  src-over, which at a=1 reduces to plain overwrite — so opaque rects
+  are still BYTE-IDENTICAL to a Ring-computed painter-order reference
+  (0 of 2400 pixels wrong), while a 50 % white over black lands at 128
+  as its negative sibling.
+- **Strokes agree on cap semantics**: a disc at every vertex on the GPU
+  side, `stroke-linejoin/linecap="round"` on the SVG side. Matching
+  caps is what keeps the two silhouettes the same shape.
+- **SVG text is glyph OUTLINES**, not `<text>` — the SVG carries the
+  exact positions this pipeline computed and needs no font installed on
+  the viewer's machine. Handing shaping back to the consumer is the one
+  thing the text pipeline exists to prevent. (A selectable-`<text>`
+  emitter is a later knob.)
+- **The atlas is a TEXTURE atlas** (`engine/src/gpu_atlas.zig`), the
+  §3b door taken: shelf packing, 1 px padding so linear filtering
+  cannot bleed, entries keyed (font, glyph, quantized size). Glyphs are
+  its first tenant; sprites are the same shape. The guard proves the
+  cache by counting — a repeated word adds zero entries, a new size
+  adds some — and proves the upload is not repeated when nothing
+  changed.
+- **Retained buffers, witnessed not asserted**: `builds` in SceneStats
+  increments only when the display list actually changed. Reading an
+  unchanged scene twice does not re-tessellate. That is the §3b frame-
+  loop door, and the counter is why it will stay open.
+- **Painter order survives crossing kinds**: shapes and text live in
+  separate vertex buffers (different formats), but an ordered draw-
+  segment list interleaves them inside the ONE pass, so text is not
+  silently forced above shapes.
+
+**Two things the guard's own asserts caught**, recorded because both
+were fixed in the implementation rather than in the assertion:
+`sceneToPixels` was encoding a PNG and discarding it, then reading the
+target a second time — the submit-count assert (one pass + one
+readback) exposed the double work, and the tiers were refactored to
+share one render path. And the device-close hook in `gpu.zig` was a
+SINGLE slot: the scene layer registering would have silently overwritten
+the render layer's, leaking exactly the objects the hook exists to
+release. It is a registry now.
+
+Cross-compile: gpu_scene.zig and gpu_atlas.zig build-obj clean for
+x86_64-linux-gnu and aarch64-macos.
+
+Visual proof rendered from one scene through both tiers (gradient,
+alpha-blended circles, concave arch, round-joined polyline, Latin and
+Arabic): 9 commands → 591 shape vertices + 258 text vertices → 2 draw
+segments → one pass.
+
+Next: **GR3** — the 3D layer (f32 math module, mesh + OBJ, camera, depth
+target, one forward-lit pipeline, instancing), with shadows/PBR/skeletal
+animation explicitly OUT until a workload asks. The §3b doors GR3 must
+keep open: an EXTENSIBLE vertex format and transform state SEPARATE from
+render state.

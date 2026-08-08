@@ -451,7 +451,7 @@ fn openDeviceOn(idx: usize) i32 {
 fn closeDevice() void {
     if (!available and device == null) return;
     available = false;
-    if (on_device_close) |cb| cb(); // render module: abort pass, drop pipelines
+    runCloseHooks(); // render/scene layers: abort pass, drop device objects
     for (buffers.items, 0..) |s, i| {
         if (s.live) destroySlot(i);
     }
@@ -808,7 +808,30 @@ pub fn stz_gpu_texture_write(id: i64, data: [*]const u8, nbytes: f64) callconv(.
 // The render pass machinery lives in its own file but is the SAME layer:
 // same device, same fns table, same counters. These are engine-internal.
 
-pub var on_device_close: ?*const fn () void = null; // gpu_render registers
+// Device-close hooks. Layers built ON this one (render, scene) hold
+// device-scoped objects of their own; when the device goes they must drop
+// them. A REGISTRY rather than a single slot, because there is more than
+// one such layer now and a second one silently overwriting the first would
+// leak exactly the objects this exists to release.
+const MAX_CLOSE_HOOKS = 4;
+var close_hooks: [MAX_CLOSE_HOOKS]?*const fn () void = @splat(null);
+
+pub fn registerDeviceCloseHook(f: *const fn () void) void {
+    for (&close_hooks) |*slot| {
+        if (slot.*) |existing| {
+            if (existing == f) return; // idempotent
+            continue;
+        }
+        slot.* = f;
+        return;
+    }
+}
+
+fn runCloseHooks() void {
+    for (close_hooks) |h| {
+        if (h) |f| f();
+    }
+}
 
 pub fn isAvail() bool {
     return available;

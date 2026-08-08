@@ -276,6 +276,92 @@ pub fn glyphBitmap(font_id: i64, gid: u32, size_px: f64) !GlyphBitmap {
     return .{ .w = w, .h = h, .xoff = x0, .yoff = y0, .gray = gray };
 }
 
+// ---------------------------------------------------------------- outlines
+// The SVG tier's text (GR2b). Emitting glyph OUTLINES rather than <text>
+// keeps the two backends honest: the SVG carries the exact positions this
+// pipeline computed, and needs no font installed on the viewer's machine to
+// look right. (A selectable-<text> emitter is a later knob, and it would
+// hand shaping back to the consumer -- the thing this pipeline exists to
+// own.) Font units are y-UP from the baseline; scene space is y-DOWN with
+// the baseline at oy, so y_svg = oy - y_font * scale.
+
+fn appendNum(out: *std.ArrayList(u8), v: f64) !void {
+    var tmp: [32]u8 = undefined;
+    var s = try std.fmt.bufPrint(&tmp, "{d:.2}", .{v});
+    if (std.mem.indexOfScalar(u8, s, '.') != null) {
+        var end = s.len;
+        while (end > 0 and s[end - 1] == '0') end -= 1;
+        if (end > 0 and s[end - 1] == '.') end -= 1;
+        s = s[0..end];
+    }
+    try out.appendSlice(alloc, s);
+}
+
+/// Append this glyph's outline as SVG path data ("M.. L.. Q.. C.. Z"),
+/// placed with its pen at (ox, oy) in scene pixels. An ink-free glyph
+/// appends nothing and answers false.
+pub fn glyphOutlineSvg(font_id: i64, gid: u32, size_px: f64, ox: f64, oy: f64, out: *std.ArrayList(u8)) !bool {
+    const slot = slotOf(font_id) orelse return error.StaleFont;
+    if (size_px <= 0) return error.BadArg;
+    const s = &fonts.items[slot];
+    const scale: f64 = @floatCast(c.stbtt_ScaleForMappingEmToPixels(&s.stbtt, @floatCast(size_px)));
+
+    var verts: [*c]c.stbtt_vertex = undefined;
+    const n = c.stbtt_GetGlyphShape(&s.stbtt, @intCast(gid), &verts);
+    if (n <= 0) return false;
+    defer c.stbtt_FreeShape(&s.stbtt, verts);
+
+    var open = false;
+    for (0..@intCast(n)) |i| {
+        const v = verts[i];
+        const px = ox + @as(f64, @floatFromInt(v.x)) * scale;
+        const py = oy - @as(f64, @floatFromInt(v.y)) * scale;
+        switch (v.type) {
+            1 => { // move
+                if (open) try out.appendSlice(alloc, "Z");
+                try out.appendSlice(alloc, "M");
+                try appendNum(out, px);
+                try out.appendSlice(alloc, " ");
+                try appendNum(out, py);
+                open = true;
+            },
+            2 => { // line
+                try out.appendSlice(alloc, "L");
+                try appendNum(out, px);
+                try out.appendSlice(alloc, " ");
+                try appendNum(out, py);
+            },
+            3 => { // quadratic
+                try out.appendSlice(alloc, "Q");
+                try appendNum(out, ox + @as(f64, @floatFromInt(v.cx)) * scale);
+                try out.appendSlice(alloc, " ");
+                try appendNum(out, oy - @as(f64, @floatFromInt(v.cy)) * scale);
+                try out.appendSlice(alloc, " ");
+                try appendNum(out, px);
+                try out.appendSlice(alloc, " ");
+                try appendNum(out, py);
+            },
+            4 => { // cubic
+                try out.appendSlice(alloc, "C");
+                try appendNum(out, ox + @as(f64, @floatFromInt(v.cx)) * scale);
+                try out.appendSlice(alloc, " ");
+                try appendNum(out, oy - @as(f64, @floatFromInt(v.cy)) * scale);
+                try out.appendSlice(alloc, " ");
+                try appendNum(out, ox + @as(f64, @floatFromInt(v.cx1)) * scale);
+                try out.appendSlice(alloc, " ");
+                try appendNum(out, oy - @as(f64, @floatFromInt(v.cy1)) * scale);
+                try out.appendSlice(alloc, " ");
+                try appendNum(out, px);
+                try out.appendSlice(alloc, " ");
+                try appendNum(out, py);
+            },
+            else => {},
+        }
+    }
+    if (open) try out.appendSlice(alloc, "Z");
+    return open;
+}
+
 test {
     // table arithmetic only; the pipeline is guarded end-to-end through the
     // DLL (base/test/gpu/gpu_text_narrated.ring) with the committed fixture

@@ -10,6 +10,8 @@ const render = @import("gpu_render.zig");
 // named gtext: these directories sit on C include paths, and a bare `text`
 // local already exists in older bridge fns
 const gtext = @import("gpu_text.zig");
+const scene = @import("gpu_scene.zig");
+const atlas = @import("gpu_atlas.zig");
 const R = @import("ring_api.zig");
 
 const gn = R.ring_vm_api_getnumber;
@@ -604,6 +606,177 @@ fn ring_GlyphBitmap(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// ---------------- GR2b display list (one model, two renderers)
+//
+// Colors cross as PACKED 0xRRGGBBAA doubles: a 32-bit value is exact in
+// f64 (2^53 headroom), and one argument beats four. Point lists cross FLAT
+// ([x0,y0,x1,y1,...]) -- one shape of list to get wrong instead of two.
+
+fn packedColor(p: *anyopaque, n: c_int) u32 {
+    const v = gn(p, n);
+    if (v < 0 or v > 4294967295.0) return 0;
+    return @intFromFloat(v);
+}
+
+fn flatPoints(p: *anyopaque, n: c_int) ?[]f64 {
+    const lst = R.gl(p, n) orelse return null;
+    const cnt: usize = @intCast(R.ringListSize(lst));
+    if (cnt == 0) return null;
+    const out = allocator.alloc(f64, cnt) catch return null;
+    for (0..cnt) |i| {
+        const item = R.ring_list_getitem_gc(null, lst, @intCast(i + 1)) orelse {
+            out[i] = 0;
+            continue;
+        };
+        out[i] = R.ring_item_getnumber(item);
+    }
+    return out;
+}
+
+fn ring_SceneNew(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(scene.sceneNew(gn(p, 1), gn(p, 2))));
+}
+
+fn ring_SceneFree(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(scene.sceneFree(@intFromFloat(gn(p, 1)))));
+}
+
+fn ring_SceneClear(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(scene.sceneClear(@intFromFloat(gn(p, 1)), packedColor(p, 2))));
+}
+
+fn ring_SceneRect(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(scene.sceneRect(@intFromFloat(gn(p, 1)), gn(p, 2), gn(p, 3), gn(p, 4), gn(p, 5), packedColor(p, 6))));
+}
+
+fn ring_SceneRectGradient(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(scene.sceneRectGradient(
+        @intFromFloat(gn(p, 1)),
+        gn(p, 2),
+        gn(p, 3),
+        gn(p, 4),
+        gn(p, 5),
+        packedColor(p, 6),
+        packedColor(p, 7),
+        gn(p, 8) != 0,
+    )));
+}
+
+fn ring_SceneCircle(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(scene.sceneCircle(@intFromFloat(gn(p, 1)), gn(p, 2), gn(p, 3), gn(p, 4), packedColor(p, 5))));
+}
+
+fn ring_SceneLine(p: *anyopaque) callconv(.c) void {
+    const pts = [_]f64{ gn(p, 2), gn(p, 3), gn(p, 4), gn(p, 5) };
+    rn(p, @floatFromInt(scene.sceneStroke(@intFromFloat(gn(p, 1)), &pts, gn(p, 6), packedColor(p, 7))));
+}
+
+fn ring_ScenePolyline(p: *anyopaque) callconv(.c) void {
+    const pts = flatPoints(p, 2) orelse {
+        rn(p, scene.BAD_ARG);
+        return;
+    };
+    defer allocator.free(pts);
+    rn(p, @floatFromInt(scene.sceneStroke(@intFromFloat(gn(p, 1)), pts, gn(p, 3), packedColor(p, 4))));
+}
+
+fn ring_ScenePolygon(p: *anyopaque) callconv(.c) void {
+    const pts = flatPoints(p, 2) orelse {
+        rn(p, scene.BAD_ARG);
+        return;
+    };
+    defer allocator.free(pts);
+    rn(p, @floatFromInt(scene.scenePolygon(@intFromFloat(gn(p, 1)), pts, packedColor(p, 3))));
+}
+
+fn ring_SceneText(p: *anyopaque) callconv(.c) void {
+    const str = getStr(p, 3);
+    rn(p, @floatFromInt(scene.sceneText(
+        @intFromFloat(gn(p, 1)),
+        @intFromFloat(gn(p, 2)),
+        str,
+        gn(p, 4),
+        gn(p, 5),
+        gn(p, 6),
+        packedColor(p, 7),
+    )));
+}
+
+fn ring_SceneCommandCount(p: *anyopaque) callconv(.c) void {
+    rn(p, scene.sceneCommandCount(@intFromFloat(gn(p, 1))));
+}
+
+// SceneStats(id) -> [commands, shapeVerts, textVerts, drawSegments, builds]
+fn ring_SceneStats(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    if (scene.sceneStats(@intFromFloat(gn(p, 1)))) |st| {
+        for (st) |v| R.ring_list_adddouble(out, v);
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
+// SceneToSvg(id) -> SVG text ("" on a stale handle). NEVER needs a device.
+fn ring_SceneToSvg(p: *anyopaque) callconv(.c) void {
+    const svg = scene.sceneToSvg(@intFromFloat(gn(p, 1))) catch {
+        R.ring_vm_api_retstring2(p, "", 0);
+        return;
+    };
+    if (svg) |s| {
+        defer allocator.free(s);
+        R.ring_vm_api_retstring2(p, s.ptr, @intCast(s.len));
+    } else {
+        R.ring_vm_api_retstring2(p, "", 0);
+    }
+}
+
+// SceneToPng(id, nLevel) -> PNG bytes ("" when there is no device -- and
+// that refusal is COUNTED, so a face can fall to the SVG tier knowing why)
+fn ring_SceneToPng(p: *anyopaque) callconv(.c) void {
+    const png = scene.sceneToPng(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2))) catch {
+        R.ring_vm_api_retstring2(p, "", 0);
+        return;
+    };
+    if (png) |b| {
+        defer allocator.free(b);
+        R.ring_vm_api_retstring2(p, b.ptr, @intCast(b.len));
+    } else {
+        R.ring_vm_api_retstring2(p, "", 0);
+    }
+}
+
+// SceneToPixels(id) -> raw RGBA8 of the GPU tier (the parity witness:
+// the same bytes the PNG encodes, before compression can be blamed)
+fn ring_SceneToPixels(p: *anyopaque) callconv(.c) void {
+    const px = scene.sceneToPixels(@intFromFloat(gn(p, 1))) catch {
+        R.ring_vm_api_retstring2(p, "", 0);
+        return;
+    };
+    if (px) |b| {
+        defer allocator.free(b);
+        R.ring_vm_api_retstring2(p, b.ptr, @intCast(b.len));
+    } else {
+        R.ring_vm_api_retstring2(p, "", 0);
+    }
+}
+
+// AtlasStats() -> [w, h, entries, uploads]
+fn ring_AtlasStats(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (atlas.stats()) |v| R.ring_list_adddouble(out, v);
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn ring_AtlasReset(p: *anyopaque) callconv(.c) void {
+    atlas.reset();
+    rn(p, 1);
+}
+
+// CircleSegments(nRadius) -> the tessellation count the error bound picks
+// (exposed so a guard can check the sagitta claim arithmetically)
+fn ring_CircleSegments(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(scene.circleSegments(gn(p, 1))));
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuinit", .func = &ring_Init },
     .{ .name = "stzenginegpushutdown", .func = &ring_Shutdown },
@@ -668,6 +841,25 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpufontglyphcount", .func = &ring_FontGlyphCount },
     .{ .name = "stzenginegputextlayout", .func = &ring_TextLayout },
     .{ .name = "stzenginegpuglyphbitmap", .func = &ring_GlyphBitmap },
+    // GR2b display list
+    .{ .name = "stzenginegpuscenenew", .func = &ring_SceneNew },
+    .{ .name = "stzenginegpuscenefree", .func = &ring_SceneFree },
+    .{ .name = "stzenginegpusceneclear", .func = &ring_SceneClear },
+    .{ .name = "stzenginegpuscenerect", .func = &ring_SceneRect },
+    .{ .name = "stzenginegpuscenerectgradient", .func = &ring_SceneRectGradient },
+    .{ .name = "stzenginegpuscenecircle", .func = &ring_SceneCircle },
+    .{ .name = "stzenginegpusceneline", .func = &ring_SceneLine },
+    .{ .name = "stzenginegpuscenepolyline", .func = &ring_ScenePolyline },
+    .{ .name = "stzenginegpuscenepolygon", .func = &ring_ScenePolygon },
+    .{ .name = "stzenginegpuscenetext", .func = &ring_SceneText },
+    .{ .name = "stzenginegpuscenecommandcount", .func = &ring_SceneCommandCount },
+    .{ .name = "stzenginegpuscenestats", .func = &ring_SceneStats },
+    .{ .name = "stzenginegpuscenetosvg", .func = &ring_SceneToSvg },
+    .{ .name = "stzenginegpuscenetopng", .func = &ring_SceneToPng },
+    .{ .name = "stzenginegpuscenetopixels", .func = &ring_SceneToPixels },
+    .{ .name = "stzenginegpuatlasstats", .func = &ring_AtlasStats },
+    .{ .name = "stzenginegpuatlasreset", .func = &ring_AtlasReset },
+    .{ .name = "stzenginegpucirclesegments", .func = &ring_CircleSegments },
 };
 
 pub fn registerAll(pState: *anyopaque) void {
