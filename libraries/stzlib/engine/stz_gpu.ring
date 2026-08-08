@@ -38,6 +38,50 @@
 #       xoff = this tile's x-offset IN WORKGROUPS (TDR tiling); a kernel
 #       computes its element index as gid.x + tile.xoff * WORKGROUP_X.
 #   @group(0) @binding(1..) = the dispatch call's buffers, in list order.
+#
+# ---- GR1 render lifecycle (SOFTANZA_GRAPHICS_PLAN.md) ----------------
+#
+# Counter indices added by GR1:
+#   10 render-pipeline compiles   11 render-pipeline cache hits
+#   12 draw calls                 13 live textures/targets
+#
+# Textures and offscreen targets join the SAME discipline: gen-keyed ids
+# (their own namespace, like kernels vs buffers), the same VRAM budget,
+# FIFO eviction ACROSS buffers and textures, counted fallback. RGBA8 only.
+#   StzEngineGpuTextureNew(w, h, kind) -> id (0 = refusal)
+#       kind: 0 = render TARGET, 1 = sampled NEAREST, 2 = sampled LINEAR
+#   StzEngineGpuTextureFree(id) / TextureWidth(id) / TextureHeight(id)
+#   StzEngineGpuTextureWrite(id, cRgbaBytes)   -- sampled kinds; len = w*h*4
+#
+# Render pipelines compile WGSL with entry points `vmain` + `fmain`,
+# cached by (text, vertex format, blend) -- 1 compile + N hits, counted.
+#   StzEngineGpuRenderPipeline(cWgsl, cFmt, bBlend) -> id (0 = refusal)
+#       cFmt: comma-separated float32 component counts per attribute in
+#       location order -- "2,4" = vec2 pos @location(0) + vec4 color
+#       @location(1). bBlend: 0 opaque, 1 standard alpha.
+#       A TEXTURED pipeline declares @group(0) @binding(0)
+#       texture_2d<f32> + @binding(1) sampler and its draws pass a
+#       sampled-texture id; an untextured one passes 0.
+#
+# The pass: Begin opens ONE encoder on a TARGET, draws encode into it,
+# End submits ONCE (asynchronous, like Dispatch; a read or Sync
+# completes). Vertex/index data lives in ORDINARY lifecycle buffers
+# (BufferNew/UploadList) -- any buffer can feed a draw, and a compute
+# kernel can write vertices a render pass consumes (the GR0 witness).
+#   StzEngineGpuBufferUploadListU32(id, aNumbers)  -- index data (u32 LE)
+#   StzEngineGpuRenderBegin(hTarget, r, g, b, a)   -- clear color 0..1
+#   StzEngineGpuRenderDraw(hPipe, hVbuf, nFirst, nVerts, hTexOr0)
+#   StzEngineGpuRenderDrawIndexed(hPipe, hVbuf, hIbuf, nIndices, hTexOr0)
+#   StzEngineGpuRenderEnd() / StzEngineGpuRenderActive()
+#   StzEngineGpuTargetRead(hTarget) -> tight RGBA8 bytes ("" = refusal;
+#       the 256-byte row padding is handled and stripped engine-side)
+#
+# Codecs (CPU-side, work without a device):
+#   StzEngineGpuPngEncode(w, h, cRgbaBytes, nLevel) -> PNG bytes
+#       nLevel 1..9; anything else takes the measured default z1
+#       (GR0: z1 = same pixels at half the cost of z6; z6 = archival)
+#   StzEngineGpuImageDecode(cBytes) -> [w, h, cRgbaBytes] or []
+#       (stb_image: PNG/JPG/BMP/GIF/TGA/PSD, always RGBA8 out)
 
 if isWindows()
     $cStzGpuLib = $cEngineDir + "/zig-out/bin/stz_gpu.dll"

@@ -6,6 +6,7 @@ const std = @import("std");
 const gpu = @import("gpu.zig");
 const ops = @import("gpu_ops.zig");
 const wgsl = @import("gpu_wgsl.zig");
+const render = @import("gpu_render.zig");
 const R = @import("ring_api.zig");
 
 const gn = R.ring_vm_api_getnumber;
@@ -126,6 +127,34 @@ fn ring_BufferUploadList(p: *anyopaque) callconv(.c) void {
             continue;
         };
         staging[i] = @floatCast(R.ring_item_getnumber(item));
+    }
+    rn(p, @floatFromInt(gpu.stz_gpu_buffer_write(id, @ptrCast(staging.ptr), @floatFromInt(n * 4))));
+}
+
+// UploadListU32(id, aNumbers) -> status. For INDEX data (GR1): Ring numbers
+// staged as little-endian u32, not f32.
+fn ring_BufferUploadListU32(p: *anyopaque) callconv(.c) void {
+    const id: i64 = @intFromFloat(gn(p, 1));
+    const lst = R.gl(p, 2) orelse {
+        rn(p, gpu.BAD_ARG);
+        return;
+    };
+    const n: usize = @intCast(R.ringListSize(lst));
+    if (n == 0) {
+        rn(p, gpu.BAD_ARG);
+        return;
+    }
+    const staging = allocator.alloc(u32, n) catch {
+        rn(p, gpu.BAD_ARG);
+        return;
+    };
+    defer allocator.free(staging);
+    for (0..n) |i| {
+        const item = R.ring_list_getitem_gc(null, lst, @intCast(i + 1)) orelse {
+            staging[i] = 0;
+            continue;
+        };
+        staging[i] = @intFromFloat(R.ring_item_getnumber(item));
     }
     rn(p, @floatFromInt(gpu.stz_gpu_buffer_write(id, @ptrCast(staging.ptr), @floatFromInt(n * 4))));
 }
@@ -393,6 +422,123 @@ fn ring_OpTopK(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// ---------------- GR1 render lifecycle
+
+fn ring_TextureNew(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gpu.stz_gpu_texture_new(gn(p, 1), gn(p, 2), gn(p, 3))));
+}
+
+fn ring_TextureFree(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gpu.stz_gpu_texture_free(@intFromFloat(gn(p, 1)))));
+}
+
+fn ring_TextureWidth(p: *anyopaque) callconv(.c) void {
+    rn(p, gpu.stz_gpu_texture_width(@intFromFloat(gn(p, 1))));
+}
+
+fn ring_TextureHeight(p: *anyopaque) callconv(.c) void {
+    rn(p, gpu.stz_gpu_texture_height(@intFromFloat(gn(p, 1))));
+}
+
+// TextureWrite(id, cRgbaBytes) -> status. The string IS the pixel payload
+// (binary-safe, counted); its length must be exactly w*h*4.
+fn ring_TextureWrite(p: *anyopaque) callconv(.c) void {
+    const id: i64 = @intFromFloat(gn(p, 1));
+    const bytes = getStr(p, 2);
+    rn(p, @floatFromInt(gpu.stz_gpu_texture_write(id, bytes.ptr, @floatFromInt(bytes.len))));
+}
+
+// RenderPipeline(cWgsl, cFmt, bBlend) -> pipeline id (cached) or 0
+fn ring_RenderPipeline(p: *anyopaque) callconv(.c) void {
+    const text = getStr(p, 1);
+    const fmt = getStr(p, 2);
+    rn(p, @floatFromInt(render.stz_gpu_render_pipeline(text.ptr, @floatFromInt(text.len), fmt.ptr, @floatFromInt(fmt.len), gn(p, 3))));
+}
+
+fn ring_RenderBegin(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(render.stz_gpu_render_begin(@intFromFloat(gn(p, 1)), gn(p, 2), gn(p, 3), gn(p, 4), gn(p, 5))));
+}
+
+fn ring_RenderDraw(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(render.stz_gpu_render_draw(
+        @intFromFloat(gn(p, 1)),
+        @intFromFloat(gn(p, 2)),
+        gn(p, 3),
+        gn(p, 4),
+        @intFromFloat(gn(p, 5)),
+    )));
+}
+
+fn ring_RenderDrawIndexed(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(render.stz_gpu_render_draw_indexed(
+        @intFromFloat(gn(p, 1)),
+        @intFromFloat(gn(p, 2)),
+        @intFromFloat(gn(p, 3)),
+        gn(p, 4),
+        @intFromFloat(gn(p, 5)),
+    )));
+}
+
+fn ring_RenderEnd(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(render.stz_gpu_render_end()));
+}
+
+fn ring_RenderActive(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(render.stz_gpu_render_active()));
+}
+
+// TargetRead(hTarget) -> tight RGBA8 bytes as a binary string ("" on refusal)
+fn ring_TargetRead(p: *anyopaque) callconv(.c) void {
+    const id: i64 = @intFromFloat(gn(p, 1));
+    const w = gpu.stz_gpu_texture_width(id);
+    const h = gpu.stz_gpu_texture_height(id);
+    if (w < 1 or h < 1) {
+        R.ring_vm_api_retstring2(p, "", 0);
+        return;
+    }
+    const n: usize = @intFromFloat(w * h * 4);
+    const buf = allocator.alloc(u8, n) catch {
+        R.ring_vm_api_retstring2(p, "", 0);
+        return;
+    };
+    defer allocator.free(buf);
+    const st = render.stz_gpu_target_read(id, buf.ptr, @floatFromInt(n));
+    if (st != gpu.OK) {
+        R.ring_vm_api_retstring2(p, "", 0);
+        return;
+    }
+    R.ring_vm_api_retstring2(p, buf.ptr, @intCast(n));
+}
+
+// PngEncode(nW, nH, cRgbaBytes, nLevel) -> PNG bytes ("" on refusal).
+// Level 1 is the measured default; pass 0 to take it.
+fn ring_PngEncode(p: *anyopaque) callconv(.c) void {
+    const w: u32 = @intFromFloat(gn(p, 1));
+    const h: u32 = @intFromFloat(gn(p, 2));
+    const rgba = getStr(p, 3);
+    const level: i32 = @intFromFloat(gn(p, 4));
+    const png = render.pngEncode(w, h, rgba, level) catch {
+        R.ring_vm_api_retstring2(p, "", 0);
+        return;
+    };
+    defer allocator.free(png);
+    R.ring_vm_api_retstring2(p, png.ptr, @intCast(png.len));
+}
+
+// ImageDecode(cBytes) -> [nW, nH, cRgbaBytes] or [] on failure (stb_image:
+// PNG/JPG/BMP/GIF/TGA/PSD, always RGBA8 out)
+fn ring_ImageDecode(p: *anyopaque) callconv(.c) void {
+    const bytes = getStr(p, 1);
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    if (render.imageDecode(bytes)) |img| {
+        defer allocator.free(img.rgba);
+        R.ring_list_adddouble(out, @floatFromInt(img.w));
+        R.ring_list_adddouble(out, @floatFromInt(img.h));
+        R.ring_list_addstring2(out, img.rgba.ptr, @intCast(img.rgba.len));
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuinit", .func = &ring_Init },
     .{ .name = "stzenginegpushutdown", .func = &ring_Shutdown },
@@ -413,6 +559,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpubufferfree", .func = &ring_BufferFree },
     .{ .name = "stzenginegpubuffersize", .func = &ring_BufferSize },
     .{ .name = "stzenginegpubufferuploadlist", .func = &ring_BufferUploadList },
+    .{ .name = "stzenginegpubufferuploadlistu32", .func = &ring_BufferUploadListU32 },
     .{ .name = "stzenginegpubufferdownloadlist", .func = &ring_BufferDownloadList },
     .{ .name = "stzenginegpukernelcompile", .func = &ring_KernelCompile },
     .{ .name = "stzenginegpudispatch", .func = &ring_Dispatch },
@@ -435,6 +582,21 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuwgslelementwise", .func = &ring_WgslElementwise },
     .{ .name = "stzenginegpuwgslerror", .func = &ring_WgslError },
     .{ .name = "stzenginegpudispatchparams", .func = &ring_DispatchParams },
+    // GR1 render lifecycle
+    .{ .name = "stzenginegputexturenew", .func = &ring_TextureNew },
+    .{ .name = "stzenginegputexturefree", .func = &ring_TextureFree },
+    .{ .name = "stzenginegputexturewidth", .func = &ring_TextureWidth },
+    .{ .name = "stzenginegputextureheight", .func = &ring_TextureHeight },
+    .{ .name = "stzenginegputexturewrite", .func = &ring_TextureWrite },
+    .{ .name = "stzenginegpurenderpipeline", .func = &ring_RenderPipeline },
+    .{ .name = "stzenginegpurenderbegin", .func = &ring_RenderBegin },
+    .{ .name = "stzenginegpurenderdraw", .func = &ring_RenderDraw },
+    .{ .name = "stzenginegpurenderdrawindexed", .func = &ring_RenderDrawIndexed },
+    .{ .name = "stzenginegpurenderend", .func = &ring_RenderEnd },
+    .{ .name = "stzenginegpurenderactive", .func = &ring_RenderActive },
+    .{ .name = "stzenginegputargetread", .func = &ring_TargetRead },
+    .{ .name = "stzenginegpupngencode", .func = &ring_PngEncode },
+    .{ .name = "stzenginegpuimagedecode", .func = &ring_ImageDecode },
 };
 
 pub fn registerAll(pState: *anyopaque) void {
