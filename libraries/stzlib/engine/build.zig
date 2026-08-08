@@ -15,6 +15,8 @@ const Domain = struct {
     needs_mbedtls: bool = false,
     needs_treesitter: bool = false,
     needs_wgpu: bool = false,
+    needs_zlib: bool = false, // vendored zlib compiled in (GR1: the PNG encoder)
+    needs_stb: bool = false, // vendored stb_truetype + stb_image (GR1 text/texture)
 };
 
 // Core (stk_*): minimal, fast, constrained environments
@@ -111,7 +113,7 @@ const base_domains = [_]Domain{
     // GPU plane lifecycle (G1). Headers only: wgpu_native.dll is loaded at
     // RUNTIME (LoadLibrary in gpu.zig), never linked, so this DLL loads on
     // GPU-less machines and degrades to counted fallback.
-    .{ .name = "stz_gpu", .entry = "src/stz_gpu_entry.zig", .needs_ring = true, .needs_wgpu = true },
+    .{ .name = "stz_gpu", .entry = "src/stz_gpu_entry.zig", .needs_ring = true, .needs_wgpu = true, .needs_zlib = true, .needs_stb = true },
 };
 
 fn addUtf8proc(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
@@ -497,6 +499,35 @@ fn addLibcurl(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Buil
 
     const win_libs = [_][]const u8{ "ws2_32", "crypt32", "secur32", "advapi32", "bcrypt", "normaliz" };
     for (win_libs) |l| lib.linkSystemLibrary(l);
+}
+
+// Vendored zlib compiled straight into the DLL (the curl path already does
+// this inside addLibcurl; this is the standalone flag for domains that want
+// zlib alone -- GR1's PNG encoder in stz_gpu).
+fn addZlib(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
+    const zl = "vendor/zlib";
+    mod.addIncludePath(b.path(zl));
+    var zfiles: std.ArrayList([]const u8) = .{};
+    {
+        var dir = std.fs.cwd().openDir(zl, .{ .iterate = true }) catch |e|
+            std.debug.panic("zlib: cannot open {s}: {s}", .{ zl, @errorName(e) });
+        defer dir.close();
+        var it = dir.iterate();
+        while (it.next() catch null) |entry| {
+            if (entry.kind != .file) continue;
+            if (!std.mem.endsWith(u8, entry.name, ".c")) continue;
+            zfiles.append(b.allocator, b.fmt("{s}/{s}", .{ zl, entry.name })) catch @panic("oom");
+        }
+    }
+    const zl_flags = [_][]const u8{"-DHAVE_UNISTD_H=0"};
+    lib.addCSourceFiles(.{ .files = zfiles.items, .flags = &zl_flags });
+}
+
+// Vendored stb single-file libraries; stz_stb_impl.c is the ONE translation
+// unit owning the implementations (see vendor/stb/VERSION).
+fn addStb(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
+    mod.addIncludePath(b.path("vendor/stb"));
+    lib.addCSourceFiles(.{ .files = &.{"vendor/stb/stz_stb_impl.c"}, .flags = &.{} });
 }
 
 fn addRing(b: *std.Build, mod: *std.Build.Module, lib: *std.Build.Step.Compile, ring_dir: []const u8) void {
@@ -933,6 +964,8 @@ pub fn build(b: *std.Build) void {
         if (dom.needs_mbedtls) addMbedtls(mod, lib, b, target.result.os.tag, false);
         if (dom.needs_treesitter) addTreeSitter(mod, lib, b);
         if (dom.needs_ggml) addGgml(mod, lib, b);
+        if (dom.needs_zlib) addZlib(mod, lib, b);
+        if (dom.needs_stb) addStb(mod, lib, b);
         if (dom.needs_wgpu) {
             mod.addIncludePath(b.path("vendor/wgpu/include"));
             // Ship the vendored runtime next to the engine DLLs so the Ring

@@ -1,0 +1,20 @@
+stb single-file libraries (public domain / MIT dual license)
+
+Source:   https://github.com/nothings/stb
+Commit:   2c980bb59875b0d32144a71867fbdebb2f77cd20 (master, fetched 2026-08-08)
+
+Vendored files (GR1 of SOFTANZA_GRAPHICS_PLAN.md):
+  stb_truetype.h  v1.26  -- glyph rasterization BY GLYPH ID (the text
+                            pipeline's third stage; HarfBuzz shapes, this
+                            rasters). SHA-256:
+                            ecd30b05e0dd4fea3a13c26810dd9e1992dc379049482c393d5a19e6b5090aab
+  stb_image.h     v2.30  -- texture decode (PNG/JPG -> RGBA8). SHA-256:
+                            594c2fe35d49488b4382dbfaec8f98366defca819d916ac95becf3e75f4200b3
+
+stz_stb_impl.c compiles both implementations into stz_gpu.dll (ONE
+translation unit owns the STB_*_IMPLEMENTATION defines; every other file
+includes the headers declaration-only).
+
+stb_image is built with STBI_NO_STDIO (decode is from memory only -- file
+I/O stays in the engine's own hands) and without HDR/PIC/PNM (formats the
+texture path doesn't claim; PNG/JPG/BMP/GIF/TGA/PSD remain).

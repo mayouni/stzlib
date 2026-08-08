@@ -556,3 +556,71 @@ new mechanism.
    sustained) — calibration stores warm-min, and sporadic one-shot 2D
    GPU calls on iGPU-class machines are exactly where the CPU
    rasterizer keeps the work.
+
+---
+
+## GR1 STATUS — shipped 2026-08-08: the render lifecycle in stz_gpu.dll
+
+Delivered (guard: `base/test/gpu/gpu_render_lifecycle_narrated.ring`,
+**74 asserts green** on this machine, fallback + codec scenes pass with
+no device = the CI coverage; the six pre-existing GPU guards and the
+neural backbone guard stay green — 175 asserts swept, all suites the
+changed files can reach):
+
+- **Textures and offscreen targets join the G1 discipline** — their own
+  gen-keyed table (`stz_gpu_texture_*`; a texture id and a buffer id
+  are separate namespaces, like kernels), the SAME VRAM budget, and
+  FIFO eviction ACROSS kinds: the guard witnesses a texture creation
+  evicting the OLDEST resident *buffer*, counted, with its negative
+  sibling. Three kinds: render target / sampled-nearest / sampled-
+  linear, RGBA8 only (the GR0 contract). Churn returns live-count and
+  byte accounting exactly to baseline; stale ids answer by name.
+- **Every lifecycle buffer now carries Vertex|Index usage** — any
+  buffer can feed a draw, and a compute kernel can write vertices a
+  render pass consumes. The GR0 composition witness is now guarded
+  THROUGH the product layer (dispatch → draw → exact pixels), not just
+  in the spike. (And the layout-auto trap resurfaced on cue: a kernel
+  must READ the tile uniform, not merely declare it — the guard's
+  generator kernel carries the rule as a comment.)
+- **Render-pipeline cache** keyed by (WGSL text, vertex format, blend):
+  1 compile + N hits, counted separately (counters 10/11); malformed
+  WGSL refuses AND counts a device error (the kernel-compile lesson
+  applied to render). Vertex format is declarative text ("2,4" = vec2
+  pos + vec4 color); blend 0 = opaque, 1 = standard alpha.
+- **The pass machine mirrors the batch machinery**: Begin(target,
+  clear) opens ONE encoder, draws (plain + indexed, textured + not)
+  encode into it, End() submits ONCE — asserted by the submit counter.
+  Asynchronous like Dispatch; readback or Sync completes. Mid-pass
+  shutdown aborts cleanly (nothing submitted, nothing owed) via the
+  close-device callback; re-Init restores service.
+- **Readback de-pads the 256-byte row alignment engine-side** — guarded
+  at width 63 (row 252 ≠ 256), where a de-pad bug shears every row
+  after the first.
+- **The PNG encoder is engine substance** (pure Zig over the vendored
+  zlib, z1 the measured default) and **stb_image decode** joins it
+  (memory-only, RGBA8 out). The guard round-trips REAL rendered pixels
+  through encode→decode byte-identically — two independent codec
+  implementations cross-checking each other, working with NO device.
+- **The 15-rect batch parity scene** reproduces GR0's byte-identical
+  claim through the product layer: 0 mismatching pixels against a
+  Ring-computed painter-order reference.
+- **stb vendored and pinned** (`vendor/stb/VERSION`: commit 2c980bb,
+  SHA-256 per file; stz_stb_impl.c is the one implementation TU;
+  STBI_NO_STDIO — decode is from memory only). stb_truetype compiles
+  in, unexercised until GR2's text pipeline.
+- **Cross-compile verified from this machine**: the render module
+  (gpu.zig + gpu_render.zig + wgpu/zlib/stb headers) build-objs clean
+  for x86_64-linux-gnu and aarch64-macos. Honest scope: full-DLL
+  cross-compilation waits on per-OS Ring libraries (pre-existing
+  repo-wide constraint, not a render one), and this repo has no CI
+  runner yet — the check is a documented command, not a pipeline:
+  `zig build-obj src/gpu_render.zig -OReleaseSafe -I vendor/wgpu/include
+  -I vendor/zlib -I vendor/stb -lc -target <triple>`.
+
+Surface documented in `engine/stz_gpu.ring` (counters 10–13, texture
+kinds, the vmain/fmain + format contract, u32 index upload, codecs).
+
+Next: **GR2** — the 2D layer WITH the text pipeline (display list →
+GPU batch AND SVG emitter; HarfBuzz + SheenBidi vendored — harfbuzz.cc
+already compile-proven and shaping in GR0; the lam-alef glyph-id
+witness becomes the guard corpus).

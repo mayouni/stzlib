@@ -40,7 +40,9 @@
 //! VM is the only caller.
 
 const std = @import("std");
-const c = @cImport({
+// pub: gpu_render.zig (GR1) must share THIS @cImport -- a second @cImport of
+// the same headers is a distinct type universe and nothing would assign.
+pub const c = @cImport({
     @cInclude("webgpu/webgpu.h");
     @cInclude("webgpu/wgpu.h");
 });
@@ -67,14 +69,19 @@ pub const CTR_SUBMIT_COUNT = 6; // queue submits (tiling multiplies these)
 pub const CTR_EVICT_COUNT = 7; // buffers evicted by the VRAM bound
 pub const CTR_BUFFER_LIVE = 8; // live device buffers right now
 pub const CTR_GPU_ERRORS = 9; // uncaptured device errors
-const N_COUNTERS = 10;
+// GR1 render lifecycle (indices are a public contract -- append, never renumber)
+pub const CTR_RPIPE_COMPILE = 10; // real WGSL->render-pipeline compiles
+pub const CTR_RPIPE_HITS = 11; // render-pipeline cache hits
+pub const CTR_DRAW_COUNT = 12; // draw calls encoded
+pub const CTR_TEXTURE_LIVE = 13; // live textures/targets right now
+const N_COUNTERS = 14;
 
 var counters: [N_COUNTERS]f64 = @splat(0);
 
 // ---------------------------------------------------------------- wgpu, loaded at runtime
 // Only the functions the lifecycle needs. Field name == exported symbol name;
 // loadWgpu resolves every field or fails as a unit (no half-loaded state).
-const Fns = struct {
+pub const Fns = struct {
     wgpuCreateInstance: *const @TypeOf(c.wgpuCreateInstance),
     wgpuInstanceRelease: *const @TypeOf(c.wgpuInstanceRelease),
     wgpuInstanceProcessEvents: *const @TypeOf(c.wgpuInstanceProcessEvents),
@@ -112,6 +119,27 @@ const Fns = struct {
     wgpuComputePassEncoderEnd: *const @TypeOf(c.wgpuComputePassEncoderEnd),
     wgpuComputePassEncoderRelease: *const @TypeOf(c.wgpuComputePassEncoderRelease),
     wgpuCommandBufferRelease: *const @TypeOf(c.wgpuCommandBufferRelease),
+    // GR1 render surface (same DLL exports them all; resolved as a unit)
+    wgpuDeviceCreateTexture: *const @TypeOf(c.wgpuDeviceCreateTexture),
+    wgpuTextureCreateView: *const @TypeOf(c.wgpuTextureCreateView),
+    wgpuTextureViewRelease: *const @TypeOf(c.wgpuTextureViewRelease),
+    wgpuTextureRelease: *const @TypeOf(c.wgpuTextureRelease),
+    wgpuDeviceCreateSampler: *const @TypeOf(c.wgpuDeviceCreateSampler),
+    wgpuSamplerRelease: *const @TypeOf(c.wgpuSamplerRelease),
+    wgpuDeviceCreateRenderPipeline: *const @TypeOf(c.wgpuDeviceCreateRenderPipeline),
+    wgpuRenderPipelineGetBindGroupLayout: *const @TypeOf(c.wgpuRenderPipelineGetBindGroupLayout),
+    wgpuRenderPipelineRelease: *const @TypeOf(c.wgpuRenderPipelineRelease),
+    wgpuCommandEncoderBeginRenderPass: *const @TypeOf(c.wgpuCommandEncoderBeginRenderPass),
+    wgpuCommandEncoderCopyTextureToBuffer: *const @TypeOf(c.wgpuCommandEncoderCopyTextureToBuffer),
+    wgpuRenderPassEncoderSetPipeline: *const @TypeOf(c.wgpuRenderPassEncoderSetPipeline),
+    wgpuRenderPassEncoderSetBindGroup: *const @TypeOf(c.wgpuRenderPassEncoderSetBindGroup),
+    wgpuRenderPassEncoderSetVertexBuffer: *const @TypeOf(c.wgpuRenderPassEncoderSetVertexBuffer),
+    wgpuRenderPassEncoderSetIndexBuffer: *const @TypeOf(c.wgpuRenderPassEncoderSetIndexBuffer),
+    wgpuRenderPassEncoderDraw: *const @TypeOf(c.wgpuRenderPassEncoderDraw),
+    wgpuRenderPassEncoderDrawIndexed: *const @TypeOf(c.wgpuRenderPassEncoderDrawIndexed),
+    wgpuRenderPassEncoderEnd: *const @TypeOf(c.wgpuRenderPassEncoderEnd),
+    wgpuRenderPassEncoderRelease: *const @TypeOf(c.wgpuRenderPassEncoderRelease),
+    wgpuQueueWriteTexture: *const @TypeOf(c.wgpuQueueWriteTexture),
 };
 
 var fns: Fns = undefined;
@@ -241,21 +269,76 @@ fn destroySlot(slot: usize) void {
     counters[CTR_BUFFER_LIVE] -= 1;
 }
 
-/// FIFO among live buffers: evict the oldest until `need` fits the budget.
-/// Returns false if even an empty cache cannot fit it.
+// ---------------------------------------------------------------- texture table
+// GR1: textures and render targets join the SAME discipline -- gen-keyed ids
+// (their own table, so a texture id and a buffer id are separate namespaces,
+// like kernels), the SAME vram budget, and FIFO eviction ACROSS both kinds.
+pub const TEX_TARGET: i32 = 0; // offscreen render target (RenderAttachment|CopySrc)
+pub const TEX_NEAREST: i32 = 1; // sampled texture, nearest filtering
+pub const TEX_LINEAR: i32 = 2; // sampled texture, linear filtering
+
+const TextureSlot = struct {
+    tex: c.WGPUTexture = null,
+    view: c.WGPUTextureView = null,
+    w: u32 = 0,
+    h: u32 = 0,
+    kind: i32 = 0,
+    bytes: usize = 0,
+    gen: u32 = 1,
+    live: bool = false,
+    birth: u64 = 0,
+};
+
+var textures: std.ArrayList(TextureSlot) = .{};
+
+fn texSlotOf(id: i64) ?usize {
+    const idx = id & 0xffff_ffff;
+    if (idx <= 0 or idx > @as(i64, @intCast(textures.items.len))) return null;
+    const slot: usize = @intCast(idx - 1);
+    const gen: u32 = @intCast((id >> 32) & 0xffff_ffff);
+    if (!textures.items[slot].live or textures.items[slot].gen != gen) return null;
+    return slot;
+}
+
+fn destroyTextureSlot(slot: usize) void {
+    const s = &textures.items[slot];
+    if (s.view) |v| fns.wgpuTextureViewRelease(v);
+    if (s.tex) |t| fns.wgpuTextureRelease(t);
+    s.view = null;
+    s.tex = null;
+    s.live = false;
+    s.gen +%= 1;
+    vram_in_use -= s.bytes;
+    s.bytes = 0;
+    counters[CTR_TEXTURE_LIVE] -= 1;
+}
+
+/// FIFO across live buffers AND textures: evict the oldest until `need` fits
+/// the budget. Returns false if even an empty cache cannot fit it.
 fn evictUntilFits(need: usize) bool {
     if (need > vram_budget) return false;
     while (vram_in_use + need > vram_budget) {
-        var oldest: ?usize = null;
+        var oldest_buf: ?usize = null;
+        var oldest_tex: ?usize = null;
         var oldest_birth: u64 = std.math.maxInt(u64);
         for (buffers.items, 0..) |s, i| {
             if (s.live and s.birth < oldest_birth) {
                 oldest_birth = s.birth;
-                oldest = i;
+                oldest_buf = i;
             }
         }
-        const victim = oldest orelse return false;
-        destroySlot(victim);
+        for (textures.items, 0..) |s, i| {
+            if (s.live and s.birth < oldest_birth) {
+                oldest_birth = s.birth;
+                oldest_tex = i;
+                oldest_buf = null;
+            }
+        }
+        if (oldest_tex) |t| {
+            destroyTextureSlot(t);
+        } else if (oldest_buf) |bslot| {
+            destroySlot(bslot);
+        } else return false;
         counters[CTR_EVICT_COUNT] += 1;
     }
     return true;
@@ -368,8 +451,12 @@ fn openDeviceOn(idx: usize) i32 {
 fn closeDevice() void {
     if (!available and device == null) return;
     available = false;
+    if (on_device_close) |cb| cb(); // render module: abort pass, drop pipelines
     for (buffers.items, 0..) |s, i| {
         if (s.live) destroySlot(i);
+    }
+    for (textures.items, 0..) |s, i| {
+        if (s.live) destroyTextureSlot(i);
     }
     for (kernels.items) |*k| {
         if (k.layout) |l| fns.wgpuBindGroupLayoutRelease(l);
@@ -476,8 +563,10 @@ pub fn countFallback() void {
 pub fn stz_gpu_counters_reset() callconv(.c) void {
     // Structural gauges survive a reset -- they describe state, not history.
     const live = counters[CTR_BUFFER_LIVE];
+    const tex_live = counters[CTR_TEXTURE_LIVE];
     counters = @splat(0);
     counters[CTR_BUFFER_LIVE] = live;
+    counters[CTR_TEXTURE_LIVE] = tex_live;
 }
 
 // ---------------- buffers
@@ -495,7 +584,11 @@ pub fn stz_gpu_buffer_new(nbytes: f64) callconv(.c) i64 {
     }
     var desc = std.mem.zeroes(c.WGPUBufferDescriptor);
     desc.label = sv("stz_buf");
-    desc.usage = c.WGPUBufferUsage_Storage | c.WGPUBufferUsage_CopyDst | c.WGPUBufferUsage_CopySrc;
+    // Vertex|Index joined in GR1: ANY lifecycle buffer can feed a draw, and a
+    // compute kernel can write vertices a render pass consumes (the GR0
+    // composition witness as a property of the layer, not a special kind).
+    desc.usage = c.WGPUBufferUsage_Storage | c.WGPUBufferUsage_CopyDst | c.WGPUBufferUsage_CopySrc |
+        c.WGPUBufferUsage_Vertex | c.WGPUBufferUsage_Index;
     desc.size = size;
     const buf = fns.wgpuDeviceCreateBuffer(device, &desc);
     if (buf == null) {
@@ -601,6 +694,185 @@ pub fn stz_gpu_buffer_read(id: i64, out: [*]u8, nbytes: f64) callconv(.c) i32 {
     fns.wgpuBufferUnmap(staging);
     counters[CTR_TRANSFER_BYTES] += nbytes;
     return OK;
+}
+
+// ---------------- textures (GR1)
+
+/// kind: TEX_TARGET (0) offscreen render target, TEX_NEAREST (1) / TEX_LINEAR
+/// (2) sampled texture. RGBA8Unorm always -- ONE format, the GR0 contract.
+pub fn stz_gpu_texture_new(wf2: f64, hf: f64, kind: f64) callconv(.c) i64 {
+    if (!available) {
+        counters[CTR_FALLBACK_COUNT] += 1;
+        return 0;
+    }
+    const k: i32 = @intFromFloat(kind);
+    if (wf2 < 1 or hf < 1 or k < 0 or k > 2) return 0;
+    const w: u32 = @intFromFloat(wf2);
+    const h: u32 = @intFromFloat(hf);
+    if (w > 16384 or h > 16384) return 0; // WebGPU default maxTextureDimension2D
+    const bytes = @as(usize, w) * h * 4;
+    if (!evictUntilFits(bytes)) {
+        counters[CTR_FALLBACK_COUNT] += 1;
+        return 0;
+    }
+    var desc = std.mem.zeroes(c.WGPUTextureDescriptor);
+    desc.label = sv("stz_tex");
+    desc.usage = if (k == TEX_TARGET)
+        c.WGPUTextureUsage_RenderAttachment | c.WGPUTextureUsage_CopySrc
+    else
+        c.WGPUTextureUsage_TextureBinding | c.WGPUTextureUsage_CopyDst;
+    desc.dimension = c.WGPUTextureDimension_2D;
+    desc.size = .{ .width = w, .height = h, .depthOrArrayLayers = 1 };
+    desc.format = c.WGPUTextureFormat_RGBA8Unorm;
+    desc.mipLevelCount = 1;
+    desc.sampleCount = 1;
+    const tex = fns.wgpuDeviceCreateTexture(device, &desc);
+    if (tex == null) {
+        counters[CTR_FALLBACK_COUNT] += 1;
+        return 0;
+    }
+    const view = fns.wgpuTextureCreateView(tex, null);
+    if (view == null) {
+        fns.wgpuTextureRelease(tex);
+        return 0;
+    }
+    var slot: usize = textures.items.len;
+    for (textures.items, 0..) |s, i| {
+        if (!s.live) {
+            slot = i;
+            break;
+        }
+    }
+    if (slot == textures.items.len) {
+        textures.append(alloc, .{}) catch {
+            fns.wgpuTextureViewRelease(view);
+            fns.wgpuTextureRelease(tex);
+            return 0;
+        };
+    }
+    const s = &textures.items[slot];
+    s.tex = tex;
+    s.view = view;
+    s.w = w;
+    s.h = h;
+    s.kind = k;
+    s.bytes = bytes;
+    s.live = true;
+    birth_counter += 1;
+    s.birth = birth_counter;
+    vram_in_use += bytes;
+    counters[CTR_TEXTURE_LIVE] += 1;
+    return makeId(slot, s.gen);
+}
+
+pub fn stz_gpu_texture_free(id: i64) callconv(.c) i32 {
+    const slot = texSlotOf(id) orelse return STALE;
+    destroyTextureSlot(slot);
+    return OK;
+}
+
+pub fn stz_gpu_texture_width(id: i64) callconv(.c) f64 {
+    const slot = texSlotOf(id) orelse return -1;
+    return @floatFromInt(textures.items[slot].w);
+}
+
+pub fn stz_gpu_texture_height(id: i64) callconv(.c) f64 {
+    const slot = texSlotOf(id) orelse return -1;
+    return @floatFromInt(textures.items[slot].h);
+}
+
+/// Full-texture RGBA8 upload (sampled kinds only; a render target's pixels
+/// come from rendering). nbytes must be exactly w*h*4.
+pub fn stz_gpu_texture_write(id: i64, data: [*]const u8, nbytes: f64) callconv(.c) i32 {
+    if (!available) {
+        counters[CTR_FALLBACK_COUNT] += 1;
+        return FALLBACK;
+    }
+    const slot = texSlotOf(id) orelse return STALE;
+    const s = &textures.items[slot];
+    if (s.kind == TEX_TARGET) return BAD_ARG;
+    const n: usize = @intFromFloat(nbytes);
+    if (n != s.bytes) return BAD_ARG;
+    var dst = std.mem.zeroes(c.WGPUTexelCopyTextureInfo);
+    dst.texture = s.tex;
+    var layout = std.mem.zeroes(c.WGPUTexelCopyBufferLayout);
+    layout.bytesPerRow = s.w * 4; // writeTexture has no 256-byte row rule
+    layout.rowsPerImage = s.h;
+    const ext = c.WGPUExtent3D{ .width = s.w, .height = s.h, .depthOrArrayLayers = 1 };
+    fns.wgpuQueueWriteTexture(queue, &dst, data, n, &layout, &ext);
+    counters[CTR_TRANSFER_BYTES] += nbytes;
+    return OK;
+}
+
+// ---------------- accessors for the render module (gpu_render.zig)
+// The render pass machinery lives in its own file but is the SAME layer:
+// same device, same fns table, same counters. These are engine-internal.
+
+pub var on_device_close: ?*const fn () void = null; // gpu_render registers
+
+pub fn isAvail() bool {
+    return available;
+}
+
+pub fn wfns() *const Fns {
+    return &fns;
+}
+
+pub fn deviceHandle() c.WGPUDevice {
+    return device;
+}
+
+pub fn queueHandle() c.WGPUQueue {
+    return queue;
+}
+
+pub fn instanceHandle() c.WGPUInstance {
+    return instance;
+}
+
+pub fn rawBuffer(id: i64) ?c.WGPUBuffer {
+    const slot = slotOf(id) orelse return null;
+    return buffers.items[slot].buf;
+}
+
+pub fn rawBufferSize(id: i64) usize {
+    const slot = slotOf(id) orelse return 0;
+    return buffers.items[slot].size;
+}
+
+pub const RawTexture = struct { view: c.WGPUTextureView, tex: c.WGPUTexture, w: u32, h: u32, kind: i32 };
+
+pub fn rawTexture(id: i64) ?RawTexture {
+    const slot = texSlotOf(id) orelse return null;
+    const s = &textures.items[slot];
+    return .{ .view = s.view, .tex = s.tex, .w = s.w, .h = s.h, .kind = s.kind };
+}
+
+pub fn bumpCounter(idx: usize, v: f64) void {
+    counters[idx] += v;
+}
+
+pub fn setMapFlags(done: bool, ok_: bool) void {
+    g_map_done = done;
+    g_map_ok = ok_;
+}
+
+pub fn mapDone() bool {
+    return g_map_done;
+}
+
+pub fn mapOk() bool {
+    return g_map_ok;
+}
+
+pub fn mapCallback() c.WGPUBufferMapCallbackInfo {
+    return .{
+        .nextInChain = null,
+        .mode = c.WGPUCallbackMode_AllowProcessEvents,
+        .callback = onMap,
+        .userdata1 = null,
+        .userdata2 = null,
+    };
 }
 
 // ---------------- kernels
