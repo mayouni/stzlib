@@ -553,7 +553,7 @@ fn readU32List(p: *anyopaque, argn: c_int) ?[]u32 {
     return out;
 }
 
-// GraphLayoutSweep(aOff, aSrc, aLayer, aOrder, aStarts, nSweeps) -> aOrder
+// GraphLayoutSweep(aOff, aSrc, aLayer, aOrder, aStarts, nSweeps, aU, aV) -> aOrder
 fn ring_LayoutSweep(p: *anyopaque) callconv(.c) void {
     const off = readU32List(p, 1) orelse return;
     defer gpa.free(off);
@@ -566,8 +566,12 @@ fn ring_LayoutSweep(p: *anyopaque) callconv(.c) void {
     const starts = readU32List(p, 5) orelse return;
     defer gpa.free(starts);
     const nsw: u32 = @intFromFloat(g(p, 6));
+    const eu = readU32List(p, 7) orelse return;
+    defer gpa.free(eu);
+    const ev = readU32List(p, 8) orelse return;
+    defer gpa.free(ev);
 
-    _ = glayout.sweep(off, src, layer, order, starts, nsw);
+    _ = glayout.sweep(off, src, layer, order, starts, nsw, eu, ev);
 
     const out = R.ring_vm_api_newlist(p) orelse return;
     for (order) |v| R.ring_list_adddouble(out, @floatFromInt(v));
