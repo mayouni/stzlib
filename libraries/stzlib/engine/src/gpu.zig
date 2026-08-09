@@ -276,6 +276,8 @@ fn destroySlot(slot: usize) void {
 pub const TEX_TARGET: i32 = 0; // offscreen render target (RenderAttachment|CopySrc)
 pub const TEX_NEAREST: i32 = 1; // sampled texture, nearest filtering
 pub const TEX_LINEAR: i32 = 2; // sampled texture, linear filtering
+pub const TEX_DEPTH: i32 = 3; // depth buffer, Depth32Float (GR3; never sampled,
+// never read back -- it exists so the GPU can decide what is in front)
 
 const TextureSlot = struct {
     tex: c.WGPUTexture = null,
@@ -706,24 +708,25 @@ pub fn stz_gpu_texture_new(wf2: f64, hf: f64, kind: f64) callconv(.c) i64 {
         return 0;
     }
     const k: i32 = @intFromFloat(kind);
-    if (wf2 < 1 or hf < 1 or k < 0 or k > 2) return 0;
+    if (wf2 < 1 or hf < 1 or k < 0 or k > 3) return 0;
     const w: u32 = @intFromFloat(wf2);
     const h: u32 = @intFromFloat(hf);
     if (w > 16384 or h > 16384) return 0; // WebGPU default maxTextureDimension2D
-    const bytes = @as(usize, w) * h * 4;
+    const bytes = @as(usize, w) * h * 4; // Depth32Float is 4 bytes too
     if (!evictUntilFits(bytes)) {
         counters[CTR_FALLBACK_COUNT] += 1;
         return 0;
     }
     var desc = std.mem.zeroes(c.WGPUTextureDescriptor);
     desc.label = sv("stz_tex");
-    desc.usage = if (k == TEX_TARGET)
-        c.WGPUTextureUsage_RenderAttachment | c.WGPUTextureUsage_CopySrc
-    else
-        c.WGPUTextureUsage_TextureBinding | c.WGPUTextureUsage_CopyDst;
+    desc.usage = switch (k) {
+        TEX_TARGET => c.WGPUTextureUsage_RenderAttachment | c.WGPUTextureUsage_CopySrc,
+        TEX_DEPTH => c.WGPUTextureUsage_RenderAttachment,
+        else => c.WGPUTextureUsage_TextureBinding | c.WGPUTextureUsage_CopyDst,
+    };
     desc.dimension = c.WGPUTextureDimension_2D;
     desc.size = .{ .width = w, .height = h, .depthOrArrayLayers = 1 };
-    desc.format = c.WGPUTextureFormat_RGBA8Unorm;
+    desc.format = if (k == TEX_DEPTH) c.WGPUTextureFormat_Depth32Float else c.WGPUTextureFormat_RGBA8Unorm;
     desc.mipLevelCount = 1;
     desc.sampleCount = 1;
     const tex = fns.wgpuDeviceCreateTexture(device, &desc);
@@ -790,7 +793,7 @@ pub fn stz_gpu_texture_write(id: i64, data: [*]const u8, nbytes: f64) callconv(.
     }
     const slot = texSlotOf(id) orelse return STALE;
     const s = &textures.items[slot];
-    if (s.kind == TEX_TARGET) return BAD_ARG;
+    if (s.kind == TEX_TARGET or s.kind == TEX_DEPTH) return BAD_ARG;
     const n: usize = @intFromFloat(nbytes);
     if (n != s.bytes) return BAD_ARG;
     var dst = std.mem.zeroes(c.WGPUTexelCopyTextureInfo);

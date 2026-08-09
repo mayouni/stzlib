@@ -153,11 +153,22 @@ fn parseVertexFormat(fmt: []const u8, attrs: *[MAX_ATTRS]c.WGPUVertexAttribute, 
     return n;
 }
 
-/// Compile (or fetch from cache) a render pipeline. blend: 0 = opaque,
+/// Compile (or fetch from cache) a 2D render pipeline. blend: 0 = opaque,
 /// 1 = standard alpha (src-alpha over). Returns a 1-based cache id, 0 on
 /// refusal (unavailable device, malformed format, WGSL that fails
 /// validation -- the error is counted and readable via LastError).
 pub fn stz_gpu_render_pipeline(text: [*]const u8, len: f64, fmt: [*]const u8, fmt_len: f64, blend: f64) callconv(.c) i64 {
+    return pipelineInternal(text, len, fmt, fmt_len, blend, false, false);
+}
+
+/// GR3: the same cache, with DEPTH TESTING and optional back-face culling.
+/// A separate entry point rather than a widened one -- the 2D surface that
+/// shipped keeps its exact signature and its guards keep passing.
+pub fn stz_gpu_render_pipeline3d(text: [*]const u8, len: f64, fmt: [*]const u8, fmt_len: f64, blend: f64, cull: f64) callconv(.c) i64 {
+    return pipelineInternal(text, len, fmt, fmt_len, blend, true, cull != 0);
+}
+
+fn pipelineInternal(text: [*]const u8, len: f64, fmt: [*]const u8, fmt_len: f64, blend: f64, depth: bool, cull: bool) i64 {
     ensureRegistered();
     if (!gpu.isAvail()) {
         gpu.countFallback();
@@ -175,6 +186,8 @@ pub fn stz_gpu_render_pipeline(text: [*]const u8, len: f64, fmt: [*]const u8, fm
     hasher.update("|");
     hasher.update(fmt_s);
     hasher.update(if (bl == 1) "|b1" else "|b0");
+    hasher.update(if (depth) "|d1" else "|d0");
+    hasher.update(if (cull) "|c1" else "|c0");
     const h = hasher.final();
     for (rpipes.items, 0..) |rp, i| {
         if (rp.hash == h and rp.pipeline != null) {
@@ -222,6 +235,19 @@ pub fn stz_gpu_render_pipeline(text: [*]const u8, len: f64, fmt: [*]const u8, fm
     frag.targetCount = 1;
     frag.targets = &target;
 
+    // GR3 depth state. The sentinel trap here is real and silent:
+    // WGPUOptionalBool_False == 0, so a ZEROED struct disables depth
+    // writes -- the depth buffer would exist, be cleared, and never be
+    // written. depthWriteEnabled is set explicitly for that reason.
+    var ds = std.mem.zeroes(c.WGPUDepthStencilState);
+    ds.format = c.WGPUTextureFormat_Depth32Float;
+    ds.depthWriteEnabled = c.WGPUOptionalBool_True;
+    ds.depthCompare = c.WGPUCompareFunction_Less;
+    ds.stencilFront.compare = c.WGPUCompareFunction_Always;
+    ds.stencilBack.compare = c.WGPUCompareFunction_Always;
+    ds.stencilReadMask = 0xFFFFFFFF;
+    ds.stencilWriteMask = 0xFFFFFFFF;
+
     var desc = std.mem.zeroes(c.WGPURenderPipelineDescriptor);
     desc.label = sv("stz_rpipe");
     desc.vertex.module = module;
@@ -229,9 +255,12 @@ pub fn stz_gpu_render_pipeline(text: [*]const u8, len: f64, fmt: [*]const u8, fm
     desc.vertex.bufferCount = 1;
     desc.vertex.buffers = &vbl;
     desc.primitive.topology = c.WGPUPrimitiveTopology_TriangleList;
+    desc.primitive.cullMode = if (cull) c.WGPUCullMode_Back else c.WGPUCullMode_None;
+    desc.primitive.frontFace = c.WGPUFrontFace_CCW;
     desc.multisample.count = 1;
     desc.multisample.mask = 0xFFFFFFFF;
     desc.fragment = &frag;
+    if (depth) desc.depthStencil = &ds;
     const pipeline = f.wgpuDeviceCreateRenderPipeline(gpu.deviceHandle(), &desc);
     if (pipeline == null) return 0;
     // Malformed WGSL surfaces as an uncaptured validation error on a non-null
@@ -274,6 +303,16 @@ fn releasePassBindGroups() void {
 /// given color (0..1 components). One pass at a time; draws follow; End()
 /// submits once.
 pub fn stz_gpu_render_begin(target_id: i64, r: f64, g: f64, b: f64, a: f64) callconv(.c) i32 {
+    return beginInternal(target_id, 0, r, g, b, a);
+}
+
+/// GR3: the same pass with a DEPTH buffer attached (cleared to 1.0 = far).
+/// depth_id must be a TEX_DEPTH texture of the target's size.
+pub fn stz_gpu_render_begin3d(target_id: i64, depth_id: i64, r: f64, g: f64, b: f64, a: f64) callconv(.c) i32 {
+    return beginInternal(target_id, depth_id, r, g, b, a);
+}
+
+fn beginInternal(target_id: i64, depth_id: i64, r: f64, g: f64, b: f64, a: f64) i32 {
     ensureRegistered();
     if (!gpu.isAvail()) {
         gpu.countFallback();
@@ -282,6 +321,13 @@ pub fn stz_gpu_render_begin(target_id: i64, r: f64, g: f64, b: f64, a: f64) call
     if (g_pass_open) return gpu.BAD_ARG;
     const t = gpu.rawTexture(target_id) orelse return gpu.STALE;
     if (t.kind != gpu.TEX_TARGET) return gpu.BAD_ARG;
+    var depth_view: c.WGPUTextureView = null;
+    if (depth_id != 0) {
+        const d = gpu.rawTexture(depth_id) orelse return gpu.STALE;
+        if (d.kind != gpu.TEX_DEPTH) return gpu.BAD_ARG;
+        if (d.w != t.w or d.h != t.h) return gpu.BAD_ARG; // must match the target
+        depth_view = d.view;
+    }
     const f = gpu.wfns();
 
     g_pass_enc = f.wgpuDeviceCreateCommandEncoder(gpu.deviceHandle(), null);
@@ -295,6 +341,16 @@ pub fn stz_gpu_render_begin(target_id: i64, r: f64, g: f64, b: f64, a: f64) call
     var rp = std.mem.zeroes(c.WGPURenderPassDescriptor);
     rp.colorAttachmentCount = 1;
     rp.colorAttachments = &att;
+    var dsa = std.mem.zeroes(c.WGPURenderPassDepthStencilAttachment);
+    if (depth_view != null) {
+        dsa.view = depth_view;
+        dsa.depthLoadOp = c.WGPULoadOp_Clear;
+        dsa.depthStoreOp = c.WGPUStoreOp_Store;
+        dsa.depthClearValue = 1.0; // the far plane: everything is nearer
+        // Depth32Float carries no stencil aspect; leaving stencil ops
+        // Undefined is correct, and setting them would be an error.
+        rp.depthStencilAttachment = &dsa;
+    }
     g_pass = f.wgpuCommandEncoderBeginRenderPass(g_pass_enc, &rp);
     if (g_pass == null) {
         f.wgpuCommandEncoderRelease(g_pass_enc);
@@ -303,6 +359,61 @@ pub fn stz_gpu_render_begin(target_id: i64, r: f64, g: f64, b: f64, a: f64) call
     }
     g_pass_nbg = 0;
     g_pass_open = true;
+    return gpu.OK;
+}
+
+/// GR3: an INSTANCED indexed draw whose group(0) bindings come from
+/// ordinary lifecycle buffers (bindings 0..n-1, in the given order).
+///
+/// This is what the 3D layer needs and the 2D layer never did: a frame
+/// uniform and a per-instance transform array, both readable by the vertex
+/// stage. They are STORAGE buffers rather than uniforms so that the
+/// lifecycle's existing buffer usage covers them -- no change to what a
+/// buffer IS, only to what a draw may bind. The 2D entry points are
+/// untouched.
+/// `first_instance` shifts @builtin(instance_index) so a group of instances
+/// living partway into a shared array draws exactly its own slice -- without
+/// it, every group after the first would redraw the earlier instances with
+/// the wrong geometry.
+pub fn stz_gpu_render_draw_bound(pipe: i64, vbuf: i64, ibuf: i64, nindices: f64, ninstances: f64, first_instance: f64, buf_ids: [*]const i64, nbufs: i32) callconv(.c) i32 {
+    if (!gpu.isAvail()) {
+        gpu.countFallback();
+        return gpu.FALLBACK;
+    }
+    if (!g_pass_open) return gpu.BAD_ARG;
+    if (nindices < 1 or ninstances < 1 or first_instance < 0) return gpu.BAD_ARG;
+    if (nbufs < 1 or nbufs > 6) return gpu.BAD_ARG;
+    if (pipe <= 0 or pipe > rpipes.items.len) return gpu.BAD_ARG;
+    if (g_pass_nbg == PASS_MAX_BG) return gpu.BAD_ARG;
+    const rp = rpipes.items[@intCast(pipe - 1)];
+    const vb = gpu.rawBuffer(vbuf) orelse return gpu.STALE;
+    const ib = gpu.rawBuffer(ibuf) orelse return gpu.STALE;
+    const f = gpu.wfns();
+
+    var entries: [6]c.WGPUBindGroupEntry = undefined;
+    const nb: usize = @intCast(nbufs);
+    for (0..nb) |i| {
+        const b = gpu.rawBuffer(buf_ids[i]) orelse return gpu.STALE;
+        entries[i] = std.mem.zeroes(c.WGPUBindGroupEntry);
+        entries[i].binding = @intCast(i);
+        entries[i].buffer = b;
+        entries[i].size = gpu.rawBufferSize(buf_ids[i]);
+    }
+    var bgd = std.mem.zeroes(c.WGPUBindGroupDescriptor);
+    bgd.layout = rp.layout;
+    bgd.entryCount = nb;
+    bgd.entries = &entries;
+    const bg = f.wgpuDeviceCreateBindGroup(gpu.deviceHandle(), &bgd);
+    if (bg == null) return gpu.GPU_ERROR;
+
+    f.wgpuRenderPassEncoderSetPipeline(g_pass, rp.pipeline);
+    f.wgpuRenderPassEncoderSetBindGroup(g_pass, 0, bg, 0, null);
+    f.wgpuRenderPassEncoderSetVertexBuffer(g_pass, 0, vb, 0, gpu.rawBufferSize(vbuf));
+    f.wgpuRenderPassEncoderSetIndexBuffer(g_pass, ib, c.WGPUIndexFormat_Uint32, 0, gpu.rawBufferSize(ibuf));
+    f.wgpuRenderPassEncoderDrawIndexed(g_pass, @intFromFloat(nindices), @intFromFloat(ninstances), 0, 0, @intFromFloat(first_instance));
+    g_pass_bgs[g_pass_nbg] = bg;
+    g_pass_nbg += 1;
+    gpu.bumpCounter(gpu.CTR_DRAW_COUNT, 1);
     return gpu.OK;
 }
 

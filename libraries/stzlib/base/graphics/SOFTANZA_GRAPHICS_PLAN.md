@@ -789,3 +789,97 @@ target, one forward-lit pipeline, instancing), with shadows/PBR/skeletal
 animation explicitly OUT until a workload asks. The §3b doors GR3 must
 keep open: an EXTENSIBLE vertex format and transform state SEPARATE from
 render state.
+
+---
+
+## GR3 STATUS — shipped 2026-08-09: the 3D layer
+
+Guard: `base/test/gpu/gpu_scene3d_narrated.ring` — **46 asserts green**
+(mesh building, OBJ parsing and every refusal run with NO device; only
+the rendering scenes gate on a GPU). Plus **16 Zig unit tests** where
+exactness is available: `gpu_math.zig` (9) and `gpu_mesh.zig` (7). Every
+reachable suite re-swept: scene 69, render lifecycle 74, text 41,
+lifecycle 62, ops 37, seams 17, neural backbone 14 — **360 assertions
+green**.
+
+**The math is asserted analytically, not by eye** (`src/gpu_math.zig`).
+f32 vec/mat4/quaternion/transform/camera, column-major to match WGSL so
+a matrix is memcpy'd into a buffer and used as-is — and DELIBERATELY
+apart from the f64 solver tier, whose bit-stability is contractual. The
+identities the tests pin: lookAt sends the eye to the origin and
+preserves the eye→target distance; perspective maps −near to 0 and −far
+to 1 (WebGPU's depth range, not OpenGL's); quaternion composition equals
+matrix composition; a rotation preserves length and orthogonality; a
+direction transform ignores translation where a point transform does
+not; and **the normal matrix keeps normals perpendicular under
+non-uniform scale — with the naive "just use the model matrix" choice
+asserted to FAIL as its negative sibling**. A picture can look plausible
+with a subtly wrong matrix; these cannot.
+
+**Meshes describe themselves, and the vertex format is DERIVED**
+(`src/gpu_mesh.zig`). A mesh carries an attribute descriptor; the
+pipeline's format string ("3,3,2") comes FROM it. That is §3b door 3
+taken concretely rather than promised: the guard builds a 4-attribute
+mesh (position/normal/uv/colour) today, it gets its own pipeline
+variant, and **not one line of the render layer knows what the new
+attribute means**. Cube (24 vertices, not 8 — a shared corner cannot
+carry three normals), UV sphere, plane, and an OBJ loader that dedupes
+by the (v, vt, vn) TRIPLE, fans polygon faces, resolves NEGATIVE
+indices, and generates normals when a file has none rather than
+shipping black geometry. An out-of-range index is a refusal, not a
+crash later.
+
+**Depth, instancing, and the transform door** (`src/gpu_scene3d.zig`):
+- **Depth decides, not painter order** — the guard renders a near cube
+  and a far one, submits the FAR one last, and the near one still owns
+  the centre pixel; then reverses the submission order and asserts the
+  image is byte-identical. If both orders give the same picture,
+  ordering is provably not what decided it.
+- **One draw call per MESH, not per object**: 5 instances of a cube =
+  1 draw; adding 2 spheres = 2 draws for 7 objects. Instances of a mesh
+  are contiguous in the shared buffer and `firstInstance` shifts
+  `@builtin(instance_index)` onto each group's slice — without which
+  every group after the first would redraw the earlier instances with
+  the wrong geometry (found and fixed while writing it, not after).
+- **§3b door 4, witnessed by counters**: moving an instance re-uploads
+  transforms (`transform_uploads` +1) and does NOT re-upload geometry
+  (`geometry_uploads` unchanged), while the picture demonstrably
+  changes. A simulation can drive the scene without knowing rendering
+  exists.
+- **Lighting is shading, and the black light proves it**: with a white
+  directional light the cube's faces span 40..255; with the light set to
+  BLACK every visible face collapses to exactly the ambient value
+  (40..40). Had the faces still differed, the "shading" would have been
+  coming from somewhere else.
+
+**Lifecycle additions were strictly ADDITIVE** — the 2D surface that
+shipped keeps its exact signatures and all its guards pass unchanged.
+New: `TEX_DEPTH` (Depth32Float) as a fourth texture kind in the same
+gen-keyed table and VRAM budget; `render_pipeline3d` (depth test + back-
+face culling) as a SEPARATE entry point rather than a widened one;
+`render_begin3d` attaching a depth buffer that must match the target's
+size; and `render_draw_bound`, an instanced indexed draw whose group(0)
+bindings are ordinary lifecycle buffers — storage rather than uniform,
+so the buffer usage that shipped in G1 already covers them. The sentinel
+trap this phase contributed to the ledger: **`WGPUOptionalBool_False ==
+0`, so a zeroed depth-stencil state silently disables depth writes** —
+the buffer would exist, be cleared, and never be written.
+`depthWriteEnabled` is set explicitly for exactly that reason.
+
+Scope kept, per the plan: **NO shadows, NO PBR, NO skeletal animation.**
+Each is a later, workload-justified increment — G6's law applied to our
+own roadmap. Skeletal animation's door is the extensible vertex format,
+and it is open and load-tested.
+
+Cross-compile: gpu_math.zig, gpu_mesh.zig and gpu_scene3d.zig build-obj
+clean for x86_64-linux-gnu and aarch64-macos.
+
+Visual proof: 29 instances across 3 meshes (a ground plane, a 5×5 field
+of cubes, three spheres) → **3 draw calls, 3 geometry uploads, one
+depth-tested pass**.
+
+Next: **GR4** — the declarative faces (stzCanvas / stzScene / stzMesh /
+stzMaterialMaker in base/graphics/) on the house conventions: the Q
+convention, the maker pattern, Show/Content, and W-string → WGSL
+fragments through the EXISTING transpiler, with narrated suites that run
+for real and a measured ToSVG/ToPNG parity band.
