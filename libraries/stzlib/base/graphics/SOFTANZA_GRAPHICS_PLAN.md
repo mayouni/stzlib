@@ -1082,3 +1082,60 @@ a loop WITH INPUT from the start per §3b door 5), where challenge gaps 2
 and 3 (sampled render targets, compute+render in one submit) pay for
 themselves; or **GR6** — the convergence dividend, which needs nothing
 new and is where existing plots and diagrams gain real image output.
+
+---
+
+## GR6a STATUS — shipped 2026-08-09: plots gained pixels
+
+The first island joins the plane. `base/graphics/stzPlotCanvas.ring`
+renders a plot's model onto an stzCanvas, and the bar family gained
+`ToCanvasQ()` / `ToSVG()` / `ToPNG()` — inherited by every subclass, so
+`stzVBarChart`, `stzBarChart`, `stzVBarPlot` and `stzHBarPlot` all got
+them from one edit. Guard:
+`base/test/graphics/plot_backends_narrated.ring` — **29 asserts green,
+every one of them deviceless**. The pre-existing plot suites stay green
+(chart subclasses 16, engine parity 107), which is the point: a
+convergence that changed the old output would be a regression, not a
+dividend.
+
+    oPlot = StzPlotQ(:VBar, [ :Jan = 34, :Feb = 58, :Mar = 47 ])
+    oPlot.Show()                                   # the terminal picture, as ever
+    oPlot.ToPNG("sales.png", [ :Font = oFont, :Title = "Sales" ])
+    oPlot.ToSVG([ :Font = oFont ])                 # no GPU needed
+
+**What is shared is the MODEL, not the layout** — and that distinction is
+the whole design. A character grid and a pixel canvas have no common
+layout to share: tick spacing in rows is not tick spacing in pixels, and
+a bar three characters wide is not a bar thirty-four pixels wide. What
+must never diverge is the MEANING, so the values, the labels and the
+semantic flags are read from the plot object once. The guard asserts
+that directly: a plot told `AddAverage()` gets an average line in its
+SVG, a plot not told gets none, and an explicit option still overrides
+the object — the intent travels without being restated.
+
+`stzHBarPlot` differs from `stzVBarPlot` by **one method**, `PlotKind()`.
+That is the test of whether the seam was cut in the right place.
+
+Decisions worth recording:
+- **Axis ticks are rounded to nice numbers** (1/2/2.5/5 × a power of ten):
+  0/20/40/60/80/100 rather than 0/17.6/35.2/52.8. An axis a reader has to
+  decode is an axis that failed. Asserted on the arithmetic, not on
+  pixels, so it cannot pass by coincidence.
+- **A plot without a font still draws** — bars, axes, gridlines — and
+  simply carries no text. A legible chart beats a refusal, and the guard
+  pins both halves.
+- Two Ring structure traps collected, both of which fail SILENTLY:
+  a multi-line function SIGNATURE is not parsed (it made stzBase.ring die
+  at load with no message at all), and a class's attributes must ALL
+  precede its first method — inserting `PlotKind()` at the top of
+  stzHBarPlot turned every declaration below it into dead code, surfacing
+  much later as "uninitialized @nBarHeight".
+
+Remaining in GR6: the **diagram family** and **dataviz**. An honest note
+on scope, discovered here: the diagram family reaches SVG through an
+external `dot.exe`, so giving it PNG would mean RASTERIZING that SVG —
+and this plane has no SVG parser. The tractable path is the one the plan
+already named: compute simple non-graph layouts (an org chart's tree)
+ourselves and draw them with stzCanvas, so they stop needing dot at all,
+while true graph layout keeps shelling out. That is GR6b, and it is a
+layout problem, not a rendering one.

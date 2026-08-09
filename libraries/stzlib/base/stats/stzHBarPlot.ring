@@ -44,6 +44,14 @@ class stzHBarPlot from stzBarPlot
 
 	# Override configuration methods for horizontal orientation
 
+	# The pixel backends (GR6) are inherited whole; only the ORIENTATION
+	# differs, and saying so here is the entire override. Placed AFTER the
+	# attribute block on purpose: in Ring, a class's attributes must all
+	# precede its first method, and putting this at the top of the class
+	# quietly turned every declaration below it into dead code.
+	def PlotKind()
+		return :HBar
+
 	def SetSize(nWidth, nHeight)
 		@nWidth = max([20, nWidth])
 		@nHeight = max([4, nHeight])

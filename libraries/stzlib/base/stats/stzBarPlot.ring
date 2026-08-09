@@ -814,6 +814,39 @@ class stzBarPlot from stzObject
 	def Show()
 		? ToString()
 
+	# --- The pixel backends (GR6, SOFTANZA_GRAPHICS_PLAN.md) ---
+	#
+	# The SAME plot model -- these values, these labels, and the semantic
+	# options below -- rendered onto an stzCanvas instead of a codepoint
+	# canvas. ToSVG() needs no GPU; ToPNG() draws through one. The terminal
+	# picture is untouched: Show() still does exactly what it always did.
+	#
+	#     oPlot.ToPNG("sales.png", [ :Font = oFont, :Title = "Sales" ])
+	#
+	# Options ride through to stzPlotCanvas: :Width :Height :Title :Font
+	# :Color :Background :Grid :ShowValues :ShowAverage :Min :Max
+
+	def PlotKind()
+		return :VBar
+
+	def ToCanvasQ(paOptions)
+		_a_ = paOptions
+		if NOT isList(_a_)  _a_ = []  ok
+		# the model's own display intent travels with it, unless overridden
+		if isNull(_BindingValue(_a_, "showvalues"))
+			_a_ + [ :ShowValues, @bShowValues ]
+		ok
+		if isNull(_BindingValue(_a_, "showaverage"))
+			_a_ + [ :ShowAverage, @bShowAverage ]
+		ok
+		return StzPlotCanvasQ(This.PlotKind(), @anValues, @acLabels, _a_)
+
+	def ToSVG(paOptions)
+		return This.ToCanvasQ(paOptions).ToSVG()
+
+	def ToPNG(pcPath, paOptions)
+		return This.ToCanvasQ(paOptions).ToPNG(pcPath)
+
 	# --- Accessors ---
 
 	def Values()
