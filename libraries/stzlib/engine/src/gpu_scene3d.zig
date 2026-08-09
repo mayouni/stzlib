@@ -1,0 +1,549 @@
+//! The 3D scene -- GR3 of SOFTANZA_GRAPHICS_PLAN.md.
+//!
+//! A camera, a directional light, and a list of INSTANCES: each one a mesh,
+//! a material colour, and a transform. Rendered by ONE forward-lit pipeline
+//! (directional + ambient) into a depth-tested pass, with all instances of
+//! the same mesh drawn in a SINGLE instanced call.
+//!
+//! Two §3b doors are load-bearing here, and both are guarded rather than
+//! merely intended:
+//!
+//!   - **Transform state is SEPARATE from render state.** An instance's
+//!     transform lives in its own array and its own GPU buffer. Moving
+//!     something re-uploads 128 bytes of matrices; it does not touch the
+//!     mesh, its vertex buffer, its material or its pipeline. That is what
+//!     lets a physics or animation step drive a scene without knowing what
+//!     rendering is, and `geometry_uploads` exists so a guard can PROVE the
+//!     geometry stayed put.
+//!   - **The vertex format is derived from the mesh's attributes**, so a
+//!     mesh carrying extra attributes gets its own pipeline variant with no
+//!     change to this file's contract.
+//!
+//! Scope, per the plan and kept honestly: NO shadows, NO PBR, NO skeletal
+//! animation. Each is a later, workload-justified increment -- the G6 law
+//! applied to our own roadmap.
+//!
+//! Binding contract for the 3D pipeline (group 0):
+//!   @binding(0) storage read Frame     { viewProj, lightDir, lightColor, ambient }
+//!   @binding(1) storage read Instances { array<Instance{ model, normalMat, color }> }
+//! Both are ordinary lifecycle buffers -- storage rather than uniform so
+//! the buffer usage that shipped in G1 already covers them.
+
+const std = @import("std");
+const gpu = @import("gpu.zig");
+const render = @import("gpu_render.zig");
+const mesh = @import("gpu_mesh.zig");
+const gm = @import("gpu_math.zig");
+
+const alloc = std.heap.c_allocator;
+
+pub const OK: i32 = 0;
+pub const STALE: i32 = 2;
+pub const BAD_ARG: i32 = 3;
+
+// ---------------------------------------------------------------- WGSL
+
+const WGSL_FORWARD =
+    \\struct Frame {
+    \\  viewProj: mat4x4<f32>,
+    \\  lightDir: vec4<f32>,
+    \\  lightColor: vec4<f32>,
+    \\  ambient: vec4<f32>,
+    \\}
+    \\struct Instance {
+    \\  model: mat4x4<f32>,
+    \\  normalMat: mat4x4<f32>,
+    \\  color: vec4<f32>,
+    \\}
+    \\@group(0) @binding(0) var<storage, read> frame: Frame;
+    \\@group(0) @binding(1) var<storage, read> instances: array<Instance>;
+    \\
+    \\struct VSOut {
+    \\  @builtin(position) pos: vec4<f32>,
+    \\  @location(0) normal: vec3<f32>,
+    \\  @location(1) color: vec4<f32>,
+    \\}
+    \\
+    \\@vertex
+    \\fn vmain(@location(0) position: vec3<f32>,
+    \\         @location(1) normal: vec3<f32>,
+    \\         @location(2) uv: vec2<f32>,
+    \\         @builtin(instance_index) ii: u32) -> VSOut {
+    \\  let inst = instances[ii];
+    \\  var o: VSOut;
+    \\  o.pos = frame.viewProj * inst.model * vec4<f32>(position, 1.0);
+    \\  o.normal = normalize((inst.normalMat * vec4<f32>(normal, 0.0)).xyz);
+    \\  o.color = inst.color;
+    \\  return o;
+    \\}
+    \\
+    \\@fragment
+    \\fn fmain(in: VSOut) -> @location(0) vec4<f32> {
+    \\  let n = normalize(in.normal);
+    \\  let lambert = max(dot(n, -normalize(frame.lightDir.xyz)), 0.0);
+    \\  let lit = frame.ambient.rgb + frame.lightColor.rgb * lambert;
+    \\  return vec4<f32>(in.color.rgb * lit, in.color.a);
+    \\}
+;
+
+// The same shading for a mesh carrying an EXTRA attribute (position,
+// normal, uv, colour). Proof that the vertex-format hinge reaches all the
+// way to a working pipeline: only the attribute list and this entry point
+// differ -- the frame/instance contract is untouched.
+const WGSL_FORWARD_VCOLOR =
+    \\struct Frame {
+    \\  viewProj: mat4x4<f32>,
+    \\  lightDir: vec4<f32>,
+    \\  lightColor: vec4<f32>,
+    \\  ambient: vec4<f32>,
+    \\}
+    \\struct Instance {
+    \\  model: mat4x4<f32>,
+    \\  normalMat: mat4x4<f32>,
+    \\  color: vec4<f32>,
+    \\}
+    \\@group(0) @binding(0) var<storage, read> frame: Frame;
+    \\@group(0) @binding(1) var<storage, read> instances: array<Instance>;
+    \\
+    \\struct VSOut {
+    \\  @builtin(position) pos: vec4<f32>,
+    \\  @location(0) normal: vec3<f32>,
+    \\  @location(1) color: vec4<f32>,
+    \\}
+    \\
+    \\@vertex
+    \\fn vmain(@location(0) position: vec3<f32>,
+    \\         @location(1) normal: vec3<f32>,
+    \\         @location(2) uv: vec2<f32>,
+    \\         @location(3) vcolor: vec4<f32>,
+    \\         @builtin(instance_index) ii: u32) -> VSOut {
+    \\  let inst = instances[ii];
+    \\  var o: VSOut;
+    \\  o.pos = frame.viewProj * inst.model * vec4<f32>(position, 1.0);
+    \\  o.normal = normalize((inst.normalMat * vec4<f32>(normal, 0.0)).xyz);
+    \\  o.color = inst.color * vcolor;
+    \\  return o;
+    \\}
+    \\
+    \\@fragment
+    \\fn fmain(in: VSOut) -> @location(0) vec4<f32> {
+    \\  let n = normalize(in.normal);
+    \\  let lambert = max(dot(n, -normalize(frame.lightDir.xyz)), 0.0);
+    \\  let lit = frame.ambient.rgb + frame.lightColor.rgb * lambert;
+    \\  return vec4<f32>(in.color.rgb * lit, in.color.a);
+    \\}
+;
+
+const FRAME_FLOATS = 16 + 4 + 4 + 4; // viewProj, lightDir, lightColor, ambient
+const INSTANCE_FLOATS = 16 + 16 + 4; // model, normalMat, color
+
+// ---------------------------------------------------------------- state
+
+const Instance = struct {
+    mesh_id: i64,
+    transform: gm.Transform, // TRANSFORM STATE -- written by simulation
+    color: [4]f32, // RENDER STATE -- written by materials
+};
+
+/// Per-mesh GPU residency: uploaded once, reused every frame (the retained
+/// discipline the whole plane runs on).
+const MeshRes = struct {
+    mesh_id: i64,
+    vbuf: i64 = 0,
+    ibuf: i64 = 0,
+    nindices: u32 = 0,
+    pipe: i64 = 0,
+    uploaded: bool = false,
+};
+
+const Scene3d = struct {
+    w: u32 = 0,
+    h: u32 = 0,
+    clear: [4]f32 = .{ 0, 0, 0, 1 },
+    camera: gm.Camera = .{},
+    light_dir: gm.Vec3 = .{ .x = -0.4, .y = -1, .z = -0.5 },
+    light_color: [3]f32 = .{ 1, 1, 1 },
+    ambient: [3]f32 = .{ 0.15, 0.15, 0.18 },
+    instances: std.ArrayList(Instance) = .{},
+    res: std.ArrayList(MeshRes) = .{},
+    // GPU objects
+    target: i64 = 0,
+    depth: i64 = 0,
+    frame_buf: i64 = 0,
+    inst_buf: i64 = 0,
+    inst_capacity: usize = 0,
+    // witnesses
+    geometry_uploads: u64 = 0, // increments ONLY when mesh data is uploaded
+    transform_uploads: u64 = 0, // increments every frame (cheap, by design)
+    last_draw_calls: u32 = 0,
+    gen: u32 = 1,
+    live: bool = false,
+};
+
+var scenes: std.ArrayList(Scene3d) = .{};
+var hooked = false;
+
+fn ensureHooked() void {
+    if (!hooked) {
+        gpu.registerDeviceCloseHook(&forgetDeviceObjects);
+        hooked = true;
+    }
+}
+
+fn makeId(slot: usize, gen: u32) i64 {
+    return (@as(i64, gen) << 32) | @as(i64, @intCast(slot + 1));
+}
+
+fn slotOf(id: i64) ?usize {
+    const idx = id & 0xffff_ffff;
+    if (idx <= 0 or idx > @as(i64, @intCast(scenes.items.len))) return null;
+    const slot: usize = @intCast(idx - 1);
+    const gen: u32 = @intCast((id >> 32) & 0xffff_ffff);
+    if (!scenes.items[slot].live or scenes.items[slot].gen != gen) return null;
+    return slot;
+}
+
+pub fn forgetDeviceObjects() void {
+    for (scenes.items) |*s| {
+        if (!s.live) continue;
+        s.target = 0;
+        s.depth = 0;
+        s.frame_buf = 0;
+        s.inst_buf = 0;
+        s.inst_capacity = 0;
+        for (s.res.items) |*r| {
+            r.vbuf = 0;
+            r.ibuf = 0;
+            r.pipe = 0;
+            r.uploaded = false;
+        }
+    }
+}
+
+pub fn sceneNew(w: f64, h: f64) i64 {
+    ensureHooked();
+    if (w < 1 or h < 1 or w > 16384 or h > 16384) return 0;
+    var slot: usize = scenes.items.len;
+    for (scenes.items, 0..) |s, i| {
+        if (!s.live) {
+            slot = i;
+            break;
+        }
+    }
+    if (slot == scenes.items.len) scenes.append(alloc, .{}) catch return 0;
+    const s = &scenes.items[slot];
+    s.w = @intFromFloat(w);
+    s.h = @intFromFloat(h);
+    s.instances.clearRetainingCapacity();
+    s.res.clearRetainingCapacity();
+    s.camera = .{};
+    s.clear = .{ 0.05, 0.06, 0.08, 1 };
+    s.light_dir = .{ .x = -0.4, .y = -1, .z = -0.5 };
+    s.light_color = .{ 1, 1, 1 };
+    s.ambient = .{ 0.15, 0.15, 0.18 };
+    s.geometry_uploads = 0;
+    s.transform_uploads = 0;
+    s.last_draw_calls = 0;
+    s.live = true;
+    return makeId(slot, s.gen);
+}
+
+pub fn sceneFree(id: i64) i32 {
+    const slot = slotOf(id) orelse return STALE;
+    const s = &scenes.items[slot];
+    for (s.res.items) |r| {
+        if (r.vbuf != 0) _ = gpu.stz_gpu_buffer_free(r.vbuf);
+        if (r.ibuf != 0) _ = gpu.stz_gpu_buffer_free(r.ibuf);
+    }
+    s.instances.clearAndFree(alloc);
+    s.res.clearAndFree(alloc);
+    if (s.frame_buf != 0) _ = gpu.stz_gpu_buffer_free(s.frame_buf);
+    if (s.inst_buf != 0) _ = gpu.stz_gpu_buffer_free(s.inst_buf);
+    if (s.target != 0) _ = gpu.stz_gpu_texture_free(s.target);
+    if (s.depth != 0) _ = gpu.stz_gpu_texture_free(s.depth);
+    s.frame_buf = 0;
+    s.inst_buf = 0;
+    s.target = 0;
+    s.depth = 0;
+    s.live = false;
+    s.gen +%= 1;
+    return OK;
+}
+
+pub fn setClear(id: i64, r: f32, g: f32, b: f32, a: f32) i32 {
+    const slot = slotOf(id) orelse return STALE;
+    scenes.items[slot].clear = .{ r, g, b, a };
+    return OK;
+}
+
+pub fn setCamera(id: i64, eye: gm.Vec3, target: gm.Vec3, fovy_deg: f32, near: f32, far: f32) i32 {
+    const slot = slotOf(id) orelse return STALE;
+    if (near <= 0 or far <= near or fovy_deg <= 0 or fovy_deg >= 180) return BAD_ARG;
+    const s = &scenes.items[slot];
+    s.camera.eye = eye;
+    s.camera.target = target;
+    s.camera.fovy_rad = fovy_deg * std.math.pi / 180.0;
+    s.camera.near = near;
+    s.camera.far = far;
+    return OK;
+}
+
+pub fn setLight(id: i64, dir: gm.Vec3, r: f32, g: f32, b: f32, ar: f32, ag: f32, ab: f32) i32 {
+    const slot = slotOf(id) orelse return STALE;
+    const s = &scenes.items[slot];
+    s.light_dir = dir;
+    s.light_color = .{ r, g, b };
+    s.ambient = .{ ar, ag, ab };
+    return OK;
+}
+
+/// Add an instance. Returns its 1-based index (0 = refusal) -- transforms
+/// are addressed by index afterwards, which is what keeps a simulation's
+/// write path free of handles and render state.
+pub fn addInstance(id: i64, mesh_id: i64, tr: gm.Transform, color: [4]f32) f64 {
+    const slot = slotOf(id) orelse return 0;
+    if (mesh.vertexCount(mesh_id) <= 0) return 0;
+    const s = &scenes.items[slot];
+    s.instances.append(alloc, .{ .mesh_id = mesh_id, .transform = tr, .color = color }) catch return 0;
+    return @floatFromInt(s.instances.items.len);
+}
+
+/// Write ONE instance's transform. The §3b door in one function: this
+/// touches transform state and nothing else -- no mesh, no material, no
+/// pipeline, no geometry re-upload.
+pub fn setTransform(id: i64, index: usize, tr: gm.Transform) i32 {
+    const slot = slotOf(id) orelse return STALE;
+    const s = &scenes.items[slot];
+    if (index == 0 or index > s.instances.items.len) return BAD_ARG;
+    s.instances.items[index - 1].transform = tr;
+    return OK;
+}
+
+pub fn getTransform(id: i64, index: usize) ?gm.Transform {
+    const slot = slotOf(id) orelse return null;
+    const s = &scenes.items[slot];
+    if (index == 0 or index > s.instances.items.len) return null;
+    return s.instances.items[index - 1].transform;
+}
+
+pub fn setInstanceColor(id: i64, index: usize, color: [4]f32) i32 {
+    const slot = slotOf(id) orelse return STALE;
+    const s = &scenes.items[slot];
+    if (index == 0 or index > s.instances.items.len) return BAD_ARG;
+    s.instances.items[index - 1].color = color;
+    return OK;
+}
+
+pub fn instanceCount(id: i64) f64 {
+    const slot = slotOf(id) orelse return -1;
+    return @floatFromInt(scenes.items[slot].instances.items.len);
+}
+
+/// [instances, meshes resident, draw calls last render, geometry uploads,
+///  transform uploads]
+pub fn stats(id: i64) ?[5]f64 {
+    const slot = slotOf(id) orelse return null;
+    const s = &scenes.items[slot];
+    return .{
+        @floatFromInt(s.instances.items.len),
+        @floatFromInt(s.res.items.len),
+        @floatFromInt(s.last_draw_calls),
+        @floatFromInt(s.geometry_uploads),
+        @floatFromInt(s.transform_uploads),
+    };
+}
+
+// ---------------------------------------------------------------- render
+
+fn ensureBuffer(cur: i64, bytes: usize) i64 {
+    var id = cur;
+    if (id != 0) {
+        const sz = gpu.stz_gpu_buffer_size(id);
+        if (sz < 0) {
+            id = 0;
+        } else if (@as(usize, @intFromFloat(sz)) < bytes) {
+            _ = gpu.stz_gpu_buffer_free(id);
+            id = 0;
+        }
+    }
+    if (id == 0) id = gpu.stz_gpu_buffer_new(@floatFromInt(bytes));
+    return id;
+}
+
+/// Upload a mesh ONCE and keep it; returns its INDEX in s.res (not a
+/// pointer -- appending to that list can move it, and a dangling *MeshRes
+/// is the kind of bug that only shows up once a scene has two meshes).
+/// The pipeline is chosen by the mesh's own attribute layout, which is how
+/// an extended vertex format reaches the GPU without this function ever
+/// learning what the new attribute means.
+fn residencyFor(s: *Scene3d, mesh_id: i64) ?usize {
+    for (s.res.items, 0..) |r, i| {
+        if (r.mesh_id == mesh_id and r.uploaded) return i;
+    }
+    const verts = mesh.vertexData(mesh_id) orelse return null;
+    const idx = mesh.indexData(mesh_id) orelse return null;
+    if (verts.len == 0 or idx.len == 0) return null;
+
+    var fmt_buf: [32]u8 = undefined;
+    const fmt = mesh.formatString(mesh_id, &fmt_buf) orelse return null;
+    const wgsl = if (mesh.attrCount(mesh_id) >= 4) WGSL_FORWARD_VCOLOR else WGSL_FORWARD;
+    const pipe = render.stz_gpu_render_pipeline3d(wgsl.ptr, @floatFromInt(wgsl.len), fmt.ptr, @floatFromInt(fmt.len), 0, 1);
+    if (pipe == 0) return null;
+
+    var ri: ?usize = null;
+    for (s.res.items, 0..) |r, i| {
+        if (r.mesh_id == mesh_id) ri = i;
+    }
+    if (ri == null) {
+        s.res.append(alloc, .{ .mesh_id = mesh_id }) catch return null;
+        ri = s.res.items.len - 1;
+    }
+    const r = &s.res.items[ri.?];
+    const vbytes = verts.len * 4;
+    const ibytes = idx.len * 4;
+    r.vbuf = ensureBuffer(r.vbuf, vbytes);
+    r.ibuf = ensureBuffer(r.ibuf, ibytes);
+    if (r.vbuf == 0 or r.ibuf == 0) return null;
+    if (gpu.stz_gpu_buffer_write(r.vbuf, @ptrCast(verts.ptr), @floatFromInt(vbytes)) != gpu.OK) return null;
+    if (gpu.stz_gpu_buffer_write(r.ibuf, @ptrCast(idx.ptr), @floatFromInt(ibytes)) != gpu.OK) return null;
+    r.nindices = @intCast(idx.len);
+    r.pipe = pipe;
+    r.uploaded = true;
+    s.geometry_uploads += 1;
+    return ri.?;
+}
+
+fn renderToTarget(s: *Scene3d) !bool {
+    if (gpu.stz_gpu_is_available() == 0) {
+        gpu.countFallback();
+        return false;
+    }
+    if (s.instances.items.len == 0) return false;
+
+    if (s.target != 0 and gpu.stz_gpu_texture_width(s.target) < 0) s.target = 0;
+    if (s.target == 0) {
+        s.target = gpu.stz_gpu_texture_new(@floatFromInt(s.w), @floatFromInt(s.h), @floatFromInt(gpu.TEX_TARGET));
+        if (s.target == 0) return false;
+    }
+    if (s.depth != 0 and gpu.stz_gpu_texture_width(s.depth) < 0) s.depth = 0;
+    if (s.depth == 0) {
+        s.depth = gpu.stz_gpu_texture_new(@floatFromInt(s.w), @floatFromInt(s.h), @floatFromInt(gpu.TEX_DEPTH));
+        if (s.depth == 0) return false;
+    }
+
+    // frame constants
+    const aspect = @as(f32, @floatFromInt(s.w)) / @as(f32, @floatFromInt(s.h));
+    const vp = s.camera.viewProjection(aspect);
+    var frame: [FRAME_FLOATS]f32 = @splat(0);
+    @memcpy(frame[0..16], &vp.m);
+    const ld = s.light_dir.normalize();
+    frame[16] = ld.x;
+    frame[17] = ld.y;
+    frame[18] = ld.z;
+    frame[19] = 0;
+    frame[20] = s.light_color[0];
+    frame[21] = s.light_color[1];
+    frame[22] = s.light_color[2];
+    frame[23] = 1;
+    frame[24] = s.ambient[0];
+    frame[25] = s.ambient[1];
+    frame[26] = s.ambient[2];
+    frame[27] = 1;
+    s.frame_buf = ensureBuffer(s.frame_buf, FRAME_FLOATS * 4);
+    if (s.frame_buf == 0) return false;
+    if (gpu.stz_gpu_buffer_write(s.frame_buf, @ptrCast(&frame), FRAME_FLOATS * 4) != gpu.OK) return false;
+
+    // Instances are ordered by mesh so each mesh draws in ONE instanced
+    // call; the per-instance data is the ONLY thing rebuilt per frame.
+    var order: std.ArrayList(usize) = .{};
+    defer order.deinit(alloc);
+    var groups: std.ArrayList(struct { res_index: usize, first: u32, count: u32 }) = .{};
+    defer groups.deinit(alloc);
+
+    var seen: std.ArrayList(i64) = .{};
+    defer seen.deinit(alloc);
+    for (s.instances.items) |inst| {
+        var known = false;
+        for (seen.items) |m| {
+            if (m == inst.mesh_id) known = true;
+        }
+        if (!known) try seen.append(alloc, inst.mesh_id);
+    }
+    for (seen.items) |mid| {
+        const ri = residencyFor(s, mid) orelse continue;
+        const first: u32 = @intCast(order.items.len);
+        for (s.instances.items, 0..) |inst, i| {
+            if (inst.mesh_id == mid) try order.append(alloc, i);
+        }
+        const count: u32 = @as(u32, @intCast(order.items.len)) - first;
+        if (count > 0) try groups.append(alloc, .{ .res_index = ri, .first = first, .count = count });
+    }
+    if (order.items.len == 0) return false;
+
+    const idata = try alloc.alloc(f32, order.items.len * INSTANCE_FLOATS);
+    defer alloc.free(idata);
+    for (order.items, 0..) |src_i, dst_i| {
+        const inst = s.instances.items[src_i];
+        const model = inst.transform.toMat4();
+        const nrm = gm.Mat4.normalMatrix(model);
+        const base = dst_i * INSTANCE_FLOATS;
+        @memcpy(idata[base .. base + 16], &model.m);
+        @memcpy(idata[base + 16 .. base + 32], &nrm.m);
+        idata[base + 32] = inst.color[0];
+        idata[base + 33] = inst.color[1];
+        idata[base + 34] = inst.color[2];
+        idata[base + 35] = inst.color[3];
+    }
+    const ibytes = idata.len * 4;
+    s.inst_buf = ensureBuffer(s.inst_buf, ibytes);
+    if (s.inst_buf == 0) return false;
+    if (gpu.stz_gpu_buffer_write(s.inst_buf, @ptrCast(idata.ptr), @floatFromInt(ibytes)) != gpu.OK) return false;
+    s.transform_uploads += 1;
+
+    if (render.stz_gpu_render_begin3d(s.target, s.depth, s.clear[0], s.clear[1], s.clear[2], s.clear[3]) != gpu.OK) return false;
+    var draws: u32 = 0;
+    const bufs = [_]i64{ s.frame_buf, s.inst_buf };
+    for (groups.items) |g| {
+        // Instances of one mesh are CONTIGUOUS in the buffer (it was built
+        // in group order), so each mesh is ONE instanced draw. firstInstance
+        // shifts @builtin(instance_index) onto this group's slice -- which
+        // is what makes "one draw per mesh, whatever the scene" true rather
+        // than aspirational.
+        const r = s.res.items[g.res_index];
+        if (render.stz_gpu_render_draw_bound(
+            r.pipe,
+            r.vbuf,
+            r.ibuf,
+            @floatFromInt(r.nindices),
+            @floatFromInt(g.count),
+            @floatFromInt(g.first),
+            &bufs,
+            2,
+        ) == gpu.OK) draws += 1;
+    }
+    if (render.stz_gpu_render_end() != gpu.OK) return false;
+    s.last_draw_calls = draws;
+    return true;
+}
+
+pub fn sceneToPixels(id: i64) !?[]u8 {
+    const slot = slotOf(id) orelse return null;
+    const s = &scenes.items[slot];
+    if (!try renderToTarget(s)) return null;
+    const npix = @as(usize, s.w) * s.h * 4;
+    const out = try alloc.alloc(u8, npix);
+    errdefer alloc.free(out);
+    if (render.stz_gpu_target_read(s.target, out.ptr, @floatFromInt(npix)) != gpu.OK) {
+        alloc.free(out);
+        return null;
+    }
+    return out;
+}
+
+pub fn sceneToPng(id: i64, level: i32) !?[]u8 {
+    const px = try sceneToPixels(id) orelse return null;
+    defer alloc.free(px);
+    const slot = slotOf(id) orelse return null;
+    const s = &scenes.items[slot];
+    return try render.pngEncode(s.w, s.h, px, level);
+}

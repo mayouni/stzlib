@@ -12,6 +12,9 @@ const render = @import("gpu_render.zig");
 const gtext = @import("gpu_text.zig");
 const scene = @import("gpu_scene.zig");
 const atlas = @import("gpu_atlas.zig");
+const gmesh = @import("gpu_mesh.zig");
+const s3d = @import("gpu_scene3d.zig");
+const gm = @import("gpu_math.zig");
 const R = @import("ring_api.zig");
 
 const gn = R.ring_vm_api_getnumber;
@@ -777,6 +780,236 @@ fn ring_CircleSegments(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(scene.circleSegments(gn(p, 1))));
 }
 
+// ---------------- GR3 meshes and the 3D scene
+
+fn ring_MeshCube(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gmesh.buildCube(@floatCast(gn(p, 1)))));
+}
+
+fn ring_MeshSphere(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gmesh.buildSphere(@floatCast(gn(p, 1)), @intFromFloat(gn(p, 2)), @intFromFloat(gn(p, 3)))));
+}
+
+fn ring_MeshPlane(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gmesh.buildPlane(@floatCast(gn(p, 1)))));
+}
+
+fn ring_MeshFromObj(p: *anyopaque) callconv(.c) void {
+    const src = getStr(p, 1);
+    rn(p, @floatFromInt(gmesh.loadObj(src)));
+}
+
+// MeshCustom(aComps, aVerts, aIndices) -> id. The §3b hinge from Ring:
+// any attribute layout, and everything downstream adapts.
+fn ring_MeshCustom(p: *anyopaque) callconv(.c) void {
+    const comps_l = R.gl(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    const nc: usize = @intCast(R.ringListSize(comps_l));
+    if (nc == 0 or nc > gmesh.MAX_ATTRS) {
+        rn(p, 0);
+        return;
+    }
+    var comps: [gmesh.MAX_ATTRS]u8 = undefined;
+    for (0..nc) |i| {
+        const item = R.ring_list_getitem_gc(null, comps_l, @intCast(i + 1)) orelse {
+            rn(p, 0);
+            return;
+        };
+        comps[i] = @intFromFloat(R.ring_item_getnumber(item));
+    }
+    const verts = flatPoints(p, 2) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(verts);
+    const idxs = flatPoints(p, 3) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(idxs);
+    const vf = allocator.alloc(f32, verts.len) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(vf);
+    for (verts, 0..) |v, i| vf[i] = @floatCast(v);
+    const iu = allocator.alloc(u32, idxs.len) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(iu);
+    for (idxs, 0..) |v, i| iu[i] = @intFromFloat(v);
+    rn(p, @floatFromInt(gmesh.buildCustom(comps[0..nc], vf, iu)));
+}
+
+fn ring_MeshFree(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gmesh.meshFree(@intFromFloat(gn(p, 1)))));
+}
+
+// MeshStats(id) -> [vertices, indices, attributes, strideFloats, cFormat]
+fn ring_MeshStats(p: *anyopaque) callconv(.c) void {
+    const id: i64 = @intFromFloat(gn(p, 1));
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const nv = gmesh.vertexCount(id);
+    if (nv < 0) {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    }
+    R.ring_list_adddouble(out, nv);
+    R.ring_list_adddouble(out, gmesh.indexCount(id));
+    R.ring_list_adddouble(out, gmesh.attrCount(id));
+    R.ring_list_adddouble(out, gmesh.strideFloats(id));
+    var fbuf: [32]u8 = undefined;
+    if (gmesh.formatString(id, &fbuf)) |f| {
+        R.ring_list_addstring2(out, f.ptr, @intCast(f.len));
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn vec3At(p: *anyopaque, n: c_int) gm.Vec3 {
+    return .{ .x = @floatCast(gn(p, n)), .y = @floatCast(gn(p, n + 1)), .z = @floatCast(gn(p, n + 2)) };
+}
+
+fn ring_Scene3dNew(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(s3d.sceneNew(gn(p, 1), gn(p, 2))));
+}
+
+fn ring_Scene3dFree(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(s3d.sceneFree(@intFromFloat(gn(p, 1)))));
+}
+
+fn ring_Scene3dClear(p: *anyopaque) callconv(.c) void {
+    const col = packedColor(p, 2);
+    rn(p, @floatFromInt(s3d.setClear(
+        @intFromFloat(gn(p, 1)),
+        @as(f32, @floatFromInt((col >> 24) & 0xff)) / 255.0,
+        @as(f32, @floatFromInt((col >> 16) & 0xff)) / 255.0,
+        @as(f32, @floatFromInt((col >> 8) & 0xff)) / 255.0,
+        @as(f32, @floatFromInt(col & 0xff)) / 255.0,
+    )));
+}
+
+// Scene3dCamera(id, ex,ey,ez, tx,ty,tz, fovDeg, near, far)
+fn ring_Scene3dCamera(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(s3d.setCamera(
+        @intFromFloat(gn(p, 1)),
+        vec3At(p, 2),
+        vec3At(p, 5),
+        @floatCast(gn(p, 8)),
+        @floatCast(gn(p, 9)),
+        @floatCast(gn(p, 10)),
+    )));
+}
+
+// Scene3dLight(id, dx,dy,dz, nRGB, nAmbientRGB)
+fn ring_Scene3dLight(p: *anyopaque) callconv(.c) void {
+    const lc = packedColor(p, 5);
+    const am = packedColor(p, 6);
+    rn(p, @floatFromInt(s3d.setLight(
+        @intFromFloat(gn(p, 1)),
+        vec3At(p, 2),
+        @as(f32, @floatFromInt((lc >> 24) & 0xff)) / 255.0,
+        @as(f32, @floatFromInt((lc >> 16) & 0xff)) / 255.0,
+        @as(f32, @floatFromInt((lc >> 8) & 0xff)) / 255.0,
+        @as(f32, @floatFromInt((am >> 24) & 0xff)) / 255.0,
+        @as(f32, @floatFromInt((am >> 16) & 0xff)) / 255.0,
+        @as(f32, @floatFromInt((am >> 8) & 0xff)) / 255.0,
+    )));
+}
+
+fn transformFrom(p: *anyopaque, base: c_int) gm.Transform {
+    var tr = gm.Transform{};
+    tr.position = vec3At(p, base);
+    const axis = vec3At(p, base + 3);
+    const angle: f32 = @floatCast(gn(p, base + 6));
+    if (axis.length() > 0 and angle != 0) {
+        tr.rotation = gm.Quat.fromAxisAngle(axis, angle * std.math.pi / 180.0);
+    }
+    const sx: f32 = @floatCast(gn(p, base + 7));
+    const sy: f32 = @floatCast(gn(p, base + 8));
+    const sz: f32 = @floatCast(gn(p, base + 9));
+    tr.scale = .{ .x = if (sx == 0) 1 else sx, .y = if (sy == 0) 1 else sy, .z = if (sz == 0) 1 else sz };
+    return tr;
+}
+
+// Scene3dAdd(id, hMesh, px,py,pz, ax,ay,az, angleDeg, sx,sy,sz, nRGBA) -> index
+fn ring_Scene3dAdd(p: *anyopaque) callconv(.c) void {
+    const col = packedColor(p, 13);
+    rn(p, s3d.addInstance(
+        @intFromFloat(gn(p, 1)),
+        @intFromFloat(gn(p, 2)),
+        transformFrom(p, 3),
+        .{
+            @as(f32, @floatFromInt((col >> 24) & 0xff)) / 255.0,
+            @as(f32, @floatFromInt((col >> 16) & 0xff)) / 255.0,
+            @as(f32, @floatFromInt((col >> 8) & 0xff)) / 255.0,
+            @as(f32, @floatFromInt(col & 0xff)) / 255.0,
+        },
+    ));
+}
+
+// Scene3dSetTransform(id, nIndex, px,py,pz, ax,ay,az, angleDeg, sx,sy,sz)
+// The §3b door from Ring: writes transform state, nothing else.
+fn ring_Scene3dSetTransform(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(s3d.setTransform(
+        @intFromFloat(gn(p, 1)),
+        @intFromFloat(gn(p, 2)),
+        transformFrom(p, 3),
+    )));
+}
+
+fn ring_Scene3dSetColor(p: *anyopaque) callconv(.c) void {
+    const col = packedColor(p, 3);
+    rn(p, @floatFromInt(s3d.setInstanceColor(
+        @intFromFloat(gn(p, 1)),
+        @intFromFloat(gn(p, 2)),
+        .{
+            @as(f32, @floatFromInt((col >> 24) & 0xff)) / 255.0,
+            @as(f32, @floatFromInt((col >> 16) & 0xff)) / 255.0,
+            @as(f32, @floatFromInt((col >> 8) & 0xff)) / 255.0,
+            @as(f32, @floatFromInt(col & 0xff)) / 255.0,
+        },
+    )));
+}
+
+// Scene3dStats(id) -> [instances, meshesResident, drawCalls, geometryUploads,
+//                      transformUploads]
+fn ring_Scene3dStats(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    if (s3d.stats(@intFromFloat(gn(p, 1)))) |st| {
+        for (st) |v| R.ring_list_adddouble(out, v);
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn ring_Scene3dToPixels(p: *anyopaque) callconv(.c) void {
+    const px = s3d.sceneToPixels(@intFromFloat(gn(p, 1))) catch {
+        R.ring_vm_api_retstring2(p, "", 0);
+        return;
+    };
+    if (px) |b| {
+        defer allocator.free(b);
+        R.ring_vm_api_retstring2(p, b.ptr, @intCast(b.len));
+    } else {
+        R.ring_vm_api_retstring2(p, "", 0);
+    }
+}
+
+fn ring_Scene3dToPng(p: *anyopaque) callconv(.c) void {
+    const png = s3d.sceneToPng(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2))) catch {
+        R.ring_vm_api_retstring2(p, "", 0);
+        return;
+    };
+    if (png) |b| {
+        defer allocator.free(b);
+        R.ring_vm_api_retstring2(p, b.ptr, @intCast(b.len));
+    } else {
+        R.ring_vm_api_retstring2(p, "", 0);
+    }
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuinit", .func = &ring_Init },
     .{ .name = "stzenginegpushutdown", .func = &ring_Shutdown },
@@ -860,6 +1093,25 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuatlasstats", .func = &ring_AtlasStats },
     .{ .name = "stzenginegpuatlasreset", .func = &ring_AtlasReset },
     .{ .name = "stzenginegpucirclesegments", .func = &ring_CircleSegments },
+    // GR3 meshes + 3D scene
+    .{ .name = "stzenginegpumeshcube", .func = &ring_MeshCube },
+    .{ .name = "stzenginegpumeshsphere", .func = &ring_MeshSphere },
+    .{ .name = "stzenginegpumeshplane", .func = &ring_MeshPlane },
+    .{ .name = "stzenginegpumeshfromobj", .func = &ring_MeshFromObj },
+    .{ .name = "stzenginegpumeshcustom", .func = &ring_MeshCustom },
+    .{ .name = "stzenginegpumeshfree", .func = &ring_MeshFree },
+    .{ .name = "stzenginegpumeshstats", .func = &ring_MeshStats },
+    .{ .name = "stzenginegpuscene3dnew", .func = &ring_Scene3dNew },
+    .{ .name = "stzenginegpuscene3dfree", .func = &ring_Scene3dFree },
+    .{ .name = "stzenginegpuscene3dclear", .func = &ring_Scene3dClear },
+    .{ .name = "stzenginegpuscene3dcamera", .func = &ring_Scene3dCamera },
+    .{ .name = "stzenginegpuscene3dlight", .func = &ring_Scene3dLight },
+    .{ .name = "stzenginegpuscene3dadd", .func = &ring_Scene3dAdd },
+    .{ .name = "stzenginegpuscene3dsettransform", .func = &ring_Scene3dSetTransform },
+    .{ .name = "stzenginegpuscene3dsetcolor", .func = &ring_Scene3dSetColor },
+    .{ .name = "stzenginegpuscene3dstats", .func = &ring_Scene3dStats },
+    .{ .name = "stzenginegpuscene3dtopixels", .func = &ring_Scene3dToPixels },
+    .{ .name = "stzenginegpuscene3dtopng", .func = &ring_Scene3dToPng },
 };
 
 pub fn registerAll(pState: *anyopaque) void {

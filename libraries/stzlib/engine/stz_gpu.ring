@@ -145,6 +145,51 @@
 #   StzEngineGpuAtlasReset()
 #       The atlas is a TEXTURE atlas, not a font atlas -- glyphs are its
 #       first tenant; sprites are the same shape.
+#
+# ---- GR3: meshes and the 3D scene ------------------------------------
+#
+# Meshes are CPU-side, gen-keyed, and describe themselves. The vertex
+# format is DERIVED from the mesh's attribute list ("3,3,2" = position,
+# normal, uv), so extending a mesh extends its pipeline -- adding skin
+# weights later is a new attribute, NOT a change to the render contract.
+# Winding is CCW for front faces (back-face culling is on for 3D).
+#   StzEngineGpuMeshCube(nSize) / MeshSphere(nR, nSegs, nRings)
+#   StzEngineGpuMeshPlane(nSize) / MeshFree(id)
+#   StzEngineGpuMeshFromObj(cObjText) -- v/vt/vn/f, faces fanned,
+#       vertices deduped by their (v,vt,vn) TRIPLE (two faces sharing a
+#       position but not a normal are two vertices -- merging them is how
+#       a hard edge goes soft); negative indices resolve; a file with no
+#       normals gets generated ones rather than black geometry
+#   StzEngineGpuMeshCustom(aComps, aVerts, aIndices) -- any layout
+#   StzEngineGpuMeshStats(id)
+#       -> [vertices, indices, attributes, strideFloats, cFormat]
+#
+# A 3D scene is a camera, a directional light and INSTANCES. An
+# instance's TRANSFORM lives apart from its mesh and material: moving
+# one re-uploads matrices and never touches geometry, which is what lets
+# a simulation drive a scene without knowing what rendering is.
+# All instances of one mesh draw in a SINGLE instanced call.
+#   StzEngineGpuScene3dNew(w, h) / Scene3dFree(id)
+#   StzEngineGpuScene3dClear(id, nRGBA)
+#   StzEngineGpuScene3dCamera(id, ex,ey,ez, tx,ty,tz, nFovDeg, nNear, nFar)
+#   StzEngineGpuScene3dLight(id, dx,dy,dz, nRGB, nAmbientRGB)
+#   StzEngineGpuScene3dAdd(id, hMesh, px,py,pz, ax,ay,az, nAngleDeg,
+#                          sx,sy,sz, nRGBA) -> instance index (0 = refusal)
+#   StzEngineGpuScene3dSetTransform(id, nIndex, px,py,pz, ax,ay,az,
+#                                   nAngleDeg, sx,sy,sz)
+#   StzEngineGpuScene3dSetColor(id, nIndex, nRGBA)
+#   StzEngineGpuScene3dStats(id)
+#       -> [instances, meshesResident, drawCalls, geometryUploads,
+#           transformUploads]
+#       geometryUploads vs transformUploads is the separation witness.
+#   StzEngineGpuScene3dToPixels(id) / Scene3dToPng(id, nLevel)
+#
+# Scope, per the plan: NO shadows, NO PBR, NO skeletal animation --
+# each is a later, workload-justified increment.
+#
+# Depth buffers join the texture table as kind 3 (TEX_DEPTH,
+# Depth32Float): never sampled, never read back; they exist so the GPU
+# can decide what is in front.
 
 if isWindows()
     $cStzGpuLib = $cEngineDir + "/zig-out/bin/stz_gpu.dll"
