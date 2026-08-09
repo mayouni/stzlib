@@ -268,11 +268,46 @@ class stzCanvas from stzObject
 	def Content()
 		return This.ToSVG()
 
-	# Hand the picture to something that can display it. The window tier
-	# arrives in GR5; until then this writes a PNG (or an SVG when there is
-	# no device) and asks the OS to open it. Returns the path written.
+	# Post the pending shape by hand. Only a caller driving its own frame
+	# loop needs this (stzWindow.Draw does it); every Add* and every output
+	# method already calls it.
+	def Flush()
+		This._Flush()
+
+	def FlushQ()
+		This._Flush()
+		return This
+
+	# Empty the display list, keeping the background and the GPU buffers.
+	# What an ANIMATED canvas calls at the top of each frame -- without it
+	# the list grows by a frame's worth of shapes forever.
+	def Clear()
+		@aPending = []
+		StzEngineGpuSceneReset(@nId)
+
+	def ClearQ()
+		This.Clear()
+		return This
+
+	# Put the picture in front of a person. A real WINDOW when this machine
+	# has one (GR5) -- Escape or the X button closes it, and the picture
+	# never touches the disk. Otherwise the old path: write a PNG (or an
+	# SVG with no device) and ask the OS to open it, which is what a
+	# headless box or a machine without stz_window.dll still deserves.
+	# Returns the frame count when it opened a window, the file path when
+	# it fell back -- so a caller can always tell which happened.
 	def Show()
 		This._Flush()
+		if StzWindowingAvailable() and StzGraphicsDevice()
+			_oW_ = new stzWindow(This.Width(), This.Height(), "Softanza Canvas")
+			if _oW_.CanDraw()
+				_n_ = _oW_.Show(This)
+				_oW_.Free()
+				return _n_
+			ok
+			_oW_.Free()
+		ok
+
 		_cPath_ = "stzcanvas_show.png"
 		_c_ = This.ToPNG(_cPath_)
 		if _c_ = ""

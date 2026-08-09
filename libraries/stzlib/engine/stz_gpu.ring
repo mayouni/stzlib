@@ -190,6 +190,60 @@
 # Depth buffers join the texture table as kind 3 (TEX_DEPTH,
 # Depth32Float): never sampled, never read back; they exist so the GPU
 # can decide what is in front.
+#
+# ---- GR5: presentation (a picture WATCHED, not saved) ----------------
+#
+# Every tier above ends in a READBACK: render offscreen, drag the pixels
+# home, encode. That is right for a file and wrong for a window, where the
+# readback is the most expensive thing in the frame. Here the swapchain's
+# own texture is ADOPTED into the texture table as an ordinary render
+# TARGET -- so the pass machine, the 2D scene and the 3D scene all draw to
+# a window through the code that already existed, and the picture never
+# crosses the bus. Measured: 120 frames of a 700x420 scene moved 6,696
+# bytes total (all of it the first frame's vertices) against 141,120,000
+# bytes for the same frames through ToPng.
+#
+# The window itself lives in stz_window.dll (see engine/stz_window.ring) --
+# GLFW cannot cross-compile, and linking it here would have cost the GPU
+# plane its portability. Only the native HANDLE crosses, which is an OS
+# handle, not a gen-keyed engine handle.
+#
+#   StzEngineGpuSurfaceNew(nHandle, nDisplay, w, h) -> id (0 = refusal)
+#       nHandle: HWND / X11 Window / NSWindow, from StzEngineWindowNativeHandle
+#       nDisplay: X11 Display*; 0 elsewhere
+#   StzEngineGpuSurfaceFree(id)
+#   StzEngineGpuSurfaceResize(id, w, h)      -- idempotent; reconfigures
+#   StzEngineGpuSurfaceSetPresentMode(id, n) -- 0 fifo (vsync), 1 immediate,
+#       2 mailbox. An unsupported mode is REFUSED rather than silently
+#       downgraded: a caller turning vsync off to MEASURE frame cost must
+#       be told when it did not get what it asked for.
+#   StzEngineGpuSurfaceAcquire(id) -> a TARGET id for this frame (0 =
+#       refusal, which a frame loop treats as "skip this frame", not as an
+#       error -- a minimised window and a display change both look like it)
+#   StzEngineGpuSurfacePresent(id)
+#       PRESENT THEN RELEASE, in that order. Dropping the frame reference
+#       before presenting leaves the swapchain unable to retire the image,
+#       and it answers Timeout from the third frame on -- forever.
+#   StzEngineGpuSurfaceFormatName(id) -> "rgba8" | "bgra8" | ...
+#   StzEngineGpuSurfaceStat(id, n)
+#       0 w  1 h  2 framesPresented  3 reconfigures  4 frameHeld
+#       5 presentMode  6 lastAcquireStatus
+#
+#   StzEngineGpuSceneDrawToTarget(hScene, hTarget, nFmt, w, h)
+#   StzEngineGpuScene3dDrawToTarget(hScene, hTarget, nFmt, w, h)
+#       Draw into a target somebody else owns. nFmt: 0 rgba8, 1 bgra8 --
+#       the render-pipeline cache is keyed by target format, because a
+#       pipeline compiled for the wrong one is a validation error rather
+#       than a wrong colour.
+#   StzEngineGpuSceneReset(hScene)
+#       Empty the display list, keep the background and the buffers. What
+#       an ANIMATED scene calls each frame; without it a frame loop appends
+#       shapes forever -- a defect a one-shot renderer cannot expose,
+#       because it only ever draws frame 1.
+#
+# SceneStats gained a sixth field, `vertexUploads`. `builds` counts
+# TESSELLATIONS; a still scene that tessellates once could still re-upload
+# its whole vertex set every frame, and did, until the window found it.
 
 if isWindows()
     $cStzGpuLib = $cEngineDir + "/zig-out/bin/stz_gpu.dll"

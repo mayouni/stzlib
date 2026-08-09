@@ -75,7 +75,11 @@ chk("document is closed", substr(cSvg, "</svg>") > 0)
 ? ""
 ? "-- Scene 2: the tessellation is real, and its curve bound is COMPUTED --"
 aSt = StzEngineGpuSceneStats(hS)
-chk("stats answer [cmds, shapeV, textV, segs, builds]", len(aSt) = 5)
+# GR5 widened this to 6: `builds` counts TESSELLATIONS, and a frame loop
+# needed to know about UPLOADS as well -- a still scene that re-tessellates
+# once can still re-upload its whole vertex set 60 times a second, which is
+# exactly what the window found it doing.
+chk("stats answer [cmds, shapeV, textV, segs, builds, uploads]", len(aSt) = 6)
 chk("3 commands", aSt[1] = 3)
 # rect 6 verts + circle 3*N + line (quad 6 + 2 discs of 3*M)
 nSegC = StzEngineGpuCircleSegments(25)

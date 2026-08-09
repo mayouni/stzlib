@@ -140,6 +140,17 @@ pub const Fns = struct {
     wgpuRenderPassEncoderEnd: *const @TypeOf(c.wgpuRenderPassEncoderEnd),
     wgpuRenderPassEncoderRelease: *const @TypeOf(c.wgpuRenderPassEncoderRelease),
     wgpuQueueWriteTexture: *const @TypeOf(c.wgpuQueueWriteTexture),
+    // GR5 presentation. Resolved with the rest: a wgpu_native that can
+    // render can also present, so a partial table is not a state worth
+    // modelling.
+    wgpuInstanceCreateSurface: *const @TypeOf(c.wgpuInstanceCreateSurface),
+    wgpuSurfaceGetCapabilities: *const @TypeOf(c.wgpuSurfaceGetCapabilities),
+    wgpuSurfaceCapabilitiesFreeMembers: *const @TypeOf(c.wgpuSurfaceCapabilitiesFreeMembers),
+    wgpuSurfaceConfigure: *const @TypeOf(c.wgpuSurfaceConfigure),
+    wgpuSurfaceUnconfigure: *const @TypeOf(c.wgpuSurfaceUnconfigure),
+    wgpuSurfaceGetCurrentTexture: *const @TypeOf(c.wgpuSurfaceGetCurrentTexture),
+    wgpuSurfacePresent: *const @TypeOf(c.wgpuSurfacePresent),
+    wgpuSurfaceRelease: *const @TypeOf(c.wgpuSurfaceRelease),
 };
 
 var fns: Fns = undefined;
@@ -289,6 +300,10 @@ const TextureSlot = struct {
     gen: u32 = 1,
     live: bool = false,
     birth: u64 = 0,
+    // GR5: a swapchain frame adopted for one frame. It is NOT ours to
+    // budget (the surface allocated it) and it must NEVER be evicted --
+    // eviction mid-frame would free the thing being drawn into.
+    pinned: bool = false,
 };
 
 var textures: std.ArrayList(TextureSlot) = .{};
@@ -309,6 +324,7 @@ fn destroyTextureSlot(slot: usize) void {
     s.view = null;
     s.tex = null;
     s.live = false;
+    s.pinned = false;
     s.gen +%= 1;
     vram_in_use -= s.bytes;
     s.bytes = 0;
@@ -330,7 +346,7 @@ fn evictUntilFits(need: usize) bool {
             }
         }
         for (textures.items, 0..) |s, i| {
-            if (s.live and s.birth < oldest_birth) {
+            if (s.live and !s.pinned and s.birth < oldest_birth) {
                 oldest_birth = s.birth;
                 oldest_tex = i;
                 oldest_buf = null;
@@ -768,6 +784,44 @@ pub fn stz_gpu_texture_new(wf2: f64, hf: f64, kind: f64) callconv(.c) i64 {
     return makeId(slot, s.gen);
 }
 
+/// GR5: adopt a texture the SURFACE owns as a render target for one frame,
+/// so that every draw path already shipped -- scenes, 3D, the pass machine
+/// -- works against a window with no new code. The slot costs 0 VRAM budget
+/// (we did not allocate it) and is PINNED against eviction (freeing the
+/// frame being drawn into would be a spectacular way to lose a picture).
+/// The caller releases it with releaseAdopted() after present.
+pub fn adoptTarget(tex: c.WGPUTexture, view: c.WGPUTextureView, w: u32, h: u32) i64 {
+    var slot: usize = textures.items.len;
+    for (textures.items, 0..) |s, i| {
+        if (!s.live) {
+            slot = i;
+            break;
+        }
+    }
+    if (slot == textures.items.len) {
+        textures.append(alloc, .{}) catch return 0;
+    }
+    const s = &textures.items[slot];
+    s.tex = tex;
+    s.view = view;
+    s.w = w;
+    s.h = h;
+    s.kind = TEX_TARGET;
+    s.bytes = 0;
+    s.live = true;
+    s.pinned = true;
+    birth_counter += 1;
+    s.birth = birth_counter;
+    counters[CTR_TEXTURE_LIVE] += 1;
+    return makeId(slot, s.gen);
+}
+
+pub fn releaseAdopted(id: i64) void {
+    const slot = texSlotOf(id) orelse return;
+    textures.items[slot].pinned = false;
+    destroyTextureSlot(slot);
+}
+
 pub fn stz_gpu_texture_free(id: i64) callconv(.c) i32 {
     const slot = texSlotOf(id) orelse return STALE;
     destroyTextureSlot(slot);
@@ -850,6 +904,13 @@ pub fn deviceHandle() c.WGPUDevice {
 
 pub fn queueHandle() c.WGPUQueue {
     return queue;
+}
+
+/// The adapter the device was made from -- surface CAPABILITIES are a
+/// property of the (surface, adapter) pair, not of the device.
+pub fn adapterHandle() c.WGPUAdapter {
+    if (selected_adapter < 0 or selected_adapter >= @as(i32, @intCast(adapters.len))) return null;
+    return adapters[@intCast(selected_adapter)];
 }
 
 pub fn instanceHandle() c.WGPUInstance {

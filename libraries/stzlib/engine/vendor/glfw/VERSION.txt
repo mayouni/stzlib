@@ -1,0 +1,36 @@
+GLFW 3.4 -- windowing and input (zlib/libpng licence, see LICENSE.md)
+
+Source:   https://github.com/glfw/glfw/releases/tag/3.4
+Asset:    glfw-3.4.zip
+SHA-256:  b5ec004b2712fd08e8861dc271428f048775200a2df719ccf575143ba749a3e9
+
+Vendored (GR5 of SOFTANZA_GRAPHICS_PLAN.md): src/ and include/, minus the
+cmake files. Built by zig cc from PER-PLATFORM SOURCE LISTS in build.zig
+-- the libuv pattern this repo already executes. No cmake.
+
+WHY IT LIVES IN ITS OWN DLL (stz_window.dll), measured before deciding:
+
+    zig cc -target x86_64-linux-gnu  #include <X11/Xlib.h>   -> NOT FOUND
+    zig cc -target aarch64-macos     #import <Cocoa/Cocoa.h>  -> NOT FOUND
+    zig cc (native windows)          #include <windows.h>     -> ok
+
+Zig bundles libc, not platform GUI SDKs, and Apple's frameworks are not
+redistributable. So windowing cannot cross-compile from a Windows box,
+while every other engine module can (they need only libc). Linking GLFW
+into stz_gpu.dll would therefore have destroyed the GPU plane's
+cross-compilability -- a property that is already guarded. The window
+tier is a separate DLL, loaded at use time, and its absence is a counted
+refusal rather than a load failure.
+
+VERIFICATION STATUS, stated rather than implied:
+  Windows      -- built and runtime-verified here.
+  Linux        -- source vendored, build rules written (X11 backend);
+                  buildable ON Linux with libx11-dev + friends. NOT
+                  verified from this machine.
+  macOS        -- source vendored, build rules written (Cocoa backend,
+                  .m files); buildable ON macOS with the Xcode command
+                  line tools. NOT verified from this machine.
+
+The file is VERSION.txt, not VERSION: a vendor-root file named VERSION on
+a C include path resolves C++'s #include <version> on case-insensitive
+filesystems, which broke the build once already (see vendor/stb).
