@@ -178,6 +178,39 @@ else
     chk("transform state WAS re-uploaded (cheap, by design)", aIs3[5] = nTr + 1)
     chk("and the picture actually changed", cMoved != StzEngineGpuScene3dToPixels(hD))
 
+    # The instance buffer is REUSED, not recreated, when nothing grows.
+    # Asserted because it is the reason the scene needs no capacity field:
+    # ensureBuffer refuses to shrink, and an instance count cannot fall
+    # (instances are only ever added). A dead `inst_capacity` sat here for
+    # two phases on the theory that oscillation had to be absorbed -- it
+    # never can. A gen-keyed id CHANGES when a buffer is recreated, so an
+    # unchanged id across renders is the witness.
+    nBufA = StzEngineGpuScene3dInstanceBuffer(hI)
+    StzEngineGpuScene3dSetTransform(hI, 2, 1, 1, 0, 0,1,0, 10, 1,1,1)
+    StzEngineGpuScene3dToPixels(hI)
+    StzEngineGpuScene3dToPixels(hI)
+    chk("the instance buffer is REUSED across frames, never recreated",
+        StzEngineGpuScene3dInstanceBuffer(hI) = nBufA and nBufA != 0)
+
+    # The negative sibling, on its OWN scene so it cannot disturb the
+    # instance counts asserted further down. Without it the line above
+    # could pass on a function that always returned the same number.
+    hG = StzEngineGpuScene3dNew(200, 150)
+    StzEngineGpuScene3dCamera(hG, 0,0,12, 0,0,0, 45, 0.1, 100)
+    for i = 1 to 5
+        StzEngineGpuScene3dAdd(hG, hCube, i, 0, 0, 0,1,0, 0, 1,1,1, RED)
+    next
+    StzEngineGpuScene3dToPixels(hG)
+    nSmall = StzEngineGpuScene3dInstanceBuffer(hG)
+    for i = 1 to 400
+        StzEngineGpuScene3dAdd(hG, hCube, i, 1, 0, 0,1,0, 0, 1,1,1, GREEN)
+    next
+    StzEngineGpuScene3dToPixels(hG)
+    chk("but growing PAST it does recreate the buffer -- so the check above " +
+        "is reading a real id, not a constant",
+        StzEngineGpuScene3dInstanceBuffer(hG) != nSmall)
+    StzEngineGpuScene3dFree(hG)
+
     ? ""
     ? "-- Scene 9: lighting is SHADING, and the black light proves it --"
     hL = StzEngineGpuScene3dNew(nW, nH)

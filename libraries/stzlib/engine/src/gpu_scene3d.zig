@@ -181,7 +181,6 @@ const Scene3d = struct {
     ext_tfmt: i32 = 0,
     frame_buf: i64 = 0,
     inst_buf: i64 = 0,
-    inst_capacity: usize = 0,
     gpu_driven: bool = false, // transforms come from a compute kernel, not from CPU state
     // GR4b: a scene-level MATERIAL -- a transpiled WGSL shader plus the
     // values its declared colours and scalars take. Scene-level rather
@@ -232,7 +231,6 @@ pub fn forgetDeviceObjects() void {
         s.ext_target = 0;
         s.frame_buf = 0;
         s.inst_buf = 0;
-        s.inst_capacity = 0;
         for (s.res.items) |*r| {
             r.vbuf = 0;
             r.ibuf = 0;
@@ -432,6 +430,18 @@ pub fn stats(id: i64) ?[5]f64 {
 
 // ---------------------------------------------------------------- render
 
+/// Create-or-reuse a device buffer of at least `bytes`. It GROWS ONLY: a
+/// request smaller than the current buffer keeps it, so the allocation
+/// tracks the high-water mark rather than the latest frame.
+///
+/// That is why there is no capacity field here (a dead `inst_capacity` sat
+/// on the scene for two phases before anyone noticed it was never read).
+/// Two facts make one impossible to use: this function already refuses to
+/// shrink, and a scene's instance count cannot fall at all -- instances are
+/// only ever ADDED through the public surface, and the sole
+/// `clearRetainingCapacity` runs at scene creation. So there is no
+/// oscillation for a capacity check to absorb. If instance REMOVAL is ever
+/// added, revisit this comment before revisiting the buffer.
 fn ensureBuffer(cur: i64, bytes: usize) i64 {
     var id = cur;
     if (id != 0) {
