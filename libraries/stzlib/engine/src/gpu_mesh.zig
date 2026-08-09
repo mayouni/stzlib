@@ -207,9 +207,15 @@ pub fn buildSphere(radius: f32, segs: u32, rings: u32) i64 {
         for (0..segs + 1) |si| {
             const u = @as(f32, @floatFromInt(si)) / @as(f32, @floatFromInt(segs));
             const theta = u * std.math.tau;
-            const nx = @sin(phi) * @cos(theta);
-            const ny = @cos(phi);
-            const nz = @sin(phi) * @sin(theta);
+            // The poles are set EXACTLY rather than trusted to trigonometry:
+            // @sin(pi) in f32 is -8.7e-8, not 0, so the bottom "pole" would
+            // be a ring of almost-coincident points whose triangles are
+            // numerically meaningless slivers.
+            const sp: f32 = if (ri == 0 or ri == rings) 0.0 else @sin(phi);
+            const cp: f32 = if (ri == 0) 1.0 else if (ri == rings) -1.0 else @cos(phi);
+            const nx = sp * @cos(theta);
+            const ny = cp;
+            const nz = sp * @sin(theta);
             pushVertex(s, &[_]f32{ nx * radius, ny * radius, nz * radius, nx, ny, nz, u, v }) catch return 0;
         }
     }
@@ -218,8 +224,15 @@ pub fn buildSphere(radius: f32, segs: u32, rings: u32) i64 {
         for (0..segs) |si| {
             const a: u32 = @intCast(ri * row + si);
             const b: u32 = a + row;
-            pushTri(s, a, b, a + 1) catch return 0;
-            pushTri(s, a + 1, b, b + 1) catch return 0;
+            // COUNTER-CLOCKWISE seen from OUTSIDE. Getting this backwards
+            // does not look like a winding bug: back-face culling hides the
+            // near surface and you see the sphere's INTERIOR, whose normals
+            // face away from the light -- so the sphere just renders dark,
+            // and it is easy to blame the lighting. The test below asserts
+            // the face normal agrees with the vertex normal for exactly
+            // this reason.
+            pushTri(s, a, a + 1, b) catch return 0;
+            pushTri(s, a + 1, b + 1, b) catch return 0;
         }
     }
     return makeId(slot, s.gen);
@@ -462,6 +475,102 @@ test "sphere vertices all sit at the radius, normals point outward" {
         // normal is the outward unit vector: n . p == r
         const d = v[i] * v[i + 3] + v[i + 1] * v[i + 4] + v[i + 2] * v[i + 5];
         try testing.expect(@abs(d - 3.0) < 1e-3);
+    }
+}
+
+// Every triangle of a closed primitive must wind COUNTER-CLOCKWISE seen
+// from outside, or back-face culling hides the surface facing the camera
+// and shows the inside instead. Checked by the only thing that cannot be
+// fooled: the face normal computed from the POSITIONS must agree with the
+// normal the builder declared. (A showcase render is what exposed this on
+// the sphere -- it read as a lighting bug, not a winding one.)
+/// For a CLOSED shape centred on the origin, "outward" has an exact meaning
+/// that needs no vertex normal at all: the face normal must point away from
+/// the centre. Judging against a VERTEX normal instead looks reasonable and
+/// is wrong at a sphere's poles, where every top vertex carries (0,1,0)
+/// while the faces touching it stand almost vertical -- the first version of
+/// this test failed BOTH windings for exactly that reason.
+fn faceNormalLen(v: []const f32, ia: usize, ib: usize, ic: usize) f32 {
+    const ux = v[ib] - v[ia];
+    const uy = v[ib + 1] - v[ia + 1];
+    const uz = v[ib + 2] - v[ia + 2];
+    const wx = v[ic] - v[ia];
+    const wy = v[ic + 1] - v[ia + 1];
+    const wz = v[ic + 2] - v[ia + 2];
+    const fx = uy * wz - uz * wy;
+    const fy = uz * wx - ux * wz;
+    const fz = ux * wy - uy * wx;
+    return @sqrt(fx * fx + fy * fy + fz * fz);
+}
+
+fn expectOutwardWinding(id: i64) !void {
+    const v = vertexData(id).?;
+    const idx = indexData(id).?;
+    const stride: usize = 8;
+    // Degeneracy is RELATIVE: a pole fan's seam triangles have areas many
+    // orders below the real faces, and an absolute epsilon either keeps
+    // numerical noise or throws away real geometry depending on the mesh's
+    // scale.
+    var max_area: f32 = 0;
+    var j: usize = 0;
+    while (j + 2 < idx.len) : (j += 3) {
+        const l = faceNormalLen(v, @as(usize, idx[j]) * stride, @as(usize, idx[j + 1]) * stride, @as(usize, idx[j + 2]) * stride);
+        max_area = @max(max_area, l);
+    }
+    var i: usize = 0;
+    while (i + 2 < idx.len) : (i += 3) {
+        const ia: usize = @as(usize, idx[i]) * stride;
+        const ib: usize = @as(usize, idx[i + 1]) * stride;
+        const ic: usize = @as(usize, idx[i + 2]) * stride;
+        const ux = v[ib] - v[ia];
+        const uy = v[ib + 1] - v[ia + 1];
+        const uz = v[ib + 2] - v[ia + 2];
+        const wx = v[ic] - v[ia];
+        const wy = v[ic + 1] - v[ia + 1];
+        const wz = v[ic + 2] - v[ia + 2];
+        const fx = uy * wz - uz * wy;
+        const fy = uz * wx - ux * wz;
+        const fz = ux * wy - uy * wx;
+        const flen = @sqrt(fx * fx + fy * fy + fz * fz);
+        if (flen <= max_area * 1e-4) continue; // a sliver: no verdict to give
+        // the triangle's own centroid IS its outward direction here
+        const cx = (v[ia] + v[ib] + v[ic]) / 3.0;
+        const cy = (v[ia + 1] + v[ib + 1] + v[ic + 1]) / 3.0;
+        const cz = (v[ia + 2] + v[ib + 2] + v[ic + 2]) / 3.0;
+        try std.testing.expect(fx * cx + fy * cy + fz * cz > 0);
+    }
+}
+
+test "sphere triangles wind outward, so culling keeps the visible surface" {
+    const id = buildSphere(2.0, 16, 8);
+    defer _ = meshFree(id);
+    try expectOutwardWinding(id);
+}
+
+test "cube triangles wind outward too" {
+    const c = buildCube(2.0);
+    defer _ = meshFree(c);
+    try expectOutwardWinding(c);
+}
+
+test "the plane's faces point the way it says they do" {
+    // a plane is FLAT and centred, so "away from the centre" says nothing
+    // about it -- its declared normal is the only truth available
+    const p = buildPlane(3.0);
+    defer _ = meshFree(p);
+    const v = vertexData(p).?;
+    const idx = indexData(p).?;
+    var i: usize = 0;
+    while (i + 2 < idx.len) : (i += 3) {
+        const ia: usize = @as(usize, idx[i]) * 8;
+        const ib: usize = @as(usize, idx[i + 1]) * 8;
+        const ic: usize = @as(usize, idx[i + 2]) * 8;
+        const ux = v[ib] - v[ia];
+        const uz = v[ib + 2] - v[ia + 2];
+        const wx = v[ic] - v[ia];
+        const wz = v[ic + 2] - v[ia + 2];
+        const fy = uz * wx - ux * wz; // y component of (b-a)x(c-a)
+        try std.testing.expect(fy * v[ia + 4] > 0);
     }
 }
 
