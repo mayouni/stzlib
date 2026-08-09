@@ -139,6 +139,48 @@ class stzScene from stzObject
 		@aTransforms[_n_] = [ pnX, pnY, pnZ, 0, 1, 0, 0, 1, 1, 1 ]
 		@nLast = _n_
 
+	# GG3: make one instance the CHILD of another. Its transform becomes
+	# LOCAL -- relative to the parent -- so moving the parent moves the whole
+	# chain.
+	#
+	# Indices come from LastIndex(), NOT from AddMesh: the plain form acts
+	# and returns nothing, per the house law, and LastIndex() is the one way
+	# to name what you just added.
+	#
+	#   oS.AddMesh(oBall, 0, 0, 0)
+	#   nSun = oS.LastIndex()
+	#   oS.AddMesh(oBall, 3, 0, 0)
+	#   nEarth = oS.LastIndex()
+	#   oS.SetParent(nEarth, nSun)      # now the earth orbits with the sun
+	#
+	# A parent that does not exist, or an instance parented to itself, is
+	# REFUSED. A cycle is broken and COUNTED (CyclesRefused) rather than
+	# hung on -- a graph the caller built wrong must not freeze the frame.
+	def SetParent(pnIndex, pnParentIndex)
+		return StzEngineGpuScene3dSetParent(@nId, pnIndex, pnParentIndex) = 0
+
+	def SetParentQ(pnIndex, pnParentIndex)
+		This.SetParent(pnIndex, pnParentIndex)
+		return This
+
+	# Detach: the instance keeps its LOCAL transform and becomes a root.
+	def ClearParent(pnIndex)
+		return StzEngineGpuScene3dSetParent(@nId, pnIndex, -1) = 0
+
+	# How many links the longest chain has. 0 means the scene is flat --
+	# the witness that a hierarchy is actually a hierarchy.
+	def HierarchyDepth()
+		return StzEngineGpuScene3dHierarchyDepth(@nId)
+
+	def CyclesRefused()
+		return StzEngineGpuScene3dCyclesRefused(@nId)
+
+	# Where an instance ACTUALLY ended up, after its parents were applied.
+	# The number to assert on: a child that did not follow its parent shows
+	# up here, not in the picture.
+	def WorldPosition(pnIndex)
+		return StzEngineGpuScene3dWorldPosition(@nId, pnIndex)
+
 	def AddMeshQ(poMesh, pnX, pnY, pnZ)
 		This.AddMesh(poMesh, pnX, pnY, pnZ)
 		return This

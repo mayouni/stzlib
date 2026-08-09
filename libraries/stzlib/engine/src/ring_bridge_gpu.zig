@@ -1194,6 +1194,29 @@ fn ring_SceneDrawToTarget(p: *anyopaque) callconv(.c) void {
     rn(p, if (okd) 1 else 0);
 }
 
+fn ring_Scene3dSetParent(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(s3d.setParent(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2)), @intFromFloat(gn(p, 3)))));
+}
+
+fn ring_Scene3dHierarchyDepth(p: *anyopaque) callconv(.c) void {
+    rn(p, s3d.hierarchyDepth(@intFromFloat(gn(p, 1))));
+}
+
+fn ring_Scene3dCyclesRefused(p: *anyopaque) callconv(.c) void {
+    rn(p, s3d.cyclesRefused(@intFromFloat(gn(p, 1))));
+}
+
+// -> [x, y, z] world position, the witness that a child FOLLOWED its parent
+fn ring_Scene3dWorldPosition(p: *anyopaque) callconv(.c) void {
+    var xyz: [3]f32 = @splat(0);
+    const st = s3d.worldPosition(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2)), &xyz);
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    if (st == s3d.OK) {
+        for (xyz) |v| R.ring_list_adddouble(out, @floatCast(v));
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
 fn ring_Scene3dDrawToTarget(p: *anyopaque) callconv(.c) void {
     const okd = s3d.sceneDrawToTarget(
         @intFromFloat(gn(p, 1)),
@@ -1217,6 +1240,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpusceneresize", .func = &ring_SceneResize },
     .{ .name = "stzenginegpuscenereset", .func = &ring_SceneReset },
     .{ .name = "stzenginegpuscenedrawtotarget", .func = &ring_SceneDrawToTarget },
+    .{ .name = "stzenginegpuscene3dsetparent", .func = &ring_Scene3dSetParent },
+    .{ .name = "stzenginegpuscene3dhierarchydepth", .func = &ring_Scene3dHierarchyDepth },
+    .{ .name = "stzenginegpuscene3dcyclesrefused", .func = &ring_Scene3dCyclesRefused },
+    .{ .name = "stzenginegpuscene3dworldposition", .func = &ring_Scene3dWorldPosition },
     .{ .name = "stzenginegpuscene3ddrawtotarget", .func = &ring_Scene3dDrawToTarget },
     .{ .name = "stzenginegpuinit", .func = &ring_Init },
     .{ .name = "stzenginegpushutdown", .func = &ring_Shutdown },

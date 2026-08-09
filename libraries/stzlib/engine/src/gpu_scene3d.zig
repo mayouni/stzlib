@@ -142,8 +142,12 @@ const INSTANCE_FLOATS = 16 + 16 + 4; // model, normalMat, color
 
 const Instance = struct {
     mesh_id: i64,
-    transform: gm.Transform, // TRANSFORM STATE -- written by simulation
+    transform: gm.Transform, // LOCAL transform, relative to the parent
     color: [4]f32, // RENDER STATE -- written by materials
+    // GG3: -1 means "no parent, local IS world". A child's drawn position
+    // is parent_world * local, which is what makes an arm a chain rather
+    // than four independent objects that must be moved in lockstep by hand.
+    parent: i32 = -1,
 };
 
 /// Per-mesh GPU residency: uploaded once, reused every frame (the retained
@@ -170,6 +174,9 @@ const Scene3d = struct {
     light_color: [3]f32 = .{ 1, 1, 1 },
     ambient: [3]f32 = .{ 0.15, 0.15, 0.18 },
     instances: std.ArrayList(Instance) = .{},
+    world: std.ArrayList(gm.Mat4) = .{}, // GG3: resolved each frame
+    hierarchy_depth: u32 = 0, // witness: 0 = flat, >0 = a real chain
+    cycles_refused: u32 = 0, // a parent loop is COUNTED, never hung on
     res: std.ArrayList(MeshRes) = .{},
     // GPU objects
     target: i64 = 0,
@@ -518,6 +525,149 @@ fn residencyFor(s: *Scene3d, mesh_id: i64, tfmt: i32) ?usize {
     return ri.?;
 }
 
+/// Resolve every instance's WORLD transform from its local one and its
+/// parent's world. GG0's propagation primitive with matrices instead of
+/// bitsets: repeat passes until nothing new resolves.
+///
+/// Order-independent on purpose -- a caller may add a child before its
+/// parent, and demanding otherwise would be a rule nobody remembers. The
+/// pass count is the hierarchy DEPTH, reported so a guard can prove a
+/// chain is a chain.
+///
+/// A parent CYCLE cannot resolve. Rather than loop forever, the unresolved
+/// instances fall back to their local transform and the refusal is counted
+/// -- the house rule: a refusal that names itself, never a hang.
+fn resolveWorld(s: *Scene3d) !void {
+    const n = s.instances.items.len;
+    try s.world.resize(alloc, n);
+    const level = try alloc.alloc(i32, n); // -1 = not resolved yet
+    defer alloc.free(level);
+    @memset(level, -1);
+
+    // An explicit stack, walking each instance's parent chain and memoising
+    // on the way back down. O(n) TOTAL regardless of the order things were
+    // added in.
+    //
+    // The first version swept the whole list repeatedly until nothing new
+    // resolved. That is O(n) when parents happen to be added before their
+    // children and O(n*depth) when they are not -- measured at 4000 deep,
+    // 0.15 ms the friendly way and 20 ms the other, which is a whole frame
+    // budget lost to the order a caller wrote their code in. A resolver
+    // whose cost depends on that is a trap, not an optimisation.
+    var stack = try alloc.alloc(usize, n);
+    defer alloc.free(stack);
+
+    for (0..n) |start| {
+        if (level[start] >= 0) continue;
+        var top: usize = 0;
+        var cur = start;
+
+        // climb to an ancestor that is already resolved (or is a root)
+        while (true) {
+            const p = s.instances.items[cur].parent;
+            if (p < 0) {
+                s.world.items[cur] = s.instances.items[cur].transform.toMat4();
+                level[cur] = 0;
+                break;
+            }
+            const pi: usize = @intCast(p);
+            if (pi >= n or pi == cur) {
+                s.world.items[cur] = s.instances.items[cur].transform.toMat4();
+                level[cur] = 0;
+                s.cycles_refused += 1;
+                break;
+            }
+            if (level[pi] >= 0) {
+                // Parent already known -- but cur still has to be COMPOSED,
+                // so it must go on the stack. Breaking here without pushing
+                // left every such instance unresolved, and the whole point
+                // of the class (a child follows its parent) stopped working.
+                stack[top] = cur;
+                top += 1;
+                break;
+            }
+            // CYCLE: this instance is already on the path we are climbing
+            if (level[cur] == -2) {
+                s.world.items[cur] = s.instances.items[cur].transform.toMat4();
+                level[cur] = 0;
+                s.cycles_refused += 1;
+                break;
+            }
+            level[cur] = -2; // mark "on the current path"
+            stack[top] = cur;
+            top += 1;
+            cur = pi;
+        }
+
+        // walk back down, composing parent_world * local
+        while (top > 0) {
+            top -= 1;
+            const i = stack[top];
+            const p = s.instances.items[i].parent;
+            const pi: usize = @intCast(@max(0, p));
+            if (p >= 0 and pi < n and level[pi] >= 0) {
+                s.world.items[i] = s.world.items[pi].mul(s.instances.items[i].transform.toMat4());
+                level[i] = level[pi] + 1;
+            } else {
+                s.world.items[i] = s.instances.items[i].transform.toMat4();
+                level[i] = 0;
+            }
+        }
+    }
+
+    var maxlvl: i32 = 0;
+    for (level) |L| {
+        if (L > maxlvl) maxlvl = L;
+    }
+    s.hierarchy_depth = @intCast(@max(0, maxlvl));
+}
+
+pub fn setParent(id: i64, index: i32, parent: i32) i32 {
+    const slot = slotOf(id) orelse return STALE;
+    const s = &scenes.items[slot];
+    const i: usize = @intCast(@max(0, index - 1));
+    if (index < 1 or i >= s.instances.items.len) return BAD_ARG;
+    if (parent != -1) {
+        const p: usize = @intCast(@max(0, parent - 1));
+        if (parent < 1 or p >= s.instances.items.len) return BAD_ARG;
+        if (p == i) return BAD_ARG; // its own parent is never meaningful
+        s.instances.items[i].parent = @intCast(p);
+    } else {
+        s.instances.items[i].parent = -1;
+    }
+    return OK;
+}
+
+pub fn hierarchyDepth(id: i64) f64 {
+    const slot = slotOf(id) orelse return -1;
+    const s = &scenes.items[slot];
+    // RESOLVE first. This used to return whatever the previous render had
+    // left behind, so a chain that had never been drawn reported depth 0 --
+    // a witness that answered about the past.
+    resolveWorld(s) catch return -1;
+    return @floatFromInt(s.hierarchy_depth);
+}
+
+pub fn cyclesRefused(id: i64) f64 {
+    const slot = slotOf(id) orelse return -1;
+    return @floatFromInt(scenes.items[slot].cycles_refused);
+}
+
+/// The resolved world position of one instance -- what a caller needs to
+/// ASSERT that a child actually followed its parent.
+pub fn worldPosition(id: i64, index: i32, out: *[3]f32) i32 {
+    const slot = slotOf(id) orelse return STALE;
+    const s = &scenes.items[slot];
+    const i: usize = @intCast(@max(0, index - 1));
+    if (index < 1 or i >= s.instances.items.len) return BAD_ARG;
+    resolveWorld(s) catch return BAD_ARG;
+    const m = s.world.items[i].m;
+    out[0] = m[12];
+    out[1] = m[13];
+    out[2] = m[14];
+    return OK;
+}
+
 fn renderToTarget(s: *Scene3d) !bool {
     if (gpu.stz_gpu_is_available() == 0) {
         gpu.countFallback();
@@ -609,9 +759,10 @@ fn renderToTarget(s: *Scene3d) !bool {
 
     const idata = try alloc.alloc(f32, order.items.len * INSTANCE_FLOATS);
     defer alloc.free(idata);
+    try resolveWorld(s);
     for (order.items, 0..) |src_i, dst_i| {
         const inst = s.instances.items[src_i];
-        const model = inst.transform.toMat4();
+        const model = s.world.items[src_i];
         const nrm = gm.Mat4.normalMatrix(model);
         const base = dst_i * INSTANCE_FLOATS;
         @memcpy(idata[base .. base + 16], &model.m);
