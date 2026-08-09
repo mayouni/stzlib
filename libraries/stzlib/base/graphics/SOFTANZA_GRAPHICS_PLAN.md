@@ -222,27 +222,50 @@ the vendor table above.
   its negative sibling. CI has no GPU: the SVG tier and the refusal
   paths are the CI coverage, exactly as the G-plane guards do it.
 
-**Level-1 surface (sketch, Softanza-style — the declarative promise):**
+**Level-1 surface (corrected 2026-08-09 to the house naming law — the
+sketch that shipped in this plan violated it, and GR4 builds from the
+corrected form, not from the old one):**
 
-    # 2D: a canvas is described, then rendered to any tier
+The three rules, stated so GR4 cannot drift from them:
+1. **A method is an explicit VERB acting on the object** — `AddCircle()`,
+   `AddFont()`, `SetBackground()`. Not a noun (`Circle()`), which says
+   what a thing IS rather than what the call DOES.
+2. **`...Q()` performs the same action and returns the MAIN object**, so
+   chains never leave the canvas — there are no intermediate shape
+   objects to hold or lose. The plain twin ACTS and returns NOTHING
+   (the core's `AddItem` / `AddItemQ` law, applied to pixels).
+3. **`To...()` names stay** — `ToSVG()`, `ToPNG()`, `ToWGSL()` — because
+   they are already unambiguous about what they do, and they return
+   DATA, which is what a plain form must do.
+
+<!-- -->
+
+    # 2D -- the plain form acts; nothing comes back
     oC = new stzCanvas(800, 600)
-    oC.Background("#101418")
-    oC.Circle(400, 300, 120).Fill("#e0a030").Stroke("#ffffff", 2)
-    oC.Text("Softanza", 330, 310).Font("Inter", 24).Color("#ffffff")
+    oC.SetBackground("#101418")
+    oC.AddCircle(400, 300, 120)
+    oC.Fill("#e0a030")                 # applies to the last shape added
+
+    # the same, fluent -- every Q returns the CANVAS itself
+    oC.AddCircleQ(400, 300, 120).FillQ("#e0a030").StrokeQ("#ffffff", 2)
+    oC.AddTextQ("Softanza", 330, 310).SetFontQ(oFont, 24).ColorQ("#ffffff")
+
     oC.ToSVG()                      # tier 1 — always works
     oC.ToPNG("out.png")             # tier 2 — GPU offscreen (or CPU)
     oC.Show()                       # tier 3/4 — window or browser
 
-    # 3D: a scene graph, declaratively
-    oS = new stzScene()
-    oS.Camera().At(0, 2, 5).LookAt(0, 0, 0)
-    oS.Light(:Directional).From(1, 1, 0)
-    oS.Add(StzMeshQ(:Cube)).At(0, 0, 0).Material(oM)
-    oS.RenderTo("frame.png")
+    # 3D: the same law, one object deep
+    oS = new stzScene(800, 600)
+    oS.SetCamera(0, 2, 5, 0, 0, 0)
+    oS.SetLight(:Directional, 1, 1, 0)
+    oS.AddMesh(oCube, 0, 0, 0)
+    oS.SetMaterial(1, oM)
+    # fluent twin
+    oS.SetCameraQ(0, 2, 5, 0, 0, 0).AddMeshQ(oCube, 0, 0, 0).ToPNG("frame.png")
 
     # materials: the W-string → WGSL story, extended from G4
     oM = new stzMaterialMaker()
-    oM.TakesColor(:base) ; oM.TakesScalar(:glow)
+    oM.TakesColor(:base)  oM.TakesScalar(:glow)
     oM.ForEachFragment('{ @out = base * (1.0 + glow * @normal.y) }')
 
 The maker pattern, the Q convention, Show() = visualize Content(), and
