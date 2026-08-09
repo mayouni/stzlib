@@ -1817,6 +1817,22 @@ class stzGraph from stzObject
 	#  TRAVERSAL & PATHFINDING  #
 	#---------------------------#
 
+	# The doorway to the graphics plane: a graph hands back a CANVAS whose
+	# node sizes and colours are computed from the graph's own shape.
+	#   oG.ToCanvasQ([ :Layout = :Hierarchical, :SizeBy = :Impact ])
+	# It answers an stzCanvas, so ToSVG() and ToPNG() come with it.
+	def ToCanvas(paOptions)
+		_o_ = new stzGraphCanvas(This, paOptions)
+		return _o_.ToCanvas()
+
+	def ToCanvasQ(paOptions)
+		return This.ToCanvas(paOptions)
+
+	# The face itself, when a caller wants the metrics or the positions
+	# rather than only the drawing.
+	def GraphCanvas(paOptions)
+		return new stzGraphCanvas(This, paOptions)
+
 	def PathExists(pcFromNodeId, pcToNodeId)
 
 		if NOT _IsWellFormedId(pcFromNodeId)

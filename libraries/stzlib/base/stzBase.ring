@@ -94,6 +94,8 @@ ok
     load "graphics/stzTreeCanvas.ring"
     load "graphics/stzMaterialMaker.ring"
     # last: it takes a canvas or a scene, so both must already exist
+    # a graph draws itself; needs stzCanvas above it
+    load "graphics/stzGraphCanvas.ring"
     load "graphics/stzWindow.ring"
     load "number/stzPolynomial.ring"
     load "number/stzMathFunction.ring"
