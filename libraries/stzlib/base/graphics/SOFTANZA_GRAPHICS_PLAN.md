@@ -1005,3 +1005,80 @@ around them rather than over them.
 None of these invalidate a shipped phase, and none were visible from
 inside the guards — which is the argument for doing a pass like this
 before every face-building phase, not only before this one.
+
+---
+
+## GR4a STATUS — shipped 2026-08-09: the declarative faces
+
+`base/graphics/`: **stzColor, stzFont, stzMesh, stzCanvas, stzScene**,
+loaded by stzBase. Guard: `base/test/graphics/graphics_faces_narrated.ring`
+— **58 asserts green**, everything but the pixel scenes running with no
+GPU. Regression sweep: the eight GPU suites and the neural backbone all
+green — **438 assertions**.
+
+**The naming law is now GUARDED, not merely documented.** A convention
+that lives only in prose drifts, so the guard asserts it by mechanism:
+- the plain form is asserted NOT to return an object (`isObject(
+  oC.AddCircle(...)) = FALSE`), so a chain cannot accidentally work off
+  a form that was never meant to chain;
+- the Q twin is asserted to return **the main object by IDENTITY** —
+  `oC.AddCircleQ(...).Id_() = oC.Id_()` — which is the real claim: the
+  chain never leaves the canvas for a shape object to hold or lose;
+- `To...()` names return data.
+
+**Fill colours the last shape added** — and that is asserted with
+pixels, both directions: two circles each keep their own fill (the
+second does not repaint the first), and a `Fill` issued BEFORE any shape
+becomes the canvas default. It works because an `Add*` REMEMBERS the
+shape instead of posting it, so `Fill`/`Stroke`/`Color`/`SetFont` can
+still reach it; the shape posts when the next `Add*` arrives or when
+output is asked for.
+
+**The two gaps GR4 promised to close are closed:**
+- **Gap 4 — the f32 math is reachable from Ring**:
+  `Mat4LookAt / Mat4Perspective / Mat4Mul / Mat4Project`, and the face
+  that needed it, `stzScene.Project(x,y,z)` → `[x, y, depth, visible]`
+  in canvas pixels. Guarded: the camera's target lands within 1 px of
+  the picture's centre, and a point behind the camera answers **not
+  visible** rather than a NaN to trip over.
+- **Gap 1 — compute can now drive the 3D scene**: `InstanceBuffer()`
+  hands out the transform buffer's handle, `InstanceStride()` the
+  shader's stride, and `SetGpuDriven(TRUE)` stops the face from
+  overwriting what a kernel wrote. That flag is the part that matters —
+  without it the accessor would be a trap, since the next frame would
+  rewrite the kernel's work. Guarded both ways: CPU-driven by default,
+  and once GPU-driven the transform-upload counter stops moving.
+
+Other decisions worth recording:
+- **Colour has exactly one converter** (`stzColor`), because a colour
+  meaning two things on two tiers is precisely the bug the twin-renderer
+  design exists to prevent. `#rgb`, `#rrggbb`, `#rrggbbaa` and a small
+  named set; a malformed colour RAISES by name rather than silently
+  becoming black — a wrong-coloured picture teaches nothing.
+- **A font is bytes you loaded**, not a name the system might resolve
+  differently tomorrow, and `WidthOf()` is a real shaped advance — which
+  is what makes centring an Arabic label possible at all.
+- **`CanDrawPixels()` and lazy device init**: the faces open a device the
+  first time pixels are actually wanted (once per process), so callers
+  never manage it, and a GPU-less machine simply keeps answering through
+  SVG.
+- Two Ring traps re-collected while building: a global assigned AFTER a
+  `func` in a file becomes part of that function and never runs at load
+  (the graphics globals live at the top of `stzColor.ring`, the
+  first-loaded file); and reading `@aCam[7]` inside the list literal
+  that replaces `@aCam` is an out-of-range trap — read the parts out
+  first.
+
+**Deferred to GR4b, with the reason**: `stzMaterialMaker`. The plan's
+sketch (`TakesColor(:base)` … `ForEachFragment('{ … }')`) needs the
+EXISTING W-string → WGSL transpiler extended with a **fragment stage**
+and its builtins — that is engine substance, not a face, and it deserves
+its own increment with its own refusal corpus, exactly as `gpu_wgsl.zig`
+got in G4. Shipping the faces without it is honest; pretending a Ring-side
+string builder is the transpiler would not be.
+
+Next: **GR5** — presentation on all OSs (GLFW vendored, window + surface,
+a loop WITH INPUT from the start per §3b door 5), where challenge gaps 2
+and 3 (sampled render targets, compute+render in one submit) pay for
+themselves; or **GR6** — the convergence dividend, which needs nothing
+new and is where existing plots and diagrams gain real image output.

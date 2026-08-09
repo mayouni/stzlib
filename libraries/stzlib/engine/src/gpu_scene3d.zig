@@ -172,6 +172,7 @@ const Scene3d = struct {
     frame_buf: i64 = 0,
     inst_buf: i64 = 0,
     inst_capacity: usize = 0,
+    gpu_driven: bool = false, // transforms come from a compute kernel, not from CPU state
     // witnesses
     geometry_uploads: u64 = 0, // increments ONLY when mesh data is uploaded
     transform_uploads: u64 = 0, // increments every frame (cheap, by design)
@@ -339,6 +340,37 @@ pub fn instanceCount(id: i64) f64 {
     return @floatFromInt(scenes.items[slot].instances.items.len);
 }
 
+/// GR4 (closing the challenge pass's gap 1): hand out the instance
+/// buffer's handle so a COMPUTE kernel can write transforms directly --
+/// the zero-copy trick that already works for particles, now reachable
+/// for meshes. 0 until the scene has rendered once (the buffer is sized
+/// from the instance list).
+pub fn instanceBuffer(id: i64) i64 {
+    const slot = slotOf(id) orelse return 0;
+    return scenes.items[slot].inst_buf;
+}
+
+/// Per-instance stride in FLOATS, so a kernel can address the array the
+/// same way the shader does (model 16, normalMat 16, color 4).
+pub fn instanceStrideFloats() f64 {
+    return @floatFromInt(INSTANCE_FLOATS);
+}
+
+/// When GPU-driven, the scene STOPS rewriting the instance buffer from
+/// its CPU transforms -- whatever a compute kernel left there is what
+/// gets drawn. Without this the next frame would overwrite the kernel's
+/// work, so the accessor above would be a trap rather than a door.
+pub fn setGpuDriven(id: i64, on: bool) i32 {
+    const slot = slotOf(id) orelse return STALE;
+    scenes.items[slot].gpu_driven = on;
+    return OK;
+}
+
+pub fn isGpuDriven(id: i64) i32 {
+    const slot = slotOf(id) orelse return -1;
+    return if (scenes.items[slot].gpu_driven) 1 else 0;
+}
+
 /// [instances, meshes resident, draw calls last render, geometry uploads,
 ///  transform uploads]
 pub fn stats(id: i64) ?[5]f64 {
@@ -495,10 +527,18 @@ fn renderToTarget(s: *Scene3d) !bool {
         idata[base + 35] = inst.color[3];
     }
     const ibytes = idata.len * 4;
+    const had_buffer = s.inst_buf != 0;
     s.inst_buf = ensureBuffer(s.inst_buf, ibytes);
     if (s.inst_buf == 0) return false;
-    if (gpu.stz_gpu_buffer_write(s.inst_buf, @ptrCast(idata.ptr), @floatFromInt(ibytes)) != gpu.OK) return false;
-    s.transform_uploads += 1;
+    // A GPU-driven scene keeps whatever a compute kernel wrote. The FIRST
+    // render still seeds the buffer from CPU state (a kernel needs
+    // something to read, and the buffer only exists from here), and a
+    // buffer that had to be recreated is seeded again -- otherwise the
+    // scene would draw uninitialized VRAM.
+    if (!s.gpu_driven or !had_buffer) {
+        if (gpu.stz_gpu_buffer_write(s.inst_buf, @ptrCast(idata.ptr), @floatFromInt(ibytes)) != gpu.OK) return false;
+        s.transform_uploads += 1;
+    }
 
     if (render.stz_gpu_render_begin3d(s.target, s.depth, s.clear[0], s.clear[1], s.clear[2], s.clear[3]) != gpu.OK) return false;
     var draws: u32 = 0;
