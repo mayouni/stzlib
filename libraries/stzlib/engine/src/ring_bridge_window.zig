@@ -104,6 +104,10 @@ fn ring_MouseClicked(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(win.mouseClicked(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2)))));
 }
 
+fn ring_SetSize(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(win.setSize(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2)), @intFromFloat(gn(p, 3)))));
+}
+
 fn ring_SetTitle(p: *anyopaque) callconv(.c) void {
     const title = getStr(p, 2);
     const z = allocator.dupeZ(u8, title) catch {
@@ -140,6 +144,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginewindowmousey", .func = &ring_MouseY },
     .{ .name = "stzenginewindowmousedown", .func = &ring_MouseDown },
     .{ .name = "stzenginewindowmouseclicked", .func = &ring_MouseClicked },
+    .{ .name = "stzenginewindowsetsize", .func = &ring_SetSize },
     .{ .name = "stzenginewindowsettitle", .func = &ring_SetTitle },
     .{ .name = "stzenginewindowshutdown", .func = &ring_Shutdown },
 };

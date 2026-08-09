@@ -36,6 +36,10 @@
 #   StzEngineWindowKeyDown(id, nKey) / KeyPressed(id, nKey)
 #   StzEngineWindowMouseX(id) / MouseY(id)
 #   StzEngineWindowMouseDown(id, nBtn) / MouseClicked(id, nBtn)
+#   StzEngineWindowSetSize(id, w, h)  -- resize from code; takes effect at
+#       the next Poll, exactly as a dragged edge does. It exists so the
+#       resize path can be GUARDED: without it, swapchain reconfigure and
+#       depth-buffer rebuild can only ever be driven by a human with a mouse.
 #   StzEngineWindowSetTitle(id, cTitle) / Shutdown()
 #
 # HELD vs PRESSED, and why both exist: KeyDown answers "is it down right

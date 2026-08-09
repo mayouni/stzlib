@@ -241,7 +241,93 @@ chkeq("30 3D frames shown in the same window", n3d, 30)
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 9. Refusals are counted, never silent ----------------------"
+? "-- 9. RESIZE: the swapchain follows the window ----------------"
+#
+# This is the path that used to be untestable. A dragged window edge
+# reconfigures the swapchain, rebuilds the depth buffer at the new size and
+# retargets the scene -- and none of it could be reached from code until
+# SetSize existed. A live run confirmed the manual path (1100x660 -> 1356x882,
+# 8 reconfigures, 0 frames held); this makes it repeatable.
+#---------------------------------------------------------------------------
+
+# NOTE: none of these may be called oR -- Ring is case-insensitive and
+# `or` is a KEYWORD, so `oR.Poll()` parses as the OR operator followed
+# by a method call. It cost a full round of confusing C27/C28 errors
+# pointing at lines that were fine.
+oWinR = new stzWindow(420, 320, "resize")
+oWinCanvas = new stzCanvas(420, 320)
+oWinCanvas.SetBackground("#101828")
+oWinCanvas.AddCircleQ(210, 160, 70).Fill("#E0A030")
+
+for i = 1 to 10
+	oWinR.Poll()
+	oWinR.Draw(oWinCanvas)
+next
+aB4 = oWinR.Stats()
+chkeq("the surface starts at the asked size", aB4[1], 420)
+nRecon0 = aB4[4]
+
+chk("SetSize is accepted", oWinR.SetSize(640, 500))
+for i = 1 to 12
+	oWinR.Poll()
+	oWinR.Draw(oWinCanvas)
+next
+
+chkeq("the WINDOW reports the new width", oWinR.Width(), 640)
+chkeq("the WINDOW reports the new height", oWinR.Height(), 500)
+aAf = oWinR.Stats()
+chkeq("and the SURFACE followed it, not a stale copy", aAf[1], 640)
+chkeq("  ...in both axes", aAf[2], 500)
+chk("the reconfigure was counted", aAf[4] > nRecon0)
+chkeq("no frame is left held after a resize", aAf[5], 0)
+
+nDrawnAfter = 0
+for i = 1 to 15
+	oWinR.Poll()
+	if oWinR.Draw(oWinCanvas)
+		nDrawnAfter = nDrawnAfter + 1
+	ok
+next
+chkeq("and it still draws every frame at the new size", nDrawnAfter, 15)
+
+# The 3D tier is the one with a DEPTH buffer, and it must be rebuilt to
+# match the colour target -- attachments of different sizes are refused.
+oWinCube = new stzMesh([ :Cube, 1.4 ])
+oWinScene = new stzScene(640, 500)
+oWinScene.SetBackgroundQ("#0B1020").SetCamera(3, 2.5, 5, 0, 0, 0)
+oWinScene.AddMeshQ(oWinCube, 0, 0, 0).Color("#30C0A0")
+
+n3Before = 0
+for i = 1 to 10
+	oWinR.Poll()
+	if oWinR.Draw(oWinScene)
+		n3Before = n3Before + 1
+	ok
+next
+chkeq("3D draws at the current size", n3Before, 10)
+
+nErrBefore = StzEngineGpuCounter(9)
+oWinR.SetSize(500, 380)
+for i = 1 to 12
+	oWinR.Poll()
+	oWinR.Draw(oWinScene)
+next
+n3After = 0
+for i = 1 to 15
+	oWinR.Poll()
+	if oWinR.Draw(oWinScene)
+		n3After = n3After + 1
+	ok
+next
+chkeq("3D still draws after a SHRINK (the depth buffer was rebuilt)", n3After, 15)
+chkeq("  ...and the device logged no error doing it", StzEngineGpuCounter(9), nErrBefore)
+chkeq("the surface shrank with it", oWinR.Stats()[1], 500)
+
+oWinR.Free()
+
+#---------------------------------------------------------------------------
+? ""
+? "-- 10. Refusals are counted, never silent ---------------------"
 #---------------------------------------------------------------------------
 
 oW.Close()
