@@ -60,6 +60,7 @@ class stzCanvas from stzObject
 	@nW = 0
 	@nH = 0
 	@nFill = 0
+	@bFillNamed = FALSE
 	@nStroke = 0
 	@nStrokeW = 0
 	@oFont = NULL
@@ -128,7 +129,7 @@ class stzCanvas from stzObject
 
 	def AddRect(pnX, pnY, pnW, pnH)
 		This._Flush()
-		@aPending = [ :rect, pnX, pnY, pnW, pnH, @nFill, @nStroke, @nStrokeW ]
+		@aPending = [ :rect, pnX, pnY, pnW, pnH, @nFill, @nStroke, @nStrokeW, @bFillNamed ]
 
 	def AddRectQ(pnX, pnY, pnW, pnH)
 		This.AddRect(pnX, pnY, pnW, pnH)
@@ -147,7 +148,7 @@ class stzCanvas from stzObject
 
 	def AddCircle(pnCX, pnCY, pnR)
 		This._Flush()
-		@aPending = [ :circle, pnCX, pnCY, pnR, 0, @nFill, @nStroke, @nStrokeW ]
+		@aPending = [ :circle, pnCX, pnCY, pnR, 0, @nFill, @nStroke, @nStrokeW, @bFillNamed ]
 
 	def AddCircleQ(pnCX, pnCY, pnR)
 		This.AddCircle(pnCX, pnCY, pnR)
@@ -155,7 +156,7 @@ class stzCanvas from stzObject
 
 	def AddLine(pnX1, pnY1, pnX2, pnY2)
 		This._Flush()
-		@aPending = [ :line, pnX1, pnY1, pnX2, pnY2, @nFill, @nStroke, @nStrokeW ]
+		@aPending = [ :line, pnX1, pnY1, pnX2, pnY2, @nFill, @nStroke, @nStrokeW, @bFillNamed ]
 
 	def AddLineQ(pnX1, pnY1, pnX2, pnY2)
 		This.AddLine(pnX1, pnY1, pnX2, pnY2)
@@ -164,7 +165,7 @@ class stzCanvas from stzObject
 	# paPoints is flat: [ x1,y1, x2,y2, ... ]
 	def AddPolyline(paPoints)
 		This._Flush()
-		@aPending = [ :polyline, paPoints, 0, 0, 0, @nFill, @nStroke, @nStrokeW ]
+		@aPending = [ :polyline, paPoints, 0, 0, 0, @nFill, @nStroke, @nStrokeW, @bFillNamed ]
 
 	def AddPolylineQ(paPoints)
 		This.AddPolyline(paPoints)
@@ -172,7 +173,7 @@ class stzCanvas from stzObject
 
 	def AddPolygon(paPoints)
 		This._Flush()
-		@aPending = [ :polygon, paPoints, 0, 0, 0, @nFill, @nStroke, @nStrokeW ]
+		@aPending = [ :polygon, paPoints, 0, 0, 0, @nFill, @nStroke, @nStrokeW, @bFillNamed ]
 
 	def AddPolygonQ(paPoints)
 		This.AddPolygon(paPoints)
@@ -191,16 +192,22 @@ class stzCanvas from stzObject
 
 	# With a shape pending, Fill colours THAT shape. With none, it sets the
 	# canvas's fill for everything added afterwards.
+	#
+	# Either way it NAMES the fill, and that flag is what lets a stroke-only
+	# shape exist: see _Flush. A shape whose fill was never named and which
+	# WAS given a stroke is an outline, not a white blob.
 	def Fill(pColor)
 		_n_ = StzColorToNumber(pColor)
 		if len(@aPending) = 0
 			@nFill = _n_
+			@bFillNamed = TRUE
 			return
 		ok
 		if @aPending[1] = :text
 			@aPending[5] = _n_
 		else
 			@aPending[6] = _n_
+			@aPending[9] = TRUE
 		ok
 
 	def FillQ(pColor)
@@ -340,6 +347,21 @@ class stzCanvas from stzObject
 		ok
 		_a_ = @aPending
 		@aPending = []     # cleared FIRST: a raise below must not re-post
+
+		# STROKE-ONLY IS A SHAPE. A caller who names a stroke and never names
+		# a fill means an outline -- so the canvas's implicit starting fill
+		# (white) does not get painted underneath it. Without this, every
+		# `.Stroke(c, w)` chain drew a white blob with a coloured edge, which
+		# is what a whole scene of concentric outlines looked like the first
+		# time one was drawn.
+		#
+		# A fill NAMED anywhere -- on this shape, or as the canvas default --
+		# still wins: `.Fill(a).Stroke(b, w)` is filled AND outlined, and
+		# setting a canvas fill then stroking still fills. Only the fill
+		# nobody asked for steps aside.
+		if len(_a_) >= 9 and _a_[9] = FALSE and _a_[8] > 0
+			_a_[6] = 0        # transparent
+		ok
 
 		switch "" + _a_[1]
 		on "rect"

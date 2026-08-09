@@ -105,6 +105,38 @@ if oD.CanDrawPixels()
     oE.AddCircle(50, 50, 30)
     chk("Fill before any Add became the canvas default",
         px(oE.ToPixels(), 100, 50, 50) = "48,80,192")
+
+    # STROKE-ONLY IS A SHAPE. Found by a showcase, not by a test: a whole
+    # scene of concentric outlines came out as a white blob, because a
+    # shape nobody filled still took the canvas's implicit starting white.
+    # Four cases, because the fix must not eat a fill somebody DID ask for.
+    oS1 = new stzCanvas(100, 100)
+    oS1.SetBackground(:Black)
+    oS1.AddCircleQ(50, 50, 30).Stroke("#ff0000", 3)
+    cS1 = oS1.ToPixels()
+    chk("a stroke with no fill named is an OUTLINE, not a white disc",
+        px(cS1, 100, 50, 50) = "0,0,0")
+    chk("  ...and the outline itself is really there",
+        px(cS1, 100, 20, 50) = "255,0,0")
+
+    oS2 = new stzCanvas(100, 100)
+    oS2.SetBackground(:Black)
+    oS2.AddCircleQ(50, 50, 30).FillQ("#0000ff").Stroke("#ff0000", 3)
+    chk("a fill NAMED on the shape survives a stroke",
+        px(oS2.ToPixels(), 100, 50, 50) = "0,0,255")
+
+    oS3 = new stzCanvas(100, 100)
+    oS3.SetBackground(:Black)
+    oS3.Fill("#00ff00")                # a default the caller DID ask for
+    oS3.AddCircleQ(50, 50, 30).Stroke("#ff0000", 3)
+    chk("a fill named as the canvas default also survives a stroke",
+        px(oS3.ToPixels(), 100, 50, 50) = "0,255,0")
+
+    oS4 = new stzCanvas(100, 100)
+    oS4.SetBackground(:Black)
+    oS4.AddCircle(50, 50, 30)          # neither named: the old behaviour
+    chk("a shape with NEITHER named still takes the default fill",
+        px(oS4.ToPixels(), 100, 50, 50) = "255,255,255")
 else
     ? "  (no GPU -- pixel assertions skipped; the SVG tier below is the coverage)"
 ok
