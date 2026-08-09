@@ -149,3 +149,79 @@ one-assignment language is a toy with a GUI.
   and every guard here asserts a picture.
 - **The CPU baseline is the interpreter.** Every speedup in this plane
   must state that, or the numbers become folklore.
+
+---
+
+## GG1 SLICE 0 — DETERMINISM AND CONVERGENCE, MEASURED FIRST. VERDICT: GO
+
+`base/test/graphics/graph_layout_determinism.ring`. Run before any layout
+engine exists, because GG1's kill criteria decide whether one gets built.
+
+### Both kill lines pass
+
+| kill criterion | line | measured |
+|---|---|---|
+| seeded layout reproduces byte-identically | required, else STOP | **bit-identical**, 2000 of 2000 values in-process; same SHA-256 across 4 fresh processes |
+| 10,000 nodes converge | < 2 s | **121–155 ms** for 60 iterations — 13× headroom |
+
+### The design that makes it deterministic
+
+**One thread per node, accumulating in INDEX ORDER, with no atomics and no
+cross-thread reduction.** GG0's reachability used integer OR — associative,
+commutative, exact, reproducible whatever order the hardware picks. A force
+layout sums FLOATS, and float addition is not associative, so the summation
+order must be fixed by the SOURCE rather than left to the scheduler. It is,
+and it reproduces — including across process boundaries, where the shader
+is recompiled and the device rebuilt.
+
+Not tested and not claimed: reproducibility across DIFFERENT GPUs. A guard
+runs on one machine, so same-machine reproducibility is what it needs.
+
+### The plan's "convergence needs a readback" fear does NOT apply here
+
+Recorded in §4 as the sharpest open design question. It belongs to
+PROPAGATION (reachability, layer assignment — where the iteration count
+depends on the graph's depth), **not** to force layout. A force layout with
+a cooling schedule has an iteration count fixed by the schedule, so nothing
+has to be read back to know when to stop.
+
+But only with an **ABSOLUTE** schedule — `temp = T0 * 0.94^i`, a function of
+the iteration NUMBER. The first version normalised by the TOTAL
+(`1 - i/nIters`), which makes run(30) a *different schedule* from run(20)
+rather than run(20) plus ten steps. Residual measured that way was noise
+(531 → 642 → 522 → 282 → 168 → 215 px). With the absolute schedule it
+decays monotonically:
+
+```
+iteration  20   30   40   50   60   80  110
+residual  414  223  120   65   35   29   10  px
+```
+
+### Quality is measured, not eyeballed
+
+A layout can reproduce perfectly and still be worthless. The first picture
+drawn was an even disc — and that was the CORRECT drawing of the graph it
+was given, a pseudo-random expander with no communities. Proving nothing.
+
+Re-run on a graph that HAS structure (6 clusters of 120, dense inside,
+sparse bridges): mean radius within a cluster **131.6**, mean distance
+between centroids **581.7**, **separation ratio 4.42**. The communities
+come apart, and the number says so without anyone squinting at the picture.
+`graph_layout_clusters.png` is the visual confirmation, not the evidence.
+
+### Two measurement bugs caught inside the probe, both worth the entry
+
+1. **`BufferDownloadList(id)` silently answered 16 values of 2000** — it
+   takes `(id, count)` and the missing argument read garbage. The first
+   determinism verdict rested on 0.8% of the data and said PASS. A
+   comparison that reports success on a truncated read is exactly the
+   coincidence-pass this house keeps meeting.
+2. **The normalised cooling schedule above.** Both were found by asking
+   whether the numbers could be right, not by anything failing.
+
+### What GG1 still owes
+
+Hierarchical layout (layer assignment + crossing reduction) is untouched —
+and layer assignment IS a propagation to a fixed point, so the convergence
+question lands there rather than here. Force-directed is proven; the other
+half of GG1 is not.
