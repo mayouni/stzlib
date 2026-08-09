@@ -517,7 +517,16 @@ fn renderToTarget(s: *Scene3d) !bool {
 
     const tfmt: i32 = if (s.ext_target != 0) s.ext_tfmt else render.TFMT_RGBA8;
     if (s.ext_target == 0) {
-        if (s.target != 0 and gpu.stz_gpu_texture_width(s.target) < 0) s.target = 0;
+        // Same as the 2D tier: a target that no longer matches the scene's
+        // size is as unusable as a stale one. The depth buffer below was
+        // already handled; the COLOUR target was not, so a resized 3D scene
+        // read back through the wrong dimensions.
+        if (s.target != 0 and (gpu.stz_gpu_texture_width(s.target) != @as(f64, @floatFromInt(s.w)) or
+            gpu.stz_gpu_texture_height(s.target) != @as(f64, @floatFromInt(s.h))))
+        {
+            _ = gpu.stz_gpu_texture_free(s.target);
+            s.target = 0;
+        }
         if (s.target == 0) {
             s.target = gpu.stz_gpu_texture_new(@floatFromInt(s.w), @floatFromInt(s.h), @floatFromInt(gpu.TEX_TARGET));
             if (s.target == 0) return false;

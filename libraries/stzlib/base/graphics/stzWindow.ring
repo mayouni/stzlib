@@ -256,6 +256,12 @@ class stzWindow from stzObject
 		_bOk_ = FALSE
 		_cKind_ = StzDrawableKind(poThing)
 		if _cKind_ = :Canvas
+			# Keep the FACE's idea of its size equal to the engine's. The
+			# engine retargets either way; without this the canvas would
+			# keep reporting the size it was constructed with.
+			if poThing.Width() != _nW_ or poThing.Height() != _nH_
+				poThing.Resize(_nW_, _nH_)
+			ok
 			# the canvas keeps ONE pending shape so FillQ can reach it;
 			# post it before drawing or the last shape is invisible
 			poThing.Flush()

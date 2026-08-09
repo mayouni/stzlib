@@ -65,14 +65,31 @@ if len(sysargv) >= 3 and sysargv[3] = "shots"
 	bShots = TRUE
 ok
 
-nW = 1100
-nH = 660
-nBar = 62                  # the caption bar owns the bottom strip
+# ---- responsive layout ---------------------------------------------------
+#
+# THE REFERENCE DESIGN. Every radius and amplitude below was sized against
+# these numbers, so they are kept as the thing to SCALE FROM rather than
+# scattered through the scenes as magic constants.
+REF_W = 1100
+REF_H = 660
+REF_BAR = 62
+REF_CX = REF_W / 2
+REF_CY = (REF_H - REF_BAR) / 2
+
+# The live layout, recomputed EVERY FRAME from the window (Layout() below).
+# Computing it once at startup is what made the first gallery drift off
+# centre the moment anybody dragged an edge.
+nW = REF_W
+nH = REF_H
+nBar = REF_BAR
 nDrawH = nH - nBar
 nCX = nW / 2
 nCY = nDrawH / 2           # centre of what the eye reads as the picture,
                            # NOT of the canvas -- otherwise every scene sits
                            # low and the biggest ones run under the caption
+nScale = 1                 # uniform, from whichever axis is tighter
+nBarFont = 26
+nBarSub = 15
 
 TWO_PI = 6.283185307179586
 DEG = 3.141592653589793 / 180
@@ -126,6 +143,16 @@ aScenes = [
 	[ :Orrery,    "ORRERY",         "nested orbits, each carrying the next" ],
 	[ :Ribbons,   "RIBBONS",        "rose curves under a moving phase" ]
 ]
+# The orrery's positions are computed ONCE per frame into these, and both
+# the trail and the drawing read them. They used to be computed TWICE --
+# in StepOrrery (which knew nothing of nScale) and again in DrawOrrery
+# (which did) -- and the two silently disagreed the moment a scale existed:
+# bodies drew inside a 173 px system while their trails swept 432 px and
+# flew off the window. Duplicated logic does not stay equal; it only looks
+# equal until something changes on one side.
+aPos = []       # [x, y] of each body, this frame
+aParent = []    # [x, y] of whatever it orbits
+
 nScene = 1
 nSceneTime = 0
 nHold = 14           # seconds before it advances by itself
@@ -176,6 +203,7 @@ if bShots
 		nClock = 3.5
 		for f = 1 to 260
 			oWin.Poll()
+			Layout()
 			nClock += 1.0 / 60
 			StepFlow(1.0 / 60)
 			StepOrrery(1.0 / 60)
@@ -238,6 +266,7 @@ while oWin.IsOpen()
 		if nScene > len(aScenes)  nScene = 1  ok
 	ok
 
+	Layout()
 	StepFlow(nDt)
 	StepOrrery(nDt)
 	DrawScene()
@@ -261,6 +290,76 @@ oWin.Free()
 # back, so everything below here is called from the loop above.
 #===========================================================================
 
+#-- layout -----------------------------------------------------------------
+
+# Recompute everything geometric from the CURRENT window. Called once per
+# frame, before any stepping or drawing, so a frame is laid out and drawn
+# at one consistent size -- reading the window twice in a frame is how a
+# resize produces one torn picture.
+func Layout
+	_pw_ = nW
+	_ph_ = nH
+	nW = oWin.Width()
+	nH = oWin.Height()
+	if nW < 1  nW = 1  ok
+	if nH < 1  nH = 1  ok
+
+	# Chrome shrinks with the window but has a floor: a 62 px bar on a
+	# 200 px window is not a caption, it is the window.
+	nBar = nH * 0.094
+	if nBar > REF_BAR  nBar = REF_BAR  ok
+	if nBar < 34       nBar = 34       ok
+	if nBar > nH * 0.5  nBar = nH * 0.5  ok
+
+	nDrawH = nH - nBar
+	nCX = nW / 2
+	nCY = nDrawH / 2
+
+	# ONE uniform scale, so circles stay circles -- scaling x and y
+	# independently would stretch every scene into an ellipse the moment the
+	# window stopped being 5:3.
+	#
+	# And it is measured RADIALLY, against the shorter half-axis, because
+	# every scene here is centred and roughly circular. Treating the design
+	# as a 1100-wide BOX instead made a portrait window scale by its width
+	# (0.47) and leave half the height empty; measured radially the same
+	# window scales 0.87 and fills it, with no distortion either way. The
+	# reference is REF_CY because that is the axis the design was actually
+	# sized against.
+	nScale = nCX
+	if nCY < nScale  nScale = nCY  ok
+	nScale = nScale / REF_CY
+	if nScale < 0.12  nScale = 0.12  ok
+
+	nBarFont = 26 * nBar / REF_BAR
+	nBarSub = 15 * nBar / REF_BAR
+	if nBarFont < 11  nBarFont = 11  ok
+	if nBarSub < 9    nBarSub = 9    ok
+
+	# POSITION HISTORY DOES NOT SURVIVE A RESIZE. Trails hold ABSOLUTE
+	# coordinates recorded at the old scale, so after a resize they hang in
+	# the frame as arcs that belong to a window that no longer exists --
+	# clearly visible as streaks flying off the edge. Particles self-heal
+	# because they wrap; trails have no such mechanism, so they are dropped.
+	if nW != _pw_ or nH != _ph_
+		Reflow()
+	ok
+
+# Called by Layout when the window actually changed size.
+func Reflow
+	nB = len(aBodies)
+	for i = 1 to nB
+		aBodies[i][5] = []
+	next
+	# pull any particle that is now far outside back into view, so a shrink
+	# does not leave most of the field parked off-screen waiting to expire
+	for i = 1 to nParticles
+		if aPx[i] < -20 or aPx[i] > nW + 20 or aPy[i] < -20 or aPy[i] > nH + 20
+			aPx[i] = random(1000) / 1000 * nW
+			aPy[i] = random(1000) / 1000 * nH
+		ok
+	next
+
 #-- simulation -------------------------------------------------------------
 
 # A flow field with no noise table: three sine terms of different period
@@ -276,8 +375,8 @@ func StepFlow dt
 	ok
 	for i = 1 to nParticles
 		nA = FieldAngle(aPx[i], aPy[i], nClock)
-		aPx[i] += cos(nA) * 62 * dt
-		aPy[i] += sin(nA) * 62 * dt
+		aPx[i] += cos(nA) * 62 * nScale * dt
+		aPy[i] += sin(nA) * 62 * nScale * dt
 		# hue follows heading, so colour MEANS direction rather than decorating it
 		aPh[i] = floor((nA / TWO_PI * 360) % 360)
 		if aPh[i] < 0  aPh[i] += 360  ok
@@ -294,19 +393,29 @@ func StepFlow dt
 		ok
 	next
 
+# Positions are computed here and NOWHERE ELSE. Runs every frame the orrery
+# is on screen, INCLUDING while paused (dt = 0) -- a paused scene still has
+# to know where its bodies are; it just stops recording history.
 func StepOrrery dt
-	if dt = 0 or aScenes[nScene][1] != :Orrery
+	if aScenes[nScene][1] != :Orrery
 		return
 	ok
 	nB = len(aBodies)
+	aPos = []
+	aParent = []
 	nPx = nCX  nPy = nCY
 	for i = 1 to nB
+		aParent + [ nPx, nPy ]
+		nOrb = aBodies[i][1] * nScale
 		nAng = nClock * aBodies[i][2]
-		nPx += cos(nAng) * aBodies[i][1]
-		nPy += sin(nAng) * aBodies[i][1] * 0.55      # tilted, so it reads as an orbit
-		aBodies[i][5] + [ nPx, nPy ]
-		if len(aBodies[i][5]) > 260
-			del(aBodies[i][5], 1)
+		nPx += cos(nAng) * nOrb
+		nPy += sin(nAng) * nOrb * 0.55      # tilted, so it reads as an orbit
+		aPos + [ nPx, nPy ]
+		if dt > 0
+			aBodies[i][5] + [ nPx, nPy ]
+			if len(aBodies[i][5]) > 260
+				del(aBodies[i][5], 1)
+			ok
 		ok
 	next
 
@@ -334,13 +443,17 @@ func DrawScene
 
 # ---- scene 1: a field of angles made visible ----
 func DrawFlow
+	nHalo = 7 * nScale
+	nCore = 2.4 * nScale
+	if nHalo < 2    nHalo = 2    ok
+	if nCore < 0.9  nCore = 0.9  ok
 	for i = 1 to nParticles
 		nH2 = aPh[i] + 1
 		# a soft halo under a bright core: two circles is the cheapest glow
 		# that still reads as light rather than as a dot
-		oCanvas.AddCircleQ(aPx[i], aPy[i], 7).
+		oCanvas.AddCircleQ(aPx[i], aPy[i], nHalo).
 			Fill(StzColorWithAlpha(aPalSoft[nH2], 34))
-		oCanvas.AddCircleQ(aPx[i], aPy[i], 2.4).Fill(aPal[nH2])
+		oCanvas.AddCircleQ(aPx[i], aPy[i], nCore).Fill(aPal[nH2])
 	next
 
 # ---- scene 2: pendulums drawing each other ----
@@ -363,15 +476,15 @@ func DrawHarmonograph
 			nT = k * 0.039
 			nD = exp(-nDecay * k)
 			nX = nCX + (sin(nT * nF1 + nPhase) * 250 +
-			            sin(nT * nF2 + nPhase * 1.7) * 115) * nD
+			            sin(nT * nF2 + nPhase * 1.7) * 115) * nD * nScale
 			nY = nCY + (sin(nT * nF3 + nPhase * 0.6) * 160 +
-			            sin(nT * nF4 - nPhase) * 78) * nD
+			            sin(nT * nF4 - nPhase) * 78) * nD * nScale
 			aPts + nX
 			aPts + nY
 		next
 		nHue = floor((196 + c * 17 + nClock * 9) % 360) + 1
 		oCanvas.AddPolylineQ(aPts).
-			Stroke(StzColorWithAlpha(aPal[nHue], 120), 1.6)
+			Stroke(StzColorWithAlpha(aPal[nHue], 120), Wid(1.6))
 	next
 
 # ---- scene 3: nested polygons out of phase ----
@@ -379,7 +492,7 @@ func DrawBloom
 	nRings = 26
 	for r = nRings to 1 step -1
 		nSides = 3 + (r % 10)
-		nRad = 24 + r * 8.6                   # 26th ring = 248, inside nCY
+		nRad = (24 + r * 8.6) * nScale        # 26th ring = 248 at scale 1
 		# each ring turns at its own rate: the pattern never repeats exactly
 		nRot = nClock * (0.45 - r * 0.011) + r * 0.22
 		aPts = []
@@ -394,44 +507,42 @@ func DrawBloom
 		oCanvas.AddPolygonQ(aPts).
 			Fill(StzColorWithAlpha(aPalDeep[nHue], 26))
 		oCanvas.AddPolygonQ(aPts).
-			Stroke(StzColorWithAlpha(aPal[nHue], 165), 1.7)
+			Stroke(StzColorWithAlpha(aPal[nHue], 165), Wid(1.7))
 	next
 	# a lit core
-	Glow(nCX, nCY, 26, floor((nClock * 26) % 360) + 1)
+	Glow(nCX, nCY, 26 * nScale, floor((nClock * 26) % 360) + 1)
 
 # ---- scene 4: orbits carrying orbits ----
 func DrawOrrery
-	# the sun
-	Glow(nCX, nCY, 34, 45)
+	Glow(nCX, nCY, 34 * nScale, 45)      # the sun
+	if len(aPos) = 0
+		return
+	ok
 
 	nB = len(aBodies)
-	nPx = nCX  nPy = nCY
 	for i = 1 to nB
-		# the orbit path this body travels, drawn around its PARENT
+		nOrb = aBodies[i][1] * nScale
+
+		# the orbit this body travels, drawn around its PARENT
 		aRing = []
 		for s = 0 to 96
 			nA = s * TWO_PI / 96
-			aRing + (nPx + cos(nA) * aBodies[i][1])
-			aRing + (nPy + sin(nA) * aBodies[i][1] * 0.55)
+			aRing + (aParent[i][1] + cos(nA) * nOrb)
+			aRing + (aParent[i][2] + sin(nA) * nOrb * 0.55)
 		next
-		oCanvas.AddPolygonQ(aRing).Stroke("#46567F", 1)
+		oCanvas.AddPolygonQ(aRing).Stroke("#46567F", Wid(1))
 
-		nAng = nClock * aBodies[i][2]
-		nPx += cos(nAng) * aBodies[i][1]
-		nPy += sin(nAng) * aBodies[i][1] * 0.55
-
-		# the trail, fading with age -- one circle per sample, so it is
-		# capped at 150 points per body
+		# the trail, fading with age
 		nT = len(aBodies[i][5])
 		for k = 1 to nT step 2
 			nFade = k / nT
 			oCanvas.AddCircleQ(aBodies[i][5][k][1], aBodies[i][5][k][2],
-					   1 + 2.5 * nFade).
+					   (1 + 2.5 * nFade) * nScale).
 				Fill(StzColorWithAlpha(aPalSoft[aBodies[i][4] + 1],
 						      8 + 70 * nFade))
 		next
 
-		Glow(nPx, nPy, aBodies[i][3], aBodies[i][4] + 1)
+		Glow(aPos[i][1], aPos[i][2], aBodies[i][3] * nScale, aBodies[i][4] + 1)
 	next
 
 # ---- scene 5: rose curves under a moving phase ----
@@ -439,7 +550,7 @@ func DrawRibbons
 	nBands = 9
 	for b = 1 to nBands
 		nK = 2 + b * 0.5                      # petal count
-		nAmp = 42 + b * 21                    # max 231 -> 185 tall, fits nCY
+		nAmp = (42 + b * 21) * nScale         # max 231 at scale 1
 		nPhase = nClock * (0.25 + b * 0.045)
 		aPts = []
 		for s = 0 to 260
@@ -453,14 +564,17 @@ func DrawRibbons
 		# instead of nine shades of the same green
 		nHue = floor((b * 40 + nClock * 14) % 360) + 1
 		oCanvas.AddPolylineQ(aPts).
-			Stroke(StzColorWithAlpha(aPal[nHue], 95 + b * 8), 2.2)
+			Stroke(StzColorWithAlpha(aPal[nHue], 95 + b * 8), Wid(2.2))
 	next
 
 #-- shared pieces ----------------------------------------------------------
 
 # Four concentric circles of falling alpha. Cheaper than any blur and it
 # reads as light because the falloff is what an eye actually looks for.
+# r arrives ALREADY SCALED by the caller -- scaling again here would square
+# the factor and make every glow vanish on a small window.
 func Glow x, y, r, hue
+	if r < 1.5  r = 1.5  ok
 	oCanvas.AddCircleQ(x, y, r * 2.6).Fill(StzColorWithAlpha(aPalSoft[hue], 16))
 	oCanvas.AddCircleQ(x, y, r * 1.8).Fill(StzColorWithAlpha(aPalSoft[hue], 26))
 	oCanvas.AddCircleQ(x, y, r * 1.2).Fill(StzColorWithAlpha(aPal[hue], 60))
@@ -468,30 +582,42 @@ func Glow x, y, r, hue
 	oCanvas.AddCircleQ(x, y, r * 0.42).Fill(StzColorMix(aPal[hue], "#FFFFFF", 0.72))
 
 func DrawGrid
-	nStep = 55
+	nStep = 55 * nScale
+	if nStep < 18  nStep = 18  ok
 	for x = 0 to nW step nStep
-		oCanvas.AddLineQ(x, 0, x, nH).Stroke("#FFFFFF12", 1)
+		oCanvas.AddLineQ(x, 0, x, nDrawH).Stroke("#FFFFFF12", Wid(1))
 	next
-	for y = 0 to nH step nStep
-		oCanvas.AddLineQ(0, y, nW, y).Stroke("#FFFFFF12", 1)
+	for y = 0 to nDrawH step nStep
+		oCanvas.AddLineQ(0, y, nW, y).Stroke("#FFFFFF12", Wid(1))
 	next
 
 # The caption bar. Text goes through the same shaping pipeline that draws
 # Arabic correctly -- a title is just its easiest case.
 func DrawFrame
 	oCanvas.AddRectQ(0, nDrawH, nW, nBar).Fill("#05070Fdd")
-	oCanvas.AddLineQ(0, nDrawH, nW, nDrawH).Stroke("#2A3358", 1)
+	oCanvas.AddLineQ(0, nDrawH, nW, nDrawH).Stroke("#2A3358", Wid(1))
 
-	# scene ticks, so you can see where you are in the set
+	nPad = nBar * 0.42
+	nDot = nBar / REF_BAR
+	if nDot < 0.55  nDot = 0.55  ok
+
+	# Scene ticks, RIGHT-aligned. They used to sit under the title at the
+	# left, which worked only because at the reference size the title had
+	# no descenders and the bar was tall enough to stack them. At any other
+	# size they landed on the text. Opposite ends cannot collide.
 	nS = len(aScenes)
+	nGap = 20 * nDot
+	nTickY = nDrawH + nBar * 0.5
+	nTickR = nW - nPad
 	for i = 1 to nS
-		nBx = 26 + (i - 1) * 22
+		nBx = nTickR - (nS - i) * nGap
 		if i = nScene
-			oCanvas.AddCircleQ(nBx, nH - 20, 5).Fill("#E0A030")
+			oCanvas.AddCircleQ(nBx, nTickY, 4.6 * nDot).Fill("#E0A030")
 		else
-			oCanvas.AddCircleQ(nBx, nH - 20, 3.5).Fill("#3A4870")
+			oCanvas.AddCircleQ(nBx, nTickY, 3.2 * nDot).Fill("#3A4870")
 		ok
 	next
+	nTicksLeft = nTickR - (nS - 1) * nGap - 6 * nDot
 
 	# SetFont INSIDE the chain, not before it. With a text shape pending,
 	# SetFont retargets THAT shape -- so `SetFont(25); AddText(title);
@@ -499,9 +625,29 @@ func DrawFrame
 	# subtitle 25. Naming the size in each chain is unambiguous, and it is
 	# the form the class documents.
 	if isObject(oFont)
-		oCanvas.AddTextQ(aScenes[nScene][2], 26, nH - 26).
-			SetFontQ(oFont, 26).Color("#EAF0FF")
-		oCanvas.AddTextQ(aScenes[nScene][3],
-			26 + oFont.WidthOf(aScenes[nScene][2], 26) + 26, nH - 26).
-			SetFontQ(oFont, 15).Color("#7E8CB0")
+		_nTy_ = nDrawH + nBar * 0.66
+		_cTitle_ = aScenes[nScene][2]
+		_nTw_ = oFont.WidthOf(_cTitle_, nBarFont)
+		oCanvas.AddTextQ(_cTitle_, nPad, _nTy_).
+			SetFontQ(oFont, nBarFont).Color("#EAF0FF")
+
+		# The subtitle is the first thing to go. Measuring it with the REAL
+		# shaped advance -- not an estimate from character count -- is what
+		# lets it disappear exactly when it would have overflowed, instead
+		# of a guess that either clips or drops it too early.
+		_nSx_ = nPad + _nTw_ + nBar * 0.42
+		_nSw_ = oFont.WidthOf(aScenes[nScene][3], nBarSub)
+		if _nSx_ + _nSw_ < nTicksLeft - nPad
+			oCanvas.AddTextQ(aScenes[nScene][3], _nSx_, _nTy_).
+				SetFontQ(oFont, nBarSub).Color("#7E8CB0")
+		ok
 	ok
+
+# A stroke width that stays VISIBLE when the window shrinks. Scaling a
+# 1 px line by 0.3 gives a line the rasterizer can barely find, so widths
+# scale only part-way and never below one pixel.
+func Wid w
+	_w_ = w * nScale
+	if _w_ < w * 0.6  _w_ = w * 0.6  ok
+	if _w_ < 1        _w_ = 1        ok
+	return _w_

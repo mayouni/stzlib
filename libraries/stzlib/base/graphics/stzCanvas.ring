@@ -288,6 +288,29 @@ class stzCanvas from stzObject
 	# Empty the display list, keeping the background and the GPU buffers.
 	# What an ANIMATED canvas calls at the top of each frame -- without it
 	# the list grows by a frame's worth of shapes forever.
+	# Change the canvas's extents. The engine scene and this face are
+	# resized by the SAME call, so Width()/Height() cannot drift from what
+	# is actually being drawn -- which they did, silently, the first time a
+	# window retargeted a canvas: the face kept answering its construction
+	# size while the scene had moved on.
+	def Resize(pnW, pnH)
+		if NOT (isNumber(pnW) and isNumber(pnH))
+			StzRaise("stzCanvas.Resize: give a width and a height in pixels.")
+		ok
+		if pnW < 1 or pnH < 1
+			StzRaise("stzCanvas.Resize: a canvas needs a positive size.")
+		ok
+		if StzEngineGpuSceneResize(@nId, pnW, pnH) != 0
+			return FALSE
+		ok
+		@nW = pnW
+		@nH = pnH
+		return TRUE
+
+	def ResizeQ(pnW, pnH)
+		This.Resize(pnW, pnH)
+		return This
+
 	def Clear()
 		@aPending = []
 		StzEngineGpuSceneReset(@nId)
