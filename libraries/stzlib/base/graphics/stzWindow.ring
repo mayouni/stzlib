@@ -166,6 +166,23 @@ class stzWindow from stzObject
 		This.SetTitle(pcTitle)
 		return This
 
+	# Resize from code. The size lands at the next Poll(), which is also
+	# where the swapchain reconfigures -- so this drives exactly the path a
+	# dragged window edge drives, and that is why it exists: without it the
+	# resize path could only ever be tested by a person with a mouse.
+	def SetSize(pnW, pnH)
+		if @nId = 0 or NOT (isNumber(pnW) and isNumber(pnH))
+			return FALSE
+		ok
+		if pnW < 1 or pnH < 1
+			StzRaise("stzWindow.SetSize: a window needs a positive size.")
+		ok
+		return StzEngineWindowSetSize(@nId, pnW, pnH) = 0
+
+	def SetSizeQ(pnW, pnH)
+		This.SetSize(pnW, pnH)
+		return This
+
 	# TRUE for the frame in which the user finished resizing. The surface is
 	# reconfigured HERE rather than in Draw(), so a caller that wants to
 	# re-lay-out its picture can do so before anything is drawn at the new

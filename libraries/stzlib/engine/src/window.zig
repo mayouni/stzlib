@@ -317,6 +317,20 @@ pub fn mouseClicked(id: i64, btn: i32) i32 {
     return if (windows.items[slot].mouse_clicked[@intCast(btn)]) 1 else 0;
 }
 
+/// Resize the window from code. Its reason for existing is not convenience:
+/// without it, the resize path -- swapchain reconfigure, depth-buffer
+/// rebuild, scene retarget -- can ONLY be driven by a human with a mouse,
+/// which means it can never be guarded. The size takes effect at the next
+/// poll, exactly as a dragged edge does, so a guard exercises the same code
+/// a person does.
+pub fn setSize(id: i64, w: i32, h: i32) i32 {
+    const slot = slotOf(id) orelse return STALE;
+    if (w < 1 or h < 1) return BAD_ARG;
+    const hnd = windows.items[slot].handle orelse return STALE;
+    c.glfwSetWindowSize(hnd, w, h);
+    return OK;
+}
+
 pub fn setTitle(id: i64, title: [*:0]const u8) i32 {
     const slot = slotOf(id) orelse return STALE;
     const hnd = windows.items[slot].handle orelse return STALE;
