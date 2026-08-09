@@ -1,5 +1,6 @@
 const std = @import("std");
 const graph = @import("graph.zig");
+const glayout = @import("graph_layout.zig");
 const R = @import("ring_api.zig");
 
 const gpa = std.heap.c_allocator;
@@ -529,6 +530,80 @@ fn ring_ConnectedComponents(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(nc));
 }
 
+
+// ---- GG1 layered layout ------------------------------------------------
+//
+// Lists in, lists out. The sweep and the crossing count were the whole cost
+// of a 10,000-node layout in interpreted Ring; they are ordinary tight loops
+// and belong here.
+
+fn readU32List(p: *anyopaque, argn: c_int) ?[]u32 {
+    const lst = R.gl(p, argn) orelse return null;
+    const n: usize = @intCast(R.ringListSize(lst));
+    if (n == 0) return null;
+    const out = gpa.alloc(u32, n) catch return null;
+    for (0..n) |i| {
+        const item = R.ring_list_getitem_gc(null, lst, @intCast(i + 1)) orelse {
+            out[i] = 0;
+            continue;
+        };
+        const v = R.ring_item_getnumber(item);
+        out[i] = if (v < 0) 0 else @intFromFloat(v);
+    }
+    return out;
+}
+
+// GraphLayoutSweep(aOff, aSrc, aLayer, aOrder, aStarts, nSweeps) -> aOrder
+fn ring_LayoutSweep(p: *anyopaque) callconv(.c) void {
+    const off = readU32List(p, 1) orelse return;
+    defer gpa.free(off);
+    const src = readU32List(p, 2) orelse return;
+    defer gpa.free(src);
+    const layer = readU32List(p, 3) orelse return;
+    defer gpa.free(layer);
+    const order = readU32List(p, 4) orelse return;
+    defer gpa.free(order);
+    const starts = readU32List(p, 5) orelse return;
+    defer gpa.free(starts);
+    const nsw: u32 = @intFromFloat(g(p, 6));
+
+    _ = glayout.sweep(off, src, layer, order, starts, nsw);
+
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (order) |v| R.ring_list_adddouble(out, @floatFromInt(v));
+    R.ring_vm_api_retlist(p, out);
+}
+
+// GraphLayoutCrossings(aU, aV, aLayer, aPos, aStarts) -> count
+fn ring_LayoutCrossings(p: *anyopaque) callconv(.c) void {
+    const eu = readU32List(p, 1) orelse {
+        rn(p, -1);
+        return;
+    };
+    defer gpa.free(eu);
+    const ev = readU32List(p, 2) orelse {
+        rn(p, -1);
+        return;
+    };
+    defer gpa.free(ev);
+    const layer = readU32List(p, 3) orelse {
+        rn(p, -1);
+        return;
+    };
+    defer gpa.free(layer);
+    const pos = readU32List(p, 4) orelse {
+        rn(p, -1);
+        return;
+    };
+    defer gpa.free(pos);
+    const starts = readU32List(p, 5) orelse {
+        rn(p, -1);
+        return;
+    };
+    defer gpa.free(starts);
+    rn(p, glayout.crossings(eu, ev, layer, pos, starts));
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginegraphcreate", .func = &ring_Create },
     .{ .name = "stzenginegraphfree", .func = &ring_Free },
@@ -580,6 +655,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegraphoutdegree", .func = &ring_OutDegree },
     .{ .name = "stzenginegraphtopologicalsort", .func = &ring_TopologicalSort },
     .{ .name = "stzenginegraphconnectedcomponents", .func = &ring_ConnectedComponents },
+    .{ .name = "stzenginegraphlayoutsweep", .func = &ring_LayoutSweep },
+    .{ .name = "stzenginegraphlayoutcrossings", .func = &ring_LayoutCrossings },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
