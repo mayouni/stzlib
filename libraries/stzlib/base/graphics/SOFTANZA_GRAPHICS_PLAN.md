@@ -1139,3 +1139,54 @@ already named: compute simple non-graph layouts (an org chart's tree)
 ourselves and draw them with stzCanvas, so they stop needing dot at all,
 while true graph layout keeps shelling out. That is GR6b, and it is a
 layout problem, not a rendering one.
+
+---
+
+## GR6b STATUS — shipped 2026-08-09: hierarchies lay themselves out
+
+`base/graphics/stzTreeCanvas.ring` lays a hierarchy out and draws it, and
+`stzOrgChart` gained `ToTreeNodes()` / `ToCanvasQ()` / `ToSVG()` /
+`ToPNG()`. Guard: `base/test/graphics/tree_backends_narrated.ring` —
+**29 asserts green, every one deviceless**. Pre-existing suites stay
+green (org chart 10, diagram exporters 35, diagram styles 20).
+
+**An org chart needs no external binary now.** `ToDot()` is untouched —
+a real graph, with cycles and dotted-line reporting, still belongs to the
+tool that does graph layout for a living. But a TREE does not need graph
+layout, and saying so is the whole phase: laying a hierarchy out is a
+page of arithmetic, and doing it here also buys the PNG tier that
+rasterizing dot's SVG could never have given us.
+
+**It is a TREE canvas, not an org-chart canvas** — org charts are its
+first tenant, the way glyphs were the texture atlas's. Any parent/child
+structure (a file tree, a taxonomy, a decision tree) is the same shape.
+
+The layout is the classic tidy-tree pass — leaves take consecutive slots,
+every parent centres over its children — done **iteratively on purpose**:
+a recursive version would be shorter and would put a caller's own deep
+hierarchy at the mercy of the interpreter's stack.
+
+**The layout is asserted as GEOMETRY, by parsing the emitted SVG** rather
+than by eye: a parent's centre equals the mean of its children's centres
+(415 vs 415), siblings never overlap, depth grows downward in distinct
+rows, and a four-child subtree provably pushes its sibling aside. Reading
+the emitted document is the honest check — it is what a consumer sees,
+not what the renderer believes it did.
+
+Refusals and edges all answer: an empty hierarchy raises, a **cycle
+raises rather than looping forever**, a forest stands side by side, a
+node naming an unknown parent becomes a root (with its own child still
+beneath it), and a label too long for its box is **truncated with an
+ellipsis rather than spilled** — a label that silently overflows is a
+chart lying about what it contains.
+
+One guard lesson worth keeping: the background is a `<rect>` too, and
+counting it as a node silently added a phantom row to every geometry
+assertion — and one assertion was left counting raw `<rect>`s, which made
+it pass no matter what. Both fixed; the coincidence-pass is the more
+dangerous of the two.
+
+Remaining in GR6: **dataviz on stzCanvas** (the third island), and the
+compute↔render composition demo — already demonstrated in the showcase
+(676 instances placed by a kernel), so it needs writing up rather than
+building.

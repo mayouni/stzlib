@@ -212,6 +212,50 @@ class stzOrgChart from stzDiagram
 	def Positions()
 		return @aPositions
 
+	#-- the PIXEL tiers (GR6b, SOFTANZA_GRAPHICS_PLAN.md) -----------------
+	#
+	# An org chart is a TREE, and a tree does not need graph layout. These
+	# lay it out and draw it here -- so a chart needs no external dot.exe
+	# at all, and gains a PNG tier that rasterizing dot's SVG could never
+	# have given us (this plane has no SVG parser). ToDot() is untouched:
+	# a real graph, with cycles and dotted-line reporting, still belongs to
+	# the tool that does graph layout for a living.
+	#
+	#     oOrg.ToPNG("org.png", [ :Font = oFont, :Title = "Who reports to whom" ])
+	#     oOrg.ToSVG([ :Font = oFont ])          # no GPU needed
+	#
+	# Options ride through to stzTreeCanvas: :Font :Title :NodeWidth
+	# :NodeHeight :HGap :VGap :Background :NodeColor :NodeBorder
+	# :LineColor :TextColor :FontSize :Width :Height
+
+	def ToTreeNodes()
+		_a_ = []
+		_nL_ = len(@aPositions)
+		for _i_ = 1 to _nL_
+			_cId_ = "" + @aPositions[_i_][:id]
+			_cTitle_ = _cId_
+			if HasKey(@aPositions[_i_], :title)
+				if ("" + @aPositions[_i_][:title]) != ""
+					_cTitle_ = "" + @aPositions[_i_][:title]
+				ok
+			ok
+			_cUp_ = ""
+			if HasKey(@aPositions[_i_], :reportsTo)
+				_cUp_ = "" + @aPositions[_i_][:reportsTo]
+			ok
+			_a_ + [ _cId_, _cTitle_, _cUp_ ]
+		next
+		return _a_
+
+	def ToCanvasQ(paOptions)
+		return StzTreeCanvasQ(This.ToTreeNodes(), paOptions)
+
+	def ToSVG(paOptions)
+		return This.ToCanvasQ(paOptions).ToSVG()
+
+	def ToPNG(pcPath, paOptions)
+		return This.ToCanvasQ(paOptions).ToPNG(pcPath)
+
 	  #-- the RULE-GRAPH projection (graph-rules plan, phase 2b) ------------
 	#
 	# An stzOrgChart is a POSITIONS model. AsRuleGraph projects it into a clean
