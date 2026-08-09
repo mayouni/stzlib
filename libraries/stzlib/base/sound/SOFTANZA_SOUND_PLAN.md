@@ -22,6 +22,111 @@ plus the two that graphics proved are not optional):
 
 ---
 
+## HOW TO USE THIS DOCUMENT (session bootstrap — read this first)
+
+This file is written to be **sufficient on its own** for a dedicated
+session that has never seen the sound work. It carries the analysis,
+the settled decisions, the inherited lessons, the phases with their
+kill criteria, AND the orientation below. There is deliberately no
+companion "context" document: this repo has already been bitten by
+duplicated rule lists that DRIFT (the knob-gate audit found two entry
+points whose copies of the same rules had diverged). One document.
+
+### The mission, in one paragraph
+
+Give Softanza a sound plane with two faces: a DECLARATIVE Ring surface
+(describe a sound or a graph of sounds; the engine realizes it) and an
+efficient engine backend built on assets this repo already owns — the
+FFT module, the SIMD element loops, the multicore tier — with only the
+genuinely missing half (device I/O and file decode) vendored. Sound is
+greenfield here: there is no audio code in Softanza today.
+
+### Orientation — where everything is
+
+| what | where |
+|---|---|
+| this plan | `libraries/stzlib/base/sound/SOFTANZA_SOUND_PLAN.md` |
+| sibling planes (READ their RESULTS sections) | `base/gpu/SOFTANZA_GPU_PLAN.md`, `base/graphics/SOFTANZA_GRAPHICS_PLAN.md` |
+| engine sources | `libraries/stzlib/engine/src/*.zig` |
+| the FFT you will build on | `libraries/stzlib/engine/src/fft.zig` |
+| vendored deps (the pattern to copy) | `libraries/stzlib/engine/vendor/` — see `wgpu/VERSION`, `harfbuzz/VERSION.txt` |
+| build definition (domains + `addXxx` helpers) | `libraries/stzlib/engine/build.zig` |
+| the per-OS DLL precedent to copy | `stz_window` domain in build.zig + `src/stz_window_entry.zig` |
+| Ring loaders for engine DLLs | `libraries/stzlib/engine/stz_*.ring`, registered in `base/common/stzRingLibs.ring` |
+| Ring faces (where stzSound will live) | `libraries/stzlib/base/sound/` (create), loaded from `base/stzBase.ring` |
+| guards | `libraries/stzlib/base/test/sound/` (create) |
+| project rules | `CLAUDE.md` at the repo root — READ IT |
+
+### Commands
+
+```
+# build every engine DLL (from libraries/stzlib/engine)
+zig build
+
+# run a guard (MUST be run from inside its topic directory)
+cd libraries/stzlib/base/test/sound && ring sound_xxx_narrated.ring
+
+# cross-compile check (the portable DLL must pass; the device DLL will not)
+zig build -Dtarget=x86_64-linux-gnu
+zig build -Dtarget=aarch64-macos
+```
+
+### The working discipline (non-negotiable, and the reason the two
+sibling planes are trustworthy)
+
+1. **Measure before believing anything, including this plan.** Every
+   phase gate is a measurement. The plans have named the wrong line
+   repeatedly — G0's crossover seed was 62x too cautious, GR0's kill
+   criterion aimed at a tier that cost 3% of the budget.
+2. **Write kill criteria BEFORE looking at numbers**, in the doc, and
+   then apply them even when they hurt. Half this work's value is
+   saying where sound does NOT need acceleration.
+3. **Guards are narrated and assert the MECHANISM**, never the vibe —
+   and every positive needs its negative sibling (the thing that
+   proves the guard would notice a failure). Counters are the usual
+   witness: assert that a number MOVED, and that it did NOT move on
+   the other side of the gate.
+4. **A bounded record COUNTS what it drops.** Underruns, dropped
+   voices, queue overflows — countable from the first phase.
+5. **Engine-first**: substance in Zig so any binding gets it; Ring is
+   ONE face. Ring-side logic is capability other bindings won't have.
+6. **CI has no audio device** (and no GPU): every guard must pass
+   through the offline path, with device assertions gated on presence.
+7. **Parallel sessions work this repo**: `git add <explicit paths>`,
+   never `-A`. Expect foreign commits between your edit and your
+   commit; rebuild before diagnosing a strange failure.
+8. **Push protocol**: `git push origin main` then
+   `git push codeberg HEAD:refs/heads/main`; VERIFY both with
+   `git ls-remote <remote> main` against `git rev-parse main` (push
+   output can lie). If codeberg fails, say PENDING and move on.
+9. **Record the outcome** in this file (a `## SN<n> STATUS/RESULTS`
+   section) and in memory (`project_sound_plan.md`) when a phase ends.
+
+### Traps this repo has already paid for (do not re-pay them)
+
+- A vendor-root file named `VERSION` **collides with C++'s `<version>`
+  header** on case-insensitive filesystems → name it `VERSION.txt`.
+- In Ring, **top-level code after a `func` never runs** → main logic
+  first, helpers at the bottom.
+- In Ring, **a `func` written after a `class` in the same file becomes
+  a METHOD of that class** → shared helpers must precede the class.
+- Ring's `substr/len/upper` are byte-oriented → use the `Stz*` engine
+  helpers for anything multibyte.
+- Don't name a method/variable after a Ring keyword (`load`, `call`).
+- Engine bridges are **0-based**; Ring faces are 1-based — translate
+  at the face, and say so.
+- A guard must **isolate its subject**: when two paths can serve the
+  same call, the guard for one must disable the other, or it will
+  measure the wrong thing (this cost the GPU plane a false green).
+
+### The first action
+
+**SN0**, exactly as specified in §3 below: the audio spike, measurement
+only, no product code — with its kill criteria applied before the
+numbers are interpreted, and a `## SN0 RESULTS` section appended here.
+
+---
+
 ## 0. The facts that shape everything (surveyed 2026-08-09)
 
 **FACT 1 — Softanza has NO audio of any kind today.** No playback, no
