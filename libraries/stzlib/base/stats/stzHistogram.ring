@@ -81,6 +81,19 @@ class stzHistogram from stzObject
 	#
 	# ROUND FIRST, THEN COMPACT. Rounding kills the float artefact that makes an
 	# edge print as 3.40000000004, and compacting keeps a large edge short (2.7K).
+	#-- the PIXEL tiers (GR6c) --------------------------------------------
+	# The SAME bins the terminal draws -- counts and labels come from the
+	# binning, so the two pictures cannot disagree about the distribution.
+	# Bars touch, because the bins do.
+	def ToCanvasQ(paOptions)
+		return StzPlotCanvasQ(:Histogram, @aBinCounts, @aBinLabels, paOptions)
+
+	def ToSVG(paOptions)
+		return This.ToCanvasQ(paOptions).ToSVG()
+
+	def ToPNG(pcPath, paOptions)
+		return This.ToCanvasQ(paOptions).ToPNG(pcPath)
+
 	# Whatever this returns is what is measured AND what is drawn, so the two
 	# cannot drift apart again.
 	def _BinLabelFor(nEdge)

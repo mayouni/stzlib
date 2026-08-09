@@ -30,6 +30,25 @@ class stzMBarPlot from stzBarPlot
 		_processMultiSeriesData(paMultiSeriesData)
 		_calculateMultiSeriesMetrics()
 
+	#-- the PIXEL tiers (GR6c) --------------------------------------------
+	# Grouped bars: one cluster per category, one bar per series, with the
+	# legend a multi-series chart cannot be read without. Series names and
+	# categories come from the model, so the legend cannot go stale.
+	def ToCanvasQ(paOptions)
+		_aSeries_ = []
+		_nL_ = len(@aSeriesData)
+		for _i_ = 1 to _nL_
+			_cName_ = "" + @acSeriesNames[_i_]
+			_aSeries_ + [ _cName_, @aSeriesData[_i_][:Values] ]
+		next
+		return StzPlotCanvasQ(:MultiBar, _aSeries_, @acCategories, paOptions)
+
+	def ToSVG(paOptions)
+		return This.ToCanvasQ(paOptions).ToSVG()
+
+	def ToPNG(pcPath, paOptions)
+		return This.ToCanvasQ(paOptions).ToPNG(pcPath)
+
 	# --- Multi-Series Data Processing ---
 
 	def _processMultiSeriesData(paData)

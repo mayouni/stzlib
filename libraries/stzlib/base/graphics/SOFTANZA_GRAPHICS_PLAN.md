@@ -1190,3 +1190,52 @@ Remaining in GR6: **dataviz on stzCanvas** (the third island), and the
 compute↔render composition demo — already demonstrated in the showcase
 (676 instances placed by a kernel), so it needs writing up rather than
 building.
+
+---
+
+## GR6c STATUS — shipped 2026-08-09: the third island, and GR6 is complete
+
+Every chart type now answers in pixels. `stzPlotCanvas` gained
+`:Histogram`, `:MultiBar` and `:Treemap`, and the four remaining faces —
+`stzHistogram`, `stzScatterPlot`, `stzMBarPlot`, `stzSurfacePlot` — each
+gained `ToCanvasQ()` / `ToSVG()` / `ToPNG()` reading its OWN model: bin
+counts and bin labels, point pairs, series values and their names, parts
+of a whole. Nothing restates what the object already knows. Guard:
+`base/test/graphics/dataviz_backends_narrated.ring` — **19 asserts
+green, all deviceless**. The pre-existing stats suites stay green
+(chart subclasses 16, engine parity 107, solvers 17).
+
+The assertions go after what would be WRONG rather than merely ugly:
+
+- **A histogram's bars TOUCH, because its bins do.** A gap would draw a
+  distribution that is not there. Asserted as the maximum horizontal gap
+  across the baseline row (≤ 2 px, the deliberate 1 px separator).
+- **A treemap's AREAS are its values** — the entire claim of a
+  composition chart, so it is checked as arithmetic on the emitted
+  rectangles rather than by eye. Measured: 45/25/15/10/5 against
+  45/25/15/10/5. Layout is slice-and-dice with an alternating split
+  direction; squarified packing is the upgrade if a caller ever brings
+  dozens of slices.
+- **A multi-series chart carries a LEGEND**, without which it cannot be
+  read, and its series names come from the model so they cannot go
+  stale. Asserted as 12 bars + 3 swatches, in ≥ 3 distinct fills.
+- A histogram thins its bin labels when they would collide — a row of
+  overlapping labels tells a reader less than a sparse one.
+
+**A bug the guard's last assertion caught**, worth recording because the
+shape recurs: a multi-series plot whose series carry no values has a
+non-empty outer list, so the "is there data?" check passed, and the
+scale computation then died on an out-of-range index. A list of empty
+lists is still an empty plot, and it now refuses the same way — the
+check moved to AFTER flattening, where the question can actually be
+answered.
+
+**GR6 is complete.** The three islands the plan named have joined the
+plane: plots and dataviz ride stzCanvas, hierarchies lay themselves out
+without dot.exe, and the compute↔render composition is demonstrated
+(676 instances placed by a kernel in one draw call — showcase.ring).
+
+Remaining phases: **GR4b** (stzMaterialMaker + the fragment-stage
+transpiler) and **GR5** (presentation on all OSs), where challenge gaps
+2 and 3 — sampled render targets and compute+render in one submit —
+finally pay for themselves.

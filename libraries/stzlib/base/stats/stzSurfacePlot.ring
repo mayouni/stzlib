@@ -80,6 +80,19 @@ def init(paData)
 	@nSum = Sum(@anValues)	
 	_calculateSquaremap()
 
+	#-- the PIXEL tiers (GR6c) --------------------------------------------
+	# A surface chart is a COMPOSITION: area is the value. Drawn as a
+	# treemap, so the picture is the proportion rather than a legend a
+	# reader has to convert.
+	def ToCanvasQ(paOptions)
+		return StzPlotCanvasQ(:Treemap, @anValues, @acLabels, paOptions)
+
+	def ToSVG(paOptions)
+		return This.ToCanvasQ(paOptions).ToSVG()
+
+	def ToPNG(pcPath, paOptions)
+		return This.ToCanvasQ(paOptions).ToPNG(pcPath)
+
 	def Sum(anNumbers)
 		_nResult_ = 0
 		_nAnNumbers1Len_ = len(anNumbers)

@@ -125,6 +125,22 @@ class stzScatterPlot from stzObject
 		@bShowHLetter = TRUE
 		@bShowVLetter = TRUE
 
+	#-- the PIXEL tiers (GR6c) --------------------------------------------
+	# The same points, drawn instead of typed. ToSVG() needs no GPU.
+	def ToCanvasQ(paOptions)
+		_aPts_ = []
+		_nL_ = len(@anHValues)
+		for _i_ = 1 to _nL_
+			_aPts_ + [ @anHValues[_i_], @anVValues[_i_] ]
+		next
+		return StzPlotCanvasQ(:Scatter, _aPts_, @acPointLabels, paOptions)
+
+	def ToSVG(paOptions)
+		return This.ToCanvasQ(paOptions).ToSVG()
+
+	def ToPNG(pcPath, paOptions)
+		return This.ToCanvasQ(paOptions).ToPNG(pcPath)
+
 	# Primary methods with V/H semantics
 	def HValues()
 		return @anHValues
