@@ -332,7 +332,39 @@ banded).
 lists — the libuv pattern in build.zig, already executed); window +
 wgpu surface from the native handle; render loop + input events on
 Windows/Linux/macOS as peers, with the per-OS wgpu prebuilts pinned
-into vendor/wgpu under the same VERSION/checksum discipline. Runtime
+into vendor/wgpu under the same VERSION/checksum discipline.
+
+> **AMENDED 2026-08-09, before any GR5 code was written — a measured
+> correction to this plan's own claim.** The plan has said since GR1
+> that cross-compilation from this machine verifies the all-OS
+> contract. Measured, that is TRUE for the engine and FALSE for
+> windowing:
+>
+> | target | windowing headers | cross-compiles from here? |
+> |---|---|---|
+> | Windows | Win32, bundled with Zig | **yes** |
+> | Linux | `X11/Xlib.h` — NOT FOUND | **no** |
+> | macOS | `Cocoa/Cocoa.h` — NOT FOUND | **no** |
+>
+> Zig bundles libc, not platform GUI SDKs; Apple's frameworks are not
+> redistributable at all. This is why every prior module cross-compiled
+> cleanly — they need only libc — and why windowing cannot.
+>
+> **The architectural consequence, and it is the important part: the
+> window tier must NOT live in `stz_gpu.dll`.** Putting GLFW there
+> would make the whole GPU plane un-cross-compilable and destroy a
+> property we already have and guard. GR5 therefore ships a SEPARATE
+> `stz_window.dll` (its own domain, `needs_glfw`), loaded the way
+> wgpu_native already is — dynamically, at use time, with a counted
+> refusal when absent. The engine stays portable; only the window is
+> per-OS.
+>
+> **Honest verification status GR5 will claim:** Windows —
+> runtime-verified. Linux/macOS — the source is vendored and the build
+> rules are written, buildable ON those platforms with their usual dev
+> packages (libx11-dev / wayland, Xcode CLT), and NOT verified from
+> here. That is what GLFW's own CI does, and stating it is better than
+> a cross-compile that would prove nothing about a window anyway. Runtime
 verification runs on the hardware that exists (Windows today) and the
 plan SAYS which OSs are cross-compile-verified vs runtime-verified —
 never implying tested-everywhere. The BROWSER target through the
