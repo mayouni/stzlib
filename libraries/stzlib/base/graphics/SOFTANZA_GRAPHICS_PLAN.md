@@ -1239,3 +1239,54 @@ Remaining phases: **GR4b** (stzMaterialMaker + the fragment-stage
 transpiler) and **GR5** (presentation on all OSs), where challenge gaps
 2 and 3 — sampled render targets and compute+render in one submit —
 finally pay for themselves.
+
+---
+
+## GR4b STATUS — shipped 2026-08-09: materials, and the fragment stage
+
+The W-string → WGSL transpiler gained a **fragment stage**
+(`stz_gpu_wgsl_fragment` in `gpu_wgsl.zig`), and `stzMaterialMaker` is
+its face. Guard: `base/test/graphics/material_maker_narrated.ring` —
+**35 asserts green**, the authoring half needing no device. Reachable
+suites re-swept: scene3d 46, declarative 20, scene 69, faces 63.
+
+    oM = new stzMaterialMaker
+    oM.TakesColor(:base)
+    oM.TakesScalar(:glow)
+    oM.ForEachFragment('{ @out = base * (0.25 + 0.75 * @lambert) * (1.0 + glow * @normal.y) }')
+    oScene.SetMaterial(oM, [ :base = "#e0a030", :glow = 0.6 ])
+
+**The FRAGMENT BUILTINS are what make it a material language** rather
+than string concatenation: `@normal`, `@position`, `@uv`, `@lambert` and
+`@color` are what the rasterizer already knows at this pixel, so the
+material describes a surface instead of recomputing a renderer. Swizzles
+ride along (`@normal.y`, `@color.rgb`) because that is how a surface is
+actually described. Declared colours and scalars are bare names; the
+same LITERAL-body discipline and 16-function whitelist as the compute
+maker apply, and **every refusal names its offender** — nine of them are
+guarded, including a bad swizzle and a function named but never called.
+
+**What it emits is a COMPLETE shader on the render layer's existing 3D
+contract** (frame at @0, instances at @1, material at @2) — a pipeline
+that can be run, not a fragment nobody can bind. That is why a material
+is a drop-in: `residencyFor` simply picks it over the built-in shading,
+and nothing else in the render path changed.
+
+Scope, stated: a material is **scene-level**. Per-instance materials
+would have to split the draw grouping by mesh AND material — a different
+phase, not a bigger version of this one.
+
+**The bug worth recording** (it cost this phase's debugging, and the
+shape recurs): WGSL rounds a struct's SIZE up to its largest member
+alignment, so a material carrying one `vec4` and one `f32` occupies 32
+bytes, not 20. Sizing the buffer to the raw float count produced a
+binding too small, and the failure surfaced as an unattributed
+`wgpuQueueSubmit: Validation Error` — far from the arithmetic that
+caused it. The same class as GR1's `layout:"auto"` trap: a binding
+mistake reports itself at submit, never at the line responsible.
+
+**Every phase of the plan is now shipped except GR5.** GR0 (go/no-go),
+GR1 (render lifecycle), GR2 (2D + text), GR3 (3D), GR4a (faces), GR4b
+(materials), GR6 (convergence). Remaining: **GR5** — presentation on all
+OSs (GLFW vendored, window + surface, a loop WITH INPUT per §3b door 5),
+which is also where challenge gaps 2 and 3 finally pay for themselves.
