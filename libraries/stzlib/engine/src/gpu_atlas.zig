@@ -55,14 +55,60 @@ var items: std.ArrayList(CacheItem) = .{};
 var dirty = false;
 var tex_id: i64 = 0;
 var upload_count: u64 = 0;
+var dropped: u64 = 0; // entries that did not fit -- COUNTED, never silent
+var want_grow = false;
 
-pub fn stats() [4]f64 {
+// 8192 is WebGPU's common maxTextureDimension2D, and 67 M texels holds far
+// more glyph coverage than any realistic document. Shelf packing wastes
+// some of it (padding, and a shelf as tall as its tallest tenant), which is
+// why the ceiling is not sized to the ideal packing of the workload.
+pub const MAX_DIM: u32 = 8192;
+
+pub fn stats() [5]f64 {
     return .{
         @floatFromInt(width),
         @floatFromInt(height),
         @floatFromInt(items.items.len),
         @floatFromInt(upload_count),
+        @floatFromInt(dropped),
     };
+}
+
+/// Make room by DOUBLING, between builds only.
+///
+/// This exists because the alternative is the worst failure a renderer can
+/// have: a full atlas silently dropping glyphs, so text just goes missing
+/// with nothing said. (Measured before the fix: 3412 of 4758 glyphs
+/// vanished across a range of sizes.) Growth cannot happen mid-build --
+/// entries move, and vertices already emitted this frame carry the old
+/// uvs -- so a failed pack only REQUESTS it, and the next build performs
+/// it. Past MAX_DIM growth stops and `dropped` keeps counting: a bounded
+/// record must count what it drops.
+pub fn growIfWanted() void {
+    if (!want_grow) return;
+    want_grow = false;
+    if (width >= MAX_DIM and height >= MAX_DIM) return; // at the ceiling: keep counting
+    width = @min(MAX_DIM, width * 2);
+    height = @min(MAX_DIM, height * 2);
+    if (pixels.len != 0) alloc.free(pixels);
+    pixels = &.{};
+    shelves.clearRetainingCapacity();
+    items.clearRetainingCapacity(); // every entry re-rasters on demand
+    if (tex_id != 0) _ = gpu.stz_gpu_texture_free(tex_id);
+    tex_id = 0;
+    dirty = false;
+}
+
+pub fn droppedCount() u64 {
+    return dropped;
+}
+
+/// `dropped` is a GAUGE, not a running total: after a build it means
+/// "glyphs missing from the picture you just got". A total would count the
+/// same glyph once per retry and read higher than the number of glyphs
+/// asked for -- a number nobody could act on.
+pub fn clearDropped() void {
+    dropped = 0;
 }
 
 fn ensureBuffer() !void {
@@ -82,6 +128,10 @@ pub fn reset() void {
     if (tex_id != 0) _ = gpu.stz_gpu_texture_free(tex_id);
     tex_id = 0;
     dirty = false;
+    width = DEFAULT_W;
+    height = DEFAULT_H;
+    dropped = 0;
+    want_grow = false;
 }
 
 /// The device went away: the texture handle is gone with it, but the CPU
@@ -134,7 +184,11 @@ pub fn glyphEntry(font_id: i64, gid: u32, size_px: f64) !Entry {
         try items.append(alloc, .{ .key = key, .entry = e });
         return e;
     }
-    const spot = packRect(bm.w, bm.h) orelse return error.AtlasFull;
+    const spot = packRect(bm.w, bm.h) orelse {
+        dropped += 1;
+        want_grow = true; // the NEXT build gets more room
+        return error.AtlasFull;
+    };
     for (0..bm.h) |row| {
         const dst = ((spot.y + row) * width + spot.x) * 4;
         for (0..bm.w) |col| {

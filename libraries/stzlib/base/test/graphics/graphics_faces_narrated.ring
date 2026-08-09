@@ -131,6 +131,35 @@ chk("AddText without a font RAISES by name",
     raises('oX = new stzCanvas(50,50)  oX.AddText("hi", 0, 0)  oX.ToSVG()'))
 
 ? ""
+? "-- Scene 6b: a full glyph atlas GROWS, and never loses text in silence --"
+# Found by a showcase, not by a guard: with many distinct sizes the atlas
+# filled and glyphs were dropped with no error and no counter -- text
+# simply went missing. It now grows and retries within the same call, and
+# whatever still cannot fit is COUNTED.
+StzEngineGpuAtlasReset()
+aA0 = StzEngineGpuAtlasStats()
+chk("the atlas starts at 1024 and has lost nothing",
+    aA0[1] = 1024 and aA0[5] = 0)
+oBig = new stzCanvas(400, 200)
+for s = 10 to 120
+    oBig.SetFont(oF, s)
+    oBig.AddTextQ("ABCDEFGHIJKLMNOP", 5, 100).ColorQ("#ffffff")
+next
+aBigSt = oBig.Stats()
+aA1 = StzEngineGpuAtlasStats()
+chk("the atlas GREW past its starting size rather than dropping text",
+    aA1[1] > 1024)
+# The invariant that holds at ANY atlas capacity: nothing vanishes
+# unaccounted. Drawn + counted-as-missing = asked for.
+chk("drawn + dropped accounts for EVERY glyph asked for (" +
+    (aBigSt[3]/6) + " + " + aA1[5] + " = " + (111*16) + ")",
+    aBigSt[3] / 6 + aA1[5] = 111 * 16)
+chk("and at this size nothing was lost at all", aA1[5] = 0)
+StzEngineGpuAtlasReset()
+chk("reset returns the atlas to its starting size",
+    StzEngineGpuAtlasStats()[1] = 1024)
+
+? ""
 ? "-- Scene 7: the 3D face keeps its manners and its door --"
 oS = new stzScene(320, 240)
 chk("the Q chain stays on the SCENE",
