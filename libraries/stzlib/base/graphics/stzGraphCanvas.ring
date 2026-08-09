@@ -164,7 +164,20 @@ class stzGraphCanvas from stzObject
 	def Width()   return @nW
 	def Height()  return @nH
 
+	# Validate HERE. Passing 0 used to be accepted and then surfaced much
+	# later as "stzCanvas refused a 0x0 canvas" from inside ToCanvas -- an
+	# error naming a class the caller never touched, pointing away from the
+	# line responsible. A window reports 0x0 while mapping and while
+	# minimised, so this is an ordinary input, not an exotic one.
 	def SetSize(pnW, pnH)
+		if NOT (isNumber(pnW) and isNumber(pnH))
+			StzRaise("stzGraphCanvas.SetSize: give a width and a height.")
+		ok
+		if pnW < 1 or pnH < 1
+			StzRaise("stzGraphCanvas.SetSize: refused " + pnW + "x" + pnH +
+				" -- a drawing needs area. A window reports 0x0 while it " +
+				"is minimised; skip the frame rather than lay out into it.")
+		ok
 		@nW = pnW
 		@nH = pnH
 		This._Compute()

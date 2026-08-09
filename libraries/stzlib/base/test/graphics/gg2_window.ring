@@ -77,6 +77,15 @@ while oWin.IsOpen()
 		ok
 	ok
 
+	# A WINDOW WITH NO AREA IS A REAL STATE, not an impossible one: it
+	# reports 0x0 while it is still being mapped and for as long as it is
+	# minimised. Feeding that to a layout asks for a 0x0 canvas, which is
+	# correctly refused -- and the refusal killed this demo on the first
+	# frame the startup race went the other way.
+	if oWin.Width() < 1 or oWin.Height() < 1
+		loop
+	ok
+
 	# REBUILT FROM THE GRAPH, not from a cached bitmap -- but only when
 	# something actually changed, because a layout is real work and a
 	# frame loop must not redo it 60 times a second for nothing.
@@ -93,7 +102,9 @@ while oWin.IsOpen()
 		bDirty = FALSE
 	ok
 
-	oWin.Draw(oCanvas)
+	if isObject(oCanvas)
+		oWin.Draw(oCanvas)
+	ok
 end
 
 ? ""
