@@ -90,6 +90,7 @@ ok
     load "graphics/stzMesh.ring"
     load "graphics/stzCanvas.ring"
     load "graphics/stzScene.ring"
+    load "graphics/stzPlotCanvas.ring"
     load "number/stzPolynomial.ring"
     load "number/stzMathFunction.ring"
     load "number/stzObjective.ring"
