@@ -1290,3 +1290,83 @@ GR1 (render lifecycle), GR2 (2D + text), GR3 (3D), GR4a (faces), GR4b
 (materials), GR6 (convergence). Remaining: **GR5** — presentation on all
 OSs (GLFW vendored, window + surface, a loop WITH INPUT per §3b door 5),
 which is also where challenge gaps 2 and 3 finally pay for themselves.
+
+---
+
+## GRAPH-ON-GPU SPIKE — 2026-08-09. VERDICT: GO. Graphs can compute their own picture.
+
+The question behind it (the author's): the "graph" in graphics engine —
+what would inviting `base/graph/` into this plane buy, and could it beat
+a shader graph at *computational* thinking rather than at shading?
+
+The distinction that makes it worth answering: **in ShaderGraph the graph
+is SYNTAX** — an authoring UI consumed at compile time, which your program
+can never interrogate. **In Softanza the graph is a computational object**
+with algorithms and rule engines over it. So the graph can be the SUBJECT
+of the picture, not merely the way the shader was drawn.
+
+### KILL CRITERIA, written before measuring
+
+A 10,000-node graph must be materially faster on the GPU than the path a
+Softanza user has today, the whole frame must stay at one readback, and
+the GPU answers must match the CPU answers EXACTLY. Fail any of the
+three and the GPU route stays a demo; graphs keep computing CPU-side.
+
+### Measured (`base/test/graphics/graph_gpu_spike.ring`)
+
+Exact transitive reachability by bitset propagation — `reach[u] |=
+reach[v]` over every edge, iterated to the DAG's depth, impact =
+popcount − 1. The same algorithm both sides.
+
+| n | edges | Ring (today's path) | GPU | speedup | mismatches | bus bytes during compute |
+|---|---|---|---|---|---|---|
+| 512 | 1,417 | 147 ms | 4 ms | 36.8x | **0** | **0** |
+| 1,024 | 2,840 | 556 ms | 1 ms | (timer floor — not claimed) | **0** | **0** |
+| 10,000 | 27,753 | **51,803 ms** | **388 ms** | **133x** | **0** | **0** |
+
+### And the picture computes itself (`graph_gpu_picture.ring`)
+
+Adjacency uploaded ONCE; reachability solved on device; a kernel writes
+the INSTANCE BUFFER directly from the result (position, scale and colour
+from impact — the door GR4a opened); the frame draws. For 10,000 nodes:
+
+    solve + place + draw : 190 ms
+    draw calls           : 1
+    transformUploads     : 1  (frozen -- the kernel owns them)
+    bus bytes, WHOLE FRAME: 1,800,112   (the picture itself is 1,800,000)
+
+**112 bytes** of parameters is all that crossed besides the image. The
+graph never came back to the CPU to be drawn.
+
+### Honest caveats, recorded so the number is not repeated as more than it is
+
+1. **The CPU baseline is the Ring interpreter, not optimized native.**
+   133x is the PRODUCT-relevant number (what a user gains today), not a
+   hardware claim. The fair engine-vs-engine figure needs a Zig CPU
+   transitive-closure to compare against, and that does not exist yet.
+2. The n=1,024 row is at the clock's resolution floor; only the 512 and
+   10,000 rows carry a claim.
+3. Iteration count is FIXED to the DAG's known depth. A general graph
+   needs either a proven bound or a convergence check — and a
+   convergence check is a readback per iteration, which would cost
+   exactly the property this spike just proved. That trade is the next
+   real design question, not a detail.
+4. Memory is O(n²/8): 12.5 MB of bitset at n=10,000, 1.25 GB at
+   n=100,000. Bitset reachability does not scale past ~30k nodes on this
+   card; beyond that the algorithm must change (sampled reachability,
+   or per-query BFS rather than all-pairs).
+
+### What this licenses
+
+Not "prettier shaders" — **graphs that compute their own picture on the
+GPU**. A domain graph is the subject, the schedule and the drawing at
+once, with no export step between them. That is a capability no shader
+graph has, because a shader graph has no domain.
+
+Recorded as the strongest candidate for the next plane after GR5, with
+the three roles a graph could play written down: SUBJECT (proven here),
+MATERIAL AUTHORING (a node DAG topologically emitted into the material
+language — reaches ShaderGraph's shape, and needs the material language
+deepened first: multiple statements, texture sampling, control flow),
+and RENDER STRUCTURE (a frame graph whose passes and resource lifetimes
+`stzGraphPlanner` schedules and `stzGraphRule` proves acyclic).
