@@ -984,6 +984,90 @@ fn ring_Scene3dStats(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// ---------------- GR4: the f32 math, reachable from Ring
+// (the challenge pass's gap 4 -- a caller wanting its own camera had to
+// re-derive lookAt/perspective by hand). Matrices cross as flat lists of
+// 16 numbers in COLUMN-MAJOR order, the same layout the shaders read.
+
+fn matFrom(p: *anyopaque, n: c_int) ?gm.Mat4 {
+    const lst = R.gl(p, n) orelse return null;
+    if (R.ringListSize(lst) != 16) return null;
+    var m = gm.Mat4{ .m = @splat(0) };
+    for (0..16) |i| {
+        const item = R.ring_list_getitem_gc(null, lst, @intCast(i + 1)) orelse return null;
+        m.m[i] = @floatCast(R.ring_item_getnumber(item));
+    }
+    return m;
+}
+
+fn retMat(p: *anyopaque, m: gm.Mat4) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (m.m) |v| R.ring_list_adddouble(out, v);
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn ring_Mat4LookAt(p: *anyopaque) callconv(.c) void {
+    retMat(p, gm.Mat4.lookAt(vec3At(p, 1), vec3At(p, 4), vec3At(p, 7)));
+}
+
+fn ring_Mat4Perspective(p: *anyopaque) callconv(.c) void {
+    const fov: f32 = @floatCast(gn(p, 1) * std.math.pi / 180.0);
+    retMat(p, gm.Mat4.perspective(fov, @floatCast(gn(p, 2)), @floatCast(gn(p, 3)), @floatCast(gn(p, 4))));
+}
+
+fn ring_Mat4Mul(p: *anyopaque) callconv(.c) void {
+    const a = matFrom(p, 1) orelse return;
+    const b = matFrom(p, 2) orelse return;
+    retMat(p, a.mul(b));
+}
+
+// Mat4Project(aM, x, y, z, nW, nH) -> [screenX, screenY, depth, bVisible]
+// The perspective divide made explicit -- w <= 0 means behind the camera,
+// which is a real answer, not a NaN.
+fn ring_Mat4Project(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const m = matFrom(p, 1) orelse {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    const v = gm.Vec3{ .x = @floatCast(gn(p, 2)), .y = @floatCast(gn(p, 3)), .z = @floatCast(gn(p, 4)) };
+    const w: f64 = gn(p, 5);
+    const h: f64 = gn(p, 6);
+    const c4 = m.mulPoint4(v);
+    if (c4[3] <= 0) {
+        R.ring_list_adddouble(out, 0);
+        R.ring_list_adddouble(out, 0);
+        R.ring_list_adddouble(out, 0);
+        R.ring_list_adddouble(out, 0); // not visible
+        R.ring_vm_api_retlist(p, out);
+        return;
+    }
+    const nx = c4[0] / c4[3];
+    const ny = c4[1] / c4[3];
+    const nz = c4[2] / c4[3];
+    R.ring_list_adddouble(out, (nx * 0.5 + 0.5) * w);
+    R.ring_list_adddouble(out, (1.0 - (ny * 0.5 + 0.5)) * h);
+    R.ring_list_adddouble(out, nz);
+    R.ring_list_adddouble(out, 1);
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn ring_Scene3dInstanceBuffer(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(s3d.instanceBuffer(@intFromFloat(gn(p, 1)))));
+}
+
+fn ring_Scene3dInstanceStride(p: *anyopaque) callconv(.c) void {
+    rn(p, s3d.instanceStrideFloats());
+}
+
+fn ring_Scene3dSetGpuDriven(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(s3d.setGpuDriven(@intFromFloat(gn(p, 1)), gn(p, 2) != 0)));
+}
+
+fn ring_Scene3dIsGpuDriven(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(s3d.isGpuDriven(@intFromFloat(gn(p, 1)))));
+}
+
 fn ring_Scene3dToPixels(p: *anyopaque) callconv(.c) void {
     const px = s3d.sceneToPixels(@intFromFloat(gn(p, 1))) catch {
         R.ring_vm_api_retstring2(p, "", 0);
@@ -1112,6 +1196,15 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuscene3dstats", .func = &ring_Scene3dStats },
     .{ .name = "stzenginegpuscene3dtopixels", .func = &ring_Scene3dToPixels },
     .{ .name = "stzenginegpuscene3dtopng", .func = &ring_Scene3dToPng },
+    // GR4: math reachable from Ring + the GPU-driven instance door
+    .{ .name = "stzenginegpumat4lookat", .func = &ring_Mat4LookAt },
+    .{ .name = "stzenginegpumat4perspective", .func = &ring_Mat4Perspective },
+    .{ .name = "stzenginegpumat4mul", .func = &ring_Mat4Mul },
+    .{ .name = "stzenginegpumat4project", .func = &ring_Mat4Project },
+    .{ .name = "stzenginegpuscene3dinstancebuffer", .func = &ring_Scene3dInstanceBuffer },
+    .{ .name = "stzenginegpuscene3dinstancestride", .func = &ring_Scene3dInstanceStride },
+    .{ .name = "stzenginegpuscene3dsetgpudriven", .func = &ring_Scene3dSetGpuDriven },
+    .{ .name = "stzenginegpuscene3disgpudriven", .func = &ring_Scene3dIsGpuDriven },
 };
 
 pub fn registerAll(pState: *anyopaque) void {
