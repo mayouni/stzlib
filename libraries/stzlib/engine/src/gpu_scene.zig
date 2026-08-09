@@ -458,8 +458,30 @@ const Builder = struct {
     }
 };
 
+/// Tessellate, and if the glyph atlas ran out of room, GROW IT AND DO IT
+/// AGAIN rather than shipping a picture with text missing.
+///
+/// Growth cannot happen mid-build (entries move, and uvs already emitted
+/// would point at the wrong pixels), so the retry restarts the whole
+/// tessellation on the larger atlas. Bounded by the atlas's own ceiling:
+/// once it stops growing the loop stops, the glyphs that still do not fit
+/// are COUNTED, and the caller can see that in AtlasStats rather than
+/// wondering where its labels went.
 fn build(s: *SceneSlot) !void {
     if (!s.dirty) return;
+    var attempt: u8 = 0;
+    while (attempt < 4) : (attempt += 1) {
+        atlas.clearDropped(); // the gauge describes THIS attempt's result
+        try buildOnce(s);
+        if (atlas.droppedCount() == 0) return; // nothing lost: done
+        const w_before = atlas.atlasWidth();
+        atlas.growIfWanted();
+        if (atlas.atlasWidth() == w_before) return; // at the ceiling; drops counted
+        s.dirty = true; // the larger atlas needs a fresh tessellation
+    }
+}
+
+fn buildOnce(s: *SceneSlot) !void {
     s.shape_verts.clearRetainingCapacity();
     s.text_verts.clearRetainingCapacity();
     s.segs.clearRetainingCapacity();
