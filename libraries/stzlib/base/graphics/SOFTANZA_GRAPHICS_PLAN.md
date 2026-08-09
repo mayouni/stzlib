@@ -883,3 +883,102 @@ stzMaterialMaker in base/graphics/) on the house conventions: the Q
 convention, the maker pattern, Show/Content, and W-string → WGSL
 fragments through the EXISTING transpiler, with narrated suites that run
 for real and a measured ToSVG/ToPNG parity band.
+
+---
+
+## CHALLENGE PASS — 2026-08-09, before GR4: does the design hold outside its own guards?
+
+Three real graphics were written against the shipped surface, chosen to
+attack the three claims that actually distinguish this plane from the
+engines the vendor table killed. Guards prove a thing works; these asked
+whether the thing is *usable* and whether the differentiators are real.
+
+### 1. Compute → render, zero copies — **the differentiator is real, and large**
+
+A 12,000-particle curl-flow field: a compute kernel steps the simulation
+AND writes the vertex buffer the render pass draws. 90 frames, no
+readback (a window loop's shape).
+
+| | measured |
+|---|---|
+| bytes across the bus, per frame | **16** (the params blob) |
+| particle state resident in VRAM | 192,000 B |
+| vertex data resident in VRAM | 1,728,000 B |
+| a CPU-side engine's per-frame vertex upload | 1,728,000 B |
+
+**Five orders of magnitude** less bus traffic than rebuilding vertices
+CPU-side, which is what a NanoVG/raylib-class immediate API forces. One
+buffer legitimately served as compute STORAGE and render VERTEX in the
+same frame — the usage flags GR1 gave every buffer paid off exactly as
+intended. This is the capability the plan said no vendored engine would
+give, and it is now demonstrated on a real workload rather than a spike.
+
+### 2. A real chart, two tiers — **the SVG twin survives an independent rasterizer**
+
+A 720×420 bar chart: gridlines, gradient bars, a highlighted peak, value
+labels centred by MEASURED width, and mixed Latin/Arabic categories —
+34 commands, 78 shape vertices, 450 text vertices, 26 draw segments.
+Emitted to PNG (our rasterizer) and SVG, then the SVG was rendered by
+**Chrome** and compared: same layout, same positions, same picture.
+
+And the sharpest check available, because it uses a genuinely
+independent implementation: Chrome's own text stack was asked to shape
+and measure the same Arabic string in the same font at the same size.
+
+| | advance width, الإنتاج الشهري @20px |
+|---|---|
+| Chrome (its HarfBuzz + font stack) | 96.44 px |
+| this engine (SheenBidi → HarfBuzz → stb) | 96.45 px |
+| **delta** | **0.010 px** |
+
+A hundredth of a pixel against an industrial reference. The text
+pipeline is not merely self-consistent; it agrees with the browser.
+
+### 3. Animation through the shipped 3D face — **the §3b transform door holds at scale**
+
+400 cubes in a wave field, every transform rewritten every frame for 60
+frames:
+
+| | measured |
+|---|---|
+| draw calls per frame | **1** (400 instances) |
+| geometry uploads across 60 animated frames | **1** |
+| transform uploads | 60 |
+| wall time | 1.67 ms/frame *including a full 720×405 readback every frame* |
+
+Moving 400 objects 60 times never re-uploaded geometry once. The door
+§3b left open for a physics step is load-bearing and it holds.
+
+### FOUR GAPS FOUND — verified by inspection, and GR4/GR5 should close them
+
+These are not bugs; they are places the surface stops short of what the
+layers underneath can already do. Recorded now so the faces are designed
+around them rather than over them.
+
+1. **Compute cannot drive the 3D scene.** `gpu_scene3d`'s instance
+   buffer is internal (zero references from the bridge), so the
+   zero-copy trick that worked beautifully in challenge 1 is
+   unreachable for 3D instances — GPU physics can move particles but
+   not meshes. §3b door 4 is open at the CPU level and **shut at the
+   GPU level**. Fix: expose the instance buffer's handle (or accept a
+   caller-owned one), which costs one accessor.
+2. **A render target cannot be sampled.** `TEX_TARGET` carries
+   `RenderAttachment|CopySrc` and not `TextureBinding`, so a 3D render
+   cannot be used as a texture by the 2D layer — a HUD over a 3D scene,
+   or any post-process, has to round-trip through the CPU today. Fix:
+   add a sampled-target kind, or add the usage bit.
+3. **Compute and render cannot share a submit through the API.**
+   `stz_gpu_dispatch` submits per call, so challenge 1 paid 2 submits
+   per frame (180 for 90 frames). GR0's spike proved compute→render in
+   ONE submit is possible; the product API cannot express it. At GR0's
+   measured ~60 µs submit floor that is ~60 µs/frame of avoidable
+   overhead — small now, compounding for a frame loop with many passes.
+   Fix: let the batch machinery span a render pass, as GR0 did.
+4. **The f32 math is not reachable from Ring.** `gpu_math.zig` is
+   engine-internal; a challenge script that wanted its own camera had to
+   re-derive lookAt/perspective by hand. GR4's `stzScene` needs it
+   anyway — expose vec/mat4/quat/camera as part of the declarative face.
+
+None of these invalidate a shipped phase, and none were visible from
+inside the guards — which is the argument for doing a pass like this
+before every face-building phase, not only before this one.
