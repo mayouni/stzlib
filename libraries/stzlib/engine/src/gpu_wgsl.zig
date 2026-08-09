@@ -313,6 +313,265 @@ pub fn stz_gpu_wgsl_elementwise(spec: [*]const u8, spec_len: f64, out: [*]u8, ca
     return @intCast(w.len);
 }
 
+// ===========================================================================
+// THE FRAGMENT STAGE (GR4b of SOFTANZA_GRAPHICS_PLAN.md)
+// ===========================================================================
+//
+// The same LITERAL-body discipline as the elementwise kernel, aimed at a
+// surface instead of an array. A material declares the colours and scalars
+// it takes, and one expression for what a fragment should be:
+//
+//     color base
+//     scalar glow
+//     body { @out = base * (1.0 + glow * @normal.y) }
+//
+// A declared colour or scalar is a BARE NAME. An @name is a fragment
+// BUILTIN -- what the rasterizer knows at this pixel and the material did
+// not have to compute:
+//
+//     @normal   vec3, interpolated and re-normalized
+//     @position vec3, the fragment in world space
+//     @uv       vec2, the mesh's texture coordinates
+//     @lambert  f32, the diffuse term against the scene's light
+//     @color    vec4, the instance's own colour
+//
+// Swizzles are allowed on builtins (@normal.y, @color.rgb) because that is
+// how a surface is actually described. The output is @out, and it is a
+// vec4 -- the emitted shader is COMPLETE (vertex stage included) and binds
+// exactly the 3D contract the render layer already speaks, so a material
+// is a drop-in pipeline rather than a fragment nobody can run.
+
+const BUILTINS = [_][]const u8{ "normal", "position", "uv", "lambert", "color" };
+pub const MAX_COLORS = 6;
+
+fn isSwizzle(s: []const u8) bool {
+    if (s.len == 0 or s.len > 4) return false;
+    for (s) |ch| {
+        const ok = ch == 'x' or ch == 'y' or ch == 'z' or ch == 'w' or
+            ch == 'r' or ch == 'g' or ch == 'b' or ch == 'a';
+        if (!ok) return false;
+    }
+    return true;
+}
+
+/// Transpile a material spec into a COMPLETE WGSL render shader.
+/// Same contract as the elementwise entry: length written, or -1 with the
+/// reason in stz_gpu_wgsl_error.
+pub fn stz_gpu_wgsl_fragment(spec: [*]const u8, spec_len: f64, out: [*]u8, cap: f64) callconv(.c) i32 {
+    const text = spec[0..@intFromFloat(spec_len)];
+    err_len = 0;
+
+    var colors: [MAX_COLORS]Name = undefined;
+    var n_colors: usize = 0;
+    var scalars: [MAX_SCALARS]Name = undefined;
+    var n_scalars: usize = 0;
+    var body: []const u8 = "";
+
+    var lines = std.mem.splitScalar(u8, text, '\n');
+    while (lines.next()) |raw| {
+        const line = std.mem.trim(u8, raw, " \t\r");
+        if (line.len == 0) continue;
+        if (std.mem.startsWith(u8, line, "color ")) {
+            const nm = std.mem.trim(u8, line[6..], " \t");
+            var lowered: Name = .{};
+            if (!lowerInto(&lowered, nm) or !validIdent(lowered.slice()))
+                return fail("bad colour name: '{s}'", .{nm});
+            if (n_colors == MAX_COLORS)
+                return fail("too many colours (max {d})", .{MAX_COLORS});
+            colors[n_colors] = lowered;
+            n_colors += 1;
+        } else if (std.mem.startsWith(u8, line, "scalar ")) {
+            const nm = std.mem.trim(u8, line[7..], " \t");
+            var lowered: Name = .{};
+            if (!lowerInto(&lowered, nm) or !validIdent(lowered.slice()))
+                return fail("bad scalar name: '{s}'", .{nm});
+            if (n_scalars == MAX_SCALARS)
+                return fail("too many scalars (max {d})", .{MAX_SCALARS});
+            scalars[n_scalars] = lowered;
+            n_scalars += 1;
+        } else if (std.mem.startsWith(u8, line, "body ")) {
+            body = std.mem.trim(u8, line[5..], " \t");
+        } else {
+            return fail("unknown spec line: '{s}'", .{line});
+        }
+    }
+    if (body.len == 0) return fail("no body (ForEachFragment missing)", .{});
+
+    var b = body;
+    if (b.len >= 2 and b[0] == '{' and b[b.len - 1] == '}')
+        b = std.mem.trim(u8, b[1 .. b.len - 1], " \t");
+    if (b.len == 0 or b[0] != '@') return fail("body must be '@out = expression'", .{});
+    const eq = std.mem.indexOfScalar(u8, b, '=') orelse return fail("body has no '='", .{});
+    const lhs = std.mem.trim(u8, b[1..eq], " \t");
+    var lhs_lower: Name = .{};
+    if (!lowerInto(&lhs_lower, lhs) or !std.mem.eql(u8, lhs_lower.slice(), "out"))
+        return fail("a material assigns '@out', not '@{s}'", .{lhs});
+    const rhs = std.mem.trim(u8, b[eq + 1 ..], " \t");
+    if (rhs.len == 0) return fail("empty expression", .{});
+
+    var expr_buf: [4096]u8 = undefined;
+    var expr = Cursor{ .buf = &expr_buf };
+    var i: usize = 0;
+    while (i < rhs.len) {
+        const ch = rhs[i];
+        if (ch == '@') {
+            var j = i + 1;
+            while (j < rhs.len and (std.ascii.isAlphanumeric(rhs[j]) or rhs[j] == '_')) : (j += 1) {}
+            var nm: Name = .{};
+            if (j == i + 1 or !lowerInto(&nm, rhs[i + 1 .. j]))
+                return fail("bad @name at '{s}'", .{rhs[i..@min(i + 8, rhs.len)]});
+            if (std.mem.eql(u8, nm.slice(), "out"))
+                return fail("'@out' cannot be read, only assigned", .{});
+            var known = false;
+            for (BUILTINS) |bi| {
+                if (std.mem.eql(u8, bi, nm.slice())) {
+                    known = true;
+                    break;
+                }
+            }
+            if (!known)
+                return fail("'@{s}' is not a fragment builtin (@normal @position @uv @lambert @color)", .{nm.slice()});
+            expr.put("f_");
+            expr.put(nm.slice());
+            i = j;
+            // an optional swizzle rides along: @normal.y
+            if (i < rhs.len and rhs[i] == '.') {
+                var k = i + 1;
+                while (k < rhs.len and std.ascii.isAlphabetic(rhs[k])) : (k += 1) {}
+                const sw = rhs[i + 1 .. k];
+                if (!isSwizzle(sw))
+                    return fail("'{s}' is not a swizzle (use x y z w or r g b a)", .{sw});
+                expr.putc('.');
+                expr.put(sw);
+                i = k;
+            }
+        } else if (std.ascii.isAlphabetic(ch) or ch == '_') {
+            var j = i;
+            while (j < rhs.len and (std.ascii.isAlphanumeric(rhs[j]) or rhs[j] == '_')) : (j += 1) {}
+            var nm: Name = .{};
+            if (!lowerInto(&nm, rhs[i..j]))
+                return fail("name too long at '{s}'", .{rhs[i..@min(i + 8, rhs.len)]});
+            if (nameIn(colors[0..], n_colors, nm.slice()) != null) {
+                expr.put("m.c_");
+                expr.put(nm.slice());
+            } else if (nameIn(scalars[0..], n_scalars, nm.slice()) != null) {
+                expr.put("m.s_");
+                expr.put(nm.slice());
+            } else {
+                var is_func = false;
+                for (FUNC_WHITELIST) |f| {
+                    if (std.mem.eql(u8, f, nm.slice())) {
+                        is_func = true;
+                        break;
+                    }
+                }
+                if (!is_func)
+                    return fail("unknown name '{s}' (not a declared colour or scalar, not a whitelisted function)", .{nm.slice()});
+                var k = j;
+                while (k < rhs.len and (rhs[k] == ' ' or rhs[k] == '\t')) : (k += 1) {}
+                if (k >= rhs.len or rhs[k] != '(')
+                    return fail("function '{s}' needs '('", .{nm.slice()});
+                expr.put(nm.slice());
+            }
+            i = j;
+        } else if (std.ascii.isDigit(ch) or ch == '.') {
+            var j = i;
+            while (j < rhs.len and (std.ascii.isDigit(rhs[j]) or rhs[j] == '.')) : (j += 1) {}
+            expr.put(rhs[i..j]);
+            i = j;
+        } else if (ch == '+' or ch == '-' or ch == '*' or ch == '/' or ch == '%' or
+            ch == '(' or ch == ')' or ch == ',' or ch == ' ' or ch == '\t')
+        {
+            expr.putc(ch);
+            i += 1;
+        } else {
+            return fail("character '{c}' is not part of the material language", .{ch});
+        }
+    }
+    if (expr.overflow) return fail("expression too long", .{});
+
+    // ---- emit a COMPLETE shader on the render layer's 3D contract
+    var w = Cursor{ .buf = out[0..@intFromFloat(cap)] };
+    const put = struct {
+        fn f(l: *Cursor, s: []const u8) void {
+            l.put(s);
+        }
+    }.f;
+
+    put(&w, "struct Frame { viewProj : mat4x4<f32>, lightDir : vec4<f32>, lightColor : vec4<f32>, ambient : vec4<f32> }\n");
+    put(&w, "struct Instance { model : mat4x4<f32>, normalMat : mat4x4<f32>, color : vec4<f32> }\n");
+    put(&w, "struct M {");
+    var first = true;
+    for (0..n_colors) |c| {
+        if (!first) put(&w, ",");
+        put(&w, " c_");
+        put(&w, colors[c].slice());
+        put(&w, " : vec4<f32>");
+        first = false;
+    }
+    for (0..n_scalars) |s| {
+        if (!first) put(&w, ",");
+        put(&w, " s_");
+        put(&w, scalars[s].slice());
+        put(&w, " : f32");
+        first = false;
+    }
+    if (first) put(&w, " unused : f32"); // WGSL has no empty struct
+    put(&w, " }\n");
+    put(&w, "@group(0) @binding(0) var<storage, read> frame : Frame;\n");
+    put(&w, "@group(0) @binding(1) var<storage, read> instances : array<Instance>;\n");
+    put(&w, "@group(0) @binding(2) var<storage, read> m : M;\n");
+    put(&w, "struct VSOut { @builtin(position) pos : vec4<f32>, @location(0) nrm : vec3<f32>, @location(1) col : vec4<f32>, @location(2) uv : vec2<f32>, @location(3) wpos : vec3<f32> }\n");
+    put(&w, "@vertex\n");
+    put(&w, "fn vmain(@location(0) position : vec3<f32>, @location(1) normal : vec3<f32>, @location(2) uv : vec2<f32>, @builtin(instance_index) ii : u32) -> VSOut {\n");
+    put(&w, "  let inst = instances[ii];\n");
+    put(&w, "  let world = inst.model * vec4<f32>(position, 1.0);\n");
+    put(&w, "  var o : VSOut;\n");
+    put(&w, "  o.pos = frame.viewProj * world;\n");
+    put(&w, "  o.nrm = normalize((inst.normalMat * vec4<f32>(normal, 0.0)).xyz);\n");
+    put(&w, "  o.col = inst.color;\n  o.uv = uv;\n  o.wpos = world.xyz;\n  return o;\n}\n");
+    put(&w, "@fragment\n");
+    put(&w, "fn fmain(in : VSOut) -> @location(0) vec4<f32> {\n");
+    put(&w, "  let f_normal = normalize(in.nrm);\n");
+    put(&w, "  let f_position = in.wpos;\n");
+    put(&w, "  let f_uv = in.uv;\n");
+    put(&w, "  let f_color = in.col;\n");
+    put(&w, "  let f_lambert = max(dot(f_normal, -normalize(frame.lightDir.xyz)), 0.0);\n");
+    put(&w, "  return ");
+    put(&w, expr.items());
+    put(&w, ";\n}\n");
+
+    if (w.overflow) return fail("material too large for the output buffer", .{});
+    return @intCast(w.len);
+}
+
+test "fragment transpile: builtins, swizzles, and refusals" {
+    var buf: [8192]u8 = undefined;
+    const spec = "color base\nscalar glow\nbody { @out = base * (1.0 + glow * @normal.y) }";
+    const n = stz_gpu_wgsl_fragment(spec.ptr, @floatFromInt(spec.len), &buf, buf.len);
+    try std.testing.expect(n > 0);
+    const wgsl = buf[0..@intCast(n)];
+    try std.testing.expect(std.mem.indexOf(u8, wgsl, "return m.c_base * (1.0 + m.s_glow * f_normal.y);") != null);
+    // it must be a COMPLETE shader, not a loose fragment
+    try std.testing.expect(std.mem.indexOf(u8, wgsl, "@vertex") != null);
+    try std.testing.expect(std.mem.indexOf(u8, wgsl, "@fragment") != null);
+    try std.testing.expect(std.mem.indexOf(u8, wgsl, "f_lambert") != null);
+
+    // every refusal names its offender
+    const cases = [_][]const u8{
+        "color base\nbody { @out = @gloss }", // not a builtin
+        "color base\nbody { @out = base.q }", // bad swizzle... (bare name, no swizzle)
+        "color base\nbody { @out = missing * 2.0 }", // undeclared
+        "color base\nbody { @c = base }", // wrong lhs
+        "color base\nbody { @out = @out }", // reads the output
+        "color base\nbody { @out = base $ 2.0 }", // foreign character
+        "color base\n", // no body
+    };
+    for (cases) |c| {
+        try std.testing.expectEqual(@as(i32, -1), stz_gpu_wgsl_fragment(c.ptr, @floatFromInt(c.len), &buf, buf.len));
+    }
+}
+
 test "transpile basics" {
     var buf: [4096]u8 = undefined;
     const spec = "in a\nin b\nscalar alpha\nout c\nbody { @c = alpha * @a + @b }";

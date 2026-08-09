@@ -1052,6 +1052,47 @@ fn ring_Mat4Project(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// WgslFragment(cSpec) -> the generated material shader, or "" (reason via
+// WgslError). Pure text: a material can be authored and inspected with no
+// device, exactly like a kernel.
+fn ring_WgslFragment(p: *anyopaque) callconv(.c) void {
+    const spec = getStr(p, 1);
+    var buf: [8192]u8 = undefined;
+    const n = wgsl.stz_gpu_wgsl_fragment(spec.ptr, @floatFromInt(spec.len), &buf, buf.len);
+    if (n < 0) {
+        R.ring_vm_api_retstring2(p, "", 0);
+        return;
+    }
+    R.ring_vm_api_retstring2(p, &buf, @intCast(n));
+}
+
+// Scene3dSetMaterial(id, cWgsl, aParams) -> status. aParams is the
+// declared colours (4 numbers each, in declaration order) then the
+// declared scalars. An empty shader clears back to the built-in shading.
+fn ring_Scene3dSetMaterial(p: *anyopaque) callconv(.c) void {
+    const id: i64 = @intFromFloat(gn(p, 1));
+    const shader = getStr(p, 2);
+    var params: [s3d.MAX_MAT_FLOATS]f32 = @splat(0);
+    var np: usize = 0;
+    if (R.gl(p, 3)) |lst| {
+        const cnt: usize = @intCast(R.ringListSize(lst));
+        if (cnt > s3d.MAX_MAT_FLOATS) {
+            rn(p, gpu.BAD_ARG);
+            return;
+        }
+        for (0..cnt) |i| {
+            const item = R.ring_list_getitem_gc(null, lst, @intCast(i + 1)) orelse continue;
+            params[i] = @floatCast(R.ring_item_getnumber(item));
+        }
+        np = cnt;
+    }
+    rn(p, @floatFromInt(s3d.setMaterial(id, shader, params[0..np])));
+}
+
+fn ring_Scene3dHasMaterial(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(s3d.hasMaterial(@intFromFloat(gn(p, 1)))));
+}
+
 fn ring_Scene3dInstanceBuffer(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(s3d.instanceBuffer(@intFromFloat(gn(p, 1)))));
 }
@@ -1201,6 +1242,9 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpumat4perspective", .func = &ring_Mat4Perspective },
     .{ .name = "stzenginegpumat4mul", .func = &ring_Mat4Mul },
     .{ .name = "stzenginegpumat4project", .func = &ring_Mat4Project },
+    .{ .name = "stzenginegpuwgslfragment", .func = &ring_WgslFragment },
+    .{ .name = "stzenginegpuscene3dsetmaterial", .func = &ring_Scene3dSetMaterial },
+    .{ .name = "stzenginegpuscene3dhasmaterial", .func = &ring_Scene3dHasMaterial },
     .{ .name = "stzenginegpuscene3dinstancebuffer", .func = &ring_Scene3dInstanceBuffer },
     .{ .name = "stzenginegpuscene3dinstancestride", .func = &ring_Scene3dInstanceStride },
     .{ .name = "stzenginegpuscene3dsetgpudriven", .func = &ring_Scene3dSetGpuDriven },

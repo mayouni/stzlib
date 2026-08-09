@@ -92,6 +92,7 @@ ok
     load "graphics/stzScene.ring"
     load "graphics/stzPlotCanvas.ring"
     load "graphics/stzTreeCanvas.ring"
+    load "graphics/stzMaterialMaker.ring"
     load "number/stzPolynomial.ring"
     load "number/stzMathFunction.ring"
     load "number/stzObjective.ring"

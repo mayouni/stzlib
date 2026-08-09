@@ -220,6 +220,40 @@ class stzScene from stzObject
 		_aVP_ = StzEngineGpuMat4Mul(_aP_, _aV_)
 		return StzEngineGpuMat4Project(_aVP_, pnX, pnY, pnZ, @nW, @nH)
 
+	#-- materials (GR4b) ----------------------------------------------------
+	#
+	# A material replaces the built-in shading for the WHOLE scene. Per
+	# instance is a later increment: it would have to split the draw
+	# grouping by mesh AND material, which is a different phase rather
+	# than a bigger version of this one.
+	#
+	#     oScene.SetMaterial(oMaterial, [ :base = "#e0a030", :glow = 0.6 ])
+	#     oScene.ClearMaterial()          # back to forward-lit
+
+	def SetMaterial(poMaterial, paBindings)
+		if NOT isObject(poMaterial)
+			StzRaise("stzScene.SetMaterial: give an stzMaterialMaker.")
+		ok
+		_n_ = StzEngineGpuScene3dSetMaterial(@nId, poMaterial.ToWGSL(),
+			poMaterial.ParamsFrom(paBindings))
+		if _n_ != 0
+			StzRaise("stzScene.SetMaterial: refused (status " + _n_ + ").")
+		ok
+
+	def SetMaterialQ(poMaterial, paBindings)
+		This.SetMaterial(poMaterial, paBindings)
+		return This
+
+	def ClearMaterial()
+		StzEngineGpuScene3dSetMaterial(@nId, "", [])
+
+	def ClearMaterialQ()
+		This.ClearMaterial()
+		return This
+
+	def HasMaterial()
+		return StzEngineGpuScene3dHasMaterial(@nId) = 1
+
 	#-- letting the GPU drive the transforms --------------------------------
 
 	# Hand the instance buffer to a compute kernel: from here the scene

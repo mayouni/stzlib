@@ -135,6 +135,7 @@ const WGSL_FORWARD_VCOLOR =
 ;
 
 const FRAME_FLOATS = 16 + 4 + 4 + 4; // viewProj, lightDir, lightColor, ambient
+pub const MAX_MAT_FLOATS = 6 * 4 + 14; // the transpiler's colour and scalar limits
 const INSTANCE_FLOATS = 16 + 16 + 4; // model, normalMat, color
 
 // ---------------------------------------------------------------- state
@@ -173,6 +174,16 @@ const Scene3d = struct {
     inst_buf: i64 = 0,
     inst_capacity: usize = 0,
     gpu_driven: bool = false, // transforms come from a compute kernel, not from CPU state
+    // GR4b: a scene-level MATERIAL -- a transpiled WGSL shader plus the
+    // values its declared colours and scalars take. Scene-level rather
+    // than per-instance on purpose: per-instance materials would have to
+    // split the draw grouping (mesh AND material), which is a different
+    // phase, not a bigger version of this one.
+    mat_wgsl: [8192]u8 = undefined,
+    mat_wgsl_len: usize = 0,
+    mat_params: [MAX_MAT_FLOATS]f32 = @splat(0),
+    mat_param_count: usize = 0,
+    mat_buf: i64 = 0,
     // witnesses
     geometry_uploads: u64 = 0, // increments ONLY when mesh data is uploaded
     transform_uploads: u64 = 0, // increments every frame (cheap, by design)
@@ -345,6 +356,30 @@ pub fn instanceCount(id: i64) f64 {
 /// the zero-copy trick that already works for particles, now reachable
 /// for meshes. 0 until the scene has rendered once (the buffer is sized
 /// from the instance list).
+/// GR4b: give the scene a transpiled material. `params` are the declared
+/// colours (4 floats each, in declaration order) followed by the declared
+/// scalars. Passing an empty shader clears it back to the built-in
+/// forward-lit pipeline.
+pub fn setMaterial(id: i64, wgsl: []const u8, params: []const f32) i32 {
+    const slot = slotOf(id) orelse return STALE;
+    const s = &scenes.items[slot];
+    if (wgsl.len > s.mat_wgsl.len) return BAD_ARG;
+    if (params.len > MAX_MAT_FLOATS) return BAD_ARG;
+    @memcpy(s.mat_wgsl[0..wgsl.len], wgsl);
+    s.mat_wgsl_len = wgsl.len;
+    @memcpy(s.mat_params[0..params.len], params);
+    s.mat_param_count = params.len;
+    // the pipeline is chosen per mesh at residency time, so drop what was
+    // resident: the next render rebuilds against the new shader
+    for (s.res.items) |*r| r.uploaded = false;
+    return OK;
+}
+
+pub fn hasMaterial(id: i64) i32 {
+    const slot = slotOf(id) orelse return -1;
+    return if (scenes.items[slot].mat_wgsl_len > 0) 1 else 0;
+}
+
 pub fn instanceBuffer(id: i64) i64 {
     const slot = slotOf(id) orelse return 0;
     return scenes.items[slot].inst_buf;
@@ -418,7 +453,10 @@ fn residencyFor(s: *Scene3d, mesh_id: i64) ?usize {
 
     var fmt_buf: [32]u8 = undefined;
     const fmt = mesh.formatString(mesh_id, &fmt_buf) orelse return null;
-    const wgsl = if (mesh.attrCount(mesh_id) >= 4) WGSL_FORWARD_VCOLOR else WGSL_FORWARD;
+    // a scene material replaces the built-in shading for every mesh
+    const wgsl: []const u8 = if (s.mat_wgsl_len > 0)
+        s.mat_wgsl[0..s.mat_wgsl_len]
+    else if (mesh.attrCount(mesh_id) >= 4) WGSL_FORWARD_VCOLOR else WGSL_FORWARD;
     const pipe = render.stz_gpu_render_pipeline3d(wgsl.ptr, @floatFromInt(wgsl.len), fmt.ptr, @floatFromInt(fmt.len), 0, 1);
     if (pipe == 0) return null;
 
@@ -540,9 +578,26 @@ fn renderToTarget(s: *Scene3d) !bool {
         s.transform_uploads += 1;
     }
 
+    // a material's declared values ride a third storage buffer at @2 --
+    // the binding the transpiler emits, and the only addition a material
+    // makes to the 3D contract
+    var nbufs: i32 = 2;
+    if (s.mat_wgsl_len > 0) {
+        // WGSL rounds a struct's SIZE up to its largest member alignment,
+        // and a material's colours are vec4s -- so a buffer sized to the
+        // raw float count is too small and the bind group is rejected at
+        // submit, far from here. Round to 16.
+        const raw = @max(4, s.mat_param_count * 4);
+        const mbytes = (raw + 15) / 16 * 16;
+        s.mat_buf = ensureBuffer(s.mat_buf, mbytes);
+        if (s.mat_buf == 0) return false;
+        if (gpu.stz_gpu_buffer_write(s.mat_buf, @ptrCast(&s.mat_params), @floatFromInt(mbytes)) != gpu.OK) return false;
+        nbufs = 3;
+    }
+
     if (render.stz_gpu_render_begin3d(s.target, s.depth, s.clear[0], s.clear[1], s.clear[2], s.clear[3]) != gpu.OK) return false;
     var draws: u32 = 0;
-    const bufs = [_]i64{ s.frame_buf, s.inst_buf };
+    const bufs = [_]i64{ s.frame_buf, s.inst_buf, s.mat_buf };
     for (groups.items) |g| {
         // Instances of one mesh are CONTIGUOUS in the buffer (it was built
         // in group order), so each mesh is ONE instanced draw. firstInstance
@@ -558,7 +613,7 @@ fn renderToTarget(s: *Scene3d) !bool {
             @floatFromInt(g.count),
             @floatFromInt(g.first),
             &bufs,
-            2,
+            nbufs,
         ) == gpu.OK) draws += 1;
     }
     if (render.stz_gpu_render_end() != gpu.OK) return false;
