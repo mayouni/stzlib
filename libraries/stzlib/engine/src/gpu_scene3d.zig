@@ -153,7 +153,11 @@ const MeshRes = struct {
     vbuf: i64 = 0,
     ibuf: i64 = 0,
     nindices: u32 = 0,
-    pipe: i64 = 0,
+    // one pipeline per TARGET FORMAT (0 = RGBA8 offscreen, 1 = BGRA8
+    // swapchain). Same shader, same mesh, same everything else -- a colour
+    // target of the wrong format is a validation error, so the format is
+    // part of what a pipeline IS.
+    pipe: [2]i64 = @splat(0),
     uploaded: bool = false,
 };
 
@@ -170,6 +174,11 @@ const Scene3d = struct {
     // GPU objects
     target: i64 = 0,
     depth: i64 = 0,
+    // GR5 presentation: a swapchain frame to draw into instead of `target`.
+    // Set for the duration of one draw, never stored across frames -- a
+    // swapchain texture is only valid between acquire and present.
+    ext_target: i64 = 0,
+    ext_tfmt: i32 = 0,
     frame_buf: i64 = 0,
     inst_buf: i64 = 0,
     inst_capacity: usize = 0,
@@ -220,13 +229,14 @@ pub fn forgetDeviceObjects() void {
         if (!s.live) continue;
         s.target = 0;
         s.depth = 0;
+        s.ext_target = 0;
         s.frame_buf = 0;
         s.inst_buf = 0;
         s.inst_capacity = 0;
         for (s.res.items) |*r| {
             r.vbuf = 0;
             r.ibuf = 0;
-            r.pipe = 0;
+            r.pipe = @splat(0);
             r.uploaded = false;
         }
     }
@@ -443,9 +453,24 @@ fn ensureBuffer(cur: i64, bytes: usize) i64 {
 /// The pipeline is chosen by the mesh's own attribute layout, which is how
 /// an extended vertex format reaches the GPU without this function ever
 /// learning what the new attribute means.
-fn residencyFor(s: *Scene3d, mesh_id: i64) ?usize {
+fn residencyFor(s: *Scene3d, mesh_id: i64, tfmt: i32) ?usize {
+    const ti: usize = if (tfmt == render.TFMT_BGRA8) 1 else 0;
     for (s.res.items, 0..) |r, i| {
-        if (r.mesh_id == mesh_id and r.uploaded) return i;
+        if (r.mesh_id != mesh_id or !r.uploaded) continue;
+        if (r.pipe[ti] != 0) return i;
+        // Resident geometry, new target format: compile the ONE missing
+        // pipeline and keep the mesh where it is. Re-uploading it here
+        // would make the geometry-upload witness lie the first time a
+        // scene is shown in a window after being saved to a file.
+        var fb: [32]u8 = undefined;
+        const f2 = mesh.formatString(mesh_id, &fb) orelse return null;
+        const w2: []const u8 = if (s.mat_wgsl_len > 0)
+            s.mat_wgsl[0..s.mat_wgsl_len]
+        else if (mesh.attrCount(mesh_id) >= 4) WGSL_FORWARD_VCOLOR else WGSL_FORWARD;
+        const p2 = render.stz_gpu_render_pipeline_fmt(w2.ptr, @floatFromInt(w2.len), f2.ptr, @floatFromInt(f2.len), 0, 1, 1, @floatFromInt(tfmt));
+        if (p2 == 0) return null;
+        s.res.items[i].pipe[ti] = p2;
+        return i;
     }
     const verts = mesh.vertexData(mesh_id) orelse return null;
     const idx = mesh.indexData(mesh_id) orelse return null;
@@ -457,7 +482,7 @@ fn residencyFor(s: *Scene3d, mesh_id: i64) ?usize {
     const wgsl: []const u8 = if (s.mat_wgsl_len > 0)
         s.mat_wgsl[0..s.mat_wgsl_len]
     else if (mesh.attrCount(mesh_id) >= 4) WGSL_FORWARD_VCOLOR else WGSL_FORWARD;
-    const pipe = render.stz_gpu_render_pipeline3d(wgsl.ptr, @floatFromInt(wgsl.len), fmt.ptr, @floatFromInt(fmt.len), 0, 1);
+    const pipe = render.stz_gpu_render_pipeline_fmt(wgsl.ptr, @floatFromInt(wgsl.len), fmt.ptr, @floatFromInt(fmt.len), 0, 1, 1, @floatFromInt(tfmt));
     if (pipe == 0) return null;
 
     var ri: ?usize = null;
@@ -477,7 +502,7 @@ fn residencyFor(s: *Scene3d, mesh_id: i64) ?usize {
     if (gpu.stz_gpu_buffer_write(r.vbuf, @ptrCast(verts.ptr), @floatFromInt(vbytes)) != gpu.OK) return null;
     if (gpu.stz_gpu_buffer_write(r.ibuf, @ptrCast(idx.ptr), @floatFromInt(ibytes)) != gpu.OK) return null;
     r.nindices = @intCast(idx.len);
-    r.pipe = pipe;
+    r.pipe[ti] = pipe;
     r.uploaded = true;
     s.geometry_uploads += 1;
     return ri.?;
@@ -490,12 +515,25 @@ fn renderToTarget(s: *Scene3d) !bool {
     }
     if (s.instances.items.len == 0) return false;
 
-    if (s.target != 0 and gpu.stz_gpu_texture_width(s.target) < 0) s.target = 0;
-    if (s.target == 0) {
-        s.target = gpu.stz_gpu_texture_new(@floatFromInt(s.w), @floatFromInt(s.h), @floatFromInt(gpu.TEX_TARGET));
-        if (s.target == 0) return false;
+    const tfmt: i32 = if (s.ext_target != 0) s.ext_tfmt else render.TFMT_RGBA8;
+    if (s.ext_target == 0) {
+        if (s.target != 0 and gpu.stz_gpu_texture_width(s.target) < 0) s.target = 0;
+        if (s.target == 0) {
+            s.target = gpu.stz_gpu_texture_new(@floatFromInt(s.w), @floatFromInt(s.h), @floatFromInt(gpu.TEX_TARGET));
+            if (s.target == 0) return false;
+        }
     }
-    if (s.depth != 0 and gpu.stz_gpu_texture_width(s.depth) < 0) s.depth = 0;
+    const draw_target = if (s.ext_target != 0) s.ext_target else s.target;
+    const ti: usize = if (tfmt == render.TFMT_BGRA8) 1 else 0;
+    // The depth buffer must MATCH the colour target's size, so a resized
+    // window drops the old one rather than rendering with a mismatched
+    // attachment (a validation error, and a black window if it were not).
+    if (s.depth != 0 and (gpu.stz_gpu_texture_width(s.depth) != @as(f64, @floatFromInt(s.w)) or
+        gpu.stz_gpu_texture_height(s.depth) != @as(f64, @floatFromInt(s.h))))
+    {
+        _ = gpu.stz_gpu_texture_free(s.depth);
+        s.depth = 0;
+    }
     if (s.depth == 0) {
         s.depth = gpu.stz_gpu_texture_new(@floatFromInt(s.w), @floatFromInt(s.h), @floatFromInt(gpu.TEX_DEPTH));
         if (s.depth == 0) return false;
@@ -540,7 +578,7 @@ fn renderToTarget(s: *Scene3d) !bool {
         if (!known) try seen.append(alloc, inst.mesh_id);
     }
     for (seen.items) |mid| {
-        const ri = residencyFor(s, mid) orelse continue;
+        const ri = residencyFor(s, mid, tfmt) orelse continue;
         const first: u32 = @intCast(order.items.len);
         for (s.instances.items, 0..) |inst, i| {
             if (inst.mesh_id == mid) try order.append(alloc, i);
@@ -595,7 +633,7 @@ fn renderToTarget(s: *Scene3d) !bool {
         nbufs = 3;
     }
 
-    if (render.stz_gpu_render_begin3d(s.target, s.depth, s.clear[0], s.clear[1], s.clear[2], s.clear[3]) != gpu.OK) return false;
+    if (render.stz_gpu_render_begin3d(draw_target, s.depth, s.clear[0], s.clear[1], s.clear[2], s.clear[3]) != gpu.OK) return false;
     var draws: u32 = 0;
     const bufs = [_]i64{ s.frame_buf, s.inst_buf, s.mat_buf };
     for (groups.items) |g| {
@@ -606,7 +644,7 @@ fn renderToTarget(s: *Scene3d) !bool {
         // than aspirational.
         const r = s.res.items[g.res_index];
         if (render.stz_gpu_render_draw_bound(
-            r.pipe,
+            r.pipe[ti],
             r.vbuf,
             r.ibuf,
             @floatFromInt(r.nindices),
@@ -619,6 +657,25 @@ fn renderToTarget(s: *Scene3d) !bool {
     if (render.stz_gpu_render_end() != gpu.OK) return false;
     s.last_draw_calls = draws;
     return true;
+}
+
+/// GR5: draw this 3D scene straight into a swapchain frame -- no readback,
+/// no encode. This is the call an animation loop makes 60 times a second,
+/// and it is the same renderer that produces the PNG.
+pub fn sceneDrawToTarget(id: i64, target_id: i64, tfmt: i32, w: u32, h: u32) bool {
+    const slot = slotOf(id) orelse return false;
+    const s = &scenes.items[slot];
+    if (w != 0 and h != 0 and (w != s.w or h != s.h)) {
+        s.w = w;
+        s.h = h; // the camera's aspect ratio is derived from these each frame
+    }
+    s.ext_target = target_id;
+    s.ext_tfmt = tfmt;
+    defer {
+        s.ext_target = 0;
+        s.ext_tfmt = 0;
+    }
+    return renderToTarget(s) catch false;
 }
 
 pub fn sceneToPixels(id: i64) !?[]u8 {

@@ -142,6 +142,20 @@ const SceneSlot = struct {
     vbuf_shape: i64 = 0,
     vbuf_text: i64 = 0,
     target: i64 = 0,
+    // GR5 presentation: when non-zero, draw into THIS target (a swapchain
+    // frame) instead of the scene's own. One renderer, two destinations --
+    // a window and a file cannot drift apart because there is nothing to
+    // drift.
+    ext_target: i64 = 0,
+    ext_tfmt: i32 = 0,
+    // Which build generation is sitting in the vertex buffers. `builds`
+    // already witnessed that a still scene re-TESSELLATES once; this makes
+    // the same true of the UPLOAD. Found by the window: a static scene was
+    // moving its whole vertex set across the bus 60 times a second while
+    // reporting builds = 1, which is exactly the kind of thing an offscreen
+    // renderer never notices because it only ever draws one frame.
+    uploaded_build: u64 = 0,
+    vertex_uploads: u64 = 0, // the witness for the line above
     gen: u32 = 1,
     live: bool = false,
 };
@@ -235,6 +249,23 @@ pub fn sceneClear(id: i64, col: u32) i32 {
     const slot = slotOf(id) orelse return STALE;
     scenes.items[slot].clear = col;
     scenes.items[slot].dirty = true;
+    return OK;
+}
+
+/// Empty the display list, keeping the background colour and the GPU
+/// buffers. This is what an ANIMATED scene calls at the top of each frame:
+/// without it a frame loop appends its shapes forever and the display list
+/// grows without bound -- a defect a one-shot renderer can never expose,
+/// because it only ever draws frame 1.
+///
+/// The retained buffers are deliberately NOT freed: their capacity is what
+/// makes the next frame cheap, and the vertex data is re-uploaded only
+/// because the build generation moved.
+pub fn sceneReset(id: i64) i32 {
+    const slot = slotOf(id) orelse return STALE;
+    const s = &scenes.items[slot];
+    s.cmds.clearRetainingCapacity();
+    s.dirty = true;
     return OK;
 }
 
@@ -594,7 +625,7 @@ fn buildOnce(s: *SceneSlot) !void {
 }
 
 /// [commands, shape verts, text verts, draw segments, builds]
-pub fn sceneStats(id: i64) ?[5]f64 {
+pub fn sceneStats(id: i64) ?[6]f64 {
     const slot = slotOf(id) orelse return null;
     const s = &scenes.items[slot];
     build(s) catch return null;
@@ -604,6 +635,9 @@ pub fn sceneStats(id: i64) ?[5]f64 {
         @floatFromInt(s.text_verts.items.len / 8),
         @floatFromInt(s.segs.items.len),
         @floatFromInt(s.build_count),
+        // GR5: uploads, which a frame loop cares about and a one-shot
+        // render cannot distinguish from builds
+        @floatFromInt(s.vertex_uploads),
     };
 }
 
@@ -780,30 +814,35 @@ pub fn sceneToSvg(id: i64) !?[]u8 {
 
 // ---------------------------------------------------------------- GPU tier
 
-var pipe_shape: i64 = 0;
-var pipe_text: i64 = 0;
+// One entry per target format (0 = RGBA8 offscreen, 1 = BGRA8 swapchain).
+// The SHADER is the same text; only the color-target format differs, which
+// is exactly what the pipeline cache key now distinguishes.
+var pipe_shape: [2]i64 = @splat(0);
+var pipe_text: [2]i64 = @splat(0);
 
-fn ensurePipelines() bool {
-    if (pipe_shape == 0 or gpu.stz_gpu_is_available() == 0) {
-        pipe_shape = render.stz_gpu_render_pipeline(WGSL_SHAPE.ptr, @floatFromInt(WGSL_SHAPE.len), "2,4", 3, 1);
+fn ensurePipelines(tfmt: i32) bool {
+    const t: usize = if (tfmt == render.TFMT_BGRA8) 1 else 0;
+    if (pipe_shape[t] == 0 or gpu.stz_gpu_is_available() == 0) {
+        pipe_shape[t] = render.stz_gpu_render_pipeline_fmt(WGSL_SHAPE.ptr, @floatFromInt(WGSL_SHAPE.len), "2,4", 3, 1, 0, 0, @floatFromInt(tfmt));
     }
-    if (pipe_text == 0) {
-        pipe_text = render.stz_gpu_render_pipeline(WGSL_TEXT.ptr, @floatFromInt(WGSL_TEXT.len), "2,2,4", 5, 1);
+    if (pipe_text[t] == 0) {
+        pipe_text[t] = render.stz_gpu_render_pipeline_fmt(WGSL_TEXT.ptr, @floatFromInt(WGSL_TEXT.len), "2,2,4", 5, 1, 0, 0, @floatFromInt(tfmt));
     }
-    return pipe_shape != 0 and pipe_text != 0;
+    return pipe_shape[t] != 0 and pipe_text[t] != 0;
 }
 
 /// Device loss: pipelines and scene-owned GPU objects died with it. Ids are
 /// gen-keyed, so the stale ones are DETECTED -- but zeroing them here keeps
 /// the next render from re-checking every one.
 pub fn forgetDeviceObjects() void {
-    pipe_shape = 0;
-    pipe_text = 0;
+    pipe_shape = @splat(0);
+    pipe_text = @splat(0);
     for (scenes.items) |*s| {
         if (!s.live) continue;
         s.vbuf_shape = 0;
         s.vbuf_text = 0;
         s.target = 0;
+        s.ext_target = 0;
     }
     atlas.forgetTexture();
 }
@@ -834,45 +873,91 @@ fn renderToTarget(s: *SceneSlot) !bool {
         return false;
     }
     try build(s);
-    if (!ensurePipelines()) {
+    const tfmt: i32 = if (s.ext_target != 0) s.ext_tfmt else render.TFMT_RGBA8;
+    if (!ensurePipelines(tfmt)) {
         gpu.countFallback();
         return false;
     }
 
-    if (s.target != 0 and gpu.stz_gpu_texture_width(s.target) < 0) s.target = 0;
-    if (s.target == 0) {
-        s.target = gpu.stz_gpu_texture_new(@floatFromInt(s.w), @floatFromInt(s.h), @floatFromInt(gpu.TEX_TARGET));
+    if (s.ext_target == 0) {
+        if (s.target != 0 and gpu.stz_gpu_texture_width(s.target) < 0) s.target = 0;
         if (s.target == 0) {
-            gpu.countFallback();
-            return false;
+            s.target = gpu.stz_gpu_texture_new(@floatFromInt(s.w), @floatFromInt(s.h), @floatFromInt(gpu.TEX_TARGET));
+            if (s.target == 0) {
+                gpu.countFallback();
+                return false;
+            }
         }
     }
+    const draw_target = if (s.ext_target != 0) s.ext_target else s.target;
+    const ti: usize = if (tfmt == render.TFMT_BGRA8) 1 else 0;
 
+    // Re-upload only what CHANGED. `ensureBuffer` may hand back a fresh
+    // buffer (the VRAM budget can evict one between frames), and a fresh
+    // buffer holds nothing -- so the test is "same generation AND same
+    // buffer", not generation alone.
+    const shape_buf_before = s.vbuf_shape;
+    const text_buf_before = s.vbuf_text;
+    var needs_upload = s.uploaded_build != s.build_count;
     if (s.shape_verts.items.len > 0) {
-        const bytes = s.shape_verts.items.len * 4;
-        s.vbuf_shape = ensureBuffer(s.vbuf_shape, bytes);
+        s.vbuf_shape = ensureBuffer(s.vbuf_shape, s.shape_verts.items.len * 4);
         if (s.vbuf_shape == 0) return false;
-        if (gpu.stz_gpu_buffer_write(s.vbuf_shape, @ptrCast(s.shape_verts.items.ptr), @floatFromInt(bytes)) != gpu.OK) return false;
+        if (s.vbuf_shape != shape_buf_before) needs_upload = true;
     }
     if (s.text_verts.items.len > 0) {
-        const bytes = s.text_verts.items.len * 4;
-        s.vbuf_text = ensureBuffer(s.vbuf_text, bytes);
+        s.vbuf_text = ensureBuffer(s.vbuf_text, s.text_verts.items.len * 4);
         if (s.vbuf_text == 0) return false;
-        if (gpu.stz_gpu_buffer_write(s.vbuf_text, @ptrCast(s.text_verts.items.ptr), @floatFromInt(bytes)) != gpu.OK) return false;
+        if (s.vbuf_text != text_buf_before) needs_upload = true;
+    }
+    if (needs_upload) {
+        if (s.shape_verts.items.len > 0) {
+            const bytes = s.shape_verts.items.len * 4;
+            if (gpu.stz_gpu_buffer_write(s.vbuf_shape, @ptrCast(s.shape_verts.items.ptr), @floatFromInt(bytes)) != gpu.OK) return false;
+        }
+        if (s.text_verts.items.len > 0) {
+            const bytes = s.text_verts.items.len * 4;
+            if (gpu.stz_gpu_buffer_write(s.vbuf_text, @ptrCast(s.text_verts.items.ptr), @floatFromInt(bytes)) != gpu.OK) return false;
+        }
+        s.uploaded_build = s.build_count;
+        s.vertex_uploads += 1;
     }
     const atlas_tex: i64 = if (s.text_verts.items.len > 0) atlas.textureId() else 0;
 
     const cl = Rgba.unpack(s.clear);
-    if (render.stz_gpu_render_begin(s.target, cl.r, cl.g, cl.b, cl.a) != gpu.OK) return false;
+    if (render.stz_gpu_render_begin(draw_target, cl.r, cl.g, cl.b, cl.a) != gpu.OK) return false;
     for (s.segs.items) |seg| {
         if (seg.kind == .shape) {
-            _ = render.stz_gpu_render_draw(pipe_shape, s.vbuf_shape, @floatFromInt(seg.first), @floatFromInt(seg.count), 0);
+            _ = render.stz_gpu_render_draw(pipe_shape[ti], s.vbuf_shape, @floatFromInt(seg.first), @floatFromInt(seg.count), 0);
         } else if (atlas_tex != 0) {
-            _ = render.stz_gpu_render_draw(pipe_text, s.vbuf_text, @floatFromInt(seg.first), @floatFromInt(seg.count), atlas_tex);
+            _ = render.stz_gpu_render_draw(pipe_text[ti], s.vbuf_text, @floatFromInt(seg.first), @floatFromInt(seg.count), atlas_tex);
         }
     }
     if (render.stz_gpu_render_end() != gpu.OK) return false;
     return true;
+}
+
+/// GR5: draw this scene into a target somebody else owns -- a swapchain
+/// frame. NO readback and NO encode: the pixels are produced and shown, and
+/// the picture never crosses the bus. That absence is the whole point of a
+/// window tier; everything else here is the code that was already running.
+///
+/// `w`/`h` retarget the scene when the window has been resized, so the
+/// display list keeps describing the window it is drawn in.
+pub fn sceneDrawToTarget(id: i64, target_id: i64, tfmt: i32, w: u32, h: u32) bool {
+    const slot = slotOf(id) orelse return false;
+    const s = &scenes.items[slot];
+    if (w != 0 and h != 0 and (w != s.w or h != s.h)) {
+        s.w = w;
+        s.h = h;
+        s.dirty = true; // extents changed: clipping and the clear quad follow
+    }
+    s.ext_target = target_id;
+    s.ext_tfmt = tfmt;
+    defer {
+        s.ext_target = 0;
+        s.ext_tfmt = 0;
+    }
+    return renderToTarget(s) catch false;
 }
 
 /// Raw RGBA8 pixels of the GPU tier. The parity witness: the same bytes the

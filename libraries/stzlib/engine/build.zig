@@ -18,6 +18,7 @@ const Domain = struct {
     needs_zlib: bool = false, // vendored zlib compiled in (GR1: the PNG encoder)
     needs_stb: bool = false, // vendored stb_truetype + stb_image (GR1 text/texture)
     needs_textshape: bool = false, // vendored HarfBuzz + SheenBidi (GR2 text pipeline)
+    needs_glfw: bool = false, // vendored GLFW (GR5 windowing) -- SEE addGlfw
 };
 
 // Core (stk_*): minimal, fast, constrained environments
@@ -115,6 +116,11 @@ const base_domains = [_]Domain{
     // RUNTIME (LoadLibrary in gpu.zig), never linked, so this DLL loads on
     // GPU-less machines and degrades to counted fallback.
     .{ .name = "stz_gpu", .entry = "src/stz_gpu_entry.zig", .needs_ring = true, .needs_wgpu = true, .needs_zlib = true, .needs_stb = true, .needs_textshape = true },
+    // GR5 windowing. Its OWN DLL on purpose: GLFW is the one vendored
+    // dependency that cannot cross-compile from here (X11/Cocoa headers
+    // are not bundled with Zig), and linking it into stz_gpu would cost
+    // the GPU plane a portability property that is already guarded.
+    .{ .name = "stz_window", .entry = "src/stz_window_entry.zig", .needs_ring = true, .needs_glfw = true },
 };
 
 fn addUtf8proc(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
@@ -547,6 +553,73 @@ fn addTextShape(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Bu
         .flags = &.{ "-fno-exceptions", "-fno-rtti" },
     });
     lib.linkLibCpp();
+}
+
+// GLFW, from per-platform source lists (the libuv pattern). NO cmake.
+//
+// This is the ONLY vendored dependency that cannot cross-compile from a
+// Windows box: Zig bundles libc, not X11 or Cocoa, and Apple's frameworks
+// are not redistributable. Measured before deciding -- see
+// vendor/glfw/VERSION.txt. That is precisely why the window tier is its
+// own DLL: linking this into stz_gpu.dll would have cost the GPU plane
+// its cross-compilability, which is already guarded.
+fn addGlfw(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build, os: std.Target.Os.Tag) void {
+    const g = "vendor/glfw";
+    mod.addIncludePath(b.path(g ++ "/include"));
+    mod.addIncludePath(b.path(g ++ "/src"));
+
+    // platform-independent core, plus the null backend GLFW always wants
+    const common = [_][]const u8{
+        g ++ "/src/context.c",  g ++ "/src/init.c",        g ++ "/src/input.c",
+        g ++ "/src/monitor.c",  g ++ "/src/platform.c",    g ++ "/src/vulkan.c",
+        g ++ "/src/window.c",   g ++ "/src/egl_context.c", g ++ "/src/osmesa_context.c",
+        g ++ "/src/null_init.c", g ++ "/src/null_monitor.c", g ++ "/src/null_window.c",
+        g ++ "/src/null_joystick.c",
+    };
+    var files: std.ArrayList([]const u8) = .{};
+    files.appendSlice(b.allocator, &common) catch @panic("oom");
+
+    var flags: std.ArrayList([]const u8) = .{};
+    switch (os) {
+        .windows => {
+            files.appendSlice(b.allocator, &[_][]const u8{
+                g ++ "/src/win32_init.c",   g ++ "/src/win32_joystick.c",
+                g ++ "/src/win32_module.c", g ++ "/src/win32_monitor.c",
+                g ++ "/src/win32_thread.c", g ++ "/src/win32_time.c",
+                g ++ "/src/win32_window.c", g ++ "/src/wgl_context.c",
+            }) catch @panic("oom");
+            flags.append(b.allocator, "-D_GLFW_WIN32") catch @panic("oom");
+            for ([_][]const u8{ "gdi32", "user32", "shell32" }) |l| lib.linkSystemLibrary(l);
+        },
+        .linux => {
+            files.appendSlice(b.allocator, &[_][]const u8{
+                g ++ "/src/x11_init.c",     g ++ "/src/x11_monitor.c",
+                g ++ "/src/x11_window.c",   g ++ "/src/xkb_unicode.c",
+                g ++ "/src/posix_module.c", g ++ "/src/posix_time.c",
+                g ++ "/src/posix_thread.c", g ++ "/src/posix_poll.c",
+                g ++ "/src/linux_joystick.c", g ++ "/src/glx_context.c",
+            }) catch @panic("oom");
+            flags.append(b.allocator, "-D_GLFW_X11") catch @panic("oom");
+            for ([_][]const u8{ "X11", "Xrandr", "Xi", "Xcursor", "Xinerama" }) |l| lib.linkSystemLibrary(l);
+        },
+        .macos => {
+            files.appendSlice(b.allocator, &[_][]const u8{
+                g ++ "/src/cocoa_init.m",   g ++ "/src/cocoa_joystick.m",
+                g ++ "/src/cocoa_monitor.m", g ++ "/src/cocoa_window.m",
+                g ++ "/src/cocoa_time.c",   g ++ "/src/nsgl_context.m",
+                g ++ "/src/posix_module.c", g ++ "/src/posix_thread.c",
+                g ++ "/src/posix_poll.c",
+            }) catch @panic("oom");
+            flags.append(b.allocator, "-D_GLFW_COCOA") catch @panic("oom");
+            for ([_][]const u8{ "Cocoa", "IOKit", "CoreFoundation" }) |fw| lib.linkFramework(fw);
+        },
+        else => {
+            // no backend for this OS: the null platform still compiles, and
+            // the DLL answers "no window" rather than failing to build
+            flags.append(b.allocator, "-D_GLFW_NULL") catch @panic("oom");
+        },
+    }
+    lib.addCSourceFiles(.{ .files = files.items, .flags = flags.items });
 }
 
 fn addRing(b: *std.Build, mod: *std.Build.Module, lib: *std.Build.Step.Compile, ring_dir: []const u8) void {
@@ -986,6 +1059,7 @@ pub fn build(b: *std.Build) void {
         if (dom.needs_zlib) addZlib(mod, lib, b);
         if (dom.needs_stb) addStb(mod, lib, b);
         if (dom.needs_textshape) addTextShape(mod, lib, b);
+        if (dom.needs_glfw) addGlfw(mod, lib, b, target.result.os.tag);
         if (dom.needs_wgpu) {
             mod.addIncludePath(b.path("vendor/wgpu/include"));
             // Ship the vendored runtime next to the engine DLLs so the Ring

@@ -87,6 +87,10 @@ load "../../engine/stz_neural.ring"
 # GPU plane lifecycle (vendored wgpu-native, loaded at Init time)
 load "../../engine/stz_gpu.ring"
 
+# Windowing and input (vendored GLFW). Its own DLL because it is the one
+# module that cannot cross-compile; absent is a legitimate state.
+load "../../engine/stz_window.ring"
+
 load "../../engine/stzMeta.ring"
 
 # Initialize the meta-engine (named params, error catalog, aliases)

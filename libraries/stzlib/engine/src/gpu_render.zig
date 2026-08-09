@@ -158,17 +158,34 @@ fn parseVertexFormat(fmt: []const u8, attrs: *[MAX_ATTRS]c.WGPUVertexAttribute, 
 /// refusal (unavailable device, malformed format, WGSL that fails
 /// validation -- the error is counted and readable via LastError).
 pub fn stz_gpu_render_pipeline(text: [*]const u8, len: f64, fmt: [*]const u8, fmt_len: f64, blend: f64) callconv(.c) i64 {
-    return pipelineInternal(text, len, fmt, fmt_len, blend, false, false);
+    return pipelineInternal(text, len, fmt, fmt_len, blend, false, false, TFMT_RGBA8);
+}
+
+/// GR5: the TARGET's pixel format. Every offscreen target this engine makes
+/// is RGBA8, but a swapchain names its own format and BGRA8 is what most
+/// Windows surfaces answer -- a pipeline compiled for the wrong one is a
+/// validation error, not a wrong color. So the format joins the cache key,
+/// and a scene drawn to a window and to a file uses two pipelines from one
+/// shader rather than one pipeline that is wrong somewhere.
+pub const TFMT_RGBA8: i32 = 0;
+pub const TFMT_BGRA8: i32 = 1;
+
+fn targetFormatOf(t: i32) c.WGPUTextureFormat {
+    return if (t == TFMT_BGRA8) c.WGPUTextureFormat_BGRA8Unorm else c.WGPUTextureFormat_RGBA8Unorm;
+}
+
+pub fn stz_gpu_render_pipeline_fmt(text: [*]const u8, len: f64, fmt: [*]const u8, fmt_len: f64, blend: f64, depth: f64, cull: f64, tfmt: f64) callconv(.c) i64 {
+    return pipelineInternal(text, len, fmt, fmt_len, blend, depth != 0, cull != 0, @intFromFloat(tfmt));
 }
 
 /// GR3: the same cache, with DEPTH TESTING and optional back-face culling.
 /// A separate entry point rather than a widened one -- the 2D surface that
 /// shipped keeps its exact signature and its guards keep passing.
 pub fn stz_gpu_render_pipeline3d(text: [*]const u8, len: f64, fmt: [*]const u8, fmt_len: f64, blend: f64, cull: f64) callconv(.c) i64 {
-    return pipelineInternal(text, len, fmt, fmt_len, blend, true, cull != 0);
+    return pipelineInternal(text, len, fmt, fmt_len, blend, true, cull != 0, TFMT_RGBA8);
 }
 
-fn pipelineInternal(text: [*]const u8, len: f64, fmt: [*]const u8, fmt_len: f64, blend: f64, depth: bool, cull: bool) i64 {
+fn pipelineInternal(text: [*]const u8, len: f64, fmt: [*]const u8, fmt_len: f64, blend: f64, depth: bool, cull: bool, tfmt: i32) i64 {
     ensureRegistered();
     if (!gpu.isAvail()) {
         gpu.countFallback();
@@ -188,6 +205,7 @@ fn pipelineInternal(text: [*]const u8, len: f64, fmt: [*]const u8, fmt_len: f64,
     hasher.update(if (bl == 1) "|b1" else "|b0");
     hasher.update(if (depth) "|d1" else "|d0");
     hasher.update(if (cull) "|c1" else "|c0");
+    hasher.update(if (tfmt == TFMT_BGRA8) "|t1" else "|t0");
     const h = hasher.final();
     for (rpipes.items, 0..) |rp, i| {
         if (rp.hash == h and rp.pipeline != null) {
@@ -225,7 +243,7 @@ fn pipelineInternal(text: [*]const u8, len: f64, fmt: [*]const u8, fmt_len: f64,
     blend_state.color = .{ .operation = c.WGPUBlendOperation_Add, .srcFactor = c.WGPUBlendFactor_SrcAlpha, .dstFactor = c.WGPUBlendFactor_OneMinusSrcAlpha };
     blend_state.alpha = .{ .operation = c.WGPUBlendOperation_Add, .srcFactor = c.WGPUBlendFactor_One, .dstFactor = c.WGPUBlendFactor_OneMinusSrcAlpha };
     var target = std.mem.zeroes(c.WGPUColorTargetState);
-    target.format = c.WGPUTextureFormat_RGBA8Unorm;
+    target.format = targetFormatOf(tfmt);
     target.blend = if (bl == 1) &blend_state else null;
     target.writeMask = c.WGPUColorWriteMask_All;
 

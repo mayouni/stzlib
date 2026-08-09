@@ -108,3 +108,82 @@ func StzColorToHex(pnColor)
 		       substr(_aD_, (_aV_[4] % 16) + 1, 1)
 	ok
 	return _c_
+
+# ---- computed colours (GR5) -------------------------------------------
+#
+# Hex literals are how a colour is WRITTEN; these are how a colour is
+# COMPUTED. A frame loop cycling a hue, a chart colouring N series apart, a
+# fade that depends on age -- none of those can name their colour in
+# advance, and building the hex string by hand at the call site is how a
+# picture ends up with a rounding bug nobody can find.
+
+# Hue 0..360 (0 red, 120 green, 240 blue), saturation and lightness 0..100.
+# Values outside those ranges are WRAPPED (hue) or CLAMPED (s, l) rather
+# than refused: a hue that keeps increasing is the normal way to animate
+# one, and making the caller do the modulo is a trap, not a service.
+func StzColorFromHSL(pnH, pnS, pnL)
+	if NOT (isNumber(pnH) and isNumber(pnS) and isNumber(pnL))
+		StzRaise("StzColorFromHSL: hue 0-360, saturation and lightness 0-100.")
+	ok
+	_nH_ = pnH % 360
+	if _nH_ < 0
+		_nH_ += 360
+	ok
+	_nS_ = _StzClamp01(pnS / 100)
+	_nL_ = _StzClamp01(pnL / 100)
+
+	_nC_ = (1 - fabs(2 * _nL_ - 1)) * _nS_
+	_nHp_ = _nH_ / 60
+	_nX_ = _nC_ * (1 - fabs((_nHp_ % 2) - 1))
+	_nM_ = _nL_ - _nC_ / 2
+
+	_nR_ = 0  _nG_ = 0  _nB_ = 0
+	if _nHp_ < 1
+		_nR_ = _nC_  _nG_ = _nX_
+	but _nHp_ < 2
+		_nR_ = _nX_  _nG_ = _nC_
+	but _nHp_ < 3
+		_nG_ = _nC_  _nB_ = _nX_
+	but _nHp_ < 4
+		_nG_ = _nX_  _nB_ = _nC_
+	but _nHp_ < 5
+		_nR_ = _nX_  _nB_ = _nC_
+	else
+		_nR_ = _nC_  _nB_ = _nX_
+	ok
+
+	return _StzRgba(floor((_nR_ + _nM_) * 255 + 0.5),
+	                floor((_nG_ + _nM_) * 255 + 0.5),
+	                floor((_nB_ + _nM_) * 255 + 0.5), 255)
+
+# The same colour at a different opacity. Alpha is 0..255 (0 invisible,
+# 255 opaque) -- the same scale the packed colour itself uses, so there is
+# one alpha convention in the plane rather than two.
+func StzColorWithAlpha(pColor, pnAlpha)
+	_n_ = StzColorToNumber(pColor)
+	_nA_ = floor(pnAlpha)
+	if _nA_ < 0    _nA_ = 0    ok
+	if _nA_ > 255  _nA_ = 255  ok
+	return floor(_n_ / 256) * 256 + _nA_
+
+# Mix two colours, 0 = all the first, 1 = all the second. Component-wise
+# and including alpha -- what a gradient stop or a hover state wants.
+func StzColorMix(pFrom, pTo, pnT)
+	_nT_ = _StzClamp01(pnT)
+	_a_ = _StzColorParts(StzColorToNumber(pFrom))
+	_b_ = _StzColorParts(StzColorToNumber(pTo))
+	return _StzRgba(floor(_a_[1] + (_b_[1] - _a_[1]) * _nT_ + 0.5),
+	                floor(_a_[2] + (_b_[2] - _a_[2]) * _nT_ + 0.5),
+	                floor(_a_[3] + (_b_[3] - _a_[3]) * _nT_ + 0.5),
+	                floor(_a_[4] + (_b_[4] - _a_[4]) * _nT_ + 0.5))
+
+func _StzColorParts(pn)
+	return [ floor(pn / 16777216) % 256,
+	         floor(pn / 65536) % 256,
+	         floor(pn / 256) % 256,
+	         pn % 256 ]
+
+func _StzClamp01(pn)
+	if pn < 0  return 0  ok
+	if pn > 1  return 1  ok
+	return pn

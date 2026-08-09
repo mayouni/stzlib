@@ -1402,3 +1402,120 @@ language — reaches ShaderGraph's shape, and needs the material language
 deepened first: multiple statements, texture sampling, control flow),
 and RENDER STRUCTURE (a frame graph whose passes and resource lifetimes
 `stzGraphPlanner` schedules and `stzGraphRule` proves acyclic).
+
+---
+
+## GR5 STATUS — shipped 2026-08-09: a picture you WATCH
+
+The last phase of GR0–GR6. Everything before it answered `ToSVG()` or
+`ToPNG()`: a picture computed once and handed to a file. GR5 is the other
+half — a picture recomputed while somebody is looking at it, and a user
+who can act on it.
+
+### What shipped
+
+**`stz_window.dll` — its own DLL, as the amendment required.** GLFW 3.4
+vendored (1.8 MB, src/ + include/, no cmake) and built from per-platform
+source lists by `addGlfw` in `build.zig` — the libuv pattern this repo
+already executes. Window creation, the event pump, keyboard, mouse,
+framebuffer size, resize detection and delta time, all on the same
+gen-keyed handle discipline as every other table in the engine.
+
+**Presentation in `stz_gpu.dll`** (`gpu_surface.zig`). A wgpu surface from
+the native handle, capability-driven format choice, configurable present
+mode, and resize reconfiguration.
+
+**The design decision that made it small:** a swapchain frame is ADOPTED
+into the ordinary texture table as a render target (`gpu.adoptTarget`).
+So the pass machine, the 2D scene, the 3D scene and GPU-driven instancing
+all draw to a window through code that already existed. There is no second
+renderer to keep in sync — `ToPixels` and `Present` are the same renderer
+pointed at different targets. The adopted slot costs zero VRAM budget (the
+surface allocated it) and is PINNED against eviction, because evicting the
+frame you are drawing into would be a memorable way to lose a picture.
+
+**`stzWindow`** — the face, under the naming law: verbs that act
+(`Poll`, `Draw`, `Close`, `SetTitle`), `Q` for chaining, plain forms
+returning data or nothing. Plus `Show(thing)` for a still picture and
+`EachFrame(fn)` for a loop.
+
+**`stzCanvas.Show()` now opens a real window** instead of writing a PNG
+and asking the OS to open it — and still falls back to exactly that when
+there is no windowing.
+
+### Measured
+
+| | bus bytes |
+|---|---|
+| 120 window frames, 700×420, still scene | **6,696** (all of it frame 1) |
+| the same 120 frames through `ToPng` | 141,120,000 |
+
+After the first frame a still scene moves **zero** bytes. The guard
+asserts that number rather than a ratio, because a ratio can be true while
+both sides are wrong.
+
+### Three defects the window found that no offscreen test could
+
+1. **Timeout from frame 3, forever.** The window drew exactly 2 frames of
+   120 and went quiet. Cause: releasing the frame reference BEFORE
+   `wgpuSurfacePresent`, which leaves the swapchain unable to retire the
+   image. Present-then-release fixed it. A device poll added at the same
+   time was suspected — a control run with the poll removed still rendered
+   every frame, so it was **measured innocent** and kept only for the job
+   it actually does (running error callbacks in a loop that never reads
+   back).
+
+2. **A still scene re-uploaded its whole vertex set every frame** while
+   reporting `builds = 1`. The retained-buffer property stopped at the
+   tessellator and never reached the upload. Fixed by an upload generation
+   (guarded against the buffer having been evicted and silently replaced),
+   and `SceneStats` gained a sixth field so the two are countable
+   separately. This is invisible to a renderer that only ever draws frame 1.
+
+3. **An animated display list grew without bound** — a frame loop appends
+   shapes forever with nothing to empty it. `sceneReset` / `Clear()`, with
+   the guard's negative sibling proving the fix is load-bearing.
+
+Also: `classname()` called inside a class body raises R20 (it resolves
+against the class's own methods) — the same family as the bare `len()` and
+`trim()` traps already in the project notes. Fixed with a file-scope
+`StzDrawableKind()`.
+
+### Added along the way
+
+`StzColorFromHSL`, `StzColorWithAlpha`, `StzColorMix` — hex literals are
+how a colour is WRITTEN; a frame loop cycling a hue needs a colour
+COMPUTED. Verified against the standard HSL definition at the primaries,
+greys and the wrap point.
+
+### Verification status, stated rather than implied
+
+| | |
+|---|---|
+| **Windows** | built and runtime-verified here — 42-assertion guard green, plus an interactive showcase |
+| **Linux** | GLFW X11 backend vendored, build rules written, surface path written against the verified header fields. **Not built or run from this machine.** |
+| **macOS** | GLFW Cocoa backend vendored (`.m` sources), build rules written; the NSWindow→CAMetalLayer bridge is written through the Objective-C runtime rather than Cocoa headers. **Not built or run from this machine, and not compile-checked** — Zig only analyses the taken branch of a comptime switch. |
+
+The honest summary: **Windows is shipped; Linux and macOS are written and
+plausible but unproven.** That is exactly what the amendment predicted
+would happen and why the window lives in its own DLL — the other 40+
+engine domains still cross-compile to all three.
+
+### Guards
+
+`base/test/graphics/window_narrated.ring` — 42 assertions, headless-safe
+(it reports the refusal and stops rather than faking a pass). Regression
+sweep of every suite the change can reach: 261 assertions, all green.
+
+`base/test/graphics/showcase_window.ring` — interactive; `ring
+showcase_window.ring 180` runs a fixed budget on autopilot and saves the
+last frame, because a demo that needs a human to check it is a demo nobody
+checks.
+
+### GR0–GR6 are complete
+
+Next: the graph plane, `SOFTANZA_GRAPH_PLANE_PLAN.md` (GG0–GG5). GG0 is
+already done (the spike returned GO); GG1 is the next phase. Note that
+GG4's dependency — sampled render targets and compute+render sharing one
+submit — was NOT closed by GR5; presentation did not need it, and closing
+a gap that nothing yet exercises is the error G6 already taught.

@@ -14,6 +14,7 @@ const scene = @import("gpu_scene.zig");
 const atlas = @import("gpu_atlas.zig");
 const gmesh = @import("gpu_mesh.zig");
 const s3d = @import("gpu_scene3d.zig");
+const surf = @import("gpu_surface.zig");
 const gm = @import("gpu_math.zig");
 const R = @import("ring_api.zig");
 
@@ -709,7 +710,8 @@ fn ring_SceneCommandCount(p: *anyopaque) callconv(.c) void {
     rn(p, scene.sceneCommandCount(@intFromFloat(gn(p, 1))));
 }
 
-// SceneStats(id) -> [commands, shapeVerts, textVerts, drawSegments, builds]
+// SceneStats(id) -> [commands, shapeVerts, textVerts, drawSegments, builds,
+//                    vertexUploads]
 fn ring_SceneStats(p: *anyopaque) callconv(.c) void {
     const out = R.ring_vm_api_newlist(p) orelse return;
     if (scene.sceneStats(@intFromFloat(gn(p, 1)))) |st| {
@@ -1135,7 +1137,82 @@ fn ring_Scene3dToPng(p: *anyopaque) callconv(.c) void {
     }
 }
 
+// ---- GR5 presentation -------------------------------------------------
+
+fn ring_SurfaceNew(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(surf.stz_gpu_surface_new(gn(p, 1), gn(p, 2), gn(p, 3), gn(p, 4))));
+}
+
+fn ring_SurfaceFree(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(surf.stz_gpu_surface_free(@intFromFloat(gn(p, 1)))));
+}
+
+fn ring_SurfaceResize(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(surf.stz_gpu_surface_resize(@intFromFloat(gn(p, 1)), gn(p, 2), gn(p, 3))));
+}
+
+fn ring_SurfaceSetPresentMode(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(surf.stz_gpu_surface_set_present_mode(@intFromFloat(gn(p, 1)), gn(p, 2))));
+}
+
+fn ring_SurfaceAcquire(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(surf.stz_gpu_surface_acquire(@intFromFloat(gn(p, 1)))));
+}
+
+fn ring_SurfacePresent(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(surf.stz_gpu_surface_present(@intFromFloat(gn(p, 1)))));
+}
+
+fn ring_SurfaceFormatName(p: *anyopaque) callconv(.c) void {
+    var buf: [32]u8 = undefined;
+    const n = surf.stz_gpu_surface_format_name(@intFromFloat(gn(p, 1)), &buf, buf.len);
+    R.ring_vm_api_retstring2(p, &buf, @intCast(n));
+}
+
+fn ring_SurfaceStat(p: *anyopaque) callconv(.c) void {
+    rn(p, surf.stz_gpu_surface_stat(@intFromFloat(gn(p, 1)), gn(p, 2)));
+}
+
+fn ring_SceneReset(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(scene.sceneReset(@intFromFloat(gn(p, 1)))));
+}
+
+/// tfmt is passed as the surface reports it, so a scene drawn to a window
+/// compiles for the window's actual format instead of guessing.
+fn ring_SceneDrawToTarget(p: *anyopaque) callconv(.c) void {
+    const okd = scene.sceneDrawToTarget(
+        @intFromFloat(gn(p, 1)),
+        @intFromFloat(gn(p, 2)),
+        @intFromFloat(gn(p, 3)),
+        @intFromFloat(gn(p, 4)),
+        @intFromFloat(gn(p, 5)),
+    );
+    rn(p, if (okd) 1 else 0);
+}
+
+fn ring_Scene3dDrawToTarget(p: *anyopaque) callconv(.c) void {
+    const okd = s3d.sceneDrawToTarget(
+        @intFromFloat(gn(p, 1)),
+        @intFromFloat(gn(p, 2)),
+        @intFromFloat(gn(p, 3)),
+        @intFromFloat(gn(p, 4)),
+        @intFromFloat(gn(p, 5)),
+    );
+    rn(p, if (okd) 1 else 0);
+}
+
 pub const regs = [_]R.Reg{
+    .{ .name = "stzenginegpusurfacenew", .func = &ring_SurfaceNew },
+    .{ .name = "stzenginegpusurfacefree", .func = &ring_SurfaceFree },
+    .{ .name = "stzenginegpusurfaceresize", .func = &ring_SurfaceResize },
+    .{ .name = "stzenginegpusurfacesetpresentmode", .func = &ring_SurfaceSetPresentMode },
+    .{ .name = "stzenginegpusurfaceacquire", .func = &ring_SurfaceAcquire },
+    .{ .name = "stzenginegpusurfacepresent", .func = &ring_SurfacePresent },
+    .{ .name = "stzenginegpusurfaceformatname", .func = &ring_SurfaceFormatName },
+    .{ .name = "stzenginegpusurfacestat", .func = &ring_SurfaceStat },
+    .{ .name = "stzenginegpuscenereset", .func = &ring_SceneReset },
+    .{ .name = "stzenginegpuscenedrawtotarget", .func = &ring_SceneDrawToTarget },
+    .{ .name = "stzenginegpuscene3ddrawtotarget", .func = &ring_Scene3dDrawToTarget },
     .{ .name = "stzenginegpuinit", .func = &ring_Init },
     .{ .name = "stzenginegpushutdown", .func = &ring_Shutdown },
     .{ .name = "stzenginegpuisavailable", .func = &ring_IsAvailable },
