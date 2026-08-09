@@ -52,6 +52,19 @@ fn lessThan(_: void, a: Key, b: Key) bool {
 ///
 /// `order` is rewritten in place. Positions are recomputed each sweep from
 /// `order` itself, so the two can never disagree.
+/// eu/ev are the edge list -- needed because the sweep now KEEPS THE BEST
+/// ORDER it sees rather than whatever the last pass produced.
+///
+/// This is not a refinement, it is a correctness fix. Barycentre is a
+/// heuristic with no monotonicity guarantee: on a deep-narrow graph whose
+/// adjacency wraps around (neighbours at positions 1 and 6 average to 3.5,
+/// the opposite side from where either belongs) the sweep INCREASED
+/// crossings, 1947 -> 2113. A layout step that can make a picture worse is
+/// not a foundation, whatever its average. Keeping the best makes "never
+/// worse than the input" true by construction, on every topology.
+///
+/// The earlier decision to skip this was made on a single band graph, where
+/// it happened to cost quality. One graph proves one graph.
 pub fn sweep(
     off: []const u32,
     src: []const u32,
@@ -59,12 +72,16 @@ pub fn sweep(
     order: []u32,
     starts: []const u32,
     nsweeps: u32,
+    eu: []const u32,
+    ev: []const u32,
 ) i32 {
     const n = order.len;
     if (n == 0 or starts.len < 2) return BAD_ARG;
 
     const pos = alloc.alloc(u32, n) catch return BAD_ARG;
     defer alloc.free(pos);
+    const best_order = alloc.alloc(u32, n) catch return BAD_ARG;
+    defer alloc.free(best_order);
 
     var widest: usize = 0;
     for (0..starts.len - 1) |L| {
@@ -74,17 +91,14 @@ pub fn sweep(
     const keys = alloc.alloc(Key, widest) catch return BAD_ARG;
     defer alloc.free(keys);
 
+    // the input order is the baseline to beat
+    writePositions(order, starts, pos);
+    var best = crossings(eu, ev, layer, pos, starts);
+    @memcpy(best_order, order);
+
     var s: u32 = 0;
     while (s < nsweeps) : (s += 1) {
-        // positions from the current order -- derived, never carried
-        for (0..starts.len - 1) |L| {
-            var i = starts[L];
-            var p: u32 = 1;
-            while (i < starts[L + 1]) : (i += 1) {
-                pos[order[i]] = p;
-                p += 1;
-            }
-        }
+        writePositions(order, starts, pos);
 
         // layer 0 has no predecessors to average, so it never moves
         for (1..starts.len - 1) |L| {
@@ -121,9 +135,21 @@ pub fn sweep(
             std.sort.pdq(Key, keys[0..w], {}, lessThan);
             for (0..w) |k| order[lo + k] = keys[k].id;
         }
+
+        writePositions(order, starts, pos);
+        const c = crossings(eu, ev, layer, pos, starts);
+        if (c < best) {
+            best = c;
+            @memcpy(best_order, order);
+        }
     }
 
-    // leave positions consistent with the order we return
+    @memcpy(order, best_order);
+    writePositions(order, starts, pos);
+    return OK;
+}
+
+fn writePositions(order: []const u32, starts: []const u32, pos: []u32) void {
     for (0..starts.len - 1) |L| {
         var i = starts[L];
         var p: u32 = 1;
@@ -132,7 +158,6 @@ pub fn sweep(
             p += 1;
         }
     }
-    return OK;
 }
 
 /// Count edge crossings between adjacent layers.

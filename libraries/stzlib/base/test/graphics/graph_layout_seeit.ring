@@ -69,7 +69,7 @@ aPosBefore = PosOf(aOrder, LAYERS, WIDE, N)
 nBefore = StzEngineGraphLayoutCrossings(aU, aV, aLayer, aPosBefore, aStarts)
 
 nT0 = clock()
-aAfter = StzEngineGraphLayoutSweep(aOff, aSrc, aLayer, aOrder, aStarts, 16)
+aAfter = StzEngineGraphLayoutSweep(aOff, aSrc, aLayer, aOrder, aStarts, 16, aU, aV)
 nT1 = clock()
 aPosAfter = PosOf(aAfter, LAYERS, WIDE, N)
 nAfter = StzEngineGraphLayoutCrossings(aU, aV, aLayer, aPosAfter, aStarts)

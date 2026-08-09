@@ -70,7 +70,7 @@ nT1 = clock()
   ((nT1-nT0)/clockspersecond()*1000) + " ms)"
 
 nT2 = clock()
-aNew = StzEngineGraphLayoutSweep(aOff, aSrc, aLayer, aOrder, aStarts, 8)
+aNew = StzEngineGraphLayoutSweep(aOff, aSrc, aLayer, aOrder, aStarts, 8, aU, aV)
 nT3 = clock()
 nEngMs = (nT3 - nT2) / clockspersecond() * 1000
 
@@ -124,7 +124,7 @@ next
 # determinism: the engine must reproduce too
 aOrder2 = []
 for i = 0 to N - 1  aOrder2 + i  next
-aNewB = StzEngineGraphLayoutSweep(aOff, aSrc, aLayer, aOrder2, aStarts, 8)
+aNewB = StzEngineGraphLayoutSweep(aOff, aSrc, aLayer, aOrder2, aStarts, 8, aU, aV)
 bSame = TRUE
 for i = 1 to N
 	if aNew[i] != aNewB[i]  bSame = FALSE  exit  ok
@@ -133,7 +133,7 @@ next
 
 aOrder3 = []
 for i = 0 to N - 1  aOrder3 + i  next
-aNewC = StzEngineGraphLayoutSweep(aOff, aSrc, aLayer, aOrder3, aStarts, 7)
+aNewC = StzEngineGraphLayoutSweep(aOff, aSrc, aLayer, aOrder3, aStarts, 7, aU, aV)
 bDiff = FALSE
 for i = 1 to N
 	if aNew[i] != aNewC[i]  bDiff = TRUE  exit  ok
