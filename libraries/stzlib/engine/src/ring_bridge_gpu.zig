@@ -1173,6 +1173,10 @@ fn ring_SurfaceStat(p: *anyopaque) callconv(.c) void {
     rn(p, surf.stz_gpu_surface_stat(@intFromFloat(gn(p, 1)), gn(p, 2)));
 }
 
+fn ring_SceneResize(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(scene.sceneResize(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2)), @intFromFloat(gn(p, 3)))));
+}
+
 fn ring_SceneReset(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(scene.sceneReset(@intFromFloat(gn(p, 1)))));
 }
@@ -1210,6 +1214,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpusurfacepresent", .func = &ring_SurfacePresent },
     .{ .name = "stzenginegpusurfaceformatname", .func = &ring_SurfaceFormatName },
     .{ .name = "stzenginegpusurfacestat", .func = &ring_SurfaceStat },
+    .{ .name = "stzenginegpusceneresize", .func = &ring_SceneResize },
     .{ .name = "stzenginegpuscenereset", .func = &ring_SceneReset },
     .{ .name = "stzenginegpuscenedrawtotarget", .func = &ring_SceneDrawToTarget },
     .{ .name = "stzenginegpuscene3ddrawtotarget", .func = &ring_Scene3dDrawToTarget },

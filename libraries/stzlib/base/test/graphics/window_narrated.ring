@@ -323,6 +323,38 @@ chkeq("3D still draws after a SHRINK (the depth buffer was rebuilt)", n3After, 1
 chkeq("  ...and the device logged no error doing it", StzEngineGpuCounter(9), nErrBefore)
 chkeq("the surface shrank with it", oWinR.Stats()[1], 500)
 
+# THE OFFSCREEN TARGET MUST FOLLOW THE SCENE'S SIZE TOO. Found by making a
+# showcase responsive, not by a guard: a scene retargeted to a window keeps
+# its OWN offscreen target at the old dimensions, so ToPNG reads back through
+# a mismatched target and returns NOTHING. It drew perfectly on screen and
+# saved an empty file -- as quiet as a defect gets. Both tiers had it; the
+# 3D depth buffer was handled at GR5 and the two colour targets were not.
+oWinR.SetSize(760, 560)
+for i = 1 to 12
+	oWinR.Poll()
+	oWinR.Draw(oWinCanvas)
+next
+cPngA = oWinCanvas.ToPNG("")
+chk("a resized 2D scene still encodes a PNG", len(cPngA) > 100)
+chkeq("  ...and the canvas reports the new size", oWinCanvas.Width(), 760)
+
+oWinR.SetSize(430, 330)
+for i = 1 to 12
+	oWinR.Poll()
+	oWinR.Draw(oWinCanvas)
+next
+cPngB = oWinCanvas.ToPNG("")
+chk("and again after a SHRINK", len(cPngB) > 100)
+chk("  ...a different size gives different bytes, not a cached image",
+    len(cPngB) != len(cPngA))
+
+for i = 1 to 10
+	oWinR.Poll()
+	oWinR.Draw(oWinScene)
+next
+cPng3 = oWinScene.ToPNG("")
+chk("a resized 3D scene encodes too", len(cPng3) > 100)
+
 oWinR.Free()
 
 #---------------------------------------------------------------------------

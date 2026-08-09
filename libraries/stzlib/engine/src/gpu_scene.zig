@@ -261,6 +261,20 @@ pub fn sceneClear(id: i64, col: u32) i32 {
 /// The retained buffers are deliberately NOT freed: their capacity is what
 /// makes the next frame cheap, and the vertex data is re-uploaded only
 /// because the build generation moved.
+/// Change a scene's extents. THE one implementation -- the presentation
+/// path calls it too, so a scene resized by a window and a scene resized by
+/// a caller cannot end up meaning different things.
+pub fn sceneResize(id: i64, w: u32, h: u32) i32 {
+    const slot = slotOf(id) orelse return STALE;
+    if (w == 0 or h == 0 or w > 16384 or h > 16384) return BAD_ARG;
+    const s = &scenes.items[slot];
+    if (s.w == w and s.h == h) return OK;
+    s.w = w;
+    s.h = h;
+    s.dirty = true; // extents changed: clipping and the clear quad follow
+    return OK;
+}
+
 pub fn sceneReset(id: i64) i32 {
     const slot = slotOf(id) orelse return STALE;
     const s = &scenes.items[slot];
@@ -880,7 +894,19 @@ fn renderToTarget(s: *SceneSlot) !bool {
     }
 
     if (s.ext_target == 0) {
-        if (s.target != 0 and gpu.stz_gpu_texture_width(s.target) < 0) s.target = 0;
+        // Drop the offscreen target when it is stale OR when it no longer
+        // MATCHES the scene's size. The size case only became reachable in
+        // GR5, when sceneDrawToTarget gained the power to retarget a scene
+        // to a window -- and it failed silently: ToPng read back through a
+        // target of the old dimensions and returned nothing at all. A
+        // resized scene saved an EMPTY png while drawing perfectly on
+        // screen, which is as quiet as a defect gets.
+        if (s.target != 0 and (gpu.stz_gpu_texture_width(s.target) != @as(f64, @floatFromInt(s.w)) or
+            gpu.stz_gpu_texture_height(s.target) != @as(f64, @floatFromInt(s.h))))
+        {
+            _ = gpu.stz_gpu_texture_free(s.target);
+            s.target = 0;
+        }
         if (s.target == 0) {
             s.target = gpu.stz_gpu_texture_new(@floatFromInt(s.w), @floatFromInt(s.h), @floatFromInt(gpu.TEX_TARGET));
             if (s.target == 0) {
@@ -946,11 +972,7 @@ fn renderToTarget(s: *SceneSlot) !bool {
 pub fn sceneDrawToTarget(id: i64, target_id: i64, tfmt: i32, w: u32, h: u32) bool {
     const slot = slotOf(id) orelse return false;
     const s = &scenes.items[slot];
-    if (w != 0 and h != 0 and (w != s.w or h != s.h)) {
-        s.w = w;
-        s.h = h;
-        s.dirty = true; // extents changed: clipping and the clear quad follow
-    }
+    if (w != 0 and h != 0) _ = sceneResize(id, w, h);
     s.ext_target = target_id;
     s.ext_tfmt = tfmt;
     defer {
