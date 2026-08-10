@@ -1,41 +1,47 @@
-//! THE SOUND WEB STUDIO -- server side. A browser front end for the sound plane.
+//! THE SOUND STUDIO -- the sound plane's listening bench, in a browser.
 //!
-//! Standalone exe: a tiny HTTP/1.1 server on 127.0.0.1 that renders patches
-//! with the REAL engine (soundgraph.zig + sound.zig) and hands the browser a
-//! WAV. Nothing is synthesised in JavaScript -- what you hear in the page is
-//! what the plane produces.
+//! ONE FILE TO RUN. Launch it and it opens your browser on itself; there is no
+//! port to pick, no page to point it at, no server to start separately. The
+//! page is EMBEDDED in the exe (@embedFile), so the binary is the whole tool.
 //!
-//! WHY A ZIG TOOL AND NOT A RING SCRIPT: the Ring version worked right up to
-//! the point of reading a request. stz_tcp's tcp_recv used Zig's Stream.read,
-//! which on Windows goes through ReadFile and does NOT work on a socket from
-//! accept() -- writes succeeded, reads failed with "recv failed: Unexpected",
-//! so the server could answer but never hear. (src/tcp.zig now uses
-//! std.posix.recv, the same call testserver.zig always used -- which is why
-//! the HTTP-client suite never caught it.) Rather than make a listening bench
-//! depend on that fix landing, the studio owns its own socket loop, starts
-//! instantly, and needs no Ring at all.
+//! Built by `zig build` alongside every engine DLL, which is the point: a
+//! studio that can drift from the engine it measures is worse than no studio.
+//! Rebuild the engine and you have rebuilt the studio.
 //!
-//! Build (from libraries/stzlib/engine):
-//!     zig build-exe -OReleaseSafe -I vendor/miniaudio -lc \
-//!         vendor/miniaudio/stz_miniaudio_impl.c \
-//!         --dep snd --dep gph -Mroot=tools/sound_studio_server.zig \
-//!         -Msnd=src/sound.zig -Mgph=src/soundgraph.zig \
-//!         --name sound_studio_server
-//! Run:
-//!     sound_studio_server [port] [path/to/studio.html]
+//!     zig build              -- builds it into zig-out/bin/
+//!     zig build studio       -- builds it AND runs it
+//!     stz_sound_studio       -- run it directly; it finds a port and opens
+//!                               the browser itself
+//!     stz_sound_studio --html tools/studio.html   -- serve the page from disk
+//!                               instead of the embedded copy, for editing it
 //!
-//! One connection at a time, on purpose: this is a single-listener bench, and
-//! a serial loop cannot race the engine's global handle tables.
+//! Audio is rendered by the REAL engine (soundgraph.zig + sound.zig) and handed
+//! to the page as a WAV. Nothing is synthesised in JavaScript, so what you hear
+//! in the browser is what the plane does. "Play on speakers" additionally
+//! drives the live SN3 path: producer thread, ring buffer, device callback.
+//!
+//! WHY THIS OWNS ITS SOCKET LOOP rather than using stz_tcp: tcp_recv could not
+//! read from an accepted socket on Windows (Stream.read -> ReadFile fails
+//! there; src/tcp.zig now uses std.posix.recv, as testserver.zig always did).
+//! A listening bench should not wait on another plane's fix to land.
+//!
+//! One connection at a time, on purpose: a serial loop cannot race the
+//! engine's global handle tables.
 
 const std = @import("std");
+const builtin = @import("builtin");
 const gph = @import("gph");
 const snd = gph.snd; // ONE module -- see the note at the top of soundgraph.zig
 
 const alloc = std.heap.c_allocator;
 const RATE: u32 = 48000;
 
-var html_path: []const u8 = "studio.html";
-var wav_path: []const u8 = "studio_patch.wav";
+/// The page ships INSIDE the binary. No install step, no working directory to
+/// be in, nothing to lose track of.
+const EMBEDDED_HTML = @embedFile("studio.html");
+
+var html_override: ?[]const u8 = null; // --html <path>, for editing the page
+var wav_path: []u8 = undefined; // a real file in the system temp dir
 var have_device = false;
 var device_name: []const u8 = "none";
 
@@ -43,34 +49,84 @@ pub fn main() !void {
     const args = try std.process.argsAlloc(alloc);
     defer std.process.argsFree(alloc, args);
 
-    var port: u16 = 8730;
-    if (args.len > 1) port = std.fmt.parseInt(u16, args[1], 10) catch 8730;
-    if (args.len > 2) html_path = args[2];
-    if (args.len > 3) wav_path = args[3];
+    var want_port: ?u16 = null;
+    var no_open = false;
+    var i: usize = 1;
+    while (i < args.len) : (i += 1) {
+        if (std.mem.eql(u8, args[i], "--html") and i + 1 < args.len) {
+            i += 1;
+            html_override = args[i];
+        } else if (std.mem.eql(u8, args[i], "--no-open")) {
+            no_open = true;
+        } else if (std.fmt.parseInt(u16, args[i], 10)) |p| {
+            want_port = p;
+        } else |_| {}
+    }
+
+    // The rendered WAV goes to the system temp dir. Nothing to create, nothing
+    // to clean up, and no assumption about which directory you launched from.
+    const tmp = std.process.getEnvVarOwned(alloc, "TEMP") catch
+        (std.process.getEnvVarOwned(alloc, "TMPDIR") catch try alloc.dupe(u8, "."));
+    defer alloc.free(tmp);
+    wav_path = try std.fmt.allocPrint(alloc, "{s}/stz_studio_patch.wav", .{tmp});
 
     have_device = gph.dev.isAvailable() == 1;
     if (have_device) device_name = gph.dev.backendName();
 
-    const addr = try std.net.Address.parseIp("127.0.0.1", port);
-    var server = addr.listen(.{ .reuse_address = true }) catch |e| {
-        std.debug.print("cannot listen on {d}: {s}\n", .{ port, @errorName(e) });
-        std.debug.print("(already running? try another port: sound_studio_server 8731)\n", .{});
+    // FIND A FREE PORT rather than fail on a busy one. "Port 8730 is in use"
+    // is not information the person who wants to hear a sound can act on.
+    var server: std.net.Server = undefined;
+    var port: u16 = 0;
+    const first: u16 = want_port orelse 8730;
+    var tries: u16 = 0;
+    while (tries < 20) : (tries += 1) {
+        const p = first + tries;
+        const addr = std.net.Address.parseIp("127.0.0.1", p) catch continue;
+        server = addr.listen(.{ .reuse_address = true }) catch continue;
+        port = p;
+        break;
+    }
+    if (port == 0) {
+        std.debug.print("could not bind any port in {d}..{d}\n", .{ first, first + 19 });
         return;
-    };
+    }
     defer server.deinit();
 
+    const url = try std.fmt.allocPrint(alloc, "http://127.0.0.1:{d}", .{port});
+    defer alloc.free(url);
+
     std.debug.print("\n  ===============================================\n", .{});
-    std.debug.print("   THE SOFTANZA SOUND WEB STUDIO\n", .{});
+    std.debug.print("   THE SOFTANZA SOUND STUDIO\n", .{});
     std.debug.print("  ===============================================\n", .{});
-    std.debug.print("   page   : {s}\n", .{html_path});
-    std.debug.print("   wav    : {s}\n", .{wav_path});
-    std.debug.print("\n   OPEN:    http://127.0.0.1:{d}\n\n", .{port});
+    std.debug.print("   device : {s}\n", .{device_name});
+    std.debug.print("   page   : {s}\n", .{if (html_override) |h| h else "embedded in this binary"});
+    std.debug.print("\n   {s}\n", .{url});
+    std.debug.print("   Ctrl+C to stop\n\n", .{});
+
+    if (!no_open) openBrowser(url);
 
     while (true) {
         const conn = server.accept() catch continue;
         handle(conn.stream) catch {};
         conn.stream.close();
     }
+}
+
+/// Open the page in whatever the OS calls a browser. Failing to is not fatal --
+/// the URL is printed above, and a headless box has no browser to open.
+fn openBrowser(url: []const u8) void {
+    const argv: []const []const u8 = switch (builtin.os.tag) {
+        // the empty "" is the window TITLE for `start`; without it, a quoted
+        // URL becomes the title and no browser opens
+        .windows => &.{ "cmd", "/c", "start", "", url },
+        .macos => &.{ "open", url },
+        else => &.{ "xdg-open", url },
+    };
+    var child = std.process.Child.init(argv, alloc);
+    child.stdout_behavior = .Ignore;
+    child.stderr_behavior = .Ignore;
+    _ = child.spawn() catch return;
+    _ = child.wait() catch return;
 }
 
 // ---------------------------------------------------------------- http
@@ -114,12 +170,18 @@ fn handle(stream: std.net.Stream) !void {
     std.debug.print("   {s}\n", .{route});
 
     if (std.mem.eql(u8, route, "/")) {
-        const page = std.fs.cwd().readFileAlloc(alloc, html_path, 4 << 20) catch {
-            respond(stream, "500 Internal Server Error", "text/plain", "studio.html not found next to the server");
-            return;
-        };
-        defer alloc.free(page);
-        respond(stream, "200 OK", "text/html; charset=utf-8", page);
+        // the embedded copy unless --html pointed at a file, which is how you
+        // edit the page without rebuilding
+        if (html_override) |h| {
+            const page = std.fs.cwd().readFileAlloc(alloc, h, 4 << 20) catch {
+                respond(stream, "500 Internal Server Error", "text/plain", "--html file not found");
+                return;
+            };
+            defer alloc.free(page);
+            respond(stream, "200 OK", "text/html; charset=utf-8", page);
+        } else {
+            respond(stream, "200 OK", "text/html; charset=utf-8", EMBEDDED_HTML);
+        }
     } else if (std.mem.eql(u8, route, "/api/status")) {
         var b: [256]u8 = undefined;
         const s = try std.fmt.bufPrint(&b, "{{\"engine\":true,\"device\":{s},\"deviceName\":\"{s}\",\"rate\":{d}}}", .{ if (have_device) "true" else "false", device_name, RATE });

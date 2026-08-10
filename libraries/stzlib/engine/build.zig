@@ -1112,6 +1112,53 @@ pub fn build(b: *std.Build) void {
         b.installArtifact(lib);
     }
 
+    // THE SOUND STUDIO -- the sound plane's listening bench, in a browser.
+    //
+    // Built by the DEFAULT `zig build`, deliberately: a studio that can drift
+    // from the engine it measures is worse than no studio. Rebuild the engine
+    // and the studio is rebuilt with it, against the same soundgraph.zig the
+    // guards use.
+    //
+    // It links the DEVICE miniaudio TU (not the portable one) because it does
+    // both jobs: render a patch to a WAV for the page, and play it live
+    // through the SN3 device path. The two TUs define the same ma_* symbols,
+    // so exactly one of them may be linked -- and the device TU is a superset.
+    //
+    // `zig build studio` builds it and runs it; it opens the browser itself.
+    {
+        const studio_mod = b.createModule(.{
+            .root_source_file = b.path("tools/stz_sound_studio.zig"),
+            .target = target,
+            .optimize = optimize,
+            .link_libc = true,
+        });
+        const sg_mod = b.createModule(.{
+            .root_source_file = b.path("src/soundgraph.zig"),
+            .target = target,
+            .optimize = optimize,
+            .link_libc = true,
+        });
+        sg_mod.addIncludePath(b.path("vendor/miniaudio"));
+        studio_mod.addImport("gph", sg_mod);
+
+        const studio = b.addExecutable(.{ .name = "stz_sound_studio", .root_module = studio_mod });
+        studio.addCSourceFiles(.{ .files = &.{"vendor/miniaudio/stz_miniaudio_impl.c"}, .flags = &.{} });
+        if (target.result.os.tag == .windows) {
+            for ([_][]const u8{ "ole32", "user32", "advapi32" }) |l| studio.linkSystemLibrary(l);
+        } else if (target.result.os.tag == .linux) {
+            for ([_][]const u8{ "pthread", "dl", "m" }) |l| studio.linkSystemLibrary(l);
+        } else if (target.result.os.tag == .macos) {
+            for ([_][]const u8{ "CoreAudio", "CoreFoundation", "AudioToolbox" }) |fw| studio.linkFramework(fw);
+        }
+        b.installArtifact(studio);
+
+        const run_studio = b.addRunArtifact(studio);
+        run_studio.step.dependOn(b.getInstallStep());
+        if (b.args) |a| run_studio.addArgs(a);
+        const studio_step = b.step("studio", "Build and open the sound studio in your browser");
+        studio_step.dependOn(&run_studio.step);
+    }
+
     // Web EDGE: the differential engine subset compiled to stz.wasm. This is
     // "compile the ENGINE, not the interpreter" -- the browser gets Softanza's
     // differential value (numeric solving, number theory, aggregation) as a real
