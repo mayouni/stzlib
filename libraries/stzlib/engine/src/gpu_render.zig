@@ -51,6 +51,14 @@ fn sv(s: []const u8) c.WGPUStringView {
 // ---------------------------------------------------------------- registration
 
 var registered = false;
+var frame_hooked = false;
+
+fn ensureFrameHook() void {
+    if (!frame_hooked) {
+        gpu.registerFrameEndHook(&releasePassBindGroups);
+        frame_hooked = true;
+    }
+}
 
 fn ensureRegistered() void {
     if (!registered) {
@@ -338,6 +346,7 @@ pub fn stz_gpu_render_begin3d(target_id: i64, depth_id: i64, r: f64, g: f64, b: 
 
 fn beginInternal(target_id: i64, depth_id: i64, r: f64, g: f64, b: f64, a: f64) i32 {
     ensureRegistered();
+    ensureFrameHook();
     if (!gpu.isAvail()) {
         gpu.countFallback();
         return gpu.FALLBACK;
@@ -355,7 +364,11 @@ fn beginInternal(target_id: i64, depth_id: i64, r: f64, g: f64, b: f64, a: f64) 
     }
     const f = gpu.wfns();
 
-    g_pass_enc = f.wgpuDeviceCreateCommandEncoder(gpu.deviceHandle(), null);
+    // Borrow the frame's encoder when a frame is open; otherwise own one.
+    g_pass_enc = if (gpu.frameOpen())
+        gpu.frameEncoder()
+    else
+        f.wgpuDeviceCreateCommandEncoder(gpu.deviceHandle(), null);
     if (g_pass_enc == null) return gpu.GPU_ERROR;
     var att = std.mem.zeroes(c.WGPURenderPassColorAttachment);
     att.view = t.view;
@@ -520,6 +533,14 @@ pub fn stz_gpu_render_end() callconv(.c) i32 {
     f.wgpuRenderPassEncoderEnd(g_pass);
     f.wgpuRenderPassEncoderRelease(g_pass);
     g_pass = null;
+    // Inside a FRAME the encoder is not ours to finish: FrameEnd owns the
+    // one submit. The bind groups must also stay alive -- an encoder that
+    // has not been submitted still references them, and releasing here is
+    // a use-after-free waiting for the next frame.
+    if (gpu.frameOpen()) {
+        g_pass_enc = null; // borrowed, never owned
+        return gpu.OK;
+    }
     const cmd = f.wgpuCommandEncoderFinish(g_pass_enc, null);
     f.wgpuCommandEncoderRelease(g_pass_enc);
     g_pass_enc = null;

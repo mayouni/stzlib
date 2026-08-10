@@ -38,6 +38,18 @@ fn ring_Init(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(gpu.stz_gpu_init(z)));
 }
 
+fn ring_FrameBegin(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gpu.stz_gpu_frame_begin()));
+}
+
+fn ring_FrameEnd(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gpu.stz_gpu_frame_end()));
+}
+
+fn ring_FrameActive(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gpu.stz_gpu_frame_active()));
+}
+
 fn ring_Shutdown(p: *anyopaque) callconv(.c) void {
     gpu.stz_gpu_shutdown();
     rn(p, 1);
@@ -1252,6 +1264,9 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuscene3dworldposition", .func = &ring_Scene3dWorldPosition },
     .{ .name = "stzenginegpuscene3ddrawtotarget", .func = &ring_Scene3dDrawToTarget },
     .{ .name = "stzenginegpuinit", .func = &ring_Init },
+    .{ .name = "stzenginegpuframebegin", .func = &ring_FrameBegin },
+    .{ .name = "stzenginegpuframeend", .func = &ring_FrameEnd },
+    .{ .name = "stzenginegpuframeactive", .func = &ring_FrameActive },
     .{ .name = "stzenginegpushutdown", .func = &ring_Shutdown },
     .{ .name = "stzenginegpuisavailable", .func = &ring_IsAvailable },
     .{ .name = "stzenginegpuadaptercount", .func = &ring_AdapterCount },
