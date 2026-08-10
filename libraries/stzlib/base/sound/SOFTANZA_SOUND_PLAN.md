@@ -686,3 +686,144 @@ build is stated-not-verified.
   so they stay resident. Real playback streams from decoded buffers that will
   not always be. The margin is 418x, so this caveat does not endanger the
   verdict, but SN2's guard should read from a working set larger than L2.
+
+---
+
+## SN1 STATUS — 2026-08-10. The two DLLs stand, and the sample tier is guarded
+
+Delivered: `stz_sound.dll` (portable, 1,168,384 bytes) and `stz_audiodev.dll`
+(per-OS, 1,280,512 bytes), wired into `build.zig` as two domains on the
+`stz_window` precedent, loaded by `engine/stz_sound.ring` and
+`engine/stz_audiodev.ring`, registered in `base/common/stzRingLibs.ring`.
+
+Sources: `engine/src/sound.zig`, `engine/src/audiodev.zig`, their
+`ring_bridge_*.zig` and `stz_*_entry.zig`. Guards:
+`base/test/sound/sound_samples_narrated.ring` (60 assertions) and
+`sound_device_narrated.ring` (20 assertions), both green. Plus 9 Zig unit
+tests inside the two engine modules.
+
+### What each DLL owns
+
+| | stz_sound (portable) | stz_audiodev (per-OS) |
+|---|---|---|
+| decode wav/flac/mp3 (file + memory) | yes | — |
+| encode WAV (s16 / f32) | yes | — |
+| resample (ours, in Zig) | yes | — |
+| channel conversion | yes | — |
+| gen-keyed sample-buffer table | yes | — |
+| device enumeration, backend name | — | yes |
+| **playback / capture streams** | — | **NO — that is SN3** |
+| needs audio hardware | **never** | to answer anything |
+
+`stz_audiodev` deliberately stops at enumeration. The device sink, the
+lock-free control queue, the pre-rendered ring buffer and the underrun counter
+are SN3, because the plan puts SN2 (prove the samples with no clock) before SN3
+(add the clock). A half-built device tier now would be the thing SN2 is
+supposed to make unnecessary.
+
+### Cross-compilation — the CI gate SN1 was told to open
+
+`zig build-obj` per module, ReleaseSafe, from this Windows box:
+
+| target | stz_sound | stz_audiodev |
+|---|---|---|
+| x86_64-windows | built as a real DLL + 80 passing assertions | built as a real DLL + 80 passing assertions |
+| x86_64-linux-gnu | **OK** | **OK** |
+| x86_64-macos | **OK** | FAIL — `CoreAudio/CoreAudio.h` not found |
+| aarch64-macos | **OK** | FAIL — same |
+
+Exactly what SN0 predicted, now at DLL scope rather than TU scope. Note the
+gate is per-module, not `zig build -Dtarget=...`: a whole-tree cross-build
+cannot run from here for an unrelated reason (`addLibcurl` is Windows-only by
+construction and panics at configure time on other targets). That is a
+pre-existing property of another domain, recorded here so a later session does
+not read a red whole-tree build as a sound-plane regression.
+
+### Measured
+
+**The resampler is ours, in Zig, and sec.1's "not vendored" now has a number.**
+48000 -> 44100, stereo, 5 runs, min, against SN0's measured baseline of
+1.17 ms per second of audio for miniaudio's linear:
+
+| resampler | ms per 1 s of stereo | x realtime | max error vs an analytic 1 kHz sine |
+|---|---|---|---|
+| miniaudio linear (SN0) | 1.17 | 853x | — |
+| **ours, linear** | **0.257** | **3,890x** | 2.13e-3 |
+| **ours, windowed sinc** | 6.68 | 150x | **2.19e-5** |
+
+Our linear is **4.6x faster than the vendor's linear** — same algorithm, and
+the win is simply that it is a slice loop in Zig rather than a call through a
+generic converter. The sinc costs 26x our linear and is **97x more accurate**,
+and is still 150x faster than real time. It is the default worth using; linear
+stays for the cases that genuinely want speed over fidelity.
+
+Other measured facts the guards assert rather than assume:
+- **DC gain is unity everywhere, edges included** — worst deviation across all
+  1,000 upsampled frames was exactly 0. Without the per-output weight
+  normalisation, every file would fade in and out by a few percent at the
+  truncated ends of the kernel.
+- **f32 WAV round-trip is BIT-EXACT.** s16 round-trip is 4.18e-5 worst against
+  a quantum of 3.05e-5 — slightly over one quantum because encode scales by
+  32767 and decode by 32768, the standard asymmetry that trades a hair of level
+  for never clipping.
+- **A freed buffer id is detected, not reused.** The generation bump makes the
+  dead id answer STALE (-1 to readers), `sound.stale.hits` moves, and a NEW
+  buffer landing in the recycled slot does not answer to the old id.
+
+### The Unicode trap, paid for here rather than in a bug report
+
+miniaudio's `ma_decoder_init_file` takes a NARROW path and reaches `fopen`,
+which on Windows interprets bytes in the ANSI codepage: a UTF-8 Arabic filename
+fails to open a file that plainly exists. The `_w` variants take `wchar_t` and
+work. So every path in `sound.zig` is converted UTF-8 -> UTF-16 on Windows and
+routed to `ma_decoder_init_file_w` / `ma_encoder_init_file_w`; on POSIX the
+UTF-8 bytes pass straight through, which is already correct there.
+
+The guard writes a WAV to an Arabic-named path, asserts the file exists on disk
+under that name, decodes it back and asserts the samples are bit-exact — with a
+negative sibling (a genuinely missing file must return 0) so the scene proves
+Unicode handling rather than proving nothing. Requirement 4 says the library's
+multilingual identity does not stop at the speaker. It very nearly stopped at
+`fopen`.
+
+### THREE GAPS, STATED RATHER THAN IMPLIED
+
+**1. FLAC ENCODE IS NOT DELIVERED, and cannot be from this vendor.** SN1's line
+in sec.3 says "WAV/FLAC encode". miniaudio's own documentation lists exactly one
+encoding format — `ma_encoding_format_wav`. The enum carries flac/mp3/vorbis
+names because the DECODER uses them. `SaveFlac` therefore returns UNSUPPORTED
+and counts the refusal rather than writing a WAV with a `.flac` name; the guard
+asserts that no file appears. Closing it needs either a second vendor (libFLAC
+is **LGPL**, which sec.4's licence hygiene rules out) or a FLAC encoder written
+here. **Recommendation: leave it open.** The offline sink that makes this plane
+CI-assertable only ever needed WAV, and lesson 5's "one graph, two sinks"
+property does not depend on the container.
+
+**2. MP3 decode is still unguarded** — the same corpus gap SN0 recorded. dr_mp3
+is compiled in and reachable; there is no MP3 on this machine and no encoder to
+make one. The guard is structured so adding one file closes it.
+
+**3. Tags and metadata have no vendor support at all.** sec.2 says "tags/metadata
+decoded as UTF-8". miniaudio does not parse ID3, Vorbis comments or MP4 atoms —
+it decodes audio only. That is a parser this plane would have to own, and it is
+not written. Named now so it is not assumed present in SN4 when a face wants
+`oSound.Title()`.
+
+Also recorded: miniaudio 0.11.25 ships only `linear` and `custom` resampler
+algorithms (the speex backend is gone from this version). Moot, since resampling
+is ours — but it removes the runner-up the plan might otherwise have reached for.
+
+### What SN2 inherits
+
+1. **Sample buffers are gen-keyed handles**, and the graph's nodes should be
+   too. The stale path is already proven to fire and to count.
+2. **f32 interleaved is the in-memory form.** SN0's mix measurement says the
+   graph should accumulate PLANAR and interleave once at the sink; the
+   conversion helpers to do that live here now.
+3. **The offline sink exists**: `SaveWav` + `LoadFile` round-trips bit-exactly
+   at f32, so SN2's "assert the SAMPLES, not the vibe" is mechanically possible
+   from the first node.
+4. **Counters are established**: 10 on the portable side, 3 on the device side,
+   all readable from Ring, all with a guard that proves each one moves.
+5. **Verification status is Windows-runtime + Linux/macOS-cross-compile.** No
+   line of this plane has run on Linux or macOS. Stated, not implied.
