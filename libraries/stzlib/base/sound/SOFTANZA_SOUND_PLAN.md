@@ -827,3 +827,80 @@ is ours — but it removes the runner-up the plan might otherwise have reached f
    all readable from Ring, all with a guard that proves each one moves.
 5. **Verification status is Windows-runtime + Linux/macOS-cross-compile.** No
    line of this plane has run on Linux or macOS. Stated, not implied.
+
+---
+
+## SN2 STATUS — 2026-08-10. The graph renders, offline, and proves two things
+
+Delivered: `engine/src/soundgraph.zig` (the graph), extended
+`ring_bridge_sound.zig` + `stz_sound.ring` (23 new entry points), and
+`base/test/sound/sound_graph_narrated.ring` (42 assertions). Plus 9 Zig unit
+tests inside the module. All green; the whole phase runs with NO audio
+hardware, which was the point of doing it before SN3.
+
+Nodes: source, oscillator (sine/square/saw/triangle), gain, mix, pan
+(constant-power), filter (RBJ biquad — low/high/bandpass), delay (with
+feedback), envelope (ADSR). Sinks: buffer and WAV file.
+
+### NAMED soundgraph.zig, NOT graph.zig
+
+`src/graph.zig` was already taken by the graph-THEORY module behind
+`stz_graph.dll` (nodes, edges, shortest path). Two unrelated meanings of
+"graph" live in this engine and the filenames now say which is which. Recorded
+because the collision is not obvious from either module's name, and the next
+person to add a "graph" will meet it too.
+
+### The two claims the guard exists to hold
+
+**1. RENDER ALLOCATES NOTHING.** SN3's callback is a no-allocation, no-lock,
+no-Ring zone; a graph that allocates while rendering cannot be handed to it. So
+the contract is enforced rather than requested: every allocation in the module
+goes through a counting allocator, and the guard reads the count either side of
+200 render blocks over a filter + delay + envelope chain. It does not move — by
+zero, not by "about zero". The negative sibling asserts that Prepare DOES
+allocate, so the counter is live rather than stuck.
+
+Wrapping the allocator, rather than counting our own call sites, is what makes
+this catch an allocation inside something we call. A hand-rolled counter would
+pass while a callee allocated.
+
+**2. THE SINK IS A PARAMETER, NOT A FORK** (lesson 5). The same prepared graph
+rendered to a buffer and to a WAV, then decoded back, is BIT-IDENTICAL — worst
+difference exactly 0. What you hear and what you export cannot drift apart,
+because they are the same `renderBlock` over the same node list. SN3's device
+sink becomes a third caller of that one function.
+
+### Other mechanisms asserted, not assumed
+
+- **Exact arithmetic, not "sounds right".** A sine at rate/4 lands on exactly
+  0, 1, 0, -1 and repeats. A mix of two saws at 0.25 and 0.5 sums to exactly
+  0.75 — an exact statement a "roughly louder" test cannot make.
+- **The block size is not audible.** The same graph at block 32 and block 500
+  produces identical samples (worst difference 0). Filter state is per channel
+  and carries across block boundaries. This is what makes a graph safe to hand
+  to SN3's device, which picks the block size itself.
+- **A lowpass crushes 12 kHz to 0.00017 and passes 50 Hz at 0.998.** Both halves
+  asserted: without the second, "it went quiet" would prove only that the
+  filter silences everything.
+- **Cycles cannot be expressed.** A node may only reference inputs that already
+  exist, so creation order is always a valid topological order. Feeding a mix
+  back into an earlier node is refused and counted. Delay feedback lives INSIDE
+  the delay node — which is what lets feedback exist without cycles existing.
+- **Rewind repeats a render exactly and allocates nothing**, so a prepared
+  graph is reusable.
+- **The two-phase contract refuses both ways**: render-before-prepare,
+  prepare-with-no-nodes, prepare-with-no-output, add-after-prepare, and
+  prepare-twice each return their own distinct status.
+
+### What SN3 inherits
+
+1. **A render path that provably allocates nothing.** The callback can call
+   `renderBlock` directly; the allocation guard is the regression test for
+   that property.
+2. **Block-size independence, proven.** The device may choose any block size.
+3. **Coefficients are computed at BUILD time, not per block.** SN3's lock-free
+   control queue is what will make filter/gain/pan parameters movable — the
+   node fields exist, nothing writes them mid-render yet.
+4. **What is NOT here**: no scheduling, no voice pool, no clock, no underrun
+   counter, no parameter automation. SN3 adds the clock to a graph that is
+   already correct without one.

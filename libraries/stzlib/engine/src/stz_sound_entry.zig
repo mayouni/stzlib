@@ -1,4 +1,5 @@
 pub const sound = @import("sound.zig");
+pub const soundgraph = @import("soundgraph.zig");
 pub const ring_bridge = @import("ring_bridge_sound.zig");
 
 comptime {
@@ -11,4 +12,5 @@ fn ringlib_init(pState: ?*anyopaque) callconv(.c) void {
 
 test {
     _ = sound;
+    _ = soundgraph;
 }
