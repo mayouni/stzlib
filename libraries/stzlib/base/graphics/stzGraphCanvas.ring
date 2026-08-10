@@ -401,59 +401,59 @@ class stzGraphCanvas from stzObject
 			next
 		next
 
+	# The ENGINE lays this out. The face used to carry its own Ring copy of
+	# Fruchterman-Reingold: 443 ms for 40 nodes, 3.7 s for 120, 24.5 s for
+	# 300 -- while the tier below had already been measured doing 10,000
+	# nodes in 152 ms. A second implementation of what the layer beneath
+	# already does does not stay equal, and this one had diverged by three
+	# orders of magnitude on the path users actually take.
 	def _LayoutForce()
 		_n_ = len(@aIds)
+
 		# a golden-angle seed: a FORMULA, so the layout reproduces
-		@aX = []  @aY = []
+		_seed_ = []
 		for _i_ = 1 to _n_
 			_a_ = (_i_ - 1) * 2.399963229728653
-			_r_ = sqrt(_i_)
-			@aX + (_r_ * cos(_a_))
-			@aY + (_r_ * sin(_a_))
+			_r_ = 12 * sqrt(_i_)
+			_seed_ + (_r_ * cos(_a_))
+			_seed_ + (_r_ * sin(_a_))
 		next
+
+		# UNDIRECTED for layout: an edge pulls both ends together, so the
+		# engine is handed each edge in both directions. Feeding only the
+		# in-edges would let a node with no predecessors drift free of the
+		# graph it belongs to.
 		_aE_ = @oGraph.Edges()
-		_k_ = 1.2
-		for _it_ = 1 to 240
-			_t_ = 0.9 * pow(0.97, _it_ - 1)
-			_dx_ = []  _dy_ = []
-			for _i_ = 1 to _n_  _dx_ + 0  _dy_ + 0  next
+		_eu_ = []  _ev_ = []
+		for _e_ = 1 to len(_aE_)
+			_u_ = This._IndexOf(_aE_[_e_][:from])
+			_v_ = This._IndexOf(_aE_[_e_][:to])
+			if _u_ > 0 and _v_ > 0
+				_eu_ + (_u_ - 1)  _ev_ + (_v_ - 1)
+				_eu_ + (_v_ - 1)  _ev_ + (_u_ - 1)
+			ok
+		next
+
+		if len(_eu_) = 0
+			# no edges: the seed spiral IS the layout, and repulsion alone
+			# would only push it apart without saying anything
+			@aX = []  @aY = []
 			for _i_ = 1 to _n_
-				for _j_ = 1 to _n_
-					if _i_ = _j_  loop  ok
-					_ox_ = @aX[_i_] - @aX[_j_]
-					_oy_ = @aY[_i_] - @aY[_j_]
-					_d2_ = _ox_*_ox_ + _oy_*_oy_
-					if _d2_ < 0.01  _d2_ = 0.01  ok
-					_f_ = (_k_*_k_) / _d2_
-					_dx_[_i_] += _ox_ * _f_
-					_dy_[_i_] += _oy_ * _f_
-				next
+				@aX + _seed_[_i_ * 2 - 1]
+				@aY + _seed_[_i_ * 2]
 			next
-			for _e_ = 1 to len(_aE_)
-				_u_ = This._IndexOf(_aE_[_e_][:from])
-				_v_ = This._IndexOf(_aE_[_e_][:to])
-				if _u_ > 0 and _v_ > 0
-					_ox_ = @aX[_v_] - @aX[_u_]
-					_oy_ = @aY[_v_] - @aY[_u_]
-					_d_ = sqrt(_ox_*_ox_ + _oy_*_oy_)
-					if _d_ > 0.0001
-						_f_ = _d_ / _k_
-						_dx_[_u_] += _ox_ * _f_
-						_dy_[_u_] += _oy_ * _f_
-						_dx_[_v_] -= _ox_ * _f_
-						_dy_[_v_] -= _oy_ * _f_
-					ok
-				ok
-			next
-			for _i_ = 1 to _n_
-				_m_ = sqrt(_dx_[_i_]*_dx_[_i_] + _dy_[_i_]*_dy_[_i_])
-				if _m_ > 0.0001
-					_c_ = _m_
-					if _c_ > _t_  _c_ = _t_  ok
-					@aX[_i_] += _dx_[_i_] / _m_ * _c_
-					@aY[_i_] += _dy_[_i_] / _m_ * _c_
-				ok
-			next
+			return
+		ok
+
+		_csr_ = _StzInCsr(_eu_, _ev_, _n_)
+		_k_ = sqrt((1000 * 1000) / _n_)
+		_out_ = StzEngineGraphLayoutForce(_csr_[1], _csr_[2], _seed_,
+			This._Opt(:Iterations, 160), _k_)
+
+		@aX = []  @aY = []
+		for _i_ = 1 to _n_
+			@aX + _out_[_i_ * 2 - 1]
+			@aY + _out_[_i_ * 2]
 		next
 
 	# Fit the raw layout into the canvas. Without this a caller gets

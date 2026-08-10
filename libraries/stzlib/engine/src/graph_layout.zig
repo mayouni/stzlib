@@ -244,3 +244,93 @@ pub fn crossings(
     }
     return total;
 }
+
+// ---------------------------------------------------------------- force layout
+
+/// Fruchterman-Reingold, seeded and deterministic, in the ENGINE.
+///
+/// It lives here because the Ring face grew its own copy: 443 ms for 40
+/// nodes, 3.7 s for 120, and 24.5 s for 300 -- while GG1's measurement had
+/// already shown the same algorithm doing 10,000 nodes in 152 ms. A second
+/// implementation of something the tier below already does does not stay
+/// equal; this one diverged in COST by three orders of magnitude, and it
+/// was the user-facing path.
+///
+/// DETERMINISM, on the same terms slice 0 established: one node accumulates
+/// its own forces in INDEX ORDER, no atomics, no parallel reduction, and
+/// the cooling schedule is absolute (t = T0 * r^i) rather than normalised
+/// by the iteration count. Same seed and same graph give the same bytes.
+///
+/// pos is 2*n floats, seeded by the caller and written in place.
+pub fn force(
+    off: []const u32,
+    src: []const u32,
+    pos: []f32,
+    iters: u32,
+    k: f32,
+) i32 {
+    const n = pos.len / 2;
+    if (n == 0) return BAD_ARG;
+    if (off.len < n + 1) return BAD_ARG;
+
+    const disp = alloc.alloc(f32, n * 2) catch return BAD_ARG;
+    defer alloc.free(disp);
+
+    var it: u32 = 0;
+    while (it < iters) : (it += 1) {
+        const temp: f32 = 100.0 * std.math.pow(f32, 0.94, @floatFromInt(it));
+        @memset(disp, 0);
+
+        for (0..n) |i| {
+            const px = pos[i * 2];
+            const py = pos[i * 2 + 1];
+            var dx: f32 = 0;
+            var dy: f32 = 0;
+
+            // repulsion from every node, in index order
+            for (0..n) |j| {
+                if (j == i) continue;
+                const ox = px - pos[j * 2];
+                const oy = py - pos[j * 2 + 1];
+                var d2 = ox * ox + oy * oy;
+                if (d2 < 0.01) d2 = 0.01;
+                const f = (k * k) / d2;
+                dx += ox * f;
+                dy += oy * f;
+            }
+
+            // attraction along this node's edges, in slot order
+            const s = off[i];
+            const e = off[i + 1];
+            var q = s;
+            while (q < e) : (q += 1) {
+                const j = src[q];
+                if (j >= n) continue;
+                const ox = pos[j * 2] - px;
+                const oy = pos[j * 2 + 1] - py;
+                const d = @sqrt(ox * ox + oy * oy);
+                if (d > 0.0001) {
+                    const f = d / k;
+                    dx += ox * f;
+                    dy += oy * f;
+                }
+            }
+            disp[i * 2] = dx;
+            disp[i * 2 + 1] = dy;
+        }
+
+        // integrate, capped by the temperature -- the cap is what makes the
+        // convergence bound of GG1 slice 1 apply here too
+        for (0..n) |i| {
+            const dx = disp[i * 2];
+            const dy = disp[i * 2 + 1];
+            const mag = @sqrt(dx * dx + dy * dy);
+            if (mag > 0.0001) {
+                const capped = @min(mag, temp);
+                pos[i * 2] += dx / mag * capped;
+                pos[i * 2 + 1] += dy / mag * capped;
+            }
+        }
+    }
+    return OK;
+}
