@@ -280,3 +280,245 @@ test "an out-of-range index refuses and is counted, rather than reading past the
     try testing.expectEqual(@as(f64, -1), deviceCount(7));
     try testing.expect(counter(CTR_REFUSALS) > before2);
 }
+
+// ---------------------------------------------------------------- the device sink (SN3)
+//
+// THE CONSUMER SIDE OF THE DEADLINE.
+//
+// The callback below is the one piece of this plane that the OS calls on its
+// own thread, on its own schedule, and that must finish before a deadline it
+// does not control. FACT 4's three forbidden habits are therefore absent from
+// it by construction, not by care:
+//
+//   NO ALLOCATION -- it copies into a buffer miniaudio hands it.
+//   NO LOCK       -- the ring is single-producer/single-consumer, two atomics.
+//   NO RING/VM    -- it never crosses back into the interpreter.
+//
+// It does exactly two things: drain the ring, and record how long that took.
+//
+// SN0 MEASURED WHAT THIS HAS TO HOLD. On this machine WASAPI shared mode wakes
+// every 10 ms (480 frames) and issues a BURST of callbacks per wake-up, so what
+// must fit the period is the burst TOTAL, not one callback. The budget was
+// 0.14-0.32% for a plain mix -- the copy below is far cheaper still, because
+// the rendering already happened on the other thread.
+
+const sr = @import("soundring.zig");
+
+pub const CTR_CALLBACKS = 3; // sound.device.callbacks
+pub const CTR_CALLBACK_US_MAX = 4; // sound.callback.us (worst seen)
+pub const CTR_FRAMES_OUT = 5; // sound.device.frames
+pub const CTR_SINK_COUNT = 6;
+
+var sink_counters: [3]f64 = @splat(0);
+
+pub fn sinkCounter(i: usize) f64 {
+    return switch (i) {
+        CTR_CALLBACKS => sink_counters[0],
+        CTR_CALLBACK_US_MAX => sink_counters[1],
+        CTR_FRAMES_OUT => sink_counters[2],
+        else => 0,
+    };
+}
+
+pub fn sinkCountersReset() void {
+    sink_counters = @splat(0);
+}
+
+const Sink = struct {
+    device: c.ma_device = undefined,
+    ring: ?*sr.Ring = null,
+    started: bool = false,
+    gen: u32 = 1,
+    live: bool = false,
+    // owned by the callback thread alone
+    callbacks: u64 = 0,
+    worst_ns: u64 = 0,
+    frames_out: u64 = 0,
+    timer: ?std.time.Timer = null,
+};
+
+var sinks: std.ArrayList(Sink) = .{};
+
+fn sinkId(slot: usize, gen: u32) i64 {
+    return (@as(i64, gen) << 32) | @as(i64, @intCast(slot + 1));
+}
+
+fn sinkSlotOf(id: i64) ?usize {
+    const idx = id & 0xffff_ffff;
+    if (idx <= 0 or idx > @as(i64, @intCast(sinks.items.len))) return null;
+    const s: usize = @intCast(idx - 1);
+    const gen: u32 = @intCast((id >> 32) & 0xffff_ffff);
+    if (!sinks.items[s].live or sinks.items[s].gen != gen) return null;
+    return s;
+}
+
+/// THE AUDIO CALLBACK. Everything it touches was allocated before the device
+/// started; everything it calls is a bounded copy or an atomic.
+fn sinkCallback(dev: [*c]c.ma_device, out: ?*anyopaque, in: ?*const anyopaque, frame_count: c.ma_uint32) callconv(.c) void {
+    _ = in;
+    const sk: *Sink = @ptrCast(@alignCast(dev.*.pUserData.?));
+    const t0 = if (sk.timer) |*t| @constCast(t).read() else 0;
+
+    const buf: [*]f32 = @ptrCast(@alignCast(out.?));
+    if (sk.ring) |r| {
+        // Short reads are filled with silence and COUNTED, inside the ring.
+        // A stale ring (the producer stopped first) fails `valid()` and yields
+        // silence rather than reading freed memory.
+        _ = r.popInterleaved(buf, frame_count);
+    } else {
+        @memset(buf[0 .. frame_count * dev.*.playback.channels], 0);
+    }
+
+    sk.callbacks += 1;
+    sk.frames_out += frame_count;
+    if (sk.timer) |*t| {
+        const took = @constCast(t).read() - t0;
+        if (took > sk.worst_ns) sk.worst_ns = took;
+    }
+}
+
+/// Open a playback device that drains the ring at `ring_ptr` -- the address
+/// stz_sound.dll handed out for a running stream. An ADDRESS, not an engine
+/// handle: the same seam stz_window uses when it hands an HWND to stz_gpu.
+///
+/// The ring's magic and version are checked here, so a wrong or stale pointer
+/// is refused at open time rather than played as noise.
+pub fn playbackOpen(ring_ptr: i64, period_frames: u32) i64 {
+    if (!ensureContext()) {
+        refuse("playbackOpen: no audio backend");
+        return 0;
+    }
+    if (ring_ptr == 0) {
+        refuse("playbackOpen: null ring pointer");
+        return 0;
+    }
+    // ALIGNMENT FIRST, and it is not pedantry: this integer came across a DLL
+    // boundary from Ring, where any number can be typed. Ring's hot fields are
+    // 64-byte aligned, so dereferencing a misaligned address is an immediate
+    // panic -- a whole process killed by a typo in a script. Check, refuse,
+    // count. (Found by the guard below, which passed a stack array's address.)
+    const addr: usize = @intCast(ring_ptr);
+    if (addr % @alignOf(sr.Ring) != 0) {
+        refuse("playbackOpen: that address is not a ring buffer (misaligned)");
+        return 0;
+    }
+    const ring: *sr.Ring = @ptrFromInt(addr);
+    if (!ring.valid()) {
+        refuse("playbackOpen: that is not a live ring buffer (wrong magic or version)");
+        return 0;
+    }
+
+    var slot: usize = sinks.items.len;
+    for (sinks.items, 0..) |*sk0, i| {
+        if (!sk0.live) {
+            slot = i;
+            break;
+        }
+    }
+    if (slot == sinks.items.len) {
+        sinks.append(alloc, .{}) catch {
+            setErr("out of memory growing the sink table");
+            return 0;
+        };
+    }
+    const sk = &sinks.items[slot];
+    const gen = sk.gen;
+    sk.* = .{ .ring = ring, .gen = gen, .live = true };
+    sk.timer = std.time.Timer.start() catch null;
+
+    var cfg = c.ma_device_config_init(c.ma_device_type_playback);
+    cfg.playback.format = c.ma_format_f32;
+    cfg.playback.channels = ring.channels;
+    cfg.sampleRate = 0; // let the device pick; the graph must already match it
+    cfg.periodSizeInFrames = period_frames;
+    cfg.dataCallback = sinkCallback;
+    cfg.pUserData = sk;
+
+    if (c.ma_device_init(null, &cfg, &sk.device) != c.MA_SUCCESS) {
+        sk.* = .{ .gen = gen };
+        refuse("playbackOpen: the device refused this configuration");
+        return 0;
+    }
+    return sinkId(slot, gen);
+}
+
+pub fn playbackStart(id: i64) i32 {
+    const s = sinkSlotOf(id) orelse return BAD_ARG;
+    const sk = &sinks.items[s];
+    if (c.ma_device_start(&sk.device) != c.MA_SUCCESS) {
+        refuse("playbackStart: the device would not start");
+        return FALLBACK;
+    }
+    sk.started = true;
+    return OK;
+}
+
+pub fn playbackStop(id: i64) i32 {
+    const s = sinkSlotOf(id) orelse return BAD_ARG;
+    const sk = &sinks.items[s];
+    if (sk.started) {
+        _ = c.ma_device_stop(&sk.device);
+        sk.started = false;
+    }
+    return OK;
+}
+
+/// Close the device. THE ORDER MATTERS: the consumer must stop before the
+/// producer frees the ring, or the callback would read freed memory. Closing
+/// here also drops our pointer, so a later stream stop cannot surprise us.
+pub fn playbackClose(id: i64) i32 {
+    const s = sinkSlotOf(id) orelse return BAD_ARG;
+    const sk = &sinks.items[s];
+    if (sk.started) {
+        _ = c.ma_device_stop(&sk.device);
+        sk.started = false;
+    }
+    c.ma_device_uninit(&sk.device);
+    sink_counters[0] += @floatFromInt(sk.callbacks);
+    sink_counters[2] += @floatFromInt(sk.frames_out);
+    const us = @as(f64, @floatFromInt(sk.worst_ns)) / 1000.0;
+    if (us > sink_counters[1]) sink_counters[1] = us;
+    sk.ring = null;
+    sk.live = false;
+    sk.gen +%= 1;
+    if (sk.gen == 0) sk.gen = 1;
+    return OK;
+}
+
+pub fn playbackCallbacks(id: i64) f64 {
+    const s = sinkSlotOf(id) orelse return -1;
+    return @floatFromInt(sinks.items[s].callbacks);
+}
+
+pub fn playbackFramesOut(id: i64) f64 {
+    const s = sinkSlotOf(id) orelse return -1;
+    return @floatFromInt(sinks.items[s].frames_out);
+}
+
+/// The worst callback seen, in microseconds. SN0's budget was the WAKE-UP
+/// period (10 ms on this machine in shared mode), and a burst of callbacks
+/// shares it -- so this is a component of the budget, not the whole of it.
+pub fn playbackWorstUs(id: i64) f64 {
+    const s = sinkSlotOf(id) orelse return -1;
+    return @as(f64, @floatFromInt(sinks.items[s].worst_ns)) / 1000.0;
+}
+
+pub fn playbackUnderruns(id: i64) f64 {
+    const s = sinkSlotOf(id) orelse return -1;
+    const r = sinks.items[s].ring orelse return -1;
+    return @floatFromInt(@atomicLoad(u64, &r.underruns, .monotonic));
+}
+
+test "the sink refuses a pointer that is not a live ring, rather than playing it" {
+    if (isAvailable() == 0) return; // nothing to open on a device-free box
+    countersReset();
+    const before = counter(CTR_REFUSALS);
+    try testing.expectEqual(@as(i64, 0), playbackOpen(0, 256));
+    try testing.expect(counter(CTR_REFUSALS) > before);
+
+    // a real address that is NOT a ring: the magic check is what catches it
+    var junk: [512]u8 = @splat(0);
+    const before2 = counter(CTR_REFUSALS);
+    try testing.expectEqual(@as(i64, 0), playbackOpen(@intCast(@intFromPtr(&junk)), 256));
+    try testing.expect(counter(CTR_REFUSALS) > before2);
+}

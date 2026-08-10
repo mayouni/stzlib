@@ -66,6 +66,53 @@ fn ring_Shutdown(p: *anyopaque) callconv(.c) void {
     rn(p, 1);
 }
 
+
+// ---------------------------------------------------------------- the sink (SN3)
+//
+// The device sink takes the RING'S ADDRESS, produced by
+// StzEngineSoundStreamRingPtr in the other DLL. An address, not an engine
+// handle -- and it is validated (alignment, magic, version) before a single
+// sample is read through it.
+
+fn ring_PlaybackOpen(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(dev.playbackOpen(
+        @intFromFloat(gn(p, 1)),
+        @intFromFloat(gn(p, 2)),
+    )));
+}
+
+fn ring_PlaybackStart(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(dev.playbackStart(@intFromFloat(gn(p, 1)))));
+}
+
+fn ring_PlaybackStop(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(dev.playbackStop(@intFromFloat(gn(p, 1)))));
+}
+
+fn ring_PlaybackClose(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(dev.playbackClose(@intFromFloat(gn(p, 1)))));
+}
+
+fn ring_PlaybackCallbacks(p: *anyopaque) callconv(.c) void {
+    rn(p, dev.playbackCallbacks(@intFromFloat(gn(p, 1))));
+}
+
+fn ring_PlaybackFramesOut(p: *anyopaque) callconv(.c) void {
+    rn(p, dev.playbackFramesOut(@intFromFloat(gn(p, 1))));
+}
+
+fn ring_PlaybackWorstUs(p: *anyopaque) callconv(.c) void {
+    rn(p, dev.playbackWorstUs(@intFromFloat(gn(p, 1))));
+}
+
+fn ring_PlaybackUnderruns(p: *anyopaque) callconv(.c) void {
+    rn(p, dev.playbackUnderruns(@intFromFloat(gn(p, 1))));
+}
+
+fn ring_SinkCounter(p: *anyopaque) callconv(.c) void {
+    rn(p, dev.sinkCounter(@intFromFloat(gn(p, 1))));
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzengineaudiodevisavailable", .func = &ring_IsAvailable },
     .{ .name = "stzengineaudiodevlasterror", .func = &ring_LastError },
@@ -77,6 +124,17 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineaudiodevcounter", .func = &ring_Counter },
     .{ .name = "stzengineaudiodevcountersreset", .func = &ring_CountersReset },
     .{ .name = "stzengineaudiodevshutdown", .func = &ring_Shutdown },
+
+    // the device sink (SN3)
+    .{ .name = "stzengineaudiodevplaybackopen", .func = &ring_PlaybackOpen },
+    .{ .name = "stzengineaudiodevplaybackstart", .func = &ring_PlaybackStart },
+    .{ .name = "stzengineaudiodevplaybackstop", .func = &ring_PlaybackStop },
+    .{ .name = "stzengineaudiodevplaybackclose", .func = &ring_PlaybackClose },
+    .{ .name = "stzengineaudiodevplaybackcallbacks", .func = &ring_PlaybackCallbacks },
+    .{ .name = "stzengineaudiodevplaybackframesout", .func = &ring_PlaybackFramesOut },
+    .{ .name = "stzengineaudiodevplaybackworstus", .func = &ring_PlaybackWorstUs },
+    .{ .name = "stzengineaudiodevplaybackunderruns", .func = &ring_PlaybackUnderruns },
+    .{ .name = "stzengineaudiodevsinkcounter", .func = &ring_SinkCounter },
 };
 
 pub fn registerAll(pState: *anyopaque) void {
