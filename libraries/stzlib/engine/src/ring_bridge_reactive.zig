@@ -61,6 +61,12 @@ fn ring_destroy_channel(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(reactive.reactive_destroy_channel(n, nl)));
 }
 
+fn ring_channel_generation(p: *anyopaque) callconv(.c) void {
+    const n = gs(p, 1);
+    const nl: i32 = @intCast(gl(p, 1));
+    rn(p, @floatFromInt(reactive.reactive_channel_generation(n, nl)));
+}
+
 fn ring_clear_all(p: *anyopaque) callconv(.c) void {
     _ = p;
     reactive.reactive_clear_all();
@@ -77,4 +83,5 @@ pub const ring_funcs = [_]R.Reg{
     .{ .name = "stzengine_reactive_last_event", .func = ring_last_event },
     .{ .name = "stzengine_reactive_destroy_channel", .func = ring_destroy_channel },
     .{ .name = "stzengine_reactive_clear_all", .func = ring_clear_all },
+    .{ .name = "stzengine_reactive_channel_generation", .func = ring_channel_generation },
 };

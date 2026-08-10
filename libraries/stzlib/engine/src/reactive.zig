@@ -21,11 +21,23 @@ const Channel = struct {
     active: bool = false,
     sub_count: u16 = 0,
     event_count: u64 = 0,
+    // A channel's identity across its whole life in this process. Handed out
+    // by next_generation, which NEVER resets -- not on destroy, not on
+    // clear_all -- so no two channels in one run ever share one, and a
+    // consumer that stored a generation can tell "the channel I was watching"
+    // from "a new channel wearing its name".
+    generation: u64 = 0,
     last_event: [MAX_EVENT_DATA]u8 = [_]u8{0} ** MAX_EVENT_DATA,
     last_event_len: u16 = 0,
 };
 
 var channels: [MAX_CHANNELS]Channel = [_]Channel{.{}} ** MAX_CHANNELS;
+
+// Monotonic for the life of the process. event_count restarts at zero whenever
+// a channel is remade, which is invisible to a consumer that only asks whether
+// the count grew -- it sees a SMALLER number, concludes there is no new work,
+// and goes deaf. This is the value that makes the reset detectable.
+var next_generation: u64 = 1;
 var next_sub_id: u32 = 1;
 var subs: [MAX_CHANNELS * MAX_SUBS_PER_CHANNEL]Subscription = [_]Subscription{.{}} ** (MAX_CHANNELS * MAX_SUBS_PER_CHANNEL);
 
@@ -50,6 +62,8 @@ pub fn reactive_create_channel(name: [*]const u8, name_len: i32) callconv(.c) i3
             channels[i].sub_count = 0;
             channels[i].event_count = 0;
             channels[i].last_event_len = 0;
+            channels[i].generation = next_generation;
+            next_generation += 1;
             return @intCast(i);
         }
     }
@@ -158,6 +172,18 @@ pub fn reactive_clear_all() callconv(.c) void {
         subs[i] = .{};
     }
     next_sub_id = 1;
+    // next_generation is deliberately NOT reset. Its whole job is to stay
+    // unique across everything this process does, so that a channel remade
+    // after a clear is never mistaken for the one that was cleared.
+}
+
+// The generation of the channel currently holding this name, or -2 when no
+// channel does.
+pub fn reactive_channel_generation(name: [*]const u8, name_len: i32) callconv(.c) i64 {
+    if (name_len <= 0) return -1;
+    const nlen: usize = @intCast(name_len);
+    const ch_idx = find_channel(name, nlen) orelse return -2;
+    return @intCast(channels[ch_idx].generation);
 }
 
 // ── C ABI exports ────────────────────────────────────────────
@@ -172,6 +198,7 @@ pub export fn stz_reactive_sub_count(n: [*]const u8, nl: i32) callconv(.c) i32 {
 pub export fn stz_reactive_last_event(n: [*]const u8, nl: i32, o: [*]u8) callconv(.c) i32 { return reactive_last_event(n, nl, o); }
 pub export fn stz_reactive_destroy_channel(n: [*]const u8, nl: i32) callconv(.c) i32 { return reactive_destroy_channel(n, nl); }
 pub export fn stz_reactive_clear_all() callconv(.c) void { reactive_clear_all(); }
+pub export fn stz_reactive_channel_generation(n: [*]const u8, nl: i32) callconv(.c) i64 { return reactive_channel_generation(n, nl); }
 
 // ── Tests ────────────────────────────────────────────────────
 
@@ -226,4 +253,44 @@ test "reactive: duplicate channel rejected" {
 test "reactive: subscribe to nonexistent channel" {
     reactive_clear_all();
     try std.testing.expectEqual(@as(i32, -2), reactive_subscribe("nope", 4));
+}
+
+test "reactive: a remade channel gets a NEW generation" {
+    reactive_clear_all();
+    _ = reactive_create_channel("orders", 6);
+    const g1 = reactive_channel_generation("orders", 6);
+    try std.testing.expect(g1 > 0);
+
+    // Traffic does not change identity.
+    _ = reactive_emit("orders", 6, "x", 1);
+    try std.testing.expectEqual(g1, reactive_channel_generation("orders", 6));
+
+    // Destroy + remake under the same name is a DIFFERENT channel, even
+    // though the name and the (restarted) count look the same.
+    _ = reactive_destroy_channel("orders", 6);
+    _ = reactive_create_channel("orders", 6);
+    const g2 = reactive_channel_generation("orders", 6);
+    try std.testing.expect(g2 > g1);
+    try std.testing.expectEqual(@as(i64, 0), reactive_event_count("orders", 6));
+}
+
+test "reactive: clear_all does not rewind the generation" {
+    // The whole point. clear_all resets every channel, and if it reset the
+    // counter too, a channel remade afterwards could be handed a generation
+    // some earlier channel already had -- and a consumer comparing them would
+    // conclude nothing had changed.
+    reactive_clear_all();
+    _ = reactive_create_channel("a", 1);
+    const g1 = reactive_channel_generation("a", 1);
+
+    reactive_clear_all();
+    _ = reactive_create_channel("a", 1);
+    const g2 = reactive_channel_generation("a", 1);
+
+    try std.testing.expect(g2 > g1);
+}
+
+test "reactive: generation of a channel nobody declared" {
+    reactive_clear_all();
+    try std.testing.expectEqual(@as(i64, -2), reactive_channel_generation("ghost", 5));
 }

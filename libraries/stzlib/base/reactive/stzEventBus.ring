@@ -52,8 +52,15 @@ class stzEventBus from stzObject
 		stzengine_reactive_create_channel("" + pcName)
 		return stzengine_reactive_emit("" + pcName, "" + pcData)
 
-	# Total events ever emitted on the channel (monotonic -- the signal an
-	# event-driven consumer polls to detect new work).
+	# Total events emitted on the channel SINCE IT WAS CREATED -- the signal an
+	# event-driven consumer polls to detect new work.
+	#
+	# It rises and never falls WHILE THE CHANNEL LIVES, which is not the same
+	# as monotonic, and the difference bites. DestroyChannel and ClearAll below
+	# put a channel back to zero, so a consumer holding a previous count sees a
+	# SMALLER number and, if it only tests for "bigger than last time", decides
+	# there is no new work -- for good. A DECREASE means the channel is new and
+	# the consumer must re-baseline; stzAgentHost.TickDue does exactly that.
 	def EventCount(pcName)
 		return stzengine_reactive_event_count("" + pcName)
 
@@ -64,13 +71,28 @@ class stzEventBus from stzObject
 	def LastEvent(pcName)
 		return stzengine_reactive_last_event("" + pcName)
 
+	# WHICH channel currently holds this name -- a number unique to this
+	# process, or -2 when no channel does.
+	#
+	# EventCount alone cannot tell a consumer that a channel was remade: the
+	# count restarts at zero, and by the time anyone polls it may already have
+	# climbed back above the value they remembered, so "did the number go down"
+	# misses it. The generation never repeats and never resets, so comparing it
+	# is exact rather than a race. stzAgentHost.TickDue re-baselines on it.
+	def ChannelGeneration(pcName)
+		return stzengine_reactive_channel_generation("" + pcName)
+
 	def NumberOfChannels()
 		return stzengine_reactive_channel_count()
 
 	def DestroyChannel(pcName)
 		return stzengine_reactive_destroy_channel("" + pcName)
 
-	# Wipe every channel (test isolation -- the bus is process-global).
+	# Wipe every channel.
+	#
+	# Handy for test isolation, and worth saying plainly: the bus is
+	# PROCESS-GLOBAL, so this resets channels other parts of the same process
+	# are watching, and their event counts restart at zero. See EventCount.
 	def ClearAll()
 		stzengine_reactive_clear_all()
 		return This

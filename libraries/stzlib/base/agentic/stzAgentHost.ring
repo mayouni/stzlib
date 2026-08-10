@@ -105,9 +105,9 @@ class stzAgentHost from stzObject
 			stzraise("stzAgentHost.Supervise: tick interval must be >= 1ms.")
 		ok
 		# row: name, agent, tickMs, active, nextDue, ticks, retired,
-		#      channel(""=timer), lastEventCount
+		#      channel(""=timer), lastEventCount, channelGeneration
 		@aAgents + [ poAgent.Name_(), poAgent, nTickMs, TRUE,
-		             StzEngineTimeNowMs(), 0, FALSE, "", 0 ]
+		             StzEngineTimeNowMs(), 0, FALSE, "", 0, 0 ]
 		return This
 
 	# EVENT-DRIVEN supervision (R5 reactor-runtime): tick the agent once per
@@ -120,7 +120,8 @@ class stzAgentHost from stzObject
 		_nBase_ = stzengine_reactive_event_count("" + pcChannel)
 		if _nBase_ < 0  _nBase_ = 0  ok
 		@aAgents + [ poAgent.Name_(), poAgent, 0, TRUE,
-		             0, 0, FALSE, "" + pcChannel, _nBase_ ]
+		             0, 0, FALSE, "" + pcChannel, _nBase_,
+		             stzengine_reactive_channel_generation("" + pcChannel) ]
 		return This
 
 	# The channel an agent is event-supervised on ("" if timer-supervised).
@@ -178,6 +179,31 @@ class stzAgentHost from stzObject
 				# EVENT-DRIVEN: one Cycle per new event on the channel (catch
 				# up if several arrived since the last pass).
 				_nCur_ = stzengine_reactive_event_count(@aAgents[_i_][8])
+
+				# A NEW GENERATION MEANS A NEW CHANNEL WEARING THE SAME NAME.
+				#
+				# The bus counter restarts at zero when a channel is destroyed
+				# and remade -- and ClearAll(), which the bus offers for test
+				# isolation, is PROCESS-GLOBAL, so it resets channels this host
+				# is watching. The stored baseline was then higher than the live
+				# count, the catch-up loop below never ran, and the agent went
+				# deaf: silently, and for good if the old count was high.
+				# Measured: after a reset and three fresh events, an agent
+				# ticked once instead of three times.
+				#
+				# Watching for the COUNT to drop does not fix it -- by the time
+				# anyone polls, the fresh channel may already have passed the
+				# remembered value, and the dip is never seen. The generation is
+				# unique for the life of the process, so this comparison is
+				# exact rather than a race.
+				_nGen_ = stzengine_reactive_channel_generation(@aAgents[_i_][8])
+				if _nGen_ != @aAgents[_i_][10]
+					@aAgents[_i_][10] = _nGen_
+					@aAgents[_i_][9] = 0
+					@aTrace + [ _nNow_, @aAgents[_i_][1], 0,
+					            "channel remade -- baseline resynced" ]
+				ok
+
 				while @aAgents[_i_][9] < _nCur_
 					@aAgents[_i_][9] = @aAgents[_i_][9] + 1
 					_nE_ = @aAgents[_i_][2].Cycle()
