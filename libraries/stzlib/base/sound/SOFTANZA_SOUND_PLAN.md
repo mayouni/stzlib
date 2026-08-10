@@ -1013,7 +1013,21 @@ has a reason to.
 | sound_device_narrated | 20 | degrades to skip |
 | sound_graph_narrated | 42 | no |
 | sound_realtime_narrated | 33 | last scene only |
+| sound_examples_narrated | 33 | last example only |
 | Zig unit tests | 43 | no |
 
-135 Ring assertions and 43 Zig tests, of which everything but one scene runs on
+168 Ring assertions and 43 Zig tests, of which everything but two scenes runs on
 a machine with no sound card at all.
+
+`sound_examples_narrated.ring` is the odd one out and deliberately so: it is
+seven WORKED EXAMPLES -- a tone to a file, a chord, a bell with an echo, a
+filter sweep, stereo placement, preparing audio for delivery, and live playback
+with a fade -- where each example is also its own assertion. Examples that are
+never run rot; guards that cannot be read teach nothing. It is the file to LOOK
+at to learn the plane, and it fails if the plane misbehaves.
+
+It earned its keep immediately. The chord example first asserted that three
+different pitches must drift out of phase, and it FAILED: 440 : 554.37 : 659.25
+is almost exactly 4 : 5 : 6, so the three waves nearly RE-ALIGN, and their peaks
+nearly add. That near-alignment is not a bug in the mix -- it is what consonance
+IS. The example now says so, and asserts it.
