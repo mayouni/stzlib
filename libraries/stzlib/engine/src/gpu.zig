@@ -736,7 +736,11 @@ pub fn stz_gpu_texture_new(wf2: f64, hf: f64, kind: f64) callconv(.c) i64 {
     var desc = std.mem.zeroes(c.WGPUTextureDescriptor);
     desc.label = sv("stz_tex");
     desc.usage = switch (k) {
-        TEX_TARGET => c.WGPUTextureUsage_RenderAttachment | c.WGPUTextureUsage_CopySrc,
+        // GG4 needs a pass to READ what an earlier pass wrote -- that is
+        // what a frame graph's resource edges mean. TextureBinding makes
+        // every target samplable, which retires the "which target kind do
+        // I need" question rather than answering it with a second kind.
+        TEX_TARGET => c.WGPUTextureUsage_RenderAttachment | c.WGPUTextureUsage_CopySrc | c.WGPUTextureUsage_TextureBinding,
         TEX_DEPTH => c.WGPUTextureUsage_RenderAttachment,
         else => c.WGPUTextureUsage_TextureBinding | c.WGPUTextureUsage_CopyDst,
     };

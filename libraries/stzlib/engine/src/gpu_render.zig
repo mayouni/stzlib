@@ -65,6 +65,7 @@ fn onDeviceClose() void {
     if (g_pass_open) {
         // nothing was submitted; release the encoding and owe nothing
         g_pass_open = false;
+        g_pass_target = 0;
         if (g_pass) |p| gpu.wfns().wgpuRenderPassEncoderRelease(p);
         if (g_pass_enc) |e| gpu.wfns().wgpuCommandEncoderRelease(e);
         g_pass = null;
@@ -90,7 +91,8 @@ var g_sampler_nearest: c.WGPUSampler = null;
 var g_sampler_linear: c.WGPUSampler = null;
 
 fn samplerFor(kind: i32) c.WGPUSampler {
-    if (kind == gpu.TEX_LINEAR) {
+    // a TARGET read by a later pass is being resampled, so linear
+    if (kind == gpu.TEX_LINEAR or kind == gpu.TEX_TARGET) {
         if (g_sampler_linear == null) {
             var d = std.mem.zeroes(c.WGPUSamplerDescriptor);
             d.label = sv("stz_linear");
@@ -308,6 +310,10 @@ var g_pass_enc: c.WGPUCommandEncoder = null;
 var g_pass: c.WGPURenderPassEncoder = null;
 var g_pass_bgs: [PASS_MAX_BG]c.WGPUBindGroup = @splat(null);
 var g_pass_nbg: usize = 0;
+// The target this pass is drawing INTO. Sampling it while writing it is a
+// genuine read-write hazard; sampling a DIFFERENT target is exactly what a
+// multi-pass effect does, and refusing both was over-broad.
+var g_pass_target: i64 = 0;
 
 fn releasePassBindGroups() void {
     for (0..g_pass_nbg) |i| {
@@ -339,6 +345,7 @@ fn beginInternal(target_id: i64, depth_id: i64, r: f64, g: f64, b: f64, a: f64) 
     if (g_pass_open) return gpu.BAD_ARG;
     const t = gpu.rawTexture(target_id) orelse return gpu.STALE;
     if (t.kind != gpu.TEX_TARGET) return gpu.BAD_ARG;
+    g_pass_target = target_id;
     var depth_view: c.WGPUTextureView = null;
     if (depth_id != 0) {
         const d = gpu.rawTexture(depth_id) orelse return gpu.STALE;
@@ -445,7 +452,11 @@ fn bindDrawState(pipe: i64, vbuf: i64, tex_id: i64) i32 {
     if (tex_id != 0) {
         if (g_pass_nbg == PASS_MAX_BG) return gpu.BAD_ARG; // pass bind-group budget
         const t = gpu.rawTexture(tex_id) orelse return gpu.STALE;
-        if (t.kind == gpu.TEX_TARGET) return gpu.BAD_ARG; // can't sample the live target
+        // Refuse ONLY the target being written right now. The old check
+        // refused every target, which made a second pass reading the
+        // first's output impossible -- the gap the challenge pass found and
+        // GG4 could not be built over.
+        if (tex_id == g_pass_target) return gpu.BAD_ARG;
         var entries = [2]c.WGPUBindGroupEntry{ std.mem.zeroes(c.WGPUBindGroupEntry), std.mem.zeroes(c.WGPUBindGroupEntry) };
         entries[0].binding = 0;
         entries[0].textureView = t.view;
@@ -504,6 +515,7 @@ pub fn stz_gpu_render_draw_indexed(pipe: i64, vbuf: i64, ibuf: i64, nindices: f6
 pub fn stz_gpu_render_end() callconv(.c) i32 {
     if (!g_pass_open) return gpu.BAD_ARG;
     g_pass_open = false;
+    g_pass_target = 0;
     const f = gpu.wfns();
     f.wgpuRenderPassEncoderEnd(g_pass);
     f.wgpuRenderPassEncoderRelease(g_pass);
