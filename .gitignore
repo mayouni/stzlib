@@ -44,3 +44,8 @@ _wasmsub_tmp/
 **/perf/.stzloadtarget_gen.ring
 # fswatch guard scratch dir (the guard reuses it across runs by design)
 **/_fswatch_scratch/
+
+# sound web studio: a locally built listening bench, not an artifact
+libraries/stzlib/base/test/sound/sound_studio_server.exe
+libraries/stzlib/base/test/sound/sound_studio_server.pdb
+libraries/stzlib/base/test/sound/temp/

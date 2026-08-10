@@ -114,7 +114,18 @@ pub fn tcp_recv(client: ?*TcpClient, out: [*]u8, max: usize) callconv(.c) i32 {
         return -1;
     };
     if (max == 0) return 0;
-    const n = c.stream.read(out[0..max]) catch |err| {
+    // std.posix.recv, NOT stream.read.
+    //
+    // On Windows, Zig's Stream.read goes through ReadFile, and that does not
+    // work on a socket returned by accept() -- it fails with the unmapped
+    // "Unexpected". Writing was fine, so the symptom was a server that could
+    // answer but never hear: every server-side read returned
+    // "recv failed: Unexpected" while Send worked perfectly.
+    //
+    // testserver.zig has always used std.posix.recv on the raw handle, which
+    // is why the HTTP-client suite never caught this -- the only std.net
+    // server in the tree that reads was already doing it the right way.
+    const n = std.posix.recv(c.stream.handle, out[0..max], 0) catch |err| {
         var fbuf: [200]u8 = undefined;
         const msg = std.fmt.bufPrint(&fbuf, "recv failed: {s}", .{@errorName(err)}) catch "recv failed";
         setError(msg);

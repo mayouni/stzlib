@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Softanza Sound Studio</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#151b23; --line:#242c37; --ink:#e6edf3;
+    --dim:#8b949e; --accent:#4dd4ac; --accent2:#7aa2f7; --warn:#f0883e;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  header{padding:14px 20px;border-bottom:1px solid var(--line);
+         display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+  h1{font-size:15px;margin:0;letter-spacing:.06em;text-transform:uppercase}
+  .meta{color:var(--dim);font-size:12px}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;
+       background:var(--accent);margin-right:6px;vertical-align:middle}
+  .dot.off{background:var(--warn)}
+  main{display:grid;grid-template-columns:340px 1fr;gap:16px;padding:16px;
+       align-items:start}
+  @media(max-width:900px){main{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px}
+  .panel h2{font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+            color:var(--dim);margin:0 0 12px}
+  .row{display:flex;align-items:center;gap:8px;margin:9px 0}
+  .row label{width:74px;color:var(--dim);font-size:12px;flex:none}
+  .row input[type=range]{flex:1;accent-color:var(--accent)}
+  .row .val{width:66px;text-align:right;color:var(--accent);font-size:12px}
+  select,button{background:#1c232c;color:var(--ink);border:1px solid var(--line);
+        border-radius:6px;padding:6px 10px;font:inherit;font-size:12px;cursor:pointer}
+  select{width:100%}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button.primary{background:var(--accent);color:#08221b;border-color:var(--accent);font-weight:700}
+  button.primary:hover{filter:brightness(1.12);color:#08221b}
+  .stage{border:1px solid var(--line);border-radius:6px;padding:10px;margin:10px 0}
+  .stage .head{display:flex;align-items:center;gap:8px;margin-bottom:2px}
+  .stage .head input{accent-color:var(--accent)}
+  .stage .head b{font-size:12px;letter-spacing:.06em}
+  .stage.off{opacity:.42}
+  .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  canvas{width:100%;display:block;background:#0a0e14;border:1px solid var(--line);
+         border-radius:6px}
+  .stats{display:flex;gap:18px;flex-wrap:wrap;color:var(--dim);font-size:12px;margin:10px 0 0}
+  .stats b{color:var(--ink);font-weight:600}
+  .presets{display:flex;flex-wrap:wrap;gap:6px}
+  .presets button{font-size:11px;padding:5px 9px}
+  pre{background:#0a0e14;border:1px solid var(--line);border-radius:6px;padding:12px;
+      overflow:auto;max-height:340px;font-size:12px;color:#c9d5e1;margin:0}
+  .chain{color:var(--accent2);font-size:12px;margin-bottom:8px;word-break:break-word}
+  .msg{font-size:12px;color:var(--warn);min-height:18px;margin-top:8px}
+  audio{width:100%;margin-top:10px}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Softanza Sound Studio</h1>
+  <span class="meta"><span id="dot" class="dot"></span><span id="dev">connecting…</span></span>
+  <span class="meta">rendered by the engine, not the browser</span>
+</header>
+
+<main>
+  <!-- ------------------------------------------------ controls -->
+  <div class="panel">
+    <h2>Patch</h2>
+
+    <div class="row"><label>wave</label>
+      <select id="wave">
+        <option value="0">sine — pure</option>
+        <option value="3" selected>triangle — soft</option>
+        <option value="1">square — hollow</option>
+        <option value="2">saw — bright</option>
+      </select>
+    </div>
+    <div class="row"><label>pitch</label>
+      <input type="range" id="hz" min="40" max="2000" step="1" value="440">
+      <span class="val" id="hzv">440 Hz</span></div>
+    <div class="row"><label>level</label>
+      <input type="range" id="amp" min="0" max="1" step="0.01" value="0.35">
+      <span class="val" id="ampv">0.35</span></div>
+    <div class="row"><label>pan</label>
+      <input type="range" id="pan" min="0" max="1" step="0.01" value="0.5">
+      <span class="val" id="panv">centre</span></div>
+    <div class="row"><label>length</label>
+      <input type="range" id="secs" min="0.2" max="6" step="0.1" value="2">
+      <span class="val" id="secsv">2.0 s</span></div>
+
+    <div class="stage off" id="stF">
+      <div class="head"><input type="checkbox" id="useFilter"><b>FILTER</b></div>
+      <div class="row"><label>type</label>
+        <select id="fkind">
+          <option value="0">low pass</option>
+          <option value="1">high pass</option>
+          <option value="2">band pass</option>
+        </select></div>
+      <div class="row"><label>cutoff</label>
+        <input type="range" id="fcut" min="60" max="16000" step="10" value="1200">
+        <span class="val" id="fcutv">1200</span></div>
+      <div class="row"><label>Q</label>
+        <input type="range" id="fq" min="0.2" max="8" step="0.05" value="0.9">
+        <span class="val" id="fqv">0.90</span></div>
+    </div>
+
+    <div class="stage off" id="stE">
+      <div class="head"><input type="checkbox" id="useEnv"><b>ENVELOPE</b></div>
+      <div class="row"><label>attack</label>
+        <input type="range" id="att" min="0" max="2" step="0.001" value="0.01">
+        <span class="val" id="attv">0.010</span></div>
+      <div class="row"><label>decay</label>
+        <input type="range" id="dec" min="0" max="2" step="0.001" value="0.25">
+        <span class="val" id="decv">0.250</span></div>
+      <div class="row"><label>sustain</label>
+        <input type="range" id="sus" min="0" max="1" step="0.01" value="0">
+        <span class="val" id="susv">0.00</span></div>
+      <div class="row"><label>release</label>
+        <input type="range" id="rel" min="0" max="3" step="0.01" value="0.20">
+        <span class="val" id="relv">0.20</span></div>
+      <div class="row"><label>gate</label>
+        <input type="range" id="gate" min="0.02" max="5" step="0.02" value="0.30">
+        <span class="val" id="gatev">0.30</span></div>
+    </div>
+
+    <div class="stage off" id="stD">
+      <div class="head"><input type="checkbox" id="useDelay"><b>DELAY</b></div>
+      <div class="row"><label>time</label>
+        <input type="range" id="dtime" min="0.01" max="1.5" step="0.005" value="0.28">
+        <span class="val" id="dtimev">0.280</span></div>
+      <div class="row"><label>feedback</label>
+        <input type="range" id="dfb" min="0" max="0.95" step="0.01" value="0.45">
+        <span class="val" id="dfbv">0.45</span></div>
+      <div class="row"><label>wet</label>
+        <input type="range" id="dwet" min="0" max="1" step="0.01" value="0.40">
+        <span class="val" id="dwetv">0.40</span></div>
+    </div>
+
+    <div class="btns">
+      <button class="primary" id="btnRender">Render &amp; hear</button>
+      <button id="btnSpeakers">Play on speakers</button>
+    </div>
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <!-- ------------------------------------------------ output -->
+  <div>
+    <div class="panel">
+      <h2>What you built</h2>
+      <div class="chain" id="chain">oscillator → pan</div>
+      <canvas id="wave1" height="150"></canvas>
+      <div class="stats">
+        <span>peak <b id="sPeak">—</b></span>
+        <span>rms <b id="sRms">—</b></span>
+        <span>nodes <b id="sNodes">—</b></span>
+        <span>render <b id="sMs">—</b></span>
+        <span>speed <b id="sX">—</b></span>
+      </div>
+      <audio id="au" controls></audio>
+    </div>
+
+    <div class="panel" style="margin-top:16px">
+      <h2>Zoom — 20 ms, so you can see the waveform</h2>
+      <canvas id="wave2" height="120"></canvas>
+    </div>
+
+    <div class="panel" style="margin-top:16px">
+      <h2>Presets — hear what each part does</h2>
+      <div class="presets">
+        <button data-p="sine">sine</button>
+        <button data-p="tri">triangle</button>
+        <button data-p="square">square</button>
+        <button data-p="saw">saw</button>
+        <button data-p="pluck">pluck</button>
+        <button data-p="pad">pad</button>
+        <button data-p="echo">echo</button>
+        <button data-p="bell">bell</button>
+        <button data-p="dark">dark filter</button>
+        <button data-p="wobble">resonant</button>
+        <button data-p="left">hard left</button>
+        <button data-p="right">hard right</button>
+        <button id="btnCompose" style="border-color:var(--accent2);color:var(--accent2)">▶ the composition</button>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:16px">
+      <h2>Take it away as a test</h2>
+      <div class="btns" style="margin:0 0 10px">
+        <button id="btnGuard">Generate guard code</button>
+        <button id="btnCopy">Copy</button>
+      </div>
+      <pre id="code">Dial a patch, then press "Generate guard code".</pre>
+    </div>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+let ver = 0;
+
+const NUMS = ["hz","amp","pan","secs","fcut","fq","att","dec","sus","rel","gate","dtime","dfb","dwet"];
+const CHKS = ["useFilter","useEnv","useDelay"];
+
+function fmt(id,v){
+  if(id==="hz")   return Math.round(v)+" Hz";
+  if(id==="secs") return (+v).toFixed(1)+" s";
+  if(id==="fcut") return Math.round(v);
+  if(id==="pan")  return v<0.02?"hard left":v>0.98?"hard right":
+                         Math.abs(v-0.5)<0.02?"centre":(+v).toFixed(2);
+  if(["att","dec","rel","gate","dtime"].includes(id)) return (+v).toFixed(3);
+  return (+v).toFixed(2);
+}
+function syncLabels(){
+  NUMS.forEach(id=>{ const e=$(id+"v"); if(e) e.textContent = fmt(id,$(id).value); });
+  $("stF").classList.toggle("off",!$("useFilter").checked);
+  $("stE").classList.toggle("off",!$("useEnv").checked);
+  $("stD").classList.toggle("off",!$("useDelay").checked);
+  const w = $("wave").selectedOptions[0].textContent.split(" ")[0];
+  let ch = w;
+  if($("useFilter").checked) ch += " → " + $("fkind").selectedOptions[0].textContent;
+  if($("useEnv").checked)    ch += " → envelope";
+  if($("useDelay").checked)  ch += " → delay";
+  $("chain").textContent = ch + " → pan → gain";
+}
+function query(){
+  const p = new URLSearchParams();
+  p.set("wave",$("wave").value);
+  p.set("fkind",$("fkind").value);
+  NUMS.forEach(id=>p.set(id,$(id).value));
+  CHKS.forEach(id=>p.set(id,$(id).checked?1:0));
+  return p.toString();
+}
+
+async function render(){
+  $("msg").textContent = "rendering…";
+  const r = await (await fetch("/api/render?"+query())).json();
+  if(!r.ok){ $("msg").textContent = "error: "+r.error; return; }
+  $("msg").textContent = "";
+  $("sPeak").textContent = r.peak.toFixed(4);
+  $("sRms").textContent  = r.rms.toFixed(4);
+  $("sNodes").textContent= r.nodes;
+  $("sMs").textContent   = r.renderMs.toFixed(1)+" ms";
+  $("sX").textContent    = (r.seconds*1000/Math.max(r.renderMs,0.001)).toFixed(0)+"x realtime";
+  if(r.peak >= 0.999) $("msg").textContent = "CLIPPING — turn the level down";
+  ver++;
+  const url = "/api/wav?v="+ver;
+  $("au").src = url;
+  drawFrom(url);
+  $("au").play().catch(()=>{});
+}
+
+async function drawFrom(url){
+  const buf = await (await fetch(url)).arrayBuffer();
+  const ctx = new (window.AudioContext||window.webkitAudioContext)();
+  const audio = await ctx.decodeAudioData(buf);
+  drawWave($("wave1"), audio, 0, audio.length);
+  const n20 = Math.min(audio.length, Math.round(audio.sampleRate*0.02));
+  drawWave($("wave2"), audio, 0, n20);
+  ctx.close();
+}
+
+function drawWave(cv, audio, from, count){
+  const dpr = window.devicePixelRatio||1;
+  cv.width = cv.clientWidth*dpr; cv.height = cv.clientHeight*dpr;
+  const g = cv.getContext("2d"); g.scale(dpr,dpr);
+  const W = cv.clientWidth, H = cv.clientHeight, mid = H/2;
+  g.clearRect(0,0,W,H);
+  g.strokeStyle="#242c37"; g.beginPath(); g.moveTo(0,mid); g.lineTo(W,mid); g.stroke();
+  const d = audio.getChannelData(0);
+  const per = count/W;
+  g.strokeStyle = "#4dd4ac"; g.lineWidth = 1; g.beginPath();
+  for(let x=0;x<W;x++){
+    const s = from + Math.floor(x*per), e = Math.min(from+count, s+Math.ceil(per)||1);
+    let mn=1, mx=-1;
+    for(let i=s;i<e;i++){ const v=d[i]; if(v<mn)mn=v; if(v>mx)mx=v; }
+    if(mn>mx){ mn=0; mx=0; }
+    g.moveTo(x+0.5, mid - mx*mid*0.94);
+    g.lineTo(x+0.5, mid - mn*mid*0.94);
+  }
+  g.stroke();
+}
+
+const PRESETS = {
+  sine:  {wave:0,hz:440,amp:.35,useFilter:0,useEnv:0,useDelay:0,secs:2},
+  tri:   {wave:3,hz:440,amp:.35,useFilter:0,useEnv:0,useDelay:0,secs:2},
+  square:{wave:1,hz:440,amp:.3, useFilter:0,useEnv:0,useDelay:0,secs:2},
+  saw:   {wave:2,hz:440,amp:.3, useFilter:0,useEnv:0,useDelay:0,secs:2},
+  pluck: {wave:3,hz:440,amp:.6, useEnv:1,att:.002,dec:.35,sus:0,rel:.1,gate:.35,
+          useFilter:0,useDelay:0,secs:2},
+  pad:   {wave:3,hz:220,amp:.5, useEnv:1,att:.8,dec:.3,sus:.7,rel:1,gate:1.6,
+          useFilter:0,useDelay:0,secs:4},
+  echo:  {wave:3,hz:523,amp:.6, useEnv:1,att:.002,dec:.25,sus:0,rel:.05,gate:.25,
+          useDelay:1,dtime:.3,dfb:.55,dwet:.45,useFilter:0,secs:4},
+  bell:  {wave:0,hz:880,amp:.5, useEnv:1,att:.001,dec:1.4,sus:0,rel:.4,gate:1.6,
+          useDelay:1,dtime:.38,dfb:.5,dwet:.4,useFilter:0,secs:5},
+  dark:  {wave:2,hz:220,amp:.35,useFilter:1,fkind:0,fcut:400,fq:.9,
+          useEnv:0,useDelay:0,secs:2},
+  wobble:{wave:2,hz:110,amp:.3, useFilter:1,fkind:0,fcut:320,fq:6,
+          useEnv:0,useDelay:0,secs:2},
+  left:  {wave:3,hz:330,amp:.4, pan:0, useFilter:0,useEnv:0,useDelay:0,secs:1.5},
+  right: {wave:3,hz:330,amp:.4, pan:1, useFilter:0,useEnv:0,useDelay:0,secs:1.5},
+};
+function applyPreset(p){
+  const o = PRESETS[p]; if(!o) return;
+  if(!("pan" in o)) o.pan = 0.5;
+  for(const k in o){
+    const e = $(k); if(!e) continue;
+    if(e.type==="checkbox") e.checked = !!o[k]; else e.value = o[k];
+  }
+  syncLabels(); render();
+}
+
+document.querySelectorAll(".presets button[data-p]").forEach(b=>
+  b.onclick = ()=>applyPreset(b.dataset.p));
+
+$("btnRender").onclick = render;
+$("btnSpeakers").onclick = async ()=>{
+  $("msg").textContent = "playing on the machine's speakers…";
+  const r = await (await fetch("/api/play?"+query())).json();
+  $("msg").textContent = r.ok
+    ? "played "+r.framesOut+" frames · worst callback "+r.worstUs+" µs · "+r.underruns+" underruns"
+    : "error: "+r.error;
+};
+$("btnCompose").onclick = async ()=>{
+  $("msg").textContent = "rendering the composition…";
+  const r = await (await fetch("/api/compose")).json();
+  if(!r.ok){ $("msg").textContent="error: "+r.error; return; }
+  $("msg").textContent = "";
+  $("sPeak").textContent=r.peak.toFixed(4); $("sRms").textContent=r.rms.toFixed(4);
+  $("sNodes").textContent=r.nodes; $("sMs").textContent=r.renderMs.toFixed(0)+" ms";
+  $("sX").textContent=(r.seconds*1000/r.renderMs).toFixed(0)+"x realtime";
+  $("chain").textContent = "Ostinato in A minor — pad · bass · arpeggio · bell";
+  ver++; const url="/api/wav?v="+ver; $("au").src=url; drawFrom(url); $("au").play().catch(()=>{});
+};
+$("btnGuard").onclick = async ()=>{
+  $("code").textContent = await (await fetch("/api/guard?"+query())).text();
+};
+$("btnCopy").onclick = ()=>navigator.clipboard.writeText($("code").textContent);
+
+[...NUMS, "wave","fkind"].forEach(id=>$(id).addEventListener("input",syncLabels));
+CHKS.forEach(id=>$(id).addEventListener("change",syncLabels));
+
+fetch("/api/status").then(r=>r.json()).then(s=>{
+  $("dev").textContent = s.device ? s.deviceName : "no audio device (browser playback still works)";
+  $("dot").className = "dot" + (s.device?"":" off");
+});
+syncLabels();
+render();
+</script>
+</body>
+</html>
