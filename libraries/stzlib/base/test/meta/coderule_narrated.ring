@@ -44,10 +44,11 @@ Scenario("FROZEN behaviour: StzCheckCode reproduces the house findings")
 
 	cGood = "class Foo" + nl + "def BazQ()" + nl + "	return This" + nl
 	Then("clean source passes", StzCodeIsClean(cGood), TRUE)
-	Then("StzCodeRuleNames lists the house rules (11 with the knob rules)", len(StzCodeRuleNames()), 11)
+	Then("StzCodeRuleNames lists the house rules (12 with the knob rules)", len(StzCodeRuleNames()), 12)
 	Then("...including dead-knob", StzFindFirst("dead-knob", StzCodeRuleNames()) > 0, TRUE)
 	Then("...and setter-resets-on-reject", StzFindFirst("setter-resets-on-reject", StzCodeRuleNames()) > 0, TRUE)
 	Then("...and the three shapes learned after them", NNamed(["setter-only-moves-one-way", "misspelled-name", "library-prints"]), 3)
+	Then("...and empty-method-body", StzFindFirst("empty-method-body", StzCodeRuleNames()) > 0, TRUE)
 EndScenario()
 
 Scenario("THE PAYOFF: the model sees what the text scan cannot")
@@ -216,6 +217,51 @@ Scenario("Three more shapes, learned from three more audits")
 	Then("it would have caught the calendar's ratchet", ThreeCaught(:Ratchet), TRUE)
 	Then("...the stream's three missing spellings", ThreeCaught(:Spelling), 3)
 	Then("...and its four prints from inside an overflow", ThreeCaught(:Prints), 4)
+EndScenario()
+
+Scenario("A method that is declared and does nothing")
+
+	# stzReactiveSystem.SetTimeoutXT was one: declared, and the next line was the
+	# next method. Every call scheduled no timer and answered nothing, while
+	# SetTimeout one screen down delegates correctly. Nothing raised, and nothing
+	# could -- the method existed.
+
+	Given("a class holding an empty method beside working ones")
+	cE = EmptyFixture()
+	aE = StzCheckCode(cE)
+
+	Then("the empty one is found", SaysIn(aE, "empty_method_body", "Vanish"), TRUE)
+
+	# A PREDICATE is the worse half. Ring returns NULL from a method with no
+	# return, and NULL reads as FALSE -- so an empty ContainsValues() does not
+	# fail, it says "no" about everything, confidently and forever.
+	Then("a do-nothing predicate is an ERROR", SevOf(aE, "empty_method_body", "ContainsValues"), "error")
+	Then("...while a plain action is only a warning", SevOf(aE, "empty_method_body", "Vanish"), "warning")
+	Then("...and explains the FALSE", SaysIn(aE, "empty_method_body", "reads as FALSE"), TRUE)
+
+	# THE NEGATIVE SIBLINGS, and the reason this rule took four drafts. Ring
+	# writes a whole body on the def line in two ordinary ways, and neither is
+	# an empty method. Earlier drafts reported 83, 51 and 32 sites where the
+	# truth was 28.
+	Then("a brace body on the def line is fine", SaysIn(aE, "empty_method_body", "Braced"), FALSE)
+	Then("...and a bare body on the def line too", SaysIn(aE, "empty_method_body", "Bare"), FALSE)
+	Then("...and an ordinary indented body", SaysIn(aE, "empty_method_body", "Normal"), FALSE)
+
+	# init is exempt: a class keeping its state in the engine, or having none,
+	# legitimately has nothing to initialise.
+	Then("an empty init is not flagged", SaysIn(aE, "empty_method_body", "init"), FALSE)
+
+	# ...but a comment IS flagged. Saying nothing happens does not make the
+	# caller less misled.
+	Then("a comment-only body is still empty", SaysIn(aE, "empty_method_body", "Commented"), TRUE)
+
+	Given("the shape as it really stood, before the fix")
+
+	# StzMid is (start, COUNT), not (start, end) -- the same-line check walked
+	# with StzMid(s, i, i) and fell straight through, so the first run of this
+	# rule called five live one-line setters empty. This is the assertion that
+	# would have caught it.
+	Then("it would have caught SetTimeoutXT", EmptyCaught(), TRUE)
 EndScenario()
 
 Summary()
@@ -457,6 +503,21 @@ func RuleSev(paFindings, pcRule)
 	next
 	return ""
 
+# The severity of the finding of that rule which names pcText, or "" when none
+# does. RuleSev answers about the FIRST finding, which is a different question
+# and the wrong one whenever a rule grades its verdicts.
+func SevOf(paFindings, pcRule, pcText)
+	_n_ = len(paFindings)
+	for _i_ = 1 to _n_
+		if "" + paFindings[_i_][:rule] != pcRule
+			loop
+		ok
+		if StzFindFirst(pcText, "" + paFindings[_i_][:message]) > 0
+			return "" + paFindings[_i_][:severity]
+		ok
+	next
+	return ""
+
 # TRUE when SOME finding of that rule names pcText
 func SaysIn(paFindings, pcRule, pcText)
 	_n_ = len(paFindings)
@@ -541,3 +602,51 @@ func StreamPreFix()
 	_c_ += "		ok" + _nl_
 	_c_ += "		return @buffer" + _nl_
 	return _c_
+
+
+#-- the empty-body rule ---------------------------------------------------------
+
+# One class carrying every form the rule must tell apart.
+func EmptyFixture()
+	_nl_ = char(10)
+	_c_ = "class stzEmptyDemo from stzObject" + _nl_
+	_c_ += "	@nX = 0" + _nl_
+
+	# empty, and it is a plain action
+	_c_ += "	def Vanish()" + _nl_
+
+	# empty, and it is a PREDICATE -- the harsher verdict
+	_c_ += "	def ContainsValues()" + _nl_
+
+	# empty apart from a comment
+	_c_ += "	def Commented()" + _nl_
+	_c_ += "		# nothing to do here" + _nl_
+
+	# NOT empty: Ring's brace form
+	_c_ += "	def Braced(pn)  { @nX = pn ; return This }" + _nl_
+
+	# NOT empty: Ring's bare same-line form
+	_c_ += "	def Bare(pn) @nX = pn" + _nl_
+
+	# NOT empty: an ordinary indented body
+	_c_ += "	def Normal(pn)" + _nl_
+	_c_ += "		@nX = pn" + _nl_
+	_c_ += "		return This" + _nl_
+
+	# exempt: a class with nothing to initialise
+	_c_ += "	def init()" + _nl_
+	return _c_
+
+# stzReactiveSystem as it stood: the XT alias declared, and the next line the
+# next method.
+func EmptyCaught()
+	_nl_ = char(10)
+	_c_ = "class stzReactiveSystem from stzObject" + _nl_
+	_c_ += "	def RunAfterXT(pn, pcUnit, pf)" + _nl_
+	_c_ += "		return This.RunAfter(pn, pf)" + _nl_
+	_c_ += "" + _nl_
+	_c_ += "		def SetTimeoutXT(pn, pcUnit, pf)" + _nl_
+	_c_ += "" + _nl_
+	_c_ += "	def RunAfter(pn, pf)" + _nl_
+	_c_ += "		return TRUE" + _nl_
+	return SaysIn(StzCheckCode(_c_), "empty_method_body", "SetTimeoutXT")
