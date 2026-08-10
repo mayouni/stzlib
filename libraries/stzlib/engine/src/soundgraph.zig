@@ -47,6 +47,7 @@
 
 const std = @import("std");
 const snd = @import("sound.zig");
+const sr = @import("soundring.zig");
 
 // ---------------------------------------------------------------- counting allocator
 //
@@ -185,6 +186,29 @@ const Node = struct {
     // GAIN / PAN
     gain: f64 = 1.0,
     pan: f64 = 0.5,
+
+    // SN3 CONTROL: the value another thread asks for, and the ramp that gets
+    // us there. `gain_target` is written by whoever calls setGain (the Ring
+    // thread) and read by the render (the producer thread) -- atomically, so
+    // no lock is needed on either side. `gain_now` belongs to the render alone.
+    //
+    // THE RAMP IS THE POINT. Jumping a gain from 1.0 to 0.0 between two samples
+    // is a step discontinuity, and a step is a CLICK -- broadband energy the
+    // signal never contained. Spreading the change over a few milliseconds
+    // makes it inaudible. Guards assert exactly this: the sample-to-sample
+    // delta stays small while the value still ARRIVES at the target.
+    gain_target: f32 = 1.0,
+    gain_now: f32 = 1.0,
+    gain_ramp_frames: u32 = 0, // 0 = apply instantly (a legitimate choice, and
+    //                            the negative sibling the click guard needs)
+    // The step is computed ONCE, when a new target is first seen, and then
+    // walked until it arrives. The first cut recomputed it every block as
+    // (target - now) / ramp, which is an exponential approach rather than a
+    // ramp: the step shrank as the gap closed and the value never arrived
+    // (measured 0.101 where 0.0 was asked for). Storing the step is what makes
+    // "a 10 ms ramp" mean ten milliseconds.
+    gain_step: f32 = 0,
+    gain_seen: f32 = 1.0, // the target this node has already planned a step for
 
     // FILTER (RBJ biquad, per channel state)
     f_kind: u32 = 0,
@@ -355,10 +379,58 @@ pub fn addGain(id: i64, input: i64, gain: f64) i64 {
         refuse("addGain: input must be an existing earlier node");
         return -1;
     }
-    var n = Node{ .kind = KIND_GAIN, .gain = gain };
+    var n = Node{
+        .kind = KIND_GAIN,
+        .gain = gain,
+        .gain_target = @floatCast(gain),
+        .gain_now = @floatCast(gain),
+        .gain_seen = @floatCast(gain),
+    };
     n.inputs[0] = @intCast(input);
     n.n_inputs = 1;
     return addNode(g, n);
+}
+
+/// SN3: change a gain WHILE the graph is rendering, from another thread.
+///
+/// Lock-free by construction rather than by a queue: the target is one aligned
+/// f32 written atomically by the caller and read atomically by the render. A
+/// queue would be needed if the ORDER of several changes mattered; for a single
+/// scalar the last writer wins, which is exactly the desired semantics for a
+/// fader. When SN4 needs ordered, multi-parameter, sample-accurate automation,
+/// THAT is when the queue earns its complexity -- said here so the next session
+/// does not read this as an oversight.
+///
+/// `ramp_ms` of 0 applies the change instantly, which clicks. That is on
+/// purpose: it is what lets a guard PROVE the ramp is doing something.
+pub fn setGain(id: i64, node: i64, value: f64, ramp_ms: f64) i32 {
+    const s = slotOf(id) orelse return STALE;
+    const g = &graphs.items[s];
+    if (!validInput(g, node)) {
+        refuse("setGain: that node does not exist");
+        return BAD_ARG;
+    }
+    const n = &g.nodes.items[@intCast(node)];
+    if (n.kind != KIND_GAIN) {
+        refuse("setGain: that node is not a gain");
+        return BAD_ARG;
+    }
+    const frames: u32 = if (ramp_ms <= 0) 0 else @intFromFloat(ramp_ms * @as(f64, @floatFromInt(g.rate)) / 1000.0);
+    @atomicStore(u32, &n.gain_ramp_frames, frames, .monotonic);
+    // released LAST, so a render that sees the new target also sees the ramp
+    // length that belongs with it
+    @atomicStore(f32, &n.gain_target, @floatCast(value), .release);
+    return OK;
+}
+
+/// The gain a render is currently applying -- which during a ramp is somewhere
+/// between the old value and the target. A guard reads it to prove the ramp
+/// both MOVES and ARRIVES.
+pub fn currentGain(id: i64, node: i64) f64 {
+    const s = slotOf(id) orelse return -1;
+    const g = &graphs.items[s];
+    if (!validInput(g, node)) return -1;
+    return @atomicLoad(f32, &g.nodes.items[@intCast(node)].gain_now, .monotonic);
 }
 
 pub fn addMix(id: i64) i64 {
@@ -657,15 +729,63 @@ pub fn renderBlock(id: i64) i32 {
             },
             KIND_GAIN => {
                 const src = &g.nodes.items[n.inputs[0]];
-                const gf: f32 = @floatCast(n.gain);
-                var ch: usize = 0;
-                while (ch < nch) : (ch += 1) {
-                    // slices, not computed indices: the compiler widens this
-                    // itself, and SN0 measured that beating a hand-written
-                    // @Vector by 10-30%
-                    const a = chanSlice(g, src, ch);
-                    const o = chanSlice(g, n, ch);
-                    for (o, a) |*d, x| d.* = x * gf;
+                // ACQUIRE, pairing with the release in setGain: if we see the
+                // new target we also see the ramp length stored before it.
+                const target = @atomicLoad(f32, &n.gain_target, .acquire);
+                const ramp = @atomicLoad(u32, &n.gain_ramp_frames, .monotonic);
+                // A target we have not planned for yet: fix the step NOW, from
+                // where we actually are, and do not recompute it again.
+                if (target != n.gain_seen) {
+                    n.gain_seen = target;
+                    if (ramp == 0) {
+                        n.gain_now = target;
+                        n.gain_step = 0;
+                    } else {
+                        n.gain_step = (target - n.gain_now) / @as(f32, @floatFromInt(ramp));
+                    }
+                }
+                const from = n.gain_now;
+
+                if (from == target) {
+                    const gf = target;
+                    var ch: usize = 0;
+                    while (ch < nch) : (ch += 1) {
+                        // slices, not computed indices: the compiler widens
+                        // this itself, and SN0 measured that beating a
+                        // hand-written @Vector by 10-30%
+                        const a = chanSlice(g, src, ch);
+                        const o = chanSlice(g, n, ch);
+                        for (o, a) |*d, x| d.* = x * gf;
+                    }
+                } else if (ramp == 0) {
+                    // instant: a step, and therefore a click. Offered because
+                    // some callers genuinely want it, and because a guard needs
+                    // it to prove the ramped path is doing something.
+                    var ch: usize = 0;
+                    while (ch < nch) : (ch += 1) {
+                        const a = chanSlice(g, src, ch);
+                        const o = chanSlice(g, n, ch);
+                        for (o, a) |*d, x| d.* = x * target;
+                    }
+                    n.gain_now = target;
+                } else {
+                    // Walk the PRE-COMPUTED step. Every channel walks the same
+                    // ramp, so a stereo image cannot shift while a fader moves.
+                    const step = n.gain_step;
+                    var ch: usize = 0;
+                    while (ch < nch) : (ch += 1) {
+                        const a = chanSlice(g, src, ch);
+                        const o = chanSlice(g, n, ch);
+                        var cur = from;
+                        for (o, a) |*d, x| {
+                            d.* = x * cur;
+                            cur += step;
+                            // clamp so the last block of a ramp lands exactly
+                            // on the target rather than overshooting past it
+                            if ((step > 0 and cur > target) or (step < 0 and cur < target)) cur = target;
+                        }
+                        if (ch + 1 == nch) @atomicStore(f32, &n.gain_now, cur, .monotonic);
+                    }
                 }
             },
             KIND_MIX => {
@@ -1040,4 +1160,409 @@ test "a source node plays a real buffer, and stops at its end" {
     const dead = snd.newSilent(4, 1, 48000);
     _ = snd.free(dead);
     try testing.expectEqual(@as(i64, -1), addSource(gid, dead, false));
+}
+
+// ---------------------------------------------------------------- the stream (SN3)
+//
+// THE PRODUCER SIDE OF THE DEADLINE.
+//
+// A stream is a graph, a ring buffer, and a thread that keeps one feeding the
+// other. The device callback -- over in stz_audiodev.dll -- only ever DRAINS
+// the ring. That split is FACT 4 made structural: the thread with the deadline
+// does a bounded copy, and the thread doing the work has no deadline at all.
+//
+// WHAT CROSSES THE DLL BOUNDARY is the ring's ADDRESS, as a number. Not an
+// engine handle -- the house law holds for the same reason stz_window handing
+// out an HWND does. Both DLLs compile soundring.zig from the SAME source, so
+// the struct layout cannot drift between them.
+//
+// THE PRODUCER MUST STAY AHEAD. It renders whenever there is room and sleeps
+// when there is not. If it ever falls behind, the consumer finds the ring short
+// and COUNTS the frames it could not supply -- which is the underrun instrument
+// SN3's guards are built on, and the reason the failure is visible rather than
+// merely audible.
+
+const StreamSlot = struct {
+    graph_id: i64 = 0,
+    ring: ?*sr.Ring = null,
+    ring_mem: []f32 = &.{},
+    thread: ?std.Thread = null,
+    running: bool = false,
+    gen: u32 = 1,
+    live: bool = false,
+};
+
+var streams: std.ArrayList(StreamSlot) = .{};
+
+pub const CTR_STREAMS_LIVE = 0; // sound.streams.live
+pub const CTR_PRODUCER_BLOCKS = 1; // sound.producer.blocks
+pub const CTR_PRODUCER_STALLS = 2; // sound.producer.stalls -- ring was full
+
+var sn3_counters: [3]f64 = @splat(0);
+
+pub fn streamCounter(i: usize) f64 {
+    if (i >= sn3_counters.len) return 0;
+    return sn3_counters[i];
+}
+
+fn streamSlotOf(id: i64) ?usize {
+    const idx = id & 0xffff_ffff;
+    if (idx <= 0 or idx > @as(i64, @intCast(streams.items.len))) return null;
+    const s: usize = @intCast(idx - 1);
+    const gen: u32 = @intCast((id >> 32) & 0xffff_ffff);
+    if (!streams.items[s].live or streams.items[s].gen != gen) {
+        counters[CTR_STALE_HITS] += 1;
+        return null;
+    }
+    return s;
+}
+
+/// The producer loop. Renders while there is room; yields while there is not.
+///
+/// It reads the graph through the same slotOf path the Ring thread uses, so the
+/// graph must NOT be rebuilt while a stream is running -- Prepare already
+/// refuses structural changes, which is what makes that safe rather than
+/// merely discouraged.
+fn producerLoop(slot: usize) void {
+    const st = &streams.items[slot];
+    const ring = st.ring orelse return;
+    const gs = slotOf(st.graph_id) orelse return;
+    const g = &graphs.items[gs];
+    const blk = g.block;
+
+    var planes: [8][]const f32 = undefined;
+    while (@atomicLoad(bool, &st.running, .acquire)) {
+        if (ring.writable() >= blk) {
+            if (renderBlock(st.graph_id) != OK) break;
+            const outn = &g.nodes.items[@intCast(g.output)];
+            var ch: usize = 0;
+            while (ch < g.channels) : (ch += 1) planes[ch] = chanSlice(g, outn, ch);
+            _ = ring.pushPlanar(planes[0..g.channels], blk);
+            sn3_counters[CTR_PRODUCER_BLOCKS] += 1;
+        } else {
+            // The ring being full is the HEALTHY state: it means the producer
+            // is comfortably ahead. Sleeping here is what keeps this thread
+            // from burning a core to do nothing.
+            sn3_counters[CTR_PRODUCER_STALLS] += 1;
+            std.Thread.sleep(1 * std.time.ns_per_ms);
+        }
+    }
+}
+
+/// Start rendering `graph_id` into a fresh ring buffer. Returns a stream id, or
+/// 0. `capacity_frames` is rounded up to a power of two and is never smaller
+/// than two blocks -- with only one, producer and consumer would fight over it.
+pub fn streamStart(graph_id: i64, capacity_frames: usize) i64 {
+    const gs = slotOf(graph_id) orelse return 0;
+    const g = &graphs.items[gs];
+    if (!g.prepared) {
+        refuse("streamStart: prepare the graph first");
+        return 0;
+    }
+    const cap = sr.roundUpPow2(@max(capacity_frames, g.block * 2));
+    const mem = alloc.alloc(f32, cap * g.channels) catch {
+        setErr("out of memory allocating the ring buffer");
+        return 0;
+    };
+    @memset(mem, 0);
+    const ring = alloc.create(sr.Ring) catch {
+        alloc.free(mem);
+        setErr("out of memory allocating the ring header");
+        return 0;
+    };
+    ring.* = .{
+        .magic = sr.MAGIC,
+        .version = sr.VERSION,
+        .channels = g.channels,
+        .capacity = @intCast(cap),
+        .write_pos = 0,
+        .frames_written = 0,
+        .read_pos = 0,
+        .frames_read = 0,
+        .underruns = 0,
+        .underrun_events = 0,
+        .running = 1,
+        .data = mem.ptr,
+    };
+
+    var slot: usize = streams.items.len;
+    for (streams.items, 0..) |*sl0, i| {
+        if (!sl0.live) {
+            slot = i;
+            break;
+        }
+    }
+    if (slot == streams.items.len) {
+        streams.append(alloc, .{}) catch {
+            alloc.free(mem);
+            alloc.destroy(ring);
+            setErr("out of memory growing the stream table");
+            return 0;
+        };
+    }
+    const sl = &streams.items[slot];
+    const gen = sl.gen;
+    sl.* = .{ .graph_id = graph_id, .ring = ring, .ring_mem = mem, .running = true, .gen = gen, .live = true };
+
+    sl.thread = std.Thread.spawn(.{}, producerLoop, .{slot}) catch {
+        alloc.free(mem);
+        alloc.destroy(ring);
+        sl.* = .{ .gen = gen };
+        setErr("could not spawn the producer thread");
+        return 0;
+    };
+    sn3_counters[CTR_STREAMS_LIVE] += 1;
+    return makeId(slot, gen);
+}
+
+/// The ring's ADDRESS, for handing to the device tier in the other DLL.
+pub fn streamRingPtr(id: i64) i64 {
+    const s = streamSlotOf(id) orelse return 0;
+    return @intCast(@intFromPtr(streams.items[s].ring.?));
+}
+
+pub fn streamUnderruns(id: i64) f64 {
+    const s = streamSlotOf(id) orelse return -1;
+    return @floatFromInt(@atomicLoad(u64, &streams.items[s].ring.?.underruns, .monotonic));
+}
+
+pub fn streamUnderrunEvents(id: i64) f64 {
+    const s = streamSlotOf(id) orelse return -1;
+    return @floatFromInt(@atomicLoad(u64, &streams.items[s].ring.?.underrun_events, .monotonic));
+}
+
+pub fn streamFramesWritten(id: i64) f64 {
+    const s = streamSlotOf(id) orelse return -1;
+    return @floatFromInt(streams.items[s].ring.?.frames_written);
+}
+
+pub fn streamFramesRead(id: i64) f64 {
+    const s = streamSlotOf(id) orelse return -1;
+    return @floatFromInt(streams.items[s].ring.?.frames_read);
+}
+
+pub fn streamReadable(id: i64) f64 {
+    const s = streamSlotOf(id) orelse return -1;
+    return @floatFromInt(streams.items[s].ring.?.readable());
+}
+
+/// Drain frames straight from the ring on THIS thread -- the device-free
+/// consumer. It is what lets a CI box with no sound card exercise the entire
+/// real-time path: the same popInterleaved the audio callback runs, the same
+/// underrun accounting, just without an OS thread imposing the deadline.
+pub fn streamDrain(id: i64, frames: usize, out_buffer: i64) f64 {
+    const s = streamSlotOf(id) orelse return -1;
+    const r = streams.items[s].ring.?;
+    const nch: usize = r.channels;
+    var tmp: [4096]f32 = undefined;
+    const chunk = @min(frames, tmp.len / nch);
+    var done: usize = 0;
+    var got_total: usize = 0;
+    while (done < frames) {
+        const want = @min(chunk, frames - done);
+        const got = r.popInterleaved(&tmp, want);
+        got_total += got;
+        if (out_buffer != 0) {
+            var f: usize = 0;
+            while (f < want) : (f += 1) {
+                var ch: usize = 0;
+                while (ch < nch) : (ch += 1) {
+                    _ = snd.setSample(out_buffer, done + f, @intCast(ch), tmp[f * nch + ch]);
+                }
+            }
+        }
+        done += want;
+    }
+    return @floatFromInt(got_total);
+}
+
+/// Stop the producer and free the ring. The consumer MUST be stopped first --
+/// the device tier's Close does that, and the guard asserts the order.
+pub fn streamStop(id: i64) i32 {
+    const s = streamSlotOf(id) orelse return STALE;
+    const sl = &streams.items[s];
+    @atomicStore(bool, &sl.running, false, .release);
+    if (sl.thread) |t| t.join();
+    sl.thread = null;
+    // poison the magic BEFORE freeing: a consumer still holding the address
+    // then reads an invalid ring and answers SILENCE, rather than reading freed
+    // memory. Cheap, and the difference between a quiet bug and a crash.
+    if (sl.ring) |r| {
+        r.magic = 0;
+        alloc.destroy(r);
+    }
+    if (sl.ring_mem.len > 0) alloc.free(sl.ring_mem);
+    sl.ring = null;
+    sl.ring_mem = &.{};
+    sl.live = false;
+    sl.gen +%= 1;
+    if (sl.gen == 0) sl.gen = 1;
+    sn3_counters[CTR_STREAMS_LIVE] -= 1;
+    return OK;
+}
+
+// ---------------------------------------------------------------- SN3 tests
+
+test "a stream keeps a ring fed, and the samples arrive in order" {
+    const gid = graphNew(1, 48000, 64);
+    defer _ = graphFree(gid);
+    const osc = addOsc(gid, WAVE_SINE, 12000, 1.0); // rate/4 -> 0,1,0,-1
+    _ = setOutput(gid, osc);
+    try testing.expectEqual(OK, prepare(gid));
+
+    const sid = streamStart(gid, 4096);
+    try testing.expect(sid != 0);
+    defer _ = streamStop(sid);
+    try testing.expect(streamRingPtr(sid) != 0);
+
+    // let the producer get ahead, then drain and check the exact sequence
+    std.Thread.sleep(50 * std.time.ns_per_ms);
+    const out = snd.newSilent(256, 1, 48000);
+    defer _ = snd.free(out);
+    const got = streamDrain(sid, 256, out);
+    try testing.expectEqual(@as(f64, 256), got);
+
+    const want = [_]f64{ 0, 1, 0, -1 };
+    for (0..256) |i| {
+        try testing.expectApproxEqAbs(want[i % 4], snd.getSample(out, i, 0), 1e-6);
+    }
+    try testing.expectEqual(@as(f64, 0), streamUnderruns(sid));
+}
+
+test "draining faster than the producer UNDERRUNS, and the counter proves it" {
+    const gid = graphNew(1, 48000, 64);
+    defer _ = graphFree(gid);
+    const osc = addOsc(gid, WAVE_SINE, 440, 0.5);
+    _ = setOutput(gid, osc);
+    _ = prepare(gid);
+
+    const sid = streamStart(gid, 256); // deliberately tiny
+    try testing.expect(sid != 0);
+    defer _ = streamStop(sid);
+
+    // ask for far more than the ring can ever hold, immediately
+    const asked: usize = 200_000;
+    const got = streamDrain(sid, asked, 0);
+    try testing.expect(got < @as(f64, @floatFromInt(asked)));
+    // THE ASSERTION THIS PHASE EXISTS FOR: the shortfall is counted, in frames
+    // and in events, rather than silently swallowed
+    try testing.expect(streamUnderruns(sid) > 0);
+    try testing.expect(streamUnderrunEvents(sid) > 0);
+    try testing.expectApproxEqAbs(
+        @as(f64, @floatFromInt(asked)) - got,
+        streamUnderruns(sid),
+        1.0,
+    );
+}
+
+test "a fed stream underruns ZERO times -- the negative sibling of the test above" {
+    const gid = graphNew(2, 48000, 128);
+    defer _ = graphFree(gid);
+    const osc = addOsc(gid, WAVE_SAW, 220, 0.4);
+    const flt = addFilter(gid, osc, FILTER_LOWPASS, 2000, 0.8);
+    _ = setOutput(gid, flt);
+    _ = prepare(gid);
+
+    const sid = streamStart(gid, 8192);
+    try testing.expect(sid != 0);
+    defer _ = streamStop(sid);
+
+    // drain in small sips, slower than the producer fills -- the healthy case
+    var total: f64 = 0;
+    var i: usize = 0;
+    while (i < 40) : (i += 1) {
+        std.Thread.sleep(5 * std.time.ns_per_ms);
+        total += streamDrain(sid, 128, 0);
+    }
+    try testing.expectEqual(@as(f64, 40 * 128), total);
+    try testing.expectEqual(@as(f64, 0), streamUnderruns(sid));
+    try testing.expectEqual(@as(f64, 0), streamUnderrunEvents(sid));
+    // and the producer really did stall on a full ring, which is the healthy
+    // signal that it was comfortably ahead the whole time
+    try testing.expect(streamCounter(CTR_PRODUCER_STALLS) > 0);
+}
+
+// A gain change has to be measured ACROSS the moment it happens. Rendering
+// from scratch with the change already applied shows no discontinuity at all,
+// because the change landed before sample 0 -- which is how the first cut of
+// these two tests managed to disagree with reality in both directions. So:
+// render a little at the old value, change it, render on, and look at the
+// junction as well as the interior.
+fn gainChangeWorstStep(ramp_ms: f64) !f64 {
+    const gid = graphNew(1, 48000, 64);
+    defer _ = graphFree(gid);
+    // DC, so anything that moves in the output is the gain and nothing else
+    const osc = addOsc(gid, WAVE_SQUARE, 1, 1.0); // constant over this window
+    const gnode = addGain(gid, osc, 1.0);
+    _ = setOutput(gid, gnode);
+    _ = prepare(gid);
+
+    const before = renderToBuffer(gid, 128);
+    defer _ = snd.free(before);
+    if (setGain(gid, gnode, 0.0, ramp_ms) != OK) return error.SetGainFailed;
+    const after = renderToBuffer(gid, 1024);
+    defer _ = snd.free(after);
+
+    // the junction first -- the single most likely place for a click
+    var worst = @abs(snd.getSample(after, 0, 0) - snd.getSample(before, 127, 0));
+    for (1..1024) |i| {
+        worst = @max(worst, @abs(snd.getSample(after, i, 0) - snd.getSample(after, i - 1, 0)));
+    }
+    return worst;
+}
+
+test "a gain change RAMPS: it arrives, and it does not step" {
+    const gid = graphNew(1, 48000, 64);
+    defer _ = graphFree(gid);
+    const osc = addOsc(gid, WAVE_SQUARE, 1, 1.0);
+    const gnode = addGain(gid, osc, 1.0);
+    _ = setOutput(gid, gnode);
+    _ = prepare(gid);
+
+    try testing.expectApproxEqAbs(@as(f64, 1.0), currentGain(gid, gnode), 1e-6);
+    try testing.expectEqual(OK, setGain(gid, gnode, 0.0, 10.0)); // 480 frames
+    const out = renderToBuffer(gid, 1024);
+    defer _ = snd.free(out);
+
+    // IT ARRIVES. A ramp that only ever approaches its target is a fade, not a
+    // ramp -- and that is exactly what the first implementation did.
+    try testing.expectApproxEqAbs(@as(f64, 0.0), currentGain(gid, gnode), 1e-4);
+    // and it took about the length asked for, not a tenth or a hundred times it
+    var arrived_at: usize = 1024;
+    for (0..1024) |i| {
+        if (@abs(snd.getSample(out, i, 0)) < 1e-6) {
+            arrived_at = i;
+            break;
+        }
+    }
+    try testing.expect(arrived_at >= 400 and arrived_at <= 560); // 480 +/- a block
+}
+
+test "the ramp removes the click, and ramp 0 proves the click was there" {
+    const ramped = try gainChangeWorstStep(10.0);
+    const instant = try gainChangeWorstStep(0.0);
+    // a 1.0 -> 0.0 step is a delta of 1.0; a 480-frame ramp is ~0.002
+    try testing.expect(ramped < 0.01);
+    // THE NEGATIVE SIBLING: the same change without a ramp really is a
+    // full-scale step. Without this, "no click" could just mean "no signal".
+    try testing.expect(instant > 0.9);
+    try testing.expect(instant > ramped * 50);
+}
+
+test "stopping a stream poisons the ring, so a late consumer gets silence" {
+    const gid = graphNew(1, 48000, 64);
+    defer _ = graphFree(gid);
+    const osc = addOsc(gid, WAVE_SINE, 440, 1.0);
+    _ = setOutput(gid, osc);
+    _ = prepare(gid);
+
+    const sid = streamStart(gid, 1024);
+    const ptr = streamRingPtr(sid);
+    try testing.expect(ptr != 0);
+    try testing.expectEqual(OK, streamStop(sid));
+
+    // the id is now stale, and every reader says so rather than guessing
+    try testing.expectEqual(@as(f64, -1), streamUnderruns(sid));
+    try testing.expectEqual(@as(i64, 0), streamRingPtr(sid));
+    try testing.expectEqual(STALE, streamStop(sid));
 }

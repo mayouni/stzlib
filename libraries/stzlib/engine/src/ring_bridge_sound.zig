@@ -254,6 +254,61 @@ fn ring_GraphAllocCount(p: *anyopaque) callconv(.c) void {
     rn(p, gph.allocCount());
 }
 
+
+// ---------------------------------------------------------------- stream (SN3)
+
+fn ring_StreamStart(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gph.streamStart(id(p, 1), @intFromFloat(gn(p, 2)))));
+}
+
+fn ring_StreamStop(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gph.streamStop(id(p, 1))));
+}
+
+/// The ring's ADDRESS, to hand to the device tier in the other DLL. A number,
+/// not an engine handle -- the same seam stz_window uses for an HWND.
+fn ring_StreamRingPtr(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gph.streamRingPtr(id(p, 1))));
+}
+
+fn ring_StreamUnderruns(p: *anyopaque) callconv(.c) void {
+    rn(p, gph.streamUnderruns(id(p, 1)));
+}
+
+fn ring_StreamUnderrunEvents(p: *anyopaque) callconv(.c) void {
+    rn(p, gph.streamUnderrunEvents(id(p, 1)));
+}
+
+fn ring_StreamFramesWritten(p: *anyopaque) callconv(.c) void {
+    rn(p, gph.streamFramesWritten(id(p, 1)));
+}
+
+fn ring_StreamFramesRead(p: *anyopaque) callconv(.c) void {
+    rn(p, gph.streamFramesRead(id(p, 1)));
+}
+
+fn ring_StreamReadable(p: *anyopaque) callconv(.c) void {
+    rn(p, gph.streamReadable(id(p, 1)));
+}
+
+/// Drain on THIS thread -- the device-free consumer that lets a CI box with no
+/// sound card exercise the whole real-time path.
+fn ring_StreamDrain(p: *anyopaque) callconv(.c) void {
+    rn(p, gph.streamDrain(id(p, 1), @intFromFloat(gn(p, 2)), id(p, 3)));
+}
+
+fn ring_StreamCounter(p: *anyopaque) callconv(.c) void {
+    rn(p, gph.streamCounter(@intFromFloat(gn(p, 1))));
+}
+
+fn ring_GraphSetGain(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gph.setGain(id(p, 1), nodeIn(p, 2), gn(p, 3), gn(p, 4))));
+}
+
+fn ring_GraphCurrentGain(p: *anyopaque) callconv(.c) void {
+    rn(p, gph.currentGain(id(p, 1), nodeIn(p, 2)));
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginesoundisavailable", .func = &ring_IsAvailable },
     .{ .name = "stzenginesoundlasterror", .func = &ring_LastError },
@@ -301,6 +356,20 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginesoundgraphcounter", .func = &ring_GraphCounter },
     .{ .name = "stzenginesoundgraphcountersreset", .func = &ring_GraphCountersReset },
     .{ .name = "stzenginesoundgraphalloccount", .func = &ring_GraphAllocCount },
+
+    // the real-time tier (SN3)
+    .{ .name = "stzenginesoundstreamstart", .func = &ring_StreamStart },
+    .{ .name = "stzenginesoundstreamstop", .func = &ring_StreamStop },
+    .{ .name = "stzenginesoundstreamringptr", .func = &ring_StreamRingPtr },
+    .{ .name = "stzenginesoundstreamunderruns", .func = &ring_StreamUnderruns },
+    .{ .name = "stzenginesoundstreamunderrunevents", .func = &ring_StreamUnderrunEvents },
+    .{ .name = "stzenginesoundstreamframeswritten", .func = &ring_StreamFramesWritten },
+    .{ .name = "stzenginesoundstreamframesread", .func = &ring_StreamFramesRead },
+    .{ .name = "stzenginesoundstreamreadable", .func = &ring_StreamReadable },
+    .{ .name = "stzenginesoundstreamdrain", .func = &ring_StreamDrain },
+    .{ .name = "stzenginesoundstreamcounter", .func = &ring_StreamCounter },
+    .{ .name = "stzenginesoundgraphsetgain", .func = &ring_GraphSetGain },
+    .{ .name = "stzenginesoundgraphcurrentgain", .func = &ring_GraphCurrentGain },
 };
 
 pub fn registerAll(pState: *anyopaque) void {

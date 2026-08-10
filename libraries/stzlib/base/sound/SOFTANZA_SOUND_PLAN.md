@@ -904,3 +904,116 @@ sink becomes a third caller of that one function.
 4. **What is NOT here**: no scheduling, no voice pool, no clock, no underrun
    counter, no parameter automation. SN3 adds the clock to a graph that is
    already correct without one.
+
+---
+
+## SN3 STATUS — 2026-08-10. The clock is on, and it holds
+
+Delivered: `engine/src/soundring.zig` (the lock-free SPSC ring), the stream and
+producer thread in `soundgraph.zig`, the device sink in `audiodev.zig`, 21 new
+Ring entry points, and `base/test/sound/sound_realtime_narrated.ring` (33
+assertions). Plus 43 Zig unit tests across the three modules. All green.
+
+### The architecture, and why it is shaped that way
+
+    producer thread            ring buffer             audio callback
+    (stz_sound.dll)      ->    (soundring.zig)   ->    (stz_audiodev.dll)
+    renders the graph          lock-free SPSC          bounded copy only
+    NO deadline                                        THE deadline
+
+FACT 4 says the callback is deadline-bound and that allocation, locks and
+Ring/VM calls are forbidden inside it. Rather than ask the callback to be
+careful, the split makes all three absences structural: **the callback does not
+render the graph, it drains a buffer someone else already filled.** What it does
+is one bounded copy and two atomics.
+
+`soundring.zig` is ONE source file compiled into BOTH DLLs. The ring straddles a
+DLL boundary, and two sides disagreeing about a struct layout would corrupt
+audio in a way that looks like a hardware fault — so there is only one
+declaration and the layouts cannot drift. What crosses the boundary is the
+ring's ADDRESS, as a number: not an engine handle, exactly as stz_window hands
+stz_gpu an HWND.
+
+### Measured, on real hardware
+
+Sustained playback of a 440 Hz tone, WASAPI shared mode, 256-frame period:
+
+| | |
+|---|---|
+| callbacks | 289 |
+| frames delivered | 73,984 (~1.5 s) |
+| **worst callback** | **5.9 µs** |
+| **underruns** | **0** |
+
+SN0 measured the deadline as the WAKE-UP — ~10 ms in shared mode, carrying a
+burst of callbacks. A 5.9 µs worst callback is **0.06% of that budget**. The
+rendering already happened on the other thread; what is left inside the deadline
+is a memcpy, and it costs what a memcpy costs.
+
+### The three scenes SN3 was told to produce
+
+1. **Sustained playback with ZERO underruns at a stated buffer size.** Done, on
+   the device above, and again device-free through the same `popInterleaved` the
+   callback runs.
+2. **A deliberately overloaded graph that underruns and PROVES the counter
+   moves.** A 256-frame ring drained 200,000 frames at once: served 0, underran
+   exactly 200,000, counted in both frames and events. Without this, a guard
+   that only ever sees zero underruns cannot tell a working counter from one
+   that is never incremented.
+3. **Control changes applied without a click.** Measured both ways: a 10 ms
+   ramp gives a worst sample-to-sample jump of 0.00208; the identical change
+   with no ramp gives exactly 1.0 — a full-scale step. The ramp is 480x
+   smoother, and it ARRIVES at its target rather than merely approaching it.
+
+### Two bugs the guards caught, both worth recording
+
+**The ramp was asymptotic, not linear.** The first cut recomputed the step every
+block as `(target - now) / ramp_frames`. That shrinks as the gap closes, so the
+value approaches the target forever and never reaches it — measured 0.101 where
+0.0 was asked for. A "10 ms fade" that never finishes is the kind of thing that
+ships, because it sounds almost right. The step is now computed ONCE, when a new
+target is first seen, and walked to arrival.
+
+**An address from Ring could kill the process.** `playbackOpen` took an integer
+across the DLL boundary and dereferenced it as a `*Ring`. The ring's hot fields
+are 64-byte aligned, so a misaligned address is an immediate panic — a whole
+process killed by a typo in a script. Now alignment, magic and version are all
+checked before a single sample is read through it, and each failure is a counted
+refusal.
+
+### On the "lock-free control queue"
+
+The plan's SN3 line says *queue*. What is built is a lock-free **atomic
+parameter slot** per gain node: one aligned f32 written by the Ring thread with
+release ordering, read by the render with acquire. For a single scalar, last
+writer wins — which is exactly the desired semantics for a fader, and it is
+lock-free in the sense that matters (no thread can block another).
+
+A queue earns its complexity when the ORDER of several changes matters, or when
+automation has to be sample-accurate. Neither is true yet. Recorded here as a
+deliberate choice rather than an omission, so SN4 can build the queue when it
+has a reason to.
+
+### What is NOT here
+
+- **Only gain is controllable.** Filter cutoff, pan and delay parameters are
+  computed at build time and no path writes them mid-render. The node fields
+  exist; nothing moves them.
+- **No voice pool, no scheduling, no transport.** SN6's game-plane siblings.
+- **Capture is still enumeration-only.** SN1's capture measurement was a spike;
+  there is no capture stream in the plane.
+- **Windows runtime only**, as with every phase so far. Linux and macOS remain
+  cross-compile-checked and unrun.
+
+### Guard inventory for the plane
+
+| guard | assertions | needs hardware |
+|---|---|---|
+| sound_samples_narrated | 60 | no |
+| sound_device_narrated | 20 | degrades to skip |
+| sound_graph_narrated | 42 | no |
+| sound_realtime_narrated | 33 | last scene only |
+| Zig unit tests | 43 | no |
+
+135 Ring assertions and 43 Zig tests, of which everything but one scene runs on
+a machine with no sound card at all.
