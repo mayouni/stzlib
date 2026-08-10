@@ -80,3 +80,72 @@ func StzSoundQualityLinear()
 
 func StzSoundQualitySinc()
 	return 1
+
+# ---- THE SOUND GRAPH (SN2) ------------------------------------------------
+#
+# A graph is ONE handle owning a compiled node list. NODE INDICES ARE 1-BASED
+# and 0 means "failed" -- the same rule buffer ids already follow.
+#
+# THE TWO-PHASE CONTRACT is the whole point, and it is enforced rather than
+# requested:
+#
+#     Add*(...)      -- describe the graph. Allocates freely.
+#     Prepare()      -- validate, allocate EVERY buffer the render will need.
+#     RenderBlock()  -- pure arithmetic. ZERO allocation.
+#
+# StzEngineSoundGraphAllocCount() is the witness: read it either side of a
+# render and it must not have moved. A node added later that allocates during
+# render fails the guard instead of glitching the audio six months on.
+#
+#   StzEngineSoundGraphNew(nChannels, nRate, nBlockFrames) -> gid
+#   StzEngineSoundGraphFree(gid) / GraphLastError()
+#
+#   StzEngineSoundGraphAddOsc(gid, nWave, nHz, nAmp)             -> node
+#   StzEngineSoundGraphAddSource(gid, nBufferId, bLoop)          -> node
+#   StzEngineSoundGraphAddGain(gid, nIn, nGain)                  -> node
+#   StzEngineSoundGraphAddMix(gid)                               -> node
+#   StzEngineSoundGraphMixAdd(gid, nMixNode, nIn)
+#   StzEngineSoundGraphAddPan(gid, nIn, nPan)                    -> node
+#   StzEngineSoundGraphAddFilter(gid, nIn, nKind, nFreq, nQ)     -> node
+#   StzEngineSoundGraphAddDelay(gid, nIn, nSecs, nFeedback, nWet)-> node
+#   StzEngineSoundGraphAddEnvelope(gid, nIn, nA, nD, nSus, nR, nGate) -> node
+#
+#   StzEngineSoundGraphSetOutput(gid, nNode)
+#   StzEngineSoundGraphPrepare(gid) / GraphRewind(gid)
+#   StzEngineSoundGraphRenderBlock(gid)
+#   StzEngineSoundGraphToBuffer(gid, nFrames) -> sample buffer id
+#   StzEngineSoundGraphToFile(gid, nFrames, cPath, nBits)
+#   StzEngineSoundGraphNodeCount(gid) / GraphIsPrepared(gid)
+#   StzEngineSoundGraphCounter(n) / GraphCountersReset() / GraphAllocCount()
+#
+# GRAPH COUNTER INDICES:
+#   0 sound.graphs.live      1 sound.graph.blocks
+#   2 sound.graph.frames     3 sound.graph.refusals
+#   4 sound.graph.stale.hits
+#
+# Status: 0 = OK  2 = STALE  3 = BAD_ARG  7 = NOT_PREPARED  8 = ALREADY_PREPARED
+#
+# THE SINK IS A PARAMETER, NOT A FORK: ToBuffer and ToFile drive the SAME node
+# list through the SAME render. SN3's device sink becomes a third caller of it,
+# so what you hear and what you export cannot drift apart.
+
+func StzSoundWaveSine()
+	return 0
+
+func StzSoundWaveSquare()
+	return 1
+
+func StzSoundWaveSaw()
+	return 2
+
+func StzSoundWaveTriangle()
+	return 3
+
+func StzSoundFilterLowPass()
+	return 0
+
+func StzSoundFilterHighPass()
+	return 1
+
+func StzSoundFilterBandPass()
+	return 2

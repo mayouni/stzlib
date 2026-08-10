@@ -8,6 +8,7 @@
 // and say so.")
 const std = @import("std");
 const snd = @import("sound.zig");
+const gph = @import("soundgraph.zig");
 const R = @import("ring_api.zig");
 
 const gn = R.ring_vm_api_getnumber;
@@ -131,6 +132,128 @@ fn ring_CountersReset(p: *anyopaque) callconv(.c) void {
     rn(p, 1);
 }
 
+// ---------------------------------------------------------------- graph (SN2)
+//
+// NODE INDICES ARE 1-BASED ON THIS SIDE, and 0 means "failed" -- the same
+// convention buffer ids already use, so a Ring caller has one rule for both:
+// zero is never a thing you can use. The engine is 0-based; the +1/-1 lives
+// here and nowhere else.
+
+fn nodeIn(p: *anyopaque, n: c_int) i64 {
+    const v = gn(p, n);
+    if (v < 1) return -1; // out of range for the engine -> counted refusal
+    return @as(i64, @intFromFloat(v)) - 1;
+}
+
+fn retNode(p: *anyopaque, node: i64) void {
+    rn(p, if (node < 0) 0 else @floatFromInt(node + 1));
+}
+
+fn ring_GraphNew(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gph.graphNew(
+        @intFromFloat(gn(p, 1)),
+        @intFromFloat(gn(p, 2)),
+        @intFromFloat(gn(p, 3)),
+    )));
+}
+
+fn ring_GraphFree(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gph.graphFree(id(p, 1))));
+}
+
+fn ring_GraphLastError(p: *anyopaque) callconv(.c) void {
+    const e = gph.lastError();
+    R.ring_vm_api_retstring2(p, e.ptr, @intCast(e.len));
+}
+
+fn ring_GraphAddOsc(p: *anyopaque) callconv(.c) void {
+    retNode(p, gph.addOsc(id(p, 1), @intFromFloat(gn(p, 2)), gn(p, 3), gn(p, 4)));
+}
+
+fn ring_GraphAddSource(p: *anyopaque) callconv(.c) void {
+    retNode(p, gph.addSource(id(p, 1), @intFromFloat(gn(p, 2)), gn(p, 3) != 0));
+}
+
+fn ring_GraphAddGain(p: *anyopaque) callconv(.c) void {
+    retNode(p, gph.addGain(id(p, 1), nodeIn(p, 2), gn(p, 3)));
+}
+
+fn ring_GraphAddMix(p: *anyopaque) callconv(.c) void {
+    retNode(p, gph.addMix(id(p, 1)));
+}
+
+fn ring_GraphMixAdd(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gph.mixAdd(id(p, 1), nodeIn(p, 2), nodeIn(p, 3))));
+}
+
+fn ring_GraphAddPan(p: *anyopaque) callconv(.c) void {
+    retNode(p, gph.addPan(id(p, 1), nodeIn(p, 2), gn(p, 3)));
+}
+
+fn ring_GraphAddFilter(p: *anyopaque) callconv(.c) void {
+    retNode(p, gph.addFilter(id(p, 1), nodeIn(p, 2), @intFromFloat(gn(p, 3)), gn(p, 4), gn(p, 5)));
+}
+
+fn ring_GraphAddDelay(p: *anyopaque) callconv(.c) void {
+    retNode(p, gph.addDelay(id(p, 1), nodeIn(p, 2), gn(p, 3), gn(p, 4), gn(p, 5)));
+}
+
+fn ring_GraphAddEnvelope(p: *anyopaque) callconv(.c) void {
+    retNode(p, gph.addEnvelope(id(p, 1), nodeIn(p, 2), gn(p, 3), gn(p, 4), gn(p, 5), gn(p, 6), gn(p, 7)));
+}
+
+fn ring_GraphSetOutput(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gph.setOutput(id(p, 1), nodeIn(p, 2))));
+}
+
+fn ring_GraphPrepare(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gph.prepare(id(p, 1))));
+}
+
+fn ring_GraphRewind(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gph.rewind(id(p, 1))));
+}
+
+fn ring_GraphRenderBlock(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gph.renderBlock(id(p, 1))));
+}
+
+fn ring_GraphToBuffer(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gph.renderToBuffer(id(p, 1), @intFromFloat(gn(p, 2)))));
+}
+
+fn ring_GraphToFile(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gph.renderToFile(
+        id(p, 1),
+        @intFromFloat(gn(p, 2)),
+        getStr(p, 3),
+        @intFromFloat(gn(p, 4)),
+    )));
+}
+
+fn ring_GraphNodeCount(p: *anyopaque) callconv(.c) void {
+    rn(p, gph.nodeCount(id(p, 1)));
+}
+
+fn ring_GraphIsPrepared(p: *anyopaque) callconv(.c) void {
+    rn(p, gph.isPrepared(id(p, 1)));
+}
+
+fn ring_GraphCounter(p: *anyopaque) callconv(.c) void {
+    rn(p, gph.counter(@intFromFloat(gn(p, 1))));
+}
+
+fn ring_GraphCountersReset(p: *anyopaque) callconv(.c) void {
+    gph.countersReset();
+    rn(p, 1);
+}
+
+/// The witness for "Render allocates nothing". A guard reads it either side of
+/// a render and asserts it did not move.
+fn ring_GraphAllocCount(p: *anyopaque) callconv(.c) void {
+    rn(p, gph.allocCount());
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginesoundisavailable", .func = &ring_IsAvailable },
     .{ .name = "stzenginesoundlasterror", .func = &ring_LastError },
@@ -153,6 +276,31 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginesoundlivecount", .func = &ring_LiveCount },
     .{ .name = "stzenginesoundcounter", .func = &ring_Counter },
     .{ .name = "stzenginesoundcountersreset", .func = &ring_CountersReset },
+
+    // the graph (SN2)
+    .{ .name = "stzenginesoundgraphnew", .func = &ring_GraphNew },
+    .{ .name = "stzenginesoundgraphfree", .func = &ring_GraphFree },
+    .{ .name = "stzenginesoundgraphlasterror", .func = &ring_GraphLastError },
+    .{ .name = "stzenginesoundgraphaddosc", .func = &ring_GraphAddOsc },
+    .{ .name = "stzenginesoundgraphaddsource", .func = &ring_GraphAddSource },
+    .{ .name = "stzenginesoundgraphaddgain", .func = &ring_GraphAddGain },
+    .{ .name = "stzenginesoundgraphaddmix", .func = &ring_GraphAddMix },
+    .{ .name = "stzenginesoundgraphmixadd", .func = &ring_GraphMixAdd },
+    .{ .name = "stzenginesoundgraphaddpan", .func = &ring_GraphAddPan },
+    .{ .name = "stzenginesoundgraphaddfilter", .func = &ring_GraphAddFilter },
+    .{ .name = "stzenginesoundgraphadddelay", .func = &ring_GraphAddDelay },
+    .{ .name = "stzenginesoundgraphaddenvelope", .func = &ring_GraphAddEnvelope },
+    .{ .name = "stzenginesoundgraphsetoutput", .func = &ring_GraphSetOutput },
+    .{ .name = "stzenginesoundgraphprepare", .func = &ring_GraphPrepare },
+    .{ .name = "stzenginesoundgraphrewind", .func = &ring_GraphRewind },
+    .{ .name = "stzenginesoundgraphrenderblock", .func = &ring_GraphRenderBlock },
+    .{ .name = "stzenginesoundgraphtobuffer", .func = &ring_GraphToBuffer },
+    .{ .name = "stzenginesoundgraphtofile", .func = &ring_GraphToFile },
+    .{ .name = "stzenginesoundgraphnodecount", .func = &ring_GraphNodeCount },
+    .{ .name = "stzenginesoundgraphisprepared", .func = &ring_GraphIsPrepared },
+    .{ .name = "stzenginesoundgraphcounter", .func = &ring_GraphCounter },
+    .{ .name = "stzenginesoundgraphcountersreset", .func = &ring_GraphCountersReset },
+    .{ .name = "stzenginesoundgraphalloccount", .func = &ring_GraphAllocCount },
 };
 
 pub fn registerAll(pState: *anyopaque) void {
