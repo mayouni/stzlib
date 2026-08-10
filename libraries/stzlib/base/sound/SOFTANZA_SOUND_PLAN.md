@@ -399,3 +399,290 @@ one shared clock, and voices as pooled handles.
 - **CI has no audio device**: every guard passes through the offline
   sink and the counted-refusal path, exactly as the 162-assert GPU
   suite and the device-free text suite already demonstrate.
+
+---
+
+## SN0 RESULTS — measured 2026-08-09/10. VERDICT: GO, on all three criteria
+
+Environment: miniaudio 0.11.25 (pinned; commit + SHA-256 in
+`engine/vendor/miniaudio/VERSION.txt`), Zig 0.15.2, ReleaseSafe (the shipped
+mode). Backend WASAPI; playback "Haut-parleurs (Realtek(R) Audio)", capture
+"Réseau de microphones (Intel® Smart Sound)". GPU half: wgpu-native v29.0.1.1,
+RTX 3050 6GB Laptop + Intel iGPU, both on Vulkan. Spikes:
+`engine/tools/sound_spike.zig` and `engine/tools/sound_gpu_spike.zig` (build
+lines in their headers). **Machine shared with other sessions — recorded as-is,
+variance noted where it moved.**
+
+Methodology, unchanged from G0/GR0 so the planes' numbers are comparable:
+monotonic clock only; 3 warmups then 5 timed reps, min AND median; CPU samples
+inner-loop scaled to >=1 ms; device sessions 3 s each; every whole suite run 5
+times. Every GPU result verified against the CPU f64 reference before it was
+allowed into a table.
+
+### The decomposition — where a second of audio actually goes
+
+One second of 48 kHz stereo, each stage measured on its own (lesson 1):
+
+| stage | cost per 1 s of audio | x realtime | share of a 5.333 ms buffer |
+|---|---|---|---|
+| decode, wav s16 (dr_wav) | 0.050 ms | 19,600x | — |
+| decode, flac (dr_flac) | 0.38 ms | 2,590x | — |
+| resample 48k->44.1k (linear) | 1.17 ms | 853x | — |
+| **graph render, 128 voices** | **0.60 ms** | **1,675x** | **0.06%** |
+| device submit (work inside the callback) | 0.003–0.006 ms | — | 0.13–0.32% |
+
+Nothing in the real-time path is within two orders of magnitude of its deadline.
+The most expensive stage of the whole plane is RESAMPLING, at 1.17 ms/s — and it
+is still 853x faster than real time.
+
+### Graph render — a plain mix graph, offline (the CI path)
+
+Four forms of the same mix, 5 runs, min, at the 256-frame deadline size
+(5.333 ms; kill criterion #1's budget is 25% of that = 1.333 ms):
+
+| voices | interleaved-index | planar-index | planar-**slices** | planar-@Vector | best as % of the 1.333 ms budget |
+|---|---|---|---|---|---|
+| 1 | 0.051 us | 0.070 us | **0.065 us** | 0.152 us | 0.005% |
+| 8 | 0.296 us | 0.269 us | **0.205 us** | 0.309 us | 0.015% |
+| 32 | 1.297 us | 1.145 us | **0.898 us** | 0.949 us | 0.067% |
+| 64 | 2.472 us | 2.164 us | **1.661 us** | 1.786 us | 0.125% |
+| 128 | 4.982 us | 4.256 us | **3.186 us** | 3.442 us | 0.239% |
+
+All four forms agree to 0.000e0 max absolute deviation — the fastest one is fast
+at producing the *same* samples. Across 128/256/512 frames the best form never
+exceeded **0.09% of its deadline** at any voice count tested.
+
+### SIMD vs scalar — linalg.zig's law reproduces in the audio domain
+
+| | ratio | reading |
+|---|---|---|
+| planar-slices / planar-index | **1.08–1.34x faster** | handing LLVM slices instead of computed indices wins |
+| planar-@Vector / planar-slices | **0.43–0.95x — a LOSS** | the explicit vector is never faster, and 2.3x slower at 1 voice |
+| planar-slices / interleaved-index | **1.56x faster at 128 voices** | accumulate planar, interleave once at the end |
+
+This is `src/linalg.zig`'s finding, re-derived rather than assumed: *reach for
+`@Vector` where the compiler cannot see the structure, not where it merely needs
+to be shown.* A mix bus is the second case. **SN2 writes the mixer as planar
+slice loops with a single interleave at the sink, and does not hand-vectorise.**
+
+### Device wake-up — period, jitter, and the counted shortfall
+
+**The callback is not the deadline, and the first cut of this measurement got it
+wrong.** Timing gaps between successive data callbacks gave a p50 of 2.3 us
+against a mean of 2,639 us — nonsense, because WASAPI wakes the device thread
+once per internal period and miniaudio then issues a BURST of callbacks
+back-to-back to fill it (four 128-frame callbacks in ~7 us, then a 10 ms gap).
+What has a deadline is the WAKE-UP; what must fit inside it is the burst's TOTAL
+work. Lesson 1 again, caught inside SN0 instead of inherited by SN3.
+
+SHARED mode, 3 s per session, 3 sessions (asked -> internal frames):
+
+| asked | internal | wake p50 | p99 | max | jitter | burst work p99 | % of budget | frames short |
+|---|---|---|---|---|---|---|---|---|
+| 128 | 480 x3 | 10.00 ms | 10.24–10.55 | 10.29–11.29 | 43–51% | 17–32 us | 0.17–0.32% | **0** |
+| 256 | 480 x3 | 10.00 ms | 10.24–10.49 | 10.35–10.99 | 35–47% | 14–16 us | 0.14–0.16% | **0** |
+| 512 | 512 x3 | 10.01 ms | 19.98–20.12 | 20.19–20.31 | 107–110% | 14–22 us | 0.13–0.21% | **0** |
+
+EXCLUSIVE mode, same sessions:
+
+| asked | internal | wake p50 | p99 | max | jitter | frames short (of 144,000) |
+|---|---|---|---|---|---|---|
+| 128 | 128 x3 | 8.2–14.9 ms | 28.6–67.4 | 39.2–79.2 | 470–527% | 0 / 0 / **78,020** |
+| 256 | 256 x3 | 15.9–22.3 ms | 34.4–77.0 | 34.7–79.8 | 208–370% | **1,170 / 43,338 / 47,094** |
+| 512 | 512 x3 | 31.4–34.6 ms | 53.2–77.2 | 58.3–97.9 | 156–256% | 0 / 4,319 / **12,821** |
+
+`frames short` = frames the wall clock expected minus frames the device took —
+COUNTED, not assumed, because miniaudio exposes no underrun counter of its own.
+
+**Shared mode never dropped a frame in any run. Exclusive mode dropped up to
+78,020 frames — 1.6 s of audio missing from a 3 s run — while jittering 5x.**
+Exclusive buys a smaller total buffer (8 ms vs 30 ms) and, on this
+machine/driver, cannot hold it. The 512-frame shared p99 of 20 ms is the device
+coalescing two periods, not a dropout: the frame count stayed exact.
+
+### Decode and resample
+
+| file | in bytes | frames | rate | min ms | in MB/s | out MB/s (f32) | x realtime |
+|---|---|---|---|---|---|---|---|
+| 10 s tone, wav s16 | 1,920,044 | 480,000 | 48000 | 0.50 | 3,687–3,856 | 7,373–7,712 | 19,200–20,100x |
+| 16-44100-stereo.flac | 1,798,051 | 1,553,920 | 44100 | 13.4–13.8 | 130–134 | 899–925 | 2,548–2,621x |
+
+| resampler | 1 s stereo f32, 48000->44100 | in MB/s | Mframes/s | x realtime |
+|---|---|---|---|---|
+| miniaudio linear | 1.17 ms | 327–330 | 41.0 | 853x |
+
+**MP3 decode: NOT MEASURED.** miniaudio's upstream `data/` carries a
+public-domain FLAC and an Ogg but no MP3, and this machine has no MP3 anywhere
+and no encoder to make one. dr_mp3 is compiled in and available; it wants one
+corpus file. **SN1 adds an MP3 to the guard corpus and measures it there** —
+stated rather than implied, per lesson 4.
+
+### Output latency
+
+| mode | impulse -> loopback tap | device-claimed buffer |
+|---|---|---|
+| shared | **112.6 ms** (min 112.57, median 112.65, 5/5 detected) | 30.00 ms (480 frames x 3 periods) |
+| exclusive | **not measurable this way** | 8.00 ms (128 frames x 3 periods) |
+
+The measured figure is an **upper bound**: WASAPI loopback taps the endpoint's
+render mix and has ~22 ms of buffering of its own (352 frames x 3), so
+112.6 = our 30 ms buffer + the tap's 22 ms + ~60 ms of Windows audio pipeline
+that no application-side change can remove. It is the software path only — not
+the DAC, not the speaker; no CI box can ever measure those.
+
+The intended trick of differencing two configurations to cancel the tap's offset
+**does not work, and the reason is definite**: an exclusive-mode client takes
+over the endpoint, so the loopback capture sees literal silence (peak exactly
+0.000e0 — the tap saw nothing, rather than the impulse missing a threshold).
+Exclusive-mode latency and loopback measurement are mutually exclusive by
+construction on WASAPI.
+
+A first cut of this measurement fired the impulse on the 40th callback and read
+122 ms. The instrumentation showed why: `ma_device_start` takes ~500 ms, and
+during startup the callbacks run AHEAD of real time to prefill the ring, so
+callback 40 had already queued 104 ms of audio that had not begun to play.
+Arming on the wall clock after 1.5 s of silence measures the steady state, which
+is the only regime in which "latency" means anything.
+
+### GPU FFT convolution vs CPU — 1 s IR, offline render
+
+CPU baselines (5 runs, min; the twiddle column is a THIRD implementation added
+so the criterion is not a GPU-versus-unoptimised-CPU comparison):
+
+| audio | samples | FFT N | fft.zig f64 (as shipped) | twiddle-table f32 | table vs fft.zig |
+|---|---|---|---|---|---|
+| 1 s | 48,000 | 131,072 | 24.0–25.6 ms | 7.9–8.3 ms | **3.0–3.1x faster** |
+| 60 s | 2,880,000 | 4,194,304 | 1,390–1,464 ms | 1,324–3,097 ms | **0.47–1.06x — no win, and unstable** |
+
+**A CPU surprise worth more than the GPU answer: precomputing the twiddle
+factors is a 3.1x win at N=131k and NOT a win at N=4M.** The table is 2M entries
+x 2 arrays x 4 bytes = 16 MB, walked with a stride that doubles every stage; past
+last-level cache it stops paying, and its run-to-run spread (1,324–3,097 ms on
+this shared machine) dwarfs fft.zig's (1,390–1,464 ms, tight). fft.zig's
+per-butterfly `@cos`/`@sin` — a deliberate accuracy choice its header defends —
+is compute-bound and cache-friendly, and at 4M points that is the better trade.
+**SN5 must not "optimise" fft.zig into a twiddle table without re-measuring at
+the size it will actually run.**
+
+GPU, decomposed as submit+wait per phase (min of 5 runs):
+
+| adapter | audio | FFT N | disp | upload | forward | mul | inverse | readback | TOTAL | vs fft.zig | vs twiddle-f32 | max rel err |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| RTX 3050 | 1 s | 131,072 | 52 | 0.52 | 0.60 | 0.08 | 0.28 | 0.23 | **1.74 ms** | 10.3–13.8x | 3.4–4.6x | 1.47e-6 |
+| RTX 3050 | 60 s | 4,194,304 | 67 | 15.4 | 25.2 | 1.1 | 12.6 | 7.4 | **61.96 ms** | **19.0–22.7x** | 19.6–34.5x | 1.75e-6 |
+| Intel iGPU | 1 s | 131,072 | 52 | 0.69 | 1.59 | 0.39 | 0.78 | 0.61 | 4.06 ms | 6.2x | 2.0x | 2.07e-5 |
+| Intel iGPU | 60 s | 4,194,304 | 67 | 22.9 | 51.0 | 1.9 | 25.0 | 8.1 | 108.8 ms | **12.9x** | 12.2x | 2.75e-5 |
+
+Transfer share at 60 s on the 3050 is **37%** (22.8 of 62.0 ms) — the opposite
+end from G0's saxpy verdict (92% transfer, killed) and consistent with G0's
+"compute-dense family" ruling. A 4M-point transform costs ~12.7 ms on the GPU
+against ~460 ms on the CPU.
+
+### KILL CRITERIA, APPLIED
+
+**#1 — "if a 256-frame graph render cannot hold under 25% of its 5.3 ms deadline
+with a plain mix graph, the real-time tier is demoted to offline-only."**
+**PASSES, and the criterion was aimed at the wrong tier.** A 128-voice mix at
+256 frames costs 3.19 us against a 1,333 us budget — **0.24% of it, a 418x
+margin**. This is GR0's mistake repeating in a new plane: GR0 aimed at a GPU
+raster tier that turned out to be 1.7 ms of a 29 ms frame, and SN0 aimed at a
+mix loop that turns out to be a quarter of one percent of its deadline. The
+real-time tier is NOT demoted, and **the criterion is retired rather than
+inherited**: nothing SN3 does will be threatened by mix arithmetic. The stage
+that actually consumes the plane's time is resampling (1.17 ms per second of
+audio, 20x the mix), and the risk that actually threatens SN3 is the OS wake-up
+(a 20 ms coalesced period in shared mode, a 78,020-frame shortfall in exclusive)
+— **which is scheduling, not arithmetic, and no amount of SIMD touches it.**
+
+**#2 — "if miniaudio does not compile as one TU under `zig cc` with no cmake,
+STOP."** **PASSES.** Both translation units compile clean, ~12 s each, no
+cmake, no SDK:
+
+| target | portable TU (`MA_NO_DEVICE_IO`) | device TU (full backends) |
+|---|---|---|
+| x86_64-windows | OK (2.5 MB .o) | OK (3.0 MB .o) |
+| x86_64-linux-gnu | OK | **OK** |
+| x86_64-macos | OK | FAIL — `CoreAudio/CoreAudio.h` not found |
+| aarch64-macos | OK | FAIL — same |
+
+Backend presence was verified IN THE OBJECT FILES, not inferred from a clean
+exit: the Linux device object carries `libasound.so.2`, `libpulse.so.0`,
+`libjack.so.0`, `snd_pcm_open`; the Windows one carries `IAudioClient`/`2`/`3`
+and `ma_context_init__wasapi`; the portable one carries `ma_decoder_init_file`
+and **zero** device symbols. The harfbuzz precedent held, as sec.3 predicted.
+
+**#3 — "if the GPU FFT convolution does not beat CPU by >=2x at 60 s, the GPU
+stays OUT of this plane entirely."** **PASSES: 19.0–22.7x on the RTX 3050 and
+12.9x on the iGPU**, against the shipped fft.zig, at f32 accuracy of 1.75e-6
+(3050) — well inside audio's noise floor. **The GPU is IN, for OFFLINE BATCH
+CONVOLUTION ONLY**, exactly as FACT 5 scoped it. Recorded once; no later phase
+re-litigates it.
+
+Two qualifications that travel with that admission:
+- **The iGPU's transcendental precision is 16x worse** (2.75e-5 ~ -91 dB, above
+  a 16-bit noise floor). If the iGPU is ever a real target for a reverb render,
+  the WGSL must take twiddles from an uploaded table rather than calling `cos`/
+  `sin` per butterfly. Named now so it is not discovered in a listening test.
+- **This says nothing about real-time.** A 5.333 ms buffer is 1,920 bytes of
+  work against a measured ~60 us dispatch floor. FACT 5 stands untouched.
+
+### FACT 3, REFINED BY MEASUREMENT
+
+FACT 3 adopted the GR5 split on the assumption that audio devices are "the SAME
+SHAPE" as GLFW windowing — per-OS, therefore uncross-compilable. **The split is
+right and the reason is now sharper.** GLFW's X11 backend needs `X11/Xlib.h` at
+COMPILE time, so it cannot cross-compile to Linux from this box. miniaudio's
+ALSA/PulseAudio/JACK backends declare what they need themselves and `dlopen` the
+`.so` at RUNTIME — so **`stz_audiodev.dll` cross-compiles to Linux from here,
+which `stz_window.dll` never could.** Only macOS is genuinely blocked, and only
+by Apple's headers.
+
+The two-DLL split survives on its original merit: it is what keeps
+`stz_sound.dll` buildable for every target regardless. But the device DLL's
+per-OS cost is **1 OS out of 3, not 3 out of 3** — so SN1's CI can
+cross-compile-check BOTH DLLs for Windows and Linux, and only the macOS device
+build is stated-not-verified.
+
+### CALIBRATED NUMBERS SN1 INHERITS
+
+1. **Buffer**: shared mode, internal period **480 frames (10 ms) x 3 periods**;
+   asking for 128 or 256 does not change it. **Do not ship exclusive mode as a
+   default** — it dropped up to 78,020 frames per 3 s run here. Expose it, count
+   its refusals and its shortfall, and let a user opt in.
+2. **The render budget is 10 ms, not 5.333 ms**, and it is consumed by a BURST
+   of callbacks. SN3's guard must assert the burst total against the wake-up
+   period, not one callback against one period.
+3. **Mix cost: ~0.025 us per voice per 256-frame block** (planar slices). Write
+   the mixer planar, interleave once at the sink, and do not hand-vectorise.
+4. **Resampling is the plane's most expensive per-sample stage** — 1.17 ms per
+   second of stereo audio, ~20x the mix. It is the first thing worth a resident
+   buffer and the first candidate for the multicore tier in batch mode.
+5. **Decode is free at real-time scale**: wav ~19,600x, flac ~2,590x. Streaming
+   decode needs no lookahead heroics; it needs a bounded queue and a counter.
+6. **`sound.underruns` has a working definition today**: frames the wall clock
+   expected minus frames the device consumed. It moved (exclusive mode) and
+   stayed at zero (shared mode) in the same suite — the positive and its
+   negative sibling both exist before SN3 starts.
+7. **Latency**: the application-side buffer is 30 ms shared / 8 ms exclusive;
+   this machine's OS pipeline adds ~60 ms that no engine change removes. Quote
+   the buffer, never the 112 ms, and say which is which.
+8. **GPU offline convolution**: a 60 s render is 62 ms on the 3050 against
+   1,400 ms on CPU. Crossover is already favourable at 1 s (10–14x), so the
+   calibrated gate for SN5 is *not* a length threshold — it is whether the
+   render is offline at all.
+9. **Unicode arrived on day one, unprompted**: this machine's device names are
+   `Haut-parleurs (Realtek(R) Audio)` and `Réseau de microphones (Intel(R)
+   Smart Sound)`. miniaudio hands them over as UTF-8, padded to a fixed width —
+   trim at the NUL, and never assume a device name is ASCII.
+
+### WHAT SN0 DID NOT MEASURE (stated, not implied)
+
+- **MP3 decode** — no corpus file; SN1 adds one.
+- **Linux and macOS at runtime** — cross-compiled only, per the table above.
+- **Capture beyond a smoke test** — 2 s from the mic array, 96,768–97,536 frames
+  in ~380 callbacks, rms 1.5e-4 to 6.2e-3, peak up to 5.8e-2. It works, and its
+  internal period is 256 frames at 48 kHz; its jitter was not characterised.
+- **The mix under a cold cache** — the sweep re-reads the same source buffers,
+  so they stay resident. Real playback streams from decoded buffers that will
+  not always be. The margin is 418x, so this caveat does not endanger the
+  verdict, but SN2's guard should read from a working set larger than L2.
