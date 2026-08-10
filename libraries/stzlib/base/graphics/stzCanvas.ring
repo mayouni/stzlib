@@ -398,8 +398,13 @@ class stzCanvas from stzObject
 		on "circle"
 			StzEngineGpuSceneCircle(@nId, _a_[2], _a_[3], _a_[4], _a_[6])
 			if _a_[8] > 0
-				This._StrokePolygon(This._CirclePoints(_a_[2], _a_[3], _a_[4]),
-					_a_[7], _a_[8])
+				# The ENGINE generates the outline. This used to build
+				# circleSegments(r) points in a Ring loop and marshal them
+				# back -- 2,000 stroked circles cost 168 ms against 67 ms
+				# for the same circles filled, and the whole difference was
+				# Ring computing points the engine already knows.
+				StzEngineGpuSceneCircleStroke(@nId, _a_[2], _a_[3], _a_[4],
+					_a_[8], _a_[7])
 			ok
 		on "line"
 			_nCol_ = _a_[6]

@@ -316,6 +316,35 @@ pub fn sceneCircle(id: i64, cx: f64, cy: f64, r: f64, col: u32) i32 {
     return push(id, .{ .circle = .{ .cx = @floatCast(cx), .cy = @floatCast(cy), .r = @floatCast(r), .col = col } });
 }
 
+/// A circle's OUTLINE, generated engine-side.
+///
+/// The face used to build these points in Ring -- circleSegments(r) of them
+/// per stroked circle, each an append to a Ring list, then the whole list
+/// marshalled back across. Measured at 2,000 stroked circles: 168 ms
+/// against 67 ms for the same circles filled, and the 101 ms difference was
+/// entirely Ring building points the engine already knows how to compute.
+///
+/// It uses the SAME circleSegments bound as the fill, so a stroked circle
+/// traces exactly the filled one rather than almost tracing it.
+pub fn sceneCircleStroke(id: i64, cx: f64, cy: f64, r: f64, width: f64, col: u32) i32 {
+    if (r <= 0 or width <= 0) return BAD_ARG;
+    const segs = circleSegments(r);
+    if (segs < 3) return BAD_ARG;
+    // +1 point: the ring is CLOSED by repeating the first vertex, which is
+    // what makes the join at the seam look like every other join
+    const n = (segs + 1) * 2;
+    const pts = alloc.alloc(f32, n) catch return BAD_ARG;
+    const fr: f32 = @floatCast(r);
+    const fx: f32 = @floatCast(cx);
+    const fy: f32 = @floatCast(cy);
+    for (0..segs + 1) |i| {
+        const t = std.math.tau * @as(f32, @floatFromInt(i % segs)) / @as(f32, @floatFromInt(segs));
+        pts[i * 2] = fx + fr * @cos(t);
+        pts[i * 2 + 1] = fy + fr * @sin(t);
+    }
+    return push(id, .{ .stroke = .{ .pts = pts, .width = @floatCast(width), .col = col } });
+}
+
 /// pts: flat [x0,y0,x1,y1,...], at least 2 points. A 2-point stroke IS a line.
 pub fn sceneStroke(id: i64, pts: []const f64, width: f64, col: u32) i32 {
     if (pts.len < 4 or pts.len % 2 != 0 or width <= 0) return BAD_ARG;

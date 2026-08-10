@@ -1177,6 +1177,11 @@ fn ring_SceneResize(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(scene.sceneResize(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2)), @intFromFloat(gn(p, 3)))));
 }
 
+fn ring_SceneCircleStroke(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(scene.sceneCircleStroke(@intFromFloat(gn(p, 1)),
+        gn(p, 2), gn(p, 3), gn(p, 4), gn(p, 5), @intFromFloat(gn(p, 6)))));
+}
+
 fn ring_SceneReset(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(scene.sceneReset(@intFromFloat(gn(p, 1)))));
 }
@@ -1238,6 +1243,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpusurfaceformatname", .func = &ring_SurfaceFormatName },
     .{ .name = "stzenginegpusurfacestat", .func = &ring_SurfaceStat },
     .{ .name = "stzenginegpusceneresize", .func = &ring_SceneResize },
+    .{ .name = "stzenginegpuscenecirclestroke", .func = &ring_SceneCircleStroke },
     .{ .name = "stzenginegpuscenereset", .func = &ring_SceneReset },
     .{ .name = "stzenginegpuscenedrawtotarget", .func = &ring_SceneDrawToTarget },
     .{ .name = "stzenginegpuscene3dsetparent", .func = &ring_Scene3dSetParent },
