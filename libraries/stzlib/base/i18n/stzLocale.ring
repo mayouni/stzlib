@@ -436,7 +436,10 @@ func _LangNameFromCode(_cLangCode_)
 			return $aLocaleLanguagesXT[i][2]
 		ok
 	next
-	return :english
+	# "" for a code this table does not carry, matching the native-name sibling
+	# below. It used to answer :english, which is a guess wearing the clothes of
+	# an answer -- and it left the caller no way to try anything else.
+	return ""
 
 func _LangNativeNameFromCode(_cLangCode_)
 	_cCode_ = StzLower(_cLangCode_)
@@ -618,7 +621,7 @@ func StzNamesOfDaysIn(pcLangOrCountry)
 
 	_cFirstDayInEnglish_ = _oLocale_.FirstDayOfWeek()
 
-	_aDaysInEnglish_ = [ :monday, :tuesady, :wednesday, :thirsday, :friday, :saturday, :sunday ]
+	_aDaysInEnglish_ = [ :monday, :tuesday, :wednesday, :thursday, :friday, :saturday, :sunday ]
 	_n_ = find( _aDaysInEnglish_, _cFirstDayInEnglish_ )
 
 	_aDaysInLocaleLanguage_ = [ _DayNameInLang(_cLangName_, _n_) ]
@@ -914,11 +917,36 @@ class stzLocale from stzObject
 			ok
 		next
 
+	# THE LANGUAGE COMES FROM THE LANGUAGE CODE.
+	#
+	# This used to derive it from the COUNTRY alone, and got two things wrong at
+	# once. en-PW answered "palauan" -- Palau's primary language -- because the
+	# "en" was never consulted. And a locale with NO country, such as the ar_ARAB
+	# you get by selecting a script, fell off the end of the chain and returned
+	# NULL; _DayNameInLang read that as "language unknown" and silently answered
+	# from its first table entry, English. That is why NativeNthDayOfWeek() said
+	# "Monday" for an Arabic locale, and NativeNthDayOfWeekAbbreviation() "Mon".
+	#
+	# _LangNameFromCode has been in this file the whole time, resolving a code
+	# against $aLocaleLanguagesXT, and nothing called it.
+	#
+	# The country stays as the FALLBACK: a locale naming a country but no
+	# recognised language is still better answered by that country's language
+	# than by nothing.
 	def LanguageName()
+		if @cLangAbbreviation != ""
+			_cFromCode_ = _LangNameFromCode(@cLangAbbreviation)
+			if _cFromCode_ != ""
+				return _cFromCode_
+			ok
+		ok
+
 		_cCountry_ = This.CountryName()
 		if _cCountry_ != ""
-			return StzCountryQ(This.CountryName()).Language()
+			return StzCountryQ(_cCountry_).Language()
 		ok
+
+		return ""
 
 		def Language()
 			return This.LanguageName()
@@ -1149,7 +1177,7 @@ class stzLocale from stzObject
 		# Let's define the 1st of week in this locale
 
 		_cFirstDayInEnglish_ = This.FirstDayOfWeek()
-		_aDaysInEnglish_ = [ :monday, :tuesady, :wednesday, :thirsday, :friday, :saturday, :sunday ]
+		_aDaysInEnglish_ = [ :monday, :tuesday, :wednesday, :thursday, :friday, :saturday, :sunday ]
 		_n_ = StzFindFirst(_cFirstDayInEnglish_, _aDaysInEnglish_)
 
 		# We need to get that 1st day in native language of the locale
@@ -1173,7 +1201,7 @@ class stzLocale from stzObject
 
 	def NativeDaysOfWeek()
 		_cFirstDayInEnglish_ = This.FirstDayOfWeek()
-		_aDaysInEnglish_ = [ :monday, :tuesady, :wednesday, :thirsday, :friday, :saturday, :sunday ]
+		_aDaysInEnglish_ = [ :monday, :tuesday, :wednesday, :thursday, :friday, :saturday, :sunday ]
 		_n_ = StzFindFirst(_cFirstDayInEnglish_, _aDaysInEnglish_)
 
 		_cLang_ = This.LanguageName()
@@ -1247,7 +1275,7 @@ class stzLocale from stzObject
 
 	def NthDayOfWeekAbbreviation(_n_)
 		_cFirstDay_ = This.FirstDayOfWeek()
-		_aDaysInEnglish_ = [ :monday, :tuesady, :wednesday, :thirsday, :friday, :saturday, :sunday ]
+		_aDaysInEnglish_ = [ :monday, :tuesday, :wednesday, :thursday, :friday, :saturday, :sunday ]
 
 		_nFirst_ = StzFindFirst(_cFirstDay_, _aDaysInEnglish_)
 
@@ -1287,7 +1315,7 @@ class stzLocale from stzObject
 
 	def NthDayOfWeekSymbol(_n_)
 		_cFirstDay_ = This.FirstDayOfWeek()
-		_aDaysInEnglish_ = [ :monday, :tuesady, :wednesday, :thirsday, :friday, :saturday, :sunday ]
+		_aDaysInEnglish_ = [ :monday, :tuesday, :wednesday, :thursday, :friday, :saturday, :sunday ]
 
 		_nFirst_ = StzFindFirst(_cFirstDay_, _aDaysInEnglish_)
 
