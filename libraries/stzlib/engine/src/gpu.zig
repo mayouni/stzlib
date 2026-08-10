@@ -1081,6 +1081,77 @@ fn releasePool() void {
     }
 }
 
+// ---------------------------------------------------------------- the frame
+//
+// GG4 gap 3. A batch already merges many DISPATCHES into one submit, but a
+// frame that computes and then draws still paid two -- the compute path and
+// the render path each opened their own encoder and submitted it. GR0's
+// spike proved compute->render in ONE submit works; the product path never
+// adopted it.
+//
+// A FRAME is one command encoder that both paths encode into. Compute
+// passes and render passes take turns on it, and the whole thing is
+// finished and submitted ONCE at the end. That is also exactly what a frame
+// graph needs to execute a schedule.
+
+var g_frame_enc: c.WGPUCommandEncoder = null;
+var g_frame_open = false;
+var frame_end_hooks: [4]?*const fn () void = @splat(null);
+
+/// gpu_render registers here so its accumulated bind groups are released
+/// AFTER the frame submits, not after each pass -- a bind group referenced
+/// by an unsubmitted encoder must outlive the pass that made it.
+pub fn registerFrameEndHook(f: *const fn () void) void {
+    for (&frame_end_hooks) |*slot| {
+        if (slot.* == null) {
+            slot.* = f;
+            return;
+        }
+    }
+}
+
+pub fn frameOpen() bool {
+    return g_frame_open;
+}
+
+pub fn frameEncoder() c.WGPUCommandEncoder {
+    return g_frame_enc;
+}
+
+/// Open a frame. Every dispatch and every render pass until FrameEnd
+/// encodes into ONE encoder and costs ONE submit between them.
+pub fn stz_gpu_frame_begin() callconv(.c) i32 {
+    if (!available) {
+        counters[CTR_FALLBACK_COUNT] += 1;
+        return FALLBACK;
+    }
+    if (g_frame_open) return OK; // idempotent, like batch_begin
+    g_frame_enc = fns.wgpuDeviceCreateCommandEncoder(device, null);
+    if (g_frame_enc == null) return GPU_ERROR;
+    g_frame_open = true;
+    return OK;
+}
+
+/// Finish the frame: ONE submit for everything encoded since FrameBegin.
+pub fn stz_gpu_frame_end() callconv(.c) i32 {
+    if (!g_frame_open) return BAD_ARG;
+    g_frame_open = false;
+    const cmd = fns.wgpuCommandEncoderFinish(g_frame_enc, null);
+    fns.wgpuCommandEncoderRelease(g_frame_enc);
+    g_frame_enc = null;
+    fns.wgpuQueueSubmit(queue, 1, &cmd);
+    fns.wgpuCommandBufferRelease(cmd);
+    counters[CTR_SUBMIT_COUNT] += 1;
+    for (frame_end_hooks) |h| {
+        if (h) |f| f();
+    }
+    return OK;
+}
+
+pub fn stz_gpu_frame_active() callconv(.c) i32 {
+    return if (g_frame_open) 1 else 0;
+}
+
 /// Open a batch. Dispatches accumulate into one pass until End.
 pub fn stz_gpu_batch_begin() callconv(.c) i32 {
     if (!available) {
@@ -1215,18 +1286,23 @@ fn dispatchInternal(kernel: i64, params: ?[]const u8, buf_ids: [*]const i64, nbu
         const tile = [4]u32{ @intCast(off), 0, 0, 0 };
         fns.wgpuQueueWriteBuffer(queue, tile_uniform, 0, &tile, 16);
 
-        const enc = fns.wgpuDeviceCreateCommandEncoder(device, null);
+        // Inside a FRAME, encode onto the frame's encoder and submit
+        // nothing -- FrameEnd owns the one submit. Outside one, behave
+        // exactly as before: own encoder, own submit.
+        const enc = if (g_frame_open) g_frame_enc else fns.wgpuDeviceCreateCommandEncoder(device, null);
         const pass = fns.wgpuCommandEncoderBeginComputePass(enc, null);
         fns.wgpuComputePassEncoderSetPipeline(pass, k.pipeline);
         fns.wgpuComputePassEncoderSetBindGroup(pass, 0, bg, 0, null);
         fns.wgpuComputePassEncoderDispatchWorkgroups(pass, chunk, y, 1);
         fns.wgpuComputePassEncoderEnd(pass);
         fns.wgpuComputePassEncoderRelease(pass);
-        const cmd = fns.wgpuCommandEncoderFinish(enc, null);
-        fns.wgpuCommandEncoderRelease(enc);
-        fns.wgpuQueueSubmit(queue, 1, &cmd);
-        fns.wgpuCommandBufferRelease(cmd);
-        counters[CTR_SUBMIT_COUNT] += 1;
+        if (!g_frame_open) {
+            const cmd = fns.wgpuCommandEncoderFinish(enc, null);
+            fns.wgpuCommandEncoderRelease(enc);
+            fns.wgpuQueueSubmit(queue, 1, &cmd);
+            fns.wgpuCommandBufferRelease(cmd);
+            counters[CTR_SUBMIT_COUNT] += 1;
+        }
         off += chunk;
     }
 
