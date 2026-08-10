@@ -24,7 +24,8 @@ func StzCodeRuleNames()
 	return [ "no-len-method", "q-returns-object", "no-aggressive-verbs",
 	         "engine-first", "q-has-plain-twin", "no-case-collision",
 	         "dead-knob", "setter-resets-on-reject",
-	         "setter-only-moves-one-way", "misspelled-name", "library-prints" ]
+	         "setter-only-moves-one-way", "misspelled-name", "library-prints",
+	         "empty-method-body" ]
 
 func StzCheckCodeFile(pcPath)
 	return StzCheckCode(read(pcPath))
@@ -136,7 +137,8 @@ func _StzTextPassFindings(pcSource)
 		_StzCheckSetterResets(_cClean_),
 		_StzCheckOneWaySetters(_cClean_),
 		_StzCheckMisspelledNames(_cClean_),
-		_StzCheckLibraryPrints(_cClean_)
+		_StzCheckLibraryPrints(_cClean_),
+		_StzCheckEmptyBodies(_cClean_)
 	]
 	_nP_ = len(_aPasses_)
 	for _i_ = 1 to _nP_
@@ -947,7 +949,13 @@ func _StzNameHasCamelCurren(pcName)
 		# Uppercase = a character that DIFFERS from its own lowercase form. Ring
 		# raises R41 comparing strings with >=, and ascii() raises on anything that
 		# is not exactly one character -- this needs neither.
-		_cNext_ = StzMid(_c_, _nAfter_, _nAfter_)
+		#
+		# StzMid is (start, COUNT): the second argument used to repeat the
+		# position, so this compared the whole REST of the name against its
+		# lowercase and answered "there is an uppercase somewhere after Curren"
+		# instead of "the next character opens a word". It reached the right
+		# verdict on SetCurrenCell by luck.
+		_cNext_ = StzMid(_c_, _nAfter_, 1)
 		if _cNext_ != "" and _cNext_ != StzLower(_cNext_)
 			return TRUE
 		ok
@@ -1128,3 +1136,131 @@ func _StzCheckLibraryPrints(pcSource)
 		           " reports through its return value or a handler, not stdout" ]
 	next
 	return _aOut_
+
+# EMPTY-METHOD-BODY: a class method that is declared and does nothing.
+#
+# stzReactiveSystem.SetTimeoutXT was one. It sat between RunAfterXT and
+# RunAfter, was declared, and the next line was the next method -- so every call
+# scheduled no timer and answered nothing, while SetTimeout one screen down
+# delegates correctly. Nothing raised, and nothing could: the method existed.
+#
+# A PREDICATE that does nothing is the worse half and gets the harsher verdict.
+# A Ring method with no return answers NULL, which reads as FALSE -- so an empty
+# ContainsValues() does not fail, it confidently says "no" about everything.
+#
+# THREE FORMS OF SAME-LINE BODY have to be excluded, and each was found the
+# expensive way -- a first, second and third draft of this rule reported 83, 51
+# and 32 sites where the truth was 23:
+#
+#     def Image(pc)      { @cImage = pc ; return This }      # brace form
+#     def SetTopP(n) @nTopP = n                              # bare form
+#     def Ping()  # nothing to do here                       # comment only
+#
+# The first two are ordinary Ring and must never be flagged. The third IS an
+# empty method and is flagged -- a comment saying nothing happens does not make
+# the caller any less misled.
+#
+# init() is exempt: a class that keeps its state in the engine, or has none at
+# all, legitimately has nothing to initialise.
+func _StzCheckEmptyBodies(pcSource)
+	_aOut_ = []
+	_acLines_ = StzSplit(StzReplace("" + pcSource, char(13), ""), char(10))
+	_nLen_ = len(_acLines_)
+	_bInClass_ = FALSE
+
+	for _i_ = 1 to _nLen_
+		if _StzKnobClassName(_acLines_[_i_]) != ""
+			_bInClass_ = TRUE
+			loop
+		ok
+		if NOT _bInClass_
+			loop
+		ok
+
+		_cName_ = _StzKnobDefName(_acLines_[_i_])
+		if _cName_ = "" or StzLower(_cName_) = "init"
+			loop
+		ok
+		if _StzDefSameLineBody(_acLines_[_i_]) != ""
+			loop
+		ok
+
+		# The body is whatever comes before the next def or class. Blank lines
+		# and comments are not statements, so they are skipped rather than
+		# counted -- which is what makes a comment-only body register as empty.
+		_bEmpty_ = TRUE
+		for _j_ = _i_ + 1 to _nLen_
+			_cNext_ = ring_trim(_StzKnobStrip(_acLines_[_j_]))
+			if _cNext_ = ""
+				loop
+			ok
+			if StzLeft(StzLower(_cNext_), 4) = "def " or
+			   StzLeft(StzLower(_cNext_), 6) = "class "
+				exit
+			ok
+			_bEmpty_ = FALSE
+			exit
+		next
+
+		if NOT _bEmpty_
+			loop
+		ok
+
+		# A predicate MUST answer. Anything else merely fails to act.
+		_cSev_ = :warning
+		_cWhy_ = " is declared and does nothing"
+		if _StzNameIsPredicate(_cName_)
+			_cSev_ = :error
+			_cWhy_ = " is a predicate that does nothing -- with no return it" +
+			         " answers NULL, which reads as FALSE, so it says no about" +
+			         " everything without ever failing"
+		ok
+
+		_aOut_ + [ :rule = :empty_method_body, :line = _i_,
+		           :severity = _cSev_,
+		           :message = _cName_ + "()" + _cWhy_ ]
+	next
+	return _aOut_
+
+# The text after a def line's matching ")", or "" when the line ends there.
+# Ring puts a whole body on the def line in two ordinary ways, and neither is
+# an empty method.
+func _StzDefSameLineBody(pcLine)
+	_c_ = _StzKnobStrip(pcLine)
+	_nOpen_ = StzFindFirst("(", _c_)
+	if _nOpen_ = 0
+		return ""
+	ok
+
+	# StzMid is (start, COUNT), not (start, end) -- StzMid(s, 20, 20) hands back
+	# TWENTY characters from position 20, which made every one of these walks
+	# fall straight through and report an empty body for a method that had one.
+	_nDepth_ = 0
+	_nLen_ = StzLen(_c_)
+	for _i_ = _nOpen_ to _nLen_
+		_ch_ = StzMid(_c_, _i_, 1)
+		if _ch_ = "("
+			_nDepth_++
+		but _ch_ = ")"
+			_nDepth_--
+			if _nDepth_ = 0
+				return ring_trim(StzMidToEnd(_c_, _i_ + 1))
+			ok
+		ok
+	next
+	return ""
+
+# Is/Has/Contains/Can/Are/Was -- a name that promises a yes or a no.
+func _StzNameIsPredicate(pcName)
+	_c_ = StzLower("" + pcName)
+	while StzLeft(_c_, 1) = "_"
+		_c_ = StzMidToEnd(_c_, 2)
+	end
+	_aP_ = [ "is", "has", "contains", "can", "are", "was", "should" ]
+	_n_ = len(_aP_)
+	for _i_ = 1 to _n_
+		if StzLeft(_c_, len(_aP_[_i_])) = _aP_[_i_]
+			return TRUE
+		ok
+	next
+	return FALSE
