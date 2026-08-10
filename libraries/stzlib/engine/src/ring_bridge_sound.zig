@@ -202,6 +202,10 @@ fn ring_GraphAddEnvelope(p: *anyopaque) callconv(.c) void {
     retNode(p, gph.addEnvelope(id(p, 1), nodeIn(p, 2), gn(p, 3), gn(p, 4), gn(p, 5), gn(p, 6), gn(p, 7)));
 }
 
+fn ring_GraphAddEnvelopeAt(p: *anyopaque) callconv(.c) void {
+    retNode(p, gph.addEnvelopeAt(id(p, 1), nodeIn(p, 2), gn(p, 3), gn(p, 4), gn(p, 5), gn(p, 6), gn(p, 7), gn(p, 8)));
+}
+
 fn ring_GraphSetOutput(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(gph.setOutput(id(p, 1), nodeIn(p, 2))));
 }
@@ -345,6 +349,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginesoundgraphaddfilter", .func = &ring_GraphAddFilter },
     .{ .name = "stzenginesoundgraphadddelay", .func = &ring_GraphAddDelay },
     .{ .name = "stzenginesoundgraphaddenvelope", .func = &ring_GraphAddEnvelope },
+    .{ .name = "stzenginesoundgraphaddenvelopeat", .func = &ring_GraphAddEnvelopeAt },
     .{ .name = "stzenginesoundgraphsetoutput", .func = &ring_GraphSetOutput },
     .{ .name = "stzenginesoundgraphprepare", .func = &ring_GraphPrepare },
     .{ .name = "stzenginesoundgraphrewind", .func = &ring_GraphRewind },

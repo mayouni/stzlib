@@ -238,6 +238,10 @@ const Node = struct {
     r_frames: usize = 0,
     gate_frames: usize = std.math.maxInt(usize),
     env_pos: usize = 0,
+    // Silence before the attack. This one field is what turns a graph of
+    // voices into a PIECE: without it every note begins at t=0 and the only
+    // composition possible is one chord. With it, a voice is a note at a time.
+    start_frames: usize = 0,
 
     // output bus: channels planar runs of block_frames, inside the graph's
     // one allocation. An OFFSET, not a pointer, so the arena can move at
@@ -519,6 +523,12 @@ pub fn addDelay(id: i64, input: i64, seconds: f64, feedback: f64, wet: f64) i64 
 }
 
 pub fn addEnvelope(id: i64, input: i64, a: f64, d: f64, sus: f64, r: f64, gate: f64) i64 {
+    return addEnvelopeAt(id, input, a, d, sus, r, gate, 0);
+}
+
+/// The same envelope, but silent until `start` seconds have passed. A voice
+/// that knows WHEN it sounds is the difference between a chord and a piece.
+pub fn addEnvelopeAt(id: i64, input: i64, a: f64, d: f64, sus: f64, r: f64, gate: f64, start: f64) i64 {
     const s = slotOf(id) orelse return -1;
     const g = &graphs.items[s];
     if (!validInput(g, input)) {
@@ -537,6 +547,7 @@ pub fn addEnvelope(id: i64, input: i64, a: f64, d: f64, sus: f64, r: f64, gate: 
         .sustain = sus,
         .r_frames = @intFromFloat(r * fr),
         .gate_frames = if (gate <= 0) std.math.maxInt(usize) else @intFromFloat(gate * fr),
+        .start_frames = if (start <= 0) 0 else @intFromFloat(start * fr),
     };
     n.inputs[0] = @intCast(input);
     n.n_inputs = 1;
@@ -904,7 +915,9 @@ fn waveAt(waveform: u32, ph: f64) f64 {
     };
 }
 
-fn envAt(n: *const Node, p: usize) f64 {
+fn envAt(n: *const Node, p0: usize) f64 {
+    if (p0 < n.start_frames) return 0; // not sounding yet
+    const p = p0 - n.start_frames;
     if (p < n.gate_frames) {
         if (p < n.a_frames) {
             return @as(f64, @floatFromInt(p)) / @as(f64, @floatFromInt(n.a_frames));
