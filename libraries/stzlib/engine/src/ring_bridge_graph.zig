@@ -553,6 +553,39 @@ fn readU32List(p: *anyopaque, argn: c_int) ?[]u32 {
     return out;
 }
 
+fn readF32List(p: *anyopaque, argn: c_int) ?[]f32 {
+    const lst = R.gl(p, argn) orelse return null;
+    const n: usize = @intCast(R.ringListSize(lst));
+    if (n == 0) return null;
+    const out = gpa.alloc(f32, n) catch return null;
+    for (0..n) |i| {
+        const item = R.ring_list_getitem_gc(null, lst, @intCast(i + 1)) orelse {
+            out[i] = 0;
+            continue;
+        };
+        out[i] = @floatCast(R.ring_item_getnumber(item));
+    }
+    return out;
+}
+
+// GraphLayoutForce(aOff, aSrc, aSeedXY, nIters, nK) -> flat [x,y,...]
+fn ring_GraphLayoutForce(p: *anyopaque) callconv(.c) void {
+    const off = readU32List(p, 1) orelse return;
+    defer gpa.free(off);
+    const src = readU32List(p, 2) orelse return;
+    defer gpa.free(src);
+    const seed = readF32List(p, 3) orelse return;
+    defer gpa.free(seed);
+    const iters: u32 = @intFromFloat(g(p, 4));
+    const k: f32 = @floatCast(g(p, 5));
+
+    _ = glayout.force(off, src, seed, iters, k);
+
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (seed) |v| R.ring_list_adddouble(out, @floatCast(v));
+    R.ring_vm_api_retlist(p, out);
+}
+
 // GraphLayoutSweep(aOff, aSrc, aLayer, aOrder, aStarts, nSweeps, aU, aV) -> aOrder
 fn ring_LayoutSweep(p: *anyopaque) callconv(.c) void {
     const off = readU32List(p, 1) orelse return;
@@ -659,6 +692,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegraphoutdegree", .func = &ring_OutDegree },
     .{ .name = "stzenginegraphtopologicalsort", .func = &ring_TopologicalSort },
     .{ .name = "stzenginegraphconnectedcomponents", .func = &ring_ConnectedComponents },
+    .{ .name = "stzenginegraphlayoutforce", .func = &ring_GraphLayoutForce },
     .{ .name = "stzenginegraphlayoutsweep", .func = &ring_LayoutSweep },
     .{ .name = "stzenginegraphlayoutcrossings", .func = &ring_LayoutCrossings },
 };
