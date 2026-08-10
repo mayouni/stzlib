@@ -292,6 +292,24 @@ fn ring_BetweennessOf(p: *anyopaque) callconv(.c) void {
     retCentralityOf(p, &graph.stz_graph_betweenness);
 }
 
+// The graph metrics a PICTURE binds to, read from the RESIDENT graph --
+// no edge list marshalled, no id mapped in Ring.
+fn ring_ImpactAll(p: *anyopaque) callconv(.c) void {
+    retCentralityAll(p, &graph.stz_graph_impact_all);
+}
+fn ring_LayersAll(p: *anyopaque) callconv(.c) void {
+    retCentralityAll(p, &graph.stz_graph_layers_all);
+}
+fn ring_DegreeAll(p: *anyopaque) callconv(.c) void {
+    retCentralityAll(p, &graph.stz_graph_degree_all);
+}
+fn ring_InDegreeAll(p: *anyopaque) callconv(.c) void {
+    retCentralityAll(p, &graph.stz_graph_indegree_all);
+}
+fn ring_OutDegreeAll(p: *anyopaque) callconv(.c) void {
+    retCentralityAll(p, &graph.stz_graph_outdegree_all);
+}
+
 fn ring_SetCoords(p: *anyopaque) callconv(.c) void {
     const id = gs(p, 2);
     const id_len: usize = @intCast(gss(p, 2));
@@ -692,6 +710,11 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegraphoutdegree", .func = &ring_OutDegree },
     .{ .name = "stzenginegraphtopologicalsort", .func = &ring_TopologicalSort },
     .{ .name = "stzenginegraphconnectedcomponents", .func = &ring_ConnectedComponents },
+    .{ .name = "stzenginegraphimpactall", .func = &ring_ImpactAll },
+    .{ .name = "stzenginegraphlayersall", .func = &ring_LayersAll },
+    .{ .name = "stzenginegraphdegreeall", .func = &ring_DegreeAll },
+    .{ .name = "stzenginegraphindegreeall", .func = &ring_InDegreeAll },
+    .{ .name = "stzenginegraphoutdegreeall", .func = &ring_OutDegreeAll },
     .{ .name = "stzenginegraphlayoutforce", .func = &ring_GraphLayoutForce },
     .{ .name = "stzenginegraphlayoutsweep", .func = &ring_LayoutSweep },
     .{ .name = "stzenginegraphlayoutcrossings", .func = &ring_LayoutCrossings },

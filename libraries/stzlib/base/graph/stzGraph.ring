@@ -154,6 +154,16 @@ class stzGraph from stzObject
 	def _EngineHandle()
 		return @pEngineGraph
 
+	# Public doorway to the engine-resident graph, so a collaborator (the
+	# graphics face, a future analytics face) can hand the HANDLE to an
+	# engine metric instead of marshalling a copy of the adjacency.
+	def HasEngine()
+		return This._EnsureEngine()
+
+	def EngineHandle()
+		This._EnsureEngine()
+		return @pEngineGraph
+
 	def _InvalidateEngine()
 		@bEngineStale = TRUE
 
