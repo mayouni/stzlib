@@ -19,6 +19,8 @@ const Domain = struct {
     needs_stb: bool = false, // vendored stb_truetype + stb_image (GR1 text/texture)
     needs_textshape: bool = false, // vendored HarfBuzz + SheenBidi (GR2 text pipeline)
     needs_glfw: bool = false, // vendored GLFW (GR5 windowing) -- SEE addGlfw
+    needs_miniaudio_dec: bool = false, // miniaudio, decoders only (SN1 portable half)
+    needs_miniaudio_dev: bool = false, // miniaudio, full device backends (SN1 per-OS half)
 };
 
 // Core (stk_*): minimal, fast, constrained environments
@@ -121,6 +123,14 @@ const base_domains = [_]Domain{
     // are not bundled with Zig), and linking it into stz_gpu would cost
     // the GPU plane a portability property that is already guarded.
     .{ .name = "stz_window", .entry = "src/stz_window_entry.zig", .needs_ring = true, .needs_glfw = true },
+    // SN1 sound plane, TWO DLLs -- the split is FACT 3 of SOFTANZA_SOUND_PLAN.md,
+    // adopted up front from the GR5 lesson above rather than rediscovered.
+    // stz_sound is portable and cross-compiles everywhere; stz_audiodev carries
+    // the device backends. SN0 measured that the device half ALSO cross-compiles
+    // to Linux (miniaudio dlopens ALSA/Pulse instead of needing their headers),
+    // so only macOS is genuinely per-OS here -- better than GLFW managed.
+    .{ .name = "stz_sound", .entry = "src/stz_sound_entry.zig", .needs_ring = true, .needs_miniaudio_dec = true },
+    .{ .name = "stz_audiodev", .entry = "src/stz_audiodev_entry.zig", .needs_ring = true, .needs_miniaudio_dev = true },
 };
 
 fn addUtf8proc(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
@@ -622,6 +632,35 @@ fn addGlfw(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build, 
     lib.addCSourceFiles(.{ .files = files.items, .flags = flags.items });
 }
 
+// miniaudio, ONE header compiled as ONE translation unit -- the stb pattern,
+// and measured before it was relied on (SN0 kill criterion #2, results in
+// vendor/miniaudio/VERSION.txt). No cmake, no SDK.
+//
+// TWO functions rather than one flag, because there are two DLLs and the
+// difference between them IS MA_NO_DEVICE_IO. Keeping the define in the
+// vendored .c files rather than here means the compiler -- not a build-flag
+// comment -- is what stops device code reaching the portable DLL.
+fn addMiniaudioDecode(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
+    mod.addIncludePath(b.path("vendor/miniaudio"));
+    lib.addCSourceFiles(.{ .files = &.{"vendor/miniaudio/stz_miniaudio_dec_impl.c"}, .flags = &.{} });
+}
+
+fn addMiniaudioDevice(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build, os_tag: std.Target.Os.Tag) void {
+    mod.addIncludePath(b.path("vendor/miniaudio"));
+    lib.addCSourceFiles(.{ .files = &.{"vendor/miniaudio/stz_miniaudio_impl.c"}, .flags = &.{} });
+    switch (os_tag) {
+        // WASAPI/DirectSound/WinMM reach these through COM and the multimedia
+        // timer; miniaudio LoadLibrary's the rest itself.
+        .windows => for ([_][]const u8{ "ole32", "user32", "advapi32" }) |l| lib.linkSystemLibrary(l),
+        // Nothing to link on Linux: ALSA/PulseAudio/JACK are dlopen'd at
+        // RUNTIME by miniaudio, which is exactly why this DLL cross-compiles
+        // there and stz_window.dll does not.
+        .linux => for ([_][]const u8{ "pthread", "dl", "m" }) |l| lib.linkSystemLibrary(l),
+        .macos => for ([_][]const u8{ "CoreAudio", "CoreFoundation", "AudioToolbox" }) |fw| lib.linkFramework(fw),
+        else => {},
+    }
+}
+
 fn addRing(b: *std.Build, mod: *std.Build.Module, lib: *std.Build.Step.Compile, ring_dir: []const u8) void {
     mod.addIncludePath(.{ .cwd_relative = b.fmt("{s}/language/include", .{ring_dir}) });
     lib.addLibraryPath(.{ .cwd_relative = b.fmt("{s}/lib", .{ring_dir}) });
@@ -1060,6 +1099,8 @@ pub fn build(b: *std.Build) void {
         if (dom.needs_stb) addStb(mod, lib, b);
         if (dom.needs_textshape) addTextShape(mod, lib, b);
         if (dom.needs_glfw) addGlfw(mod, lib, b, target.result.os.tag);
+        if (dom.needs_miniaudio_dec) addMiniaudioDecode(mod, lib, b);
+        if (dom.needs_miniaudio_dev) addMiniaudioDevice(mod, lib, b, target.result.os.tag);
         if (dom.needs_wgpu) {
             mod.addIncludePath(b.path("vendor/wgpu/include"));
             // Ship the vendored runtime next to the engine DLLs so the Ring
