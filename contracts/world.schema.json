@@ -1,0 +1,130 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://softanza.org/contracts/world.schema.json",
+  "title": "The World Contract (C1) — world.json",
+  "description": "One derived, language-neutral symbol artifact per project. Two flat tables: the symbols each court declares, and the references between them. Governed by contracts/world-contract.md v1.0; the two files move together.",
+  "type": "object",
+  "required": ["world", "contract", "symbols", "refs"],
+  "additionalProperties": false,
+
+  "properties": {
+    "world": {
+      "description": "The project this world belongs to.",
+      "type": "string",
+      "minLength": 1
+    },
+    "contract": {
+      "description": "The World Contract version this artifact was emitted against. MAJOR.MINOR.",
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$"
+    },
+    "generated": {
+      "description": "Optional emission timestamp, ISO 8601. Informational: staleness is the build's problem, not the reader's.",
+      "type": "string"
+    },
+    "symbols": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/symbol" }
+    },
+    "refs": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/ref" }
+    }
+  },
+
+  "definitions": {
+
+    "name": {
+      "description": "A symbol name in its declaring language. No space, no newline (stzGraph node-id rule). Dots qualify a field: deposit.amount.",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[^\\s]+$"
+    },
+
+    "symbolKind": {
+      "description": "Closed set, v1.0. The first eight are the reference design's; element and state were added for StzZui's shipped verifier, whose Level-3 checks read entities, actors, state and elements.",
+      "type": "string",
+      "enum": [
+        "entity",
+        "field",
+        "type",
+        "actor",
+        "norm",
+        "flow",
+        "screen",
+        "process",
+        "element",
+        "state"
+      ]
+    },
+
+    "refKind": {
+      "description": "Closed set, v1.0. A court emits the most specific kind it can prove; 'references' is the weakest true statement, never an escape hatch.",
+      "type": "string",
+      "enum": [
+        "declares",
+        "has_type",
+        "enforces",
+        "routes_to",
+        "performed_by",
+        "calls",
+        "shows",
+        "binds",
+        "references"
+      ]
+    },
+
+    "symbolId": {
+      "description": "kind:name — the C2 cite form (rule:79), reused rather than invented. Matched case-insensitively.",
+      "type": "string",
+      "pattern": "^(entity|field|type|actor|norm|flow|screen|process|element|state):[^\\s]+$"
+    },
+
+    "span": {
+      "description": "C2's span, verbatim — including line 0 meaning the finding is file-wide. span.file IS the declaring artifact; C1 carries no separate artifact field.",
+      "type": "object",
+      "required": ["file"],
+      "additionalProperties": false,
+      "properties": {
+        "file": { "type": "string", "minLength": 1 },
+        "line": { "type": "integer", "minimum": 0 },
+        "col":  { "type": "integer", "minimum": 1 }
+      }
+    },
+
+    "symbol": {
+      "type": "object",
+      "required": ["kind", "name", "span"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "$ref": "#/definitions/symbolKind" },
+        "name": { "$ref": "#/definitions/name" },
+        "type": {
+          "description": "The declared type where the kind has one — a field's type, a flow's return. Null or absent otherwise.",
+          "type": ["string", "null"]
+        },
+        "span": { "$ref": "#/definitions/span" },
+        "rationale": {
+          "description": "The declaration's own RATIONALE, carried verbatim. Never normative, never compared.",
+          "type": "string"
+        }
+      }
+    },
+
+    "ref": {
+      "description": "One reference SITE. The same pair referenced from three places is three rows — which is why refs is a table and not a field on the symbol.",
+      "type": "object",
+      "required": ["from", "to", "kind", "span"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "$ref": "#/definitions/symbolId" },
+        "to":   { "$ref": "#/definitions/symbolId" },
+        "kind": { "$ref": "#/definitions/refKind" },
+        "span": {
+          "description": "Where the REFERENCE appears — not where either symbol is declared.",
+          "$ref": "#/definitions/span"
+        }
+      }
+    }
+  }
+}
