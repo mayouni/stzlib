@@ -176,6 +176,72 @@ pub fn stz_locale_day_abbr(dow: u8, buf: [*c]u8, buf_len: usize) callconv(.c) us
     return name.len;
 }
 
+// ─── Currency (L1: the first locale table the engine owns) ───
+//
+// The rows come from locale_data.zig, generated OFFLINE by
+// tools/gen_locale_tables.py and committed -- the same shape utf8proc_data.c
+// has beside it. Ring's stzLocale delegates here rather than carrying its own
+// copy; a table with two owners is a table with two answers.
+
+const data = @import("locale_data.zig");
+
+fn eqlIgnoreCase(a: []const u8, b: []const u8) bool {
+    if (a.len != b.len) return false;
+    for (a, b) |ca, cb| {
+        if (std.ascii.toLower(ca) != std.ascii.toLower(cb)) return false;
+    }
+    return true;
+}
+
+fn findByName(name: []const u8) ?*const data.Currency {
+    for (&data.currencies) |*c| {
+        if (eqlIgnoreCase(c.name, name)) return c;
+    }
+    return null;
+}
+
+fn findByIso(iso: []const u8) ?*const data.Currency {
+    for (&data.currencies) |*c| {
+        if (eqlIgnoreCase(c.iso, iso)) return c;
+    }
+    return null;
+}
+
+fn copyOut(src: []const u8, buf: [*c]u8, buf_len: usize) usize {
+    if (src.len > buf_len) return 0;
+    @memcpy(buf[0..src.len], src);
+    return src.len;
+}
+
+pub fn stz_locale_currency_count() callconv(.c) i32 {
+    return @intCast(data.currencies.len);
+}
+
+/// ISO 4217 code for a currency NAME (afghan_afghani -> AFN). 0 if unknown.
+pub fn stz_locale_currency_iso(name: [*c]const u8, name_len: usize, buf: [*c]u8, buf_len: usize) callconv(.c) usize {
+    const c = findByName(name[0..name_len]) orelse return 0;
+    return copyOut(c.iso, buf, buf_len);
+}
+
+/// The sign a place actually writes -- the euro sign, not "EUR". 0 if unknown.
+pub fn stz_locale_currency_symbol(name: [*c]const u8, name_len: usize, buf: [*c]u8, buf_len: usize) callconv(.c) usize {
+    const c = findByName(name[0..name_len]) orelse return 0;
+    return copyOut(c.symbol, buf, buf_len);
+}
+
+/// Same sign, reached by ISO code instead of by name.
+pub fn stz_locale_currency_symbol_by_iso(iso: [*c]const u8, iso_len: usize, buf: [*c]u8, buf_len: usize) callconv(.c) usize {
+    const c = findByIso(iso[0..iso_len]) orelse return 0;
+    return copyOut(c.symbol, buf, buf_len);
+}
+
+/// The nth currency's name, 1-based -- so a caller can walk the table without
+/// holding a copy of it.
+pub fn stz_locale_currency_name_at(index: i32, buf: [*c]u8, buf_len: usize) callconv(.c) usize {
+    if (index < 1 or index > data.currencies.len) return 0;
+    return copyOut(data.currencies[@intCast(index - 1)].name, buf, buf_len);
+}
+
 // ─── Tests ───
 
 test "am pm text" {
@@ -233,4 +299,48 @@ test "day names" {
 
     const len2 = stz_locale_day_abbr(7, &buf, 16);
     try std.testing.expect(mem.eql(u8, buf[0..len2], "Sun"));
+}
+
+test "currency: the euro writes a sign, not its code" {
+    var buf: [16]u8 = undefined;
+    const n = stz_locale_currency_symbol("Euro", 4, &buf, 16);
+    try std.testing.expect(n > 0);
+    try std.testing.expect(!mem.eql(u8, buf[0..n], "EUR"));
+    try std.testing.expect(mem.eql(u8, buf[0..n], "€"));
+}
+
+test "currency: iso code by name, and the symbol back by iso" {
+    var buf: [16]u8 = undefined;
+    const n = stz_locale_currency_iso("Japanese_yen", 12, &buf, 16);
+    try std.testing.expect(mem.eql(u8, buf[0..n], "JPY"));
+
+    var buf2: [16]u8 = undefined;
+    const m = stz_locale_currency_symbol_by_iso("JPY", 3, &buf2, 16);
+    // JP¥, not a bare ¥ -- the yuan writes CN¥ and the table
+    // disambiguates them. Asserted as the data IS, not as I assumed it was.
+    try std.testing.expect(mem.eql(u8, buf2[0..m], "JP¥"));
+}
+
+test "currency: a name nobody carries answers nothing, it does not guess" {
+    var buf: [16]u8 = undefined;
+    try std.testing.expectEqual(@as(usize, 0), stz_locale_currency_symbol("no_such_money", 13, &buf, 16));
+    try std.testing.expectEqual(@as(usize, 0), stz_locale_currency_iso("no_such_money", 13, &buf, 16));
+}
+
+test "currency: NO row answers its own ISO code" {
+    // The property that caught 36 rows at once. Asserted over the whole table
+    // so the 37th cannot slip in, and asserted HERE as well as in the generator
+    // because the generated file is what actually ships.
+    for (&data.currencies) |*c| {
+        try std.testing.expect(!eqlIgnoreCase(c.symbol, c.iso));
+    }
+}
+
+test "currency: the table is whole and reachable by index" {
+    try std.testing.expectEqual(@as(i32, 143), stz_locale_currency_count());
+    var buf: [64]u8 = undefined;
+    try std.testing.expect(stz_locale_currency_name_at(1, &buf, 64) > 0);
+    try std.testing.expect(stz_locale_currency_name_at(143, &buf, 64) > 0);
+    try std.testing.expectEqual(@as(usize, 0), stz_locale_currency_name_at(144, &buf, 64));
+    try std.testing.expectEqual(@as(usize, 0), stz_locale_currency_name_at(0, &buf, 64));
 }
