@@ -97,6 +97,9 @@ ok
     # a graph draws itself; needs stzCanvas above it
     load "graphics/stzGraphCanvas.ring"
     load "graphics/stzWindow.ring"
+    # the frame graph: passes and resources as a graph. Uses stzGraph and
+    # stzRuleReport at RUNTIME, so it may load before them.
+    load "graphics/stzFrameGraph.ring"
     load "number/stzPolynomial.ring"
     load "number/stzMathFunction.ring"
     load "number/stzObjective.ring"
