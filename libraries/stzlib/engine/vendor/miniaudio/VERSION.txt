@@ -1,0 +1,85 @@
+miniaudio 0.11.25 -- audio device I/O + wav/flac/mp3 decode
+(public domain / MIT-0 dual licence, see LICENSE -- the author's choice of
+Unlicense or MIT No Attribution; either is compatible with the house
+"vendor wisely, cost nothing" law that killed FMOD and libsndfile)
+
+Source:   https://github.com/mackron/miniaudio
+Tag:      0.11.25
+Commit:   9634bedb5b5a2ca38c1ee7108a9358a4e233f14d
+Fetched:  2026-08-09
+File:     miniaudio.h  -- 95,864 lines, 4,108,168 bytes
+SHA-256:  ac7af4de748b7e26b777f37e01cee313a308a7296a3eb080e2906b320cc55c89
+
+Vendored for SN0 of SOFTANZA_SOUND_PLAN.md (sec.1, the vendor decision).
+One header, no dependencies, all three OSs from a single source, playback
+AND capture, decoders included. No cmake, no SDK.
+
+-- TWO TRANSLATION UNITS, BECAUSE THERE ARE TWO DLLS ------------------------
+
+The plan's FACT 3 splits the plane into a portable DSP DLL and a per-OS
+device DLL. These two files make that split mechanical rather than
+advisory -- the compiler enforces it, not a comment:
+
+  stz_miniaudio_dec_impl.c   MA_NO_DEVICE_IO  -> stz_sound.dll (portable)
+  stz_miniaudio_impl.c       full backends    -> stz_audiodev.dll (per-OS)
+
+Both trim MA_NO_ENGINE / MA_NO_RESOURCE_MANAGER / MA_NO_NODE_GRAPH:
+miniaudio's own high-level graph is NOT vendored. The sound graph is ours,
+written in Zig on the SIMD + multicore + fft.zig tiers -- see sec.1,
+"Written IN ZIG, not vendored".
+
+-- MEASURED, NOT ASSUMED (SN0, Zig 0.15.2, -O2, this machine) ---------------
+
+Kill criterion #2 of SN0 was "if miniaudio does not compile as one TU under
+zig cc with no cmake, STOP". It compiles:
+
+    target              PORTABLE TU        DEVICE TU
+    x86_64-windows      OK  11.7s  2.5MB   OK  12.4s  3.0MB
+    x86_64-linux-gnu    OK                 OK
+    x86_64-macos        OK                 FAIL
+    aarch64-macos       OK                 FAIL
+
+    macOS failure is exactly GLFW's: miniaudio.h:33500
+        fatal error: 'CoreAudio/CoreAudio.h' file not found
+    Zig bundles libc, not Apple's frameworks, and those are not
+    redistributable.
+
+Backend presence VERIFIED IN THE OBJECT FILES, not inferred from a clean
+exit -- a compile that silently dropped the backends would be the false
+green the plan warns about:
+
+    linux device .o    libasound.so.2, libpulse.so.0, libjack.so.0,
+                       snd_pcm_open        (ALSA/Pulse/JACK, dlopened)
+    windows device .o  IAudioClient/2/3, ma_context_init__wasapi,
+                       dsound.dll, winmm.dll
+    portable .o        ma_decoder_init_file present;
+                       ZERO device symbols
+
+-- WHERE THIS REFINES THE PLAN ---------------------------------------------
+
+FACT 3 assumed audio devices were "the SAME SHAPE" as GLFW windowing:
+per-OS, therefore uncross-compilable. Measurement says the shape is BETTER
+than that on one of the two OSs. GLFW's X11 backend needs X11/Xlib.h at
+COMPILE time, so it cannot cross-compile to Linux from here. miniaudio's
+ALSA/PulseAudio/JACK backends declare what they need themselves and
+dlopen the .so at RUNTIME -- so the Linux device DLL cross-compiles from
+this Windows box, which stz_window.dll never could.
+
+Only macOS is genuinely blocked, and only by Apple's headers.
+
+The two-DLL split is still right, and for its original reason: it is what
+keeps stz_sound.dll buildable for every target regardless. But the device
+DLL's per-OS cost is 1 OS out of 3, not 3 out of 3.
+
+VERIFICATION STATUS, stated rather than implied:
+  Windows  -- compiled here, and runtime-verified (device opened, tone
+              played, buffer captured, file decoded) -- see the SN0
+              RESULTS section of the plan.
+  Linux    -- compiled here (cross), both TUs. NOT runtime-verified.
+  macOS    -- portable TU compiled here (cross), x64 and arm64. Device TU
+              needs a macOS box with the Xcode command line tools. NOT
+              verified from this machine.
+
+The file is VERSION.txt, not VERSION: a vendor-root file named VERSION on
+a C include path resolves C++'s #include <version> on case-insensitive
+filesystems, which broke the build once already (see vendor/stb).
