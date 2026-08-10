@@ -46,8 +46,14 @@
 //! which is what lets feedback exist without cycles existing.
 
 const std = @import("std");
-const snd = @import("sound.zig");
+/// PUBLIC so a single-module consumer can reach the sample tier through this
+/// one import. Declaring sound.zig as a SECOND module alongside soundgraph.zig
+/// puts the same file in two modules, which Zig rejects outright.
+pub const snd = @import("sound.zig");
 const sr = @import("soundring.zig");
+/// Also public, and for the same reason: the studio server wants the device
+/// tier without declaring a second module over the same files.
+pub const dev = @import("audiodev.zig");
 
 // ---------------------------------------------------------------- counting allocator
 //
