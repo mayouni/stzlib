@@ -2568,3 +2568,138 @@ test "graph node name" {
     try std.testing.expectEqual(@as(usize, 5), len);
     try std.testing.expect(std.mem.eql(u8, buf[0..len], "Alice"));
 }
+
+/// IMPACT for every node in one call: how many OTHER nodes each one can
+/// reach. Exact transitive reachability by bitset propagation -- GG0's
+/// primitive, reading the graph that ALREADY LIVES HERE.
+///
+/// The shape matters as much as the speed. The first version of this took
+/// marshalled edge arrays, so a caller had to walk its own edge list, map
+/// every endpoint to an index, and hand two lists across the bridge -- work
+/// that is quadratic in Ring and pointless when the adjacency is right
+/// here. A metric over a resident graph should take the GRAPH.
+///
+/// Measured on the path the face actually takes, 300 nodes:
+///   PathExists per ordered pair, from Ring   2,684 ms
+///   marshalled arrays into the engine            30 ms
+///   this, reading the resident graph              (see the guard)
+///
+/// The bitset is n*ceil(n/32) words: 12.5 MB at n=10,000, 1.25 GB at
+/// 100,000. Past MAX_REACH_NODES it REFUSES (returns 0) rather than
+/// quietly eating the machine.
+pub const MAX_REACH_NODES: usize = 20000;
+
+pub fn stz_graph_impact_all(g: ?*const StzGraph, out: [*]f64, cap: usize) callconv(.c) usize {
+    const gr = g orelse return 0;
+    const n = gr.nodes.items.len;
+    if (n == 0 or cap < n or n > MAX_REACH_NODES) return 0;
+
+    const w: usize = (n + 31) / 32;
+    const reach = allocator.alloc(u32, n * w) catch return 0;
+    defer allocator.free(reach);
+    @memset(reach, 0);
+    for (0..n) |i| reach[i * w + (i / 32)] |= (@as(u32, 1) << @intCast(i % 32));
+
+    // Descending order converges in ONE pass whenever edges point forward,
+    // which is the common case for a DAG, and in O(depth) passes otherwise.
+    var passes: usize = 0;
+    while (passes <= n) : (passes += 1) {
+        var changed = false;
+        var i: usize = n;
+        while (i > 0) {
+            i -= 1;
+            for (gr.nodes.items[i].edges.items) |e| {
+                const v: usize = @intCast(e.to);
+                if (v >= n) continue;
+                for (0..w) |k| {
+                    const before = reach[i * w + k];
+                    const after = before | reach[v * w + k];
+                    if (after != before) {
+                        reach[i * w + k] = after;
+                        changed = true;
+                    }
+                }
+            }
+        }
+        if (!changed) break;
+    }
+
+    for (0..n) |i| {
+        var c: u32 = 0;
+        for (0..w) |k| c += @popCount(reach[i * w + k]);
+        out[i] = @floatFromInt(c - 1); // never count itself
+    }
+    return n;
+}
+
+/// Longest-path layer for every node, from the resident graph.
+/// layer[v] = max(layer[u] + 1) over the edges that ENTER v.
+pub fn stz_graph_layers_all(g: ?*const StzGraph, out: [*]f64, cap: usize) callconv(.c) usize {
+    const gr = g orelse return 0;
+    const n = gr.nodes.items.len;
+    if (n == 0 or cap < n) return 0;
+
+    const lay = allocator.alloc(u32, n) catch return 0;
+    defer allocator.free(lay);
+    @memset(lay, 0);
+
+    // A cycle can never settle, so the pass count is capped at n and the
+    // answer stays usable rather than becoming a hang.
+    var passes: usize = 0;
+    while (passes <= n) : (passes += 1) {
+        var changed = false;
+        for (gr.nodes.items, 0..) |node, u| {
+            for (node.edges.items) |e| {
+                const v: usize = @intCast(e.to);
+                if (v >= n) continue;
+                if (lay[u] + 1 > lay[v]) {
+                    lay[v] = lay[u] + 1;
+                    changed = true;
+                }
+            }
+        }
+        if (!changed) break;
+    }
+    for (0..n) |i| out[i] = @floatFromInt(lay[i]);
+    return n;
+}
+
+/// Degree for every node. Three functions rather than one interleaved
+/// array, because the whole-graph metrics share ONE return shape (n values,
+/// one per node) and a special case would be a second convention nobody
+/// remembers.
+pub fn stz_graph_indegree_all(g: ?*const StzGraph, out: [*]f64, cap: usize) callconv(.c) usize {
+    const gr = g orelse return 0;
+    const n = gr.nodes.items.len;
+    if (n == 0 or cap < n) return 0;
+    for (0..n) |i| out[i] = 0;
+    for (gr.nodes.items) |node| {
+        for (node.edges.items) |e| {
+            const v: usize = @intCast(e.to);
+            if (v < n) out[v] += 1;
+        }
+    }
+    return n;
+}
+
+pub fn stz_graph_outdegree_all(g: ?*const StzGraph, out: [*]f64, cap: usize) callconv(.c) usize {
+    const gr = g orelse return 0;
+    const n = gr.nodes.items.len;
+    if (n == 0 or cap < n) return 0;
+    for (gr.nodes.items, 0..) |node, i| out[i] = @floatFromInt(node.edges.items.len);
+    return n;
+}
+
+pub fn stz_graph_degree_all(g: ?*const StzGraph, out: [*]f64, cap: usize) callconv(.c) usize {
+    const gr = g orelse return 0;
+    const n = gr.nodes.items.len;
+    if (n == 0 or cap < n) return 0;
+    for (gr.nodes.items, 0..) |node, i| out[i] = @floatFromInt(node.edges.items.len);
+    for (gr.nodes.items) |node| {
+        for (node.edges.items) |e| {
+            const v: usize = @intCast(e.to);
+            if (v < n) out[v] += 1;
+        }
+    }
+    return n;
+}

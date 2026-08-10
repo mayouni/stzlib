@@ -44,97 +44,123 @@ func StzGraphCanvasQ(poGraph, paOptions)
 # Named so it reads as a question about the graph. Values are computed on
 # demand -- nothing is stored on the nodes, so a graph that changes gives a
 # different picture without anything being invalidated by hand.
+# ONE call into the engine, over the graph THAT ALREADY LIVES THERE.
+#
+# This function has been wrong twice, and the second version is instructive.
+#
+#   v1  computed everything in Ring. :Impact called PathExists for every
+#       ORDERED PAIR -- quadratic work with a language boundary inside the
+#       loop. 300 nodes: 2,684 ms.
+#   v2  moved the algorithms into the engine but still MARSHALLED: walk the
+#       edge list in Ring, map every endpoint to an index by linear search,
+#       hand two arrays across. 300 nodes: 30 ms -- and at 1,000 nodes all
+#       three metrics cost the same ~200 ms, which is the tell: the metric
+#       was no longer the cost, the marshalling was.
+#   v3  this. stzGraph is ENGINE-BACKED. The adjacency is already there, so
+#       a metric over it takes the GRAPH, not a copy of the graph.
+#
+# The lesson is the one the house rule states: push the processing into the
+# engine -- and pushing the ALGORITHM while leaving the DATA in Ring only
+# moves the bottleneck.
 func StzGraphMetric(poGraph, cWhich)
-	_ids_ = poGraph.NodesIds()
-	_n_ = len(_ids_)
-	_out_ = []
+	_n_ = len(poGraph.NodesIds())
+	if _n_ = 0
+		return []
+	ok
 
 	switch StzLower("" + cWhich)
-	on "impact"
-		# how many OTHER nodes are reachable from this one -- "if this
-		# fails, how much fails with it"
-		for _i_ = 1 to _n_
-			_c_ = 0
-			for _j_ = 1 to _n_
-				if _i_ != _j_ and poGraph.PathExists(_ids_[_i_], _ids_[_j_])
-					_c_++
-				ok
-			next
-			_out_ + _c_
-		next
-	on "depth"
-		_out_ = _StzGraphLayers(poGraph)
-	on "degree"
-		_d_ = _StzGraphDegrees(poGraph)
-		for _i_ = 1 to _n_  _out_ + (_d_[1][_i_] + _d_[2][_i_])  next
-	on "indegree"
-		_out_ = _StzGraphDegrees(poGraph)[1]
-	on "outdegree"
-		_out_ = _StzGraphDegrees(poGraph)[2]
+	on "impact"    return _StzGraphAllMetric(poGraph, :Impact, _n_)
+	on "depth"     return _StzGraphAllMetric(poGraph, :Depth, _n_)
+	on "degree"    return _StzGraphAllMetric(poGraph, :Degree, _n_)
+	on "indegree"  return _StzGraphAllMetric(poGraph, :InDegree, _n_)
+	on "outdegree" return _StzGraphAllMetric(poGraph, :OutDegree, _n_)
 	other
 		StzRaise("stzGraphCanvas: I do not compute '" + cWhich + "'. " +
 			"Use :Impact, :Depth, :Degree, :InDegree or :OutDegree.")
 	off
-	return _out_
 
-func _StzGraphDegrees(poGraph)
-	_ids_ = poGraph.NodesIds()
-	_n_ = len(_ids_)
-	_idx_ = []
-	for _i_ = 1 to _n_  _idx_ + [ _ids_[_i_], _i_ ]  next
-	_in_ = []  _out_ = []
-	for _i_ = 1 to _n_  _in_ + 0  _out_ + 0  next
-	_aE_ = poGraph.Edges()
-	_ne_ = len(_aE_)
-	for _e_ = 1 to _ne_
-		_u_ = _StzIndexOfId(_idx_, _aE_[_e_][:from])
-		_v_ = _StzIndexOfId(_idx_, _aE_[_e_][:to])
-		if _u_ > 0  _out_[_u_]++  ok
-		if _v_ > 0  _in_[_v_]++   ok
+# The engine returns [ [name, value], ... ] in NODE ORDER, the shape every
+# whole-graph metric in stz_graph already uses. Only the values are wanted
+# here; the names are the graph's own and already known.
+func _StzGraphAllMetric(poGraph, cWhich, nCount)
+	if NOT poGraph.HasEngine()
+		StzRaise("stzGraphCanvas: this graph is not engine-backed, so its " +
+			"metrics cannot be computed. The engine is where the work " +
+			"belongs -- Ring is the face, not the tier that computes.")
+	ok
+	_h_ = poGraph.EngineHandle()
+
+	switch StzLower("" + cWhich)
+	on "impact"    _r_ = StzEngineGraphImpactAll(_h_)
+	on "depth"     _r_ = StzEngineGraphLayersAll(_h_)
+	on "degree"    _r_ = StzEngineGraphDegreeAll(_h_)
+	on "indegree"  _r_ = StzEngineGraphInDegreeAll(_h_)
+	on "outdegree" _r_ = StzEngineGraphOutDegreeAll(_h_)
+	off
+
+	if len(_r_) = 0
+		if StzLower("" + cWhich) = "impact"
+			StzRaise("stzGraphCanvas: :Impact is exact transitive " +
+				"reachability and its bitset is O(n^2/8) -- refused above " +
+				"20,000 nodes. Use :Degree or :Depth on a graph that large.")
+		ok
+		StzRaise("stzGraphCanvas: the engine refused " + cWhich + ".")
+	ok
+
+	_o_ = []
+	for _i_ = 1 to len(_r_)
+		_o_ + _r_[_i_][2]
 	next
-	return [ _in_, _out_ ]
+	return _o_
 
-func _StzIndexOfId(paIdx, cId)
-	_n_ = len(paIdx)
+# ---- layout inputs ------------------------------------------------------
+#
+# The LAYOUTS still take arrays, and that is legitimate: a sweep needs an
+# order and layer starts, which are properties of the drawing rather than of
+# the graph, so there is nothing resident to point at. What is NOT legitimate
+# is paying O(n*e) to build them -- the id->index map is a HASHLIST lookup,
+# not a linear scan through every node for every endpoint.
+
+func _StzGraphEdgeArrays(poGraph, paIds)
+	_n_ = len(paIds)
+	_map_ = []
 	for _i_ = 1 to _n_
-		if paIdx[_i_][1] = cId  return paIdx[_i_][2]  ok
+		_map_ + [ "" + paIds[_i_], _i_ ]
 	next
-	return 0
-
-# Longest-path layering, done here in Ring because a graph small enough to
-# LOOK at is small enough to layer sequentially. The GPU tier exists for
-# the 10,000-node case and is reached through the layout, not through this.
-func _StzGraphLayers(poGraph)
-	_ids_ = poGraph.NodesIds()
-	_n_ = len(_ids_)
-	_idx_ = []
-	for _i_ = 1 to _n_  _idx_ + [ _ids_[_i_], _i_ ]  next
 	_aE_ = poGraph.Edges()
 	_ne_ = len(_aE_)
-	_eu_ = []  _ev_ = []
+	_u_ = []  _v_ = []
 	for _e_ = 1 to _ne_
-		_u_ = _StzIndexOfId(_idx_, _aE_[_e_][:from])
-		_v_ = _StzIndexOfId(_idx_, _aE_[_e_][:to])
-		if _u_ > 0 and _v_ > 0
-			_eu_ + _u_
-			_ev_ + _v_
+		_a_ = _map_[ "" + _aE_[_e_][:from] ]
+		_b_ = _map_[ "" + _aE_[_e_][:to] ]
+		if isNumber(_a_) and isNumber(_b_) and _a_ > 0 and _b_ > 0
+			_u_ + (_a_ - 1)
+			_v_ + (_b_ - 1)
 		ok
 	next
-	_lay_ = []
-	for _i_ = 1 to _n_  _lay_ + 0  next
-	# relax until stable; a cycle would never settle, so the round count is
-	# capped at n and the result is still a usable (if arbitrary) layering
-	for _r_ = 1 to _n_
-		_moved_ = FALSE
-		for _e_ = 1 to len(_eu_)
-			if _lay_[_ev_[_e_]] < _lay_[_eu_[_e_]] + 1
-				_lay_[_ev_[_e_]] = _lay_[_eu_[_e_]] + 1
-				_moved_ = TRUE
-			ok
-		next
-		if NOT _moved_  exit  ok
+	return [ _u_, _v_ ]
+
+# CSR keyed by the FIRST array: _StzCsr(from, to, n) indexes, for each
+# `from`, the `to`s that leave it. Swap the arguments for the other
+# direction -- one builder, not two.
+func _StzCsr(paFrom, paTo, n)
+	_cnt_ = []
+	for _i_ = 1 to n  _cnt_ + 0  next
+	_ne_ = len(paFrom)
+	for _e_ = 1 to _ne_  _cnt_[paFrom[_e_] + 1]++  next
+	_off_ = []  _acc_ = 0
+	for _i_ = 1 to n  _off_ + _acc_  _acc_ += _cnt_[_i_]  next
+	_off_ + _acc_
+	_src_ = []
+	for _i_ = 1 to _acc_  _src_ + 0  next
+	_fill_ = []
+	for _i_ = 1 to n  _fill_ + 0  next
+	for _e_ = 1 to _ne_
+		_f_ = paFrom[_e_]
+		_src_[_off_[_f_ + 1] + _fill_[_f_ + 1] + 1] = paTo[_e_]
+		_fill_[_f_ + 1]++
 	next
-	return _lay_
+	return [ _off_, _src_ ]
 
 class stzGraphCanvas from stzObject
 
@@ -147,6 +173,7 @@ class stzGraphCanvas from stzObject
 	@aIds = []
 	@aSize = []
 	@aColor = []
+	@aIdMap = []
 
 	def init(poGraph, paOptions)
 		if NOT isObject(poGraph)
@@ -156,6 +183,10 @@ class stzGraphCanvas from stzObject
 		@aOpt = paOptions
 		if NOT isList(@aOpt)  @aOpt = []  ok
 		@aIds = poGraph.NodesIds()
+		@aIdMap = []
+		for _i_ = 1 to len(@aIds)
+			@aIdMap + [ "" + @aIds[_i_], _i_ ]
+		next
 		if len(@aIds) = 0
 			StzRaise("stzGraphCanvas: that graph has no nodes to draw.")
 		ok
@@ -262,11 +293,14 @@ class stzGraphCanvas from stzObject
 		next
 		return xDefault
 
+	# O(1). It was a linear scan over every node, called twice per edge --
+	# O(n*e), which on a 1,000-node chain was most of the frame and looked
+	# like the metric's fault.
 	def _IndexOf(cId)
-		_n_ = len(@aIds)
-		for _i_ = 1 to _n_
-			if @aIds[_i_] = cId  return _i_  ok
-		next
+		_v_ = @aIdMap[ "" + cId ]
+		if isNumber(_v_)
+			return _v_
+		ok
 		return 0
 
 	def _Compute()
@@ -341,7 +375,7 @@ class stzGraphCanvas from stzObject
 		return _g_
 
 	def _LayoutHierarchical()
-		_lay_ = _StzGraphLayers(@oGraph)
+		_lay_ = StzGraphMetric(@oGraph, :Depth)
 		_n_ = len(@aIds)
 		_max_ = 0
 		for _i_ = 1 to _n_
@@ -382,7 +416,7 @@ class stzGraphCanvas from stzObject
 		for _i_ = 1 to _n_  _lay0_ + _lay_[_i_]  next
 
 		if len(_eu_) > 0 and _max_ > 0
-			_csr_ = _StzInCsr(_eu_, _ev_, _n_)
+			_csr_ = _StzCsr(_ev_, _eu_, _n_)
 			_order_ = StzEngineGraphLayoutSweep(_csr_[1], _csr_[2], _lay0_,
 				_order_, _starts_, 12, _eu_, _ev_)
 		ok
@@ -445,7 +479,7 @@ class stzGraphCanvas from stzObject
 			return
 		ok
 
-		_csr_ = _StzInCsr(_eu_, _ev_, _n_)
+		_csr_ = _StzCsr(_ev_, _eu_, _n_)
 		_k_ = sqrt((1000 * 1000) / _n_)
 		_out_ = StzEngineGraphLayoutForce(_csr_[1], _csr_[2], _seed_,
 			This._Opt(:Iterations, 160), _k_)
@@ -508,21 +542,3 @@ func _StzScaleList(paVals, nLo, nHi)
 	next
 	return _o_
 
-func _StzInCsr(paU, paV, n)
-	_cnt_ = []
-	for _i_ = 1 to n  _cnt_ + 0  next
-	_ne_ = len(paU)
-	for _e_ = 1 to _ne_  _cnt_[paV[_e_] + 1]++  next
-	_off_ = []  _acc_ = 0
-	for _i_ = 1 to n  _off_ + _acc_  _acc_ += _cnt_[_i_]  next
-	_off_ + _acc_
-	_src_ = []
-	for _i_ = 1 to _acc_  _src_ + 0  next
-	_fill_ = []
-	for _i_ = 1 to n  _fill_ + 0  next
-	for _e_ = 1 to _ne_
-		_v_ = paV[_e_]
-		_src_[_off_[_v_ + 1] + _fill_[_v_ + 1] + 1] = paU[_e_]
-		_fill_[_v_ + 1]++
-	next
-	return [ _off_, _src_ ]
