@@ -1,0 +1,85 @@
+{
+  "world": "tontine",
+  "contract": "1.0",
+  "generated": "2026-08-10",
+
+  "symbols": [
+    { "kind": "entity", "name": "deposit",
+      "span": { "file": "app.zql", "line": 6 },
+      "rationale": "One member's contribution to one round of the circle" },
+
+    { "kind": "entity", "name": "member",
+      "span": { "file": "app.zql", "line": 18 },
+      "rationale": "A person the circle knows" },
+
+    { "kind": "field", "name": "deposit.amount", "type": "currency",
+      "span": { "file": "app.zql", "line": 9 } },
+
+    { "kind": "field", "name": "deposit.round", "type": "int",
+      "span": { "file": "app.zql", "line": 10 } },
+
+    { "kind": "type", "name": "currency",
+      "span": { "file": "app.zql", "line": 9 } },
+
+    { "kind": "type", "name": "int",
+      "span": { "file": "app.zql", "line": 10 } },
+
+    { "kind": "norm", "name": "positive_deposit",
+      "span": { "file": "app.zql", "line": 24 },
+      "rationale": "A deposit must bring something to the circle" },
+
+    { "kind": "flow", "name": "accept_deposit",
+      "span": { "file": "app.zql", "line": 28 } },
+
+    { "kind": "actor", "name": "member",
+      "span": { "file": "app.zql", "line": 29 } },
+
+    { "kind": "screen", "name": "payments_home",
+      "span": { "file": "payments.zui", "line": 10 } },
+
+    { "kind": "element", "name": "deposit_form",
+      "span": { "file": "payments.zui", "line": 16 } },
+
+    { "kind": "state", "name": "pending_review",
+      "span": { "file": "payments.zui", "line": 14 } },
+
+    { "kind": "entity", "name": "player",
+      "span": { "file": "arena.game", "line": 20 },
+      "rationale": "The learner's body in the world. It IS the declared member." }
+  ],
+
+  "refs": [
+    { "from": "entity:deposit", "to": "field:deposit.amount",
+      "kind": "declares", "span": { "file": "app.zql", "line": 9 } },
+
+    { "from": "entity:deposit", "to": "field:deposit.round",
+      "kind": "declares", "span": { "file": "app.zql", "line": 10 } },
+
+    { "from": "field:deposit.amount", "to": "type:currency",
+      "kind": "has_type", "span": { "file": "app.zql", "line": 9 } },
+
+    { "from": "field:deposit.round", "to": "type:int",
+      "kind": "has_type", "span": { "file": "app.zql", "line": 10 } },
+
+    { "from": "flow:accept_deposit", "to": "actor:member",
+      "kind": "performed_by", "span": { "file": "app.zql", "line": 29 } },
+
+    { "from": "flow:accept_deposit", "to": "norm:positive_deposit",
+      "kind": "enforces", "span": { "file": "app.zql", "line": 31 } },
+
+    { "from": "flow:accept_deposit", "to": "norm:positive_deposit",
+      "kind": "enforces", "span": { "file": "app.zql", "line": 35 } },
+
+    { "from": "screen:payments_home", "to": "entity:deposit",
+      "kind": "shows", "span": { "file": "payments.zui", "line": 12 } },
+
+    { "from": "screen:payments_home", "to": "state:pending_review",
+      "kind": "shows", "span": { "file": "payments.zui", "line": 14 } },
+
+    { "from": "element:deposit_form", "to": "field:deposit.amount",
+      "kind": "shows", "span": { "file": "payments.zui", "line": 18 } },
+
+    { "from": "entity:player", "to": "entity:member",
+      "kind": "binds", "span": { "file": "arena.game", "line": 24 } }
+  ]
+}
