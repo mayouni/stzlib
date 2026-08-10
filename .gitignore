@@ -45,7 +45,6 @@ _wasmsub_tmp/
 # fswatch guard scratch dir (the guard reuses it across runs by design)
 **/_fswatch_scratch/
 
-# sound web studio: a locally built listening bench, not an artifact
-libraries/stzlib/base/test/sound/sound_studio_server.exe
-libraries/stzlib/base/test/sound/sound_studio_server.pdb
+# sound studio: the exe is built into zig-out/ with the engine; temp/ holds
+# renders the guards and the console studio write
 libraries/stzlib/base/test/sound/temp/
