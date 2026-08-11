@@ -67,6 +67,12 @@ pub const MAX_SCALARS = 14; // 64-byte params uniform: 8B (n+pad) + 14*4B
 const FUNC_WHITELIST = [_][]const u8{
     "abs", "min", "max", "sqrt", "exp", "log", "sin", "cos", "tan",
     "floor", "ceil", "pow", "clamp", "sign", "fract", "round",
+    // A SURFACE language needs the surface verbs. Without mix and
+    // smoothstep a material cannot blend or make a soft edge, which is most
+    // of what materials do -- the list was a compute kernel's list.
+    "mix", "smoothstep", "step", "dot", "cross", "normalize", "length",
+    "distance", "reflect", "atan2", "asin", "acos", "inverseSqrt",
+    "vec2", "vec3", "vec4",
 };
 
 var err_buf: [256]u8 = @splat(0);
@@ -357,6 +363,108 @@ fn isSwizzle(s: []const u8) bool {
 /// Transpile a material spec into a COMPLETE WGSL render shader.
 /// Same contract as the elementwise entry: length written, or -1 with the
 /// reason in stz_gpu_wgsl_error.
+pub const MAX_LOCALS = 8;
+
+/// Compile ONE material expression to WGSL.
+///
+/// Lifted out of the body parser so several statements can share it, and
+/// that sharing IS the feature: a material used to be exactly one
+/// assignment, so every intermediate value had to be spelled out again
+/// wherever it was used. The language could describe a surface but not
+/// BUILD one.
+fn compileExpr(
+    rhs: []const u8,
+    colors: []const Name,
+    scalars: []const Name,
+    locals: []const Name,
+    expr: *Cursor,
+) bool {
+    var i: usize = 0;
+    while (i < rhs.len) {
+        const ch = rhs[i];
+        if (ch == '@') {
+            var j = i + 1;
+            while (j < rhs.len and (std.ascii.isAlphanumeric(rhs[j]) or rhs[j] == '_')) : (j += 1) {}
+            var nm: Name = .{};
+            if (j == i + 1 or !lowerInto(&nm, rhs[i + 1 .. j]))
+                { _ = fail("bad @name at '{s}'", .{rhs[i..@min(i + 8, rhs.len)]}); return false; }
+            if (std.mem.eql(u8, nm.slice(), "out"))
+                { _ = fail("'@out' cannot be read, only assigned", .{}); return false; }
+            var known = false;
+            for (BUILTINS) |bi| {
+                if (std.mem.eql(u8, bi, nm.slice())) {
+                    known = true;
+                    break;
+                }
+            }
+            if (!known)
+                { _ = fail("'@{s}' is not a fragment builtin (@normal @position @uv @lambert @color)", .{nm.slice()}); return false; }
+            expr.put("f_");
+            expr.put(nm.slice());
+            i = j;
+            // an optional swizzle rides along: @normal.y
+            if (i < rhs.len and rhs[i] == '.') {
+                var k = i + 1;
+                while (k < rhs.len and std.ascii.isAlphabetic(rhs[k])) : (k += 1) {}
+                const sw = rhs[i + 1 .. k];
+                if (!isSwizzle(sw))
+                    { _ = fail("'{s}' is not a swizzle (use x y z w or r g b a)", .{sw}); return false; }
+                expr.putc('.');
+                expr.put(sw);
+                i = k;
+            }
+        } else if (std.ascii.isAlphabetic(ch) or ch == '_') {
+            var j = i;
+            while (j < rhs.len and (std.ascii.isAlphanumeric(rhs[j]) or rhs[j] == '_')) : (j += 1) {}
+            var nm: Name = .{};
+            if (!lowerInto(&nm, rhs[i..j]))
+                { _ = fail("name too long at '{s}'", .{rhs[i..@min(i + 8, rhs.len)]}); return false; }
+            if (nameIn(colors, colors.len, nm.slice()) != null) {
+                expr.put("m.c_");
+                expr.put(nm.slice());
+            } else if (nameIn(scalars, scalars.len, nm.slice()) != null) {
+                expr.put("m.s_");
+                expr.put(nm.slice());
+            } else if (nameIn(locals, locals.len, nm.slice()) != null) {
+                expr.put("v_");
+                expr.put(nm.slice());
+            } else {
+                var is_func = false;
+                for (FUNC_WHITELIST) |f| {
+                    if (std.mem.eql(u8, f, nm.slice())) {
+                        is_func = true;
+                        break;
+                    }
+                }
+                if (!is_func)
+                    { _ = fail("unknown name '{s}' (not a declared colour or scalar, not a whitelisted function)", .{nm.slice()}); return false; }
+                var k = j;
+                while (k < rhs.len and (rhs[k] == ' ' or rhs[k] == '\t')) : (k += 1) {}
+                if (k >= rhs.len or rhs[k] != '(')
+                {
+                    _ = fail("function '{s}' needs '('", .{nm.slice()});
+                    return false;
+                }
+                expr.put(nm.slice());
+            }
+            i = j;
+        } else if (std.ascii.isDigit(ch) or ch == '.') {
+            var j = i;
+            while (j < rhs.len and (std.ascii.isDigit(rhs[j]) or rhs[j] == '.')) : (j += 1) {}
+            expr.put(rhs[i..j]);
+            i = j;
+        } else if (ch == '+' or ch == '-' or ch == '*' or ch == '/' or ch == '%' or
+            ch == '(' or ch == ')' or ch == ',' or ch == ' ' or ch == '\t')
+        {
+            expr.putc(ch);
+            i += 1;
+        } else {
+            { _ = fail("character '{c}' is not part of the material language", .{ch}); return false; }
+        }
+    }
+    return true;
+}
+
 pub fn stz_gpu_wgsl_fragment(spec: [*]const u8, spec_len: f64, out: [*]u8, cap: f64) callconv(.c) i32 {
     const text = spec[0..@intFromFloat(spec_len)];
     err_len = 0;
@@ -400,94 +508,78 @@ pub fn stz_gpu_wgsl_fragment(spec: [*]const u8, spec_len: f64, out: [*]u8, cap: 
     var b = body;
     if (b.len >= 2 and b[0] == '{' and b[b.len - 1] == '}')
         b = std.mem.trim(u8, b[1 .. b.len - 1], " \t");
-    if (b.len == 0 or b[0] != '@') return fail("body must be '@out = expression'", .{});
-    const eq = std.mem.indexOfScalar(u8, b, '=') orelse return fail("body has no '='", .{});
-    const lhs = std.mem.trim(u8, b[1..eq], " \t");
-    var lhs_lower: Name = .{};
-    if (!lowerInto(&lhs_lower, lhs) or !std.mem.eql(u8, lhs_lower.slice(), "out"))
-        return fail("a material assigns '@out', not '@{s}'", .{lhs});
-    const rhs = std.mem.trim(u8, b[eq + 1 ..], " \t");
-    if (rhs.len == 0) return fail("empty expression", .{});
+    if (b.len == 0) return fail("empty body", .{});
 
+    // MULTI-STATEMENT BODIES. Statements are separated by ';' -- not by
+    // newlines, because Ring has no reliable multi-line string literal and
+    // a one-line W-string has to be able to carry them:
+    //
+    //   let d = @normal.y; let band = fract(d * rings); @out = mix(a, b, band)
+    //
+    // Each let becomes a WGSL let, visible to every statement AFTER it and
+    // to none before -- so a name cannot be used before it exists, and the
+    // transpiler says so rather than emitting a shader that fails to
+    // compile somewhere the caller never sees.
+    var locals: [MAX_LOCALS]Name = undefined;
+    var n_locals: usize = 0;
+    var lets_buf: [8192]u8 = undefined;
+    var lets = Cursor{ .buf = &lets_buf };
     var expr_buf: [4096]u8 = undefined;
     var expr = Cursor{ .buf = &expr_buf };
-    var i: usize = 0;
-    while (i < rhs.len) {
-        const ch = rhs[i];
-        if (ch == '@') {
-            var j = i + 1;
-            while (j < rhs.len and (std.ascii.isAlphanumeric(rhs[j]) or rhs[j] == '_')) : (j += 1) {}
-            var nm: Name = .{};
-            if (j == i + 1 or !lowerInto(&nm, rhs[i + 1 .. j]))
-                return fail("bad @name at '{s}'", .{rhs[i..@min(i + 8, rhs.len)]});
-            if (std.mem.eql(u8, nm.slice(), "out"))
-                return fail("'@out' cannot be read, only assigned", .{});
-            var known = false;
-            for (BUILTINS) |bi| {
-                if (std.mem.eql(u8, bi, nm.slice())) {
-                    known = true;
-                    break;
-                }
-            }
-            if (!known)
-                return fail("'@{s}' is not a fragment builtin (@normal @position @uv @lambert @color)", .{nm.slice()});
-            expr.put("f_");
-            expr.put(nm.slice());
-            i = j;
-            // an optional swizzle rides along: @normal.y
-            if (i < rhs.len and rhs[i] == '.') {
-                var k = i + 1;
-                while (k < rhs.len and std.ascii.isAlphabetic(rhs[k])) : (k += 1) {}
-                const sw = rhs[i + 1 .. k];
-                if (!isSwizzle(sw))
-                    return fail("'{s}' is not a swizzle (use x y z w or r g b a)", .{sw});
-                expr.putc('.');
-                expr.put(sw);
-                i = k;
-            }
-        } else if (std.ascii.isAlphabetic(ch) or ch == '_') {
-            var j = i;
-            while (j < rhs.len and (std.ascii.isAlphanumeric(rhs[j]) or rhs[j] == '_')) : (j += 1) {}
-            var nm: Name = .{};
-            if (!lowerInto(&nm, rhs[i..j]))
-                return fail("name too long at '{s}'", .{rhs[i..@min(i + 8, rhs.len)]});
-            if (nameIn(colors[0..], n_colors, nm.slice()) != null) {
-                expr.put("m.c_");
-                expr.put(nm.slice());
-            } else if (nameIn(scalars[0..], n_scalars, nm.slice()) != null) {
-                expr.put("m.s_");
-                expr.put(nm.slice());
-            } else {
-                var is_func = false;
-                for (FUNC_WHITELIST) |f| {
-                    if (std.mem.eql(u8, f, nm.slice())) {
-                        is_func = true;
-                        break;
-                    }
-                }
-                if (!is_func)
-                    return fail("unknown name '{s}' (not a declared colour or scalar, not a whitelisted function)", .{nm.slice()});
-                var k = j;
-                while (k < rhs.len and (rhs[k] == ' ' or rhs[k] == '\t')) : (k += 1) {}
-                if (k >= rhs.len or rhs[k] != '(')
-                    return fail("function '{s}' needs '('", .{nm.slice()});
-                expr.put(nm.slice());
-            }
-            i = j;
-        } else if (std.ascii.isDigit(ch) or ch == '.') {
-            var j = i;
-            while (j < rhs.len and (std.ascii.isDigit(rhs[j]) or rhs[j] == '.')) : (j += 1) {}
-            expr.put(rhs[i..j]);
-            i = j;
-        } else if (ch == '+' or ch == '-' or ch == '*' or ch == '/' or ch == '%' or
-            ch == '(' or ch == ')' or ch == ',' or ch == ' ' or ch == '\t')
-        {
-            expr.putc(ch);
-            i += 1;
+    var saw_out = false;
+
+    var stmts = std.mem.splitScalar(u8, b, ';');
+    while (stmts.next()) |raw_st| {
+        const st = std.mem.trim(u8, raw_st, " \t\r\n");
+        if (st.len == 0) continue;
+        if (saw_out) return fail("'@out' must be the LAST statement", .{});
+
+        if (std.mem.startsWith(u8, st, "let ")) {
+            const rest = std.mem.trim(u8, st[4..], " \t");
+            const eq2 = std.mem.indexOfScalar(u8, rest, '=') orelse
+                return fail("a let needs '=': 'let name = expression'", .{});
+            const lname = std.mem.trim(u8, rest[0..eq2], " \t");
+            var lnm: Name = .{};
+            if (!lowerInto(&lnm, lname) or !validIdent(lnm.slice()))
+                return fail("bad let name: '{s}'", .{lname});
+            if (n_locals == MAX_LOCALS)
+                return fail("too many lets (max {d})", .{MAX_LOCALS});
+            if (nameIn(colors[0..], n_colors, lnm.slice()) != null or
+                nameIn(scalars[0..], n_scalars, lnm.slice()) != null or
+                nameIn(locals[0..], n_locals, lnm.slice()) != null)
+                return fail("'{s}' is already a name in this material", .{lnm.slice()});
+            const lrhs = std.mem.trim(u8, rest[eq2 + 1 ..], " \t");
+            if (lrhs.len == 0) return fail("let '{s}' has no expression", .{lnm.slice()});
+            var one_buf: [4096]u8 = undefined;
+            var one = Cursor{ .buf = &one_buf };
+            if (!compileExpr(lrhs, colors[0..n_colors], scalars[0..n_scalars], locals[0..n_locals], &one))
+                return -1;
+            if (one.overflow) return fail("let '{s}' is too long", .{lnm.slice()});
+            lets.put("  let v_");
+            lets.put(lnm.slice());
+            lets.put(" = ");
+            lets.put(one.items());
+            lets.put(";\n");
+            locals[n_locals] = lnm;
+            n_locals += 1;
+        } else if (st[0] == '@') {
+            const eq = std.mem.indexOfScalar(u8, st, '=') orelse
+                return fail("body has no '='", .{});
+            const lhs = std.mem.trim(u8, st[1..eq], " \t");
+            var lhs_lower: Name = .{};
+            if (!lowerInto(&lhs_lower, lhs) or !std.mem.eql(u8, lhs_lower.slice(), "out"))
+                return fail("a material assigns '@out', not '@{s}'", .{lhs});
+            const rhs = std.mem.trim(u8, st[eq + 1 ..], " \t");
+            if (rhs.len == 0) return fail("empty expression", .{});
+            if (!compileExpr(rhs, colors[0..n_colors], scalars[0..n_scalars], locals[0..n_locals], &expr))
+                return -1;
+            saw_out = true;
         } else {
-            return fail("character '{c}' is not part of the material language", .{ch});
+            return fail("a statement is 'let name = ...' or '@out = ...'", .{});
         }
     }
+    if (!saw_out) return fail("no '@out = ...' -- a material must produce a colour", .{});
+    if (lets.overflow) return fail("too much material code", .{});
     if (expr.overflow) return fail("expression too long", .{});
 
     // ---- emit a COMPLETE shader on the render layer's 3D contract
@@ -537,6 +629,7 @@ pub fn stz_gpu_wgsl_fragment(spec: [*]const u8, spec_len: f64, out: [*]u8, cap: 
     put(&w, "  let f_uv = in.uv;\n");
     put(&w, "  let f_color = in.col;\n");
     put(&w, "  let f_lambert = max(dot(f_normal, -normalize(frame.lightDir.xyz)), 0.0);\n");
+    put(&w, lets.items());   // the material's own let bindings, in order
     put(&w, "  return ");
     put(&w, expr.items());
     put(&w, ";\n}\n");
