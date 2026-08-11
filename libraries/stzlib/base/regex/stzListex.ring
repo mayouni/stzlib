@@ -13,7 +13,7 @@ class stzListex from stzObject
 
 	@cPattern		# The original pattern string
 	@aTokens		# List of parsed token definitions
-	@bDebugMode = false	# Debug mode flag
+	@bDebugMode = 0	# Debug mode flag
 
 	# Cache system attributes
 	@aMatchCache = []
@@ -128,9 +128,9 @@ class stzListex from stzObject
 			[ "min", _nMin_ ],
 			[ "max", _nMax_ ],
 			[ "quantifier", _nQuantifier_ ],
-			[ "hasset", false ],
+			[ "hasset", 0 ],
 			[ "setvalues", [] ],
-			[ "requireunique", false ],
+			[ "requireunique", 0 ],
 			[ "negated", _bNegated_ ],
 			[ "casesensitive", _bCaseSensitive_ ]
 		]
@@ -164,9 +164,9 @@ class stzListex from stzObject
 			[ "min", 1 ],
 			[ "max", 1 ],
 			[ "quantifier", 1 ],
-			[ "hasset", false ],
+			[ "hasset", 0 ],
 			[ "setvalues", [] ],
-			[ "requireunique", false ],
+			[ "requireunique", 0 ],
 			[ "negated", _bNegated_ ],
 			[ "casesensitive", _bCaseSensitive_ ]
 		]
@@ -176,12 +176,12 @@ class stzListex from stzObject
 	def ParseToken(_cTokenStr_)
 		This.DebugLog("ParseToken", "Input: " + _cTokenStr_)
 		
-		_bNegated_ = FALSE
-		_bCaseSensitive_ = FALSE
+		_bNegated_ = 0
+		_bCaseSensitive_ = 0
 
 		# Check for case-sensitive prefix @cs:
 		if StartsWith(StzLower(_cTokenStr_), "@cs:")
-			_bCaseSensitive_ = TRUE
+			_bCaseSensitive_ = 1
 			_cTokenStr_ = @StzMid(_cTokenStr_, 5, StzLen(_cTokenStr_))
 		ok
 
@@ -197,7 +197,7 @@ class stzListex from stzObject
 
 		# Check for negation prefix
 		if StartsWith(_cTokenStr_, "@!")
-			_bNegated_ = true
+			_bNegated_ = 1
 			_cTokenStr_ = @subStr(_cTokenStr_, 3, len(_cTokenStr_))
 		ok
 
@@ -223,7 +223,7 @@ class stzListex from stzObject
 		_nMax_ = 1
 		_nQuantifier_ = 1
 		_aSetValues_ = []
-		_bRequireUnique_ = false
+		_bRequireUnique_ = 0
 
 		_cRemainder_ = ""
 		_nLenToken_ = stzlen(_cTokenStr_)
@@ -288,7 +288,7 @@ class stzListex from stzObject
 		if len(_cPreservedSet_) > 0
 			# Check for {values}U format
 			if EndsWith(_cRemainder_, "U") and StzFindFirst("{", _cRemainder_) > 0
-				_bRequireUnique_ = TRUE
+				_bRequireUnique_ = 1
 				_cPreservedSet_ = StzReplace(_cPreservedSet_, "U", "")
 			ok
 			
@@ -341,13 +341,13 @@ class stzListex from stzObject
 		_aToken_ + [ "quantifier", _nQuantifier_ ]
 
 		if len(_aSetValues_) > 0
-			_aToken_ + [ "hasset", true ]
+			_aToken_ + [ "hasset", 1 ]
 			_aToken_ + [ "setvalues", _aSetValues_ ]
 			_aToken_ + [ "requireunique", _bRequireUnique_ ]
 		else
-			_aToken_ + [ "hasset", false ]
+			_aToken_ + [ "hasset", 0 ]
 			_aToken_ + [ "setvalues", [] ]
-			_aToken_ + [ "requireunique", false ]
+			_aToken_ + [ "requireunique", 0 ]
 		ok
 
 		_aToken_ + [ "negated", _bNegated_ ]
@@ -511,7 +511,7 @@ class stzListex from stzObject
 
 	def Match(paList)
 		if NOT isList(paList)
-			return FALSE
+			return 0
 		ok
 
 		# Generate cache key BEFORE any modifications
@@ -536,7 +536,7 @@ class stzListex from stzObject
 		next
 
 		# Perform matching
-		_bResult_ = false
+		_bResult_ = 0
 		try
 			_bResult_ = This.MatchTokensToElements(@aTokens, _aElements_)
 
@@ -544,7 +544,7 @@ class stzListex from stzObject
 			if @bDebugMode
 				? "Error during matching: " + cCatchError
 			ok
-			_bResult_ = false
+			_bResult_ = 0
 		done
 		
 		# Store in cache AFTER computing result
@@ -621,14 +621,14 @@ class stzListex from stzObject
 					if @bDebugMode
 						? ">>> Alternative #" + i + " MATCHED!"
 					ok
-					return true
+					return 1
 				ok
 			next
 
 			if @bDebugMode
 				? ">>> All alternatives FAILED"
 			ok
-			return false
+			return 0
 		ok
 
 		# Nested pattern handling
@@ -636,30 +636,30 @@ class stzListex from stzObject
 			_nMin_ = @Min([_aToken_[:max], _nLenElements_ - nElementIndex + 1])
 
 			for nMatchCount = _aToken_[:min] to _nMin_
-				_bSuccess_ = TRUE
+				_bSuccess_ = 1
 				_nElemIdx_ = nElementIndex
 				_aLocalUsedValuesCopy_ = _aLocalUsedValues_
 
 				for i = 1 to nMatchCount
 					if _nElemIdx_ > _nLenElements_
-						_bSuccess_ = false
+						_bSuccess_ = 0
  						exit
 					ok
 
 					_xElement_ = _aElements_[_nElemIdx_]
 
 					if NOT isList(_xElement_)
-						_bSuccess_ = false
+						_bSuccess_ = 0
 						exit
 					ok
 
 					if _aToken_[:negated]
-						_bSuccess_ = false
+						_bSuccess_ = 0
 						exit
 					ok
                 
 					if NOT This.MatchTokensToElements(_aToken_[:nestedTokens], _xElement_)
-						_bSuccess_ = false
+						_bSuccess_ = 0
 						exit
 					ok
 
@@ -669,11 +669,11 @@ class stzListex from stzObject
 				if _bSuccess_
 					if nTokenIndex = _nLenTokens_
 						if _nElemIdx_ = _nLenElements_ + 1
-							return true
+							return 1
 						ok
 					else
 						if This.BacktrackMatch(_aTokens_, _aElements_, nTokenIndex + 1, _nElemIdx_, _aLocalUsedValuesCopy_)
-							return TRUE
+							return 1
 						ok
 					ok
 				ok
@@ -681,11 +681,11 @@ class stzListex from stzObject
         
 			if _aToken_[:min] = 0
 				if This.BacktrackMatch(_aTokens_, _aElements_, nTokenIndex + 1, nElementIndex, _aLocalUsedValues_)
-					return TRUE
+					return 1
 				ok
 			ok
         
-			return FALSE
+			return 0
 		ok
 
 		# Standard token handling
@@ -703,7 +703,7 @@ class stzListex from stzObject
 				? ">>> Trying to match " + nMatchCount + " element(s)"
 			ok
 			
-			_bSuccess_ = true
+			_bSuccess_ = 1
 			_nElemIdx_ = nElementIndex
 			_aMatchedElements_ = []
 			_aLocalUsedValuesCopy_ = []
@@ -720,12 +720,12 @@ class stzListex from stzObject
 					if @bDebugMode
 						? ">>> Ran out of elements"
 					ok
-					_bSuccess_ = false
+					_bSuccess_ = 0
 					exit
 				ok
 
 				_xElement_ = _aElements_[_nElemIdx_]
-				_bMatched_ = false
+				_bMatched_ = 0
             
 				_cElement_ = @@(_xElement_)
 
@@ -756,7 +756,7 @@ class stzListex from stzObject
 					# Set constraint checking
 					if _aToken_[:hasset]
 						_xElemValue_ = This.ConvertToType(_cElement_, _aToken_[:type])
-						_bInSet_ = false
+						_bInSet_ = 0
 						
 						if @bDebugMode
 							? ">>> Checking set constraint..."
@@ -765,7 +765,7 @@ class stzListex from stzObject
 						ok
 						
 						# Get case sensitivity setting
-						_bCaseSensitive_ = TRUE
+						_bCaseSensitive_ = 1
 						if HasKey(_aToken_, "casesensitive")
 							_bCaseSensitive_ = _aToken_[:casesensitive]
 						ok
@@ -775,7 +775,7 @@ class stzListex from stzObject
 							_xSetValue_ = _aToken_[:setvalues][j]
 
 							if This.CompareValues(_xElemValue_, _xSetValue_, _aToken_[:type], _bCaseSensitive_)
-								_bInSet_ = true
+								_bInSet_ = 1
 								if @bDebugMode
 									? ">>> Found in set at position " + j
 								ok
@@ -796,13 +796,13 @@ class stzListex from stzObject
 							if @bDebugMode
 								? ">>> FAILED: not in set"
 							ok
-							_bSuccess_ = false
+							_bSuccess_ = 0
 							exit
 						ok
 	                
 						# Unique constraint for non-negated tokens
 						if _aToken_[:requireunique] and NOT _aToken_[:negated]
-							_bDuplicate_ = FALSE
+							_bDuplicate_ = 0
 							
 							if @bDebugMode
 								? ">>> Checking uniqueness..."
@@ -812,7 +812,7 @@ class stzListex from stzObject
 							_nLocalUsedValuesCopyLen_ = len(_aLocalUsedValuesCopy_)
 							for j = 1 to _nLocalUsedValuesCopyLen_
 								if This.CompareValues(_xElemValue_, _aLocalUsedValuesCopy_[j], _aToken_[:type], _bCaseSensitive_)
-									_bDuplicate_ = TRUE
+									_bDuplicate_ = 1
 									if @bDebugMode
 										? ">>> DUPLICATE found!"
 									ok
@@ -821,7 +821,7 @@ class stzListex from stzObject
 							next
                         
 							if _bDuplicate_
-								_bSuccess_ = false
+								_bSuccess_ = 0
 								exit
 							else
 								_aLocalUsedValuesCopy_ + _xElemValue_
@@ -844,7 +844,7 @@ class stzListex from stzObject
 					if @bDebugMode
 						? ">>> Element FAILED to match"
 					ok
-					_bSuccess_ = false
+					_bSuccess_ = 0
 					exit
 				ok
 			next
@@ -862,7 +862,7 @@ class stzListex from stzObject
 						if @bDebugMode
 							? ">>> FINAL MATCH - all elements consumed!"
 						ok
-						return true
+						return 1
 					ok
 					if @bDebugMode
 						? ">>> Failed: " + (_nLenElements_ - _nElemIdx_ + 1) + " element(s) remaining"
@@ -877,7 +877,7 @@ class stzListex from stzObject
 						if @bDebugMode
 							? ">>> Recursion SUCCESS!"
 						ok
-						return true
+						return 1
                 	ok
 					if @bDebugMode
 						? ">>> Recursion failed, trying next match count"
@@ -897,14 +897,14 @@ class stzListex from stzObject
 				if @bDebugMode
 					? ">>> Skip SUCCESS!"
 				ok
-				return true
+				return 1
 			ok
 		ok
 
 		if @bDebugMode
 			? ">>> Token COMPLETELY FAILED"
 		ok
-		return false
+		return 0
 
 	def CompareValues(xValue1, xValue2, _cType_, _bCaseSensitive_)
 		switch _cType_
@@ -1013,11 +1013,11 @@ class stzListex from stzObject
 		ok
 
 	def EnableDebug()
-		@bDebugMode = true
+		@bDebugMode = 1
 		return self
 
 	def DisableDebug()
-		@bDebugMode = false
+		@bDebugMode = 0
 		return self
 
 	def Tokens()
@@ -1095,7 +1095,7 @@ class stzListex from stzObject
 				["SetValues", _aToken_[:setvalues]],
 				["Unique", _aToken_[:requireunique]],
 				["Negated", _aToken_[:negated]],
-				["CaseSensitive", iff(HasKey(_aToken_, "casesensitive"), _aToken_[:casesensitive], TRUE)]
+				["CaseSensitive", iff(HasKey(_aToken_, "casesensitive"), _aToken_[:casesensitive], 1)]
 			]
 		next
 		

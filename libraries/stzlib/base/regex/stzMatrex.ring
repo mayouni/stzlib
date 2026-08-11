@@ -24,7 +24,7 @@ class stzMatrex from stzObject
 	@cPattern           # Pattern string
 	@aTokens            # Parsed token definitions
 	@aMatrix = []       # Target matrix to match
-	@bDebugMode = FALSE # Debug flag
+	@bDebugMode = 0 # Debug flag
 	@aMatchedParts = [] # Extracted parts
 	
 	  #-------------------#
@@ -505,18 +505,18 @@ def ParseConjunction(_cTokenStr_)
 			_aToken_ = _aTokens_[_i_]
 			
 			if HasKey(_aToken_, "type") and _aToken_["type"] = "alternation"
-				_bMatched_ = FALSE
+				_bMatched_ = 0
 				if HasKey(_aToken_, "alternatives")
 					_nLenAlt_ = len(_aToken_["alternatives"])
 					for j = 1 to _nLenAlt_
 						if This.MatchSingleToken(_aToken_["alternatives"][j], aMatrix)
-							_bMatched_ = TRUE
+							_bMatched_ = 1
 							exit
 						ok
 					next
 				ok
 				if not _bMatched_
-					return FALSE
+					return 0
 				ok
 			
 			but HasKey(_aToken_, "type") and _aToken_["type"] = "conjunction"
@@ -524,22 +524,22 @@ def ParseConjunction(_cTokenStr_)
 					_nLenCond_ = len(_aToken_["conditions"])
 					for j = 1 to _nLenCond_
 						if not This.MatchSingleToken(_aToken_["conditions"][j], aMatrix)
-							return FALSE
+							return 0
 						ok
 					next
 				ok
 			
 			else
 				if not This.MatchSingleToken(_aToken_, aMatrix)
-					return FALSE
+					return 0
 				ok
 			ok
 		next
 		
-		return TRUE
+		return 1
 	
 	def MatchSingleToken(_aToken_, aMatrix)
-		_bResult_ = FALSE
+		_bResult_ = 0
 		
 		if @bDebugMode
 			? "Checking token type: " + _aToken_["type"]
@@ -626,7 +626,7 @@ def ParseConjunction(_cTokenStr_)
 					if This.IsNumeric(_cRowSpec_) and This.IsNumeric(_cColSpec_)
 						return _nRows_ = (0 + _cRowSpec_) and _nCols_ = (0 + _cColSpec_)
 					but _cRowSpec_ = "m" or _cRowSpec_ = "n"
-						return TRUE  # Any size accepted
+						return 1  # Any size accepted
 					ok
 				ok
 			ok
@@ -646,7 +646,7 @@ def ParseConjunction(_cTokenStr_)
 						
 						if This.IsNumeric(_cRowSpec_) and This.IsNumeric(_cColSpec_)
 							if _nRows_ != (0 + _cRowSpec_) or _nCols_ != (0 + _cColSpec_)
-								return FALSE
+								return 0
 							ok
 						ok
 					
@@ -656,7 +656,7 @@ def ParseConjunction(_cTokenStr_)
 							_nMin_ = _nCols_
 						ok
 						if _nMin_ <= _aConstraint_["value"]
-							return FALSE
+							return 0
 						ok
 					
 					but _cConstrType_ = "less"
@@ -665,14 +665,14 @@ def ParseConjunction(_cTokenStr_)
 							_nMax_ = _nCols_
 						ok
 						if _nMax_ >= _aConstraint_["value"]
-							return FALSE
+							return 0
 						ok
 					ok
 				ok
 			next
 		ok
 		
-		return TRUE
+		return 1
 	
 	def CheckShape(_cShape_, aMatrix)
 		_cShape_ = StzLower(trim(_cShape_))
@@ -693,7 +693,7 @@ def ParseConjunction(_cTokenStr_)
 			return _nCols_ = 1
 		ok
 		
-		return FALSE
+		return 0
 	
 	def CheckElements(_aToken_, aMatrix)
 		_nRows_ = len(aMatrix)
@@ -715,7 +715,7 @@ def ParseConjunction(_cTokenStr_)
 							for c = 1 to _nCols_
 								_nVal_ = aMatrix[r][c]
 								if _nVal_ < _nStart_ or _nVal_ > _nEnd_
-									return FALSE
+									return 0
 								ok
 							next
 						next
@@ -724,17 +724,17 @@ def ParseConjunction(_cTokenStr_)
 						_aValues_ = _aConstraint_["values"]
 						for r = 1 to _nRows_
 							for c = 1 to _nCols_
-								_bFound_ = FALSE
+								_bFound_ = 0
 								_nVal_ = aMatrix[r][c]
 								_nLenValues_ = len(_aValues_)
 								for k = 1 to _nLenValues_
 									if _nVal_ = (0 + trim(_aValues_[k]))
-										_bFound_ = TRUE
+										_bFound_ = 1
 										exit
 									ok
 								next
 								if not _bFound_
-									return FALSE
+									return 0
 								ok
 							next
 						next
@@ -744,7 +744,7 @@ def ParseConjunction(_cTokenStr_)
 						for r = 1 to _nRows_
 							for c = 1 to _nCols_
 								if aMatrix[r][c] != _nTarget_
-									return FALSE
+									return 0
 								ok
 							next
 						next
@@ -753,22 +753,22 @@ def ParseConjunction(_cTokenStr_)
 			next
 		ok
 		
-		return TRUE
+		return 1
 	
 	def CheckRows(_aToken_, aMatrix)
 		# Check row-specific patterns
-		return TRUE
+		return 1
 	
 	def CheckCols(_aToken_, aMatrix)
 		# Check column-specific patterns
-		return TRUE
+		return 1
 	
 	def CheckDiagonal(_aToken_, aMatrix)
 		_nRows_ = len(aMatrix)
 		_nCols_ = len(aMatrix[1])
 		
 		if _nRows_ != _nCols_
-			return FALSE  # Only square matrices have proper diagonals
+			return 0  # Only square matrices have proper diagonals
 		ok
 		
 		# Check main diagonal
@@ -777,7 +777,7 @@ def ParseConjunction(_cTokenStr_)
 			_nMin_ = _nCols_
 		ok
 		
-		return TRUE
+		return 1
 	
 	def CheckProperty(_cProperty_, aMatrix)
 		_cProperty_ = StzLower(trim(_cProperty_))
@@ -786,102 +786,102 @@ def ParseConjunction(_cTokenStr_)
 		
 		if _cProperty_ = "symmetric"
 			if _nRows_ != _nCols_
-				return FALSE
+				return 0
 			ok
 			for _i_ = 1 to _nRows_
 				for j = 1 to _nCols_
 					if aMatrix[_i_][j] != aMatrix[j][_i_]
-						return FALSE
+						return 0
 					ok
 				next
 			next
-			return TRUE
+			return 1
 		
 		but _cProperty_ = "diagonal"
 			if _nRows_ != _nCols_
-				return FALSE
+				return 0
 			ok
 			for _i_ = 1 to _nRows_
 				for j = 1 to _nCols_
 					if _i_ != j and aMatrix[_i_][j] != 0
-						return FALSE
+						return 0
 					ok
 				next
 			next
-			return TRUE
+			return 1
 		
 		but _cProperty_ = "identity"
 			if _nRows_ != _nCols_
-				return FALSE
+				return 0
 			ok
 			for _i_ = 1 to _nRows_
 				for j = 1 to _nCols_
 					if _i_ = j
 						if aMatrix[_i_][j] != 1
-							return FALSE
+							return 0
 						ok
 					else
 						if aMatrix[_i_][j] != 0
-							return FALSE
+							return 0
 						ok
 					ok
 				next
 			next
-			return TRUE
+			return 1
 		
 		but _cProperty_ = "zero"
 			for _i_ = 1 to _nRows_
 				for j = 1 to _nCols_
 					if aMatrix[_i_][j] != 0
-						return FALSE
+						return 0
 					ok
 				next
 			next
-			return TRUE
+			return 1
 		
 		but _cProperty_ = "upper" or _cProperty_ = "uppertriangular"
 			if _nRows_ != _nCols_
-				return FALSE
+				return 0
 			ok
 			for _i_ = 1 to _nRows_
 				for j = 1 to _i_-1
 					if aMatrix[_i_][j] != 0
-						return FALSE
+						return 0
 					ok
 				next
 			next
-			return TRUE
+			return 1
 		
 		but _cProperty_ = "lower" or _cProperty_ = "lowertriangular"
 			if _nRows_ != _nCols_
-				return FALSE
+				return 0
 			ok
 			for _i_ = 1 to _nRows_
 				for j = _i_+1 to _nCols_
 					if aMatrix[_i_][j] != 0
-						return FALSE
+						return 0
 					ok
 				next
 			next
-			return TRUE
+			return 1
 		ok
 		
-		return FALSE
+		return 0
 	
 	def CheckPattern(_cPattern_, aMatrix)
 		# Check for visual/structural patterns
-		return TRUE
+		return 1
 	
 	def CheckDeterminant(_aToken_, aMatrix)
 		_nRows_ = len(aMatrix)
 		_nCols_ = len(aMatrix[1])
 		
 		if _nRows_ != _nCols_
-			return FALSE
+			return 0
 		ok
 		
 		# Would call stzMatrix determinant method
-		return TRUE
+		return 1
 	
 	def CheckSum(_aToken_, aMatrix)
 		_nSum_ = 0
@@ -898,7 +898,7 @@ def ParseConjunction(_cTokenStr_)
 			# Check sum constraints
 		ok
 		
-		return TRUE
+		return 1
 	
 	  #----------------------#
 	 #  PART EXTRACTION     #
@@ -936,52 +936,52 @@ def ParseConjunction(_cTokenStr_)
 		_nRows_ = len(aMatrix)
 		_nCols_ = len(aMatrix[1])
 		if _nRows_ != _nCols_
-			return FALSE
+			return 0
 		ok
 		for _i_ = 1 to _nRows_
 			for j = 1 to _nCols_
 				if aMatrix[_i_][j] != aMatrix[j][_i_]
-					return FALSE
+					return 0
 				ok
 			next
 		next
-		return TRUE
+		return 1
 	
 	def IsDiagonal(aMatrix)
 		_nRows_ = len(aMatrix)
 		_nCols_ = len(aMatrix[1])
 		if _nRows_ != _nCols_
-			return FALSE
+			return 0
 		ok
 		for _i_ = 1 to _nRows_
 			for j = 1 to _nCols_
 				if _i_ != j and aMatrix[_i_][j] != 0
-					return FALSE
+					return 0
 				ok
 			next
 		next
-		return TRUE
+		return 1
 	
 	def IsIdentity(aMatrix)
 		_nRows_ = len(aMatrix)
 		_nCols_ = len(aMatrix[1])
 		if _nRows_ != _nCols_
-			return FALSE
+			return 0
 		ok
 		for _i_ = 1 to _nRows_
 			for j = 1 to _nCols_
 				if _i_ = j
 					if aMatrix[_i_][j] != 1
-						return FALSE
+						return 0
 					ok
 				else
 					if aMatrix[_i_][j] != 0
-						return FALSE
+						return 0
 					ok
 				ok
 			next
 		next
-		return TRUE
+		return 1
 	
 	  #----------------------#
 	 #  QUERY METHODS       #
@@ -1172,11 +1172,11 @@ def ParseConjunction(_cTokenStr_)
 		
 		for _i_ = 1 to _nLen_
 			if This.Match(paMatrices[_i_])
-				return TRUE
+				return 1
 			ok
 		next
 		
-		return FALSE
+		return 0
 	
 		def MatchesNoneIn(paMatrices)
 			return This.MatchesNone(paMatrices)
@@ -1195,11 +1195,11 @@ def ParseConjunction(_cTokenStr_)
 		
 		for _i_ = 1 to _nLen_
 			if not This.Match(paMatrices[_i_])
-				return FALSE
+				return 0
 			ok
 		next
 		
-		return TRUE
+		return 1
 	
 		def MatchesAllIn(paMatrices)
 			return This.MatchesAll(paMatrices)
@@ -1396,13 +1396,13 @@ def ParseConjunction(_cTokenStr_)
 		
 		for _i_ = 1 to _nLenProps_
 			_cProp_ = _aAllProps_[_i_]
-			_bAll_ = TRUE
+			_bAll_ = 1
 			
 			_nLen_ = len(paMatrices)
 			for j = 1 to _nLen_
 				if This.Match(paMatrices[j])
 					if not This.CheckProperty(_cProp_, paMatrices[j])
-						_bAll_ = FALSE
+						_bAll_ = 0
 						exit
 					ok
 				ok
@@ -1420,11 +1420,11 @@ def ParseConjunction(_cTokenStr_)
 	#----------------------#
 	
 	def EnableDebug()
-		@bDebugMode = TRUE
+		@bDebugMode = 1
 		@aTokens = This.ParsePattern(@cPattern)
 
 	def DisableDebug()
-		@bDebugMode = FALSE
+		@bDebugMode = 0
 	
 	def SetDebug(bFlag)
 		@bDebugMode = bFlag
@@ -1435,18 +1435,18 @@ def ParseConjunction(_cTokenStr_)
 	
 	def IsNumeric(cStr)
 		if cStr = ""
-			return FALSE
+			return 0
 		ok
 		
 		_nLen_ = len(cStr)
 		for _i_ = 1 to _nLen_
 			_cChar_ = This._Mid(cStr, _i_, _i_)
 			if not isDigit(_cChar_) and _cChar_ != "-" and _cChar_ != "."
-				return FALSE
+				return 0
 			ok
 		next
 		
-		return TRUE
+		return 1
 	
 	  #-----------------------#
 	 #  PATTERN COMBINATION  #

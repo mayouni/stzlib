@@ -1107,7 +1107,7 @@ class stzNestedRegexMaker from stzRecursiveRegexMaker
 class stzRecursiveRegexMaker from stzObject
 
 	@aLevels = []
-	@bNamedRecursion = FALSE
+	@bNamedRecursion = 0
 	# @aParentStack / @nParentIndex lived here to track parents during a
 	# declarative setup that was replaced: nothing ever pushed to the stack, so
 	# the index it derived was always 0, and nothing read it either.
@@ -1120,7 +1120,7 @@ class stzRecursiveRegexMaker from stzObject
 		@aLevels + [
 			:name    = cName,
 			:pattern = _cPattern_,
-			:parent  = NULL,
+			:parent  = "",
 			:children = [],
 			:quant   = ""
 		]
@@ -1149,10 +1149,10 @@ class stzRecursiveRegexMaker from stzObject
 		@aLevels[_nLevel_][:quant] = cQuant
 
 	def EnableNamedRecursion()
-		@bNamedRecursion = TRUE
+		@bNamedRecursion = 1
 		
 	def DisableNamedRecursion()
-		@bNamedRecursion = FALSE
+		@bNamedRecursion = 0
 
 	def Pattern()
 		if len(@aLevels) = 0
@@ -1165,7 +1165,7 @@ class stzRecursiveRegexMaker from stzObject
 
 		_nLevelsLen_2 = len(@aLevels)
 		for i = 1 to _nLevelsLen_2
-			if @aLevels[i][:parent] = NULL
+			if @aLevels[i][:parent] = ""
 				_cPattern_ += pvtBuildPattern(i)
 			ok
 		next
@@ -1202,7 +1202,7 @@ class stzRecursiveRegexMaker from stzObject
 			return ""
 		ok
 		_nParent_ = @aLevels[_nLevel_][:parent]
-		if _nParent_ = NULL
+		if _nParent_ = ""
 			return ""
 		ok
 		return @aLevels[_nParent_][:name]
@@ -1248,7 +1248,7 @@ class stzRecursiveRegexMaker from stzObject
 
 	def Reset()
 		@aLevels = []
-		@bNamedRecursion = FALSE
+		@bNamedRecursion = 0
 
 	private
 

@@ -17,7 +17,7 @@ class stzNumbrex from stzObject
 	@cPattern           # Pattern string
 	@aTokens            # Parsed token definitions
 	@nNumber = 0        # Target number to match
-	@bDebugMode = FALSE # Debug flag
+	@bDebugMode = 0 # Debug flag
 	@aMatchedParts = [] # Extracted parts
 	
 	  #-------------------#
@@ -555,18 +555,18 @@ def ParseSingleToken(_cTokenStr_)
 			_aToken_ = _aTokens_[_i_]
 			
 			if HasKey(_aToken_, "type") and _aToken_["type"] = "alternation"
-				_bMatched_ = FALSE
+				_bMatched_ = 0
 				if HasKey(_aToken_, "alternatives")
 					_nLenAlt_ = len(_aToken_["alternatives"])
 					for j = 1 to _nLenAlt_
 						if This.MatchSingleToken(_aToken_["alternatives"][j], _nNum_)
-							_bMatched_ = TRUE
+							_bMatched_ = 1
 							exit
 						ok
 					next
 				ok
 				if not _bMatched_
-					return FALSE
+					return 0
 				ok
 			
 			but HasKey(_aToken_, "type") and _aToken_["type"] = "conjunction"
@@ -574,22 +574,22 @@ def ParseSingleToken(_cTokenStr_)
 					_nLenCond_ = len(_aToken_["conditions"])
 					for j = 1 to _nLenCond_
 						if not This.MatchSingleToken(_aToken_["conditions"][j], _nNum_)
-							return FALSE
+							return 0
 						ok
 					next
 				ok
 			
 			else
 				if not This.MatchSingleToken(_aToken_, _nNum_)
-					return FALSE
+					return 0
 				ok
 			ok
 		next
 		
-		return TRUE
+		return 1
 	
 	def MatchSingleToken(_aToken_, _nNum_)
-		_bResult_ = FALSE
+		_bResult_ = 0
 		
 		if @bDebugMode
 			? "Checking token type: " + _aToken_["type"]
@@ -695,31 +695,31 @@ def ParseSingleToken(_cTokenStr_)
 			return This.IsCube(_nNum_)
 		ok
 		
-		return FALSE
+		return 0
 	
 	def IsPrime(_nNum_)
 		if _nNum_ < 2
-			return FALSE
+			return 0
 		ok
 		if _nNum_ = 2
-			return TRUE
+			return 1
 		ok
 		if (_nNum_ % 2) = 0
-			return FALSE
+			return 0
 		ok
 		
 		_nSqrt_ = sqrt(_nNum_)
 		for _i_ = 3 to _nSqrt_ step 2
 			if (_nNum_ % _i_) = 0
-				return FALSE
+				return 0
 			ok
 		next
 		
-		return TRUE
+		return 1
 	
 	def IsPerfect(_nNum_)
 		if _nNum_ < 2
-			return FALSE
+			return 0
 		ok
 		
 		_nSum_ = 1
@@ -740,7 +740,7 @@ def ParseSingleToken(_cTokenStr_)
 	
 	def IsSquare(_nNum_)
 		if _nNum_ < 0
-			return FALSE
+			return 0
 		ok
 		_nSqrt_ = sqrt(_nNum_)
 		return _nSqrt_ = floor(_nSqrt_)
@@ -756,7 +756,7 @@ def ParseSingleToken(_cTokenStr_)
 	
 	def IsAbundant(_nNum_)
 		if _nNum_ < 1
-			return FALSE
+			return 0
 		ok
 		_aFactors_ = This.GetProperDivisors(_nNum_)
 		_nSum_ = 0
@@ -768,7 +768,7 @@ def ParseSingleToken(_cTokenStr_)
 	
 	def IsDeficient(_nNum_)
 		if _nNum_ < 1
-			return FALSE
+			return 0
 		ok
 		_aFactors_ = This.GetProperDivisors(_nNum_)
 		_nSum_ = 0
@@ -783,10 +783,10 @@ def ParseSingleToken(_cTokenStr_)
 	
 	def IsCube(_nNum_)
 		if _nNum_ < 0
-			return FALSE
+			return 0
 		ok
 		if _nNum_ = 0 or _nNum_ = 1
-			return TRUE
+			return 1
 		ok
 		# Robust cube root check with floating point tolerance
 		_nCubeRoot_ = pow(_nNum_, 1.0/3.0)
@@ -827,7 +827,7 @@ def CheckDigits(_aToken_, _nNum_)
 	ok
 	
 	if _nCount_ < _nMin_ or _nCount_ > _nMax_
-		return FALSE
+		return 0
 	ok
 	
 	if HasKey(_aToken_, "constraints")
@@ -853,7 +853,7 @@ def CheckDigits(_aToken_, _nNum_)
 						ok
 						
 						if _nDigit_ < _nStart_ or _nDigit_ > _nEnd_
-							return FALSE
+							return 0
 						ok
 					next
 				
@@ -861,16 +861,16 @@ def CheckDigits(_aToken_, _nNum_)
 					if HasKey(_aConstraint_, "values")
 						_nLenDigits_ = len(_aDigits_)
 						for j = 1 to _nLenDigits_
-							_bFound_ = FALSE
+							_bFound_ = 0
 							_nLenValues_ = len(_aConstraint_["values"])
 							for k = 1 to _nLenValues_
 								if _aDigits_[j] = (0 + trim(_aConstraint_["values"][k]))
-									_bFound_ = TRUE
+									_bFound_ = 1
 									exit
 								ok
 							next
 							if not _bFound_
-								return FALSE
+								return 0
 							ok
 						next
 					ok
@@ -880,7 +880,7 @@ def CheckDigits(_aToken_, _nNum_)
 					for j = 1 to _nLenDigits_
 						for k = j + 1 to _nLenDigits_
 							if _aDigits_[j] = _aDigits_[k]
-								return FALSE
+								return 0
 							ok
 						next
 					next
@@ -888,7 +888,7 @@ def CheckDigits(_aToken_, _nNum_)
 				but _cConstrType_ = "exact"
 					if HasKey(_aConstraint_, "value")
 						if _nCount_ != _aConstraint_["value"]
-							return FALSE
+							return 0
 						ok
 					ok
 				ok
@@ -896,7 +896,7 @@ def CheckDigits(_aToken_, _nNum_)
 		next
 	ok
 	
-	return TRUE
+	return 1
 	
 	def GetDigits(_nNum_)
 		_cStr_ = "" + abs(_nNum_)
@@ -928,7 +928,7 @@ def CheckDigits(_aToken_, _nNum_)
 		ok
 		
 		if _nCount_ < _nMin_ or _nCount_ > _nMax_
-			return FALSE
+			return 0
 		ok
 		
 		if HasKey(_aToken_, "constraints")
@@ -943,7 +943,7 @@ def CheckDigits(_aToken_, _nNum_)
 						_nLenFactors_ = len(_aFactors_)
 						for j = 1 to _nLenFactors_
 							if not This.IsPrime(_aFactors_[j])
-								return FALSE
+								return 0
 							ok
 						next
 					
@@ -952,7 +952,7 @@ def CheckDigits(_aToken_, _nNum_)
 						for j = 1 to _nLenFactors_
 							for k = j + 1 to _nLenFactors_
 								if _aFactors_[j] = _aFactors_[k]
-									return FALSE
+									return 0
 								ok
 							next
 						next
@@ -960,7 +960,7 @@ def CheckDigits(_aToken_, _nNum_)
 					but _cConstrType_ = "count"
 						if HasKey(_aConstraint_, "value")
 							if _nCount_ != _aConstraint_["value"]
-								return FALSE
+								return 0
 							ok
 						ok
 					ok
@@ -968,7 +968,7 @@ def CheckDigits(_aToken_, _nNum_)
 			next
 		ok
 		
-		return TRUE
+		return 1
 	
 	def GetFactors(_nNum_)
 		_nNum_ = abs(_nNum_)
@@ -1018,7 +1018,7 @@ def CheckDigits(_aToken_, _nNum_)
 				return (_nNum_ % _nMod_) = _nExpected_
 			ok
 		ok
-		return FALSE
+		return 0
 	
 	def CheckApprox(cApprox, _nNum_)
 		if startsWith(cApprox, "~")
@@ -1043,7 +1043,7 @@ def CheckDigits(_aToken_, _nNum_)
 			_nFactor_ = pow(10, _nDecimals_)
 			return floor(_nNum_ * _nFactor_) = floor(_nTarget_ * _nFactor_)
 		ok
-		return FALSE
+		return 0
 	
 	def CheckPart(_cPart_, _nNum_)
 		_cPart_ = StzLower(trim(_cPart_))
@@ -1072,29 +1072,29 @@ def CheckDigits(_aToken_, _nNum_)
 			return _oNx_.Match(_nFracInt_)
 		ok
 		
-		return TRUE
+		return 1
 	
 	def CheckDivisor(_cValue_, _nNum_)
 		_cValue_ = trim(_cValue_)
 		if This.IsNumeric(_cValue_)
 			_nDivisor_ = 0 + _cValue_
 			if _nDivisor_ = 0
-				return FALSE
+				return 0
 			ok
 			return (_nNum_ % _nDivisor_) = 0
 		ok
-		return FALSE
+		return 0
 	
 	def CheckMultiple(_cValue_, _nNum_)
 		_cValue_ = trim(_cValue_)
 		if This.IsNumeric(_cValue_)
 			_nBase_ = 0 + _cValue_
 			if _nBase_ = 0
-				return FALSE
+				return 0
 			ok
 			return (_nNum_ % _nBase_) = 0
 		ok
-		return FALSE
+		return 0
 	
 	  #----------------------#
 	 #  PART EXTRACTION     #
@@ -1196,7 +1196,7 @@ def CheckDigits(_aToken_, _nNum_)
 			["Tokens", @aTokens]
 		]
 		
-		if @nNumber != NULL
+		if @nNumber != ""
 			_aExplanation_ + ["Target", @nNumber]
 		ok
 		
@@ -1221,7 +1221,7 @@ def CheckDigits(_aToken_, _nNum_)
 			_nCurrent_++
 		next
 		
-		return NULL
+		return ""
 
 		def MatchingNumberNextTo(_nStart_)
 			return This.MatchingNumberAfter(_nStart_)
@@ -1237,7 +1237,7 @@ def CheckDigits(_aToken_, _nNum_)
 			_nCurrent_--
 		next
 		
-		return NULL
+		return ""
 	
 		def MatchingNumberPreviousTo(_nStart_)
 			return This.MatchingNumberBefore(_nStart_)
@@ -1309,10 +1309,10 @@ def CheckDigits(_aToken_, _nNum_)
 	#----------------------#
 	
 	def EnableDebug()
-		@bDebugMode = TRUE
+		@bDebugMode = 1
 	
 	def DisableDebug()
-		@bDebugMode = FALSE
+		@bDebugMode = 0
 	
 	def SetDebug(bFlag)
 		@bDebugMode = bFlag
@@ -1323,16 +1323,16 @@ def CheckDigits(_aToken_, _nNum_)
 	
 	def IsNumeric(_cStr_)
 		if _cStr_ = ""
-			return FALSE
+			return 0
 		ok
 		
 		_nLen_ = len(_cStr_)
 		for _i_ = 1 to _nLen_
 			_cChar_ = This._Mid(_cStr_, _i_, _i_)
 			if not isDigit(_cChar_) and _cChar_ != "-"
-				return FALSE
+				return 0
 			ok
 		next
 		
 
-		return TRUE
+		return 1

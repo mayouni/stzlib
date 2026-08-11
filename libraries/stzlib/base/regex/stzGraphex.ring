@@ -2,7 +2,7 @@
 # Fixed: Alternation parsing now strips outer parentheses correctly
 class stzGraphex from stzGraph
 	@cPattern		# Pattern string, e.g., "{@Node(start) -> (@Edge(flows)|@Edge(completes)) -> @Node(end)}"
-	@bDebugMode = FALSE
+	@bDebugMode = 0
 	@oTargetGraph		# Target graph to match against
 
 	# Match-result cache, keyed by target-graph signature.
@@ -58,7 +58,7 @@ class stzGraphex from stzGraph
 		ok
 		
 		_nNodeCounter_ = 0
-		_nPrevNodeId_ = NULL
+		_nPrevNodeId_ = ""
 		_nLenTokens_ = len(_aTokens_)
 		
 		for i = 1 to _nLenTokens_
@@ -93,7 +93,7 @@ class stzGraphex from stzGraph
 					This.AddNodeXTT(_cAltNodeId_, _cLabel_, _acProps_)
 					
 					# Connect to previous node
-					if _nPrevNodeId_ != NULL
+					if _nPrevNodeId_ != ""
 						This.AddEdgeXT(_nPrevNodeId_, _cAltNodeId_, "sequences")
 					ok
 					
@@ -102,7 +102,7 @@ class stzGraphex from stzGraph
 				
 				# Store all alternation branches - next node will connect from ALL of them
 				@aPendingAlternationBranches = _aAltNodes_
-				_nPrevNodeId_ = NULL  # Signal that we need to connect from multiple nodes
+				_nPrevNodeId_ = ""  # Signal that we need to connect from multiple nodes
 			
 			else
 				# Regular node processing
@@ -121,7 +121,7 @@ class stzGraphex from stzGraph
 				This.AddNodeXTT(_cNodeId_, _cLabel_, _acProps_)
 				
 				# Connect from previous node
-				if _nPrevNodeId_ != NULL
+				if _nPrevNodeId_ != ""
 					This.AddEdgeXT(_nPrevNodeId_, _cNodeId_, "sequences")
 				ok
 				
@@ -175,7 +175,7 @@ class stzGraphex from stzGraph
 					_aAltTokens_ = []
 					_aAltParts_ = @split(_cInnerPart_, "|")
 					_nLenAltParts_ = len(_aAltParts_)
-					_bValidAlt_ = TRUE
+					_bValidAlt_ = 1
 					
 					for j = 1 to _nLenAltParts_
 						_cAlt_ = trim(_aAltParts_[j])
@@ -184,7 +184,7 @@ class stzGraphex from stzGraph
 							if isList(_aToken_) and len(_aToken_) > 0
 								_aAltTokens_ + _aToken_
 							else
-								_bValidAlt_ = FALSE
+								_bValidAlt_ = 0
 								exit
 							ok
 						else
@@ -240,9 +240,9 @@ class stzGraphex from stzGraph
 		# token match the target label case-sensitively. Default (no
 		# marker) is case-insensitive. Strip it before type detection,
 		# else startsWith(.., "@node") never fires on "@cs:@Node(..)".
-		_bCaseSensitive_ = FALSE
+		_bCaseSensitive_ = 0
 		if StartsWith(StzLower(_cTokenStr_), "@cs:")
-			_bCaseSensitive_ = TRUE
+			_bCaseSensitive_ = 1
 			_cTokenStr_ = @StzMid(_cTokenStr_, 5, StzLen(_cTokenStr_))
 		ok
 
@@ -251,7 +251,7 @@ class stzGraphex from stzGraph
 		_nMin_ = 1
 		_nMax_ = 1
 		_aSetValues_ = []
-		_bRequireUnique_ = FALSE
+		_bRequireUnique_ = 0
 		_cLabel_ = ""
 		_cProps_ = ""
 	
@@ -284,7 +284,7 @@ class stzGraphex from stzGraph
 
 				# Check for U after closing brace (single char lookahead)
 				if _nBraceEnd_ < StzLen(_cTokenStr_) and @StzMid(_cTokenStr_, _nBraceEnd_ + 1, 1) = "U"
-					_bRequireUnique_ = TRUE
+					_bRequireUnique_ = 1
 					_cTokenStr_ = StzLeft(_cTokenStr_, _nBraceStart_ - 1) + @StzMid(_cTokenStr_, _nBraceEnd_ + 2, StzLen(_cTokenStr_))
 				else
 					_cTokenStr_ = StzLeft(_cTokenStr_, _nBraceStart_ - 1) + @StzMid(_cTokenStr_, _nBraceEnd_ + 1, StzLen(_cTokenStr_))
@@ -420,7 +420,7 @@ class stzGraphex from stzGraph
 							_cFrom_ = _aPath_[m]
 							_cTo_ = _aPath_[m+1]
 							# Get node by ID
-							_aNodeFrom_ = NULL
+							_aNodeFrom_ = ""
 							_nLenNodes_ = len(oGraph.Nodes())
 							for n = 1 to _nLenNodes_
 								if oGraph.Nodes()[n][:id] = _cFrom_
@@ -428,7 +428,7 @@ class stzGraphex from stzGraph
 									exit
 								ok
 							next
-							if _aNodeFrom_ != NULL
+							if _aNodeFrom_ != ""
 								_aBranch_ + _aNodeFrom_[:label]
 							ok
 							_aEdge_ = oGraph.Edge(_cFrom_, _cTo_)
@@ -437,7 +437,7 @@ class stzGraphex from stzGraph
 							ok
 						next
 						# Add final node
-						_aNodeTo_ = NULL
+						_aNodeTo_ = ""
 						_nLenNodes_ = len(oGraph.Nodes())
 						for n = 1 to _nLenNodes_
 							if oGraph.Nodes()[n][:id] = _aPath_[_nLenPath_]
@@ -445,7 +445,7 @@ class stzGraphex from stzGraph
 								exit
 							ok
 						next
-						if _aNodeTo_ != NULL
+						if _aNodeTo_ != ""
 							_aBranch_ + _aNodeTo_[:label]
 						ok
 						if len(_aBranch_) > 0
@@ -477,7 +477,7 @@ class stzGraphex from stzGraph
 							_cFrom_ = _aPath_[k]
 							_cTo_ = _aPath_[k+1]
 							# Get node by ID
-							_aNodeFrom_ = NULL
+							_aNodeFrom_ = ""
 							_nLenNodes_ = len(oGraph.Nodes())
 
 							for n = 1 to _nLenNodes_
@@ -487,7 +487,7 @@ class stzGraphex from stzGraph
 								ok
 							next
 
-							if _aNodeFrom_ != NULL
+							if _aNodeFrom_ != ""
 								_aBranch_ + _aNodeFrom_[:label]
 							ok
 
@@ -499,7 +499,7 @@ class stzGraphex from stzGraph
 						next
 
 						# Add final node
-						_aNodeTo_ = NULL
+						_aNodeTo_ = ""
 						_nLenNodes_ = len(oGraph.Nodes())
 						for n = 1 to _nLenNodes_
 							if oGraph.Nodes()[n][:id] = _aPath_[_nLenPath_]
@@ -508,7 +508,7 @@ class stzGraphex from stzGraph
 							ok
 						next
 
-						if _aNodeTo_ != NULL
+						if _aNodeTo_ != ""
 							_aBranch_ + _aNodeTo_[:label]
 						ok
 
@@ -641,7 +641,7 @@ class stzGraphex from stzGraph
 			
 			# Find alternation branches (edges labeled "alternates")
 			_acAltBranches_ = []
-			_cContinuation_ = NULL
+			_cContinuation_ = ""
 			
 			for i = 1 to _nLenNeighbors_
 				_cNeighbor_ = _acNeighbors_[i]
@@ -669,7 +669,7 @@ class stzGraphex from stzGraph
 					_aNewPath_ + _aAltNode_[:label]
 					
 					# Continue to the node after alternation if exists
-					if _cContinuation_ != NULL
+					if _cContinuation_ != ""
 						This.TraversePatternNode(_cContinuation_, _aNewPath_, _aBranches_, [])
 					else
 						# No continuation, this is the end
@@ -743,17 +743,17 @@ class stzGraphex from stzGraph
 				# Read the pattern node's :negated / :cs flags from its
 				# properties hashlist (the props are [ :min, :max,
 				# :negated, :cs ], not "key=value" strings).
-				_bIsNegated_ = FALSE
-				_bIsCS_ = FALSE
+				_bIsNegated_ = 0
+				_bIsCS_ = 0
 				_aNodeFromPattern_ = This.Node(":p" + j)
 				if isList(_aNodeFromPattern_) and HasKey(_aNodeFromPattern_, :properties)
 					_acProps_ = _aNodeFromPattern_[:properties]
 					if isList(_acProps_)
 						if HasKey(_acProps_, :negated) and _acProps_[:negated] = "TRUE"
-							_bIsNegated_ = TRUE
+							_bIsNegated_ = 1
 						ok
 						if HasKey(_acProps_, :cs) and _acProps_[:cs] = "TRUE"
-							_bIsCS_ = TRUE
+							_bIsCS_ = 1
 						ok
 					ok
 				ok
@@ -781,13 +781,13 @@ class stzGraphex from stzGraph
 				ok
 
 				# First check forbidden labels - if any exist in target, skip this branch
-				_bHasForbidden_ = FALSE
+				_bHasForbidden_ = 0
 				_nForbiddenLabelsLen_ = len(_aForbiddenLabels_)
 				for m = 1 to _nForbiddenLabelsLen_
 					_nTargetBranchLen_ = len(_aTargetBranch_)
 					for n = 1 to _nTargetBranchLen_
 						if This._LabelEq(_aForbiddenLabels_[m], _aTargetBranch_[n], _aForbiddenCS_[m])
-							_bHasForbidden_ = TRUE
+							_bHasForbidden_ = 1
 							exit
 						ok
 					next
@@ -806,7 +806,7 @@ class stzGraphex from stzGraph
 				if This.IsSubsequenceCS(_aPatternLabels_, _aPatternCS_, _aTargetBranch_)
 					if @bDebugMode
 					ok
-					return TRUE
+					return 1
 				ok
 			next
 		next
@@ -814,7 +814,7 @@ class stzGraphex from stzGraph
 		if @bDebugMode
 		ok
 
-		return FALSE
+		return 0
 
 	# Codepoint-safe label equality. Case-sensitive when bCS is TRUE
 	# (Ring's = is already case-sensitive); otherwise fold both sides
@@ -855,7 +855,7 @@ class stzGraphex from stzGraph
 			_cPatLabel_ = This._BareLabel(_aPat_[:label])
 			_bCS_ = (HasKey(_aProps_, :cs) and _aProps_[:cs] = "TRUE")
 
-			_bFound_ = FALSE
+			_bFound_ = 0
 			_nLenTgt_ = len(_aTgtNodes_)
 			for j = 1 to _nLenTgt_
 				_aTgt_ = _aTgtNodes_[j]
@@ -863,17 +863,17 @@ class stzGraphex from stzGraph
 					loop
 				ok
 				if This._NodeSatisfiesConstraints(_aTgt_[:properties], _aConstraints_)
-					_bFound_ = TRUE
+					_bFound_ = 1
 					exit
 				ok
 			next
 
 			if NOT _bFound_
-				return FALSE
+				return 0
 			ok
 		next
 
-		return TRUE
+		return 1
 
 	# "node(Alice)" -> "Alice"; "node" (no parens) -> "".
 	def _BareLabel(_cLabel_)
@@ -921,7 +921,7 @@ class stzGraphex from stzGraph
 
 	# "age:>:25" -> ["age",">","25"]; a plain value (no comparator) -> [].
 	def _ParseOneConstraint(_cPart_)
-		if len(StzFindCS(":", _cPart_, TRUE)) = 0
+		if len(StzFindCS(":", _cPart_, 1)) = 0
 			return []
 		ok
 		_aSeg_ = StzSplit(_cPart_, ":")
@@ -932,7 +932,7 @@ class stzGraphex from stzGraph
 
 	def _NodeSatisfiesConstraints(aNodeProps, _aConstraints_)
 		if NOT isList(aNodeProps)
-			return FALSE
+			return 0
 		ok
 		_nc_ = len(_aConstraints_)
 		for i = 1 to _nc_
@@ -941,13 +941,13 @@ class stzGraphex from stzGraph
 			_cOp_  = _aC_[2]
 			_cVal_ = _aC_[3]
 			if NOT HasKey(aNodeProps, _cKey_)
-				return FALSE
+				return 0
 			ok
 			if NOT This._CompareValues(aNodeProps[_cKey_], _cOp_, _cVal_)
-				return FALSE
+				return 0
 			ok
 		next
-		return TRUE
+		return 1
 
 	def _CompareValues(vActual, _cOp_, cExpected)
 		# Node property values are stored as real numbers (e.g. [:age = 30]);
@@ -964,15 +964,15 @@ class stzGraphex from stzGraph
 			on "<=" return _nA_ <= _nE_
 			on "!=" return _nA_ != _nE_
 			off
-			return FALSE
+			return 0
 		ok
 
 		_cA_ = "" + vActual
 		switch _cOp_
-		on "="  return This._LabelEq(_cA_, cExpected, FALSE)
-		on "!=" return NOT This._LabelEq(_cA_, cExpected, FALSE)
+		on "="  return This._LabelEq(_cA_, cExpected, 0)
+		on "!=" return NOT This._LabelEq(_cA_, cExpected, 0)
 		off
-		return FALSE
+		return 0
 
 	# Subsequence test with a parallel per-element case-sensitivity
 	# vector. Default graphex matching is case-insensitive.
@@ -981,11 +981,11 @@ class stzGraphex from stzGraph
 		_nTargetLen_ = len(aTarget)
 
 		if _nPatternLen_ = 0
-			return TRUE
+			return 1
 		ok
 
 		if _nPatternLen_ > _nTargetLen_
-			return FALSE
+			return 0
 		ok
 
 		_nPatternIdx_ = 1
@@ -994,23 +994,23 @@ class stzGraphex from stzGraph
 			if This._LabelEq(_aPattern_[_nPatternIdx_], aTarget[i], _aPatternCS_[_nPatternIdx_])
 				_nPatternIdx_++
 				if _nPatternIdx_ > _nPatternLen_
-					return TRUE
+					return 1
 				ok
 			ok
 		next
 
-		return FALSE
+		return 0
 
 	def IsSubsequenceSimple(_aPattern_, aTarget)
 		_nPatternLen_ = len(_aPattern_)
 		_nTargetLen_ = len(aTarget)
 
 		if _nPatternLen_ = 0
-			return TRUE
+			return 1
 		ok
 
 		if _nPatternLen_ > _nTargetLen_
-			return FALSE
+			return 0
 		ok
 
 		_nPatternIdx_ = 1
@@ -1019,19 +1019,19 @@ class stzGraphex from stzGraph
 			if _aPattern_[_nPatternIdx_] = aTarget[i]
 				_nPatternIdx_++
 				if _nPatternIdx_ > _nPatternLen_
-					return TRUE
+					return 1
 				ok
 			ok
 		next
 
-		return FALSE
+		return 0
 	
 	def IsSubsequence(_aPattern_, aTarget, aPatternNegations)
 		_nPatternLen_ = len(_aPattern_)
 		_nTargetLen_ = len(aTarget)
 		
 		if _nPatternLen_ = 0
-			return TRUE
+			return 1
 		ok
 		
 		_nPatternIdx_ = 1
@@ -1044,7 +1044,7 @@ class stzGraphex from stzGraph
 				if _bNegated_
 					# Negated: if this label appears anywhere in target, fail
 					if _bMatches_
-						return FALSE
+						return 0
 					ok
 					# Skip to next pattern element (negation doesn't consume target element)
 					_nPatternIdx_++
@@ -1094,22 +1094,22 @@ class stzGraphex from stzGraph
 		This.Show()
 
 	def EnableDebugMode()
-		@bDebugMode = TRUE
+		@bDebugMode = 1
 
 		def EnableDebug()
-			@bDebugMode = TRUE
+			@bDebugMode = 1
 
 	def DisableDebugMode()
-		@bDebugMode = FALSE
+		@bDebugMode = 0
 
 		def DisableDebug()
-			@bDebugMode = FALSE
+			@bDebugMode = 0
 
 	def SetDebugMode(pOnOff)
 		if IsTrue(pOnOff)
-			@bDebugMode = TRUE
+			@bDebugMode = 1
 		else
-			@bDebugMode = FALSE
+			@bDebugMode = 0
 		ok
 
 		def SetDebug(pOnOff)
