@@ -94,8 +94,12 @@ class stzWordStream from stzObject
 	def MostFrequentWords(n)
 		_aRes_ = This.TopWords(n)
 		_aOut_ = []
-		nL = len(_aRes_)
-		for i = 1 to nL
+		# NOT nL: Ring is case-insensitive, so that name IS the NL newline
+		# constant, and this line replaced it with a number for the whole
+		# process. Calling MostFrequentWords() left every later use of NL
+		# raising "Bad parameter type!" somewhere else entirely.
+		_nLen_ = len(_aRes_)
+		for i = 1 to _nLen_
 			_aOut_ + _aRes_[i][1]
 		next
 		return _aOut_

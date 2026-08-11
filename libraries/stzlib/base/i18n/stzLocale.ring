@@ -103,7 +103,7 @@ func _LocaleCountryCodeFromAbbr(_cLocaleAbbr_)
 	return ""
 
 func _LocaleNormalizeAbbr(_cInput_)
-	if _cInput_ = NULL or _cInput_ = "" or _cInput_ = "C"
+	if _cInput_ = "" or _cInput_ = "" or _cInput_ = "C"
 		return "C"
 	ok
 	_cInput_ = StzReplace(_cInput_, "-", "_")
@@ -117,7 +117,7 @@ func _LocaleNormalizeAbbr(_cInput_)
 	_nLen_ = len($aLocaleLanguagesXT)
 	for i = 1 to _nLen_
 		if StzLower($aLocaleLanguagesXT[i][3]) = _cLang_
-			if $aLocaleLanguagesXT[i][5] != NULL
+			if $aLocaleLanguagesXT[i][5] != ""
 				_cCountryName_ = $aLocaleLanguagesXT[i][5]
 				_nLen2_ = len(_aLocaleCountriesXT)
 				for j = 1 to _nLen2_
@@ -622,19 +622,19 @@ class stzLocale from stzObject
 			_cScriptName_  = pLocale[ :Script   ]
 			_cCountryName_ = pLocale[ :Country  ]
 
-			_cLangAbbr_    = NULL
-			_cScriptAbbr_  = NULL
-			_cCountryAbbr_ = NULL
+			_cLangAbbr_    = ""
+			_cScriptAbbr_  = ""
+			_cCountryAbbr_ = ""
 
-			if _cLangName_ != NULL and StzStringQ(_cLangName_).IsLanguageName()
+			if _cLangName_ != "" and StzStringQ(_cLangName_).IsLanguageName()
 				_cLangAbbr_ = StzLanguageQ(_cLangName_).Abbreviation()
 			ok
 
-			if _cScriptName_ != NULL and StzStringQ(_cScriptName_).IsScriptName()
+			if _cScriptName_ != "" and StzStringQ(_cScriptName_).IsScriptName()
 				_cScriptAbbr_ = StzScriptQ(_cScriptName_).Abbreviation()
 			ok
 
-			if _cCountryName_ != NULL and StzStringQ(_cCountryName_).IsCountryName()
+			if _cCountryName_ != "" and StzStringQ(_cCountryName_).IsCountryName()
 				_cCountryAbbr_ = StzCountryQ(_cCountryName_).Abbreviation()
 			ok
 
@@ -643,24 +643,24 @@ class stzLocale from stzObject
 			if AllOfTheseAreNotNull([ _cLangAbbr_, _cScriptAbbr_, _cCountryAbbr_ ])
 				_cAbbr_ = _cLangAbbr_ + "-" + _cScriptAbbr_ + "-" + _cCountryAbbr_
 
-			but _cLangAbbr_ != NULL and BothAreNull(_cScriptAbbr_, _cCountryAbbr_)
+			but _cLangAbbr_ != "" and BothAreNull(_cScriptAbbr_, _cCountryAbbr_)
 				_cAbbr_ = _cLangAbbr_
 
-			but _cScriptAbbr_ != NULL and BothAreNull(_cLangAbbr_, _cCountryAbbr_)
+			but _cScriptAbbr_ != "" and BothAreNull(_cLangAbbr_, _cCountryAbbr_)
 				_cLangAbbr_ = StzScriptQ(_cScriptAbbr_).DefaultLanguageAbbreviation()
 				_cAbbr_ = _cLangAbbr_ + "-" + _cScriptAbbr_
 
-			but _cCountryAbbr_ != NULL and BothAreNull(_cLangAbbr_, _cScriptAbbr_)
+			but _cCountryAbbr_ != "" and BothAreNull(_cLangAbbr_, _cScriptAbbr_)
 				_cLangAbbr_ = StzCountryQ(_cCountryAbbr_).LanguageAbbreviation()
 				_cAbbr_ = _cLangAbbr_ + "-" + _cCountryAbbr_
 
-			but BothAreNotNull(_cLangAbbr_, _cScriptAbbr_) and _cCountryAbbr_ = NULL
+			but BothAreNotNull(_cLangAbbr_, _cScriptAbbr_) and _cCountryAbbr_ = ""
 				_cAbbr_ = _cLangAbbr_ + "-" + _cScriptAbbr_
 
-			but BothAreNotNull(_cLangAbbr_, _cCountryAbbr_) and _cScriptAbbr_ = NULL
+			but BothAreNotNull(_cLangAbbr_, _cCountryAbbr_) and _cScriptAbbr_ = ""
 				_cAbbr_ = _cLangAbbr_ + "-" + _cCountryAbbr_
 
-			but _cLangAbbr_ = NULL and BothAreNotNull(_cScriptAbbr_, _cCountryAbbr_)
+			but _cLangAbbr_ = "" and BothAreNotNull(_cScriptAbbr_, _cCountryAbbr_)
 				_cLangAbbr_ = StzCountryQ(_cCountryAbbr_).LanguageAbbreviation()
 				_cAbbr_ = _cLangAbbr_ + "-" + _cScriptAbbr_ + "-" + _cCountryAbbr_
 
@@ -835,7 +835,7 @@ class stzLocale from stzObject
 	#-----------#
 
 	def ScriptNumber()
-		if @cScriptAbbreviation != NULL and @cScriptAbbreviation != ""
+		if @cScriptAbbreviation != "" and @cScriptAbbreviation != ""
 			return _LocaleQtScriptNumber(@cScriptAbbreviation)
 		ok
 		_cLang_ = This.LanguageName()
@@ -999,7 +999,7 @@ class stzLocale from stzObject
 	def ToTimeAsString(cTime, cFormat)
 		/*
 		cTime string should contain a time string conforming to the locale
-		otherwise the method returns NULL
+		otherwise the method returns ""
 
 		To see what cFormat should contain, read the comments for the
 		stzTime.ToString() method in stzTime class.

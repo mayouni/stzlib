@@ -220,8 +220,9 @@ class stzNode from stzObject
 			if (nFlags & 2) = 2
 				vInfo = [ @cName, @cHost, @nInboxCap, @cInboxPolicy,
 					@nProcessed, This.Overflow(), @nRejected, @nDenied ]
-				cR = StzEngineStzmPack(vInfo, 0, nCorr, 0)
-				@oReactor.ServerWrite(@nSrv, nConn, cR, FALSE)
+				# NOT cR: that name IS the CR carriage-return constant.
+				cReply = StzEngineStzmPack(vInfo, 0, nCorr, 0)
+				@oReactor.ServerWrite(@nSrv, nConn, cReply, 0)
 			ok
 			return
 		ok

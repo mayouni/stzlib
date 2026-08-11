@@ -212,6 +212,27 @@ git push codeberg HEAD:refs/heads/main
     NAME and change only the BODY: `func NL()` now returns `char(10)`,
     so even that public accessor survives a clobbered global.
 
+- **TRUE / FALSE / NULL are the same hazard, and WORSE.** They are
+  globals too -- `TRUE` is `1`, `FALSE` is `0`, `NULL` is `""` -- so a
+  caller writing `true = 0` replaces them for the whole process. NL at
+  least RAISES somewhere; these do not. With TRUE clobbered,
+  `(1=1) = TRUE` answers `0`: the logic runs backwards and nothing
+  errors at all. Prefer the literals `1`, `0` and `""` in library code.
+  4,460 reads remain, being retired module by module rather than in one
+  sweep -- a 278-file diff is exactly where a `func char(10)()` hides.
+  Note `func TRUE()`, `func FALSE()` and `func Null()` all exist (they
+  return the stzTrue/False/NullObject wrappers), so the
+  definition-name trap above is live for these too.
+
+- **A library must not CLOBBER these either, and it did.** The
+  `writes-a-mutable-constant` code rule found four in the library on its
+  first run: `nL = len(_aRes_)` in stzWordStream.MostFrequentWords --
+  the reported bug's exact shape -- and three `cR = ...` locals, since
+  `cR` IS `CR`. Calling MostFrequentWords() left NL a NUMBER for the
+  rest of the process. Short Hungarian-ish locals are the danger:
+  `nL`, `cR`, `nT`. Run `StzCheckProjectKnobs()` -- the rule is there
+  now and reports zero.
+
 - Don't name a method or variable after (or containing) a Ring
   KEYWORD: `def Load()` is a C6 error (`load`), a variable `cAll` is
   a C13 error (contains `call`). Cost two renames in the perf grind

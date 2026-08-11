@@ -129,8 +129,8 @@ func StzRegexEscape(pcStr)
 
 func StzRegexMatch(cInput, cPattern)
 	_pH_ = StzEngineRegexNew(cPattern, 0)
-	if _pH_ = NULL
-		return FALSE
+	if _pH_ = ""
+		return 0
 	ok
 	_nResult_ = StzEngineRegexMatch(_pH_, cInput, 1)
 	StzEngineRegexFree(_pH_)
@@ -138,7 +138,7 @@ func StzRegexMatch(cInput, cPattern)
 
 func StzRegexReplace(cInput, cPattern, cReplacement)
 	_pH_ = StzEngineRegexNew(cPattern, 0)
-	if _pH_ = NULL
+	if _pH_ = ""
 		return cInput
 	ok
 	StzEngineRegexMatch(_pH_, cInput, 1)
@@ -152,7 +152,7 @@ func StzRegexReplace(cInput, cPattern, cReplacement)
 
 class stzRegex from stzObject
 
-	@pRegexHandle = NULL
+	@pRegexHandle = ""
 	@cMatchType = ""
 	@cPattern = ""
 	@cStr = ""
@@ -161,8 +161,8 @@ class stzRegex from stzObject
 	@nCompiledFlags = -1
 	@acMatchOptions = []
 
-	@bRecursiveMatch = FALSE
-	@bLastMatchResult = FALSE
+	@bRecursiveMatch = 0
+	@bLastMatchResult = 0
 
 	# 0 = no match, 1 = complete match, 2 = partial match.
 	@nLastMatchKind = 0
@@ -191,7 +191,7 @@ class stzRegex from stzObject
 			ok
 		ok
 
-		if @pRegexHandle != NULL
+		if @pRegexHandle != ""
 			StzEngineRegexFree(@pRegexHandle)
 		ok
 
@@ -323,7 +323,7 @@ class stzRegex from stzObject
 				@nFlags = @nFlags | 16
 
 			case :RecursiveMatch
-				@bRecursiveMatch = TRUE
+				@bRecursiveMatch = 1
 			off
 
 		next
@@ -332,8 +332,8 @@ class stzRegex from stzObject
 		# depends on the pattern and the flags, and the pattern is fixed for
 		# the life of the object (SetPattern rebuilds it). This used to free
 		# and rebuild the pattern on EVERY call.
-		if @pRegexHandle = NULL or @nFlags != @nCompiledFlags
-			if @pRegexHandle != NULL
+		if @pRegexHandle = "" or @nFlags != @nCompiledFlags
+			if @pRegexHandle != ""
 				StzEngineRegexFree(@pRegexHandle)
 			ok
 
@@ -363,9 +363,9 @@ class stzRegex from stzObject
 		@nLastMatchKind = StzEngineRegexMatchTyped(@pRegexHandle, pcStr, _nStart_, _nType_)
 
 		if @nLastMatchKind = 1
-			@bLastMatchResult = TRUE
+			@bLastMatchResult = 1
 		else
-			@bLastMatchResult = FALSE
+			@bLastMatchResult = 0
 		ok
 
 		return @nLastMatchKind
@@ -382,8 +382,8 @@ class stzRegex from stzObject
 	#--------------------#
 
 	def HasMatch()
-		if @pRegexHandle = NULL
-			return FALSE
+		if @pRegexHandle = ""
+			return 0
 		ok
 
 		return StzEngineRegexHasMatch(@pRegexHandle)
@@ -626,7 +626,7 @@ class stzRegex from stzObject
 			return This.NumberOfMatches()
 
 	def NumberOfChars()
-		if @pRegexHandle = NULL return 0 ok
+		if @pRegexHandle = "" return 0 ok
 		_nStart_ = StzEngineRegexCaptureStart(@pRegexHandle, 1)
 		_nEnd_ = StzEngineRegexCaptureEnd(@pRegexHandle, 1)
 		if _nStart_ < 0 or _nEnd_ < 0 return 0 ok
@@ -837,7 +837,7 @@ class stzRegex from stzObject
 		return This.CaptureCount() > 0
 
 	def HasNames()
-		if @pRegexHandle = NULL return FALSE ok
+		if @pRegexHandle = "" return 0 ok
 		return StzEngineRegexNamedGroupCount(@pRegexHandle) > 0
 
 	def CaptureGroups()
@@ -891,7 +891,7 @@ class stzRegex from stzObject
 			return This.HasValues()
 
 	def CaptureNames()
-		if @pRegexHandle = NULL return [] ok
+		if @pRegexHandle = "" return [] ok
 
 		_nCount_ = StzEngineRegexNamedGroupCount(@pRegexHandle)
 		if _nCount_ = 0 return [] ok
@@ -1002,7 +1002,7 @@ class stzRegex from stzObject
 			return This.CapturedGroups()
 
 	def CaptureByName(pcName)
-		if @pRegexHandle = NULL return "" ok
+		if @pRegexHandle = "" return "" ok
 		return StzEngineRegexCaptureByName(@pRegexHandle, pcName)
 
 		def NamedCapture(pcName)
@@ -1192,11 +1192,11 @@ class stzRegex from stzObject
 	#--------------------------------------#
 
  	def CaptureCount()
-		if @pRegexHandle = NULL return 0 ok
+		if @pRegexHandle = "" return 0 ok
 		return StzEngineRegexCaptureCount(@pRegexHandle)
 
 	def IsValid()
-		return @pRegexHandle != NULL
+		return @pRegexHandle != ""
 
 		def IsValidPattern()
 			return THis.IsValid()
@@ -1214,7 +1214,7 @@ class stzRegex from stzObject
 	# TRUE only when pcStr is a strict PREFIX of something that would match
 	# entirely -- on the way there, not there yet.
 	def IsPartialMatch(pcStr)
-		if @pRegexHandle = NULL return FALSE ok
+		if @pRegexHandle = "" return 0 ok
 		_nKind_ = This.MatchXT(pcStr, 1, :MatchEntireContentIfNotGoPartial, [])
 		return _nKind_ = 2
 
@@ -1260,7 +1260,7 @@ class stzRegex from stzObject
 
 	def PartialMatchInfo(pcStr)
 
-		if @pRegexHandle = NULL
+		if @pRegexHandle = ""
 			return [
 				:matchType = "none",
 				:matched   = "",
@@ -1331,9 +1331,9 @@ class stzRegex from stzObject
 	def PartialMatchZ(pcStr)
 		_aInfo_ = This.PartialMatchInfo(pcStr)
 		if _aInfo_[1][2] = "partial"
-			return [ TRUE, _aInfo_[3][2][1] ]
+			return [ 1, _aInfo_[3][2][1] ]
 		ok
-		return [ FALSE, 0 ]
+		return [ 0, 0 ]
 
 	  #----------------------------#
 	 #  Recursive (Nested) Match  #
@@ -1363,7 +1363,7 @@ class stzRegex from stzObject
 
 	def RecursiveMatchInfo()
 		if NOT This.IsRecursiveMatch()
-			return [ :IsRecursive = FALSE, :depth = 0, :matches = [] ]
+			return [ :IsRecursive = 0, :depth = 0, :matches = [] ]
 		ok
 
 		_aMatches_ = []
@@ -1397,7 +1397,7 @@ class stzRegex from stzObject
 		end
 
 		return [
-			:IsRecursive = TRUE,
+			:IsRecursive = 1,
 			:depth = _nMaxDepth_,
 			:matches = _aMatches_
 		]

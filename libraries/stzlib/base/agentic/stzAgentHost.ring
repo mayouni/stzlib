@@ -38,25 +38,25 @@ func StzAgentHostQ()
 
 class stzAgentHost from stzObject
 
-	@oReactor    = NULL
-	@bOwnsReactor = FALSE
-	@oGov        = NULL      # optional decommission-gate governance
+	@oReactor    = ""
+	@bOwnsReactor = 0
+	@oGov        = ""      # optional decommission-gate governance
 	@aAgents     = []        # [ name, oAgent, tickMs, active, nextMs, ticks, retired ]
 	@aTrace      = []        # [ atMs, name, acted, why ]
 	@cWhy        = ""
 
 	def init()
 		@oReactor = new stzReactor()
-		@bOwnsReactor = TRUE
+		@bOwnsReactor = 1
 
 	# Share another host's loop (e.g. an stzAppServer's) instead of
 	# owning one -- "the agent host is the same host".
 	def SetReactor(poReactor)
-		if @bOwnsReactor and @oReactor != NULL
+		if @bOwnsReactor and @oReactor != ""
 			@oReactor.Destroy()
 		ok
 		@oReactor = poReactor
-		@bOwnsReactor = FALSE
+		@bOwnsReactor = 0
 		return This
 
 	def ReactorQ()
@@ -76,7 +76,7 @@ class stzAgentHost from stzObject
 		return This
 
 	def _EnsureGov()
-		if @oGov = NULL
+		if @oGov = ""
 			@oGov = new stzGovernance("agent-host")
 		ok
 
@@ -106,8 +106,8 @@ class stzAgentHost from stzObject
 		ok
 		# row: name, agent, tickMs, active, nextDue, ticks, retired,
 		#      channel(""=timer), lastEventCount, channelGeneration
-		@aAgents + [ poAgent.Name_(), poAgent, nTickMs, TRUE,
-		             StzEngineTimeNowMs(), 0, FALSE, "", 0, 0 ]
+		@aAgents + [ poAgent.Name_(), poAgent, nTickMs, 1,
+		             StzEngineTimeNowMs(), 0, 0, "", 0, 0 ]
 		return This
 
 	# EVENT-DRIVEN supervision (R5 reactor-runtime): tick the agent once per
@@ -119,8 +119,8 @@ class stzAgentHost from stzObject
 		stzengine_reactive_create_channel("" + pcChannel)   # ensure it exists
 		_nBase_ = stzengine_reactive_event_count("" + pcChannel)
 		if _nBase_ < 0  _nBase_ = 0  ok
-		@aAgents + [ poAgent.Name_(), poAgent, 0, TRUE,
-		             0, 0, FALSE, "" + pcChannel, _nBase_,
+		@aAgents + [ poAgent.Name_(), poAgent, 0, 1,
+		             0, 0, 0, "" + pcChannel, _nBase_,
 		             stzengine_reactive_channel_generation("" + pcChannel) ]
 		return This
 
@@ -146,7 +146,7 @@ class stzAgentHost from stzObject
 
 	def IsActive(pcName)
 		_n_ = This._IndexOf(pcName)
-		if _n_ = 0  return FALSE  ok
+		if _n_ = 0  return 0  ok
 		return @aAgents[_n_][4]
 
 	def TicksOf(pcName)
@@ -157,7 +157,7 @@ class stzAgentHost from stzObject
 	# The live supervised agent (reach it here, not via a stale ref).
 	def AgentQ(pcName)
 		_n_ = This._IndexOf(pcName)
-		if _n_ = 0  return NULL  ok
+		if _n_ = 0  return ""  ok
 		return @aAgents[_n_][2]
 
 	def Trace()
@@ -267,7 +267,7 @@ class stzAgentHost from stzObject
 		if _n_ = 0
 			stzraise("stzAgentHost.Cancel: not supervising '" + pcName + "'.")
 		ok
-		@aAgents[_n_][4] = FALSE
+		@aAgents[_n_][4] = 0
 		return This
 
 	def Resume(pcName)
@@ -275,7 +275,7 @@ class stzAgentHost from stzObject
 		if _n_ = 0
 			stzraise("stzAgentHost.Resume: not supervising '" + pcName + "'.")
 		ok
-		@aAgents[_n_][4] = TRUE
+		@aAgents[_n_][4] = 1
 		@aAgents[_n_][5] = StzEngineTimeNowMs()
 		return This
 
@@ -288,28 +288,28 @@ class stzAgentHost from stzObject
 		if _n_ = 0
 			stzraise("stzAgentHost.Retire: not supervising '" + pcName + "'.")
 		ok
-		if @oGov != NULL
+		if @oGov != ""
 			if @oGov.MayRetire(pcName) = 0
 				@cWhy = @oGov.Why()
-				return FALSE
+				return 0
 			ok
 		ok
-		@aAgents[_n_][4] = FALSE
-		@aAgents[_n_][7] = TRUE
+		@aAgents[_n_][4] = 0
+		@aAgents[_n_][7] = 1
 		@cWhy = "retired '" + pcName + "'"
-		return TRUE
+		return 1
 
 	def IsRetired(pcName)
 		_n_ = This._IndexOf(pcName)
-		if _n_ = 0  return FALSE  ok
+		if _n_ = 0  return 0  ok
 		return @aAgents[_n_][7]
 
 	#-- teardown --------------------------------------------------------
 
 	def Shutdown()
-		if @bOwnsReactor and @oReactor != NULL
+		if @bOwnsReactor and @oReactor != ""
 			@oReactor.Destroy()
-			@oReactor = NULL
+			@oReactor = ""
 		ok
 		return This
 
@@ -325,7 +325,7 @@ class stzAgentHost from stzObject
 
 	def _Wait(nMs)
 		if nMs < 1  nMs = 1  ok
-		if @oReactor != NULL
+		if @oReactor != ""
 			_nId_ = @oReactor.SubmitTimer(nMs)
 			if _nId_ > 0
 				@oReactor.AwaitTimer(_nId_, nMs + 1000)
@@ -339,12 +339,12 @@ class stzAgentHost from stzObject
 	def _NextWait(nDeadline)
 		_nNow_ = StzEngineTimeNowMs()
 		_nBest_ = nDeadline
-		_bAny_ = FALSE
+		_bAny_ = 0
 		_nLen_ = len(@aAgents)
 		for _i_ = 1 to _nLen_
 			if NOT @aAgents[_i_][4]  loop  ok
 			if @aAgents[_i_][7]      loop  ok
-			_bAny_ = TRUE
+			_bAny_ = 1
 			if @aAgents[_i_][5] < _nBest_
 				_nBest_ = @aAgents[_i_][5]
 			ok
@@ -368,4 +368,4 @@ class stzAgentHost from stzObject
 	def _AllQuiet()
 		# a pass ran with zero firings; treat as quiet (obligations, if
 		# any, are the governed teardown gate -- not a liveness signal).
-		return TRUE
+		return 1

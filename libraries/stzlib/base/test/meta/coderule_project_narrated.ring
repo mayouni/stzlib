@@ -55,7 +55,7 @@ Scenario("StzCheckCode stays FROZEN -- the new rules add no false positives")
 	     CountRule(aF, "q-returns-object") + CountRule(aF, "no-aggressive-verbs"), 3)
 	Then("...q-has-plain-twin does NOT fire (BarQ is not a mutator verb)",
 	     HasRule(aF, "q-has-plain-twin"), FALSE)
-	Then("StzCodeRuleNames now lists twelve (six text passes among them)", len(StzCodeRuleNames()), 12)
+	Then("StzCodeRuleNames now lists thirteen (seven text passes among them)", len(StzCodeRuleNames()), 13)
 EndScenario()
 
 Scenario("StzCheckProject: no-dead-code over a whole directory")
