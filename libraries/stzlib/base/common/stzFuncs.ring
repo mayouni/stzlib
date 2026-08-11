@@ -2950,11 +2950,11 @@ func StzRaise(paMessage)
 
 	if NOT ( isString(paMessage) or isList(paMessage) )
 
-		raise("Error in StzRaise param type!" + NL)
+		raise("Error in StzRaise param type!" + char(10))
 	ok
 
 	if isString(paMessage)
-		raise(paMessage + NL)
+		raise(paMessage + char(10))
 	ok
 
 	# The hash form: a list of [key, value] pairs with keys among
@@ -2993,18 +2993,18 @@ func StzRaise(paMessage)
 		_cwhay_ = StringSimplified(_cWhy_)
 		_cTodo_ = StringSimplified(_cTodo_)
 	
-		_cErrorMsg_ = "in file " + paMessage[:Where] + ":" + NL
+		_cErrorMsg_ = "in file " + paMessage[:Where] + ":" + char(10)
 	
 		if _cWhat_ != ""
-			_cErrorMsg_ += "   What : " + paMessage[:What] + NL
+			_cErrorMsg_ += "   What : " + paMessage[:What] + char(10)
 		ok
 	
 		if _cWhy_ != ""
-			_cErrorMsg_ += "   Why  : " + paMessage[:Why]  + NL
+			_cErrorMsg_ += "   Why  : " + paMessage[:Why]  + char(10)
 		ok
 	
 		if _cTodo_ != ""
-			_cErrorMsg_ += "   Todo : " + paMessage[:Todo] + NL
+			_cErrorMsg_ += "   Todo : " + paMessage[:Todo] + char(10)
 		ok
 
 		raise(_cErrorMsg_)
@@ -5482,13 +5482,16 @@ func StzBothEndWithANumber(p1, p2)
 		return StzBothEndWithANumber(p1, p2)
 
 func StzNewLine()
-	return NL
+	return char(10)
 
 	func NewLine()
 		return StzNewLine()
 
+	# The NAME stays NL -- callers write NL() and that is public surface. Only
+	# the BODY changes, so this accessor answers a real newline even after a
+	# caller's `nL = 1254400` has replaced the global constant it used to read.
 	func NL()
-		return NL
+		return char(10)
 
 	func EmptyLine()
 		return StzNewLine()

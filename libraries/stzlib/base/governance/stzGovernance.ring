@@ -693,30 +693,30 @@ class stzGovernance from stzObject
 		if StzRight(pcFile, 5) != ".zgov"
 			pcFile += ".zgov"
 		ok
-		_c_ = 'governance "' + @cName + '"' + NL
-		_c_ += "risks" + NL
+		_c_ = 'governance "' + @cName + '"' + char(10)
+		_c_ += "risks" + char(10)
 		_aSec_ = This._Risks()
 		_n_ = len(_aSec_)
 		for _i_ = 1 to _n_
-			_c_ += "    " + _aSec_[_i_][1] + " | " + _aSec_[_i_][2] + NL
+			_c_ += "    " + _aSec_[_i_][1] + " | " + _aSec_[_i_][2] + char(10)
 		next
-		_c_ += "permissions" + NL
+		_c_ += "permissions" + char(10)
 		_aSec_ = This._Perms()
 		_n_ = len(_aSec_)
 		for _i_ = 1 to _n_
-			_c_ += "    " + _aSec_[_i_][1] + " | " + _aSec_[_i_][2] + NL
+			_c_ += "    " + _aSec_[_i_][1] + " | " + _aSec_[_i_][2] + char(10)
 		next
-		_c_ += "authorities" + NL
+		_c_ += "authorities" + char(10)
 		_aSec_ = This._Auths()
 		_n_ = len(_aSec_)
 		for _i_ = 1 to _n_
-			_c_ += "    " + _aSec_[_i_][1] + " | " + _aSec_[_i_][2] + NL
+			_c_ += "    " + _aSec_[_i_][1] + " | " + _aSec_[_i_][2] + char(10)
 		next
-		_c_ += "postures" + NL
+		_c_ += "postures" + char(10)
 		_aSec_ = This._Postures()
 		_n_ = len(_aSec_)
 		for _i_ = 1 to _n_
-			_c_ += "    " + _aSec_[_i_][1] + " | " + _aSec_[_i_][2] + NL
+			_c_ += "    " + _aSec_[_i_][1] + " | " + _aSec_[_i_][2] + char(10)
 		next
 		# THE SECTION THAT WAS MISSING. Save() wrote the regime and left
 		# the lineage behind, so every reason the regime looks the way it
@@ -724,14 +724,14 @@ class stzGovernance from stzObject
 		# "answerable forever" was written to prevent. The regime is what
 		# the rules ARE; the lineage is why. Persisting one without the
 		# other keeps the half a reader can already see.
-		_c_ += "decisions" + NL
+		_c_ += "decisions" + char(10)
 		_aRows_ = This.Lineage()
 		_n_ = len(_aRows_)
 		for _i_ = 1 to _n_
 			_c_ += "    " + _aRows_[_i_][1] + " | " + _aRows_[_i_][6] +
 				" | " + _aRows_[_i_][3] + " | " + _aRows_[_i_][4] +
 				" | " + _aRows_[_i_][5] + " | " + _aRows_[_i_][7] +
-				" | " + This._OneLine(_aRows_[_i_][2]) + NL
+				" | " + This._OneLine(_aRows_[_i_][2]) + char(10)
 		next
 		write(pcFile, _c_)
 		return pcFile

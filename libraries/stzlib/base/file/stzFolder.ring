@@ -3468,7 +3468,7 @@ class stzFolder from stzObject
 		_cFullPath_ = @cCurrentPath + This.Separator() + _cFile_
 		if fexists(_cFullPath_)
 			_cFileContent_ = read(_cFullPath_)
-			_acLines_ = @split(_cFileContent_, NL)
+			_acLines_ = @split(_cFileContent_, char(10))
 
 			_nLen_ = len(_acLines_)
 			for i = 1 to _nLen_
@@ -3528,7 +3528,7 @@ class stzFolder from stzObject
 					if fexists(_cFilePath_)
 
 						_cFileContent_ = read(_cFilePath_)
-						_acLines_ = @split(_cFileContent_, NL)
+						_acLines_ = @split(_cFileContent_, char(10))
 						_nLenL_ = len(_acLines_)
 						_acLineNumbers_ = []
 
@@ -3591,7 +3591,7 @@ class stzFolder from stzObject
 			_cFilePath_ = _acAll_[f]
 			if fexists(_cFilePath_)
 				_cFileContent_ = read(_cFilePath_)
-				_acLines_ = @split(_cFileContent_, NL)
+				_acLines_ = @split(_cFileContent_, char(10))
 				_nLines_ = len(_acLines_)
 				_acLineNumbers_ = []
 
@@ -3629,7 +3629,7 @@ class stzFolder from stzObject
 			if StzLower(_DirName(_acAll_[f])) = StzLower(_DirName(_cFile_)) and fexists(_acAll_[f])
 
 				_cFileContent_ = read(_acAll_[f])
-				_acLines_ = @split(_cFileContent_, NL)
+				_acLines_ = @split(_cFileContent_, char(10))
 				_nLines_ = len(_acLines_)
 				_acLineNumbers_ = []
 
@@ -3696,7 +3696,7 @@ class stzFolder from stzObject
 
 						if fexists(_acFolderPaths_[i])
 							_cFileContent_ = read(_acFolderPaths_[i])
-							_acLines_ = @split(_cFileContent_, NL)
+							_acLines_ = @split(_cFileContent_, char(10))
 							_nLenL_ = len(_acLines_)
 							_acLineNumbers_ = []
 
@@ -4149,7 +4149,7 @@ class stzFolder from stzObject
 
 	def ToString()
 		_cFolderName_ = This.Name()
-		_cResult_ = @acDisplayChars[:FolderRoot] + " " + _cFolderName_ + NL
+		_cResult_ = @acDisplayChars[:FolderRoot] + " " + _cFolderName_ + char(10)
 
 		_cResult_ += This.GenerateVizTreeString(
 			This.Path(), '', 1,
@@ -4170,7 +4170,7 @@ class stzFolder from stzObject
 		_cFolderName_ = This.Name()
 		_cStats_ = trim(This.FormatStats(This, _cStatPattern_))
 
-		_cResult_ = @acDisplayChars[:FolderRootXT] + " " + _cFolderName_ + " " + _cStats_ + NL
+		_cResult_ = @acDisplayChars[:FolderRootXT] + " " + _cFolderName_ + " " + _cStats_ + char(10)
 
 		_cResult_ += This.GenerateVizTreeString(
 			This.Path(), '', 1, _cStatPattern_,

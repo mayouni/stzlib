@@ -1854,7 +1854,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		ok
 
 		if NOT @IsPairAndKeyIsString(paPair)
-			StzRaise("Can't search the list." + NL + "Because paPair is not a pair!")
+			StzRaise("Can't search the list." + char(10) + "Because paPair is not a pair!")
 		ok
 
 		_aFpContent_ = This.Content()

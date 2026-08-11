@@ -19,7 +19,7 @@
 ///////////////////
 
 _cSentenceSeparator = "."
-_cParagraphSeparator = NL
+_cParagraphSeparator = char(10)
 _cDefaultLanguage = :English
 
 _cWordIdentificationMode = :Quick	# or :Strict
@@ -916,7 +916,7 @@ class stzStringText from stzObject
 		ok
 
 		# Split on double newlines (paragraph boundary)
-		_aRaw_ = StzStringQ(_cContent_).Split(NL + NL)
+		_aRaw_ = StzStringQ(_cContent_).Split(char(10) + char(10))
 		_aResult_ = []
 		_nLen_ = len(_aRaw_)
 
@@ -963,7 +963,7 @@ class stzStringText from stzObject
 
 	# The lines of the text, as a list.
 	def Lines()
-		return @SplitCS(@oString.Content(), NL, 1)
+		return @SplitCS(@oString.Content(), char(10), 1)
 
 	# The nth line of the text.
 	def NthLine(_n_)

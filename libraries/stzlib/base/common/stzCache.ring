@@ -163,7 +163,7 @@ class stzCache from stzObject
 			_i_++
 			if _c_ != "|"
 				_cLine_ += _c_
-			but _c_ = NL or _i_ = _nLen_
+			but _c_ = char(10) or _i_ = _nLen_
 				_aResult_ + _cLine_
 				_cLine_ = ""
 			ok

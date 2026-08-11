@@ -1602,7 +1602,7 @@ class stzGraphPlanner from stzObject
 			if HasKey(_aAction_, :cost)
 				_cExplanation_ += " (cost: " + _aAction_[:cost] + ")"
 			ok
-			_cExplanation_ += NL
+			_cExplanation_ += char(10)
 		next
 		
 		return trim(_cExplanation_)

@@ -322,5 +322,5 @@ oBig = new stkBigNumber("-100.12")
 
 #~~~~~
 */
-? NL + "~~~~~~~~~" + NL
+? char(10) + "~~~~~~~~~" + char(10)
 ? "Executed in " + (clock() - t0) / clockspersecond() + " seconds."

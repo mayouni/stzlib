@@ -41,11 +41,11 @@ class stzNarration from stzObject
 		for _i_ = 1 to _n_
 			_cTag_ = @aLines[_i_][1]
 			if _cTag_ = "system"
-				_c_ += "SOFTANZA: " + @aLines[_i_][2] + NL
+				_c_ += "SOFTANZA: " + @aLines[_i_][2] + char(10)
 			but _cTag_ = "user"
-				_c_ += "YOU:      " + @aLines[_i_][2] + NL
+				_c_ += "YOU:      " + @aLines[_i_][2] + char(10)
 			else
-				_c_ += "  -> " + @aLines[_i_][2] + NL
+				_c_ += "  -> " + @aLines[_i_][2] + char(10)
 			ok
 		next
 		return _c_

@@ -7,7 +7,7 @@ $nMaxInlineWidth = 50          # Maximum width for keeping lists inline
 $nMaxCompactWidth = 35         # Maximum width for compact nested lists
 $nMaxComplexityThreshold = 30  # Complexity threshold for expansion
 
-$cIndentChar = TAB
+$cIndentChar = char(9)
 
 #--- Core Configuration Functions ---
 
@@ -56,7 +56,7 @@ func ComputableFormNL(pValue)
     if isList(pValue)
         # Always use smart formatting for lists in NL mode
         # The smart formatter will decide internally whether to expand or compact
-        return FormatValueSmartNL(pValue, NL, "")
+        return FormatValueSmartNL(pValue, char(10), "")
     else
         return ComputableForm(pValue)
     ok
@@ -383,7 +383,7 @@ func FormatItemForNL(pValue, cBaseIndent)
             return FormatCompactList(pValue)
         else
             # If nested list is complex, expand it too
-            return FormatListSmartNL(pValue, NL, cBaseIndent)
+            return FormatListSmartNL(pValue, char(10), cBaseIndent)
         ok
 
     but isObject(pValue)
@@ -587,18 +587,18 @@ func FormatListNL(aList, cSep, cIndent)
         return "[ ]"
     ok
 
-    _cFlnlResult_ = "[" + NL + cIndent
+    _cFlnlResult_ = "[" + char(10) + cIndent
     _nFlnlLen_ = len(aList)
 
     for _iFlnl_ = 1 to _nFlnlLen_
-        _cFlnlResult_ += TAB + FormatValue(aList[_iFlnl_], cSep, cIndent)
+        _cFlnlResult_ += char(9) + FormatValue(aList[_iFlnl_], cSep, cIndent)
 
         if _iFlnl_ < _nFlnlLen_
-            _cFlnlResult_ += "," + cSep + NL
+            _cFlnlResult_ += "," + cSep + char(10)
         ok
     next
 
-    _cFlnlResult_ += NL + "]"
+    _cFlnlResult_ += char(10) + "]"
     return _cFlnlResult_
 
 func FormatShortList(aList, nItems)
@@ -706,17 +706,17 @@ func @@NL(pValue)
 # so the printed block visually detaches from prior output.
 # Used by 386_classify, 387_classify and similar narrative blocks.
 func @@SP(pValue)
-    return NL + ComputableFormNL(pValue)
+    return char(10) + ComputableFormNL(pValue)
 
 func @@NL1(pValue)
-	_cAanl1Result_ = "[" + NL
+	_cAanl1Result_ = "[" + char(10)
 	_nAanl1Len_ = len(pValue)
 	for _iAanl1_ = 1 to _nAanl1Len_
-		_cAanl1Result_ += TAB + @@(pValue[_iAanl1_])
+		_cAanl1Result_ += char(9) + @@(pValue[_iAanl1_])
 		if _iAanl1_ < _nAanl1Len_
-			_cAanl1Result_ += "," + NL
+			_cAanl1Result_ += "," + char(10)
 		else
-			_cAanl1Result_ += NL
+			_cAanl1Result_ += char(10)
 		ok
 	next
 	_cAanl1Result_ += "]"

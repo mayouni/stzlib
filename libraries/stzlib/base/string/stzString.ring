@@ -5741,9 +5741,9 @@ class stzString from stzObject
 					end
 					_cNum_ += _cBoSlot_
 				next
-				return _cTop_ + NL + _cMid_ + NL + _cBot_ + NL + _cNum_
+				return _cTop_ + char(10) + _cMid_ + char(10) + _cBot_ + char(10) + _cNum_
 			ok
-			return _cTop_ + NL + _cMid_ + NL + _cBot_
+			return _cTop_ + char(10) + _cMid_ + char(10) + _cBot_
 		ok
 		_cText_ = This.Content()
 		_nChars_ = This.NumberOfChars()
@@ -5794,8 +5794,8 @@ class stzString from stzObject
 			end
 		ok
 		_cHL_ = StzRepeatStr(_cH_, _nInner_)
-		return _cTL_ + _cHL_ + _cTR_ + NL +
-		       _cV_ + _cMidTxt_ + _cV_ + NL +
+		return _cTL_ + _cHL_ + _cTR_ + char(10) +
+		       _cV_ + _cMidTxt_ + _cV_ + char(10) +
 		       _cBL_ + _cHL_ + _cBR_
 
 	# A boxed copy of the string; the original is unchanged.
@@ -10207,7 +10207,7 @@ class stzString from stzObject
 		_nRL_ = len(_aRes_)
 		for _i_ = 1 to _nRL_
 			_cOut_ += _aRes_[_i_]
-			if _i_ < _nRL_ _cOut_ += NL ok
+			if _i_ < _nRL_ _cOut_ += char(10) ok
 		next
 		This.Update(_cOut_)
 
@@ -11485,7 +11485,7 @@ class stzString from stzObject
 			next
 			if _bMark_ _cMark_ += "^" else _cMark_ += "-" ok
 		next
-		return _cTxt_ + NL + _cMark_
+		return _cTxt_ + char(10) + _cMark_
 
 	def VizFindCSXT(pcSub, pCaseSensitive, pOpts)
 		_bVfNum_ = 0
@@ -11524,9 +11524,9 @@ class stzString from stzObject
 		ok
 		if _bVfSec_ = 1
 			_aVfSec_ = This.FindAsSectionsCS(pcSub, @CaseSensitive(pCaseSensitive))
-			_cVfOut_ = This.Content() + NL + This._VizRailSectioned(_aVfSec_)
+			_cVfOut_ = This.Content() + char(10) + This._VizRailSectioned(_aVfSec_)
 			if _bVfNum_ = 1
-				_cVfOut_ += NL + This._VizNumsSectioned(_aVfSec_)
+				_cVfOut_ += char(10) + This._VizNumsSectioned(_aVfSec_)
 			ok
 			return _cVfOut_
 		ok
@@ -11546,7 +11546,7 @@ class stzString from stzObject
 		while ring_len(_cVfNum_) < _nVfLen_
 			_cVfNum_ += " "
 		end
-		return _cVfBase_ + NL + _cVfNum_
+		return _cVfBase_ + char(10) + _cVfNum_
 
 	def VizFindXT(pcSub, pOpts)
 		# :CS may ride in the options list.
@@ -16065,13 +16065,13 @@ class stzString from stzObject
 			next
 			if _b_ _mark_ += "^" else _mark_ += "-" ok
 		next
-		return _cTxt_ + NL + _mark_
+		return _cTxt_ + char(10) + _mark_
 
 	def VizFindZZ(pcSub)
 		# Sectioned rail: quotes at each match section's ends, dashes
 		# between, spaces elsewhere.
 		_aVzSec_ = This.FindAsSections(pcSub)
-		return This.Content() + NL + This._VizRailSectioned(_aVzSec_)
+		return This.Content() + char(10) + This._VizRailSectioned(_aVzSec_)
 
 	def _VizRailSectioned(paSections)
 		_nVzL_ = This.NumberOfChars()
@@ -16172,7 +16172,7 @@ class stzString from stzObject
 				next
 				_cVbsRail_ += _cVbsC_
 			next
-			_cVbsOut_ += NL + _cVbsRail_
+			_cVbsOut_ += char(10) + _cVbsRail_
 		ok
 		if bNumbered = 1
 			_cVbsNum_ = ""
@@ -16191,7 +16191,7 @@ class stzString from stzObject
 				end
 				_cVbsNum_ += _cVbsN2_
 			next
-			_cVbsOut_ += NL + _cVbsNum_
+			_cVbsOut_ += char(10) + _cVbsNum_
 		ok
 		return _cVbsOut_
 

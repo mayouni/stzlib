@@ -594,8 +594,8 @@ class stzListOfLists from stzList
 			@list = _aPwLists_[@i]
 
 			@item = @list # Allows using both @list and @item in the user's script
-			_cPwCode_ = "if " + _cPwCondition_ + NL +
-				TAB + "aResult + @i" + NL +
+			_cPwCode_ = "if " + _cPwCondition_ + char(10) +
+				char(9) + "aResult + @i" + char(10) +
 			"ok"
 
 			eval(_cPwCode_)
@@ -659,8 +659,8 @@ class stzListOfLists from stzList
 			@list = _aLwLists_[@i]
 
 			@item = @list # Allows using both @list and @item in the user's script
-			_cLwCode_ = "if " + _cLwCondition_ + NL +
-				TAB + "aResult + @list" + NL +
+			_cLwCode_ = "if " + _cLwCondition_ + char(10) +
+				char(9) + "aResult + @list" + char(10) +
 			"ok"
 
 			eval(_cLwCode_)

@@ -39,7 +39,7 @@ class stzStringLines from stzObject
 	#===============================#
 
 	def LinesCS(pCaseSensitive)
-		return @SplitCS(@oString.Content(), NL, pCaseSensitive)
+		return @SplitCS(@oString.Content(), char(10), pCaseSensitive)
 
 		def LinesCSQ(pCaseSensitive)
 			return new stzList(This.LinesCS(pCaseSensitive))
@@ -112,7 +112,7 @@ class stzStringLines from stzObject
 		if _c_ = ""
 			return []
 		ok
-		return @SplitCS(_c_, NL, 1)
+		return @SplitCS(_c_, char(10), 1)
 
 		def LinesCSU(pCaseSensitive)
 			return This.UniqueLinesCS(pCaseSensitive)

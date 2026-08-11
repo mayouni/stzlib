@@ -1934,7 +1934,7 @@ class stzDiagram from stzGraph
 		ok
 
 	def ExtractFirstNodeId(cDiagString)
-		_acLines_ = @split(cDiagString, NL)
+		_acLines_ = @split(cDiagString, char(10))
 		_nLen_ = len(_acLines_)
 		_bInNodesSection_ = FALSE
 
@@ -1988,7 +1988,7 @@ class stzDiagram from stzGraph
 		end
 
 	def ParseAndImport(cDiagString)
-		_acLines_ = @split(cDiagString, NL)
+		_acLines_ = @split(cDiagString, char(10))
 		_cCurrentSection_ = ""
 		_cCurrentNode_ = ""
 		_cLabel_ = ""
@@ -2235,45 +2235,45 @@ class stzDiagram from stzGraph
 		return @aLoadedStyles
 	
 	def ExportToStyl()
-		_cStyl_ = 'style "' + @cId + '_style"' + NL
-		_cStyl_ += '    theme: ' + @cTheme + NL
-		_cStyl_ += '    layout: ' + @cLayout + NL + NL
+		_cStyl_ = 'style "' + @cId + '_style"' + char(10)
+		_cStyl_ += '    theme: ' + @cTheme + char(10)
+		_cStyl_ += '    layout: ' + @cLayout + char(10) + char(10)
 		
-		_cStyl_ += 'colors' + NL
+		_cStyl_ += 'colors' + char(10)
 		if HasKey(@aPalette, @cTheme)
 			_acKeys_ = keys(@aPalette[@cTheme])
 			_nAcKeys1Len_ = len(_acKeys_)
 			for _iLoopAcKeys1_ = 1 to _nAcKeys1Len_
 				_cKey_ = _acKeys_[_iLoopAcKeys1_]
-				_cStyl_ += '    ' + _cKey_ + ': ' + @aPalette[@cTheme][_cKey_] + NL
+				_cStyl_ += '    ' + _cKey_ + ': ' + @aPalette[@cTheme][_cKey_] + char(10)
 			end
 		ok
-		_cStyl_ += NL
+		_cStyl_ += char(10)
 		
-		_cStyl_ += 'fonts' + NL
-		_cStyl_ += '    default: ' + @cFont + NL
-		_cStyl_ += '    size: ' + @nFontSize + NL + NL
+		_cStyl_ += 'fonts' + char(10)
+		_cStyl_ += '    default: ' + @cFont + char(10)
+		_cStyl_ += '    size: ' + @nFontSize + char(10) + char(10)
 		
-		_cStyl_ += 'edges' + NL
-		_cStyl_ += '    style: ' + @cEdgeStyle + NL
-		_cStyl_ += '    color: ' + @cEdgeColor + NL
-		_cStyl_ += '    spline: ' + @cSplineType + NL
-		_cStyl_ += '    penwidth: ' + @nEdgePenWidth + NL
+		_cStyl_ += 'edges' + char(10)
+		_cStyl_ += '    style: ' + @cEdgeStyle + char(10)
+		_cStyl_ += '    color: ' + @cEdgeColor + char(10)
+		_cStyl_ += '    spline: ' + @cSplineType + char(10)
+		_cStyl_ += '    penwidth: ' + @nEdgePenWidth + char(10)
 		# the nodes block below has carried its penstyle all along; the edges
 		# block did not, so a stylesheet could not round-trip one
-		_cStyl_ += '    penstyle: ' + @cEdgePenStyle + NL + NL
+		_cStyl_ += '    penstyle: ' + @cEdgePenStyle + char(10) + char(10)
 		
-		_cStyl_ += 'nodes' + NL
-		_cStyl_ += '    penwidth: ' + @nNodePenWidth + NL
-		_cStyl_ += '    penstyle: ' + @cNodePenStyle + NL
-		_cStyl_ += '    color: ' + @cNodeColor + NL
+		_cStyl_ += 'nodes' + char(10)
+		_cStyl_ += '    penwidth: ' + @nNodePenWidth + char(10)
+		_cStyl_ += '    penstyle: ' + @cNodePenStyle + char(10)
+		_cStyl_ += '    color: ' + @cNodeColor + char(10)
 		if @cNodeStrokeColor != ""
-			_cStyl_ += '    strokecolor: ' + @cNodeStrokeColor + NL
+			_cStyl_ += '    strokecolor: ' + @cNodeStrokeColor + char(10)
 		ok
-		_cStyl_ += NL
+		_cStyl_ += char(10)
 		
-		_cStyl_ += 'focus' + NL
-		_cStyl_ += '    color: ' + @cFocusColor + NL
+		_cStyl_ += 'focus' + char(10)
+		_cStyl_ += '    color: ' + @cFocusColor + char(10)
 		
 		return _cStyl_
 	
@@ -2348,11 +2348,11 @@ class stzDiagramToStzDiag from stzObject
 		# Generating diagram attributes
 
 		_cOutput_ += 'diagram "' +
-			   @oDiagram.Id() + '"' + NL + NL
+			   @oDiagram.Id() + '"' + char(10) + char(10)
 
-		_cOutput_ += "properties" + NL
-		_cOutput_ += "    theme: " + Lower(@oDiagram.@cTheme) + NL
-		_cOutput_ += "    layout: " + Lower(@oDiagram.@cLayout) + NL + NL
+		_cOutput_ += "properties" + char(10)
+		_cOutput_ += "    theme: " + Lower(@oDiagram.@cTheme) + char(10)
+		_cOutput_ += "    layout: " + Lower(@oDiagram.@cLayout) + char(10) + char(10)
 
 		# Generating the diagram title
 
@@ -2363,7 +2363,7 @@ class stzDiagramToStzDiag from stzObject
 			_cTitle_ += " : " + _cSubtitle_
 		    ok
 
-		    _cOutput_ += '    labelloc="t";' + NL
+		    _cOutput_ += '    labelloc="t";' + char(10)
 
 		    _cOutput_ += '    label="' + _cTitle_
 		    _cOutput_ += '";'
@@ -2372,24 +2372,24 @@ class stzDiagramToStzDiag from stzObject
 
 		# Generating nodes
 
-		_cOutput_ += "nodes" + NL
+		_cOutput_ += "nodes" + char(10)
 		_aNodes_ = @oDiagram.Nodes()
 		_nLen_ = len(_aNodes_)
 
 		for i = 1 to _nLen_
 			_aNode_ = _aNodes_[i]
-			_cOutput_ += "    " + _aNode_["id"] + NL
-			_cOutput_ += "        label: " + This.EscapeString(_aNode_["label"]) + NL
+			_cOutput_ += "    " + _aNode_["id"] + char(10)
+			_cOutput_ += "        label: " + This.EscapeString(_aNode_["label"]) + char(10)
 
 			if _aNode_["properties"]["type"] != ""
-				_cOutput_ += "        type: " + Lower(_aNode_["properties"]["type"]) + NL
+				_cOutput_ += "        type: " + Lower(_aNode_["properties"]["type"]) + char(10)
 			ok
 
 			if _aNode_["properties"]["color"] != ""
-				_cOutput_ += "        color: " + _aNode_["properties"]["color"] + NL
+				_cOutput_ += "        color: " + _aNode_["properties"]["color"] + char(10)
 			ok
 
-			_cOutput_ += NL
+			_cOutput_ += char(10)
 		end
 
 		# Generating edges
@@ -2398,17 +2398,17 @@ class stzDiagramToStzDiag from stzObject
 		_nLen_ = len(_aEdges_)
 
 		if _nLen_ > 0
-			_cOutput_ += "edges" + NL
+			_cOutput_ += "edges" + char(10)
 			for i = 1 to _nLen_
 				_aEdge_ = _aEdges_[i]
-				_cOutput_ += "    " + _aEdge_["from"] + " -> " + _aEdge_["to"] + NL
+				_cOutput_ += "    " + _aEdge_["from"] + " -> " + _aEdge_["to"] + char(10)
 
 				_cLabel_ = _aEdge_["label"]
 				if _cLabel_ != ""
-					_cOutput_ += "        label: " + This.EscapeString(_cLabel_) + NL
+					_cOutput_ += "        label: " + This.EscapeString(_cLabel_) + char(10)
 				ok
 
-				_cOutput_ += NL
+				_cOutput_ += char(10)
 			end
 
 		ok
@@ -2418,16 +2418,16 @@ class stzDiagramToStzDiag from stzObject
 		_aClusters_ = @oDiagram.Clusters()
 		_nLen_ = len(_aClusters_)
 		if _nLen_ > 0
-			_cOutput_ += "clusters" + NL
+			_cOutput_ += "clusters" + char(10)
 
 			for i = 1 to _nLen_
 				_aCluster_ = _aClusters_[i]
-				_cOutput_ += "    " + _aCluster_["id"] + NL
-				_cOutput_ += "        label: " + This.EscapeString(_aCluster_["label"]) + NL
+				_cOutput_ += "    " + _aCluster_["id"] + char(10)
+				_cOutput_ += "        label: " + This.EscapeString(_aCluster_["label"]) + char(10)
 				_cNodeList_ = This.NodeListToString(_aCluster_["nodes"])
-				_cOutput_ += "        nodes: [" + _cNodeList_ + "]" + NL
-				_cOutput_ += "        color: " + _aCluster_["color"] + NL
-				_cOutput_ += NL
+				_cOutput_ += "        nodes: [" + _cNodeList_ + "]" + char(10)
+				_cOutput_ += "        color: " + _aCluster_["color"] + char(10)
+				_cOutput_ += char(10)
 			end
 		ok
 
@@ -2437,10 +2437,10 @@ class stzDiagramToStzDiag from stzObject
 		_nLen_ = len(_aAnnotations_)
 
 		if _nLen_ > 0
-			_cOutput_ += "annotations" + NL
+			_cOutput_ += "annotations" + char(10)
 			for i = 1 to _nLen_
 				_aAnnot_ = _aAnnotations_[i]
-				_cOutput_ += "    " + Lower(_aAnnot_.Type()) + NL
+				_cOutput_ += "    " + Lower(_aAnnot_.Type()) + char(10)
 
 				_aAnnotData_ = _aAnnot_.NodesData()
 
@@ -2451,9 +2451,9 @@ class stzDiagramToStzDiag from stzObject
 					_cNodeId_ = _acKeys_[j] 
 					_cData_ = _aAnnotData_[_cNodeId_]
 					_cOutput_ += "        " + String(_cNodeId_) + ": "
-					_cOutput_ += This.DataToString(_cData_) + NL
+					_cOutput_ += This.DataToString(_cData_) + char(10)
 				end
-				_cOutput_ += NL
+				_cOutput_ += char(10)
 			end
 		ok
 
@@ -2551,7 +2551,7 @@ class stzDiagramToDot from stzObject
 		_cTheme_ = This._GetTheme()
 		
 		# Start digraph
-		_cOutput_ += 'digraph "' + @oDiagram.Id() + '" {' + NL
+		_cOutput_ += 'digraph "' + @oDiagram.Id() + '" {' + char(10)
 		
 		# Graph attributes
 		_cOutput_ += This._GenerateGraphAttributes(_cTheme_)
@@ -2559,14 +2559,14 @@ class stzDiagramToDot from stzObject
 		# Add title/subtitle if present -- EITHER of them is enough, a subtitle on
 		# its own used to be dropped here without a word
 		if @oDiagram.Title() != "" or @oDiagram.Subtitle() != ""
-		    _cOutput_ += '    labelloc="t";' + NL
-		    _cTitle_ = NL + @oDiagram.Title()
+		    _cOutput_ += '    labelloc="t";' + char(10)
+		    _cTitle_ = char(10) + @oDiagram.Title()
 		    if @oDiagram.Subtitle() != ""
-		        _cTitle_ += NL + @oDiagram.Subtitle() + NL
+		        _cTitle_ += char(10) + @oDiagram.Subtitle() + char(10)
 		    ok
-		    _cTitle_ += NL + NL
-		    _cOutput_ += '    label="' + _cTitle_ + '";' + NL
-		    _cOutput_ += '    fontsize=16;' + NL + NL
+		    _cTitle_ += char(10) + char(10)
+		    _cOutput_ += '    label="' + _cTitle_ + '";' + char(10)
+		    _cOutput_ += '    fontsize=16;' + char(10) + char(10)
 		ok
 	
 		# Node attributes  
@@ -2575,15 +2575,15 @@ class stzDiagramToDot from stzObject
 		# Edge attributes
 		_cOutput_ += This._GenerateEdgeAttributes(_cTheme_)
 		
-		_cOutput_ += NL
+		_cOutput_ += char(10)
 		
 		# Generate nodes
 		_cOutput_ += This._GenerateNodes(_cTheme_)
-		_cOutput_ += NL
+		_cOutput_ += char(10)
 		
 		# Generate clusters (subgraphs)
 		if len(@oDiagram.Clusters()) > 0
-			_cOutput_ += NL
+			_cOutput_ += char(10)
 			
 			_aDiagramClusters1_ = @oDiagram.Clusters()
 			_nDiagramClusters1Len_ = len(_aDiagramClusters1_)
@@ -2593,28 +2593,28 @@ class stzDiagramToDot from stzObject
 				_cLabel_ = _aCluster_["label"]
 				_cColor_ = _aCluster_["color"]
 				
-				_cOutput_ += '    subgraph ' + _cClusterId_ + ' {' + NL
-				_cOutput_ += '        label="' + _cLabel_ + '";' + NL
-				_cOutput_ += '        style=filled;' + NL
-				_cOutput_ += '        color="' + _cColor_ + '";' + NL
-				_cOutput_ += '        fillcolor="' + _cColor_ + '20";' + NL  # 20 = transparency
+				_cOutput_ += '    subgraph ' + _cClusterId_ + ' {' + char(10)
+				_cOutput_ += '        label="' + _cLabel_ + '";' + char(10)
+				_cOutput_ += '        style=filled;' + char(10)
+				_cOutput_ += '        color="' + _cColor_ + '";' + char(10)
+				_cOutput_ += '        fillcolor="' + _cColor_ + '20";' + char(10)  # 20 = transparency
 				
 				# List nodes in cluster
 				_aClusternodes1_ = _aCluster_["nodes"]
 				_nClusternodes1Len_ = len(_aClusternodes1_)
 				for _iLoopClusternodes1_ = 1 to _nClusternodes1Len_
 					_cNodeId_ = _aClusternodes1_[_iLoopClusternodes1_]
-					_cOutput_ += '        ' + This._SanitizeNodeId(_cNodeId_) + ';' + NL
+					_cOutput_ += '        ' + This._SanitizeNodeId(_cNodeId_) + ';' + char(10)
 				end
 				
-				_cOutput_ += '    }' + NL
+				_cOutput_ += '    }' + char(10)
 			end
 		ok
 	
 		# Generate edges
 		_cOutput_ += This._GenerateEdges(_cTheme_)
 		
-		_cOutput_ += NL + "}"
+		_cOutput_ += char(10) + "}"
 		
 		@cDotCode = _cOutput_
 	
@@ -2644,14 +2644,14 @@ class stzDiagramToDot from stzObject
 	        _cResult_ += ', concentrate=true'
 	    ok
 	    
-	    _cResult_ += ']' + NL
+	    _cResult_ += ']' + char(10)
 	    return _cResult_
 
 	def _GenerateNodeAttributes(_cTheme_)
 		_cFont_ = This._GetFont()
 		_nFontSize_ = This._GetFontSize()
 		
-		_cResult_ = '    node [fontname="' + _cFont_ + '", fontsize=' + _nFontSize_ + ']' + NL
+		_cResult_ = '    node [fontname="' + _cFont_ + '", fontsize=' + _nFontSize_ + ']' + char(10)
 	
 		return _cResult_
 
@@ -2665,7 +2665,7 @@ class stzDiagramToDot from stzObject
 		          ', color="' + _cEdgeColor_ + '", style=' + _cEdgeStyle_ +
 		          ', penwidth=' + @oDiagram.@nEdgePenWidth + 
 		          ', arrowhead=' + @oDiagram.@cArrowHead + 
-		          ', arrowtail=' + @oDiagram.@cArrowTail + ']' + NL
+		          ', arrowtail=' + @oDiagram.@cArrowTail + ']' + char(10)
 
 		return _cResult_
 	
@@ -2784,12 +2784,12 @@ class stzDiagramToDot from stzObject
 	    
 	    # Handle helper nodes
 	    if HasKey(_aNode_, "properties") and HasKey(_aNode_["properties"], "ishelper") and _aNode_["properties"]["ishelper"] = TRUE
-	        _cOutput_ = '    ' + _cNodeId_ + ' [shape=point, width=0.01, height=0.01, style=invis, fixedsize=true, label=""]' + NL
+	        _cOutput_ = '    ' + _cNodeId_ + ' [shape=point, width=0.01, height=0.01, style=invis, fixedsize=true, label=""]' + char(10)
 	        return _cOutput_
 	    ok
 	    
 	    if StzLeft(_cNodeId_, 8) = "_helper_"
-	        _cOutput_ = '    ' + _cNodeId_ + ' [shape=point, width=0.01, height=0.01, style=invis, fixedsize=true, label=""]' + NL
+	        _cOutput_ = '    ' + _cNodeId_ + ' [shape=point, width=0.01, height=0.01, style=invis, fixedsize=true, label=""]' + char(10)
 	        return _cOutput_
 	    ok
 	    
@@ -2856,7 +2856,7 @@ class stzDiagramToDot from stzObject
 	        _cOutput_ += ', tooltip=" "'
 	    ok
 	    
-	    _cOutput_ += ']' + NL
+	    _cOutput_ += ']' + char(10)
 	    
 	    return _cOutput_
 
@@ -3031,7 +3031,7 @@ class stzDiagramToDot from stzObject
 			for i = 1 to _nLen_ - 1
 				_cFrom_ = This._SanitizeNodeId(_acNodes_[i]["id"])
 				_cTo_ = This._SanitizeNodeId(_acNodes_[i+1]["id"])
-				_cOutput_ += '    ' + _cFrom_ + ' -> ' + _cTo_ + ' [style=invis]' + NL
+				_cOutput_ += '    ' + _cFrom_ + ' -> ' + _cTo_ + ' [style=invis]' + char(10)
 			end
 		ok
 		
@@ -3103,7 +3103,7 @@ class stzDiagramToDot from stzObject
 	        _cOutput_ += ' [' + This._JoinAttributes(_aAttrs_) + ']'
 	    ok
 	    
-	    _cOutput_ += NL
+	    _cOutput_ += char(10)
 	    return _cOutput_
 	
 	def _GenerateTooltip(_aNode_)
@@ -3203,7 +3203,7 @@ class stzDiagramToMermaid from stzObject
 		This._Generate()
 
 	def _Generate()
-		_cOutput_ = "graph TD" + NL
+		_cOutput_ = "graph TD" + char(10)
 		
 		# Mermaid reserved keywords
 		_aReservedWords_ = ["end", "start", "subgraph", "graph", "style", "class", 
@@ -3225,23 +3225,23 @@ class stzDiagramToMermaid from stzObject
 	
 			_cType_ = _aNode_["properties"]["type"]
 			if _cType_ = "start"
-				_cOutput_ += '    ' + _cSafeNodeId_ + '(["' + _cLabel_ + '"])' + NL
+				_cOutput_ += '    ' + _cSafeNodeId_ + '(["' + _cLabel_ + '"])' + char(10)
 	
 			but _cType_ = "endpoint"
-				_cOutput_ += '    ' + _cSafeNodeId_ + '(["' + _cLabel_ + '"])' + NL
+				_cOutput_ += '    ' + _cSafeNodeId_ + '(["' + _cLabel_ + '"])' + char(10)
 	
 			but _cType_ = "decision"
-				_cOutput_ += '    ' + _cSafeNodeId_ + '{{"' + _cLabel_ + '"}}' + NL
+				_cOutput_ += '    ' + _cSafeNodeId_ + '{{"' + _cLabel_ + '"}}' + char(10)
 	
 			but _cType_ = "process"
-				_cOutput_ += '    ' + _cSafeNodeId_ + '["' + _cLabel_ + '"]' + NL
+				_cOutput_ += '    ' + _cSafeNodeId_ + '["' + _cLabel_ + '"]' + char(10)
 	
 			else
-				_cOutput_ += '    ' + _cSafeNodeId_ + '["' + _cLabel_ + '"]' + NL
+				_cOutput_ += '    ' + _cSafeNodeId_ + '["' + _cLabel_ + '"]' + char(10)
 			ok
 		end
 	
-		_cOutput_ += NL
+		_cOutput_ += char(10)
 	
 		_aEdges_ =  @oDiagram.Edges()
 		_nLen_ = len(_aEdges_)
@@ -3260,9 +3260,9 @@ class stzDiagramToMermaid from stzObject
 			ok
 			
 			if _aEdge_["label"] != "" and _aEdge_["label"] != NULL
-				_cOutput_ += '    ' + _cFromId_ + ' -->|' + _aEdge_["label"] + '| ' + _cToId_ + NL
+				_cOutput_ += '    ' + _cFromId_ + ' -->|' + _aEdge_["label"] + '| ' + _cToId_ + char(10)
 			else
-				_cOutput_ += '    ' + _cFromId_ + ' --> ' + _cToId_ + NL
+				_cOutput_ += '    ' + _cFromId_ + ' --> ' + _cToId_ + char(10)
 			ok
 		end
 	
@@ -3460,7 +3460,7 @@ class stzStylParser from stzObject
 			:custom = []
 		]
 		
-		_acLines_ = split(pcContent, NL)
+		_acLines_ = split(pcContent, char(10))
 		_cSection_ = ""
 		
 		_nAcLines1Len_ = len(_acLines_)

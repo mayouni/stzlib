@@ -775,7 +775,7 @@ class stzStringList from stzObject
 
 	# The strings joined with newlines, as one string.
 	def ToString()
-		return This.ConcatUsing(NL)
+		return This.ConcatUsing(char(10))
 
 	# Each string wrapped as a stzString object, as a list.
 	def ToListOfStzStrings()

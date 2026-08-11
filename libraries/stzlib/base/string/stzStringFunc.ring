@@ -683,12 +683,12 @@ func StzTrimLines(pStrOrList)
 		ok
 	ok
 
-	if stzleft(pStrOrList, 1) != NL and stzright(pStrOrList, 1) != NL
+	if stzleft(pStrOrList, 1) != char(10) and stzright(pStrOrList, 1) != char(10)
 		return pStrOrList
 	ok
 
 	if isString(pStrOrList)
-		_acSplits_ = @split(pStrOrList, NL)
+		_acSplits_ = @split(pStrOrList, char(10))
 	else
 		_acSplits_ = pStrOrList
 	ok
@@ -2746,7 +2746,7 @@ func _StrContainsCS(_cStr_, cSubStr, bCaseSensitive)
 	return _nResult_
 
 func StzLines(_str_)
-	_acResult_ = @split(_str_, NL)
+	_acResult_ = @split(_str_, char(10))
 	return _acResult_
 
 	func Lines(_str_)

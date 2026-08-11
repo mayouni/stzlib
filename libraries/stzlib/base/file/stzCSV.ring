@@ -261,7 +261,7 @@ func @CSVEngineRows(_cStr_, cSep)
 # Fallback tokenizer for a multi-byte separator (codepoint-aware @split, no
 # quote handling). Same row-major shape as @CSVEngineRows.
 func @CSVSplitRows(_cStr_, cSep)
-	_acLines_ = @Split(_cStr_, NL)
+	_acLines_ = @Split(_cStr_, char(10))
 	_aRows_ = []
 	_nL_ = len(_acLines_)
 	for _i_ = 1 to _nL_

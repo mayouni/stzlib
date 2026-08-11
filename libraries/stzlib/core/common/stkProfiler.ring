@@ -12,13 +12,13 @@ func pf()
 		_cElapsed_ = "almost 0"
 	ok
 
-	? NL + "Executed in " + _cElapsed_ + " second(s) in Ring " + ring_version()
+	? char(10) + "Executed in " + _cElapsed_ + " second(s) in Ring " + ring_version()
 	$nTime0 = 0
 	STOP()
 
 func STOP()
-	raise( NL + 
-	    "----------------" + NL +
-	    "    STOPPED!    " + NL +
+	raise( char(10) + 
+	    "----------------" + char(10) +
+	    "    STOPPED!    " + char(10) +
 	    "----------------"
 	)

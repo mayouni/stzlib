@@ -20,7 +20,7 @@ class stkNumber
 
 	def init(pNumber)
 		if NOT (isNumber(pNumber) or isString(pNumber))
-			raise("ERR-" + StkErrror(:IncorrectParamType) + NL )
+			raise("ERR-" + StkErrror(:IncorrectParamType) + char(10) )
 		ok
 
 		if isNumber(pNumber)
@@ -440,7 +440,7 @@ class stkNumber
 				nValue = @content + (0+ _cTempStr_)
 
 				if not isNumber(nValue)
-					raise("ERR-" + StkError(:IncorrectParamType) + NL)
+					raise("ERR-" + StkError(:IncorrectParamType) + char(10))
 				ok
 
 				# Using NStringify to get the string value of the number
@@ -466,7 +466,7 @@ class stkNumber
 				return _cResult_
 
 			else
-				raise("ERR-" + StkError(:IncorrectParamType) + NL)
+				raise("ERR-" + StkError(:IncorrectParamType) + char(10))
 			ok
 
 
@@ -486,7 +486,7 @@ class stkNumber
 				nValue = @content - (0+ _cTempStr_)
 
 				if not isNumber(nValue)
-					raise("ERR-" + StkError(:IncorrectParamType) + NL)
+					raise("ERR-" + StkError(:IncorrectParamType) + char(10))
 				ok
 
 				# Using NStringify to get the string value of the number
@@ -512,7 +512,7 @@ class stkNumber
 				return _cResult_
 
 			else
-				raise("ERR-" + StkError(:IncorrectParamType) + NL)
+				raise("ERR-" + StkError(:IncorrectParamType) + char(10))
 			ok
 
 
@@ -532,7 +532,7 @@ class stkNumber
 				nValue = @content * (0+ _cTempStr_)
 
 				if not isNumber(nValue)
-					raise("ERR-" + StkError(:IncorrectParamType) + NL)
+					raise("ERR-" + StkError(:IncorrectParamType) + char(10))
 				ok
 
 				# Using NStringify to get the string value of the number
@@ -558,7 +558,7 @@ class stkNumber
 				return _cResult_
 
 			else
-				raise("ERR-" + StkError(:IncorrectParamType) + NL)
+				raise("ERR-" + StkError(:IncorrectParamType) + char(10))
 			ok
 
 		but op = "/"
@@ -577,7 +577,7 @@ class stkNumber
 				nValue = @content + (0+ _cTempStr_)
 
 				if not isNumber(nValue)
-					raise("ERR-" + StkError(:IncorrectParamType) + NL)
+					raise("ERR-" + StkError(:IncorrectParamType) + char(10))
 				ok
 
 				# Using NStringify to get the string value of the number
@@ -603,9 +603,9 @@ class stkNumber
 				return _cResult_
 
 			else
-				raise("ERR-" + StkError(:IncorrectParamType) + NL)
+				raise("ERR-" + StkError(:IncorrectParamType) + char(10))
 			ok
 
 		else
-			raise("ERR-" + StkError(:UnsupportedOperator) + NL)
+			raise("ERR-" + StkError(:UnsupportedOperator) + char(10))
 		ok

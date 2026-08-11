@@ -158,7 +158,7 @@ class stzStringIO from stzObject
 	def ToCSV()
 		_cContent_ = @oString.Content()
 		_oFinder_ = new stzStringFinder(_cContent_)
-		if _oFinder_.Contains(",") or _oFinder_.Contains('"') or _oFinder_.Contains(NL)
+		if _oFinder_.Contains(",") or _oFinder_.Contains('"') or _oFinder_.Contains(char(10))
 			_cContent_ = @ReplaceCS(_cContent_, '"', '""', 1)
 			return '"' + _cContent_ + '"'
 		else

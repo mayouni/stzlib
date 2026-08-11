@@ -223,7 +223,7 @@ class stzList from stzObject
 		_nLen_ = len(_aContent_)
 
 		if _n_ > _nLen_
-			StzRaise("Index outside the list!" + NL +
+			StzRaise("Index outside the list!" + char(10) +
 			 "Trying to access position " + _n_ + " in a list of "  + _nLen_ + " items!")
 		but _n_ < 0
 			_n_ = _nLen_ + _n_ + 1
@@ -9820,14 +9820,14 @@ class stzList from stzObject
 			if _nEnd_ > _nLen_ _nEnd_ = _nLen_ ok
 			_bLastWin_ = ( _nEnd_ = _nLen_ )
 
-			if NOT _bFirst_ _cRes_ += (NL + NL) ok
+			if NOT _bFirst_ _cRes_ += (char(10) + char(10)) ok
 			_bFirst_ = 0
 
 			_cRes_ += _cVwIndent_ + _oVwCode_.Section(_nStart_, _nEnd_)
 			for _rVw2_ = 1 to _nVwR_
 				_oVwM_ = new stzString(_aPad_[_rVw2_][2])
 				_cSeg_ = _oVwM_.Section(_nStart_, _nEnd_)
-				_cRes_ += NL + _aPad_[_rVw2_][1] + _cSeg_
+				_cRes_ += char(10) + _aPad_[_rVw2_][1] + _cSeg_
 				if _bLastWin_
 					_cRes_ += _aPad_[_rVw2_][3]
 				ok

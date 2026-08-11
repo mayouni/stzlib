@@ -541,11 +541,11 @@ class stzHistogram from stzObject
 			while StzLen(_cLine_) > 0 and StzRight(_cLine_, 1) = " "
 				_cLine_ = StzLeft(_cLine_, StzLen(_cLine_) - 1)
 			end
-			_cResult_ += _cLine_ + NL
+			_cResult_ += _cLine_ + char(10)
 		next
 		
 		# Remove final newline
-		if StzLen(_cResult_) > 0 and StzRight(_cResult_, 1) = NL
+		if StzLen(_cResult_) > 0 and StzRight(_cResult_, 1) = char(10)
 			_cResult_ = StzLeft(_cResult_, StzLen(_cResult_) - 1)
 		ok
 		
@@ -647,7 +647,7 @@ class stzHistogram from stzObject
 		if @bShowHAxis = FALSE
 
 			_oStrTemp_ = new stzString(_cResult_)
-			_nPos_ = _oStrTemp_.FindFirst(NL)
+			_nPos_ = _oStrTemp_.FindFirst(char(10))
 			_oStrTemp_.RemoveSection(1, _nPos_)
 			_cResult_ = _oStrTemp_.Content()
 		ok
@@ -657,12 +657,12 @@ class stzHistogram from stzObject
 		if ring_substr1(_cResult_, @cVArrowChar) > 0
 
 			_oStrTemp_ = new stzString(_cResult_)
-			_nPos_ = _oStrTemp_.FindNth(1, NL)
+			_nPos_ = _oStrTemp_.FindNth(1, char(10))
 			_bFirstLineIsEmpty_ = @trim(_oStrTemp_.Section(4, _nPos_-1)) = ""
 
 			if NOT _bFirstLineIsEmpty_ # then add an empty line
 				_cResult_ = StzReplace(_cResult_, @cVArrowChar, @cVAxisChar)
-				_cResult_ = @cVArrowChar + NL + _cResult_
+				_cResult_ = @cVArrowChar + char(10) + _cResult_
 			ok
 
 		ok
@@ -670,10 +670,10 @@ class stzHistogram from stzObject
 		# Add statistics if requested
 		if @bShowStats
 
-			_cStats_ = NL + NL +
-				"Mean:   " + RoundN(This.Mean(), 2) + NL +
-			    "StdDev: " + RoundN(This.StandardDeviation(), 2) + NL +
-			    "Median: " + RoundN(This.Median(), 2) + NL +
+			_cStats_ = char(10) + char(10) +
+				"Mean:   " + RoundN(This.Mean(), 2) + char(10) +
+			    "StdDev: " + RoundN(This.StandardDeviation(), 2) + char(10) +
+			    "Median: " + RoundN(This.Median(), 2) + char(10) +
 			    "Count:  " + This.DataCount()
 
 			_cResult_ += _cStats_

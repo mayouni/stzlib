@@ -51,7 +51,7 @@ class stzStringVisualizer from stzObject
 		ok
 
 	def ShowNL()
-		? @oString.Content() + NL
+		? @oString.Content() + char(10)
 
 	  #===============================#
 	 #     VIZFIND                   #
@@ -77,7 +77,7 @@ class stzStringVisualizer from stzObject
 			ok
 		next
 
-		return _cResult_ + NL + _cViz_
+		return _cResult_ + char(10) + _cViz_
 
 	def VizFindChar(_c_)
 		return This.VizFindCharCS(_c_, 1)
@@ -108,7 +108,7 @@ class stzStringVisualizer from stzObject
 			ok
 		next
 
-		return _cResult_ + NL + _cViz_
+		return _cResult_ + char(10) + _cViz_
 
 	def VizFind(pcSubStr)
 		return This.VizFindCS(pcSubStr, 1)
@@ -162,7 +162,7 @@ class stzStringVisualizer from stzObject
 		next
 		_cBot_ += _cCorner_
 
-		return _cTop_ + NL + _cMid_ + NL + _cBot_
+		return _cTop_ + char(10) + _cMid_ + char(10) + _cBot_
 
 	def BoxedRounded()
 		return This.BoxedXT([ :Line = :Thin, :AllCorners = :Round ])

@@ -77,15 +77,15 @@ class stzPredicateSet from stzObject
 		return @acInvariants
 
 	def _Body()
-		_c_ = 'predicateset "' + @cName + '"' + NL + "rules" + NL
+		_c_ = 'predicateset "' + @cName + '"' + char(10) + "rules" + char(10)
 		_n_ = len(@acRules)
 		for _i_ = 1 to _n_
-			_c_ += "    " + @acRules[_i_] + NL
+			_c_ += "    " + @acRules[_i_] + char(10)
 		next
-		_c_ += "invariants" + NL
+		_c_ += "invariants" + char(10)
 		_n_ = len(@acInvariants)
 		for _i_ = 1 to _n_
-			_c_ += "    " + @acInvariants[_i_] + NL
+			_c_ += "    " + @acInvariants[_i_] + char(10)
 		next
 		return _c_
 
@@ -127,7 +127,7 @@ class stzPredicateSet from stzObject
 		if StzRight(pcFile, 5) != ".zrlz"
 			pcFile += ".zrlz"
 		ok
-		write(pcFile, This._Body() + "seal | " + This.Seal() + NL)
+		write(pcFile, This._Body() + "seal | " + This.Seal() + char(10))
 		return pcFile
 
 	# TRUE when the loaded seal matches the body -- a reviewer signs the

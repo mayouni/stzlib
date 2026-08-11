@@ -302,7 +302,7 @@ class stzWorldGraph from stzObject
 		if StzFindFirst(" ", pcName) > 0
 			return FALSE
 		ok
-		if StzFindFirst(NL, pcName) > 0
+		if StzFindFirst(char(10), pcName) > 0
 			return FALSE
 		ok
 		return TRUE

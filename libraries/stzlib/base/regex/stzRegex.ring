@@ -198,7 +198,7 @@ class stzRegex from stzObject
 		@cPattern = pcPattern
 		@cMatchType = :MatchEntireContent
 
-		if ring_substr1(pcPattern, NL) > 0
+		if ring_substr1(pcPattern, char(10)) > 0
 			@nFlags = @nFlags | 4
 		ok
 
