@@ -72,7 +72,6 @@ const FUNC_WHITELIST = [_][]const u8{
     // of what materials do -- the list was a compute kernel's list.
     "mix", "smoothstep", "step", "dot", "cross", "normalize", "length",
     "distance", "reflect", "atan2", "asin", "acos", "inverseSqrt",
-    "vec2", "vec3", "vec4",
 };
 
 var err_buf: [256]u8 = @splat(0);
@@ -241,6 +240,20 @@ pub fn stz_gpu_wgsl_elementwise(spec: [*]const u8, spec_len: f64, out: [*]u8, ca
                         is_func = true;
                         break;
                     }
+                }
+                // vecN is spelled vecN<f32> in WGSL. The material language
+                // keeps the friendly name and the transpiler adds the type.
+                // Emitting the bare name produced WGSL that failed to
+                // compile -- and the broken pipeline then PANICKED the
+                // process at submit rather than being refused.
+                if (std.mem.eql(u8, nm.slice(), "vec2") or
+                    std.mem.eql(u8, nm.slice(), "vec3") or
+                    std.mem.eql(u8, nm.slice(), "vec4"))
+                {
+                    expr.put(nm.slice());
+                    expr.put("<f32>");
+                    i = j;
+                    continue;
                 }
                 if (!is_func)
                     return fail("unknown name '{s}' (not a declared scalar, not a whitelisted function)", .{nm.slice()});
@@ -429,6 +442,19 @@ fn compileExpr(
                 expr.put("v_");
                 expr.put(nm.slice());
             } else {
+                // vecN is spelled vecN<f32> in WGSL. The language keeps
+                // the friendly name; the transpiler adds the type. The
+                // bare name compiled to invalid WGSL, and the broken
+                // pipeline then PANICKED at submit instead of refusing.
+                if (std.mem.eql(u8, nm.slice(), "vec2") or
+                    std.mem.eql(u8, nm.slice(), "vec3") or
+                    std.mem.eql(u8, nm.slice(), "vec4"))
+                {
+                    expr.put(nm.slice());
+                    expr.put("<f32>");
+                    i = j;
+                    continue;
+                }
                 var is_func = false;
                 for (FUNC_WHITELIST) |f| {
                     if (std.mem.eql(u8, f, nm.slice())) {
@@ -629,6 +655,25 @@ pub fn stz_gpu_wgsl_fragment(spec: [*]const u8, spec_len: f64, out: [*]u8, cap: 
     put(&w, "  let f_uv = in.uv;\n");
     put(&w, "  let f_color = in.col;\n");
     put(&w, "  let f_lambert = max(dot(f_normal, -normalize(frame.lightDir.xyz)), 0.0);\n");
+    // KEEP THE MATERIAL BINDING ALIVE. A material may declare a colour or
+    // scalar its body never reads; naga then strips @binding(2) from the
+    // pipeline layout, the draw still binds three buffers, and wgpu PANICS
+    // at submit -- the same shape as the layout:"auto" tile trap, where a
+    // binding mistake reports at SUBMIT and never at the line responsible.
+    // The comparison below is always false for real data but it READS the
+    // struct, so the binding survives optimisation.
+    put(&w, "  if (");
+    if (n_colors > 0) {
+        put(&w, "m.c_");
+        put(&w, colors[0].slice());
+        put(&w, ".a");
+    } else if (n_scalars > 0) {
+        put(&w, "m.s_");
+        put(&w, scalars[0].slice());
+    } else {
+        put(&w, "m.unused");
+    }
+    put(&w, " < -1.0e30) { discard; }\n");
     put(&w, lets.items());   // the material's own let bindings, in order
     put(&w, "  return ");
     put(&w, expr.items());
