@@ -379,7 +379,7 @@ class stzListWalker from stzObject
 	# Walk the items WHILE the given condition holds.
 	def WalkWhile(pcCondition)
 		_pWwList_ = @oList._EngineListFromContent()
-		if _pWwList_ = NULL return [] ok
+		if _pWwList_ = "" return [] ok
 
 		_cWwNegated_ = "not (" + _StzStripBraces(pcCondition) + ")"
 		_nWwFirst_ = StzEngineListFindW(_pWwList_, _cWwNegated_)

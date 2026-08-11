@@ -327,23 +327,23 @@ func _AbsolutePath(_cPath_)
 	return _CleanPath(currentDir() + "/" + _cPath_)
 
 func _IsAbsolutePath(_cPath_)
-	if StzLen(_cPath_) = 0 return FALSE ok
-	if StzLeft(_cPath_, 1) = "/" return TRUE ok
+	if StzLen(_cPath_) = 0 return 0 ok
+	if StzLeft(_cPath_, 1) = "/" return 1 ok
 	if StzLen(_cPath_) >= 2 and isalpha(StzLeft(_cPath_, 1)) and StzMid(_cPath_, 2, 1) = ":"
-		return TRUE
+		return 1
 	ok
-	return FALSE
+	return 0
 
 func _IsRootPath(_cPath_)
 	_cPath_ = _CleanPath(_cPath_)
-	if _cPath_ = "/" return TRUE ok
+	if _cPath_ = "/" return 1 ok
 	if StzLen(_cPath_) = 2 and isalpha(StzLeft(_cPath_, 1)) and StzRight(_cPath_, 1) = ":"
-		return TRUE
+		return 1
 	ok
 	if StzLen(_cPath_) = 3 and isalpha(StzLeft(_cPath_, 1)) and StzMid(_cPath_, 2, 1) = ":" and StzRight(_cPath_, 1) = "/"
-		return TRUE
+		return 1
 	ok
-	return FALSE
+	return 0
 
 func _DirName(_cPath_)
 	_cPath_ = _CleanPath(_cPath_)
@@ -424,7 +424,7 @@ class stzFolder from stzObject
 		:FileFoundSymbol = char(240)+char(159)+char(145)+char(137)
 	]
 
-	@bBacthMode = FALSE
+	@bBacthMode = 0
 
 	#== Initialization ==#
 
@@ -437,7 +437,7 @@ class stzFolder from stzObject
 		@acPathHistory = []
 
 		_cPath_ = ""
-		if pcDirPath = "" or pcDirPath = NULL
+		if pcDirPath = "" or pcDirPath = ""
 			_cPath_ = currentDir()
 		else
 			_cPath_ = _CleanPath(pcDirPath)
@@ -510,12 +510,12 @@ class stzFolder from stzObject
 		if Len(_cAbsLow_) >= _nMainPathLen_
 			if Left(_cAbsLow_, _nMainPathLen_) = _cMainLow_
 				if _cAbsLow_ != _cMainLow_
-					return True
+					return 1
 				ok
 			ok
 		ok
 
-		return False
+		return 0
 	
 		def IsPathInside(_cPath_)
 			return This.IsInside(_cPath_)
@@ -1005,11 +1005,11 @@ class stzFolder from stzObject
 
 		for i = 1 to _nLen_
 	        if NOT This.IsFile(acPaths[i])
-	            return FALSE
+	            return 0
 	        ok
 	    next
 	    
-	    return TRUE
+	    return 1
 	
 	def AreFolders(acPaths)
 	
@@ -1025,11 +1025,11 @@ class stzFolder from stzObject
 
 		for i = 1 to _nLen_
 	        if NOT This.IsFolder(acPaths[i])
-	            return FALSE
+	            return 0
 	        ok
 	    next
 	    
-	    return TRUE
+	    return 1
 	
 	def AllExist(acPaths)
 	
@@ -1045,11 +1045,11 @@ class stzFolder from stzObject
 
 		for i = 1 to _nLen_
 	        if NOT This.Exists(acPaths[i])
-	            return FALSE
+	            return 0
 	        ok
 	    next
 	    
-	    return TRUE
+	    return 1
 	
 	def ExistingPathsAmong(acPaths)
 	
@@ -1665,9 +1665,9 @@ class stzFolder from stzObject
 	def DeepContains(_cName_)
 
 		if This.DeepContainsFileIn(_cName_, This.Path()) or This.DeepContainsFolderIn(_cName_, This.Path())
-			return TRUE
+			return 1
 		else
-			return FALSE
+			return 0
 		ok
 
 		def DeepContainsFileOrFolder(_cName_)
@@ -1679,9 +1679,9 @@ class stzFolder from stzObject
 	def DeepContainsIn(_cName_, _cPath_)
 
 		if This.DeepContainsFileIn(_cName_, _cPath_) or This.DeepContainsFolderIn(_cName_,_cPath_)
-			return TRUE
+			return 1
 		else
-			return FALSE
+			return 0
 		ok
 
 		def DeepContainsFileOrFolderIn(_cName_, _cPath_)
@@ -1711,19 +1711,19 @@ class stzFolder from stzObject
 		for i = 1 to _nLen_
 
 			if _aList_[i][2] = 0 and _aList_[i][1] = cFileName
-				return TRUE
+				return 1
 
 			but _aList_[i][2] = 1 and _aList_[i][1] != "." and _aList_[i][1] != ".."
 
 				if This.DeepContainsFileIn(cFileName, _cPath_ + This.Separator() + _aList_[i][1])
-					return TRUE
+					return 1
 				end
 
 			end
 
 		next
 
-		return FALSE
+		return 0
 
 	def DeepContainsTheseFiles(acFilesNames)
 		return This.DeepContainsTheseFilesIn(acFilesNames, This.Path())
@@ -1741,12 +1741,12 @@ class stzFolder from stzObject
 		ok
 
 		_nLen_ = len(acFilesNames)
-		_bResult_ = TRUE
+		_bResult_ = 1
 
 		for i = 1 to _nLen_
 
 			if NOT This.DeepContainsFileIn(acFilesNames[i], _cPath_)
-				_bResult_ = FALSE
+				_bResult_ = 0
 				exit
 			ok
 
@@ -1771,12 +1771,12 @@ class stzFolder from stzObject
 		ok
 
 		_nLen_ = len(acFilesNames)
-		_bResult_ = FALSE
+		_bResult_ = 0
 
 		for i = 1 to _nLen_
 
 			if This.DeepContainsFileIn(acFilesNames[i], _cPath_)
-				_bResult_ = TRUE
+				_bResult_ = 1
 				exit
 			ok
 
@@ -1806,19 +1806,19 @@ class stzFolder from stzObject
 		for i = 1 to _nLen_
 
 			if _aList_[i][2] = 1 and _aList_[i][1] = _cFolderName_
-				return TRUE
+				return 1
 
 			but _aList_[i][2] = 1 and _aList_[i][1] != "." and _aList_[i][1] != ".."
 
 				if This.DeepContainsFolderIn(_cFolderName_, _cPath_ + This.Separator() + _aList_[i][1])
-					return TRUE
+					return 1
 				end
 
 			end
 
 		next
 
-		return FALSE
+		return 0
 
 	def DeepContainsTheseFolders(acFoldersNames)
 		return This.DeepContainsTheseFoldersIn(acFoldersNames, This.Path())
@@ -1836,12 +1836,12 @@ class stzFolder from stzObject
 		ok
 
 		_nLen_ = len(acFoldersNames)
-		_bResult_ = TRUE
+		_bResult_ = 1
 
 		for i = 1 to _nLen_
 
 			if NOT This.DeepContainsFolderIn(acFoldersNames[i], _cPath_)
-				_bResult_ = FALSE
+				_bResult_ = 0
 				exit
 			ok
 
@@ -1861,12 +1861,12 @@ class stzFolder from stzObject
 		ok
 
 		_nLen_ = len(acFoldersNames)
-		_bResult_ = FALSE
+		_bResult_ = 0
 
 		for i = 1 to _nLen_
 
 			if This.DeepContainsFolderIn(acFoldersNames[i], _cPath_)
-				_bResult_ = TRUE
+				_bResult_ = 1
 				exit
 			ok
 
@@ -1923,7 +1923,7 @@ class stzFolder from stzObject
 		
 		@cCurrentPath = _cFullPath_
 		
-		return TRUE
+		return 1
 
 		def MoveTo(cDir)
 			return This.GoTo(cDir)
@@ -1941,7 +1941,7 @@ class stzFolder from stzObject
 		
 		@cCurrentPath = _ParentPath(@cCurrentPath)
 	
-		return TRUE
+		return 1
 
 		def Up()
 			return This.GoUp()
@@ -1955,7 +1955,7 @@ class stzFolder from stzObject
 		
 		@cCurrentPath = @cOriginalPath
 		
-		return TRUE
+		return 1
 
 		def GoToHome()
 			return This.GoHome()
@@ -1976,7 +1976,7 @@ class stzFolder from stzObject
 		
 		@cCurrentPath = _cPreviousPath_
 		
-		return TRUE
+		return 1
 
 		def Back()
 			return This.GoBack()
@@ -2064,7 +2064,7 @@ class stzFolder from stzObject
 
 	def CreateFolder(pcPath)
 	    This.CreateFolderQ(pcPath)
-	    return TRUE
+	    return 1
 
 		def FolderCreate(pcPath)
 			return This.CreateFolder(pcPath)
@@ -2095,7 +2095,7 @@ class stzFolder from stzObject
 
 	def CreateFolders(paNames)
 		This.CreateFoldersQ(paNames)
-		return TRUE
+		return 1
 
 		def MakeFolders(paNames)
 			return This.CreateFolders(paNames)
@@ -2135,7 +2135,7 @@ class stzFolder from stzObject
 
 	def CreatePath(pcPath)
 		This.CreatePathQ(pcPath)
-		return TRUE
+		return 1
 
 		def MkPath(pcPath)
 			return This.CreatePath(pcPath)
@@ -2354,14 +2354,14 @@ class stzFolder from stzObject
 		_nLen_ = len(_aSortedPaths_)
 
 	    # Delete folders
-		_bResult_ = TRUE
+		_bResult_ = 1
 
 		for i = 1 to _nLen_
 	        _cFolderPath_ = _aSortedPaths_[i][2]
 
 	        if dirExists(_cFolderPath_)
 	            if NOT RemoveFolderRecursive(_cFolderPath_)
-	                _bResult_ = FALSE
+	                _bResult_ = 0
 					exit
 	            ok
 	        ok
@@ -3835,9 +3835,9 @@ class stzFolder from stzObject
 			_cFileContent_ = read(_cFullPath_)
 			_cModifiedContent_ = StzReplace(_cFileContent_, cContent, cNewContent)
 			write(_cFullPath_, _cModifiedContent_)
-			return TRUE
+			return 1
 		ok
-		return FALSE
+		return 0
 
 	def ModifyInFiles(_acFiles_, cContent, cNewContent)
 
@@ -4370,17 +4370,17 @@ class stzFolder from stzObject
 	def IsSecurePath(_cPath_)
 		# Check for null bytes (path injection attempt)
 		if StzFindFirst(StzChar(0), _cPath_) > 0
-			return true
+			return 1
 		ok
 
 		# Check for other control characters that could be used for injection
 		for i = 1 to 31
 			if StzFindFirst(StzChar(i), _cPath_) > 0
-				return false
+				return 0
 			ok
 		next
 		
-		return true
+		return 1
 
 	def HasNoPathInjection(_cPath_)
 		return This.IsSecurePath(_cPath_)
@@ -5086,7 +5086,7 @@ class stzFolder from stzObject
 			return 1
 		end
 		
-		if @acDeepExpandFolders = NULL
+		if @acDeepExpandFolders = ""
 			return 0
 		end
 		

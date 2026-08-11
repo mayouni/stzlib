@@ -2683,7 +2683,7 @@ class stzListOfLists from stzList
 			return This.IndexQRT(:stzList)
 
 		def IndexQRT(pcReturnType)
-			return This.IndexCSQRT(TRUE, pcReturnType)
+			return This.IndexCSQRT(1, pcReturnType)
 
 	def Indexed()
 		return This.Index()
@@ -2772,7 +2772,7 @@ class stzListOfLists from stzList
 			return This.IndexXTQRT(:stzList)
 
 		def IndexXTQRT(pcReturnType)
-			return This.IndexCSXTQRT(TRUE, pcReturnType)
+			return This.IndexCSXTQRT(1, pcReturnType)
 
 	def IndexedXT()
 		return This.IndexXT()

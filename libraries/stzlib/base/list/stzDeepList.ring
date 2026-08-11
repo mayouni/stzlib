@@ -23,22 +23,22 @@
 #-- in DeepFindAt -- not a loop over the structure).
 
 func _DplListEq(aA, aB)
-	if len(aA) != len(aB) return FALSE ok
+	if len(aA) != len(aB) return 0 ok
 	_nLen_ = len(aA)
 	for i = 1 to _nLen_
 		if isList(aA[i]) and isList(aB[i])
-			if NOT _DplListEq(aA[i], aB[i]) return FALSE ok
+			if NOT _DplListEq(aA[i], aB[i]) return 0 ok
 		but isList(aA[i]) or isList(aB[i])
-			return FALSE
+			return 0
 		else
-			if aA[i] != aB[i] return FALSE ok
+			if aA[i] != aB[i] return 0 ok
 		ok
 	next
-	return TRUE
+	return 1
 
 func _DplItemsEqual(pA, pB)
 	if isList(pA) and isList(pB) return _DplListEq(pA, pB) ok
-	if isList(pA) or isList(pB) return FALSE ok
+	if isList(pA) or isList(pB) return 0 ok
 	return pA = pB
 
 #-- Factory

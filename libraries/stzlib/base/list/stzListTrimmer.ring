@@ -136,15 +136,15 @@ class stzListTrimmer from stzObject
 	#-- number 0, empty string, empty sublist, or a false-object.
 	def _TrimItemIsEmpty(pItem)
 		if isNumber(pItem) and pItem = 0
-			return TRUE
+			return 1
 		but isString(pItem) and ring_trim(pItem) = ""
-			return TRUE
+			return 1
 		but isList(pItem) and len(pItem) = 0
-			return TRUE
+			return 1
 		but isObject(pItem) and @IsFalseObject(pItem)
-			return TRUE
+			return 1
 		ok
-		return FALSE
+		return 0
 
 		def TrimRightCSQ(pCaseSensitive)
 			This.TrimRightCS(pCaseSensitive)
@@ -180,7 +180,7 @@ class stzListTrimmer from stzObject
 	def TrimItemFromLeftCS(pItem, pCaseSensitive)
 		if isString(pItem) and pCaseSensitive = 1
 			_pTilList_ = @oList._EngineListFromContent()
-			if _pTilList_ != NULL
+			if _pTilList_ != ""
 				StzEngineListTrimLeadingString(_pTilList_, pItem)
 				@oList.UpdateWith(@oList._ContentFromEngineList(_pTilList_))
 				StzEngineListFree(_pTilList_)
@@ -207,7 +207,7 @@ class stzListTrimmer from stzObject
 	def TrimItemFromRightCS(pItem, pCaseSensitive)
 		if isString(pItem) and pCaseSensitive = 1
 			_pTirList_ = @oList._EngineListFromContent()
-			if _pTirList_ != NULL
+			if _pTirList_ != ""
 				StzEngineListTrimTrailingString(_pTirList_, pItem)
 				@oList.UpdateWith(@oList._ContentFromEngineList(_pTirList_))
 				StzEngineListFree(_pTirList_)
@@ -311,7 +311,7 @@ class stzListTrimmer from stzObject
 
 		for _iSn_ = 1 to _nSnLen_
 			if isString(_aSnContent_[_iSn_])
-				if _aSnContent_[_iSn_] != "" and _aSnContent_[_iSn_] != NULL
+				if _aSnContent_[_iSn_] != "" and _aSnContent_[_iSn_] != ""
 					@AddItem(_aSnResult_, _aSnContent_[_iSn_])
 				ok
 			but isNull(_aSnContent_[_iSn_])

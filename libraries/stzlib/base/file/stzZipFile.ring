@@ -55,7 +55,7 @@ class stzZipFile from stzObject
         ok
         
         _oZip_ = zip_openfile(@cZipFileName, 'w')
-        if _oZip_ = NULL
+        if _oZip_ = ""
             StzRaise("Cannot create zip file: " + @cZipFileName)
         ok
         
@@ -107,7 +107,7 @@ class stzZipFile from stzObject
         ok
         
         _oZip_ = zip_openfile(@cZipFileName, 'a')
-        if _oZip_ = NULL
+        if _oZip_ = ""
             StzRaise("Cannot open zip file for appending: " + @cZipFileName)
         ok
         
@@ -126,7 +126,7 @@ class stzZipFile from stzObject
         ok
         
         _oZip_ = zip_openfile(@cZipFileName, 'a')
-        if _oZip_ = NULL
+        if _oZip_ = ""
             StzRaise("Cannot open zip file for appending: " + @cZipFileName)
         ok
         
@@ -147,7 +147,7 @@ class stzZipFile from stzObject
     def AddString(cEntryName, cContent)
         # Add string content as file entry
         _oZip_ = zip_openfile(@cZipFileName, 'a')
-        if _oZip_ = NULL
+        if _oZip_ = ""
             StzRaise("Cannot open zip file for appending: " + @cZipFileName)
         ok
         
@@ -204,7 +204,7 @@ class stzZipFile from stzObject
         ok
         
         _oZip_ = zip_openfile(@cZipFileName, 'r')
-        if _oZip_ = NULL
+        if _oZip_ = ""
             StzRaise("Cannot open zip file: " + @cZipFileName)
         ok
         
@@ -228,7 +228,7 @@ class stzZipFile from stzObject
         ok
         
         _oZip_ = zip_openfile(@cZipFileName, 'r')
-        if _oZip_ = NULL
+        if _oZip_ = ""
             return 0
         ok
         
@@ -286,9 +286,9 @@ class stzZipFile from stzObject
         if fexists(cDestination)
             remove(@cZipFileName)
             @cZipFileName = cDestination
-            return TRUE
+            return 1
         ok
-        return FALSE
+        return 0
     
         def MoveToQ(cDestination)
             This.MoveTo(cDestination)

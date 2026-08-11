@@ -12,9 +12,9 @@
 
 class stzFolderWatcher from stzObject
 
-	@hWatcher = NULL    # opaque engine handle
+	@hWatcher = ""    # opaque engine handle
 	@cPath = ""
-	@bRunning = FALSE
+	@bRunning = 0
 
 	def init()
 		# Nothing to wire up; caller invokes Watch(path) to start.
@@ -25,7 +25,7 @@ class stzFolderWatcher from stzObject
 		@cPath = cPath
 		@hWatcher = StzEngineFsWatchStart(cPath)
 		if StzEngineFsWatchLastError() = ""
-			@bRunning = TRUE
+			@bRunning = 1
 		ok
 		return This
 
@@ -60,9 +60,9 @@ class stzFolderWatcher from stzObject
 		return _aR_
 
 	def Stop()
-		if @bRunning and @hWatcher != NULL
+		if @bRunning and @hWatcher != ""
 			StzEngineFsWatchStop(@hWatcher)
-			@hWatcher = NULL
-			@bRunning = FALSE
+			@hWatcher = ""
+			@bRunning = 0
 		ok
 		return This

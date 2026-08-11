@@ -61,7 +61,7 @@ class stzListLeadTrail from stzObject
 	# The repeated run at the START of the list, as a list.
 	def RepeatedLeadingItemsCS(pCaseSensitive)
 		_pLtList = @oList._EngineListFromContent()
-		if _pLtList != NULL
+		if _pLtList != ""
 			_nCsLt = 1
 			if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 				_nCsLt = pCaseSensitive[2]
@@ -137,7 +137,7 @@ class stzListLeadTrail from stzObject
 	# The repeated run at the END of the list, as a list.
 	def RepeatedTrailingItemsCS(pCaseSensitive)
 		_pLtList2 = @oList._EngineListFromContent()
-		if _pLtList2 != NULL
+		if _pLtList2 != ""
 			_nCsLt2 = 1
 			if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 				_nCsLt2 = pCaseSensitive[2]
@@ -182,7 +182,7 @@ class stzListLeadTrail from stzObject
 
 	def RemoveRepeatedLeadingItemsCS(pCaseSensitive)
 		_pLtRm = @oList._EngineListFromContent()
-		if _pLtRm != NULL
+		if _pLtRm != ""
 			_nCsLtRm = 1
 			if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 				_nCsLtRm = pCaseSensitive[2]
@@ -206,7 +206,7 @@ class stzListLeadTrail from stzObject
 
 	def RemoveRepeatedTrailingItemsCS(pCaseSensitive)
 		_pLtRm2 = @oList._EngineListFromContent()
-		if _pLtRm2 != NULL
+		if _pLtRm2 != ""
 			_nCsLtRm2 = 1
 			if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 				_nCsLtRm2 = pCaseSensitive[2]

@@ -458,24 +458,24 @@ func CommonPath(paPaths)
 			_aCandidate_ + _aShortestPath_[@j]
 		next
 
-		_bAllMatch_ = TRUE
+		_bAllMatch_ = 1
 		
 		# Check if all paths match this candidate at length @n
 		for @i = 1 to _nLenPaths_
 			if len(paPaths[@i]) < @n
-				_bAllMatch_ = FALSE
+				_bAllMatch_ = 0
 				exit
 			ok
 			
 			for @j = 1 to @n
 				if paPaths[@i][@j] != _aCandidate_[@j]
-					_bAllMatch_ = FALSE
+					_bAllMatch_ = 0
 					exit
 				ok
 			next
 		next
 
-		if _bAllMatch_ = TRUE
+		if _bAllMatch_ = 1
 			return _aCandidate_
 		ok
 	next
@@ -667,13 +667,13 @@ func IsTree(paList)
 
 	# If it is not a list, it is not a tree
 	if NOT isList(paList)
-		return false
+		return 0
 	ok
     
 	# A tree is a list of 2 items (the root name and the tree content)
 
 	if NOT len(paList) = 2
-		return FALSE
+		return 0
 	ok
     
 	# Which form a pair made of a lowercase string and a list
@@ -683,11 +683,11 @@ func IsTree(paList)
 
 		 isList(paList[2]) )
 
-		return FALSE
+		return 0
 	ok
     
 	# If all tests pass, it's a valid tree
-	return TRUE
+	return 1
 
 	func IsATree(paList)
 		return IsTree(paList)

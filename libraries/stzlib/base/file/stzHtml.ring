@@ -45,7 +45,7 @@ func HtmlToText(pcHtml)
 class stzHtml from stzObject
 
 	@cHtml = ""        # original source
-	@pDoc = NULL       # engine handle (opaque pointer)
+	@pDoc = ""       # engine handle (opaque pointer)
 
 	def init(pcHtml)
 		if NOT isString(pcHtml)
@@ -61,7 +61,7 @@ class stzHtml from stzObject
 			return This.Content()
 
 	def Reload(pcHtml)
-		if @pDoc != NULL StzEngineHtmlFree(@pDoc) ok
+		if @pDoc != "" StzEngineHtmlFree(@pDoc) ok
 		@cHtml = pcHtml
 		@pDoc = StzEngineHtmlParse(pcHtml)
 		return 1
@@ -125,7 +125,7 @@ class stzHtml from stzObject
 	def FindFirst(pcSelector)
 		_a_ = This.Find(pcSelector)
 		if len(_a_) > 0 return _a_[1] ok
-		return NULL
+		return ""
 
 	def FindAll(pcSelector)
 		return This.Find(pcSelector)
@@ -135,7 +135,7 @@ class stzHtml from stzObject
 
 	# A document is valid if it parsed and yielded at least one element.
 	def IsValid()
-		return @pDoc != NULL and This.NumberOfElements() > 0
+		return @pDoc != "" and This.NumberOfElements() > 0
 
 		def IsWellFormed()
 			return This.IsValid()
@@ -166,11 +166,11 @@ class stzHtml from stzObject
 			_t_ = StzLower(StzEngineHtmlTagOf(@pDoc, _i_))
 			# Manual membership: bare find() inside this class resolves to
 			# the Find() METHOD (1 arg) -> R20, not the list builtin.
-			_seen_ = FALSE
+			_seen_ = 0
 			_m_ = len(_aR_)
 			for _j_ = 1 to _m_
 				if _aR_[_j_] = _t_
-					_seen_ = TRUE
+					_seen_ = 1
 					exit
 				ok
 			next
@@ -235,7 +235,7 @@ class stzHtml from stzObject
 
 class stzHtmlNode from stzObject
 
-	@oDoc = NULL       # owning stzHtml
+	@oDoc = ""       # owning stzHtml
 	@cTag = ""         # tag name
 	@nOcc = 1          # 1-based occurrence among same-tag elements
 
@@ -270,13 +270,13 @@ class stzHtmlNode from stzObject
 
 	def HasKlass(pcClass)
 		_cAll_ = This.Klass()
-		if _cAll_ = "" return FALSE ok
+		if _cAll_ = "" return 0 ok
 		_aParts_ = @split(_cAll_, " ")
 		_nL_ = len(_aParts_)
 		for _i_ = 1 to _nL_
-			if @trim(_aParts_[_i_]) = pcClass return TRUE ok
+			if @trim(_aParts_[_i_]) = pcClass return 1 ok
 		next
-		return FALSE
+		return 0
 
 		def HasClass(pcClass)
 			return This.HasKlass(pcClass)
@@ -288,8 +288,8 @@ class stzHtmlNode from stzObject
 
 class stzHtmlBuilder from stzObject
 
-	@oRoot    = NULL   # document fragment (tag-less container)
-	@oCurrent = NULL   # node new children are appended to
+	@oRoot    = ""   # document fragment (tag-less container)
+	@oCurrent = ""   # node new children are appended to
 
 	def init()
 		@oRoot    = new stzHtmlBuildNode("")

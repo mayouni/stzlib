@@ -11,8 +11,8 @@ func StzJsonQ(p)
 
 func StzJsonIsValid(cJson)
 	_pH_ = StzEngineJsonParse(cJson)
-	if _pH_ = NULL
-		return FALSE
+	if _pH_ = ""
+		return 0
 	ok
 	_nValid_ = StzEngineJsonIsValid(_pH_)
 	StzEngineJsonFree(_pH_)
@@ -20,7 +20,7 @@ func StzJsonIsValid(cJson)
 
 func StzJsonPretty(cJson)
 	_pH_ = StzEngineJsonParse(cJson)
-	if _pH_ = NULL
+	if _pH_ = ""
 		return ""
 	ok
 	_cResult_ = StzEngineJsonToStringPretty(_pH_)
@@ -29,7 +29,7 @@ func StzJsonPretty(cJson)
 
 func StzJsonCompact(cJson)
 	_pH_ = StzEngineJsonParse(cJson)
-	if _pH_ = NULL
+	if _pH_ = ""
 		return ""
 	ok
 	_cResult_ = StzEngineJsonToString(_pH_)
@@ -38,7 +38,7 @@ func StzJsonCompact(cJson)
 
 func StzJsonGet(cJson, cKey)
 	_pH_ = StzEngineJsonParse(cJson)
-	if _pH_ = NULL
+	if _pH_ = ""
 		return ""
 	ok
 	_cResult_ = StzEngineJsonGetString(_pH_, cKey)
@@ -47,7 +47,7 @@ func StzJsonGet(cJson, cKey)
 
 func StzJsonGetInt(cJson, cKey)
 	_pH_ = StzEngineJsonParse(cJson)
-	if _pH_ = NULL
+	if _pH_ = ""
 		return 0
 	ok
 	_nResult_ = StzEngineJsonGetInt(_pH_, cKey)
@@ -56,8 +56,8 @@ func StzJsonGetInt(cJson, cKey)
 
 func StzJsonHasKey(cJson, cKey)
 	_pH_ = StzEngineJsonParse(cJson)
-	if _pH_ = NULL
-		return FALSE
+	if _pH_ = ""
+		return 0
 	ok
 	_nResult_ = StzEngineJsonHasKey(_pH_, cKey)
 	StzEngineJsonFree(_pH_)
@@ -65,7 +65,7 @@ func StzJsonHasKey(cJson, cKey)
 
 func StzJsonKeys(cJson)
 	_pH_ = StzEngineJsonParse(cJson)
-	if _pH_ = NULL
+	if _pH_ = ""
 		return []
 	ok
 	_cKeys_ = StzEngineJsonKeys(_pH_)
@@ -77,7 +77,7 @@ func StzJsonKeys(cJson)
 
 func StzJsonSize(cJson)
 	_pH_ = StzEngineJsonParse(cJson)
-	if _pH_ = NULL
+	if _pH_ = ""
 		return 0
 	ok
 	_nResult_ = StzEngineJsonSize(_pH_)
@@ -86,8 +86,8 @@ func StzJsonSize(cJson)
 
 func StzJsonIsArray(cJson)
 	_pH_ = StzEngineJsonParse(cJson)
-	if _pH_ = NULL
-		return FALSE
+	if _pH_ = ""
+		return 0
 	ok
 	_nResult_ = StzEngineJsonIsArray(_pH_)
 	StzEngineJsonFree(_pH_)
@@ -96,7 +96,7 @@ func StzJsonIsArray(cJson)
 Class stzJson from stzObject
 
 	@aData = []
-	@bIsArray = FALSE
+	@bIsArray = 0
 	@cLastError = ""
 
 def init(p)
@@ -155,15 +155,15 @@ def init(p)
 	def HasKey(cKey)
 		if @bIsArray
 			_SetError("Cannot check key on array")
-			return FALSE
+			return 0
 		ok
 		_nLen_ = len(@aData)
 		for i = 1 to _nLen_
 			if isList(@aData[i]) and len(@aData[i]) = 2 and @aData[i][1] = cKey
-				return TRUE
+				return 1
 			ok
 		next
-		return FALSE
+		return 0
 
 	def Keys()
 		if @bIsArray
@@ -182,7 +182,7 @@ def init(p)
 	def Value(cKey)
 		if @bIsArray
 			_SetError("Cannot get value by key from array")
-			return NULL
+			return ""
 		ok
 		_nLen_ = len(@aData)
 		for i = 1 to _nLen_
@@ -190,7 +190,7 @@ def init(p)
 				return @aData[i][2]
 			ok
 		next
-		return NULL
+		return ""
 
 	def SetValue(cKey, value)
 		if @bIsArray
@@ -226,9 +226,9 @@ def init(p)
 	def TakeKey(cKey)
 		if @bIsArray
 			_SetError("Cannot take key from array")
-			return NULL
+			return ""
 		ok
-		_result_ = NULL
+		_result_ = ""
 		_aNew_ = []
 		_nLen_ = len(@aData)
 		for i = 1 to _nLen_
@@ -245,33 +245,33 @@ def init(p)
 	def At(nIndex)
 		if not @bIsArray
 			_SetError("Cannot get index from object")
-			return NULL
+			return ""
 		ok
 		if nIndex < 1 or nIndex > len(@aData)
 			_SetError("Index out of range")
-			return NULL
+			return ""
 		ok
 		return @aData[nIndex]
 
 	def First()
 		if not @bIsArray
 			_SetError("Cannot get first from object")
-			return NULL
+			return ""
 		ok
 		if len(@aData) = 0
 			_SetError("Array is empty")
-			return NULL
+			return ""
 		ok
 		return @aData[1]
 
 	def Last()
 		if not @bIsArray
 			_SetError("Cannot get last from object")
-			return NULL
+			return ""
 		ok
 		if len(@aData) = 0
 			_SetError("Array is empty")
-			return NULL
+			return ""
 		ok
 		return @aData[len(@aData)]
 
@@ -345,11 +345,11 @@ def init(p)
 	def TakeAt(nIndex)
 		if not @bIsArray
 			_SetError("Cannot take from object by index")
-			return NULL
+			return ""
 		ok
 		if nIndex < 1 or nIndex > len(@aData)
 			_SetError("Index out of range")
-			return NULL
+			return ""
 		ok
 		_result_ = @aData[nIndex]
 		del(@aData, nIndex)
@@ -358,15 +358,15 @@ def init(p)
 	def Contains(value)
 		if not @bIsArray
 			_SetError("Cannot check contains on object")
-			return FALSE
+			return 0
 		ok
 		_nLen_ = len(@aData)
 		for i = 1 to _nLen_
 			if @aData[i] = value
-				return TRUE
+				return 1
 			ok
 		next
-		return FALSE
+		return 0
 
 	def Replace(nIndex, value)
 		if not @bIsArray

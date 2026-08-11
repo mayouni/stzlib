@@ -178,7 +178,7 @@ class stzListSorter from stzObject
 
 	def SortByInAscending(pcExpr)
 		_pSbaList_ = @oList._EngineListFromContent()
-		if _pSbaList_ = NULL return ok
+		if _pSbaList_ = "" return ok
 
 		StzEngineListSortByExpr(_pSbaList_, pcExpr, 1)
 		This.UpdateWith(@oList._ContentFromEngineList(_pSbaList_))
@@ -189,7 +189,7 @@ class stzListSorter from stzObject
 
 	def SortByInDescending(pcExpr)
 		_pSbdList_ = @oList._EngineListFromContent()
-		if _pSbdList_ = NULL return ok
+		if _pSbdList_ = "" return ok
 
 		StzEngineListSortByExpr(_pSbdList_, pcExpr, 0)
 		This.UpdateWith(@oList._ContentFromEngineList(_pSbdList_))
@@ -260,7 +260,7 @@ class stzListSorter from stzObject
 
 	def Min()
 		if This.NumberOfItems() = 0
-			return NULL
+			return ""
 		ok
 
 		# Engine-backed O(n) min for numeric lists
@@ -274,7 +274,7 @@ class stzListSorter from stzObject
 
 	def Max()
 		if This.NumberOfItems() = 0
-			return NULL
+			return ""
 		ok
 
 		# Engine-backed O(n) max for numeric lists

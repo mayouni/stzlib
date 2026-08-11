@@ -41,13 +41,13 @@ class stzGrid From stzObject
 	@cEmptyChar = "."
 	@cNeighborChar = "N"
 
-	@bShowCoordinates = TRUE
-	@bShowObstacles = TRUE
-	@bShowPath = TRUE
+	@bShowCoordinates = 1
+	@bShowObstacles = 1
+	@bShowPath = 1
 
 	# When set via ReplaceAll(:With = val), Content() materializes
 	# a 2D list of the grid dimensions filled with this value.
-	@xFillValue = NULL
+	@xFillValue = ""
 	@bHasFillValue = 0
 
 	def init(panColRow)
@@ -109,9 +109,9 @@ class stzGrid From stzObject
 		if _nCol_ >= 1 and _nCol_ <= @nCols and
 		   _nRow_ >= 1 and _nRow_ <= @nRows
 
-			return TRUE
+			return 1
 		else
-			return FALSE
+			return 0
 		ok
 
 		def IsValideNode(_nCol_, _nRow_)
@@ -1118,10 +1118,10 @@ class stzGrid From stzObject
 		_nObstaclesLen_3 = len(@aObstacles)
 		for i = 1 to _nObstaclesLen_3
 			if @aObstacles[i][1] = _nCol_ and @aObstacles[i][2] = _nRow_
-				return TRUE
+				return 1
 			ok
 		next
-		return FALSE
+		return 0
 
 	def AreObstacles(panColRow)
 		if CheckParams(panColRow)
@@ -1131,11 +1131,11 @@ class stzGrid From stzObject
 		ok
 
 		_nLen_ = len(panColRow)
-		_bResult_ = TRUE
+		_bResult_ = 1
 
 		for i = 1 to _nLen_
 			if NOT This.IsObstacle(panColRow[1], panColRow[2])
-				_bResult_ = FALSE
+				_bResult_ = 0
 				exit
 			ok
 		next
@@ -1755,7 +1755,7 @@ class stzGrid From stzObject
 
 			# Vertical zig-zag
 			_nZigZag_ = 0
-			_lZigZagRight_ = TRUE
+			_lZigZagRight_ = 1
 			
 			while _nCurrentRow_ != _nEndRow_
 				# Move vertically
@@ -1861,7 +1861,7 @@ class stzGrid From stzObject
 
 			# Horizontal zig-zag
 			_nZigZag_ = 0
-			_lZigZagDown_ = TRUE
+			_lZigZagDown_ = 1
 			
 			while _nCurrentCol_ != _nEndCol_
 				# Move horizontally
@@ -1975,7 +1975,7 @@ class stzGrid From stzObject
 		_cOriginalPathChar_ = @cPathChar
 
 		# Set custom path character if provided
-		if cCustomChar != NULL
+		if cCustomChar != ""
 			@cPathChar = cCustomChar
 		ok
 
@@ -1983,7 +1983,7 @@ class stzGrid From stzObject
 		_aOriginalPath_ = @aPath
 
 		# Use the provided path if given
-		if aPathToUse != NULL
+		if aPathToUse != ""
 			@aPath = aPathToUse
 		ok
 
@@ -2354,10 +2354,10 @@ class stzGrid From stzObject
 
 		for i = 1 to _nLen_
 			if aList[i][1] = _nCol_ and aList[i][2] = _nRow_
-				return TRUE
+				return 1
 			ok
 		next
-		return FALSE
+		return 0
 
 	def LowestFScore(_aOpenSet_, _aFScore_)
 
@@ -2426,7 +2426,7 @@ class stzGrid From stzObject
 				return _aCameFrom_[i][2]
 			ok
 		next
-		return NULL
+		return ""
 
 	def ReconstructPath(_aCameFrom_, _nEndCol_, _nEndRow_)
 
@@ -2440,11 +2440,11 @@ class stzGrid From stzObject
 
 		# Trace back the path
 
-		while TRUE
+		while 1
 
 			_aPrev_ = This.GetCameFrom(_aCameFrom_, _nCurrentCol_, _nCurrentRow_)
 
- 			if _aPrev_ = NULL
+ 			if _aPrev_ = ""
 				exit
 			ok
 
@@ -2588,12 +2588,12 @@ class stzGrid From stzObject
 
 		# Quick check for invalid positions
 		if NOT IsValidPosition(_nCol1_, _nRow1_) or NOT IsValidPosition(_nCol2_, _nRow2_)
-			return FALSE
+			return 0
 		ok
 		
 		# Check if either position is an obstacle
 		if This.IsObstacle(_nCol1_, _nRow1_) or This.IsObstacle(_nCol2_, _nRow2_)
-			return FALSE
+			return 0
 		ok
 		
 		# Do flood fill from first position

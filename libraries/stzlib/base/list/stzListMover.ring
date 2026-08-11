@@ -96,7 +96,7 @@ class stzListMover from stzObject
 		ok
 
 		_pSwList_ = @oList._EngineListFromContent()
-		if _pSwList_ != NULL
+		if _pSwList_ != ""
 			StzEngineListSwap(_pSwList_, _n1_, _n2_)
 			@oList.UpdateWith(@oList._ContentFromEngineList(_pSwList_))
 			StzEngineListFree(_pSwList_)
@@ -183,7 +183,7 @@ class stzListMover from stzObject
 
 	def Reverse()
 		_pRevList_ = @oList._EngineListFromContent()
-		if _pRevList_ != NULL
+		if _pRevList_ != ""
 			StzEngineListReverse(_pRevList_)
 			@oList.UpdateWith(@oList._ContentFromEngineList(_pRevList_))
 			StzEngineListFree(_pRevList_)
@@ -247,7 +247,7 @@ class stzListMover from stzObject
 
 	def Shuffle()
 		_pShufList_ = @oList._EngineListFromContent()
-		if _pShufList_ != NULL
+		if _pShufList_ != ""
 			StzEngineListShuffle(_pShufList_)
 			@oList.UpdateWith(@oList._ContentFromEngineList(_pShufList_))
 			StzEngineListFree(_pShufList_)
