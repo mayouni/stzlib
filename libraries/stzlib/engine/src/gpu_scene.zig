@@ -345,6 +345,49 @@ pub fn sceneCircleStroke(id: i64, cx: f64, cy: f64, r: f64, width: f64, col: u32
     return push(id, .{ .stroke = .{ .pts = pts, .width = @floatCast(width), .col = col } });
 }
 
+/// An ELLIPSE, filled. The primitive the diagram layer was missing: of
+/// graphviz's 24 node shapes, twenty are a circle, a rect or a polygon --
+/// all of which this scene already draws -- and the remaining four
+/// (ellipse, egg, cylinder, doublecircle) all need this one.
+///
+/// Tessellated ENGINE-side for the same reason sceneCircleStroke is: the
+/// alternative is the face building segment points in Ring and marshalling
+/// them, which measured 101 ms of pure Ring list-building at 2,000 shapes.
+///
+/// Segment count comes from the LARGER radius through the shared
+/// circleSegments bound, so a wide flat ellipse is not under-tessellated
+/// along its long axis.
+pub fn sceneEllipse(id: i64, cx: f64, cy: f64, rx: f64, ry: f64, col: u32) i32 {
+    if (rx <= 0 or ry <= 0) return BAD_ARG;
+    const segs = circleSegments(@max(rx, ry));
+    if (segs < 3) return BAD_ARG;
+    const pts = alloc.alloc(f64, segs * 2) catch return BAD_ARG;
+    defer alloc.free(pts);
+    for (0..segs) |i| {
+        const t = std.math.tau * @as(f64, @floatFromInt(i)) / @as(f64, @floatFromInt(segs));
+        pts[i * 2] = cx + rx * @cos(t);
+        pts[i * 2 + 1] = cy + ry * @sin(t);
+    }
+    return scenePolygon(id, pts, col);
+}
+
+/// An ellipse's OUTLINE, on the same tessellation as the fill -- so a
+/// stroked ellipse traces exactly the filled one rather than almost
+/// tracing it, which is the property sceneCircleStroke had to learn.
+pub fn sceneEllipseStroke(id: i64, cx: f64, cy: f64, rx: f64, ry: f64, width: f64, col: u32) i32 {
+    if (rx <= 0 or ry <= 0 or width <= 0) return BAD_ARG;
+    const segs = circleSegments(@max(rx, ry));
+    if (segs < 3) return BAD_ARG;
+    const n = (segs + 1) * 2;
+    const pts = alloc.alloc(f32, n) catch return BAD_ARG;
+    for (0..segs + 1) |i| {
+        const t = std.math.tau * @as(f64, @floatFromInt(i % segs)) / @as(f64, @floatFromInt(segs));
+        pts[i * 2] = @floatCast(cx + rx * @cos(t));
+        pts[i * 2 + 1] = @floatCast(cy + ry * @sin(t));
+    }
+    return push(id, .{ .stroke = .{ .pts = pts, .width = @floatCast(width), .col = col } });
+}
+
 /// pts: flat [x0,y0,x1,y1,...], at least 2 points. A 2-point stroke IS a line.
 pub fn sceneStroke(id: i64, pts: []const f64, width: f64, col: u32) i32 {
     if (pts.len < 4 or pts.len % 2 != 0 or width <= 0) return BAD_ARG;
