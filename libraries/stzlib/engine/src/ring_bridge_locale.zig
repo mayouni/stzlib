@@ -59,6 +59,43 @@ fn ring_DayAbbr(p: *anyopaque) callconv(.c) void {
     if (n > 0) rs2(p, &buf, @intCast(n)) else rs(p, "");
 }
 
+// ─── Currency (L1) ───
+//
+// A currency name or code in, its answer out. An unknown one comes back "" --
+// the engine returns 0 bytes rather than guessing, and that must survive the
+// crossing rather than becoming some default here.
+
+fn ring_CurrencyIso(p: *anyopaque) callconv(.c) void {
+    var buf: [16]u8 = undefined;
+    const name = gs(p, 1);
+    const n = loc.stz_locale_currency_iso(name, gss(p, 1), &buf, 16);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs(p, "");
+}
+
+fn ring_CurrencySymbol(p: *anyopaque) callconv(.c) void {
+    var buf: [32]u8 = undefined;
+    const name = gs(p, 1);
+    const n = loc.stz_locale_currency_symbol(name, gss(p, 1), &buf, 32);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs(p, "");
+}
+
+fn ring_CurrencySymbolByIso(p: *anyopaque) callconv(.c) void {
+    var buf: [32]u8 = undefined;
+    const iso = gs(p, 1);
+    const n = loc.stz_locale_currency_symbol_by_iso(iso, gss(p, 1), &buf, 32);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs(p, "");
+}
+
+fn ring_CurrencyNameAt(p: *anyopaque) callconv(.c) void {
+    var buf: [64]u8 = undefined;
+    const n = loc.stz_locale_currency_name_at(@intFromFloat(g(p, 1)), &buf, 64);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs(p, "");
+}
+
+fn ring_CurrencyCount(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(loc.stz_locale_currency_count()));
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginelocaleamtext", .func = &ring_AmText },
     .{ .name = "stzenginelocalepmtext", .func = &ring_PmText },
@@ -68,6 +105,11 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelocaleformatnumber", .func = &ring_FormatNumber },
     .{ .name = "stzenginelocalemonthname", .func = &ring_MonthName },
     .{ .name = "stzenginelocalemonthabbr", .func = &ring_MonthAbbr },
+    .{ .name = "stzenginelocalecurrencyiso", .func = &ring_CurrencyIso },
+    .{ .name = "stzenginelocalecurrencysymbol", .func = &ring_CurrencySymbol },
+    .{ .name = "stzenginelocalecurrencysymbolbyiso", .func = &ring_CurrencySymbolByIso },
+    .{ .name = "stzenginelocalecurrencynameat", .func = &ring_CurrencyNameAt },
+    .{ .name = "stzenginelocalecurrencycount", .func = &ring_CurrencyCount },
     .{ .name = "stzenginelocaledayname", .func = &ring_DayName },
     .{ .name = "stzenginelocaledayabbr", .func = &ring_DayAbbr },
 };
