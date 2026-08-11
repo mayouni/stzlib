@@ -100,6 +100,10 @@ ok
     # the frame graph: passes and resources as a graph. Uses stzGraph and
     # stzRuleReport at RUNTIME, so it may load before them.
     load "graphics/stzFrameGraph.ring"
+
+    # the material graph: a material AS a graph, emitting the material
+    # language. Same runtime-only dependency on stzGraph and stzRuleReport.
+    load "graphics/stzMaterialGraph.ring"
     load "number/stzPolynomial.ring"
     load "number/stzMathFunction.ring"
     load "number/stzObjective.ring"

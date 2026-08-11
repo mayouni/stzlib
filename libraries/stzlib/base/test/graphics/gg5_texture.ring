@@ -169,8 +169,8 @@ else
 	# ignored the texture would be tint-white everywhere and have no
 	# dominant channel at all.
 	nRed = 0  nGreen = 0  nBlue = 0  nGrey = 0
-	nL = len(cA)
-	for i = 1 to nL - 4 step 4
+	nPixLen = len(cA)
+	for i = 1 to nPixLen - 4 step 4
 		r = ascii(substr(cA, i, 1))
 		g = ascii(substr(cA, i + 1, 1))
 		b = ascii(substr(cA, i + 2, 1))
@@ -199,7 +199,7 @@ else
 	oSc.ToPNG("gg5_texture_back.png")
 	cBack = oSc.ToPixels()
 	nRedB = 0  nGreenB = 0
-	for i = 1 to nL - 4 step 4
+	for i = 1 to nPixLen - 4 step 4
 		r = ascii(substr(cBack, i, 1))
 		g = ascii(substr(cBack, i + 1, 1))
 		b = ascii(substr(cBack, i + 2, 1))
@@ -259,15 +259,15 @@ else
 	cB = oSc.ToPixels()
 
 	nDiff = 0
-	for i = 1 to nL step 331
+	for i = 1 to nPixLen step 331
 		if substr(cA, i, 1) != substr(cB, i, 1)  nDiff++  ok
 	next
-	? "   sampled " + floor(nL / 331) + " bytes, differing : " + nDiff
+	? "   sampled " + floor(nPixLen / 331) + " bytes, differing : " + nDiff
 	chk("a different image gives a different picture", nDiff > 100)
 
 	# and the NEW picture is greyscale, which the old one was not
 	nGrey2 = 0
-	for i = 1 to nL - 4 step 4
+	for i = 1 to nPixLen - 4 step 4
 		r = ascii(substr(cB, i, 1))
 		g = ascii(substr(cB, i + 1, 1))
 		b = ascii(substr(cB, i + 2, 1))

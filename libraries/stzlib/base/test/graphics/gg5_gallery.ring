@@ -200,8 +200,8 @@ else
 		# about the body -- so count how many DIFFERENT byte values the
 		# surface shows. A gradient, a band, a rim: all of them are variety.
 		nInk = 0  aSeen = []
-		nL = len(cPx)
-		for i = 1 to nL step 409
+		nPixLen = len(cPx)
+		for i = 1 to nPixLen step 409
 			v = ascii(substr(cPx, i, 1))
 			if v > 40
 				nInk++
