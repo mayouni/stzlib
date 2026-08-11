@@ -52,151 +52,10 @@ $_aMonthNamesPerLang = [
 	[:dutch,      ["Januari", "Februari", "Maart", "April", "Mei", "Juni", "Juli", "Augustus", "September", "Oktober", "November", "December"]]
 ]
 
-$_aCurrencyISOData = [
-	[:Afghan_afghani, "AFN", "Af"],
-	[:Albanian_lek, "ALL", "L"],
-	[:Algerian_dinar, "DZD", "DA"],
-	[:Argentine_peso, "ARS", "$"],
-	[:Armenian_dram, "AMD", "֏"],
-	[:Australian_dollar, "AUD", "A$"],
-	[:Azerbaijani_manat, "AZN", "₼"],
-	[:Bahamian_dollar, "BSD", "B$"],
-	[:Bahraini_dinar, "BHD", "BD"],
-	[:Bangladeshi_taka, "BDT", "Tk"],
-	[:Barbados_dollar, "BBD", "Bds$"],
-	[:Belarusian_ruble, "BYN", "Br"],
-	[:Belize_dollar, "BZD", "BZ$"],
-	[:Bermudian_dollar, "BMD", "BD$"],
-	[:Bhutanese_ngultrum, "BTN", "Nu"],
-	[:Bolivian_boliviano, "BOB", "Bs"],
-	[:Bosnia_and_Herzegovina_convertible_mark, "BAM", "KM"],
-	[:Botswana_pula, "BWP", "P"],
-	[:Brazilian_real, "BRL", "R$"],
-	[:Brunei_dollar, "BND", "B$"],
-	[:Bulgarian_lev, "BGN", "лв"],
-	[:Cambodian_riel, "KHR", "៛"],
-	[:Canadian_dollar, "CAD", "C$"],
-	[:Cape_Verdean_escudo, "CVE", "Esc"],
-	[:Chilean_peso, "CLP", "CL$"],
-	[:Chinese_yuan, "CNY", "CN¥"],
-	[:Colombian_peso, "COP", "COL$"],
-	[:Comorian_franc, "KMF", "CF"],
-	[:Costa_Rican_colon, "CRC", "₡"],
-	[:Croatian_kuna, "HRK", "kn"],
-	[:Cuban_peso, "CUP", "$MN"],
-	[:Czech_koruna, "CZK", "Kc"],
-	[:Danish_krone, "DKK", "kr"],
-	[:Dominican_peso, "DOP", "RD$"],
-	[:Eastern_Caribbean_dollar, "XCD", "EC$"],
-	[:Egyptian_pound, "EGP", "£"],
-	[:Eritrean_nakfa, "ERN", "Nfk"],
-	[:Ethiopian_birr, "ETB", "Br"],
-	[:Euro, "EUR", "€"],
-	[:Fijian_dollar, "FJD", "FJ$"],
-	[:Gambian_dalasi, "GMD", "D"],
-	[:Georgian_lari, "GEL", "₾"],
-	[:Ghanaian_cedi, "GHS", "₵"],
-	[:Guatemalan_quetzal, "GTQ", "Q"],
-	[:Guinean_franc, "GNF", "FG"],
-	[:Guyanese_dollar, "GYD", "G$"],
-	[:Haitian_gourde, "HTG", "G"],
-	[:Honduran_lempira, "HNL", "L"],
-	[:Hong_Kong_dollar, "HKD", "HK$"],
-	[:Hungarian_forint, "HUF", "Ft"],
-	[:Icelandic_krona, "ISK", "kr"],
-	[:Indian_rupee, "INR", "Rs"],
-	[:Indonesian_rupiah, "IDR", "Rp"],
-	[:Iranian_rial, "IRR", "﷼"],
-	[:Iraqi_dinar, "IQD", "ع.د"],
-	[:Israeli_new_shekel, "ILS", "₪"],
-	[:Jamaican_dollar, "JMD", "J$"],
-	[:Japanese_yen, "JPY", "JP¥"],
-	[:Jordanian_dinar, "JOD", "JD"],
-	[:Kazakhstani_tenge, "KZT", "₸"],
-	[:Kenyan_shilling, "KES", "KSh"],
-	[:Kuwaiti_dinar, "KWD", "KD"],
-	[:Kyrgyzstani_som, "KGS", "с"],
-	[:Lao_kip, "LAK", "₭"],
-	[:Lebanese_pound, "LBP", "ل.ل"],
-	[:Liberian_dollar, "LRD", "L$"],
-	[:Libyan_dinar, "LYD", "LD"],
-	[:Macanese_pataca, "MOP", "MOP$"],
-	[:Malagasy_ariary, "MGA", "Ar"],
-	[:Malawian_kwacha, "MWK", "MK"],
-	[:Malaysian_ringgit, "MYR", "RM"],
-	[:Maldivian_rufiyaa, "MVR", "Rf"],
-	[:Mauritanian_ouguiya, "MRU", "UM"],
-	[:Mauritian_rupee, "MUR", "Rs"],
-	[:Mexican_peso, "MXN", "Mex$"],
-	[:Moldovan_leu, "MDL", "L"],
-	[:Mongolian_tugrik, "MNT", "₮"],
-	[:Moroccan_dirham, "MAD", "د.م."],
-	[:Mozambican_metical, "MZN", "MT"],
-	[:Myanmar_kyat, "MMK", "K"],
-	[:Namibian_dollar, "NAD", "N$"],
-	[:Nepalese_rupee, "NPR", "NRs"],
-	[:New_Zealand_dollar, "NZD", "NZ$"],
-	[:Nicaraguan_cordoba, "NIO", "C$"],
-	[:Nigerian_naira, "NGN", "₦"],
-	[:North_Korean_won, "KPW", "₩"],
-	[:Norwegian_krone, "NOK", "kr"],
-	[:Omani_rial, "OMR", "﷼"],
-	[:Pakistani_rupee, "PKR", "Rs"],
-	[:Panamanian_balboa, "PAB", "B/."],
-	[:Papua_New_Guinean_kina, "PGK", "K"],
-	[:Paraguayan_guarani, "PYG", "Gs"],
-	[:Peruvian_sol, "PEN", "S/."],
-	[:Philippine_peso, "PHP", "₱"],
-	[:Polish_zloty, "PLN", "zl"],
-	[:Pound_sterling, "GBP", "£"],
-	[:Qatari_riyal, "QAR", "QR"],
-	[:Romanian_leu, "RON", "lei"],
-	[:Russian_ruble, "RUB", "₽"],
-	[:Rwandan_franc, "RWF", "RF"],
-	[:Saint_Helena_pound, "SHP", "£"],
-	[:Samoan_tala, "WST", "WS$"],
-	[:Saudi_riyal, "SAR", "SR"],
-	[:Serbian_dinar, "RSD", "din."],
-	[:Seychellois_rupee, "SCR", "SRe"],
-	[:Sierra_Leonean_leone, "SLL", "Le"],
-	[:Singapore_dollar, "SGD", "S$"],
-	[:Solomon_Islands_dollar, "SBD", "SI$"],
-	[:Somali_shilling, "SOS", "Sh"],
-	[:South_African_rand, "ZAR", "R"],
-	[:South_Korean_won, "KRW", "₩"],
-	[:Sri_Lankan_rupee, "LKR", "Rs"],
-	[:Sudanese_pound, "SDG", "ج.س"],
-	[:Surinamese_dollar, "SRD", "$"],
-	[:Swazi_lilangeni, "SZL", "E"],
-	[:Swedish_krona, "SEK", "kr"],
-	[:Swiss_franc, "CHF", "Fr."],
-	[:Syrian_pound, "SYP", "ل.س"],
-	[:New_Taiwan_dollar, "TWD", "NT$"],
-	[:Tajikistani_somoni, "TJS", "SM"],
-	[:Tanzanian_shilling, "TZS", "TSh"],
-	[:Thai_baht, "THB", "฿"],
-	[:Tongan_pa_anga, "TOP", "T$"],
-	[:Trinidad_and_Tobago_dollar, "TTD", "TT$"],
-	[:Tunisian_dinar, "TND", "DT"],
-	[:Turkish_lira, "TRY", "TL"],
-	[:Turkmenistan_manat, "TMT", "T"],
-	[:Ugandan_shilling, "UGX", "USh"],
-	[:Ukrainian_hryvnia, "UAH", "₴"],
-	[:UAE_dirham, "AED", "د.إ"],
-	[:United_States_Dollar, "USD", "$"],
-	[:Uruguayan_peso, "UYU", "$U"],
-	[:Uzbekistani_som, "UZS", "soʻm"],
-	[:Vanuatu_vatu, "VUV", "VT"],
-	[:Venezuelan_bolivar, "VEF", "Bs.F"],
-	[:Vietnamese_dong, "VND", "₫"],
-	[:West_African_CFA_franc, "XOF", "CFA"],
-	[:Central_African_CFA_franc, "XAF", "FCFA"],
-	[:CFP_franc, "XPF", "F"],
-	[:Yemeni_rial, "YER", "﷼"],
-	[:Zambian_kwacha, "ZMW", "ZK"],
-	[:Zimbabwean_dollar, "ZWL", "Z$"],
-	[:Antarctic_dollar, "AAD", "$"]
-]
+# $_aCurrencyISOData lived here: 143 rows of [name, ISO code, symbol]. It moved
+# into the engine (locale plan L1) -- see engine/src/locale_data.zig, generated
+# and committed, and _CurrencyISOCode / _CurrencyNativeSymbol below, which now
+# ask for it instead of carrying it.
 
 # Globals lifted ABOVE the first func -- Ring otherwise silently
 # never assigns when declared below a func/class.
@@ -364,25 +223,22 @@ func _LocaleTimeFormatStr(_cLocaleAbbr_, _nType_)
 	ok
 	return "HH:mm:ss t"
 
+# THE ENGINE OWNS THE CURRENCY TABLE (locale plan, L1).
+#
+# These two walked $_aCurrencyISOData row by row in Ring. The rows now live in
+# engine/src/locale_data.zig, generated offline by tools/gen_locale_tables.py
+# and committed -- the same shape utf8proc_data.c has. A table with two owners
+# is a table with two answers, so the Ring copy is gone rather than kept in
+# step.
+#
+# The engine answers "" for a name it does not carry, and that survives the
+# crossing unchanged: an unknown currency has no symbol, and inventing one is
+# how 36 rows came to answer their own ISO code in the first place.
 func _CurrencyISOCode(_cCurrencyName_)
-	_cName_ = StzLower(_cCurrencyName_)
-	_nLen_ = len($_aCurrencyISOData)
-	for i = 1 to _nLen_
-		if StzLower($_aCurrencyISOData[i][1]) = _cName_
-			return $_aCurrencyISOData[i][2]
-		ok
-	next
-	return ""
+	return StzEngineLocaleCurrencyIso("" + _cCurrencyName_)
 
 func _CurrencyNativeSymbol(_cCurrencyName_)
-	_cName_ = StzLower(_cCurrencyName_)
-	_nLen_ = len($_aCurrencyISOData)
-	for i = 1 to _nLen_
-		if StzLower($_aCurrencyISOData[i][1]) = _cName_
-			return $_aCurrencyISOData[i][3]
-		ok
-	next
-	return ""
+	return StzEngineLocaleCurrencySymbol("" + _cCurrencyName_)
 
 func _DayNameInLang(_cLangName_, _nDay_)
 	_cLang_ = StzLower(_cLangName_)

@@ -81,19 +81,23 @@ Summary()
 pf()
 
 #-- helpers --------------------------------------------------------------------
+#
+# These used to walk $_aCurrencyISOData directly. The table moved into the
+# engine (locale plan L1), so they ASK ITS OWNER instead -- which is why
+# CurrencyNameAt/CurrencyCount exist: a caller can walk the whole table without
+# holding a copy of it, and a property asserted here is asserted against the
+# rows that actually ship.
 
 func SymbolOf(pcIso)
-	for _i_ = 1 to len($_aCurrencyISOData)
-		if $_aCurrencyISOData[_i_][2] = pcIso
-			return $_aCurrencyISOData[_i_][3]
-		ok
-	next
-	return ""
+	return StzEngineLocaleCurrencySymbolByIso("" + pcIso)
 
 func NRowsWhereSymbolIsTheCode()
 	_n_ = 0
-	for _i_ = 1 to len($_aCurrencyISOData)
-		if StzUpper($_aCurrencyISOData[_i_][3]) = StzUpper($_aCurrencyISOData[_i_][2])
+	for _i_ = 1 to StzEngineLocaleCurrencyCount()
+		_cName_ = StzEngineLocaleCurrencyNameAt(_i_)
+		_cIso_ = StzEngineLocaleCurrencyIso(_cName_)
+		_cSym_ = StzEngineLocaleCurrencySymbol(_cName_)
+		if StzUpper(_cSym_) = StzUpper(_cIso_)
 			_n_++
 		ok
 	next
@@ -101,20 +105,20 @@ func NRowsWhereSymbolIsTheCode()
 
 func NRowsWithNoSymbol()
 	_n_ = 0
-	for _i_ = 1 to len($_aCurrencyISOData)
-		if ring_trim("" + $_aCurrencyISOData[_i_][3]) = ""
+	for _i_ = 1 to StzEngineLocaleCurrencyCount()
+		_cSym_ = StzEngineLocaleCurrencySymbol(StzEngineLocaleCurrencyNameAt(_i_))
+		if ring_trim("" + _cSym_) = ""
 			_n_++
 		ok
 	next
 	return _n_
 
 # A symbol is suspect when it opens with the Latin-1 supplement characters that
-# UTF-8 bytes turn into when misread -- Ã (C3) or Ð (D0) -- followed by another
-# character from that same range.
+# UTF-8 bytes turn into when misread -- the two that the Bulgarian lev carried.
 func NMojibakeSymbols()
 	_n_ = 0
-	for _i_ = 1 to len($_aCurrencyISOData)
-		_c_ = "" + $_aCurrencyISOData[_i_][3]
+	for _i_ = 1 to StzEngineLocaleCurrencyCount()
+		_c_ = "" + StzEngineLocaleCurrencySymbol(StzEngineLocaleCurrencyNameAt(_i_))
 		if StzLen(_c_) < 2
 			loop
 		ok

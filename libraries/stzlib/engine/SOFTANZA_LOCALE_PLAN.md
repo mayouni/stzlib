@@ -78,7 +78,7 @@ already does it — the generator is committed, the source and its version are
 stamped into the generated file's header, and the promises harness catches
 drift.
 
-**L1 — one table, end to end. ENGINE HALF DONE.** Move `_aCurrencyISOData` (143 rows, the smallest
+**L1 — DONE (2026-08-11).** Move `_aCurrencyISOData` (143 rows, the smallest
 and the one with a proven column-contract defect) into the engine with a real
 API: `stz_locale_currency_symbol(code)`, `_iso_code(locale)`, `_name(code)`.
 Ring keeps `stzLocale` as the face and delegates. This proves the seam — bridge,
