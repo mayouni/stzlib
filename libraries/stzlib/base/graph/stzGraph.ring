@@ -2447,8 +2447,10 @@ class stzGraph from stzObject
 		_nLen_ = len(@aNodes)
 		for i = 1 to _nLen_
 			_aNode_ = @aNodes[i]
+			# same correction as ImpactOf: ReachableFrom does not include
+			# the start node, so the -1 was subtracting nothing real
 			_acReachable_ = This.ReachableFrom(_aNode_["id"])
-			_nLength_ = len(_acReachable_) - 1
+			_nLength_ = len(_acReachable_)
 
 			if _nLength_ > _nMax_
 				_nMax_ = _nLength_
@@ -2575,9 +2577,13 @@ class stzGraph from stzObject
 			return 0
 		ok
 		
-		_acReachable_ = This.ReachableFrom(pcNodeId)
-		return len(_acReachable_) - 1
-	
+		# ReachableFrom EXCLUDES the start node -- both the engine path and
+		# the Ring fallback skip it, and say so. Subtracting one for a self
+		# entry that is not there undercounted every impact by exactly one,
+		# and answered -1 for a node that reaches nothing. A count cannot be
+		# negative, which is what made it findable.
+		return len(This.ReachableFrom(pcNodeId))
+
 	def FailureScope(pcNodeId)
 		if NOT This.NodeExists(pcNodeId)
 			return []
@@ -6351,9 +6357,16 @@ class stzGraph from stzObject
 
 	#--
 
+	# char(10), NOT the NL constant. Ring is case-insensitive, so a CALLER
+	# who writes `nL = len(cPixels)` silently overwrites the global NL --
+	# and this method then asks StzReplace to find a NUMBER, which raises
+	# inside the string layer with nothing pointing back at the caller's
+	# variable. A library must not be destroyable by a name its user
+	# reasonably chose. Reproduced in eight lines: one graph, one AddNode,
+	# one `nL = 1254400` between them.
 	def _NormalizeLabel(pcLabel)
 		pcLabel = StzReplace(pcLabel, " ", "_")
-		pcLabel = StzReplace(pcLabel, NL, "_")
+		pcLabel = StzReplace(pcLabel, char(10), "_")
 		return pcLabel
 
 		def  _NormaliseLabel(pcLabel)
