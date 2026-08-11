@@ -363,6 +363,12 @@ pub fn stz_gpu_wgsl_elementwise(spec: [*]const u8, spec_len: f64, out: [*]u8, ca
 const BUILTINS = [_][]const u8{ "normal", "position", "uv", "lambert", "color" };
 pub const MAX_COLORS = 6;
 
+// A material may declare TEXTURES. Each one costs two group(0) bindings (the
+// texture and its sampler), which is why the count is small and fixed: the
+// bindings are laid out at compile time and the draw path has to match them
+// exactly, so an unbounded list would be a bind-group budget nobody owns.
+pub const MAX_TEXTURES = 4;
+
 fn isSwizzle(s: []const u8) bool {
     if (s.len == 0 or s.len > 4) return false;
     for (s) |ch| {
@@ -390,6 +396,7 @@ fn compileExpr(
     colors: []const Name,
     scalars: []const Name,
     locals: []const Name,
+    textures: []const Name,
     expr: *Cursor,
 ) bool {
     var i: usize = 0;
@@ -432,15 +439,67 @@ fn compileExpr(
             var nm: Name = .{};
             if (!lowerInto(&nm, rhs[i..j]))
                 { _ = fail("name too long at '{s}'", .{rhs[i..@min(i + 8, rhs.len)]}); return false; }
+            // sample(NAME, uv) -- the ONE verb a texture answers.
+            //
+            // It is handled here rather than in the whitelist because its
+            // first argument is not an expression: it names a declared
+            // texture, and that name expands into TWO WGSL arguments (the
+            // texture and its sampler). A material author never writes a
+            // sampler, because a sampler is not a surface property.
+            if (std.mem.eql(u8, nm.slice(), "sample")) {
+                var k = j;
+                while (k < rhs.len and (rhs[k] == ' ' or rhs[k] == '\t')) : (k += 1) {}
+                if (k >= rhs.len or rhs[k] != '(')
+                    { _ = fail("sample needs '(': sample(name, @uv)", .{}); return false; }
+                k += 1;
+                while (k < rhs.len and (rhs[k] == ' ' or rhs[k] == '\t')) : (k += 1) {}
+                var e = k;
+                while (e < rhs.len and (std.ascii.isAlphanumeric(rhs[e]) or rhs[e] == '_')) : (e += 1) {}
+                var tnm: Name = .{};
+                if (e == k or !lowerInto(&tnm, rhs[k..e]))
+                    { _ = fail("sample's first argument must NAME a declared texture", .{}); return false; }
+                if (nameIn(textures, textures.len, tnm.slice()) == null)
+                    { _ = fail("'{s}' is not a declared texture (say 'texture {s}')", .{ tnm.slice(), tnm.slice() }); return false; }
+                var c2 = e;
+                while (c2 < rhs.len and (rhs[c2] == ' ' or rhs[c2] == '\t')) : (c2 += 1) {}
+                if (c2 >= rhs.len or rhs[c2] != ',')
+                    { _ = fail("sample takes a texture AND a coordinate: sample({s}, @uv)", .{tnm.slice()}); return false; }
+                expr.put("textureSample(t_");
+                expr.put(tnm.slice());
+                expr.put(", sm_");
+                expr.put(tnm.slice());
+                expr.putc(',');
+                i = c2 + 1; // the rest of the call compiles as ordinary text
+                continue;
+            }
+            if (nameIn(textures, textures.len, nm.slice()) != null) {
+                // A texture is not a value. Saying so beats letting it fall
+                // through to "unknown name", which would send the author
+                // looking for a typo.
+                _ = fail("'{s}' is a texture -- read it with sample({s}, @uv)", .{ nm.slice(), nm.slice() });
+                return false;
+            }
+            // A swizzle rides a VECTOR name as well as a builtin. It has to:
+            // sample() answers a vec4, so `let k = sample(mask, @uv)`
+            // followed by `k.r` is the ordinary way to use a mask, and
+            // without this the only readable value would be the whole
+            // colour. Colours and lets carry it; a SCALAR does not, and
+            // saying so beats letting WGSL reject the emitted shader
+            // somewhere the author never looks.
+            var swizzlable = false;
             if (nameIn(colors, colors.len, nm.slice()) != null) {
                 expr.put("m.c_");
                 expr.put(nm.slice());
+                swizzlable = true;
             } else if (nameIn(scalars, scalars.len, nm.slice()) != null) {
                 expr.put("m.s_");
                 expr.put(nm.slice());
+                if (j < rhs.len and rhs[j] == '.' and j + 1 < rhs.len and std.ascii.isAlphabetic(rhs[j + 1]))
+                    { _ = fail("'{s}' is a scalar -- it has no components to swizzle", .{nm.slice()}); return false; }
             } else if (nameIn(locals, locals.len, nm.slice()) != null) {
                 expr.put("v_");
                 expr.put(nm.slice());
+                swizzlable = true;
             } else {
                 // vecN is spelled vecN<f32> in WGSL. The language keeps
                 // the friendly name; the transpiler adds the type. The
@@ -474,6 +533,16 @@ fn compileExpr(
                 expr.put(nm.slice());
             }
             i = j;
+            if (swizzlable and i < rhs.len and rhs[i] == '.') {
+                var k = i + 1;
+                while (k < rhs.len and std.ascii.isAlphabetic(rhs[k])) : (k += 1) {}
+                const sw = rhs[i + 1 .. k];
+                if (!isSwizzle(sw))
+                    { _ = fail("'{s}' is not a swizzle (use x y z w or r g b a)", .{sw}); return false; }
+                expr.putc('.');
+                expr.put(sw);
+                i = k;
+            }
         } else if (std.ascii.isDigit(ch) or ch == '.') {
             var j = i;
             while (j < rhs.len and (std.ascii.isDigit(rhs[j]) or rhs[j] == '.')) : (j += 1) {}
@@ -499,6 +568,8 @@ pub fn stz_gpu_wgsl_fragment(spec: [*]const u8, spec_len: f64, out: [*]u8, cap: 
     var n_colors: usize = 0;
     var scalars: [MAX_SCALARS]Name = undefined;
     var n_scalars: usize = 0;
+    var textures: [MAX_TEXTURES]Name = undefined;
+    var n_textures: usize = 0;
     var body: []const u8 = "";
 
     var lines = std.mem.splitScalar(u8, text, '\n');
@@ -523,6 +594,19 @@ pub fn stz_gpu_wgsl_fragment(spec: [*]const u8, spec_len: f64, out: [*]u8, cap: 
                 return fail("too many scalars (max {d})", .{MAX_SCALARS});
             scalars[n_scalars] = lowered;
             n_scalars += 1;
+        } else if (std.mem.startsWith(u8, line, "texture ")) {
+            const nm = std.mem.trim(u8, line[8..], " \t");
+            var lowered: Name = .{};
+            if (!lowerInto(&lowered, nm) or !validIdent(lowered.slice()))
+                return fail("bad texture name: '{s}'", .{nm});
+            if (n_textures == MAX_TEXTURES)
+                return fail("too many textures (max {d})", .{MAX_TEXTURES});
+            if (nameIn(colors[0..], n_colors, lowered.slice()) != null or
+                nameIn(scalars[0..], n_scalars, lowered.slice()) != null or
+                nameIn(textures[0..], n_textures, lowered.slice()) != null)
+                return fail("'{s}' is already a name in this material", .{lowered.slice()});
+            textures[n_textures] = lowered;
+            n_textures += 1;
         } else if (std.mem.startsWith(u8, line, "body ")) {
             body = std.mem.trim(u8, line[5..], " \t");
         } else {
@@ -572,13 +656,14 @@ pub fn stz_gpu_wgsl_fragment(spec: [*]const u8, spec_len: f64, out: [*]u8, cap: 
                 return fail("too many lets (max {d})", .{MAX_LOCALS});
             if (nameIn(colors[0..], n_colors, lnm.slice()) != null or
                 nameIn(scalars[0..], n_scalars, lnm.slice()) != null or
+                nameIn(textures[0..], n_textures, lnm.slice()) != null or
                 nameIn(locals[0..], n_locals, lnm.slice()) != null)
                 return fail("'{s}' is already a name in this material", .{lnm.slice()});
             const lrhs = std.mem.trim(u8, rest[eq2 + 1 ..], " \t");
             if (lrhs.len == 0) return fail("let '{s}' has no expression", .{lnm.slice()});
             var one_buf: [4096]u8 = undefined;
             var one = Cursor{ .buf = &one_buf };
-            if (!compileExpr(lrhs, colors[0..n_colors], scalars[0..n_scalars], locals[0..n_locals], &one))
+            if (!compileExpr(lrhs, colors[0..n_colors], scalars[0..n_scalars], locals[0..n_locals], textures[0..n_textures], &one))
                 return -1;
             if (one.overflow) return fail("let '{s}' is too long", .{lnm.slice()});
             lets.put("  let v_");
@@ -597,7 +682,7 @@ pub fn stz_gpu_wgsl_fragment(spec: [*]const u8, spec_len: f64, out: [*]u8, cap: 
                 return fail("a material assigns '@out', not '@{s}'", .{lhs});
             const rhs = std.mem.trim(u8, st[eq + 1 ..], " \t");
             if (rhs.len == 0) return fail("empty expression", .{});
-            if (!compileExpr(rhs, colors[0..n_colors], scalars[0..n_scalars], locals[0..n_locals], &expr))
+            if (!compileExpr(rhs, colors[0..n_colors], scalars[0..n_scalars], locals[0..n_locals], textures[0..n_textures], &expr))
                 return -1;
             saw_out = true;
         } else {
@@ -639,6 +724,21 @@ pub fn stz_gpu_wgsl_fragment(spec: [*]const u8, spec_len: f64, out: [*]u8, cap: 
     put(&w, "@group(0) @binding(0) var<storage, read> frame : Frame;\n");
     put(&w, "@group(0) @binding(1) var<storage, read> instances : array<Instance>;\n");
     put(&w, "@group(0) @binding(2) var<storage, read> m : M;\n");
+    // TEXTURES take group(0) bindings from 3 up, two apiece, in DECLARATION
+    // order. The draw path builds the bind group from the same order, so the
+    // layout is a shared convention rather than something either side infers.
+    for (0..n_textures) |t| {
+        var nb: [8]u8 = undefined;
+        put(&w, "@group(0) @binding(");
+        put(&w, std.fmt.bufPrint(&nb, "{d}", .{3 + 2 * t}) catch "0");
+        put(&w, ") var t_");
+        put(&w, textures[t].slice());
+        put(&w, " : texture_2d<f32>;\n@group(0) @binding(");
+        put(&w, std.fmt.bufPrint(&nb, "{d}", .{4 + 2 * t}) catch "0");
+        put(&w, ") var sm_");
+        put(&w, textures[t].slice());
+        put(&w, " : sampler;\n");
+    }
     put(&w, "struct VSOut { @builtin(position) pos : vec4<f32>, @location(0) nrm : vec3<f32>, @location(1) col : vec4<f32>, @location(2) uv : vec2<f32>, @location(3) wpos : vec3<f32> }\n");
     put(&w, "@vertex\n");
     put(&w, "fn vmain(@location(0) position : vec3<f32>, @location(1) normal : vec3<f32>, @location(2) uv : vec2<f32>, @builtin(instance_index) ii : u32) -> VSOut {\n");
@@ -674,6 +774,17 @@ pub fn stz_gpu_wgsl_fragment(spec: [*]const u8, spec_len: f64, out: [*]u8, cap: 
         put(&w, "m.unused");
     }
     put(&w, " < -1.0e30) { discard; }\n");
+    // Same keep-alive, same reason, for every declared TEXTURE: a texture
+    // the body never samples is stripped from the layout while the draw
+    // still binds it. Applied here BEFORE it could bite, because the colour
+    // case already cost a process panic to find.
+    for (0..n_textures) |t| {
+        put(&w, "  if (textureSample(t_");
+        put(&w, textures[t].slice());
+        put(&w, ", sm_");
+        put(&w, textures[t].slice());
+        put(&w, ", vec2<f32>(0.5, 0.5)).a < -1.0e30) { discard; }\n");
+    }
     put(&w, lets.items());   // the material's own let bindings, in order
     put(&w, "  return ");
     put(&w, expr.items());

@@ -414,6 +414,18 @@ fn beginInternal(target_id: i64, depth_id: i64, r: f64, g: f64, b: f64, a: f64) 
 /// it, every group after the first would redraw the earlier instances with
 /// the wrong geometry.
 pub fn stz_gpu_render_draw_bound(pipe: i64, vbuf: i64, ibuf: i64, nindices: f64, ninstances: f64, first_instance: f64, buf_ids: [*]const i64, nbufs: i32) callconv(.c) i32 {
+    return stz_gpu_render_draw_bound_tex(pipe, vbuf, ibuf, nindices, ninstances, first_instance, buf_ids, nbufs, buf_ids, 0);
+}
+
+/// The same instanced draw, plus TEXTURES.
+///
+/// A material that declares textures gets two group(0) bindings apiece --
+/// the texture at 3+2k and its sampler at 4+2k, in declaration order --
+/// which is exactly what the transpiler emits. The layout is a shared
+/// convention, written down on both sides, because a bind-group mismatch
+/// does not report here: it reports at SUBMIT as a wgpu PANIC, which is not
+/// catchable and names nothing.
+pub fn stz_gpu_render_draw_bound_tex(pipe: i64, vbuf: i64, ibuf: i64, nindices: f64, ninstances: f64, first_instance: f64, buf_ids: [*]const i64, nbufs: i32, tex_ids: [*]const i64, ntex: i32) callconv(.c) i32 {
     if (!gpu.isAvail()) {
         gpu.countFallback();
         return gpu.FALLBACK;
@@ -421,6 +433,7 @@ pub fn stz_gpu_render_draw_bound(pipe: i64, vbuf: i64, ibuf: i64, nindices: f64,
     if (!g_pass_open) return gpu.BAD_ARG;
     if (nindices < 1 or ninstances < 1 or first_instance < 0) return gpu.BAD_ARG;
     if (nbufs < 1 or nbufs > 6) return gpu.BAD_ARG;
+    if (ntex < 0 or ntex > 4) return gpu.BAD_ARG;
     if (pipe <= 0 or pipe > rpipes.items.len) return gpu.BAD_ARG;
     if (g_pass_nbg == PASS_MAX_BG) return gpu.BAD_ARG;
     const rp = rpipes.items[@intCast(pipe - 1)];
@@ -428,7 +441,7 @@ pub fn stz_gpu_render_draw_bound(pipe: i64, vbuf: i64, ibuf: i64, nindices: f64,
     const ib = gpu.rawBuffer(ibuf) orelse return gpu.STALE;
     const f = gpu.wfns();
 
-    var entries: [6]c.WGPUBindGroupEntry = undefined;
+    var entries: [14]c.WGPUBindGroupEntry = undefined;
     const nb: usize = @intCast(nbufs);
     for (0..nb) |i| {
         const b = gpu.rawBuffer(buf_ids[i]) orelse return gpu.STALE;
@@ -437,9 +450,24 @@ pub fn stz_gpu_render_draw_bound(pipe: i64, vbuf: i64, ibuf: i64, nindices: f64,
         entries[i].buffer = b;
         entries[i].size = gpu.rawBufferSize(buf_ids[i]);
     }
+    var n_entries = nb;
+    for (0..@intCast(ntex)) |t| {
+        const tx = gpu.rawTexture(tex_ids[t]) orelse return gpu.STALE;
+        // A pass cannot sample the target it is writing. Same check the 2D
+        // path makes, for the same reason -- and narrowed the same way, to
+        // the one target being written rather than every target.
+        if (tex_ids[t] == g_pass_target) return gpu.BAD_ARG;
+        entries[n_entries] = std.mem.zeroes(c.WGPUBindGroupEntry);
+        entries[n_entries].binding = @intCast(3 + 2 * t);
+        entries[n_entries].textureView = tx.view;
+        entries[n_entries + 1] = std.mem.zeroes(c.WGPUBindGroupEntry);
+        entries[n_entries + 1].binding = @intCast(4 + 2 * t);
+        entries[n_entries + 1].sampler = samplerFor(tx.kind);
+        n_entries += 2;
+    }
     var bgd = std.mem.zeroes(c.WGPUBindGroupDescriptor);
     bgd.layout = rp.layout;
-    bgd.entryCount = nb;
+    bgd.entryCount = n_entries;
     bgd.entries = &entries;
     const bg = f.wgpuDeviceCreateBindGroup(gpu.deviceHandle(), &bgd);
     if (bg == null) return gpu.GPU_ERROR;

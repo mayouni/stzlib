@@ -1132,6 +1132,30 @@ fn ring_Scene3dSetMaterial(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(s3d.setMaterial(id, shader, params[0..np])));
 }
 
+// Scene3dSetMaterialTextures(hScene, aTextureIds) -> status
+fn ring_Scene3dSetMaterialTextures(p: *anyopaque) callconv(.c) void {
+    const id: i64 = @intFromFloat(gn(p, 1));
+    var ids: [4]i64 = @splat(0);
+    var n: usize = 0;
+    if (R.gl(p, 2)) |lst| {
+        const cnt: usize = @intCast(R.ringListSize(lst));
+        if (cnt > ids.len) {
+            rn(p, gpu.BAD_ARG);
+            return;
+        }
+        for (0..cnt) |i| {
+            const item = R.ring_list_getitem_gc(null, lst, @intCast(i + 1)) orelse continue;
+            ids[i] = @intFromFloat(R.ring_item_getnumber(item));
+        }
+        n = cnt;
+    }
+    rn(p, @floatFromInt(s3d.setMaterialTextures(id, ids[0..n])));
+}
+
+fn ring_Scene3dMaterialTextureCount(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(s3d.materialTextureCount(@intFromFloat(gn(p, 1)))));
+}
+
 fn ring_Scene3dHasMaterial(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(s3d.hasMaterial(@intFromFloat(gn(p, 1)))));
 }
@@ -1404,6 +1428,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpumat4project", .func = &ring_Mat4Project },
     .{ .name = "stzenginegpuwgslfragment", .func = &ring_WgslFragment },
     .{ .name = "stzenginegpuscene3dsetmaterial", .func = &ring_Scene3dSetMaterial },
+    .{ .name = "stzenginegpuscene3dsetmaterialtextures", .func = &ring_Scene3dSetMaterialTextures },
+    .{ .name = "stzenginegpuscene3dmaterialtexturecount", .func = &ring_Scene3dMaterialTextureCount },
     .{ .name = "stzenginegpuscene3dhasmaterial", .func = &ring_Scene3dHasMaterial },
     .{ .name = "stzenginegpuscene3dinstancebuffer", .func = &ring_Scene3dInstanceBuffer },
     .{ .name = "stzenginegpuscene3dinstancestride", .func = &ring_Scene3dInstanceStride },

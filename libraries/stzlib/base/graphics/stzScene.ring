@@ -281,6 +281,18 @@ class stzScene from stzObject
 		if _n_ != 0
 			StzRaise("stzScene.SetMaterial: refused (status " + _n_ + ").")
 		ok
+		# Textures ride SEPARATELY because they are handles, not values --
+		# and AFTER the shader, because setting a shader drops whatever
+		# textures the previous one had bound.
+		_aT_ = poMaterial.TexturesFrom(paBindings)
+		if len(_aT_) > 0
+			_n_ = StzEngineGpuScene3dSetMaterialTextures(@nId, _aT_)
+			if _n_ != 0
+				StzRaise("stzScene.SetMaterial: the material's textures were " +
+					"refused (status " + _n_ + "). A texture handle must be " +
+					"live -- a freed or never-created one cannot be bound.")
+			ok
+		ok
 
 	def SetMaterialQ(poMaterial, paBindings)
 		This.SetMaterial(poMaterial, paBindings)
@@ -295,6 +307,12 @@ class stzScene from stzObject
 
 	def HasMaterial()
 		return StzEngineGpuScene3dHasMaterial(@nId) = 1
+
+	# How many textures the material bound. Worth exposing because the
+	# binding is the part that cannot report its own mistakes: a texture
+	# that failed to bind does not draw wrong, it panics at submit.
+	def MaterialTextureCount()
+		return StzEngineGpuScene3dMaterialTextureCount(@nId)
 
 	#-- letting the GPU drive the transforms --------------------------------
 
