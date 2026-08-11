@@ -82,6 +82,11 @@
 #       (GR0: z1 = same pixels at half the cost of z6; z6 = archival)
 #   StzEngineGpuImageDecode(cBytes) -> [w, h, cRgbaBytes] or []
 #       (stb_image: PNG/JPG/BMP/GIF/TGA/PSD, always RGBA8 out)
+#   StzEngineGpuImageGrid(cTiles, nTileW, nTileH, nCount, nCols, nGutter,
+#       nBgR, nBgG, nBgB) -> [w, h, cRgbaBytes] or []
+#       Equal-sized RGBA tiles, CONCATENATED, laid out as a contact sheet.
+#       A short tile buffer refuses rather than tearing. Engine-side because
+#       nine 420x420 tiles is 6.3 MB of blit.
 #
 # ---- GR2 text pipeline (CPU-side: fonts and layout need NO device) ---
 #
