@@ -369,6 +369,13 @@ fn ring_BetweennessOf(p: *anyopaque) callconv(.c) void {
 fn ring_ImpactAll(p: *anyopaque) callconv(.c) void {
     retCentralityAll(p, &graph.stz_graph_impact_all);
 }
+// A MEASUREMENT INSTRUMENT: the same answer as ImpactAll by one BFS per
+// node, so a guard can split "engine vs Ring" into the seam's share and the
+// algorithm's share. Not a product path -- see graph.zig.
+fn ring_ImpactAllNaive(p: *anyopaque) callconv(.c) void {
+    retCentralityAll(p, &graph.stz_graph_impact_all_naive);
+}
+
 fn ring_LayersAll(p: *anyopaque) callconv(.c) void {
     retCentralityAll(p, &graph.stz_graph_layers_all);
 }
@@ -814,6 +821,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegraphtopologicalsort", .func = &ring_TopologicalSort },
     .{ .name = "stzenginegraphconnectedcomponents", .func = &ring_ConnectedComponents },
     .{ .name = "stzenginegraphimpactall", .func = &ring_ImpactAll },
+    .{ .name = "stzenginegraphimpactallnaive", .func = &ring_ImpactAllNaive },
     .{ .name = "stzenginegraphlayersall", .func = &ring_LayersAll },
     .{ .name = "stzenginegraphdegreeall", .func = &ring_DegreeAll },
     .{ .name = "stzenginegraphindegreeall", .func = &ring_InDegreeAll },

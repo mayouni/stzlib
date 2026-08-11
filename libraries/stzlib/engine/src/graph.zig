@@ -2617,6 +2617,56 @@ test "graph node name" {
 /// quietly eating the machine.
 pub const MAX_REACH_NODES: usize = 20000;
 
+/// A MEASUREMENT INSTRUMENT, not a product path. The same question as
+/// stz_graph_impact_all, answered the STRAIGHTFORWARD way: one BFS per
+/// node, counting what it reaches. No bitset, no word-parallelism.
+///
+/// It exists because of the risk SOFTANZA_GRAPH_PLANE_PLAN.md section 4
+/// named and never tested -- "the CPU baseline is the interpreter". Every
+/// speedup figure in this plane compares Zig against Ring, so a 335x could
+/// be almost entirely the seam and say nothing about the algorithm. With
+/// this, the multiplier splits in two:
+///
+///     Ring per-pair  ->  this        the INTERPRETER's share
+///     this           ->  bitset      the ALGORITHM's share
+///
+/// Keep it correct and keep it naive. If it is ever optimised it stops
+/// being a baseline and the decomposition it exists for becomes a lie.
+pub fn stz_graph_impact_all_naive(g: ?*const StzGraph, out: [*]f64, cap: usize) callconv(.c) usize {
+    const gr = g orelse return 0;
+    const n = gr.nodes.items.len;
+    if (n == 0 or cap < n or n > MAX_REACH_NODES) return 0;
+
+    const seen = allocator.alloc(bool, n) catch return 0;
+    defer allocator.free(seen);
+    const queue = allocator.alloc(u32, n) catch return 0;
+    defer allocator.free(queue);
+
+    for (0..n) |s| {
+        @memset(seen, false);
+        seen[s] = true;
+        var head: usize = 0;
+        var tail: usize = 0;
+        queue[tail] = @intCast(s);
+        tail += 1;
+        var count: usize = 0;
+        while (head < tail) {
+            const cur = queue[head];
+            head += 1;
+            for (gr.nodes.items[cur].edges.items) |e| {
+                const v: usize = @intCast(e.to);
+                if (v >= n or seen[v]) continue;
+                seen[v] = true;
+                count += 1;
+                queue[tail] = @intCast(v);
+                tail += 1;
+            }
+        }
+        out[s] = @floatFromInt(count);
+    }
+    return n;
+}
+
 pub fn stz_graph_impact_all(g: ?*const StzGraph, out: [*]f64, cap: usize) callconv(.c) usize {
     const gr = g orelse return 0;
     const n = gr.nodes.items.len;
