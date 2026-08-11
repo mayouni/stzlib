@@ -776,10 +776,10 @@ class stzGraphQuery from stzObject
 		_aResult_ = _oSubgraph_.ValidateXT(paValidators)
 		
 		if _aResult_[:status] = "fail"
-			_cMsg_ = "Validation failed:" + NL
+			_cMsg_ = "Validation failed:" + char(10)
 			_nLen_ = len(_aResult_[:issues])
 			for i = 1 to _nLen_
-				_cMsg_ += "  - " + _aResult_[:issues][i] + NL
+				_cMsg_ += "  - " + _aResult_[:issues][i] + char(10)
 			next
 			stzraise(_cMsg_)
 		ok
@@ -1918,7 +1918,7 @@ def ToOpenCypher()
 				_cCypher_ += ", "
 			ok
 		next
-		_cCypher_ += NL
+		_cCypher_ += char(10)
 	ok
 	
 	# WHERE clause - check both pattern-level and global conditions
@@ -1951,7 +1951,7 @@ def ToOpenCypher()
 				_cCypher_ += " AND "
 			ok
 		next
-		_cCypher_ += NL
+		_cCypher_ += char(10)
 	ok
 	
 	# CREATE clause
@@ -1967,7 +1967,7 @@ def ToOpenCypher()
 				_cCypher_ += ", "
 			ok
 		next
-		_cCypher_ += NL
+		_cCypher_ += char(10)
 	ok
 	
 	# SET clause
@@ -1985,14 +1985,14 @@ def ToOpenCypher()
 				_cCypher_ += ", "
 			ok
 		next
-		_cCypher_ += NL
+		_cCypher_ += char(10)
 	ok
 	
 	# DELETE clause
 	if len(@aDefinition["delete_targets"]) > 0
 		_cCypher_ += "DELETE "
 		_cCypher_ += JoinXT(@aDefinition["delete_targets"], ", ")
-		_cCypher_ += NL
+		_cCypher_ += char(10)
 	ok
 	
 	# RETURN clause
@@ -2016,7 +2016,7 @@ def ToOpenCypher()
 				_cCypher_ += ", "
 			ok
 		next
-		_cCypher_ += NL
+		_cCypher_ += char(10)
 	ok
 	
 	# ORDER BY clause
@@ -2024,17 +2024,17 @@ def ToOpenCypher()
 		_cCypher_ += "ORDER BY "
 		_aOrder_ = @aDefinition["order_by"][1]
 		_cCypher_ += _aOrder_["field"] + " " + UPPER(_aOrder_["direction"])
-		_cCypher_ += NL
+		_cCypher_ += char(10)
 	ok
 	
 	# SKIP clause
 	if @aDefinition["skip"] > 0
-		_cCypher_ += "SKIP " + @aDefinition["skip"] + NL
+		_cCypher_ += "SKIP " + @aDefinition["skip"] + char(10)
 	ok
 	
 	# LIMIT clause
 	if @aDefinition["limit"] > 0
-		_cCypher_ += "LIMIT " + @aDefinition["limit"] + NL
+		_cCypher_ += "LIMIT " + @aDefinition["limit"] + char(10)
 	ok
 	
 	return _cCypher_

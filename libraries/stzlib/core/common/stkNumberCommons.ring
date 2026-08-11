@@ -115,7 +115,7 @@ func Round(pNumber) # Effective Round of a number (independently form current ro
 		ok
 
 		if _nMaxPossibleRound_ < 0
-			raise("ERR-" + StkError(:OutOfRangeValue) + NL)
+			raise("ERR-" + StkError(:OutOfRangeValue) + char(10))
 		ok
 	
 		decimals(_nMaxPossibleRound_)
@@ -156,7 +156,7 @@ func Round(pNumber) # Effective Round of a number (independently form current ro
 		_nValue_ = 0+ _cTempStr_
 
 		if not isNumber(_nValue_)
-			raise("ERR-" + StkError(:IncorrectParamValue) + NL)
+			raise("ERR-" + StkError(:IncorrectParamValue) + char(10))
 		ok
 
 		_nRound_ = 0
@@ -175,7 +175,7 @@ func Round(pNumber) # Effective Round of a number (independently form current ro
 		ok
 
 	else
-		raise("ERR-" + StkError(:IncorrectParamType) + NL)
+		raise("ERR-" + StkError(:IncorrectParamType) + char(10))
 	ok
 
 	func @Round(pNumber)
@@ -245,7 +245,7 @@ func Val(_cNumberInStr_)
 	_nResult_ = 0+ _cNumberInStr_
 
 	if NOT isNumber(_nResult_)
-		raise("ERR-" + StkErrror(:IncorrectParamType) + NL )
+		raise("ERR-" + StkErrror(:IncorrectParamType) + char(10) )
 	ok
 
 	return _nResult_
@@ -258,7 +258,7 @@ func Val(_cNumberInStr_)
 func NStringify(nNumber, cSpaceChar, nSpaceStep, _nRound_)
 
 	if not ( isNumber(nNumber) and isString(cSpaceChar) and isNumber(_nRound_) )
-		raise("ERR-" + StkError(:IncorrectParamType) + NL)
+		raise("ERR-" + StkError(:IncorrectParamType) + char(10))
 	ok
 
 	_cStringified_ = ""+ nNumber

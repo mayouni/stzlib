@@ -1319,7 +1319,7 @@ class stzStringChar from stzString
 
 	# TRUE if the char is the newline char.
 	def IsLineSeparator()
-		return This.Content() = NL
+		return This.Content() = char(10)
 
 		def IsLineSeperator()
 			return This.IsLineSeparator()

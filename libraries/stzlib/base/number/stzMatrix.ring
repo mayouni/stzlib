@@ -4600,7 +4600,7 @@ class stzMatrix from stzListOfLists
 
 		# Top border
 
-		see char(226) + char(148) + char(140) + ring_copy(" ", _nTotalWidth_) + char(226) + char(148) + char(144) + NL
+		see char(226) + char(148) + char(140) + ring_copy(" ", _nTotalWidth_) + char(226) + char(148) + char(144) + char(10)
 
 		# Matrix content
 
@@ -4617,7 +4617,7 @@ class stzMatrix from stzListOfLists
 
 			next
 
-			see char(226) + char(148) + char(130) + NL
+			see char(226) + char(148) + char(130) + char(10)
 		next
 
 		# Bottom border

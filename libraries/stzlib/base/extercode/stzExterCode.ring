@@ -234,36 +234,36 @@ class stzExterCode from stzObject
 	
 	    if isWindows()
 	        _cScriptFile_ += ".bat"
-	        _cScriptContent_ = "@echo off" + NL
+	        _cScriptContent_ = "@echo off" + char(10)
 	
 	        if @aLanguages[@cLanguage][:Type] = "compiled"
 	            if @cLanguage = "c"
-	                _cScriptContent_ += _cRuntime_ + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL +
-	                                 "if %ERRORLEVEL% EQU 0 " + @aLanguages[@cLanguage][:ExecutableName] + ".exe >> " + @cLogFile + " 2>&1" + NL
+	                _cScriptContent_ += _cRuntime_ + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + char(10) +
+	                                 "if %ERRORLEVEL% EQU 0 " + @aLanguages[@cLanguage][:ExecutableName] + ".exe >> " + @cLogFile + " 2>&1" + char(10)
 	            else
-	                _cScriptContent_ += _cRuntime_ + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
+	                _cScriptContent_ += _cRuntime_ + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + char(10)
 	            ok
 	        else
 	            # Interpreted languages - include extra args
-	            _cScriptContent_ += _cRuntime_ + _cExtraArgs_ + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
+	            _cScriptContent_ += _cRuntime_ + _cExtraArgs_ + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + char(10)
 	        ok
 	
 	        _cScriptContent_ += "exit %ERRORLEVEL%"
 	
 	    else
 	        _cScriptFile_ += ".sh"
-	        _cScriptContent_ = "#!/bin/bash" + NL
+	        _cScriptContent_ = "#!/bin/bash" + char(10)
 	
 	        if @aLanguages[@cLanguage][:Type] = "compiled"
 	            if @cLanguage = "c"
-	                _cScriptContent_ += _cRuntime_ + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL +
-	                                 "if [ $? -eq 0 ]; then ./" + @aLanguages[@cLanguage][:ExecutableName] + " >> " + @cLogFile + " 2>&1; fi" + NL
+	                _cScriptContent_ += _cRuntime_ + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + char(10) +
+	                                 "if [ $? -eq 0 ]; then ./" + @aLanguages[@cLanguage][:ExecutableName] + " >> " + @cLogFile + " 2>&1; fi" + char(10)
 	            else
-	                _cScriptContent_ += _cRuntime_ + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
+	                _cScriptContent_ += _cRuntime_ + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + char(10)
 	            ok
 	        else
 	            # Interpreted languages - include extra args
-	            _cScriptContent_ += _cRuntime_ + _cExtraArgs_ + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + NL
+	            _cScriptContent_ += _cRuntime_ + _cExtraArgs_ + " " + @cSourceFile + " > " + @cLogFile + " 2>&1" + char(10)
 	        ok
 	
 	        _cScriptContent_ += "exit $?"
@@ -348,11 +348,11 @@ class stzExterCode from stzObject
 
         if NOT fexists(@cResultFile)
 
-            stzraise("File does not exist!" + NL + NL +
-                     "Log content (from " + @cLanguage + " console): " + NL +
-                     "------------------" + ring_copy("-", len(@cLanguage)) + "----------" + NL + NL +
-                     This.Log() + NL + NL +
-                     "------------------------" + NL +
+            stzraise("File does not exist!" + char(10) + char(10) +
+                     "Log content (from " + @cLanguage + " console): " + char(10) +
+                     "------------------" + ring_copy("-", len(@cLanguage)) + "----------" + char(10) + char(10) +
+                     This.Log() + char(10) + char(10) +
+                     "------------------------" + char(10) +
                      "End of log file content.")
         ok
 
@@ -363,7 +363,7 @@ class stzExterCode from stzObject
         ok
 
         try
-	    _cContent_ = StzReplace(_cContent_, "\n", NL)
+	    _cContent_ = StzReplace(_cContent_, "\n", char(10))
             _cCode_ = '_result_ = ' + _cContent_
 
             eval(_cCode_)
@@ -375,7 +375,7 @@ class stzExterCode from stzObject
             return _result_
 
         catch
-            ? "Eval error: " + cCatchError + NL
+            ? "Eval error: " + cCatchError + char(10)
             ? "Log content: " + This.Log()
             return _cContent_
 
@@ -487,7 +487,7 @@ class stzExterCode from stzObject
          if @cLanguage = "python"
 	#-------------------------
 
-            return NL + _cTransFunc_ + '
+            return char(10) + _cTransFunc_ + '
 # Main code
 print("Python script starting...")
 ' + @cCode + '

@@ -61,11 +61,11 @@ class stzPairOfLists from stzListOfLists
 		_cOtherList_ += "()"
 
 		cCode =
-			"for i = 1 to len(This." + _cBiggerList_ + ")" + NL +
-			"	aResult + This." + _cBiggerList_ + "[i]" + NL +
-			"	if i <= len(This." + _cOtherList_ + ")" + NL +
-			"		aResult + " + _cOtherList_ + "[i]" + NL +
-			"	ok" + NL +
+			"for i = 1 to len(This." + _cBiggerList_ + ")" + char(10) +
+			"	aResult + This." + _cBiggerList_ + "[i]" + char(10) +
+			"	if i <= len(This." + _cOtherList_ + ")" + char(10) +
+			"		aResult + " + _cOtherList_ + "[i]" + char(10) +
+			"	ok" + char(10) +
 			"next"
 		
 		eval(cCode)

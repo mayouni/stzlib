@@ -356,10 +356,10 @@ class stzChainOfValue from stzObject
 				$bExecuteCode = 1
 				@cCodeExecutor = :Becomes
 
-				@cCode = 'if ' + This.VarName() + ' = This.StopValue()' + NL +
-					TAB + 'return This' + NL +
-					'else' + NL +
-					TAB + This.Code() + NL +
+				@cCode = 'if ' + This.VarName() + ' = This.StopValue()' + char(10) +
+					char(9) + 'return This' + char(10) +
+					'else' + char(10) +
+					char(9) + This.Code() + char(10) +
 				'ok'
 	
 				This.DoThis(This.Code())

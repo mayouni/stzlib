@@ -798,12 +798,12 @@ class stzGraph from stzObject
 	
 		# Build detailed explanation of violations
 		_aViolations_ = _aCheck_[2]
-		_cReasons_ = "Cannot add edge:" + NL
+		_cReasons_ = "Cannot add edge:" + char(10)
 		
 		_nLen_ = len(_aViolations_)
 		for i = 1 to _nLen_
 			_aV_ = _aViolations_[i]
-			_cReasons_ += "  • [" + _aV_[:severity] + "] " + _aV_[:rule] + ": " + _aV_[:message] + NL
+			_cReasons_ += "  • [" + _aV_[:severity] + "] " + _aV_[:rule] + ": " + _aV_[:message] + char(10)
 		next
 	
 		return _cReasons_
@@ -3684,36 +3684,36 @@ class stzGraph from stzObject
 	#------------------#
 
 	def ExportToGraphML()
-		_cXML_ = '<?xml version="1.0" encoding="UTF-8"?>' + NL
-		_cXML_ += '<graphml xmlns="http://graphml.graphdrawing.org/xmlns"' + NL
-		_cXML_ += '         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"' + NL
-		_cXML_ += '         xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns' + NL
-		_cXML_ += '         http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">' + NL + NL
+		_cXML_ = '<?xml version="1.0" encoding="UTF-8"?>' + char(10)
+		_cXML_ += '<graphml xmlns="http://graphml.graphdrawing.org/xmlns"' + char(10)
+		_cXML_ += '         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"' + char(10)
+		_cXML_ += '         xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns' + char(10)
+		_cXML_ += '         http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">' + char(10) + char(10)
 		
 		# Define keys for properties
-		_cXML_ += '  <key id="label" for="node" attr.name="label" attr.type="string"/>' + NL
-		_cXML_ += '  <key id="type" for="graph" attr.name="type" attr.type="string"/>' + NL
-		_cXML_ += '  <key id="edge_label" for="edge" attr.name="label" attr.type="string"/>' + NL
+		_cXML_ += '  <key id="label" for="node" attr.name="label" attr.type="string"/>' + char(10)
+		_cXML_ += '  <key id="type" for="graph" attr.name="type" attr.type="string"/>' + char(10)
+		_cXML_ += '  <key id="edge_label" for="edge" attr.name="label" attr.type="string"/>' + char(10)
 		
 		# Add custom property keys
 		_aAllProps_ = This.PropertiesXT()
 		_nLen_ = len(_aAllProps_)
 		for i = 1 to _nLen_
 			_cPropKey_ = _aAllProps_[i][1]
-			_cXML_ += '  <key id="prop_' + _cPropKey_ + '" for="node" attr.name="' + _cPropKey_ + '" attr.type="string"/>' + NL
+			_cXML_ += '  <key id="prop_' + _cPropKey_ + '" for="node" attr.name="' + _cPropKey_ + '" attr.type="string"/>' + char(10)
 		next
-		_cXML_ += NL
+		_cXML_ += char(10)
 		
 		# Graph element
-		_cXML_ += '  <graph id="' + @cId + '" edgedefault="directed">' + NL
-		_cXML_ += '    <data key="type">' + @cGraphType + '</data>' + NL + NL
+		_cXML_ += '  <graph id="' + @cId + '" edgedefault="directed">' + char(10)
+		_cXML_ += '    <data key="type">' + @cGraphType + '</data>' + char(10) + char(10)
 		
 		# Nodes
 		_nLen_ = len(@aNodes)
 		for i = 1 to _nLen_
 			_aNode_ = @aNodes[i]
-			_cXML_ += '    <node id="' + This._XMLEscape(_aNode_[:id]) + '">' + NL
-			_cXML_ += '      <data key="label">' + This._XMLEscape(_aNode_[:label]) + '</data>' + NL
+			_cXML_ += '    <node id="' + This._XMLEscape(_aNode_[:id]) + '">' + char(10)
+			_cXML_ += '      <data key="label">' + This._XMLEscape(_aNode_[:label]) + '</data>' + char(10)
 			
 			if HasKey(_aNode_, :properties) and len(_aNode_[:properties]) > 0
 				_aProps_ = _aNode_[:properties]
@@ -3722,22 +3722,22 @@ class stzGraph from stzObject
 				for j = 1 to _nKeyLen_
 					_cKey_ = _acKeys_[j]
 					pVal = _aProps_[_cKey_]
-					_cXML_ += '      <data key="prop_' + _cKey_ + '">' + This._XMLEscape(This._ValueToString(pVal)) + '</data>' + NL
+					_cXML_ += '      <data key="prop_' + _cKey_ + '">' + This._XMLEscape(This._ValueToString(pVal)) + '</data>' + char(10)
 				next
 			ok
 			
-			_cXML_ += '    </node>' + NL
+			_cXML_ += '    </node>' + char(10)
 		next
-		_cXML_ += NL
+		_cXML_ += char(10)
 		
 		# Edges
 		_nLen_ = len(@aEdges)
 		for i = 1 to _nLen_
 			_aEdge_ = @aEdges[i]
-			_cXML_ += '    <edge id="e' + i + '" source="' + This._XMLEscape(_aEdge_[:from]) + '" target="' + This._XMLEscape(_aEdge_[:to]) + '">' + NL
+			_cXML_ += '    <edge id="e' + i + '" source="' + This._XMLEscape(_aEdge_[:from]) + '" target="' + This._XMLEscape(_aEdge_[:to]) + '">' + char(10)
 			
 			if _aEdge_[:label] != ""
-				_cXML_ += '      <data key="edge_label">' + This._XMLEscape(_aEdge_[:label]) + '</data>' + NL
+				_cXML_ += '      <data key="edge_label">' + This._XMLEscape(_aEdge_[:label]) + '</data>' + char(10)
 			ok
 			
 			if HasKey(_aEdge_, :properties) and len(_aEdge_[:properties]) > 0
@@ -3747,15 +3747,15 @@ class stzGraph from stzObject
 				for j = 1 to _nKeyLen_
 					_cKey_ = _acKeys_[j]
 					pVal = _aProps_[_cKey_]
-					_cXML_ += '      <data key="prop_' + _cKey_ + '">' + This._XMLEscape(This._ValueToString(pVal)) + '</data>' + NL
+					_cXML_ += '      <data key="prop_' + _cKey_ + '">' + This._XMLEscape(This._ValueToString(pVal)) + '</data>' + char(10)
 				next
 			ok
 			
-			_cXML_ += '    </edge>' + NL
+			_cXML_ += '    </edge>' + char(10)
 		next
 		
-		_cXML_ += '  </graph>' + NL
-		_cXML_ += '</graphml>' + NL
+		_cXML_ += '  </graph>' + char(10)
+		_cXML_ += '</graphml>' + char(10)
 		
 		return _cXML_
 	
@@ -5569,8 +5569,8 @@ class stzGraph from stzObject
 	#------------------#
 	
 	def ExportToStzGraf()
-		_cOutput_ = 'graph "' + @cId + '"' + NL
-		_cOutput_ += '    type: ' + @cGraphType + NL + NL
+		_cOutput_ = 'graph "' + @cId + '"' + char(10)
+		_cOutput_ += '    type: ' + @cGraphType + char(10) + char(10)
 		
 		# Nodes section
 		#
@@ -5579,19 +5579,19 @@ class stzGraph from stzObject
 		# the id does not, so a file of plain ids stays a file of plain
 		# ids (and every .stzgraf written before labels existed still
 		# reads).
-		_cOutput_ += "nodes" + NL
+		_cOutput_ += "nodes" + char(10)
 		_nLen_ = len(@aNodes)
 		for i = 1 to _nLen_
 			_cOutput_ += "    " + @aNodes[i][:id]
 			if @aNodes[i][:label] != "" and @aNodes[i][:label] != @aNodes[i][:id]
 				_cOutput_ += ' "' + @aNodes[i][:label] + '"'
 			ok
-			_cOutput_ += NL
+			_cOutput_ += char(10)
 		next
-		_cOutput_ += NL
+		_cOutput_ += char(10)
 		
 		# Edges section
-		_cOutput_ += "edges" + NL
+		_cOutput_ += "edges" + char(10)
 		_nLen_ = len(@aEdges)
 		for i = 1 to _nLen_
 			_aEdge_ = @aEdges[i]
@@ -5599,26 +5599,26 @@ class stzGraph from stzObject
 			if _aEdge_[:label] != ""
 				_cOutput_ += ' "' + _aEdge_[:label] + '"'
 			ok
-			_cOutput_ += NL
+			_cOutput_ += char(10)
 		next
 		
 		# Properties section
 		if This._HasNodeProperties()
-			_cOutput_ += NL + "properties" + NL
+			_cOutput_ += char(10) + "properties" + char(10)
 			_nLen_ = len(@aNodes)
 			for i = 1 to _nLen_
 				_aNode_ = @aNodes[i]
 				if HasKey(_aNode_, :properties) and len(_aNode_[:properties]) > 0
-					_cOutput_ += "    " + _aNode_[:id] + NL
+					_cOutput_ += "    " + _aNode_[:id] + char(10)
 					_aProps_ = _aNode_[:properties]
 					_acKeys_ = keys(_aProps_)
 					_nKeyLen_ = len(_acKeys_)
 					for j = 1 to _nKeyLen_
 						_cKey_ = _acKeys_[j]
 						pVal = _aProps_[_cKey_]
-						_cOutput_ += "        " + _cKey_ + ": " + This._FormatValue(pVal) + NL
+						_cOutput_ += "        " + _cKey_ + ": " + This._FormatValue(pVal) + char(10)
 					next
-					_cOutput_ += NL
+					_cOutput_ += char(10)
 				ok
 			next
 		ok
@@ -5654,7 +5654,7 @@ class stzGraph from stzObject
 		@aNodes = []
 		@aEdges = []
 		
-		_acLines_ = split(_cContent_, NL)
+		_acLines_ = split(_cContent_, char(10))
 		_cSection_ = ""
 		_cCurrentNode_ = ""
 		_nLen_ = len(_acLines_)
@@ -5787,37 +5787,37 @@ class stzGraph from stzObject
 	#------------------#
 	
 	def ExportToStzRulz()
-		_cOutput_ = 'ruleset "' + @cId + ' Rules"' + NL
-		_cOutput_ += '    ruleGroup: ' + @cGraphType + NL
-		_cOutput_ += '    version: 1.0' + NL + NL
+		_cOutput_ = 'ruleset "' + @cId + ' Rules"' + char(10)
+		_cOutput_ += '    ruleGroup: ' + @cGraphType + char(10)
+		_cOutput_ += '    version: 1.0' + char(10) + char(10)
 		
-		_cOutput_ += "rules" + NL + NL
+		_cOutput_ += "rules" + char(10) + char(10)
 		
 		_aRules_ = This.Rules()
 		_nLen_ = len(_aRules_)
 		for i = 1 to _nLen_
 			_aRule_ = _aRules_[i]
 
-			_cOutput_ += "    rule " + _aRule_[:name] + NL
-			_cOutput_ += "        type: " + _aRule_[:type] + NL
-			_cOutput_ += "        severity: " + _aRule_[:severity] + NL
-			_cOutput_ += "        function: " + This._GetFunctionName(_aRule_[:function]) + NL
+			_cOutput_ += "    rule " + _aRule_[:name] + char(10)
+			_cOutput_ += "        type: " + _aRule_[:type] + char(10)
+			_cOutput_ += "        severity: " + _aRule_[:severity] + char(10)
+			_cOutput_ += "        function: " + This._GetFunctionName(_aRule_[:function]) + char(10)
 			
 			if len(_aRule_[:params]) > 0
-				_cOutput_ += "        params" + NL
+				_cOutput_ += "        params" + char(10)
 				_aParams_ = _aRule_[:params]
 				_acKeys_ = keys(_aParams_)
 				_nKeyLen_ = len(_acKeys_)
 				for j = 1 to _nKeyLen_
 					_cKey_ = _acKeys_[j]
 					pVal = _aParams_[_cKey_]
-					_cOutput_ += "            " + _cKey_ + ": " + This._FormatValue(pVal) + NL
+					_cOutput_ += "            " + _cKey_ + ": " + This._FormatValue(pVal) + char(10)
 				next
 			ok
 			
-			_cOutput_ += "        message" + NL
-			_cOutput_ += '            "' + _aRule_[:message] + '"' + NL
-			_cOutput_ += NL
+			_cOutput_ += "        message" + char(10)
+			_cOutput_ += '            "' + _aRule_[:message] + '"' + char(10)
+			_cOutput_ += char(10)
 		next
 		
 		return _cOutput_
@@ -5848,7 +5848,7 @@ class stzGraph from stzObject
 	
 	def _ParseStzRulz(_cContent_)
 		# Loads rule properties and links to functions from .stzrulf files
-		_acLines_ = split(_cContent_, NL)
+		_acLines_ = split(_cContent_, char(10))
 		_cSection_ = ""
 		_aCurrentRule_ = []
 		_cCurrentKey_ = ""
@@ -6074,14 +6074,14 @@ class stzGraph from stzObject
 	#------------------#
 	
 	def ExportToStzSim(oBaselineGraph)
-		_cOutput_ = 'simulation "' + @cId + ' Comparison"' + NL
-		_cOutput_ += '    description: "Changes from baseline"' + NL
-		_cOutput_ += '    date: ' + Date() + NL + NL
+		_cOutput_ = 'simulation "' + @cId + ' Comparison"' + char(10)
+		_cOutput_ += '    description: "Changes from baseline"' + char(10)
+		_cOutput_ += '    date: ' + Date() + char(10) + char(10)
 		
 		# Compare and generate changes
 		_aDiff_ = oBaselineGraph.CompareWith(This)
 		
-		_cOutput_ += "changes" + NL + NL
+		_cOutput_ += "changes" + char(10) + char(10)
 		
 		# Node changes
 		_aNodeDiff_ = _aDiff_[:nodes]
@@ -6091,18 +6091,18 @@ class stzGraph from stzObject
 			for i = 1 to _nLen_
 				_cNodeId_ = _aNodeDiff_[:added][i]
 				_aNode_ = This.Node(_cNodeId_)
-				_cOutput_ += "    add node " + _cNodeId_ + NL
-				_cOutput_ += '        label: "' + _aNode_[:label] + '"' + NL
+				_cOutput_ += "    add node " + _cNodeId_ + char(10)
+				_cOutput_ += '        label: "' + _aNode_[:label] + '"' + char(10)
 			next
-			_cOutput_ += NL
+			_cOutput_ += char(10)
 		ok
 		
 		if len(_aNodeDiff_[:removed]) > 0
 			_nLen_ = len(_aNodeDiff_[:removed])
 			for i = 1 to _nLen_
-				_cOutput_ += "    remove node " + _aNodeDiff_[:removed][i] + NL
+				_cOutput_ += "    remove node " + _aNodeDiff_[:removed][i] + char(10)
 			next
-			_cOutput_ += NL
+			_cOutput_ += char(10)
 		ok
 		
 		# Edge changes
@@ -6112,28 +6112,28 @@ class stzGraph from stzObject
 			_nLen_ = len(_aEdgeDiff_[:added])
 			for i = 1 to _nLen_
 				_aEdge_ = _aEdgeDiff_[:added][i]
-				_cOutput_ += "    add edge " + _aEdge_[:from] + " -> " + _aEdge_[:to] + NL
+				_cOutput_ += "    add edge " + _aEdge_[:from] + " -> " + _aEdge_[:to] + char(10)
 			next
-			_cOutput_ += NL
+			_cOutput_ += char(10)
 		ok
 		
 		if len(_aEdgeDiff_[:removed]) > 0
 			_nLen_ = len(_aEdgeDiff_[:removed])
 			for i = 1 to _nLen_
 				_aEdge_ = _aEdgeDiff_[:removed][i]
-				_cOutput_ += "    remove edge " + _aEdge_[:from] + " -> " + _aEdge_[:to] + NL
+				_cOutput_ += "    remove edge " + _aEdge_[:from] + " -> " + _aEdge_[:to] + char(10)
 			next
-			_cOutput_ += NL
+			_cOutput_ += char(10)
 		ok
 		
 		# Metrics section
-		_cOutput_ += "metrics" + NL + NL
+		_cOutput_ += "metrics" + char(10) + char(10)
 		_aMetrics_ = _aDiff_[:metrics]
 		
-		_cOutput_ += "    density: " + _aMetrics_[:density][:from] + " -> " + _aMetrics_[:density][:to] + NL
-		_cOutput_ += "    nodeCount: " + _aMetrics_[:nodeCount][:from] + " -> " + _aMetrics_[:nodeCount][:to] + NL
-		_cOutput_ += "    edgeCount: " + _aMetrics_[:edgeCount][:from] + " -> " + _aMetrics_[:edgeCount][:to] + NL
-		_cOutput_ += "    hasCycles: " + _aMetrics_[:hasCycles][:from] + " -> " + _aMetrics_[:hasCycles][:to] + NL
+		_cOutput_ += "    density: " + _aMetrics_[:density][:from] + " -> " + _aMetrics_[:density][:to] + char(10)
+		_cOutput_ += "    nodeCount: " + _aMetrics_[:nodeCount][:from] + " -> " + _aMetrics_[:nodeCount][:to] + char(10)
+		_cOutput_ += "    edgeCount: " + _aMetrics_[:edgeCount][:from] + " -> " + _aMetrics_[:edgeCount][:to] + char(10)
+		_cOutput_ += "    hasCycles: " + _aMetrics_[:hasCycles][:from] + " -> " + _aMetrics_[:hasCycles][:to] + char(10)
 		
 		return _cOutput_
 	
@@ -6152,7 +6152,7 @@ class stzGraph from stzObject
 	
 	def ApplySimulation(cSimContent)
 		# Parse and apply changes from .stzsim format
-		_acLines_ = split(cSimContent, NL)
+		_acLines_ = split(cSimContent, char(10))
 		_cSection_ = ""
 		_cSimNode_ = ""      # the node most recently added -- a label line follows it
 		_nLen_ = len(_acLines_)
@@ -6381,7 +6381,7 @@ class stzGraph from stzObject
 			return 0
 		ok
 
-		if StzFindFirst(NL, pcName) > 0
+		if StzFindFirst(char(10), pcName) > 0
 			return 0
 		ok
 
@@ -6640,7 +6640,7 @@ class stzGraphAsciiVisualizer from stzObject
 	# Prints, or buffers -- the ONE door every line of the art goes through.
 	def _Emit(pcLine)
 		if @bCapture
-			@cBuffer += pcLine + NL
+			@cBuffer += pcLine + char(10)
 		else
 			? pcLine
 		ok
@@ -6957,15 +6957,15 @@ class stzGraphComparison from stzObject
 	
 	def Summary()
 		_cResult_ = ""
-		_cResult_ += "Baseline: " + @aComparisonData[:baseline] + NL
-		_cResult_ += "Variations compared: " + @aComparisonData[:count] + NL + NL
+		_cResult_ += "Baseline: " + @aComparisonData[:baseline] + char(10)
+		_cResult_ += "Variations compared: " + @aComparisonData[:count] + char(10) + char(10)
 		
 		_aComps_ = @aComparisonData[:comparisons]
 		_nLen_ = len(_aComps_)
 		
 		for i = 1 to _nLen_
 			_aComp_ = _aComps_[i]
-			_cResult_ += @cBullet + " " + _aComp_[:name] + ": " + _aComp_[:explanation] + NL
+			_cResult_ += @cBullet + " " + _aComp_[:name] + ": " + _aComp_[:explanation] + char(10)
 		next
 		
 		return _cResult_

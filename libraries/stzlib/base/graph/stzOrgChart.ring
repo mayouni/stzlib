@@ -1511,53 +1511,53 @@ class stzOrgChart from stzDiagram
 
 	def ToStzOrg()
 		_cResult_ = 'orgchart "' +
-			  This.Id() + '"' + NL + NL
+			  This.Id() + '"' + char(10) + char(10)
 		
 		# Positions
-		_cResult_ += "positions" + NL
+		_cResult_ += "positions" + char(10)
 		_aPositions_ = This.Positions()
 		_nPosLen_ = len(_aPositions_)
 		for i = 1 to _nPosLen_
 			_aPos_ = _aPositions_[i]
-			_cResult_ += "    " + _aPos_[:id] + NL
-			_cResult_ += "        title: " + _aPos_[:title] + NL
-			_cResult_ += "        level: " + _aPos_[:level] + NL
-			_cResult_ += "        department: " + _aPos_[:department] + NL
-			_cResult_ += "        reportsTo: " + _aPos_[:reportsTo] + NL
-			_cResult_ += NL
+			_cResult_ += "    " + _aPos_[:id] + char(10)
+			_cResult_ += "        title: " + _aPos_[:title] + char(10)
+			_cResult_ += "        level: " + _aPos_[:level] + char(10)
+			_cResult_ += "        department: " + _aPos_[:department] + char(10)
+			_cResult_ += "        reportsTo: " + _aPos_[:reportsTo] + char(10)
+			_cResult_ += char(10)
 		end
 		
 		# People
-		_cResult_ += "people" + NL
+		_cResult_ += "people" + char(10)
 		_aPeople_ = This.People()
 		_nPplLen_ = len(_aPeople_)
 		for i = 1 to _nPplLen_
 			_aPerson_ = _aPeople_[i]
-			_cResult_ += "    " + _aPerson_[:id] + NL
-			_cResult_ += "        name: " + _aPerson_[:name] + NL
-			_cResult_ += NL
+			_cResult_ += "    " + _aPerson_[:id] + char(10)
+			_cResult_ += "        name: " + _aPerson_[:name] + char(10)
+			_cResult_ += char(10)
 		end
 		
 		# Assignments
-		_cResult_ += "assignments" + NL
+		_cResult_ += "assignments" + char(10)
 		for i = 1 to _nPosLen_
 			_aPos_ = _aPositions_[i]
 			if _aPos_[:incumbent] != ""
-				_cResult_ += "    " + _aPos_[:incumbent] + " -> " + _aPos_[:id] + NL
+				_cResult_ += "    " + _aPos_[:incumbent] + " -> " + _aPos_[:id] + char(10)
 			ok
 		end
-		_cResult_ += NL
+		_cResult_ += char(10)
 		
 		# Departments
-		_cResult_ += "departments" + NL
+		_cResult_ += "departments" + char(10)
 		_aDepts_ = This.Departments()
 		_nDeptLen_ = len(_aDepts_)
 		for i = 1 to _nDeptLen_
 			_aDept_ = _aDepts_[i]
-			_cResult_ += "    " + _aDept_[:id] + NL
-			_cResult_ += "        name: " + _aDept_[:name] + NL
-			_cResult_ += "        positions: " + Q(_aDept_[:positions]).ToCode() + NL
-			_cResult_ += NL
+			_cResult_ += "    " + _aDept_[:id] + char(10)
+			_cResult_ += "        name: " + _aDept_[:name] + char(10)
+			_cResult_ += "        positions: " + Q(_aDept_[:positions]).ToCode() + char(10)
+			_cResult_ += char(10)
 		end
 		
 		return _cResult_
@@ -1580,7 +1580,7 @@ class stzOrgChart from stzDiagram
 	#=====================================================
 	
 	def ImportStzOrg(cString)
-		_acLines_ = @split(cString, NL)
+		_acLines_ = @split(cString, char(10))
 		_cCurrentSection_ = ""
 		_cCurrentId_ = ""
 		_aCurrent_ = []

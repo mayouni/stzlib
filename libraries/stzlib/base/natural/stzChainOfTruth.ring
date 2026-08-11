@@ -577,10 +577,10 @@ class stzChainOfTruth from stzObject
 
 		_cCondition_ = StringSimplified(pcCondition)
 
-		_cCode_ = "if This.StzObjectQ()." + _cCondition_ + NL +
-			"	" + "bResult = 1" + NL +
-			"else" + NL +
-			"	bResult = 0" + NL +
+		_cCode_ = "if This.StzObjectQ()." + _cCondition_ + char(10) +
+			"	" + "bResult = 1" + char(10) +
+			"else" + char(10) +
+			"	bResult = 0" + char(10) +
 			"ok"
 
 		try

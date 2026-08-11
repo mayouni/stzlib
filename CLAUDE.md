@@ -188,6 +188,30 @@ git push codeberg HEAD:refs/heads/main
 
 ## What NOT to do (collected the hard way)
 
+- **Don't let library code READ a global constant a caller can overwrite.**
+  Ring is case-insensitive, so a caller's `nL = len(cPixels)` silently
+  replaces the `NL` newline constant with a NUMBER. Library code that
+  then builds a string with `NL` raises deep inside the string layer,
+  with nothing pointing back at the caller's variable. `TAB` and `CR`
+  are equally exposed -- a caller writing `tab = 42` or `cr = 7` breaks
+  them the same way. Short, uppercase, two-or-three-letter names are
+  trivially collidable.
+  Use the literal instead: `char(10)`, `char(9)`, `char(13)`. They are
+  byte-identical (`NL = char(10)` is TRUE) and cannot be reassigned.
+  Swept library-wide in 2026-08: 2,898 reads across 75 files.
+  Two cautions, both paid for:
+  - `char()` is a BUILTIN, so it is shadowed inside a class that
+    defines its own `Char()` method (`stzStringChar`, `stkChar`,
+    `stzStringBounder`, and anything inheriting them). None of those
+    read NL, so the sweep was safe -- but check before assuming.
+    `ring_char()` in `core/common/stkRingFuncs.ring` is the escape,
+    the same way `ring_len` / `ring_trim` are.
+  - A blind token replace also hits DEFINITION names. The sweep turned
+    `func NL()` into `func char(10)()` and `func NL@@NL(p)` into
+    `func char(10)@@NL(p)`, breaking the whole library's load. Keep the
+    NAME and change only the BODY: `func NL()` now returns `char(10)`,
+    so even that public accessor survives a clobbered global.
+
 - Don't name a method or variable after (or containing) a Ring
   KEYWORD: `def Load()` is a C6 error (`load`), a variable `cAll` is
   a C13 error (contains `call`). Cost two renames in the perf grind

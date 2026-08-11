@@ -353,7 +353,7 @@ class stzSystemCall from stzObject
 			return []
 		ok
 
-		_acLines_ = split(@cOutput, NL)
+		_acLines_ = split(@cOutput, char(10))
 		_aResult_ = []
 		_nLen_ = len(_acLines_)
 
@@ -597,7 +597,7 @@ class stzSystemCall from stzObject
 			return []
 		ok
 
-		_acLines_ = split(@cOutput, NL)
+		_acLines_ = split(@cOutput, char(10))
 		# Remove empty lines
 		_aResult_ = []
 		_nLen_ = len(_acLines_)

@@ -2087,11 +2087,11 @@ def CompareWith(_oOtherCal_)
 		_cResult_ = StzReplace(_cResult_, char(226) + char(148) + char(180), char(226) + char(148) + char(128))
 	
 		# Drawing the legend
-		_cResult_ += NL + NL + _drawLegend()
+		_cResult_ += char(10) + char(10) + _drawLegend()
 		return _cResult_
 	
 	def _drawLegend()
-		_cResult_ = "Legend:" + NL
+		_cResult_ = "Legend:" + char(10)
 	
 		_aLegend_ = This.Legend()
 		_nLen_ = len(_aLegend_)
@@ -2099,7 +2099,7 @@ def CompareWith(_oOtherCal_)
 		for _i_ = 1 to _nLen_
 			_cResult_ += ("  " + _aLegend_[_i_][2] + " = " + Capitalise(_aLegend_[_i_][1]) )
 			if _i_ < _nLen_
-				_cResult_ += NL
+				_cResult_ += char(10)
 			ok
 		next
 	

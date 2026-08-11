@@ -864,25 +864,25 @@ class stzKnowledgeGraph from stzGraph
 		return This.ImportKnow(pSource)
 
 	def ExportToKnow()
-	    _cKnow_ = 'knowledge "' + @cId + '"' + NL + NL
-	    _cKnow_ += "facts" + NL
+	    _cKnow_ = 'knowledge "' + @cId + '"' + char(10) + char(10)
+	    _cKnow_ += "facts" + char(10)
 	    _aFacts_ = This.Facts()
 	    _nFacts2Len_ = len(_aFacts_)
 	    for _iLoopFacts2_ = 1 to _nFacts2Len_
 	    	_aFact_ = _aFacts_[_iLoopFacts2_]
-	        _cKnow_ += "    " + _aFact_[1] + " | " + _aFact_[2] + " | " + _aFact_[3] + NL
+	        _cKnow_ += "    " + _aFact_[1] + " | " + _aFact_[2] + " | " + _aFact_[3] + char(10)
 	    end
 	    # the LAWS travel with the knowledge (R1: ontology section --
 	    # "relation | law" lines; the parser re-arms them on load)
 	    if len(@aOntology) > 0
-	        _cKnow_ += NL + "ontology" + NL
+	        _cKnow_ += char(10) + "ontology" + char(10)
 	        _nOnt1Len_ = len(@aOntology)
 	        for _iLoopOnt1_ = 1 to _nOnt1Len_
 	            _aCons_ = @aOntology[_iLoopOnt1_][:constraints]
 	            _nCons1Len_ = len(_aCons_)
 	            for _jLoopCons1_ = 1 to _nCons1Len_
 	                _cKnow_ += "    " + @aOntology[_iLoopOnt1_][:property] +
-	                           " | " + _aCons_[_jLoopCons1_] + NL
+	                           " | " + _aCons_[_jLoopCons1_] + char(10)
 	            next
 	        next
 	    ok
@@ -929,7 +929,7 @@ class stzKnowParser from stzObject
     
     def Parse(pcContent)
         _oKG_ = NULL
-        _acLines_ = split(pcContent, NL)
+        _acLines_ = split(pcContent, char(10))
         _cSection_ = ""
         
         _nAcLines1Len_ = len(_acLines_)

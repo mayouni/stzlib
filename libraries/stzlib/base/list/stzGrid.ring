@@ -2213,7 +2213,7 @@ class stzGrid From stzObject
 				ok
 			next
 
-			_cResult_ += NL()
+			_cResult_ += char(10)()
 		ok
 
 		# Add top border with rounded corners
@@ -2228,7 +2228,7 @@ class stzGrid From stzObject
 			ok
 		next
 
-		_cResult_ += "╮" + NL()
+		_cResult_ += "╮" + char(10)()
 
 		# Add rows with Y-axis labels and borders
 
@@ -2255,7 +2255,7 @@ class stzGrid From stzObject
 				_cResult_ += ""+ aCustomGrid[y][x] + " "
 			next
 
-			_cResult_ += "│" + NL()
+			_cResult_ += "│" + char(10)()
 		next
 
 		# Add bottom border with rounded corners
@@ -2266,7 +2266,7 @@ class stzGrid From stzObject
 			_cResult_ += "──"
 		next
 
-		_cResult_ += "─╯" + NL()
+		_cResult_ += "─╯" + char(10)()
     
 		? _cResult_
 
@@ -2804,7 +2804,7 @@ class stzGrid From stzObject
 				ok
 			next
 
-			_cResult_ += NL()
+			_cResult_ += char(10)()
 		ok
 		
 		# Add top border with rounded corners and indicator for current X position
@@ -2820,7 +2820,7 @@ class stzGrid From stzObject
 			ok
 		next
 
-		_cResult_ += "╮" + NL()
+		_cResult_ += "╮" + char(10)()
 
 		# Add rows with Y-axis labels and borders
 
@@ -2849,7 +2849,7 @@ class stzGrid From stzObject
 				_cResult_ += ""+ _aGrid_[y][x] + " "
 			next
 
-			_cResult_ += "│" + NL()
+			_cResult_ += "│" + char(10)()
 		next
 
 		# Add bottom border with rounded corners
@@ -2860,7 +2860,7 @@ class stzGrid From stzObject
 			_cResult_ += "──"
 		next
 
-		_cResult_ += "─╯" + NL()
+		_cResult_ += "─╯" + char(10)()
 
 		return _cResult_
 

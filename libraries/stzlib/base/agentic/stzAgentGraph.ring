@@ -214,10 +214,10 @@ class stzAgentGraph from stzObject
 			return "GOVERNED: '" + @cName +
 				"' passes every invariant (no llm-effectful, effects guarded, open text contained, effects traced)."
 		ok
-		_c_ = "REFUSED: '" + @cName + "' has " + len(_aV_) + " violation(s):" + NL
+		_c_ = "REFUSED: '" + @cName + "' has " + len(_aV_) + " violation(s):" + char(10)
 		_n_ = len(_aV_)
 		for _i_ = 1 to _n_
 			_c_ += "  - " + _aV_[_i_][:invariant] + " @ " + _aV_[_i_][:node] +
-				": " + _aV_[_i_][:message] + NL
+				": " + _aV_[_i_][:message] + char(10)
 		next
 		return _c_

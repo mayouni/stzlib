@@ -1287,7 +1287,7 @@ class stzFileAppender from stzFileReadingMixin
 			return This
     
     def WriteLine(cText)
-        This.Write(cText + NL)
+        This.Write(cText + char(10))
     	return 1
 
 		def WriteLineQ(cText)
@@ -1413,7 +1413,7 @@ class stzFileCreator from stzFileReadingMixin
 		return This
     
     def WriteLine(cText)
-        This.Write(cText + NL)
+        This.Write(cText + char(10))
     	return 1
 
 	   def WriteLineQ(cText)
@@ -1563,7 +1563,7 @@ class stzFileOverwriter from stzFileReadingMixin
 			return This
     
     def WriteLine(cText)
-        This.Write(cText + NL)
+        This.Write(cText + char(10))
     	return 1
 
 		def WriteLineQ(cText)
@@ -1778,7 +1778,7 @@ class stzFileModifier from stzFileReadingMixin
     def ModifyLine(nLineNumber, cNewLine)
         _aLines_ = This.OriginalLines()
         _aLines_[nLineNumber] = cNewLine
-        _cNewContent_ = JoinXT(_aLines_, NL)
+        _cNewContent_ = JoinXT(_aLines_, char(10))
         This.ModifyAllContent(_cNewContent_)
     	return 1
 
@@ -1807,7 +1807,7 @@ class stzFileModifier from stzFileReadingMixin
 
 		ok
 	    
-	    _cNewContent_ = JoinXT(_aLines_, NL)  # Add newline separator
+	    _cNewContent_ = JoinXT(_aLines_, char(10))  # Add newline separator
 	    This.ModifyAllContent(_cNewContent_)
 		return 1
 
@@ -1879,7 +1879,7 @@ class stzFileModifier from stzFileReadingMixin
         _aLines_ = @aOriginalLines
         if nLineNumber >= 1 and nLineNumber <= len(_aLines_)
             del(_aLines_, nLineNumber)
-            _cNewContent_ = JoinXT(_aLines_, NL)
+            _cNewContent_ = JoinXT(_aLines_, char(10))
             This.ModifyAllContent(_cNewContent_)
 			return 1
         ok
@@ -1961,7 +1961,7 @@ class stzFileModifier from stzFileReadingMixin
             ok
         next
 
-        _cNewContent_ = JoinXT(_aNewLines_, NL)
+        _cNewContent_ = JoinXT(_aNewLines_, char(10))
         This.ModifyAllContent(_cNewContent_)
     	return 1
 
@@ -2006,7 +2006,7 @@ class stzFileModifier from stzFileReadingMixin
     def ReplaceInLine(nLineNumber, cOldText, cNewText)
         _aLines_ = This.OriginalLines()
         _aLines_[nLineNumber] = StzReplace(_aLines_[nLineNumber], cOldText, cNewText)
-        _cNewContent_ = JoinXT(_aLines_, NL)
+        _cNewContent_ = JoinXT(_aLines_, char(10))
         This.ReplaceAllContent(_cNewContent_)
 
 	    def ReplaceInLineQ(nLineNumber, cOldText, cNewText)
@@ -2025,7 +2025,7 @@ class stzFileModifier from stzFileReadingMixin
 	        ok
 	    next
 
-	    _cNewContent_ = JoinXT(_aLines_, NL)  # Add newline separator
+	    _cNewContent_ = JoinXT(_aLines_, char(10))  # Add newline separator
 	    This.ReplaceAllContent(_cNewContent_)
     
 	    def ReplaceLineContainingQ(cSubStr, cNewLine)

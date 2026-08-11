@@ -16216,7 +16216,7 @@ func _NormalizeColLookupKey(pVal)
 
         next
 
-        _cOutput_ += _cLine_ + NL
+        _cOutput_ += _cLine_ + char(10)
 
         # Header row
 
@@ -16226,7 +16226,7 @@ func _NormalizeColLookupKey(pVal)
             _cLine_ += CenterText(@Capitalise(_acColNames_[i]), _aColWidths_[i]) + @aBorder[:Vertical]
         next
 
-        _cOutput_ += _cLine_ + NL
+        _cOutput_ += _cLine_ + char(10)
 
         # Separator
 
@@ -16244,7 +16244,7 @@ func _NormalizeColLookupKey(pVal)
 
         next
 
-        _cOutput_ += _cLine_ + NL
+        _cOutput_ += _cLine_ + char(10)
 
         # Data rows
 
@@ -16274,7 +16274,7 @@ func _NormalizeColLookupKey(pVal)
 
             next
 
-            _cOutput_ += _cLine_ + NL
+            _cOutput_ += _cLine_ + char(10)
 
         next
 
@@ -16435,14 +16435,14 @@ func _NormalizeColLookupKey(pVal)
 				_cLine_ += @aBorder[:TopRight]
 			ok
 		next
-		_cOutput_ += _cLine_ + NL
+		_cOutput_ += _cLine_ + char(10)
 
 		# Header row
 		_cLine_ = @aBorder[:Vertical]
 		for i = 1 to _nCols_
 			_cLine_ += CenterText(@Capitalise(_acColNames_[i]), _aColWidths_[i]) + @aBorder[:Vertical]
 		next
-		_cOutput_ += _cLine_ + NL
+		_cOutput_ += _cLine_ + char(10)
 
 		# Separator
 		_cLine_ = @aBorder[:TeeRight]
@@ -16454,7 +16454,7 @@ func _NormalizeColLookupKey(pVal)
 				_cLine_ += @aBorder[:TeeLeft]
 			ok
 		next
-		_cOutput_ += _cLine_ + NL
+		_cOutput_ += _cLine_ + char(10)
 
 		# Data rows with aggregation
 		_cOutput_ += buildDataRows(_aContent_, _aColWidths_, _bRowNumber_, _bSubTotal_, _bGrandTotal_, _nCols_)
@@ -16554,7 +16554,7 @@ func _NormalizeColLookupKey(pVal)
 					ok
 				ok
 			next
-			_cOutput_ += _cLine_ + NL
+			_cOutput_ += _cLine_ + char(10)
 
 			if _bSubTotal_ and r = _nRows_
 				_cOutput_ += buildSubTotalRow(_aColWidths_, _nCols_, _bRowNumber_, _nGroupCol_, _cCurrentGroup_, _aGroupTotals_)
@@ -16570,7 +16570,7 @@ func _NormalizeColLookupKey(pVal)
 		for i = 1 to _nCols_
 			_cLine_ += " " + RepeatChar("-", _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
 		next
-		_cOutput_ += _cLine_ + NL
+		_cOutput_ += _cLine_ + char(10)
 
 		_cLine_ = @aBorder[:Vertical]
 		for i = 1 to _nCols_
@@ -16588,13 +16588,13 @@ func _NormalizeColLookupKey(pVal)
 				ok
 			ok
 		next
-		_cOutput_ += _cLine_ + NL
+		_cOutput_ += _cLine_ + char(10)
 
 		_cLine_ = @aBorder[:Vertical]
 		for i = 1 to _nCols_
 			_cLine_ += " " + RepeatChar(" ", _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
 		next
-		_cOutput_ += _cLine_ + NL
+		_cOutput_ += _cLine_ + char(10)
 
 		return _cOutput_
 
@@ -16610,7 +16610,7 @@ func _NormalizeColLookupKey(pVal)
 				_cLine_ += @aBorder[:TeeLeft]
 			ok
 		next
-		_cOutput_ += _cLine_ + NL
+		_cOutput_ += _cLine_ + char(10)
 
 		_cLine_ = @aBorder[:Vertical]
 		for i = 1 to _nCols_
@@ -16628,7 +16628,7 @@ func _NormalizeColLookupKey(pVal)
 				ok
 			ok
 		next
-		_cOutput_ += _cLine_ + NL
+		_cOutput_ += _cLine_ + char(10)
 
 		return _cOutput_
 

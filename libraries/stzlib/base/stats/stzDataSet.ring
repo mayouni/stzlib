@@ -3210,22 +3210,22 @@ class stzDataSet from stzObject
 	    if _cKey_ = :title
 	        _cTitle_ = _aSection_[1][2]
 	        if _cFormat_ = "text"
-	            _cSectionContent_ += (NL + BoxifyRound(_cTitle_) + NL)
+	            _cSectionContent_ += (char(10) + BoxifyRound(_cTitle_) + char(10))
 	        ok
 	    ok
 	    
 	    _vContent_ = _aSection_[2][2]
 	    if isString(_vContent_)
-	        _cSectionContent_ += This._InterpolateContent(_vContent_) + NL
+	        _cSectionContent_ += This._InterpolateContent(_vContent_) + char(10)
 	
 	    but isList(_vContent_)
 	        if _cFormat_ = "text"
 				_nLen_ = len(_vContent_)
 				for i = 1 to _nLen_
 					_cItem_ = _vContent_[i]
-	                _cSectionContent_ += "• " + @trim(This._InterpolateContent(_cItem_)) + NL
+	                _cSectionContent_ += "• " + @trim(This._InterpolateContent(_cItem_)) + char(10)
 					if i < _nLen_
-						_cSectionContent_ += NL
+						_cSectionContent_ += char(10)
 					ok
 	            next
 	        ok
@@ -3271,7 +3271,7 @@ class stzDataSet from stzObject
 	        for i = 1 to _nLen_
 	            _cInsightText_ += "• " + _acInsights_[i]
 	            if i < _nLen_
-	                _cInsightText_ += NL + NL  # Added extra NL
+	                _cInsightText_ += char(10) + char(10)  # Added extra NL
 	            ok
 	        next
 	        _oTempStr_.Replace("{Insights()}", _cInsightText_)
@@ -3282,7 +3282,7 @@ class stzDataSet from stzObject
 		_nLen_ = len(_acRecommendations_)
 	        _cRecommendText_ = ""
 	        for i = 1 to _nLen_
-	            _cRecommendText_ += "• " + _acRecommendations_[i] + NL + NL  # Added extra NL
+	            _cRecommendText_ += "• " + _acRecommendations_[i] + char(10) + char(10)  # Added extra NL
 	        next
 	        _oTempStr_.Replace("{Recommendations()}", _cRecommendText_)
 	    ok
@@ -3491,7 +3491,7 @@ class stzDataSet from stzObject
 
 		? "• Name: {" + _aPlan_[:name] + "}"
            	? "• Goal: " + _aPlan_[:description]
-            	? "• Steps: " + _aPlan_[:total_steps] + NL
+            	? "• Steps: " + _aPlan_[:total_steps] + char(10)
         ok
         
         _nStepNum_ = 1
@@ -3514,7 +3514,7 @@ class stzDataSet from stzObject
                 ]
                 
                 if bVerbose
-                    ? "╰─> " + This._FormatStepResult(_aStep_[:function], _vResult_) + NL
+                    ? "╰─> " + This._FormatStepResult(_aStep_[:function], _vResult_) + char(10)
                 ok
                 
 
@@ -3526,7 +3526,7 @@ class stzDataSet from stzObject
                 ]
                 
                 if bVerbose
-                    ? "❌ Error: " + CatchError() + NL
+                    ? "❌ Error: " + CatchError() + char(10)
                 ok
             done
             
@@ -3560,17 +3560,17 @@ class stzDataSet from stzObject
         */
 
         _aPlan_ = This.GeneratePlan(cNameOrGoalOrTemplate)
-        _cSummary_ = BoxifyRound("Plan: " + oPlan[:title]) + NL
+        _cSummary_ = BoxifyRound("Plan: " + oPlan[:title]) + char(10)
 
 		if @bChain = FALSE or
 			(@bChain = TRUE and @bFirstChain)
 
-			_cSummary_ += "• Data: " + @@(This.Content()) + NL
+			_cSummary_ += "• Data: " + @@(This.Content()) + char(10)
 		ok
 
-		_cSummary_ += "• Name: {" + _aPlan_[:name] + "}" + NL
-        _cSummary_ += "• Goal: " + _aPlan_[:description] + NL
-        _cSummary_ += "• Steps (" + _aPlan_[:total_steps] + "):" + NL
+		_cSummary_ += "• Name: {" + _aPlan_[:name] + "}" + char(10)
+        _cSummary_ += "• Goal: " + _aPlan_[:description] + char(10)
+        _cSummary_ += "• Steps (" + _aPlan_[:total_steps] + "):" + char(10)
         
         _nStep_ = 1
         _aPlansteps1_ = _aPlan_[:steps]
@@ -3584,7 +3584,7 @@ class stzDataSet from stzObject
             if HasKey(_aStep_, :args)
                 _cSummary_ += " [params: " + This._FormatArgs(_aStep_[:args]) + "]"
             ok
-            _cSummary_ += NL
+            _cSummary_ += char(10)
             _nStep_++
         next
         
@@ -3667,7 +3667,7 @@ class stzDataSet from stzObject
 	    # Multi-stage intelligent analysis workflow
 	    
 	    ? "~> Start with basic exploration..."
-	    ? "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + NL
+	    ? "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + char(10)
 	    
 	    # Stage 1: Always start with EDA
 	    This.ExecutePlan("eda")
@@ -3676,7 +3676,7 @@ class stzDataSet from stzObject
 	    if This.ContainsOutliers()
 	        ? ""
 	        ? "~> Outliers found, performing detailed outlier analysis..."
-	        ? "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + NL
+	        ? "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + char(10)
 	        This.ExecutePlan("outliers")
 	    ok
 	    
@@ -3684,7 +3684,7 @@ class stzDataSet from stzObject
 	    if This.Count() >= 20
 	        ? ""
 	        ? "~> Sufficient sample size, testing normality assumptions..."
-	        ? "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + NL
+	        ? "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + char(10)
 	        This.ExecutePlan("normality")
 	    ok
 	    
@@ -3692,7 +3692,7 @@ class stzDataSet from stzObject
 	    if This.CoefficientOfVariation() > 40
 	        ? ""
 	        ? "~> High variability detected, running quality assessment..."
-	        ? "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + NL
+	        ? "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + char(10)
 	        This.ExecutePlan("quality")
 	    ok
 	    

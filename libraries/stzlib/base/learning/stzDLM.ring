@@ -566,32 +566,32 @@ class stzDLM from stzObject
 		if StzRight(pcFile, 5) != ".zdlm"
 			pcFile += ".zdlm"
 		ok
-		_c_ = 'dlm "' + @cDomain + '"' + NL
-		_c_ += "entities" + NL
+		_c_ = 'dlm "' + @cDomain + '"' + char(10)
+		_c_ += "entities" + char(10)
 		_n_ = len(@aEntities)
 		for _i_ = 1 to _n_
-			_c_ += "    " + @aEntities[_i_][1] + " | " + @aEntities[_i_][2] + NL
+			_c_ += "    " + @aEntities[_i_][1] + " | " + @aEntities[_i_][2] + char(10)
 		next
-		_c_ += "relations" + NL
+		_c_ += "relations" + char(10)
 		_n_ = len(@acRelations)
 		for _i_ = 1 to _n_
-			_c_ += "    " + @acRelations[_i_] + NL
+			_c_ += "    " + @acRelations[_i_] + char(10)
 		next
-		_c_ += "facts" + NL
+		_c_ += "facts" + char(10)
 		_n_ = len(@aFacts)
 		for _i_ = 1 to _n_
 			_c_ += "    " + @aFacts[_i_][1] + " | " + @aFacts[_i_][2] + " | " +
-				@aFacts[_i_][3] + NL
+				@aFacts[_i_][3] + char(10)
 		next
-		_c_ += "laws" + NL
+		_c_ += "laws" + char(10)
 		_n_ = len(@aLaws)
 		for _i_ = 1 to _n_
-			_c_ += "    " + @aLaws[_i_][1] + " | " + @aLaws[_i_][2] + NL
+			_c_ += "    " + @aLaws[_i_][1] + " | " + @aLaws[_i_][2] + char(10)
 		next
-		_c_ += "goldens" + NL
+		_c_ += "goldens" + char(10)
 		_n_ = len(@aGoldens)
 		for _i_ = 1 to _n_
-			_c_ += "    " + @aGoldens[_i_][1] + " | " + @aGoldens[_i_][2] + NL
+			_c_ += "    " + @aGoldens[_i_][1] + " | " + @aGoldens[_i_][2] + char(10)
 		next
 		write(pcFile, _c_)
 		return pcFile

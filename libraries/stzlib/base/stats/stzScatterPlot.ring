@@ -806,11 +806,11 @@ class stzScatterPlot from stzObject
 		# Remove unnecessary empty lines
 		_oTempStr_ = new stzString(_cResult_)
 		if @bShowVAxis = FALSE
-			_nPos_ = _oTempStr_.FindFirst(NL)
+			_nPos_ = _oTempStr_.FindFirst(char(10))
 			_oTempStr_.RemoveSection(1, _nPos_)
 		ok
 
-		_anPos_ = _oTempStr_.FindAll(NL)
+		_anPos_ = _oTempStr_.FindAll(char(10))
 		if len(_anPos_) > 0
 			_nPos_ = _anPos_[len(_anPos_)-1]
 			_oTempStr_.RemoveSection(_nPos_, _oTempStr_.NumberOfChars())
@@ -875,9 +875,9 @@ class stzScatterPlot from stzObject
 			_oTempStr_ = new stzString(_cResult_)
 			# Place X letter at the end of vertical axis
 			_nPos_ = _oTempStr_.FindFirst(@cVArrowChar)
-			_oTempStr_.InsertAt(1, RepeatChar(" ", _nPos_-1) + "X" + NL)
+			_oTempStr_.InsertAt(1, RepeatChar(" ", _nPos_-1) + "X" + char(10))
 
-			_oTempStr_.Replace(@cVArrowChar, @cVArrowChar + NL + RepeatChar(" ", _nPos_-1) + @cVAxisChar)
+			_oTempStr_.Replace(@cVArrowChar, @cVArrowChar + char(10) + RepeatChar(" ", _nPos_-1) + @cVAxisChar)
 		ok
 
 

@@ -425,11 +425,11 @@ class stzConversation from stzObject
 		if StzRight(pcFile, 5) != ".zcnv"
 			pcFile += ".zcnv"
 		ok
-		_c_ = 'conversation "' + @cTopic + '"' + NL + "history" + NL
+		_c_ = 'conversation "' + @cTopic + '"' + char(10) + "history" + char(10)
 		_aL_ = @oNarration.Lines()
 		_n_ = len(_aL_)
 		for _i_ = 1 to _n_
-			_c_ += "    " + _aL_[_i_][1] + " | " + _aL_[_i_][2] + NL
+			_c_ += "    " + _aL_[_i_][1] + " | " + _aL_[_i_][2] + char(10)
 		next
 		write(pcFile, _c_)
 		return pcFile

@@ -85,10 +85,10 @@ class stzListOfHashLists from stzList
 
 			for j = 1 to _nLenHash_
 				_cLine_ = _aHashList_[j][1] + " : " + _aHashList_[j][2]
-				_cResult_ += _cLine_ + NL
+				_cResult_ += _cLine_ + char(10)
 			next
 
-			_cResult_ += NL
+			_cResult_ += char(10)
 		next
 
 		? ring_trim(_cResult_)
