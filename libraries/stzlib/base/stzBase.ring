@@ -89,6 +89,8 @@ ok
     load "graphics/stzFont.ring"
     load "graphics/stzMesh.ring"
     load "graphics/stzCanvas.ring"
+    # graphviz's 24-shape node vocabulary, composed from canvas primitives
+    load "graphics/stzNodeShape.ring"
     load "graphics/stzScene.ring"
     load "graphics/stzPlotCanvas.ring"
     load "graphics/stzTreeCanvas.ring"
@@ -104,6 +106,7 @@ ok
     # sound/ -- the declarative sound surface (SN4, SOFTANZA_SOUND_PLAN.md).
     # stzSound needs no hardware at all; stzMicrophone reports honestly when
     # there is no input to record from.
+    load "sound/stzSoundGrid.ring"
     load "sound/stzSound.ring"
     load "sound/stzSoundGraph.ring"
     load "sound/stzMicrophone.ring"

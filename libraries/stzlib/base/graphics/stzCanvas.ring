@@ -154,6 +154,19 @@ class stzCanvas from stzObject
 		This.AddCircle(pnCX, pnCY, pnR)
 		return This
 
+	# The primitive the DIAGRAM layer was missing. Of graphviz's 24 node
+	# shapes, twenty are a circle, a rect or a polygon -- all already here --
+	# and the remaining four (ellipse, egg, cylinder, doublecircle) all need
+	# this one. Tessellated engine-side, on the same segment bound as the
+	# circle, so a stroked ellipse traces exactly the filled one.
+	def AddEllipse(pnCX, pnCY, pnRX, pnRY)
+		This._Flush()
+		@aPending = [ :ellipse, pnCX, pnCY, pnRX, pnRY, @nFill, @nStroke, @nStrokeW, @bFillNamed ]
+
+	def AddEllipseQ(pnCX, pnCY, pnRX, pnRY)
+		This.AddEllipse(pnCX, pnCY, pnRX, pnRY)
+		return This
+
 	def AddLine(pnX1, pnY1, pnX2, pnY2)
 		This._Flush()
 		@aPending = [ :line, pnX1, pnY1, pnX2, pnY2, @nFill, @nStroke, @nStrokeW, @bFillNamed ]
@@ -405,6 +418,12 @@ class stzCanvas from stzObject
 				# Ring computing points the engine already knows.
 				StzEngineGpuSceneCircleStroke(@nId, _a_[2], _a_[3], _a_[4],
 					_a_[8], _a_[7])
+			ok
+		on "ellipse"
+			StzEngineGpuSceneEllipse(@nId, _a_[2], _a_[3], _a_[4], _a_[5], _a_[6])
+			if _a_[8] > 0
+				StzEngineGpuSceneEllipseStroke(@nId, _a_[2], _a_[3], _a_[4],
+					_a_[5], _a_[8], _a_[7])
 			ok
 		on "line"
 			_nCol_ = _a_[6]
