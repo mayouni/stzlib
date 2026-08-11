@@ -286,9 +286,45 @@ which preserves separation exactly. It reported 7.74x and looked like a
 library failure. No index arithmetic can scramble an alternating pairing;
 the control had to decouple by VALUE (sort on x, deal in id order).
 
+### "The CPU baseline is the interpreter" — TRUE, and bigger than assumed
+
+The risk said to STATE it. Stating it never told anyone what the number
+would be against a compiled baseline, and a "6,950x" that is 6,950x seam
+and 1.0x algorithm would mean the bitset was never worth writing.
+
+Measured by adding `stz_graph_impact_all_naive` — the same question, one
+BFS per node, no bitset — purely as an instrument, so the multiplier
+splits:
+
+| | share | behaviour in n |
+|---|---|---|
+| Ring per-pair → same algorithm in Zig | **~7,000x** | flat |
+| naive Zig → the bitset | **1.5x** at n=240, **3x** at n=2,400 | grows |
+
+**Every "Nx faster" figure in this plane is a statement about crossing the
+seam ONCE instead of n² times, and only secondarily about the algorithm
+behind it.** That is not an argument against the bitset — 3x and rising is
+why it exists, and it refuses past 20,000 where the naive walk would
+simply get slow. It is an argument against reading 6,950x as an
+algorithmic claim.
+
+Two measurement traps inside the guard, both recorded in it:
+
+- The first version averaged 20 engine calls on a millisecond clock — five
+  ticks. It reported the bitset at 0.83x, which reads as a verdict and is
+  a tick count. 2,000 reps fixed it.
+- The file then CONTRADICTED ITSELF: 1.01x in one scene, 1.60x in another,
+  at the same size. Both were right about what they measured. A fixed
+  marshalling cost sits in both arms and drags any ratio toward 1.
+  Subtracting a measured floor (`:Degree`, same bridge, no propagation)
+  did NOT rescue it — differencing two noisy tenths-of-a-millisecond
+  amplifies noise. The honest resolution was to stop claiming an
+  algorithm share at a size that cannot resolve one, and let the sweep
+  answer it where the signal clears the floor.
+
+Guard: `test/graphics/gg_baseline.ring` (7).
+
 ### Still unmeasured
 
-**"The CPU baseline is the interpreter."** Every speedup figure in this
-plane compares engine code against Ring. That is stated in the numbers but
-has never been checked against a compiled baseline, so the multipliers
-describe the seam, not the algorithm.
+Nothing from section 4. The remaining risks are the ones the plane
+declared out of scope in section 3.
