@@ -53,6 +53,13 @@
 #   StzEngineGpuTextureFree(id) / TextureWidth(id) / TextureHeight(id)
 #   StzEngineGpuTextureWrite(id, cRgbaBytes)   -- sampled kinds; len = w*h*4
 #
+# A 3D MATERIAL may declare textures ('texture name' + sample(name, @uv)).
+# They bind at group(0) 3+2k / 4+2k in DECLARATION order -- the layout the
+# transpiler emits, written down on both sides because a mismatch reports as
+# a PANIC at submit and names nothing:
+#   StzEngineGpuScene3dSetMaterialTextures(hScene, aTextureIds) -> status
+#   StzEngineGpuScene3dMaterialTextureCount(hScene) -> n (-1 = stale)
+#
 # Render pipelines compile WGSL with entry points `vmain` + `fmain`,
 # cached by (text, vertex format, blend) -- 1 compile + N hits, counted.
 #   StzEngineGpuRenderPipeline(cWgsl, cFmt, bBlend) -> id (0 = refusal)

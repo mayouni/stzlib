@@ -199,6 +199,10 @@ const Scene3d = struct {
     mat_params: [MAX_MAT_FLOATS]f32 = @splat(0),
     mat_param_count: usize = 0,
     mat_buf: i64 = 0,
+    // Textures the material declared, in DECLARATION order -- the order the
+    // transpiler laid the bindings out in.
+    mat_tex: [4]i64 = @splat(0),
+    mat_tex_count: usize = 0,
     // witnesses
     geometry_uploads: u64 = 0, // increments ONLY when mesh data is uploaded
     transform_uploads: u64 = 0, // increments every frame (cheap, by design)
@@ -384,10 +388,37 @@ pub fn setMaterial(id: i64, wgsl: []const u8, params: []const f32) i32 {
     s.mat_wgsl_len = wgsl.len;
     @memcpy(s.mat_params[0..params.len], params);
     s.mat_param_count = params.len;
+    // A new shader has new bindings; the old texture list belonged to the
+    // old one. Keeping it would bind images at slots the new layout does
+    // not have, which reports as a panic at submit and never here.
+    s.mat_tex_count = 0;
     // the pipeline is chosen per mesh at residency time, so drop what was
     // resident: the next render rebuilds against the new shader
     for (s.res.items) |*r| r.uploaded = false;
     return OK;
+}
+
+/// Bind the TEXTURES a material declared, in declaration order. Separate
+/// from setMaterial because a texture is a HANDLE, not a value: a caller can
+/// swap the image a material samples without recompiling the shader, and the
+/// residency drop that setMaterial does would be wasted work here.
+pub fn setMaterialTextures(id: i64, ids: []const i64) i32 {
+    const slot = slotOf(id) orelse return STALE;
+    const s = &scenes.items[slot];
+    if (ids.len > s.mat_tex.len) return BAD_ARG;
+    for (0..ids.len) |i| {
+        // Refuse a dead handle HERE, where the caller can be told which one.
+        // Left to the draw, it becomes a silent skipped mesh.
+        if (gpu.rawTexture(ids[i]) == null) return STALE;
+        s.mat_tex[i] = ids[i];
+    }
+    s.mat_tex_count = ids.len;
+    return OK;
+}
+
+pub fn materialTextureCount(id: i64) i32 {
+    const slot = slotOf(id) orelse return -1;
+    return @intCast(scenes.items[slot].mat_tex_count);
 }
 
 pub fn hasMaterial(id: i64) i32 {
@@ -813,7 +844,7 @@ fn renderToTarget(s: *Scene3d) !bool {
         // is what makes "one draw per mesh, whatever the scene" true rather
         // than aspirational.
         const r = s.res.items[g.res_index];
-        if (render.stz_gpu_render_draw_bound(
+        if (render.stz_gpu_render_draw_bound_tex(
             r.pipe[ti],
             r.vbuf,
             r.ibuf,
@@ -822,6 +853,8 @@ fn renderToTarget(s: *Scene3d) !bool {
             @floatFromInt(g.first),
             &bufs,
             nbufs,
+            &s.mat_tex,
+            @intCast(s.mat_tex_count),
         ) == gpu.OK) draws += 1;
     }
     if (render.stz_gpu_render_end() != gpu.OK) return false;

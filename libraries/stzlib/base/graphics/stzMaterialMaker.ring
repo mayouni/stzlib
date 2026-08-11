@@ -42,6 +42,7 @@ class stzMaterialMaker from stzObject
 
 	@aColors = []
 	@aScalars = []
+	@aTextures = []
 	@cBody = ""
 	@cWgsl = ""
 
@@ -63,6 +64,18 @@ class stzMaterialMaker from stzObject
 		This.TakesScalar(pcName)
 		return This
 
+	# A texture is a PICTURE the material reads, not a value it carries:
+	# declared here, bound to an image at SetMaterial time, and read in the
+	# body with sample(name, @uv). The sampler is never named, because a
+	# sampler is not a surface property.
+	def TakesTexture(pcName)
+		@aTextures + lower("" + pcName)
+		@cWgsl = ""
+
+	def TakesTextureQ(pcName)
+		This.TakesTexture(pcName)
+		return This
+
 	def ForEachFragment(pcW)
 		@cBody = "" + pcW
 		@cWgsl = ""
@@ -77,6 +90,9 @@ class stzMaterialMaker from stzObject
 	def ScalarNames()
 		return @aScalars
 
+	def TextureNames()
+		return @aTextures
+
 	# The engine's spec format -- the declarations, collapsed. Exposed for
 	# transparency and for the guard.
 	def Spec()
@@ -88,6 +104,10 @@ class stzMaterialMaker from stzObject
 		_nL_ = len(@aScalars)
 		for _i_ = 1 to _nL_
 			_c_ += "scalar " + @aScalars[_i_] + char(10)
+		next
+		_nL_ = len(@aTextures)
+		for _i_ = 1 to _nL_
+			_c_ += "texture " + @aTextures[_i_] + char(10)
 		next
 		if @cBody != ""
 			_c_ += "body " + @cBody
@@ -134,6 +154,24 @@ class stzMaterialMaker from stzObject
 			if NOT isNumber(_v_)
 				StzRaise("stzMaterialMaker: scalar '" + @aScalars[_i_] +
 					"' has no value (give [ :" + @aScalars[_i_] + " = 0.5 ]).")
+			ok
+			_a_ + _v_
+		next
+		return _a_
+
+	# The declared TEXTURES as engine handles, in declaration order -- the
+	# order the shader's bindings were laid out in. Same refusal discipline
+	# as the values: a missing texture RAISES by name rather than binding
+	# handle 0, which would report as a panic at submit.
+	def TexturesFrom(paBindings)
+		_a_ = []
+		_nL_ = len(@aTextures)
+		for _i_ = 1 to _nL_
+			_v_ = _BindingValue(paBindings, @aTextures[_i_])
+			if NOT (isNumber(_v_) and _v_ > 0)
+				StzRaise("stzMaterialMaker: texture '" + @aTextures[_i_] +
+					"' has no image (give [ :" + @aTextures[_i_] +
+					" = oImage.Handle() ]).")
 			ok
 			_a_ + _v_
 		next
