@@ -28,7 +28,7 @@ class stzTimex from stzObject
 	@cPattern           # The pattern string, e.g., "{@Instant -> @Duration(1h..2h) -> @Event}"
 	@aTokens            # Parsed token definitions
 	@oTarget            # Target data to match against (stzTimeline, list, etc.)
-	@bDebugMode = FALSE # Debug flag
+	@bDebugMode = 0 # Debug flag
 	@aMatchedParts = [] # Extracted matches like regex groups
 	
 	# Pattern definitions for parsing
@@ -174,7 +174,7 @@ class stzTimex from stzObject
 		return [
 			["type", "alternation"],
 			["alternatives", _aAlternatives_],
-			["negated", FALSE]
+			["negated", 0]
 		]
 	
 	def ParseSingleToken(_cTokenStr_)
@@ -185,9 +185,9 @@ class stzTimex from stzObject
 		ok
 		
 		# Check for negation
-		_bNegated_ = FALSE
+		_bNegated_ = 0
 		if startsWith(_cTokenStr_, "@!")
-			_bNegated_ = TRUE
+			_bNegated_ = 1
 			_cTokenStr_ = @StzMid(_cTokenStr_, 3, StzLen(_cTokenStr_))
 		ok
 		
@@ -197,7 +197,7 @@ class stzTimex from stzObject
 		_aConstraints_ = []
 		_nMin_ = 1
 		_nMax_ = 1
-		_bCyclic_ = FALSE
+		_bCyclic_ = 0
 		
 		# Identify token type
 		if startsWith(_cTokenStr_, "@Instant")
@@ -265,7 +265,7 @@ class stzTimex from stzObject
 			_nMin_ = 0
 			_nMax_ = 1
 		but _cLastChar_ = "~"
-			_bCyclic_ = TRUE
+			_bCyclic_ = 1
 		ok
 		
 		# Check for numeric quantifiers
@@ -417,10 +417,10 @@ class stzTimex from stzObject
 			_bResult_ = This.BacktrackMatchPartial(@aTokens, _aNormalized_, 1, _nStart_, [])
 			if _bResult_
 				This.ExtractMatches(_aNormalized_)
-				return TRUE
+				return 1
 			ok
 		next
-		return FALSE
+		return 0
 	
 	def MatchAsYouBuild(oTarget)
 		# For real-time validation as timeline is built
@@ -430,7 +430,7 @@ class stzTimex from stzObject
 		
 		# Check if current state matches
 		if This.MatchPartial(oTarget)
-			return TRUE
+			return 1
 		ok
 		
 		# Check if it could match with more data
@@ -493,10 +493,10 @@ class stzTimex from stzObject
 				next
 				
 				if This.BacktrackMatch(_aNewTokens_, _aNormalized_, nTokenIdx, nDataIdx, aMatched)
-					return TRUE
+					return 1
 				ok
 			next
-			return FALSE
+			return 0
 		ok
 		
 		# Calculate maximum matches possible
@@ -505,7 +505,7 @@ class stzTimex from stzObject
 		# Try match counts from max down to min for better backtracking
 		# This allows skipping over non-matching items when constraints fail
 		for nMatchCount = _nMaxPossible_ to _aToken_[:min] step -1
-			_bSuccess_ = TRUE
+			_bSuccess_ = 1
 			_nElemIdx_ = nDataIdx
 			_aLocalMatched_ = []
 			
@@ -518,14 +518,14 @@ class stzTimex from stzObject
 			# Try to match nMatchCount elements
 			for _i_ = 1 to nMatchCount
 				if _nElemIdx_ > _nLenData_
-					_bSuccess_ = FALSE
+					_bSuccess_ = 0
 					exit
 				ok
 				
 				_aData_ = _aNormalized_[_nElemIdx_]
 				
 				# Type matching logic
-				_bTypeMatch_ = FALSE
+				_bTypeMatch_ = 0
 				
 				if _aToken_[:type] = "event"
 					# Events match: labeled instants OR labeled event spans
@@ -547,21 +547,21 @@ class stzTimex from stzObject
 				ok
 				
 				if not _bTypeMatch_
-					_bSuccess_ = FALSE
+					_bSuccess_ = 0
 					exit
 				ok
 				
 				# Check label if specified
 				if _aToken_[:label] != "" and _aData_[:label] != ""
 					if StzLower(_aToken_[:label]) != StzLower(_aData_[:label])
-						_bSuccess_ = FALSE
+						_bSuccess_ = 0
 						exit
 					ok
 				ok
 				
 				# Check constraints
 				if not This.CheckConstraints(_aToken_[:constraints], _aData_)
-					_bSuccess_ = FALSE
+					_bSuccess_ = 0
 					exit
 				ok
 				
@@ -573,18 +573,18 @@ class stzTimex from stzObject
 				# For last token, ensure complete match
 				if nTokenIdx = _nLenTokens_
 					if _nElemIdx_ = _nLenData_ + 1
-						return TRUE
+						return 1
 					ok
 				else
 					# Recurse for remaining tokens
 					if This.BacktrackMatch(_aTokens_, _aNormalized_, nTokenIdx + 1, _nElemIdx_, _aLocalMatched_)
-						return TRUE
+						return 1
 					ok
 				ok
 			ok
 		next
 		
-		return FALSE
+		return 0
 
 
 	def BacktrackMatchPartial(_aTokens_, _aNormalized_, nTokenIdx, nDataIdx, aMatched)
@@ -593,7 +593,7 @@ class stzTimex from stzObject
 		
 		# Base case: all tokens processed - PARTIAL match succeeds
 		if nTokenIdx > _nLenTokens_
-			return TRUE
+			return 1
 		ok
 		
 		# Out of data but tokens remain
@@ -601,10 +601,10 @@ class stzTimex from stzObject
 			# Check if remaining tokens can match zero times
 			for _i_ = nTokenIdx to _nLenTokens_
 				if _aTokens_[_i_][:min] > 0
-					return FALSE
+					return 0
 				ok
 			next
-			return TRUE
+			return 1
 		ok
 		
 		_aToken_ = _aTokens_[nTokenIdx]
@@ -625,17 +625,17 @@ class stzTimex from stzObject
 				next
 				
 				if This.BacktrackMatchPartial(_aNewTokens_, _aNormalized_, nTokenIdx, nDataIdx, aMatched)
-					return TRUE
+					return 1
 				ok
 			next
-			return FALSE
+			return 0
 		ok
 		
 		# Calculate how many items could possibly match
 		_nAvailable_ = 0
 		for _i_ = nDataIdx to _nLenData_
 			_aData_ = _aNormalized_[_i_]
-			_bCanMatch_ = FALSE
+			_bCanMatch_ = 0
 			
 			if _aToken_[:type] = "event"
 				_bCanMatch_ = (_aData_[:type] = "instant" or _aData_[:type] = "event")
@@ -664,7 +664,7 @@ class stzTimex from stzObject
 				? "Token " + nTokenIdx + " (type=" + _aToken_[:type] + ", label=" + _aToken_[:label] + "): trying " + nMatchCount + " matches starting at data position " + nDataIdx
 			ok
 			
-			_bSuccess_ = TRUE
+			_bSuccess_ = 1
 			_nElemIdx_ = nDataIdx
 			_aLocalMatched_ = []
 			_nMatched_ = 0
@@ -682,7 +682,7 @@ class stzTimex from stzObject
 					? "  Attempt " + (_nMatched_ + 1) + ": checking data[" + _nElemIdx_ + "] type=" + _aData_[:type] + ", label=" + _aData_[:label]
 				ok
 				
-				_bTypeMatch_ = FALSE
+				_bTypeMatch_ = 0
 				
 				if _aToken_[:type] = "event"
 					_bTypeMatch_ = (_aData_[:type] = "instant" or _aData_[:type] = "event")
@@ -725,16 +725,16 @@ class stzTimex from stzObject
 			if _nMatched_ >= nMatchCount
 				# PARTIAL: success when tokens exhausted, regardless of remaining data
 				if nTokenIdx = _nLenTokens_
-					return TRUE
+					return 1
 				else
 					if This.BacktrackMatchPartial(_aTokens_, _aNormalized_, nTokenIdx + 1, _nElemIdx_, _aLocalMatched_)
-						return TRUE
+						return 1
 					ok
 				ok
 			ok
 		next
 		
-		return FALSE
+		return 0
 
 
 	def NormalizeTarget(oTarget)
@@ -752,7 +752,7 @@ class stzTimex from stzObject
 					["type", "instant"],
 					["label", _aPoint_[1]],
 					["datetime", _aPoint_[2]],
-					["object", NULL]
+					["object", ""]
 				]
 			next
 			
@@ -771,7 +771,7 @@ class stzTimex from stzObject
 					["start", _aSpan_[2]],
 					["end", _aSpan_[3]],
 					["minutes", _nMinutes_],
-					["object", NULL]
+					["object", ""]
 				]
 			next
 			
@@ -811,7 +811,7 @@ class stzTimex from stzObject
 							["start", _cCurrent_],
 							["end", _cNext_],
 							["minutes", _nGapMinutes_],
-							["object", NULL]
+							["object", ""]
 						]
 					ok
 				ok
@@ -825,7 +825,7 @@ class stzTimex from stzObject
 					["type", "instant"],
 					["label", "WorkDay"],
 					["datetime", _aWorkDays_[_i_]],
-					["object", NULL]
+					["object", ""]
 				]
 			next
 		
@@ -839,7 +839,7 @@ class stzTimex from stzObject
 						["type", "instant"],
 						["label", ""],
 						["datetime", _xItem_],
-						["object", NULL]
+						["object", ""]
 					]
 				but @IsStzDateTime(_xItem_)
 					_aNormalized_ + [
@@ -907,7 +907,7 @@ class stzTimex from stzObject
 						if @bDebugMode
 							? "FAILED: out of range"
 						ok
-						return FALSE
+						return 0
 					ok
 					
 					# Check step if specified
@@ -919,7 +919,7 @@ class stzTimex from stzObject
 								if @bDebugMode
 									? "FAILED: step mismatch"
 								ok
-								return FALSE
+								return 0
 							ok
 						ok
 					ok
@@ -933,26 +933,26 @@ class stzTimex from stzObject
 						if @bDebugMode
 							? "FAILED: exact duration mismatch (" + _nMinutes_ + " != " + _aConstraint_[:minutes] + ")"
 						ok
-						return FALSE
+						return 0
 					ok
 				ok
 			
 			but _aConstraint_[:type] = "set"
-				_bInSet_ = FALSE
+				_bInSet_ = 0
 				_nLenTemp_ = len(_aConstraint_[:values])
 				for j = 1 to _nLenTemp_
 					if StzLower(_aData_[:label]) = StzLower(@trim(_aConstraint_[:values][j]))
-						_bInSet_ = TRUE
+						_bInSet_ = 1
 						exit
 					ok
 				next
 				if not _bInSet_
-					return FALSE
+					return 0
 				ok
 			ok
 		next
 		
-		return TRUE
+		return 1
 		
 		def ExtractMatches(_aNormalized_)
 			# Extract matched parts for later retrieval
@@ -1001,7 +1001,7 @@ class stzTimex from stzObject
 			ok
 			
 			if _aToken_[:negated]
-				_aTokenInfo_ + ["negated", TRUE]
+				_aTokenInfo_ + ["negated", 1]
 			ok
 			
 			_aInfo_ + _aTokenInfo_
@@ -1021,7 +1021,7 @@ class stzTimex from stzObject
 			["Pattern", @cPattern],
 			["TokenCount", len(@aTokens)],
 			["Tokens", This.TokensXT()],
-			["TargetSet", @oTarget != NULL],
+			["TargetSet", @oTarget != ""],
 			["LastMatch", len(@aMatchedParts) > 0]
 		]
 	
@@ -1030,10 +1030,10 @@ class stzTimex from stzObject
 	#----------------------#
 	
 	def EnableDebug()
-		@bDebugMode = TRUE
+		@bDebugMode = 1
 	
 	def DisableDebug()
-		@bDebugMode = FALSE
+		@bDebugMode = 0
 	
 	def SetDebug(bFlag)
 		@bDebugMode = bFlag
@@ -1048,7 +1048,7 @@ class stzTimex from stzObject
 			_cClassName_ = ring_classname(oObj)
 			return contains(_cClassName_, "timeline")
 		ok
-		return FALSE
+		return 0
 	
 	def @IsStzCalendar(oObj)
 		# Check if object is stzCalendar instance
@@ -1056,7 +1056,7 @@ class stzTimex from stzObject
 			_cClassName_ = ring_classname(oObj)
 			return contains(_cClassName_, "calendar")
 		ok
-		return FALSE
+		return 0
 	
 	def @IsStzDateTime(oObj)
 		# Check if object is stzDateTime instance
@@ -1064,7 +1064,7 @@ class stzTimex from stzObject
 			_cClassName_ = ring_classname(oObj)
 			return contains(_cClassName_, "datetime")
 		ok
-		return FALSE
+		return 0
 	
 	def @IsStzDuration(oObj)
 		# Check if object is stzDuration instance
@@ -1072,7 +1072,7 @@ class stzTimex from stzObject
 			_cClassName_ = ring_classname(oObj)
 			return contains(_cClassName_, "duration")
 		ok
-		return FALSE
+		return 0
 	
 	def @Min(aValues)
 		_nMin_ = aValues[1]

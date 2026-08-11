@@ -64,10 +64,10 @@ class stzListexuter from stzObject
         for _iLoopTriggers2_ = 1 to _nTriggers2Len_
         	trigger = @aTriggers[_iLoopTriggers2_]
             if trigger[1] = cName
-                return TRUE
+                return 1
             ok
         next
-        return FALSE
+        return 0
         
     #---------------#
     # Code Methods  #

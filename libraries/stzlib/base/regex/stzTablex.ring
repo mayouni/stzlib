@@ -13,17 +13,17 @@ func Tbx(_cPattern_)
 
 func IsStzTablex(pObj)
 	if isObject(pObj) and classname(pObj) = "stztablex"
-		return TRUE
+		return 1
 	else
-		return FALSE
+		return 0
 	ok
 
 class stzTablex from stzObject
 	
 	@cPattern           # Pattern string
 	@aTokens            # Parsed token definitions
-	@oTable = NULL      # Target table to match
-	@bDebugMode = FALSE # Debug flag
+	@oTable = ""      # Target table to match
+	@bDebugMode = 0 # Debug flag
 	@aMatchedParts = [] # Extracted parts
 
 	@aMatchCache = []  # Store [pattern, tableHash, result]
@@ -147,7 +147,7 @@ class stzTablex from stzObject
 		return [
 			["type", "alternation"],
 			["alternatives", _aAlternatives_],
-			["negated", FALSE]
+			["negated", 0]
 		]
 
 	def ParseConjunction(_cTokenStr_)
@@ -170,7 +170,7 @@ class stzTablex from stzObject
 		return [
 			["type", "conjunction"],
 			["conditions", _aConditions_],
-			["negated", FALSE]
+			["negated", 0]
 		]
 
 	def ParseSingleToken(_cTokenStr_)
@@ -184,18 +184,18 @@ class stzTablex from stzObject
 			? "Input: " + _cTokenStr_
 		ok
 
-		_bNegated_ = FALSE
-		_bCaseSensitive_ = FALSE
+		_bNegated_ = 0
+		_bCaseSensitive_ = 0
 
 		# Check for negation
 		if startsWith(StzLower(_cTokenStr_), "@!")
-			_bNegated_ = TRUE
+			_bNegated_ = 1
 			_cTokenStr_ = @StzMid(_cTokenStr_, 3, StzLen(_cTokenStr_))
 		ok
 
 		# Check for case sensitivity flag
 		if startsWith(StzLower(_cTokenStr_), "@cs:")
-			_bCaseSensitive_ = TRUE
+			_bCaseSensitive_ = 1
 			_cTokenStr_ = @StzMid(_cTokenStr_, 5, StzLen(_cTokenStr_))
 		ok
 
@@ -554,20 +554,20 @@ class stzTablex from stzObject
 			_aToken_ = _aTokens_[_i_]
 
 			if HasKey(_aToken_, "type") and _aToken_["type"] = "alternation"
-				_bMatched_ = FALSE
+				_bMatched_ = 0
 				if HasKey(_aToken_, "alternatives")
 					_aAlternatives_ = _aToken_["alternatives"]
 					_nLenAlt_ = len(_aAlternatives_)
 
 					for j = 1 to _nLenAlt_
 						if This.MatchSingleToken(_aAlternatives_[j], oTable)
-							_bMatched_ = TRUE
+							_bMatched_ = 1
 							exit
 						ok
 					next
 				ok
 				if not _bMatched_
-					return FALSE
+					return 0
 				ok
 
 			but HasKey(_aToken_, "type") and _aToken_["type"] = "conjunction"
@@ -577,22 +577,22 @@ class stzTablex from stzObject
 
 					for j = 1 to _nLenCond_
 						if not This.MatchSingleToken(_aConditions_[j], oTable)
-							return FALSE
+							return 0
 						ok
 					next
 				ok
 
 			else
 				if not This.MatchSingleToken(_aToken_, oTable)
-					return FALSE
+					return 0
 				ok
 			ok
 		next
 
-		return TRUE
+		return 1
 
 	def MatchSingleToken(_aToken_, oTable)
-		_bResult_ = FALSE
+		_bResult_ = 0
 
 		if HasKey(_aToken_, "type")
 			_cType_ = _aToken_["type"]
@@ -684,7 +684,7 @@ class stzTablex from stzObject
 		ok
 
 		# Apply negation
-		if HasKey(_aToken_, "negated") and _aToken_["negated"] = TRUE
+		if HasKey(_aToken_, "negated") and _aToken_["negated"] = 1
 			_bResult_ = not _bResult_
 		ok
 
@@ -708,22 +708,22 @@ class stzTablex from stzObject
 					switch _aConstraint_["type"]
 					on "exact"
 						if _nCols_ = _aConstraint_["value"]
-							return TRUE
+							return 1
 						ok
 					on "greater"
 						if _nCols_ >= _aConstraint_["value"]
-							return TRUE
+							return 1
 						ok
 					on "less"
 						if _nCols_ <= _aConstraint_["value"]
-							return TRUE
+							return 1
 						ok
 					off
 				ok
 			next
 		ok
 
-		return FALSE
+		return 0
 
 	def CheckRows(_aToken_, oTable)
 		_nRows_ = oTable.NumberOfRows()
@@ -738,22 +738,22 @@ class stzTablex from stzObject
 					switch _aConstraint_["type"]
 					on "exact"
 						if _nRows_ = _aConstraint_["value"]
-							return TRUE
+							return 1
 						ok
 					on "greater"
 						if _nRows_ >= _aConstraint_["value"]
-							return TRUE
+							return 1
 						ok
 					on "less"
 						if _nRows_ <= _aConstraint_["value"]
-							return TRUE
+							return 1
 						ok
 					off
 				ok
 			next
 		ok
 
-		return FALSE
+		return 0
 
 	def CheckCol(_aToken_, oTable)
 		# Check specific column properties
@@ -761,7 +761,7 @@ class stzTablex from stzObject
 			_cColName_ = _aToken_["value"]
 			return oTable.HasColumn(_cColName_)
 		ok
-		return FALSE
+		return 0
 
 	def CheckRow(_aToken_, oTable)
 		# Check specific column properties
@@ -769,7 +769,7 @@ class stzTablex from stzObject
 			_aRow_ = _aToken_["value"]
 			return oTable.HasRow(_aRow_)
 		ok
-		return FALSE
+		return 0
 
 	def CheckCell(_aToken_, oTable)
 		# Check cell value constraints across table
@@ -784,22 +784,22 @@ class stzTablex from stzObject
 					if _aConstraint_["type"] = "range"
 						_aRange_ = _aToken_["range"]
 						if HasKey(_aToken_, "casesensitive")
-							return oTable.ContainsInSectionCS(_aRange_[1], _aRange_[2], _aToken_["value"], TRUE)
+							return oTable.ContainsInSectionCS(_aRange_[1], _aRange_[2], _aToken_["value"], 1)
 						else
-							return oTable.ContainsInSectionCS(_aRange_[1], _aRange_[2], _aToken_["value"], FALSE)
+							return oTable.ContainsInSectionCS(_aRange_[1], _aRange_[2], _aToken_["value"], 0)
 						ok
 					ok
 				ok
 			next
 		ok
-		return FALSE
+		return 0
 
 	def CheckColName(_aToken_, oTable)
 		if HasKey(_aToken_, "value")
 			_cColName_ = _aToken_["value"]
 			return oTable.HasColName(_cColName_)
 		ok
-		return FALSE
+		return 0
 
 	def CheckProperty(_aToken_, oTable)
 		if HasKey(_aToken_, "value")
@@ -819,14 +819,14 @@ class stzTablex from stzObject
 				return len(oTable.FindCalculatedCols()) > 0
 			off
 		ok
-		return TRUE
+		return 1
 
 	def CheckContains(_aToken_, oTable)
 		if HasKey(_aToken_, "value")
 			_cValue_ = _aToken_["value"]
 			_value_ = _cValue_
 
-			_bCaseSensitive_ = FALSE
+			_bCaseSensitive_ = 0
 			if HasKey(_aToken_, "casesensitive")
 				_bCaseSensitive_ = _aToken_["casesensitive"]
 			ok
@@ -845,21 +845,21 @@ class stzTablex from stzObject
 
 			# Check with case sensitivity
 			if _bCaseSensitive_
-				_bResult_ = oTable.ContainsCellCS(_value_, TRUE)
+				_bResult_ = oTable.ContainsCellCS(_value_, 1)
 			else
-				_bResult_ = oTable.ContainsCellCS(_value_, FALSE)
+				_bResult_ = oTable.ContainsCellCS(_value_, 0)
 			ok
 
 			return _bResult_
 		ok
 
-		return FALSE
+		return 0
 
 	def CheckSorted(_aToken_, oTable)
 		if HasKey(_aToken_, "value")
 			_cColName_ = _aToken_["value"]
 			if oTable.HasColumn(_cColName_)
-				_bCaseSensitive_ = TRUE  # Default to case-sensitive
+				_bCaseSensitive_ = 1  # Default to case-sensitive
 				if HasKey(_aToken_, "casesensitive")
 					_bCaseSensitive_ = _aToken_["casesensitive"]
 				ok
@@ -875,30 +875,30 @@ class stzTablex from stzObject
 					if isString(_xCurrent_) and isString(_xNext_)
 						if _bCaseSensitive_
 							if strcmp(_xCurrent_, _xNext_) > 0
-								return FALSE
+								return 0
 							ok
 						else
 							if strcmp(StzLower(_xCurrent_), StzLower(_xNext_)) > 0
-								return FALSE
+								return 0
 							ok
 						ok
 	
 					but isNumber(_xCurrent_) and isNumber(_xNext_)
 						if _xCurrent_ > _xNext_
-							return FALSE
+							return 0
 						ok
 					ok
 				next
-				return TRUE
+				return 1
 			ok
 		ok
-		return TRUE
+		return 1
 
 	def CheckUnique(_aToken_, oTable)
 		if HasKey(_aToken_, "value")
 			_cColName_ = _aToken_["value"]
 			if oTable.HasColumn(_cColName_)
-				_bCaseSensitive_ = TRUE  # Default to case-sensitive for unique
+				_bCaseSensitive_ = 1  # Default to case-sensitive for unique
 				if HasKey(_aToken_, "casesensitive")
 					_bCaseSensitive_ = _aToken_["casesensitive"]
 				ok
@@ -922,13 +922,13 @@ class stzTablex from stzObject
 				ok
 			ok
 		ok
-		return TRUE
+		return 1
 
 	def CheckDuplicates(_aToken_, oTable)
 		if HasKey(_aToken_, "value")
 			_cColName_ = _aToken_["value"]
 			if oTable.HasColumn(_cColName_)
-				_bCaseSensitive_ = FALSE
+				_bCaseSensitive_ = 0
 				if HasKey(_aToken_, "casesensitive")
 					_bCaseSensitive_ = _aToken_["casesensitive"]
 				ok
@@ -951,7 +951,7 @@ class stzTablex from stzObject
 				ok
 			ok
 		ok
-		return FALSE
+		return 0
 
 	def CheckGrouped(_aToken_, oTable)
 		if @bDebugMode
@@ -968,7 +968,7 @@ class stzTablex from stzObject
 			ok
 
 			if oTable.HasColumn(_cColName_)
-				_bCaseSensitive_ = FALSE
+				_bCaseSensitive_ = 0
 				if HasKey(_aToken_, "casesensitive")
 					_bCaseSensitive_ = _aToken_["casesensitive"]
 				ok
@@ -989,7 +989,7 @@ class stzTablex from stzObject
 					_xCurrent_ = _aCol_[_i_]
 					_xNext_ = _aCol_[_i_+1]
 
-					_bMatch_ = FALSE
+					_bMatch_ = 0
 					if isString(_xCurrent_) and isString(_xNext_)
 						if _bCaseSensitive_
 							_bMatch_ = (_xCurrent_ = _xNext_)
@@ -1016,7 +1016,7 @@ class stzTablex from stzObject
 				return _nConsecutiveDups_ > 0
 			ok
 		ok
-		return FALSE
+		return 0
 
 	def CheckFiltered(_aToken_, oTable)
 		# Check if table shows signs of filtering (non-sequential IDs, gaps in data)
@@ -1030,19 +1030,19 @@ class stzTablex from stzObject
 				if _nLen_ > 1
 					for _i_ = 1 to _nLen_
 						if NOT isNumber(_aCol_[_i_])
-							return FALSE
+							return 0
 						ok
 					next
 					# Check for non-sequential numbers
 					for _i_ = 1 to _nLen_ - 1
 						if _aCol_[_i_+1] - _aCol_[_i_] > 1
-							return TRUE
+							return 1
 						ok
 					next
 				ok
 			ok
 		ok
-		return FALSE
+		return 0
 
 	def CheckAggregated(_aToken_, oTable)
 		# Check if table contains aggregated data (calculated rows/cols)
@@ -1065,7 +1065,7 @@ class stzTablex from stzObject
 			# Check if any calculated columns exist
 			return len(oTable.FindCalculatedCols()) > 0
 		ok
-		return FALSE
+		return 0
 
 	def CheckHasCol(_aToken_, poTable)
 
@@ -1073,7 +1073,7 @@ class stzTablex from stzObject
 			_cColName_ = _aToken_["value"]
 			return poTable.HasColumn(_cColName_)
 		ok
-		return FALSE
+		return 0
 
 	def CheckColType(_aToken_, oTable)
 		if HasKey(_aToken_, "value")
@@ -1093,32 +1093,32 @@ class stzTablex from stzObject
 						on "number"
 							for _i_ = 1 to _nLen_
 								if NOT isNumber(_aCol_[_i_])
-									return FALSE
+									return 0
 								ok
 							next
-							return TRUE
+							return 1
 
 						on "string"
 							for _i_ = 1 to _nLen_
 								if NOT isString(_aCol_[_i_])
-									return FALSE
+									return 0
 								ok
 							next
-							return TRUE
+							return 1
 							
 						on "list"
 							for _i_ = 1 to _nLen_
 								if NOT isList(_aCol_[_i_])
-									return FALSE
+									return 0
 								ok
 							next
-							return TRUE
+							return 1
 						off
 					ok
 				ok
 			ok
 		ok
-		return FALSE
+		return 0
 
 	def CheckColPattern(_aToken_, oTable)
 		if HasKey(_aToken_, "value")
@@ -1138,16 +1138,16 @@ class stzTablex from stzObject
 						for _i_ = 1 to _nLen_
 							if isString(_aCol_[_i_])
 								if NOT Q(_aCol_[_i_]).MatchesRX(_cPattern_)
-									return FALSE
+									return 0
 								ok
 							ok
 						next
-						return TRUE
+						return 1
 					ok
 				ok
 			ok
 		ok
-		return FALSE
+		return 0
 
 	def CheckSumCol(_aToken_, oTable)
 		if HasKey(_aToken_, "value")
@@ -1181,7 +1181,7 @@ class stzTablex from stzObject
 				ok
 			ok
 		ok
-		return FALSE
+		return 0
 
 	def CheckAvgCol(_aToken_, oTable)
 		if HasKey(_aToken_, "value")
@@ -1219,7 +1219,7 @@ class stzTablex from stzObject
 				ok
 			ok
 		ok
-		return FALSE
+		return 0
 
 	def CheckMinCol(_aToken_, oTable)
 		if HasKey(_aToken_, "value")
@@ -1231,11 +1231,11 @@ class stzTablex from stzObject
 
 					if oTable.HasColumn(_cColName_)
 						_aCol_ = oTable.Col(_cColName_)
-						_nMin_ = NULL
+						_nMin_ = ""
 						_nLen_ = len(_aCol_)
 						for _i_ = 1 to _nLen_
 							if isNumber(_aCol_[_i_])
-								if _nMin_ = NULL
+								if _nMin_ = ""
 									_nMin_ = _aCol_[_i_]
 								but _aCol_[_i_] < _nMin_
 									_nMin_ = _aCol_[_i_]
@@ -1243,7 +1243,7 @@ class stzTablex from stzObject
 							ok
 						next
 
-						if _nMin_ != NULL
+						if _nMin_ != ""
 							if startsWith(_cConstraint_, ">")
 								return _nMin_ > (0 + @StzMid(_cConstraint_, 2, StzLen(_cConstraint_)))
 							but startsWith(_cConstraint_, "<")
@@ -1256,7 +1256,7 @@ class stzTablex from stzObject
 				ok
 			ok
 		ok
-		return FALSE
+		return 0
 
 	def CheckMaxCol(_aToken_, oTable)
 		if HasKey(_aToken_, "value")
@@ -1269,11 +1269,11 @@ class stzTablex from stzObject
 
 					if oTable.HasColumn(_cColName_)
 						_aCol_ = oTable.Col(_cColName_)
-						_nMax_ = NULL
+						_nMax_ = ""
 						_nLen_ = len(_aCol_)
 						for _i_ = 1 to _nLen_
 							if isNumber(_aCol_[_i_])
-								if _nMax_ = NULL
+								if _nMax_ = ""
 									_nMax_ = _aCol_[_i_]
 								but _aCol_[_i_] > _nMax_
 									_nMax_ = _aCol_[_i_]
@@ -1281,7 +1281,7 @@ class stzTablex from stzObject
 							ok
 						next
 
-						if _nMax_ != NULL
+						if _nMax_ != ""
 							if startsWith(_cConstraint_, ">")
 								return _nMax_ > (0 + @StzMid(_cConstraint_, 2, StzLen(_cConstraint_)))
 							but startsWith(_cConstraint_, "<")
@@ -1294,7 +1294,7 @@ class stzTablex from stzObject
 				ok
 			ok
 		ok
-		return FALSE
+		return 0
 
 	def CheckNulls(_aToken_, oTable)
 		if HasKey(_aToken_, "value")
@@ -1303,13 +1303,13 @@ class stzTablex from stzObject
 				_aCol_ = oTable.Col(_cColName_)
 				_nLen_ = len(_aCol_)
 				for _i_ = 1 to _nLen_
-					if _aCol_[_i_] = NULL or _aCol_[_i_] = "" or _aCol_[_i_] = 0
-						return TRUE
+					if _aCol_[_i_] = "" or _aCol_[_i_] = "" or _aCol_[_i_] = 0
+						return 1
 					ok
 				next
 			ok
 		ok
-		return FALSE
+		return 0
 
 	def CheckCompleteness(_aToken_, oTable)
 		if HasKey(_aToken_, "value")
@@ -1326,7 +1326,7 @@ class stzTablex from stzObject
 						_nNonEmpty_ = 0
 						_nLenCol_ = len(_aCol_)
 						for _i_ = 1 to _nLenCol_
-							if _aCol_[_i_] != NULL and _aCol_[_i_] != "" and _aCol_[_i_] != 0
+							if _aCol_[_i_] != "" and _aCol_[_i_] != "" and _aCol_[_i_] != 0
 								_nNonEmpty_++
 							ok
 						next
@@ -1336,7 +1336,7 @@ class stzTablex from stzObject
 				ok
 			ok
 		ok
-		return FALSE
+		return 0
 
 	def CheckNumeric(_aToken_, oTable)
 		if HasKey(_aToken_, "value")
@@ -1346,13 +1346,13 @@ class stzTablex from stzObject
 				_nLen_ = len(_aCol_)
 				for _i_ = 1 to _nLen_
 					if NOT isNumber(_aCol_[_i_])
-						return FALSE
+						return 0
 					ok
 				next
-				return TRUE
+				return 1
 			ok
 		ok
-		return FALSE
+		return 0
 
 	def CheckAlphabetic(_aToken_, oTable)
 		if HasKey(_aToken_, "value")
@@ -1363,16 +1363,16 @@ class stzTablex from stzObject
 				for _i_ = 1 to _nLen_
 					if isString(_aCol_[_i_])
 						if NOT Q(_aCol_[_i_]).IsAlphabetic()
-							return FALSE
+							return 0
 						ok
 					else
-						return FALSE
+						return 0
 					ok
 				next
-				return TRUE
+				return 1
 			ok
 		ok
-		return FALSE
+		return 0
 
 	def CheckFormat(_aToken_, oTable)
 		if HasKey(_aToken_, "value")
@@ -1392,24 +1392,24 @@ class stzTablex from stzObject
 							if isString(_aCol_[_i_])
 								# Simple format check - could be enhanced
 								if NOT This.MatchesFormat(_aCol_[_i_], _cFormat_)
-									return FALSE
+									return 0
 								ok
 							ok
 						next
-						return TRUE
+						return 1
 					ok
 				ok
 			ok
 		ok
-		return FALSE
+		return 0
 
 	def MatchesFormat(_cValue_, _cFormat_)
 
 		_oRegex_ = new stzRegex(_cFormat_)
 		if _oRegex_.Match(pat(_cValue_)) or _oRegex_.Match(_cValue_)
-			return TRUE
+			return 1
 		else
-			return FALSE
+			return 0
 		ok
 
 	  #----------------------#
@@ -1518,10 +1518,10 @@ class stzTablex from stzObject
 	#----------------------#
 
 	def EnableDebug()
-		@bDebugMode = TRUE
+		@bDebugMode = 1
 
 	def DisableDebug()
-		@bDebugMode = FALSE
+		@bDebugMode = 0
 
 	def SetDebug(bFlag)
 		@bDebugMode = bFlag
@@ -1532,18 +1532,18 @@ class stzTablex from stzObject
 
 	def IsNumeric(cStr)
 		if cStr = ""
-			return FALSE
+			return 0
 		ok
 
 		_nLen_ = len(cStr)
 		for _i_ = 1 to _nLen_
 			_cChar_ = @StzMid(cStr, _i_, _i_)
 			if not isDigit(_cChar_) and _cChar_ != "-" and _cChar_ != "."
-				return FALSE
+				return 0
 			ok
 		next
 
-		return TRUE
+		return 1
 
 	  #-----------------------#
 	 #  PATTERN COMBINATION  #
