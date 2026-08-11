@@ -183,6 +183,18 @@
     </div>
 
     <div class="panel" style="margin-top:16px">
+      <h2>Run the guards — the examples, asserted</h2>
+      <div class="presets" id="guardBtns" style="margin-bottom:10px">
+        <span class="meta">looking for guards…</span>
+      </div>
+      <div class="btns" style="margin:0 0 10px">
+        <button id="btnRunAll" style="border-color:var(--accent2);color:var(--accent2)">Run all</button>
+        <span class="meta" id="guardSummary"></span>
+      </div>
+      <pre id="guardOut">Press a guard to run it. These are the same narrated tests the repo ships; the studio just runs them where you can see them.</pre>
+    </div>
+
+    <div class="panel" style="margin-top:16px">
       <h2>Take it away as a test</h2>
       <div class="btns" style="margin:0 0 10px">
         <button id="btnGuard">Generate guard code</button>
@@ -338,6 +350,46 @@ $("btnCopy").onclick = ()=>navigator.clipboard.writeText($("code").textContent);
 
 [...NUMS, "wave","fkind"].forEach(id=>$(id).addEventListener("input",syncLabels));
 CHKS.forEach(id=>$(id).addEventListener("change",syncLabels));
+
+// ---- the guards -------------------------------------------------------
+let GUARDS = [];
+function paintGuardOutput(text){
+  const pass = [...text.matchAll(/(\d+) passed/g)].reduce((a,m)=>a+ +m[1],0);
+  const fail = [...text.matchAll(/(\d+) failed/g)].reduce((a,m)=>a+ +m[1],0);
+  $("guardOut").textContent = text;
+  const ok = fail === 0 && pass > 0;
+  $("guardSummary").innerHTML = pass+fail === 0 ? "" :
+    `<b style="color:${ok?'var(--accent)':'var(--warn)'}">${pass} passed, ${fail} failed</b>`;
+  $("guardOut").scrollTop = $("guardOut").scrollHeight;
+}
+async function runGuard(name){
+  $("guardOut").textContent = "running " + name + " ...\n(a guard that plays audio takes a few seconds)";
+  $("guardSummary").textContent = "";
+  const t = await (await fetch("/api/run?file="+encodeURIComponent(name))).text();
+  paintGuardOutput(t);
+}
+async function runAllGuards(){
+  let all = "";
+  for(const g of GUARDS){
+    $("guardOut").textContent = all + "\nrunning " + g + " ...";
+    all += await (await fetch("/api/run?file="+encodeURIComponent(g))).text() + "\n";
+    paintGuardOutput(all);
+  }
+}
+$("btnRunAll").onclick = runAllGuards;
+fetch("/api/guards").then(r=>r.json()).then(list=>{
+  GUARDS = list;
+  const host = $("guardBtns");
+  host.innerHTML = "";
+  if(!list.length){ host.innerHTML = '<span class="meta">no guards found — pass --guards &lt;dir&gt;</span>'; return; }
+  list.forEach(n=>{
+    const b = document.createElement("button");
+    b.textContent = n.replace(/^sound_/,"").replace(/_narrated\.ring$/,"");
+    b.title = n;
+    b.onclick = ()=>runGuard(n);
+    host.appendChild(b);
+  });
+});
 
 fetch("/api/status").then(r=>r.json()).then(s=>{
   $("dev").textContent = s.device ? s.deviceName : "no audio device (browser playback still works)";
