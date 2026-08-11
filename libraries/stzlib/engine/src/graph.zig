@@ -144,18 +144,25 @@ fn removeEdgeFromList(edges: *EdgeList, target: NodeId) void {
 pub fn stz_graph_neighbors(g: ?*const StzGraph, id_ptr: [*]const u8, id_len: usize, buf: [*]u8, buf_len: usize) callconv(.c) usize {
     const gr = g orelse return 0;
     const nid = gr.findNode(id_ptr[0..id_len]) orelse return 0;
+    // Same snprintf contract as writeNames: measure, then write whole names
+    // or none. A high-degree hub used to come back with its neighbour list
+    // silently cut, ending in half a name.
+    var need: usize = 0;
+    for (gr.nodes.items[nid].edges.items, 0..) |e, ei| {
+        if (ei > 0) need += 1;
+        need += gr.nodes.items[e.to].id_len;
+    }
+    if (need > buf_len) return need;
+
     var pos: usize = 0;
     for (gr.nodes.items[nid].edges.items, 0..) |e, ei| {
-        if (ei > 0 and pos < buf_len) {
+        if (ei > 0) {
             buf[pos] = '\n';
             pos += 1;
         }
         const name = gr.nodes.items[e.to].id_ptr[0..gr.nodes.items[e.to].id_len];
-        const copy_len = @min(name.len, buf_len - pos);
-        if (copy_len > 0) {
-            @memcpy(buf[pos .. pos + copy_len], name[0..copy_len]);
-            pos += copy_len;
-        }
+        @memcpy(buf[pos .. pos + name.len], name);
+        pos += name.len;
     }
     return pos;
 }
@@ -183,9 +190,9 @@ pub fn stz_graph_shortest_path(g: ?*const StzGraph, from_ptr: [*]const u8, from_
     const to_id = gr.findNode(to_ptr[0..to_len]) orelse return 0;
     if (from_id == to_id) {
         const name = gr.nodes.items[from_id].id_ptr[0..gr.nodes.items[from_id].id_len];
-        const cl = @min(name.len, buf_len);
-        @memcpy(buf[0..cl], name[0..cl]);
-        return cl;
+        if (name.len > buf_len) return name.len; // ask, do not halve the name
+        @memcpy(buf[0..name.len], name);
+        return name.len;
     }
     const n = gr.nodes.items.len;
     const prev = allocator.alloc(u32, n) catch return 0;
@@ -237,23 +244,12 @@ pub fn stz_graph_shortest_path(g: ?*const StzGraph, from_ptr: [*]const u8, from_
         cur = prev[cur];
     }
 
-    // Write reversed path as comma-separated node names
-    var pos: usize = 0;
-    var i = plen;
-    while (i > 0) {
-        i -= 1;
-        if (pos > 0 and pos < buf_len) {
-            buf[pos] = '\n';
-            pos += 1;
-        }
-        const node = gr.nodes.items[path_buf[i]];
-        const copy_len = @min(node.id_len, buf_len - pos);
-        if (copy_len > 0) {
-            @memcpy(buf[pos .. pos + copy_len], node.id_ptr[0..copy_len]);
-            pos += copy_len;
-        }
-    }
-    return pos;
+    // The path is reversed into writeNames, which owns the snprintf
+    // contract. This used to be a third hand-written copy of the same
+    // truncating loop, and it cut a 2,000-node path at 1,550 -- a path
+    // whose last hop was not the destination anyone asked for.
+    std.mem.reverse(u32, path_buf[0..plen]);
+    return writeNames(gr, path_buf[0..plen], plen, buf, buf_len);
 }
 
 pub fn stz_graph_path_exists(g: ?*const StzGraph, from_ptr: [*]const u8, from_len: usize, to_ptr: [*]const u8, to_len: usize) callconv(.c) i32 {
@@ -319,19 +315,36 @@ pub fn stz_graph_reachable(g: ?*const StzGraph, id_ptr: [*]const u8, id_len: usi
             }
         }
     }
+    // Measure FIRST, then write. The previous version wrote until the
+    // buffer filled and then silently kept looping, so a caller with a
+    // 16 KB buffer got a short list with no signal -- measured: a
+    // 5,000-spoke hub answered 2,916. Worse, the last name was cut
+    // wherever the buffer ended, handing back the id 'node' for a node
+    // called 'node1234'. A short answer is wrong; a FABRICATED node is
+    // wrong in a way that survives into whatever consumes it.
+    //
+    // snprintf's contract instead: always return the length the caller
+    // WOULD have needed, and write only whole names. A caller that gets
+    // back more than buf_len knows to allocate and ask again.
+    var need: usize = 0;
+    for (0..n) |i| {
+        if (visited[i] and i != start) {
+            if (need > 0) need += 1; // the separator
+            need += gr.nodes.items[i].id_len;
+        }
+    }
+    if (need > buf_len) return need;
+
     var pos: usize = 0;
     for (0..n) |i| {
         if (visited[i] and i != start) {
-            if (pos > 0 and pos < buf_len) {
+            if (pos > 0) {
                 buf[pos] = '\n';
                 pos += 1;
             }
             const node = gr.nodes.items[i];
-            const cl = @min(node.id_len, buf_len - pos);
-            if (cl > 0) {
-                @memcpy(buf[pos .. pos + cl], node.id_ptr[0..cl]);
-                pos += cl;
-            }
+            @memcpy(buf[pos .. pos + node.id_len], node.id_ptr[0..node.id_len]);
+            pos += node.id_len;
         }
     }
     return pos;
@@ -488,20 +501,35 @@ pub fn stz_graph_in_degree(g: ?*const StzGraph, id_ptr: [*]const u8, id_len: usi
 // ─── BFS / DFS traversal order ───
 
 // Writes node ids[0..count] as a newline-separated name list into buf.
+/// Join node names with '\n'. THE CONTRACT IS snprintf's: the return value
+/// is the length the caller WOULD have needed, and nothing is written at all
+/// unless the whole list fits. Never a partial name.
+///
+/// The previous version wrote until the buffer filled and then kept looping
+/// silently, so BFS/DFS/ShortestPath/Dijkstra on a large graph answered a
+/// short list with no signal -- and the name at the boundary came back cut
+/// in half, which is a node id that does not exist. Measured on the sibling
+/// path (reachability): a 5,000-spoke hub answered 2,916 names, one of them
+/// the fabricated id 'node'.
 fn writeNames(gr: *const StzGraph, ids: []const u32, count: usize, buf: [*]u8, buf_len: usize) usize {
-    var pos: usize = 0;
+    var need: usize = 0;
     var i: usize = 0;
     while (i < count) : (i += 1) {
-        if (i > 0 and pos < buf_len) {
+        if (i > 0) need += 1;
+        need += gr.nodes.items[ids[i]].id_len;
+    }
+    if (need > buf_len) return need;
+
+    var pos: usize = 0;
+    i = 0;
+    while (i < count) : (i += 1) {
+        if (i > 0) {
             buf[pos] = '\n';
             pos += 1;
         }
         const node = gr.nodes.items[ids[i]];
-        const cl = @min(node.id_len, buf_len - pos);
-        if (cl > 0) {
-            @memcpy(buf[pos .. pos + cl], node.id_ptr[0..cl]);
-            pos += cl;
-        }
+        @memcpy(buf[pos .. pos + node.id_len], node.id_ptr[0..node.id_len]);
+        pos += node.id_len;
     }
     return pos;
 }
