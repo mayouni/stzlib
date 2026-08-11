@@ -2671,9 +2671,19 @@ pub fn stz_graph_layers_all(g: ?*const StzGraph, out: [*]f64, cap: usize) callco
     defer allocator.free(lay);
     @memset(lay, 0);
 
-    // A cycle can never settle, so the pass count is capped at n and the
-    // answer stays usable rather than becoming a hang.
+    // A cycle can never settle: on a cycle every node is deeper than
+    // itself, forever. Capping the passes stops the hang, but the numbers
+    // left behind are NOT layers -- they are how far the propagation got
+    // before the cap. Measured on a 6-node cycle, this used to answer
+    // [42, 37, 38, 39, 40, 41] with nothing saying it had given up.
+    //
+    // So the cap is a REFUSAL, not a result. Returning 0 is the same shape
+    // stz_graph_impact_all already uses above MAX_REACH_NODES, and the
+    // canvas turns a zero-length answer into a message that names the
+    // reason. A propagation that did not converge must never be
+    // indistinguishable from one that did.
     var passes: usize = 0;
+    var settled = false;
     while (passes <= n) : (passes += 1) {
         var changed = false;
         for (gr.nodes.items, 0..) |node, u| {
@@ -2686,8 +2696,12 @@ pub fn stz_graph_layers_all(g: ?*const StzGraph, out: [*]f64, cap: usize) callco
                 }
             }
         }
-        if (!changed) break;
+        if (!changed) {
+            settled = true;
+            break;
+        }
     }
+    if (!settled) return 0;
     for (0..n) |i| out[i] = @floatFromInt(lay[i]);
     return n;
 }

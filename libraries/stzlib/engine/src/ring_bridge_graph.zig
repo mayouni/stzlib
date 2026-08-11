@@ -313,7 +313,16 @@ fn retCentralityAll(p: *anyopaque, fnc: *const fn (?*const graph.StzGraph, [*]f6
     if (n == 0) { R.ring_vm_api_retlist(p, outer); return; }
     const vals = gpa.alloc(f64, n) catch { R.ring_vm_api_retlist(p, outer); return; };
     defer gpa.free(vals);
-    _ = fnc(gr, vals.ptr, n);
+    // HONOUR THE RETURN VALUE. It was discarded, so a metric that REFUSED
+    // -- impact above MAX_REACH_NODES, layering on a cycle -- came back as
+    // n entries of whatever was in the freshly allocated buffer. The face's
+    // careful refusal message ("refused above 20,000 nodes") was
+    // unreachable: len(result) was never 0. An empty list is the refusal
+    // signal every caller here already checks for.
+    if (fnc(gr, vals.ptr, n) == 0) {
+        R.ring_vm_api_retlist(p, outer);
+        return;
+    }
     for (0..n) |i| {
         const sub = R.ring_list_newlist(outer) orelse continue;
         addName(sub, gr, i);
