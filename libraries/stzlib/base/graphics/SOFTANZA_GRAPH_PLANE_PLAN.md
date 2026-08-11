@@ -225,3 +225,70 @@ Hierarchical layout (layer assignment + crossing reduction) is untouched —
 and layer assignment IS a propagation to a fixed point, so the convergence
 question lands there rather than here. Force-directed is proven; the other
 half of GG1 is not.
+
+---
+
+## SECTION 4's RISKS, MEASURED (2026-08-12)
+
+Section 4 named four risks as predictions. Three are now measured. Two of
+the three predictions were WRONG, and each wrong one was hiding a defect.
+
+### "Scale wall" — WRONG MECHANISM, and five times lower
+
+Predicted: bitset reachability dies past ~30,000 nodes.
+
+Measured: the bitset is fine. A 3,000-node chain answers impact for EVERY
+node in ~90 ms, and it REFUSES above `MAX_REACH_NODES` (20,000) rather
+than eating the machine. The wall was somewhere else entirely: every
+list-returning call wrote node names into a FIXED buffer and, when full,
+silently kept looping. A 5,000-spoke hub answered **2,916** nodes — and
+the name at the boundary was cut wherever the buffer ended, returning the
+id `node` for a node called `node1234`. Three hand-written copies of that
+loop existed. Fixed with snprintf's contract (measure, then whole items or
+none, return the size needed) and grow-and-retry in the bridge.
+Guard: `test/graphics/gg_scalewall.ring` (11).
+
+### "Convergence needs a readback" — RIGHT QUESTION, three defects under it
+
+GG1 slice 0 answered half (force layout's absolute cooling schedule needs
+no readback) and correctly pointed at layer assignment for the rest.
+Going there found:
+
+1. Layering on a cycle returned its PASS COUNTER as layers — a 6-node
+   cycle answered `[42, 37, 38, 39, 40, 41]`. The cap is now a refusal.
+2. `retCentralityAll` DISCARDED the engine's return value, so every
+   whole-graph metric turned a refusal into n entries of uninitialised
+   heap.
+3. Which made `stzGraphCanvas`'s ":Impact refused above 20,000 nodes"
+   message — written back in GG2 — permanently dead code.
+
+**A refusal is not a refusal until something proves it reaches the
+caller.** Guard: `test/graphics/gg_convergence.ring` (15).
+
+### "Determinism" — the prediction held, and the layer under it holds too
+
+`graph_layout_determinism.ring` already proved bit-identity within and
+across processes. The question it never asked: a layout can reproduce
+perfectly and still hang every coordinate on the WRONG node — a failure
+that is stable, looks like a picture, and passes a determinism guard.
+
+Measured clean. Two cliques joined by one bridge separate at **7.8x**, no
+edge is dropped by the name lookup despite `MixedCase` ids folding to
+lowercase, and every position names a real node. The negative control
+(names decoupled from positions) collapses to **0.97x**, so the 7.8x is
+about WHICH node rather than about spread.
+Guard: `test/graphics/gg_layout_binding.ring` (7).
+
+Note on that control, since the mistake is instructive: the first version
+rotated positions by one index. The nodes alternate `L1,R1,L2,R2...`, so a
+rotation hands every L the position of an R — a clean SWAP OF THE GROUPS,
+which preserves separation exactly. It reported 7.74x and looked like a
+library failure. No index arithmetic can scramble an alternating pairing;
+the control had to decouple by VALUE (sort on x, deal in id order).
+
+### Still unmeasured
+
+**"The CPU baseline is the interpreter."** Every speedup figure in this
+plane compares engine code against Ring. That is stated in the numbers but
+has never been checked against a compiled baseline, so the multipliers
+describe the seam, not the algorithm.
