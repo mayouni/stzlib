@@ -42,6 +42,9 @@ const EMBEDDED_HTML = @embedFile("studio.html");
 
 var html_override: ?[]const u8 = null; // --html <path>, for editing the page
 var wav_path: []u8 = undefined; // a real file in the system temp dir
+/// Where the narrated guards live. Resolved from the exe's own location, so
+/// running zig-out/bin/stz_sound_studio finds them with no argument.
+var guards_dir: []const u8 = "";
 var have_device = false;
 var device_name: []const u8 = "none";
 
@@ -56,6 +59,9 @@ pub fn main() !void {
         if (std.mem.eql(u8, args[i], "--html") and i + 1 < args.len) {
             i += 1;
             html_override = args[i];
+        } else if (std.mem.eql(u8, args[i], "--guards") and i + 1 < args.len) {
+            i += 1;
+            guards_dir = args[i];
         } else if (std.mem.eql(u8, args[i], "--no-open")) {
             no_open = true;
         } else if (std.fmt.parseInt(u16, args[i], 10)) |p| {
@@ -69,6 +75,12 @@ pub fn main() !void {
         (std.process.getEnvVarOwned(alloc, "TMPDIR") catch try alloc.dupe(u8, "."));
     defer alloc.free(tmp);
     wav_path = try std.fmt.allocPrint(alloc, "{s}/stz_studio_patch.wav", .{tmp});
+
+    // zig-out/bin/ -> zig-out -> engine -> stzlib, then base/test/sound
+    if (guards_dir.len == 0) {
+        const exe_dir = std.fs.selfExeDirPathAlloc(alloc) catch "";
+        guards_dir = std.fmt.allocPrint(alloc, "{s}/../../../base/test/sound", .{exe_dir}) catch "";
+    }
 
     have_device = gph.dev.isAvailable() == 1;
     if (have_device) device_name = gph.dev.backendName();
@@ -192,6 +204,10 @@ fn handle(stream: std.net.Stream) !void {
         try apiPlay(stream, query);
     } else if (std.mem.eql(u8, route, "/api/compose")) {
         try apiCompose(stream);
+    } else if (std.mem.eql(u8, route, "/api/guards")) {
+        try apiGuardList(stream);
+    } else if (std.mem.eql(u8, route, "/api/run")) {
+        try apiRun(stream, query);
     } else if (std.mem.eql(u8, route, "/api/guard")) {
         try apiGuard(stream, query);
     } else if (std.mem.eql(u8, route, "/api/wav")) {
@@ -358,6 +374,90 @@ fn apiGuard(stream: std.net.Stream, query: []const u8) !void {
     try w.print("StzEngineSoundGraphFree(nG)\n", .{});
 
     respond(stream, "200 OK", "text/plain; charset=utf-8", out.items);
+}
+
+// ---------------------------------------------------------------- the guards
+//
+// RUNNING THE TESTS FROM THE SAME PAGE THAT MAKES THEM. The studio's whole
+// argument is that dialling a sound and asserting it should not be two
+// different activities in two different windows: hear it, take the guard code,
+// paste it in, run the suite, all without leaving the page.
+//
+// The guards are Ring scripts, so this shells out to `ring`. That is the one
+// place the studio needs anything outside itself -- and if `ring` is not on
+// PATH the panel says so rather than silently showing nothing.
+
+fn apiGuardList(stream: std.net.Stream) !void {
+    var out: std.ArrayList(u8) = .{};
+    defer out.deinit(alloc);
+    const w = out.writer(alloc);
+    try w.print("[", .{});
+
+    var dir = std.fs.cwd().openDir(guards_dir, .{ .iterate = true }) catch {
+        try w.print("]", .{});
+        respond(stream, "200 OK", "application/json", out.items);
+        return;
+    };
+    defer dir.close();
+    var it = dir.iterate();
+    var first = true;
+    while (it.next() catch null) |entry| {
+        if (entry.kind != .file) continue;
+        if (!std.mem.endsWith(u8, entry.name, "_narrated.ring")) continue;
+        if (!first) try w.print(",", .{});
+        first = false;
+        try w.print("\"{s}\"", .{entry.name});
+    }
+    try w.print("]", .{});
+    respond(stream, "200 OK", "application/json", out.items);
+}
+
+fn apiRun(stream: std.net.Stream, query: []const u8) !void {
+    var name_buf: [256]u8 = undefined;
+    const name = qstr(query, "file", &name_buf) orelse {
+        respond(stream, "200 OK", "text/plain", "no file given");
+        return;
+    };
+    // Only a guard in the guards directory, and no path tricks. This server
+    // binds to loopback, but "it is only local" is how a lot of things start.
+    if (!std.mem.endsWith(u8, name, "_narrated.ring") or
+        std.mem.indexOfScalar(u8, name, '/') != null or
+        std.mem.indexOfScalar(u8, name, '\\') != null or
+        std.mem.indexOf(u8, name, "..") != null)
+    {
+        respond(stream, "200 OK", "text/plain", "refused: not a guard filename");
+        return;
+    }
+
+    const res = std.process.Child.run(.{
+        .allocator = alloc,
+        .argv = &.{ "ring", name },
+        .cwd = guards_dir,
+        .max_output_bytes = 1 << 20,
+    }) catch |e| {
+        var b: [256]u8 = undefined;
+        const msg = std.fmt.bufPrint(&b, "could not run `ring {s}`: {s}\n(is ring on your PATH?)", .{ name, @errorName(e) }) catch "could not run ring";
+        respond(stream, "200 OK", "text/plain; charset=utf-8", msg);
+        return;
+    };
+    defer alloc.free(res.stdout);
+    defer alloc.free(res.stderr);
+    const body = if (res.stdout.len > 0) res.stdout else res.stderr;
+    respond(stream, "200 OK", "text/plain; charset=utf-8", body);
+}
+
+fn qstr(query: []const u8, key: []const u8, buf: []u8) ?[]const u8 {
+    var it = std.mem.splitScalar(u8, query, '&');
+    while (it.next()) |pair| {
+        const eq = std.mem.indexOfScalar(u8, pair, '=') orelse continue;
+        if (std.mem.eql(u8, pair[0..eq], key)) {
+            const v = pair[eq + 1 ..];
+            if (v.len > buf.len) return null;
+            @memcpy(buf[0..v.len], v);
+            return buf[0..v.len];
+        }
+    }
+    return null;
 }
 
 // ---------------------------------------------------------------- the piece
