@@ -49,6 +49,26 @@ fn retLines(p: *anyopaque, buf: []const u8) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// EVERY list-returning graph call goes through this. The engine's contract
+// is snprintf's: it returns the size it NEEDED and writes nothing unless the
+// whole list fits, so a result larger than the stack buffer is a signal, not
+// a truncation. Before this, seven bridges silently cut their answer at
+// 8 KB -- and cut the last node NAME in half, handing back an id that is not
+// a node. The stack buffer still serves the common case with no allocation.
+fn retLinesGrow(p: *anyopaque, stack_buf: []u8, first_len: usize, ctx: anytype) void {
+    if (first_len <= stack_buf.len) {
+        retLines(p, stack_buf[0..first_len]);
+        return;
+    }
+    const big = gpa.alloc(u8, first_len) catch {
+        retLines(p, "");
+        return;
+    };
+    defer gpa.free(big);
+    const got = ctx.call(big.ptr, big.len);
+    retLines(p, big[0..@min(got, big.len)]);
+}
+
 fn ring_Create(p: *anyopaque) callconv(.c) void {
     const directed: i32 = @intFromFloat(g(p, 1));
     rcp(p, @ptrCast(graph.stz_graph_create(directed)), H);
@@ -81,8 +101,17 @@ fn ring_Neighbors(p: *anyopaque) callconv(.c) void {
     const id = gs(p, 2);
     const id_len: usize = @intCast(gss(p, 2));
     var buf: [8192]u8 = undefined;
-    const len = graph.stz_graph_neighbors(getH(p, 1), id, id_len, &buf, 8192);
-    retLines(p, buf[0..len]);
+    const h = getH(p, 1);
+    const len = graph.stz_graph_neighbors(h, id, id_len, &buf, buf.len);
+    const Ctx = struct {
+        h: ?*const graph.StzGraph,
+        id: [*]const u8,
+        id_len: usize,
+        fn call(s: @This(), b: [*]u8, n: usize) usize {
+            return graph.stz_graph_neighbors(s.h, s.id, s.id_len, b, n);
+        }
+    };
+    retLinesGrow(p, &buf, len, Ctx{ .h = h, .id = id, .id_len = id_len });
 }
 
 fn ring_ShortestPath(p: *anyopaque) callconv(.c) void {
@@ -91,8 +120,16 @@ fn ring_ShortestPath(p: *anyopaque) callconv(.c) void {
     const to = gs(p, 3);
     const to_len: usize = @intCast(gss(p, 3));
     var buf: [8192]u8 = undefined;
-    const len = graph.stz_graph_shortest_path(getH(p, 1), from, from_len, to, to_len, &buf, 8192);
-    retLines(p, buf[0..len]);
+    const h = getH(p, 1);
+    const len = graph.stz_graph_shortest_path(h, from, from_len, to, to_len, &buf, buf.len);
+    const Ctx = struct {
+        h: ?*const graph.StzGraph,
+        a: [*]const u8, al: usize, b2: [*]const u8, bl: usize,
+        fn call(s: @This(), b: [*]u8, n: usize) usize {
+            return graph.stz_graph_shortest_path(s.h, s.a, s.al, s.b2, s.bl, b, n);
+        }
+    };
+    retLinesGrow(p, &buf, len, Ctx{ .h = h, .a = from, .al = from_len, .b2 = to, .bl = to_len });
 }
 
 fn ring_PathExists(p: *anyopaque) callconv(.c) void {
@@ -107,16 +144,34 @@ fn ring_BFS(p: *anyopaque) callconv(.c) void {
     const id = gs(p, 2);
     const id_len: usize = @intCast(gss(p, 2));
     var buf: [8192]u8 = undefined;
-    const len = graph.stz_graph_bfs(getH(p, 1), id, id_len, &buf, 8192);
-    retLines(p, buf[0..len]);
+    const h = getH(p, 1);
+    const len = graph.stz_graph_bfs(h, id, id_len, &buf, buf.len);
+    const Ctx = struct {
+        h: ?*const graph.StzGraph,
+        id: [*]const u8,
+        id_len: usize,
+        fn call(s: @This(), b: [*]u8, n: usize) usize {
+            return graph.stz_graph_bfs(s.h, s.id, s.id_len, b, n);
+        }
+    };
+    retLinesGrow(p, &buf, len, Ctx{ .h = h, .id = id, .id_len = id_len });
 }
 
 fn ring_DFS(p: *anyopaque) callconv(.c) void {
     const id = gs(p, 2);
     const id_len: usize = @intCast(gss(p, 2));
     var buf: [8192]u8 = undefined;
-    const len = graph.stz_graph_dfs(getH(p, 1), id, id_len, &buf, 8192);
-    retLines(p, buf[0..len]);
+    const h = getH(p, 1);
+    const len = graph.stz_graph_dfs(h, id, id_len, &buf, buf.len);
+    const Ctx = struct {
+        h: ?*const graph.StzGraph,
+        id: [*]const u8,
+        id_len: usize,
+        fn call(s: @This(), b: [*]u8, n: usize) usize {
+            return graph.stz_graph_dfs(s.h, s.id, s.id_len, b, n);
+        }
+    };
+    retLinesGrow(p, &buf, len, Ctx{ .h = h, .id = id, .id_len = id_len });
 }
 
 fn ring_Dijkstra(p: *anyopaque) callconv(.c) void {
@@ -125,8 +180,16 @@ fn ring_Dijkstra(p: *anyopaque) callconv(.c) void {
     const to = gs(p, 3);
     const to_len: usize = @intCast(gss(p, 3));
     var buf: [8192]u8 = undefined;
-    const len = graph.stz_graph_dijkstra(getH(p, 1), from, from_len, to, to_len, &buf, 8192);
-    retLines(p, buf[0..len]);
+    const h = getH(p, 1);
+    const len = graph.stz_graph_dijkstra(h, from, from_len, to, to_len, &buf, buf.len);
+    const Ctx = struct {
+        h: ?*const graph.StzGraph,
+        a: [*]const u8, al: usize, b2: [*]const u8, bl: usize,
+        fn call(s: @This(), b: [*]u8, n: usize) usize {
+            return graph.stz_graph_dijkstra(s.h, s.a, s.al, s.b2, s.bl, b, n);
+        }
+    };
+    retLinesGrow(p, &buf, len, Ctx{ .h = h, .a = from, .al = from_len, .b2 = to, .bl = to_len });
 }
 
 fn ring_DijkstraDistance(p: *anyopaque) callconv(.c) void {
@@ -325,8 +388,16 @@ fn ring_AStar(p: *anyopaque) callconv(.c) void {
     const to_len: usize = @intCast(gss(p, 3));
     const mode: i32 = @intFromFloat(g(p, 4));
     var buf: [8192]u8 = undefined;
-    const len = graph.stz_graph_astar(getH(p, 1), from, from_len, to, to_len, mode, &buf, 8192);
-    retLines(p, buf[0..len]);
+    const h = getH(p, 1);
+    const len = graph.stz_graph_astar(h, from, from_len, to, to_len, mode, &buf, buf.len);
+    const Ctx = struct {
+        h: ?*const graph.StzGraph,
+        a: [*]const u8, al: usize, b2: [*]const u8, bl: usize, m: i32,
+        fn call(s: @This(), b: [*]u8, n: usize) usize {
+            return graph.stz_graph_astar(s.h, s.a, s.al, s.b2, s.bl, s.m, b, n);
+        }
+    };
+    retLinesGrow(p, &buf, len, Ctx{ .h = h, .a = from, .al = from_len, .b2 = to, .bl = to_len, .m = mode });
 }
 
 fn ring_SetEdgeWeight(p: *anyopaque) callconv(.c) void {
@@ -357,8 +428,16 @@ fn ring_AStarWeighted(p: *anyopaque) callconv(.c) void {
     const to_len: usize = @intCast(gss(p, 3));
     const mode: i32 = @intFromFloat(g(p, 4));
     var buf: [8192]u8 = undefined;
-    const len = graph.stz_graph_astar_weighted(getH(p, 1), from, from_len, to, to_len, mode, &buf, 8192);
-    retLines(p, buf[0..len]);
+    const h = getH(p, 1);
+    const len = graph.stz_graph_astar_weighted(h, from, from_len, to, to_len, mode, &buf, buf.len);
+    const Ctx = struct {
+        h: ?*const graph.StzGraph,
+        a: [*]const u8, al: usize, b2: [*]const u8, bl: usize, m: i32,
+        fn call(s: @This(), b: [*]u8, n: usize) usize {
+            return graph.stz_graph_astar_weighted(s.h, s.a, s.al, s.b2, s.bl, s.m, b, n);
+        }
+    };
+    retLinesGrow(p, &buf, len, Ctx{ .h = h, .a = from, .al = from_len, .b2 = to, .bl = to_len, .m = mode });
 }
 
 fn ring_AStarPlan(p: *anyopaque) callconv(.c) void {
@@ -497,12 +576,27 @@ fn ring_PageRankOf(p: *anyopaque) callconv(.c) void {
     retCentralityOf(p, &graph.stz_graph_pagerank_default);
 }
 
+// The 16 KB stack buffer serves the common case with no allocation. When
+// the reachable set does not fit, stz_graph_reachable answers the size it
+// NEEDED (it does not truncate), and we ask again on the heap. Before this,
+// a hub reaching 5,000 nodes came back with 2,916 of them and no signal.
 fn ring_Reachable(p: *anyopaque) callconv(.c) void {
     const id = gs(p, 2);
     const id_len: usize = @intCast(gss(p, 2));
+    const h = getH(p, 1);
     var buf: [16384]u8 = undefined;
-    const len = graph.stz_graph_reachable(getH(p, 1), id, id_len, &buf, 16384);
-    retLines(p, buf[0..len]);
+    const len = graph.stz_graph_reachable(h, id, id_len, &buf, buf.len);
+    if (len <= buf.len) {
+        retLines(p, buf[0..len]);
+        return;
+    }
+    const big = gpa.alloc(u8, len) catch {
+        retLines(p, "");
+        return;
+    };
+    defer gpa.free(big);
+    const got = graph.stz_graph_reachable(h, id, id_len, big.ptr, big.len);
+    retLines(p, big[0..@min(got, big.len)]);
 }
 
 fn ring_HasCycle(p: *anyopaque) callconv(.c) void {
