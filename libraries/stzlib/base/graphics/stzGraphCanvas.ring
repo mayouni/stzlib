@@ -104,6 +104,17 @@ func _StzGraphAllMetric(poGraph, cWhich, nCount)
 				"reachability and its bitset is O(n^2/8) -- refused above " +
 				"20,000 nodes. Use :Degree or :Depth on a graph that large.")
 		ok
+		# :Depth is longest-path layering, a propagation to a fixed point.
+		# On a CYCLE there is no fixed point -- every node is deeper than
+		# itself -- so the engine refuses rather than handing back the
+		# state its pass cap happened to stop at. Measured before the
+		# refusal existed: a 6-node cycle answered [42,37,38,39,40,41].
+		if StzLower("" + cWhich) = "depth"
+			StzRaise("stzGraphCanvas: :Depth is longest-path layering, and " +
+				"this graph has a CYCLE -- a node cannot be deeper than " +
+				"itself, so no layering exists. Break the cycle, or bind " +
+				":Degree or :Impact, which are defined on cyclic graphs.")
+		ok
 		StzRaise("stzGraphCanvas: the engine refused " + cWhich + ".")
 	ok
 
