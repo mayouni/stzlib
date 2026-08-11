@@ -2,401 +2,446 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Softanza Sound Studio</title>
+<title>Softanza Sound — samples</title>
 <style>
   :root{
     --bg:#0d1117; --panel:#151b23; --line:#242c37; --ink:#e6edf3;
-    --dim:#8b949e; --accent:#4dd4ac; --accent2:#7aa2f7; --warn:#f0883e;
+    --dim:#8b949e; --accent:#4dd4ac; --blue:#7aa2f7; --warn:#f0883e; --bad:#f85149;
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);
-       font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
-  header{padding:14px 20px;border-bottom:1px solid var(--line);
-         display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
-  h1{font-size:15px;margin:0;letter-spacing:.06em;text-transform:uppercase}
-  .meta{color:var(--dim);font-size:12px}
+       font:15px/1.65 -apple-system,Segoe UI,Roboto,sans-serif}
+  code,pre,.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+  header{padding:16px 22px;border-bottom:1px solid var(--line);display:flex;
+         align-items:baseline;gap:14px;flex-wrap:wrap}
+  h1{font-size:16px;margin:0;letter-spacing:.04em}
+  .meta{color:var(--dim);font-size:12.5px}
   .dot{display:inline-block;width:8px;height:8px;border-radius:50%;
-       background:var(--accent);margin-right:6px;vertical-align:middle}
+       background:var(--accent);margin-right:6px}
   .dot.off{background:var(--warn)}
-  main{display:grid;grid-template-columns:340px 1fr;gap:16px;padding:16px;
-       align-items:start}
-  @media(max-width:900px){main{grid-template-columns:1fr}}
-  .panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px}
-  .panel h2{font-size:11px;letter-spacing:.12em;text-transform:uppercase;
-            color:var(--dim);margin:0 0 12px}
-  .row{display:flex;align-items:center;gap:8px;margin:9px 0}
-  .row label{width:74px;color:var(--dim);font-size:12px;flex:none}
-  .row input[type=range]{flex:1;accent-color:var(--accent)}
-  .row .val{width:66px;text-align:right;color:var(--accent);font-size:12px}
-  select,button{background:#1c232c;color:var(--ink);border:1px solid var(--line);
-        border-radius:6px;padding:6px 10px;font:inherit;font-size:12px;cursor:pointer}
-  select{width:100%}
+  main{display:grid;grid-template-columns:290px 1fr;gap:20px;padding:20px;align-items:start}
+  @media(max-width:880px){main{grid-template-columns:1fr}}
+
+  /* ---- the list ---- */
+  .list{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+        padding:10px;position:sticky;top:20px}
+  .grp{color:var(--dim);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+       padding:14px 10px 6px}
+  .grp:first-child{padding-top:4px}
+  .item{display:block;width:100%;text-align:left;background:none;border:0;
+        color:var(--ink);padding:9px 11px;border-radius:7px;cursor:pointer;
+        font:inherit;line-height:1.35}
+  .item small{display:block;color:var(--dim);font-size:12px}
+  .item:hover{background:#1c232c}
+  .item.sel{background:#12312a;box-shadow:inset 3px 0 0 var(--accent)}
+  .item.sel small{color:#9fdcc9}
+  .pill{float:right;font-size:11px;padding:1px 7px;border-radius:99px;
+        background:#20303a;color:var(--dim)}
+  .pill.ok{background:#123528;color:var(--accent)}
+  .pill.no{background:#3a1d1d;color:var(--bad)}
+
+  /* ---- the sample ---- */
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px}
+  h2{font-size:20px;margin:0 0 4px}
+  .sub{color:var(--blue);font-size:13px;margin-bottom:16px}
+  .teach{max-width:66ch;margin:0 0 14px}
+  .hear{border-left:3px solid var(--accent);padding:8px 0 8px 14px;margin:0 0 18px;
+        color:#cfe9e0;max-width:64ch}
+  .hear b{color:var(--accent);display:block;font-size:11px;letter-spacing:.12em;
+          text-transform:uppercase;margin-bottom:2px}
+  .plays{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+  button{background:#1c232c;color:var(--ink);border:1px solid var(--line);
+         border-radius:8px;padding:9px 15px;font:inherit;font-size:14px;cursor:pointer}
   button:hover{border-color:var(--accent);color:var(--accent)}
-  button.primary{background:var(--accent);color:#08221b;border-color:var(--accent);font-weight:700}
-  button.primary:hover{filter:brightness(1.12);color:#08221b}
-  .stage{border:1px solid var(--line);border-radius:6px;padding:10px;margin:10px 0}
-  .stage .head{display:flex;align-items:center;gap:8px;margin-bottom:2px}
-  .stage .head input{accent-color:var(--accent)}
-  .stage .head b{font-size:12px;letter-spacing:.06em}
-  .stage.off{opacity:.42}
-  .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  button.play{background:var(--accent);color:#07211a;border-color:var(--accent);font-weight:650}
+  button.play:hover{filter:brightness(1.1);color:#07211a}
+  button.b{background:#1b2536;border-color:#2b3a55;color:#cbd8ee}
+  button.b:hover{border-color:var(--blue);color:var(--blue)}
   canvas{width:100%;display:block;background:#0a0e14;border:1px solid var(--line);
-         border-radius:6px}
-  .stats{display:flex;gap:18px;flex-wrap:wrap;color:var(--dim);font-size:12px;margin:10px 0 0}
-  .stats b{color:var(--ink);font-weight:600}
-  .presets{display:flex;flex-wrap:wrap;gap:6px}
-  .presets button{font-size:11px;padding:5px 9px}
-  pre{background:#0a0e14;border:1px solid var(--line);border-radius:6px;padding:12px;
-      overflow:auto;max-height:340px;font-size:12px;color:#c9d5e1;margin:0}
-  .chain{color:var(--accent2);font-size:12px;margin-bottom:8px;word-break:break-word}
-  .msg{font-size:12px;color:var(--warn);min-height:18px;margin-top:8px}
-  audio{width:100%;margin-top:10px}
+         border-radius:8px}
+  .cap{color:var(--dim);font-size:11.5px;margin:5px 0 14px}
+  .verdict{border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin:4px 0 16px}
+  .verdict.ok{border-color:#1d5c48;background:#0f2019}
+  .verdict.no{border-color:#6b2020;background:#20100f}
+  .verdict .head{font-weight:650;margin-bottom:4px}
+  .verdict.ok .head{color:var(--accent)}
+  .verdict.no .head{color:var(--bad)}
+  .verdict .why{color:var(--dim);font-size:13px}
+  .nums{display:flex;gap:20px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin-top:8px}
+  .nums b{color:var(--ink)}
+  .knobs{border-top:1px solid var(--line);margin-top:8px;padding-top:14px}
+  .knobs h3{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);
+            margin:0 0 10px;font-weight:600}
+  .knob{display:flex;align-items:center;gap:10px;margin:8px 0;max-width:520px}
+  .knob label{width:120px;color:var(--dim);font-size:13px;flex:none}
+  .knob input{flex:1;accent-color:var(--accent)}
+  .knob .v{width:88px;text-align:right;color:var(--accent);font-size:13px}
+  details{margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
+  summary{cursor:pointer;color:var(--dim);font-size:13px}
+  summary:hover{color:var(--ink)}
+  pre{background:#0a0e14;border:1px solid var(--line);border-radius:8px;padding:12px;
+      overflow:auto;font-size:12.5px;color:#c9d5e1;margin:10px 0 0;max-height:320px}
+  .msg{color:var(--warn);font-size:13px;min-height:20px}
+  .suite{margin-top:20px}
+  .suite .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  audio{width:100%;margin-top:6px}
 </style>
 </head>
 <body>
 
 <header>
-  <h1>Softanza Sound Studio</h1>
-  <span class="meta"><span id="dot" class="dot"></span><span id="dev">connecting…</span></span>
-  <span class="meta">rendered by the engine, not the browser</span>
+  <h1>Softanza Sound — samples</h1>
+  <span class="meta"><span id="dot" class="dot"></span><span id="dev">…</span></span>
+  <span class="meta">every sound here is made by the engine, not the browser</span>
 </header>
 
 <main>
-  <!-- ------------------------------------------------ controls -->
-  <div class="panel">
-    <h2>Patch</h2>
+  <div class="list" id="list"></div>
 
-    <div class="row"><label>wave</label>
-      <select id="wave">
-        <option value="0">sine — pure</option>
-        <option value="3" selected>triangle — soft</option>
-        <option value="1">square — hollow</option>
-        <option value="2">saw — bright</option>
-      </select>
-    </div>
-    <div class="row"><label>pitch</label>
-      <input type="range" id="hz" min="40" max="2000" step="1" value="440">
-      <span class="val" id="hzv">440 Hz</span></div>
-    <div class="row"><label>level</label>
-      <input type="range" id="amp" min="0" max="1" step="0.01" value="0.35">
-      <span class="val" id="ampv">0.35</span></div>
-    <div class="row"><label>pan</label>
-      <input type="range" id="pan" min="0" max="1" step="0.01" value="0.5">
-      <span class="val" id="panv">centre</span></div>
-    <div class="row"><label>length</label>
-      <input type="range" id="secs" min="0.2" max="6" step="0.1" value="2">
-      <span class="val" id="secsv">2.0 s</span></div>
-
-    <div class="stage off" id="stF">
-      <div class="head"><input type="checkbox" id="useFilter"><b>FILTER</b></div>
-      <div class="row"><label>type</label>
-        <select id="fkind">
-          <option value="0">low pass</option>
-          <option value="1">high pass</option>
-          <option value="2">band pass</option>
-        </select></div>
-      <div class="row"><label>cutoff</label>
-        <input type="range" id="fcut" min="60" max="16000" step="10" value="1200">
-        <span class="val" id="fcutv">1200</span></div>
-      <div class="row"><label>Q</label>
-        <input type="range" id="fq" min="0.2" max="8" step="0.05" value="0.9">
-        <span class="val" id="fqv">0.90</span></div>
-    </div>
-
-    <div class="stage off" id="stE">
-      <div class="head"><input type="checkbox" id="useEnv"><b>ENVELOPE</b></div>
-      <div class="row"><label>attack</label>
-        <input type="range" id="att" min="0" max="2" step="0.001" value="0.01">
-        <span class="val" id="attv">0.010</span></div>
-      <div class="row"><label>decay</label>
-        <input type="range" id="dec" min="0" max="2" step="0.001" value="0.25">
-        <span class="val" id="decv">0.250</span></div>
-      <div class="row"><label>sustain</label>
-        <input type="range" id="sus" min="0" max="1" step="0.01" value="0">
-        <span class="val" id="susv">0.00</span></div>
-      <div class="row"><label>release</label>
-        <input type="range" id="rel" min="0" max="3" step="0.01" value="0.20">
-        <span class="val" id="relv">0.20</span></div>
-      <div class="row"><label>gate</label>
-        <input type="range" id="gate" min="0.02" max="5" step="0.02" value="0.30">
-        <span class="val" id="gatev">0.30</span></div>
-    </div>
-
-    <div class="stage off" id="stD">
-      <div class="head"><input type="checkbox" id="useDelay"><b>DELAY</b></div>
-      <div class="row"><label>time</label>
-        <input type="range" id="dtime" min="0.01" max="1.5" step="0.005" value="0.28">
-        <span class="val" id="dtimev">0.280</span></div>
-      <div class="row"><label>feedback</label>
-        <input type="range" id="dfb" min="0" max="0.95" step="0.01" value="0.45">
-        <span class="val" id="dfbv">0.45</span></div>
-      <div class="row"><label>wet</label>
-        <input type="range" id="dwet" min="0" max="1" step="0.01" value="0.40">
-        <span class="val" id="dwetv">0.40</span></div>
-    </div>
-
-    <div class="btns">
-      <button class="primary" id="btnRender">Render &amp; hear</button>
-      <button id="btnSpeakers">Play on speakers</button>
-    </div>
-    <div class="msg" id="msg"></div>
-  </div>
-
-  <!-- ------------------------------------------------ output -->
   <div>
-    <div class="panel">
-      <h2>What you built</h2>
-      <div class="chain" id="chain">oscillator → pan</div>
-      <canvas id="wave1" height="150"></canvas>
-      <div class="stats">
-        <span>peak <b id="sPeak">—</b></span>
-        <span>rms <b id="sRms">—</b></span>
-        <span>nodes <b id="sNodes">—</b></span>
-        <span>render <b id="sMs">—</b></span>
-        <span>speed <b id="sX">—</b></span>
-      </div>
-      <audio id="au" controls></audio>
+    <div class="panel" id="stage">
+      <h2 id="title">Pick a sample on the left</h2>
+      <div class="sub" id="sub">Each one plays a sound and then checks itself.</div>
+      <p class="teach" id="teach">Start with <b>Sine</b> — the simplest sound there is — and work down. Each sample explains what it is, plays it, and tells you whether it measured up.</p>
     </div>
 
-    <div class="panel" style="margin-top:16px">
-      <h2>Zoom — 20 ms, so you can see the waveform</h2>
-      <canvas id="wave2" height="120"></canvas>
-    </div>
-
-    <div class="panel" style="margin-top:16px">
-      <h2>Presets — hear what each part does</h2>
-      <div class="presets">
-        <button data-p="sine">sine</button>
-        <button data-p="tri">triangle</button>
-        <button data-p="square">square</button>
-        <button data-p="saw">saw</button>
-        <button data-p="pluck">pluck</button>
-        <button data-p="pad">pad</button>
-        <button data-p="echo">echo</button>
-        <button data-p="bell">bell</button>
-        <button data-p="dark">dark filter</button>
-        <button data-p="wobble">resonant</button>
-        <button data-p="left">hard left</button>
-        <button data-p="right">hard right</button>
-        <button id="btnCompose" style="border-color:var(--accent2);color:var(--accent2)">▶ the composition</button>
+    <div class="panel suite">
+      <h2 style="font-size:15px">Is everything still working?</h2>
+      <p class="teach" style="margin:6px 0 12px">
+        The samples above check one thing each. This runs the full narrated test
+        suite — the same tests the repository ships — and shows the result.</p>
+      <div class="row">
+        <button id="runAll">Run all tests</button>
+        <span id="suiteSum" class="meta"></span>
       </div>
-    </div>
-
-    <div class="panel" style="margin-top:16px">
-      <h2>Run the guards — the examples, asserted</h2>
-      <div class="presets" id="guardBtns" style="margin-bottom:10px">
-        <span class="meta">looking for guards…</span>
-      </div>
-      <div class="btns" style="margin:0 0 10px">
-        <button id="btnRunAll" style="border-color:var(--accent2);color:var(--accent2)">Run all</button>
-        <span class="meta" id="guardSummary"></span>
-      </div>
-      <pre id="guardOut">Press a guard to run it. These are the same narrated tests the repo ships; the studio just runs them where you can see them.</pre>
-    </div>
-
-    <div class="panel" style="margin-top:16px">
-      <h2>Take it away as a test</h2>
-      <div class="btns" style="margin:0 0 10px">
-        <button id="btnGuard">Generate guard code</button>
-        <button id="btnCopy">Copy</button>
-      </div>
-      <pre id="code">Dial a patch, then press "Generate guard code".</pre>
+      <pre id="suiteOut" style="display:none"></pre>
     </div>
   </div>
 </main>
 
+<audio id="au"></audio>
+
 <script>
 const $ = id => document.getElementById(id);
-let ver = 0;
+let ver = 0, current = null, knobState = {};
 
-const NUMS = ["hz","amp","pan","secs","fcut","fq","att","dec","sus","rel","gate","dtime","dfb","dwet"];
-const CHKS = ["useFilter","useEnv","useDelay"];
+// ---------------------------------------------------------------------------
+// THE CATALOGUE. Each entry is a sample you can hear, an explanation of what
+// it is, and a CHECK that says whether it behaved. `variants` are the A/B pairs
+// -- hearing "bright" next to "dark" teaches what a filter is in a way that one
+// sound alone never can.
+// ---------------------------------------------------------------------------
+const BASE = {wave:3,hz:440,amp:0.35,pan:0.5,secs:2,
+              useFilter:0,fkind:0,fcut:8000,fq:0.707,
+              useEnv:0,att:0.01,dec:0.25,sus:0,rel:0.2,gate:0.3,
+              useDelay:0,dtime:0.28,dfb:0.45,dwet:0.4};
 
-function fmt(id,v){
-  if(id==="hz")   return Math.round(v)+" Hz";
-  if(id==="secs") return (+v).toFixed(1)+" s";
-  if(id==="fcut") return Math.round(v);
-  if(id==="pan")  return v<0.02?"hard left":v>0.98?"hard right":
-                         Math.abs(v-0.5)<0.02?"centre":(+v).toFixed(2);
-  if(["att","dec","rel","gate","dtime"].includes(id)) return (+v).toFixed(3);
-  return (+v).toFixed(2);
-}
-function syncLabels(){
-  NUMS.forEach(id=>{ const e=$(id+"v"); if(e) e.textContent = fmt(id,$(id).value); });
-  $("stF").classList.toggle("off",!$("useFilter").checked);
-  $("stE").classList.toggle("off",!$("useEnv").checked);
-  $("stD").classList.toggle("off",!$("useDelay").checked);
-  const w = $("wave").selectedOptions[0].textContent.split(" ")[0];
-  let ch = w;
-  if($("useFilter").checked) ch += " → " + $("fkind").selectedOptions[0].textContent;
-  if($("useEnv").checked)    ch += " → envelope";
-  if($("useDelay").checked)  ch += " → delay";
-  $("chain").textContent = ch + " → pan → gain";
-}
-function query(){
-  const p = new URLSearchParams();
-  p.set("wave",$("wave").value);
-  p.set("fkind",$("fkind").value);
-  NUMS.forEach(id=>p.set(id,$(id).value));
-  CHKS.forEach(id=>p.set(id,$(id).checked?1:0));
-  return p.toString();
+const SAMPLES = [
+{ group:"The four voices", id:"sine", name:"Sine", hint:"the purest possible sound",
+  sub:"one frequency, nothing else",
+  teach:"A sine wave is a single frequency with no harmonics at all. It is the sound a tuning fork makes, and the building block every other sound is made of. Notice how <i>hollow</i> and characterless it is — that emptiness is what tells you it is pure.",
+  listen:"A smooth, soft, slightly dull tone. Nothing buzzy, nothing edgy.",
+  variants:[{label:"Sine at 440 Hz", p:{wave:0}}],
+  knobs:["hz","amp"],
+  check:r=>{const k=r[0].rms/r[0].peak; return {ok:Math.abs(k-1/Math.SQRT2)<0.01,
+             why:`A sine spends its time evenly across its range, so its average level is exactly 70.7% of its peak (1/√2). Measured ${(k*100).toFixed(1)}%.`};}},
+
+{ group:"The four voices", id:"tri", name:"Triangle", hint:"soft, a little reedy",
+  sub:"a sine with a gentle edge",
+  teach:"A triangle wave has harmonics, but they fade away very quickly. That gives it a soft, flute-like tone — clearly richer than a sine, but nowhere near harsh. It is the most useful all-purpose voice in this engine.",
+  listen:"Fuller than the sine, but still smooth. Like a recorder or a soft flute.",
+  variants:[{label:"Triangle at 440 Hz", p:{wave:3}}],
+  knobs:["hz","amp"],
+  check:r=>{const k=r[0].rms/r[0].peak; return {ok:Math.abs(k-1/Math.sqrt(3))<0.01,
+             why:`A triangle ramps steadily up and down, so its average level is exactly 57.7% of its peak (1/√3) — lower than a sine's 70.7%, because it spends less time near the extremes. Measured ${(k*100).toFixed(1)}%.`};}},
+
+{ group:"The four voices", id:"square", name:"Square", hint:"hollow and woody",
+  sub:"odd harmonics that refuse to fade",
+  teach:"A square wave holds only odd harmonics, and they decay slowly — so it stays bright and hollow. It is the classic sound of early video games and of a clarinet's lower register.",
+  listen:"Buzzy and hollow at once. Distinctly 'electronic' next to the triangle.",
+  variants:[{label:"Square at 440 Hz", p:{wave:1,amp:0.3}}],
+  knobs:["hz","amp"],
+  check:r=>{const k=r[0].rms/r[0].peak; return {ok:Math.abs(k-1)<0.02,
+             why:`A square is at full amplitude ALL the time — it only ever jumps between +1 and −1. So its average level equals its peak: ${(k*100).toFixed(1)}%. No other wave here does that.`};}},
+
+{ group:"The four voices", id:"saw", name:"Saw", hint:"the brightest of the four",
+  sub:"every harmonic, all at once",
+  teach:"A sawtooth contains <i>every</i> harmonic — even and odd. That makes it the richest and buzziest voice, and the usual starting point for string and brass sounds, because a filter has plenty to carve away.",
+  listen:"Bright, buzzy, almost rasping. The most 'raw' of the four.",
+  variants:[{label:"Saw at 440 Hz", p:{wave:2,amp:0.3}}],
+  knobs:["hz","amp"],
+  check:r=>{const k=r[0].rms/r[0].peak; return {ok:Math.abs(k-1/Math.sqrt(3))<0.01,
+             why:`Here is the lesson: a saw's average level is 57.7% of its peak — EXACTLY the same as the triangle's (measured ${(k*100).toFixed(1)}%). Yet it sounds far brighter. How loud a wave measures tells you nothing about how it sounds; that is decided by its harmonics.`};}},
+
+{ group:"What shapes a sound", id:"filter", name:"Filter", hint:"the same saw, bright then dark",
+  sub:"a filter removes harmonics; it does not change the note",
+  teach:"A low-pass filter lets low frequencies through and removes the high ones. Here is the <b>same saw wave at the same pitch</b>, twice: once wide open, once nearly closed. The note does not change — only how much light is in it. This is the single most important control in sound design.",
+  listen:"Play A, then B. Same pitch, same loudness-ish — but B has had the brightness taken out of it, like a blanket over a speaker.",
+  variants:[{label:"A · open (12 kHz)", p:{wave:2,amp:0.35,useFilter:1,fcut:12000,fq:0.9}},
+            {label:"B · closed (400 Hz)", p:{wave:2,amp:0.35,useFilter:1,fcut:400,fq:0.9}}],
+  knobs:["fcut","fq"],
+  check:r=>({ok:r[1].rms < r[0].rms,
+             why:`Closing the filter removed energy: open measured ${r[0].rms.toFixed(4)} RMS, closed ${r[1].rms.toFixed(4)}. Less energy means harmonics really were taken away.`})},
+
+{ group:"What shapes a sound", id:"env", name:"Envelope", hint:"a pluck, then a swell",
+  sub:"the shape of a note over time",
+  teach:"An envelope decides how a note begins and ends. A fast attack and fast decay give you a <b>pluck</b> — a harp or a guitar. A slow attack and long release give you a <b>pad</b> — strings swelling. Same oscillator, same pitch; only the shape in time differs.",
+  listen:"A starts instantly and dies away. B fades in slowly and lingers. Nothing about the pitch changes.",
+  variants:[{label:"A · pluck", p:{wave:3,amp:0.6,useEnv:1,att:0.002,dec:0.35,sus:0,rel:0.1,gate:0.35,secs:2}},
+            {label:"B · pad", p:{wave:3,amp:0.6,useEnv:1,att:0.8,dec:0.3,sus:0.7,rel:1.0,gate:1.6,secs:4}}],
+  knobs:["att","dec","rel"],
+  check:r=>({ok:Math.abs(r[0].peak - r[1].peak) < 0.01,
+             why:`Both reach the SAME peak (${r[0].peak.toFixed(4)} and ${r[1].peak.toFixed(4)}) — the envelope changes when the sound is loud, never how loud it can get. What differs is the average: ${(100*r[0].rms/r[0].peak).toFixed(1)}% for the pluck against ${(100*r[1].rms/r[1].peak).toFixed(1)}% for the pad, because each spends a different amount of its life near silence.`})},
+
+{ group:"What shapes a sound", id:"delay", name:"Delay", hint:"one note, then its echo",
+  sub:"the same sound arriving again, later and quieter",
+  teach:"A delay stores what it hears and replays it a moment later, feeding part of the result back in so the echoes fade out. It is how you make a room out of nothing. Here the same plucked note is played dry, then with a 300 ms echo behind it.",
+  listen:"A is one clean note. B is the same note bouncing away into the distance.",
+  variants:[{label:"A · dry", p:{wave:3,hz:523,amp:0.6,useEnv:1,att:0.002,dec:0.25,sus:0,rel:0.05,gate:0.25,secs:3}},
+            {label:"B · with echo", p:{wave:3,hz:523,amp:0.6,useEnv:1,att:0.002,dec:0.25,sus:0,rel:0.05,gate:0.25,useDelay:1,dtime:0.3,dfb:0.55,dwet:0.45,secs:3}}],
+  knobs:["dtime","dfb","dwet"],
+  check:r=>{const a=r[0].rms/r[0].peak, b=r[1].rms/r[1].peak; return {ok:b>a,
+             why:`The echo SPREADS the strike through time. The dry note is one loud moment then silence, so its average is only ${(a*100).toFixed(1)}% of its peak; the echoed one keeps returning, so its average rises to ${(b*100).toFixed(1)}%. Its peak is also lower (${r[1].peak.toFixed(4)} against ${r[0].peak.toFixed(4)}) because "wet 0.45" turns the original down to make room for the repeats.`};}},
+
+{ group:"What shapes a sound", id:"pan", name:"Pan", hint:"left ear, then right ear",
+  sub:"where the sound sits between your speakers",
+  teach:"Panning places a sound in the stereo field. This engine uses a <b>constant-power</b> law, which means a sound in the centre sits at about 0.707 in each speaker rather than 0.5 — so it does not get quieter as it crosses the middle. Use headphones for this one.",
+  listen:"A is fully in your left ear, B fully in your right. If both sound central, check you are not on a mono speaker.",
+  variants:[{label:"A · hard left", p:{wave:3,hz:330,amp:0.4,pan:0,secs:1.5}},
+            {label:"B · hard right", p:{wave:3,hz:330,amp:0.4,pan:1,secs:1.5}}],
+  knobs:["pan"],
+  check:r=>({ok:Math.abs(r[0].peak - r[1].peak) < 0.02,
+             why:`Both sides reach the same peak (${r[0].peak.toFixed(4)} and ${r[1].peak.toFixed(4)}) — panning moves a sound, it does not make it louder or quieter.`})},
+
+{ group:"Put together", id:"chord", name:"Chord", hint:"three notes at once",
+  sub:"A minor — and why it sounds restful",
+  teach:"Three oscillators through one mix: A, C and E. Their frequencies are almost exactly in the ratio 4:5:6, so the waves keep re-aligning with each other. That near-alignment is what <b>consonance</b> physically is — it is why this chord sounds settled rather than tense.",
+  listen:"Fuller and warmer than one note, and stable — nothing 'beats' or wobbles.",
+  variants:[{label:"A minor chord", p:{wave:3,hz:220,amp:0.3,secs:3,useEnv:1,att:0.15,dec:0.3,sus:0.7,rel:0.6,gate:2.5}}],
+  knobs:["amp"],
+  note:"The single-voice studio can only play one oscillator, so this button plays the root note with a chord-shaped envelope. To hear the real three-oscillator chord, run the <b>examples</b> test below — it builds and asserts it.",
+  check:r=>({ok:r[0].peak > 0.05, why:`Rendered at peak ${r[0].peak.toFixed(4)}. The real three-note version lives in the examples test.`})},
+
+{ group:"Put together", id:"bell", name:"Bell", hint:"envelope and echo combined",
+  sub:"two ideas at once make an instrument",
+  teach:"Nothing new here — just a sine, a very fast attack with a long decay, and a big echo. But together they stop sounding like a test tone and start sounding like an <i>object</i>. That is what layering does.",
+  listen:"A struck bell ringing out in a large room, gradually fading.",
+  variants:[{label:"Bell", p:{wave:0,hz:880,amp:0.5,useEnv:1,att:0.001,dec:1.4,sus:0,rel:0.4,gate:1.6,useDelay:1,dtime:0.38,dfb:0.5,dwet:0.4,secs:5}}],
+  knobs:["hz","dec","dfb"],
+  check:r=>({ok:r[0].peak > 0.1, why:`Peak ${r[0].peak.toFixed(4)} — the strike is loud and everything after it is decay.`})},
+
+{ group:"Put together", id:"piece", name:"The composition", hint:"20 seconds of actual music",
+  sub:"255 nodes: pad, bass, arpeggio, bell",
+  teach:"Everything above, at once: a chord pad, a filtered bass, an arpeggio drifting across the stereo field, and a bell melody in the second half — all rendered by the same engine, in one graph, in about half a second.",
+  listen:"Music. If this sounds right, the whole plane is working.",
+  compose:true,
+  check:r=>({ok:r[0].peak > 0.5 && r[0].peak < 1.0,
+             why:`Peak ${r[0].peak.toFixed(4)} — loud enough to be worth hearing, and below 1.0 so nothing clips.`})},
+];
+
+const KNOBS = {
+  hz:   {label:"pitch",    min:40,  max:2000, step:1,     fmt:v=>Math.round(v)+" Hz"},
+  amp:  {label:"loudness", min:0.02,max:1,    step:0.01,  fmt:v=>(+v).toFixed(2)},
+  pan:  {label:"position", min:0,   max:1,    step:0.01,  fmt:v=>v<0.02?"left":v>0.98?"right":Math.abs(v-.5)<.02?"centre":(+v).toFixed(2)},
+  fcut: {label:"brightness",min:80, max:14000,step:20,    fmt:v=>Math.round(v)+" Hz"},
+  fq:   {label:"resonance",min:0.3, max:8,    step:0.05,  fmt:v=>(+v).toFixed(2)},
+  att:  {label:"attack",   min:0,   max:1.5,  step:0.001, fmt:v=>(+v*1000).toFixed(0)+" ms"},
+  dec:  {label:"decay",    min:0.01,max:2,    step:0.01,  fmt:v=>(+v).toFixed(2)+" s"},
+  rel:  {label:"release",  min:0,   max:3,    step:0.01,  fmt:v=>(+v).toFixed(2)+" s"},
+  dtime:{label:"echo gap", min:0.02,max:1.2,  step:0.005, fmt:v=>(+v*1000).toFixed(0)+" ms"},
+  dfb:  {label:"echo tail",min:0,   max:0.92, step:0.01,  fmt:v=>(+v).toFixed(2)},
+  dwet: {label:"echo level",min:0,  max:1,    step:0.01,  fmt:v=>(+v).toFixed(2)},
+};
+
+// ---------------------------------------------------------------- the list
+function buildList(){
+  const host = $("list");
+  let group = "";
+  SAMPLES.forEach(s=>{
+    if(s.group !== group){
+      group = s.group;
+      const g = document.createElement("div");
+      g.className = "grp"; g.textContent = group;
+      host.appendChild(g);
+    }
+    const b = document.createElement("button");
+    b.className = "item"; b.id = "it_"+s.id;
+    b.innerHTML = `${s.name}<span class="pill" id="pill_${s.id}">—</span><small>${s.hint}</small>`;
+    b.onclick = ()=>select(s.id);
+    host.appendChild(b);
+  });
 }
 
-async function render(){
-  $("msg").textContent = "rendering…";
-  const r = await (await fetch("/api/render?"+query())).json();
-  if(!r.ok){ $("msg").textContent = "error: "+r.error; return; }
+function paramsFor(s, vi){
+  const p = Object.assign({}, BASE, s.variants ? s.variants[vi].p : {});
+  (s.knobs||[]).forEach(k=>{ if(knobState[k] !== undefined) p[k] = knobState[k]; });
+  if(s.knobs && s.knobs.includes("fcut")) p.useFilter = 1;
+  return p;
+}
+const qs = p => new URLSearchParams(p).toString();
+
+// ---------------------------------------------------------------- selecting
+async function select(id){
+  const s = SAMPLES.find(x=>x.id===id);
+  current = s;
+  knobState = {};
+  document.querySelectorAll(".item").forEach(e=>e.classList.remove("sel"));
+  $("it_"+id).classList.add("sel");
+  render(s);
+  await measure(s);
+}
+
+function render(s){
+  const st = $("stage");
+  const plays = (s.variants||[{label:"Play"}]).map((v,i)=>
+    `<button class="${i===0?'play':'b'}" onclick="hear(${i})">▶ ${v.label}</button>`).join("");
+  st.innerHTML = `
+    <h2>${s.name}</h2>
+    <div class="sub">${s.sub}</div>
+    <p class="teach">${s.teach}</p>
+    <div class="hear"><b>Listen for</b>${s.listen}</div>
+    ${s.note ? `<p class="teach" style="color:var(--dim);font-size:13.5px">${s.note}</p>` : ""}
+    <div class="plays">${s.compose ? '<button class="play" onclick="hear(0)">▶ Play the composition</button>' : plays}
+      <span class="msg" id="msg"></span></div>
+    <canvas id="w1" height="130"></canvas>
+    <div class="cap">the whole sound over time — its shape, loudness and decay</div>
+    <canvas id="w2" height="100"></canvas>
+    <div class="cap">the first 20 milliseconds, zoomed in — this is the waveform itself</div>
+    <div class="verdict" id="verdict"><div class="head">checking…</div></div>
+    ${(s.knobs&&s.knobs.length) ? `<div class="knobs"><h3>Tune it</h3>${
+        s.knobs.map(k=>{
+          const K = KNOBS[k]; const p = paramsFor(s,0);
+          return `<div class="knob"><label>${K.label}</label>
+            <input type="range" id="k_${k}" min="${K.min}" max="${K.max}" step="${K.step}" value="${p[k]}">
+            <span class="v" id="kv_${k}">${K.fmt(p[k])}</span></div>`;
+        }).join("")}</div>` : ""}
+    <details><summary>Show the Ring code for this sample</summary><pre id="code">…</pre></details>`;
+
+  (s.knobs||[]).forEach(k=>{
+    const el = $("k_"+k);
+    el.addEventListener("input", ()=>{
+      knobState[k] = +el.value;
+      $("kv_"+k).textContent = KNOBS[k].fmt(el.value);
+    });
+    el.addEventListener("change", async ()=>{ await measure(s); hear(0); });
+  });
+}
+
+// ---------------------------------------------------------------- measuring
+async function measure(s){
+  const res = [];
+  if(s.compose){
+    res.push(await (await fetch("/api/compose")).json());
+  } else {
+    for(let i=0;i<s.variants.length;i++){
+      res.push(await (await fetch("/api/render?"+qs(paramsFor(s,i)))).json());
+    }
+  }
+  s._last = res;
+  if(res.some(r=>!r.ok)){ setVerdict(false, "The engine could not render this."); return; }
+
+  const v = s.check(res);
+  setVerdict(v.ok, v.why, res);
+  const pill = $("pill_"+s.id);
+  pill.textContent = v.ok ? "ok" : "check";
+  pill.className = "pill " + (v.ok ? "ok" : "no");
+
+  if(!s.compose){
+    $("code").textContent = await (await fetch("/api/guard?"+qs(paramsFor(s,0)))).text();
+  } else {
+    $("code").textContent = "The composition is built in code, not from one patch —\nsee tools/stz_sound_studio.zig, buildComposition().";
+  }
+  drawLast();
+}
+
+function setVerdict(ok, why, res){
+  const el = $("verdict");
+  el.className = "verdict " + (ok?"ok":"no");
+  let nums = "";
+  if(res) nums = `<div class="nums">` + res.map((r,i)=>
+    `<span>${(current.variants&&current.variants[i])?current.variants[i].label:"measured"}: `+
+    `peak <b>${r.peak.toFixed(4)}</b> · rms <b>${r.rms.toFixed(4)}</b></span>`).join("") +
+    `<span>rendered in <b>${res[res.length-1].renderMs.toFixed(1)} ms</b></span></div>`;
+  el.innerHTML = `<div class="head">${ok?"✓ behaves correctly":"✗ not what was expected"}</div>
+                  <div class="why">${why}</div>${nums}`;
+}
+
+// ---------------------------------------------------------------- hearing
+async function hear(vi){
+  const s = current; if(!s) return;
   $("msg").textContent = "";
-  $("sPeak").textContent = r.peak.toFixed(4);
-  $("sRms").textContent  = r.rms.toFixed(4);
-  $("sNodes").textContent= r.nodes;
-  $("sMs").textContent   = r.renderMs.toFixed(1)+" ms";
-  $("sX").textContent    = (r.seconds*1000/Math.max(r.renderMs,0.001)).toFixed(0)+"x realtime";
-  if(r.peak >= 0.999) $("msg").textContent = "CLIPPING — turn the level down";
+  if(s.compose){
+    await fetch("/api/compose");
+  } else {
+    const r = await (await fetch("/api/render?"+qs(paramsFor(s,vi)))).json();
+    if(!r.ok){ $("msg").textContent = r.error; return; }
+  }
   ver++;
   const url = "/api/wav?v="+ver;
   $("au").src = url;
-  drawFrom(url);
-  $("au").play().catch(()=>{});
+  $("au").play().catch(()=>{ $("msg").textContent = "your browser blocked autoplay — press play again"; });
+  draw(url);
 }
 
-async function drawFrom(url){
-  const buf = await (await fetch(url)).arrayBuffer();
-  const ctx = new (window.AudioContext||window.webkitAudioContext)();
-  const audio = await ctx.decodeAudioData(buf);
-  drawWave($("wave1"), audio, 0, audio.length);
-  const n20 = Math.min(audio.length, Math.round(audio.sampleRate*0.02));
-  drawWave($("wave2"), audio, 0, n20);
-  ctx.close();
+function drawLast(){ draw("/api/wav?v="+(++ver)); }
+
+async function draw(url){
+  try{
+    const buf = await (await fetch(url)).arrayBuffer();
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const a = await ctx.decodeAudioData(buf);
+    wave($("w1"), a, 0, a.length);
+    wave($("w2"), a, 0, Math.min(a.length, Math.round(a.sampleRate*0.02)));
+    ctx.close();
+  }catch(e){}
 }
 
-function drawWave(cv, audio, from, count){
+function wave(cv, audio, from, count){
+  if(!cv) return;
   const dpr = window.devicePixelRatio||1;
   cv.width = cv.clientWidth*dpr; cv.height = cv.clientHeight*dpr;
   const g = cv.getContext("2d"); g.scale(dpr,dpr);
   const W = cv.clientWidth, H = cv.clientHeight, mid = H/2;
   g.clearRect(0,0,W,H);
   g.strokeStyle="#242c37"; g.beginPath(); g.moveTo(0,mid); g.lineTo(W,mid); g.stroke();
-  const d = audio.getChannelData(0);
-  const per = count/W;
-  g.strokeStyle = "#4dd4ac"; g.lineWidth = 1; g.beginPath();
+  const d = audio.getChannelData(0), per = count/W;
+  g.strokeStyle="#4dd4ac"; g.lineWidth=1; g.beginPath();
   for(let x=0;x<W;x++){
-    const s = from + Math.floor(x*per), e = Math.min(from+count, s+Math.ceil(per)||1);
+    const s0 = from + Math.floor(x*per), e = Math.min(from+count, s0+Math.max(1,Math.ceil(per)));
     let mn=1, mx=-1;
-    for(let i=s;i<e;i++){ const v=d[i]; if(v<mn)mn=v; if(v>mx)mx=v; }
-    if(mn>mx){ mn=0; mx=0; }
-    g.moveTo(x+0.5, mid - mx*mid*0.94);
-    g.lineTo(x+0.5, mid - mn*mid*0.94);
+    for(let i=s0;i<e;i++){ const v=d[i]; if(v<mn)mn=v; if(v>mx)mx=v; }
+    if(mn>mx){mn=0;mx=0;}
+    g.moveTo(x+0.5, mid-mx*mid*0.94); g.lineTo(x+0.5, mid-mn*mid*0.94);
   }
   g.stroke();
 }
 
-const PRESETS = {
-  sine:  {wave:0,hz:440,amp:.35,useFilter:0,useEnv:0,useDelay:0,secs:2},
-  tri:   {wave:3,hz:440,amp:.35,useFilter:0,useEnv:0,useDelay:0,secs:2},
-  square:{wave:1,hz:440,amp:.3, useFilter:0,useEnv:0,useDelay:0,secs:2},
-  saw:   {wave:2,hz:440,amp:.3, useFilter:0,useEnv:0,useDelay:0,secs:2},
-  pluck: {wave:3,hz:440,amp:.6, useEnv:1,att:.002,dec:.35,sus:0,rel:.1,gate:.35,
-          useFilter:0,useDelay:0,secs:2},
-  pad:   {wave:3,hz:220,amp:.5, useEnv:1,att:.8,dec:.3,sus:.7,rel:1,gate:1.6,
-          useFilter:0,useDelay:0,secs:4},
-  echo:  {wave:3,hz:523,amp:.6, useEnv:1,att:.002,dec:.25,sus:0,rel:.05,gate:.25,
-          useDelay:1,dtime:.3,dfb:.55,dwet:.45,useFilter:0,secs:4},
-  bell:  {wave:0,hz:880,amp:.5, useEnv:1,att:.001,dec:1.4,sus:0,rel:.4,gate:1.6,
-          useDelay:1,dtime:.38,dfb:.5,dwet:.4,useFilter:0,secs:5},
-  dark:  {wave:2,hz:220,amp:.35,useFilter:1,fkind:0,fcut:400,fq:.9,
-          useEnv:0,useDelay:0,secs:2},
-  wobble:{wave:2,hz:110,amp:.3, useFilter:1,fkind:0,fcut:320,fq:6,
-          useEnv:0,useDelay:0,secs:2},
-  left:  {wave:3,hz:330,amp:.4, pan:0, useFilter:0,useEnv:0,useDelay:0,secs:1.5},
-  right: {wave:3,hz:330,amp:.4, pan:1, useFilter:0,useEnv:0,useDelay:0,secs:1.5},
-};
-function applyPreset(p){
-  const o = PRESETS[p]; if(!o) return;
-  if(!("pan" in o)) o.pan = 0.5;
-  for(const k in o){
-    const e = $(k); if(!e) continue;
-    if(e.type==="checkbox") e.checked = !!o[k]; else e.value = o[k];
-  }
-  syncLabels(); render();
-}
-
-document.querySelectorAll(".presets button[data-p]").forEach(b=>
-  b.onclick = ()=>applyPreset(b.dataset.p));
-
-$("btnRender").onclick = render;
-$("btnSpeakers").onclick = async ()=>{
-  $("msg").textContent = "playing on the machine's speakers…";
-  const r = await (await fetch("/api/play?"+query())).json();
-  $("msg").textContent = r.ok
-    ? "played "+r.framesOut+" frames · worst callback "+r.worstUs+" µs · "+r.underruns+" underruns"
-    : "error: "+r.error;
-};
-$("btnCompose").onclick = async ()=>{
-  $("msg").textContent = "rendering the composition…";
-  const r = await (await fetch("/api/compose")).json();
-  if(!r.ok){ $("msg").textContent="error: "+r.error; return; }
-  $("msg").textContent = "";
-  $("sPeak").textContent=r.peak.toFixed(4); $("sRms").textContent=r.rms.toFixed(4);
-  $("sNodes").textContent=r.nodes; $("sMs").textContent=r.renderMs.toFixed(0)+" ms";
-  $("sX").textContent=(r.seconds*1000/r.renderMs).toFixed(0)+"x realtime";
-  $("chain").textContent = "Ostinato in A minor — pad · bass · arpeggio · bell";
-  ver++; const url="/api/wav?v="+ver; $("au").src=url; drawFrom(url); $("au").play().catch(()=>{});
-};
-$("btnGuard").onclick = async ()=>{
-  $("code").textContent = await (await fetch("/api/guard?"+query())).text();
-};
-$("btnCopy").onclick = ()=>navigator.clipboard.writeText($("code").textContent);
-
-[...NUMS, "wave","fkind"].forEach(id=>$(id).addEventListener("input",syncLabels));
-CHKS.forEach(id=>$(id).addEventListener("change",syncLabels));
-
-// ---- the guards -------------------------------------------------------
-let GUARDS = [];
-function paintGuardOutput(text){
-  const pass = [...text.matchAll(/(\d+) passed/g)].reduce((a,m)=>a+ +m[1],0);
-  const fail = [...text.matchAll(/(\d+) failed/g)].reduce((a,m)=>a+ +m[1],0);
-  $("guardOut").textContent = text;
-  const ok = fail === 0 && pass > 0;
-  $("guardSummary").innerHTML = pass+fail === 0 ? "" :
-    `<b style="color:${ok?'var(--accent)':'var(--warn)'}">${pass} passed, ${fail} failed</b>`;
-  $("guardOut").scrollTop = $("guardOut").scrollHeight;
-}
-async function runGuard(name){
-  $("guardOut").textContent = "running " + name + " ...\n(a guard that plays audio takes a few seconds)";
-  $("guardSummary").textContent = "";
-  const t = await (await fetch("/api/run?file="+encodeURIComponent(name))).text();
-  paintGuardOutput(t);
-}
-async function runAllGuards(){
+// ---------------------------------------------------------------- the suite
+$("runAll").onclick = async ()=>{
+  const out = $("suiteOut");
+  out.style.display = "block";
+  out.textContent = "running the tests… guards that play audio take a few seconds each";
+  $("suiteSum").textContent = "";
+  const list = await (await fetch("/api/guards")).json();
   let all = "";
-  for(const g of GUARDS){
-    $("guardOut").textContent = all + "\nrunning " + g + " ...";
+  for(const g of list){
+    out.textContent = all + "\nrunning " + g + " ...";
     all += await (await fetch("/api/run?file="+encodeURIComponent(g))).text() + "\n";
-    paintGuardOutput(all);
+    out.textContent = all;
+    out.scrollTop = out.scrollHeight;
   }
-}
-$("btnRunAll").onclick = runAllGuards;
-fetch("/api/guards").then(r=>r.json()).then(list=>{
-  GUARDS = list;
-  const host = $("guardBtns");
-  host.innerHTML = "";
-  if(!list.length){ host.innerHTML = '<span class="meta">no guards found — pass --guards &lt;dir&gt;</span>'; return; }
-  list.forEach(n=>{
-    const b = document.createElement("button");
-    b.textContent = n.replace(/^sound_/,"").replace(/_narrated\.ring$/,"");
-    b.title = n;
-    b.onclick = ()=>runGuard(n);
-    host.appendChild(b);
-  });
-});
+  const pass = [...all.matchAll(/(\d+) passed/g)].reduce((a,m)=>a+ +m[1],0);
+  const fail = [...all.matchAll(/(\d+) failed/g)].reduce((a,m)=>a+ +m[1],0);
+  $("suiteSum").innerHTML = `<b style="color:${fail?'var(--bad)':'var(--accent)'}">${pass} passed, ${fail} failed</b>`;
+};
 
 fetch("/api/status").then(r=>r.json()).then(s=>{
-  $("dev").textContent = s.device ? s.deviceName : "no audio device (browser playback still works)";
+  $("dev").textContent = s.device ? ("audio out: " + s.deviceName) : "no audio device — the browser will still play";
   $("dot").className = "dot" + (s.device?"":" off");
 });
-syncLabels();
-render();
+
+buildList();
+select("sine");
 </script>
 </body>
 </html>
