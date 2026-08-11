@@ -97,7 +97,7 @@ func StzDirDelete(pcPath)
 func StzDirDeleteAll(pcPath)
 	_cP_ = "" + pcPath
 	if StzEngineDirExists(_cP_) = 0
-		return TRUE
+		return 1
 	ok
 	_aFiles_ = StzEngineDirListFiles(_cP_)
 	_nf_ = len(_aFiles_)
@@ -414,7 +414,7 @@ func StzFileOverwiteQ(cFileName, _cNewContent_)
     ok
 
     StzEngineFileWrite(cFileName, _cNewContent_)
-    return NULL
+    return ""
 
 	# NOTE: the old 2-arg "Q returns a value" overwrite aliases were removed.
 	# Under the unified convention Q ALWAYS returns the object, so the only
@@ -928,16 +928,16 @@ class stzFileInfo from stzObject
 
 	def Conditions()
 		return [
-			:FilesExists = TRUE
+			:FilesExists = 1
 		]
 
 	def Capabilities()
 		return [
-			:Read = FALSE,
-			:Append = FALSE,
-			:Create = FALSE,
-			:Overwrite = FALSE,
-			:Modify = FALSE
+			:Read = 0,
+			:Append = 0,
+			:Create = 0,
+			:Overwrite = 0,
+			:Modify = 0
 		]
 
 		def Skills()
@@ -1000,7 +1000,7 @@ class stzFileInfo from stzObject
     def IsWritable()
         try
             pFile = fopen(@cFileName, "a")
-            if pFile != NULL
+            if pFile != ""
                 fclose(pFile)
                 return 1
             ok
@@ -1011,7 +1011,7 @@ class stzFileInfo from stzObject
     def IsReadable()
         try
             pFile = fopen(@cFileName, "r")
-            if pFile != NULL
+            if pFile != ""
                 fclose(pFile)
                 return 1
             ok
@@ -1221,16 +1221,16 @@ class stzFileReader from stzFileReadingMixin
 
 	def Conditions()
 		return [
-			:FileExists = TRUE
+			:FileExists = 1
 		]
 
 	def Capabilities()
 		return [
-			:Read = TRUE,
-			:Append = FALSE,
-			:Create = FALSE,
-			:Overwrite = FALSE,
-			:Modify = FALSE
+			:Read = 1,
+			:Append = 0,
+			:Create = 0,
+			:Overwrite = 0,
+			:Modify = 0
 		]
 
 		def Skills()
@@ -1262,16 +1262,16 @@ class stzFileAppender from stzFileReadingMixin
 
 	def Conditions()
 		return [
-			:FileExists = TRUE
+			:FileExists = 1
 		]
 
 	def Capabilities()
 		return [
-			:Read = TRUE,
-			:Append = TRUE,
-			:Create = FALSE,
-			:Overwrite = FALSE,
-			:Modify = FALSE
+			:Read = 1,
+			:Append = 1,
+			:Create = 0,
+			:Overwrite = 0,
+			:Modify = 0
 		]
 
 		def Skills()
@@ -1324,7 +1324,7 @@ class stzFileAppender from stzFileReadingMixin
 		return This
 
     def WriteSeparator(_cChar_)
-        if _cChar_ = NULL
+        if _cChar_ = ""
             _cChar_ = "-"
         ok
         This.WriteLine(RepeatChar(_cChar_, 50))
@@ -1388,16 +1388,16 @@ class stzFileCreator from stzFileReadingMixin
 
 	def Conditions()
 		return [
-			:FileExists = FALSE
+			:FileExists = 0
 		]
 
 	def Capabilities()
 		return [
-			:Read = TRUE,
-			:Append = FALSE,
-			:Create = TRUE,
-			:Overwrite = FALSE,
-			:Modify = FALSE
+			:Read = 1,
+			:Append = 0,
+			:Create = 1,
+			:Overwrite = 0,
+			:Modify = 0
 		]
 
 		def Skills()
@@ -1514,16 +1514,16 @@ class stzFileOverwriter from stzFileReadingMixin
 
 	def Conditions()
 		return [
-			:FileExists = TRUE
+			:FileExists = 1
 		]
 
 	def Capabilities()
 		return [
-			:Read = TRUE,
-			:Append = FALSE,
-			:Create = FALSE,
-			:Overwrite = TRUE,
-			:Modify = FALSE
+			:Read = 1,
+			:Append = 0,
+			:Create = 0,
+			:Overwrite = 1,
+			:Modify = 0
 		]
 
 		def Skills()
@@ -1634,16 +1634,16 @@ class stzFileEaraser from stzObject
 
 	def Conditions()
 		return [
-			:FileExists = TRUE
+			:FileExists = 1
 		]
 
 	def Capabilities()
 		return [
-			:Read = TRUE,
-			:Append = TRUE,
-			:Create = FALSE,
-			:Overwrite = TRUE,
-			:Modify = FALSE
+			:Read = 1,
+			:Append = 1,
+			:Create = 0,
+			:Overwrite = 1,
+			:Modify = 0
 		]
 
 		def Skills()
@@ -1701,7 +1701,7 @@ class stzFileModifier from stzFileReadingMixin
         @cFileName = cFileName
         @cOriginalContent = read(cFileName)
 
-        if @cOriginalContent = NULL or len(@cOriginalContent) = 0
+        if @cOriginalContent = "" or len(@cOriginalContent) = 0
             @cOriginalContent = ""
             @aOriginalLines = []
         else
@@ -1712,16 +1712,16 @@ class stzFileModifier from stzFileReadingMixin
 
 	def Conditions()
 		return [
-			:FileExists = TRUE
+			:FileExists = 1
 		]
 
 	def Capabilities()
 		return [
-			:Read = TRUE,
-			:Append = FALSE,
-			:Create = FALSE,
-			:Overwrite = FALSE,
-			:Modify = TRUE
+			:Read = 1,
+			:Append = 0,
+			:Create = 0,
+			:Overwrite = 0,
+			:Modify = 1
 		]
 
 		def Skills()
@@ -2046,7 +2046,7 @@ class stzFileModifier from stzFileReadingMixin
 
 class stzFileManager from stzObject
     @cFileName
-    @bClosed = FALSE
+    @bClosed = 0
 
     def init(cFileName)
         if not StzFileExists(cFileName)
@@ -2059,22 +2059,22 @@ class stzFileManager from stzObject
 
 	def Conditions()
 		return [
-			:FileExists = TRUE
+			:FileExists = 1
 		]
 
 	def Capabilities()
 		return [
-			:Copy = TRUE,
-			:Move = TRUE,
-			:Rename = TRUE,
-			:Delete = TRUE,
-			:Backup = TRUE,
-			:Split = TRUE,
-			:Zip = TRUE,
-			:MakeReadOnly = TRUE,
-			:MakeWritable = TRUE,
-			:MakeExecutable = TRUE,
-			:EncryptDecrypt = TRUE
+			:Copy = 1,
+			:Move = 1,
+			:Rename = 1,
+			:Delete = 1,
+			:Backup = 1,
+			:Split = 1,
+			:Zip = 1,
+			:MakeReadOnly = 1,
+			:MakeWritable = 1,
+			:MakeExecutable = 1,
+			:EncryptDecrypt = 1
 		]
 
 		def Skills()
@@ -2418,7 +2418,7 @@ class stzFileManager from stzObject
         # to manage, so the manager is auto-closed. A following Close() is then
         # a harmless no-op (Close() automatic after Delete()).
         _bResult_ = StzEngineFileDelete(@cFileName)
-        @bClosed = TRUE
+        @bClosed = 1
         return _bResult_
 
         def DeleteQ()
@@ -2508,26 +2508,26 @@ class stzFileManager from stzObject
     def IsWritable()
         try
             _fp_ = fopen(@cFileName, "a")
-            if _fp_ != NULL
+            if _fp_ != ""
                 fclose(_fp_)
-                return TRUE
+                return 1
             ok
         catch
         done
-        return FALSE
+        return 0
 
     def IsExecutable()
         _cExt_ = StzLower(_FileExtension(@cFileName))
         if isWindows()
             return _cExt_ = "exe" or _cExt_ = "bat" or _cExt_ = "cmd" or _cExt_ = "com"
         ok
-        return FALSE
+        return 0
 
     def LastModified()
         return ""
 
     def Close()
-        @bClosed = TRUE
+        @bClosed = 1
         return 1
 
     def IsClosed()

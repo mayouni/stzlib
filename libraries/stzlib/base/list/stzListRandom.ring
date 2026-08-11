@@ -247,7 +247,7 @@ class stzListRandom from stzObject
 	def NRandomItems(_n_)
 		_pNriList_ = @oList._EngineListFromContent()
 		_pNriPicked_ = StzEngineListRandomItems(_pNriList_, _n_)
-		if _pNriPicked_ != NULL
+		if _pNriPicked_ != ""
 			_aNriResult_ = StzEngineListContentToRingList(_pNriPicked_)
 			StzEngineListFree(_pNriPicked_)
 		else

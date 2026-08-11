@@ -111,7 +111,7 @@ class stzListExtractor from stzObject
 	def ExtractNthOccurrenceCS(n, pItem, pCaseSensitive)
 		_nPos_ = @oList.FindNthCS(n, pItem, pCaseSensitive)
 		if _nPos_ = 0
-			return NULL
+			return ""
 		ok
 		return This.ExtractNth(_nPos_)
 
@@ -131,7 +131,7 @@ class stzListExtractor from stzObject
 	def ExtractLastOccurrenceCS(pItem, pCaseSensitive)
 		_nPos_ = @oList.FindLastCS(pItem, pCaseSensitive)
 		if _nPos_ = 0
-			return NULL
+			return ""
 		ok
 		return This.ExtractNth(_nPos_)
 

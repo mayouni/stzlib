@@ -32,7 +32,7 @@ func StzNamedHashList(paNamed)
 
 func IsHashList(paList)
  	if NOT isList(paList)
-		return FALSE
+		return 0
 	ok
 
 	# Shape check and key collection in ONE direct pass -- no stzList clone.
@@ -163,7 +163,7 @@ func HasKey(paList, pcKey)
 	# therefore still answers FALSE, exactly as before.
 
 	if NOT isList(paList)
-		return FALSE
+		return 0
 	ok
 
 	_cHkProbe_ = StzLower(pcKey)
@@ -175,13 +175,13 @@ func HasKey(paList, pcKey)
 		if isList(_aHkPair_) and len(_aHkPair_) = 2
 			if isString(_aHkPair_[1])
 				if StzLower(_aHkPair_[1]) = _cHkProbe_
-					return TRUE
+					return 1
 				ok
 			ok
 		ok
 	next
 
-	return FALSE
+	return 0
 
 	func @HasKey(paList, pcKey)
 		return HasKey(paList, pcKey)
@@ -204,7 +204,7 @@ func HasKeys(paList, pacKeys)
 	ok
 
 	if not IsHashList(paList)
-		return FALSE
+		return 0
 	ok
 
 	_nHksLen_ = len(paList)
@@ -245,7 +245,7 @@ func HasKeysXT(paList, pacKeys)
 	ok
 
 	if not IsHashList(paList)
-		return FALSE
+		return 0
 	ok
 
 	_nHkxLen_ = len(paList)
@@ -260,9 +260,9 @@ func HasKeysXT(paList, pacKeys)
 
 	for _jHkx_ = 1 to _nHkxKeysLen_
 		if find(_acHkxAllKeys_, StzLower(pacKeys[_jHkx_])) > 0
-			_aHkxResult_ + TRUE
+			_aHkxResult_ + 1
 		else
-			_aHkxResult_ + FALSE
+			_aHkxResult_ + 0
 		ok
 	next
 
@@ -282,108 +282,108 @@ func HasKeysXT(paList, pacKeys)
 
 func IsHashListOfNumbers(paList)
 	if NOT isList(paList)
-		return FALSE
+		return 0
 	ok
 
 	if NOT IsHashList(paList)
-		return FALSE
+		return 0
 	ok
 
 	if NOT IsListOfListsOfNumbers(StzHashListQ(paList).Values())
-		return FALSE
+		return 0
 	ok
 
-	return TRUE
+	return 1
 
 func IsHashListOfStrings(paList)
 	if NOT isList(paList)
-		return FALSE
+		return 0
 	ok
 
 	if NOT IsHashList(paList)
-		return FALSE
+		return 0
 	ok
 
 	if NOT IsListOfListsOfStrings(StzHashListQ(paList).Values())
-		return FALSE
+		return 0
 	ok
 
-	return TRUE
+	return 1
 
 func IsHashListOfLists(paList)
 	if NOT isList(paList)
-		return FALSE
+		return 0
 	ok
 
 	if NOT IsHashList(paList)
-		return FALSE
+		return 0
 	ok
 
 	if NOT IsListOfListsOfLists(StzHashListQ(paList).Values())
-		return FALSE
+		return 0
 	ok
 
-	return TRUE
+	return 1
 
 func IsHashListOfHashLists(paList)
 	if NOT isList(paList)
-		return FALSE
+		return 0
 	ok
 
 	if NOT IsHashList(paList)
-		return FALSE
+		return 0
 	ok
 
 	if NOT IsListOfListsOfHashLists(StzHashListQ(paList).Values())
-		return FALSE
+		return 0
 	ok
 
-	return TRUE
+	return 1
 
 func IsHashListOfPairs(paList)
 	if NOT isList(paList)
-		return FALSE
+		return 0
 	ok
 
 	if NOT IsHashList(paList)
-		return FALSE
+		return 0
 	ok
 
 	if NOT IsListOfListsOfPairs(StzHashListQ(paList).Values())
-		return FALSE
+		return 0
 	ok
 
-	return TRUE
+	return 1
 
 func IsHashListOfPairsOfNumbers(paList)
 	if NOT isList(paList)
-		return FALSE
+		return 0
 	ok
 
 	if NOT IsHashList(paList)
-		return FALSE
+		return 0
 	ok
 
 	if NOT IsListOfListsOfPairsOfNumbers(StzHashListQ(paList).Values())
-		return FALSE
+		return 0
 	ok
 
-	return TRUE
+	return 1
 
 func IsHashListOfObjects(paList)
 	if NOT isList(paList)
-		return FALSE
+		return 0
 	ok
 
 	if NOT IsHashList(paList)
-		return FALSE
+		return 0
 	ok
 
 	if NOT IsListOfListsOfobjects(StzHashListQ(paList).Values())
-		return FALSE
+		return 0
 	ok
 
-	return TRUE
+	return 1
 
 func ShowHL(pValue)
 	if NOT (isList(pValue) and @IsHashList(pValue))
@@ -470,7 +470,7 @@ class stzAssociativeList from stzHashList
 
 class stzHashList from stzList # Also called stzAssociativeList
 	@aContent = []
-	@pEngineMap = NULL
+	@pEngineMap = ""
 
 	  #--------------#
 	 #     INIT     #
@@ -488,7 +488,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			_bPairs_ = (_nL_ > 0)
 			for _iC_ = 1 to _nL_
 				if NOT (isList(p[_iC_]) and len(p[_iC_]) = 2)
-					_bPairs_ = FALSE
+					_bPairs_ = 0
 					exit
 				ok
 			next
@@ -536,12 +536,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#===============================#
 
 	def _EnsureEngineMap()
-		if @pEngineMap != NULL
+		if @pEngineMap != ""
 			return
 		ok
 
 		@pEngineMap = StzEngineHashMapNew()
-		if @pEngineMap = NULL
+		if @pEngineMap = ""
 			return
 		ok
 
@@ -566,9 +566,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 		next
 
 	def _InvalidateEngineMap()
-		if @pEngineMap != NULL
+		if @pEngineMap != ""
 			StzEngineHashMapFree(@pEngineMap)
-			@pEngineMap = NULL
+			@pEngineMap = ""
 		ok
 
 	  #-------------#
@@ -587,7 +587,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def NumberOfPairs()
 		# Engine fast path: stz_hashmap_len is O(1) cached vs Ring len() on a hashlist array
 		This._EnsureEngineMap()
-		if @pEngineMap != NULL
+		if @pEngineMap != ""
 			return StzEngineHashMapLen(@pEngineMap)
 		ok
 		return len(This.Content())
@@ -1064,7 +1064,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		This._EnsureEngineMap()
 
-		if @pEngineMap != NULL
+		if @pEngineMap != ""
 			_nVbkPos_ = StzEngineHashMapFindKey(@pEngineMap, _cVbkKey_)
 
 			if _nVbkPos_ > 0
@@ -1077,7 +1077,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	# The value under the given key, as an integer (engine map).
 	def ValueIntByKey(pcKey)
 		This._EnsureEngineMap()
-		if @pEngineMap != NULL
+		if @pEngineMap != ""
 			return StzEngineHashMapGetInt(@pEngineMap, pcKey)
 		ok
 		return 0 + This.ValueByKey(pcKey)
@@ -1085,7 +1085,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	# The value under the given key, as a float (engine map).
 	def ValueFloatByKey(pcKey)
 		This._EnsureEngineMap()
-		if @pEngineMap != NULL
+		if @pEngineMap != ""
 			return StzEngineHashMapGetFloat(@pEngineMap, pcKey)
 		ok
 		return 0.0 + This.ValueByKey(pcKey)
@@ -1093,7 +1093,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	# The value under the given key, as a string (engine map).
 	def ValueStringByKey(pcKey)
 		This._EnsureEngineMap()
-		if @pEngineMap != NULL
+		if @pEngineMap != ""
 			return StzEngineHashMapGetString(@pEngineMap, pcKey)
 		ok
 		return "" + This.ValueByKey(pcKey)
@@ -1793,7 +1793,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		if isString(pcKey)
 			This._EnsureEngineMap()
-			if @pEngineMap != NULL
+			if @pEngineMap != ""
 				return StzEngineHashMapFindKey(@pEngineMap, pcKey)
 			ok
 			return StzFindFirst(pcKey, Keys())
@@ -1816,7 +1816,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			_cHkKey_ = StzLower(pcKey)
 
 			This._EnsureEngineMap()
-			if @pEngineMap != NULL
+			if @pEngineMap != ""
 				return StzEngineHashMapHasKey(@pEngineMap, _cHkKey_)
 			ok
 			if This.FindKey(_cHkKey_) > 0
@@ -2180,7 +2180,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		for _iFkbv_ = 1 to _nFkbvLen_
 			_vFkbvVal_ = _aFkbvContent_[_iFkbv_][2]
-			_bFkbvHit_ = FALSE
+			_bFkbvHit_ = 0
 
 			if isString(_vFkbvVal_)
 				# A string value CONTAINS a substring. A NON-string needle
@@ -2189,19 +2189,19 @@ class stzHashList from stzList # Also called stzAssociativeList
 				# Ring down hard -- exit 1, no message, no output at all.
 				if isString(pValue)
 					if StzFindFirst(pValue, _vFkbvVal_) > 0
-						_bFkbvHit_ = TRUE
+						_bFkbvHit_ = 1
 					ok
 				ok
 
 			but isList(_vFkbvVal_)
 				# a list value CONTAINS an item
 				if ring_find(_vFkbvVal_, pValue) > 0
-					_bFkbvHit_ = TRUE
+					_bFkbvHit_ = 1
 				ok
 
 			else
 				if Q(_vFkbvVal_).Contains(pValue)
-					_bFkbvHit_ = TRUE
+					_bFkbvHit_ = 1
 				ok
 			ok
 

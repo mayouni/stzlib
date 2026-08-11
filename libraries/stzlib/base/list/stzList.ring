@@ -1534,12 +1534,12 @@ class stzList from stzObject
 
 	def FindEmptyStrings()
 		_pFesList_ = This._EngineListFromContent()
-		if _pFesList_ = NULL
+		if _pFesList_ = ""
 			return []
 		ok
 		_pFesResult_ = StzEngineListFindEmptyStrings(_pFesList_)
 		StzEngineListFree(_pFesList_)
-		if _pFesResult_ = NULL
+		if _pFesResult_ = ""
 			return []
 		ok
 		_aFesOut_ = StzEngineListContentToRingList(_pFesResult_)
@@ -1548,7 +1548,7 @@ class stzList from stzObject
 
 	def CountEmptyStrings()
 		_pCesList_ = This._EngineListFromContent()
-		if _pCesList_ = NULL
+		if _pCesList_ = ""
 			return 0
 		ok
 		_nCesCount_ = StzEngineListCountEmptyStrings(_pCesList_)
@@ -1671,7 +1671,7 @@ class stzList from stzObject
 		ok
 
 		_pList_ = This._Engine()
-		if _pList_ = NULL return ok
+		if _pList_ = "" return ok
 
 		StzEngineListSortCS(_pList_, pCaseSensitive)
 		This._RefreshFromEngine()
@@ -1750,7 +1750,7 @@ class stzList from stzObject
 		ok
 
 		_pList_ = This._EngineListFromContent()
-		if _pList_ = NULL return [] ok
+		if _pList_ = "" return [] ok
 
 		StzEngineListSortCS(_pList_, pCaseSensitive)
 		_aResult_ = StzEngineListContentToRingList(_pList_)
@@ -1767,7 +1767,7 @@ class stzList from stzObject
 		ok
 
 		_pList_ = This._Engine()
-		if _pList_ = NULL return ok
+		if _pList_ = "" return ok
 
 		StzEngineListSortDescendingCS(_pList_, pCaseSensitive)
 		This._RefreshFromEngine()
@@ -1791,7 +1791,7 @@ class stzList from stzObject
 		ok
 
 		_pList_ = This._EngineListFromContent()
-		if _pList_ = NULL return [] ok
+		if _pList_ = "" return [] ok
 
 		StzEngineListSortDescendingCS(_pList_, pCaseSensitive)
 		_aResult_ = StzEngineListContentToRingList(_pList_)
@@ -1810,7 +1810,7 @@ class stzList from stzObject
 	# use Reversed.
 	def Reverse()
 		_pList_ = This._Engine()
-		if _pList_ = NULL return ok
+		if _pList_ = "" return ok
 
 		StzEngineListReverse(_pList_)
 		This._RefreshFromEngine()
@@ -1822,7 +1822,7 @@ class stzList from stzObject
 	# A reversed copy of the list; the original is unchanged.
 	def Reversed()
 		_pList_ = This._EngineListFromContent()
-		if _pList_ = NULL return [] ok
+		if _pList_ = "" return [] ok
 
 		StzEngineListReverse(_pList_)
 		_aResult_ = StzEngineListContentToRingList(_pList_)
@@ -1895,10 +1895,10 @@ class stzList from stzObject
 		_nLen_ = len(@aContent)
 		for _i_ = 2 to _nLen_
 			if @aContent[_i_] = @aContent[_i_ - 1]
-				return TRUE
+				return 1
 			ok
 		next
-		return FALSE
+		return 0
 
 		def ContainsConsecutiveDuplicates()
 			return This.ContainsDupSecutiveItems()
@@ -1912,10 +1912,10 @@ class stzList from stzObject
 		_nLen_ = len(@aContent)
 		_nP_ = len(paItems)
 		for _i_ = 1 to _nLen_
-			_bRemove_ = FALSE
+			_bRemove_ = 0
 			for _j_ = 1 to _nP_
 				if BothAreEqualCS(@aContent[_i_], paItems[_j_], 1)
-					_bRemove_ = TRUE
+					_bRemove_ = 1
 					exit
 				ok
 			next
@@ -1929,7 +1929,7 @@ class stzList from stzObject
 	# order (i.e. this list is an order-preserving subsequence of paOther).
 	def ItemsHaveSameOrderAs(paOther)
 		if NOT isList(paOther)
-			return FALSE
+			return 0
 		ok
 		_nThis_ = len(@aContent)
 		_nOther_ = len(paOther)
@@ -1956,7 +1956,7 @@ class stzList from stzObject
 		ok
 
 		_pList_ = This._Engine()
-		if _pList_ = NULL return 0 ok
+		if _pList_ = "" return 0 ok
 
 		_nResult_ = 0
 		if isString(pItem)
@@ -2000,10 +2000,10 @@ class stzList from stzObject
 		ok
 
 		_pList_ = This._Engine()
-		if _pList_ = NULL return ok
+		if _pList_ = "" return ok
 
 		pUnique = StzEngineListUniqueCS(_pList_, pCaseSensitive)
-		if pUnique != NULL
+		if pUnique != ""
 			This._AdoptEngine(pUnique)   # frees old cache (_pList_), adopts pUnique
 		ok
 
@@ -2060,11 +2060,11 @@ class stzList from stzObject
 		ok
 
 		_pList_ = This._Engine()
-		if _pList_ = NULL return @aContent ok
+		if _pList_ = "" return @aContent ok
 
 		pUnique = StzEngineListUniqueCS(_pList_, pCaseSensitive)
 		_aResult_ = @aContent
-		if pUnique != NULL
+		if pUnique != ""
 			_aResult_ = StzEngineListContentToRingList(pUnique)
 			StzEngineListFree(pUnique)
 		ok
@@ -2136,7 +2136,7 @@ class stzList from stzObject
 		# silently returned [] for them). Ring loop kept as a fallback
 		# when the content can't be marshalled into an engine list.
 		_pFdList_ = This._Engine()
-		if _pFdList_ != NULL
+		if _pFdList_ != ""
 			_aFdRes_ = StzEngineListFindDuplicatesCS(_pFdList_, 1)
 			return _aFdRes_
 		ok
@@ -2146,11 +2146,11 @@ class stzList from stzObject
 		_aSeen_ = []
 		for _i_ = 1 to _nDataLen_
 			_x_ = _aData_[_i_]
-			_bDup_ = FALSE
+			_bDup_ = 0
 			_nSeenLen_ = len(_aSeen_)
 			for _j_ = 1 to _nSeenLen_
 				if _aSeen_[_j_] = _x_
-					_bDup_ = TRUE
+					_bDup_ = 1
 					exit
 				ok
 			next
@@ -2214,7 +2214,7 @@ class stzList from stzObject
 		# The nth item after the given position.
 		def NextNthItem(_n_, pnStartingAt)
 			_nP_ = This.FindNextNthItem(_n_, pnStartingAt)
-			if _nP_ = 0 return NULL ok
+			if _nP_ = 0 return "" ok
 			return This.Content()[_nP_]
 
 	# FindPreviousNthItem(n, :StartingAt = pos): the POSITION of the n-th
@@ -2232,7 +2232,7 @@ class stzList from stzObject
 		# The nth item before the given position.
 		def PreviousNthItem(_n_, pnStartingAt)
 			_nP_ = This.FindPreviousNthItem(_n_, pnStartingAt)
-			if _nP_ = 0 return NULL ok
+			if _nP_ = 0 return "" ok
 			return This.Content()[_nP_]
 
 	# Duplicates() / DuplicateItems() / Duplications(): the duplicated
@@ -2433,10 +2433,10 @@ class stzList from stzObject
 	# For a copy, use Flattened.
 	def Flatten()
 		_pList_ = This._Engine()
-		if _pList_ = NULL return ok
+		if _pList_ = "" return ok
 
 		pFlat = StzEngineListFlatten(_pList_)
-		if pFlat != NULL
+		if pFlat != ""
 			This._AdoptEngine(pFlat)   # frees old cache (_pList_), adopts pFlat
 		ok
 		# if pFlat = NULL, _pList_ stays as the cache (not freed)
@@ -2448,11 +2448,11 @@ class stzList from stzObject
 	# A fully-flattened copy of the nested list; the original is unchanged.
 	def Flattened()
 		_pList_ = This._Engine()
-		if _pList_ = NULL return [] ok
+		if _pList_ = "" return [] ok
 
 		pFlat = StzEngineListFlatten(_pList_)
 		_aResult_ = []
-		if pFlat != NULL
+		if pFlat != ""
 			_aResult_ = StzEngineListContentToRingList(pFlat)
 			StzEngineListFree(pFlat)
 		ok
@@ -2478,11 +2478,11 @@ class stzList from stzObject
 
 		# Use mutual subset check (A subset B AND B subset A)
 		_pEqList1_ = This._Engine()
-		if _pEqList1_ = NULL return 0 ok
+		if _pEqList1_ = "" return 0 ok
 
 		_oEqOther_ = new stzList(paOtherList)
 		_pEqList2_ = _oEqOther_._EngineListFromContent()
-		if _pEqList2_ = NULL
+		if _pEqList2_ = ""
 			return 0
 		ok
 
@@ -2510,11 +2510,11 @@ class stzList from stzObject
 		ok
 
 		_pSeList1_ = This._Engine()
-		if _pSeList1_ = NULL return 0 ok
+		if _pSeList1_ = "" return 0 ok
 
 		_oSeOther_ = new stzList(paOtherList)
 		_pSeList2_ = _oSeOther_._EngineListFromContent()
-		if _pSeList2_ = NULL
+		if _pSeList2_ = ""
 			return 0
 		ok
 
@@ -2568,7 +2568,7 @@ class stzList from stzObject
 
 	def Map(pcExpr)
 		_pList_ = This._Engine()
-		if _pList_ = NULL return [] ok
+		if _pList_ = "" return [] ok
 
 		pcExpr = _StzStripBraces(pcExpr)
 		pResult = StzEngineListMapExpr(_pList_, pcExpr)
@@ -2583,7 +2583,7 @@ class stzList from stzObject
 	#@ aka  keep where, select, subset, matching items, pick out
 	def Filter(pcExpr)
 		_pList_ = This._Engine()
-		if _pList_ = NULL return [] ok
+		if _pList_ = "" return [] ok
 
 		pcExpr = _StzStripBraces(pcExpr)
 		pResult = StzEngineListFilterExpr(_pList_, pcExpr)
@@ -2605,11 +2605,11 @@ class stzList from stzObject
 	def Reduce()
 		_l_ = This.List()
 		_nL_ = len(_l_)
-		_bAllStr_ = TRUE
-		_bAllNum_ = TRUE
+		_bAllStr_ = 1
+		_bAllNum_ = 1
 		for _i_ = 1 to _nL_
-			if NOT isString(_l_[_i_]) _bAllStr_ = FALSE ok
-			if NOT isNumber(_l_[_i_]) _bAllNum_ = FALSE ok
+			if NOT isString(_l_[_i_]) _bAllStr_ = 0 ok
+			if NOT isNumber(_l_[_i_]) _bAllNum_ = 0 ok
 		next
 		if _bAllNum_
 			_s_ = 0
@@ -2630,7 +2630,7 @@ class stzList from stzObject
 		# StzValue handle crosses the stz_list<->stz_value DLL boundary (which
 		# previously panicked on the init handle). Returns a plain number.
 		_pList_ = This._Engine()
-		if _pList_ = NULL return 0 ok
+		if _pList_ = "" return 0 ok
 
 		pcExpr = _StzStripBraces(pcExpr)
 		_result_ = StzEngineListReduceExpr(_pList_, pcExpr, pInitValue)
@@ -2639,7 +2639,7 @@ class stzList from stzObject
 
 	def ReduceNoInit(pcExpr)
 		_pList_ = This._Engine()
-		if _pList_ = NULL return 0 ok
+		if _pList_ = "" return 0 ok
 
 		pcExpr = _StzStripBraces(pcExpr)
 		_result_ = StzEngineListReduceExprNoInit(_pList_, pcExpr)
@@ -2648,7 +2648,7 @@ class stzList from stzObject
 
 	def CountW(pcCondition)
 		_pList_ = This._Engine()
-		if _pList_ = NULL return 0 ok
+		if _pList_ = "" return 0 ok
 
 		pcCondition = _StzStripBraces(pcCondition)
 		_nResult_ = StzEngineListCountW(_pList_, pcCondition)
@@ -2700,12 +2700,12 @@ class stzList from stzObject
 	# lists in real code paths.
 	def HasSameContentAs(paOther)
 		if NOT isList(paOther)
-			return FALSE
+			return 0
 		ok
 		_aData_ = This.Content()
 		_nLen_ = len(_aData_)
 		if _nLen_ != len(paOther)
-			return FALSE
+			return 0
 		ok
 		# Manual copy. Ring's `list + []` appends [] as a new element
 		# instead of concatenating, so it cannot be used to clone.
@@ -2716,22 +2716,22 @@ class stzList from stzObject
 		next
 		for _i_ = 1 to _nLen_
 			_x_ = _aData_[_i_]
-			_bFound_ = FALSE
+			_bFound_ = 0
 			_nOLen_ = len(_aOther_)
 			for _j_ = 1 to _nOLen_
 				# content compare so nested-list items match (Ring's raw `=`
 				# can't compare sub-lists)
 				if BothAreEqualCS(_aOther_[_j_], _x_, 1)
 					del(_aOther_, _j_)
-					_bFound_ = TRUE
+					_bFound_ = 1
 					exit
 				ok
 			next
 			if NOT _bFound_
-				return FALSE
+				return 0
 			ok
 		next
-		return TRUE
+		return 1
 
 		def IsEquivalentTo(paOther)
 			return This.HasSameContentAs(paOther)
@@ -2841,13 +2841,13 @@ class stzList from stzObject
 		on "stzstrings"
 			return This._AllItemsHaveStzType("stzstring")
 		on "listsofnumbers"
-			return This._AllItemsAreNumberLists(FALSE)
+			return This._AllItemsAreNumberLists(0)
 		on "listofnumbers"
-			return This._AllItemsAreNumberLists(FALSE)
+			return This._AllItemsAreNumberLists(0)
 		on "pairsofnumbers"
-			return This._AllItemsAreNumberLists(TRUE)
+			return This._AllItemsAreNumberLists(1)
 		on "pairofnumbers"
-			return This._AllItemsAreNumberLists(TRUE)
+			return This._AllItemsAreNumberLists(1)
 		on "listofstrings"
 			return This._AllItemsAreStringLists()
 		on "listsofstrings"
@@ -2861,7 +2861,7 @@ class stzList from stzObject
 		on "listsofstzstrings"
 			return This._AllItemsAreStzTypeLists("stzstring")
 		other
-			return FALSE
+			return 0
 		off
 
 		def IsAListOf(pType)
@@ -2871,73 +2871,73 @@ class stzList from stzObject
 	def _AllItemsHaveStzType(cStzType)
 		_nLen_ = len(@aContent)
 		if _nLen_ = 0
-			return FALSE
+			return 0
 		ok
 		for _i_ = 1 to _nLen_
 			if NOT isObject(@aContent[_i_])
-				return FALSE
+				return 0
 			ok
 			if StzLower("" + @aContent[_i_].StzType()) != StzLower(cStzType)
-				return FALSE
+				return 0
 			ok
 		next
-		return TRUE
+		return 1
 
 	# All items are lists of numbers (optionally each a 2-element pair).
 	def _AllItemsAreNumberLists(bPairsOnly)
 		_nLen_ = len(@aContent)
 		if _nLen_ = 0
-			return FALSE
+			return 0
 		ok
 		for _i_ = 1 to _nLen_
 			_it_ = @aContent[_i_]
 			if NOT isList(_it_)
-				return FALSE
+				return 0
 			ok
 			if bPairsOnly and len(_it_) != 2
-				return FALSE
+				return 0
 			ok
 			_m_ = len(_it_)
 			for _j_ = 1 to _m_
 				if NOT isNumber(_it_[_j_])
-					return FALSE
+					return 0
 				ok
 			next
 		next
-		return TRUE
+		return 1
 
 	# All items are lists of strings.
 	def _AllItemsAreStringLists()
 		_nLen_ = len(@aContent)
-		if _nLen_ = 0 return FALSE ok
+		if _nLen_ = 0 return 0 ok
 		for _i_ = 1 to _nLen_
 			_it_ = @aContent[_i_]
-			if NOT isList(_it_) return FALSE ok
+			if NOT isList(_it_) return 0 ok
 			_m_ = len(_it_)
 			for _j_ = 1 to _m_
-				if NOT isString(_it_[_j_]) return FALSE ok
+				if NOT isString(_it_[_j_]) return 0 ok
 			next
 		next
-		return TRUE
+		return 1
 
 	# All items are lists whose items are stz objects of the given stztype.
 	def _AllItemsAreStzTypeLists(cStzType)
 		_nLen_ = len(@aContent)
-		if _nLen_ = 0 return FALSE ok
+		if _nLen_ = 0 return 0 ok
 		for _i_ = 1 to _nLen_
 			_it_ = @aContent[_i_]
-			if NOT isList(_it_) return FALSE ok
+			if NOT isList(_it_) return 0 ok
 			_m_ = len(_it_)
 			for _j_ = 1 to _m_
-				if NOT isObject(_it_[_j_]) return FALSE ok
-				if StzLower("" + _it_[_j_].StzType()) != StzLower(cStzType) return FALSE ok
+				if NOT isObject(_it_[_j_]) return 0 ok
+				if StzLower("" + _it_[_j_].StzType()) != StzLower(cStzType) return 0 ok
 			next
 		next
-		return TRUE
+		return 1
 
 	# TRUE if every item is a list (vacuously TRUE when empty).
 	def IsListOfLists()
-		if len(@aContent) = 0 return TRUE ok		#-- vacuously true (engine returns 0 on empty)
+		if len(@aContent) = 0 return 1 ok		#-- vacuously true (engine returns 0 on empty)
 		_pList_ = This._EngineListFromContent()
 		_nResult_ = StzEngineListIsAllLists(_pList_)
 		StzEngineListFree(_pList_)
@@ -3001,7 +3001,7 @@ class stzList from stzObject
 
 	# TRUE if every item is a pair (vacuously TRUE when empty).
 	def IsListOfPairs()
-		if len(@aContent) = 0 return TRUE ok		#-- vacuously true (engine returns 0 on empty)
+		if len(@aContent) = 0 return 1 ok		#-- vacuously true (engine returns 0 on empty)
 		_pList_ = This._EngineListFromContent()
 		_nResult_ = StzEngineListIsAllPairs(_pList_)
 		StzEngineListFree(_pList_)
@@ -3015,19 +3015,19 @@ class stzList from stzObject
 	def IsContiguous()
 		_nLen_ = len(@aContent)
 		if _nLen_ < 2
-			return TRUE
+			return 1
 		ok
 		for _i_ = 1 to _nLen_
 			if NOT isNumber(@aContent[_i_])
-				return FALSE
+				return 0
 			ok
 		next
 		for _i_ = 2 to _nLen_
 			if @aContent[_i_] != @aContent[_i_-1] + 1
-				return FALSE
+				return 0
 			ok
 		next
-		return TRUE
+		return 1
 
 		def AreContiguous()
 			return This.IsContiguous()
@@ -3038,10 +3038,10 @@ class stzList from stzObject
 		for _i_ = 1 to _nLen_
 			p = @aContent[_i_]
 			if NOT (isList(p) and len(p) = 2 and isNumber(p[1]) and isNumber(p[2]))
-				return FALSE
+				return 0
 			ok
 		next
-		return TRUE
+		return 1
 
 		def IsAListOfPairsOfNumbers()
 			return This.IsListOfPairsOfNumbers()
@@ -3052,10 +3052,10 @@ class stzList from stzObject
 		for _i_ = 1 to _nLen_
 			p = @aContent[_i_]
 			if NOT (isList(p) and len(p) = 2 and isString(p[1]) and isString(p[2]))
-				return FALSE
+				return 0
 			ok
 		next
-		return TRUE
+		return 1
 
 		def IsAListOfPairsOfStrings()
 			return This.IsListOfPairsOfStrings()
@@ -3067,7 +3067,7 @@ class stzList from stzObject
 		# Softanza's "no duplicates" exactly -- including sub-list items, which
 		# the old raw `=` loop could not compare. Ring fallback otherwise.
 		_pSetList_ = This._EngineListFromContent()
-		if _pSetList_ != NULL
+		if _pSetList_ != ""
 			_nSet_ = StzEngineListAllUniqueCS(_pSetList_, 1)
 			StzEngineListFree(_pSetList_)
 			return _nSet_
@@ -3076,11 +3076,11 @@ class stzList from stzObject
 		for _i_ = 1 to _nLen_
 			for _j_ = _i_ + 1 to _nLen_
 				if @aContent[_i_] = @aContent[_j_]
-					return FALSE
+					return 0
 				ok
 			next
 		next
-		return TRUE
+		return 1
 
 		def IsASet()
 			return This.IsSet()
@@ -3108,8 +3108,8 @@ class stzList from stzObject
 		_nLen_ = This.NumberOfItems()
 
 		if CheckingParams()
-			_n1_ = This._SectionResolveBound(_n1_, TRUE)
-			_n2_ = This._SectionResolveBound(_n2_, FALSE)
+			_n1_ = This._SectionResolveBound(_n1_, 1)
+			_n2_ = This._SectionResolveBound(_n2_, 0)
 
 			# :@ mirrors the partner index (Section(3,:@)==Section(3,3));
 			# :@ on both sides spans the whole list.
@@ -3418,10 +3418,10 @@ class stzList from stzObject
 		_nLen_ = len(@aContent)
 		for _i_ = 1 to _nLen_
 			_x_ = @aContent[_i_]
-			_bDup_ = FALSE
+			_bDup_ = 0
 			_nSL_ = len(_aSeen_)
 			for _j_ = 1 to _nSL_
-				if _aSeen_[_j_] = _x_ _bDup_ = TRUE exit ok
+				if _aSeen_[_j_] = _x_ _bDup_ = 1 exit ok
 			next
 			if NOT _bDup_
 				_aSeen_ + _x_
@@ -3439,15 +3439,15 @@ class stzList from stzObject
 	# IsReverseOf(paOther): TRUE iff @aContent is the reverse of
 	# paOther (deep-equal item-by-item).
 	def IsReverseOf(paOther)
-		if NOT isList(paOther) return FALSE ok
+		if NOT isList(paOther) return 0 ok
 		_nLen_ = len(@aContent)
-		if _nLen_ != len(paOther) return FALSE ok
+		if _nLen_ != len(paOther) return 0 ok
 		for _i_ = 1 to _nLen_
 			if @aContent[_i_] != paOther[_nLen_ - _i_ + 1]
-				return FALSE
+				return 0
 			ok
 		next
-		return TRUE
+		return 1
 
 	  #-- RemoveFirstItem / RemoveLastItem
 
@@ -3510,11 +3510,11 @@ class stzList from stzObject
 		# Engine path for string items
 		if isString(pItem)
 			_pFaoList_ = This._Engine()
-			if _pFaoList_ = NULL
+			if _pFaoList_ = ""
 				return []
 			ok
 			_pFaoResult_ = StzEngineListFindAllStringCS(_pFaoList_, pItem, pCaseSensitive)
-			if _pFaoResult_ = NULL
+			if _pFaoResult_ = ""
 				return []
 			ok
 			_aFaoOut_ = StzEngineListContentToRingList(_pFaoResult_)
@@ -3531,7 +3531,7 @@ class stzList from stzObject
 			# needle passed as a plain number so no cross-module value handle).
 			if floor(pItem) = pItem
 				_pFaiH_ = This._Engine()
-				if _pFaiH_ != NULL
+				if _pFaiH_ != ""
 					_anFai_ = StzEngineListFindAllInt(_pFaiH_, pItem)
 					if isList(_anFai_)
 						return _anFai_
@@ -3554,9 +3554,9 @@ class stzList from stzObject
 		# that the engine's native stzValue compare handles nested lists.)
 		if isList(pItem)
 			_pFaoHost_ = This._Engine()
-			if _pFaoHost_ = NULL return [] ok
+			if _pFaoHost_ = "" return [] ok
 			_pFaoHolder_ = StzEngineMarshalList([ pItem ])
-			if _pFaoHolder_ = NULL
+			if _pFaoHolder_ = ""
 				return []
 			ok
 			_anFaoOut_ = StzEngineListFindAllHeldCS(_pFaoHost_, _pFaoHolder_, pCaseSensitive)
@@ -3746,7 +3746,7 @@ class stzList from stzObject
 		# effectively hung at ~1,000,000 shared items.)
 		_pCiA_ = This._EngineListFromContent()
 		_pCiB_ = StzEngineMarshalList(_other_)
-		if _pCiA_ != NULL and _pCiB_ != NULL
+		if _pCiA_ != "" and _pCiB_ != ""
 			_pCiR_ = StzEngineListIntersectionCS(_pCiA_, _pCiB_, 1)
 			_aR_ = StzEngineListContentToRingList(_pCiR_)
 			StzEngineListFree(_pCiR_)
@@ -3754,8 +3754,8 @@ class stzList from stzObject
 			StzEngineListFree(_pCiB_)
 			return _aR_
 		ok
-		if _pCiA_ != NULL StzEngineListFree(_pCiA_) ok
-		if _pCiB_ != NULL StzEngineListFree(_pCiB_) ok
+		if _pCiA_ != "" StzEngineListFree(_pCiA_) ok
+		if _pCiB_ != "" StzEngineListFree(_pCiB_) ok
 
 		# Fallback (non-marshalable content): O(n*m) membership test with a
 		# first-occurrence dedup folded into the same pass.
@@ -3765,15 +3765,15 @@ class stzList from stzObject
 		_aU_ = []
 		for _i_ = 1 to _nL_
 			_v_ = _a_[_i_]
-			_bIn_ = FALSE
+			_bIn_ = 0
 			for _j_ = 1 to _nB_
-				if BothAreEqualCS(_v_, _other_[_j_], 1) _bIn_ = TRUE exit ok
+				if BothAreEqualCS(_v_, _other_[_j_], 1) _bIn_ = 1 exit ok
 			next
 			if _bIn_
-				_bSeen_ = FALSE
+				_bSeen_ = 0
 				_nUL_ = len(_aU_)
 				for _k_ = 1 to _nUL_
-					if BothAreEqualCS(_v_, _aU_[_k_], 1) _bSeen_ = TRUE exit ok
+					if BothAreEqualCS(_v_, _aU_[_k_], 1) _bSeen_ = 1 exit ok
 				next
 				if NOT _bSeen_ _aU_ + _v_ ok
 			ok
@@ -4033,9 +4033,9 @@ class stzList from stzObject
 		_nL_ = len(_l_)
 		for _i_ = 1 to _nL_
 			_v_ = _l_[_i_]
-			if isString(_v_) and _v_ != lower(_v_) return TRUE ok
+			if isString(_v_) and _v_ != lower(_v_) return 1 ok
 		next
-		return FALSE
+		return 0
 
 	def IsInLowercase()
 		return NOT This.IsNotInLowercase()
@@ -4044,9 +4044,9 @@ class stzList from stzObject
 		_l_ = This.List()
 		_nL_ = len(_l_)
 		for _i_ = 1 to _nL_
-			if _l_[_i_] = p return FALSE ok
+			if _l_[_i_] = p return 0 ok
 		next
-		return TRUE
+		return 1
 
 	def NumberOfChars()
 		# Number of single-character ITEMS in the list (canonical, per
@@ -4194,10 +4194,10 @@ class stzList from stzObject
 		_aR_ = []
 		for _i_ = 1 to _nL_
 			_v_ = _a_[_i_]
-			_bSeen_ = FALSE
+			_bSeen_ = 0
 			_nRL_ = len(_aR_)
 			for _j_ = 1 to _nRL_
-				if _aR_[_j_] = _v_ _bSeen_ = TRUE exit ok
+				if _aR_[_j_] = _v_ _bSeen_ = 1 exit ok
 			next
 			if NOT _bSeen_ _aR_ + _v_ ok
 		next
@@ -4275,11 +4275,11 @@ class stzList from stzObject
 		for _i_ = 1 to _nL_
 			_v_ = _l_[_i_]
 			if isObject(_v_)
-				_bNamed_ = FALSE
+				_bNamed_ = 0
 				try
 					_n_ = _v_.ObjectName()
 					if isString(_n_) and _n_ != "" and _n_ != "@noname"
-						_bNamed_ = TRUE
+						_bNamed_ = 1
 					ok
 				catch
 				done
@@ -4352,11 +4352,11 @@ class stzList from stzObject
 			@string = _v_
 			@item = _v_
 			@i = _i_
-			_b_ = FALSE
+			_b_ = 0
 			try
 				eval("_b_ = " + pcExpr)
 			catch
-				_b_ = FALSE
+				_b_ = 0
 			done
 			if _b_ _aR_ + _v_ ok
 		next
@@ -4372,11 +4372,11 @@ class stzList from stzObject
 			@Item = @item
 			@i = _i_
 			@position = _i_
-			_b_ = FALSE
+			_b_ = 0
 			try
 				eval("_b_ = " + pcExpr)
 			catch
-				_b_ = FALSE
+				_b_ = 0
 			done
 			if _b_ _aR_ + _l_[_i_] ok
 		next
@@ -4434,7 +4434,7 @@ class stzList from stzObject
 
 
 	def IsIncludedIn(pOther)
-		if NOT isList(pOther) return FALSE ok
+		if NOT isList(pOther) return 0 ok
 		_pList_ = This._EngineListFromContent()
 		pOth = StzEngineMarshalList(pOther)
 		_nResult_ = This.IsContainedInCS(pOther, 1)  # singular = whole-list-as-element (ExistsIn); AreIncludedIn = subset
@@ -4519,13 +4519,13 @@ class stzList from stzObject
 	def HasLeadingItems()
 		_l_ = This.List()
 		_nL_ = len(_l_)
-		if _nL_ < 2 return FALSE ok
+		if _nL_ < 2 return 0 ok
 		return _l_[1] = _l_[2]
 
 	def HasTrailingItems()
 		_l_ = This.List()
 		_nL_ = len(_l_)
-		if _nL_ < 2 return FALSE ok
+		if _nL_ < 2 return 0 ok
 		return _l_[_nL_] = _l_[_nL_ - 1]
 
 	def Combinations()
@@ -4541,17 +4541,17 @@ class stzList from stzObject
 
 	def IsAtCharsNamedParam()
 		_l_ = This.List()
-		if len(_l_) != 2 return FALSE ok
-		if NOT isString(_l_[1]) return FALSE ok
+		if len(_l_) != 2 return 0 ok
+		if NOT isString(_l_[1]) return 0 ok
 		_kw_ = lower(_l_[1])
 		if ring_left(_kw_, 1) = ":" _kw_ = StzMidToEnd(_kw_, 2) ok
 		return _kw_ = "atchars"
 
 	def IsOneOfTheseNamedParams(pacNames)
-		if NOT isList(pacNames) return FALSE ok
+		if NOT isList(pacNames) return 0 ok
 		_l_ = This.List()
-		if len(_l_) != 2 return FALSE ok
-		if NOT isString(_l_[1]) return FALSE ok
+		if len(_l_) != 2 return 0 ok
+		if NOT isString(_l_[1]) return 0 ok
 		_kw_ = lower(_l_[1])
 		if ring_left(_kw_, 1) = ":" _kw_ = StzMidToEnd(_kw_, 2) ok
 		_nNL_ = len(pacNames)
@@ -4559,9 +4559,9 @@ class stzList from stzObject
 			if NOT isString(pacNames[_iN_]) loop ok
 			_target_ = lower(pacNames[_iN_])
 			if ring_left(_target_, 1) = ":" _target_ = StzMidToEnd(_target_, 2) ok
-			if _kw_ = _target_ return TRUE ok
+			if _kw_ = _target_ return 1 ok
 		next
-		return FALSE
+		return 0
 
 	def IsStepNamedParam()
 		_l_ = This.List()
@@ -4578,10 +4578,10 @@ class stzList from stzObject
 		_aRes_ = []
 		for _i_ = 1 to _nL_
 			_v_ = _l_[_i_]
-			_bSeen_ = FALSE
+			_bSeen_ = 0
 			_nRL_ = len(_aRes_)
 			for _j_ = 1 to _nRL_
-				if _aRes_[_j_][1] = _v_ _aRes_[_j_][2] = _aRes_[_j_][2] + 1 _bSeen_ = TRUE exit ok
+				if _aRes_[_j_][1] = _v_ _aRes_[_j_][2] = _aRes_[_j_][2] + 1 _bSeen_ = 1 exit ok
 			next
 			if NOT _bSeen_ _aRes_ + [ _v_, 1 ] ok
 		next
@@ -4949,7 +4949,7 @@ class stzList from stzObject
 		ok
 
 		_pList_ = This._Engine()
-		if _pList_ = NULL return [] ok
+		if _pList_ = "" return [] ok
 		# Engine returns a ready list of 1-based positions (built Zig-side).
 		_anAll_ = StzEngineListFindAllW(_pList_, pcCondition)
 
@@ -5099,17 +5099,17 @@ class stzList from stzObject
 	def NthItemWF(_n_, pFunc)
 		_aWf_ = This.ItemsWF(pFunc)
 		if _n_ >= 1 and _n_ <= ring_len(_aWf_) return _aWf_[_n_] ok
-		return NULL
+		return ""
 
 	def FirstItemWF(pFunc)
 		_aWf_ = This.ItemsWF(pFunc)
 		if ring_len(_aWf_) > 0 return _aWf_[1] ok
-		return NULL
+		return ""
 
 	def LastItemWF(pFunc)
 		_aWf_ = This.ItemsWF(pFunc)
 		if ring_len(_aWf_) > 0 return _aWf_[ ring_len(_aWf_) ] ok
-		return NULL
+		return ""
 
 	#-- WF mutators / transforms (full Ring power, no eval)
 
@@ -5230,7 +5230,7 @@ class stzList from stzObject
 		_pDwA_ = This._EngineListFromContent()
 		_pDwB_ = StzEngineMarshalList(paOther)
 
-		if _pDwA_ != NULL and _pDwB_ != NULL
+		if _pDwA_ != "" and _pDwB_ != ""
 			_pDwAdd_ = StzEngineListDifferenceCS(_pDwA_, _pDwB_, 1)
 			_pDwRem_ = StzEngineListDifferenceCS(_pDwB_, _pDwA_, 1)
 
@@ -5323,9 +5323,9 @@ class stzList from stzObject
 	#   ExtendXT( :ToPosition = n, :ByItemsRepeated )    -- cycle self
 	def ExtendXT(p1, p2)
 		_nTo_ = 0
-		_xWith_ = NULL
-		_xWithItemsIn_ = NULL
-		_bRepeat_ = FALSE
+		_xWith_ = ""
+		_xWithItemsIn_ = ""
+		_bRepeat_ = 0
 
 		_aArgs_ = [ p1, p2 ]
 		for _i_ = 1 to 2
@@ -5340,15 +5340,15 @@ class stzList from stzObject
 					_nTo_ = _a_[2]
 				ok
 			but _a_ = :ByItemsRepeated
-				_bRepeat_ = TRUE
+				_bRepeat_ = 1
 			ok
 		next
 
 		if _nTo_ > 0
-			if _xWithItemsIn_ != NULL
+			if _xWithItemsIn_ != ""
 				# distribute/cycle the supplied pool into the new slots
 				return This.ExtendToWithItemsIn(_nTo_, _xWithItemsIn_)
-			but _xWith_ != NULL
+			but _xWith_ != ""
 				return This.ExtendToWith(_nTo_, _xWith_)
 			but _bRepeat_
 				_aSrc_ = This.Copy().Content()
@@ -5362,7 +5362,7 @@ class stzList from stzObject
 			else
 				return This.ExtendTo(_nTo_)
 			ok
-		but _xWith_ != NULL
+		but _xWith_ != ""
 			return This.Extend(_xWith_)
 		ok
 
@@ -5404,7 +5404,7 @@ class stzList from stzObject
 		pcAction = _StzStripBraces(pcAction)
 		_nLen_ = len(panPos)
 		_pList_ = This._EngineListFromContent()
-		if _pList_ = NULL return ok
+		if _pList_ = "" return ok
 
 		pResult = StzEngineListMapExpr(_pList_, pcAction)
 		_aNew_ = StzEngineListContentToRingList(pResult)
@@ -5639,12 +5639,12 @@ class stzList from stzObject
 		# NULL (so SplitAt silently fell back to [[],[]]). Build a 1-element
 		# positions list at the 0-based cut (n-1) for the 1-based SplitAt(n).
 		_pSaList_ = This._EngineListFromContent()
-		if _pSaList_ = NULL return [[], []] ok
+		if _pSaList_ = "" return [[], []] ok
 		_pSaPos_ = (new stzList([ _n_ - 1 ]))._EngineListFromContent()
 		_pSaResult_ = StzEngineListSplitAt(_pSaList_, _pSaPos_)
 		StzEngineListFree(_pSaList_)
-		if _pSaPos_ != NULL StzEngineListFree(_pSaPos_) ok
-		if _pSaResult_ = NULL return [[], []] ok
+		if _pSaPos_ != "" StzEngineListFree(_pSaPos_) ok
+		if _pSaResult_ = "" return [[], []] ok
 		_aSaOut_ = StzEngineListContentToRingList(_pSaResult_)
 		StzEngineListFree(_pSaResult_)
 		return _aSaOut_
@@ -5654,10 +5654,10 @@ class stzList from stzObject
 	# The rank of each item in the sorted order, as a list.
 	def Ranked()
 		_pRkList_ = This._EngineListFromContent()
-		if _pRkList_ = NULL return [] ok
+		if _pRkList_ = "" return [] ok
 		_pRkResult_ = StzEngineListRanked(_pRkList_)
 		StzEngineListFree(_pRkList_)
-		if _pRkResult_ = NULL return [] ok
+		if _pRkResult_ = "" return [] ok
 		_aRkOut_ = StzEngineListContentToRingList(_pRkResult_)
 		StzEngineListFree(_pRkResult_)
 		return _aRkOut_
@@ -5668,7 +5668,7 @@ class stzList from stzObject
 	#@ aka  concatenate, glue together, merge into one string
 	def Join(pcSep)
 		_pJnList_ = This._EngineListFromContent()
-		if _pJnList_ = NULL return "" ok
+		if _pJnList_ = "" return "" ok
 		_cJnResult_ = StzEngineListJoin(_pJnList_, pcSep)
 		StzEngineListFree(_pJnList_)
 		return _cJnResult_
@@ -5761,10 +5761,10 @@ class stzList from stzObject
 		_aIn_ = _anPos_
 		_nStart_ = 0
 		for _i_ = 1 to _nLen_
-			_bInPos_ = FALSE
+			_bInPos_ = 0
 			_nIL_ = len(_aIn_)
 			for _j_ = 1 to _nIL_
-				if _aIn_[_j_] = _i_ _bInPos_ = TRUE exit ok
+				if _aIn_[_j_] = _i_ _bInPos_ = 1 exit ok
 			next
 			if NOT _bInPos_
 				if _nStart_ = 0 _nStart_ = _i_ ok
@@ -6464,10 +6464,10 @@ class stzList from stzObject
 		_aSapParts_ = []
 		_aSapCur_ = []
 		for _iSap_ = 1 to _nSapL_
-			_bSapAnchor_ = FALSE
+			_bSapAnchor_ = 0
 			for _jSap_ = 1 to _nSapPL_
 				if panPos[_jSap_] = _iSap_
-					_bSapAnchor_ = TRUE
+					_bSapAnchor_ = 1
 					exit
 				ok
 			next
@@ -6836,7 +6836,7 @@ class stzList from stzObject
 	def Pop()
 		_nPopLen_ = This.NumberOfItems()
 		if _nPopLen_ = 0
-			return NULL
+			return ""
 		ok
 		_pPopItem_ = This.Item(_nPopLen_)
 		This.RemoveLastItem()
@@ -6845,7 +6845,7 @@ class stzList from stzObject
 	# Remove the FIRST item and return it.
 	def PopFirst()
 		if This.NumberOfItems() = 0
-			return NULL
+			return ""
 		ok
 		_pPfItem_ = This.Item(1)
 		This.RemoveFirstItem()
@@ -7203,12 +7203,12 @@ class stzList from stzObject
 				return @aWalkers[_iWd_][2]
 			ok
 		next
-		return NULL
+		return ""
 
 	# The positions visited by the given walker.
 	def WalkedPositions(pBy)
 		_aWp_ = This._WalkerDef(pBy)
-		if _aWp_ = NULL return [] ok
+		if _aWp_ = "" return [] ok
 		_nStart_ = _aWp_[1]
 		_nEnd_   = _aWp_[2]
 		_nStep_  = _aWp_[3]
@@ -7250,7 +7250,7 @@ class stzList from stzObject
 	# The item at the walker's last position.
 	def WalkedLastItem(pBy)
 		_nWli_ = This.WalkedLastPosition(pBy)
-		if _nWli_ = 0 return NULL ok
+		if _nWli_ = 0 return "" ok
 		return This.Item(_nWli_)
 
 	#-- YieldWhileWalking: project each item the named walker visits through an
@@ -8120,11 +8120,11 @@ class stzList from stzObject
 		if NOT (isString(pcSub) and isList(pNamedIn) and len(pNamedIn) = 2 and
 		        isString(pNamedIn[1]) and lower(pNamedIn[1]) = "in" and
 		        isString(pNamedIn[2]))
-			return FALSE
+			return 0
 		ok
 		_l_ = This.List()
 		if len(_l_) != 2 or NOT (isString(_l_[1]) and isString(_l_[2]))
-			return FALSE
+			return 0
 		ok
 		_cOpen_ = _l_[1]; _cClose_ = _l_[2]
 		_o_ = new stzString(pNamedIn[2])
@@ -8134,10 +8134,10 @@ class stzList from stzObject
 			_s_ = _aSec_[_i_]
 			if isList(_s_) and len(_s_) = 2
 				_cMid_ = _o_._EngineSlice(pNamedIn[2], _s_[1], _s_[2] - _s_[1] + 1)
-				if StzFindFirst(pcSub, _cMid_) > 0 return TRUE ok
+				if StzFindFirst(pcSub, _cMid_) > 0 return 1 ok
 			ok
 		next
-		return FALSE
+		return 0
 
 	#@ aka  put at position, add at, place into, inject at index
 	def Insert(pItem, pWhere)
@@ -8273,7 +8273,7 @@ class stzList from stzObject
 
 	def AllItemsAreEither(p1, p2, p3)
 		_aEieSpec_ = This._EieResolve(p1, p2, p3)
-		if _aEieSpec_ = NULL
+		if _aEieSpec_ = ""
 			return 0
 		ok
 		_cEieLT_ = _aEieSpec_[1]
@@ -8312,13 +8312,13 @@ class stzList from stzObject
 	#   rightType, rightPreds). Returns NULL on malformed input.
 
 	def _EieResolve(p1, p2, p3)
-		_cLT_ = NULL  _aLP_ = []
-		_cRT_ = NULL  _aRP_ = []
+		_cLT_ = ""  _aLP_ = []
+		_cRT_ = ""  _aRP_ = []
 
 		# Form A: p2 = [ "Or", X ] -- shared-type DSL
 		if isList(p2) and len(p2) = 2 and isString(p2[1]) and lower(p2[1]) = "or"
 			if NOT isString(p3)
-				return NULL
+				return ""
 			ok
 			_cLT_ = p3
 			_cRT_ = p3
@@ -8331,7 +8331,7 @@ class stzList from stzObject
 					_aLP_ + _s_
 				next
 			else
-				return NULL
+				return ""
 			ok
 			_aRP_ + p2[2]
 			return [ _cLT_, _aLP_, _cRT_, _aRP_ ]
@@ -8339,28 +8339,28 @@ class stzList from stzObject
 
 		# Form B/C: p2 must be the bare :Or marker
 		if NOT (isString(p2) and lower(p2) = "or")
-			return NULL
+			return ""
 		ok
 
 		# Resolve each side
 		_aL_ = This._EieResolveSide(p1)
-		if _aL_ = NULL return NULL ok
+		if _aL_ = "" return "" ok
 		_cLT_ = _aL_[1]  _aLP_ = _aL_[2]
 
 		_aR_ = This._EieResolveSide(p3)
-		if _aR_ = NULL return NULL ok
+		if _aR_ = "" return "" ok
 		_cRT_ = _aR_[1]  _aRP_ = _aR_[2]
 
 		# Borrow type if one side is predicate-only
-		if _cLT_ = NULL _cLT_ = _cRT_ ok
-		if _cRT_ = NULL _cRT_ = _cLT_ ok
-		if _cLT_ = NULL return NULL ok
+		if _cLT_ = "" _cLT_ = _cRT_ ok
+		if _cRT_ = "" _cRT_ = _cLT_ ok
+		if _cLT_ = "" return "" ok
 
 		return [ _cLT_, _aLP_, _cRT_, _aRP_ ]
 
 	def _EieResolveSide(pSide)
 		_aTypes_ = [ "number", "string", "list", "object" ]
-		_cT_ = NULL  _aP_ = []
+		_cT_ = ""  _aP_ = []
 		if isString(pSide)
 			if ring_find(_aTypes_, lower(pSide)) > 0
 				_cT_ = pSide
@@ -8371,7 +8371,7 @@ class stzList from stzObject
 			# Last item is the type
 			_cLast_ = pSide[len(pSide)]
 			if NOT isString(_cLast_)
-				return NULL
+				return ""
 			ok
 			if ring_find(_aTypes_, lower(_cLast_)) > 0
 				_cT_ = _cLast_
@@ -8387,12 +8387,12 @@ class stzList from stzObject
 				next
 			ok
 		else
-			return NULL
+			return ""
 		ok
 		return [ _cT_, _aP_ ]
 
 	def _EieCheck(pItem, pcType, paPreds)
-		if pcType = NULL
+		if pcType = ""
 			return 0
 		ok
 		_bTypeOk_ = 0
@@ -9401,7 +9401,7 @@ class stzList from stzObject
 		# other-side items -- the documented Softanza order (test 632).
 		_pDiwA_ = This._EngineListFromContent()
 		_pDiwB_ = StzEngineMarshalList(paOtherList)
-		if _pDiwA_ != NULL and _pDiwB_ != NULL
+		if _pDiwA_ != "" and _pDiwB_ != ""
 			_pDiwD1_ = StzEngineListDifferenceCS(_pDiwA_, _pDiwB_, pCaseSensitive)
 			_pDiwD2_ = StzEngineListDifferenceCS(_pDiwB_, _pDiwA_, pCaseSensitive)
 			_aDiwR_ = StzEngineListContentToRingList(_pDiwD1_)
@@ -11367,7 +11367,7 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 		if NOT isList(paOtherList)
-			return FALSE
+			return 0
 		ok
 
 		if pCaseSensitive = 1
@@ -11379,7 +11379,7 @@ class stzList from stzObject
 		_n1_ = len(_aThis_)
 		_n2_ = len(paOtherList)
 		if _n1_ != _n2_
-			return FALSE
+			return 0
 		ok
 		_ac1_ = []
 		for _i_ = 1 to _n1_
@@ -11393,10 +11393,10 @@ class stzList from stzObject
 		_ac2_ = ring_sort(_ac2_)
 		for _i_ = 1 to _n1_
 			if NOT _ac1_[_i_] = _ac2_[_i_]
-				return FALSE
+				return 0
 			ok
 		next
-		return TRUE
+		return 1
 
 	#-- Rendering the list back to its Ring source-code string.
 
@@ -11439,14 +11439,14 @@ class stzList from stzObject
 		_aC_ = This.Content()
 		_n_ = len(_aC_)
 		if _n_ = 0
-			return FALSE
+			return 0
 		ok
 		for _i_ = 1 to _n_
 			if NOT BothAreEqualCS(_aC_[_i_], pItem, pCaseSensitive)
-				return FALSE
+				return 0
 			ok
 		next
-		return TRUE
+		return 1
 
 	def AllItemsAreEqualTo(pItem)
 		return This.AllItemsAreEqualToCS(pItem, 1)
@@ -11568,9 +11568,9 @@ class stzList from stzObject
 			if isList(_x_) and len(_x_) = 2 and isNumber(_x_[1]) and isNumber(_x_[2])
 				loop
 			ok
-			return FALSE
+			return 0
 		next
-		return TRUE
+		return 1
 
 	#-- Splitting into parts (mutating Split*, fluent Split*Q, and
 	#-- non-mutating Splitted* that return a fresh list of parts).
@@ -11844,7 +11844,7 @@ class stzList from stzObject
 		# any language binding, not just Ring.
 		_pAic_ = This._EngineListFromContent()
 		_pBic_ = StzEngineMarshalList(paOtherList)
-		if _pAic_ != NULL and _pBic_ != NULL
+		if _pAic_ != "" and _pBic_ != ""
 			_pDic_ = StzEngineListDifferenceCS(_pBic_, _pAic_, pCaseSensitive)
 			_aResult_ = StzEngineListContentToRingList(_pDic_)
 			StzEngineListFree(_pDic_)
@@ -11869,7 +11869,7 @@ class stzList from stzObject
 		# Removed = items here absent from the OTHER list = this \ other.
 		_pAric_ = This._EngineListFromContent()
 		_pBric_ = StzEngineMarshalList(paOtherList)
-		if _pAric_ != NULL and _pBric_ != NULL
+		if _pAric_ != "" and _pBric_ != ""
 			_pDric_ = StzEngineListDifferenceCS(_pAric_, _pBric_, pCaseSensitive)
 			_aResult_ = StzEngineListContentToRingList(_pDric_)
 			StzEngineListFree(_pDric_)
@@ -11900,7 +11900,7 @@ class stzList from stzObject
 		# it. Returns [ old, new ] pairs, nested structure preserved.
 		_pAmi_ = This._EngineListFromContent()
 		_pBmi_ = StzEngineMarshalList(paOtherList)
-		if _pAmi_ != NULL and _pBmi_ != NULL
+		if _pAmi_ != "" and _pBmi_ != ""
 			_pMmi_ = StzEngineListModifiedItemsCS(_pAmi_, _pBmi_, pCaseSensitive)
 			_aResult_ = StzEngineListContentToRingList(_pMmi_)
 			StzEngineListFree(_pMmi_)

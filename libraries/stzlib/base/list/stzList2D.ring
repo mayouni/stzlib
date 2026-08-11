@@ -22,11 +22,11 @@ func IsList2D(paList)
 
 	for i = 2 to _nLen_
 		if len(paList[i]) != _nLen1_
-			return FALSE
+			return 0
 		ok
 	next
 
-	return TRUE
+	return 1
 
 	func @IsList2D(paList)
 		return IsList2D(paList)

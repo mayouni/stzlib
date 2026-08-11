@@ -61,7 +61,7 @@ class stzListRemover from stzObject
 		# cross-DLL handle-table issue).
 		if isString(pItem)
 			_pRmList_ = @oList._EngineListFromContent()
-			if _pRmList_ != NULL
+			if _pRmList_ != ""
 				_nRmCs_ = 1
 				if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 					_nRmCs_ = pCaseSensitive[2]
@@ -135,7 +135,7 @@ class stzListRemover from stzObject
 
 		if _n_ <= This.NumberOfItems()
 			_pRipList_ = @oList._EngineListFromContent()
-			if _pRipList_ != NULL
+			if _pRipList_ != ""
 				StzEngineListRemove(_pRipList_, _n_)
 				@oList.UpdateWith(@oList._ContentFromEngineList(_pRipList_))
 				StzEngineListFree(_pRipList_)

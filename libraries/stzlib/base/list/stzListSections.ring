@@ -129,7 +129,7 @@ class stzListSections from stzObject
 
 		_pScList_ = @oList._EngineListFromContent()
 		_pScSection_ = StzEngineListSection(_pScList_, _n1_, _n2_)
-		if _pScSection_ != NULL
+		if _pScSection_ != ""
 			_aScResult_ = StzEngineListContentToRingList(_pScSection_)
 			StzEngineListFree(_pScSection_)
 		else

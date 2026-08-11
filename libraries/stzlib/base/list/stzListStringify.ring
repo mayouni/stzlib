@@ -206,11 +206,11 @@ class stzListStringify from stzObject
 		if _nTlsfN_ >= 2 and isNumber(_aTlsfC_[1]) and isNumber(_aTlsfC_[2])
 			_nTlsfStep_ = _aTlsfC_[2] - _aTlsfC_[1]
 			if _nTlsfStep_ = 1 or _nTlsfStep_ = -1
-				_bTlsfRange_ = TRUE
+				_bTlsfRange_ = 1
 				for _iTlsf_ = 2 to _nTlsfN_
 					if NOT ( isNumber(_aTlsfC_[_iTlsf_]) and
 						 _aTlsfC_[_iTlsf_] = _aTlsfC_[_iTlsf_ - 1] + _nTlsfStep_ )
-						_bTlsfRange_ = FALSE
+						_bTlsfRange_ = 0
 						exit
 					ok
 				next
@@ -236,7 +236,7 @@ class stzListStringify from stzObject
 
 	def Join(pcSep)
 		_pJnList_ = @oList._EngineListFromContent()
-		if _pJnList_ != NULL
+		if _pJnList_ != ""
 			_cJnResult_ = StzEngineListJoin(_pJnList_, pcSep)
 			StzEngineListFree(_pJnList_)
 			return _cJnResult_

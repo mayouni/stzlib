@@ -112,7 +112,7 @@ func StringToCSVListXT(_cStr_, cSep)
 		_cStr_ = @trim(_cStr_)
 
 		if _cStr_ = ""
-			return FALSE
+			return 0
 		ok
 
 		# ── Tokenize into rows of STRING cells ──
@@ -133,18 +133,18 @@ func StringToCSVListXT(_cStr_, cSep)
 		ok
 
 		_nLen_ = len(_aRows_)
-		if _nLen_ = 0 return FALSE ok
+		if _nLen_ = 0 return 0 ok
 
 		# First row -- headers unless a cell looks like data (a number or a
 		# bracketed list), in which case there are no headers and columns get
 		# synthetic COLn names.
 		_acFirst_ = _aRows_[1]
 		_nCols_ = len(_acFirst_)
-		_bColNamesProvided_ = TRUE
+		_bColNamesProvided_ = 1
 
 		for i = 1 to _nCols_
 			if @IsNumberInString(_acFirst_[i]) or @IsListInString(_acFirst_[i])
-				_bColNamesProvided_ = FALSE
+				_bColNamesProvided_ = 0
 				exit
 			ok
 		next
@@ -227,22 +227,22 @@ func @CSVCoerceCell(pcVal)
 # decides, so this can be permissive without being wrong.
 func @CSVLooksNumeric(pcVal)
 	_nL_ = len(pcVal)
-	if _nL_ = 0 return FALSE ok
+	if _nL_ = 0 return 0 ok
 	_k_ = 1
 	if ascii(pcVal[1]) = 45          # leading '-'
 		_k_ = 2
 	ok
-	_bDot_ = FALSE
-	_bDig_ = FALSE
+	_bDot_ = 0
+	_bDig_ = 0
 	while _k_ <= _nL_
 		_a_ = ascii(pcVal[_k_])
 		if _a_ >= 48 and _a_ <= 57    # 0-9
-			_bDig_ = TRUE
+			_bDig_ = 1
 		but _a_ = 46                  # '.'
-			if _bDot_ return FALSE ok  # a second dot -> not a number
-			_bDot_ = TRUE
+			if _bDot_ return 0 ok  # a second dot -> not a number
+			_bDot_ = 1
 		else
-			return FALSE
+			return 0
 		ok
 		_k_++
 	end

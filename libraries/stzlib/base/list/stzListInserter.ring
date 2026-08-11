@@ -221,7 +221,7 @@ class stzListInserter from stzObject
 		ok
 
 		_pSwpList_ = @oList._EngineListFromContent()
-		if _pSwpList_ != NULL
+		if _pSwpList_ != ""
 			StzEngineListSwap(_pSwpList_, _n1_, _n2_)
 			@oList.UpdateWith(@oList._ContentFromEngineList(_pSwpList_))
 			StzEngineListFree(_pSwpList_)

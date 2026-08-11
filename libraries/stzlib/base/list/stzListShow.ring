@@ -194,18 +194,18 @@ func GetLength(pValue)
 # Smart expansion logic - only expand when it truly improves readability
 func ShouldExpandListSmart(aList)
     if NOT isList(aList)
-        return false
+        return 0
     ok
 
     # Always expand if the inline version would be too long
     _nSelsEstWidth_ = EstimateInlineWidth(aList)
     if _nSelsEstWidth_ > $nMaxInlineWidth
-        return true
+        return 1
     ok
 
     # Don't expand very small lists
     if len(aList) <= 2
-        return false
+        return 0
     ok
 
     # Calculate the "complexity score" of the list
@@ -318,11 +318,11 @@ func FormatListSmartNL(aList, cSep, cIndent)
     _nFlsnlInline_ = EstimateInlineWidth(aList)
 
     # More aggressive expansion for readability
-    _bFlsnlExpand_ = false
+    _bFlsnlExpand_ = 0
 
     # Expand if too wide
     if _nFlsnlInline_ > $nMaxInlineWidth
-        _bFlsnlExpand_ = true
+        _bFlsnlExpand_ = 1
     ok
 
     # Expand if contains nested lists (visual complexity)
@@ -331,7 +331,7 @@ func FormatListSmartNL(aList, cSep, cIndent)
         for _iLoopList5_ = 1 to _nList5Len_
         	_itemFlsnlNest_ = aList[_iLoopList5_]
             if isList(_itemFlsnlNest_) and len(_itemFlsnlNest_) > 0
-                _bFlsnlExpand_ = true
+                _bFlsnlExpand_ = 1
                 exit
             ok
         next
@@ -339,7 +339,7 @@ func FormatListSmartNL(aList, cSep, cIndent)
 
     # Expand if more than 3 items
     if NOT _bFlsnlExpand_ and len(aList) > 3
-        _bFlsnlExpand_ = true
+        _bFlsnlExpand_ = 1
     ok
 
     if _bFlsnlExpand_
@@ -400,16 +400,16 @@ func ContainsNestedLists(aList)
     for _iLoopList4_ = 1 to _nList4Len_
     	_itemCnl_ = aList[_iLoopList4_]
         if isList(_itemCnl_)
-            return true
+            return 1
         ok
     next
-    return false
+    return 0
 
 # Determine if a list can be compacted (kept on fewer lines)
 func CanCompactList(aList)
     # Don't compact very long lists
     if len(aList) > 6
-        return false
+        return 0
     ok
 
     # Check the total "width" if we were to format inline
@@ -417,7 +417,7 @@ func CanCompactList(aList)
 
     # Compact only if it would fit comfortably and isn't too complex
     if _nCclTotal_ > $nMaxCompactWidth
-        return false
+        return 0
     ok
 
     # Don't compact if it contains nested lists (adds visual complexity)
@@ -425,11 +425,11 @@ func CanCompactList(aList)
     for _iLoopList3_ = 1 to _nList3Len_
     	_itemCcl_ = aList[_iLoopList3_]
         if isList(_itemCcl_) and len(_itemCcl_) > 0
-            return false
+            return 0
         ok
     next
 
-    return true
+    return 1
 
 func EstimateInlineWidth(aList)
     _nEiwWidth_ = 4  # [ and ]
@@ -505,12 +505,12 @@ func FormatValueCompact(pValue)
 # Original helper functions (unchanged)
 func ShouldExpandList(aList)
     if NOT isList(aList)
-        return false
+        return 0
     ok
 
     # Expand if list is long
     if len(aList) > 7
-        return true
+        return 1
     ok
 
     # Expand if contains nested lists
@@ -518,7 +518,7 @@ func ShouldExpandList(aList)
     for _iLoopList2_ = 1 to _nList2Len_
     	_itemSelNest_ = aList[_iLoopList2_]
         if isList(_itemSelNest_)
-            return true
+            return 1
         ok
     next
 
@@ -527,11 +527,11 @@ func ShouldExpandList(aList)
     for _iLoopList1_ = 1 to _nList1Len_
     	_itemSelStr_ = aList[_iLoopList1_]
         if isString(_itemSelStr_) and len(_itemSelStr_) > 20
-            return true
+            return 1
         ok
     next
 
-    return false
+    return 0
 
 func FormatValue(pValue, cSep, cIndent)
     if isNumber(pValue)

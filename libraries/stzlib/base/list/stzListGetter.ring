@@ -120,9 +120,9 @@ class stzListGetter from stzObject
 			_n2_ = _nScTemp_
 		ok
 		_pScList_ = @oList._EngineListFromContent()
-		if _pScList_ != NULL
+		if _pScList_ != ""
 			_pScResult_ = StzEngineListSection(_pScList_, _n1_, _n2_)
-			if _pScResult_ != NULL
+			if _pScResult_ != ""
 				_aScResult_ = @oList._ContentFromEngineList(_pScResult_)
 				StzEngineListFree(_pScResult_)
 				StzEngineListFree(_pScList_)
@@ -167,9 +167,9 @@ class stzListGetter from stzObject
 	# n items picked at random.
 	def NRandomItems(_n_)
 		_pNriList_ = @oList._EngineListFromContent()
-		if _pNriList_ != NULL
+		if _pNriList_ != ""
 			_pNriResult_ = StzEngineListRandomItems(_pNriList_, _n_)
-			if _pNriResult_ != NULL
+			if _pNriResult_ != ""
 				_aNriResult_ = @oList._ContentFromEngineList(_pNriResult_)
 				StzEngineListFree(_pNriResult_)
 				StzEngineListFree(_pNriList_)

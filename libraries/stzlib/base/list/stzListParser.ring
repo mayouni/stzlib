@@ -8,7 +8,7 @@ func StzListParserQ(paList)
 # Both classes are declared together so Ring's "subsequent funcs
 # get swallowed by the most-recent class" rule doesn't bite us.
 class stzParser from stzObject
-	@xSource = NULL
+	@xSource = ""
 
 	def init(pSource)
 		@xSource = pSource

@@ -82,7 +82,7 @@ class stzListReplacer from stzObject
 		# inside stz_list.dll, so no cross-DLL handle lookup is needed).
 		if isString(pItem) and isString(pNewItem)
 			_pRpAll_ = @oList._EngineListFromContent()
-			if _pRpAll_ != NULL
+			if _pRpAll_ != ""
 				_nRpCs_ = 1
 				if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 					_nRpCs_ = pCaseSensitive[2]
@@ -153,7 +153,7 @@ class stzListReplacer from stzObject
 		# (string-direct, no cross-DLL handle lookup).
 		if isString(pNewItem)
 			_pRapList_ = @oList._EngineListFromContent()
-			if _pRapList_ != NULL
+			if _pRapList_ != ""
 				StzEngineListSetString(_pRapList_, n, pNewItem)
 				@oList.UpdateWith(@oList._ContentFromEngineList(_pRapList_))
 				StzEngineListFree(_pRapList_)
@@ -449,10 +449,10 @@ class stzListReplacer from stzObject
 		_m_ = len(paItems)
 		for _k_ = 1 to _m_
 			if This._RpEq(pVal, paItems[_k_], pCaseSensitive)
-				return TRUE
+				return 1
 			ok
 		next
-		return FALSE
+		return 0
 
 	#-- Set whatever lives at each of panPos to pNewItem.
 	def ReplaceAnyItemAtPositions(panPos, pNewItem)
@@ -593,9 +593,9 @@ class stzListReplacer from stzObject
 	def _RpHas(paList, pVal)
 		_n_ = len(paList)
 		for _k_ = 1 to _n_
-			if paList[_k_] = pVal return TRUE ok
+			if paList[_k_] = pVal return 1 ok
 		next
-		return FALSE
+		return 0
 
 	def _RpDedup(paList)
 		_res_ = []

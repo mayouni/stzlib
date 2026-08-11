@@ -100,10 +100,10 @@ class stzListBounder from stzObject
 
 		# Engine fast path
 		_pBsList_ = @oList._EngineListFromContent()
-		if _pBsList_ != NULL
+		if _pBsList_ != ""
 			_pBsResult_ = StzEngineListSection(_pBsList_, _n1_, _n2_)
 			StzEngineListFree(_pBsList_)
-			if _pBsResult_ != NULL
+			if _pBsResult_ != ""
 				_aBsResult_ = @oList._ContentFromEngineList(_pBsResult_)
 				StzEngineListFree(_pBsResult_)
 				return _aBsResult_

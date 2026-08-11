@@ -11,7 +11,7 @@ class stzSortedList from stzList
 	def init(paList)
 		@aContent = paList
 		_pSlInit = This._EngineListFromContent()
-		if _pSlInit != NULL
+		if _pSlInit != ""
 			StzEngineListSort(_pSlInit)
 			@aContent = StzEngineListContentToRingList(_pSlInit)
 			StzEngineListFree(_pSlInit)
@@ -21,7 +21,7 @@ class stzSortedList from stzList
 
 	def Add(pItem)
 		_pSlAdd = This._EngineListFromContent()
-		if _pSlAdd != NULL
+		if _pSlAdd != ""
 			# Type-specific sorted insert -- builds the value inside the list
 			# DLL. (A StzValue handle minted by the value DLL does NOT resolve
 			# in the list DLL's handle table, so the old handle-based

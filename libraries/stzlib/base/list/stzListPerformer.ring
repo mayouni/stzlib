@@ -52,9 +52,9 @@ class stzListPerformer from stzObject
 
 	def Perform(pcAction)
 		_pPfList_ = @oList._EngineListFromContent()
-		if _pPfList_ != NULL
+		if _pPfList_ != ""
 			_pPfResult_ = StzEngineListMapExpr(_pPfList_, pcAction)
-			if _pPfResult_ != NULL
+			if _pPfResult_ != ""
 				@oList.UpdateWith(@oList._ContentFromEngineList(_pPfResult_))
 				StzEngineListFree(_pPfResult_)
 			ok
@@ -114,9 +114,9 @@ class stzListPerformer from stzObject
 
 	def Yield(pcYielder)
 		_pYdList_ = @oList._EngineListFromContent()
-		if _pYdList_ != NULL
+		if _pYdList_ != ""
 			_pYdResult_ = StzEngineListMapExpr(_pYdList_, pcYielder)
-			if _pYdResult_ != NULL
+			if _pYdResult_ != ""
 				_aYdContent_ = @oList._ContentFromEngineList(_pYdResult_)
 				StzEngineListFree(_pYdResult_)
 				StzEngineListFree(_pYdList_)

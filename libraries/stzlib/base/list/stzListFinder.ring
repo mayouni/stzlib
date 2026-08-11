@@ -80,10 +80,10 @@ class stzListFinder from stzObject
 		# Engine-backed fast path for string items
 		if isString(pItem)
 			_pFaoList_ = @oList._EngineListFromContent()
-			if _pFaoList_ != NULL
+			if _pFaoList_ != ""
 				_pFaoResult_ = StzEngineListFindAllStringCS(_pFaoList_, pItem, pCaseSensitive)
 				StzEngineListFree(_pFaoList_)
-				if _pFaoResult_ != NULL
+				if _pFaoResult_ != ""
 					_anFaoResult_ = @oList._ContentFromEngineList(_pFaoResult_)
 					StzEngineListFree(_pFaoResult_)
 					return _anFaoResult_
@@ -568,7 +568,7 @@ class stzListFinder from stzObject
 	def ContainsCS(pItem, pCaseSensitive)
 		if isString(pItem)
 			_pCtList = @oList._EngineListFromContent()
-			if _pCtList != NULL
+			if _pCtList != ""
 				_nCtResult = StzEngineListContainsStringCS(_pCtList, pItem, pCaseSensitive)
 				StzEngineListFree(_pCtList)
 				return _nCtResult

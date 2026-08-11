@@ -181,7 +181,7 @@ class stzListCounter from stzObject
 	def CountCS(pItem, pCaseSensitive)
 		if isString(pItem)
 			_pCntList = @oList._EngineListFromContent()
-			if _pCntList != NULL
+			if _pCntList != ""
 				_nCntResult = StzEngineListCountStringCS(_pCntList, pItem, pCaseSensitive)
 				StzEngineListFree(_pCntList)
 				return _nCntResult

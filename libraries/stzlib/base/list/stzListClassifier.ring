@@ -138,7 +138,7 @@ class stzListClassifier from stzObject
 		_aMfFreqs_ = This.Frequencies()
 		_nMfLen_ = len(_aMfFreqs_)
 		if _nMfLen_ = 0
-			return NULL
+			return ""
 		ok
 		_nMfMax_ = 0
 		_cMfResult_ = ""
@@ -154,7 +154,7 @@ class stzListClassifier from stzObject
 		_aLfFreqs_ = This.Frequencies()
 		_nLfLen_ = len(_aLfFreqs_)
 		if _nLfLen_ = 0
-			return NULL
+			return ""
 		ok
 		_nLfMin_ = _aLfFreqs_[1][2]
 		_cLfResult_ = _aLfFreqs_[1][1]
