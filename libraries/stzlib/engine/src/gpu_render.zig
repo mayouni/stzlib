@@ -678,6 +678,58 @@ pub fn pngEncode(w: u32, h: u32, rgba: []const u8, level: i32) ![]u8 {
     return out;
 }
 
+// ---------------------------------------------------------------- image grid
+// Lay equal-sized RGBA tiles out in a grid: the CONTACT SHEET that turns N
+// renders into one picture. Engine-side because it is a pure byte blit over
+// megabytes -- nine 420x420 tiles is 6.3 MB of memcpy, which a Ring loop would
+// do one substr at a time.
+//
+// `tiles` is the tiles CONCATENATED, tightest packing, row-major RGBA8. A
+// short buffer is a refusal, not a partial sheet: a caller who miscounted
+// should hear about it rather than get a torn image.
+
+pub fn imageGrid(
+    tiles: []const u8,
+    tw: u32,
+    th: u32,
+    count: u32,
+    cols: u32,
+    gutter: u32,
+    bg: [4]u8,
+) !DecodedImage {
+    if (tw == 0 or th == 0 or count == 0 or cols == 0) return error.BadArg;
+    const tile_bytes: usize = @as(usize, tw) * @as(usize, th) * 4;
+    if (tiles.len < tile_bytes * count) return error.BadArg;
+
+    const rows: u32 = (count + cols - 1) / cols;
+    const out_w: u32 = cols * tw + (cols + 1) * gutter;
+    const out_h: u32 = rows * th + (rows + 1) * gutter;
+    const out_row: usize = @as(usize, out_w) * 4;
+    const out = try alloc.alloc(u8, out_row * out_h);
+    errdefer alloc.free(out);
+
+    // paint the whole sheet with the background, THEN blit -- so gutters and
+    // any empty cell in the last row are the background, not uninitialised
+    // memory (which reads as plausible noise and looks like a render bug).
+    var i: usize = 0;
+    while (i < out.len) : (i += 4) @memcpy(out[i..][0..4], &bg);
+
+    var k: u32 = 0;
+    while (k < count) : (k += 1) {
+        const cx: u32 = k % cols;
+        const cy: u32 = k / cols;
+        const x0: usize = @as(usize, gutter + cx * (tw + gutter));
+        const y0: usize = @as(usize, gutter + cy * (th + gutter));
+        const src = tiles[tile_bytes * k ..][0..tile_bytes];
+        const src_row: usize = @as(usize, tw) * 4;
+        for (0..th) |y| {
+            const d = (y0 + y) * out_row + x0 * 4;
+            @memcpy(out[d..][0..src_row], src[y * src_row ..][0..src_row]);
+        }
+    }
+    return .{ .w = out_w, .h = out_h, .rgba = out };
+}
+
 // ---------------------------------------------------------------- image decode
 // stb_image, memory-only. Always RGBA8 out (req_comp = 4).
 

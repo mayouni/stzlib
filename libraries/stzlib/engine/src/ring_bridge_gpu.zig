@@ -546,6 +546,35 @@ fn ring_PngEncode(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retstring2(p, png.ptr, @intCast(png.len));
 }
 
+// ImageGrid(cTiles, nTileW, nTileH, nCount, nCols, nGutter, nBgR, nBgG, nBgB)
+//   -> [nW, nH, cRgbaBytes], or [] if the tile buffer is short.
+// cTiles is the tiles CONCATENATED (row-major RGBA8, all the same size).
+fn ring_ImageGrid(p: *anyopaque) callconv(.c) void {
+    const tiles = getStr(p, 1);
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const bg = [4]u8{
+        @intFromFloat(gn(p, 7)),
+        @intFromFloat(gn(p, 8)),
+        @intFromFloat(gn(p, 9)),
+        255,
+    };
+    if (render.imageGrid(
+        tiles,
+        @intFromFloat(gn(p, 2)),
+        @intFromFloat(gn(p, 3)),
+        @intFromFloat(gn(p, 4)),
+        @intFromFloat(gn(p, 5)),
+        @intFromFloat(gn(p, 6)),
+        bg,
+    )) |img| {
+        defer allocator.free(img.rgba);
+        R.ring_list_adddouble(out, @floatFromInt(img.w));
+        R.ring_list_adddouble(out, @floatFromInt(img.h));
+        R.ring_list_addstring2(out, img.rgba.ptr, @intCast(img.rgba.len));
+    } else |_| {}
+    R.ring_vm_api_retlist(p, out);
+}
+
 // ImageDecode(cBytes) -> [nW, nH, cRgbaBytes] or [] on failure (stb_image:
 // PNG/JPG/BMP/GIF/TGA/PSD, always RGBA8 out)
 fn ring_ImageDecode(p: *anyopaque) callconv(.c) void {
@@ -1323,6 +1352,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegputargetread", .func = &ring_TargetRead },
     .{ .name = "stzenginegpupngencode", .func = &ring_PngEncode },
     .{ .name = "stzenginegpuimagedecode", .func = &ring_ImageDecode },
+    .{ .name = "stzenginegpuimagegrid", .func = &ring_ImageGrid },
     // GR2 text pipeline
     .{ .name = "stzenginegpufontload", .func = &ring_FontLoad },
     .{ .name = "stzenginegpufontfree", .func = &ring_FontFree },
