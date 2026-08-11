@@ -25,7 +25,7 @@ func StzCodeRuleNames()
 	         "engine-first", "q-has-plain-twin", "no-case-collision",
 	         "dead-knob", "setter-resets-on-reject",
 	         "setter-only-moves-one-way", "misspelled-name", "library-prints",
-	         "empty-method-body" ]
+	         "empty-method-body", "writes-a-mutable-constant" ]
 
 func StzCheckCodeFile(pcPath)
 	return StzCheckCode(read(pcPath))
@@ -138,7 +138,8 @@ func _StzTextPassFindings(pcSource)
 		_StzCheckOneWaySetters(_cClean_),
 		_StzCheckMisspelledNames(_cClean_),
 		_StzCheckLibraryPrints(_cClean_),
-		_StzCheckEmptyBodies(_cClean_)
+		_StzCheckEmptyBodies(_cClean_),
+		_StzCheckConstantWrites(_cClean_)
 	]
 	_nP_ = len(_aPasses_)
 	for _i_ = 1 to _nP_
@@ -159,26 +160,26 @@ func _StzTextPassFindings(pcSource)
 # on one line and closes several lines later, and a per-line strip cannot see it.
 func _StzStripBlockComments(pcSource)
 	_cSrc_ = StzReplace("" + pcSource, char(13), "")
-	if len(StzFindCS("/*", _cSrc_, TRUE)) = 0
+	if len(StzFindCS("/*", _cSrc_, 1)) = 0
 		return _cSrc_
 	ok
 
 	_acLines_ = StzSplit(_cSrc_, char(10))
 	_nLen_ = len(_acLines_)
-	_bIn_ = FALSE
+	_bIn_ = 0
 	_cOut_ = ""
 
 	for _i_ = 1 to _nLen_
 		_cKept_ = ""
 		_cRest_ = _acLines_[_i_]
 
-		while TRUE
+		while 1
 			if _bIn_
 				_nEnd_ = StzFindFirst("*/", _cRest_)
 				if _nEnd_ = 0
 					exit   # the block runs on into the next line
 				ok
-				_bIn_ = FALSE
+				_bIn_ = 0
 				_cRest_ = StzMidToEnd(_cRest_, _nEnd_ + 2)
 			else
 				_nSt_ = StzFindFirst("/*", _cRest_)
@@ -189,7 +190,7 @@ func _StzStripBlockComments(pcSource)
 				if _nSt_ > 1
 					_cKept_ += StzMid(_cRest_, 1, _nSt_ - 1)
 				ok
-				_bIn_ = TRUE
+				_bIn_ = 1
 				_cRest_ = StzMidToEnd(_cRest_, _nSt_ + 2)
 			ok
 		end
@@ -204,10 +205,10 @@ func StzProjectIsClean(pcDir)
 	_n_ = len(_aF_)
 	for _i_ = 1 to _n_
 		if "" + _aF_[_i_][:severity] = "error"
-			return FALSE
+			return 0
 		ok
 	next
-	return TRUE
+	return 1
 
 # StzCheckCode is now a THIN WRAPPER over the graph-rule engine (graph-rules
 # plan, phase 3): it builds a Ring CODE GRAPH from the source, runs the
@@ -326,10 +327,10 @@ func StzCodeIsClean(pcSource)
 	_nLen_ = len(_aF_)
 	for _i_ = 1 to _nLen_
 		if _aF_[_i_][:severity] = :error
-			return FALSE
+			return 0
 		ok
 	next
-	return TRUE
+	return 1
 
 #=====================================================================#
 #  THE KNOB RULES -- a setting that cannot change anything            #
@@ -448,10 +449,10 @@ func _StzKnobIsSetterName(pcName)
 	_n_ = len(_aPrefix_)
 	for _i_ = 1 to _n_
 		if StzLeft(_c_, len(_aPrefix_[_i_])) = _aPrefix_[_i_]
-			return TRUE
+			return 1
 		ok
 	next
-	return FALSE
+	return 0
 
 # def / class lines, so a scan can tell which method a line sits in.
 func _StzKnobDefName(pcLine)
@@ -681,7 +682,7 @@ func _StzKnobScanClass(pacLines, pnFrom, pnTo, pcParent, pcSrc)
 # A method whose whole body is "return @attr".
 func _StzKnobIsTrivialGetter(pacLines, pnDef, pnTo, pcAttr)
 	_nSeen_ = 0
-	_bMatch_ = FALSE
+	_bMatch_ = 0
 	for _i_ = pnDef + 1 to pnTo
 		_cL_ = ring_trim(StzReplace(_StzKnobStrip(pacLines[_i_]), char(9), " "))
 		if _cL_ = ""
@@ -689,10 +690,10 @@ func _StzKnobIsTrivialGetter(pacLines, pnDef, pnTo, pcAttr)
 		ok
 		_nSeen_++
 		if _nSeen_ > 1
-			return FALSE
+			return 0
 		ok
 		if StzLower(_cL_) = "return @" + pcAttr
-			_bMatch_ = TRUE
+			_bMatch_ = 1
 		ok
 	next
 	return _bMatch_ and _nSeen_ = 1
@@ -704,7 +705,7 @@ func _StzKnobIsTrivialGetter(pacLines, pnDef, pnTo, pcAttr)
 # verdict off the first time it ran.
 func _StzKnobGetterUsedElsewhere(pcSrc, pcGetter)
 	_cNeedle_ = "" + pcGetter + "("
-	_aHit_ = StzFindCS(_cNeedle_, "" + pcSrc, FALSE)
+	_aHit_ = StzFindCS(_cNeedle_, "" + pcSrc, 0)
 	_n_ = len(_aHit_)
 	for _i_ = 1 to _n_
 		_nAt_ = _aHit_[_i_]
@@ -721,12 +722,12 @@ func _StzKnobGetterUsedElsewhere(pcSrc, pcGetter)
 			_nLineStart_ = 1
 		ok
 		_cBefore_ = StzLower(StzMid("" + pcSrc, _nLineStart_, _nAt_ - _nLineStart_))
-		if len(StzFindCS("def ", _cBefore_, FALSE)) > 0
+		if len(StzFindCS("def ", _cBefore_, 0)) > 0
 			loop
 		ok
-		return TRUE
+		return 1
 	next
-	return FALSE
+	return 0
 
 # @nSteps beside @nStep: the same name give or take a trailing s.
 func _StzKnobTwinOf(pcAttr, pacAll)
@@ -763,7 +764,7 @@ func _StzCheckSetterResets(pcSource)
 	_cParam_ = ""
 	_nMethodAt_ = 0
 	_acIfWrit_ = []
-	_bInElse_ = FALSE
+	_bInElse_ = 0
 
 	for _i_ = 1 to _nLen_
 		_cRaw_ = _StzKnobStrip(_acLines_[_i_])
@@ -775,7 +776,7 @@ func _StzCheckSetterResets(pcSource)
 			_nMethodAt_ = _i_
 			_cParam_ = _StzKnobFirstParam(_acLines_[_i_])
 			_acIfWrit_ = []
-			_bInElse_ = FALSE
+			_bInElse_ = 0
 			loop
 		ok
 
@@ -784,11 +785,11 @@ func _StzCheckSetterResets(pcSource)
 		ok
 
 		if StzLower(_cL_) = "else"
-			_bInElse_ = TRUE
+			_bInElse_ = 1
 			loop
 		ok
 		if StzLower(_cL_) = "ok"
-			_bInElse_ = FALSE
+			_bInElse_ = 0
 			_acIfWrit_ = []
 			loop
 		ok
@@ -809,7 +810,7 @@ func _StzCheckSetterResets(pcSource)
 		if StzFindFirst(_cA_, _acIfWrit_) = 0
 			loop
 		ok
-		if _cParam_ != "" and len(StzFindCS(_cParam_, _cL_, FALSE)) > 0
+		if _cParam_ != "" and len(StzFindCS(_cParam_, _cL_, 0)) > 0
 			loop        # still derived from the caller's value -- not a reset
 		ok
 		_aOut_ + [ :rule = :setter_resets_on_reject, :line = _i_,
@@ -898,8 +899,8 @@ func _StzCheckOneWaySetters(pcSource)
 		ok
 
 		_cLow_ = StzLower(_cL_)
-		if len(StzFindCS("max(", _cLow_, FALSE)) = 0 and
-		   len(StzFindCS("min(", _cLow_, FALSE)) = 0
+		if len(StzFindCS("max(", _cLow_, 0)) = 0 and
+		   len(StzFindCS("min(", _cLow_, 0)) = 0
 			loop
 		ok
 
@@ -935,16 +936,16 @@ func _StzCheckOneWaySetters(pcSource)
 # correct spellings and never fire.
 func _StzNameHasCamelCurren(pcName)
 	_c_ = "" + pcName
-	if len(StzFindCS("Current", _c_, TRUE)) > 0 or
-	   len(StzFindCS("Currenc", _c_, TRUE)) > 0
-		return FALSE
+	if len(StzFindCS("Current", _c_, 1)) > 0 or
+	   len(StzFindCS("Currenc", _c_, 1)) > 0
+		return 0
 	ok
-	_aAt_ = StzFindCS("Curren", _c_, TRUE)
+	_aAt_ = StzFindCS("Curren", _c_, 1)
 	_n_ = len(_aAt_)
 	for _i_ = 1 to _n_
 		_nAfter_ = _aAt_[_i_] + 6
 		if _nAfter_ > StzLen(_c_)
-			return TRUE
+			return 1
 		ok
 		# Uppercase = a character that DIFFERS from its own lowercase form. Ring
 		# raises R41 comparing strings with >=, and ascii() raises on anything that
@@ -957,10 +958,10 @@ func _StzNameHasCamelCurren(pcName)
 		# verdict on SetCurrenCell by luck.
 		_cNext_ = StzMid(_c_, _nAfter_, 1)
 		if _cNext_ != "" and _cNext_ != StzLower(_cNext_)
-			return TRUE
+			return 1
 		ok
 	next
-	return FALSE
+	return 0
 
 func _StzMisspellings()
 	return [
@@ -994,12 +995,12 @@ func _StzCheckMisspelledNames(pcSource)
 		_cLowD_ = StzLower(_cD_)
 
 		for _k_ = 1 to _nP_
-			if len(StzFindCS(_aPairs_[_k_][1], _cLowD_, FALSE)) = 0
+			if len(StzFindCS(_aPairs_[_k_][1], _cLowD_, 0)) = 0
 				loop
 			ok
 			_cRight_ = StzReplace(_cLowD_, _aPairs_[_k_][1], _aPairs_[_k_][2])
 			# already offered? then the old spelling is a kept alias, not a gap
-			if len(StzFindCS("def " + _cRight_ + "(", _cLowSrc_, FALSE)) > 0
+			if len(StzFindCS("def " + _cRight_ + "(", _cLowSrc_, 0)) > 0
 				loop
 			ok
 			if StzFindFirst(_cLowD_, _acSeen_) > 0
@@ -1021,7 +1022,7 @@ func _StzCheckMisspelledNames(pcSource)
 		# The segment only counts when it OPENS a camel word.
 		if _StzNameHasCamelCurren(_cD_)
 			_cRight2_ = StzReplace(_cLowD_, "curren", "current")
-			if len(StzFindCS("def " + _cRight2_ + "(", _cLowSrc_, FALSE)) = 0
+			if len(StzFindCS("def " + _cRight2_ + "(", _cLowSrc_, 0)) = 0
 				_aOut_ + [ :rule = :misspelled_name, :line = _i_,
 				           :severity = :warning,
 				           :message = _cD_ + "() is missing the T of Current, and " +
@@ -1054,13 +1055,13 @@ func _StzPrintExemptMethod(pcName)
 	_n_ = len(_aEx_)
 	for _i_ = 1 to _n_
 		if StzLeft(_c_, len(_aEx_[_i_])) = _aEx_[_i_]
-			return TRUE
+			return 1
 		ok
 	next
 	if StzRight(_c_, 6) = "report"
-		return TRUE
+		return 1
 	ok
-	return FALSE
+	return 0
 
 # A print the caller ASKED for is not the library talking over you.
 #
@@ -1077,24 +1078,24 @@ func _StzUnderADebugFlag(pacOpenIfs)
 	_nW_ = len(_aWords_)
 	for _i_ = 1 to _n_
 		for _j_ = 1 to _nW_
-			if len(StzFindCS(_aWords_[_j_], "" + pacOpenIfs[_i_], FALSE)) > 0
-				return TRUE
+			if len(StzFindCS(_aWords_[_j_], "" + pacOpenIfs[_i_], 0)) > 0
+				return 1
 			ok
 		next
 	next
-	return FALSE
+	return 0
 
 func _StzCheckLibraryPrints(pcSource)
 	_aOut_ = []
 	_acLines_ = StzSplit(StzReplace("" + pcSource, char(13), ""), char(10))
 	_nLen_ = len(_acLines_)
 	_cMethod_ = ""
-	_bInClass_ = FALSE
+	_bInClass_ = 0
 	_acOpenIfs_ = []
 
 	for _i_ = 1 to _nLen_
 		if _StzKnobClassName(_acLines_[_i_]) != ""
-			_bInClass_ = TRUE
+			_bInClass_ = 1
 			_cMethod_ = ""
 			_acOpenIfs_ = []
 			loop
@@ -1166,11 +1167,11 @@ func _StzCheckEmptyBodies(pcSource)
 	_aOut_ = []
 	_acLines_ = StzSplit(StzReplace("" + pcSource, char(13), ""), char(10))
 	_nLen_ = len(_acLines_)
-	_bInClass_ = FALSE
+	_bInClass_ = 0
 
 	for _i_ = 1 to _nLen_
 		if _StzKnobClassName(_acLines_[_i_]) != ""
-			_bInClass_ = TRUE
+			_bInClass_ = 1
 			loop
 		ok
 		if NOT _bInClass_
@@ -1188,7 +1189,7 @@ func _StzCheckEmptyBodies(pcSource)
 		# The body is whatever comes before the next def or class. Blank lines
 		# and comments are not statements, so they are skipped rather than
 		# counted -- which is what makes a comment-only body register as empty.
-		_bEmpty_ = TRUE
+		_bEmpty_ = 1
 		for _j_ = _i_ + 1 to _nLen_
 			_cNext_ = ring_trim(_StzKnobStrip(_acLines_[_j_]))
 			if _cNext_ = ""
@@ -1198,7 +1199,7 @@ func _StzCheckEmptyBodies(pcSource)
 			   StzLeft(StzLower(_cNext_), 6) = "class "
 				exit
 			ok
-			_bEmpty_ = FALSE
+			_bEmpty_ = 0
 			exit
 		next
 
@@ -1260,7 +1261,70 @@ func _StzNameIsPredicate(pcName)
 	_n_ = len(_aP_)
 	for _i_ = 1 to _n_
 		if StzLeft(_c_, len(_aP_[_i_])) = _aP_[_i_]
-			return TRUE
+			return 1
 		ok
 	next
-	return FALSE
+	return 0
+
+# WRITES-A-MUTABLE-CONSTANT: assigning to true, false, null, nl, tab or cr.
+#
+# In Ring these are ordinary global variables, and Ring is case-insensitive, so
+#
+#     nL = len(cPixels)
+#
+# silently replaces the NL newline constant with a NUMBER. That one was found in
+# the field: library code built a string with NL and raised deep inside
+# StzReplaceCS, with nothing in the message pointing back at the caller.
+#
+# TRUE / FALSE / NULL are the same mechanism with a far worse ending. NL raises;
+# these do not. Set `true = 0` and every `= TRUE` comparison in reach quietly
+# answers the opposite -- verified: with TRUE clobbered, `(1=1) = TRUE` is 0.
+# Nothing errors, the logic simply runs backwards.
+#
+# This rule catches the WRITE, which is the trigger and is rare, rather than
+# every read, which is common and is being retired module by module. It fires
+# nowhere in the library today; it exists so that it keeps firing nowhere.
+func _StzCheckConstantWrites(pcSource)
+	_aOut_ = []
+	_acLines_ = StzSplit(StzReplace("" + pcSource, char(13), ""), char(10))
+	_nLen_ = len(_acLines_)
+	_acNames_ = [ "true", "false", "null", "nl", "tab", "cr" ]
+	_nN_ = len(_acNames_)
+
+	for _i_ = 1 to _nLen_
+		_cL_ = ring_trim(_StzKnobStrip(_acLines_[_i_]))
+		if _cL_ = ""
+			loop
+		ok
+
+		_nEq_ = StzFindFirst("=", _cL_)
+		if _nEq_ < 2
+			loop
+		ok
+
+		# what stands to the LEFT of the first "=" ...
+		_cLhs_ = StzLower(ring_trim(StzMid(_cL_, 1, _nEq_ - 1)))
+
+		# ...but not a comparison, and not += or similar
+		_cAfter_ = StzMid(_cL_, _nEq_ + 1, 1)
+		if _cAfter_ = "="
+			loop
+		ok
+		if StzRight(_cLhs_, 1) = "!" or StzRight(_cLhs_, 1) = "<" or
+		   StzRight(_cLhs_, 1) = ">" or StzRight(_cLhs_, 1) = "+"
+			loop
+		ok
+
+		for _k_ = 1 to _nN_
+			if _cLhs_ != _acNames_[_k_]
+				loop
+			ok
+			_aOut_ + [ :rule = :writes_a_mutable_constant, :line = _i_,
+			           :severity = :error,
+			           :message = "assigns to " + StzUpper(_acNames_[_k_]) +
+			           " -- Ring is case-insensitive, so this replaces the global" +
+			           " constant for every caller. NL raises somewhere far away;" +
+			           " TRUE and FALSE just invert the answer in silence." ]
+		next
+	next
+	return _aOut_

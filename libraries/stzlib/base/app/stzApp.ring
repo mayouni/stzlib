@@ -620,10 +620,11 @@ class stzApp from stzObject
 
     def _InstanceHasRelation(pcInstance, pcRelation)
         cI = StzLower("" + pcInstance)
-        cR = StzLower("" + pcRelation)
+        # NOT cR: that name IS the CR carriage-return constant.
+        cRel = StzLower("" + pcRelation)
         aE = @oGraph.Edges()
         for i = 1 to len(aE)
-            if aE[i][:from] = cI and StzLower("" + aE[i][:label]) = cR
+            if aE[i][:from] = cI and StzLower("" + aE[i][:label]) = cRel
                 return TRUE
             ok
         next
@@ -702,11 +703,12 @@ class stzApp from stzObject
     #== narration (formats are CANONICAL -- narration docs rule) =============
 
     def _NarrateFlow(n)
-        cR = ""
-        if len(@aFlows[n][4]) > 0  cR = " require " + This._Join(@aFlows[n][4], ", ")  ok
+        # NOT cR: that name IS the CR carriage-return constant.
+        cReq = ""
+        if len(@aFlows[n][4]) > 0  cReq = " require " + This._Join(@aFlows[n][4], ", ")  ok
         cE = ""
         if len(@aFlows[n][5]) > 0  cE = " then keep " + @aFlows[n][3]  ok
-        return "when " + @aFlows[n][1] + " " + @aFlows[n][2] + " " + @aFlows[n][3] + cR + cE
+        return "when " + @aFlows[n][1] + " " + @aFlows[n][2] + " " + @aFlows[n][3] + cReq + cE
 
     def _NarrateReaction(n)
         cC = "" + @aReactions[n][2]

@@ -44,7 +44,7 @@ Scenario("FROZEN behaviour: StzCheckCode reproduces the house findings")
 
 	cGood = "class Foo" + nl + "def BazQ()" + nl + "	return This" + nl
 	Then("clean source passes", StzCodeIsClean(cGood), TRUE)
-	Then("StzCodeRuleNames lists the house rules (12 with the knob rules)", len(StzCodeRuleNames()), 12)
+	Then("StzCodeRuleNames lists the house rules (13 with the knob rules)", len(StzCodeRuleNames()), 13)
 	Then("...including dead-knob", StzFindFirst("dead-knob", StzCodeRuleNames()) > 0, TRUE)
 	Then("...and setter-resets-on-reject", StzFindFirst("setter-resets-on-reject", StzCodeRuleNames()) > 0, TRUE)
 	Then("...and the three shapes learned after them", NNamed(["setter-only-moves-one-way", "misspelled-name", "library-prints"]), 3)
@@ -262,6 +262,36 @@ Scenario("A method that is declared and does nothing")
 	# rule called five live one-line setters empty. This is the assertion that
 	# would have caught it.
 	Then("it would have caught SetTimeoutXT", EmptyCaught(), TRUE)
+EndScenario()
+
+Scenario("Writing to a constant everyone shares")
+
+	# In Ring these are ordinary globals and Ring is case-insensitive, so
+	# `nL = len(cPixels)` replaces the NL newline constant with a NUMBER for the
+	# whole process. That one was found in the field -- library code built a
+	# string with NL and raised deep inside StzReplaceCS, with nothing pointing
+	# back at the caller.
+	#
+	# TRUE / FALSE / NULL are the same mechanism with a worse ending. NL raises;
+	# these do not. With TRUE clobbered, `(1=1) = TRUE` is 0 -- the logic simply
+	# runs backwards and nothing errors.
+	#
+	# The rule catches the WRITE. It found FOUR live ones in the library on its
+	# first run, including stzWordStream.MostFrequentWords doing exactly the
+	# reported `nL = len(...)`.
+
+	Given("a method that assigns to two of them")
+	cW = ConstantWriteFixture()
+	aW = StzCheckCode(cW)
+
+	Then("clobbering NL is an error", SevOf(aW, "writes_a_mutable_constant", "NL"), "error")
+	Then("...and so is clobbering TRUE", SevOf(aW, "writes_a_mutable_constant", "TRUE"), "error")
+	Then("...the message says why it is silent", SaysIn(aW, "writes_a_mutable_constant", "invert"), TRUE)
+
+	# THE NEGATIVE SIBLINGS. A rule that flagged every line with these names in
+	# it would be useless -- READING them is what the library does 4,460 times.
+	Then("an ordinary assignment is not flagged", SaysIn(aW, "writes_a_mutable_constant", "nOther"), FALSE)
+	Then("...nor is a COMPARISON against one", NWrites(aW), 2)
 EndScenario()
 
 Summary()
@@ -650,3 +680,28 @@ func EmptyCaught()
 	_c_ += "	def RunAfter(pn, pf)" + _nl_
 	_c_ += "		return TRUE" + _nl_
 	return SaysIn(StzCheckCode(_c_), "empty_method_body", "SetTimeoutXT")
+
+
+#-- the mutable-constant rule ---------------------------------------------------
+
+func ConstantWriteFixture()
+	_nl_ = char(10)
+	_c_ = "class stzClobberDemo from stzObject" + _nl_
+	_c_ += "	def Go(paItems)" + _nl_
+	_c_ += "		nL = len(paItems)" + _nl_          # THE reported shape
+	_c_ += "		true = 0" + _nl_                   # the silent one
+	_c_ += "		nOther = len(paItems)" + _nl_      # fine
+	_c_ += "		if nOther = TRUE" + _nl_           # a READ, not a write
+	_c_ += "			return 1" + _nl_
+	_c_ += "		ok" + _nl_
+	_c_ += "		return 0" + _nl_
+	return _c_
+
+func NWrites(paFindings)
+	_n_ = 0
+	for _i_ = 1 to len(paFindings)
+		if "" + paFindings[_i_][:rule] = "writes_a_mutable_constant"
+			_n_++
+		ok
+	next
+	return _n_

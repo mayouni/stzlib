@@ -45,15 +45,15 @@ class stzReactiveTask from stzObject
 	# callbacks for asynchronous execution.
 
 	@taskId = ""
-	@taskFunc = NULL
-	@onComplete = NULL
-	@onError = NULL
+	@taskFunc = ""
+	@onComplete = ""
+	@onError = ""
 	@status = TASK_PENDING
-	@result = NULL
-	@oEngine = NULL
+	@result = ""
+	@oEngine = ""
 	@errorHandling = DEFAULT_ERROR_HANDLING
 	@errorMsg = ""
-	@bReported = FALSE
+	@bReported = 0
 
 	def init(id, f, engine, errorMode)
 		# Initializes a task with an ID, function, and engine reference.
@@ -62,7 +62,7 @@ class stzReactiveTask from stzObject
 		@oEngine = engine
 		@status = TASK_PENDING
 		
-		if errorMode != NULL
+		if errorMode != ""
 			@errorHandling = errorMode
 		ok
 		
@@ -101,7 +101,7 @@ class stzReactiveTask from stzObject
 			@status = TASK_RUNNING
 			@result = call @taskFunc()
 			@status = TASK_COMPLETED
-			if @onComplete != NULL
+			if @onComplete != ""
 				call @onComplete(@result)
 			ok
 
@@ -124,14 +124,14 @@ class stzReactiveTask from stzObject
 			# rather than "is the mode that logs", so that a mode nobody
 			# foresaw lands on REPORT and not on swallow. That polarity is the
 			# whole point: a fallback should fail loud.
-			@bReported = FALSE
+			@bReported = 0
 
 			if @errorHandling = ERROR_THROW
-				@bReported = TRUE
+				@bReported = 1
 				raise(@errorMsg)
 
-			but @errorHandling = ERROR_CALLBACK and @onError != NULL
-				@bReported = TRUE
+			but @errorHandling = ERROR_CALLBACK and @onError != ""
+				@bReported = 1
 				call @onError(@errorMsg)
 
 			but @errorHandling != ERROR_IGNORE
@@ -139,7 +139,7 @@ class stzReactiveTask from stzObject
 				# The message is on the object either way -- see Error() -- so
 				# stdout is no longer the only channel, and ERROR_IGNORE can
 				# stay genuinely silent without losing the reason.
-				@bReported = TRUE
+				@bReported = 1
 				? @errorMsg
 			ok
 		done
@@ -192,7 +192,7 @@ class stzReactiveTask from stzObject
 	def Fail(pcMsg)
 		@status = TASK_ERROR
 		@errorMsg = "" + pcMsg
-		@bReported = TRUE      # the caller is reporting it, right here
+		@bReported = 1      # the caller is reporting it, right here
 		return This
 
 	def Cleanup()

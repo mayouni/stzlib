@@ -48,7 +48,7 @@ class stzReactiveObject from stzObject
 
 	# Core reactive infrastructure
 	@wrappedObject = OBJECT_STANDALONE       # OBJECT_STANDALONE = standalone, not OBJECT_STANDALONE = wrapper mode
-	@oEngine = NULL
+	@oEngine = ""
 
 	# Attribute watching system
 	@aAttributeWatchers = []     # [attr, @callback] pairs
@@ -84,7 +84,7 @@ class stzReactiveObject from stzObject
 	@nErrorsSeen = 0            # total, including any dropped
 	@nErrorsDropped = 0
 	@nMaxErrors = 50
-	@fOnError = NULL            # optional handler: f(cWhere, cMsg)
+	@fOnError = ""            # optional handler: f(cWhere, cMsg)
 
 	#-- THE ERROR RECORD --------------------------------------------------------
 
@@ -138,7 +138,7 @@ class stzReactiveObject from stzObject
 			@nErrorsDropped++
 		ok
 
-		if @fOnError != NULL
+		if @fOnError != ""
 			call @fOnError(_cWhere_, _cMsg_)
 
 		but DEFAULT_ERROR_HANDLING != ERROR_IGNORE
@@ -146,7 +146,7 @@ class stzReactiveObject from stzObject
 		ok
 
 	def Init(existingObject, reactiveEngine)
-	    if existingObject != NULL
+	    if existingObject != ""
 	        @wrappedObject = existingObject
 	    else
 	        @wrappedObject = OBJECT_STANDALONE
@@ -340,7 +340,7 @@ class stzReactiveObject from stzObject
 			return This
 		ok
 
-		if _cTargetAttribute_ = NULL
+		if _cTargetAttribute_ = ""
 			_cTargetAttribute_ = _cSourceAttribute_
 		ok
 
@@ -371,7 +371,7 @@ class stzReactiveObject from stzObject
 		
 		# Ensure fnError has a value for error handling
 		_fnErrorCallback_ = fnError
-		if _fnErrorCallback_ = NULL
+		if _fnErrorCallback_ = ""
 			_fnErrorCallback_ = func(error) { }
 		ok
 		
@@ -380,7 +380,7 @@ class stzReactiveObject from stzObject
 		# call raised R19 "Calling function with less number of parameters" on
 		# the construction itself, before anything else could run. SetAsync had
 		# never worked. The engine is @oEngine, not `this`.
-		_task_ = new stzReactiveTask(_taskId_, NULL, @oEngine, ERROR_CALLBACK)
+		_task_ = new stzReactiveTask(_taskId_, "", @oEngine, ERROR_CALLBACK)
 		
 		@aAsyncOperations + [_cAttribute_, _newValue_, fnSuccess, _task_, _fnErrorCallback_]
 
@@ -396,7 +396,7 @@ class stzReactiveObject from stzObject
 		try
 			This.SetAttribute(_cAttribute_, _newValue_)
 			_task_.Complete(_newValue_)
-			if fnSuccess != NULL
+			if fnSuccess != ""
 				call fnSuccess(_newValue_)
 			ok
 		catch
