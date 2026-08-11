@@ -522,3 +522,147 @@ test "the sink refuses a pointer that is not a live ring, rather than playing it
     try testing.expectEqual(@as(i64, 0), playbackOpen(@intCast(@intFromPtr(&junk)), 256));
     try testing.expect(counter(CTR_REFUSALS) > before2);
 }
+
+// ---------------------------------------------------------------- capture (SN4)
+//
+// The mirror of the sink. Here the DEVICE is the producer: its callback hands
+// us frames it just recorded and we push them into the ring, where the Ring
+// thread drains them into a sample buffer.
+//
+// Same three prohibitions as the playback callback, for the same reason -- it
+// runs on a thread the OS owns, to a deadline it sets. It copies and returns.
+
+const CapSink = struct {
+    device: c.ma_device = undefined,
+    ring: ?*sr.Ring = null,
+    started: bool = false,
+    gen: u32 = 1,
+    live: bool = false,
+    callbacks: u64 = 0,
+    frames_in: u64 = 0,
+};
+
+var caps: std.ArrayList(CapSink) = .{};
+
+fn capSlotOf(id: i64) ?usize {
+    const idx = id & 0xffff_ffff;
+    if (idx <= 0 or idx > @as(i64, @intCast(caps.items.len))) return null;
+    const s: usize = @intCast(idx - 1);
+    const gen: u32 = @intCast((id >> 32) & 0xffff_ffff);
+    if (!caps.items[s].live or caps.items[s].gen != gen) return null;
+    return s;
+}
+
+fn captureCallbackRing(dev: [*c]c.ma_device, out: ?*anyopaque, in: ?*const anyopaque, frame_count: c.ma_uint32) callconv(.c) void {
+    _ = out;
+    const sk: *CapSink = @ptrCast(@alignCast(dev.*.pUserData.?));
+    if (in == null) return;
+    if (sk.ring) |r| {
+        _ = r.pushInterleaved(@ptrCast(@alignCast(in.?)), frame_count);
+    }
+    sk.callbacks += 1;
+    sk.frames_in += frame_count;
+}
+
+/// Open a capture device that fills the ring at `ring_ptr`. Same address
+/// discipline as playbackOpen: alignment, magic and version are all checked
+/// before a single frame is written through it.
+pub fn captureOpen(ring_ptr: i64, period_frames: u32) i64 {
+    if (!ensureContext()) {
+        refuse("captureOpen: no audio backend");
+        return 0;
+    }
+    if (ring_ptr == 0) {
+        refuse("captureOpen: null ring pointer");
+        return 0;
+    }
+    const addr: usize = @intCast(ring_ptr);
+    if (addr % @alignOf(sr.Ring) != 0) {
+        refuse("captureOpen: that address is not a ring buffer (misaligned)");
+        return 0;
+    }
+    const ring: *sr.Ring = @ptrFromInt(addr);
+    if (!ring.valid()) {
+        refuse("captureOpen: that is not a live ring buffer (wrong magic or version)");
+        return 0;
+    }
+
+    var slot: usize = caps.items.len;
+    for (caps.items, 0..) |*k, i| {
+        if (!k.live) {
+            slot = i;
+            break;
+        }
+    }
+    if (slot == caps.items.len) {
+        caps.append(alloc, .{}) catch {
+            setErr("out of memory growing the capture table");
+            return 0;
+        };
+    }
+    const sk = &caps.items[slot];
+    const gen = sk.gen;
+    sk.* = .{ .ring = ring, .gen = gen, .live = true };
+
+    var cfg = c.ma_device_config_init(c.ma_device_type_capture);
+    cfg.capture.format = c.ma_format_f32;
+    cfg.capture.channels = ring.channels;
+    cfg.sampleRate = 0; // the device picks; the caller asked for this ring's rate
+    cfg.periodSizeInFrames = period_frames;
+    cfg.dataCallback = captureCallbackRing;
+    cfg.pUserData = sk;
+
+    if (c.ma_device_init(null, &cfg, &sk.device) != c.MA_SUCCESS) {
+        sk.* = .{ .gen = gen };
+        refuse("captureOpen: the device refused this configuration");
+        return 0;
+    }
+    return sinkId(slot, gen);
+}
+
+pub fn captureStart(id: i64) i32 {
+    const s = capSlotOf(id) orelse return BAD_ARG;
+    const sk = &caps.items[s];
+    if (c.ma_device_start(&sk.device) != c.MA_SUCCESS) {
+        refuse("captureStart: the device would not start");
+        return FALLBACK;
+    }
+    sk.started = true;
+    return OK;
+}
+
+pub fn captureStop(id: i64) i32 {
+    const s = capSlotOf(id) orelse return BAD_ARG;
+    const sk = &caps.items[s];
+    if (sk.started) {
+        _ = c.ma_device_stop(&sk.device);
+        sk.started = false;
+    }
+    return OK;
+}
+
+pub fn captureClose(id: i64) i32 {
+    const s = capSlotOf(id) orelse return BAD_ARG;
+    const sk = &caps.items[s];
+    if (sk.started) {
+        _ = c.ma_device_stop(&sk.device);
+        sk.started = false;
+    }
+    c.ma_device_uninit(&sk.device);
+    sk.ring = null;
+    sk.live = false;
+    sk.gen +%= 1;
+    if (sk.gen == 0) sk.gen = 1;
+    return OK;
+}
+
+pub fn captureFramesIn(id: i64) f64 {
+    const s = capSlotOf(id) orelse return -1;
+    return @floatFromInt(caps.items[s].frames_in);
+}
+
+pub fn captureOverruns(id: i64) f64 {
+    const s = capSlotOf(id) orelse return -1;
+    const r = caps.items[s].ring orelse return -1;
+    return @floatFromInt(@atomicLoad(u64, &r.underruns, .monotonic));
+}

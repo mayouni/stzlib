@@ -1031,3 +1031,180 @@ different pitches must drift out of phase, and it FAILED: 440 : 554.37 : 659.25
 is almost exactly 4 : 5 : 6, so the three waves nearly RE-ALIGN, and their peaks
 nearly add. That near-alignment is not a bug in the mix -- it is what consonance
 IS. The example now says so, and asserts it.
+
+---
+
+## SN4 CHALLENGE PASS — 2026-08-11, BEFORE any face was written
+
+Lesson 7 says a deliberate challenge precedes the declarative faces, because
+GR4's found four gaps. This one found six, and the §2 sketch does not survive
+it intact — exactly as the graphics sketch did not.
+
+### The house naming law, restated (from the graphics plan, GR4)
+
+1. A method is an explicit **VERB** acting on the object — `AddCircle()`,
+   `SetBackground()`. Never a bare noun, which says what a thing IS rather
+   than what the call DOES.
+2. **`...Q()` performs the same action and returns the MAIN object**, so a
+   chain never leaves it for a sub-object to be held or lost. The plain twin
+   ACTS and returns nothing.
+3. **`To...()` keeps its name** and returns DATA.
+
+### FINDING 1 — the sketch's graph surface breaks rule 2
+
+The plan sketched:
+
+    oG.Add(StzOscillatorQ(:Sine).Hz(440)).Named(:tone)
+    oG.Add(StzEnvelopeQ().Attack(0.01).Release(0.4)).On(:tone)
+    oG.Add(StzReverbQ().Room(0.6)).After(:tone)
+
+Every line builds an INTERMEDIATE object, configures it, and hands it to the
+graph — precisely what rule 2 exists to prevent. It is also three different
+ways of saying where a node goes (`Named`, `On`, `After`), none of which is a
+verb, and two of which are prepositions.
+
+The graphics plane had the same shape of error and corrected it to
+`oC.AddCircleQ(400, 300, 120)` — the shape is created BY a verb ON the main
+object. The sound equivalent:
+
+    oG.AddOscillator(:Sine, 440, 0.8)
+    oG.AddEnvelope(:tone, 0.01, 0.3, 0.0, 0.4)
+    oG.AddDelayAfter(:tone, 0.25, 0.4, 0.4)
+
+    # fluent -- every Q returns the GRAPH
+    oG.AddOscillatorQ(:Sine, 440, 0.8).NameItQ(:tone).
+       AddEnvelopeQ(:tone, 0.01, 0.3, 0.0, 0.4)
+
+`Named(:tone)` becomes `NameIt(:tone)` — a verb acting on the last node added,
+the same "last shape added" mechanism stzCanvas uses for `Fill()`.
+
+### FINDING 2 — `oS.Analysis()` and `oA.Spectrogram()` are nouns AND are SN5
+
+Both name a thing rather than an act, and both belong to SN5 (analysis, the
+graphics convergence). They are removed from SN4's surface rather than stubbed.
+When SN5 builds them they should read `ToSpectrum()` / `ToSpectrogramPNG()` —
+`To...` forms returning data, which is what rule 3 is for.
+
+### FINDING 3 — StzReverbQ has no node behind it
+
+The sketch offers a reverb. The engine has a DELAY, and a delay is not a
+reverb: one echo repeating is not a diffuse field. Options were to fake it
+(a name that lies), to build a real reverb (SN5-shaped work — Schroeder or
+FDN, and convolution reverb is explicitly an SN5/GPU question), or to name
+what exists.
+
+**Decision: the face offers `AddDelay`/`AddEcho`, not `AddReverb`.** A name
+that promises a room and delivers an echo is the kind of thing that survives
+into documentation and then into someone's expectations.
+
+### FINDING 4 — stzMicrophone has no capture stream to face
+
+SN1 delivered capture ENUMERATION only; SN3 built a playback sink and no
+capture path. So `stzMicrophone` as sketched would be a face over nothing.
+
+**Decision: build the capture stream in SN4** rather than ship a stub or drop
+a named deliverable. It is small — the ring already exists and is SPSC; capture
+simply runs it the other way round (the device callback is the producer, the
+Ring thread the consumer). What it needs: `pushInterleaved` on the ring, a
+capture device in audiodev, and a drain-into-buffer on the portable side.
+
+### FINDING 5 — `oS.Play()` on a sound is not the same act as `oG.Play()`
+
+A stzSound is a sample buffer; the device sink plays a STREAM fed by a graph.
+So `oS.Play()` has to build a one-node graph internally and run it. That is
+fine and it is what a declarative face is FOR — but it means Play() on a sound
+is synchronous-until-done, and the face must say so rather than let a caller
+discover it. Named `Play()` (blocks until the sound ends) and `PlayFor(nSecs)`.
+
+### FINDING 6 — no metadata, and the sketch never promised any
+
+Worth recording because SN4 is where someone would reach for `oS.Title()`:
+miniaudio parses no tags at all (SN1 status, gap 3). The face does not offer
+Title/Artist/Album. Adding them later means a tag parser this plane would own.
+
+### What SN4 therefore builds
+
+    stzSound        a sample buffer: load, generate, inspect, convert, save, play
+    stzSoundGraph   the declarative graph, verbs + Q twins, named nodes
+    stzMicrophone   real capture, on a capture stream built here
+
+and does NOT build: stzOscillator/stzEnvelope/stzFilter/stzReverb as separate
+classes. They are not objects a caller should hold — they are verbs on the
+graph, and rule 2 says so.
+
+---
+
+## SN4 STATUS — 2026-08-11. The faces, and the capture the challenge pass demanded
+
+Delivered: `base/sound/stzSound.ring`, `stzSoundGraph.ring`,
+`stzMicrophone.ring`, loaded from `base/stzBase.ring`; a capture stream in the
+engine (`soundring.pushInterleaved`, `audiodev.captureOpen/Start/Stop/Close`,
+`sound.recorderNew/Drain/Finish`); and
+`base/test/sound/sound_faces_narrated.ring` — 49 assertions, green.
+
+Plane totals: **237 Ring assertions across six guards, 64 Zig tests**, all
+passing. Everything but two scenes runs with no audio hardware.
+
+### The challenge pass changed the surface before it was built
+
+Lesson 7 says the challenge precedes the faces. It found six things (recorded
+in full in the SN4 CHALLENGE section above); three changed what shipped:
+
+**The sketch's graph API was rejected outright.** `oG.Add(StzOscillatorQ(:Sine).Hz(440)).Named(:tone)`
+builds an intermediate object per line, which is exactly what the Q law exists
+to prevent — the same error the graphics sketch made before GR4 corrected it.
+What shipped instead is verbs on the graph, with names to refer back:
+
+    oG.AddOscillatorQ(:Triangle, 440, 0.6).NameItQ(:tone).
+       AddEnvelopeOnQ(:tone, 0.01, 0.3, 0.0, 0.4, 0.35).
+       AddEchoOnQ(:tone, 0.25, 0.4, 0.4).
+       ToFileQ("bell.wav", 3)
+
+There are **no stzOscillator / stzEnvelope / stzFilter classes**, deliberately.
+A node is not a thing a caller should be left holding.
+
+**`AddReverb` became `AddEchoOn`.** The engine has a delay; one repeat fading
+out is not a diffuse room. A name that promises a hall and delivers a slapback
+survives into documentation and then into expectations.
+
+**`stzMicrophone` had nothing to face**, so SN4 built the capture path rather
+than ship a stub or drop a named deliverable. The ring already existed and is
+SPSC — capture is that ring run the other way round, with the device callback
+as PRODUCER. Measured: 96,000 frames for a 2-second recording (exactly 2 s at
+48 kHz), zero overruns.
+
+Overrun is the capture-side twin of underrun and is counted the same way: when
+the reader has not kept up, the NEWEST frames are dropped, never written over
+unread audio. Losing the newest is recoverable; losing the middle of a
+recording silently is not.
+
+### The Q law is asserted by IDENTITY, not by eye
+
+Rule 2 rots quietly — a `...Q` that returns a sub-object looks fine at the call
+site until someone chains two of them. So the guard asserts that what a Q hands
+back IS the object it was called on (`oRet.GraphId() = oG.GraphId()`), and that
+the plain twin returns NULL. That is a mechanical check on a naming convention,
+which is the only kind worth having.
+
+### What SN4 does NOT deliver, and why
+
+- **No analysis.** `oS.Analysis()` and `oA.Spectrogram()` from the sketch are
+  nouns AND they are SN5. They were removed rather than stubbed. When SN5
+  builds them they should read `ToSpectrum()` / `ToSpectrogramPNG()`.
+- **No metadata.** miniaudio parses no tags; there is no `Title()`. Recorded
+  because SN4 is exactly where someone would reach for it.
+- **`Play()` blocks.** A sample buffer is not a stream, so the face builds a
+  one-node graph and runs it to the end. Named so in the docs rather than
+  discovered.
+- **Only gain is controllable while playing** (SN3's limit, unchanged).
+
+### What SN5 inherits
+
+1. **A face to hang analysis on.** `oS.ToSpectrum()` belongs on stzSound, and
+   the buffer id it needs is already exposed via `BufferId()`.
+2. **A graph that can take a sound as a source**, so an analysis of a rendered
+   graph is one call away.
+3. **The naming law, now with a guard that enforces it.** Add a face, add the
+   identity assertion.
+4. **Capture exists**, so SN5's analysis can run on something recorded rather
+   than only on something synthesised.

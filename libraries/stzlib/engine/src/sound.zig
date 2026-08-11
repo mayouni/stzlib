@@ -805,3 +805,228 @@ test "the live gauge tracks the table, and a reset does not lie about it" {
     _ = free(a);
     _ = free(b);
 }
+
+// ---------------------------------------------------------------- the recorder (SN4)
+//
+// The portable end of capture. The device tier fills a ring; this drains it
+// into a sample buffer, which is then an ordinary stzSound like any other.
+//
+// It lives HERE, in the portable half, for the same reason everything else
+// does: draining a ring into a buffer needs no audio hardware, so a test can
+// push frames in by hand and assert what comes out. Only the thing that
+// actually talks to a microphone is per-OS.
+
+const sr = @import("soundring.zig");
+
+const Recorder = struct {
+    ring: ?*sr.Ring = null,
+    ring_mem: []f32 = &.{},
+    dest: []f32 = &.{}, // interleaved, capacity_frames * channels
+    frames: usize = 0, // frames written into dest so far
+    capacity: usize = 0, // dest capacity in frames
+    channels: u32 = 0,
+    rate: u32 = 0,
+    gen: u32 = 1,
+    live: bool = false,
+};
+
+var recs: std.ArrayList(Recorder) = .{};
+
+fn recSlotOf(id: i64) ?usize {
+    const idx = id & 0xffff_ffff;
+    if (idx <= 0 or idx > @as(i64, @intCast(recs.items.len))) return null;
+    const s: usize = @intCast(idx - 1);
+    const gen: u32 = @intCast((id >> 32) & 0xffff_ffff);
+    if (!recs.items[s].live or recs.items[s].gen != gen) {
+        bump(CTR_STALE_HITS, 1);
+        return null;
+    }
+    return s;
+}
+
+/// A recorder with room for `max_seconds`. The destination is allocated NOW,
+/// not grown while recording: a realloc mid-capture is exactly the sort of
+/// pause that costs you frames.
+pub fn recorderNew(channels: u32, rate: u32, max_seconds: f64) i64 {
+    if (channels == 0 or channels > 8 or rate == 0 or max_seconds <= 0 or max_seconds > 3600) {
+        bump(CTR_REFUSALS, 1);
+        setErr("recorderNew: channels 1..8, rate > 0, seconds 0..3600");
+        return 0;
+    }
+    const cap_frames: usize = @intFromFloat(max_seconds * @as(f64, @floatFromInt(rate)));
+    const ring_frames = sr.roundUpPow2(@max(rate / 4, 4096)); // ~250 ms of slack
+    const mem = alloc.alloc(f32, ring_frames * channels) catch {
+        setErr("out of memory allocating the capture ring");
+        return 0;
+    };
+    @memset(mem, 0);
+    const dest = alloc.alloc(f32, cap_frames * channels) catch {
+        alloc.free(mem);
+        setErr("out of memory allocating the recording buffer");
+        return 0;
+    };
+    const ring = alloc.create(sr.Ring) catch {
+        alloc.free(mem);
+        alloc.free(dest);
+        setErr("out of memory allocating the ring header");
+        return 0;
+    };
+    ring.* = .{
+        .magic = sr.MAGIC,
+        .version = sr.VERSION,
+        .channels = channels,
+        .capacity = @intCast(ring_frames),
+        .write_pos = 0,
+        .frames_written = 0,
+        .read_pos = 0,
+        .frames_read = 0,
+        .underruns = 0,
+        .underrun_events = 0,
+        .running = 1,
+        .data = mem.ptr,
+    };
+
+    var slot: usize = recs.items.len;
+    for (recs.items, 0..) |*k, i| {
+        if (!k.live) {
+            slot = i;
+            break;
+        }
+    }
+    if (slot == recs.items.len) {
+        recs.append(alloc, .{}) catch {
+            alloc.free(mem);
+            alloc.free(dest);
+            alloc.destroy(ring);
+            setErr("out of memory growing the recorder table");
+            return 0;
+        };
+    }
+    const rc = &recs.items[slot];
+    const gen = rc.gen;
+    rc.* = .{
+        .ring = ring,
+        .ring_mem = mem,
+        .dest = dest,
+        .frames = 0,
+        .capacity = cap_frames,
+        .channels = channels,
+        .rate = rate,
+        .gen = gen,
+        .live = true,
+    };
+    return makeId(slot, gen);
+}
+
+pub fn recorderRingPtr(id: i64) i64 {
+    const s = recSlotOf(id) orelse return 0;
+    return @intCast(@intFromPtr(recs.items[s].ring.?));
+}
+
+/// Move whatever the device has recorded into the destination. Call it often
+/// enough that the ring does not overflow -- it holds about 250 ms.
+/// Returns frames moved this call.
+pub fn recorderDrain(id: i64) f64 {
+    const s = recSlotOf(id) orelse return -1;
+    const rc = &recs.items[s];
+    const r = rc.ring.?;
+    const nch: usize = rc.channels;
+    var moved: usize = 0;
+    while (rc.frames < rc.capacity) {
+        const avail: usize = @intCast(r.readable());
+        if (avail == 0) break;
+        const room = rc.capacity - rc.frames;
+        const n = @min(avail, room);
+        const got = r.popInterleaved(rc.dest.ptr + rc.frames * nch, n);
+        if (got == 0) break;
+        rc.frames += got;
+        moved += got;
+    }
+    return @floatFromInt(moved);
+}
+
+pub fn recorderFrames(id: i64) f64 {
+    const s = recSlotOf(id) orelse return -1;
+    return @floatFromInt(recs.items[s].frames);
+}
+
+/// Hand back what was recorded as an ordinary sample buffer, trimmed to the
+/// frames actually captured. After this the recorder is spent.
+pub fn recorderFinish(id: i64) i64 {
+    const s = recSlotOf(id) orelse return 0;
+    const rc = &recs.items[s];
+    const n = rc.frames;
+    if (n == 0) {
+        bump(CTR_REFUSALS, 1);
+        setErr("recorderFinish: nothing was recorded");
+        recorderRelease(rc);
+        return 0;
+    }
+    const data = alloc.alloc(f32, n * rc.channels) catch {
+        setErr("out of memory trimming the recording");
+        recorderRelease(rc);
+        return 0;
+    };
+    @memcpy(data, rc.dest[0 .. n * rc.channels]);
+    const ch = rc.channels;
+    const rate = rc.rate;
+    recorderRelease(rc);
+    return adopt(data, n, ch, rate);
+}
+
+pub fn recorderFree(id: i64) i32 {
+    const s = recSlotOf(id) orelse return STALE;
+    recorderRelease(&recs.items[s]);
+    return OK;
+}
+
+fn recorderRelease(rc: *Recorder) void {
+    // poison before freeing: a capture callback still holding the address then
+    // reads an invalid ring and drops its frames, rather than writing into
+    // freed memory
+    if (rc.ring) |r| {
+        r.magic = 0;
+        alloc.destroy(r);
+    }
+    if (rc.ring_mem.len > 0) alloc.free(rc.ring_mem);
+    if (rc.dest.len > 0) alloc.free(rc.dest);
+    rc.ring = null;
+    rc.ring_mem = &.{};
+    rc.dest = &.{};
+    rc.live = false;
+    rc.gen +%= 1;
+    if (rc.gen == 0) rc.gen = 1;
+}
+
+test "a recorder turns pushed frames into an ordinary sample buffer" {
+    // No microphone involved: push frames in exactly as a capture callback
+    // would, then assert what comes out. This is why the recorder lives in the
+    // portable half.
+    const rid = recorderNew(1, 48000, 1.0);
+    try testing.expect(rid != 0);
+    const ptr = recorderRingPtr(rid);
+    try testing.expect(ptr != 0);
+    const ring: *sr.Ring = @ptrFromInt(@as(usize, @intCast(ptr)));
+
+    const block = [_]f32{ 0.1, 0.2, 0.3, 0.4 };
+    try testing.expectEqual(@as(usize, 4), ring.pushInterleaved(&block, 4));
+    try testing.expectEqual(@as(f64, 4), recorderDrain(rid));
+    try testing.expectEqual(@as(f64, 4), recorderFrames(rid));
+
+    const buf = recorderFinish(rid);
+    defer _ = free(buf);
+    try testing.expectEqual(@as(f64, 4), frameCount(buf));
+    try testing.expectEqual(@as(f64, 48000), sampleRate(buf));
+    for (block, 0..) |w, i| try testing.expectApproxEqAbs(@as(f64, w), getSample(buf, i, 0), 1e-6);
+
+    // the recorder id is spent, and says so rather than handing out a second copy
+    try testing.expectEqual(@as(i64, 0), recorderFinish(rid));
+}
+
+test "a recording that captured nothing refuses rather than returning silence" {
+    const rid = recorderNew(2, 48000, 0.5);
+    countersReset();
+    const before = counter(CTR_REFUSALS);
+    try testing.expectEqual(@as(i64, 0), recorderFinish(rid));
+    try testing.expect(counter(CTR_REFUSALS) > before);
+}

@@ -101,6 +101,13 @@ ok
     # stzRuleReport at RUNTIME, so it may load before them.
     load "graphics/stzFrameGraph.ring"
 
+    # sound/ -- the declarative sound surface (SN4, SOFTANZA_SOUND_PLAN.md).
+    # stzSound needs no hardware at all; stzMicrophone reports honestly when
+    # there is no input to record from.
+    load "sound/stzSound.ring"
+    load "sound/stzSoundGraph.ring"
+    load "sound/stzMicrophone.ring"
+
     # the material graph: a material AS a graph, emitting the material
     # language. Same runtime-only dependency on stzGraph and stzRuleReport.
     load "graphics/stzMaterialGraph.ring"

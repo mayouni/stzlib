@@ -153,6 +153,41 @@ pub const Ring = extern struct {
         @atomicStore(u64, &self.read_pos, r + n, .release);
         return n;
     }
+
+    /// PRODUCER, from a CAPTURE callback. The mirror of popInterleaved: the
+    /// device hands us interleaved frames it just recorded, and we copy them in.
+    ///
+    /// Capture runs the ring the other way round -- the audio callback is the
+    /// PRODUCER and the Ring thread the consumer -- which is exactly why this is
+    /// written as a single-producer/single-consumer ring rather than as a
+    /// playback buffer. One structure, both directions.
+    ///
+    /// OVERRUN is the capture-side twin of underrun: if the reader has not kept
+    /// up, incoming frames have nowhere to go. They are DROPPED and COUNTED,
+    /// never written over unread audio -- losing the newest is recoverable,
+    /// losing the middle of a recording silently is not.
+    pub fn pushInterleaved(self: *Ring, src: [*]const f32, frames: usize) usize {
+        if (!self.valid()) return 0;
+        const room = self.writable();
+        const n = @min(frames, @as(usize, @intCast(room)));
+        const cap: usize = self.capacity;
+        const mask = cap - 1;
+        const nch: usize = self.channels;
+        const w = @atomicLoad(u64, &self.write_pos, .monotonic);
+        var i: usize = 0;
+        while (i < n) : (i += 1) {
+            const slot = @as(usize, @intCast((w + i) & mask));
+            var ch: usize = 0;
+            while (ch < nch) : (ch += 1) self.data[slot * nch + ch] = src[i * nch + ch];
+        }
+        if (n < frames) {
+            self.underruns += frames - n; // frames the ring could not accept
+            self.underrun_events += 1;
+        }
+        self.frames_written += n;
+        @atomicStore(u64, &self.write_pos, w + n, .release);
+        return n;
+    }
 };
 
 /// Capacity must be a power of two: the wrap is then a mask rather than a
@@ -361,4 +396,25 @@ test "producer and consumer on REAL threads lose nothing" {
     // every frame, in order, exactly once
     try testing.expectEqual(@as(usize, 0), mismatches);
     try testing.expectEqual(@as(u64, TOTAL), r.frames_read);
+}
+
+
+test "capture direction: the callback pushes, the reader pops, nothing is lost" {
+    const alloc = testing.allocator;
+    const r = try makeTestRing(alloc, 8, 2);
+    defer {
+        alloc.free(r.data[0 .. 8 * 2]);
+        alloc.destroy(r);
+    }
+    const recorded = [_]f32{ 1, -1, 2, -2, 3, -3 }; // 3 interleaved stereo frames
+    try testing.expectEqual(@as(usize, 3), r.pushInterleaved(&recorded, 3));
+    var out: [6]f32 = @splat(0);
+    try testing.expectEqual(@as(usize, 3), r.popInterleaved(&out, 3));
+    for (recorded, out) |w, g| try testing.expectEqual(w, g);
+
+    // OVERRUN: a reader that stops reading loses the NEWEST frames, counted
+    const big = [_]f32{9} ** 40;
+    const took = r.pushInterleaved(&big, 20);
+    try testing.expect(took < 20);
+    try testing.expect(r.underruns > 0);
 }

@@ -113,6 +113,32 @@ fn ring_SinkCounter(p: *anyopaque) callconv(.c) void {
     rn(p, dev.sinkCounter(@intFromFloat(gn(p, 1))));
 }
 
+// ---------------------------------------------------------------- capture (SN4)
+
+fn ring_CaptureOpen(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(dev.captureOpen(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2)))));
+}
+
+fn ring_CaptureStart(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(dev.captureStart(@intFromFloat(gn(p, 1)))));
+}
+
+fn ring_CaptureStop(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(dev.captureStop(@intFromFloat(gn(p, 1)))));
+}
+
+fn ring_CaptureClose(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(dev.captureClose(@intFromFloat(gn(p, 1)))));
+}
+
+fn ring_CaptureFramesIn(p: *anyopaque) callconv(.c) void {
+    rn(p, dev.captureFramesIn(@intFromFloat(gn(p, 1))));
+}
+
+fn ring_CaptureOverruns(p: *anyopaque) callconv(.c) void {
+    rn(p, dev.captureOverruns(@intFromFloat(gn(p, 1))));
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzengineaudiodevisavailable", .func = &ring_IsAvailable },
     .{ .name = "stzengineaudiodevlasterror", .func = &ring_LastError },
@@ -135,6 +161,14 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineaudiodevplaybackworstus", .func = &ring_PlaybackWorstUs },
     .{ .name = "stzengineaudiodevplaybackunderruns", .func = &ring_PlaybackUnderruns },
     .{ .name = "stzengineaudiodevsinkcounter", .func = &ring_SinkCounter },
+
+    // capture (SN4)
+    .{ .name = "stzengineaudiodevcaptureopen", .func = &ring_CaptureOpen },
+    .{ .name = "stzengineaudiodevcapturestart", .func = &ring_CaptureStart },
+    .{ .name = "stzengineaudiodevcapturestop", .func = &ring_CaptureStop },
+    .{ .name = "stzengineaudiodevcaptureclose", .func = &ring_CaptureClose },
+    .{ .name = "stzengineaudiodevcaptureframesin", .func = &ring_CaptureFramesIn },
+    .{ .name = "stzengineaudiodevcaptureoverruns", .func = &ring_CaptureOverruns },
 };
 
 pub fn registerAll(pState: *anyopaque) void {

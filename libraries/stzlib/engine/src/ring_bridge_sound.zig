@@ -313,6 +313,36 @@ fn ring_GraphCurrentGain(p: *anyopaque) callconv(.c) void {
     rn(p, gph.currentGain(id(p, 1), nodeIn(p, 2)));
 }
 
+// ---------------------------------------------------------------- recorder (SN4)
+
+fn ring_RecorderNew(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(snd.recorderNew(
+        @intFromFloat(gn(p, 1)),
+        @intFromFloat(gn(p, 2)),
+        gn(p, 3),
+    )));
+}
+
+fn ring_RecorderRingPtr(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(snd.recorderRingPtr(id(p, 1))));
+}
+
+fn ring_RecorderDrain(p: *anyopaque) callconv(.c) void {
+    rn(p, snd.recorderDrain(id(p, 1)));
+}
+
+fn ring_RecorderFrames(p: *anyopaque) callconv(.c) void {
+    rn(p, snd.recorderFrames(id(p, 1)));
+}
+
+fn ring_RecorderFinish(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(snd.recorderFinish(id(p, 1))));
+}
+
+fn ring_RecorderFree(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(snd.recorderFree(id(p, 1))));
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginesoundisavailable", .func = &ring_IsAvailable },
     .{ .name = "stzenginesoundlasterror", .func = &ring_LastError },
@@ -375,6 +405,14 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginesoundstreamcounter", .func = &ring_StreamCounter },
     .{ .name = "stzenginesoundgraphsetgain", .func = &ring_GraphSetGain },
     .{ .name = "stzenginesoundgraphcurrentgain", .func = &ring_GraphCurrentGain },
+
+    // the recorder (SN4)
+    .{ .name = "stzenginesoundrecordernew", .func = &ring_RecorderNew },
+    .{ .name = "stzenginesoundrecorderringptr", .func = &ring_RecorderRingPtr },
+    .{ .name = "stzenginesoundrecorderdrain", .func = &ring_RecorderDrain },
+    .{ .name = "stzenginesoundrecorderframes", .func = &ring_RecorderFrames },
+    .{ .name = "stzenginesoundrecorderfinish", .func = &ring_RecorderFinish },
+    .{ .name = "stzenginesoundrecorderfree", .func = &ring_RecorderFree },
 };
 
 pub fn registerAll(pState: *anyopaque) void {
