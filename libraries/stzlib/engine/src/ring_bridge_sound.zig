@@ -9,6 +9,7 @@
 const std = @import("std");
 const snd = @import("sound.zig");
 const gph = @import("soundgraph.zig");
+const ana = @import("soundanalysis.zig");
 const R = @import("ring_api.zig");
 
 const gn = R.ring_vm_api_getnumber;
@@ -343,6 +344,96 @@ fn ring_RecorderFree(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(snd.recorderFree(id(p, 1))));
 }
 
+// ---------------------------------------------------------------- analysis (SN5)
+//
+// Analysis results are GRIDS: rows x cols of f64, gen-keyed like every other
+// handle. A spectrum is one row, a spectrogram is many, onset times are one.
+// Rows and columns are 1-BASED here and 0-based in the engine.
+
+fn ring_Spectrum(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(ana.spectrum(
+        id(p, 1),
+        @intCast(idx0(p, 2) & 0xffff_ffff),
+        idx0(p, 3),
+        @intFromFloat(gn(p, 4)),
+    )));
+}
+
+fn ring_Spectrogram(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(ana.spectrogram(
+        id(p, 1),
+        @intCast(idx0(p, 2) & 0xffff_ffff),
+        @intFromFloat(gn(p, 3)),
+        @intFromFloat(gn(p, 4)),
+        @intFromFloat(gn(p, 5)),
+    )));
+}
+
+fn ring_DominantFrequency(p: *anyopaque) callconv(.c) void {
+    rn(p, ana.dominantFrequency(id(p, 1), @intCast(idx0(p, 2) & 0xffff_ffff), @intFromFloat(gn(p, 3))));
+}
+
+fn ring_Onsets(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(ana.onsets(
+        id(p, 1),
+        @intCast(idx0(p, 2) & 0xffff_ffff),
+        @intFromFloat(gn(p, 3)),
+        @intFromFloat(gn(p, 4)),
+        gn(p, 5),
+    )));
+}
+
+fn ring_Tempo(p: *anyopaque) callconv(.c) void {
+    rn(p, ana.tempo(id(p, 1), @intCast(idx0(p, 2) & 0xffff_ffff)));
+}
+
+fn ring_Loudness(p: *anyopaque) callconv(.c) void {
+    rn(p, ana.loudness(id(p, 1)));
+}
+
+fn ring_GridRows(p: *anyopaque) callconv(.c) void {
+    rn(p, ana.gridRows(id(p, 1)));
+}
+
+fn ring_GridCols(p: *anyopaque) callconv(.c) void {
+    rn(p, ana.gridCols(id(p, 1)));
+}
+
+fn ring_GridXStep(p: *anyopaque) callconv(.c) void {
+    rn(p, ana.gridXStep(id(p, 1)));
+}
+
+fn ring_GridYStep(p: *anyopaque) callconv(.c) void {
+    rn(p, ana.gridYStep(id(p, 1)));
+}
+
+fn ring_GridAt(p: *anyopaque) callconv(.c) void {
+    rn(p, ana.gridAt(id(p, 1), idx0(p, 2), idx0(p, 3)));
+}
+
+fn ring_GridMax(p: *anyopaque) callconv(.c) void {
+    rn(p, ana.gridMax(id(p, 1)));
+}
+
+fn ring_GridArgMaxInRow(p: *anyopaque) callconv(.c) void {
+    // 0-based column out of the engine -> 1-based for Ring; -1 stays -1
+    const v = ana.gridArgMaxInRow(id(p, 1), idx0(p, 2));
+    rn(p, if (v < 0) -1 else v + 1);
+}
+
+fn ring_GridFree(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(ana.gridFree(id(p, 1))));
+}
+
+fn ring_AnalysisCounter(p: *anyopaque) callconv(.c) void {
+    rn(p, ana.counter(@intFromFloat(gn(p, 1))));
+}
+
+fn ring_AnalysisLastError(p: *anyopaque) callconv(.c) void {
+    const e = ana.lastError();
+    R.ring_vm_api_retstring2(p, e.ptr, @intCast(e.len));
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginesoundisavailable", .func = &ring_IsAvailable },
     .{ .name = "stzenginesoundlasterror", .func = &ring_LastError },
@@ -413,6 +504,24 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginesoundrecorderframes", .func = &ring_RecorderFrames },
     .{ .name = "stzenginesoundrecorderfinish", .func = &ring_RecorderFinish },
     .{ .name = "stzenginesoundrecorderfree", .func = &ring_RecorderFree },
+
+    // analysis (SN5)
+    .{ .name = "stzenginesoundspectrum", .func = &ring_Spectrum },
+    .{ .name = "stzenginesoundspectrogram", .func = &ring_Spectrogram },
+    .{ .name = "stzenginesounddominantfrequency", .func = &ring_DominantFrequency },
+    .{ .name = "stzenginesoundonsets", .func = &ring_Onsets },
+    .{ .name = "stzenginesoundtempo", .func = &ring_Tempo },
+    .{ .name = "stzenginesoundloudness", .func = &ring_Loudness },
+    .{ .name = "stzenginesoundgridrows", .func = &ring_GridRows },
+    .{ .name = "stzenginesoundgridcols", .func = &ring_GridCols },
+    .{ .name = "stzenginesoundgridxstep", .func = &ring_GridXStep },
+    .{ .name = "stzenginesoundgridystep", .func = &ring_GridYStep },
+    .{ .name = "stzenginesoundgridat", .func = &ring_GridAt },
+    .{ .name = "stzenginesoundgridmax", .func = &ring_GridMax },
+    .{ .name = "stzenginesoundgridargmaxinrow", .func = &ring_GridArgMaxInRow },
+    .{ .name = "stzenginesoundgridfree", .func = &ring_GridFree },
+    .{ .name = "stzenginesoundanalysiscounter", .func = &ring_AnalysisCounter },
+    .{ .name = "stzenginesoundanalysislasterror", .func = &ring_AnalysisLastError },
 };
 
 pub fn registerAll(pState: *anyopaque) void {

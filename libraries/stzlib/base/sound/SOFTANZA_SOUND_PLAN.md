@@ -1208,3 +1208,107 @@ which is the only kind worth having.
    identity assertion.
 4. **Capture exists**, so SN5's analysis can run on something recorded rather
    than only on something synthesised.
+
+---
+
+## SN5 STATUS — 2026-08-12. Analysis, and the first cross-plane composition
+
+Delivered: `engine/src/soundanalysis.zig` (spectrum, spectrogram, onsets,
+tempo, LUFS), `base/sound/stzSoundGrid.ring` (the data model + the drawing),
+analysis methods on `stzSound`, and
+`base/test/sound/sound_analysis_narrated.ring` — 33 assertions, green.
+
+Plane totals: **270 Ring assertions across seven guards, 100 Zig tests.**
+
+### FACT 2 cashed: nothing here reimplements a DFT
+
+Every transform rides `fft.zig` — the same radix-2/Bluestein pair the numeric
+tier has had all along, already held to a LAPACK-grade reference by its own
+guards. The plan said the signal half was already strong; this is where that
+paid.
+
+### The output is a DATA MODEL, and that is what makes it testable
+
+Every analysis returns a **grid**: rows x cols of f64, gen-keyed like every
+other handle, carrying `x_step` (seconds per row) and `y_step` (hertz per
+column) so a caller can label an axis without recomputing what the analysis
+knew. A spectrum is one row; a spectrogram is many; onset times are one row of
+seconds. One shape, one lifetime, one table.
+
+That boundary is not tidiness. "The 1 kHz sine is in the 1 kHz bin" is a claim
+about numbers a guard can check; "the spectrogram looks right" is a claim about
+nothing.
+
+### Measured
+
+| | |
+|---|---|
+| a 1 kHz sine's peak | within one bin of 1 kHz |
+| amplitude recovery ON a bin centre | 0.800 for a 0.8 tone |
+| amplitude recovery OFF a bin (1 kHz at 11.72 Hz bins) | 0.744 — scalloping, predicted 0.7443 |
+| spectrogram, 1 thread vs 4 | **bit-identical**, worst difference exactly 0 |
+| a 200 Hz → 4 kHz sweep | peak rose 154 times, fell 0 |
+| click track at 0.5 s | 119.7–122.3 BPM |
+| doubling amplitude | **+6.02 LU**, as a dB scale must |
+| drawing a 184-row spectrogram through stzCanvas | 88 ms, 87 KB of SVG |
+
+### THE SWEEP IS THE CENTREPIECE, because it is provable AND visible
+
+A tone sliding 200 Hz → 4 kHz must make the peak bin climb, row after row.
+Drawn, it is a diagonal you can see is right; measured, it is monotonic and a
+guard can prove it. That combination is rare and worth building tests around.
+
+### The graphics convergence, and a finding for the graphics plane
+
+The sound plane hands a grid of numbers to `stzCanvas`, which knows how to
+draw. Neither knows the other's internals: `ToCanvas()` speaks only canvas
+verbs, and stzCanvas has never heard of audio. The SVG tier needs no device at
+all, so **CI can draw a spectrogram**.
+
+**FINDING: stzCanvas has no image primitive.** It offers AddRect, AddCircle,
+AddLine, AddText — so a spectrogram costs ONE RECTANGLE PER CELL. The grid is
+downsampled to the pixel size asked for (each output cell takes the LOUDEST
+value beneath it, which is the right summary — an average hides a brief bright
+partial), and even so a 760x260 picture is ~87 KB of SVG and 88 ms to build.
+An `AddImage` / `AddPixels` on stzCanvas would make this one call instead of
+twenty thousand. That belongs to the graphics plane, and is recorded here as
+the first thing the sound plane has ever wanted from it.
+
+Colour is dB, not amplitude: hearing is logarithmic, and a linear ramp shows
+one bright line on an otherwise black picture.
+
+### Two bugs the guards caught, both mine and both instructive
+
+**A steady tone reported 1125 BPM.** The onset detector compared spectral flux
+against a moving average of ITSELF and nothing else. On a steady tone the flux
+is numerical noise — and noise still has peaks above its own mean. A note
+starting changes the spectrum by an amount comparable to the spectrum itself,
+so an absolute floor (2% of mean spectral magnitude) now sits beside the
+relative one. A steady tone finds nothing and `tempo()` returns -1, which is a
+better answer than a confident wrong number.
+
+**Two test expectations were naive, not the code.** The spectrum read 0.744
+where I asserted 0.8 — 1000 Hz at 11.72 Hz bins lands on bin 85.33, BETWEEN
+two bins, and the arithmetic predicts exactly 0.7443. And LUFS came out 0.7 dB
+above my hand-derived value because I assumed K-weighting is flat at 1 kHz; it
+is not. The loudness test now predicts the answer by running a probe tone
+through the very same biquads and measuring the gain — two independent
+measurements of one truth, so if the filters change the test moves with them.
+
+### What is NOT here
+
+- **LUFS is integrated only.** No short-term (3 s) or momentary (400 ms)
+  windows, no loudness range (LRA), no true-peak. The blocks exist internally;
+  exposing them is small when something needs them.
+- **Surround weighting is not claimed.** BS.1770 weights Ls/Rs at 1.41; this
+  plane does not claim surround, so every channel weighs 1.0.
+- **Tempo is a median of onset gaps**, not a beat tracker. It reports what it
+  can defend and -1 otherwise; it will not follow a tempo that changes.
+- **No key or pitch detection**, no chroma, no MFCC.
+
+### What SN6 inherits
+
+1. **A grid model** any later analysis can return without inventing a shape.
+2. **A working cross-plane path** to stzCanvas — the pattern for the reactive
+   layer and the delivery plane's browser tier.
+3. **The stzCanvas image gap**, named, if drawing gets heavier.
