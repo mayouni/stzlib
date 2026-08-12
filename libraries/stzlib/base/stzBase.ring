@@ -107,6 +107,7 @@ ok
     # stzSound needs no hardware at all; stzMicrophone reports honestly when
     # there is no input to record from.
     load "sound/stzSoundGrid.ring"
+    load "sound/stzSoundPlot.ring"
     load "sound/stzSound.ring"
     load "sound/stzSoundGraph.ring"
     load "sound/stzMicrophone.ring"
