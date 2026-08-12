@@ -1258,6 +1258,14 @@ fn ring_ColorLightness(p: *anyopaque) callconv(.c) void {
     rn(p, pcolor.stz_color_lightness(@intFromFloat(gn(p, 1))));
 }
 
+fn ring_ContrastWcag(p: *anyopaque) callconv(.c) void {
+    rn(p, pcolor.stz_color_contrast_wcag(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2))));
+}
+
+fn ring_ContrastApca(p: *anyopaque) callconv(.c) void {
+    rn(p, pcolor.stz_color_contrast_apca(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2))));
+}
+
 fn ring_ColorHue(p: *anyopaque) callconv(.c) void {
     rn(p, pcolor.stz_color_hue(@intFromFloat(gn(p, 1))));
 }
@@ -1350,6 +1358,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuscenecirclestroke", .func = &ring_SceneCircleStroke },
     .{ .name = "stzenginecolorrampstep", .func = &ring_ColorRampStep },
     .{ .name = "stzenginecolorlightness", .func = &ring_ColorLightness },
+    .{ .name = "stzenginecolorcontrastwcag", .func = &ring_ContrastWcag },
+    .{ .name = "stzenginecolorcontrastapca", .func = &ring_ContrastApca },
     .{ .name = "stzenginecolorhue", .func = &ring_ColorHue },
     .{ .name = "stzenginecolorchroma", .func = &ring_ColorChroma },
     .{ .name = "stzenginegpusceneroundrect", .func = &ring_SceneRoundRect },

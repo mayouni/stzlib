@@ -279,3 +279,65 @@ func StzThemeRoles()
 	func StzColorRoles()
 		return StzThemeRoles()
 
+#---------------------------------------------------------------------------#
+#  CONTRAST AS A NUMBER (C3 of SOFTANZA_COLOR_SYSTEM.md)                    #
+#---------------------------------------------------------------------------#
+#
+#     StzContrastOf(:White, :Danger)     -> a WCAG ratio, 1.0 .. 21.0
+#     StzContrastLc("black", "gold")     -> an APCA Lc, signed for polarity
+#     StzIsLegible(text, background)     -> against a stated minimum
+#
+# StzContrastingText answers WHICH of black/white to use. It cannot answer
+# "is this pair legible?", so nothing could refuse an illegible combination
+# -- a design system that cannot FAIL an accessibility check does not have
+# one. These are the calls a theme is gated by.
+#
+# TWO METRICS ON PURPOSE, and the metric is named every time it is
+# reported. WCAG 2 is the one standards and clients ask for, and its
+# anchors are exact (white on black is 21.0). APCA models POLARITY -- dark
+# text on light behaves differently from light on dark -- and is better on
+# the mid-tones where WCAG 2 is known to misjudge. Quoting an Lc where
+# somebody expects a 4.5:1 ratio is how a number becomes misleading.
+
+func _StzRgb24(pColor)
+	_a_ = StzHexToRGB(StzResolveColor(pColor))
+	return _a_[1] * 65536 + _a_[2] * 256 + _a_[3]
+
+# WCAG 2.x contrast ratio. Order does not matter.
+func StzContrastOf(pA, pB)
+	return StzEngineColorContrastWcag(_StzRgb24(pA), _StzRgb24(pB))
+
+# APCA Lc. TEXT first, BACKGROUND second -- unlike the ratio, the order
+# carries meaning: positive is dark-on-light, negative is light-on-dark.
+func StzContrastLc(pText, pBg)
+	return StzEngineColorContrastApca(_StzRgb24(pText), _StzRgb24(pBg))
+
+# The WCAG 2 minimum for normal body text. Named rather than inlined so a
+# caller reads the intent, and so raising or lowering it is one edit that
+# shows up in a diff.
+func StzContrastMinimumBodyText()
+	return 4.5
+
+func StzContrastMinimumLargeText()
+	return 3.0
+
+func StzIsLegible(pText, pBg)
+	return StzContrastOf(pText, pBg) >= StzContrastMinimumBodyText()
+
+func StzIsLegibleXT(pText, pBg, pnMin)
+	return StzContrastOf(pText, pBg) >= pnMin
+
+# The best of black/white ON a fill, chosen by MEASURED contrast rather
+# than by a luminance threshold. StzContrastingText keeps its exact
+# current answers because pictures depend on them; this one is free to be
+# right instead of compatible, and reports the ratio it achieved.
+#
+#   -> [ colour, wcagRatio ]
+func StzBestTextOn(pBg)
+	_w_ = StzContrastOf(:White, pBg)
+	_k_ = StzContrastOf(:Black, pBg)
+	if _w_ >= _k_
+		return [ "white", _w_ ]
+	ok
+	return [ "black", _k_ ]
+
