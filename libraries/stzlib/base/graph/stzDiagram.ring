@@ -1413,74 +1413,110 @@ class stzDiagram from stzGraph
 
 		_nW_    = This._DiagOpt(paOptions, "width", 1000)
 		_nH_    = This._DiagOpt(paOptions, "height", 700)
-		_nBoxW_ = This._DiagOpt(paOptions, "nodewidth", 132)
-		_nBoxH_ = This._DiagOpt(paOptions, "nodeheight", 58)
-		_oFont_ = This._DiagOpt(paOptions, "font", NULL)
-		_nFsz_  = This._DiagOpt(paOptions, "fontsize", 13)
-		_cBg_   = This._DiagOpt(paOptions, "background", "#0E1422")
-		_cEdge_ = This._DiagOpt(paOptions, "edgecolor", "#5B6F9E")
-		_cText_ = This._DiagOpt(paOptions, "textcolor", "#F2F5FB")
-		_cLay_  = This._DiagOpt(paOptions, "layout", :Hierarchical)
+		_nBoxW_ = This._DiagOpt(paOptions, "nodewidth", 150)
+		_nBoxH_ = This._DiagOpt(paOptions, "nodeheight", 56)
+		_oFont_ = This._DiagOpt(paOptions, "font", "")
+		_nFsz_  = This._DiagOpt(paOptions, "fontsize", 14)
+		_cBg_   = This._DiagOpt(paOptions, "background", "#FFFFFF")
+		_cEdge_ = This._DiagOpt(paOptions, "edgecolor", "#8A8A8A")
+		_nEdgeW_= This._DiagOpt(paOptions, "edgewidth", 2)
+		_nRad_  = This._DiagOpt(paOptions, "corner", 10)
 
-		# The layout wants room for the BOXES, not just their centres, so it
-		# is computed in a space inset by half a box on every side. Without
-		# this a node on the border has half its shape off-canvas -- which
-		# looks like a layout bug and is a margin bug.
-		_mx_ = _nBoxW_ / 2 + 12
-		_my_ = _nBoxH_ / 2 + 12
+		# THE DIAGRAM'S OWN SETTINGS ARE READ, not re-asked for. SetLayout and
+		# SetSplines already exist and already drive the dot output; a native
+		# tier that ignored them would be a second diagram over the same data.
+		_cRank_ = This._NativeRankDir()
+		_cSpl_  = StzLower("" + This.Splines())
+		if _cSpl_ = ""  _cSpl_ = "spline"  ok
+
+		# Layout in a space inset by half a box, so a node on the border is not
+		# half off-canvas -- and TRANSPOSED afterwards for LR/RL/BT, because
+		# rankdir is a property of the picture, not of the graph.
+		_mx_ = _nBoxW_ / 2 + 14
+		_my_ = _nBoxH_ / 2 + 14
+		_bSwap_ = 0
+		if _cRank_ = "LR" or _cRank_ = "RL"  _bSwap_ = 1  ok
+		_lw_ = _nW_ - 2 * _mx_
+		_lh_ = _nH_ - 2 * _my_
+		if _bSwap_
+			_lw_ = _nH_ - 2 * _my_
+			_lh_ = _nW_ - 2 * _mx_
+		ok
+
 		_oGC_ = new stzGraphCanvas(This, [
-			:Layout = _cLay_,
-			:Width  = max([ _nW_ - 2 * _mx_, 60 ]),
-			:Height = max([ _nH_ - 2 * _my_, 60 ])
+			:Layout = This._DiagOpt(paOptions, "layoutmode", :Hierarchical),
+			:Width  = max([ _lw_, 60 ]),
+			:Height = max([ _lh_, 60 ])
 		])
-		_aPos_ = _oGC_.Positions()
 
-		# index positions by node id, since Positions() answers in the
-		# graph's node order and the diagram reads its own
 		_aXY_ = []
-		for _p_ in _aPos_
-			_aXY_ + [ StzLower("" + _p_[1]), _p_[2] + _mx_, _p_[3] + _my_ ]
+		for _p_ in _oGC_.Positions()
+			_px_ = _p_[2]
+			_py_ = _p_[3]
+			if _bSwap_
+				_t_ = _px_
+				_px_ = _py_
+				_py_ = _t_
+			ok
+			if _cRank_ = "RL"  _px_ = _lh_ - _px_  ok
+			if _cRank_ = "BT"  _py_ = _lh_ - _py_  ok
+			_aXY_ + [ StzLower("" + _p_[1]), _px_ + _mx_, _py_ + _my_ ]
 		next
 
 		_oC_ = new stzCanvas(_nW_, _nH_)
 		_oC_.SetBackground(_cBg_)
 
-		# 1. CLUSTERS first, so they sit behind everything they contain
+		# 1. CLUSTERS behind everything, each with its LABEL -- the box without
+		#    the label is not what dot draws.
 		for _cl_ in @aClusters
 			_aBox_ = This._ClusterBox(_cl_, _aXY_, _nBoxW_, _nBoxH_)
-			if len(_aBox_) = 4
+			if len(_aBox_) != 4  loop  ok
+			_oC_.Flush()
+			_oC_.FillQ("#FFF8FE").StrokeQ(_cl_[:color], 2).
+				AddRect(_aBox_[1], _aBox_[2] - 24, _aBox_[3], _aBox_[4] + 24)
+			if isObject(_oFont_)
 				_oC_.Flush()
-				_oC_.FillQ(_cl_[:color]).
-					AddRect(_aBox_[1], _aBox_[2], _aBox_[3], _aBox_[4])
+				_oC_.AddTextQ("" + _cl_[:label], _aBox_[1] + 10, _aBox_[2] - 8).
+					SetFontQ(_oFont_, _nFsz_ - 1).Color("#555555")
 			ok
 		next
 
-		# 2. EDGES, straight. Splines are the kill criterion's territory.
+		# 2. EDGES: clipped at the node boundary, routed in the requested
+		#    spline style, and finished with an ARROWHEAD.
 		for _e_ in This.Edges()
 			_a_ = This._XYOf(_aXY_, "" + _e_[:from])
 			_b_ = This._XYOf(_aXY_, "" + _e_[:to])
-			if len(_a_) = 2 and len(_b_) = 2
-				_oC_.AddLineQ(_a_[1], _a_[2], _b_[1], _b_[2]).
-					Stroke(_cEdge_, 2)
-			ok
+			if len(_a_) != 2 or len(_b_) != 2  loop  ok
+			This._DrawEdge(_oC_, _a_, _b_, _nBoxW_, _nBoxH_, _cEdge_,
+				_nEdgeW_, _cSpl_, _cRank_)
 		next
 
-		# 3. NODES, each in the shape it asked for
+		# 3. NODES
 		for _i_ = 1 to _nN_
 			_cId_ = "" + _aNodes_[_i_][:id]
 			_a_ = This._XYOf(_aXY_, _cId_)
 			if len(_a_) != 2  loop  ok
 			_cShape_ = This._NativeShapeOf(_aNodes_[_i_])
-			# the XT form takes the paint, so the fill cannot land on the
-			# pending EDGE instead of on this node
-			StzDrawNodeShapeXT(_oC_, _cShape_,
-				_a_[1] - _nBoxW_ / 2, _a_[2] - _nBoxH_ / 2, _nBoxW_, _nBoxH_,
-				This._NativeFillOf(_aNodes_[_i_]),
-				This._DiagOpt(paOptions, "strokecolor", "#0B1020"), 2)
+			_cFill_ = This._NativeFillOf(_aNodes_[_i_])
+			_x0_ = _a_[1] - _nBoxW_ / 2
+			_y0_ = _a_[2] - _nBoxH_ / 2
+			_cStroke_ = This._DiagOpt(paOptions, "strokecolor", "#3A3A3A")
+
+			# ROUNDED is the default look of these charts. A node that named a
+			# real shape keeps it; a plain box becomes a rounded box.
+			if StzLower("" + _cShape_) = "box"
+				_oC_.Flush()
+				_oC_.FillQ(_cFill_).StrokeQ(_cStroke_, 2).
+					AddRoundRect(_x0_, _y0_, _nBoxW_, _nBoxH_, _nRad_)
+			else
+				StzDrawNodeShapeXT(_oC_, _cShape_, _x0_, _y0_,
+					_nBoxW_, _nBoxH_, _cFill_, _cStroke_, 2)
+			ok
 		next
 
-		# 4. LABELS, only with a font -- a caller without one still gets the
-		#    picture rather than a refusal
+		# 4. LABELS INSIDE the node, in a colour that CONTRASTS with the fill.
+		#    White text on a gold box is the failure this avoids, and
+		#    stzDiagram already knows how to pick: ContrastingTextColor.
 		if isObject(_oFont_)
 			for _i_ = 1 to _nN_
 				_cId_ = "" + _aNodes_[_i_][:id]
@@ -1488,9 +1524,12 @@ class stzDiagram from stzGraph
 				if len(_a_) != 2  loop  ok
 				_cLb_ = "" + _aNodes_[_i_][:label]
 				if _cLb_ = ""  _cLb_ = _cId_  ok
+				_cLb_ = This._FitLabel(_cLb_, _oFont_, _nFsz_, _nBoxW_ - 18)
 				_nTw_ = _oFont_.WidthOf(_cLb_, _nFsz_)
+				_oC_.Flush()
 				_oC_.AddTextQ(_cLb_, _a_[1] - _nTw_ / 2, _a_[2] + _nFsz_ / 3).
-					SetFontQ(_oFont_, _nFsz_).Color(_cText_)
+					SetFontQ(_oFont_, _nFsz_).
+					Color(This.ContrastingTextColor(This._NativeFillOf(_aNodes_[_i_])))
 			next
 		ok
 
@@ -1509,6 +1548,146 @@ class stzDiagram from stzGraph
 		return This.ToCanvasXT(paOptions).ToPNG(pcPath)
 
 	#-- native-tier internals ------------------------------------------
+
+	# rankdir, from the diagram's OWN SetLayout -- TB / BT / LR / RL.
+	def _NativeRankDir()
+		_c_ = StzLower("" + @cLayout)
+		if _c_ = ""  _c_ = $cDefaultLayout  ok
+		if _c_ = "topdown" or StzFindFirst(_c_, $acLayouts[:TopDown]) > 0
+			return "TB"
+		but _c_ = "bottomup" or StzFindFirst(_c_, $acLayouts[:BottomUp]) > 0
+			return "BT"
+		but _c_ = "leftright" or StzFindFirst(_c_, $acLayouts[:LeftRight]) > 0
+			return "LR"
+		but _c_ = "rightleft" or StzFindFirst(_c_, $acLayouts[:RightLeft]) > 0
+			return "RL"
+		ok
+		return "TB"
+
+	# One edge: clipped to both node boxes, routed in the requested spline
+	# style, finished with an arrowhead. A centre-to-centre line that runs
+	# UNDER the node is what a hand-rolled renderer draws; dot clips, so this
+	# clips.
+	def _DrawEdge(oC, aFrom, aTo, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank)
+		_p_ = This._ClipToBox(aFrom, aTo, nBoxW, nBoxH)
+		_q_ = This._ClipToBox(aTo, aFrom, nBoxW, nBoxH)
+
+		switch cSpline
+		on "ortho"
+			if cRank = "LR" or cRank = "RL"
+				_mid_ = (_p_[1] + _q_[1]) / 2
+				oC.Flush()
+				oC.AddPolylineQ([ _p_[1], _p_[2], _mid_, _p_[2],
+					_mid_, _q_[2], _q_[1], _q_[2] ]).Stroke(cColor, nWidth)
+			else
+				_mid_ = (_p_[2] + _q_[2]) / 2
+				oC.Flush()
+				oC.AddPolylineQ([ _p_[1], _p_[2], _p_[1], _mid_,
+					_q_[1], _mid_, _q_[1], _q_[2] ]).Stroke(cColor, nWidth)
+			ok
+		on "line"
+			oC.Flush()
+			oC.AddLineQ(_p_[1], _p_[2], _q_[1], _q_[2]).Stroke(cColor, nWidth)
+		on "polyline"
+			oC.Flush()
+			oC.AddLineQ(_p_[1], _p_[2], _q_[1], _q_[2]).Stroke(cColor, nWidth)
+		other
+			oC.Flush()
+			oC.AddPolylineQ(This._CurvePoints(_p_, _q_, cRank)).Stroke(cColor, nWidth)
+		off
+
+		This._DrawArrow(oC, _p_, _q_, cColor, nWidth, cSpline, cRank)
+
+	# A quadratic bend, sampled. The control point leans along the RANK axis,
+	# which is what makes dot's splines read as flowing down the hierarchy
+	# rather than as an arbitrary arc.
+	def _CurvePoints(aP, aQ, cRank)
+		if cRank = "LR" or cRank = "RL"
+			_cx_ = aP[1] + (aQ[1] - aP[1]) * 0.55
+			_cy_ = aP[2]
+		else
+			_cy_ = aP[2] + (aQ[2] - aP[2]) * 0.55
+			_cx_ = aP[1]
+		ok
+		_a_ = []
+		for _i_ = 0 to 18
+			_t_ = _i_ / 18
+			_u_ = 1 - _t_
+			_a_ + (_u_ * _u_ * aP[1] + 2 * _u_ * _t_ * _cx_ + _t_ * _t_ * aQ[1])
+			_a_ + (_u_ * _u_ * aP[2] + 2 * _u_ * _t_ * _cy_ + _t_ * _t_ * aQ[2])
+		next
+		return _a_
+
+	# The arrowhead points the way the edge ARRIVES. On a curve that is the
+	# tangent at the end, which is NOT the straight line between centres --
+	# an arrow pointing the wrong way is worse than no arrow.
+	def _DrawArrow(oC, aP, aQ, cColor, nWidth, cSpline, cRank)
+		_bx_ = aP[1]
+		_by_ = aP[2]
+		if cSpline = "ortho"
+			if cRank = "LR" or cRank = "RL"
+				_bx_ = aQ[1] - 10
+				_by_ = aQ[2]
+			else
+				_bx_ = aQ[1]
+				_by_ = aQ[2] - 10
+			ok
+		but cSpline != "line" and cSpline != "polyline"
+			_a_ = This._CurvePoints(aP, aQ, cRank)
+			_n_ = len(_a_)
+			if _n_ >= 4
+				_bx_ = _a_[_n_ - 3]
+				_by_ = _a_[_n_ - 2]
+			ok
+		ok
+		_dx_ = aQ[1] - _bx_
+		_dy_ = aQ[2] - _by_
+		_L_ = sqrt(_dx_ * _dx_ + _dy_ * _dy_)
+		if _L_ < 0.001  return  ok
+		_dx_ = _dx_ / _L_
+		_dy_ = _dy_ / _L_
+		_sz_ = 6 + nWidth * 2
+		_px_ = 0 - _dy_
+		_py_ = _dx_
+		# STROKE WIDTH 0, explicitly. An arrowhead is a solid triangle, and
+		# without this it inherits whatever outline the canvas last had --
+		# which, after a cluster border, drew grey arrows outlined in
+		# magenta. Setting only the fill leaves the other half of the style
+		# to whoever ran before.
+		oC.Flush()
+		oC.Stroke(cColor, 0)
+		oC.FillQ(cColor).AddPolygon([
+			aQ[1], aQ[2],
+			aQ[1] - _dx_ * _sz_ + _px_ * _sz_ * 0.45,
+			aQ[2] - _dy_ * _sz_ + _py_ * _sz_ * 0.45,
+			aQ[1] - _dx_ * _sz_ - _px_ * _sz_ * 0.45,
+			aQ[2] - _dy_ * _sz_ - _py_ * _sz_ * 0.45 ])
+		oC.Flush()
+
+	# Where the segment from aCentre towards aOther leaves aCentre's box.
+	def _ClipToBox(aCentre, aOther, nBoxW, nBoxH)
+		_dx_ = aOther[1] - aCentre[1]
+		_dy_ = aOther[2] - aCentre[2]
+		if _dx_ = 0 and _dy_ = 0  return [ aCentre[1], aCentre[2] ]  ok
+		_hw_ = nBoxW / 2 + 2
+		_hh_ = nBoxH / 2 + 2
+		_tx_ = 1000000
+		_ty_ = 1000000
+		if _dx_ != 0  _tx_ = fabs(_hw_ / _dx_)  ok
+		if _dy_ != 0  _ty_ = fabs(_hh_ / _dy_)  ok
+		_t_ = min([ _tx_, _ty_ ])
+		return [ aCentre[1] + _dx_ * _t_, aCentre[2] + _dy_ * _t_ ]
+
+	# Trim a label to the node width with an ellipsis, so a long title never
+	# spills outside the shape it belongs to.
+	def _FitLabel(cText, oFont, nSize, nMaxW)
+		if NOT isObject(oFont)  return cText  ok
+		if oFont.WidthOf(cText, nSize) <= nMaxW  return cText  ok
+		_c_ = cText
+		while len(_c_) > 1 and oFont.WidthOf(_c_ + "...", nSize) > nMaxW
+			_c_ = StzSubStr(_c_, 1, len(_c_) - 1)
+		end
+		return _c_ + "..."
 
 	def _DiagOpt(paOptions, cKey, xDefault)
 		if NOT isList(paOptions)  return xDefault  ok
@@ -1558,7 +1737,7 @@ class stzDiagram from stzGraph
 	# when no member has a position, so a cluster naming nodes that are not
 	# in the diagram draws nothing instead of a rectangle at the origin.
 	def _ClusterBox(aCluster, aXY, nBoxW, nBoxH)
-		_bAny_ = FALSE
+		_bAny_ = 0
 		_x0_ = 0  _y0_ = 0  _x1_ = 0  _y1_ = 0
 		for _id_ in aCluster[:nodes]
 			_a_ = This._XYOf(aXY, "" + _id_)
@@ -1567,7 +1746,7 @@ class stzDiagram from stzGraph
 			_ty_ = _a_[2] - nBoxH / 2  _by_ = _a_[2] + nBoxH / 2
 			if NOT _bAny_
 				_x0_ = _lx_  _x1_ = _rx_  _y0_ = _ty_  _y1_ = _by_
-				_bAny_ = TRUE
+				_bAny_ = 1
 			else
 				if _lx_ < _x0_  _x0_ = _lx_  ok
 				if _rx_ > _x1_  _x1_ = _rx_  ok

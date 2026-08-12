@@ -371,6 +371,53 @@ pub fn sceneEllipse(id: i64, cx: f64, cy: f64, rx: f64, ry: f64, col: u32) i32 {
     return scenePolygon(id, pts, col);
 }
 
+/// A ROUNDED rectangle. The visual signature of every diagram graphviz
+/// draws with style=rounded, which is what an org chart looks like -- so
+/// without it the native tier draws a recognisably different picture from
+/// the one the documentation shows.
+///
+/// Built as a polygon so the SVG and PNG tiers agree by construction, the
+/// same way sceneEllipse does. The corner radius is clamped to half the
+/// shorter side: a caller asking for a radius larger than the box gets a
+/// stadium, not a self-intersecting outline.
+fn roundRectPoints(x: f64, y: f64, w: f64, h: f64, r: f64, out: []f64) usize {
+    const rr = @min(r, @min(w, h) / 2.0);
+    const per: usize = 8; // segments per corner: smooth enough at any size
+    var n: usize = 0;
+    // corner centres, clockwise from top-left, with the sweep each covers
+    const cx = [4]f64{ x + rr, x + w - rr, x + w - rr, x + rr };
+    const cy = [4]f64{ y + rr, y + rr, y + h - rr, y + h - rr };
+    const a0 = [4]f64{ std.math.pi, -std.math.pi / 2.0, 0.0, std.math.pi / 2.0 };
+    for (0..4) |c| {
+        for (0..per + 1) |i| {
+            const t = a0[c] + (std.math.pi / 2.0) * @as(f64, @floatFromInt(i)) /
+                @as(f64, @floatFromInt(per));
+            out[n] = cx[c] + rr * @cos(t);
+            out[n + 1] = cy[c] + rr * @sin(t);
+            n += 2;
+        }
+    }
+    return n;
+}
+
+pub fn sceneRoundRect(id: i64, x: f64, y: f64, w: f64, h: f64, r: f64, col: u32) i32 {
+    if (w <= 0 or h <= 0 or r < 0) return BAD_ARG;
+    var pts: [4 * 9 * 2]f64 = undefined;
+    const n = roundRectPoints(x, y, w, h, r, &pts);
+    return scenePolygon(id, pts[0..n], col);
+}
+
+pub fn sceneRoundRectStroke(id: i64, x: f64, y: f64, w: f64, h: f64, r: f64, width: f64, col: u32) i32 {
+    if (w <= 0 or h <= 0 or r < 0 or width <= 0) return BAD_ARG;
+    var pts: [4 * 9 * 2]f64 = undefined;
+    const n = roundRectPoints(x, y, w, h, r, &pts);
+    const out = alloc.alloc(f32, n + 2) catch return BAD_ARG;
+    for (0..n) |i| out[i] = @floatCast(pts[i]);
+    out[n] = @floatCast(pts[0]); // close the ring so the seam joins
+    out[n + 1] = @floatCast(pts[1]);
+    return push(id, .{ .stroke = .{ .pts = out, .width = @floatCast(width), .col = col } });
+}
+
 /// An ellipse's OUTLINE, on the same tessellation as the fill -- so a
 /// stroked ellipse traces exactly the filled one rather than almost
 /// tracing it, which is the property sceneCircleStroke had to learn.

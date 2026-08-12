@@ -154,6 +154,17 @@ class stzCanvas from stzObject
 		This.AddCircle(pnCX, pnCY, pnR)
 		return This
 
+	# A ROUNDED rectangle -- the visual signature of every diagram graphviz
+	# draws with style=rounded, which is what an org chart looks like.
+	def AddRoundRect(pnX, pnY, pnW, pnH, pnR)
+		This._Flush()
+		@aPending = [ :roundrect, pnX, pnY, pnW, pnH, @nFill, @nStroke,
+			@nStrokeW, @bFillNamed, pnR ]
+
+	def AddRoundRectQ(pnX, pnY, pnW, pnH, pnR)
+		This.AddRoundRect(pnX, pnY, pnW, pnH, pnR)
+		return This
+
 	# The primitive the DIAGRAM layer was missing. Of graphviz's 24 node
 	# shapes, twenty are a circle, a rect or a polygon -- all already here --
 	# and the remaining four (ellipse, egg, cylinder, doublecircle) all need
@@ -418,6 +429,13 @@ class stzCanvas from stzObject
 				# Ring computing points the engine already knows.
 				StzEngineGpuSceneCircleStroke(@nId, _a_[2], _a_[3], _a_[4],
 					_a_[8], _a_[7])
+			ok
+		on "roundrect"
+			StzEngineGpuSceneRoundRect(@nId, _a_[2], _a_[3], _a_[4], _a_[5],
+				_a_[10], _a_[6])
+			if _a_[8] > 0
+				StzEngineGpuSceneRoundRectStroke(@nId, _a_[2], _a_[3], _a_[4],
+					_a_[5], _a_[10], _a_[8], _a_[7])
 			ok
 		on "ellipse"
 			StzEngineGpuSceneEllipse(@nId, _a_[2], _a_[3], _a_[4], _a_[5], _a_[6])
