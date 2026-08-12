@@ -216,6 +216,17 @@ const Node = struct {
     gain_step: f32 = 0,
     gain_seen: f32 = 1.0, // the target this node has already planned a step for
 
+    // SN6 CONTROL: "start this voice again, from the top". Written by the Ring
+    // thread, consumed by the render, atomically -- the same discipline as
+    // gain_target above, and for the same reason: the producer thread is
+    // walking these nodes while the caller writes to them.
+    //
+    // A FLAG AND NOT A RESET, because resetting from the calling thread is a
+    // data race by construction. The render swaps the flag to 0 at the TOP of
+    // a block, before any node has produced a sample, so a retriggered voice
+    // starts at the first frame of the next block rather than part way in.
+    trigger_req: u32 = 0,
+
     // FILTER (RBJ biquad, per channel state)
     f_kind: u32 = 0,
     freq: f64 = 1000,
@@ -690,6 +701,63 @@ fn chanSlice(g: *Graph, n: *const Node, ch: usize) []f32 {
 
 /// Render exactly one block into every node's output bus, in creation order.
 /// ZERO ALLOCATION. Every slice below points into the arena Prepare built.
+// ── RETRIGGER: a voice, started again from the top ──────────────────────────
+//
+// rewind() takes the WHOLE graph back to zero, which is right for "render this
+// again" and useless for a game, where thirty sounds share one graph and one
+// of them has to fire without disturbing the other twenty-nine.
+//
+// So: a per-node trigger. The caller names a node and everything feeding it
+// goes back to its beginning -- the source to frame zero, the oscillator to
+// phase zero, the envelope to the top of its attack. Nothing downstream, and
+// nothing on any other branch, is touched.
+//
+// The flag is written by the caller's thread and read by the render's. See
+// Node.trigger_req for why it is a flag rather than the reset itself.
+
+/// Ask that the node, and everything upstream of it, start again. Safe to call
+/// from another thread while the graph is rendering -- that is the point.
+pub fn triggerNode(id: i64, node: i64) i32 {
+    const s = slotOf(id) orelse return STALE;
+    const g = &graphs.items[s];
+    if (node < 0 or node >= @as(i64, @intCast(g.nodes.items.len))) {
+        refuse("triggerNode: no such node");
+        return BAD_ARG;
+    }
+    const n = &g.nodes.items[@intCast(node)];
+    @atomicStore(u32, &n.trigger_req, 1, .release);
+    return OK;
+}
+
+fn applyTriggers(g: *Graph) void {
+    for (g.nodes.items, 0..) |*n, idx| {
+        if (@atomicRmw(u32, &n.trigger_req, .Xchg, 0, .acquire) == 0) continue;
+        resetSubtree(g, idx, 0);
+    }
+}
+
+// Everything that feeds this node, back to its beginning. The depth cap is a
+// backstop, not a policy: the graph is acyclic by construction, so a walk
+// cannot loop -- but a diamond can visit a shared node twice, and resetting a
+// node twice is harmless while recursing forever is not.
+fn resetSubtree(g: *Graph, idx: usize, depth: u32) void {
+    if (depth > 64) return;
+    const n = &g.nodes.items[idx];
+    n.phase = 0;
+    n.pos = 0;
+    n.env_pos = 0;
+    n.line_pos = 0;
+    n.x1 = @splat(0);
+    n.x2 = @splat(0);
+    n.y1 = @splat(0);
+    n.y2 = @splat(0);
+    if (n.line.len > 0) @memset(n.line, 0);
+    var k: usize = 0;
+    while (k < n.n_inputs) : (k += 1) {
+        resetSubtree(g, n.inputs[k], depth + 1);
+    }
+}
+
 pub fn renderBlock(id: i64) i32 {
     const s = slotOf(id) orelse return STALE;
     const g = &graphs.items[s];
@@ -699,6 +767,12 @@ pub fn renderBlock(id: i64) i32 {
     }
     const nch = g.channels;
     const blk = g.block;
+
+    // RETRIGGERS FIRST, before a single sample is produced. Doing it inline
+    // as each node is reached would reset a voice's SOURCE after the source
+    // had already rendered this block -- the note would start a block late,
+    // and only sometimes, depending on where the flag landed.
+    applyTriggers(g);
 
     var i: usize = 0;
     while (i < g.nodes.items.len) : (i += 1) {
@@ -1182,6 +1256,70 @@ test "a slow wave is left alone -- the correction is two samples wide" {
     std.debug.print("\n  at 50 Hz, {d} of 4800 samples differ\n", .{differing});
     try testing.expect(differing > 0); // it IS still correcting
     try testing.expect(differing < 4800 / 20); // but only at the jumps
+}
+
+test "a retrigger restarts ONE voice and leaves its neighbour running" {
+    // two voices under one mix, each an envelope with a fast attack. Voice A
+    // gets retriggered part way through; voice B must not notice.
+    const gid = graphNew(1, 48000, 64);
+    defer _ = graphFree(gid);
+    const a_osc = addOsc(gid, WAVE_SINE, 1000, 1.0);
+    const a_env = addEnvelope(gid, a_osc, 0.02, 0.0, 1.0, 0.0, 10.0); // 20 ms attack
+    // DIFFERENT pitches on purpose. At the same pitch a retrigger puts A back
+    // to phase zero while B is a third of a cycle along, and two sines 120
+    // degrees apart sum to ONE, not two -- so "recovered" would read half and
+    // the test would blame the trigger for arithmetic. At 1000 and 1500 Hz the
+    // pair coincides every 96 samples, so a peak over any longer window is the
+    // sum of the amplitudes.
+    const b_osc = addOsc(gid, WAVE_SINE, 1500, 1.0);
+    const b_env = addEnvelope(gid, b_osc, 0.02, 0.0, 1.0, 0.0, 10.0);
+    const mix = addMix(gid);
+    try testing.expectEqual(OK, mixAdd(gid, mix, a_env));
+    try testing.expectEqual(OK, mixAdd(gid, mix, b_env));
+    _ = setOutput(gid, mix);
+    _ = prepare(gid);
+
+    // let both climb their attack and reach full
+    const warm = renderToBuffer(gid, 4096);
+    defer _ = snd.free(warm);
+    const at_full = peakOver(warm, 3000, 4096);
+    try testing.expect(at_full > 1.5); // both voices sounding, ~2.0
+
+    // restart voice A only
+    try testing.expectEqual(OK, triggerNode(gid, a_env));
+    const after = renderToBuffer(gid, 4096);
+    defer _ = snd.free(after);
+
+    // AT THE START of the next block A is back at the bottom of its attack
+    // and B is still at full, so the sum is about ONE voice, not two.
+    const just_after = peakOver(after, 0, 64);
+    std.debug.print("\n  both at full: {d:.3}   just after A restarts: {d:.3}\n", .{ at_full, just_after });
+    try testing.expect(just_after < at_full * 0.65);
+    // and B really is still there -- the negative sibling. Without this,
+    // "quieter" would also be true of a trigger that killed everything.
+    try testing.expect(just_after > at_full * 0.35);
+
+    // 20 ms later A has climbed back and the pair is loud again
+    const recovered = peakOver(after, 2000, 4096);
+    try testing.expect(recovered > at_full * 0.9);
+}
+
+test "a retrigger on an unknown node is REFUSED, and a freed graph is STALE" {
+    const gid = graphNew(1, 48000, 64);
+    const osc = addOsc(gid, WAVE_SINE, 440, 1.0);
+    _ = setOutput(gid, osc);
+    _ = prepare(gid);
+    try testing.expectEqual(BAD_ARG, triggerNode(gid, 999));
+    try testing.expectEqual(BAD_ARG, triggerNode(gid, -1));
+    try testing.expectEqual(OK, triggerNode(gid, osc));
+    _ = graphFree(gid);
+    try testing.expectEqual(STALE, triggerNode(gid, 0));
+}
+
+fn peakOver(buf: i64, from: usize, to: usize) f64 {
+    var p: f64 = 0;
+    for (from..to) |i| p = @max(p, @abs(snd.getSample(buf, i, 0)));
+    return p;
 }
 
 test "a sine at rate/4 lands on exactly 0, 1, 0, -1 -- the graph does arithmetic, not vibes" {
