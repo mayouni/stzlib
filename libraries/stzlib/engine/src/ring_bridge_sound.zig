@@ -219,6 +219,18 @@ fn ring_GraphRewind(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(gph.rewind(id(p, 1))));
 }
 
+// SN6: restart one voice without disturbing the rest of the graph. Safe to
+// call while the producer thread is rendering -- the engine takes the request
+// as an atomic flag and acts on it at the top of the next block.
+// nodeIn, NOT a raw number: node handles are 1-based on the Ring side and
+// 0-based in the engine. The first draft passed the raw value, so "retrigger
+// A's envelope" silently retriggered B's OSCILLATOR -- a real node, in range,
+// whose reset happens to be inaudible. It refused nothing and did nothing,
+// which is the failure mode an off-by-one on a handle always has.
+fn ring_GraphTriggerNode(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gph.triggerNode(id(p, 1), nodeIn(p, 2))));
+}
+
 fn ring_GraphRenderBlock(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(gph.renderBlock(id(p, 1))));
 }
@@ -474,6 +486,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginesoundgraphsetoutput", .func = &ring_GraphSetOutput },
     .{ .name = "stzenginesoundgraphprepare", .func = &ring_GraphPrepare },
     .{ .name = "stzenginesoundgraphrewind", .func = &ring_GraphRewind },
+    .{ .name = "stzenginesoundgraphtriggernode", .func = &ring_GraphTriggerNode },
     .{ .name = "stzenginesoundgraphrenderblock", .func = &ring_GraphRenderBlock },
     .{ .name = "stzenginesoundgraphtobuffer", .func = &ring_GraphToBuffer },
     .{ .name = "stzenginesoundgraphtofile", .func = &ring_GraphToFile },

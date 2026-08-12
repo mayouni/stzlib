@@ -107,6 +107,40 @@ class stzSoundGraph
 	def GraphId()
 		return @nG
 
+	def SampleRate()
+		return @nRate
+
+	def Channels()
+		return @nChannels
+
+	# Which node the graph currently hands to the world, as an index. A caller
+	# rarely needs this; a TRANSPORT does, because it has to reach behind the
+	# names and put something after whatever the output turned out to be.
+	def OutputNode()
+		return @nOut
+
+	# A gain node placed AFTER the current output, and made the new output.
+	#
+	# This is what a transport fades on pause. It exists as a verb here rather
+	# than in the transport because only the graph knows what its output IS --
+	# and putting one gain at the end means a pause is one click-free ramp
+	# instead of a walk over every voice, whatever the caller built upstream.
+	def AddMasterGain()
+		if @nG = 0  return 0 ok
+		if @nOut = 0
+			@cLastError = "AddMasterGain: the graph has no output yet"
+			return 0
+		ok
+		_n_ = StzEngineSoundGraphAddGain(@nG, @nOut, 1.0)
+		if _n_ = 0
+			@cLastError = StzEngineSoundGraphLastError()
+			return 0
+		ok
+		@nLast = _n_
+		@nOut = _n_
+		@aNames + [ "master", _n_ ]
+		return _n_
+
 	#-- naming --------------------------------------------------------------
 
 	# Label the LAST node added, so later verbs can refer to it by name.
@@ -273,24 +307,24 @@ class stzSoundGraph
 		return This
 
 	def Prepare()
-		if @nG = 0  return FALSE ok
+		if @nG = 0  return 0 ok
 		StzEngineSoundGraphSetOutput(@nG, @nOut)
 		if StzEngineSoundGraphIsPrepared(@nG) = 1
-			return TRUE
+			return 1
 		ok
 		if StzEngineSoundGraphPrepare(@nG) != 0
 			@cLastError = StzEngineSoundGraphLastError()
-			return FALSE
+			return 0
 		ok
-		return TRUE
+		return 1
 
 	# Render nSeconds and hand back a stzSound. DATA, so To... is right.
 	def ToSound(pnSeconds)
-		if NOT This.Prepare()  return NULL ok
+		if NOT This.Prepare()  return "" ok
 		_b_ = StzEngineSoundGraphToBuffer(@nG, floor(pnSeconds * @nRate))
 		if _b_ = 0
 			@cLastError = StzEngineSoundGraphLastError()
-			return NULL
+			return ""
 		ok
 		return StzSoundFromBufferQ(_b_)
 

@@ -110,6 +110,8 @@ ok
     load "sound/stzSoundPlot.ring"
     load "sound/stzSound.ring"
     load "sound/stzSoundGraph.ring"
+    load "sound/stzSoundTransport.ring"
+    load "sound/stzVoicePool.ring"
     load "sound/stzMicrophone.ring"
 
     # the material graph: a material AS a graph, emitting the material
