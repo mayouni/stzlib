@@ -152,8 +152,18 @@ func StzSubStringsMakingAStringFalse()
 		return StzSubStringsMakingAStringFalse()
 
 func StzSetSubStringsMakingAStringFalse(pacStr)
+	# THE EMPTY LIST IS THE DEFAULT, so the setter has to accept it.
+	#
+	# This validated with IsListOfStrings alone, which deliberately refuses
+	# [] ("empty is NOT a list-of-strings"). $acSubStringsMakingAStringFalse
+	# STARTS as [] -- so the one value that could restore the initial state
+	# was the one value the setter rejected. Its two siblings below validate
+	# with IsList and never had the problem.
 	if CheckParams()
-		if NOT IsListOfStrings(pacStr)
+		if NOT isList(pacStr)
+			StzRaise("Incorrect param type! pacStr must be a list of strings.")
+		ok
+		if len(pacStr) > 0 and NOT IsListOfStrings(pacStr)
 			StzRaise("Incorrect param type! pacStr must be a list of strings.")
 		ok
 	ok
@@ -371,35 +381,67 @@ func StzIsFalse(p)
 		return StzIsFalse(p)
 
 
+# AN EMPTY CONFIGURATION MEANS "NOTHING MARKS THIS FALSE" -- so the answer is
+# no, not an error.
+#
+# The three lists consulted below ($acSubStringsMakingAStringFalse,
+# $aItemsMakingAListFalse, $aInnerItemsMakingAListFalse) all default to [],
+# and ContainsOneOfTheseCS validates its needle list with IsListOfStrings,
+# which deliberately REFUSES an empty list ("empty is NOT a list-of-strings",
+# stzListFunc.ring). So the library's own defaults failed its own validator:
+# out of the box, IsTrueXT raised "pacSubStr must be a list of strings" for
+# every non-empty string and every non-empty list -- which is every input
+# worth asking about. IsFalseXT delegates here, so it raised too.
+#
+# The guard goes HERE rather than in ContainsOneOfTheseCS: the empty-list
+# refusal is that function's documented contract, and callers who really do
+# pass [] by accident should still hear about it.
+
+func StzNoneOfTheseConfigured(paNeedles)
+	return NOT (isList(paNeedles) and len(paNeedles) > 0)
+
 func StzIsTrueXT(p)
 	if isNumber(p)
 		return IsTrue(p)
-	
+
 	but isString(p)
 
 		if EmptyStringConsideredFalse() and p = ""
 			return 0
-
-		but ContainsOneOfTheseCS(p, SubStringsMakingAStringFalse(), 0)
-			return 0
-
-		else
-			return IsTrue(p)
 		ok
+
+		# Nested rather than chained with `and`: this must not depend on
+		# Ring short-circuiting its operands, because the right-hand call
+		# is exactly the one that raises on an empty list.
+		_acSubs_ = SubStringsMakingAStringFalse()
+		if NOT StzNoneOfTheseConfigured(_acSubs_)
+			if ContainsOneOfTheseCS(p, _acSubs_, 0)
+				return 0
+			ok
+		ok
+
+		return IsTrue(p)
 
 	but isList(p)
 		if EmptyListIsConsideredFalse() and len(p) = 0
 			return 0
-
-		but ContainsOneOfTheseCS(p, ItemsMakingAListFalse(), 0)
-			return 0
-
-		but DeepContainsCS(p, InnerItemsMakingAListFalse(), 0)
-			return 0
-
-		else
-			return IsTrue(p)
 		ok
+
+		_aItems_ = ItemsMakingAListFalse()
+		if NOT StzNoneOfTheseConfigured(_aItems_)
+			if ContainsOneOfTheseCS(p, _aItems_, 0)
+				return 0
+			ok
+		ok
+
+		_aInner_ = InnerItemsMakingAListFalse()
+		if NOT StzNoneOfTheseConfigured(_aInner_)
+			if DeepContainsCS(p, _aInner_, 0)
+				return 0
+			ok
+		ok
+
+		return IsTrue(p)
 
 	but isObject(p)
 		# NOTE: these sentinel predicates take the object as a param --

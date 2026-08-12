@@ -84,6 +84,32 @@ Scenario("Custom deep statistics (guards the StzLower 64-byte fix)")
         StzFindFirst("1:7 files, 5:7 folders", cX) > 0, TRUE)
 EndScenario()
 
+# Regression: IsStatPattern() called StzFindFirst(pattern, keyword) -- needle
+# and haystack swapped. It asked whether the whole display pattern occurs
+# inside a short keyword, which is 0 for anything real, so SetDisplayStat()
+# refused every pattern with "Incorrect start pattern!" and killed the
+# scenario above outright.
+#
+# It survived because the DEFAULT pattern is "@count", which IS a keyword --
+# a string is found in itself whichever way round you ask. Only a pattern
+# LONGER than a keyword exposed it, which is every pattern worth setting.
+
+Scenario("A display pattern is recognised by the keyword INSIDE it")
+    Given("a fresh folder view")
+    p = new stzFolder(cTA)
+    Then("a keyword on its own is a stat pattern", p.IsStatPattern("@count"), TRUE)
+    Then("a keyword embedded in prose is too", p.IsStatPattern("holding @deepcountfiles files in total"), TRUE)
+    Then("...and case does not matter", p.IsStatPattern("Holding @DeepCountFiles Files"), TRUE)
+    # The negative sibling: without a keyword it must still be REFUSED, or
+    # this would pass against an IsStatPattern that simply answered TRUE.
+    Then("prose with NO keyword is refused", p.IsStatPattern("just some words"), FALSE)
+    Then("an @-token that is not a keyword is refused", p.IsStatPattern("@total @size"), FALSE)
+    # "@counted" DOES contain "@count", so it is accepted -- the pattern
+    # language is substring substitution, and that is the contract, not a bug.
+    Then("...but a keyword with a suffix still matches", p.IsStatPattern("@counted"), TRUE)
+    Then("the empty pattern is refused", p.IsStatPattern(""), FALSE)
+EndScenario()
+
 Scenario("VizDeepSearch marks every match")
     Given("the fixture searched for *.txt")
     t = new stzFolder(cTA)
