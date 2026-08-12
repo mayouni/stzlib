@@ -30,6 +30,10 @@ const want_numtheory = wants("numtheory");
 const want_pattern = wants("pattern");
 const want_graph = wants("graph");
 const want_gpu = wants("gpu");
+// SN6's fourth sink. The browser gets the sound GRAPH, not the sample table:
+// see soundwasm.zig for why a source node cannot exist here and why that is
+// right rather than a shortfall.
+const want_sound = wants("sound");
 
 // Import a group's source module ONLY when the group is on, so an off group's
 // code is not in the compilation at all (a true subset, not a gated surface).
@@ -38,6 +42,8 @@ const numtheory = if (want_numtheory) @import("numtheory.zig") else struct {};
 const pattern = if (want_pattern) @import("pattern.zig") else struct {};
 const graph = if (want_graph) @import("graph.zig") else struct {};
 const gpu_wgsl = if (want_gpu) @import("gpu_wgsl.zig") else struct {};
+const sw = if (want_sound) @import("soundwasm.zig") else struct {};
+const sdsp = if (want_sound) @import("sounddsp.zig") else struct {};
 
 // -- marshalling heap (always present): a bump allocator over a static buffer in
 //    linear memory. 16-aligned so marshalled f64 views are aligned; kept small
@@ -149,6 +155,68 @@ fn wgsl_error(out_ptr: u32, out_cap: usize) callconv(.c) i32 {
     return gpu_wgsl.stz_gpu_wgsl_error(out, @floatFromInt(out_cap));
 }
 
+
+// ── the sound group: build a graph, then fill a block on demand ─────────────
+//
+// The shape is the AudioWorklet's: snd_render() fills one quantum and JS reads
+// it out of linear memory at snd_block_ptr(), interleaved f32. No ring, no
+// device thread, no callback -- the worklet IS the clock.
+
+fn snd_reset(r: u32, ch: u32, blk: u32) callconv(.c) i32 {
+    return sw.reset(r, ch, blk);
+}
+fn snd_add_osc(waveform: u32, hz: f64, amp: f64) callconv(.c) i32 {
+    return sw.addOsc(waveform, hz, amp);
+}
+fn snd_add_gain(input: i32, gain: f64) callconv(.c) i32 {
+    return sw.addGain(input, gain);
+}
+fn snd_add_mix() callconv(.c) i32 {
+    return sw.addMix();
+}
+fn snd_mix_add(mix: i32, input: i32) callconv(.c) i32 {
+    return sw.mixAdd(mix, input);
+}
+fn snd_add_pan(input: i32, pan: f64) callconv(.c) i32 {
+    return sw.addPan(input, pan);
+}
+fn snd_add_filter(input: i32, kind: u32, freq: f64, q: f64) callconv(.c) i32 {
+    return sw.addFilter(input, kind, freq, q);
+}
+fn snd_add_delay(input: i32, seconds: f64, feedback: f64, wet: f64) callconv(.c) i32 {
+    return sw.addDelay(input, seconds, feedback, wet);
+}
+fn snd_add_envelope(input: i32, a: f64, d: f64, sus: f64, r: f64, gate: f64) callconv(.c) i32 {
+    return sw.addEnvelope(input, a, d, sus, r, gate);
+}
+fn snd_set_output(node: i32) callconv(.c) i32 {
+    return sw.setOutput(node);
+}
+fn snd_prepare() callconv(.c) i32 {
+    return sw.prepare();
+}
+fn snd_trigger(node: i32) callconv(.c) i32 {
+    return sw.triggerNode(node);
+}
+fn snd_render() callconv(.c) u32 {
+    return sw.renderBlock();
+}
+fn snd_block_ptr() callconv(.c) u32 {
+    return sw.blockPtr();
+}
+fn snd_node_count() callconv(.c) u32 {
+    return sw.nodeCount();
+}
+fn snd_refusals() callconv(.c) u32 {
+    return sw.refusals();
+}
+fn snd_blocks_rendered() callconv(.c) u32 {
+    return sw.blocksRendered();
+}
+fn snd_sample_at(frame: u32, ch: u32) callconv(.c) f64 {
+    return sw.sampleAt(frame, ch);
+}
+
 // Export exactly the requested groups. Unlisted wrappers are never referenced,
 // so they are never analyzed and their (possibly absent) module deps never
 // checked -- the binary carries only the plan's subset.
@@ -168,6 +236,26 @@ comptime {
         @export(&nt_is_prime, .{ .name = "stz_is_prime" });
         @export(&nt_nth_prime, .{ .name = "stz_nth_prime" });
         @export(&nt_fib, .{ .name = "stz_fib" });
+    }
+    if (want_sound) {
+        @export(&snd_reset, .{ .name = "stz_snd_reset" });
+        @export(&snd_add_osc, .{ .name = "stz_snd_add_osc" });
+        @export(&snd_add_gain, .{ .name = "stz_snd_add_gain" });
+        @export(&snd_add_mix, .{ .name = "stz_snd_add_mix" });
+        @export(&snd_mix_add, .{ .name = "stz_snd_mix_add" });
+        @export(&snd_add_pan, .{ .name = "stz_snd_add_pan" });
+        @export(&snd_add_filter, .{ .name = "stz_snd_add_filter" });
+        @export(&snd_add_delay, .{ .name = "stz_snd_add_delay" });
+        @export(&snd_add_envelope, .{ .name = "stz_snd_add_envelope" });
+        @export(&snd_set_output, .{ .name = "stz_snd_set_output" });
+        @export(&snd_prepare, .{ .name = "stz_snd_prepare" });
+        @export(&snd_trigger, .{ .name = "stz_snd_trigger" });
+        @export(&snd_render, .{ .name = "stz_snd_render" });
+        @export(&snd_block_ptr, .{ .name = "stz_snd_block_ptr" });
+        @export(&snd_node_count, .{ .name = "stz_snd_node_count" });
+        @export(&snd_refusals, .{ .name = "stz_snd_refusals" });
+        @export(&snd_blocks_rendered, .{ .name = "stz_snd_blocks_rendered" });
+        @export(&snd_sample_at, .{ .name = "stz_snd_sample_at" });
     }
     if (want_pattern) {
         @export(&pat_is_palindrome, .{ .name = "stz_is_palindrome" });
