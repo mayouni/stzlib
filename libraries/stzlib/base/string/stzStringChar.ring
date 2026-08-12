@@ -1318,8 +1318,20 @@ class stzStringChar from stzString
 			return This.IsSentenceSeparator()
 
 	# TRUE if the char is the newline char.
+	#
+	# ring_char, NOT char. This class defines its own Char() accessor, which
+	# takes no arguments, and inside the class that name WINS over Ring's
+	# builtin -- so `char(10)` called the accessor with one argument too many
+	# and died R20 "Calling function with extra number of parameters". Every
+	# caller of IsLineSeparator() raised, on a one-line method that reads
+	# perfectly.
+	#
+	# CLAUDE.md names this class as one of the four that shadow char(); the NL
+	# sweep, which replaced the NL constant with char(10) library-wide, landed
+	# here anyway. ring_char is the documented escape, the same way ring_len
+	# and ring_trim are.
 	def IsLineSeparator()
-		return This.Content() = char(10)
+		return This.Content() = ring_char(10)
 
 		def IsLineSeperator()
 			return This.IsLineSeparator()

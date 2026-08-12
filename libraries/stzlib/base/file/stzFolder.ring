@@ -3277,10 +3277,25 @@ class stzFolder from stzObject
 
 		for i = 1 to _nLen_
 			_acFileResults_ = This.FindFiles(acFilesNames[i])
-			_nLenR_ = len(acFileResult)
+
+			# `len(acFileResult)` -- a name that exists nowhere. The method
+			# raised R24 "Using uninitialized variable: acfileresult" on its
+			# first result, so FindTheseFiles never worked at all.
+			#
+			# It also HID the bug below it: with the loop bound coming from a
+			# variable that does not exist, the body was unreachable, so the
+			# shadowed find() was never called.
+			_nLenR_ = len(_acFileResults_)
 
 			for j = 1 to _nLenR_
-				if find(_acFound_, _acFileResults_[j]) = 0
+				# StzFindFirst, not find(). This class defines its own
+				# Find(_cPattern_), which takes ONE argument, and inside the
+				# class that name beats Ring's two-argument builtin -- so this
+				# was an R20 waiting for the first file that matched.
+				#
+				# Note the ORDER changes with the call: Ring's find is
+				# (list, item); StzFindFirst is NEEDLE-FIRST.
+				if StzFindFirst(_acFileResults_[j], _acFound_) = 0
 					_acFound_ + _acFileResults_[j]
 				ok
 			next
@@ -3301,7 +3316,10 @@ class stzFolder from stzObject
 			_nLenR_ = len(_acFolderResults_)
 
 			for j = 1 to _nLenR_
-				if find(_acFound_, _acFolderResults_[j]) = 0
+				# Same shadowed find() as in FindTheseFiles above -- but this
+				# one's loop bound is correct, so it was reachable: the first
+				# folder that matched would have raised R20.
+				if StzFindFirst(_acFolderResults_[j], _acFound_) = 0
 					_acFound_ + _acFolderResults_[j]
 				ok
 			next
