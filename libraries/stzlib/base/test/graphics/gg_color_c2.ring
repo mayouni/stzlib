@@ -154,20 +154,36 @@ chk("...and .Solid makes them so", (nMaxS - nMinS) < 0.02)
 ? "-- 5. The PAIR: :OnX must be legible on X ------------------"
 #---------------------------------------------------------------------------
 
+# MEASURED WITH THE REAL METRIC, not a luminance-gap proxy. This scene
+# first asserted a BT.709 gap of 90 -- a stand-in invented before C3
+# existed -- and it failed :Danger at 75 while the actual WCAG ratio was
+# 5.10:1, comfortably over the 4.5 standard. A proxy that disagrees with
+# the instrument it stands in for is a second rule, and the house has a
+# law about those.
 nBadPair = 0
 for cR in aRoles
 	cOn = StzResolveColor("On" + cR)
 	cSolid = StzResolveColor("" + cR + ".Solid")
-	nD = fabs(StzColorLuminance(cOn) - StzColorLuminance(cSolid))
+	nW = StzContrastOf(cOn, cSolid)
 	? "   " + PadR("" + cR, 9) + " solid " + PadR(cSolid, 9) +
-	  " on " + PadR(cOn, 9) + " luminance gap " + floor(nD)
-	if nD < 90  nBadPair++  ok
+	  " on " + PadR(cOn, 9) + " WCAG " + nW + ":1"
+	if nW < StzContrastMinimumBodyText()  nBadPair++  ok
 next
-chkeq("every pair clears a luminance gap of 90", nBadPair, 0)
+chkeq("every pair clears the WCAG body-text minimum", nBadPair, 0)
 
-# the negative sibling: the pair must not be constant
-chk("the pair is not always the same colour",
-    StzResolveColor("OnWarning") != StzResolveColor("OnPrimary"))
+# THE NEGATIVE SIBLING, corrected. The old one asserted the pair is "not
+# always the same colour" -- and at this rung black genuinely wins on all
+# five solids, so it failed on a true fact. The property actually worth
+# pinning is that the pair FLIPS when the surface demands it: on a dark
+# fill it must choose white.
+? ""
+? "   on a DARK fill the pair must flip:"
+for cDark in [ "#101828", "#22304F", "navy" ]
+	cBest = StzBestTextOn(cDark)[1]
+	? "     " + PadR(cDark, 10) + " -> " + cBest
+next
+chkeq("a dark fill takes white", StzBestTextOn("#101828")[1], "white")
+chkeq("a light fill takes black", StzBestTextOn("#FFF3C4")[1], "black")
 
 #---------------------------------------------------------------------------
 ? ""

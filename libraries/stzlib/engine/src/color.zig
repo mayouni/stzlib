@@ -187,6 +187,91 @@ pub fn stz_color_chroma(rgb: u32) callconv(.c) f64 {
     return labToLch(rgbToOklab(c)).c;
 }
 
+// ------------------------------------------------------- contrast (C3)
+//
+// TWO METRICS, because they answer different questions and the plan's risk
+// section says to name which one is being quoted.
+//
+// WCAG 2 contrast ratio: the legal/standard one. 1.0 (identical) to 21.0
+// (black on white). Its anchor is exact and checkable -- pure white on pure
+// black is 21.0 -- which is why it is implemented first and trusted.
+//
+// APCA Lc: the modern successor, which models POLARITY (dark text on light
+// behaves differently from light on dark) and is far better on the
+// mid-tones where WCAG 2 is known to be wrong. Reported alongside, never
+// instead of, and checked against its own published anchor before use.
+
+fn relLum(c: Rgb) f64 {
+    return 0.2126 * srgbToLinear(c.r) +
+        0.7152 * srgbToLinear(c.g) +
+        0.0722 * srgbToLinear(c.b);
+}
+
+fn unpack(rgb: u32) Rgb {
+    return .{
+        .r = @as(f64, @floatFromInt((rgb >> 16) & 0xFF)) / 255.0,
+        .g = @as(f64, @floatFromInt((rgb >> 8) & 0xFF)) / 255.0,
+        .b = @as(f64, @floatFromInt(rgb & 0xFF)) / 255.0,
+    };
+}
+
+/// WCAG 2.x contrast ratio, 1.0 .. 21.0.
+pub fn stz_color_contrast_wcag(a: u32, b: u32) callconv(.c) f64 {
+    const la = relLum(unpack(a));
+    const lb = relLum(unpack(b));
+    const hi = @max(la, lb);
+    const lo = @min(la, lb);
+    return (hi + 0.05) / (lo + 0.05);
+}
+
+/// APCA Lc (0.98G-4g constants), text on background. Sign carries polarity:
+/// positive = dark text on a light background, negative = the reverse.
+/// A guard should compare @abs(Lc) against a threshold.
+pub fn stz_color_contrast_apca(text: u32, bg: u32) callconv(.c) f64 {
+    const trc = 2.4;
+    const t = unpack(text);
+    const b = unpack(bg);
+
+    var ytxt = 0.2126729 * std.math.pow(f64, t.r, trc) +
+        0.7151522 * std.math.pow(f64, t.g, trc) +
+        0.0721750 * std.math.pow(f64, t.b, trc);
+    var ybg = 0.2126729 * std.math.pow(f64, b.r, trc) +
+        0.7151522 * std.math.pow(f64, b.g, trc) +
+        0.0721750 * std.math.pow(f64, b.b, trc);
+
+    // soft clamp near black: below the threshold, dark values are lifted
+    const blk_thrs = 0.022;
+    const blk_clmp = 1.414;
+    if (ytxt < blk_thrs) ytxt += std.math.pow(f64, blk_thrs - ytxt, blk_clmp);
+    if (ybg < blk_thrs) ybg += std.math.pow(f64, blk_thrs - ybg, blk_clmp);
+
+    if (@abs(ybg - ytxt) < 0.0005) return 0.0;
+
+    var out: f64 = 0;
+    if (ybg > ytxt) { // dark text on light background
+        const s = (std.math.pow(f64, ybg, 0.56) - std.math.pow(f64, ytxt, 0.57)) * 1.14;
+        out = if (s < 0.1) 0.0 else s - 0.027;
+    } else { // light text on dark background
+        const s = (std.math.pow(f64, ybg, 0.65) - std.math.pow(f64, ytxt, 0.62)) * 1.14;
+        out = if (s > -0.1) 0.0 else s + 0.027;
+    }
+    return out * 100.0;
+}
+
+test "WCAG anchors are exact" {
+    // the two values every implementation must reproduce
+    const w: u32 = 0xFFFFFF;
+    const k: u32 = 0x000000;
+    try std.testing.expect(@abs(stz_color_contrast_wcag(w, k) - 21.0) < 0.01);
+    try std.testing.expect(@abs(stz_color_contrast_wcag(w, w) - 1.0) < 0.001);
+}
+
+test "APCA polarity" {
+    // black text on white is POSITIVE; white text on black is NEGATIVE
+    try std.testing.expect(stz_color_contrast_apca(0x000000, 0xFFFFFF) > 100);
+    try std.testing.expect(stz_color_contrast_apca(0xFFFFFF, 0x000000) < -100);
+}
+
 test "oklab round trip" {
     const cases = [_]Rgb{
         .{ .r = 1, .g = 0, .b = 0 },

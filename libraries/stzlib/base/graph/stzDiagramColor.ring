@@ -485,7 +485,16 @@ func StzTryResolveColor(pColor)
 	if len(_c_) > 2 and StzSubStr(_c_, 1, 2) = "on"
 		_rest_ = StzSubStr(_c_, 3, len(_c_) - 2)
 		if _rest_ != "" and StzIsKnownColorBase(_rest_)
-			return StzResolveColor(StzContrastingText(_rest_))
+			# AGAINST .Solid, NOT against the raw name -- .Solid is what
+			# :OnX actually sits on. Measured on the raw colour, :OnPrimary
+			# answered white (correct for #0000FF, which is very dark) and
+			# then had to survive on #447CFF, which is not: 3.77:1, under
+			# the 4.5 minimum. The pair has to be computed against the
+			# surface it labels.
+			#
+			# And chosen by MEASURED contrast rather than a luminance
+			# threshold, so the answer is the one that actually reads.
+			return StzResolveColor(StzBestTextOn(_rest_ + ".solid")[1])
 		ok
 	ok
 
