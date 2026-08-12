@@ -93,14 +93,53 @@ class stzListOfBytes from stzList
 	def ToStzString()
 		return new stzString(This.ToString())
 
+	#--- BYTE PRIMITIVES -----------------------------------------------
+	#
+	# THIS CLASS SLICES BYTES. Every positional method below used to reach for
+	# StzLeft / StzMid / StzRight / StzLen, which count CODEPOINTS -- correct
+	# for stzString, wrong for a list of bytes. On ASCII the two agree, so the
+	# confusion stayed invisible; on anything multibyte they diverge, and the
+	# class contradicted itself depending on which method you called:
+	# NumberOfBytes() and Bytecodes() were byte-based (len(), @cData[i]) while
+	# NLeftBytes() was not. NLeftBytes(3) over "m" + 2-byte + 3-byte answered
+	# all SIX bytes, because three codepoints is the whole string.
+	#
+	# Ring's NUMERIC substr(s, nStart, nCount) is the byte primitive. Its string
+	# forms are different calls entirely (find, and replace) -- see CLAUDE.md;
+	# the numeric form is the one meant here, and bytes are what we genuinely
+	# want, exactly as len() is the right byte count for @cData.
+
+	def _ByteCount_()
+		return len(@cData)
+
+	# 1-based, count-based, clamped. Answers "" rather than raising for an
+	# out-of-range window, which is what the callers below already assumed.
+	def _ByteSlice_(nStart, nCount)
+		_nLen_ = len(@cData)
+		if nStart < 1 nCount = nCount + nStart - 1 nStart = 1 ok
+		if nCount < 1 or nStart > _nLen_ return "" ok
+		if nStart + nCount - 1 > _nLen_ nCount = _nLen_ - nStart + 1 ok
+		return substr(@cData, nStart, nCount)
+
+	def _ByteLeft_(n)
+		return This._ByteSlice_(1, n)
+
+	def _ByteRight_(n)
+		if n < 1 return "" ok
+		_nLen_ = len(@cData)
+		if n >= _nLen_ return @cData ok
+		return This._ByteSlice_(_nLen_ - n + 1, n)
+
+	#-------------------------------------------------------------------
+
 	def InsertNBytesOfSubstringAt(nPosition, _nBytes_, pcSubstr)
-		_cLeft_ = StzLeft(@cData, nPosition - 1)
-		_cInsert_ = StzLeft(pcSubstr, _nBytes_)
-		_cRight_ = StzMid(@cData, nPosition, StzLen(@cData) - nPosition + 1)
+		_cLeft_ = This._ByteLeft_(nPosition - 1)
+		_cInsert_ = substr(pcSubstr, 1, _nBytes_)
+		_cRight_ = This._ByteSlice_(nPosition, len(@cData) - nPosition + 1)
 		@cData = _cLeft_ + _cInsert_ + _cRight_
 
 	def NLeftBytes(n)
-		return StzLeft(@cData, n)
+		return This._ByteLeft_(n)
 
 		def LeftNBytes(n)
 			return NLeftBytes(n)
@@ -112,7 +151,7 @@ class stzListOfBytes from stzList
 			return This.3LeftBytes()
 
 	def NRightBytes(n)
-		return StzRight(@cData, n)
+		return This._ByteRight_(n)
 
 		def RightNBytes(n)
 			return NRightBytes(n)
@@ -131,23 +170,24 @@ class stzListOfBytes from stzList
 			return This
 
 	def IsEmpty()
-		return StzLen(@cData) = 0
+		return len(@cData) = 0
 
 	def RemoveNBytesStartingAt(nPosition, _nBytes_)
-		if nPosition < 1 or nPosition > StzLen(@cData) return ok
+		_nLen_ = len(@cData)
+		if nPosition < 1 or nPosition > _nLen_ return ok
 		_nEnd_ = nPosition + _nBytes_ - 1
-		if _nEnd_ > StzLen(@cData) _nEnd_ = StzLen(@cData) ok
-		@cData = StzLeft(@cData, nPosition - 1) + StzMid(@cData, _nEnd_ + 1, StzLen(@cData) - _nEnd_)
+		if _nEnd_ > _nLen_ _nEnd_ = _nLen_ ok
+		@cData = This._ByteLeft_(nPosition - 1) + This._ByteSlice_(_nEnd_ + 1, _nLen_ - _nEnd_)
 
 	def RemoveNBytesStartingAtQ(nPosition, _nBytes_)
 		This.RemoveNBytesStartingAt(nPosition, _nBytes_)
 		return This
 
 	def RemoveNBytesFromEnd(n)
-		if n >= StzLen(@cData)
+		if n >= len(@cData)
 			@cData = ""
 		else
-			@cData = StzLeft(@cData, StzLen(@cData) - n)
+			@cData = This._ByteLeft_(len(@cData) - n)
 		ok
 
 	def RemoveNBytesFromEndQ(n)
@@ -155,15 +195,15 @@ class stzListOfBytes from stzList
 		return This
 
 	def Range(nStart, _nBytes_)
-		return StzMid(@cData, nStart, _nBytes_)
+		return This._ByteSlice_(nStart, _nBytes_)
 
 	def Section(n1, n2)
 		return This.Range( n1, n2 - n1 + 1 )
 
 	def ReplaceNBytes(nBytesFromMainStr, nStartingAtPosition, nWithNBytes, pcFromSubstr)
-		_cLeft_ = StzLeft(@cData, nStartingAtPosition - 1)
-		_cMid_ = StzLeft(pcFromSubstr, nWithNBytes)
-		_cRight_ = StzMid(@cData, nStartingAtPosition + nBytesFromMainStr, StzLen(@cData) - (nStartingAtPosition + nBytesFromMainStr) + 1)
+		_cLeft_ = This._ByteLeft_(nStartingAtPosition - 1)
+		_cMid_ = substr(pcFromSubstr, 1, nWithNBytes)
+		_cRight_ = This._ByteSlice_(nStartingAtPosition + nBytesFromMainStr, len(@cData) - (nStartingAtPosition + nBytesFromMainStr) + 1)
 		@cData = _cLeft_ + _cMid_ + _cRight_
 
 	def ReplaceNBytesQ(nBytesFromMainStr, nStartingAtPosition, nWithNBytes, pcFromSubstr)
@@ -171,7 +211,10 @@ class stzListOfBytes from stzList
 		return This
 
 	def UnicodeOfNthByte(n)
-		if n < 1 or n > StzLen(@cData) return -1 ok
+		# Bounded in BYTES, because @cData[n] indexes bytes. The bound used to
+		# be StzLen (codepoints), so on multibyte content every byte past the
+		# codepoint count answered -1 for a byte that plainly exists.
+		if n < 1 or n > len(@cData) return -1 ok
 		return ascii(@cData[n])
 
 		def UnicodeOfByteNumber(n)
@@ -334,10 +377,13 @@ class stzListOfBytes from stzList
 		@cData = @copy(StzChar(ascii(pcChar)), _nBytes_)
 
 	def Resize(n)
-		if n < StzLen(@cData)
-			@cData = StzLeft(@cData, n)
-		but n > StzLen(@cData)
-			@cData = @cData + @copy(StzChar(0), n - StzLen(@cData))
+		# n is a BYTE size: the padding below appends one NUL per unit, so
+		# growing and shrinking have to be measured on the same axis.
+		_nLen_ = len(@cData)
+		if n < _nLen_
+			@cData = This._ByteLeft_(n)
+		but n > _nLen_
+			@cData = @cData + @copy(StzChar(0), n - _nLen_)
 		ok
 
 	def Reserve(n)
@@ -779,10 +825,10 @@ class stzListOfBytes from stzList
 				return This.TrimQ()
 
 	def TruncatedAt(n)
-		return StzLeft(@cData, n)
+		return This._ByteLeft_(n)
 
 	def TruncateAt(n)
-		@cData = StzLeft(@cData, n)
+		@cData = This._ByteLeft_(n)
 
 		def TruncateAtQ(n)
 			This.TruncateAt(n)
