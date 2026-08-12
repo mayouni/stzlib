@@ -307,6 +307,13 @@ function render(s){
     <div class="cap">the whole sound over time — its shape, loudness and decay</div>
     <canvas id="w2" height="100"></canvas>
     <div class="cap">the first 20 milliseconds, zoomed in — this is the waveform itself</div>
+    <canvas id="sg" height="170"></canvas>
+    <div class="cap">a <b>spectrogram</b>: time across, pitch up, loudness as brightness.
+      A tone is one bright line; a saw is a stack of them; a click is a vertical stripe.</div>
+    <canvas id="sp" height="110"></canvas>
+    <div class="cap">the <b>spectrum</b> of the first moment — which frequencies are in it,
+      and how loud each one is, in decibels below the loudest.</div>
+    <div class="cap" id="anum" style="color:var(--fg)"></div>
     <div class="verdict" id="verdict"><div class="head">checking…</div></div>
     ${(s.knobs&&s.knobs.length) ? `<div class="knobs"><h3>Tune it</h3>${
         s.knobs.map(k=>{
@@ -381,6 +388,130 @@ async function hear(vi){
   $("au").src = url;
   $("au").play().catch(()=>{ $("msg").textContent = "your browser blocked autoplay — press play again"; });
   draw(url);
+  analyse(vi);
+}
+
+// ------------------------------------------------- looking at what you heard
+//
+// The SERVER measures and the PAGE draws. That is the sound plane's own rule --
+// every analysis returns a grid of numbers, and drawing it is a separate step --
+// and it is also the only arrangement fast enough to tune with: the spectrogram
+// arrives as one byte per cell, and the canvas paints it in a frame.
+
+let lastAnalysis = null;
+
+async function analyse(vi){
+  const s = current; if(!s || s.compose) return;
+  try{
+    const a = await (await fetch("/api/analysis?"+qs(paramsFor(s, vi||0)))).json();
+    if(!a.ok) return;
+    lastAnalysis = a;
+    drawSpectrogram(a);
+    drawSpectrum(a);
+    $("anum").innerHTML =
+      `loudest partial <b>${fmtHz(a.dominantHz)}</b> &nbsp;·&nbsp; ` +
+      `loudness <b>${a.loudnessLufs <= -1000 ? "silent" : a.loudnessLufs.toFixed(1)+" LUFS"}</b> &nbsp;·&nbsp; ` +
+      `peak <b>${a.peak.toFixed(3)}</b> &nbsp;·&nbsp; rms <b>${a.rms.toFixed(3)}</b>` +
+      `<span class="meta"> &nbsp; measured in ${a.analysisMs.toFixed(0)} ms</span>`;
+  }catch(e){}
+}
+
+function fmtHz(hz){ return hz >= 1000 ? (hz/1000).toFixed(2)+" kHz" : Math.round(hz)+" Hz"; }
+
+// INFERNO, the same eleven stops the Ring plot face uses, for the same reason:
+// its lightness rises all the way up, so "brighter" reads as "louder" even in
+// grey, and it invents none of the false edges a rainbow does.
+const INFERNO = [[0,0,4],[22,11,57],[66,10,104],[106,23,110],[147,38,103],
+                 [188,55,84],[221,81,58],[243,120,25],[252,165,10],[246,215,70],[252,255,164]];
+function inferno(t){
+  const u = Math.max(0, Math.min(1, t)) * 10, i = Math.min(9, Math.floor(u)), f = u - i;
+  const a = INFERNO[i], b = INFERNO[i+1];
+  return [a[0]+(b[0]-a[0])*f, a[1]+(b[1]-a[1])*f, a[2]+(b[2]-a[2])*f];
+}
+
+function drawSpectrogram(a){
+  const cv = $("sg"); if(!cv || !a.sg) return;
+  const raw = atob(a.sg), W = a.plotW, H = a.plotH;
+  if(raw.length < W*H) return;
+  const dpr = window.devicePixelRatio||1;
+  cv.width = cv.clientWidth*dpr; cv.height = cv.clientHeight*dpr;
+  const g = cv.getContext("2d");
+
+  // paint at the DATA's resolution into an offscreen image, then let the
+  // browser scale it -- one putImageData instead of 39,000 rectangles
+  const img = new ImageData(W, H);
+  for(let y=0;y<H;y++){
+    for(let x=0;x<W;x++){
+      const v = raw.charCodeAt(y*W+x) / 255;
+      const c = inferno(v);
+      // LOW FREQUENCIES AT THE BOTTOM, as every spectrogram is drawn: row 0 of
+      // the data is the lowest bin, and canvas row 0 is the TOP of the picture
+      const o = ((H-1-y)*W + x) * 4;
+      img.data[o] = c[0]; img.data[o+1] = c[1]; img.data[o+2] = c[2]; img.data[o+3] = 255;
+    }
+  }
+  const off = document.createElement("canvas");
+  off.width = W; off.height = H;
+  off.getContext("2d").putImageData(img, 0, 0);
+  g.imageSmoothingEnabled = true;
+  g.drawImage(off, 0, 0, cv.width, cv.height);
+
+  g.scale(dpr, dpr);
+  // OCTAVE LINES. The axis is logarithmic, so equal octaves are equal
+  // distances -- and a harmonic stack is only readable if you can see where
+  // the octaves fall.
+  const H2 = cv.clientHeight, W2 = cv.clientWidth;
+  const lo = Math.log(a.sgBottomHz), hi = Math.log(a.sgTopHz);
+  g.font = "10px ui-monospace,monospace";
+  for(const hz of [100,220,440,880,1760,3520,7040,14080]){
+    if(hz < a.sgBottomHz || hz > a.sgTopHz) continue;
+    const y = H2 - (Math.log(hz)-lo)/(hi-lo)*H2;
+    g.strokeStyle = "rgba(255,255,255,.13)"; g.lineWidth = 1;
+    g.beginPath(); g.moveTo(0,y+.5); g.lineTo(W2,y+.5); g.stroke();
+    g.fillStyle = "rgba(255,255,255,.55)";
+    g.fillText(fmtHz(hz), 5, y-3);
+  }
+  g.fillStyle = "rgba(255,255,255,.72)";
+  const t = a.sgSeconds.toFixed(2)+"s";
+  g.fillText(t, W2 - g.measureText(t).width - 6, H2 - 5);
+}
+
+function drawSpectrum(a){
+  const cv = $("sp"); if(!cv || !a.spectrum || !a.spectrum.length) return;
+  const dpr = window.devicePixelRatio||1;
+  cv.width = cv.clientWidth*dpr; cv.height = cv.clientHeight*dpr;
+  const g = cv.getContext("2d"); g.scale(dpr,dpr);
+  const W = cv.clientWidth, H = cv.clientHeight, R = a.rangeDb;
+  g.clearRect(0,0,W,H);
+
+  g.strokeStyle = "#1b222c"; g.lineWidth = 1;
+  for(let db=0; db>=-R; db-=20){
+    const y = (-db/R)*H;
+    g.beginPath(); g.moveTo(0,y); g.lineTo(W,y); g.stroke();
+    g.fillStyle="#5b6675"; g.font="10px ui-monospace,monospace";
+    g.fillText(db+" dB", 4, y+11);
+  }
+
+  // LOG in frequency: the server already spaced the points that way, so the
+  // array maps straight onto the width.
+  const n = a.spectrum.length;
+  g.strokeStyle = "#4dd4ac"; g.lineWidth = 1.4; g.beginPath();
+  for(let i=0;i<n;i++){
+    const x = i/(n-1)*W, y = (-a.spectrum[i]/R)*H;
+    if(i===0) g.moveTo(x,y); else g.lineTo(x,y);
+  }
+  g.stroke();
+
+  // the same octave marks as the spectrogram above it, so the two pictures
+  // line up as one axis read twice
+  const lo = Math.log(a.spectrumFromHz), hi = Math.log(a.spectrumToHz);
+  g.fillStyle="#5b6675"; g.strokeStyle="rgba(255,255,255,.09)";
+  for(const hz of [100,220,440,880,1760,3520,7040,14080]){
+    if(hz < a.spectrumFromHz || hz > a.spectrumToHz) continue;
+    const x = (Math.log(hz)-lo)/(hi-lo)*W;
+    g.beginPath(); g.moveTo(x+.5,0); g.lineTo(x+.5,H); g.stroke();
+    g.fillText(fmtHz(hz), x+3, H-4);
+  }
 }
 
 function drawLast(){ draw("/api/wav?v="+(++ver)); }

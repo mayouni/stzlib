@@ -20,6 +20,13 @@
 //! in the browser is what the plane does. "Play on speakers" additionally
 //! drives the live SN3 path: producer thread, ring buffer, device callback.
 //!
+//! AND IT IS MEASURED BY THE REAL ANALYSIS (soundanalysis.zig): every sample
+//! you play also draws its spectrogram and its spectrum, with its LUFS and its
+//! loudest partial underneath. The server measures and sends NUMBERS; the page
+//! draws them. That is the sound plane's own law -- an analysis returns a grid,
+//! and drawing it is a separate step -- and the browser is simply another
+//! drawing surface, exactly as stzCanvas is.
+//!
 //! WHY THIS OWNS ITS SOCKET LOOP rather than using stz_tcp: tcp_recv could not
 //! read from an accepted socket on Windows (Stream.read -> ReadFile fails
 //! there; src/tcp.zig now uses std.posix.recv, as testserver.zig always did).
@@ -202,6 +209,8 @@ fn handle(stream: std.net.Stream) !void {
         try apiRender(stream, query);
     } else if (std.mem.eql(u8, route, "/api/play")) {
         try apiPlay(stream, query);
+    } else if (std.mem.eql(u8, route, "/api/analysis")) {
+        try apiAnalysis(stream, query);
     } else if (std.mem.eql(u8, route, "/api/compose")) {
         try apiCompose(stream);
     } else if (std.mem.eql(u8, route, "/api/guards")) {
@@ -334,6 +343,169 @@ fn apiPlay(stream: std.net.Stream, query: []const u8) !void {
     var b: [256]u8 = undefined;
     const s = try std.fmt.bufPrint(&b, "{{\"ok\":true,\"framesOut\":{d:.0},\"worstUs\":{d:.2},\"underruns\":{d:.0}}}", .{ frames, worst, under });
     respond(stream, "200 OK", "application/json", s);
+}
+
+// ── LOOKING AT WHAT YOU JUST HEARD ──────────────────────────────────────────
+//
+// The same patch, rendered and then MEASURED: a spectrum, a spectrogram, and
+// the numbers a level meter cannot show you (LUFS, the dominant partial).
+//
+// THE SERVER SENDS DATA, THE PAGE DRAWS IT. That is the sound plane's own law
+// -- every analysis returns a grid, and drawing is a separate step -- and the
+// browser is just another drawing surface, exactly as stzCanvas is. It also
+// happens to be the only arrangement that is fast enough to tune with: an SVG
+// of a spectrogram is one rectangle per cell and weighs 100 KB, while the same
+// picture as bytes is 38 KB and the canvas paints it in a frame.
+//
+// DOWNSAMPLED HERE, NOT THERE. A 2-second spectrogram is ~190 rows x 1025 bins
+// = 195,000 numbers, and JSON would make that two megabytes of text per slider
+// nudge. The server reduces it to the cells the canvas actually has, taking
+// the LOUDEST value under each -- a peak that survives is a peak that was
+// there, where an average would hide a brief bright partial -- and quantises
+// to one byte of dB. What crosses the wire is what gets drawn.
+
+const PLOT_W: usize = 260; // spectrogram cells across
+const PLOT_H: usize = 150; // and up
+const PLOT_RANGE_DB: f64 = 70;
+const PLOT_BOTTOM_HZ: f64 = 40; // below this there is no note, only rumble
+const PLOT_TOP_HZ: f64 = 16000;
+
+fn apiAnalysis(stream: std.net.Stream, query: []const u8) !void {
+    const p = buildPatch(query);
+    if (gph.prepare(p.g) != gph.OK) {
+        respond(stream, "200 OK", "application/json", "{\"ok\":false,\"error\":\"prepare failed\"}");
+        _ = gph.graphFree(p.g);
+        return;
+    }
+    const frames: usize = @intFromFloat(p.secs * @as(f64, @floatFromInt(RATE)));
+    const buf = gph.renderToBuffer(p.g, frames);
+    _ = gph.graphFree(p.g);
+    if (buf == 0) {
+        respond(stream, "200 OK", "application/json", "{\"ok\":false,\"error\":\"render failed\"}");
+        return;
+    }
+    defer _ = snd.free(buf);
+
+    var timer = try std.time.Timer.start();
+    const sg = gph.ana.spectrogram(buf, 0, 2048, 512, 4);
+    const sp = gph.ana.spectrum(buf, 0, 0, 4096);
+    const lufs = gph.ana.loudness(buf);
+    const dom = gph.ana.dominantFrequency(buf, 0, 8192);
+    const ms = @as(f64, @floatFromInt(timer.read())) / 1e6;
+    defer _ = gph.ana.gridFree(sg);
+    defer _ = gph.ana.gridFree(sp);
+
+    var out: std.ArrayList(u8) = .{};
+    defer out.deinit(alloc);
+    const w = out.writer(alloc);
+
+    try w.print("{{\"ok\":true,\"analysisMs\":{d:.2},\"seconds\":{d:.3},\"rate\":{d}", .{ ms, p.secs, RATE });
+    try w.print(",\"loudnessLufs\":{d:.2},\"dominantHz\":{d:.1}", .{ lufs, dom });
+    try w.print(",\"peak\":{d:.6},\"rms\":{d:.6}", .{ snd.peak(buf), snd.rms(buf) });
+    try w.print(",\"rangeDb\":{d:.0},\"plotW\":{d},\"plotH\":{d}", .{ PLOT_RANGE_DB, PLOT_W, PLOT_H });
+
+    try writeSpectrum(w, sp);
+    try writeSpectrogram(w, sg);
+    try w.print("}}", .{});
+    respond(stream, "200 OK", "application/json", out.items);
+}
+
+/// One row of dB values, already reduced to the points the page will draw,
+/// already in dB, and already spaced LOGARITHMICALLY.
+///
+/// Log, because the ear is. On a linear axis a 440 Hz fundamental sits at 3%
+/// of the width and everything a person came to look at is crushed against the
+/// left edge -- the first version drew exactly that, and a pure sine looked
+/// like an empty chart with a smudge on it. An octave is a doubling, and equal
+/// octaves deserve equal space.
+fn writeSpectrum(w: anytype, sp: i64) !void {
+    const cols: usize = @intFromFloat(@max(0, gph.ana.gridCols(sp)));
+    const hz_per: f64 = gph.ana.gridYStep(sp);
+    const mx: f64 = gph.ana.gridMax(sp);
+    const top = @min(PLOT_TOP_HZ, @as(f64, @floatFromInt(cols)) * hz_per);
+    try w.print(",\"spectrumFromHz\":{d:.1},\"spectrumToHz\":{d:.1},\"spectrum\":[", .{ PLOT_BOTTOM_HZ, top });
+    if (cols == 0 or mx <= 0 or hz_per <= 0) {
+        try w.print("]", .{});
+        return;
+    }
+    const n: usize = 420;
+    var i: usize = 0;
+    while (i < n) : (i += 1) {
+        const lo = logHzAt(i, n, PLOT_BOTTOM_HZ, top);
+        const hi = logHzAt(i + 1, n, PLOT_BOTTOM_HZ, top);
+        var c0: usize = @intFromFloat(@max(1.0, lo / hz_per));
+        const c1 = @max(c0 + 1, @as(usize, @intFromFloat(hi / hz_per)));
+        // peak-hold across whatever bins fall under this point: a harmonic
+        // that survives is a harmonic that was there, where an average would
+        // wash a narrow spike into the noise beside it
+        var v: f64 = 0;
+        while (c0 < c1 and c0 < cols) : (c0 += 1) v = @max(v, gph.ana.gridAt(sp, 0, c0));
+        const db = if (v > 0) 20 * @log10(v / mx) else -PLOT_RANGE_DB;
+        if (i > 0) try w.print(",", .{});
+        try w.print("{d:.1}", .{@max(-PLOT_RANGE_DB, db)});
+    }
+    try w.print("]", .{});
+}
+
+/// The i-th of n edges on a log scale from lo to hi.
+fn logHzAt(i: usize, n: usize, lo: f64, hi: f64) f64 {
+    const t = @as(f64, @floatFromInt(i)) / @as(f64, @floatFromInt(n));
+    return lo * std.math.pow(f64, hi / lo, t);
+}
+
+/// The spectrogram as ONE BYTE PER CELL: 0 is the floor, 255 is the loudest
+/// cell in the picture. Row-major, low frequencies first; the page flips it,
+/// because every spectrogram ever drawn puts low at the bottom.
+///
+/// Log on the frequency axis, for the reason above -- and it matters more
+/// here, because a harmonic stack drawn linearly is a bright smear at the
+/// bottom of an empty rectangle.
+fn writeSpectrogram(w: anytype, sg: i64) !void {
+    const rows: usize = @intFromFloat(@max(0, gph.ana.gridRows(sg)));
+    const cols: usize = @intFromFloat(@max(0, gph.ana.gridCols(sg)));
+    const mx: f64 = gph.ana.gridMax(sg);
+    const secs_per_row: f64 = gph.ana.gridXStep(sg);
+    const hz_per_col: f64 = gph.ana.gridYStep(sg);
+    const top = @min(PLOT_TOP_HZ, @as(f64, @floatFromInt(cols)) * hz_per_col);
+
+    try w.print(",\"sgBottomHz\":{d:.1},\"sgTopHz\":{d:.1},\"sgSeconds\":{d:.4},\"sg\":\"", .{
+        PLOT_BOTTOM_HZ, top,
+        @as(f64, @floatFromInt(rows)) * secs_per_row,
+    });
+    if (rows == 0 or cols == 0 or mx <= 0 or hz_per_col <= 0) {
+        try w.print("\"", .{});
+        return;
+    }
+
+    // base64, because a JSON array of 39,000 numbers is 150 KB of commas
+    const raw = try alloc.alloc(u8, PLOT_W * PLOT_H);
+    defer alloc.free(raw);
+    var x: usize = 0;
+    while (x < PLOT_W) : (x += 1) {
+        const r0 = x * rows / PLOT_W;
+        const r1 = @max(r0 + 1, (x + 1) * rows / PLOT_W);
+        var y: usize = 0;
+        while (y < PLOT_H) : (y += 1) {
+            const lo = logHzAt(y, PLOT_H, PLOT_BOTTOM_HZ, top);
+            const hi = logHzAt(y + 1, PLOT_H, PLOT_BOTTOM_HZ, top);
+            const c0: usize = @intFromFloat(@max(1.0, lo / hz_per_col));
+            const c1 = @max(c0 + 1, @as(usize, @intFromFloat(hi / hz_per_col)));
+            var v: f64 = 0;
+            var r = r0;
+            while (r < r1 and r < rows) : (r += 1) {
+                var c = c0;
+                while (c < c1 and c < cols) : (c += 1) v = @max(v, gph.ana.gridAt(sg, r, c));
+            }
+            const db = if (v > 0) 20 * @log10(v / mx) else -PLOT_RANGE_DB - 1;
+            const t = @max(0.0, (db + PLOT_RANGE_DB) / PLOT_RANGE_DB);
+            raw[y * PLOT_W + x] = @intFromFloat(@min(255.0, t * 255.0));
+        }
+    }
+    const enc = std.base64.standard.Encoder;
+    const b64 = try alloc.alloc(u8, enc.calcSize(raw.len));
+    defer alloc.free(b64);
+    _ = enc.encode(b64, raw);
+    try w.print("{s}\"", .{b64});
 }
 
 fn apiCompose(stream: std.net.Stream) !void {
