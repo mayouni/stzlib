@@ -81,18 +81,18 @@ class stzGraph from stzObject
 	# The engine hash map is used rather than a Ring hash list on purpose: it
 	# compares keys BYTE-EXACTLY, where Ring's own hashlist indexer silently
 	# misses multibyte keys once the list lives in an object attribute.
-	@pNodeIdx = NULL
+	@pNodeIdx = ""
 	@nNodeIdxCount = -1
-	@bNodeIdxStale = TRUE
+	@bNodeIdxStale = 1
 
 	# Same story for edges, and this one was the bigger half. EdgeExists
 	# walked every edge -- calling StzLower on BOTH arguments inside the loop,
 	# so two engine calls per edge examined -- and AddEdge asks it about an
 	# edge that by definition is NOT there yet, so every add scanned the whole
 	# list. Adding E edges was O(E^2).
-	@pEdgeIdx = NULL
+	@pEdgeIdx = ""
 	@nEdgeIdxCount = -1
-	@bEdgeIdxStale = TRUE
+	@bEdgeIdxStale = 1
 
 	# Simplified rule storage - rules as hashlists
 	@aConstraintRules = []
@@ -105,19 +105,19 @@ class stzGraph from stzObject
 	# a rule is attached to the graph and becomes part of ITS logic, so you
 	# check/report from the graph (g.AddRule(r); g.CheckRules(); g.RulesReport()),
 	# never rule.Check(g). A lazily-created stzGraphRuleSet holds them.
-	@oOwnRuleSet = NULL
+	@oOwnRuleSet = ""
 
 	@acValidators = $acGraphDefaultValidators
 
 	@aProperties = []
 
-	@bEnforceConstraints = TRUE
-	@bAutoDerive = FALSE # Default: manual derivation
+	@bEnforceConstraints = 1
+	@bAutoDerive = 0 # Default: manual derivation
 
 	@aLastValidationResult = []
 
-	@pEngineGraph = NULL
-	@bEngineStale = TRUE
+	@pEngineGraph = ""
+	@bEngineStale = 1
 
 	# The arrow the path/impact explanations draw with, built from RAW
 	# UTF-8 BYTES so the source stays pure-ASCII. Written as a literal it
@@ -165,27 +165,27 @@ class stzGraph from stzObject
 		return @pEngineGraph
 
 	def _InvalidateEngine()
-		@bEngineStale = TRUE
+		@bEngineStale = 1
 
 	def _FreeEngine()
-		if @pEngineGraph != NULL
+		if @pEngineGraph != ""
 			StzEngineGraphFree(@pEngineGraph)
-			@pEngineGraph = NULL
+			@pEngineGraph = ""
 		ok
-		@bEngineStale = TRUE
+		@bEngineStale = 1
 
 	def _EnsureEngine()
 		if NOT This._EngineAvailable()
-			return FALSE
+			return 0
 		ok
 
-		if @pEngineGraph != NULL and NOT @bEngineStale
-			return TRUE
+		if @pEngineGraph != "" and NOT @bEngineStale
+			return 1
 		ok
 
-		if @pEngineGraph != NULL
+		if @pEngineGraph != ""
 			StzEngineGraphFree(@pEngineGraph)
-			@pEngineGraph = NULL
+			@pEngineGraph = ""
 		ok
 
 		@pEngineGraph = StzEngineGraphCreate(1)
@@ -218,8 +218,8 @@ class stzGraph from stzObject
 			ok
 		next
 
-		@bEngineStale = FALSE
-		return TRUE
+		@bEngineStale = 0
+		return 1
 
 	def Copy()
 		_oCopy_ = This
@@ -296,7 +296,7 @@ class stzGraph from stzObject
 		@aNodes + _aNode_
 
 		# Same as for edges: extend the index rather than invalidating it.
-		if @pNodeIdx != NULL and NOT @bNodeIdxStale
+		if @pNodeIdx != "" and NOT @bNodeIdxStale
 			if @nNodeIdxCount = len(@aNodes) - 1
 				StzEngineHashMapPutInt(@pNodeIdx, _aNode_[:id], len(@aNodes))
 				@nNodeIdxCount = len(@aNodes)
@@ -304,7 +304,7 @@ class stzGraph from stzObject
 		ok
 
 		# Push the node into the LIVE engine graph rather than discarding it.
-		if @pEngineGraph != NULL and NOT @bEngineStale
+		if @pEngineGraph != "" and NOT @bEngineStale
 			StzEngineGraphAddNode(@pEngineGraph, _aNode_[:id])
 
 			_aAnP_ = _aNode_[:properties]
@@ -350,7 +350,7 @@ class stzGraph from stzObject
 
 		This._EnsureNodeIndex()
 
-		if @pNodeIdx != NULL
+		if @pNodeIdx != ""
 			return StzEngineHashMapHasKey(@pNodeIdx, _cNeId_)
 		ok
 
@@ -368,18 +368,18 @@ class stzGraph from stzObject
 	def _EnsureNodeIndex()
 		_nNiLen_ = len(@aNodes)
 
-		if @pNodeIdx != NULL and @nNodeIdxCount = _nNiLen_ and NOT @bNodeIdxStale
+		if @pNodeIdx != "" and @nNodeIdxCount = _nNiLen_ and NOT @bNodeIdxStale
 			return
 		ok
 
-		if @pNodeIdx != NULL
+		if @pNodeIdx != ""
 			StzEngineHashMapFree(@pNodeIdx)
-			@pNodeIdx = NULL
+			@pNodeIdx = ""
 		ok
 
 		@pNodeIdx = StzEngineHashMapNew()
 
-		if @pNodeIdx = NULL
+		if @pNodeIdx = ""
 			return
 		ok
 
@@ -388,7 +388,7 @@ class stzGraph from stzObject
 		next
 
 		@nNodeIdxCount = _nNiLen_
-		@bNodeIdxStale = FALSE
+		@bNodeIdxStale = 0
 
 		def HasNode(pcNodeId)
 			return This.NodeExists(pcNodeId)
@@ -396,12 +396,12 @@ class stzGraph from stzObject
 	def SetNodes(paNodes)
 		@aNodes = paNodes
 		# Length alone cannot detect a same-length swap, so say so outright.
-		@bNodeIdxStale = TRUE
+		@bNodeIdxStale = 1
 	
 	def SetEdges(paEdges)
 		@aEdges = paEdges
 		# Length alone cannot detect a same-length swap.
-		@bEdgeIdxStale = TRUE
+		@bEdgeIdxStale = 1
 
 	def Nodes()
 		return @aNodes
@@ -672,13 +672,13 @@ class stzGraph from stzObject
 
 	 # Control flags
 	 def EnableConstraints()
-	        @bEnforceConstraints = TRUE
+	        @bEnforceConstraints = 1
 
 		def EnforceConstraints()
-			@bEnforceConstraints = TRUE
+			@bEnforceConstraints = 1
 
 	 def DisableConstraints()
-	        @bEnforceConstraints = FALSE
+	        @bEnforceConstraints = 0
 
 	def ConstraintsEnabled()
 		return @bEnforceConstraints
@@ -686,13 +686,13 @@ class stzGraph from stzObject
 	#--
 
 	 def EnableAutoDerive()
-	        @bAutoDerive = TRUE
+	        @bAutoDerive = 1
 
 		def EnforceAutoDerive()
-			@bAutoDerive = TRUE
+			@bAutoDerive = 1
 
 	 def DisableAutoDerive()
-	        @bAutoDerive = FALSE
+	        @bAutoDerive = 0
 
 	def AutoDeriveEnabled()
 		return @bAutoDerive
@@ -708,7 +708,7 @@ class stzGraph from stzObject
 		_bOldState_ = @bEnforceConstraints
 		
 		# Disable constraints temporarily
-		@bEnforceConstraints = FALSE
+		@bEnforceConstraints = 0
 		
 		# Execute the provided function
 		call pFunc(This)
@@ -740,11 +740,11 @@ class stzGraph from stzObject
 	
 		# Basic checks
 		if NOT This.NodeExists(pcFrom) or NOT This.NodeExists(pcTo)
-			return FALSE
+			return 0
 		ok
 	
 		if This.EdgeExists(pcFrom, pcTo)
-			return FALSE
+			return 0
 		ok
 	
 		# Constraint checks
@@ -850,10 +850,10 @@ class stzGraph from stzObject
 	# raises, and a constraint violation still raises.
 	def ConnectIfAbsent(pcFromNodeId, pcToNodeId)
 		if This.EdgeExists(pcFromNodeId, pcToNodeId)
-			return FALSE
+			return 0
 		ok
 		This.AddEdgeXTT(pcFromNodeId, pcToNodeId, "", [])
-		return TRUE
+		return 1
 
 		def AddEdgeIfAbsent(pcFromNodeId, pcToNodeId)
 			return This.ConnectIfAbsent(pcFromNodeId, pcToNodeId)
@@ -1000,7 +1000,7 @@ class stzGraph from stzObject
 		# Keep the index IN STEP with the append. Letting it go stale and
 		# rebuild on the next lookup costs O(E) per added edge, which is
 		# exactly the quadratic the index was added to remove.
-		if @pEdgeIdx != NULL and NOT @bEdgeIdxStale
+		if @pEdgeIdx != "" and NOT @bEdgeIdxStale
 			if @nEdgeIdxCount = len(@aEdges) - 1
 				StzEngineHashMapPutInt(@pEdgeIdx,
 					_aEdge_[:from] + char(1) + _aEdge_[:to], len(@aEdges))
@@ -1014,7 +1014,7 @@ class stzGraph from stzObject
 		# graph, node by node and edge by edge. So the loop every incremental
 		# build actually runs -- add an edge, ask a question, add an edge --
 		# cost O(V+E) per step. 800 edges built that way took 309.74s.
-		if @pEngineGraph != NULL and NOT @bEngineStale
+		if @pEngineGraph != "" and NOT @bEngineStale
 			_aAeP_ = _aEdge_[:properties]
 
 			_nAeW_ = 1.0
@@ -1114,7 +1114,7 @@ class stzGraph from stzObject
 
 		This._EnsureEdgeIndex()
 
-		if @pEdgeIdx != NULL
+		if @pEdgeIdx != ""
 			return StzEngineHashMapHasKey(@pEdgeIdx, _cEeFrom_ + char(1) + _cEeTo_)
 		ok
 
@@ -1138,18 +1138,18 @@ class stzGraph from stzObject
 	def _EnsureEdgeIndex()
 		_nEiLen_ = len(@aEdges)
 
-		if @pEdgeIdx != NULL and @nEdgeIdxCount = _nEiLen_ and NOT @bEdgeIdxStale
+		if @pEdgeIdx != "" and @nEdgeIdxCount = _nEiLen_ and NOT @bEdgeIdxStale
 			return
 		ok
 
-		if @pEdgeIdx != NULL
+		if @pEdgeIdx != ""
 			StzEngineHashMapFree(@pEdgeIdx)
-			@pEdgeIdx = NULL
+			@pEdgeIdx = ""
 		ok
 
 		@pEdgeIdx = StzEngineHashMapNew()
 
-		if @pEdgeIdx = NULL
+		if @pEdgeIdx = ""
 			return
 		ok
 
@@ -1159,7 +1159,7 @@ class stzGraph from stzObject
 		next
 
 		@nEdgeIdxCount = _nEiLen_
-		@bEdgeIdxStale = FALSE
+		@bEdgeIdxStale = 0
 
 	def Edges()
 		return @aEdges
@@ -1266,12 +1266,12 @@ class stzGraph from stzObject
 		pcLabel = _NormalizeLabel(pcLabel)
 		_acNew_ = []
 		_nLen_ = len(@aEdges)
-		_bFound_ = FALSE
+		_bFound_ = 0
 		
 		for i = 1 to _nLen_
 			_aEdge_ = @aEdges[i]
 			if _aEdge_["from"] = StzLower(pcFromNodeId) and _aEdge_["to"] = StzLower(pcToNodeId) and StzLower(_aEdge_["label"]) = StzLower(pcLabel) and NOT _bFound_
-				_bFound_ = TRUE
+				_bFound_ = 1
 				loop
 			ok
 			_acNew_ + _aEdge_
@@ -1931,7 +1931,7 @@ class stzGraph from stzObject
 
 		This._EnsureNodeIndex()
 
-		if @pNodeIdx != NULL
+		if @pNodeIdx != ""
 			return StzEngineHashMapGetInt(@pNodeIdx, _cNpId_)
 		ok
 
@@ -2894,7 +2894,7 @@ class stzGraph from stzObject
 		if This._EnsureEngine()
 			return StzEngineGraphIsBipartite(@pEngineGraph) = 1
 		ok
-		return FALSE
+		return 0
 
 	# Strongly connected components (directed) as a list of node-id groups.
 	# Two nodes share a group iff each is reachable from the other. Engine
@@ -3076,7 +3076,7 @@ class stzGraph from stzObject
 					loop
 				ok
 
-				if _pCcSeen_ != NULL
+				if _pCcSeen_ != ""
 					StzEngineHashMapPutInt(_pCcSeen_, _cCcCur_, 1)
 				else
 					_acCcSeenList_ + _cCcCur_
@@ -3100,7 +3100,7 @@ class stzGraph from stzObject
 			_aCcComponents_ + _acCcComp_
 		next
 
-		if _pCcSeen_ != NULL
+		if _pCcSeen_ != ""
 			StzEngineHashMapFree(_pCcSeen_)
 		ok
 
@@ -3109,15 +3109,15 @@ class stzGraph from stzObject
 	# Membership in the visited set: the engine map when it is available,
 	# else a needle-first scan of the fallback list.
 	def _CcSeen(pSeenMap, pacSeenList, pcId)
-		if pSeenMap != NULL
+		if pSeenMap != ""
 			return StzEngineHashMapHasKey(pSeenMap, pcId)
 		ok
 
 		if StzFindFirst(pcId, pacSeenList) > 0
-			return TRUE
+			return 1
 		ok
 
-		return FALSE
+		return 0
 
 	#---------------------------------#
 	#  ENGINE-BACKED GRAPH METHODS    #
@@ -3816,7 +3816,7 @@ class stzGraph from stzObject
 
 		# Parse nodes
 		_cRemaining_ = _cXML_
-		while TRUE
+		while 1
 			_nNodeStart_ = StzFindFirst('<node id="', _cRemaining_)
 			if _nNodeStart_ = 0
 				exit
@@ -3843,7 +3843,7 @@ class stzGraph from stzObject
 			# Extract properties
 			_aProps_ = []
 			_cPropBlock_ = _cNodeBlock_
-			while TRUE
+			while 1
 				_nPropPos_ = StzFindFirst('<data key="prop_', _cPropBlock_)
 				if _nPropPos_ = 0
 					exit
@@ -3866,7 +3866,7 @@ class stzGraph from stzObject
 
 		# Parse edges
 		_cRemaining_ = _cXML_
-		while TRUE
+		while 1
 			_nEdgeStart_ = StzFindFirst('<edge ', _cRemaining_)
 			if _nEdgeStart_ = 0
 				exit
@@ -3903,7 +3903,7 @@ class stzGraph from stzObject
 			# Extract edge properties
 			_aProps_ = []
 			_cPropBlock_ = _cEdgeBlock_
-			while TRUE
+			while 1
 				_nPropPos_ = StzFindFirst('<data key="prop_', _cPropBlock_)
 				if _nPropPos_ = 0
 					exit
@@ -4007,15 +4007,24 @@ class stzGraph from stzObject
 		_oViz_ = new stzGraphAsciiVisualizer(This)
 		return _oViz_.AsciiArtHorizontal()
 
-	def View()
+	# DISPLAY, not View -- the same correction as stzDiagram's, and for the
+	# same reason: `View` is a NOUN in this module (stzGraphView,
+	# ToView(), IsView()) meaning a filtered projection of the graph.
+	# Using it as a verb for "open a window" made one word mean two things
+	# in one namespace. Both older spellings are kept as alternative forms,
+	# since stzOrgChart and stzWorkflow call View() internally.
+	def Display()
 		_oDot_ = new stzDotCode()
 		_oDot_.SetCode(This.Dot())
 		_oDot_.RunAndView()
 
 		#< @FunctionAlternativeForm
 
+		def View()
+			This.Display()
+
 		def Veiw()
-			This.View()
+			This.Display()
 
 		#>
 
@@ -4218,10 +4227,10 @@ class stzGraph from stzObject
 		_nLen_ = len(_aRuleList_)
 		for i = 1 to _nLen_
 			if _aRuleList_[i][:name] = _cName_
-				return TRUE
+				return 1
 			ok
 		next
-		return FALSE
+		return 0
 
 	def _IsKnownRuleType(pcType)
 		_cT_ = StzLower("" + pcType)
@@ -4233,7 +4242,7 @@ class stzGraph from stzObject
 	def ApplyDerivationRulesXT()
 		# Temporarily disable constraints during derivation
 		_bOldState_ = @bEnforceConstraints
-		@bEnforceConstraints = FALSE  # Bypass constraints during derivation
+		@bEnforceConstraints = 0  # Bypass constraints during derivation
 		
 		_aEdgesAdded_ = []
 		_nLen_ = len(@aDerivationRules)
@@ -4348,7 +4357,7 @@ class stzGraph from stzObject
 	#   g.RulesReport()
 
 	def _OwnRuleSet()
-		if @oOwnRuleSet = NULL
+		if @oOwnRuleSet = ""
 			@oOwnRuleSet = new stzGraphRuleSet("" + @cId)
 		ok
 		return @oOwnRuleSet
@@ -4376,7 +4385,7 @@ class stzGraph from stzObject
 	# The graph checks ITSELF against its attached rules. Returns unified
 	# findings [ :rule, :subject, :where, :severity, :message ].
 	def CheckRules()
-		if @oOwnRuleSet = NULL
+		if @oOwnRuleSet = ""
 			return []
 		ok
 		return @oOwnRuleSet.Check(This)
@@ -4388,7 +4397,7 @@ class stzGraph from stzObject
 		return This._OwnRuleSet().Rules()
 
 	def NumberOfAttachedRules()
-		if @oOwnRuleSet = NULL
+		if @oOwnRuleSet = ""
 			return 0
 		ok
 		return @oOwnRuleSet.NumberOfRules()
@@ -4405,7 +4414,7 @@ class stzGraph from stzObject
 		return This
 
 	def ClearAttachedRules()
-		@oOwnRuleSet = NULL
+		@oOwnRuleSet = ""
 		return This
 
 	def Rules()
@@ -4546,7 +4555,7 @@ class stzGraph from stzObject
 		_nLen_ = len(@aConstraintRules)
 		for i = 1 to _nLen_
 			if @aConstraintRules[i][:name] = pcRuleName
-				return TRUE
+				return 1
 			ok
 		next
 	
@@ -4554,7 +4563,7 @@ class stzGraph from stzObject
 		_nLen_ = len(@aDerivationRules)
 		for i = 1 to _nLen_
 			if StzLower(@aDerivationRules[i][:name]) = pcRuleName
-				return TRUE
+				return 1
 			ok
 		next
 	
@@ -4562,11 +4571,11 @@ class stzGraph from stzObject
 		_nLen_ = len(@aValidationRules)
 		for i = 1 to _nLen_
 			if StzLower(@aValidationRules[i][:name]) = pcRuleName
-				return TRUE
+				return 1
 			ok
 		next
 	
-		return FALSE
+		return 0
 	
 		def ContainsRule(pcRuleName)
 			return This.HasRule(pcRuleName)
@@ -5138,7 +5147,7 @@ class stzGraph from stzObject
 								_aChanges_ + [:property, _cKey_, pBaseVal, pVarVal]
 							ok
 						else
-							_aChanges_ + [:property, _cKey_, NULL, pVarVal]
+							_aChanges_ + [:property, _cKey_, "", pVarVal]
 						ok
 					next
 					
@@ -5148,7 +5157,7 @@ class stzGraph from stzObject
 					for j = 1 to _nKeyLen_
 						_cKey_ = _acBaseKeys_[j]
 						if NOT HasKey(_aVarProps_, _cKey_)
-							_aChanges_ + [:property, _cKey_, _aBaseProps_[_cKey_], NULL]
+							_aChanges_ + [:property, _cKey_, _aBaseProps_[_cKey_], ""]
 						ok
 					next
 				ok
@@ -5456,9 +5465,9 @@ class stzGraph from stzObject
 		ok
 		
 		# Cycles
-		if _aMetrics_[:hasCycles][:from] = FALSE and _aMetrics_[:hasCycles][:to] = TRUE
+		if _aMetrics_[:hasCycles][:from] = 0 and _aMetrics_[:hasCycles][:to] = 1
 			_acExplanation_ + "Warning: Cycles introduced"
-		but _aMetrics_[:hasCycles][:from] = TRUE and _aMetrics_[:hasCycles][:to] = FALSE
+		but _aMetrics_[:hasCycles][:from] = 1 and _aMetrics_[:hasCycles][:to] = 0
 			_acExplanation_ + "Cycles removed (now acyclic)"
 		ok
 		
@@ -6249,11 +6258,11 @@ class stzGraph from stzObject
 
 		for i = 1 to _nLen_
 			if HasKey(@aNodes[i], :properties) and len(@aNodes[i][:properties]) > 0
-				return TRUE
+				return 1
 			ok
 		next
 
-		return FALSE
+		return 0
 	
 	def _FormatValue(pValue)
 		if isString(pValue)
@@ -6297,10 +6306,10 @@ class stzGraph from stzObject
 
 		# Try to parse as boolean
 		if StzLower(_cValue_) = "true"
-			return TRUE
+			return 1
 
 		but StzLower(_cValue_) = "false"
-			return FALSE
+			return 0
 		ok
 
 		# Try to parse as list
@@ -6340,9 +6349,9 @@ class stzGraph from stzObject
 	
 	def ValidateByType()
 	    if @cGraphType = "structural" and This.HasCyclicDependencies()
-	        return [FALSE, "Cycles not allowed in structural graphs"]
+	        return [0, "Cycles not allowed in structural graphs"]
 	    ok
-	    return [TRUE, ""]
+	    return [1, ""]
 
 	def UseDefaultDerivations()
 	    # Register transitivity rule for semantic graphs
@@ -6480,17 +6489,17 @@ class stzGraphFinder from stzObject
 				
 				pActual = This._GetNestedValue(_aNode_, pcKey)
 				if pActual = ""
-					return FALSE
+					return 0
 				ok
 				
 				if NOT This._Matches(pActual, pCondition, pValue)
-					return FALSE
+					return 0
 				ok
 				
 			but _cType_ = :hasprop
 				pcKey = _aFilter_[2]
 				if This._GetNestedValue(_aNode_, pcKey) = ""
-					return FALSE
+					return 0
 				ok
 				
 			but _cType_ = :tag
@@ -6498,11 +6507,11 @@ class stzGraphFinder from stzObject
 				if NOT HasKey(_aNode_, "properties") or 
 				   NOT HasKey(_aNode_["properties"], "tags") or
 				   StzFindFirst(pcTag, _aNode_["properties"]["tags"]) = 0
-					return FALSE
+					return 0
 				ok
 			ok
 		end
-		return TRUE
+		return 1
 	
 	def _EdgeMatches(_aEdge_)
 		_nFilters1Len_ = len(@aFilters)
@@ -6517,17 +6526,17 @@ class stzGraphFinder from stzObject
 				
 				pActual = This._GetNestedValue(_aEdge_, pcKey)
 				if pActual = ""
-					return FALSE
+					return 0
 				ok
 				
 				if NOT This._Matches(pActual, pCondition, pValue)
-					return FALSE
+					return 0
 				ok
 				
 			but _cType_ = :hasprop
 				pcKey = _aFilter_[2]
 				if This._GetNestedValue(_aEdge_, pcKey) = ""
-					return FALSE
+					return 0
 				ok
 				
 			but _cType_ = :tag
@@ -6535,11 +6544,11 @@ class stzGraphFinder from stzObject
 				if NOT HasKey(_aEdge_, "properties") or 
 				   NOT HasKey(_aEdge_["properties"], "tags") or
 				   StzFindFirst(pcTag, _aEdge_["properties"]["tags"]) = 0
-					return FALSE
+					return 0
 				ok
 			ok
 		end
-		return TRUE
+		return 1
 	
 	def _GetNestedValue(aElement, pcKey)
 		_bIsNested_ = (StzFindFirst(".", pcKey) > 0)
@@ -6603,7 +6612,7 @@ class stzGraphFinder from stzObject
 			return isNumber(pActual) and isList(pValue) and len(pValue) = 2 and
 			       pActual >= pValue[1] and pActual <= pValue[2]
 		ok
-		return FALSE
+		return 0
 
 
 class stzGraphAsciiVisualizer from stzObject
@@ -6631,7 +6640,7 @@ class stzGraphAsciiVisualizer from stzObject
 	# stayed double-encoded for months while printing garbage without ever
 	# raising. stzFolder settled this long ago with GenerateVizTreeString();
 	# the graph gets the same courtesy. Show() still prints, byte for byte.
-	@bCapture = FALSE
+	@bCapture = 0
 	@cBuffer = ""
 
 	def init(poGraph)
@@ -6654,7 +6663,7 @@ class stzGraphAsciiVisualizer from stzObject
 		return This._Captured(:horizontal)
 
 	def _Captured(pcMode)
-		@bCapture = TRUE
+		@bCapture = 1
 		@cBuffer = ""
 
 		if pcMode = :horizontal
@@ -6663,7 +6672,7 @@ class stzGraphAsciiVisualizer from stzObject
 			This.Show()
 		ok
 
-		@bCapture = FALSE
+		@bCapture = 0
 		return @cBuffer
 	
 	def Show()
@@ -6815,7 +6824,7 @@ class stzGraphAsciiVisualizer from stzObject
 				_aEdge_ = @oGraph.Edge(pcNodeId, _cNext_)
 				_cNodeLabel_ = This._GetDisplayLabel(_cNext_, pacDisplayNodes)
 				_cEdgeLabel_ = ""
-				if _aEdge_ != NULL and isString(_aEdge_["label"])
+				if _aEdge_ != "" and isString(_aEdge_["label"])
 					_cEdgeLabel_ = _aEdge_["label"]
 				ok
 				
@@ -7017,7 +7026,7 @@ class stzGraphComparison from stzObject
 		
 		_nLen_ = len(_aComps_)
 		for i = 1 to _nLen_
-			if _aComps_[i][:hasCycles] = TRUE
+			if _aComps_[i][:hasCycles] = 1
 				_acResult_ + _aComps_[i][:name]
 			ok
 		next
@@ -7031,7 +7040,7 @@ class stzGraphComparison from stzObject
 		
 		_nLen_ = len(_aComps_)
 		for i = 1 to _nLen_
-			if _aComps_[i][:hasCycles] = FALSE
+			if _aComps_[i][:hasCycles] = 0
 				_acResult_ + _aComps_[i][:name]
 			ok
 		next
@@ -7085,7 +7094,7 @@ class stzGraphComparison from stzObject
 			_nScore_ = 0
 			
 			# No cycles: +10
-			if _aComp_[:hasCycles] = FALSE
+			if _aComp_[:hasCycles] = 0
 				_nScore_ += 10
 			ok
 			
