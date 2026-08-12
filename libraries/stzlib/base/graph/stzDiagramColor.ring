@@ -403,8 +403,16 @@ func StzResolveColor(pColor)
 		$acFullColorPalette = StzBuildColorPalette()
 	ok
 
-	_oResolver_ = new stzColorResolver()
-	_r_ = _oResolver_.ResolveWithPalette(pColor, $acFullColorPalette)
+	# THROUGH StzTryResolveColor, not straight to the palette. The lenient
+	# and strict paths must run the SAME lookup or they answer differently
+	# -- which is exactly what happened the moment role steps were added:
+	# the strict path learned `danger.surface`, this one did not, and every
+	# step silently became the neutral fallback (#FFFFFF). The guard read
+	# five identical whites while the RENDERED steps were visibly
+	# different, because the canvas takes the strict path.
+	#
+	# One lookup, two policies. The policy is the only thing that differs.
+	_r_ = StzTryResolveColor(pColor)
 
 	# The lookup answers "" when it does not know the name. THIS is the one
 	# place that decides what to do about it, and it decides visibly: the
@@ -421,12 +429,98 @@ func StzResolveColor(pColor)
 # The same lookup, WITHOUT the substitution: "" means "I do not know this".
 # A face that paints something the author did not ask for is worse than a
 # face that says so.
+# ROLE STEPS (C2 of SOFTANZA_COLOR_SYSTEM.md).
+#
+# A shade says HOW LIGHT. It never says WHAT FOR, so every face invented
+# its own convention for which shade is a border and which is a fill, and
+# they drifted. Radix's insight is that a step should be a ROLE:
+#
+#     :Danger.Surface   a tinted container background
+#     :Danger.Border    a border that reads against Surface
+#     :Danger.Solid     the filled control            (same as :Danger)
+#     :Danger.Text      text on the app background
+#     :OnDanger         what can be READ on the solid (the Material pair)
+#
+# Four steps rather than Radix's twelve -- the ones this library actually
+# draws -- plus the pair. Generated from the OKLCH ramp, so they are
+# monotonic and evenly spaced by construction (C1), and hue-stable, which
+# is what stops :Danger.Surface being a different colour from :Danger.
+# A FUNCTION, not a global. A global assigned after a func definition in
+# this file becomes part of that func's body and never executes -- the trap
+# stzColor.ring already carries a note about. It cost one R5 here.
+func StzRoleStepL(pcStep)
+	switch StzLower("" + pcStep)
+	on "surface"  return 0.95
+	on "border"   return 0.80
+	on "solid"    return 0.62
+	on "text"     return 0.42
+	off
+	return -1
+
+func StzRoleStepNames()
+	return [ :Surface, :Border, :Solid, :Text ]
+
+# "danger.surface" -> [ "danger", "surface" ], anything else -> []
+func _StzSplitRoleStep(pcExpr)
+	_c_ = StzLower(ring_trim("" + pcExpr))
+	_n_ = StzFindFirst(".", _c_)
+	if _n_ < 2 or _n_ >= len(_c_)  return []  ok
+	_base_ = StzSubStr(_c_, 1, _n_ - 1)
+	_step_ = StzSubStr(_c_, _n_ + 1, len(_c_) - _n_)
+	for _k_ in StzRoleStepNames()
+		if StzLower("" + _k_) = _step_  return [ _base_, _step_ ]  ok
+	next
+	return []
+
 func StzTryResolveColor(pColor)
 	if len($acFullColorPalette) = 0
 		$acFullColorPalette = StzBuildColorPalette()
 	ok
+
+	_c_ = StzLower(ring_trim("" + pColor))
+
+	# :OnDanger -- the foreground DECLARED for a fill, rather than a
+	# contrast computed afresh at every call site. Resolved before the
+	# palette lookup because "on..." is not a colour name.
+	if len(_c_) > 2 and StzSubStr(_c_, 1, 2) = "on"
+		_rest_ = StzSubStr(_c_, 3, len(_c_) - 2)
+		if _rest_ != "" and StzIsKnownColorBase(_rest_)
+			return StzResolveColor(StzContrastingText(_rest_))
+		ok
+	ok
+
+	# base.step
+	_aRS_ = _StzSplitRoleStep(_c_)
+	if len(_aRS_) = 2
+		_o1_ = new stzColorResolver()
+		_seed_ = _o1_.ResolveWithPalette(_aRS_[1], $acFullColorPalette)
+		if _seed_ = ""  return ""  ok
+		return StzColorAtLightness(_seed_, StzRoleStepL(_aRS_[2]))
+	ok
+
 	_o_ = new stzColorResolver()
 	return _o_.ResolveWithPalette(pColor, $acFullColorPalette)
+
+# Does this name resolve WITHOUT going through the step machinery? Used by
+# the :On... path so that "online" is not mistaken for "on" + "line".
+func StzIsKnownColorBase(pColor)
+	if len($acFullColorPalette) = 0
+		$acFullColorPalette = StzBuildColorPalette()
+	ok
+	_o_ = new stzColorResolver()
+	return _o_.ResolveWithPalette(pColor, $acFullColorPalette) != ""
+
+# Any colour, re-lit to a perceptual lightness, through the ENGINE's OKLCH
+# ramp. This is the one place a role step is turned into a colour, so the
+# four steps cannot drift apart from each other.
+func StzColorAtLightness(pColor, pnL)
+	_hex_ = StzResolveColor(pColor)
+	_a_ = StzHexToRGB(_hex_)
+	_v_ = StzEngineColorRampStep(_a_[1] * 65536 + _a_[2] * 256 + _a_[3], pnL)
+	_r_ = floor(_v_ / 65536)
+	_g_ = floor((_v_ - _r_ * 65536) / 256)
+	_b_ = _v_ - _r_ * 65536 - _g_ * 256
+	return StzRGBToHex(_r_, _g_, _b_)
 
 func StzIsKnownColor(pColor)
 	return StzTryResolveColor(pColor) != ""
