@@ -290,3 +290,86 @@ class stzSound
 		StzEngineAudioDevPlaybackClose(_d_)     # consumer first, ALWAYS
 		StzEngineSoundStreamStop(_s_)           # then the producer frees the ring
 		StzEngineSoundGraphFree(_g_)
+
+	#-- analysis (SN5): the output is DATA, never a picture -----------------
+	#
+	# To...() because these RETURN things. A spectrum is a stzSoundGrid: rows
+	# by columns of numbers, with x_step and y_step saying what a row and a
+	# column MEAN. Drawing one is the graphics plane's job, and keeping that
+	# boundary is what makes the analysis assertable -- "the 1 kHz sine is in
+	# the 1 kHz bin" is a claim about numbers; "the picture looks right" is a
+	# claim about nothing.
+
+	# The magnitude spectrum of one window. Default 4096 points: about 12 Hz
+	# resolution at 48 kHz, which resolves musical pitch without smearing time.
+	def ToSpectrum()
+		return This.ToSpectrumOf(1, 1, 4096)
+
+	def ToSpectrumOf(pnChannel, pnStartFrame, pnFftSize)
+		if @nBuf = 0  return NULL ok
+		_g_ = StzEngineSoundSpectrum(@nBuf, pnChannel, pnStartFrame, pnFftSize)
+		if _g_ = 0
+			@cLastError = StzEngineSoundAnalysisLastError()
+			return NULL
+		ok
+		return new stzSoundGrid(_g_)
+
+	# Frequency against time: one row per window. MULTICORE by default --
+	# every row is an independent FFT over a different slice of the same
+	# immutable buffer, which is the one analysis here that parallelises
+	# without an argument.
+	def ToSpectrogram()
+		return This.ToSpectrogramOf(1, 2048, 512, 4)
+
+	def ToSpectrogramOf(pnChannel, pnFftSize, pnHop, pnThreads)
+		if @nBuf = 0  return NULL ok
+		_g_ = StzEngineSoundSpectrogram(@nBuf, pnChannel, pnFftSize, pnHop, pnThreads)
+		if _g_ = 0
+			@cLastError = StzEngineSoundAnalysisLastError()
+			return NULL
+		ok
+		return new stzSoundGrid(_g_)
+
+	# The strongest frequency present, in hertz.
+	def DominantFrequency()
+		if @nBuf = 0  return -1 ok
+		return StzEngineSoundDominantFrequency(@nBuf, 1, 8192)
+
+	# Where notes START, in seconds -- a one-row grid of times.
+	def ToOnsets()
+		return This.ToOnsetsOf(1, 0.35)
+
+	def ToOnsetsOf(pnChannel, pnSensitivity)
+		if @nBuf = 0  return NULL ok
+		_g_ = StzEngineSoundOnsets(@nBuf, pnChannel, 2048, 512, pnSensitivity)
+		if _g_ = 0
+			@cLastError = StzEngineSoundAnalysisLastError()
+			return NULL
+		ok
+		return new stzSoundGrid(_g_)
+
+	# Beats per minute, or -1 when there are too few onsets to say -- which is
+	# a better answer than a confident number derived from two events.
+	def Tempo()
+		if @nBuf = 0  return -1 ok
+		return StzEngineSoundTempo(@nBuf, 1)
+
+	# Integrated loudness in LUFS (ITU-R BS.1770-4), or -1000 for silence.
+	#
+	# The standard's K-weighting coefficients are specified at 48 kHz, and the
+	# engine REFUSES any other rate rather than applying them anyway. So the
+	# face resamples a COPY when it has to -- the caller's sound is not
+	# touched, and nobody gets a plausible-looking wrong number.
+	def Loudness()
+		if @nBuf = 0  return -1000 ok
+		if StzEngineSoundRate(@nBuf) = 48000
+			return StzEngineSoundLoudness(@nBuf)
+		ok
+		_tmp_ = StzEngineSoundResample(@nBuf, 48000, StzSoundQualitySinc())
+		if _tmp_ = 0
+			@cLastError = StzEngineSoundLastError()
+			return -1000
+		ok
+		_l_ = StzEngineSoundLoudness(_tmp_)
+		StzEngineSoundFree(_tmp_)
+		return _l_
