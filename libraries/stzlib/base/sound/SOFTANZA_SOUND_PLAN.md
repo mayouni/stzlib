@@ -1312,3 +1312,465 @@ measurements of one truth, so if the filters change the test moves with them.
 2. **A working cross-plane path** to stzCanvas — the pattern for the reactive
    layer and the delivery plane's browser tier.
 3. **The stzCanvas image gap**, named, if drawing gets heavier.
+
+---
+
+## POST-SN5 RECORD — 2026-08-12. Work that shipped between SN5 and SN6
+
+Rule 9 says record the outcome in this file. The following was committed and
+was not written down; closing that gap here rather than leaving it to be
+rediscovered.
+
+### The web studio
+
+`engine/tools/stz_sound_studio.zig` + `tools/studio.html`, built by
+`zig build studio`. Launching the exe opens the browser and serves the app with
+no other tool and no configuration — the requirement that shaped it. It exists
+to hear a sample and tune it during development, not to be a product.
+
+Bug worth not repeating: `stz_tcp`'s `tcp_recv` used `Stream.read`, which on
+Windows reaches `ReadFile` and does not work on an accepted socket. Fixed with
+`std.posix.recv`; guarded by `74_tcp_server_read_narrated.ring`.
+
+### stzSoundPlot, and six plates that teach one thing each
+
+`base/sound/stzSoundPlot.ring` turns an analysis grid into a picture a person
+can read: an inferno ramp whose lightness rises monotonically (computed, not
+guessed — OKLab L from 0.048 to 0.978, smallest step 0.077), log frequency
+because the ear hears octaves, and a note under every plate saying what it
+MEANS. Guard: `test/sound/sound_plot_narrated.ring` (23).
+
+`test/sound/sound_insights_gallery.ring` writes six plates and plays the sound
+behind each: aliasing, a click against a fade, timbre, beats, resonance, and
+the alias removed. **Plate 1 was a bug report** — see below.
+
+Five drawing faults, each now a guard:
+
+- `AddPolyline` takes a FLAT point list. Handed pairs it drew nothing and
+  reported no error; two plates came out as bare axes.
+- Each series was normalised to ITS OWN peak, which puts every curve at 0 dB
+  and destroys the comparison the chart exists to make. The guard now proves
+  the drawn gap IS the measured gap: 13.0083 dB drawn against 13.0085 dB in the
+  data.
+- The footer ran off the right edge, losing the end of the sentence explaining
+  the picture. It wraps and measures now.
+- `SetFont` before `AddText` restyles the PREVIOUS shape. On an empty canvas
+  that looks harmless, which is how it survived; in a RUN of labels every size
+  lands one late. Asking for 28 px then 11 px drew 10.29 then 26.20.
+- A −70 dB floor lights up every pixel of a sound with a broadband floor.
+  `SetDynamicRange` added.
+
+**The guards measure GEOMETRY, not markup**, because stzCanvas renders text as
+glyph outlines: there is no `<text>` element and no `font-size` to read, so a
+claim about a label's size becomes a claim about how tall its glyphs are.
+
+Recorded and still open: **stzCanvas has no image primitive**, so a spectrogram
+costs one rectangle per cell. This is SN5's finding, unchanged.
+
+### Band-limited oscillators — the defect plate 1 found
+
+The oscillators were NAIVE. A square, saw or triangle drawn literally is wrong
+in a sampled system: the harmonics past Nyquist fold back as tones nobody
+played, and no downstream filter can undo it. Plate 1 drew a swept saw growing
+a second set of partials sweeping DOWNWARD through it — that picture is what
+found the bug.
+
+Fixed with **PolyBLEP**, and polyBLAMP for the triangle (which has no jump in
+value, only in slope). Measured at a bin that can only hold a fold-back —
+harmonic 7 of a 5 kHz saw lands at 35 kHz and reflects to 13 kHz:
+
+| waveform | naive | band-limited | improvement |
+|---|---|---|---|
+| saw | 0.09384 | 0.00977 | 9.6x |
+| square | 0.18805 | 0.01953 | 9.6x |
+| triangle | 0.01775 | 0.00178 | 9.9x |
+
+The triangle took two attempts. polyBLEP is normalised for a jump of TWO, so
+the BLAMP factor is HALF the slope change — 4·dt, not 8. The first draft used 8,
+over-corrected, and bought 1.3x instead of 10x. **The measurement caught it; the
+arithmetic alone had looked fine.**
+
+Three guards, because "quieter" is also true of silence: the naive wave really
+does put energy at 13 kHz; the real harmonics SURVIVE (2/(πk) to within 5%,
+fundamental to within 2%); and at 50 Hz only 5 samples in 4800 differ — a
+correction at the jumps, not a differently-shaped wave.
+
+Two tests used a 1 Hz square as a stand-in for DC and read sample zero, which
+now sits exactly on the discontinuity. **A band-limited step is worth the
+MIDPOINT of its jump at the instant it steps**, so they read from frame 1 — the
+oscillator being right, not the ramp being early.
+
+### SN6 — STARTED, NOT CLOSED
+
+Begun and then paused. What stands:
+
+- **`base/sound/stzSoundTransport.ring`** — play, pause, resume, stop, without
+  blocking. `PlayFor` sleeps for the length of the sound, which means nothing
+  else in the program happens while it plays; the transport owns the same three
+  engine handles and never sleeps. Three properties it exists for:
+  - the state machine is not decoration — stzStateMachine declares the five
+    legal moves and "resume something that was never paused" is refused by the
+    machine rather than by an if-ladder;
+  - **the clock is the DEVICE's, not the wall's** — position comes from frames
+    the device has CONSUMED, so it cannot drift from what is being heard;
+  - pause is a RAMP, not a switch, reusing SN3's click-free ramp.
+
+  Bug worth not repeating: **stzStateMachine refuses an illegal event by
+  STAYING PUT and returning the state it is still in — it does not raise.** The
+  first `_Move` assumed a raise, caught nothing, treated every refusal as a
+  success, and "resume" from stopped opened a second device on a graph that
+  already had one. The process died on the spot.
+
+- **`base/sound/stzVoicePool.ring`** — voices as pooled handles, the game-plane
+  door. Built once, prepared once, mixed into one stream; firing is an atomic
+  flag. Slot stealing is COUNTED, and the count is read from the transport
+  clock rather than inferred from the fire count — the first version guessed
+  from the count and printed fiction (eight shots through three slots read as
+  five steals when every shot had long finished).
+
+- **`soundgraph.zig`: `triggerNode`** — a per-node retrigger. `rewind()` takes
+  the whole graph to zero, which is useless when thirty sounds share one graph
+  and one must fire. The request is an atomic FLAG consumed at the TOP of a
+  block, before any node has produced a sample: applying it inline as each node
+  is reached would reset a voice's source AFTER the source had already rendered
+  that block. Guarded both ways — one voice restarts while its neighbour keeps
+  running.
+
+**What SN6 has NOT done:** the WebAudio sink. The blocker is concrete and worth
+recording: `soundgraph.zig` imports `sound.zig` for its sample buffers, and
+`sound.zig` is miniaudio, which will not build for freestanding wasm32. A
+browser sink needs the graph's render path separated from buffer storage — a
+real refactor, not a build flag. The reactive layer and the shared clock are
+done (above); the transport's `DriveWith(oReactive)` is the seam.
+
+Plane totals after this work: **338 Ring assertions across ten guards, 36 Zig
+tests in soundgraph alone.**
+
+---
+
+## SOUND SEMANTICS (SS) — the meaning layer, opened 2026-08-12, BEFORE SN6
+
+This plane is a production engine with no notion of what a sound *means*.
+Searched across the whole plane for `earcon`, `sonification`, `sound role`,
+`alert sound`, `notification`, `auditory`: **zero hits.** There is no success
+sound, no error sound, no alert taxonomy, no priority, no mapping from an
+application event to a sound. Meanwhile the UI constitution
+(`stzzui/constitution/rules.json`) legislates five semantic values in **Rule
+118** and has never once been cited by this plane, nor cited it.
+
+**The timing is the whole point.** SN0–SN5 are closed; SN6 is where the plane
+first reaches outward — the reactive layer, a browser sink, the game-plane
+doors. A vocabulary agreed before those doors open costs a document. Agreed
+after, it costs a migration. The colour plane learned this the expensive way:
+§1 of `graphics/SOFTANZA_COLOR_SYSTEM.md` records a ramp that drifted into
+incompatible spellings before anyone measured it.
+
+**Precondition, checked before starting:** Rule 118 settles the five values —
+`success` (OK, valid, under control), `warning` (watch this), `danger`
+(critical, exceeded, incident), `info` (in progress, neutral), `muted`
+(waiting, inactive). Without a settled vocabulary there is nothing to
+transpose and this section would have been a guess.
+
+**What this session did not touch:** no node type, no sink, no callback, no
+buffer, no timing path. The semantic layer sits ABOVE the graph and composes
+verbs that already exist. Where a deliverable turned out to need the real-time
+path, it was deferred to a phase and said so — see §S.3 on ducking.
+
+**On the discipline (rule 2).** Two of the findings below are measurements
+taken *before* the design, as reconnaissance, and are presented as findings
+rather than as gate results. The kill criteria in §S.8 are written now, before
+the phases they gate have run.
+
+### S.1 The transposition from colour, audited line by line
+
+`stzzui/doc/THE-SECOND-FOUNDING.md` §6.1 proposes the colour system's
+structure, transposed. It was written from the colour precedent by someone who
+had read this plan once, and it is explicitly a proposal to this plane rather
+than a specification of it. Audited:
+
+| Colour — built and proven | §6.1's analogue | Verdict here |
+|---|---|---|
+| the five semantic names | the same five names | **ACCEPTED.** One vocabulary, two channels — §S.2 |
+| hue = identity | timbre = identity | **PROVISIONAL, unverified.** Measured; inconclusive — §S.2 |
+| lightness = prominence | salience = loudness × brightness × repetition | **AMENDED.** Repetition is a time cost, not an intensity, and is unlawful in a cue — §S.2 |
+| the sRGB gamut | the band between noise floor and discomfort ceiling | **ACCEPTED, with an asymmetry that matters** — §S.4 |
+| chroma searched to fit the gamut | salience fitted to the room, never chosen | **AMENDED.** The gamut is free; the room costs a microphone and a consent — §S.4 |
+| `.Surface .Border .Solid .Text` | `.Ambient` · `.Cue` · `.Alert` | **ACCEPTED, with `.Ambient` gated** — §S.2 |
+| `:OnDanger` — what can be *read on* it | `:OverDanger` — what can be *heard over* it | **REFUSED on acoustic grounds** — §S.3 |
+| contrast, floor 4.5 | audibility margin over the measured floor | **ACCEPTED — and the instrument cannot measure it yet** — §S.4 |
+
+The refusal is the most valuable line in the table and is argued in §S.3.
+
+### S.2 The five values, in sound
+
+An author writes a meaning and gets a sound. The colour plane's rule holds
+unchanged: *nobody types a waveform where they should type a meaning.*
+
+```ring
+oEar.Fire(:Danger)              # one word, like oC.FillQ(:Danger)
+oEar.Fire("Warning.Alert")      # the role step, spelled as colour spells it
+```
+
+**`:Muted` renders as SILENCE, and that is a rendering rather than a gap.**
+`muted` means waiting or inactive; a sound announcing inactivity is a
+contradiction, and in this channel silence already carries it exactly. So the
+five names survive intact and one of them is lawfully empty. This is also why
+no sixth value is needed: the pressure that would have produced one is
+relieved by admitting that a value may render to nothing.
+
+**Identity is a MOTIF, not a timbre alone.** A motif is (contour, interval,
+duration, timbre). Which component carries the load is **not settled**, and
+this session tried to settle it and failed honestly: a square/triangle pair at
+880 Hz kept 86% of its spectral distance through a 500 Hz–6 kHz band (a rough
+laptop speaker), which would support timbre — but the same measurement read
+*over 100%* at 150–440 Hz, because normalising each spectrum to its own peak
+lets the filter's removal of the fundamental rescale everything and inflate the
+distance. **The metric was confounded, by exactly the fault `stzSoundPlot` had
+to be fixed for.** A spectral L1 distance is the wrong instrument for an
+audibility question; SS1's kill criterion names the right one.
+
+**Salience is loudness and spectral centroid. Repetition is excluded from a
+cue.** §6.1 multiplies three terms; the third does not belong with the other
+two. Loudness and brightness are properties of one sound at one instant.
+Repetition is a property of a SEQUENCE, and it costs time the constitution has
+already spent: Rule 18 allows 100 ms, and the second element of a repeat is by
+construction later than the first. So repetition is admitted for `.Alert`,
+which reports a *persistent* condition and may legitimately continue, and
+refused for `.Cue`, which reports an event and must not.
+
+**The three role steps are an ATTENTION ladder, not a layering.** Colour's four
+steps describe spatial depth — a surface behind a border behind text, all
+co-present. Sound has no depth; it has time and attention. So:
+
+| step | what it is | admitted |
+|---|---|---|
+| `.Cue` | one short sound reporting one event | **the default** for a bare `:Name` |
+| `.Alert` | a persistent condition, may repeat | on declaration |
+| `.Ambient` | a continuous bed | **opt-in only, never produced by `Fire`** |
+
+`.Ambient` is gated because Rule 1's own lint forbids exactly this shape —
+*"html lint: `<video>`/`<audio>` with autoplay — attention is never taken
+uninvited."* A continuous semantic bed is autoplay with a justification
+attached. It stays in the vocabulary because a monitoring wall is a real
+surface, and it never arrives by default.
+
+### S.3 Priority — and why `:OverDanger` is refused
+
+**The refusal.** `:OnDanger` works in colour because the pair is *co-present
+and spatial*: text sits on a fill in the same instant, and contrast is a ratio
+between two things that are both simply there. Two sounds in the same instant
+do not layer — they **mask**, and masking is frequency-selective and
+asymmetric. A loud low sound hides a quiet higher one far more than the reverse
+(the upward spread of masking), so there is no fixed answer to "what can be
+heard over `:Danger`": it depends on the spectral overlap of the particular
+pair and on the level of both, and it changes when either changes.
+
+And constitutionally it should not be asked. **An alert that can be talked over
+is not an alert.** So the answer to "what can be heard over danger" is
+*nothing* — you duck the other thing, or you drop it. `:OverDanger` is
+therefore not a pair to be computed but a **priority contract**, which is
+genuinely new work and not a relabelling: the plane has no bus and no priority
+concept today beyond the mix node.
+
+**The contract, decided:**
+
+1. **One semantic bus.** At most one `.Alert` sounds at a time.
+2. **Order:** `danger` > `warning` > `info` > `success`. `muted` is silent and
+   never contends.
+3. **Higher pre-empts lower.** A `.Cue` displaced by something louder in
+   meaning is **DROPPED, not queued.** A cue that arrives after its event is
+   not a cue — it is a lie about when something happened, and Rule 18's
+   causality window is the reason.
+4. **Equal priority inside a refractory window is ONE event.** Default 150 ms.
+   The same state reported twice in a tenth of a second is one state.
+5. **Everything dropped is COUNTED** (working discipline, rule 4). "Why did
+   that sound vanish" must have an answer that is a number.
+
+**Ducking is specified here and NOT built here.** Attenuating a lower-priority
+voice needs a per-bus gain node, and adding a node — even an instance of a type
+that already exists — is on the far side of this session's boundary. It is
+SS3, with its kill criterion in §S.8. Deliberately not smuggled into a
+vocabulary session; the colour plan's §5 records what smuggling a visible
+change inside another phase costs.
+
+### S.4 The audibility floor — and the instrument that cannot yet measure it
+
+Colour's doctrine transposes exactly: **a sound system that cannot fail an
+audibility check does not have one.** The check is a MARGIN in LU over the
+ambient floor, and it is the auditory analogue of Rule 62's 4.5:1.
+
+**MEASURED, and it is a hard finding: SN5's `Loudness()` cannot see an
+earcon.** BS.1770-4 integrates over 400 ms blocks with a −70 LUFS absolute
+gate. An earcon is shorter than one block. An 880 Hz tone at **peak 0.50**,
+5 ms in / 10 ms out:
+
+| duration | `Loudness()` |
+|---|---|
+| 40 ms | **−1000 LUFS** |
+| 60 ms | **−1000 LUFS** |
+| 100 ms | **−1000 LUFS** |
+| 200 ms | **−1000 LUFS** |
+| 400 ms | −9.38 LUFS |
+| 800 ms | −9.29 LUFS |
+| 2000 ms | −9.27 LUFS |
+
+−1000 is this plane's "silence" answer. **A plainly audible sound at half full
+scale reports as silence** because it is shorter than the standard's window.
+SN5 recorded that "LUFS is integrated only… the blocks exist internally;
+exposing them is small when something needs them." Something now needs them:
+the floor binds to **momentary loudness (400 ms)**, and even that is a window
+longer than the sound it measures, so the honest instrument is a gated
+short-window loudness over the earcon's own support. That is SS2.
+
+**The asymmetry with colour that must not be papered over.** The sRGB gamut is a
+property of the medium: constant, known at build time, free to consult — which
+is why the colour engine can *search* chroma to fit it. The ambient noise floor
+is a property of the room: unknown, changing, and unknowable without a
+microphone. This plane ships `stzMicrophone`, so it *can* be measured — but
+measuring it is a privacy act requiring consent, it is unavailable on a machine
+with no input, and CI has neither. Therefore:
+
+- The floor is **DECLARED**, with a conservative default (a quiet office,
+  −40 LUFS ambient), and never silently measured.
+- A measured floor is **opt-in and consented**, and when present it supersedes
+  the declaration.
+- **The gate proves the design is audible in the room it DECLARES, not in the
+  room it is in.** This is weaker than colour's gate. It is stated rather than
+  hidden, because a gate whose limits are unwritten is worse than no gate.
+
+Required margins, to be gated: **≥ 10 LU over the declared floor for `.Cue`,
+≥ 20 LU for `.Alert`.** The discomfort ceiling is the other wall of the gamut,
+is a declaration too, and no `.Cue` may exceed it.
+
+### S.5 The latency budget, against Rule 18
+
+Rule 18: *"Actions must acknowledge the user within 100 ms."* Placed beside
+this plane's own numbers for the first time.
+
+SN0's decomposition, with the standing instruction *quote the buffer, never the
+112 ms* honoured — the 22 ms loopback tap is a measurement artefact and is
+excluded:
+
+| stage | cost |
+|---|---|
+| device buffer, shared mode (480 × 3) | 30 ms |
+| Windows audio pipeline, application cannot remove | ~60 ms |
+| **pipeline floor, before the application does anything** | **~90 ms** |
+
+**And a stage nobody had measured: the SN3 ring.** The producer thread keeps it
+as full as it can, so a sound triggered now is rendered into audio that plays
+only after everything already queued. Measured on this machine, shared mode,
+256-frame device period, 40 samples over 0.8 s after an 0.8 s settle:
+
+| ring capacity | queued ahead of the device | underruns |
+|---|---|---|
+| **16384 frames** (the current default) | **329.1 ms** avg (314.7–341.3) | 0 |
+| 4096 frames | 75.5 ms avg (58.7–85.3) | 0 |
+| 1024 frames | 9.6 ms avg (0–21.3) | **6,912** |
+| 512 frames | 10.1 ms avg (0–21.3) | **7,424** |
+
+Trigger-to-ear, therefore:
+
+| configuration | ring | pipeline | total | Rule 18 |
+|---|---|---|---|---|
+| the default path today | 329 ms | 90 ms | **~419 ms** | **4x over** |
+| the smallest ring that does not underrun | 75 ms | 90 ms | **~165 ms** | **over** |
+| a hypothetical zero-depth ring | 0 ms | 90 ms | **~90 ms** | inside, by 10 ms |
+
+**The plain answer the constitution is owed: on this pipeline a sound cannot be
+a lawful Rule 18 acknowledgement.** The ring depth that would fit the budget is
+about 480 frames, and 1024 frames already underran 6,912 times — **the depth
+the rule requires is below the depth this machine can sustain.** The 90 ms
+pipeline floor alone spends nine tenths of the budget before the application
+has done anything.
+
+Two consequences, and they are not the same:
+
+- **On a surface that has a screen this is not a problem, because the sound was
+  never the acknowledgement.** The visual state change acknowledges within Rule
+  18; the sound arrives afterwards and *corroborates*. This is the third law in
+  §S.6 arrived at from the other direction — and it means the constitution is
+  already self-consistent, provided Rule 18's acknowledgement is read as
+  belonging to the visual channel.
+- **On an eyes-free surface, where the sound IS the only acknowledgement, Rule
+  18 is unsatisfiable here.** That is a constitutional finding, not a defect
+  this plane can fix: no application-side change removes 60 ms of Windows audio
+  pipeline. It belongs in front of whoever owns the rule.
+
+The plane's own SN0 finding — *what has a deadline is the WAKE-UP; what must fit
+inside it is the burst's TOTAL work* — is why the compute side is not the
+problem: the burst spends 14–32 µs of a 10 ms wake-up, 0.13–0.32%. **Nothing in
+the budget above is computation. All of it is queueing.**
+
+### S.6 Three laws sound needs that colour does not
+
+1. **Sound is interruptive by default.** A colour waits to be looked at; a
+   sound seizes attention, and there is no eyelid for the ear. Rule 112 —
+   *motion reports, it never decorates* — becomes **sound reports, it never
+   decorates**, and in this channel it is the STRONGER rule.
+2. **Silence is the default and must remain sufficient.** Sound is the first
+   thing switched off, and it is absent in open-plan offices, in meetings, and
+   for deaf operators. **A semantic sound is always redundant with another
+   channel and never the sole carrier of a state.** One sentence that is
+   simultaneously the accessibility law and the practicality law.
+3. **A sound is not persistent.** A colour stays until changed; a sound is
+   gone. Anything the operator has a *right* to know cannot be delivered by a
+   sound alone — it must remain re-requestable. This is the Right to Understand
+   with a channel attached.
+
+### S.7 The constitutional cross-citation
+
+The rules this layer serves, recorded so the next drift has something to hit:
+
+| rule | what the semantic layer owes it |
+|---|---|
+| **Rule 118**, Two Families of Colour | the five values, unextended. A sixth would be a constitutional matter, not a plane's |
+| **Rule 3**, Color Is a Signal | a sound that means something must not also decorate |
+| **Rule 18**, The Speed of Thought | the budget in §S.5, and the verdict that a sound cannot carry the acknowledgement on this pipeline |
+| **Rule 112**, Motion Reports | its auditory form, and the stronger one |
+| **Rule 62**, Contrast & Legibility | the audibility margin as its auditory analogue, and the admission that our gate is weaker |
+| **Rule 1**, Cognitive Mercy | why `.Ambient` is opt-in and never default |
+
+Reciprocally, StzZui is to record the instrument — that `Loudness()` exists,
+what it cannot measure (§S.4), and the latency floor (§S.5). **The colour plane
+and the law both skipped this step, and that is how more than one spelling of
+one palette shipped.**
+
+### S.8 Phases, each with a kill criterion written before the numbers
+
+**SS1 — the vocabulary, and what actually carries identity.** Five values,
+three role steps, motifs for four of them (`:Muted` is silence). Then settle
+§S.2's open question with an instrument that can answer it: a masked-detection
+model or a listening test, NOT a spectral L1 distance.
+*Kill:* if the four sounding values cannot be told apart at a stated margin
+through a 500 Hz–6 kHz band, the motifs are wrong — and if no motif set can,
+timbre is not the identity carrier and §6.1's second row is refused too.
+
+**SS2 — a loudness the floor can bind to.** Expose the momentary (400 ms)
+blocks SN5 already computes internally, plus a gated short-window loudness over
+a sound's own support.
+*Kill:* if a 60 ms earcon at peak 0.5 still cannot be given a defensible
+loudness number, the audibility gate has no instrument and the floor must be
+stated in peak/RMS terms instead — labelled as not-LUFS, every time.
+
+**SS3 — priority and ducking.** The contract in §S.3, plus the per-bus gain
+node ducking needs, ramped through SN3's existing atomic slot.
+*Kill:* if ducking cannot be made click-free at the 10 ms ramp SN3 measured, it
+is dropped in favour of drop-and-count — a missing sound is better than a
+click, and plate 2 of the insight gallery shows why.
+
+**SS4 — the cross-plane declaration.** One `:Danger` declaration rendering to
+both a colour and a sound.
+*Kill:* if the two channels need separate declarations to look and sound right,
+the shared vocabulary is decorative and this section's central claim is false.
+
+### S.9 What is NOT here
+
+- **No speech.** Synthesis and recognition remain out of scope as neural-tier
+  work (§4). Voice is a separate medium with a separate owner.
+- **No sixth value.** Five, per Rule 118. `:Muted` rendering to silence is what
+  removes the pressure for a sixth.
+- **No ducking implementation** — specified in §S.3, built in SS3.
+- **No measured ambient floor by default** — declared, per §S.4.
+- **No sonification** (continuous data mapped to sound). A different problem
+  from semantics; naming it here is not claiming it.
