@@ -1400,9 +1400,9 @@ now sits exactly on the discontinuity. **A band-limited step is worth the
 MIDPOINT of its jump at the instant it steps**, so they read from frame 1 — the
 oscillator being right, not the ramp being early.
 
-### SN6 — STARTED, NOT CLOSED
+### SN6 — see the SN6 STATUS section below, which closed it
 
-Begun and then paused. What stands:
+What this record listed as in-flight:
 
 - **`base/sound/stzSoundTransport.ring`** — play, pause, resume, stop, without
   blocking. `PlayFor` sleeps for the length of the sound, which means nothing
@@ -1445,6 +1445,150 @@ done (above); the transport's `DriveWith(oReactive)` is the seam.
 
 Plane totals after this work: **338 Ring assertions across ten guards, 36 Zig
 tests in soundgraph alone.**
+
+---
+
+## SN6 STATUS — 2026-08-12. The convergence dividend, closed
+
+Sound joined the planes that exist. Four parts, all standing.
+
+### The reactive layer, and the transport
+
+`base/sound/stzSoundTransport.ring` — play, pause, resume, stop, without
+blocking. `PlayFor` sleeps for the length of the sound, which means nothing else
+in the program happens while it plays; the transport owns the same three engine
+handles and never sleeps. `DriveWith(oReactive)` hands the STEP to the loop that
+already exists rather than owning a second one.
+
+Three properties it exists for:
+
+- **The state machine is not decoration.** stzStateMachine declares the five
+  legal moves and "resume something that was never paused" is refused by the
+  machine, not by an if-ladder that drifts from the comment above it.
+- **The clock is the DEVICE's, not the wall's.** Position comes from frames the
+  device has CONSUMED, so it cannot drift from what is being heard. A wall clock
+  started at Play() drifts the moment the machine is busy, and drifts in the
+  direction that looks fine in a demo.
+- **Pause is a RAMP, not a switch** — SN3's click-free ramp, reused.
+
+Bug worth not repeating: **stzStateMachine refuses an illegal event by STAYING
+PUT and returning the state it is still in — it does NOT raise.** The first
+`_Move` assumed a raise, caught nothing, treated every refusal as a success, and
+"resume" from stopped opened a second device on a graph that already had one.
+The process died on the spot. Compare before/after; never rely on a catch.
+
+### Voices as pooled handles
+
+`base/sound/stzVoicePool.ring` — the game-plane door. Built once, prepared once,
+mixed into one stream; firing is an atomic flag the render consumes at the top of
+a block. A game fires the same footstep thirty times a minute and two overlap;
+building a graph per shot would allocate inside the frame that has to draw.
+
+Slot stealing is COUNTED, and read from the transport clock rather than inferred
+from the fire count. The first version guessed from the count and printed
+fiction: eight shots through three slots read as five steals when every shot had
+long finished. Verified after the fix — six fires into two slots with 1 s shots
+at 0.12 s intervals reports exactly four steals.
+
+The engine primitive it needed: **`soundgraph.zig triggerNode`**. `rewind()`
+takes the whole graph to zero, which is useless when thirty sounds share one
+graph and one must fire. The request is an atomic FLAG consumed at the TOP of a
+block — applying it inline as each node is reached would reset a voice's source
+AFTER the source had already rendered that block, so the note would start a
+block late, and only sometimes.
+
+### THE BROWSER SINK — and the blocker that turned out to be real
+
+The plan recorded this as blocked: `soundgraph.zig` imports `sound.zig`, which
+does `@cImport("miniaudio.h")` and uses `std.heap.c_allocator`, and freestanding
+wasm32 has neither a C header nor a libc. **Measured rather than assumed, and it
+was true.** But the coupling was not the DSP — it was the sample TABLE and the
+DECODER sitting in the same file the render loop reads from.
+
+So the seam moved:
+
+- **`engine/src/sounddsp.zig`** — the arithmetic of a sound and nothing else:
+  band-limited oscillators, the RBJ biquad, the ADSR envelope. It imports `std`
+  and nothing more, and it compiles for `wasm32-freestanding` (proved: a probe
+  linked to 650 bytes). 5 Zig tests.
+- **`engine/src/soundwasm.zig`** — the graph for a target with no libc and no
+  device: fixed static arrays, no allocator, and no source nodes, because a
+  browser already ships `decodeAudioData` and duplicating a decoder into wasm to
+  avoid the platform's own would be absurd. 4 Zig tests.
+- **`base/system/emulator_assets/stz-sound.js`** — an AudioWorklet. A worklet and
+  not a ScriptProcessorNode: a worklet runs on the AUDIO thread, and putting the
+  render behind the main thread would throw away everything SN3's lock-free ring
+  was for.
+
+`soundgraph.zig` now delegates to `sounddsp.zig`. **Proved behaviour-preserving
+by hashing the render before and after: FNV-64 `a9da6b773c240925`, identical.**
+
+**THE PROPERTY THE SEAM EXISTS FOR, asserted:** the native tier and the browser
+tier render the same graph — saw + lowpass + envelope + triangle + mix + pan,
+eight blocks so filter state and envelope position cross a block boundary — and
+the worst sample difference is **exactly 0**, not "close". A tolerance there
+would hide the drift being hunted. Its negative sibling puts the two graphs one
+hertz apart and asserts they DISAGREE, so the comparison is measuring something.
+
+**A 26 MB wasm, and the fix.** The first cut gave every node a one-second delay
+line and a 1024-frame bus and produced a 26 MB `stz.wasm` — unshippable, and
+invisible until the artefact was weighed. Two causes: `Node` has non-zero
+defaults so an array of them is `.data` rather than `.bss` and every byte lands
+in the module; and `--import-memory` means wasm-ld cannot assume the memory
+arrives zeroed, so even `undefined` statics are emitted. Sized against the
+artefact instead of by habit:
+
+| configuration | stz.wasm (sound group only) |
+|---|---|
+| per-node 1 s lines, 1024-frame bus | 26 MB |
+| shared pool of 4 x 250 ms, 256-frame bus | 515 KB |
+| shared pool of 2 x 125 ms, 128-frame bus | **182 KB** |
+
+Recorded because it generalises: **in a wasm module a static array's size is
+DOWNLOAD size.** Every cap in `soundwasm.zig` is bytes on someone's connection.
+
+### VERIFIED IN A BROWSER, and the latency result is the surprise
+
+`base/test/sound/webaudio/index.html`, served and driven: 9 nodes, 48 kHz,
+worklet running on the audio thread, a live scope showing the trace, and the
+bell retriggering through the port into wasm (the trace's vertical span went
+19 -> 24 px on trigger and back to 19 as it decayed).
+
+**The browser is the LOWER-latency sink, by a factor of forty:**
+
+| path | latency | Rule 18's 100 ms |
+|---|---|---|
+| native, Windows shared-mode WASAPI | ~419 ms (329 ms ring + 90 ms device/OS) | **4x over** |
+| browser, AudioWorklet | **10.0 ms** measured (`outputLatency` + `baseLatency`) | **inside** |
+
+This inverts what the semantics section had to conclude. S.5 says a sound cannot
+be a lawful Rule 18 acknowledgement on this pipeline, and on native Windows that
+stands. **In a browser it can** — there is no ring at all, because the worklet
+IS the clock: it asks, wasm fills, it plays. So the eyes-free surface that S.5
+had to declare unserviceable is serviceable on the web tier, which is also where
+§2.1 of THE-SECOND-FOUNDING says gamification audio will actually live.
+
+Not a consolation, and not a licence either: 10.0 ms is one browser on one
+machine, and `outputLatency` is a browser's own estimate. The page REPORTS it
+rather than claiming it, and says nothing at all when a browser does not.
+
+### Plane totals
+
+**47 Zig tests in soundgraph** (including the cross-tier identity pair), 9 in
+soundwasm + sounddsp, **338 Ring assertions across ten guards.**
+
+### What SN6 did NOT do
+
+- **No sample playback in the browser.** No source nodes there; a browser has
+  `decodeAudioData` and its own buffers. Stated in `soundwasm.zig`, not
+  discovered later.
+- **No shared-memory path.** The worklet instantiates its own module on the
+  audio thread and reads its own linear memory. A `SharedArrayBuffer` design
+  would let the main thread write parameters without a port message, and it
+  needs COOP/COEP headers — a delivery-plane decision, not this plane's.
+- **The 26 MB lesson is not generalised into a build check.** Nothing yet fails
+  a build for shipping a fat wasm. Worth doing where the delivery plane weighs
+  its bundles.
 
 ---
 

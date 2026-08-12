@@ -51,6 +51,12 @@ const std = @import("std");
 /// puts the same file in two modules, which Zig rejects outright.
 pub const snd = @import("sound.zig");
 const sr = @import("soundring.zig");
+
+// THE ARITHMETIC OF A SOUND lives in one place, so the native tier and the
+// browser tier cannot drift on what a sawtooth is. See sounddsp.zig for why
+// that seam had to exist at all -- freestanding wasm32 has no libc, and this
+// file's sample table does.
+pub const dsp = @import("sounddsp.zig");
 /// Also public, and for the same reason: the studio server wants the device
 /// tier without declaring a second module over the same files.
 pub const dev = @import("audiodev.zig");
@@ -164,14 +170,14 @@ pub const KIND_FILTER: u32 = 5;
 pub const KIND_DELAY: u32 = 6;
 pub const KIND_ENVELOPE: u32 = 7;
 
-pub const WAVE_SINE: u32 = 0;
-pub const WAVE_SQUARE: u32 = 1;
-pub const WAVE_SAW: u32 = 2;
-pub const WAVE_TRIANGLE: u32 = 3;
+pub const WAVE_SINE = dsp.WAVE_SINE;
+pub const WAVE_SQUARE = dsp.WAVE_SQUARE;
+pub const WAVE_SAW = dsp.WAVE_SAW;
+pub const WAVE_TRIANGLE = dsp.WAVE_TRIANGLE;
 
-pub const FILTER_LOWPASS: u32 = 0;
-pub const FILTER_HIGHPASS: u32 = 1;
-pub const FILTER_BANDPASS: u32 = 2;
+pub const FILTER_LOWPASS = dsp.FILTER_LOWPASS;
+pub const FILTER_HIGHPASS = dsp.FILTER_HIGHPASS;
+pub const FILTER_BANDPASS = dsp.FILTER_BANDPASS;
 
 const MAX_INPUTS = 32;
 const MAX_CHANNELS = 8;
@@ -589,38 +595,12 @@ pub fn setOutput(id: i64, node: i64) i32 {
 // block: they depend only on freq/q/rate, none of which change during a render
 // in SN2. SN3's control queue is what will make them movable.
 fn computeBiquad(n: *Node, rate: u32) void {
-    const w0 = 2.0 * std.math.pi * n.freq / @as(f64, @floatFromInt(rate));
-    const cw = @cos(w0);
-    const sw = @sin(w0);
-    const alpha = sw / (2.0 * n.q);
-    var b0: f64 = 0;
-    var b1: f64 = 0;
-    var b2: f64 = 0;
-    const a0 = 1 + alpha;
-    const a1 = -2 * cw;
-    const a2 = 1 - alpha;
-    switch (n.f_kind) {
-        FILTER_LOWPASS => {
-            b0 = (1 - cw) / 2;
-            b1 = 1 - cw;
-            b2 = (1 - cw) / 2;
-        },
-        FILTER_HIGHPASS => {
-            b0 = (1 + cw) / 2;
-            b1 = -(1 + cw);
-            b2 = (1 + cw) / 2;
-        },
-        else => { // bandpass, constant 0 dB peak gain
-            b0 = alpha;
-            b1 = 0;
-            b2 = -alpha;
-        },
-    }
-    n.b0 = b0 / a0;
-    n.b1 = b1 / a0;
-    n.b2 = b2 / a0;
-    n.a1 = a1 / a0;
-    n.a2 = a2 / a0;
+    const bq = dsp.biquadOf(n.f_kind, n.freq, n.q, rate);
+    n.b0 = bq.b0;
+    n.b1 = bq.b1;
+    n.b2 = bq.b2;
+    n.a1 = bq.a1;
+    n.a2 = bq.a2;
 }
 
 // ---------------------------------------------------------------- prepare
@@ -989,119 +969,25 @@ pub fn renderBlock(id: i64) i32 {
     return OK;
 }
 
-// ── BAND-LIMITED OSCILLATORS ────────────────────────────────────────────────
-//
-// A square, a saw and a triangle drawn literally -- "if phase < 0.5 then 1 else
-// -1" -- are WRONG in a sampled system, and the wrongness is audible. Each is
-// an infinite stack of harmonics; the ones above Nyquist cannot be represented,
-// so they FOLD BACK as tones at frequencies nobody played. A saw swept upward
-// grows a second set of partials sweeping DOWNWARD through it. It sounds like
-// cheap metal, it beats against the notes you meant, and no filter downstream
-// can remove it: by the time the sample exists, the alias is at a legitimate
-// frequency and is indistinguishable from a note.
-//
-// This is not a subtle defect. It was drawn, plainly, in the sound gallery's
-// first plate before it was fixed, and that plate is now the proof it is gone.
-//
-// POLYBLEP is the cheap correct answer. A discontinuity is what puts energy
-// above Nyquist, so instead of banning discontinuities we SUBTRACT the part of
-// the step the sample rate cannot carry: a two-sample polynomial residual
-// around each jump, the difference between an ideal step and a band-limited
-// one. Cost is a branch and a few multiplies per sample, against a wavetable's
-// memory or additive synthesis's per-harmonic loop.
-//
-// The value at the discontinuity comes out as the MIDPOINT of the jump, which
-// is not a bug -- it is what a band-limited step is worth at the instant it
-// steps. Two tests that used a 1 Hz square as a stand-in for DC had to stop
-// reading sample zero because of it.
-
-// The residual of an ideal step against a band-limited one, over the two
-// samples either side of it. t is the phase, dt one sample of phase.
-fn polyBlep(t: f64, dt: f64) f64 {
-    if (t < dt) {
-        const x = t / dt;
-        return x + x - x * x - 1.0;
-    }
-    if (t > 1.0 - dt) {
-        const x = (t - 1.0) / dt;
-        return x * x + x + x + 1.0;
-    }
-    return 0.0;
-}
-
-// The same idea one derivative up: a triangle has no jumps in VALUE, only in
-// SLOPE, so it needs the integral of the step residual rather than the
-// residual itself.
-fn polyBlamp(t: f64, dt: f64) f64 {
-    if (t < dt) {
-        const x = t / dt - 1.0;
-        return -(1.0 / 3.0) * x * x * x;
-    }
-    if (t > 1.0 - dt) {
-        const x = (t - 1.0) / dt + 1.0;
-        return (1.0 / 3.0) * x * x * x;
-    }
-    return 0.0;
-}
-
-fn wrap1(x: f64) f64 {
-    return x - @floor(x);
-}
-
-// dt is the phase advanced per sample -- hz / rate. A sine needs no correction:
-// it IS one harmonic, and has nothing above Nyquist to fold.
-fn waveAtBl(waveform: u32, ph: f64, dt: f64) f64 {
-    return switch (waveform) {
-        WAVE_SINE => @sin(2.0 * std.math.pi * ph),
-        WAVE_SQUARE => blk: {
-            const naive: f64 = if (ph < 0.5) 1.0 else -1.0;
-            // two jumps a half-period apart: up at 0, down at 0.5
-            break :blk naive + polyBlep(ph, dt) - polyBlep(wrap1(ph + 0.5), dt);
-        },
-        WAVE_SAW => (2.0 * ph - 1.0) - polyBlep(ph, dt),
-        else => blk: {
-            const naive: f64 = if (ph < 0.5) (4.0 * ph - 1.0) else (3.0 - 4.0 * ph);
-            // The slope turns from -4 to +4 at phase 0 and back at 0.5, so the
-            // change per SAMPLE is 8*dt. polyBlep is normalised for a jump of
-            // TWO (a saw's -1 to +1), and polyBlamp is its integral, so the
-            // factor is HALF the slope change: 4*dt, not 8. The first draft
-            // used 8 and over-corrected -- the alias came down by 1.3x instead
-            // of the 20x the same correction buys a saw, which is what the
-            // measurement is for.
-            break :blk naive + 4.0 * dt * (polyBlamp(ph, dt) - polyBlamp(wrap1(ph + 0.5), dt));
-        },
-    };
-}
-
-// The naive shapes, kept because a guard needs something to measure the
-// band-limited ones AGAINST. Nothing in the render path calls this.
-fn waveAt(waveform: u32, ph: f64) f64 {
-    return switch (waveform) {
-        WAVE_SINE => @sin(2.0 * std.math.pi * ph),
-        WAVE_SQUARE => if (ph < 0.5) 1.0 else -1.0,
-        WAVE_SAW => 2.0 * ph - 1.0,
-        else => if (ph < 0.5) (4.0 * ph - 1.0) else (3.0 - 4.0 * ph),
-    };
-}
+// The oscillator arithmetic now lives in sounddsp.zig -- one definition of what
+// a sawtooth is, shared by the native render and the browser render. The long
+// explanation of polyBLEP, and of why a triangle needs polyBLAMP at HALF the
+// slope change, is there with it.
+const polyBlep = dsp.polyBlep;
+const polyBlamp = dsp.polyBlamp;
+const wrap1 = dsp.wrap1;
+const waveAtBl = dsp.waveAtBl;
+const waveAt = dsp.waveAt;
 
 fn envAt(n: *const Node, p0: usize) f64 {
-    if (p0 < n.start_frames) return 0; // not sounding yet
-    const p = p0 - n.start_frames;
-    if (p < n.gate_frames) {
-        if (p < n.a_frames) {
-            return @as(f64, @floatFromInt(p)) / @as(f64, @floatFromInt(n.a_frames));
-        }
-        const dp = p - n.a_frames;
-        if (dp < n.d_frames) {
-            const t = @as(f64, @floatFromInt(dp)) / @as(f64, @floatFromInt(n.d_frames));
-            return 1.0 + (n.sustain - 1.0) * t;
-        }
-        return n.sustain;
-    }
-    const rp = p - n.gate_frames;
-    if (n.r_frames == 0 or rp >= n.r_frames) return 0;
-    const t = @as(f64, @floatFromInt(rp)) / @as(f64, @floatFromInt(n.r_frames));
-    return n.sustain * (1.0 - t);
+    return dsp.envAt(.{
+        .a_frames = n.a_frames,
+        .d_frames = n.d_frames,
+        .sustain = n.sustain,
+        .r_frames = n.r_frames,
+        .gate_frames = n.gate_frames,
+        .start_frames = n.start_frames,
+    }, p0);
 }
 
 // ---------------------------------------------------------------- sinks
@@ -1918,4 +1804,98 @@ test "stopping a stream poisons the ring, so a late consumer gets silence" {
     try testing.expectEqual(@as(f64, -1), streamUnderruns(sid));
     try testing.expectEqual(@as(i64, 0), streamRingPtr(sid));
     try testing.expectEqual(STALE, streamStop(sid));
+}
+
+// ── THE TWO TIERS AGREE, SAMPLE FOR SAMPLE ──────────────────────────────────
+//
+// This is the assertion sounddsp.zig exists to make possible. The native tier
+// here and the browser tier in soundwasm.zig share no code EXCEPT the
+// arithmetic -- different storage, different lifetimes, different allocators
+// (one has none) -- so if the same graph produces the same samples through
+// both, the only thing that could have made that true is the shared DSP.
+//
+// A browser tier with its own copy of the oscillator would pass every test it
+// wrote for itself and still drift from native. The drift would be inaudible
+// until somebody rendered the same music twice and compared, which is to say:
+// after shipping.
+
+const swasm = @import("soundwasm.zig");
+
+test "THE TWO TIERS AGREE: native and wasm render the same graph identically" {
+    const rate: u32 = 48000;
+    const blk: u32 = 128;
+
+    // the same graph, built twice through two unrelated builders
+    const gid = graphNew(2, rate, blk);
+    defer _ = graphFree(gid);
+    const n_osc = addOsc(gid, WAVE_SAW, 220, 0.5);
+    const n_flt = addFilter(gid, n_osc, FILTER_LOWPASS, 1200, 1.4);
+    const n_env = addEnvelope(gid, n_flt, 0.01, 0.2, 0.6, 0.3, 0.5);
+    const n_o2 = addOsc(gid, WAVE_TRIANGLE, 331, 0.4);
+    const n_mix = addMix(gid);
+    _ = mixAdd(gid, n_mix, n_env);
+    _ = mixAdd(gid, n_mix, n_o2);
+    const n_pan = addPan(gid, n_mix, 0.3);
+    _ = setOutput(gid, n_pan);
+    _ = prepare(gid);
+
+    try testing.expectEqual(swasm.OK, swasm.reset(rate, 2, blk));
+    const w_osc = swasm.addOsc(WAVE_SAW, 220, 0.5);
+    const w_flt = swasm.addFilter(w_osc, FILTER_LOWPASS, 1200, 1.4);
+    const w_env = swasm.addEnvelope(w_flt, 0.01, 0.2, 0.6, 0.3, 0.5);
+    const w_o2 = swasm.addOsc(WAVE_TRIANGLE, 331, 0.4);
+    const w_mix = swasm.addMix();
+    _ = swasm.mixAdd(w_mix, w_env);
+    _ = swasm.mixAdd(w_mix, w_o2);
+    const w_pan = swasm.addPan(w_mix, 0.3);
+    _ = swasm.setOutput(w_pan);
+    try testing.expectEqual(swasm.OK, swasm.prepare());
+
+    // eight blocks, so filter state, envelope position and phase all carry
+    // across a block boundary in both tiers before anything is compared
+    const out = renderToBuffer(gid, blk * 8);
+    defer _ = snd.free(out);
+
+    var worst: f64 = 0;
+    var b: usize = 0;
+    while (b < 8) : (b += 1) {
+        try testing.expectEqual(blk, swasm.renderBlock());
+        var f: usize = 0;
+        while (f < blk) : (f += 1) {
+            for (0..2) |ch| {
+                const native = snd.getSample(out, b * blk + f, @intCast(ch));
+                const wasmv = swasm.sampleAt(@intCast(f), @intCast(ch));
+                worst = @max(worst, @abs(native - wasmv));
+            }
+        }
+    }
+    std.debug.print("\n  worst native-vs-wasm difference over 8 blocks: {e}\n", .{worst});
+    // f32 storage on both sides, same arithmetic in f64 -- so this is EXACT,
+    // not close. A tolerance here would hide exactly the drift being hunted.
+    try testing.expectEqual(@as(f64, 0), worst);
+}
+
+test "and they DISAGREE when the graph differs -- the negative sibling" {
+    const rate: u32 = 48000;
+    const blk: u32 = 128;
+    const gid = graphNew(1, rate, blk);
+    defer _ = graphFree(gid);
+    const a = addOsc(gid, WAVE_SAW, 220, 0.5);
+    _ = setOutput(gid, a);
+    _ = prepare(gid);
+
+    _ = swasm.reset(rate, 1, blk);
+    const w = swasm.addOsc(WAVE_SAW, 221, 0.5); // one hertz apart, on purpose
+    _ = swasm.setOutput(w);
+    _ = swasm.prepare();
+
+    const out = renderToBuffer(gid, blk);
+    defer _ = snd.free(out);
+    _ = swasm.renderBlock();
+    var worst: f64 = 0;
+    for (0..blk) |f| {
+        worst = @max(worst, @abs(snd.getSample(out, f, 0) - swasm.sampleAt(@intCast(f), 0)));
+    }
+    // if this were also 0, the comparison above would be measuring nothing
+    try testing.expect(worst > 1e-4);
 }
