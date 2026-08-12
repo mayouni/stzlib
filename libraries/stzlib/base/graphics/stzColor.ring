@@ -21,7 +21,7 @@
 # Graphics-wide load-time state. It lives HERE, before the first func of
 # the first graphics file loaded, because a global assigned after a func
 # definition becomes part of that function and never executes.
-$bStzGraphicsDeviceTried = FALSE
+$bStzGraphicsDeviceTried = 0
 
 func StzColorToNumber(pColor)
 	if isNumber(pColor)
@@ -34,25 +34,33 @@ func StzColorToNumber(pColor)
 
 	_c_ = lower(ring_trim("" + pColor))
 
-	# named colours: the handful worth having without a lookup
-	switch _c_
-	on "black"        return _StzRgba(0, 0, 0, 255)
-	on "white"        return _StzRgba(255, 255, 255, 255)
-	on "red"          return _StzRgba(220, 60, 60, 255)
-	on "green"        return _StzRgba(60, 180, 90, 255)
-	on "blue"         return _StzRgba(70, 110, 230, 255)
-	on "gold"         return _StzRgba(240, 200, 40, 255)
-	on "orange"       return _StzRgba(240, 140, 70, 255)
-	on "purple"       return _StzRgba(180, 90, 200, 255)
-	on "cyan"         return _StzRgba(90, 200, 210, 255)
-	on "gray"         return _StzRgba(150, 150, 150, 255)
-	on "grey"         return _StzRgba(150, 150, 150, 255)
-	on "transparent"  return 0
-	off
+	if _c_ = "transparent"  return 0  ok
 
+	# NOT A HEX LITERAL? Hand it to the ONE resolver.
+	#
+	# This function used to carry its own table of eleven softened names and
+	# REFUSE everything else, which is why only stzDiagram could speak the
+	# colour language: `Fill("blue+")` raised, `Fill(:Success)` raised, and
+	# where both tables did know a name they DISAGREED -- "blue" was
+	# #466EE6 here and #0000FF in the resolver. Two colour tables in one
+	# library, which is the divergence this house has a law about.
+	#
+	# Measured before removing them: the whole graphics layer and its tests
+	# had THREE bare-name call sites. Everything else already passed hex, so
+	# unifying cost nothing visually and bought every face the entire
+	# language -- shades (blue+, gray--), semantic roles (:Success,
+	# :Danger), and theme lookups.
 	if left(_c_, 1) != "#"
-		StzRaise("stzColor: '" + pColor + "' is not a colour -- use '#rrggbb', " +
-			"'#rrggbbaa', '#rgb', or a name like :Gold.")
+		# StzTryResolveColor, not StzResolveColor: the strict one answers ""
+		# for a name the language does not know, so a typo REFUSES here
+		# instead of being quietly substituted.
+		_r_ = StzTryResolveColor(_c_)
+		if NOT (isString(_r_) and left(_r_, 1) = "#")
+			StzRaise("stzColor: '" + pColor + "' is not a colour. Use " +
+				"'#rrggbb', a name like :Gold, a shade like 'blue+' or " +
+				"'gray--', or a semantic role like :Success.")
+		ok
+		_c_ = lower(_r_)
 	ok
 	_h_ = substr(_c_, 2)
 	_n_ = len(_h_)
@@ -187,3 +195,71 @@ func _StzClamp01(pn)
 	if pn < 0  return 0  ok
 	if pn > 1  return 1  ok
 	return pn
+
+#---------------------------------------------------------------------------#
+#  THE CONTRAST LAYER -- readable text on any background, everywhere        #
+#---------------------------------------------------------------------------#
+#
+#     StzContrastingText("gold")     -> "black"
+#     StzContrastingText("blue+")    -> "white"
+#     StzIsDarkColor(:Danger)        -> 0
+#
+# This used to live as a METHOD on stzDiagram, so a plot, a tree, a canvas
+# or a scene that wanted legible text had to either invent its own rule or
+# instantiate a diagram to borrow one. It is not a diagram concern -- it is
+# the question "what can be read on top of this", and every visual face
+# asks it.
+#
+# ONE implementation. stzDiagram.ContrastingTextColor now delegates here,
+# so the two cannot drift apart the way the two colour TABLES did.
+
+# Perceptual brightness, ITU-R BT.709 weights, 0..255.
+func StzColorLuminance(pColor)
+	_a_ = StzHexToRGB(StzResolveColor(pColor))
+	return 0.299 * _a_[1] + 0.587 * _a_[2] + 0.114 * _a_[3]
+
+func StzIsDarkColor(pColor)
+	return StzColorLuminance(pColor) < 150
+
+# "white" or "black" -- whichever can actually be READ on pColor.
+#
+# The threshold is 150 rather than the midpoint 128, and that is
+# deliberate: at 128 a mid blue takes black text and becomes unreadable.
+# It is the value stzDiagram has shipped with, kept so no existing picture
+# changes.
+func StzContrastingText(pColor)
+	if StzIsDarkColor(pColor)
+		return "white"
+	ok
+	return "black"
+
+	func StzForegroundOn(pColor)
+		return StzContrastingText(pColor)
+
+# A theme's colour for a ROLE: primary, success, warning, danger, info,
+# neutral, background. The themes are the ones stzDiagram already defines
+# ($aPalette), now reachable from any face.
+func StzThemeColor(pcTheme, pcRole)
+	_t_ = lower("" + pcTheme)
+	_r_ = lower("" + pcRole)
+	if NOT isList($aPalette)  return ""  ok
+	for _p_ in $aPalette
+		if isList(_p_) and len(_p_) = 2 and lower("" + _p_[1]) = _t_
+			for _q_ in _p_[2]
+				if isList(_q_) and len(_q_) = 2 and lower("" + _q_[1]) = _r_
+					return _q_[2]
+				ok
+			next
+		ok
+	next
+	return ""
+
+# StzColorThemes() is NOT defined here -- stzDiagramColor.ring already
+# provides it, and a second definition is a C22 that takes the whole
+# library down at load time.
+
+# The semantic roles, as DATA -- so a face can offer them without knowing
+# which theme is in force.
+func StzColorRoles()
+	return [ :Primary, :Success, :Warning, :Danger, :Info, :Neutral, :Background ]
+

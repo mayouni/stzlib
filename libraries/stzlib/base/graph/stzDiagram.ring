@@ -3736,22 +3736,13 @@ class stzColorResolver from stzObject
 		# Always use luminance calculation for consistent contrast
 		return This.ContrastingTextColor(_cBgColor_)
 	
+	# DELEGATES to the universal StzContrastingText. This carried its own
+	# copy of the BT.709 rule, so a plot or a canvas wanting the same
+	# answer had to instantiate a diagram to borrow it. One rule, one
+	# place -- the two colour TABLES already showed what happens when
+	# that slips.
 	def ContrastingTextColor(_cColor_)
-		# Convert color to RGB
-		_aRGB_ = This.ColorToRGB(_cColor_)
-		_nR_ = _aRGB_[1]
-		_nG_ = _aRGB_[2]
-		_nB_ = _aRGB_[3]
-		
-		# Simple perceptual brightness formula (ITU BT.709)
-		_nBrightness_ = (0.299 * _nR_ + 0.587 * _nG_ + 0.114 * _nB_)
-		
-		# Threshold at 150 for better contrast
-		if _nBrightness_ < 150
-			return "white"
-		else
-			return "black"
-		ok
+		return StzContrastingText(_cColor_)
 	
 	def ColorToRGB(_cColor_)
 		# First resolve to hex, then convert
@@ -3831,8 +3822,17 @@ class stzColorResolver from stzObject
 		if HasKey(_aLegacyMap_, _cColorKey_)
 			return ResolveColor(_aLegacyMap_[_cColorKey_])
 		ok
-		
-		return pacPalette[:blue]
+
+		# UNKNOWN. This used to `return pacPalette[:blue]`, so every typo in
+		# a colour name silently became BLUE -- and so did the empty string.
+		# A picture drawn from a misspelt palette looked deliberate.
+		#
+		# It answers "" now, which is the only honest thing a lookup can say
+		# about a name it does not have. The DECISION of what to do about
+		# that belongs to the caller and is made in exactly one place:
+		# StzResolveColor applies the documented fallback,
+		# StzTryResolveColor hands the "" straight back so a face can refuse.
+		return ""
 
 #============================================#
 #  stzStylParser - *.stzstyl Format Parser   #
