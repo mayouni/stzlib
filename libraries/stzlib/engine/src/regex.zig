@@ -30,7 +30,27 @@ const Regex = struct {
     match_data: *pcre2.pcre2_match_data_8,
     match_ctx: ?*pcre2.pcre2_match_context_8,
     matched: bool,
+    // THE SUBJECT IS OWNED, not borrowed.
+    //
+    // This used to be `r.input = inp[0..inp_len]` -- a slice straight into the
+    // CALLER's buffer. Every capture accessor reads back through it
+    // (`r.input[s..e]`), and Ring hands us a string that dies with the calling
+    // frame: `MatchFirst(pcStr)` passes a method PARAMETER, so by the time
+    // CapturedValues() ran, that memory had been recycled. `^(.*)y$` on
+    // "happy" captured " app" and, on the next call, "_cc" -- a fragment of
+    // the Ring-side variable name that had landed in the freed slot. Two
+    // different subjects returned the SAME garbage, which is the signature.
+    //
+    // The design already intended the subject to outlive the call: see
+    // MT_NONE below, "the subject is still recorded (callers may read it
+    // back)". It just never owned it. `pattern` was owned from the start;
+    // this is the same lesson, applied to the other side.
+    //
+    // `input` stays the live view (all readers are unchanged); `input_own` is
+    // the backing buffer, reused across matches so a match loop does not
+    // allocate per iteration.
     input: []const u8,
+    input_own: []u8,
     last_match_count: c_int,
     all_captures: std.ArrayList(Cap),
     // Guards runaway memory on enormous inputs. NOT the ReDoS guard -- PCRE2's
@@ -96,6 +116,7 @@ pub fn stz_regex_new(pat: [*c]const u8, pat_len: usize, flags: u32) callconv(.c)
         .match_ctx = null,
         .matched = false,
         .input = "",
+        .input_own = &[_]u8{},
         .last_match_count = 0,
         .all_captures = .{},
     };
@@ -124,15 +145,33 @@ pub fn stz_regex_free(h: ?*Regex) callconv(.c) void {
         pcre2.pcre2_code_free_8(r.code);
         r.all_captures.deinit(gpa);
         gpa.free(r.pattern);
+        if (r.input_own.len > 0) gpa.free(r.input_own);
         gpa.destroy(r);
     }
+}
+
+// Take a private copy of the subject and point `input` at it. Every entry
+// point that records a subject goes through here -- see the note on the
+// `input` field for why borrowing the caller's buffer was wrong.
+//
+// The buffer only ever grows, so a loop matching over strings of similar size
+// allocates once. Answers false only when the allocator fails; callers treat
+// that exactly like an over-long subject (no match, no captures).
+fn setInput(r: *Regex, inp: [*c]const u8, inp_len: usize) bool {
+    if (inp_len > r.input_own.len) {
+        const grown = gpa.realloc(r.input_own, inp_len) catch return false;
+        r.input_own = grown;
+    }
+    if (inp_len > 0) @memcpy(r.input_own[0..inp_len], inp[0..inp_len]);
+    r.input = r.input_own[0..inp_len];
+    return true;
 }
 
 pub fn stz_regex_match(h: ?*Regex, inp: [*c]const u8, inp_len: usize, start: usize) callconv(.c) c_int {
     const r = h orelse return 0;
     if (inp == null) { r.matched = false; return 0; }
     if (inp_len > r.max_input_len) { r.matched = false; return 0; }
-    r.input = inp[0..inp_len];
+    if (!setInput(r, inp, inp_len)) { r.matched = false; return 0; }
     r.all_captures.clearRetainingCapacity();
 
     const rc = pcre2.pcre2_match_8(r.code, inp, inp_len, start, 0, r.match_data, r.match_ctx);
@@ -165,7 +204,7 @@ pub fn stz_regex_match_all(h: ?*Regex, inp: [*c]const u8, inp_len: usize) callco
     const r = h orelse return 0;
     if (inp == null) return 0;
     if (inp_len > r.max_input_len) return 0;
-    r.input = inp[0..inp_len];
+    if (!setInput(r, inp, inp_len)) return 0;
     r.all_captures.clearRetainingCapacity();
 
     var pos: usize = 0;
@@ -382,7 +421,7 @@ pub fn stz_regex_match_typed(h: ?*Regex, inp: [*c]const u8, inp_len: usize, star
         r.matched = false;
         r.last_match_count = 0;
         r.all_captures.clearRetainingCapacity();
-        if (inp != null and inp_len <= r.max_input_len) r.input = inp[0..inp_len];
+        if (inp != null and inp_len <= r.max_input_len) _ = setInput(r, inp, inp_len);
         return 0;
     }
 
@@ -400,7 +439,7 @@ pub fn stz_regex_match_typed(h: ?*Regex, inp: [*c]const u8, inp_len: usize, star
         return 0;
     }
 
-    r.input = inp[0..inp_len];
+    if (!setInput(r, inp, inp_len)) { r.matched = false; return 0; }
     r.all_captures.clearRetainingCapacity();
 
     const opts: u32 = switch (match_type) {
@@ -474,7 +513,7 @@ pub fn stz_regex_partial_match(h: ?*Regex, inp: [*c]const u8, inp_len: usize, st
     const r = h orelse return 0;
     if (inp == null) return 0;
     if (inp_len > r.max_input_len) return 0;
-    r.input = inp[0..inp_len];
+    if (!setInput(r, inp, inp_len)) return 0;
     r.all_captures.clearRetainingCapacity();
 
     const rc = pcre2.pcre2_match_8(r.code, inp, inp_len, start, pcre2.PCRE2_PARTIAL_SOFT, r.match_data, r.match_ctx);
@@ -864,6 +903,66 @@ test "non-capturing group" {
     var buf: [32]u8 = undefined;
     const len = stz_regex_capture_text(h, 2, &buf, 32);
     try std.testing.expectEqualStrings("def", buf[0..len]);
+}
+
+// THE SUBJECT MUST SURVIVE ITS CALLER'S BUFFER.
+//
+// Ring passes a method parameter as the subject and reads the captures back
+// AFTER that frame is gone. These three prove the copy is real: the caller's
+// memory is overwritten, then freed outright, and the captures still answer.
+//
+// Before the fix the first of these returned "XXXXX" -- proof the accessor was
+// reading the caller's bytes, not its own.
+test "capture survives the caller mutating the subject buffer" {
+    const h = stz_regex_new("^(.*)y$", 7, 0) orelse unreachable;
+    defer stz_regex_free(h);
+
+    var subject: [5]u8 = .{ 'h', 'a', 'p', 'p', 'y' };
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, &subject, 5, 0));
+
+    // The caller reuses its buffer -- exactly what Ring's VM does to a dead frame.
+    subject = .{ 'X', 'X', 'X', 'X', 'X' };
+
+    var buf: [32]u8 = undefined;
+    const len = stz_regex_capture_text(h, 2, &buf, 32);
+    try std.testing.expectEqualStrings("happ", buf[0..len]);
+}
+
+test "capture survives the caller FREEING the subject" {
+    const h = stz_regex_new("^(.*)y$", 7, 0) orelse unreachable;
+    defer stz_regex_free(h);
+
+    const subject = try std.testing.allocator.dupe(u8, "easy");
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, subject.ptr, subject.len, 0));
+    std.testing.allocator.free(subject);
+
+    var buf: [32]u8 = undefined;
+    const len = stz_regex_capture_text(h, 2, &buf, 32);
+    try std.testing.expectEqualStrings("eas", buf[0..len]);
+}
+
+// The negative sibling of the two above: distinct subjects must not collapse
+// onto one another. "eas" and "bas" both came back as "_cc" when the buffer was
+// shared, so equal-length answers agreeing is precisely the failure to exclude.
+test "successive subjects do not share a buffer" {
+    const h = stz_regex_new("^(.*)y$", 7, 0) orelse unreachable;
+    defer stz_regex_free(h);
+
+    var buf: [32]u8 = undefined;
+
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "easy", 4, 0));
+    var len = stz_regex_capture_text(h, 2, &buf, 32);
+    try std.testing.expectEqualStrings("eas", buf[0..len]);
+
+    // A LONGER subject forces the owned buffer to grow -- the reallocation path.
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "extraordinary+y", 15, 0));
+    len = stz_regex_capture_text(h, 2, &buf, 32);
+    try std.testing.expectEqualStrings("extraordinary+", buf[0..len]);
+
+    // ...and a SHORTER one reuses it without leaking the tail of the last.
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "dry", 3, 0));
+    len = stz_regex_capture_text(h, 2, &buf, 32);
+    try std.testing.expectEqualStrings("dr", buf[0..len]);
 }
 
 test "counted quantifier {n,m}" {
