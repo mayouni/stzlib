@@ -94,7 +94,7 @@ func NumbersUnicodes(_anNumbers_)
 
 def HaveSameDifference(_anNumbers_)
     	if NOT (isList(_anNumbers_) and IsListOfNumbers(_anNumbers_))
-		return FALSE
+		return 0
 	ok
 
 	_nLen_ = len(_anNumbers_)
@@ -122,18 +122,18 @@ def HaveSameDifference(_anNumbers_)
 
 func AreNonZeroNumbers(_anNumbers_)
 	if NOT isList(_anNumbers_)
-		return FALSE
+		return 0
 	ok
 
 	_nLen_ = len(_anNumbers_)
 
 	for i = 1 to _nLen_
 		if NOT (isNumber(_anNumbers_[i]) and _anNumbers_[i] != 0)
-			return FALSE
+			return 0
 		ok
 	next
 	
-	return TRUE
+	return 1
 
 	func AreNonNullNumbers(_anNumbers_)
 		return AreNonZeroNumbers(_anNumbers_)
@@ -2034,7 +2034,7 @@ class stzListOfNumbers from stzList
 
 	def Min()
 		_pMiList = This._EngineListFromContent()
-		if _pMiList != NULL
+		if _pMiList != ""
 			_nMiResult = StzEngineListMin(_pMiList)
 			StzEngineListFree(_pMiList)
 			return _nMiResult
@@ -2471,7 +2471,7 @@ class stzListOfNumbers from stzList
 
 	def Max()
 		_pMxList = This._EngineListFromContent()
-		if _pMxList != NULL
+		if _pMxList != ""
 			_nMxResult = StzEngineListMax(_pMxList)
 			StzEngineListFree(_pMxList)
 			return _nMxResult
@@ -3508,15 +3508,15 @@ class stzListOfNumbers from stzList
 		for _j_ = 1 to _nLenContent_
 
 			_nNumber_ = @aContent[_j_]
-			_nMinDiff_ = NULL
-			_nClosestPivot_ = NULL
+			_nMinDiff_ = ""
+			_nClosestPivot_ = ""
 
 			for i = 1 to _nLenNumbers_
 
 				_nPivot_ = panNumbers[i]
 				_nDiff_ = @abs(_nNumber_ - _nPivot_)
 
-				if _nMinDiff_ = NULL or _nDiff_ < _nMinDiff_
+				if _nMinDiff_ = "" or _nDiff_ < _nMinDiff_
 					_nMinDiff_ = _nDiff_
 					_nClosestPivot_ = _nPivot_
 				ok
@@ -3796,7 +3796,7 @@ class stzListOfNumbers from stzList
 	# The product of all the numbers.
 	def Product()
 		_pPrList = This._EngineListFromContent()
-		if _pPrList != NULL
+		if _pPrList != ""
 			_nPrResult = StzEngineListProduct(_pPrList)
 			StzEngineListFree(_pPrList)
 			return _nPrResult
@@ -3816,7 +3816,7 @@ class stzListOfNumbers from stzList
 	# The sum of all the numbers.
 	def Sum()
 		_pSmList = This._EngineListFromContent()
-		if _pSmList != NULL
+		if _pSmList != ""
 			_nSmResult = StzEngineListSum(_pSmList)
 			StzEngineListFree(_pSmList)
 			return _nSmResult
@@ -3835,7 +3835,7 @@ class stzListOfNumbers from stzList
 	# The arithmetic mean (average) of the numbers.
 	def Mean()
 		_pMnList = This._EngineListFromContent()
-		if _pMnList != NULL
+		if _pMnList != ""
 			_nMnResult = StzEngineListMean(_pMnList)
 			StzEngineListFree(_pMnList)
 			return _nMnResult
@@ -8870,11 +8870,11 @@ class stzListOfNumbers from stzList
 	
 		for i = 1 to _nLen_
 			if @aContent[i] = 0
-				return FALSE
+				return 0
 			ok
 		next
 		
-		return TRUE
+		return 1
 	
 		def AreNonNullNumbers()
 			return This.AreNonZeroNumbers()

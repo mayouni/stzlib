@@ -110,8 +110,8 @@ func _StzSystemProfileForTarget(pTarget)
 
 class stzSystemScope from stzObject
 
-	@oProfile = NULL     # the system this scope resolves to (the target)
-	@oHost = NULL        # the live dev machine (for the two-worlds decision)
+	@oProfile = ""     # the system this scope resolves to (the target)
+	@oHost = ""        # the live dev machine (for the two-worlds decision)
 	@aChecked = []       # [ capability, description, status ]
 
 	def init(poProfile)
@@ -325,8 +325,8 @@ class stzAppProfile from stzObject
 
 	@cName = ""
 	@cKind = "app"        # app / server / superapp / ...
-	@oDeploySystem = NULL
-	@oScope = NULL        # the scope its feature code is written in (retained,
+	@oDeploySystem = ""
+	@oScope = ""        # the scope its feature code is written in (retained,
 	                      # so the rehearsed operations survive to deploy-time)
 	@cLanguage = ""       # c / cpp / zig / ring -- so Build() compiles it via stzBuilder
 	@aSources = []        # the part's source files
@@ -389,7 +389,7 @@ class stzAppProfile from stzObject
 		return @oDeploySystem
 
 	def DeploymentOSName()
-		if @oDeploySystem = NULL
+		if @oDeploySystem = ""
 			return "unknown"
 		ok
 		return @oDeploySystem.OSName()
@@ -397,7 +397,7 @@ class stzAppProfile from stzObject
 	# The scope feature code for this constituent is written in -- RETAINED, so
 	# operations accumulate and survive to deploy-time lowering.
 	def System()
-		if @oScope = NULL
+		if @oScope = ""
 			@oScope = new stzSystemScope(@oDeploySystem)
 		ok
 		return @oScope
@@ -406,7 +406,7 @@ class stzAppProfile from stzObject
 		return @oScope
 
 	def HasScope()
-		return @oScope != NULL
+		return @oScope != ""
 
 	def Show()
 		? @cKind + " '" + @cName + "' deploys to " + This.DeploymentOSName()
@@ -424,7 +424,7 @@ class stzAppProfile from stzObject
 class stzPlatformProfile from stzObject
 
 	@cName = ""
-	@oDevSystem = NULL
+	@oDevSystem = ""
 	@aApps = []
 	@aFeatureOps = []     # PLAIN-DATA feature operations authored per constituent
 	                      # [ appName, cap, verb, args, desc, status ] -- plain
@@ -608,7 +608,7 @@ class stzPlatformProfile from stzObject
 	# deployment target. Returns a list of issue strings ([] = sound).
 	def Validate()
 		_a_ = []
-		if @oDevSystem = NULL
+		if @oDevSystem = ""
 			_a_ + "no development system declared (use DevelopedOn)"
 		ok
 		_n_ = len(@aApps)
@@ -616,7 +616,7 @@ class stzPlatformProfile from stzObject
 			_a_ + "the solution deploys no apps"
 		ok
 		for _i_ = 1 to _n_
-			if @aApps[_i_].DeploymentSystem() = NULL
+			if @aApps[_i_].DeploymentSystem() = ""
 				_a_ + ("app '" + @aApps[_i_].Name() + "' has no deployment target")
 			ok
 		next
@@ -631,7 +631,7 @@ class stzPlatformProfile from stzObject
 		_nl_ = char(10)
 		_c_ = "# .stzplatform -- a Softanza solution profile" + _nl_
 		_c_ += "platform: " + @cName + _nl_
-		if @oDevSystem != NULL
+		if @oDevSystem != ""
 			_c_ += "developed_on: " + @oDevSystem.OSName() + _nl_
 		ok
 		_n_ = len(@aApps)
@@ -681,7 +681,7 @@ class stzPlatformProfile from stzObject
 
 	def Show()
 		? "Platform: " + @cName
-		if @oDevSystem != NULL
+		if @oDevSystem != ""
 			? "  developed on: " + @oDevSystem.OSName()
 		ok
 		_n_ = len(@aApps)

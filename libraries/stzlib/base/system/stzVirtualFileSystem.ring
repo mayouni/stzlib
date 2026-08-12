@@ -238,9 +238,9 @@ class stzFileSystemBridge from stzObject
 			if StzEngineFileCopy(oOp.Param("from"), oOp.Param("to")) = 1
 				return StzEngineFileDelete(oOp.Param("from")) = 1
 			ok
-			return FALSE
+			return 0
 		ok
-		return FALSE
+		return 0
 
 	def VerifyOutcome(oOp)
 		_t_ = oOp.Type()
@@ -251,7 +251,7 @@ class stzFileSystemBridge from stzObject
 		but _t_ = "delete_file" or _t_ = "delete_folder"
 			return NOT This.RealExists(oOp.Param("path"))
 		ok
-		return TRUE
+		return 1
 
 
   #========================#

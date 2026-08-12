@@ -65,7 +65,7 @@ func StzNumBufferRangeQ(pnCount, pnStart, pnStep)
 
 class stzNumBuffer from stzObject
 
-	@pBuf = NULL
+	@pBuf = ""
 
 	def init(pInput)
 		if isList(pInput)
@@ -79,7 +79,7 @@ class stzNumBuffer from stzObject
 		else
 			StzRaise("stzNumBuffer: give me a list of numbers, or a size.")
 		ok
-		if @pBuf = NULL
+		if @pBuf = ""
 			StzRaise("stzNumBuffer: the engine could not allocate the buffer.")
 		ok
 
@@ -90,13 +90,13 @@ class stzNumBuffer from stzObject
 
 	# Ring has no destructors, so this is not optional for a large buffer.
 	def Free()
-		if @pBuf != NULL
+		if @pBuf != ""
 			StzEngineNumBufFree(@pBuf)
-			@pBuf = NULL
+			@pBuf = ""
 		ok
 
 	def IsFreed()
-		return @pBuf = NULL
+		return @pBuf = ""
 
 	def Resize(pnSize)
 		This.Free()

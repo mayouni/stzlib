@@ -3,7 +3,7 @@
 func IsListOfTables(paList)
 
 	if NOT (isList(paList) and IsListOfHashLists(paList))
-		return FALSE
+		return 0
 	ok
 
 	_nRows_ = len(paList[1][2])
@@ -11,11 +11,11 @@ func IsListOfTables(paList)
 
 	for i = 1 to _nLen_
 		if len(paList[i][2]) != _nRows_
-			return FALSE
+			return 0
 		ok
 	next
 
-	return TRUE
+	return 1
 
 	func @IsListOfTables(paList)
 		return IsListOfTables(paList)

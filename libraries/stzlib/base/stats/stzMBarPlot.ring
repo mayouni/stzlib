@@ -14,7 +14,7 @@ class stzMBarPlot from stzBarPlot
 	@nCategories = 0
 
 	# Multi-series display options
-	@bShowLegend = True
+	@bShowLegend = 1
 	@cLegendLayout = :Horizontal	# :Horizontal or :Vertical
 	@nSeriesSpace = 1		# Space between bars in same category
 	@nCategorySpace = 2		# Space between categories
@@ -163,7 +163,7 @@ class stzMBarPlot from stzBarPlot
 		@bShowLegend = bShow
 
 		def AddLegend()
-			@bShowLegend = True
+			@bShowLegend = 1
 
 	def SetLegendLayout(cLayout)
 		if NOT StzFindFirst(cLayout, [:Horizontal, :Vertical, "horizontal", "vertical", "h", "v"])
@@ -184,10 +184,10 @@ class stzMBarPlot from stzBarPlot
 			This.SetAverage(bShow)
 
 		def AddAverage()
-			This.SetAverage(TRUE)
+			This.SetAverage(1)
 
 		def AddAverageLine()
-			This.SetAverage(TRUE)
+			This.SetAverage(1)
 
 	# --- Multi-Series Layout Calculation ---
 

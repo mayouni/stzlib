@@ -443,13 +443,13 @@ class stzMultiObjectiveSolver from stzObject
         return _aFronts_
 
     def dominates(_individual1_, _individual2_)
-        _bAtLeastOneBetter_ = false
+        _bAtLeastOneBetter_ = 0
         _nObjLen_ = len(_individual1_[:objectives])
         for i = 1 to _nObjLen_
             if _individual1_[:objectives][i] > _individual2_[:objectives][i]
-                return false
+                return 0
             elseif _individual1_[:objectives][i] < _individual2_[:objectives][i]
-                _bAtLeastOneBetter_ = true
+                _bAtLeastOneBetter_ = 1
             ok
         next
         return _bAtLeastOneBetter_

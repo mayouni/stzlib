@@ -60,7 +60,7 @@ func StzVectorIndex(paVectors)
 
 class stzVectorIndex from stzObject
 
-	@pIndex = NULL
+	@pIndex = ""
 	@nCount = 0
 	@nDim = 0
 	@nTrees = 10
@@ -80,7 +80,7 @@ class stzVectorIndex from stzObject
 	@nGpuCorpus_ = 0
 	@nGpuQuery_ = 0
 	@nGpuDist_ = 0
-	@bGpuTried_ = FALSE
+	@bGpuTried_ = 0
 
 	# paVectors is a list of equal-length lists of numbers -- one row per vector.
 	def init(paVectors)
@@ -156,7 +156,7 @@ class stzVectorIndex from stzObject
 	# call per candidate. In :Cosine mode the vectors are unit-length, so the
 	# distance is 2 - 2*cos and CosineSimilarityTo() reads it back as a cosine.
 	def Search(paQuery, nK)
-		return This._Query(paQuery, nK, 0, FALSE)
+		return This._Query(paQuery, nK, 0, 0)
 
 		def Nearest(paQuery, nK)
 			return This.Search(paQuery, nK)
@@ -164,12 +164,12 @@ class stzVectorIndex from stzObject
 	# The same, with the candidate budget stated. Bigger budget, better recall,
 	# more work. 0 asks for the default.
 	def SearchWithBudget(paQuery, nK, nBudget)
-		return This._Query(paQuery, nK, nBudget, FALSE)
+		return This._Query(paQuery, nK, nBudget, 0)
 
 	# The exact answer by full scan -- O(n) and the ground truth. Use it on a
 	# small corpus, or to measure what the approximate path is missing.
 	def SearchExact(paQuery, nK)
-		return This._Query(paQuery, nK, 0, TRUE)
+		return This._Query(paQuery, nK, 0, 1)
 
 		def NearestExact(paQuery, nK)
 			return This.SearchExact(paQuery, nK)
@@ -253,7 +253,7 @@ class stzVectorIndex from stzObject
 		return _aOut_
 
 	def _Ensure()
-		if @pIndex != NULL
+		if @pIndex != ""
 			return
 		ok
 		_aFlat_ = []
@@ -269,7 +269,7 @@ class stzVectorIndex from stzObject
 			_bCos_ = 1
 		ok
 		@pIndex = StzEngineAnnBuild(_aFlat_, @nCount, @nDim, @nTrees, _bCos_, @nSeed)
-		if @pIndex = NULL
+		if @pIndex = ""
 			StzRaise("stzVectorIndex: the index could not be built.")
 		ok
 		This._EnsureGpu(_aFlat_)
@@ -283,7 +283,7 @@ class stzVectorIndex from stzObject
 		if @bGpuTried_
 			return
 		ok
-		@bGpuTried_ = TRUE
+		@bGpuTried_ = 1
 		if @cMetric != :Euclidean
 			# the CPU index normalizes :Cosine rows internally; the raw
 			# vectors here would compute the WRONG distances. CPU keeps.
@@ -337,16 +337,16 @@ class stzVectorIndex from stzObject
 	def _QueryGpu(paQuery, nK)
 		if StzEngineGpuBufferUploadList(@nGpuQuery_, paQuery) != 0
 			This._DropGpu()
-			return NULL
+			return ""
 		ok
 		if StzEngineGpuOpPairDist(@nGpuQuery_, @nGpuCorpus_, @nGpuDist_, 1, @nCount, @nDim) != 0
 			This._DropGpu()
-			return NULL
+			return ""
 		ok
 		_aFlat_ = StzEngineGpuOpTopK(@nGpuDist_, @nCount, nK)
 		if _aFlat_[1] != 0
 			This._DropGpu()
-			return NULL
+			return ""
 		ok
 		_aOut_ = []
 		_nP_ = (len(_aFlat_) - 1) / 2
@@ -375,9 +375,9 @@ class stzVectorIndex from stzObject
 		ok
 
 	def _Drop()
-		if @pIndex != NULL
+		if @pIndex != ""
 			StzEngineAnnFree(@pIndex)
-			@pIndex = NULL
+			@pIndex = ""
 		ok
 		This._DropGpu()
-		@bGpuTried_ = FALSE
+		@bGpuTried_ = 0

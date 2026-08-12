@@ -9,10 +9,10 @@ class stzSquarePlot from stzSurfacePlot
 
 class stzSurfacePlot from stzObject
 
-	@bShowPercent = FALSE
-	@bShowBorders = TRUE
-	@bShowLabels = TRUE
-	@bShowValues = FALSE
+	@bShowPercent = 0
+	@bShowBorders = 1
+	@bShowLabels = 1
+	@bShowValues = 0
 
 	@nMinWidth = 40
 	@nMinHeight = 12
@@ -107,36 +107,36 @@ def init(paData)
 		for _iLoopList3_ = 1 to _nList3Len_
 			_item_ = aList[_iLoopList3_]
 			if NOT isNumber(_item_)
-				return FALSE
+				return 0
 			ok
 		next
-		return TRUE
+		return 1
 
 	def IsListOfPositiveNumbers(aList)
 		_nList2Len_ = len(aList)
 		for _iLoopList2_ = 1 to _nList2Len_
 			_item_ = aList[_iLoopList2_]
 			if NOT (isNumber(_item_) and _item_ > 0)
-				return FALSE
+				return 0
 			ok
 		next
-		return TRUE
+		return 1
 
 	def IsHashList(aList)
 		if len(aList) = 0
-			return FALSE
+			return 0
 		ok
 		_nList1Len_ = len(aList)
 		for _iLoopList1_ = 1 to _nList1Len_
 			_item_ = aList[_iLoopList1_]
 			if NOT (isList(_item_) and len(_item_) = 2)
-				return FALSE
+				return 0
 			ok
 		next
-		return TRUE
+		return 1
 
 	def AddPercent()
-		@bShowPercent = TRUE
+		@bShowPercent = 1
 		return This
 
 		def SetPercent(bShow)
@@ -144,11 +144,11 @@ def init(paData)
 			return This
 
 		def IncludePercent()
-			@bShowPercent = TRUE
+			@bShowPercent = 1
 			return This
 
 	def AddValues()
-		@bShowValues = TRUE
+		@bShowValues = 1
 		return This
 
 		def SetValues(bShow)
@@ -156,11 +156,11 @@ def init(paData)
 			return This
 
 		def IncludeValues()
-			@bShowValues = TRUE
+			@bShowValues = 1
 			return This
 
 	def WithoutBorders()
-		@bShowBorders = FALSE
+		@bShowBorders = 0
 		return This
 
 	def SetBorders(bShow)
@@ -168,7 +168,7 @@ def init(paData)
 		return This
 
 	def WithoutLabels()
-		@bShowLabels = FALSE
+		@bShowLabels = 0
 		return This
 
 	def SetLabels(bShow)
@@ -663,10 +663,10 @@ def init(paData)
 				if _cCurrent_ = @cVertical or _cCurrent_ = @cHorizontal
 				
 					# Check all four directions for connections
-					_bUp_ = FALSE
-					_bDown_ = FALSE
-					_bLeft_ = FALSE
-					_bRight_ = FALSE
+					_bUp_ = 0
+					_bDown_ = 0
+					_bLeft_ = 0
+					_bRight_ = 0
 					
 					# Check up
 					if i > 1

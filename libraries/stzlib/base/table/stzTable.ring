@@ -21,14 +21,14 @@ func StzTableQ(paTable)
 
 func IsTable(paTable)
 	if NOT isList(paTable)
-		return FALSE
+		return 0
 	ok
 
 	try
 		new stzTable(paTable)
-		return TRUE
+		return 1
 	catch
-		return FALSE
+		return 0
 	done
 
 	func @IsTable(paTable)
@@ -59,15 +59,15 @@ Class stzTable from stzList
 	@anCalculatedRows = []
 
 	# Engine handle for Zig-backed acceleration
-	@pEngine = NULL
-	@bEngineStale = TRUE
+	@pEngine = ""
+	@bEngineStale = 1
 
 	# Define border characters (initialized in init())
 	@aBorder = []
 
 	# Attributes used by the Transpose() method
 
-	@bTransposedWithHeaders = FALSE # tracks when headers were preserved during transpose
+	@bTransposedWithHeaders = 0 # tracks when headers were preserved during transpose
 	@aOriginalColNames = [] # stores the original column names internally
 
 	# Build the table from rows (the first row may carry the column
@@ -107,8 +107,8 @@ Class stzTable from stzList
 		#   _bSameSize_ -- every item is a list, all of the same size
 		#   _bHashList_ -- every item is [ stringKey, value ], keys unique
 		_nItemsIn_ = len(paTable)
-		_bSameSize_ = TRUE
-		_bHashList_ = TRUE
+		_bSameSize_ = 1
+		_bHashList_ = 1
 		_nFirstSizeIn_ = -1
 		_acKeysIn_ = []
 
@@ -119,20 +119,20 @@ Class stzTable from stzList
 				if _nFirstSizeIn_ = -1
 					_nFirstSizeIn_ = len(_pIn_)
 				but len(_pIn_) != _nFirstSizeIn_
-					_bSameSize_ = FALSE
+					_bSameSize_ = 0
 				ok
 			else
-				_bSameSize_ = FALSE
+				_bSameSize_ = 0
 			ok
 
 			if _bHashList_
 				if NOT ( isList(_pIn_) and len(_pIn_) = 2 and isString(_pIn_[1]) )
-					_bHashList_ = FALSE
+					_bHashList_ = 0
 				else
 					_nKeysIn_ = len(_acKeysIn_)
 					for _jIn_ = 1 to _nKeysIn_
 						if _acKeysIn_[_jIn_] = _pIn_[1]
-							_bHashList_ = FALSE
+							_bHashList_ = 0
 							exit
 						ok
 					next
@@ -353,7 +353,7 @@ Class stzTable from stzList
 			_aCol_ = @aContent[_i_][2]
 			_nColLen_ = len(_aCol_)
 			for j = 1 to _nColLen_
-				if _aCol_[j] != NULL
+				if _aCol_[j] != ""
 					return 0
 				ok
 			next
@@ -374,7 +374,7 @@ Class stzTable from stzList
 		# code lowercased the query then did a case-SENSITIVE Contains,
 		# so it never matched -- HasCol always returned FALSE. Compare
 		# case-insensitively against the stored names instead.
-		_bResult_ = This.ColNamesQ().ContainsCS(pcName, FALSE)
+		_bResult_ = This.ColNamesQ().ContainsCS(pcName, 0)
 
 		return _bResult_
 
@@ -643,9 +643,9 @@ Class stzTable from stzList
 		ok
 
 		if This.FindCol(pcName) > 0
-			return TRUE
+			return 1
 		else
-			return FALSE
+			return 0
 		ok
 /*
 		_cName_ = StzLower(pcName)
@@ -1025,8 +1025,8 @@ Class stzTable from stzList
 	#============================================================#
 
 	def _EnsureEngine()
-		if @pEngine = NULL or @bEngineStale
-			if @pEngine != NULL
+		if @pEngine = "" or @bEngineStale
+			if @pEngine != ""
 				StzEngineTableFree(@pEngine)
 			ok
 
@@ -1038,23 +1038,23 @@ Class stzTable from stzList
 			# a single call.
 			StzEngineTableFill(@pEngine, @aContent)
 
-			@bEngineStale = FALSE
+			@bEngineStale = 0
 		ok
 
 	def _InvalidateEngine()
-		@bEngineStale = TRUE
+		@bEngineStale = 1
 
 	def _SyncFromEngine()
 		# ONE bulk call. This used to read EVERY CELL with GetCellType +
 		# GetCell* -- 2 FFI calls per cell (600k for a 50k x 6 table). The
 		# engine now builds the whole Ring content list in a single call.
 		@aContent = StzEngineTableContent(@pEngine)
-		@bEngineStale = FALSE
+		@bEngineStale = 0
 
 	def _FreeEngine()
-		if @pEngine != NULL
+		if @pEngine != ""
 			StzEngineTableFree(@pEngine)
-			@pEngine = NULL
+			@pEngine = ""
 		ok
 
 	# The engine handle of the table's backing store.
@@ -1162,14 +1162,14 @@ Class stzTable from stzList
 	def FindInColCS(pCol, pValueOrNamed, pCaseSensitive)
 		# Strip a trailing :CS=... if the caller bundled three args.
 		_pValue_ = pValueOrNamed
-		_bSub_ = FALSE
+		_bSub_ = 0
 		if isList(_pValue_) and len(_pValue_) = 2 and isString(_pValue_[1])
 			_cKey_ = lower(_pValue_[1])
 			if _cKey_ = "value"
 				_pValue_ = _pValue_[2]
 			but _cKey_ = "subvalue"
 				_pValue_ = _pValue_[2]
-				_bSub_ = TRUE
+				_bSub_ = 1
 			ok
 		ok
 		if isList(pCaseSensitive) and len(pCaseSensitive) = 2 and
@@ -1184,25 +1184,25 @@ Class stzTable from stzList
 		_aRes_ = []
 		for _iFcLocal_ = 1 to _nLenCol_
 			_cell_ = _aColData_[_iFcLocal_]
-			_bMatch_ = FALSE
+			_bMatch_ = 0
 			if _bSub_
 				if isString(_cell_) and isString(_pValue_)
 					if pCaseSensitive
-						if StzFindFirst(_cell_, _pValue_) > 0 _bMatch_ = TRUE ok
+						if StzFindFirst(_cell_, _pValue_) > 0 _bMatch_ = 1 ok
 					else
 						# StzCaseFold is codepoint-aware; upper() is byte-oriented
 						# and missed multibyte case (accented cells).
-						if StzFindFirst(StzCaseFold(_cell_), StzCaseFold(_pValue_)) > 0 _bMatch_ = TRUE ok
+						if StzFindFirst(StzCaseFold(_cell_), StzCaseFold(_pValue_)) > 0 _bMatch_ = 1 ok
 					ok
 				ok
 			else
 				if pCaseSensitive
-					if _cell_ = _pValue_ _bMatch_ = TRUE ok
+					if _cell_ = _pValue_ _bMatch_ = 1 ok
 				else
 					if isString(_cell_) and isString(_pValue_)
-						if StzCaseFold(_cell_) = StzCaseFold(_pValue_) _bMatch_ = TRUE ok
+						if StzCaseFold(_cell_) = StzCaseFold(_pValue_) _bMatch_ = 1 ok
 					else
-						if _cell_ = _pValue_ _bMatch_ = TRUE ok
+						if _cell_ = _pValue_ _bMatch_ = 1 ok
 					ok
 				ok
 			ok
@@ -1233,10 +1233,10 @@ Class stzTable from stzList
 	# matching pValue. Walks each column at row index nRow.
 	def NumberOfOccurrenceInRow(nRow, pValue)
 		_pVal_ = _NormalizeColLookupKey(pValue)
-		_bSub_ = FALSE
+		_bSub_ = 0
 		if isList(pValue) and len(pValue) = 2 and isString(pValue[1]) and
 		   lower(pValue[1]) = "ofsubvalue"
-			_bSub_ = TRUE
+			_bSub_ = 1
 		ok
 		_nCount_ = 0
 		_nCols_ = This.NumberOfCols()
@@ -1259,10 +1259,10 @@ Class stzTable from stzList
 	# single cell at [nCol, nRow]. Returns 0 or 1 (1 if it matches).
 	def NumberOfOccurrenceInCell(nCol, nRow, pValue)
 		_pVal_ = _NormalizeColLookupKey(pValue)
-		_bSub_ = FALSE
+		_bSub_ = 0
 		if isList(pValue) and len(pValue) = 2 and isString(pValue[1]) and
 		   lower(pValue[1]) = "ofsubvalue"
-			_bSub_ = TRUE
+			_bSub_ = 1
 		ok
 		_cell_ = @aContent[nCol][2][nRow]
 		if _bSub_
@@ -3455,14 +3455,14 @@ func _NormalizeColLookupKey(pVal)
 					_pUp_ = paNewTable[_iUp_]
 
 					if NOT ( isList(_pUp_) and len(_pUp_) = 2 and isString(_pUp_[1]) )
-						_bValidUp_ = FALSE
+						_bValidUp_ = 0
 						exit
 					ok
 
 					_nKeysUp_ = len(_acKeysUp_)
 					for _jUp_ = 1 to _nKeysUp_
 						if _acKeysUp_[_jUp_] = _pUp_[1]
-							_bValidUp_ = FALSE
+							_bValidUp_ = 0
 							exit
 						ok
 					next
@@ -3474,7 +3474,7 @@ func _NormalizeColLookupKey(pVal)
 					if _nSizeUp_ = -1
 						_nSizeUp_ = len(_pUp_[2])
 					but len(_pUp_[2]) != _nSizeUp_
-						_bValidUp_ = FALSE
+						_bValidUp_ = 0
 						exit
 					ok
 				next
@@ -12196,12 +12196,12 @@ func _NormalizeColLookupKey(pVal)
 		_oCopy_ = This.Copy()
 		_oCopy_.SortOn(pCol)
 
-		_bResult_ = TRUE
+		_bResult_ = 1
 		_nLen_ = This.NumberOfCols()
 
 		for i = 1 to _nLen_
 			if NOT _oCopy_.ColQ(i).IsEqualToXT(This.Col(i))
-				_bResult_ = FALSE
+				_bResult_ = 0
 				exit
 			ok
 		next
@@ -12218,12 +12218,12 @@ func _NormalizeColLookupKey(pVal)
 		_oCopy_ = This.Copy()
 		_oCopy_.SortUpOn(pCol)
 
-		_bResult_ = TRUE
+		_bResult_ = 1
 		_nLen_ = This.NumberOfCols()
 
 		for i = 1 to _nLen_
 			if NOT _oCopy_.ColQ(i).IsEqualToXT(This.Col(i))
-				_bResult_ = FALSE
+				_bResult_ = 0
 				exit
 			ok
 		next
@@ -12258,12 +12258,12 @@ func _NormalizeColLookupKey(pVal)
 		_oCopy_ = This.Copy()
 		_oCopy_.SortDownOn(pCol)
 
-		_bResult_ = TRUE
+		_bResult_ = 1
 		_nLen_ = This.NumberOfCols()
 
 		for i = 1 to _nLen_
 			if NOT _oCopy_.ColQ(i).IsEqualToXT(This.Col(i))
-				_bResult_ = FALSE
+				_bResult_ = 0
 				exit
 			ok
 		next
@@ -12312,12 +12312,12 @@ func _NormalizeColLookupKey(pVal)
 		_oCopy_ = This.Copy()
 		_oCopy_.SortOnBy(pCol, pcExpr)
 
-		_bResult_ = TRUE
+		_bResult_ = 1
 		_nLen_ = This.NumberOfCols()
 
 		for i = 1 to _nLen_
 			if NOT _oCopy_.ColQ(i).IsEqualToXT(This.Col(i))
-				_bResult_ = FALSE
+				_bResult_ = 0
 				exit
 			ok
 		next
@@ -12345,12 +12345,12 @@ func _NormalizeColLookupKey(pVal)
 		_oCopy_ = This.Copy()
 		_oCopy_.SortUpOnBy(pCol, pcExpr)
 
-		_bResult_ = TRUE
+		_bResult_ = 1
 		_nLen_ = This.NumberOfCols()
 
 		for i = 1 to _nLen_
 			if NOT _oCopy_.ColQ(i).IsEqualToXT(This.Col(i))
-				_bResult_ = FALSE
+				_bResult_ = 0
 				exit
 			ok
 		next
@@ -12397,12 +12397,12 @@ func _NormalizeColLookupKey(pVal)
 		_oCopy_ = This.Copy()
 		_oCopy_.SortDownOnBy(pCol, pcExpr)
 
-		_bResult_ = TRUE
+		_bResult_ = 1
 		_nLen_ = This.NumberOfCols()
 
 		for i = 1 to _nLen_
 			if NOT _oCopy_.ColQ(i).IsEqualToXT(This.Col(i))
-				_bResult_ = FALSE
+				_bResult_ = 0
 				exit
 			ok
 		next
@@ -14586,7 +14586,7 @@ func _NormalizeColLookupKey(pVal)
 		_oEngFormula_ = new stzString(pcFormula)
 		_aRefCols_ = []
 		for i = 1 to _nCols_
-			if StzFindFirstCS( '@(:' + This.ColName(i) + ')', pcFormula, FALSE ) > 0
+			if StzFindFirstCS( '@(:' + This.ColName(i) + ')', pcFormula, 0 ) > 0
 				_aRefCols_ + i
 			ok
 		next
@@ -14602,13 +14602,13 @@ func _NormalizeColLookupKey(pVal)
 		# formula over a string column (e.g. a concatenation) must take the Ring
 		# fallback below to preserve its semantics.
 		_aRefData_ = []
-		_bNumericRefs_ = TRUE
+		_bNumericRefs_ = 1
 		for j = 1 to _nRefLen_
 			_aColVals_ = This.Col(_aRefCols_[j])
 			_nCVLen_ = len(_aColVals_)
 			for c = 1 to _nCVLen_
 				if NOT isNumber(_aColVals_[c])
-					_bNumericRefs_ = FALSE
+					_bNumericRefs_ = 0
 					exit
 				ok
 			next
@@ -15932,7 +15932,7 @@ func _NormalizeColLookupKey(pVal)
 
 			# Apply aggregation method
 
-			_nResult_ = NULL
+			_nResult_ = ""
 			_nLenVal_ = len(_aValues_)
 
 			switch _cAggMethod_
@@ -16072,11 +16072,11 @@ func _NormalizeColLookupKey(pVal)
 	                _aHobbyMap_ + [_cHobby_, [nRow]]
 	            else
 	                # Existing hobby, check if row already exists
-	                _bFound_ = FALSE
+	                _bFound_ = 0
 	                _nHobbyMapnHobbyIndex2Len_ = len(_aHobbyMap_[_nHobbyIndex_][2])
 	                for r = 1 to _nHobbyMapnHobbyIndex2Len_
 	                    if _aHobbyMap_[_nHobbyIndex_][2][r] = nRow
-	                        _bFound_ = TRUE
+	                        _bFound_ = 1
 	                        exit
 	                    ok
 	                next
@@ -16152,7 +16152,7 @@ func _NormalizeColLookupKey(pVal)
 
         # If no filter criteria provided, display full table
 
-        if paFilterCriteria = NULL
+        if paFilterCriteria = ""
             return This._displayFullTable()
 
         else
@@ -16308,7 +16308,7 @@ func _NormalizeColLookupKey(pVal)
 
         # Use the full table display method on the filtered table
 
-        return _oFilteredTable_.Display(NULL)
+        return _oFilteredTable_.Display("")
 
 	  #----------------------------------------#
 	 #  DISPLAYING THE TABLE - EXTENDED FORM  #
@@ -16316,7 +16316,7 @@ func _NormalizeColLookupKey(pVal)
 
 	# Master method orchestrating the submethods
 	def processParameters(pParams, _bRowNumber_, _bSubTotal_, _bGrandTotal_, bCleanDesign)
-		if pParams = NULL
+		if pParams = ""
 			# Use defaults
 		else
 			if isList(pParams)
@@ -16340,11 +16340,11 @@ func _NormalizeColLookupKey(pVal)
 						but isString(pParams[i])
 							_cParam_ = pParams[i]
 							if @StzMid(_cParam_, 1, 9) = "rownumber"
-								_bRowNumber_ = TRUE
+								_bRowNumber_ = 1
 							but @StzMid(_cParam_, 1, 8) = "subtotal"
-								_bSubTotal_ = TRUE
+								_bSubTotal_ = 1
 							but @StzMid(_cParam_, 1, 10) = "grandtotal"
-								_bGrandTotal_ = TRUE
+								_bGrandTotal_ = 1
 							ok
 						ok
 					next
@@ -16366,9 +16366,9 @@ func _NormalizeColLookupKey(pVal)
 		ok
 
 		# Ensure boolean values
-		_bRowNumber_ = @if(IsBoolean(_bRowNumber_), _bRowNumber_, FALSE)
-		_bSubTotal_ = @if(IsBoolean(_bSubTotal_), _bSubTotal_, FALSE)
-		_bGrandTotal_ = @if(IsBoolean(_bGrandTotal_), _bGrandTotal_, FALSE)
+		_bRowNumber_ = @if(IsBoolean(_bRowNumber_), _bRowNumber_, 0)
+		_bSubTotal_ = @if(IsBoolean(_bSubTotal_), _bSubTotal_, 0)
+		_bGrandTotal_ = @if(IsBoolean(_bGrandTotal_), _bGrandTotal_, 0)
 
 	# Submethod to calculate column widths
 	def calculateColumnWidths(_acColNames_, _aContent_, _bRowNumber_, _bGrandTotal_)
@@ -16647,7 +16647,7 @@ func _NormalizeColLookupKey(pVal)
 	    _nRows_ = len(@aContent[1][2])
 
 	    # Set internal flag to track header preservation
-	    @bTransposedWithHeaders = FALSE
+	    @bTransposedWithHeaders = 0
 	    @aOriginalColNames = []
 	    for i = 1 to _nCols_
 	        @aOriginalColNames + @aContent[i][1]
@@ -16707,7 +16707,7 @@ func _NormalizeColLookupKey(pVal)
 	    _nRows_ = len(@aContent[1][2])
 
 	    # Set internal flag to track header preservation
-	    @bTransposedWithHeaders = True
+	    @bTransposedWithHeaders = 1
 	    @aOriginalColNames = []
 	    for i = 1 to _nCols_
 	        @aOriginalColNames + @aContent[i][1]
@@ -16776,7 +16776,7 @@ func _NormalizeColLookupKey(pVal)
 	    This.UpdateWith(_aNewContent_)
 
 	    # Clear transpose flags
-	    @bTransposedWithHeaders = False
+	    @bTransposedWithHeaders = 0
 	    @aOriginalColNames = []
 
 	    # Reset calculated data

@@ -88,19 +88,19 @@ class stzCapabilityCatalog from stzObject
 
 	def _SeedDefaults()
 		@aCaps = [
-			[ "unicode",          "Unicode",          FALSE, "compute",   "light",  "strong", "strong", "weak",     6 ],
-			[ "datetime",         "DateTime",         FALSE, "compute",   "light",  "strong", "strong", "weak",     4 ],
-			[ "json",             "Json",             FALSE, "ergonomic", "light",  "strong", "strong", "weak",     2 ],
-			[ "http",             "Http",             FALSE, "ergonomic", "light",  "strong", "strong", "absent",   3 ],
-			[ "regex",            "Regex",            TRUE,  "ergonomic", "medium", "strong", "strong", "absent",  20 ],
-			[ "pattern",          "Pattern",          TRUE,  "compute",   "light",  "absent", "strong", "weak",     5 ],
-			[ "pivottable",       "PivotTable",       TRUE,  "compute",   "medium", "weak",   "strong", "absent",  12 ],
-			[ "constraintsolver", "ConstraintSolver", TRUE,  "compute",   "medium", "absent", "strong", "absent",  15 ],
-			[ "graph",            "Graph",            TRUE,  "compute",   "medium", "weak",   "strong", "absent",  10 ],
-			[ "bignumber",        "BigNumber",        FALSE, "compute",   "light",  "strong", "strong", "weak",     3 ],
-			[ "gpio",             "GPIO",             TRUE,  "compute",   "light",  "absent", "weak",   "strong",   1 ],
-			[ "collection",       "Collection",       TRUE,  "ergonomic", "light",  "weak",   "strong", "weak",     0 ],
-			[ "neural",           "Neural",           FALSE, "compute",   "heavy",  "weak",   "strong", "absent",  900 ]
+			[ "unicode",          "Unicode",          0, "compute",   "light",  "strong", "strong", "weak",     6 ],
+			[ "datetime",         "DateTime",         0, "compute",   "light",  "strong", "strong", "weak",     4 ],
+			[ "json",             "Json",             0, "ergonomic", "light",  "strong", "strong", "weak",     2 ],
+			[ "http",             "Http",             0, "ergonomic", "light",  "strong", "strong", "absent",   3 ],
+			[ "regex",            "Regex",            1,  "ergonomic", "medium", "strong", "strong", "absent",  20 ],
+			[ "pattern",          "Pattern",          1,  "compute",   "light",  "absent", "strong", "weak",     5 ],
+			[ "pivottable",       "PivotTable",       1,  "compute",   "medium", "weak",   "strong", "absent",  12 ],
+			[ "constraintsolver", "ConstraintSolver", 1,  "compute",   "medium", "absent", "strong", "absent",  15 ],
+			[ "graph",            "Graph",            1,  "compute",   "medium", "weak",   "strong", "absent",  10 ],
+			[ "bignumber",        "BigNumber",        0, "compute",   "light",  "strong", "strong", "weak",     3 ],
+			[ "gpio",             "GPIO",             1,  "compute",   "light",  "absent", "weak",   "strong",   1 ],
+			[ "collection",       "Collection",       1,  "ergonomic", "light",  "weak",   "strong", "weak",     0 ],
+			[ "neural",           "Neural",           0, "compute",   "heavy",  "weak",   "strong", "absent",  900 ]
 		]
 
 	def Records()
@@ -126,7 +126,7 @@ class stzCapabilityCatalog from stzObject
 				return @aCaps[i]
 			ok
 		next
-		return [ _c_, "" + pcName, TRUE, "compute", "medium", "weak", "strong", "absent", 8 ]
+		return [ _c_, "" + pcName, 1, "compute", "medium", "weak", "strong", "absent", 8 ]
 
 	def DisplayOf(pcName)
 		return This.Record(pcName)[2]
@@ -178,14 +178,14 @@ class stzDelivery from stzObject
 
 	@cName = ""
 	@aParts = []       # [ name, kind, targetname, [caps] ]  -- plain data (survives copy)
-	@oCat = NULL
+	@oCat = ""
 	@aBindings = []    # [ partName, siteObject ] -- WHERE each part deploys (production)
-	@oActor = NULL     # the executing actor -- governs whether Deploy(:Production) commits
+	@oActor = ""     # the executing actor -- governs whether Deploy(:Production) commits
 	@aReqs = []        # [ partName, resourceSpec ] -- what each part NEEDS from its host
 	@aBundles = []     # [ partName, emulatorOrDir ] -- emulator bundle to ship in production
-	@oApp = NULL       # the solution's app MODEL (stzAppTopology) -- what each part DOES
-	@oLog = NULL       # a structured stzLog of the delivery's high-level phases
-	@oReg = NULL       # the EXTERNAL-DEPENDENCY surface (stzServiceRegistry)
+	@oApp = ""       # the solution's app MODEL (stzAppTopology) -- what each part DOES
+	@oLog = ""       # a structured stzLog of the delivery's high-level phases
+	@oReg = ""       # the EXTERNAL-DEPENDENCY surface (stzServiceRegistry)
 	@aSvcNeeds = []    # [ partName, [serviceNames] ] -- which part needs which service
 
 	def init(pcName)
@@ -400,10 +400,10 @@ class stzDelivery from stzObject
 		_n_ = len(_aF_)
 		for _i_ = 1 to _n_
 			if _aF_[_i_][:severity] = :error
-				return FALSE
+				return 0
 			ok
 		next
-		return TRUE
+		return 1
 
 	def WhyServicesNotReady()
 		_aF_ = This.ServiceFindingsForProduction()
@@ -554,7 +554,7 @@ class stzDelivery from stzObject
 				return @aReqs[i][2]
 			ok
 		next
-		return NULL
+		return ""
 
 	def Requirements()
 		return @aReqs
@@ -631,12 +631,12 @@ class stzDelivery from stzObject
 		# moment the external surface must be real, so ask here rather than
 		# trusting anyone to have remembered. An unsound surface is refused even
 		# when the actor is fully entitled: this is not an authority question.
-		_bSvcOk_ = TRUE
+		_bSvcOk_ = 1
 		if This.HasServices()
 			@oReg.SetPhaseQ(:production)
 			_aSvcF_ = @oReg.Findings()
 			if NOT @oReg.IsSound()
-				_bSvcOk_ = FALSE
+				_bSvcOk_ = 0
 				@oLog.Record(:error, "REFUSED -- the external surface is not production-ready",
 				             [ [ :findings, len(_aSvcF_) ] ])
 				_n_ = len(_aSvcF_)
@@ -663,7 +663,7 @@ class stzDelivery from stzObject
 				             [ [ :services, @oReg.NumberOfBound() ] ])
 			ok
 		ok
-		if @oActor != NULL
+		if @oActor != ""
 			_oDep_.SetActor(@oActor)
 		ok
 		_n_ = len(@aBindings)

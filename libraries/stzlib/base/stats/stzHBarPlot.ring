@@ -108,10 +108,10 @@ class stzHBarPlot from stzBarPlot
 			This.SetAxisLabels(bShow)
 
 		def WithoutAxisLabels()
-			This.SetAxisLabels(FALSE)
+			This.SetAxisLabels(0)
 
 		def WithoutVAxisLabels()
-			This.SetAxisLabels(FALSE)
+			This.SetAxisLabels(0)
 
 	# --- Horizontal Layout Calculation ---
 

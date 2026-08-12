@@ -15,8 +15,8 @@ class stzPivotTable from stzList
 	@cAggFunc = "SUM"
 	@aPivotData = []
 	@oResultTable
-	@bShowTotalRow = TRUE
-	@bShowTotalColumn = TRUE
+	@bShowTotalRow = 1
+	@bShowTotalColumn = 1
 	@cTotalLabel = "TOTAL"
 	@cCellNullValue = ""
 	@cRowLabelsSeparator = "_"
@@ -25,7 +25,7 @@ class stzPivotTable from stzList
 	@aCellCache = []
 	
 	# State tracking for generation status
-	@bIsGenerated = FALSE
+	@bIsGenerated = 0
 
 	# Define border characters
 	@aBorder = [
@@ -122,12 +122,12 @@ class stzPivotTable from stzList
 		else
 			@aRowLabels = paLabels
 		ok
-		@bIsGenerated = FALSE
+		@bIsGenerated = 0
 
 	def SetRowLabel(pcLabel)
 		# Set single row label
 		@aRowLabels = [pcLabel]
-		@bIsGenerated = FALSE
+		@bIsGenerated = 0
 
 	def SetColumnLabels(paLabels)
 		# Configure column labels, accepting string or list
@@ -136,12 +136,12 @@ class stzPivotTable from stzList
 		else
 			@aColLabels = paLabels
 		ok
-		@bIsGenerated = FALSE
+		@bIsGenerated = 0
 
 	def SetColumnLabel(pcLabel)
 		# Set single column label
 		@aColLabels = [pcLabel]
-		@bIsGenerated = FALSE
+		@bIsGenerated = 0
 
 	def SetValues(paValues)
 		# Configure values for aggregation
@@ -150,23 +150,23 @@ class stzPivotTable from stzList
 		else
 			@aValues = paValues
 		ok
-		@bIsGenerated = FALSE
+		@bIsGenerated = 0
 
 	def SetValue(pcValue)
 		# Set single _value_ for aggregation
 		@aValues = [pcValue]
-		@bIsGenerated = FALSE
+		@bIsGenerated = 0
 
 	def SetAggregateFunction(pcFunction)
 		# Set aggregation function (e.g., SUM, AVG)
 		@cAggFunc = StzUpper(pcFunction)
 		This.SetTotalLabel(@cAggFunc)
-		@bIsGenerated = FALSE
+		@bIsGenerated = 0
 
 	def SetRowLabelsSeparator(pcSeparator)
 		# Set separator for multi-level row labels
 		@cRowLabelsSeparator = pcSeparator
-		@bIsGenerated = FALSE
+		@bIsGenerated = 0
 
 		#-- @Misspelled
 
@@ -177,29 +177,29 @@ class stzPivotTable from stzList
 		# Configure visibility of total row and column
 		@bShowTotalRow = pbShowRow
 		@bShowTotalColumn = pbShowCol
-		@bIsGenerated = FALSE
+		@bIsGenerated = 0
 
 	def SetHideTotals()
 		# Hide both total row and column
-		@bShowTotalRow = FALSE
-		@bShowTotalColumn = FALSE
-		@bIsGenerated = FALSE
+		@bShowTotalRow = 0
+		@bShowTotalColumn = 0
+		@bIsGenerated = 0
 
 	def SetTotalLabel(pcLabel)
 		# Set label for totals
 		@cTotalLabel = pcLabel
-		@bIsGenerated = FALSE
+		@bIsGenerated = 0
 
 	def SetNullValue(pcValue)
 		# Set _value_ for null/empty cells
 		@cCellNullValue = pcValue
-		@bIsGenerated = FALSE
+		@bIsGenerated = 0
 
 	def SetColumnOrder(paOrder)
 		@aColumnOrder = paOrder
 		# every other setter here drops the generated result, and this one did
 		# not -- so an order set after a first Show() was simply not applied
-		@bIsGenerated = FALSE
+		@bIsGenerated = 0
 
 	  #-----------------------------#
 	 #  PIVOT TABLE GENERATION     #
@@ -241,7 +241,7 @@ class stzPivotTable from stzList
 		ok
 
 		@oResultTable = new stzTable(@aPivotData)
-		@bIsGenerated = TRUE
+		@bIsGenerated = 1
 
 	  #-----------------------------------------#
 	 #  ENGINE-BACKED PIVOT (ZIG FAST PATH)   #
@@ -249,15 +249,15 @@ class stzPivotTable from stzList
 
 	def _CanUseEngine()
 		if len(@aColLabels) != 1
-			return FALSE
+			return 0
 		ok
 		if len(@aRowLabels) < 1 or len(@aRowLabels) > 2
-			return FALSE
+			return 0
 		ok
 		if len(@aValues) != 1
-			return FALSE
+			return 0
 		ok
-		return TRUE
+		return 1
 
 	def _AggFuncToInt()
 		# Accept common synonyms. Previously "avg" / "mean" / "cnt"
@@ -331,7 +331,7 @@ class stzPivotTable from stzList
 			)
 		ok
 
-		if _pResult = NULL
+		if _pResult = ""
 			stzRaise("Engine pivot failed!")
 		ok
 
@@ -365,7 +365,7 @@ class stzPivotTable from stzList
 		StzEngineTableFree(_pResult)
 
 		@oResultTable = new stzTable(@aPivotData)
-		@bIsGenerated = TRUE
+		@bIsGenerated = 1
 
 	  #--------------------------------#
 	 #  DATA PROCESSING HELPERS       #
@@ -466,12 +466,12 @@ class stzPivotTable from stzList
 			next
 
 			# Check for duplicates
-			_bExists_ = FALSE
+			_bExists_ = 0
 			_nLenCombos_ = len(_aAllCombos_)
 
 			for i = 1 to _nLenCombos_
 				if _arraysEqual(_aAllCombos_[i], _aCombination_)
-					_bExists_ = TRUE
+					_bExists_ = 1
 					exit
 				ok
 			next
@@ -486,17 +486,17 @@ class stzPivotTable from stzList
 	def _arraysEqual(a1, a2)
 		# Compare two arrays for equality
 		if len(a1) != len(a2)
-			return FALSE
+			return 0
 		ok
 		
 		_nA1Len_ = len(a1)
 		for i = 1 to _nA1Len_
 			if a1[i] != a2[i]
-				return FALSE
+				return 0
 			ok
 		next
 		
-		return TRUE
+		return 1
 
 	def _createHeaderStructure(aColCombos)
 		# Create header structure for pivot table
@@ -709,8 +709,8 @@ class stzPivotTable from stzList
 		_nRowCount_ = @oSourceTable.NumberOfRows()
 		
 		for r = 2 to _nRowCount_
-			_bRowMatch_ = TRUE
-			_bColMatch_ = TRUE
+			_bRowMatch_ = 1
+			_bColMatch_ = 1
 			
 			# Check row matches
 			_nLenRows_ = len(_aRowIndices_)
@@ -720,7 +720,7 @@ class stzPivotTable from stzList
 				if i <= _nLenFlatRows_
 
 					if @oSourceTable.Cell(_aRowIndices_[i], r) != _aFlatRowValues_[i]
-						_bRowMatch_ = FALSE
+						_bRowMatch_ = 0
 						exit
 					ok
 
@@ -737,7 +737,7 @@ class stzPivotTable from stzList
 				if i <= _nLenFlatCols_
 
 					if @oSourceTable.Cell(_aColIndices_[i], r) != _aFlatColValues_[i]
-						_bColMatch_ = FALSE
+						_bColMatch_ = 0
 						exit
 					ok
 
@@ -818,10 +818,10 @@ class stzPivotTable from stzList
 		for _iLoopCellCache2_ = 1 to _nCellCache2Len_
 			_item_ = @aCellCache[_iLoopCellCache2_]
 			if _item_[1] = _cKey_
-				return TRUE
+				return 1
 			ok
 		next
-		return FALSE
+		return 0
 
 	def _getFromCache(_cKey_)
 		# Retrieve _value_ from cache
@@ -832,7 +832,7 @@ class stzPivotTable from stzList
 				return _item_[2]
 			ok
 		next
-		return NULL
+		return ""
 
 	def _addToCache(_cKey_, value)
 		# Add value to cache
@@ -956,11 +956,11 @@ class stzPivotTable from stzList
 		# Find row index
 		_nRowIndex_ = 0
 		for r = 2 to _nLen_
-			_bMatch_ = TRUE
+			_bMatch_ = 1
 			
 			for i = 1 to _nLenFlatRows_
 				if i <= _nRowLabels_ and @aPivotData[r][i] != _aFlatRowValues_[i]
-					_bMatch_ = FALSE
+					_bMatch_ = 0
 					exit
 				ok
 			next
@@ -972,7 +972,7 @@ class stzPivotTable from stzList
 		next
 		
 		if _nRowIndex_ = 0
-			return NULL
+			return ""
 		ok
 		
 		# Find column index
@@ -989,7 +989,7 @@ class stzPivotTable from stzList
 		next
 		
 		if _nColIndex_ = 0
-			return NULL
+			return ""
 		ok
 		
 		return @aPivotData[_nRowIndex_][_nColIndex_]
@@ -1001,7 +1001,7 @@ class stzPivotTable from stzList
 		ok
 		
 		if not @bShowTotalColumn
-			return NULL
+			return ""
 		ok
 		
 		_aFlatRowValues_ = _flattenArray(paRowValues)
@@ -1013,11 +1013,11 @@ class stzPivotTable from stzList
 		_nRowIndex_ = 0
 		_nLen_ = len(@aPivotData)
 		for r = 2 to _nLen_
-			_bMatch_ = TRUE
+			_bMatch_ = 1
 			
 			for i = 1 to _nLenFlat_
 				if i <= _nRowLabels_ and @aPivotData[r][i] != _aFlatRowValues_[i]
-					_bMatch_ = FALSE
+					_bMatch_ = 0
 					exit
 				ok
 			next
@@ -1029,7 +1029,7 @@ class stzPivotTable from stzList
 		next
 		
 		if _nRowIndex_ = 0
-			return NULL
+			return ""
 		ok
 		
 		return @aPivotData[_nRowIndex_][len(@aPivotData[1])]
@@ -1041,7 +1041,7 @@ class stzPivotTable from stzList
 		ok
 		
 		if not @bShowTotalRow
-			return NULL
+			return ""
 		ok
 		
 		_aFlatColValues_ = _flattenArray(paColValues)
@@ -1059,7 +1059,7 @@ class stzPivotTable from stzList
 		next
 		
 		if _nColIndex_ = 0
-			return NULL
+			return ""
 		ok
 		
 		return @aPivotData[len(@aPivotData)][_nColIndex_]
@@ -1071,7 +1071,7 @@ class stzPivotTable from stzList
 		ok
 		
 		if not (@bShowTotalRow and @bShowTotalColumn)
-			return NULL
+			return ""
 		ok
 		
 		return @aPivotData[len(@aPivotData)][len(@aPivotData[1])]
@@ -1123,7 +1123,7 @@ class stzPivotTable from stzList
 		
 		# Create result table
 		@oResultTable = new stzTable(@aPivotData)
-		@bIsGenerated = TRUE
+		@bIsGenerated = 1
 
 
 	  #=============================#
@@ -1548,7 +1548,7 @@ class stzPivotTable from stzList
 				_key_ = _dim1Value_ + "_" + _dim2Value_
 				_colIdx_ = _aColGroups_[_key_]
 				
-				if _colIdx_ != NULL
+				if _colIdx_ != ""
 					_maxWidth_ = len(_dim2Value_)
 					
 					for r = 2 to _nPivotLen_
@@ -1769,7 +1769,7 @@ class stzPivotTable from stzList
 		_cOutput_ += _cLine_ + char(10)
 		
 		# Data rows
-		_cLastRowDim1_ = NULL
+		_cLastRowDim1_ = ""
 		_nRowDim1Count_ = 0
 		
 		for r = 2 to _nPivotLen_ - 1
@@ -1805,7 +1805,7 @@ class stzPivotTable from stzList
 					_key_ = _dim1Value_ + "_" + _dim2Value_
 					_colIdx_ = _aColGroups_[_key_]
 					
-					if _colIdx_ != NULL
+					if _colIdx_ != ""
 						_value_ = @if(_colIdx_ <= len(_aPivotData_[r]), _aPivotData_[r][_colIdx_], "")
 						
 						if isNumber(_value_) or (isString(_value_) and _value_ != "" and isNumber(0 + _value_))
@@ -1926,7 +1926,7 @@ class stzPivotTable from stzList
 					_key_ = _dim1Value_ + "_" + _dim2Value_
 					_colIdx_ = _aColGroups_[_key_]
 					
-					if _colIdx_ != NULL
+					if _colIdx_ != ""
 
 						_value_ = @if(_colIdx_ <= _nLenTotalRow_, _totalRow_[_colIdx_], "")
 						
@@ -2084,7 +2084,7 @@ class stzPivotTable from stzList
 				_key_ = _dim1Value_ + "_" + _dim2Value_
 				_colIdx_ = _aColGroups_[_key_]
 				
-				if _colIdx_ != NULL
+				if _colIdx_ != ""
 					_maxWidth_ = len(_dim2Value_)
 					
 					for r = 2 to _nPivotLen_
@@ -2175,7 +2175,7 @@ class stzPivotTable from stzList
 						_key_ = _dim1Value_ + "_" + _dim2Value_
 						_colIdx_ = _aColGroups_[_key_]
 						
-						if _colIdx_ != NULL and _colIdx_ <= len(_aPivotData_[r])
+						if _colIdx_ != "" and _colIdx_ <= len(_aPivotData_[r])
 							_cellValue_ = _aPivotData_[r][_colIdx_]
 							
 							if isNumber(_cellValue_) or (isString(_cellValue_) and _cellValue_ != "" and @IsNumberInString(_cellValue_))
@@ -2386,7 +2386,7 @@ class stzPivotTable from stzList
 		_cOutput_ += _cLine_ + char(10)
 		
 		# Data rows
-		_cLastRowDim1_ = NULL
+		_cLastRowDim1_ = ""
 		_nRowDim1Count_ = 0
 		
 		for r = 2 to _nPivotLen_ - 1
@@ -2424,7 +2424,7 @@ class stzPivotTable from stzList
 					_key_ = _dim1Value_ + "_" + _dim2Value_
 					_colIdx_ = _aColGroups_[_key_]
 					
-					if _colIdx_ != NULL
+					if _colIdx_ != ""
 						_value_ = @if(_colIdx_ <= len(_aPivotData_[r]), _aPivotData_[r][_colIdx_], "")
 						
 						if isNumber(_value_) or (isString(_value_) and _value_ != "" and isNumber(0 + _value_))
@@ -2620,7 +2620,7 @@ class stzPivotTable from stzList
 					_key_ = _dim1Value_ + "_" + _dim2Value_
 					_colIdx_ = _aColGroups_[_key_]
 					
-					if _colIdx_ != NULL
+					if _colIdx_ != ""
 						_value_ = @if(_colIdx_ <= _nLenTotalRow_, _totalRow_[_colIdx_], "")
 						
 						if isNumber(_value_) or (isString(_value_) and _value_ != "" and isNumber(0 + _value_))
@@ -2756,7 +2756,7 @@ class stzPivotTable from stzList
 				_key_ = _dim1Value_ + "_" + _dim2Value_
 				_colIdx_ = _aColGroups_[_key_]
 			
-				if _colIdx_ != NULL
+				if _colIdx_ != ""
 					_maxWidth_ = len(_dim2Value_)
 				
 					for r = 2 to _nLenPivotData_
@@ -3000,7 +3000,7 @@ class stzPivotTable from stzList
 					_key_ = _dim1Value_ + "_" + _dim2Value_
 					_colIdx_ = _aColGroups_[_key_]
 				
-					if _colIdx_ != NULL
+					if _colIdx_ != ""
 						_value_ = @if(_colIdx_ <= len(_aPivotData_[r]), _aPivotData_[r][_colIdx_], "")
 					
 						if isNumber(_value_) or (isString(_value_) and _value_ != "" and isNumber(0 + _value_))
@@ -3089,7 +3089,7 @@ class stzPivotTable from stzList
 					_key_ = _dim1Value_ + "_" + _dim2Value_
 					_colIdx_ = _aColGroups_[_key_]
 				
-					if _colIdx_ != NULL
+					if _colIdx_ != ""
 
 						_value_ = @if(_colIdx_ <= _nLenTotalRow_, _totalRow_[_colIdx_], "")
 					

@@ -22,9 +22,9 @@ Class TableDisplayConfig
         :HeaderTopPadding     = 1,    # Space before headers
         :OuterPadding         = 1,    # Padding outside table edges
         :MaxTableWidth        = 120,  # Maximum total table width (0 = no limit)
-        :AutoAdjustWidths     = true, # Whether to dynamically adjust widths
-        :BalanceColumns       = true, # Whether to balance column widths
-        :ExpandToContent      = true  # Whether cells expand to fit content
+        :AutoAdjustWidths     = 1, # Whether to dynamically adjust widths
+        :BalanceColumns       = 1, # Whether to balance column widths
+        :ExpandToContent      = 1  # Whether cells expand to fit content
     ]
     
     # Content-specific measurements (calculated dynamically)
@@ -73,8 +73,8 @@ Class TableDisplayConfig
     aRowLabels = []        # Row dimension labels
     aColLabels = []        # Column dimension labels
     cTotalLabel = ""       # Label used for totals
-    bShowTotalRow = true   # Whether to show totals row
-    bShowTotalColumn = true # Whether to show totals column
+    bShowTotalRow = 1   # Whether to show totals row
+    bShowTotalColumn = 1 # Whether to show totals column
     
     # Initialize with pivot table data
     func init(aPivotTable, aRowDims, aColDims, cTotalLbl)
@@ -437,7 +437,7 @@ Class TableDisplayConfig
         if @IsHashList(aCalculatedLayout[_cKey_])
             return aCalculatedLayout[_cKey_]
         ok
-        return null
+        return ""
     
     # Update all calculations based on current data
     func Recalculate()
@@ -485,7 +485,7 @@ end  # End of TableDisplayConfig class
 Class TableRenderer
     
     # Configuration object reference
-    oConfig = null
+    oConfig = ""
     
     # Initialize with configuration object
     func init(oTableConfig)
@@ -983,10 +983,10 @@ end  # End of TableRenderer class
 Class TableConfigManager
     
     # Reference to configuration object
-    oConfig = null
+    oConfig = ""
     
     # Callback function for events
-    fOnConfigChanged = null
+    fOnConfigChanged = ""
     
     # Initialize with configuration object
     func init(oTableConfig)
@@ -1180,7 +1180,7 @@ end  # End of TableConfigManager class
 Class TableThemeManager
     
     # Reference to configuration object
-    oConfig = null
+    oConfig = ""
     
     # Predefined themes
     aThemes = [

@@ -106,9 +106,9 @@ func IsMatrix(paList)
 	if isList(paList) and IsListOfListsOfNumbers(paList) and
 	   AllListsHaveSameSize(paList)
 
-		return TRUE
+		return 1
 	else
-		return FALSE
+		return 0
 	ok
 
 	func @IsMatrix(paList)
@@ -125,14 +125,14 @@ func IsMatrixOfPositiveNumbers(paList)
 		for i = 1 to _nLen_
 			for j = 1 to _nLen2_
 				if NOT paList[i][j] >= 0
-					return FALSE
+					return 0
 				ok
 			next
 		next
 
 	ok
 
-	return TRUE
+	return 1
 
 	func @IsMatrixOfPositiveNumbers(paList)
 		return IsMatrixOfPositiveNumbers(paList)
@@ -148,14 +148,14 @@ func IsMatrixOfNonZeroPositiveNumbers(paList)
 		for i = 1 to _nLen_
 			for j = 1 to _nLen2_
 				if NOT paList[i][j] > 0
-					return FALSE
+					return 0
 				ok
 			next
 		next
 
 	ok
 
-	return TRUE
+	return 1
 
 	func IsMatrixOfStrictlyPositiveNumbers(paList)
 		return IsMatrixOfNonZeroPositiveNumbers(paList)
@@ -190,7 +190,7 @@ class stzMatrix from stzListOfLists
 	@aContent     # Stores the actual matrix data
 	@nRows       # Number of rows
 	@nCols       # Number of columns
-	@pEngineMatrix = NULL
+	@pEngineMatrix = ""
 
 	def ClassName()
 		return "stzmatrix"
@@ -261,13 +261,13 @@ class stzMatrix from stzListOfLists
 		@pEngineMatrix = StzEngineMatrixNewFromList(@nRows, @nCols, @aContent)
 
 	def _InvalidateEngineMatrix()
-		if @pEngineMatrix != NULL
+		if @pEngineMatrix != ""
 			StzEngineMatrixFree(@pEngineMatrix)
-			@pEngineMatrix = NULL
+			@pEngineMatrix = ""
 		ok
 
 	def _SyncFromEngine()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			return
 		ok
 		_nEmRows = StzEngineMatrixRows(@pEngineMatrix)
@@ -987,16 +987,16 @@ class stzMatrix from stzListOfLists
 
 		# Engine fast path
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix != NULL
+		if @pEngineMatrix != ""
 			_aBCol_ = []
 			for _iSf_ = 1 to @nRows
 				_aBCol_ + [ paB[_iSf_] ]
 			next
 			_pBSf_ = StzEngineMatrixNewFromList(@nRows, 1, _aBCol_)
-			if _pBSf_ != NULL
+			if _pBSf_ != ""
 				_pXSf_ = StzEngineMatrixSolve(@pEngineMatrix, _pBSf_)
 				StzEngineMatrixFree(_pBSf_)
-				if _pXSf_ != NULL
+				if _pXSf_ != ""
 					_anXSf_ = []
 					for _jSf_ = 1 to @nRows
 						_anXSf_ + StzEngineMatrixGet(_pXSf_, _jSf_ - 1, 0)
@@ -1075,10 +1075,10 @@ class stzMatrix from stzListOfLists
 				" columns vs " + _nBRows_ + " rows")
 		ok
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix != NULL
+		if @pEngineMatrix != ""
 			_pB_ = StzEngineMatrixNewFromList(_nBRows_, _nBCols_, paMatrix)
 			_pC_ = StzEngineMatrixNew(@nRows, _nBCols_)
-			if _pB_ != NULL and _pC_ != NULL
+			if _pB_ != "" and _pC_ != ""
 				_bOk_ = 0
 				try
 					_bOk_ = StzEngineMatrixMulGgml(@pEngineMatrix, _pB_, _pC_)
@@ -1129,12 +1129,12 @@ class stzMatrix from stzListOfLists
 
 		# Engine fast path
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix != NULL
+		if @pEngineMatrix != ""
 			_pMbB = StzEngineMatrixNewFromList(_nInputRows_, _nInputCols_, paMatrix)
-			if _pMbB != NULL
+			if _pMbB != ""
 				_pMbResult = StzEngineMatrixMultiply(@pEngineMatrix, _pMbB)
 				StzEngineMatrixFree(_pMbB)
-				if _pMbResult != NULL
+				if _pMbResult != ""
 					StzEngineMatrixFree(@pEngineMatrix)
 					@pEngineMatrix = _pMbResult
 					This._SyncFromEngine()
@@ -1182,7 +1182,7 @@ class stzMatrix from stzListOfLists
 
 	def Sum()
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix != NULL
+		if @pEngineMatrix != ""
 			return StzEngineMatrixSum(@pEngineMatrix)
 		ok
 
@@ -1207,7 +1207,7 @@ class stzMatrix from stzListOfLists
 
 	def Max()
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix != NULL
+		if @pEngineMatrix != ""
 			return StzEngineMatrixMax(@pEngineMatrix)
 		ok
 
@@ -1227,7 +1227,7 @@ class stzMatrix from stzListOfLists
 
 	def Min()
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix != NULL
+		if @pEngineMatrix != ""
 			return StzEngineMatrixMin(@pEngineMatrix)
 		ok
 
@@ -1247,7 +1247,7 @@ class stzMatrix from stzListOfLists
 
 	def Power(n)
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix != NULL
+		if @pEngineMatrix != ""
 			StzEngineMatrixPower(@pEngineMatrix, n)
 			This._SyncFromEngine()
 			return
@@ -1322,11 +1322,11 @@ class stzMatrix from stzListOfLists
 		_aResult_ = []
 
 		for nColIndex = 1 to @nCols
-			_bMatch_ = True
+			_bMatch_ = 1
 
 			for nRowIndex = 1 to @nRows
 				if @aContent[nRowIndex][nColIndex] != paCol[nRowIndex]
-					_bMatch_ = False
+					_bMatch_ = 0
 					exit
 				ok
 			next
@@ -1359,11 +1359,11 @@ class stzMatrix from stzListOfLists
 		_anResult_ = []
 
 		for nRowIndex = 1 to @nRows
-			_bMatch_ = True
+			_bMatch_ = 1
 
 			for nColIndex = 1 to @nCols
 				if @aContent[nRowIndex][nColIndex] != panRow[nColIndex]
-					_bMatch_ = False
+					_bMatch_ = 0
 					exit
 				ok
 			next
@@ -1823,7 +1823,7 @@ class stzMatrix from stzListOfLists
 
 	def ReplaceElement(pnElm, pnNewElm)
 
-		_bXT_ = FALSE
+		_bXT_ = 0
 
 		if isList(pnNewElm)
 
@@ -1840,7 +1840,7 @@ class stzMatrix from stzListOfLists
 			     	     pnNewElm[1] = :UsingManyXT )
 
 					pnNewElm[1] = :ByXT
-					_bXT_ = TRUE
+					_bXT_ = 1
 				ok
 
 			ok
@@ -2334,7 +2334,7 @@ class stzMatrix from stzListOfLists
 
 		# Engine fast path
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix != NULL
+		if @pEngineMatrix != ""
 			return StzEngineMatrixDeterminant(@pEngineMatrix)
 		ok
 
@@ -2423,7 +2423,7 @@ class stzMatrix from stzListOfLists
 		ok
 
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			return []
 		ok
 
@@ -2432,13 +2432,13 @@ class stzMatrix from stzListOfLists
 			_aBLs_ + [ panB[_iLs_] ]
 		next
 		_pBLs_ = StzEngineMatrixNewFromList(@nRows, 1, _aBLs_)
-		if _pBLs_ = NULL
+		if _pBLs_ = ""
 			return []
 		ok
 
 		_pXLs_ = StzEngineMatrixLeastSquares(@pEngineMatrix, _pBLs_)
 		StzEngineMatrixFree(_pBLs_)
-		if _pXLs_ = NULL
+		if _pXLs_ = ""
 			return []
 		ok
 
@@ -2497,11 +2497,11 @@ class stzMatrix from stzListOfLists
 			StzRaise("GeneralSquareRoot: this needs a square matrix.")
 		ok
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			return []
 		ok
 		_pGsV_ = StzEngineMatrixSqrtGeneral(@pEngineMatrix)
-		if _pGsV_ = NULL
+		if _pGsV_ = ""
 			StzRaise("GeneralSquareRoot: refused. A negative real eigenvalue has a " +
 				"square root, but a COMPLEX one, and this returns real matrices. " +
 				"(A complex eigenvalue PAIR is fine -- only a lone negative real is " +
@@ -2562,7 +2562,7 @@ class stzMatrix from stzListOfLists
 			StzRaise("MatrixCot: this needs a square matrix.")
 		ok
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			return []
 		ok
 		if pcMode = :Circular
@@ -2570,7 +2570,7 @@ class stzMatrix from stzListOfLists
 		else
 			_pCtV_ = StzEngineMatrixCoth(@pEngineMatrix)
 		ok
-		if _pCtV_ = NULL
+		if _pCtV_ = ""
 			StzRaise("MatrixCot: refused -- the sine being divided by is singular here. " +
 				"For MatrixCot() that means an eigenvalue at k*pi, WHICH INCLUDES ZERO, " +
 				"so every singular matrix is out of reach -- the same narrow domain as " +
@@ -2638,7 +2638,7 @@ class stzMatrix from stzListOfLists
 			StzRaise("MatrixSec/MatrixCsc: this needs a square matrix.")
 		ok
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			return []
 		ok
 		if cWhich = "sec"
@@ -2650,7 +2650,7 @@ class stzMatrix from stzListOfLists
 		else
 			_pRcV_ = StzEngineMatrixCsch(@pEngineMatrix)
 		ok
-		if _pRcV_ = NULL
+		if _pRcV_ = ""
 			StzRaise("MatrixSec/MatrixCsc: refused -- the function being inverted is " +
 				"singular here. For MatrixSec() that means an eigenvalue at pi/2 + " +
 				"k*pi, exactly where sec(x) is undefined. For MatrixCsc() it means an " +
@@ -2738,7 +2738,7 @@ class stzMatrix from stzListOfLists
 			StzRaise("MatrixAsec/MatrixAcsc: this needs a square matrix.")
 		ok
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			return []
 		ok
 		if cWhich = "asec"
@@ -2750,7 +2750,7 @@ class stzMatrix from stzListOfLists
 		else
 			_pArV_ = StzEngineMatrixAcsch(@pEngineMatrix)
 		ok
-		if _pArV_ = NULL
+		if _pArV_ = ""
 			StzRaise("MatrixAsec/MatrixAcsc: refused -- for one of two distinct reasons. " +
 				"Either the matrix is SINGULAR, and all four of these go through the " +
 				"inverse; or its eigenvalues are in the wrong half. MatrixAsec() and " +
@@ -2824,7 +2824,7 @@ class stzMatrix from stzListOfLists
 			StzRaise("MatrixAcot: this needs a square matrix.")
 		ok
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			return []
 		ok
 		if pcMode = :Circular
@@ -2832,7 +2832,7 @@ class stzMatrix from stzListOfLists
 		else
 			_pAcV_ = StzEngineMatrixAcoth(@pEngineMatrix)
 		ok
-		if _pAcV_ = NULL
+		if _pAcV_ = ""
 			if pcMode = :Circular
 				StzRaise("MatrixAcot: refused -- and only where MatrixAtan() is, since " +
 					"this is the subtraction (pi/2)I - atan(A) and not a second " +
@@ -2922,7 +2922,7 @@ class stzMatrix from stzListOfLists
 			StzRaise("MatrixAsin/MatrixAcos: this needs a square matrix.")
 		ok
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			return []
 		ok
 		if cWhich = "asin"
@@ -2934,7 +2934,7 @@ class stzMatrix from stzListOfLists
 		else
 			_pArV_ = StzEngineMatrixAcosh(@pEngineMatrix)
 		ok
-		if _pArV_ = NULL
+		if _pArV_ = ""
 			StzRaise("MatrixAsin/MatrixAcos/MatrixAsinh/MatrixAcosh: refused. The " +
 				"circular pair needs every eigenvalue INSIDE [-1, 1] -- asin(2) has no " +
 				"real value and neither has the arcsine of a matrix with an eigenvalue " +
@@ -3008,7 +3008,7 @@ class stzMatrix from stzListOfLists
 			StzRaise("MatrixAtan/MatrixAtanh: this needs a square matrix.")
 		ok
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			return []
 		ok
 		if cWhich = "atan"
@@ -3016,7 +3016,7 @@ class stzMatrix from stzListOfLists
 		else
 			_pAtV_ = StzEngineMatrixAtanh(@pEngineMatrix)
 		ok
-		if _pAtV_ = NULL
+		if _pAtV_ = ""
 			StzRaise("MatrixAtan/MatrixAtanh: refused. For the circular arctangent " +
 				"that means an eigenvalue on the imaginary axis beyond +/- i, which " +
 				"are its BRANCH POINTS -- there is no principal value there. For the " +
@@ -3068,7 +3068,7 @@ class stzMatrix from stzListOfLists
 			StzRaise("MatrixTan/MatrixTanh: this needs a square matrix.")
 		ok
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			return []
 		ok
 		if cWhich = "tan"
@@ -3076,7 +3076,7 @@ class stzMatrix from stzListOfLists
 		else
 			_pTnV_ = StzEngineMatrixTanh(@pEngineMatrix)
 		ok
-		if _pTnV_ = NULL
+		if _pTnV_ = ""
 			StzRaise("MatrixTan/MatrixTanh: refused -- the cosine of this matrix is " +
 				"singular, so the tangent does not exist. For the circular tangent " +
 				"that means an eigenvalue at pi/2 + k*pi, exactly as tan(pi/2) is " +
@@ -3128,7 +3128,7 @@ class stzMatrix from stzListOfLists
 			StzRaise("MatrixSinh/MatrixCosh: this needs a square matrix.")
 		ok
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			return []
 		ok
 		if cWhich = "sinh"
@@ -3136,7 +3136,7 @@ class stzMatrix from stzListOfLists
 		else
 			_pHyV_ = StzEngineMatrixCosh(@pEngineMatrix)
 		ok
-		if _pHyV_ = NULL
+		if _pHyV_ = ""
 			StzRaise("MatrixSinh/MatrixCosh: the engine refused this matrix.")
 		ok
 		_aHyV_ = This._MatrixFromHandle(_pHyV_)
@@ -3190,7 +3190,7 @@ class stzMatrix from stzListOfLists
 			StzRaise("MatrixSin/MatrixCos: this needs a square matrix.")
 		ok
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			return []
 		ok
 		if cWhich = "sin"
@@ -3198,7 +3198,7 @@ class stzMatrix from stzListOfLists
 		else
 			_pTgV_ = StzEngineMatrixCos(@pEngineMatrix)
 		ok
-		if _pTgV_ = NULL
+		if _pTgV_ = ""
 			StzRaise("MatrixSin/MatrixCos: the engine refused this matrix.")
 		ok
 		_aTgV_ = This._MatrixFromHandle(_pTgV_)
@@ -3229,11 +3229,11 @@ class stzMatrix from stzListOfLists
 			StzRaise("MatrixLog: this needs a square matrix.")
 		ok
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			return []
 		ok
 		_pMlV_ = StzEngineMatrixLog(@pEngineMatrix)
-		if _pMlV_ = NULL
+		if _pMlV_ = ""
 			StzRaise("MatrixLog: refused. A SINGULAR matrix has no logarithm at all -- " +
 				"the exponential is never singular, so nothing maps to it. And a " +
 				"NEGATIVE REAL eigenvalue has only a complex logarithm, for the same " +
@@ -3260,11 +3260,11 @@ class stzMatrix from stzListOfLists
 			StzRaise("GeneralPower: this needs a square matrix.")
 		ok
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			return []
 		ok
 		_pGpV_ = StzEngineMatrixPowerGeneral(@pEngineMatrix, p)
-		if _pGpV_ = NULL
+		if _pGpV_ = ""
 			StzRaise("GeneralPower: refused -- it goes through the logarithm, so it " +
 				"needs a non-singular matrix with no negative real eigenvalue.")
 		ok
@@ -3293,11 +3293,11 @@ class stzMatrix from stzListOfLists
 			StzRaise("MatrixExp: this needs a square matrix.")
 		ok
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			return []
 		ok
 		_pMeV_ = StzEngineMatrixExp(@pEngineMatrix)
-		if _pMeV_ = NULL
+		if _pMeV_ = ""
 			StzRaise("MatrixExp: the Pade denominator came out singular, which means " +
 				"the scaling did not bring this matrix into range.")
 		ok
@@ -3345,7 +3345,7 @@ class stzMatrix from stzListOfLists
 			StzRaise("Schur: this needs a square matrix.")
 		ok
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			return []
 		ok
 		if cWhich = "q"
@@ -3353,7 +3353,7 @@ class stzMatrix from stzListOfLists
 		else
 			_pScV_ = StzEngineMatrixSchurT(@pEngineMatrix)
 		ok
-		if _pScV_ = NULL
+		if _pScV_ = ""
 			StzRaise("Schur: the QR iteration did not converge on this matrix.")
 		ok
 		_aScV_ = This._MatrixFromHandle(_pScV_)
@@ -3376,11 +3376,11 @@ class stzMatrix from stzListOfLists
 			StzRaise("SchurInverse: this needs a square matrix.")
 		ok
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			return []
 		ok
 		_pSiV_ = StzEngineMatrixSchurInverse(@pEngineMatrix)
-		if _pSiV_ = NULL
+		if _pSiV_ = ""
 			StzRaise("SchurInverse: refused -- this matrix is numerically singular, " +
 				"so T has a diagonal block that cannot be inverted. PseudoInverse() " +
 				"answers instead. And for a matrix that IS invertible, LUInverse() " +
@@ -3428,11 +3428,11 @@ class stzMatrix from stzListOfLists
 				"PseudoInverse() does.")
 		ok
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			return []
 		ok
 		_pLuV_ = StzEngineMatrixLUInverse(@pEngineMatrix)
-		if _pLuV_ = NULL
+		if _pLuV_ = ""
 			StzRaise("LUInverse: refused -- the factorisation found a pivot at " +
 				"rounding level, so this matrix is numerically singular and has no " +
 				"inverse. PseudoInverse() answers instead, with the minimum-norm " +
@@ -3477,11 +3477,11 @@ class stzMatrix from stzListOfLists
 				"that answers for every shape.")
 		ok
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			return []
 		ok
 		_pQiV_ = StzEngineMatrixQRInverse(@pEngineMatrix)
-		if _pQiV_ = NULL
+		if _pQiV_ = ""
 			StzRaise("QRInverse: refused -- this matrix is rank deficient, so R has a " +
 				"diagonal entry at rounding level and back-substituting through it " +
 				"would return confident garbage. Use PseudoInverse(): a rank-deficient " +
@@ -3526,11 +3526,11 @@ class stzMatrix from stzListOfLists
 			StzRaise("CholeskyInverse: this needs a square matrix.")
 		ok
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			return []
 		ok
 		_pCiV_ = StzEngineMatrixCholeskyInverse(@pEngineMatrix)
-		if _pCiV_ = NULL
+		if _pCiV_ = ""
 			StzRaise("CholeskyInverse: refused -- this matrix is not symmetric " +
 				"positive definite, so it has no real triangular factor and there is " +
 				"no Cholesky inverse to have. It may still HAVE an inverse: try " +
@@ -3561,11 +3561,11 @@ class stzMatrix from stzListOfLists
 			StzRaise("CholeskyFactorInverse: this needs a square matrix.")
 		ok
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			return []
 		ok
 		_pCfV_ = StzEngineMatrixCholeskyFactorInverse(@pEngineMatrix)
-		if _pCfV_ = NULL
+		if _pCfV_ = ""
 			StzRaise("CholeskyFactorInverse: refused -- this matrix is not symmetric " +
 				"positive definite, so it has no triangular factor to invert.")
 		ok
@@ -3600,11 +3600,11 @@ class stzMatrix from stzListOfLists
 				"PseudoInverse() are the operations that do.")
 		ok
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			return []
 		ok
 		_pMpV_ = StzEngineMatrixMatrixPower(@pEngineMatrix, p)
-		if _pMpV_ = NULL
+		if _pMpV_ = ""
 			StzRaise("MatrixPower: refused. The matrix must be symmetric; a negative " +
 				"power also needs it non-singular, and a fractional power needs every " +
 				"eigenvalue non-negative. Refused rather than returned as NaN, because " +
@@ -3652,11 +3652,11 @@ class stzMatrix from stzListOfLists
 			StzRaise("EigenReconstructed: k must be at least 1.")
 		ok
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			return []
 		ok
 		_pErV_ = StzEngineMatrixEigenReconstruct(@pEngineMatrix, k)
-		if _pErV_ = NULL
+		if _pErV_ = ""
 			StzRaise("EigenReconstructed: refused -- the matrix must be symmetric.")
 		ok
 		_aErV_ = This._MatrixFromHandle(_pErV_)
@@ -3705,11 +3705,11 @@ class stzMatrix from stzListOfLists
 				"the zero matrix, which needs no decomposition to find.")
 		ok
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			return []
 		ok
 		_pLrV_ = StzEngineMatrixLowRank(@pEngineMatrix, k)
-		if _pLrV_ = NULL
+		if _pLrV_ = ""
 			return []
 		ok
 		_aLrV_ = []
@@ -3732,11 +3732,11 @@ class stzMatrix from stzListOfLists
 			StzRaise("PseudoInverse: the matrix is empty.")
 		ok
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			return []
 		ok
 		_pPiV_ = StzEngineMatrixPseudoInverse(@pEngineMatrix)
-		if _pPiV_ = NULL
+		if _pPiV_ = ""
 			return []
 		ok
 		# A is nRows x nCols, so A+ is nCols x nRows
@@ -3782,7 +3782,7 @@ class stzMatrix from stzListOfLists
 		ok
 
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			return []
 		ok
 
@@ -3791,13 +3791,13 @@ class stzMatrix from stzListOfLists
 			_aBMn_ + [ panB[_iMn_] ]
 		next
 		_pBMn_ = StzEngineMatrixNewFromList(@nRows, 1, _aBMn_)
-		if _pBMn_ = NULL
+		if _pBMn_ = ""
 			return []
 		ok
 
 		_pXMn_ = StzEngineMatrixMinNormSolve(@pEngineMatrix, _pBMn_)
 		StzEngineMatrixFree(_pBMn_)
-		if _pXMn_ = NULL
+		if _pXMn_ = ""
 			return []
 		ok
 
@@ -3826,12 +3826,12 @@ class stzMatrix from stzListOfLists
 		ok
 
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			return []
 		ok
 
 		_pLCh_ = StzEngineMatrixCholesky(@pEngineMatrix)
-		if _pLCh_ = NULL
+		if _pLCh_ = ""
 			return []
 		ok
 
@@ -3890,11 +3890,11 @@ class stzMatrix from stzListOfLists
 		ok
 
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			return []
 		ok
 		_pEvV_ = StzEngineMatrixEigenValues(@pEngineMatrix)
-		if _pEvV_ = NULL
+		if _pEvV_ = ""
 			return []
 		ok
 		_anEvV_ = []
@@ -4056,11 +4056,11 @@ class stzMatrix from stzListOfLists
 		ok
 
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			return []
 		ok
 		_pEvc_ = StzEngineMatrixEigenVectors(@pEngineMatrix)
-		if _pEvc_ = NULL
+		if _pEvc_ = ""
 			return []
 		ok
 		_aEvc_ = []
@@ -4081,7 +4081,7 @@ class stzMatrix from stzListOfLists
 	def IsSymmetric()
 
 		if @nRows != @nCols
-			return FALSE
+			return 0
 		ok
 		_nScaleSy_ = 0
 		for _iSy_ = 1 to @nRows
@@ -4092,17 +4092,17 @@ class stzMatrix from stzListOfLists
 			next
 		next
 		if _nScaleSy_ = 0
-			return TRUE
+			return 1
 		ok
 		_nTolSy_ = _nScaleSy_ / 1000000000000
 		for _iSy_ = 1 to @nRows
 			for _jSy_ = _iSy_ + 1 to @nCols
 				if fabs(@aContent[_iSy_][_jSy_] - @aContent[_jSy_][_iSy_]) > _nTolSy_
-					return FALSE
+					return 0
 				ok
 			next
 		next
-		return TRUE
+		return 1
 
 	# THE CONDITION NUMBER: the largest eigenvalue over the smallest, in magnitude.
 	# It answers "how many digits can a solve with this matrix lose?" -- a condition
@@ -4123,7 +4123,7 @@ class stzMatrix from stzListOfLists
 		# so which orientation you happen to hold is a fact about your data layout
 		# and not about the matrix. The engine transposes internally when it needs to.
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			return 0
 		ok
 
@@ -4162,7 +4162,7 @@ class stzMatrix from stzListOfLists
 		ok
 
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			StzRaise("SVD: the engine refused the matrix.")
 		ok
 
@@ -4226,11 +4226,11 @@ class stzMatrix from stzListOfLists
 		# The transpose now happens inside the engine, once, with the swap done
 		# right. There are min(rows, cols) singular values.
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			return []
 		ok
 		_pSvV_ = StzEngineMatrixSingularValues(@pEngineMatrix)
-		if _pSvV_ = NULL
+		if _pSvV_ = ""
 			return []
 		ok
 		_nKsv_ = @nCols
@@ -4257,7 +4257,7 @@ class stzMatrix from stzListOfLists
 		# orientation was an artefact of the SVD's precondition rather than a fact
 		# about the matrix.
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
+		if @pEngineMatrix = ""
 			return 0
 		ok
 		if @nRows = @nCols and This.IsSymmetric()
@@ -4283,11 +4283,11 @@ class stzMatrix from stzListOfLists
 	# an unrelated algorithm.)
 	def IsPositiveDefinite()
 		if @nRows != @nCols
-			return FALSE
+			return 0
 		ok
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix = NULL
-			return FALSE
+		if @pEngineMatrix = ""
+			return 0
 		ok
 		return StzEngineMatrixIsPositiveDefinite(@pEngineMatrix) = 1
 
@@ -4301,9 +4301,9 @@ class stzMatrix from stzListOfLists
 
 		# Engine fast path
 		This._EnsureEngineMatrix()
-		if @pEngineMatrix != NULL
+		if @pEngineMatrix != ""
 			_pInvResult = StzEngineMatrixInverse(@pEngineMatrix)
-			if _pInvResult != NULL
+			if _pInvResult != ""
 				_nInvRows = StzEngineMatrixRows(_pInvResult)
 				_nInvCols = StzEngineMatrixCols(_pInvResult)
 				_aInvMatrix = []
@@ -4436,11 +4436,11 @@ class stzMatrix from stzListOfLists
 
 		This._EnsureEngineMatrix()
 
-		if @pEngineMatrix != NULL
+		if @pEngineMatrix != ""
 
 			_pTrResult = StzEngineMatrixTranspose(@pEngineMatrix)
 
-			if _pTrResult != NULL
+			if _pTrResult != ""
 
 				_nTrRows = StzEngineMatrixRows(_pTrResult)
 				_nTrCols = StzEngineMatrixCols(_pTrResult)

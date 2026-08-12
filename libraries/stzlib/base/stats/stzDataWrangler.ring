@@ -94,7 +94,7 @@ class stzDataWrangler from stzObject
     @aTransformLog = []      # Log of applied transformations
     @aValidationRules = []   # Custom validation rules
     @aFillRules = []         # Rules for filling missing values
-    @bVerbose = TRUE         # Show detailed operation messages
+    @bVerbose = 1         # Show detailed operation messages
 
     # INITIALIZATION
     # ==============
@@ -453,7 +453,7 @@ class stzDataWrangler from stzObject
                     for i = 1 to _nDataLen_11
                         if NOT This._IsMissing(@aData[i][_nColIndex_])
                             _convertedValue_ = This._ConvertValue(@aData[i][_nColIndex_], _cTargetType_)
-                            if _convertedValue_ != NULL
+                            if _convertedValue_ != ""
                                 @aData[i][_nColIndex_] = _convertedValue_
                                 _nConverted_++
                             ok
@@ -534,9 +534,9 @@ class stzDataWrangler from stzObject
         # Goals: "clean", "validate", "analyze", "export"
         # Templates: "basic_cleanup", "data_validation", etc.
         _cTemplate_ = This._ResolvePlanTemplate(cGoalOrTemplate)
-        if _cTemplate_ = NULL
+        if _cTemplate_ = ""
             This._LogTransformation("GeneratePlan", "Unknown goal/template: " + cGoalOrTemplate)
-            return NULL
+            return ""
         ok
         
         # Find template definition
@@ -554,7 +554,7 @@ class stzDataWrangler from stzObject
             ok
         next
         
-        return NULL
+        return ""
 
     def ExecutePlan(cGoalOrTemplate, bVerbose)
         # Execute a complete wrangling plan
@@ -562,7 +562,7 @@ class stzDataWrangler from stzObject
 
         @bVerbose = bVerbose
         _aPlan_ = This.GeneratePlan(cGoalOrTemplate)
-        if _aPlan_ = NULL return NULL ok
+        if _aPlan_ = "" return "" ok
         
         if @bVerbose
             ? "ðŸ”§ Executing Plan: " + _aPlan_[:title]
@@ -875,7 +875,7 @@ class stzDataWrangler from stzObject
                 try
                     return 0 + _value_  # Ring's implicit conversion
                 catch
-                    return NULL
+                    return ""
                 done
             ok
             
@@ -892,7 +892,7 @@ class stzDataWrangler from stzObject
             return _value_
         off
         
-        return NULL
+        return ""
 
     def _LogTransformation(cOperation, cDetails)
         @aTransformLog + [
@@ -936,7 +936,7 @@ next
             ok
         next
         
-        return NULL
+        return ""
 
     def _EstimatePlanTime(aSteps)
         # Simple time estimation based on number of steps
@@ -1093,12 +1093,12 @@ next
         return 0
 
     def _RowsEqual(aRow1, aRow2)
-        if len(aRow1) != len(aRow2) return FALSE ok
+        if len(aRow1) != len(aRow2) return 0 ok
         _nRow1Len_ = len(aRow1)
         for i = 1 to _nRow1Len_
-            if aRow1[i] != aRow2[i] return FALSE ok
+            if aRow1[i] != aRow2[i] return 0 ok
         next
-        return TRUE
+        return 1
 
     def _GetNumericColumnData(_nColIndex_)
         _aNumericData_ = []
@@ -1216,10 +1216,10 @@ next
         for i = 1 to _nDataLen_3
             _value_ = @aData[i][_nColIndex_]
             if NOT This._IsMissing(_value_) and NOT isNumber(_value_)
-                return TRUE
+                return 1
             ok
         next
-        return FALSE
+        return 0
 
     def _ApplyLabelEncoding(_nColIndex_, _aUniqueValues_)
         _nEncoded_ = 0
@@ -1363,37 +1363,37 @@ next
     
     def QuickClean()
         """Perform basic cleaning operations quickly"""
-        return This.ExecutePlan("clean", FALSE)
+        return This.ExecutePlan("clean", 0)
 
     def QuickValidate()
         """Perform validation checks quickly"""  
-        return This.ExecutePlan("validate", FALSE)
+        return This.ExecutePlan("validate", 0)
 
     def QuickPrepareForAnalysis()
         """Prepare data for statistical analysis quickly"""
-        return This.ExecutePlan("analyze", FALSE)
+        return This.ExecutePlan("analyze", 0)
 
     def QuickPrepareForExport()
         """Prepare data for export quickly"""
-        return This.ExecutePlan("export", FALSE)
+        return This.ExecutePlan("export", 0)
 
     # CHAINABLE OPERATIONS
     # ===================
     
     def Clean()
-        This.ExecutePlan("clean", FALSE)
+        This.ExecutePlan("clean", 0)
         return This
 
     def Validate()
-        This.ExecutePlan("validate", FALSE)
+        This.ExecutePlan("validate", 0)
         return This
 
     def Transform()
-        This.ExecutePlan("analyze", FALSE)
+        This.ExecutePlan("analyze", 0)
         return This
 
     def Export()
-        This.ExecutePlan("export", FALSE)
+        This.ExecutePlan("export", 0)
         return This
 
     # DATA ACCESS METHODS

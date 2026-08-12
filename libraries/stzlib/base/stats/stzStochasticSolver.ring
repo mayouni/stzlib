@@ -722,15 +722,15 @@ class stzStochasticSolver from stzObject
                 _nRHS_ = _nModifiedValue_
                 switch _const_[:operator]
                 on "<="
-                    if _nLHS_ > _nRHS_ + 0.001 return false ok
+                    if _nLHS_ > _nRHS_ + 0.001 return 0 ok
                 on ">="  
-                    if _nLHS_ < _nRHS_ - 0.001 return false ok
+                    if _nLHS_ < _nRHS_ - 0.001 return 0 ok
                 on "="
-                    if abs(_nLHS_ - _nRHS_) > 0.001 return false ok
+                    if abs(_nLHS_ - _nRHS_) > 0.001 return 0 ok
                 off
             ok
         next
-        return true
+        return 1
 
     def expectedObjectiveValue()
         if len(@aSolution) = 0 return 0 ok

@@ -9,8 +9,8 @@
 # `oClient`/`cBody` globals were clobbered at `new`, then R12).
 
 class stzAppResponse from stzObject
-	@oClient = NULL   # legacy constructor slot (pre-reactor); unused
-	@bSent = False
+	@oClient = ""   # legacy constructor slot (pre-reactor); unused
+	@bSent = 0
 	@aHeaders = []
 	@nStatusCode = 200
 	@cStatusText = "OK"
@@ -57,7 +57,7 @@ class stzAppResponse from stzObject
 	def Send(cContent)
 		if @bSent return ok
 		@cBody = "" + cContent
-		@bSent = True
+		@bSent = 1
 
 	# Render the full HTTP/1.1 wire form (CRLF line endings,
 	# Content-Length in BYTES -- Ring len() is byte-based, correct here).

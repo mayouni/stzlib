@@ -187,7 +187,7 @@ class stzEnvironmentState from stzObject
 
 class stzEnvironmentBridge from stzObject
 
-	@oEnv = NULL
+	@oEnv = ""
 
 	def init()
 		@oEnv = new stzEnvironment()
@@ -235,9 +235,9 @@ class stzEnvironmentBridge from stzObject
 			_cDrain_ = _oChild_.ReadOutputAll()
 			_oChild_.Wait()
 			_oChild_.Close()
-			return TRUE
+			return 1
 		ok
-		return FALSE
+		return 0
 
 	def VerifyOutcome(oOp)
 		_t_ = oOp.Type()
@@ -246,7 +246,7 @@ class stzEnvironmentBridge from stzObject
 		but _t_ = "unset_var"
 			return NOT @oEnv.Has(oOp.Param("name"))
 		ok
-		return TRUE
+		return 1
 
 
   #========================#

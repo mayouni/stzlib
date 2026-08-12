@@ -75,9 +75,9 @@ func ProcessUptime()
 class stzProcess from stzObject
 
 	# Only used by the control (child) face; NULL for the introspection face.
-	@pChildHandle = NULL
+	@pChildHandle = ""
 	@nCachedExit = -1
-	@bWaited = FALSE
+	@bWaited = 0
 
 	def init()
 		# Stateless for the introspection face: every fact is read live from
@@ -102,9 +102,9 @@ class stzProcess from stzObject
 			StzRaise("Can't spawn: the command is empty.")
 		ok
 		@pChildHandle = StzEngineProcessSpawn(pcCommand)
-		@bWaited = FALSE
+		@bWaited = 0
 		@nCachedExit = -1
-		if @pChildHandle = NULL
+		if @pChildHandle = ""
 			StzRaise("Failed to spawn the process: " + pcCommand)
 		ok
 		return This
@@ -115,7 +115,7 @@ class stzProcess from stzObject
 
 	# TRUE if this object is managing a spawned child.
 	def HasChild()
-		return @pChildHandle != NULL
+		return @pChildHandle != ""
 
 		def IsChild()
 			return This.HasChild()
@@ -173,7 +173,7 @@ class stzProcess from stzObject
 	def Wait()
 		This._RequireChild()
 		@nCachedExit = StzEngineProcessWait(@pChildHandle)
-		@bWaited = TRUE
+		@bWaited = 1
 		return @nCachedExit
 
 	# The exit code after Wait() (Wait() is called for you if you have not).
@@ -193,7 +193,7 @@ class stzProcess from stzObject
 	def Kill()
 		This._RequireChild()
 		_n_ = StzEngineProcessKill(@pChildHandle)
-		@bWaited = TRUE
+		@bWaited = 1
 		return _n_ = 1
 
 		def Terminate()
@@ -203,9 +203,9 @@ class stzProcess from stzObject
 	# first, so a dropped handle never leaks a process. Ring has no
 	# destructors -- call this when done with a child.
 	def Close()
-		if @pChildHandle != NULL
+		if @pChildHandle != ""
 			StzEngineProcessSpawnFree(@pChildHandle)
-			@pChildHandle = NULL
+			@pChildHandle = ""
 		ok
 
 		def Free()
@@ -216,7 +216,7 @@ class stzProcess from stzObject
 			return This
 
 	def _RequireChild()
-		if @pChildHandle = NULL
+		if @pChildHandle = ""
 			StzRaise("This stzProcess has no spawned child. Use Spawn() or SpawnProcess() first.")
 		ok
 

@@ -97,7 +97,7 @@ class stzCoeffExtractor from stzObject
 		
 		# Try simple pattern matching first (for performance)
 		_nSimpleCoeff_ = This.trySimpleExtraction(cExpression, _cVarName_)
-		if _nSimpleCoeff_ != NULL
+		if _nSimpleCoeff_ != ""
 			return _nSimpleCoeff_
 			_nResult_ = _nSimpleCoeff_
 		ok
@@ -124,7 +124,7 @@ class stzCoeffExtractor from stzObject
 			return This.extractLinearCoefficient(_cExpr_, _cVarName_)
 		ok
 		
-		return NULL  # Indicates need for numerical method
+		return ""  # Indicates need for numerical method
 	
 	def normalizeExpression(cExpression)
 		_cExpr_ = @trim(cExpression)
@@ -141,10 +141,10 @@ class stzCoeffExtractor from stzObject
 		   ring_substr1(cExpression, "abs(") or ring_substr1(cExpression, "sqrt(") or
 		   ring_substr1(cExpression, "/") or ring_substr1(cExpression, "pow(") or
 		   ring_substr1(cExpression, "^")
-			return FALSE
+			return 0
 		ok
 		
-		return TRUE
+		return 1
 	
 	def extractLinearCoefficient(cExpression, _cVarName_)
 		_cExpr_ = StzReplace(cExpression, "-", "+-")  # Handle negative terms
@@ -278,7 +278,7 @@ class stzCoeffExtractor from stzObject
 		try
 			_aTestValues_ = This.createTestValues(cExpression)
 			This.evaluateExpression(cExpression, _aTestValues_)
-			return TRUE
+			return 1
 		catch
-			return FALSE
+			return 0
 		done

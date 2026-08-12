@@ -57,10 +57,10 @@ class stzPCA from stzObject
 	@aData = []
 	@nRows = 0
 	@nCols = 0
-	@bStandardize = FALSE
-	@bChosen = FALSE
-	@bSample = TRUE
-	@bFitted = FALSE
+	@bStandardize = 0
+	@bChosen = 0
+	@bSample = 1
+	@bFitted = 0
 
 	@nK = 0
 	@nTotalVariance = 0
@@ -110,8 +110,8 @@ class stzPCA from stzObject
 	# CENTER each feature on its mean and leave the units alone -- covariance PCA.
 	# The features that vary most, in their own units, dominate.
 	def Center()
-		@bStandardize = FALSE
-		@bChosen = TRUE
+		@bStandardize = 0
+		@bChosen = 1
 
 		def CenterQ()
 			This.Center()
@@ -120,8 +120,8 @@ class stzPCA from stzObject
 	# CENTER and then divide each feature by its standard deviation -- correlation
 	# PCA. Every feature counts equally, whatever it was measured in.
 	def Standardize()
-		@bStandardize = TRUE
-		@bChosen = TRUE
+		@bStandardize = 1
+		@bChosen = 1
 
 		def StandardizeQ()
 			This.Standardize()
@@ -132,12 +132,12 @@ class stzPCA from stzObject
 	# The data centered on the column means, original untouched. This is what a
 	# covariance PCA actually decomposes, so it is worth being able to look at.
 	def Centered()
-		return This._Prepared(FALSE)
+		return This._Prepared(0)
 
 	# The data centered AND divided by the column standard deviations. What a
 	# correlation PCA decomposes.
 	def Standardized()
-		return This._Prepared(TRUE)
+		return This._Prepared(1)
 
 	def IsStandardized()
 		return @bStandardize
@@ -145,14 +145,14 @@ class stzPCA from stzObject
 	# ── the variance convention, from the library's one authority ──
 
 	def UseSampleVariance()
-		@bSample = TRUE
+		@bSample = 1
 
 		def UseSampleVarianceQ()
 			This.UseSampleVariance()
 			return This
 
 	def UsePopulationVariance()
-		@bSample = FALSE
+		@bSample = 0
 
 		def UsePopulationVarianceQ()
 			This.UsePopulationVariance()
@@ -283,7 +283,7 @@ class stzPCA from stzObject
 			@aScores + _aRow_
 		next
 
-		@bFitted = TRUE
+		@bFitted = 1
 
 		# the act returns nothing; the Q twin chains, which is what Q is FOR
 		def FitQ()

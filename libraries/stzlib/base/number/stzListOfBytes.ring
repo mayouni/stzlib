@@ -378,14 +378,14 @@ class stzListOfBytes from stzList
 
 	def ToBase64()
 		pHandle = StzEngineBytesFrom(@cData)
-		if pHandle = NULL return "" ok
+		if pHandle = "" return "" ok
 		_cResult_ = StzEngineBytesToBase64(pHandle)
 		StzEngineBytesFree(pHandle)
 		return _cResult_
 
 	def FromBase64(pcBase64String)
 		pHandle = StzEngineBytesNew()
-		if pHandle = NULL return ok
+		if pHandle = "" return ok
 		StzEngineBytesFromBase64(pHandle, pcBase64String)
 		_nSize_ = StzEngineBytesSize(pHandle)
 		if _nSize_ > 0
@@ -397,14 +397,14 @@ class stzListOfBytes from stzList
 
 	def ToPercentEncoding(pcExcludedFromEncoding, pcIncludedInEncoding, pcPercentAsciiChar)
 		pHandle = StzEngineBytesFrom(@cData)
-		if pHandle = NULL return @cData ok
+		if pHandle = "" return @cData ok
 		_cResult_ = StzEngineBytesToPercent(pHandle)
 		StzEngineBytesFree(pHandle)
 		return _cResult_
 
 	def FromPercentEncoding(pcPercentEncodedString, pcPercentAsciiChar)
 		pHandle = StzEngineBytesNew()
-		if pHandle = NULL return 0 ok
+		if pHandle = "" return 0 ok
 		StzEngineBytesFromPercent(pHandle, pcPercentEncodedString)
 		_nSize_ = StzEngineBytesSize(pHandle)
 		if _nSize_ > 0
@@ -417,7 +417,7 @@ class stzListOfBytes from stzList
 
 	def ToHex()
 		pHandle = StzEngineBytesFrom(@cData)
-		if pHandle = NULL return HexPrefix() ok
+		if pHandle = "" return HexPrefix() ok
 		_cResult_ = HexPrefix() + StzEngineBytesToHex(pHandle)
 		StzEngineBytesFree(pHandle)
 		return _cResult_
@@ -427,7 +427,7 @@ class stzListOfBytes from stzList
 
 	def ToHexWithoutPrefix()
 		pHandle = StzEngineBytesFrom(@cData)
-		if pHandle = NULL return "" ok
+		if pHandle = "" return "" ok
 		_cResult_ = StzEngineBytesToHex(pHandle)
 		StzEngineBytesFree(pHandle)
 		return _cResult_
@@ -437,7 +437,7 @@ class stzListOfBytes from stzList
 
 	def FromHex(pcHexString)
 		pHandle = StzEngineBytesNew()
-		if pHandle = NULL return ok
+		if pHandle = "" return ok
 		StzEngineBytesFromHex(pHandle, pcHexString)
 		_nSize_ = StzEngineBytesSize(pHandle)
 		if _nSize_ > 0
@@ -721,7 +721,7 @@ class stzListOfBytes from stzList
 
 	def Lowercase()
 		pHandle = StzEngineBytesFrom(@cData)
-		if pHandle = NULL return @cData ok
+		if pHandle = "" return @cData ok
 		_cResult_ = StzEngineBytesToLower(pHandle)
 		StzEngineBytesFree(pHandle)
 		return _cResult_
@@ -738,7 +738,7 @@ class stzListOfBytes from stzList
 
 	def Uppercased()
 		pHandle = StzEngineBytesFrom(@cData)
-		if pHandle = NULL return @cData ok
+		if pHandle = "" return @cData ok
 		_cResult_ = StzEngineBytesToUpper(pHandle)
 		StzEngineBytesFree(pHandle)
 		return _cResult_
