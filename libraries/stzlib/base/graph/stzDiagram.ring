@@ -132,10 +132,10 @@ func IsStzDiagram(pObj)
 	if isObject(pObj)
 		_cClass_ = StzLower(classname(pObj))
 		if _cClass_ = "stzdiagram"
-			return TRUE
+			return 1
 		ok
 	ok
-	return FALSE
+	return 0
 
 # STYLE RESOLUTION
 
@@ -268,7 +268,7 @@ class stzDiagram from stzGraph
 
 	@cFont = $cDefaultFont
 	@nFontSize = $cDefaultFontSize
-	@bFontCustomized = FALSE
+	@bFontCustomized = 0
 
 	@apropertiesKeys = []
 
@@ -294,7 +294,7 @@ class stzDiagram from stzGraph
 	@cSplineType = $cDefaultSplineType
 	@nNodeSep = $nDefaultNodeSep
 	@nRankSep = $nDefaultRankSep
-	@bConcentrate = FALSE
+	@bConcentrate = 0
 
 	@cTitle = ""
 	@cSubtitle = ""
@@ -372,11 +372,11 @@ class stzDiagram from stzGraph
 
 	def SetFont(pFont)
 		@cFont = StzLower(pFont)
-		@bFontCustomized = TRUE
+		@bFontCustomized = 1
 
 	def SetFontSize(pSize)
 	    @nFontSize = pSize
-	    @bFontCustomized = TRUE
+	    @bFontCustomized = 1
 	
 
 	def SetPenWidth(pnWidth)
@@ -466,31 +466,31 @@ class stzDiagram from stzGraph
 	        This.SetSplines($cDefaultOrgChartEdgeSpline)
 	        This.SetNodeSeparation(1.0)   # Increased for side-by-side
 	        This.SetRankSeparation(1.0)   # Increased for vertical clarity
-	        This.SetConcentrate(FALSE)
+	        This.SetConcentrate(0)
 	        
 	    on "orgchart_compact"
 	        This.SetSplines("spline")
 	        This.SetNodeSeparation(0.6)
 	        This.SetRankSeparation(0.8)
-	        This.SetConcentrate(FALSE)
+	        This.SetConcentrate(0)
 	        
 	    on "compact"
 	        This.SetSplines("spline")
 	        This.SetNodeSeparation(0.3)
 	        This.SetRankSeparation(0.5)
-	        This.SetConcentrate(TRUE)
+	        This.SetConcentrate(1)
 	        
 	    on "spacious"
 	        This.SetSplines("ortho")
 	        This.SetNodeSeparation(1.2)
 	        This.SetRankSeparation(1.5)
-	        This.SetConcentrate(FALSE)
+	        This.SetConcentrate(0)
 	        
 	    on "flowchart"
 	        This.SetSplines("polyline")
 	        This.SetNodeSeparation(0.8)
 	        This.SetRankSeparation(1.0)
-	        This.SetConcentrate(FALSE)
+	        This.SetConcentrate(0)
 	    off
 
 	def SetTitle(pcTitle)
@@ -1128,11 +1128,11 @@ class stzDiagram from stzGraph
 			return This._MatchTag(_aContext_, _aParams_)
 		off
 		
-		return FALSE
+		return 0
 	
 	def _MatchRange(_aContext_, _aParams_)
 		if NOT HasKey(_aContext_, :properties)
-			return FALSE
+			return 0
 		ok
 		
 		_cKey_ = _aParams_[1]
@@ -1140,33 +1140,33 @@ class stzDiagram from stzGraph
 		_nMax_ = _aParams_[3]
 		
 		if NOT HasKey(_aContext_[:properties], _cKey_)
-			return FALSE
+			return 0
 		ok
 		
 		pValue = _aContext_[:properties][_cKey_]
 		if NOT isNumber(pValue)
-			return FALSE
+			return 0
 		ok
 		
 		return (pValue >= _nMin_ and pValue <= _nMax_)
 	
 	def _MatchEquals(_aContext_, _aParams_)
 		if NOT HasKey(_aContext_, :properties)
-			return FALSE
+			return 0
 		ok
 		
 		_cKey_ = _aParams_[1]
 		pExpected = _aParams_[2]
 		
 		if NOT HasKey(_aContext_[:properties], _cKey_)
-			return FALSE
+			return 0
 		ok
 		
 		return (_aContext_[:properties][_cKey_] = pExpected)
 	
 	def _MatchExists(_aContext_, _aParams_)
 		if NOT HasKey(_aContext_, :properties)
-			return FALSE
+			return 0
 		ok
 		
 		_cKey_ = _aParams_[1]
@@ -1174,7 +1174,7 @@ class stzDiagram from stzGraph
 	
 	def _MatchTag(_aContext_, _aParams_)
 		if NOT HasKey(_aContext_, :tags)
-			return FALSE
+			return 0
 		ok
 		
 		_cTag_ = _aParams_[1]
@@ -1183,7 +1183,7 @@ class stzDiagram from stzGraph
 	def _BuildRuleContext(aElement)
 		_aContext_ = aElement
 		
-		if HasKey(aElement, :properties) and aElement[:properties] != NULL
+		if HasKey(aElement, :properties) and aElement[:properties] != ""
 			_aContext_[:properties] = aElement[:properties]
 			_aContext_[:tags] = []
 			if HasKey(aElement[:properties], :tags)
@@ -1372,7 +1372,16 @@ class stzDiagram from stzGraph
 	#  VISUALIZATION  #
 	#-----------------#
 
-	def View()
+	# DISPLAY, not View. In this very module `View` is already a NOUN for a
+	# data projection -- stzGraphView, stzGraphQuery.ToView(), IsView() --
+	# so one word carried two meanings in one namespace: "a filtered
+	# projection of the graph" and "open a window on the picture".
+	# Display() says only the second thing.
+	#
+	# View() stays as an alternative form because callers exist (the
+	# diagram suite among them), and breaking working code over a naming
+	# improvement is a worse trade than carrying an alias.
+	def Display()
 
 		# Generate DOT code
 		_cDotCode_ = This.Dot()
@@ -1382,9 +1391,13 @@ class stzDiagram from stzGraph
 		_oDotExec_.SetCode(_cDotCode_)
 		_oDotExec_.SetOutputFormat(@cOutputFormat)
 		_oDotExec_.ExecuteAndView()
-		
-		def Display()
-			This.View()
+
+		#< @FunctionAlternativeForm
+
+		def View()
+			This.Display()
+
+		#>
 
 	#----------#
 	#  EXPORT  #
@@ -1936,12 +1949,12 @@ class stzDiagram from stzGraph
 	def ExtractFirstNodeId(cDiagString)
 		_acLines_ = @split(cDiagString, char(10))
 		_nLen_ = len(_acLines_)
-		_bInNodesSection_ = FALSE
+		_bInNodesSection_ = 0
 
 		for i = 1 to _nLen_
 			_cLine_ = trim(_acLines_[i])
 			if _cLine_ = "nodes"
-				_bInNodesSection_ = TRUE
+				_bInNodesSection_ = 1
 				loop
 			ok
 			
@@ -2474,7 +2487,7 @@ class stzDiagramToStzDiag from stzObject
 		_oFile_ = fopen(pFilename, "w")
 		fwrite(_oFile_, This.stzdiag())
 		fclose(_oFile_)
-		return TRUE
+		return 1
 
 	def EscapeString(pStr)
 		return '"' +
@@ -2752,15 +2765,15 @@ class stzDiagramToDot from stzObject
 	def _GetEdgeStyle()
 		_cEdgeStyle_ = "solid"
 
-		if @oDiagram.@cEdgePenStyle != "" and @oDiagram.@cEdgePenStyle != NULL
+		if @oDiagram.@cEdgePenStyle != "" and @oDiagram.@cEdgePenStyle != ""
 			_cEdgeStyle_ = @oDiagram.@cEdgePenStyle
 		ok
 
-		_bSemanticSet_ = @oDiagram.@cEdgeStyle != "" and @oDiagram.@cEdgeStyle != NULL and
+		_bSemanticSet_ = @oDiagram.@cEdgeStyle != "" and @oDiagram.@cEdgeStyle != "" and
 		                 StzLower("" + @oDiagram.@cEdgeStyle) != StzLower("" + $cDefaultEdgeStyle)
 
 		if _bSemanticSet_ or @oDiagram.@cEdgePenStyle = "" or @oDiagram.@cEdgePenStyle = "solid"
-			if @oDiagram.@cEdgeStyle != "" and @oDiagram.@cEdgeStyle != NULL
+			if @oDiagram.@cEdgeStyle != "" and @oDiagram.@cEdgeStyle != ""
 				_cEdgeStyle_ = StzResolveEdgeStyle(@oDiagram.@cEdgeStyle)
 			ok
 		ok
@@ -2783,7 +2796,7 @@ class stzDiagramToDot from stzObject
 	    _cNodeId_ = This._SanitizeNodeId(_aNode_["id"])
 	    
 	    # Handle helper nodes
-	    if HasKey(_aNode_, "properties") and HasKey(_aNode_["properties"], "ishelper") and _aNode_["properties"]["ishelper"] = TRUE
+	    if HasKey(_aNode_, "properties") and HasKey(_aNode_["properties"], "ishelper") and _aNode_["properties"]["ishelper"] = 1
 	        _cOutput_ = '    ' + _cNodeId_ + ' [shape=point, width=0.01, height=0.01, style=invis, fixedsize=true, label=""]' + char(10)
 	        return _cOutput_
 	    ok
@@ -2874,15 +2887,15 @@ class stzDiagramToDot from stzObject
 		ok
 		
 		# Check node properties for explicit shape
-		if HasKey(_aNode_, "properties") and _aNode_["properties"] != NULL and 
-		   HasKey(_aNode_["properties"], "shape") and _aNode_["properties"]["shape"] != NULL
+		if HasKey(_aNode_, "properties") and _aNode_["properties"] != "" and 
+		   HasKey(_aNode_["properties"], "shape") and _aNode_["properties"]["shape"] != ""
 			return _aNode_["properties"]["shape"]
 		ok
 		
 		# Get type for semantic mapping
 		_cType_ = ""
-		if HasKey(_aNode_, "properties") and _aNode_["properties"] != NULL and 
-		   HasKey(_aNode_["properties"], "type") and _aNode_["properties"]["type"] != NULL
+		if HasKey(_aNode_, "properties") and _aNode_["properties"] != "" and 
+		   HasKey(_aNode_["properties"], "type") and _aNode_["properties"]["type"] != ""
 			_cType_ = StzLower("" + _aNode_["properties"]["type"])
 		ok
 		
@@ -3011,7 +3024,7 @@ class stzDiagramToDot from stzObject
 	    return _cColor_
 	
 	def _GetNodeStrokeColor(_cTheme_)
-		if @oDiagram.@cNodeStrokeColor != "" and @oDiagram.@cNodeStrokeColor != NULL
+		if @oDiagram.@cNodeStrokeColor != "" and @oDiagram.@cNodeStrokeColor != ""
 			return @oDiagram.@cNodeStrokeColor
 		ok
 		
@@ -3059,7 +3072,7 @@ class stzDiagramToDot from stzObject
 	    ok
 	    
 	    # Handle edge label with spacing fix for TB layout
-	    if HasKey(_aEdge_, "label") and _aEdge_["label"] != "" and _aEdge_["label"] != NULL
+	    if HasKey(_aEdge_, "label") and _aEdge_["label"] != "" and _aEdge_["label"] != ""
 	        _cLabel_ = _aEdge_["label"]
 	        _cRankDir_ = This._GetRankDir()
 	        
@@ -3179,7 +3192,7 @@ class stzDiagramToDot from stzObject
 		_oFile_ = fopen(pFilename, "w")
 		fwrite(_oFile_, This.DotCode())
 		fclose(_oFile_)
-		return TRUE
+		return 1
 
 #====================================#
 #  stzDiagramToMermaid - MERMAID.JS  #
@@ -3259,7 +3272,7 @@ class stzDiagramToMermaid from stzObject
 				_cToId_ = "node_" + _cToId_
 			ok
 			
-			if _aEdge_["label"] != "" and _aEdge_["label"] != NULL
+			if _aEdge_["label"] != "" and _aEdge_["label"] != ""
 				_cOutput_ += '    ' + _cFromId_ + ' -->|' + _aEdge_["label"] + '| ' + _cToId_ + char(10)
 			else
 				_cOutput_ += '    ' + _cFromId_ + ' --> ' + _cToId_ + char(10)
@@ -3281,7 +3294,7 @@ class stzDiagramToMermaid from stzObject
 		_oFile_ = fopen(pFilename, "w")
 		fwrite(_oFile_, This.Code())
 		fclose(_oFile_)
-		return TRUE
+		return 1
 
 #==================================#
 #  stzDiagramToJSON - JSON FORMAT  #
@@ -3319,7 +3332,7 @@ class stzDiagramToJSON from stzObject
 		_oFile_ = fopen(pFilename, "w")
 		fwrite(_oFile_, This.JsonCode())
 		fclose(_oFile_)
-		return TRUE
+		return 1
 
 #========================#
 #  COLOR RESOLVER CLASS  #
