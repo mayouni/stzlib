@@ -112,6 +112,8 @@ ok
     load "sound/stzSoundGraph.ring"
     load "sound/stzSoundTransport.ring"
     load "sound/stzVoicePool.ring"
+    # the SEMANTIC layer -- above the graph; needs the pool, so it loads after it
+    load "sound/stzEarcons.ring"
     load "sound/stzMicrophone.ring"
 
     # the material graph: a material AS a graph, emitting the material
