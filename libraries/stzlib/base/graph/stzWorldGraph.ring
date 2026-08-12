@@ -61,15 +61,15 @@ func StzWorldRefKinds()
 
 func IsStzWorldGraph(pObj)
 	if isObject(pObj) and classname(pObj) = "stzworldgraph"
-		return TRUE
+		return 1
 	ok
-	return FALSE
+	return 0
 
 class stzWorldGraph from stzObject
 
 	@cWorld = ""
 	@cContract = ""
-	@oGraph = NULL
+	@oGraph = ""
 	@aSymbols = []		# [ :id, :kind, :name, :type, :file, :line, :rationale ]
 	@aRefs = []		# [ :from, :to, :kind, :file, :line ]
 	@aDiag = []		# C2 envelopes, in the order they were found
@@ -295,17 +295,17 @@ class stzWorldGraph from stzObject
 	# A name must survive stzGraph's node-id rule: no space, no newline.
 	def _IsWellFormedName(pcName)
 		if NOT isString(pcName) or pcName = ""
-			return FALSE
+			return 0
 		ok
 		# StzFindFirst, not StzFind: StzFind answers a LIST of positions,
 		# and comparing a list to 0 is an R21.
 		if StzFindFirst(" ", pcName) > 0
-			return FALSE
+			return 0
 		ok
 		if StzFindFirst(char(10), pcName) > 0
-			return FALSE
+			return 0
 		ok
-		return TRUE
+		return 1
 
 	def _IndexOfSymbol(pcId)
 		_cI_ = StzLower(ring_trim("" + pcId))

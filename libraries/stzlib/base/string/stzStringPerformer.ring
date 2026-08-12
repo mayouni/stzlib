@@ -58,7 +58,7 @@ class stzStringPerformer from stzObject
 	def PerformOn(panPos, pcAction)
 		_cStr_ = @oString.Content()
 		_pList_ = StzEngineStringMapChars(_cStr_, _StzStripBraces(pcAction))
-		if _pList_ != NULL
+		if _pList_ != ""
 			StzEngineListFree(_pList_)
 		ok
 
@@ -85,7 +85,7 @@ class stzStringPerformer from stzObject
 	def Yield(pcYielder)
 		_cStr_ = @oString.Content()
 		_pList_ = StzEngineStringMapChars(_cStr_, _StzStripBraces(pcYielder))
-		if _pList_ = NULL return [] ok
+		if _pList_ = "" return [] ok
 
 		_aResult_ = StzEngineContentFromList(_pList_)
 		StzEngineListFree(_pList_)

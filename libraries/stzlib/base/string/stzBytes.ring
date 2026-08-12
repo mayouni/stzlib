@@ -26,7 +26,7 @@ func StzBytesQ(pData)
 
 class stzBytes from stzObject
 
-	@pEngine = NULL
+	@pEngine = ""
 
 	def init(pData)
 		if isString(pData)
@@ -187,7 +187,7 @@ class stzBytes from stzObject
 	#===============================#
 
 	def Free()
-		if @pEngine != NULL
+		if @pEngine != ""
 			StzEngineBytesFree(@pEngine)
-			@pEngine = NULL
+			@pEngine = ""
 		ok

@@ -1372,6 +1372,211 @@ class stzDiagram from stzGraph
 	#  VISUALIZATION  #
 	#-----------------#
 
+	#-----------------------------------------------------------------#
+	#  THE NATIVE TIER -- a diagram drawn WITHOUT dot.exe             #
+	#-----------------------------------------------------------------#
+	#
+	#     oD.ToSVG()               # vector, needs no GPU and no graphviz
+	#     oD.ToPNG("d.png")        # pixels, through the GPU
+	#     oD.ToCanvas()            # the stzCanvas, to compose further
+	#
+	# ToDot() and Display() are untouched: emitting the dot LANGUAGE is a
+	# legitimate export, and a caller with graphviz installed may still
+	# want its renderer. What changes is that neither is REQUIRED any more.
+	#
+	# LAYOUT IS BORROWED, DRAWING IS NOT. Positions come from
+	# stzGraphCanvas -- the engine-side layout GG1 built, measured and
+	# guarded -- because layout is the expensive, correctness-critical part
+	# and a second implementation of it would diverge. The DRAWING is here,
+	# because a diagram is a different picture from a graph: boxes with
+	# labels inside, twenty-four shapes, clusters behind. That is the same
+	# split stzOrgChart already made.
+	#
+	# KILL CRITERION, written before the code: dot still wins on two things
+	# this route does not attempt -- SPLINE edges routed around nodes, and
+	# nested clusters. If a diagram needs those, ToDot() remains the honest
+	# answer and this tier is a convenience, not a replacement. What it must
+	# do is draw every shape in the vocabulary, keep cluster members inside
+	# their cluster, and never need an external binary.
+
+	def ToCanvas()
+		return This.ToCanvasXT([])
+
+	def ToCanvasXT(paOptions)
+		if NOT isList(paOptions)  paOptions = []  ok
+
+		_aNodes_ = This.Nodes()
+		_nN_ = len(_aNodes_)
+		if _nN_ = 0
+			StzRaise("stzDiagram.ToCanvas: this diagram has no nodes to draw.")
+		ok
+
+		_nW_    = This._DiagOpt(paOptions, "width", 1000)
+		_nH_    = This._DiagOpt(paOptions, "height", 700)
+		_nBoxW_ = This._DiagOpt(paOptions, "nodewidth", 132)
+		_nBoxH_ = This._DiagOpt(paOptions, "nodeheight", 58)
+		_oFont_ = This._DiagOpt(paOptions, "font", NULL)
+		_nFsz_  = This._DiagOpt(paOptions, "fontsize", 13)
+		_cBg_   = This._DiagOpt(paOptions, "background", "#0E1422")
+		_cEdge_ = This._DiagOpt(paOptions, "edgecolor", "#5B6F9E")
+		_cText_ = This._DiagOpt(paOptions, "textcolor", "#F2F5FB")
+		_cLay_  = This._DiagOpt(paOptions, "layout", :Hierarchical)
+
+		# The layout wants room for the BOXES, not just their centres, so it
+		# is computed in a space inset by half a box on every side. Without
+		# this a node on the border has half its shape off-canvas -- which
+		# looks like a layout bug and is a margin bug.
+		_mx_ = _nBoxW_ / 2 + 12
+		_my_ = _nBoxH_ / 2 + 12
+		_oGC_ = new stzGraphCanvas(This, [
+			:Layout = _cLay_,
+			:Width  = max([ _nW_ - 2 * _mx_, 60 ]),
+			:Height = max([ _nH_ - 2 * _my_, 60 ])
+		])
+		_aPos_ = _oGC_.Positions()
+
+		# index positions by node id, since Positions() answers in the
+		# graph's node order and the diagram reads its own
+		_aXY_ = []
+		for _p_ in _aPos_
+			_aXY_ + [ StzLower("" + _p_[1]), _p_[2] + _mx_, _p_[3] + _my_ ]
+		next
+
+		_oC_ = new stzCanvas(_nW_, _nH_)
+		_oC_.SetBackground(_cBg_)
+
+		# 1. CLUSTERS first, so they sit behind everything they contain
+		for _cl_ in @aClusters
+			_aBox_ = This._ClusterBox(_cl_, _aXY_, _nBoxW_, _nBoxH_)
+			if len(_aBox_) = 4
+				_oC_.FillQ(_cl_[:color]).
+					AddRect(_aBox_[1], _aBox_[2], _aBox_[3], _aBox_[4])
+			ok
+		next
+
+		# 2. EDGES, straight. Splines are the kill criterion's territory.
+		for _e_ in This.Edges()
+			_a_ = This._XYOf(_aXY_, "" + _e_[:from])
+			_b_ = This._XYOf(_aXY_, "" + _e_[:to])
+			if len(_a_) = 2 and len(_b_) = 2
+				_oC_.AddLineQ(_a_[1], _a_[2], _b_[1], _b_[2]).
+					Stroke(_cEdge_, 2)
+			ok
+		next
+
+		# 3. NODES, each in the shape it asked for
+		for _i_ = 1 to _nN_
+			_cId_ = "" + _aNodes_[_i_][:id]
+			_a_ = This._XYOf(_aXY_, _cId_)
+			if len(_a_) != 2  loop  ok
+			_cShape_ = This._NativeShapeOf(_aNodes_[_i_])
+			_oC_.FillQ(This._NativeFillOf(_aNodes_[_i_])).
+				Stroke(This._DiagOpt(paOptions, "strokecolor", "#0B1020"), 2)
+			StzDrawNodeShape(_oC_, _cShape_,
+				_a_[1] - _nBoxW_ / 2, _a_[2] - _nBoxH_ / 2, _nBoxW_, _nBoxH_)
+		next
+
+		# 4. LABELS, only with a font -- a caller without one still gets the
+		#    picture rather than a refusal
+		if isObject(_oFont_)
+			for _i_ = 1 to _nN_
+				_cId_ = "" + _aNodes_[_i_][:id]
+				_a_ = This._XYOf(_aXY_, _cId_)
+				if len(_a_) != 2  loop  ok
+				_cLb_ = "" + _aNodes_[_i_][:label]
+				if _cLb_ = ""  _cLb_ = _cId_  ok
+				_nTw_ = _oFont_.WidthOf(_cLb_, _nFsz_)
+				_oC_.AddTextQ(_cLb_, _a_[1] - _nTw_ / 2, _a_[2] + _nFsz_ / 3).
+					SetFontQ(_oFont_, _nFsz_).Color(_cText_)
+			next
+		ok
+
+		return _oC_
+
+	def ToSVG()
+		return This.ToCanvas().ToSVG()
+
+	def ToSVGXT(paOptions)
+		return This.ToCanvasXT(paOptions).ToSVG()
+
+	def ToPNG(pcPath)
+		return This.ToCanvas().ToPNG(pcPath)
+
+	def ToPNGXT(pcPath, paOptions)
+		return This.ToCanvasXT(paOptions).ToPNG(pcPath)
+
+	#-- native-tier internals ------------------------------------------
+
+	def _DiagOpt(paOptions, cKey, xDefault)
+		if NOT isList(paOptions)  return xDefault  ok
+		for _p_ in paOptions
+			if isList(_p_) and len(_p_) = 2
+				if StzLower("" + _p_[1]) = StzLower("" + cKey)
+					return _p_[2]
+				ok
+			ok
+		next
+		return xDefault
+
+	def _XYOf(aXY, cId)
+		_c_ = StzLower(cId)
+		for _r_ in aXY
+			if _r_[1] = _c_  return [ _r_[2], _r_[3] ]  ok
+		next
+		return []
+
+	# The shape a node asked for, mapped into the drawable vocabulary. An
+	# unknown name becomes a box rather than a refusal: a diagram that
+	# would not draw at all because one node named a shape graphviz has and
+	# this does not is a worse outcome than a box.
+	def _NativeShapeOf(aNode)
+		_c_ = ""
+		if HasKey(aNode, "properties") and isList(aNode["properties"])
+			if HasKey(aNode["properties"], "shape")
+				_c_ = "" + aNode["properties"]["shape"]
+			but HasKey(aNode["properties"], "type")
+				_c_ = "" + aNode["properties"]["type"]
+			ok
+		ok
+		if _c_ != "" and StzIsNodeShape(_c_)  return _c_  ok
+		return :Box
+
+	def _NativeFillOf(aNode)
+		if HasKey(aNode, "properties") and isList(aNode["properties"])
+			if HasKey(aNode["properties"], "color")
+				return ResolveColor("" + aNode["properties"]["color"])
+			but HasKey(aNode["properties"], "fillcolor")
+				return ResolveColor("" + aNode["properties"]["fillcolor"])
+			ok
+		ok
+		return "#2E4970"
+
+	# The box that contains every member of a cluster, padded. Returns []
+	# when no member has a position, so a cluster naming nodes that are not
+	# in the diagram draws nothing instead of a rectangle at the origin.
+	def _ClusterBox(aCluster, aXY, nBoxW, nBoxH)
+		_bAny_ = FALSE
+		_x0_ = 0  _y0_ = 0  _x1_ = 0  _y1_ = 0
+		for _id_ in aCluster[:nodes]
+			_a_ = This._XYOf(aXY, "" + _id_)
+			if len(_a_) != 2  loop  ok
+			_lx_ = _a_[1] - nBoxW / 2  _rx_ = _a_[1] + nBoxW / 2
+			_ty_ = _a_[2] - nBoxH / 2  _by_ = _a_[2] + nBoxH / 2
+			if NOT _bAny_
+				_x0_ = _lx_  _x1_ = _rx_  _y0_ = _ty_  _y1_ = _by_
+				_bAny_ = TRUE
+			else
+				if _lx_ < _x0_  _x0_ = _lx_  ok
+				if _rx_ > _x1_  _x1_ = _rx_  ok
+				if _ty_ < _y0_  _y0_ = _ty_  ok
+				if _by_ > _y1_  _y1_ = _by_  ok
+			ok
+		next
+		if NOT _bAny_  return []  ok
+		_pad_ = 16
+		return [ _x0_ - _pad_, _y0_ - _pad_,
+			(_x1_ - _x0_) + 2 * _pad_, (_y1_ - _y0_) + 2 * _pad_ ]
+
 	# DISPLAY, not View. In this very module `View` is already a NOUN for a
 	# data projection -- stzGraphView, stzGraphQuery.ToView(), IsView() --
 	# so one word carried two meanings in one namespace: "a filtered

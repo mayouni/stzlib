@@ -95,11 +95,11 @@ class stzGraphGoal from stzObject
 		_aGap_ = []
 		_nInst_ = len(_aInstances_)
 		for _i_ = 1 to _nInst_
-			_bHas_ = FALSE
+			_bHas_ = 0
 			for _j_ = 1 to _nLen_
 				if _aEdges_[_j_][:from] = _aInstances_[_i_] and
 				   StzLower("" + _aEdges_[_j_][:label]) = @cRelation
-					_bHas_ = TRUE
+					_bHas_ = 1
 					exit
 				ok
 			next

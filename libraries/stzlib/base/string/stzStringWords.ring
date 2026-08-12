@@ -68,7 +68,7 @@ class stzStringWords from stzObject
 	def NthWord(_n_)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringNthWord(_pH_, _n_)
-		if _pR_ != NULL
+		if _pR_ != ""
 			_c_ = StzEngineStringData(_pR_)
 			StzEngineStringFree(_pR_)
 			return _c_

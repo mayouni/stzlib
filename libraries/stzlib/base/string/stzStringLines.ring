@@ -80,7 +80,7 @@ class stzStringLines from stzObject
 	def NthLine(n)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringLineAt(_pH_, n)
-		if _pR_ != NULL
+		if _pR_ != ""
 			_c_ = StzEngineStringData(_pR_)
 			StzEngineStringFree(_pR_)
 			return _c_

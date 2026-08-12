@@ -126,7 +126,7 @@ class stzString from stzObject
 		if pOp = "<" or pOp = ">" or pOp = "<=" or pOp = ">="
 			_cOpCmp_ = pValue
 			if isObject(pValue) _cOpCmp_ = pValue.Content() ok
-			if NOT isString(_cOpCmp_) return FALSE ok
+			if NOT isString(_cOpCmp_) return 0 ok
 			_nOpCmp_ = strcmp(This.Content(), _cOpCmp_)
 			if pOp = "<" return _nOpCmp_ < 0 ok
 			if pOp = ">" return _nOpCmp_ > 0 ok
@@ -163,11 +163,11 @@ class stzString from stzObject
 			but isObject(pValue)
 				# A stz-object operand (e.g. Q("*")): subtract its CONTENT.
 				_bMinElevate_ = 1
-				_inner_ = NULL
+				_inner_ = ""
 				try
 					_inner_ = pValue.Content()
 				catch
-					_inner_ = NULL
+					_inner_ = ""
 				done
 				if isString(_inner_)
 					_cOut_ = StzReplace(_cOut_, _inner_, "")
@@ -217,7 +217,7 @@ class stzString from stzObject
 				for _iDiv_ = 1 to _nDivL_
 					if NOT ( isList(pValue[_iDiv_]) and len(pValue[_iDiv_]) = 2 and
 					         isString(pValue[_iDiv_][1]) )
-						_bDivPairs_ = FALSE
+						_bDivPairs_ = 0
 						exit
 					ok
 				next
@@ -459,10 +459,10 @@ class stzString from stzObject
 	# A bound char: not alphanumeric, not a space (so bracket/punctuation runs
 	# like "<<<" or "((( " are bounds, but letters/digits/spaces are not).
 	def _IsBoundChar(c)
-		if c = " " return FALSE ok
-		if isAlpha(c) return FALSE ok
-		if isDigit(c) return FALSE ok
-		return TRUE
+		if c = " " return 0 ok
+		if isAlpha(c) return 0 ok
+		if isDigit(c) return 0 ok
+		return 1
 
 	# BoundsOfUpToNChars(pcSub, n): like BoundsOf but cap each PER-OCCURRENCE
 	# side at n chars (counted from the inside out). n can also be the list
@@ -732,7 +732,7 @@ class stzString from stzObject
 	def NthChar(n)
 		_pH_ = This.Engine()
 		_pR_ = StzEngineStringNthChar(_pH_, n)
-		if _pR_ != NULL
+		if _pR_ != ""
 			c = StzEngineStringData(_pR_)
 			StzEngineStringFree(_pR_)
 			return c
@@ -909,7 +909,7 @@ class stzString from stzObject
 		ok
 		_pH_ = This.Engine()
 		_pR_ = StzEngineStringSlice(_pH_, _n1_, _n2_ - _n1_ + 1)
-		if _pR_ != NULL
+		if _pR_ != ""
 			c = StzEngineStringData(_pR_)
 			StzEngineStringFree(_pR_)
 			return c
@@ -935,7 +935,7 @@ class stzString from stzObject
 		if _nLen_ = 0 return "" ok
 		_pH_ = This.Engine()
 		_pR_ = StzEngineStringSlice(_pH_, _n1_, _n2_ - _n1_ + 1)
-		if _pR_ != NULL
+		if _pR_ != ""
 			c = StzEngineStringData(_pR_)
 			StzEngineStringFree(_pR_)
 			return c
@@ -1059,7 +1059,7 @@ class stzString from stzObject
 	# IsCircledNumber / IsCircledDigit -- Unicode-aware single-char
 	# predicates (Enclosed Alphanumerics block etc.).
 	def IsCircledNumber()
-		if This._EngineCount(This.Content()) != 1 return FALSE ok
+		if This._EngineCount(This.Content()) != 1 return 0 ok
 		_n_ = StzEngineStringCharAt(@pEngine, 1)
 		# 0x2460..0x2473 = circled 1..20
 		# 0x24EA..0x24FF = circled 0, negative-circled digits
@@ -1258,7 +1258,7 @@ class stzString from stzObject
 
 	# TRUE if the string runs left-to-right (bidi direction).
 	def IsLeftToRight()
-		return TRUE
+		return 1
 
 	  #========================================#
 	 #     INTERNAL ENGINE PRIMITIVES         #
@@ -1282,7 +1282,7 @@ class stzString from stzObject
 	def _ReplaceRange(_n1_, _nRange_, pcNew)
 		# Engine uses INDEX_BASE=1 (1-based codepoint positions)
 		pResult = StzEngineStringReplaceRange(@pEngine, _n1_, _nRange_, pcNew)
-		if pResult = NULL
+		if pResult = ""
 			return This.Content()
 		ok
 		_cResult_ = StzEngineStringData(pResult)
@@ -1545,7 +1545,7 @@ class stzString from stzObject
 	#-- The FIRST number coming after the substring (NULL if none).
 	def NumberComingAfterCS(pcSubStr, pCaseSensitive)
 		_aNcaAll_ = This.NumbersComingAfterCS(pcSubStr, pCaseSensitive)
-		if len(_aNcaAll_) = 0 return NULL ok
+		if len(_aNcaAll_) = 0 return "" ok
 		return _aNcaAll_[1]
 
 	def NumberComingAfter(pcSubStr)
@@ -1651,7 +1651,7 @@ class stzString from stzObject
 		if isNumber(pcSubStr) and isString(pNamed)
 			return This.NumberOfOccurrence(pNamed) >= pcSubStr
 		ok
-		return FALSE
+		return 0
 
 	# ContainsInSection: does pcSubStr appear within the substring
 	# bounded by positions [n1, n2] (inclusive)?
@@ -1966,11 +1966,11 @@ class stzString from stzObject
 						# :With = :CharsRepeated, or the bare :ByCharsRepeated /
 						# :CharsRepeated -> extend to that position by repeating
 						# THIS string's own chars (e.g. "ABC" to 5 -> "ABCAB").
-						_bXtRep_ = FALSE
+						_bXtRep_ = 0
 						if isString(pWarg) and (lower(pWarg) = "bycharsrepeated" or lower(pWarg) = "charsrepeated")
-							_bXtRep_ = TRUE
+							_bXtRep_ = 1
 						but isList(pWarg) and len(pWarg) = 2 and isString(pWarg[2]) and lower(pWarg[2]) = "charsrepeated"
-							_bXtRep_ = TRUE
+							_bXtRep_ = 1
 						ok
 						if _bXtRep_
 							This.ExtendToWithCharsRepeated(_nXtPos_)
@@ -2475,7 +2475,7 @@ class stzString from stzObject
 	# copy that leaves the original unchanged, use Reversed.
 	def Reverse()
 		_pRvResult_ = StzEngineStringReverse(@pEngine)
-		if _pRvResult_ != NULL
+		if _pRvResult_ != ""
 			This.Update(StzEngineStringData(_pRvResult_))
 			StzEngineStringFree(_pRvResult_)
 		ok
@@ -2488,7 +2488,7 @@ class stzString from stzObject
 	#@ aka  backwards, in reverse order, mirrored, flipped
 	def Reversed()
 		_pRvdResult_ = StzEngineStringReverse(@pEngine)
-		if _pRvdResult_ != NULL
+		if _pRvdResult_ != ""
 			_cRvdResult_ = StzEngineStringData(_pRvdResult_)
 			StzEngineStringFree(_pRvdResult_)
 			return _cRvdResult_
@@ -3044,7 +3044,7 @@ class stzString from stzObject
 		ok
 		_lastPos_ = 0
 		_from_ = 1
-		while TRUE
+		while 1
 			_p_ = This._FindFrom(_hay_, _needle_, _from_)
 			if _p_ < 1 exit ok
 			_lastPos_ = _p_
@@ -3208,7 +3208,7 @@ class stzString from stzObject
 			pcNew = pcNew[2]
 		ok
 		_aOpen_ = pacBounds
-		_aClose_ = NULL
+		_aClose_ = ""
 		if isList(pacBounds) and len(pacBounds) = 2
 			_aOpen_ = pacBounds[1]; _aClose_ = pacBounds[2]
 		but isString(pacBounds)
@@ -3269,7 +3269,7 @@ class stzString from stzObject
 				pcNew = pcNew[2]
 			ok
 			_aOpenIB_ = pacBounds
-			_aCloseIB_ = NULL
+			_aCloseIB_ = ""
 			if isList(pacBounds) and len(pacBounds) = 2
 				_aOpenIB_ = pacBounds[1]; _aCloseIB_ = pacBounds[2]
 			but isString(pacBounds)
@@ -3364,8 +3364,8 @@ class stzString from stzObject
 	# ReplaceCharAt(:Position = n, :By = pcNew) -- named-param variant
 	# of ReplaceAt for char-at-position replacement.
 	def ReplaceCharAt(pP1, pP2)
-		_n_ = NULL
-		_cNew_ = NULL
+		_n_ = ""
+		_cNew_ = ""
 		_aArgs_ = [ pP1, pP2 ]
 		for _i_ = 1 to 2
 			_a_ = _aArgs_[_i_]
@@ -3378,7 +3378,7 @@ class stzString from stzObject
 				ok
 			ok
 		next
-		if _n_ != NULL and _cNew_ != NULL
+		if _n_ != "" and _cNew_ != ""
 			This.ReplaceCharAtSimple(_n_, _cNew_)
 		ok
 
@@ -3486,9 +3486,9 @@ class stzString from stzObject
 	# predicate). The Sections variant returns the [start, end] spans
 	# instead of the substrings.
 	def Sit(p1, p2)
-		_aSec_ = NULL
-		_aHarvest_ = NULL
-		_bSitSections_ = FALSE
+		_aSec_ = ""
+		_aHarvest_ = ""
+		_bSitSections_ = 0
 		_aArgs_ = [ p1, p2 ]
 		for _i_ = 1 to 2
 			_a_ = _aArgs_[_i_]
@@ -3504,17 +3504,17 @@ class stzString from stzObject
 					_aHarvest_ = _a_[2]
 				but _k_ = "andharvestsections" or _k_ = "harvestsections"
 					_aHarvest_ = _a_[2]
-					_bSitSections_ = TRUE
+					_bSitSections_ = 1
 				ok
 			ok
 		next
-		if _aSec_ = NULL or NOT (isList(_aSec_) and len(_aSec_) = 2)
+		if _aSec_ = "" or NOT (isList(_aSec_) and len(_aSec_) = 2)
 			return []
 		ok
 		_nBefore_ = 0; _nAfter_ = 0
 		# Boolean flags, NOT NULL sentinels -- Ring's NULL is "" and
 		# isString("") is TRUE (the documented trap).
-		_bCondBefore_ = FALSE; _bCondAfter_ = FALSE
+		_bCondBefore_ = 0; _bCondAfter_ = 0
 		_cCondBefore_ = ""; _cCondAfter_ = ""
 		if isList(_aHarvest_)
 			_nHL_ = len(_aHarvest_)
@@ -3527,10 +3527,10 @@ class stzString from stzObject
 					but _hk_ = "ncharsafter" or _hk_ = "after"
 						_nAfter_ = _h_[2]
 					but _hk_ = "charsbeforew"
-						_bCondBefore_ = TRUE
+						_bCondBefore_ = 1
 						_cCondBefore_ = _h_[2]
 					but _hk_ = "charsafterw"
-						_bCondAfter_ = TRUE
+						_bCondAfter_ = 1
 						_cCondAfter_ = _h_[2]
 					ok
 				ok
@@ -3621,11 +3621,11 @@ class stzString from stzObject
 	def MarkersAreSortedInAscending()
 		_aM_ = This.Markers()
 		_nLen_ = len(_aM_)
-		if _nLen_ < 2 return TRUE ok
+		if _nLen_ < 2 return 1 ok
 		for _i_ = 2 to _nLen_
-			if _aM_[_i_] < _aM_[_i_ - 1] return FALSE ok
+			if _aM_[_i_] < _aM_[_i_ - 1] return 0 ok
 		next
-		return TRUE
+		return 1
 
 		def MarquersAreSortedInAscending()
 			return This.MarkersAreSortedInAscending()
@@ -3636,11 +3636,11 @@ class stzString from stzObject
 	def MarkersAreSortedInDescending()
 		_aM_ = This.Markers()
 		_nLen_ = len(_aM_)
-		if _nLen_ < 2 return TRUE ok
+		if _nLen_ < 2 return 1 ok
 		for _i_ = 2 to _nLen_
-			if _aM_[_i_] > _aM_[_i_ - 1] return FALSE ok
+			if _aM_[_i_] > _aM_[_i_ - 1] return 0 ok
 		next
-		return TRUE
+		return 1
 
 		def MarquersAreSortedInDescending()
 			return This.MarkersAreSortedInDescending()
@@ -3696,14 +3696,14 @@ class stzString from stzObject
 		# :Each form -- replace ALL occurrences of a substring.
 		#   ReplaceXT(:Each = sub, [], :With = new)
 		#   ReplaceXT(sub, :With = new, [])
-		_bEach_ = FALSE
+		_bEach_ = 0
 		_xEachSub_ = ""
 		if isList(p1) and len(p1) = 2 and isString(p1[1]) and lower(p1[1]) = "each"
-			_bEach_ = TRUE
+			_bEach_ = 1
 			_xEachSub_ = p1[2]
 		but isString(p1) and isList(p2) and len(p2) = 2 and isString(p2[1]) and
 		    (lower(p2[1]) = "with" or lower(p2[1]) = "by")
-			_bEach_ = TRUE
+			_bEach_ = 1
 			_xEachSub_ = p1
 		ok
 		if _bEach_ and isString(_xEachSub_)
@@ -3783,7 +3783,7 @@ class stzString from stzObject
 					return
 				ok
 				_aOpen_ = _xAnchorV_
-				_aClose_ = NULL
+				_aClose_ = ""
 				if isList(_aOpen_) and len(_aOpen_) = 2
 					_aClose_ = _aOpen_[2]; _aOpen_ = _aOpen_[1]
 				but isString(_aOpen_)
@@ -3940,14 +3940,14 @@ class stzString from stzObject
 		if len(aStepPh) >= 2 and isNumber(aStepPh[2]) _nSmStepT_ = aStepPh[2] ok
 		# directions: head = phase 1 (default backward -- the natural
 		# thousands grouping); tail = phase 2 (default forward).
-		_bSmDirH_ = TRUE
+		_bSmDirH_ = 1
 		if len(aDirPh) >= 1 and isString(aDirPh[1])
-			if lower(aDirPh[1]) = "forward" _bSmDirH_ = FALSE ok
+			if lower(aDirPh[1]) = "forward" _bSmDirH_ = 0 ok
 		ok
-		_bSmDirT_ = FALSE
+		_bSmDirT_ = 0
 		if len(aDirPh) >= 2 and isString(aDirPh[2])
 			if lower(aDirPh[2]) = "backward" or lower(aDirPh[2]) = "reverse"
-				_bSmDirT_ = TRUE
+				_bSmDirT_ = 1
 			ok
 		ok
 		_cSmHead_ = This._EngineSlice(_cSmContent_, 1, _nSmLen_ - nLast)
@@ -3990,9 +3990,9 @@ class stzString from stzObject
 		ok
 
 		# Determine direction.
-		_bBackward_ = FALSE
+		_bBackward_ = 0
 		if isString(p3) and (lower(p3) = "backward" or lower(p3) = "reverse")
-			_bBackward_ = TRUE
+			_bBackward_ = 1
 		ok
 
 		# Build the per-position separator stream.
@@ -4142,10 +4142,10 @@ class stzString from stzObject
 		# valid as later inserts shift the string. Only enter this
 		# path when the list is plain numbers (not a named-param pair).
 		if isList(n)
-			_bAllNum_ = TRUE
+			_bAllNum_ = 1
 			_nNL_ = len(n)
 			for _iC_ = 1 to _nNL_
-				if NOT isNumber(n[_iC_]) _bAllNum_ = FALSE exit ok
+				if NOT isNumber(n[_iC_]) _bAllNum_ = 0 exit ok
 			next
 			if _bAllNum_
 				_aPos_ = _ListCopy(n)
@@ -4410,11 +4410,11 @@ class stzString from stzObject
 			return This
 
 	def InsertAfterEachNCharsXT(n, pNamed)
-		_bFromEnd_ = FALSE
+		_bFromEnd_ = 0
 		if isList(pNamed) and len(pNamed) = 2 and isString(pNamed[1]) and
 		   (lower(pNamed[1]) = "startingfrom" or lower(pNamed[1]) = "from")
 			if pNamed[2] = :End or (isString(pNamed[2]) and lower(pNamed[2]) = "end")
-				_bFromEnd_ = TRUE
+				_bFromEnd_ = 1
 			ok
 		ok
 		if NOT _bFromEnd_
@@ -5034,7 +5034,7 @@ class stzString from stzObject
 		_aLnResult_ = []
 		for _iLn_ = 1 to _nLnCount_
 			_pLnHandle_ = StzEngineStringLineAt(@pEngine, _iLn_)
-			if _pLnHandle_ != NULL
+			if _pLnHandle_ != ""
 				_aLnResult_ + StzEngineStringData(_pLnHandle_)
 				StzEngineStringFree(_pLnHandle_)
 			ok
@@ -5822,14 +5822,14 @@ class stzString from stzObject
 
 	# Each char in its own box cell, as a string.
 	def EachCharBoxed()
-		return This._BoxRender([ :EachChar = TRUE ])
+		return This._BoxRender([ :EachChar = 1 ])
 
 	def EachCharBoxedQ()
 		return new stzString( This.EachCharBoxed() )
 
 	# BoxRoundEachChar: surround each char with a rounded-corner box.
 	def BoxRoundEachChar()
-		This.Update( This._BoxRender([ :EachChar = TRUE, :AllCorners = :Round ]) )
+		This.Update( This._BoxRender([ :EachChar = 1, :AllCorners = :Round ]) )
 
 		def BoxRoundEachCharQ()
 			This.BoxRoundEachChar()
@@ -6036,7 +6036,7 @@ class stzString from stzObject
 	# The UNIQUE chars of the string, in first-seen order.
 	def CharsU()
 		_pCuHandle_ = StzEngineStringUniqueChars(@pEngine)
-		if _pCuHandle_ = NULL
+		if _pCuHandle_ = ""
 			return []
 		ok
 		_pCuSplit_ = StzEngineStringCharsSplit(_pCuHandle_)
@@ -6130,7 +6130,7 @@ class stzString from stzObject
 		ok
 
 		_pRptHandle_ = StzEngineStringRepeat(@pEngine, n)
-		if _pRptHandle_ = NULL
+		if _pRptHandle_ = ""
 			return This.Content()
 		ok
 		_cRptResult_ = StzEngineStringData(_pRptHandle_)
@@ -6565,7 +6565,7 @@ class stzString from stzObject
 		if isString(pVal1) and isString(_cB_)
 			return This.Contains(pVal1) or This.Contains(_cB_)
 		ok
-		return FALSE
+		return 0
 
 	  #================================#
 	 #   FIND/REMOVE BOUNDS           #
@@ -6724,12 +6724,12 @@ class stzString from stzObject
 	# Same-char bound helpers: a bound is "same-char" when one string is used
 	# for both ends ("&") or a 2-list with equal ends (["&","&"]).
 	def _IsSameCharBound(pacBounds)
-		if isString(pacBounds) return TRUE ok
+		if isString(pacBounds) return 1 ok
 		if isList(pacBounds) and len(pacBounds) = 2 and
 		   isString(pacBounds[1]) and isString(pacBounds[2]) and pacBounds[1] = pacBounds[2]
-			return TRUE
+			return 1
 		ok
-		return FALSE
+		return 0
 
 	def _SameCharBoundPair(pacBounds)
 		if isString(pacBounds) return [ pacBounds, pacBounds ] ok
@@ -6757,7 +6757,7 @@ class stzString from stzObject
 		# span -> [ [substr, [s,e]], ... ]. Single-string pacBounds is used
 		# as both open and close.
 		def BoundedByZZ(pacBounds)
-			_aBzSecs_ = NULL
+			_aBzSecs_ = ""
 			if isString(pacBounds)
 				_aBzSecs_ = This.FindBoundedByAsSections([ pacBounds, pacBounds ])
 			else
@@ -6891,7 +6891,7 @@ class stzString from stzObject
 
 	def ReplaceBetween(pcOpen, pcClose, pcReplacement)
 		_pRbR_ = StzEngineStringReplaceBetween(@pEngine, pcOpen, pcClose, pcOpen + pcReplacement + pcClose)
-		if _pRbR_ != NULL
+		if _pRbR_ != ""
 			This.Update(StzEngineStringData(_pRbR_))
 			StzEngineStringFree(_pRbR_)
 		ok
@@ -6900,7 +6900,7 @@ class stzString from stzObject
 	# bounds stay) -- engine-backed, mutating.
 	def ReplaceFirstBetween(pcOpen, pcClose, pcReplacement)
 		_pRfbR_ = StzEngineStringReplaceFirstBetween(@pEngine, pcOpen, pcClose, pcOpen + pcReplacement + pcClose)
-		if _pRfbR_ != NULL
+		if _pRfbR_ != ""
 			This.Update(StzEngineStringData(_pRfbR_))
 			StzEngineStringFree(_pRfbR_)
 		ok
@@ -6909,7 +6909,7 @@ class stzString from stzObject
 	# bounds stay) -- mutating.
 	def ReplaceLastBetween(pcOpen, pcClose, pcReplacement)
 		_pRlbR_ = StzEngineStringReplaceLastBetween(@pEngine, pcOpen, pcClose, pcOpen + pcReplacement + pcClose)
-		if _pRlbR_ != NULL
+		if _pRlbR_ != ""
 			This.Update(StzEngineStringData(_pRlbR_))
 			StzEngineStringFree(_pRlbR_)
 		ok
@@ -6918,7 +6918,7 @@ class stzString from stzObject
 	# bounds stay) -- mutating.
 	def ReplaceNthBetween(n, pcOpen, pcClose, pcReplacement)
 		_pRnbR_ = StzEngineStringReplaceNthBetween(@pEngine, pcOpen, pcClose, pcOpen + pcReplacement + pcClose, n - 1)
-		if _pRnbR_ != NULL
+		if _pRnbR_ != ""
 			This.Update(StzEngineStringData(_pRnbR_))
 			StzEngineStringFree(_pRnbR_)
 		ok
@@ -6927,7 +6927,7 @@ class stzString from stzObject
 	# bounds stay) -- mutating.
 	def RemoveBetween(pcOpen, pcClose)
 		_pRmbR_ = StzEngineStringReplaceBetween(@pEngine, pcOpen, pcClose, pcOpen + pcClose)
-		if _pRmbR_ != NULL
+		if _pRmbR_ != ""
 			This.Update(StzEngineStringData(_pRmbR_))
 			StzEngineStringFree(_pRmbR_)
 		ok
@@ -6936,7 +6936,7 @@ class stzString from stzObject
 	# -- mutating.
 	def RemoveFirstBetween(pcOpen, pcClose)
 		_pRmfbR_ = StzEngineStringReplaceFirstBetween(@pEngine, pcOpen, pcClose, pcOpen + pcClose)
-		if _pRmfbR_ != NULL
+		if _pRmfbR_ != ""
 			This.Update(StzEngineStringData(_pRmfbR_))
 			StzEngineStringFree(_pRmfbR_)
 		ok
@@ -6945,7 +6945,7 @@ class stzString from stzObject
 	# -- mutating.
 	def RemoveLastBetween(pcOpen, pcClose)
 		_pRmlbR_ = StzEngineStringReplaceLastBetween(@pEngine, pcOpen, pcClose, pcOpen + pcClose)
-		if _pRmlbR_ != NULL
+		if _pRmlbR_ != ""
 			This.Update(StzEngineStringData(_pRmlbR_))
 			StzEngineStringFree(_pRmlbR_)
 		ok
@@ -6954,7 +6954,7 @@ class stzString from stzObject
 	# -- mutating.
 	def RemoveNthBetween(n, pcOpen, pcClose)
 		_pRmnbR_ = StzEngineStringReplaceNthBetween(@pEngine, pcOpen, pcClose, pcOpen + pcClose, n - 1)
-		if _pRmnbR_ != NULL
+		if _pRmnbR_ != ""
 			This.Update(StzEngineStringData(_pRmnbR_))
 			StzEngineStringFree(_pRmnbR_)
 		ok
@@ -6964,7 +6964,7 @@ class stzString from stzObject
 
 	def ReplaceBetweenIB(pcOpen, pcClose, pcReplacement)
 		_pRbibR_ = StzEngineStringReplaceBetween(@pEngine, pcOpen, pcClose, pcReplacement)
-		if _pRbibR_ != NULL
+		if _pRbibR_ != ""
 			This.Update(StzEngineStringData(_pRbibR_))
 			StzEngineStringFree(_pRbibR_)
 		ok
@@ -6973,7 +6973,7 @@ class stzString from stzObject
 	# mutating.
 	def ReplaceFirstBetweenIB(pcOpen, pcClose, pcReplacement)
 		_pRfbibR_ = StzEngineStringReplaceFirstBetween(@pEngine, pcOpen, pcClose, pcReplacement)
-		if _pRfbibR_ != NULL
+		if _pRfbibR_ != ""
 			This.Update(StzEngineStringData(_pRfbibR_))
 			StzEngineStringFree(_pRfbibR_)
 		ok
@@ -6982,7 +6982,7 @@ class stzString from stzObject
 	# mutating.
 	def ReplaceLastBetweenIB(pcOpen, pcClose, pcReplacement)
 		_pRlbibR_ = StzEngineStringReplaceLastBetween(@pEngine, pcOpen, pcClose, pcReplacement)
-		if _pRlbibR_ != NULL
+		if _pRlbibR_ != ""
 			This.Update(StzEngineStringData(_pRlbibR_))
 			StzEngineStringFree(_pRlbibR_)
 		ok
@@ -6991,7 +6991,7 @@ class stzString from stzObject
 	# mutating.
 	def ReplaceNthBetweenIB(n, pcOpen, pcClose, pcReplacement)
 		_pRnbibR_ = StzEngineStringReplaceNthBetween(@pEngine, pcOpen, pcClose, pcReplacement, n - 1)
-		if _pRnbibR_ != NULL
+		if _pRnbibR_ != ""
 			This.Update(StzEngineStringData(_pRnbibR_))
 			StzEngineStringFree(_pRnbibR_)
 		ok
@@ -7000,7 +7000,7 @@ class stzString from stzObject
 	# mutating.
 	def RemoveBetweenIB(pcOpen, pcClose)
 		_pRmbibR_ = StzEngineStringReplaceBetween(@pEngine, pcOpen, pcClose, "")
-		if _pRmbibR_ != NULL
+		if _pRmbibR_ != ""
 			This.Update(StzEngineStringData(_pRmbibR_))
 			StzEngineStringFree(_pRmbibR_)
 		ok
@@ -7009,7 +7009,7 @@ class stzString from stzObject
 	# mutating.
 	def RemoveFirstBetweenIB(pcOpen, pcClose)
 		_pRmfbibR_ = StzEngineStringReplaceFirstBetween(@pEngine, pcOpen, pcClose, "")
-		if _pRmfbibR_ != NULL
+		if _pRmfbibR_ != ""
 			This.Update(StzEngineStringData(_pRmfbibR_))
 			StzEngineStringFree(_pRmfbibR_)
 		ok
@@ -7018,7 +7018,7 @@ class stzString from stzObject
 	# mutating.
 	def RemoveLastBetweenIB(pcOpen, pcClose)
 		_pRmlbibR_ = StzEngineStringReplaceLastBetween(@pEngine, pcOpen, pcClose, "")
-		if _pRmlbibR_ != NULL
+		if _pRmlbibR_ != ""
 			This.Update(StzEngineStringData(_pRmlbibR_))
 			StzEngineStringFree(_pRmlbibR_)
 		ok
@@ -7027,7 +7027,7 @@ class stzString from stzObject
 	# mutating.
 	def RemoveNthBetweenIB(n, pcOpen, pcClose)
 		_pRmnbibR_ = StzEngineStringReplaceNthBetween(@pEngine, pcOpen, pcClose, "", n - 1)
-		if _pRmnbibR_ != NULL
+		if _pRmnbibR_ != ""
 			This.Update(StzEngineStringData(_pRmnbibR_))
 			StzEngineStringFree(_pRmnbibR_)
 		ok
@@ -7152,7 +7152,7 @@ class stzString from stzObject
 			_bCase_ = 1
 			if isList(pCaseSensitive) and len(pCaseSensitive) = 2 and isString(pCaseSensitive[1]) and
 			   (lower(pCaseSensitive[1]) = "cs" or lower(pCaseSensitive[1]) = "casesensitive")
-				if pCaseSensitive[2] = FALSE or pCaseSensitive[2] = 0 _bCase_ = 0 ok
+				if pCaseSensitive[2] = 0 or pCaseSensitive[2] = 0 _bCase_ = 0 ok
 			ok
 			_oF_ = new stzStringFinder(@pEngine)
 			return _oF_.FindAsSectionsCS(_cSub_, _bCase_)
@@ -7378,9 +7378,9 @@ class stzString from stzObject
 	# (cs=0 -> case-insensitive); the count stays case-sensitive, matching the
 	# monolith (ContainsNoCS(sub, cs) + NumberOfOccurrenceCS(sub, 1)).
 	def DuplicatesCS(pCaseSensitive)
-		_bCs_ = TRUE
-		if pCaseSensitive = 0 _bCs_ = FALSE ok
-		return This._DrainStrList( StzEngineStringSubStringsByCountCS(@pEngine, 2, FALSE, _bCs_) )
+		_bCs_ = 1
+		if pCaseSensitive = 0 _bCs_ = 0 ok
+		return This._DrainStrList( StzEngineStringSubStringsByCountCS(@pEngine, 2, 0, _bCs_) )
 
 	  #========================================#
 	 #     CHECKER DELEGATIONS (EXPANDED)     #
@@ -7497,7 +7497,7 @@ class stzString from stzObject
 				ok
 			next
 		else
-			return FALSE
+			return 0
 		ok
 		_oImoChk_ = new stzStringChecker(This)
 		return _oImoChk_.IsMadeOfCS(_imoArg_, pCaseSensitive)
@@ -7639,19 +7639,19 @@ class stzString from stzObject
 		_cIlaTxt_ = StzReplace(This.Content(), "-", "_")
 		_aParts_ = @Split(_cIlaTxt_, "_")
 		_nP_ = len(_aParts_)
-		if _nP_ < 1 or _nP_ > 3 return FALSE ok
+		if _nP_ < 1 or _nP_ > 3 return 0 ok
 		for _i_ = 1 to _nP_
 			_cP_ = _aParts_[_i_]
 			_nPL_ = len(_cP_)
-			if _nPL_ < 2 or _nPL_ > 4 return FALSE ok
-			if NOT isalpha(_cP_) return FALSE ok
+			if _nPL_ < 2 or _nPL_ > 4 return 0 ok
+			if NOT isalpha(_cP_) return 0 ok
 		next
 		# A bare language code is NOT a locale ("fr" FALSE, per the
 		# archive); at least lang + country/script is required.
-		if _nP_ = 1 return FALSE ok
+		if _nP_ = 1 return 0 ok
 		# A 4-letter part is only valid as the script slot.
-		if len(_aParts_[1]) = 4 and _nP_ = 3 return FALSE ok
-		return TRUE
+		if len(_aParts_[1]) = 4 and _nP_ = 3 return 0 ok
+		return 1
 
 	# TRUE if the string names a currency (per the locale data).
 	def IsCurrencyName()
@@ -7802,7 +7802,7 @@ class stzString from stzObject
 		# A list lives in the string either in normal form ([...]) or
 		# in short-form range syntax (1:3, "a":"d").
 		_oIlisChk_ = new stzStringChecker(This)
-		if _oIlisChk_.IsListInString() return TRUE ok
+		if _oIlisChk_.IsListInString() return 1 ok
 		return This.IsListInShortForm()
 
 	# FilledWith(pItem): for an empty (or any) wrapped string, set
@@ -8349,8 +8349,8 @@ class stzString from stzObject
 	# ENGINE-BACKED (StzEngineStringSubStringsUniqueCS): dedup, first-seen
 	# order. cs=1 exact, cs=0 case-insensitive. Retires the O(n^3) loop.
 	def SubStringsCS(pCaseSensitive)
-		_bCs_ = FALSE
-		if pCaseSensitive = 1 _bCs_ = TRUE ok
+		_bCs_ = 0
+		if pCaseSensitive = 1 _bCs_ = 1 ok
 		return This._DrainStrList( StzEngineStringSubStringsUniqueCS(@pEngine, _bCs_) )
 
 	# How many substrings the string yields (case dial).
@@ -8661,7 +8661,7 @@ class stzString from stzObject
 		return pacBounds
 
 	def _DbMatchAt(paChars, n, pcBound, nBoundLen)
-		if n + nBoundLen - 1 > len(paChars) return FALSE ok
+		if n + nBoundLen - 1 > len(paChars) return 0 ok
 		_cDbB_ = ""
 		for _kDb_ = n to n + nBoundLen - 1
 			_cDbB_ += paChars[_kDb_]
@@ -8731,11 +8731,11 @@ class stzString from stzObject
 		_aDbLeaf_ = []
 		_aDbNon_ = []
 		for _aDb_ = 1 to _nDbR_
-			_bDbLeaf_ = TRUE
+			_bDbLeaf_ = 1
 			for _bDb_ = 1 to _nDbR_
 				if _bDb_ != _aDb_ and _aDbReg_[_aDb_][1] < _aDbReg_[_bDb_][1] and
 				   _aDbReg_[_bDb_][2] < _aDbReg_[_aDb_][2]
-					_bDbLeaf_ = FALSE
+					_bDbLeaf_ = 0
 					exit
 				ok
 			next
@@ -9063,11 +9063,11 @@ class stzString from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 		_bCase_ = 1
-		if pCaseSensitive = FALSE or pCaseSensitive = 0 _bCase_ = 0 ok
+		if pCaseSensitive = 0 or pCaseSensitive = 0 _bCase_ = 0 ok
 		_cTxt_ = This.Content()
 		_nSubLen_ = This._EngineCount(pcSub)
 		_nPos_ = 1; _nCount_ = 0
-		while TRUE
+		while 1
 			_nFound_ = StzEngineStringFindFirstFromCS(@pEngine, pcSub, _nPos_, _bCase_)
 			if _nFound_ < 1 return 0 ok
 			_nCount_++
@@ -9088,7 +9088,7 @@ class stzString from stzObject
 		_aRes_ = []
 		_nSubLen_ = This._EngineCount(pcSub)
 		_nPos_ = 1
-		while TRUE
+		while 1
 			_nFound_ = StzEngineStringFindFirstFromCS(@pEngine, pcSub, _nPos_, 1)
 			if _nFound_ < 1 exit ok
 			_aRes_ + _nFound_
@@ -9184,7 +9184,7 @@ class stzString from stzObject
 		_nCount_ = 0
 		_nSubLen_ = This._EngineCount(pcSub)
 		_nPos_ = _nStartAt_
-		while TRUE
+		while 1
 			_nFound_ = StzEngineStringFindFirstFromCS(@pEngine, pcSub, _nPos_, 1)
 			if _nFound_ < 1 exit ok
 			_nCount_++
@@ -9227,13 +9227,13 @@ class stzString from stzObject
 		   isString(pcSubOrNamed[1]) and lower(pcSubOrNamed[1]) = "of"
 			_pSub_ = pcSubOrNamed[2]
 		ok
-		_bBackward_ = FALSE
+		_bBackward_ = 0
 		if isString(pDir) and lower(pDir) = "backward"
-			_bBackward_ = TRUE
+			_bBackward_ = 1
 		but isList(pDir) and len(pDir) = 2 and isString(pDir[1]) and
 		   lower(pDir[1]) = "direction"
 			if isString(pDir[2]) and lower(pDir[2]) = "backward"
-				_bBackward_ = TRUE
+				_bBackward_ = 1
 			ok
 		ok
 		_cTxt_ = This.Content()
@@ -9242,7 +9242,7 @@ class stzString from stzObject
 			_aRes_ = []
 			_nSubLen_ = This._EngineCount(_pSub_)
 			_nPos_ = 1
-			while TRUE
+			while 1
 				_nFound_ = StzEngineStringFindFirstFromCS(@pEngine, _pSub_, _nPos_, 1)
 				if _nFound_ < 1 exit ok
 				_aRes_ + _nFound_
@@ -9255,7 +9255,7 @@ class stzString from stzObject
 		_aFwd_ = []
 		_nSubLen_ = This._EngineCount(_pSub_)
 		_nPos_ = 1
-		while TRUE
+		while 1
 			_nFound_ = StzEngineStringFindFirstFromCS(@pEngine, _pSub_, _nPos_, 1)
 			if _nFound_ < 1 exit ok
 			_aFwd_ + _nFound_
@@ -9319,7 +9319,7 @@ class stzString from stzObject
 	# [open, close] / single string for both ends.
 	def FindSubStringsBoundedBy(pacBounds)
 		_aOpen_ = pacBounds
-		_aClose_ = NULL
+		_aClose_ = ""
 		if isList(pacBounds) and len(pacBounds) = 2
 			_aOpen_ = pacBounds[1]; _aClose_ = pacBounds[2]
 			# :And = X normalisation
@@ -9349,7 +9349,7 @@ class stzString from stzObject
 	# (only inside bounded sections) where pcWhat appears.
 	def FindSubStringBoundedBy(pcWhat, pacBounds)
 		_aOpen_ = pacBounds
-		_aClose_ = NULL
+		_aClose_ = ""
 		if isList(pacBounds) and len(pacBounds) = 2
 			_aOpen_ = pacBounds[1]; _aClose_ = pacBounds[2]
 			if isList(_aClose_) and len(_aClose_) = 2 and
@@ -9390,7 +9390,7 @@ class stzString from stzObject
 				return This.FindSubStringBoundedBy(pcWhat, pacBounds)
 			ok
 			_aFsbcOpen_ = pacBounds
-			_aFsbcClose_ = NULL
+			_aFsbcClose_ = ""
 			if isList(pacBounds) and len(pacBounds) = 2
 				_aFsbcOpen_ = pacBounds[1]
 				_aFsbcClose_ = pacBounds[2]
@@ -9763,7 +9763,7 @@ class stzString from stzObject
 
 	def FindSubStringCS(pcSub, pCaseSensitive)
 		_bCase_ = 1
-		if pCaseSensitive = FALSE or pCaseSensitive = 0 _bCase_ = 0 ok
+		if pCaseSensitive = 0 or pCaseSensitive = 0 _bCase_ = 0 ok
 		return This.FindCS(pcSub, _bCase_)
 
 	# SubStringsW(pcCondition): every substring where the @SubString predicate is
@@ -9859,11 +9859,11 @@ class stzString from stzObject
 			_s_ = _aSections_[_i_]
 			if isList(_s_) and len(_s_) = 2
 				if n >= _s_[1] and n <= _s_[2]
-					return TRUE
+					return 1
 				ok
 			ok
 		next
-		return FALSE
+		return 0
 
 	# Shrink(): trim leading + trailing whitespace.
 	# Shrink([p1]):
@@ -9910,11 +9910,11 @@ class stzString from stzObject
 			_s_ = _aSections_[_i_]
 			if isList(_s_) and len(_s_) = 2
 				if This.ContainsInSection(pcSub, _s_[1], _s_[2])
-					return TRUE
+					return 1
 				ok
 			ok
 		next
-		return FALSE
+		return 0
 
 	def ContainsBetweenPositions(pcSub, _n1_, _n2_)
 		return This.ContainsInSection(pcSub, _n1_, _n2_)
@@ -9935,9 +9935,9 @@ class stzString from stzObject
 		but isNumber(pcAnchor)
 			_nAnchor_ = pcAnchor
 		ok
-		if _nAnchor_ < 1 return FALSE ok
+		if _nAnchor_ < 1 return 0 ok
 		_nSub_ = StzEngineStringFindFirstFromCS(@pEngine, pcSub, 1, 1)
-		if _nSub_ < 1 return FALSE ok
+		if _nSub_ < 1 return 0 ok
 		return _nSub_ < _nAnchor_
 
 	# TRUE if pcSub occurs AFTER the anchor substring.
@@ -9960,7 +9960,7 @@ class stzString from stzObject
 			_nAnchor_ = pcAnchor
 			_nFrom_ = _nAnchor_ + 1
 		ok
-		if _nAnchor_ < 1 return FALSE ok
+		if _nAnchor_ < 1 return 0 ok
 		_nSub_ = StzEngineStringFindFirstFromCS(@pEngine, pcSub, _nFrom_, 1)
 		return _nSub_ >= 1
 
@@ -9968,13 +9968,13 @@ class stzString from stzObject
 	# listed substrings appears in the content (counting at least
 	# one occurrence as 1).
 	def ContainsOnlyOneOfThese(paSubStr)
-		if NOT isList(paSubStr) return FALSE ok
+		if NOT isList(paSubStr) return 0 ok
 		_nC_ = 0
 		_nL_ = len(paSubStr)
 		for _i_ = 1 to _nL_
 			if isString(paSubStr[_i_]) and This.Contains(paSubStr[_i_])
 				_nC_++
-				if _nC_ > 1 return FALSE ok
+				if _nC_ > 1 return 0 ok
 			ok
 		next
 		return _nC_ = 1
@@ -9982,7 +9982,7 @@ class stzString from stzObject
 	# IsReverseOf(pcOther): TRUE iff This.Content() is the reverse of
 	# pcOther (codepoint-by-codepoint).
 	def IsReverseOf(pcOther)
-		if NOT isString(pcOther) return FALSE ok
+		if NOT isString(pcOther) return 0 ok
 		return This.Content() = StzReverse(pcOther)
 
 	# HexUnicode(): hex form of the codepoint (e.g. "A" -> "0041").
@@ -10163,11 +10163,11 @@ class stzString from stzObject
 	# EndsWithNumberN(pcNumStr): TRUE if the content ENDS with the
 	# given number-as-string. Accepts optional leading sign in pcNumStr.
 	def EndsWithNumberN(pcNumStr)
-		if NOT isString(pcNumStr) return FALSE ok
+		if NOT isString(pcNumStr) return 0 ok
 		_cTxt_ = This.Content()
 		_nT_ = This._EngineCount(_cTxt_)
 		_nN_ = This._EngineCount(pcNumStr)
-		if _nT_ < _nN_ return FALSE ok
+		if _nT_ < _nN_ return 0 ok
 		return This._EngineSliceFrom(_cTxt_, _nT_ - _nN_ + 1) = pcNumStr
 
 	# (EndsWithNumber zero-arg form already exists above as nested
@@ -10259,7 +10259,7 @@ class stzString from stzObject
 	# TRUE if the string's dominant script is the given one.
 	def ScriptIs(pcScript)
 		# Dominant-script equality (:Latin / :Han / :Inherited ...).
-		if NOT isString(pcScript) or pcScript = "" return FALSE ok
+		if NOT isString(pcScript) or pcScript = "" return 0 ok
 		_kwSi_ = lower(pcScript)
 		if ring_left(_kwSi_, 1) = ":" _kwSi_ = StzMidToEnd(_kwSi_, 2) ok
 		return lower(This.Script()) = _kwSi_
@@ -10269,14 +10269,14 @@ class stzString from stzObject
 		return This.ScriptIs(pcScript)
 
 	def _IsScriptOfOld(pcScript)
-		if NOT isString(pcScript) or pcScript = "" return FALSE ok
+		if NOT isString(pcScript) or pcScript = "" return 0 ok
 		_kw_ = lower(pcScript)
 		if ring_left(_kw_, 1) = ":" _kw_ = StzMidToEnd(_kw_, 2) ok
 		try
 			eval("_b_ = This.IsScript" + _kw_ + "()")
 			return _b_
 		catch
-			return FALSE
+			return 0
 		done
 
 	# RemoveAt -- two shapes:
@@ -10355,12 +10355,12 @@ class stzString from stzObject
 		# Original semantic: case-blind equality, else accept a small
 		# LENGTH drift -- abs(lenDiff) / lenThis <= QuietEqualityRatio()
 		# (0.09 by default; dial with SetQuietEqualityRatio(n)).
-		if NOT isString(pcOther) return FALSE ok
+		if NOT isString(pcOther) return 0 ok
 		_cThis_ = StzLower(This.Content())
 		_cOther_ = StzLower(pcOther)
-		if _cThis_ = _cOther_ return TRUE ok
+		if _cThis_ = _cOther_ return 1 ok
 		_nThis_ = This.NumberOfChars()
-		if _nThis_ = 0 return FALSE ok
+		if _nThis_ = 0 return 0 ok
 		_nDif_ = fabs(_nThis_ - StzLen(_cOther_))
 		return (_nDif_ / _nThis_) <= QuietEqualityRatio()
 
@@ -10515,7 +10515,7 @@ class stzString from stzObject
 		_nLen_ = len(_aChars_)
 		_nKL2_ = len(_aKeep_)
 		_cOut_ = ""
-		_bPrevExcl_ = FALSE
+		_bPrevExcl_ = 0
 		_i_ = 1
 		while _i_ <= _nLen_
 			_nMatch_ = 0
@@ -10528,13 +10528,13 @@ class stzString from stzObject
 				ok
 			next
 			if _nMatch_ > 0
-				if _bPrevExcl_ _cOut_ += _cRaeW_ _bPrevExcl_ = FALSE ok
+				if _bPrevExcl_ _cOut_ += _cRaeW_ _bPrevExcl_ = 0 ok
 				for _k_ = _i_ to _i_ + _nMatch_ - 1
 					_cOut_ += _aChars_[_k_]
 				next
 				_i_ += _nMatch_
 			else
-				_bPrevExcl_ = TRUE
+				_bPrevExcl_ = 1
 				_i_++
 			ok
 		end
@@ -10576,7 +10576,7 @@ class stzString from stzObject
 	def ReplaceAnyBoundedByIB(pacBounds, pcNew)
 		# Replace the entire bounded block (including bounds).
 		_aOpen_ = pacBounds
-		_aClose_ = NULL
+		_aClose_ = ""
 		if isList(pacBounds) and len(pacBounds) = 2
 			_aOpen_ = pacBounds[1]; _aClose_ = pacBounds[2]
 		but isString(pacBounds)
@@ -10634,7 +10634,7 @@ class stzString from stzObject
 		_cTxt_ = This.Content()
 		_nLen_ = This._EngineCount(_cTxt_)
 		_n_ = 0
-		_bDot_ = FALSE
+		_bDot_ = 0
 		while _n_ < _nLen_
 			_nC_ = StzEngineStringCharAt(@pEngine, _nLen_ - _n_)
 			if _nC_ >= 48 and _nC_ <= 57
@@ -10642,7 +10642,7 @@ class stzString from stzObject
 			but _nC_ = 46 and NOT _bDot_ and _n_ > 0 and _n_ < _nLen_ - 1 and
 			    StzEngineStringCharAt(@pEngine, _nLen_ - _n_ - 1) >= 48 and
 			    StzEngineStringCharAt(@pEngine, _nLen_ - _n_ - 1) <= 57
-				_bDot_ = TRUE
+				_bDot_ = 1
 				_n_++
 			else
 				exit
@@ -10664,7 +10664,7 @@ class stzString from stzObject
 		_cTxt_ = This.Content()
 		_nLen_ = This._EngineCount(_cTxt_)
 		_n_ = 0
-		_bDot_ = FALSE
+		_bDot_ = 0
 		# An opening sign followed by a digit belongs to the number.
 		if _nLen_ >= 2
 			_nC_ = StzEngineStringCharAt(@pEngine, 1)
@@ -10681,7 +10681,7 @@ class stzString from stzObject
 			but _nC_ = 46 and NOT _bDot_ and _n_ < _nLen_ - 1 and
 			    StzEngineStringCharAt(@pEngine, _n_ + 2) >= 48 and
 			    StzEngineStringCharAt(@pEngine, _n_ + 2) <= 57
-				_bDot_ = TRUE
+				_bDot_ = 1
 				_n_++
 			else
 				exit
@@ -10745,14 +10745,14 @@ class stzString from stzObject
 	# run of identical chars (length >= 2).
 	def HasRepeatedLeadingChars()
 		_nLen_ = This._EngineCount(This.Content())
-		if _nLen_ < 2 return FALSE ok
+		if _nLen_ < 2 return 0 ok
 		return StzEngineStringCharAt(@pEngine, 1) =
 		       StzEngineStringCharAt(@pEngine, 2)
 
 	# TRUE if the string ends with a repeated char run.
 	def HasRepeatedTrailingChars()
 		_nLen_ = This._EngineCount(This.Content())
-		if _nLen_ < 2 return FALSE ok
+		if _nLen_ < 2 return 0 ok
 		return StzEngineStringCharAt(@pEngine, _nLen_) =
 		       StzEngineStringCharAt(@pEngine, _nLen_ - 1)
 
@@ -10826,7 +10826,7 @@ class stzString from stzObject
 		_nSubLen_ = This._EngineCount(pcSub)
 		_nLast_ = 0
 		_nPos_ = 1
-		while TRUE
+		while 1
 			_nFound_ = StzEngineStringFindFirstFromCS(@pEngine, pcSub,
 			           _nPos_, 1)
 			if _nFound_ < 1 exit ok
@@ -10931,7 +10931,7 @@ class stzString from stzObject
 
 	# IsMadeOfNumbers(): TRUE if EVERY char is a digit.
 	def IsMadeOfNumbers()
-		if This._EngineCount(This.Content()) = 0 return FALSE ok
+		if This._EngineCount(This.Content()) = 0 return 0 ok
 		return StzEngineStringIsDigit(@pEngine) = 1
 
 	def IsMadeOfDigits()
@@ -10939,7 +10939,7 @@ class stzString from stzObject
 
 	# TRUE if the string is made of letters only.
 	def IsMadeOfLetters()
-		if This._EngineCount(This.Content()) = 0 return FALSE ok
+		if This._EngineCount(This.Content()) = 0 return 0 ok
 		return StzEngineStringIsAlpha(@pEngine) = 1
 
 	# ReplaceManyCSQ alias.
@@ -10970,7 +10970,7 @@ class stzString from stzObject
 	# parser narratives.
 	def IsStepNamedParam()
 		# We're a string; named-param check applies to lists. False.
-		return FALSE
+		return 0
 
 	# UpdateWith(pcNew): replace content with pcNew. Alias of Update.
 	def UpdateWith(pcNew)
@@ -11103,29 +11103,29 @@ class stzString from stzObject
 	def IsContiguousListInNormalForm()
 		_c_ = ring_trim(This.Content())
 		# Normal form `[a,b,c,...]` -- bracketed.
-		if ring_left(_c_, 1) != "[" or ring_right(_c_, 1) != "]" return FALSE ok
-		return TRUE
+		if ring_left(_c_, 1) != "[" or ring_right(_c_, 1) != "]" return 0 ok
+		return 1
 
 	# TRUE if the string is a contiguous list in short form.
 	def IsContiguousListInShortForm()
 		_c_ = ring_trim(This.Content())
 		# Short form `a:b` -- with colon, no brackets.
-		if StzFindFirst(":", _c_) = 0 return FALSE ok
-		if StzFindFirst("[", _c_) > 0 or StzFindFirst("]", _c_) > 0 return FALSE ok
-		return TRUE
+		if StzFindFirst(":", _c_) = 0 return 0 ok
+		if StzFindFirst("[", _c_) > 0 or StzFindFirst("]", _c_) > 0 return 0 ok
+		return 1
 
 	# TRUE if the string holds a contiguous list, any form.
 	def IsContiguousListInString()
 		_c_ = ring_trim(This.Content())
-		if StzFindFirst(":", _c_) = 0 return FALSE ok
+		if StzFindFirst(":", _c_) = 0 return 0 ok
 		# Trim outer quote-pair if any.
 		if (ring_left(_c_, 1) = '"' and ring_right(_c_, 1) = '"') or
 		   (ring_left(_c_, 1) = "'" and ring_right(_c_, 1) = "'")
 			_c_ = StzMid(_c_, 2, StzLen(_c_) - 2)
 		ok
 		# Require non-bracketed form (so `[1,3]` returns FALSE).
-		if StzFindFirst("[", _c_) > 0 or StzFindFirst("]", _c_) > 0 return FALSE ok
-		return TRUE
+		if StzFindFirst("[", _c_) > 0 or StzFindFirst("]", _c_) > 0 return 0 ok
+		return 1
 
 	# Each char paired with how many times it occurs.
 	def ItemsAndTheirNumberOfOccurrence()
@@ -11346,9 +11346,9 @@ class stzString from stzObject
 			This.InsertAfterEachNChars(p2[2], p1)
 			return
 		ok
-		_cWhat_ = NULL
-		_cAnchor_ = NULL
-		_bAfter_ = TRUE
+		_cWhat_ = ""
+		_cAnchor_ = ""
+		_bAfter_ = 1
 		_aArgs_ = [ p1, p2 ]
 		for _i_ = 1 to 2
 			_a_ = _aArgs_[_i_]
@@ -11356,10 +11356,10 @@ class stzString from stzObject
 				_k_ = lower(_a_[1])
 				if _k_ = "after" or _k_ = "to"
 					_cAnchor_ = _a_[2]
-					_bAfter_ = TRUE
+					_bAfter_ = 1
 				but _k_ = "before"
 					_cAnchor_ = _a_[2]
-					_bAfter_ = FALSE
+					_bAfter_ = 0
 				but _k_ = "with"
 					_cWhat_ = _a_[2]
 				ok
@@ -11369,7 +11369,7 @@ class stzString from stzObject
 				_cWhat_ = _a_
 			ok
 		next
-		if _cWhat_ = NULL or _cAnchor_ = NULL return ok
+		if _cWhat_ = "" or _cAnchor_ = "" return ok
 		# Use the existing AddXT path.
 		if _bAfter_
 			This.AddXT(_cWhat_, [ "after", _cAnchor_ ])
@@ -11478,10 +11478,10 @@ class stzString from stzObject
 		# Build a position marker line.
 		_cMark_ = ""
 		for _i_ = 1 to _nLen_
-			_bMark_ = FALSE
+			_bMark_ = 0
 			_nP_ = len(_aPos_)
 			for _j_ = 1 to _nP_
-				if _aPos_[_j_] = _i_ _bMark_ = TRUE exit ok
+				if _aPos_[_j_] = _i_ _bMark_ = 1 exit ok
 			next
 			if _bMark_ _cMark_ += "^" else _cMark_ += "-" ok
 		next
@@ -11568,7 +11568,7 @@ class stzString from stzObject
 	# line within an ASCII box. Not a full grid renderer.
 	def BoxifyCharsXT(pOpts)
 		# Mutating: render the per-char cell strip (options honored).
-		_aBcOpts_ = [ :EachChar = TRUE ]
+		_aBcOpts_ = [ :EachChar = 1 ]
 		if isList(pOpts)
 			_nBcL_ = len(pOpts)
 			for _iBc_ = 1 to _nBcL_
@@ -11634,7 +11634,7 @@ class stzString from stzObject
 			ok
 			_iCount_ = 0
 			_pos_ = _nFrom_
-			while TRUE
+			while 1
 				_p_ = This._FindFrom(This.Content(), pcSub, _pos_)
 				if _p_ < 1 return [] ok
 				_iCount_++
@@ -11644,7 +11644,7 @@ class stzString from stzObject
 			return []
 		ok
 		_c_ = This.NthChar1(n)
-		if _c_ = "" return NULL ok
+		if _c_ = "" return "" ok
 		return new stzChar(_c_)
 
 	# The nth occurrence of the substring from the given start
@@ -11662,7 +11662,7 @@ class stzString from stzObject
 		_iCount_ = 0
 		_pos_ = _nFrom_
 		_subLen_ = This._EngineCount(pcSub)
-		while TRUE
+		while 1
 			_p_ = This._FindFrom(This.Content(), pcSub, _pos_)
 			if _p_ < 1 return [] ok
 			_iCount_++
@@ -11916,7 +11916,7 @@ class stzString from stzObject
 		_cTxt_ = This.Content()
 		if This._EngineCount(_cTxt_) = 0 return ok
 		_cFirst_ = This._EngineSlice(_cTxt_, 1, 1)
-		_bMatch_ = FALSE
+		_bMatch_ = 0
 		if @CaseSensitive(pCaseSensitive)
 			_bMatch_ = (_cFirst_ = pcChar)
 		else
@@ -12024,11 +12024,11 @@ class stzString from stzObject
 
 	def FindOccurrencesCS(pcSub, pCaseSensitive)
 		_bCase_ = 1
-		if pCaseSensitive = FALSE or pCaseSensitive = 0 _bCase_ = 0 ok
+		if pCaseSensitive = 0 or pCaseSensitive = 0 _bCase_ = 0 ok
 		_aRes_ = []
 		_nSubLen_ = This._EngineCount(pcSub)
 		_nPos_ = 1
-		while TRUE
+		while 1
 			_nFound_ = StzEngineStringFindFirstFromCS(@pEngine, pcSub,
 			           _nPos_, _bCase_)
 			if _nFound_ < 1 exit ok
@@ -12059,7 +12059,7 @@ class stzString from stzObject
 		ok
 		_iCount_ = 0
 		_pos_ = _nFrom_
-		while TRUE
+		while 1
 			_p_ = This._FindFrom(This.Content(), pcSub, _pos_)
 			if _p_ < 1 return 0 ok
 			_iCount_++
@@ -12336,10 +12336,10 @@ class stzString from stzObject
 					_pSx_ = _aSxPos_[_iSx_]
 					if _pSx_ - _nSxBL_ >= 1 and
 					   This._EngineSlice(_cTxt_, _pSx_ - _nSxBL_, _nSxBL_) = p1
-						return TRUE
+						return 1
 					ok
 				next
-				return FALSE
+				return 0
 			but _cSxKey_ = "islastboundof" or _cSxKey_ = "isrightboundof"
 				# p1 immediately follows an occurrence of _cSxVal_.
 				_aSxPos_ = This.Find(_cSxVal_)
@@ -12350,10 +12350,10 @@ class stzString from stzObject
 					_pSx_ = _aSxPos_[_iSx_] + _nSxVL_
 					if _pSx_ + _nSxBL_ - 1 <= _nLen_ and
 					   This._EngineSlice(_cTxt_, _pSx_, _nSxBL_) = p1
-						return TRUE
+						return 1
 					ok
 				next
-				return FALSE
+				return 0
 			ok
 		ok
 		return ""
@@ -12363,7 +12363,7 @@ class stzString from stzObject
 	# 2-elem list [:IsBoundedBy, ...].
 	def IsIsBoundedByNamedParam()
 		# We're a string so this is always FALSE.
-		return FALSE
+		return 0
 
 	# ConcatenateXT(:Using=sep, :LastSep=lastsep): join chars/words.
 	# stzString surface: forward through a Chars + ConcatenateXT-list
@@ -12387,17 +12387,17 @@ class stzString from stzObject
 		_nML_ = len(_aMy_)
 		for _i_ = 1 to _nML_
 			_c_ = _aMy_[_i_]
-			_bIn_ = FALSE
+			_bIn_ = 0
 			_nOL_ = len(_aOther_)
 			for _j_ = 1 to _nOL_
-				if _aOther_[_j_] = _c_ _bIn_ = TRUE exit ok
+				if _aOther_[_j_] = _c_ _bIn_ = 1 exit ok
 			next
 			if _bIn_
 				# Skip if already in result.
-				_bDup_ = FALSE
+				_bDup_ = 0
 				_nRL_ = len(_aRes_)
 				for _k_ = 1 to _nRL_
-					if _aRes_[_k_] = _c_ _bDup_ = TRUE exit ok
+					if _aRes_[_k_] = _c_ _bDup_ = 1 exit ok
 				next
 				if NOT _bDup_ _aRes_ + _c_ ok
 			ok
@@ -12444,11 +12444,11 @@ class stzString from stzObject
 		_nLen_ = This._EngineCount(This.Content())
 		# Build a "covered" predicate via positions [p .. p+sublen-1].
 		for _i_ = 1 to _nLen_
-			_bCov_ = FALSE
+			_bCov_ = 0
 			_nOL_ = len(_aOcc_)
 			for _j_ = 1 to _nOL_
 				if _i_ >= _aOcc_[_j_] and _i_ < _aOcc_[_j_] + _nSubLen_
-					_bCov_ = TRUE
+					_bCov_ = 1
 					exit
 				ok
 			next
@@ -12526,7 +12526,7 @@ class stzString from stzObject
 		_bCase_ = 1
 		if isList(pNamed) and len(pNamed) = 2 and isString(pNamed[1]) and
 		   lower(pNamed[1]) = "cs"
-			if pNamed[2] = FALSE or pNamed[2] = 0 _bCase_ = 0 ok
+			if pNamed[2] = 0 or pNamed[2] = 0 _bCase_ = 0 ok
 		ok
 		return This.SplitAroundCS(pcSub, _bCase_)
 
@@ -12549,19 +12549,19 @@ class stzString from stzObject
 	# whose non-overlapping occurrence count == n (bExact) or >= n. Matches
 	# HowMany. Retires the O(n^3) Ring dedup+count loops.
 	def _SubStringsByOccurrence(n, bExact)
-		_bEx_ = FALSE
-		if bExact _bEx_ = TRUE ok
+		_bEx_ = 0
+		if bExact _bEx_ = 1 ok
 		# Case-sensitive (TRUE) dedup -- the occurrence family is CS by design.
-		return This._DrainStrList( StzEngineStringSubStringsByCountCS(@pEngine, n, _bEx_, TRUE) )
+		return This._DrainStrList( StzEngineStringSubStringsByCountCS(@pEngine, n, _bEx_, 1) )
 
 	# >= n occurrences (canonical + misspelled alias)
 	def SubStringsOccuringNTimes(n)
-		return This._SubStringsByOccurrence(n, FALSE)
+		return This._SubStringsByOccurrence(n, 0)
 
 	# = n occurrences
 	# The substrings occurring EXACTLY n times.
 	def SubStringsOccurringOnlyNTimes(n)
-		return This._SubStringsByOccurrence(n, TRUE)
+		return This._SubStringsByOccurrence(n, 1)
 
 	# (NumbersComingAfter already exists earlier; just add the Q form.)
 	def NumbersComingAfterQ(pcAnchor)
@@ -12598,7 +12598,7 @@ class stzString from stzObject
 			next
 		ok
 		_pList_ = StzEngineStringMapChars(_cSrc_, _StzStripBraces(pcYielder))
-		if _pList_ = NULL return [] ok
+		if _pList_ = "" return [] ok
 		_aRes_ = StzEngineContentFromList(_pList_)
 		StzEngineListFree(_pList_)
 		return _aRes_
@@ -12791,11 +12791,11 @@ class stzString from stzObject
 
 	# The substrings occurring EXACTLY n times.
 	def SubStringsOccurringExactlyNTimes(n)
-		return This._SubStringsByOccurrence(n, TRUE)
+		return This._SubStringsByOccurrence(n, 1)
 
 	# The substrings occurring AT LEAST n times.
 	def SubStringsOccurringNTimes(n)
-		return This._SubStringsByOccurrence(n, FALSE)
+		return This._SubStringsByOccurrence(n, 0)
 
 	# NumbrifyQ / NumbrifiedQ: alias for ToNumber wrap.
 	def NumbrifyQ()
@@ -12856,12 +12856,12 @@ class stzString from stzObject
 
 	# The numbers embedded in the string, each with its position.
 	def NumbersZ()
-		return This._NumbersGrouped(FALSE)
+		return This._NumbersGrouped(0)
 
 	# The numbers embedded in the string, each with its [start, end]
 	# section.
 	def NumbersZZ()
-		return This._NumbersGrouped(TRUE)
+		return This._NumbersGrouped(1)
 
 		def NumbersAndTheirPositions()
 			return This.NumbersZ()
@@ -12883,7 +12883,7 @@ class stzString from stzObject
 	# IsAtCharsNamedParam(): TRUE iff content is [:AtChars, value].
 	# We're a string -> always FALSE.
 	def IsAtCharsNamedParam()
-		return FALSE
+		return 0
 
 	# SplitAroundPositions(anPos): split at each position; the
 	# delimiter char at each position becomes its own piece.
@@ -12901,7 +12901,7 @@ class stzString from stzObject
 	# IsPluralOfThisStzType(pcType): TRUE if content is the plural
 	# form of pcType (i.e. equal to pcType + "s").
 	def IsPluralOfThisStzType(pcType)
-		if NOT isString(pcType) return FALSE ok
+		if NOT isString(pcType) return 0 ok
 		return lower(This.Content()) = lower(pcType + "s")
 
 	# IsBoundedByXT(:Open=, :Close=) -- named-param IsBoundedBy.
@@ -12909,10 +12909,10 @@ class stzString from stzObject
 		# Forms: (bound, :In = host) -- is THIS substring bounded by `bound`
 		# (a string -> [c,c], or [open,close]) within host? -- plus the legacy
 		# (:Open =, :Close =) which checks THIS itself.
-		_cO_ = NULL
-		_cC_ = NULL
-		_cIn_ = NULL
-		_vBound_ = NULL
+		_cO_ = ""
+		_cC_ = ""
+		_cIn_ = ""
+		_vBound_ = ""
 		_aArgs_ = [ pNamed1, pNamed2 ]
 		for _i_ = 1 to 2
 			_a_ = _aArgs_[_i_]
@@ -12926,7 +12926,7 @@ class stzString from stzObject
 				_vBound_ = _a_
 			ok
 		next
-		if _cO_ != NULL and _cC_ != NULL
+		if _cO_ != "" and _cC_ != ""
 			return This.IsBoundedBy([ _cO_, _cC_ ])
 		ok
 		_aIbx_ = []
@@ -12935,9 +12935,9 @@ class stzString from stzObject
 		but isList(_vBound_) and len(_vBound_) = 2
 			_aIbx_ = _vBound_
 		else
-			return FALSE
+			return 0
 		ok
-		if _cIn_ = NULL return FALSE ok
+		if _cIn_ = "" return 0 ok
 		_oIbxHost_ = new stzString("" + _cIn_)
 		return _oIbxHost_.Contains(_aIbx_[1] + This.Content() + _aIbx_[2])
 
@@ -12985,7 +12985,7 @@ class stzString from stzObject
 
 	# A stzString IS a string (stzChar answers TRUE via its own def).
 	def IsAString()
-		return TRUE
+		return 1
 
 	# IsAFunction: is the content the name of a DEFINED function
 	# (per the original monolith: functions() lookup)? The call-looking
@@ -13002,15 +13002,15 @@ class stzString from stzObject
 	# TRUE if the string is an integer literal (trimmed).
 	def IsAnInteger()
 		_c_ = ring_trim(This.Content())
-		if len(_c_) = 0 return FALSE ok
+		if len(_c_) = 0 return 0 ok
 		_i_ = 1
 		if _c_[1] = "-" or _c_[1] = "+" _i_ = 2 ok
-		if _i_ > len(_c_) return FALSE ok
+		if _i_ > len(_c_) return 0 ok
 		while _i_ <= len(_c_)
-			if NOT isDigit(_c_[_i_]) return FALSE ok
+			if NOT isDigit(_c_[_i_]) return 0 ok
 			_i_++
 		end
-		return TRUE
+		return 1
 
 	# Same as IsAnInteger.
 	def IsInteger()
@@ -13030,22 +13030,22 @@ class stzString from stzObject
 	# return TRUE if it holds for every char. 0-arg form is the
 	# existence-check stub used by re-include narratives.
 	def Check(pcExpr)
-		if NOT isString(pcExpr) or pcExpr = "" return TRUE ok
+		if NOT isString(pcExpr) or pcExpr = "" return 1 ok
 		_aChars_ = This.Chars()
 		_nLen_ = len(_aChars_)
 		for _i_ = 1 to _nLen_
 			@char = _aChars_[_i_]
 			@Char = @char
 			@position = _i_
-			_b_ = FALSE
+			_b_ = 0
 			try
 				eval("_b_ = " + pcExpr)
 			catch
-				_b_ = FALSE
+				_b_ = 0
 			done
-			if NOT _b_ return FALSE ok
+			if NOT _b_ return 0 ok
 		next
-		return TRUE
+		return 1
 
 	# SubStringsOccurringNoMoreThanNTimes is aliased to LessThanNTimes in the
 	# original (strictly < n), so NoMoreThan(1) -> [] (every substring occurs >=1).
@@ -13059,10 +13059,10 @@ class stzString from stzObject
 		_nL_ = len(_aAll_)
 		for _i_ = 1 to _nL_
 			_s_ = _aAll_[_i_]
-			_bD_ = FALSE
+			_bD_ = 0
 			_nUL_ = len(_aUniq_)
 			for _j_ = 1 to _nUL_
-				if _aUniq_[_j_] = _s_ _bD_ = TRUE exit ok
+				if _aUniq_[_j_] = _s_ _bD_ = 1 exit ok
 			next
 			if NOT _bD_ _aUniq_ + _s_ ok
 		next
@@ -13102,8 +13102,8 @@ class stzString from stzObject
 	def IsBoundOfXT(pNamed1, pNamed2)
 		# (sub, :In = host): is THIS string a bound of `sub` in host -- i.e. does
 		# `this+sub` or `sub+this` occur in host?
-		_cIn_ = NULL
-		_cSub_ = NULL
+		_cIn_ = ""
+		_cSub_ = ""
 		_aArgs_ = [ pNamed1, pNamed2 ]
 		for _i_ = 1 to 2
 			_a_ = _aArgs_[_i_]
@@ -13113,7 +13113,7 @@ class stzString from stzObject
 				_cSub_ = _a_
 			ok
 		next
-		if _cIn_ = NULL or _cSub_ = NULL return FALSE ok
+		if _cIn_ = "" or _cSub_ = "" return 0 ok
 		_cBnd_ = This.Content()
 		_oIboHost_ = new stzString("" + _cIn_)
 		return _oIboHost_.Contains(_cBnd_ + _cSub_) or _oIboHost_.Contains(_cSub_ + _cBnd_)
@@ -13125,9 +13125,9 @@ class stzString from stzObject
 		_aC_ = classes()
 		_nL_ = len(_aC_)
 		for _i_ = 1 to _nL_
-			if lower(_aC_[_i_]) = _c_ return TRUE ok
+			if lower(_aC_[_i_]) = _c_ return 1 ok
 		next
-		return FALSE
+		return 0
 
 	# Combinations(n): every n-char combination from the content.
 	def Combinations(n)
@@ -13139,7 +13139,7 @@ class stzString from stzObject
 		for _i_ = 1 to n
 			_anIdx_ + _i_
 		next
-		while TRUE
+		while 1
 			_cComb_ = ""
 			for _i_ = 1 to n
 				_cComb_ += _aChars_[_anIdx_[_i_]]
@@ -13161,14 +13161,14 @@ class stzString from stzObject
 	# IsNotAString(): TRUE iff content is NOT a string. We're a
 	# stzString -- always FALSE.
 	def IsNotAString()
-		return FALSE
+		return 0
 
 	# AreBoundsOfXT(:Open=, :Close=): TRUE iff THIS contains both
 	# bounds; the IsBoundOfXT predicate flipped to "we contain
 	# something bounded by these".
 	def AreBoundsOfXT(pNamed1, pNamed2)
-		_cO_ = NULL
-		_cC_ = NULL
+		_cO_ = ""
+		_cC_ = ""
 		_aArgs_ = [ pNamed1, pNamed2 ]
 		for _i_ = 1 to 2
 			_a_ = _aArgs_[_i_]
@@ -13179,7 +13179,7 @@ class stzString from stzObject
 				ok
 			ok
 		next
-		if NOT (isString(_cO_) and isString(_cC_)) return FALSE ok
+		if NOT (isString(_cO_) and isString(_cC_)) return 0 ok
 		return This.Contains(_cO_) and This.Contains(_cC_)
 
 	# RandomPositionAfter(nFrom): a random codepoint position
@@ -13199,7 +13199,7 @@ class stzString from stzObject
 			_nStartAt_ = _nStartAt_[2]
 		ok
 		_bCase_ = 1
-		if pCaseSensitive = FALSE or pCaseSensitive = 0 _bCase_ = 0 ok
+		if pCaseSensitive = 0 or pCaseSensitive = 0 _bCase_ = 0 ok
 		return StzEngineStringFindFirstFromCS(@pEngine, pcSub,
 		       _nStartAt_ + 1, _bCase_)
 
@@ -13230,12 +13230,12 @@ class stzString from stzObject
 	# IsMarquer / IsMarker: TRUE iff content is a "#N" marker token.
 	def IsMarquer()
 		_c_ = This.Content()
-		if len(_c_) < 2 return FALSE ok
-		if _c_[1] != "#" return FALSE ok
+		if len(_c_) < 2 return 0 ok
+		if _c_[1] != "#" return 0 ok
 		for _i_ = 2 to len(_c_)
-			if NOT isDigit(_c_[_i_]) return FALSE ok
+			if NOT isDigit(_c_[_i_]) return 0 ok
 		next
-		return TRUE
+		return 1
 
 	def IsMarker()
 		return This.IsMarquer()
@@ -13287,8 +13287,8 @@ class stzString from stzObject
 						_nCapR_ = _aBxCaps_[_i_][2]
 					ok
 				ok
-				_cL_ = NULL
-				_cR_ = NULL
+				_cL_ = ""
+				_cR_ = ""
 				if _nCapL_ > 0 and _aBxAll_[_i_][1] != ""
 					_cL_ = _aBxAll_[_i_][1]
 					if This._EngineCount(_cL_) > _nCapL_
@@ -13449,7 +13449,7 @@ class stzString from stzObject
 	# literal in normal form (square-bracketed, comma-separated).
 	def IsListInNormalForm()
 		_c_ = ring_trim(This.Content())
-		if len(_c_) < 2 return FALSE ok
+		if len(_c_) < 2 return 0 ok
 		return _c_[1] = "[" and _c_[len(_c_)] = "]"
 
 	# SubStringsBoundedByU: the UNIQUE bounded substrings ("U" = unique,
@@ -13535,7 +13535,7 @@ class stzString from stzObject
 			if _k_ = "startingat"
 				_nFrom_ = pNamed[2]
 			but _k_ = "cs"
-				if pNamed[2] = FALSE or pNamed[2] = 0 _bCase_ = 0 ok
+				if pNamed[2] = 0 or pNamed[2] = 0 _bCase_ = 0 ok
 			ok
 		ok
 		return StzEngineStringFindFirstFromCS(@pEngine, pcSub, _nFrom_, _bCase_)
@@ -13551,7 +13551,7 @@ class stzString from stzObject
 			return
 		ok
 		_aOpen_ = pacBounds
-		_aClose_ = NULL
+		_aClose_ = ""
 		if isList(pacBounds) and len(pacBounds) = 2
 			_aOpen_ = pacBounds[1]; _aClose_ = pacBounds[2]
 		ok
@@ -13660,10 +13660,10 @@ class stzString from stzObject
 		_nL_ = len(_aChars_)
 		for _i_ = 1 to _nL_
 			_nB_ = _CharBidiClass( StzCharToUnicode(_aChars_[_i_]) )
-			if _nB_ = 1 return FALSE ok
-			if _nB_ = 4 or _nB_ = 5 return TRUE ok
+			if _nB_ = 1 return 0 ok
+			if _nB_ = 4 or _nB_ = 5 return 1 ok
 		next
-		return FALSE
+		return 0
 
 	# The n rightmost chars, direction-aware, as a string.
 	def NRightCharsAsSubString(n)
@@ -13699,7 +13699,7 @@ class stzString from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 		_bCase_ = 1
-		if pCaseSensitive = FALSE or pCaseSensitive = 0 _bCase_ = 0 ok
+		if pCaseSensitive = 0 or pCaseSensitive = 0 _bCase_ = 0 ok
 		_aAll_ = This.FindCS(pcSub, _bCase_)
 		_nT_ = len(_aAll_)
 		if _nT_ = 0 return ok
@@ -13747,7 +13747,7 @@ class stzString from stzObject
 	# content starts with any of the listed substrings.
 	def BeginsWithOneOfTheseCS(pacSubStr, pCaseSensitive)
 		_bCase_ = 1
-		if pCaseSensitive = FALSE or pCaseSensitive = 0 _bCase_ = 0 ok
+		if pCaseSensitive = 0 or pCaseSensitive = 0 _bCase_ = 0 ok
 		_cTxt_ = This.Content()
 		_nL_ = len(pacSubStr)
 		for _i_ = 1 to _nL_
@@ -13756,12 +13756,12 @@ class stzString from stzObject
 			_nSLen_ = This._EngineCount(_cS_)
 			_cHead_ = This._EngineSlice(_cTxt_, 1, _nSLen_)
 			if _bCase_ = 1
-				if _cHead_ = _cS_ return TRUE ok
+				if _cHead_ = _cS_ return 1 ok
 			else
-				if lower(_cHead_) = lower(_cS_) return TRUE ok
+				if lower(_cHead_) = lower(_cS_) return 1 ok
 			ok
 		next
-		return FALSE
+		return 0
 
 	def BeginsWithOneOfThese(pacSubStr)
 		return This.BeginsWithOneOfTheseCS(pacSubStr, 1)
@@ -13775,7 +13775,7 @@ class stzString from stzObject
 	# TRUE if the string ends with ANY of the given suffixes.
 	def EndsWithOneOfTheseCS(pacSubStr, pCaseSensitive)
 		_bCase_ = 1
-		if pCaseSensitive = FALSE or pCaseSensitive = 0 _bCase_ = 0 ok
+		if pCaseSensitive = 0 or pCaseSensitive = 0 _bCase_ = 0 ok
 		_cTxt_ = This.Content()
 		_nTLen_ = This._EngineCount(_cTxt_)
 		_nL_ = len(pacSubStr)
@@ -13786,12 +13786,12 @@ class stzString from stzObject
 			if _nSLen_ > _nTLen_ loop ok
 			_cTail_ = This._EngineSliceFrom(_cTxt_, _nTLen_ - _nSLen_ + 1)
 			if _bCase_ = 1
-				if _cTail_ = _cS_ return TRUE ok
+				if _cTail_ = _cS_ return 1 ok
 			else
-				if lower(_cTail_) = lower(_cS_) return TRUE ok
+				if lower(_cTail_) = lower(_cS_) return 1 ok
 			ok
 		next
-		return FALSE
+		return 0
 
 	def EndsWithOneOfThese(pacSubStr)
 		return This.EndsWithOneOfTheseCS(pacSubStr, 1)
@@ -13803,12 +13803,12 @@ class stzString from stzObject
 			_k_ = lower(pNamed[1])
 			if _k_ = "startingat" _nFrom_ = pNamed[2]
 			but _k_ = "cs"
-				if pNamed[2] = FALSE or pNamed[2] = 0 _bCase_ = 0 ok
+				if pNamed[2] = 0 or pNamed[2] = 0 _bCase_ = 0 ok
 			ok
 		ok
 		_nSubLen_ = This._EngineCount(pcSub)
 		_nPos_ = _nFrom_; _nCount_ = 0
-		while TRUE
+		while 1
 			_nFound_ = StzEngineStringFindFirstFromCS(@pEngine, pcSub,
 			           _nPos_, _bCase_)
 			if _nFound_ < 1 return 0 ok
@@ -13832,12 +13832,12 @@ class stzString from stzObject
 
 	# IsMultipleOf(pcUnit): TRUE iff content is pcUnit repeated.
 	def IsMultipleOf(pcUnit)
-		if NOT isString(pcUnit) or len(pcUnit) = 0 return FALSE ok
+		if NOT isString(pcUnit) or len(pcUnit) = 0 return 0 ok
 		_cTxt_ = This.Content()
 		_nT_ = This._EngineCount(_cTxt_)
 		_nU_ = This._EngineCount(pcUnit)
-		if _nT_ = 0 or _nU_ = 0 return FALSE ok
-		if _nT_ % _nU_ != 0 return FALSE ok
+		if _nT_ = 0 or _nU_ = 0 return 0 ok
+		if _nT_ % _nU_ != 0 return 0 ok
 		_nRep_ = _nT_ / _nU_
 		_cExpect_ = ""
 		for _i_ = 1 to _nRep_
@@ -13862,7 +13862,7 @@ class stzString from stzObject
 
 	# TRUE if the string occurs inside the given one.
 	def IsIncludedIn(pcOther)
-		if NOT isString(pcOther) return FALSE ok
+		if NOT isString(pcOther) return 0 ok
 		return StzFindFirst(pcOther, This.Content()) > 0
 
 	# ReplaceSubStringAtPositions(anPos, pcOld, pcNew).
@@ -13926,14 +13926,14 @@ class stzString from stzObject
 
 	# Sort the marquers in descending order (mutating).
 	def SortMarquersInDescending()
-		This._SortMarquers(FALSE)
+		This._SortMarquers(0)
 
 	def SortMarkersInDescending()
 		This.SortMarquersInDescending()
 
 	# Sort the marquers in ascending order (mutating).
 	def SortMarquersInAscending()
-		This._SortMarquers(TRUE)
+		This._SortMarquers(1)
 
 	def SortMarkersInAscending()
 		This.SortMarquersInAscending()
@@ -13942,7 +13942,7 @@ class stzString from stzObject
 	# text-order slots (the ZZ view of the would-be sorted string).
 	def MarquersSortedInDescendingZZ()
 		_aSecs_ = This.FindMarquersAsSections()
-		_aSorted_ = This._MarquersSortedStrings(FALSE)
+		_aSorted_ = This._MarquersSortedStrings(0)
 		_aRes_ = []
 		_nL_ = len(_aSecs_)
 		for _i_ = 1 to _nL_
@@ -14225,26 +14225,26 @@ class stzString from stzObject
 	# TRUE if the chars are in ascending order.
 	def IsSortedInAscending()
 		_nLen_ = This._EngineCount(This.Content())
-		if _nLen_ < 2 return TRUE ok
+		if _nLen_ < 2 return 1 ok
 		_nPrev_ = StzEngineStringCharAt(@pEngine, 1)
 		for _i_ = 2 to _nLen_
 			_nC_ = StzEngineStringCharAt(@pEngine, _i_)
-			if _nC_ < _nPrev_ return FALSE ok
+			if _nC_ < _nPrev_ return 0 ok
 			_nPrev_ = _nC_
 		next
-		return TRUE
+		return 1
 
 	# TRUE if the chars are in descending order.
 	def IsSortedInDescending()
 		_nLen_ = This._EngineCount(This.Content())
-		if _nLen_ < 2 return TRUE ok
+		if _nLen_ < 2 return 1 ok
 		_nPrev_ = StzEngineStringCharAt(@pEngine, 1)
 		for _i_ = 2 to _nLen_
 			_nC_ = StzEngineStringCharAt(@pEngine, _i_)
-			if _nC_ > _nPrev_ return FALSE ok
+			if _nC_ > _nPrev_ return 0 ok
 			_nPrev_ = _nC_
 		next
-		return TRUE
+		return 1
 
 	# Remove the chars of each given [start, end] section
 	# (mutating).
@@ -14315,7 +14315,7 @@ class stzString from stzObject
 		if pcSub = "" return ok
 		_nSubLen_ = This._EngineCount(pcSub)
 		_nPos_ = _nFrom_; _nCount_ = 0
-		while TRUE
+		while 1
 			_nFound_ = StzEngineStringFindFirstFromCS(@pEngine, pcSub,
 			           _nPos_, 1)
 			if _nFound_ < 1 return ok
@@ -14370,12 +14370,12 @@ class stzString from stzObject
 
 	# TRUE if the string is the lowercase form of the given one.
 	def IsLowercaseOf(pcOther)
-		if NOT isString(pcOther) return FALSE ok
+		if NOT isString(pcOther) return 0 ok
 		return This.Content() = lower(pcOther)
 
 	# TRUE if the string is the uppercase form of the given one.
 	def IsUppercaseOf(pcOther)
-		if NOT isString(pcOther) return FALSE ok
+		if NOT isString(pcOther) return 0 ok
 		return This.Content() = upper(pcOther)
 
 	# UppercasedInLocale / LowercasedInLocale -- locale-neutral fallback.
@@ -14558,11 +14558,11 @@ class stzString from stzObject
 				@char = _aChars_[_i_]
 				@Char = @char
 				@position = _i_
-				_bMatch_ = FALSE
+				_bMatch_ = 0
 				try
 					eval("_bMatch_ = " + _e_)
 				catch
-					_bMatch_ = FALSE
+					_bMatch_ = 0
 				done
 				if _bMatch_ return _i_ - 1 ok
 			next
@@ -14576,11 +14576,11 @@ class stzString from stzObject
 			@char = _aChars_[_i_]
 			@Char = @char
 			@position = _i_
-			_bMatch_ = FALSE
+			_bMatch_ = 0
 			try
 				eval("_bMatch_ = " + pcCondition)
 			catch
-				_bMatch_ = FALSE
+				_bMatch_ = 0
 			done
 			if _bMatch_ _aRes_ + _i_ ok
 		next
@@ -14590,15 +14590,15 @@ class stzString from stzObject
 	def FindWords()
 		_aRes_ = []
 		_nLen_ = This._EngineCount(This.Content())
-		_bIn_ = FALSE
+		_bIn_ = 0
 		for _i_ = 1 to _nLen_
 			_nC_ = StzEngineStringCharAt(@pEngine, _i_)
 			if _nC_ = 32 or _nC_ = 9 or _nC_ = 10 or _nC_ = 13
-				_bIn_ = FALSE
+				_bIn_ = 0
 			else
 				if NOT _bIn_
 					_aRes_ + _i_
-					_bIn_ = TRUE
+					_bIn_ = 1
 				ok
 			ok
 		next
@@ -14609,10 +14609,10 @@ class stzString from stzObject
 	# the 0-arg "has any trailing run" predicate above.)
 	def HasThisTrailingCharCS(pcChar, pCaseSensitive)
 		_nLen_ = This._EngineCount(This.Content())
-		if _nLen_ = 0 return FALSE ok
+		if _nLen_ = 0 return 0 ok
 		_nLast_ = StzEngineStringCharAt(@pEngine, _nLen_)
 		_nNeed_ = StzCodepoint(pcChar)
-		if pCaseSensitive = FALSE or pCaseSensitive = 0
+		if pCaseSensitive = 0 or pCaseSensitive = 0
 			return StzCodepoint(StzLower(StzChar(_nLast_))) =
 			       StzCodepoint(StzLower(StzChar(_nNeed_)))
 		ok
@@ -14623,10 +14623,10 @@ class stzString from stzObject
 
 	# TRUE if the string starts with the given char.
 	def HasThisLeadingCharCS(pcChar, pCaseSensitive)
-		if This._EngineCount(This.Content()) = 0 return FALSE ok
+		if This._EngineCount(This.Content()) = 0 return 0 ok
 		_nFirst_ = StzEngineStringCharAt(@pEngine, 1)
 		_nNeed_ = StzCodepoint(pcChar)
-		if pCaseSensitive = FALSE or pCaseSensitive = 0
+		if pCaseSensitive = 0 or pCaseSensitive = 0
 			return StzCodepoint(StzLower(StzChar(_nFirst_))) =
 			       StzCodepoint(StzLower(StzChar(_nNeed_)))
 		ok
@@ -14676,7 +14676,7 @@ class stzString from stzObject
 	# IsNTimesMultipleOf(n, pcUnit): TRUE iff content is pcUnit
 	# repeated exactly n times.
 	def IsNTimesMultipleOf(n, pcUnit)
-		if NOT (isString(pcUnit) and len(pcUnit) > 0) return FALSE ok
+		if NOT (isString(pcUnit) and len(pcUnit) > 0) return 0 ok
 		_cExpect_ = ""
 		for _i_ = 1 to n
 			_cExpect_ += pcUnit
@@ -15056,7 +15056,7 @@ class stzString from stzObject
 	# text-order positions / sections.
 	def MarquersSortedZ()
 		_aPos_ = This.MarquersPositions()
-		_aSorted_ = This._MarquersSortedStrings(TRUE)
+		_aSorted_ = This._MarquersSortedStrings(1)
 		_aR_ = []
 		_nL_ = len(_aPos_)
 		for _i_ = 1 to _nL_
@@ -15070,7 +15070,7 @@ class stzString from stzObject
 	# The marquers in sorted order, with their sections.
 	def MarquersSortedZZ()
 		_aSecs_ = This.FindMarquersAsSections()
-		_aSorted_ = This._MarquersSortedStrings(TRUE)
+		_aSorted_ = This._MarquersSortedStrings(1)
 		_aR_ = []
 		_nL_ = len(_aSecs_)
 		for _i_ = 1 to _nL_
@@ -15207,11 +15207,11 @@ class stzString from stzObject
 		but isList(pacBounds)
 			_aBnd_ = pacBounds
 		else
-			return FALSE
+			return 0
 		ok
 		if NOT (isList(_aBnd_) and len(_aBnd_) = 2 and
 		        isString(_aBnd_[1]) and isString(_aBnd_[2]))
-			return FALSE
+			return 0
 		ok
 		_aSec_ = This.FindBoundedByAsSections(_aBnd_)
 		_nL_ = len(_aSec_)
@@ -15220,10 +15220,10 @@ class stzString from stzObject
 			if isList(_s_) and len(_s_) = 2
 				_cMid_ = This._EngineSlice(This.Content(),
 				         _s_[1], _s_[2] - _s_[1] + 1)
-				if StzFindFirst(pcSub, _cMid_) > 0 return TRUE ok
+				if StzFindFirst(pcSub, _cMid_) > 0 return 1 ok
 			ok
 		next
-		return FALSE
+		return 0
 
 	# ToListInShortForm(): render the hosted list in the short range
 	# syntax -- "1 : 3" for numbers, '"A" : "D"' for strings.
@@ -15303,7 +15303,7 @@ class stzString from stzObject
 
 	# Each char in its own rounded box cell.
 	def EachCharBoxedRounded()
-		return This._BoxRender([ :EachChar = TRUE, :AllCorners = :Round ])
+		return This._BoxRender([ :EachChar = 1, :AllCorners = :Round ])
 
 	# The string titlecased for the given locale (falls back to
 	# plain titlecase).
@@ -15428,19 +15428,19 @@ class stzString from stzObject
 	def IsLongLanguageAbbreviation()
 		# Long form: 3-letter ISO 639-2/3 (e.g. "eng", "fra").
 		_c_ = This.Content()
-		if len(_c_) != 3 return FALSE ok
+		if len(_c_) != 3 return 0 ok
 		return isAlpha(_c_[1]) and isAlpha(_c_[2]) and isAlpha(_c_[3])
 
 	def LeadingCharIsCS(pcChar, pCaseSensitive)
 		_l_ = This.LeadingChar()
-		if pCaseSensitive = FALSE or pCaseSensitive = 0
+		if pCaseSensitive = 0 or pCaseSensitive = 0
 			return lower(_l_) = lower(pcChar)
 		ok
 		return _l_ = pcChar
 
 	def TrailingCharIsCS(pcChar, pCaseSensitive)
 		_l_ = This.TrailingChar()
-		if pCaseSensitive = FALSE or pCaseSensitive = 0
+		if pCaseSensitive = 0 or pCaseSensitive = 0
 			return lower(_l_) = lower(pcChar)
 		ok
 		return _l_ = pcChar
@@ -15467,27 +15467,27 @@ class stzString from stzObject
 	# SubStringComesBetween is order-INDEPENDENT (matches the original): TRUE
 	# if pcSub sits between the two bounds in EITHER order.
 	def SubStringComesBetween(pcSub, pcLeft, pcRight)
-		if This._ComesBetweenOrdered(pcSub, pcLeft, pcRight) return TRUE ok
+		if This._ComesBetweenOrdered(pcSub, pcLeft, pcRight) return 1 ok
 		return This._ComesBetweenOrdered(pcSub, pcRight, pcLeft)
 
 	def _ComesBetweenOrdered(pcSub, pcLeft, pcRight)
 		# TRUE if pcSub has pcLeft just before it and pcRight just after.
 		_p_ = This._FindFrom(This.Content(), pcSub, 1)
-		if _p_ < 1 return FALSE ok
+		if _p_ < 1 return 0 ok
 		_subLen_ = This._EngineCount(pcSub)
 		# pcLeft must end right at position _p_ - 1.
 		if isString(pcLeft) and pcLeft != ""
 			_lLen_ = This._EngineCount(pcLeft)
-			if _p_ - _lLen_ < 1 return FALSE ok
+			if _p_ - _lLen_ < 1 return 0 ok
 			_before_ = This._EngineSlice(This.Content(), _p_ - _lLen_, _lLen_)
-			if _before_ != pcLeft return FALSE ok
+			if _before_ != pcLeft return 0 ok
 		ok
 		if isString(pcRight) and pcRight != ""
 			_rLen_ = This._EngineCount(pcRight)
 			_after_ = This._EngineSlice(This.Content(), _p_ + _subLen_, _rLen_)
-			if _after_ != pcRight return FALSE ok
+			if _after_ != pcRight return 0 ok
 		ok
-		return TRUE
+		return 1
 
 	# TRUE if pcSub occurs BEFORE pcOther (a substring, or :Position
 	# = n).
@@ -15503,7 +15503,7 @@ class stzString from stzObject
 		ok
 		_p1_ = This._FindFrom(This.Content(), pcSub, 1)
 		_p2_ = This._FindFrom(This.Content(), pcOther, 1)
-		if _p1_ < 1 or _p2_ < 1 return FALSE ok
+		if _p1_ < 1 or _p2_ < 1 return 0 ok
 		return _p1_ < _p2_
 
 	# TRUE if pcSub occurs AFTER pcOther (a substring, or :Position
@@ -15519,13 +15519,13 @@ class stzString from stzObject
 		ok
 		_p1_ = This._FindFrom(This.Content(), pcSub, 1)
 		_p2_ = This._FindFrom(This.Content(), pcOther, 1)
-		if _p1_ < 1 or _p2_ < 1 return FALSE ok
+		if _p1_ < 1 or _p2_ < 1 return 0 ok
 		return _p1_ > _p2_
 
 	# TRUE if pcSub occurs before the given position.
 	def SubStringComesBeforePos(pcSub, nPos)
 		_p_ = This._FindFrom(This.Content(), pcSub, 1)
-		if _p_ < 1 or NOT isNumber(nPos) return FALSE ok
+		if _p_ < 1 or NOT isNumber(nPos) return 0 ok
 		return _p_ < nPos
 
 	def SubStringComesBeforePosition(pcSub, nPos)
@@ -15534,7 +15534,7 @@ class stzString from stzObject
 	# TRUE if pcSub occurs after the given position.
 	def SubStringComesAfterPos(pcSub, nPos)
 		_p_ = This._FindFrom(This.Content(), pcSub, 1)
-		if _p_ < 1 or NOT isNumber(nPos) return FALSE ok
+		if _p_ < 1 or NOT isNumber(nPos) return 0 ok
 		return _p_ > nPos
 
 	def SubStringComesAfterPosition(pcSub, nPos)
@@ -15549,8 +15549,8 @@ class stzString from stzObject
 	# TRUE if pcSub occurs between the two given positions.
 	def SubStringComesBetweenPositions(pcSub, _n1_, _n2_)
 		_p_ = This._FindFrom(This.Content(), pcSub, 1)
-		if _p_ < 1 return FALSE ok
-		if NOT (isNumber(_n1_) and isNumber(_n2_)) return FALSE ok
+		if _p_ < 1 return 0 ok
+		if NOT (isNumber(_n1_) and isNumber(_n2_)) return 0 ok
 		return _p_ >= _n1_ and _p_ <= _n2_
 
 	# Narrative-sub accessor used by SubStringQ(["sub", :In = "host"]).
@@ -15700,7 +15700,7 @@ class stzString from stzObject
 		_p_ = This._FindFrom(This.Content(), pcSub, 1)
 		_pL_ = This._FindFrom(This.Content(), _cL_, 1)
 		_pR_ = This._FindFrom(This.Content(), _cR_, 1)
-		if _p_ < 1 or _pL_ < 1 or _pR_ < 1 return FALSE ok
+		if _p_ < 1 or _pL_ < 1 or _pR_ < 1 return 0 ok
 		return _p_ > _pL_ and _p_ < _pR_
 
 	# Section-bounded find: the [start, end] sections of pcSub
@@ -15964,7 +15964,7 @@ class stzString from stzObject
 	#@ aka  put at position, add at, place into, inject
 	def Insert(pcSub, pNamed)
 		_n_ = 0
-		_bAfter_ = FALSE
+		_bAfter_ = 0
 		if isNumber(pNamed)
 			_n_ = pNamed
 		but isList(pNamed) and len(pNamed) = 2 and isString(pNamed[1])
@@ -15973,7 +15973,7 @@ class stzString from stzObject
 				_n_ = pNamed[2]
 			but _kw_ = "afterposition" or _kw_ = "after"
 				_n_ = pNamed[2]
-				_bAfter_ = TRUE
+				_bAfter_ = 1
 			ok
 		ok
 		if _n_ < 1 return ok
@@ -16005,7 +16005,7 @@ class stzString from stzObject
 		ok
 		if isList(pNamedCS) and len(pNamedCS) = 2 and isString(pNamedCS[1]) and
 		   (lower(pNamedCS[1]) = "cs" or lower(pNamedCS[1]) = "casesensitive")
-			if pNamedCS[2] = FALSE or pNamedCS[2] = 0 _bCase_ = 0 ok
+			if pNamedCS[2] = 0 or pNamedCS[2] = 0 _bCase_ = 0 ok
 		ok
 		if _cSub_ = "" return [] ok
 		if _bCase_ = 0
@@ -16019,7 +16019,7 @@ class stzString from stzObject
 		# passive form: RETURNS the dashed per-char box render, original
 		# untouched (was wrongly delegating to the MUTATING BoxRoundEachChar,
 		# which is also rounded, not dashed -- StzNamingLint's second catch)
-		return This._BoxRender([ :EachChar = TRUE, :Line = :Dashed ])
+		return This._BoxRender([ :EachChar = 1, :Line = :Dashed ])
 
 	def EachCharBoxed_alias()
 		return This.EachCharBoxed()
@@ -16027,15 +16027,15 @@ class stzString from stzObject
 	# The string as boxed char cells with the occurrences of pcSub
 	# visually marked (the VizFind map, boxed).
 	def VizFindBoxed(pcSub)
-		return This._BoxRender([ :EachChar = TRUE, :VizFind = pcSub ])
+		return This._BoxRender([ :EachChar = 1, :VizFind = pcSub ])
 
 	# The boxed VizFind map with rounded corners.
 	def VizFindBoxedRounded(pcSub)
-		return This._BoxRender([ :EachChar = TRUE, :AllCorners = :Round, :VizFind = pcSub ])
+		return This._BoxRender([ :EachChar = 1, :AllCorners = :Round, :VizFind = pcSub ])
 
 	# The boxed VizFind map with dashed lines.
 	def VizFindBoxedDashed(pcSub)
-		return This._BoxRender([ :EachChar = TRUE, :Line = :Dashed, :VizFind = pcSub ])
+		return This._BoxRender([ :EachChar = 1, :Line = :Dashed, :VizFind = pcSub ])
 
 	def BoxedDashed()
 		return This.BoxedRound()
@@ -16056,10 +16056,10 @@ class stzString from stzObject
 		_mark_ = ""
 		_nP_ = len(_aPos_)
 		for _i_ = 1 to _nL_
-			_b_ = FALSE
+			_b_ = 0
 			for _j_ = 1 to _nP_
 				if _aPos_[_j_] = _i_
-					_b_ = TRUE
+					_b_ = 1
 					exit
 				ok
 			next
@@ -16148,7 +16148,7 @@ class stzString from stzObject
 			_aVbsMark_ + _aVbsSec_[_iVbs_][1]
 			_aVbsMark_ + _aVbsSec_[_iVbs_][2]
 		next
-		_aVbsOpts_ = [ :EachChar = TRUE, :MarkPositions = _aVbsMark_ ]
+		_aVbsOpts_ = [ :EachChar = 1, :MarkPositions = _aVbsMark_ ]
 		if bRounded = 1
 			_aVbsOpts_ + [ "allcorners", "round" ]
 		ok
@@ -16197,7 +16197,7 @@ class stzString from stzObject
 
 	def VizFindBoxedCSXT(pcSub, pCaseSensitive, pNamed)
 		_aVfbP_ = This.FindAllCS(pcSub, @CaseSensitive(pCaseSensitive))
-		return This._BoxRender([ :EachChar = TRUE, :MarkPositions = _aVfbP_ ])
+		return This._BoxRender([ :EachChar = 1, :MarkPositions = _aVfbP_ ])
 
 	# TRUE if the string is a single digit.
 	def IsADigitInString()
@@ -16472,7 +16472,7 @@ class stzString from stzObject
 		if _cSub_ = "" return 0 ok
 		_iCount_ = 0
 		_pos_ = _nFrom_
-		while TRUE
+		while 1
 			_p_ = This._FindFrom(This.Content(), _cSub_, _pos_)
 			if _p_ < 1 return 0 ok
 			_iCount_++
@@ -16597,7 +16597,7 @@ class stzString from stzObject
 		ok
 		_nSubLen_ = This._EngineCount(pcSub)
 		_nPos_ = _nFrom_; _nC_ = 0
-		while TRUE
+		while 1
 			_nFound_ = StzEngineStringFindFirstFromCS(@pEngine, pcSub,
 			           _nPos_, 1)
 			if _nFound_ < 1 return 0 ok
@@ -16726,14 +16726,14 @@ class stzString from stzObject
 	def ContainsTheLetters(pacLetters)
 		# LETTER semantics are case-blind: "n" and "N" are both the
 		# letter N.
-		if NOT isList(pacLetters) return FALSE ok
+		if NOT isList(pacLetters) return 0 ok
 		_nL_ = len(pacLetters)
 		for _i_ = 1 to _nL_
-			if NOT (isString(pacLetters[_i_]) and This.ContainsCS(pacLetters[_i_], FALSE))
-				return FALSE
+			if NOT (isString(pacLetters[_i_]) and This.ContainsCS(pacLetters[_i_], 0))
+				return 0
 			ok
 		next
-		return TRUE
+		return 1
 
 	# FindSubStringBetween(pcSub, pcOpen, pcClose): positions of pcSub
 	# inside any pcOpen..pcClose section.
@@ -16823,14 +16823,14 @@ class stzString from stzObject
 	# ContainsNoOneOfThese(paSubStr): TRUE iff content contains NONE
 	# of the listed substrings.
 	def ContainsNoOneOfThese(paSubStr)
-		if NOT isList(paSubStr) return TRUE ok
+		if NOT isList(paSubStr) return 1 ok
 		_nL_ = len(paSubStr)
 		for _i_ = 1 to _nL_
 			if isString(paSubStr[_i_]) and This.Contains(paSubStr[_i_])
-				return FALSE
+				return 0
 			ok
 		next
-		return TRUE
+		return 1
 
 	def ContainsNoneOfThese(paSubStr)
 		return This.ContainsNoOneOfThese(paSubStr)
@@ -16858,7 +16858,7 @@ class stzString from stzObject
 		   (lower(pCaseSensitive[1]) = "cs" or lower(pCaseSensitive[1]) = "casesensitive")
 			pCaseSensitive = pCaseSensitive[2]
 		ok
-		if pCaseSensitive = FALSE or pCaseSensitive = 0
+		if pCaseSensitive = 0 or pCaseSensitive = 0
 			_oTmp_ = new stzString(lower(This.Content()))
 			return _oTmp_.IsMultipleOf(lower(pcUnit))
 		ok
@@ -16881,21 +16881,21 @@ class stzString from stzObject
 	def IsTitleCased()
 		_c_ = This.Content()
 		_nLen_ = len(_c_)
-		_bAtStart_ = TRUE
+		_bAtStart_ = 1
 		for _i_ = 1 to _nLen_
 			_ch_ = _c_[_i_]
 			if _ch_ = " " or _ch_ = char(9)
-				_bAtStart_ = TRUE
+				_bAtStart_ = 1
 				loop
 			ok
 			if _bAtStart_
-				if isAlpha(_ch_) and upper(_ch_) != _ch_ return FALSE ok
-				_bAtStart_ = FALSE
+				if isAlpha(_ch_) and upper(_ch_) != _ch_ return 0 ok
+				_bAtStart_ = 0
 			else
-				if isAlpha(_ch_) and lower(_ch_) != _ch_ return FALSE ok
+				if isAlpha(_ch_) and lower(_ch_) != _ch_ return 0 ok
 			ok
 		next
-		return TRUE
+		return 1
 
 	# (IsTitlecased -- Ring is case-insensitive, just one def.)
 
@@ -16921,9 +16921,9 @@ class stzString from stzObject
 	def ContainsLetters()
 		_nLen_ = This._EngineCount(This.Content())
 		for _i_ = 1 to _nLen_
-			if isAlpha(StzChar(StzEngineStringCharAt(@pEngine, _i_))) return TRUE ok
+			if isAlpha(StzChar(StzEngineStringCharAt(@pEngine, _i_))) return 1 ok
 		next
-		return FALSE
+		return 0
 
 	# The chars in reverse order, as data; the original is
 	# unchanged.
@@ -16936,7 +16936,7 @@ class stzString from stzObject
 	def IsAlmostAFunctionCall()
 		_c_ = ring_trim(This.Content())
 		_nLen_ = len(_c_)
-		if _nLen_ < 3 return FALSE ok
+		if _nLen_ < 3 return 0 ok
 		# Must have a "(" somewhere after at least 1 char and a ")"
 		# somewhere after that.
 		_nO_ = StzFindFirst("(", _c_)
@@ -16977,11 +16977,11 @@ class stzString from stzObject
 				@char = _aChars_[_i_]
 				@Char = @char
 				@position = _i_
-				_bMatch_ = FALSE
+				_bMatch_ = 0
 				try
 					eval("_bMatch_ = " + _e_)
 				catch
-					_bMatch_ = FALSE
+					_bMatch_ = 0
 				done
 				if _bMatch_ return _i_ + 1 ok
 			next
@@ -16994,11 +16994,11 @@ class stzString from stzObject
 			@char = _aChars_[_i_]
 			@Char = @char
 			@position = _i_
-			_bMatch_ = FALSE
+			_bMatch_ = 0
 			try
 				eval("_bMatch_ = " + pcCondition)
 			catch
-				_bMatch_ = FALSE
+				_bMatch_ = 0
 			done
 			if _bMatch_ _aRes_ + _i_ ok
 		next
@@ -17111,20 +17111,20 @@ class stzString from stzObject
 	# ContainsEachCS(pacSubStr, pCaseSensitive): TRUE iff content
 	# contains every listed substring.
 	def ContainsEachCS(pacSubStr, pCaseSensitive)
-		if NOT isList(pacSubStr) return FALSE ok
+		if NOT isList(pacSubStr) return 0 ok
 		_bCase_ = 1
-		if pCaseSensitive = FALSE or pCaseSensitive = 0 _bCase_ = 0 ok
+		if pCaseSensitive = 0 or pCaseSensitive = 0 _bCase_ = 0 ok
 		_nL_ = len(pacSubStr)
 		for _i_ = 1 to _nL_
 			_s_ = pacSubStr[_i_]
 			if NOT isString(_s_) loop ok
 			if _bCase_ = 1
-				if NOT This.ContainsCS(_s_, 1) return FALSE ok
+				if NOT This.ContainsCS(_s_, 1) return 0 ok
 			else
-				if NOT This.ContainsCS(_s_, 0) return FALSE ok
+				if NOT This.ContainsCS(_s_, 0) return 0 ok
 			ok
 		next
-		return TRUE
+		return 1
 
 	def ContainsEach(pacSubStr)
 		return This.ContainsEachCS(pacSubStr, 1)
@@ -17251,11 +17251,11 @@ class stzString from stzObject
 	# is "mmMm". Resolve the flag, then pick the right walk.
 	def _CaseFlagValue(p)
 		if isNumber(p) return p ok
-		_bCfv_ = TRUE
+		_bCfv_ = 1
 		if isList(p) and len(p) = 2
 			if isString(p[1])
 				if lower(p[1]) = "cs" or lower(p[1]) = "casesensitive"
-					if p[2] = FALSE or p[2] = 0 _bCfv_ = FALSE ok
+					if p[2] = 0 or p[2] = 0 _bCfv_ = 0 ok
 				ok
 			ok
 		ok
@@ -17574,7 +17574,7 @@ class stzString from stzObject
 		ok
 		_a_ = This.Content()
 		_b_ = pcOther
-		if pCaseSensitive = FALSE or pCaseSensitive = 0
+		if pCaseSensitive = 0 or pCaseSensitive = 0
 			_a_ = StzLower(_a_)
 			_b_ = StzLower(_b_)
 		ok
@@ -17606,8 +17606,8 @@ class stzString from stzObject
 	# ContainsLetter(pcLetter): TRUE iff content contains pcLetter.
 	def ContainsLetter(pcLetter)
 		# Case-blind, like every LETTER-flavored method.
-		if NOT isString(pcLetter) return FALSE ok
-		return This.ContainsCS(pcLetter, FALSE)
+		if NOT isString(pcLetter) return 0 ok
+		return This.ContainsCS(pcLetter, 0)
 
 	# ContainsBoth(pcA, pcB): TRUE iff content contains BOTH.
 	def ContainsBoth(pcA, pcB)
@@ -17659,9 +17659,9 @@ class stzString from stzObject
 	# IsALetterOf(pcOther): TRUE iff single-char This appears in pcOther.
 	def IsALetterOf(pcOther)
 		# TRUE iff This (a single char) appears in pcOther, case-blind.
-		if NOT isString(pcOther) return FALSE ok
+		if NOT isString(pcOther) return 0 ok
 		_c_ = This.Content()
-		if len(_c_) = 0 return FALSE ok
+		if len(_c_) = 0 return 0 ok
 		return StzFindFirst(StzLower(_c_), StzLower(pcOther)) > 0
 
 	def RemoveLeftOccurrenceQ(pcSub)
@@ -17704,7 +17704,7 @@ class stzString from stzObject
 				:OpeningChar = "(",
 				:ClosingChar = ")",
 				:MainSeparator = ",",
-				:AddSpaceAfterSeparator = TRUE,
+				:AddSpaceAfterSeparator = 1,
 				:SpaceOption = :AddLeadingAndTrailingSpaces
 			])
 			return
@@ -17829,7 +17829,7 @@ class stzString from stzObject
 	# IsShortLanguageAbbreviation(): 2-letter ISO 639-1-style alpha code.
 	def IsShortLanguageAbbreviation()
 		_c_ = This.Content()
-		if len(_c_) != 2 return FALSE ok
+		if len(_c_) != 2 return 0 ok
 		return isAlpha(_c_[1]) and isAlpha(_c_[2])
 
 	# IsLatin(): TRUE iff every char is ASCII-Latin.
@@ -17842,7 +17842,7 @@ class stzString from stzObject
 		_acIltScripts_ = StzEngineStringScriptNamesList(@pEngine)
 
 		if len(_acIltScripts_) != 1
-			return FALSE
+			return 0
 		ok
 
 		return _acIltScripts_[1] = "latin"
@@ -17907,7 +17907,7 @@ class stzString from stzObject
 
 	# Box each char in its own cell, in place (mutating).
 	def BoxEachChar()
-		This.Update( This._BoxRender([ :EachChar = TRUE ]) )
+		This.Update( This._BoxRender([ :EachChar = 1 ]) )
 
 	def BoxEachCharQ()
 		This.BoxEachChar()
@@ -17915,11 +17915,11 @@ class stzString from stzObject
 
 	# Each char in its own box cell, as data.
 	def CharsBoxed()
-		return This._BoxRender([ :EachChar = TRUE ])
+		return This._BoxRender([ :EachChar = 1 ])
 
 	# Box each char in its own cell, in place (mutating).
 	def BoxifyChars()
-		This.Update( This._BoxRender([ :EachChar = TRUE ]) )
+		This.Update( This._BoxRender([ :EachChar = 1 ]) )
 
 	# Same as FindAnyBoundedByAsSections, the pair given as two
 	# args.
@@ -18570,11 +18570,11 @@ class stzString from stzObject
 	# the predicate. Engine-backed (see _SubStringMatchPositions), no eval().
 	# Replaces the retired SplitBeforeSubStringsWXT.
 	def SplitBeforeSubStringsW(pcCondition)
-		return This.SplitBeforePositions( This._SubStringMatchPositions(pcCondition, FALSE) )
+		return This.SplitBeforePositions( This._SubStringMatchPositions(pcCondition, 0) )
 
 	# Split after each substring matching the W condition.
 	def SplitAfterSubStringsW(pcCondition)
-		return This.SplitAfterPositions( This._SubStringMatchPositions(pcCondition, TRUE) )
+		return This.SplitAfterPositions( This._SubStringMatchPositions(pcCondition, 1) )
 
 	# SplitAtSubStringsW(pcCondition): split AT the substrings matching the
 	# predicate -- the matched substrings are dropped (delimiters), the pieces
@@ -19311,7 +19311,7 @@ class stzString from stzObject
 			_cFsibC2_ = lower(_cFsibC2_)
 		ok
 		_iFsib_ = 1
-		while TRUE
+		while 1
 			_nOpen_ = This._FindFrom(_cFsibHay_, _cFsibO2_, _iFsib_)
 			if _nOpen_ < 1 exit ok
 			_nClose_ = This._FindFrom(_cFsibHay_, _cFsibC2_, _nOpen_ + _nFsibO_)
@@ -19472,7 +19472,7 @@ class stzString from stzObject
 		ok
 		# Walk forward and remember the last hit at or after nStartAt.
 		_nPos_ = _nStartAt_; _nLast_ = 0
-		while TRUE
+		while 1
 			_nFound_ = This._FindSubStr(pcSubStr, _nPos_, 1)
 			if _nFound_ = 0 exit ok
 			_nLast_ = _nFound_
@@ -19488,7 +19488,7 @@ class stzString from stzObject
 			_nStartAt_ = _nStartAt_[2]
 		ok
 		_nPos_ = _nStartAt_; _nCount_ = 0
-		while TRUE
+		while 1
 			_nFound_ = This._FindSubStr(pcSubStr, _nPos_, 1)
 			if _nFound_ = 0 return 0 ok
 			_nCount_++
@@ -19502,15 +19502,15 @@ class stzString from stzObject
 	def _IsBackwardDir(pDir)
 		# ("bakcward" is a tolerated archive misspelling.)
 		if isString(pDir) and (lower(pDir) = "backward" or lower(pDir) = "bakcward")
-			return TRUE
+			return 1
 		but isList(pDir) and len(pDir) = 2 and isString(pDir[1]) and
 		   (lower(pDir[1]) = "direction" or lower(pDir[1]) = "going")
 			if isString(pDir[2]) and
 			   (lower(pDir[2]) = "backward" or lower(pDir[2]) = "bakcward")
-				return TRUE
+				return 1
 			ok
 		ok
-		return FALSE
+		return 0
 
 	# FindFirstSTD: directional find-from-position.
 	#   FindFirstSTD(sub, :StartingAt = n, :Backward)
@@ -19634,8 +19634,8 @@ class stzString from stzObject
 	# char equal to the one before it. Retires the O(len) CharAt loop.
 	# pCaseSensitive=0 compares case-insensitively (per-codepoint casefold).
 	def FindDupSecutiveCharsCS(pCaseSensitive)
-		_bCs_ = TRUE
-		if pCaseSensitive = 0 _bCs_ = FALSE ok
+		_bCs_ = 1
+		if pCaseSensitive = 0 _bCs_ = 0 ok
 		return This._DrainFind( StzEngineStringFindDupSecutiveCharsCS(@pEngine, _bCs_) )
 
 	def FindDupSecutiveChars()
@@ -19651,8 +19651,8 @@ class stzString from stzObject
 	# pCaseSensitive=0 compares the substrings case-insensitively.
 	def FindDupSecutiveSubStringCS(pcSub, pCaseSensitive)
 		if NOT isString(pcSub) return [] ok
-		_bCs_ = TRUE
-		if pCaseSensitive = 0 _bCs_ = FALSE ok
+		_bCs_ = 1
+		if pCaseSensitive = 0 _bCs_ = 0 ok
 		return This._DrainFind( StzEngineStringFindDupSecutiveSubStringCS(@pEngine, pcSub, _bCs_) )
 
 	def FindDupSecutiveSubString(pcSub)
@@ -19837,12 +19837,12 @@ class stzString from stzObject
 			_nLen_ = len(p1)
 			for _i_ = 1 to _nLen_
 				if This._EngineSlice(This.Content(), p1[_i_], This._EngineCount(p2)) != p2
-					return FALSE
+					return 0
 				ok
 			next
-			return TRUE
+			return 1
 		ok
-		return FALSE
+		return 0
 
 	def ContainsAtPosition(pcSub, n)
 		return This._EngineSlice(This.Content(), n, This._EngineCount(pcSub)) = pcSub
@@ -19906,7 +19906,7 @@ class stzString from stzObject
 	def AllCharsAre(pcKind)
 		_aChars_ = This.Chars()
 		_nLen_ = len(_aChars_)
-		if _nLen_ = 0 return FALSE ok
+		if _nLen_ = 0 return 0 ok
 		_k_ = ""
 		if isString(pcKind) _k_ = lower(pcKind) ok
 		# Handle the digit-derived kinds via dedicated walkers so they
@@ -19916,7 +19916,7 @@ class stzString from stzObject
 		if _k_ = "positive" return This.AllCharsArePositive() ok
 		for _i_ = 1 to _nLen_
 			_c_ = _aChars_[_i_]
-			_bOk_ = FALSE
+			_bOk_ = 0
 			if _k_ = "chars" or _k_ = "strings"
 				_bOk_ = isString(_c_)
 			but _k_ = "numbers" or _k_ = "digits"
@@ -19944,11 +19944,11 @@ class stzString from stzObject
 				# down char table (see retired Turned tests).
 				_bOk_ = isAlpha(_c_)
 			else
-				_bOk_ = FALSE
+				_bOk_ = 0
 			ok
-			if NOT _bOk_ return FALSE ok
+			if NOT _bOk_ return 0 ok
 		next
-		return TRUE
+		return 1
 
 	# IsPluralOfAStzType: predicate checking a :stz<Type>s symbolic
 	# name (e.g. :stzListsOfStrings, :stzStrings). Used by narratives
@@ -19956,10 +19956,10 @@ class stzString from stzObject
 	def IsPluralOfAStzType()
 		_s_ = lower(This.Content())
 		# Plural shapes Softanza recognises end in "s" (or "es").
-		if NOT (ring_left(_s_, 3) = "stz") return FALSE ok
+		if NOT (ring_left(_s_, 3) = "stz") return 0 ok
 		# Must end with 's' AND the singular (without trailing s)
 		# must also be a Stz type name.
-		if NOT (ring_right(_s_, 1) = "s") return FALSE ok
+		if NOT (ring_right(_s_, 1) = "s") return 0 ok
 		_singular_ = ring_left(_s_, len(_s_) - 1)
 		# We accept it as a plural of a stzType if removing the
 		# trailing 's' yields a name that begins with "stz" too.
@@ -19973,39 +19973,39 @@ class stzString from stzObject
 	# evaluation result is order-independent; the param is kept for
 	# narrative-symmetry.
 	def AllCharsAreXT(aKinds, pNamed)
-		if NOT isList(aKinds) return FALSE ok
+		if NOT isList(aKinds) return 0 ok
 		_nK_ = len(aKinds)
 		for _i_ = 1 to _nK_
 			if NOT This.AllCharsAre(aKinds[_i_])
-				return FALSE
+				return 0
 			ok
 		next
-		return TRUE
+		return 1
 
 	# AllCharsAre extension: :Even / :Odd / :Positive for digits.
 	# Augment the existing kind list via inline checks.
 	def AllCharsAreEven()
 		_nLen_ = This._EngineCount(This.Content())
-		if _nLen_ = 0 return FALSE ok
-		if StzEngineStringIsDigit(@pEngine) != 1 return FALSE ok
+		if _nLen_ = 0 return 0 ok
+		if StzEngineStringIsDigit(@pEngine) != 1 return 0 ok
 		for _i_ = 1 to _nLen_
 			_nC_ = StzEngineStringCharAt(@pEngine, _i_)
-			if (_nC_ - 48) % 2 != 0 return FALSE ok
+			if (_nC_ - 48) % 2 != 0 return 0 ok
 		next
-		return TRUE
+		return 1
 
 	def AllCharsAreOdd()
 		_nLen_ = This._EngineCount(This.Content())
-		if _nLen_ = 0 return FALSE ok
-		if StzEngineStringIsDigit(@pEngine) != 1 return FALSE ok
+		if _nLen_ = 0 return 0 ok
+		if StzEngineStringIsDigit(@pEngine) != 1 return 0 ok
 		for _i_ = 1 to _nLen_
 			_nC_ = StzEngineStringCharAt(@pEngine, _i_)
-			if (_nC_ - 48) % 2 = 0 return FALSE ok
+			if (_nC_ - 48) % 2 = 0 return 0 ok
 		next
-		return TRUE
+		return 1
 
 	def AllCharsArePositive()
-		if This._EngineCount(This.Content()) = 0 return FALSE ok
+		if This._EngineCount(This.Content()) = 0 return 0 ok
 		return StzEngineStringIsDigit(@pEngine) = 1
 
 	# FindNthSTZZ / FindNthSTD / FindNthSTDZZ -- sectional / directional
