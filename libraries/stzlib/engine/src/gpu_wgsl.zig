@@ -464,6 +464,11 @@ fn compileExpr(
                 while (c2 < rhs.len and (rhs[c2] == ' ' or rhs[c2] == '\t')) : (c2 += 1) {}
                 if (c2 >= rhs.len or rhs[c2] != ',')
                     { _ = fail("sample takes a texture AND a coordinate: sample({s}, @uv)", .{tnm.slice()}); return false; }
+                // NOT wrapped in a linearise: the closing paren belongs to
+                // the author's own sample(...) call, so wrapping unbalances
+                // it. Texture colour space is a FORMAT decision (an sRGB
+                // texture view lets the sampler do it) and is its own
+                // measurement, not this one.
                 expr.put("textureSample(t_");
                 expr.put(tnm.slice());
                 expr.put(", sm_");
@@ -488,7 +493,11 @@ fn compileExpr(
             // somewhere the author never looks.
             var swizzlable = false;
             if (nameIn(colors, colors.len, nm.slice()) != null) {
-                expr.put("m.c_");
+                // lc_, not m.c_ -- the body works on LINEAR colour. See
+                // the prologue: shading arithmetic on sRGB-ENCODED values
+                // is the classic gamma bug, measured here as tint*0.5
+                // rendering 64 where correct is 92.
+                expr.put("lc_");
                 expr.put(nm.slice());
                 swizzlable = true;
             } else if (nameIn(scalars, scalars.len, nm.slice()) != null) {
@@ -739,6 +748,20 @@ pub fn stz_gpu_wgsl_fragment(spec: [*]const u8, spec_len: f64, out: [*]u8, cap: 
         put(&w, textures[t].slice());
         put(&w, " : sampler;\n");
     }
+    // The sRGB transfer pair as the standard defines it -- the piecewise
+    // curve, not a gamma of 2.2. The linear segment near black is exactly
+    // where dark colours live, and an approximation there is visible.
+    put(&w, "fn stzToLinear3(c : vec3<f32>) -> vec3<f32> {\n");
+    put(&w, "  let hi = pow((c + vec3<f32>(0.055)) / vec3<f32>(1.055), vec3<f32>(2.4));\n");
+    put(&w, "  let lo = c / vec3<f32>(12.92);\n");
+    put(&w, "  return select(hi, lo, c <= vec3<f32>(0.04045));\n}\n");
+    put(&w, "fn stzToLinear4(c : vec4<f32>) -> vec4<f32> {\n");
+    put(&w, "  return vec4<f32>(stzToLinear3(c.rgb), c.a);\n}\n");
+    put(&w, "fn stzToSrgb3(c : vec3<f32>) -> vec3<f32> {\n");
+    put(&w, "  let v = max(c, vec3<f32>(0.0));\n");
+    put(&w, "  let hi = vec3<f32>(1.055) * pow(v, vec3<f32>(1.0 / 2.4)) - vec3<f32>(0.055);\n");
+    put(&w, "  let lo = v * vec3<f32>(12.92);\n");
+    put(&w, "  return select(hi, lo, v <= vec3<f32>(0.0031308));\n}\n");
     put(&w, "struct VSOut { @builtin(position) pos : vec4<f32>, @location(0) nrm : vec3<f32>, @location(1) col : vec4<f32>, @location(2) uv : vec2<f32>, @location(3) wpos : vec3<f32> }\n");
     put(&w, "@vertex\n");
     put(&w, "fn vmain(@location(0) position : vec3<f32>, @location(1) normal : vec3<f32>, @location(2) uv : vec2<f32>, @builtin(instance_index) ii : u32) -> VSOut {\n");
@@ -753,8 +776,21 @@ pub fn stz_gpu_wgsl_fragment(spec: [*]const u8, spec_len: f64, out: [*]u8, cap: 
     put(&w, "  let f_normal = normalize(in.nrm);\n");
     put(&w, "  let f_position = in.wpos;\n");
     put(&w, "  let f_uv = in.uv;\n");
-    put(&w, "  let f_color = in.col;\n");
+    put(&w, "  let f_color = stzToLinear4(in.col);\n");
     put(&w, "  let f_lambert = max(dot(f_normal, -normalize(frame.lightDir.xyz)), 0.0);\n");
+    // LINEARISED COPIES of every declared colour. The body multiplies,
+    // mixes and powers these, and all of that arithmetic is only
+    // meaningful on LINEAR light. Measured before the fix: a material
+    // saying `tint * k` with tint #808080 and k 0.5 rendered 64, where the
+    // physically correct answer is 92 -- shadows far too dark, mid-tones
+    // muddy. The classic gamma bug.
+    for (0..n_colors) |ci| {
+        put(&w, "  let lc_");
+        put(&w, colors[ci].slice());
+        put(&w, " = stzToLinear4(m.c_");
+        put(&w, colors[ci].slice());
+        put(&w, ");\n");
+    }
     // KEEP THE MATERIAL BINDING ALIVE. A material may declare a colour or
     // scalar its body never reads; naga then strips @binding(2) from the
     // pipeline layout, the draw still binds three buffers, and wgpu PANICS
@@ -786,9 +822,13 @@ pub fn stz_gpu_wgsl_fragment(spec: [*]const u8, spec_len: f64, out: [*]u8, cap: 
         put(&w, ", vec2<f32>(0.5, 0.5)).a < -1.0e30) { discard; }\n");
     }
     put(&w, lets.items());   // the material's own let bindings, in order
-    put(&w, "  return ");
+    // ENCODE ON THE WAY OUT. The body worked in linear; the target holds
+    // sRGB-encoded bytes, so the last act is the inverse transfer. Alpha is
+    // NOT encoded -- it is coverage, not light.
+    put(&w, "  let stz_out = ");
     put(&w, expr.items());
-    put(&w, ";\n}\n");
+    put(&w, ";\n");
+    put(&w, "  return vec4<f32>(stzToSrgb3(stz_out.rgb), stz_out.a);\n}\n");
 
     if (w.overflow) return fail("material too large for the output buffer", .{});
     return @intCast(w.len);

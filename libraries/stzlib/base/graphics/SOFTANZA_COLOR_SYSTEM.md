@@ -195,10 +195,23 @@ CI gate over the shipped themes.
 adjusted to, the minimum is wrong or the themes are — either way that is
 the finding, and it gets written down rather than lowered quietly.
 
-**C4 — linear-space 3D.** One path for albedo and background.
-*Kill:* none. This is a correctness fix; if measurement shows the two
-paths already agree, the phase is closed as unnecessary and that is
-recorded.
+**C4 — linear-space 3D. DONE.** The paths did NOT agree: a material saying
+`tint * k` with `#808080` and k=0.5 rendered **64** where linear light gives
+**92**. Multiplying an sRGB-ENCODED value does not halve the light, it halves
+the ENCODING — so every shadow in every material was far too dark and every
+mid-tone muddy. The classic gamma bug, and it had been shipping.
+
+The material transpiler now linearises every declared colour and the instance
+colour on entry, and encodes once on the way out. Verified: flat colours
+round-trip with **zero drift** across six test colours, and backgrounds stay
+**literal** — a clear colour has no arithmetic applied, so linearising it too
+would have been a regression dressed as a fix.
+
+Textures are deliberately NOT wrapped. Their colour space is a FORMAT
+decision (an sRGB texture view lets the sampler do it for free) and deserves
+its own measurement rather than a guess inside this phase.
+
+Guard: `test/graphics/gg_color_c4.ring` (6).
 
 **C5 — export.** `ToCSS` / `ToJSON` / `ToRing`, and one theme shared
 between a Ring face and a web face.
