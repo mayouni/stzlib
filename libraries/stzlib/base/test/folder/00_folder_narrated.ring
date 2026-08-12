@@ -110,6 +110,46 @@ Scenario("A display pattern is recognised by the keyword INSIDE it")
     Then("the empty pattern is refused", p.IsStatPattern(""), FALSE)
 EndScenario()
 
+# FindTheseFiles/FindTheseFolders gather several searches into one deduplicated
+# answer. Both were broken, and the two defects were stacked:
+#
+#   _nLenR_ = len(acFileResult)     <- a name that exists NOWHERE
+#   if find(_acFound_, ...)         <- 2 args to this class's own Find(cPattern)
+#
+# The typo raised R24 on the first result, so FindTheseFiles never worked. It
+# also HID the line beneath it: with the loop bound coming from a variable that
+# does not exist, the body was unreachable. FindTheseFolders had the bound
+# right, so its find() was live -- an R20 waiting for the first folder to match.
+#
+# `find` is Ring's (list, item); StzFindFirst is NEEDLE-FIRST. The order changes
+# with the call, which is the kind of detail a silent fix gets wrong.
+
+Scenario("Several searches gathered into one answer, without duplicates")
+    Given("the folder holding this suite")
+    f = new stzFolder(CurrentDir())
+    nAll = len(f.FindFiles("*.ring"))
+    Then("there are .ring files to find", nAll > 0, TRUE)
+
+    When("FindTheseFiles is asked for that same pattern")
+    Then("it returns them all", len(f.FindTheseFiles([ "*.ring" ])), nAll)
+
+    # The point of the find() call is DEDUPLICATION. Asking twice must not
+    # double the answer -- and this is the assertion that would have caught
+    # the shadowed find() had the loop above it ever run.
+    When("the SAME pattern is asked for twice")
+    Then("the answer is not doubled", len(f.FindTheseFiles([ "*.ring", "*.ring" ])), nAll)
+
+    Given("the parent directory, which holds many topic folders")
+    g = new stzFolder(CurrentDir() + "/..")
+    nF = len(g.FindTheseFolders([ "f*" ]))
+    Then("FindTheseFolders finds some", nF > 0, TRUE)
+    Then("...and does not double them either", len(g.FindTheseFolders([ "f*", "f*" ])), nF)
+
+    # The negative sibling: a pattern matching nothing must answer empty, not
+    # raise and not fall back to everything.
+    Then("a pattern matching nothing is empty", len(f.FindTheseFiles([ "*.nosuchext" ])), 0)
+EndScenario()
+
 Scenario("VizDeepSearch marks every match")
     Given("the fixture searched for *.txt")
     t = new stzFolder(cTA)
