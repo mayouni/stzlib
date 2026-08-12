@@ -57,12 +57,12 @@ func StzAppServerQ()
 class stzAppServer from stzObject
 
 	# Core infrastructure
-	@oReactor = NULL          # the libuv loop (owned)
-	@oRouter = NULL
+	@oReactor = ""          # the libuv loop (owned)
+	@oRouter = ""
 	@nServerId = 0            # HTTP listener id on the reactor
 	@nBoundPort = 0
 	@cHost = "127.0.0.1"
-	@bRunning = False
+	@bRunning = 0
 
 	# IoT raw listeners: [ [ nSid, nPort, fHandler ], ... ]
 	@aRawListeners = []
@@ -78,31 +78,31 @@ class stzAppServer from stzObject
 	# into per request (R + X + errors) and ticks while serving. The
 	# stored monitor is a Ring COPY -- harmless by design: metric state
 	# is engine-side, so the caller's face reads what this face records.
-	@oPerfMon = NULL
+	@oPerfMon = ""
 	# Per-route family face (perf P8, set by ObserveRoutes): held
 	# directly so the per-request path hits this face's child cache.
-	@oRouteFam = NULL
+	@oRouteFam = ""
 
 	# Hosted agents (R5): an stzAgentHost sharing THIS server's loop
-	@oAgentHost = NULL
+	@oAgentHost = ""
 	@nAgentSliceMs = 20       # max ms spent parked on the socket per tick pass
 
 	# Request authentication (for a listener that is NOT on the loopback)
-	@oSigner = NULL           # an stzRequestSigner holding the shared secret(s)
+	@oSigner = ""           # an stzRequestSigner holding the shared secret(s)
 	@nMaxSkewMs = 30000
 	@cAuthWhy = ""
 
 	# The mounted USER-authentication router (auth plan phase 6): stzAuth's whole
 	# surface -- password, 2FA, passwordless, the authz actor -- as HTTP endpoints.
-	@oAuth = NULL             # the server's stzAuth (see MountAuth on copy semantics)
+	@oAuth = ""             # the server's stzAuth (see MountAuth on copy semantics)
 	@cAuthPrefix = "/auth"
-	@bAuthMounted = FALSE
-	@bSecureCookies = FALSE   # add Secure to auth cookies (set TRUE behind TLS)
+	@bAuthMounted = 0
+	@bSecureCookies = 0   # add Secure to auth cookies (set TRUE behind TLS)
 
 	# The mounted OIDC PROVIDER: this server IS an identity provider for other apps
-	@oOp = NULL
+	@oOp = ""
 	@cOpPrefix = "/oidc"
-	@bOpMounted = FALSE
+	@bOpMounted = 0
 
 	def init()
 		# paren-less: stzAppRouter has no own init(), and the inherited
@@ -119,7 +119,7 @@ class stzAppServer from stzObject
 		if @bRunning
 			stzraise("stzAppServer is already running on port " + @nBoundPort)
 		ok
-		if cHostAddr = NULL or cHostAddr = ""
+		if cHostAddr = "" or cHostAddr = ""
 			cHostAddr = "127.0.0.1"
 		ok
 		@cHost = cHostAddr
@@ -131,9 +131,9 @@ class stzAppServer from stzObject
 		ok
 		@nServerId = _nSid_
 		@nBoundPort = @oReactor.ServerPort(_nSid_)
-		@bRunning = True
+		@bRunning = 1
 		@nStartMs = StzEngineTimeNowMs()
-		return True
+		return 1
 
 	# Serve over TLS: the reactor terminates TLS per connection (server cert
 	# cCertPath + key cKeyPath) BELOW the router, so every handler runs on
@@ -145,7 +145,7 @@ class stzAppServer from stzObject
 		if @bRunning
 			stzraise("stzAppServer is already running on port " + @nBoundPort)
 		ok
-		if cHostAddr = NULL or cHostAddr = ""
+		if cHostAddr = "" or cHostAddr = ""
 			cHostAddr = "127.0.0.1"
 		ok
 		@cHost = cHostAddr
@@ -157,13 +157,13 @@ class stzAppServer from stzObject
 		ok
 		@nServerId = _nSid_
 		@nBoundPort = @oReactor.ServerPort(_nSid_)
-		@bRunning = True
+		@bRunning = 1
 		@nStartMs = StzEngineTimeNowMs()
-		return True
+		return 1
 
 	# One-way HTTPS convenience (server cert only, no client cert).
 	def StartHttps(nPortNum, cHostAddr, cCertPath, cKeyPath)
-		return This.StartTls(nPortNum, cHostAddr, cCertPath, cKeyPath, "", FALSE)
+		return This.StartTls(nPortNum, cHostAddr, cCertPath, cKeyPath, "", 0)
 
 	def Stop()
 		if NOT @bRunning
@@ -175,10 +175,10 @@ class stzAppServer from stzObject
 			@oReactor.ServerStop(@aRawListeners[_i_][1])
 		next
 		@oReactor.Destroy()
-		@oReactor = NULL
+		@oReactor = ""
 		@nServerId = 0
 		@aRawListeners = []
-		@bRunning = False
+		@bRunning = 0
 		return This
 
 	def IsRunning()
@@ -216,41 +216,41 @@ class stzAppServer from stzObject
 		ok
 		# perf P3: the observed server samples its own senses at the
 		# monitor's cadence (Tick is a cheap due-check when not due).
-		if @oPerfMon != NULL
+		if @oPerfMon != ""
 			@oPerfMon.Tick()
 		ok
 		_nDeadline_ = StzEngineTimeNowMs() + nTimeoutMs
-		while TRUE
+		while 1
 			# HTTP listener (non-blocking drain)
 			_aEv_ = @oReactor.ServerPoll(@nServerId)
 			if len(_aEv_) > 0
 				if This._HandleHttpEvent(_aEv_)
-					return TRUE
+					return 1
 				ok
 				loop
 			ok
 			# raw listeners (IoT)
-			_bDidWork_ = FALSE
+			_bDidWork_ = 0
 			_nLen_ = len(@aRawListeners)
 			for _i_ = 1 to _nLen_
 				_aEvR_ = @oReactor.ServerPoll(@aRawListeners[_i_][1])
 				if len(_aEvR_) > 0
 					if This._HandleRawEvent(@aRawListeners[_i_], _aEvR_)
-						_bDidWork_ = TRUE
+						_bDidWork_ = 1
 					ok
 				ok
 			next
 			if _bDidWork_
-				return TRUE
+				return 1
 			ok
 			if StzEngineTimeNowMs() >= _nDeadline_
-				return FALSE
+				return 0
 			ok
 			# nothing pending: park briefly on the HTTP listener
 			_aEv_ = @oReactor.ServerAwait(@nServerId, 10)
 			if len(_aEv_) > 0
 				if This._HandleHttpEvent(_aEv_)
-					return TRUE
+					return 1
 				ok
 			ok
 		end
@@ -269,7 +269,7 @@ class stzAppServer from stzObject
 			if _nLeft_ < 1
 				exit
 			ok
-			if @oAgentHost = NULL
+			if @oAgentHost = ""
 				This.ServeOne(_nLeft_)
 			else
 				_nSlice_ = @nAgentSliceMs
@@ -286,7 +286,7 @@ class stzAppServer from stzObject
 	# from a handler). The documented blocking entry point.
 	def Run()
 		while @bRunning
-			if @oAgentHost = NULL
+			if @oAgentHost = ""
 				This.ServeOne(1000)
 			else
 				This.ServeOne(@nAgentSliceMs)
@@ -337,7 +337,7 @@ class stzAppServer from stzObject
 		return This
 
 	def IsObserved()
-		return @oPerfMon != NULL
+		return @oPerfMon != ""
 
 	# Per-route observation (perf P8): Observe() PLUS a timer FAMILY
 	# 'http.route.ms' labeled [method, route, class] -- one child per
@@ -422,7 +422,7 @@ class stzAppServer from stzObject
 		return This
 
 	def RequiresSignedRequests()
-		return @oSigner != NULL
+		return @oSigner != ""
 
 	  #--------------------------------------#
 	 #  USER AUTHENTICATION ROUTER (stzAuth)  #
@@ -470,7 +470,7 @@ class stzAppServer from stzObject
 		ok
 		@oAuth = poAuth
 		@cAuthPrefix = _p_
-		@bAuthMounted = TRUE
+		@bAuthMounted = 1
 		return This
 
 	def AuthIsMounted()
@@ -525,7 +525,7 @@ class stzAppServer from stzObject
 		if StzFindFirst("/", _p_) != 1  _p_ = "/" + _p_  ok
 		@oOp = poProvider
 		@cOpPrefix = _p_
-		@bOpMounted = TRUE
+		@bOpMounted = 1
 		return This
 
 	def OidcProviderIsMounted()
@@ -540,14 +540,14 @@ class stzAppServer from stzObject
 
 	# TRUE when the request may proceed.
 	def _RequestIsAuthorized(oReq)
-		if @oSigner = NULL
-			return TRUE
+		if @oSigner = ""
+			return 1
 		ok
 		_cKid_ = "" + oReq.Query("_kid")
 		_cSig_ = "" + oReq.Query("_sig")
 		if _cKid_ = "" or _cSig_ = ""
 			@cAuthWhy = "unsigned request (this listener requires a signature)"
-			return FALSE
+			return 0
 		ok
 		_cNonce_ = "" + oReq.Query("_nonce")
 		_nTs_ = ring_number("" + oReq.Query("_ts"))
@@ -634,7 +634,7 @@ class stzAppServer from stzObject
 		return This
 
 	def IsHostingAgents()
-		return @oAgentHost != NULL
+		return @oAgentHost != ""
 
 	# How long a single serve slice may park on the socket before due agents
 	# are ticked. Smaller = crisper agent timing, more loop turns.
@@ -664,14 +664,14 @@ class stzAppServer from stzObject
 		return This
 
 	def NumberOfAgents()
-		if @oAgentHost = NULL
+		if @oAgentHost = ""
 			return 0
 		ok
 		return @oAgentHost.NumberOfAgents()
 
 	def AgentNames()
 		_out_ = []
-		if @oAgentHost = NULL
+		if @oAgentHost = ""
 			return _out_
 		ok
 		_nN_ = @oAgentHost.NumberOfAgents()
@@ -681,25 +681,25 @@ class stzAppServer from stzObject
 		return _out_
 
 	def AgentTicks(pcName)
-		if @oAgentHost = NULL
+		if @oAgentHost = ""
 			return 0
 		ok
 		return @oAgentHost.TicksOf(pcName)
 
 	def AgentIsActive(pcName)
-		if @oAgentHost = NULL
-			return FALSE
+		if @oAgentHost = ""
+			return 0
 		ok
 		return @oAgentHost.IsActive(pcName)
 
 	def AgentIsRetired(pcName)
-		if @oAgentHost = NULL
-			return FALSE
+		if @oAgentHost = ""
+			return 0
 		ok
 		return @oAgentHost.IsRetired(pcName)
 
 	def AgentTrace()
-		if @oAgentHost = NULL
+		if @oAgentHost = ""
 			return []
 		ok
 		return @oAgentHost.Trace()
@@ -723,7 +723,7 @@ class stzAppServer from stzObject
 		return @oAgentHost.Retire(pcName)
 
 	def AgentWhy()
-		if @oAgentHost = NULL
+		if @oAgentHost = ""
 			return ""
 		ok
 		return @oAgentHost.Why()
@@ -739,10 +739,10 @@ class stzAppServer from stzObject
 		return This
 
 	def _RequireAgentHost(pcWhat)
-		if @oAgentHost = NULL
+		if @oAgentHost = ""
 			stzraise("stzAppServer." + pcWhat + "() needs hosted agents -- call HostAgents() first.")
 		ok
-		return TRUE
+		return 1
 
 	  #----------------------------#
 	 #  IoT: RAW STREAM LISTENER  #
@@ -777,7 +777,7 @@ class stzAppServer from stzObject
 	# Returns TRUE when the event was a request that got a response.
 	def _HandleHttpEvent(aEv)
 		if aEv[1] != :data
-			return FALSE   # accept/closed: connection registry only
+			return 0   # accept/closed: connection registry only
 		ok
 		_nConn_ = aEv[2]
 		@nRequestCount++
@@ -792,8 +792,8 @@ class stzAppServer from stzObject
 		_oPerf_ = @oPerfMon
 		_oRFam_ = @oRouteFam
 		_nT0_ = StzEngineWatchTimestampNs()   # the request bracket opens (perf P3)
-		_oResp_ = new stzAppResponse(NULL)
-		_bClose_ = TRUE
+		_oResp_ = new stzAppResponse("")
+		_bClose_ = 1
 		_cTraceHdr_ = ""
 		_cReqPath_ = ""
 		_cReqMethod_ = ""
@@ -806,7 +806,7 @@ class stzAppServer from stzObject
 			# monitor traces. A valid incoming traceparent joins the
 			# caller's trace (child span); otherwise a fresh trace opens
 			# here. The response echoes the header so callers correlate.
-			if _oPerf_ != NULL
+			if _oPerf_ != ""
 				if _oPerf_.IsTracing()
 					_cIn_ = _oReq_.Header("traceparent")
 					if _cIn_ != "" and StzEngineTraceIsValid(_cIn_) = 1
@@ -850,7 +850,7 @@ class stzAppServer from stzObject
 		ok
 		# The bracket closes AFTER the write is submitted: R covers
 		# parse + gate + route + handler + render + write handoff.
-		if _oPerf_ != NULL
+		if _oPerf_ != ""
 			_nMs_ = (StzEngineWatchTimestampNs() - _nT0_) / 1000000
 			_oPerf_.MetricQ("http.request.ms").Record(_nMs_)
 			_oPerf_.MetricQ("http.requests").Increment()
@@ -863,7 +863,7 @@ class stzAppServer from stzObject
 			ok
 			# perf P8: per-route timing -- one family child per
 			# [method, route, status-class] the traffic exercises.
-			if _oRFam_ != NULL and _cReqPath_ != ""
+			if _oRFam_ != "" and _cReqPath_ != ""
 				_cCls_ = "" + floor(_oResp_.StatusCode() / 100) + "xx"
 				_oRFam_.Child([ _cReqMethod_, _cReqPath_, _cCls_ ]).Record(_nMs_)
 			ok
@@ -872,7 +872,7 @@ class stzAppServer from stzObject
 		if _cTraceHdr_ != ""
 			StzEnginePerfTraceScopeClear()
 		ok
-		return TRUE
+		return 1
 
 	def _Dispatch(oReq, oResp)
 		try
@@ -908,7 +908,7 @@ class stzAppServer from stzObject
 					"rss_bytes", StzEnginePerfMemRss(),
 					"cpu_ms", StzEnginePerfCpuNs() / 1000000
 				]
-				if @oPerfMon != NULL
+				if @oPerfMon != ""
 					_oT_ = @oPerfMon.MetricQ("http.request.ms")
 					_aH_ + "p50_ms"
 					_aH_ + _oT_.P50()
@@ -924,7 +924,7 @@ class stzAppServer from stzObject
 			# point a scraper at /metrics and every metric (senses + the
 			# request instruments + the app's own) arrives in exposition
 			# format. Signed like every other path when signing is on.
-			but oReq.Method() = "GET" and This._BarePath(oReq.Path()) = "/metrics" and @oPerfMon != NULL
+			but oReq.Method() = "GET" and This._BarePath(oReq.Path()) = "/metrics" and @oPerfMon != ""
 				oResp.Text(@oPerfMon.Prometheus())
 			else
 				oResp.NotFound("Route not found: " + oReq.Method() + " " + oReq.Path())
@@ -936,7 +936,7 @@ class stzAppServer from stzObject
 	# MBaaS floor. Returns TRUE when the path targeted an exposed table.
 	def _ServeResource(oReq, oResp)
 		if StzFindFirst("/api/", oReq.Path()) != 1
-			return FALSE
+			return 0
 		ok
 		_cRest_ = StzMidToEnd(oReq.Path(), 6)     # after "/api/"
 		# strip any query string ("/api/t?x=1" -> "/api/t")
@@ -949,7 +949,7 @@ class stzAppServer from stzObject
 			_cRest_ = StzLeft(_cRest_, _nSlash_ - 1)
 		ok
 		# resolve the exposed table -> its db + key column
-		_oDb_ = NULL
+		_oDb_ = ""
 		_cKey_ = "id"
 		_nLen_ = len(@aResources)
 		for _i_ = 1 to _nLen_
@@ -959,8 +959,8 @@ class stzAppServer from stzObject
 				exit
 			ok
 		next
-		if _oDb_ = NULL
-			return FALSE
+		if _oDb_ = ""
+			return 0
 		ok
 		_cTable_ = _cRest_
 
@@ -971,17 +971,17 @@ class stzAppServer from stzObject
 				# after any caught raise -- Ring trap).
 				oResp.Header("Content-Type", "application/json")
 				oResp.Send('{"count":' + ring_number(_oDb_.Value("SELECT COUNT(*) FROM " + _cTable_)) + '}')
-				return TRUE
+				return 1
 			but oReq.Method() = "GET"
 				# rows are ARRAYS of cells -- serialize directly.
 				oResp.Header("Content-Type", "application/json")
 				oResp.Send('{"rows":' + This._RowsJson(_oDb_.Rows("SELECT * FROM " + _cTable_)) + '}')
-				return TRUE
+				return 1
 			but oReq.Method() = "POST"
 				_aPairs_ = This._ParseFormBody(oReq.Body())
 				if len(_aPairs_) = 0
 					oResp.Status(400, "Bad Request").Json([ "error", "empty form body" ])
-					return TRUE
+					return 1
 				ok
 				_cCols_ = ""
 				_cVals_ = ""
@@ -996,10 +996,10 @@ class stzAppServer from stzObject
 				next
 				_oDb_.Exec("INSERT INTO " + _cTable_ + " (" + _cCols_ + ") VALUES (" + _cVals_ + ")")
 				oResp.Status(201, "Created").Json([ "inserted", 1 ])
-				return TRUE
+				return 1
 			ok
 			oResp.Status(405, "Method Not Allowed").Json([ "error", "method not allowed" ])
-			return TRUE
+			return 1
 		ok
 
 		# ---- ITEM routes: /api/<table>/<id> (read/update/delete one) -------
@@ -1011,22 +1011,22 @@ class stzAppServer from stzObject
 			_aR_ = _oDb_.Rows("SELECT * FROM " + _cTable_ + _cWhere_)
 			if len(_aR_) = 0
 				oResp.Status(404, "Not Found").Json([ "error", "no " + _cTable_ + " with " + _cKey_ + " " + _cSub_ ])
-				return TRUE
+				return 1
 			ok
 			oResp.Header("Content-Type", "application/json")
 			oResp.Send('{"row":' + This._RowJson(_aR_[1]) + '}')
-			return TRUE
+			return 1
 		but oReq.Method() = "PUT"
 			_aPairs_ = This._ParseFormBody(oReq.Body())
 			if len(_aPairs_) = 0
 				oResp.Status(400, "Bad Request").Json([ "error", "empty form body" ])
-				return TRUE
+				return 1
 			ok
 			# guard: the row must exist (so we can report updated=0 honestly)
 			_nBefore_ = ring_number(_oDb_.Value("SELECT COUNT(*) FROM " + _cTable_ + _cWhere_))
 			if _nBefore_ = 0
 				oResp.Status(404, "Not Found").Json([ "error", "no " + _cTable_ + " with " + _cKey_ + " " + _cSub_ ])
-				return TRUE
+				return 1
 			ok
 			_cSet_ = ""
 			_nPLen_ = len(_aPairs_)
@@ -1036,15 +1036,15 @@ class stzAppServer from stzObject
 			next
 			_oDb_.Exec("UPDATE " + _cTable_ + " SET " + _cSet_ + _cWhere_)
 			oResp.Json([ "updated", _nBefore_ ])
-			return TRUE
+			return 1
 		but oReq.Method() = "DELETE"
 			_nBefore_ = ring_number(_oDb_.Value("SELECT COUNT(*) FROM " + _cTable_ + _cWhere_))
 			_oDb_.Exec("DELETE FROM " + _cTable_ + _cWhere_)
 			oResp.Json([ "deleted", _nBefore_ ])
-			return TRUE
+			return 1
 		ok
 		oResp.Status(405, "Method Not Allowed").Json([ "error", "method not allowed" ])
-		return TRUE
+		return 1
 
 	  #--------------------------------------------#
 	 #  THE AGENT SURFACE -- READ-ONLY, BY DESIGN  #
@@ -1064,22 +1064,22 @@ class stzAppServer from stzObject
 	#
 	# Returns TRUE when the path was an /agents path (so _Dispatch stops).
 	def _ServeAgents(oReq, oResp)
-		if @oAgentHost = NULL
-			return FALSE
+		if @oAgentHost = ""
+			return 0
 		ok
 		_cPath_ = oReq.Path()
 		if _cPath_ != "/agents" and StzFindFirst("/agents/", _cPath_) != 1
-			return FALSE
+			return 0
 		ok
 		if oReq.Method() != "GET"
 			oResp.Status(405, "Method Not Allowed").Json([
 				"error", "the agent surface is read-only; control is in-process and governed" ])
-			return TRUE
+			return 1
 		ok
 		if _cPath_ = "/agents"
 			oResp.Header("Content-Type", "application/json")
 			oResp.Send('{"agents":' + This._AgentsJson() + "}")
-			return TRUE
+			return 1
 		ok
 		# split, don't slice: "/agents/" is ASCII but an agent NAME need not be
 		_aSeg_ = StzSplit(_cPath_, "/agents/")
@@ -1090,15 +1090,15 @@ class stzAppServer from stzObject
 		if _cName_ = "trace"
 			oResp.Header("Content-Type", "application/json")
 			oResp.Send('{"trace":' + This._AgentTraceJson() + "}")
-			return TRUE
+			return 1
 		ok
 		if NOT @oAgentHost.IsSupervising(_cName_)
 			oResp.Status(404, "Not Found").Json([ "error", "no agent '" + _cName_ + "'" ])
-			return TRUE
+			return 1
 		ok
 		oResp.Header("Content-Type", "application/json")
 		oResp.Send('{"agent":' + This._OneAgentJson(_cName_) + "}")
-		return TRUE
+		return 1
 
 	def _AgentsJson()
 		_cOut_ = "["
@@ -1158,7 +1158,7 @@ class stzAppServer from stzObject
 
 	def _ServeOidcProvider(oReq, oResp)
 		if NOT @bOpMounted
-			return FALSE
+			return 0
 		ok
 		_cPath_ = This._BarePath(oReq.Path())
 		_cM_ = oReq.Method()
@@ -1166,27 +1166,27 @@ class stzAppServer from stzObject
 		# discovery lives at the STANDARD well-known path, never behind a prefix
 		if _cM_ = "GET" and _cPath_ = "/.well-known/openid-configuration"
 			oResp.Header("Content-Type", "application/json").Send(@oOp.DiscoveryJson())
-			return TRUE
+			return 1
 		ok
 		if StzFindFirst(@cOpPrefix, _cPath_) != 1
-			return FALSE
+			return 0
 		ok
 		_cSub_ = StzMidToEnd(_cPath_, len(@cOpPrefix) + 1)
 		if _cSub_ = ""  _cSub_ = "/"  ok
 
 		if _cM_ = "GET" and _cSub_ = "/jwks"
 			oResp.Header("Content-Type", "application/json").Send(@oOp.JwksJson())
-			return TRUE
+			return 1
 		ok
 		if _cM_ = "GET" and _cSub_ = "/authorize"
 			This._OpAuthorize(oReq, oResp)
-			return TRUE
+			return 1
 		ok
 		if _cM_ = "POST" and _cSub_ = "/token"
 			This._OpToken(oReq, oResp, This._ParseFormBody(oReq.Body()))
-			return TRUE
+			return 1
 		ok
-		return FALSE
+		return 0
 
 	# the FRONT channel: the browser arrives carrying OUR session cookie.
 	def _OpAuthorize(oReq, oResp)
@@ -1241,11 +1241,11 @@ class stzAppServer from stzObject
 	# Serve the mounted auth endpoints. Returns TRUE when the path was ours.
 	def _ServeAuth(oReq, oResp)
 		if NOT @bAuthMounted
-			return FALSE
+			return 0
 		ok
 		_cPath_ = This._BarePath(oReq.Path())
 		if StzFindFirst(@cAuthPrefix, _cPath_) != 1
-			return FALSE
+			return 0
 		ok
 		# the prefix is ASCII, so slicing past it is safe
 		_cSub_ = StzMidToEnd(_cPath_, len(@cAuthPrefix) + 1)
@@ -1255,41 +1255,41 @@ class stzAppServer from stzObject
 
 		if _cM_ = "POST" and (_cSub_ = "/login" or _cSub_ = "/2fa/verify")
 			This._AuthLogin(oReq, oResp, _aF_)
-			return TRUE
+			return 1
 		ok
 		if _cM_ = "POST" and _cSub_ = "/logout"
 			This._AuthLogout(oReq, oResp, _aF_)
-			return TRUE
+			return 1
 		ok
 		if _cM_ = "GET" and _cSub_ = "/session"
 			This._AuthSession(oReq, oResp)
-			return TRUE
+			return 1
 		ok
 		if _cM_ = "POST" and _cSub_ = "/magic-link"
 			@oAuth.RequestMagicLink(This._UrlDecode(This._FormValue(_aF_, "email")))
 			# ALWAYS the same answer -- no account enumeration over HTTP either
 			oResp.Status(202, "Accepted").Json([ "ok", 1, "sent", 1 ])
-			return TRUE
+			return 1
 		ok
 		if _cM_ = "GET" and _cSub_ = "/magic-link/redeem"
 			This._AuthOpen(oReq, oResp,
 			    @oAuth.RedeemMagicLinkWith(This._UrlDecode("" + oReq.Query("token")),
 			        This._ClientIp(oReq), "" + oReq.Header("User-Agent")))
-			return TRUE
+			return 1
 		ok
 		if _cM_ = "POST" and _cSub_ = "/otp"
 			@oAuth.RequestEmailOtp(This._UrlDecode(This._FormValue(_aF_, "email")))
 			oResp.Status(202, "Accepted").Json([ "ok", 1, "sent", 1 ])
-			return TRUE
+			return 1
 		ok
 		if _cM_ = "POST" and _cSub_ = "/otp/verify"
 			This._AuthOpen(oReq, oResp,
 			    @oAuth.VerifyEmailOtpWith(This._UrlDecode(This._FormValue(_aF_, "email")),
 			        This._UrlDecode(This._FormValue(_aF_, "code")),
 			        This._ClientIp(oReq), "" + oReq.Header("User-Agent")))
-			return TRUE
+			return 1
 		ok
-		return FALSE
+		return 0
 
 	# password (+ optional second factor) -> a session cookie.
 	def _AuthLogin(oReq, oResp, aForm)
@@ -1315,8 +1315,8 @@ class stzAppServer from stzObject
 			return
 		ok
 		_csrf_ = StzEngineCryptoRandomHex(16)
-		This._SetAuthCookie(oResp, "stzsession", pcToken, TRUE)
-		This._SetAuthCookie(oResp, "stzcsrf", _csrf_, FALSE)   # readable: to be echoed
+		This._SetAuthCookie(oResp, "stzsession", pcToken, 1)
+		This._SetAuthCookie(oResp, "stzcsrf", _csrf_, 0)   # readable: to be echoed
 		oResp.Json([ "ok", 1,
 		             "user", @oAuth.UserOfSession(pcToken),
 		             "csrf", _csrf_ ])
@@ -1509,11 +1509,11 @@ class stzAppServer from stzObject
 	# IoT raw event. aListener = [ nSid, nPort, fHandler ].
 	def _HandleRawEvent(aListener, aEv)
 		if aEv[1] != :data
-			return FALSE
+			return 0
 		ok
 		_fHandler_ = aListener[3]
 		call _fHandler_(This, aListener[1], aEv[2], aEv[3])
-		return TRUE
+		return 1
 
 	  #--------------#
 	 #  UTILITIES   #

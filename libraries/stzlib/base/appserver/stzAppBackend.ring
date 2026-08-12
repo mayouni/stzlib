@@ -148,15 +148,15 @@ func StzLanIpv4()
 func _StzLooksIpv4(pcTok)
 	_a_ = StzSplit("" + pcTok, ".")
 	if len(_a_) != 4
-		return FALSE
+		return 0
 	ok
 	for _i_ = 1 to 4
 		_c_ = _a_[_i_]
 		if _c_ = "" or NOT StzIsDigit(_c_)
-			return FALSE
+			return 0
 		ok
 	next
-	return TRUE
+	return 1
 
   #==========================================================#
  #  MODEL FILE: escaping + the loader a host process uses    #
@@ -282,18 +282,18 @@ func StzLoadAppTopologyFrom(pcPath)
 class stzAppBackend from stzObject
 
 	@cName = ""
-	@oTopology = NULL      # the MODEL -- a snapshot copy, deliberately
-	@oDb = NULL            # the LIVE state (engine handle: copy-proof)
-	@oServer = NULL        # the running host
-	@oClient = NULL        # a second reactor: the parts' HTTP client
-	@bRunning = FALSE
+	@oTopology = ""      # the MODEL -- a snapshot copy, deliberately
+	@oDb = ""            # the LIVE state (engine handle: copy-proof)
+	@oServer = ""        # the running host
+	@oClient = ""        # a second reactor: the parts' HTTP client
+	@bRunning = 0
 	@nPort = 0
 	@aTraffic = []         # [ [ part, verb, dataset, status ], ... ]
-	@oActor = NULL
-	@bGoverned = FALSE
+	@oActor = ""
+	@bGoverned = 0
 
 	# -- remote mode --
-	@bRemote = FALSE       # TRUE = a client onto a backend in another process
+	@bRemote = 0       # TRUE = a client onto a backend in another process
 	@cHost = "127.0.0.1"
 	@cBindHost = ""        # the interface a HOST-mode backend bound
 	@cSignKeyId = ""       # shared-secret identity for the crossing
@@ -360,7 +360,7 @@ class stzAppBackend from stzObject
 		@cBindHost = _cH_
 		@nPort = @oServer.Port()
 		@oClient = new stzReactor()
-		@bRunning = TRUE
+		@bRunning = 1
 		return This
 
 	# The interface this backend is bound to (host mode).
@@ -395,9 +395,9 @@ class stzAppBackend from stzObject
 		ok
 		@cHost = "" + pcHostAddr
 		@nPort = pnPortNum
-		@bRemote = TRUE
+		@bRemote = 1
 		@oClient = new stzReactor()
-		@bRunning = TRUE
+		@bRunning = 1
 		return This
 
 	# The shared secret that authenticates the crossing. Set it on BOTH sides:
@@ -466,22 +466,22 @@ class stzAppBackend from stzObject
 	# no route declared, so this needs nothing from the model.)
 	def IsReachable(pnTimeoutMs)
 		if NOT @bRunning
-			return FALSE
+			return 0
 		ok
 		if NOT @bRemote
-			return TRUE
+			return 1
 		ok
 		# the probe is signed too -- this listener exempts nothing
 		_cP_ = "/health" + This._AuthQuery("GET", "/health", "")
 		_nJ_ = @oClient.SubmitHttp(0, "http://" + This.Endpoint() + _cP_, "")
 		if _nJ_ < 1
-			return FALSE
+			return 0
 		ok
 		@oClient.AwaitHttp(_nJ_, pnTimeoutMs)
 		# JobState -2 = DRAINED. HttpLastStatus is a global that goes stale on a
 		# timeout, so a status read without this check can report a prior 200.
 		if @oClient.JobState(_nJ_) != -2
-			return FALSE
+			return 0
 		ok
 		return @oClient.HttpLastStatus() = 200
 
@@ -608,13 +608,13 @@ class stzAppBackend from stzObject
 		while StzEngineTimeNowMs() < _nDeadline_
 			if _oProbe_.IsReachable(1000)
 				_oProbe_.Stop()
-				return TRUE
+				return 1
 			ok
 			_nT_ = @oClient.SubmitTimer(200)
 			@oClient.AwaitTimer(_nT_, 500)
 		end
 		_oProbe_.Stop()
-		return FALSE
+		return 0
 
 	def Stop()
 		if NOT @bRunning and @nSpawnJob = 0
@@ -623,23 +623,23 @@ class stzAppBackend from stzObject
 		if @bRemote
 			# a client owns no state -- only its reactor
 			@oClient.Destroy()
-			@oClient = NULL
-			@bRemote = FALSE
-			@bRunning = FALSE
+			@oClient = ""
+			@bRemote = 0
+			@bRunning = 0
 			return This
 		ok
 		if @nSpawnJob != 0
 			# a spawn manager: the child self-terminates on its TTL
 			@oClient.Destroy()
-			@oClient = NULL
+			@oClient = ""
 			@nSpawnJob = 0
 			return This
 		ok
 		@oServer.Stop()
 		@oClient.Destroy()
 		@oDb.Close()
-		@oClient = NULL
-		@bRunning = FALSE
+		@oClient = ""
+		@bRunning = 0
 		return This
 
 	def IsLive()
@@ -723,7 +723,7 @@ class stzAppBackend from stzObject
 
 	def SetActorQ(poActor)
 		@oActor = poActor
-		@bGoverned = TRUE
+		@bGoverned = 1
 		return This
 
 	def IsGoverned()
@@ -947,14 +947,14 @@ class stzAppBackend from stzObject
 		if NOT @bRunning
 			stzraise("stzAppBackend." + pcWhat + "() needs a live backend -- Start() first.")
 		ok
-		return TRUE
+		return 1
 
 	def _MayCommit()
 		if NOT @bGoverned
-			return TRUE
+			return 1
 		ok
-		if @oActor = NULL
-			return TRUE
+		if @oActor = ""
+			return 1
 		ok
 		return @oActor.IsEffectful()
 
@@ -964,7 +964,7 @@ class stzAppBackend from stzObject
 		_cols_ = @oTopology.ColumnsOf(pcDataset)
 		_nC_ = len(_cols_)
 		if _nC_ = 0
-			return FALSE
+			return 0
 		ok
 		_cDef_ = ""
 		for _i_ = 1 to _nC_
@@ -979,7 +979,7 @@ class stzAppBackend from stzObject
 		for _i_ = 1 to _nR_
 			This._Insert(pcDataset, _cols_, _rows_[_i_])
 		next
-		return TRUE
+		return 1
 
 	def _Insert(pcTable, paCols, paRow)
 		_nW_ = len(paRow)
@@ -987,7 +987,7 @@ class stzAppBackend from stzObject
 			_nW_ = len(paCols)
 		ok
 		if _nW_ = 0
-			return FALSE
+			return 0
 		ok
 		_cC_ = ""
 		_cV_ = ""
@@ -1000,7 +1000,7 @@ class stzAppBackend from stzObject
 			_cV_ += ("'" + StzReplace("" + paRow[_i_], "'", "''") + "'")
 		next
 		@oDb.Exec("INSERT INTO " + pcTable + " (" + _cC_ + ") VALUES (" + _cV_ + ")")
-		return TRUE
+		return 1
 
 	# [ [ k, v ], ... ] -> "k=v&k=v"
 	def _FormBody(paFields)

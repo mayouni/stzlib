@@ -183,10 +183,10 @@ class stzCommitScope from stzObject
 		_n_ = len(@aAllowedPrefixes)
 		for _i_ = 1 to _n_
 			if StzFindFirst(@aAllowedPrefixes[_i_], pcPath) = 1
-				return TRUE
+				return 1
 			ok
 		next
-		return FALSE
+		return 0
 
 	def _InList(pItem, paList)
 		_n_ = len(paList)
@@ -210,11 +210,11 @@ class stzCommitScope from stzObject
 class stzUpdatePlan from stzObject
 
 	@aOps = []
-	@oBridge = NULL
-	@oScope = NULL
+	@oBridge = ""
+	@oScope = ""
 	@aRejected = []
-	@oExecutor = NULL
-	@oGov = NULL
+	@oExecutor = ""
+	@oGov = ""
 	@aAudit = []
 
 	def init(paOps, poBridge)
@@ -283,10 +283,10 @@ class stzUpdatePlan from stzObject
 		_n_ = len(@aRejected)
 		for _i_ = 1 to _n_
 			if @aRejected[_i_][1] = pnIndex
-				return TRUE
+				return 1
 			ok
 		next
-		return FALSE
+		return 0
 
 	# The plain-language story of the change (VSF P4).
 	def Narration()
@@ -355,21 +355,21 @@ class stzUpdatePlan from stzObject
 	# [ bool, reason ] without touching anything. "This LLM's plan cannot cross"
 	# is answerable before an Execute is even attempted.
 	def MayCommit()
-		if @oExecutor = NULL
-			return [ TRUE, "no executor set -- unguarded (a human at the keyboard)" ]
+		if @oExecutor = ""
+			return [ 1, "no executor set -- unguarded (a human at the keyboard)" ]
 		ok
 		_n_ = len(@aOps)
 		for _i_ = 1 to _n_
 			if NOT This.IsRejected(_i_)
 				_cKind_ = @aOps[_i_].RequiredKind()
 				if NOT @oExecutor.Can(_cKind_)
-					return [ FALSE, "actor '" + @oExecutor.Name() +
+					return [ 0, "actor '" + @oExecutor.Name() +
 						"' cannot commit -- it lacks the '" + _cKind_ +
 						"' capability (required by operation " + _i_ + ")" ]
 				ok
 			ok
 		next
-		return [ TRUE, "actor '" + @oExecutor.Name() +
+		return [ 1, "actor '" + @oExecutor.Name() +
 			"' holds every capability this plan requires" ]
 
 	# COMMIT. The one place reality changes. Each active operation passes three
@@ -382,7 +382,7 @@ class stzUpdatePlan from stzObject
 		_aLog_ = []
 		# GOVERNANCE preflight: an executor governed by an stzGovernance must
 		# have a declared trust posture, or NOTHING crosses.
-		if @oGov != NULL and @oExecutor != NULL
+		if @oGov != "" and @oExecutor != ""
 			if @oGov.MayExecute(@oExecutor.Name()) = 0
 				# A whole plan refused for want of a declared posture used
 				# to leave NO audit entry at all -- it returned a log line
@@ -404,7 +404,7 @@ class stzUpdatePlan from stzObject
 				_aLog_ + [ _i_, "REJECTED", _oOp_.Describe() ]
 				loop
 			ok
-			if @oScope != NULL
+			if @oScope != ""
 				_cReason_ = @oScope.Reason(_oOp_)
 				if _cReason_ != ""
 					_nSkipped_++
@@ -428,7 +428,7 @@ class stzUpdatePlan from stzObject
 			# operation requires. An LLM actor (effect-capability set EMPTY)
 			# cannot commit ANY effectful op -- it can only sit in the plan,
 			# awaiting a guardian or human.
-			if @oExecutor != NULL
+			if @oExecutor != ""
 				_cKind_ = _oOp_.RequiredKind()
 				if NOT @oExecutor.Can(_cKind_)
 					_nSkipped_++
@@ -465,18 +465,18 @@ class stzUpdatePlan from stzObject
 	# wired stzGovernance's lineage (if present).
 	# the executing actor's name, or "unguarded" (incident I2 seams)
 	def _ActorName()
-		if @oExecutor = NULL
+		if @oExecutor = ""
 			return "unguarded"
 		ok
 		return "" + @oExecutor.Name()
 
 	def _Audit(pnIndex, pcOutcome, oOp)
 		_cActor_ = "unguarded"
-		if @oExecutor != NULL
+		if @oExecutor != ""
 			_cActor_ = @oExecutor.Name()
 		ok
 		@aAudit + [ pnIndex, pcOutcome, oOp.Type(), _cActor_ ]
-		if @oGov != NULL and @oExecutor != NULL
+		if @oGov != "" and @oExecutor != ""
 			@oGov.RecordDecision("plan-op-" + pnIndex,
 				pcOutcome + ": " + oOp.Describe(),
 				_cActor_, oOp.Type())
@@ -504,11 +504,11 @@ class stzUpdatePlan from stzObject
 
 class stzVirtualSystem from stzObject
 
-	@oState = NULL
-	@oBaseState = NULL
+	@oState = ""
+	@oBaseState = ""
 	@aHistory = []
 	@aSnapshots = []
-	@oBridge = NULL
+	@oBridge = ""
 	@cActor = "human"
 
 	def init()

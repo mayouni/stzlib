@@ -5,13 +5,13 @@ func StzPointerQ(pParams)
     return new stkPointer(pParams)
 
 func StzNullPointerQ()
-    return new stzPointer(NULL)
+    return new stzPointer("")
 
 func StzStringPointerQ(cString, _nBufferSize_)
 	if IsNull(_nBufferSize_)
 		_nBufferSize_ = 0
 	ok
-    return new stzPointer([cString, "char", [_nBufferSize_, true, "utf8"]])
+    return new stzPointer([cString, "char", [_nBufferSize_, 1, "utf8"]])
 
 func StzObjectPointerQ(pObject)
     return new stzPointer([pObject, "object"])

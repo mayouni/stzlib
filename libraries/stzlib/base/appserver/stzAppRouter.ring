@@ -24,10 +24,10 @@ class stzAppRouter from stzObject
 		_nLen_ = len(@aRoutes)
 		for _i_ = 1 to _nLen_
 			if @aRoutes[_i_][1] = _cM_ and @aRoutes[_i_][2] = cPath
-				return True
+				return 1
 			ok
 		next
-		return False
+		return 0
 
 	def GetHandler(cMethod, cPath)
 		_cM_ = StzUpper("" + cMethod)
@@ -37,7 +37,7 @@ class stzAppRouter from stzObject
 				return @aRoutes[_i_][3]
 			ok
 		next
-		return NULL
+		return ""
 
 	# THE MATCHER: try exact, then patterns. Returns a hashlist
 	#   [ :matched = TRUE/FALSE, :handler = f, :params = [ [name,val], ... ] ]
@@ -47,7 +47,7 @@ class stzAppRouter from stzObject
 		_nLen_ = len(@aRoutes)
 		for _i_ = 1 to _nLen_
 			if @aRoutes[_i_][1] = _cM_ and @aRoutes[_i_][2] = cPath
-				return [ :matched = TRUE, :handler = @aRoutes[_i_][3], :params = [] ]
+				return [ :matched = 1, :handler = @aRoutes[_i_][3], :params = [] ]
 			ok
 		next
 		# pattern match
@@ -59,11 +59,11 @@ class stzAppRouter from stzObject
 				loop   # plain route, already tried exactly
 			ok
 			_aParams_ = This._MatchPattern(This._Segments(@aRoutes[_i_][2]), _aReq_)
-			if _aParams_ != NULL
-				return [ :matched = TRUE, :handler = @aRoutes[_i_][3], :params = _aParams_ ]
+			if _aParams_ != ""
+				return [ :matched = 1, :handler = @aRoutes[_i_][3], :params = _aParams_ ]
 			ok
 		next
-		return [ :matched = FALSE, :handler = NULL, :params = [] ]
+		return [ :matched = 0, :handler = "", :params = [] ]
 
 	# Split a path into non-empty segments: "/a/b" -> [ "a", "b" ].
 	def _Segments(cPath)
@@ -95,16 +95,16 @@ class stzAppRouter from stzObject
 				return _aParams_
 			ok
 			if _i_ > len(aReq)
-				return NULL   # pattern longer than the request
+				return ""   # pattern longer than the request
 			ok
 			if StzLeft(_cSeg_, 1) = ":"
 				_aParams_ + [ StzMidToEnd(_cSeg_, 2), aReq[_i_] ]
 			but _cSeg_ != aReq[_i_]
-				return NULL   # literal mismatch
+				return ""   # literal mismatch
 			ok
 		next
 		if len(aReq) != _nP_
-			return NULL   # request longer than a non-wildcard pattern
+			return ""   # request longer than a non-wildcard pattern
 		ok
 		return _aParams_
 

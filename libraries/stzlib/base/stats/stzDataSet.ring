@@ -782,9 +782,9 @@ $aPlanTemplates = [
         :title = "Exploratory Data Analysis",
         :description = "Comprehensive data exploration and understanding",
         :steps = [
-            [ :function = "ValidateData", :required = TRUE, :description = "Check data quality" ],
-            [ :function = "DataType", :required = TRUE, :description = "Identify data type" ],
-            [ :function = "Count", :required = TRUE, :description = "Get sample size" ],
+            [ :function = "ValidateData", :required = 1, :description = "Check data quality" ],
+            [ :function = "DataType", :required = 1, :description = "Identify data type" ],
+            [ :function = "Count", :required = 1, :description = "Get sample size" ],
             [ :condition = "DataType() = 'numeric'", :function = "Mean", :description = "Central tendency" ],
             [ :condition = "DataType() = 'numeric'", :function = "Median", :description = "Robust center" ],
             [ :condition = "DataType() = 'numeric'", :function = "StandardDeviation", :description = "Variability" ],
@@ -802,11 +802,11 @@ $aPlanTemplates = [
         :title = "Normality Assessment Plan",
         :description = "Determine if data follows normal distribution",
         :steps = [
-            [ :function = "Count", :required = TRUE, :description = "Check sample size adequacy" ],
+            [ :function = "Count", :required = 1, :description = "Check sample size adequacy" ],
             [ :condition = "Count() >= 8", :function = "NormalityTest", :description = "Formal normality test" ],
-            [ :function = "Skewness", :required = TRUE, :description = "Check asymmetry" ],
-            [ :function = "Kurtosis", :required = TRUE, :description = "Check tail behavior" ],
-            [ :function = "BoxPlotStats", :required = TRUE, :description = "Visual normality indicators" ],
+            [ :function = "Skewness", :required = 1, :description = "Check asymmetry" ],
+            [ :function = "Kurtosis", :required = 1, :description = "Check tail behavior" ],
+            [ :function = "BoxPlotStats", :required = 1, :description = "Visual normality indicators" ],
             [ :condition = "ContainsOutliers()", :function = "Outliers", :description = "Outlier impact on normality" ]
         ]
     ],
@@ -817,8 +817,8 @@ $aPlanTemplates = [
         :title = "Correlation Analysis Plan",
         :description = "Analyze relationships between variables",
         :steps = [
-            [ :function = "DataType", :required = TRUE, :description = "Verify numeric data" ],
-            [ :function = "Count", :required = TRUE, :description = "Check sample size" ],
+            [ :function = "DataType", :required = 1, :description = "Verify numeric data" ],
+            [ :function = "Count", :required = 1, :description = "Check sample size" ],
             [ :function = "NormalityTest", :description = "Test normality assumption" ],
             [ :condition = "abs(Skewness()) < 0.5 and abs(Kurtosis()) < 1", :function = "CorrelationWith", :description = "Pearson correlation (normal data)" ],
             [ :condition = "abs(Skewness()) >= 0.5 or abs(Kurtosis()) >= 1", :function = "RankCorrelationWith", :description = "Spearman correlation (non-normal data)" ],
@@ -833,12 +833,12 @@ $aPlanTemplates = [
         :title = "Outlier Detection and Analysis",
         :description = "Comprehensive outlier identification and impact assessment",
         :steps = [
-            [ :function = "ContainsOutliers", :required = TRUE, :description = "Initial outlier detection" ],
+            [ :function = "ContainsOutliers", :required = 1, :description = "Initial outlier detection" ],
             [ :condition = "ContainsOutliers()", :function = "Outliers", :description = "List outlier values" ],
             [ :condition = "ContainsOutliers()", :function = "ZScores", :description = "Standardized scores" ],
-            [ :function = "Mean", :required = TRUE, :description = "Mean with outliers" ],
+            [ :function = "Mean", :required = 1, :description = "Mean with outliers" ],
             [ :condition = "ContainsOutliers()", :function = "TrimmedMean", :args = [10], :description = "Robust mean (10% trimmed)" ],
-            [ :function = "Median", :required = TRUE, :description = "Outlier-resistant center" ],
+            [ :function = "Median", :required = 1, :description = "Outlier-resistant center" ],
             [ :condition = "ContainsOutliers()", :function = "RobustScale", :description = "Outlier-resistant scaling" ]
         ]
     ],
@@ -849,7 +849,7 @@ $aPlanTemplates = [
         :title = "Time Series Trend Analysis",
         :description = "Analyze temporal patterns and trends",
         :steps = [
-            [ :function = "Count", :required = TRUE, :description = "Check sufficient data points" ],
+            [ :function = "Count", :required = 1, :description = "Check sufficient data points" ],
             [ :condition = "Count() >= 3", :function = "TrendAnalysis", :description = "Overall trend direction" ],
             [ :condition = "Count() >= 5", :function = "MovingAverage", :args = [5], :description = "Smooth short-term fluctuations" ],
             [ :condition = "Count() >= 10", :function = "MovingAverage", :args = [10], :description = "Long-term trend smoothing" ],
@@ -864,11 +864,11 @@ $aPlanTemplates = [
         :title = "Quality Control Analysis",
         :description = "Statistical process control and quality assessment",
         :steps = [
-            [ :function = "ValidateData", :required = TRUE, :description = "Data integrity check" ],
-            [ :function = "Mean", :required = TRUE, :description = "Process center" ],
-            [ :function = "StandardDeviation", :required = TRUE, :description = "Process variation" ],
-            [ :function = "CoefficientOfVariation", :required = TRUE, :description = "Process consistency" ],
-            [ :function = "ContainsOutliers", :required = TRUE, :description = "Process anomalies" ],
+            [ :function = "ValidateData", :required = 1, :description = "Data integrity check" ],
+            [ :function = "Mean", :required = 1, :description = "Process center" ],
+            [ :function = "StandardDeviation", :required = 1, :description = "Process variation" ],
+            [ :function = "CoefficientOfVariation", :required = 1, :description = "Process consistency" ],
+            [ :function = "ContainsOutliers", :required = 1, :description = "Process anomalies" ],
             [ :condition = "ContainsOutliers()", :function = "Outliers", :description = "Out-of-control points" ],
             [ :function = "Range", :description = "Process spread" ],
             [ :condition = "Count() >= 5", :function = "TrendAnalysis", :description = "Process drift detection" ]
@@ -1026,7 +1026,7 @@ func StzGeneratePlanFor(paData, cGoal)
 
 func StzExecutePlanFor(paData, cGoal)
     _oStats_ = new stzDataSet(paData)
-    return _oStats_.ExecutePlan(cGoal, TRUE)
+    return _oStats_.ExecutePlan(cGoal, 1)
 
 	func ExecutePlanFor(paData, cGoal)
 		return StzExecutePlanFor(paData, cGoal)
@@ -1057,15 +1057,15 @@ class stzDataSet from stzObject
 
     @anData = []
     @cDataType = "numeric"  # numeric, categorical, mixed, empty
-    @bSorted = FALSE
+    @bSorted = 0
     @anSortedData = []
     @aCache = []  # Standard Ring hash list as [ [:key, value], ... ]
 
-	@bChain = FALSE
-	@bFirstChain = FALSE
+	@bChain = 0
+	@bFirstChain = 0
 
     @nMinSampleSize = 3  # Minimum for advanced statistics
-    @pEngineStats = NULL
+    @pEngineStats = ""
 
     def ClassName()
         return "stzdataset"
@@ -1100,13 +1100,13 @@ class stzDataSet from stzObject
 
     def _IsMissing(item)
         if isNull(item)
-            return TRUE
+            return 1
         ok
 
         # A nested list/object is data, never a missing-value marker --
         # and "" + aList raises R21 (operator on incorrect type).
         if isList(item) or isObject(item)
-            return FALSE
+            return 0
         ok
 
         _cStr_ = "" + item
@@ -1142,7 +1142,7 @@ class stzDataSet from stzObject
     def _SortIfNeeded()
         if @cDataType = "numeric" and NOT @bSorted
             @anSortedData = sort(@anData)
-            @bSorted = TRUE
+            @bSorted = 1
         ok
 
     #=================================================#
@@ -1188,7 +1188,7 @@ class stzDataSet from stzObject
 
 	def Mode()
 	    if len(@anData) = 0
-	        return NULL
+	        return ""
 	    ok
 	
 	    _cKey_ = "mode"
@@ -1203,14 +1203,14 @@ class stzDataSet from stzObject
 	
 	    for i = 1 to _nLen_
 	        _cItemKey_ = "" + @anData[i]
-	        _bFound_ = FALSE
+	        _bFound_ = 0
 	        
 	        # Search for existing key in frequency list
 		_nLenFreq_ = len(_aFreqHash_)
 	        for j = 1 to _nLenFreq_
 	            if _aFreqHash_[j][1] = _cItemKey_
 	                _aFreqHash_[j][2]++
-	                _bFound_ = TRUE
+	                _bFound_ = 1
 	                exit
 	            ok
 	        next
@@ -1338,7 +1338,7 @@ class stzDataSet from stzObject
 
     def Min()
         if @cDataType != "numeric" or len(@anData) = 0
-            return NULL
+            return ""
         ok
         if This._EngineAvailable()
             return StzEngineStatsMin(@pEngineStats)
@@ -1347,7 +1347,7 @@ class stzDataSet from stzObject
 
     def Max()
         if @cDataType != "numeric" or len(@anData) = 0
-            return NULL
+            return ""
         ok
         if This._EngineAvailable()
             return StzEngineStatsMax(@pEngineStats)
@@ -2012,7 +2012,7 @@ class stzDataSet from stzObject
 	    ok
 	    
 	    # Default to interpolation method
-	    if _cMethod_ = NULL
+	    if _cMethod_ = ""
 	        _cMethod_ = "interpolation"
 	    ok
 	    
@@ -3248,7 +3248,7 @@ class stzDataSet from stzObject
             eval(_cCode_)
             return _bResult_
         catch
-            return FALSE
+            return 0
         done
 
     def _InterpolateTemplate(_cTemplate_)
@@ -3354,7 +3354,7 @@ class stzDataSet from stzObject
         This.AddInsightRule(_cDomain_, cCondition, _cInsight_)
 
     def AddWeightedRule(_cDomain_, cCondition, _cInsight_, _nWeight_)
-        if _nWeight_ = NULL _nWeight_ = 1 ok
+        if _nWeight_ = "" _nWeight_ = 1 ok
         if NOT HasKey($aDomainInsightRules, _cDomain_)
             $aDomainInsightRules[_cDomain_] = []
         ok
@@ -3402,7 +3402,7 @@ class stzDataSet from stzObject
 
         _cTemplate_ = This._ResolvePlanTemplate(cNameOrGoalOrTemplate)
 
-        if _cTemplate_ = NULL
+        if _cTemplate_ = ""
             StzRaise("Unknown Plan name, goal or template: " + cNameOrGoalOrTemplate)
         ok
 
@@ -3437,13 +3437,13 @@ class stzDataSet from stzObject
 				StzRaise("Incorrect param type! acPlans must be a list of strings.")
 			ok
 		ok
-		@bChain = TRUE
+		@bChain = 1
 		_nLen_ = len(acPlans)
 		for i = 1 to _nLen_
 			if i = 1
-				@bFirstChain = TRUE
+				@bFirstChain = 1
 			else
-				@bFirstChain = FALSE
+				@bFirstChain = 0
 			ok
 
 			This.ExecutePlan(acPlans[i])
@@ -3461,7 +3461,7 @@ class stzDataSet from stzObject
 
 
 	def ExecutePlan(cNameOrGoalOrTemplate)
-		This.ExecutePlanXT(cNameOrGoalOrTemplate, TRUE)
+		This.ExecutePlanXT(cNameOrGoalOrTemplate, 1)
 
 		def RunPlan(cNameOrGoalOrTemplate)
 			This.ExecutePlan(cNameOrGoalOrTemplate)
@@ -3480,7 +3480,7 @@ class stzDataSet from stzObject
 
 	_nTime_ = clock()
 
-        if bVerbose = NULL bVerbose = TRUE ok
+        if bVerbose = "" bVerbose = 1 ok
         
         _aPlan_ = This.GeneratePlan(cNameOrGoalOrTemplate)
         _aResults_ = []
@@ -3562,8 +3562,8 @@ class stzDataSet from stzObject
         _aPlan_ = This.GeneratePlan(cNameOrGoalOrTemplate)
         _cSummary_ = BoxifyRound("Plan: " + oPlan[:title]) + char(10)
 
-		if @bChain = FALSE or
-			(@bChain = TRUE and @bFirstChain)
+		if @bChain = 0 or
+			(@bChain = 1 and @bFirstChain)
 
 			_cSummary_ += "• Data: " + @@(This.Content()) + char(10)
 		ok
@@ -3764,7 +3764,7 @@ class stzDataSet from stzObject
 			return $aPlanGoals[_cInput_]
 		ok
         
-        return NULL
+        return ""
     
     def _FilterPlanSteps(aSteps)
 
@@ -3773,7 +3773,7 @@ class stzDataSet from stzObject
         _nSteps1Len_ = len(aSteps)
         for _iLoopSteps1_ = 1 to _nSteps1Len_
         	_aStep_ = aSteps[_iLoopSteps1_]
-            _bInclude_ = TRUE
+            _bInclude_ = 1
         
             # Check if step has condition
             if HasKey(_aStep_, :condition)
@@ -3781,8 +3781,8 @@ class stzDataSet from stzObject
             ok
             
             # Check if required step
-            if HasKey(_aStep_, :required) and _aStep_[:required] = TRUE
-                _bInclude_ = TRUE
+            if HasKey(_aStep_, :required) and _aStep_[:required] = 1
+                _bInclude_ = 1
             ok
             
             if _bInclude_
@@ -3830,10 +3830,10 @@ class stzDataSet from stzObject
         _nLen_ = len(_aPaired_)
         for i = 1 to _nLen_
             if _cFunction_ = _aPaired_[i]
-                return TRUE
+                return 1
             ok
         next
-        return FALSE
+        return 0
 
     def _FormatStepResult(_cFunction_, _vResult_)
         switch _cFunction_
@@ -3908,7 +3908,7 @@ class stzDataSet from stzObject
 	    ok
 
 	def _EngineAvailable()
-	    return @pEngineStats != NULL
+	    return @pEngineStats != ""
 
 	def _EngineHandle()
 	    return @pEngineStats
@@ -3933,9 +3933,9 @@ class stzDataSet from stzObject
 		ok
 
 		if StzFindFirst(StzLower(_cKey_), This._CacheKeys())
-			return TRUE
+			return 1
 		else
-			return FALSE
+			return 0
 		ok
 
 	def _RemoveFromCache(_cKey_)
@@ -3963,7 +3963,7 @@ class stzDataSet from stzObject
 	
 	def ClearCache()
 	    @aCache = []
-        @bSorted = FALSE
+        @bSorted = 0
         @anSortedData = []
 
 	def Cache()
@@ -4044,9 +4044,9 @@ class stzDataSet from stzObject
         # Check if instance variable is defined
         try
             eval("This." + cVarName)
-            return TRUE
+            return 1
         catch
-            return FALSE
+            return 0
         done
 
     def _SafeDivision(nNumerator, nDenominator)

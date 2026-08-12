@@ -85,7 +85,7 @@ class stzFourier from stzObject
 	def IsRadix2Length()
 		_n_ = len(@aReal)
 		if _n_ = 0
-			return FALSE
+			return 0
 		ok
 		return (_n_ & (_n_ - 1)) = 0
 
@@ -93,7 +93,7 @@ class stzFourier from stzObject
 
 	# The spectrum, as a list of [re, im] pairs, one per frequency bin.
 	def Transform()
-		return This._Fft(FALSE)
+		return This._Fft(0)
 
 		def Spectrum()
 			return This.Transform()
@@ -103,7 +103,7 @@ class stzFourier from stzObject
 
 	# Back to the time domain. InverseTransform(Transform()) is the identity.
 	def InverseTransform()
-		return This._Fft(TRUE)
+		return This._Fft(1)
 
 		def InverseDFT()
 			return This.InverseTransform()

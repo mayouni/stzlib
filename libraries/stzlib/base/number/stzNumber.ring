@@ -16,7 +16,7 @@
 
 	The string must must contain a number in decimal form.
 
-	If the string is NULL then the number is "0".
+	If the string is "" then the number is "0".
 
 	Of course, the number must be calculable precisely by Ring 
 	(read NOTE hereafter).
@@ -699,7 +699,7 @@ func IsRGBColor(anColor)
 		ok
 
 		if _n_ < 0 or _n_ > 255
-			return false
+			return 0
 		ok
 	next
 
@@ -1819,21 +1819,21 @@ func _StzNormalizedNumberString(pcNum)
 func _pvtLooksLikeInteger(pcNum)
 	_c_ = ring_trim("" + pcNum)
 	if _c_ = ""
-		return TRUE
+		return 1
 	ok
 	if _c_[1] = "-" or _c_[1] = "+"
 		_c_ = StzMidToEnd(_c_, 2)
 	ok
 	if _c_ = ""
-		return FALSE
+		return 0
 	ok
 	_n_ = len(_c_)
 	for _i_ = 1 to _n_
 		if StzFindFirst(_c_[_i_], "0123456789") = 0
-			return FALSE
+			return 0
 		ok
 	next
-	return TRUE
+	return 1
 
 func _pvtIsExactIntegerOp(pcOp)
 	return StzFindFirst(pcOp, [ "+", "-", "*", "%", "^", "/" ]) > 0
@@ -1850,19 +1850,19 @@ func _pvtNeedsBigIntegers(pcOp, pcA, pcB)
 	_da_ = len( _StzDigitsOnly(pcA) )
 	_db_ = len( _StzDigitsOnly(pcB) )
 	if _da_ > 15 or _db_ > 15
-		return TRUE
+		return 1
 	ok
 	if pcOp = "*"
 		return (_da_ + _db_) > 15          # the product may not fit
 	ok
 	if pcOp = "^"
-		if pcB = "" return FALSE ok
+		if pcB = "" return 0 ok
 		return (_da_ * (0 + pcB)) > 15
 	ok
 	if pcOp = "+" or pcOp = "-"
 		return (_da_ + 1) > 15 or (_db_ + 1) > 15
 	ok
-	return FALSE
+	return 0
 
 func _StzDigitsOnly(pcNum)
 	_out_ = ""
@@ -1880,15 +1880,15 @@ func _StzDigitsOnly(pcNum)
 # would leave the range an f64 represents exactly.
 func _pvtWantsExactPath(pcOp, pcA, pcB)
 	if pcOp = "/"
-		return TRUE        # try for a terminating quotient; fall back if not
+		return 1        # try for a terminating quotient; fall back if not
 	ok
 	if _StzPlacesOf(pcA) > 0 or _StzPlacesOf(pcB) > 0
-		return TRUE
+		return 1
 	ok
 	if _pvtLooksLikeInteger(pcA) and _pvtLooksLikeInteger(pcB)
 		return _pvtNeedsBigIntegers(pcOp, pcA, pcB)
 	ok
-	return FALSE
+	return 0
 
 # Did rendering the f64 to this decimal string lose anything? Answered by
 # round-trip: a string that parses back to the very same double lost nothing.
@@ -1917,13 +1917,13 @@ func _pvtExactDecimalCalc(pcOp, pcA, pcB)
 			return ""
 		ok
 		_pR_ = StzEngineBigIntPow( _StzScaledBigInt(pcA), _e_ )
-		if _pR_ = NULL  return "" ok
+		if _pR_ = ""  return "" ok
 		return _StzPlaceDecimalPoint( StzEngineBigIntToString(_pR_), _pa_ * _e_ )
 	ok
 
 	if pcOp = "*"
 		_pR_ = StzEngineBigIntMul( _StzScaledBigInt(pcA), _StzScaledBigInt(pcB) )
-		if _pR_ = NULL  return "" ok
+		if _pR_ = ""  return "" ok
 		return _StzPlaceDecimalPoint( StzEngineBigIntToString(_pR_), _pa_ + _pb_ )
 	ok
 
@@ -1936,20 +1936,20 @@ func _pvtExactDecimalCalc(pcOp, pcA, pcB)
 	# the f64 path, which reports itself approximate.
 	if pcOp = "/"
 		_pIb_ = _StzScaledBigInt(pcB)
-		if _pIb_ = NULL or StzEngineBigIntIsZero(_pIb_)
+		if _pIb_ = "" or StzEngineBigIntIsZero(_pIb_)
 			return ""                              # let the normal path handle /0
 		ok
 		_pD_ = _StzMulPowerOfTen(_pIb_, _pa_)
-		if _pD_ = NULL  return "" ok
+		if _pD_ = ""  return "" ok
 		_pIa_ = _StzScaledBigInt(pcA)
-		if _pIa_ = NULL  return "" ok
+		if _pIa_ = ""  return "" ok
 		for _k_ = 0 to 20
 			_pN_ = _StzMulPowerOfTen(_pIa_, _pb_ + _k_)
-			if _pN_ = NULL  return "" ok
+			if _pN_ = ""  return "" ok
 			_pMod_ = StzEngineBigIntMod(_pN_, _pD_)
-			if _pMod_ != NULL and StzEngineBigIntIsZero(_pMod_)
+			if _pMod_ != "" and StzEngineBigIntIsZero(_pMod_)
 				_pQ_ = StzEngineBigIntDiv(_pN_, _pD_)
-				if _pQ_ = NULL  return "" ok
+				if _pQ_ = ""  return "" ok
 				return _StzPlaceDecimalPoint( StzEngineBigIntToString(_pQ_), _k_ )
 			ok
 		next
@@ -1963,10 +1963,10 @@ func _pvtExactDecimalCalc(pcOp, pcA, pcB)
 	ok
 	_pA_ = _StzScaledBigIntTo(pcA, _pMax_)
 	_pB_ = _StzScaledBigIntTo(pcB, _pMax_)
-	if _pA_ = NULL or _pB_ = NULL
+	if _pA_ = "" or _pB_ = ""
 		return ""
 	ok
-	_pR_ = NULL
+	_pR_ = ""
 	switch pcOp
 	on "+"
 		_pR_ = StzEngineBigIntAdd(_pA_, _pB_)
@@ -1975,7 +1975,7 @@ func _pvtExactDecimalCalc(pcOp, pcA, pcB)
 	on "%"
 		_pR_ = StzEngineBigIntMod(_pA_, _pB_)
 	off
-	if _pR_ = NULL
+	if _pR_ = ""
 		return ""
 	ok
 	return _StzPlaceDecimalPoint( StzEngineBigIntToString(_pR_), _pMax_ )
@@ -1984,13 +1984,13 @@ func _pvtExactDecimalCalc(pcOp, pcA, pcB)
 func _StzIsPlainDecimal(pcNum)
 	_c_ = ring_trim("" + pcNum)
 	if _c_ = ""
-		return TRUE
+		return 1
 	ok
 	if _c_[1] = "-" or _c_[1] = "+"
 		_c_ = StzMidToEnd(_c_, 2)
 	ok
 	if _c_ = ""
-		return FALSE
+		return 0
 	ok
 	_nDots_ = 0
 	_n_ = len(_c_)
@@ -1998,7 +1998,7 @@ func _StzIsPlainDecimal(pcNum)
 		if _c_[_i_] = "."
 			_nDots_++
 		but StzFindFirst(_c_[_i_], "0123456789") = 0
-			return FALSE
+			return 0
 		ok
 	next
 	return _nDots_ <= 1
@@ -2026,11 +2026,11 @@ func _StzScaledBigInt(pcNum)
 # @IsListOfNumbers (rejects "6") nor any stzList predicate covers the mixed case.
 func _StzIsListOfNumbersOrNumberStrings(paList)
 	if NOT isList(paList)
-		return FALSE
+		return 0
 	ok
 	_n_ = len(paList)
 	if _n_ = 0
-		return FALSE
+		return 0
 	ok
 	for _i_ = 1 to _n_
 		_it_ = paList[_i_]
@@ -2040,9 +2040,9 @@ func _StzIsListOfNumbersOrNumberStrings(paList)
 		if isString(_it_) and _StzIsPlainDecimal(_it_) and ring_trim(_it_) != ""
 			loop
 		ok
-		return FALSE
+		return 0
 	next
-	return TRUE
+	return 1
 
 # A Ring number rendered as a string WITHOUT LOSING IT.
 #
@@ -2128,21 +2128,21 @@ func _StzIsRationalString(pcStr)
 	_c_ = ring_trim("" + pcStr)
 	# StzFind returns ALL positions as a list; exactly one slash makes a fraction
 	if len( StzFind("/", _c_) ) != 1
-		return FALSE
+		return 0
 	ok
 	_n_ = StzFindFirst("/", _c_)
 	_num_ = StzMid(_c_, 1, _n_ - 1)
 	_den_ = StzMidToEnd(_c_, _n_ + 1)
 	if NOT (_pvtLooksLikeInteger(_num_) and _num_ != "")
-		return FALSE
+		return 0
 	ok
 	if NOT (_pvtLooksLikeInteger(_den_) and _den_ != "")
-		return FALSE
+		return 0
 	ok
 	if _StzDigitsOnly(_den_) = "" or (0 + _StzDigitsOnly(_den_)) = 0
-		return FALSE                    # a denominator of zero is not a number
+		return 0                    # a denominator of zero is not a number
 	ok
-	return TRUE
+	return 1
 
 # -> [ numerator, denominator ] as strings, for ANY numeric content: a rational,
 # a decimal (0.25 -> [ "25", "100" ]) or an integer (7 -> [ "7", "1" ]).
@@ -2174,7 +2174,7 @@ func _StzAsRationalParts(pcStr)
 func _StzReducedRational(pcNum, pcDen)
 	_pN_ = StzEngineBigIntFromString(ring_trim("" + pcNum))
 	_pD_ = StzEngineBigIntFromString(ring_trim("" + pcDen))
-	if _pN_ = NULL or _pD_ = NULL
+	if _pN_ = "" or _pD_ = ""
 		return ""
 	ok
 	if StzEngineBigIntIsZero(_pD_)
@@ -2190,7 +2190,7 @@ func _StzReducedRational(pcNum, pcDen)
 		_pD_ = StzEngineBigIntNegate(_pD_)
 	ok
 	_pG_ = StzEngineBigIntGcd(_pN_, _pD_)
-	if _pG_ != NULL and NOT StzEngineBigIntIsZero(_pG_)
+	if _pG_ != "" and NOT StzEngineBigIntIsZero(_pG_)
 		_pN_ = StzEngineBigIntDiv(_pN_, _pG_)
 		_pD_ = StzEngineBigIntDiv(_pD_, _pG_)
 	ok
@@ -2210,11 +2210,11 @@ func _StzExactRationalCalc(pcOp, pcA, pcB)
 	_pAd_ = StzEngineBigIntFromString(_a_[2])
 	_pBn_ = StzEngineBigIntFromString(_b_[1])
 	_pBd_ = StzEngineBigIntFromString(_b_[2])
-	if _pAn_ = NULL or _pAd_ = NULL or _pBn_ = NULL or _pBd_ = NULL
+	if _pAn_ = "" or _pAd_ = "" or _pBn_ = "" or _pBd_ = ""
 		return ""
 	ok
-	_pRn_ = NULL
-	_pRd_ = NULL
+	_pRn_ = ""
+	_pRd_ = ""
 	switch pcOp
 	on "+"
 		# a/b + c/d = (ad + cb) / bd
@@ -2235,7 +2235,7 @@ func _StzExactRationalCalc(pcOp, pcA, pcB)
 		_pRn_ = StzEngineBigIntMul(_pAn_, _pBd_)
 		_pRd_ = StzEngineBigIntMul(_pAd_, _pBn_)
 	off
-	if _pRn_ = NULL or _pRd_ = NULL
+	if _pRn_ = "" or _pRd_ = ""
 		return ""
 	ok
 	return _StzReducedRational( StzEngineBigIntToString(_pRn_),
@@ -2311,9 +2311,9 @@ func _StzRoundDecimalString(pcNum, pnPlaces, pcMode)
 	# Is the discarded tail more than, less than, or exactly one half?
 	_cmp_ = _StzCompareTailToHalf(_rest_)
 
-	_bRoundAway_ = FALSE
+	_bRoundAway_ = 0
 	if _cmp_ > 0
-		_bRoundAway_ = TRUE
+		_bRoundAway_ = 1
 	but _cmp_ = 0
 		if StzLower("" + pcMode) = "halfeven"
 			# the tie goes to the EVEN last kept digit
@@ -2324,21 +2324,21 @@ func _StzRoundDecimalString(pcNum, pnPlaces, pcMode)
 				_last_ = _int_[len(_int_)]
 			ok
 			if StzFindFirst(_last_, "13579") > 0
-				_bRoundAway_ = TRUE
+				_bRoundAway_ = 1
 			ok
 		else
-			_bRoundAway_ = TRUE              # :HalfUp -- away from zero
+			_bRoundAway_ = 1              # :HalfUp -- away from zero
 		ok
 	ok
 
 	if NOT _bRoundAway_
 		# a value that rounds to nothing is zero, not MINUS zero
 		_dg_ = _StzDigitsOnly(_int_ + _keep_)
-		_bAllZero_ = TRUE
+		_bAllZero_ = 1
 		_nd_ = len(_dg_)
 		for _k_ = 1 to _nd_
 			if _dg_[_k_] != "0"
-				_bAllZero_ = FALSE
+				_bAllZero_ = 0
 				exit
 			ok
 		next
@@ -2355,7 +2355,7 @@ func _StzRoundDecimalString(pcNum, pnPlaces, pcMode)
 	# runs into the integer part correctly (9.99 -> 10.0, not 9.100)
 	_whole_ = _int_ + _keep_
 	_pB_ = StzEngineBigIntFromString(_whole_)
-	if _pB_ = NULL
+	if _pB_ = ""
 		return _sign_ + _int_ + "." + _keep_
 	ok
 	_pOne_ = StzEngineBigIntFromString("1")
@@ -2456,8 +2456,8 @@ func _StzMulPowerOfTen(pBig, pnK)
 func _StzScaledBigIntTo(pcNum, pnPlaces)
 	_p_ = _StzPlacesOf(pcNum)
 	_pB_ = _StzScaledBigInt(pcNum)
-	if _pB_ = NULL
-		return NULL
+	if _pB_ = ""
+		return ""
 	ok
 	_k_ = pnPlaces - _p_
 	if _k_ <= 0
@@ -2490,10 +2490,10 @@ func _StzPlaceDecimalPoint(pcDigits, pnPlaces)
 # Returns "" if it cannot be done exactly, so the caller falls back.
 func _pvtBigIntegerCalc(pcOp, pcA, pcB)
 	_pA_ = StzEngineBigIntFromString(ring_trim("" + pcA))
-	if _pA_ = NULL
+	if _pA_ = ""
 		return ""
 	ok
-	_pR_ = NULL
+	_pR_ = ""
 	if pcOp = "^"
 		_e_ = 0 + ring_trim("" + pcB)
 		if _e_ < 0
@@ -2502,7 +2502,7 @@ func _pvtBigIntegerCalc(pcOp, pcA, pcB)
 		_pR_ = StzEngineBigIntPow(_pA_, _e_)
 	else
 		_pB_ = StzEngineBigIntFromString(ring_trim("" + pcB))
-		if _pB_ = NULL
+		if _pB_ = ""
 			return ""
 		ok
 		switch pcOp
@@ -2516,7 +2516,7 @@ func _pvtBigIntegerCalc(pcOp, pcA, pcB)
 			_pR_ = StzEngineBigIntMod(_pA_, _pB_)
 		off
 	ok
-	if _pR_ = NULL
+	if _pR_ = ""
 		return ""
 	ok
 	return StzEngineBigIntToString(_pR_)
@@ -3781,7 +3781,7 @@ class stzNumber from stzObject
 	def IsEqualTo(pOtherNumber)
 
 		if NOT @IsNumberOrNumberInString(pOtherNumber)
-			return FALSE
+			return 0
 		ok
 
 		_nCurrentRound_ = StzCurrentRound()
@@ -4741,7 +4741,7 @@ class stzNumber from stzObject
 		but isNumber(pOther)
 			_cOther_ = "" + pOther
 		else
-			return FALSE
+			return 0
 		ok
 		# a fraction compares by cross-multiplication, so "1/2" and "0.5" are the
 		# same number and "1/3" is not 0.333...
@@ -4752,8 +4752,8 @@ class stzNumber from stzObject
 			                           StzEngineBigIntFromString(_y_[2]) )
 			_pR_ = StzEngineBigIntMul( StzEngineBigIntFromString(_y_[1]),
 			                           StzEngineBigIntFromString(_x_[2]) )
-			if _pL_ = NULL or _pR_ = NULL
-				return FALSE
+			if _pL_ = "" or _pR_ = ""
+				return 0
 			ok
 			return StzEngineBigIntEquals(_pL_, _pR_)
 		ok

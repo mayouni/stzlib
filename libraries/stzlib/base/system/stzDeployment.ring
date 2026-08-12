@@ -100,7 +100,7 @@ class stzResourceSpec from stzObject
 	# GPU, both roles (G5, SOFTANZA_GPU_PLAN.md): a REQUIREMENT declares
 	# need ("" / "required" / "optional"), a CAPACITY declares presence.
 	@cGpu = ""
-	@bGpuPresent = FALSE
+	@bGpuPresent = 0
 
 	def init()
 		@nMem = 0
@@ -170,7 +170,7 @@ class stzResourceSpec from stzObject
 	# does THIS capacity meet the given REQUIREMENT (every dimension covered)?
 	def Meets(poReq)
 		if poReq.GpuNeed() = "required" and NOT @bGpuPresent
-			return FALSE
+			return 0
 		ok
 		return @nMem >= poReq.MemoryMB() and @nCpu >= poReq.ComputeVCPU() and @nDisk >= poReq.StorageGB()
 
@@ -222,10 +222,10 @@ class stzDeploymentSite from stzObject
 	@cStorage = ""
 	@cLaunch = ""
 	@cStatusCmd = ""
-	@oCapacity = NULL   # the host's resources (stzResourceSpec) -- declared or discovered
+	@oCapacity = ""   # the host's resources (stzResourceSpec) -- declared or discovered
 	@cProvider = ""     # a provisioning provider (aws/gcp/proxmox/...) -> scriptable host
-	@oAuthSecret = NULL   # a stzSecret guarding the credential (else @cAuthRef is a plain ref)
-	@bStoreBacked = FALSE # auth is a NAME in a central store -- reveal via the store (audited)
+	@oAuthSecret = ""   # a stzSecret guarding the credential (else @cAuthRef is a plain ref)
+	@bStoreBacked = 0 # auth is a NAME in a central store -- reveal via the store (audited)
 	@cAuthStoreName = ""  # the secret's name in that store
 
 	def init(pcName)
@@ -262,14 +262,14 @@ class stzDeploymentSite from stzObject
 
 	def SetAuthRefQ(pRef)
 		if isObject(pRef)
-			@bStoreBacked = FALSE
+			@bStoreBacked = 0
 			@cAuthStoreName = ""
 			@oAuthSecret = pRef
 			@cAuthRef = pRef.Descriptor()
 		but isString(pRef)
-			@bStoreBacked = FALSE
+			@bStoreBacked = 0
 			@cAuthStoreName = ""
-			@oAuthSecret = NULL
+			@oAuthSecret = ""
 			@cAuthRef = "" + pRef
 		else
 			StzRaise("SetAuthRefQ expects a reference string or a stzSecret.")
@@ -292,9 +292,9 @@ class stzDeploymentSite from stzObject
 		if NOT poStore.Has(pcName)
 			StzRaise("SetAuthFromStoreQ: the store has no secret named '" + pcName + "'.")
 		ok
-		@bStoreBacked = TRUE
+		@bStoreBacked = 1
 		@cAuthStoreName = "" + pcName
-		@oAuthSecret = NULL
+		@oAuthSecret = ""
 		@cAuthRef = poStore.DescriptorOf(pcName)   # redacted, captured for display/config
 		return This
 
@@ -523,17 +523,17 @@ class stzDeploymentSite from stzObject
 		but @cKind = "server"
 			return This._ServerStore(paArtifacts)
 		ok
-		return FALSE
+		return 0
 
 	def Launch()
 		if This.IsLocal()
 			return This._LocalLaunch()
 		but @cKind = "gitrepo" or @cKind = "git"
-			return TRUE   # a git deploy IS the push -- nothing more to start
+			return 1   # a git deploy IS the push -- nothing more to start
 		but @cKind = "server"
 			return This._ServerLaunch()
 		ok
-		return FALSE
+		return 0
 
 	def Status()
 		if This.IsLocal()
@@ -547,16 +547,16 @@ class stzDeploymentSite from stzObject
 		if This.IsLocal()
 			StzFileDelete(@cStorage + "/deploy.json")
 			write(@cStorage + "/.stzsite", "state=rolledback" + nl + "kind=" + @cKind + nl)
-			return TRUE
+			return 1
 		ok
-		return TRUE   # kind-specific rollback (git revert / instance terminate) -- best effort
+		return 1   # kind-specific rollback (git revert / instance terminate) -- best effort
 
 	# provision a scriptable host to meet a requirement (the IaC move -- bring the host
 	# into existence, don't just deploy to it). Runs the provider CLI via the child.
 	def Provision(poReq)
 		_cmd_ = This.ProvisionCommandFor(poReq)
 		if _cmd_ = ""
-			return FALSE
+			return 0
 		ok
 		return This._Sh(_cmd_)[1] = 0
 
@@ -612,7 +612,7 @@ class stzDeploymentSite from stzObject
 
 	def _LocalStore(paArtifacts)
 		if @cStorage = ""
-			return FALSE
+			return 0
 		ok
 		StzEngineDirCreatePath(@cStorage)
 		_n_ = len(paArtifacts)
@@ -620,18 +620,18 @@ class stzDeploymentSite from stzObject
 			This._WriteArtifact(@cStorage, paArtifacts[_i_][1], paArtifacts[_i_][2])
 		next
 		write(@cStorage + "/.stzsite", "state=stored" + nl + "kind=" + @cKind + nl)
-		return TRUE
+		return 1
 
 	def _LocalLaunch()
 		if @cStorage = "" or StzEngineFileExists(@cStorage + "/.stzsite") = 0
-			return FALSE
+			return 0
 		ok
 		_rec_ = "state=launched" + nl + "kind=" + @cKind + nl
 		if @cLaunch != ""
 			_rec_ += "launch=" + @cLaunch + nl
 		ok
 		write(@cStorage + "/.stzsite", _rec_)
-		return TRUE
+		return 1
 
 	def _LocalStatus()
 		if @cStorage != "" and StzEngineFileExists(@cStorage + "/.stzsite") = 1
@@ -650,7 +650,7 @@ class stzDeploymentSite from stzObject
 	# against a local bare repo (@cEndpoint), no network.
 	def _GitStore(paArtifacts)
 		if @cStorage = "" or @cEndpoint = ""
-			return FALSE
+			return 0
 		ok
 		_w_ = @cStorage
 		StzEngineDirCreatePath(_w_)
@@ -676,7 +676,7 @@ class stzDeploymentSite from stzObject
 	# they complete against a reachable host.
 	def _ServerStore(paArtifacts)
 		if @cStorage = ""
-			return FALSE
+			return 0
 		ok
 		StzEngineDirCreatePath(@cStorage)
 		_n_ = len(paArtifacts)
@@ -687,7 +687,7 @@ class stzDeploymentSite from stzObject
 
 	def _ServerLaunch()
 		if @cLaunch = ""
-			return TRUE
+			return 1
 		ok
 		return This._Sh("ssh " + This._SshHost() + " " + char(34) + @cLaunch + char(34))[1] = 0
 
@@ -722,14 +722,14 @@ class stzDeploymentSite from stzObject
 # System Foundation uses: expression is free, admission is governed.
 class stzDeployment from stzObject
 
-	@oDelivery = NULL
+	@oDelivery = ""
 	@aBindings = []   # [ partName, siteObject ]
-	@oActor = NULL
+	@oActor = ""
 	@aAfter = []      # [ partName, dependsOnPartName ] -- ordering (the plan DAG)
 	@aArtifacts = []  # [ partName, relName, filePath ] -- the REAL build outputs to ship
-	@oLog = NULL      # a structured stzLog of what Run() actually did
-	@bRan = FALSE     # did Run() actually execute? (a refused deploy never runs)
-	@bCommitted = FALSE  # ...and did it COMMIT, or only rehearse?
+	@oLog = ""      # a structured stzLog of what Run() actually did
+	@bRan = 0     # did Run() actually execute? (a refused deploy never runs)
+	@bCommitted = 0  # ...and did it COMMIT, or only rehearse?
 
 	def init(poDelivery)
 		@oDelivery = poDelivery
@@ -835,12 +835,12 @@ class stzDeployment from stzObject
 				return @aBindings[_i_][2]
 			ok
 		next
-		return NULL
+		return ""
 
 	# the governance gate: may this deployment cross to reality?
 	def MayCommit()
-		if @oActor = NULL
-			return FALSE
+		if @oActor = ""
+			return 0
 		ok
 		return @oActor.Can("effectful")
 
@@ -855,7 +855,7 @@ class stzDeployment from stzObject
 		for _i_ = 1 to _n_
 			_p_ = _aParts_[_i_]
 			_site_ = This.SiteFor(_p_[1])
-			if _site_ = NULL
+			if _site_ = ""
 				_out_ + [ _p_[1], _p_[2], _p_[3], "(unbound)", "", "" ]
 			else
 				_out_ + [ _p_[1], _p_[2], _p_[3], _site_.Name(), _site_.KindName(), _site_.Protocol() ]
@@ -868,7 +868,7 @@ class stzDeployment from stzObject
 		_c_ += "==============================================================================" + nl
 		if This.MayCommit()
 			_c_ += "  actor: " + @oActor.Name() + " -- MAY commit (effectful)" + nl
-		but @oActor != NULL
+		but @oActor != ""
 			_c_ += "  actor: " + @oActor.Name() + " -- rehearse only (not effectful)" + nl
 		else
 			_c_ += "  actor: (none) -- rehearse only" + nl
@@ -1025,23 +1025,23 @@ class stzDeployment from stzObject
 		_guard_ = 0
 		while len(_remaining_) > 0 and _guard_ < 10000
 			_guard_++
-			_progress_ = FALSE
+			_progress_ = 0
 			_next_ = []
 			_nr_ = len(_remaining_)
 			for _i_ = 1 to _nr_
 				_st_ = _remaining_[_i_]
 				_needs_ = _st_[5]
-				_ready_ = TRUE
+				_ready_ = 1
 				_nn_ = len(_needs_)
 				for _k_ = 1 to _nn_
 					if StzFindFirst(_needs_[_k_], _placed_) = 0
-						_ready_ = FALSE
+						_ready_ = 0
 					ok
 				next
 				if _ready_
 					_ordered_ + _st_
 					_placed_ + _st_[1]
-					_progress_ = TRUE
+					_progress_ = 1
 				else
 					_next_ + _st_
 				ok
@@ -1072,13 +1072,13 @@ class stzDeployment from stzObject
 		return @bCommitted
 
 	def Run()
-		@bRan = TRUE
+		@bRan = 1
 		_bMay_ = This.MayCommit()
 		@oLog.Record(:info, "deployment run started", [ [ :actor, This._ActorName() ], [ :commit, _bMay_ ] ])
 		_steps_ = This.Steps()
 		_recs_ = []
 		_undo_ = []
-		_failed_ = FALSE
+		_failed_ = 0
 		_gated_ = []   # parts whose GPU admission has been checked
 		_n_ = len(_steps_)
 		for _i_ = 1 to _n_
@@ -1098,7 +1098,7 @@ class stzDeployment from stzObject
 				if isObject(_req_) and NOT This._GpuGateOk(_req_, This.SiteFor(_st_[3]), _st_[3])
 					_recs_ + [ _st_[1], "FAILED" ]
 					@oLog.Record(:error, "step FAILED (the gpu admission gate refused)", _flds_)
-					_failed_ = TRUE
+					_failed_ = 1
 					loop
 				ok
 			ok
@@ -1117,7 +1117,7 @@ class stzDeployment from stzObject
 			else
 				_recs_ + [ _st_[1], "FAILED" ]
 				@oLog.Record(:error, "step FAILED", _flds_)
-				_failed_ = TRUE
+				_failed_ = 1
 			ok
 		next
 		if _failed_ and _bMay_
@@ -1151,7 +1151,7 @@ class stzDeployment from stzObject
 		if pcOp = "provision"
 			_req_ = @oDelivery.RequirementFor(pcPart)
 			if NOT isObject(_req_)
-				return TRUE   # no requirement to size the host to
+				return 1   # no requirement to size the host to
 			ok
 			return poSite.Provision(_req_)
 		but pcOp = "store"
@@ -1161,7 +1161,7 @@ class stzDeployment from stzObject
 		but pcOp = "verify"
 			return poSite.Status() = "launched"
 		ok
-		return TRUE
+		return 1
 
 	# -- the GPU capability gate (G5, SOFTANZA_GPU_PLAN.md) -----------------
 	# A part's requirement declares SetGpuRequired() or SetGpuOptional().
@@ -1176,23 +1176,23 @@ class stzDeployment from stzObject
 	def _GpuGateOk(poReq, poSite, pcPart)
 		_cNeed_ = poReq.GpuNeed()
 		if _cNeed_ = ""
-			return TRUE
+			return 1
 		ok
 		if This._SiteHasGpu(poSite)
 			@oLog.Record(:info, "gpu present at the site", [ [ :part, pcPart ], [ :site, poSite.Name() ] ])
-			return TRUE
+			return 1
 		ok
 		if _cNeed_ = "required"
 			@oLog.Record(:error, "part REQUIRES a gpu and the site has none -- refused", [ [ :part, pcPart ], [ :site, poSite.Name() ] ])
-			return FALSE
+			return 0
 		ok
 		@oLog.Record(:warn, "no gpu at the site -- part deploys DEGRADED (cpu fallback)", [ [ :part, pcPart ], [ :site, poSite.Name() ] ])
-		return TRUE
+		return 1
 
 	def _SiteHasGpu(poSite)
 		_oCap_ = poSite.CapacityOf()
 		if isObject(_oCap_) and _oCap_.HasGpu()
-			return TRUE
+			return 1
 		ok
 		if poSite.IsLocal()
 			# the local machine can answer for ITSELF -- probe the device
@@ -1201,7 +1201,7 @@ class stzDeployment from stzObject
 			ok
 			return StzEngineGpuIsAvailable() = 1
 		ok
-		return FALSE
+		return 0
 
 	def _JoinNames(paList)
 		_s_ = ""
@@ -1264,10 +1264,10 @@ class stzDeployment from stzObject
 		_n_ = len(_f_)
 		for _i_ = 1 to _n_
 			if _f_[_i_][4] = 0
-				return FALSE
+				return 0
 			ok
 		next
-		return TRUE
+		return 1
 
 	  #-- helpers --------------------------------------------
 

@@ -350,7 +350,7 @@ class stzSystemProfile from stzObject
 	@nMemTotalBytes = 0	# 0 = not populated (declared profile); live = engine fact
 	@nMemFreeBytes = 0	# snapshot at populate time, not a live gauge
 	@cLangVersion = ""
-	@oCaps = NULL
+	@oCaps = ""
 
 	def init(pcName)
 		if isString(pcName)
@@ -641,7 +641,7 @@ class stzSystemProfile from stzObject
 		This.SetRole("deployment")
 		_cText_ = StzReplace(pcText, char(13), "")
 		_aLines_ = StzSplit(_cText_, char(10))
-		_bCapsSet_ = FALSE
+		_bCapsSet_ = 0
 		_nLines_ = len(_aLines_)
 		for _i_ = 1 to _nLines_
 			_cLine_ = ring_trim(_aLines_[_i_])
@@ -676,7 +676,7 @@ class stzSystemProfile from stzObject
 				This.SetLanguageVersion(_cVal_)
 			but _cKey_ = "capabilities"
 				This.SetCapabilityList(_StzParseCapList(_cVal_))
-				_bCapsSet_ = TRUE
+				_bCapsSet_ = 1
 			ok
 		next
 		if NOT _bCapsSet_

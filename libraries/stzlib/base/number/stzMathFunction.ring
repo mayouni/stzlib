@@ -35,7 +35,7 @@ class stzMathFunction from stzObject
 
 	@cExpr = ""
 	@acVars = []
-	@pProg = NULL
+	@pProg = ""
 
 	def init(pcExpression, pacVariables)
 		if NOT isString(pcExpression) or ring_trim(pcExpression) = ""
@@ -62,7 +62,7 @@ class stzMathFunction from stzObject
 		next
 
 		@pProg = StzEngineGradCompile(@cExpr, _cJoined_)
-		if @pProg = NULL
+		if @pProg = ""
 			# the REASON, not just a refusal -- see the note in the bridge
 			stzraise("Can't read '" + @cExpr + "': " + StzEngineGradWhy() + ".")
 		ok
@@ -136,7 +136,7 @@ class stzMathFunction from stzObject
 		return @pProg
 
 	def Free()
-		if @pProg != NULL
+		if @pProg != ""
 			StzEngineGradFree(@pProg)
-			@pProg = NULL
+			@pProg = ""
 		ok

@@ -53,12 +53,12 @@ class stzAppRequest from stzObject
 	def WantsClose()
 		_cConn_ = StzLower(This.Header("Connection"))
 		if _cConn_ = "close"
-			return TRUE
+			return 1
 		ok
 		if @cProtocol = "HTTP/1.0" and _cConn_ != "keep-alive"
-			return TRUE
+			return 1
 		ok
-		return FALSE
+		return 0
 
 	def ParseQuery()
 		_nQ_ = StzFindFirst("?", @cPath)
@@ -78,7 +78,7 @@ class stzAppRequest from stzObject
 		ok
 
 	def Query(cKey)
-		if cKey = NULL return @aQuery ok
+		if cKey = "" return @aQuery ok
 
 		_nLen_ = len(@aQuery)
 		for _i_ = 1 to _nLen_

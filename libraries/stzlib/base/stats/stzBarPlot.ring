@@ -75,14 +75,14 @@ class stzBarPlot from stzObject
 	@acCanvas = []
 
 	# Display options
-	@bShowHAxis = True
-	@bShowVAxis = True
-	@bShowLabels = True
-	@bShowAxisLabels = True
+	@bShowHAxis = 1
+	@bShowVAxis = 1
+	@bShowLabels = 1
+	@bShowAxisLabels = 1
 
-	@bShowAverage = False
-	@bShowValues = False
-	@bShowPercent = False
+	@bShowAverage = 0
+	@bShowValues = 0
+	@bShowPercent = 0
 
 	# Dimensions
 	@nWidth = 60
@@ -226,7 +226,7 @@ class stzBarPlot from stzObject
 		@bShowHAxis = bShow
 
 		def WithoutHAxis()
-			@bShowHAxis = FALSE
+			@bShowHAxis = 0
 
 		# XY Aliases
 		def SetXAxis(bShow)
@@ -239,7 +239,7 @@ class stzBarPlot from stzObject
 		@bShowVAxis = bShow
 
 		def WithoutVAxis()
-			@bShowVAxis = FALSE
+			@bShowVAxis = 0
 
 		# XY Aliases
 		def SetYAxis(bShow)
@@ -256,16 +256,16 @@ class stzBarPlot from stzObject
 			This.SetHVAxis(bHShow, bVShow)
 
 		def WithoutHVAxis()
-			This.SetHVAxis(FALSE, FALSE)
+			This.SetHVAxis(0, 0)
 
 		def WithoutHVAxies()
-			This.SetHVAxis(FALSE, FALSE)
+			This.SetHVAxis(0, 0)
 
 		def WithoutAxis()
-			This.SetHVAxis(FALSE, FALSE)
+			This.SetHVAxis(0, 0)
 
 		def WithoutAxies()
-			This.SetHVAxis(FALSE, FALSE)
+			This.SetHVAxis(0, 0)
 
 		# XY Aliases
 		def SetXYAxis(bHShow, bVShow)
@@ -275,16 +275,16 @@ class stzBarPlot from stzObject
 			This.SetHVAxis(bHShow, bVShow)
 
 		def WithoutXYAxis()
-			This.SetHVAxis(FALSE, FALSE)
+			This.SetHVAxis(0, 0)
 
 		def WithoutXYAxies()
-			This.SetHVAxis(FALSE, FALSE)
+			This.SetHVAxis(0, 0)
 
 	def SetLabels(bShow)
 		@bShowLabels = bShow
 	
 		def AddLabels()
-			@bShowLabels = TRUE
+			@bShowLabels = 1
 
 	def SetLabelChar(_c_)
 
@@ -309,25 +309,25 @@ class stzBarPlot from stzObject
 		@bShowAverage = bShow
 
 		def AddAverage()
-			@bShowAverage = TRUE
+			@bShowAverage = 1
 
 	def SetValues(bShow)
 		@bShowValues = bShow
 		if bShow
-			@bShowPercent = False
+			@bShowPercent = 0
 		ok
 
 		def AddValues()
-			This.SetValues(TRUE)
+			This.SetValues(1)
 
 	def SetPercent(bShow)
 		@bShowPercent = bShow
 		if bShow
-			@bShowValues = False
+			@bShowValues = 0
 		ok
 
 		def AddPercent()
-			This.SetPercent(TRUE)
+			This.SetPercent(1)
 
 	def SetAxisLabels(bShow)
 		@bShowAxisLabels = bShow
@@ -339,10 +339,10 @@ class stzBarPlot from stzObject
 			This.SetAxisLabels(bShow)
 
 		def WithoutAxisLabels()
-			This.SetAxisLabels(FALSE)
+			This.SetAxisLabels(0)
 
 		def WithoutHAxisLabels()
-			This.SetAxisLabels(FALSE)
+			This.SetAxisLabels(0)
 
 	# Character customization with H/V naming
 	def SetBarChar(_cChar_)

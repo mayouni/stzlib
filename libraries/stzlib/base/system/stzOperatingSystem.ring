@@ -602,9 +602,9 @@ class stzOperatingSystem from stzObject
 	def SupportsColor()
 		# Basic check - can be enhanced
 		if This.IsWindows()
-			return TRUE  # Windows 10+ supports ANSI
+			return 1  # Windows 10+ supports ANSI
 		else
-			return TRUE  # Unix-like systems typically support color
+			return 1  # Unix-like systems typically support color
 		ok
 
 		def HasColorSupport()

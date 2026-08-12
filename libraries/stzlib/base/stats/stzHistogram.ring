@@ -5,12 +5,12 @@
 
 class stzHistogram from stzObject
 
-	@bShowVAxis = True      # Vertical axis (was Y-axis)
-	@bShowHAxis = True      # Horizontal axis (was X-axis)
-	@bShowLabels = True
-	@bShowFrequency = False
-	@bShowPercent = False
-	@bShowStats = False  # Show mean, std dev, etc.
+	@bShowVAxis = 1      # Vertical axis (was Y-axis)
+	@bShowHAxis = 1      # Horizontal axis (was X-axis)
+	@bShowLabels = 1
+	@bShowFrequency = 0
+	@bShowPercent = 0
+	@bShowStats = 0  # Show mean, std dev, etc.
 
 	@nBinCount = 0       # Number of bins (0 = auto-calculate)
 	@nBinRange = 0       # Width of each bin (0 = auto-calculate)
@@ -53,7 +53,7 @@ class stzHistogram from stzObject
 
 	# Histogram aggregation types
 	@cAggregationType = "frequency"  # frequency, sum, average, min, max
-	@bShowValues = FALSE # General flag to control value display for any aggregation
+	@bShowValues = 0 # General flag to control value display for any aggregation
 
 	def init(paData)
 		
@@ -199,13 +199,13 @@ class stzHistogram from stzObject
 		@bShowValues = bShow
 	
 		def IncludeValues()
-			@bShowValues = TRUE
+			@bShowValues = 1
 
 		def AddValues()
-			@bShowValues = TRUE
+			@bShowValues = 1
 
 		def WithoutValues()
-			@bShowValues = FALSE
+			@bShowValues = 0
 
 	def SetAggregation(cType)
 		@cAggregationType = cType
@@ -247,23 +247,23 @@ class stzHistogram from stzObject
 		@bShowStats = bShow
 
 		def AddStats()
-			@bShowStats = TRUE
+			@bShowStats = 1
 
 		def IncludeStats()
-			@bShowStats = TRUE
+			@bShowStats = 1
 
 	# Vertical axis methods (with X aliases for compatibility)
 	def SetVAxis(bShow)
 		@bShowVAxis = bShow
 
 		def AddVAxis()
-			@bShowVAxis = TRUE
+			@bShowVAxis = 1
 
 		def IncludeVAxis()
-			@bShowVAxis = TRUE
+			@bShowVAxis = 1
 
 		def WithoutVAxis()
-			@bShowVAxis = FALSE
+			@bShowVAxis = 0
 
 		# X-axis aliases for backward compatibility
 		def SetXAxis(bShow)
@@ -283,13 +283,13 @@ class stzHistogram from stzObject
 		@bShowHAxis = bShow
 
 		def AddHAxis()
-			@bShowHAxis = TRUE
+			@bShowHAxis = 1
 
 		def IncludeHAxis()
-			@bShowHAxis = TRUE
+			@bShowHAxis = 1
 
 		def WithoutHAxis()
-			@bShowHAxis = FALSE
+			@bShowHAxis = 0
 
 		# Y-axis aliases for backward compatibility
 		def SetYAxis(bShow)
@@ -308,22 +308,22 @@ class stzHistogram from stzObject
 		@bShowLabels = bShow
 
 		def AddLabels()
-			@bShowLabels = TRUE
+			@bShowLabels = 1
 
 		def IncludeLabels()
-			@bShowLabels = TRUE
+			@bShowLabels = 1
 
 		def WithoutLabels()
-			@bShowLabels = FALSE
+			@bShowLabels = 0
 
 	def SetPercent(bShow)
 		@bShowPercent = bShow
 
 		def AddPercent()
-			@bShowPercent = TRUE
+			@bShowPercent = 1
 
 		def IncludePercent()
-			@bShowPercent = TRUE
+			@bShowPercent = 1
 
 	def SetBarWidth(nWidth)
 		@nBarWidth = max([1, nWidth])
@@ -644,7 +644,7 @@ class stzHistogram from stzObject
 		_cResult_ = _finalizeCanvas()
 
 		# A hack to remove an unnecessary empty line from the top
-		if @bShowHAxis = FALSE
+		if @bShowHAxis = 0
 
 			_oStrTemp_ = new stzString(_cResult_)
 			_nPos_ = _oStrTemp_.FindFirst(char(10))

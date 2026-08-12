@@ -100,14 +100,14 @@ class stzSystemCall from stzObject
 	@acArgs = []
 
 	@nTimeout = 30000
-	@bCaptureOutput = TRUE
-	@bCaptureError = TRUE
-	@bShowConsole = FALSE
+	@bCaptureOutput = 1
+	@bCaptureError = 1
+	@bShowConsole = 0
 	@cOutput = ""
 	@cError = ""
 	@nExitCode = -1
-	@bExecuted = FALSE
-	@bRunSilentMode = FALSE
+	@bExecuted = 0
+	@bRunSilentMode = 0
 
 	# Return type control for Sys() commands
 	@cReturnType = "string"  # "string", "number", or "list"
@@ -148,7 +148,7 @@ class stzSystemCall from stzObject
 		_cRest_ = trim(_oCmd2_.Section(_nPos_ + 1, _oCmd2_.NumberOfChars()))
 
 		# Parse remaining arguments respecting quotes
-		_bInQuote_ = FALSE
+		_bInQuote_ = 0
 		_cCurrent_ = ""
 
 		_oRest_ = new stzString(_cRest_)
@@ -190,7 +190,7 @@ class stzSystemCall from stzObject
 		# Handle silent mode
 		if @bRunSilentMode
 			This.RunEngineSilent()
-			return NULL
+			return ""
 		ok
 
 		_cFullCmd_ = _BuildCommandLine()
@@ -216,7 +216,7 @@ class stzSystemCall from stzObject
 				@cError = _aRun_[3]
 			ok
 
-			@bExecuted = TRUE
+			@bExecuted = 1
 
 			if @bCaptureOutput
 				This.ConvertOutputByType()
@@ -234,7 +234,7 @@ class stzSystemCall from stzObject
 			ok
 
 			@nExitCode = system(_cFullCmd_)
-			@bExecuted = TRUE
+			@bExecuted = 1
 
 			if @bCaptureOutput and _cOutFile_ != ""
 				try
@@ -497,42 +497,42 @@ class stzSystemCall from stzObject
 	#-----------------------#
 
 	def CaptureOutput()
-		@bCaptureOutput = TRUE
+		@bCaptureOutput = 1
 
 		def CaptureOutputQ()
 			This.CaptureOutput()
 			return This
 
 	def DontCaptureOutput()
-		@bCaptureOutput = FALSE
+		@bCaptureOutput = 0
 
 		def DontCaptureOutputQ()
 			This.DontCaptureOutput()
 			return This
 
 	def CaptureError()
-		@bCaptureError = TRUE
+		@bCaptureError = 1
 
 		def CaptureErrorQ()
 			This.CaptureError()
 			return This
 
 	def DontCaptureError()
-		@bCaptureError = FALSE
+		@bCaptureError = 0
 
 		def DontCaptureErrorQ()
 			This.DontCaptureError()
 			return This
 
 	def ShowConsole()
-		@bShowConsole = TRUE
+		@bShowConsole = 1
 
 		def ShowConsoleQ()
 			This.ShowConsole()
 			return This
 
 	def HideConsole()
-		@bShowConsole = FALSE
+		@bShowConsole = 0
 
 		def Silent()
 			This.HideConsole()
@@ -558,15 +558,15 @@ class stzSystemCall from stzObject
 		_cFullCmd_ = _BuildCommandLine()
 		# Engine exec: no console, no output capture, just exit code
 		@nExitCode = StzEngineSystemExec(_cFullCmd_)
-		@bExecuted = TRUE
+		@bExecuted = 1
 
 	def RunSilently()
-		@bRunSilentMode = TRUE
-		@bShowConsole = FALSE
-		@bCaptureOutput = FALSE
-		@bCaptureError = FALSE
+		@bRunSilentMode = 1
+		@bShowConsole = 0
+		@bCaptureOutput = 0
+		@bCaptureError = 0
 		This.Run()
-		@bRunSilentMode = FALSE
+		@bRunSilentMode = 0
 
 		def RunSilentlyQ()
 			This.RunSilently()
@@ -644,7 +644,7 @@ class stzSystemCall from stzObject
 		if isString(@cOutput)
 			return StzLen(@cOutput) > 0
 		ok
-		return TRUE
+		return 1
 
 	def HasError()
 		return StzLen(@cError) > 0
@@ -709,8 +709,8 @@ class stzSystemCall from stzObject
 		@cOutput = ""
 		@cError = ""
 		@nExitCode = -1
-		@bExecuted = FALSE
-		@bRunSilentMode = FALSE
+		@bExecuted = 0
+		@bRunSilentMode = 0
 
 		def ResetQ()
 			This.Reset()
@@ -725,18 +725,18 @@ class stzSystemCall from stzObject
 			return This
 		ok
 
-		_bNeedsShell_ = FALSE
+		_bNeedsShell_ = 0
 
 		# Check for shell operators
 		if StzFindFirst(" > ", _cCmd_) > 0 or StzFindFirst(" < ", _cCmd_) > 0 or
 		   StzFindFirst("|", _cCmd_) > 0 or StzFindFirst("&&", _cCmd_) > 0 or
 		   StzFindFirst("||", _cCmd_) > 0
-			_bNeedsShell_ = TRUE
+			_bNeedsShell_ = 1
 		ok
 
 		# Check for single & (but not &&)
 		if StzFindFirst("&", _cCmd_) > 0 and StzFindFirst("&&", _cCmd_) = 0
-			_bNeedsShell_ = TRUE
+			_bNeedsShell_ = 1
 		ok
 
 		# Check for shell built-in commands
@@ -744,7 +744,7 @@ class stzSystemCall from stzObject
 		if len(_aWords_) > 0
 			_cFirstWord_ = StzLower(trim(_aWords_[1]))
 			if find(ShellBuiltInCommands, _cFirstWord_) > 0
-				_bNeedsShell_ = TRUE
+				_bNeedsShell_ = 1
 			ok
 		ok
 

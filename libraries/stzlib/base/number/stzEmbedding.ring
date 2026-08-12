@@ -172,11 +172,11 @@ class stzTSNE from stzObject
 	@nIterations = 1000
 	@nSeed = 42
 	@nPcaDims = 0
-	@bFitted = FALSE
+	@bFitted = 0
 	@aEmbedding = []
 	@anKL = []
 	@nDensityLambda = 0   # 0 = ordinary t-SNE -- see PreserveDensity()
-	@bDensityAuto = FALSE # PreserveDensity() picks by mode; SetDensityWeight() does not
+	@bDensityAuto = 0 # PreserveDensity() picks by mode; SetDensityWeight() does not
 	@nDensitySlope = 0
 	@nDensityIntercept = 0
 	@anNewRadii = []
@@ -187,8 +187,8 @@ class stzTSNE from stzObject
 	@nDensityFrac = 0.3
 	@anLocalRadii = []
 	@nDensityCorrelation = 0
-	@oPca = NULL
-	@bParametric = FALSE
+	@oPca = ""
+	@bParametric = 0
 	@nPreparedDim = 0     # the width the fit actually saw (post-PCA when reducing)
 	@anHidden = [ 50, 20 ]
 	@nLearningRate = 0.01
@@ -290,14 +290,14 @@ class stzTSNE from stzObject
 	# ordinary t-SNE, because free coordinates can go anywhere and a network's outputs
 	# are limited to what it can express.
 	def LearnMapping()
-		@bParametric = TRUE
+		@bParametric = 1
 
 		def LearnMappingQ()
 			This.LearnMapping()
 			return This
 
 	def SkipMapping()
-		@bParametric = FALSE
+		@bParametric = 0
 
 		def SkipMappingQ()
 			This.SkipMapping()
@@ -380,7 +380,7 @@ class stzTSNE from stzObject
 		# the network a wider input than it was trained on, and the guard caught it:
 		# training rows stopped transforming back to their own positions.
 		_aNew_ = []
-		if @nPcaDims > 0 and @oPca != NULL
+		if @nPcaDims > 0 and @oPca != ""
 			_aS_ = @oPca.Transform(paRows)
 			for _i_ = 1 to _nM_
 				for _j_ = 1 to @nPreparedDim
@@ -493,7 +493,7 @@ class stzTSNE from stzObject
 	# spent on density fidelity, in the units of the thing given up.
 	def PreserveDensity()
 		@nDensityLambda = 1.0
-		@bDensityAuto = TRUE
+		@bDensityAuto = 1
 
 		def PreserveDensityQ()
 			This.PreserveDensity()
@@ -501,7 +501,7 @@ class stzTSNE from stzObject
 
 	def IgnoreDensity()
 		@nDensityLambda = 0
-		@bDensityAuto = FALSE
+		@bDensityAuto = 0
 
 		def IgnoreDensityQ()
 			This.IgnoreDensity()
@@ -515,7 +515,7 @@ class stzTSNE from stzObject
 	def SetDensityWeight(n)
 		if n >= 0
 			@nDensityLambda = n
-			@bDensityAuto = FALSE
+			@bDensityAuto = 0
 		ok
 
 		def SetDensityWeightQ(n)
@@ -609,7 +609,7 @@ class stzTSNE from stzObject
 		# against the SAME prepared data. This is the second time in this module that
 		# a seam had two computations where it needed one -- see StzEmbeddingPrepare.
 		_nW_ = @nCols
-		if @nPcaDims > 0 and @oPca != NULL
+		if @nPcaDims > 0 and @oPca != ""
 			_aS_ = @oPca.Transform(paRows)
 			_aFlat_ = []
 			for _i_ = 1 to _nM_
@@ -837,7 +837,7 @@ class stzTSNE from stzObject
 				@nDensityIntercept = _aRes_[_nAt_ + 2]
 			ok
 		ok
-		@bFitted = TRUE
+		@bFitted = 1
 
 		def FitQ()
 			This.Fit()
@@ -894,7 +894,7 @@ class stzTSNE from stzObject
 			# and record it, so DensityWeight() and Why() report the weight that was
 			# actually used rather than the one that was asked for
 			@nDensityLambda = _nLam_
-			@bDensityAuto = FALSE
+			@bDensityAuto = 0
 		ok
 		_aRes_ = StzEnginePtsne(paX, @nRows, nD, @anHidden, @nPerplexity,
 			@nDims, @nIterations, @nLearningRate, @nSeed,
@@ -946,7 +946,7 @@ class stzTSNE from stzObject
 				@anLocalRadii + _aRes_[_nAt_]
 			next
 		ok
-		@bFitted = TRUE
+		@bFitted = 1
 
 	def _PreparedData()
 		return StzEmbeddingPrepare(This, @aData, @nRows, @nCols, @nPcaDims)
@@ -972,18 +972,18 @@ class stzUMAP from stzObject
 	@nEpochs = 200
 	@nSeed = 42
 	@nPcaDims = 0
-	@bFitted = FALSE
+	@bFitted = 0
 	@aEmbedding = []
 	@nA = 0
 	@nB = 0
-	@oPca = NULL
+	@oPca = ""
 	@aPrepared = []       # the data the fit actually saw (post-PCA when reducing)
 	@nPreparedDim = 0
 	@anLabels = []        # empty for the ordinary fit -- see LearnFromLabels()
 	@nTargetWeight = 0.5
 	@nDensityLambda = 0   # 0 = ordinary UMAP -- see PreserveDensity()
-	@bDensityAuto = FALSE # PreserveDensity() picks by mode; SetDensityWeight() does not
-	@bParametric = FALSE  # see LearnMapping()
+	@bDensityAuto = 0 # PreserveDensity() picks by mode; SetDensityWeight() does not
+	@bParametric = 0  # see LearnMapping()
 	@anDecShape = []      # the inverse decoder -- see LearnInverse()
 	@anDecWeights = []
 	@anDecHidden = [ 64, 64 ]
@@ -1198,7 +1198,7 @@ class stzUMAP from stzObject
 	# carry either shape over to the other.)
 	def PreserveDensity()
 		@nDensityLambda = 2.0
-		@bDensityAuto = TRUE
+		@bDensityAuto = 1
 
 		def PreserveDensityQ()
 			This.PreserveDensity()
@@ -1206,7 +1206,7 @@ class stzUMAP from stzObject
 
 	def IgnoreDensity()
 		@nDensityLambda = 0
-		@bDensityAuto = FALSE
+		@bDensityAuto = 0
 
 		def IgnoreDensityQ()
 			This.IgnoreDensity()
@@ -1220,7 +1220,7 @@ class stzUMAP from stzObject
 	def SetDensityWeight(n)
 		if n >= 0
 			@nDensityLambda = n
-			@bDensityAuto = FALSE
+			@bDensityAuto = 0
 		ok
 
 		def SetDensityWeightQ(n)
@@ -1318,14 +1318,14 @@ class stzUMAP from stzObject
 	# already separate, use SkipMapping() and take the free-form fit -- and give up the
 	# exact transform. That is the trade, stated rather than discovered later.
 	def LearnMapping()
-		@bParametric = TRUE
+		@bParametric = 1
 
 		def LearnMappingQ()
 			This.LearnMapping()
 			return This
 
 	def SkipMapping()
-		@bParametric = FALSE
+		@bParametric = 0
 
 		def SkipMappingQ()
 			This.SkipMapping()
@@ -1588,7 +1588,7 @@ class stzUMAP from stzObject
 				@nDensityIntercept = _aRes_[_nAt_ + 2]
 			ok
 		ok
-		@bFitted = TRUE
+		@bFitted = 1
 
 		def FitQ()
 			This.Fit()
@@ -1634,7 +1634,7 @@ class stzUMAP from stzObject
 		# centering -- or not projecting them at all -- would measure them against the
 		# training data in a different space, and every neighbour would be wrong.
 		_aNew_ = []
-		if @nPcaDims > 0 and @oPca != NULL
+		if @nPcaDims > 0 and @oPca != ""
 			_aS_ = @oPca.Transform(paRows)
 			for _i_ = 1 to _nM_
 				for _j_ = 1 to @nPreparedDim
@@ -1775,7 +1775,7 @@ class stzUMAP from stzObject
 		# against the SAME prepared data. This is the second time in this module that
 		# a seam had two computations where it needed one -- see StzEmbeddingPrepare.
 		_nW2_ = @nCols
-		if @nPcaDims > 0 and @oPca != NULL
+		if @nPcaDims > 0 and @oPca != ""
 			_aS2_ = @oPca.Transform(paRows)
 			_aF2_ = []
 			for _i_ = 1 to _nM2_
@@ -1827,7 +1827,7 @@ class stzUMAP from stzObject
 			_nLam_ = 0.1
 			# record it, so DensityWeight() and Why() report what was used
 			@nDensityLambda = _nLam_
-			@bDensityAuto = FALSE
+			@bDensityAuto = 0
 		ok
 		_aRes_ = StzEnginePumap(paX, @nRows, nD, @anHidden, @nNeighbors, @nDims,
 			@nMinDist, @nSpread, @nEpochs, @nLearningRate, @nSeed,
@@ -1875,7 +1875,7 @@ class stzUMAP from stzObject
 				@anLocalRadii + _aRes_[_nAt_]
 			next
 		ok
-		@bFitted = TRUE
+		@bFitted = 1
 
 	def Why()
 		This._MustBeFitted()

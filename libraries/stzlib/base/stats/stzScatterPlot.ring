@@ -11,14 +11,14 @@ class stzScatterPlot from stzObject
 	@anVValues = []
 	@acPointLabels = []
 
-	@bShowHAxis = True
-	@bShowVAxis = True
-	@bShowGrid = False
-	@bShowLabels = false
+	@bShowHAxis = 1
+	@bShowVAxis = 1
+	@bShowGrid = 0
+	@bShowLabels = 0
 
 	# V and H letters at the end of the axes
-	@bShowHLetter = FALSE
-	@bShowVLetter = FALSE
+	@bShowHLetter = 0
+	@bShowVLetter = 0
 
 	# Console defaults
 	@nMaxWidth = 42 
@@ -122,8 +122,8 @@ class stzScatterPlot from stzObject
 
 		_calculateRanges()
 
-		@bShowHLetter = TRUE
-		@bShowVLetter = TRUE
+		@bShowHLetter = 1
+		@bShowVLetter = 1
 
 	#-- the PIXEL tiers (GR6c) --------------------------------------------
 	# The same points, drawn instead of typed. ToSVG() needs no GPU.
@@ -164,7 +164,7 @@ class stzScatterPlot from stzObject
 			This.SetHAxis(bShow)
 
 		def WithoutHAxis()
-			@bShowHAxis = FALSE
+			@bShowHAxis = 0
 			
 		def WithoutXAxis()  # Alias
 			This.WithoutHAxis()
@@ -176,7 +176,7 @@ class stzScatterPlot from stzObject
 			This.SetVAxis(bShow)
 
 		def WithoutVAxis()
-			@bShowVAxis = FALSE
+			@bShowVAxis = 0
 			
 		def WithoutYAxis()  # Alias
 			This.WithoutVAxis()
@@ -208,16 +208,16 @@ class stzScatterPlot from stzObject
 			This.SetHVAxis(bShow)
 
 		def WithoutHVAxis()
-			This.SetHVAxis(FALSE)
+			This.SetHVAxis(0)
 
 		def WithoutVHAxis()
-			This.SetHVAxis(FALSE)
+			This.SetHVAxis(0)
 			
 		def WithoutXYAxis()  # Alias
-			This.SetHVAxis(FALSE)
+			This.SetHVAxis(0)
 
 		def WithoutYXAxis()  # Alias
-			This.SetHVAxis(FALSE)
+			This.SetHVAxis(0)
 
 	def SetHVLetters(bShow)
 		@bShowHLetter = bShow
@@ -233,16 +233,16 @@ class stzScatterPlot from stzObject
 			This.SetHVLetters(bShow)
 
 		def WithoutHV()
-			This.SetHVLetters(FALSE)
+			This.SetHVLetters(0)
 			
 		def WithoutXY()  # Alias
-			This.SetHVLetters(FALSE)
+			This.SetHVLetters(0)
 
 		def WithoutHVLetters()
-			This.SetHVLetters(FALSE)
+			This.SetHVLetters(0)
 			
 		def WithoutXYLetters()  # Alias
-			This.SetHVLetters(FALSE)
+			This.SetHVLetters(0)
 
 	def SetHLetter(bShow)
 		@bShowHLetter = bShow
@@ -257,16 +257,16 @@ class stzScatterPlot from stzObject
 			@bShowHLetter = bShow
 
 		def WithoutH()
-			@bShowHLetter = FALSE
+			@bShowHLetter = 0
 			
 		def WithoutX()  # Alias
-			@bShowHLetter = FALSE
+			@bShowHLetter = 0
 
 		def WithoutHLetter()
-			@bShowHLetter = FALSE
+			@bShowHLetter = 0
 			
 		def WithoutXLetter()  # Alias
-			@bShowHLetter = FALSE
+			@bShowHLetter = 0
 
 	def SetVLetter(bShow)
 		@bShowVLetter = bShow
@@ -281,34 +281,34 @@ class stzScatterPlot from stzObject
 			@bShowVLetter = bShow
 
 		def WithoutV()
-			@bShowVLetter = FALSE
+			@bShowVLetter = 0
 			
 		def WithoutY()  # Alias
-			@bShowVLetter = FALSE
+			@bShowVLetter = 0
 
 		def WithoutVLetter()
-			@bShowVLetter = FALSE
+			@bShowVLetter = 0
 			
 		def WithoutYLetter()  # Alias
-			@bShowVLetter = FALSE
+			@bShowVLetter = 0
 
 	def SetGrid(bShow)
 		@bShowGrid = bShow
 
 		def AddGrid()
-			@bShowGrid = TRUE
+			@bShowGrid = 1
 
 		def WithoutGrid()
-			@bShowGrid = FALSE
+			@bShowGrid = 0
 
 	def SetLabels(bShow)
 		@bShowLabels = bShow
 
 		def AddLabels()
-			@bShowLabels = TRUE
+			@bShowLabels = 1
 
 		def WithoutLabels()
-			@bShowLabels = FALSE
+			@bShowLabels = 0
 
 	def SetPointChar(c)
 		if NOT (isString(c) and IsChar(c))
@@ -426,10 +426,10 @@ class stzScatterPlot from stzObject
 		for _iLoopAnList1_ = 1 to _nAnList1Len_
 			_n_ = anList[_iLoopAnList1_]
 			if NOT isNumber(_n_) or floor(_n_) != _n_
-				return FALSE
+				return 0
 			ok
 		next
-		return TRUE
+		return 1
 
 	# WHERE A VALUE LANDS, with the degenerate span handled ONCE.
 	#
@@ -805,7 +805,7 @@ class stzScatterPlot from stzObject
 
 		# Remove unnecessary empty lines
 		_oTempStr_ = new stzString(_cResult_)
-		if @bShowVAxis = FALSE
+		if @bShowVAxis = 0
 			_nPos_ = _oTempStr_.FindFirst(char(10))
 			_oTempStr_.RemoveSection(1, _nPos_)
 		ok

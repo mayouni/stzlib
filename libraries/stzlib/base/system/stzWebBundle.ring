@@ -109,7 +109,7 @@ class stzWebBundle from stzObject
 	@cOutDir = ""
 	@aParts = []       # [ name, wasmPath ]
 	@aFiles = []
-	@bBuilt = FALSE
+	@bBuilt = 0
 
 	def init(pcName)
 		@cName = "" + pcName
@@ -177,7 +177,7 @@ class stzWebBundle from stzObject
 		write(_cDir_ + "/bundle.json", _StzWebManifest(@cName, @aFiles, _cMain_))
 		@aFiles + "bundle.json"
 
-		@bBuilt = TRUE
+		@bBuilt = 1
 		return This
 
 		def BuildQ()

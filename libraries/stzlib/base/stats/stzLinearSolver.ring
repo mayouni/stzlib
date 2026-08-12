@@ -634,16 +634,16 @@ class stzLinearSolver from stzObject
 	# Is this token a number rather than a variable name? One pass over its bytes.
 	def _LooksNumeric(_cTok_)
 		if _cTok_ = ""
-			return FALSE
+			return 0
 		ok
 		_nLenT_ = len(_cTok_)
-		_bDigit_ = FALSE
+		_bDigit_ = 0
 		for _iLn_ = 1 to _nLenT_
 			_nA_ = ascii(_cTok_[_iLn_])
 			if _nA_ >= 48 and _nA_ <= 57
-				_bDigit_ = TRUE
+				_bDigit_ = 1
 			but _nA_ != 46 and _nA_ != 43 and _nA_ != 45
-				return FALSE
+				return 0
 			ok
 		next
 		return _bDigit_
@@ -704,12 +704,12 @@ class stzLinearSolver from stzObject
 			if _cName_ != ""
 				# a variable may appear more than once in one expression, so the
 				# terms ACCUMULATE, exactly as the per-variable version did
-				_bFound_ = FALSE
+				_bFound_ = 0
 				_nPl_ = len(_aPairs_)
 				for _k_ = 1 to _nPl_
 					if _aPairs_[_k_][1] = _cName_
 						_aPairs_[_k_][2] += _nCoef_
-						_bFound_ = TRUE
+						_bFound_ = 1
 						exit
 					ok
 				next
@@ -816,7 +816,7 @@ class stzLinearSolver from stzObject
 		return [[1, 2, 3], [4, 5, 6]]  # Placeholder
 
 	def HasNegativeCoefficient(_aTableau_)
-		return FALSE  # Simplified
+		return 0  # Simplified
 
 	def FindPivotColumn(_aTableau_)
 		return 1  # Simplified
@@ -882,10 +882,10 @@ class stzLinearSolver from stzObject
 		for i = 1 to _nLen_
 			_nValue_ = _aSolution_[i][2]
 			if abs(_nValue_ - round(_nValue_)) > 0.001
-				return FALSE
+				return 0
 			ok
 		next
-		return TRUE
+		return 1
 
 	def IsFeasible(_aSolution_)
 		# Check if solution satisfies all constraints
@@ -900,19 +900,19 @@ class stzLinearSolver from stzObject
 			switch _cOperator_
 			on "<="
 				if _nLeftSide_ > _nRightSide_ + 0.001
-					return FALSE
+					return 0
 				ok
 			on ">="
 				if _nLeftSide_ < _nRightSide_ - 0.001
-					return FALSE
+					return 0
 				ok
 			on "="
 				if abs(_nLeftSide_ - _nRightSide_) > 0.001
-					return FALSE
+					return 0
 				ok
 			off
 		next
-		return TRUE
+		return 1
 
 	def EvaluateConstraintLeft(_cExpression_, _aSolution_)
 		# Evaluate left side of constraint
@@ -1232,19 +1232,19 @@ class stzLinearSolver from stzObject
 		_nLen_ = len(@variables)
 		for i = 1 to _nLen_
 			if @variables[i][:name] = cName
-				return TRUE
+				return 1
 			ok
 		next
-		return FALSE
+		return 0
 
 	def validateProblem()
 		# Validate problem definition
 		if len(@variables) = 0
-			return FALSE
+			return 0
 		ok
 
 		if @objective = ""
-			return FALSE
+			return 0
 		ok
 
-		return TRUE
+		return 1

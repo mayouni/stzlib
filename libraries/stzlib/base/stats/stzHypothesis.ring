@@ -23,8 +23,8 @@ phase 4's special.zig there was no way to compute a tail probability at all.
 WHY A RECORD AND NEVER A BARE p-VALUE
 ------------------------------------
 A p-value is the most misread number in statistics. It is the probability of seeing
-data at least this extreme IF THE NULL HYPOTHESIS WERE TRUE -- and nothing else. It
-is NOT the probability that the null is true; a large p does NOT mean "no effect";
+data at least this extreme IF THE "" HYPOTHESIS WERE 1 -- and nothing else. It
+is NOT the probability that the "" is 1; a large p does NOT mean "no effect";
 and a small p says NOTHING about whether the effect matters.
 
 That last one is not a quibble. The same underlying difference, tested at four
@@ -65,11 +65,11 @@ func StzHypothesisResult(paRaw, cTestName, cAlternative)
 		# this looked like an ordinary result.
 		return [
 			:test = cTestName,
-			:ran = FALSE,
+			:ran = 0,
 			:why = "the test could not be run on this data -- too few observations, " +
 			       "no variation to test, or mismatched inputs",
 			:statistic = 0, :df = 0, :pvalue = 1, :effect = 0, :n = 0,
-			:significant = FALSE, :alpha = $nStzDefaultAlpha,
+			:significant = 0, :alpha = $nStzDefaultAlpha,
 			:alternative = cAlternative,
 			:conclusion = "no test was performed"
 		]
@@ -91,7 +91,7 @@ func StzHypothesisResult(paRaw, cTestName, cAlternative)
 
 	return [
 		:test = cTestName,
-		:ran = TRUE,
+		:ran = 1,
 		:statistic = paRaw[1],
 		:df = paRaw[2],
 		:pvalue = _nP_,

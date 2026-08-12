@@ -290,19 +290,19 @@ class stzBuilder from stzObject
 	@cStdout = ""
 	@cStderr = ""
 	@nExit = -1
-	@bBuilt = FALSE
+	@bBuilt = 0
 
 	# Ring lowering state: a Ring part is `ring -geo`'d into a C unit and compiled
 	# with the Ring VM source through the same Zig backend.
 	@cRingRoot = ""
-	@bLowered = FALSE
+	@bLowered = 0
 	@aLoweredSources = []
 	@aLoweredIncludes = []
 	@aLoweredLibs = []
 
 	# Web target: a freestanding wasm module with a bridge ABI (imports come from
 	# stz.js, listed exports are callable from JS). No WASI -- a real bridge.
-	@bWeb = FALSE
+	@bWeb = 0
 	@aExports = []
 
 	def init(pcName)
@@ -408,7 +408,7 @@ class stzBuilder from stzObject
 
 	def TargetWebQ()
 		@cTriple = "wasm32-freestanding"
-		@bWeb = TRUE
+		@bWeb = 1
 		@cOptimize = "small"
 		return This
 
@@ -551,7 +551,7 @@ class stzBuilder from stzObject
 		ok
 		if @cLanguage = "ring"
 			This._LowerRing()
-			@bLowered = TRUE
+			@bLowered = 1
 		ok
 
 	def _LowerRing()
@@ -709,7 +709,7 @@ class stzBuilder from stzObject
 		@cStderr = _oChild_.ReadErrorAll()
 		@nExit = _oChild_.Wait()
 		_oChild_.Close()
-		@bBuilt = TRUE
+		@bBuilt = 1
 		return This
 
 		def BuildQ()
@@ -748,12 +748,12 @@ class stzBuilder from stzObject
 		if StzFind("wasm", @cTriple) != [] and StzFindFirst("wasm", @cTriple) = 1
 			return ".wasm"
 		ok
-		_bWin_ = FALSE
+		_bWin_ = 0
 		if @cTriple = ""
 			_oOS_ = new stzOperatingSystem()
 			_bWin_ = _oOS_.IsWindows()
 		but StzFindFirst("windows", @cTriple) > 0
-			_bWin_ = TRUE
+			_bWin_ = 1
 		ok
 		if @cKind = "exe" and _bWin_
 			return ".exe"

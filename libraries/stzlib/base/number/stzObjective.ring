@@ -32,7 +32,7 @@
 
 class stzObjective from stzObject
 
-	@oFunc = NULL
+	@oFunc = ""
 	@cSense = "minimum"
 	@nMaxIterations = 500
 	@nGradientTolerance = 0

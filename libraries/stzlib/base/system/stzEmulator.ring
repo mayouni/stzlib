@@ -496,11 +496,11 @@ func _StzEmuJs(pcS)
 
 class stzEmulator from stzObject
 
-	@oDelivery = NULL
+	@oDelivery = ""
 	@cOutDir = ""
 	@aFiles = []
-	@bBuilt = FALSE
-	@bEngine = TRUE   # compile each part's stz.wasm subset (off = wiring only, fast)
+	@bBuilt = 0
+	@bEngine = 1   # compile each part's stz.wasm subset (off = wiring only, fast)
 
 	def init(poDelivery)
 		@oDelivery = poDelivery
@@ -607,7 +607,7 @@ class stzEmulator from stzObject
 
 		write(_cDir_ + "/manifest.json", _StzEmuManifest(@oDelivery.Name(), _oPlan_))
 		@aFiles + "manifest.json"
-		@bBuilt = TRUE
+		@bBuilt = 1
 		return This
 
 		def BuildQ()
