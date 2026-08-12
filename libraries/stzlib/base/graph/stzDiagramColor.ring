@@ -404,10 +404,32 @@ func StzResolveColor(pColor)
 	ok
 
 	_oResolver_ = new stzColorResolver()
-	return _oResolver_.ResolveWithPalette(pColor, $acFullColorPalette)
+	_r_ = _oResolver_.ResolveWithPalette(pColor, $acFullColorPalette)
+
+	# The lookup answers "" when it does not know the name. THIS is the one
+	# place that decides what to do about it, and it decides visibly: the
+	# neutral node colour, not blue. Callers that would rather refuse than
+	# be given a substitute use StzTryResolveColor.
+	if _r_ = ""
+		return $acFullColorPalette[ StzLower($cNeutralNodeColor) ]
+	ok
+	return _r_
 
 	func ResolveColor(pColor)
 		return StzResolveColor(pColor)
+
+# The same lookup, WITHOUT the substitution: "" means "I do not know this".
+# A face that paints something the author did not ask for is worse than a
+# face that says so.
+func StzTryResolveColor(pColor)
+	if len($acFullColorPalette) = 0
+		$acFullColorPalette = StzBuildColorPalette()
+	ok
+	_o_ = new stzColorResolver()
+	return _o_.ResolveWithPalette(pColor, $acFullColorPalette)
+
+func StzIsKnownColor(pColor)
+	return StzTryResolveColor(pColor) != ""
 
 func StzAttenuateColor(cColor)
     # Remove all intensity modifiers
