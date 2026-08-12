@@ -6373,8 +6373,16 @@ class stzGraph from stzObject
 	# variable. A library must not be destroyable by a name its user
 	# reasonably chose. Reproduced in eight lines: one graph, one AddNode,
 	# one `nL = 1254400` between them.
+	# A LABEL IS DISPLAY TEXT. It used to have its SPACES replaced by
+	# underscores, which is hygiene for an ID and damage to a label: the
+	# documentation's own screenshots read "VP Sales" while the library
+	# rendered "VP_Sales". Both tiers were affected, because the dot writer
+	# emits labels QUOTED (`label="..."`) and never needed the substitution
+	# in the first place.
+	#
+	# The NEWLINE substitution stays: an unescaped newline inside a quoted
+	# dot label breaks the statement it sits in.
 	def _NormalizeLabel(pcLabel)
-		pcLabel = StzReplace(pcLabel, " ", "_")
 		pcLabel = StzReplace(pcLabel, char(10), "_")
 		return pcLabel
 

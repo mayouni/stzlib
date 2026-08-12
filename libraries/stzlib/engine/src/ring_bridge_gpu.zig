@@ -1247,6 +1247,16 @@ fn ring_SceneCircleStroke(p: *anyopaque) callconv(.c) void {
         gn(p, 2), gn(p, 3), gn(p, 4), gn(p, 5), @intFromFloat(gn(p, 6)))));
 }
 
+fn ring_SceneRoundRect(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(scene.sceneRoundRect(@intFromFloat(gn(p, 1)),
+        gn(p, 2), gn(p, 3), gn(p, 4), gn(p, 5), gn(p, 6), @intFromFloat(gn(p, 7)))));
+}
+
+fn ring_SceneRoundRectStroke(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(scene.sceneRoundRectStroke(@intFromFloat(gn(p, 1)),
+        gn(p, 2), gn(p, 3), gn(p, 4), gn(p, 5), gn(p, 6), gn(p, 7), @intFromFloat(gn(p, 8)))));
+}
+
 fn ring_SceneEllipse(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(scene.sceneEllipse(@intFromFloat(gn(p, 1)),
         gn(p, 2), gn(p, 3), gn(p, 4), gn(p, 5), @intFromFloat(gn(p, 6)))));
@@ -1319,6 +1329,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpusurfacestat", .func = &ring_SurfaceStat },
     .{ .name = "stzenginegpusceneresize", .func = &ring_SceneResize },
     .{ .name = "stzenginegpuscenecirclestroke", .func = &ring_SceneCircleStroke },
+    .{ .name = "stzenginegpusceneroundrect", .func = &ring_SceneRoundRect },
+    .{ .name = "stzenginegpusceneroundrectstroke", .func = &ring_SceneRoundRectStroke },
     .{ .name = "stzenginegpusceneellipse", .func = &ring_SceneEllipse },
     .{ .name = "stzenginegpusceneellipsestroke", .func = &ring_SceneEllipseStroke },
     .{ .name = "stzenginegpuscenereset", .func = &ring_SceneReset },
