@@ -25,7 +25,7 @@ func StzNowTime()
 
 func StzIsTime(str)
     if not isString(str) or StzLen(str) = 0
-        return FALSE
+        return 0
     ok
 
     _aParts_ = split(str, ":")
@@ -35,10 +35,10 @@ func StzIsTime(str)
             _cCore_ = trim(StzLeft(str, StzLen(str) - 3))
             _aParts_ = split(_cCore_, ":")
             if len(_aParts_) < 2 or len(_aParts_) > 3
-                return FALSE
+                return 0
             ok
         else
-            return FALSE
+            return 0
         ok
     ok
 
@@ -50,14 +50,14 @@ func StzIsTime(str)
             _cPart_ = _aSubParts_[1]
         ok
         if not isdigit(_cPart_)
-            return FALSE
+            return 0
         ok
     next
 
     _nH_ = 0+ _aParts_[1]
     _nM_ = 0+ _aParts_[2]
     if _nH_ < 0 or _nH_ > 23 or _nM_ < 0 or _nM_ > 59
-        return FALSE
+        return 0
     ok
     if len(_aParts_) = 3
         _cSecPart_ = _aParts_[3]
@@ -67,11 +67,11 @@ func StzIsTime(str)
         ok
         _nS_ = 0+ _cSecPart_
         if _nS_ < 0 or _nS_ > 59
-            return FALSE
+            return 0
         ok
     ok
 
-    return TRUE
+    return 1
 
     func IsTime(str)
         return StzIsTime(str)
@@ -694,7 +694,7 @@ class stzTime from stzObject
         return This.pvtIsValidHMS(@nHour, @nMinute, @nSecond, @nMillisecond)
 
     def IsAStzTime()
-        return TRUE
+        return 1
 
     #--- PRIVATE HELPERS ---#
 
@@ -702,18 +702,18 @@ class stzTime from stzObject
 
     def pvtIsValidHMS(_nH_, _nM_, _nS_, _nMs_)
         if _nH_ < 0 or _nH_ > 23
-            return FALSE
+            return 0
         ok
         if _nM_ < 0 or _nM_ > 59
-            return FALSE
+            return 0
         ok
         if _nS_ < 0 or _nS_ > 59
-            return FALSE
+            return 0
         ok
         if _nMs_ < 0 or _nMs_ > 999
-            return FALSE
+            return 0
         ok
-        return TRUE
+        return 1
 
     def pvtAddTotalSeconds(_nSecs_)
         _nTotal_ = This.SecondsSinceMidnight() + _nSecs_

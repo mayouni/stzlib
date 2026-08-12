@@ -19,7 +19,7 @@
 class stzAgentGraph from stzObject
 
 	@cName = ""
-	@oG = NULL
+	@oG = ""
 
 	def init(pcName)
 		@cName = "" + pcName
@@ -149,13 +149,13 @@ class stzAgentGraph from stzObject
 	def MayGrant(pcActor, pcCap)
 		_cA_ = StzLower(ring_trim("" + pcActor))
 		if NOT @oG.NodeExists(_cA_)
-			return FALSE
+			return 0
 		ok
 		if StzLower("" + @oG.NodeProperty(_cA_, "kind")) = "llm_actor" and
 		   StzLower(ring_trim("" + pcCap)) = "effectful"
-			return FALSE
+			return 0
 		ok
-		return TRUE
+		return 1
 
 	def Grant(pcActor, pcCap)
 		This.GrantQ(pcActor, pcCap)

@@ -33,7 +33,7 @@ class stzNode from stzObject
 	@cName = "node"
 	@cHost = "127.0.0.1"
 	@nPort = 0
-	@oReactor = NULL
+	@oReactor = ""
 	@nSrv = 0
 	@aHandlerTags = []     # parallel lists (hash-list keys fold -- keep raw)
 	@aHandlerFns = []
@@ -41,13 +41,13 @@ class stzNode from stzObject
 	@nUnhandled = 0
 	@nInboxCap = 0
 	@cInboxPolicy = "none"
-	@bStop = FALSE
+	@bStop = 0
 	# D5 -- security by REUSE (one vocabulary, nothing minted):
 	# stzRequestSigner authenticates senders; the stzSystemActor lattice
 	# authorizes them. Refusals are COUNTED and, on an Ask, OBSERVABLE
 	# (a [ stz.denied, why ] reply), never silent.
-	@oSigner = NULL        # the shared-keyring signer (verification side)
-	@bRequireSigned = FALSE
+	@oSigner = ""        # the shared-keyring signer (verification side)
+	@bRequireSigned = 0
 	@nRejected = 0         # bad signature / replay / unsigned-when-required
 	@nDenied = 0           # capability refusals
 	@aActorNames = []      # verified kid -> actor identity
@@ -155,7 +155,7 @@ class stzNode from stzObject
 		@oReactor.Destroy()
 
 	def Stop()
-		@bStop = TRUE
+		@bStop = 1
 
 	# One message: unpack, authenticate + authorize (D5), route by tag,
 	# reply if the frame asked for it. A raising handler propagates --
@@ -172,11 +172,11 @@ class stzNode from stzObject
 		# the envelope is verified over the CANONICAL packed bytes of the
 		# real message (bad MAC, stale ts, or replayed nonce all fail)
 		cKid = ""
-		bSigned = FALSE
-		bWrapped = FALSE
+		bSigned = 0
+		bWrapped = 0
 		if isList(vMsg) and ring_len(vMsg) = 3
 			if isString(vMsg[1]) and StzLower(vMsg[1]) = "stz.signed"
-				bWrapped = TRUE
+				bWrapped = 1
 			ok
 		ok
 		if bWrapped
@@ -195,7 +195,7 @@ class stzNode from stzObject
 				This._Refuse(nConn, nCorr, nFlags, "signature")
 				return
 			ok
-			bSigned = TRUE
+			bSigned = 1
 			cKid = StzLower("" + aEnv[:kid])
 			vMsg = vReal
 		else
@@ -209,7 +209,7 @@ class stzNode from stzObject
 			cTag = StzLower(vMsg[1])
 		ok
 		if cTag = "stz.stop"
-			@bStop = TRUE
+			@bStop = 1
 			@nProcessed++
 			return
 		ok
@@ -245,7 +245,7 @@ class stzNode from stzObject
 					exit
 				ok
 			next
-			bMay = FALSE
+			bMay = 0
 			if bSigned and nAct > 0
 				bMay = @aActorObjs[nAct].Can(@aAdmitKinds[nAdm])
 			ok
@@ -253,7 +253,7 @@ class stzNode from stzObject
 				@nDenied++
 				if (nFlags & 2) = 2
 					cD = StzEngineStzmPack([ "stz.denied", "capability" ], 0, nCorr, 0)
-					@oReactor.ServerWrite(@nSrv, nConn, cD, FALSE)
+					@oReactor.ServerWrite(@nSrv, nConn, cD, 0)
 				ok
 				return
 			ok
@@ -277,7 +277,7 @@ class stzNode from stzObject
 		# carries the SAME correlation id so the asker can match it
 		if (nFlags & 2) = 2
 			cReply = StzEngineStzmPack(vRes, 0, nCorr, 0)
-			@oReactor.ServerWrite(@nSrv, nConn, cReply, FALSE)
+			@oReactor.ServerWrite(@nSrv, nConn, cReply, 0)
 		ok
 
 	# An authentication refusal: COUNTED, and observable on an Ask.
@@ -285,5 +285,5 @@ class stzNode from stzObject
 		@nRejected++
 		if (nFlags & 2) = 2
 			cD = StzEngineStzmPack([ "stz.denied", cWhy ], 0, nCorr, 0)
-			@oReactor.ServerWrite(@nSrv, nConn, cD, FALSE)
+			@oReactor.ServerWrite(@nSrv, nConn, cD, 0)
 		ok

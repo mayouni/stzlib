@@ -13,9 +13,9 @@
 # =============================================================================
 
 class stzTcpServer from stzNetwork
-    @hServer = NULL              # opaque engine TCP server handle
+    @hServer = ""              # opaque engine TCP server handle
     @clients = []                 # accepted @clients (stzTcpClient instances)
-    @is_listening = False
+    @is_listening = 0
     @on_client_connect_callback = ""
     @on_client_disconnect_callback = ""
     @on_client_message_callback = ""
@@ -29,10 +29,10 @@ class stzTcpServer from stzNetwork
         @hServer = StzEngineTcpListen(cHost, nPort)
         # Engine returns a null-pointer on failure; LastError tells.
         if StzEngineTcpLastError() = ""
-            @is_listening = True
+            @is_listening = 1
             ClearErrors()
         else
-            @is_listening = False
+            @is_listening = 0
             @last_error = StzEngineTcpLastError()
             @error_code = -1
             if @on_error_callback != ""
@@ -47,7 +47,7 @@ class stzTcpServer from stzNetwork
     def AcceptOne()
         if not @is_listening
             @last_error = "Not listening"
-            return NULL
+            return ""
         ok
         pClient = StzEngineTcpAccept(@hServer)
         if StzEngineTcpLastError() != ""
@@ -56,13 +56,13 @@ class stzTcpServer from stzNetwork
             if @on_error_callback != ""
                 call @on_error_callback()
             ok
-            return NULL
+            return ""
         ok
         _oClient_ = new stzTcpClient
         # Patch the engine handle into the client wrapper so the
         # caller can Send/Receive/Close through the normal API.
         _oClient_.@hClient = pClient
-        _oClient_.@is_connected = True
+        _oClient_.@is_connected = 1
         @clients + _oClient_
         if @on_client_connect_callback != ""
             call @on_client_connect_callback()
@@ -79,16 +79,16 @@ class stzTcpServer from stzNetwork
     def AcceptOneWithin(nMs)
         if not @is_listening
             @last_error = "Not listening"
-            return NULL
+            return ""
         ok
         pClient = StzEngineTcpAccept(@hServer, nMs)
         if StzEngineTcpLastError() != ""
             @last_error = StzEngineTcpLastError()
-            return NULL
+            return ""
         ok
         _oClient_ = new stzTcpClient
         _oClient_.@hClient = pClient
-        _oClient_.@is_connected = True
+        _oClient_.@is_connected = 1
         @clients + _oClient_
         if @on_client_connect_callback != ""
             call @on_client_connect_callback()
@@ -101,10 +101,10 @@ class stzTcpServer from stzNetwork
         return @last_error = "accept timed out"
 
     def StopListening()
-        if @is_listening and @hServer != NULL
+        if @is_listening and @hServer != ""
             StzEngineTcpServerClose(@hServer)
-            @hServer = NULL
-            @is_listening = False
+            @hServer = ""
+            @is_listening = 0
         ok
         return This
 

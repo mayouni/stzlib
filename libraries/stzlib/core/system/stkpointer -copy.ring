@@ -11,13 +11,13 @@ func StkStringPointerQ(cString, nBufferSize)
 
 class stkPointer
 
-    @pointer = NULL
-    @buffer = NULL
+    @pointer = ""
+    @buffer = ""
     @cLogicalType = ""
     @nBufferSize = 0
-    @bIsValid = FALSE
-    @bIsManaged = FALSE
-	@oMemory = NULL
+    @bIsValid = 0
+    @bIsManaged = 0
+	@oMemory = ""
 
 
 	def init(pParams)
@@ -36,8 +36,8 @@ class stkPointer
 
         @pointer = nullpointer()
         @cLogicalType = "null"
-        @bIsValid = TRUE
-        @bIsManaged = FALSE
+        @bIsValid = 1
+        @bIsManaged = 0
 
 
     def CreateFromParams(aParams)
@@ -55,8 +55,8 @@ class stkPointer
 
     def CreateFromValue(pParams)
 
-        pValue = NULL
-        _cType_ = NULL
+        pValue = ""
+        _cType_ = ""
         _nSize_ = 0
         
         if isList(pParams) and len(pParams) >= 2
@@ -98,8 +98,8 @@ class stkPointer
 
         off
         
-        @bIsValid = TRUE
-        @bIsManaged = TRUE
+        @bIsValid = 1
+        @bIsManaged = 1
 
 
 	def CreateStringPointer(cString, _nSize_)
@@ -236,7 +236,7 @@ class stkPointer
 	    else
 	        # Use memory copy for Ring types
 	        if @cLogicalType = "string"
-	            _cData_ = @oMemory.Copy(@buffer, NULL, _nSize_)
+	            _cData_ = @oMemory.Copy(@buffer, "", _nSize_)
 	            memcpy(pDest, varptr("cData", "char"), _nSize_)
 	        else
 	            memcpy(pDest, @pointer, _nSize_)
@@ -266,7 +266,7 @@ class stkPointer
                 return @buffer
 
             on "null"
-                return NULL
+                return ""
 
             other
                 return @buffer
@@ -321,7 +321,7 @@ class stkPointer
             return ptrcmp(@pointer, oOther.RawPointer()) = 1
 
         else
-            return FALSE
+            return 0
         ok
 
 
@@ -349,14 +349,14 @@ class stkPointer
         ]
 
 	def Free()
-	    if @bIsManaged and @oMemory != NULL
+	    if @bIsManaged and @oMemory != ""
 	        if @oMemory.IsAllocated(@buffer)
 	            @oMemory.Deallocate(@buffer)
 	        ok
-	        @buffer = NULL
+	        @buffer = ""
 	        @pointer = nullpointer()
-	        @bIsValid = FALSE
-	        @bIsManaged = FALSE
+	        @bIsValid = 0
+	        @bIsManaged = 0
 	    ok
 
 

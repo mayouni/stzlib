@@ -9,7 +9,7 @@
 # own it, which put the knowledge floor inside one legacy surface.
 $oWorldEntities = new stzListOfEntities
 $aStzSuppositions = []   # the HYPOTHETICAL overlay (see SupposeQ below)
-$oStzWhatIsDoc = NULL   # lazy self-doc index for the WhatIs library fallback
+$oStzWhatIsDoc = ""   # lazy self-doc index for the WhatIs library fallback
 $aStzRelations = []      # the world's EDGES: triples [ from, relation, to ]
 $aStzRelationRules = []  # graph laws per relation: [ relation, :Unique | :Symmetric | :Transitive ]
 

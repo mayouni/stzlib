@@ -71,7 +71,7 @@ class stzMailSandbox from stzObject
 	# A double says so itself. The registry asks this rather than guessing from a
 	# class name, and it is what makes "no sandbox in production" enforceable.
 	def IsSandbox()
-		return TRUE
+		return 1
 
 	  #-- inspection (what makes the sink assertable) ---------------------
 

@@ -35,14 +35,14 @@ func StzVerifyAttestation(pcPath, pcKey)
 class stzSecurityAttestation from stzObject
 
 	@cName = ""
-	@oLedger = NULL
+	@oLedger = ""
 	@cKey = ""
 	@cPath = ""
 	@cAttestor = ""
 	@nAt = 0
 	@nCount = 0
 	@cHead = ""
-	@bWritten = FALSE
+	@bWritten = 0
 
 	def init(pcName)
 		@cName = "" + pcName
@@ -76,13 +76,13 @@ class stzSecurityAttestation from stzObject
 	# when written; FALSE (with the refusal recorded) when the actor
 	# may not.
 	def WriteTo(pcPath, poActor)
-		if @oLedger = NULL
+		if @oLedger = ""
 			stzraise("stzSecurityAttestation '" + @cName + "': nothing to attest -- say Of(oLedger) first.")
 		ok
 		if NOT This.MayAttest(poActor)
 			StzNoteRefusal("evidence.export_refused", "" + poActor.Name(),
 				"file:" + pcPath, This.WhyNot(poActor))
-			return FALSE
+			return 0
 		ok
 		@cPath = "" + pcPath
 		@cAttestor = "" + poActor.Name()
@@ -92,8 +92,8 @@ class stzSecurityAttestation from stzObject
 		@oLedger.SealAttestedTo(@cPath, @cKey, @cAttestor)
 		# the export is itself part of the story
 		StzNoteGrant("evidence.exported", @cAttestor, "file:" + @cPath)
-		@bWritten = TRUE
-		return TRUE
+		@bWritten = 1
+		return 1
 
 	def WasWritten()
 		return @bWritten

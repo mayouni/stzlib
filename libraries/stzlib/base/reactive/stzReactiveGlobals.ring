@@ -92,8 +92,8 @@ OPTIMIzED_FOR_NETWORK_SOURCE = "network"
 OPTIMIzED_FOR_SENSOR_SOURCE = "sensor"
 
 # Stream States (unified naming)
-STREAM_ACTIVE = true
-STREAM_INACTIVE = false
+STREAM_ACTIVE = 1
+STREAM_INACTIVE = 0
 
 STREAM_COMPLETED = "completed"
 STREAM_CONCLUDED = "completed"
@@ -101,13 +101,13 @@ STREAM_CONCLUDED = "completed"
 STREAM_ERROR = "error"
 
 # Alternative stream state names  
-STREAM_STATE_INACTIVE = false
-STREAM_STATE_ACTIVE = true
+STREAM_STATE_INACTIVE = 0
+STREAM_STATE_ACTIVE = 1
 
-STREAM_STATE_COMPLETED = true
-STREAM_STATE_CONCLUDED = true
+STREAM_STATE_COMPLETED = 1
+STREAM_STATE_CONCLUDED = 1
 
-STREAM_STATE_RUNNING = false
+STREAM_STATE_RUNNING = 0
 
 # Transform operations
 TRANSFORM_MAP = :map
@@ -141,8 +141,8 @@ STREAM_DISTINCT_CHANGES = "distinct"
 #-------------------#
 
 # Engine States
-ENGINE_STOPPED = false
-ENGINE_RUNNING = true
+ENGINE_STOPPED = 0
+ENGINE_RUNNING = 1
 ENGINE_STARTING = "starting"
 ENGINE_STOPPING = "stopping"
 
@@ -151,30 +151,30 @@ ENGINE_STOPPING = "stopping"
 #---------------------#
 
 # Reactive modes
-REACTIVE_ON = true
-REACTIVE_OFF = false
-BATCH_MODE_ON = true
-BATCH_MODE_OFF = false
+REACTIVE_ON = 1
+REACTIVE_OFF = 0
+BATCH_MODE_ON = 1
+BATCH_MODE_OFF = 0
 
 # Watch/Binding behavior
-WATCH_IMMEDIATE = true
-WATCH_DEBOUNCED = false
-WATCH_ALL_CHANGES = true
-WATCH_DISTINCT_ONLY = false
+WATCH_IMMEDIATE = 1
+WATCH_DEBOUNCED = 0
+WATCH_ALL_CHANGES = 1
+WATCH_DISTINCT_ONLY = 0
 
 # Binding types (BINDING_* variants)
 BINDING_ONE_WAY = "oneway"
 BINDING_TWO_WAY = "twoway"
-BINDING_AUTO_SYNC = true
-BINDING_MANUAL_SYNC = false
+BINDING_AUTO_SYNC = 1
+BINDING_MANUAL_SYNC = 0
 
 # Binding types (BIND_* variants)
 BIND_ONE_WAY = "oneway"
 BIND_TWO_WAY = "twoway"
-BIND_AUTO_SYNC = true
-BIND_MANUAL_SYNC = false
-BIND_IMMEDIATE = true
-BIND_DEFERRED = false
+BIND_AUTO_SYNC = 1
+BIND_MANUAL_SYNC = 0
+BIND_IMMEDIATE = 1
+BIND_DEFERRED = 0
 
 # Attribute operations
 ATTR_GET = "get"
@@ -188,8 +188,8 @@ CHANGE_SET = "set"
 CHANGE_COMPUTED = "computed"
 CHANGE_BOUND = "bound"
 CHANGE_ASYNC = "async"
-CHANGE_DETECTED = true
-CHANGE_NONE = false
+CHANGE_DETECTED = 1
+CHANGE_NONE = 0
 CHANGE_TYPE_VALUE = "value"
 CHANGE_TYPE_COMPUTED = "computed"
 CHANGE_TYPE_BOUND = "bound"
@@ -197,8 +197,8 @@ CHANGE_TYPE_BOUND = "bound"
 # Batch processing
 BATCH_IMMEDIATE = "immediate"
 BATCH_DEFERRED = "deferred"
-BATCH_AUTO_FLUSH = true
-BATCH_MANUAL_FLUSH = false
+BATCH_AUTO_FLUSH = 1
+BATCH_MANUAL_FLUSH = 0
 
 #--------------------#
 #  ASYNC CONSTANTS   #
@@ -266,7 +266,7 @@ FUNC_ERROR_TOO_MANY_PARAMS = "Reactive call has too many params:"
 #---------------------------#
 
 # Object modes
-OBJECT_STANDALONE = NULL        # For objects created from scratch
+OBJECT_STANDALONE = ""        # For objects created from scratch
 OBJECT_WRAPPER = "wrapper"      # For wrapping existing objects
 
 # Refusals the configuration surface can report. Each used to be a raise from
@@ -309,7 +309,7 @@ USER_AGENT_REACTIVE = "stzReactive/1.0"
 
 # HTTP Responses
 HTTP_RESPONSE_EMPTY = ""
-HTTP_RESPONSE_NULL = NULL
+HTTP_RESPONSE_NULL = ""
 
 # HTTP Errors
 HTTP_ERROR_REQUEST_FAILED = "HTTP request failed"
@@ -414,8 +414,8 @@ POLL_INTERVALS = [
 #  UDP CONSTANTS  #
 #-----------------#
 
-UDP_REUSE_ADDR_ON = true
-UDP_REUSE_ADDR_OFF = false
+UDP_REUSE_ADDR_ON = 1
+UDP_REUSE_ADDR_OFF = 0
 UDP_BROADCAST_ON = 1
 UDP_BROADCAST_OFF = 0
 UDP_MULTICAST_TTL_DEFAULT = 1

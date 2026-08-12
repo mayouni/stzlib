@@ -16,7 +16,7 @@
 # (Prove, .stzknow save/load, stzGraphRule derivations) read the KG.
 # (SOFTANZA_INTELLIGENCE_ARCHITECTURE.md section 6, step R1.)
 
-$oStzDefaultKG = NULL
+$oStzDefaultKG = ""
 
 func DefaultKnowledgeGraph()
 	_StzDKGEnsure()
@@ -29,7 +29,7 @@ func DefaultKnowledgeGraph()
 		return DefaultKnowledgeGraph()
 
 func _StzDKGEnsure()
-	if $oStzDefaultKG = NULL
+	if $oStzDefaultKG = ""
 		$oStzDefaultKG = new stzKnowledgeGraph("world")
 	ok
 
@@ -111,7 +111,7 @@ func StzKGDerivationSymmetricFor()
 					ok
 				next
 				if _bHasReverse_ = 0
-					_aNewEdges_ + [ _aE_[:to], _aE_[:from], _cRel_, [ :derived = TRUE ] ]
+					_aNewEdges_ + [ _aE_[:to], _aE_[:from], _cRel_, [ :derived = 1 ] ]
 				ok
 			ok
 		next
@@ -131,14 +131,14 @@ func StzKGConstraintUniqueFor()
 					if _aEdges_[_i_][:from] = paOperationParams[:from] and
 					   _aEdges_[_i_][:label] = _cRel_ and
 					   _aEdges_[_i_][:to] != paOperationParams[:to]
-						return [ TRUE, "'" + paOperationParams[:from] +
+						return [ 1, "'" + paOperationParams[:from] +
 							"' already bears '" + _cRel_ + "' (to '" +
 							_aEdges_[_i_][:to] + "'; the relation is :Unique)" ]
 					ok
 				next
 			ok
 		ok
-		return [ FALSE, "" ]
+		return [ 0, "" ]
 	}
 
 # Fire the armed derivation rules on the default KG and make every

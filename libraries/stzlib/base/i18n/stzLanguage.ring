@@ -5,7 +5,7 @@ $aLocaleLanguagesXT = [
 	#     1		 2				3		       4		      5			     6
 	#  QtNumber 	Name 			ShortAbbreviation 	LongAbbreviation 	DefaultCountry		     NativeName
 
-	[ "1", 		:c, 			"c", 			"c", 			NULL, 				"C" 			],
+	[ "1", 		:c, 			"c", 			"c", 			"", 				"C" 			],
 	[ "2", 		:abkhazian, 		"ab", 			"abk", 			:abkhazia,			"Аҧсуа"			],
 
 	#NOTE //that Abkhazia is not figuring in the official ISO list of countries
@@ -59,7 +59,7 @@ $aLocaleLanguagesXT = [
 	[ "50", 	:hungarian, 		"hu", 			"hun", 			:hungary, 			"Magyar" 		],
 	[ "51", 	:icelandic, 		"is", 			"ice", 			:iceland, 			"Íslenska" 		],
 	[ "52", 	:indonesian, 		"id", 			"ind", 			:world, 			"Bahasa Indonesia" 	],
-	[ "53", 	:interlingua, 		"ia", 			"ina", 			NULL, 				"Interlingua" 		],
+	[ "53", 	:interlingua, 		"ia", 			"ina", 			"", 				"Interlingua" 		],
 	[ "54", 	:interlingue, 		"ie", 			"ile", 			:norway,			"Interlingue" 		],
 	[ "55", 	:inuktitut, 		"iu", 			"iku", 			:canada, 			"ᐃᓄᒃᑎᑐᑦ" 			], #WARNING// "ᐃᓄᒃᑎᑐᑦ" is not empty, just Ring NotePAd can't display it!
 	[ "56", 	:inupiak, 		"ipk", 			"ipk", 			:united_states, 		"Iñupiaq" 		], # Changed country to :united_states
@@ -139,7 +139,7 @@ $aLocaleLanguagesXT = [
 	[ "130", 	:urdu, 			"ur", 			"urd", 			:pakistan, 			"اردو" 			],
 	[ "131", 	:uzbek, 		"uz", 			"uzb", 			:uzbekistan, 			"Oʻzbekcha" 		],
 	[ "132", 	:vietnamese, 		"vi", 			"vie", 			:vietnam, 			"Tiếng Việt" 		],
-	[ "133", 	:volapuk, 		"vo", 			"vol", 			NULL, 				"Volapük" 		],
+	[ "133", 	:volapuk, 		"vo", 			"vol", 			"", 				"Volapük" 		],
 	[ "134", 	:welsh, 		"cy", 			"wel", 			:united_kingdom, 		"Cymraeg" 		],
 	[ "135", 	:wolof, 		"wo", 			"wol", 			:senegal, 			"Wolof" 		],
 	[ "136", 	:xhosa, 		"xh", 			"xho", 			:south_africa, 			"isiXhosa" 		],
@@ -330,7 +330,7 @@ $aLocaleLanguagesXT = [
 	[ "358", 	:osage, 		"osa", 			"osa", 			:united_states, 		"Wažaže zhe" 		], # Changed country to :united_states
 
 	[ "360", 	:ido, 			"io", 			"ido",			:finland, 			"Ido" 			],
-	[ "361", 	:lojban, 		"jbo", 			"jbo", 			NULL, 				"Lojban" 		],
+	[ "361", 	:lojban, 		"jbo", 			"jbo", 			"", 				"Lojban" 		],
 	[ "362", 	:sicilian, 		"scn", 			"scn", 			:italy, 			"Sicilianu" 		],
 	[ "363", 	:southern_kurdish, 	"sdh", 			"sdh", 			:iran, 				"کوردیی خوارگ" 		], # :Northern_Kurdish (kmr)
 	[ "364", 	:western_balochi, 	"bgn", 			"bgn", 			:pakistan, 			"بلوچی" 		],

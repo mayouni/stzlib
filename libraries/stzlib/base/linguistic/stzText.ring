@@ -91,7 +91,7 @@ class stzText from stzStringText
 			return new stzListOfStrings(This.Hypernyms())
 
 	def IsSynonymOf(pcOther)
-		if NOT isString(pcOther) return FALSE ok
+		if NOT isString(pcOther) return 0 ok
 		return StzEngineStringAreSynonyms(This.Engine(), pcOther) = 1
 
 	def HasSynonyms()
@@ -921,7 +921,7 @@ class stzText from stzStringText
 		if _bMsSem_
 			_oMsQ_ = new stzText(pcQuery)
 			_aMsQEmb_ = _oMsQ_.Embedding()
-			if len(_aMsQEmb_) = 0 _bMsSem_ = FALSE ok
+			if len(_aMsQEmb_) = 0 _bMsSem_ = 0 ok
 		ok
 
 		_cMsBest_ = ""

@@ -37,7 +37,7 @@ class stzLibDoc from stzObject
 	@aEntries = []    # [ ownerOrKind, name, description ] (kind "(recipe)" for recipes)
 	@aTexts = []      # per-entry "name-as-words + description" (built once)
 	@aVectors = []    # per-entry embedding (lazy; embedding model only)
-	@bIndexed = FALSE
+	@bIndexed = 0
 	@nRecipes = 0     # how many entries are intent recipes
 	@nSamples = 0     # how many entries are harvested test samples
 
@@ -101,7 +101,7 @@ class stzLibDoc from stzObject
 				@nSamples++
 			next
 		next
-		@bIndexed = FALSE
+		@bIndexed = 0
 
 		def AddTestSamplesQ(paTopics)
 			This.AddTestSamples(paTopics)
@@ -221,4 +221,4 @@ class stzLibDoc from stzObject
 		for _i_ = 1 to _nE_
 			@aVectors + _StzEmbedInto(@aTexts[_i_])
 		next
-		@bIndexed = TRUE
+		@bIndexed = 1

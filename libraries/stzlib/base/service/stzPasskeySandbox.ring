@@ -19,7 +19,7 @@ This class IS an authenticator, in software:
 
 It is not a mock that returns "ok": it generates a real P-256 key, emits real
 CBOR (a genuine attestation object with a COSE key inside), and produces real
-ECDSA signatures over the true WebAuthn message. The relying party therefore runs
+ECDSA signatures over the 1 WebAuthn message. The relying party therefore runs
 its genuine parse and verification against genuine artefacts -- and the code you
 exercised here is the code that runs against a real security key.
 
@@ -49,7 +49,7 @@ class stzPasskeySandbox from stzObject
 
 	# a double declares itself -- see stzServiceRegistry
 	def IsSandbox()
-		return TRUE
+		return 1
 
 	def RpId()
 		return @cRpId

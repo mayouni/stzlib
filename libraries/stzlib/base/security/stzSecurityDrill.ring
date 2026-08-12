@@ -43,7 +43,7 @@ func StzSecurityDrill(pcName)
 class stzSecurityDrill from stzObject
 
 	@cName = ""
-	@oReactor = NULL
+	@oReactor = ""
 	@cRingExe = "ring"
 	@cBaseRing = ""
 	@cScript = ""
@@ -56,10 +56,10 @@ class stzSecurityDrill from stzObject
 	@nTtlMs = 60000
 	@aExpected = []		# [ detectionName, attackLabel ]
 	@aFired = []
-	@oLedger = NULL
+	@oLedger = ""
 	@cAcquireWhy = ""
 	@cAttestor = ""
-	bSpawned = FALSE
+	bSpawned = 0
 
 	def init(pcName)
 		@cName = "" + pcName
@@ -99,18 +99,18 @@ class stzSecurityDrill from stzObject
 		This._GenerateTargetScript()
 		@nJob = @oReactor.SubmitSpawn([ @cRingExe, @cScript, "" + @nPort,
 			@cKey, @cSealKey, @cEvidence, "" + @nTtlMs ])
-		bSpawned = TRUE
+		bSpawned = 1
 		return This.WaitReady(20000)
 
 	def WaitReady(pnTimeoutMs)
 		_nDeadline_ = StzEngineTimeNowMs() + pnTimeoutMs
 		while StzEngineTimeNowMs() < _nDeadline_
 			if StzFindFirst("200 OK", This._Get("/health")) > 0
-				return TRUE
+				return 1
 			ok
 			StzEngineTimeSleepMs(120)
 		end
-		return FALSE
+		return 0
 
 	  #-- the attacks ---------------------------------------------------
 
@@ -155,12 +155,12 @@ class stzSecurityDrill from stzObject
 		_a_ = StzLedgerFromSealedFile(@cEvidence, @cSealKey)
 		@cAcquireWhy = _a_[:why]
 		if NOT _a_[:ok]
-			return FALSE
+			return 0
 		ok
 		@oLedger = _a_[:ledger]
 		@cAttestor = _a_[:attestor]
 		@aFired = StzDefaultDetectionSet().FiredNames(@oLedger)
-		return TRUE
+		return 1
 
 	def AcquiredLedger()
 		return @oLedger
@@ -179,7 +179,7 @@ class stzSecurityDrill from stzObject
 		_n_ = ring_len(@aExpected)
 		for _i_ = 1 to _n_
 			if ring_find(@aFired, @aExpected[_i_][1]) = 0
-				return FALSE
+				return 0
 			ok
 		next
 		return _n_ > 0
@@ -207,7 +207,7 @@ class stzSecurityDrill from stzObject
 			ok
 		ok
 		_aL_ + ("Drill " + @cName + " against 127.0.0.1:" + @nPort + " -- " + _cV_ + ".")
-		if @oLedger != NULL
+		if @oLedger != ""
 			_aL_ + ("  evidence : " + @cEvidence + " (" + @oLedger.Count() +
 				" verified event(s), attested by " + @cAttestor + ")")
 		else
@@ -234,7 +234,7 @@ class stzSecurityDrill from stzObject
 		if bSpawned and @nJob > 0
 			@oReactor.KillSpawnHard(@nJob)
 			@nJob = 0
-			bSpawned = FALSE
+			bSpawned = 0
 		ok
 		if fexists(@cEvidence)
 			remove(@cEvidence)

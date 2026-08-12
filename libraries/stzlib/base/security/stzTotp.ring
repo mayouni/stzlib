@@ -160,7 +160,7 @@ class stzTotp from stzObject
 	def VerifyAt(pcCode, pnUnixSecs)
 		_sub_ = ring_trim("" + pcCode)
 		if _sub_ = ""
-			return FALSE
+			return 0
 		ok
 		_counter_ = floor(pnUnixSecs / @nPeriod)
 		_hex_ = This._Base32ToHex(@cSecret)
@@ -168,11 +168,11 @@ class stzTotp from stzObject
 		while _s_ <= @nSkew
 			_c_ = StzEngineCryptoTotp(_hex_, _counter_ + _s_, @nDigits, @nAlgo)
 			if StzEngineCryptoConstEqual(_sub_, _c_) = 1   # constant-time compare
-				return TRUE
+				return 1
 			ok
 			_s_++
 		end
-		return FALSE
+		return 0
 
 	def Show()
 		? "stzTotp(" + This.AlgorithmName() + ", " + @nDigits + " digits, " +

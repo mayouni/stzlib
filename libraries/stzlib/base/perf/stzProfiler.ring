@@ -59,8 +59,8 @@ func StzProfiler(pnMaxPaths)
 
 class stzProfiler from stzObject
 
-	pHandle = NULL
-	bReady = FALSE
+	pHandle = ""
+	bReady = 0
 	@nMaxPaths = 256
 
 	def init(pnMaxPaths)
@@ -69,12 +69,12 @@ class stzProfiler from stzObject
 		ok
 		# eager, per the copy law
 		pHandle = StzEngineProfCreate(@nMaxPaths)
-		bReady = TRUE
+		bReady = 1
 
 	def _Ensure()
-		if bReady = FALSE
+		if bReady = 0
 			pHandle = StzEngineProfCreate(@nMaxPaths)
-			bReady = TRUE
+			bReady = 1
 		ok
 
 	# -- Frames ---------------------------------------------------
@@ -173,11 +173,11 @@ class stzProfiler from stzObject
 	# speedscope ingest it as-is.
 	def Folded()
 		_aAll_ = This.Paths()
-		_bSampled_ = FALSE
+		_bSampled_ = 0
 		_nN_ = ring_len(_aAll_)
 		for _i_ = 1 to _nN_
 			if _aAll_[_i_][:samples] > 0
-				_bSampled_ = TRUE
+				_bSampled_ = 1
 				exit
 			ok
 		next
@@ -243,8 +243,8 @@ class stzProfiler from stzObject
 	def Destroy()
 		if bReady
 			StzEngineProfDestroy(pHandle)
-			pHandle = NULL
-			bReady = FALSE
+			pHandle = ""
+			bReady = 0
 		ok
 		return This
 
@@ -254,7 +254,7 @@ class stzProfiler from stzObject
 		_nN_ = ring_len(paRows)
 		for _i_ = 1 to _nN_
 			if paRows[_i_][:path] = pcPath
-				return TRUE
+				return 1
 			ok
 		next
-		return FALSE
+		return 0

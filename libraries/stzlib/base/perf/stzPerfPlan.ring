@@ -44,7 +44,7 @@ class stzPerfPlan from stzObject
 	@cName = ""
 	@aActions = []		# [ kind(lower), tag, rationale ]
 	@aAudit = []		# [ n, verdict, kind, tag, actor, why ]
-	@bExecuted = FALSE
+	@bExecuted = 0
 
 	def init(pcName)
 		@cName = "" + pcName
@@ -76,12 +76,12 @@ class stzPerfPlan from stzObject
 	# posture never crosses (the LLMActor doctrine).
 	def MayCommit(poActor)
 		if NOT poActor.IsEffectful()
-			return FALSE
+			return 0
 		ok
 		if StzLower("" + poActor.Posture()) = "sandboxed"
-			return FALSE
+			return 0
 		ok
-		return TRUE
+		return 1
 
 	# -- The crossing (admission is governed) ---------------------
 
@@ -105,7 +105,7 @@ class stzPerfPlan from stzObject
 			return 0
 		ok
 		_nDone_ = 0
-		_bRestarted_ = FALSE
+		_bRestarted_ = 0
 		_nLen_ = ring_len(@aActions)
 		for _i_ = 1 to _nLen_
 			_cK_ = @aActions[_i_][1]
@@ -119,14 +119,14 @@ class stzPerfPlan from stzObject
 				# same plan is already satisfied
 				if NOT _bRestarted_
 					poTarget.RestartDead()
-					_bRestarted_ = TRUE
+					_bRestarted_ = 1
 				ok
 			ok
 			@aAudit + [ _i_, "committed", _cK_, _cTag_, _cActor_,
 				@aActions[_i_][3] ]
 			_nDone_++
 		next
-		@bExecuted = TRUE
+		@bExecuted = 1
 		return _nDone_
 
 	def WasExecuted()

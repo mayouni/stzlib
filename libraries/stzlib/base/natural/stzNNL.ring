@@ -127,25 +127,25 @@ func AnswersSoFar()
 func AllYesSoFar()
 	_n_ = len($aStzAskAnswers)
 	if _n_ = 0
-		return FALSE
+		return 0
 	ok
 	for _i_ = 1 to _n_
 		_v_ = $aStzAskAnswers[_i_]
 		if isNumber(_v_) and _v_ = 0
-			return FALSE
+			return 0
 		ok
 	next
-	return TRUE
+	return 1
 
 func AnyYesSoFar()
 	_n_ = len($aStzAskAnswers)
 	for _i_ = 1 to _n_
 		_v_ = $aStzAskAnswers[_i_]
 		if NOT ( isNumber(_v_) and _v_ = 0 )
-			return TRUE
+			return 1
 		ok
 	next
-	return FALSE
+	return 0
 
 func ClearAnswers()
 	$aStzAskAnswers = []

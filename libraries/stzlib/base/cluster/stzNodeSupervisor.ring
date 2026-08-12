@@ -39,14 +39,14 @@ func StzNodeSupervisorQ()
 class stzNodeSupervisor from stzObject
 
 	@cName = "node-supervisor"
-	@oSpawner = NULL
+	@oSpawner = ""
 	@cRingExe = "ring"
 	@cStrategy = :OneForOne
 	@nBudgetMax = 3
 	@nBudgetWindowMs = 10000
 	@nHbIntervalMs = 0     # 0 = heartbeats off
 	@nHbTolerance = 3
-	@bEscalated = FALSE
+	@bEscalated = 0
 	@cEscalationReason = ""
 	# child specs: parallel lists
 	@aChildNames = []
@@ -276,7 +276,7 @@ class stzNodeSupervisor from stzObject
 			nNeed = ring_len(@aChildNames)
 		ok
 		if ring_len(@aRestartTimes) + nNeed > @nBudgetMax
-			@bEscalated = TRUE
+			@bEscalated = 1
 			@cEscalationReason = "restart budget exceeded (" + @nBudgetMax +
 				" per " + @nBudgetWindowMs + " ms) on child '" + cChild + "'"
 			@aChildJobs[i] = 0

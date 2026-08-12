@@ -95,14 +95,14 @@ func _StzServicePartsDependingOn(poGraph, pcProp, pValue, pcMid, pcTail)
 				loop
 			ok
 			_v_ = poGraph.NodeProperty(_svc_, pcProp)
-			_bHit_ = FALSE
+			_bHit_ = 0
 			if isString(pValue)
 				if StzLower("" + _v_) = StzLower("" + pValue)
-					_bHit_ = TRUE
+					_bHit_ = 1
 				ok
 			else
 				if _v_ = pValue
-					_bHit_ = TRUE
+					_bHit_ = 1
 				ok
 			ok
 			if _bHit_
@@ -147,7 +147,7 @@ class stzServiceRuleSet from stzGraphRuleSet
 		_oR2_.SetSeverityQ("error")
 		_oR2_.SetMessageQ("a part destined for production must not depend on an ephemeral store")
 		_oR2_.UseCheckerQ(func oGraph {
-			return _StzServicePartsDependingOn(oGraph, "ephemeral", TRUE,
+			return _StzServicePartsDependingOn(oGraph, "ephemeral", 1,
 			       "is destined for production but depends on '",
 			       "', which is real only until the next restart")
 		})

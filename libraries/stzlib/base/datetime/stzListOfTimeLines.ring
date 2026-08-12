@@ -21,8 +21,8 @@ class stzListOfTimeLines from stzObject
 	@aLanes = []       # List of lane names: ["Team A", "Team B", ...]
 	@aTimeLines = []   # Corresponding list of stzTimeLine objects
 
-	@cGlobalStart = NULL
-	@cGlobalEnd = NULL
+	@cGlobalStart = ""
+	@cGlobalEnd = ""
 
 	# Visualization properties (extended from stzTimeLine)
 	@nVizWidth = 52
@@ -43,9 +43,9 @@ class stzListOfTimeLines from stzObject
 	@cUncoveredChar = "/"
 	@cBlockChar = "X"
 
-	@bShowDates = TRUE
-	@bShowLabels = TRUE
-	@cHighlight = NULL  # Can highlight across lanes
+	@bShowDates = 1
+	@bShowLabels = 1
+	@cHighlight = ""  # Can highlight across lanes
 
 	# Multi-lane layout
 	@nLabelWidth = 15  # For lane labels on the left
@@ -128,19 +128,19 @@ class stzListOfTimeLines from stzObject
 		return @cGlobalStart
 
 		def GlobalStartQ()
-			if @cGlobalStart != NULL
+			if @cGlobalStart != ""
 				return new stzDateTime(@cGlobalStart)
 			ok
-			return NULL
+			return ""
 
 	def GlobalEnd()
 		return @cGlobalEnd
 
 		def GlobalEndQ()
-			if @cGlobalEnd != NULL
+			if @cGlobalEnd != ""
 				return new stzDateTime(@cGlobalEnd)
 			ok
-			return NULL
+			return ""
 
 	def SetGlobalStart(p)
 		@cGlobalStart = This._normalizeDateTime(p)
@@ -169,10 +169,10 @@ class stzListOfTimeLines from stzObject
 		return This.GlobalStartQ().DurationTo(@cGlobalEnd, :InSeconds)
 
 		def DurationQ()
-			if This.Duration() != NULL
+			if This.Duration() != ""
 				return new stzDuration(This.Duration())
 			ok
-			return NULL
+			return ""
 
 	// Lane Management
 

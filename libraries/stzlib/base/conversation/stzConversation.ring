@@ -56,9 +56,9 @@ func StzConversationQ(pcTopic)
 
 func IsStzConversation(pObj)
 	if isObject(pObj) and classname(pObj) = "stzconversation"
-		return TRUE
+		return 1
 	ok
-	return FALSE
+	return 0
 
 	func IsAStzConversation(pObj)
 		return IsStzConversation(pObj)
@@ -68,10 +68,10 @@ class stzConversation from stzObject
 
 	@cTopic = ""
 	@cWhy = ""
-	@oGoal = NULL        # THE one goal this conversation is accountable for
+	@oGoal = ""        # THE one goal this conversation is accountable for
 	@cGoalState = "none" # none | pursuing | fulfilled | revoked
 	@cGoalWhy = ""       # why it ended that way
-	@oNarration = NULL
+	@oNarration = ""
 	@aPending = []       # [ subject, relation ] awaiting an answer
 	@acOptions = []      # the values offered with the pending question
 	@cForce = ""         # the pending question's illocutionary force
@@ -109,13 +109,13 @@ class stzConversation from stzObject
 		return This
 
 	def GoalQ()
-		if @oGoal = NULL
+		if @oGoal = ""
 			stzraise("This conversation has no goal -- SetGoal(oGoal) first.")
 		ok
 		return @oGoal
 
 	def HasGoal()
-		return @oGoal != NULL
+		return @oGoal != ""
 
 	# none | pursuing | fulfilled | revoked
 	def GoalState()
@@ -163,7 +163,7 @@ class stzConversation from stzObject
 		return @cGoalState
 
 	def _RequireGoal()
-		if @oGoal = NULL
+		if @oGoal = ""
 			stzraise("This conversation has no goal -- SetGoal(oGoal) first (the wise-coding loop is goal-driven).")
 		ok
 

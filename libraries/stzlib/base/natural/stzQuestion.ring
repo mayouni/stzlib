@@ -235,7 +235,7 @@ class stzQuestion
 		ok
 		_vRight_ = This._Compute(_cAsp2_, pRightHost, @bCount2)
 
-		_bYes_ = FALSE
+		_bYes_ = 0
 		_cRel_ = ""
 		if @cComparator = "same"
 			_bYes_ = Q(_vLeft_).IsEqualTo(_vRight_)

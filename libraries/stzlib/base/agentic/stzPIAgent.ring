@@ -24,8 +24,8 @@
 class stzPIAgent from stzObject
 
 	@cName = ""
-	@oMem = NULL
-	@oGov = NULL
+	@oMem = ""
+	@oGov = ""
 	@aSkills = []       # [ skill, governedAction("" = ungoverned) ]
 	@aTrace = []        # per-cycle [ skill, decision, verified, why ]
 	@cWhy = ""

@@ -18,7 +18,7 @@
 #  Full original: git history / natural/archive of this file's ancestors.   #
 #---------------------------------------------------------------------------#
 
-_LastValue = NULL
+_LastValue = ""
 
 func QRT(p, pcType)
 	if NOT isString(pcType)

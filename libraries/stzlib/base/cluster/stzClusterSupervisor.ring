@@ -31,7 +31,7 @@ func StzClusterSupervisorQ(poCluster)
 class stzClusterSupervisor from stzObject
 
 	@cName = "cluster-supervisor"
-	@oCluster = NULL
+	@oCluster = ""
 	@aPolicy = []          # [ [ tag, min, max ], ... ]
 	@aLoad = []            # [ [ tag, ratio(0..1) ], ... ]  observed demand
 	@nLow = 0.25
@@ -141,7 +141,7 @@ class stzClusterSupervisor from stzObject
 		return _aActions_
 
 	def _Apply(aActions)
-		_bRestarted_ = FALSE
+		_bRestarted_ = 0
 		_n_ = len(aActions)
 		for _i_ = 1 to _n_
 			_cKind_ = aActions[_i_][1]
@@ -149,7 +149,7 @@ class stzClusterSupervisor from stzObject
 			if _cKind_ = :restart
 				if NOT _bRestarted_
 					@oCluster.RestartDead()   # heals ALL dead in one pass
-					_bRestarted_ = TRUE
+					_bRestarted_ = 1
 				ok
 			but _cKind_ = :scaleup
 				@oCluster.ScaleUp(_cTag_)

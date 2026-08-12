@@ -68,10 +68,10 @@ func _DaysInMonth(_nYear_, _nMonth_)
     return _aMonthDays_[_nMonth_]
 
 func _IsLeapYear(_nYear_)
-    if _nYear_ % 400 = 0 return TRUE ok
-    if _nYear_ % 100 = 0 return FALSE ok
-    if _nYear_ % 4 = 0 return TRUE ok
-    return FALSE
+    if _nYear_ % 400 = 0 return 1 ok
+    if _nYear_ % 100 = 0 return 0 ok
+    if _nYear_ % 4 = 0 return 1 ok
+    return 0
 
 func _DateAddMonths(_nYear_, _nMonth_, _nDay_, _nMonths_)
     _nMonth_ += _nMonths_
@@ -153,9 +153,9 @@ func _TodayYMD()
     return [_nY_, _nM_, _nD_]
 
 func _IsValidDate(_nYear_, _nMonth_, _nDay_)
-    if _nMonth_ < 1 or _nMonth_ > 12 return FALSE ok
-    if _nDay_ < 1 or _nDay_ > _DaysInMonth(_nYear_, _nMonth_) return FALSE ok
-    return TRUE
+    if _nMonth_ < 1 or _nMonth_ > 12 return 0 ok
+    if _nDay_ < 1 or _nDay_ > _DaysInMonth(_nYear_, _nMonth_) return 0 ok
+    return 1
 
 func StzTimeStamp()
 	return StzSysDate() + " " + StzSysTime()
@@ -222,7 +222,7 @@ func StzGetDayName(nDayOfWeek)
 		return StzGetDayName(nDayOfWeek)
 
 func StzGetDayNameXT(nDayOfWeek, _cLanguage_)
-    if _cLanguage_ = NULL
+    if _cLanguage_ = ""
         _cLanguage_ = $cCurrentLanguage
     ok
 
@@ -258,7 +258,7 @@ func StzGetMonthName(_nMonth_)
 		return StzGetMonthName(_nMonth_)
 
 func StzGetMonthNameInLanguage(_nMonth_, _cLanguage_)
-    if _cLanguage_ = NULL
+    if _cLanguage_ = ""
         _cLanguage_ = $cCurrentLanguage
     ok
 
@@ -491,7 +491,7 @@ class stzDate from stzObject
 
 	    if StzLeft(_cDate_, 3) = "in "
 	        _aValueUnit_ = ExtractValueAndUnit(StzRight(_cDate_, StzLen(_cDate_) - 3))
-	        if _aValueUnit_ != NULL
+	        if _aValueUnit_ != ""
 	            _nValue_ = _aValueUnit_[1]
 	            _cUnit_ = _aValueUnit_[2]
 
@@ -1044,7 +1044,7 @@ def LastWeekdayOfMonth()
 	def ParseOperation(cOperation, cOperator)
 	    _aValueUnit_ = ExtractValueAndUnit(cOperation)
 
-	    if _aValueUnit_ = NULL
+	    if _aValueUnit_ = ""
 	        StzRaise("Invalid operation format. Use 'n days/weeks/months/years'")
 	    ok
 
@@ -1601,14 +1601,14 @@ def LastWeekdayOfMonth()
         ok
 
     def IsAStzDate()
-        return TRUE
+        return 1
 
    func ExtractValueAndUnit(_cExpression_)
 	    _cExpression_ = StzLower(trim(_cExpression_))
 	    _acWords_ = @split(_cExpression_, " ")
 	    if len(_acWords_) < 2
 
-	        return NULL
+	        return ""
 	    ok
 
 	    _nValue_ = 0 + _acWords_[1]

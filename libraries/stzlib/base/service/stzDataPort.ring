@@ -52,7 +52,7 @@ func StzMemoryDataSourceQ()
 
 class stzSqliteDataSource from stzObject
 
-	@oDb = NULL
+	@oDb = ""
 	@cPath = ""
 
 	def init(pcPath)
@@ -78,7 +78,7 @@ class stzSqliteDataSource from stzObject
 	# NOT a sandbox: sqlite is a real database. The registry asks this, and the
 	# answer is what lets a local source ship where a fake may not.
 	def IsLocalReal()
-		return TRUE
+		return 1
 
 	# ":memory:" is real sqlite that VANISHES on restart -- fine for a test, fatal
 	# in production, and one character away from the safe spelling. The registry

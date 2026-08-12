@@ -12,8 +12,8 @@
 
 class stzReactiveHttp from stzObject
 
-	@oEngine = NULL
-	@oReactor = NULL
+	@oEngine = ""
+	@oReactor = ""
 	@aPending = []   # [ [ nJobId, fOnSuccess, fOnError ], ... ]
 
 	def Init(engine)
@@ -27,7 +27,7 @@ class stzReactiveHttp from stzObject
 	# reactor does not fail here; it fails later inside _SubmitAsync or
 	# DrainPending, a long way from the call that caused it.
 	def SetReactor(poReactor)
-		if poReactor != NULL and NOT isObject(poReactor)
+		if poReactor != "" and NOT isObject(poReactor)
 			return This
 		ok
 		@oReactor = poReactor
@@ -83,8 +83,8 @@ class stzReactiveHttp from stzObject
 	#--- F5: the async path over the reactor -------------------
 
 	def _CanAsync(url)
-		if @oReactor = NULL
-			return FALSE
+		if @oReactor = ""
+			return 0
 		ok
 		# F5+TLS: both http AND https run async on the reactor now (curl
 		# on a worker thread does native TLS -- no more blocking https).
@@ -97,7 +97,7 @@ class stzReactiveHttp from stzObject
 	def _SubmitAsync(cMethod, url, data, onSuccess, onError)
 		_nCode_ = This._MethodCode(cMethod)
 		if _nCode_ < 0
-			if onError != NULL
+			if onError != ""
 				call onError(HTTP_ERROR_UNKNOWN_METHOD + " " + StzUpper("" + cMethod))
 			ok
 			return -1
@@ -109,7 +109,7 @@ class stzReactiveHttp from stzObject
 		ok
 		_nJob_ = @oReactor.SubmitHttp(_nCode_, "" + url, _cBody_)
 		if _nJob_ < 1
-			if onError != NULL
+			if onError != ""
 				call onError(HTTP_ERROR_REQUEST_FAILED)
 			ok
 			return -1
@@ -162,7 +162,7 @@ class stzReactiveHttp from stzObject
 			_fOk_ = _aEntry_[2]
 			_fErr_ = _aEntry_[3]
 			if _nState_ = -2
-				if _fErr_ != NULL
+				if _fErr_ != ""
 					call _fErr_(HTTP_ERROR_REQUEST_FAILED)
 				ok
 				loop
@@ -170,11 +170,11 @@ class stzReactiveHttp from stzObject
 			_cBody_ = @oReactor.PollHttp(_aEntry_[1])
 			_nStatus_ = @oReactor.HttpLastStatus()
 			if _nStatus_ >= 200 and _nStatus_ < 300
-				if _fOk_ != NULL
+				if _fOk_ != ""
 					call _fOk_(_cBody_)
 				ok
 			else
-				if _fErr_ != NULL
+				if _fErr_ != ""
 					call _fErr_(This._HttpFailure(_nStatus_))
 				ok
 			ok

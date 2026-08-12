@@ -36,11 +36,11 @@ class stzComputePipeline from stzObject
 
 	@cName = ""
 	@aStages = []      # [ [ facet, stageName, fWork ], ... ]
-	@oPool = NULL      # optional: admit each stage into its facet's budget
+	@oPool = ""      # optional: admit each stage into its facet's budget
 	@aTrace = []       # [ [ facet, stageName, output, durMs ], ... ] from the
 	                   # last Run -- each stage carries its COST (perf P3)
-	@xLast = NULL      # last final output
-	@bFailed = FALSE   # did the last Run hit a failing stage?
+	@xLast = ""      # last final output
+	@bFailed = 0   # did the last Run hit a failing stage?
 	@cWhy = ""
 
 	def init(pcName)
@@ -111,7 +111,7 @@ class stzComputePipeline from stzObject
 	# Failed() explain -- one bad stage never crashes the whole pipeline.
 	def Run(pInput)
 		@aTrace = []
-		@bFailed = FALSE
+		@bFailed = 0
 		@cWhy = ""
 		_v_ = pInput
 		_n_ = len(@aStages)
@@ -119,25 +119,25 @@ class stzComputePipeline from stzObject
 			_cFacet_ = @aStages[_i_][1]
 			_cName_ = @aStages[_i_][2]
 			_fWork_ = @aStages[_i_][3]
-			_bBudgeted_ = (@oPool != NULL and @oPool.HasProfile(_cFacet_))
+			_bBudgeted_ = (@oPool != "" and @oPool.HasProfile(_cFacet_))
 			if _bBudgeted_  @oPool.Acquire(_cFacet_)  ok
 			# perf P3: each stage is timed on the monotonic clock -- the
 			# bracket covers the work AND its budget admission overhead.
 			_nT0_ = StzEngineWatchTimestampNs()
-			_bOk_ = TRUE
+			_bOk_ = 1
 			try
 				_v_ = call _fWork_(_v_)
 			catch
-				_bOk_ = FALSE
+				_bOk_ = 0
 				@cWhy = "stage '" + _cName_ + "' (" + _cFacet_ + ") failed: " + cCatchError
 			done
 			_nMs_ = (StzEngineWatchTimestampNs() - _nT0_) / 1000000
 			if _bBudgeted_  @oPool.Release(_cFacet_)  ok   # release even on failure
 			if NOT _bOk_
 				@aTrace + [ _cFacet_, _cName_, "ERROR", _nMs_ ]
-				@bFailed = TRUE
-				@xLast = NULL
-				return NULL
+				@bFailed = 1
+				@xLast = ""
+				return ""
 			ok
 			@aTrace + [ _cFacet_, _cName_, _v_, _nMs_ ]
 		next

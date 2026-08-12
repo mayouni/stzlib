@@ -27,7 +27,7 @@
 # lines) to return to the compiled spike defaults.
 # -----------------------------------------------------------------------------
 
-$_nc_oRct = NULL
+$_nc_oRct = ""
 $_nc_nChan = 0
 $_nc_nConn = 0
 
@@ -67,7 +67,7 @@ func StzNetCalibrate()
 	_nc_nGot_ = 0
 	_nc_n0_ = StzEngineWatchTimestampNs()
 	while _nc_nSent_ < 64 and _nc_nSent_ < _nc_nTotal_
-		$_nc_oRct.ServerWrite($_nc_nChan, $_nc_nConn, _nc_cSmall_, FALSE)
+		$_nc_oRct.ServerWrite($_nc_nChan, $_nc_nConn, _nc_cSmall_, 0)
 		_nc_nSent_++
 	end
 	_nc_nDl_ = StzEngineWatchTimestampMs() + 30000
@@ -76,7 +76,7 @@ func StzNetCalibrate()
 		if len(_nc_aEv_) = 3 and _nc_aEv_[1] = :data
 			_nc_nGot_++
 			if _nc_nSent_ < _nc_nTotal_
-				$_nc_oRct.ServerWrite($_nc_nChan, $_nc_nConn, _nc_cSmall_, FALSE)
+				$_nc_oRct.ServerWrite($_nc_nChan, $_nc_nConn, _nc_cSmall_, 0)
 				_nc_nSent_++
 			ok
 		ok
@@ -178,16 +178,16 @@ func _NcLink(nPort, nTimeoutMs)
 		$_nc_nChan = $_nc_oRct.ConnectStzm("127.0.0.1", nPort)
 		$_nc_nConn = $_nc_oRct.WaitLinkUp($_nc_nChan, 1000)
 		if $_nc_nConn > 0
-			return TRUE
+			return 1
 		ok
 		$_nc_oRct.ServerStop($_nc_nChan)
 		_nc_nT_ = $_nc_oRct.SubmitTimer(200)
 		$_nc_oRct.AwaitTimer(_nc_nT_, 500)
 	end
-	return FALSE
+	return 0
 
 func _NcTrip(cFrame, nTimeoutMs)
-	$_nc_oRct.ServerWrite($_nc_nChan, $_nc_nConn, cFrame, FALSE)
+	$_nc_oRct.ServerWrite($_nc_nChan, $_nc_nConn, cFrame, 0)
 	_nc_nDlT_ = StzEngineWatchTimestampMs() + nTimeoutMs
 	while StzEngineWatchTimestampMs() < _nc_nDlT_
 		_nc_aEvT_ = $_nc_oRct.ServerPoll($_nc_nChan)
@@ -198,7 +198,7 @@ func _NcTrip(cFrame, nTimeoutMs)
 	return ""
 
 func _NcTripAwait(cFrame, nTimeoutMs)
-	$_nc_oRct.ServerWrite($_nc_nChan, $_nc_nConn, cFrame, FALSE)
+	$_nc_oRct.ServerWrite($_nc_nChan, $_nc_nConn, cFrame, 0)
 	_nc_aEvA_ = $_nc_oRct.ServerAwait($_nc_nChan, nTimeoutMs)
 	if len(_nc_aEvA_) = 3 and _nc_aEvA_[1] = :data
 		return _nc_aEvA_[3]

@@ -17,17 +17,17 @@
 
 # Is the vendored tree-sitter engine grammar loaded (stz_polyglot.dll)?
 func StzTreeSitterAvailable()
-	return $pStzPolyglotHandle != NULL
+	return $pStzPolyglotHandle != ""
 
 class stzCodeGraph from stzObject
 
-	@oGraph = NULL       # class nodes + :inherits edges (stzGraph)
+	@oGraph = ""       # class nodes + :inherits edges (stzGraph)
 	@aMethods = []       # [ class, method, file, line ]
 	@acClasses = []      # [ class, [parents], file ]   (multiple inheritance)
 	@aFunctions = []     # [ function, file, line ]     (module-level)
 	@aImports = []       # [ file, module ]
 	@aCalls = []         # [ callerFunc, callee ]        (real-parse backends)
-	@bHasCalls = FALSE   # TRUE once real CALL edges are ingested
+	@bHasCalls = 0   # TRUE once real CALL edges are ingested
 	@cRoot = ""
 
 	def init(pcRootPath)
@@ -38,7 +38,7 @@ class stzCodeGraph from stzObject
 		@aFunctions = []
 		@aImports = []
 		@aCalls = []
-		@bHasCalls = FALSE
+		@bHasCalls = 0
 
 	def SetRoot(pcPath)
 		@cRoot = pcPath
@@ -56,7 +56,7 @@ class stzCodeGraph from stzObject
 	# Parse one source string via the vendored tree-sitter grammar for THIS
 	# language; ingest the shared line protocol it emits.
 	def ScanSourceViaTreeSitter(pcSource, pcFile)
-		if $pStzPolyglotHandle = NULL
+		if $pStzPolyglotHandle = ""
 			stzraise("The tree-sitter engine (stz_polyglot.dll) is not loaded. Build the engine with: zig build -Dring=D:/ring127.")
 		ok
 		This._IngestAstLines(StzEnginePolyglotParse(This.Language(), "" + pcSource), pcFile)
@@ -106,7 +106,7 @@ class stzCodeGraph from stzObject
 				@aImports + [ pcFile, _aP_[2] ]
 			but _cKind_ = "CALL"
 				@aCalls + [ _aP_[2], _aP_[3] ]
-				@bHasCalls = TRUE
+				@bHasCalls = 1
 			but _cKind_ = "ERROR"
 				stzraise("The source could not be parsed: " + _aP_[2])
 			ok
@@ -446,7 +446,7 @@ class stzCodeGraph from stzObject
 			for _f_ = 1 to _nF_
 				_cN_ = _acFront_[_f_]
 				if StzLower(_cN_) = _cTgt_
-					return TRUE
+					return 1
 				ok
 				if ring_find(_acSeen_, _cN_) = 0
 					_acSeen_ + _cN_
@@ -459,7 +459,7 @@ class stzCodeGraph from stzObject
 			next
 			_acFront_ = _acNext_
 		end
-		return FALSE
+		return 0
 
 	def Stats()
 		return [

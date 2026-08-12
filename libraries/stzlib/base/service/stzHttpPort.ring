@@ -32,7 +32,7 @@ TWO SANDBOX MODES, because tests want different things:
 STRICT BY DEFAULT, and this is the important choice. An unscripted, unrecorded
 request RAISES. A double that silently answers "" for something you forgot to set
 up produces a test that passes for the wrong reason -- the worst outcome available.
-SetStrict(FALSE) turns misses into a 501 for the rare case where you want to
+SetStrict(0) turns misses into a 501 for the rare case where you want to
 observe them instead.
 
 Every request is JOURNALLED, so a test can assert on what the code TRIED to do --
@@ -68,11 +68,11 @@ class stzHttpSandbox from stzObject
 		$nStzHttpSandboxSeq = $nStzHttpSandboxSeq + 1
 		@nId = $nStzHttpSandboxSeq
 		# scripts, seeds, journal, strict
-		$aStzHttpSandboxes + [ @nId, [], [], [], TRUE ]
+		$aStzHttpSandboxes + [ @nId, [], [], [], 1 ]
 
 	# a double declares itself -- see stzServiceRegistry
 	def IsSandbox()
-		return TRUE
+		return 1
 
 	  #-- SCRIPTED mode ----------------------------------------------------
 
@@ -233,10 +233,10 @@ class stzHttpSandbox from stzObject
 		_n_ = len(_a_)
 		for _i_ = 1 to _n_
 			if _a_[_i_][1] = _m_ and _a_[_i_][2] = ("" + pcUrl)
-				return TRUE
+				return 1
 			ok
 		next
-		return FALSE
+		return 0
 
 	def ClearCalls()
 		This.ClearCallsQ()
@@ -254,7 +254,7 @@ class stzHttpSandbox from stzObject
 	def _Matches(pcPattern, pcUrl)
 		_p_ = "" + pcPattern
 		if _p_ = "*"
-			return TRUE
+			return 1
 		ok
 		_bStar1_ = StzFindFirst("*", _p_) = 1
 		_bStarN_ = len(_p_) > 0 and _p_[len(_p_)] = "*"
@@ -283,7 +283,7 @@ class stzHttpSandbox from stzObject
 				return _i_
 			ok
 		next
-		$aStzHttpSandboxes + [ @nId, [], [], [], TRUE ]
+		$aStzHttpSandboxes + [ @nId, [], [], [], 1 ]
 		return len($aStzHttpSandboxes)
 
 
@@ -302,7 +302,7 @@ class stzHttpSandbox from stzObject
 
 class stzReactorHttpClient from stzObject
 
-	@oReactor = NULL
+	@oReactor = ""
 	@nTimeoutMs = 15000
 
 	def init()

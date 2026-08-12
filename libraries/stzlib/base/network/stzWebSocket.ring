@@ -3,7 +3,7 @@
 # =============================================================================
 
 class stzWebSocket from stzNetwork
-    @is_connected = False
+    @is_connected = 0
     @last_message = ""
     @message_type = ""
     @on_message_callback = ""
@@ -18,7 +18,7 @@ class stzWebSocket from stzNetwork
         
         _result_ = curl_easy_perform(_curl_handle_)
         if _result_ = CURLE_OK
-            @is_connected = True
+            @is_connected = 1
             ClearErrors()
             if @on_open_callback != ""
                 call @on_open_callback()
@@ -91,11 +91,11 @@ class stzWebSocket from stzNetwork
         return This
     
     def Close()
-        if @is_connected and _curl_handle_ != NULL
+        if @is_connected and _curl_handle_ != ""
             # Send close frame
             curl_ws_send(_curl_handle_, "", 0, CURLWS_CLOSE)
             curl_easy_cleanup(_curl_handle_)
-            @is_connected = False
+            @is_connected = 0
             
             if @on_close_callback != ""
                 call @on_close_callback()

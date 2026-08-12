@@ -11,7 +11,7 @@
 
 class stzAgentMemory from stzObject
 
-	@oKG = NULL
+	@oKG = ""
 
 	def init(pcAgentName)
 		@oKG = new stzKnowledgeGraph("mem-" + pcAgentName)

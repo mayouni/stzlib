@@ -53,9 +53,9 @@ class stzDLM from stzObject
 	@aGoldens = []      # [ question, expected answer ]
 	@cWhy = ""
 	# RUNG 2 -- the neural bigram LM (trained teacher-free on the corpus)
-	@oNeural = NULL
+	@oNeural = ""
 	@acNeuralVocab = []
-	@bNeuralTrained = FALSE
+	@bNeuralTrained = 0
 	@cNeuralWhy = ""
 
 	def init(pcDomain)
@@ -400,7 +400,7 @@ class stzDLM from stzObject
 		_oTr_.Train(_oNet_, _aIn_, _aTg_, nEpochs)
 		@oNeural = _oNet_
 		@acNeuralVocab = _acV_
-		@bNeuralTrained = TRUE
+		@bNeuralTrained = 1
 		@cNeuralWhy = "neural bigram rung: " + len(_aIn_) + " pairs over a " +
 			_nV_ + "-word vocab; " + _oTr_.Why()
 		return This

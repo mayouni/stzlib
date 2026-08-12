@@ -61,7 +61,7 @@ class stzOidcProvider from stzObject
 	@aCodes = []          # [ [ code, client, user, redirect, nonce, challenge, expires ] ]
 	@nCodeTTL = 300       # an authorization code lives 5 minutes
 	@nTokenTTL = 3600
-	@bKeyUsed = FALSE     # has the CURRENT key actually signed anything?
+	@bKeyUsed = 0     # has the CURRENT key actually signed anything?
 	@cWhy = ""
 	@cError = ""
 	# Incident I2. @aSpent holds the codes this provider has already
@@ -157,7 +157,7 @@ class stzOidcProvider from stzObject
 		if NOT @bKeyUsed
 			return
 		ok
-		@bKeyUsed = FALSE
+		@bKeyUsed = 0
 		if @cAlg = "RS256" and @cN != ""
 			@aOldKeys + [ @cKid, "RS256", @cN, @cE ]
 		but @cX != ""
@@ -292,7 +292,7 @@ class stzOidcProvider from stzObject
 		if _state_ != ""
 			_to_ += "&state=" + _state_
 		ok
-		return [ :ok = TRUE, :code = _code_, :redirectTo = _to_, :state = _state_,
+		return [ :ok = 1, :code = _code_, :redirectTo = _to_, :state = _state_,
 		         :why = "", :error = "" ]
 
 	  #-- step 2: token (a back-channel call from the app's server) --------
@@ -355,7 +355,7 @@ class stzOidcProvider from stzObject
 		_u_ = _rec_[3]
 		@cWhy = ""
 		@cError = ""
-		return [ :ok = TRUE,
+		return [ :ok = 1,
 		         :idToken = This.IssueIdTokenAt(_u_, _cid_, _rec_[5], pnNow),
 		         :accessToken = This._IssueAccessTokenAt(_u_, _cid_, pnNow),
 		         :tokenType = "Bearer", :expiresIn = @nTokenTTL,
@@ -444,7 +444,7 @@ class stzOidcProvider from stzObject
 	  #==== internals ======================================================
 
 	def _Sign(pcPayloadJson)
-		@bKeyUsed = TRUE
+		@bKeyUsed = 1
 		_hdr_ = '{"alg":"' + @cAlg + '","typ":"JWT","kid":"' + @cKid + '"}'
 		_in_ = StzB64UrlEncode(_hdr_) + "." + StzB64UrlEncode(pcPayloadJson)
 		if @cAlg = "RS256"
@@ -481,10 +481,10 @@ class stzOidcProvider from stzObject
 		_n_ = len(_a_)
 		for _i_ = 1 to _n_
 			if ("" + _a_[_i_]) = ("" + pcRedirect)
-				return TRUE
+				return 1
 			ok
 		next
-		return FALSE
+		return 0
 
 	def _CodeIndex(pcCode)
 		_n_ = len(@aCodes)
@@ -529,7 +529,7 @@ class stzOidcProvider from stzObject
 		@cError = "" + pcError
 		StzNoteRefusal("oauth.client.rejected", @cLastClientId,
 			"client:" + @cLastClientId, @cWhy)
-		return [ :ok = FALSE, :code = "", :redirectTo = "", :state = "",
+		return [ :ok = 0, :code = "", :redirectTo = "", :state = "",
 		         :why = @cWhy, :error = @cError ]
 
 	def _RefuseToken(pcWhy, pcError)
@@ -537,7 +537,7 @@ class stzOidcProvider from stzObject
 		@cError = "" + pcError
 		StzNoteRefusal("oauth.client.rejected", @cLastClientId,
 			"client:" + @cLastClientId, @cWhy)
-		return [ :ok = FALSE, :idToken = "", :accessToken = "", :tokenType = "",
+		return [ :ok = 0, :idToken = "", :accessToken = "", :tokenType = "",
 		         :expiresIn = 0, :subject = "", :why = @cWhy, :error = @cError ]
 
 	# the spent-code memory the replay distinction rests on
@@ -552,10 +552,10 @@ class stzOidcProvider from stzObject
 		_n_ = len(@aSpent)
 		for _i_ = 1 to _n_
 			if @aSpent[_i_] = _c_
-				return TRUE
+				return 1
 			ok
 		next
-		return FALSE
+		return 0
 
 	def _HexPair(pcHi, pcLo)
 		return This._HexDigit(pcHi) * 16 + This._HexDigit(pcLo)

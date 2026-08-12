@@ -694,7 +694,7 @@ func StzParseRange(pcStr)
 	_cStr_ = ring_trim(pcStr)
 	_nLen_ = ring_len(_cStr_)
 	if _nLen_ = 0
-		return NULL
+		return ""
 	ok
 
 	# Locate the top-level ':' separator (not inside a double-quoted token).
@@ -714,14 +714,14 @@ func StzParseRange(pcStr)
 	next
 
 	if _nColon_ = 0
-		return NULL
+		return ""
 	ok
 
 	_cLhs_ = ring_trim( ring_left(_cStr_, _nColon_ - 1) )
 	_cRhs_ = ring_trim( ring_right(_cStr_, _nLen_ - _nColon_) )
 
 	if ring_len(_cLhs_) = 0 or ring_len(_cRhs_) = 0
-		return NULL
+		return ""
 	ok
 
 	_bLhsQuoted_ = _IsQuotedToken(_cLhs_)
@@ -752,7 +752,7 @@ func StzParseRange(pcStr)
 			return _aResult_
 		ok
 
-		return NULL
+		return ""
 	ok
 
 	# --- Both sides are unquoted -> numeric range ---
@@ -786,7 +786,7 @@ func StzParseRange(pcStr)
 		return _aResult_
 	ok
 
-	return NULL
+	return ""
 
 #--- range-parser local helpers
 
@@ -798,9 +798,9 @@ func StzParseRange(pcStr)
 func _IsQuotedToken(_c_)
 	_n_ = ring_len(_c_)
 	if _n_ >= 2 and _c_[1] = '"' and _c_[_n_] = '"'
-		return TRUE
+		return 1
 	ok
-	return FALSE
+	return 0
 
 func _Unquote(_c_)
 	_n_ = ring_len(_c_)
@@ -833,23 +833,23 @@ func _SplitTrailingDigits(_c_)
 
 func _IsNumericToken(_c_)
 	_n_ = ring_len(_c_)
-	if _n_ = 0 return FALSE ok
+	if _n_ = 0 return 0 ok
 	_i_ = 1
 	if _c_[1] = "-" or _c_[1] = "+"
 		_i_ = 2
 	ok
-	if _i_ > _n_ return FALSE ok
-	_bDigitSeen_ = FALSE
-	_bDotSeen_ = FALSE
+	if _i_ > _n_ return 0 ok
+	_bDigitSeen_ = 0
+	_bDotSeen_ = 0
 	while _i_ <= _n_
 		_k_ = ascii(_c_[_i_])
 		if _k_ >= 48 and _k_ <= 57   # ASCII '0'..'9'
-			_bDigitSeen_ = TRUE
+			_bDigitSeen_ = 1
 		but _k_ = 46               # ASCII '.'
-			if _bDotSeen_ return FALSE ok
-			_bDotSeen_ = TRUE
+			if _bDotSeen_ return 0 ok
+			_bDotSeen_ = 1
 		else
-			return FALSE
+			return 0
 		ok
 		_i_++
 	end

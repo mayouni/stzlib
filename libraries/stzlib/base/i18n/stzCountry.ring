@@ -298,10 +298,10 @@ _aLocaleCountriesXT = [
     [ "257",       :Kosovo,              "XK",         "XKX",         "+383",      :albanian,        :Euro,                    "Cent",         100,         "🇽🇰"        ],
     //[ "258",     :European_Union,      "EU",         "???",         NULL,        :english,         :Euro,                    "Cent",         100,         "🇪🇺"        ], # Removed because it isn't a country
     [ "259",       :Outlying_Oceania,    "UM",         "UMI",         "???",       :malay,           :Australian_dollar,       "Cent",         100,         ""           ],
-    [ "260",       :Scottland,           "SC",         "SCT",         "+44",       :scottish_gaelic, :Pound,                   "Penny",        100,         NULL         ], # Emoji flag unavailable for this country
-    [ NULL,        :England,             "EN",         "ENG",         "+44",       :english,         :Pound,                   "Penny",        100,         NULL         ], # Idem. Not in standard Unicode data but we add it because some people consider it a country
-    [ NULL,        :Wales,               "WLS",        "WS",          "+44",       :welsh,           :Pound,                   "Penny",        100,         NULL         ], # Idem
-    [ NuLL,        :Norther_Ireland,     "NIR",        "NI",          "+44",       :irish,           :Pound,                   "Penny",        100,         NULL         ]  # Check: norther or northern?
+    [ "260",       :Scottland,           "SC",         "SCT",         "+44",       :scottish_gaelic, :Pound,                   "Penny",        100,         ""         ], # Emoji flag unavailable for this country
+    [ "",        :England,             "EN",         "ENG",         "+44",       :english,         :Pound,                   "Penny",        100,         ""         ], # Idem. Not in standard Unicode data but we add it because some people consider it a country
+    [ "",        :Wales,               "WLS",        "WS",          "+44",       :welsh,           :Pound,                   "Penny",        100,         ""         ], # Idem
+    [ "",        :Norther_Ireland,     "NIR",        "NI",          "+44",       :irish,           :Pound,                   "Penny",        100,         ""         ]  # Check: norther or northern?
     //[ NULL,      :United_nations,      NULL,         NULL,          NULL,        NULL,             NULL,                     NULL,           NULL,        "🇺🇳"        ]  # Removed because it isn't a country
 
 ]

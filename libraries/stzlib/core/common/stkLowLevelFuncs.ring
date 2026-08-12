@@ -4,15 +4,15 @@ func @IsPpointer(p)
 func ArePointers(paPointers)
 	if NOT isList(paPointers)
 
-		return FALSE
+		return 0
 	ok
 
-	_bResult_ = TRUE
+	_bResult_ = 1
 	_nLen_ = len(paPointers)
 
 	for i = 1 to _nLen_
 		if NOT isPointer(paPointers[i])
-			_bResult_ = FALSE
+			_bResult_ = 0
 			exit
 		ok
 	next

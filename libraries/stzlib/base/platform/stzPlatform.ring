@@ -47,7 +47,7 @@ $aStzPlatformThingJsons = []   # [ [ name, json ], ... ]
 # here at top scope so the global route handlers can see it; ServeBody
 # points it at the serving instance (its shared sqlite handle means
 # mutations through a route persist in the same store).
-$oStzPlatformActive = NULL
+$oStzPlatformActive = ""
 
 func StzPlatformQ(pcName)
 	return new stzPlatform(pcName)
@@ -184,21 +184,21 @@ class stzPlatform from stzObject
 	@aWorldReaches = []
 	@aWorldThings = []      # [ [ name, [fields] ], ... ]
 	@aWorldScreens = []     # [ name, ... ]
-	@bHasWorld = FALSE
+	@bHasWorld = 0
 
 	# capability seam
-	@oGov = NULL            # snapshot of the sealed regime
+	@oGov = ""            # snapshot of the sealed regime
 	@aAdmissions = []       # [ [ capability, [purposes] ], ... ]
 	@nCurAdmission = 0
 
 	# commons
-	@oDb = NULL
-	@bCommonsReady = FALSE
+	@oDb = ""
+	@bCommonsReady = 0
 	@nKdfRounds = 100000    # PBKDF2 iterations for identity secrets
 
 	# networked body
-	@oHost = NULL
-	@bServing = FALSE
+	@oHost = ""
+	@bServing = 0
 
 	# registry
 	@aWorlds = []           # [ [ name, version, active ], ... ]
@@ -206,12 +206,12 @@ class stzPlatform from stzObject
 
 	# deployment architecture (the solution's constituents, declared in a
 	# stzPlatformProfile the platform OWNS) + its lifecycle state
-	@oProfile = NULL
-	@bBuilt = FALSE
-	@bDeployed = FALSE
+	@oProfile = ""
+	@bBuilt = 0
+	@bDeployed = 0
 	@aBuildReport = []      # [ [ name, kind, target, status ], ... ]
 	@aDeployReport = []
-	@oLog = NULL            # a structured stzLog of Build() + Deploy()
+	@oLog = ""            # a structured stzLog of Build() + Deploy()
 
 	def init(pcName)
 		@cName = "" + pcName
@@ -245,12 +245,12 @@ class stzPlatform from stzObject
 		return @oProfile
 
 	def HasProfile()
-		return @oProfile != NULL
+		return @oProfile != ""
 
 	# BUILD the platform and its constituents. Refuses an unsound solution
 	# (LAW 3). Must precede Deploy().
 	def Build()
-		if @oProfile = NULL
+		if @oProfile = ""
 			stzraise("stzPlatform.Build: no deployment profile -- SetProfile(oProfile) first.")
 		ok
 		_aIssues_ = @oProfile.Validate()
@@ -289,7 +289,7 @@ class stzPlatform from stzObject
 			                  [ :language, _cLang_ ], [ :os, _app_.DeploymentOSName() ] ])
 		next
 		@oLog.Record(:info, "build complete", [ [ :parts, _n_ ] ])
-		@bBuilt = TRUE
+		@bBuilt = 1
 		return This
 
 		def BuildQ()
@@ -305,7 +305,7 @@ class stzPlatform from stzObject
 	# the flash/upload of that artifact to the device is the one remaining
 	# external step.
 	def Deploy()
-		return This._DeployWith(NULL)
+		return This._DeployWith("")
 
 		def DeployQ()
 			return This.Deploy()
@@ -320,7 +320,7 @@ class stzPlatform from stzObject
 			@oLog.Record(:error, "deploy refused -- platform not built (Build() first)", [])
 			stzraise("stzPlatform.Deploy: the platform must be Build() before it can be deployed.")
 		ok
-		if poActor != NULL
+		if poActor != ""
 			if NOT poActor.IsEffectful()
 				@oLog.Record(:error, "deploy refused -- actor may propose but not perform (not effectful)", [ [ :actor, poActor.Name() ] ])
 				stzraise("stzPlatform.Deploy: actor '" + poActor.Name() +
@@ -347,7 +347,7 @@ class stzPlatform from stzObject
 			                   [ :ops, len(_aOps_) ], [ :artifact, _cArtifact_ ] ])
 		next
 		@oLog.Record(:info, "deploy complete", [ [ :parts, _n_ ] ])
-		@bDeployed = TRUE
+		@bDeployed = 1
 		return This
 
 	def IsDeployed()
@@ -391,26 +391,26 @@ class stzPlatform from stzObject
 	# -- delegating reads into the owned profile --
 
 	def Parts()
-		if @oProfile = NULL
+		if @oProfile = ""
 			return []
 		ok
 		return @oProfile.Apps()
 
 	def NumberOfParts()
-		if @oProfile = NULL
+		if @oProfile = ""
 			return 0
 		ok
 		return @oProfile.NumberOfApps()
 
 	def App(pcName)
-		if @oProfile = NULL
+		if @oProfile = ""
 			stzraise("stzPlatform.App: no profile -- SetProfile(oProfile) first.")
 		ok
 		return @oProfile.App(pcName)
 
 	def DevelopmentSystem()
-		if @oProfile = NULL
-			return NULL
+		if @oProfile = ""
+			return ""
 		ok
 		return @oProfile.DevelopmentSystem()
 
@@ -428,7 +428,7 @@ class stzPlatform from stzObject
 		@aWorldReaches = poApp.Surfaces()
 		@aWorldThings = poApp.Things()
 		@aWorldScreens = poApp.ScreenNames()
-		@bHasWorld = TRUE
+		@bHasWorld = 1
 		return This
 
 	# Generate(:all) or Generate(:web / :desktop / :mobile).
@@ -521,7 +521,7 @@ class stzPlatform from stzObject
 	# the platform's capability risk tiers into it when undeclared.
 	# the NAME of the object that governs this platform ("" if none)
 	def GovernedBy()
-		if @oGov = NULL
+		if @oGov = ""
 			return ""
 		ok
 		return @oGov.Name_()
@@ -567,7 +567,7 @@ class stzPlatform from stzObject
 	# The governed decision: the WORLD is the actor, "use-<cap>" the
 	# action; permission CAN + authority SHOULD vs the risk tier.
 	def Granted(pcCapability)
-		if @oGov = NULL
+		if @oGov = ""
 			stzraise("stzPlatform.Granted: no governance wired -- capabilities are governed by construction (SetGovernedBy first).")
 		ok
 		if NOT @bHasWorld
@@ -576,7 +576,7 @@ class stzPlatform from stzObject
 		_cCap_ = StzLower("" + pcCapability)
 		if NOT This._WasAdmitted(_cCap_)
 			@cWhy = "capability '" + _cCap_ + "' was never requested via AddCapabilityQ()."
-			return FALSE
+			return 0
 		ok
 		_bOk_ = @oGov.MayProceed(@cWorldName, "use-" + _cCap_)
 		@cWhy = @oGov.Why()
@@ -586,10 +586,10 @@ class stzPlatform from stzObject
 		_nLen_ = len(@aAdmissions)
 		for _i_ = 1 to _nLen_
 			if @aAdmissions[_i_][1] = pcCap
-				return TRUE
+				return 1
 			ok
 		next
-		return FALSE
+		return 0
 
 	def Admissions()
 		return @aAdmissions
@@ -605,7 +605,7 @@ class stzPlatform from stzObject
 		@oDb.Exec("CREATE TABLE IF NOT EXISTS stz_session(token TEXT PRIMARY KEY, user TEXT, opened_ms INTEGER)")
 		@oDb.Exec("CREATE TABLE IF NOT EXISTS stz_message(sender TEXT, recipient TEXT, body TEXT, sent_ms INTEGER)")
 		@oDb.Exec("CREATE TABLE IF NOT EXISTS stz_store(k TEXT PRIMARY KEY, v TEXT)")
-		@bCommonsReady = TRUE
+		@bCommonsReady = 1
 		return This
 
 	def _NeedCommons()
@@ -632,7 +632,7 @@ class stzPlatform from stzObject
 		This._NeedCommons()
 		if @oDb.Value("SELECT user FROM stz_identity WHERE user = '" + This._Sql(pcUser) + "'") != ""
 			@cWhy = "identity '" + pcUser + "' already exists."
-			return FALSE
+			return 0
 		ok
 		# THE ROUNDS ARE STORED WITH THE RECORD, not read from the platform at
 		# verification time. They were not, and the consequence was silent: raise
@@ -647,7 +647,7 @@ class stzPlatform from stzObject
 		_cHash_ = StzEngineCryptoPbkdf2("" + pcSecret, _cSalt_, @nKdfRounds, 32)
 		@oDb.Exec("INSERT INTO stz_identity (user, secret) VALUES ('" +
 		          This._Sql(pcUser) + "', '" + @nKdfRounds + ":" + _cSalt_ + ":" + _cHash_ + "')")
-		return TRUE
+		return 1
 
 	# Returns a session token, or "" (Why() explains) on refusal. The
 	# secret is verified by re-deriving with the stored salt + rounds and
@@ -687,11 +687,11 @@ class stzPlatform from stzObject
 			_cSalt_ = _aParts_[1]
 			_cHash_ = _aParts_[2]
 		else
-			return FALSE
+			return 0
 		ok
 
 		if _nRounds_ < 1
-			return FALSE
+			return 0
 		ok
 
 		_cTry_ = StzEngineCryptoPbkdf2("" + pcSecret, _cSalt_, _nRounds_, 32)
@@ -733,7 +733,7 @@ class stzPlatform from stzObject
 	#   GET /thing?name=x -> one thing's fields
 	# nPort 0 = ephemeral; the bound port via HostQ().Port().
 	def ServeBody(nPort)
-		if NOT @bHasWorld and @oDb = NULL
+		if NOT @bHasWorld and @oDb = ""
 			stzraise("stzPlatform.ServeBody: nothing to serve -- attach a world " +
 			         "(ForWorld) and/or Commons (CommonsOn) first.")
 		ok
@@ -746,7 +746,7 @@ class stzPlatform from stzObject
 		ok
 		# the interactive, session-authed COMMONS (duty 4b): identity /
 		# sessions / messaging / store served MULTI-USER over the wire.
-		if @oDb != NULL
+		if @oDb != ""
 			$oStzPlatformActive = This
 			@oHost.Post("/session", "StzPlatformSessionRoute")
 			@oHost.Get_("/whoami", "StzPlatformWhoamiRoute")
@@ -756,7 +756,7 @@ class stzPlatform from stzObject
 			@oHost.Get_("/store", "StzPlatformStoreGetRoute")
 		ok
 		@oHost.Start(nPort, "127.0.0.1")
-		@bServing = TRUE
+		@bServing = 1
 		return This
 
 	# The serving host (a chainable stz object -- Q-convention). NB: an
@@ -780,7 +780,7 @@ class stzPlatform from stzObject
 	def StopServing()
 		if @bServing
 			@oHost.Stop()
-			@bServing = FALSE
+			@bServing = 0
 		ok
 		return This
 
@@ -819,18 +819,18 @@ class stzPlatform from stzObject
 		for _i_ = 1 to _nLen_
 			if @aWorlds[_i_][1] = pcName
 				@aWorlds[_i_][2] = pcVersion
-				@aWorlds[_i_][3] = TRUE
+				@aWorlds[_i_][3] = 1
 				return This
 			ok
 		next
-		@aWorlds + [ pcName, pcVersion, TRUE ]
+		@aWorlds + [ pcName, pcVersion, 1 ]
 		return This
 
 	def RetireWorld(pcName)
 		_nLen_ = len(@aWorlds)
 		for _i_ = 1 to _nLen_
 			if @aWorlds[_i_][1] = pcName
-				@aWorlds[_i_][3] = FALSE
+				@aWorlds[_i_][3] = 0
 				return This
 			ok
 		next
@@ -843,7 +843,7 @@ class stzPlatform from stzObject
 				return @aWorlds[_i_][3]
 			ok
 		next
-		return FALSE
+		return 0
 
 	def Worlds()
 		return @aWorlds
@@ -861,31 +861,31 @@ class stzPlatform from stzObject
 	def CallAcross(pcFrom, pcTo, pcAction)
 		if NOT This.IsActiveWorld(pcFrom)
 			@cWhy = "calling world '" + pcFrom + "' is not active in the registry."
-			return FALSE
+			return 0
 		ok
 		if NOT This.IsActiveWorld(pcTo)
 			@cWhy = "target world '" + pcTo + "' is not active in the registry."
-			return FALSE
+			return 0
 		ok
 		_cTo_ = StzLower("" + pcTo)
 		_cAction_ = StzLower("" + pcAction)
-		_bBonded_ = FALSE
+		_bBonded_ = 0
 		_nLen_ = len(@aBonds)
 		for _i_ = 1 to _nLen_
 			if @aBonds[_i_][1] = pcFrom and @aBonds[_i_][2] = _cTo_ and @aBonds[_i_][3] = _cAction_
-				_bBonded_ = TRUE
+				_bBonded_ = 1
 				exit
 			ok
 		next
 		if NOT _bBonded_
 			@cWhy = "no bond declares '" + _cAction_ + "' from '" + pcFrom + "' to '" + pcTo + "'."
-			return FALSE
+			return 0
 		ok
-		if @oGov != NULL
+		if @oGov != ""
 			if NOT @oGov.MayProceed(pcFrom, _cAction_)
 				@cWhy = "governance refused: " + @oGov.Why()
-				return FALSE
+				return 0
 			ok
 		ok
 		@cWhy = ""
-		return TRUE
+		return 1

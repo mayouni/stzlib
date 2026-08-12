@@ -39,10 +39,10 @@ func StzSuperAppQ(pcName)
 class stzSuperApp from stzObject
 
 	@cName    = ""
-	@oGraph   = NULL       # world nodes + :bond edges
+	@oGraph   = ""       # world nodes + :bond edges
 	@aWorlds  = []         # [ name, obj, kind("app"|"super"), active ]
-	@oCommons = NULL       # world-zero: an stzPlatform (identity/stores)
-	@oGov     = NULL       # ambient governance
+	@oCommons = ""       # world-zero: an stzPlatform (identity/stores)
+	@oGov     = ""       # ambient governance
 	@aBonds   = []         # [ from, to, action ]
 	@cWhy     = ""
 
@@ -89,13 +89,13 @@ class stzSuperApp from stzObject
 		if NOT @oGraph.NodeExists(_cN_)
 			@oGraph.AddNode(_cN_)
 		ok
-		@aWorlds + [ _cN_, poObj, pcKind, TRUE ]
+		@aWorlds + [ _cN_, poObj, pcKind, 1 ]
 		return This
 
 	# the LIVE world object (reached via the registry index)
 	def WorldQ(pcName)
 		_i_ = This._IndexOf(pcName)
-		if _i_ = 0  return NULL  ok
+		if _i_ = 0  return ""  ok
 		return @aWorlds[_i_][2]
 
 	def KindOf(pcName)
@@ -119,7 +119,7 @@ class stzSuperApp from stzObject
 
 	def IsActive(pcName)
 		_i_ = This._IndexOf(pcName)
-		if _i_ = 0  return FALSE  ok
+		if _i_ = 0  return 0  ok
 		return @aWorlds[_i_][4]
 
 	def Retire(pcName)
@@ -127,7 +127,7 @@ class stzSuperApp from stzObject
 		if _i_ = 0
 			stzraise("stzSuperApp.Retire: no world '" + pcName + "'.")
 		ok
-		@aWorlds[_i_][4] = FALSE
+		@aWorlds[_i_][4] = 0
 		return This
 
 	def Revive(pcName)
@@ -135,7 +135,7 @@ class stzSuperApp from stzObject
 		if _i_ = 0
 			stzraise("stzSuperApp.Revive: no world '" + pcName + "'.")
 		ok
-		@aWorlds[_i_][4] = TRUE
+		@aWorlds[_i_][4] = 1
 		return This
 
 	# HOT-SWAP a live world's implementation, keeping its node + bonds.
@@ -145,7 +145,7 @@ class stzSuperApp from stzObject
 			stzraise("stzSuperApp.Swap: no world '" + pcName + "' to swap.")
 		ok
 		@aWorlds[_i_][2] = poNewApp
-		@aWorlds[_i_][4] = TRUE
+		@aWorlds[_i_][4] = 1
 		return This
 
 	#-- the Commons (world zero) -------------------------------------------
@@ -202,10 +202,10 @@ class stzSuperApp from stzObject
 		_n_ = len(@aBonds)
 		for _i_ = 1 to _n_
 			if @aBonds[_i_][1] = pcFrom and @aBonds[_i_][2] = _cTo_ and @aBonds[_i_][3] = _cAction_
-				return TRUE
+				return 1
 			ok
 		next
-		return FALSE
+		return 0
 
 	# THE ENFORCEMENT SEAM: a cross-world call proceeds ONLY when both
 	# worlds are active, a bond declares the action, and governance
@@ -216,25 +216,25 @@ class stzSuperApp from stzObject
 		_nT0_ = StzEngineWatchTimestampNs()
 		if NOT This.IsActive(pcFrom)
 			@cWhy = "calling world '" + pcFrom + "' is not active."
-			return This._CrossingDone(_nT0_, pcFrom, pcTo, pcAction, FALSE)
+			return This._CrossingDone(_nT0_, pcFrom, pcTo, pcAction, 0)
 		ok
 		if NOT This.IsActive(pcTo)
 			@cWhy = "target world '" + pcTo + "' is not active."
-			return This._CrossingDone(_nT0_, pcFrom, pcTo, pcAction, FALSE)
+			return This._CrossingDone(_nT0_, pcFrom, pcTo, pcAction, 0)
 		ok
 		if NOT This.AreBonded(pcFrom, pcTo, pcAction)
 			@cWhy = "no bond declares '" + StzLower("" + pcAction) + "' from '" +
 				pcFrom + "' to '" + pcTo + "'."
-			return This._CrossingDone(_nT0_, pcFrom, pcTo, pcAction, FALSE)
+			return This._CrossingDone(_nT0_, pcFrom, pcTo, pcAction, 0)
 		ok
 		if @oGov.MayProceed(pcFrom, pcAction) = 0
 			@cWhy = "governance refused: " + @oGov.Why()
-			return This._CrossingDone(_nT0_, pcFrom, pcTo, pcAction, FALSE)
+			return This._CrossingDone(_nT0_, pcFrom, pcTo, pcAction, 0)
 		ok
 		@oGov.RecordDecision("call-" + pcFrom + "-" + StzLower("" + pcAction) + "-" + len(@aBonds),
 			"cross-world call cleared", pcFrom, pcAction)
 		@cWhy = "allowed: active + bonded + governed"
-		return This._CrossingDone(_nT0_, pcFrom, pcTo, pcAction, TRUE)
+		return This._CrossingDone(_nT0_, pcFrom, pcTo, pcAction, 1)
 
 	# The crossings ledger: [ [ from, to, action, allowed, durMs ], ... ].
 	def Crossings()

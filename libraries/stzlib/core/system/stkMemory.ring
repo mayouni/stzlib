@@ -1,6 +1,6 @@
 
 class stkMemory
-    @bIsValid = TRUE
+    @bIsValid = 1
     @aBuffers = []           # Hashlist format: [["buf1", oBuffer1], ["buf2", oBuffer2], ...]
     @aPointers = []          # Hashlist format: [["ptr1", oPointer1], ["ptr2", oPointer2], ...]
     @nNextBufferId = 1       # Unique ID generator
@@ -12,7 +12,7 @@ class stkMemory
         @aPointers = []
         @nNextBufferId = 1
         @nNextPointerId = 1
-        @bIsValid = TRUE
+        @bIsValid = 1
 
 
 	def CreateBuffer(nSize)
@@ -30,7 +30,7 @@ class stkMemory
 	    @aBuffers + [_cBufferId_, _oBuffer_]
 //	    ? "DEBUG CreateBuffer: Buffer stored in hashlist with size " + @aBuffers[cBufferId].Size()
 	    
-	    return TRUE
+	    return 1
 
 
 	def NumberOfBuffers()
@@ -58,7 +58,7 @@ class stkMemory
 	    _oPointer_ = new stkPointer(This, _cBufferId_, cAccessMode, 0, _oBuffer_.Capacity(), _cPointerId_)
 	    @aPointers + [ _cPointerId_, _oPointer_]
 
-	    return TRUE
+	    return 1
   
 
     def CreatePointerView(_cBufferId_, cAccessMode, nOffset, nLength)
@@ -98,7 +98,7 @@ class stkMemory
         # Increment ID for next pointer
         @nNextPointerId++
         
-        return TRUE
+        return 1
  
 
 	def ReadFromBuffer(_cBufferId_, nOffset, nLength)
@@ -123,7 +123,7 @@ class stkMemory
 	def DestroyBuffer(_cBufferId_)
 		_oBuffer_ = @aBuffers[_cBufferId_]
 	    if IsNull(_oBuffer_)
-	        return FALSE
+	        return 0
 	    ok
 	    
 	    # Invalidate all pointers to this buffer
@@ -131,14 +131,14 @@ class stkMemory
 
 	    for i = 1 to _nLenPtr_
 	        if @aPointers[i].BufferId() = _cBufferId_
-	            @aPointers[i].@bIsValid = FALSE  # Direct access to invalidate
+	            @aPointers[i].@bIsValid = 0  # Direct access to invalidate
 	        ok
 	    next
 	    
 	    # Remove buffer from hashlist
 	    del(@aBuffers, This.FindBuffer(_cBufferId_))
 	    
-	    return TRUE
+	    return 1
 
     def FindBuffer(_cBufferId_)
 		_nLen_ = len(@aBuffers)
@@ -153,7 +153,7 @@ class stkMemory
     def DestroyPointer(_cPointerId_)
 		_oPointer_ = @aPointers[_cPointerId_]
         if IsNull(_oPointer_)
-			return FALSE
+			return 0
 		ok
          
         # If it is a write pointer, release the buffer's write lock
@@ -167,7 +167,7 @@ class stkMemory
         # Remove pointer from list
         del(@aPointers, This.FindPointer(_cPointerId_))
 
-        return TRUE
+        return 1
     
     def FindPointer(_cPointerId_)
 		_nLen_ = len(@aPointers)
@@ -182,7 +182,7 @@ class stkMemory
     def ValidatePointer(_cPointerId_)
 		_oPointer_ = @aPointers[_cPointerId_]
         if IsNull(_oPointer_)
-            return FALSE
+            return 0
         ok
 
         # Check if referenced buffer still exists
@@ -216,7 +216,7 @@ class stkMemory
             ok
         next
         
-        return NULL
+        return ""
     
 
 	def Stats()
@@ -332,7 +332,7 @@ class stkMemory
     def Free()
         This.DestroyAllPointers()
         This.DestroyAllBuffers()
-        @bIsValid = FALSE
+        @bIsValid = 0
     
     		def Destroy()
        		 This.Free()
@@ -341,7 +341,7 @@ class stkMemory
     
 	def IsValidBuffer(_oBuffer_)
 		if NOT (isObject(_oBuffer_) and classname(_oBuffer_) = "stkbuffer")
-			return  FALSE
+			return  0
 		ok
 
 		return This.IsValidBufferId(_oBuffer_.Id())

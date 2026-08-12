@@ -69,11 +69,11 @@ class stzLlmSandbox from stzObject
 	def init()
 		$nStzLlmSandboxSeq = $nStzLlmSandboxSeq + 1
 		@nId = $nStzLlmSandboxSeq
-		$aStzLlmSandboxes + [ @nId, [], [], [], TRUE, "" ]
+		$aStzLlmSandboxes + [ @nId, [], [], [], 1, "" ]
 
 	# a double declares itself -- see stzServiceRegistry
 	def IsSandbox()
-		return TRUE
+		return 1
 
 	  #-- REPLAY: an exact answer for an exact prompt -----------------------
 
@@ -150,7 +150,7 @@ class stzLlmSandbox from stzObject
 
 		_s_ = This._SeedIndex( This.PromptKey(pcPrompt) )
 		if _s_ > 0
-			return [ :ok = TRUE, :text = $aStzLlmSandboxes[_i_][2][_s_][2], :from = :replay ]
+			return [ :ok = 1, :text = $aStzLlmSandboxes[_i_][2][_s_][2], :from = :replay ]
 		ok
 
 		_low_ = StzLower("" + pcPrompt)
@@ -158,18 +158,18 @@ class stzLlmSandbox from stzObject
 		_n_ = len(_aRules_)
 		for _j_ = 1 to _n_
 			if StzFindFirst(_aRules_[_j_][1], _low_) > 0
-				return [ :ok = TRUE, :text = _aRules_[_j_][2], :from = :scripted ]
+				return [ :ok = 1, :text = _aRules_[_j_][2], :from = :scripted ]
 			ok
 		next
 
 		if $aStzLlmSandboxes[_i_][6] != ""
-			return [ :ok = TRUE, :text = $aStzLlmSandboxes[_i_][6], :from = :fallback ]
+			return [ :ok = 1, :text = $aStzLlmSandboxes[_i_][6], :from = :fallback ]
 		ok
 		if $aStzLlmSandboxes[_i_][5]
 			StzRaise("stzLlmSandbox: no seeded answer, rule or fallback for this prompt. " +
 			         "Seed it, add a rule, SetFallback, or SetStrict(FALSE).")
 		ok
-		return [ :ok = FALSE, :text = "", :from = :miss ]
+		return [ :ok = 0, :text = "", :from = :miss ]
 
 	def SetStrict(pbOn)
 		This.SetStrictQ(pbOn)
@@ -222,10 +222,10 @@ class stzLlmSandbox from stzObject
 		_n_ = len(_a_)
 		for _i_ = 1 to _n_
 			if StzFindFirst(_f_, StzLower(_a_[_i_])) > 0
-				return TRUE
+				return 1
 			ok
 		next
-		return FALSE
+		return 0
 
 	def ClearCalls()
 		This.ClearCallsQ()
@@ -258,7 +258,7 @@ class stzLlmSandbox from stzObject
 				return _i_
 			ok
 		next
-		$aStzLlmSandboxes + [ @nId, [], [], [], TRUE, "" ]
+		$aStzLlmSandboxes + [ @nId, [], [], [], 1, "" ]
 		return len($aStzLlmSandboxes)
 
 
@@ -277,7 +277,7 @@ class stzLlmSandbox from stzObject
 
 class stzDlmSource from stzObject
 
-	@oDlm = NULL
+	@oDlm = ""
 
 	def init(poDlm)
 		if NOT isObject(poDlm)
@@ -287,15 +287,15 @@ class stzDlmSource from stzObject
 
 	# a genuine local equivalent, not a fake -- see stzServiceRegistry's postures
 	def IsLocalReal()
-		return TRUE
+		return 1
 
 	# the PORT contract
 	def Complete(pcPrompt)
 		_a_ = @oDlm.Ask("" + pcPrompt)
 		if _a_ = ""
-			return [ :ok = FALSE, :text = "", :from = :dlm ]
+			return [ :ok = 0, :text = "", :from = :dlm ]
 		ok
-		return [ :ok = TRUE, :text = "" + _a_, :from = :dlm ]
+		return [ :ok = 1, :text = "" + _a_, :from = :dlm ]
 
 	def DlmQ()
 		return @oDlm

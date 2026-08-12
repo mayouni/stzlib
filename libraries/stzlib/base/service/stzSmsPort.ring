@@ -87,7 +87,7 @@ func StzSmsSegments(pcText)
 	ok
 
 	# one character outside the GSM alphabet drags the WHOLE message to UCS-2
-	_bGsm_ = TRUE
+	_bGsm_ = 1
 	_nSeptets_ = 0
 	for _i_ = 1 to _n_
 		if StzFindFirst(_anU_[_i_], $anStzGsm7Basic) > 0
@@ -95,7 +95,7 @@ func StzSmsSegments(pcText)
 		but StzFindFirst(_anU_[_i_], $anStzGsm7Extended) > 0
 			_nSeptets_ += 2
 		else
-			_bGsm_ = FALSE
+			_bGsm_ = 0
 			exit
 		ok
 	next
@@ -126,17 +126,17 @@ func StzSmsSegments(pcText)
 func StzIsE164(pcNumber)
 	_s_ = ring_trim("" + pcNumber)
 	if len(_s_) < 9 or len(_s_) > 16
-		return FALSE
+		return 0
 	ok
 	if _s_[1] != "+"
-		return FALSE
+		return 0
 	ok
 	for _i_ = 2 to len(_s_)
 		if StzFindFirst(_s_[_i_], "0123456789") = 0
-			return FALSE
+			return 0
 		ok
 	next
-	return TRUE
+	return 1
 
 
   #=========================================================#
@@ -150,11 +150,11 @@ class stzSmsSandbox from stzObject
 	def init()
 		$nStzSmsSandboxSeq = $nStzSmsSandboxSeq + 1
 		@nId = $nStzSmsSandboxSeq
-		$aStzSmsSandboxes + [ @nId, [], FALSE, [], 0 ]
+		$aStzSmsSandboxes + [ @nId, [], 0, [], 0 ]
 
 	# a double declares itself -- see stzServiceRegistry
 	def IsSandbox()
-		return TRUE
+		return 1
 
 	  #-- the PORT contract ------------------------------------------------
 
@@ -165,22 +165,22 @@ class stzSmsSandbox from stzObject
 		# an OUTAGE: no message, no id, and nothing in the outbox. Distinct from a
 		# rejection, because the caller should retry rather than fix the data.
 		if $aStzSmsSandboxes[_i_][3]
-			$aStzSmsSandboxes[_i_][3] = FALSE
-			return [ :ok = FALSE, :id = "", :segments = 0, :encoding = :none,
+			$aStzSmsSandboxes[_i_][3] = 0
+			return [ :ok = 0, :id = "", :segments = 0, :encoding = :none,
 			         :status = :refused, :why = "the SMS gateway was unreachable" ]
 		ok
 
 		if NOT StzIsE164(_num_)
-			return [ :ok = FALSE, :id = "", :segments = 0, :encoding = :none,
+			return [ :ok = 0, :id = "", :segments = 0, :encoding = :none,
 			         :status = :rejected,
 			         :why = "'" + _num_ + "' is not an E.164 number (+ then 8-15 digits)" ]
 		ok
 		if StzFindFirst(_num_, $aStzSmsSandboxes[_i_][4]) > 0
-			return [ :ok = FALSE, :id = "", :segments = 0, :encoding = :none,
+			return [ :ok = 0, :id = "", :segments = 0, :encoding = :none,
 			         :status = :rejected, :why = "the number is unreachable" ]
 		ok
 		if "" + pcText = ""
-			return [ :ok = FALSE, :id = "", :segments = 0, :encoding = :none,
+			return [ :ok = 0, :id = "", :segments = 0, :encoding = :none,
 			         :status = :rejected, :why = "an empty message may not be sent" ]
 		ok
 
@@ -189,7 +189,7 @@ class stzSmsSandbox from stzObject
 		_id_ = "sms_" + $aStzSmsSandboxes[_i_][5]
 		$aStzSmsSandboxes[_i_][2] + [ _id_, _num_, "" + pcText,
 		                              _aSeg_[:segments], _aSeg_[:encoding], _aSeg_[:units] ]
-		return [ :ok = TRUE, :id = _id_, :segments = _aSeg_[:segments],
+		return [ :ok = 1, :id = _id_, :segments = _aSeg_[:segments],
 		         :encoding = _aSeg_[:encoding], :status = :sent, :why = "" ]
 
 	  #-- rules, so the FAILURE paths are testable -------------------------
@@ -199,7 +199,7 @@ class stzSmsSandbox from stzObject
 		This.FailNextQ()
 
 	def FailNextQ()
-		$aStzSmsSandboxes[This._Slot()][3] = TRUE
+		$aStzSmsSandboxes[This._Slot()][3] = 1
 		return This
 
 	def RejectNumber(pcNumber)
@@ -300,5 +300,5 @@ class stzSmsSandbox from stzObject
 				return _i_
 			ok
 		next
-		$aStzSmsSandboxes + [ @nId, [], FALSE, [], 0 ]
+		$aStzSmsSandboxes + [ @nId, [], 0, [], 0 ]
 		return len($aStzSmsSandboxes)

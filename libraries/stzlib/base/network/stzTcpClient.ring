@@ -11,8 +11,8 @@
 # =============================================================================
 
 class stzTcpClient from stzNetwork
-    @hClient = NULL              # opaque engine TCP handle
-    @is_connected = False
+    @hClient = ""              # opaque engine TCP handle
+    @is_connected = 0
     @on_connect_callback = ""
     @on_receive_callback = ""
     @on_close_callback = ""
@@ -27,13 +27,13 @@ class stzTcpClient from stzNetwork
         # The engine returns a null-pointer (not literal NULL) on
         # failure. Cross-check via LastError -- empty means success.
         if StzEngineTcpLastError() = ""
-            @is_connected = True
+            @is_connected = 1
             ClearErrors()
             if @on_connect_callback != ""
                 call @on_connect_callback()
             ok
         else
-            @is_connected = False
+            @is_connected = 0
             @last_error = StzEngineTcpLastError()
             @error_code = -1
             if @on_error_callback != ""
@@ -84,10 +84,10 @@ class stzTcpClient from stzNetwork
         return @received_data
 
     def Close()
-        if @is_connected and @hClient != NULL
+        if @is_connected and @hClient != ""
             StzEngineTcpClose(@hClient)
-            @hClient = NULL
-            @is_connected = False
+            @hClient = ""
+            @is_connected = 0
             if @on_close_callback != ""
                 call @on_close_callback()
             ok

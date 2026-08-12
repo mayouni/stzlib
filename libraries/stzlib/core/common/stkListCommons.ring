@@ -16,14 +16,14 @@ func ListReverse(aList)
 # lists by content, so membership/contains on lists needs this.
 func ListsDeepEqual(pA, pB)
 	if isList(pA) and isList(pB)
-		if len(pA) != len(pB) return FALSE ok
+		if len(pA) != len(pB) return 0 ok
 		_nLde_ = len(pA)
 		for _ilde_ = 1 to _nLde_
-			if NOT ListsDeepEqual(pA[_ilde_], pB[_ilde_]) return FALSE ok
+			if NOT ListsDeepEqual(pA[_ilde_], pB[_ilde_]) return 0 ok
 		next
-		return TRUE
+		return 1
 	but isList(pA) or isList(pB)
-		return FALSE
+		return 0
 	ok
 	return pA = pB
 
@@ -31,10 +31,10 @@ func ListContains(aList, pItem)
 	_nLen_ = len(aList)
 	for i = 1 to _nLen_
 		if ListsDeepEqual(aList[i], pItem)
-			return TRUE
+			return 1
 		ok
 	next
-	return FALSE
+	return 0
 
 	func @ListContains(aList, pItem)
 		return ListContains(aList, pItem)

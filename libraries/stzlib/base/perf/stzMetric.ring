@@ -50,8 +50,8 @@ class stzMetric from stzObject
 	@cKind = ""		# :counter / :gauge / :timer (folded lowercase)
 	@cHelp = ""
 	@nWindow = 1024
-	@oSeries = NULL
-	@oHist = NULL		# timers only
+	@oSeries = ""
+	@oHist = ""		# timers only
 	@aLabelPairs = []	# [ [name, value], ... ] when this metric is a
 				# family CHILD (perf P8); [] on flat metrics
 
@@ -74,10 +74,10 @@ class stzMetric from stzObject
 	# truth. stzLatencyHistogram is lazy by design (paren-less-new
 	# robustness), so Handle() forces its engine handle NOW.
 	def _Ensure()
-		if @oSeries = NULL
+		if @oSeries = ""
 			@oSeries = new stzPerfSeries(@nWindow)
 		ok
-		if @cKind = "timer" and @oHist = NULL
+		if @cKind = "timer" and @oHist = ""
 			@oHist = new stzLatencyHistogram()
 			@oHist.Handle()
 		ok
@@ -123,13 +123,13 @@ class stzMetric from stzObject
 		return This
 
 	def _BindAdopted(pSeriesHandle, pHistHandle, paLabelPairs)
-		if @oSeries != NULL
+		if @oSeries != ""
 			@oSeries.Destroy()
 		ok
 		@oSeries = new stzPerfSeries
 		@oSeries.AdoptHandle(pSeriesHandle)
 		if @cKind = "timer"
-			if @oHist != NULL
+			if @oHist != ""
 				@oHist.Destroy()
 			ok
 			@oHist = new stzLatencyHistogram
@@ -444,12 +444,12 @@ class stzMetric from stzObject
 		next
 
 	def Destroy()
-		if @oSeries != NULL
+		if @oSeries != ""
 			@oSeries.Destroy()
-			@oSeries = NULL
+			@oSeries = ""
 		ok
-		if @oHist != NULL
+		if @oHist != ""
 			@oHist.Destroy()
-			@oHist = NULL
+			@oHist = ""
 		ok
 		return This

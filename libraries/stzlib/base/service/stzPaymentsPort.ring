@@ -61,11 +61,11 @@ class stzPaymentsSandbox from stzObject
 	def init()
 		$nStzPayGatewaySeq = $nStzPayGatewaySeq + 1
 		@nId = $nStzPayGatewaySeq
-		$aStzPayGateways + [ @nId, [], [], 0, 0, 0, [], FALSE ]
+		$aStzPayGateways + [ @nId, [], [], 0, 0, 0, [], 0 ]
 
 	# a double declares itself -- see stzServiceRegistry
 	def IsSandbox()
-		return TRUE
+		return 1
 
 	  #-- the rules (deterministic, no randomness) --------------------------
 
@@ -100,7 +100,7 @@ class stzPaymentsSandbox from stzObject
 		This.FailNextQ()
 
 	def FailNextQ()
-		$aStzPayGateways[This._Slot()][8] = TRUE
+		$aStzPayGateways[This._Slot()][8] = 1
 		return This
 
 	  #-- the PORT contract ------------------------------------------------
@@ -115,20 +115,20 @@ class stzPaymentsSandbox from stzObject
 			return This._Refuse("", "an amount must be a positive whole number of minor units")
 		ok
 
-		_declined_ = FALSE
+		_declined_ = 0
 		_why_ = ""
 		if This._IsDeclinedToken(pcToken)
-			_declined_ = TRUE
+			_declined_ = 1
 			_why_ = "the payment token was declined"
 		ok
 		_over_ = $aStzPayGateways[_i_][6]
 		if NOT _declined_ and _over_ > 0 and pnAmount >= _over_
-			_declined_ = TRUE
+			_declined_ = 1
 			_why_ = "the amount is at or above the decline ceiling"
 		ok
 		_under_ = $aStzPayGateways[_i_][5]
 		if NOT _declined_ and _under_ > 0 and pnAmount >= _under_
-			_declined_ = TRUE
+			_declined_ = 1
 			_why_ = "the amount is not below the approval ceiling"
 		ok
 
@@ -137,12 +137,12 @@ class stzPaymentsSandbox from stzObject
 		if _declined_
 			$aStzPayGateways[_i_][2] + [ _id_, pnAmount, "" + pcToken, :declined, 0, 0 ]
 			This._Move("decline", _id_, pnAmount)
-			return [ :ok = FALSE, :id = _id_, :status = :declined,
+			return [ :ok = 0, :id = _id_, :status = :declined,
 			         :amount = pnAmount, :why = _why_ ]
 		ok
 		$aStzPayGateways[_i_][2] + [ _id_, pnAmount, "" + pcToken, :authorized, 0, 0 ]
 		This._Move("authorize", _id_, pnAmount)
-		return [ :ok = TRUE, :id = _id_, :status = :authorized,
+		return [ :ok = 1, :id = _id_, :status = :authorized,
 		         :amount = pnAmount, :why = "" ]
 
 	# Capture an authorization. Full amount by default; CaptureAmount for less.
@@ -180,7 +180,7 @@ class stzPaymentsSandbox from stzObject
 		ok
 		$aStzPayGateways[_i_][2][_j_] = [ _a_[1], _a_[2], _a_[3], :captured, _amt_, _a_[6] ]
 		This._Move("capture", pcId, _amt_)
-		return [ :ok = TRUE, :id = pcId, :status = :captured, :amount = _amt_, :why = "" ]
+		return [ :ok = 1, :id = pcId, :status = :captured, :amount = _amt_, :why = "" ]
 
 	# Refund captured money. Full captured amount by default; partials allowed, and
 	# the TOTAL refunded may never exceed what was captured.
@@ -212,7 +212,7 @@ class stzPaymentsSandbox from stzObject
 		ok
 		$aStzPayGateways[_i_][2][_j_] = [ _a_[1], _a_[2], _a_[3], _a_[4], _a_[5], _a_[6] + _amt_ ]
 		This._Move("refund", pcId, _amt_)
-		return [ :ok = TRUE, :id = pcId, :status = :refunded, :amount = _amt_, :why = "" ]
+		return [ :ok = 1, :id = pcId, :status = :refunded, :amount = _amt_, :why = "" ]
 
 	  #-- the ledger (what actually happened to the money) -------------------
 
@@ -305,16 +305,16 @@ class stzPaymentsSandbox from stzObject
 	  #-- internals -------------------------------------------------------
 
 	def _Refuse(pcId, pcWhy)
-		return [ :ok = FALSE, :id = "" + pcId, :status = :refused, :amount = 0, :why = "" + pcWhy ]
+		return [ :ok = 0, :id = "" + pcId, :status = :refused, :amount = 0, :why = "" + pcWhy ]
 
 	# money is minor units: a positive WHOLE number. A float would be a rounding
 	# defect waiting for its boundary.
 	def _IsSaneAmount(pnAmount)
 		if NOT isNumber(pnAmount)
-			return FALSE
+			return 0
 		ok
 		if pnAmount <= 0
-			return FALSE
+			return 0
 		ok
 		return floor(pnAmount) = pnAmount
 
@@ -323,19 +323,19 @@ class stzPaymentsSandbox from stzObject
 		_n_ = len(_a_)
 		for _i_ = 1 to _n_
 			if _a_[_i_] = ("" + pcToken)
-				return TRUE
+				return 1
 			ok
 		next
-		return FALSE
+		return 0
 
 	# a one-shot transient failure
 	def _TakeFailure()
 		_i_ = This._Slot()
 		if $aStzPayGateways[_i_][8]
-			$aStzPayGateways[_i_][8] = FALSE
-			return TRUE
+			$aStzPayGateways[_i_][8] = 0
+			return 1
 		ok
-		return FALSE
+		return 0
 
 	def _Move(pcKind, pcId, pnAmount)
 		_i_ = This._Slot()
@@ -370,5 +370,5 @@ class stzPaymentsSandbox from stzObject
 				return _i_
 			ok
 		next
-		$aStzPayGateways + [ @nId, [], [], 0, 0, 0, [], FALSE ]
+		$aStzPayGateways + [ @nId, [], [], 0, 0, 0, [], 0 ]
 		return len($aStzPayGateways)

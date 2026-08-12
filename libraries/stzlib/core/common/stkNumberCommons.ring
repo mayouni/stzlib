@@ -18,9 +18,9 @@ func MaxNumber()
 
 func IsEven(_n_)
 	if EvenOrOdd(_n_) = 2
-		return TRUE
+		return 1
 	else
-		return FALSE
+		return 0
 	ok
 
 	func @IsEven(_n_)
@@ -36,9 +36,9 @@ func IsOdd(_n_)
 
 func IsInt(_n_)
 	if ring_substr1( ""+ _n_, '.') = 0
-		return TRUE
+		return 1
 	else
-		return FALSE
+		return 0
 	ok
 
 	func IsInteger(_n_)

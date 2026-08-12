@@ -10,7 +10,7 @@ class stkNumber
 	@content
 	@nRound
 
-	@bSpacify = FALSE
+	@bSpacify = 0
 	@nSpaceStep = 3
 	@cSpaceChar = "_"
 
@@ -31,9 +31,9 @@ class stkNumber
 		else # the number is provided in a string
 			if ring_substr1(pNumber, '_') > 0
 
-				@bSpacify = TRUE
+				@bSpacify = 1
 			else
-				@bSpacify = FALSE
+				@bSpacify = 0
 			ok
 
 			@content = @Val(pNumber)
@@ -79,15 +79,15 @@ class stkNumber
 			@content = @Val(pNumber)
 
 			if ring_substr1(pNumber, '_') > 0
-				@bSpacify = TRUE
+				@bSpacify = 1
 			else
-				@bSpacify = FALSE
+				@bSpacify = 0
 			ok
 		ok
 
 		@nRound = @Round(pNumber)
 
-		if KeepingHisto() = TRUE
+		if KeepingHisto() = 1
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
 
@@ -191,9 +191,9 @@ class stkNumber
 
 	def HasFractPart()
 		if ring_substr1( This.SValue(), "." ) > 0
-			return TRUE
+			return 1
 		else
-			return FALSE
+			return 0
 		ok
 
 		#< @FunctionAlternativeForms
@@ -294,14 +294,14 @@ class stkNumber
 	#----------------------------------------------------#
 
 	def Spacify()
-		@bSpacify = TRUE
+		@bSpacify = 1
 
 	def Unspacify()
-		@bSpacify = FALSE
+		@bSpacify = 0
 
 	def UnSpacified()
 		_bTemp_ = @bSpacify
-		@bSpacify = FALSE
+		@bSpacify = 0
 		_cResult_ This.SValue()
 		@bSpacify = _bTemp_
 
@@ -404,9 +404,9 @@ class stkNumber
 	def IsEqual(_n_)
 		_oOtherNumber_ = new stkNumber(_n_)
 		if This.SNumber() = _oOtherNumber_.SNumber()
-			return TRUE
+			return 1
 		else
-			return FALSE
+			return 0
 		ok
 
 		def Equals(_n_)

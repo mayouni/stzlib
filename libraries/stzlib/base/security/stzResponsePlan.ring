@@ -42,7 +42,7 @@
 	recording them cannot feed itself.
 
 	The consequence the whole plan was built for: an LLMActor holds
-	`inference` only, so `MayCommit` is FALSE for it -- structurally,
+	`inference` only, so `MayCommit` is 0 for it -- structurally,
 	not by policy. It can investigate, narrate, and propose the exact
 	containment it is unable to perform.
 */
@@ -59,7 +59,7 @@ class stzResponsePlan from stzObject
 	@cName = ""
 	@aActions = []		# [ kind(lower), target, rationale ]
 	@aAudit = []		# [ n, verdict, kind, target, actor, why ]
-	@bExecuted = FALSE
+	@bExecuted = 0
 
 	def init(pcName)
 		@cName = "" + pcName
@@ -114,12 +114,12 @@ class stzResponsePlan from stzObject
 	# capability, and a sandboxed posture never crosses.
 	def MayCommit(poActor)
 		if NOT poActor.IsEffectful()
-			return FALSE
+			return 0
 		ok
 		if StzLower("" + poActor.Posture()) = "sandboxed"
-			return FALSE
+			return 0
 		ok
-		return TRUE
+		return 1
 
 	def WhyNot(poActor)
 		if NOT poActor.IsEffectful()
@@ -157,7 +157,7 @@ class stzResponsePlan from stzObject
 			StzNoteGrant("response.action.committed", _cActor_, _cK_ + ":" + _cT_)
 			_nDone_++
 		next
-		@bExecuted = TRUE
+		@bExecuted = 1
 		return _nDone_
 
 	def WasExecuted()

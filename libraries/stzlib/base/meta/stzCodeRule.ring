@@ -53,10 +53,10 @@ func _StzIsMutatorVerb(pcName)
 	_n_ = len(_aVerbs_)
 	for _i_ = 1 to _n_
 		if StzLeft(_c_, len(_aVerbs_[_i_])) = _aVerbs_[_i_]
-			return TRUE
+			return 1
 		ok
 	next
-	return FALSE
+	return 0
 
 # TRUE when class pcClass defines a method named pcName (case-insensitive).
 # aMethods rows are [ class, method, line ].
@@ -66,10 +66,10 @@ func _StzClassHasMethod(paMethods, pcClass, pcName)
 	_n_ = len(paMethods)
 	for _i_ = 1 to _n_
 		if StzLower("" + paMethods[_i_][1]) = _cCls_ and StzLower("" + paMethods[_i_][2]) = _cM_
-			return TRUE
+			return 1
 		ok
 	next
-	return FALSE
+	return 0
 
 class stzCodeRule from stzGraphRule
 	def init(pcName)

@@ -146,7 +146,7 @@ class stzSecret from stzObject
 	# may this actor read the plaintext? Only an effectful, non-sandboxed actor.
 	def IsRevealableBy(poActor)
 		if NOT isObject(poActor)
-			return FALSE
+			return 0
 		ok
 		return poActor.IsEffectful() and poActor.Posture() != "sandboxed"
 
@@ -205,10 +205,10 @@ class stzSecret from stzObject
 	# secret needs a resolver, so it is not resolvable this way.
 	def IsResolvableBy(poActor)
 		if NOT This.IsRevealableBy(poActor)
-			return FALSE
+			return 0
 		ok
 		if @cSource = "vault"
-			return FALSE
+			return 0
 		ok
 		return This._Resolve() != ""
 
@@ -315,6 +315,6 @@ class stzToken from stzSecret
 	# caller passes the clock -- the class holds no wall-clock of its own.
 	def IsExpiredAt(nNowEpoch)
 		if @nExpiresAt = 0
-			return FALSE
+			return 0
 		ok
 		return nNowEpoch >= @nExpiresAt

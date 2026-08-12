@@ -79,7 +79,7 @@ class stzOidcSandbox from stzObject
 
 	# a double declares itself -- see stzServiceRegistry
 	def IsSandbox()
-		return TRUE
+		return 1
 
 	def KeyId()
 		return @cKid
@@ -185,17 +185,17 @@ class stzOidcSandbox from stzObject
 
 	def _Has(paList, pcKey)
 		if NOT isList(paList)
-			return FALSE
+			return 0
 		ok
 		_n_ = len(paList)
 		for _i_ = 1 to _n_
 			if isList(paList[_i_]) and len(paList[_i_]) >= 2
 				if ("" + paList[_i_][1]) = ("" + pcKey)
-					return TRUE
+					return 1
 				ok
 			ok
 		next
-		return FALSE
+		return 0
 
 	def _Or(paList, pcKey, pDefault)
 		if NOT isList(paList)

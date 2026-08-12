@@ -39,7 +39,7 @@ func _StzTreeRender(paNodes, paOptions)
 	ok
 	_nN_ = len(paNodes)
 
-	_oFont_  = _StzPlotOpt(paOptions, "font", NULL)
+	_oFont_  = _StzPlotOpt(paOptions, "font", "")
 	_nNodeW_ = _StzPlotOpt(paOptions, "nodewidth", 168)
 	_nNodeH_ = _StzPlotOpt(paOptions, "nodeheight", 54)
 	_nHGap_  = _StzPlotOpt(paOptions, "hgap", 26)
@@ -58,7 +58,7 @@ func _StzTreeRender(paNodes, paOptions)
 	_aLabels_ = []
 	for _i_ = 1 to _nN_
 		_aIds_ + ("" + paNodes[_i_][1])
-		if len(paNodes[_i_]) >= 2 and paNodes[_i_][2] != NULL and ("" + paNodes[_i_][2]) != ""
+		if len(paNodes[_i_]) >= 2 and paNodes[_i_][2] != "" and ("" + paNodes[_i_][2]) != ""
 			_aLabels_ + ("" + paNodes[_i_][2])
 		else
 			_aLabels_ + ("" + paNodes[_i_][1])
@@ -69,7 +69,7 @@ func _StzTreeRender(paNodes, paOptions)
 	_aRoots_ = []
 	for _i_ = 1 to _nN_
 		_nP_ = 0
-		if len(paNodes[_i_]) >= 3 and paNodes[_i_][3] != NULL
+		if len(paNodes[_i_]) >= 3 and paNodes[_i_][3] != ""
 			_cP_ = "" + paNodes[_i_][3]
 			if _cP_ != ""
 				for _j_ = 1 to _nN_

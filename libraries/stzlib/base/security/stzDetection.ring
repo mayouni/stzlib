@@ -4,7 +4,7 @@
 
 	Every rule the library owns until now judges STRUCTURE AT ONE
 	INSTANT: a graph rule asks whether a sandboxed actor can reach an
-	effectful capability, a posture invariant asks what is true right
+	effectful capability, a posture invariant asks what is 1 right
 	now. But an incident is a STORY -- five failed logins inside a
 	minute, or a failed login followed by a reach for a secret. No
 	rule shape in the library could say that. This is that shape.
@@ -120,9 +120,9 @@ class stzDetection from stzObject
 	@cShape = ""		# burst | sequence | any
 	@nRepeats = 0
 	@nWindowMs = 0
-	@bPerActor = FALSE
-	@bSameActor = FALSE
-	@bCorroborated = FALSE
+	@bPerActor = 0
+	@bSameActor = 0
+	@bCorroborated = 0
 	@cSeverity = "error"
 	@cMeaning = ""
 	@aEvidence = []		# the events that matched, last check
@@ -169,7 +169,7 @@ class stzDetection from stzObject
 	# count per actor rather than across all actors -- credential
 	# stuffing is per account, not per installation.
 	def PerActor()
-		@bPerActor = TRUE
+		@bPerActor = 1
 		return This
 
 	# SEQUENCE: this kind must follow the watched one.
@@ -179,7 +179,7 @@ class stzDetection from stzObject
 		return This
 
 	def BySameActor()
-		@bSameActor = TRUE
+		@bSameActor = 1
 		return This
 
 	# ANY: one occurrence is already the story.
@@ -190,7 +190,7 @@ class stzDetection from stzObject
 	# The corroboration law: no error-severity alarm on a single
 	# signal -- one anomalous read is a rumor.
 	def Corroborated()
-		@bCorroborated = TRUE
+		@bCorroborated = 1
 		return This
 
 	def Explaining(pcMeaning)

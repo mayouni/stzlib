@@ -32,8 +32,8 @@ class stzWorkerPool from stzObject
 	@aoProfiles = []      # list of stzWorkerProfile
 	@aQueues = []        # parallel to @aoProfiles: [ [ fWork, ... ], ... ]
 	@aResults = []       # drained results: [ [ tag, value ], ... ]
-	@oReactorPool = NULL # attached for the R8.3 fleet (optional at R8.1)
-	@oCatalog = NULL     # the competence registry this pool draws facets
+	@oReactorPool = "" # attached for the R8.3 fleet (optional at R8.1)
+	@oCatalog = ""     # the competence registry this pool draws facets
 	                     # from (INSTANCE-scoped; seeded standard, custom-
 	                     # izable) -- not a global (a deployment concern)
 
@@ -114,7 +114,7 @@ class stzWorkerPool from stzObject
 		return This.ProfileQ(pcTag)
 	def ProfileQ(pcTag)
 		_i_ = This._IndexOf(pcTag)
-		if _i_ = 0  return NULL  ok
+		if _i_ = 0  return ""  ok
 		return @aoProfiles[_i_]
 
 	def HasProfile(pcTag)

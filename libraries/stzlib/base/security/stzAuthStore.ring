@@ -282,10 +282,10 @@ class stzAuthMemoryStore from stzObject
 		_n_ = len(@aRoles)
 		for _i_ = 1 to _n_
 			if @aRoles[_i_][1] = _u_ and @aRoles[_i_][2] = _r_
-				return TRUE
+				return 1
 			ok
 		next
-		return FALSE
+		return 0
 
 	def RolesOf(pcUser)
 		_u_ = "" + pcUser
@@ -417,7 +417,7 @@ class stzAuthMemoryStore from stzObject
 
 class stzAuthDbStore from stzObject
 
-	@oDb = NULL
+	@oDb = ""
 
 	# pcPath = a file path (durable) or ":memory:" (a real sqlite, but process-
 	# local). The tables are created on first use.

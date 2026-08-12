@@ -1,21 +1,21 @@
 
-$bRandomPass = TRUE
-$pStopValue = NULL
+$bRandomPass = 1
+$pStopValue = ""
 
-$bExecuteCode = FALSE
+$bExecuteCode = 0
 
-$cValueInitiator = NULL
+$cValueInitiator = ""
 
 $cOneOrManyLoops = :One
-$bRequiresStopValue = FALSE
+$bRequiresStopValue = 0
 
 func Whatever(p)
 	$cValueInitiator = :Whatever
 
 	$cOneOrManyLoops = :One
-	$bRequiresStopValue = FALSE
+	$bRequiresStopValue = 0
 
-	$bExecuteCode = TRUE
+	$bExecuteCode = 1
 
 	return new stzChainOfValue(p)
 
@@ -107,7 +107,7 @@ class stzChainOfValue from stzObject
 		try
 			eval(_cCode_)
 		catch
-			@pValue = NULL
+			@pValue = ""
 			@bChainStopped = 1
 			@aWhyChainStopped = [
 				"Because the variable " + @cVarName +

@@ -55,7 +55,7 @@ class stzFrameGraph from stzObject
 	@aAlias = []         # [ logicalName, physicalSlot ]
 	@nPhysical = 0
 	@aFindings = []
-	@bCompiled = FALSE
+	@bCompiled = 0
 	@aTargets = []       # physical target ids, made at Execute time
 
 	def init(pnW, pnH)
@@ -93,7 +93,7 @@ class stzFrameGraph from stzObject
 		@aPasses + [ _cN_, _aR_, _aW_, _f_ ]
 		for _r_ in _aR_  This._Note(_r_)  next
 		for _w_ in _aW_  This._Note(_w_)  next
-		@bCompiled = FALSE
+		@bCompiled = 0
 
 	def AddPassQ(pcName, paSpec)
 		This.AddPass(pcName, paSpec)
@@ -110,7 +110,7 @@ class stzFrameGraph from stzObject
 	def Compile()
 		@aFindings = []
 		@aOrder = []
-		@bCompiled = FALSE
+		@bCompiled = 0
 
 		if len(@aPasses) = 0
 			StzRaise("stzFrameGraph.Compile: no passes declared.")
@@ -178,7 +178,7 @@ class stzFrameGraph from stzObject
 			This._ComputeLifetimes()
 			This._ComputeAliasing()
 		ok
-		@bCompiled = TRUE
+		@bCompiled = 1
 		return This
 
 	def Order()
@@ -216,9 +216,9 @@ class stzFrameGraph from stzObject
 	def IsSound()
 		This._RequireCompiled()
 		for _f_ in @aFindings
-			if _f_[4] = :error  return FALSE  ok
+			if _f_[4] = :error  return 0  ok
 		next
-		return TRUE
+		return 1
 
 	def Report()
 		This._RequireCompiled()
@@ -242,7 +242,7 @@ class stzFrameGraph from stzObject
 				"schedule is how a frame graph becomes worse than a list.")
 		ok
 		if NOT StzGraphicsDevice()
-			return FALSE
+			return 0
 		ok
 
 		# one physical target per alias slot, not one per resource
@@ -264,7 +264,7 @@ class stzFrameGraph from stzObject
 			ok
 		next
 		StzEngineGpuFrameEnd()
-		return TRUE
+		return 1
 
 	# The physical target a logical resource lives on, for a pass body to
 	# draw into or sample.
@@ -307,7 +307,7 @@ class stzFrameGraph from stzObject
 		return []
 
 	def _SpecRaw(paSpec, cKey)
-		if NOT isList(paSpec)  return NULL  ok
+		if NOT isList(paSpec)  return ""  ok
 		for _p_ in paSpec
 			if isList(_p_) and len(_p_) = 2
 				if StzLower("" + _p_[1]) = StzLower("" + cKey)
@@ -315,7 +315,7 @@ class stzFrameGraph from stzObject
 				ok
 			ok
 		next
-		return NULL
+		return ""
 
 	def _Note(cRes)
 		for _r_ in @aResources
@@ -342,25 +342,25 @@ class stzFrameGraph from stzObject
 
 	def _Writes(nPass, cRes)
 		for _w_ in @aPasses[nPass][3]
-			if _w_ = cRes  return TRUE  ok
+			if _w_ = cRes  return 1  ok
 		next
-		return FALSE
+		return 0
 
 	def _AnyWriter(cRes)
 		_n_ = len(@aPasses)
 		for _i_ = 1 to _n_
-			if This._Writes(_i_, cRes)  return TRUE  ok
+			if This._Writes(_i_, cRes)  return 1  ok
 		next
-		return FALSE
+		return 0
 
 	def _AnyReader(cRes)
 		_n_ = len(@aPasses)
 		for _i_ = 1 to _n_
 			for _r_ in @aPasses[_i_][2]
-				if _r_ = cRes  return TRUE  ok
+				if _r_ = cRes  return 1  ok
 			next
 		next
-		return FALSE
+		return 0
 
 	# A resource is LIVE from the step that first writes it to the step that
 	# last reads it. Positions come from the derived ORDER, not from the

@@ -34,9 +34,9 @@ func StzPerfSeries(pnCapacity)
 
 class stzPerfSeries from stzObject
 
-	pHandle = NULL
-	bReady = FALSE
-	bAdopted = FALSE	# handle owned elsewhere (a family child)
+	pHandle = ""
+	bReady = 0
+	bAdopted = 0	# handle owned elsewhere (a family child)
 	@nCapacity = 0
 
 	def init(pnCapacity)
@@ -50,12 +50,12 @@ class stzPerfSeries from stzObject
 	# Lazy handle creation -- robust whether or not init() ran
 	# (paren-less `new` skips init in Ring).
 	def _Ensure()
-		if bReady = FALSE
+		if bReady = 0
 			if @nCapacity < 1
 				@nCapacity = 1024
 			ok
 			pHandle = StzEnginePerfSeriesCreate(@nCapacity)
-			bReady = TRUE
+			bReady = 1
 		ok
 
 	def Handle()
@@ -71,8 +71,8 @@ class stzPerfSeries from stzObject
 			StzEnginePerfSeriesDestroy(pHandle)
 		ok
 		pHandle = pEngineHandle
-		bReady = TRUE
-		bAdopted = TRUE
+		bReady = 1
+		bAdopted = 1
 		return This
 
 	def Capacity()
@@ -174,12 +174,12 @@ class stzPerfSeries from stzObject
 		return This
 
 	def Destroy()
-		if bReady = TRUE
+		if bReady = 1
 			if NOT bAdopted
 				StzEnginePerfSeriesDestroy(pHandle)
 			ok
-			pHandle = NULL
-			bReady = FALSE
-			bAdopted = FALSE
+			pHandle = ""
+			bReady = 0
+			bAdopted = 0
 		ok
 		return This

@@ -13,8 +13,8 @@ func StzUrl(pcUrl)
 
 func StzUrlIsValid(pcUrl)
 	_pH_ = StzEngineUrlParse(pcUrl)
-	if _pH_ = NULL
-		return FALSE
+	if _pH_ = ""
+		return 0
 	ok
 	_nValid_ = StzEngineUrlIsValid(_pH_)
 	StzEngineUrlFree(_pH_)
@@ -22,7 +22,7 @@ func StzUrlIsValid(pcUrl)
 
 func StzUrlScheme(pcUrl)
 	_pH_ = StzEngineUrlParse(pcUrl)
-	if _pH_ = NULL
+	if _pH_ = ""
 		return ""
 	ok
 	_cResult_ = StzEngineUrlScheme(_pH_)
@@ -31,7 +31,7 @@ func StzUrlScheme(pcUrl)
 
 func StzUrlHost(pcUrl)
 	_pH_ = StzEngineUrlParse(pcUrl)
-	if _pH_ = NULL
+	if _pH_ = ""
 		return ""
 	ok
 	_cResult_ = StzEngineUrlHost(_pH_)
@@ -40,7 +40,7 @@ func StzUrlHost(pcUrl)
 
 func StzUrlPort(pcUrl)
 	_pH_ = StzEngineUrlParse(pcUrl)
-	if _pH_ = NULL
+	if _pH_ = ""
 		return -1
 	ok
 	_nResult_ = StzEngineUrlPort(_pH_)
@@ -49,7 +49,7 @@ func StzUrlPort(pcUrl)
 
 func StzUrlPath(pcUrl)
 	_pH_ = StzEngineUrlParse(pcUrl)
-	if _pH_ = NULL
+	if _pH_ = ""
 		return ""
 	ok
 	_cResult_ = StzEngineUrlPath(_pH_)
@@ -58,7 +58,7 @@ func StzUrlPath(pcUrl)
 
 func StzUrlQuery(pcUrl)
 	_pH_ = StzEngineUrlParse(pcUrl)
-	if _pH_ = NULL
+	if _pH_ = ""
 		return ""
 	ok
 	_cResult_ = StzEngineUrlQuery(_pH_)
@@ -67,7 +67,7 @@ func StzUrlQuery(pcUrl)
 
 func StzUrlFragment(pcUrl)
 	_pH_ = StzEngineUrlParse(pcUrl)
-	if _pH_ = NULL
+	if _pH_ = ""
 		return ""
 	ok
 	_cResult_ = StzEngineUrlFragment(_pH_)
@@ -77,17 +77,17 @@ func StzUrlFragment(pcUrl)
 Class stzUrl from stzObject
 
 	@cUrl = ""
-	@pEngine = NULL
+	@pEngine = ""
 
 	# Cached fields (populated lazily or on parse)
-	@cScheme = NULL
-	@cUserName = NULL
-	@cPassword = NULL
-	@cHost = NULL
+	@cScheme = ""
+	@cUserName = ""
+	@cPassword = ""
+	@cHost = ""
 	@nPort = -1
-	@cPath = NULL
-	@cQuery = NULL
-	@cFragment = NULL
+	@cPath = ""
+	@cQuery = ""
+	@cFragment = ""
 
 	def init(pcUrl)
 		if isString(pcUrl) and pcUrl != ""
@@ -96,7 +96,7 @@ Class stzUrl from stzObject
 		ok
 
 	def Content()
-		if @cUrl = "" or @cUrl = NULL
+		if @cUrl = "" or @cUrl = ""
 			This.ReconstructUrl()
 		ok
 		return @cUrl
@@ -114,55 +114,55 @@ Class stzUrl from stzObject
 	#-- CORE URL METHODS --
 
 	def SetUrl(pcUrl)
-		if @pEngine != NULL
+		if @pEngine != ""
 			StzEngineUrlFree(@pEngine)
 		ok
 		@cUrl = pcUrl
 		@pEngine = StzEngineUrlParse(pcUrl)
 		# Clear cached values
-		@cScheme = NULL
-		@cUserName = NULL
-		@cPassword = NULL
-		@cHost = NULL
+		@cScheme = ""
+		@cUserName = ""
+		@cPassword = ""
+		@cHost = ""
 		@nPort = -1
-		@cPath = NULL
-		@cQuery = NULL
-		@cFragment = NULL
+		@cPath = ""
+		@cQuery = ""
+		@cFragment = ""
 
 	def Url()
 		return This.Content()
 
 	def IsValid()
-		if @pEngine = NULL
+		if @pEngine = ""
 			return 0
 		ok
 		return StzEngineUrlIsValid(@pEngine)
 
 	def IsEmpty()
-		return @cUrl = "" or @cUrl = NULL
+		return @cUrl = "" or @cUrl = ""
 
 	def Clear()
-		if @pEngine != NULL
+		if @pEngine != ""
 			StzEngineUrlFree(@pEngine)
-			@pEngine = NULL
+			@pEngine = ""
 		ok
 		@cUrl = ""
-		@cScheme = NULL
-		@cUserName = NULL
-		@cPassword = NULL
-		@cHost = NULL
+		@cScheme = ""
+		@cUserName = ""
+		@cPassword = ""
+		@cHost = ""
 		@nPort = -1
-		@cPath = NULL
-		@cQuery = NULL
-		@cFragment = NULL
+		@cPath = ""
+		@cQuery = ""
+		@cFragment = ""
 
 	#-- SCHEME/PROTOCOL --
 
 	def Scheme()
-		if @cScheme = NULL and @pEngine != NULL
+		if @cScheme = "" and @pEngine != ""
 			@cScheme = StzEngineUrlScheme(@pEngine)
 		ok
-		if @cScheme = NULL
+		if @cScheme = ""
 			return ""
 		ok
 		return @cScheme
@@ -177,10 +177,10 @@ Class stzUrl from stzObject
 	#-- HOST/DOMAIN/SERVER --
 
 	def Host()
-		if @cHost = NULL and @pEngine != NULL
+		if @cHost = "" and @pEngine != ""
 			@cHost = StzEngineUrlHost(@pEngine)
 		ok
-		if @cHost = NULL
+		if @cHost = ""
 			return ""
 		ok
 		return @cHost
@@ -198,7 +198,7 @@ Class stzUrl from stzObject
 	#-- PORT --
 
 	def Port()
-		if @nPort = -1 and @pEngine != NULL
+		if @nPort = -1 and @pEngine != ""
 			@nPort = StzEngineUrlPort(@pEngine)
 		ok
 		return @nPort
@@ -216,10 +216,10 @@ Class stzUrl from stzObject
 	#-- PATH/LOCATION --
 
 	def Path()
-		if @cPath = NULL and @pEngine != NULL
+		if @cPath = "" and @pEngine != ""
 			@cPath = StzEngineUrlPath(@pEngine)
 		ok
-		if @cPath = NULL
+		if @cPath = ""
 			return ""
 		ok
 		return @cPath
@@ -235,7 +235,7 @@ Class stzUrl from stzObject
 
 	def FileName()
 		_cP_ = This.Path()
-		if _cP_ = "" or _cP_ = NULL
+		if _cP_ = "" or _cP_ = ""
 			return ""
 		ok
 		_nPos_ = 0
@@ -256,10 +256,10 @@ Class stzUrl from stzObject
 	#-- QUERY --
 
 	def Query()
-		if @cQuery = NULL and @pEngine != NULL
+		if @cQuery = "" and @pEngine != ""
 			@cQuery = StzEngineUrlQuery(@pEngine)
 		ok
-		if @cQuery = NULL
+		if @cQuery = ""
 			return ""
 		ok
 		return @cQuery
@@ -274,10 +274,10 @@ Class stzUrl from stzObject
 	#-- FRAGMENT --
 
 	def Fragment()
-		if @cFragment = NULL and @pEngine != NULL
+		if @cFragment = "" and @pEngine != ""
 			@cFragment = StzEngineUrlFragment(@pEngine)
 		ok
-		if @cFragment = NULL
+		if @cFragment = ""
 			return ""
 		ok
 		return @cFragment
@@ -292,19 +292,19 @@ Class stzUrl from stzObject
 	#-- USER AUTHENTICATION --
 
 	def UserName()
-		if @cUserName = NULL and @pEngine != NULL
+		if @cUserName = "" and @pEngine != ""
 			@cUserName = StzEngineUrlUser(@pEngine)
 		ok
-		if @cUserName = NULL
+		if @cUserName = ""
 			return ""
 		ok
 		return @cUserName
 
 	def Password()
-		if @cPassword = NULL and @pEngine != NULL
+		if @cPassword = "" and @pEngine != ""
 			@cPassword = StzEngineUrlPassword(@pEngine)
 		ok
-		if @cPassword = NULL
+		if @cPassword = ""
 			return ""
 		ok
 		return @cPassword

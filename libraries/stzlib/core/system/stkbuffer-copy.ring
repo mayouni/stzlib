@@ -1,10 +1,10 @@
 class stkBuffer
 
-    @buffer = NULL
+    @buffer = ""
     @nSize = 0 # In bytes
     @nCapacity = 0
-    @bIsValid = FALSE
-    @oMemory = NULL
+    @bIsValid = 0
+    @oMemory = ""
 
     #-------------------------------#
     #  INITIALIZATION AND CREATION  #
@@ -27,7 +27,7 @@ class stkBuffer
         @nSize = 0
         @nCapacity = nSize
         @buffer = ""  # Start with empty buffer, not spaces
-        @bIsValid = TRUE
+        @bIsValid = 1
 
     def InitWithData(pData)
         if IsNull(pData)
@@ -44,7 +44,7 @@ class stkBuffer
         @nSize = len(_cData_)
         @nCapacity = @nSize
         @buffer = _cData_
-        @bIsValid = TRUE
+        @bIsValid = 1
 
     #------------------------#
     #  WRITING AND UPDATING  #
@@ -410,7 +410,7 @@ class stkBuffer
         return This.IndexOf1(pPattern)
 
     def IndexOfXT(pPattern, _nStartOffset_) # Uses lowlevel 0-index
-		if This.IsValid() = FALSE
+		if This.IsValid() = 0
 			raise("Invalid buffer - buffer was not properly initialized.")
 		ok
 
@@ -557,28 +557,28 @@ class stkBuffer
 
     def Equals(oOther)
         if IsNull(oOther) or not IsObject(oOther)
-            return FALSE
+            return 0
         ok
         
         if ClassName(oOther) != "stkbuffer"
-            return FALSE
+            return 0
         ok
         
         if @nSize != oOther.Size()
-            return FALSE
+            return 0
         ok
         
         return @buffer = oOther.RawData()
 
 	def Free()
 	    if @bIsValid
-	        if @oMemory != NULL
+	        if @oMemory != ""
 	            @oMemory.Deallocate(@buffer)
 	        ok
-	        @buffer = NULL
+	        @buffer = ""
 	        @nSize = 0
 	        @nCapacity = 0
-	        @bIsValid = FALSE
+	        @bIsValid = 0
 	    ok
 
     def Destroy()
@@ -589,7 +589,7 @@ class stkBuffer
     #-----------------------------#
 
     def Size()
-		if This.IsValid() = FALSE
+		if This.IsValid() = 0
 			raise("Invalid buffer - buffer was not properly initialized.")
 		ok
 
@@ -599,28 +599,28 @@ class stkBuffer
         return This.Size()
 
     def Capacity()
-		if This.IsValid() = FALSE
+		if This.IsValid() = 0
 			raise("Invalid buffer - buffer was not properly initialized.")
 		ok
 
         return @nCapacity
 
     def RawData()
-		if This.IsValid() = FALSE
+		if This.IsValid() = 0
 			raise("Invalid buffer - buffer was not properly initialized.")
 		ok
 
         return @buffer
 
     def Content()
-		if This.IsValid() = FALSE
+		if This.IsValid() = 0
 			raise("Invalid buffer - buffer was not properly initialized.")
 		ok
 
         return @buffer
 
     def Info()
-		if This.IsValid() = FALSE
+		if This.IsValid() = 0
 			raise("Invalid buffer - buffer was not properly initialized.")
 		ok
 
@@ -630,7 +630,7 @@ class stkBuffer
         return @bIsValid
 
     def Memory()
-		if This.IsValid() = FALSE
+		if This.IsValid() = 0
 			raise("Invalid buffer - buffer was not properly initialized.")
 		ok
 
@@ -642,7 +642,7 @@ class stkBuffer
 
     def GetPointer(_nOffset_) # An internal method, for better semantics, use methods that follow
 
-		if This.IsValid() = FALSE
+		if This.IsValid() = 0
 			raise("Invalid buffer - buffer was not properly initialized.")
 		ok
 
@@ -658,7 +658,7 @@ class stkBuffer
         return new stkPointer([_cSliceData_, "string", len(_cSliceData_)+1])
 
     def SliceToPointer(_nOffset_, _nLength_)
-		if This.IsValid() = FALSE
+		if This.IsValid() = 0
 			raise("Invalid buffer - buffer was not properly initialized.")
 		ok
 
@@ -681,7 +681,7 @@ class stkBuffer
         return This.SliceToPointer(_nOffset_-1, _nLength_)
 
     def SectionToPointer(_nOffset_, _nLength_)
-		if This.IsValid() = FALSE
+		if This.IsValid() = 0
 			raise("Invalid buffer - buffer was not properly initialized.")
 		ok
 

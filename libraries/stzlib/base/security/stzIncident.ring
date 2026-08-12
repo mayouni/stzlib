@@ -57,7 +57,7 @@ class stzIncident from stzObject
 	@nOpenedAt = 0
 	@cHeadDigest = ""
 	@aEvents = []		# the correlated story, wall-ordered
-	@oGraph = NULL		# an stzSecurityGraph, when one is available
+	@oGraph = ""		# an stzSecurityGraph, when one is available
 	@cStatus = "open"
 	@aNotes = []		# [ atWall, status, note ]
 	@nMaxEvents = 64
@@ -186,21 +186,21 @@ class stzIncident from stzObject
 	# itself, not merely whether one exists. [] when the graph does not
 	# know this actor, or no path exists.
 	def AttackPath()
-		if @oGraph = NULL or @cActor = ""
+		if @oGraph = "" or @cActor = ""
 			return []
 		ok
 		return @oGraph.PathToEffectful(@cActor)
 
 	def ReachesEffectful()
-		if @oGraph = NULL or @cActor = ""
-			return FALSE
+		if @oGraph = "" or @cActor = ""
+			return 0
 		ok
 		return @oGraph.ReachesEffectful(@cActor)
 
 	# What each implicated secret exposes: [ [ secret, [reachers] ], ... ]
 	def BlastRadius()
 		_a_ = []
-		if @oGraph = NULL
+		if @oGraph = ""
 			return _a_
 		ok
 		_aSec_ = This.SecretsInvolved()
@@ -315,7 +315,7 @@ class stzIncident from stzObject
 		if ring_len(_aPath_) > 0
 			_aL_ + ("  Attack path: " + This._Join(_aPath_, " -> ") +
 				"  (" + (ring_len(_aPath_) - 1) + " hop(s))")
-		but @oGraph != NULL and @cActor != ""
+		but @oGraph != "" and @cActor != ""
 			_aL_ + "  Attack path: none -- this actor cannot reach an effectful capability."
 		ok
 		_aBlast_ = This.BlastRadius()

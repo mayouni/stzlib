@@ -40,16 +40,16 @@ func StzPerfSentinel(poSla, poMonitor)
 class stzPerfSentinel from stzObject
 
 	@cName = "perf-sentinel"
-	@oSla = NULL
-	@oMon = NULL
+	@oSla = ""
+	@oMon = ""
 	@aBreached = []		# rule names currently in breach
-	@fOnBreach = NULL
-	@fOnClear = NULL
-	@bHasOnBreach = FALSE
-	@bHasOnClear = FALSE
+	@fOnBreach = ""
+	@fOnClear = ""
+	@bHasOnBreach = 0
+	@bHasOnClear = 0
 	@cBreachChannel = "perf.breach"
 	@cClearChannel = "perf.clear"
-	@oBus = NULL
+	@oBus = ""
 	@aAlertLog = []		# [ atMs, "breach"|"clear", rule, message ] (newest 256)
 	@aBlackBox = []		# flight-recorder snapshots, one per breach (newest 16)
 	@nEveryMs = 1000
@@ -75,12 +75,12 @@ class stzPerfSentinel from stzObject
 
 	def OnBreach(pfCallback)
 		@fOnBreach = pfCallback
-		@bHasOnBreach = TRUE
+		@bHasOnBreach = 1
 		return This
 
 	def OnClear(pfCallback)
 		@fOnClear = pfCallback
-		@bHasOnClear = TRUE
+		@bHasOnClear = 1
 		return This
 
 	# The event-bus channels alerts fan out on (process-global).

@@ -258,7 +258,7 @@ class stzSamlServiceProvider from stzObject
 		ok
 		This._Remember(_key_, pnNow)
 		@cWhy = ""
-		return [ :ok = TRUE, :nameID = _nameid_, :issuer = _issuer_,
+		return [ :ok = 1, :nameID = _nameid_, :issuer = _issuer_,
 		         :audience = _aud_, :notBefore = _nb_, :notOnOrAfter = _na_, :why = "" ]
 
 	def NumberOfConsumedAssertions()
@@ -289,7 +289,7 @@ class stzSamlServiceProvider from stzObject
 		# every rejected assertion is noted (I2) -- issuer/audience/window
 		# failures are how a misconfigured or hostile IdP announces itself
 		StzNoteRefusal("sso.assertion.rejected", @cIdpEntityId, "idp:" + @cIdpEntityId, @cWhy)
-		return [ :ok = FALSE, :nameID = "", :issuer = "", :audience = "",
+		return [ :ok = 0, :nameID = "", :issuer = "", :audience = "",
 		         :notBefore = "", :notOnOrAfter = "", :why = @cWhy ]
 
 	def _SeenIndex(pcKey)

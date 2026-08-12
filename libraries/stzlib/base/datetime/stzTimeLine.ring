@@ -24,8 +24,8 @@ func IsStzTimeLine(p)
 		return IsStzTimeLine(p)
 
 class stzTimeLine from stzObject
-	@cStart = NULL
-	@cEnd = NULL
+	@cStart = ""
+	@cEnd = ""
 	@aPoints = []      # [[name, string_datetime], ...]
 	@aSpans = []       # [[name, string_datetime, string_datetime], ...]
 
@@ -48,9 +48,9 @@ class stzTimeLine from stzObject
 	@cUncoveredChar = "/"
 	@cBlockChar = "X"
 
-	@bShowDates = TRUE
-	@bShowLabels = TRUE
-	@cHighlight = NULL
+	@bShowDates = 1
+	@bShowLabels = 1
+	@cHighlight = ""
 
 	# Layout
 	@nLabelHeight = 1
@@ -105,10 +105,10 @@ class stzTimeLine from stzObject
 		return @cStart
 		
 		def StartQ()
-			if @cStart != NULL
+			if @cStart != ""
 				return new stzDateTime(@cStart)
 			ok
-			return NULL
+			return ""
 
 		def StartDate()
 			return This.Start()
@@ -120,10 +120,10 @@ class stzTimeLine from stzObject
 		return @cEnd
 		
 		def EndQ()
-			if @cEnd != NULL
+			if @cEnd != ""
 				return new stzDateTime(@cEnd)
 			ok
-			return NULL
+			return ""
 
 		def EndDate()
 			return This.End_()
@@ -152,10 +152,10 @@ class stzTimeLine from stzObject
 		return This.StartQ().DurationTo(@cEnd, :InSeconds)
 
 		def DurationQ()
-			if This.Duration() != NULL
+			if This.Duration() != ""
 				return new stzDuration(This.Duration())
 			ok
-			return NULL
+			return ""
 
 	# Point Management (single moments in time)
 	
@@ -1119,12 +1119,12 @@ class stzTimeLine from stzObject
 				
 				# Check if spans overlap
 				if _oStart1_ < _oEnd2_ and _oStart2_ < _oEnd1_
-					return TRUE
+					return 1
 				ok
 			next
 		next
 
-		return FALSE
+		return 0
 		
 	def OverlappingSpans()
 
@@ -1141,8 +1141,8 @@ class stzTimeLine from stzObject
 				# Check if spans overlap
 				if _oStart1_ < _oEnd2_ and _oStart2_ < _oEnd1_
 					# Calculate overlap duration
-					_oOverlapStart_ = NULL
-					_oOverlapEnd_ = NULL
+					_oOverlapStart_ = ""
+					_oOverlapEnd_ = ""
 					
 					if _oStart1_ >= _oStart2_
 						_oOverlapStart_ = _oStart1_
@@ -1468,7 +1468,7 @@ class stzTimeLine from stzObject
 		
 	def ToStringXT(paParams)
 		_nRequestedWidth_ = @nVizWidth
-		_bShowTable_ = TRUE
+		_bShowTable_ = 1
 		_cTableType_ = :Normal
 	
 		# Process parameters
@@ -1553,7 +1553,7 @@ class stzTimeLine from stzObject
 	
 	    # Calculate layout
 	    _oLayout_ = _calculateVizLayout()
-	    if _oLayout_ = NULL
+	    if _oLayout_ = ""
 	        return "Cannot display timeline"
 	    ok
 	
@@ -1576,7 +1576,7 @@ class stzTimeLine from stzObject
 	def VizFindMoments(_cLabel_)
 		@cHighlight = _cLabel_
 		_cResult_ = This.ToString()
-		@cHighlight = NULL
+		@cHighlight = ""
 		return _cResult_
 		
 		def VizFindMoment(_cLabel_)
@@ -1591,7 +1591,7 @@ class stzTimeLine from stzObject
 	def VizFindSpans(_cLabel_)
 		@cHighlight = _cLabel_
 		_cResult_ = This.ToString()
-		@cHighlight = NULL
+		@cHighlight = ""
 		return _cResult_
 		
 		def VizFindSpan(_cLabel_)
@@ -1622,7 +1622,7 @@ class stzTimeLine from stzObject
 	    
 	    # Calculate layout
 	    _oLayout_ = _calculateVizLayout()
-	    if _oLayout_ = NULL
+	    if _oLayout_ = ""
 	        return "Cannot display timeline"
 	    ok
 	    
@@ -1707,11 +1707,11 @@ class stzTimeLine from stzObject
 		for i = 1 to _nLen_
 			_oBlocked_ = new stzDateTime(@aBlockedPoints[i])
 			if _oDateTime_.IsEqualTo(_oBlocked_)
-				return TRUE
+				return 1
 			ok
 		next
 	
-		return FALSE
+		return 0
 
 	def IsBlocked(pDateTime)
 		if isList(pDateTime) and len(pDateTime) = 2
@@ -1720,7 +1720,7 @@ class stzTimeLine from stzObject
 	
 		# Check both blocked points and blocked spans
 		if This.IsPointBlocked(pDateTime)
-			return TRUE
+			return 1
 		ok
 	
 		if isString(pDateTime)
@@ -1736,11 +1736,11 @@ class stzTimeLine from stzObject
 			_oStart_ = new stzDateTime(@aBlockedSpans[i][2])
 			_oEnd_ = new stzDateTime(@aBlockedSpans[i][3])
 			if _oDateTime_ >= _oStart_ and _oDateTime_ <= _oEnd_
-				return TRUE
+				return 1
 			ok
 		next
 	
-		return FALSE
+		return 0
 
 	def IsSectionBlocked(pStart, pEnd)
 		if isString(pStart)
@@ -1763,7 +1763,7 @@ class stzTimeLine from stzObject
 			_oBlockStart_ = new stzDateTime(@aBlockedSpans[i][2])
 			_oBlockEnd_ = new stzDateTime(@aBlockedSpans[i][3])
 			if _oStart_ < _oBlockEnd_ and _oEnd_ > _oBlockStart_
-				return TRUE
+				return 1
 			ok
 		next
 	
@@ -1772,11 +1772,11 @@ class stzTimeLine from stzObject
 		for i = 1 to _nLen_
 			_oPoint_ = new stzDateTime(@aBlockedPoints[i])
 			if _oPoint_ >= _oStart_ and _oPoint_ <= _oEnd_
-				return TRUE
+				return 1
 			ok
 		next
 	
-		return FALSE
+		return 0
 	
 		def IsBlockedSection(pStart, pEnd)
 			return This.IsSectionBlocked(pStart, pEnd)
@@ -1951,7 +1951,7 @@ class stzTimeLine from stzObject
 		_aTimepoints_ = []
 		
 		# Add start boundary (NO INDEX)
-		_aTimepoints_ + [NULL, @cStart, "", "Timeline start", "boundary"]
+		_aTimepoints_ + ["", @cStart, "", "Timeline start", "boundary"]
 		
 		# Collect all points and span boundaries
 		_aSorted_ = []
@@ -1996,7 +1996,7 @@ class stzTimeLine from stzObject
 		next
 		
 		# Add end boundary (NO INDEX)
-		_aTimepoints_ + [NULL, @cEnd, "", "Timeline end", "boundary"]
+		_aTimepoints_ + ["", @cEnd, "", "Timeline end", "boundary"]
 	
 		return _aTimepoints_
 		
@@ -2049,7 +2049,7 @@ class stzTimeLine from stzObject
 			_nBlockStart_ = _timeToPosition(@aBlockedSpans[i][2])
 			_nBlockEnd_ = _timeToPosition(@aBlockedSpans[i][3])
 			if not (_nLabelEnd_ < _nBlockStart_ or _nLabelStart_ > _nBlockEnd_)
-				return FALSE
+				return 0
 			ok
 		next
 		
@@ -2058,11 +2058,11 @@ class stzTimeLine from stzObject
 		for i = 1 to _nLen_
 			_nBlockPos_ = _timeToPosition(@aBlockedPoints[i])
 			if _nBlockPos_ >= _nLabelStart_ and _nBlockPos_ <= _nLabelEnd_
-				return FALSE
+				return 0
 			ok
 		next
 		
-		return TRUE
+		return 1
 
 	def _drawLabels(_oLayout_, _aTimepoints_)
 		_nRow_ = _oLayout_[:labels_row]
@@ -2100,7 +2100,7 @@ class stzTimeLine from stzObject
 			_nLabelStart_ = max([1, _nPos_ - floor(_nLabelLen_ / 2)])
 			_nLabelEnd_ = _nLabelStart_ + _nLabelLen_ - 1
 			
-			_bCollides_ = FALSE
+			_bCollides_ = 0
 			_nLenJ_ = len(_aPlaced_)
 	
 			for j = 1 to _nLenJ_
@@ -2108,7 +2108,7 @@ class stzTimeLine from stzObject
 				_nPlacedEnd_ = _aPlaced_[j][2]
 				
 				if not (_nLabelEnd_ < _nPlacedStart_ or _nLabelStart_ > _nPlacedEnd_)
-					_bCollides_ = TRUE
+					_bCollides_ = 1
 					exit
 				ok
 			next
@@ -2131,7 +2131,7 @@ class stzTimeLine from stzObject
 		_nCount_ = 0
 		_nLen_ = len(_aTimepoints_)
 		for i = 1 to _nLen_
-			if _aTimepoints_[i][1] != NULL
+			if _aTimepoints_[i][1] != ""
 				_nCount_++
 			ok
 		next
@@ -2148,7 +2148,7 @@ class stzTimeLine from stzObject
 			_nIndex_ = _aTimepoints_[i][1]
 			
 			# Skip boundaries (NULL index)
-			if _nIndex_ = NULL
+			if _nIndex_ = ""
 				loop
 			ok
 			
@@ -2295,9 +2295,9 @@ class stzTimeLine from stzObject
 	                ok
 	            next
 	
-	            _bHighlighted_ = FALSE
-	            if @cHighlight != NULL and _aTimepoints_[i][3] = @cHighlight
-	                _bHighlighted_ = TRUE
+	            _bHighlighted_ = 0
+	            if @cHighlight != "" and _aTimepoints_[i][3] = @cHighlight
+	                _bHighlighted_ = 1
 	            ok
 	
 	            # Use (o) if multiple events at same position, otherwise (*)
@@ -2332,7 +2332,7 @@ class stzTimeLine from stzObject
 	        _nStartPos_ = _timeToPosition(_cStart_)
 	        _nEndPos_ = _timeToPosition(_cEnd_)
 	        
-	        _bHighlighted_ = (@cHighlight != NULL and @cHighlight = _cLabel_)
+	        _bHighlighted_ = (@cHighlight != "" and @cHighlight = _cLabel_)
 	        
 	        _aSpanRanges_ + [_cLabel_, _nStartPos_, _nEndPos_, _bHighlighted_]
 	    next
@@ -2361,10 +2361,10 @@ class stzTimeLine from stzObject
 		for nOffset = 1 to _nSpanRows_
 			_nRow_ = _nAxisRow_ - nOffset
 			
-			_bFree_ = TRUE
+			_bFree_ = 1
 			for _nPos_ = _nStartPos_ to _nEndPos_
 				if find(_aRowUsed_[nOffset], _nPos_) > 0
-					_bFree_ = FALSE
+					_bFree_ = 0
 					exit
 				ok
 			next
@@ -2451,7 +2451,7 @@ class stzTimeLine from stzObject
 			
 			# Use empty string for NULL (boundaries)
 			_cIndexStr_ = ""
-			if _nIndex_ != NULL
+			if _nIndex_ != ""
 				_cIndexStr_ = "" + _nIndex_
 			ok
 			

@@ -63,7 +63,7 @@ class stzLog from stzObject
 	@aEntries = []           # [ [ :seq, :ts, :level, :category, :message, :fields ], ... ]
 	@nSeq = 0
 	@nCap = 0                # max retained entries (0 = unbounded); FIFO evict
-	@bEcho = FALSE           # also print each recorded entry to the console
+	@bEcho = 0           # also print each recorded entry to the console
 
 	def init(pcName)
 		@cName = "" + pcName

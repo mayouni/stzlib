@@ -39,7 +39,7 @@ class stzRefinableCode from stzObject
 
 	# R6 DEEPENING: the two reserved gate stages, now wired.
 	@aDerivations = []  # STAGE 3: [ name, fPredicate, message ] cross-point rules
-	@oGov = NULL        # STAGE 4: stzGovernance (refining = a governed action)
+	@oGov = ""        # STAGE 4: stzGovernance (refining = a governed action)
 	@cActor = "refiner" # the actor whose permission/authority is checked
 
 	# R6 DEEPENING 2: EXECUTION TRUST POSTURES + REVERSIBILITY-AS-PRIMITIVE.
@@ -132,7 +132,7 @@ class stzRefinableCode from stzObject
 	# the point's declared risk tier before it can mutate the source.
 	# the NAME of the object that governs this code ("" if none)
 	def GovernedBy()
-		if @oGov = NULL
+		if @oGov = ""
 			return ""
 		ok
 		return @oGov.Name_()
@@ -222,7 +222,7 @@ class stzRefinableCode from stzObject
 		return @oGov
 
 	def _NeedGov()
-		if @oGov = NULL
+		if @oGov = ""
 			stzraise("This refinable code is not governed -- SetGovernedBy(oGov) first.")
 		ok
 
@@ -262,7 +262,7 @@ class stzRefinableCode from stzObject
 		# this point is the action "refine-<point>"; the actor needs
 		# permission + authority covering its risk tier. Undeclared-risk
 		# actions are refused by stzGovernance (nothing mutates).
-		if @oGov != NULL
+		if @oGov != ""
 			_cAction_ = "refine-" + StzLower(_cName_)
 			if @oGov.MayProceed(@cActor, _cAction_) = 0
 				@cWhy = "governance: " + @oGov.Why()
@@ -298,7 +298,7 @@ class stzRefinableCode from stzObject
 		# stack -- the timeline forked (standard undo/redo semantics).
 		@aHistory + [ _cName_, _cOld_, _cVal_, _cPosture_ ]
 		@aRedo = []
-		if @oGov != NULL
+		if @oGov != ""
 			@oGov.RecordDecision("refine-" + StzLower(_cName_) + "-" + len(@aHistory),
 				"refinement admitted (posture :" + _cPosture_ + ") through the gate",
 				@cActor, "refine-" + StzLower(_cName_))
@@ -412,7 +412,7 @@ class stzRefinableCode from stzObject
 		@aPoints = []
 		_cS_ = @cSource
 		_nFrom_ = 1
-		while TRUE
+		while 1
 			_aOpen_ = This._FirstAtOrAfter(_cS_, "<R:", _nFrom_)
 			if _aOpen_ = 0
 				exit

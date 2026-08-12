@@ -88,8 +88,8 @@ class stzMaterialGraph from stzObject
 	@aOrder = []
 	@aFindings = []
 	@aUses = []           # [ nodeName, nConsumers ] -- the reuse witness
-	@bCompiled = FALSE
-	@oGraph = NULL
+	@bCompiled = 0
+	@oGraph = ""
 
 	def init()
 
@@ -97,7 +97,7 @@ class stzMaterialGraph from stzObject
 
 	def TakesColor(pcName)
 		@aColors + StzLower("" + pcName)
-		@bCompiled = FALSE
+		@bCompiled = 0
 
 	def TakesColorQ(pcName)
 		This.TakesColor(pcName)
@@ -105,7 +105,7 @@ class stzMaterialGraph from stzObject
 
 	def TakesScalar(pcName)
 		@aScalars + StzLower("" + pcName)
-		@bCompiled = FALSE
+		@bCompiled = 0
 
 	def TakesScalarQ(pcName)
 		This.TakesScalar(pcName)
@@ -113,7 +113,7 @@ class stzMaterialGraph from stzObject
 
 	def TakesTexture(pcName)
 		@aTextures + StzLower("" + pcName)
-		@bCompiled = FALSE
+		@bCompiled = 0
 
 	def TakesTextureQ(pcName)
 		This.TakesTexture(pcName)
@@ -162,7 +162,7 @@ class stzMaterialGraph from stzObject
 			ok
 		next
 		@aNodes + [ _cN_, _cOp_, _aI_ ]
-		@bCompiled = FALSE
+		@bCompiled = 0
 
 	def AddNodeQ(pcName, paSpec)
 		This.AddNode(pcName, paSpec)
@@ -171,7 +171,7 @@ class stzMaterialGraph from stzObject
 	# The node whose value becomes @out.
 	def Emits(pcName)
 		@cOut = StzLower("" + pcName)
-		@bCompiled = FALSE
+		@bCompiled = 0
 
 	def EmitsQ(pcName)
 		This.Emits(pcName)
@@ -186,7 +186,7 @@ class stzMaterialGraph from stzObject
 		@aFindings = []
 		@aOrder = []
 		@aUses = []
-		@bCompiled = FALSE
+		@bCompiled = 0
 
 		if len(@aNodes) = 0
 			StzRaise("stzMaterialGraph.Compile: no nodes declared.")
@@ -236,7 +236,7 @@ class stzMaterialGraph from stzObject
 			This._Finding(:acyclic, :error,
 				"the nodes form a CYCLE -- a value cannot be its own input, " +
 				"and no emission order exists")
-			@bCompiled = TRUE
+			@bCompiled = 1
 			return This
 		ok
 
@@ -264,7 +264,7 @@ class stzMaterialGraph from stzObject
 			ok
 		next
 
-		@bCompiled = TRUE
+		@bCompiled = 1
 		return This
 
 	def Order()
@@ -316,9 +316,9 @@ class stzMaterialGraph from stzObject
 	def IsSound()
 		This._RequireCompiled()
 		for _f_ in @aFindings
-			if _f_[4] = :error  return FALSE  ok
+			if _f_[4] = :error  return 0  ok
 		next
-		return TRUE
+		return 1
 
 	def Report()
 		This._RequireCompiled()
@@ -409,16 +409,16 @@ class stzMaterialGraph from stzObject
 		return _cck_
 
 	def _IsDeclaredValue(cName)
-		for _c_ in @aColors    if _c_ = cName  return TRUE  ok  next
-		for _s_ in @aScalars   if _s_ = cName  return TRUE  ok  next
-		for _t_ in @aTextures  if _t_ = cName  return TRUE  ok  next
-		return FALSE
+		for _c_ in @aColors    if _c_ = cName  return 1  ok  next
+		for _s_ in @aScalars   if _s_ = cName  return 1  ok  next
+		for _t_ in @aTextures  if _t_ = cName  return 1  ok  next
+		return 0
 
 	# "@normal", "@position.y" ... validated HERE so a typo is caught with
 	# the node's name in the message, rather than by the transpiler which
 	# only knows it saw a bad builtin.
 	def _IsBuiltinRef(cName)
-		if len(cName) < 2 or StzSubStr(cName, 1, 1) != "@"  return FALSE  ok
+		if len(cName) < 2 or StzSubStr(cName, 1, 1) != "@"  return 0  ok
 		_r_ = StzSubStr(cName, 2, len(cName) - 1)
 		# StzFindFirst, not StzFind -- StzFind answers a LIST of positions,
 		# and subtracting 1 from a list is an R21 far from the mistake.
@@ -427,9 +427,9 @@ class stzMaterialGraph from stzObject
 			_r_ = StzSubStr(_r_, 1, _nDot_ - 1)
 		ok
 		for _b_ in [ "normal", "position", "uv", "lambert", "color" ]
-			if _r_ = _b_  return TRUE  ok
+			if _r_ = _b_  return 1  ok
 		next
-		return FALSE
+		return 0
 
 	def _Op(cOp)
 		for _a_ in StzMaterialGraphOps()

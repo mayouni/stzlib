@@ -12,11 +12,11 @@ class stzReactiveTimer from stzObject
 
 	@timerId = ""
 	@interval = ONE_SECOND  # milliseconds
-	@callback = NULL
-	@oEngine = NULL
-	@timerHandle = NULL     # kept as NULL sentinel for API parity
-	@isActive = false
-	@isOneTime = false
+	@callback = ""
+	@oEngine = ""
+	@timerHandle = ""     # kept as NULL sentinel for API parity
+	@isActive = 0
+	@isOneTime = 0
 	@startTime = 0
 	@lastTick = 0
 
@@ -27,15 +27,15 @@ class stzReactiveTimer from stzObject
 		@oEngine = engine
 
 		# Honor the constructor's oneTime arg (default FALSE on NULL).
-		if oneTime = NULL
-			@isOneTime = false
+		if oneTime = ""
+			@isOneTime = 0
 		else
 			@isOneTime = oneTime
 		ok
 
 	def Start()
 		if not @isActive
-			@isActive = true
+			@isActive = 1
 			# Engine-side monotonic clock so every host language
 			# observes identical semantics (M-DEP4 hardening).
 			@startTime = StzEngineTimeNowMs()
@@ -43,10 +43,10 @@ class stzReactiveTimer from stzObject
 		ok
 
 	def Stop()
-		@isActive = false
+		@isActive = 0
 
 	def Tick()
-		if @callback != NULL
+		if @callback != ""
 			call @callback()
 		ok
 
@@ -54,19 +54,19 @@ class stzReactiveTimer from stzObject
 	# so the manager can prune completed one-shot timers.
 	def CheckAndTick()
 		if not @isActive
-			return false
+			return 0
 		ok
 		# Engine clock returns milliseconds directly -- no
 		# clocksPerSecond conversion needed.
 		_currentTime_ = StzEngineTimeNowMs()
 		_elapsed_ = _currentTime_ - @lastTick
 		if _elapsed_ >= @interval
-			if @callback != NULL
+			if @callback != ""
 				call @callback()
 			ok
 			if @isOneTime
 				Stop()
-				return false
+				return 0
 			else
 				@lastTick = _currentTime_
 			ok
@@ -83,11 +83,11 @@ class stzRingTimer from stzObject
 
 	@timerId = ""
 	@interval = ONE_SECOND    # milliseconds
-	@callback = NULL
-	@oEngine = NULL
-	@obj = NULL
-	@isActive = false
-	@isOneTime = false
+	@callback = ""
+	@oEngine = ""
+	@obj = ""
+	@isActive = 0
+	@isOneTime = 0
 	@startTime = 0
 	@lastTick = 0
 	
@@ -98,14 +98,14 @@ class stzRingTimer from stzObject
 		@oEngine = engine
 		@obj = obj
 		@isOneTime = oneTime
-		if @isOneTime = NULL
-			@isOneTime = false
+		if @isOneTime = ""
+			@isOneTime = 0
 		ok
-		@isActive = false
+		@isActive = 0
 		
 	def Start()
 		if not @isActive
-			@isActive = true
+			@isActive = 1
 			# Engine-side monotonic clock so every host language
 			# observes identical semantics (M-DEP4 hardening).
 			@startTime = StzEngineTimeNowMs()
@@ -113,11 +113,11 @@ class stzRingTimer from stzObject
 		ok
 		
 	def Stop()
-		@isActive = false
+		@isActive = 0
 		
 	def CheckAndTick()
 	    if not @isActive
-	        return false
+	        return 0
 	    ok
 	    
 	    # Start() seeds startTime/lastTick from StzEngineTimeNowMs() (a
@@ -130,7 +130,7 @@ class stzRingTimer from stzObject
 	    _elapsed_ = _currentTime_ - @lastTick
 
 	    if _elapsed_ < @interval
-	        return true   # still active, just not due yet
+	        return 1   # still active, just not due yet
 	    ok
 
 	    # The callback may re-enter the timer system (StopTimer / Stop /
@@ -148,14 +148,14 @@ class stzRingTimer from stzObject
 	        Stop()
 	    ok
 
-	    if @callback != NULL
+	    if @callback != ""
 	        call @callback()
 	    ok
 
 	    if _bOnce_
-	        return false
+	        return 0
 	    ok
-	    return true
+	    return 1
 
 	def Cleanup()
 		Stop()
@@ -172,16 +172,16 @@ class stzRingTimer from stzObject
 class stzTimerManager from stzObject
 
 	@timers = []
-	@isRunning = false
-	@shouldStop = false
+	@isRunning = 0
+	@shouldStop = 0
 	@checkFrequency = DEFAULT_TIMER_CHECK  # How often to check @timers (ms)
 	@emptyLoopPatience = DEFAULT_PATIENCE  # How long to wait when no @timers
-	@oReactor = NULL       # F5: engine loop backing the waits (NULL = poller)
+	@oReactor = ""       # F5: engine loop backing the waits (NULL = poller)
 
 	def init()
 		@timers = []
-		@isRunning = false
-		@shouldStop = false
+		@isRunning = 0
+		@shouldStop = 0
 		@checkFrequency = DEFAULT_TIMER_CHECK
 		@emptyLoopPatience = DEFAULT_PATIENCE
 
@@ -234,7 +234,7 @@ class stzTimerManager from stzObject
 	# The inter-tick wait: a real libuv timer on the engine loop when
 	# the reactor is present; Ring sleep() as the no-DLL fallback.
 	def _WaitTick()
-		if @oReactor != NULL
+		if @oReactor != ""
 			_nId_ = @oReactor.SubmitTimer(@checkFrequency)
 			if _nId_ > 0
 				@oReactor.AwaitTimer(_nId_, @checkFrequency + 1000)
@@ -257,13 +257,13 @@ class stzTimerManager from stzObject
 	    
 	    # Stop run loop if no active timers
 	    if len(@timers) = 0
-	        @isRunning = false
+	        @isRunning = 0
 	    ok
 
 	# poHttpDrain = the LIVE stzReactiveHttp object (by-ref param; an
 	# attribute copy would drain a dead snapshot). NULL = no http.
 	def RunLoop(poHttpDrain)
-	    @isRunning = true
+	    @isRunning = 1
 	    _emptyLoopCount_ = 0
 	    
 	    while @isRunning and not @shouldStop
@@ -326,7 +326,7 @@ class stzTimerManager from stzObject
 	        # F5: drain async HTTP completions on the same loop, so
 	        # reactive-http callbacks fire between timer ticks.
 	        _nHttpPending_ = 0
-	        if poHttpDrain != NULL
+	        if poHttpDrain != ""
 	            poHttpDrain.DrainPending()
 	            _nHttpPending_ = poHttpDrain.PendingCount()
 	        ok
@@ -343,7 +343,7 @@ class stzTimerManager from stzObject
 	        if len(@timers) = 0 and _nHttpPending_ = 0 and _nDetached_ = 0
 	            _emptyLoopCount_++
 	            if _emptyLoopCount_ > @emptyLoopPatience
-	                @isRunning = false
+	                @isRunning = 0
 	            ok
 	        else
 	            _emptyLoopCount_ = 0  # Reset counter when we have work
@@ -351,13 +351,13 @@ class stzTimerManager from stzObject
 	        
 	        # Exit if shouldStop flag is set
 	        if @shouldStop
-	            @isRunning = false
+	            @isRunning = 0
 	        ok
 	    end
 		
 	def Stop()
-		@shouldStop = true
-		@isRunning = false
+		@shouldStop = 1
+		@isRunning = 0
 		_nTimers1Len_ = len(@timers)
 		for _iLoopTimers1_ = 1 to _nTimers1Len_
 			_timer_ = @timers[_iLoopTimers1_]
@@ -371,4 +371,4 @@ class stzTimerManager from stzObject
 	        @timers[i].Stop()
 	    next
 	    @timers = []
-	    @isRunning = false
+	    @isRunning = 0

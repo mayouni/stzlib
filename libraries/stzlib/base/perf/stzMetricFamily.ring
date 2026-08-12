@@ -52,8 +52,8 @@ class stzMetricFamily from stzObject
 	@aLabelNames = []
 	@nWindow = 1024
 	@nMaxChildren = 64
-	pFamily = NULL
-	bReady = FALSE
+	pFamily = ""
+	bReady = 0
 	@aChildCache = []	# per-face [ key, oMetric ] -- derived, rebuilt on miss
 
 	def init(pcName, pcKind, paLabelNames, pnWindow, pnMaxChildren)
@@ -82,7 +82,7 @@ class stzMetricFamily from stzObject
 			_nKindCode_ = 2
 		ok
 		pFamily = StzEnginePerfFamilyCreate(_nKindCode_, @nWindow, @nMaxChildren)
-		bReady = TRUE
+		bReady = 1
 		# RESERVE the overflow child now (eager, before any copy): a
 		# full family must still have somewhere to route new label
 		# sets -- an overflow created on demand would find no room.
@@ -96,7 +96,7 @@ class stzMetricFamily from stzObject
 		return @cKind
 
 	def IsFamily()
-		return TRUE
+		return 1
 
 	def LabelNames()
 		return @aLabelNames
@@ -247,8 +247,8 @@ class stzMetricFamily from stzObject
 	def Destroy()
 		if bReady
 			StzEnginePerfFamilyDestroy(pFamily)
-			pFamily = NULL
-			bReady = FALSE
+			pFamily = ""
+			bReady = 0
 		ok
 		# cached children hold ADOPTED handles -- their Destroy() is a
 		# no-op on engine state; dropping the cache is enough
@@ -296,7 +296,7 @@ class stzMetricFamily from stzObject
 			ok
 		next
 		_pS_ = StzEnginePerfFamilyChildSeries(pFamily, pcKey)
-		_pH_ = NULL
+		_pH_ = ""
 		if @cKind = "timer"
 			_pH_ = StzEnginePerfFamilyChildHist(pFamily, pcKey)
 		ok

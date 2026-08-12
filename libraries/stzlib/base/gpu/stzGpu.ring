@@ -45,7 +45,7 @@ func StzGpuQ()
 
 class stzGpu from stzObject
 
-	@bTriedInit_ = FALSE
+	@bTriedInit_ = 0
 
 	def init()
 
@@ -286,7 +286,7 @@ class stzGpu from stzObject
 		if @bTriedInit_
 			return
 		ok
-		@bTriedInit_ = TRUE
+		@bTriedInit_ = 1
 		if StzEngineGpuIsAvailable() = 0
 			StzEngineGpuInit($cStzGpuRuntime)
 		ok

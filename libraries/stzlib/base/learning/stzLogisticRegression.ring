@@ -11,7 +11,7 @@
 
 class stzLogisticRegression from stzObject
 
-	@oTs = NULL
+	@oTs = ""
 	@aW = []
 	@nB = 0
 	@nLr = 0.1

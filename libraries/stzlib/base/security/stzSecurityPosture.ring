@@ -57,10 +57,10 @@ func StzSecurityPostureIsSound(poPosture)
 class stzSecurityPosture from stzObject
 
 	@cName = ""
-	@oStore = NULL     # the project's central stzSecretStore (or NULL)
+	@oStore = ""     # the project's central stzSecretStore (or NULL)
 	@aSites = []       # deployment sites to audit
 	@aActors = []      # actors to audit
-	@oReg = NULL       # the project's stzServiceRegistry (or NULL)
+	@oReg = ""       # the project's stzServiceRegistry (or NULL)
 
 	def init(pcName)
 		@cName = "" + pcName

@@ -31,7 +31,7 @@ func StzVerifySecret(pcSecret, pcStored)
 func StzVerifySecretXT(pcSecret, pcStored, nRounds)
 	_nSep_ = StzFindFirst(":", pcStored)
 	if _nSep_ = 0
-		return FALSE
+		return 0
 	ok
 	_cSalt_ = StzLeft(pcStored, _nSep_ - 1)
 	_cHash_ = StzMidToEnd(pcStored, _nSep_ + 1)

@@ -25,9 +25,9 @@ func StzGoalQ()
 
 func IsStzGoal(pObj)
 	if isObject(pObj) and classname(pObj) = "stzgoal"
-		return TRUE
+		return 1
 	ok
-	return FALSE
+	return 0
 
 	func IsAStzGoal(pObj)
 		return IsStzGoal(pObj)

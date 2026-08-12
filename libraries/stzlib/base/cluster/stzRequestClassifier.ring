@@ -35,12 +35,12 @@ func StzRequestClassifierQ()
 
 class stzRequestClassifier from stzObject
 
-	@oCatalog = NULL       # the facet vocabulary this router classifies to
+	@oCatalog = ""       # the facet vocabulary this router classifies to
 	@aPathRules = []       # [ prefix, facet ]
 	@aTypeRules = []       # [ contentType-substring, facet ]
 	@aMethodRules = []     # [ method, facet ]
 	@aKeywords = []        # [ keyword, facet ]  synonym lexicon (augments caps)
-	@fModel = NULL         # optional tier-3 engine classifier: f(text)->facet
+	@fModel = ""         # optional tier-3 engine classifier: f(text)->facet
 	@cWhy = ""
 
 	def init()
@@ -142,7 +142,7 @@ class stzRequestClassifier from stzObject
 		ok
 
 		# TIER 3 -- optional model seam
-		if @fModel != NULL
+		if @fModel != ""
 			_f_ = @fModel
 			_cM_ = "" + call _f_("" + pcPath + " " + pcBody)
 			if _cM_ != "" and @oCatalog.Has(_cM_)
@@ -159,7 +159,7 @@ class stzRequestClassifier from stzObject
 	def ClassifyText(pcText)
 		_cFacet_ = This._LexicalFacet(StzLower("" + pcText))
 		if _cFacet_ != ""  return _cFacet_  ok
-		if @fModel != NULL
+		if @fModel != ""
 			_f_ = @fModel
 			_cM_ = "" + call _f_("" + pcText)
 			if _cM_ != "" and @oCatalog.Has(_cM_)

@@ -34,26 +34,26 @@ func StzAuthQ()
 
 class stzAuth from stzObject
 
-	@oStore = NULL       # the persistence seam (users + sessions) -- see stzAuthStore
+	@oStore = ""       # the persistence seam (users + sessions) -- see stzAuthStore
 	@nSessionTTL = 3600  # ABSOLUTE lifetime: seconds from login (0 = never expires)
 	@nIdleTTL = 0        # IDLE lifetime: seconds of inactivity before death (0 = off)
 	@cDummyHash = ""     # a real hash used to equalize timing for unknown users
 
 	# SAML 2.0: enterprise SSO through a corporate identity provider
-	@oSamlSp = NULL            # an stzSamlServiceProvider (config + replay guard)
+	@oSamlSp = ""            # an stzSamlServiceProvider (config + replay guard)
 	@cSamlWhy = ""
 
 	# PASSKEYS (WebAuthn): sign in with a device key instead of a secret
-	@oPasskeyRp = NULL         # an stzPasskeyServer (config: rp id + origin)
+	@oPasskeyRp = ""         # an stzPasskeyServer (config: rp id + origin)
 	@cPasskeyWhy = ""          # why the last passkey operation was refused
 
 	# EXTERNAL identity (OIDC): sign in with a provider, verified locally
-	@oOidc = NULL              # an stzOidcClient (config only -- a copy is fine)
-	@bOidcAutoProvision = TRUE # create the account on a first external login
+	@oOidc = ""              # an stzOidcClient (config only -- a copy is fine)
+	@bOidcAutoProvision = 1 # create the account on a first external login
 	@cOidcWhy = ""             # why the last external login was refused
 
 	# passwordless (magic-link / email-OTP) over a mail PORT (service-virtualization)
-	@oMailPort = NULL          # any object with Send(to, subject, body); NULL = unbound
+	@oMailPort = ""          # any object with Send(to, subject, body); NULL = unbound
 	@cMagicLinkBaseUrl = ""    # the app URL a magic link points at ("" = a softanza:// uri)
 	@nPasswordlessTTL = 900    # how long a magic link / OTP is valid (seconds, 15 min)
 
@@ -215,10 +215,10 @@ class stzAuth from stzObject
 		_u_ = ring_trim("" + pcUser)
 		_h_ = @oStore.UserHash(_u_)
 		if _h_ = "" or NOT StzVerifySecret("" + pcOld, _h_)
-			return FALSE
+			return 0
 		ok
 		@oStore.PutUser(_u_, StzHashSecret("" + pcNew))
-		return TRUE
+		return 1
 
 	# remove a user (and end any of their sessions).
 	def Unregister(pcUser)
@@ -242,7 +242,7 @@ class stzAuth from stzObject
 		_h_ = @oStore.UserHash(ring_trim("" + pcUser))
 		if _h_ = ""
 			StzVerifySecret("" + pcPassword, @cDummyHash)   # equalize timing
-			return FALSE
+			return 0
 		ok
 		return StzVerifySecret("" + pcPassword, _h_)
 
@@ -364,7 +364,7 @@ class stzAuth from stzObject
 	def SessionToken(pcToken)
 		_s_ = @oStore.Session("" + pcToken)
 		if len(_s_) = 0
-			return NULL
+			return ""
 		ok
 		_oTok_ = new stzToken("session")
 		_oTok_.FromLiteral("" + pcToken)
@@ -388,12 +388,12 @@ class stzAuth from stzObject
 		_nP_ = 0
 		_n_ = len(_aS_)
 		for _i_ = 1 to _n_
-			_dead_ = FALSE
+			_dead_ = 0
 			if _aS_[_i_][:expires] > 0 and pnNowSecs >= _aS_[_i_][:expires]
-				_dead_ = TRUE
+				_dead_ = 1
 			ok
 			if @nIdleTTL > 0 and (pnNowSecs - _aS_[_i_][:lastseen]) >= @nIdleTTL
-				_dead_ = TRUE
+				_dead_ = 1
 			ok
 			if _dead_
 				# Incident I2: the row is about to be deleted, so this is the
@@ -581,11 +581,11 @@ class stzAuth from stzObject
 		_u_ = ring_trim("" + pcUser)
 		_rec_ = @oStore.Totp(_u_)
 		if (len(_rec_) = 0) or (_rec_[:confirmed] != 1)
-			return FALSE
+			return 0
 		ok
 		_oT_ = StzTotpFromSecretQ(_rec_[:secret])
 		if _oT_.VerifyAt(pcCode, pnNow)
-			return TRUE
+			return 1
 		ok
 		return This._ConsumeRecoveryCode(_u_, pcCode, _rec_[:recovery])
 
@@ -635,7 +635,7 @@ class stzAuth from stzObject
 			    "Click to sign in: " + This._MagicLinkUrl(_tok_) + char(10) +
 			    "This link expires in " + floor(@nPasswordlessTTL / 60) + " minutes.")
 		ok
-		return TRUE
+		return 1
 
 	# redeem a magic-link token -> a session token ("" if invalid / expired / for a
 	# user who since vanished, or whose 2FA forbids the shortcut).
@@ -683,7 +683,7 @@ class stzAuth from stzObject
 			    "Your code is: " + _code_ + char(10) +
 			    "It expires in " + floor(@nPasswordlessTTL / 60) + " minutes.")
 		ok
-		return TRUE
+		return 1
 
 	# verify an emailed OTP -> a session token ("" on any failure / lockout / a 2FA
 	# user).
@@ -804,14 +804,14 @@ class stzAuth from stzObject
 		_aRoles_ = @oStore.RolesOf(_u_)
 		_aKinds_ = []
 		_cPosture_ = "trusted"
-		_bHas_ = FALSE
+		_bHas_ = 0
 		_n_ = len(_aRoles_)
 		for _i_ = 1 to _n_
 			_def_ = This.RoleDefinition(_aRoles_[_i_])
 			if len(_def_) = 0
 				loop
 			ok
-			_bHas_ = TRUE
+			_bHas_ = 1
 			_m_ = len(_def_[:kinds])
 			for _j_ = 1 to _m_
 				if This._InList(_def_[:kinds][_j_], _aKinds_) = 0
@@ -835,7 +835,7 @@ class stzAuth from stzObject
 	def ActorOfAt(pcToken, pnNow)
 		_u_ = This.UserOfSessionAt(pcToken, pnNow)
 		if _u_ = ""
-			return NULL
+			return ""
 		ok
 		return This.ActorForUser(_u_)
 
@@ -852,8 +852,8 @@ class stzAuth from stzObject
 
 	def SessionCanAt(pcToken, pcKind, pnNow)
 		_a_ = This.ActorOfAt(pcToken, pnNow)
-		if _a_ = NULL
-			return FALSE
+		if _a_ = ""
+			return 0
 		ok
 		return _a_.Can(pcKind)
 
@@ -883,7 +883,7 @@ class stzAuth from stzObject
 	def SessionMayProceedAt(pcToken, pcAction, poGovernance, pnNow)
 		_u_ = This.UserOfSessionAt(pcToken, pnNow)
 		if _u_ = ""
-			return FALSE
+			return 0
 		ok
 		return poGovernance.MayProceed(_u_, pcAction) = 1
 
@@ -998,16 +998,16 @@ class stzAuth from stzObject
 		_u_ = ring_trim("" + pcUser)
 		if NOT @oStore.HasUser(_u_)
 			@cPasskeyWhy = "no such user '" + _u_ + "'"
-			return FALSE
+			return 0
 		ok
 		_r_ = @oPasskeyRp.RegisterCredential(pcAttObjB64, pcClientDataB64, pcExpectedChallenge)
 		if NOT _r_[:ok]
 			@cPasskeyWhy = _r_[:why]
-			return FALSE
+			return 0
 		ok
 		@oStore.PutPasskey(_r_[:credentialId], _u_, _r_[:keyType], _r_[:key1], _r_[:key2], _r_[:signCount])
 		@cPasskeyWhy = ""
-		return TRUE
+		return 1
 
 	# the devices a user has enrolled (public data only -- never a private key).
 	def PasskeysOf(pcUser)
@@ -1175,7 +1175,7 @@ class stzAuth from stzObject
 	def IsLockedOutAt(pcUser, pnNow)
 		_i_ = This._FailureIndex("" + pcUser)
 		if _i_ = 0
-			return FALSE
+			return 0
 		ok
 		return @aFailures[_i_][2] >= @nMaxAttempts and pnNow < @aFailures[_i_][3]
 
@@ -1258,7 +1258,7 @@ class stzAuth from stzObject
 	def _ConsumeRecoveryCode(pcUser, pcCode, paHashes)
 		_sub_ = This._CanonRecovery(pcCode)
 		if _sub_ = ""
-			return FALSE
+			return 0
 		ok
 		_n_ = len(paHashes)
 		for _i_ = 1 to _n_
@@ -1270,10 +1270,10 @@ class stzAuth from stzObject
 					ok
 				next
 				@oStore.SetTotpRecovery("" + pcUser, _aNew_)
-				return TRUE
+				return 1
 			ok
 		next
-		return FALSE
+		return 0
 
 	# canonicalize a recovery code: lower-case, keep only hex characters (so it may
 	# be typed with spaces or in upper-case).

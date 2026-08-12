@@ -175,7 +175,7 @@ func _StzCsr(paFrom, paTo, n)
 
 class stzGraphCanvas from stzObject
 
-	@oGraph = NULL
+	@oGraph = ""
 	@aOpt = []
 	@nW = 1000
 	@nH = 620
@@ -279,7 +279,7 @@ class stzGraphCanvas from stzObject
 
 		# labels are optional: they need a font, and a caller without one
 		# still gets the picture
-		_oF_ = This._Opt(:Font, NULL)
+		_oF_ = This._Opt(:Font, "")
 		if isObject(_oF_)
 			_nS_ = This._Opt(:LabelSize, 13)
 			for _i_ = 1 to _n_
@@ -383,9 +383,9 @@ class stzGraphCanvas from stzObject
 		if _n_ < 2  return 0  ok
 		_ys_ = []
 		for _i_ = 1 to _n_
-			_seen_ = FALSE
+			_seen_ = 0
 			for _k_ = 1 to len(_ys_)
-				if fabs(_ys_[_k_] - @aY[_i_]) < 0.5  _seen_ = TRUE  exit  ok
+				if fabs(_ys_[_k_] - @aY[_i_]) < 0.5  _seen_ = 1  exit  ok
 			next
 			if NOT _seen_  _ys_ + @aY[_i_]  ok
 		next

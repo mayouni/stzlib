@@ -134,7 +134,7 @@ class stzPredicateSet from stzObject
 	# seal; any silent edit to the rules breaks it.
 	def Verify()
 		if @cSeal = ""
-			return FALSE
+			return 0
 		ok
 		return @cSeal = This.Seal()
 

@@ -12,7 +12,7 @@
 
 class stzDecisionTree from stzObject
 
-	@oTs = NULL
+	@oTs = ""
 	@acNames = []
 	@aTree = []
 	@cWhy = ""

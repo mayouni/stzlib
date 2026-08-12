@@ -7,12 +7,12 @@ func @IsObject(p)
 
 func @IsStzObject(p)
 	if NOT isObject(p)
-		return FALSE
+		return 0
 	ok
 	try
 		return p.IsStzObject()
 	catch
-		return FALSE
+		return 0
 	done
 
 func ObjectClassName(obj)
@@ -35,11 +35,11 @@ func ObjectMethods(obj)
 
 func ObjectsAreEqual(obj1, obj2)
 	if classname(obj1) != classname(obj2)
-		return FALSE
+		return 0
 	ok
 	_aAttrs1_ = attributes(obj1)
 	_aAttrs2_ = attributes(obj2)
 	if len(_aAttrs1_) != len(_aAttrs2_)
-		return FALSE
+		return 0
 	ok
-	return TRUE
+	return 1

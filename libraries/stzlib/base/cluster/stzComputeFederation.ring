@@ -34,17 +34,17 @@ class stzComputeFederation from stzObject
 
 	@cName = ""
 	@aMembers = []       # [ name, endpoint(host:port), [facets], active ]
-	@oGov = NULL         # governance: who may invoke which facet (the SLA layer)
+	@oGov = ""         # governance: who may invoke which facet (the SLA layer)
 	@aBonds = []         # [ caller, facet ]  a caller may request this facet
-	@oReactor = NULL     # transport (curl to remote hosts)
-	@oSigner = NULL      # HMAC request signing (authenticity + integrity)
+	@oReactor = ""     # transport (curl to remote hosts)
+	@oSigner = ""      # HMAC request signing (authenticity + integrity)
 	@aLastSig = []       # the last outbound signature envelope (observability)
 	@nLastStatus = 0
 	@nLastCallMs = 0   # duration of the last FederatedCall (ms; perf P3)
 	@cWhy = ""
 	# wire mTLS: when set, FederatedCall transports over a MUTUALLY
 	# authenticated + encrypted mbedTLS channel instead of plain curl
-	@bMtls = FALSE
+	@bMtls = 0
 	@cTlsCert = ""       # this node's client cert (presented to the peer)
 	@cTlsKey = ""
 	@cTlsCa = ""         # trust anchor for validating the peer server cert
@@ -83,7 +83,7 @@ class stzComputeFederation from stzObject
 		else
 			_aF_ + StzLower("" + paFacets)
 		ok
-		@aMembers + [ "" + pcName, "" + pcEndpoint, _aF_, TRUE ]
+		@aMembers + [ "" + pcName, "" + pcEndpoint, _aF_, 1 ]
 		return This
 
 	def NumberOfMembers()
@@ -99,19 +99,19 @@ class stzComputeFederation from stzObject
 
 	def IsActive(pcName)
 		_i_ = This._IndexOf(pcName)
-		if _i_ = 0  return FALSE  ok
+		if _i_ = 0  return 0  ok
 		return @aMembers[_i_][4]
 
 	def Retire(pcName)
 		_i_ = This._IndexOf(pcName)
 		if _i_ = 0  stzraise("No host '" + pcName + "'.")  ok
-		@aMembers[_i_][4] = FALSE
+		@aMembers[_i_][4] = 0
 		return This
 
 	def Revive(pcName)
 		_i_ = This._IndexOf(pcName)
 		if _i_ = 0  stzraise("No host '" + pcName + "'.")  ok
-		@aMembers[_i_][4] = TRUE
+		@aMembers[_i_][4] = 1
 		return This
 
 	# Every ACTIVE host offering a facet.
@@ -154,10 +154,10 @@ class stzComputeFederation from stzObject
 		_n_ = len(@aBonds)
 		for _i_ = 1 to _n_
 			if @aBonds[_i_][1] = pcCaller and @aBonds[_i_][2] = _cF_
-				return TRUE
+				return 1
 			ok
 		next
-		return FALSE
+		return 0
 
 	#-- the federated compute call -----------------------------------------
 
@@ -216,7 +216,7 @@ class stzComputeFederation from stzObject
 			_cHost_ = This._HostOf(_cEndpoint_)
 			_nPort_ = This._PortOf(_cEndpoint_)
 			_cRaw_ = @oReactor.TlsGet(_cHost_, _nPort_, _cWirePath_,
-				@cTlsCert, @cTlsKey, @cTlsCa, TRUE)
+				@cTlsCert, @cTlsKey, @cTlsCa, 1)
 			_aRB_ = This._SplitHttpResponse(_cRaw_)
 			@nLastStatus = _aRB_[1]
 			_cResp_ = _aRB_[2]
@@ -261,7 +261,7 @@ class stzComputeFederation from stzObject
 	# (per-request auth), this is the full node-to-node security stack:
 	# encrypted + mutually cert-authenticated + signed + governed.
 	def SetMutualTls(pcCert, pcKey, pcCa)
-		@bMtls = TRUE
+		@bMtls = 1
 		@cTlsCert = "" + pcCert
 		@cTlsKey = "" + pcKey
 		@cTlsCa = "" + pcCa
@@ -289,9 +289,9 @@ class stzComputeFederation from stzObject
 	#-- teardown -----------------------------------------------------------
 
 	def Shutdown()
-		if @oReactor != NULL
+		if @oReactor != ""
 			@oReactor.Destroy()
-			@oReactor = NULL
+			@oReactor = ""
 		ok
 		return This
 
@@ -319,12 +319,12 @@ class stzComputeFederation from stzObject
 	def _SafePath(pcPath)
 		_c_ = "" + pcPath
 		if _c_ = "" or StzLeft(_c_, 1) != "/"
-			return FALSE
+			return 0
 		ok
 		if StzFindFirst(char(13), _c_) > 0 or StzFindFirst(char(10), _c_) > 0
-			return FALSE
+			return 0
 		ok
-		return TRUE
+		return 1
 
 	def _IndexOf(pcName)
 		_c_ = "" + pcName

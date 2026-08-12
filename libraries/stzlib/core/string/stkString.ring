@@ -5,7 +5,7 @@
 
 func StkReplaceCS(_cStr_, cSubStr, cNewSubStr, bCase)
 
-	if bCase = TRUE
+	if bCase = 1
 		return ring_substr2(_cStr_, cSubStr, cNewSubStr)
 	ok
 
@@ -16,7 +16,7 @@ func StkReplaceCS(_cStr_, cSubStr, cNewSubStr, bCase)
 	return ring_substr2(_cStrLow_, _cSubStrLow_, _cNewSubStrLow_)
 
 func StkReplace(_cStr_, cSubStr, cNewSubStr)
-	return StkReplaceCS(_cStr_, cSubStr, cNewSubStr, TRUE)
+	return StkReplaceCS(_cStr_, cSubStr, cNewSubStr, 1)
 
 # Split function
 
@@ -25,7 +25,7 @@ func StkSplitCS(_cStr_, cSubStr, bCase)
 
 	_cWork_ = _cStr_
 	_cSep_ = cSubStr
-	if bCase = FALSE or bCase = 0
+	if bCase = 0 or bCase = 0
 		_cWork_ = lower(_cStr_)
 		_cSep_ = lower(cSubStr)
 	ok
@@ -59,7 +59,7 @@ class stkString from stzCoreString
 
 class stzCoreString from stzCoreObject
 
-	@pEngine = NULL
+	@pEngine = ""
 
 	def init(str)
 		if NOT isString(str)
@@ -115,7 +115,7 @@ class stzCoreString from stzCoreObject
 		if substr = ""
 			return 0
 		ok
-		if bCase = TRUE or bCase = 1
+		if bCase = 1 or bCase = 1
 			_nPos_ = StkEngineStringIndexOf(@pEngine, substr)
 			if _nPos_ >= 0 return _nPos_ + 1 ok
 			return 0
@@ -129,7 +129,7 @@ class stzCoreString from stzCoreObject
 		if substr = ""
 			return 0
 		ok
-		return This.FindFirstCS(substr, TRUE)
+		return This.FindFirstCS(substr, 1)
 
 	#--
 
@@ -139,7 +139,7 @@ class stzCoreString from stzCoreObject
 		ok
 		_cContent_ = This.Content()
 		_cNeedle_ = cSub
-		if bCase = FALSE or bCase = 0
+		if bCase = 0 or bCase = 0
 			_cContent_ = lower(_cContent_)
 			_cNeedle_ = lower(cSub)
 		ok
@@ -159,7 +159,7 @@ class stzCoreString from stzCoreObject
 		if substr = ""
 			return 0
 		ok
-		return This.FindLastCS(substr, TRUE)
+		return This.FindLastCS(substr, 1)
 
 	#--
 
@@ -170,7 +170,7 @@ class stzCoreString from stzCoreObject
 
 		_cContent_ = This.Content()
 		_cNeedle_ = cSub
-		if bCase = FALSE or bCase = 0
+		if bCase = 0 or bCase = 0
 			_cContent_ = lower(_cContent_)
 			_cNeedle_ = lower(cSub)
 		ok
@@ -192,7 +192,7 @@ class stzCoreString from stzCoreObject
 			return This.FindCS(substr, bCase)
 
 	def Find(substr)
-		return This.FindCS(substr, TRUE)
+		return This.FindCS(substr, 1)
 
 		def FindAll(substr)
 			return This.Find(substr)
@@ -208,7 +208,7 @@ class stzCoreString from stzCoreObject
 		return 0
 
 	def FindNth(n, substr)
-		return This.FindNthCS(n, substr, TRUE)
+		return This.FindNthCS(n, substr, 1)
 
 	#-- INSERTING
 
@@ -226,7 +226,7 @@ class stzCoreString from stzCoreObject
 		This.Update(_cResult_)
 
 	def Replace(substr1, substr2)
-		This.ReplaceCS(substr1, substr2, TRUE)
+		This.ReplaceCS(substr1, substr2, 1)
 
 	#--
 
@@ -261,7 +261,7 @@ class stzCoreString from stzCoreObject
 		return _acResult_
 
 	def Split(substr)
-		return This.SplitCS(substr, TRUE)
+		return This.SplitCS(substr, 1)
 
 	#--
 
@@ -277,52 +277,52 @@ class stzCoreString from stzCoreObject
 
 	def ContainsCS(substr, bCase)
 		if substr = ""
-			return FALSE
+			return 0
 		ok
-		if bCase = TRUE or bCase = 1
+		if bCase = 1 or bCase = 1
 			return StkEngineStringContains(@pEngine, substr) = 1
 		ok
 		return substr(lower(This.Content()), lower(substr)) > 0
 
 	def Contains(substr)
 		if substr = ""
-			return FALSE
+			return 0
 		ok
-		return This.ContainsCS(substr, TRUE)
+		return This.ContainsCS(substr, 1)
 
 	#==
 
 	def StartsWithCS(substr, bCase)
 		if substr = ""
-			return FALSE
+			return 0
 		ok
-		if bCase = TRUE or bCase = 1
+		if bCase = 1 or bCase = 1
 			return left(This.Content(), len(substr)) = substr
 		ok
 		return left(lower(This.Content()), len(substr)) = lower(substr)
 
 	def StartsWith(substr)
 		if substr = ""
-			return FALSE
+			return 0
 		ok
-		return This.StartsWithCS(substr, TRUE)
+		return This.StartsWithCS(substr, 1)
 
 	#--
 
 	def EndsWithCS(substr, bCase)
 		if substr = ""
-			return FALSE
+			return 0
 		ok
-		if bCase = TRUE or bCase = 1
+		if bCase = 1 or bCase = 1
 			return right(This.Content(), len(substr)) = substr
 		ok
 		return right(lower(This.Content()), len(substr)) = lower(substr)
 
 	def EndsWith(substr)
 		if substr = ""
-			return FALSE
+			return 0
 		ok
-		return This.EndsWithCS(substr, TRUE)
+		return This.EndsWithCS(substr, 1)
 
 	#--
 
