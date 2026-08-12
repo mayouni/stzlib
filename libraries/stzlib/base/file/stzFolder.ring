@@ -4341,8 +4341,17 @@ class stzFolder from stzObject
 		_nLen_ = len(_acKeywords_)
 		_bResult_ = 0
 
+		# NEEDLE FIRST. This read StzFindFirst(_cPattern_, _acKeywords_[i]),
+		# which asks whether the whole display pattern occurs inside a short
+		# keyword -- backwards, and 0 for anything real. SetDisplayStat()
+		# then refused every pattern it was given with "Incorrect start
+		# pattern!".
+		#
+		# It hid because the DEFAULT pattern is "@count", which IS a keyword:
+		# inverted or not, a string is found in itself. Only a pattern longer
+		# than a keyword -- i.e. any pattern worth setting -- exposed it.
 		for i = 1 to _nLen_
-			if StzFindFirst(_cPattern_, _acKeywords_[i]) > 0
+			if StzFindFirst(_acKeywords_[i], _cPattern_) > 0
 				_bResult_ = 1
 				exit
 			ok

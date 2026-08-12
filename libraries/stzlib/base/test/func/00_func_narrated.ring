@@ -63,4 +63,38 @@ Scenario("Extended truthiness recognises the sentinel objects")
     Then("IsTrueXT([]) is FALSE", IsTrueXT([]), FALSE)
 EndScenario()
 
+# Regression: the three lists that configure extended truthiness --
+# $acSubStringsMakingAStringFalse, $aItemsMakingAListFalse and
+# $aInnerItemsMakingAListFalse -- all default to [], and the
+# ContainsOneOfTheseCS they are handed to validates with IsListOfStrings,
+# which deliberately REFUSES an empty list. So the library's own defaults
+# failed its own validator and IsTrueXT RAISED for every non-empty string
+# and every non-empty list. This whole suite died at line 61 above.
+#
+# An empty configuration means "nothing marks this false" -- not an error.
+
+Scenario("An unconfigured falsity list means nothing marks a value false")
+    Given("the defaults, with no substring or item configured")
+    Then("a plain string is true", IsTrueXT("Hello"), TRUE)
+    Then("a plain list is true", IsTrueXT([1, 2]), TRUE)
+    Then("IsFalseXT agrees (it delegates here)", IsFalseXT("Hello"), FALSE)
+    Then("...and the empty cases are untouched", IsTrueXT(""), FALSE)
+EndScenario()
+
+# The negative sibling of the scenario above. If the fix had simply stopped
+# consulting the lists, everything here would still answer TRUE -- so this
+# is what separates "empty means no" from "the feature was switched off".
+Scenario("A CONFIGURED falsity list still bites")
+    Given("'no' and 'off' configured as falsity markers")
+    SetSubStringsMakingAStringFalse([ "no", "off" ])
+    Then("a string carrying a marker is FALSE", IsTrueXT("no way"), FALSE)
+    Then("...and IsFalseXT says so", IsFalseXT("no way"), TRUE)
+    Then("a string without one is still TRUE", IsTrueXT("Hello"), TRUE)
+    When("the configuration is cleared again -- [] is the DEFAULT, so the")
+    When("setter has to accept it; it used to refuse its own initial value")
+    SetSubStringsMakingAStringFalse([])
+    Then("the marker stops biting", IsTrueXT("no way"), TRUE)
+    Then("...and a non-string list is still refused", NOT IsListOfStrings([ 1, 2 ]), TRUE)
+EndScenario()
+
 Summary()
