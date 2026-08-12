@@ -39,8 +39,12 @@ oSg = oSw.ToSpectrogram()
 ? "   ...and here is what it looked like:"
 ? "   " + oSg.Rows() + " windows, peak went from " +
   oSg.PeakFrequencyOfRow(4) + " Hz to " + oSg.PeakFrequencyOfRow(oSg.Rows() - 4) + " Hz"
-oSg.ToSVGFile(cTmp + "/demo_sweep.svg", 760, 260)
-? "   drawn through stzCanvas -> temp/demo_sweep.svg (a diagonal)"
+# BOTH pictures, because they fail in different places: SVG needs no device
+# at all (so CI can draw), and PNG needs the GPU tier but opens in anything.
+oCv = oSg.ToCanvasOf(720, 240, 200)
+write(cTmp + "/demo_sweep.svg", oCv.ToSVG())
+oCv.ToPNG(cTmp + "/demo_sweep.png")
+? "   drawn through stzCanvas -> temp/demo_sweep.png and .svg (a diagonal)"
 oSg.Release()
 oSw.Release()
 
