@@ -258,8 +258,24 @@ func StzThemeColor(pcTheme, pcRole)
 # provides it, and a second definition is a C22 that takes the whole
 # library down at load time.
 
-# The semantic roles, as DATA -- so a face can offer them without knowing
-# which theme is in force.
-func StzColorRoles()
+# TWO DIFFERENT THINGS, and conflating them was a bug in this file's first
+# version -- StzColorRoles() advertised :Background, a caller painted with
+# it, and the resolver refused because there is no standalone colour by
+# that name.
+#
+#   StzSemanticColors()  names that RESOLVE on their own. Fill(:Danger)
+#                        works anywhere, with no theme in force.
+#   StzThemeRoles()      the slots a THEME fills in. :Background is one of
+#                        these: it is meaningless without a theme to look
+#                        it up in, so it is only ever reached through
+#                        StzThemeColor(theme, :background).
+func StzSemanticColors()
+	return [ :Primary, :Success, :Warning, :Danger, :Info, :Neutral ]
+
+func StzThemeRoles()
 	return [ :Primary, :Success, :Warning, :Danger, :Info, :Neutral, :Background ]
+
+	# kept: StzColorRoles reads as the theme's slots, which is where it is used
+	func StzColorRoles()
+		return StzThemeRoles()
 

@@ -161,7 +161,7 @@ chk("the rule DISCRIMINATES (it does not always answer the same)",
 ? "-- 4. THEMES: a role, resolved through a named theme ---------"
 #---------------------------------------------------------------------------
 
-? "   roles : " + @@(StzColorRoles())
+? "   roles : " + @@(StzThemeRoles())
 ? ""
 ? "   theme      primary    danger     background"
 ? "   --------   --------   --------   ----------"
