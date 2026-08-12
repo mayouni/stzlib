@@ -223,7 +223,44 @@ class stzGraph from stzObject
 
 	def Copy()
 		_oCopy_ = This
+		_oCopy_._DetachEngineCaches()
 		return _oCopy_
+
+	# A COPY MUST NOT INHERIT THE ORIGINAL'S ENGINE CACHES.
+	#
+	# @pNodeIdx, @pEdgeIdx and @pEngineGraph are engine HANDLES. Ring copies
+	# them by value, so a plain copy ends up sharing the original's index
+	# while owning its own @aNodes -- and AddNodeXTT writes new keys straight
+	# into that shared map. A node added to the COPY therefore appeared to
+	# exist in the ORIGINAL:
+	#
+	#     oVar = oBase.Copy()
+	#     oVar.AddNodeXT("risk_officer", "Risk Officer")
+	#     oBase.NodeExists("risk_officer")   --> 1, on a graph of two nodes
+	#
+	# The staleness check cannot catch it: it compares @nNodeIdxCount against
+	# len(@aNodes), and both are still 2 on the original. Only the shared map
+	# grew.
+	#
+	# How it surfaced: ApplySimulation asked NodeExists before adding, was
+	# told the node was already there, skipped the AddNode -- and SetNodeLabel,
+	# which scans @aNodes honestly, then raised "Node 'risk_officer' does not
+	# exist." The error named the one place that was telling the truth.
+	#
+	# The handles are dropped, not freed: the ORIGINAL still owns them and
+	# frees them. Both sides now rebuild lazily from their own lists, which
+	# also closes the double-free that two owners of one handle imply.
+	def _DetachEngineCaches()
+		@pNodeIdx = ""
+		@nNodeIdxCount = -1
+		@bNodeIdxStale = 1
+
+		@pEdgeIdx = ""
+		@nEdgeIdxCount = -1
+		@bEdgeIdxStale = 1
+
+		@pEngineGraph = ""
+		@bEngineStale = 1
 
 	def Id()
 		return @cId
@@ -6382,12 +6419,25 @@ class stzGraph from stzObject
 	#
 	# The NEWLINE substitution stays: an unescaped newline inside a quoted
 	# dot label breaks the statement it sits in.
+	# A label carries NEITHER spaces NOR newlines -- the rule SetNodeLabel
+	# states in its own comment, and the one _IsWellFormedId enforces for ids.
+	#
+	# These two were written as alternative FORMS of each other and were not:
+	# the US spelling replaced only newlines, the UK spelling only spaces, and
+	# since every one of the five call sites uses the US name, the UK one was
+	# dead code carrying the other half of the job. A label set through any
+	# door kept its spaces.
+	#
+	# The alias now DELEGATES rather than reimplementing. Two spellings of one
+	# rule are two places for it to drift, and this is what that drift looks
+	# like when it lands.
 	def _NormalizeLabel(pcLabel)
-		pcLabel = StzReplace(pcLabel, char(10), "_")
-		return pcLabel
+		_cNl_ = StzReplace("" + pcLabel, char(10), "_")
+		_cNl_ = StzReplace(_cNl_, char(13), "_")
+		return StzReplace(_cNl_, " ", "_")
 
 		def  _NormaliseLabel(pcLabel)
-			return StzReplace(pcLabel, " ", "_")
+			return This._NormalizeLabel(pcLabel)
 
 	def _IsWellFormedId(pcName)
 		if NOT isString(pcName)

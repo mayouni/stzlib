@@ -160,11 +160,82 @@ chk("loading a file that isn't there refuses too", bNoFile = 1)
 remove("_rt.stzgraf")
 
 ? ""
+? "-- Scene 6: a copy is its own graph, index and all --"
+
+# THE defect that killed Scene 3 for as long as this guard existed.
+#
+# @pNodeIdx / @pEdgeIdx / @pEngineGraph are engine HANDLES, and Ring copies a
+# handle by value. A copy therefore shared the original's index while owning
+# its own @aNodes, and AddNodeXTT writes new keys straight into that shared
+# map -- so a node added to the COPY answered NodeExists on the ORIGINAL.
+#
+# The staleness check could not see it: it compares @nNodeIdxCount against
+# len(@aNodes), and on the original both are still 2. Only the shared map grew.
+#
+# What made it hard to read is that the error blamed the honest party.
+# ApplySimulation asked NodeExists, was told the node was already there, so it
+# skipped the AddNode -- and SetNodeLabel, which scans @aNodes for real, raised
+# "Node 'risk_officer' does not exist."
+#
+# The index is only built on demand, so a probe must ASK something first --
+# without the NodeExists below, @pNodeIdx is still "" and nothing leaks.
+
+oOrig = new stzGraph("iso")
+oOrig.AddNodeXT("a", "A")
+oOrig.AddNodeXT("b", "B")
+oOrig.AddEdge("a", "b")
+
+chk("the original knows its own node", oOrig.NodeExists("a"))   # builds the index
+
+oClone = oOrig.Copy()
+oClone.AddNodeXT("c", "C")
+oClone.AddEdge("b", "c")
+
+chk("the clone sees what it added", oClone.NodeExists("c"))
+chk("... and counts it", oClone.NodeCount() = 3)
+
+# The four that failed before the fix.
+chk("the ORIGINAL does not see the clone's node", NOT oOrig.NodeExists("c"))
+chk("... and its count is untouched", oOrig.NodeCount() = 2)
+chk("... nor does it see the clone's edge", NOT oOrig.EdgeExists("b", "c"))
+chk("... and its edge count is untouched", oOrig.EdgeCount() = 1)
+
+# The negative sibling: detaching the caches must not have COST the copy its
+# contents. A Copy() that returned an empty graph would pass everything above.
+chk("the clone still carries the original's nodes", oClone.NodeExists("a") and oClone.NodeExists("b"))
+chk("... and the original's edge", oClone.EdgeExists("a", "b"))
+
+# ... and the leak has no preferred direction: adding to the ORIGINAL after
+# the copy was taken must not reach the clone either.
+oOrig.AddNodeXT("d", "D")
+chk("a node added to the original stays out of the clone", NOT oClone.NodeExists("d"))
+
+? ""
+? "-- Scene 7: one label rule, whichever spelling you call --"
+
+# _NormalizeLabel and _NormaliseLabel were written as alternative FORMS of
+# each other and were not: one replaced newlines, the other spaces, and every
+# call site used the first. Half the rule was dead code. The alias delegates
+# now -- two spellings of one rule are two places for it to drift.
+
+oN = new stzGraph("nrm")
+oN.AddNodeXT("n1", "Chief Risk Officer")
+chk("a label given at birth loses its spaces", oN.NodeLabel("n1") = "Chief_Risk_Officer")
+oN.AddNode("n2")
+oN.SetNodeLabel("n2", "Head Of Audit")
+chk("... and so does one said afterwards", oN.NodeLabel("n2") = "Head_Of_Audit")
+chk("a label with nothing to normalise is untouched", _NormalizeLabelProbe(oN, "n3", "Treasurer") = "Treasurer")
+
+? ""
 ? "=========================================="
 ? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
 ? "=========================================="
 
 pf()
+
+func _NormalizeLabelProbe(poGraph, pcId, pcLabel)
+	poGraph.AddNodeXT(pcId, pcLabel)
+	return poGraph.NodeLabel(pcId)
 
 func chk(cLabel, bCond)
 	if bCond
