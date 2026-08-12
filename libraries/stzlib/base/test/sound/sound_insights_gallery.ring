@@ -1,21 +1,25 @@
-# THE INSIGHT GALLERY -- five pictures, each one showing something true about
+# THE INSIGHT GALLERY -- six pictures, each one showing something true about
 # sound that you cannot see in a number.
 #
 #     cd libraries/stzlib/base/test/sound
 #     ring sound_insights_gallery.ring
 #
-# Writes five PNGs into temp/ and PLAYS the sound behind each one, so every
-# claim can be checked with both senses. One of them is a real defect in this
-# engine, drawn rather than described.
+# Writes six PNGs into temp/ and PLAYS the sound behind each one, so every
+# claim can be checked with both senses.
 #
-# WHY THESE FIVE: each is a phenomenon that a spectrogram or a spectrum makes
+# WHY THESE SIX: each is a phenomenon that a spectrogram or a spectrum makes
 # obvious and a number makes invisible.
 #
-#   1  ALIASING       a genuine bug in our oscillators, visible as folding
+#   1  ALIASING       what a naive oscillator does, visible as folding
 #   2  A CLICK        why a step is broadband, and a ramp is not
 #   3  TIMBRE         why saw and triangle measure the same and sound different
 #   4  BEATS          two tones a few Hz apart, interfering
 #   5  RESONANCE      what a filter's Q actually does
+#   6  THE FIX        plate 1's defect, before and after PolyBLEP
+#
+# PLATE 1 WAS A BUG REPORT. This engine's oscillators WERE naive; the picture
+# is what found it. Plate 6 is the same defect measured after the fix, and the
+# 19 dB between them is the whole argument for drawing things.
 
 load "../../stzBase.ring"
 decimals(2)
@@ -32,13 +36,14 @@ if len(sysargv) >= 3 and lower(sysargv[3]) = "quiet"
 ok
 
 ? ""
-? "=== FIVE THINGS SOUND DOES, DRAWN ==="
+? "=== SIX THINGS SOUND DOES, DRAWN ==="
 
 # ===========================================================================
 # 1. ALIASING -- a real bug in this engine, not a textbook illustration
 # ===========================================================================
 ? ""
-? "1. ALIASING -- our oscillators are NAIVE, and this is what that costs."
+? "1. ALIASING -- what a NAIVE oscillator costs. Ours were naive until"
+? "   plate 6; this is the picture that found it."
 ? "   A saw is every harmonic at once. Sweep its pitch up and the upper"
 ? "   harmonics reach Nyquist (24 kHz) -- and a sampled system cannot hold"
 ? "   them, so they FOLD BACK DOWN as descending lines that were never"
@@ -64,7 +69,7 @@ oG1 = oAl.ToSpectrogramOf(1, 4096, 1024, 4)
 oP1 = new stzSoundPlot(920, 400)
 oP1.SetTitle("Aliasing: harmonics that fold back",
              "a naive sawtooth swept 1.5 -> 6 kHz, drawn all the way to Nyquist")
-oP1.SetNote("Every rising line that reaches the ceiling comes back DOWN. Nothing descending was ever played: it is energy past 24 kHz, reflected. A band-limited oscillator would not do this -- ours is not one yet.")
+oP1.SetNote("Every rising line that reaches the ceiling comes back DOWN. Nothing descending was ever played: it is energy past 24 kHz, reflected. A band-limited oscillator does not do this, and plate 6 is ours, after the fix.")
 oP1.SetDynamicRange(42)      # a naive saw has a LOUD floor; -70 dB shows all of it
 oP1.DrawSpectrogram(oG1, 24000)
 oP1.SaveAsPNG(cOut + "/1_aliasing.png")
@@ -128,9 +133,10 @@ oCk.Release()
 ? "   never in the level, it was in the harmonics."
 
 # BAND-LIMITED, built by ADDING harmonics rather than by drawing the shape.
-# Using the engine's own oscillators here would be honest but unreadable: they
-# are naive, so plate 1's aliases fill the gaps between the harmonics with fur
-# and bury the very structure this plate exists to show. One plate per idea.
+# The engine's oscillators are band-limited now and would draw nearly the same
+# picture, but built by hand the harmonic amplitudes are EXACT -- 1/n for a saw,
+# 1/n**2 for a triangle -- so the plate teaches the rule rather than one
+# implementation of it. Plate 6 is where the engine's own wave is on trial.
 aSpectra = []
 aWaves = [ "sine", "triangle", "square", "saw" ]
 for w = 1 to 4
@@ -232,5 +238,71 @@ for s = 1 to len(aRes)
 	aRes[s][2].Release()
 next
 
+# ===========================================================================
+# 6. THE FIX -- plate 1's defect, measured before and after
+# ===========================================================================
 ? ""
-? "five plates written to temp/."
+? "6. THE FIX -- a 5 kHz saw. Its harmonics are 5, 10, 15, 20 kHz and then"
+? "   35 kHz, which cannot exist here and comes back as 13 kHz. Drawn twice:"
+? "   the naive saw, and the engine's band-limited one. The alias lines that"
+? "   sit BETWEEN the harmonics are the bug, and they are what went away."
+
+# the "before": a naive saw, written out by hand, exactly as the engine did
+oNv = StzSoundOfSilenceQ(0.5, 1, RATE)
+nN = oNv.Frames()
+nPh = 0
+for i = 1 to nN
+	nPh += 5000 / RATE
+	if nPh >= 1  nPh -= 1 ok
+	oNv.SetSampleAt(i, 1, 0.6 * (2 * nPh - 1))
+next
+
+# the "after": the same wave, from the engine
+oGb = new stzSoundGraph()
+oGb.Reshape(1, RATE)
+oGb.AddOscillator(:Saw, 5000, 0.6)
+oBl = oGb.ToSound(0.5)
+
+if bPlay
+	? "   (naive first, then band-limited -- listen for the grit going)"
+	oNv.Play()
+	oBl.Play()
+ok
+
+# The band-limited one is series 1, so it draws ON TOP: every place the older
+# wave pokes out from underneath it is a frequency that should not be there.
+aFix = [ [ "band-limited (is)", oBl.ToSpectrumOf(1, 1000, 8192) ],
+         [ "naive (was)", oNv.ToSpectrumOf(1, 1000, 8192) ] ]
+
+oP6 = new stzSoundPlot(920, 400)
+oP6.SetTitle("The alias, removed",
+             "a 5 kHz sawtooth: the same wave before and after PolyBLEP")
+oP6.SetNote("Both waves share the real harmonics at 5, 10, 15 and 20 kHz. Every orange spike with no blue under it is a fold-back -- 13 kHz is harmonic 7, reflected off Nyquist. 19 dB of it, gone.")
+oP6.DrawSpectra(aFix, 1000, 24000)
+oP6.MarkFrequencyAt(5000, 1000, 24000, "real")
+oP6.MarkFrequencyAt(13000, 1000, 24000, "folded")
+oP6.SaveAsPNG(cOut + "/6_fixed.png")
+? "   -> temp/6_fixed.png"
+
+# and the numbers behind the picture
+nAliasNaive = BinLevel(aFix[2][2], 13000)
+nAliasFixed = BinLevel(aFix[1][2], 13000)
+? "   alias at 13 kHz: naive " + nAliasNaive + " dB, band-limited " + nAliasFixed + " dB"
+? "   -> " + (nAliasNaive - nAliasFixed) + " dB of alias removed"
+
+for s = 1 to len(aFix)
+	aFix[s][2].Release()
+next
+oBl.Release()
+oGb.Release()
+oNv.Release()
+
+? ""
+? "six plates written to temp/."
+
+# The level of one frequency, in dB below the loudest thing in the spectrum.
+func BinLevel oGrid, nHz
+	_c_ = floor(nHz / oGrid.HertzPerColumn()) + 1
+	_v_ = oGrid.At(1, _c_)
+	if _v_ <= 0  return -120 ok
+	return floor(20 * log10(_v_ / oGrid.Max()) * 10) / 10

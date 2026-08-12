@@ -709,7 +709,7 @@ pub fn renderBlock(id: i64) i32 {
                 var ph = n.phase;
                 const dst = chanSlice(g, n, 0);
                 for (dst) |*o| {
-                    o.* = @floatCast(n.amp * waveAt(n.waveform, ph));
+                    o.* = @floatCast(n.amp * waveAtBl(n.waveform, ph, inc));
                     ph += inc;
                     if (ph >= 1.0) ph -= 1.0;
                 }
@@ -912,6 +912,92 @@ pub fn renderBlock(id: i64) i32 {
     return OK;
 }
 
+// ── BAND-LIMITED OSCILLATORS ────────────────────────────────────────────────
+//
+// A square, a saw and a triangle drawn literally -- "if phase < 0.5 then 1 else
+// -1" -- are WRONG in a sampled system, and the wrongness is audible. Each is
+// an infinite stack of harmonics; the ones above Nyquist cannot be represented,
+// so they FOLD BACK as tones at frequencies nobody played. A saw swept upward
+// grows a second set of partials sweeping DOWNWARD through it. It sounds like
+// cheap metal, it beats against the notes you meant, and no filter downstream
+// can remove it: by the time the sample exists, the alias is at a legitimate
+// frequency and is indistinguishable from a note.
+//
+// This is not a subtle defect. It was drawn, plainly, in the sound gallery's
+// first plate before it was fixed, and that plate is now the proof it is gone.
+//
+// POLYBLEP is the cheap correct answer. A discontinuity is what puts energy
+// above Nyquist, so instead of banning discontinuities we SUBTRACT the part of
+// the step the sample rate cannot carry: a two-sample polynomial residual
+// around each jump, the difference between an ideal step and a band-limited
+// one. Cost is a branch and a few multiplies per sample, against a wavetable's
+// memory or additive synthesis's per-harmonic loop.
+//
+// The value at the discontinuity comes out as the MIDPOINT of the jump, which
+// is not a bug -- it is what a band-limited step is worth at the instant it
+// steps. Two tests that used a 1 Hz square as a stand-in for DC had to stop
+// reading sample zero because of it.
+
+// The residual of an ideal step against a band-limited one, over the two
+// samples either side of it. t is the phase, dt one sample of phase.
+fn polyBlep(t: f64, dt: f64) f64 {
+    if (t < dt) {
+        const x = t / dt;
+        return x + x - x * x - 1.0;
+    }
+    if (t > 1.0 - dt) {
+        const x = (t - 1.0) / dt;
+        return x * x + x + x + 1.0;
+    }
+    return 0.0;
+}
+
+// The same idea one derivative up: a triangle has no jumps in VALUE, only in
+// SLOPE, so it needs the integral of the step residual rather than the
+// residual itself.
+fn polyBlamp(t: f64, dt: f64) f64 {
+    if (t < dt) {
+        const x = t / dt - 1.0;
+        return -(1.0 / 3.0) * x * x * x;
+    }
+    if (t > 1.0 - dt) {
+        const x = (t - 1.0) / dt + 1.0;
+        return (1.0 / 3.0) * x * x * x;
+    }
+    return 0.0;
+}
+
+fn wrap1(x: f64) f64 {
+    return x - @floor(x);
+}
+
+// dt is the phase advanced per sample -- hz / rate. A sine needs no correction:
+// it IS one harmonic, and has nothing above Nyquist to fold.
+fn waveAtBl(waveform: u32, ph: f64, dt: f64) f64 {
+    return switch (waveform) {
+        WAVE_SINE => @sin(2.0 * std.math.pi * ph),
+        WAVE_SQUARE => blk: {
+            const naive: f64 = if (ph < 0.5) 1.0 else -1.0;
+            // two jumps a half-period apart: up at 0, down at 0.5
+            break :blk naive + polyBlep(ph, dt) - polyBlep(wrap1(ph + 0.5), dt);
+        },
+        WAVE_SAW => (2.0 * ph - 1.0) - polyBlep(ph, dt),
+        else => blk: {
+            const naive: f64 = if (ph < 0.5) (4.0 * ph - 1.0) else (3.0 - 4.0 * ph);
+            // The slope turns from -4 to +4 at phase 0 and back at 0.5, so the
+            // change per SAMPLE is 8*dt. polyBlep is normalised for a jump of
+            // TWO (a saw's -1 to +1), and polyBlamp is its integral, so the
+            // factor is HALF the slope change: 4*dt, not 8. The first draft
+            // used 8 and over-corrected -- the alias came down by 1.3x instead
+            // of the 20x the same correction buys a saw, which is what the
+            // measurement is for.
+            break :blk naive + 4.0 * dt * (polyBlamp(ph, dt) - polyBlamp(wrap1(ph + 0.5), dt));
+        },
+    };
+}
+
+// The naive shapes, kept because a guard needs something to measure the
+// band-limited ones AGAINST. Nothing in the render path calls this.
 fn waveAt(waveform: u32, ph: f64) f64 {
     return switch (waveform) {
         WAVE_SINE => @sin(2.0 * std.math.pi * ph),
@@ -994,6 +1080,109 @@ pub fn renderToFile(id: i64, frames: usize, path: []const u8, bits: u32) i32 {
 //         vendor/miniaudio/stz_miniaudio_dec_impl.c -lc
 
 const testing = std.testing;
+
+// ── THE ALIAS GUARDS ────────────────────────────────────────────────────────
+//
+// The claim "our oscillators no longer alias" is a claim about ENERGY AT
+// FREQUENCIES NOBODY PLAYED, so the guard measures exactly that: the magnitude
+// of one chosen bin that can only contain a fold-back, in the naive wave and
+// in the band-limited one, and the ratio between them.
+//
+// The arithmetic is arranged so there is no leakage to argue about. At 48 kHz
+// with N = 4800 the bins are 10 Hz apart; a 5 kHz fundamental is bin 500 and
+// every probe below is an exact bin, so a clean signal reads exactly zero
+// there and anything nonzero is the defect.
+
+// The magnitude of one DFT bin -- a Goertzel by another name, and enough when
+// you know which bin you want.
+fn binMagnitude(x: []const f64, rate: f64, hz: f64) f64 {
+    var re: f64 = 0;
+    var im: f64 = 0;
+    const w = 2.0 * std.math.pi * hz / rate;
+    for (x, 0..) |v, i| {
+        const a = w * @as(f64, @floatFromInt(i));
+        re += v * @cos(a);
+        im -= v * @sin(a);
+    }
+    const n: f64 = @floatFromInt(x.len);
+    return 2.0 * @sqrt(re * re + im * im) / n;
+}
+
+fn fillWave(buf: []f64, waveform: u32, hz: f64, rate: f64, band_limited: bool) void {
+    const dt = hz / rate;
+    var ph: f64 = 0;
+    for (buf) |*o| {
+        o.* = if (band_limited) waveAtBl(waveform, ph, dt) else waveAt(waveform, ph);
+        ph += dt;
+        if (ph >= 1.0) ph -= 1.0;
+    }
+}
+
+test "the oscillators are BAND-LIMITED: no energy where nothing was played" {
+    const rate: f64 = 48000;
+    const f0: f64 = 5000; // harmonic 7 lands at 35 kHz and folds back to 13 kHz
+    var naive: [4800]f64 = undefined;
+    var limited: [4800]f64 = undefined;
+
+    // 13 kHz is not a multiple of 5 kHz, so nothing legitimate can be there.
+    // It is where harmonic 7 arrives after reflecting off Nyquist.
+    const probe: f64 = 13000;
+
+    for ([_]u32{ WAVE_SAW, WAVE_SQUARE, WAVE_TRIANGLE }) |wf| {
+        fillWave(&naive, wf, f0, rate, false);
+        fillWave(&limited, wf, f0, rate, true);
+        const a_naive = binMagnitude(&naive, rate, probe);
+        const a_limited = binMagnitude(&limited, rate, probe);
+        std.debug.print(
+            "\n  waveform {d}: alias at 13 kHz  naive {d:.5}  band-limited {d:.5}  ({d:.1}x quieter)",
+            .{ wf, a_naive, a_limited, a_naive / @max(a_limited, 1e-12) },
+        );
+        // the naive wave really does put energy there -- the negative sibling,
+        // without which "band-limited is quieter" would be true of silence too
+        try testing.expect(a_naive > 0.01);
+        try testing.expect(a_limited < a_naive / 3.0);
+    }
+    std.debug.print("\n", .{});
+}
+
+test "band-limiting does NOT eat the harmonics that belong there" {
+    const rate: f64 = 48000;
+    const f0: f64 = 500; // room for many real harmonics under Nyquist
+    var naive: [4800]f64 = undefined;
+    var limited: [4800]f64 = undefined;
+    fillWave(&naive, WAVE_SAW, f0, rate, false);
+    fillWave(&limited, WAVE_SAW, f0, rate, true);
+
+    // a saw's harmonic k has amplitude 2/(pi*k) -- and it must SURVIVE
+    for ([_]f64{ 1, 2, 3, 5, 8 }) |k| {
+        const want = 2.0 / (std.math.pi * k);
+        const got = binMagnitude(&limited, rate, f0 * k);
+        try testing.expectApproxEqAbs(want, got, want * 0.05);
+    }
+    // and the fundamental is not quietly attenuated relative to the naive one
+    const h1_naive = binMagnitude(&naive, rate, f0);
+    const h1_limited = binMagnitude(&limited, rate, f0);
+    try testing.expectApproxEqAbs(h1_naive, h1_limited, h1_naive * 0.02);
+}
+
+test "a slow wave is left alone -- the correction is two samples wide" {
+    const rate: f64 = 48000;
+    var naive: [4800]f64 = undefined;
+    var limited: [4800]f64 = undefined;
+    fillWave(&naive, WAVE_SAW, 50, rate, false); // 960 samples per cycle
+    fillWave(&limited, WAVE_SAW, 50, rate, true);
+
+    // at 50 Hz the residual touches ~2 samples in 960, so the two waves are
+    // the same wave nearly everywhere: a band-limited oscillator must not be
+    // a differently-shaped one
+    var differing: usize = 0;
+    for (naive, limited) |a, b| {
+        if (@abs(a - b) > 1e-6) differing += 1;
+    }
+    std.debug.print("\n  at 50 Hz, {d} of 4800 samples differ\n", .{differing});
+    try testing.expect(differing > 0); // it IS still correcting
+    try testing.expect(differing < 4800 / 20); // but only at the jumps
+}
 
 test "a sine at rate/4 lands on exactly 0, 1, 0, -1 -- the graph does arithmetic, not vibes" {
     const gid = graphNew(1, 48000, 8);
@@ -1546,9 +1735,13 @@ test "a gain change RAMPS: it arrives, and it does not step" {
     // IT ARRIVES. A ramp that only ever approaches its target is a fade, not a
     // ramp -- and that is exactly what the first implementation did.
     try testing.expectApproxEqAbs(@as(f64, 0.0), currentGain(gid, gnode), 1e-4);
-    // and it took about the length asked for, not a tenth or a hundred times it
+    // and it took about the length asked for, not a tenth or a hundred times it.
+    // FROM FRAME 1: the oscillator is a band-limited square standing in for DC,
+    // and a band-limited step is worth the MIDPOINT of its jump at the instant
+    // it steps -- so frame 0, sitting exactly on the discontinuity, is 0. That
+    // is the oscillator being right, not the ramp being early.
     var arrived_at: usize = 1024;
-    for (0..1024) |i| {
+    for (1..1024) |i| {
         if (@abs(snd.getSample(out, i, 0)) < 1e-6) {
             arrived_at = i;
             break;
