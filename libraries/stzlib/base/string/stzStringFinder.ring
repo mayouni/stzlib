@@ -122,10 +122,10 @@ class stzStringFinder from stzObject
 		_nLen_ = len(pacSubStrings)
 		for i = 1 to _nLen_
 			if NOT This.ContainsCS(pacSubStrings[i], pCaseSensitive)
-				return FALSE
+				return 0
 			ok
 		next
-		return TRUE
+		return 1
 
 	def ContainsThese(pacSubStrings)
 		return This.ContainsTheseCS(pacSubStrings, 1)
@@ -730,7 +730,7 @@ class stzStringFinder from stzObject
 	def FindAllRegex(pcPattern)
 		_pH_ = This._Engine()
 		pResult = StzEngineStringRegexFindAll(_pH_, pcPattern, 0)
-		if pResult = NULL
+		if pResult = ""
 			return []
 		ok
 		_nFarCount_ = StzEngineFindResultCount(pResult)
@@ -752,7 +752,7 @@ class stzStringFinder from stzObject
 		ok
 		_pH_ = This._Engine()
 		pResult = StzEngineStringRegexFindAll(_pH_, pcPattern, _nFlags_)
-		if pResult = NULL
+		if pResult = ""
 			return []
 		ok
 		_nFarcsCount_ = StzEngineFindResultCount(pResult)

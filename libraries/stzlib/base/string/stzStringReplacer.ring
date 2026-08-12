@@ -731,7 +731,7 @@ class stzStringReplacer from stzObject
 	def ReplaceAllRegex(pcPattern, pcReplacement)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringRegexReplaceAll(_pH_, pcPattern, pcReplacement, 0)
-		if _pR_ = NULL return ok
+		if _pR_ = "" return ok
 		_c_ = StzEngineStringData(_pR_)
 		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)
@@ -746,7 +746,7 @@ class stzStringReplacer from stzObject
 	def AllRegexReplaced(pcPattern, pcReplacement)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringRegexReplaceAll(_pH_, pcPattern, pcReplacement, 0)
-		if _pR_ = NULL return @oString.Content() ok
+		if _pR_ = "" return @oString.Content() ok
 		_c_ = StzEngineStringData(_pR_)
 		StzEngineStringFree(_pR_)
 		return _c_
@@ -762,7 +762,7 @@ class stzStringReplacer from stzObject
 		ok
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringRegexReplaceAll(_pH_, pcPattern, pcReplacement, _nFlags_)
-		if _pR_ = NULL return ok
+		if _pR_ = "" return ok
 		_c_ = StzEngineStringData(_pR_)
 		StzEngineStringFree(_pR_)
 		@oString.Update(_c_)

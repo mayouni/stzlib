@@ -25,6 +25,10 @@ class stzWorkflow from stzDiagram
 	@oLinkedOrgChart = NULL
 	@aRoleAssignments = []
 
+	# The events that mean trouble. Empty by default, which means every
+	# transition reads as intended -- see SetExceptionEvents().
+	@acExceptionEvents = []
+
 	def init(pcId)
 		super.init(pcId)
 		super.SetGraphType("flow")
@@ -145,17 +149,94 @@ class stzWorkflow from stzDiagram
 	
 	def AddTransition(pcFrom, pcTo, pcEvent)
 		This.AddTransitionXT(pcFrom, pcTo, pcEvent, "")
-	
+
 	def AddTransitionXT(pcFrom, pcTo, pcEvent, pcCondition)
 		_aTransition_ = [
 			:from = pcFrom,
 			:to = pcTo,
 			:event = pcEvent,
-			:condition = pcCondition
+			:condition = pcCondition,
+			:exceptional = This._IsExceptionEvent(pcEvent)
 		]
 		@aTransitions + _aTransition_
-		
-		This.AddEdgeXT(pcFrom, pcTo, pcEvent)
+
+		# A WORKFLOW IS A MULTIGRAPH; stzGraph IS NOT.
+		#
+		# Two transitions between the same pair of states, on different
+		# events, are entirely normal -- a state machine reaches `failed`
+		# on both `reject` and `timeout`, and a workflow step routes
+		# COMMITTED, REJECTED and HELD to the same next step all the time.
+		# stzGraph refuses a parallel edge ("Edge already exists"), so
+		# declaring the second one used to RAISE and take the whole
+		# workflow down with it.
+		#
+		# @aTransitions is the workflow's truth and keeps every one of them.
+		# The graph edge is a PROJECTION, used for reachability, cycles and
+		# metrics, and those questions ask whether a path exists -- not how
+		# many events take it. So the edge is added once and the duplicate
+		# is skipped rather than raised.
+		if NOT This.EdgeExists(pcFrom, pcTo)
+			This.AddEdgeXT(pcFrom, pcTo, pcEvent)
+		ok
+
+	#--------------------------------#
+	#  INTENDED vs EXCEPTIONAL PATH  #
+	#--------------------------------#
+	#
+	# A workflow has a path it takes when things go as intended, and paths it
+	# takes when they do not. Nothing in this class could tell them apart: a
+	# transition carried :event and :condition and no notion of which arm was
+	# the happy one. Every consumer that wants to REASON about the process --
+	# a BPMN renderer that must pin the spine, a critical-path metric, a
+	# simulation of the nominal case -- has to invent the distinction, and
+	# each invents it differently.
+	#
+	# It is declared here instead, once, by the workflow's author. Two doors:
+	# name the events that mean trouble, or mark a single transition.
+	#
+	#     oWf.SetExceptionEvents(["timeout", "error", "reject"])
+	#     oWf.AddExceptionTransition("pay", "dispute", "chargeback")
+	#
+	# See the BPMN layout law, section 2, for why this is load-bearing.
+
+	def SetExceptionEvents(pacEvents)
+		@acExceptionEvents = []
+		_nLen_ = len(pacEvents)
+		for i = 1 to _nLen_
+			@acExceptionEvents + StzLower("" + pacEvents[i])
+		next
+		# re-classify what is already declared, so call order does not matter
+		_nTrans_ = len(@aTransitions)
+		for i = 1 to _nTrans_
+			@aTransitions[i][:exceptional] = This._IsExceptionEvent(@aTransitions[i][:event])
+		next
+
+		def SetExceptionEventsQ(pacEvents)
+			This.SetExceptionEvents(pacEvents)
+			return This
+
+	def ExceptionEvents()
+		return @acExceptionEvents
+
+	def AddExceptionTransition(pcFrom, pcTo, pcEvent)
+		This.AddTransitionXT(pcFrom, pcTo, pcEvent, "")
+		@aTransitions[len(@aTransitions)][:exceptional] = TRUE
+
+	def IsExceptionalTransition(pcFrom, pcTo, pcEvent)
+		_nLen_ = len(@aTransitions)
+		for i = 1 to _nLen_
+			_t_ = @aTransitions[i]
+			if _t_[:from] = pcFrom and _t_[:to] = pcTo and _t_[:event] = pcEvent
+				return _t_[:exceptional]
+			ok
+		next
+		return FALSE
+
+	def _IsExceptionEvent(pcEvent)
+		if len(@acExceptionEvents) = 0
+			return FALSE
+		ok
+		return StzFindFirst(StzLower("" + pcEvent), @acExceptionEvents) > 0
 	
 	def State(pcId)
 		_nStates1Len_ = len(@aStates)

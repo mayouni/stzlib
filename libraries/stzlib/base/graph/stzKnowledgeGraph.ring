@@ -6,9 +6,9 @@ func StzKnowledgeGraphQ(pcId)
 
 func IsStzKnowledgeGraph(pObj)
 	if isObject(pObj) and classname(pObj) = "stzknowledgegraph"
-		return TRUE
+		return 1
 	ok
-	return FALSE
+	return 0
 
 	func IsAStzKnowledgeGraph(pObj)
 		return IsStzKnowledgeGraph(pObj)
@@ -37,10 +37,10 @@ class stzKnowledgeGraph from stzGraph
 		@aOntology = []
 
 	def IsKnowledgeGraph()
-		return TRUE
+		return 1
 
 		def IsAKnowledgeGraph()
-			return TRUE
+			return 1
 
 	#--------------------#
 	#  TRIPLE INTERFACE  #
@@ -468,10 +468,10 @@ class stzKnowledgeGraph from stzGraph
 			if This.EdgeExists(_cSubject_, _cObject_)
 				_aEdge_ = This.Edge(_cSubject_, _cObject_)
 				if _aEdge_[:label] = _cPredicate_
-					return TRUE
+					return 1
 				ok
 			ok
-			return FALSE
+			return 0
 		ok
 		
 		return _acResults_
@@ -587,7 +587,7 @@ class stzKnowledgeGraph from stzGraph
 
 	def ValidateOntology()
 		# Basic validation - checks if defined properties are used consistently
-		return TRUE
+		return 1
 
 	# Does the ontology declare this LAW for this relation?
 	# (Laws land here through DefineProperty(rel, [ law ]) -- the R1
@@ -602,12 +602,12 @@ class stzKnowledgeGraph from stzGraph
 				_nC_ = len(_aCons_)
 				for _j_ = 1 to _nC_
 					if StzLower("" + _aCons_[_j_]) = _cL_
-						return TRUE
+						return 1
 					ok
 				next
 			ok
 		next
-		return FALSE
+		return 0
 
 	#-----------------------------------------------#
 	#  PROOF (G4 seed: structured derivation trace)  #
@@ -633,7 +633,7 @@ class stzKnowledgeGraph from stzGraph
 				_aSteps_ + [ :kind = "fact", :fact = [ _cS_, _cP_, _cO_ ],
 					:narration = "recorded fact: '" + _cS_ + "' " + _cP_ +
 					" '" + _cO_ + "'" ]
-				return [ :verdict = TRUE, :goal = [ _cS_, _cP_, _cO_ ],
+				return [ :verdict = 1, :goal = [ _cS_, _cP_, _cO_ ],
 					:steps = _aSteps_, :narration = "proved: direct fact",
 					:certainty = 1 ]
 			ok
@@ -652,14 +652,14 @@ class stzKnowledgeGraph from stzGraph
 						:narration = "recorded fact: '" + _acChain_[_i_] + "' " +
 						_cP_ + " '" + _acChain_[_i_ + 1] + "'" ]
 				next
-				return [ :verdict = TRUE, :goal = [ _cS_, _cP_, _cO_ ],
+				return [ :verdict = 1, :goal = [ _cS_, _cP_, _cO_ ],
 					:steps = _aSteps_,
 					:narration = "proved: " + JoinXT(_acChain_, " " + _cP_ + " "),
 					:certainty = 1 ]
 			ok
 		ok
 
-		return [ :verdict = FALSE, :goal = [ _cS_, _cP_, _cO_ ], :steps = [],
+		return [ :verdict = 0, :goal = [ _cS_, _cP_, _cO_ ], :steps = [],
 			:narration = "not derivable: no recorded fact or lawful chain gives '" +
 			_cS_ + "' " + _cP_ + " '" + _cO_ + "'",
 			:certainty = 1 ]
@@ -928,7 +928,7 @@ class stzKnowParser from stzObject
         return This.Parse(_cContent_)
     
     def Parse(pcContent)
-        _oKG_ = NULL
+        _oKG_ = ""
         _acLines_ = split(pcContent, char(10))
         _cSection_ = ""
         

@@ -32,7 +32,7 @@ $aDefaultQueryDefinition = [
 	["order_by", []],
 	["skip", 0],
 	["limit", 0],
-	["distinct", FALSE]
+	["distinct", 0]
 ]
 
 func StzGraphQueryQ(oGraph)
@@ -53,11 +53,11 @@ class stzGraphQuery from stzObject
 		["order_by", []],
 		["skip", 0],
 		["limit", 0],
-		["distinct", FALSE]
+		["distinct", 0]
 	]
 	
 	@aResult = []
-	@bExecuted = FALSE
+	@bExecuted = 0
 	@aBindings = []
 
 	def init(oGraph)
@@ -100,7 +100,7 @@ class stzGraphQuery from stzObject
 		ok
 		
 		# Reset execution state
-		@bExecuted = FALSE
+		@bExecuted = 0
 		@aResult = []
 		
 		# Accept new definition
@@ -114,7 +114,7 @@ class stzGraphQuery from stzObject
 
 	def ResetDefinition()
 		@aDefinition = $aDefaultQueryDefinition
-		@bExecuted = FALSE
+		@bExecuted = 0
 		@aResult = []
 		@aBindings = []
 
@@ -495,7 +495,7 @@ class stzGraphQuery from stzObject
 			return This
 
 	def Distinct()
-		@aDefinition["distinct"] = TRUE
+		@aDefinition["distinct"] = 1
 	
 		def DistinctQ()
 			This.Distinct()
@@ -691,7 +691,7 @@ class stzGraphQuery from stzObject
 		ok
 		
 		@aResult = _aBindings_
-		return TRUE
+		return 1
 
 	def Result()
 		return @aResult
@@ -724,7 +724,7 @@ class stzGraphQuery from stzObject
 	def _ApplyRuleToBindings(pcRuleName, _aBindings_)
 		_aRule_ = This._FindRuleInGraph(pcRuleName)
 		
-		if _aRule_ = NULL
+		if _aRule_ = ""
 			stzraise("Rule '" + pcRuleName + "' not found!")
 		ok
 	
@@ -748,7 +748,7 @@ class stzGraphQuery from stzObject
 	def _EnforceRuleOnBindings(pcRuleName, _aBindings_)
 		_aRule_ = This._FindRuleInGraph(pcRuleName)
 		
-		if _aRule_ = NULL
+		if _aRule_ = ""
 			stzraise("Rule '" + pcRuleName + "' not found!")
 		ok
 	
@@ -807,7 +807,7 @@ class stzGraphQuery from stzObject
 			next
 		next
 		
-		return NULL
+		return ""
 	
 	def _ExtractNodeIdsFromBindings(_aBindings_)
 		_acNodeIds_ = []
@@ -979,7 +979,7 @@ class stzGraphQuery from stzObject
 		_cVarName_ = _aPattern_["alias"]
 		_cLabel_ = _aPattern_["label"]
 		_aProps_ = _aPattern_["props"]
-		pWhere = NULL
+		pWhere = ""
 		
 		if HasKey(_aPattern_, "where")
 			pWhere = _aPattern_["where"]
@@ -991,12 +991,12 @@ class stzGraphQuery from stzObject
 		
 		for i = 1 to _nLen_
 			_aNode_ = _aNodes_[i]
-			_bMatch_ = TRUE
+			_bMatch_ = 1
 			
 			# Check label
 			if _cLabel_ != "" and HasKey(_aNode_, :label)
 				if _aNode_[:label] != _cLabel_
-					_bMatch_ = FALSE
+					_bMatch_ = 0
 				ok
 			ok
 			
@@ -1011,12 +1011,12 @@ class stzGraphQuery from stzObject
 					
 					if _cKey_ = "id"
 						if _aNode_[:id] != pValue
-							_bMatch_ = FALSE
+							_bMatch_ = 0
 							exit
 						ok
 					else
 						if NOT This._NodeHasProperty(_aNode_, _cKey_, pValue)
-							_bMatch_ = FALSE
+							_bMatch_ = 0
 							exit
 						ok
 					ok
@@ -1024,10 +1024,10 @@ class stzGraphQuery from stzObject
 			ok
 			
 			# Apply pattern-specific WHERE condition
-			if _bMatch_ and pWhere != NULL
+			if _bMatch_ and pWhere != ""
 				_aBinding_ = [ [_cVarName_, _aNode_] ]
 				if NOT This._EvaluateCondition(pWhere, _aBinding_)
-					_bMatch_ = FALSE
+					_bMatch_ = 0
 				ok
 			ok
 			
@@ -1044,7 +1044,7 @@ class stzGraphQuery from stzObject
 		_cToVar_ = _aPattern_["to"]
 		_cLabel_ = _aPattern_["label"]
 		_aProps_ = _aPattern_["props"]
-		pWhere = NULL
+		pWhere = ""
 		
 		if HasKey(_aPattern_, "where")
 			pWhere = _aPattern_["where"]
@@ -1056,12 +1056,12 @@ class stzGraphQuery from stzObject
 		
 		for i = 1 to _nLen_
 			_aEdge_ = _aEdges_[i]
-			_bMatch_ = TRUE
+			_bMatch_ = 1
 			
 			# Check label
 			if _cLabel_ != "" and HasKey(_aEdge_, :label)
 				if _aEdge_[:label] != _cLabel_
-					_bMatch_ = FALSE
+					_bMatch_ = 0
 				ok
 			ok
 			
@@ -1073,21 +1073,21 @@ class stzGraphQuery from stzObject
 				for j = 1 to _nKeyLen_
 					_cKey_ = _acKeys_[j]
 					if NOT This._EdgeHasProperty(_aEdge_, _cKey_, _aProps_[_cKey_])
-						_bMatch_ = FALSE
+						_bMatch_ = 0
 						exit
 					ok
 				next
 			ok
 			
 			# Apply pattern-specific WHERE condition
-			if _bMatch_ and pWhere != NULL
+			if _bMatch_ and pWhere != ""
 				_aBinding_ = [
 					[_cFromVar_, @oGraph.Node(_aEdge_[:from])],
 					[_cToVar_, @oGraph.Node(_aEdge_[:to])],
 					["edge_data", _aEdge_]
 				]
 				if NOT This._EvaluateCondition(pWhere, _aBinding_)
-					_bMatch_ = FALSE
+					_bMatch_ = 0
 				ok
 			ok
 			
@@ -1162,13 +1162,13 @@ class stzGraphQuery from stzObject
 				
 				if HasKey(_aVal1_, :id) and HasKey(_aVal2_, :id)
 					if _aVal1_[:id] != _aVal2_[:id]
-						return FALSE
+						return 0
 					ok
 				ok
 			ok
 		next
 		
-		return TRUE
+		return 1
 	
 	#------------------#
 	#  WHERE FILTERS   #
@@ -1180,7 +1180,7 @@ class stzGraphQuery from stzObject
 		ok
 		
 		if NOT isList(pCondition)
-			return TRUE
+			return 1
 		ok
 		
 		_cOp_ = pCondition["op"]
@@ -1257,7 +1257,7 @@ class stzGraphQuery from stzObject
 			return isList(_aRight_) and StzFindFirst(pLeft, _aRight_) = 0
 		ok
 		
-		return TRUE
+		return 1
 	
 	def _ResolveValue(pValue, _aBinding_)
 		if isString(pValue)
@@ -1277,7 +1277,7 @@ class stzGraphQuery from stzObject
 							ok
 						ok
 					ok
-					return NULL
+					return ""
 				ok
 				
 				if HasKey(_aBinding_, _cVar_)
@@ -1310,7 +1310,7 @@ class stzGraphQuery from stzObject
 				ok
 			ok
 			
-			return NULL
+			return ""
 		ok
 		
 		if HasKey(_aBinding_, pValue)
@@ -1364,12 +1364,12 @@ def _ApplyDistinct(_aResults_)
 	
 	for i = 1 to _nLen_
 		_aResult_ = _aResults_[i]
-		_bFound_ = FALSE
+		_bFound_ = 0
 		
 		_nUniqueLen_ = len(_aUnique_)
 		for j = 1 to _nUniqueLen_
 			if This._ResultsEqual(_aResult_, _aUnique_[j])
-				_bFound_ = TRUE
+				_bFound_ = 1
 				exit
 			ok
 		next
@@ -1386,14 +1386,14 @@ def _ResultsEqual(aResult1, aResult2)
 	_acKeys2_ = keys(aResult2)
 	
 	if len(_acKeys1_) != len(_acKeys2_)
-		return FALSE
+		return 0
 	ok
 	
 	_nLen_ = len(_acKeys1_)
 	for i = 1 to _nLen_
 		_cKey_ = _acKeys1_[i]
 		if NOT HasKey(aResult2, _cKey_)
-			return FALSE
+			return 0
 		ok
 		
 		pVal1 = aResult1[_cKey_]
@@ -1401,16 +1401,16 @@ def _ResultsEqual(aResult1, aResult2)
 		
 		if isList(pVal1) and isList(pVal2) and HasKey(pVal1, :id) and HasKey(pVal2, :id)
 			if pVal1[:id] != pVal2[:id]
-				return FALSE
+				return 0
 			ok
 		else
 			if pVal1 != pVal2
-				return FALSE
+				return 0
 			ok
 		ok
 	next
 	
-	return TRUE
+	return 1
 
 #------------------#
 #  CREATE/UPDATE   #
@@ -1578,14 +1578,14 @@ def _GetResultValue(_aResult_, _cField_)
 				ok
 			ok
 		ok
-		return NULL
+		return ""
 	ok
 	
 	if HasKey(_aResult_, _cField_)
 		return _aResult_[_cField_]
 	ok
 	
-	return NULL
+	return ""
 
 def _ApplySkip(_aResults_)
 	if @aDefinition["skip"] = 0 or @aDefinition["skip"] >= len(_aResults_)
@@ -1618,24 +1618,24 @@ def _ApplyLimit(_aResults_)
 
 def _NodeHasProperty(_aNode_, _cKey_, pValue)
 	if NOT HasKey(_aNode_, :properties)
-		return FALSE
+		return 0
 	ok
 	
 	_aProps_ = _aNode_[:properties]
 	if NOT HasKey(_aProps_, _cKey_)
-		return FALSE
+		return 0
 	ok
 	
 	return _aProps_[_cKey_] = pValue
 
 def _EdgeHasProperty(_aEdge_, _cKey_, pValue)
 	if NOT HasKey(_aEdge_, :properties)
-		return FALSE
+		return 0
 	ok
 	
 	_aProps_ = _aEdge_[:properties]
 	if NOT HasKey(_aProps_, _cKey_)
-		return FALSE
+		return 0
 	ok
 	
 	return _aProps_[_cKey_] = pValue

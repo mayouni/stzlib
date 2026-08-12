@@ -153,15 +153,15 @@ func StzAddSODRule(poSet)
 # TRUE when a roles list holds BOTH an approver-like and an executor-like role.
 func _StzRolesConflict(paRoles)
 	if NOT isList(paRoles)
-		return FALSE
+		return 0
 	ok
-	_bApprove_ = FALSE
-	_bExecute_ = FALSE
+	_bApprove_ = 0
+	_bExecute_ = 0
 	_n_ = len(paRoles)
 	for _i_ = 1 to _n_
 		_r_ = StzLower("" + paRoles[_i_])
-		if StzFindFirst("approv", _r_) > 0  _bApprove_ = TRUE  ok
-		if StzFindFirst("execut", _r_) > 0  _bExecute_ = TRUE  ok
+		if StzFindFirst("approv", _r_) > 0  _bApprove_ = 1  ok
+		if StzFindFirst("execut", _r_) > 0  _bExecute_ = 1  ok
 	next
 	return _bApprove_ and _bExecute_
 

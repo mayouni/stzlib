@@ -29,7 +29,7 @@ func StzWordStreamCSQ(pCaseSensitive)
 
 class stzWordStream from stzObject
 
-	@pEngine = NULL
+	@pEngine = ""
 
 	# Default = case-INsensitive (folded counting). For case-sensitive
 	# accumulation use StzWordStreamCS(1) or .SetCaseSensitive(1) before feeding.
@@ -39,7 +39,7 @@ class stzWordStream from stzObject
 	# Reconfigure case-sensitivity. Only meaningful BEFORE any Feed -- it
 	# discards the (empty) accumulator and starts a fresh one.
 	def SetCaseSensitive(pCaseSensitive)
-		if @pEngine != NULL
+		if @pEngine != ""
 			StzEngineStringWordStreamFree(@pEngine)
 		ok
 		@pEngine = StzEngineStringWordStreamNew( @CaseSensitive(pCaseSensitive) )
@@ -135,9 +135,9 @@ class stzWordStream from stzObject
 	# Ring has no destructors -- free the engine-side accumulator explicitly
 	# when done (safe to call more than once).
 	def Free()
-		if @pEngine != NULL
+		if @pEngine != ""
 			StzEngineStringWordStreamFree(@pEngine)
-			@pEngine = NULL
+			@pEngine = ""
 		ok
 
 		def Release()

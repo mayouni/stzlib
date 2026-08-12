@@ -15,7 +15,7 @@ func StzGraphViewQ(oParent, acNodes)
 class stzGraphView from stzGraph
 	@oParentGraph
 	@acIncludedNodes
-	@bAutoCommit = FALSE
+	@bAutoCommit = 0
 	
 	def init(oParent, acNodes)
 		if NOT @IsStzGraph(oParent)
@@ -39,7 +39,7 @@ class stzGraphView from stzGraph
 		@bAutoDerive = @oParentGraph.@bAutoDerive
 	
 	def IsView()
-		return TRUE
+		return 1
 	
 	# The graph this view is cut from -- an OBJECT, hence Q.
 	def ParentGraphQ()
@@ -196,15 +196,15 @@ class stzGraphView from stzGraph
 	
 	def _NodesDiffer(aNode1, aNode2)
 		if aNode1[:label] != aNode2[:label]
-			return TRUE
+			return 1
 		ok
 		
 		if NOT HasKey(aNode1, :properties) and NOT HasKey(aNode2, :properties)
-			return FALSE
+			return 0
 		ok
 		
 		if HasKey(aNode1, :properties) != HasKey(aNode2, :properties)
-			return TRUE
+			return 1
 		ok
 		
 		_aProps1_ = aNode1[:properties]
@@ -213,7 +213,7 @@ class stzGraphView from stzGraph
 		_acKeys1_ = keys(_aProps1_)
 		
 		if len(_acKeys1_) != len(keys(_aProps2_))
-			return TRUE
+			return 1
 		ok
 		
 		_nLen_ = len(_acKeys1_)
@@ -221,12 +221,12 @@ class stzGraphView from stzGraph
 			_cKey_ = _acKeys1_[i]
 			
 			if NOT HasKey(_aProps2_, _cKey_)
-				return TRUE
+				return 1
 			ok
 			
 			if _aProps1_[_cKey_] != _aProps2_[_cKey_]
-				return TRUE
+				return 1
 			ok
 		next
 		
-		return FALSE
+		return 0

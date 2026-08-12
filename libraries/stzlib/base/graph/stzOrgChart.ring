@@ -33,9 +33,9 @@ func StzOrgChartDefaultValidators()
 
 func IsStzOrgChart(pObj)
 	if isObject(pObj) and classname(pObj) = "stzorgchart"
-		return TRUE
+		return 1
 	ok
-	return FALSE
+	return 0
 
 class stzOrgChart from stzDiagram
 
@@ -319,12 +319,12 @@ class stzOrgChart from stzDiagram
 		_nPosCount_ = len(@aPositions)
 		for i = 1 to _nPosCount_
 			_aPos_ = @aPositions[i]
-			_bIsVacant_ = TRUE
+			_bIsVacant_ = 1
 			if HasKey(_aPos_, :isVacant)
 				_bIsVacant_ = _aPos_[:isVacant]
 			ok
 			
-			if _bIsVacant_ = TRUE
+			if _bIsVacant_ = 1
 				if HasKey(_aPos_, :id)
 					_acVacant_ + _aPos_[:id]
 				ok
@@ -343,12 +343,12 @@ class stzOrgChart from stzDiagram
 		_nPosCount_ = len(@aPositions)
 		for i = 1 to _nPosCount_
 			_aPos_ = @aPositions[i]
-			_bIsVacant_ = TRUE
+			_bIsVacant_ = 1
 			if HasKey(_aPos_, :isVacant)
 				_bIsVacant_ = _aPos_[:isVacant]
 			ok
 			
-			if _bIsVacant_ = FALSE
+			if _bIsVacant_ = 0
 				if HasKey(_aPos_, :id)
 					_acNonVacant_ + _aPos_[:id]
 				ok
@@ -398,7 +398,7 @@ class stzOrgChart from stzDiagram
 		for i = 1 to _nPosCount_
 			if @aPositions[i][:id] = pcPositionId
 				@aPositions[i][:incumbent] = pcPersonId
-				@aPositions[i][:isVacant] = FALSE
+				@aPositions[i][:isVacant] = 0
 				exit
 			ok
 		end
@@ -758,16 +758,16 @@ class stzOrgChart from stzDiagram
 	    _nPosCount_ = len(@aPositions)
 	    for i = 1 to _nPosCount_
 	        _aPos_ = @aPositions[i]
-	        _bVacant_ = TRUE
+	        _bVacant_ = 1
 	        if HasKey(_aPos_, :isVacant)
 	            _bVacant_ = _aPos_[:isVacant]
 	        ok
 	        
 	        if NOT _bVacant_
-	            _bHasSuccessor_ = FALSE
+	            _bHasSuccessor_ = 0
 	            # Fix: Check attributes as list
 	            if isList(_aPos_[:attributes]) and HasKey(_aPos_[:attributes], :successor)
-	                _bHasSuccessor_ = TRUE
+	                _bHasSuccessor_ = 1
 	            ok
 	            
 	            if NOT _bHasSuccessor_
@@ -896,7 +896,7 @@ class stzOrgChart from stzDiagram
 			for i = 1 to _nPosCount_
 				if @aPositions[i][:id] = _cOldPosition_
 					@aPositions[i][:incumbent] = ""
-					@aPositions[i][:isVacant] = TRUE
+					@aPositions[i][:isVacant] = 1
 					exit
 				ok
 			end
@@ -1272,7 +1272,7 @@ class stzOrgChart from stzDiagram
 	
 	def ViewNotAtRisk()
 
-	    If @bShowTitle = TRUE
+	    If @bShowTitle = 1
 		This.SetSubtitle("Not-at risk posisitions")
 	    ok
 
@@ -1352,7 +1352,7 @@ class stzOrgChart from stzDiagram
 	    for i = 1 to _nLen_
 	        _aNode_ = _aNodes_[i]
 	        if HasKey(_aNode_["properties"], pcKey)
-	            if pValue = NULL or _aNode_["properties"][pcKey] = pValue
+	            if pValue = "" or _aNode_["properties"][pcKey] = pValue
 	                _acMatching_ + _aNode_["id"]
 	            ok
 	        ok
@@ -1569,11 +1569,11 @@ class stzOrgChart from stzDiagram
 		ok
 
 		write(pcfileName, This.ToStzOrg())
-		return TRUE
+		return 1
 	
 	def WriteStzOrg(pcFileName)
 		write(pcfileName, This.ToStzOrg())
-			return TRUE
+			return 1
 
 	#=====================================================
 	#  IMPORT FROM .STZORG FORMAT
@@ -1913,14 +1913,14 @@ class stzOrgChartBCEAOValidator from stzObject
 		_aIssues_ = []
 		
 		# Rule 1: Board required
-		_bHasBoard_ = FALSE
+		_bHasBoard_ = 0
 		_nPosCount_ = len(@oOrgChart.@aPositions)
 		for i = 1 to _nPosCount_
 			_aPos_ = @oOrgChart.@aPositions[i]
 			if HasKey(_aPos_, :title)
 				_cTitle_ = StzLower(_aPos_[:title])
 				if StzFindFirst("board", _cTitle_)
-					_bHasBoard_ = TRUE
+					_bHasBoard_ = 1
 					exit
 				ok
 			ok
@@ -1956,12 +1956,12 @@ class stzOrgChartBCEAOValidator from stzObject
 		end
 		
 		# Rule 3: Risk function
-		_bHasRisk_ = FALSE
+		_bHasRisk_ = 0
 		for i = 1 to _nPosCount_
 			_aPos_ = @oOrgChart.@aPositions[i]
 			if HasKey(_aPos_, :department)
 				if _aPos_[:department] = "risk"
-					_bHasRisk_ = TRUE
+					_bHasRisk_ = 1
 					exit
 				ok
 			ok

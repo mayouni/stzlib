@@ -966,11 +966,11 @@ class stzStringList from stzObject
 			@string = _v_
 			@item = _v_
 			@i = _i_
-			_b_ = FALSE
+			_b_ = 0
 			try
 				eval("_b_ = " + pcExpr)
 			catch
-				_b_ = FALSE
+				_b_ = 0
 			done
 			if _b_ _aR_ + _v_ ok
 		next
@@ -1030,8 +1030,8 @@ class stzStringList from stzObject
 
 	# The string with the MOST words.
 	def Longest()
-		return This._ByWordCount(TRUE)
+		return This._ByWordCount(1)
 
 	# The string with the FEWEST words.
 	def Shortest()
-		return This._ByWordCount(FALSE)
+		return This._ByWordCount(0)

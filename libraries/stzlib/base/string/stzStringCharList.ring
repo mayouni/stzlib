@@ -639,10 +639,10 @@ class stzStringCharList from stzObject
 		_aR_ = []
 		for _i_ = 1 to _nL_
 			_v_ = _l_[_i_]
-			_bSeen_ = FALSE
+			_bSeen_ = 0
 			_nRL_ = len(_aR_)
 			for _j_ = 1 to _nRL_
-				if _aR_[_j_] = _v_ _bSeen_ = TRUE exit ok
+				if _aR_[_j_] = _v_ _bSeen_ = 1 exit ok
 			next
 			if NOT _bSeen_ _aR_ + _v_ ok
 		next
@@ -657,14 +657,14 @@ class stzStringCharList from stzObject
 	# Boxify (delegates to the stzString cell renderer via concat).
 	def Boxify()
 		_o_ = new stzString(This._JoinedChars())
-		return _o_._BoxRender([ :EachChar = TRUE ])
+		return _o_._BoxRender([ :EachChar = 1 ])
 
 	def Box()
 		return This.Boxify()
 
 	def BoxDash()
 		_o_ = new stzString(This._JoinedChars())
-		return _o_._BoxRender([ :EachChar = TRUE, :Line = :Dashed ])
+		return _o_._BoxRender([ :EachChar = 1, :Line = :Dashed ])
 
 	def _JoinedChars()
 		_l_ = This.Content()

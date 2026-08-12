@@ -214,7 +214,7 @@ class stzStringBounder from stzObject
 			_bBtwnCase_ = @CaseSensitive(pCaseSensitive)
 			_pH_ = @oString.Engine()
 			_pR_ = StzEngineStringBetweenAllCS(_pH_, pSubStrOrPos1, pSubStrOrPos2, _bBtwnCase_)
-			if _pR_ = NULL return [] ok
+			if _pR_ = "" return [] ok
 			_cBtwnJoined_ = StzEngineStringData(_pR_)
 			StzEngineStringFree(_pR_)
 			if _cBtwnJoined_ = ""
@@ -253,7 +253,7 @@ class stzStringBounder from stzObject
 			_bFbCase_ = @CaseSensitive(pCaseSensitive)
 			_pH_ = @oString.Engine()
 			_pR_ = StzEngineStringBetweenFirstCS(_pH_, pSubStrOrPos1, pSubStrOrPos2, _bFbCase_)
-			if _pR_ = NULL return "" ok
+			if _pR_ = "" return "" ok
 			_cFbResult_ = StzEngineStringData(_pR_)
 			StzEngineStringFree(_pR_)
 			return _cFbResult_
@@ -286,7 +286,7 @@ class stzStringBounder from stzObject
 			# Engine-backed: returns LAST match only
 			_pH_ = @oString.Engine()
 			_pR_ = StzEngineStringBetweenLast(_pH_, pSubStrOrPos1, pSubStrOrPos2)
-			if _pR_ = NULL return "" ok
+			if _pR_ = "" return "" ok
 			_cLbResult_ = StzEngineStringData(_pR_)
 			StzEngineStringFree(_pR_)
 			return _cLbResult_
@@ -320,7 +320,7 @@ class stzStringBounder from stzObject
 			# Engine is 0-based for nth, Softanza is 1-based
 			_pH_ = @oString.Engine()
 			_pR_ = StzEngineStringBetweenNth(_pH_, pSubStrOrPos1, pSubStrOrPos2, n - 1)
-			if _pR_ = NULL return "" ok
+			if _pR_ = "" return "" ok
 			_cNbResult_ = StzEngineStringData(_pR_)
 			StzEngineStringFree(_pR_)
 			return _cNbResult_
@@ -344,7 +344,7 @@ class stzStringBounder from stzObject
 	def ReplaceBetween(pcOpen, pcClose, pcReplacement)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringReplaceBetween(_pH_, pcOpen, pcClose, pcOpen + pcReplacement + pcClose)
-		if _pR_ != NULL
+		if _pR_ != ""
 			@oString.Update(StzEngineStringData(_pR_))
 			StzEngineStringFree(_pR_)
 		ok
@@ -352,7 +352,7 @@ class stzStringBounder from stzObject
 	def ReplaceFirstBetween(pcOpen, pcClose, pcReplacement)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringReplaceFirstBetween(_pH_, pcOpen, pcClose, pcOpen + pcReplacement + pcClose)
-		if _pR_ != NULL
+		if _pR_ != ""
 			@oString.Update(StzEngineStringData(_pR_))
 			StzEngineStringFree(_pR_)
 		ok
@@ -360,7 +360,7 @@ class stzStringBounder from stzObject
 	def ReplaceLastBetween(pcOpen, pcClose, pcReplacement)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringReplaceLastBetween(_pH_, pcOpen, pcClose, pcOpen + pcReplacement + pcClose)
-		if _pR_ != NULL
+		if _pR_ != ""
 			@oString.Update(StzEngineStringData(_pR_))
 			StzEngineStringFree(_pR_)
 		ok
@@ -369,7 +369,7 @@ class stzStringBounder from stzObject
 		_pH_ = @oString.Engine()
 		# Engine is 0-based for nth
 		_pR_ = StzEngineStringReplaceNthBetween(_pH_, pcOpen, pcClose, pcOpen + pcReplacement + pcClose, n - 1)
-		if _pR_ != NULL
+		if _pR_ != ""
 			@oString.Update(StzEngineStringData(_pR_))
 			StzEngineStringFree(_pR_)
 		ok
@@ -384,7 +384,7 @@ class stzStringBounder from stzObject
 	def ReplaceBetweenIB(pcOpen, pcClose, pcReplacement)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringReplaceBetween(_pH_, pcOpen, pcClose, pcReplacement)
-		if _pR_ != NULL
+		if _pR_ != ""
 			@oString.Update(StzEngineStringData(_pR_))
 			StzEngineStringFree(_pR_)
 		ok
@@ -392,7 +392,7 @@ class stzStringBounder from stzObject
 	def ReplaceFirstBetweenIB(pcOpen, pcClose, pcReplacement)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringReplaceFirstBetween(_pH_, pcOpen, pcClose, pcReplacement)
-		if _pR_ != NULL
+		if _pR_ != ""
 			@oString.Update(StzEngineStringData(_pR_))
 			StzEngineStringFree(_pR_)
 		ok
@@ -400,7 +400,7 @@ class stzStringBounder from stzObject
 	def ReplaceLastBetweenIB(pcOpen, pcClose, pcReplacement)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringReplaceLastBetween(_pH_, pcOpen, pcClose, pcReplacement)
-		if _pR_ != NULL
+		if _pR_ != ""
 			@oString.Update(StzEngineStringData(_pR_))
 			StzEngineStringFree(_pR_)
 		ok
@@ -408,7 +408,7 @@ class stzStringBounder from stzObject
 	def ReplaceNthBetweenIB(n, pcOpen, pcClose, pcReplacement)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringReplaceNthBetween(_pH_, pcOpen, pcClose, pcReplacement, n - 1)
-		if _pR_ != NULL
+		if _pR_ != ""
 			@oString.Update(StzEngineStringData(_pR_))
 			StzEngineStringFree(_pR_)
 		ok
@@ -423,7 +423,7 @@ class stzStringBounder from stzObject
 	def RemoveBetween(pcOpen, pcClose)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringReplaceBetween(_pH_, pcOpen, pcClose, pcOpen + pcClose)
-		if _pR_ != NULL
+		if _pR_ != ""
 			@oString.Update(StzEngineStringData(_pR_))
 			StzEngineStringFree(_pR_)
 		ok
@@ -431,7 +431,7 @@ class stzStringBounder from stzObject
 	def RemoveFirstBetween(pcOpen, pcClose)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringReplaceFirstBetween(_pH_, pcOpen, pcClose, pcOpen + pcClose)
-		if _pR_ != NULL
+		if _pR_ != ""
 			@oString.Update(StzEngineStringData(_pR_))
 			StzEngineStringFree(_pR_)
 		ok
@@ -439,7 +439,7 @@ class stzStringBounder from stzObject
 	def RemoveLastBetween(pcOpen, pcClose)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringReplaceLastBetween(_pH_, pcOpen, pcClose, pcOpen + pcClose)
-		if _pR_ != NULL
+		if _pR_ != ""
 			@oString.Update(StzEngineStringData(_pR_))
 			StzEngineStringFree(_pR_)
 		ok
@@ -447,7 +447,7 @@ class stzStringBounder from stzObject
 	def RemoveNthBetween(n, pcOpen, pcClose)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringReplaceNthBetween(_pH_, pcOpen, pcClose, pcOpen + pcClose, n - 1)
-		if _pR_ != NULL
+		if _pR_ != ""
 			@oString.Update(StzEngineStringData(_pR_))
 			StzEngineStringFree(_pR_)
 		ok
@@ -462,7 +462,7 @@ class stzStringBounder from stzObject
 	def RemoveBetweenIB(pcOpen, pcClose)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringReplaceBetween(_pH_, pcOpen, pcClose, "")
-		if _pR_ != NULL
+		if _pR_ != ""
 			@oString.Update(StzEngineStringData(_pR_))
 			StzEngineStringFree(_pR_)
 		ok
@@ -470,7 +470,7 @@ class stzStringBounder from stzObject
 	def RemoveFirstBetweenIB(pcOpen, pcClose)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringRemoveFirstBetween(_pH_, pcOpen, pcClose)
-		if _pR_ != NULL
+		if _pR_ != ""
 			@oString.Update(StzEngineStringData(_pR_))
 			StzEngineStringFree(_pR_)
 		ok
@@ -478,7 +478,7 @@ class stzStringBounder from stzObject
 	def RemoveLastBetweenIB(pcOpen, pcClose)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringRemoveLastBetween(_pH_, pcOpen, pcClose)
-		if _pR_ != NULL
+		if _pR_ != ""
 			@oString.Update(StzEngineStringData(_pR_))
 			StzEngineStringFree(_pR_)
 		ok
@@ -486,7 +486,7 @@ class stzStringBounder from stzObject
 	def RemoveNthBetweenIB(n, pcOpen, pcClose)
 		_pH_ = @oString.Engine()
 		_pR_ = StzEngineStringRemoveNthBetween(_pH_, pcOpen, pcClose, n - 1)
-		if _pR_ != NULL
+		if _pR_ != ""
 			@oString.Update(StzEngineStringData(_pR_))
 			StzEngineStringFree(_pR_)
 		ok

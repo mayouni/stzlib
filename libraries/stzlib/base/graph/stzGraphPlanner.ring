@@ -1466,12 +1466,12 @@ class stzGraphPlanner from stzObject
 					This._SetScore(_aCostSoFar_, _cNeighbor_, _nNewCost_)
 					This._SetParent(_aParent_, _cNeighbor_, _cCurrent_)
 					
-					_bInOpen_ = FALSE
+					_bInOpen_ = 0
 					_nLen2_ = len(_aOpen_)
 					for j = 1 to _nLen2_
 						_aNode_ = _aOpen_[j]
 						if _aNode_[1] = _cNeighbor_
-							_bInOpen_ = TRUE
+							_bInOpen_ = 1
 							_aNode_[2] = _nNewCost_
 							exit
 						ok
@@ -1498,7 +1498,7 @@ class stzGraphPlanner from stzObject
 	    _acPath_ = [cGoal]
 	    _cCurrent_ = cGoal
 	    
-	    while TRUE
+	    while 1
 	        _cParent_ = This._GetParent(_aParent_, _cCurrent_)
 	        if _cParent_ = ""
 	            exit
@@ -1656,7 +1656,7 @@ class stzGraphPlanner from stzObject
 		try
 			_aResult_ = This._GetResult(_cPlanName_)
 		catch
-			return FALSE
+			return 0
 		done
 
 		_nLen_ = len(paConstraints)
@@ -1672,12 +1672,12 @@ class stzGraphPlanner from stzObject
 	
 			if _cKey_ = "maxcost"
 				if _aResult_[2] > pValue
-					return FALSE
+					return 0
 				ok
 	
 			but _cKey_ = "mincost"
 				if _aResult_[2] < pValue
-					return FALSE
+					return 0
 				ok
 	
 			but _cKey_ = "avoid"
@@ -1686,7 +1686,7 @@ class stzGraphPlanner from stzObject
 				_nLen3_ = len(_acStates_)
 				for k = 1 to _nLen3_
 					if StzLower(_acStates_[k]) = _cNodeToAvoid_
-						return FALSE
+						return 0
 					ok
 				next
 	
@@ -1694,17 +1694,17 @@ class stzGraphPlanner from stzObject
 				_acStates_ = _aResult_[3]
 				_cRequiredNode_ = StzLower(pValue)
 				if StzFindFirst(_cRequiredNode_, _acStates_) = 0
-					return FALSE
+					return 0
 				ok
 	
 			but _cKey_ = "maxsteps"
 				if len(_aResult_[3]) > pValue
-					return FALSE
+					return 0
 				ok
 			ok
 		next
 	
-		return TRUE
+		return 1
 
 #======================================#
 #  stzPlanComparison Helper Class      #

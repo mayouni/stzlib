@@ -97,11 +97,11 @@ func SortedInAscending(paItems)
 		_v_ = _a_[_i_]; _j_ = _i_ - 1
 		while _j_ >= 1
 			_g_ = _a_[_j_]
-			_lt_ = FALSE
+			_lt_ = 0
 			if isString(_g_) and isString(_v_)
-				if strcmp(_g_, _v_) > 0 _lt_ = TRUE ok
+				if strcmp(_g_, _v_) > 0 _lt_ = 1 ok
 			but isNumber(_g_) and isNumber(_v_)
-				if _g_ > _v_ _lt_ = TRUE ok
+				if _g_ > _v_ _lt_ = 1 ok
 			ok
 			if NOT _lt_ exit ok
 			_a_[_j_ + 1] = _a_[_j_]
@@ -281,16 +281,16 @@ func StzIsEmpty(p)
 		return StzIsNullString(p)
 
 	but isNumber(p)
-		return FALSE
+		return 0
 
 	but isList(p) and len(p) = 0
-		return TRUE
+		return 1
 
 	but isObject(p) and IsNullObject(p)
-		return TRUE
+		return 1
 
 	else
-		return FALSE
+		return 0
 	ok
 
 	func IsEmpty(p)
@@ -305,10 +305,10 @@ func StzIsNull(p)
 		return StzIsNullString(p)
 
 	but isObject(p) and IsNullObject(p)
-		return TRUE
+		return 1
 
 	else
-		return FALSE
+		return 0
 	ok
 
 	func IsNull(p)
@@ -2063,7 +2063,7 @@ func @Number(pNumberOrString) # An enhanced version of the Ring number() functio
 
 func StzIsNumberInString(_str_)
 	if NOT isString(_str_)
-		return FALSE
+		return 0
 	ok
 
 	return rx(pat(:number)).Match(_str_)
@@ -2234,7 +2234,7 @@ func StzSplitAtCS(cData, cSubStr, pCaseSensitive)
 	_acResult_ = []
 	for i = 1 to _nCount_
 		pPart = StzEngineStringSplitGetCS(_pStr_, cSubStr, i, _bCase_)
-		if pPart != NULL
+		if pPart != ""
 			_acResult_ + StzEngineStringData(pPart)
 			StzEngineStringFree(pPart)
 		ok
@@ -2273,7 +2273,7 @@ func StzSplitAt(cData, cSubStr)
 
 func StzIsFileName(pcStr)
 	if NOT isString(pcStr)
-		return FALSE
+		return 0
 	ok
 
 	return Rx(pat(:fileName)).Match(pcStr)
@@ -2284,17 +2284,17 @@ func StzIsFileName(pcStr)
 func StzIsCsvFileName(pcStr)
 
 	if NOT isString(pcStr)
-		return FALSE
+		return 0
 	ok
 
 	if NOT Rx(pat(:fileName)).Match(pcStr)
-		return FALSE
+		return 0
 	ok
 
 	if StzCaseFold( @split(pcStr, ".")[2] ) = "csv"
-		return TRUE
+		return 1
 	else
-		return FALSE
+		return 0
 	ok
 
 	func IsCsvFileName(pcStr)
@@ -2302,19 +2302,19 @@ func StzIsCsvFileName(pcStr)
 
 func StzIsHtmlFileName(pcStr)
 	if NOT isString(pcStr)
-		return FALSE
+		return 0
 	ok
 
 	if NOT Rx(pat(:fileName)).Match(pcStr)
-		return FALSE
+		return 0
 	ok
 
 	_cExtension_ = StzCaseFold( @split(pcStr, ".")[2] )
 
 	if _cExtension_ = "html" or _cExtension_ = "htm"
-		return TRUE
+		return 1
 	else
-		return FALSE
+		return 0
 	ok
 
 	func IsHtmlFileName(pcStr)
@@ -2322,7 +2322,7 @@ func StzIsHtmlFileName(pcStr)
 
 func StzIsCsvString(pcStr)
 	if NOT isString(pcStr)
-		return FALSE
+		return 0
 	ok
 
 	return StzStringQ(pcStr).IsCSV()
@@ -2333,7 +2333,7 @@ func StzIsCsvString(pcStr)
 func StzIsHtmlTableString(pcStr)
 
 	if NOT isString(pcStr)
-		return FALSE
+		return 0
 	ok
 
 	return StzStringQ(pcStr).IsHtmlTable()
@@ -3072,43 +3072,43 @@ func NumberOfTrailingItems(pcStr)
 	return new stzString(pcStr).NumberOfTrailingItems()
 
 func RepresentsSignedRealNumber(pcStr)
-	if NOT isString(pcStr) return FALSE ok
+	if NOT isString(pcStr) return 0 ok
 	_c_ = ring_trim(pcStr)
-	if len(_c_) = 0 return FALSE ok
+	if len(_c_) = 0 return 0 ok
 	_i_ = 1
 	if _c_[1] = "-" or _c_[1] = "+" _i_ = 2 ok
-	if _i_ > len(_c_) return FALSE ok
-	_bDot_ = FALSE
+	if _i_ > len(_c_) return 0 ok
+	_bDot_ = 0
 	while _i_ <= len(_c_)
 		if _c_[_i_] = "."
-			if _bDot_ return FALSE ok
-			_bDot_ = TRUE
+			if _bDot_ return 0 ok
+			_bDot_ = 1
 		but NOT isDigit(_c_[_i_])
-			return FALSE
+			return 0
 		ok
 		_i_++
 	end
-	return TRUE
+	return 1
 
 func RepresentsUnsignedRealNumber(pcStr)
-	if NOT isString(pcStr) return FALSE ok
+	if NOT isString(pcStr) return 0 ok
 	_c_ = ring_trim(pcStr)
-	if len(_c_) = 0 return FALSE ok
-	_bDot_ = FALSE
+	if len(_c_) = 0 return 0 ok
+	_bDot_ = 0
 	_i_ = 1
 	while _i_ <= len(_c_)
 		if _c_[_i_] = "."
-			if _bDot_ return FALSE ok
-			_bDot_ = TRUE
+			if _bDot_ return 0 ok
+			_bDot_ = 1
 		but NOT isDigit(_c_[_i_])
-			return FALSE
+			return 0
 		ok
 		_i_++
 	end
-	return TRUE
+	return 1
 
 func RepresentsCalculableInteger(pcStr)
-	if NOT isString(pcStr) return FALSE ok
+	if NOT isString(pcStr) return 0 ok
 	return new stzString(pcStr).RepresentsCalculableInteger()
 
 # SubStringQ(p): narrative-style wrapper. Accepts either a string or
@@ -3191,7 +3191,7 @@ func _StzNormalizeCharCond(_cCond_)
 	_cCond_ = _StzLowerWPredicates(_cCond_)
 	# In CHAR context, "is a number" means "is a digit char" (a char is
 	# always a string to the engine's isNumber type check).
-	_cCond_ = StzReplaceCS(_cCond_, "isNumber(", "isDigit(", FALSE)
+	_cCond_ = StzReplaceCS(_cCond_, "isNumber(", "isDigit(", 0)
 	return _cCond_
 
 # _StzNormalizeSubStringCond(cCond): normalize a SUBSTRING-predicate condition
@@ -3210,5 +3210,5 @@ func _StzNormalizeSubStringCond(_cCond_)
 	if ring_left(_cCond_, 1) = "{" and ring_right(_cCond_, 1) = "}"
 		_cCond_ = ring_trim( substr(_cCond_, 2, len(_cCond_) - 2) )
 	ok
-	_cCond_ = StzReplaceCS(_cCond_, "@SubString", "@item", FALSE)
+	_cCond_ = StzReplaceCS(_cCond_, "@SubString", "@item", 0)
 	return _StzLowerWPredicates(_cCond_)

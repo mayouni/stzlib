@@ -178,7 +178,7 @@ func DerivationFunc_Transitivity()
 					_cTo_ = _aEdge2_[:to]
 					
 					if NOT oGraph.EdgeExists(_cFrom_, _cTo_) and _cFrom_ != _cTo_
-						_aNewEdges_ + [_cFrom_, _cTo_, "(transitive)", [:derived = TRUE]]
+						_aNewEdges_ + [_cFrom_, _cTo_, "(transitive)", [:derived = 1]]
 					ok
 				ok
 			next
@@ -196,7 +196,7 @@ func DerivationFunc_Symmetry()
 		for i = 1 to _nLen_
 			_aEdge_ = _aEdges_[i]
 			if NOT oGraph.EdgeExists(_aEdge_[:to], _aEdge_[:from])
-				_aNewEdges_ + [_aEdge_[:to], _aEdge_[:from], "(symmetric)", [:derived = TRUE]]
+				_aNewEdges_ + [_aEdge_[:to], _aEdge_[:from], "(symmetric)", [:derived = 1]]
 			ok
 		next
 		
@@ -229,7 +229,7 @@ func DerivationFunc_Hierarchy()
 						pMidVal = oGraph.NodeProperty(_cMid_, _cProp_)
 						pToVal = oGraph.NodeProperty(_cTo_, _cProp_)
 						
-						_bValid_ = FALSE
+						_bValid_ = 0
 						if _cOrder_ = :ascending
 							_bValid_ = (pFromVal < pMidVal and pMidVal < pToVal)
 						but _cOrder_ = :descending
@@ -237,7 +237,7 @@ func DerivationFunc_Hierarchy()
 						ok
 						
 						if _bValid_
-							_aNewEdges_ + [_cFrom_, _cTo_, "(hierarchy)", [:derived = TRUE]]
+							_aNewEdges_ + [_cFrom_, _cTo_, "(hierarchy)", [:derived = 1]]
 						ok
 					ok
 				ok
@@ -255,10 +255,10 @@ func ConstraintFunc_NoSelfLoop()
 	return func(oGraph, paRuleParams, paOperationParams) {
 		if HasKey(paOperationParams, :from) and HasKey(paOperationParams, :to)
 			if paOperationParams[:from] = paOperationParams[:to]
-				return [TRUE, "Self-loops not allowed"]
+				return [1, "Self-loops not allowed"]
 			ok
 		ok
-		return [FALSE, ""]
+		return [0, ""]
 	}
 
 func ConstraintFunc_MaxDegree()
@@ -270,11 +270,11 @@ func ConstraintFunc_MaxDegree()
 			if oGraph.NodeExists(_cNode_)
 				_nDegree_ = len(oGraph.Neighbors(_cNode_)) + len(oGraph.Incoming(_cNode_))
 				if _nDegree_ >= _nMax_
-					return [TRUE, "Node exceeds max degree of " + _nMax_]
+					return [1, "Node exceeds max degree of " + _nMax_]
 				ok
 			ok
 		ok
-		return [FALSE, ""]
+		return [0, ""]
 	}
 
 func ConstraintFunc_NoCycles()
@@ -284,10 +284,10 @@ func ConstraintFunc_NoCycles()
 			_cTo_ = paOperationParams[:to]
 			
 			if oGraph.PathExists(_cTo_, _cFrom_)
-				return [TRUE, "Would create a cycle"]
+				return [1, "Would create a cycle"]
 			ok
 		ok
-		return [FALSE, ""]
+		return [0, ""]
 	}
 
 func ConstraintFunc_Separation()
@@ -304,24 +304,24 @@ func ConstraintFunc_Separation()
 				pToVal = oGraph.NodeProperty(_cTo_, _cProp_)
 				
 				_nLen_ = len(_aValues_)
-				_bFromRestricted_ = FALSE
-				_bToRestricted_ = FALSE
+				_bFromRestricted_ = 0
+				_bToRestricted_ = 0
 				
 				for i = 1 to _nLen_
 					if pFromVal = _aValues_[i]
-						_bFromRestricted_ = TRUE
+						_bFromRestricted_ = 1
 					ok
 					if pToVal = _aValues_[i]
-						_bToRestricted_ = TRUE
+						_bToRestricted_ = 1
 					ok
 				next
 				
 				if _bFromRestricted_ and _bToRestricted_
-					return [TRUE, "Separation of duties violation"]
+					return [1, "Separation of duties violation"]
 				ok
 			ok
 		ok
-		return [FALSE, ""]
+		return [0, ""]
 	}
 
 func ConstraintFunc_PropertyMismatch()
@@ -337,7 +337,7 @@ func ConstraintFunc_PropertyMismatch()
 			if oGraph.NodeExists(_cFrom_)
 				pActual = oGraph.NodeProperty(_cFrom_, _cProp_)
 				
-				_bMismatch_ = FALSE
+				_bMismatch_ = 0
 				if _cOp_ = "!="
 					_bMismatch_ = (pActual = pVal)
 				but _cOp_ = "="
@@ -349,11 +349,11 @@ func ConstraintFunc_PropertyMismatch()
 				ok
 				
 				if _bMismatch_
-					return [TRUE, "Property constraint violated"]
+					return [1, "Property constraint violated"]
 				ok
 			ok
 		ok
-		return [FALSE, ""]
+		return [0, ""]
 	}
 
 #------------------------------------------#
@@ -363,17 +363,17 @@ func ConstraintFunc_PropertyMismatch()
 func ValidationFunc_IsAcyclic()
 	return func(oGraph, paRuleParams) {
 		if oGraph.HasCyclicDependencies()
-			return [FALSE, "Graph contains cycles"]
+			return [0, "Graph contains cycles"]
 		ok
-		return [TRUE, ""]
+		return [1, ""]
 	}
 
 func ValidationFunc_IsConnected()
 	return func(oGraph, paRuleParams) {
 		if NOT oGraph.IsConnected()
-			return [FALSE, "Graph is not connected"]
+			return [0, "Graph is not connected"]
 		ok
-		return [TRUE, ""]
+		return [1, ""]
 	}
 
 func ValidationFunc_MaxNodes()
@@ -381,9 +381,9 @@ func ValidationFunc_MaxNodes()
 		_nMax_ = paRuleParams[:max]
 		
 		if oGraph.NodeCount() > _nMax_
-			return [FALSE, "Exceeds maximum of " + _nMax_ + " nodes"]
+			return [0, "Exceeds maximum of " + _nMax_ + " nodes"]
 		ok
-		return [TRUE, ""]
+		return [1, ""]
 	}
 
 func ValidationFunc_DensityRange()
@@ -393,18 +393,18 @@ func ValidationFunc_DensityRange()
 		
 		_nDensity_ = oGraph.Density()
 		if _nDensity_ < _nMin_ or _nDensity_ > _nMax_
-			return [FALSE, "Density " + _nDensity_ + " outside range [" + _nMin_ + "," + _nMax_ + "]"]
+			return [0, "Density " + _nDensity_ + " outside range [" + _nMin_ + "," + _nMax_ + "]"]
 		ok
-		return [TRUE, ""]
+		return [1, ""]
 	}
 
 func ValidationFunc_NoBottlenecks()
 	return func(oGraph, paRuleParams) {
 		_aBottlenecks_ = oGraph.BottleneckNodes()
 		if len(_aBottlenecks_) > 0
-			return [FALSE, "Bottlenecks found: " + JoinXT(_aBottlenecks_, ", ")]
+			return [0, "Bottlenecks found: " + JoinXT(_aBottlenecks_, ", ")]
 		ok
-		return [TRUE, ""]
+		return [1, ""]
 	}
 
 func ValidationFunc_AllNodesReachable()
@@ -412,7 +412,7 @@ func ValidationFunc_AllNodesReachable()
 		_cStart_ = paRuleParams[:start]
 
 		if NOT oGraph.NodeExists(_cStart_)
-			return [FALSE, "Start node does not exist"]
+			return [0, "Start node does not exist"]
 		ok
 
 		# ReachableFrom() NEVER RETURNS THE START NODE (see its contract in
@@ -426,9 +426,9 @@ func ValidationFunc_AllNodesReachable()
 		_nOthers_ = oGraph.NodeCount() - 1
 
 		if len(_aReachable_) < _nOthers_
-			return [FALSE, "Not all nodes reachable from " + _cStart_]
+			return [0, "Not all nodes reachable from " + _cStart_]
 		ok
-		return [TRUE, ""]
+		return [1, ""]
 	}
 
 # NO ORPHAN NODES -- what :completeness actually asks.
@@ -440,7 +440,7 @@ func ValidationFunc_AllNodesReachable()
 func ValidationFunc_NoOrphanNodes()
 	return func(oGraph, paRuleParams) {
 		if oGraph.NumberOfEdges() = 0
-			return [TRUE, ""]
+			return [1, ""]
 		ok
 
 		_acOrphans_ = []
@@ -454,9 +454,9 @@ func ValidationFunc_NoOrphanNodes()
 		next
 
 		if len(_acOrphans_) > 0
-			return [FALSE, "Orphan nodes: " + JoinXT(_acOrphans_, ", ")]
+			return [0, "Orphan nodes: " + JoinXT(_acOrphans_, ", ")]
 		ok
-		return [TRUE, ""]
+		return [1, ""]
 	}
 
 #=======================#
@@ -580,19 +580,19 @@ func StzGraphRuleValidationFn()
 	return func oGraph, paParams {
 		_aF_ = StzGraphRuleFindings(oGraph, paParams)
 		if len(_aF_) = 0
-			return [ TRUE, "" ]
+			return [ 1, "" ]
 		ok
-		return [ FALSE, "" + paParams[:name] + ": " + len(_aF_) + " finding(s)" ]
+		return [ 0, "" + paParams[:name] + ": " + len(_aF_) + " finding(s)" ]
 	}
 
 func _StzGraphRuleNodeMatches(oGraph, pcId, paClauses)
 	_n_ = len(paClauses)
 	for _i_ = 1 to _n_
 		if NOT _StzGraphRuleClauseHolds(oGraph, pcId, paClauses[_i_])
-			return FALSE
+			return 0
 		ok
 	next
-	return TRUE
+	return 1
 
 # aClause = [ prop, op, wantedValue ]. op in equals|not-equals|contains|exists|missing.
 func _StzGraphRuleClauseHolds(oGraph, pcId, aClause)
@@ -620,7 +620,7 @@ func _StzGraphRuleClauseHolds(oGraph, pcId, aClause)
 	but _op_ = "lessequal"
 		return _StzGraphRuleValCmp(_actual_, _want_) <= 0
 	ok
-	return FALSE
+	return 0
 
 # -1 / 0 / 1 comparison, for the ordering operators only. Numeric when both are
 # numbers (the real case -- node properties like sla=5, duration=10 are stored as
@@ -644,7 +644,7 @@ func _StzGraphRuleValCmp(pActual, pWant)
 # idiom StzLower(prop) = "llm_actor"); a list never equals a scalar.
 func _StzGraphRuleValEq(pActual, pWant)
 	if isList(pActual) or isList(pWant)
-		return FALSE
+		return 0
 	ok
 	return StzLower(ring_trim("" + pActual)) = StzLower(ring_trim("" + pWant))
 
@@ -653,7 +653,7 @@ func _StzGraphRuleValEmpty(pVal)
 		return len(pVal) = 0
 	ok
 	if isNull(pVal)
-		return TRUE
+		return 1
 	ok
 	return ring_trim("" + pVal) = "" or ("" + pVal) = "0"
 
@@ -696,7 +696,7 @@ class stzGraphRule from stzObject
 	@cViolation = ""               # the message attached to each finding
 	@aClauses     = []             # When: [ [ prop, op, want ], ... ] -- the SCOPE
 	@aRequirements = []            # Then: [ [ prop, op, want ], ... ] -- must HOLD
-	@fChecker   = NULL             # explicit checker closure (overrides clauses)
+	@fChecker   = ""             # explicit checker closure (overrides clauses)
 
 	def init(pcName)
 		if ring_trim("" + pcName) = ""
@@ -993,7 +993,7 @@ class stzGraphRuleSet from stzObject
 				return @aRules[_i_]
 			ok
 		next
-		return NULL
+		return ""
 
 	def RuleNames()
 		_out_ = []
@@ -1029,10 +1029,10 @@ class stzGraphRuleSet from stzObject
 		_n_ = len(_aF_)
 		for _i_ = 1 to _n_
 			if _aF_[_i_][:severity] = "error"
-				return FALSE
+				return 0
 			ok
 		next
-		return TRUE
+		return 1
 
 	# Compile every rule down into the shared $aGraphRules registry.
 	def RegisterAll()
