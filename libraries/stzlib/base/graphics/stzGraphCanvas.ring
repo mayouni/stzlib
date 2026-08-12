@@ -201,6 +201,18 @@ class stzGraphCanvas from stzObject
 		if len(@aIds) = 0
 			StzRaise("stzGraphCanvas: that graph has no nodes to draw.")
 		ok
+
+		# :Width and :Height are OPTIONS like every other. They were not
+		# read here, so a caller passing them got the 1000x620 default and
+		# a layout that did not fit whatever it was drawing into -- an
+		# options list that silently ignores two of its keys, which is the
+		# port-knob trap: what the caller SENDS and what the face READS
+		# have to be the same list.
+		_w_ = This._Opt(:Width, 0)
+		_h_ = This._Opt(:Height, 0)
+		if isNumber(_w_) and _w_ >= 1  @nW = _w_  ok
+		if isNumber(_h_) and _h_ >= 1  @nH = _h_  ok
+
 		This._Compute()
 
 	def Width()   return @nW

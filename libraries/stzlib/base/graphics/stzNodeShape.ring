@@ -41,6 +41,27 @@ func StzIsNodeShape(pcName)
 	next
 	return FALSE
 
+# Draw a shape AND say how it is painted, in one call.
+#
+# Prefer this over styling around StzDrawNodeShape. The canvas styles the
+# PENDING shape, so `FillQ(c)` immediately after drawing an edge recolours
+# THE EDGE and leaves the node with whatever default was in force -- which
+# is how the first node of a diagram came out the wrong colour while every
+# other node was right. Passing the paint in removes the ordering question
+# instead of documenting it.
+#
+# pnStrokeW = 0 means no outline.
+func StzDrawNodeShapeXT(poCanvas, pcShape, pnX, pnY, pnW, pnH, pcFill, pcStroke, pnStrokeW)
+	if NOT isObject(poCanvas)
+		StzRaise("StzDrawNodeShapeXT: give me a canvas to draw on.")
+	ok
+	poCanvas.Flush()                 # nothing pending -> these set DEFAULTS
+	poCanvas.Fill(pcFill)
+	if isNumber(pnStrokeW) and pnStrokeW > 0
+		poCanvas.Stroke(pcStroke, pnStrokeW)
+	ok
+	return StzDrawNodeShape(poCanvas, pcShape, pnX, pnY, pnW, pnH)
+
 # Draw one node shape into its bounding box. The canvas's CURRENT fill and
 # stroke apply, exactly as they do for a bare AddRect -- a shape is not a
 # style, and keeping those separate is what lets a diagram theme every
@@ -61,6 +82,23 @@ func StzDrawNodeShape(poCanvas, pcShape, pnX, pnY, pnW, pnH)
 		StzRaise("StzDrawNodeShape: '" + _c_ + "' is not a node shape. " +
 			"The vocabulary is: " + StzJoin(StzNodeShapeNames(), ", ") + ".")
 	ok
+
+	# FLUSH FIRST, AND FLUSH AGAIN AT THE END. stzCanvas.Fill documents
+	# that "with a shape pending, Fill colours THAT shape" -- so a caller
+	# writing the natural sequence
+	#
+	#     oC.FillQ(red)   StzDrawNodeShape(oC, :Box, ...)
+	#     oC.FillQ(green) StzDrawNodeShape(oC, :Hexagon, ...)
+	#
+	# had every colour land on the PREVIOUS shape: box green, hexagon blue,
+	# ellipse red. Measured exactly that way, three shapes, three sampled
+	# pixels. A contact sheet HID it completely -- every shape still had
+	# some colour, so the picture looked right while every binding was
+	# wrong.
+	#
+	# Leaving nothing pending on both sides means Fill/Stroke around a call
+	# set the canvas DEFAULTS, which is what the sequence above reads as.
+	poCanvas.Flush()
 
 	_x_ = pnX  _y_ = pnY  _w_ = pnW  _h_ = pnH
 	_cx_ = _x_ + _w_ / 2
@@ -166,6 +204,9 @@ func StzDrawNodeShape(poCanvas, pcShape, pnX, pnY, pnW, pnH)
 		poCanvas.AddRect(_x_, _y_ + _h_ * 0.62, _w_ * 0.22, _h_ * 0.2)
 	off
 
+	# and leave nothing pending, so the caller's NEXT Fill/Stroke sets
+	# defaults instead of recolouring the last primitive drawn here
+	poCanvas.Flush()
 	return TRUE
 
 # A regular n-gon inscribed in the box, first vertex at pnStartDeg. Kept
