@@ -113,7 +113,7 @@ Class stzTile From stzGrid
 					_cResult_ += ""+ (x % 10) + "   "
 				ok
 			next
-			_cResult_ += char(10)()
+			_cResult_ += char(10)
 		ok
 	
 		# Top border with column indicator for current position
@@ -129,7 +129,7 @@ Class stzTile From stzGrid
 				_cResult_ += "┬"
 			ok
 		next
-		_cResult_ += "╮" + char(10)()
+		_cResult_ += "╮" + char(10)
 	
 		# Rows with cells
 		for y = 1 to @nRows
@@ -162,7 +162,7 @@ Class stzTile From stzGrid
 					_cResult_ += "│"
 				ok
 			next
-			_cResult_ += "│" + char(10)()
+			_cResult_ += "│" + char(10)
 	
 			# Horizontal line between rows
 			if y < @nRows
@@ -173,7 +173,7 @@ Class stzTile From stzGrid
 						_cResult_ += "┼"
 					ok
 				next
-				_cResult_ += "┤" + char(10)()
+				_cResult_ += "┤" + char(10)
 			ok
 		next
 	
@@ -185,7 +185,7 @@ Class stzTile From stzGrid
 				_cResult_ += "┴"
 			ok
 		next
-		_cResult_ += "╯" + char(10)()
+		_cResult_ += "╯" + char(10)
 	
 		return _cResult_
 
@@ -221,7 +221,7 @@ Class stzTile From stzGrid
 					_cResult_ += ""+ (x % 10) + "   "
 				ok
 			next
-			_cResult_ += char(10)()
+			_cResult_ += char(10)
 		ok
 	
 		# Top border with column indicator for current position
@@ -237,7 +237,7 @@ Class stzTile From stzGrid
 				_cResult_ += "┬"
 			ok
 		next
-		_cResult_ += "╮" + char(10)()
+		_cResult_ += "╮" + char(10)
 	
 		# Rows with cells
 		for y = 1 to @nRows
@@ -274,7 +274,7 @@ Class stzTile From stzGrid
 					_cResult_ += "│"
 				ok
 			next
-			_cResult_ += "│" + char(10)()
+			_cResult_ += "│" + char(10)
 	
 			# Horizontal line between rows
 			if y < @nRows
@@ -285,7 +285,7 @@ Class stzTile From stzGrid
 						_cResult_ += "┼"
 					ok
 				next
-				_cResult_ += "┤" + char(10)()
+				_cResult_ += "┤" + char(10)
 			ok
 		next
 	
@@ -297,6 +297,6 @@ Class stzTile From stzGrid
 				_cResult_ += "┴"
 			ok
 		next
-		_cResult_ += "╯" + char(10)()
+		_cResult_ += "╯" + char(10)
 	
 		? _cResult_

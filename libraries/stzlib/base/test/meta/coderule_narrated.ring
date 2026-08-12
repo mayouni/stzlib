@@ -44,7 +44,7 @@ Scenario("FROZEN behaviour: StzCheckCode reproduces the house findings")
 
 	cGood = "class Foo" + nl + "def BazQ()" + nl + "	return This" + nl
 	Then("clean source passes", StzCodeIsClean(cGood), TRUE)
-	Then("StzCodeRuleNames lists the house rules (13 with the knob rules)", len(StzCodeRuleNames()), 13)
+	Then("StzCodeRuleNames lists the house rules (14 with the knob rules)", len(StzCodeRuleNames()), 14)
 	Then("...including dead-knob", StzFindFirst("dead-knob", StzCodeRuleNames()) > 0, TRUE)
 	Then("...and setter-resets-on-reject", StzFindFirst("setter-resets-on-reject", StzCodeRuleNames()) > 0, TRUE)
 	Then("...and the three shapes learned after them", NNamed(["setter-only-moves-one-way", "misspelled-name", "library-prints"]), 3)
@@ -292,6 +292,46 @@ Scenario("Writing to a constant everyone shares")
 	# it would be useless -- READING them is what the library does 4,460 times.
 	Then("an ordinary assignment is not flagged", SaysIn(aW, "writes_a_mutable_constant", "nOther"), FALSE)
 	Then("...nor is a COMPARISON against one", NWrites(aW), 2)
+EndScenario()
+
+Scenario("Calling a value as though it were a function")
+
+	# The other half of the constant story. The NL sweep replaced the NAME
+	# NL with char(10) everywhere -- including at CALL sites, where `NL()`
+	# became `char(10)()`. Ring has no currying and no call-on-result, so
+	# that is never valid; but it PARSES, and only dies when the line runs,
+	# as R20 "Calling function with extra number of parameters" -- an error
+	# naming the arity of a function that was never wrong.
+	#
+	# Eighteen sites survived in stzGrid and stzTile because the only guard
+	# that would have executed them was itself dead for an unrelated reason.
+	# The damage hid behind someone else's failure.
+
+	Given("a method whose NL() call was rewritten to char(10)()")
+	cV = ValueCallFixture()
+	aV = StzCheckCode(cV)
+
+	Then("it is an error", SevOf(aV, "value_called_as_function", "R20"), "error")
+	Then("...and the message names the shape", SaysIn(aV, "value_called_as_function", ")("), TRUE)
+
+	Given("a definition NAME glued to a call, the other damage shape")
+	aG = StzCheckCode(GluedDefNameFixture())
+	Then("func char(10)@@NL(p) is an error",
+	     SaysIn(aG, "value_called_as_function", "parameter list begins"), TRUE)
+
+	# THE NEGATIVE SIBLINGS, and this rule needed them badly. Two earlier
+	# drafts were measured against the whole library before being trusted:
+	# blanking strings PER LINE reported 549 findings (ASCII art, embedded C,
+	# SVG and DOT templates all contain ')('), and skipping whitespace before
+	# the following character flagged every same-line method body in the tree.
+	# Both now report nothing; the rule finds 0 across the library.
+
+	Given("the repaired code, and shapes that only look similar")
+	Then("the repaired call is clean", NValueCalls(StzCheckCode(NoValueCallFixture())), 0)
+	Then("a same-line body `def W() return @n` is not flagged", NValueCalls(StzCheckCode(SameLineBodyFixture())), 0)
+	Then("nested calls are not flagged", NValueCalls(StzCheckCode(NestedCallFixture())), 0)
+	Then("')(' inside a STRING is not flagged", NValueCalls(StzCheckCode(ParensInStringFixture())), 0)
+	Then("...even when the string spans LINES", NValueCalls(StzCheckCode(MultiLineStringFixture())), 0)
 EndScenario()
 
 Summary()
@@ -696,6 +736,62 @@ func ConstantWriteFixture()
 	_c_ += "		ok" + _nl_
 	_c_ += "		return 0" + _nl_
 	return _c_
+
+#-- the value-called-as-function rule -------------------------------------------
+
+func ValueCallFixture()
+	_nl_ = char(10)
+	_c_ = "class stzGridDemo from stzObject" + _nl_
+	_c_ += "	def ToString()" + _nl_
+	_c_ += "		_r_ = """"" + _nl_
+	_c_ += "		_r_ += char(10)()" + _nl_        # THE damage the NL sweep left
+	_c_ += "		return _r_" + _nl_
+	return _c_
+
+func NoValueCallFixture()
+	_nl_ = char(10)
+	_c_ = "class stzGridDemo from stzObject" + _nl_
+	_c_ += "	def ToString()" + _nl_
+	_c_ += "		_r_ = """"" + _nl_
+	_c_ += "		_r_ += char(10)" + _nl_          # repaired
+	_c_ += "		return _r_" + _nl_
+	return _c_
+
+func GluedDefNameFixture()
+	# What the sweep did to a DEFINITION: `func NL@@NL(p)` keeps its
+	# parameter list but the name now carries a call.
+	return "func char(10)@@NL(p)" + char(10) + "	return p" + char(10)
+
+func SameLineBodyFixture()
+	return "class stzZ" + char(10) + "	def W()   return @nW" + char(10)
+
+func NestedCallFixture()
+	_q_ = char(34)
+	return "class stzZ" + char(10) + "	def W()" + char(10) +
+	       "		return StzLower(StzUpper(" + _q_ + "ab" + _q_ + "))" + char(10)
+
+func ParensInStringFixture()
+	_q_ = char(34)
+	return "class stzZ" + char(10) + "	def W()" + char(10) +
+	       "		return " + _q_ + "a)(b" + _q_ + char(10)
+
+func MultiLineStringFixture()
+	# The case that a per-line blanker gets wrong: from line two on, the
+	# INSIDE of this literal reads as code, and ')(' is everywhere in the
+	# ASCII art and embedded C the library actually stores this way.
+	_q_ = char(34)
+	return "class stzZ" + char(10) + "	def Art()" + char(10) +
+	       "		return " + _q_ + "  )(  " + char(10) +
+	       " )( " + char(10) + "   )(   " + _q_ + char(10)
+
+func NValueCalls(paFindings)
+	_n_ = 0
+	for _i_ = 1 to len(paFindings)
+		if "" + paFindings[_i_][:rule] = "value_called_as_function"
+			_n_++
+		ok
+	next
+	return _n_
 
 func NWrites(paFindings)
 	_n_ = 0
