@@ -25,7 +25,8 @@ func StzCodeRuleNames()
 	         "engine-first", "q-has-plain-twin", "no-case-collision",
 	         "dead-knob", "setter-resets-on-reject",
 	         "setter-only-moves-one-way", "misspelled-name", "library-prints",
-	         "empty-method-body", "writes-a-mutable-constant" ]
+	         "empty-method-body", "writes-a-mutable-constant",
+	         "value-called-as-function" ]
 
 func StzCheckCodeFile(pcPath)
 	return StzCheckCode(read(pcPath))
@@ -139,7 +140,8 @@ func _StzTextPassFindings(pcSource)
 		_StzCheckMisspelledNames(_cClean_),
 		_StzCheckLibraryPrints(_cClean_),
 		_StzCheckEmptyBodies(_cClean_),
-		_StzCheckConstantWrites(_cClean_)
+		_StzCheckConstantWrites(_cClean_),
+		_StzCheckValueCalls(_cClean_)
 	]
 	_nP_ = len(_aPasses_)
 	for _i_ = 1 to _nP_
@@ -1084,6 +1086,146 @@ func _StzUnderADebugFlag(pacOpenIfs)
 		next
 	next
 	return 0
+
+# A VALUE CANNOT BE CALLED, so `)(` is never valid Ring -- there is no
+# currying and no call-on-result. It is, however, exactly what a blind token
+# replacement leaves behind, and it PARSES: the failure waits until the line
+# actually runs and then reads R20, "Calling function with extra number of
+# parameters", which points at the arity of a function that was never wrong.
+#
+# Paid for: the NL sweep rewrote calls to the accessor NL() into `char(10)()`.
+# Eighteen sites survived in stzGrid and stzTile, because the only guard that
+# would have executed them was itself dead for an unrelated reason -- so the
+# damage sat behind a failure that looked like someone else's problem.
+#
+# The same sweep damaged DEFINITION names (`func NL@@NL(p)` became
+# `func char(10)@@NL(p)`), so a def whose name does not end where its
+# parameter list begins is flagged by the same rule.
+#
+# Strings are blanked first, across the WHOLE source rather than line by line
+# -- see _StzBlankStringsAll. That is not a detail: base/extercode/ holds C in
+# multi-line literals, where `)(` is a legitimate function-pointer form, and
+# stzStringArtData holds ASCII art full of it. A per-line blanker reported 549
+# findings here, every one of them noise.
+func _StzCheckValueCalls(pcSource)
+	_aOut_ = []
+	_cBlank_ = _StzBlankStringsAll(StzReplace("" + pcSource, char(13), ""))
+	_acLines_ = StzSplit(_cBlank_, char(10))
+	_nLen_ = len(_acLines_)
+
+	for _i_ = 1 to _nLen_
+		_cL_ = _acLines_[_i_]
+		_n_ = len(_cL_)
+		if _n_ < 2
+			loop
+		ok
+
+		_bDef_ = 0
+		_cT_ = StzLower(ring_trim(StzReplace(_cL_, char(9), " ")))
+		if StzLeft(_cT_, 5) = "func " or StzLeft(_cT_, 4) = "def "
+			_bDef_ = 1
+		ok
+
+		for _j_ = 1 to _n_ - 1
+			if _cL_[_j_] != ")"
+				loop
+			ok
+
+			# ADJACENCY IS REQUIRED, and it is what keeps this rule honest.
+			# A token sweep substitutes in place, so the damage it leaves is
+			# always glued: `char(10)()`, `char(10)@@NL(p)`. Allowing spaces
+			# instead flagged 545 innocent lines -- every same-line method
+			# body in the library, `def Width()   return @nW`, reads as a
+			# name followed by more name once you skip the gap.
+			_cNext_ = _cL_[_j_ + 1]
+
+			if _cNext_ = "("
+				_aOut_ + [ :rule = :value_called_as_function, :line = _i_,
+				           :severity = :error,
+				           :message = "')(' calls the RESULT of a call -- Ring has no" +
+				           " such form. This is the shape a token sweep leaves when it" +
+				           " rewrites a call like NL() into char(10)(). It parses, then" +
+				           " dies R20 at run time." ]
+				exit
+			ok
+
+			# On a definition line only: the name must END at its paren.
+			# `func char(10)@@NL(p)` is a name glued to a call. `@` is not in
+			# _StzIsIdentChar's alphabet (it lives in stzListFunc.ring and is
+			# reused rather than redefined -- a second definition is a C22 that
+			# takes the whole library's load down with it), so add it here.
+			if _bDef_ and (_StzIsIdentChar(_cNext_) or _cNext_ = "@")
+				_aOut_ + [ :rule = :value_called_as_function, :line = _i_,
+				           :severity = :error,
+				           :message = "a definition NAME does not end where its" +
+				           " parameter list begins -- the shape a token sweep leaves" +
+				           " when it rewrites the name of a func, not its body" ]
+				exit
+			ok
+		next
+	next
+	return _aOut_
+
+# Replace every string literal's CONTENT with spaces, over the WHOLE source
+# rather than line by line, keeping newlines and line widths so a finding's
+# :line still points where a reader would look.
+#
+# Whole-source is the entire point. A Ring literal spans newlines, so a
+# per-line blanker resets its quote state at every line break and reads the
+# INSIDE of a multi-line literal as code. Measured, not assumed: the per-line
+# version of this rule reported 549 findings across the library -- ASCII art
+# in stzStringArtData, C in extercode, SVG and DOT templates in graph and
+# graphics, all of which legitimately contain ')('. This version reports the
+# real damage only.
+func _StzBlankStringsAll(pcSource)
+	_c_ = "" + pcSource
+	_n_ = len(_c_)
+	_cOut_ = ""
+	_cQuote_ = ""
+	_i_ = 1
+
+	while _i_ <= _n_
+		_ch_ = _c_[_i_]
+
+		if _cQuote_ != ""
+			# Newlines survive so the line numbering does; everything else
+			# inside the literal becomes a space.
+			if _ch_ = char(10)
+				_cOut_ += _ch_
+			but _ch_ = _cQuote_
+				_cOut_ += _ch_
+				_cQuote_ = ""
+			else
+				_cOut_ += " "
+			ok
+			_i_++
+			loop
+		ok
+
+		if _ch_ = char(34) or _ch_ = char(39)
+			_cQuote_ = _ch_
+			_cOut_ += _ch_
+			_i_++
+			loop
+		ok
+
+		# A comment runs to the end of ITS line, and a quote inside it must
+		# not open a literal -- prose says "don't" often enough to matter.
+		if _ch_ = "#" or (_ch_ = "/" and _i_ < _n_ and _c_[_i_+1] = "/")
+			while _i_ <= _n_ and _c_[_i_] != char(10)
+				_i_++
+			end
+			if _i_ <= _n_
+				_cOut_ += char(10)
+				_i_++
+			ok
+			loop
+		ok
+
+		_cOut_ += _ch_
+		_i_++
+	end
+	return _cOut_
 
 func _StzCheckLibraryPrints(pcSource)
 	_aOut_ = []
