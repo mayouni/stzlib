@@ -1449,6 +1449,7 @@ class stzDiagram from stzGraph
 		for _cl_ in @aClusters
 			_aBox_ = This._ClusterBox(_cl_, _aXY_, _nBoxW_, _nBoxH_)
 			if len(_aBox_) = 4
+				_oC_.Flush()
 				_oC_.FillQ(_cl_[:color]).
 					AddRect(_aBox_[1], _aBox_[2], _aBox_[3], _aBox_[4])
 			ok
@@ -1470,10 +1471,12 @@ class stzDiagram from stzGraph
 			_a_ = This._XYOf(_aXY_, _cId_)
 			if len(_a_) != 2  loop  ok
 			_cShape_ = This._NativeShapeOf(_aNodes_[_i_])
-			_oC_.FillQ(This._NativeFillOf(_aNodes_[_i_])).
-				Stroke(This._DiagOpt(paOptions, "strokecolor", "#0B1020"), 2)
-			StzDrawNodeShape(_oC_, _cShape_,
-				_a_[1] - _nBoxW_ / 2, _a_[2] - _nBoxH_ / 2, _nBoxW_, _nBoxH_)
+			# the XT form takes the paint, so the fill cannot land on the
+			# pending EDGE instead of on this node
+			StzDrawNodeShapeXT(_oC_, _cShape_,
+				_a_[1] - _nBoxW_ / 2, _a_[2] - _nBoxH_ / 2, _nBoxW_, _nBoxH_,
+				This._NativeFillOf(_aNodes_[_i_]),
+				This._DiagOpt(paOptions, "strokecolor", "#0B1020"), 2)
 		next
 
 		# 4. LABELS, only with a font -- a caller without one still gets the
