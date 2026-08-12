@@ -54,6 +54,9 @@ const sr = @import("soundring.zig");
 /// Also public, and for the same reason: the studio server wants the device
 /// tier without declaring a second module over the same files.
 pub const dev = @import("audiodev.zig");
+/// And the analysis tier, so the studio can DRAW what it just rendered. Same
+/// reason again: one module, reached through one import.
+pub const ana = @import("soundanalysis.zig");
 
 // ---------------------------------------------------------------- counting allocator
 //
