@@ -663,12 +663,12 @@ class stzNaturalEngine from stzObject
 	    _nAllQuoteSections1Len_ = len(_aAllQuoteSections_)
 	    for _iLoopAllQuoteSections1_ = 1 to _nAllQuoteSections1Len_
 	    	_aQuoteSection_ = _aAllQuoteSections_[_iLoopAllQuoteSections1_]
-	        _bInsideList_ = FALSE
+	        _bInsideList_ = 0
 	        _nListSections1Len_ = len(_aListSections_)
 	        for _iLoopListSections1_ = 1 to _nListSections1Len_
 	        	_aListSection_ = _aListSections_[_iLoopListSections1_]
 	            if _aQuoteSection_[1] >= _aListSection_[1] and _aQuoteSection_[2] <= _aListSection_[2]
-	                _bInsideList_ = TRUE
+	                _bInsideList_ = 1
 	                exit
 	            ok
 	        next
@@ -727,7 +727,7 @@ class stzNaturalEngine from stzObject
 		    for _j_ = 1 to _nLenWords_
 	                if trim(_acWords_[_j_]) != ""
 	                    _aResult_ + _acWords_[_j_]
-	                    @aTokenIsWord + TRUE
+	                    @aTokenIsWord + 1
 	                ok
 	            next
 
@@ -740,12 +740,12 @@ class stzNaturalEngine from stzObject
 	            catch
 	                _aResult_ + _cSection_
 	            done
-	            @aTokenIsWord + FALSE
+	            @aTokenIsWord + 0
 
 	        else  # string
 	            # Remove quotes -- StzMid is (start, COUNT): keep len-2 chars
 	            _aResult_ + @StzMid(_cSection_, 2, stzlen(_cSection_) - 2)
-	            @aTokenIsWord + FALSE
+	            @aTokenIsWord + 0
 	        ok
 	    next
 	    
@@ -816,10 +816,10 @@ class stzNaturalEngine from stzObject
 			if _c_ = "'" or _c_ = char(34)
 				# contraction guard: a letter-flanked apostrophe is
 				# part of a word, not a string delimiter
-				_bDelim_ = TRUE
+				_bDelim_ = 1
 				if _c_ = "'" and _i_ > 1 and _i_ < _n_
 					if isalpha(_cCode_[_i_-1]) and isalpha(_cCode_[_i_+1])
-						_bDelim_ = FALSE
+						_bDelim_ = 0
 					ok
 				ok
 				if _bDelim_
@@ -868,15 +868,15 @@ class stzNaturalEngine from stzObject
 		_aPunct_ = [ "?", "!", ".", ",", ";", ":",
 		           StzChar(1567), StzChar(1548) ]	# + Arabic ? and ,
 		_nP_ = len(_aPunct_)
-		_bAgain_ = TRUE
+		_bAgain_ = 1
 		while _bAgain_ and len(_cW_) > 0
-			_bAgain_ = FALSE
+			_bAgain_ = 0
 			for p = 1 to _nP_
 				_cM_ = _aPunct_[p]
 				_nM_ = len(_cM_)
 				if len(_cW_) >= _nM_ and right(_cW_, _nM_) = _cM_
 					_cW_ = left(_cW_, len(_cW_) - _nM_)
-					_bAgain_ = TRUE
+					_bAgain_ = 1
 					exit
 				ok
 			next
@@ -903,7 +903,7 @@ class stzNaturalEngine from stzObject
 		_nLen_ = len(@aValues)
 		_j_ = nStart + 1
 		while _j_ <= _nLen_ and len(_aWords_) < 3 and (_j_ - nStart) <= 4
-			if NOT ( len(@aTokenIsWord) >= _j_ and @aTokenIsWord[_j_] = TRUE )
+			if NOT ( len(@aTokenIsWord) >= _j_ and @aTokenIsWord[_j_] = 1 )
 				exit
 			ok
 			if NOT isString(@aValues[_j_])
@@ -925,10 +925,10 @@ class stzNaturalEngine from stzObject
 			return [ "", 0, "" ]
 		ok
 
-		_bUnknown_ = FALSE
+		_bUnknown_ = 0
 		for _k_ = 1 to _nW_
 			if This.ToSemantic(_aWords_[_k_]) = ""
-				_bUnknown_ = TRUE
+				_bUnknown_ = 1
 				exit
 			ok
 		next
@@ -985,7 +985,7 @@ class stzNaturalEngine from stzObject
 				if _bEligible_
 					for _k_ = 1 to _nW_
 						if This.ToSemantic(_aWords_[_k_]) != ""
-							_bEligible_ = FALSE
+							_bEligible_ = 0
 							exit
 						ok
 					next
@@ -1109,11 +1109,11 @@ class stzNaturalEngine from stzObject
 				# ("note:" reads as range syntax) -- LooksEvalSafeList()
 				# filters those, and if the eval still fails we fall
 				# through to normal word handling instead of dying.
-				_bParsed_ = FALSE
+				_bParsed_ = 0
 				try
 					_cCode_ = '_aListValue_ = ' + _cValue_
 					eval(_cCode_)
-					_bParsed_ = TRUE
+					_bParsed_ = 1
 				catch
 				done
 				if _bParsed_
@@ -1135,7 +1135,7 @@ class stzNaturalEngine from stzObject
 			# ('Create a string with "this"' must keep "this" even though
 			# the bare word this is an ignored word; 'with "show"' must
 			# not become OUTPUT_DISPLAY).
-			_bWord_ = TRUE
+			_bWord_ = 1
 			if len(@aTokenIsWord) >= _i_
 				_bWord_ = @aTokenIsWord[_i_]
 			ok
@@ -1405,10 +1405,10 @@ class stzNaturalEngine from stzObject
 					# 'Keep it as sep': bind the current result -- the
 					# last query's answer if one just ran, else the live
 					# object's content -- to a named VALUE variable
-					_bQ_ = FALSE
+					_bQ_ = 0
 					_nCL2_ = len(_aCodeLines_)
 					if _nCL2_ > 0 and StzLeft(_aCodeLines_[_nCL2_], 10) = "@result = "
-						_bQ_ = TRUE
+						_bQ_ = 1
 					ok
 					_aResult_ = This.ProcessValueKeep(_i_, _bQ_)
 					if stzlen(_aResult_[:code]) > 0
@@ -1693,12 +1693,12 @@ class stzNaturalEngine from stzObject
 		# enforce :applies_to for them (hand-authored ops keep their
 		# historical advisory behavior).
 		if HasKey(_aOp_, :grown) and HasKey(_aOp_, :applies_to)
-			_bApplies_ = FALSE
+			_bApplies_ = 0
 			_aTo_ = _aOp_[:applies_to]
 			_nTo_ = len(_aTo_)
 			for _i_ = 1 to _nTo_
 				if lower(_aTo_[_i_]) = lower(@cCurrentObject)
-					_bApplies_ = TRUE
+					_bApplies_ = 1
 					exit
 				ok
 			next
@@ -1897,19 +1897,19 @@ class stzNaturalEngine from stzObject
 		but isList(pAnswer)
 			return len(pAnswer) > 0
 		ok
-		return FALSE
+		return 0
 
 	def AllYes()
 		_nAy_ = len(@aAnswers)
 		if _nAy_ = 0
-			return FALSE
+			return 0
 		ok
 		for _iAy_ = 1 to _nAy_
 			if NOT This._IsYes(@aAnswers[_iAy_])
-				return FALSE
+				return 0
 			ok
 		next
-		return TRUE
+		return 1
 
 		def AllTrue()
 			return This.AllYes()
@@ -1918,10 +1918,10 @@ class stzNaturalEngine from stzObject
 		_nAy_ = len(@aAnswers)
 		for _iAy_ = 1 to _nAy_
 			if This._IsYes(@aAnswers[_iAy_])
-				return TRUE
+				return 1
 			ok
 		next
-		return FALSE
+		return 0
 
 		def AnyTrue()
 			return This.AnyYes()
@@ -2127,11 +2127,11 @@ class stzNaturalEngine from stzObject
 				ok
 			next
 		ok
-		_bHasObject_ = FALSE
+		_bHasObject_ = 0
 		for _i_ = 1 to _nT_
 			if @aSemanticTokens[_i_][:type] = "semantic" and
 			   @aSemanticTokens[_i_][:value] = "CREATE_OBJECT"
-				_bHasObject_ = TRUE
+				_bHasObject_ = 1
 				exit
 			ok
 		next
@@ -2246,7 +2246,7 @@ class stzNaturalEngine from stzObject
 
 	def Analyze(_cCode_)
 		if NOT isString(_cCode_) or trim(_cCode_) = ""
-			return [ :understood = TRUE, :unresolved = [] ]
+			return [ :understood = 1, :unresolved = [] ]
 		ok
 		@cNaturalCode = _cCode_
 		This.TokenizeCode(_cCode_)

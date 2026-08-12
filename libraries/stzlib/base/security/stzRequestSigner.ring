@@ -107,7 +107,7 @@ class stzRequestSigner from stzObject
 		if _i_ = 0
 			@cWhy = "unknown key '" + pcKeyId + "'"
 			StzNoteRefusal("sig.key.unknown", "" + pcKeyId, "path:" + pcPath, @cWhy)
-			return FALSE
+			return 0
 		ok
 		# FRESHNESS: reject stale OR future-dated (clock-skew both ways)
 		_nDelta_ = pnNowMs - pnTs
@@ -116,7 +116,7 @@ class stzRequestSigner from stzObject
 			@cWhy = "timestamp outside the freshness window (|skew| " + _nDelta_ +
 				"ms > " + pnMaxSkewMs + "ms)"
 			StzNoteRefusal("sig.timestamp.stale", "" + pcKeyId, "path:" + pcPath, @cWhy)
-			return FALSE
+			return 0
 		ok
 		# INTEGRITY + AUTHENTICITY: recompute the MAC and constant-time compare
 		_cCanon_ = This._Canonical(pcMethod, pcPath, pcBody, pnTs, pcNonce)
@@ -124,7 +124,7 @@ class stzRequestSigner from stzObject
 		if NOT This._SecureEq(_cExpect_, "" + pcSig)
 			@cWhy = "signature mismatch (forged, tampered, or wrong key)"
 			StzNoteRefusal("sig.signature.forged", "" + pcKeyId, "path:" + pcPath, @cWhy)
-			return FALSE
+			return 0
 		ok
 		# REPLAY: a valid signature is only accepted ONCE per nonce
 		This._EvictSeen(pnNowMs, pnMaxSkewMs)
@@ -132,11 +132,11 @@ class stzRequestSigner from stzObject
 		if This._SeenIndex(_cMark_) > 0
 			@cWhy = "replay detected (nonce already used for this key)"
 			StzNoteRefusal("sig.nonce.replayed", "" + pcKeyId, "path:" + pcPath, @cWhy)
-			return FALSE
+			return 0
 		ok
 		@aSeen + [ _cMark_, pnTs ]
 		if len(@aSeen) > @nMaxSeen  del(@aSeen, 1)  ok
-		return TRUE
+		return 1
 
 	# Verify against the engine clock.
 	def VerifyNow(pcKeyId, pcMethod, pcPath, pcBody, pnTs, pcNonce, pcSig, pnMaxSkewMs)
@@ -173,7 +173,7 @@ class stzRequestSigner from stzObject
 	# early-exiting) '=' leaks no positional information about where they
 	# differ. Avoids a byte-by-byte loop (Ring in-class char-index VM trap).
 	def _SecureEq(pcA, pcB)
-		if StzLen("" + pcA) != StzLen("" + pcB)  return FALSE  ok
+		if StzLen("" + pcA) != StzLen("" + pcB)  return 0  ok
 		_k_ = StzEngineCryptoRandomHex(16)
 		return This._Hmac(pcA, _k_) = This._Hmac(pcB, _k_)
 

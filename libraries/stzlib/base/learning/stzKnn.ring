@@ -11,15 +11,15 @@
 
 class stzKnn from stzObject
 
-	@oDs = NULL
+	@oDs = ""
 	@nK = 3
 	@cWhy = ""
-	@pModel_ = NULL       # the CLASSIFIER, resident in the engine -- see Classify()
+	@pModel_ = ""       # the CLASSIFIER, resident in the engine -- see Classify()
 	@acAlphabet_ = []     # the distinct labels, in first-appearance order; the engine
 	                      # works in codes and this maps a code back to its label
 	@nFlatCount_ = 0      # what it was built from, for staleness
 	@nFlatDim_ = 0
-	@bApprox_ = FALSE     # opt-in approximate search -- see SetApproximate()
+	@bApprox_ = 0     # opt-in approximate search -- see SetApproximate()
 	@nAnnTrees_ = 24      # tuned in umap.zig against measured recall
 	@nAnnBudget_ = 0      # 0 = let the engine choose from k
 	@aWhyRows_ = []       # [ idx, dist, code ] per consulted neighbour, for Why()
@@ -91,7 +91,7 @@ class stzKnn from stzObject
 	# absorbed every neighbour the forest missed. Do not read that as a guarantee;
 	# read it as the reason AgreementWithExact() takes YOUR queries.
 	def SetApproximate(bFlag)
-		if bFlag != TRUE and bFlag != FALSE
+		if bFlag != 1 and bFlag != 0
 			stzraise("SetApproximate: TRUE or FALSE.")
 		ok
 		if bFlag != @bApprox_
@@ -276,9 +276,9 @@ class stzKnn from stzObject
 	# of Examples(); setting the count to 0 is what the staleness check already
 	# looks at, so this reuses that machinery rather than adding a second flag.
 	def _DropResident()
-		if @pModel_ != NULL
+		if @pModel_ != ""
 			StzEngineKnnModelFree(@pModel_)
-			@pModel_ = NULL
+			@pModel_ = ""
 		ok
 		@nFlatCount_ = 0
 		@nFlatDim_ = 0
@@ -298,7 +298,7 @@ class stzKnn from stzObject
 	def _Ensure()
 		_nEx_ = @oDs.NumberOfExamples()
 		_nDim_ = @oDs.NumberOfFeatures()
-		if @pModel_ != NULL and @nFlatCount_ = _nEx_ and @nFlatDim_ = _nDim_
+		if @pModel_ != "" and @nFlatCount_ = _nEx_ and @nFlatDim_ = _nDim_
 			return
 		ok
 		This._DropResident()
@@ -339,7 +339,7 @@ class stzKnn from stzObject
 		ok
 		@pModel_ = StzEngineKnnModelNew(_aFlat_, _nEx_, _nDim_, _anCodes_,
 			len(_acAlpha_), _bA_, @nAnnTrees_, 42)
-		if @pModel_ = NULL
+		if @pModel_ = ""
 			stzraise("The engine refused the dataset (" + _nEx_ + " x " + _nDim_ + ").")
 		ok
 		@acAlphabet_ = _acAlpha_

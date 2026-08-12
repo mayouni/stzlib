@@ -4,20 +4,20 @@
 
 func IsLetter(c)
 	if len(c) != 1
-		return FALSE
+		return 0
 	ok
 	_n_ = ascii(c)
 	if (_n_ >= 65 and _n_ <= 90) or (_n_ >= 97 and _n_ <= 122)
-		return TRUE
+		return 1
 	ok
-	return FALSE
+	return 0
 
 	func @IsLetter(c)
 		return IsLetter(c)
 
 func IsDigit(c)
 	if len(c) != 1
-		return FALSE
+		return 0
 	ok
 	_n_ = ascii(c)
 	return (_n_ >= 48 and _n_ <= 57)
@@ -33,7 +33,7 @@ func IsDigit(c)
 
 func IsUpperCase(c)
 	if NOT isString(c) or len(c) = 0
-		return FALSE
+		return 0
 	ok
 	if len(c) = 1
 		_n_ = ascii(c)
@@ -46,7 +46,7 @@ func IsUpperCase(c)
 
 func IsLowerCase(c)
 	if NOT isString(c) or len(c) = 0
-		return FALSE
+		return 0
 	ok
 	if len(c) = 1
 		_n_ = ascii(c)

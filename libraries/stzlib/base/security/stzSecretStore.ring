@@ -103,7 +103,7 @@ class stzSecretStore from stzObject
 	def Secret(pcName)
 		_i_ = This._Index(StzLower(ring_trim("" + pcName)))
 		if _i_ = 0
-			return NULL
+			return ""
 		ok
 		return @aSecrets[_i_][2]
 
@@ -121,7 +121,7 @@ class stzSecretStore from stzObject
 	# actor) and AUDITED (the access is recorded either way). This is the only
 	# path a value leaves the store, so the log is complete.
 	def Reveal(pcName, poActor)
-		return This.RevealVia(pcName, NULL, poActor)
+		return This.RevealVia(pcName, "", poActor)
 
 	# reveal through a vault RESOLVER (for a :vault-sourced secret), still gated
 	# and AUDITED by the store. For a non-vault secret the resolver is ignored, so
@@ -149,7 +149,7 @@ class stzSecretStore from stzObject
 	def IsRevealableBy(pcName, poActor)
 		_s_ = This.Secret(pcName)
 		if NOT isObject(_s_)
-			return FALSE
+			return 0
 		ok
 		return _s_.IsRevealableBy(poActor)
 

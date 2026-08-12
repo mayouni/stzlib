@@ -78,7 +78,7 @@ func StzDrawableKind(poThing)
 # before anything else -- it neither loads a GPU nor opens anything.
 func StzWindowingAvailable()
 	if NOT StzWindowEngineLoaded()
-		return FALSE
+		return 0
 	ok
 	return StzEngineWindowIsAvailable() = 1
 
@@ -88,7 +88,7 @@ class stzWindow from stzObject
 	@nSurf = 0
 	@cTitle = ""
 	@nFramesDrawn = 0
-	@bVSync = TRUE
+	@bVSync = 1
 
 	def init(pnW, pnH, pcTitle)
 		if NOT isNumber(pnW) or NOT isNumber(pnH)
@@ -137,7 +137,7 @@ class stzWindow from stzObject
 	# called. This is the `while` condition of every frame loop.
 	def IsOpen()
 		if @nId = 0
-			return FALSE
+			return 0
 		ok
 		return StzEngineWindowIsOpen(@nId) = 1
 
@@ -172,7 +172,7 @@ class stzWindow from stzObject
 	# resize path could only ever be tested by a person with a mouse.
 	def SetSize(pnW, pnH)
 		if @nId = 0 or NOT (isNumber(pnW) and isNumber(pnH))
-			return FALSE
+			return 0
 		ok
 		if pnW < 1 or pnH < 1
 			StzRaise("stzWindow.SetSize: a window needs a positive size.")
@@ -189,7 +189,7 @@ class stzWindow from stzObject
 	# size.
 	def WasResized()
 		if @nId = 0
-			return FALSE
+			return 0
 		ok
 		return StzEngineWindowWasResized(@nId) = 1
 
@@ -238,12 +238,12 @@ class stzWindow from stzObject
 	# which is a normal event in a loop, not an error to raise.
 	def Draw(poThing)
 		if @nId = 0 or @nSurf = 0
-			return FALSE
+			return 0
 		ok
 
 		_nT_ = StzEngineGpuSurfaceAcquire(@nSurf)
 		if _nT_ = 0
-			return FALSE
+			return 0
 		ok
 
 		_nFmt_ = 0
@@ -253,7 +253,7 @@ class stzWindow from stzObject
 		_nW_ = StzEngineWindowWidth(@nId)
 		_nH_ = StzEngineWindowHeight(@nId)
 
-		_bOk_ = FALSE
+		_bOk_ = 0
 		_cKind_ = StzDrawableKind(poThing)
 		if _cKind_ = :Canvas
 			# Keep the FACE's idea of its size equal to the engine's. The
@@ -288,14 +288,14 @@ class stzWindow from stzObject
 	# and unpauses sixty times.
 
 	def KeyDown(pKey)
-		return This._Key(pKey, FALSE)
+		return This._Key(pKey, 0)
 
 	def KeyPressed(pKey)
-		return This._Key(pKey, TRUE)
+		return This._Key(pKey, 1)
 
 	def _Key(pKey, pbEdge)
 		if @nId = 0
-			return FALSE
+			return 0
 		ok
 		_nK_ = pKey
 		if isString(_nK_)
@@ -324,11 +324,11 @@ class stzWindow from stzObject
 	# button: 1 = left, 2 = right, 3 = middle (as a person counts them, not
 	# as the C API indexes them)
 	def MouseDown(pnButton)
-		if @nId = 0 return FALSE ok
+		if @nId = 0 return 0 ok
 		return StzEngineWindowMouseDown(@nId, This._Btn(pnButton)) = 1
 
 	def MouseClicked(pnButton)
-		if @nId = 0 return FALSE ok
+		if @nId = 0 return 0 ok
 		return StzEngineWindowMouseClicked(@nId, This._Btn(pnButton)) = 1
 
 	def _Btn(pnButton)
@@ -348,17 +348,17 @@ class stzWindow from stzObject
 	# card refuses the mode rather than pretending it changed.
 	def SetVSync(pbOn)
 		if @nSurf = 0
-			return FALSE
+			return 0
 		ok
 		_nMode_ = 0
-		if pbOn = FALSE
+		if pbOn = 0
 			_nMode_ = 1
 		ok
 		if StzEngineGpuSurfaceSetPresentMode(@nSurf, _nMode_) != 0
-			return FALSE
+			return 0
 		ok
 		@bVSync = pbOn
-		return TRUE
+		return 1
 
 	def VSync()
 		return @bVSync

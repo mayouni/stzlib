@@ -91,7 +91,7 @@ func StzSecurityLedgerIsOpen()
 # freshly built face is the same ledger -- no Ring global needed.
 func StzSecurityLedgerQ()
 	if NOT StzSecurityLedgerIsOpen()
-		return NULL
+		return ""
 	ok
 	_oLed_ = new stzSecurityLedger(1)
 	_oLed_.AdoptHandle(StzEngineSecLogCurrent())
@@ -182,7 +182,7 @@ func StzSecuritySeverityCode(pcSeverity)
 # still checked; the seal check needs the key it was sealed with.
 func StzVerifySealedLedger(pcPath, pcKey)
 	if NOT fexists(pcPath)
-		return [ :ok = FALSE, :why = "no such file: " + pcPath, :count = 0, :seal = "", :brokenAt = 0 ]
+		return [ :ok = 0, :why = "no such file: " + pcPath, :count = 0, :seal = "", :brokenAt = 0 ]
 	ok
 	_cRaw_ = read(pcPath)
 	_aLines_ = StzSplit(_cRaw_, Char(10))
@@ -224,10 +224,10 @@ func StzVerifySealedLedger(pcPath, pcKey)
 	next
 
 	if ring_len(_aRows_) = 0
-		return [ :ok = FALSE, :why = "the file carries no entries", :count = 0, :seal = _cSeal_, :brokenAt = 0 ]
+		return [ :ok = 0, :why = "the file carries no entries", :count = 0, :seal = _cSeal_, :brokenAt = 0 ]
 	ok
 	if _nDeclared_ != ring_len(_aRows_)
-		return [ :ok = FALSE, :why = "entry count does not match the header (" +
+		return [ :ok = 0, :why = "entry count does not match the header (" +
 			ring_len(_aRows_) + " found, " + _nDeclared_ + " declared)",
 			:count = ring_len(_aRows_), :seal = _cSeal_, :brokenAt = 0 ]
 	ok
@@ -237,7 +237,7 @@ func StzVerifySealedLedger(pcPath, pcKey)
 	for _i_ = 2 to _nRows_
 		_cWant_ = StzEngineCryptoSha256(_aRows_[_i_ - 1][1] + "|" + _aRows_[_i_][2])
 		if _cWant_ != _aRows_[_i_][1]
-			return [ :ok = FALSE, :why = "the chain breaks at entry " + _i_ +
+			return [ :ok = 0, :why = "the chain breaks at entry " + _i_ +
 				" -- that record (or one before it) was edited",
 				:count = _nRows_, :seal = _cSeal_, :brokenAt = _i_ ]
 		ok
@@ -247,11 +247,11 @@ func StzVerifySealedLedger(pcPath, pcKey)
 		_cWantSeal_ = StzEngineCryptoHmacSha256(pcKey,
 			_aRows_[_nRows_][1] + "|" + _nRows_)
 		if _cWantSeal_ != _cSeal_
-			return [ :ok = FALSE, :why = "the chain is intact but the SEAL does not match this key",
+			return [ :ok = 0, :why = "the chain is intact but the SEAL does not match this key",
 				:count = _nRows_, :seal = _cSeal_, :brokenAt = 0 ]
 		ok
 	ok
-	return [ :ok = TRUE, :why = "chain intact over " + _nRows_ + " entries",
+	return [ :ok = 1, :why = "chain intact over " + _nRows_ + " entries",
 		:count = _nRows_, :seal = _cSeal_, :brokenAt = 0,
 		:attestor = _cAttestor_, :attestedAt = _nAt_,
 		:headDigest = _aRows_[_nRows_][1] ]
@@ -271,7 +271,7 @@ func StzVerifySealedLedger(pcPath, pcKey)
 func StzLedgerFromSealedFile(pcPath, pcKey)
 	_aV_ = StzVerifySealedLedger(pcPath, pcKey)
 	if NOT _aV_[:ok]
-		return [ :ok = FALSE, :why = _aV_[:why], :ledger = NULL,
+		return [ :ok = 0, :why = _aV_[:why], :ledger = "",
 			:attestor = "", :count = 0 ]
 	ok
 	_cRaw_ = read("" + pcPath)
@@ -297,15 +297,15 @@ func StzLedgerFromSealedFile(pcPath, pcKey)
 		ok
 		_oLed_.AppendCanonical(_cCanon_, _nWall_, StzSecuritySeverityCode(_cSev_))
 	next
-	return [ :ok = TRUE, :why = "acquired " + _aV_[:count] + " verified entr(ies)",
+	return [ :ok = 1, :why = "acquired " + _aV_[:count] + " verified entr(ies)",
 		:ledger = _oLed_, :attestor = _aV_[:attestor], :count = _aV_[:count] ]
 
 
 class stzSecurityLedger from stzObject
 
-	pHandle = NULL
-	bReady = FALSE
-	bAdopted = FALSE	# bound to a ledger owned elsewhere (the process one)
+	pHandle = ""
+	bReady = 0
+	bAdopted = 0	# bound to a ledger owned elsewhere (the process one)
 	@nCapacity = 1024
 
 	def init(pnCapacity)
@@ -314,12 +314,12 @@ class stzSecurityLedger from stzObject
 		ok
 		# eager materialization (the copy law)
 		pHandle = StzEngineSecLogCreate(@nCapacity)
-		bReady = TRUE
+		bReady = 1
 
 	def _Ensure()
-		if bReady = FALSE
+		if bReady = 0
 			pHandle = StzEngineSecLogCreate(@nCapacity)
-			bReady = TRUE
+			bReady = 1
 		ok
 
 	def Handle()
@@ -333,8 +333,8 @@ class stzSecurityLedger from stzObject
 			StzEngineSecLogDestroy(pHandle)
 		ok
 		pHandle = pEngineHandle
-		bReady = TRUE
-		bAdopted = TRUE
+		bReady = 1
+		bAdopted = 1
 		return This
 
 	# The engine's own answer -- a face bound to the process ledger
@@ -489,10 +489,10 @@ class stzSecurityLedger from stzObject
 		This._Ensure()
 		_n_ = StzEngineSecLogVerify(pHandle)
 		if _n_ = 0
-			return [ :intact = TRUE, :brokenAt = 0,
+			return [ :intact = 1, :brokenAt = 0,
 				:message = "chain intact over " + This.Size() + " retained entr(ies)" ]
 		ok
-		return [ :intact = FALSE, :brokenAt = _n_,
+		return [ :intact = 0, :brokenAt = _n_,
 			:message = "the chain breaks at entry " + _n_ +
 				" -- that record (or one before it) was altered" ]
 
@@ -671,9 +671,9 @@ class stzSecurityLedger from stzObject
 			if NOT bAdopted
 				StzEngineSecLogDestroy(pHandle)
 			ok
-			pHandle = NULL
-			bReady = FALSE
-			bAdopted = FALSE
+			pHandle = ""
+			bReady = 0
+			bAdopted = 0
 		ok
 		return This
 

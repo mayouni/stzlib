@@ -111,11 +111,11 @@ class stzFileBlobStore from stzObject
 
 	# a genuine local equivalent, not a fake -- see stzServiceRegistry's postures
 	def IsLocalReal()
-		return TRUE
+		return 1
 
 	# a directory survives a restart
 	def IsEphemeral()
-		return FALSE
+		return 0
 
 	def Directory()
 		return @cDir
@@ -128,7 +128,7 @@ class stzFileBlobStore from stzObject
 		_h_ = StzBlobKeyToName(_k_)
 		StzFileWrite(@cDir + "/" + _h_ + ".blob", "" + pcBytes)
 		StzFileWrite(@cDir + "/" + _h_ + ".key", _k_)
-		return TRUE
+		return 1
 
 	def SaveQ(pcKey, pcBytes)
 		This.Save(pcKey, pcBytes)
@@ -156,7 +156,7 @@ class stzFileBlobStore from stzObject
 		if StzFileExists(@cDir + "/" + _h_ + ".key")
 			StzFileDelete(@cDir + "/" + _h_ + ".key")
 		ok
-		return TRUE
+		return 1
 
 	def RemoveQ(pcKey)
 		This.Remove(pcKey)
@@ -222,10 +222,10 @@ class stzFileBlobStore from stzObject
 
 	def FetchToFile(pcKey, pcPath)
 		if NOT This.Exists(pcKey)
-			return FALSE
+			return 0
 		ok
 		StzFileWrite(pcPath, This.Fetch(pcKey))
-		return TRUE
+		return 1
 
 	def Clear()
 		This.ClearQ()
@@ -285,10 +285,10 @@ class stzMemoryBlobStore from stzObject
 		$aStzMemoryBlobStores + [ @nId, [] ]
 
 	def IsLocalReal()
-		return TRUE
+		return 1
 
 	def IsEphemeral()
-		return TRUE
+		return 1
 
 	  #-- the PORT contract, same four verbs -------------------------------
 
@@ -301,7 +301,7 @@ class stzMemoryBlobStore from stzObject
 		else
 			$aStzMemoryBlobStores[_i_][2] + [ _k_, "" + pcBytes ]
 		ok
-		return TRUE
+		return 1
 
 	def SaveQ(pcKey, pcBytes)
 		This.Save(pcKey, pcBytes)
@@ -323,7 +323,7 @@ class stzMemoryBlobStore from stzObject
 			_i_ = This._Slot()
 			ring_del($aStzMemoryBlobStores[_i_][2], _j_)
 		ok
-		return TRUE
+		return 1
 
 	def RemoveQ(pcKey)
 		This.Remove(pcKey)

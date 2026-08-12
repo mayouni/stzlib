@@ -335,9 +335,9 @@ func StzHasAttribute(pObject, cAttr)
 	_acAttr_ = attributes(pObject)
 	_nPos_ = find(_acAttr_, StzLower(cAttr))
 	if _nPos_ > 0
-		return TRUE
+		return 1
 	else
-		return FALSE
+		return 0
 	ok
 
 	func HasAttribute(pObject, cAttr)
@@ -2243,9 +2243,9 @@ class stzObject
 
 	def HasUuid()
 		if @cUuid != ""
-			return TRUE
+			return 1
 		else
-			return FALSE
+			return 0
 		ok
 
 	def SetUuid()
@@ -2856,8 +2856,8 @@ class stzObject
 				_kwIs_ = StzMidToEnd(_kwIs_, 2)
 			ok
 			_tIs_ = lower(This.StzType())
-			if _tIs_ = _kwIs_ return TRUE ok
-			if _tIs_ = "stz" + _kwIs_ return TRUE ok
+			if _tIs_ = _kwIs_ return 1 ok
+			if _tIs_ = "stz" + _kwIs_ return 1 ok
 		ok
 		return This.IsA(pcType)
 
@@ -5891,7 +5891,7 @@ class stzObject
 					ok
 				next
 			ok
-			_bGot_ = FALSE
+			_bGot_ = 0
 			if _cId_ != ""
 				_nOps_ = ring_len($aSemanticOperations)
 				for _i_ = 1 to _nOps_
@@ -5900,7 +5900,7 @@ class stzObject
 						_cCand_ = lower($aSemanticOperations[_i_][:stz_method])
 						if StzFindFirst(_cCand_, ring_methods(This)) > 0
 							_cM_ = _cCand_
-							_bGot_ = TRUE
+							_bGot_ = 1
 						ok
 						exit
 					ok
@@ -6024,7 +6024,7 @@ class stzObject
 			_cMode_ = @cNNLExpectMode
 			_nTolR_ = @nNNLExpectTol
 		ok
-		_bYes_ = FALSE
+		_bYes_ = 0
 		_cExp_ = @@(_pExp_)
 		if _cMode_ = :Exactly
 			_bYes_ = ( nActual = _pExp_ )
@@ -6752,10 +6752,10 @@ class stzObject
 			$cStzLastWhyB = @cNNLWhy
 			return 0
 		ok
-		_bPast_ = FALSE
+		_bPast_ = 0
 		for _i_ = 1 to _nTe_ - 1
 			if This._NNLStateHolds(_aPast_[_i_], pcDesc)
-				_bPast_ = TRUE
+				_bPast_ = 1
 				exit
 			ok
 		next
@@ -6781,10 +6781,10 @@ class stzObject
 			$cStzLastWhyB = @cNNLWhy
 			return 0
 		ok
-		_bPast_ = FALSE
+		_bPast_ = 0
 		for _i_ = 1 to _nTe_ - 1
 			if This._NNLStateHolds(_aPast_[_i_], pcDesc)
-				_bPast_ = TRUE
+				_bPast_ = 1
 				exit
 			ok
 		next

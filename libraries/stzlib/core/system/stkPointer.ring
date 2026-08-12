@@ -1,12 +1,12 @@
 class stkPointer
     @cBufferId = ""           # ID of referenced buffer
-    @oMemory = NULL          # Reference to containing stkMemory
+    @oMemory = ""          # Reference to containing stkMemory
     @cAccessMode = "read"    # "read" or "write"
-    @bIsValid = FALSE        # Validity flag
+    @bIsValid = 0        # Validity flag
     @nOffset = 0             # Offset into buffer
     @nLength = 0             # Length of view
     @nPointerId = 0          # Unique pointer ID for tracking
-    @pLowLevelPtr = NULL     # Low-level C pointer for direct access
+    @pLowLevelPtr = ""     # Low-level C pointer for direct access
     @nBaseAddress = 0        # Base memory address for calculations
 
     #-------------------------------#
@@ -45,7 +45,7 @@ class stkPointer
         @nOffset = _nOffset_
         @nLength = _nLength_
         @nPointerId = nPointerId
-        @bIsValid = TRUE
+        @bIsValid = 1
         
         # Initialize low-level pointer operations
         This.InitializeLowLevelAccess()
@@ -128,7 +128,7 @@ class stkPointer
             raise("ERROR: Read beyond pointer view bounds")
         ok
         
-        if @pLowLevelPtr = NULL
+        if @pLowLevelPtr = ""
             # Fallback to regular read
             return This.Read(_nOffset_, _nLength_)
         ok
@@ -446,7 +446,7 @@ class stkPointer
     def GetMemoryAddress()
         # Get the actual memory address
         This.ValidatePointer()
-        if @pLowLevelPtr = NULL
+        if @pLowLevelPtr = ""
             return 0
         ok
         return getptr(@pLowLevelPtr)
@@ -454,7 +454,7 @@ class stkPointer
     def GetViewAddress()
         # Get the memory address of the current view
         This.ValidatePointer()
-        if @pLowLevelPtr = NULL
+        if @pLowLevelPtr = ""
             return 0
         ok
         return @nBaseAddress + @nOffset
@@ -462,22 +462,22 @@ class stkPointer
     def ComparePointer(oOther)
         # Compare raw pointer addresses
         if IsNull(oOther) or not IsObject(oOther)
-            return FALSE
+            return 0
         ok
         
         if ClassName(oOther) != "stkpointer"
-            return FALSE
+            return 0
         ok
         
-        if @pLowLevelPtr = NULL or oOther.GetRawPointer() = NULL
-            return FALSE
+        if @pLowLevelPtr = "" or oOther.GetRawPointer() = ""
+            return 0
         ok
         
         return ptrcmp(@pLowLevelPtr, oOther.GetRawPointer())
 
     def IsNullPointer()
         # Check if this is a null pointer
-        return @pLowLevelPtr = NULL or getptr(@pLowLevelPtr) = 0
+        return @pLowLevelPtr = "" or getptr(@pLowLevelPtr) = 0
 
     def SetPointerOffset(nNewOffset)
         # Adjust pointer to new offset within current view
@@ -491,7 +491,7 @@ class stkPointer
             raise("ERROR: New offset out of view bounds")
         ok
         
-        if @pLowLevelPtr != NULL
+        if @pLowLevelPtr != ""
             _nNewAddress_ = @nBaseAddress + @nOffset + nNewOffset
             setptr(@pLowLevelPtr, _nNewAddress_)
         ok
@@ -499,8 +499,8 @@ class stkPointer
     def CreatePointerReference()
         # Create an object reference that can be passed around
         This.ValidatePointer()
-        if @pLowLevelPtr = NULL
-            return NULL
+        if @pLowLevelPtr = ""
+            return ""
         ok
         return obj2ptr(This)
 
@@ -524,7 +524,7 @@ class stkPointer
         # Convert pointer view to binary string representation
         This.ValidatePointer()
         
-        if @pLowLevelPtr = NULL
+        if @pLowLevelPtr = ""
             return This.ReadAll()  # Fallback to regular read
         ok
         
@@ -593,11 +593,11 @@ class stkPointer
 
     def IsValid()
         if not @bIsValid
-            return FALSE
+            return 0
         ok
         
-        if @oMemory = NULL or not @oMemory.IsValid()
-            return FALSE
+        if @oMemory = "" or not @oMemory.IsValid()
+            return 0
         ok
         
         return @oMemory.ValidatePointer(@nPointerId)
@@ -620,7 +620,7 @@ class stkPointer
             :isValid = This.IsValid(),
             :isReadOnly = This.IsReadOnly(),
             :isWritable = This.IsWritable(),
-            :hasLowLevelPtr = (@pLowLevelPtr != NULL),
+            :hasLowLevelPtr = (@pLowLevelPtr != ""),
             :memoryAddress = This.GetMemoryAddress(),
             :viewAddress = This.GetViewAddress(),
             :isNullPointer = This.IsNullPointer()
@@ -638,53 +638,53 @@ class stkPointer
 
     def Equals(oOther)
         if IsNull(oOther) or not IsObject(oOther)
-            return FALSE
+            return 0
         ok
         
         if ClassName(oOther) != "stkpointer"
-            return FALSE
+            return 0
         ok
         
         if not oOther.IsValid()
-            return FALSE
+            return 0
         ok
         
         # Check if they point to the same buffer and have same view
         if @cBufferId != oOther.BufferId()
-            return FALSE
+            return 0
         ok
         
         if @nOffset != oOther.Offset()
-            return FALSE
+            return 0
         ok
         
         if @nLength != oOther.Length()
-            return FALSE
+            return 0
         ok
         
-        return TRUE
+        return 1
 
     def SameBuffer(oOther)
         if IsNull(oOther) or not IsObject(oOther)
-            return FALSE
+            return 0
         ok
         
         if ClassName(oOther) != "stkpointer"
-            return FALSE
+            return 0
         ok
         
         return @cBufferId = oOther.BufferId()
 
     def Free()
-        if @bIsValid and @oMemory != NULL
+        if @bIsValid and @oMemory != ""
             # Clean up low-level pointer if it exists
-            if @pLowLevelPtr != NULL
-                @pLowLevelPtr = NULL
+            if @pLowLevelPtr != ""
+                @pLowLevelPtr = ""
             ok
             
             # Notify memory container to remove this pointer
             @oMemory.DestroyPointer(@nPointerId)
-            @bIsValid = FALSE
+            @bIsValid = 0
         ok
 
     def Destroy()
@@ -698,7 +698,7 @@ class stkPointer
         ? "  Offset: " + @nOffset
         ? "  Length: " + @nLength
         ? "  Valid: " + This.IsValid()
-        ? "  Has Low-Level Ptr: " + (@pLowLevelPtr != NULL)
+        ? "  Has Low-Level Ptr: " + (@pLowLevelPtr != "")
         ? "  Memory Address: " + Upper(hex(This.GetMemoryAddress()))
         ? "  View Address: " + Upper(hex(This.GetViewAddress()))
         ? "  Content: '" + This.Content() + "'"
@@ -723,7 +723,7 @@ class stkPointer
             ok
         catch cError
             # If low-level access fails, continue without it
-            @pLowLevelPtr = NULL
+            @pLowLevelPtr = ""
             @nBaseAddress = 0
         done
 
@@ -733,7 +733,7 @@ class stkPointer
 	        raise("ERROR: Invalid pointer - pointer was not properly initialized")
 	    ok
 
-	    if @oMemory = NULL or not @oMemory.IsValid()
+	    if @oMemory = "" or not @oMemory.IsValid()
 	        raise("ERROR: Pointer has invalid memory container reference")
 	    ok
 

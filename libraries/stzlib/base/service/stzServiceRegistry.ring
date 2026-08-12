@@ -354,20 +354,20 @@ class stzServiceRegistry from stzObject
 		return _aF_
 
 	def Findings()
-		return This.FindingsVia(NULL)
+		return This.FindingsVia("")
 
 	def IsSoundVia(poStore)
 		_aF_ = This.FindingsVia(poStore)
 		_n_ = len(_aF_)
 		for _i_ = 1 to _n_
 			if _aF_[_i_][:severity] = :error
-				return FALSE
+				return 0
 			ok
 		next
-		return TRUE
+		return 1
 
 	def IsSound()
-		return This.IsSoundVia(NULL)
+		return This.IsSoundVia("")
 
 	def NumberOfFindings()
 		return len(This.Findings())
@@ -389,7 +389,7 @@ class stzServiceRegistry from stzObject
 		return This
 
 	def Report()
-		return This.ReportVia(NULL)
+		return This.ReportVia("")
 
 	# The production gate, mirroring the library's other admission checkpoints:
 	# nothing may go live unless the surface is sound AND an EFFECTFUL,
@@ -404,13 +404,13 @@ class stzServiceRegistry from stzObject
 	# after setting production, so the honest answer and the convenient one agreed.)
 	def MayGoLive(poActor, poStore)
 		if NOT isObject(poActor)
-			return FALSE
+			return 0
 		ok
 		if NOT poActor.IsEffectful()
-			return FALSE
+			return 0
 		ok
 		if poActor.Posture() = "sandboxed"
-			return FALSE
+			return 0
 		ok
 		return This._SoundForProductionVia(poStore)
 
@@ -423,17 +423,17 @@ class stzServiceRegistry from stzObject
 		return _aF_
 
 	def FindingsForProduction()
-		return This.FindingsForProductionVia(NULL)
+		return This.FindingsForProductionVia("")
 
 	def _SoundForProductionVia(poStore)
 		_aF_ = This.FindingsForProductionVia(poStore)
 		_n_ = len(_aF_)
 		for _i_ = 1 to _n_
 			if _aF_[_i_][:severity] = :error
-				return FALSE
+				return 0
 			ok
 		next
-		return TRUE
+		return 1
 
 	# ...and the same, but explaining itself.
 	def WhyNotLive(poActor, poStore)
@@ -501,11 +501,11 @@ class stzServiceRegistry from stzObject
 		poG.SetNodeProperty(_id_, "bound", This.Has(pcName))
 		poG.SetNodeProperty(_id_, "secret", "" + This.SecretNameOf(pcName))
 		# ephemeral is asked of the OBJECT, as everywhere else in this file
-		_bEph_ = FALSE
+		_bEph_ = 0
 		if This.Has(pcName)
 			try
 				if This.Service(pcName).IsEphemeral()
-					_bEph_ = TRUE
+					_bEph_ = 1
 				ok
 			catch
 			done
@@ -569,10 +569,10 @@ class stzServiceRegistry from stzObject
 			if $aStzServiceRegistries[This._Slot()][3][_i_][3] != :local
 				loop
 			ok
-			_bGone_ = FALSE
+			_bGone_ = 0
 			try
 				if $aStzServiceRegistries[This._Slot()][3][_i_][2].IsEphemeral()
-					_bGone_ = TRUE
+					_bGone_ = 1
 				ok
 			catch
 				# no opinion -> assume it persists

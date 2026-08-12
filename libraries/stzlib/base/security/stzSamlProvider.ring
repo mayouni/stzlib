@@ -160,10 +160,10 @@ class stzSamlIdentityProvider from stzObject
 		_n_ = len(@aSps)
 		for _i_ = 1 to _n_
 			if @aSps[_i_][1] = _id_
-				return TRUE
+				return 1
 			ok
 		next
-		return FALSE
+		return 0
 
 	def ServiceProviderIds()
 		_out_ = []

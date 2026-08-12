@@ -46,7 +46,7 @@ class stzMicrophone
 	@nDev = 0            # the capture device
 	@nChannels = 1
 	@nRate = 48000
-	@bRecording = FALSE
+	@bRecording = 0
 	@cLastError = ""
 
 	def init()
@@ -59,8 +59,8 @@ class stzMicrophone
 	# Is there anything to record WITH? A machine with no input, or no device
 	# DLL at all, is a supported configuration -- CI is one.
 	def IsAvailable()
-		if NOT StzAudioDevEngineLoaded()  return FALSE ok
-		if StzEngineAudioDevIsAvailable() = 0  return FALSE ok
+		if NOT StzAudioDevEngineLoaded()  return 0 ok
+		if StzEngineAudioDevIsAvailable() = 0  return 0 ok
 		return StzEngineAudioDevCount(StzAudioDevKindCapture()) > 0
 
 	def DeviceCount()
@@ -117,7 +117,7 @@ class stzMicrophone
 
 	# The whole thing in one call: record nSeconds and hand back a stzSound.
 	def RecordFor(pnSeconds)
-		if NOT This.StartRecording(pnSeconds)  return NULL ok
+		if NOT This.StartRecording(pnSeconds)  return "" ok
 		_t_ = 0
 		while _t_ < pnSeconds
 			sleep(0.05)
@@ -131,23 +131,23 @@ class stzMicrophone
 	def StartRecording(pnMaxSeconds)
 		if @bRecording
 			@cLastError = "already recording"
-			return FALSE
+			return 0
 		ok
 		if NOT This.IsAvailable()
 			@cLastError = "no capture device on this machine"
-			return FALSE
+			return 0
 		ok
 		@nRec = StzEngineSoundRecorderNew(@nChannels, @nRate, pnMaxSeconds)
 		if @nRec = 0
 			@cLastError = StzEngineSoundLastError()
-			return FALSE
+			return 0
 		ok
 		@nDev = StzEngineAudioDevCaptureOpen(StzEngineSoundRecorderRingPtr(@nRec), 256)
 		if @nDev = 0
 			@cLastError = StzEngineAudioDevLastError()
 			StzEngineSoundRecorderFree(@nRec)
 			@nRec = 0
-			return FALSE
+			return 0
 		ok
 		if StzEngineAudioDevCaptureStart(@nDev) != 0
 			@cLastError = StzEngineAudioDevLastError()
@@ -155,10 +155,10 @@ class stzMicrophone
 			StzEngineSoundRecorderFree(@nRec)
 			@nDev = 0
 			@nRec = 0
-			return FALSE
+			return 0
 		ok
-		@bRecording = TRUE
-		return TRUE
+		@bRecording = 1
+		return 1
 
 	# Move whatever has arrived into the recording. Call it often.
 	def Collect()
@@ -175,7 +175,7 @@ class stzMicrophone
 	def StopRecording()
 		if @nRec = 0
 			@cLastError = "not recording"
-			return NULL
+			return ""
 		ok
 		if @nDev != 0
 			StzEngineAudioDevCaptureStop(@nDev)
@@ -183,12 +183,12 @@ class stzMicrophone
 			StzEngineAudioDevCaptureClose(@nDev)  # consumer stops FIRST
 			@nDev = 0
 		ok
-		@bRecording = FALSE
+		@bRecording = 0
 		_b_ = StzEngineSoundRecorderFinish(@nRec)  # then the ring is freed
 		@nRec = 0
 		if _b_ = 0
 			@cLastError = StzEngineSoundLastError()
-			return NULL
+			return ""
 		ok
 		return StzSoundFromBufferQ(_b_)
 
@@ -203,4 +203,4 @@ class stzMicrophone
 			StzEngineSoundRecorderFree(@nRec)
 			@nRec = 0
 		ok
-		@bRecording = FALSE
+		@bRecording = 0

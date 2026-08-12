@@ -13,8 +13,8 @@
 class stzLLMAgent from stzObject
 
 	@cName = ""
-	@oFn = NULL
-	@oMem = NULL
+	@oFn = ""
+	@oMem = ""
 
 	def init(pcName)
 		@cName = "" + pcName
@@ -35,7 +35,7 @@ class stzLLMAgent from stzObject
 	# a PROPOSAL, never an effect -- the return value is a candidate a
 	# pi-gate must admit before anything happens
 	def Propose(pcInput)
-		if @oFn = NULL
+		if @oFn = ""
 			stzraise("No LLM body -- SkillFrom(anStzLLMFunction) first.")
 		ok
 		return @oFn.Call_(pcInput)

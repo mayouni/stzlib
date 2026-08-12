@@ -44,9 +44,9 @@ func StzModelsDir()
 # A user just drops a GGUF into libraries/stzlib/models/ and semantic retrieval
 # turns on -- no path to hardcode.
 func StzAutoLoadNeuralModel()
-	if StzHasNeuralModel() return TRUE ok
+	if StzHasNeuralModel() return 1 ok
 	_d_ = StzModelsDir()
-	if _d_ = "" or NOT direxists(_d_) return FALSE ok
+	if _d_ = "" or NOT direxists(_d_) return 0 ok
 	_aE_ = dir(_d_)
 	_n_ = len(_aE_)
 	for _i_ = 1 to _n_
@@ -55,7 +55,7 @@ func StzAutoLoadNeuralModel()
 			return StzHasNeuralModel()
 		ok
 	next
-	return FALSE
+	return 0
 
 # TRUE if the loaded model carries a token-classification NER head (e.g. a
 # bert-base-NER GGUF) -- then stzText.NamedEntities() upgrades to transformer NER.
@@ -284,7 +284,7 @@ class stzNeuralModel from stzNeural
 	#==========================================================#
 	# (Named LoadFrom, not Load -- "Load" collides with Ring's load keyword.)
 	def LoadFrom(pcPath)
-		if NOT isString(pcPath) return FALSE ok
+		if NOT isString(pcPath) return 0 ok
 		@cPath = pcPath
 		return StzEngineNeuralModelLoad(pcPath) = 1
 

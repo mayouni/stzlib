@@ -24,7 +24,7 @@ func StzIntSeqQ(pHandle)
 
 class stzIntSeq from stzObject
 
-	@pHandle = NULL
+	@pHandle = ""
 	@bOwned  = 1
 
 	def init(pHandle)
@@ -41,9 +41,9 @@ class stzIntSeq from stzObject
 		# Free the underlying engine handle. Idempotent: a second
 		# Release() is a no-op so wrappers that get borrowed don't
 		# double-free.
-		if @bOwned and @pHandle != NULL
+		if @bOwned and @pHandle != ""
 			StzEngineIntSeqFree(@pHandle)
-			@pHandle = NULL
+			@pHandle = ""
 		ok
 
 	def Disown()

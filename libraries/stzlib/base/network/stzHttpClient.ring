@@ -48,8 +48,8 @@ class stzHttpClient from stzNetwork
 
 	# Connection / TLS / auth settings -- all engine-backed via libcurl
 	# (passed as the per-request options blob; see _ComposeOptionsBlob).
-	@bFollowRedirects = TRUE
-	@bVerifySSL = TRUE
+	@bFollowRedirects = 1
+	@bVerifySSL = 1
 	@cProxy = ""
 	@cProxyAuth = ""          # "user:pass" for the proxy
 	@cAuthUser = ""
@@ -61,7 +61,7 @@ class stzHttpClient from stzNetwork
 	@cCookieFile = ""         # read cookies from this file
 	@cCookieJar = ""          # write cookies to this file
 	@cAcceptEncoding = ""     # value passed to libcurl when enabled
-	@bAcceptEncoding = FALSE  # off by default (no compression unless opted in)
+	@bAcceptEncoding = 0  # off by default (no compression unless opted in)
 
 	# Per-layer timeouts in milliseconds (0 = use the engine default:
 	# connect 5s, request 30s). Wired to the custom HTTP/1.1 client +
@@ -261,14 +261,14 @@ class stzHttpClient from stzNetwork
 	# encoding it was built with (gzip/deflate when zlib is linked).
 	def AcceptEncoding(cEnc)
 		@cAcceptEncoding = cEnc
-		@bAcceptEncoding = TRUE
+		@bAcceptEncoding = 1
 		return This
 
 	# Advertise every encoding libcurl was built with (gzip/deflate when
 	# zlib is linked); libcurl auto-decompresses the response.
 	def AcceptGzip()
 		@cAcceptEncoding = ""
-		@bAcceptEncoding = TRUE
+		@bAcceptEncoding = 1
 		return This
 
 	# Build the engine options blob ("key=value" newline lines) from the
@@ -286,9 +286,9 @@ class stzHttpClient from stzNetwork
 		if @cClientKey != ""    _aLines_ + ("sslkey=" + @cClientKey) ok
 		if @cCookieFile != ""   _aLines_ + ("cookiefile=" + @cCookieFile) ok
 		if @cCookieJar != ""    _aLines_ + ("cookiejar=" + @cCookieJar) ok
-		if @bAcceptEncoding = TRUE  _aLines_ + ("acceptencoding=" + @cAcceptEncoding) ok
-		if @bVerifySSL = FALSE  _aLines_ + "verifyssl=0" ok
-		if @bFollowRedirects = FALSE _aLines_ + "followredirects=0" ok
+		if @bAcceptEncoding = 1  _aLines_ + ("acceptencoding=" + @cAcceptEncoding) ok
+		if @bVerifySSL = 0  _aLines_ + "verifyssl=0" ok
+		if @bFollowRedirects = 0 _aLines_ + "followredirects=0" ok
 		_cOut_ = ""
 		_nL_ = len(_aLines_)
 		for _i_ = 1 to _nL_

@@ -42,7 +42,7 @@ class stzSemanticIndex from stzObject
 	@acTexts = []
 	@aVecs = []
 	@nDim = 0
-	@pDataset = NULL
+	@pDataset = ""
 
 	def init(paTexts)
 		if isList(paTexts) and len(paTexts) > 0
@@ -118,7 +118,7 @@ class stzSemanticIndex from stzObject
 			return []
 		ok
 		This._EnsureDataset()
-		if @pDataset = NULL
+		if @pDataset = ""
 			return []
 		ok
 		# interleaved [idx, dist, idx, dist ...], idx 1-based, best first
@@ -156,15 +156,15 @@ class stzSemanticIndex from stzObject
 		@nDim = 0
 
 	def _InvalidateDataset()
-		if @pDataset != NULL
+		if @pDataset != ""
 			StzEngineClusterDataFree(@pDataset)
-			@pDataset = NULL
+			@pDataset = ""
 		ok
 
 	# Marshal the accumulated vectors into the resident dataset ONCE; every
 	# search after that crosses only the query vector.
 	def _EnsureDataset()
-		if @pDataset != NULL
+		if @pDataset != ""
 			return
 		ok
 		_nN_ = len(@aVecs)

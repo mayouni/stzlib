@@ -47,11 +47,11 @@ class stzCoreChar from stzCoreObject
 		if len(_cChar_) = 1
 			return upper(_cChar_) = _cChar_ and lower(_cChar_) != _cChar_
 		ok
-		return FALSE
+		return 0
 
 	def IsLower()
 		_cChar_ = This.Content()
 		if len(_cChar_) = 1
 			return lower(_cChar_) = _cChar_ and upper(_cChar_) != _cChar_
 		ok
-		return FALSE
+		return 0

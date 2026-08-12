@@ -37,10 +37,10 @@ func _StzPathHasGuardian(oGraph, paPath)
 	_nN_ = len(paPath)
 	for _k_ = 2 to _nN_ - 1
 		if StzLower("" + oGraph.NodeProperty(paPath[_k_], "kind")) = "guardian"
-			return TRUE
+			return 1
 		ok
 	next
-	return FALSE
+	return 0
 
 class stzAgentRule from stzGraphRule
 	def init(pcName)

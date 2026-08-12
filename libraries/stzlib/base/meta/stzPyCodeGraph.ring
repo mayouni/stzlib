@@ -256,12 +256,12 @@ class stzPyCodeGraph from stzCodeGraph
 
 	def _IsDef(pcTrimmed)
 		if StzLower(StzLeft(pcTrimmed, 4)) = "def "
-			return TRUE
+			return 1
 		ok
 		if StzLower(StzLeft(pcTrimmed, 10)) = "async def "
-			return TRUE
+			return 1
 		ok
-		return FALSE
+		return 0
 
 	def _DefName(pcTrimmed)
 		_cD_ = pcTrimmed

@@ -7,7 +7,7 @@
 	it (P7 ruled exactly that). This driver produces the real thing
 	with real PROCESSES: it spawns a target stzAppServer as one
 	child, N driver clients as more children (each firing its
-	requests independently -- true concurrent arrivals at the
+	requests independently -- 1 concurrent arrivals at the
 	listener), and reads client-observed response times back through
 	their stdout:
 
@@ -41,7 +41,7 @@ func StzLoadDriver()
 
 class stzLoadDriver from stzObject
 
-	@oReactor = NULL
+	@oReactor = ""
 	@cRingExe = "ring"
 	@cBaseRing = ""
 	@cTargetScript = ""
@@ -54,7 +54,7 @@ class stzLoadDriver from stzObject
 	@nPerDriver = 30	# requests each driver fires (sequentially)
 	@nTtlMs = 120000	# target self-terminates regardless
 	@aCurve = []
-	bSpawnedTarget = FALSE
+	bSpawnedTarget = 0
 
 	def init()
 		@oReactor = new stzReactor()
@@ -92,7 +92,7 @@ class stzLoadDriver from stzObject
 	def AimAt(pcHost, pnPort)
 		@cHost = "" + pcHost
 		@nPort = pnPort
-		bSpawnedTarget = FALSE
+		bSpawnedTarget = 0
 		return This
 
 	# Spawn the harness's own target child: a stzAppServer whose
@@ -108,7 +108,7 @@ class stzLoadDriver from stzObject
 		This._GenerateTargetScript()
 		@nTargetJob = @oReactor.SubmitSpawn([
 			@cRingExe, @cTargetScript, "" + @nPort, "" + @nBusyMs, "" + @nTtlMs ])
-		bSpawnedTarget = TRUE
+		bSpawnedTarget = 1
 		return This.WaitReady(15000)
 
 	def Port()
@@ -124,11 +124,11 @@ class stzLoadDriver from stzObject
 			_nJob_ = @oReactor.SubmitTcp(@cHost, @nPort, _cReq_)
 			_cResp_ = @oReactor.AwaitTcp(_nJob_, 1500)
 			if StzFindFirst("200 OK", _cResp_) > 0
-				return TRUE
+				return 1
 			ok
 			StzEngineTimeSleepMs(100)
 		end
-		return FALSE
+		return 0
 
 	# -- driving --------------------------------------------------
 
@@ -224,7 +224,7 @@ class stzLoadDriver from stzObject
 		if bSpawnedTarget and @nTargetJob > 0
 			@oReactor.KillSpawnHard(@nTargetJob)
 			@nTargetJob = 0
-			bSpawnedTarget = FALSE
+			bSpawnedTarget = 0
 		ok
 		return This
 

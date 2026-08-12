@@ -458,7 +458,7 @@ func StzFindAllCS(pContainer, pVal, pCaseSensitive)
 			_pFacList = StzEngineMarshalList(pContainer)
 			_pFacResult = StzEngineListFindAllStringCS(_pFacList, pVal, CaseSensitive(pCaseSensitive))
 			StzEngineListFree(_pFacList)
-			if _pFacResult != NULL
+			if _pFacResult != ""
 				_aFacPositions = StzEngineContentFromList(_pFacResult)
 				StzEngineListFree(_pFacResult)
 				return _aFacPositions
@@ -2959,15 +2959,15 @@ func StzRaise(paMessage)
 
 	# The hash form: a list of [key, value] pairs with keys among
 	# :Where / :What / :Why / :Todo.
-	_bRaiseHash_ = FALSE
+	_bRaiseHash_ = 0
 	if isList(paMessage) and len(paMessage) > 0
-		_bRaiseHash_ = TRUE
+		_bRaiseHash_ = 1
 		for iRhk = 1 to len(paMessage)
 			if NOT ( isList(paMessage[iRhk]) and len(paMessage[iRhk]) = 2 and
 			         isString(paMessage[iRhk][1]) and
 			         ring_find([ "where", "what", "why", "todo" ],
 			                   lower(paMessage[iRhk][1])) > 0 )
-				_bRaiseHash_ = FALSE
+				_bRaiseHash_ = 0
 				exit
 			ok
 		next
@@ -3202,7 +3202,7 @@ func StzFindFirstCS(p1, p2, pCaseSensitive)
 		return StzFindFirstCS(p1, p2, pCaseSensitive)
 
 func StzFindFirst(pThing, paIn)
-	return StzFindFirstCS(pThing, paIn, TRUE)
+	return StzFindFirstCS(pThing, paIn, 1)
 
 	func @StzFindFirst(pThing, paIn)
 		return StzFindFirst(pThing, paIn)
@@ -3223,7 +3223,7 @@ func StzFindLastCS(pSubStrOrItem, pStrOrList, pCaseSensitive)
 		return StzFindLastCS(pSubStrOrItem, pStrOrList, pCaseSensitive)
 
 func StzFindLast(pSubStrOrItem, pStrOrList)
-	return StzFindLastCS(pSubStrOrItem, pStrOrList, TRUE)
+	return StzFindLastCS(pSubStrOrItem, pStrOrList, 1)
 
 	func @StzFindLast(pSubStrOrItem, pStrOrList)
 		return StzFindLast(pSubStrOrItem, pStrOrList)
@@ -3240,7 +3240,7 @@ func StzFindNthCS(pSubStrOrItem, pStrOrList, n, pCaseSensitive)
 		return StzFindNthCS(pSubStrOrItem, pStrOrList, n, pCaseSensitive)
 
 func StzFindNth(pSubStrOrItem, pStrOrList, n)
-	return StzFindNthCS(pSubStrOrItem, pStrOrList, n, TRUE)
+	return StzFindNthCS(pSubStrOrItem, pStrOrList, n, 1)
 
 	func @StzFindNth(pSubStrOrItem, pStrOrList, n)
 		return StzFindNth(pSubStrOrItem, pStrOrList, n)
@@ -3249,7 +3249,7 @@ func StzFindNth(pSubStrOrItem, pStrOrList, n)
 # in paIn (haystack), or an empty list if not found. Engine-backed; works for
 # string and list haystacks. For a single position use StzFindFirst.
 func StzFind(pThing, paIn)
-	return StzFindCS(pThing, paIn, TRUE)
+	return StzFindCS(pThing, paIn, 1)
 
 	func @StzFind(pThing, paIn)
 		return StzFind(pThing, paIn)
@@ -5700,8 +5700,8 @@ func @StzInfereTypeName(cStr)
 	if _c_ = "stzchar"   or _c_ = "stzchars"   return :StzChar   ok
 
 	if StartsWith(_c_, "stzlist")
-		_cR_ = StzReplaceCS(cStr, "Lists", "List", TRUE)
-		_cR_ = StzReplaceCS(_cR_, "lists", "list", TRUE)
+		_cR_ = StzReplaceCS(cStr, "Lists", "List", 1)
+		_cR_ = StzReplaceCS(_cR_, "lists", "list", 1)
 		return _cR_
 	ok
 

@@ -30,14 +30,14 @@ class stzReactiveSystem from stzObject
 	# F5: the reactor backing this system (a real libuv loop on an
 	# engine thread), or NULL when stz_reactor.dll is absent and the
 	# cooperative poller fallback runs instead.
-	@oReactor = NULL
+	@oReactor = ""
 
 	# Core engine state
 	#------------------
 	# Manages the internal state of the reactive system,
 	# tracking timers, tasks, streams, and handlers.
 
-	@timerManager = NULL
+	@timerManager = ""
 	@tasks = []
 	@streams = []
 
@@ -46,9 +46,9 @@ class stzReactiveSystem from stzObject
 	# Reactive components
 	#--------------------
 
-	http = NULL
-	oDataStream = NULL          # BRACE-ASSIGNABLE from user code (Rs { oDataStream = ... }) -- must stay bare, like stzApp's DSL slots
-	@oHttpStream = NULL
+	http = ""
+	oDataStream = ""          # BRACE-ASSIGNABLE from user code (Rs { oDataStream = ... }) -- must stay bare, like stzApp's DSL slots
+	@oHttpStream = ""
 
 	#-----------------------------------------#
 	#  INITIALIZATION OF THE REACTIVE SYSTEM  #
@@ -66,8 +66,8 @@ class stzReactiveSystem from stzObject
 		# poller fallback needs no reactor at all. (SetReactor stores
 		# COPIES that share the engine handle -- safe because the
 		# handle is never destroyed while the system lives.)
-		@oReactor = NULL
-		if $pStzReactorHandle != NULL
+		@oReactor = ""
+		if $pStzReactorHandle != ""
 			@oReactor = new stzReactor()
 			@timerManager.SetReactor(@oReactor)
 			http.SetReactor(@oReactor)
@@ -81,10 +81,10 @@ class stzReactiveSystem from stzObject
 	# The real libuv loop handle backing this system (NULL in the
 	# no-DLL poller fallback). Real again since F5.
 	def LibuvLoop()
-		if @oReactor != NULL
+		if @oReactor != ""
 			return @oReactor.Handle()
 		ok
-		return NULL
+		return ""
 
 	# The backing reactor as a chainable stz object (Q-convention);
 	# NULL in the poller fallback.
@@ -264,16 +264,16 @@ class stzReactiveSystem from stzObject
 
 	def ReactiveObject()
 		# Creates a reactive object with no initial state.
-		return new stzReactiveObject(NULL, self)
+		return new stzReactiveObject("", self)
 
 		#< @FunctionAlternativeForm
 		def CreateReactiveObject()
-			return new stzReactiveObject(NULL, self)
+			return new stzReactiveObject("", self)
 		#>
 
 	def BindObjects(poSource, pcSourceAttr, poTarget, pcTargetAttr, _bindingMode_)
 		# Binds attributes of two reactive objects for synchronized updates.
-		if _bindingMode_ = NULL
+		if _bindingMode_ = ""
 			_bindingMode_ = DEFAULT_BINDING_MODE
 		ok
 		
@@ -290,7 +290,7 @@ class stzReactiveSystem from stzObject
 
 	def CreateStreamXT(id, _sourceType_)
 		# Creates a generic stream with a specified ID and source type.
-		if _sourceType_ = NULL
+		if _sourceType_ = ""
 			_sourceType_ = DEFAULT_STREAM_SOURCE
 		ok
 		
@@ -325,12 +325,12 @@ class stzReactiveSystem from stzObject
 	# tasks in the reactive system.
 
 	def CreateTimer(id, intervalMs, _callback_) # Runs every second
-		return This.CreateTimerXT(id, intervalMs, _callback_, FALSE)
+		return This.CreateTimerXT(id, intervalMs, _callback_, 0)
 
 	def CreateTimerXT(id, intervalMs, _callback_, _oneTime_) # runs once after 5 seconds
 
-	    if _oneTime_ = NULL
-	        _oneTime_ = false
+	    if _oneTime_ = ""
+	        _oneTime_ = 0
 	    ok
 
 	    _timer_ = new stzReactiveTimer(id, intervalMs, _callback_, self, _oneTime_)
@@ -341,7 +341,7 @@ class stzReactiveSystem from stzObject
 
 	def CreateTask(id, f)
 		# Creates an asynchronous task with a specified function.
-		_task_ = new stzReactiveTask(id, f, self, NULL)
+		_task_ = new stzReactiveTask(id, f, self, "")
 		This.AddTask(_task_)
 		return _task_
 
@@ -407,12 +407,12 @@ class stzReactiveSystem from stzObject
 			ok
 		ok
 
-		if _delay_ = NULL
+		if _delay_ = ""
 			_delay_ = IMMEDIATE
 		ok
 
 		_timerId_ = "timeout_" + StzEngineRandomInt(0, 999999)
-		_timer_ = new stzRingTimer(_timerId_, _delay_, _callback_, self, true, self)
+		_timer_ = new stzRingTimer(_timerId_, _delay_, _callback_, self, 1, self)
 		_timer_.Start()
 		This.AddTimer(_timer_)
 		return _timerId_
@@ -437,12 +437,12 @@ class stzReactiveSystem from stzObject
 			ok
 		ok
 
-		if _interval_ = NULL
+		if _interval_ = ""
 			_interval_ = DEFAULT_TIMER_DELAY
 		ok
 
 		_timerId_ = "interval_" + StzEngineRandomInt(0, 999999)
-		_timer_ = new stzRingTimer(_timerId_, _interval_, _callback_, self, false, self)
+		_timer_ = new stzRingTimer(_timerId_, _interval_, _callback_, self, 0, self)
 		_timer_.Start()
 		This.AddTimer(_timer_)
 
@@ -487,7 +487,7 @@ class stzReactiveSystem from stzObject
 
 	def HttpGetXT(url, onSuccess, onError, _errorHandling_)
 		# Performs an asynchronous HTTP GET request.
-		if _errorHandling_ = NULL
+		if _errorHandling_ = ""
 			_errorHandling_ = DEFAULT_ERROR_HANDLING
 		ok
 		return http.Get_(url, onSuccess, onError) # Get is a reserved keyword by Ring
@@ -499,7 +499,7 @@ class stzReactiveSystem from stzObject
 
 	def HttpPostXT(url, data, onSuccess, onError, _errorHandling_)
 		# Performs an asynchronous HTTP POST request with data.
-		if _errorHandling_ = NULL
+		if _errorHandling_ = ""
 			_errorHandling_ = DEFAULT_ERROR_HANDLING
 		ok
 		return http.Post(url, data, onSuccess, onError)

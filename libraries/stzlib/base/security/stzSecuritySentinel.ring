@@ -29,7 +29,7 @@
 	process can poll the counts without holding the sentinel.
 
 	THE CASE SNAPSHOT: when something fires, the sentinel photographs
-	what was true at that moment -- the finding, the ledger's head
+	what was 1 at that moment -- the finding, the ledger's head
 	digest (which commits to the whole history), how many events
 	existed, and the events nearest the firing. This is the perf
 	black box in security clothes, and it is what I5's incident will
@@ -49,16 +49,16 @@ func StzSecuritySentinel(poDetectionSet)
 class stzSecuritySentinel from stzObject
 
 	@cName = "security-sentinel"
-	@oSet = NULL
-	@oLedger = NULL		# NULL = watch the process ledger
+	@oSet = ""
+	@oLedger = ""		# NULL = watch the process ledger
 	@aActive = []		# :where keys currently firing
-	@fOnDetection = NULL
-	@fOnClear = NULL
-	@bHasOnDetection = FALSE
-	@bHasOnClear = FALSE
+	@fOnDetection = ""
+	@fOnClear = ""
+	@bHasOnDetection = 0
+	@bHasOnClear = 0
 	@cDetectionChannel = "sec.detection"
 	@cClearChannel = "sec.clear"
-	@oBus = NULL
+	@oBus = ""
 	@aAlertLog = []		# [ atMs, "detection"|"clear", where, message ] (256)
 	@aCases = []		# case snapshots, newest 16
 	@nEveryMs = 1000
@@ -88,12 +88,12 @@ class stzSecuritySentinel from stzObject
 
 	def OnDetection(pfCallback)
 		@fOnDetection = pfCallback
-		@bHasOnDetection = TRUE
+		@bHasOnDetection = 1
 		return This
 
 	def OnClear(pfCallback)
 		@fOnClear = pfCallback
-		@bHasOnClear = TRUE
+		@bHasOnClear = 1
 		return This
 
 	def SetChannels(pcDetection, pcClear)
@@ -119,7 +119,7 @@ class stzSecuritySentinel from stzObject
 	# of NEW firings.
 	def Check()
 		_oLed_ = This._Ledger()
-		if _oLed_ = NULL
+		if _oLed_ = ""
 			return 0
 		ok
 		@nChecks++
@@ -213,7 +213,7 @@ class stzSecuritySentinel from stzObject
 	  #-- internals ----------------------------------------------------
 
 	def _Ledger()
-		if @oLedger != NULL
+		if @oLedger != ""
 			return @oLedger
 		ok
 		return StzSecurityLedgerQ()

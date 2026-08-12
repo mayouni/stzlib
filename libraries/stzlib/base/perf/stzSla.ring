@@ -56,7 +56,7 @@ class stzSla from stzObject
 
 	@cName = ""
 	@aExpectations = []	# [ cRule, cKind, cMetric, cOp, nBound, cSeverity ]
-	@bPending = FALSE
+	@bPending = 0
 	@cPendKind = ""
 	@cPendMetric = ""
 	@cPendLabel = ""
@@ -85,7 +85,7 @@ class stzSla from stzObject
 				"SystemMemoryFree -- or name your own metric via ExpectP95/" +
 				"ExpectMean/ExpectValue/ExpectRate/ExpectStable.")
 		ok
-		@bPending = TRUE
+		@bPending = 1
 		@cPendKind = _cS_
 		@cPendMetric = ""
 		@cPendLabel = This._LabelOf(_cS_)
@@ -155,7 +155,7 @@ class stzSla from stzObject
 			if NOT _aR_[1]
 				# not measured: an ERROR, never a silent pass
 				_cMsg_ = _aE_[1] + ": NOT MEASURED -- " + _aR_[3]
-				@aVerdicts + [ :rule = _aE_[1], :ok = FALSE, :actual = 0,
+				@aVerdicts + [ :rule = _aE_[1], :ok = 0, :actual = 0,
 					:bound = _aE_[5], :message = _cMsg_ ]
 				_aFindings_ + [ :rule = _aE_[1], :subject = "perf",
 					:where = @cName + "/" + This._WhereOf(_aE_),
@@ -237,7 +237,7 @@ class stzSla from stzObject
 
 	def _OpenCustom(pcAspect, pcMetric)
 		This._MustNotBePending("Expect" + StzUpper(StzLeft(pcAspect,1)) + StzMidToEnd(pcAspect,2))
-		@bPending = TRUE
+		@bPending = 1
 		@cPendKind = pcAspect
 		@cPendMetric = "" + pcMetric
 		@cPendLabel = pcAspect + " of " + pcMetric
@@ -254,7 +254,7 @@ class stzSla from stzObject
 			_cRule_ = @cPendKind + "-" + @cPendMetric + "-" + pcOp + "-" + pnBound
 		ok
 		@aExpectations + [ _cRule_, @cPendKind, @cPendMetric, pcOp, pnBound, "error" ]
-		@bPending = FALSE
+		@bPending = 0
 		@cPendKind = ""
 		@cPendMetric = ""
 		@cPendLabel = ""
@@ -304,14 +304,14 @@ class stzSla from stzObject
 			return This._TimerPct(poMon, 99)
 		but pcKind = "responsetimemean"
 			if NOT poMon.HasMetric("http.request.ms")
-				return [ FALSE, 0, "no http.request.ms -- is the server Observe()d?", 0 ]
+				return [ 0, 0, "no http.request.ms -- is the server Observe()d?", 0 ]
 			ok
-			return [ TRUE, poMon.MetricQ("http.request.ms").MeanMs(), "", 0 ]
+			return [ 1, poMon.MetricQ("http.request.ms").MeanMs(), "", 0 ]
 		but pcKind = "throughput"
 			if NOT poMon.HasMetric("http.requests")
-				return [ FALSE, 0, "no http.requests -- is the server Observe()d?", 0 ]
+				return [ 0, 0, "no http.requests -- is the server Observe()d?", 0 ]
 			ok
-			return [ TRUE, poMon.MetricQ("http.requests").RatePerSecond(), "", 0 ]
+			return [ 1, poMon.MetricQ("http.requests").RatePerSecond(), "", 0 ]
 		but pcKind = "errorrate"
 			return This._ErrorRate(poMon)
 		but pcKind = "availability"
@@ -319,58 +319,58 @@ class stzSla from stzObject
 			if NOT _aR_[1]
 				return _aR_
 			ok
-			return [ TRUE, 100 - _aR_[2], "", 0 ]
+			return [ 1, 100 - _aR_[2], "", 0 ]
 		but pcKind = "cpuutilization"
 			if NOT poMon.HasMetric("process.cpu.utilization")
-				return [ FALSE, 0, "no process.cpu.utilization -- WatchCpu() the monitor", 0 ]
+				return [ 0, 0, "no process.cpu.utilization -- WatchCpu() the monitor", 0 ]
 			ok
-			return [ TRUE, poMon.MetricQ("process.cpu.utilization").Mean(), "", 0 ]
+			return [ 1, poMon.MetricQ("process.cpu.utilization").Mean(), "", 0 ]
 		but pcKind = "memoryrss"
 			if NOT poMon.HasMetric("process.memory.rss")
-				return [ FALSE, 0, "no process.memory.rss -- WatchMemory() the monitor", 0 ]
+				return [ 0, 0, "no process.memory.rss -- WatchMemory() the monitor", 0 ]
 			ok
-			return [ TRUE, poMon.MetricQ("process.memory.rss").Value(), "", 0 ]
+			return [ 1, poMon.MetricQ("process.memory.rss").Value(), "", 0 ]
 		but pcKind = "memorygrowthperhour"
 			if NOT poMon.HasMetric("process.memory.rss")
-				return [ FALSE, 0, "no process.memory.rss -- WatchMemory() the monitor", 0 ]
+				return [ 0, 0, "no process.memory.rss -- WatchMemory() the monitor", 0 ]
 			ok
-			return [ TRUE, poMon.MetricQ("process.memory.rss").SlopePerMs() * 3600000, "", 0 ]
+			return [ 1, poMon.MetricQ("process.memory.rss").SlopePerMs() * 3600000, "", 0 ]
 		but pcKind = "systemmemoryfree"
 			if NOT poMon.HasMetric("system.memory.free")
-				return [ FALSE, 0, "no system.memory.free -- WatchSystemMemory() the monitor", 0 ]
+				return [ 0, 0, "no system.memory.free -- WatchSystemMemory() the monitor", 0 ]
 			ok
-			return [ TRUE, poMon.MetricQ("system.memory.free").Value(), "", 0 ]
+			return [ 1, poMon.MetricQ("system.memory.free").Value(), "", 0 ]
 		but pcKind = "stable"
 			return This._Stability(poMon, pcMetric)
 		ok
 		# custom aspects over a named metric
 		if NOT poMon.HasMetric(pcMetric)
-			return [ FALSE, 0, "no metric '" + pcMetric + "' on this monitor", 0 ]
+			return [ 0, 0, "no metric '" + pcMetric + "' on this monitor", 0 ]
 		ok
 		if pcKind = "p95"
-			return [ TRUE, poMon.MetricQ(pcMetric).Percentile(95), "", 0 ]
+			return [ 1, poMon.MetricQ(pcMetric).Percentile(95), "", 0 ]
 		but pcKind = "mean"
-			return [ TRUE, poMon.MetricQ(pcMetric).Mean(), "", 0 ]
+			return [ 1, poMon.MetricQ(pcMetric).Mean(), "", 0 ]
 		but pcKind = "rate"
-			return [ TRUE, poMon.MetricQ(pcMetric).RatePerSecond(), "", 0 ]
+			return [ 1, poMon.MetricQ(pcMetric).RatePerSecond(), "", 0 ]
 		ok
-		return [ TRUE, poMon.MetricQ(pcMetric).Value(), "", 0 ]
+		return [ 1, poMon.MetricQ(pcMetric).Value(), "", 0 ]
 
 	def _TimerPct(poMon, pnP)
 		if NOT poMon.HasMetric("http.request.ms")
-			return [ FALSE, 0, "no http.request.ms -- is the server Observe()d?", 0 ]
+			return [ 0, 0, "no http.request.ms -- is the server Observe()d?", 0 ]
 		ok
-		return [ TRUE, poMon.MetricQ("http.request.ms").ExactPercentile(pnP), "", 0 ]
+		return [ 1, poMon.MetricQ("http.request.ms").ExactPercentile(pnP), "", 0 ]
 
 	def _ErrorRate(poMon)
 		if NOT poMon.HasMetric("http.requests") or NOT poMon.HasMetric("http.errors")
-			return [ FALSE, 0, "no http.requests/http.errors -- is the server Observe()d?", 0 ]
+			return [ 0, 0, "no http.requests/http.errors -- is the server Observe()d?", 0 ]
 		ok
 		_nReq_ = poMon.MetricQ("http.requests").Value()
 		if _nReq_ = 0
-			return [ TRUE, 0, "", 0 ]
+			return [ 1, 0, "", 0 ]
 		ok
-		return [ TRUE, poMon.MetricQ("http.errors").Value() / _nReq_ * 100, "", 0 ]
+		return [ 1, poMon.MetricQ("http.errors").Value() / _nReq_ * 100, "", 0 ]
 
 	# The stability judgment: the NEWEST sample against the window
 	# that came BEFORE it (leave-one-out). Including the newest in
@@ -382,14 +382,14 @@ class stzSla from stzObject
 	# small window -- not a hot path.
 	def _Stability(poMon, pcMetric)
 		if NOT poMon.HasMetric(pcMetric)
-			return [ FALSE, 0, "no metric '" + pcMetric + "' on this monitor", 0 ]
+			return [ 0, 0, "no metric '" + pcMetric + "' on this monitor", 0 ]
 		ok
 		_oS_ = poMon.MetricQ(pcMetric).SeriesQ()
 		_aV_ = _oS_.Values()
 		_nN_ = ring_len(_aV_)
 		if _nN_ < 8
 			# too little history to call anything an outlier -- pass, and say so
-			return [ TRUE, 0, "window of " + _nN_ + " (< 8): stability not judgeable yet", 0 ]
+			return [ 1, 0, "window of " + _nN_ + " (< 8): stability not judgeable yet", 0 ]
 		ok
 		_nLast_ = _aV_[_nN_]
 		_nBase_ = _nN_ - 1
@@ -405,16 +405,16 @@ class stzSla from stzObject
 		_nStd_ = sqrt(_nVar_ / _nBase_)
 		if _nStd_ = 0
 			if _nLast_ = _nMean_
-				return [ TRUE, 0, "", 0 ]
+				return [ 1, 0, "", 0 ]
 			ok
 			# a jump off a perfectly flat line is infinitely surprising
-			return [ TRUE, 999, "", 999 ]
+			return [ 1, 999, "", 999 ]
 		ok
 		_nZ_ = (_nLast_ - _nMean_) / _nStd_
 		if _nZ_ < 0
 			_nZ_ = -_nZ_
 		ok
-		return [ TRUE, _nZ_, "", _nZ_ ]
+		return [ 1, _nZ_, "", _nZ_ ]
 
 	def _Judge(pcOp, pnActual, pnBound, paR)
 		if pcOp = "under"
@@ -424,7 +424,7 @@ class stzSla from stzObject
 		but pcOp = "stable"
 			return pnActual <= pnBound   # actual = |z|, bound = 3
 		ok
-		return FALSE
+		return 0
 
 	def _VerdictMessage(paExp, pnActual, pbOk, paR)
 		_cOpWord_ = "<="

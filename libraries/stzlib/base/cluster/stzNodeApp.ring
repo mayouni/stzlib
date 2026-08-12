@@ -88,8 +88,8 @@ class stzNodeApp from stzObject
 	@nBudgetMax = 5
 	@nBudgetWindowMs = 30000
 	@nNodeTtlMs = 120000
-	@oSup = NULL           # the ONE supervisor of the running topology
-	@bRunning = FALSE
+	@oSup = ""           # the ONE supervisor of the running topology
+	@bRunning = 0
 	@aScriptFiles = []
 
 	def init(pcName)
@@ -217,7 +217,7 @@ class stzNodeApp from stzObject
 			ok
 		next
 		@oSup.StartAll()
-		@bRunning = TRUE
+		@bRunning = 1
 		return This
 
 	# Drive supervision (the app keeps the house Name_()/Cycle()
@@ -236,7 +236,7 @@ class stzNodeApp from stzObject
 
 	def Escalated()
 		if isNull(@oSup)
-			return FALSE
+			return 0
 		ok
 		return @oSup.Escalated()
 
@@ -272,14 +272,14 @@ class stzNodeApp from stzObject
 		next
 		if NOT isNull(@oSup)
 			@oSup.Destroy()
-			@oSup = NULL
+			@oSup = ""
 		ok
 		nFiles = ring_len(@aScriptFiles)
 		for i = 1 to nFiles
 			remove(@aScriptFiles[i])
 		next
 		@aScriptFiles = []
-		@bRunning = FALSE
+		@bRunning = 0
 		return This
 
 	#-- internals ----------------------------------------------------------

@@ -5,13 +5,13 @@
 
 class stzReactiveFunc from stzObject
 
-	@originalFunc = NULL
+	@originalFunc = ""
 	# @-sigil'd: a BARE `engine` here is bound to a user global of the
 	# same name at construction time, so the attribute is never created
 	# and the next `this.engine` dies R12 "property not found". Proven:
 	# a script holding `engine = "..."` could not even run
 	# `new stzReactive()`.
-	@oEngine = NULL
+	@oEngine = ""
 
 	def Init(f, engine)
 		@originalFunc = f
@@ -51,11 +51,11 @@ class stzReactiveFunc from stzObject
 
 class stzFunctionTask from stzReactiveTask
 
-	@f = NULL
+	@f = ""
 	@params = []
 	
 	def Init(id, f, params, engine)
-		super.Init(id, NULL, engine, DEFAULT_ERROR_HANDLING)
+		super.Init(id, "", engine, DEFAULT_ERROR_HANDLING)
 		this.@f = f
 		@params = params
 		
@@ -117,7 +117,7 @@ class stzFunctionTask from stzReactiveTask
 			ok
 			@result = _result_
 			@status = TASK_COMPLETED
-			if @onComplete != NULL
+			if @onComplete != ""
 				call @onComplete(@result)
 			ok
 
@@ -133,7 +133,7 @@ class stzFunctionTask from stzReactiveTask
 				@errorMsg = DEFAULT_ERROR_MSG
 			ok
 
-			if @onError != NULL
+			if @onError != ""
 				call @onError(@errorMsg)
 			ok
 		done

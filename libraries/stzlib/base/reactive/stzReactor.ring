@@ -21,7 +21,7 @@
 		nSid = oR.ListenHttp("127.0.0.1", 8080)
 		aEv = oR.ServerAwait(nSid, 100)       # [:accept|:data|:closed, nConn, cBytes]
 		if len(aEv) > 0 and aEv[1] = :data
-			oR.ServerWrite(nSid, aEv[2], cHttpResponse, TRUE)
+			oR.ServerWrite(nSid, aEv[2], cHttpResponse, 1)
 		ok
 		oR.ServerStop(nSid)
 
@@ -36,16 +36,16 @@ func StzReactor()
 
 class stzReactor from stzObject
 
-	@pHandle = NULL
-	@bReady  = FALSE
+	@pHandle = ""
+	@bReady  = 0
 
 	def init()
 		This._Ensure()
 
 	def _Ensure()
-		if @bReady = FALSE
+		if @bReady = 0
 			@pHandle = StzEngineReactorCreate()
-			@bReady = TRUE
+			@bReady = 1
 		ok
 
 	def Handle()
@@ -287,7 +287,7 @@ class stzReactor from stzObject
 	# One-way server TLS convenience (no client cert): serve HTTPS with just
 	# a server cert + key.
 	def ListenHttpsServer(cHost, nPort, cCertPath, cKeyPath)
-		return This.ListenHttpTls(cHost, nPort, cCertPath, cKeyPath, "", FALSE)
+		return This.ListenHttpTls(cHost, nPort, cCertPath, cKeyPath, "", 0)
 
 	#--- TLS CLIENT (the mTLS counterpart to ListenHttpTls) ---------------#
 
@@ -357,7 +357,7 @@ class stzReactor from stzObject
 	def ServerWrite(nServerId, nConnId, cData, bCloseAfter)
 		This._Ensure()
 		nClose = 0
-		if bCloseAfter = TRUE
+		if bCloseAfter = 1
 			nClose = 1
 		ok
 		return StzEngineReactorServerWrite(@pHandle, nServerId, nConnId, cData, nClose)
@@ -397,9 +397,9 @@ class stzReactor from stzObject
 	# ── teardown ─────────────────────────────────────────────
 
 	def Destroy()
-		if @bReady = TRUE
+		if @bReady = 1
 			StzEngineReactorDestroy(@pHandle)
-			@pHandle = NULL
-			@bReady = FALSE
+			@pHandle = ""
+			@bReady = 0
 		ok
 		return This

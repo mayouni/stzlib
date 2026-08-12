@@ -181,7 +181,7 @@ func StzNowXTQ()
 
 func StzIsDateTime(str)
     if not isString(str)
-        return FALSE
+        return 0
     ok
 
 	_Rx_ = new stzRegex(pat(:DateTime) )
@@ -217,14 +217,14 @@ func StzIs12HourFormat(_cFormat_)
     _cActualFormat_ = StzGetDateTimeFormat(_cFormat_)
 
     if StzFindFirst("AP", StzUpper(_cActualFormat_)) > 0
-        return TRUE
+        return 1
     ok
 
     if isString(_cFormat_) and StzRight(StzLower(_cFormat_), 3) = "12h"
-        return TRUE
+        return 1
     ok
 
-    return FALSE
+    return 0
 
 	func Is12HourFormat(_cFormat_)
 		return StzIs12HourFormat(_cFormat_)
@@ -543,14 +543,14 @@ class stzDateTime from stzObject
 
     def _ParseTimePart(_cTimePart_)
         _cTimePart_ = trim(_cTimePart_)
-        _bPM_ = FALSE
-        _bAM_ = FALSE
+        _bPM_ = 0
+        _bAM_ = 0
 
         if StzUpper(StzRight(_cTimePart_, 2)) = "PM"
-            _bPM_ = TRUE
+            _bPM_ = 1
             _cTimePart_ = trim(StzLeft(_cTimePart_, StzLen(_cTimePart_) - 2))
         but StzUpper(StzRight(_cTimePart_, 2)) = "AM"
-            _bAM_ = TRUE
+            _bAM_ = 1
             _cTimePart_ = trim(StzLeft(_cTimePart_, StzLen(_cTimePart_) - 2))
         ok
 
@@ -613,7 +613,7 @@ class stzDateTime from stzObject
 	    ok
 
 	    if _cDateSep_ = ""
-	        return NULL
+	        return ""
 	    ok
 
 	    _aParts_ = split(_cDateTime_, " ")
@@ -630,7 +630,7 @@ class stzDateTime from stzObject
 
 	    _aDateParts_ = split(_cDatePart_, _cDateSep_)
 	    if len(_aDateParts_) != 3
-	        return NULL
+	        return ""
 	    ok
 
 	    _cDateFormat_ = ""
@@ -671,9 +671,9 @@ class stzDateTime from stzObject
 	    _cRest_ = StzRight(_cDateTime_, StzLen(_cDateTime_) - _nSpacePos_)
 
 	    _cTimePart_ = _cRest_
-	    _bPM_ = FALSE
+	    _bPM_ = 0
 	    if StzUpper(StzRight(_cRest_, 2)) = "PM"
-	        _bPM_ = TRUE
+	        _bPM_ = 1
 	        _cTimePart_ = trim(StzLeft(_cRest_, StzLen(_cRest_) - 2))
 	    but StzUpper(StzRight(_cRest_, 2)) = "AM"
 	        _cTimePart_ = trim(StzLeft(_cRest_, StzLen(_cRest_) - 2))
@@ -685,11 +685,11 @@ class stzDateTime from stzObject
 	    but StzFindFirst("-", _cDatePart_) > 0
 	        _aDateParts_ = split(_cDatePart_, "-")
 	    else
-	        return FALSE
+	        return 0
 	    ok
 
 	    if len(_aDateParts_) != 3
-	        return FALSE
+	        return 0
 	    ok
 
 	    _nYear_ = 0
@@ -708,7 +708,7 @@ class stzDateTime from stzObject
 
 	    _aTimeParts_ = split(_cTimePart_, ":")
 	    if len(_aTimeParts_) < 2
-	        return FALSE
+	        return 0
 	    ok
 
 	    _nHour_ = 0+ _aTimeParts_[1]
@@ -743,13 +743,13 @@ class stzDateTime from stzObject
 	        @nMs = _nMs_
 
 	        if This.IsValid()
-	            return TRUE
+	            return 1
 	        ok
 	    catch
-	        return FALSE
+	        return 0
 	    done
 
-	    return FALSE
+	    return 0
 
 	def TryManualDateParse(cDate)
 	    _aDateParts_ = []
@@ -759,11 +759,11 @@ class stzDateTime from stzObject
 	    but StzFindFirst("-", cDate) > 0
 	        _aDateParts_ = split(cDate, "-")
 	    else
-	        return FALSE
+	        return 0
 	    ok
 
 	    if len(_aDateParts_) != 3
-	        return FALSE
+	        return 0
 	    ok
 
 	    _nYear_ = 0
@@ -791,10 +791,10 @@ class stzDateTime from stzObject
 
 	        return This.IsValid()
 	    catch
-	        return FALSE
+	        return 0
 	    done
 
-	    return FALSE
+	    return 0
 
 	#--- EPOCH-BASED CREATION METHODS ---#
 
@@ -1934,37 +1934,37 @@ class stzDateTime from stzObject
 
     def IsValid()
         if @nMonth < 1 or @nMonth > 12
-            return FALSE
+            return 0
         ok
         if @nDay < 1 or @nDay > _DaysInMonth(@nYear, @nMonth)
-            return FALSE
+            return 0
         ok
         if @nHour < 0 or @nHour > 23
-            return FALSE
+            return 0
         ok
         if @nMinute < 0 or @nMinute > 59
-            return FALSE
+            return 0
         ok
         if @nSecond < 0 or @nSecond > 59
-            return FALSE
+            return 0
         ok
         if @nMs < 0 or @nMs > 999
-            return FALSE
+            return 0
         ok
-        return TRUE
+        return 1
 
     def IsAStzDateTime()
-        return TRUE
+        return 1
 
 	def IsNaturalEpochString(cStr)
 	    _cLower_ = StzLower(cStr)
 
 	    if StzFindFirst("from epoch", _cLower_) > 0 or
 	       StzFindFirst("since epoch", _cLower_) > 0
-	        return TRUE
+	        return 1
 	    ok
 
-	    return FALSE
+	    return 0
 
 	def ParseNaturalEpoch(_cNatural_)
 	    _nTotalMilliseconds_ = 0
@@ -2279,7 +2279,7 @@ class stzDateTime from stzObject
 	    _nTargetMs_ = _ToUnixMs(_oTarget_.Year(), _oTarget_.Month(), _oTarget_.Day(), _oTarget_.Hours(), _oTarget_.Minutes(), _oTarget_.Seconds(), _oTarget_.MilliSeconds())
 	    _nMs_ = _nTargetMs_ - _nThisMs_
 
-	    if _cUnit_ = NULL
+	    if _cUnit_ = ""
 	        _nSec_ = _nMs_ / 1000
 	        _nMin_ = _nSec_ / 60
 	        _nHour_ = _nMin_ / 60

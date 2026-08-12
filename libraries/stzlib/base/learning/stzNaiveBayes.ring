@@ -36,12 +36,12 @@ class stzNaiveBayes from stzObject
 	#
 	# @pModel is the handle. Labels() and Classify() read through it; nothing on
 	# this side counts anything any more.
-	@pModel = NULL
+	@pModel = ""
 	@cWhy = ""
 
 	def init()
 		@pModel = StzEngineBayesNew()
-		if @pModel = NULL
+		if @pModel = ""
 			stzraise("The engine refused to create the model.")
 		ok
 

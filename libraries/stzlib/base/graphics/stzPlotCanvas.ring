@@ -60,12 +60,12 @@ func _StzPlotRender(pcKind, paValues, paLabels, paOptions)
 	_nW_    = _StzPlotOpt(paOptions, "width", 900)
 	_nH_    = _StzPlotOpt(paOptions, "height", 500)
 	_cTitle_= _StzPlotOpt(paOptions, "title", "")
-	_oFont_ = _StzPlotOpt(paOptions, "font", NULL)
+	_oFont_ = _StzPlotOpt(paOptions, "font", "")
 	_cCol_  = _StzPlotOpt(paOptions, "color", "#5a9ee6")
 	_cBg_   = _StzPlotOpt(paOptions, "background", "#0e1016")
-	_bGrid_ = _StzPlotOpt(paOptions, "grid", TRUE)
-	_bVals_ = _StzPlotOpt(paOptions, "showvalues", TRUE)
-	_bAvg_  = _StzPlotOpt(paOptions, "showaverage", FALSE)
+	_bGrid_ = _StzPlotOpt(paOptions, "grid", 1)
+	_bVals_ = _StzPlotOpt(paOptions, "showvalues", 1)
+	_bAvg_  = _StzPlotOpt(paOptions, "showaverage", 0)
 
 	_cInk_   = "#e6ebf5"
 	_cMuted_ = "#8592ac"
@@ -85,8 +85,8 @@ func _StzPlotRender(pcKind, paValues, paLabels, paOptions)
 		StzRaise("stzPlotCanvas: there are no values to plot -- the data " +
 			"has rows, but none of them carry numbers.")
 	ok
-	_nMin_ = _StzPlotOpt(paOptions, "min", NULL)
-	_nMax_ = _StzPlotOpt(paOptions, "max", NULL)
+	_nMin_ = _StzPlotOpt(paOptions, "min", "")
+	_nMax_ = _StzPlotOpt(paOptions, "max", "")
 	if isNull(_nMax_)  _nMax_ = _StzPlotMax(_aFlat_)  ok
 	if isNull(_nMin_)
 		_nMin_ = _StzPlotMin(_aFlat_)
@@ -96,7 +96,7 @@ func _StzPlotRender(pcKind, paValues, paLabels, paOptions)
 	# Round the top of the scale to a NICE number, so the ticks read 0/20/
 	# 40/60/80 rather than 0/17.6/35.2/52.8. An axis a reader has to decode
 	# is an axis that failed.
-	if isNull(_StzPlotOpt(paOptions, "max", NULL))
+	if isNull(_StzPlotOpt(paOptions, "max", ""))
 		_nMax_ = _StzPlotNiceTop(_nMax_, 5)
 	ok
 
@@ -164,9 +164,9 @@ func _StzPlotRender(pcKind, paValues, paLabels, paOptions)
 		_StzPlotMulti(_oCanvas_, paValues, paLabels, _oFont_, _cInk_, _cMuted_,
 			_nL_, _nR_, _nT_, _nB_, _nMin_, _nMax_)
 	on "line"
-		_StzPlotLine(_oCanvas_, paValues, _cCol_, _nL_, _nR_, _nT_, _nB_, _nMin_, _nMax_, TRUE)
+		_StzPlotLine(_oCanvas_, paValues, _cCol_, _nL_, _nR_, _nT_, _nB_, _nMin_, _nMax_, 1)
 	on "scatter"
-		_StzPlotLine(_oCanvas_, paValues, _cCol_, _nL_, _nR_, _nT_, _nB_, _nMin_, _nMax_, FALSE)
+		_StzPlotLine(_oCanvas_, paValues, _cCol_, _nL_, _nR_, _nT_, _nB_, _nMin_, _nMax_, 0)
 	other
 		StzRaise("stzPlotCanvas: unknown kind '" + _cKind_ + "' -- use " +
 			":VBar, :HBar, :Histogram, :MultiBar, :Line, :Scatter or :Treemap.")
@@ -288,7 +288,7 @@ func _StzPlotVBars(_oCanvas_, paValues, paLabels, oFont, cCol, cInk, cMuted, nL,
 		_nX_ = nL + (_i_ - 1) * _nSlot_ + (_nSlot_ - _nBW_) / 2
 		_nY_ = nB - _nHt_
 		if _nHt_ > 0
-			_oCanvas_.AddGradientRectQ(_nX_, _nY_, _nBW_, _nHt_, cCol, "#9a5ad0", TRUE)
+			_oCanvas_.AddGradientRectQ(_nX_, _nY_, _nBW_, _nHt_, cCol, "#9a5ad0", 1)
 		ok
 		if isObject(oFont)
 			if bVals
@@ -315,7 +315,7 @@ func _StzPlotHBars(_oCanvas_, paValues, paLabels, oFont, cCol, cInk, cMuted, nL,
 		_nWd_ = (nR - nL) * (_nV_ - nMin) / (nMax - nMin)
 		_nY_ = nT + (_i_ - 1) * _nSlot_ + (_nSlot_ - _nBH_) / 2
 		if _nWd_ > 0
-			_oCanvas_.AddGradientRectQ(nL, _nY_, _nWd_, _nBH_, cCol, "#9a5ad0", FALSE)
+			_oCanvas_.AddGradientRectQ(nL, _nY_, _nWd_, _nBH_, cCol, "#9a5ad0", 0)
 		ok
 		if isObject(oFont)
 			if bVals

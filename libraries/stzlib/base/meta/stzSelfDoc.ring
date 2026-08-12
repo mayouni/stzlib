@@ -28,10 +28,10 @@ class stzSelfDoc from stzObject
 	@cSource = ""     # resolved source file path
 	@aMethods = []    # [ [name, description, aka, ownerClass], ... ] own + inherited
 	@aVectors = []    # per-method embedding (lazy; only when a model is loaded)
-	@bIndexed = FALSE
+	@bIndexed = 0
 	@aRetTexts = []   # per-method retrieval text (query-INDEPENDENT; built once)
 	@aRetHeads = []   # per-method head words (query-independent; built once)
-	@bRetBuilt = FALSE
+	@bRetBuilt = 0
 
 	def init(pcTarget)
 		if NOT isString(pcTarget)
@@ -195,7 +195,7 @@ class stzSelfDoc from stzObject
 				@aRetTexts + _StzMethodRetrievalText(@aMethods[_i_])
 				@aRetHeads + _StzParseName(@aMethods[_i_][1])[1]
 			next
-			@bRetBuilt = TRUE
+			@bRetBuilt = 1
 		ok
 		# Bonus IS query-dependent (form cue) -- rebuild it (cheap): own-method prior
 		# + FORM preference + a tiny SHORTER-NAME nudge. All small: tip ties only.
@@ -315,7 +315,7 @@ class stzSelfDoc from stzObject
 		_aV_ = _StzLoadEmbCache(@cName, _aTexts_)
 		if len(_aV_) = _nN_
 			@aVectors = _aV_
-			@bIndexed = TRUE
+			@bIndexed = 1
 			return
 		ok
 		@aVectors = []
@@ -323,4 +323,4 @@ class stzSelfDoc from stzObject
 			@aVectors + _StzEmbedInto(_aTexts_[_i_])
 		next
 		_StzSaveEmbCache(@cName, _aTexts_, @aVectors)
-		@bIndexed = TRUE
+		@bIndexed = 1

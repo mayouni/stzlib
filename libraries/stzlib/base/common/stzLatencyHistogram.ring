@@ -21,9 +21,9 @@ func StzLatencyHistogram()
 
 class stzLatencyHistogram from stzObject
 
-	pHandle = NULL
-	bReady  = FALSE
-	bAdopted = FALSE	# handle owned elsewhere (a perf family child)
+	pHandle = ""
+	bReady  = 0
+	bAdopted = 0	# handle owned elsewhere (a perf family child)
 
 	def init()
 		This._Ensure()
@@ -31,9 +31,9 @@ class stzLatencyHistogram from stzObject
 	# Lazy handle creation -- robust whether or not init() ran (paren-less
 	# `new` skips init in Ring); guarded by a plain boolean.
 	def _Ensure()
-		if bReady = FALSE
+		if bReady = 0
 			pHandle = StzEngineHistogramCreate()
-			bReady = TRUE
+			bReady = 1
 		ok
 
 	def Handle()
@@ -48,8 +48,8 @@ class stzLatencyHistogram from stzObject
 			StzEngineHistogramDestroy(pHandle)
 		ok
 		pHandle = pEngineHandle
-		bReady = TRUE
-		bAdopted = TRUE
+		bReady = 1
+		bAdopted = 1
 		return This
 
 	# Tally one latency sample, in milliseconds.
@@ -88,12 +88,12 @@ class stzLatencyHistogram from stzObject
 		return This
 
 	def Destroy()
-		if bReady = TRUE
+		if bReady = 1
 			if NOT bAdopted
 				StzEngineHistogramDestroy(pHandle)
 			ok
-			pHandle = NULL
-			bReady = FALSE
-			bAdopted = FALSE
+			pHandle = ""
+			bReady = 0
+			bAdopted = 0
 		ok
 		return This

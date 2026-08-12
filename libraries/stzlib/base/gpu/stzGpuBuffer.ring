@@ -49,7 +49,7 @@ func _BindingValue(paBindings, pcName)
 			ok
 		ok
 	next
-	return NULL
+	return ""
 
 class stzGpuBuffer from stzObject
 

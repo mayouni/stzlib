@@ -65,7 +65,7 @@ class stzCalendar from stzObject
 
 
 	# Timeline
-	@oTimeLine = NULL
+	@oTimeLine = ""
 
 	@cVizTimeLineEventChar = char(226) + char(151) + char(143)
 	@cVizTimeLineSpanChar = char(226) + char(150) + char(172)
@@ -508,10 +508,10 @@ class stzCalendar from stzObject
 		_nLen_ = len(@aHolidays)
 		for _i_ = 1 to _nLen_
 			if @aHolidays[_i_][1] = _cDate_
-				return TRUE
+				return 1
 			ok
 		next
-		return FALSE
+		return 0
 	
 	def HolidayName(pDate)
 		_cDate_ = _toDateString(pDate)
@@ -600,7 +600,7 @@ class stzCalendar from stzObject
 				ok
 			next
 		else
-			if pLabel = NULL
+			if pLabel = ""
 				pLabel = "Break"
 			else
 				pLabel = "" + pLabel
@@ -1626,7 +1626,7 @@ def ConflictsWith(oTimeLine)
 		_cDateOnly_ = _aParts_[1]
 		
 		if This.IsHoliday(_cDateOnly_) or not This.IsWorkingDay(_cDateOnly_)
-			return TRUE
+			return 1
 		ok
 	next
 	
@@ -1645,13 +1645,13 @@ def ConflictsWith(oTimeLine)
 		_cDate_ = _cStartDate_
 		for j = 0 to _nDays_
 			if This.IsHoliday(_cDate_) or not This.IsWorkingDay(_cDate_)
-				return TRUE
+				return 1
 			ok
 			_cDate_ = _getNextDay(_cDate_)
 		next
 	next
 	
-	return FALSE
+	return 0
 
 def ConflictsWithSpan(cLabel, aParams)
 	if NOT (isObject(oTimeLine) and ring_classname(oTimeLine) = "stztimeline")
@@ -1981,7 +1981,7 @@ def CompareWith(_oOtherCal_)
 		return This._drawMonthGrid()
 
 	def ToStringXT(paParams)
-		_bShowTable_ = TRUE
+		_bShowTable_ = 1
 		
 		if isList(paParams)
 			_nLen_ = len(paParams)
@@ -2045,13 +2045,13 @@ def CompareWith(_oOtherCal_)
 				_cEventSymbol_ = ""
 				
 				# Check for timeline events
-				if @oTimeline != NULL
+				if @oTimeline != ""
 					_cEventSymbol_ = _getTimelineSymbol(_cDate_)
 				ok
 				
 				if This.IsHoliday(_cDate_)
 					_cCell_ = "[" + PadLeftXT('' + _nDay_, 1, " ") + "]"
-				but This.IsWorkingDay(_cDate_) = FALSE
+				but This.IsWorkingDay(_cDate_) = 0
 					_cCell_ = RepeatChar(@cVizWeekendChar, 2)
 				else
 					_cCell_ = PadLeftXT('' + _nDay_, 2, " ")
@@ -2133,7 +2133,7 @@ def CompareWith(_oOtherCal_)
 			return new stzList(This.Legend())
 	
 	def _getTimelineSymbol(_cDate_)
-		if @oTimeline = NULL
+		if @oTimeline = ""
 			return
 		ok
 	
@@ -2355,7 +2355,7 @@ def CompareWith(_oOtherCal_)
 			if This.IsHoliday(_cDate_)
 				_cBizHours_ = "HOLIDAY"
 				_cAvailable_ = "0h"
-			but This.IsWorkingDay(_cDate_) = FALSE
+			but This.IsWorkingDay(_cDate_) = 0
 				_cBizHours_ = "WEEKEND"
 				_cAvailable_ = "0h"
 			else

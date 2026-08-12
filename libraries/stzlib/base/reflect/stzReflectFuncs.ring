@@ -26,7 +26,7 @@ $aStzClassSrcCache = []
 # lazily once from test/**/*_narrated.ring. Top-level init for the R24 reason.
 $aStzExampleIndex = []      # [ [ methodLower, titles, exampleCode, file ], ... ]
 $aStzExampleKeys  = []      # parallel keys list for fast ring_find
-$bStzExampleIndexBuilt = FALSE
+$bStzExampleIndexBuilt = 0
 
 # Ubiquitous PLUMBING methods -- called for display/setup in nearly every scenario
 # (? o.Content(), o.Show()...), so linking them to those scenarios' titles is pure
@@ -134,12 +134,12 @@ func _StzParseName(pcName)
 	if _StzEndsWith(_n_, "QC")  _tags_ + "immutable"  _n_ = left(_n_, len(_n_) - 2)
 	but len(_n_) > 1 and right(_n_, 1) = "Q"  _tags_ + "fluent"  _n_ = left(_n_, len(_n_) - 1) ok
 	# -- parameter suffixes (may stack: ...STIBCS) --
-	_more_ = TRUE
+	_more_ = 1
 	while _more_
-		_more_ = FALSE
-		if _StzEndsWith(_n_, "CS") _tags_ + "case-sensitive" _n_ = left(_n_, len(_n_)-2) _more_ = TRUE
-		but _StzEndsWith(_n_, "IB") _tags_ + "inclusive-bounds" _n_ = left(_n_, len(_n_)-2) _more_ = TRUE
-		but _StzEndsWith(_n_, "ST") _tags_ + "from-position" _n_ = left(_n_, len(_n_)-2) _more_ = TRUE ok
+		_more_ = 0
+		if _StzEndsWith(_n_, "CS") _tags_ + "case-sensitive" _n_ = left(_n_, len(_n_)-2) _more_ = 1
+		but _StzEndsWith(_n_, "IB") _tags_ + "inclusive-bounds" _n_ = left(_n_, len(_n_)-2) _more_ = 1
+		but _StzEndsWith(_n_, "ST") _tags_ + "from-position" _n_ = left(_n_, len(_n_)-2) _more_ = 1 ok
 	end
 	# -- conditional / extended / statement / future / freeform --
 	if _StzEndsWith(_n_, "WXT") _tags_ + "conditional" _n_ = left(_n_, len(_n_)-3)
@@ -294,10 +294,10 @@ func _StzIsGenericParam(pcParam)
 	if len(pcParam) > 2 and left(pcParam, 1) = "_" and right(pcParam, 1) = "_"
 		pcParam = substr(pcParam, 2, len(pcParam) - 2)
 	ok
-	if left(pcParam, 2) = "pc" or left(pcParam, 2) = "pn" return FALSE ok
-	if left(pcParam, 2) = "pa" or left(pcParam, 2) = "pb" return FALSE ok
-	if _StzSingleLetterType(pcParam) != "" return FALSE ok
-	return TRUE
+	if left(pcParam, 2) = "pc" or left(pcParam, 2) = "pn" return 0 ok
+	if left(pcParam, 2) = "pa" or left(pcParam, 2) = "pb" return 0 ok
+	if _StzSingleLetterType(pcParam) != "" return 0 ok
+	return 1
 
 # The :Keyword named-param tokens in a doc string, in order (":BeforePosition" ...).
 # A named param is a colon followed by a letter then word chars (Softanza style).
@@ -400,7 +400,7 @@ func _StzSampleReceiver(pcClass)
 # grammar produced a valid form the class does not implement yet (a coverage gap).
 func StzComposeMethodFor(pcIntent, pcClass)
 	_cName_ = _StzComposeName(pcIntent)
-	if _cName_ = "" return [ "", FALSE, pcClass ] ok
+	if _cName_ = "" return [ "", 0, pcClass ] ok
 	_oSd_ = new stzSelfDoc(pcClass)
 	return [ _cName_, _oSd_.HasMethod(_cName_), pcClass ]
 
@@ -471,9 +471,9 @@ func _StzIsContainerNoun(pcW)
 func _StzHasAny(pcHay, paNeedles)
 	_n_ = len(paNeedles)
 	for _i_ = 1 to _n_
-		if substr(pcHay, paNeedles[_i_]) > 0 return TRUE ok
+		if substr(pcHay, paNeedles[_i_]) > 0 return 1 ok
 	next
-	return FALSE
+	return 0
 
 func _StzIsCueWord(pcW)
 	return ring_find([ "copy","version","nested","recursively","deep","random","randomly",
@@ -499,9 +499,9 @@ func _StzHasRichFormTag(paTags)
 		"case-sensitive", "from-position" ]
 	_n_ = len(_aRich_)
 	for _i_ = 1 to _n_
-		if ring_find(paTags, _aRich_[_i_]) > 0 return TRUE ok
+		if ring_find(paTags, _aRich_[_i_]) > 0 return 1 ok
 	next
-	return FALSE
+	return 0
 
 # _StzNameGloss(name) -- re-verbalize a name's grammar into a natural sentence
 # (deterministic; the inverse is name GENERATION -- the natural-programming
@@ -891,9 +891,9 @@ func _StzStemVariants(pcW)
 func _StzAnyIn(paNeedles, paHay)
 	_n_ = len(paNeedles)
 	for _i_ = 1 to _n_
-		if ring_find(paHay, paNeedles[_i_]) > 0 return TRUE ok
+		if ring_find(paHay, paNeedles[_i_]) > 0 return 1 ok
 	next
-	return FALSE
+	return 0
 
 # TRUE if token pcTok matches a token in paSet, tolerating morphology via a prefix
 # rule (either is a prefix of the other, min length 4): reverse~reversed, trim~trimmed.
@@ -902,12 +902,12 @@ func _StzTokenInSet(pcTok, paSet)
 	_lt_ = len(pcTok)
 	for _i_ = 1 to _n_
 		_s_ = paSet[_i_]
-		if pcTok = _s_ return TRUE ok
+		if pcTok = _s_ return 1 ok
 		_ls_ = len(_s_)
-		if _lt_ >= 4 and _ls_ >= _lt_ and left(_s_, _lt_) = pcTok return TRUE ok
-		if _ls_ >= 4 and _lt_ >= _ls_ and left(pcTok, _ls_) = _s_ return TRUE ok
+		if _lt_ >= 4 and _ls_ >= _lt_ and left(_s_, _lt_) = pcTok return 1 ok
+		if _ls_ >= 4 and _lt_ >= _ls_ and left(pcTok, _ls_) = _s_ return 1 ok
 	next
-	return FALSE
+	return 0
 
 # Distinct lowercased alphanumeric tokens of a string (a token SET as a list).
 func _StzAlnumTokens(pcStr)
@@ -951,9 +951,9 @@ func _StzTextSharesToken(pcText, paQTokens)
 	_aT_ = _StzAlnumTokens(lower(pcText))
 	_n_ = len(paQTokens)
 	for _i_ = 1 to _n_
-		if _StzAnyIn(_StzStemVariants(paQTokens[_i_]), _aT_) return TRUE ok
+		if _StzAnyIn(_StzStemVariants(paQTokens[_i_]), _aT_) return 1 ok
 	next
-	return FALSE
+	return 0
 
 # Distinct content tokens of a query: alphanumeric tokens minus stopwords. Falls
 # back to all tokens if the query is entirely stopwords.
@@ -1685,9 +1685,9 @@ func _StzHasLetter(pcStr)
 	_n_ = len(pcStr)
 	for _i_ = 1 to _n_
 		_a_ = ascii(pcStr[_i_])
-		if (_a_ >= 65 and _a_ <= 90) or (_a_ >= 97 and _a_ <= 122) return TRUE ok
+		if (_a_ >= 65 and _a_ <= 90) or (_a_ >= 97 and _a_ <= 122) return 1 ok
 	next
-	return FALSE
+	return 0
 
 # Harvest a class's FULL method surface: its own methods + everything it inherits
 # up the domain chain (child overrides parent by name), STOPPING before the
@@ -1742,21 +1742,21 @@ func _StzParentOf(pcName)
 
 # TRUE if a trimmed line is `class <pcNameLower> ...` (Ring allows `Class` too).
 func _StzIsClassLineNamed(pcTrim, pcNameLower)
-	if len(pcTrim) < 6 return FALSE ok
-	if lower(left(pcTrim, 6)) != "class " return FALSE ok
+	if len(pcTrim) < 6 return 0 ok
+	if lower(left(pcTrim, 6)) != "class " return 0 ok
 	_aTok_ = _StzWords(pcTrim)
-	if len(_aTok_) >= 2 and lower(_aTok_[2]) = pcNameLower return TRUE ok
-	return FALSE
+	if len(_aTok_) >= 2 and lower(_aTok_[2]) = pcNameLower return 1 ok
+	return 0
 
 # TRUE if a trimmed line opens a new class or func declaration (block boundary).
 # An ANONYMOUS function literal (func c { ... }) inside a method body is NOT a
 # boundary -- treating it as one silently truncated the class harvest at the
 # first inline lambda (stzStringText lost everything after line ~240).
 func _StzIsClassOrFuncDecl(pcTrim)
-	if StzFindFirst("{", pcTrim) > 0 return FALSE ok
-	if len(pcTrim) >= 6 and lower(left(pcTrim, 6)) = "class " return TRUE ok
-	if len(pcTrim) >= 5 and lower(left(pcTrim, 5)) = "func " return TRUE ok
-	return FALSE
+	if StzFindFirst("{", pcTrim) > 0 return 0 ok
+	if len(pcTrim) >= 6 and lower(left(pcTrim, 6)) = "class " return 1 ok
+	if len(pcTrim) >= 5 and lower(left(pcTrim, 5)) = "func " return 1 ok
+	return 0
 
 # Split a string on whitespace (space/tab/CR) into words.
 func _StzWords(pcStr)
@@ -1974,15 +1974,15 @@ func _StzScanFolderForClass(pcFolder, pcNameLower)
 # boundary, so "stzListOfStrings" doesn't match "stzListOfStringsError").
 func _StzFileHasClass(pcContentLower, pcNameLower)
 	_needle_ = "class " + pcNameLower
-	if substr(pcContentLower, _needle_ + " ") > 0 return TRUE ok
-	if substr(pcContentLower, _needle_ + nl) > 0 return TRUE ok
-	if substr(pcContentLower, _needle_ + char(13)) > 0 return TRUE ok
-	if substr(pcContentLower, _needle_ + char(9)) > 0 return TRUE ok
-	return FALSE
+	if substr(pcContentLower, _needle_ + " ") > 0 return 1 ok
+	if substr(pcContentLower, _needle_ + nl) > 0 return 1 ok
+	if substr(pcContentLower, _needle_ + char(13)) > 0 return 1 ok
+	if substr(pcContentLower, _needle_ + char(9)) > 0 return 1 ok
+	return 0
 
 func _StzEndsWith(pcStr, pcSuffix)
 	_ls_ = len(pcSuffix)
-	if len(pcStr) < _ls_ return FALSE ok
+	if len(pcStr) < _ls_ return 0 ok
 	return right(pcStr, _ls_) = pcSuffix
 
   #==========================================================#
@@ -2173,7 +2173,7 @@ func _StzParseRecipe(pcFile)
 	_cTags_ = ""
 	_cMethods_ = ""
 	_cEg_ = ""
-	_bCode_ = FALSE
+	_bCode_ = 0
 	_n_ = len(_aLines_)
 	for _i_ = 1 to _n_
 		_cRaw_ = _aLines_[_i_]
@@ -2243,7 +2243,7 @@ func _StzExampleFor(pcMethodLower)
 
 func _StzEnsureExampleIndex()
 	if $bStzExampleIndexBuilt return ok
-	$bStzExampleIndexBuilt = TRUE
+	$bStzExampleIndexBuilt = 1
 	_cB_ = _StzBaseDir()
 	if _cB_ = "" return ok
 	# Harvest EVERY test .ring that uses Scenario() -- not just files named
@@ -2352,14 +2352,14 @@ func _StzExampleCachePath()
 # (Explain only shows the titles, so the example code is not persisted).
 func _StzLoadExampleCache(nSig)
 	_cPath_ = _StzExampleCachePath()
-	if _cPath_ = "" or NOT fexists(_cPath_) return FALSE ok
+	if _cPath_ = "" or NOT fexists(_cPath_) return 0 ok
 	_c_ = read(_cPath_)
-	if _c_ = "" return FALSE ok
+	if _c_ = "" return 0 ok
 	_aLines_ = str2list(_c_)
-	if len(_aLines_) < 1 return FALSE ok
+	if len(_aLines_) < 1 return 0 ok
 	_cSig_ = trim(_aLines_[1])
-	if len(_cSig_) < 6 or left(_cSig_, 5) != "SIG2 " return FALSE ok
-	if number(substr(_cSig_, 6, len(_cSig_) - 5)) != nSig return FALSE ok
+	if len(_cSig_) < 6 or left(_cSig_, 5) != "SIG2 " return 0 ok
+	if number(substr(_cSig_, 6, len(_cSig_) - 5)) != nSig return 0 ok
 	$aStzExampleIndex = []
 	$aStzExampleKeys = []
 	_nl_ = len(_aLines_)
@@ -2372,7 +2372,7 @@ func _StzLoadExampleCache(nSig)
 			$aStzExampleIndex + [ _aP_[1], _aP_[2], _aP_[3], _aP_[4] ]
 		ok
 	next
-	return TRUE
+	return 1
 
 # Persist the index: line 1 = "SIG <count>", then one "key\x01titles\x01file" per
 # entry (titles/file never contain \x01 or newline). Best-effort -- write failure
@@ -2503,17 +2503,17 @@ func _StzParseScenariosText(pcContent)
 	_aOut_ = []
 	_cTitle_ = ""
 	_cCode_ = ""
-	_bIn_ = FALSE
+	_bIn_ = 0
 	_n_ = len(_aLines_)
 	for _i_ = 1 to _n_
 		_cT_ = trim(_aLines_[_i_])
 		if len(_cT_) >= 9 and left(_cT_, 9) = "Scenario("
 			_cTitle_ = _StzFirstQuoted(_cT_)
 			_cCode_ = ""
-			_bIn_ = TRUE
+			_bIn_ = 1
 		but len(_cT_) >= 12 and left(_cT_, 12) = "EndScenario("
 			if _bIn_ and _cTitle_ != "" _aOut_ + [ _cTitle_, _cCode_ ] ok
-			_bIn_ = FALSE
+			_bIn_ = 0
 			_cTitle_ = ""
 		else
 			if _bIn_ _cCode_ += _aLines_[_i_] + nl ok

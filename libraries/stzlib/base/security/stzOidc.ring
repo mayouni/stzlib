@@ -34,7 +34,7 @@ RECENTLY, and IN ANSWER TO THIS LOGIN:
   * nonce    -- equals the one WE generated for this login, which is what makes
                 a replayed id-token useless.
 
-Every failure returns a REASON (:why) rather than a bare false, because "the
+Every failure returns a REASON (:why) rather than a bare 0, because "the
 login failed" is unactionable when a clock or an audience is misconfigured.
 
 For development there is a fee-free provider double -- stzOidcSandbox in
@@ -106,7 +106,7 @@ class stzJwt from stzObject
 	# a JWS is exactly three dot-separated parts.
 	def IsWellFormed()
 		if len(@aParts) != 3
-			return FALSE
+			return 0
 		ok
 		return @aParts[1] != "" and @aParts[2] != ""
 
@@ -160,7 +160,7 @@ class stzJwt from stzObject
 	def HasClaim(pcName)
 		_p_ = This.Payload()
 		if _p_ = "" or NOT StzJsonIsValid(_p_)
-			return FALSE
+			return 0
 		ok
 		return StzJsonHasKey(_p_, "" + pcName)
 
@@ -178,7 +178,7 @@ class stzJwt from stzObject
 	# (a malformed key answers -1, which is NOT a pass).
 	def SignatureIsValidWith(paJwk)
 		if NOT This.IsWellFormed()
-			return FALSE
+			return 0
 		ok
 		_in_ = This.SigningInput()
 		_sig_ = This.SignatureB64()
@@ -192,7 +192,7 @@ class stzJwt from stzObject
 			           "" + This._JwkField(paJwk, :n),
 			           "" + This._JwkField(paJwk, :e)) = 1
 		ok
-		return FALSE
+		return 0
 
 	def Show()
 		? "stzJwt(" + This.Algorithm() + ") sub=" + This.Subject() + " iss=" + This.Issuer()
@@ -396,7 +396,7 @@ class stzOidcClient from stzObject
 			ok
 		ok
 		@cLastWhy = ""
-		return [ :ok = TRUE, :subject = _o_.Subject(),
+		return [ :ok = 1, :subject = _o_.Subject(),
 		         :email = _o_.Claim("email"), :claims = _o_.Payload(), :why = "" ]
 
 	# why the last verification was refused ("" when it passed).
@@ -420,7 +420,7 @@ class stzOidcClient from stzObject
 		# CREDENTIAL and never enters the ledger; only the issuer it claims
 		# and the reason it failed do.
 		StzNoteRefusal("sso.token.rejected", @cIssuer, "idp:" + @cIssuer, @cLastWhy)
-		return [ :ok = FALSE, :subject = "", :email = "", :claims = "", :why = @cLastWhy ]
+		return [ :ok = 0, :subject = "", :email = "", :claims = "", :why = @cLastWhy ]
 
 	# the JWK for a kid. A JWKS with exactly ONE key resolves even when the token
 	# names no kid (common for small providers).
@@ -444,10 +444,10 @@ class stzOidcClient from stzObject
 			_n_ = len(_a_)
 			for _i_ = 1 to _n_
 				if ("" + _a_[_i_]) = @cClientId
-					return TRUE
+					return 1
 				ok
 			next
-			return FALSE
+			return 0
 		ok
 		return ("" + _a_) = @cClientId
 

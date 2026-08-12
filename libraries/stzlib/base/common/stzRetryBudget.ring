@@ -30,8 +30,8 @@ func StzRetryBudget(nBudget, nWindowSeconds)
 
 class stzRetryBudget from stzObject
 
-	pHandle = NULL
-	bReady  = FALSE
+	pHandle = ""
+	bReady  = 0
 	nBudget = 0
 	nWindow = 1
 	nRefill = 1
@@ -48,13 +48,13 @@ class stzRetryBudget from stzObject
 	# Lazy handle creation -- robust whether or not init() ran (paren-less
 	# `new` skips init in Ring); guarded by a plain boolean.
 	def _Ensure()
-		if bReady = FALSE
+		if bReady = 0
 			nRefill = nBudget / nWindow
 			if nRefill < 1
 				nRefill = 1
 			ok
 			pHandle = StzEngineRateCreate(nBudget, nRefill)
-			bReady = TRUE
+			bReady = 1
 		ok
 
 	# Spend one retry. Returns TRUE if the budget allowed it.
@@ -88,9 +88,9 @@ class stzRetryBudget from stzObject
 		return nRefill
 
 	def Destroy()
-		if bReady = TRUE
+		if bReady = 1
 			StzEngineRateDestroy(pHandle)
-			pHandle = NULL
-			bReady = FALSE
+			pHandle = ""
+			bReady = 0
 		ok
 		return This

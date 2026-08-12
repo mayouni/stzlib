@@ -331,7 +331,7 @@ func StzVr(pacVars)
 	next
 
 	# Set _var to the last one for consistency
-	_var = [ pacVars[_nLen_], null ]
+	_var = [ pacVars[_nLen_], "" ]
 
 	func Vr(pacVars)
 		return StzVr(pacVars)
@@ -448,7 +448,7 @@ func StzClearVars()
 # Check if a variable exists
 func StzVarExists(_cVarName_)
 	if NOT isString(_cVarName_)
-		return FALSE
+		return 0
 	ok
 
 	_oHash_ = new stzHashList(_aVars)

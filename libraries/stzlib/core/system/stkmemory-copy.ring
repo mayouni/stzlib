@@ -1,5 +1,5 @@
 class stkMemory
-    @bIsValid = TRUE
+    @bIsValid = 1
     @aAllocatedBuffers = []  # Track allocations
 
 	def init()
@@ -24,15 +24,15 @@ class stkMemory
             del(@aAllocatedBuffers, _nIndex_)
         	# In Ring, memory is automatically managed
         	# This method exists for API compatibility
-            return TRUE
+            return 1
         else
             # In Ring, this is just a warning, not an error
-            return FALSE
+            return 0
         ok
 
 	def IsAllocated(pBuffer)
 	    if IsNull(pBuffer)
-	        return FALSE
+	        return 0
 	    ok
 	    
 	    _nIndex_ = find(@aAllocatedBuffers, pBuffer)

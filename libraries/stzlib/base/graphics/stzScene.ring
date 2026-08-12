@@ -191,21 +191,21 @@ class stzScene from stzObject
 	#-- transform state (kept apart from what is drawn) ---------------------
 
 	def MoveTo(pnIndex, pnX, pnY, pnZ)
-		This._SetPart(pnIndex, [ pnX, pnY, pnZ ], NULL, NULL)
+		This._SetPart(pnIndex, [ pnX, pnY, pnZ ], "", "")
 
 	def MoveToQ(pnIndex, pnX, pnY, pnZ)
 		This.MoveTo(pnIndex, pnX, pnY, pnZ)
 		return This
 
 	def RotateTo(pnIndex, pnAX, pnAY, pnAZ, pnDegrees)
-		This._SetPart(pnIndex, NULL, [ pnAX, pnAY, pnAZ, pnDegrees ], NULL)
+		This._SetPart(pnIndex, "", [ pnAX, pnAY, pnAZ, pnDegrees ], "")
 
 	def RotateToQ(pnIndex, pnAX, pnAY, pnAZ, pnDegrees)
 		This.RotateTo(pnIndex, pnAX, pnAY, pnAZ, pnDegrees)
 		return This
 
 	def ScaleTo(pnIndex, pnSX, pnSY, pnSZ)
-		This._SetPart(pnIndex, NULL, NULL, [ pnSX, pnSY, pnSZ ])
+		This._SetPart(pnIndex, "", "", [ pnSX, pnSY, pnSZ ])
 
 	def ScaleToQ(pnIndex, pnSX, pnSY, pnSZ)
 		This.ScaleTo(pnIndex, pnSX, pnSY, pnSZ)

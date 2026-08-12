@@ -217,7 +217,7 @@ func StzResetHistoryUpdateState()
 #-- Enhanced Error Handling
 
 func StzSafeTraceObjectHistory(poStzObj)
-	if poStzObj = NULL
+	if poStzObj = ""
 		return
 	ok
 

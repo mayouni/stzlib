@@ -4,12 +4,12 @@
 
 class stkBuffer
     @cId = ""                # Unique identifier assigned by stkMemory
-    @oMemory = NULL          # Reference to containing stkMemory
+    @oMemory = ""          # Reference to containing stkMemory
     @buffer = ""             # Actual data storage
     @nSize = 0               # Current size in bytes
     @nCapacity = 0           # Maximum capacity
-    @bIsValid = FALSE        # Validity flag
-    @bHasWritePointer = FALSE # Write access control
+    @bIsValid = 0        # Validity flag
+    @bHasWritePointer = 0 # Write access control
 
     #-------------------------------#
     #  INITIALIZATION AND CREATION  #
@@ -38,8 +38,8 @@ class stkBuffer
 	    @nSize = 0
 	    @nCapacity = nSize
 	    @buffer = ""  # Start empty, not filled with spaces
-	    @bIsValid = TRUE
-	    @bHasWritePointer = FALSE
+	    @bIsValid = 1
+	    @bHasWritePointer = 0
 
 	def id()
 		return @cID
@@ -507,15 +507,15 @@ class stkBuffer
 
     def Equals(oOther)
         if IsNull(oOther) or not IsObject(oOther)
-            return FALSE
+            return 0
         ok
         
         if ClassName(oOther) != "stkbuffer"
-            return FALSE
+            return 0
         ok
         
         if @nSize != oOther.Size()
-            return FALSE
+            return 0
         ok
         
         return @buffer = oOther.RawData()
@@ -526,8 +526,8 @@ class stkBuffer
             @buffer = ""
             @nSize = 0
             @nCapacity = 0
-            @bIsValid = FALSE
-            @bHasWritePointer = FALSE
+            @bIsValid = 0
+            @bHasWritePointer = 0
         ok
 
     def Destroy()
@@ -543,16 +543,16 @@ class stkBuffer
 
     def GetWritePointer()
         # Only if no write pointer exists
-        if @bHasWritePointer = TRUE
+        if @bHasWritePointer = 1
             raise("ERROR: Buffer already has a write pointer")
         ok
         
-        @bHasWritePointer = TRUE
+        @bHasWritePointer = 1
         return @oMemory.CreatePointer(@cId, "write")
 
     def ReleaseWritePointer()
         # Called when write pointer is destroyed
-        @bHasWritePointer = FALSE
+        @bHasWritePointer = 0
 
     def HasWritePointer()
         return @bHasWritePointer
@@ -590,7 +590,7 @@ class stkBuffer
         ]
 
     def IsValid()
-        return @bIsValid and @oMemory != NULL
+        return @bIsValid and @oMemory != ""
 
 
     #--------------------------------------------------------#
@@ -746,7 +746,7 @@ class stkBuffer
             raise("ERROR: Invalid buffer - buffer was not properly initialized")
         ok
         
-        if @oMemory = NULL or not @oMemory.IsValid()
+        if @oMemory = "" or not @oMemory.IsValid()
             raise("ERROR: Buffer has invalid memory container reference")
         ok
         

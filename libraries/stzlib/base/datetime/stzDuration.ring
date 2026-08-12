@@ -408,7 +408,7 @@ def ToStringXT(cFormat)
 			return This.Compare(pValue) != 0
 		ok
 		
-		return NULL
+		return ""
 
 	def Compare(pOther)
 		_nOtherSecs_ = 0

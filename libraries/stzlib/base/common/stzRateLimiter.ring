@@ -19,7 +19,7 @@
 		? oRL.RejectedCount("nlp")
 		oRL.Destroy()
 
-	A key with NO configured limit is UNLIMITED (Allow always TRUE) -- you
+	A key with NO configured limit is UNLIMITED (Allow always 1) -- you
 	opt a key into limiting with SetLimit. Counts (allowed/rejected) are kept
 	per key for observability. Named Allow(), not Try() -- `try` is a Ring
 	keyword and Ring is case-insensitive (a `Try` method is a C27 error).
@@ -84,10 +84,10 @@ class stzRateLimiter from stzObject
 	# DECISION regardless of n.
 	def AllowN(pcKey, n)
 		_i_ = This._IndexOf(StzLower("" + pcKey))
-		if _i_ = 0  return TRUE  ok     # no limit configured -> unlimited
+		if _i_ = 0  return 1  ok     # no limit configured -> unlimited
 		if StzEngineRateTryTake(@aBuckets[_i_][4], n) = 1
 			@aBuckets[_i_][5]++          # allowed
-			return TRUE
+			return 1
 		ok
 		@aBuckets[_i_][6]++              # rejected
 		# Incident I2. The counter above says HOW MANY were shed; it cannot
@@ -97,7 +97,7 @@ class stzRateLimiter from stzObject
 		# burst of them into a detection.
 		StzNoteRefusal("ratelimit.shed", "" + pcKey, "ratelimit:" + @cName + "/" + pcKey,
 			"the token bucket had no tokens left for this key")
-		return FALSE
+		return 0
 
 	#-- metrics ------------------------------------------------------------
 

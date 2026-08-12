@@ -21,7 +21,7 @@
 # - Links are cached per name and re-dialed transparently after :closed.
 # -----------------------------------------------------------------------------
 
-$oStzNodePlane = NULL
+$oStzNodePlane = ""
 
 func StzNodeRegistryQ()
 	return new stzNodeRegistry()
@@ -47,7 +47,7 @@ func NodeAskStatus()
 
 class stzNodeRegistry from stzObject
 
-	@oReactor = NULL       # ONE reactor carries every link of this plane
+	@oReactor = ""       # ONE reactor carries every link of this plane
 	@aNames = []           # parallel lists (hash-list keys fold; stay raw)
 	@aHosts = []
 	@aPorts = []
@@ -55,7 +55,7 @@ class stzNodeRegistry from stzObject
 	@nCorr = 0
 	@cStatus = :Ok         # :Ok/:Timeout/:Down/:Unknown/:BadTimeout/:Denied
 	@nDialMs = 2000        # per-dial budget inside Send/Ask
-	@oSigner = NULL        # D5: sign every outgoing message (reuse, not mint)
+	@oSigner = ""        # D5: sign every outgoing message (reuse, not mint)
 	@cKeyId = ""
 
 	def init()
@@ -109,12 +109,12 @@ class stzNodeRegistry from stzObject
 	def Send(pcAddr, pMsg)
 		_aL_ = This._Link(pcAddr)
 		if ring_len(_aL_) != 2
-			return FALSE
+			return 0
 		ok
 		@cStatus = :Ok
 		cFrame = StzEngineStzmPack(This._Outgoing(pMsg), 0, 0, 0)
-		@oReactor.ServerWrite(_aL_[1], _aL_[2], cFrame, FALSE)
-		return TRUE
+		@oReactor.ServerWrite(_aL_[1], _aL_[2], cFrame, 0)
+		return 1
 
 	# Request/reply with a MANDATORY timeout. Returns the reply value;
 	# on anything else returns "" and LastStatus() says which anything:
@@ -134,7 +134,7 @@ class stzNodeRegistry from stzObject
 		@nCorr++
 		nWant = @nCorr
 		cFrame = StzEngineStzmPack(This._Outgoing(pMsg), 0, nWant, 2)
-		@oReactor.ServerWrite(_aL_[1], _aL_[2], cFrame, FALSE)
+		@oReactor.ServerWrite(_aL_[1], _aL_[2], cFrame, 0)
 		nDeadline = StzEngineWatchTimestampMs() + nTimeoutMs
 		while StzEngineWatchTimestampMs() < nDeadline
 			aEv = @oReactor.ServerPoll(_aL_[1])

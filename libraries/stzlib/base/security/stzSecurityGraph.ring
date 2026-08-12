@@ -38,7 +38,7 @@ func StzSecurityGraphQ(pcName)
 class stzSecurityGraph from stzObject
 
 	@cName = ""
-	@oG = NULL
+	@oG = ""
 
 	def init(pcName)
 		@cName = "" + pcName
@@ -126,7 +126,7 @@ class stzSecurityGraph from stzObject
 	def MayAttach(pcActor, pcSecret)
 		_cA_ = StzLower(ring_trim("" + pcActor))
 		if NOT @oG.NodeExists(_cA_)
-			return FALSE
+			return 0
 		ok
 		return StzLower("" + @oG.NodeProperty(_cA_, "posture")) != "sandboxed"
 
@@ -160,7 +160,7 @@ class stzSecurityGraph from stzObject
 		_cA_ = StzLower(ring_trim("" + pcActor))
 		_cCap_ = StzLower(ring_trim("" + pcCapability))
 		if NOT @oG.NodeExists(_cA_) or NOT @oG.NodeExists(_cCap_)
-			return FALSE
+			return 0
 		ok
 		return @oG.PathExists(_cA_, _cCap_)
 

@@ -8,7 +8,7 @@ class stzReactiveStream from stzObject
 	@aReactiveFuncs = []
 	@errorHandlers = []
 	@concludeHandlers = []
-	@oEngine = NULL
+	@oEngine = ""
 	@isActive = STREAM_STATE_INACTIVE
 	@isConcluded = STREAM_STATE_RUNNING
 
@@ -16,11 +16,11 @@ class stzReactiveStream from stzObject
 	@transforms = []
 	
 	# Accumulator for reduce operations
-	@accumulator = NULL
+	@accumulator = ""
 	@hasReduceTransform = STREAM_STATE_INACTIVE
 
 	# LibUV handle (only for libuv-backed streams)
-	@uvHandle = NULL
+	@uvHandle = ""
 
 	# Overflow (backpressure) configuration
 	@bufferSize = 100
@@ -341,9 +341,9 @@ class stzReactiveStream from stzObject
 		
 	def Cleanup()
 		Stop()
-		if @uvHandle != NULL and @sourceType = STREAM_SOURCE_LIBUV
+		if @uvHandle != "" and @sourceType = STREAM_SOURCE_LIBUV
 			# Clean up LibUV resources
-			@uvHandle = NULL
+			@uvHandle = ""
 		ok
 
 	def CheckErrorHandling(error)

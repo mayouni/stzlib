@@ -1,12 +1,12 @@
 
 func IsSciForm(cNumber)
 	if not isString(cNumber)
-		return FALSE
+		return 0
 	ok
 
 	_nPos_ = ring_substr1(cNumber, "e")
 	if _nPos_ = 0
-		return FALSE
+		return 0
 	ok
 
 	_cBase_ = ""
@@ -22,15 +22,15 @@ func IsSciForm(cNumber)
 
 	_nBase_ = 0+ _cBase_
 	if NOT isNumber(_nBase_)
-		return FALSE
+		return 0
 	ok
 
 	_nExp_ = 0+ _cExp_
 	if NOT isNumber(_nExp_)
-		return FALSE
+		return 0
 	ok
 
-	return TRUE
+	return 1
 
 func Number2Sci(n)
 	return StzEngineNumberToScientific(0+ n)
@@ -53,7 +53,7 @@ class stkSciNumber
 	
 		_nPos_ = ring_substr1(cNumberInSciForm, "e")
 		if _nPos_ = 0
-			return FALSE
+			return 0
 		ok
 	
 		_cBase_ = ""

@@ -147,10 +147,10 @@ class stzWorkerProfile from stzObject
 		_n_ = len(@aCapabilities)
 		for _i_ = 1 to _n_
 			if StzLower("" + @aCapabilities[_i_]) = _c_
-				return TRUE
+				return 1
 			ok
 		next
-		return FALSE
+		return 0
 
 	#-- admission (the load-isolation primitive) ---------------------------
 
@@ -163,10 +163,10 @@ class stzWorkerProfile from stzObject
 		if @nInFlight < @nBudget
 			@nInFlight++
 			@nAdmitted++
-			return TRUE
+			return 1
 		ok
 		@nRejected++
-		return FALSE
+		return 0
 
 	def Release()
 		if @nInFlight > 0

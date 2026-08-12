@@ -22,14 +22,14 @@
 #---------------------------------------------------------------------------#
 
 $aStzSemLexicon = []        # [ [ cSemanticId, cBagOfWords ], ... ]
-$bStzSemLexiconBuilt = FALSE
+$bStzSemLexiconBuilt = 0
 $aStzSemResolveMemo = []    # [ [ cWord, cResolvedId ], ... ] (failures memoized as "")
 
 $aStzSemHarvestRecs = []    # cached reflect harvest [ name, desc, aka, owner, class ]
 $bStzSemMorphRetry = 0      # reentry guard for the en number-morphology retry
 $aStzSemVariantMemo = []    # per-word cache of en number variants (Plural/Singular run once)
-$bStzSemHarvested = FALSE
-$bStzSemOpsGrown = FALSE    # $aSemanticOperations grown from the harvest yet?
+$bStzSemHarvested = 0
+$bStzSemOpsGrown = 0    # $aSemanticOperations grown from the harvest yet?
 $aStzSemExactNames = []     # [ [ lowered stz_method, semantic_id ], ... ]
 $aStzSemOpIds = []          # flat id list backing _StzSemOpKnown (ring_find speed)
 $nStzSemCacheSig = 0        # cache signature (combined source sizes)
@@ -57,7 +57,7 @@ func _StzSemHarvest()
 			$aStzSemHarvestRecs + _aRec_
 		next
 	next
-	$bStzSemHarvested = TRUE
+	$bStzSemHarvested = 1
 	return $aStzSemHarvestRecs
 
 # GROW $aSemanticOperations FROM THE HARVEST. Every ACTIVE-form method of
@@ -72,7 +72,7 @@ func StzGrowSemanticOperations()
 	if $bStzSemOpsGrown
 		return
 	ok
-	$bStzSemOpsGrown = TRUE
+	$bStzSemOpsGrown = 1
 
 	# flat id list -- _StzSemOpKnown must stay O(ring_find), not a hashlist
 	# scan, or growth goes quadratic over ~2000 candidates
@@ -773,13 +773,13 @@ func _StzSemProbeBehavior(pcClass, pcMethod)
 		if _xAfter_ != _xBefore_
 			_cObs_ = "mutator"
 		else
-			_bHas_ = FALSE
+			_bHas_ = 0
 			if isNumber(_vPrbRet_)
-				_bHas_ = TRUE
+				_bHas_ = 1
 			but isString(_vPrbRet_) and _vPrbRet_ != ""
-				_bHas_ = TRUE
+				_bHas_ = 1
 			but isList(_vPrbRet_) and len(_vPrbRet_) > 0
-				_bHas_ = TRUE
+				_bHas_ = 1
 			ok
 			if _bHas_
 				_cObs_ = "getter"
@@ -801,10 +801,10 @@ func _StzSemOutputish(pcName)
 	_n_ = len(_aOut_)
 	for _i_ = 1 to _n_
 		if left(_c_, len(_aOut_[_i_])) = _aOut_[_i_]
-			return TRUE
+			return 1
 		ok
 	next
-	return FALSE
+	return 0
 
 func _StzFirstCamelWord(pcName)
 	_cOut_ = ""
@@ -991,7 +991,7 @@ func StzSemanticLexicon()
 	next
 
 	$aStzSemLexicon = _aBags_
-	$bStzSemLexiconBuilt = TRUE
+	$bStzSemLexiconBuilt = 1
 	_StzSemSaveCache($nStzSemCacheSig)
 	return $aStzSemLexicon
 
@@ -1031,22 +1031,22 @@ func _StzSemCacheSig()
 func _StzSemLoadCache(nSig)
 	_cPath_ = _StzSemCachePath()
 	if _cPath_ = "" or NOT fexists(_cPath_)
-		return FALSE
+		return 0
 	ok
 	_c_ = read(_cPath_)
 	if _c_ = ""
-		return FALSE
+		return 0
 	ok
 	_aLines_ = str2list(_c_)
 	if len(_aLines_) < 1
-		return FALSE
+		return 0
 	ok
 	_cSig_ = trim(_aLines_[1])
 	if len(_cSig_) < 6 or left(_cSig_, 5) != "SIG5 "
-		return FALSE
+		return 0
 	ok
 	if number(StzMidToEnd(_cSig_, 6)) != nSig
-		return FALSE
+		return 0
 	ok
 	_aBags_ = []
 	_nl_ = len(_aLines_)
@@ -1075,11 +1075,11 @@ func _StzSemLoadCache(nSig)
 		ok
 	next
 	if len(_aBags_) = 0
-		return FALSE
+		return 0
 	ok
 	$aStzSemLexicon = _aBags_
-	$bStzSemLexiconBuilt = TRUE
-	return TRUE
+	$bStzSemLexiconBuilt = 1
+	return 1
 
 func _StzSemSaveCache(nSig)
 	_cPath_ = _StzSemCachePath()
@@ -1198,7 +1198,7 @@ func _StzSemEnJoinVariants(paWords, n)
 		_aIdx_ + 1
 	next
 	_aAll_ = []
-	while TRUE
+	while 1
 		# advance the odometer FIRST, so the all-as-is combo (the
 		# caller's base case) is never emitted
 		_k_ = n
@@ -1489,12 +1489,12 @@ func StzAddNaturalLanguage(aDef)
 	_cCode_ = StzLower(aDef[:code])
 
 	# upsert into the dictionary-side definitions
-	_bDone_ = FALSE
+	_bDone_ = 0
 	_nL_ = len($aLanguageDefinitions)
 	for _i_ = 1 to _nL_
 		if StzLower($aLanguageDefinitions[_i_][:code]) = _cCode_
 			$aLanguageDefinitions[_i_] = aDef
-			_bDone_ = TRUE
+			_bDone_ = 1
 			exit
 		ok
 	next
@@ -1613,19 +1613,19 @@ func StzAddNaturalLanguage(aDef)
 	# upsert the language lexicon (morphology kept for query-side canon)
 	_aEntry_ = [ _cCode_, _aBags_, _aExact_, _aArt_, _aSuf_, _aConj_, _aMarks_,
 	             _aPrep_, _aKnown_ ]
-	_bDone_ = FALSE
+	_bDone_ = 0
 	_nX_ = len($aStzSemLangLex)
 	for _i_ = 1 to _nX_
 		if $aStzSemLangLex[_i_][1] = _cCode_
 			$aStzSemLangLex[_i_] = _aEntry_
-			_bDone_ = TRUE
+			_bDone_ = 1
 			exit
 		ok
 	next
 	if NOT _bDone_
 		$aStzSemLangLex + _aEntry_
 	ok
-	return TRUE
+	return 1
 
 	func @StzAddNaturalLanguage(aDef)
 		return StzAddNaturalLanguage(aDef)
@@ -1635,10 +1635,10 @@ func StzHasLanguagePack(pcLang)
 	_n_ = len($aStzSemLangLex)
 	for _i_ = 1 to _n_
 		if $aStzSemLangLex[_i_][1] = _c_
-			return TRUE
+			return 1
 		ok
 	next
-	return FALSE
+	return 0
 
 	func @StzHasLanguagePack(pcLang)
 		return StzHasLanguagePack(pcLang)
@@ -2319,9 +2319,9 @@ func StzResolveSemanticXT(pcWord)
 func _StzSemIdEligible(pcId)
 	if left(pcId, 7) = "METHOD_" or left(pcId, 9) = "MODIFIER_" or
 	   left(pcId, 7) = "OUTPUT_"
-		return TRUE
+		return 1
 	ok
-	return FALSE
+	return 0
 
 # The KIND of an operation ("action" mutates / "query" returns); hand-
 # authored ops without :kind default to action.
@@ -2346,10 +2346,10 @@ func _StzSemOpKnown(pcId)
 	_n_ = len($aSemanticOperations)
 	for _i_ = 1 to _n_
 		if $aSemanticOperations[_i_][:semantic_id] = pcId
-			return TRUE
+			return 1
 		ok
 	next
-	return FALSE
+	return 0
 
 func _StzSemBagAdd(paBags, pcId, pcWords)
 	if pcWords = ""

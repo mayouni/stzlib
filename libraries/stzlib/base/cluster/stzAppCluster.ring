@@ -32,8 +32,8 @@ func StzAppClusterQ()
 
 class stzAppCluster from stzObject
 
-	@oPool = NULL          # stzWorkerPool -- profiles + budgets (R8.1)
-	@oReactor = NULL       # spawn + curl (R7)
+	@oPool = ""          # stzWorkerPool -- profiles + budgets (R8.1)
+	@oReactor = ""       # spawn + curl (R7)
 	@cRingExe = ""
 	@cBaseRing = ""        # abs path to stzBase.ring (for the worker script)
 	@cWorkerScript = ""    # generated worker entry
@@ -43,17 +43,17 @@ class stzAppCluster from stzObject
 	@aRR = []              # [ [ tag, cursor ], ... ] round-robin per profile
 	@nNextPort = 0         # next free port for scale-up / restart
 	@nLastStatus = 0
-	@bStarted = FALSE
-	@oClassifier = NULL    # R8.2 smart router (lazy, bound to the catalog)
+	@bStarted = 0
+	@oClassifier = ""    # R8.2 smart router (lazy, bound to the catalog)
 	@cWhy = ""
 	# resilience: retry-with-failover + per-worker circuit breaker
 	@nMaxTries = 3         # max workers to try per Route (failover cap)
 	@nBreakerThreshold = 3 # consecutive failures that OPEN a worker's circuit
 	@nBreakerCooldownMs = 5000  # how long a circuit stays open before half-open
 	# observability: latency percentiles + trace ids
-	@oTelemetry = NULL     # stzClusterTelemetry (per-facet histograms + traces)
+	@oTelemetry = ""     # stzClusterTelemetry (per-facet histograms + traces)
 	@cLastTrace = ""       # the trace id of the most recent Route
-		@oLimiter = NULL       # stzRateLimiter (per-facet token buckets, opt-in)
+		@oLimiter = ""       # stzRateLimiter (per-facet token buckets, opt-in)
 		@nKilled = 0           # lifetime forced-kill count (orphan-cleanup metric)
 
 	def init()
@@ -84,7 +84,7 @@ class stzAppCluster from stzObject
 		ok
 		for _w_ = 1 to nWorkers
 			# tag,port,jobId,ready,draining,failures,circuitOpenUntilMs,host
-			@aFleet + [ _cTag_, 0, 0, FALSE, FALSE, 0, 0, "127.0.0.1" ]
+			@aFleet + [ _cTag_, 0, 0, 0, 0, 0, 0, "127.0.0.1" ]
 		next
 		return
 
@@ -129,7 +129,7 @@ class stzAppCluster from stzObject
 			@oPool.AddProfile(_cTag_, [ _cTag_ ], 1)
 		ok
 		# ready TRUE: assumed up; HealthCheck / the circuit breaker verify
-		@aFleet + [ _cTag_, nPort, 0, TRUE, FALSE, 0, 0, "" + pcHost ]
+		@aFleet + [ _cTag_, nPort, 0, 1, 0, 0, 0, "" + pcHost ]
 		return This
 
 	# THE GENERAL FORM: specialize workers along ANY facet in THIS cluster's
@@ -196,7 +196,7 @@ class stzAppCluster from stzObject
 			_nPort_++
 		next
 		@nNextPort = _nPort_
-		@bStarted = TRUE
+		@bStarted = 1
 		return This
 
 	def _SpawnWorker(pcTag, nPort)
@@ -216,7 +216,7 @@ class stzAppCluster from stzObject
 					loop
 				ok
 				if This._HealthOk(_i_)
-					@aFleet[_i_][4] = TRUE
+					@aFleet[_i_][4] = 1
 					_nReady_++
 				ok
 			next
@@ -234,7 +234,7 @@ class stzAppCluster from stzObject
 		# HttpLastStatus is a GLOBAL updated only when a job DRAINS; on an
 		# await TIMEOUT it stays stale (a prior 200). A drained job is reaped
 		# -> JobState = -2 confirms THIS request actually completed.
-		if @oReactor.JobState(_nJ_) != -2  return FALSE  ok
+		if @oReactor.JobState(_nJ_) != -2  return 0  ok
 		return @oReactor.HttpLastStatus() = 200
 
 	def _EndpointOf(nIdx)
@@ -365,12 +365,12 @@ class stzAppCluster from stzObject
 	def _SafePath(pcPath)
 		_c_ = "" + pcPath
 		if _c_ = "" or StzLeft(_c_, 1) != "/"
-			return FALSE
+			return 0
 		ok
 		if StzFindFirst(char(13), _c_) > 0 or StzFindFirst(char(10), _c_) > 0
-			return FALSE
+			return 0
 		ok
-		return TRUE
+		return 1
 
 	# The fleet INDICES of workers routable for pcTag -- READY, NOT
 	# draining, and circuit-CLOSED (open circuits past their cooldown are
@@ -475,7 +475,7 @@ class stzAppCluster from stzObject
 	# A request classifier bound to THIS cluster's facet catalog (created
 	# lazily, after facets are declared).
 	def ClassifierQ()
-		if @oClassifier = NULL
+		if @oClassifier = ""
 			@oClassifier = new stzRequestClassifier()
 			@oClassifier.SetCatalog(@oPool.CatalogQ())
 		ok
@@ -530,7 +530,7 @@ class stzAppCluster from stzObject
 		_nPort_ = @nNextPort
 		@nNextPort++
 		_nJob_ = This._SpawnWorker(_cTag_, _nPort_)
-		@aFleet + [ _cTag_, _nPort_, _nJob_, FALSE, FALSE, 0, 0, "127.0.0.1" ]
+		@aFleet + [ _cTag_, _nPort_, _nJob_, 0, 0, 0, 0, "127.0.0.1" ]
 		@oPool.ProfileQ(_cTag_).SetBudget(@oPool.ProfileQ(_cTag_).Budget() + 1)
 		return _nPort_
 
@@ -544,7 +544,7 @@ class stzAppCluster from stzObject
 		_nF_ = len(@aFleet)
 		for _i_ = 1 to _nF_
 			if @aFleet[_i_][1] = _cTag_ and @aFleet[_i_][4] and NOT @aFleet[_i_][5]
-				@aFleet[_i_][5] = TRUE   # draining -> no new routes
+				@aFleet[_i_][5] = 1   # draining -> no new routes
 				if @oPool.ProfileQ(_cTag_).Budget() > 1
 					@oPool.ProfileQ(_cTag_).SetBudget(@oPool.ProfileQ(_cTag_).Budget() - 1)
 				ok
@@ -603,14 +603,14 @@ class stzAppCluster from stzObject
 		return @nKilled
 
 	def _KillWorker(nIdx)
-		if @aFleet[nIdx][3] = 0  return FALSE  ok   # external / not spawned
+		if @aFleet[nIdx][3] = 0  return 0  ok   # external / not spawned
 		_rc_ = @oReactor.KillSpawnHard(@aFleet[nIdx][3])
-		@aFleet[nIdx][4] = FALSE                     # no longer ready
+		@aFleet[nIdx][4] = 0                     # no longer ready
 		if _rc_ = 0
 			@nKilled++
-			return TRUE
+			return 1
 		ok
-		return FALSE                                 # -3 already exited, etc.
+		return 0                                 # -3 already exited, etc.
 
 	# A per-profile metrics snapshot the supervisor reads (REAL counts).
 	def FleetMetrics()
@@ -642,7 +642,7 @@ class stzAppCluster from stzObject
 	# R8.3: workers self-terminate on their TTL. Graceful drain / kill /
 	# health-restart / autoscale is R8.4 (stzAgentHost supervision).
 	def Stop()
-		if @oReactor != NULL
+		if @oReactor != ""
 			# ORPHAN CLEANUP: force-kill every worker PROCESS we spawned so
 			# NONE outlive the cluster. TTL self-exit is the graceful path;
 			# this is the guarantee (a hung worker would otherwise linger as
@@ -654,15 +654,15 @@ class stzAppCluster from stzObject
 				ok
 			next
 			@oReactor.Destroy()
-			@oReactor = NULL
+			@oReactor = ""
 		ok
-		if @oTelemetry != NULL
+		if @oTelemetry != ""
 			@oTelemetry.Destroy()   # free the engine histogram handles
 		ok
-		if @oLimiter != NULL
+		if @oLimiter != ""
 			@oLimiter.Destroy()     # free the engine token-bucket handles
 		ok
-		@bStarted = FALSE
+		@bStarted = 0
 		return This
 
 	#-- internals ----------------------------------------------------------

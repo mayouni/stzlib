@@ -66,14 +66,14 @@ func StzPerfProfile(poMonitor)
 
 class stzPerfProfile from stzObject
 
-	@oMon = NULL
+	@oMon = ""
 	@nAnchorCpuNs = 0
 	@nAnchorReq = 0
 	@nAnchorMs = 0
 	@nAnchorRSum = 0
 	@nAnchorRCount = 0
-	@bHasRequests = FALSE
-	@bHasTimer = FALSE
+	@bHasRequests = 0
+	@bHasTimer = 0
 	@aSnapshots = []	# [ [ atMs, X, U, D, Rp95 ], ... ] (newest 128)
 
 	def init(poMonitor)
@@ -200,7 +200,7 @@ class stzPerfProfile from stzObject
 			ok
 		ok
 		if _nS_ < 0
-			return [ :computed = _nC_, :sampled = -1, :consistent = FALSE,
+			return [ :computed = _nC_, :sampled = -1, :consistent = 0,
 				:message = "no sampled utilization to check against (WatchCpu + sampling needed)" ]
 		ok
 		_bOk_ = This._SameScale(_nC_, _nS_)

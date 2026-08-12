@@ -37,7 +37,7 @@ func StzAppQ(pcName)
 class stzApp from stzObject
 
     @cName        = ""
-    @oGraph       = NULL          # the world's domain graph (node registry)   (Being)
+    @oGraph       = ""          # the world's domain graph (node registry)   (Being)
     @aThings      = []            # [ [ name, [fields], [ [field,expr] ], [ [rel,to] ] ], ... ]
     @aKnows       = []            # [ [ from, relation, to ], ... ]   (free relations)
     @nCur         = 0             # cursor: index of the thing being declared
@@ -49,14 +49,14 @@ class stzApp from stzObject
     @aGoals       = []            # [ [ name, means, reachedBy, within, [respecting] ], ... ]
     @nCurGoal     = 0
     @aBody        = []            # [ [kinds], graphPath, filesPath, keep ]  ([] = memory only)
-    @bBodyPending = FALSE
+    @bBodyPending = 0
     @aScreens     = []            # [ [ name, intent, subject, [shows], [acts] ], ... ]
     @nCurScreen   = 0
     @aRefinements = []            # [ [ knob, min, max, [options] ], ... ]
     @nCurRefinement = 0
     @aReaches     = []            # (Reach)
-    @oReactive    = NULL
-    @bLive        = FALSE
+    @oReactive    = ""
+    @bLive        = 0
     @aProposals   = []            # [ [ :propose, thing, :for, instance ], ... ]
 
     # SCOPE SIGILS: every attribute above is @-prefixed. A BARE class-head
@@ -96,7 +96,7 @@ class stzApp from stzObject
         @aScreens     = []
         @aRefinements = []
         @aReaches     = []
-        @bLive        = FALSE
+        @bLive        = 0
         @aProposals   = []
 
     #== Identity & substance =================================================
@@ -261,7 +261,7 @@ class stzApp from stzObject
                 return _oG_
             ok
         next
-        return NULL
+        return ""
 
     # THE DATA FORM (the house rule: a plain name returns DATA, the Q form
     # returns the OBJECT). A goal as a plain record -- nothing to chain on.
@@ -324,7 +324,7 @@ class stzApp from stzObject
                 return oWanted.SatisfiedOn(@oGraph)
             ok
         next
-        return FALSE
+        return 0
 
     # The thing a reaction proposes for a given subject thing ("" = none).
     def _ProposedFor(pcThing)
@@ -351,14 +351,14 @@ class stzApp from stzObject
         @aKinds = pBody
         if NOT isList(pBody)  @aKinds = [ pBody ]  ok
         @aBody = [ @aKinds, "", "", "" ]
-        @bBodyPending = TRUE
+        @bBodyPending = 1
         Graph = ""
         Files = ""
         Keep  = ""
         return This
 
     def BodyQ()
-        if len(@aBody) = 0  return NULL  ok
+        if len(@aBody) = 0  return ""  ok
         _oB_ = new stzAppBody(@aBody[1])
         _oB_.Graph = @aBody[2]
         _oB_.Files = @aBody[3]
@@ -381,11 +381,11 @@ class stzApp from stzObject
         return This
 
     def _BodyHasKind(pKind)
-        if len(@aBody) = 0  return FALSE  ok
+        if len(@aBody) = 0  return 0  ok
         for i = 1 to len(@aBody[1])
-            if @aBody[1][i] = pKind  return TRUE  ok
+            if @aBody[1][i] = pKind  return 1  ok
         next
-        return FALSE
+        return 0
 
     def _EnsureParentDir(pcPath)
         nSlash = 0
@@ -514,7 +514,7 @@ class stzApp from stzObject
             @aBody[2] = Graph
             @aBody[3] = Files
             @aBody[4] = Keep
-            @bBodyPending = FALSE
+            @bBodyPending = 0
         ok
 
     #== ANIMATION ============================================================
@@ -526,7 +526,7 @@ class stzApp from stzObject
     def Live()
         This._FlushCursors()
         @oReactive = new stzReactiveSystem()
-        @bLive = TRUE
+        @bLive = 1
         This.Pulse()
         ? "[" + @cName + "] is live -- " + len(@aThings) + " thing(s), " +
           len(@aFlows) + " flow(s), " + len(@aReactions) + " reaction(s), " +
@@ -613,10 +613,10 @@ class stzApp from stzObject
         aE = @oGraph.Edges()
         for i = 1 to len(aE)
             if aE[i][:from] = cI and StzLower("" + aE[i][:label]) = "isa" and aE[i][:to] = cT
-                return TRUE
+                return 1
             ok
         next
-        return FALSE
+        return 0
 
     def _InstanceHasRelation(pcInstance, pcRelation)
         cI = StzLower("" + pcInstance)
@@ -625,18 +625,18 @@ class stzApp from stzObject
         aE = @oGraph.Edges()
         for i = 1 to len(aE)
             if aE[i][:from] = cI and StzLower("" + aE[i][:label]) = cRel
-                return TRUE
+                return 1
             ok
         next
-        return FALSE
+        return 0
 
     def _ProposalStands(pcThing, pcInstance)
         for i = 1 to len(@aProposals)
             if @aProposals[i][2] = pcThing and @aProposals[i][4] = pcInstance
-                return TRUE
+                return 1
             ok
         next
-        return FALSE
+        return 0
 
     def _PruneSatisfiedProposals()
         aKept = []
@@ -750,11 +750,11 @@ class stzApp from stzObject
         return 0
 
     def _HasAnyRelation()
-        if len(@aKnows) > 0  return TRUE  ok
+        if len(@aKnows) > 0  return 1  ok
         for i = 1 to len(@aThings)
-            if len(@aThings[i][4]) > 0  return TRUE  ok
+            if len(@aThings[i][4]) > 0  return 1  ok
         next
-        return FALSE
+        return 0
 
     def _BodyLabel()
         if len(@aBody) = 0  return "memory (not persisted)"  ok
@@ -813,8 +813,8 @@ class stzAppBody from stzObject
         return cRes
     def HasKind(pKind)
         for i = 1 to len(@aKinds)
-            if @aKinds[i] = pKind  return TRUE  ok
+            if @aKinds[i] = pKind  return 1  ok
         next
-        return FALSE
+        return 0
     def Narrate()
         return "lives in " + This.Label()

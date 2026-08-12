@@ -73,7 +73,7 @@ class stzPasskeyServer from stzObject
 	# [ :ok, :credentialId, :keyType, :key1, :key2, :signCount, :why ].
 	def RegisterCredential(pcAttObjB64, pcClientDataB64, pcExpectedChallenge)
 		if NOT This._ClientDataIsSound(pcClientDataB64, "webauthn.create", pcExpectedChallenge)
-			return [ :ok = FALSE, :credentialId = "", :keyType = "", :key1 = "",
+			return [ :ok = 0, :credentialId = "", :keyType = "", :key1 = "",
 			         :key2 = "", :signCount = 0, :why = @cWhy ]
 		ok
 		_p_ = StzEngineWebAuthnParseAttestation("" + pcAttObjB64)
@@ -91,7 +91,7 @@ class stzPasskeyServer from stzObject
 			return This._RefuseReg("the authenticator did not report user presence")
 		ok
 		@cWhy = ""
-		return [ :ok = TRUE, :credentialId = _a_[1], :keyType = _a_[2],
+		return [ :ok = 1, :credentialId = _a_[1], :keyType = _a_[2],
 		         :key1 = _a_[3], :key2 = _a_[4], :signCount = 0 + _a_[5], :why = "" ]
 
 	  #-- login -----------------------------------------------------------
@@ -135,7 +135,7 @@ class stzPasskeyServer from stzObject
 			return This._RefuseAssert("the signature counter did not advance -- a cloned authenticator is possible")
 		ok
 		@cWhy = ""
-		return [ :ok = TRUE, :signCount = _count_, :why = "" ]
+		return [ :ok = 1, :signCount = _count_, :why = "" ]
 
 	def Show()
 		? "stzPasskeyServer(rp=" + @cRpId + ", origin=" + @cOrigin + ")"
@@ -148,31 +148,31 @@ class stzPasskeyServer from stzObject
 		_j_ = StzEngineCryptoB64UrlDecode("" + pcClientDataB64)
 		if _j_ = "" or NOT StzJsonIsValid(_j_)
 			@cWhy = "the client data is not valid JSON"
-			return FALSE
+			return 0
 		ok
 		if StzJsonGet(_j_, "type") != ("" + pcExpectedType)
 			@cWhy = "wrong ceremony type (expected " + pcExpectedType + ")"
-			return FALSE
+			return 0
 		ok
 		if ("" + pcExpectedChallenge) != ""
 			if StzJsonGet(_j_, "challenge") != ("" + pcExpectedChallenge)
 				@cWhy = "challenge mismatch -- this response does not answer this request"
-				return FALSE
+				return 0
 			ok
 		ok
 		if @cOrigin != ""
 			if StzJsonGet(_j_, "origin") != @cOrigin
 				@cWhy = "origin mismatch: '" + StzJsonGet(_j_, "origin") +
 				        "' is not '" + @cOrigin + "' (this is what makes a passkey unphishable)"
-				return FALSE
+				return 0
 			ok
 		ok
 		@cWhy = ""
-		return TRUE
+		return 1
 
 	def _RefuseReg(pcWhy)
 		@cWhy = "" + pcWhy
-		return [ :ok = FALSE, :credentialId = "", :keyType = "", :key1 = "",
+		return [ :ok = 0, :credentialId = "", :keyType = "", :key1 = "",
 		         :key2 = "", :signCount = 0, :why = @cWhy ]
 
 	def _RefuseAssert(pcWhy)
@@ -180,4 +180,4 @@ class stzPasskeyServer from stzObject
 		# every assertion refusal is noted (I2); the clone signal above
 		# notes its own, more specific kind first
 		StzNoteRefusal("auth.passkey.failed", @cRpId, "origin:" + @cOrigin, @cWhy)
-		return [ :ok = FALSE, :signCount = 0, :why = @cWhy ]
+		return [ :ok = 0, :signCount = 0, :why = @cWhy ]

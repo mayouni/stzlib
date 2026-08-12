@@ -37,9 +37,9 @@ func StzNodeShapeNames()
 func StzIsNodeShape(pcName)
 	_c_ = StzLower("" + pcName)
 	for _s_ in StzNodeShapeNames()
-		if StzLower("" + _s_) = _c_  return TRUE  ok
+		if StzLower("" + _s_) = _c_  return 1  ok
 	next
-	return FALSE
+	return 0
 
 # Draw a shape AND say how it is painted, in one call.
 #
@@ -207,7 +207,7 @@ func StzDrawNodeShape(poCanvas, pcShape, pnX, pnY, pnW, pnH)
 	# and leave nothing pending, so the caller's NEXT Fill/Stroke sets
 	# defaults instead of recolouring the last primitive drawn here
 	poCanvas.Flush()
-	return TRUE
+	return 1
 
 # A regular n-gon inscribed in the box, first vertex at pnStartDeg. Kept
 # private: a caller wants "hexagon", not a vertex count.

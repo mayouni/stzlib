@@ -54,14 +54,14 @@ func StzStopwatchXT(pcName)
 class stzStopwatch from stzObject
 
 	@cName = ""
-	@bStarted = FALSE
-	@bRunning = FALSE
+	@bStarted = 0
+	@bRunning = 0
 	@nStartMonoNs = 0	# engine monotonic ns at (re)start / resume
 	@nAccumNs = 0		# ns accumulated over completed run stretches
 	@nStartWallMs = 0	# wall anchor of the span start (serialization)
 	@nStopWallMs = 0	# wall anchor of the span end (0 = still open)
 	@aLaps = []
-	@oTraceCtx = NULL	# W3C trace context, created on first need
+	@oTraceCtx = ""	# W3C trace context, created on first need
 
 	def init(pcName)
 		if isString(pcName)
@@ -72,7 +72,7 @@ class stzStopwatch from stzObject
 	# Lazy anchor -- robust whether or not init() ran (paren-less
 	# `new` skips init in Ring), same guard as stzLatencyHistogram.
 	def _Ensure()
-		if @bStarted = FALSE
+		if @bStarted = 0
 			This._Begin()
 		ok
 
@@ -82,8 +82,8 @@ class stzStopwatch from stzObject
 		@nStopWallMs = 0
 		@nAccumNs = 0
 		@aLaps = []
-		@bRunning = TRUE
-		@bStarted = TRUE
+		@bRunning = 1
+		@bStarted = 1
 
 	def Name()
 		return @cName
@@ -107,7 +107,7 @@ class stzStopwatch from stzObject
 		This._Ensure()
 		if @bRunning
 			@nAccumNs += (StzEngineWatchTimestampNs() - @nStartMonoNs)
-			@bRunning = FALSE
+			@bRunning = 0
 		ok
 		return This
 
@@ -116,7 +116,7 @@ class stzStopwatch from stzObject
 		if NOT @bRunning
 			@nStartMonoNs = StzEngineWatchTimestampNs()
 			@nStopWallMs = 0
-			@bRunning = TRUE
+			@bRunning = 1
 		ok
 		return This
 
@@ -198,7 +198,7 @@ class stzStopwatch from stzObject
 	# -- W3C trace identity (engine tracectx) ---------------------
 
 	def TraceContextQ()
-		if @oTraceCtx = NULL
+		if @oTraceCtx = ""
 			@oTraceCtx = new stzTraceContext()
 		ok
 		return @oTraceCtx

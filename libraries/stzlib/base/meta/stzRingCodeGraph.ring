@@ -224,7 +224,7 @@ class stzRingCodeGraph from stzCodeGraph
 				ok
 			ok
 		next
-		@bHasCalls = TRUE
+		@bHasCalls = 1
 
 	#-- Ring-specific call queries (a class-qualified 3-tuple model) -------
 
@@ -322,9 +322,9 @@ class stzRingCodeGraph from stzCodeGraph
 		_aM_ = This.MethodsOf(pcClass)
 		_n_ = len(_aM_)
 		for _i_ = 1 to _n_
-			if StzLower(_aM_[_i_]) = _cM_  return TRUE  ok
+			if StzLower(_aM_[_i_]) = _cM_  return 1  ok
 		next
-		return FALSE
+		return 0
 
 	def _HasCallInClass(pcClass, pcCaller, pcCallee)
 		_cC_ = StzLower("" + pcClass)
@@ -334,10 +334,10 @@ class stzRingCodeGraph from stzCodeGraph
 		for _i_ = 1 to _n_
 			if StzLower(@aCalls[_i_][1]) = _cC_ and StzLower(@aCalls[_i_][2]) = _ca_ and
 			   StzLower(@aCalls[_i_][3]) = _ce_
-				return TRUE
+				return 1
 			ok
 		next
-		return FALSE
+		return 0
 
 	def Stats()
 		return [

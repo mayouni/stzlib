@@ -306,11 +306,11 @@ class stzSound
 		return This.ToSpectrumOf(1, 1, 4096)
 
 	def ToSpectrumOf(pnChannel, pnStartFrame, pnFftSize)
-		if @nBuf = 0  return NULL ok
+		if @nBuf = 0  return "" ok
 		_g_ = StzEngineSoundSpectrum(@nBuf, pnChannel, pnStartFrame, pnFftSize)
 		if _g_ = 0
 			@cLastError = StzEngineSoundAnalysisLastError()
-			return NULL
+			return ""
 		ok
 		return new stzSoundGrid(_g_)
 
@@ -322,11 +322,11 @@ class stzSound
 		return This.ToSpectrogramOf(1, 2048, 512, 4)
 
 	def ToSpectrogramOf(pnChannel, pnFftSize, pnHop, pnThreads)
-		if @nBuf = 0  return NULL ok
+		if @nBuf = 0  return "" ok
 		_g_ = StzEngineSoundSpectrogram(@nBuf, pnChannel, pnFftSize, pnHop, pnThreads)
 		if _g_ = 0
 			@cLastError = StzEngineSoundAnalysisLastError()
-			return NULL
+			return ""
 		ok
 		return new stzSoundGrid(_g_)
 
@@ -340,11 +340,11 @@ class stzSound
 		return This.ToOnsetsOf(1, 0.35)
 
 	def ToOnsetsOf(pnChannel, pnSensitivity)
-		if @nBuf = 0  return NULL ok
+		if @nBuf = 0  return "" ok
 		_g_ = StzEngineSoundOnsets(@nBuf, pnChannel, 2048, 512, pnSensitivity)
 		if _g_ = 0
 			@cLastError = StzEngineSoundAnalysisLastError()
-			return NULL
+			return ""
 		ok
 		return new stzSoundGrid(_g_)
 

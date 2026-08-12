@@ -49,16 +49,16 @@ class stzPerfMonitor from stzObject
 	@nEveryMs = 1000
 	@nNextDueMs = 0
 	@nSamples = 0
-	@bWatchMemory = FALSE
-	@bWatchCpu = FALSE
-	@bWatchSystem = FALSE
+	@bWatchMemory = 0
+	@bWatchCpu = 0
+	@bWatchSystem = 0
 	@nLastCpuNs = 0
 	@nLastUpNs = 0
 	@nSelfNs = 0		# monotonic ns spent inside Sample() (perf P6:
 				# a monitor that cannot state its own cost is
 				# not industry-strength)
-	pTraceRing = NULL	# engine trace ring (perf P7) -- request traces
-	bTracing = FALSE	# shared by every Ring copy of this monitor
+	pTraceRing = ""	# engine trace ring (perf P7) -- request traces
+	bTracing = 0	# shared by every Ring copy of this monitor
 
 	def init(pcName)
 		if isString(pcName) and pcName != ""
@@ -76,7 +76,7 @@ class stzPerfMonitor from stzObject
 
 	def WatchMemory()
 		if NOT @bWatchMemory
-			@bWatchMemory = TRUE
+			@bWatchMemory = 1
 			This._Register(StzMetric("process.memory.rss", :Gauge).SetHelp("Resident set size in bytes"))
 			This._Register(StzMetric("process.memory.peak", :Gauge).SetHelp("Peak working set in bytes"))
 		ok
@@ -84,14 +84,14 @@ class stzPerfMonitor from stzObject
 
 	def WatchCpu()
 		if NOT @bWatchCpu
-			@bWatchCpu = TRUE
+			@bWatchCpu = 1
 			This._Register(StzMetric("process.cpu.utilization", :Gauge).SetHelp("Fraction of machine CPU this process used over the last sampling interval"))
 		ok
 		return This
 
 	def WatchSystemMemory()
 		if NOT @bWatchSystem
-			@bWatchSystem = TRUE
+			@bWatchSystem = 1
 			This._Register(StzMetric("system.memory.free", :Gauge).SetHelp("Available physical memory in bytes"))
 		ok
 		return This
@@ -114,13 +114,13 @@ class stzPerfMonitor from stzObject
 	# to Observe(): the server stores a Ring copy at that moment, and
 	# a copy made earlier does not know tracing was turned on later.
 	def EnableTracing(pnCapacity)
-		if pTraceRing = NULL
+		if pTraceRing = ""
 			_nCap_ = 128
 			if isNumber(pnCapacity) and pnCapacity >= 1
 				_nCap_ = pnCapacity
 			ok
 			pTraceRing = StzEnginePerfTraceCreate(_nCap_)
-			bTracing = TRUE
+			bTracing = 1
 		ok
 		return This
 
@@ -382,7 +382,7 @@ class stzPerfMonitor from stzObject
 		@aMetrics = []
 		if bTracing
 			StzEnginePerfTraceDestroy(pTraceRing)
-			pTraceRing = NULL
-			bTracing = FALSE
+			pTraceRing = ""
+			bTracing = 0
 		ok
 		return This
