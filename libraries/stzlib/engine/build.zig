@@ -1114,6 +1114,29 @@ pub fn build(b: *std.Build) void {
 
     // THE SOUND STUDIO -- the sound plane's listening bench, in a browser.
     //
+    // VC0: the voice spike. MEASUREMENT ONLY -- it earns the voice plane's
+    // phases or refuses them, exactly as SN0 did for sound. Not built by the
+    // default `zig build`: a spike is not a product, and nothing links it.
+    // `zig build voice-spike`.
+    {
+        const vs_mod = b.createModule(.{
+            .root_source_file = b.path("tools/voice_spike.zig"),
+            .target = target,
+            .optimize = optimize,
+            .link_libc = true,
+        });
+        const vspike = b.addExecutable(.{ .name = "voice_spike", .root_module = vs_mod });
+        if (target.result.os.tag == .windows) {
+            // ole32 for COM, and that is the whole dependency: SAPI ships with
+            // the OS. No vendored model, no download, no cloud.
+            for ([_][]const u8{ "ole32", "oleaut32", "uuid" }) |l| vspike.linkSystemLibrary(l);
+        }
+        const run_vspike = b.addRunArtifact(vspike);
+        if (b.args) |a| run_vspike.addArgs(a);
+        const vspike_step = b.step("voice-spike", "VC0: measure whether the engine can speak (Windows/SAPI)");
+        vspike_step.dependOn(&run_vspike.step);
+    }
+
     // Built by the DEFAULT `zig build`, deliberately: a studio that can drift
     // from the engine it measures is worse than no studio. Rebuild the engine
     // and the studio is rebuilt with it, against the same soundgraph.zig the
