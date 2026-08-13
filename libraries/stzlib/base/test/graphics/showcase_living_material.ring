@@ -82,6 +82,11 @@ oGraph = ApplyMaterial()
 # a still, so the demo leaves something behind even after the window closes
 $oScene.ToPNG("showcase_living_material_still.png")
 
+oHudFont = NULL
+if fexists("C:/Windows/Fonts/segoeui.ttf")
+	oHudFont = new stzFont("C:/Windows/Fonts/segoeui.ttf")
+ok
+
 oWin = new stzWindow(1180, 700, "Softanza -- The Living Material")
 ? "=============================================================="
 ? " THE LIVING MATERIAL"
@@ -172,7 +177,11 @@ while oWin.IsOpen()
 	$oScene.RotateTo($nHub, 0, 1, 0, 0 - nT * 30)
 	$oScene.MoveTo($nHub, 0, 0.55 * sin(nT * 0.9), 0)
 
-	oWin.Draw($oScene)
+	# the HUD is rebuilt each frame -- it is a handful of shapes, and the
+	# scene's own buffers are the ones that matter for cost
+	oHud = BuildHud(oWin.Width(), oWin.Height(), oHudFont,
+		MaterialNames()[$nWhich], Themes()[$nTheme], $nAmt, floor(oWin.FPS()))
+	oWin.DrawXT($oScene, oHud)
 end
 
 ? ""
@@ -272,3 +281,57 @@ func ApplyMaterial()
 		:amt    = $nAmt
 	])
 	return _g_
+
+# ---------------------------------------------------------------------------
+# THE HUD. An stzCanvas drawn OVER the 3D frame in the same acquired frame
+# (stzWindow.DrawXT), so the controls are on screen rather than in a comment
+# nobody reading the window can see.
+#
+# Its background is TRANSPARENT and it is drawn with a preserving pass, so
+# it annotates the render instead of replacing it.
+# ---------------------------------------------------------------------------
+func BuildHud(nW, nH, oFont, cMat, cTheme, nAmt, nFps)
+	_o_ = new stzCanvas(nW, nH)
+	_o_.SetBackground("#00000000")            # transparent: annotate, do not replace
+	if NOT isObject(oFont)  return _o_  ok
+
+	# a panel dark enough to read on, whatever the theme behind it
+	_o_.Flush()
+	_o_.FillQ("#0B1020D8").AddRoundRect(20, 20, 366, 250, 12)
+
+	_o_.Flush()
+	_o_.AddTextQ("THE LIVING MATERIAL", 40, 54).SetFontQ(oFont, 19).Color(:White)
+	_o_.Flush()
+	_o_.AddTextQ("the surface is a NODE GRAPH, rebuilt live",
+		40, 76).SetFontQ(oFont, 12).Color("#9FB0D8")
+
+	_aRows_ = [
+		[ "1-5", "swap the material's node graph" ],
+		[ "T",    "cycle theme -- colours are MEANINGS" ],
+		[ "I",    "interrogate the graph WHILE it draws" ],
+		[ "W",    "print the emitted material language" ],
+		[ "[ / ]", "the material's scalar, live" ],
+		[ "SPACE","pause      S  save      ESC  quit" ]
+	]
+	_y_ = 106
+	for _r_ in _aRows_
+		_o_.Flush()
+		_o_.FillQ("Info.Solid").AddRoundRect(40, _y_ - 13, 52, 20, 5)
+		_o_.Flush()
+		_o_.AddTextQ(_r_[1], 46, _y_ + 2).SetFontQ(oFont, 11).Color("OnInfo")
+		_o_.Flush()
+		_o_.AddTextQ(_r_[2], 102, _y_ + 2).SetFontQ(oFont, 12).Color("#DCE4F5")
+		_y_ += 25
+	next
+
+	# the live state, bottom-left
+	_o_.Flush()
+	_o_.FillQ("#0B1020D8").AddRoundRect(20, nH - 76, 470, 56, 12)
+	_o_.Flush()
+	_o_.AddTextQ("material  " + cMat + "      theme  " + cTheme +
+		"      amt  " + nAmt + "      " + nFps + " fps",
+		40, nH - 46).SetFontQ(oFont, 13).Color(:White)
+	_o_.Flush()
+	_o_.AddTextQ("one material, thirteen meanings -- the body colour is @color",
+		40, nH - 28).SetFontQ(oFont, 11).Color("#9FB0D8")
+	return _o_

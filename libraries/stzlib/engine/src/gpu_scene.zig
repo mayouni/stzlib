@@ -148,6 +148,9 @@ const SceneSlot = struct {
     // drift.
     ext_target: i64 = 0,
     ext_tfmt: i32 = 0,
+    // An OVERLAY pass PRESERVES the target instead of clearing it, so a HUD
+    // can sit on top of the 3D frame it annotates.
+    ext_over: bool = false,
     // Which build generation is sitting in the vertex buffers. `builds`
     // already witnessed that a still scene re-TESSELLATES once; this makes
     // the same true of the UPLOAD. Found by the window: a static scene was
@@ -1069,7 +1072,12 @@ fn renderToTarget(s: *SceneSlot) !bool {
     const atlas_tex: i64 = if (s.text_verts.items.len > 0) atlas.textureId() else 0;
 
     const cl = Rgba.unpack(s.clear);
-    if (render.stz_gpu_render_begin(draw_target, cl.r, cl.g, cl.b, cl.a) != gpu.OK) return false;
+    // An OVERLAY preserves the frame it annotates; anything else clears.
+    const begun = if (s.ext_over)
+        render.stz_gpu_render_begin_over(draw_target)
+    else
+        render.stz_gpu_render_begin(draw_target, cl.r, cl.g, cl.b, cl.a);
+    if (begun != gpu.OK) return false;
     for (s.segs.items) |seg| {
         if (seg.kind == .shape) {
             _ = render.stz_gpu_render_draw(pipe_shape[ti], s.vbuf_shape, @floatFromInt(seg.first), @floatFromInt(seg.count), 0);
@@ -1088,6 +1096,24 @@ fn renderToTarget(s: *SceneSlot) !bool {
 ///
 /// `w`/`h` retarget the scene when the window has been resized, so the
 /// display list keeps describing the window it is drawn in.
+/// Draw this 2D scene OVER whatever the target already holds. Same as
+/// sceneDrawToTarget except the pass preserves the existing contents, which
+/// is what makes a HUD possible: the 3D frame is drawn first, then this.
+pub fn sceneDrawOverTarget(id: i64, target_id: i64, tfmt: i32, w: u32, h: u32) bool {
+    const slot = slotOf(id) orelse return false;
+    const s = &scenes.items[slot];
+    if (w != 0 and h != 0) _ = sceneResize(id, w, h);
+    s.ext_target = target_id;
+    s.ext_tfmt = tfmt;
+    s.ext_over = true;
+    defer {
+        s.ext_target = 0;
+        s.ext_tfmt = 0;
+        s.ext_over = false;
+    }
+    return renderToTarget(s) catch false;
+}
+
 pub fn sceneDrawToTarget(id: i64, target_id: i64, tfmt: i32, w: u32, h: u32) bool {
     const slot = slotOf(id) orelse return false;
     const s = &scenes.items[slot];

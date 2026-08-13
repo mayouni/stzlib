@@ -335,16 +335,27 @@ fn releasePassBindGroups() void {
 /// given color (0..1 components). One pass at a time; draws follow; End()
 /// submits once.
 pub fn stz_gpu_render_begin(target_id: i64, r: f64, g: f64, b: f64, a: f64) callconv(.c) i32 {
-    return beginInternal(target_id, 0, r, g, b, a);
+    return beginInternal(target_id, 0, r, g, b, a, true);
+}
+
+/// A pass that PRESERVES what the target already holds (LoadOp.Load rather
+/// than Clear). This is what an OVERLAY needs: a HUD drawn after a 3D scene
+/// must sit on top of it, and a clearing pass would wipe the frame it is
+/// meant to annotate.
+///
+/// It is the frame-graph idea at the window's own scale -- one acquired
+/// frame carrying more than one pass.
+pub fn stz_gpu_render_begin_over(target_id: i64) callconv(.c) i32 {
+    return beginInternal(target_id, 0, 0, 0, 0, 0, false);
 }
 
 /// GR3: the same pass with a DEPTH buffer attached (cleared to 1.0 = far).
 /// depth_id must be a TEX_DEPTH texture of the target's size.
 pub fn stz_gpu_render_begin3d(target_id: i64, depth_id: i64, r: f64, g: f64, b: f64, a: f64) callconv(.c) i32 {
-    return beginInternal(target_id, depth_id, r, g, b, a);
+    return beginInternal(target_id, depth_id, r, g, b, a, true);
 }
 
-fn beginInternal(target_id: i64, depth_id: i64, r: f64, g: f64, b: f64, a: f64) i32 {
+fn beginInternal(target_id: i64, depth_id: i64, r: f64, g: f64, b: f64, a: f64, clear: bool) i32 {
     ensureRegistered();
     ensureFrameHook();
     if (!gpu.isAvail()) {
@@ -373,7 +384,7 @@ fn beginInternal(target_id: i64, depth_id: i64, r: f64, g: f64, b: f64, a: f64) 
     var att = std.mem.zeroes(c.WGPURenderPassColorAttachment);
     att.view = t.view;
     att.depthSlice = std.math.maxInt(u32); // WGPU_DEPTH_SLICE_UNDEFINED
-    att.loadOp = c.WGPULoadOp_Clear;
+    att.loadOp = if (clear) c.WGPULoadOp_Clear else c.WGPULoadOp_Load;
     att.storeOp = c.WGPUStoreOp_Store;
     att.clearValue = .{ .r = r, .g = g, .b = b, .a = a };
     var rp = std.mem.zeroes(c.WGPURenderPassDescriptor);
