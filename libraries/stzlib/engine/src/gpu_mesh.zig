@@ -238,6 +238,62 @@ pub fn buildSphere(radius: f32, segs: u32, rings: u32) i64 {
     return makeId(slot, s.gen);
 }
 
+/// A TORUS: the shape every renderer shows off with, and the one this
+/// library could not draw. Ring radius R, tube radius r, `segs` around the
+/// ring and `sides` around the tube.
+///
+/// The normal is exact rather than estimated -- it points from the tube's
+/// CENTRE CIRCLE to the surface, which is the definition of the surface
+/// normal on a torus. A cross-product estimate from neighbouring vertices
+/// would be close but would band visibly under a smooth material, and the
+/// material language is precisely what this shape exists to display.
+pub fn buildTorus(ring_r: f32, tube_r: f32, segs: u32, sides: u32) i64 {
+    if (segs < 3 or sides < 3 or ring_r <= 0 or tube_r <= 0) return 0;
+    const slot = alloc_slot(&STD_ATTRS) orelse return 0;
+    const s = &meshes.items[slot];
+    for (0..segs + 1) |si| {
+        const u = @as(f32, @floatFromInt(si)) / @as(f32, @floatFromInt(segs));
+        const theta = u * std.math.tau;      // around the ring
+        const ct = @cos(theta);
+        const st = @sin(theta);
+        for (0..sides + 1) |vi| {
+            const v = @as(f32, @floatFromInt(vi)) / @as(f32, @floatFromInt(sides));
+            const phi = v * std.math.tau;    // around the tube
+            const cp = @cos(phi);
+            const sp = @sin(phi);
+            // the point on the centre circle this vertex belongs to
+            const cx = ring_r * ct;
+            const cz = ring_r * st;
+            const px = (ring_r + tube_r * cp) * ct;
+            const py = tube_r * sp;
+            const pz = (ring_r + tube_r * cp) * st;
+            // centre-circle -> surface, normalised: the exact normal
+            var nx = px - cx;
+            const ny = py;
+            var nz = pz - cz;
+            const len = @sqrt(nx * nx + ny * ny + nz * nz);
+            if (len > 0) {
+                nx /= len;
+                nz /= len;
+            }
+            pushVertex(s, &[_]f32{ px, py, pz, nx, ny / @max(len, 1e-6), nz, u, v }) catch return 0;
+        }
+    }
+    const row = sides + 1;
+    for (0..segs) |si| {
+        for (0..sides) |vi| {
+            const a: u32 = @intCast(si * row + vi);
+            const b: u32 = a + row;
+            // same winding as the sphere, and for the same reason: get it
+            // backwards and you see the INSIDE, which reads as a lighting
+            // bug rather than a winding one
+            pushTri(s, a, a + 1, b) catch return 0;
+            pushTri(s, a + 1, b + 1, b) catch return 0;
+        }
+    }
+    return makeId(slot, s.gen);
+}
+
 /// A flat plane in XZ, facing +Y, centred at the origin.
 pub fn buildPlane(size: f32) i64 {
     const slot = alloc_slot(&STD_ATTRS) orelse return 0;

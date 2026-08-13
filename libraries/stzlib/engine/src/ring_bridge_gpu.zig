@@ -834,6 +834,11 @@ fn ring_MeshSphere(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(gmesh.buildSphere(@floatCast(gn(p, 1)), @intFromFloat(gn(p, 2)), @intFromFloat(gn(p, 3)))));
 }
 
+fn ring_MeshTorus(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gmesh.buildTorus(@floatCast(gn(p, 1)), @floatCast(gn(p, 2)),
+        @intFromFloat(gn(p, 3)), @intFromFloat(gn(p, 4)))));
+}
+
 fn ring_MeshPlane(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(gmesh.buildPlane(@floatCast(gn(p, 1)))));
 }
@@ -1462,6 +1467,7 @@ pub const regs = [_]R.Reg{
     // GR3 meshes + 3D scene
     .{ .name = "stzenginegpumeshcube", .func = &ring_MeshCube },
     .{ .name = "stzenginegpumeshsphere", .func = &ring_MeshSphere },
+    .{ .name = "stzenginegpumeshtorus", .func = &ring_MeshTorus },
     .{ .name = "stzenginegpumeshplane", .func = &ring_MeshPlane },
     .{ .name = "stzenginegpumeshfromobj", .func = &ring_MeshFromObj },
     .{ .name = "stzenginegpumeshcustom", .func = &ring_MeshCustom },

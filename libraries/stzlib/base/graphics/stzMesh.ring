@@ -58,6 +58,11 @@ class stzMesh from stzObject
 				StzRaise("stzMesh: that OBJ text has no usable geometry " +
 					"(needs v lines and f faces).")
 			ok
+		on "torus"
+			# [ :Torus, nRingRadius, nTubeRadius, nSegments, nSides ]
+			@nId = StzEngineGpuMeshTorus(_StzMeshArg(_aW_, 2, 1),
+				_StzMeshArg(_aW_, 3, 0.35),
+				_StzMeshArg(_aW_, 4, 64), _StzMeshArg(_aW_, 5, 32))
 		on "custom"
 			if len(_aW_) < 4
 				StzRaise("stzMesh: [ :Custom, aComps, aVerts, aIndices ].")
@@ -70,7 +75,7 @@ class stzMesh from stzObject
 			ok
 		other
 			StzRaise("stzMesh: unknown kind '" + @cKind + "' -- use :Cube, " +
-				":Sphere, :Plane, :Obj or :Custom.")
+				":Sphere, :Torus, :Plane, :Obj or :Custom.")
 		off
 
 		if @nId = 0
