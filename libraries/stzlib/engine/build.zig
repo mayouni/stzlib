@@ -22,6 +22,7 @@ const Domain = struct {
     needs_miniaudio_dec: bool = false, // miniaudio, decoders only (SN1 portable half)
     needs_miniaudio_dev: bool = false, // miniaudio, full device backends (SN1 per-OS half)
     needs_speech: bool = false, // the platform speech engine (VC1 -- SAPI on Windows)
+    needs_rmlui: bool = false, // vendored RmlUi (G1 layout/markup) -- SEE addRmlUi
 };
 
 // Core (stk_*): minimal, fast, constrained environments
@@ -124,6 +125,14 @@ const base_domains = [_]Domain{
     // are not bundled with Zig), and linking it into stz_gpu would cost
     // the GPU plane a portability property that is already guarded.
     .{ .name = "stz_window", .entry = "src/stz_window_entry.zig", .needs_ring = true, .needs_glfw = true },
+    // G1 of the GUI plane: layout and markup. Its OWN DLL for the same
+    // reason stz_window is -- a dependency whose build requirements differ
+    // from the GPU plane's does not get to impose them on it. RmlUi needs
+    // C++ EXCEPTIONS and RTTI (measured in G0: itlib/flat_map throws,
+    // Traits.h calls typeid), while stz_gpu compiles HarfBuzz with
+    // -fno-exceptions -fno-rtti. It never touches wgpu: it hands out a
+    // display list and the graphics plane draws it.
+    .{ .name = "stz_gui", .entry = "src/stz_gui_entry.zig", .needs_ring = true, .needs_rmlui = true },
     // SN1 sound plane, TWO DLLs -- the split is FACT 3 of SOFTANZA_SOUND_PLAN.md,
     // adopted up front from the GR5 lesson above rather than rediscovered.
     // stz_sound is portable and cross-compiles everywhere; stz_audiodev carries
@@ -578,6 +587,46 @@ fn addTextShape(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Bu
     lib.addCSourceFiles(.{
         .files = &.{"vendor/harfbuzz/harfbuzz.cc"},
         .flags = &.{ "-fno-exceptions", "-fno-rtti" },
+    });
+    lib.linkLibCpp();
+}
+
+// RmlUi, from its own directory listing. NO cmake -- the harfbuzz pattern,
+// at 183 translation units instead of one.
+//
+// Two flags are NOT optional and both were paid for in G0's build errors:
+//   -DRMLUI_STATIC_LIB  else RMLUICORE_API is __declspec(dllimport) and
+//                       every non-inline definition is an error (22 of them)
+//   exceptions + RTTI   left ON, unlike every other C++ vendor here.
+//                       itlib/flat_map throws; Traits.h calls typeid(T).
+//                       -fno-rtti alone produces 391 errors.
+// -w because RmlUi's own dllimport/dllexport annotations warn loudly under
+// clang when built statically, and they are not our warnings to fix.
+fn addRmlUi(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
+    mod.addIncludePath(b.path("vendor/rmlui/Include"));
+    var files: std.ArrayList([]const u8) = .{};
+    const dirs = [_][]const u8{
+        "vendor/rmlui/Source/Core",
+        "vendor/rmlui/Source/Core/Elements",
+        "vendor/rmlui/Source/Core/Layout",
+    };
+    for (dirs) |dirpath| {
+        var dir = std.fs.cwd().openDir(dirpath, .{ .iterate = true }) catch |e|
+            std.debug.panic("rmlui: cannot open {s}: {s}", .{ dirpath, @errorName(e) });
+        defer dir.close();
+        var it = dir.iterate();
+        while (it.next() catch null) |entry| {
+            if (entry.kind != .file) continue;
+            if (!std.mem.endsWith(u8, entry.name, ".cpp")) continue;
+            files.append(b.allocator, b.fmt("{s}/{s}", .{ dirpath, entry.name })) catch @panic("oom");
+        }
+    }
+    // the house's own C ABI over it -- see src/stz_rmlui.cpp
+    files.append(b.allocator, "src/stz_rmlui.cpp") catch @panic("oom");
+    lib.addCSourceFiles(.{
+        .files = files.items,
+        .flags = &.{ "-std=c++14", "-DRMLUI_STATIC_LIB", "-DNDEBUG", "-w" },
+        .language = .cpp,
     });
     lib.linkLibCpp();
 }
@@ -1116,6 +1165,33 @@ pub fn build(b: *std.Build) void {
         if (dom.needs_stb) addStb(mod, lib, b);
         if (dom.needs_textshape) addTextShape(mod, lib, b);
         if (dom.needs_glfw) addGlfw(mod, lib, b, target.result.os.tag);
+        if (dom.needs_rmlui) {
+            addRmlUi(mod, lib, b);
+            // THE flag that makes a C++ DLL work here, and it cost a day.
+            //
+            // `zig build-lib -dynamic` with a Zig root module gives the DLL
+            // Zig's own entry point, which never runs the C CRT startup --
+            // so C++ STATIC CONSTRUCTORS NEVER RUN. Measured, not guessed: a
+            // global whose constructor sets a flag to 42 still reads 0 after
+            // LoadLibrary, and a DllMain added for the test was never called.
+            //
+            // It presents as heap corruption (0xC0000374) deep inside the
+            // library, not as anything that points at initialisation. RmlUi
+            // initialises and creates contexts fine without its constructors
+            // and corrupts the heap the moment a document is loaded.
+            //
+            // Pointing the entry at mingw's DllMainCRTStartup runs the real
+            // startup, constructors included. Verified against an isolated
+            // build: identical sources linked with `zig c++ -shared` (which
+            // uses that entry by default) work; `build-lib` without this flag
+            // does not; `build-lib` WITH it does.
+            //
+            // Only this domain sets it. Every other DLL here is Zig or C and
+            // has never needed a constructor to run -- HarfBuzz survives
+            // because it initialises lazily, and build.zig's ggml note above
+            // records the house hitting the same wall from the other side.
+            lib.entry = .{ .symbol_name = "DllMainCRTStartup" };
+        }
         if (dom.needs_miniaudio_dec) addMiniaudioDecode(mod, lib, b);
         if (dom.needs_miniaudio_dev) addMiniaudioDevice(mod, lib, b, target.result.os.tag);
         if (dom.needs_speech) addSpeech(lib, target.result.os.tag);
@@ -1175,7 +1251,7 @@ pub fn build(b: *std.Build) void {
         const probe = b.addExecutable(.{ .name = "rmlui_g0_probe", .root_module = probe_mod });
         probe.addCSourceFiles(.{
             .files = rml_files.items,
-            .flags = &.{ "-std=c++14", "-DRMLUI_STATIC_LIB", "-w" },
+            .flags = &.{ "-std=c++14", "-DRMLUI_STATIC_LIB", "-DNDEBUG", "-w" },
             .language = .cpp,
         });
         const run_probe = b.addRunArtifact(probe);

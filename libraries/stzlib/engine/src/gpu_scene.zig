@@ -155,6 +155,17 @@ const Cmd = union(enum) {
     // uploads once instead of per frame -- the same discipline the vertex
     // buffers already follow.
     image: struct { x: f32, y: f32, w: f32, h: f32, iw: u32, ih: u32, rgba: []u8, tex: i64, col: u32 },
+    // ALREADY-TESSELLATED triangles with a colour PER VERTEX -- the shape
+    // a UI toolkit emits. G1 of SOFTANZA_GUI_PLAN.md: RmlUi's
+    // RenderInterface hands out vertices and indices, not shapes, so the
+    // display list needs a way to say "here are triangles" without
+    // pretending they are rectangles.
+    //
+    // `verts` is x,y,r,g,b,a per vertex in PIXEL space with 0..255 colour
+    // channels -- the same information the shape buffer holds, so a mesh
+    // costs no new shader, no new segment kind and no new draw.
+    // `idx` is triangle indices into it.
+    mesh: struct { verts: []f32, idx: []u32 },
 };
 
 const SegKind = enum { shape, text, image };
@@ -227,6 +238,10 @@ fn freeCmdPayloads(s: *SceneSlot) void {
         switch (cmd) {
             .stroke => |k| alloc.free(k.pts),
             .polygon => |k| alloc.free(k.pts),
+            .mesh => |k| {
+                alloc.free(k.verts);
+                alloc.free(k.idx);
+            },
             .text => |k| alloc.free(k.str),
             .image => |im| {
                 alloc.free(im.rgba);
@@ -493,6 +508,26 @@ pub fn scenePolygon(id: i64, pts: []const f64, col: u32) i32 {
     return push(id, .{ .polygon = .{ .pts = copy, .col = col } });
 }
 
+/// Post already-tessellated triangles. `verts` is x,y,r,g,b,a per vertex
+/// (pixel space, 0..255 channels); `idx` is triangle indices into it.
+///
+/// Validated at the DOOR rather than at draw time: an out-of-range index
+/// would read someone else's memory during tessellation, which is the
+/// far side of a C ABI from whoever wrote it.
+pub fn sceneMesh(id: i64, verts: []const f32, idx: []const u32) i32 {
+    if (verts.len < 18 or verts.len % 6 != 0) return BAD_ARG; // >= 1 triangle
+    if (idx.len < 3 or idx.len % 3 != 0) return BAD_ARG;
+    const nverts: u32 = @intCast(verts.len / 6);
+    for (idx) |i| if (i >= nverts) return BAD_ARG;
+
+    const vcopy = alloc.dupe(f32, verts) catch return BAD_ARG;
+    const icopy = alloc.dupe(u32, idx) catch {
+        alloc.free(vcopy);
+        return BAD_ARG;
+    };
+    return push(id, .{ .mesh = .{ .verts = vcopy, .idx = icopy } });
+}
+
 pub fn sceneText(id: i64, font: i64, str: []const u8, x: f64, y: f64, size: f64, col: u32) i32 {
     if (str.len == 0 or size <= 0) return BAD_ARG;
     const copy = alloc.dupe(u8, str) catch return BAD_ARG;
@@ -754,6 +789,18 @@ fn buildOnce(s: *SceneSlot) !void {
                 // the SVG side's stroke-linejoin/linecap="round".
                 for (0..np) |i| try b.disc(k.pts[i * 2], k.pts[i * 2 + 1], hw, col);
             },
+            .mesh => |k| {
+                // No tessellation to do -- the caller already did it. This
+                // arm exists only to EXPAND the index buffer, because the
+                // shape pipeline draws non-indexed.
+                var i: usize = 0;
+                while (i + 2 < k.idx.len) : (i += 3) {
+                    for (k.idx[i .. i + 3]) |vi| {
+                        const v = k.verts[vi * 6 ..];
+                        try b.shapeVert(v[0], v[1], .{ .r = v[2] / 255.0, .g = v[3] / 255.0, .b = v[4] / 255.0, .a = v[5] / 255.0 });
+                    }
+                }
+            },
             .polygon => |k| {
                 const col = Rgba.unpack(k.col);
                 var idx: std.ArrayList(u32) = .{};
@@ -990,6 +1037,31 @@ pub fn sceneToSvg(id: i64) !?[]u8 {
                 // round joins/caps: the tessellator puts a disc at every
                 // vertex -- the two backends must agree on cap semantics
                 try body.appendSlice(alloc, " stroke-linejoin=\"round\" stroke-linecap=\"round\"/>\n");
+            },
+            .mesh => |k| {
+                // ONE <polygon> per triangle, filled with the FIRST vertex's
+                // colour. Exact for a UI toolkit's geometry, which is
+                // flat-coloured quads; an approximation for a gradient mesh,
+                // where the GPU tier interpolates and this tier cannot. Said
+                // here rather than discovered from a screenshot.
+                var i: usize = 0;
+                while (i + 2 < k.idx.len) : (i += 3) {
+                    const c0 = k.verts[k.idx[i] * 6 ..];
+                    try body.appendSlice(alloc, "<polygon points=\"");
+                    for (k.idx[i .. i + 3], 0..) |vi, j| {
+                        if (j > 0) try body.appendSlice(alloc, " ");
+                        try svgNum(&body, k.verts[vi * 6]);
+                        try body.appendSlice(alloc, ",");
+                        try svgNum(&body, k.verts[vi * 6 + 1]);
+                    }
+                    const packed_col: u32 = (@as(u32, @intFromFloat(c0[2])) << 24) |
+                        (@as(u32, @intFromFloat(c0[3])) << 16) |
+                        (@as(u32, @intFromFloat(c0[4])) << 8) |
+                        @as(u32, @intFromFloat(c0[5]));
+                    try body.appendSlice(alloc, "\"");
+                    try svgFill(&body, "fill", packed_col);
+                    try body.appendSlice(alloc, "/>\n");
+                }
             },
             .polygon => |k| {
                 try body.appendSlice(alloc, "<polygon points=\"");
