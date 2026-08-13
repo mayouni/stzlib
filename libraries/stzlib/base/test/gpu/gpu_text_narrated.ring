@@ -59,7 +59,10 @@ chk("garbage bytes refuse (id 0)", StzEngineGpuFontLoad("not a font at all") = 0
 ? ""
 ? "-- Scene 2: Latin -- one glyph per char, x strictly advancing --"
 aLat = StzEngineGpuTextLayout(hF, "Softanza", 32)
-chk("layout answers", len(aLat) = 3)
+# 7 items since the reversibility fields landed (§0 of the GUI plane):
+# width, runs, glyphs, ascender, descender, lineGap, paraRtl. They were
+# APPENDED, never reordered -- items 1..3 mean what they always meant.
+chk("layout answers width, runs, glyphs and metrics", len(aLat) = 7)
 aG = aLat[3]
 chk("8 chars -> 8 glyphs", len(aG) = 8)
 chk("one visual run", aLat[2] = 1)

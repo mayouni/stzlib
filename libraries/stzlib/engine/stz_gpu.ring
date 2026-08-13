@@ -106,13 +106,41 @@
 #   StzEngineGpuFontLoad(cFontBytes) -> id (0 = refusal; TTF/OTF memory)
 #   StzEngineGpuFontFree(id) / StzEngineGpuFontGlyphCount(id)
 #   StzEngineGpuTextLayout(hFont, cUtf8, nSizePx)
-#       -> [nWidthPx, nRunCount, [ [gid, x, y, byteCluster], ... ]]
+#       -> [nWidthPx, nRunCount,
+#           [ [gid, x, y, byteCluster, pen, adv, clusterEnd, level], ... ],
+#           nAscender, nDescender, nLineGap, bParaRtl]
 #       or [] on refusal. Glyphs in VISUAL left-to-right order; first
 #       paragraph only (single-line contract); baseline y=0, y positive
 #       up (HarfBuzz convention); 1/64 px precision.
 #   StzEngineGpuGlyphBitmap(hFont, nGlyphId, nSizePx)
 #       -> [w, h, xoff, yoff, cGrayBytes] ([0,0,0,0,""] = ink-free glyph,
 #       a valid answer). Same em->px scale contract as TextLayout.
+#
+# ---- The layout is REVERSIBLE (the GUI plane's §0 gate) ---------------
+#
+# Drawing text is half a text pipeline. The other half is answering
+# questions ABOUT what was drawn, and every platform IME on earth asks
+# the same two -- Windows TSF (GetTextExt, GetACPFromPoint), macOS
+# (firstRectForCharacterRange:, characterIndexForPoint:), Android, the
+# Web's EditContext:
+#
+#   StzEngineGpuTextRects(hFont, cUtf8, nSizePx, nStartByte, nEndByte)
+#       -> [ [x, top, w, h], ... ] -- the VISUAL rects covering a LOGICAL
+#       byte range. A list, not a rect: a range crossing a bidi seam is
+#       genuinely several pieces on screen. Empty range -> [].
+#   StzEngineGpuTextCaretRect(hFont, cUtf8, nSizePx, nIndex, nTrailing)
+#       -> [x, top, w, h] -- zero-width, full line height. nTrailing is
+#       the AFFINITY bit: at a bidi seam one byte offset has two valid
+#       screen positions and only the caller's affinity chooses.
+#   StzEngineGpuTextIndexAt(hFont, cUtf8, nSizePx, nX)
+#       -> [nIndex, nTrailing, nCaretByte]. Feed (nIndex, nTrailing) back
+#       to TextCaretRect and you land in the glyph you clicked: that
+#       ROUND TRIP is the reversibility property, and it is asserted.
+#
+# Coordinates: x from the text origin, y DOWN from the baseline at 0, so
+# `top` is negative. Caret movement is LOGICAL, not visual, by decision
+# (Blink left visual movement in Chrome M76 calling it "hacks with many
+# bugs"; Gecko's meta bug ran from 2003 with 35 dependants).
 #
 # ---- GR2b display list: ONE model, TWO renderers ---------------------
 #

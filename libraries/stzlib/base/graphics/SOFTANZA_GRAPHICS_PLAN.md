@@ -1612,7 +1612,178 @@ backgrounds stay literal.
 ## The rule this section enforces
 
 A capability that is not in the plan is a capability the next session will
-either rebuild or contradict. The check is cheap — grep the plane's own
+either rebuild or contradict.
+
+---
+
+# INCOMING FINDING — the text layout must be reversible
+
+**From**: the GUI-plane survey (StzZui, `doc/GUI-SYSTEM.md`), 2026-08-13. Filed in the
+genre this plane already receives — the sound plane's SN5 request for an image primitive,
+which became `AddImage` above.
+**Status**: a request, not a defect. Nothing is broken today.
+**Why here**: `gpu_text.zig` is this plane's, and so is the answer.
+
+**The finding.** Every platform IME, without exception, demands the same two queries of
+whatever laid the text out:
+
+1. **the screen rect of a character range** — Windows `GetTextExt`, macOS
+   `firstRectForCharacterRange:`, the Web's `EditContext` character bounds. This is how the
+   candidate window is positioned.
+2. **the character index at a point** — Windows `GetACPFromPoint`, macOS
+   `characterIndexForPoint:`. This is hit-testing, exposed to the OS.
+
+Both need a **leading/trailing affinity bit**, because hit-testing is inherently
+`(index, isTrailingHit)` — that bit *is* bidi affinity, and every editing operation carries
+it. With ligatures one glyph spans several characters, so the answer resolves per
+**cluster**, by proportional subdivision of the cluster advance, never per glyph.
+
+**What exists today.** `textLayout(font_id, utf8, size_px)`, with `WidthOf`, `RunCountOf`
+and `GlyphsOf` on the Ring side. Whether that is *reversible* in the sense above has not
+been established — this finding asks the question, it does not assert the answer.
+
+**Why now rather than later**, which is the whole point of filing it:
+
+> If the layout can answer those two queries at any time, IME is expensive but tractable.
+> **If it cannot, IME is impossible — and that is discovered late.**
+
+Firefox's Text Services Framework support was estimated at *"10–15 man days"* and took
+about **eight years**. The bulk was not the IME protocol: it was having to invent *query
+content events* so the widget layer could interrogate content and layout for text and
+geometry — precisely these two queries, retrofitted. GLFW's IME request has been open since
+**2013**.
+
+**What is not being asked for.** No IME, no editing model, no caret semantics — those are
+the GUI plane's and are correctly not this plane's business. Only that the layout be
+*interrogable*. Note the corroboration: DirectWrite, CoreText, Pango and Skia's SkParagraph
+— four independent platform text stacks — all stop at exactly this line. Each exposes
+hit-testing and selection rectangles; none ships an edit model. That boundary is the right
+one, and this asks this plane to reach it, not to cross it.
+
+**The gate it releases.** `base/gui/` phase G1 is blocked on it —
+`stzzui/doc/prompts/gui-plane.md` §0. The check is cheap — grep the plane's own
 files for what `base/graphics/` contains — and it is worth running **before
 adding a phase**, not after.
 
+---
+
+# CROSS-PLANE FINDING — 2026-08-13: the text layout is now REVERSIBLE
+
+**Filed by**: the GUI plane, as the §0 gate of `base/gui/SOFTANZA_GUI_PLAN.md`.
+**Landed here**, because the layout lives here and the retrofit cost is
+paid here. **Status: SHIPPED** — guard
+`base/test/gpu/gpu_text_reversible_narrated.ring`, **41 asserts green**,
+no device, no download, no system font.
+
+## The finding
+
+GR2a built the pipeline that DRAWS text. Drawing is half a text pipeline.
+The other half is answering questions **about** what was drawn, and every
+platform input method on earth asks the same two — Windows TSF
+(`GetTextExt`, `GetACPFromPoint`), macOS (`firstRectForCharacterRange:`,
+`characterIndexForPoint:`), Android, and the Web's `EditContext`:
+
+> **1. the screen rect of a character range · 2. the character index at a
+> point**, with a leading/trailing affinity bit.
+
+If a layout can answer those, IME is expensive but tractable. If it
+cannot, **IME is impossible — and that is discovered late.** Firefox's
+Windows TSF work had to invent *query content events* so the widget layer
+could interrogate layout at all, and that was most of eight years. This is
+the sound plane's lesson in another medium: **cheap now, ruinous later.**
+
+## What was actually missing — measured, not feared
+
+The layout was *nearly* reversible and could not be *made* reversible by a
+consumer, because the pipeline computed the necessary data and **threw it
+away**. Three losses, each one line of the old `shapeRun`:
+
+| Discarded | Why a consumer could not recover it |
+|---|---|
+| **`x_advance`** | folded into the running pen and dropped. `x` is `pen + x_offset` — the DRAW position, which carries the mark offset — so differencing consecutive `x` gives the wrong hit box, and the last glyph has no successor to difference against |
+| **the run's `level`** | read from SheenBidi, used as one `rtl` bool, dropped. Without it the affinity bit cannot be computed: the visually-left half of a glyph is the LEADING half in LTR and the TRAILING half in RTL, and *that asymmetry is the whole affinity question* |
+| **the cluster's END byte** | `cluster` gave a start only. "Is byte B inside this cluster" was unanswerable. Recovering it needs a scan in LOGICAL order, but the glyph array is in VISUAL order — so every consumer would have written the reversal, and written it differently |
+
+**Nothing needed to be re-derived, re-shaped or re-designed.** HarfBuzz and
+SheenBidi already produce all three. The cost of adding them while the
+pipeline is young was, as predicted, close to nothing.
+
+## What shipped
+
+**`Glyph` gained four fields, appended, never reordered** — so every
+index-based reader of the old four-number shape keeps working:
+`pen` and `adv` (the hit box is `[pen, pen+adv)`, deliberately separate
+from the draw `x`), `cl_end`, and `level`.
+
+**`Layout` gained the vertical metrics and the base direction**:
+`ascender`, `descender`, `line_gap` — from the SAME scaled HarfBuzz font
+the positions came from, so a caret rect and the glyphs it stands among
+agree by construction — and `para_rtl`, which decides which END of the
+line a caret past the last character sits at.
+
+**Three queries, engine-side** (`gpu_text.zig`), because a Ring-side
+version would be re-derived by every consumer and the reversal above is
+exactly where they would differ:
+
+- `rectsForRange(start, end)` → **a list of rects, not a rect.** A logical
+  byte range crossing a bidi seam is genuinely several disjoint pieces on
+  screen, and pretending otherwise is a bug that surfaces in Arabic.
+- `indexAtPoint(x)` → `(index, trailing, caret)`. `index` is the cluster's
+  first byte, which is what the platform APIs return; `caret` is that
+  already resolved through the affinity.
+- `caretRect(index, trailing)` → the zero-width, full-line-height rect a
+  platform IME is positioned by — RmlUi's `ActivateKeyboard(caret_position,
+  line_height)` takes exactly this.
+
+Ring face on `stzFont`: `RectsOfRange`, `CaretRectAt`, `IndexAtPoint`,
+plus `MetricsOf`, `LineHeightOf`, `IsRtlParagraph`.
+
+## The property that is asserted, and it is a MECHANISM
+
+Not a number, and not an identity that cannot fail:
+
+> **The round trip closes.** For every glyph in `"abc سوفتانزا xyz"`,
+> probed on both halves of its box, `IndexAtPoint(x)` answers a pair that
+> fed back to `CaretRectAt` lands on an **edge of the very glyph box that
+> contains x** — through the LTR runs, through the RTL run, and across the
+> seams. 16 glyphs, 32 probes, zero misses.
+
+With the negative sibling that makes it mean something: **the two halves
+of one glyph must disagree on affinity** and resolve to different caret
+bytes. If they agreed, the round trip would close trivially and `trailing`
+would be a field nobody reads. And directly: in the RTL run the LEADING
+caret edge is the RIGHT one — the asymmetry, asserted rather than assumed.
+
+## One decision recorded, because it is the expensive one
+
+**Caret movement is LOGICAL, not visual.** Blink retreated from visual in
+Chrome M76 saying it was *"based on hacks with many bugs"* and that it
+blocked their layout rewrite; Gecko's meta bug ran from 2003 with 35
+dependants. Platforms genuinely disagree (Windows, Android, Word and Docs
+logical; macOS visual with a split caret; GTK visual, Qt logical), so this
+is the implementation's call and not UAX#9's — UAX#9 specifies reordering
+for *display* and says nothing about carets. This plane makes it once,
+here, before anything depends on the other answer.
+
+## What was NOT done, and is not hidden
+
+- **The queries re-run the full layout.** `rectsForRange` and friends take
+  `(font, text, size)` and shape from scratch, matching the existing
+  stateless API shape. For an IME querying per keystroke that is wasteful.
+  The *algorithm* is already a pure function over a `Layout`, so a retained
+  layout handle is a wrapper and not a rewrite — but it is unbuilt, and it
+  is unmeasured.
+- **Single-line still.** The layout covers the first paragraph (GR2a's
+  contract, unchanged). Rects carry no line index because there are no
+  lines. Line breaking remains the later, workload-justified increment,
+  and it is what `rectsForRange` will have to grow a `y` for.
+- **Vertical text and multi-line selection**: absent, unattempted.
+- **No IME was written.** This finding makes IME *possible*. Nothing here
+  makes it cheap — the survey's number is 1–3 engineer-years across five
+  platforms, and it never fully closes.
+
+## One guard changed, and the change is the point
+
+`gpu_text_narrated.ring` asserted `len(aLat) = 3` on the layout's shape
+and correctly failed when the list grew to 7. It was a shape pin doing its
+job. Updated with the reason written beside it.
