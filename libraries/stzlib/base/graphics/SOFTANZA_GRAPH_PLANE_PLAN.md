@@ -109,6 +109,14 @@ RULE checks, which are valuable on their own.
 
 ### GG5 — the material node graph (LAST, deliberately)
 
+**DELIVERED as `base/graphics/stzMaterialGraph.ring`** — nodes and their
+inputs compiled into the MATERIAL LANGUAGE (not into WGSL: the language
+already refuses what it should, and a second transpiler would be a second
+rule set to keep in agreement). Order, reuse and proofs derived;
+`Affects(:node)` answers what a node changes, by reachability, while the
+material is drawing. Guard `gg5_materialgraph.ring` (36).
+
+
 A node DAG topologically emitted into the material language. This is the
 role that merely reaches ShaderGraph's *shape*, and it is sequenced last
 on purpose: the graph front-end is the easy half, and it is worthless

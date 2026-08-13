@@ -1519,3 +1519,100 @@ already done (the spike returned GO); GG1 is the next phase. Note that
 GG4's dependency — sampled render targets and compute+render sharing one
 submit — was NOT closed by GR5; presentation did not need it, and closing
 a gap that nothing yet exercises is the error G6 already taught.
+
+---
+
+# WHAT SHIPPED AFTER GR6, AND WAS NOT WRITTEN DOWN
+
+Recorded 2026-08-13, on the sound plane's rule 9 — *record the outcome in
+the plan file*. That plane lost a session closing the same gap after a
+studio, a plot face and a set of oscillators shipped unrecorded. This check
+was run before adding a new phase, found seven capabilities with no entry,
+and this section is the repair.
+
+None of it is new work. It is the plan catching up with `base/graphics/`.
+
+## Canvas primitives
+
+| | what it is | why it exists |
+|---|---|---|
+| `AddEllipse` | filled + stroked, engine-tessellated on the circle's segment bound | of graphviz's 24 node shapes, twenty were already drawable; **all four that were not needed this one** |
+| `AddRoundRect` | corner radius clamped to half the shorter side | the visual signature of `style=rounded`, which is what an org chart looks like — without it a native render read as a different product |
+| `AddImage` / `AddImageXT` | a field of samples in ONE call, both tiers | the sound plane's SN5 request: a spectrogram was 1,574 rects / 88 ms / 104 KB of SVG. Measured after: 1,024 commands → **1**, 69,439 chars → **1,762**. Also the primitive `image → data` needs |
+
+## Mesh
+
+`[ :Torus, ringR, tubeR, segs, sides ]` — the shape every renderer shows
+off with. Its normal is **exact** (centre-circle → surface, the definition
+on a torus) rather than estimated from neighbours, because an estimate
+bands visibly under a smooth material, and a smooth material is what the
+shape exists to display.
+
+## The node vocabulary — `stzNodeShape.ring`
+
+Graphviz's 24 node shapes, composed from canvas primitives. A
+**vocabulary, not a renderer**: nothing in it draws pixels, which is why
+the SVG and PNG tiers cannot disagree about a shape.
+
+`StzDrawNodeShapeXT` takes the paint, because `Fill` colours the *pending*
+shape — so styling around a draw call landed every colour on the previous
+thing, and a contact sheet hid it completely (every shape still had *a*
+colour).
+
+## The native diagram tier — `stzDiagram.ToSVG/ToPNG/ToCanvas`
+
+**`dot.exe` is no longer required.** A diagram answers SVG with no GPU and
+no graphviz, PNG through the GPU, from one model. Layout is borrowed from
+`stzGraphCanvas` (a second layout implementation would diverge); the
+drawing is the diagram's own, the same split `stzOrgChart` made.
+
+The options-taking spellings are `ToCanvasXT`, `ToSVGXT`, `ToPNGXT` — width,
+height, font, node size, colours, layout mode.
+
+It reads the diagram's OWN settings rather than re-asking for them:
+`SetLayout` → rankdir TB/BT/LR/RL, `SetSplines` → spline/curved/ortho/line,
+`ContrastingTextColor` → labels legible on their own fill, cluster colours
+→ labelled boxes.
+
+**Still dot's, and stated rather than implied:** nested clusters, edge
+labels, and splines *routed around* intervening nodes. `ToDot()` remains
+exact for those.
+
+## One frame, two passes — `stzWindow.DrawXT`
+
+`Draw` acquires a swapchain frame, draws one thing and presents, so
+calling it twice presents twice and the second wipes the first — a HUD was
+not expressible. The engine gained a pass that **preserves** its target
+(`LoadOp.Load`), the 2D scene gained `sceneDrawOverTarget`, and the window
+gained `DrawXT(thing, overlay)`: one acquired frame carrying two passes.
+The frame graph's idea at the window's own scale.
+
+## Perceptual colour — `engine/src/color.zig`
+
+sRGB ↔ linear ↔ Oklab ↔ OKLCH, ramp generation, WCAG 2 and APCA contrast.
+Its own plan of record is `SOFTANZA_COLOR_SYSTEM.md` (C1–C4 done, C5
+open); it is named here because it is engine code in this plane, and the
+plane's file should not have to be read to discover that it exists.
+
+**One correctness fix inside it belongs in this file**, because it changed
+every material ever rendered: shading was being done on **sRGB-encoded**
+values. `tint * 0.5` rendered 64 where linear light gives 92 — every
+shadow far too dark. The material transpiler now linearises on entry and
+encodes once on the way out; flat colours round-trip with zero drift and
+backgrounds stay literal.
+
+## Guards added
+
+`gg_nodeshapes` 11 · `gg_diagram_native` 10 · `gg_diagram_parity` 8 ·
+`gg_window_overlay` 7 · `gg_image_primitive` 14 · `gg_color_c1` 6 ·
+`gg_color_c2` 12 · `gg_color_c3` 11 · `gg_color_c4` 6 ·
+`gg_color_dsl` 21 · `gg_color_showcase` 5 · `showcase_living_material`
+(interactive)
+
+## The rule this section enforces
+
+A capability that is not in the plan is a capability the next session will
+either rebuild or contradict. The check is cheap — grep the plane's own
+files for what `base/graphics/` contains — and it is worth running **before
+adding a phase**, not after.
+
