@@ -25,6 +25,9 @@ fn ring_IsDigit(p: *anyopaque) callconv(.c) void {
 fn ring_IsNumber(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(u.stz_unicode_is_number(@intFromFloat(g(p, 1)))));
 }
+fn ring_NumericValue(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(u.stz_unicode_numeric_value(@intFromFloat(g(p, 1)))));
+}
 fn ring_IsUpper(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(u.stz_unicode_is_upper(@intFromFloat(g(p, 1)))));
 }
@@ -159,6 +162,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineunicodeisletter", .func = &ring_IsLetter },
     .{ .name = "stzengineunicodeisdigit", .func = &ring_IsDigit },
     .{ .name = "stzengineunicodeisnumber", .func = &ring_IsNumber },
+    .{ .name = "stzengineunicodenumericvalue", .func = &ring_NumericValue },
     .{ .name = "stzengineunicodeisupper", .func = &ring_IsUpper },
     .{ .name = "stzengineunicodeislower", .func = &ring_IsLower },
     .{ .name = "stzengineunicodeisspace", .func = &ring_IsSpace },

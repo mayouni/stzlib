@@ -109,6 +109,84 @@ pub fn stz_unicode_is_number(cp: i32) callconv(.c) c_int {
     return if (cat >= c.CAT_ND and cat <= c.CAT_NO) 1 else 0;
 }
 
+// THE NUMBER A CHARACTER MEANS, not the codepoint it is.
+//
+// Ring's side could name the set -- it prints the ten circled digits
+// correctly -- but could not read one back: StzNumberQ("<circled one>").Number()
+// answered 0 for every one of them, and only <circled zero> was right, by
+// accident.
+//
+// utf8proc carries no Numeric_Value field, so this reads the two places the
+// value actually lives:
+//
+//   1. COMPATIBILITY DECOMPOSITION. A circled, parenthesised, superscript,
+//      subscript, fullwidth or otherwise decorated digit decomposes to the
+//      plain ASCII digits under NFKD -- <circled one> to "1", <circled twenty>
+//      to "20", <fullwidth seven> to "7", <superscript two> to "2". Whole
+//      families answered at once, from Unicode's own data rather than a table
+//      someone has to maintain.
+//
+//   2. THE DECIMAL BLOCK. An Nd digit that does NOT decompose -- Arabic-Indic,
+//      Devanagari, Thai and the rest -- sits in a contiguous run of ten
+//      starting at its zero. Unicode guarantees that shape for Nd, so the
+//      value is the distance back to the first codepoint of the run.
+//
+// Answers the value, or -1 for a character that has none. -1 rather than 0
+// because 0 IS a legitimate answer, and conflating the two is the bug being
+// fixed here.
+pub fn stz_unicode_numeric_value(cp: i32) callconv(.c) i64 {
+    if (!c.utf8proc_codepoint_valid(cp)) return -1;
+
+    // ASCII, without troubling the tables.
+    if (cp >= '0' and cp <= '9') return @intCast(cp - '0');
+
+    const cat = c.utf8proc_category(cp);
+    if (cat < c.CAT_ND or cat > c.CAT_NO) return -1;
+
+    // 1 -- compatibility decomposition, when it yields ASCII digits only.
+    var enc: [8]u8 = undefined;
+    const n = c.utf8proc_encode_char(cp, &enc);
+    if (n > 0) {
+        var out: ?[*]u8 = null;
+        const olen = c.utf8proc_map(&enc, n, &out, c.OPT_DECOMPOSE | c.OPT_COMPAT | c.OPT_STABLE);
+        if (out) |buf| {
+            defer c.utf8proc_free(buf);
+            if (olen > 0) {
+                const s = buf[0..@intCast(olen)];
+                var all_digits = true;
+                var value: i64 = 0;
+                for (s) |ch| {
+                    if (ch < '0' or ch > '9') {
+                        all_digits = false;
+                        break;
+                    }
+                    // A decomposition long enough to overflow is not a digit
+                    // sequence worth trusting.
+                    if (value > 1_000_000_000_000) {
+                        all_digits = false;
+                        break;
+                    }
+                    value = value * 10 + @as(i64, ch - '0');
+                }
+                if (all_digits and s.len > 0) return value;
+            }
+        }
+    }
+
+    // 2 -- the decimal block, for an Nd digit that decomposes to itself.
+    if (cat == c.CAT_ND) {
+        var back: i32 = 0;
+        while (back < 9) : (back += 1) {
+            const prev = cp - back - 1;
+            if (prev < 0) break;
+            if (c.utf8proc_category(prev) != c.CAT_ND) break;
+        }
+        return @intCast(back);
+    }
+
+    return -1;
+}
+
 pub fn stz_unicode_is_upper(cp: i32) callconv(.c) c_int {
     return c.utf8proc_isupper(cp);
 }
@@ -615,6 +693,77 @@ test "unicode grapheme count" {
     try std.testing.expectEqual(@as(c_int, 1), stz_unicode_grapheme_count("\xC3\xA9", 2));
     // e + combining acute (3 bytes, 1 grapheme)
     try std.testing.expectEqual(@as(c_int, 1), stz_unicode_grapheme_count("e\xCC\x81", 3));
+}
+
+test "numeric value -- ASCII and the circled digits that started this" {
+    var i: i32 = 0;
+    while (i <= 9) : (i += 1) {
+        try std.testing.expectEqual(@as(i64, i), stz_unicode_numeric_value('0' + i));
+    }
+
+    // U+2460..U+2468 are CIRCLED DIGIT ONE..NINE; U+24EA is CIRCLED DIGIT ZERO.
+    // Every one of these answered 0 before, which is why zero looked correct.
+    try std.testing.expectEqual(@as(i64, 0), stz_unicode_numeric_value(0x24EA));
+    var d: i32 = 1;
+    while (d <= 9) : (d += 1) {
+        try std.testing.expectEqual(@as(i64, d), stz_unicode_numeric_value(0x2460 + d - 1));
+    }
+    // ...and past nine, where the decomposition is TWO digits.
+    try std.testing.expectEqual(@as(i64, 10), stz_unicode_numeric_value(0x2469));
+    try std.testing.expectEqual(@as(i64, 20), stz_unicode_numeric_value(0x2473));
+}
+
+test "numeric value -- other decorated families, from the same data" {
+    // Fullwidth 0-9, superscripts, subscripts, parenthesized, and the
+    // double-circled set. None of these needed a table of their own.
+    try std.testing.expectEqual(@as(i64, 7), stz_unicode_numeric_value(0xFF17)); // fullwidth 7
+    try std.testing.expectEqual(@as(i64, 2), stz_unicode_numeric_value(0x00B2)); // superscript 2
+    try std.testing.expectEqual(@as(i64, 3), stz_unicode_numeric_value(0x00B3)); // superscript 3
+    try std.testing.expectEqual(@as(i64, 4), stz_unicode_numeric_value(0x2084)); // subscript 4
+}
+
+test "numeric value -- decimal blocks that do not decompose" {
+    // Arabic-Indic, Extended Arabic-Indic, Devanagari, Thai and Bengali have
+    // no compatibility decomposition: their value is the distance back to the
+    // zero of their contiguous run of ten.
+    try std.testing.expectEqual(@as(i64, 0), stz_unicode_numeric_value(0x0660));
+    try std.testing.expectEqual(@as(i64, 7), stz_unicode_numeric_value(0x0667));
+    try std.testing.expectEqual(@as(i64, 9), stz_unicode_numeric_value(0x0669));
+    try std.testing.expectEqual(@as(i64, 3), stz_unicode_numeric_value(0x06F3)); // extended Arabic-Indic
+    try std.testing.expectEqual(@as(i64, 5), stz_unicode_numeric_value(0x096B)); // Devanagari 5
+    try std.testing.expectEqual(@as(i64, 4), stz_unicode_numeric_value(0x096A)); // Devanagari 4
+    try std.testing.expectEqual(@as(i64, 8), stz_unicode_numeric_value(0x0E58)); // Thai 8
+    try std.testing.expectEqual(@as(i64, 6), stz_unicode_numeric_value(0x09EC)); // Bengali 6
+}
+
+// THE NEGATIVE SIBLINGS. A function that answered a number for everything
+// would satisfy every test above.
+test "numeric value -- what has no value says so" {
+    try std.testing.expectEqual(@as(i64, -1), stz_unicode_numeric_value('A'));
+    try std.testing.expectEqual(@as(i64, -1), stz_unicode_numeric_value(' '));
+    try std.testing.expectEqual(@as(i64, -1), stz_unicode_numeric_value('!'));
+    try std.testing.expectEqual(@as(i64, -1), stz_unicode_numeric_value(0x0627)); // arabic alef
+    try std.testing.expectEqual(@as(i64, -1), stz_unicode_numeric_value(0x4E2D)); // CJK zhong
+    try std.testing.expectEqual(@as(i64, -1), stz_unicode_numeric_value(-1));
+    try std.testing.expectEqual(@as(i64, -1), stz_unicode_numeric_value(0x110000));
+
+    // THE KNOWN GAP, pinned rather than left to be discovered.
+    //
+    // U+24F5..U+24FE are DOUBLE CIRCLED DIGIT ONE..TEN. They carry a
+    // Numeric_Value in Unicode but have NO compatibility decomposition and
+    // are category No, not Nd, so neither route here reaches them. Same for a
+    // long tail of No characters -- Roman numerals, fractions, counting rods.
+    //
+    // Closing it properly means the full Numeric_Value table, generated the
+    // way engine/tools/gen_locale_tables.py generates the currency rows,
+    // rather than hand-written. Until then this answers honestly instead of
+    // guessing, and this assertion will fail the day that table lands --
+    // which is the point of writing it down.
+    try std.testing.expectEqual(@as(i64, -1), stz_unicode_numeric_value(0x24F9));
+
+    // And the distinction the -1 sentinel exists FOR: zero is a real answer.
+    try std.testing.expect(stz_unicode_numeric_value('0') == 0);
+    try std.testing.expect(stz_unicode_numeric_value('A') != 0);
 }
 
 test "unicode cp_to_byte" {
