@@ -278,7 +278,7 @@ phrase explains. Three channels, three jobs, one declaration.
 
 **VC0 — the spike. CLOSED, GO** (§2).
 
-**VC1 — `stz_voice.dll`, Windows first.** Synthesis to a sample buffer through
+**VC1 — `stz_voice.dll`, Windows first. CLOSED, see VC1 STATUS below.** Synthesis to a sample buffer through
 the plane's own handle table (gen-keyed, like `stz_sound.dll`), voice
 enumeration with language tags, SSML prosody, and a counted refusal for every
 absent capability. Cross-compile-checked for macOS and Linux; runtime-verified
@@ -344,3 +344,132 @@ rather than an architecture, and the missing step is named.
   visible state, in the one place where invisibility would be indefensible.
 - **A voice is 22050 Hz.** Every measurement path must resample first, and every
   guard that forgets will read −1000 LUFS and blame the wrong thing.
+
+---
+
+## VC1 STATUS — 2026-08-13. The voice DLL stands, and the kill criterion cleared
+
+`stz_voice.dll`, the plane's third DLL. `engine/src/voice.zig` +
+`ring_bridge_voice.zig` + `stz_voice_entry.zig`, loaded by
+`engine/stz_voice.ring`. Guard: `base/test/sound/sound_voice_narrated.ring`
+(**49**), plus **8 Zig tests** in `voice.zig`.
+
+### The kill criterion, cleared
+
+> *if a voice cannot be delivered as an IN-MEMORY buffer without a temporary
+> file, the seam is a file path rather than a sample handle, and §1's claim
+> weakens from "a voice IS a stzSound" to "a voice is a file".*
+
+**It is a buffer.** `CreateStreamOnHGlobal` gives an `IStream` in memory,
+`ISpStream::SetBaseStream` points SAPI at it, `GetHGlobalFromStream` reads the
+samples back. No path, no temporary, nothing to clean up, and nothing to fail on
+a read-only volume. Measured end to end: a 52-character sentence became
+**239,012 bytes in 81 ms**, crossed into the sample tier, and came back as a
+`stzSound` of 119,484 frames at 22050 Hz, 5.42 s, peak 0.61 — which then
+resampled, measured **−23.57** on SS2's support loudness, reported **31 onsets**,
+went into a graph as a source, came out low-passed, and produced a spectrogram.
+**Nothing in that chain is speech-aware.**
+
+### How a voice crosses the DLL boundary
+
+It cannot hand over a sample handle: the buffer table lives in `stz_sound.dll`
+and a handle from one DLL is meaningless in another. Same constraint SN3 solved
+for the ring, same answer — **bytes cross, a handle never does**:
+
+```ring
+nV = StzEngineVoiceOpen()
+StzEngineVoiceSpeak(nV, "the disk is nearly full")
+nBuf = StzEngineSoundLoadMemory(StzEngineVoiceLastBytes(nV))   # a stzSound
+```
+
+**The bytes cross as a RING STRING, and the first cut got this wrong.** It
+returned the ADDRESS and the length and expected the caller to pass both to
+`LoadMemory` — which takes a Ring string, not a pointer, so the call **crashed
+the interpreter**. A Ring string is length-delimited and byte-safe, which makes
+it the language's own carrier for a block of bytes, and it means no address ever
+appears in a script. The address accessor survives as a diagnostic and is
+documented as not the path to use.
+
+**The WAV is emitted in the CANONICAL layout — `fmt ` at 16, `data` at 36** —
+deliberately not the 18-byte `WAVEFORMATEX` form SAPI's own files use. VC0 lost
+an afternoon to that: a reader trusting the textbook offsets took a data length
+out of the sample stream and reported *34,611 seconds of speech* from an
+8-second file. Emitting the canonical form makes every reader right, including
+the naive one.
+
+### A finding that became a feature: the platform does not validate SSML
+
+Handed `<speak><prosody rate='fast'>unclosed`, SAPI produced **byte-for-byte the
+same audio as the bare word "unclosed"** — it neither refused nor read the tags
+aloud. It silently discarded the markup. Mercifully it does not speak the tags;
+unhelpfully, a typo in an attribute means the prosody simply does not happen and
+the caller is never told.
+
+That is the same failure this tier already refuses to tolerate for an
+out-of-range rate: **a setting that silently does nothing is worse than one that
+is visibly limited.** So SSML is checked here — minimally, and stated as minimal
+rather than sold as a validating parser — and a failure is a counted refusal with
+the fault named ("a tag was left unclosed", "a closing tag that does not match",
+"no `<speak>` root"). The guard's negative sibling is the one that matters: a
+real document with a namespace, attributes and a self-closing `<break/>` is
+ACCEPTED and counts no refusal, because a validator that rejects valid input is a
+worse defect than the leniency it covers.
+
+And prosody is asserted to *work*, not merely to be accepted: `rate="-20%"`
+produced 97,252 bytes against 80,272 for the same words unmarked.
+
+### What it reports rather than hides
+
+- **The format**, so a caller never guesses and never parses a header:
+  22050 Hz, 1 channel, 16-bit. The guard asserts it is **not** 48 kHz, because
+  BS.1770 loudness refuses anything else and a voice must be resampled first.
+- **The installed voices**, with a counted refusal for an index that does not
+  exist. On this machine: *Microsoft Hortense Desktop – French* and *Microsoft
+  Zira Desktop – English (United States)*.
+- **Clamping**: SAPI takes rate −10..10 and volume 0..100 and ignores anything
+  else. Out-of-range is clamped **and reported** ("rate 99 clamped to 10").
+- **Gen-keyed handles**, as `sound.zig` does: freeing bumps the generation, and
+  a stale id is refused by every entry point and COUNTED. Guarded both ways —
+  four stale hits on a dead handle, zero on a live one.
+- **Selecting a voice changes the samples.** Two voices, same words, 80,056
+  against 75,422 bytes. If those matched, `SetVoice` did nothing and the failure
+  was silent.
+
+### Portability, measured rather than claimed
+
+| target | `stz_voice` | for comparison, `stz_audiodev` |
+|---|---|---|
+| x86_64-windows | **OK**, runtime-verified | OK |
+| x86_64-linux-gnu | **OK** (compiles) | OK |
+| x86_64-macos | **OK** (compiles) | **FAIL** (CoreAudio headers) |
+| aarch64-macos | **OK** (compiles) | **FAIL** |
+
+**Better than the device tier**, and for a structural reason: the platform
+dependency sits behind a `comptime` branch on the OS tag rather than in a
+vendored C library, so a non-Windows build simply has no SAPI import and the tier
+refuses at runtime with a message. **Runtime-verified on Windows only** —
+AVSpeechSynthesizer and espeak-ng are unbuilt, and `isAvailable()` returns FALSE
+rather than pretending.
+
+It vendors **nothing**. SAPI ships with Windows and Zig already carries MinGW's
+`sapi.h`, so the whole dependency is `ole32` for COM.
+
+### What VC1 did NOT do
+
+- **No face.** `stzVoice` is VC2. Everything above is reachable only through
+  `StzEngineVoice*`, which is deliberate: the DLL earns its own guards before a
+  face is designed on top of it.
+- **No language selection by tag.** `selectVoice` takes an index, because that is
+  what the platform reports. Asking for `"en-US"` and getting a counted refusal
+  when it is absent is VC2's job, and it is the job that matters most — capability
+  is per language and per direction.
+- **No recognition.** VC3, and it is an order more COM surface: `ISpRecognizer`
+  needs a recognizer, a context, a grammar and an event loop.
+- **No warm-up call.** VC0 measured cold at **4.3×** warm, and VC2's kill
+  criterion is about exactly that. The tier does not yet let a caller pay that
+  cost out of band.
+
+### Plane totals
+
+**402 Ring assertions across twelve guards**; 8 Zig tests in `voice.zig`, plus
+the sound plane's 108.

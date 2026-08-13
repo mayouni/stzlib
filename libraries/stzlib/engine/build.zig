@@ -21,6 +21,7 @@ const Domain = struct {
     needs_glfw: bool = false, // vendored GLFW (GR5 windowing) -- SEE addGlfw
     needs_miniaudio_dec: bool = false, // miniaudio, decoders only (SN1 portable half)
     needs_miniaudio_dev: bool = false, // miniaudio, full device backends (SN1 per-OS half)
+    needs_speech: bool = false, // the platform speech engine (VC1 -- SAPI on Windows)
 };
 
 // Core (stk_*): minimal, fast, constrained environments
@@ -131,7 +132,23 @@ const base_domains = [_]Domain{
     // so only macOS is genuinely per-OS here -- better than GLFW managed.
     .{ .name = "stz_sound", .entry = "src/stz_sound_entry.zig", .needs_ring = true, .needs_miniaudio_dec = true },
     .{ .name = "stz_audiodev", .entry = "src/stz_audiodev_entry.zig", .needs_ring = true, .needs_miniaudio_dev = true },
+    // VC1 voice plane. A THIRD DLL, for the same reason there is a second one:
+    // a platform voice is a per-OS service (SAPI here, AVSpeechSynthesizer on
+    // macOS, espeak-ng or nothing on Linux), and stz_sound must stay portable.
+    // It vendors NOTHING -- SAPI ships with the OS, so the only dependency is
+    // ole32 for COM.
+    .{ .name = "stz_voice", .entry = "src/stz_voice_entry.zig", .needs_ring = true, .needs_speech = true },
 };
+
+// VC1: the platform speech engine. Nothing is vendored and nothing is built --
+// SAPI is part of Windows, and Zig already ships MinGW's sapi.h, so the whole
+// dependency is COM. macOS and Linux link nothing yet and voice.zig refuses at
+// runtime with a message, which is the honest state until each is measured.
+fn addSpeech(lib: *std.Build.Step.Compile, os: std.Target.Os.Tag) void {
+    if (os == .windows) {
+        for ([_][]const u8{ "ole32", "oleaut32" }) |l| lib.linkSystemLibrary(l);
+    }
+}
 
 fn addUtf8proc(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
     mod.addIncludePath(b.path("vendor/utf8proc"));
@@ -1101,6 +1118,7 @@ pub fn build(b: *std.Build) void {
         if (dom.needs_glfw) addGlfw(mod, lib, b, target.result.os.tag);
         if (dom.needs_miniaudio_dec) addMiniaudioDecode(mod, lib, b);
         if (dom.needs_miniaudio_dev) addMiniaudioDevice(mod, lib, b, target.result.os.tag);
+        if (dom.needs_speech) addSpeech(lib, target.result.os.tag);
         if (dom.needs_wgpu) {
             mod.addIncludePath(b.path("vendor/wgpu/include"));
             // Ship the vendored runtime next to the engine DLLs so the Ring

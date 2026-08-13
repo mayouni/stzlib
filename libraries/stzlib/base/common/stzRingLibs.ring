@@ -97,6 +97,7 @@ load "../../engine/stz_window.ring"
 # state, exactly like the window above.
 load "../../engine/stz_sound.ring"
 load "../../engine/stz_audiodev.ring"
+load "../../engine/stz_voice.ring"
 
 load "../../engine/stzMeta.ring"
 
