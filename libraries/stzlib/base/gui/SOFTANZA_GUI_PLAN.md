@@ -774,3 +774,200 @@ named profile rather than an engine.
 - **Windows only.** No cross-compile check was run for the RmlUi TUs.
 - **No input, no focus, no accessibility, no data binding** — G3, G4 and
   G5 are untouched, and nothing in G0 says anything about them.
+
+---
+
+# G1 STATUS — 2026-08-13. The render interface, and criterion 3 answered
+
+Guard: `base/test/gui/gui_panel_narrated.ring` — **50 asserts green**. The
+device-free scenes are this suite's CI coverage; the 3D scenes gate on a
+GPU, exactly as every graphics guard does.
+
+A Ring caller now writes
+
+```ring
+oP = new stzPanel(640, 400)
+oP.LoadMarkup(cRml)
+oP.DrawInto(oCanvas)
+```
+
+and gets `ToSVG()` on a machine with no GPU and `ToPNG()` on one with a
+device — because the panel never paints. It hands over geometry.
+
+## The shape that was chosen, and why
+
+**The eight pure virtuals are implemented as a RECORDER, not a painter.**
+RmlUi hands out vertices and indices; `stz_rmlui.cpp` records them into
+one flat buffer and answers with it. GR2b already settled this shape for
+the house — one display list, two renderers, so the GPU and SVG tiers
+cannot disagree about where anything sits. A UI that painted itself would
+be a third renderer outside that discipline. Recording is also what lets
+RmlUi's output cross a C ABI at all.
+
+**The display list gained a `mesh` command** (`gpu_scene.zig`). Every
+other `Add*` on `stzCanvas` names a SHAPE and lets the engine tessellate;
+a UI toolkit arrives having *already* tessellated, and turning its
+triangles back into rectangles to hand them forward again would be a lie
+about what was drawn. `sceneMesh` takes `x,y,r,g,b,a` per vertex plus
+indices and expands into the **existing** shape vertex buffer — no new
+shader, no new segment kind, no extra draw call. The SVG tier emits one
+`<polygon>` per triangle: exact for flat-coloured UI geometry, an
+approximation for a gradient mesh, and said so in the code rather than
+discovered from a screenshot.
+
+Indices are range-checked **at the door**, not at draw time: an
+out-of-range index would read someone else's memory during tessellation,
+on the far side of a C ABI from whoever wrote it.
+
+## Two seam details, paid for rather than assumed
+
+1. **RmlUi's vertex colour is PREMULTIPLIED alpha**; the scene blends with
+   straight alpha (`SrcAlpha` / `OneMinusSrcAlpha`). The recorder divides
+   it back out. Without that, translucent surfaces render too dark and
+   opaque ones look perfect — the worst way for a bug like this to
+   present, and the reason the guard checks the channel range as well as
+   one exact colour.
+2. **`RenderGeometry` carries a per-draw translation**, baked into the
+   positions here, because the display list downstream has no per-draw
+   transform and should not grow one for this.
+
+## THE DAY THIS COST — and it is the finding worth keeping
+
+> **A `zig build-lib -dynamic` DLL with a Zig root module gets Zig's own
+> entry point, which never runs the C CRT startup. C++ STATIC
+> CONSTRUCTORS NEVER RUN.**
+
+Measured, not guessed: a global whose constructor sets a flag to 42 still
+reads 0 after `LoadLibrary`, and a `DllMain` added for the test was never
+called either.
+
+**It does not present as an initialisation problem.** RmlUi initialises
+and creates contexts perfectly well without its constructors — it is
+built on a `ControlledLifetimeResource` pattern that is deliberately
+ctor-independent — and then corrupts the **heap** (`0xC0000374`, raised
+inside ntdll) the moment a document is loaded.
+
+Two false trails were followed first, and both are recorded because each
+looked right:
+
+- **Walking the `.ctors` list by hand.** lld synthesizes `__CTOR_LIST__`
+  (there is no `__CTOR_END__`; the list is null-terminated, and asking for
+  one is a link error). The walk works in an isolated 3-TU DLL and
+  crashes here.
+- **Function-local statics.** They crash *earlier* than file-scope
+  globals, because their guard machinery (`__cxa_guard_acquire`) is just
+  as absent.
+
+**The fix is one flag, on this domain only:**
+`lib.entry = .{ .symbol_name = "DllMainCRTStartup" }` — mingw's real DLL
+startup, constructors included.
+
+Verified by an isolated build outside the repo: the same sources linked
+with `zig c++ -shared` (which uses that entry by default) work;
+`build-lib` without the flag does not; `build-lib` with it does.
+
+`build.zig` already carried a note about hitting this from the other side
+with ggml — that attempt went for the MSVC ABI so constructors would land
+in `.CRT$XCU`, and was blocked by a Zig 0.15.2 libc++abi bug. It is now
+recorded from the front as well. Our own C++ objects are still constructed
+**explicitly**, behind POD pointers, as belt and braces: if the flag is
+ever lost, this file keeps working instead of corrupting a heap three
+layers down.
+
+**This is a house-wide property, not a GUI one.** Any future DLL here that
+vendors C++ with meaningful static initialization needs the same flag.
+
+## KILL CRITERION 3 — answered: **PASS**, and the answer is better than expected
+
+G0 deferred it because nothing was rendered there. It is a question about
+*this house's* rasterization and sampling, not about RmlUi, so it is asked
+directly: text from the plane's own SheenBidi → HarfBuzz → stb_truetype
+pipeline, drawn into a canvas, uploaded as a `LINEAR`-sampled texture, and
+mapped onto a quad in a 3D scene at four elevations.
+
+**The metric, and why it is this one.** The obvious measure — count the
+lit pixels — falls with the angle for a reason that has nothing to do with
+legibility: the quad covers less screen. So the measure is the *shape* of
+the luminance distribution over the pixels the quad **does** cover. Blur
+moves pixels out of the ink bucket into the smear between ink and paper;
+shrinking does not.
+
+| elevation | covered px | ink | smear |
+|---|---|---|---|
+| 89° (face-on) | 198,346 | 12‰ | 9‰ |
+| 45° | 152,280 | 11‰ | 8‰ |
+| 20° | 78,486 | 11‰ | 7‰ |
+| 12° (hard graze) | 48,420 | 11‰ | 7‰ |
+
+> **The distribution barely moves. What an oblique angle costs is SIZE,
+> not sharpness** — coverage falls 4x while the ink and smear fractions
+> stay within a tenth of face-on.
+
+The negative sibling that stops this being a tautology: **coverage falls
+steeply and monotonically**, which is what proves the four renders really
+are four different angles rather than the same picture measured four
+times.
+
+**One honest limit on that result.** The texture is 512×256 rendered into
+480×480, so the texel-to-pixel ratio never becomes extreme. **There are no
+mipmaps in the texture path** — the kinds are render-target, sampled
+NEAREST and sampled LINEAR, and nothing generates a mip chain. A grazing
+angle with a much larger texture or a much smaller on-screen quad is
+minification this measurement did not reach, and it is untested.
+
+A second honest note: the material transpiler linearises on entry and
+encodes on the way out, so the texture's dark "paper" renders as mid-grey.
+The first version of this scene used absolute thresholds against the
+colour as *drawn* and reported the same wrong number at every angle. The
+thresholds now come from a measured histogram.
+
+## Three more entries for §3's profile divergence table
+
+Contact with the code again produced the most valuable output. The table
+now reads:
+
+| the profile says | a browser renders | RmlUi needs |
+|---|---|---|
+| `direction: rtl` | `direction: rtl` | **`--rmlui-direction: rtl`** — RCSS rejects the CSS spelling outright |
+| a line break | `<br>` unclosed | **`<br/>`** — RML is XML syntax |
+| the root fills the viewport | `body` fills it | **`width: 100%`** — RmlUi's `body` shrinks to content otherwise |
+| `div` is a block | `display: block` by default | **`display` must be declared** — RmlUi defaults every element to `inline`, and width/height correctly do not apply to a non-replaced inline box |
+
+**The last one is the largest, and it is asserted both ways in the
+guard**: the same markup that collapses to 0×0 under a block parent lays
+out to 50×20 the moment `display: block` is declared on the element. In a
+browser the first version works. **The emitter must declare `display` on
+every box it emits.**
+
+## And one correction to the survey
+
+> **RmlUi's document loader is LENIENT.** An unclosed `<br>` is a real
+> parse error — the log says *"Closing tag 'body' mismatched … was
+> expecting 'br'"* — but `LoadDocumentFromMemory` **still returns a
+> document**, partially built, and the status is OK.
+
+The survey's phrasing ("unclosed `<br>` and `<img>` will not parse")
+implied a refusal. There is none. So an emitter bug produces a broken
+screen **silently**, and this plane must read `LastEngineMessage()` rather
+than trust a status code. That is a G5 obligation, recorded now.
+
+## What G1 did NOT do
+
+- **No text in a panel.** The font engine is still the monospace stub, so
+  a panel has chrome and no glyphs. That is the honest state of the phase,
+  not a defect — G2 is the font engine. The guard asserts the stub was
+  never asked to draw, so the day it *is* asked, the number moves.
+- **No textures and no clipping.** Both are COUNTED rather than skipped
+  silently (`droppedTexturedDraws`, `ignoredScissors`), and both read zero
+  on a document that needs neither. A nonzero reading is precisely what G2
+  turns on.
+- **No input, no focus, no events.** G3.
+- **`PushLayer` / `CompositeLayers` / `SaveLayerAsTexture` are untouched.**
+  The phase's brief named them for the in-scene case; the in-scene case
+  was proven instead by rendering the panel's canvas to a texture and
+  mapping it, which needs none of them. They arrive when a filter or an
+  effect asks for them.
+- **Windows only.** No cross-compile check was run for stz_gui.
+- **Layout cost was not re-measured here.** G0's numbers (a still frame at
+  1/362 of a dirty one, zero geometry re-compiles over 500 frames) stand
+  unchallenged but were not repeated through the Ring face.
