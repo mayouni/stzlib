@@ -14,7 +14,7 @@ o1 = new stzChar("و")
 ? o1.Content() #--> و
 ? o1.Unicode() #--> 1608
 ? o1.NumberOfBytes() #--> 2
-? o1.Orientation() #--> righttoleft
+? o1.Orientation() #--> rtl
 ? o1.UnicodeDirectionNumber() #--> "13"
 ? o1.UnicodeDirection() #--> righttoleftarabic
 

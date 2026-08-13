@@ -10,7 +10,9 @@ load "../../stzBase.ring"
 pr()
 
 # ? StzCharQ("🌹").Name() #--> ERROR: Can not create char object!
-? Unicode("🌹") #--> [ 63, 63 ]
+# 127801, the real codepoint. The old [ 63, 63 ] was two question marks --
+# what a byte-oriented era printed for an astral char it could not decode.
+? Unicode("🌹") #--> 127801
 ? Q("🌹").CharName() # ?--> QUESTION MARK
 
 pf()
