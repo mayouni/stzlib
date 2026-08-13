@@ -310,10 +310,10 @@ if raisedfiles:
     print()
 by = collections.Counter(m[0] for m in misses)
 print("-- divergences, by file --")
-for fn, n in by.most_common(40):
+for fn, n in by.most_common():
     print("   %-52s %d" % (safe(fn), n))
 print()
-print("-- the first 40 in full --")
-for fn, lineno, raw in misses[:40]:
+print("-- every divergence, in full --")
+for fn, lineno, raw in misses:
     print("   %s:%d" % (safe(fn), lineno))
     print("      promised: %s" % safe(raw)[:150])

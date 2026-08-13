@@ -58,16 +58,35 @@ Scenario("A locale chosen by SCRIPT still knows its language")
 	oAr = new stzLocale("ar_ARAB")
 	Then("it resolves its language", oAr.LanguageName(), "arabic")
 
+	# Day ONE of an ar_EG week is SATURDAY, not Monday -- Egypt is one of the
+	# seventeen CLDR firstDay=sat territories, and _LocaleFirstDayNumber used
+	# to list only Afghanistan and Iran. These assertions named Monday before
+	# that was fixed.
 	Given("the same locale reached the way a caller writes it")
 	StzLocaleQ([ :Script = :Arabic ]) {
-		Then("the native day name is NATIVE", NativeNthDayOfWeek(1), "الاثنين")
+		Then("the native day name is NATIVE", NativeNthDayOfWeek(1), "السبت")
 		Then("...and so is the abbreviation", StzLeft(NativeNthDayOfWeekAbbreviation(1), 2), "ال")
 	}
 
 	# THE NEGATIVE SIBLING, and the one that makes the two above mean something:
 	# the ENGLISH day name must still be English. A fix that simply returned
 	# Arabic everywhere would satisfy them both.
-	Then("the English name is untouched", StzLocaleQ([ :Script = :Arabic ]).NthDayOfWeek(1), "monday")
+	Then("the English name is untouched", StzLocaleQ([ :Script = :Arabic ]).NthDayOfWeek(1), "saturday")
+
+	# ...and the SECOND sibling, which pins the rotation rather than the
+	# constant: Monday has not vanished, it has moved to where an ar_EG week
+	# puts it. Asserting only day 1 would pass against a locale stuck on any
+	# single day.
+	Then("Monday is still in the week, three days along",
+	     StzLocaleQ([ :Script = :Arabic ]).NthDayOfWeek(3), "monday")
+	Then("...and its native name agrees",
+	     StzLocaleQ([ :Script = :Arabic ]).NativeNthDayOfWeek(3), "الاثنين")
+
+	# The English and native faces must name the SAME day at every index --
+	# the inconsistency that started this: abbreviation said Mon while the
+	# day said Sat.
+	Then("English and native abbreviations agree on the day",
+	     StzLeft(StzLocaleQ([ :Script = :Arabic ]).NthDayOfWeekAbbreviation(1), 3), "Sat")
 EndScenario()
 
 Scenario("The week starts where the locale says, and rotates from there")
@@ -93,22 +112,33 @@ EndScenario()
 
 Scenario("What the native names still cannot do")
 
-	# Pinned rather than glossed. The native day-name table carries TEN
-	# languages. A locale in any other one falls back to English -- Persian
-	# among them -- so a "native" name can still be an English word. That is a
-	# missing translation, not a resolution bug, and it is now the only way this
-	# fallback can fire: an unresolved LANGUAGE no longer reaches it.
+	# Pinned rather than glossed. The native day-name table carries ELEVEN
+	# languages. A locale in any other one falls back to English, so a
+	# "native" name can still be an English word. That is a missing
+	# translation, not a resolution bug, and it is the only way this fallback
+	# can fire: an unresolved LANGUAGE no longer reaches it.
+	#
+	# Persian used to be the example here. It is carried now, so the gap is
+	# demonstrated with a language that genuinely is not -- otherwise this
+	# scenario would quietly stop testing anything the day a translation
+	# lands.
 
-	Given("Persian, which the day-name table does not carry")
+	Given("Persian, which the table now carries")
 	oFa = new stzLocale("fa_IR")
 	Then("the language itself resolves", oFa.LanguageName(), "persian")
-	Then("...but the native day name is English (documented gap)",
-	     StzFindFirst(oFa.NativeNthDayOfWeek(1), "MondayTuesdayWednesdayThursdayFridaySaturdaySunday") > 0, TRUE)
+	Then("...and its first day is Saturday, as Iran counts it", oFa.NthDayOfWeek(1), "saturday")
+	Then("...named in Persian, not English", oFa.NativeNthDayOfWeek(1), "شنبه")
+
+	Given("Swahili, which the table does not carry")
+	oSw = new stzLocale([ :Language = :swahili ])
+	Then("the language itself resolves", oSw.LanguageName(), "swahili")
+	Then("...but the native day name falls back to English (documented gap)",
+	     StzFindFirst(oSw.NativeNthDayOfWeek(1), "MondayTuesdayWednesdayThursdayFridaySaturdaySunday") > 0, TRUE)
 
 	# ...while a language the table DOES carry is answered properly, which is
 	# what tells a missing translation apart from a broken lookup.
 	oEg = new stzLocale("ar_EG")
-	Then("Arabic, which it carries, is native", oEg.NativeNthDayOfWeek(1), "الاثنين")
+	Then("Arabic, which it carries, is native", oEg.NativeNthDayOfWeek(1), "السبت")
 EndScenario()
 
 Summary()

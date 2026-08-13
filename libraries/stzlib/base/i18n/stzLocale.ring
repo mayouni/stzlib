@@ -27,28 +27,37 @@ $aDaysOfWeek = [
 # -- Locale helper data tables --
 
 $_aDayNamesPerLang = [
+	# MONDAY-FIRST, always. Rotating to the locale's own first day is
+	# NativeDaysOfWeek()'s job, not this table's.
+	#
+	# These are NATIVE names, so they are written in the language's own script.
+	# Russian read "Ponedelnik" and Arabic's months "Yanayir" -- Latin
+	# transliterations sitting in a column called native. The Latin-script
+	# languages had their diacritics stripped for the same reason.
 	[:english,    ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]],
 	[:french,     ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]],
 	[:arabic,     ["الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت", "الأحد"]],
-	[:spanish,    ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"]],
+	[:persian,    ["دوشنبه", "سه‌شنبه", "چهارشنبه", "پنج‌شنبه", "جمعه", "شنبه", "یکشنبه"]],
+	[:spanish,    ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]],
 	[:german,     ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"]],
-	[:portuguese, ["Segunda-feira", "Terca-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sabado", "Domingo"]],
-	[:italian,    ["Lunedi", "Martedi", "Mercoledi", "Giovedi", "Venerdi", "Sabato", "Domenica"]],
-	[:russian,    ["Ponedelnik", "Vtornik", "Sreda", "Chetverg", "Pyatnitsa", "Subbota", "Voskresenie"]],
-	[:turkish,    ["Pazartesi", "Sali", "Carsamba", "Persembe", "Cuma", "Cumartesi", "Pazar"]],
+	[:portuguese, ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"]],
+	[:italian,    ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato", "Domenica"]],
+	[:russian,    ["понедельник", "вторник", "среда", "четверг", "пятница", "суббота", "воскресенье"]],
+	[:turkish,    ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"]],
 	[:dutch,      ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"]]
 ]
 
 $_aMonthNamesPerLang = [
 	[:english,    ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]],
-	[:french,     ["Janvier", "Fevrier", "Mars", "Avril", "Mai", "Juin", "Juillet", "Aout", "Septembre", "Octobre", "Novembre", "Decembre"]],
-	[:arabic,     ["Yanayir", "Fibrayir", "Maris", "Abril", "Mayu", "Yunyu", "Yulyu", "Aghustus", "Sibtambir", "Uktubar", "Nufambir", "Disambir"]],
+	[:french,     ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"]],
+	[:arabic,     ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"]],
+	[:persian,    ["ژانویه", "فوریه", "مارس", "آوریل", "مه", "ژوئن", "ژوئیه", "اوت", "سپتامبر", "اکتبر", "نوامبر", "دسامبر"]],
 	[:spanish,    ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]],
-	[:german,     ["Januar", "Februar", "Marz", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"]],
-	[:portuguese, ["Janeiro", "Fevereiro", "Marco", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]],
+	[:german,     ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"]],
+	[:portuguese, ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]],
 	[:italian,    ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"]],
-	[:russian,    ["Yanvar", "Fevral", "Mart", "Aprel", "May", "Iyun", "Iyul", "Avgust", "Sentyabr", "Oktyabr", "Noyabr", "Dekabr"]],
-	[:turkish,    ["Ocak", "Subat", "Mart", "Nisan", "Mayis", "Haziran", "Temmuz", "Agustos", "Eylul", "Ekim", "Kasim", "Aralik"]],
+	[:russian,    ["январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь"]],
+	[:turkish,    ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"]],
 	[:dutch,      ["Januari", "Februari", "Maart", "April", "Mei", "Juni", "Juli", "Augustus", "September", "Oktober", "November", "December"]]
 ]
 
@@ -102,34 +111,145 @@ func _LocaleCountryCodeFromAbbr(_cLocaleAbbr_)
 	ok
 	return ""
 
-func _LocaleNormalizeAbbr(_cInput_)
-	if _cInput_ = "" or _cInput_ = "" or _cInput_ = "C"
-		return "C"
+# A LANGUAGE'S DEFAULT SCRIPT IS THE ONE ITS OWN NAME IS WRITTEN IN.
+#
+# The scripts table's fourth column is DefaultLanguage -- "for this SCRIPT,
+# which language". ScriptNumber() read it BACKWARDS, scanning for the first
+# script whose default language matched, and answering that. For French the
+# first hit is Duployan, a shorthand system, so a plain French locale claimed
+# to be written in stenography. The reverse of a many-to-one mapping is not a
+# function, and this is what asking for it anyway produces.
+#
+# There is no language->script column to consult, and adding one means
+# authoring 322 rows by hand. There is no need: every language row already
+# carries its NATIVE NAME, and the engine can tell which script a character
+# belongs to. Francais is latin, Русский is cyrillic, العربية is arabic --
+# the answer is in the data already, spelled in the alphabet itself.
+#
+# Answers "" when it cannot tell, leaving the caller to fall back.
+func _LocaleDefaultScriptNumberForLang(pcLangName)
+	_cLangN_ = StzLower("" + pcLangName)
+	_cNative_ = ""
+
+	_nLenL_ = len($aLocaleLanguagesXT)
+	for i = 1 to _nLenL_
+		if StzLower("" + $aLocaleLanguagesXT[i][2]) = _cLangN_
+			_cNative_ = "" + $aLocaleLanguagesXT[i][6]
+			exit
+		ok
+	next
+
+	if _cNative_ = ""
+		return ""
 	ok
-	_cInput_ = StzReplace(_cInput_, "-", "_")
-	_nPos_ = StzFindFirst("_", _cInput_)
-	if _nPos_ > 0
-		_cLang_ = StzLower(StzLeft(_cInput_, _nPos_ - 1))
-		_cRest_ = StzUpper(StzMid(_cInput_, _nPos_ + 1, StzLen(_cInput_)))
-		return _cLang_ + "_" + _cRest_
+
+	# The first LETTER, not the first character -- a native name can open
+	# with a quote or a bracket, which belongs to no script.
+	_cScriptName_ = ""
+	_nLenN_ = StzLen(_cNative_)
+	if _nLenN_ > 8
+		_nLenN_ = 8
 	ok
-	_cLang_ = StzLower(_cInput_)
+	for i = 1 to _nLenN_
+		_cCh_ = StzNthChar(_cNative_, i)
+		if _cCh_ = " " or _cCh_ = "-" or _cCh_ = "'"
+			loop
+		ok
+		_cS_ = StzCharScript(_cCh_)
+		if _cS_ != "" and StzLower("" + _cS_) != "common"
+			_cScriptName_ = StzLower("" + _cS_)
+			exit
+		ok
+	next
+
+	if _cScriptName_ = ""
+		return ""
+	ok
+
+	_aScr_ = LocaleScriptsXT()
+	_nLenS_ = len(_aScr_)
+	for i = 1 to _nLenS_
+		if StzLower("" + _aScr_[i][2]) = _cScriptName_
+			return _aScr_[i][1]
+		ok
+	next
+	return ""
+
+# The country a language belongs to by default, as a code -- "ru" -> "RU",
+# "ar" -> "EG". Answers "" when the language names no country.
+func _LocaleDefaultCountryCodeForLang(_cLang_)
+	_cLang_ = StzLower(_cLang_)
 	_nLen_ = len($aLocaleLanguagesXT)
 	for i = 1 to _nLen_
 		if StzLower($aLocaleLanguagesXT[i][3]) = _cLang_
-			if $aLocaleLanguagesXT[i][5] != ""
-				_cCountryName_ = $aLocaleLanguagesXT[i][5]
-				_nLen2_ = len(_aLocaleCountriesXT)
-				for j = 1 to _nLen2_
-					if StzLower(_aLocaleCountriesXT[j][2]) = StzLower(_cCountryName_)
-						return _cLang_ + "_" + _aLocaleCountriesXT[j][3]
-					ok
-				next
+			if $aLocaleLanguagesXT[i][5] = ""
+				return ""
 			ok
-			return _cLang_
+			_cCountryName_ = $aLocaleLanguagesXT[i][5]
+			_nLen2_ = len(_aLocaleCountriesXT)
+			for j = 1 to _nLen2_
+				if StzLower(_aLocaleCountriesXT[j][2]) = StzLower(_cCountryName_)
+					return _aLocaleCountriesXT[j][3]
+				ok
+			next
+			return ""
 		ok
 	next
-	return _cInput_
+	return ""
+
+# THE ABBREVIATION IS lang_COUNTRY. A SCRIPT SUBTAG IS NOT PART OF IT.
+#
+# This used to lowercase the first subtag and UPPERCASE everything after it,
+# so a script rode along and shouted: "en-Latn-US" became "en_LATN_US",
+# "pt_Latn_BR" became "pt_LATN_BR", and [ :Language = :russian,
+# :Script = :latin ] became "ru_LATN" -- a string with no country in it at
+# all, from which CountryNumber() could read nothing.
+#
+# The script is not lost by dropping it here: it is carried on
+# @cScriptAbbreviation and answered by Script(), which is where a caller asks
+# for it. What the abbreviation is FOR is the lang_COUNTRY identity that
+# CountryNumber(), the currency lookups and the day-name tables all key on.
+#
+# When no country subtag is given, the language's default country supplies
+# one -- ru -> ru_RU, ar -> ar_EG -- which is what the no-subtag path already
+# did, and there is no reason for "ru" and "ru-Latn" to answer differently.
+func _LocaleNormalizeAbbr(_cInput_)
+	if _cInput_ = "" or _cInput_ = "C"
+		return "C"
+	ok
+
+	_cIn_ = StzReplace("" + _cInput_, "-", "_")
+	_acParts_ = StzSplit(_cIn_, "_")
+	_nParts_ = len(_acParts_)
+	if _nParts_ = 0
+		return "C"
+	ok
+
+	_cLang_ = StzLower(_acParts_[1])
+	_cCountry_ = ""
+
+	# A 4-letter subtag is a SCRIPT (Latn, Arab, Cyrl); 2 or 3 characters is
+	# a country (US, BR, EG). Anything else is left alone.
+	for i = 2 to _nParts_
+		_cPart_ = _acParts_[i]
+		_nLenP_ = StzLen(_cPart_)
+		if _nLenP_ = 4
+			loop
+		ok
+		if _nLenP_ >= 2 and _nLenP_ <= 3
+			_cCountry_ = StzUpper(_cPart_)
+		ok
+	next
+
+	if _cCountry_ = ""
+		_cCountry_ = _LocaleDefaultCountryCodeForLang(_cLang_)
+	ok
+
+	if _cCountry_ = ""
+		return _cLang_
+	ok
+
+	return _cLang_ + "_" + _cCountry_
 
 func _LocaleCountryNumber(cCountryCode)
 	_cCode_ = StzUpper(cCountryCode)
@@ -152,7 +272,11 @@ func _LocaleQtScriptNumber(cScriptCode)
 
 func _LocaleFirstDayNumber(_cLocaleAbbr_)
 	_cCountry_ = StzUpper(_LocaleCountryCodeFromAbbr(_cLocaleAbbr_))
-	_aSatFirst_ = ["AF", "IR"]
+	# Saturday-first, per CLDR's firstDay territories. This listed AF and IR
+	# only, so every Arab country fell through to the Monday default and
+	# ar_EG opened its week on a Monday.
+	_aSatFirst_ = ["AE", "AF", "BH", "DJ", "DZ", "EG", "IQ", "IR", "JO",
+	               "KW", "LY", "OM", "QA", "SA", "SD", "SY", "YE"]
 	_aSunFirst_ = ["US", "CA", "JP", "CN", "IL", "KR", "TW", "PH", "BR", "IN",
 	             "CO", "MX", "AU", "NZ", "SG", "ZA", "GT", "HN", "SV", "NI",
 	             "DO", "HT", "PR", "BS", "JM", "TT", "BB", "LC", "VC", "GD",
@@ -668,9 +792,15 @@ class stzLocale from stzObject
 
 			@cAbbreviation = _LocaleNormalizeAbbr(_cAbbr_)
 
+			# @cScriptAbbreviation / @cCountryAbbreviation -- the names the rest
+			# of the class READS. These two lines wrote @cScriptAbbr and
+			# @cCountryAbbr, which are written here and read nowhere, so a
+			# locale built from a list silently lost its script and country
+			# and every consumer fell back to the language default. The string
+			# branch above sets the right names; only this branch did not.
 			@cLangAbbreviation = _cLangAbbr_
-			@cScriptAbbr = _cScriptAbbr_
-			@cCountryAbbr = _cCountryAbbr_
+			@cScriptAbbreviation = _cScriptAbbr_
+			@cCountryAbbreviation = _cCountryAbbr_
 		ok
 
 	  #---------#
@@ -839,6 +969,17 @@ class stzLocale from stzObject
 			return _LocaleQtScriptNumber(@cScriptAbbreviation)
 		ok
 		_cLang_ = This.LanguageName()
+
+		# The language's own name tells us its alphabet -- see
+		# _LocaleDefaultScriptNumberForLang. Tried FIRST, because the scan
+		# below reads the scripts table's DefaultLanguage column backwards
+		# and answers Duployan for French.
+		_cByName_ = _LocaleDefaultScriptNumberForLang(_cLang_)
+		if _cByName_ != ""
+			return _cByName_
+		ok
+
+		# Last resort, for a language whose native name reveals nothing.
 		_aLocaleScriptsXT2_ = LocaleScriptsXT()
 		_nLocaleScriptsXT2Len_ = len(_aLocaleScriptsXT2_)
 		for _iLoopLocaleScriptsXT2_ = 1 to _nLocaleScriptsXT2Len_
@@ -1080,25 +1221,21 @@ class stzLocale from stzObject
 		https://bit.ly/2U5oTAh
 		*/
 
-		_nNthDay_ = 0
+		# THIS COUNTED ITERATIONS, NOT DAYS.
+		#
+		# The loop below ran from the first day to first + n - 1 and incremented
+		# a counter that started at zero, so it answered n - 1 no matter which
+		# day the week began on. Only n = 1 was right, and only because it took
+		# the else branch and skipped the loop entirely.
+		#
+		# For ar_EG -- Saturday first -- day 2 came back monday and day 3
+		# tuesday, where the week actually runs Sat, Sun, Mon. The English face
+		# and the native face named DIFFERENT days at the same index, which is
+		# how this surfaced: NativeDaysOfWeek() had always rotated correctly.
+		#
+		# One rotation, shared with the abbreviation and symbol faces.
 		if 0 < _n_ and _n_ < 8
-			_nFirstDayOfWeek_ = _LocaleFirstDayNumber(@cAbbreviation)
-			_nTemp_ = _nFirstDayOfWeek_ + (_n_-1)
-
-			if _n_ != 1
-				for i = _nFirstDayOfWeek_ to _nTemp_
-
-					_nNthDay_++
-					if _nNthDay_ = 8
-						_nNthDay_ = 1
-					ok
-				next
-				_nNthDay_--
-			else
-				_nNthDay_ = _nFirstDayOfWeek_ + _n_ - 1
-			ok
-
-			return DefaultDaysOfWeek()[""+ _nNthDay_ ]
+			return DefaultDaysOfWeek()[ "" + This._NthWeekdayIndex(_n_) ]
 		else
 			StzRaise(stzLocaleError(:CanNotDefineNthDayOfWeek))
 		ok
@@ -1139,9 +1276,15 @@ class stzLocale from stzObject
 		if _nDay_ > 7 _nDay_ = _nDay_ - 7 ok
 		return _DayAbbrInLang(:english, _nDay_)
 
+	# ROTATED TO THE LOCALE'S OWN FIRST DAY, like every sibling here.
+	#
+	# This indexed the language's Monday-first list with _n_ directly, so it
+	# ignored the locale entirely: for Iran, NthDayOfWeekAbbreviation(1) said
+	# Sat and NthDayOfWeekNativeAbbreviation(1) said Mon -- the same day of
+	# the same week, named twice, differently.
 	def NthDayOfWeekNativeAbbreviation(_n_)
 		_cLang_ = This.LanguageName()
-		return _DayAbbrInLang(_cLang_, _n_)
+		return _DayAbbrInLang(_cLang_, This._NthWeekdayIndex(_n_))
 
 		def NativeNthDayOfWeekAbbreviation(_n_)
 			return This.NthDayOfWeekNativeAbbreviation(_n_)
@@ -1181,7 +1324,24 @@ class stzLocale from stzObject
 
 	def NthDayOfWeekNativeSymbol(_n_)
 		_cLang_ = This.LanguageName()
-		return _DaySymbolInLang(_cLang_, _n_)
+		return _DaySymbolInLang(_cLang_, This._NthWeekdayIndex(_n_))
+
+	# The Monday-first index of this locale's Nth day. One place, because the
+	# same rotation was open-coded in four methods and omitted from two.
+	#
+	# Reads _LocaleFirstDayNumber directly rather than asking FirstDayOfWeek():
+	# that is NthDayOfWeek(1), which now comes through here, and the round trip
+	# is an infinite recursion.
+	def _NthWeekdayIndex(_n_)
+		_nFirst_ = _LocaleFirstDayNumber(@cAbbreviation)
+		if _nFirst_ < 1 or _nFirst_ > 7
+			_nFirst_ = 1
+		ok
+		_nDay_ = _nFirst_ + _n_ - 1
+		if _nDay_ > 7
+			_nDay_ = _nDay_ - 7
+		ok
+		return _nDay_
 
 		def NativeNthDayOfWeekSymbol(_n_)
 			return This.NthDayOfWeekNativeSymbol(_n_)

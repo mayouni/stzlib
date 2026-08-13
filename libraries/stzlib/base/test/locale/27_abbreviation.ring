@@ -14,10 +14,10 @@ StzLocaleQ([ :Script = :Latin, :Country = :Russia ]) {
 	? NativeNthDayOfWeek(1) + NL		 		#--> понедельник
 
 	? NthDayOfWeekAbbreviation(1)		 		#--> Mon
-	? NativeNthDayOfWeekAbbreviation(1) + NL 	#--> пн
+	? NativeNthDayOfWeekAbbreviation(1) + NL 	#--> пон
 
 	? NthDayOfWeekSymbol(1)			 			#--> M
-	? NativeNthDayOfWeekSymbol(1)		 		#--> пн
+	? NativeNthDayOfWeekSymbol(1)		 		#--> п
 }
 
 pf()
