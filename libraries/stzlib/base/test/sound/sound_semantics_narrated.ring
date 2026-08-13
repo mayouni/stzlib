@@ -122,9 +122,30 @@ Chk("at one full block the very same tone measures", nL400 > -100)
 Chk("and it is a plausible level for peak 0.5", nL400 < 0 and nL400 > -20)
 oT.Release()
 
-# so the face uses a substitute, and NAMES it every time it is asked
+# SS2 CLOSED THE GAP, and the guard follows it. LoudnessOfSupport applies the
+# SAME K-weighting and the same -0.691 + 10log10(z) formula over the sound's own
+# length -- so a 60 ms earcon gets the ear's weighting instead of a flat average.
 ? "   the metric in use: " + oE.MarginMetric()
-Chk("the substitute names itself as not-LUFS", substr(oE.MarginMetric(), "NOT LUFS") > 0)
+Chk("the metric names itself as not standard LUFS",
+    substr(oE.MarginMetric(), "NOT integrated LUFS") > 0)
+
+oShort = This_Tone(0.06, 880, 0.5)
+? "   a 60 ms tone: integrated " + oShort.Loudness() +
+  ", support " + oShort.LoudnessOfSupport()
+Chk("the support measure SEES what integrated LUFS calls silence",
+    oShort.LoudnessOfSupport() > -100)
+# and the property that makes it trustworthy: where the standard HAS an opinion,
+# the two agree. A measure that disagreed at 400 ms would be a different
+# quantity wearing a loudness label.
+oBlock = This_Tone(0.40, 880, 0.5)
+? "   a 400 ms tone: integrated " + oBlock.Loudness() +
+  ", support " + oBlock.LoudnessOfSupport()
+Chk("and it agrees with the standard where the standard answers",
+    fabs(oBlock.Loudness() - oBlock.LoudnessOfSupport()) < 1.0)
+Chk("the same tone measures the same at 60 ms and 400 ms",
+    fabs(oShort.LoudnessOfSupport() - oBlock.LoudnessOfSupport()) < 1.0)
+oShort.Release()
+oBlock.Release()
 
 # ---------------------------------------------------------------------------
 ? ""

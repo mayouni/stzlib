@@ -373,3 +373,60 @@ class stzSound
 		_l_ = StzEngineSoundLoudness(_tmp_)
 		StzEngineSoundFree(_tmp_)
 		return _l_
+
+	# SS2 -- THE LOUDNESS AN EARCON CAN BE MEASURED WITH.
+	#
+	# Loudness() above is INTEGRATED loudness and refuses anything shorter than
+	# one 400 ms block, which is every earcon there will ever be. Measured, at
+	# peak 0.50: 40, 60, 100 and 200 ms all report -1000 -- this plane's answer
+	# for silence -- while 400 ms reports -9.38. A plainly audible sound at half
+	# full scale reading as silence is a gap, not a subtlety, and it is why the
+	# semantic layer's audibility gate had to start on an unweighted substitute.
+	#
+	# MomentaryLoudness is the standard's own 400 ms window, ungated, taking the
+	# LOUDEST such window rather than a mean -- averaging an earcon against the
+	# silence around it answers nothing. BS.1770 arithmetic used as specified, so
+	# it is LUFS without qualification.
+	def MomentaryLoudness()
+		return This._LoudnessVia(:momentary)
+
+	def ShortTermLoudness()
+		return This._LoudnessVia(:shortterm)
+
+	# The same K-weighting and the same formula over the sound's OWN length.
+	# NOT a standard LUFS figure, and LoudnessMetric() says so -- because the
+	# alternative is answering the standard's question wrongly instead of
+	# answering a different question honestly. A 60 ms earcon at peak 0.5 reads
+	# -9.26 here against -9.27 for the same tone at 400 ms: the two agree to a
+	# hundredth of a decibel where the standard has an opinion, which is what
+	# makes this trustworthy where it does not.
+	def LoudnessOfSupport()
+		return This._LoudnessVia(:support)
+
+	# What the number means, so it never travels without its method.
+	def LoudnessMetric()
+		return StzEngineSoundLoudnessMetricName()
+
+	# Every one of the three resamples a COPY to 48 kHz when it must, exactly as
+	# Loudness does: the K-weighting coefficients are specified at 48 kHz, and
+	# the engine refuses another rate rather than returning a plausible number.
+	def _LoudnessVia(pWhich)
+		if @nBuf = 0  return -1000 ok
+		_id_ = @nBuf
+		_tmp_ = 0
+		if StzEngineSoundRate(@nBuf) != 48000
+			_tmp_ = StzEngineSoundResample(@nBuf, 48000, StzSoundQualitySinc())
+			if _tmp_ = 0
+				@cLastError = StzEngineSoundLastError()
+				return -1000
+			ok
+			_id_ = _tmp_
+		ok
+		_v_ = -1000
+		switch pWhich
+		on :momentary   _v_ = StzEngineSoundLoudnessMomentary(_id_)
+		on :shortterm   _v_ = StzEngineSoundLoudnessShortTerm(_id_)
+		on :support     _v_ = StzEngineSoundLoudnessOfSupport(_id_)
+		off
+		if _tmp_ != 0  StzEngineSoundFree(_tmp_) ok
+		return _v_
