@@ -403,6 +403,27 @@ fn ring_Loudness(p: *anyopaque) callconv(.c) void {
     rn(p, ana.loudness(id(p, 1)));
 }
 
+// SS2: the loudness the audibility floor binds to. Integrated LUFS refuses
+// anything shorter than a 400 ms block, which is every earcon -- see the
+// sound plan's S.4.
+fn ring_LoudnessMomentary(p: *anyopaque) callconv(.c) void {
+    rn(p, ana.loudnessMomentary(id(p, 1)));
+}
+
+fn ring_LoudnessShortTerm(p: *anyopaque) callconv(.c) void {
+    rn(p, ana.loudnessShortTerm(id(p, 1)));
+}
+
+fn ring_LoudnessOfSupport(p: *anyopaque) callconv(.c) void {
+    rn(p, ana.loudnessOfSupport(id(p, 1)));
+}
+
+// The method, so a number never travels without it.
+fn ring_LoudnessMetricName(p: *anyopaque) callconv(.c) void {
+    const n = ana.loudnessMetricName();
+    R.ring_vm_api_retstring2(p, n.ptr, @intCast(n.len));
+}
+
 fn ring_GridRows(p: *anyopaque) callconv(.c) void {
     rn(p, ana.gridRows(id(p, 1)));
 }
@@ -525,6 +546,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginesoundonsets", .func = &ring_Onsets },
     .{ .name = "stzenginesoundtempo", .func = &ring_Tempo },
     .{ .name = "stzenginesoundloudness", .func = &ring_Loudness },
+    .{ .name = "stzenginesoundloudnessmomentary", .func = &ring_LoudnessMomentary },
+    .{ .name = "stzenginesoundloudnessshortterm", .func = &ring_LoudnessShortTerm },
+    .{ .name = "stzenginesoundloudnessofsupport", .func = &ring_LoudnessOfSupport },
+    .{ .name = "stzenginesoundloudnessmetricname", .func = &ring_LoudnessMetricName },
     .{ .name = "stzenginesoundgridrows", .func = &ring_GridRows },
     .{ .name = "stzenginesoundgridcols", .func = &ring_GridCols },
     .{ .name = "stzenginesoundgridxstep", .func = &ring_GridXStep },

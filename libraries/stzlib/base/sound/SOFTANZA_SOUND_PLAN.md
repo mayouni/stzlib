@@ -1635,7 +1635,7 @@ than a specification of it. Audited:
 | Colour — built and proven | §6.1's analogue | Verdict here |
 |---|---|---|
 | the five semantic names | the same five names | **ACCEPTED.** One vocabulary, two channels — §S.2 |
-| hue = identity | timbre = identity | **PROVISIONAL, unverified.** Measured; inconclusive — §S.2 |
+| hue = identity | timbre = identity | **REFUSED as written.** Measured in SS1: timbre alone scores 0.80, contour 1.55 — identity is a MOTIF, contour-first |
 | lightness = prominence | salience = loudness × brightness × repetition | **AMENDED.** Repetition is a time cost, not an intensity, and is unlawful in a cue — §S.2 |
 | the sRGB gamut | the band between noise floor and discomfort ceiling | **ACCEPTED, with an asymmetry that matters** — §S.4 |
 | chroma searched to fit the gamut | salience fitted to the room, never chosen | **AMENDED.** The gamut is free; the room costs a microphone and a consent — §S.4 |
@@ -1662,9 +1662,15 @@ five names survive intact and one of them is lawfully empty. This is also why
 no sixth value is needed: the pressure that would have produced one is
 relieved by admitting that a value may render to nothing.
 
-**Identity is a MOTIF, not a timbre alone.** A motif is (contour, interval,
-duration, timbre). Which component carries the load is **not settled**, and
-this session tried to settle it and failed honestly: a square/triangle pair at
+**Identity is a MOTIF, and CONTOUR is its primary carrier.** A motif is
+(contour, interval, duration, timbre). **SS1 settled which component carries the
+load — see its STATUS section below: timbre alone measures 0.80 separability
+through a small speaker, contour alone 1.55, and below 1 a motif is nearer a
+different meaning than to itself.** Timbre reinforces; it is never the sole
+distinction between two meanings.
+
+The first attempt at this question failed honestly, and the failure is worth
+keeping because it names an instrument not to reach for again: a square/triangle pair at
 880 Hz kept 86% of its spectral distance through a 500 Hz–6 kHz band (a rough
 laptop speaker), which would support timbre — but the same measurement read
 *over 100%* at 150–440 Hz, because normalising each spectrum to its own peak
@@ -1761,10 +1767,12 @@ gate. An earcon is shorter than one block. An 880 Hz tone at **peak 0.50**,
 −1000 is this plane's "silence" answer. **A plainly audible sound at half full
 scale reports as silence** because it is shorter than the standard's window.
 SN5 recorded that "LUFS is integrated only… the blocks exist internally;
-exposing them is small when something needs them." Something now needs them:
-the floor binds to **momentary loudness (400 ms)**, and even that is a window
-longer than the sound it measures, so the honest instrument is a gated
-short-window loudness over the earcon's own support. That is SS2.
+exposing them is small when something needs them." Something now needed them.
+**SS2 built it — see its STATUS section below.** `LoudnessOfSupport` applies the
+same K-weighting and the same formula over the sound's own length, reads −9.26
+for a 60 ms earcon, and agrees with the standard to a hundredth of a decibel
+wherever the standard has an opinion. The gate runs on it now; the unweighted RMS
+substitute this section originally described is gone.
 
 **The asymmetry with colour that must not be papered over.** The sRGB gamut is a
 property of the medium: constant, known at build time, free to consult — which
@@ -1918,3 +1926,110 @@ the shared vocabulary is decorative and this section's central claim is false.
 - **No measured ambient floor by default** — declared, per §S.4.
 - **No sonification** (continuous data mapped to sound). A different problem
   from semantics; naming it here is not claiming it.
+
+### SS1 STATUS — closed 2026-08-12. Contour carries identity; timbre reinforces it
+
+The question section 6.1 asked and S.2 could not answer: does TIMBRE carry
+identity as hue does? The semantics session tried a spectral L1 distance, got 86%
+at 880 Hz and *over 100%* at 150 Hz, and correctly refused to legislate from a
+metric whose per-signal normalisation had confounded it.
+
+**THE INSTRUMENT, rebuilt to the shape S.8 demanded.** Guard:
+`test/sound/sound_ss1_narrated.ring` (12).
+
+- **Features, not a raw spectral difference.** Pitch contour (peak frequency per
+  spectrogram row) and brightness contour (spectral centroid per row), sampled at
+  eight points across the sound, both in **log2 hertz** — an octave is a
+  doubling, and a distance in linear hertz would call 200→400 Hz the same step as
+  4000→4200 Hz.
+- **Z-scored per dimension** across the whole set. This is what kills the earlier
+  confound: no dimension dominates through its units, and no per-signal
+  renormalisation happens anywhere.
+- **Separability is a RATIO, because identity must survive the CHANNEL.** Each
+  motif is featurised through two stated bands — a laptop (500 Hz–6 kHz) and a
+  phone (700 Hz–4 kHz) — and
+
+      separability = smallest between-motif distance / largest within-motif distance
+
+  Above 1, a listener has something to go on. Below 1, a motif is nearer a
+  DIFFERENT meaning heard through another speaker than it is to itself.
+
+**MEASURED:**
+
+| set | separability | reading |
+|---|---|---|
+| the four shipped motifs | **6.44** (4.47 between / 0.69 within) | identifiable with room to spare |
+| CONTOUR only — one waveform, four melodic shapes | **1.55** | survives |
+| TIMBRE only — one pitch, four waveforms | **0.80** | **does not survive** |
+| four copies of ONE motif (the negative sibling) | **0.00** | the instrument can fail |
+
+**THE FINDING: section 6.1's second row is REFUSED as written.** Timbre is not
+the analogue of hue. Hue survives a screen because a screen reproduces it; timbre
+lives in the harmonics ABOVE the fundamental, and those are exactly what a small
+speaker's band removes. At 0.80 a timbre-only vocabulary is not a vocabulary.
+
+What replaces it: **identity is a MOTIF, and CONTOUR is its primary carrier —
+timbre reinforces, and is never the sole distinction between two meanings.** The
+shipped motifs already obey this (they differ in contour, note count and timbre
+together, which is why they measure 6.44 rather than 1.55).
+
+**The limits of this result, stated rather than left to be discovered.** The two
+"speakers" are declared bands, not measured devices — no impulse response, no
+non-linearity, no room. 0.80 against 1.55 is a clear ordering but not a wide one,
+and neither figure is a listening test. What the measurement licenses is the
+DESIGN RULE above; it does not license a claim about how a particular listener on
+particular hardware performs.
+
+### SS2 STATUS — closed 2026-08-12. A loudness the floor can bind to
+
+S.4's finding was that the audibility gate had no instrument: BS.1770-4
+integrates over 400 ms blocks behind a −70 LUFS gate, so an 880 Hz tone at **peak
+0.50** reports **−1000 LUFS — this plane's answer for silence** — at every
+duration below 400 ms. Every earcon is shorter than one block.
+
+Added to `engine/src/soundanalysis.zig`, and exposed through `stzSound`:
+
+- **`MomentaryLoudness()`** — the standard's own 400 ms window, ungated, taking
+  the LOUDEST such window rather than a mean. Averaging an earcon against the
+  silence around it answers nothing. BS.1770 arithmetic used as specified, so it
+  is LUFS without qualification. It still cannot see a 60 ms sound, and does not
+  pretend to.
+- **`ShortTermLoudness()`** — the standard's 3 s window, same treatment.
+- **`LoudnessOfSupport()`** — the same K-weighting and the same
+  −0.691 + 10·log10(z) formula over the sound's **own length**. NOT a standard
+  LUFS figure, and `LoudnessMetric()` says so in the string a caller prints.
+- **`LoudnessMetric()`** — the method, so a number never travels without it.
+
+**MEASURED, an 880 Hz tone at peak 0.50:**
+
+| duration | integrated | momentary | support |
+|---|---|---|---|
+| 40 ms | −1000 | −1000 | **−9.26** |
+| 60 ms | −1000 | −1000 | **−9.26** |
+| 100 ms | −1000 | −1000 | **−9.27** |
+| 200 ms | −1000 | −1000 | **−9.27** |
+| 400 ms | −9.27 | −9.27 | −9.27 |
+| 2000 ms | −9.27 | −9.27 | −9.27 |
+
+**The property that makes the support measure trustworthy: it agrees with the
+standard to a hundredth of a decibel wherever the standard has an opinion.** A
+measure that disagreed at 400 ms would be a different quantity wearing a loudness
+label. Guarded both ways, including the negative sibling — silence still reports
+−1000 rather than a small number, and doubling the amplitude is still +6.02 LU.
+
+**Why not simply widen the standard's window.** Because that makes a 60 ms sound
+and a 400 ms sound comparable when they are not: the shorter one is quieter over
+any fixed window purely for being shorter. The support measure answers a
+different question honestly instead of answering the standard's question wrongly.
+
+**The semantic layer's gate now runs on it.** `stzEarcons` used unweighted RMS as
+an admitted substitute; `LevelOf` is `LoudnessOfSupport` now, which is the
+difference between a gate that models hearing and one that models arithmetic. The
+margins are unchanged (≥ 10 LU for a cue, ≥ 20 for an alert) and the guard still
+proves the gate can CLOSE: raise the declared room to −10 dB and the shipped
+motifs are refused as inaudible.
+
+**Still not here:** loudness range (LRA), true-peak, and surround weighting. And
+the floor is still DECLARED rather than measured — S.4's asymmetry with colour
+stands, and SS2 does nothing about it.
+

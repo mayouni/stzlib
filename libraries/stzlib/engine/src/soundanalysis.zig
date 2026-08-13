@@ -508,6 +508,126 @@ fn biquadInPlace(x: []f64, b: [3]f64, a: [3]f64) void {
     }
 }
 
+// ── SS2: A LOUDNESS THE AUDIBILITY FLOOR CAN BIND TO ────────────────────────
+//
+// `loudness()` above is INTEGRATED loudness, and it refuses anything shorter
+// than one 400 ms block. That refusal is correct -- the standard has nothing to
+// say about a shorter signal -- and it makes the function useless for the thing
+// the semantic layer needs to measure. Measured, at PEAK 0.50:
+//
+//     40 ms  -> -1000 LUFS      400 ms -> -9.38 LUFS
+//     60 ms  -> -1000 LUFS      800 ms -> -9.29 LUFS
+//    100 ms  -> -1000 LUFS     2000 ms -> -9.27 LUFS
+//    200 ms  -> -1000 LUFS
+//
+// -1000 is this plane's "silence". A plainly audible sound at half full scale
+// reporting as silence is what sent the semantic layer's audibility gate to an
+// unweighted RMS substitute, and plan section S.4 records that as a gap with
+// this phase named against it.
+//
+// TWO FUNCTIONS, AND THE HONEST DIFFERENCE BETWEEN THEM.
+//
+// `loudnessMomentary` is the standard's momentary window -- 400 ms, ungated,
+// and the LOUDEST such window in the signal. It is BS.1770 arithmetic used
+// exactly as specified, so it may be called LUFS without qualification. It
+// still cannot see a 60 ms earcon, because a 400 ms window over a 60 ms sound
+// is 340 ms of silence dragging the mean down.
+//
+// `loudnessOfSupport` is NOT in the standard, and the name says so rather than
+// hiding it. It is the same K-weighting and the same -0.691 + 10log10(z)
+// formula over the sound's OWN length -- which is the only defensible thing to
+// measure when the sound is shorter than any window the standard defines. It
+// answers "how loud is this earcon", and it must never be reported as "LUFS"
+// unqualified. Callers get `LoudnessMetricName()` so a number never travels
+// without the method that produced it.
+//
+// WHY NOT JUST WIDEN THE STANDARD'S WINDOW. Because that would make a 60 ms
+// sound and a 400 ms sound comparable when they are not: the shorter one is
+// quieter over any fixed window purely for being shorter, and loudness
+// perception of a short burst genuinely does fall off below ~200 ms. The
+// support measure answers a different question honestly instead of answering
+// the standard's question wrongly.
+
+/// The loudest 400 ms window, ungated, in LUFS. Standard arithmetic; -1000 when
+/// the signal is shorter than one window.
+pub fn loudnessMomentary(buffer_id: i64) f64 {
+    return windowedLoudness(buffer_id, 4800 * 4, 4800, true);
+}
+
+/// The loudest 3 s window, ungated, in LUFS -- the standard's short-term
+/// measure. -1000 when the signal is shorter than one window.
+pub fn loudnessShortTerm(buffer_id: i64) f64 {
+    return windowedLoudness(buffer_id, 48000 * 3, 4800 * 4, true);
+}
+
+/// K-weighted level over the sound's OWN support. NOT a standard LUFS figure --
+/// see the note above, and never report it as one.
+pub fn loudnessOfSupport(buffer_id: i64) f64 {
+    const frames: usize = @intFromFloat(@max(0, snd.frameCount(buffer_id)));
+    if (frames == 0) {
+        refuse("loudnessOfSupport: that buffer is empty or stale");
+        return -1000;
+    }
+    return windowedLoudness(buffer_id, frames, frames, false);
+}
+
+/// The name of what `loudnessOfSupport` measures, so a number never travels
+/// without its method.
+pub fn loudnessMetricName() []const u8 {
+    return "K-weighted level over the sound's support (BS.1770 weighting, NOT integrated LUFS)";
+}
+
+// One implementation behind all three. `require_full` is what separates a
+// standard window (which must exist in full or the answer is refused) from the
+// support measure (where the window IS the signal).
+fn windowedLoudness(buffer_id: i64, window: usize, hop: usize, require_full: bool) f64 {
+    const frames: usize = @intFromFloat(@max(0, snd.frameCount(buffer_id)));
+    const chans: u32 = @intFromFloat(@max(0, snd.channelCount(buffer_id)));
+    const rate = snd.sampleRate(buffer_id);
+    if (frames == 0 or chans == 0) {
+        refuse("windowed loudness: that buffer is empty or stale");
+        return -1000;
+    }
+    if (@abs(rate - 48000) > 0.5) {
+        refuse("windowed loudness: BS.1770 K-weighting is specified at 48 kHz -- resample first");
+        return -1000;
+    }
+    if (require_full and frames < window) {
+        refuse("windowed loudness: shorter than one window");
+        return -1000;
+    }
+    const win = @min(window, frames);
+    const n_windows = if (frames <= win) 1 else ((frames - win) / hop) + 1;
+
+    var z = alloc.alloc(f64, n_windows) catch return -1000;
+    defer alloc.free(z);
+    @memset(z, 0);
+
+    const buf = alloc.alloc(f64, frames) catch return -1000;
+    defer alloc.free(buf);
+
+    var ch: u32 = 0;
+    while (ch < chans) : (ch += 1) {
+        for (0..frames) |i| buf[i] = snd.getSample(buffer_id, i, ch);
+        biquadInPlace(buf, PRE_B, PRE_A);
+        biquadInPlace(buf, RLB_B, RLB_A);
+        const gw: f64 = 1.0; // L/R/C weigh 1.0; this plane does not claim surround
+        for (0..n_windows) |wi| {
+            const from = wi * hop;
+            var acc: f64 = 0;
+            for (buf[from..][0..win]) |v| acc += v * v;
+            z[wi] += gw * (acc / @as(f64, @floatFromInt(win)));
+        }
+    }
+
+    // the LOUDEST window, not a mean: an earcon's loudness is what it reaches,
+    // and averaging it against the silence around it answers nothing
+    var best: f64 = 0;
+    for (z) |v| best = @max(best, v);
+    if (best <= 0) return -1000;
+    return -0.691 + 10.0 * std.math.log10(best);
+}
+
 /// Integrated loudness in LUFS. -1000 means "silence" (the standard's answer
 /// is minus infinity; a sentinel is what crosses an FFI).
 pub fn loudness(buffer_id: i64) f64 {
@@ -791,4 +911,84 @@ test "a freed grid is STALE, not readable" {
     try testing.expectEqual(STALE, gridFree(g));
     try testing.expectEqual(@as(f64, -1), gridRows(g));
     try testing.expectEqual(@as(f64, 0), gridAt(g, 0, 0));
+}
+
+test "SS2: the support measure SEES a 60 ms earcon that integrated LUFS calls silence" {
+    // one tone, three lengths, measured three ways
+    const short = tone(0.06, 880, 0.5); // shorter than any standard window
+    defer _ = snd.free(short);
+    const one_block = tone(0.40, 880, 0.5);
+    defer _ = snd.free(one_block);
+
+    // INTEGRATED refuses the short one -- correctly, and uselessly
+    try testing.expectEqual(@as(f64, -1000), loudness(short));
+    try testing.expectEqual(@as(f64, -1000), loudnessMomentary(short));
+    // and it manages the 400 ms one
+    const l_block = loudness(one_block);
+    try testing.expect(l_block > -20 and l_block < 0);
+
+    // the SUPPORT measure sees both, and agrees with the standard where the
+    // standard has an opinion -- which is what makes it trustworthy where it
+    // does not. Same tone, same level: the numbers must nearly coincide.
+    const s_short = loudnessOfSupport(short);
+    const s_block = loudnessOfSupport(one_block);
+    std.debug.print(
+        "\n  60 ms: integrated {d:.2}, support {d:.2}   400 ms: integrated {d:.2}, support {d:.2}\n",
+        .{ loudness(short), s_short, l_block, s_block },
+    );
+    try testing.expect(s_short > -20 and s_short < 0);
+    try testing.expectApproxEqAbs(s_block, s_short, 1.0);
+    // and the support measure of the 400 ms tone agrees with the STANDARD's own
+    // figure for it, so the two are the same measurement where they overlap
+    try testing.expectApproxEqAbs(l_block, s_block, 1.0);
+}
+
+test "SS2: doubling the amplitude is +6 LU on the support measure too" {
+    const quiet = tone(0.06, 880, 0.25);
+    defer _ = snd.free(quiet);
+    const loud = tone(0.06, 880, 0.5);
+    defer _ = snd.free(loud);
+    const lq = loudnessOfSupport(quiet);
+    const ll = loudnessOfSupport(loud);
+    try testing.expectApproxEqAbs(@as(f64, 6.02), ll - lq, 0.1);
+    // the negative sibling: silence is still silence, not a small number
+    const sil = snd.newSilent(2880, 1, 48000);
+    defer _ = snd.free(sil);
+    try testing.expectEqual(@as(f64, -1000), loudnessOfSupport(sil));
+}
+
+test "SS2: a number never travels without the method that produced it" {
+    // the support measure is NOT standard LUFS, and it says so in its own name
+    const name = loudnessMetricName();
+    try testing.expect(std.mem.indexOf(u8, name, "NOT integrated LUFS") != null);
+}
+
+test "SS2: momentary takes the LOUDEST window, not the average" {
+    // 400 ms of silence, then 400 ms of tone. An average over the whole thing
+    // would report about 3 dB low; the loudest window reports the tone.
+    const buf = snd.newSilent(48000 * 4 / 5, 1, 48000); // 800 ms
+    defer _ = snd.free(buf);
+    for (19200..38400) |i| {
+        const t = @as(f64, @floatFromInt(i - 19200)) / 48000.0;
+        _ = snd.setSample(buf, i, 0, 0.5 * @sin(2.0 * std.math.pi * 880.0 * t));
+    }
+    const m = loudnessMomentary(buf);
+    const only_tone = tone(0.40, 880, 0.5);
+    defer _ = snd.free(only_tone);
+    const t_alone = loudnessMomentary(only_tone);
+    std.debug.print("  half-silent: {d:.2}, the tone alone: {d:.2}\n", .{ m, t_alone });
+    try testing.expectApproxEqAbs(t_alone, m, 1.0);
+    // integrated over the same buffer is DRAGGED DOWN by the silence -- the
+    // negative sibling, and the reason momentary exists at all
+    try testing.expect(loudness(buf) < m);
+}
+
+fn tone(secs: f64, hz: f64, amp: f64) i64 {
+    const frames: usize = @intFromFloat(secs * 48000.0);
+    const b = snd.newSilent(frames, 1, 48000);
+    for (0..frames) |i| {
+        const t = @as(f64, @floatFromInt(i)) / 48000.0;
+        _ = snd.setSample(b, i, 0, amp * @sin(2.0 * std.math.pi * hz * t));
+    }
+    return b;
 }

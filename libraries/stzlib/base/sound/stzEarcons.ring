@@ -132,21 +132,26 @@ class stzEarcons
 
 	# WHAT THE MARGIN IS MEASURED WITH, said out loud every time it is asked.
 	#
-	# It is NOT LUFS. SN5's Loudness() integrates over 400 ms blocks behind a
-	# -70 LUFS gate, and a measurement in this plane's own guards shows an
-	# 880 Hz tone at PEAK 0.50 reporting -1000 LUFS -- silence -- at every
-	# duration below 400 ms. An earcon is shorter than one block, so the
-	# standard cannot see it. Until SS2 exposes a short window, the margin uses
-	# RMS in dBFS over the sound's own support, and says so.
+	# SS2 CLOSED THIS. The first version had to use unweighted RMS, because
+	# SN5's Loudness() integrates over 400 ms blocks behind a -70 LUFS gate and
+	# an 880 Hz tone at PEAK 0.50 reports -1000 -- silence -- at every duration
+	# below 400 ms. An earcon is shorter than one block, so the standard cannot
+	# see it.
+	#
+	# The margin now uses LoudnessOfSupport: the SAME K-weighting and the same
+	# -0.691 + 10log10(z) formula, over the sound's own length. It is not a
+	# standard LUFS figure and the metric name says so -- but it is the ear's
+	# own weighting rather than a flat average, which is the difference between
+	# a gate that models hearing and one that models arithmetic.
 	def MarginMetric()
-		return "rms dBFS over the sound's support -- NOT LUFS (see plan S.4)"
+		_s_ = This.ToSoundOf(:Danger)
+		if isObject(_s_)  return _s_.LoudnessMetric() ok
+		return "K-weighted level over the sound's support"
 
 	def LevelOf(pMeaning)
 		_s_ = This.ToSoundOf(pMeaning)
 		if NOT isObject(_s_)  return -1000 ok
-		_r_ = _s_.RMS()
-		if _r_ <= 0  return -1000 ok
-		return 20 * log10(_r_)
+		return _s_.LoudnessOfSupport()
 
 	def AudibilityMarginOf(pMeaning)
 		_l_ = This.LevelOf(pMeaning)
