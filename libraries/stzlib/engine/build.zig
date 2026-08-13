@@ -1130,6 +1130,60 @@ pub fn build(b: *std.Build) void {
         b.installArtifact(lib);
     }
 
+    // G0 of the GUI plane (base/gui/SOFTANZA_GUI_PLAN.md §8): the RmlUi
+    // spike. MEASUREMENT ONLY -- it answers the phase's kill criteria and
+    // nothing links it. Not built by the default `zig build`, exactly like
+    // voice-spike below: a spike is not a product.
+    //
+    // It builds the vendored RmlUi core (183 C++ TUs, no cmake, no SDK) and
+    // links a probe with STUB render/font/system interfaces. Notes paid for
+    // in G0, each one a build error until it was found:
+    //   -DRMLUI_STATIC_LIB  -- else RMLUICORE_API is __declspec(dllimport)
+    //                          and every non-inline definition is an error.
+    //   NO -fno-exceptions  -- unlike HarfBuzz. RmlUi's in-tree itlib
+    //                          flat_map throws; 3 TUs refuse to compile
+    //                          without it.
+    //   NO -fno-rtti        -- also unlike HarfBuzz: Traits.h calls
+    //                          typeid(T).name(), so 391 errors without it.
+    // BOTH C++ features RmlUi needs are ones the house's other big C++
+    // vendor does not. Recorded in G0 STATUS; it is a real difference in
+    // what a DLL linking this must carry.
+    // `zig build rmlui-g0`.
+    {
+        const probe_mod = b.createModule(.{
+            .target = target,
+            .optimize = optimize,
+            .link_libc = true,
+        });
+        probe_mod.link_libcpp = true;
+        probe_mod.addIncludePath(b.path("vendor/rmlui/Include"));
+
+        var rml_files: std.ArrayList([]const u8) = .{};
+        for ([_][]const u8{ "vendor/rmlui/Source/Core", "vendor/rmlui/Source/Core/Elements", "vendor/rmlui/Source/Core/Layout" }) |dirpath| {
+            var dir = std.fs.cwd().openDir(dirpath, .{ .iterate = true }) catch |e|
+                std.debug.panic("rmlui: cannot open {s}: {s}", .{ dirpath, @errorName(e) });
+            defer dir.close();
+            var it = dir.iterate();
+            while (it.next() catch null) |entry| {
+                if (entry.kind != .file) continue;
+                if (!std.mem.endsWith(u8, entry.name, ".cpp")) continue;
+                rml_files.append(b.allocator, b.fmt("{s}/{s}", .{ dirpath, entry.name })) catch @panic("oom");
+            }
+        }
+        rml_files.append(b.allocator, "tools/rmlui_g0_probe.cpp") catch @panic("oom");
+
+        const probe = b.addExecutable(.{ .name = "rmlui_g0_probe", .root_module = probe_mod });
+        probe.addCSourceFiles(.{
+            .files = rml_files.items,
+            .flags = &.{ "-std=c++14", "-DRMLUI_STATIC_LIB", "-w" },
+            .language = .cpp,
+        });
+        const run_probe = b.addRunArtifact(probe);
+        if (b.args) |a| run_probe.addArgs(a);
+        const probe_step = b.step("rmlui-g0", "G0: measure whether RmlUi can carry the GUI plane");
+        probe_step.dependOn(&run_probe.step);
+    }
+
     // THE SOUND STUDIO -- the sound plane's listening bench, in a browser.
     //
     // VC0: the voice spike. MEASUREMENT ONLY -- it earns the voice plane's

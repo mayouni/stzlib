@@ -603,3 +603,174 @@ crashes and a **preedit leaking into a password field**.
   layering has collapsed.
 - **Do not treat §8's phase list as fixed.** It was written from a survey,
   not from building.
+
+---
+
+# G0 STATUS — 2026-08-13. VERDICT: **GO**, on three of four criteria; the fourth is untouched and says so
+
+Reproduce: `zig build rmlui-g0` (from `libraries/stzlib/engine`), 57 s cold.
+Probe: `engine/tools/rmlui_g0_probe.cpp` — drives RmlUi for real with STUB
+render, font and system interfaces. No canvas, no GPU, no Ring, no
+HarfBuzz: the point was to learn what the seam demands **before** building
+the real thing against it.
+
+## Vendored
+
+**RmlUi 6.2**, MIT, `engine/vendor/rmlui/`, SHA-256
+`814c3ff7b9666280338d8f0dda85979f5daf028d01c85fc8975431d1e2fd8e8b`.
+Core only: **183 `.cpp`, 424 files, ~3.1 MB**. Dropped at the root rather
+than disabled at build time — `FontEngineDefault` (FreeType), `Backends/`,
+`Samples/`, `Tests/`, `Lua`, `Lottie`, `SVG`, `Debugger`. Full reasoning in
+`vendor/rmlui/VERSION.txt`.
+
+**The vendored tree has ZERO external dependencies.** Dropping
+`FontEngineDefault` is what achieved that: `ft2build.h` was the only
+non-standard include in the whole core, and it lived there. The remaining
+non-C++-standard includes across 424 files are `<ctype.h>`, `<float.h>`,
+`<limits.h>`, `<stdarg.h>`, `<stddef.h>`, `<stdint.h>`, `<stdio.h>`,
+`<stdlib.h>`, `<string.h>` and, on Windows, `<windows.h>`.
+
+## Criterion 4 — builds under `zig c++`, no cmake, no SDK: **PASS**
+
+**183 of 183 TUs, zero errors, 232 s** on the dev machine. Two flags were
+paid for in build errors, and both are **differences from HarfBuzz**, the
+house's other large C++ vendor:
+
+| flag | HarfBuzz | RmlUi | what happens without it |
+|---|---|---|---|
+| `-DRMLUI_STATIC_LIB` | n/a | **required** | `RMLUICORE_API` defaults to `__declspec(dllimport)`; 22 errors, "dllimport cannot be applied to non-inline function definition" |
+| `-fno-exceptions` | fine | **must NOT** | the in-tree `itlib/flat_map` throws; 3 TUs refuse |
+| `-fno-rtti` | fine | **must NOT** | `Traits.h` calls `typeid(T).name()`; **391 errors** |
+
+**RmlUi requires C++ exceptions and RTTI.** That is a real constraint on
+whatever DLL eventually links it, and it is recorded here rather than
+discovered at G1.
+
+## Criterion 1 — can `TextShapingContext` carry HarfBuzz? **PASS**, and the survey understated the answer
+
+`TextShapingContext` carries `language`, `text_direction`, `font_kerning`
+and `letter_spacing`. Script is absent but derivable —
+`hb_buffer_guess_segment_properties` already does it in `gpu_text.zig`.
+Measured through the probe: **saw direction=rtl: YES**, **saw a language
+tag: YES** — the plumbing works end to end.
+
+**But the important finding is about what the interface is HANDED, and it
+is sharper than the survey said:**
+
+```
+  width is asked for   : [A] [ panel] [ laid] [ out] [ by] [ RmlUi,] ...
+  GenerateString gets  : [Softanza] [Graphics] [Sound] [GUI] [Panels] ...
+```
+
+- **`GenerateString` receives the whole line** (`line.text`, with
+  `line.position` as the baseline origin). So **full bidi reorder plus
+  shaping is possible at render time.** This is the fact criterion 1
+  actually turns on, and it passes.
+- **`GetStringWidth` receives TOKENS** — one word at a time, in **logical**
+  order, during line building. Line breaks are decided by summing token
+  widths.
+
+> **RmlUi does no bidi. At all.** `Direction::Rtl` appears in exactly ONE
+> place in 183 files — parsing the `dir` attribute — and is then passed
+> through to the font engine as a hint. There is no reorder pass, no run
+> splitting, no base-direction resolution.
+
+That is *consistent* with the survey (we supply the font engine), but the
+consequence is stronger than "we supply a shaper": **RTL is entirely ours,
+including the reordering**, and RmlUi's line breaking will be measuring
+logical-order tokens whatever we do. Acceptable — a line's total advance
+is essentially order-independent, and Arabic does not join across the
+spaces that delimit tokens — but it is a limitation to write into G2's
+guard, not to discover there.
+
+Two second-order consequences, recorded now:
+
+- **`GetStringWidth` returns `int`.** Our layout is f64 at 1/64 px.
+  Rounding is per token and accumulates across a line. Measure it in G2.
+- **Text-overflow ellipsis truncates the line from the end by UTF-8
+  codepoint**, so on an RTL line it removes the *logically* last
+  characters — which are the visually leftmost. Logically defensible,
+  visually surprising, and not grapheme-aware.
+
+## Criterion 2 — layout cost, and does caching make re-layout viable? **PASS, with the number that sizes G2**
+
+| | measured |
+|---|---|
+| parse + load the document | 0.55 ms |
+| first `Update` (full layout) | 0.009 ms |
+| first `Render` | 0.040 ms → 6 compiles, 6 draws, 28 verts, 42 indices |
+| `Update`, unchanged tree | **0.0006 ms/frame** |
+| `Render`, unchanged tree | **0.0023 ms/frame** |
+| geometry re-compiles over 500 still frames | **0** |
+| `Update` after one property change | **0.235 ms/frame** |
+| ratio dirty / still | **362x** |
+
+**The caching is real and it is not subtle**: a still frame costs a
+three-hundredth of a dirty one, and 500 still frames re-compile zero
+geometry. Re-layout-on-change is viable.
+
+**And the number that actually sizes the font engine:**
+
+> **988 `GetStringWidth` calls per re-layout**, on a four-card screen.
+> RmlUi does **not** memoize width queries — every layout re-measures every
+> token. With the probe's codepoint-counting stub that is free. **With a
+> real HarfBuzz shaper at ~1 µs per token, that alone is ~1 ms per frame,
+> before a single glyph is drawn.**
+
+So: **a width cache inside the font engine is not an optimization, it is a
+precondition.** G2 ships with one or G2 does not ship. Keyed on (face,
+size, bytes, direction, language, kerning, letter-spacing) — every field of
+`TextShapingContext` is part of the key, which is a second reason the
+struct matters.
+
+## Criterion 3 — is text legible in a texture at an oblique angle? **NOT MEASURED**
+
+Stated plainly rather than assumed: **nothing was rendered.** The probe
+counts geometry instead of drawing it, so nothing in G0 touched a texture,
+a canvas or a GPU. This criterion needs G1's real render interface and a 3D
+scene, and it moves there. **It remains a live kill criterion**, and §2.4's
+second door stays open until it is answered.
+
+## What else the probe established, for G1
+
+- **The box tree is inspectable after `Update`** — `GetBox().GetSize()` and
+  `GetAbsoluteOffset()` give the laid-out geometry per element, which is
+  what a Softanza-side inspector and the court's paint-time audit (§3 of
+  `GUI-SYSTEM.md`) will both read.
+- **Flexbox flexes**: `#main` went 1044 → 426 px when the viewport went
+  1280 → 640.
+- `GetBox().GetSize()` is the **content** box, and `width` sets content
+  width. A declared `width` on a flex item is a **basis, not a floor** —
+  `#side` shrank from 180 to 132 until `flex-shrink: 0` was set. That is
+  CSS being correct; it is recorded because the first reading of the probe
+  called it a bug.
+- **Shutdown is clean**: 6 geometry handles compiled, 6 released.
+
+## The first entries in §3's profile divergence table
+
+Contact with the code produced the first two concrete divergences between
+the profile and its two conforming implementations, which is exactly what
+§3 exists to hold:
+
+| the profile says | a browser renders | RmlUi needs |
+|---|---|---|
+| `direction: rtl` | `direction: rtl` | **`--rmlui-direction: rtl`** — RCSS rejects the CSS spelling outright ("Syntax error parsing property declaration") |
+| a line break | `<br>` unclosed | **`<br/>`** — RML is XML syntax and will not parse the HTML form |
+
+Neither is a defect. Both are exactly the reason the emitter targets a
+named profile rather than an engine.
+
+## What was NOT done in G0
+
+- **No pixels.** Criterion 3 above.
+- **No real font engine.** The probe's stub is monospace by codepoint
+  count; nothing about HarfBuzz integration was executed — only the
+  interface it must satisfy was measured.
+- **No Ring face, no DLL, no bridge.** RmlUi is vendored and proven to
+  build and run; it is not yet reachable from Softanza.
+- **No browser-side fixture.** §3 asked for one document rendered both ways
+  in embryo. The RmlUi side exists; the browser side and the comparison do
+  not.
+- **Windows only.** No cross-compile check was run for the RmlUi TUs.
+- **No input, no focus, no accessibility, no data binding** — G3, G4 and
+  G5 are untouched, and nothing in G0 says anything about them.
