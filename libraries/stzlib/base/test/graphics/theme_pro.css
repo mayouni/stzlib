@@ -1,0 +1,40 @@
+/* Softanza theme: pro */
+:root {
+  --stz-primary: #4D4DC9;
+  --stz-primary-surface: #EAEDFF;
+  --stz-primary-border: #ADB8FF;
+  --stz-primary-solid: #6D74F4;
+  --stz-primary-text: #3B39A7;
+  --stz-on-primary: #000000;
+  --stz-success: #A3D1A3;
+  --stz-success-surface: #D6FAD6;
+  --stz-success-border: #A0CBA0;
+  --stz-success-solid: #679368;
+  --stz-success-text: #325733;
+  --stz-on-success: #000000;
+  --stz-warning: #FFDEA3;
+  --stz-warning-surface: #FFECCB;
+  --stz-warning-border: #D7B984;
+  --stz-warning-solid: #9F8149;
+  --stz-warning-text: #624813;
+  --stz-on-warning: #000000;
+  --stz-danger: #FFA3A3;
+  --stz-danger-surface: #FFE8E8;
+  --stz-danger-border: #F8A3A3;
+  --stz-danger-solid: #BF696B;
+  --stz-danger-text: #7A3336;
+  --stz-on-danger: #000000;
+  --stz-info: #0000FF;
+  --stz-info-surface: #E6EFFF;
+  --stz-info-border: #9DBDFF;
+  --stz-info-solid: #447CFF;
+  --stz-info-text: #002BD0;
+  --stz-on-info: #000000;
+  --stz-neutral: #808080;
+  --stz-neutral-surface: #EEEEEE;
+  --stz-neutral-border: #BEBEBE;
+  --stz-neutral-solid: #868686;
+  --stz-neutral-text: #4D4D4D;
+  --stz-on-neutral: #000000;
+  --stz-background: #FFFFFF;
+}

@@ -165,6 +165,24 @@ ok
 ? "-- 3. Refusals name themselves ------------------------------"
 #---------------------------------------------------------------------------
 
+# "AND LISTS THE VOCABULARY" WAS NEVER CHECKED, and it was not true: the
+# message called a StzJoinWith that did not exist, so the refusal raised R3
+# "calling function without definition" instead of the sentence it was
+# written to give. This assertion passed the whole time, because Raises()
+# only asks WHETHER something raised.
+try
+	oBad = new stzCanvas(100, 100)
+	StzDrawNodeShape(oBad, :Sparkle, 0, 0, 50, 50)
+catch
+	cShapeMsg = cCatchError
+done
+? "   the refusal : " + cShapeMsg
+chk("the message names the offending shape",
+    StzFindFirst("sparkle", StzLower(cShapeMsg)) > 0)
+chk("...and actually lists the vocabulary",
+    StzFindFirst("hexagon", StzLower(cShapeMsg)) > 0 and
+    StzFindFirst("cylinder", StzLower(cShapeMsg)) > 0)
+
 chk("an unknown shape is refused (and lists the vocabulary)", Raises('
 	o = new stzCanvas(100, 100)
 	StzDrawNodeShape(o, :Sparkle, 0, 0, 50, 50)

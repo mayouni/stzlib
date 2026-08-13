@@ -91,6 +91,8 @@ ok
     load "graphics/stzCanvas.ring"
     # graphviz's 24-shape node vocabulary, composed from canvas primitives
     load "graphics/stzNodeShape.ring"
+    # a theme is DATA: role steps resolved to hex, exportable to CSS/JSON/Ring
+    load "graphics/stzTheme.ring"
     load "graphics/stzScene.ring"
     load "graphics/stzPlotCanvas.ring"
     load "graphics/stzTreeCanvas.ring"
@@ -113,6 +115,9 @@ ok
     load "sound/stzSoundTransport.ring"
     load "sound/stzVoicePool.ring"
     # the SEMANTIC layer -- above the graph; needs the pool, so it loads after it
+    # the VOICE face (VC2) -- text in, a stzSound out. Needs the transport
+    # for its non-blocking path, so it loads after it.
+    load "sound/stzVoice.ring"
     load "sound/stzEarcons.ring"
     load "sound/stzMicrophone.ring"
 

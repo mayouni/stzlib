@@ -1092,6 +1092,24 @@ func StzWhereXT(cCode)
 # Ring lists too -- callers like stzCCode use it on intermediate
 # substring arrays without wrapping them first.
 
+# Join a list with a SEPARATOR. `Join` above takes none, which is fine for
+# concatenation and useless for a message -- and two call sites had already
+# been written against a StzJoinWith that did not exist, each of them inside
+# a StzRaise. Both raised R3 "calling function without definition" instead
+# of the message they were written to give, and both guards passed anyway
+# because they only asserted THAT it raised.
+func StzJoinWith(paList, pcSep)
+	if NOT isList(paList)
+		StzRaise("StzJoinWith: give a list.")
+	ok
+	_c_ = ""
+	_n_ = len(paList)
+	for _i_ = 1 to _n_
+		if _i_ > 1  _c_ += ("" + pcSep)  ok
+		_c_ += ("" + paList[_i_])
+	next
+	return _c_
+
 func Join(paList)
 	if NOT isList(paList)
 		StzRaise("Join: paList must be a list")

@@ -80,7 +80,7 @@ func StzDrawNodeShape(poCanvas, pcShape, pnX, pnY, pnW, pnH)
 	_c_ = StzLower("" + pcShape)
 	if NOT StzIsNodeShape(_c_)
 		StzRaise("StzDrawNodeShape: '" + _c_ + "' is not a node shape. " +
-			"The vocabulary is: " + StzJoin(StzNodeShapeNames(), ", ") + ".")
+			"The vocabulary is: " + StzJoinWith(StzNodeShapeNames(), ", ") + ".")
 	ok
 
 	# FLUSH FIRST, AND FLUSH AGAIN AT THE END. stzCanvas.Fill documents
