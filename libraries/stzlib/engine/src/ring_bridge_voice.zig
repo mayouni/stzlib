@@ -121,6 +121,10 @@ fn ring_InstalledName(p: *anyopaque) callconv(.c) void {
     rs(p, vc.installedName(id(p, 1) - 1));
 }
 
+fn ring_InstalledLanguage(p: *anyopaque) callconv(.c) void {
+    rs(p, vc.installedLanguage(id(p, 1) - 1));
+}
+
 fn ring_SelectVoice(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(vc.selectVoice(id(p, 1), id(p, 2) - 1)));
 }
@@ -173,6 +177,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginevoicelastbyteslen", .func = &ring_LastBytesLen },
     .{ .name = "stzenginevoiceinstalledcount", .func = &ring_InstalledCount },
     .{ .name = "stzenginevoiceinstalledname", .func = &ring_InstalledName },
+    .{ .name = "stzenginevoiceinstalledlanguage", .func = &ring_InstalledLanguage },
     .{ .name = "stzenginevoiceselectvoice", .func = &ring_SelectVoice },
     .{ .name = "stzenginevoicesetrate", .func = &ring_SetRate },
     .{ .name = "stzenginevoicesetvolume", .func = &ring_SetVolume },
