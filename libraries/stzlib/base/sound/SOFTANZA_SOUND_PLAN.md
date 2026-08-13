@@ -385,9 +385,21 @@ one shared clock, and voices as pooled handles.
   underrun counting from the first device line.
 - **Scope gravity is worse here than in graphics** — synthesis, effects
   and music theory are bottomless. OUT until asked, in writing: MIDI,
-  music notation, 3D/HRTF spatial audio, time-stretching, VST/CLAP
-  hosting, and speech synthesis or recognition (the last two would be
-  NEURAL-tier work riding ggml, not this plane's).
+  music notation, 3D/HRTF spatial audio, time-stretching, and VST/CLAP
+  hosting.
+
+  **AMENDED 2026-08-13.** This risk originally also ruled out "speech
+  synthesis or recognition (the last two would be NEURAL-tier work riding
+  ggml, not this plane's)". **That was a category error, and it is
+  withdrawn**: speech was filed under machine learning because the state of
+  the art in speech is machine learning, but every desktop OS has shipped a
+  synthesiser for twenty years and it is an OS service exactly like the
+  audio device. VC0 measured it — SAPI reached from Zig with ole32 and
+  nothing else, 8 seconds of speech synthesised in 15 ms warm, rendered to
+  a buffer that loads as an ordinary `stzSound`. See
+  `SOFTANZA_VOICE_PLAN.md`. What remains out is NEURAL TTS and ASR, voice
+  cloning, speaker identification and emotion inference — those are the
+  NEURAL tier, and the original sentence was right about them.
 - **The GPU may simply not belong here** (FACT 5) — SN0 decides it once
   and the answer is recorded, so no later phase re-litigates it.
 - **Device backends are where portability claims die** — the split in
