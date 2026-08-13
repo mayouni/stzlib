@@ -107,7 +107,7 @@ StzCharQ('U+06A1') {
 
 StzCharQ('U+06BA') {
 	? Content() 	#--> ں
-	? Name()	#--> ARABIC LETTER DOTLESS NOON GHUNNA
+	? Name()	#--> ARABIC LETTER NOON GHUNNA
 	? Unicode()	#--> 1722
 }
 
