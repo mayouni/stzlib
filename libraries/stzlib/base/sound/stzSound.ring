@@ -219,6 +219,17 @@ class stzSound
 
 	#-- output --------------------------------------------------------------
 
+	# The whole sound as WAV bytes, in memory. DATA, so To... is right.
+	#
+	# The symmetric half of loading from memory, and its absence was a real
+	# gap: a sound could be decoded FROM bytes but not encoded back TO them,
+	# so handing a buffer to another tier meant a temporary file. VC1 went to
+	# some trouble to keep a voice out of the filesystem; without this, VC3
+	# would have put it straight back to feed a recogniser.
+	def ToWavBytes()
+		if @nBuf = 0  return "" ok
+		return StzEngineSoundToWavBytes(@nBuf)
+
 	# 16-bit by default: it is what everything reads, and SN1 measured the
 	# round-trip error at 4.18e-5, one quantum. Ask for 32 when you are
 	# handing the file back to another stage rather than to a listener.

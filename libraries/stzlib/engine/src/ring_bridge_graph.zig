@@ -739,6 +739,48 @@ fn ring_LayoutSweep(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// GraphLayoutCoords(aInOff, aInSrc, aOutOff, aOutDst, aOrder, aStarts,
+//                   nSep, nIters) -> aX (one x per node, node order)
+fn ring_LayoutCoords(p: *anyopaque) callconv(.c) void {
+    const in_off = readU32List(p, 1) orelse return;
+    defer gpa.free(in_off);
+    const in_src = readU32List(p, 2) orelse return;
+    defer gpa.free(in_src);
+    const out_off = readU32List(p, 3) orelse return;
+    defer gpa.free(out_off);
+    const out_dst = readU32List(p, 4) orelse return;
+    defer gpa.free(out_dst);
+    const order = readU32List(p, 5) orelse return;
+    defer gpa.free(order);
+    const starts = readU32List(p, 6) orelse return;
+    defer gpa.free(starts);
+    const sep = g(p, 7);
+    const iters: u32 = @intFromFloat(g(p, 8));
+
+    const x = gpa.alloc(f64, order.len) catch return;
+    defer gpa.free(x);
+    @memset(x, 0);
+
+    // A REFUSAL ANSWERS NOTHING, IT ANSWERS THE EVEN SPREAD. Bad arguments
+    // here mean the caller built a malformed CSR, and the honest fallback is
+    // the placement the face used before this function existed -- a worse
+    // picture, never a blank one.
+    if (glayout.coords(in_off, in_src, out_off, out_dst, order, starts, sep, iters, x) != glayout.OK) {
+        for (0..starts.len -| 1) |L| {
+            if (starts[L + 1] > order.len or starts[L] > starts[L + 1]) break;
+            var k: usize = 0;
+            while (starts[L] + k < starts[L + 1]) : (k += 1) {
+                if (order[starts[L] + k] < x.len)
+                    x[order[starts[L] + k]] = @as(f64, @floatFromInt(k)) * sep;
+            }
+        }
+    }
+
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (x) |v| R.ring_list_adddouble(out, v);
+    R.ring_vm_api_retlist(p, out);
+}
+
 // GraphLayoutCrossings(aU, aV, aLayer, aPos, aStarts) -> count
 fn ring_LayoutCrossings(p: *anyopaque) callconv(.c) void {
     const eu = readU32List(p, 1) orelse {
@@ -770,6 +812,7 @@ fn ring_LayoutCrossings(p: *anyopaque) callconv(.c) void {
 }
 
 pub const regs = [_]R.Reg{
+    .{ .name = "stzenginegraphlayoutcoords", .func = &ring_LayoutCoords },
     .{ .name = "stzenginegraphcreate", .func = &ring_Create },
     .{ .name = "stzenginegraphfree", .func = &ring_Free },
     .{ .name = "stzenginegraphaddnode", .func = &ring_AddNode },

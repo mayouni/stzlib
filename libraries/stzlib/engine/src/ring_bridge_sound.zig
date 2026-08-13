@@ -47,6 +47,18 @@ fn ring_LoadFile(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(snd.loadFile(getStr(p, 1))));
 }
 
+// The symmetric half of LoadMemory: a sound OUT as WAV bytes, so a buffer can
+// cross to another tier without a temporary file.
+fn ring_ToWavBytes(p: *anyopaque) callconv(.c) void {
+    const n = snd.saveWavToMemory(id(p, 1));
+    const ptr = snd.wavMemoryPtr();
+    if (n <= 0 or ptr == 0) {
+        R.ring_vm_api_retstring2(p, "", 0);
+        return;
+    }
+    R.ring_vm_api_retstring2(p, @ptrFromInt(ptr), @intCast(n));
+}
+
 fn ring_LoadMemory(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(snd.loadMemory(getStr(p, 1))));
 }
@@ -472,6 +484,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginesoundlasterror", .func = &ring_LastError },
     .{ .name = "stzenginesoundloadfile", .func = &ring_LoadFile },
     .{ .name = "stzenginesoundloadmemory", .func = &ring_LoadMemory },
+    .{ .name = "stzenginesoundtowavbytes", .func = &ring_ToWavBytes },
     .{ .name = "stzenginesoundnewsilent", .func = &ring_NewSilent },
     .{ .name = "stzenginesoundfree", .func = &ring_Free },
     .{ .name = "stzenginesoundframes", .func = &ring_Frames },

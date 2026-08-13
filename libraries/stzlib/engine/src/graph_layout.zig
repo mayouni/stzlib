@@ -334,3 +334,150 @@ pub fn force(
     }
     return OK;
 }
+
+/// X coordinates for a layered graph whose ORDER is already decided.
+///
+/// THE SWEEP ABOVE ANSWERS "WHO SITS BESIDE WHOM", AND NOTHING ANSWERED
+/// "WHERE". The face filled that gap with `position / (width + 1)` -- every
+/// layer spread evenly across the whole picture, however many nodes it held.
+/// So a layer of nine was stretched to the same width as a layer of sixteen,
+/// and a node's children were placed by their ORDINAL rather than under
+/// their parent. On a 40-node binary tree the bottom row fanned across the
+/// entire canvas and its edges became long diagonal sweeps that crossed
+/// three other rows. Ordering was optimal and the drawing was still wrong,
+/// because the two questions are not the same question.
+///
+/// WHAT IT SOLVES, EXACTLY. Each layer is placed to minimise the squared
+/// distance from every node to the mean of its neighbours in the adjacent
+/// layer, subject to keeping the given order with at least `sep` between
+/// consecutive nodes. That constrained least-squares problem is isotonic
+/// regression after the substitution u[k] = t[k] - k*sep, which turns
+/// "x[k+1] >= x[k] + sep" into "u non-decreasing". Pool-adjacent-violators
+/// solves it EXACTLY in one pass -- so this is not a relaxation heuristic
+/// per layer, it is the optimum for that layer given its neighbours.
+///
+/// Alternating down (from predecessors) and up (from successors) is what
+/// makes a parent centre over its children AND a child sit under its
+/// parents. Down-only would leave every root where it started.
+///
+/// DETERMINISM, as everywhere in this file: no sort is involved, the
+/// arithmetic runs in a fixed order, and equal inputs pool identically. The
+/// same graph gives the same coordinates bit for bit.
+pub fn coords(
+    in_off: []const u32,
+    in_src: []const u32,
+    out_off: []const u32,
+    out_dst: []const u32,
+    order: []const u32,
+    starts: []const u32,
+    sep: f64,
+    iters: u32,
+    x: []f64,
+) i32 {
+    const n = x.len;
+    if (order.len != n) return BAD_ARG;
+    if (starts.len < 2) return BAD_ARG;
+    if (in_off.len != n + 1 or out_off.len != n + 1) return BAD_ARG;
+    if (!(sep > 0)) return BAD_ARG;
+    const nl = starts.len - 1;
+    if (starts[nl] != n) return BAD_ARG;
+    for (order) |v| if (v >= n) return BAD_ARG;
+
+    // widest layer -- the scratch buffers are sized once for all of them
+    var maxw: usize = 0;
+    for (0..nl) |L| {
+        if (starts[L + 1] < starts[L]) return BAD_ARG;
+        const w = starts[L + 1] - starts[L];
+        if (w > maxw) maxw = w;
+    }
+    if (maxw == 0) return OK;
+
+    const t = alloc.alloc(f64, maxw) catch return BAD_ARG;
+    defer alloc.free(t);
+    const bval = alloc.alloc(f64, maxw) catch return BAD_ARG;
+    defer alloc.free(bval);
+    const bcnt = alloc.alloc(f64, maxw) catch return BAD_ARG;
+    defer alloc.free(bcnt);
+
+    // the even spread is the STARTING point, not the answer
+    for (0..nl) |L| {
+        var k: usize = 0;
+        while (starts[L] + k < starts[L + 1]) : (k += 1) {
+            x[order[starts[L] + k]] = @as(f64, @floatFromInt(k)) * sep;
+        }
+    }
+
+    var it: u32 = 0;
+    while (it < iters) : (it += 1) {
+        var L: usize = 1;
+        while (L < nl) : (L += 1) {
+            relaxLayer(in_off, in_src, order, starts, L, sep, x, t, bval, bcnt);
+        }
+        var Lu: usize = nl - 1;
+        while (Lu > 0) {
+            Lu -= 1;
+            relaxLayer(out_off, out_dst, order, starts, Lu, sep, x, t, bval, bcnt);
+        }
+    }
+    return OK;
+}
+
+/// One layer, placed optimally against its neighbours in `adj`.
+fn relaxLayer(
+    adj_off: []const u32,
+    adj: []const u32,
+    order: []const u32,
+    starts: []const u32,
+    L: usize,
+    sep: f64,
+    x: []f64,
+    t: []f64,
+    bval: []f64,
+    bcnt: []f64,
+) void {
+    const s = starts[L];
+    const e = starts[L + 1];
+    const w = e - s;
+    if (w == 0) return;
+
+    // where each node WANTS to be: the mean of its neighbours. A node with
+    // no neighbour in that direction wants to stay where it is, so an
+    // isolated node is carried along rather than collapsed onto zero.
+    for (0..w) |k| {
+        const v = order[s + k];
+        var sum: f64 = 0;
+        var cnt: f64 = 0;
+        var j = adj_off[v];
+        while (j < adj_off[v + 1]) : (j += 1) {
+            sum += x[adj[j]];
+            cnt += 1;
+        }
+        t[k] = if (cnt > 0) sum / cnt else x[v];
+    }
+
+    // POOL ADJACENT VIOLATORS on u[k] = t[k] - k*sep. Each pooled block
+    // takes the mean of the targets it absorbed, which is the L2 optimum
+    // for a run of nodes forced hard against each other.
+    var nb: usize = 0;
+    for (0..w) |k| {
+        bval[nb] = t[k] - @as(f64, @floatFromInt(k)) * sep;
+        bcnt[nb] = 1;
+        nb += 1;
+        while (nb > 1 and bval[nb - 1] < bval[nb - 2]) {
+            const c1 = bcnt[nb - 2];
+            const c2 = bcnt[nb - 1];
+            bval[nb - 2] = (bval[nb - 2] * c1 + bval[nb - 1] * c2) / (c1 + c2);
+            bcnt[nb - 2] = c1 + c2;
+            nb -= 1;
+        }
+    }
+
+    var k: usize = 0;
+    for (0..nb) |b| {
+        var c: f64 = 0;
+        while (c < bcnt[b]) : (c += 1) {
+            x[order[s + k]] = bval[b] + @as(f64, @floatFromInt(k)) * sep;
+            k += 1;
+        }
+    }
+}

@@ -118,6 +118,8 @@ ok
     # the VOICE face (VC2) -- text in, a stzSound out. Needs the transport
     # for its non-blocking path, so it loads after it.
     load "sound/stzVoice.ring"
+    # the other door: sound -> text. Closed grammar only -- VC3 measured why.
+    load "sound/stzListener.ring"
     load "sound/stzEarcons.ring"
     load "sound/stzMicrophone.ring"
 

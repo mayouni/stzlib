@@ -237,6 +237,42 @@ chk("a NEWLINE is still normalised -- it would break the emitted dot",
 
 #---------------------------------------------------------------------------
 ? ""
+? "-- 6. A parent sits OVER its children -----------------------"
+#
+# Ordering and placement are different questions, and only the first had an
+# answer. The engine's sweep minimised crossings, then the face placed each
+# node at `position / (width + 1)` -- every layer stretched across the whole
+# picture whatever its population. A layer of nine was spread as wide as a
+# layer of sixteen, so a node's children were positioned by their ORDINAL
+# rather than under their parent, and the bottom row of a 40-node tree
+# fanned across the entire canvas on long diagonals.
+#
+# The property is measured, not eyeballed: how far, on average, a parent
+# sits from the centre of its own children.
+#---------------------------------------------------------------------------
+
+CW = 1200
+oGr = new stzGraph("tree")
+for i = 1 to 40  oGr.AddNode("n" + i)  next
+for i = 2 to 40  oGr.Connect("n" + floor(i / 2), "n" + i)  next
+oGC = new stzGraphCanvas(oGr, [ :Layout = :Hierarchical,
+	:Width = CW, :Height = 600 ])
+aPos = oGC.Positions()
+
+nErr = _MeanCentringError(aPos, CW)
+? "   a parent's distance from the centre of its children"
+? "   placed by the engine  : " + nErr + "% of the canvas width"
+chk("a parent sits over its children", nErr < 4)
+
+# THE NEGATIVE SIBLING, and the proof that PLACEMENT is what changed: the
+# very same layout, the very same order, respaced the old way -- each layer
+# spread evenly across the full width by ordinal.
+nOld = _MeanCentringError(_RespaceByOrdinal(aPos, CW), CW)
+? "   respaced by ordinal   : " + nOld + "% -- the placement it replaced"
+chk("...and the ordinal spread really was worse", nOld > nErr * 2)
+
+#---------------------------------------------------------------------------
+? ""
 ? "=============================================================="
 ? " " + nOk + " ok, " + nBad + " failed"
 ? "=============================================================="
@@ -398,3 +434,64 @@ func _Rank nCount, nGap
 		_ra_ + [ "n" + _ri_, 40 + (_ri_ - 1) * nGap, 100 ]
 	next
 	return _ra_
+
+func _XOf aPos, cId
+	for _p_ in aPos
+		if StzLower("" + _p_[1]) = StzLower("" + cId)  return _p_[2]  ok
+	next
+	return -1
+
+# Mean |parent.x - mean(children.x)| over the binary tree above, as a
+# percentage of the canvas width. Scale-free, so the two placements are
+# comparable.
+func _MeanCentringError aPos, nW
+	_esum_ = 0
+	_ecnt_ = 0
+	for _ei_ = 1 to 20
+		_ep_ = _XOf(aPos, "n" + _ei_)
+		if _ep_ < 0  loop  ok
+		_ekid_ = 0
+		_ekn_ = 0
+		for _ec_ in [ _ei_ * 2, _ei_ * 2 + 1 ]
+			if _ec_ > 40  loop  ok
+			_ex_ = _XOf(aPos, "n" + _ec_)
+			if _ex_ < 0  loop  ok
+			_ekid_ += _ex_
+			_ekn_++
+		next
+		if _ekn_ = 0  loop  ok
+		_ed_ = _ep_ - _ekid_ / _ekn_
+		if _ed_ < 0  _ed_ = -_ed_  ok
+		_esum_ += _ed_
+		_ecnt_++
+	next
+	if _ecnt_ = 0  return -1  ok
+	return (_esum_ / _ecnt_) / nW * 100
+
+# The SAME layout -- same layers, same left-to-right order -- respaced the
+# way the face used to: evenly across the full width, by ordinal. This is a
+# faithful reconstruction rather than a guess, because it reads the order
+# out of the real positions instead of inventing one.
+func _RespaceByOrdinal aPos, nW
+	_rrows_ = []
+	for _rp_ in aPos
+		_rk_ = floor(_rp_[3] / 4)
+		_rat_ = 0
+		for _rj_ = 1 to len(_rrows_)
+			if _rrows_[_rj_][1] = _rk_  _rat_ = _rj_  exit  ok
+		next
+		if _rat_ = 0
+			_rrows_ + [ _rk_, [] ]
+			_rat_ = len(_rrows_)
+		ok
+		_rrows_[_rat_][2] + [ _rp_[2], "" + _rp_[1] ]
+	next
+	_rout_ = []
+	for _rr_ in _rrows_
+		_rsorted_ = sort(_rr_[2], 1)
+		_rw_ = len(_rsorted_)
+		for _rk2_ = 1 to _rw_
+			_rout_ + [ _rsorted_[_rk2_][2], _rk2_ / (_rw_ + 1) * nW, _rr_[1] * 4 ]
+		next
+	next
+	return _rout_

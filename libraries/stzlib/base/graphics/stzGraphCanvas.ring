@@ -438,13 +438,26 @@ class stzGraphCanvas from stzObject
 		_lay0_ = []
 		for _i_ = 1 to _n_  _lay0_ + _lay_[_i_]  next
 
+		_aXe_ = []
 		if len(_eu_) > 0 and _max_ > 0
-			_csr_ = _StzCsr(_ev_, _eu_, _n_)
+			_csr_ = _StzCsr(_ev_, _eu_, _n_)          # predecessors of v
 			_order_ = StzEngineGraphLayoutSweep(_csr_[1], _csr_[2], _lay0_,
 				_order_, _starts_, 12, _eu_, _ev_)
+
+			# ORDER IS NOT PLACEMENT. The sweep above settles who sits beside
+			# whom; it says nothing about WHERE. This face used to answer that
+			# with `position / (width + 1)` -- every layer stretched across the
+			# whole picture whatever its population -- so a node's children
+			# were placed by ordinal rather than under their parent. On a
+			# 40-node binary tree the bottom row fanned across the entire
+			# canvas and its edges became long diagonals crossing three rows.
+			# The crossing count was optimal and the drawing was still wrong.
+			_outc_ = _StzCsr(_eu_, _ev_, _n_)         # successors of u
+			_aXe_ = StzEngineGraphLayoutCoords(_csr_[1], _csr_[2],
+				_outc_[1], _outc_[2], _order_, _starts_, 1.0, 8)
 		ok
 
-		# x from the position within the layer, y from the layer
+		# y from the layer; x from the engine when it answered
 		@aX = []  @aY = []
 		for _i_ = 1 to _n_  @aX + 0  @aY + 0  next
 		for _L_ = 1 to _max_ + 1
@@ -457,6 +470,9 @@ class stzGraphCanvas from stzObject
 				_p_++
 			next
 		next
+		if len(_aXe_) = _n_
+			for _i_ = 1 to _n_  @aX[_i_] = _aXe_[_i_]  next
+		ok
 
 	# The ENGINE lays this out. The face used to carry its own Ring copy of
 	# Fruchterman-Reingold: 443 ms for 40 nodes, 3.7 s for 120, 24.5 s for
