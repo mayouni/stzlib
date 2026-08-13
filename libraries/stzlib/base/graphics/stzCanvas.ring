@@ -219,6 +219,36 @@ class stzCanvas from stzObject
 				"area and the buffer is " + pnImgW + "x" + pnImgH + "x4.")
 		ok
 
+	# ALREADY-TESSELLATED triangles, with a colour PER VERTEX.
+	#
+	# Every other Add* here names a SHAPE and lets the engine work out the
+	# triangles. This one is the opposite door, and it exists because a UI
+	# toolkit arrives having already tessellated: RmlUi's render interface
+	# hands out vertices and indices, and turning those back into
+	# rectangles to hand them forward again would be a lie about what was
+	# drawn.
+	#
+	# paVerts is flat -- x, y, r, g, b, a per vertex, pixel space, channels
+	# 0..255. paIndices is 0-based triangle indices into it. Both tiers
+	# carry it: the GPU draws the triangles through the ordinary shape
+	# pipeline (no new shader, no extra draw call), and ToSVG() emits one
+	# <polygon> per triangle -- exact for flat-coloured UI geometry, an
+	# approximation for a gradient mesh, where the GPU interpolates and
+	# SVG cannot.
+	def AddMesh(paVerts, paIndices)
+		This._Flush()
+		_n_ = StzEngineGpuSceneMesh(@nId, paVerts, paIndices)
+		if _n_ != 0
+			StzRaise("stzCanvas.AddMesh: refused -- give at least one " +
+				"triangle as 6 numbers per vertex (x, y, r, g, b, a) and a " +
+				"multiple of 3 indices, every one of them inside the " +
+				"vertex list.")
+		ok
+
+	def AddMeshQ(paVerts, paIndices)
+		This.AddMesh(paVerts, paIndices)
+		return This
+
 	def AddLine(pnX1, pnY1, pnX2, pnY2)
 		This._Flush()
 		@aPending = [ :line, pnX1, pnY1, pnX2, pnY2, @nFill, @nStroke, @nStrokeW, @bFillNamed ]

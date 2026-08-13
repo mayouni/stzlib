@@ -91,6 +91,11 @@ load "../../engine/stz_gpu.ring"
 # module that cannot cross-compile; absent is a legitimate state.
 load "../../engine/stz_window.ring"
 
+# Layout and markup (vendored RmlUi). Its own DLL because RmlUi needs C++
+# exceptions AND RTTI, which stz_gpu deliberately compiles without; absent
+# is a legitimate state, exactly like the window above.
+load "../../engine/stz_gui.ring"
+
 # Sound plane (vendored miniaudio), TWO DLLs on purpose -- FACT 3 of
 # SOFTANZA_SOUND_PLAN.md. The portable half carries the whole sample tier and
 # needs no hardware; the device half is per-OS and absent is a legitimate

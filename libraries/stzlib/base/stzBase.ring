@@ -105,6 +105,13 @@ ok
     # stzRuleReport at RUNTIME, so it may load before them.
     load "graphics/stzFrameGraph.ring"
 
+    # gui/ -- the widget, layout and interaction layer (G1,
+    # base/gui/SOFTANZA_GUI_PLAN.md). Loads AFTER graphics because a panel
+    # draws into an stzCanvas; the plane above graphics, not beside it.
+    # A machine without stz_gui.dll still loads this -- StzGuiAvailable()
+    # answers FALSE and every other graphics path keeps working.
+    load "gui/stzGui.ring"
+
     # sound/ -- the declarative sound surface (SN4, SOFTANZA_SOUND_PLAN.md).
     # stzSound needs no hardware at all; stzMicrophone reports honestly when
     # there is no input to record from.

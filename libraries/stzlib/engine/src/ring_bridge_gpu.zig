@@ -809,6 +809,42 @@ fn ring_ScenePolygon(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(scene.scenePolygon(@intFromFloat(gn(p, 1)), pts, packedColor(p, 3))));
 }
 
+// SceneMesh(hScene, aVerts, aIndices) -> 0 or a refusal code.
+// aVerts is flat x,y,r,g,b,a per vertex (pixel space, 0..255 channels);
+// aIndices is 0-based triangle indices. The shape a UI toolkit emits: it
+// has already tessellated, so the display list takes the triangles rather
+// than pretending they are rectangles.
+fn ring_SceneMesh(p: *anyopaque) callconv(.c) void {
+    const verts = flatPoints(p, 2) orelse {
+        rn(p, scene.BAD_ARG);
+        return;
+    };
+    defer allocator.free(verts);
+    const idx = flatPoints(p, 3) orelse {
+        rn(p, scene.BAD_ARG);
+        return;
+    };
+    defer allocator.free(idx);
+
+    const vf = allocator.alloc(f32, verts.len) catch {
+        rn(p, scene.BAD_ARG);
+        return;
+    };
+    defer allocator.free(vf);
+    for (verts, 0..) |v, i| vf[i] = @floatCast(v);
+
+    const iu = allocator.alloc(u32, idx.len) catch {
+        rn(p, scene.BAD_ARG);
+        return;
+    };
+    defer allocator.free(iu);
+    // A negative or fractional index is a caller error, not a cast: clamp
+    // to something sceneMesh's range check will REFUSE rather than wrap.
+    for (idx, 0..) |v, i| iu[i] = if (v < 0) std.math.maxInt(u32) else @intFromFloat(v);
+
+    rn(p, @floatFromInt(scene.sceneMesh(@intFromFloat(gn(p, 1)), vf, iu)));
+}
+
 fn ring_SceneText(p: *anyopaque) callconv(.c) void {
     const str = getStr(p, 3);
     rn(p, @floatFromInt(scene.sceneText(
@@ -1550,6 +1586,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpusceneline", .func = &ring_SceneLine },
     .{ .name = "stzenginegpuscenepolyline", .func = &ring_ScenePolyline },
     .{ .name = "stzenginegpuscenepolygon", .func = &ring_ScenePolygon },
+    .{ .name = "stzenginegpuscenemesh", .func = &ring_SceneMesh },
     .{ .name = "stzenginegpuscenetext", .func = &ring_SceneText },
     .{ .name = "stzenginegpuscenecommandcount", .func = &ring_SceneCommandCount },
     .{ .name = "stzenginegpuscenestats", .func = &ring_SceneStats },
