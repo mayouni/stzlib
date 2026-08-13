@@ -1,9 +1,16 @@
 # Scope-Oriented Programming
 ### A Softanza paradigm for governing the programmability of complex fields
-*Design paradigm — v1.0 (2026-07-20). Governed fields: **Regex** (shipped — see
-`stz-regexp-confusion-solved-deepdive.md`), **System programming** (designed —
-see `SOFTANZA_SYSTEM_FOUNDATION.md`). This document promotes a pattern that was
-born field-specific (regex) into a reusable, field-independent paradigm.*
+*Design paradigm — v1.1 (2026-08-13; v1.0 2026-07-20). Governed fields: **Regex**
+(shipped — see `stz-regexp-confusion-solved-deepdive.md`), **System programming**
+(designed — see `SOFTANZA_SYSTEM_FOUNDATION.md`). This document promotes a pattern
+that was born field-specific (regex) into a reusable, field-independent paradigm.*
+
+*v1.1 — **CSS / stylesheets** added as a fifth candidate field (§9), M1 and M2 only.
+Its arrival amends one claim: the candidate cluster is no longer uniformly M1–M4.
+Two lessons it teaches the paradigm are recorded in §9 — a carrier per frame rather
+than per field, and the dissolve-or-surface ruling belonging to a layer rather than
+to a field. **No verb names are proposed**: M3 waits until the field is built, so
+that this document does not again describe an intended API as a realised one.*
 
 ---
 
@@ -256,8 +263,8 @@ as a checklist:
    scopes can exceed the host, add the capability contract: constrain what a
    scope forbids, and rehearse what the host lacks.
 
-Four fields already pass this test — none yet designed, all worth designing.
-Section 8 runs each through the lens.
+Five fields already pass this test — none yet designed, all worth designing.
+Section 9 runs each through the lens.
 
 ---
 
@@ -265,9 +272,11 @@ Section 8 runs each through the lens.
 
 Each is a genuine scope-oriented field: **a bare value or operation that
 silently carries a frame not written next to it.** One disciplinary result up
-front — **all four are M1–M4 fields, not M5.** The capability contract stays
-System programming's distinctive mark, which is why the instance list stays at
-two: these cluster with regex, not with system.
+front — **four of the five are M1–M4 fields, not M5.** The capability contract
+stays System programming's distinctive mark, and those four cluster with regex,
+not with system. **CSS is the exception, and the first candidate to reach M5**:
+its targets differ in what they can do at all — an email client drops most of
+what a browser honours — so a scope there both constrains and rehearses.
 
 | field | the hidden frame (M1) | named scopes (M2) | the M4 payoff — illegal combinations become *rejected operations* | M5? |
 |---|---|---|---|---|
@@ -275,6 +284,7 @@ two: these cluster with regex, not with system.
 | **Units / quantities** | the *unit / dimension* of a number | units grouped by dimension `{length, mass, time, …}` | dimensional algebra: `m + s` refused, `m + ft` converts, `m * m` = area. The runtime does real algebra on the scope | no |
 | **Concurrency** | the *isolation / execution* scope a block runs in | `{isolated, synchronized, main-thread, actor}` | touching UI from a worker, or sharing a non-shareable value across scopes, is refused (Rust's `Send`/`Sync` is exactly this) | partial |
 | **Memory** | the *ownership / lifetime* region a pointer belongs to | `{owned, borrowed, shared, arena, static}` | use-after-free and double-free become rejected operations; scope-exit frees automatically (the borrow-checker move) | no |
+| **CSS / stylesheets** | which *formatting context* a declaration lands in — and, beneath it, the cascade that decides whether it applies at all | context `{flow, flex, grid, table, absolute}`; unit reference `{root, parent, containing-block, viewport}`; box model `{content, border}` | a property that is a no-op in its context is refused — `align-items` in flow, `z-index` outside a stacking context; and *"why did this rule win?"* becomes a computed answer instead of a bisect | **yes** |
 
 **These aren't hypothetical — two already bit this codebase.** Time's
 clock-scope confusion is a *fixed defect*: `process_uptime` returned the
@@ -295,6 +305,17 @@ one move — *name the frame at the call site, let the library reason with it* �
 and this value-scoped form is what the candidate cluster contributes, the way
 System contributed M5.
 
+**What CSS adds — a carrier per frame, not per field.** Every instance so far took
+one carrier for the whole field: regex site-scoped in the verb, System site-scoped
+in the receiver, Time and Units value-scoped. CSS appears to need three at once —
+the formatting context by receiver, the unit reference by value, the box model by
+verb — because its frames differ in *how long each must live*. A formatting context
+governs a run of declarations; a unit rides one value through every combination; a
+box model decides a single act. If that survives the build, M3's guidance widens
+from *pick a carrier* to **pick a carrier per frame**, and the question stops being
+*what kind of field is this?* and becomes **how long must this frame live?** — which
+is the question that was doing the work all along.
+
 **A note on Concurrency specifically.** It is the one candidate whose frame
 Softanza has so far chosen to *dissolve* rather than surface: the reactive layer
 (Reaxis) runs on a single Ring thread with no call-site scheduler, deliberately
@@ -305,6 +326,17 @@ loop, what may cross a thread boundary) — and that is where a scope-oriented
 treatment of concurrency would belong, not on the declarative stream surface. A
 useful reminder that M1's real question is *"is this frame an essential
 decision, or noise to dissolve?"*
+
+**And a second reading of that question, which CSS sharpens.** Concurrency shows a
+frame can be *dissolved* rather than surfaced. CSS shows the ruling can belong to a
+**layer** rather than to a field. The cascade is the case. In a semantic sheet that
+owns its own resolution there is no specificity at all — only provenance, which is
+*known* rather than computed — so the frame is dissolved outright. In a module that
+must speak CSS to a browser, the same frame cannot be dissolved, because the browser
+will apply it whether or not we modelled it; there it must be surfaced **and
+computed**, so the library can answer why a rule won. Same frame, opposite rulings,
+decided by whether the layer owns its own resolution. So M1's question gains a
+qualifier: *essential to whom, and at which layer?*
 
 ---
 
