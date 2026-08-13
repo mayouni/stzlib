@@ -296,7 +296,7 @@ before the first word rather than during it.
 output latency, speech cannot be interactive on this tier and the face must say
 so in its own documentation rather than in a footnote.
 
-**VC3 — `stzListener`, and the honest capability matrix.** Recognition from a
+**VC3 — `stzListener`, and the honest capability matrix. CLOSED, see VC3 STATUS below. The kill criterion FIRED: closed-grammar only.** Recognition from a
 buffer and from `stzMicrophone`, a closed grammar as well as free dictation,
 confidence returned WITH every result, and per-language/per-direction capability
 reporting. Local-only by default; any network path disclosed and refusable.
@@ -583,3 +583,126 @@ plane's rule that every phase ships something audible.
 
 **446 Ring assertions across thirteen guards**; 8 Zig tests in `voice.zig` and
 108 across the sound modules.
+
+---
+
+## VC3 STATUS — 2026-08-13. The kill criterion fired, and shaped what was built
+
+`engine/src/listen.zig` + `ring_bridge_listen.zig` (both inside
+`stz_voice.dll`), and `base/sound/stzListener.ring`. Guard:
+`base/test/sound/sound_listener_narrated.ring` (**21**), plus 5 Zig tests.
+
+### The gate, and the measurement that ran into it
+
+The bar was written before any number was taken: **free dictation ships as
+transcription only at ≥80% exact AND ≥0.60 mean confidence** on a stated set;
+**closed grammar ships at ≥90% exact.**
+
+Nine phrases — six commands, three sentences — synthesised by this plane's own
+fr-FR voice and fed straight back. **That is the cleanest audio recognition will
+ever see**: no noise, no room, no accent, correct pronunciation. Three rounds,
+identical every round:
+
+| | exact | mean confidence | verdict |
+|---|---|---|---|
+| free dictation | **66.7%** (6/9) | 0.600 | **FAIL** |
+| closed grammar | **100%** (6/6) | **0.898** | **PASS** |
+
+So `stzListener` ships **closed-grammar only**. There is no `Transcribe()`, and
+there will not be one until a better recognizer exists. Free dictation is
+deferred to the neural tier, exactly as the criterion said.
+
+### Why dictation failed is the useful part
+
+**Every miss was a WRITTEN FORM, not a mishearing:**
+
+```
+"annuler"                           -> "annule"
+"arreter"                           -> "arrete"
+"il reste soixante deux gigaoctets" -> "il reste 60 de gigaoctet"
+```
+
+The recognizer heard the sounds correctly and chose a different spelling — a
+verb ending, a numeral instead of words, a singular for a plural. **A closed
+grammar cannot make that mistake**, because it maps the sound to the string the
+caller DECLARED; there is no spelling left to get wrong. One measurement, two
+verdicts, and that is the reason for the split.
+
+### Cross-validated, which is why the numbers are trusted
+
+The gate was measured through the platform (System.Speech). The engine
+implementation was then measured independently on the same phrases:
+**6/6 exact, mean confidence 0.897** against the platform's 0.898. Two
+implementations, one answer.
+
+### The round trip is the centrepiece, and it needs both directions
+
+```ring
+oV = StzVoiceQ()      oV.UseLanguage("fr-FR")
+oL = StzListenerQ()   oL.Accept([ "ouvrir le fichier", "annuler", ... ])
+oL.HearSound( oV.ToSoundOf("annuler") )
+? oL.HeardText() + "  " + oL.Confidence()      # annuler  0.939
+```
+
+No microphone, no file, no hand-recorded fixture — a `stzSound` passed between
+two faces. **That is what makes recognition testable at all on a machine with no
+audio input**, and it is only possible because this library owns both
+directions.
+
+It required one supporting addition: **`stzSound.ToWavBytes()`**, the symmetric
+half of `loadMemory`. Its absence was a real gap — a sound could be decoded FROM
+bytes but not encoded back TO them, so handing a buffer to another tier meant a
+temporary file. VC1 went to some trouble to keep a voice out of the filesystem;
+without this, VC3 would have put it straight back.
+
+### What it refuses, and what it merely reports
+
+- **A phrase outside the grammar is a NO-MATCH, not a wrong answer** — and a
+  no-match is a RESULT, not a refusal. "Somebody said something that is not a
+  command" is information a control surface needs; the dangerous alternative is a
+  confident wrong command. Guarded: `je voudrais un cafe au lait` returns empty
+  text and increments no refusal counter.
+- **An empty grammar is a counted refusal**, not a listener that silently hears
+  nothing forever.
+- **Confidence is a separate call** so it cannot be skipped by accident. One of
+  the six commands scores **0.747** even on clean synthetic audio: even a closed
+  grammar is not certain.
+
+### Local only, and it is a promise rather than a default
+
+The engine uses **`CLSID_SpInprocRecognizer`** — the in-process engine, running
+here, reaching no network. The SHARED recognizer can be routed to Windows'
+online speech service and is deliberately not used; choosing it would have to be
+an explicit, disclosed act. A microphone is a consent boundary, and a microphone
+that reaches a network is a different product. `HearMicrophoneFor` exists and its
+documentation says the caller must make the listening state visible — Rule 82 in
+the one place invisibility would be indefensible.
+
+### Three findings from the COM surface, recorded so they are not re-paid
+
+- **`SPWT_LEXICAL` is 1, not 0.** Zero is `SPWT_DISPLAY`, and a display-type word
+  needs a pronunciation, so every `AddWordTransition` returned `E_INVALIDARG`
+  (0x80070057) — for a single ordinary word. The error names the argument and
+  the fault was the enum.
+- **A grammar needs a LANGUAGE before it will accept a word.** `ResetGrammar`
+  with the recognizer's LANGID, or SAPI has no lexicon to validate against.
+- **`SPEVENT` cannot be imported.** Its first two fields are 16-bit C bitfields
+  and Zig's translate-c yields `opaque {}`, which cannot be instantiated. It is
+  declared by hand, and a guard asserts its size and every field offset — because
+  a wrong layout would look like "nothing is ever recognised" rather than like a
+  layout bug.
+
+### What VC3 did NOT do
+
+- **No transcription**, by measurement.
+- **No microphone guard.** `HearMicrophoneFor` is implemented and reachable, but
+  nothing asserts it: CI has no microphone, and a guard that needs someone to
+  speak is not a guard. It is exercised by hand.
+- **No per-language recognizer selection.** There is one recognizer here, so
+  choosing among several is unexercised and therefore unbuilt.
+- **No semantic bridge.** VC4.
+
+### Plane totals
+
+**467 Ring assertions across fourteen guards**; 13 Zig tests across `voice.zig`
+and `listen.zig`, plus 108 in the sound modules.

@@ -106,6 +106,14 @@ oG.ToPNGXT("probe_6_bigdiagram.png",
 	  :NodeHeight = 34, :FontSize = 12 ])
 ? "6 big diagram  : 40 nodes, " + len(oG.Edges()) + " edges"
 
+# ...and the same tree with ORTHOGONAL routing. Both are the SAME layout --
+# the difference is only how an edge travels between two placed nodes.
+oG.SetSplines("ortho")
+oG.ToPNGXT("probe_6_ortho.png",
+	[ :Width = 1400, :Height = 800, :Font = oF, :NodeWidth = 96,
+	  :NodeHeight = 34, :FontSize = 12 ])
+? "6b ortho       : same layout, right-angled edges"
+
 # ---------------------------------------------------------------- 7
 # ONE node, and a VERY long label. Degenerate layouts.
 oH = new stzDiagram("one")

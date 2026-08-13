@@ -386,6 +386,68 @@ pub fn rms(id: i64) f64 {
 pub const BITS_S16: u32 = 16;
 pub const BITS_F32: u32 = 32;
 
+
+// ---------------------------------------------------------------- to memory
+//
+// The SYMMETRIC half of loadMemory, and its absence was a real gap: a sound
+// could be decoded from bytes but not encoded back to them, so anything that
+// wanted to hand a buffer to another tier had to go through a temporary file.
+// VC1 went to some trouble to keep a voice out of the filesystem; VC3 would
+// have put it straight back to feed a recogniser.
+//
+// Written by hand rather than through miniaudio's encoder, which writes to a
+// file or through vtable callbacks -- for 16-bit PCM the header is 44 bytes and
+// the body is a clamp and a scale. CANONICAL layout: `fmt ` sixteen, `data` at
+// 36, so even a naive reader is right.
+
+var wav_mem: []u8 = &.{};
+
+/// Encode the buffer as a complete 16-bit PCM WAV in memory. Returns its
+/// length; the bytes are at `wavMemoryPtr()` until the next call.
+pub fn saveWavToMemory(id: i64) i64 {
+    const s = slotOf(id) orelse return 0;
+    const b = bufs.items[s];
+    const n_samples = b.frames * b.channels;
+    const body = n_samples * 2;
+    if (wav_mem.len > 0) alloc.free(wav_mem);
+    wav_mem = alloc.alloc(u8, 44 + body) catch {
+        wav_mem = &.{};
+        bump(CTR_REFUSALS, 1);
+        setErr("saveWavToMemory: out of memory");
+        return 0;
+    };
+    const byte_rate = b.rate * b.channels * 2;
+    @memcpy(wav_mem[0..4], "RIFF");
+    std.mem.writeInt(u32, wav_mem[4..8], @intCast(36 + body), .little);
+    @memcpy(wav_mem[8..12], "WAVE");
+    @memcpy(wav_mem[12..16], "fmt ");
+    std.mem.writeInt(u32, wav_mem[16..20], 16, .little);
+    std.mem.writeInt(u16, wav_mem[20..22], 1, .little);
+    std.mem.writeInt(u16, wav_mem[22..24], @intCast(b.channels), .little);
+    std.mem.writeInt(u32, wav_mem[24..28], b.rate, .little);
+    std.mem.writeInt(u32, wav_mem[28..32], byte_rate, .little);
+    std.mem.writeInt(u16, wav_mem[32..34], @intCast(b.channels * 2), .little);
+    std.mem.writeInt(u16, wav_mem[34..36], 16, .little);
+    @memcpy(wav_mem[36..40], "data");
+    std.mem.writeInt(u32, wav_mem[40..44], @intCast(body), .little);
+
+    var i: usize = 0;
+    while (i < n_samples) : (i += 1) {
+        // clamp before scaling: a sample above 1.0 would wrap to a loud
+        // negative, which is the worst-sounding possible failure
+        const v = @max(-1.0, @min(1.0, b.data[i]));
+        const q: i16 = @intFromFloat(v * 32767.0);
+        std.mem.writeInt(i16, wav_mem[44 + i * 2 ..][0..2], q, .little);
+    }
+    bump(CTR_ENCODE_FRAMES, @floatFromInt(b.frames));
+    return @intCast(wav_mem.len);
+}
+
+pub fn wavMemoryPtr() usize {
+    if (wav_mem.len == 0) return 0;
+    return @intFromPtr(wav_mem.ptr);
+}
+
 pub fn saveWav(id: i64, path: []const u8, bits: u32) i32 {
     const s = slotOf(id) orelse return STALE;
     const b = bufs.items[s];
