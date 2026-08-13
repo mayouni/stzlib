@@ -288,7 +288,7 @@ temporary file, the seam is a file path rather than a sample handle, and §1's
 claim weakens to "a voice is a file" — which would be worth knowing before a
 face is designed around it.
 
-**VC2 — `stzVoice`, the declarative face.** `ToSoundOf(text)` as the primary
+**VC2 — `stzVoice`, the declarative face. CLOSED, see VC2 STATUS below.** `ToSoundOf(text)` as the primary
 verb; `Say(text)` as the convenience that goes through SN6's transport. Language
 selection, rate and pitch, and a warm-up call so the 4.3× cold cost is paid
 before the first word rather than during it.
@@ -473,3 +473,113 @@ It vendors **nothing**. SAPI ships with Windows and Zig already carries MinGW's
 
 **402 Ring assertions across twelve guards**; 8 Zig tests in `voice.zig`, plus
 the sound plane's 108.
+
+---
+
+## VC2 STATUS — 2026-08-13. The face, and the kill criterion answers a better question
+
+`base/sound/stzVoice.ring`, registered in `stzBase.ring`. Guard:
+`base/test/sound/sound_voiceface_narrated.ring` (**44**), plus an audible demo,
+`sound_voice_demo.ring`.
+
+```ring
+oV = StzVoiceQ()
+oSay = oV.ToSoundOf("The disk is nearly full")   # -> a stzSound
+oV.Say("The disk is nearly full")                # or just say it
+oV.UseLanguage("fr-FR")                          # refused if absent
+```
+
+### `ToSoundOf` is the primary verb, and that ordering IS the architecture
+
+`To...` returns DATA, per the house law — and the data is a `stzSound`, which is
+what makes every verb this plane owns apply to speech. A face whose primary verb
+were `Say` would make speech a dead end. Guarded: a synthesised sentence
+resamples, measures **−21.24** on SS2's instrument, reports **21 onsets**, goes
+into a graph, comes back low-passed and echoed, and draws a spectrogram —
+**none of which knows it is speech.**
+
+`Say` is the convenience (synchronous, one line for a script) and
+`ToTransportOf` is the non-blocking path through SN6's transport.
+
+### The kill criterion, and it answers a better question than it asked
+
+> *if a warmed voice cannot start a short phrase within the plane's own output
+> latency, speech cannot be interactive on this tier and the face must say so in
+> its own documentation rather than in a footnote.*
+
+Measured, warmed:
+
+| | |
+|---|---|
+| synthesising "disk full" | **8 ms** |
+| the plane's native output latency (S.5) | **~419 ms** |
+| synthesis, as a share of it | **1.9%** |
+
+A fresh voice: **23 ms** for the first phrase, **6 ms** for the second — the
+4.3× cold cost VC0 measured, reproduced through the face, and `WarmUp()` exists
+to pay it when the program starts rather than mid-sentence.
+
+**So the criterion passes, and the passing is not the finding.** Synthesis is
+under two percent of the delay: **speech is not late because it is computed, it
+is late because the audio path is long — and that was true before a voice
+existed.** The plan required this to be said in the face's own documentation
+rather than a footnote, and it is, in `stzVoice.ring`'s header, together with
+the consequence: the screen acknowledges inside Rule 18, the earcon
+corroborates, the phrase explains. A caller who needs speech to feel immediate
+belongs on the web tier, where SN6 measured 10 ms instead of 419.
+
+The face also answers `SynthesisIsTheBottleneck()` — **FALSE** — so a caller can
+read the conclusion without reading the plan.
+
+### Language selection, which is the part that matters
+
+The engine gained `installedLanguage`, and it uses **no lookup table**: SAPI keeps
+a hex LCID on the voice token's `Attributes\Language`, and `LCIDToLocaleName` —
+the OS, the authority — turns it into a BCP-47 tag. Verified: *Microsoft
+Hortense Desktop – French* → **fr-FR**, *Microsoft Zira Desktop – English (United
+States)* → **en-US**.
+
+`UseLanguage` **refuses and counts** rather than substituting, and the refusal
+names what the machine actually has:
+
+```
+no voice speaks 'ja-JP' -- this machine has: fr-FR, en-US
+```
+
+A caller can recover from that; it cannot recover from being handed French.
+Asking for `"fr"` and getting `fr-FR` IS allowed — a widening inside one
+language, not a substitution across two — and the distinction is guarded.
+
+### A trap found by the demo, and fixed in the face
+
+`ToTransportOf` first called the transport's `Play()`, which means *play until
+stopped*. So the obvious loop —
+
+```ring
+while oT.IsPlaying()   oT.Tick()   end
+```
+
+— never ended: the phrase finished, the transport went on rendering silence, and
+`IsPlaying` stayed true. **It hung this face's own demo**, which is how it was
+found. A spoken phrase has a KNOWN length, so the transport is given it via
+`PlayFor(duration)`. Guarded both ways: the transport now ends by itself (47
+ticks, well inside the guard's bail-out), and an explicit early `Stop` is still
+obeyed.
+
+That it took a *demo* to find a defect the guards missed is the argument for the
+plane's rule that every phase ships something audible.
+
+### What VC2 did NOT do
+
+- **No pitch.** SAPI's rate and volume are exposed and clamped; pitch is only
+  reachable through SSML markup, and the face does not pretend otherwise.
+- **No recognition.** VC3.
+- **No semantic bridge.** `oEar.Say(:Danger, "disk full")` is VC4, and §4 of
+  this plan already decided its contract.
+- **No browser tier.** VC5. SN6 proved the web path is 40× lower latency, which
+  makes it the tier where speech can actually be interactive.
+
+### Plane totals
+
+**446 Ring assertions across thirteen guards**; 8 Zig tests in `voice.zig` and
+108 across the sound modules.

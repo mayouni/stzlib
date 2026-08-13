@@ -569,6 +569,82 @@ pub fn installedName(index: i64) []const u8 {
     return name_buf[0..n];
 }
 
+var lang_buf: [64]u8 = @splat(0);
+var lang_len: usize = 0;
+
+/// The BCP-47 language tag of installed voice `index` -- "fr-FR", "en-US".
+///
+/// WHY THIS EXISTS AT ALL, and it is the part of the voice plane that matters
+/// most: capability is per language AND per direction. VC0 measured a machine
+/// with voices for en-US and fr-FR, a recognizer for fr-FR only, and OCR for
+/// ar-SA and fr-FR. A face that cannot report the language cannot refuse, and a
+/// tier that cannot refuse will speak French to an operator who asked for
+/// English -- which is worse than saying nothing.
+///
+/// HOW, without a lookup table. SAPI keeps the language on the voice token as an
+/// `Attributes\Language` value holding a HEX LCID ("40c", "409"). Rather than
+/// carry an LCID-to-tag table that would rot, the OS converts it:
+/// `LCIDToLocaleName` is the authority and has been since Vista. A voice may
+/// list several languages separated by ';'; the first is taken, and that is a
+/// simplification worth knowing rather than a claim about multilingual voices.
+pub fn installedLanguage(index: i64) []const u8 {
+    lang_len = 0;
+    if (!is_windows or index < 0) return &.{};
+    ensureCom();
+    if (!com_ready) return &.{};
+    const enumerator = enumTokens() orelse return &.{};
+    defer _ = enumerator.lpVtbl.*.Release.?(@ptrCast(enumerator));
+
+    var token: ?*win.ISpObjectToken = null;
+    if (enumerator.lpVtbl.*.Item.?(@ptrCast(enumerator), @intCast(index), @ptrCast(&token)) < 0 or token == null) {
+        refuse("voice: there is no installed voice {d}", .{index});
+        return &.{};
+    }
+    defer _ = token.?.lpVtbl.*.Release.?(@ptrCast(token.?));
+
+    var attrs: ?*win.ISpDataKey = null;
+    const attr_name = std.unicode.utf8ToUtf16LeStringLiteral("Attributes");
+    if (token.?.lpVtbl.*.OpenKey.?(@ptrCast(token.?), attr_name, @ptrCast(&attrs)) < 0 or attrs == null) {
+        refuse("voice: voice {d} has no Attributes key", .{index});
+        return &.{};
+    }
+    defer _ = attrs.?.lpVtbl.*.Release.?(@ptrCast(attrs.?));
+
+    var val: ?[*:0]u16 = null;
+    const key_name = std.unicode.utf8ToUtf16LeStringLiteral("Language");
+    if (attrs.?.lpVtbl.*.GetStringValue.?(@ptrCast(attrs.?), key_name, @ptrCast(&val)) < 0 or val == null) {
+        refuse("voice: voice {d} declares no Language", .{index});
+        return &.{};
+    }
+    defer win.CoTaskMemFree(@ptrCast(val.?));
+
+    // "40c" or "40c;409" -- take the first
+    var hex: [16]u8 = @splat(0);
+    var n: usize = 0;
+    const wide = std.mem.span(val.?);
+    for (wide) |c| {
+        if (c == ';' or c == 0) break;
+        if (n >= hex.len) break;
+        hex[n] = @intCast(c & 0x7F);
+        n += 1;
+    }
+    const lcid = std.fmt.parseInt(u32, hex[0..n], 16) catch {
+        refuse("voice: voice {d} has an unreadable Language '{s}'", .{ index, hex[0..n] });
+        return &.{};
+    };
+
+    // THE OS IS THE AUTHORITY, not a table in this file.
+    var wtag: [win.LOCALE_NAME_MAX_LENGTH]u16 = undefined;
+    const got = win.LCIDToLocaleName(lcid, &wtag, @intCast(wtag.len), 0);
+    if (got <= 1) {
+        refuse("voice: LCID 0x{x} has no locale name", .{lcid});
+        return &.{};
+    }
+    const tag_len = std.unicode.utf16LeToUtf8(&lang_buf, wtag[0.. @as(usize, @intCast(got)) - 1]) catch return &.{};
+    lang_len = tag_len;
+    return lang_buf[0..tag_len];
+}
+
 /// Choose a voice by its index. A caller that wants a LANGUAGE should ask for
 /// one by name via the face; this tier deals in what the platform reports.
 pub fn selectVoice(id: i64, index: i64) i32 {
