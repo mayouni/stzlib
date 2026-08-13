@@ -1299,6 +1299,12 @@ fn ring_SceneEllipseStroke(p: *anyopaque) callconv(.c) void {
         gn(p, 2), gn(p, 3), gn(p, 4), gn(p, 5), gn(p, 6), @intFromFloat(gn(p, 7)))));
 }
 
+fn ring_SceneDrawOverTarget(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(@intFromBool(scene.sceneDrawOverTarget(
+        @intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2)),
+        @intFromFloat(gn(p, 3)), @intFromFloat(gn(p, 4)), @intFromFloat(gn(p, 5))))));
+}
+
 fn ring_SceneReset(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(scene.sceneReset(@intFromFloat(gn(p, 1)))));
 }
@@ -1371,6 +1377,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpusceneroundrectstroke", .func = &ring_SceneRoundRectStroke },
     .{ .name = "stzenginegpusceneellipse", .func = &ring_SceneEllipse },
     .{ .name = "stzenginegpusceneellipsestroke", .func = &ring_SceneEllipseStroke },
+    .{ .name = "stzenginegpuscenedrawovertarget", .func = &ring_SceneDrawOverTarget },
     .{ .name = "stzenginegpuscenereset", .func = &ring_SceneReset },
     .{ .name = "stzenginegpuscenedrawtotarget", .func = &ring_SceneDrawToTarget },
     .{ .name = "stzenginegpuscene3dsetparent", .func = &ring_Scene3dSetParent },

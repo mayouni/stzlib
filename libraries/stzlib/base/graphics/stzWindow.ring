@@ -236,6 +236,55 @@ class stzWindow from stzObject
 	# Returns TRUE when a frame actually reached the screen; FALSE when the
 	# swapchain refused this one (a minimised window, a display change) --
 	# which is a normal event in a loop, not an error to raise.
+	# ONE FRAME, TWO PASSES: draw poThing, then draw poOverlay ON TOP of it
+	# without clearing, then present. This is what a HUD needs -- the plain
+	# Draw acquires, draws and presents, so calling it twice would present
+	# twice and the second frame would have wiped the first.
+	#
+	# It is the frame graph's idea at the window's own scale: an acquired
+	# frame can carry more than one pass.
+	def DrawXT(poThing, poOverlay)
+		if @nId = 0 or @nSurf = 0
+			return 0
+		ok
+		_nT_ = StzEngineGpuSurfaceAcquire(@nSurf)
+		if _nT_ = 0
+			return 0
+		ok
+		_nFmt_ = 0
+		if StzEngineGpuSurfaceFormatName(@nSurf) = "bgra8"
+			_nFmt_ = 1
+		ok
+		_nW_ = StzEngineWindowWidth(@nId)
+		_nH_ = StzEngineWindowHeight(@nId)
+
+		_bOk_ = 0
+		_cKind_ = StzDrawableKind(poThing)
+		if _cKind_ = :Canvas
+			if poThing.Width() != _nW_ or poThing.Height() != _nH_
+				poThing.Resize(_nW_, _nH_)
+			ok
+			poThing.Flush()
+			_bOk_ = StzEngineGpuSceneDrawToTarget(poThing.Id_(), _nT_, _nFmt_, _nW_, _nH_) = 1
+		but _cKind_ = :Scene
+			_bOk_ = StzEngineGpuScene3dDrawToTarget(poThing.Id_(), _nT_, _nFmt_, _nW_, _nH_) = 1
+		ok
+
+		# the overlay is a CANVAS, drawn over whatever landed above
+		if isObject(poOverlay) and StzDrawableKind(poOverlay) = :Canvas
+			if poOverlay.Width() != _nW_ or poOverlay.Height() != _nH_
+				poOverlay.Resize(_nW_, _nH_)
+			ok
+			poOverlay.Flush()
+			StzEngineGpuSceneDrawOverTarget(poOverlay.Id_(), _nT_, _nFmt_, _nW_, _nH_)
+		ok
+
+		StzEngineGpuSurfacePresent(@nSurf)
+		if _bOk_
+			@nFramesDrawn++
+		ok
+		return _bOk_
+
 	def Draw(poThing)
 		if @nId = 0 or @nSurf = 0
 			return 0
