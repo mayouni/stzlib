@@ -1463,6 +1463,30 @@ class stzDiagram from stzGraph
 			_aXY_ + [ StzLower("" + _p_[1]), _px_ + _mx_, _py_ + _my_ ]
 		next
 
+		# THE BOXES MUST FIT THE RANK THEY LANDED IN. The layout spreads a rank
+		# evenly across the available width and knows nothing about how wide a
+		# node is drawn; the caller sets the box size and knows nothing about
+		# how many nodes will share a rank. Neither side could see the
+		# collision, so nothing prevented it: sixteen 96px nodes were placed
+		# 82px apart in a 1400px picture and drawn ON TOP of one another --
+		# found by rendering a 40-node tree and LOOKING at row five.
+		#
+		# dot solves this by growing the canvas. Ours is given, so the box
+		# shrinks instead -- uniformly in both axes, because the node shapes are
+		# drawn inside the box and squashing one axis alone deforms them (a
+		# cylinder's cap stops being an ellipse in perspective). A caller who
+		# genuinely wants the exact size it asked for, overlap included, passes
+		# :FitBoxes = FALSE.
+		if This._DiagOpt(paOptions, "fitboxes", 1)
+			_nSc_ = This._RankFitScale(_aXY_, _nBoxW_, _nBoxH_)
+			if _nSc_ < 1
+				_nBoxW_ = max([ floor(_nBoxW_ * _nSc_), 6 ])
+				_nBoxH_ = max([ floor(_nBoxH_ * _nSc_), 6 ])
+				_nFsz_  = max([ floor(_nFsz_ * _nSc_), 5 ])
+				_nRad_  = floor(_nRad_ * _nSc_)
+			ok
+		ok
+
 		_oC_ = new stzCanvas(_nW_, _nH_)
 		_oC_.SetBackground(_cBg_)
 
@@ -1548,6 +1572,56 @@ class stzDiagram from stzGraph
 		return This.ToCanvasXT(paOptions).ToPNG(pcPath)
 
 	#-- native-tier internals ------------------------------------------
+
+	# How much the box must shrink for no two nodes to overlap: 1 when the
+	# picture already fits, less when it does not.
+	#
+	# NOT the O(n^2) all-pairs distance it looks like. Nodes are bucketed into
+	# ranks by y and the list is sorted ONCE on a composite key, so the closest
+	# horizontal neighbour is the previous entry in the same bucket -- one pass
+	# after a builtin sort, which keeps a 10,000-node picture out of a
+	# 50-million-comparison loop written in Ring.
+	def _RankFitScale(paXY, pnBoxW, pnBoxH)
+		_rfN_ = len(paXY)
+		if _rfN_ < 2  return 1  ok
+
+		# 4px of tolerance: a rank is "the same y", not "the identical float"
+		_rfA_ = []
+		for _rfI_ = 1 to _rfN_
+			_rfB_ = floor(paXY[_rfI_][3] / 4)
+			_rfA_ + [ _rfB_ * 1000000 + paXY[_rfI_][2], _rfB_,
+			          paXY[_rfI_][2], paXY[_rfI_][3] ]
+		next
+		_rfA_ = sort(_rfA_, 1)
+
+		_rfMinX_ = -1
+		_rfMinY_ = -1
+		for _rfI_ = 2 to _rfN_
+			if _rfA_[_rfI_][2] = _rfA_[_rfI_ - 1][2]
+				# same rank -> a horizontal neighbour
+				_rfD_ = _rfA_[_rfI_][3] - _rfA_[_rfI_ - 1][3]
+				if _rfD_ > 0 and (_rfMinX_ < 0 or _rfD_ < _rfMinX_)
+					_rfMinX_ = _rfD_
+				ok
+			else
+				# a new rank -> the gap between two ranks
+				_rfD_ = _rfA_[_rfI_][4] - _rfA_[_rfI_ - 1][4]
+				if _rfD_ < 0  _rfD_ = -_rfD_  ok
+				if _rfD_ > 0 and (_rfMinY_ < 0 or _rfD_ < _rfMinY_)
+					_rfMinY_ = _rfD_
+				ok
+			ok
+		next
+
+		# 6px of air, so adjacent boxes read as two boxes and not as one wall
+		_rfS_ = 1
+		if _rfMinX_ > 0 and pnBoxW > 0
+			_rfS_ = min([ _rfS_, _rfMinX_ / (pnBoxW + 6) ])
+		ok
+		if _rfMinY_ > 0 and pnBoxH > 0
+			_rfS_ = min([ _rfS_, _rfMinY_ / (pnBoxH + 6) ])
+		ok
+		return _rfS_
 
 	# rankdir, from the diagram's OWN SetLayout -- TB / BT / LR / RL.
 	def _NativeRankDir()

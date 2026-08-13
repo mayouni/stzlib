@@ -19,9 +19,9 @@ oDiag.AddNodeXTT("e", "Node E", [ :type = "endpoint", :color = "success" ])
 #-->
 '
 graph TD
-    s(["Node_S"])
-    d{{"Node_D"}}
-    e(["Node_E"])
+    s(["Node S"])
+    d{{"Node D"}}
+    e(["Node E"])
 '
 
 pf()

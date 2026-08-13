@@ -22,7 +22,7 @@ ok
 	"nodes": [
 		{
 			"id": "x",
-			"label": "X_Node",
+			"label": "X Node",
 			"properties": {
 				"type": "process",
 				"color": "primary"

@@ -442,10 +442,31 @@ _acStzCCKeywords = [
  ///  GLOBAL FUNCTIONS  ///
 //////////////////////////
 
-func StzFindAllCS(pContainer, pVal, pCaseSensitive)
+# NEEDLE FIRST -- StzFindAll(what, wherein) -- like every other member of
+# this family: StzFind, StzFindFirst, StzFindLast and StzFindNth all take
+# the thing being looked FOR first.
+#
+# THESE TWO USED TO BE THE OTHER WAY ROUND, alone in the family, and the
+# mismatch could not be noticed by anyone calling them: both parameters
+# accept a string, so a needle-first call searched the NEEDLE for the
+# HAYSTACK, found nothing, and answered [] -- "not found". A wrong argument
+# order that raises costs a minute; one that answers "not found" is a bug in
+# the caller's logic that looks like data.
+#
+# It was found by a guard whose own instrument was the victim: an assertion
+# that "no cylinder cap is deeper than it is wide" scanned an SVG using
+# StzFindAll, got [] for a tag that was plainly there, and so PASSED while
+# reading a canvas that contained a deliberately broken cap.
+#
+# Safe to align: outside the alias forwarders just below, the whole library
+# had no caller of either name.
+func StzFindAllCS(pThing, pContainer, pCaseSensitive)
+	pVal = pThing
 	if CheckParams()
 		if NOt (isString(pContainer) or isList(pContainer))
-			StzRaise("Incorrect param type! pContainer must be a string or list.")
+			StzRaise("Incorrect param type! the container searched must be " +
+				"a string or list -- StzFindAll takes what you are looking " +
+				"FOR first, then what to look IN.")
 		ok
 	ok
 
@@ -477,29 +498,29 @@ func StzFindAllCS(pContainer, pVal, pCaseSensitive)
 		return _aResult_
 	ok
 
-	func FindCS(pContainer, pVal, pCaseSensitive)
-		return StzFindAllCS(pContainer, pVal, pCaseSensitive)
+	func FindCS(pThing, pContainer, pCaseSensitive)
+		return StzFindAllCS(pThing, pContainer, pCaseSensitive)
 
-	func @FindCS(pContainer, pVal, pCaseSensitive)
-		return StzFindAllCS(pContainer, pVal, pCaseSensitive)
+	func @FindCS(pThing, pContainer, pCaseSensitive)
+		return StzFindAllCS(pThing, pContainer, pCaseSensitive)
 
-	func FindAllCS(pContainer, pVal, pCaseSensitive)
-		return StzFindAllCS(pContainer, pVal, pCaseSensitive)
+	func FindAllCS(pThing, pContainer, pCaseSensitive)
+		return StzFindAllCS(pThing, pContainer, pCaseSensitive)
 
-	func @FindAllCS(pContainer, pVal, pCaseSensitive)
-		return StzFindAllCS(pContainer, pVal, pCaseSensitive)
+	func @FindAllCS(pThing, pContainer, pCaseSensitive)
+		return StzFindAllCS(pThing, pContainer, pCaseSensitive)
 
-func StzFindAll(pContainer, pVal)
-	return StzFindAllCS(pContainer, pVal, 1)
+func StzFindAll(pThing, pContainer)
+	return StzFindAllCS(pThing, pContainer, 1)
 
-	func @Find(pContainer, pVal)
-		return StzFindAll(pContainer, pVal)
+	func @Find(pThing, pContainer)
+		return StzFindAll(pThing, pContainer)
 
-	func FindAll(pContainer, pVal)
-		return StzFindAll(pContainer, pVal)
+	func FindAll(pThing, pContainer)
+		return StzFindAll(pThing, pContainer)
 
-	func @FindAll(pContainer, pVal)
-		return StzFindAll(pContainer, pVal)
+	func @FindAll(pThing, pContainer)
+		return StzFindAll(pThing, pContainer)
 
 
 #---

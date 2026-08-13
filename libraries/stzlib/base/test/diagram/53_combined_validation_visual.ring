@@ -97,8 +97,8 @@ oDiag {
 # 	- Final merge: Orange color (overrides red), penwidth=3, bold+dashed style
 #
 # Visual confirmation in diagram:
-# 	- Process_Payment: Red rounded box, thick border
-# 	- Audit_Log: Orange dashed box, thick border ✓
+# 	- Process Payment: Red rounded box, thick border
+# 	- Audit Log: Orange dashed box, thick border ✓
 # 
 # The rule merging logic is working as designed - later rules override earlier
 # ones for the same property (color), while accumulating unique properties

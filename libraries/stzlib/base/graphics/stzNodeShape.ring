@@ -180,7 +180,16 @@ func StzDrawNodeShape(poCanvas, pcShape, pnX, pnY, pnW, pnH)
 	on "cylinder"
 		# a database: a body with an elliptical cap. The cap is drawn LAST
 		# so it sits on top of the body rather than being covered by it.
-		_ry_ = _h_ * 0.13
+		#
+		# THE CAP IS BOUNDED BY THE WIDTH, not by the height alone. A cap of
+		# h*0.13 is right in the friendly 140x100 box every shape was first
+		# drawn in, and wrong the moment a diagram hands over a tall narrow
+		# one: at 26x200 it made the cap 26px deep and 13px across -- an
+		# ellipse TALLER than it is wide, which is not a circle seen in
+		# perspective from any angle, so the thing stopped reading as a
+		# cylinder at all. Capping at w*0.35 keeps the foreshortening on the
+		# only side that can express it.
+		_ry_ = min([ _h_ * 0.13, _w_ * 0.35 ])
 		poCanvas.AddRect(_x_, _y_ + _ry_, _w_, _h_ - 2 * _ry_)
 		poCanvas.AddEllipse(_cx_, _y_ + _h_ - _ry_, _w_ / 2, _ry_)
 		poCanvas.AddEllipse(_cx_, _y_ + _ry_, _w_ / 2, _ry_)

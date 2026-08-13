@@ -25,8 +25,8 @@ digraph "simple" {
     node [fontname="helvetica", fontsize=12]
     edge [fontname="helvetica", fontsize=12, color="#000000", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
 
-    a [label="Node_A", shape=box, style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black"]
-    b [label="Node_B", shape=box, style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black"]
+    a [label="Node A", shape=box, style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black"]
+    b [label="Node B", shape=box, style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black"]
 
     a -> b
 

@@ -39,13 +39,13 @@ oGraph {
     <data key="type">structural</data>
 
     <node id="n1">
-      <data key="label">Node_1</data>
+      <data key="label">Node 1</data>
     </node>
     <node id="n2">
-      <data key="label">Node_2</data>
+      <data key="label">Node 2</data>
     </node>
     <node id="n3">
-      <data key="label">Node_3</data>
+      <data key="label">Node 3</data>
     </node>
 
     <edge id="e1" source="n1" target="n2">
@@ -62,17 +62,17 @@ oOtherGraph.Show()
 #-->
 '
        ╭────────╮        
-       │ Node_1 │        
+       │ Node 1 │        
        ╰────────╯        
             |            
             v            
       ╭──────────╮       
-      │ !Node_2! │       
+      │ !Node 2! │       
       ╰──────────╯       
             |            
             v            
        ╭────────╮        
-       │ Node_3 │        
+       │ Node 3 │        
        ╰────────╯  
 '
 
