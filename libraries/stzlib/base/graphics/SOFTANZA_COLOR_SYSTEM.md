@@ -213,10 +213,25 @@ its own measurement rather than a guess inside this phase.
 
 Guard: `test/graphics/gg_color_c4.ring` (6).
 
-**C5 — export.** `ToCSS` / `ToJSON` / `ToRing`, and one theme shared
-between a Ring face and a web face.
-*Kill:* if a round trip does not reproduce the same rendered colours, the
-export is decorative.
+**C5 — export. DONE.** `stzTheme` — `ToCSS` / `ToJSON` / `ToRing`, one theme
+shared between a Ring face and a web face.
+
+Every role goes out with its four C2 steps and its `on-` pair, **resolved to
+hex**, because the far side has no resolver and must not need one: **37
+tokens** per theme, not 7. `background` deliberately carries no steps — it
+is a surface, not something that holds text.
+
+*Kill criterion, met in pixels:* out to CSS, back through
+`StzThemeFromCSS`, painted from nothing but the parsed file, against the
+same paint from the live theme — **0 bytes differing** across 7,783
+sampled. The negative sibling bends one token and the same comparison
+reports 282. All ten themes export, and their exported pairs still clear
+C3's 4.5:1 on the FAR side — otherwise C3 would guarantee a property of a
+file nobody uses.
+
+Guard: `test/graphics/gg_color_c5.ring` (20).
+
+**C1–C5 are complete.**
 
 ---
 
