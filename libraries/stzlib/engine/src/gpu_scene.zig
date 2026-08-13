@@ -98,6 +98,30 @@ const WGSL_TEXT =
     \\}
 ;
 
+// An IMAGE quad. Same vertex format as text (pos, uv, colour) so it shares
+// the vertex buffer, but the FRAGMENT differs and the difference matters:
+// the text shader reads only the atlas's ALPHA as coverage and paints the
+// vertex colour through it -- exactly right for a glyph, and it would turn
+// a photograph into a silhouette. Here the sample IS the colour and the
+// vertex colour is a tint (white leaves it untouched).
+const WGSL_IMAGE =
+    \\struct VSOut { @builtin(position) pos: vec4<f32>, @location(0) uv: vec2<f32>, @location(1) col: vec4<f32> }
+    \\@vertex
+    \\fn vmain(@location(0) pos: vec2<f32>, @location(1) uv: vec2<f32>, @location(2) col: vec4<f32>) -> VSOut {
+    \\  var o: VSOut;
+    \\  o.pos = vec4<f32>(pos, 0.0, 1.0);
+    \\  o.uv = uv;
+    \\  o.col = col;
+    \\  return o;
+    \\}
+    \\@group(0) @binding(0) var tex: texture_2d<f32>;
+    \\@group(0) @binding(1) var smp: sampler;
+    \\@fragment
+    \\fn fmain(in: VSOut) -> @location(0) vec4<f32> {
+    \\  return textureSample(tex, smp, in.uv) * in.col;
+    \\}
+;
+
 // ---------------------------------------------------------------- commands
 
 const Rgba = struct {
@@ -122,10 +146,22 @@ const Cmd = union(enum) {
     stroke: struct { pts: []f32, width: f32, col: u32 }, // line == 2-point stroke
     polygon: struct { pts: []f32, col: u32 },
     text: struct { font: i64, str: []u8, x: f32, y: f32, size: f32, col: u32 },
+    // A grid of samples drawn in ONE operation. Owed to the sound plane
+    // since SN5: a spectrogram was 1,574 rects, 88 ms and ~104 KB of SVG
+    // for one 760x260 picture, because the canvas had no way to say
+    // "here is a field of values, draw it".
+    //
+    // `tex` is created lazily at build time and RETAINED, so a still image
+    // uploads once instead of per frame -- the same discipline the vertex
+    // buffers already follow.
+    image: struct { x: f32, y: f32, w: f32, h: f32, iw: u32, ih: u32, rgba: []u8, tex: i64, col: u32 },
 };
 
-const SegKind = enum { shape, text };
-const Seg = struct { kind: SegKind, first: u32, count: u32 };
+const SegKind = enum { shape, text, image };
+// `tex` is 0 for shape and text segments -- text draws through the shared
+// glyph atlas. An IMAGE segment names its own texture, because two images
+// in one scene are two textures and one draw each.
+const Seg = struct { kind: SegKind, first: u32, count: u32, tex: i64 = 0 };
 
 const SceneSlot = struct {
     w: u32 = 0,
@@ -192,6 +228,10 @@ fn freeCmdPayloads(s: *SceneSlot) void {
             .stroke => |k| alloc.free(k.pts),
             .polygon => |k| alloc.free(k.pts),
             .text => |k| alloc.free(k.str),
+            .image => |im| {
+                alloc.free(im.rgba);
+                if (im.tex != 0) _ = gpu.stz_gpu_texture_free(im.tex);
+            },
             else => {},
         }
     }
@@ -657,20 +697,31 @@ fn buildOnce(s: *SceneSlot) !void {
     var cur_kind: ?SegKind = null;
     var seg_first: u32 = 0;
 
-    for (s.cmds.items) |cmd| {
-        const kind: SegKind = if (cmd == .text) .text else .shape;
-        const vsize: u32 = if (kind == .text) 8 else 6;
-        const cur_len: u32 = @intCast(if (kind == .text) s.text_verts.items.len / vsize else s.shape_verts.items.len / vsize);
+    // POINTERS, not copies: the image arm caches its texture id ON the
+    // command, and a `for (items) |cmd|` capture is a const copy -- the
+    // upload would have happened on a temporary every single build.
+    for (s.cmds.items) |*cmd| {
+        // An IMAGE shares the TEXT vertex format (pos, uv, colour) and so
+        // shares its buffer -- but never its segment: each image draws with
+        // its OWN texture, so two adjacent images are two draws.
+        const kind: SegKind = switch (cmd.*) {
+            .text => .text,
+            .image => .image,
+            else => .shape,
+        };
+        const use_text_buf = (kind == .text or kind == .image);
+        const vsize: u32 = if (use_text_buf) 8 else 6;
+        const cur_len: u32 = @intCast(if (use_text_buf) s.text_verts.items.len / vsize else s.shape_verts.items.len / vsize);
         if (cur_kind == null or cur_kind.? != kind) {
             if (cur_kind) |ck| {
-                const prev_len: u32 = @intCast(if (ck == .text) s.text_verts.items.len / 8 else s.shape_verts.items.len / 6);
-                if (prev_len > seg_first) try s.segs.append(alloc, .{ .kind = ck, .first = seg_first, .count = prev_len - seg_first });
+                const prev_len: u32 = @intCast(if (ck == .text or ck == .image) s.text_verts.items.len / 8 else s.shape_verts.items.len / 6);
+                if (prev_len > seg_first) try s.segs.append(alloc, .{ .kind = ck, .first = seg_first, .count = prev_len - seg_first, .tex = 0 });
             }
             cur_kind = kind;
             seg_first = cur_len;
         }
 
-        switch (cmd) {
+        switch (cmd.*) {
             .rect => |k| {
                 const a = Rgba.unpack(k.c0);
                 const c2 = Rgba.unpack(k.c1);
@@ -723,6 +774,32 @@ fn buildOnce(s: *SceneSlot) !void {
                     );
                 }
             },
+            .image => |*k| {
+                // The texture is made ONCE and kept on the command. A
+                // spectrogram redrawn every frame must not re-upload a
+                // megabyte a frame -- the same rule the vertex buffers
+                // already follow.
+                if (k.tex == 0) {
+                    k.tex = gpu.stz_gpu_texture_new(@floatFromInt(k.iw), @floatFromInt(k.ih), @floatFromInt(gpu.TEX_LINEAR));
+                    if (k.tex != 0)
+                        _ = gpu.stz_gpu_texture_write(k.tex, k.rgba.ptr, @floatFromInt(k.rgba.len));
+                }
+                const col = Rgba.unpack(k.col);
+                const x0 = k.x;
+                const y0 = k.y;
+                const x1 = k.x + k.w;
+                const y1 = k.y + k.h;
+                try b.textVert(x0, y0, 0, 0, col);
+                try b.textVert(x1, y0, 1, 0, col);
+                try b.textVert(x1, y1, 1, 1, col);
+                try b.textVert(x0, y0, 0, 0, col);
+                try b.textVert(x1, y1, 1, 1, col);
+                try b.textVert(x0, y1, 0, 1, col);
+                const now: u32 = @intCast(s.text_verts.items.len / 8);
+                try s.segs.append(alloc, .{ .kind = .image, .first = seg_first, .count = now - seg_first, .tex = k.tex });
+                cur_kind = null;   // nothing may merge with an image
+                seg_first = now;
+            },
             .text => |k| {
                 const col = Rgba.unpack(k.col);
                 const layout = gtext.textLayout(k.font, k.str, k.size) catch continue;
@@ -753,8 +830,8 @@ fn buildOnce(s: *SceneSlot) !void {
         }
     }
     if (cur_kind) |ck| {
-        const prev_len: u32 = @intCast(if (ck == .text) s.text_verts.items.len / 8 else s.shape_verts.items.len / 6);
-        if (prev_len > seg_first) try s.segs.append(alloc, .{ .kind = ck, .first = seg_first, .count = prev_len - seg_first });
+        const prev_len: u32 = @intCast(if (ck == .text or ck == .image) s.text_verts.items.len / 8 else s.shape_verts.items.len / 6);
+        if (prev_len > seg_first) try s.segs.append(alloc, .{ .kind = ck, .first = seg_first, .count = prev_len - seg_first, .tex = 0 });
     }
     s.dirty = false;
     s.build_count += 1;
@@ -836,6 +913,27 @@ pub fn sceneToSvg(id: i64) !?[]u8 {
 
     for (s.cmds.items) |cmd| {
         switch (cmd) {
+            // The SVG tier carries the image as a base64 PNG, so a picture
+            // with a spectrogram in it is still ONE self-contained file that
+            // needs no device -- which is the whole promise of this tier.
+            .image => |k| {
+                const png = render.pngEncode(k.iw, k.ih, k.rgba, 1) catch continue;
+                defer alloc.free(png);
+                const Enc = std.base64.standard.Encoder;
+                const b64 = alloc.alloc(u8, Enc.calcSize(png.len)) catch continue;
+                defer alloc.free(b64);
+                _ = Enc.encode(b64, png);
+                try body.appendSlice(alloc, "<image");
+                try svgAttr(&body, "x", k.x);
+                try svgAttr(&body, "y", k.y);
+                try svgAttr(&body, "width", k.w);
+                try svgAttr(&body, "height", k.h);
+                // preserveAspectRatio=none: the caller gave a box and meant
+                // it; letterboxing would silently move every pixel.
+                try body.appendSlice(alloc, " preserveAspectRatio=\"none\" href=\"data:image/png;base64,");
+                try body.appendSlice(alloc, b64);
+                try body.appendSlice(alloc, "\"/>\n");
+            },
             .rect => |k| {
                 try body.appendSlice(alloc, "<rect");
                 try svgAttr(&body, "x", k.x);
@@ -955,6 +1053,7 @@ pub fn sceneToSvg(id: i64) !?[]u8 {
 // is exactly what the pipeline cache key now distinguishes.
 var pipe_shape: [2]i64 = @splat(0);
 var pipe_text: [2]i64 = @splat(0);
+var pipe_image: [2]i64 = @splat(0);
 
 fn ensurePipelines(tfmt: i32) bool {
     const t: usize = if (tfmt == render.TFMT_BGRA8) 1 else 0;
@@ -964,7 +1063,10 @@ fn ensurePipelines(tfmt: i32) bool {
     if (pipe_text[t] == 0) {
         pipe_text[t] = render.stz_gpu_render_pipeline_fmt(WGSL_TEXT.ptr, @floatFromInt(WGSL_TEXT.len), "2,2,4", 5, 1, 0, 0, @floatFromInt(tfmt));
     }
-    return pipe_shape[t] != 0 and pipe_text[t] != 0;
+    if (pipe_image[t] == 0) {
+        pipe_image[t] = render.stz_gpu_render_pipeline_fmt(WGSL_IMAGE.ptr, @floatFromInt(WGSL_IMAGE.len), "2,2,4", 5, 1, 0, 0, @floatFromInt(tfmt));
+    }
+    return pipe_shape[t] != 0 and pipe_text[t] != 0 and pipe_image[t] != 0;
 }
 
 /// Device loss: pipelines and scene-owned GPU objects died with it. Ids are
@@ -1081,6 +1183,9 @@ fn renderToTarget(s: *SceneSlot) !bool {
     for (s.segs.items) |seg| {
         if (seg.kind == .shape) {
             _ = render.stz_gpu_render_draw(pipe_shape[ti], s.vbuf_shape, @floatFromInt(seg.first), @floatFromInt(seg.count), 0);
+        } else if (seg.kind == .image) {
+            if (seg.tex != 0)
+                _ = render.stz_gpu_render_draw(pipe_image[ti], s.vbuf_text, @floatFromInt(seg.first), @floatFromInt(seg.count), seg.tex);
         } else if (atlas_tex != 0) {
             _ = render.stz_gpu_render_draw(pipe_text[ti], s.vbuf_text, @floatFromInt(seg.first), @floatFromInt(seg.count), atlas_tex);
         }
@@ -1099,6 +1204,21 @@ fn renderToTarget(s: *SceneSlot) !bool {
 /// Draw this 2D scene OVER whatever the target already holds. Same as
 /// sceneDrawToTarget except the pass preserves the existing contents, which
 /// is what makes a HUD possible: the 3D frame is drawn first, then this.
+/// A field of samples, drawn in one call. rgba is iw*ih*4 bytes, copied --
+/// the caller's buffer is theirs to free, and a stored slice of it would be
+/// a use-after-free the moment they did.
+pub fn sceneImage(id: i64, x: f64, y: f64, w: f64, h: f64, iw: u32, ih: u32, rgba: []const u8, col: u32) i32 {
+    if (iw == 0 or ih == 0 or w <= 0 or h <= 0) return BAD_ARG;
+    if (rgba.len < @as(usize, iw) * @as(usize, ih) * 4) return BAD_ARG;
+    const copy = alloc.alloc(u8, @as(usize, iw) * @as(usize, ih) * 4) catch return BAD_ARG;
+    @memcpy(copy, rgba[0..copy.len]);
+    return push(id, .{ .image = .{
+        .x = @floatCast(x), .y = @floatCast(y),
+        .w = @floatCast(w), .h = @floatCast(h),
+        .iw = iw, .ih = ih, .rgba = copy, .tex = 0, .col = col,
+    } });
+}
+
 pub fn sceneDrawOverTarget(id: i64, target_id: i64, tfmt: i32, w: u32, h: u32) bool {
     const slot = slotOf(id) orelse return false;
     const s = &scenes.items[slot];
