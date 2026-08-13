@@ -1,0 +1,58 @@
+RmlUi 6.2 -- the LAYOUT and MARKUP engine (MIT, see LICENSE.txt)
+
+Source:   https://github.com/mikke89/RmlUi/releases/tag/6.2
+Asset:    6.2.tar.gz (source tarball, 3,507,141 bytes)
+SHA-256:  814c3ff7b9666280338d8f0dda85979f5daf028d01c85fc8975431d1e2fd8e8b
+Released: 2026-01-11
+Vendored: 2026-08-13
+
+Authorized by: base/gui/SOFTANZA_GUI_PLAN.md §8, phase G0. That section
+also carries the four kill criteria this vendor must survive, and §2.4
+carries the only conditions under which the choice would be revisited.
+
+WHAT IS HERE, and it is the CORE ONLY:
+
+    Include/RmlUi/Config, Include/RmlUi/Core, Include/RmlUi/Core.h
+    Source/Core            (140 .cpp)
+    Source/Core/Elements   ( 26 .cpp)
+    Source/Core/Layout     ( 17 .cpp)
+                           --- 183 .cpp, 424 files, ~3.1 MB
+
+WHAT IS DELIBERATELY NOT HERE, and why each:
+
+  Source/Core/FontEngineDefault  -- the FreeType font engine. Dropped at
+      the root, not disabled at build time: RMLUI_FONT_ENGINE is off and
+      the SheenBidi -> HarfBuzz -> stb_truetype pipeline this house
+      already owns becomes THE implementation of FontEngineInterface
+      (G2). Its removal is also why the vendored tree has ZERO external
+      dependencies -- ft2build.h was the only one, and it lived here.
+  Backends/          -- RmlUi's own GL/SDL/GLFW render and platform
+      backends. The host supplies the renderer; that is constraint 2 of
+      the four this engine was chosen to satisfy simultaneously. Taking
+      a backend would put a second GPU surface outside the counted-
+      fallback discipline, which is what killed NanoVG and raylib for
+      the graphics plane.
+  Samples/, Tests/, Utilities/, CMake/, CMakeLists.txt, .github/
+  Source/Lua/        -- a scripting engine. Constraint 3 is NO second
+      programming model; behaviour comes from the reactive layer.
+  Source/Lottie/, Source/SVG/  -- each drags a dependency (rlottie,
+      lunasvg) for a capability the graphics plane already has.
+  Source/Debugger/   -- reconsider if a visual inspector is wanted; it
+      is not a dependency of anything above.
+
+EXTERNAL DEPENDENCIES: none. The only non-C++-standard includes across
+the vendored tree are <ctype.h> <float.h> <limits.h> <stdarg.h>
+<stddef.h> <stdint.h> <stdio.h> <stdlib.h> <string.h> and, on Windows,
+<windows.h>.
+
+The precedent this follows is harfbuzz/VERSION.txt in this same
+directory: a large C++ vendor, compiled from source by zig c++ with no
+cmake and no SDK. That precedent also says what to expect -- two Windows
+lessons were collected the hard way there (a vendor-root file named
+VERSION collides with C++'s <version> header on case-insensitive
+filesystems, which is why this file is VERSION.txt; and a bare `text`
+import shadowed bridge locals). RmlUi is larger. Whatever it costs is
+recorded in the G0 STATUS section of the plan.
+
+DO NOT FORK. Patches go upstream. A fork is a permanent tax -- Avalonia
+deleted its second rendering backend for want of parity maintenance.
