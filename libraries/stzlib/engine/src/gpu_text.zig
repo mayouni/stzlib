@@ -151,18 +151,34 @@ pub fn fontGlyphCount(id: i64) f64 {
 
 pub const Glyph = struct {
     gid: u32,
-    x: f64, // pen position + x-offset, px, visual left-to-right
+    x: f64, // pen position + x-offset, px, visual left-to-right -- the DRAW x
     y: f64, // y-offset from baseline, px (positive up, HarfBuzz convention)
-    cluster: u32, // BYTE index into the utf8 input (caret/hit-testing hook)
+    cluster: u32, // BYTE index into the utf8 input: the cluster's FIRST byte
+    // --- the reversibility fields (§0 of SOFTANZA_GUI_PLAN.md) ---------
+    // x is the draw position and carries the mark x-offset, so it is NOT
+    // the hit-test box. pen/adv are: the glyph occupies [pen, pen+adv).
+    pen: f64, // pen position, px, before this glyph's offset
+    adv: f64, // x-advance, px
+    cl_end: u32, // BYTE index one past the cluster's last byte
+    level: u8, // UAX#9 embedding level of the glyph's run; odd = RTL
 };
 
 pub const Layout = struct {
     glyphs: []Glyph,
     width: f64, // total advance, px
     run_count: usize, // visual runs (bidi witness: "abc عربي xyz" = 3)
+    // --- vertical metrics, px (y grows DOWN from the baseline at 0) -----
+    ascender: f64, // distance ABOVE the baseline, positive
+    descender: f64, // distance BELOW the baseline, positive
+    line_gap: f64,
+    para_rtl: bool, // the paragraph's own base direction (UAX#9 base level)
 
     pub fn deinit(self: *const Layout) void {
         alloc.free(self.glyphs);
+    }
+
+    pub fn lineHeight(self: *const Layout) f64 {
+        return self.ascender + self.descender + self.line_gap;
     }
 };
 
@@ -170,7 +186,33 @@ var shape_buf: ?*c.hb_buffer_t = null; // reused; single-threaded contract
 
 /// Shape ONE bidi run (a byte range of `utf8` with full-text context) and
 /// append positioned glyphs, advancing the pen.
-fn shapeRun(font: *c.hb_font_t, utf8: []const u8, offset: usize, length: usize, rtl: bool, pen_x: *f64, out: *std.ArrayList(Glyph)) !void {
+/// Fill cl_end for one run's glyphs. Within a run HarfBuzz clusters are
+/// monotonic in LOGICAL order, so the byte a cluster ends at is the next
+/// DISTINCT cluster value logically after it -- the next entry FORWARD in
+/// an LTR run's array, and the next entry BACKWARD in an RTL one, because
+/// RTL glyphs come out visually, i.e. logically reversed. The logically
+/// last cluster ends at the run's end.
+fn fillClusterEnds(slice: []Glyph, rtl: bool, run_end: u32) void {
+    if (slice.len == 0) return;
+    var next: u32 = run_end;
+    if (!rtl) {
+        var i: usize = slice.len;
+        while (i > 0) {
+            i -= 1;
+            if (i + 1 < slice.len and slice[i].cluster != slice[i + 1].cluster) next = slice[i + 1].cluster;
+            slice[i].cl_end = next;
+        }
+    } else {
+        for (0..slice.len) |i| {
+            if (i > 0 and slice[i].cluster != slice[i - 1].cluster) next = slice[i - 1].cluster;
+            slice[i].cl_end = next;
+        }
+    }
+}
+
+fn shapeRun(font: *c.hb_font_t, utf8: []const u8, offset: usize, length: usize, level: u8, pen_x: *f64, out: *std.ArrayList(Glyph)) !void {
+    const rtl = (level & 1) == 1;
+    const first = out.items.len;
     if (shape_buf == null) shape_buf = c.hb_buffer_create();
     const buf = shape_buf.?;
     c.hb_buffer_reset(buf);
@@ -186,14 +228,20 @@ fn shapeRun(font: *c.hb_font_t, utf8: []const u8, offset: usize, length: usize, 
     for (0..n) |i| {
         const info = infos[i];
         const pos = poss[i];
+        const adv = @as(f64, @floatFromInt(pos.x_advance)) / 64.0;
         try out.append(alloc, .{
             .gid = info.codepoint, // post-shaping: a GLYPH id, not a codepoint
             .x = pen_x.* + @as(f64, @floatFromInt(pos.x_offset)) / 64.0,
             .y = @as(f64, @floatFromInt(pos.y_offset)) / 64.0,
             .cluster = info.cluster,
+            .pen = pen_x.*,
+            .adv = adv,
+            .cl_end = 0, // filled below, once the whole run is known
+            .level = level,
         });
-        pen_x.* += @as(f64, @floatFromInt(pos.x_advance)) / 64.0;
+        pen_x.* += adv;
     }
+    fillClusterEnds(out.items[first..], rtl, @intCast(offset + length));
 }
 
 /// The pipeline entry: utf8 text + font + pixel size -> positioned glyph
@@ -233,10 +281,142 @@ pub fn textLayout(font_id: i64, utf8: []const u8, size_px: f64) !Layout {
         const run = runs[i];
         if (run.length == 0) continue;
         run_count += 1;
-        try shapeRun(s.font.?, utf8, @intCast(run.offset), @intCast(run.length), (run.level & 1) == 1, &pen_x, &glyphs);
+        try shapeRun(s.font.?, utf8, @intCast(run.offset), @intCast(run.length), @intCast(run.level), &pen_x, &glyphs);
     }
 
-    return .{ .glyphs = try glyphs.toOwnedSlice(alloc), .width = pen_x, .run_count = run_count };
+    // Vertical metrics from the SAME scaled font the positions came from,
+    // so a caret rect and the glyphs it sits among agree by construction.
+    var ext: c.hb_font_extents_t = undefined;
+    var asc: f64 = 0;
+    var desc: f64 = 0;
+    var gap: f64 = 0;
+    if (c.hb_font_get_h_extents(s.font, &ext) != 0) {
+        asc = @as(f64, @floatFromInt(ext.ascender)) / 64.0;
+        desc = -@as(f64, @floatFromInt(ext.descender)) / 64.0; // hb reports it negative
+        gap = @as(f64, @floatFromInt(ext.line_gap)) / 64.0;
+    }
+
+    return .{
+        .glyphs = try glyphs.toOwnedSlice(alloc),
+        .width = pen_x,
+        .run_count = run_count,
+        .ascender = asc,
+        .descender = desc,
+        .line_gap = gap,
+        .para_rtl = (c.SBParagraphGetBaseLevel(paragraph) & 1) == 1,
+    };
+}
+
+// ------------------------------------------------- reversibility (§0, GUI)
+//
+// Every platform IME -- Windows TSF (GetTextExt, GetACPFromPoint), macOS
+// (firstRectForCharacterRange:, characterIndexForPoint:), Android, and the
+// Web's EditContext -- demands the same two queries of a text layout:
+//
+//   1. the screen rect of a character range
+//   2. the character index at a point, with a leading/trailing affinity bit
+//
+// If a layout cannot answer those, IME is not expensive: it is IMPOSSIBLE,
+// and that is discovered late. They live here, beside the layout that owns
+// the data, rather than being re-derived (differently, and wrongly) by each
+// consumer. Coordinates: x from the text origin, y DOWN from the baseline
+// at 0, so `top` is negative for the ascender.
+
+pub const Rect = struct {
+    x: f64,
+    top: f64,
+    w: f64,
+    h: f64,
+};
+
+fn rectOver(self: *const Layout, x0: f64, x1: f64) Rect {
+    return .{ .x = x0, .top = -self.ascender, .w = x1 - x0, .h = self.ascender + self.descender };
+}
+
+/// Every visual rect covering the LOGICAL byte range [start, end).
+/// Bidi makes this a LIST and not a rect: one logical range can be several
+/// disjoint visual spans (select across the seam of "abc عربي xyz" and the
+/// selection is genuinely in two pieces). An EMPTY range selects nothing --
+/// that is `caretRect`'s job, not this one's.
+pub fn rectsForRange(self: *const Layout, start: u32, end: u32, out: *std.ArrayList(Rect)) !void {
+    if (end <= start) return;
+    var i: usize = 0;
+    while (i < self.glyphs.len) {
+        const g = self.glyphs[i];
+        if (!(g.cluster < end and g.cl_end > start)) {
+            i += 1;
+            continue;
+        }
+        // a maximal VISUAL span of selected glyphs = one rect
+        var x0 = g.pen;
+        var x1 = g.pen + g.adv;
+        i += 1;
+        while (i < self.glyphs.len) : (i += 1) {
+            const h = self.glyphs[i];
+            if (!(h.cluster < end and h.cl_end > start)) break;
+            x0 = @min(x0, h.pen);
+            x1 = @max(x1, h.pen + h.adv);
+        }
+        try out.append(alloc, rectOver(self, x0, x1));
+    }
+}
+
+pub const Hit = struct {
+    index: u32, // the cluster's FIRST byte -- what the platform APIs return
+    trailing: bool, // the caret belongs at the cluster's trailing edge
+    caret: u32, // the resolved byte: trailing ? cl_end : cluster
+};
+
+/// The character at a point, with affinity. `x` is measured from the text
+/// origin. Off either end clamps to the nearest glyph rather than refusing:
+/// a click in the margin is a real click, and every platform resolves it.
+pub fn indexAtPoint(self: *const Layout, x: f64) Hit {
+    if (self.glyphs.len == 0) return .{ .index = 0, .trailing = false, .caret = 0 };
+    var pick: usize = 0;
+    for (self.glyphs, 0..) |g, i| {
+        pick = i;
+        if (x < g.pen + g.adv) break;
+    }
+    const g = self.glyphs[pick];
+    // the visually-left half is the LEADING half of an LTR glyph and the
+    // TRAILING half of an RTL one -- that asymmetry IS the affinity bit
+    const left_half = x < g.pen + g.adv / 2.0;
+    const rtl = (g.level & 1) == 1;
+    const trailing = if (rtl) left_half else !left_half;
+    return .{ .index = g.cluster, .trailing = trailing, .caret = if (trailing) g.cl_end else g.cluster };
+}
+
+/// The zero-width caret rect for `(index, trailing)` -- exactly the pair
+/// `indexAtPoint` returns, so the round trip is closed and testable.
+///
+/// `trailing` is not decoration. At a bidi seam one byte offset has TWO
+/// legitimate screen positions, and nothing in the text can choose between
+/// them; the caller's affinity does. UAX#9 specifies reordering for DISPLAY
+/// and says nothing about carets, so this is the implementation's call, and
+/// the house makes it LOGICALLY (Blink left visual movement in Chrome M76
+/// calling it "hacks with many bugs").
+pub fn caretRect(self: *const Layout, index: u32, trailing: bool) Rect {
+    if (self.glyphs.len == 0) return rectOver(self, 0, 0);
+    var i: usize = 0;
+    while (i < self.glyphs.len) : (i += 1) {
+        const g = self.glyphs[i];
+        if (!(g.cluster <= index and index < g.cl_end)) continue;
+        // the whole cluster's visual extent (a cluster can be many glyphs)
+        var x0 = g.pen;
+        var x1 = g.pen + g.adv;
+        var j = i + 1;
+        while (j < self.glyphs.len and self.glyphs[j].cluster == g.cluster) : (j += 1) {
+            x0 = @min(x0, self.glyphs[j].pen);
+            x1 = @max(x1, self.glyphs[j].pen + self.glyphs[j].adv);
+        }
+        const rtl = (g.level & 1) == 1;
+        const at = if (rtl) (if (trailing) x0 else x1) else (if (trailing) x1 else x0);
+        return rectOver(self, at, at);
+    }
+    // past the last character: the paragraph's own direction decides which
+    // END of the line the caret sits at
+    const at: f64 = if (self.para_rtl) 0 else self.width;
+    return rectOver(self, at, at);
 }
 
 // ---------------------------------------------------------------- glyph raster

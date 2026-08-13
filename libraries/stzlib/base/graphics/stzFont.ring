@@ -72,15 +72,84 @@ class stzFont from stzObject
 		ok
 		return _a_[2]
 
-	# The positioned GLYPH IDs -- [ [gid, x, y, byteCluster], ... ] in
-	# visual order. The mechanism, exposed: this is what proves Arabic
-	# joined rather than merely looking joined.
+	# The positioned GLYPH IDs -- in visual order, eight numbers each:
+	#   [ gid, x, y, byteCluster, pen, advance, clusterEnd, bidiLevel ]
+	# The mechanism, exposed: this is what proves Arabic joined rather
+	# than merely looking joined. x is the DRAW position (it carries the
+	# mark offset); [pen, pen+advance) is the HIT-TEST box -- they are
+	# different numbers and confusing them is a classic caret bug.
 	def GlyphsOf(pcText, pnSize)
 		_a_ = StzEngineGpuTextLayout(@nId, "" + pcText, pnSize)
 		if len(_a_) = 0
 			return []
 		ok
 		return _a_[3]
+
+	# Vertical metrics in px at this size: [ ascender, descender, lineGap ].
+	# Ascender and descender are both POSITIVE distances from the baseline.
+	def MetricsOf(pcText, pnSize)
+		_a_ = StzEngineGpuTextLayout(@nId, "" + pcText, pnSize)
+		if len(_a_) = 0
+			return [ 0, 0, 0 ]
+		ok
+		return [ _a_[4], _a_[5], _a_[6] ]
+
+	def LineHeightOf(pcText, pnSize)
+		_a_ = This.MetricsOf(pcText, pnSize)
+		return _a_[1] + _a_[2] + _a_[3]
+
+	# TRUE when the paragraph's own base direction is right-to-left --
+	# which decides where the caret sits past the last character.
+	def IsRtlParagraph(pcText, pnSize)
+		_a_ = StzEngineGpuTextLayout(@nId, "" + pcText, pnSize)
+		if len(_a_) = 0
+			return 0
+		ok
+		return _a_[7] = 1
+
+	#-- REVERSIBILITY: the two queries every platform IME demands ---------#
+	#
+	# Windows TSF asks GetTextExt and GetACPFromPoint; macOS asks
+	# firstRectForCharacterRange: and characterIndexForPoint:; Android and
+	# the Web's EditContext ask the same pair in their own words. A layout
+	# that cannot answer them can shape Arabic beautifully and still never
+	# accept a single character of Chinese.
+	#
+	# Byte offsets, not character counts: they are what the shaper's
+	# clusters already speak, and what StzFind and friends return.
+
+	# The visual rects covering the LOGICAL byte range [nStart, nEnd) --
+	# [ [x, top, w, h], ... ], x from the text origin and y DOWN from the
+	# baseline at 0. A LIST, because a range that crosses a bidi seam is
+	# genuinely in several pieces on screen. An empty range selects
+	# nothing -- for a caret, ask CaretRectAt.
+	def RectsOfRange(pcText, pnSize, pnStart, pnEnd)
+		return StzEngineGpuTextRects(@nId, "" + pcText, pnSize, pnStart, pnEnd)
+
+	# The zero-width, full-line-height rect where a caret sits: the very
+	# rectangle a platform IME wants its candidate window positioned by.
+	#
+	# bTrailing is the AFFINITY bit, and it is not decoration. At a bidi
+	# seam one byte offset has two legitimate screen positions and nothing
+	# in the text chooses between them -- the caller's affinity does. Pass
+	# back what IndexAtPoint gave you and the round trip is exact.
+	def CaretRectAt(pcText, pnSize, pnIndex, pbTrailing)
+		_n_ = 0
+		if pbTrailing = 1
+			_n_ = 1
+		ok
+		return StzEngineGpuTextCaretRect(@nId, "" + pcText, pnSize, pnIndex, _n_)
+
+	# The character under a point -- [ nIndex, bTrailing, nCaretByte ].
+	# nIndex is the cluster's FIRST byte (what the platform APIs return);
+	# nCaretByte is that index already resolved through the affinity, so a
+	# caller who only wants "where does the caret go" reads item 3.
+	def IndexAtPoint(pcText, pnSize, pnX)
+		_a_ = StzEngineGpuTextIndexAt(@nId, "" + pcText, pnSize, pnX)
+		if len(_a_) = 0
+			return [ 0, 0, 0 ]
+		ok
+		return _a_
 
 	def Free()
 		if @nId > 0

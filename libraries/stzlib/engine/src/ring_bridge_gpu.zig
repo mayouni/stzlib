@@ -607,9 +607,14 @@ fn ring_FontGlyphCount(p: *anyopaque) callconv(.c) void {
 }
 
 // TextLayout(hFont, cUtf8, nSizePx) ->
-//   [nWidth, nRunCount, [ [gid, x, y, byteCluster], ... ]]  or [] on refusal.
+//   [ nWidth, nRunCount,
+//     [ [gid, x, y, byteCluster, pen, adv, clusterEnd, bidiLevel], ... ],
+//     nAscender, nDescender, nLineGap, bParaRtl ]                or [].
 // Glyphs come in VISUAL left-to-right order (bidi already applied); gids
-// are GLYPH ids (post-shaping), never codepoints.
+// are GLYPH ids (post-shaping), never codepoints. Fields 5..8 of a glyph
+// and items 4..7 of the list are the REVERSIBILITY data (§0): they were
+// appended, never reordered, so index-based readers of the first shape
+// keep working.
 fn ring_TextLayout(p: *anyopaque) callconv(.c) void {
     const font: i64 = @intFromFloat(gn(p, 1));
     const utf8 = getStr(p, 2);
@@ -631,7 +636,76 @@ fn ring_TextLayout(p: *anyopaque) callconv(.c) void {
         R.ring_list_adddouble(item, g.x);
         R.ring_list_adddouble(item, g.y);
         R.ring_list_adddouble(item, @floatFromInt(g.cluster));
+        R.ring_list_adddouble(item, g.pen);
+        R.ring_list_adddouble(item, g.adv);
+        R.ring_list_adddouble(item, @floatFromInt(g.cl_end));
+        R.ring_list_adddouble(item, @floatFromInt(g.level));
     }
+    R.ring_list_adddouble(out, layout.ascender);
+    R.ring_list_adddouble(out, layout.descender);
+    R.ring_list_adddouble(out, layout.line_gap);
+    R.ring_list_adddouble(out, if (layout.para_rtl) 1 else 0);
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn addRect(parent: *anyopaque, r: gtext.Rect) void {
+    const item = R.ring_list_newlist(parent) orelse return;
+    R.ring_list_adddouble(item, r.x);
+    R.ring_list_adddouble(item, r.top);
+    R.ring_list_adddouble(item, r.w);
+    R.ring_list_adddouble(item, r.h);
+}
+
+// TextRects(hFont, cUtf8, nSizePx, nStartByte, nEndByte) -> [ [x,top,w,h], ... ]
+// The visual rects covering a LOGICAL byte range. Several, not one, when the
+// range crosses a bidi seam. Empty range -> empty list (see TextCaretRect).
+fn ring_TextRects(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const layout = gtext.textLayout(@intFromFloat(gn(p, 1)), getStr(p, 2), gn(p, 3)) catch {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    defer layout.deinit();
+    var rects: std.ArrayList(gtext.Rect) = .{};
+    defer rects.deinit(std.heap.c_allocator);
+    gtext.rectsForRange(&layout, @intFromFloat(gn(p, 4)), @intFromFloat(gn(p, 5)), &rects) catch {};
+    for (rects.items) |r| addRect(out, r);
+    R.ring_vm_api_retlist(p, out);
+}
+
+// TextCaretRect(hFont, cUtf8, nSizePx, nIndex, nTrailing) -> [x, top, w, h]
+// Zero-width, full line height: the rect a platform IME is positioned by.
+// nTrailing is the affinity bit -- at a bidi seam one byte has two screen
+// positions and only the caller's affinity chooses.
+fn ring_TextCaretRect(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const layout = gtext.textLayout(@intFromFloat(gn(p, 1)), getStr(p, 2), gn(p, 3)) catch {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    defer layout.deinit();
+    const r = gtext.caretRect(&layout, @intFromFloat(gn(p, 4)), gn(p, 5) != 0);
+    R.ring_list_adddouble(out, r.x);
+    R.ring_list_adddouble(out, r.top);
+    R.ring_list_adddouble(out, r.w);
+    R.ring_list_adddouble(out, r.h);
+    R.ring_vm_api_retlist(p, out);
+}
+
+// TextIndexAt(hFont, cUtf8, nSizePx, nX) -> [nIndex, nTrailing, nCaretByte]
+// The character under a point. nIndex is the cluster's first byte (what the
+// platform APIs return); nCaretByte is that resolved through the affinity.
+fn ring_TextIndexAt(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const layout = gtext.textLayout(@intFromFloat(gn(p, 1)), getStr(p, 2), gn(p, 3)) catch {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    defer layout.deinit();
+    const h = gtext.indexAtPoint(&layout, gn(p, 4));
+    R.ring_list_adddouble(out, @floatFromInt(h.index));
+    R.ring_list_adddouble(out, if (h.trailing) 1 else 0);
+    R.ring_list_adddouble(out, @floatFromInt(h.caret));
     R.ring_vm_api_retlist(p, out);
 }
 
@@ -1462,6 +1536,9 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpufontfree", .func = &ring_FontFree },
     .{ .name = "stzenginegpufontglyphcount", .func = &ring_FontGlyphCount },
     .{ .name = "stzenginegputextlayout", .func = &ring_TextLayout },
+    .{ .name = "stzenginegputextrects", .func = &ring_TextRects },
+    .{ .name = "stzenginegputextcaretrect", .func = &ring_TextCaretRect },
+    .{ .name = "stzenginegputextindexat", .func = &ring_TextIndexAt },
     .{ .name = "stzenginegpuglyphbitmap", .func = &ring_GlyphBitmap },
     // GR2b display list
     .{ .name = "stzenginegpuscenenew", .func = &ring_SceneNew },
