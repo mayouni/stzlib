@@ -48,6 +48,7 @@ $oScene = NULL
 $aSat = []
 $nHub = 0
 $nRingIdx = 0
+$nPanel = 0     # 0 none, 1 = what the graph knows, 2 = its code
 
 # ---------------------------------------------------------------------------
 
@@ -91,10 +92,14 @@ oWin = new stzWindow(1180, 700, "Softanza -- The Living Material")
 ? "=============================================================="
 ? " THE LIVING MATERIAL"
 ? "=============================================================="
-? "  1..5  rebuild the material from a different NODE GRAPH"
-? "  T     cycle theme      I  interrogate the graph"
-? "  W     print the emitted material-language body"
-? "  [ ]   scalar down/up   SPACE pause   S save   ESC quit"
+? "  Everything below is ALSO shown in the window itself."
+? ""
+? "  1-5    change the surface -- each is a different NODE GRAPH"
+? "  T      change the colour theme"
+? "  I      show what the material knows about ITSELF"
+? "  W      show the material's own code"
+? "  [ / ]  less / more ambient light"
+? "  SPACE  pause      S  save a picture      ESC  quit"
 ? ""
 ? "  material : " + MaterialNames()[$nWhich] + "   theme : " + Themes()[$nTheme]
 ? ""
@@ -124,28 +129,17 @@ while oWin.IsOpen()
 		  "   primary " + StzResolveColor(StzThemeColor(Themes()[$nTheme], :primary))
 	ok
 
+	# I AND W SHOW THEIR ANSWER ON THE SCREEN, not in the terminal.
+	# They used to print to the console -- which is the window you are NOT
+	# looking at while the render has focus, so pressing I looked like
+	# nothing happened at all. Output that answers a keypress belongs where
+	# the keypress was made.
 	if oWin.KeyPressed(:I)
-		? ""
-		? "  --- the material, interrogated WHILE IT DRAWS ---"
-		? "  emission order : " + @@(oGraph.Order())
-		? "  output node    : " + oGraph.OutputNode()
-		? "  lets saved by reuse : " + oGraph.ReuseSaved()
-		for a in oGraph.Uses()
-			if a[2] > 1
-				? "    '" + a[1] + "' is read by " + a[2] + " nodes -> emitted ONCE"
-			ok
-		next
-		aFirst = oGraph.Order()[1]
-		? "  changing '" + aFirst + "' affects : " + @@(oGraph.Affects(aFirst))
-		? "  findings : " + len(oGraph.Findings()) + "   sound : " + oGraph.IsSound()
-		? ""
+		$nPanel = iif($nPanel = 1, 0, 1)
 	ok
 
 	if oWin.KeyPressed(:W)
-		? ""
-		? "  the graph emitted:"
-		? "    " + oGraph.ToW()
-		? ""
+		$nPanel = iif($nPanel = 2, 0, 2)
 	ok
 
 	if oWin.KeyPressed(:Space)  bPaused = NOT bPaused  ok
@@ -180,7 +174,8 @@ while oWin.IsOpen()
 	# the HUD is rebuilt each frame -- it is a handful of shapes, and the
 	# scene's own buffers are the ones that matter for cost
 	oHud = BuildHud(oWin.Width(), oWin.Height(), oHudFont,
-		MaterialNames()[$nWhich], Themes()[$nTheme], $nAmt, floor(oWin.FPS()))
+		MaterialNames()[$nWhich], Themes()[$nTheme], $nAmt, floor(oWin.FPS()),
+		oGraph, $nPanel)
 	oWin.DrawXT($oScene, oHud)
 end
 
@@ -290,48 +285,138 @@ func ApplyMaterial()
 # Its background is TRANSPARENT and it is drawn with a preserving pass, so
 # it annotates the render instead of replacing it.
 # ---------------------------------------------------------------------------
-func BuildHud(nW, nH, oFont, cMat, cTheme, nAmt, nFps)
+func BuildHud(nW, nH, oFont, cMat, cTheme, nAmt, nFps, oGraph, nPanel)
 	_o_ = new stzCanvas(nW, nH)
 	_o_.SetBackground("#00000000")            # transparent: annotate, do not replace
 	if NOT isObject(oFont)  return _o_  ok
 
-	# a panel dark enough to read on, whatever the theme behind it
-	_o_.Flush()
-	_o_.FillQ("#0B1020D8").AddRoundRect(20, 20, 366, 250, 12)
+	# TYPE SIZES. The first version used 11-13 px, which is a comment font,
+	# not a font for a thing being read from across a desk while something
+	# moves behind it. Everything here is at least 16.
+	_TITLE_ = 30
+	_BODY_  = 17
+	_SMALL_ = 15
 
 	_o_.Flush()
-	_o_.AddTextQ("THE LIVING MATERIAL", 40, 54).SetFontQ(oFont, 19).Color(:White)
-	_o_.Flush()
-	_o_.AddTextQ("the surface is a NODE GRAPH, rebuilt live",
-		40, 76).SetFontQ(oFont, 12).Color("#9FB0D8")
+	# THE PANEL IS SIZED FROM THE ROWS, not typed. The first version fixed
+	# it at 330 px and the last two keys fell outside the plate they were
+	# meant to sit on -- a layout that stops being right the moment a row
+	# is added is a layout that will be wrong again.
+	_nRows_ = 8
+	_nPanelH_ = 140 + _nRows_ * 34 - 10
+	_o_.FillQ("#0B1020E8").AddRoundRect(24, 24, 470, _nPanelH_, 14)
 
+	_o_.Flush()
+	_o_.AddTextQ("THE LIVING MATERIAL", 48, 72).SetFontQ(oFont, _TITLE_).Color(:White)
+	_o_.Flush()
+	_o_.AddTextQ("this surface is not a shader -- it is a graph of nodes",
+		48, 100).SetFontQ(oFont, _SMALL_).Color("#9FB0D8")
+
+	# PLAIN WORDING. "interrogate the graph" told the reader what I was
+	# proud of, not what the key does.
 	_aRows_ = [
-		[ "1-5", "swap the material's node graph" ],
-		[ "T",    "cycle theme -- colours are MEANINGS" ],
-		[ "I",    "interrogate the graph WHILE it draws" ],
-		[ "W",    "print the emitted material language" ],
-		[ "[ / ]", "the material's scalar, live" ],
-		[ "SPACE","pause      S  save      ESC  quit" ]
+		[ "1-5",   "change the surface" ],
+		[ "T",     "change the colour theme" ],
+		[ "I",     "what the material knows about itself" ],
+		[ "W",     "the material's own code" ],
+		[ "[ / ]", "less / more ambient light" ],
+		[ "SPACE", "pause" ],
+		[ "S",     "save a picture" ],
+		[ "ESC",   "quit" ]
 	]
-	_y_ = 106
+	_y_ = 140
 	for _r_ in _aRows_
 		_o_.Flush()
-		_o_.FillQ("Info.Solid").AddRoundRect(40, _y_ - 13, 52, 20, 5)
+		_o_.FillQ("Info.Solid").AddRoundRect(48, _y_ - 18, 74, 28, 6)
 		_o_.Flush()
-		_o_.AddTextQ(_r_[1], 46, _y_ + 2).SetFontQ(oFont, 11).Color("OnInfo")
+		_o_.AddTextQ(_r_[1], 56, _y_ + 2).SetFontQ(oFont, _SMALL_).Color("OnInfo")
 		_o_.Flush()
-		_o_.AddTextQ(_r_[2], 102, _y_ + 2).SetFontQ(oFont, 12).Color("#DCE4F5")
-		_y_ += 25
+		_o_.AddTextQ(_r_[2], 138, _y_ + 2).SetFontQ(oFont, _BODY_).Color("#E4EAF7")
+		_y_ += 34
 	next
 
-	# the live state, bottom-left
+	# the live state
 	_o_.Flush()
-	_o_.FillQ("#0B1020D8").AddRoundRect(20, nH - 76, 470, 56, 12)
+	_o_.FillQ("#0B1020E8").AddRoundRect(24, nH - 92, 620, 68, 14)
 	_o_.Flush()
-	_o_.AddTextQ("material  " + cMat + "      theme  " + cTheme +
-		"      amt  " + nAmt + "      " + nFps + " fps",
-		40, nH - 46).SetFontQ(oFont, 13).Color(:White)
+	_o_.AddTextQ("surface  " + cMat + "        theme  " + cTheme +
+		"        light  " + nAmt + "        " + nFps + " fps",
+		48, nH - 56).SetFontQ(oFont, _BODY_).Color(:White)
 	_o_.Flush()
-	_o_.AddTextQ("one material, thirteen meanings -- the body colour is @color",
-		40, nH - 28).SetFontQ(oFont, 11).Color("#9FB0D8")
+	_o_.AddTextQ("one material, thirteen colours -- each body carries its own meaning",
+		48, nH - 34).SetFontQ(oFont, _SMALL_).Color("#9FB0D8")
+
+	if nPanel = 0 or NOT isObject(oGraph)  return _o_  ok
+
+	# ---- the answer panel, on the RIGHT --------------------------------
+	_px_ = nW - 560
+	_o_.Flush()
+	_o_.FillQ("#0B1020E8").AddRoundRect(_px_, 24, 536, 300, 14)
+
+	_aLines_ = []
+	if nPanel = 1
+		_aLines_ + [ "WHAT THE MATERIAL KNOWS ABOUT ITSELF", 1 ]
+		_aLines_ + [ "asked while it is drawing, not at build time", 2 ]
+		_aLines_ + [ "", 0 ]
+		_aLines_ + [ "it has " + oGraph.NodeCount() + " nodes, and works them out in", 0 ]
+		_aLines_ + [ "this order:  " + _Join(oGraph.Order()), 3 ]
+		_aLines_ + [ "", 0 ]
+		_aFirst_ = oGraph.Order()[1]
+		_aLines_ + [ "change '" + _aFirst_ + "' and it changes:", 0 ]
+		_aLines_ + [ "   " + _Join(oGraph.Affects(_aFirst_)), 3 ]
+		_aLines_ + [ "", 0 ]
+		_aLines_ + [ "steps saved by reusing a node: " + oGraph.ReuseSaved(), 0 ]
+		_aLines_ + [ "problems found: " + len(oGraph.Findings()), 0 ]
+	else
+		_aLines_ + [ "THE MATERIAL'S OWN CODE", 1 ]
+		_aLines_ + [ "the graph wrote this; nobody typed it", 2 ]
+		_aLines_ + [ "", 0 ]
+		for _seg_ in _Wrap(oGraph.ToW(), 58)
+			_aLines_ + [ _seg_, 3 ]
+		next
+	ok
+
+	_ly_ = 66
+	for _l_ in _aLines_
+		if _l_[1] != ""
+			_sz_ = _BODY_
+			_col_ = "#E4EAF7"
+			if _l_[2] = 1  _sz_ = 21  _col_ = "#FFFFFF"  ok
+			if _l_[2] = 2  _sz_ = _SMALL_  _col_ = "#9FB0D8"  ok
+			if _l_[2] = 3  _col_ = "#8FE3C0"  ok
+			_o_.Flush()
+			_o_.AddTextQ(_l_[1], _px_ + 24, _ly_).SetFontQ(oFont, _sz_).Color(_col_)
+		ok
+		_ly_ += 24
+	next
 	return _o_
+
+# A list of ids as plain prose, not @@() -- a reader should not have to
+# parse Ring's list notation off a moving screen.
+func _Join aList
+	_c_ = ""
+	for _x_ in aList
+		if _c_ != ""  _c_ += ", "  ok
+		_c_ += "" + _x_
+	next
+	if _c_ = ""  _c_ = "(nothing)"  ok
+	return _c_
+
+# Break a long line on spaces so the emitted code fits the panel.
+func _Wrap cText, nWidth
+	_a_ = []
+	_cur_ = ""
+	for _w_ in StzSplit(cText, " ")
+		if len(_cur_) + len(_w_) + 1 > nWidth
+			_a_ + _cur_
+			_cur_ = _w_
+		else
+			if _cur_ = ""
+				_cur_ = _w_
+			else
+				_cur_ += " " + _w_
+			ok
+		ok
+	next
+	if _cur_ != ""  _a_ + _cur_  ok
+	return _a_
