@@ -14,10 +14,10 @@ StzLocaleQ([ :Language = :Persian ]) {
 	? NativeNthDayOfWeek(1) + NL		 		#--> شنبه
 
 	? NthDayOfWeekAbbreviation(1)		 		#--> Sat
-	? NativeNthDayOfWeekAbbreviation(1) + NL 	#--> دوشنبه
+	? NativeNthDayOfWeekAbbreviation(1) + NL 	#--> شنب
 
 	? NthDayOfWeekSymbol(1)			 			#--> S
-	? NativeNthDayOfWeekSymbol(1)		 		#--> د
+	? NativeNthDayOfWeekSymbol(1)		 		#--> ش
 }
 
 pf()

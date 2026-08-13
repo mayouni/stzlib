@@ -14,10 +14,10 @@ StzLocaleQ([ :Script = :Arabic ]) {
 	? NativeNthDayOfWeek(1) + NL		 		#--> السبت
 
 	? NthDayOfWeekAbbreviation(1)		 		#--> Sat
-	? NativeNthDayOfWeekAbbreviation(1) + NL 	#--> الاثنين
+	? NativeNthDayOfWeekAbbreviation(1) + NL 	#--> الس
 
 	? NthDayOfWeekSymbol(1)			 			#--> S
-	? NativeNthDayOfWeekSymbol(1)		 		#--> ن
+	? NativeNthDayOfWeekSymbol(1)		 		#--> ا
 }
 
 pf()
