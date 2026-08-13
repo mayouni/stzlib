@@ -136,9 +136,23 @@ oL = new stzGraph("lbl")
 oL.AddNode("x")
 chk("a bare node answers with its id", oL.NodeLabel("x") = "x")
 oL.SetNodeLabel("x", "The X")
-chk("SetNodeLabel says it afterwards", oL.NodeLabel("x") = "The_X")
-chk("... normalised like every other label (no spaces)",
-	StzFindFirst(" ", oL.NodeLabel("x")) = 0)
+chk("SetNodeLabel says it afterwards", oL.NodeLabel("x") = "The X")
+
+# A LABEL KEEPS ITS SPACES. It is DISPLAY text, not an id.
+#
+# This line used to demand the opposite, and I made _NormalizeLabel obey it --
+# wrongly. The no-spaces rule belongs to _IsWellFormedId, which governs node
+# IDS; applying it to labels made a rendered diagram read VP_Sales. That was
+# caught by drawing a 40-node diagram and READING it, not by any assertion:
+# test 32's expected output had been transcribed FROM the buggy render, and
+# ExplainPath quietly put the spaces back, so the suite confirmed itself.
+#
+# What a label normalises is NEWLINES, which would break the render. Nothing
+# else.
+chk("... and keeps its spaces, being display text", oL.NodeLabel("x") = "The X")
+
+oL.SetNodeLabel("x", "Two" + char(10) + "Lines")
+chk("... while a NEWLINE is normalised away", StzFindFirst(char(10), oL.NodeLabel("x")) = 0)
 
 bNoNode = 0
 try
@@ -214,17 +228,30 @@ chk("a node added to the original stays out of the clone", NOT oClone.NodeExists
 ? "-- Scene 7: one label rule, whichever spelling you call --"
 
 # _NormalizeLabel and _NormaliseLabel were written as alternative FORMS of
-# each other and were not: one replaced newlines, the other spaces, and every
-# call site used the first. Half the rule was dead code. The alias delegates
-# now -- two spellings of one rule are two places for it to drift.
+# each other and were not: one replaced newlines, the other SPACES, and every
+# call site used the first. Half the rule was dead code.
+#
+# The dead half was also the WRONG half. Making the alias delegate looked like
+# the tidy fix and resurrected a rule labels must not have -- see Scene 4. The
+# alias delegates now, and what it delegates to leaves spaces alone.
+#
+# Both doors must agree: a label given at birth and one said afterwards are
+# the same label, whichever spelling of the normaliser is called.
 
 oN = new stzGraph("nrm")
 oN.AddNodeXT("n1", "Chief Risk Officer")
-chk("a label given at birth loses its spaces", oN.NodeLabel("n1") = "Chief_Risk_Officer")
+chk("a label given at birth keeps its spaces", oN.NodeLabel("n1") = "Chief Risk Officer")
 oN.AddNode("n2")
 oN.SetNodeLabel("n2", "Head Of Audit")
-chk("... and so does one said afterwards", oN.NodeLabel("n2") = "Head_Of_Audit")
+chk("... and so does one said afterwards", oN.NodeLabel("n2") = "Head Of Audit")
 chk("a label with nothing to normalise is untouched", _NormalizeLabelProbe(oN, "n3", "Treasurer") = "Treasurer")
+
+# ...and the two doors agree on the NEWLINE too, which is the one thing a
+# label really cannot carry.
+oN.AddNodeXT("n4", "Two" + char(10) + "Lines")
+chk("a newline is normalised at birth", StzFindFirst(char(10), oN.NodeLabel("n4")) = 0)
+chk("... and both doors give the same answer",
+	oN.NodeLabel("n4") = _NormalizeLabelProbe(oN, "n5", "Two" + char(10) + "Lines"))
 
 ? ""
 ? "=========================================="

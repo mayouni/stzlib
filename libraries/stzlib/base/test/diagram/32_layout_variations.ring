@@ -33,9 +33,9 @@ digraph "layouttest" {
     node [fontname="helvetica", fontsize=12]
     edge [fontname="helvetica", fontsize=12, color="#000000", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
 
-    n1 [label="Node_1", shape=ellipse, style="solid,filled", fillcolor="#7F7F7F", fontcolor="white"]
-    n2 [label="Node_2", shape=box, style="rounded,solid,filled", fillcolor="#646464", fontcolor="white"]
-    n3 [label="Node_3", shape=doublecircle, style="solid,filled", fillcolor="#D0D0D0", fontcolor="black"]
+    n1 [label="Node 1", shape=ellipse, style="solid,filled", fillcolor="#7F7F7F", fontcolor="white"]
+    n2 [label="Node 2", shape=box, style="rounded,solid,filled", fillcolor="#646464", fontcolor="white"]
+    n3 [label="Node 3", shape=doublecircle, style="solid,filled", fillcolor="#D0D0D0", fontcolor="black"]
 
     n1 -> n2
     n2 -> n3

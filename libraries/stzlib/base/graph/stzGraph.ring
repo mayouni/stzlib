@@ -6419,8 +6419,17 @@ class stzGraph from stzObject
 	#
 	# The NEWLINE substitution stays: an unescaped newline inside a quoted
 	# dot label breaks the statement it sits in.
-	# A label carries NEITHER spaces NOR newlines -- the rule SetNodeLabel
-	# states in its own comment, and the one _IsWellFormedId enforces for ids.
+	#
+	# THE COMMENT ABOVE WAS WRITTEN AND THE LINE WAS NOT REMOVED. For a while
+	# this block described the fix while `StzReplace(_cNl_, " ", "_")` sat two
+	# lines below it, so the prose said "VP Sales" and the render still said
+	# "VP_Sales". It was found by drawing a 40-node diagram and READING it --
+	# no guard could have caught it, because test 32's own expected output had
+	# been transcribed FROM the buggy render (it feeds "Node 1" and recorded
+	# `Node_1`), and the narration path in ExplainPath quietly replaced the
+	# underscores back with spaces, hiding the damage exactly where a human
+	# would have read it. A bug with a downstream compensation and a
+	# self-confirming expectation is invisible to the whole suite.
 	#
 	# These two were written as alternative FORMS of each other and were not:
 	# the US spelling replaced only newlines, the UK spelling only spaces, and
@@ -6433,8 +6442,7 @@ class stzGraph from stzObject
 	# like when it lands.
 	def _NormalizeLabel(pcLabel)
 		_cNl_ = StzReplace("" + pcLabel, char(10), "_")
-		_cNl_ = StzReplace(_cNl_, char(13), "_")
-		return StzReplace(_cNl_, " ", "_")
+		return StzReplace(_cNl_, char(13), "_")
 
 		def  _NormaliseLabel(pcLabel)
 			return This._NormalizeLabel(pcLabel)

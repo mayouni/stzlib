@@ -25,10 +25,10 @@ digraph "dotshapestest" {
     node [fontname="helvetica", fontsize=12]
     edge [fontname="helvetica", fontsize=12, color="#000000", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
 
-    s [label="Node_S", shape=ellipse, style="solid,filled", fillcolor="#008000", fontcolor="white"]
-    d [label="Node_D", shape=diamond, style="solid,filled", fillcolor="#FFA500", fontcolor="black"]
-    p [label="Node_P", shape=box, style="rounded,solid,filled", fillcolor="#0000FF", fontcolor="white"]
-    e [label="Node_E", shape=doublecircle, style="solid,filled", fillcolor="#008000", fontcolor="white"]
+    s [label="Node S", shape=ellipse, style="solid,filled", fillcolor="#008000", fontcolor="white"]
+    d [label="Node D", shape=diamond, style="solid,filled", fillcolor="#FFA500", fontcolor="black"]
+    p [label="Node P", shape=box, style="rounded,solid,filled", fillcolor="#0000FF", fontcolor="white"]
+    e [label="Node E", shape=doublecircle, style="solid,filled", fillcolor="#008000", fontcolor="white"]
 
     s -> d [style=invis]
     d -> p [style=invis]
