@@ -105,6 +105,21 @@ def variants(expected):
             add('1')
         elif up == 'FALSE':
             add('0')
+
+        # A SYMBOL IS WRITTEN :Number AND PRINTS number.
+        #
+        # The colon is Ring source syntax, and the value comes out bare and
+        # LOWERCASED. 41 promises are a bare :Symbol and another 29 are lists
+        # of them; read literally, all of them diverge -- one file alone,
+        # global/50_inferetype, accounted for 17. Both spellings are added,
+        # rather than lowercasing everything, so case still matters wherever
+        # the promise was not written as a symbol.
+        if re.match(r'^:[A-Za-z][A-Za-z0-9_]*$', base):
+            add(base[1:])
+            add(base[1:].lower())
+        if base.startswith('[') and ':' in base:
+            add(re.sub(r'(?<![A-Za-z0-9_]):([A-Za-z][A-Za-z0-9_]*)',
+                       lambda m: m.group(1).lower(), base))
     return seen
 
 
@@ -283,6 +298,15 @@ for fn in files:
         else:
             missing += 1
             misses.append((fn, lineno, raw))
+            # ONE DIVERGENCE MUST NOT SWALLOW THE NEXT PROMISE'S LINE.
+            #
+            # Without this the walk stays put, so the FOLLOWING promise can
+            # match the output the failed one should have taken and be
+            # recorded as kept. Planted proof: two consecutive wrong symbol
+            # promises, and only the first was caught. Consuming one line is
+            # the minimum a `?` can have printed.
+            if pos < len(nout):
+                pos += 1
 
 print("=" * 68)
 print("PROMISES RUN -- topic '%s'" % TOPIC)
