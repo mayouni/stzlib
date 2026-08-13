@@ -178,6 +178,47 @@ class stzCanvas from stzObject
 		This.AddEllipse(pnCX, pnCY, pnRX, pnRY)
 		return This
 
+	# A FIELD OF SAMPLES, drawn in ONE operation.
+	#
+	# Owed to the sound plane since SN5, with the cost measured there: a
+	# spectrogram had to be drawn as one rectangle per cell -- 1,574 rects,
+	# 88 ms and ~104 KB of SVG for a single 760x260 picture -- because the
+	# canvas had no way to say "here is a field of values, draw it".
+	#
+	# paRgba is iw*ih*4 bytes, row-major, and it is COPIED: a stored slice
+	# of the caller's buffer is a use-after-free the moment they free it.
+	# The engine uploads it once and keeps the texture, so a still image
+	# redrawn every frame does not re-upload.
+	#
+	# Both tiers carry it: the GPU draws a textured quad, and ToSVG() embeds
+	# a base64 PNG -- so a picture with a spectrogram in it is still one
+	# self-contained file that needs no device.
+	def AddImage(pnX, pnY, pnW, pnH, pnImgW, pnImgH, pcRgba)
+		This._Flush()
+		_n_ = StzEngineGpuSceneImage(@nId, pnX, pnY, pnW, pnH,
+			pnImgW, pnImgH, pcRgba, StzColorToNumber(:White))
+		if _n_ != 0
+			StzRaise("stzCanvas.AddImage: refused -- the box needs area, " +
+				"and the pixel buffer must hold " + pnImgW + "x" + pnImgH +
+				"x4 = " + (pnImgW * pnImgH * 4) + " bytes (got " +
+				len(pcRgba) + ").")
+		ok
+
+	def AddImageQ(pnX, pnY, pnW, pnH, pnImgW, pnImgH, pcRgba)
+		This.AddImage(pnX, pnY, pnW, pnH, pnImgW, pnImgH, pcRgba)
+		return This
+
+	# The same, TINTED: every sample multiplied by a colour expression. A
+	# white tint leaves the image untouched.
+	def AddImageXT(pnX, pnY, pnW, pnH, pnImgW, pnImgH, pcRgba, pTint)
+		This._Flush()
+		_n_ = StzEngineGpuSceneImage(@nId, pnX, pnY, pnW, pnH,
+			pnImgW, pnImgH, pcRgba, StzColorToNumber(pTint))
+		if _n_ != 0
+			StzRaise("stzCanvas.AddImageXT: refused -- check the box has " +
+				"area and the buffer is " + pnImgW + "x" + pnImgH + "x4.")
+		ok
+
 	def AddLine(pnX1, pnY1, pnX2, pnY2)
 		This._Flush()
 		@aPending = [ :line, pnX1, pnY1, pnX2, pnY2, @nFill, @nStroke, @nStrokeW, @bFillNamed ]
