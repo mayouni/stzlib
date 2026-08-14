@@ -202,8 +202,26 @@ oSL.ToCanvasXT([ :Font = oF, :NodeWidth = 110, :NodeHeight = 40 ]).
 	ToPNG("probe_11_selfloops.png")
 ? "11 self-loops  : drawn as loops, and no longer fatal"
 
+# ---------------------------------------------------------------- 12
+# EDGE LABELS. They were in the model and reached the dot writer; this
+# tier never drew them, so an edge that said "fails check" in the data
+# was an anonymous arrow on the page.
+oEL = new stzDiagram("flow")
+for i = 1 to 6
+	oEL.AddNodeXTT("s" + i, "Stage " + i, [ :type = "box", :color = "Info.Solid" ])
+next
+for i = 1 to 5  oEL.AddEdgeXT("s" + i, "s" + (i+1), "step " + i)  next
+oEL.AddEdgeXT("s1", "s6", "escalates")     # long: labelled where it RUNS
+oEL.AddEdgeXT("s2", "s2", "retry")         # a labelled self-loop
+aELo = [ :Font = oF, :NodeWidth = 100, :NodeHeight = 36 ]
+oEL.ToCanvasXT(aELo).ToPNG("probe_12_edgelabels.png")
+? "12 edge labels : on plates, at the midpoint"
+oEL.SetLayout(:LeftToRight)
+oEL.ToCanvasXT(aELo).ToPNG("probe_12_edgelabels_lr.png")
+? "12b LR         : and SetLayout(:LeftToRight) now means it"
+
 ? ""
-? "wrote 11 probes"
+? "wrote 12 probes"
 
 #---------------------------------------------------------------------------
 
