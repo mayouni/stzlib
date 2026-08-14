@@ -553,8 +553,22 @@ class stzGraphCanvas from stzObject
 			# order the sweep produced -- not on the coordinates afterwards,
 			# where moving a node would break the separation the placement
 			# has just guaranteed.
-			_clOf_ = This._ClusterOf(_n_)
-			_order_ = This._ClusterCompact(_order_, _starts_, _max_, _clOf_)
+			# INNERMOST FIRST, and the direction is the whole trick for
+			# nesting. Compacting by the outer key preserves each group's
+			# INTERNAL order, so an inner block made contiguous first stays
+			# contiguous when the outer pass gathers its members. Going the
+			# other way, the outer pass would be undone by the inner one.
+			_cmd_ = This._ClusterMaxDepth()
+			if _cmd_ = 0
+				_clOf_ = This._ClusterOf(_n_, 0)
+				_order_ = This._ClusterCompact(_order_, _starts_, _max_, _clOf_)
+			else
+				for _dpt_ = _cmd_ to 1 step -1
+					_clOf_ = This._ClusterOf(_n_, _dpt_)
+					_order_ = This._ClusterCompact(_order_, _starts_, _max_,
+						_clOf_)
+				next
+			ok
 
 			_outc_ = _StzCsr(_eu_, _ev_, _n_)         # successors of u
 			_aXe_ = StzEngineGraphLayoutCoords(_csr_[1], _csr_[2],
@@ -588,7 +602,8 @@ class stzGraphCanvas from stzObject
 			#
 			# Applied AFTER placement and only ever as a rightward shift, so
 			# the order and the minimum separation both survive it.
-			_clOf2_ = This._ClusterOf(_n_)
+			_cmd2_ = This._ClusterMaxDepth()
+			_clOf2_ = This._ClusterOf(_n_, 0)
 			_bAnyC_ = 0
 			for _v_ in _clOf2_
 				if _v_ > 0  _bAnyC_ = 1  exit  ok
@@ -606,11 +621,18 @@ class stzGraphCanvas from stzObject
 				# placement: the members' span can only shrink, so every
 				# neighbour outside the cluster gains room and none loses
 				# it. The order is untouched.
+				# INNERMOST DEPTH FIRST, for the same reason compaction
+				# runs that way: pulling an outer cluster together moves
+				# whole inner blocks and leaves them tight, while the
+				# reverse would spread the inner ones back out.
+				for _dp2_ = max([ _cmd2_, 1 ]) to 1 step -1
+				_clOfD_ = _clOf2_
+				if _cmd2_ > 0  _clOfD_ = This._ClusterOf(_n_, _dp2_)  ok
 				for _L_ = 1 to _max_ + 1
 					_seen_ = []
 					for _k_ = _starts_[_L_] + 1 to _starts_[_L_ + 1]
 						_id_ = _order_[_k_] + 1
-						_key_ = _clOf2_[_id_]
+						_key_ = _clOfD_[_id_]
 						if _key_ = 0  loop  ok
 						_dup_ = 0
 						for _sk_ in _seen_
@@ -621,7 +643,7 @@ class stzGraphCanvas from stzObject
 						_mem_ = []
 						for _k2_ = _starts_[_L_] + 1 to _starts_[_L_ + 1]
 							_i2_ = _order_[_k2_] + 1
-							if _clOf2_[_i2_] = _key_  _mem_ + _i2_  ok
+							if _clOfD_[_i2_] = _key_  _mem_ + _i2_  ok
 						next
 						_mn_ = len(_mem_)
 						if _mn_ < 2  loop  ok
@@ -634,18 +656,36 @@ class stzGraphCanvas from stzObject
 						next
 					next
 				next
+				next
 
+				# AIR AT EVERY BOUNDARY CROSSED, one helping per level.
+				# Two nodes in different OUTER clusters are also in
+				# different inner ones, so they get two helpings and the
+				# outer boxes separate more than the inner ones do -- which
+				# is exactly what nesting has to look like, and it falls
+				# out of counting rather than being a second rule.
 				for _L_ = 1 to _max_ + 1
 					_sh_ = 0
-					_prev_ = -1
+					_prevD_ = []
 					for _k_ = _starts_[_L_] + 1 to _starts_[_L_ + 1]
 						_id_ = _order_[_k_] + 1
-						_key_ = _clOf2_[_id_]
-						if _prev_ != -1 and _key_ != _prev_
-							_sh_ += 0.55
+						_curD_ = []
+						for _dp3_ = 1 to max([ _cmd2_, 1 ])
+							if _cmd2_ = 0
+								_curD_ + _clOf2_[_id_]
+							else
+								_curD_ + This._ClusterOf(_n_, _dp3_)[_id_]
+							ok
+						next
+						if len(_prevD_) > 0
+							for _dp4_ = 1 to len(_curD_)
+								if _curD_[_dp4_] != _prevD_[_dp4_]
+									_sh_ += 0.55
+								ok
+							next
 						ok
 						@aX[_id_] += _sh_
-						_prev_ = _key_
+						_prevD_ = _curD_
 					next
 				next
 			ok
@@ -736,7 +776,14 @@ class stzGraphCanvas from stzObject
 	# in a cluster -- a long edge crossing a cluster's ranks must be free to
 	# route around it, and pinning it inside would be the opposite of what
 	# the constraint is for.
-	def _ClusterOf(nCount)
+	# clusterKey per node index for the clusters at ONE nesting depth, 0 for
+	# "in no cluster at that depth". Pass 0 for "any depth", which is what a
+	# flat cluster list means.
+	#
+	# Depth is what makes nesting expressible at all: a node inside
+	# Data-inside-Backend has one key at depth 1 (Backend) and another at
+	# depth 2 (Data), and the two constraints are applied separately.
+	def _ClusterOf(nCount, nDepth)
 		_co_ = []
 		for _i_ = 1 to nCount  _co_ + 0  next
 		_cls_ = This._Opt(:Clusters, [])
@@ -745,12 +792,30 @@ class stzGraphCanvas from stzObject
 		for _cl_ in _cls_
 			if NOT (isList(_cl_) and len(_cl_) >= 2)  loop  ok
 			_k_++
+			if nDepth > 0
+				_d_ = 1
+				if len(_cl_) >= 3 and isNumber(_cl_[3])  _d_ = _cl_[3]  ok
+				if _d_ != nDepth  loop  ok
+			ok
 			for _id_ in _cl_[2]
 				_ix_ = This._IndexOf("" + _id_)
 				if _ix_ >= 1 and _ix_ <= nCount  _co_[_ix_] = _k_  ok
 			next
 		next
 		return _co_
+
+	# The deepest nesting level any cluster declares.
+	def _ClusterMaxDepth()
+		_m_ = 0
+		_cls_ = This._Opt(:Clusters, [])
+		if NOT isList(_cls_)  return 0  ok
+		for _cl_ in _cls_
+			if NOT (isList(_cl_) and len(_cl_) >= 2)  loop  ok
+			_d_ = 1
+			if len(_cl_) >= 3 and isNumber(_cl_[3])  _d_ = _cl_[3]  ok
+			if _d_ > _m_  _m_ = _d_  ok
+		next
+		return _m_
 
 	# Reorder each layer so a cluster's members sit TOGETHER, keeping the
 	# sweep's sense of left-to-right.

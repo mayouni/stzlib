@@ -240,8 +240,29 @@ oOr.SetLayout(:LeftToRight)
 oOr.ToCanvasXT(aOro).ToPNG("probe_13_ortho_loops_lr.png")
 ? "13b LR         : the loop moves to the top edge"
 
+# ---------------------------------------------------------------- 14
+# NESTED clusters. The nesting is INFERRED: Data's nodes are a subset of
+# Backend's, so Data is inside Backend. No parent link to declare, and
+# nothing that can disagree with the node sets.
+oNC = new stzDiagram("svc2")
+for a in [ [ "lb", "Balancer" ], [ "web1", "Web A" ], [ "web2", "Web B" ],
+           [ "api1", "API A" ], [ "api2", "API B" ],
+           [ "db1", "DB A" ], [ "db2", "DB B" ], [ "log", "Logger" ] ]
+	oNC.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
+next
+oNC.AddEdge("lb", "web1")    oNC.AddEdge("lb", "web2")
+oNC.AddEdge("web1", "api1")  oNC.AddEdge("web2", "api2")
+oNC.AddEdge("api1", "db1")   oNC.AddEdge("api2", "db2")
+oNC.AddEdge("web1", "log")   oNC.AddEdge("api2", "log")
+oNC.AddClusterXTT("backend", "Backend",
+	[ "api1", "api2", "db1", "db2" ], "#5E35B1")
+oNC.AddClusterXTT("data", "Data", [ "db1", "db2" ], "#2E7D32")
+oNC.ToCanvasXT([ :Font = oF, :NodeWidth = 100, :NodeHeight = 34 ]).
+	ToPNG("probe_14_nested_clusters.png")
+? "14 nested      : Data inside Backend, Logger outside both"
+
 ? ""
-? "wrote 13 probes"
+? "wrote 14 probes"
 
 #---------------------------------------------------------------------------
 
