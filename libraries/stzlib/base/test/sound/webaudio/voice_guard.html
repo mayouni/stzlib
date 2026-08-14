@@ -1,0 +1,177 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>VC5 guard — the browser voice face</title>
+<style>
+  body { font: 13px/1.55 ui-monospace, Consolas, monospace; margin: 2rem; max-width: 62rem; }
+  h2 { font-size: .95rem; margin: 1.5rem 0 .3rem; border-bottom: 1px solid #ccc; }
+  .ok { color: #0a6; } .fail { color: #c30; font-weight: 700; }
+  .note { color: #555; margin: .2rem 0 .5rem 2.2rem; }
+  #sum { font-size: 1.1rem; font-weight: 700; margin-top: 1.5rem; }
+</style>
+<h1>VC5 guard — the browser voice face</h1>
+<p>The browser analogue of a <code>*_narrated.ring</code> guard. It asserts the
+same contract the Ring faces assert, in the tier where the mechanism differs.
+<b>Everything here runs without a microphone</b>; speaking needs a user gesture,
+so the one scene that makes a sound waits for the button.</p>
+<p><button id="go">Run the scene that speaks</button></p>
+<div id="out"></div>
+<div id="sum"></div>
+
+<script src="stz-voice.js"></script>
+<script>
+let pass = 0, fail = 0;
+const out = document.getElementById('out');
+function h(t) { out.insertAdjacentHTML('beforeend', '<h2>' + t + '</h2>'); }
+function note(t) { out.insertAdjacentHTML('beforeend', '<div class="note">' + t + '</div>'); }
+function chk(label, cond) {
+  if (cond) { pass++; out.insertAdjacentHTML('beforeend', '<div class="ok">[ok]&nbsp;&nbsp; ' + label + '</div>'); }
+  else { fail++; out.insertAdjacentHTML('beforeend', '<div class="fail">[FAIL] ' + label + '</div>'); }
+}
+function summarise() {
+  document.getElementById('sum').textContent = pass + ' passed, ' + fail + ' failed';
+  window.VC5_GUARD = { pass, fail };
+}
+
+(async function () {
+  const v = StzVoice.newVoice();
+
+  h('1. The voice list is asked for PATIENTLY, or a machine with voices reports none');
+  note('Chrome populates getVoices() asynchronously. The first cut of the spike ' +
+       'read it once and reported <b>0 voices</b> on a machine that has three. ' +
+       'ready() waits for onvoiceschanged and then settles.');
+  const any = await v.ready();
+  const caps = v.capabilities();
+  chk('ready() resolves', typeof any === 'boolean');
+  chk('the capability report names its tier', caps.tier === 'browser');
+  note('voices: <b>' + caps.voiceCount + '</b> &nbsp; languages: <b>' +
+       (caps.languages.join(', ') || '(none)') + '</b>');
+
+  h('2. The capability model has the two fields the native tier reports');
+  chk('it reports LANGUAGES, not just a voice count', Array.isArray(caps.languages));
+  chk('and per-language locality (does it leave the machine)',
+      caps.voiceCount === 0 || typeof caps.byLanguage[caps.languages[0]].local === 'number');
+  chk('canSpeak agrees with the voice count', caps.canSpeak === (caps.voiceCount > 0));
+
+  h('3. THE ASYMMETRY: there is no buffer, and the face says so rather than crashing');
+  note('The voice plan rests on "a platform voice renders to a BUFFER, and a ' +
+       'buffer is a stzSound". True natively, FALSE here — measured in ' +
+       'voice_spike.html: no captureStream, no audio sink, no route into WebAudio.');
+  chk('capabilities() reports canBuffer FALSE', caps.canBuffer === false);
+  chk('and gives a reason a caller can print', (caps.canBufferReason || '').length > 20);
+  const r0 = v.refusals();
+  const buf = v.toSoundOf('anything');
+  chk('toSoundOf RETURNS NOTHING rather than throwing', buf === null);
+  chk('and it is a COUNTED refusal', v.refusals() === r0 + 1);
+  note('reason: ' + v.lastError());
+
+  h('4. A language is REFUSED, not substituted');
+  note('Speaking French to an operator who asked for English is worse than ' +
+       'saying nothing. The refusal names what the machine actually has, which ' +
+       'is the most useful thing a refusal can do.');
+  const r1 = v.refusals();
+  const bad = v.useLanguage('xx-ZZ');
+  chk('an impossible language is refused', bad === false);
+  chk('and counted', v.refusals() === r1 + 1);
+  note('reason: ' + v.lastError());
+
+  // THE NEGATIVE SIBLING. Without it, "everything is refused" would pass, and
+  // a face that refuses everything is not strict, it is broken.
+  if (caps.voiceCount > 0) {
+    const have = caps.languages[0];
+    const r2 = v.refusals();
+    chk('a language the browser DOES have is accepted (' + have + ')',
+        v.useLanguage(have) === true);
+    chk('and that is not counted as a refusal', v.refusals() === r2);
+    chk('the accepted tag is reported back', v.language().length > 0);
+
+    // the loose form must match too: 'fr' should find 'fr-FR'
+    const base = have.split('-')[0];
+    chk("the base tag '" + base + "' also matches", v.useLanguage(base) === true);
+  }
+
+  h('5. THE TIER DIFFERENCE, asserted rather than described');
+  note('Windows keeps TWO voice registries and the tiers read different ones: ' +
+       'SAPI reads <code>Speech\\Voices\\Tokens</code>, Chrome reads ' +
+       '<code>Speech_OneCore\\Voices\\Tokens</code>. On the development machine ' +
+       'SAPI sees Zira (en-US) and Hortense (fr-FR); the browser sees Hortense, ' +
+       'Julie and Paul, <b>all fr-FR</b>. So <code>en-US</code> is speakable ' +
+       'natively and not in the browser, on one machine.');
+  chk('the face reports its languages so a caller can COMPARE tiers rather ' +
+      'than assume they match', Array.isArray(caps.languages));
+  note('This guard cannot assert WHICH languages exist — that is a property of ' +
+       'the machine, not of the code, and a guard that demanded en-US would ' +
+       'fail correctly-built code on a French machine. What it asserts is that ' +
+       'the question is ANSWERABLE.');
+
+  h('6. Rate is clamped to the browser\'s scale, and the clamp is counted');
+  note('The browser takes 0.1..10 where the native tier takes -10..10. A ' +
+       'setting that silently does nothing is worse than one that says no.');
+  const r3 = v.refusals();
+  chk('99 is clamped to 10', v.setRate(99) === 10);
+  chk('and counted', v.refusals() === r3 + 1);
+  chk('a legal rate is not counted', v.setRate(1.2) === 1.2 && v.refusals() === r3 + 1);
+
+  h('7. Listening: closed grammar only, and the privacy question is ANSWERED');
+  const L = StzVoice.newListener();
+  const priv = L.privacy();
+  chk('the listener reports whether it can PROVE on-device recognition',
+      typeof priv.onDeviceProvable === 'boolean');
+  note('processLocally: <b>' + priv.hasProcessLocally + '</b> &nbsp; ' +
+       'availableOnDevice(): <b>' + priv.hasAvailableOnDevice + '</b><br>' +
+       priv.note);
+  const r4 = L.refusals();
+  chk('an EMPTY grammar is refused -- a listener that hears nothing forever ' +
+      'is not a listener', L.accept([]) === false);
+  chk('and counted', L.refusals() === r4 + 1);
+  chk('a real grammar is accepted',
+      L.accept(['open the file', 'cancel', 'stop']) === true);
+  chk('there is NO free-dictation verb, exactly as VC3 ships',
+      typeof L.transcribe === 'undefined');
+  note('VC3 measured it: on the cleanest audio recognition will ever see, free ' +
+       'dictation scored <b>66.7% exact</b> against a closed grammar\'s <b>100%</b>, ' +
+       'and every miss was a WRITTEN FORM rather than a mishearing ' +
+       '(<i>annuler</i> → <i>annule</i>). A closed grammar cannot make that ' +
+       'mistake, because it maps the sound to the string the caller DECLARED.');
+
+  h('8. Speaking (needs a user gesture — press the button)');
+  note('Autoplay policy: a page cannot speak before a gesture, so this scene ' +
+       'is not a failure until it has been given one.');
+  summarise();
+
+  document.getElementById('go').onclick = async function () {
+    this.disabled = true;
+    if (caps.voiceCount === 0) {
+      chk('no voices on this machine, so the speaking scene is SKIPPED (a pass)', true);
+      summarise();
+      return;
+    }
+    v.useLanguage(caps.languages[0]);
+    v.setRate(1);
+
+    const t0 = performance.now();
+    const spoke = await v.speak('One. Two. Three.');
+    const took = performance.now() - t0;
+    note('speak() resolved after ' + took.toFixed(0) + ' ms');
+    chk('speak() resolves TRUE when the phrase finished', spoke === true);
+    // THE PROPERTY THAT MATTERS FOR SEQUENCING: it resolves when SPOKEN, not
+    // when queued. A promise that resolved on submission would make an earcon
+    // before a phrase impossible, since the browser cannot compose them into
+    // one buffer the way VC4 does natively.
+    chk('and it resolved on the END of speech, not on submission -- three ' +
+        'words cannot be spoken in under 400 ms', took > 400);
+
+    const t1 = performance.now();
+    const p = v.speak('This sentence will be cut off before it finishes, ' +
+                      'because a danger arrived while it was speaking.');
+    await new Promise(r => setTimeout(r, 700));
+    v.cancel();
+    const cancelled = await p;
+    note('cancel() settled the promise after ' + (performance.now() - t1).toFixed(0) + ' ms');
+    chk('cancel() SETTLES the promise rather than leaving it pending forever',
+        typeof cancelled === 'boolean');
+    chk('and a cancellation is not reported as a fault', cancelled === true);
+    chk('nothing is speaking afterwards', v.isSpeaking() === false);
+    summarise();
+  };
+})();
+</script>

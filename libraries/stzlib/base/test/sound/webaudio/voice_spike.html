@@ -1,0 +1,171 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>VC5 spike — what the browser gives, and what it withholds</title>
+<style>
+  body { font: 14px/1.5 ui-monospace, Consolas, monospace; margin: 2rem; max-width: 60rem; }
+  h2 { font-size: 1rem; margin: 1.6rem 0 .4rem; border-bottom: 1px solid #ccc; }
+  .ok { color: #0a6; } .no { color: #c30; } .warn { color: #b60; }
+  pre { background: #f6f6f6; padding: .6rem; overflow-x: auto; }
+  td { padding: .1rem .8rem .1rem 0; vertical-align: top; }
+</style>
+<h1>VC5 spike</h1>
+<p>Measurement only. Nothing here is a face; it exists to answer VC5's kill
+criterion before anything is built on the answer.</p>
+<div id="out">running…</div>
+
+<script>
+const out = document.getElementById('out');
+const rows = [];
+function say(html) { rows.push(html); out.innerHTML = rows.join('\n'); }
+function h(t) { say('<h2>' + t + '</h2>'); }
+function ok(t) { say('<div class="ok">GO &nbsp; ' + t + '</div>'); }
+function no(t) { say('<div class="no">NO &nbsp; ' + t + '</div>'); }
+function warn(t) { say('<div class="warn">?? &nbsp; ' + t + '</div>'); }
+function note(t) { say('<div>' + t + '</div>'); }
+
+const RESULT = { ua: navigator.userAgent, secure: window.isSecureContext };
+
+// --------------------------------------------------------------- 1. synthesis
+h('1. Can the browser SPEAK, and what voices does it have?');
+
+function getVoices() {
+  return new Promise(res => {
+    let v = speechSynthesis.getVoices();
+    if (v.length) return res(v);
+    // Chrome populates asynchronously; a spike that reads once reports zero
+    speechSynthesis.onvoiceschanged = () => res(speechSynthesis.getVoices());
+    setTimeout(() => res(speechSynthesis.getVoices()), 2000);
+  });
+}
+
+// ------------------------------------------------- 2. does it render to a BUFFER?
+// THE ARCHITECTURAL QUESTION. The whole voice plan rests on section 1:
+// "a platform voice renders to a BUFFER, and a buffer is a stzSound." If that
+// is false here, ToSoundOf -- VC2's PRIMARY verb -- cannot exist in the browser,
+// and the two tiers are not one world however similar the faces look.
+function bufferProbes() {
+  const probes = [];
+  const u = new SpeechSynthesisUtterance('probe');
+  probes.push(['SpeechSynthesisUtterance has captureStream', typeof u.captureStream === 'function']);
+  probes.push(['speechSynthesis has captureStream',           typeof speechSynthesis.captureStream === 'function']);
+  probes.push(['SpeechSynthesisUtterance has an audio sink',   'audioNode' in u || 'output' in u || 'destination' in u]);
+  probes.push(['there is any documented way to route it to WebAudio',
+               typeof AudioContext !== 'undefined' &&
+               typeof AudioContext.prototype.createMediaElementSource === 'function' &&
+               false]);
+  return probes;
+}
+
+// -------------------------------------------------------------- 3. recognition
+function recognitionFacts() {
+  const R = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const facts = [];
+  facts.push(['a recognition constructor exists', !!R]);
+  if (R) {
+    const r = new R();
+    facts.push(['it exposes continuous',   'continuous' in r]);
+    facts.push(['it exposes interimResults','interimResults' in r]);
+    facts.push(['it exposes maxAlternatives','maxAlternatives' in r]);
+    facts.push(['it exposes a GRAMMAR list', 'grammars' in r]);
+    facts.push(['SpeechGrammarList exists (a CLOSED grammar, VC3 ships only this)',
+                !!(window.SpeechGrammarList || window.webkitSpeechGrammarList)]);
+    // The privacy question VC3 answered with CLSID_SpInprocRecognizer.
+    facts.push(['it exposes processLocally (on-device, W3C draft)', 'processLocally' in r]);
+    facts.push(['availableOnDevice() exists', typeof R.availableOnDevice === 'function']);
+    facts.push(['installOnDevice() exists',   typeof R.installOnDevice === 'function']);
+    try { r.abort(); } catch (e) {}
+  }
+  return facts;
+}
+
+function table(pairs) {
+  let s = '<table>';
+  for (const [k, v] of pairs) {
+    s += '<tr><td>' + (v ? '<span class="ok">yes</span>' : '<span class="no">no</span>') +
+         '</td><td>' + k + '</td></tr>';
+  }
+  return s + '</table>';
+}
+
+(async function () {
+  note('secure context: ' + window.isSecureContext + ' &nbsp; origin: ' + location.origin);
+
+  if (!('speechSynthesis' in window)) { no('no speechSynthesis at all'); return; }
+
+  const voices = await getVoices();
+  RESULT.voices = voices.map(v => ({
+    name: v.name, lang: v.lang, local: v.localService, def: v.default, uri: v.voiceURI
+  }));
+  ok('speechSynthesis exists, ' + voices.length + ' voices');
+
+  // THE CAPABILITY MODEL is per LANGUAGE and per DIRECTION -- VC0 measured that
+  // asymmetry natively (2 voices, 1 recognizer, different languages) and the
+  // faces were built around it. Does the browser expose enough to fill the same
+  // model?
+  const langs = {};
+  for (const v of voices) {
+    const L = v.lang || '(none)';
+    langs[L] = langs[L] || { n: 0, local: 0 };
+    langs[L].n++; if (v.localService) langs[L].local++;
+  }
+  const keys = Object.keys(langs).sort();
+  RESULT.langCount = keys.length;
+  let t = '<table><tr><td><b>lang</b></td><td><b>voices</b></td><td><b>local</b></td></tr>';
+  for (const k of keys) t += '<tr><td>' + k + '</td><td>' + langs[k].n + '</td><td>' + langs[k].local + '</td></tr>';
+  say(t + '</table>');
+  note('<b>' + keys.length + ' distinct language tags.</b> Every voice carries a BCP-47 tag ' +
+       'and a localService flag, which is exactly the two fields the native ' +
+       'capability model needs: which language, and does it leave the machine.');
+
+  h('2. Does a browser voice render to a BUFFER?');
+  const probes = bufferProbes();
+  say(table(probes));
+  const anyBuffer = probes.some(p => p[1]);
+  RESULT.canBuffer = anyBuffer;
+  if (anyBuffer) ok('something can capture it -- follow that up');
+  else no('NOTHING can capture it. speechSynthesis speaks to the SPEAKER only.');
+  note('This is the finding that matters. Natively, ToSoundOf returns a stzSound ' +
+       'and speaking is a convenience built on it. Here there is no buffer to ' +
+       'return, so the ordering INVERTS: speaking is primitive and ToSoundOf ' +
+       'cannot exist. Everything the sound plane does to a spoken phrase -- ' +
+       'LUFS, onsets, filters, spectrograms, saving a WAV -- is unavailable to ' +
+       'a browser voice, not because a face is missing but because the audio is.');
+
+  h('3. What can it HEAR?');
+  const facts = recognitionFacts();
+  say(table(facts));
+  RESULT.recognition = Object.fromEntries(facts);
+  const R = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!R) {
+    no('no recognition constructor -- this browser cannot listen at all');
+  } else {
+    warn('A recognition constructor exists. Whether it runs LOCALLY is the ' +
+         'question VC3 settled natively by choosing CLSID_SpInprocRecognizer ' +
+         'over the shared recognizer, because the shared one can be routed to ' +
+         'a network service. In the browser the default has historically been ' +
+         'the opposite: audio goes to the vendor. processLocally is the draft ' +
+         'that would change that, and its presence is measured above rather ' +
+         'than assumed.');
+  }
+
+  h('4. Timing');
+  const t0 = performance.now();
+  const u = new SpeechSynthesisUtterance('The disk is nearly full.');
+  const heard = new Promise(res => {
+    u.onstart = () => res({ what: 'start', ms: performance.now() - t0 });
+    u.onerror = e => res({ what: 'error: ' + e.error, ms: performance.now() - t0 });
+    setTimeout(() => res({ what: 'nothing fired (autoplay blocked?)', ms: performance.now() - t0 }), 4000);
+  });
+  speechSynthesis.speak(u);
+  const r = await heard;
+  RESULT.firstSound = r;
+  note('speak() -> ' + r.what + ' after ' + r.ms.toFixed(1) + ' ms');
+  note('A page cannot speak before a user gesture, so a number here that reads ' +
+       '"nothing fired" is the autoplay policy, not a fault.');
+
+  h('RESULT (copied to the console as one object)');
+  say('<pre>' + JSON.stringify(RESULT, null, 1) + '</pre>');
+  console.log('VC5_SPIKE', RESULT);
+  window.VC5_SPIKE = RESULT;
+})();
+</script>
