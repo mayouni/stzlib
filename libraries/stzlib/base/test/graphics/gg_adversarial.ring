@@ -353,6 +353,64 @@ chk("the crossing check DISCRIMINATES", nX > 0)
 
 #---------------------------------------------------------------------------
 ? ""
+? "-- 9. A cluster box holds its members, and NO STRANGER -------"
+#
+# A cluster used to be a box drawn around whatever the layout produced.
+# It never constrained anything, so a cluster whose members did not
+# happen to land together got a box containing other people's nodes: two
+# databases at opposite ends of a rank gave a "Data" box with the logger
+# sitting inside it. The drawing was faithful and the box was correct --
+# it bounded its members exactly, and its members were scattered.
+#
+# The property is about CONTAINMENT, so it is measured in the geometry a
+# reader sees: is a non-member's box inside the cluster's rectangle.
+#---------------------------------------------------------------------------
+
+oS = new stzDiagram("svc")
+for a in [ [ "web1", "Web A" ], [ "web2", "Web B" ], [ "api1", "API A" ],
+           [ "api2", "API B" ], [ "db1", "DB A" ], [ "db2", "DB B" ],
+           [ "lb", "Balancer" ], [ "log", "Logger" ] ]
+	oS.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
+next
+oS.AddEdge("lb", "web1")    oS.AddEdge("lb", "web2")
+oS.AddEdge("web1", "api1")  oS.AddEdge("web2", "api2")
+oS.AddEdge("api1", "db1")   oS.AddEdge("api2", "db2")
+oS.AddEdge("web1", "log")   oS.AddEdge("api2", "log")
+oS.AddClusterXTT("front", "Frontend", [ "web1", "web2" ], "#C2185B")
+oS.AddClusterXTT("data", "Data", [ "db1", "db2" ], "#2E7D32")
+
+BW = 110  BH = 34
+aP2 = _DiagramXY(oS, BW, BH)
+nIntr = _StrangersInClusters(oS, aP2, BW, BH)
+? "   non-members found inside a cluster box : " + nIntr
+chkeq("a cluster contains only its own", nIntr, 0)
+
+# ...and it must still CONTAIN them -- a box that holds nobody would also
+# score zero intruders, which is the way this assertion could pass while
+# meaning nothing.
+nHeld = _MembersInClusters(oS, aP2, BW, BH)
+? "   members found inside their own box     : " + nHeld + " of 4"
+chkeq("...and it does contain all of them", nHeld, 4)
+
+# THE NEGATIVE SIBLING: the same measurement against a cluster whose
+# members are deliberately NOT together must report an intruder, or the
+# check cannot tell a constrained layout from an unconstrained one.
+oB2 = new stzDiagram("bad")
+for a in [ [ "x1", "X1" ], [ "mid", "Mid" ], [ "x2", "X2" ], [ "r", "R" ] ]
+	oB2.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
+next
+oB2.AddEdge("r", "x1")  oB2.AddEdge("r", "mid")  oB2.AddEdge("r", "x2")
+oB2.AddClusterXTT("ends", "Ends", [ "x1", "x2" ], "#C2185B")
+aB2 = _DiagramXY(oB2, BW, BH)
+# force the scattered arrangement the constraint exists to prevent
+aB2 = [ [ "x1", 100, 200 ], [ "mid", 300, 200 ], [ "x2", 500, 200 ],
+        [ "r", 300, 80 ] ]
+nBad2 = _StrangersInClusters(oB2, aB2, BW, BH)
+? "   a deliberately scattered cluster reports : " + nBad2
+chk("the containment check DISCRIMINATES", nBad2 > 0)
+
+#---------------------------------------------------------------------------
+? ""
 ? "=============================================================="
 ? " " + nOk + " ok, " + nBad + " failed"
 ? "=============================================================="
@@ -666,3 +724,59 @@ func _RespaceByOrdinal aPos, nW
 		next
 	next
 	return _rout_
+
+# The node centres a diagram actually lays out, via the same layout the
+# renderer uses -- so the assertion reads the real thing and not a model
+# of it.
+func _DiagramXY oDiag, nBW, nBH
+	_dg_ = new stzGraphCanvas(oDiag, [ :Layout = :Hierarchical,
+		:Width = 1000, :Height = 700, :Margin = 0,
+		:Clusters = oDiag._ClusterPairs() ])
+	return _dg_.Positions()
+
+# How many nodes that are NOT in a cluster have their box inside that
+# cluster's rectangle.
+func _StrangersInClusters oDiag, aPos, nBW, nBH
+	_si_ = 0
+	for _cl_ in oDiag.Clusters()
+		_box_ = oDiag._ClusterBox(_cl_, _ClusterXY(aPos), nBW, nBH)
+		if len(_box_) != 4  loop  ok
+		for _p_ in aPos
+			_isMem_ = 0
+			for _m_ in _cl_[:nodes]
+				if StzLower("" + _m_) = StzLower("" + _p_[1])  _isMem_ = 1  exit  ok
+			next
+			if _isMem_  loop  ok
+			if _BoxInside(_p_[2], _p_[3], nBW, nBH, _box_)  _si_++  ok
+		next
+	next
+	return _si_
+
+func _MembersInClusters oDiag, aPos, nBW, nBH
+	_mi_ = 0
+	for _cl_ in oDiag.Clusters()
+		_box_ = oDiag._ClusterBox(_cl_, _ClusterXY(aPos), nBW, nBH)
+		if len(_box_) != 4  loop  ok
+		for _m_ in _cl_[:nodes]
+			for _p_ in aPos
+				if StzLower("" + _p_[1]) != StzLower("" + _m_)  loop  ok
+				if _BoxInside(_p_[2], _p_[3], nBW, nBH, _box_)  _mi_++  ok
+			next
+		next
+	next
+	return _mi_
+
+# _ClusterBox wants ids lowercased, the way ToCanvasXT feeds it
+func _ClusterXY aPos
+	_cx_ = []
+	for _p_ in aPos  _cx_ + [ StzLower("" + _p_[1]), _p_[2], _p_[3] ]  next
+	return _cx_
+
+# Is the node box CENTRED at (x,y) wholly within the cluster rectangle?
+# Wholly, not overlapping: a node clipping a cluster's padding is untidy,
+# a node sitting inside it is a lie about membership.
+func _BoxInside nX, nY, nBW, nBH, aBox
+	return (nX - nBW / 2) >= aBox[1] and
+	       (nX + nBW / 2) <= aBox[1] + aBox[3] and
+	       (nY - nBH / 2) >= aBox[2] and
+	       (nY + nBH / 2) <= aBox[2] + aBox[4]

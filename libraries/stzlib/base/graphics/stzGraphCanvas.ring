@@ -540,6 +540,22 @@ class stzGraphCanvas from stzObject
 			# 40-node binary tree the bottom row fanned across the entire
 			# canvas and its edges became long diagonals crossing three rows.
 			# The crossing count was optimal and the drawing was still wrong.
+			# CLUSTERS CONSTRAIN THE ORDER, and they have to do it HERE --
+			# between the sweep and the placement. A cluster was previously
+			# a box drawn around whatever the layout produced, so a cluster
+			# whose members did not happen to land together got a box
+			# containing strangers: two databases at opposite ends of a rank
+			# gave a "Data" box with the logger sitting inside it. Nothing
+			# was wrong with the drawing; the box faithfully bounded its
+			# members, and its members were scattered.
+			#
+			# Contiguity is an ORDERING property, so it is imposed on the
+			# order the sweep produced -- not on the coordinates afterwards,
+			# where moving a node would break the separation the placement
+			# has just guaranteed.
+			_clOf_ = This._ClusterOf(_n_)
+			_order_ = This._ClusterCompact(_order_, _starts_, _max_, _clOf_)
+
 			_outc_ = _StzCsr(_eu_, _ev_, _n_)         # successors of u
 			_aXe_ = StzEngineGraphLayoutCoords(_csr_[1], _csr_[2],
 				_outc_[1], _outc_[2], _order_, _starts_, 1.0, 8)
@@ -561,6 +577,78 @@ class stzGraphCanvas from stzObject
 		if len(_aXe_) = _n_
 			for _i_ = 1 to _n_  @aX[_i_] = _aXe_[_i_]  next
 			@bUnitX = 1
+
+			# A CLUSTER IS DRAWN WITH CHROME -- a padded border and a label
+			# above it -- and the placement knows only about node centres.
+			# Two clusters sitting one slot apart therefore produce two
+			# boxes that touch or overlap, which reads as one box. Half a
+			# slot of extra air at every boundary where the cluster changes
+			# costs nothing when there are no clusters, and is the
+			# difference between two groups and one blur when there are.
+			#
+			# Applied AFTER placement and only ever as a rightward shift, so
+			# the order and the minimum separation both survive it.
+			_clOf2_ = This._ClusterOf(_n_)
+			_bAnyC_ = 0
+			for _v_ in _clOf2_
+				if _v_ > 0  _bAnyC_ = 1  exit  ok
+			next
+			if _bAnyC_
+				# COHESION FIRST. Contiguity puts a cluster's members next
+				# to each other in the ORDER; it does not bring them
+				# together on the page. Two databases still sat at opposite
+				# ends of their rank because each was placed under its own
+				# parent, so the box was correct and enormous -- a band, not
+				# a group. Each cluster's members in a layer are pulled to
+				# minimum separation about their own mean.
+				#
+				# INWARD ONLY, which is what makes this safe to do after
+				# placement: the members' span can only shrink, so every
+				# neighbour outside the cluster gains room and none loses
+				# it. The order is untouched.
+				for _L_ = 1 to _max_ + 1
+					_seen_ = []
+					for _k_ = _starts_[_L_] + 1 to _starts_[_L_ + 1]
+						_id_ = _order_[_k_] + 1
+						_key_ = _clOf2_[_id_]
+						if _key_ = 0  loop  ok
+						_dup_ = 0
+						for _sk_ in _seen_
+							if _sk_ = _key_  _dup_ = 1  exit  ok
+						next
+						if _dup_  loop  ok
+						_seen_ + _key_
+						_mem_ = []
+						for _k2_ = _starts_[_L_] + 1 to _starts_[_L_ + 1]
+							_i2_ = _order_[_k2_] + 1
+							if _clOf2_[_i2_] = _key_  _mem_ + _i2_  ok
+						next
+						_mn_ = len(_mem_)
+						if _mn_ < 2  loop  ok
+						_sum_ = 0
+						for _m_ in _mem_  _sum_ += @aX[_m_]  next
+						_mid_ = _sum_ / _mn_
+						for _mi_ = 1 to _mn_
+							@aX[ _mem_[_mi_] ] = _mid_ +
+								(_mi_ - (_mn_ + 1) / 2)
+						next
+					next
+				next
+
+				for _L_ = 1 to _max_ + 1
+					_sh_ = 0
+					_prev_ = -1
+					for _k_ = _starts_[_L_] + 1 to _starts_[_L_ + 1]
+						_id_ = _order_[_k_] + 1
+						_key_ = _clOf2_[_id_]
+						if _prev_ != -1 and _key_ != _prev_
+							_sh_ += 0.55
+						ok
+						@aX[_id_] += _sh_
+						_prev_ = _key_
+					next
+				next
+			ok
 		else
 			@bUnitX = 0
 		ok
@@ -644,6 +732,80 @@ class stzGraphCanvas from stzObject
 	# caller asking for Positions() must get its own nodes and nothing
 	# else, or every consumer downstream learns to ignore nodes the graph
 	# does not contain.
+	# clusterKey per node index, 0 for "belongs to none". Dummies are never
+	# in a cluster -- a long edge crossing a cluster's ranks must be free to
+	# route around it, and pinning it inside would be the opposite of what
+	# the constraint is for.
+	def _ClusterOf(nCount)
+		_co_ = []
+		for _i_ = 1 to nCount  _co_ + 0  next
+		_cls_ = This._Opt(:Clusters, [])
+		if NOT isList(_cls_)  return _co_  ok
+		_k_ = 0
+		for _cl_ in _cls_
+			if NOT (isList(_cl_) and len(_cl_) >= 2)  loop  ok
+			_k_++
+			for _id_ in _cl_[2]
+				_ix_ = This._IndexOf("" + _id_)
+				if _ix_ >= 1 and _ix_ <= nCount  _co_[_ix_] = _k_  ok
+			next
+		next
+		return _co_
+
+	# Reorder each layer so a cluster's members sit TOGETHER, keeping the
+	# sweep's sense of left-to-right.
+	#
+	# Groups are placed by their MEAN position in the order the sweep chose,
+	# and inside a group the sweep's relative order is untouched -- so the
+	# crossing work is respected wherever the constraint does not contradict
+	# it. An unclustered node is its own group; merging them into one blob
+	# would be a constraint nobody asked for, and would push clusters apart
+	# for no reason.
+	def _ClusterCompact(paOrder, paStarts, nMax, paClusterOf)
+		_cc_ = 0
+		for _v_ in paClusterOf
+			if _v_ > 0  _cc_ = 1  exit  ok
+		next
+		if _cc_ = 0  return paOrder  ok
+
+		_out_ = []
+		for _L_ = 1 to nMax + 1
+			_s_ = paStarts[_L_]
+			_e_ = paStarts[_L_ + 1]
+			_grp_ = []                      # [ key, [members], sumPos, count ]
+			for _k_ = _s_ + 1 to _e_
+				_v_ = paOrder[_k_] + 1
+				_key_ = 0
+				if _v_ >= 1 and _v_ <= len(paClusterOf)
+					_key_ = paClusterOf[_v_]
+				ok
+				_at_ = 0
+				if _key_ > 0
+					for _gi_ = 1 to len(_grp_)
+						if _grp_[_gi_][1] = _key_  _at_ = _gi_  exit  ok
+					next
+				ok
+				if _at_ = 0
+					_grp_ + [ _key_, [ paOrder[_k_] ], _k_, 1 ]
+				else
+					_grp_[_at_][2] + paOrder[_k_]
+					_grp_[_at_][3] += _k_
+					_grp_[_at_][4]++
+				ok
+			next
+			_rank_ = []
+			for _gi_ = 1 to len(_grp_)
+				_rank_ + [ _grp_[_gi_][3] / _grp_[_gi_][4], _gi_ ]
+			next
+			_rank_ = sort(_rank_, 1)
+			for _r_ in _rank_
+				for _m_ in _grp_[ _r_[2] ][2]
+					_out_ + _m_
+				next
+			next
+		next
+		return _out_
+
 	def _ExtractRoutes()
 		@aBendOf = []
 		if len(@aDumEdge) = 0  return  ok
