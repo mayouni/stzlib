@@ -137,6 +137,36 @@ chk("the trailing-edge line is PRESENT under rtl", nTailR >= 0)
 chk("...and TEXT_ALIGN end put it at the LEFT", nTailR >= 0 and nTailR < 4)
 
 ? ""
+? "-- Scene 5b: alignment set on a CONTAINER reaches its text --"
+# Emitting text-align on every element looked harmless and silently broke
+# this: the text inside a card carried its own resolved `left` and
+# overrode the card's TEXT_ALIGN. Three tiles side by side in the gallery
+# made it obvious at a glance; no assertion had noticed. Alignment is now
+# emitted only where it is DECIDED -- on an element that declares it, or
+# on one that flips direction relative to its parent -- and inherits
+# everywhere else.
+oCont = new stzUiDocument(
+	'DEFINE PANEL p ( SIZE [600, 200], DIRECTION column, FONT "app",' +
+	' CHILDREN [a, b, c] ) RATIONALE "x"' + char(10) +
+	'DEFINE BOX a ( HEIGHT 40, CHILDREN [ta] ) RATIONALE "no alignment"' + char(10) +
+	'DEFINE BOX b ( HEIGHT 40, TEXT_ALIGN center, CHILDREN [tb] ) RATIONALE "centred by the CARD"' + char(10) +
+	'DEFINE BOX c ( HEIGHT 40, TEXT_ALIGN end, CHILDREN [tc] ) RATIONALE "trailing by the CARD"' + char(10) +
+	'DEFINE TEXT ta ( CONTENT "word", SIZE 16 ) RATIONALE "x"' + char(10) +
+	'DEFINE TEXT tb ( CONTENT "word", SIZE 16 ) RATIONALE "x"' + char(10) +
+	'DEFINE TEXT tc ( CONTENT "word", SIZE 16 ) RATIONALE "x"')
+oCont.UseFont(cFixture)
+oPC = oCont.ToPanel()
+aTC = oPC.Texts()
+chk("all three words were drawn", len(aTC) = 3 and oPC.TextIsWhole())
+nA = _XOf(aTC, "word")
+nAx = aTC[1][3]   nBx = aTC[2][3]   nCx = aTC[3][3]
+? "   x: default " + nAx + ", centred " + nBx + ", trailing " + nCx
+chk("the default one sits at the leading edge", nAx < 4)
+chk("the card's TEXT_ALIGN center reached its text", nBx > nAx + 100)
+chk("...and TEXT_ALIGN end pushed it further still", nCx > nBx + 100)
+oPC.Free()
+
+? ""
 ? "-- Scene 6: bidi INSIDE a line still works --"
 # Direction decides where a paragraph starts; UAX#9 decides the order of
 # runs within it. This is the shaper's half, and it is asserted here so
