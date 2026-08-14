@@ -917,6 +917,32 @@ is the design working. **Only a listener sees any of them**, which is the
 standing rule for a hearable demo per phase, earning its keep four times in
 one session.
 
+### The device churn, removed where it can be
+
+Ticking speaks one phrase per transport, and **a transport is a DEVICE**:
+opened, played, closed, once per phrase. Three announcements meant three
+open/close cycles, each costing about half a second of silence before its
+phrase and risking the end of the one before it.
+
+`SpeakQueueToEnd` no longer works that way. It **occupies the thread**, so
+nothing can call `Say` while it runs: the queue it starts with is the queue it
+finishes with, there is nothing left to cancel, and rendering the whole of it
+into one buffer is a loss of churn rather than of behaviour. It synthesises
+everything queued, lays the phrases end to end with a gap, and plays the lot
+through **one transport**.
+
+`TickSpeech` keeps the per-phrase transport, and that is the point of the
+split: a program that ticks CAN be interrupted, and there the ability to stop
+mid-sentence is exactly what is wanted.
+
+Device count is not exposed, so the guard's instrument is a **clock** — the
+cost this removes is real time, and real time is measurable. Three phrases,
+6.868 s of audio and 0.480 s of gaps, drained in **8.167 s**: about 0.8 s of
+overhead for one device open plus three syntheses, where three opens would have
+cost roughly 2.4 s. The bound is 1.5 s, so the assertion discriminates rather
+than merely passes, and a companion assertion catches the other way to pass it
+— returning early without speaking.
+
 ### What VC4 did NOT do
 
 - **No ducking.** Lowering a bed under a phrase needs a per-bus gain node; that
@@ -933,7 +959,7 @@ one session.
 
 ### Plane totals
 
-**530 Ring assertions across fifteen guards** (VC4 adds 24, plus the wall-clock
+**535 Ring assertions across fifteen guards** (VC4 adds 24, plus the wall-clock
 assertion above). **67 Zig tests**
 across `sound.zig`, `soundgraph.zig`, `soundring.zig`, `sounddsp.zig`,
 `soundanalysis.zig`, `soundwasm.zig` and `audiodev.zig`, plus **13** across
