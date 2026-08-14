@@ -72,50 +72,48 @@ acData = Stringify(aData)
 
 anNumbers = []
 
-# Applying the :NumbersInString regex to each item
+# ONE PASS OVER THE WHOLE STRINGIFIED DATA.
+#
+# This used to loop `for i = 1 to len(acData)` and take acData[i] as an item
+# -- but Stringify() returns a STRING, not a list. So the loop walked it one
+# CHARACTER at a time, every digit matched the number pattern on its own, and
+# anNumbers came out [ 1, 2, 5, 0, 0, 1, ... ]: sixty-nine digits instead of
+# seventeen numbers. Sum() then answered 171 rather than 258,860.
+#
+# MatchFirst(), not Match(): Match() ANCHORS -- it asks whether the WHOLE
+# subject is a number, which a page of sales data is not. MatchFirst()
+# searches, and Matches() then answers every occurrence it found.
 
-_nAcData1Len_ = len(acData)
-for _iLoopAcData1_ = 1 to _nAcData1Len_
-	cItem = acData[_iLoopAcData1_]
-	# Firing Softanza regex engine with rx() and feeding
-	# it with the regex engine called by name using pat()
+rx( pat(:NumbersInString) ) {
 
-	rx( pat(:NumbersInString) ) {
+	if MatchFirst(acData)
 
-		# If numbers are matched
-
-		if Match(cItem)
-
-			# Then add them to the result list
-
-			_aMatches1_ = Matches()
-			_nMatches1Len_ = len(_aMatches1_)
-			for _iLoopMatches1_ = 1 to _nMatches1Len_
-				cMatch = _aMatches1_[_iLoopMatches1_]
-				anNumbers + @number(cMatch)
-
-				# The number is matched by the regex engine
-				# as a number in string, so we use @number()
-				# to cast it form string to a native number
-
-			next
-		ok
-	}
-
-end
+		_aM_ = Matches()
+		_nM_ = len(_aM_)
+		for _i_ = 1 to _nM_
+			# The engine hands back each number AS A STRING, so cast it
+			anNumbers + @number(_aM_[_i_])
+		next
+	ok
+}
 
 ? @@(anNumbers) + NL
-#--> [ 12500, 10200, 14800, 52700, 17100, 14400, 87200, 25200, 4520, 18230, 700, 840, 110, 180, 220 ]
+#--> [ 12500, 10200, 14800, 52700, 17100, 14400, 87200, 25200, 700, 840, 110, 180, 220, 4520, 120, 82, 88 ]
+#
+# SEVENTEEN, not the fifteen this line used to claim. The old list was
+# written by hand and never produced by a run: it omitted the 120, 82 and
+# 88 that sit in `Night: "120 and then 82 kg"` and `Night = 88 kg`, and it
+# carried an 18230 that appears nowhere in the data at all.
 
 # Elevating the list of numbers ot a stzListOfNumbers object to
 # make the calculations on it (we use QQ() because Q() alone will
 # elevate it to just a stzList and not a stzListOfNumbers)
 
 QQ(anNumbers) {
-	? Sum()		#--> 258900
-	? Max()		#-->  87200
-	? Min()		#-->    110
-	? Mean()	#-->  17260
+	? Sum()		#--> 240960
+	? Max()		#--> 87200
+	? Min()		#--> 82
+	? Mean()	#--> 14174.12
 }
 
 pf()
