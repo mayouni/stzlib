@@ -114,6 +114,18 @@ oG.ToPNGXT("probe_6_ortho.png",
 	  :NodeHeight = 34, :FontSize = 12 ])
 ? "6b ortho       : same layout, right-angled edges"
 
+# ...and NAMING NO SIZE, which is the honest way to draw this. The picture
+# takes its size from its content: every gap exactly nodesep, every rank
+# exactly ranksep, as dot does. The two above are the same tree squeezed
+# into a canvas that was never wide enough for its contract.
+aNat = [ :Font = oF, :NodeWidth = 96, :NodeHeight = 34, :FontSize = 12 ]
+oNat = oG.ToCanvasXT(aNat)
+oNat.ToPNG("probe_6_natural_ortho.png")
+? "6c natural     : " + oNat.Width() + "x" + oNat.Height() + " derived, ortho"
+oG.SetSplines("spline")
+oG.ToCanvasXT(aNat).ToPNG("probe_6_natural.png")
+? "6d natural     : the same, curved"
+
 # ---------------------------------------------------------------- 7
 # ONE node, and a VERY long label. Degenerate layouts.
 oH = new stzDiagram("one")

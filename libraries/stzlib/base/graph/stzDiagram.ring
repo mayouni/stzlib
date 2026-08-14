@@ -1436,32 +1436,106 @@ class stzDiagram from stzGraph
 		_my_ = _nBoxH_ / 2 + 14
 		_bSwap_ = 0
 		if _cRank_ = "LR" or _cRank_ = "RL"  _bSwap_ = 1  ok
-		_lw_ = _nW_ - 2 * _mx_
-		_lh_ = _nH_ - 2 * _my_
-		if _bSwap_
-			_lw_ = _nH_ - 2 * _my_
-			_lh_ = _nW_ - 2 * _mx_
+
+		# SPACING IS THE CONTRACT; THE SIZE IS DERIVED. That is dot's model,
+		# and this tier had it inverted: the caller fixed a canvas and the
+		# layout was stretched to fill it, so the minimum gap between two
+		# nodes was whatever the stretch left over -- 2px in a crowded rank,
+		# 20px in a loose one, in the same picture. Meanwhile the diagram
+		# already OWNED the contract: SetNodeSeparation and SetRankSeparation
+		# exist, in dot's own units, and only the DOT WRITER read them. The
+		# knob the caller sends and the knob the face reads have to be the
+		# same knob.
+		#
+		# So: when the caller does not name a size, the picture takes its
+		# size from its content -- every gap exactly nodesep, every rank
+		# exactly ranksep apart, like dot. Naming :Width/:Height keeps the
+		# old fill-the-canvas behaviour, with :FitBoxes as the safety net.
+		# Separations arrive in dot's inches (96dpi), overridable in pixels
+		# via :NodeSep / :RankSep.
+		_cLM_ = StzLower("" + This._DiagOpt(paOptions, "layoutmode", :Hierarchical))
+		_bNat_ = 0
+		if _cLM_ = "hierarchical" and
+		   NOT (This._HasOpt(paOptions, "width") or This._HasOpt(paOptions, "height"))
+			_bNat_ = 1
 		ok
+		_nSepN_ = This._DiagOpt(paOptions, "nodesep", floor(This.NodeSeparation() * 96))
+		_nSepR_ = This._DiagOpt(paOptions, "ranksep", floor(This.RankSeparation() * 96))
 
-		_oGC_ = new stzGraphCanvas(This, [
-			:Layout = This._DiagOpt(paOptions, "layoutmode", :Hierarchical),
-			:Width  = max([ _lw_, 60 ]),
-			:Height = max([ _lh_, 60 ])
-		])
-
-		_aXY_ = []
-		for _p_ in _oGC_.Positions()
-			_px_ = _p_[2]
-			_py_ = _p_[3]
+		if _bNat_
+			# any provisional size -- only the FRACTIONS of it are read back
+			_oGC_ = new stzGraphCanvas(This, [
+				:Layout = :Hierarchical,
+				:Width = 1000, :Height = 700, :Margin = 0
+			])
+			# slot and pitch along the LAYOUT axes; the boxes do not rotate
+			# with the rank direction, so the box dimension that matters
+			# swaps when the picture does
+			_slotB_ = _nBoxW_
+			_pitchB_ = _nBoxH_
 			if _bSwap_
-				_t_ = _px_
-				_px_ = _py_
-				_py_ = _t_
+				_slotB_ = _nBoxH_
+				_pitchB_ = _nBoxW_
 			ok
-			if _cRank_ = "RL"  _px_ = _lh_ - _px_  ok
-			if _cRank_ = "BT"  _py_ = _lh_ - _py_  ok
-			_aXY_ + [ StzLower("" + _p_[1]), _px_ + _mx_, _py_ + _my_ ]
-		next
+			_slot_ = _slotB_ + _nSepN_
+			_pitch_ = _pitchB_ + _nSepR_
+			# unit-true x: 1.0 = one minimum separation, so span * slot IS
+			# the content width. The ordinal fallback (a diagram with no
+			# edges) is one even layer: n slots.
+			if _oGC_.IsUnitX()
+				_inX_ = _oGC_.RawSpanX() * _slot_
+			else
+				_inX_ = max([ 0, _nN_ - 1 ]) * _slot_
+			ok
+			_inY_ = (_oGC_.LayerCount() - 1) * _pitch_
+			if _bSwap_
+				_nW_ = ceil(_inY_ + 2 * _mx_)
+				_nH_ = ceil(_inX_ + 2 * _my_)
+			else
+				_nW_ = ceil(_inX_ + 2 * _mx_)
+				_nH_ = ceil(_inY_ + 2 * _my_)
+			ok
+			_aXY_ = []
+			for _p_ in _oGC_.Positions()
+				_px_ = _p_[2] / 1000 * _inX_
+				_py_ = _p_[3] / 700 * _inY_
+				if _bSwap_
+					_t_ = _px_
+					_px_ = _py_
+					_py_ = _t_
+				ok
+				if _cRank_ = "RL"  _px_ = _inY_ - _px_  ok
+				if _cRank_ = "BT"  _py_ = _inY_ - _py_  ok
+				_aXY_ + [ StzLower("" + _p_[1]), _px_ + _mx_, _py_ + _my_ ]
+			next
+		else
+			_lw_ = _nW_ - 2 * _mx_
+			_lh_ = _nH_ - 2 * _my_
+			if _bSwap_
+				_lw_ = _nH_ - 2 * _my_
+				_lh_ = _nW_ - 2 * _mx_
+			ok
+
+			_oGC_ = new stzGraphCanvas(This, [
+				:Layout = This._DiagOpt(paOptions, "layoutmode", :Hierarchical),
+				:Width  = max([ _lw_, 60 ]),
+				:Height = max([ _lh_, 60 ])
+			])
+
+			_aXY_ = []
+			for _p_ in _oGC_.Positions()
+				_px_ = _p_[2]
+				_py_ = _p_[3]
+				if _bSwap_
+					_t_ = _px_
+					_px_ = _py_
+					_py_ = _t_
+				ok
+				if _cRank_ = "RL"  _px_ = _lh_ - _px_  ok
+				if _cRank_ = "BT"  _py_ = _lh_ - _py_  ok
+				_aXY_ + [ StzLower("" + _p_[1]), _px_ + _mx_, _py_ + _my_ ]
+			next
+		ok
 
 		# THE BOXES MUST FIT THE RANK THEY LANDED IN. The layout spreads a rank
 		# evenly across the available width and knows nothing about how wide a
@@ -1507,12 +1581,49 @@ class stzDiagram from stzGraph
 
 		# 2. EDGES: clipped at the node boundary, routed in the requested
 		#    spline style, and finished with an ARROWHEAD.
-		for _e_ in This.Edges()
-			_a_ = This._XYOf(_aXY_, "" + _e_[:from])
-			_b_ = This._XYOf(_aXY_, "" + _e_[:to])
+		#
+		#    ROUTED, NOT JUST DRAWN. Every edge used to leave its node from
+		#    the centre-line and cross the rank gap at the same middle
+		#    height, so a parent's edges left as ONE line and split late,
+		#    and two neighbouring parents' horizontal runs shared a channel
+		#    and read as a crossing. Two disciplines fix both:
+		#    - PORTS: a node's edges fan out from distinct points on its
+		#      border, ordered by where they are going, so they never cross
+		#      each other at birth.
+		#    - LANES: each parent's orthogonal trunk crosses the rank gap at
+		#      its own height, cycled among four, so neighbouring trunks do
+		#      not overlap.
+		_aE_ = This.Edges()
+		_nEc_ = len(_aE_)
+		_aPort_ = This._EdgePorts(_aE_, _aXY_, _nBoxW_, _nBoxH_, _cRank_)
+		for _ei_ = 1 to _nEc_
+			_a_ = This._XYOf(_aXY_, "" + _aE_[_ei_][:from])
+			_b_ = This._XYOf(_aXY_, "" + _aE_[_ei_][:to])
 			if len(_a_) != 2 or len(_b_) != 2  loop  ok
+			if _cSpl_ != "ortho"
+				# the port offset shifts the whole aiming line, so the
+				# clip lands on the shifted point of the border.
+				# FRESH variables, not `_a_ = [ _a_[1]..., ]`: Ring clears
+				# the assignment target BEFORE evaluating the literal's
+				# elements, so a list literal that reads the variable it is
+				# being assigned to indexes an empty list -- an R2 pointing
+				# at a line where every length is provably right.
+				_eax_ = _a_[1]
+				_eay_ = _a_[2]
+				_ebx_ = _b_[1]
+				_eby_ = _b_[2]
+				if _bSwap_
+					_eay_ += _aPort_[_ei_][1]
+					_eby_ += _aPort_[_ei_][2]
+				else
+					_eax_ += _aPort_[_ei_][1]
+					_ebx_ += _aPort_[_ei_][2]
+				ok
+				_a_ = [ _eax_, _eay_ ]
+				_b_ = [ _ebx_, _eby_ ]
+			ok
 			This._DrawEdge(_oC_, _a_, _b_, _nBoxW_, _nBoxH_, _cEdge_,
-				_nEdgeW_, _cSpl_, _cRank_)
+				_nEdgeW_, _cSpl_, _cRank_, _aPort_[_ei_][3])
 		next
 
 		# 3. NODES
@@ -1642,22 +1753,140 @@ class stzDiagram from stzGraph
 	# style, finished with an arrowhead. A centre-to-centre line that runs
 	# UNDER the node is what a hand-rolled renderer draws; dot clips, so this
 	# clips.
-	def _DrawEdge(oC, aFrom, aTo, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank)
+	# For each edge: [ portFrom, portTo, laneFrac ]. Ports are offsets along
+	# the slot axis; the lane is where an ortho trunk crosses the rank gap.
+	#
+	# Ports are ORDERED BY DESTINATION: a parent's leftmost edge leaves from
+	# its leftmost port. Assigned by rank order instead, two edges swap
+	# within the box's own width and cross a pixel after leaving it.
+	def _EdgePorts(paEdges, paXY, nBoxW, nBoxH, cRank)
+		_epN_ = len(paEdges)
+		_epRes_ = []
+		for _epI_ = 1 to _epN_  _epRes_ + [ 0, 0, 0.5 ]  next
+		_bV_ = 0
+		if cRank = "LR" or cRank = "RL"  _bV_ = 1  ok    # slot axis = y
+		_epBox_ = nBoxW
+		if _bV_  _epBox_ = nBoxH  ok
+
+		# fan OUT of each from-node, fan IN to each to-node
+		for _epSide_ = 1 to 2
+			_epKeys_ = []
+			for _epI_ = 1 to _epN_
+				_epId_ = StzLower("" + paEdges[_epI_][ iif(_epSide_ = 1, :from, :to) ])
+				_epFound_ = 0
+				for _epK_ = 1 to len(_epKeys_)
+					if _epKeys_[_epK_][1] = _epId_
+						_epKeys_[_epK_][2] + _epI_
+						_epFound_ = 1
+						exit
+					ok
+				next
+				if NOT _epFound_
+					_epKeys_ + [ _epId_, [ _epI_ ] ]
+				ok
+			next
+			for _epK_ = 1 to len(_epKeys_)
+				_epGrp_ = _epKeys_[_epK_][2]
+				_epGn_ = len(_epGrp_)
+				if _epGn_ < 2  loop  ok
+				# order the group by where its OTHER end sits on the slot axis
+				_epSort_ = []
+				for _epJ_ = 1 to _epGn_
+					_epE_ = paEdges[_epGrp_[_epJ_]]
+					_epOth_ = This._XYOf(paXY,
+						"" + _epE_[ iif(_epSide_ = 1, :to, :from) ])
+					_epC_ = 0
+					if len(_epOth_) = 2
+						_epC_ = _epOth_[ iif(_bV_, 2, 1) ]
+					ok
+					_epSort_ + [ _epC_, _epGrp_[_epJ_] ]
+				next
+				_epSort_ = sort(_epSort_, 1)
+				_epSpread_ = min([ _epBox_ - 16, 14 * (_epGn_ - 1) ])
+				if _epSpread_ < 0  _epSpread_ = 0  ok
+				for _epJ_ = 1 to _epGn_
+					_epOff_ = 0 - (_epSpread_ / 2) +
+						(_epSpread_ * (_epJ_ - 1) / (_epGn_ - 1))
+					_epRes_[ _epSort_[_epJ_][2] ][_epSide_] = _epOff_
+				next
+			next
+		next
+
+		# ortho LANES: parents in one rank take successive channel heights,
+		# cycled among four, so neighbouring trunks never share one
+		_epP_ = []
+		for _epI_ = 1 to _epN_
+			_epId_ = StzLower("" + paEdges[_epI_][:from])
+			_epAt_ = This._XYOf(paXY, _epId_)
+			if len(_epAt_) != 2  loop  ok
+			_epRk_ = floor(_epAt_[ iif(_bV_, 1, 2) ] / 4)
+			_epSl_ = _epAt_[ iif(_bV_, 2, 1) ]
+			_epSeen_ = 0
+			for _epK_ = 1 to len(_epP_)
+				if _epP_[_epK_][3] = _epId_  _epSeen_ = 1  exit  ok
+			next
+			if NOT _epSeen_
+				_epP_ + [ (_epRk_ * 1000000) + _epSl_, _epRk_, _epId_ ]
+			ok
+		next
+		_epP_ = sort(_epP_, 1)
+		_epLanes_ = []
+		_epPrevRk_ = -1
+		_epC_ = 0
+		for _epK_ = 1 to len(_epP_)
+			if _epP_[_epK_][2] != _epPrevRk_
+				_epPrevRk_ = _epP_[_epK_][2]
+				_epC_ = 0
+			ok
+			_epLanes_ + [ _epP_[_epK_][3], 0.30 + (0.40 * (_epC_ % 4) / 3) ]
+			_epC_++
+		next
+		for _epI_ = 1 to _epN_
+			_epId_ = StzLower("" + paEdges[_epI_][:from])
+			for _epK_ = 1 to len(_epLanes_)
+				if _epLanes_[_epK_][1] = _epId_
+					_epRes_[_epI_][3] = _epLanes_[_epK_][2]
+					exit
+				ok
+			next
+		next
+		return _epRes_
+
+	def _DrawEdge(oC, aFrom, aTo, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nLane)
 		_p_ = This._ClipToBox(aFrom, aTo, nBoxW, nBoxH)
 		_q_ = This._ClipToBox(aTo, aFrom, nBoxW, nBoxH)
 
 		switch cSpline
 		on "ortho"
+			# TRUNK AND CHANNEL, the way dot draws a tree: one stem leaves
+			# the parent's border, runs along the parent's own channel
+			# height, and drops into the child. A parent's edges overlap on
+			# the trunk deliberately -- they ARE one stem until they split.
+			# The old form crossed at the gap's midpoint for every edge, so
+			# every parent in a rank shared one channel and neighbouring
+			# families read as crossings.
 			if cRank = "LR" or cRank = "RL"
-				_mid_ = (_p_[1] + _q_[1]) / 2
+				_sgn_ = 1
+				if aTo[1] < aFrom[1]  _sgn_ = -1  ok
+				_pe_ = aFrom[1] + _sgn_ * nBoxW / 2
+				_qe_ = aTo[1] - _sgn_ * nBoxW / 2
+				_chan_ = _pe_ + (_qe_ - _pe_) * nLane
 				oC.Flush()
-				oC.AddPolylineQ([ _p_[1], _p_[2], _mid_, _p_[2],
-					_mid_, _q_[2], _q_[1], _q_[2] ]).Stroke(cColor, nWidth)
+				oC.AddPolylineQ([ _pe_, aFrom[2], _chan_, aFrom[2],
+					_chan_, aTo[2], _qe_, aTo[2] ]).Stroke(cColor, nWidth)
+				_p_ = [ _chan_, aTo[2] ]
+				_q_ = [ _qe_, aTo[2] ]
 			else
-				_mid_ = (_p_[2] + _q_[2]) / 2
+				_sgn_ = 1
+				if aTo[2] < aFrom[2]  _sgn_ = -1  ok
+				_pe_ = aFrom[2] + _sgn_ * nBoxH / 2
+				_qe_ = aTo[2] - _sgn_ * nBoxH / 2
+				_chan_ = _pe_ + (_qe_ - _pe_) * nLane
 				oC.Flush()
-				oC.AddPolylineQ([ _p_[1], _p_[2], _p_[1], _mid_,
-					_q_[1], _mid_, _q_[1], _q_[2] ]).Stroke(cColor, nWidth)
+				oC.AddPolylineQ([ aFrom[1], _pe_, aFrom[1], _chan_,
+					aTo[1], _chan_, aTo[1], _qe_ ]).Stroke(cColor, nWidth)
+				_p_ = [ aTo[1], _chan_ ]
+				_q_ = [ aTo[1], _qe_ ]
 			ok
 		on "line"
 			oC.Flush()
@@ -1762,6 +1991,18 @@ class stzDiagram from stzGraph
 			_c_ = StzSubStr(_c_, 1, len(_c_) - 1)
 		end
 		return _c_ + "..."
+
+	# Whether the caller NAMED this option at all -- _DiagOpt cannot tell
+	# "absent" from "given the default", and natural sizing turns on
+	# exactly when a size was not named.
+	def _HasOpt(paOptions, cKey)
+		if NOT isList(paOptions)  return 0  ok
+		for _ho_ in paOptions
+			if isList(_ho_) and len(_ho_) = 2
+				if StzLower("" + _ho_[1]) = StzLower("" + cKey)  return 1  ok
+			ok
+		next
+		return 0
 
 	def _DiagOpt(paOptions, cKey, xDefault)
 		if NOT isList(paOptions)  return xDefault  ok
