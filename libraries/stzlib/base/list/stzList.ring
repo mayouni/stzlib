@@ -4073,6 +4073,29 @@ class stzList from stzObject
 	def IsAString()
 		return isString(This.List())
 
+	# A LIST SAYS SO. stzObject answers 0 to all three of IsANumber(),
+	# IsAString() and IsAList(), expecting each class to override the one
+	# that is true of it -- stzString and stzNumber do, and this class
+	# overrode IsAString (above) but never IsAList.
+	#
+	# So a stzList answered "no" to being a list, and every `but IsAList()`
+	# arm in the library fell past it. stzObject.IsEither() has such an arm,
+	# followed by `but IsAnObject()` -- which a stzList IS -- so comparing
+	# two lists raised "Feature not implemented yet!" from a branch meant for
+	# something else entirely.
+	def IsAList()
+		return isList(This.List())
+
+	# SAME SHAPE, SAME OMISSION. stzObject.HasSameTypeAs(p) answers
+	# isObject(p), and each wrapper overrides it to test the type it WRAPS --
+	# stzNumber asks isNumber, stzString asks isString. stzList never asked
+	# isList, so comparing a stzList to a plain list said "different type",
+	# and IsStrictlyEqualTo() -- the conjunction of same type, same content
+	# and same order -- could never be true for the one comparison it exists
+	# to make.
+	def HasSameTypeAs(p)
+		return isList(p)
+
 	def IsNotInLowercase()
 		_l_ = This.List()
 		_nL_ = len(_l_)
@@ -7458,23 +7481,32 @@ class stzList from stzObject
 	#@ aka  exchange, swap positions, interchange two items
 	# Exchange the items at the two given positions (mutating).
 	def Swap(_n1_, _n2_)
-		if isList(_n1_) and len(_n1_) = 2 and isString(_n1_[1]) and
-		   (lower(_n1_[1]) = "positions" or lower(_n1_[1]) = "position") and
-		   isNumber(_n1_[2])
+		# THE NAME OF THE PAIR DOES NOT DECIDE ANYTHING -- the VALUE does.
+		#
+		# This recognised exactly :Positions/:Position on the left and :And on
+		# the right, so Swap( :Items = 2, :AndItem = 3 ) matched neither: both
+		# arguments stayed two-element lists, reached stzListMover.Swap as
+		# lists, and the call did nothing at all. Silently -- a swap that does
+		# not swap looks like a list that was already in order.
+		#
+		# Every spelling a caller has reached for means the same two things:
+		# a NUMBER is a position, anything else is an item to be located. So
+		# the pair is unwrapped whatever it is called, and the value is read
+		# after.
+		if isList(_n1_) and len(_n1_) = 2 and isString(_n1_[1])
 			_n1_ = _n1_[2]
 		ok
-		if isList(_n2_) and len(_n2_) = 2 and isString(_n2_[1]) and
-		   lower(_n2_[1]) = "and"
-			# Swap(item1, :And = item2) -- swap the two VALUES' positions.
-			if NOT isNumber(_n1_)
-				_nSw1_ = This.FindFirst(_n1_)
-				_nSw2_ = This.FindFirst(_n2_[2])
-				if _nSw1_ < 1 or _nSw2_ < 1 return ok
-				_n1_ = _nSw1_
-				_n2_ = _nSw2_
-			but isNumber(_n2_[2])
-				_n2_ = _n2_[2]
-			ok
+		if isList(_n2_) and len(_n2_) = 2 and isString(_n2_[1])
+			_n2_ = _n2_[2]
+		ok
+
+		# Values, not positions: find where each one sits.
+		if NOT isNumber(_n1_) or NOT isNumber(_n2_)
+			_nSw1_ = This.FindFirst(_n1_)
+			_nSw2_ = This.FindFirst(_n2_)
+			if _nSw1_ < 1 or _nSw2_ < 1 return ok
+			_n1_ = _nSw1_
+			_n2_ = _nSw2_
 		ok
 		_oSwMvr_ = new stzListMover(This)
 		_oSwMvr_.Swap(_n1_, _n2_)

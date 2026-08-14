@@ -563,6 +563,33 @@ class stzStringCharList from stzObject
 		next
 		return _anResult_
 
+		# The RETURN-TYPE routing twin, the house form used by
+		# stzHashList.KeysQRT, stzNumber.MultiplesUntilQRT and the rest:
+		# the caller names the Softanza class the answer should arrive as.
+		#
+		# Written because a test already chained
+		# .UnicodesQRT(:stzListOfNumbers).Sum() and there was nothing there.
+		def UnicodesQRT(pcReturnType)
+
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT ( isString(pcReturnType) and Q(pcReturnType).IsStzType() )
+				StzRaise("Incorrect param! pcReturnType must be a string containing the name of a Softanza class.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Unicodes() )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.Unicodes() )
+
+			other
+				StzRaise("Unsupported return type! Use :stzList or :stzListOfNumbers.")
+			off
+
 	def NthCharUnicode(n)
 		return StzEngineCharUnicode(This.NthChar(n))
 

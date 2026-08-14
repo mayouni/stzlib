@@ -6645,6 +6645,13 @@ class stzString from stzObject
 	def RemoveThisBound(pcBound)
 		This.RemoveTheseBoundsCS(pcBound, pcBound, 1)
 
+		# The chainable twin, which the house convention says every mutator
+		# has. Its absence is why a caller reached for RemoveBoundsQ('"')
+		# instead -- a method that takes no argument at all.
+		def RemoveThisBoundQ(pcBound)
+			This.RemoveThisBound(pcBound)
+			return This
+
 	  #===============================#
 	 #   BETWEEN                      #
 	#===============================#
@@ -13771,6 +13778,37 @@ class stzString from stzObject
 
 	def StartsWithOneOfTheseCS(pacSubStr, pCaseSensitive)
 		return This.BeginsWithOneOfTheseCS(pacSubStr, pCaseSensitive)
+
+	# THE TWO-PREFIX FORM, written the way the house writes a choice:
+	#
+	#     StartsWithEitherCS( "@number=", :Or = "@number =", 0 )
+	#
+	# It reads better than a two-item list when there are exactly two, which
+	# is why a caller in stzObject.ToNumberW had already written it -- against
+	# a method that did not exist. That call raised R14 on every use of
+	# ToNumberW(), and it was reachable only after the R20 on the line above
+	# it was fixed.
+	#
+	# The second argument arrives as the pair [ :Or, "..." ]; a bare string is
+	# accepted too.
+	def StartsWithEitherCS(pcFirst, pSecond, pCaseSensitive)
+		_cSecond_ = pSecond
+		if isList(pSecond) and len(pSecond) = 2 and isString(pSecond[2])
+			_cSecond_ = pSecond[2]
+		ok
+		if NOT (isString(pcFirst) and isString(_cSecond_))
+			return 0
+		ok
+		return This.BeginsWithOneOfTheseCS([ pcFirst, _cSecond_ ], pCaseSensitive)
+
+		def BeginsWithEitherCS(pcFirst, pSecond, pCaseSensitive)
+			return This.StartsWithEitherCS(pcFirst, pSecond, pCaseSensitive)
+
+	def StartsWithEither(pcFirst, pSecond)
+		return This.StartsWithEitherCS(pcFirst, pSecond, 1)
+
+		def BeginsWithEither(pcFirst, pSecond)
+			return This.StartsWithEither(pcFirst, pSecond)
 
 	# TRUE if the string ends with ANY of the given suffixes.
 	def EndsWithOneOfTheseCS(pacSubStr, pCaseSensitive)

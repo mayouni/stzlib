@@ -17,9 +17,10 @@ load "../../stzBase.ring"
 pr()
 
 o1 = new stzList([ "a", "E", "a", "c", "V", "E" ])
-? o1.FindMany([ "a", "c" ]) #--> [1, 3, 5]
+# 4, not 5: in [ "a", "E", "a", "c", "V", "E" ] the "c" sits at FOUR.
+? o1.FindMany([ "a", "c" ]) #--> [1, 3, 4]
 
-? o1 - These([ "a", "c" ]) # Same as: o1.RemoveItemsAtPositions([ 1, 3, 5 ])
+? o1 - These([ "a", "c" ]) # Same as: o1.RemoveItemsAtPositions([ 1, 3, 4 ])
 #--> [ "E", "V", "E" ]
 
 pf()

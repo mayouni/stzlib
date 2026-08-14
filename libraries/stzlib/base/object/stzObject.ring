@@ -406,8 +406,23 @@ func StzIsTrueXT(p)
 
 	but isString(p)
 
-		if EmptyStringConsideredFalse() and p = ""
-			return 0
+		# THE KNOB DECIDES, BOTH WAYS.
+		#
+		# This returned 0 when the flag was ON and otherwise fell through to
+		# IsTrue(p) at the bottom -- which for "" is Ring's own truthiness,
+		# and Ring says an empty string is false. So the answer was 0 either
+		# way and SetEmptyStringIsConsideredFalse(0) looked like a setter that
+		# did nothing: the getter changed, the behaviour did not.
+		#
+		# An empty string is the one case this flag exists to arbitrate, so it
+		# is answered here outright rather than delegated to a function that
+		# has already made up its mind.
+		if p = ""
+			if EmptyStringConsideredFalse()
+				return 0
+			else
+				return 1
+			ok
 		ok
 
 		# Nested rather than chained with `and`: this must not depend on
@@ -3858,9 +3873,16 @@ class stzObject
 			ok
 
 		but This.IsAList()
-			if isList(pValue1) and isList(pValue2) and
-			   ( This.ListQ() = pValue1 or This.ListQ() = pValue2 )
-				return 1
+			# Content(), not ListQ() -- ListQ() answers a stzList OBJECT, and
+			# comparing an object to a plain list is false however equal they
+			# look. Ring's `=` on two LISTS is false as well, even for
+			# identical ones, so the comparison goes through @@() which
+			# renders both to the same text when they hold the same items.
+			if isList(pValue1) and isList(pValue2)
+				_cMine_ = @@(This.Content())
+				if _cMine_ = @@(pValue1) or _cMine_ = @@(pValue2)
+					return 1
+				ok
 			ok
 
 		but This.IsAnObject() #TODO
@@ -4395,8 +4417,12 @@ class stzObject
 			@number = This.Number()
 		ok
 		
+		# RemoveThisBoundQ, which takes the bound. RemoveBoundsQ() takes NONE
+		# -- it strips whatever bounds are there -- so passing it a quote was
+		# R20 "extra number of parameters", and ToNumberW() raised on its
+		# first line for every caller.
 		_cCode_ = Q(pcCode).
-			RemoveBoundsQ('"').
+			RemoveThisBoundQ('"').
 			RemoveThisFirstCharQ("{").
 			RemoveThisLastCharQ("}").
 			Trimmed()
