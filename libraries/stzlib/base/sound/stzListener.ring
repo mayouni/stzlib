@@ -65,6 +65,7 @@ class stzListener
 	# at the bottom reads as uninitialised at runtime -- a trap this plane has
 	# now paid for twice, in stzEarcons and here.
 	@nLastResult = 0
+	@aMeanings = []      # [ lower(phrase), meaning ] -- VC6, see AcceptMeanings
 
 	def init()
 		if NOT StzVoiceEngineLoaded()
@@ -171,6 +172,91 @@ class stzListener
 
 	def AcceptedPhrases()
 		return @aPhrases
+
+	#-- VC6: the step that closes the loop -----------------------------------
+	#
+	# §1.1 says a recognised phrase is text, text is a meaning, and a meaning
+	# renders to a colour and an earcon and a phrase. Every link in that chain
+	# already existed EXCEPT "text is a meaning", and VC6's kill criterion is
+	# about exactly this: if the loop needs a step outside these faces, it is a
+	# demo rather than an architecture.
+	#
+	# WITHOUT this verb the step is a `switch` in application code -- outside
+	# the faces, rewritten by every caller, and drifting from the grammar it
+	# has to agree with. The grammar and the meanings are ONE declaration, so
+	# they are declared in one place:
+	#
+	#     oL.AcceptMeanings([
+	#         [ "disk full",     :Danger  ],
+	#         [ "backup done",   :Success ]
+	#     ])
+	#
+	# THE AUTHOR STILL DECLARES THE MEANING. Nothing here infers one from the
+	# words -- "disk full" is a danger because somebody said so, not because a
+	# classifier guessed. That is the plane's standing rule: do not compute
+	# meanings the author should declare. What the face contributes is
+	# carrying the declaration, not making it.
+	def AcceptMeanings(paPairs)
+		if NOT isList(paPairs) or len(paPairs) = 0
+			@nRefusals++
+			@cLastError = "AcceptMeanings: give [ [phrase, meaning], ... ]"
+			return FALSE
+		ok
+		_ph_ = []
+		_mp_ = []
+		for _i_ = 1 to len(paPairs)
+			_row_ = paPairs[_i_]
+			if NOT isList(_row_) or len(_row_) < 2
+				@nRefusals++
+				@cLastError = "AcceptMeanings: row " + _i_ + " is not [phrase, meaning]"
+				return FALSE
+			ok
+			_p_ = trim("" + _row_[1])
+			_m_ = lower(trim("" + _row_[2]))
+			if _p_ = ""  loop ok
+			# REFUSE AN UNKNOWN MEANING HERE, not when it is spoken. Rule 118
+			# legislates five values; a grammar that maps a phrase to a sixth
+			# would fail silently at the far end of the loop, where the cause
+			# is hardest to see.
+			if ring_find(StzSemanticValues(), _m_) = 0
+				@nRefusals++
+				@cLastError = "AcceptMeanings: '" + _row_[2] + "' is not one of the " +
+				              "five semantic values: " + This._Joined(StzSemanticValues())
+				return FALSE
+			ok
+			_ph_ + _p_
+			_mp_ + [ lower(_p_), _m_ ]
+		next
+		if NOT This.Accept(_ph_)  return FALSE ok
+		@aMeanings = _mp_
+		return TRUE
+
+	def AcceptMeaningsQ(paPairs)
+		This.AcceptMeanings(paPairs)
+		return This
+
+	# The meaning of what was just heard, or "" -- and "" is a RESULT, not a
+	# failure. A no-match means somebody said something that is not a command,
+	# which is information a control surface needs; the dangerous alternative
+	# is a confident wrong meaning.
+	def MeaningHeard()
+		_t_ = lower(trim(This.HeardText()))
+		if _t_ = ""  return "" ok
+		for _i_ = 1 to len(@aMeanings)
+			if @aMeanings[_i_][1] = _t_  return @aMeanings[_i_][2] ok
+		next
+		return ""
+
+	def AcceptedMeanings()
+		return @aMeanings
+
+	def _Joined(paList)
+		_s_ = ""
+		for _i_ = 1 to len(paList)
+			if _i_ > 1  _s_ += ", " ok
+			_s_ += "" + paList[_i_]
+		next
+		return _s_
 
 	def PhraseCount()
 		if NOT This.IsUsable()  return 0 ok
