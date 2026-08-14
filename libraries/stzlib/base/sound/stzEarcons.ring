@@ -508,13 +508,78 @@ class stzEarcons
 
 	# Drive the queue to the end. Occupies the thread, which is honest for a
 	# script; a program with a UI ticks instead.
+	#
+	# ONE BUFFER, ONE DEVICE, and the reason it is allowed to work this way is
+	# a property of this method rather than a shortcut.
+	#
+	# Ticking speaks one phrase per transport, and a transport is a DEVICE:
+	# opened, played, closed, per phrase. Three announcements meant three
+	# device open/close cycles, each costing about half a second of silence
+	# before its phrase and risking the end of the one before -- a device is
+	# closed the moment its last frame is READ, which is not when it is heard.
+	#
+	# This method OCCUPIES THE THREAD. Nothing can call Say while it runs, so
+	# the queue it starts with is the queue it finishes with: there is nothing
+	# left to cancel, and rendering the whole of it into one buffer is not a
+	# loss of behaviour, only of churn. TickSpeech keeps the per-phrase
+	# transport precisely because a program that ticks CAN be interrupted, and
+	# there the ability to stop mid-sentence is the point.
 	def SpeakQueueToEnd()
+		# 1. Let whatever a previous TickSpeech already started finish, and do
+		#    NOT start anything new here -- that is step 2's job.
 		_guard_ = 0
-		while (len(@aQueue) > 0 or isObject(@oSpeaking)) and _guard_ < 4000
-			This.TickSpeech()
+		while isObject(@oSpeaking) and _guard_ < 4000
+			@oSpeaking.Tick()
+			if @oSpeaking.IsStopped()
+				@oSpeaking.Release()
+				@oSpeaking = NULL
+				@nSpeakingPriority = 0
+			else
+				sleep(0.02)
+			ok
+			_guard_++
+		end
+		if len(@aQueue) = 0  return This ok
+
+		# 2. Synthesise everything still queued BEFORE opening anything. The
+		#    phrases are spoken in queue order, which priority already fixed.
+		_snds_ = []
+		for _i_ = 1 to len(@aQueue)
+			_s_ = This.ToSoundOfSaying(@aQueue[_i_][1], @aQueue[_i_][2])
+			if isObject(_s_)  _snds_ + _s_ ok
+		next
+		@aQueue = []
+		if len(_snds_) = 0  return This ok
+
+		# 3. Lay them end to end with the same gap that separates a cue from
+		#    its phrase, so a run of announcements is paced like one.
+		_rate_ = _snds_[1].SampleRate()
+		_total_ = 0
+		_at_ = []
+		for _i_ = 1 to len(_snds_)
+			_at_ + _total_
+			_total_ += _snds_[_i_].Duration()
+			if _i_ < len(_snds_)  _total_ += @nGapSeconds * 2 ok
+		next
+		_out_ = StzSoundOfSilenceQ(_total_ + 0.10, 1, _rate_)
+		for _i_ = 1 to len(_snds_)
+			This._Blit(_out_, _snds_[_i_], floor(_at_[_i_] * _rate_))
+		next
+
+		# 4. ONE transport, for all of it.
+		_g_ = new stzSoundGraph()
+		_g_.Reshape(1, _rate_)
+		_g_.AddSound(_out_)
+		_t_ = new stzSoundTransport(_g_)
+		_t_.PlayFor(_out_.Duration())
+		_guard_ = 0
+		while NOT _t_.IsStopped() and _guard_ < 20000
+			_t_.Tick()
 			sleep(0.02)
 			_guard_++
 		end
+		_t_.Release()
+		@nSpeechSpoken += len(_snds_)
 		return This
 
 	def IsSpeaking()
@@ -528,6 +593,12 @@ class stzEarcons
 
 	def SpeechSpoken()
 		return @nSpeechSpoken
+
+	# The silence between a cue and its phrase, and between two announcements
+	# when a queue drains as one. Exposed because a guard has to be able to
+	# account for it rather than assume it.
+	def SpeechGapSeconds()
+		return @nGapSeconds
 
 	def SetSpeechQueueMax(pn)
 		if pn >= 1  @nQueueMax = pn ok

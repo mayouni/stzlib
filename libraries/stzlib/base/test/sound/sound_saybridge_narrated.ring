@@ -209,6 +209,57 @@ oL.Release()
 
 # ---------------------------------------------------------------------------
 ? ""
+? "-- Scene 6: draining the queue opens ONE device, not one per phrase --"
+? "   Ticking speaks one phrase per transport, and a transport IS a device:"
+? "   opened, played, closed, per phrase. Three announcements meant three"
+? "   open/close cycles, each costing about half a second of silence before"
+? "   its phrase. SpeakQueueToEnd occupies the thread, so nothing can call"
+? "   Say while it runs -- the queue it starts with is the queue it finishes"
+? "   with, there is nothing left to cancel, and it can render the whole of"
+? "   it into one buffer."
+? ""
+? "   Device count is not exposed, so the instrument is a CLOCK: the cost"
+? "   this removes is real time, and real time is measurable."
+
+oD = new stzEarcons()
+oD.SetVoiceLanguage("en-US")
+aP = [ "Backup complete.", "Indexing continues.", "Disk full." ]
+
+# synthesise once OUTSIDE the timed region, only to learn the durations
+nAudio = 0
+for i = 1 to len(aP)
+	oTmp = oD.ToSoundOfSaying(:Info, aP[i])
+	nAudio += oTmp.Duration()
+next
+nGaps = oD.SpeechGapSeconds() * 2 * (len(aP) - 1)
+? "   the audio itself is " + nAudio + " s, plus " + nGaps + " s of gaps"
+
+if StzAudioDevEngineLoaded() and StzEngineAudioDevIsAvailable() = 1
+	oD.Say(:Info, aP[1])
+	oD.Say(:Info, aP[2])
+	oD.Say(:Info, aP[3])
+	Chk("three are queued", oD.SpeechQueueDepth() = 3)
+	nT0 = clock()
+	oD.SpeakQueueToEnd()
+	nTook = (clock() - nT0) / clockspersecond()
+	? "   draining took " + nTook + " s"
+	Chk("the queue drained", oD.SpeechQueueDepth() = 0)
+	Chk("and all three were spoken", oD.SpeechSpoken() = 3)
+	# ONE device open plus synthesis is under a second of overhead here.
+	# THREE would put this past the bound, which is what makes it a test.
+	# measured overhead here is ~0.8 s for one open plus three syntheses;
+	# three opens would be ~2.4 s, so 1.5 discriminates rather than merely
+	# passing
+	Chk("it cost ONE device open, not three -- overhead under 1.5 s",
+	    nTook < nAudio + nGaps + 1.5)
+	Chk("and it did not return early, which would be the other way to pass",
+	    nTook > nAudio * 0.8)
+else
+	? "   (no output device -- skipped, and that is a pass)"
+ok
+
+# ---------------------------------------------------------------------------
+? ""
 ? "" + nPass + " passed, " + nFail + " failed"
 if nFail > 0
 	? "GUARD FAILED"
