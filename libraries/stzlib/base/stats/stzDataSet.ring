@@ -1783,15 +1783,22 @@ class stzDataSet from stzObject
 	        ok
 	    next
 	
-	    # Convert hash to array of pairs
+	    # Convert hash to array of pairs.
+	    #
+	    # _cDataKey_, NOT _cKey_. This loop used _cKey_ as its variable, which
+	    # is the CACHE key set above -- so by the time _SetCache ran, "freq_table"
+	    # had been overwritten with the last data value and the table was filed
+	    # under "50". The next call looked for "freq_table", missed, and computed
+	    # it all over again, filing a second copy. A cache that never hits, and
+	    # grows a key per distinct dataset.
 	    _aFreqTable_ = []
 	    _aKeysaFreqHash1_ = keys(_aFreqHash_)
 	    _nKeysaFreqHash1Len_ = len(_aKeysaFreqHash1_)
 	    for _iLoopKeysaFreqHash1_ = 1 to _nKeysaFreqHash1Len_
-	    	_cKey_ = _aKeysaFreqHash1_[_iLoopKeysaFreqHash1_]
-	        _aFreqTable_ + [_cKey_, _aFreqHash_[_cKey_]]
+	    	_cDataKey_ = _aKeysaFreqHash1_[_iLoopKeysaFreqHash1_]
+	        _aFreqTable_ + [_cDataKey_, _aFreqHash_[_cDataKey_]]
 	    next
-	
+
 	    This._SetCache(_cKey_, _aFreqTable_)
 	    return _aFreqTable_
 	
@@ -3913,15 +3920,39 @@ class stzDataSet from stzObject
 	def _EngineHandle()
 	    return @pEngineStats
 	
+	# ASKED FIRST, then read.
+	#
+	# Reading a Ring hashlist at a key it does not hold does not merely answer
+	# nothing -- it leaves the key behind, holding "". That is how a cache
+	# inspected before it was ever written came back carrying
+	# [ "freq_table", "" ]: the MISS created the entry, and every later
+	# _KeyIsCached() then answered yes to a key whose value was empty.
 	def _GetCached(_cKey_)
+	    if NOT This._KeyIsCached(_cKey_)
+	        return ""
+	    ok
 	    return @aCache[_cKey_]
 
+	# THE KEYS, not the last entry.
+	#
+	# This read `_acKeys_ = @aCache[i]` -- an ASSIGNMENT where an append was
+	# meant, and of the whole PAIR where the key was meant. After two entries
+	# it answered [ "alpha", 11 ]: the last pair, wearing the shape of a key
+	# list.
+	#
+	# Everything that consults it was therefore wrong. _KeyIsCached() said no
+	# for a key that was plainly there, so _SetCache()'s remove-then-add
+	# deleted by an index found in the wrong list -- which is how a cached
+	# frequency table came back as [ [ "freq_table", "" ], [ "50", ... ] ],
+	# one entry emptied and another invented.
 	def _CacheKeys()
 		_nLen_ = len(@aCache)
 		_acKeys_ = []
 
 		for i = 1 to _nLen_
-			_acKeys_ = @aCache[i]
+			if isList(@aCache[i]) and len(@aCache[i]) >= 1
+				_acKeys_ + @aCache[i][1]
+			ok
 		next
 
 		return _acKeys_
@@ -3954,9 +3985,10 @@ class stzDataSet from stzObject
 		ok
 
 	def _SetCache(_cKey_, value)
-	    
-	    # Remove existing key if present
-		_RemoveFromCache(_cKey_)
+
+	    # This.  -- a bare call here is a GLOBAL function call in Ring, not a
+	    # method call on this object.
+		This._RemoveFromCache(_cKey_)
 	    
 	    # Add new cache entry
 	    @aCache + [_cKey_, value]
@@ -3968,6 +4000,24 @@ class stzDataSet from stzObject
 
 	def Cache()
 	    return @aCache
+
+	# WHAT is cached, and HOW MUCH -- without reading the values, which are
+	# whole frequency tables and unique-value lists and make an unreadable
+	# print. _CacheKeys() has always existed for the class's own use; these
+	# are the public way to ask, and they are what makes a cache HIT
+	# observable from outside rather than merely believed.
+	def CacheKeys()
+	    return This._CacheKeys()
+
+	def NumberOfCachedValues()
+	    return len(@aCache)
+
+		def CacheSize()
+			return This.NumberOfCachedValues()
+
+	# TRUE when nothing has been computed yet.
+	def CacheIsEmpty()
+	    return len(@aCache) = 0
 
     #================================#
     #  UTILITY AND ACCESSOR METHODS  #

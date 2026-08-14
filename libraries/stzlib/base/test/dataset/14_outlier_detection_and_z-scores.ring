@@ -15,7 +15,10 @@ o1 {
     ? @@(Outliers())      #--> [100] (beyond 1.5*IQR from quartiles)
     ? IsOutlier(100)      #--> TRUE
     ? IsOutlier(15)       #--> FALSE
-    ? @@(ZScores())       #--> [-0.5725, ..., 2.6258] (standardized values)
+    # WRITTEN OUT, not elided. "[-0.5725, ..., 2.6258]" cannot be checked
+    # against anything -- the ellipsis is where the assertion would have
+    # been. The nine values are the nine observations, standardized.
+    ? @@(ZScores())       #--> [ -0.57, -0.50, -0.47, -0.39, -0.29, -0.22, -0.15, -0.04, 2.63 ]
 }
 
 pf()

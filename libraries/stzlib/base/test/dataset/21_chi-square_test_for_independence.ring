@@ -9,6 +9,10 @@ load "../../stzBase.ring"
 # Tests association between two categorical variables.
 
 pr()
+
+# Four decimals, the precision this expectation is written to -- Ring
+# renders floats through the process-global decimals, default 2.
+StzDecimals(4)
 aGender = [ " Male", "Female", "Male", "Female", "Male", "Female", "Male", "Female", "Male", "Female " ]
 aPreference = [ " Like", "Like", "Dislike", "Dislike", "Like", "Like", "Dislike", "Like", "Dislike", "Like " ]
 

@@ -97,6 +97,12 @@ def variants(expected):
     add(expected)
     add(re.sub(r'\s*\([^)]*\)\s*$', '', expected))
 
+    # ...and again cutting at the LAST ' (', for a note that contains
+    # parentheses of its own: '(alias for Data())' defeats the pattern
+    # above, which stops at the first ')' and leaves a ragged tail.
+    if expected.rstrip().endswith(')') and ' (' in expected:
+        add(expected[:expected.rindex(' (')])
+
     for base in list(seen):
         if base.startswith('"') and base.endswith('"') and len(base) > 1:
             add(base[1:-1])
