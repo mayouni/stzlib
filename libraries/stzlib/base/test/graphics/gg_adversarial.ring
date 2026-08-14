@@ -498,6 +498,113 @@ chk("a second self-loop is refused as the parallel edge it is",
 
 #---------------------------------------------------------------------------
 ? ""
+? "-- 11. An edge label reaches the PICTURE --------------------"
+#
+# The labels were in the model, they reached the dot writer, and this
+# tier never drew them: an edge that said "fails check" in the data was
+# an anonymous arrow on the page. Nothing failed anywhere, because every
+# test that cared about edge labels asked the MODEL or the DOT, and both
+# were right.
+#---------------------------------------------------------------------------
+
+EFONT = new stzFont("C:/Windows/Fonts/segoeui.ttf")
+oEL = new stzDiagram("flow")
+for a in [ [ "req", "Request" ], [ "val", "Validate" ],
+           [ "ok", "Accept" ], [ "no", "Reject" ] ]
+	oEL.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
+next
+oEL.AddEdgeXT("req", "val", "submits")
+oEL.AddEdgeXT("val", "ok", "passes")
+oEL.AddEdgeXT("val", "no", "fails check")
+
+# THE SAME DIAGRAM, LABELLED AND NOT, COMPARED PIXEL FOR PIXEL. Counting
+# ink in the rank gaps needed a rule for "which rows are gaps", and every
+# rule got it wrong: everything non-white swept up the EDGES, which are
+# present either way; restricting to dark pixels then swept up the node
+# BORDERS, which are darker than the text and sit on exactly the rows a
+# node-fill test calls empty. Both measured something real and neither
+# measured labels. Two renders differing ONLY in their labels need no
+# such rule -- whatever changed IS the labels.
+aLOpt = [ :Font = EFONT, :NodeWidth = 110, :NodeHeight = 40 ]
+oELc = oEL.ToCanvasXT(aLOpt)
+
+oNL3 = new stzDiagram("flow2")
+for a in [ [ "req", "Request" ], [ "val", "Validate" ],
+           [ "ok", "Accept" ], [ "no", "Reject" ] ]
+	oNL3.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
+next
+oNL3.AddEdge("req", "val")  oNL3.AddEdge("val", "ok")  oNL3.AddEdge("val", "no")
+oNL3c = oNL3.ToCanvasXT(aLOpt)
+
+? "   canvases : labelled " + oELc.Width() + "x" + oELc.Height() +
+  ", unlabelled " + oNL3c.Width() + "x" + oNL3c.Height()
+nDiffL = _PixelsDiffering(oELc, oNL3c)
+? "   pixels differing between the two renders : " + nDiffL
+chk("an edge label is actually drawn", nDiffL > 300)
+
+# THE NEGATIVE SIBLING: the same diagram rendered TWICE must differ in
+# nothing at all, or the comparison is reporting noise.
+nSame = _PixelsDiffering(oELc, oEL.ToCanvasXT(aLOpt))
+? "   the labelled diagram against ITSELF : " + nSame
+chkeq("the label check DISCRIMINATES", nSame, 0)
+
+# ...and the gap GROWS to hold them WHEN IT HAS TO. At the default rank
+# separation there is already room -- 76px of gap against the ~62px a
+# line of text needs -- so asserting the labelled picture is simply
+# taller compares two diagrams that both had enough space, and fails on a
+# working reservation. The property only has teeth where the gap is too
+# small to write in, so that is where it is asked.
+aTight = [ :Font = EFONT, :NodeWidth = 110, :NodeHeight = 40, :RankSep = 8 ]
+nTightL = oEL.ToCanvasXT(aTight).Height()
+nTightN = oNL3.ToCanvasXT(aTight).Height()
+? "   with :RankSep = 8 -- labelled " + nTightL +
+  ", unlabelled " + nTightN
+chk("a labelled diagram reserves the room to write in", nTightL > nTightN)
+chk("...and an unlabelled one keeps the separation it asked for",
+    nTightN < oNL3c.Height())
+
+#---------------------------------------------------------------------------
+? ""
+? "-- 12. SetLayout HONOURS what it accepted -------------------"
+#
+# It took any string and stored it. An unrecognised name fell through
+# _NativeRankDir's default and became top-down IN SILENCE -- so
+# SetLayout(:LeftToRight) drew a top-down picture with nothing anywhere
+# saying the instruction had been dropped. Every horizontal caller in
+# this library was affected, because the vertical directions had seven
+# spellings each and the horizontal ones had exactly one.
+#---------------------------------------------------------------------------
+
+for aL in [ [ :TopDown, "TB" ], [ :BottomUp, "BT" ],
+            [ :LeftRight, "LR" ], [ :LeftToRight, "LR" ],
+            [ :RightLeft, "RL" ], [ "lr", "LR" ] ]
+	oLy = new stzDiagram("t")
+	oLy.SetLayout(aL[1])
+	chkeq("  " + aL[1] + " means " + aL[2], oLy._NativeRankDir(), aL[2])
+next
+
+chk("an unknown layout is REFUSED, not silently defaulted", Raises('
+	o = new stzDiagram("t")
+	o.SetLayout(:Sideways)
+'))
+try
+	oLB = new stzDiagram("t")
+	oLB.SetLayout(:Sideways)
+catch
+	cLB = cCatchError
+done
+chk("...and the refusal lists what IS accepted",
+    StzFindFirst("lefttoright", StzReplace(StzLower(cLB), ":", "")) > 0 or
+    StzFindFirst("leftright", StzReplace(StzLower(cLB), ":", "")) > 0)
+
+# a graphviz ENGINE name is a different axis and stays accepted
+chk("an engine name is still accepted", NOT Raises('
+	o = new stzDiagram("t")
+	o.SetLayout("dot")
+'))
+
+#---------------------------------------------------------------------------
+? ""
 ? "=============================================================="
 ? " " + nOk + " ok, " + nBad + " failed"
 ? "=============================================================="
@@ -899,3 +1006,21 @@ func Raises cCode
 		return TRUE
 	done
 	return FALSE
+
+# How many pixels differ between two canvases of the SAME size. Answers -1
+# when the sizes differ, which is a different fact and must not be reported
+# as a difference count.
+func _PixelsDiffering oA, oB
+	if oA.Width() != oB.Width() or oA.Height() != oB.Height()  return -1  ok
+	_da_ = oA.ToPixels()
+	_db_ = oB.ToPixels()
+	_dn_ = min([ len(_da_), len(_db_) ])
+	_dc_ = 0
+	for _di_ = 1 to _dn_ step 4
+		if substr(_da_, _di_, 1) != substr(_db_, _di_, 1) or
+		   substr(_da_, _di_ + 1, 1) != substr(_db_, _di_ + 1, 1) or
+		   substr(_da_, _di_ + 2, 1) != substr(_db_, _di_ + 2, 1)
+			_dc_++
+		ok
+	next
+	return _dc_

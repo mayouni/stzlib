@@ -23,12 +23,29 @@ $cDefaultOrgChartEdgeSpline = "spline"
 $cDefaultOrgChartEdgeColor = "gray"
 
 # LAYOUT
+# THE TWO HORIZONTAL DIRECTIONS USED TO HAVE ONE SPELLING EACH while the
+# vertical pair had seven, and the asymmetry was not a decision -- it was an
+# oversight that silently ignored callers. `SetLayout(:LeftToRight)` stored
+# a string matching nothing, `_NativeRankDir` fell through to its "TB"
+# default, and the picture came out top-down with no complaint. Every
+# caller in this library that asked for a horizontal layout -- :LeftRight,
+# :LeftToRight, :RightLeft, "leftright" -- was quietly getting the opposite
+# axis, and a rendered diagram cannot be told from a correct one unless you
+# know which way you asked for.
 $acLayouts = [
-	:TopDown = [ "tb", "td", "topbottom", "ud", "updown", "ub", "upbottom" ],
-	:BottomUp = [ "bt", "dt", "bottomtop", "du", "downup", "bu", "bottomup" ],
-	:LeftRight = [ "lr" ],
-	:RightLeft = [ "rl" ]
+	:TopDown = [ "tb", "td", "topbottom", "ud", "updown", "ub", "upbottom",
+	             "topdown", "toptobottom", "vertical" ],
+	:BottomUp = [ "bt", "dt", "bottomtop", "du", "downup", "bu", "bottomup",
+	              "bottomtotop" ],
+	:LeftRight = [ "lr", "leftright", "lefttoright", "horizontal" ],
+	:RightLeft = [ "rl", "rightleft", "righttoleft" ]
 ]
+
+# The graphviz ENGINE names. A different axis from rank direction entirely,
+# but they arrive through the same setter and have always been accepted, so
+# they are named here rather than left to be refused by a check that cannot
+# tell them from a typo.
+$acLayoutEngines = [ "dot", "neato", "fdp", "sfdp", "circo", "twopi", "osage" ]
 
 $cDefaultLayout = "topdown"
 
@@ -336,9 +353,33 @@ class stzDiagram from stzGraph
 	        ok
 	    ok
 	
+	# A LAYOUT NAME THIS DOES NOT KNOW IS REFUSED, not stored. It used to
+	# take anything, and an unrecognised name became top-down in silence --
+	# so `SetLayout(:LeftToRight)` drew a top-down picture and there was
+	# nothing anywhere to say the instruction had been dropped. A setter
+	# that accepts a value it will not honour is worse than one that
+	# refuses: the caller has evidence of neither.
 	def SetLayout(pLayout)
-		
-		@cLayout = StzLower(pLayout)
+		_c_ = StzLower("" + pLayout)
+		if _c_ = ""
+			StzRaise("stzDiagram.SetLayout: name a direction (:TopDown, " +
+				":BottomUp, :LeftRight, :RightLeft) or a graphviz engine.")
+		ok
+		_bOk_ = 0
+		for _k_ in [ :TopDown, :BottomUp, :LeftRight, :RightLeft ]
+			if _c_ = StzLower("" + _k_) or StzFindFirst(_c_, $acLayouts[_k_]) > 0
+				_bOk_ = 1
+				exit
+			ok
+		next
+		if _bOk_ = 0 and StzFindFirst(_c_, $acLayoutEngines) > 0  _bOk_ = 1  ok
+		if _bOk_ = 0
+			StzRaise("stzDiagram.SetLayout: '" + pLayout + "' is not a " +
+				"layout I know. Directions are :TopDown, :BottomUp, " +
+				":LeftRight and :RightLeft (or tb/bt/lr/rl); engines are " +
+				StzJoinWith($acLayoutEngines, ", ") + ".")
+		ok
+		@cLayout = _c_
 
 	def SetEdgeStyle(pStyle)
 		@cEdgeStyle = StzLower(pStyle)
@@ -1463,6 +1504,23 @@ class stzDiagram from stzGraph
 		_nSepN_ = This._DiagOpt(paOptions, "nodesep", floor(This.NodeSeparation() * 96))
 		_nSepR_ = This._DiagOpt(paOptions, "ranksep", floor(This.RankSeparation() * 96))
 
+		# A LABELLED EDGE NEEDS THE GAP IT IS WRITTEN IN. dot reserves this
+		# by giving the label its own virtual rank; the same effect, at this
+		# scale, is that the rank gap must be at least tall enough to hold a
+		# line of text with air around it. Without the reservation a label
+		# is drawn into whatever space the ranks happened to leave, which is
+		# how labels come to sit on top of each other and on the arrowheads.
+		#
+		# Only when a label EXISTS -- an unlabelled diagram keeps exactly the
+		# separation its author asked for.
+		_bELab_ = 0
+		for _e0_ in This.Edges()
+			if StzTrim("" + _e0_[:label]) != ""  _bELab_ = 1  exit  ok
+		next
+		if _bELab_
+			_nSepR_ = max([ _nSepR_, _nFsz_ * 2 + 34 ])
+		ok
+
 		if _bNat_
 			# any provisional size -- only the FRACTIONS of it are read back
 			_oGC_ = new stzGraphCanvas(This, [
@@ -1555,13 +1613,25 @@ class stzDiagram from stzGraph
 					ok
 					_at_ = This._XYOf(_aXY_, "" + _e0_[:from])
 					if len(_at_) != 2  loop  ok
+					# ...and its LABEL sits BEYOND the loop, so the reach is
+					# not the whole reservation. Reserving only the loop
+					# clipped "retry" against the top edge of the picture --
+					# the same shape as the loop bug itself, one layer out.
+					_slx_ = _slr_
+					if StzTrim("" + _e0_[:label]) != "" and isObject(_oFont_)
+						_slx_ += _nFsz_ * 2
+					ok
 					if _bSwap_
-						if _at_[2] - _nBoxH_ / 2 - _slr_ < _ey0_
-							_ey0_ = _at_[2] - _nBoxH_ / 2 - _slr_
+						if _at_[2] - _nBoxH_ / 2 - _slx_ < _ey0_
+							_ey0_ = _at_[2] - _nBoxH_ / 2 - _slx_
 						ok
 					else
-						if _at_[1] + _nBoxW_ / 2 + _slr_ > _ex1_
-							_ex1_ = _at_[1] + _nBoxW_ / 2 + _slr_
+						_slw_ = 0
+						if StzTrim("" + _e0_[:label]) != "" and isObject(_oFont_)
+							_slw_ = _oFont_.WidthOf("" + _e0_[:label], _nFsz_) + 10
+						ok
+						if _at_[1] + _nBoxW_ / 2 + _slr_ + _slw_ > _ex1_
+							_ex1_ = _at_[1] + _nBoxW_ / 2 + _slr_ + _slw_
 						ok
 					ok
 				next
@@ -1750,6 +1820,102 @@ class stzDiagram from stzGraph
 					_nEdgeW_, _cSpl_, _cRank_, _aPort_[_ei_][3])
 			ok
 		next
+
+		# 2b. EDGE LABELS, drawn LAST of the edge work and on a plate of the
+		#     background colour.
+		#
+		#     They were in the model, they reached the dot writer, and this
+		#     tier simply never drew them -- an edge that said "fails check"
+		#     in the data was an anonymous arrow in the picture, which is
+		#     the difference between a diagram and a decoration.
+		#
+		#     The plate is not decoration either: a label sits ON its own
+		#     edge, and dark text crossed by a grey line at x-height is
+		#     genuinely hard to read. dot draws labels over a filled box for
+		#     the same reason.
+		if isObject(_oFont_) and _bELab_
+			_aLabAt_ = []
+			for _ei_ = 1 to _nEc_
+				_cLab_ = StzTrim("" + _aE_[_ei_][:label])
+				if _cLab_ = ""  loop  ok
+				_a_ = This._XYOf(_aXY_, "" + _aE_[_ei_][:from])
+				_b_ = This._XYOf(_aXY_, "" + _aE_[_ei_][:to])
+				if len(_a_) != 2 or len(_b_) != 2  loop  ok
+
+				_bSelf_ = 0
+				if StzLower("" + _aE_[_ei_][:from]) =
+				   StzLower("" + _aE_[_ei_][:to])  _bSelf_ = 1  ok
+
+				if _bSelf_
+					# beside the loop, never inside the node
+					_lr_ = This._SelfLoopReach(_nBoxW_, _nBoxH_)
+					if _bSwap_
+						_lax_ = _a_[1]
+						_lay_ = _a_[2] - _nBoxH_ / 2 - _lr_ - _nFsz_
+					else
+						_lax_ = _a_[1] + _nBoxW_ / 2 + _lr_ + 4
+						_lay_ = _a_[2]
+					ok
+				else
+					_aBend_ = This._RouteOf(_aRoute_, "" + _aE_[_ei_][:from],
+						"" + _aE_[_ei_][:to])
+					if len(_aBend_) > 0
+						# a routed edge is labelled where it actually runs,
+						# not on the straight line it never takes
+						_mid_ = _aBend_[ ceil(len(_aBend_) / 2) ]
+						_lax_ = _mid_[1]
+						_lay_ = _mid_[2]
+					else
+						_p2_ = This._ClipToBox(_a_, _b_, _nBoxW_, _nBoxH_)
+						_q2_ = This._ClipToBox(_b_, _a_, _nBoxW_, _nBoxH_)
+						_lax_ = (_p2_[1] + _q2_[1]) / 2
+						_lay_ = (_p2_[2] + _q2_[2]) / 2
+					ok
+				ok
+				_aLabAt_ + [ _cLab_, _lax_, _lay_ ]
+			next
+
+			# NUDGE APART, because reserving the gap does not stop two
+			# labels landing in the SAME part of it -- two edges leaving one
+			# node into the same rank cross the gap side by side, and their
+			# midpoints can be a few pixels apart. Each label that would
+			# overlap one already placed is pushed along the rank axis into
+			# the next free band.
+			_aDone_ = []
+			for _li_ = 1 to len(_aLabAt_)
+				_cLab_ = _aLabAt_[_li_][1]
+				_lw_ = _oFont_.WidthOf(_cLab_, _nFsz_) + 8
+				_lh_ = _nFsz_ + 6
+				_lx_ = _aLabAt_[_li_][2]
+				_ly_ = _aLabAt_[_li_][3]
+				for _try_ = 1 to 6
+					_bHit_ = 0
+					for _d_ in _aDone_
+						if fabs(_lx_ - _d_[1]) < (_lw_ + _d_[3]) / 2 and
+						   fabs(_ly_ - _d_[2]) < (_lh_ + _d_[4]) / 2
+							_bHit_ = 1
+							exit
+						ok
+					next
+					if _bHit_ = 0  exit  ok
+					if _bSwap_
+						_lx_ += _lw_ * 0.55
+					else
+						_ly_ += _lh_ * 1.15
+					ok
+				next
+				_aDone_ + [ _lx_, _ly_, _lw_, _lh_ ]
+
+				_oC_.Flush()
+				_oC_.FillQ(_cBg_).StrokeQ(_cBg_, 1).
+					AddRect(_lx_ - _lw_ / 2, _ly_ - _lh_ / 2, _lw_, _lh_)
+				_oC_.Flush()
+				_oC_.AddTextQ(_cLab_, _lx_ - (_lw_ - 8) / 2,
+					_ly_ + _nFsz_ / 3).
+					SetFontQ(_oFont_, _nFsz_).
+					Color(This.ContrastingTextColor(_cBg_))
+			next
+		ok
 
 		# 3. NODES
 		for _i_ = 1 to _nN_
