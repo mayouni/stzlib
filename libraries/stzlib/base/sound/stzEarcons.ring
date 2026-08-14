@@ -116,6 +116,28 @@ class stzEarcons
 	@nSpeechSpoken = 0
 	@nGapSeconds = 0.12   # between the earcon and the phrase
 
+	# ── SS3: DUCKING ───────────────────────────────────────────────────────
+	#
+	# §S.3 decided the priority contract and deliberately did NOT build this:
+	# attenuating a lower-priority voice needs a per-bus gain node, and adding
+	# a node was on the far side of that session's boundary.
+	#
+	# DUCK OR DROP, and the plane already does one of them. A cue displaced by
+	# something louder in meaning is DROPPED, because a cue arriving after its
+	# event lies about when it happened. Ducking is the other half: a cue that
+	# is ALREADY SOUNDING cannot be un-sounded, so it is turned DOWN while the
+	# alert speaks over it.
+	#
+	# -12 dB is the default, and it is a number rather than a taste: it is deep
+	# enough that the ducked cue stops competing for attention and shallow
+	# enough that it is still audibly present, so a listener can tell "quieter"
+	# from "gone". A duck to silence would be indistinguishable from a drop,
+	# and then there would be no reason to have built this.
+	@nDuckDb = -12
+	@nDuckRampMs = 10     # SN3's measured ramp; see the kill criterion
+	@bDuckOn = TRUE
+	@nDucksApplied = 0
+
 	def init()
 		This._BuildMotifs()
 		for _v_ in StzSemanticValues()
@@ -317,11 +339,89 @@ class stzEarcons
 			return This
 		ok
 		@oPool.Fire(This._Parse(pMeaning)[1])
+		# SS3: whatever is quieter in meaning gets out of the way. This happens
+		# AFTER the fire, so the alert's own bus is never the one turned down.
+		This.DuckUnder(pMeaning)
 		This.RecordFireAt(pMeaning, _now_)
 		return This
 
 	def FireQ(pMeaning)
 		This.Fire(pMeaning)
+		return This
+
+	#-- SS3: ducking --------------------------------------------------------
+
+	# How deep, in dB. Declared, never inferred -- a caller who wants a
+	# different depth argues with a number.
+	def SetDuckDepth(pnDb)
+		if pnDb > 0
+			@nRefusals++
+			@cLastError = "SetDuckDepth: a duck is an attenuation -- give a " +
+			              "NEGATIVE dB value"
+			return This
+		ok
+		@nDuckDb = pnDb
+		return This
+
+	def DuckDepthDb()
+		return @nDuckDb
+
+	def SetDuckRampMs(pnMs)
+		if pnMs < 0  pnMs = 0 ok
+		@nDuckRampMs = pnMs
+		return This
+
+	def DuckRampMs()
+		return @nDuckRampMs
+
+	def SetDucking(pbOn)
+		@bDuckOn = pbOn
+		return This
+
+	def IsDucking()
+		return @bDuckOn
+
+	# COUNTED, like everything else this plane does behind a listener's back.
+	# "Why did that get quiet" must have an answer that is a number.
+	def DucksApplied()
+		return @nDucksApplied
+
+	# The gain the RENDER is applying to a value's bus right now. During a ramp
+	# this is somewhere between the old value and the target, which is what
+	# lets a guard prove the ramp MOVES rather than jumps.
+	def GainOf(pMeaning)
+		if NOT @bStarted  return -1 ok
+		_p_ = This._Parse(pMeaning)
+		if _p_[1] = ""  return -1 ok
+		return @oPool.VoiceGain(_p_[1])
+
+	# Duck every value QUIETER IN MEANING than this one, and leave the rest
+	# alone. Ramped, so it cannot click.
+	def DuckUnder(pMeaning)
+		if NOT @bStarted or NOT @bDuckOn  return This ok
+		_p_ = This._Parse(pMeaning)
+		if _p_[1] = ""  return This ok
+		_pri_ = This.PriorityOf(pMeaning)
+		_g_ = pow(10, @nDuckDb / 20)
+		_any_ = FALSE
+		for _v_ in StzSemanticValues()
+			if _v_ = "muted"  loop ok
+			if This.PriorityOf(_v_) < _pri_
+				@oPool.SetVoiceGain(_v_, _g_, @nDuckRampMs)
+				_any_ = TRUE
+			ok
+		next
+		if _any_  @nDucksApplied++ ok
+		return This
+
+	# Everything back to unity, on the same ramp. Restoring with a JUMP would
+	# click exactly as ducking with one would.
+	def Unduck()
+		if NOT @bStarted  return This ok
+		for _v_ in StzSemanticValues()
+			if _v_ = "muted"  loop ok
+			@oPool.SetVoiceGain(_v_, 1.0, @nDuckRampMs)
+		next
 		return This
 
 	#-- VC4: SAY -- the earcon, then the phrase that says WHICH -------------
