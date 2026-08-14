@@ -298,14 +298,13 @@ class stzUiDocument from stzObject
 	# here it is a walk over a tree that already exists.
 
 	def _MapDirection(pDecl, pcInherited)
-		if len(@aDirMap) = 0 and strcmp(pDecl[:kind], "PANEL") = 0
-			@aDirMap = []
-		ok
 		_cDir_ = This._IdField(This._EffectiveFields(pDecl), "TEXT_DIRECTION", pcInherited)
 		if strcmp(_cDir_, "rtl") != 0 and strcmp(_cDir_, "ltr") != 0
 			_cDir_ = pcInherited
 		ok
-		@aDirMap + [ pDecl[:name], _cDir_ ]
+		# whether this element FLIPPED relative to its parent, which is
+		# the only case where an inherited alignment would be wrong
+		@aDirMap + [ pDecl[:name], _cDir_, strcmp(_cDir_, pcInherited) != 0 ]
 		_aKids_ = This._ChildrenOf(pDecl)
 		_nK_ = len(_aKids_)
 		for _i_ = 1 to _nK_
@@ -328,6 +327,16 @@ class stzUiDocument from stzObject
 
 	def IsRtl(pcName)
 		return strcmp(This.DirectionOf(pcName), "rtl") = 0
+
+	# TRUE when this element's direction differs from its parent's.
+	def _FlipsDirection(pcName)
+		_n_ = len(@aDirMap)
+		for _i_ = 1 to _n_
+			if strcmp(@aDirMap[_i_][1], "" + pcName) = 0
+				return @aDirMap[_i_][3]
+			ok
+		next
+		return FALSE
 
 	# start/end are DIRECTION-RELATIVE, which is the vocabulary a format
 	# that takes RTL seriously should speak; RCSS only knows left/right,
@@ -392,12 +401,21 @@ class stzUiDocument from stzObject
 			_c_ += "display: block;"
 		ok
 
-		# Alignment, resolved against the direction in force, and emitted
-		# on EVERY element rather than left to inherit: a subtree that
-		# overrides its direction must re-resolve `start`, and an
-		# inherited `left` would quietly survive the flip.
-		_c_ += " text-align: " +
-			This._ResolveAlign(This._IdField(_aF_, "TEXT_ALIGN", "start"), _cDir_) + ";"
+		# Alignment is emitted ONLY where it is decided, and inherits
+		# everywhere else. Emitting it on every element instead looked
+		# harmless and silently broke the ordinary case: a TEXT_ALIGN on
+		# a CARD did nothing, because the text inside it carried its own
+		# resolved `left` and overrode the parent. Three tiles side by
+		# side made it obvious; no assertion had.
+		#
+		# Two cases decide it. The element declares TEXT_ALIGN -- then it
+		# means it. Or the element FLIPS direction relative to its parent
+		# -- then an inherited `left` would survive a flip to rtl and put
+		# Arabic on the wrong edge.
+		if len(This._RawField(_aF_, "TEXT_ALIGN")) > 0 or This._FlipsDirection(pDecl[:name])
+			_c_ += " text-align: " +
+				This._ResolveAlign(This._IdField(_aF_, "TEXT_ALIGN", "start"), _cDir_) + ";"
+		ok
 
 		# sizes: a number MEANS the number (flex-shrink: 0 rides along);
 		# "n%" passes through; `fill` grows into the leftover

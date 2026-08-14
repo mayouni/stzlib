@@ -1,0 +1,170 @@
+-- gallery.stzui -- one file exercising the shapes a real screen is made of.
+
+DEFINE PANEL gallery (
+  SIZE [960, 660],
+  DIRECTION column,
+  FONT "app",
+  BACKGROUND "#12161c",
+  CHILDREN [head, body, foot]
+) RATIONALE "A gallery: every layout shape this format can express, on one screen."
+
+-- ---------------------------------------------------------------- styles
+
+DEFINE STYLE panel_tile (
+  BACKGROUND "#1b2028",
+  PADDING 14,
+  MARGIN 8
+) RATIONALE "The common card surface."
+
+DEFINE STYLE label (
+  SIZE 13,
+  COLOR "#8aa4c0"
+) RATIONALE "A quiet caption."
+
+DEFINE STYLE value (
+  SIZE 30,
+  COLOR "#eef4fb"
+) RATIONALE "A number worth reading first."
+
+DEFINE STYLE row_item (
+  HEIGHT 34,
+  PADDING 8,
+  BACKGROUND "#222a34",
+  MARGIN 3
+) RATIONALE "One line in a list."
+
+-- ------------------------------------------------------------------ head
+
+DEFINE BOX head (
+  DIRECTION row,
+  HEIGHT 56,
+  PADDING 16,
+  GAP 22,
+  BACKGROUND "#1d3a5c",
+  CHILDREN [brand, nav_one, nav_two, nav_three]
+) RATIONALE "A title bar with a brand and three destinations."
+
+DEFINE TEXT brand (
+  CONTENT "Softanza Gallery",
+  SIZE 20,
+  COLOR "#ffffff"
+) RATIONALE "Says what this is."
+
+DEFINE TEXT nav_one   ( CONTENT "Overview", SIZE 15, COLOR "#b9d2ea" ) RATIONALE "nav"
+DEFINE TEXT nav_two   ( CONTENT "Planes",   SIZE 15, COLOR "#b9d2ea" ) RATIONALE "nav"
+DEFINE TEXT nav_three ( CONTENT "About",    SIZE 15, COLOR "#b9d2ea" ) RATIONALE "nav"
+
+-- ------------------------------------------------------------------ body
+
+DEFINE BOX body (
+  DIRECTION row,
+  HEIGHT fill,
+  CHILDREN [rail, main]
+) RATIONALE "A fixed rail beside a flexible main area."
+
+DEFINE BOX rail (
+  WIDTH 200,
+  PADDING 14,
+  BACKGROUND "#171c23",
+  CHILDREN [rail_title, r1, r2, r3, r4, r5]
+) RATIONALE "200 means 200: the rail never shrinks under pressure."
+
+DEFINE TEXT rail_title ( CONTENT "SECTIONS", STYLE label ) RATIONALE "heading"
+
+DEFINE BOX r1 ( STYLE row_item, CHILDREN [r1t] ) RATIONALE "list row"
+DEFINE BOX r2 ( STYLE row_item, CHILDREN [r2t] ) RATIONALE "list row"
+DEFINE BOX r3 ( STYLE row_item, CHILDREN [r3t] ) RATIONALE "list row"
+DEFINE BOX r4 ( STYLE row_item, CHILDREN [r4t] ) RATIONALE "list row"
+DEFINE BOX r5 ( STYLE row_item, CHILDREN [r5t] ) RATIONALE "list row"
+
+DEFINE TEXT r1t ( CONTENT "Stat tiles",  SIZE 14, COLOR "#cfe0f2" ) RATIONALE "row label"
+DEFINE TEXT r2t ( CONTENT "Wrapping",    SIZE 14, COLOR "#cfe0f2" ) RATIONALE "row label"
+DEFINE TEXT r3t ( CONTENT "Paragraph",   SIZE 14, COLOR "#cfe0f2" ) RATIONALE "row label"
+DEFINE TEXT r4t ( CONTENT "Alignment",   SIZE 14, COLOR "#cfe0f2" ) RATIONALE "row label"
+DEFINE TEXT r5t ( CONTENT "Right to left", SIZE 14, COLOR "#cfe0f2" ) RATIONALE "row label"
+
+DEFINE BOX main (
+  WIDTH fill,
+  PADDING 10,
+  CHILDREN [stats, prose, aligns, arabic]
+) RATIONALE "Everything that varies."
+
+-- stat tiles: a row of three, each a caption over a number
+
+DEFINE BOX stats (
+  DIRECTION row,
+  HEIGHT 116,
+  CHILDREN [s1, s2, s3]
+) RATIONALE "Three tiles side by side, sharing the width equally."
+
+DEFINE BOX s1 ( STYLE panel_tile, WIDTH "31%", CHILDREN [s1l, s1v] ) RATIONALE "tile"
+DEFINE BOX s2 ( STYLE panel_tile, WIDTH "31%", CHILDREN [s2l, s2v] ) RATIONALE "tile"
+DEFINE BOX s3 ( STYLE panel_tile, WIDTH "31%", CHILDREN [s3l, s3v] ) RATIONALE "tile"
+
+DEFINE TEXT s1l ( CONTENT "GUARDS GREEN", STYLE label ) RATIONALE "caption"
+DEFINE TEXT s1v ( CONTENT "212",          STYLE value ) RATIONALE "the number"
+DEFINE TEXT s2l ( CONTENT "TRIANGLES",    STYLE label ) RATIONALE "caption"
+DEFINE TEXT s2v ( CONTENT "1000",         STYLE value ) RATIONALE "the number"
+DEFINE TEXT s3l ( CONTENT "MS / LAYOUT",  STYLE label ) RATIONALE "caption"
+DEFINE TEXT s3v ( CONTENT "0.20",         STYLE value ) RATIONALE "the number"
+
+-- a paragraph that must WRAP, inside a card
+
+DEFINE BOX prose (
+  STYLE panel_tile,
+  HEIGHT 130,
+  CHILDREN [prose_title, prose_body]
+) RATIONALE "A block of running text, to see line breaking at real widths."
+
+DEFINE TEXT prose_title ( CONTENT "Line breaking", STYLE label ) RATIONALE "caption"
+DEFINE TEXT prose_body (
+  CONTENT "This paragraph is long enough to wrap more than once, which is the only way to see that lines break where the glyphs actually end rather than where a monospace guess would put them.",
+  SIZE 15,
+  COLOR "#d5e2f0"
+) RATIONALE "Long on purpose."
+
+-- the three alignments, side by side in one row
+
+DEFINE BOX aligns (
+  DIRECTION row,
+  HEIGHT 74,
+  CHILDREN [al_start, al_center, al_end]
+) RATIONALE "start, center and end, so a wrong resolution is visible at a glance."
+
+DEFINE BOX al_start  ( STYLE panel_tile, WIDTH "31%", CHILDREN [alt_start] ) RATIONALE "tile"
+DEFINE BOX al_center ( STYLE panel_tile, WIDTH "31%", TEXT_ALIGN center, CHILDREN [alt_center] ) RATIONALE "tile"
+DEFINE BOX al_end    ( STYLE panel_tile, WIDTH "31%", TEXT_ALIGN end, CHILDREN [alt_end] ) RATIONALE "tile"
+
+DEFINE TEXT alt_start  ( CONTENT "start",  SIZE 16, COLOR "#e6b45c" ) RATIONALE "leading edge"
+DEFINE TEXT alt_center ( CONTENT "center", SIZE 16, COLOR "#e6b45c" ) RATIONALE "middle"
+DEFINE TEXT alt_end    ( CONTENT "end",    SIZE 16, COLOR "#e6b45c" ) RATIONALE "trailing edge"
+
+-- an RTL island inside an otherwise left-to-right screen
+
+DEFINE BOX arabic (
+  STYLE panel_tile,
+  TEXT_DIRECTION rtl,
+  HEIGHT 96,
+  CHILDREN [ar_title, ar_body]
+) RATIONALE "One declaration makes this card right-to-left; the page around it is not."
+
+DEFINE TEXT ar_title ( CONTENT "RIGHT TO LEFT", STYLE label ) RATIONALE "caption, on the right edge"
+DEFINE TEXT ar_body (
+  CONTENT "سوفتانزا",
+  SIZE 30,
+  COLOR "#eef4fb"
+) RATIONALE "Shaped and joined by the same pipeline that measured it."
+
+-- ------------------------------------------------------------------ foot
+
+DEFINE BOX foot (
+  HEIGHT 34,
+  PADDING 9,
+  BACKGROUND "#171c23",
+  CHILDREN [foot_text]
+) RATIONALE "A status strip that keeps its 34 pixels."
+
+DEFINE TEXT foot_text (
+  CONTENT "gallery.stzui -- rendered by the same display list on both tiers",
+  STYLE label
+) RATIONALE "Says where the picture came from."
