@@ -885,6 +885,38 @@ dropped frame. Guarded in `sound_transport_narrated.ring` without a device,
 since it is arithmetic: after 3 s a five-second voice still peaks at **0.500**;
 after its own duration it peaks at **0**.
 
+### And a fourth, which was not a bug at all
+
+After the pool was fixed, Part One of the demo still did not line up. The
+measurement said it should: rendering the pool's own graph offline returns the
+composite **bit-exact** over the first second, peak 0.688 against the source's
+0.688, zero underruns, and a clock that matched the wall.
+
+Nothing was wrong. **A pool FIRES into a ring the producer has already
+filled**, so a shot is heard about three quarters of a second after it is
+fired — the same latency SN6 measured as `TriggerToEarMs` and the plane has
+always reported. That is correct for a game, where the alternative is a
+starved device, and wrong for a demo whose job is to let a listener match a
+claim to a sound: every console line drifts a ring ahead of its own audio.
+
+So the demo stopped using a pool. Part One is **one linear buffer** — the six
+announcements laid end to end with their gaps, played by ONE transport, with
+the console driven by the transport's **clock** rather than by sleeps hoping to
+match it. No trigger, no ring latency, no drift. It also writes
+`say_bridge_part_one.wav`, so a disagreement between the file and the live
+playback localises a fault to the device path in one step instead of several.
+
+**Confirmed correct by the author, both the file and the live version.**
+
+The lesson is about instruments rather than about pools: three of these four
+defects were invisible to every counter the plane has, because the counters
+measure DELIVERY — frames lost, blocks late, devices refused — and each of
+these was a delivery that succeeded and was wrong. The rate mismatch lost no
+frame. The pool's early tail plays a voice nobody triggered. Trigger latency
+is the design working. **Only a listener sees any of them**, which is the
+standing rule for a hearable demo per phase, earning its keep four times in
+one session.
+
 ### What VC4 did NOT do
 
 - **No ducking.** Lowering a bed under a phrase needs a per-bus gain node; that
