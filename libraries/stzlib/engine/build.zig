@@ -132,7 +132,13 @@ const base_domains = [_]Domain{
     // Traits.h calls typeid), while stz_gpu compiles HarfBuzz with
     // -fno-exceptions -fno-rtti. It never touches wgpu: it hands out a
     // display list and the graphics plane draws it.
-    .{ .name = "stz_gui", .entry = "src/stz_gui_entry.zig", .needs_ring = true, .needs_rmlui = true },
+    // G2 adds needs_textshape + needs_stb: the SAME gpu_text.zig pipeline
+    // (SheenBidi -> HarfBuzz -> stb_truetype) compiled a second time into
+    // THIS DLL, so RmlUi lays out with real shaped widths. Two DLLs, two
+    // copies, zero cross-DLL calls -- and the painting side (stz_gpu) runs
+    // the same source on the same font bytes, so widths and pixels agree
+    // by construction rather than by protocol.
+    .{ .name = "stz_gui", .entry = "src/stz_gui_entry.zig", .needs_ring = true, .needs_rmlui = true, .needs_textshape = true, .needs_stb = true },
     // SN1 sound plane, TWO DLLs -- the split is FACT 3 of SOFTANZA_SOUND_PLAN.md,
     // adopted up front from the GR5 lesson above rather than rediscovered.
     // stz_sound is portable and cross-compiles everywhere; stz_audiodev carries

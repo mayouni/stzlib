@@ -102,6 +102,46 @@ fn ring_ElementBox(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// FontRegister(cFamily, cBytes) -> 0 on success. G2: the family name a
+// document's font-family refers to, bound to real TTF/OTF bytes -- the
+// SAME bytes the caller gives stzFont, so measuring (this DLL) and
+// painting (stz_gpu.dll) hold the identical file.
+fn ring_FontRegister(p: *anyopaque) callconv(.c) void {
+    const family = getStr(p, 1);
+    const z = allocator.dupeZ(u8, family) catch {
+        rn(p, gui.BAD_ARG);
+        return;
+    };
+    defer allocator.free(z);
+    rn(p, @floatFromInt(gui.fontRegister(z, getStr(p, 2))));
+}
+
+fn ring_FontCount(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gui.fontCount()));
+}
+
+// Texts() -> [ [nFontId, nSize, nX, nY, nColour, cUtf8], ... ] -- the
+// text commands the last render recorded. nFontId names a font in THIS
+// DLL's table and is useless to stz_gpu; the Ring face matches commands
+// to its own stzFont objects by the family it registered. (nX, nY) is
+// the BASELINE origin, the same convention stzCanvas.AddText takes.
+fn ring_Texts(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const n = gui.textCount();
+    var i: i32 = 0;
+    while (i < n) : (i += 1) {
+        const t = gui.textAt(i) orelse continue;
+        const item = R.ring_list_newlist(out) orelse continue;
+        R.ring_list_adddouble(item, @floatFromInt(t.font));
+        R.ring_list_adddouble(item, t.size);
+        R.ring_list_adddouble(item, t.x);
+        R.ring_list_adddouble(item, t.y);
+        R.ring_list_adddouble(item, @floatFromInt(t.colour));
+        R.ring_list_addstring2(item, t.text.ptr, @intCast(t.text.len));
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
 fn ring_LastError(p: *anyopaque) callconv(.c) void {
     const e = gui.lastError();
     R.ring_vm_api_retstring2(p, e.ptr, @intCast(e.len));
@@ -127,6 +167,9 @@ const regs = [_]R.Reg{
     .{ .name = "stzengineguicounters", .func = &ring_Counters },
     .{ .name = "stzengineguielementbox", .func = &ring_ElementBox },
     .{ .name = "stzengineguilasterror", .func = &ring_LastError },
+    .{ .name = "stzengineguifontregister", .func = &ring_FontRegister },
+    .{ .name = "stzengineguifontcount", .func = &ring_FontCount },
+    .{ .name = "stzengineguitexts", .func = &ring_Texts },
     .{ .name = "stzengineguisettime", .func = &ring_SetTime },
 };
 

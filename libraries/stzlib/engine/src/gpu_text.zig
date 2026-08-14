@@ -147,6 +147,17 @@ pub fn fontGlyphCount(id: i64) f64 {
     return @floatFromInt(c.hb_face_get_glyph_count(fonts.items[slot].face));
 }
 
+/// The stbtt face behind a font id, for a consumer that needs a metric
+/// this module does not expose (gui_font.zig reads the 'x' glyph box for
+/// RmlUi's x-height). Answered as anyopaque because the consumer's own
+/// @cImport of stb_truetype.h is a distinct nominal type; it is the same
+/// struct and the consumer casts. Read-only by convention; null when the
+/// id is stale.
+pub fn stbttInfoOf(id: i64) ?*const anyopaque {
+    const slot = slotOf(id) orelse return null;
+    return &fonts.items[slot].stbtt;
+}
+
 // ---------------------------------------------------------------- layout
 
 pub const Glyph = struct {

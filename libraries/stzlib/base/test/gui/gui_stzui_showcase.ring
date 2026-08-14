@@ -35,19 +35,16 @@ func main
 		return
 	ok
 
-	oFont = PickFont()
-	if oFont = NULL
-		? "No font found -- the labels need one."
-		return
-	ok
-
+	# G2: bind the face BEFORE the layout, so the document is measured
+	# with the glyphs it will be painted with.
+	oU.UseFont(FontPath())
 	oP = oU.ToPanel()
 	nW = oP.Width()
 	nH = oP.Height()
 	oC = new stzCanvas(nW, nH)
 
 	if bShot or NOT (StzWindowingAvailable() and oC.CanDrawPixels())
-		Paint(oU, oP, oC, oFont)
+		Paint(oU, oP, oC, NULL)
 		oC.ToPNG("gui_stzui_showcase.png")
 		write("gui_stzui_showcase.svg", oC.ToSVG())
 		? "Wrote gui_stzui_showcase.png and .svg from showcase.stzui (" +
@@ -96,39 +93,32 @@ func main
 			oP.Resize(nLastW, nLastH)
 		ok
 
-		Paint(oU, oP, oC, oFont)
+		Paint(oU, oP, oC, NULL)
 		oWin.Draw(oC)
 	end
 
 	? "  " + oWin.FrameCount() + " frames drawn."
 	oWin.Free()
 	oP.Free()
-	oFont.Free()
 
+# G2 made this one line. The panel now carries its own text: RmlUi asked
+# our font engine for every string, the engine recorded a command instead
+# of rasterizing it, and DrawInto replays those commands through the same
+# shaper that measured them. The G1 bridge -- walk TextsToPaint, look up
+# BoxOf, guess a baseline -- is gone, and with it the chance of painting
+# a label somewhere the layout did not put it.
 func Paint oU, oP, oC, oFont
 	oC.Clear()
 	oC.SetBackground("#0f1419")
 	oP.DrawInto(oC)
-	# every TEXT declaration, painted inside the box RmlUi gave it
-	_aT_ = oU.TextsToPaint()
-	_n_ = len(_aT_)
-	for _i_ = 1 to _n_
-		_a_ = oP.BoxOf(_aT_[_i_][1])
-		if len(_a_) != 4 or _a_[3] < 10
-			loop
-		ok
-		_nSz_ = _aT_[_i_][3]
-		oC.AddTextQ(_aT_[_i_][2], _a_[1] + 4, _a_[2] + _nSz_ + 4).
-			SetFontQ(oFont, _nSz_).ColorQ(_aT_[_i_][4])
-	next
 
-func PickFont
+func FontPath
 	_a_ = [ "C:/Windows/Fonts/segoeui.ttf", "C:/Windows/Fonts/arial.ttf",
 	        "../gpu/fixtures/amiri_arabic_subset.ttf" ]
 	_n_ = len(_a_)
 	for _i_ = 1 to _n_
 		if fexists(_a_[_i_])
-			return new stzFont(_a_[_i_])
+			return _a_[_i_]
 		ok
 	next
-	return NULL
+	return ""
