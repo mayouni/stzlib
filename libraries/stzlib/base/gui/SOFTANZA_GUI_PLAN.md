@@ -1742,3 +1742,122 @@ becomes a defect.
 - **No hit-testing entry point for AT** — a screen reader's
   "what is at this point" is `ElementAt`, but nothing maps it to a node
   yet.
+
+---
+
+# §6 STATUS — 2026-08-15. The in-scene panel: the tier this plane was supposed to START with
+
+Guard `base/test/gui/gui_scene_narrated.ring` — **43 asserts green**.
+Sweep: panel 50, adversarial 32, stzui 43, font 30, rtl 37, tier 24,
+input 38, accessibility 37, scene 43 — **334 all green**. Graphics
+guards re-run because the engine changed: gg4_multipass, gg4_framegraph,
+gg5_material_language all green.
+
+`base/gui/stzScenePanel.ring`, `base/test/gui/console.stzui`,
+`base/test/gui/gui_scene_demo.ring` (four PNGs).
+
+## It was deferred three times, and the deferral cost something
+
+§6 says this plane starts here — "the graphics plane's strengths are
+highest, RmlUi is proven, in-world panels are routine". It then didn't:
+G1 rendered no scene, G1's criterion 3 grazed a HAND-DRAWN canvas rather
+than a panel, and G3 built `FromTexture` and rehearsed it **without a
+scene**. Standing the tier up found **four defects in one afternoon**,
+two of them in code that had been green for days.
+
+## The whole class is two conversions, and only one was at risk
+
+    OUT   panel -> canvas -> pixels -> a GPU texture -> a quad's material
+    IN    a screen point -> a ray -> the quad's plane -> uv -> panel pixels
+
+The OUT direction was routine, exactly as §6 predicted. **Every defect
+was in the IN direction**, and every one of them is silent: a mis-mapped
+click lands on the wrong button, which looks like a working program
+doing something else.
+
+The engine exposes no unproject, so the ray is built from the camera
+basis by hand. Against it stands the engine's OWN `Project()`, which
+shares no code with it: a uv mapped out to a world point, projected to
+the screen by the engine, then mapped back by the ray, must return the
+uv it began with. That is the class's `VerifyAgainstProjection()`, and
+it is the house's rule for a check that can actually fail rather than an
+identity computed from one set of anchors.
+
+## The four defects
+
+**1. Two self-checks that agreed by construction.** The first round trip
+passed at 0.000000 — and so did both negative controls. Ring copies an
+object on assignment, so the scene held as `@oScene` was a SNAPSHOT:
+moving the camera changed nothing the panel could see, and BOTH the
+ray's camera and `Project()`'s camera were the same stale copy, agreeing
+with each other while agreeing with nothing real. This is the
+engine-wrapper copy law arriving in a plane with no engine handle to
+hide behind. The camera is now DATA, and the sync is a verb a game loop
+calls beside `Refresh()`:
+
+    oSP.LooksThrough(oScene)     # the camera moved
+    oSP.Refresh()                # the interface changed
+
+A stale mapping is a missing call rather than an invisible fork, and
+`CameraInUse()` lets a caller SEE the snapshot instead of inferring it
+from a wrong answer. The negative control is now genuine — point the ray
+through one camera and `Project()` through another, and the error goes
+to 0.19.
+
+**2. The uv direction was guessed, not read.** `buildPlane` gives the
+corner at (-h,+h) the uv (0,1), so v grows with +z; the first draft had
+it backwards. It was invisible to the round trip — that check maps uv
+out and back through the SAME convention, so it cannot see a convention
+error. **The corner assertions caught it**, because they check against
+the mesh rather than against the class.
+
+**3. A corner is a miss.** Floating point puts the quad's own corner at
+u=1.0000000001, and a strict bound made it a miss. The bound is tolerant
+by a hair and the answer is clamped.
+
+**4. THE COLOURS WERE ALL WRONG, and only the picture said so.**
+`gpu_wgsl.zig` deliberately does not linearise a `sample()`: it recorded
+that "texture colour space is a FORMAT decision (an sRGB texture view
+lets the sampler do it) and is its own measurement, not this one."
+**That measurement came due here** — the first consumer whose texels are
+a picture of colours rather than data. A canvas hands over sRGB-encoded
+bytes, the shader treated them as linear, and the fragment tail encoded
+to sRGB a second time. A near-black `#0d1219` background rendered as mid
+slate; every colour in the interface was pale.
+
+Fixed engine-first, as `TEX_SRGB` (kind 4) in `gpu.zig` + `samplerFor`
+in `gpu_render.zig`: an sRGB texture view, so the SAMPLER decodes.
+`TEX_LINEAR` is untouched, because a texture holding DATA — a height
+field, a mask, a lookup — must not be gamma-decoded. **The distinction
+is what the texels MEAN, which is why it is a kind and not a flag.**
+
+## The running count, updated
+
+Across this plane, **defects found by looking at pictures: 6.** By
+reading a tree aloud: 2. **By assertions written before the fact: still
+0.** Every guard here was written after the picture showed the problem.
+That is not an argument against the guards — they hold the fix — but it
+is now a measured property of this plane rather than an impression.
+
+## What criterion 3 looks like on a real interface
+
+G1 answered criterion 3 with a hand-drawn canvas. Re-run on an actual
+declared console at a hard graze (`gui_scene_3_graze.png`): the text is
+smaller and still legible, edges stay sharp, no mipmaps exist. **An
+oblique angle costs SIZE, not sharpness** — the same verdict, now on the
+thing it was a proxy for.
+
+## What this did NOT do
+
+- **No window.** The four frames are rendered to PNG. Driving a live
+  camera from a mouse in a real window is the swapchain path GR5 already
+  built, and it is not wired to this yet.
+- **No per-instance material**, so a scene may hold ONE panel. The
+  graphics plane's own note says per-instance materials are a different
+  phase, not a bigger version of this one.
+- **The quad is at the origin, in XZ, facing +Y.** A panel on a wall, or
+  on a moving object, needs the ray in the quad's local space — a model
+  transform this class does not take.
+- **No depth ordering against the interface**: a panel is a surface in
+  the scene like any other, and nothing here says what happens when
+  something occludes it. A ray that passes through a wall still clicks.
