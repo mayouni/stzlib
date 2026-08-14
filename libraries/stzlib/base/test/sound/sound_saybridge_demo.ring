@@ -27,11 +27,18 @@
 # last frame is READ, which is not when it is heard. Whatever the operating
 # system still had queued went with the device.
 #
-# So PART ONE now SYNTHESISES EVERY PHRASE UP FRONT and fires them all through
-# ONE stzVoicePool: one device, opened once at the start and closed once at the
-# end, with nothing torn down between announcements. That also removes the
-# half-second stall before each phrase, since no synthesis happens while you
-# are listening.
+# So PART ONE now SYNTHESISES EVERY PHRASE UP FRONT and lays them, with their
+# gaps, into ONE LINEAR BUFFER played by ONE transport. Not a voice pool with
+# triggers: a pool fires into a ring the producer has already filled, so a shot
+# is heard about three quarters of a second after it is fired, and every
+# console line drifts that far ahead of its own sound. A single buffer has no
+# trigger and no drift -- the audio IS the timeline, and the console is driven
+# by the transport's CLOCK rather than by sleeps that hope to match it.
+#
+# It is also written to say_bridge_part_one.wav. If what you hear live and what
+# is in that file disagree, the fault is in the device path rather than in
+# anything this demo composed -- and you can play the file in any player to
+# find out.
 #
 # PART TWO cannot work that way and says so. Cancellation and queueing are
 # RUNTIME behaviours -- pre-recording them would be staging the result rather
@@ -86,102 +93,88 @@ for i = 1 to len(aScript)
 	  oS.Duration() + " s"
 next
 
-# ONE POOL, ONE DEVICE. The pool takes the composites' own rate, so nothing
-# is resampled on the way out.
-oPool = new stzVoicePool(aSounds[1].SampleRate())
+# ONE BUFFER, ONE TRANSPORT. Every announcement is laid end to end with a
+# gap between, so what plays is a single timeline with no triggers in it.
+# nAt[i] is where announcement i begins, and that is what the console waits on.
+
+nRate = aSounds[1].SampleRate()
+nGap  = 1.4                       # room to read the line before the next cue
+nTot  = 1.0                       # a beat of silence before the first one
+aAt   = []
 for i = 1 to len(aSounds)
-	oPool.AddVoice("say" + i, aSounds[i], 1)
+	aAt + nTot
+	nTot += aSounds[i].Duration() + nGap
 next
-oPool.Start()
-if NOT oPool.IsStarted()
-	? ""
-	? "No output device: " + oPool.LastError()
-	bye
-ok
+nTot += 1.0
+
+oMix = StzSoundOfSilenceQ(nTot, 1, nRate)
+for i = 1 to len(aSounds)
+	ShBlit(oMix, aSounds[i], floor(aAt[i] * nRate))
+next
 ? ""
-? "   device open -- it stays open until the end of Part One"
+? "   one buffer: " + oMix.Duration() + " s, peak " + oMix.Peak()
+Chk1("nothing clipped when they were laid together", oMix.Peak() <= 1.0)
+
+cWav = "say_bridge_part_one.wav"
+oMix.SaveAs(cWav)
+? "   written to " + cWav + " -- play it in any player if the live"
+? "   version disagrees with it"
 ? ""
 
 # ---------------------------------------------------------------------------
 ? "=== PART ONE ==="
 ? ""
-? "-- 1 -- the shape of an announcement --"
+? "   One device, one buffer. Each line is printed when the CLOCK reaches"
+? "   the sound it describes, so the console cannot run ahead."
 ? ""
-ShSay(oPool, aSounds, aScript, 1)
-? ""
-? "   The cue said a bad thing happened. The sentence said WHICH. Listen for"
-? "   the gap between them: 120 ms, long enough that the cue has stopped"
-? "   ringing before the first syllable, short enough that they are still"
-? "   obviously one announcement. The cue is fast and was already made; the"
-? "   sentence is slow. Inverting them would spend the only fast channel on"
-? "   a slow message."
-? ""
-sleep(1.2)
 
-? "-- 2 -- four meanings, each spoken behind its own cue --"
-? ""
-? "   Short sentences, so the CUE does most of the work."
-? ""
-ShSay(oPool, aSounds, aScript, 2)
-ShSay(oPool, aSounds, aScript, 3)
-ShSay(oPool, aSounds, aScript, 4)
-ShSay(oPool, aSounds, aScript, 5)
-? ""
-sleep(1.2)
+oGmix = new stzSoundGraph()
+oGmix.Reshape(1, nRate)
+oGmix.AddSound(oMix)
+oT = new stzSoundTransport(oGmix)
+oT.PlayFor(oMix.Duration())
+if NOT oT.IsPlaying()
+	? "   No output device: " + oT.LastError()
+	? "   " + cWav + " was still written -- play that instead."
+	bye
+ok
 
-? "-- 3 -- :Muted says nothing, and that is its rendering --"
+nNext = 1
+while NOT oT.IsStopped()
+	oT.Tick()
+	nNow = oT.PositionInSeconds()
+	if nNext <= len(aSounds) and nNow >= aAt[nNext] - 0.05
+		? "   [" + ShClock(nNow) + "]  " + aScript[nNext][3]
+		? "            " + char(34) + aScript[nNext][2] + char(34)
+		if nNext = 1
+			? ""
+			? "     ^ cue, a 120 ms gap, then the words. The cue says a bad"
+			? "       thing happened; the sentence says WHICH. The cue is fast"
+			? "       and was already made, the sentence is slow -- inverting"
+			? "       them would spend the only fast channel on a slow message."
+			? ""
+		ok
+		nNext++
+	ok
+	sleep(0.02)
+end
 ? ""
-? "   Muted is one of the five. It renders as silence in EVERY channel --"
-? "   no colour, no cue, no phrase. It is correct rather than missing, and"
-? "   the reason is reported rather than left to be guessed."
+? "   underruns across the whole of Part One: " + oT.Underruns()
+oT.Release()
+oGmix.Release()
+
+? ""
+? "-- :Muted says nothing, and that is its rendering --"
 ? ""
 oM = new stzEarcons()
 oM.SetVoiceLanguage("en-US")
 oM.Say(:Muted, "you must never hear this sentence")
 ? "   Say(:Muted, ...) queued " + oM.SpeechQueueDepth() + " things"
 ? "   reason: " + oM.LastReason()
-? "   [two seconds of declared silence]"
-sleep(2)
+? "   Muted renders as silence in EVERY channel -- no colour, no cue, no"
+? "   phrase. It is correct rather than missing."
 ? ""
-sleep(0.6)
-
-? "-- 4 -- one sound, not two --"
-? ""
-? "   The cue alone, then the phrase alone, then the two composed. The third"
-? "   is not the first two played together: it is ONE buffer with both laid"
-? "   into it, which is why nothing masks and nothing clips."
-? ""
-
-oEar = oE.ToSoundOf(:Warning)
-oV   = new stzVoice()
-oV.UseLanguage("en-US")
-oPhr = oV.ToSoundOf("Certificate expires in three days.")
-oBoth = aSounds[6]
-
-oCmp = new stzVoicePool(oBoth.SampleRate())
-oCmp.AddVoice(:cue,       ShAt(oEar, oBoth.SampleRate()), 1)
-oCmp.AddVoice(:phrase,    oPhr,  1)
-oCmp.AddVoice(:composite, oBoth, 1)
-oCmp.Start()
-if oCmp.IsStarted()
-	? "   the cue       : " + oEar.Duration() + " s, peak " + oEar.Peak()
-	oCmp.Fire(:cue)        sleep(oEar.Duration() + 0.8)
-	? "   the phrase    : " + oPhr.Duration() + " s, peak " + oPhr.Peak()
-	oCmp.Fire(:phrase)     sleep(oPhr.Duration() + 0.8)
-	? "   the composite : " + oBoth.Duration() + " s, peak " + oBoth.Peak() +
-	  "   <- the LOUDER of the two, not their sum"
-	oCmp.Fire(:composite)  sleep(oBoth.Duration() + 0.5)
-	oCmp.Stop()
-ok
-oCmp.Release()
-
-? ""
-? "   underruns across the whole of Part One: " + oPool.Underruns()
-oPool.Stop()
-oPool.Release()
-? "   device closed"
-? ""
-sleep(0.8)
+sleep(1.0)
 
 # ---------------------------------------------------------------------------
 ? "=== PART TWO -- the live queue ==="
@@ -248,18 +241,25 @@ sleep(0.5)
 
 # ---- helpers (Sh-prefixed, so they cannot collide with the library) -------
 
-# Print the line, fire the sound it describes, and wait for the speakers.
-# The device is ALREADY open, so the print and the first sample are
-# microseconds apart rather than half a second.
-func ShSay poPool, paSounds, paScript, n
-	? "   " + paScript[n][3]
-	? "      " + char(34) + paScript[n][2] + char(34)
-	poPool.Fire("say" + n)
-	sleep(paSounds[n].Duration() + 0.7)
-
 # One pool has ONE rate. The earcon renders at 48000 and the voice at 22050,
 # so the cue has to be brought to the phrase's rate before they can share a
 # device -- the same conversion ToSoundOfSaying does inside the composite.
-func ShAt poSound, nRate
-	if poSound.SampleRate() != nRate  poSound.ResampleTo(nRate) ok
-	return poSound
+func ShBlit poDest, poSrc, nAt
+	_max_ = poDest.Frames()
+	for _i_ = 1 to poSrc.Frames()
+		_d_ = nAt + _i_
+		if _d_ > _max_  exit ok
+		poDest.SetSampleAt(_d_, 1, poSrc.SampleAt(_i_, 1))
+	next
+
+func ShClock nSecs
+	_s_ = "" + floor(nSecs)
+	while len(_s_) < 2  _s_ = " " + _s_ end
+	return _s_ + "s"
+
+func Chk1 cLabel, bCond
+	if bCond
+		? "   [ok] " + cLabel
+	else
+		? "   [FAIL] " + cLabel
+	ok
