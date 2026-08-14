@@ -1,6 +1,16 @@
 # SOFTANZA GUI PLAN — analysis and phased plan (G0–G6)
 
-Status: **PLAN OF RECORD**, written 2026-08-13, before any GUI code.
+Status: **PLAN OF RECORD**, written 2026-08-13 before any GUI code, and
+**reconciled 2026-08-14 against what was actually built.** G0, G1, G2, G3
+and G4a are DELIVERED, with a STATUS section each at the foot of this
+file; **G4b is BLOCKED on a decision recorded below**; G5 is HALF
+delivered ahead of its turn (see §4b); G6 is untouched. 291 guard
+assertions green across eight suites in `base/test/gui/`.
+
+**The phase list in §8 is the plan as WRITTEN; the STATUS sections are
+what HAPPENED.** Where they differ the STATUS section is right, and the
+difference is marked in §8 rather than edited away — a plan that quietly
+rewrites its own predictions cannot be checked against them.
 Sibling documents this plan inherits from and does not repeat:
 `base/graphics/SOFTANZA_GRAPHICS_PLAN.md` (GR0–GR6, complete — this plane
 renders THROUGH it), `base/gpu/SOFTANZA_GPU_PLAN.md` (G0–G6, complete),
@@ -50,8 +60,10 @@ is that different product.
 | vendored deps (the pattern to copy) | `engine/vendor/` — see `harfbuzz/VERSION.txt`, `wgpu/VERSION` |
 | build definition (domains + `addXxx` helpers) | `engine/build.zig` |
 | Ring loaders for engine DLLs | `engine/stz_*.ring`, registered in `base/common/stzRingLibs.ring` |
-| Ring faces for this plane | `base/gui/` |
-| guards | `base/test/gui/` (create) |
+| Ring faces for this plane | `base/gui/` — `stzPanel`, `stzUiDocument`, `stzAccessibilityTree`, and `stzGui.ring` (a LOADER, never a class — §2.5) |
+| **the authored surface** | `.stzui`, §4b. Examples: `base/test/gui/showcase.stzui`, `gallery.stzui`, `form.stzui` |
+| the engine half | `engine/src/stz_rmlui.cpp` (RmlUi behind a C ABI), `gui.zig`, `gui_font.zig`, `ring_bridge_gui.zig`, loader `engine/stz_gui.ring` |
+| guards | `base/test/gui/` — eight suites, 291 assertions |
 | scope-oriented moves (§7 runs M1–M5) | `base/doc/design/SCOPE_ORIENTED_PROGRAMMING.md` |
 | project rules | `CLAUDE.md` at the repo root — READ IT |
 
@@ -62,7 +74,16 @@ is that different product.
 zig build
 
 # run a guard (MUST be run from inside its topic directory)
-cd libraries/stzlib/base/test/gui && ring gui_xxx_narrated.ring
+cd libraries/stzlib/base/test/gui && ring gui_panel_narrated.ring
+#   gui_panel_narrated 50 · gui_panel_adversarial 32 · gui_stzui_narrated 43
+#   gui_font_narrated 30 · gui_rtl_narrated 37 · gui_tier_agreement_narrated 24
+#   gui_input_narrated 38 · gui_accessibility_narrated 37
+
+# see it, rather than read about it
+ring gui_stzui_showcase.ring      # showcase.stzui, live (R reloads from disk)
+ring gui_form_window.ring         # an operable form: tab, arrows, enter
+ring gui_showcase_window.ring     # 1/2/3 layouts, T theme, S save
+#   any of them with `shot` renders a PNG + SVG instead of opening a window
 
 # the §0 gate's own guard, in the plane below
 cd libraries/stzlib/base/test/gpu && ring gpu_text_reversible_narrated.ring
@@ -220,6 +241,13 @@ projection's implementation detail rather than a contract term.
 flexbox natively.** That is two design languages wearing one name, and it
 is precisely the drift this project exists to prevent.
 
+> **THIS DECISION IS NOW IN TENSION WITH G4.** The reasoning above —
+> *no Rust toolchain in the build* — is the same reasoning AccessKit
+> would spend, and AccessKit ships no binaries. See
+> *"G4 · THE CONTRADICTION INSIDE THIS PLAN"* below. **§2.1 stands until
+> that decision is made**; it is cross-referenced here so nobody reads
+> this section and believes the question is closed.
+
 **One recorded trap for whoever reads Yoga's headers**: 43 CSS Grid
 functions landed in Yoga's *public API* on 2026-03-05 as "part 1/9", and
 there is **no grid file under `yoga/algorithm/`** and nothing since. The
@@ -292,8 +320,12 @@ The confusable token is a **class name**, not a directory. So:
 - classes are named for what they are — `stzPanel`, `stzFocusTree`,
   `stzUiEvent` — and none of those collides with anything.
 
-*The author's veto is one word, and this is the cheapest moment to use
-it.* If it comes, the replacement is `base/surface/` + `stzSurface*`.
+*The author's veto was invited at the cheapest moment and did not come.*
+**Settled by use as of 2026-08-14**: `base/gui/` and `stzGui.ring` are in
+nine commits, three classes and eight guard suites. It is still
+reversible — the change is a directory rename and one loader line — but
+it is no longer free, and this records that the moment passed rather than
+leaving an open question that reads as though it is still cheap.
 
 ---
 
@@ -347,7 +379,13 @@ same: **the court is blind there** — not that it is forbidden.
 
 ---
 
-## §4b · The authored surface: `.stzui` (v0.1, shipped with G1)
+## §4b · The authored surface: `.stzui` (v0.1, and it GREW)
+
+**Delivered with G1; extended by every phase since.** The grammar below
+is the shape as first shipped; three fields were added by later phases
+and are marked where they appear — `TEXT_ALIGN` (the RTL pass),
+`FOCUSABLE` (G3), and `ROLE` + `LABEL` (G4a). The full emitter default
+table is the one at the end of this section, which is kept current.
 
 §4 forbids hand-writing the projection and §5 of `GUI-SYSTEM.md` forbids
 hand-writing the meaning — which left the plane with **no text surface a
@@ -570,9 +608,9 @@ each: *an essential decision, or noise to dissolve?*
 
 | Frame | Invisible today because… | M1 verdict (to be tested by contact) |
 |---|---|---|
-| **coordinate space** | local, layout, window, screen, texture — the same number means five things and nothing at the call site says which. **The bug factory in every toolkit.** | **Surface.** It is a genuine decision: an in-scene panel and a window panel differ *precisely* here |
+| **coordinate space** | local, layout, window, screen, texture — the same number means five things and nothing at the call site says which. **The bug factory in every toolkit.** | ~~Surface~~ → **DISSOLVED**, and M3 below explains why the first verdict was wrong: a panel admits ONE space, so there is nothing to confuse, and the conversion is a named function at the boundary |
 | **input source** | pointer, keyboard, gamepad, synthetic, assistive technology | **Surface.** Rule 80 makes "did a human keyboard do this" legally material, and an AT-originated event must be distinguishable from a synthetic one |
-| **tier** | in-scene, window, texture | **Probably dissolve.** It looks like a frame and behaves like a *target parameter* — the graphics plane already adopted the swapchain frame as an ordinary render target rather than a mode. Watch it in G1 before minting vocabulary |
+| **tier** | in-scene, window, texture | **DISSOLVED**, confirmed by contact: nothing in G1–G4 ever needed to know its tier. A panel draws into a canvas and the canvas decides its destination |
 | **which document** | several panels alive at once | **Dissolve.** This is an object, not a scope: a panel IS the document |
 
 ### M2–M5, run before G3's event model — 2026-08-14
@@ -642,6 +680,8 @@ a **challenge pass before the faces**, and a **STATUS section per phase
 recording measurements AND what was not measured.**
 
 ### G0 · The spike — vendoring authorized here, and only here
+**DELIVERED** — see *G0 STATUS*. Three of four criteria passed; criterion
+3 moved to G1 and passed there.
 
 One real Softanza screen through RmlUi into a `stzCanvas` texture, with
 `RMLUI_FONT_ENGINE` off and the existing pipeline supplying
@@ -675,6 +715,7 @@ observables. Not the full conformance suite — the first fixture, and the
 shape of the comparison.
 
 ### G1 · The render interface
+**DELIVERED** — see *G1 STATUS*.
 
 The 8 pure virtuals against `stzCanvas`; `PushLayer` / `CompositeLayers` /
 `SaveLayerAsTexture` for the in-scene case. **Prove a panel inside a 3D
@@ -682,6 +723,7 @@ scene**, since that is the tier this plane starts with (§6). Watch the
 `tier` frame here and decide M1's verdict on it by contact.
 
 ### G2 · The font engine
+**DELIVERED** — see *G2 STATUS*.
 
 Replace FreeType outright. **This is where bidi and Arabic are proven**,
 and where the plane's advantage over every surveyed toolkit is realised —
@@ -690,6 +732,10 @@ see §2.3's comparison. The §0 gate feeds this phase directly: RmlUi's
 `caretRect` now returns.
 
 ### G3 · Input, events and focus — the real gap
+**DELIVERED** — see *G3 STATUS*, which records that this section
+**under-credited RmlUi**: it already had input, focus, tab order and
+spatial navigation, so the phase became *expose and add the three missing
+things* rather than *build a model*.
 
 Graphics input is **polled** (`KeyPressed`, `MouseClicked`), which is the
 game-loop shape and is right for a game. It cannot express *which element
@@ -707,6 +753,13 @@ required, not optional polish.** §7's M2–M5 land before this phase's
 design, not after.
 
 ### G4 · Accessibility, via AccessKit — and NOT last
+
+> **SPLIT. G4a (the tree) is DELIVERED; G4b (the adapter) is BLOCKED.**
+> The instruction below — *adopt AccessKit* — collides with §2.1, because
+> AccessKit ships no binaries and so means a Rust toolchain. It is left
+> standing as written, with the collision recorded in *"G4 · THE
+> CONTRADICTION INSIDE THIS PLAN"*, because editing the instruction away
+> would hide the decision instead of forcing it.
 
 Adopt AccessKit (Apache-2.0 OR MIT), bridging UI Automation,
 NSAccessibility, AT-SPI, Android and iOS. **Know its limits before
@@ -730,12 +783,20 @@ neither:**
 
 ### G5 · The declarative surface
 
+> **HALF DELIVERED, AHEAD OF ITS TURN.** *Softanza declarations →
+> RML/RCSS* is what `.stzui` and its emitter already do (§4b), shipped
+> with G1 because §4 had otherwise left nothing a person may write. What
+> REMAINS of G5 is the second clause: **the binding to the reactive
+> layer** — making a declared value change and the screen follow.
+
 Softanza declarations → RML/RCSS, with RmlUi's data-binding wired to the
 reactive layer. Its `data-` attributes and `{{ }}` expressions are a
 closer architectural cousin to Reaxis than any JS engine would be — **use
 them rather than inventing a parallel mechanism.**
 
 ### G6 · The sense sheet lands
+**NOT STARTED**, and blocked outside this repo: it needs `stzSense` from
+StzZui.
 
 `stzSense` → RCSS for this tier, and → CSS variables for the web tier,
 **from one artifact**. This is where the whole semantic stack meets the
