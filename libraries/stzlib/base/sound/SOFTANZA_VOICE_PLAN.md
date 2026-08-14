@@ -819,6 +819,45 @@ of a second late, inside the speech. **Seconds are the only index two buffers
 of different rates agree on.** Recorded because the first instinct was to
 distrust the composite.
 
+### A SECOND defect, found by the author listening to the demo
+
+*"The voice generated is so quick I could not recognise what it says."*
+
+Not the voice's rate setting. **Every sound was playing at the device's rate
+instead of its own.** `playbackOpen` asked miniaudio for `sampleRate = 0` —
+"let the device pick" — on the strength of a comment saying *the graph must
+already match it*. Nothing enforced that, and nothing could: the ring carried
+`channels` and `capacity` but **not its rate**, so the consumer had no way to
+ask.
+
+| | rate | outcome |
+|---|---|---|
+| earcons | 48000 | matched the device by luck — correct, and hid the bug |
+| speech | **22050** | played at 44100: **exactly twice as fast** |
+
+Measured before and after, on 10.604 s of synthesised speech:
+
+| | wall clock |
+|---|---|
+| before | **5.59 s** |
+| after | **11.26 s** (the excess is device start-up) |
+
+**No counter could ever have seen this.** Not one frame was lost, so
+`underruns` stayed at 0 and every guard passed. It is inaudible to
+instrumentation and obvious to a listener — which is the entire argument for
+shipping a hearable demo with every phase, and the reason this was caught by
+the author's ears rather than by 526 assertions.
+
+The fix: the **ring carries its own sample rate** (`sr.Ring.rate`, VERSION
+bumped to 2 so a mismatched DLL pair is refused rather than misread), and both
+`playbackOpen` and `captureOpen` open the device for it. Capture had the same
+line and the same fault, in the other direction: a recogniser handed the wrong
+rate mishears everything.
+
+Guarded in `sound_transport_narrated.ring` by the only instrument that can see
+it — **a wall clock**. A 22050 Hz buffer must take its own duration to play, not
+half of it.
+
 ### What VC4 did NOT do
 
 - **No ducking.** Lowering a bed under a phrase needs a per-bus gain node; that
@@ -835,7 +874,8 @@ distrust the composite.
 
 ### Plane totals
 
-**526 Ring assertions across fifteen guards** (VC4 adds 24). **67 Zig tests**
+**527 Ring assertions across fifteen guards** (VC4 adds 24, plus the wall-clock
+assertion above). **67 Zig tests**
 across `sound.zig`, `soundgraph.zig`, `soundring.zig`, `sounddsp.zig`,
 `soundanalysis.zig`, `soundwasm.zig` and `audiodev.zig`, plus **13** across
 `voice.zig` and `listen.zig` — counted from those files, so a later reader can

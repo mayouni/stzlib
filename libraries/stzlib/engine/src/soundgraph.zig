@@ -1536,6 +1536,7 @@ pub fn streamStart(graph_id: i64, capacity_frames: usize) i64 {
         .version = sr.VERSION,
         .channels = g.channels,
         .capacity = @intCast(cap),
+        .rate = g.rate,
         .write_pos = 0,
         .frames_written = 0,
         .read_pos = 0,

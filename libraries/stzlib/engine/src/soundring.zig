@@ -43,7 +43,7 @@
 const std = @import("std");
 
 pub const MAGIC: u32 = 0x53_4E_52_47; // "SNRG"
-pub const VERSION: u32 = 1;
+pub const VERSION: u32 = 2; // 2 added `rate` -- see the field's note
 
 /// extern struct: a fixed, C-compatible layout, because two DLLs read it.
 /// Field order is deliberate -- the producer's and consumer's hot fields are
@@ -55,6 +55,19 @@ pub const Ring = extern struct {
     version: u32,
     channels: u32,
     capacity: u32, // frames; ALWAYS a power of two so wrapping is a mask
+
+    // THE RING CARRIES ITS OWN SAMPLE RATE, and it must.
+    //
+    // The device tier used to open with sampleRate = 0 -- "let the device
+    // pick" -- on the comment "the graph must already match it". Nothing
+    // enforced that, and nothing could: the consumer had no way to ask. A
+    // graph at 22050 fed a device running at 44100 played every sample twice
+    // as fast. Earcons render at 48000 and happened to match, so this stayed
+    // invisible until a SPOKEN phrase arrived at 22050 and came out at double
+    // speed -- audible as gibberish, and not visible in any counter, because
+    // no frames were lost. The rate travels WITH the buffer now, and the
+    // device is opened for it.
+    rate: u32,
 
     // ---- producer's line
     write_pos: u64 align(64), // monotonic frame counter, never wraps
@@ -209,6 +222,7 @@ fn makeTestRing(alloc: std.mem.Allocator, cap: usize, ch: u32) !*Ring {
         .version = VERSION,
         .channels = ch,
         .capacity = @intCast(cap),
+        .rate = 48000,
         .write_pos = 0,
         .frames_written = 0,
         .read_pos = 0,

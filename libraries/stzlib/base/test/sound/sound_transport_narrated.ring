@@ -264,6 +264,46 @@ oG2.Release()
 
 # ---------------------------------------------------------------------------
 ? ""
+? "-- a sound plays at ITS rate, not the device's --"
+? "   THE BUG THIS CATCHES was inaudible to every counter. The device was"
+? "   opened with sampleRate = 0 -- 'let the device pick' -- so a 22050 Hz"
+? "   buffer handed to a 44100 Hz device played every sample TWICE AS FAST."
+? "   No frame was lost, so no underrun fired and nothing looked wrong. It"
+? "   surfaced only when a SPOKEN phrase came out as gibberish. Earcons"
+? "   render at 48000 and matched the device by luck, which is why it hid"
+? "   for so long."
+? ""
+? "   The only instrument that sees this is a CLOCK, so the assertion is a"
+? "   wall-clock one: a buffer at a rate the hardware does not natively run"
+? "   must still take its own duration to play."
+
+if bDev
+	nOddRate = 22050            # deliberately NOT a common device rate
+	oGr = new stzSoundGraph()
+	oGr.Reshape(1, nOddRate)
+	oGr.AddOscillator(:Sine, 440, 0.2)
+	oTr = new stzSoundTransport(oGr)
+	nWant = 2.0
+	nT0 = clock()
+	oTr.PlayFor(nWant)
+	while NOT oTr.IsStopped()
+		oTr.Tick()
+		sleep(0.01)
+	end
+	nHeard = (clock() - nT0) / clockspersecond()
+	? "   asked for " + nWant + " s at " + nOddRate + " Hz, heard " + nHeard + " s"
+	# a generous band: device start-up and tick granularity cost a little,
+	# but the failure this guards against is a factor of TWO, not a fraction
+	Chk("a 22050 Hz buffer takes its own duration to play, not half of it",
+	    nHeard > nWant * 0.8 and nHeard < nWant * 1.5)
+	oTr.Release()
+	oGr.Release()
+else
+	Skip("timing playback needs an output device")
+ok
+
+# ---------------------------------------------------------------------------
+? ""
 ? "" + nPass + " passed, " + nFail + " failed, " + nSkip + " skipped"
 if nFail > 0
 	? "GUARD FAILED"
