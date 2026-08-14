@@ -13,7 +13,11 @@ o1 {
 	? Number()
 
 	? UnitsInHundreds() 	#--> 8
-	? DozensInHundreds()	#--> 28
+	# 8, the dozens DIGIT -- the class's own doc says so, and its two
+	# siblings here already read digit-wise (units 8, hundreds 2). The
+	# old promise of 28 was the cumulative count-of-tens reading, which
+	# neither sibling uses; a mixed convention satisfies no one.
+	? DozensInHundreds()	#--> 8
 	? HundredsInHundreds()	#--> 2
 }
 
@@ -41,3 +45,5 @@ o1 {
 o1 = new stzNumber("2345")
 ? o1.Sign()
 ? o1.IsPositive()
+
+*/

@@ -168,9 +168,12 @@ for fn in files:
     # failure rate that was entirely one unrelated file failing to parse, so
     # nothing ran at all. A harness that cannot tell "the library is wrong" from
     # "the library did not load" is worse than no harness: it is confidently
-    # wrong at scale. Ring compile errors are C-numbered.
+    # wrong at scale. Ring compile errors are C-numbered -- and SCANNER
+    # errors are S-numbered, which this check originally missed: number/75
+    # died "Error (S2) Unclosed comment" and its three unreached promises
+    # were reported as divergences.
     joined = chr(10).join(out)
-    if re.search(r'Error \(C[0-9]+\)', joined):
+    if re.search(r'Error \([CS][0-9]+\)', joined):
         didnotrun.append(fn)
         continue
 

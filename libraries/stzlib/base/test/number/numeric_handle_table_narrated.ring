@@ -129,13 +129,24 @@ Scenario("the constructor still reads every form it used to")
 	Then("a number argument still works", (new stzNumber(7)).NumericValue(), 7)
 
 	# THE CIRCLED-NUMERAL BRANCH -- what the two removed objects existed to probe.
-	# It answers 0, and it answered 0 BEFORE this change too, verified by running the
-	# unmodified file. So the constructor was building two engine-backed objects on
-	# every single string construction to feed a branch THAT DOES NOT WORK. Pinned as
-	# it behaves so the pre-existing defect is recorded rather than hidden; the cheap
-	# guard reproduces it exactly, which is what "no regression" means here.
-	Then("a circled numeral answers 0 -- unchanged, and wrong, and pre-existing",
-	     (new stzNumber("②")).NumericValue(), 0)
+	#
+	# This assertion used to pin the DEFECT: "answers 0 -- unchanged, and wrong,
+	# and pre-existing". The branch really was dead -- stzChar.Number() switched
+	# the circled glyph against "0".."9" and matched nothing, so the constructor
+	# stored "" -- and rather than fix it, an earlier pass wrote the wrong answer
+	# down and moved on. A guard that asserts a bug keeps the bug: it turns the
+	# next person's correct fix into a failing test.
+	#
+	# Fixed now, in the engine, from Unicode's own data. The branch calls
+	# stz_unicode_numeric_value directly and builds no objects at all, so the
+	# handle-leak point this suite exists for is stronger than before, not
+	# weaker.
+	Then("a circled numeral answers its VALUE", (new stzNumber("②")).NumericValue(), 2)
+	Then("...and the ten of them read 0 through 9", CircledRun(), TRUE)
+
+	# The negative sibling: the branch must not swallow things that are not
+	# numerals. A letter still reaches the ordinary string paths and is refused.
+	Then("a non-numeral char is still refused", RaisesNum("Z"), TRUE)
 
 	# and the check that is NOT redundant with the decimal-form test above: ".5" is
 	# decimal-form yet not calculable, so it must still be refused
@@ -152,6 +163,21 @@ func RaisesNum(c)
 		bR = TRUE
 	done
 	return bR
+
+# All ten circled digits, read back through the constructor. U+24EA is
+# CIRCLED DIGIT ZERO; U+2460..U+2468 are ONE..NINE. Asserting only ② would
+# pass against a branch that answered 2 for everything.
+func CircledRun()
+	acCircled = [ StzChar(0x24EA), StzChar(0x2460), StzChar(0x2461), StzChar(0x2462),
+	              StzChar(0x2463), StzChar(0x2464), StzChar(0x2465), StzChar(0x2466),
+	              StzChar(0x2467), StzChar(0x2468) ]
+	for i = 1 to 10
+		oN = new stzNumber(acCircled[i])
+		if oN.NumericValue() != i - 1
+			return FALSE
+		ok
+	next
+	return TRUE
 
 func Rnd6(n)
 	return ceil(n * 1000000 - 0.5) / 1000000
