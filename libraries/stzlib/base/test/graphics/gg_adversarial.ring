@@ -273,6 +273,45 @@ chk("...and the ordinal spread really was worse", nOld > nErr * 2)
 
 #---------------------------------------------------------------------------
 ? ""
+? "-- 7. Spacing is the CONTRACT; the size is derived ----------"
+#
+# dot's model, and this tier had it inverted: the caller fixed a canvas
+# and the layout stretched to fill it, so the minimum gap between nodes
+# was whatever the stretch left over -- 2px in a crowded rank, 20px in a
+# loose one, in the same picture. Meanwhile SetNodeSeparation existed, in
+# dot's own units, and only the DOT WRITER read it.
+#
+# So: a render that names no size must honour the separation contract
+# EXACTLY -- the tightest gap in the picture IS nodesep, because the
+# engine's isotonic pass pins the tightest pair at exactly one slot.
+#---------------------------------------------------------------------------
+
+oN = new stzDiagram("fan2")
+oN.AddNodeXTT("root", "Root", [ :type = "box", :color = NODEC ])
+for i = 1 to 16
+	oN.AddNodeXTT("k" + i, "Kid " + i, [ :type = "box", :color = NODEC ])
+	oN.AddEdge("root", "k" + i)
+next
+nSep = floor(oN.NodeSeparation() * 96)
+oNat = oN.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 34 ])
+? "   contract : nodesep = " + nSep + "px   canvas derived : " +
+  oNat.Width() + "x" + oNat.Height()
+nGap = _MinGapPx(oNat, oNat.Width(), oNat.Height(), NODEC)
+? "   tightest gap in the natural render : " + nGap + "px"
+chk("the tightest gap IS the nodesep contract (within stroke+AA)",
+    nGap >= nSep - 8 and nGap <= nSep + 2)
+
+# THE NEGATIVE SIBLING: the same diagram forced into a canvas too small
+# for the contract must break it -- otherwise the check above would pass
+# on any renderer that leaves big gaps for any reason at all.
+oCr = oN.ToCanvasXT([ :Width = 700, :Height = 240,
+	:NodeWidth = 96, :NodeHeight = 34 ])
+nCr = _MinGapPx(oCr, 700, 240, NODEC)
+? "   the same diagram crushed into 700px : " + nCr + "px"
+chk("...and a canvas too small for the contract breaks it", nCr < nSep - 20)
+
+#---------------------------------------------------------------------------
+? ""
 ? "=============================================================="
 ? " " + nOk + " ok, " + nBad + " failed"
 ? "=============================================================="
@@ -420,6 +459,63 @@ func _LabelPixels cLabel, oFont
 	_lo_.AddNodeXTT("n", cLabel, [ :type = "box", :color = "Primary.Solid" ])
 	return _lo_.ToCanvasXT([ :Width = 300, :Height = 140, :Font = oFont ]).
 		ToPixels()
+
+# The WIDTH of the narrowest background gap between boxes in the densest
+# row -- section 7's instrument. Section 4 counts gaps; this measures the
+# tightest one, because the spacing contract is a number, not a count.
+func _MinGapPx oCanvas, nW, nH, cHex
+	_mg_ = _HexRGB(cHex)
+	_mgpx_ = oCanvas.ToPixels()
+
+	_mgrow_ = -1
+	_mgbest_ = 0
+	for _mgy_ = 0 to nH - 1 step 4
+		_mgn_ = 0
+		for _mgx_ = 0 to nW - 1 step 4
+			if _IsRGB(_mgpx_, nW, _mgx_, _mgy_, _mg_)  _mgn_++  ok
+		next
+		if _mgn_ > _mgbest_  _mgbest_ = _mgn_  _mgrow_ = _mgy_  ok
+	next
+	if _mgrow_ < 0  return -1  ok
+
+	_mgf_ = -1  _mgl_ = -1
+	for _mgx_ = 0 to nW - 1
+		if _IsRGB(_mgpx_, nW, _mgx_, _mgrow_, _mg_)
+			if _mgf_ < 0  _mgf_ = _mgx_  ok
+			_mgl_ = _mgx_
+		ok
+	next
+	if _mgf_ < 0  return -1  ok
+
+	# BETWEEN THE BOXES, not between the white. Measuring runs of background
+	# said 2px on a picture whose boxes are 57px apart: an edge arriving at
+	# a shallow angle runs almost horizontally along this row and chops each
+	# gap into grey fragments, so the narrowest WHITE run is a stroke width
+	# and has nothing to do with spacing. What the contract governs is the
+	# distance from one box to the next, whatever is drawn in between.
+	_mgmin_ = -1
+	_mgend_ = -1
+	_mglen_ = 0
+	for _mgx_ = _mgf_ to _mgl_ + 1
+		_mgis_ = 0
+		if _mgx_ <= _mgl_
+			_mgis_ = _IsRGB(_mgpx_, nW, _mgx_, _mgrow_, _mg_)
+		ok
+		if _mgis_
+			_mglen_++
+		else
+			# 4px, so an antialiased sliver is not a "box"
+			if _mglen_ >= 4
+				if _mgend_ >= 0
+					_mggap_ = (_mgx_ - _mglen_) - _mgend_ - 1
+					if _mgmin_ < 0 or _mggap_ < _mgmin_  _mgmin_ = _mggap_  ok
+				ok
+				_mgend_ = _mgx_ - 1
+			ok
+			_mglen_ = 0
+		ok
+	next
+	return _mgmin_
 
 func _IsRGB cPx, nW, nX, nY, aRGB
 	_ir_ = (nY * nW + nX) * 4 + 1

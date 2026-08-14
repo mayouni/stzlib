@@ -186,6 +186,17 @@ class stzGraphCanvas from stzObject
 	@aColor = []
 	@aIdMap = []
 
+	# What the layout KNEW before _Normalise stretched it to the canvas:
+	# the raw coordinate span, the layer count, and whether x is unit-true
+	# (engine slot units, 1.0 = one minimum separation) or ordinal. A face
+	# doing NATURAL sizing needs these to derive the picture's size from
+	# the content -- without them it can only stretch, and stretching is
+	# how a 1-unit minimum gap became 2px in a crowded rank.
+	@nRawSpanX = 0
+	@nRawSpanY = 0
+	@nLayerCount = 1
+	@bUnitX = 0
+
 	def init(poGraph, paOptions)
 		if NOT isObject(poGraph)
 			StzRaise("stzGraphCanvas: give me an stzGraph.")
@@ -217,6 +228,11 @@ class stzGraphCanvas from stzObject
 
 	def Width()   return @nW
 	def Height()  return @nH
+
+	def RawSpanX()    return @nRawSpanX
+	def RawSpanY()    return @nRawSpanY
+	def LayerCount()  return @nLayerCount
+	def IsUnitX()     return @bUnitX
 
 	# Validate HERE. Passing 0 used to be accepted and then surfaced much
 	# later as "stzCanvas refused a 0x0 canvas" from inside ToCanvas -- an
@@ -472,7 +488,11 @@ class stzGraphCanvas from stzObject
 		next
 		if len(_aXe_) = _n_
 			for _i_ = 1 to _n_  @aX[_i_] = _aXe_[_i_]  next
+			@bUnitX = 1
+		else
+			@bUnitX = 0
 		ok
+		@nLayerCount = _max_ + 1
 
 	# The ENGINE lays this out. The face used to carry its own Ring copy of
 	# Fruchterman-Reingold: 443 ms for 40 nodes, 3.7 s for 120, 24.5 s for
@@ -547,6 +567,8 @@ class stzGraphCanvas from stzObject
 		_my_ = This._Opt(:Margin, 70)
 		_sw_ = _x1_ - _x0_
 		_sh_ = _y1_ - _y0_
+		@nRawSpanX = _sw_
+		@nRawSpanY = _sh_
 		for _i_ = 1 to _n_
 			if _sw_ > 0.000001
 				@aX[_i_] = _mx_ + (@aX[_i_] - _x0_) / _sw_ * (@nW - 2 * _mx_)
