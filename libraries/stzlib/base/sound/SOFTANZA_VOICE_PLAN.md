@@ -965,3 +965,125 @@ across `sound.zig`, `soundgraph.zig`, `soundring.zig`, `sounddsp.zig`,
 `soundanalysis.zig`, `soundwasm.zig` and `audiodev.zig`, plus **13** across
 `voice.zig` and `listen.zig` — counted from those files, so a later reader can
 reproduce the figure rather than inherit it.
+
+---
+
+## VC5 STATUS — 2026-08-14. The faces port. The voices do not, and cannot
+
+`base/test/sound/webaudio/stz-voice.js` (the browser Voice and Listener),
+`voice_spike.html` (measurement only), `voice_guard.html` (**29** assertions,
+the browser analogue of a `*_narrated.ring` guard). Measured in Chromium 148.
+
+### The kill criterion, and it needs a two-part answer
+
+> *if the browser's voice list cannot be reconciled with the native one into a
+> single capability model, the faces expose the tiers separately and the "one
+> world" claim is limited to the native tier in writing.*
+
+**The MODEL reconciles. The CONTENTS do not.** Both tiers report exactly the two
+fields VC0 established — a BCP-47 language tag and whether the voice stays on
+the machine — so one capability model describes both, and `useLanguage` refuses
+rather than substitutes in both, with the same wording. That is a GO.
+
+But the sets differ **on one machine**, and the reason is not a bug in either
+tier:
+
+| | native (`stz_voice.dll`, SAPI) | browser (Chromium) |
+|---|---|---|
+| voices | 2 | 3 |
+| names | Zira, Hortense **Desktop** | Hortense, **Julie**, **Paul** |
+| languages | **en-US**, fr-FR | **fr-FR only** |
+
+Windows keeps **two voice registries**, and the tiers read different ones:
+
+```
+HKLM\SOFTWARE\Microsoft\Speech\Voices\Tokens           -> TTS_MS_EN-US_ZIRA_11.0
+                                                          TTS_MS_FR-FR_HORTENSE_11.0
+HKLM\SOFTWARE\Microsoft\Speech_OneCore\Voices\Tokens   -> MSTTS_V110_frFR_HortenseM
+                                                          MSTTS_V110_frFR_JulieM
+                                                          MSTTS_V110_frFR_PaulM
+```
+
+SAPI reads the first; Chrome and Edge read the second. So **`en-US` is speakable
+natively and not speakable in the browser, on this machine**, and no amount of
+trying harder changes it.
+
+**So the claim is narrowed in writing, as the criterion required: a DECLARATION
+is portable; a VOICE is not.** `UseLanguage("en-US")` reads the same in both
+tiers and may legitimately succeed in one and be refused in the other on one
+machine. Capability is ASKED, never assumed — which is what the faces already
+did, for a reason that turns out to be stronger than the one it was built on.
+
+### The asymmetry that limits §1, and it is bigger than the voice list
+
+**`speechSynthesis` speaks to the SPEAKER. There is no buffer.** Probed rather
+than recalled: no `captureStream` on the utterance or on `speechSynthesis`, no
+audio sink, no route into WebAudio.
+
+§1 of this plan says *"a platform voice renders to a BUFFER, and a buffer is a
+`stzSound`"*, and calls that the whole design. **That sentence is true of the
+native tier and false of the browser.** So the primary verb INVERTS: natively
+`ToSoundOf` returns data and speaking is a convenience built on it; in the
+browser speaking is primitive and there is no data at all.
+
+Everything the sound plane does to a spoken phrase is therefore unavailable to a
+browser voice — LUFS, onsets, filters, spectrograms, saving a WAV. **Not because
+a face is missing, but because the audio never exists.** `toSoundOf` is present
+so it can REFUSE with that reason and be counted, rather than be absent and
+crash portable code.
+
+### And it costs VC4 its mechanism, which is worth stating plainly
+
+VC4 answered its kill criterion by composing the earcon and the phrase into
+**ONE buffer** — that is why nothing masks and nothing clips, and why the bridge
+is one system rather than two sharing a speaker.
+
+**In the browser that composition is impossible**, because one of the two has no
+buffer. The best available is to sequence them: play the earcon through WebAudio,
+wait for it to end, then speak. That is *exactly* the two-players arrangement
+VC4's criterion named as the failure case, and it can mask or overlap where the
+native composite cannot.
+
+So VC4's guarantee does not port, and the honest form of the claim is: **the
+DECLARATION `Say(:Danger, "disk full")` ports; the guarantee that the earcon is
+not masked does not.** `speak()` resolving on the END of speech rather than on
+submission is what makes even the sequencing possible, and the guard asserts it
+(4245 ms for three words; a promise resolving on submission would return in
+single digits).
+
+### Listening: the same shape, and a privacy answer that is worse
+
+Closed grammar only, exactly as VC3 ships, and for VC3's measured reason. There
+is no `transcribe`, and the guard asserts its absence.
+
+The privacy question is the one that got worse. VC3 chose
+`CLSID_SpInprocRecognizer` natively and refused the shared recognizer, because
+the shared one can be routed to a network service. In the browser:
+
+| | this browser |
+|---|---|
+| `processLocally` exists | **yes** |
+| `availableOnDevice()` exists | **no** |
+
+The flag can be SET and cannot be VERIFIED. So `privacy()` reports
+`onDeviceProvable: false` and says what follows from it: *assume audio may leave
+the machine, and say so to the user.* A microphone is a consent boundary, and
+one that cannot prove where the audio goes is a different product from one that
+can.
+
+### What VC5 did NOT do
+
+- **No browser earcons.** The five motifs live in `stzEarcons.ring`; porting
+  them is a second implementation of a vocabulary, and a second implementation
+  drifts. `stz-sound.js` can already render the graph, so the honest route is
+  the wasm tier rendering the same motifs, not JavaScript re-deriving them.
+- **No microphone guard.** CI has no microphone and a guard that needs someone
+  to speak is not a guard — the same line VC3 drew.
+- **No cross-tier voice matching.** Two voices with the same name in the two
+  registries (Hortense) are not proven to be the same voice, and nothing here
+  claims they are.
+
+### Plane totals
+
+**535 Ring assertions across fifteen guards** and **29 browser assertions**;
+67 Zig tests in the sound modules, 13 across `voice.zig` and `listen.zig`.
