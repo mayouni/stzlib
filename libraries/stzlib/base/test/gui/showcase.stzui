@@ -1,0 +1,105 @@
+-- showcase.stzui -- the G1 showcase screen, as the text it always wanted to be.
+
+DEFINE PANEL screen (
+  SIZE [1000, 640],
+  DIRECTION column,
+  FONT "app",
+  BACKGROUND "#0f1419",
+  CHILDREN [bar, work, foot]
+) RATIONALE "The demo screen: a navigation bar over a work area, and a status footer."
+
+DEFINE STYLE card (
+  WIDTH "30%",
+  HEIGHT 92,
+  MARGIN 9,
+  BACKGROUND "#243040"
+) RATIONALE "One plane tile; every card on the board wears this."
+
+DEFINE STYLE tab_label (
+  SIZE 16,
+  COLOR "#e8eef5",
+  PADDING 14
+) RATIONALE "How a navigation tab reads."
+
+DEFINE BOX bar (
+  DIRECTION row,
+  HEIGHT 52,
+  GAP 26,
+  PADDING 6,
+  BACKGROUND "#2b6cb0",
+  CHILDREN [brand, tab_graphics, tab_sound, tab_gui]
+) RATIONALE "Top navigation: the brand, then one tab per neighbouring plane."
+
+DEFINE TEXT brand (
+  CONTENT "Softanza",
+  SIZE 20,
+  COLOR "#e8eef5",
+  PADDING 14
+) RATIONALE "The brand, top left, slightly larger than the tabs."
+
+DEFINE TEXT tab_graphics (
+  CONTENT "Graphics",
+  STYLE tab_label
+) RATIONALE "The plane this one draws through."
+
+DEFINE TEXT tab_sound (
+  CONTENT "Sound",
+  STYLE tab_label
+) RATIONALE "The sibling plane."
+
+DEFINE TEXT tab_gui (
+  CONTENT "GUI",
+  STYLE tab_label
+) RATIONALE "This plane, at home."
+
+DEFINE BOX work (
+  DIRECTION row,
+  HEIGHT fill,
+  CHILDREN [side, board]
+) RATIONALE "Everything between the bar and the footer."
+
+DEFINE BOX side (
+  WIDTH 210,
+  PADDING 20,
+  BACKGROUND "#1a2028",
+  CHILDREN [side_title]
+) RATIONALE "The plane list lives here; 210 means 210, whatever the window does."
+
+DEFINE TEXT side_title (
+  CONTENT "PLANES",
+  SIZE 13,
+  COLOR "#7c9cbf"
+) RATIONALE "The sidebar's heading."
+
+DEFINE BOX board (
+  DIRECTION row,
+  WRAP yes,
+  WIDTH fill,
+  PADDING 18,
+  CHILDREN [card_graphics, card_sound, card_gpu, card_locale, card_graph, card_perf]
+) RATIONALE "The card board: wraps at the window's width, top-aligned."
+
+DEFINE BOX card_graphics ( STYLE card ) RATIONALE "GR0-GR6, shipped."
+
+DEFINE BOX card_sound ( STYLE card ) RATIONALE "SN0-SN6, shipped."
+
+DEFINE BOX card_gpu ( STYLE card ) RATIONALE "G0-G6, shipped."
+
+DEFINE BOX card_locale ( STYLE card ) RATIONALE "The locale plane."
+
+DEFINE BOX card_graph ( STYLE card ) RATIONALE "The graph plane."
+
+DEFINE BOX card_perf ( STYLE card ) RATIONALE "P0-P11, the laws live in CLAUDE.md."
+
+DEFINE BOX foot (
+  HEIGHT 30,
+  PADDING 8,
+  BACKGROUND "#1a2028",
+  CHILDREN [status]
+) RATIONALE "Status line; a fixed 30 pixels, never squeezed."
+
+DEFINE TEXT status (
+  CONTENT "declared in showcase.stzui -- the file is the contract",
+  SIZE 13,
+  COLOR "#7c9cbf"
+) RATIONALE "Says where this screen came from."

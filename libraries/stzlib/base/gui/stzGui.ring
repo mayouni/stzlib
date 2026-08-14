@@ -26,3 +26,4 @@
 # grows a :Danger, the layering has collapsed.
 
 load "stzPanel.ring"
+load "stzUiDocument.ring"

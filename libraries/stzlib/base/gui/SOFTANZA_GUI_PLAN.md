@@ -347,6 +347,149 @@ same: **the court is blind there** — not that it is forbidden.
 
 ---
 
+## §4b · The authored surface: `.stzui` (v0.1, shipped with G1)
+
+§4 forbids hand-writing the projection and §5 of `GUI-SYSTEM.md` forbids
+hand-writing the meaning — which left the plane with **no text surface a
+person may write at all**. That gap is real: every other Softanza plane
+has one (`.stzgraf` for graphs, the material language for shaders, `.game`
+for scenes, `.zui` for intent), and a UI plane whose only authoring story
+is "call Ring methods" fails the family's own contracts-are-the-substrate
+doctrine. `.stzui` is that surface: **the file IS the contract, and RML/
+HTML are its projections.**
+
+### Jurisdiction, stated before the grammar
+
+- `.stzui` declares the **projection**: boxes, sizes, directions, colours.
+  It declares **no meanings** — there is no `:Danger` and there never may
+  be. When the sense sheet lands (G6), colour fields learn to carry sense
+  *references*; resolving them stays StzZui's.
+- `.zui` (StzZui) declares **intent** and remains untouched. The two
+  formats meet only when a later phase binds a panel to a flow.
+- **It conforms to the Grammar Commons (C6 v1.0)** — `DEFINE <KIND>
+  <name> ( fields ) RATIONALE "…"`, `--` comments, case-sensitive
+  `UPPER_SNAKE` keywords, `[ a, b, c ]` lists with trailing comma,
+  double-quoted strings, `lower_snake` identifiers. A language born after
+  the commons has no licence to diverge, and this one records **no
+  divergence**. The commons' Ring trap is handled: every keyword compare
+  is `strcmp`, never bare `=`.
+
+### What was taken from QML, and what was refused
+
+QML is the strongest prior art for declarative UI ergonomics, and the
+survey of it produced one adoption, two deferrals and two refusals:
+
+- **ADOPTED — the property-bag-per-item shape.** A QML item is a name
+  plus typed properties; so is a commons declaration. The mapping is
+  direct.
+- **REFUSED — anonymous nested items.** QML nests item trees inline, and
+  most items end up nameless. Here structure is `CHILDREN [a, b, c]` and
+  **every box has a name**, because a nameless box is exactly what makes
+  accessibility (G4), hit-testing (G3) and the court's paint-time audit
+  retrofits instead of queries. Flat declarations also diff and merge
+  cleanly — the commons' own argument for its list form.
+- **REFUSED — the JavaScript engine.** QML's expressions ride V8;
+  constraint 3 of §1 forbids exactly that. Behaviour belongs to the
+  reactive layer.
+- **DEFERRED — property bindings** (`width: parent.width * 0.3`). The
+  grammar's value forms leave room for a reference form; wiring it to
+  Reaxis is G5's, and RmlUi's own `{{ }}` data bindings are the likely
+  carrier.
+- **DEFERRED — states and transitions.** G5 territory.
+
+### The grammar, v0.1 — four kinds, closed
+
+```
+-- app.stzui -- one sentence saying what this interface is.
+
+DEFINE PANEL main (
+  SIZE [1000, 640],
+  DIRECTION column,
+  FONT "segoeui",
+  BACKGROUND "#0f1419",
+  CHILDREN [bar, work]
+) RATIONALE "The screen: a bar over a work area."
+
+DEFINE STYLE card (
+  WIDTH "30%", HEIGHT 92, MARGIN 9, BACKGROUND "#243040"
+) RATIONALE "One plane tile, reused by every card."
+
+DEFINE BOX bar (
+  DIRECTION row, HEIGHT 52, BACKGROUND "#2b6cb0", CHILDREN [t1]
+) RATIONALE "Top navigation."
+
+DEFINE TEXT t1 (
+  CONTENT "Softanza", SIZE 20, COLOR "#e8eef5", PADDING 14
+) RATIONALE "The brand, top left."
+```
+
+**Kinds**: `PANEL` (exactly one per file, the root), `BOX`, `TEXT`,
+`STYLE`. **Fields per kind are closed sets**; an unknown field is an
+error, not a warning. Values are numbers (px), strings (`"30%"`, colours,
+content), identifiers (`row`, `column`, `fill`, `yes`, `rtl`), and lists.
+
+**Layout vocabulary is flexbox because §2.1 decided flexbox**: `DIRECTION
+row|column`, `WRAP yes`, `GAP n`, `PADDING n`, `MARGIN n`, `ALIGN
+start|center|end`, `JUSTIFY start|center|end|between`, `WIDTH`/`HEIGHT`
+as px, `"n%"`, or `fill` (grow into the leftover). `TEXT_DIRECTION rtl`
+threads §2.3's parameter. `STYLE <name>` on a box merges a named bag,
+local fields winning.
+
+**`RATIONALE` is mandatory on every declaration** — the commons legislates
+it, and here it is not ceremony: a rationale per region is the seed of the
+G4 accessibility tree, a sentence per widget saying why it exists.
+
+### Why the emitter is the argument
+
+The format's defaults absorb, invisibly, every divergence G1 paid to
+find. An author writes none of this:
+
+| the author writes | the emitter guarantees |
+|---|---|
+| nothing | explicit `display` on every element (RML defaults to INLINE — divergence 4) |
+| nothing | the root sized to its panel (`body` does not fill — divergence 3) |
+| `FONT "…"` once, or nothing | a `font-family` always declared (no font = NO TEXT AT ALL — divergence 5) |
+| `TEXT_DIRECTION rtl` | `--rmlui-direction: rtl` (RCSS rejects the CSS spelling — divergence 1) |
+| nothing | every tag XML-closed (divergence 2) |
+| `WIDTH 210` | **210 means 210**: `flex-shrink: 0` rides along, because a size a person declares is a floor, not a basis — the flexbox default cost this plane two invisible-bar bugs |
+| `WRAP yes` | `align-content: flex-start` rides along, or wrapped lines spread down the container |
+| `WIDTH 210, PADDING 20` | **210 total, padding inside**: `box-sizing: border-box` on every element. CSS's content-box default made the first rendered sidebar 250 px and nothing at the call site said why |
+
+**A declared size means what it says** is the design decision that makes
+`.stzui` better to write than the CSS it compiles to.
+
+### The court, from birth
+
+The commons' four checks, implemented in the face (`stzUiDocument`) with
+C2-shaped diagnostics (`code`, `severity`, `message`, `span`, `cites`,
+`language: "stzui"`): **closure** (one verb, four kinds, closed field
+sets), **reference resolution** (every `CHILDREN` and `STYLE` name
+resolves; a box appears under one parent; no cycles), **duplicate
+declaration**, and **round trip** — `Parse → ToText() → Parse` is a
+fixpoint, asserted in the guard.
+
+### Status — v0.1 SHIPPED with G1 (2026-08-13)
+
+`base/gui/stzUiDocument.ring`: parse, court, canonical printer, RML
+emitter, `ToPanel()`. Guard `base/test/gui/gui_stzui_narrated.ring` —
+**42 asserts green**: every court refusal by name (including the
+lowercase-`define` case-sensitivity trap), the round-trip fixpoint
+byte-identical, every emitter default asserted on the RML and then
+proven on a laid-out panel (`WIDTH 100` lays out as exactly 100;
+`HEIGHT fill` takes exactly the leftover; `WIDTH 100, PADDING 10`
+occupies 100, not 120). The G1 showcase screen exists as
+`base/test/gui/showcase.stzui` — 20 declarations, court-clean,
+round-trips, renders via `gui_stzui_showcase.ring` (window with
+press-R-to-reload, or `shot` → PNG + SVG). Two findings from contact:
+**RmlUi honors `box-sizing: border-box`** (registered in its property
+table, verified by layout), and **flexbox `gap` works** — `GAP 26` on
+the showcase bar laid out correctly, confirming the survey's claim.
+**Not ratified as a Ringua language** — like `.game`, the decisions are
+settled, the expression becomes a Ringua language when Ringuist Phase 2
+reaches it, and v0.1 is marked so.
+
+---
+
 ## §5 · The cost, measured rather than feared
 
 Carried forward from the survey so no phase is planned in ignorance of it.
