@@ -2740,6 +2740,16 @@ pub fn stz_graph_layers_all(g: ?*const StzGraph, out: [*]f64, cap: usize) callco
             for (node.edges.items) |e| {
                 const v: usize = @intCast(e.to);
                 if (v >= n) continue;
+                // A SELF-LOOP IS NOT A CYCLE FOR LAYERING. `lay[u]+1 > lay[u]`
+                // is true forever, so one self-edge made the propagation
+                // never settle and the whole graph was REFUSED as cyclic --
+                // a state machine with a single "stay in this state" arrow
+                // could not be drawn at all, and the message blamed a cycle
+                // the author would not recognise as one. An edge from a node
+                // to itself constrains nothing about its depth relative to
+                // anything, which is why every layered layout ignores it
+                // here and draws it as a loop later.
+                if (v == u) continue;
                 if (lay[u] + 1 > lay[v]) {
                     lay[v] = lay[u] + 1;
                     changed = true;

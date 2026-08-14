@@ -411,6 +411,93 @@ chk("the containment check DISCRIMINATES", nBad2 > 0)
 
 #---------------------------------------------------------------------------
 ? ""
+? "-- 10. A self-loop is a LOOP, and is allowed ----------------"
+#
+# Two defects sat on top of each other here, and the first hid the second.
+#
+# A self-loop made the whole diagram UNRENDERABLE. Longest-path layering
+# treats `lay[u]+1 > lay[u]` as never settling, so one self-edge had the
+# engine refuse the graph as cyclic -- a state machine with a single
+# "stay in this state" arrow could not be drawn at all, and the message
+# blamed a cycle its author would not recognise as one. A self-loop
+# constrains nothing about a node's depth, so layering ignores it.
+#
+# Underneath that, the loop drew as NOTHING: both ends clip to the same
+# point, so the generic path emitted a zero-length segment. The most
+# complete kind of rendering bug -- there is nothing wrong to notice.
+#---------------------------------------------------------------------------
+
+LOOPC = "#1E6FE0"
+oSL = new stzDiagram("fsm")
+for a in [ [ "a", "Idle" ], [ "b", "Busy" ], [ "c", "Done" ] ]
+	oSL.AddNodeXTT(a[1], a[2], [ :type = "box", :color = LOOPC ])
+next
+oSL.AddEdge("a", "a")
+oSL.AddEdge("b", "b")
+oSL.AddEdge("a", "b")
+oSL.AddEdge("b", "c")
+
+# it RENDERS at all -- the layering fix
+oSLc = oSL.ToCanvasXT([ :NodeWidth = 110, :NodeHeight = 40 ])
+? "   a graph with self-loops renders : " + oSLc.Width() + "x" + oSLc.Height()
+chk("a self-loop no longer refuses the whole picture", oSLc.Width() > 0)
+
+# ...and the loop is VISIBLE, in the space beyond the node it belongs to
+nInk = _InkRightOfBoxes(oSLc, oSLc.Width(), oSLc.Height(), LOOPC)
+? "   edge ink drawn beside the nodes : " + nInk
+chk("the loop is actually drawn", nInk > 20)
+
+# THE NEGATIVE SIBLING: the same diagram WITHOUT the self-loops must have
+# nothing out there, or this counts any stray pixel as a loop.
+oNL2 = new stzDiagram("fsm2")
+for a in [ [ "a", "Idle" ], [ "b", "Busy" ], [ "c", "Done" ] ]
+	oNL2.AddNodeXTT(a[1], a[2], [ :type = "box", :color = LOOPC ])
+next
+oNL2.AddEdge("a", "b")
+oNL2.AddEdge("b", "c")
+oNL2c = oNL2.ToCanvasXT([ :NodeWidth = 110, :NodeHeight = 40 ])
+nNo = _InkRightOfBoxes(oNL2c, oNL2c.Width(), oNL2c.Height(), LOOPC)
+? "   the same graph with no self-loops : " + nNo
+chk("the loop check DISCRIMINATES", nNo < nInk / 4)
+
+# PARALLEL EDGES ARE REFUSED BY DESIGN, not missing by accident. stzGraph
+# is a SIMPLE graph, and a silently doubled edge would corrupt every count,
+# path and metric that walks the adjacency. Asserted so the decision cannot
+# be reversed by accident -- and so the refusal keeps SAYING what to do.
+chk("a parallel edge is refused", Raises('
+	o = new stzGraph("g")
+	o.AddNode("a")  o.AddNode("b")
+	o.AddEdge("a", "b")
+	o.AddEdge("a", "b")
+'))
+try
+	oPE = new stzGraph("g")
+	oPE.AddNode("a")  oPE.AddNode("b")
+	oPE.AddEdge("a", "b")
+	oPE.AddEdge("a", "b")
+catch
+	cPE = cCatchError
+done
+chk("...and the refusal names the model, not just the fact",
+    StzFindFirst("simple graph", StzLower(cPE)) > 0)
+chk("...and points at the way forward",
+    StzFindFirst("connectifabsent", StzLower(cPE)) > 0)
+
+# a SECOND self-loop is that same refusal, and says so in its own words
+try
+	oSD = new stzGraph("g")
+	oSD.AddNode("a")
+	oSD.AddEdge("a", "a")
+	oSD.AddEdge("a", "a")
+catch
+	cSD = cCatchError
+done
+? "   " + cSD
+chk("a second self-loop is refused as the parallel edge it is",
+    StzFindFirst("self-loop", StzLower(cSD)) > 0)
+
+#---------------------------------------------------------------------------
+? ""
 ? "=============================================================="
 ? " " + nOk + " ok, " + nBad + " failed"
 ? "=============================================================="
@@ -780,3 +867,35 @@ func _BoxInside nX, nY, nBW, nBH, aBox
 	       (nX + nBW / 2) <= aBox[1] + aBox[3] and
 	       (nY - nBH / 2) >= aBox[2] and
 	       (nY + nBH / 2) <= aBox[2] + aBox[4]
+
+# Edge ink lying to the RIGHT of every node box -- where a self-loop is
+# drawn in a top-down picture, and where nothing else ever is.
+func _InkRightOfBoxes oCanvas, nW, nH, cHex
+	_rc_ = _HexRGB(cHex)
+	_rpx_ = oCanvas.ToPixels()
+	_rmax_ = 0
+	for _ry_ = 0 to nH - 1 step 2
+		for _rx_ = 0 to nW - 1
+			if _IsRGB(_rpx_, nW, _rx_, _ry_, _rc_)
+				if _rx_ > _rmax_  _rmax_ = _rx_  ok
+			ok
+		next
+	next
+	if _rmax_ = 0  return 0  ok
+	_rn_ = 0
+	for _ry_ = 0 to nH - 1
+		for _rx_ = _rmax_ + 2 to nW - 1
+			if _IsRGB(_rpx_, nW, _rx_, _ry_, [ 255, 255, 255 ])  loop  ok
+			if _IsRGB(_rpx_, nW, _rx_, _ry_, _rc_)  loop  ok
+			_rn_++
+		next
+	next
+	return _rn_
+
+func Raises cCode
+	try
+		eval(cCode)
+	catch
+		return TRUE
+	done
+	return FALSE

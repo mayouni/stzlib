@@ -1536,8 +1536,36 @@ class stzDiagram from stzGraph
 			# off the bottom of its own picture, drawn correctly into space
 			# that was never reserved. Deriving a size from content means
 			# ALL the content, chrome included.
-			if len(@aClusters) > 0
+			_bChrome_ = len(@aClusters) > 0
+			for _e0_ in This.Edges()
+				if StzLower("" + _e0_[:from]) = StzLower("" + _e0_[:to])
+					_bChrome_ = 1
+					exit
+				ok
+			next
+			if _bChrome_
 				_ex0_ = 0  _ey0_ = 0  _ex1_ = _nW_  _ey1_ = _nH_
+
+				# a self-loop reaches beyond its node, on the side the
+				# drawing puts it
+				_slr_ = This._SelfLoopReach(_nBoxW_, _nBoxH_) + 6
+				for _e0_ in This.Edges()
+					if StzLower("" + _e0_[:from]) != StzLower("" + _e0_[:to])
+						loop
+					ok
+					_at_ = This._XYOf(_aXY_, "" + _e0_[:from])
+					if len(_at_) != 2  loop  ok
+					if _bSwap_
+						if _at_[2] - _nBoxH_ / 2 - _slr_ < _ey0_
+							_ey0_ = _at_[2] - _nBoxH_ / 2 - _slr_
+						ok
+					else
+						if _at_[1] + _nBoxW_ / 2 + _slr_ > _ex1_
+							_ex1_ = _at_[1] + _nBoxW_ / 2 + _slr_
+						ok
+					ok
+				next
+
 				for _cl_ in @aClusters
 					_cb_ = This._ClusterBox(_cl_, _aXY_, _nBoxW_, _nBoxH_)
 					if len(_cb_) != 4  loop  ok
@@ -1678,6 +1706,18 @@ class stzDiagram from stzGraph
 			_a_ = This._XYOf(_aXY_, "" + _aE_[_ei_][:from])
 			_b_ = This._XYOf(_aXY_, "" + _aE_[_ei_][:to])
 			if len(_a_) != 2 or len(_b_) != 2  loop  ok
+
+			# A SELF-LOOP IS A LOOP, not a line of length zero. Both ends
+			# clip to the same point, so the generic path drew nothing at
+			# all and a state machine's "stay here" arrow was simply absent
+			# from the picture -- the most complete kind of rendering bug,
+			# because there is nothing wrong to notice.
+			if StzLower("" + _aE_[_ei_][:from]) = StzLower("" + _aE_[_ei_][:to])
+				This._DrawSelfLoop(_oC_, _a_, _nBoxW_, _nBoxH_, _cEdge_,
+					_nEdgeW_, _cRank_)
+				loop
+			ok
+
 			if _cSpl_ != "ortho"
 				# the port offset shifts the whole aiming line, so the
 				# clip lands on the shifted point of the border.
@@ -1947,6 +1987,52 @@ class stzDiagram from stzGraph
 			_cp_ + [ "" + _cl_[:id], _cl_[:nodes] ]
 		next
 		return _cp_
+
+	# How far a self-loop reaches beyond the node box. Named once because
+	# TWO places need the same number: the drawing, and the derived-size
+	# pass that has to reserve room for it -- a loop drawn into space the
+	# canvas does not own is clipped away, which looks exactly like the
+	# bug it replaced.
+	def _SelfLoopReach(nBoxW, nBoxH)
+		return max([ 22, min([ nBoxH * 0.95, 44 ]) ])
+
+	# A loop leaving the node's side and returning to it, as dot draws one:
+	# off the RIGHT for a top-down picture, off the TOP when the ranks run
+	# left-to-right, so it never points back along the rank axis and gets
+	# confused with an ordinary edge.
+	def _DrawSelfLoop(oC, aAt, nBoxW, nBoxH, cColor, nWidth, cRank)
+		_R_ = This._SelfLoopReach(nBoxW, nBoxH)
+		if cRank = "LR" or cRank = "RL"
+			# leaves and re-enters the TOP edge
+			_d_ = nBoxW * 0.22
+			_p0_ = [ aAt[1] - _d_, aAt[2] - nBoxH / 2 ]
+			_c1_ = [ aAt[1] - _d_ - _R_ * 0.4, aAt[2] - nBoxH / 2 - _R_ ]
+			_c2_ = [ aAt[1] + _d_ + _R_ * 0.4, aAt[2] - nBoxH / 2 - _R_ ]
+			_p3_ = [ aAt[1] + _d_, aAt[2] - nBoxH / 2 ]
+		else
+			# leaves and re-enters the RIGHT edge
+			_d_ = nBoxH * 0.22
+			_p0_ = [ aAt[1] + nBoxW / 2, aAt[2] - _d_ ]
+			_c1_ = [ aAt[1] + nBoxW / 2 + _R_, aAt[2] - _d_ - _R_ * 0.4 ]
+			_c2_ = [ aAt[1] + nBoxW / 2 + _R_, aAt[2] + _d_ + _R_ * 0.4 ]
+			_p3_ = [ aAt[1] + nBoxW / 2, aAt[2] + _d_ ]
+		ok
+
+		_pts_ = []
+		for _si_ = 0 to 24
+			_t_ = _si_ / 24
+			_u_ = 1 - _t_
+			_pts_ + (_u_*_u_*_u_ * _p0_[1] + 3*_u_*_u_*_t_ * _c1_[1] +
+				3*_u_*_t_*_t_ * _c2_[1] + _t_*_t_*_t_ * _p3_[1])
+			_pts_ + (_u_*_u_*_u_ * _p0_[2] + 3*_u_*_u_*_t_ * _c1_[2] +
+				3*_u_*_t_*_t_ * _c2_[2] + _t_*_t_*_t_ * _p3_[2])
+		next
+		oC.Flush()
+		oC.AddPolylineQ(_pts_).Stroke(cColor, nWidth)
+
+		_n_ = len(_pts_)
+		This._DrawArrow(oC, [ _pts_[_n_ - 3], _pts_[_n_ - 2] ], _p3_,
+			cColor, nWidth, "line", cRank)
 
 	def _RouteOf(paRoutes, cFrom, cTo)
 		_rf_ = StzLower("" + cFrom)
