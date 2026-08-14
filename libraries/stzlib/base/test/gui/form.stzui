@@ -1,0 +1,62 @@
+-- form.stzui -- a screen with things to click, and a ring to tab around.
+
+DEFINE PANEL form (
+  SIZE [560, 360],
+  DIRECTION column,
+  FONT "app",
+  BACKGROUND "#12161c",
+  PADDING 18,
+  GAP 12,
+  CHILDREN [title, row_one, row_two, actions, status]
+) RATIONALE "A small operator form: five stops, all reachable by keyboard."
+
+DEFINE STYLE field (
+  HEIGHT 44,
+  PADDING 12,
+  BACKGROUND "#1e2530",
+  FOCUSABLE yes
+) RATIONALE "An input surface: focusable, because a keyboard must reach it."
+
+DEFINE STYLE button (
+  HEIGHT 44,
+  WIDTH "46%",
+  PADDING 12,
+  BACKGROUND "#2b6cb0",
+  TEXT_ALIGN center,
+  FOCUSABLE yes
+) RATIONALE "An action: focusable for the same reason."
+
+DEFINE STYLE caption (
+  SIZE 14,
+  COLOR "#8aa4c0"
+) RATIONALE "Quiet supporting text."
+
+DEFINE TEXT title (
+  CONTENT "Transfer",
+  SIZE 24,
+  COLOR "#eef4fb"
+) RATIONALE "What this form is for."
+
+DEFINE BOX row_one ( STYLE field, CHILDREN [label_from] ) RATIONALE "First stop in the ring."
+DEFINE TEXT label_from ( CONTENT "From account", STYLE caption ) RATIONALE "field label"
+
+DEFINE BOX row_two ( STYLE field, CHILDREN [label_to] ) RATIONALE "Second stop."
+DEFINE TEXT label_to ( CONTENT "To account", STYLE caption ) RATIONALE "field label"
+
+DEFINE BOX actions (
+  DIRECTION row,
+  HEIGHT 44,
+  GAP 16,
+  CHILDREN [confirm, cancel]
+) RATIONALE "Two actions side by side; arrows move between them."
+
+DEFINE BOX confirm ( STYLE button, CHILDREN [confirm_text] ) RATIONALE "The act."
+DEFINE TEXT confirm_text ( CONTENT "Confirm", SIZE 16, COLOR "#ffffff" ) RATIONALE "button label"
+
+DEFINE BOX cancel ( STYLE button, BACKGROUND "#3a4450", CHILDREN [cancel_text] ) RATIONALE "The way back, which Rule 80 requires to exist."
+DEFINE TEXT cancel_text ( CONTENT "Cancel", SIZE 16, COLOR "#dce6f2" ) RATIONALE "button label"
+
+DEFINE TEXT status (
+  CONTENT "Tab moves between stops; arrows move within the action row.",
+  STYLE caption
+) RATIONALE "Says how the keyboard works, on the screen itself."

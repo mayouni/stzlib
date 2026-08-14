@@ -277,6 +277,186 @@ class stzPanel from stzObject
 		ok
 		return NULL
 
+	#-- input, focus and events (G3) ----------------------------------------
+	#
+	# EVERY VERB TAKES PANEL PIXELS, and nothing else. The coordinate-space
+	# frame is dissolved rather than surfaced (§7 of the plan): a panel has
+	# exactly one space, so there is nothing to confuse it with, and the
+	# conversions live at the boundary where they happen -- FromWindow for
+	# a window's pixels, FromTexture for a panel hanging in a 3D scene.
+	# There is no ambient "current space" and no mode.
+	#
+	# EVENTS ARE DRAINED, NEVER DISPATCHED. RmlUi routes and bubbles, the
+	# engine writes down what arrived, and Events() hands over the list.
+	# A callback per event would re-enter Ring from inside a C++ dispatch,
+	# which is not safe, and the house has already settled this shape
+	# twice: the display list and the text commands.
+
+	def PointerMovedTo(pnX, pnY)
+		return StzEngineGuiPointerMove(@nId, pnX, pnY, 0)
+
+	def PointerPressed(pnX, pnY, pnButton)
+		StzEngineGuiPointerMove(@nId, pnX, pnY, 0)
+		return StzEngineGuiPointerButton(@nId, pnButton, 1, 0)
+
+	def PointerReleased(pnX, pnY, pnButton)
+		StzEngineGuiPointerMove(@nId, pnX, pnY, 0)
+		return StzEngineGuiPointerButton(@nId, pnButton, 0, 0)
+
+	# The whole gesture, because a click is a press AND a release and a
+	# caller that forgets the second one gets a button stuck down.
+	def ClickAt(pnX, pnY)
+		This.PointerPressed(pnX, pnY, 0)
+		return This.PointerReleased(pnX, pnY, 0)
+
+	def PointerLeft()
+		return StzEngineGuiPointerLeave(@nId)
+
+	def KeyPressed(pnKey, pnMods)
+		StzEngineGuiKey(@nId, pnKey, 1, pnMods)
+		return StzEngineGuiKey(@nId, pnKey, 0, pnMods)
+
+	def TypeText(pcText)
+		return StzEngineGuiTextInput(@nId, "" + pcText)
+
+	# The element under a point, by name. "" when the point hits nothing
+	# that carries a name -- a fair answer, not a failure.
+	def ElementAt(pnX, pnY)
+		return StzEngineGuiElementAt(@nId, pnX, pnY)
+
+	#-- the conversions, named at the boundary ------------------------------
+
+	# A window's pixels are the panel's when the panel fills the window,
+	# which is the case stzWindow.Draw arranges. Named anyway: the reader
+	# of a frame loop should see WHERE the space changes.
+	def FromWindow(poWindow, pnX, pnY)
+		if NOT isObject(poWindow)
+			StzRaise("stzPanel.FromWindow: give an stzWindow.")
+		ok
+		_nW_ = poWindow.Width()
+		_nH_ = poWindow.Height()
+		if _nW_ < 1 or _nH_ < 1
+			return [ 0, 0 ]
+		ok
+		return [ pnX * @nW / _nW_, pnY * @nH / _nH_ ]
+
+	# A panel hanging in a 3D scene is hit by a RAY, and what the caller
+	# has after the intersection is a texture coordinate. This is the
+	# whole of the in-scene input mapping (§6's tier): uv in, panel
+	# pixels out. v is flipped because a texture's origin is bottom-left
+	# and a panel's is top-left -- the one place that difference is
+	# stated, so no caller has to remember it.
+	def FromTexture(pnU, pnV)
+		return [ pnU * @nW, (1 - pnV) * @nH ]
+
+	#-- focus ---------------------------------------------------------------
+	#
+	# Rule 80 (Keyboard Sovereignty) is `machine` tier, so this is legally
+	# required rather than polish. RmlUi owns the traversal -- tab order in
+	# document order, and a spatial heuristic for directional moves -- and
+	# what is added here is the QUERY and the COUNTED refusal.
+
+	def FocusOn(pcName)
+		return StzEngineGuiFocus(@nId, "" + pcName)
+
+	def ClearFocus()
+		return StzEngineGuiFocus(@nId, "")
+
+	# The focused element's name, or "" when nothing is focused.
+	def Focused()
+		return StzEngineGuiFocused(@nId)
+
+	# TRUE when focus MOVED. A refusal at the end of a ring is a real
+	# answer, not an error, so it answers FALSE rather than raising.
+	def FocusNext()
+		return StzEngineGuiFocusMove(@nId, 0) = 0
+
+	def FocusPrevious()
+		return StzEngineGuiFocusMove(@nId, 1) = 0
+
+	# Directional moves, for an arrow key or a gamepad stick. RmlUi picks
+	# the target by a spatial heuristic, which is what the WAI-ARIA APG
+	# contract wants inside a composite widget.
+	def FocusUp()
+		return StzEngineGuiFocusMove(@nId, 2) = 0
+
+	def FocusDown()
+		return StzEngineGuiFocusMove(@nId, 3) = 0
+
+	def FocusLeft()
+		return StzEngineGuiFocusMove(@nId, 4) = 0
+
+	def FocusRight()
+		return StzEngineGuiFocusMove(@nId, 5) = 0
+
+	# Walk the whole tab ring and answer the names in order. THE keyboard
+	# contract made checkable: a screen whose ring omits an action is a
+	# screen a keyboard cannot operate, and Rule 80 says that is a defect.
+	# Bounded, because a ring that never closes would otherwise hang.
+	#
+	# A ring is a CYCLE, and this enters it wherever focus currently
+	# sits: RmlUi resumes tabbing from the last focused element even
+	# after a blur, so calling this with `cancel` focused answers the
+	# same cycle rotated. The SET and the ORDER are stable; the entry
+	# point is not. Call it before touching focus if the first stop
+	# matters -- as the guard does.
+	def TabRing()
+		_a_ = []
+		This.ClearFocus()
+		for _i_ = 1 to 200
+			if NOT This.FocusNext()
+				exit
+			ok
+			_c_ = This.Focused()
+			if _c_ = ""
+				exit
+			ok
+			# a ring has closed when it returns to its first stop
+			if len(_a_) > 0 and _c_ = _a_[1]
+				exit
+			ok
+			_a_ + _c_
+		next
+		return _a_
+
+	#-- events --------------------------------------------------------------
+
+	# [ [ nKind, nSource, nX, nY, nButton, nKey, nMods, cTarget ], ... ]
+	#
+	# nKind:   1 click  2 pointerDown  3 pointerUp  4 pointerEnter
+	#          5 pointerLeave  6 focus  7 blur  8 keyDown  9 text
+	# nSource: 0 pointer  1 keyboard  2 gamepad  3 synthetic  4 assistive
+	#
+	# The SOURCE is the frame §7 chose to surface, and it earns its place:
+	# Rule 80 makes "reachable by a human keyboard" materially different
+	# from "something dispatched a click", and G4 needs an assistive
+	# activation distinguishable from a pointer one.
+	def Events()
+		return StzEngineGuiEvents()
+
+	def ClearEvents()
+		StzEngineGuiEventsClear()
+
+	# What the bounded queue threw away. A caller that stops draining
+	# stops receiving, and this is how it finds out.
+	def EventsDropped()
+		return StzEngineGuiEventsDropped()
+
+	def EventCount()
+		return len(StzEngineGuiEvents())
+
+	# Every event whose target is one named element.
+	def EventsFor(pcName)
+		_a_ = []
+		_aE_ = StzEngineGuiEvents()
+		_n_ = len(_aE_)
+		for _i_ = 1 to _n_
+			if _aE_[_i_][8] = "" + pcName
+				_a_ + _aE_[_i_]
+			ok
+		next
+		return _a_
+
 	#-- the text the layout wants drawn (G2) --------------------------------
 
 	# [ [ nFontId, nSize, nX, nY, nColour, cUtf8 ], ... ] -- what the last

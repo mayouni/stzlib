@@ -57,12 +57,12 @@ class stzUiDocument from stzObject
 		"PADDING", "GAP", "ALIGN", "JUSTIFY", "TEXT_DIRECTION", "TEXT_ALIGN" ]
 	@aBoxFields = [ "DIRECTION", "WRAP", "WIDTH", "HEIGHT", "PADDING",
 		"MARGIN", "GAP", "ALIGN", "JUSTIFY", "BACKGROUND", "CHILDREN",
-		"STYLE", "TEXT_DIRECTION", "TEXT_ALIGN" ]
+		"STYLE", "TEXT_DIRECTION", "TEXT_ALIGN", "FOCUSABLE" ]
 	@aTextFields = [ "CONTENT", "SIZE", "COLOR", "PADDING", "MARGIN",
-		"STYLE", "TEXT_DIRECTION", "TEXT_ALIGN" ]
+		"STYLE", "TEXT_DIRECTION", "TEXT_ALIGN", "FOCUSABLE" ]
 	@aStyleFields = [ "DIRECTION", "WRAP", "WIDTH", "HEIGHT", "PADDING",
 		"MARGIN", "GAP", "ALIGN", "JUSTIFY", "BACKGROUND", "SIZE", "COLOR",
-		"TEXT_ALIGN", "TEXT_DIRECTION" ]
+		"TEXT_ALIGN", "TEXT_DIRECTION", "FOCUSABLE" ]
 
 	def init(pcTextOrPath)
 		_c_ = "" + pcTextOrPath
@@ -415,6 +415,20 @@ class stzUiDocument from stzObject
 		if len(This._RawField(_aF_, "TEXT_ALIGN")) > 0 or This._FlipsDirection(pDecl[:name])
 			_c_ += " text-align: " +
 				This._ResolveAlign(This._IdField(_aF_, "TEXT_ALIGN", "start"), _cDir_) + ";"
+		ok
+
+		# FOCUSABLE puts the box in the tab ring AND under the arrow keys.
+		#
+		# RCSS spells the first `tab-index: auto`, which reads as
+		# "wherever the engine likes" and means the opposite -- it is the
+		# opt in. The second is `nav: auto`, and it defaults to NONE, so
+		# arrow keys do nothing at all until it is set. An author who
+		# declares a thing focusable means both: the WAI-ARIA APG
+		# contract this plane adopted is one tab stop per composite with
+		# ARROWS WITHIN, and half of that silently absent is exactly the
+		# kind of gap Rule 80 exists to forbid.
+		if strcmp(This._IdField(_aF_, "FOCUSABLE", "no"), "yes") = 0
+			_c_ += " tab-index: auto; nav: auto;"
 		ok
 
 		# sizes: a number MEANS the number (flex-shrink: 0 rides along);

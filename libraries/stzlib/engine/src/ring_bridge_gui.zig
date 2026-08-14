@@ -152,6 +152,89 @@ fn ring_SetTime(p: *anyopaque) callconv(.c) void {
     rn(p, 0);
 }
 
+// ---------------------------------------------------------- G3: input
+
+fn ring_PointerMove(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gui.pointerMove(@intFromFloat(gn(p, 1)), @floatCast(gn(p, 2)), @floatCast(gn(p, 3)), @intFromFloat(gn(p, 4)))));
+}
+
+fn ring_PointerButton(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gui.pointerButton(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2)), gn(p, 3) != 0, @intFromFloat(gn(p, 4)))));
+}
+
+fn ring_PointerLeave(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gui.pointerLeave(@intFromFloat(gn(p, 1)))));
+}
+
+fn ring_Key(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gui.key(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2)), gn(p, 3) != 0, @intFromFloat(gn(p, 4)))));
+}
+
+fn ring_TextInput(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gui.textInput(@intFromFloat(gn(p, 1)), getStr(p, 2))));
+}
+
+fn ring_SetInputSource(p: *anyopaque) callconv(.c) void {
+    gui.setInputSource(@intFromFloat(gn(p, 1)));
+    rn(p, 0);
+}
+
+fn ring_Focus(p: *anyopaque) callconv(.c) void {
+    const name = getStr(p, 2);
+    const z = allocator.dupeZ(u8, name) catch {
+        rn(p, gui.BAD_ARG);
+        return;
+    };
+    defer allocator.free(z);
+    rn(p, @floatFromInt(gui.focus(@intFromFloat(gn(p, 1)), z)));
+}
+
+fn ring_Focused(p: *anyopaque) callconv(.c) void {
+    const e = gui.focused(@intFromFloat(gn(p, 1)));
+    R.ring_vm_api_retstring2(p, e.ptr, @intCast(e.len));
+}
+
+fn ring_FocusMove(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gui.focusMove(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2)))));
+}
+
+fn ring_ElementAt(p: *anyopaque) callconv(.c) void {
+    const e = gui.elementAt(@intFromFloat(gn(p, 1)), @floatCast(gn(p, 2)), @floatCast(gn(p, 3)));
+    R.ring_vm_api_retstring2(p, e.ptr, @intCast(e.len));
+}
+
+// Events() -> [ [ nKind, nSource, nX, nY, nButton, nKey, nMods, cTarget ], ... ]
+// DRAINED by the caller, never dispatched: Ring cannot be re-entered
+// safely from a C++ event dispatch, and the house has settled this shape
+// twice already (the display list, the text commands).
+fn ring_Events(p: *anyopaque) callconv(.c) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const n = gui.eventCount();
+    var i: i32 = 0;
+    while (i < n) : (i += 1) {
+        const e = gui.eventAt(i) orelse continue;
+        const item = R.ring_list_newlist(out) orelse continue;
+        R.ring_list_adddouble(item, @floatFromInt(e.kind));
+        R.ring_list_adddouble(item, @floatFromInt(e.source));
+        R.ring_list_adddouble(item, e.x);
+        R.ring_list_adddouble(item, e.y);
+        R.ring_list_adddouble(item, @floatFromInt(e.button));
+        R.ring_list_adddouble(item, @floatFromInt(e.key));
+        R.ring_list_adddouble(item, @floatFromInt(e.mods));
+        R.ring_list_addstring2(item, e.target.ptr, @intCast(e.target.len));
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn ring_EventsClear(p: *anyopaque) callconv(.c) void {
+    gui.eventsClear();
+    rn(p, 0);
+}
+
+fn ring_EventsDropped(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gui.eventsDropped()));
+}
+
 const regs = [_]R.Reg{
     .{ .name = "stzengineguiinit", .func = &ring_Init },
     .{ .name = "stzengineguiisavailable", .func = &ring_IsAvailable },
@@ -170,6 +253,19 @@ const regs = [_]R.Reg{
     .{ .name = "stzengineguifontregister", .func = &ring_FontRegister },
     .{ .name = "stzengineguifontcount", .func = &ring_FontCount },
     .{ .name = "stzengineguitexts", .func = &ring_Texts },
+    .{ .name = "stzengineguipointermove", .func = &ring_PointerMove },
+    .{ .name = "stzengineguipointerbutton", .func = &ring_PointerButton },
+    .{ .name = "stzengineguipointerleave", .func = &ring_PointerLeave },
+    .{ .name = "stzengineguikey", .func = &ring_Key },
+    .{ .name = "stzengineguitextinput", .func = &ring_TextInput },
+    .{ .name = "stzengineguisetinputsource", .func = &ring_SetInputSource },
+    .{ .name = "stzengineguifocus", .func = &ring_Focus },
+    .{ .name = "stzengineguifocused", .func = &ring_Focused },
+    .{ .name = "stzengineguifocusmove", .func = &ring_FocusMove },
+    .{ .name = "stzengineguielementat", .func = &ring_ElementAt },
+    .{ .name = "stzengineguievents", .func = &ring_Events },
+    .{ .name = "stzengineguieventsclear", .func = &ring_EventsClear },
+    .{ .name = "stzengineguieventsdropped", .func = &ring_EventsDropped },
     .{ .name = "stzengineguisettime", .func = &ring_SetTime },
 };
 
