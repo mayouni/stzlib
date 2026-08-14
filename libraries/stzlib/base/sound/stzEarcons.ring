@@ -82,6 +82,40 @@ class stzEarcons
 	# disagree with a number rather than with a vibe.
 	@nFloorDb = -40
 
+	# ── VC4: THE SEMANTIC BRIDGE ────────────────────────────────────────────
+	#
+	# A meaning already renders to a colour (the colour plane) and an earcon
+	# (above). Add a PHRASE and the three channels answer three different
+	# questions from one declaration:
+	#
+	#     the screen   acknowledges   (inside Rule 18's 100 ms)
+	#     the earcon   corroborates   (fast, ~200 ms, "something happened")
+	#     the phrase   explains       (slow, seconds, "WHICH thing happened")
+	#
+	# THE EARCON ALWAYS PRECEDES THE PHRASE. The earcon is the alerting signal
+	# and it is already synthesised; the phrase is the content and it is slow.
+	# Inverting them spends the only fast channel on a slow message.
+	#
+	# SPEECH QUEUES WHERE AN EARCON DROPS. A displaced cue is dropped, because a
+	# cue arriving after its event lies about when it happened. A displaced
+	# PHRASE is queued, because dropping it loses the only statement of WHAT
+	# occurred while delaying it merely makes it late. The queue is BOUNDED and
+	# its overflow is counted -- an unbounded queue of speech is a program that
+	# talks for a minute about something that took a second.
+	#
+	# HIGHER PRIORITY CANCELS, IT NEVER INTERLEAVES. A danger phrase stops a
+	# success phrase. Two half-sentences are worse than one sentence and a
+	# counted drop, and a listener cannot un-hear the first half.
+	@oVoice = NULL
+	@cVoiceLang = ""
+	@aQueue = []          # [ value, phrase, oSound, priority ]
+	@nQueueMax = 4
+	@oSpeaking = NULL     # the transport currently speaking, or NULL
+	@nSpeakingPriority = 0
+	@nSpeechDrops = 0
+	@nSpeechSpoken = 0
+	@nGapSeconds = 0.12   # between the earcon and the phrase
+
 	def init()
 		This._BuildMotifs()
 		for _v_ in StzSemanticValues()
@@ -290,6 +324,209 @@ class stzEarcons
 		This.Fire(pMeaning)
 		return This
 
+	#-- VC4: SAY -- the earcon, then the phrase that says WHICH -------------
+
+	# Which language the phrase is spoken in. REFUSED rather than substituted
+	# if the machine has no voice for it -- speaking French to an operator who
+	# asked for English is worse than saying nothing.
+	def SetVoiceLanguage(pcTag)
+		This._EnsureVoice()
+		if NOT isObject(@oVoice)
+			@nRefusals++
+			@cLastError = "no voice on this machine to speak with"
+			return FALSE
+		ok
+		if NOT @oVoice.UseLanguage(pcTag)
+			@nRefusals++
+			@cLastError = @oVoice.LastError()
+			return FALSE
+		ok
+		@cVoiceLang = pcTag
+		return TRUE
+
+	# Which language it is actually speaking -- empty until one is set and
+	# ACCEPTED, so a caller can tell "not asked yet" from "asked and refused".
+	def VoiceLanguage()
+		return @cVoiceLang
+
+	def CanSpeak()
+		This._EnsureVoice()
+		return isObject(@oVoice) and @oVoice.IsUsable()
+
+	# THE COMPOSITE, as DATA: earcon, a gap, then the phrase, in ONE buffer.
+	#
+	# One buffer rather than two players is what answers VC4's kill criterion.
+	# Two independent players sharing a speaker can mask each other (the phrase
+	# starting under the earcon's tail) and can clip where they overlap. Laid
+	# out in one buffer they are SEQUENTIAL by construction: nothing overlaps,
+	# so nothing masks, and the peak is the louder of the two rather than their
+	# sum.
+	#
+	# Needs no audio device, which is what lets a guard measure the composition
+	# on a machine that cannot play it.
+	def ToSoundOfSaying(pMeaning, pcPhrase)
+		_p_ = This._Parse(pMeaning)
+		if _p_[1] = ""
+			@nRefusals++
+			@cLastError = "no semantic value named '" + pMeaning + "'"
+			return ""
+		ok
+		This._EnsureVoice()
+		_say_ = ""
+		if isObject(@oVoice) and @oVoice.IsUsable() and pcPhrase != ""
+			_say_ = @oVoice.ToSoundOf(pcPhrase)
+		ok
+		_ear_ = This.ToSoundOf(pMeaning)      # "" for :Muted -- silence is its rendering
+
+		if NOT isObject(_ear_) and NOT isObject(_say_)  return "" ok
+		if NOT isObject(_say_)  return _ear_ ok
+
+		# the phrase's rate wins: it is the longer signal, and resampling a
+		# 200 ms earcon costs less than resampling a sentence
+		_rate_ = _say_.SampleRate()
+		_earSecs_ = 0
+		if isObject(_ear_)
+			if _ear_.SampleRate() != _rate_
+				_ear_ = This._Resampled(_ear_, _rate_)
+			ok
+			_earSecs_ = _ear_.Duration()
+		ok
+		_total_ = _earSecs_ + @nGapSeconds + _say_.Duration()
+		_out_ = StzSoundOfSilenceQ(_total_ + 0.05, 1, _rate_)
+
+		_at_ = 0
+		if isObject(_ear_)
+			This._Blit(_out_, _ear_, 0)
+			_at_ = floor((_earSecs_ + @nGapSeconds) * _rate_)
+		ok
+		This._Blit(_out_, _say_, _at_)
+		return _out_
+
+	# Say it: the earcon, then the phrase. Queued, not played immediately --
+	# call TickSpeech() (or SpeakQueueToEnd()) to advance.
+	def Say(pMeaning, pcPhrase)
+		_p_ = This._Parse(pMeaning)
+		if _p_[1] = ""
+			@nRefusals++
+			@cLastError = "no semantic value named '" + pMeaning + "'"
+			return This
+		ok
+		# :Muted has no earcon and no phrase. Silence is its rendering, and
+		# that holds for speech exactly as it holds for a cue.
+		if _p_[1] = "muted"
+			@cLastReason = "muted renders as silence, in every channel"
+			return This
+		ok
+		_pri_ = This.PriorityOf(pMeaning)
+
+		# HIGHER PRIORITY CANCELS WHAT IS BEING SPOKEN, because two half
+		# sentences are worse than one sentence and a counted drop -- and a
+		# listener cannot un-hear the first half.
+		if _pri_ > @nSpeakingPriority and isObject(@oSpeaking)
+			@oSpeaking.Stop()
+			@oSpeaking.Release()
+			@oSpeaking = NULL
+			@nSpeakingPriority = 0
+			@nSpeechDrops++          # the cancelled sentence IS a drop
+		ok
+
+		if len(@aQueue) >= @nQueueMax
+			# BOUNDED, and the overflow is counted. An unbounded queue of
+			# speech is a program that talks for a minute about something
+			# that took a second.
+			@nSpeechDrops++
+			@cLastReason = "the speech queue is full (" + @nQueueMax + ")"
+			return This
+		ok
+
+		# INSERTED BY PRIORITY, NOT APPENDED -- and NOT clearing what is
+		# already waiting. The first cut cleared every queued phrase quieter
+		# than the new one, which contradicts the contract this bridge was
+		# built to honour: an earcon DROPS when displaced, a phrase QUEUES,
+		# because dropping a phrase loses the only statement of what happened
+		# while delaying it merely makes it late. Danger jumps the queue; the
+		# success behind it is still spoken afterwards.
+		_ins_ = len(@aQueue) + 1
+		for _i_ = 1 to len(@aQueue)
+			if @aQueue[_i_][4] < _pri_
+				_ins_ = _i_
+				exit
+			ok
+		next
+		_new_ = []
+		for _i_ = 1 to _ins_ - 1
+			_new_ + @aQueue[_i_]
+		next
+		_new_ + [ _p_[1], pcPhrase, "", _pri_ ]
+		for _i_ = _ins_ to len(@aQueue)
+			_new_ + @aQueue[_i_]
+		next
+		@aQueue = _new_
+		return This
+
+	def SayQ(pMeaning, pcPhrase)
+		This.Say(pMeaning, pcPhrase)
+		return This
+
+	# One step. Starts the next phrase when nothing is speaking, and reaps the
+	# transport when it ends. Cheap; call it as often as you like.
+	def TickSpeech()
+		if isObject(@oSpeaking)
+			@oSpeaking.Tick()
+			if @oSpeaking.IsStopped()
+				@oSpeaking.Release()
+				@oSpeaking = NULL
+				@nSpeakingPriority = 0
+			else
+				return This
+			ok
+		ok
+		if len(@aQueue) = 0  return This ok
+		_head_ = @aQueue[1]
+		_rest_ = []
+		for _i_ = 2 to len(@aQueue)
+			_rest_ + @aQueue[_i_]
+		next
+		@aQueue = _rest_
+
+		_s_ = This.ToSoundOfSaying(_head_[1], _head_[2])
+		if NOT isObject(_s_)  return This ok
+		_g_ = new stzSoundGraph()
+		_g_.Reshape(1, _s_.SampleRate())
+		_g_.AddSound(_s_)
+		@oSpeaking = new stzSoundTransport(_g_)
+		@oSpeaking.PlayFor(_s_.Duration())
+		@nSpeakingPriority = _head_[4]
+		@nSpeechSpoken++
+		return This
+
+	# Drive the queue to the end. Occupies the thread, which is honest for a
+	# script; a program with a UI ticks instead.
+	def SpeakQueueToEnd()
+		_guard_ = 0
+		while (len(@aQueue) > 0 or isObject(@oSpeaking)) and _guard_ < 4000
+			This.TickSpeech()
+			sleep(0.02)
+			_guard_++
+		end
+		return This
+
+	def IsSpeaking()
+		return isObject(@oSpeaking)
+
+	def SpeechQueueDepth()
+		return len(@aQueue)
+
+	def SpeechDrops()
+		return @nSpeechDrops
+
+	def SpeechSpoken()
+		return @nSpeechSpoken
+
+	def SetSpeechQueueMax(pn)
+		if pn >= 1  @nQueueMax = pn ok
+		return This
+
 	# What a caller must not assume. Ring occupancy plus the measured device
 	# and OS floor -- see plan S.5 for where each number comes from.
 	def TriggerToEarMs()
@@ -324,6 +561,37 @@ class stzEarcons
 		return @nRefusals
 
 	#-- private -------------------------------------------------------------
+
+	# The voice is created on FIRST USE, not in init(): a machine with no
+	# speech engine must still get earcons, and constructing a voice that
+	# cannot exist would make the whole semantic layer unusable there.
+	def _EnsureVoice()
+		if isObject(@oVoice)  return ok
+		if NOT StzVoiceEngineLoaded()  return ok
+		@oVoice = StzVoiceQ()
+		if NOT @oVoice.IsUsable()
+			@oVoice = NULL
+			return
+		ok
+		@oVoice.WarmUp()      # pay the 4.3x cold cost before the first phrase
+
+	# Copy one sound into another at a frame offset. Sequential layout is what
+	# makes the composition safe: nothing overlaps, so nothing masks and
+	# nothing sums into a clip.
+	def _Blit(poDest, poSrc, pnAtFrame)
+		_n_ = poSrc.Frames()
+		_max_ = poDest.Frames()
+		for _i_ = 1 to _n_
+			_at_ = pnAtFrame + _i_
+			if _at_ > _max_  exit ok
+			poDest.SetSampleAt(_at_, 1, poSrc.SampleAt(_i_, 1))
+		next
+
+	def _Resampled(poSound, pnRate)
+		_c_ = StzSoundFromBufferQ(StzEngineSoundResample(
+			poSound.BufferId(), pnRate, StzSoundQualitySinc()))
+		if _c_.Frames() = 0  return poSound ok
+		return _c_
 
 	# "Danger" -> ["danger", "cue"] ; "Danger.Alert" -> ["danger", "alert"]
 	# The dot spelling is colour's, deliberately: :Danger.Surface reads the

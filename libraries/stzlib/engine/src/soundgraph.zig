@@ -290,6 +290,25 @@ const Graph = struct {
 
 var graphs: std.ArrayList(Graph) = .{};
 
+// THE TABLES ARE ADDRESS-STABLE, AND THAT IS A CORRECTNESS PROPERTY, NOT A
+// TUNING CHOICE.
+//
+// A running producer thread holds `&streams.items[slot]` and `&graphs.items[gs]`
+// for its whole life (see producerLoop). An ArrayList that GROWS reallocates its
+// backing buffer and frees the old one -- so opening a SECOND stream, or even
+// creating a second graph, pulled the memory out from under the first producer
+// while it was reading. It then rendered from freed memory and the process died
+// inside @intCast with "integer does not fit in destination type": a
+// use-after-free wearing a bounds-check's clothes.
+//
+// Reserving the whole table up front and REFUSING past the cap makes the
+// addresses permanent, so the cached pointers stay valid for as long as the
+// slot lives. The cap is what turns an unbounded hazard into a counted refusal.
+// Both tables already reuse dead slots first, so the cap bounds LIVE objects,
+// not objects ever created.
+const MAX_GRAPHS = 64;
+const MAX_STREAMS = 16;
+
 fn makeId(slot: usize, gen: u32) i64 {
     return (@as(i64, gen) << 32) | @as(i64, @intCast(slot + 1));
 }
@@ -322,10 +341,17 @@ pub fn graphNew(channels: u32, rate: u32, block: usize) i64 {
             return makeId(i, g.gen);
         }
     }
-    graphs.append(alloc, g) catch {
+    if (graphs.items.len >= MAX_GRAPHS) {
+        refuse("graphNew: 64 graphs are already live -- free one first");
+        return 0;
+    }
+    // reserve ONCE, to the cap: after this the buffer never moves, so the
+    // pointers a producer thread caches stay pointing at their own slot
+    graphs.ensureTotalCapacity(alloc, MAX_GRAPHS) catch {
         setErr("out of memory growing the graph table");
         return 0;
     };
+    graphs.appendAssumeCapacity(g);
     counters[CTR_GRAPHS_LIVE] += 1;
     return makeId(graphs.items.len - 1, 1);
 }
@@ -1528,12 +1554,20 @@ pub fn streamStart(graph_id: i64, capacity_frames: usize) i64 {
         }
     }
     if (slot == streams.items.len) {
-        streams.append(alloc, .{}) catch {
+        if (streams.items.len >= MAX_STREAMS) {
+            alloc.free(mem);
+            alloc.destroy(ring);
+            refuse("streamStart: 16 streams are already live -- stop one first");
+            return 0;
+        }
+        // reserve to the cap, so the table never moves under a live producer
+        streams.ensureTotalCapacity(alloc, MAX_STREAMS) catch {
             alloc.free(mem);
             alloc.destroy(ring);
             setErr("out of memory growing the stream table");
             return 0;
         };
+        streams.appendAssumeCapacity(.{});
     }
     const sl = &streams.items[slot];
     const gen = sl.gen;
@@ -1662,6 +1696,71 @@ test "a stream keeps a ring fed, and the samples arrive in order" {
         try testing.expectApproxEqAbs(want[i % 4], snd.getSample(out, i, 0), 1e-6);
     }
     try testing.expectEqual(@as(f64, 0), streamUnderruns(sid));
+}
+
+test "a SECOND stream does not pull the table out from under the first" {
+    // THE REGRESSION. Two live streams -- two transports, or an earcon pool
+    // plus a spoken phrase -- used to kill the process: streams.append grew the
+    // table, freed the old buffer, and the first producer thread went on
+    // reading the freed slot. It died inside @intCast, which reads like a
+    // bounds bug and is really a use-after-free. Both tables are reserved to
+    // their cap now, so the addresses are permanent.
+    const g1 = graphNew(1, 48000, 64);
+    defer _ = graphFree(g1);
+    _ = setOutput(g1, addOsc(g1, WAVE_SINE, 12000, 1.0));
+    try testing.expectEqual(OK, prepare(g1));
+    const s1 = streamStart(g1, 4096);
+    try testing.expect(s1 != 0);
+    defer _ = streamStop(s1);
+    std.Thread.sleep(20 * std.time.ns_per_ms);
+
+    // a second GRAPH first: producerLoop caches &graphs.items[gs] too, so
+    // growing THAT table was the same hazard by another door
+    const g2 = graphNew(1, 48000, 64);
+    defer _ = graphFree(g2);
+    _ = setOutput(g2, addOsc(g2, WAVE_SINE, 12000, 0.5));
+    try testing.expectEqual(OK, prepare(g2));
+    const s2 = streamStart(g2, 4096);
+    try testing.expect(s2 != 0);
+    defer _ = streamStop(s2);
+    std.Thread.sleep(50 * std.time.ns_per_ms);
+
+    // the FIRST stream must still be producing its own signal, untouched
+    const out = snd.newSilent(256, 1, 48000);
+    defer _ = snd.free(out);
+    try testing.expectEqual(@as(f64, 256), streamDrain(s1, 256, out));
+    const want = [_]f64{ 0, 1, 0, -1 };
+    for (0..256) |i| {
+        try testing.expectApproxEqAbs(want[i % 4], snd.getSample(out, i, 0), 1e-6);
+    }
+    try testing.expectEqual(@as(f64, 0), streamUnderruns(s1));
+
+    // and the second is producing ITS amplitude, so they are not aliased
+    const out2 = snd.newSilent(256, 1, 48000);
+    defer _ = snd.free(out2);
+    try testing.expectEqual(@as(f64, 256), streamDrain(s2, 256, out2));
+    try testing.expectApproxEqAbs(@as(f64, 0.5), snd.getSample(out2, 1, 0), 1e-6);
+}
+
+test "the stream table REFUSES past its cap rather than reallocating" {
+    // The cap is what makes the addresses permanent, so it has to be a
+    // refusal -- a table that grows "just this once" is the bug again.
+    const gid = graphNew(1, 48000, 64);
+    defer _ = graphFree(gid);
+    _ = setOutput(gid, addOsc(gid, WAVE_SINE, 440, 0.5));
+    try testing.expectEqual(OK, prepare(gid));
+
+    var ids: [MAX_STREAMS]i64 = @splat(0);
+    var n: usize = 0;
+    while (n < MAX_STREAMS) : (n += 1) {
+        ids[n] = streamStart(gid, 256);
+        if (ids[n] == 0) break;
+    }
+    defer for (ids[0..n]) |sid| {
+        if (sid != 0) _ = streamStop(sid);
+    };
+    // whatever the table already held, one more than the cap must be refused
+    try testing.expectEqual(@as(i64, 0), streamStart(gid, 256));
 }
 
 test "draining faster than the producer UNDERRUNS, and the counter proves it" {

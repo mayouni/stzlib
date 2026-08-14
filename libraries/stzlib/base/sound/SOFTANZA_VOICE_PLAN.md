@@ -706,3 +706,137 @@ the one place invisibility would be indefensible.
 
 **467 Ring assertions across fourteen guards**; 13 Zig tests across `voice.zig`
 and `listen.zig`, plus 108 in the sound modules.
+
+---
+
+## VC4 STATUS — 2026-08-14. The bridge holds, and it uncovered a use-after-free
+
+`base/sound/stzEarcons.ring` gains `Say`, `ToSoundOfSaying`, the queue and its
+counters; `engine/src/soundgraph.zig` and `engine/src/audiodev.zig` gain
+address-stable tables. Guard: `base/test/sound/sound_saybridge_narrated.ring`
+(**24**), plus 2 new Zig tests. Demo: `sound_saybridge_demo.ring`, six audible
+scenes.
+
+### The kill criterion, answered with numbers
+
+> *if a phrase and an earcon cannot be composed without the earcon being masked
+> or the phrase being clipped, the bridge is two systems sharing a speaker and
+> should be documented as such rather than presented as one.*
+
+They compose, and the reason is a design choice rather than luck: **the earcon
+and the phrase are laid into ONE BUFFER**, sequentially, by `ToSoundOfSaying`.
+Two independent players sharing a speaker can overlap — the phrase starting
+under the earcon's tail — and where they overlap they sum and can clip. Laid out
+in one buffer nothing overlaps by construction, so the peak is the LOUDER of the
+two rather than their sum:
+
+| | duration | peak |
+|---|---|---|
+| the earcon alone | 0.180 s | 0.267 |
+| the composite | 4.854 s | **0.688** |
+| the earcon's own span *inside* the composite | 0.180 s | **0.267** — unchanged |
+| clipped samples in the composite | | **0** |
+
+The earcon is neither masked nor ducked: its span measures **exactly** what it
+measured alone. A separate scene plays cue, phrase, and composite back to back;
+the composite's peak (0.60) equals the phrase's (0.60), which is the claim made
+audible.
+
+**The composite is DATA, not a playback.** It needs no device, which is what
+lets the guard measure all of this on a machine that cannot play a sound.
+
+### The one place speech parts company with earcons, and a correction
+
+§4 decided that **a displaced cue is DROPPED and a displaced phrase is QUEUED**,
+because dropping a phrase loses the only statement of what occurred while
+delaying it merely makes it late.
+
+The first cut of `Say` got this backwards in a way that read as correct: a
+higher-priority phrase **cleared every queued phrase quieter than itself**. It
+passed a naive reading of "higher priority cancels lower-priority speech" — but
+that sentence is about the phrase being SPOKEN, not about the ones waiting.
+Rewritten to insert by priority without clearing. Measured: `Say(:Success)`,
+`Say(:Info)`, `Say(:Danger)` → **queued 3, drops 0**, danger at the head. A
+danger jumps the queue; the success behind it is still spoken.
+
+Cancellation of the phrase in progress is real and is COUNTED: a danger arriving
+1.4 s into a long success sentence stops it mid-word, `SpeechDrops` goes to 1,
+and the queue still drains. A program that cuts people off silently cannot be
+told from one that never spoke.
+
+`:Muted` enqueues nothing, and `LastReason()` says why — *"muted renders as
+silence, in every channel."* The vocabulary is still exactly five.
+
+### THE REAL FINDING: two devices killed the process, and it was not the voice
+
+Scene 5 wants the earcon pool and a spoken phrase alive together. That crashed —
+`integer does not fit in destination type`, from inside `stz_sound.dll`. It
+reduces to six lines with no voice and no earcons in them at all:
+
+```ring
+t1 = new stzSoundTransport(g1)   t1.PlayFor(2.0)
+t2 = new stzSoundTransport(g2)   t2.PlayFor(0.5)   # <- process dies
+```
+
+**Three tables had the same use-after-free**, in two DLLs:
+
+| table | who holds a raw pointer into it | what growing it did |
+|---|---|---|
+| `soundgraph.streams` | the producer thread, for its whole life | freed the slot it was reading |
+| `soundgraph.graphs` | the same producer thread | freed the graph it was rendering |
+| `audiodev.sinks` | miniaudio, as `pUserData` **and** as `&sk.device` | freed the device under its own callback |
+
+Every one is an `ArrayList` that reallocates on growth. So creating a second
+graph, or opening a second stream, or opening a second device, freed memory a
+live thread was reading — and the failure surfaced as an `@intCast` panic and
+then a segfault, which read like bounds bugs and were nothing of the kind.
+`audiodev.sinks` is the worst of the three: `ma_device` sits inline in the slot
+and miniaudio keeps pointers back into it, so moving it is fatal even without
+the concurrency.
+
+The fix is the same in all three: **reserve the table to a cap once, and REFUSE
+past it.** 64 graphs, 16 streams, 8 output devices, 8 inputs. Reserving makes
+every address permanent for the life of the slot; the cap is what keeps the
+guarantee from being conditional. All three tables already reuse dead slots
+first, so the cap bounds LIVE objects rather than objects ever created — and a
+counted refusal names the problem in a way a crash never does.
+
+Two Zig tests hold it: a second stream must leave the first producing its own
+signal bit-exact with **zero underruns**, and the table must refuse past its cap
+rather than grow "just this once".
+
+**This was reachable from ordinary code and had nothing to do with speech.** Two
+`stzSoundTransport`s is a reasonable thing to write. VC4 found it only because a
+spoken phrase and an earcon pool are two transports by nature.
+
+### A guard bug worth recording, because it looked like a product bug
+
+The gap assertion failed first, and the composite looked wrong. It was not: the
+earcon renders at **48000** and the voice at **22050**, and the composite adopts
+the phrase's rate. `oEar.Frames()` therefore names a *different instant* in each
+buffer — 3969 frames of composite, not 8640 — so the measurement landed a third
+of a second late, inside the speech. **Seconds are the only index two buffers
+of different rates agree on.** Recorded because the first instinct was to
+distrust the composite.
+
+### What VC4 did NOT do
+
+- **No ducking.** Lowering a bed under a phrase needs a per-bus gain node; that
+  is SS3 and it is still open. Nothing here overlaps, so nothing needs ducking
+  yet.
+- **No barge-in.** Speaking while listening (VC3) is untested; the two own
+  different devices and the interaction is unmeasured.
+- **No fix for exit-without-`Release`.** A process that exits with a device
+  callback still live segfaults — **and it does so with a SINGLE transport**, so
+  it predates this work and is independent of it. Every guard and demo releases.
+  Recorded, not fixed: the safe fix is a teardown hook, and a wrong one runs
+  inside the loader lock.
+- **No speech in the Rule 18 path**, and §4 says why. Nothing here changes it.
+
+### Plane totals
+
+**526 Ring assertions across fifteen guards** (VC4 adds 24). **67 Zig tests**
+across `sound.zig`, `soundgraph.zig`, `soundring.zig`, `sounddsp.zig`,
+`soundanalysis.zig`, `soundwasm.zig` and `audiodev.zig`, plus **13** across
+`voice.zig` and `listen.zig` — counted from those files, so a later reader can
+reproduce the figure rather than inherit it.
