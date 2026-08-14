@@ -454,6 +454,8 @@ find. An author writes none of this:
 | `WIDTH 210` | **210 means 210**: `flex-shrink: 0` rides along, because a size a person declares is a floor, not a basis — the flexbox default cost this plane two invisible-bar bugs |
 | `WRAP yes` | `align-content: flex-start` rides along, or wrapped lines spread down the container |
 | `WIDTH 210, PADDING 20` | **210 total, padding inside**: `box-sizing: border-box` on every element. CSS's content-box default made the first rendered sidebar 250 px and nothing at the call site said why |
+| `TEXT_DIRECTION rtl` **once, on the panel** | the whole subtree flips: `text-align: right`, `flex-direction: row-reverse` on every row, and the shaper's base-direction hint on every element. RmlUi's own direction property reaches ONE line of its layout — a dirty flag feeding the shaper — so it aligns nothing and reverses nothing |
+| `TEXT_ALIGN start` / `end` | direction-**relative**, resolved per element against the direction in force. RCSS knows only `left`/`right`, so without this an author writes two stylesheets |
 
 **A declared size means what it says** is the design decision that makes
 `.stzui` better to write than the CSS it compiles to.
@@ -1240,3 +1242,82 @@ with real glyphs, which is precisely the mismatch this phase forbids.
   breaking and hands each line down separately; the engine's own layout
   contract has not changed.
 - **No IME.** §0 made it possible; nothing here makes it cheap.
+
+---
+
+# RTL AND THE VARIED-SCREEN PASS — 2026-08-14
+
+Undertaken between G2 and G3, on the observation that **every visual
+defect this plane has had was found by looking at a picture, never by an
+assertion**: the flex-shrink collapse that zeroed the bar and footer, the
+`SetFont`-before-`AddText` ordering that made every label one size behind,
+the content-box sidebar. Three from one screenshot. This pass rendered a
+second and third kind of screen and found two more, one of them a real
+engine defect that five green guards had not noticed.
+
+## What §2.3 actually required, measured
+
+`--rmlui-direction` appears in **exactly one line** of RmlUi's layout — a
+dirty flag in `ElementText` that feeds `TextShapingContext`. It aligns
+nothing, reverses nothing, moves no box. And RCSS `text-align` takes only
+`left, right, center, justify`, with no direction-relative `start`/`end`.
+
+So the plan's promise — *"RTL is a parameter threaded through the layout
+protocol, not a feature added later"* — is entirely the emitter's to keep.
+It now keeps it: **one `TEXT_DIRECTION rtl` on the panel flips the
+screen.** Direction inherits down the tree, a subtree may override it (a
+Latin code block inside an Arabic page) and the override inherits in turn;
+`TEXT_ALIGN start`/`end` resolve per element against the direction in
+force; and a `DIRECTION row` becomes `row-reverse`, so a sidebar declared
+first sits on the right of an Arabic screen. Guard
+`gui_rtl_narrated.ring`, **33 asserts green**, and the fix exists because
+a screenshot showed left-aligned Arabic while every assertion passed.
+
+`.stzui` gains **`TEXT_ALIGN`** (`start | center | end | justify`) on
+PANEL, BOX, TEXT and STYLE. `DirectionOf()`/`IsRtl()` answer before
+anything renders — they were a side effect of `ToRml` at first, which
+made them return `ltr` until something had been emitted.
+
+## The defect the pass existed to find
+
+**Registering one font family twice freed the font id that live faces
+still pointed at.** The gen-keyed table then answered `-1` to every width
+query, the text quads came out zero-wide, RmlUi culled them, and the panel
+that had been built FIRST silently lost its text. No counter moved; no
+exception was raised.
+
+It needed **two panels sharing a font family** to appear — which is why
+every single-panel guard was green while a two-panel screen was losing
+lines. Registration is now idempotent per family, which makes a dangling
+id structurally impossible; swapping a face at runtime needs a new family
+name, and that is said out loud rather than discovered.
+
+**The invariant is now a number**: `textMeshes` must equal
+`generateCalls`, exposed as `TextIsWhole()` and asserted in three guards.
+A string that is measured and then produces no geometry is text vanishing
+silently, and that is exactly what it counts.
+
+## And a guard defect worth recording
+
+The assertion that should have caught the missing line was
+`x < 4` on a helper that answers **-1 when the string is absent** — so a
+vanished string read as one aligned to the left edge and **passed**. This
+is the house's own assertions-that-agree-by-coincidence rule, live: every
+caller now checks for the absence before comparing the position.
+
+## Two Ring traps, rediscovered
+
+`oR` is the `or` KEYWORD (comparisons are case-insensitive) and `cR` is
+the `CR` global — nine syntax errors between them. And a bare `Doc()`
+helper collided with an existing stzlib global. Two-letter locals in
+guards are a minefield; `CLAUDE.md` says so and this pass paid for it
+again.
+
+## Still owed from the pass
+
+- **Tier agreement**: the same document through SVG and GPU, compared.
+  The doctrine is "one display list, two renderers, so they cannot
+  disagree" and it has never been checked.
+- **The browser fixture** (§3), still owed from G0.
+- **A panel inside a 3D scene** — §6 says this plane starts with that
+  tier; criterion 3 used a canvas texture, not a panel.

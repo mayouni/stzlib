@@ -160,7 +160,8 @@ class stzPanel from stzObject
 		return floor(len(StzEngineGuiIndices()) / 3)
 
 	# [ draws, droppedTexturedDraws, ignoredScissors, widthCalls,
-	#   generateCalls, keyboardActivations, widthCacheHits, shapeCalls ]
+	#   generateCalls, keyboardActivations, widthCacheHits, shapeCalls,
+	#   textMeshes, textDraws, textDrops, textReleases ]
 	#
 	# A bounded record COUNTS what it drops, which is why the second and
 	# third entries exist: a panel that quietly rendered fewer triangles
@@ -188,6 +189,34 @@ class stzPanel from stzObject
 	def WidthCacheHits()
 		_a_ = This.Counters()
 		return _a_[7]
+
+	# Every string the font engine was asked to generate must become one
+	# tagged mesh. TextMeshes() < GenerateCalls() means a string was
+	# measured and then produced no geometry -- which is text vanishing
+	# silently, with nothing else moving to say so.
+	#
+	# That is not hypothetical: registering one font family twice used to
+	# free the id the existing faces pointed at, so widths came back -1,
+	# the quads were zero-wide, RmlUi culled them, and whichever panel had
+	# been built first lost its text. Two panels sharing a font is all it
+	# took, and every single-panel guard stayed green. The invariant lives
+	# here now so the next such bug is a failing number, not a screenshot.
+	def TextMeshes()
+		_a_ = This.Counters()
+		return _a_[9]
+
+	def GenerateCalls()
+		_a_ = This.Counters()
+		return _a_[5]
+
+	def TextDraws()
+		_a_ = This.Counters()
+		return _a_[10]
+
+	# TRUE when every generated string became geometry.
+	def TextIsWhole()
+		_a_ = This.Counters()
+		return _a_[9] = _a_[5] and _a_[11] = 0
 
 	def DroppedTexturedDraws()
 		_a_ = This.Counters()

@@ -48,19 +48,21 @@ class stzUiDocument from stzObject
 	@cSource = ""
 	@bParsed = FALSE
 	@cFontPath = ""    # see UseFont
+	@aDirMap = []      # [ [ name, "ltr"|"rtl" ], ... ] -- rebuilt per emit
 
 	# The closed field sets -- closure is a birth-check, so these lists ARE
 	# the law of v0.1. Lowercase here because field KEYWORDS are validated
 	# case-sensitively during parse; these drive the per-kind check.
 	@aPanelFields = [ "SIZE", "DIRECTION", "FONT", "BACKGROUND", "CHILDREN",
-		"PADDING", "GAP", "ALIGN", "JUSTIFY", "TEXT_DIRECTION" ]
+		"PADDING", "GAP", "ALIGN", "JUSTIFY", "TEXT_DIRECTION", "TEXT_ALIGN" ]
 	@aBoxFields = [ "DIRECTION", "WRAP", "WIDTH", "HEIGHT", "PADDING",
 		"MARGIN", "GAP", "ALIGN", "JUSTIFY", "BACKGROUND", "CHILDREN",
-		"STYLE", "TEXT_DIRECTION" ]
+		"STYLE", "TEXT_DIRECTION", "TEXT_ALIGN" ]
 	@aTextFields = [ "CONTENT", "SIZE", "COLOR", "PADDING", "MARGIN",
-		"STYLE", "TEXT_DIRECTION" ]
+		"STYLE", "TEXT_DIRECTION", "TEXT_ALIGN" ]
 	@aStyleFields = [ "DIRECTION", "WRAP", "WIDTH", "HEIGHT", "PADDING",
-		"MARGIN", "GAP", "ALIGN", "JUSTIFY", "BACKGROUND", "SIZE", "COLOR" ]
+		"MARGIN", "GAP", "ALIGN", "JUSTIFY", "BACKGROUND", "SIZE", "COLOR",
+		"TEXT_ALIGN", "TEXT_DIRECTION" ]
 
 	def init(pcTextOrPath)
 		_c_ = "" + pcTextOrPath
@@ -71,6 +73,15 @@ class stzUiDocument from stzObject
 		This._Parse()
 		if len(This.Errors()) = 0
 			This._Court()
+		ok
+		# The direction map is built HERE, not inside ToRml. It was a side
+		# effect of emitting at first, which made DirectionOf() answer
+		# "ltr" until something had rendered -- an ordering trap for every
+		# caller that only wanted to ask a question.
+		_dP_ = This.PanelDecl()
+		if len(_dP_) > 0
+			This._MapDirection(_dP_,
+				This._IdField(_dP_[:fields], "TEXT_DIRECTION", "ltr"))
 		ok
 
 	#-- the verdict ---------------------------------------------------------
@@ -226,10 +237,13 @@ class stzUiDocument from stzObject
 		# the ROOT: sized to the panel (divergence 3), a font always
 		# declared (divergence 5), flex like everything else
 		_cFont_ = This._StrField(_aPF_, "FONT", "default")
+		_cRootDir_ = This.DirectionOf(_dP_[:name])
 		_cCss_ += "body { box-sizing: border-box; display: flex; flex-direction: " +
-			This._IdField(_aPF_, "DIRECTION", "column") +
+			This._FlexFlow(This._IdField(_aPF_, "DIRECTION", "column"), _cRootDir_) +
 			"; width: 100%; height: 100%; font-family: " + _cFont_ +
-			"; font-size: 14px" +
+			"; font-size: 14px; --rmlui-direction: " + _cRootDir_ +
+			"; text-align: " +
+			This._ResolveAlign(This._IdField(_aPF_, "TEXT_ALIGN", "start"), _cRootDir_) + ";" +
 			This._CssCommon(_aPF_, TRUE) + " }" + char(10)
 
 		_n_ = len(@aDecls)
@@ -268,6 +282,87 @@ class stzUiDocument from stzObject
 		next
 		return _c_
 
+	#-- direction, and everything that follows from it ----------------------
+	#
+	# ONE declaration flips a screen. `TEXT_DIRECTION rtl` on the panel
+	# makes every descendant right-to-left: text right-aligns, rows read
+	# right to left, and the shaper is told the base direction. A box may
+	# override it for its own subtree (a Latin code block inside an Arabic
+	# page), and that override inherits downward in turn.
+	#
+	# This is §2.3's promise -- "RTL is a parameter threaded through the
+	# layout protocol, not a feature added later" -- kept in the emitter
+	# because RmlUi will not keep it: its direction property touches
+	# exactly one line of its layout, a dirty flag that feeds the shaper.
+	# Flutter needed a dedicated PR across its core layout files for this;
+	# here it is a walk over a tree that already exists.
+
+	def _MapDirection(pDecl, pcInherited)
+		if len(@aDirMap) = 0 and strcmp(pDecl[:kind], "PANEL") = 0
+			@aDirMap = []
+		ok
+		_cDir_ = This._IdField(This._EffectiveFields(pDecl), "TEXT_DIRECTION", pcInherited)
+		if strcmp(_cDir_, "rtl") != 0 and strcmp(_cDir_, "ltr") != 0
+			_cDir_ = pcInherited
+		ok
+		@aDirMap + [ pDecl[:name], _cDir_ ]
+		_aKids_ = This._ChildrenOf(pDecl)
+		_nK_ = len(_aKids_)
+		for _i_ = 1 to _nK_
+			_dK_ = This.DeclOf(_aKids_[_i_])
+			if len(_dK_) > 0
+				This._MapDirection(_dK_, _cDir_)
+			ok
+		next
+
+	# The direction in force for a declaration -- its own, or the nearest
+	# ancestor's. Answers "ltr" for anything the panel does not reach.
+	def DirectionOf(pcName)
+		_n_ = len(@aDirMap)
+		for _i_ = 1 to _n_
+			if strcmp(@aDirMap[_i_][1], "" + pcName) = 0
+				return @aDirMap[_i_][2]
+			ok
+		next
+		return "ltr"
+
+	def IsRtl(pcName)
+		return strcmp(This.DirectionOf(pcName), "rtl") = 0
+
+	# start/end are DIRECTION-RELATIVE, which is the vocabulary a format
+	# that takes RTL seriously should speak; RCSS only knows left/right,
+	# so the resolution happens here. An author who writes TEXT_ALIGN end
+	# gets the trailing edge in either direction, and never has to write
+	# two stylesheets.
+	def _ResolveAlign(pcAlign, pcDir)
+		_bRtl_ = strcmp(pcDir, "rtl") = 0
+		if strcmp(pcAlign, "start") = 0
+			return iif(_bRtl_, "right", "left")
+		ok
+		if strcmp(pcAlign, "end") = 0
+			return iif(_bRtl_, "left", "right")
+		ok
+		if strcmp(pcAlign, "center") = 0 or strcmp(pcAlign, "justify") = 0
+			return pcAlign
+		ok
+		return iif(_bRtl_, "right", "left")
+
+	# A row in an RTL subtree reads right to left. Without this a sidebar
+	# declared first still sits on the left of an Arabic screen, which is
+	# the layout equivalent of left-aligned Arabic text -- and it is the
+	# reason TEXT_DIRECTION alone was not enough.
+	def _FlexFlow(pcFlow, pcDir)
+		if strcmp(pcDir, "rtl") != 0
+			return pcFlow
+		ok
+		if strcmp(pcFlow, "row") = 0
+			return "row-reverse"
+		ok
+		if strcmp(pcFlow, "row-reverse") = 0
+			return "row"
+		ok
+		return pcFlow
+
 	# The CSS of one BOX or TEXT, style bag merged, defaults applied.
 	def _CssOf(pDecl)
 		_aF_ = This._EffectiveFields(pDecl)
@@ -280,14 +375,29 @@ class stzUiDocument from stzObject
 		# why -- the first .stzui screenshot had exactly that sidebar.
 		_c_ = "box-sizing: border-box; "
 
+		_cDir_ = This.DirectionOf(pDecl[:name])
+		# the shaper's base-direction hint (divergence 1: RCSS rejects the
+		# CSS spelling). It reaches the font engine and NOTHING else --
+		# every visible RTL consequence below is the emitter's.
+		_c_ += "--rmlui-direction: " + _cDir_ + "; "
+
 		# explicit display ALWAYS (divergence 4): a BOX with children is a
-		# flex container; everything else is block
+		# flex container; everything else is block. A row in an RTL subtree
+		# becomes row-reverse, or a sidebar declared first still sits on
+		# the left of an Arabic screen.
 		if _bBox_ and len(This._ChildrenOf(pDecl)) > 0
 			_c_ += "display: flex; flex-direction: " +
-				This._IdField(_aF_, "DIRECTION", "column") + ";"
+				This._FlexFlow(This._IdField(_aF_, "DIRECTION", "column"), _cDir_) + ";"
 		else
 			_c_ += "display: block;"
 		ok
+
+		# Alignment, resolved against the direction in force, and emitted
+		# on EVERY element rather than left to inherit: a subtree that
+		# overrides its direction must re-resolve `start`, and an
+		# inherited `left` would quietly survive the flip.
+		_c_ += " text-align: " +
+			This._ResolveAlign(This._IdField(_aF_, "TEXT_ALIGN", "start"), _cDir_) + ";"
 
 		# sizes: a number MEANS the number (flex-shrink: 0 rides along);
 		# "n%" passes through; `fill` grows into the leftover
@@ -346,11 +456,6 @@ class stzUiDocument from stzObject
 		_cJu_ = This._IdField(paFields, "JUSTIFY", "")
 		if _cJu_ != ""
 			_c_ += " justify-content: " + This._FlexWord(_cJu_) + ";"
-		ok
-		# rtl through the dialect's own property (divergence 1)
-		_cDir_ = This._IdField(paFields, "TEXT_DIRECTION", "")
-		if _cDir_ != ""
-			_c_ += " --rmlui-direction: " + _cDir_ + ";"
 		ok
 		return _c_
 
