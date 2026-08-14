@@ -391,8 +391,14 @@ class stzEarcons
 			ok
 			_earSecs_ = _ear_.Duration()
 		ok
+		# A TAIL OF SILENCE, and it is not padding for its own sake. Stopping
+		# closes the device, and the device is closed the moment the last
+		# frame is READ rather than heard -- so a composite that ends on its
+		# final syllable loses the end of that syllable. 200 ms of rendered
+		# silence costs 4 KB and means the sentence finishes before anything
+		# is torn down.
 		_total_ = _earSecs_ + @nGapSeconds + _say_.Duration()
-		_out_ = StzSoundOfSilenceQ(_total_ + 0.05, 1, _rate_)
+		_out_ = StzSoundOfSilenceQ(_total_ + 0.20, 1, _rate_)
 
 		_at_ = 0
 		if isObject(_ear_)
