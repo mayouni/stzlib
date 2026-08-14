@@ -2151,3 +2151,86 @@ must have an answer that is a number.
 **586 Ring assertions across seventeen guards** and 29 browser assertions;
 67 Zig tests in the sound modules, 13 across `voice.zig` and `listen.zig`.
 SN0–SN6, SS1–SS3 and VC0–VC6 closed. **SS4 remains open.**
+
+---
+
+## SS4 STATUS — 2026-08-14. The vocabulary is shared, and it was not failing alike
+
+`stzEarcons` gains `StzEarconSteps()` and a `_Parse` that REFUSES an unknown
+step. Guard: `base/test/sound/sound_ss4_narrated.ring` (**20**), plus an
+audible `sound_ss4_demo.ring`.
+
+### The kill criterion
+
+> *if the two channels need separate declarations to look and sound right, the
+> shared vocabulary is decorative and this section's central claim is false.*
+
+**MET.** One string, handed to two faces that share no code:
+
+| declaration | colour | sound |
+|---|---|---|
+| `:danger` | `#ff0000` | 0.180 s, priority 4 |
+| `:warning` | `#ffff00` | 0.180 s, priority 3 |
+| `:info` | `#0000ff` | 0.100 s, priority 2 |
+| `:success` | `#008000` | 0.160 s, priority 1 |
+
+Nothing is declared twice, and **there is no bridging verb in this phase,
+because none is needed** — which is a stronger result than shipping one would
+have been. `:Muted` renders as ABSENCE in both: colour refuses it (there is
+nothing to paint), sound renders silence, and both say so.
+
+### What SS4 actually caught: the two faces did not fail alike
+
+It is easy to "prove" a shared vocabulary by only ever asking questions both
+faces answer. So the guard asks each face a question the OTHER's vocabulary
+makes natural, and requires the same answer.
+
+Both faces spell a step `value.step`, but the steps belong to the medium —
+colour has `surface, border, text, solid`; sound has `cue, alert, ambient`.
+That divergence is correct: **a SURFACE is not a thing sound has, and an ALERT
+is not a thing colour has.** Sharing the lists would force one medium to carry
+the other's ideas.
+
+But they handled a foreign step differently:
+
+| | before | after |
+|---|---|---|
+| colour asked for `danger.alert` | **refused** | refused |
+| sound asked for `danger.surface` | **silently became a cue** | **refused, with the reason** |
+
+**And the downgrade was not harmless.** `.alert` is the step that pre-empts and
+demands 20 LU of headroom against a cue's 10. A typo — `Danger.Alrt` — became
+an ordinary cue with no alert behaviour and **no message**. That is this
+plane's own law broken inside its own vocabulary: *a setting that silently does
+nothing is worse than one that says no.*
+
+`_Parse` now returns `[ value, step, reason ]`, and the reason distinguishes the
+two halves — reporting "no semantic value named 'danger.surface'" would have
+been a lie about a value that exists perfectly well.
+
+### The asymmetry the shared vocabulary survives
+
+Sound needs a severity ORDER — `danger > warning > info > success` — because two
+sounds in one instant MASK rather than layer, so one must yield. Colour has no
+such need: two colours in one instant are simply both there.
+
+**Priority is a property of the CHANNEL, not of the MEANING.** Colour not having
+it is not colour missing something. One declaration still serves both, and each
+channel brings its own physics to it. The same is true of the steps. What is
+shared is the VALUE; what is not shared is not shared *by nature* rather than
+by omission.
+
+### One observation left for the colour plane's owner, not fixed here
+
+`StzThemeColor("light", "danger.surface")` returns `#00000000` rather than
+refusing — a transparent colour where a refusal belongs. `light` is a real
+theme and the step resolves fine through `StzColorToNumber`, so this is the
+theme lookup silently answering a question it does not handle. Recorded rather
+than changed: the colour face has its own owner and its own plan, and this
+plane's business here was its own half of the vocabulary.
+
+### Plane totals
+
+**606 Ring assertions across eighteen guards** and 29 browser assertions;
+67 Zig tests in the sound modules, 13 across `voice.zig` and `listen.zig`.
+**SN0–SN6, SS1–SS4 and VC0–VC6 all closed.**
