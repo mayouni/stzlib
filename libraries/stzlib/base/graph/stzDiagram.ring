@@ -1453,6 +1453,7 @@ class stzDiagram from stzGraph
 		# old fill-the-canvas behaviour, with :FitBoxes as the safety net.
 		# Separations arrive in dot's inches (96dpi), overridable in pixels
 		# via :NodeSep / :RankSep.
+		_aRoute_ = []
 		_cLM_ = StzLower("" + This._DiagOpt(paOptions, "layoutmode", :Hierarchical))
 		_bNat_ = 0
 		if _cLM_ = "hierarchical" and
@@ -1508,6 +1509,25 @@ class stzDiagram from stzGraph
 				if _cRank_ = "BT"  _py_ = _inY_ - _py_  ok
 				_aXY_ + [ StzLower("" + _p_[1]), _px_ + _mx_, _py_ + _my_ ]
 			next
+			# the long edges' routes ride the SAME transform as the nodes --
+			# one rule, so a route can never land in a different frame from
+			# the boxes it joins
+			for _r_ in _oGC_.EdgeRoutes()
+				_rp_ = []
+				for _bp_ in _r_[3]
+					_px_ = _bp_[1] / 1000 * _inX_
+					_py_ = _bp_[2] / 700 * _inY_
+					if _bSwap_
+						_t_ = _px_
+						_px_ = _py_
+						_py_ = _t_
+					ok
+					if _cRank_ = "RL"  _px_ = _inY_ - _px_  ok
+					if _cRank_ = "BT"  _py_ = _inY_ - _py_  ok
+					_rp_ + [ _px_ + _mx_, _py_ + _my_ ]
+				next
+				_aRoute_ + [ StzLower("" + _r_[1]), StzLower("" + _r_[2]), _rp_ ]
+			next
 		else
 			_lw_ = _nW_ - 2 * _mx_
 			_lh_ = _nH_ - 2 * _my_
@@ -1534,6 +1554,22 @@ class stzDiagram from stzGraph
 				if _cRank_ = "RL"  _px_ = _lh_ - _px_  ok
 				if _cRank_ = "BT"  _py_ = _lh_ - _py_  ok
 				_aXY_ + [ StzLower("" + _p_[1]), _px_ + _mx_, _py_ + _my_ ]
+			next
+			for _r_ in _oGC_.EdgeRoutes()
+				_rp_ = []
+				for _bp_ in _r_[3]
+					_px_ = _bp_[1]
+					_py_ = _bp_[2]
+					if _bSwap_
+						_t_ = _px_
+						_px_ = _py_
+						_py_ = _t_
+					ok
+					if _cRank_ = "RL"  _px_ = _lh_ - _px_  ok
+					if _cRank_ = "BT"  _py_ = _lh_ - _py_  ok
+					_rp_ + [ _px_ + _mx_, _py_ + _my_ ]
+				next
+				_aRoute_ + [ StzLower("" + _r_[1]), StzLower("" + _r_[2]), _rp_ ]
 			next
 		ok
 
@@ -1622,8 +1658,15 @@ class stzDiagram from stzGraph
 				_a_ = [ _eax_, _eay_ ]
 				_b_ = [ _ebx_, _eby_ ]
 			ok
-			This._DrawEdge(_oC_, _a_, _b_, _nBoxW_, _nBoxH_, _cEdge_,
-				_nEdgeW_, _cSpl_, _cRank_, _aPort_[_ei_][3])
+			_aBend_ = This._RouteOf(_aRoute_, "" + _aE_[_ei_][:from],
+				"" + _aE_[_ei_][:to])
+			if len(_aBend_) > 0
+				This._DrawRoutedEdge(_oC_, _a_, _b_, _aBend_, _nBoxW_,
+					_nBoxH_, _cEdge_, _nEdgeW_, _cSpl_, _cRank_)
+			else
+				This._DrawEdge(_oC_, _a_, _b_, _nBoxW_, _nBoxH_, _cEdge_,
+					_nEdgeW_, _cSpl_, _cRank_, _aPort_[_ei_][3])
+			ok
 		next
 
 		# 3. NODES
@@ -1851,6 +1894,87 @@ class stzDiagram from stzGraph
 			next
 		next
 		return _epRes_
+
+	def _RouteOf(paRoutes, cFrom, cTo)
+		_rf_ = StzLower("" + cFrom)
+		_rt_ = StzLower("" + cTo)
+		for _r_ in paRoutes
+			if _r_[1] = _rf_ and _r_[2] = _rt_  return _r_[3]  ok
+		next
+		return []
+
+	# An edge that spans more than one rank, drawn THROUGH the bend points
+	# the layout reserved for it.
+	#
+	# Without this an edge from rank 1 to rank 9 was a straight line and
+	# crossed every box between them -- and no routing rule could have
+	# saved it, because the edge had no presence in those ranks for
+	# anything to route around. The dummy chain is what gives it one.
+	#
+	# CATMULL-ROM through the bends rather than a polyline: the bends are
+	# where the edge must BE, not where it must turn a corner, and a curve
+	# reading smoothly past a box is what distinguishes a routed edge from
+	# a dog-leg. Ortho keeps its corners -- that is the point of ortho.
+	def _DrawRoutedEdge(oC, aFrom, aTo, paBend, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank)
+		_pts_ = []
+		_pts_ + [ aFrom[1], aFrom[2] ]
+		for _b_ in paBend  _pts_ + [ _b_[1], _b_[2] ]  next
+		_pts_ + [ aTo[1], aTo[2] ]
+
+		# clip the first and last legs at the boxes they touch
+		_p_ = This._ClipToBox(aFrom, _pts_[2], nBoxW, nBoxH)
+		_q_ = This._ClipToBox(aTo, _pts_[ len(_pts_) - 1 ], nBoxW, nBoxH)
+		_pts_[1] = _p_
+		_pts_[ len(_pts_) ] = _q_
+
+		_flat_ = []
+		if cSpline = "ortho" or cSpline = "line" or cSpline = "polyline"
+			for _pt_ in _pts_  _flat_ + _pt_[1]  _flat_ + _pt_[2]  next
+		else
+			_flat_ = This._SmoothThrough(_pts_)
+		ok
+		oC.Flush()
+		oC.AddPolylineQ(_flat_).Stroke(cColor, nWidth)
+
+		_n_ = len(_flat_)
+		if _n_ >= 4
+			This._DrawArrow(oC, [ _flat_[_n_ - 3], _flat_[_n_ - 2] ], _q_,
+				cColor, nWidth, "line", cRank)
+		ok
+
+	# Catmull-Rom through every point, sampled. Passes THROUGH its control points,
+	# unlike the quadratic used for a single hop, which is what a route needs:
+	# the bends are reserved space, not suggestions.
+	def _SmoothThrough(paPts)
+		_n_ = len(paPts)
+		if _n_ < 3
+			_o_ = []
+			for _pt_ in paPts  _o_ + _pt_[1]  _o_ + _pt_[2]  next
+			return _o_
+		ok
+		_o_ = []
+		for _i_ = 1 to _n_ - 1
+			_p0_ = paPts[ max([ 1, _i_ - 1 ]) ]
+			_p1_ = paPts[_i_]
+			_p2_ = paPts[_i_ + 1]
+			_p3_ = paPts[ min([ _n_, _i_ + 2 ]) ]
+			for _s_ = 0 to 7
+				_t_ = _s_ / 8
+				_t2_ = _t_ * _t_
+				_t3_ = _t2_ * _t_
+				_o_ + (0.5 * ((2 * _p1_[1]) +
+					(0 - _p0_[1] + _p2_[1]) * _t_ +
+					(2 * _p0_[1] - 5 * _p1_[1] + 4 * _p2_[1] - _p3_[1]) * _t2_ +
+					(0 - _p0_[1] + 3 * _p1_[1] - 3 * _p2_[1] + _p3_[1]) * _t3_))
+				_o_ + (0.5 * ((2 * _p1_[2]) +
+					(0 - _p0_[2] + _p2_[2]) * _t_ +
+					(2 * _p0_[2] - 5 * _p1_[2] + 4 * _p2_[2] - _p3_[2]) * _t2_ +
+					(0 - _p0_[2] + 3 * _p1_[2] - 3 * _p2_[2] + _p3_[2]) * _t3_))
+			next
+		next
+		_o_ + paPts[_n_][1]
+		_o_ + paPts[_n_][2]
+		return _o_
 
 	def _DrawEdge(oC, aFrom, aTo, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nLane)
 		_p_ = This._ClipToBox(aFrom, aTo, nBoxW, nBoxH)
