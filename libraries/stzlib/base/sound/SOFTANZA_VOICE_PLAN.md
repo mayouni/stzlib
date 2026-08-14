@@ -1087,3 +1087,112 @@ can.
 
 **535 Ring assertions across fifteen guards** and **29 browser assertions**;
 67 Zig tests in the sound modules, 13 across `voice.zig` and `listen.zig`.
+
+---
+
+## VC6 STATUS — 2026-08-14. The loop closes, and one step had to be built for it
+
+`base/sound/stzListener.ring` gains `AcceptMeanings` / `MeaningHeard`. Guard:
+`base/test/sound/sound_convergence_narrated.ring` (**25**), and an audible
+`sound_convergence_demo.ring`.
+
+### The kill criterion, and the step it caught
+
+> *if the loop needs a step outside these faces to close, it is a demo rather
+> than an architecture, and the missing step is named.*
+
+**One step was outside, and it is named: "text is a meaning."** Every other
+link already existed. Without a face for that one, it is a `switch` in
+application code — rewritten by every caller, and kept in agreement by hand
+with a grammar declared somewhere else.
+
+`AcceptMeanings` makes the grammar and the meanings **one declaration**:
+
+```ring
+oL.AcceptMeanings([
+    [ "disque plein",         :Danger  ],
+    [ "sauvegarde terminee",  :Success ]
+])
+```
+
+**The author still declares the meaning.** Nothing infers one from the words —
+*disque plein* is a danger because somebody said so, not because a classifier
+guessed. The face carries the declaration; it does not make it. A **sixth**
+value is refused where it is DECLARED rather than where it is spoken, because a
+failure at the far end of the loop is the hardest kind to trace.
+
+### The loop, measured
+
+Four phrases spoken by this plane's own voice and heard by its own recognizer —
+no microphone, no file, no fixture:
+
+| said | heard | conf | meaning | colour |
+|---|---|---|---|---|
+| disque plein | disque plein | 0.576 | danger | `#ff0000` |
+| le certificat expire | le certificat expire | 0.927 | warning | `#ffff00` |
+| indexation en cours | indexation en cours | 0.918 | info | `#0000ff` |
+| sauvegarde terminee | sauvegarde terminee | 0.917 | success | `#008000` |
+
+**4/4 closed, mean confidence 0.834.** The negative sibling holds: *je voudrais
+un cafe au lait* yields an empty meaning, and empty is a RESULT rather than a
+refusal.
+
+### The scene failed first, and the reason is the plan's own asymmetry
+
+The first cut spoke **English** into a recognizer that hears **French**, and got
+back an empty string and a confidence of 0.257. Nothing was broken: VC0 measured
+in §2.4 that this machine SPEAKS en-US and fr-FR and HEARS fr-FR only.
+
+**A loop that assumed one language would only close on the author's laptop.** So
+the guard and the demo NEGOTIATE — intersect `stzVoice.Languages()` with
+`stzListener.Languages()`, run in what is left, and say plainly when the
+intersection is empty that the loop cannot close on this machine. That is a fact
+about the machine, not a failure of the design, and it is the strongest
+vindication so far of building capability per language AND per direction.
+
+### Where the loop does NOT close, and why that is correct
+
+The sound plane carries Rule 118's **five**; the colour face carries **six**,
+and they are not the same six:
+
+```
+sound  : danger, warning, info, success, muted
+colour : primary, success, warning, danger, info, neutral
+```
+
+**Four render in both channels. `:Muted` renders in neither**, and
+`StzColorToNumber(:Muted)` refuses by name. That is coherent rather than broken:
+muted means waiting is not an event, and its rendering is ABSENCE everywhere —
+silence in sound, nothing painted, nothing said. A colour face that answered
+`:Muted` with a paintable colour would be the bug. `:Primary` and `:Neutral`
+have no earcon and should not: they are theme roles, not states.
+
+**So the loop is claimed for the four STATES, in writing, and not for five.**
+
+### The other two deliverables
+
+- **A spoken transport.** Composition, not a new face: the transport already
+  reports a position and the voice already speaks. `PositionInSeconds()` → a
+  phrase → a `stzSound`, with nothing added to either face.
+- **A sonified AND spoken analysis.** Two tones measured at −9.714 and −29.714
+  LUFS, a gap of 20.000 dB. The **same number** becomes a spoken sentence and an
+  earcon — measured once, rendered twice, which is what stops the two channels
+  from disagreeing. The threshold that turns the gap into a meaning is the
+  AUTHOR's, stated in the demo, not the library's.
+
+### What VC6 did NOT do
+
+- **No intent parsing, no dialogue, no wake word, no barge-in.** §6's scope
+  gravity warning, held to. A closed grammar and a declared meaning is the whole
+  of it.
+- **No inferred meanings.** There is no path from words to a semantic value
+  that the author did not write down.
+- **No browser loop.** VC5 measured why: a browser voice has no buffer, so
+  `ToSoundOf` cannot exist there and the phrase can never be fed back to a
+  recognizer as data. The loop is native-tier, in writing.
+
+### Plane totals
+
+**560 Ring assertions across sixteen guards** and **29 browser assertions**;
+67 Zig tests in the sound modules, 13 across `voice.zig` and `listen.zig`.
+VC0–VC6 closed.
