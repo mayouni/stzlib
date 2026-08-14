@@ -173,7 +173,10 @@ oBP.Free()
 ? "-- Scene 7: the showcase file, from disk to geometry --"
 oS = new stzUiDocument("showcase.stzui")
 chk("showcase.stzui is clean", oS.IsClean())
-chk("...and carries 20 declarations", len(oS.Declarations()) = 20)
+# the committed fixture, so this scene exercises the REAL text path on a
+# CI machine with no system font
+oS.UseFont("../gpu/fixtures/amiri_arabic_subset.ttf")
+chk("...and carries 26 declarations", len(oS.Declarations()) = 26)
 oSP = oS.ToPanel()
 aBar = oSP.BoxOf("bar")
 aSide = oSP.BoxOf("side")
@@ -188,8 +191,12 @@ chk("the sidebar occupies its declared 210 (content 170 + padding 40)",
 chk("the footer was NOT squeezed (30 total, padding inside)",
     aFoot[4] = 30 - 16)
 chk("six cards laid out", len(oSP.BoxOf("card_perf")) = 4)
-chk("the texts to paint are enumerable (the G1 bridge)",
-    len(oS.TextsToPaint()) = 6)
+# G2 retired the bridge this used to prove: the panel now carries its own
+# text, so what matters is that every TEXT declaration became a real draw
+# command rather than something a caller has to place by hand.
+chk("every TEXT declaration became a draw command",
+    len(oSP.Texts()) = 12)
+chk("...and none of them was lost on the way", oSP.TextIsWhole())
 # round trip on the real file too -- a fixture is only a fixture if the
 # real artifact passes it
 cS1 = oS.ToText()

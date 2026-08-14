@@ -100,8 +100,8 @@ pub fn indices() []const u32 {
 /// the bounded record's own account of what it drew and what it could
 /// not. Appended, never reordered: G1 readers of the first six still read
 /// the same truths.
-pub fn counters() [8]i32 {
-    var out: [8]i32 = .{ 0, 0, 0, 0, 0, 0, 0, 0 };
+pub fn counters() [12]i32 {
+    var out: [12]i32 = .{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     stz_gui_counters(&out);
     return out;
 }

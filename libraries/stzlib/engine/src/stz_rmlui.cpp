@@ -156,7 +156,10 @@ public:
 		g.indices.assign(indices.begin(), indices.end());
 		// a string arrives wearing the marker in its first UV
 		if (g.vertices.size() == 4 && g.vertices[0].tex_coord.x == kTextMarker)
+		{
 			g.text_index = (int)g.vertices[0].tex_coord.y;
+			marker_compiles++;
+		}
 		return h;
 	}
 
@@ -171,6 +174,7 @@ public:
 		// land in the right place without re-shaping it.
 		if (it->second.text_index >= 0)
 		{
+			text_renders++;
 			EmitText(it->second.text_index, translation);
 			return;
 		}
@@ -216,7 +220,7 @@ public:
 		{
 			// the bank slot dies with the geometry that named it, so a
 			// long-lived document does not accumulate dead strings
-			if (it->second.text_index >= 0) FreeTextSlot(it->second.text_index);
+			if (it->second.text_index >= 0) { FreeTextSlot(it->second.text_index); releases++; }
 			geometries.erase(it);
 		}
 	}
@@ -241,6 +245,7 @@ public:
 
 	Rml::CompiledGeometryHandle next_geometry = 0;
 	std::unordered_map<Rml::CompiledGeometryHandle, Geometry> geometries;
+	int marker_compiles = 0, text_renders = 0, emit_drops = 0, releases = 0;
 };
 
 // ------------------------------------------------------------ interfaces
@@ -319,11 +324,30 @@ public:
 	bool LoadFontFace(Rml::Span<const Rml::byte> data, int, const Rml::String& family, Rml::Style::FontStyle, Rml::Style::FontWeight,
 		bool) override
 	{
+		// REGISTERING A FAMILY TWICE IS A NO-OP, and that is a bug fix.
+		//
+		// The first version freed the previous id and installed a new
+		// one. But `faces` -- the (font, size) table RmlUi holds handles
+		// into -- still pointed at the OLD id, which was now stale. The
+		// gen-keyed table then answered -1 to every width query, the
+		// quads came out zero-wide, RmlUi culled them, and TEXT SILENTLY
+		// VANISHED from whichever panel had been built first.
+		//
+		// It needed two panels sharing a family to appear, which is why
+		// every single-panel guard was green. Counted, not guessed:
+		// generateCalls 6 against markerCompiles 4.
+		//
+		// Keeping the first registration is right for the case that
+		// actually happens -- several panels naming the same font -- and
+		// it makes a dangling id structurally impossible. Swapping a
+		// face at runtime means a new family name, which is a fair price
+		// and is said out loud here rather than discovered.
+		Rml::String key = Rml::StringUtilities::ToLower(family);
+		auto existing = families.find(key);
+		if (existing != families.end()) return true;
+
 		const long long id = stz_guifont_load(reinterpret_cast<const unsigned char*>(data.data()), (int)data.size());
 		if (id == 0) return false;
-		Rml::String key = Rml::StringUtilities::ToLower(family);
-		auto it = families.find(key);
-		if (it != families.end()) stz_guifont_free(it->second);
 		families[key] = id;
 		return true;
 	}
@@ -486,9 +510,11 @@ public:
 
 	void ReleaseFontResources() override
 	{
-		// RmlUi's handles die; OUR font ids survive, because the family
-		// registry owns them and re-resolves on the next GetFontFaceHandle.
-		faces.clear();
+		// The face table is NOT cleared. RmlUi documents these handles as
+		// invalid afterwards, but a face here is a font id, a size and
+		// eight floats -- keeping them costs nothing, and a handle that
+		// stops resolving makes GenerateString return early with no mesh,
+		// which loses text silently. Cheap insurance either way.
 	}
 
 	const Face* FaceOf(Rml::FontFaceHandle handle) const
@@ -560,7 +586,7 @@ StubFont& Font()
 void StzRender::EmitText(int index, Rml::Vector2f translation)
 {
 	StzFontEngine& fe = Font();
-	if (index < 0 || index >= (int)fe.bank.size()) return;
+	if (index < 0 || index >= (int)fe.bank.size()) { emit_drops++; return; }
 	Recorder_TextCmd cmd = fe.bank[(size_t)index];
 	cmd.x += translation.x;
 	cmd.y += translation.y;
@@ -781,6 +807,10 @@ STZ_API void stz_gui_counters(int* out8)
 	out8[5] = Sys().keyboard_activations;
 	out8[6] = Font().width_cache_hits;
 	out8[7] = Font().shape_calls;
+	out8[8] = Rend().marker_compiles;
+	out8[9] = Rend().text_renders;
+	out8[10] = Rend().emit_drops;
+	out8[11] = Rend().releases;
 }
 
 // -------------------------------------------------------------- G2: fonts
