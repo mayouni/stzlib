@@ -172,8 +172,21 @@ for fn in files:
     # errors are S-numbered, which this check originally missed: number/75
     # died "Error (S2) Unclosed comment" and its three unreached promises
     # were reported as divergences.
-    joined = chr(10).join(out)
+    # ...but only when the FILE failed, not when an eval() inside it did.
+    # Ring prefixes the latter with "eval ", and a W-condition that fails
+    # to parse is a finding about that condition, not a file that never
+    # ran -- listofstrings/50 runs fine and simply matches nothing.
+    joined = chr(10).join(l for l in out if not l.lstrip().startswith('eval '))
     if re.search(r'Error \([CS][0-9]+\)', joined):
+        didnotrun.append(fn)
+        continue
+
+    # NOR HAS A FILE RING COULD NOT OPEN AT ALL. E9 is "Can't open
+    # file", and it fires on this library's own test names: Ring opens
+    # paths through the ANSI code page, so a filename carrying Arabic or
+    # Gujarati arrives mangled and the interpreter never sees the file.
+    # Its promises are unknown, not broken.
+    if re.search(r'Error \(E9\)', joined):
         didnotrun.append(fn)
         continue
 
@@ -319,9 +332,9 @@ print("  expectations checked    : %d" % (matched + missing))
 print("  kept its promise        : %d" % matched)
 print("  DIVERGED                : %d" % missing)
 if timeouts:
-    print("  timed out (not checked) : %d  %s" % (len(timeouts), ', '.join(timeouts[:4])))
+    print("  timed out (not checked) : %d  %s" % (len(timeouts), ', '.join(safe(x) for x in timeouts[:4])))
 if didnotrun:
-    print("  DID NOT COMPILE         : %d  %s" % (len(didnotrun), ', '.join(didnotrun[:4])))
+    print("  DID NOT COMPILE         : %d  %s" % (len(didnotrun), ', '.join(safe(x) for x in didnotrun[:4])))
     print("     (nothing ran in these -- they are not divergences)")
 if raisedfiles:
     print("  RAISED part-way        : %d files, %d expectations never reached" % (len(raisedfiles), notreached))

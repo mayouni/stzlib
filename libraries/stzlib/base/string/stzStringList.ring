@@ -367,6 +367,565 @@ class stzStringList from stzObject
 		return 0
 
 	  #======================================================#
+	 #   THE VOCABULARY THE TESTS ALREADY SPEAK             #
+	#======================================================#
+	#
+	# Twenty-odd methods below were called by this topic's tests and had never
+	# been written -- FindStringCS, RemoveAll, NumberOfOccurrence, Move and the
+	# rest. They surfaced only after nine test files were repaired: an
+	# extraction had left each file's opening `StzListOfStringsQ([...]) {` line
+	# stranded inside its comment header, so the file could not compile and
+	# nothing inside it ever ran. A file that does not run hides every gap it
+	# would have found.
+	#
+	# The SHAPES are taken from the call sites, not invented: FindStringCS
+	# answers a LIST of positions (the tests print `[ ]` and `[4]`),
+	# FindNthOccurrenceCS answers a single position, NumberOfOccurrence counts
+	# whole-string matches while NumberOfOccurrenceOfSubString counts
+	# substrings across every string.
+
+	# --- FINDING ------------------------------------------------------
+
+	# Every position holding pcStr. The plain-name twin of FindCS.
+	def FindStringCS(pcStr, pCaseSensitive)
+		return This.FindCS(pcStr, pCaseSensitive)
+
+		def FindStringQCS(pcStr, pCaseSensitive)
+			return new stzList( This.FindStringCS(pcStr, pCaseSensitive) )
+
+	def FindString(pcStr)
+		return This.FindCS(pcStr, 1)
+
+	def FindFirstCS(pcStr, pCaseSensitive)
+		_an_ = This.FindCS(pcStr, pCaseSensitive)
+		if len(_an_) > 0
+			return _an_[1]
+		ok
+		return 0
+
+	def FindLastCS(pcStr, pCaseSensitive)
+		_an_ = This.FindCS(pcStr, pCaseSensitive)
+		_n_ = len(_an_)
+		if _n_ > 0
+			return _an_[_n_]
+		ok
+		return 0
+
+	# The position of the Nth string equal to pcStr, or 0 when there are
+	# fewer than N of them.
+	def FindNthOccurrenceCS(n, pcStr, pCaseSensitive)
+		if NOT isNumber(n) or n < 1
+			return 0
+		ok
+		_an_ = This.FindCS(pcStr, pCaseSensitive)
+		if len(_an_) >= n
+			return _an_[n]
+		ok
+		return 0
+
+		def FindNthOccurrence(n, pcStr)
+			return This.FindNthOccurrenceCS(n, pcStr, 1)
+
+	# --- COUNTING -----------------------------------------------------
+
+	# How many strings EQUAL pcStr.
+	def NumberOfOccurrenceCS(pcStr, pCaseSensitive)
+		return len( This.FindCS(pcStr, pCaseSensitive) )
+
+		def NumberOfOccurrence(pcStr)
+			return This.NumberOfOccurrenceCS(pcStr, 1)
+
+		def NumberOfOccurrences(pcStr)
+			return This.NumberOfOccurrenceCS(pcStr, 1)
+
+	# How many times pcSubStr occurs INSIDE the strings, summed over all of
+	# them -- a different question from the one above, and the reason both
+	# names exist.
+	def NumberOfOccurrenceOfSubStringCS(pcSubStr, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		_nTotal_ = 0
+		_nLen_ = len(@acContent)
+		for i = 1 to _nLen_
+			_nTotal_ += len( StzFindCS(pcSubStr, @acContent[i], _bCase_) )
+		next
+		return _nTotal_
+
+		def NumberOfOccurrenceOfSubString(pcSubStr)
+			return This.NumberOfOccurrenceOfSubStringCS(pcSubStr, 1)
+
+	# --- DUPLICATES ---------------------------------------------------
+
+	# The strings that appear more than once, each named ONCE and in the
+	# order of their first appearance.
+	def DuplicatedStringsCS(pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		_acSeen_ = []
+		_acDup_ = []
+		_nLen_ = len(@acContent)
+		for i = 1 to _nLen_
+			_cKey_ = @acContent[i]
+			if NOT _bCase_
+				_cKey_ = StzCaseFold(_cKey_)
+			ok
+			if StzFindFirst(_cKey_, _acSeen_) > 0
+				if StzFindFirst(_cKey_, _acDup_) = 0
+					_acDup_ + _cKey_
+				ok
+			else
+				_acSeen_ + _cKey_
+			ok
+		next
+		return _acDup_
+
+		def DuplicatedStrings()
+			return This.DuplicatedStringsCS(1)
+
+	# --- REMOVING -----------------------------------------------------
+
+	# Every string equal to pcStr goes. Walks BACKWARDS: removing forwards
+	# shifts the positions still to be visited, which is how this kind of
+	# loop silently skips a neighbouring duplicate.
+	def RemoveAllCS(pcStr, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		_cTarget_ = pcStr
+		if NOT _bCase_
+			_cTarget_ = StzCaseFold(pcStr)
+		ok
+		for i = len(@acContent) to 1 step -1
+			_cItem_ = @acContent[i]
+			if NOT _bCase_
+				_cItem_ = StzCaseFold(_cItem_)
+			ok
+			if _cItem_ = _cTarget_
+				del(@acContent, i)
+			ok
+		next
+
+		def RemoveAllCSQ(pcStr, pCaseSensitive)
+			This.RemoveAllCS(pcStr, pCaseSensitive)
+			return This
+
+	def RemoveAll(pcStr)
+		This.RemoveAllCS(pcStr, 1)
+
+		def RemoveAllQ(pcStr)
+			This.RemoveAll(pcStr)
+			return This
+
+	# Only the FIRST one goes.
+	def RemoveFirstCS(pcStr, pCaseSensitive)
+		_n_ = This.FindFirstCS(pcStr, pCaseSensitive)
+		if _n_ > 0
+			del(@acContent, _n_)
+		ok
+
+		def RemoveFirstCSQ(pcStr, pCaseSensitive)
+			This.RemoveFirstCS(pcStr, pCaseSensitive)
+			return This
+
+	def RemoveFirst(pcStr)
+		This.RemoveFirstCS(pcStr, 1)
+
+		def RemoveFirstQ(pcStr)
+			This.RemoveFirst(pcStr)
+			return This
+
+	# No argument: drop whatever sits first, whatever it is.
+	def RemoveFirstString()
+		if len(@acContent) > 0
+			del(@acContent, 1)
+		ok
+
+		def RemoveFirstStringQ()
+			This.RemoveFirstString()
+			return This
+
+	def RemoveLastString()
+		if len(@acContent) > 0
+			del(@acContent, len(@acContent))
+		ok
+
+		def RemoveLastStringQ()
+			This.RemoveLastString()
+			return This
+
+	def RemoveNthOccurrenceCS(n, pcStr, pCaseSensitive)
+		_nPos_ = This.FindNthOccurrenceCS(n, pcStr, pCaseSensitive)
+		if _nPos_ > 0
+			del(@acContent, _nPos_)
+		ok
+
+		def RemoveNthOccurrence(n, pcStr)
+			This.RemoveNthOccurrenceCS(n, pcStr, 1)
+
+		def RemoveNthOccurrenceQ(n, pcStr)
+			This.RemoveNthOccurrence(n, pcStr)
+			return This
+
+	def RemoveStringAtPosition(n)
+		if isNumber(n) and n >= 1 and n <= len(@acContent)
+			del(@acContent, n)
+		ok
+
+		# The test file says it plainly: "RemoveNthString(3) # or
+		# RemoveStringAtPosition(3)". Both spellings, one implementation.
+		def RemoveNthString(n)
+			This.RemoveStringAtPosition(n)
+
+		def RemoveNthStringQ(n)
+			This.RemoveStringAtPosition(n)
+			return This
+
+		def RemoveStringAtPositionQ(n)
+			This.RemoveStringAtPosition(n)
+			return This
+
+	# Positions are read against the ORIGINAL list, so they are sorted and
+	# applied from the back. Taking them in the order given would make each
+	# removal shift the ones after it.
+	def RemoveStringsAtThesePositions(panPositions)
+		if NOT isList(panPositions)
+			return
+		ok
+		_an_ = ring_sort(panPositions)
+		for i = len(_an_) to 1 step -1
+			_p_ = _an_[i]
+			if isNumber(_p_) and _p_ >= 1 and _p_ <= len(@acContent)
+				del(@acContent, _p_)
+			ok
+		next
+
+		def RemoveStringsAtThesePositionsQ(panPositions)
+			This.RemoveStringsAtThesePositions(panPositions)
+			return This
+
+	def RemoveMany(pacStrings)
+		if NOT isList(pacStrings)
+			return
+		ok
+		_nLen_ = len(pacStrings)
+		for i = 1 to _nLen_
+			if isString(pacStrings[i])
+				This.RemoveAll(pacStrings[i])
+			ok
+		next
+
+		def RemoveManyQ(pacStrings)
+			This.RemoveMany(pacStrings)
+			return This
+
+	# An empty string is "", not a string of spaces -- RemoveSpaces() above
+	# is the one that judges whitespace.
+	def RemoveEmptyStrings()
+		for i = len(@acContent) to 1 step -1
+			if @acContent[i] = ""
+				del(@acContent, i)
+			ok
+		next
+
+		def RemoveEmptyStringsQ()
+			This.RemoveEmptyStrings()
+			return This
+
+	# --- REPLACING ----------------------------------------------------
+
+	# Every string equal to pcOld becomes pcNew.
+	def ReplaceStringCS(pcOld, pcNew, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		_cTarget_ = pcOld
+		if NOT _bCase_
+			_cTarget_ = StzCaseFold(pcOld)
+		ok
+		_nLen_ = len(@acContent)
+		for i = 1 to _nLen_
+			_cItem_ = @acContent[i]
+			if NOT _bCase_
+				_cItem_ = StzCaseFold(_cItem_)
+			ok
+			if _cItem_ = _cTarget_
+				@acContent[i] = pcNew
+			ok
+		next
+
+		def ReplaceStringCSQ(pcOld, pcNew, pCaseSensitive)
+			This.ReplaceStringCS(pcOld, pcNew, pCaseSensitive)
+			return This
+
+	def ReplaceString(pcOld, pcNew)
+		This.ReplaceStringCS(pcOld, pcNew, 1)
+
+		def ReplaceStringQ(pcOld, pcNew)
+			This.ReplaceString(pcOld, pcNew)
+			return This
+
+	# ONE BY ONE, pairwise: the first old becomes the first new, the second
+	# the second, and so on. Not "replace all of these with all of those" --
+	# the name is the contract, and the call site reads
+	# ([ "b","d","f" ], :With = [ "1","2","3" ]).
+	#
+	# The two lists must be the same length; a mismatch replaces nothing
+	# rather than guessing which pairing was meant.
+	def ReplaceManyOneByOneCS(pacOld, pacNew, pCaseSensitive)
+		if isList(pacNew) and len(pacNew) = 2 and isString(pacNew[1])
+			# :With = [ ... ]
+			pacNew = pacNew[2]
+		ok
+		if NOT (isList(pacOld) and isList(pacNew))
+			return
+		ok
+		if len(pacOld) != len(pacNew)
+			return
+		ok
+
+		_nLen_ = len(pacOld)
+		for i = 1 to _nLen_
+			This.ReplaceStringCS(pacOld[i], pacNew[i], pCaseSensitive)
+		next
+
+		def ReplaceManyOneByOneCSQ(pacOld, pacNew, pCaseSensitive)
+			This.ReplaceManyOneByOneCS(pacOld, pacNew, pCaseSensitive)
+			return This
+
+	def ReplaceManyOneByOne(pacOld, pacNew)
+		This.ReplaceManyOneByOneCS(pacOld, pacNew, 1)
+
+		def ReplaceManyOneByOneQ(pacOld, pacNew)
+			This.ReplaceManyOneByOne(pacOld, pacNew)
+			return This
+
+	# --- MOVING -------------------------------------------------------
+
+	# Take the string at one position and put it at another, the rest
+	# closing up behind it.
+	#
+	#     Move( :StringAtPosition = 3, :ToPosition = 1 )
+	#
+	# Both arguments arrive as named pairs, so the number is the SECOND
+	# element. A bare number is accepted too, for callers who do not need
+	# the ceremony.
+	def Move(pFrom, pTo)
+		_nFrom_ = This._PositionArg(pFrom)
+		_nTo_   = This._PositionArg(pTo)
+		_nLen_  = len(@acContent)
+
+		if _nFrom_ < 1 or _nFrom_ > _nLen_ or _nTo_ < 1 or _nTo_ > _nLen_
+			return
+		ok
+		if _nFrom_ = _nTo_
+			return
+		ok
+
+		_cItem_ = @acContent[_nFrom_]
+		del(@acContent, _nFrom_)
+		# insert() places AFTER the given index, so landing on position n
+		# means inserting after n-1.
+		insert(@acContent, _nTo_ - 1, _cItem_)
+
+		def MoveQ(pFrom, pTo)
+			This.Move(pFrom, pTo)
+			return This
+
+	# Exchange the strings at two positions. Unlike Move(), nothing shifts:
+	# the two trade places and every other string stays where it was.
+	#
+	#     Swap( :BetweenString = 1, :AndString = 2 )
+	def Swap(pFirst, pSecond)
+		_n1_ = This._PositionArg(pFirst)
+		_n2_ = This._PositionArg(pSecond)
+		_nLen_ = len(@acContent)
+
+		if _n1_ < 1 or _n1_ > _nLen_ or _n2_ < 1 or _n2_ > _nLen_
+			return
+		ok
+		if _n1_ = _n2_
+			return
+		ok
+
+		_cTmp_ = @acContent[_n1_]
+		@acContent[_n1_] = @acContent[_n2_]
+		@acContent[_n2_] = _cTmp_
+
+		def SwapQ(pFirst, pSecond)
+			This.Swap(pFirst, pSecond)
+			return This
+
+	# Every position holding pcStr -- the same answer as FindCS, under the
+	# name the tests reach for. Without it the call fell through to a GLOBAL
+	# FindAll of a different arity and died R19, an error that named the
+	# parameter count of a function nobody meant to call.
+	def FindAllCS(pcStr, pCaseSensitive)
+		return This.FindCS(pcStr, pCaseSensitive)
+
+	def FindAll(pcStr)
+		return This.FindCS(pcStr, 1)
+
+	# One verdict per string: how ITS OWN words are ordered.
+	#
+	# :Ascending, :Descending, or :Unsorted for neither. A string of fewer
+	# than two words is :Ascending -- there is no pair to be out of order,
+	# and calling it unsorted would read as a complaint.
+	def WordsSortingOrders()
+		_aResult_ = []
+		_nLen_ = len(@acContent)
+		for i = 1 to _nLen_
+			_oOne_ = new stzStringList([ @acContent[i] ])
+			if _oOne_.WordsOfEachStringAreSortedInAscending()
+				_aResult_ + :Ascending
+			but _oOne_.WordsOfEachStringAreSortedInDescending()
+				_aResult_ + :Descending
+			else
+				_aResult_ + :Unsorted
+			ok
+		next
+		return _aResult_
+
+		def WordsSortingOrdersQ()
+			return new stzList( This.WordsSortingOrders() )
+
+	# How many strings fall in each verdict. Counted from the one list above
+	# so the three can never disagree with it, or with each other -- they sum
+	# to NumberOfStrings() by construction.
+	def NumberOfStringsWhereWordsAreSortedInAscending()
+		return This._CountWordsOrder(:Ascending)
+
+	def NumberOfStringsWhereWordsAreSortedInDescending()
+		return This._CountWordsOrder(:Descending)
+
+	def NumberOfStringsWhereWordsAreUnsorted()
+		return This._CountWordsOrder(:Unsorted)
+
+	def _CountWordsOrder(pcOrder)
+		_a_ = This.WordsSortingOrders()
+		_n_ = 0
+		_nLen_ = len(_a_)
+		for i = 1 to _nLen_
+			if _a_[i] = pcOrder
+				_n_++
+			ok
+		next
+		return _n_
+
+	# A position given bare, or as the value half of a named pair.
+	def _PositionArg(p)
+		if isNumber(p)
+			return p
+		ok
+		if isList(p) and len(p) = 2 and isNumber(p[2])
+			return p[2]
+		ok
+		return 0
+
+	# --- PREDICATES ---------------------------------------------------
+
+	# TRUE when EVERY string is uppercase. An empty list answers FALSE: there
+	# is no string in it that is uppercase, and answering TRUE for "all of
+	# nothing" reads as a claim about content that is not there.
+	def IsUppercase()
+		_nLen_ = len(@acContent)
+		if _nLen_ = 0
+			return 0
+		ok
+		for i = 1 to _nLen_
+			if @acContent[i] != StzUpper(@acContent[i])
+				return 0
+			ok
+		next
+		return 1
+
+
+	def IsLowercase()
+		_nLen_ = len(@acContent)
+		if _nLen_ = 0
+			return 0
+		ok
+		for i = 1 to _nLen_
+			if @acContent[i] != StzLower(@acContent[i])
+				return 0
+			ok
+		next
+		return 1
+
+
+	# TRUE when the substring is in EVERY string -- not merely in one of
+	# them, which is what ContainsSubString() above answers.
+	def ContainsSubstringInEachStringCS(pcSubStr, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		_nLen_ = len(@acContent)
+		if _nLen_ = 0
+			return 0
+		ok
+		for i = 1 to _nLen_
+			if len( StzFindCS(pcSubStr, @acContent[i], _bCase_) ) = 0
+				return 0
+			ok
+		next
+		return 1
+
+		def ContainsSubstringInEachString(pcSubStr)
+			return This.ContainsSubstringInEachStringCS(pcSubStr, 1)
+
+	# TRUE when the WORDS INSIDE each string are in order -- read per string,
+	# not across the list. "ali ben salah" is ascending on its own; whether
+	# the next string sorts after it is a different question, which
+	# IsSortedInAscending() answers.
+	#
+	# A string of one word is trivially in order, so a list of them answers
+	# TRUE; an EMPTY list answers FALSE, matching IsUppercase above rather
+	# than claiming something about content that is not there.
+	def WordsOfEachStringAreSortedInAscending()
+		return This._WordsOfEachStringAreSorted(1)
+
+		def WordsOfEachStringSortedInAscending()
+			return This.WordsOfEachStringAreSortedInAscending()
+
+	def WordsOfEachStringAreSortedInDescending()
+		return This._WordsOfEachStringAreSorted(0)
+
+		def WordsOfEachStringSortedInDescending()
+			return This.WordsOfEachStringAreSortedInDescending()
+
+	def _WordsOfEachStringAreSorted(pbAscending)
+		_nLen_ = len(@acContent)
+		if _nLen_ = 0
+			return 0
+		ok
+
+		for i = 1 to _nLen_
+			_acWords_ = StzSplit(ring_trim(@acContent[i]), " ")
+			_acW_ = []
+			_nW_ = len(_acWords_)
+			for j = 1 to _nW_
+				if _acWords_[j] != ""
+					_acW_ + _acWords_[j]
+				ok
+			next
+
+			# Sorted by the SAME engine sort the class sorts with, then
+			# compared -- rather than comparing pairs with < and >, which
+			# Ring coerces to numbers (R41) and which would answer nonsense
+			# for words.
+			_nn_ = len(_acW_)
+			if _nn_ < 2
+				loop
+			ok
+
+			_oW_ = new stzStringList(_acW_)
+			if pbAscending
+				_oW_.SortInAscending()
+			else
+				_oW_.SortInDescending()
+			ok
+			_acSorted_ = _oW_.Content()
+
+			for j = 1 to _nn_
+				if _acSorted_[j] != _acW_[j]
+					return 0
+				ok
+			next
+		next
+		return 1
+
+	  #======================================================#
 	 #   SORT (engine-backed compare)                       #
 	#======================================================#
 
@@ -975,6 +1534,41 @@ class stzStringList from stzObject
 			if _b_ _aR_ + _v_ ok
 		next
 		return _aR_
+
+	# The condition's verdict for EVERY string, in order -- 1 or 0 each.
+	#
+	# StringsW above answers WHICH strings matched; this answers what the
+	# condition said about each one, so the result lines up with Content()
+	# position for position. Same evaluation, two questions.
+	def Yield(pcExpr)
+		_l_ = @acContent
+		_nL_ = len(_l_)
+		_aR_ = []
+		for _i_ = 1 to _nL_
+			_v_ = _l_[_i_]
+			if NOT isString(_v_)
+				_aR_ + 0
+				loop
+			ok
+			@string = _v_
+			@item = _v_
+			@i = _i_
+			_b_ = 0
+			try
+				eval("_b_ = " + pcExpr)
+			catch
+				_b_ = 0
+			done
+			if _b_
+				_aR_ + 1
+			else
+				_aR_ + 0
+			ok
+		next
+		return _aR_
+
+		def YieldQ(pcExpr)
+			return new stzList( This.Yield(pcExpr) )
 
 	#-- Joined / JoinedUsing: readable aliases of Concatenated /
 	#-- ConcatenatedUsing (used by ..Q() chain idioms on lists).

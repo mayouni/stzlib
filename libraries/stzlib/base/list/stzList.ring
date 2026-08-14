@@ -2799,6 +2799,51 @@ class stzList from stzObject
 		def IsAListOfTexts()
 			return This.IsListOfStrings()
 
+	# TRUE when EVERY item is a string AND uppercase.
+	#
+	# Asked of a stzList, not only a stzListOfStrings: the test that wanted
+	# it holds a plain list of city names. A non-string item makes the answer
+	# 0 rather than raising -- "are these all uppercase" is a question a
+	# mixed list can be answered NO to.
+	#
+	# An empty list answers 0, matching IsListOfStrings just above, which
+	# also refuses to make a claim about content that is not there.
+	def IsUppercase()
+		_nLen_ = len(@aContent)
+		if _nLen_ = 0
+			return 0
+		ok
+		for i = 1 to _nLen_
+			if NOT isString(@aContent[i])
+				return 0
+			ok
+			if @aContent[i] != StzUpper(@aContent[i])
+				return 0
+			ok
+		next
+		return 1
+
+		def AllItemsAreUppercase()
+			return This.IsUppercase()
+
+	def IsLowercase()
+		_nLen_ = len(@aContent)
+		if _nLen_ = 0
+			return 0
+		ok
+		for i = 1 to _nLen_
+			if NOT isString(@aContent[i])
+				return 0
+			ok
+			if @aContent[i] != StzLower(@aContent[i])
+				return 0
+			ok
+		next
+		return 1
+
+		def AllItemsAreLowercase()
+			return This.IsLowercase()
+
 	# TRUE if the list is non-empty and every item is a number.
 	def IsListOfNumbers()
 		if len(@aContent) = 0 return 0 ok   # empty is NOT a list-of-numbers (monolith semantics)
