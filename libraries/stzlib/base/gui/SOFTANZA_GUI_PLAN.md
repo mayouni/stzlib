@@ -1313,11 +1313,33 @@ helper collided with an existing stzlib global. Two-letter locals in
 guards are a minefield; `CLAUDE.md` says so and this pass paid for it
 again.
 
-## Still owed from the pass
+## Tier agreement — CHECKED, and it holds
 
-- **Tier agreement**: the same document through SVG and GPU, compared.
-  The doctrine is "one display list, two renderers, so they cannot
-  disagree" and it has never been checked.
+`gui_tier_agreement_narrated.ring`, **24 asserts green**. The house has
+said since GR2b that a picture is described once and rendered twice "so
+the two backends cannot disagree about where anything sits", and §3 rests
+on the same idea one level up. Nothing had ever checked it: both tiers
+were exercised separately, every guard passed, and no test had put the
+SVG and the pixels side by side. It was an argument, not a result.
+
+The observables are stated rather than assumed, because geometry and a
+pixel grid cannot be compared byte for byte: **each box's bounding
+rectangle, its colour, and the presence and position of text.** Three
+bands in unmistakable colours are reduced to a bounding box from the SVG
+polygons and to a bounding box from the rasterized pixels, and compared.
+
+    band    vector tier         raster tier
+    red     [0, 0, 400, 60]     [0, 0, 400, 60]
+    green   [0, 60, 400, 140]   [0, 60, 400, 140]
+    blue    [0, 140, 400, 190]  [0, 140, 400, 190]
+
+**They agree to the pixel**, with one pixel of stated slack for the f64
+edge against the whole-pixel grid. Two negative siblings keep it honest:
+a colour the document never used must be found in neither tier, and the
+three bands must be genuinely different rectangles — otherwise "they
+agree" would be trivially true of any three identical boxes.
+
+## Still owed from the pass
 - **The browser fixture** (§3), still owed from G0.
 - **A panel inside a 3D scene** — §6 says this plane starts with that
   tier; criterion 3 used a canvas texture, not a panel.
