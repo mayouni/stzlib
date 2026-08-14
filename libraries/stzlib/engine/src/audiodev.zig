@@ -339,6 +339,22 @@ const Sink = struct {
 
 var sinks: std.ArrayList(Sink) = .{};
 
+// THE SINK AND SOURCE TABLES MUST NEVER MOVE, and here the reason is doubled.
+//
+// A live sink hands `&sinks.items[slot]` to miniaudio as pUserData, and
+// `&sk.device` IS the ma_device -- which keeps internal pointers back into
+// itself. An ArrayList that grows reallocates and frees the old buffer, so
+// opening a SECOND device left the FIRST device's callback thread reading
+// freed memory on every wake-up. That is a segfault with no message, arriving
+// from a thread the caller never sees.
+//
+// Reserving the table up front and REFUSING past the cap makes every address
+// permanent. Eight simultaneous output devices is already more than any
+// machine here has; a program that wants a ninth has a design problem, and a
+// counted refusal says so in a way a crash does not.
+const MAX_SINKS = 8;
+const MAX_CAPTURES = 8;
+
 fn sinkId(slot: usize, gen: u32) i64 {
     return (@as(i64, gen) << 32) | @as(i64, @intCast(slot + 1));
 }
@@ -416,10 +432,16 @@ pub fn playbackOpen(ring_ptr: i64, period_frames: u32) i64 {
         }
     }
     if (slot == sinks.items.len) {
-        sinks.append(alloc, .{}) catch {
+        if (sinks.items.len >= MAX_SINKS) {
+            refuse("playbackOpen: 8 output devices are already open -- close one first");
+            return 0;
+        }
+        // reserve to the cap, so the table never moves under a live callback
+        sinks.ensureTotalCapacity(alloc, MAX_SINKS) catch {
             setErr("out of memory growing the sink table");
             return 0;
         };
+        sinks.appendAssumeCapacity(.{});
     }
     const sk = &sinks.items[slot];
     const gen = sk.gen;
@@ -595,10 +617,16 @@ pub fn captureOpen(ring_ptr: i64, period_frames: u32) i64 {
         }
     }
     if (slot == caps.items.len) {
-        caps.append(alloc, .{}) catch {
+        if (caps.items.len >= MAX_CAPTURES) {
+            refuse("captureOpen: 8 input devices are already open -- close one first");
+            return 0;
+        }
+        // same reason as the sinks: a live capture callback holds this address
+        caps.ensureTotalCapacity(alloc, MAX_CAPTURES) catch {
             setErr("out of memory growing the capture table");
             return 0;
         };
+        caps.appendAssumeCapacity(.{});
     }
     const sk = &caps.items[slot];
     const gen = sk.gen;
