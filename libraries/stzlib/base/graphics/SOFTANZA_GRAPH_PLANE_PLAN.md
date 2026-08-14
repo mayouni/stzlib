@@ -455,13 +455,64 @@ fatal defect, the other invented a defect that did not exist. An "open
 items" list is a set of claims like any other, and claims decay — check
 before scheduling, and expect the check itself to be the finding.
 
+### Edge labels, closed (2026-08-14) — and the plan understated this one too
+
+"Edge labels have no reserved space" implied they were drawn and merely
+crowded. **They were never drawn at all.** The labels were in the model
+and reached the dot writer, so every test that cared asked the model or
+the dot and both were right — while the rendered picture showed anonymous
+arrows. Third plan entry in a row whose claim was softer than the truth.
+
+Drawn on a plate of the background colour (a label sits ON its edge; dark
+text crossed by a grey line at x-height is unreadable — dot fills a box
+for the same reason), with three placements because there are three kinds
+of edge: rank-adjacent at the clipped midpoint, **routed where the edge
+actually runs** rather than on the straight line it never takes, and
+self-loops beside the loop. Overlapping labels nudge into the next band.
+The rank gap grows only when it must — the default 76px already exceeds
+the ~62px a line of text needs.
+
+### `SetLayout` honoured nothing it did not recognise (2026-08-14)
+
+Found while testing the above, and worse than it. `SetLayout` took any
+string and stored it; an unrecognised name fell through `_NativeRankDir`'s
+default and became **top-down in silence**. The vocabulary gave the
+vertical directions seven spellings each and the horizontal ones exactly
+one (`lr`, `rl`), so `SetLayout(:LeftToRight)` drew a top-down picture.
+Every horizontal caller in this library was affected — `:LeftRight`,
+`:LeftToRight`, `:RightLeft`, `"leftright"` all appear in the tree and
+none worked.
+
+Vocabulary now symmetric; an unknown layout is **refused**. A setter that
+accepts a value it will not honour leaves the caller with evidence of
+neither. Graphviz engine names are a different axis through the same
+setter and are named explicitly so they cannot be mistaken for typos.
+
 ### Still open
 
-- **Edge labels** have no reserved space.
 - **Nested clusters** — the constraint form cannot express them; see the
   cluster section above.
 - **Ortho self-loops** draw as a curve rather than a rectangular loop, so
   a picture set to `splines=ortho` is not uniformly orthogonal.
+- **Edge labels do not steer the layout.** dot gives a label its own
+  virtual rank, so labels widen the picture where they need it. Ours
+  reserve gap height and nudge on collision, which is enough for the
+  label counts seen so far and is not the same guarantee.
+
+### The pattern across all four (worth reading before scheduling any of them)
+
+Every closed item was **understated by its own plan entry**, and each
+entry was written from a reasonable assumption about code never run:
+
+| Plan said | Truth |
+|---|---|
+| clusters "do not constrain layout" | correct, but the box was faithful — the members were scattered |
+| self-loops "drawn as degenerate segments" | **fatal** — refused the whole graph as cyclic |
+| parallel edges "drawn as degenerate segments" | **cannot be created** — simple graph by decision |
+| edge labels "have no reserved space" | **never drawn at all** |
+
+An open-items list is a set of claims like any other, and claims decay.
+Check before scheduling, and expect the check itself to be the finding.
 
 Guards: `gg_adversarial.ring` §6 (a parent sits over its children: 0.66%
 vs 10.39% respaced the old way), §7 (the tightest gap IS the contract:
