@@ -1467,7 +1467,8 @@ class stzDiagram from stzGraph
 			# any provisional size -- only the FRACTIONS of it are read back
 			_oGC_ = new stzGraphCanvas(This, [
 				:Layout = :Hierarchical,
-				:Width = 1000, :Height = 700, :Margin = 0
+				:Width = 1000, :Height = 700, :Margin = 0,
+				:Clusters = This._ClusterPairs()
 			])
 			# slot and pitch along the LAYOUT axes; the boxes do not rotate
 			# with the rank direction, so the box dimension that matters
@@ -1528,6 +1529,46 @@ class stzDiagram from stzGraph
 				next
 				_aRoute_ + [ StzLower("" + _r_[1]), StzLower("" + _r_[2]), _rp_ ]
 			next
+
+			# A CLUSTER IS BIGGER THAN ITS MEMBERS. Its box is padded and
+			# carries a label ABOVE the topmost member, and the derived size
+			# was computed from node centres alone -- so the "Data" box ran
+			# off the bottom of its own picture, drawn correctly into space
+			# that was never reserved. Deriving a size from content means
+			# ALL the content, chrome included.
+			if len(@aClusters) > 0
+				_ex0_ = 0  _ey0_ = 0  _ex1_ = _nW_  _ey1_ = _nH_
+				for _cl_ in @aClusters
+					_cb_ = This._ClusterBox(_cl_, _aXY_, _nBoxW_, _nBoxH_)
+					if len(_cb_) != 4  loop  ok
+					# the label sits 24px above the box, matching the draw
+					if _cb_[1] < _ex0_  _ex0_ = _cb_[1]  ok
+					if _cb_[2] - 24 < _ey0_  _ey0_ = _cb_[2] - 24  ok
+					if _cb_[1] + _cb_[3] > _ex1_  _ex1_ = _cb_[1] + _cb_[3]  ok
+					if _cb_[2] + _cb_[4] > _ey1_  _ey1_ = _cb_[2] + _cb_[4]  ok
+				next
+				_dx_ = 0  _dy_ = 0
+				if _ex0_ < 0  _dx_ = 0 - _ex0_ + 8  ok
+				if _ey0_ < 0  _dy_ = 0 - _ey0_ + 8  ok
+				if _dx_ != 0 or _dy_ != 0
+					_moved_ = []
+					for _p2_ in _aXY_
+						_moved_ + [ _p2_[1], _p2_[2] + _dx_, _p2_[3] + _dy_ ]
+					next
+					_aXY_ = _moved_
+					_movedR_ = []
+					for _r2_ in _aRoute_
+						_rp2_ = []
+						for _bp2_ in _r2_[3]
+							_rp2_ + [ _bp2_[1] + _dx_, _bp2_[2] + _dy_ ]
+						next
+						_movedR_ + [ _r2_[1], _r2_[2], _rp2_ ]
+					next
+					_aRoute_ = _movedR_
+				ok
+				_nW_ = ceil(max([ _nW_, _ex1_ + _dx_ + 8 ]))
+				_nH_ = ceil(max([ _nH_, _ey1_ + _dy_ + 8 ]))
+			ok
 		else
 			_lw_ = _nW_ - 2 * _mx_
 			_lh_ = _nH_ - 2 * _my_
@@ -1539,7 +1580,8 @@ class stzDiagram from stzGraph
 			_oGC_ = new stzGraphCanvas(This, [
 				:Layout = This._DiagOpt(paOptions, "layoutmode", :Hierarchical),
 				:Width  = max([ _lw_, 60 ]),
-				:Height = max([ _lh_, 60 ])
+				:Height = max([ _lh_, 60 ]),
+				:Clusters = This._ClusterPairs()
 			])
 
 			_aXY_ = []
@@ -1894,6 +1936,17 @@ class stzDiagram from stzGraph
 			next
 		next
 		return _epRes_
+
+	# [ [ clusterId, [ nodeIds ] ], ... ] -- the shape stzGraphCanvas asks
+	# for. Passed as an OPTION rather than read off the object, so the
+	# canvas stays a graph renderer and does not have to know what an
+	# stzDiagram is.
+	def _ClusterPairs()
+		_cp_ = []
+		for _cl_ in @aClusters
+			_cp_ + [ "" + _cl_[:id], _cl_[:nodes] ]
+		next
+		return _cp_
 
 	def _RouteOf(paRoutes, cFrom, cTo)
 		_rf_ = StzLower("" + cFrom)

@@ -165,8 +165,28 @@ oL.ToCanvasXT([ :Font = oF, :NodeWidth = 110, :NodeHeight = 34 ]).
 	ToPNG("probe_9_longedge.png")
 ? "9 long edges   : routed around, not through"
 
+# ---------------------------------------------------------------- 10
+# CLUSTERS that constrain the layout. A cluster used to be a box drawn
+# around whatever the layout produced -- so a cluster whose members did
+# not land together got a box containing other people's nodes.
+oS = new stzDiagram("svc")
+for a in [ [ "web1", "Web A" ], [ "web2", "Web B" ], [ "api1", "API A" ],
+           [ "api2", "API B" ], [ "db1", "DB A" ], [ "db2", "DB B" ],
+           [ "lb", "Balancer" ], [ "log", "Logger" ] ]
+	oS.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
+next
+oS.AddEdge("lb", "web1")    oS.AddEdge("lb", "web2")
+oS.AddEdge("web1", "api1")  oS.AddEdge("web2", "api2")
+oS.AddEdge("api1", "db1")   oS.AddEdge("api2", "db2")
+oS.AddEdge("web1", "log")   oS.AddEdge("api2", "log")
+oS.AddClusterXTT("front", "Frontend", [ "web1", "web2" ], "#C2185B")
+oS.AddClusterXTT("data", "Data", [ "db1", "db2" ], "#2E7D32")
+oS.ToCanvasXT([ :Font = oF, :NodeWidth = 110, :NodeHeight = 34 ]).
+	ToPNG("probe_10_clusters.png")
+? "10 clusters    : members together, strangers outside"
+
 ? ""
-? "wrote 9 probes"
+? "wrote 10 probes"
 
 #---------------------------------------------------------------------------
 
