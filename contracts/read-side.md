@@ -75,7 +75,7 @@ in the declaration.
 - **Not a mutable runtime store.** The world artifact is *derived* — regenerated
   from declarations by the courts. A read side that accepts writes has quietly
   become a second source of truth, and the first thing it will do is disagree
-  with the first one. (Ringuist's mission states the same rule for its knowledge
+  with the first one. (Ringua's mission states the same rule for its knowledge
   tier: the graph ships versioned with the language, full stop.)
 - **Not a court.** The graph answers questions; it does not judge. A verdict
   comes from a court reading a pinned instrument and speaking C2. The read side
