@@ -80,12 +80,46 @@ namespace {
 struct Geometry {
 	std::vector<Rml::Vertex> vertices;
 	std::vector<int> indices;
+	// >= 0 when this compiled geometry IS a string: an index into the
+	// font engine's text bank. See kTextMarker below.
+	int text_index = -1;
+};
+
+// A string does not become quads here -- it becomes a COMMAND the
+// graphics plane paints with its own copy of the same shaper. But it must
+// ride RmlUi's geometry CACHE, or the command vanishes on every frame
+// after the first: RmlUi calls GenerateString only when the text is
+// dirty, and re-renders the compiled result forever after (G0 measured
+// 500 still frames re-compiling zero geometry).
+//
+// So GenerateString emits a real 4-vertex quad -- the text's own box, so
+// culling and sizing behave -- and hides the bank index in the first
+// vertex's texture coordinate behind a marker no real UV can reach.
+// CompileGeometry recognises it, RenderGeometry replays it with that
+// frame's translation, and the cache does the rest.
+static const float kTextMarker = 987654.0f;
+
+struct Recorder_TextCmd {
+	long long font = 0;
+	float size = 0, x = 0, y = 0;
+	unsigned colour = 0; // 0xRRGGBBAA, straight alpha
+	std::string text;
 };
 
 struct Recorder {
 	// the flattened display list: x,y,r,g,b,a per vertex, then triangles
 	std::vector<float> verts;
 	std::vector<unsigned> idx;
+
+	// G2: text as COMMANDS, not quads -- font id, size, baseline, colour,
+	// bytes. The graphics plane paints them with its own copy of the same
+	// shaper, which is why this DLL needs no glyph atlas, no textured
+	// vertex format and no second rasterizer.
+	//
+	// `texts` is THIS FRAME's list, rebuilt by RenderGeometry as the
+	// cached string geometry replays. `bank` is the persistent store
+	// GenerateString writes to, freed when RmlUi releases the geometry.
+	std::vector<Recorder_TextCmd> texts;
 
 	// what this phase cannot draw, counted rather than silently skipped
 	int dropped_textured_draws = 0;
@@ -96,6 +130,7 @@ struct Recorder {
 	{
 		verts.clear();
 		idx.clear();
+		texts.clear();
 		dropped_textured_draws = 0;
 		ignored_scissors = 0;
 		draws = 0;
@@ -119,6 +154,9 @@ public:
 		Geometry& g = geometries[h];
 		g.vertices.assign(vertices.begin(), vertices.end());
 		g.indices.assign(indices.begin(), indices.end());
+		// a string arrives wearing the marker in its first UV
+		if (g.vertices.size() == 4 && g.vertices[0].tex_coord.x == kTextMarker)
+			g.text_index = (int)g.vertices[0].tex_coord.y;
 		return h;
 	}
 
@@ -127,6 +165,15 @@ public:
 		auto it = geometries.find(handle);
 		if (it == geometries.end()) return;
 		Rec().draws++;
+
+		// A STRING replays here, once per frame, with this frame's
+		// translation -- which is what makes a scrolled or moved label
+		// land in the right place without re-shaping it.
+		if (it->second.text_index >= 0)
+		{
+			EmitText(it->second.text_index, translation);
+			return;
+		}
 
 		if (texture != 0)
 		{
@@ -162,7 +209,21 @@ public:
 		for (int i : g.indices) Rec().idx.push_back(base + (unsigned)i);
 	}
 
-	void ReleaseGeometry(Rml::CompiledGeometryHandle handle) override { geometries.erase(handle); }
+	void ReleaseGeometry(Rml::CompiledGeometryHandle handle) override
+	{
+		auto it = geometries.find(handle);
+		if (it != geometries.end())
+		{
+			// the bank slot dies with the geometry that named it, so a
+			// long-lived document does not accumulate dead strings
+			if (it->second.text_index >= 0) FreeTextSlot(it->second.text_index);
+			geometries.erase(it);
+		}
+	}
+
+	// defined after the font engine, which owns the bank
+	void EmitText(int index, Rml::Vector2f translation);
+	void FreeTextSlot(int index);
 
 	Rml::TextureHandle LoadTexture(Rml::Vector2i& texture_dimensions, const Rml::String&) override
 	{
@@ -214,44 +275,233 @@ public:
 	float caret_x = 0, caret_y = 0, caret_line_height = 0;
 };
 
-// A MONOSPACE stub. Not a font engine -- a placeholder that lets layout
-// have widths. G2 replaces it with SheenBidi -> HarfBuzz -> stb_truetype,
-// and until then a panel has chrome and no glyphs, which is the honest
-// state of this phase rather than a bug.
-class StubFont : public Rml::FontEngineInterface {
+// The G2 font engine: the SAME SheenBidi -> HarfBuzz -> stb_truetype
+// pipeline the canvas paints with, compiled into THIS DLL (gui_font.zig
+// exports it over a C ABI). RmlUi therefore lays out with real shaped
+// widths -- Arabic joins, kerning kerns -- and GenerateString RECORDS a
+// text command instead of emitting quads: the graphics plane paints it
+// with its own copy of the same pipeline, so measure and paint cannot
+// disagree.
+//
+// THE WIDTH CACHE IS NOT AN OPTIMIZATION. G0 measured 988 GetStringWidth
+// calls per re-layout on a four-card screen, unmemoized by RmlUi. At
+// ~1 us per real shape that is ~1 ms/frame before a glyph is drawn --
+// the plan makes the cache a PRECONDITION of this phase. The key carries
+// every input that changes a width: face, size, direction and
+// letter-spacing from the shaping context, and the bytes themselves.
+//
+// WITH NO FONT REGISTERED it falls back to the G1 monospace stub, so a
+// document that declares font-family but loads no face keeps laying out
+// (and the G1 guards keep passing) instead of collapsing.
+extern "C" {
+long long stz_guifont_load(const unsigned char* bytes, int len);
+int stz_guifont_free(long long id);
+int stz_guifont_metrics(long long id, double size_px, double* out6);
+double stz_guifont_width(long long id, const char* utf8, int len, double size_px);
+}
+
+class StzFontEngine : public Rml::FontEngineInterface {
 public:
-	bool LoadFontFace(const Rml::String&, int, bool, Rml::Style::FontWeight) override { return true; }
-	bool LoadFontFace(Rml::Span<const Rml::byte>, int, const Rml::String&, Rml::Style::FontStyle, Rml::Style::FontWeight, bool) override
+	struct Face {
+		long long font = 0; // gpu_text handle inside THIS DLL
+		int size = 16;
+		Rml::FontMetrics metrics = {};
+	};
+
+	bool LoadFontFace(const Rml::String&, int, bool, Rml::Style::FontWeight) override
 	{
+		// Path loading is refused on purpose: fonts arrive as BYTES via
+		// stz_gui_font_register, the same way stzFont takes them, so the
+		// two DLLs are guaranteed to hold the same file.
+		return false;
+	}
+
+	bool LoadFontFace(Rml::Span<const Rml::byte> data, int, const Rml::String& family, Rml::Style::FontStyle, Rml::Style::FontWeight,
+		bool) override
+	{
+		const long long id = stz_guifont_load(reinterpret_cast<const unsigned char*>(data.data()), (int)data.size());
+		if (id == 0) return false;
+		Rml::String key = Rml::StringUtilities::ToLower(family);
+		auto it = families.find(key);
+		if (it != families.end()) stz_guifont_free(it->second);
+		families[key] = id;
 		return true;
 	}
-	Rml::FontFaceHandle GetFontFaceHandle(const Rml::String&, Rml::Style::FontStyle, Rml::Style::FontWeight, int size) override
-	{
-		last_size = size;
-		metrics.size = size;
-		metrics.ascent = size * 0.8f;
-		metrics.descent = size * 0.2f;
-		metrics.line_spacing = size * 1.2f;
-		metrics.x_height = size * 0.5f;
-		metrics.underline_position = size * 0.1f;
-		metrics.underline_thickness = 1.0f;
-		metrics.has_ellipsis = false;
-		return 1;
-	}
-	const Rml::FontMetrics& GetFontMetrics(Rml::FontFaceHandle) override { return metrics; }
 
-	int GetStringWidth(Rml::FontFaceHandle, Rml::StringView string, const Rml::TextShapingContext&, Rml::Character) override
+	Rml::FontFaceHandle GetFontFaceHandle(const Rml::String& family, Rml::Style::FontStyle, Rml::Style::FontWeight, int size) override
+	{
+		long long font = 0;
+		auto it = families.find(Rml::StringUtilities::ToLower(family));
+		if (it != families.end())
+			font = it->second;
+		else if (!families.empty())
+			font = families.begin()->second; // any face beats no face
+
+		// one handle per (font, size): metrics are size-scaled
+		for (size_t i = 0; i < faces.size(); i++)
+			if (faces[i].font == font && faces[i].size == size) return (Rml::FontFaceHandle)(i + 1);
+
+		Face f;
+		f.font = font;
+		f.size = size;
+		f.metrics.size = size;
+		double m[6] = { 0, 0, 0, 0, 0, 0 };
+		if (font != 0 && stz_guifont_metrics(font, (double)size, m) == 0)
+		{
+			f.metrics.ascent = (float)m[0];
+			f.metrics.descent = (float)m[1];
+			f.metrics.line_spacing = (float)(m[0] + m[1] + m[2]);
+			f.metrics.x_height = (float)m[3];
+		}
+		else
+		{
+			// the G1 stub's numbers, kept bit-for-bit so unregistered
+			// documents lay out exactly as they did
+			f.metrics.ascent = size * 0.8f;
+			f.metrics.descent = size * 0.2f;
+			f.metrics.line_spacing = size * 1.2f;
+			f.metrics.x_height = size * 0.5f;
+		}
+		f.metrics.underline_position = f.metrics.descent * 0.5f;
+		f.metrics.underline_thickness = (float)size / 14.0f;
+		if (f.metrics.underline_thickness < 1.0f) f.metrics.underline_thickness = 1.0f;
+		f.metrics.has_ellipsis = false;
+		faces.push_back(f);
+		return (Rml::FontFaceHandle)faces.size();
+	}
+
+	const Rml::FontMetrics& GetFontMetrics(Rml::FontFaceHandle handle) override
+	{
+		static Rml::FontMetrics empty = {};
+		if (handle == 0 || handle > faces.size()) return empty;
+		return faces[handle - 1].metrics;
+	}
+
+	int GetStringWidth(Rml::FontFaceHandle handle, Rml::StringView string, const Rml::TextShapingContext& ctx, Rml::Character) override
 	{
 		width_calls++;
-		return (int)Codepoints(string) * (last_size / 2);
+		const Face* f = FaceOf(handle);
+		if (!f || f->font == 0) return StubWidth(handle, string);
+
+		// the cache key carries EVERYTHING that changes a width
+		key.clear();
+		key.reserve(string.size() + 24);
+		key.append(reinterpret_cast<const char*>(&f->font), sizeof(f->font));
+		key.push_back((char)f->size);
+		key.push_back((char)ctx.text_direction);
+		key.append(reinterpret_cast<const char*>(&ctx.letter_spacing), sizeof(float));
+		key.append(string.begin(), string.size());
+		auto it = width_cache.find(key);
+		if (it != width_cache.end())
+		{
+			width_cache_hits++;
+			return it->second;
+		}
+
+		shape_calls++;
+		double w = stz_guifont_width(f->font, string.begin(), (int)string.size(), (double)f->size);
+		if (w < 0) w = 0;
+		if (ctx.letter_spacing != 0.0f) w += (double)ctx.letter_spacing * (double)Codepoints(string);
+		const int result = (int)(w + 0.5);
+		// bounded: a UI's working set is small, but a runaway caller must
+		// not grow this forever. Dropping ALL on overflow is crude and
+		// correct -- the next frame refills what it actually uses.
+		if (width_cache.size() > 100000) width_cache.clear();
+		width_cache[key] = result;
+		return result;
 	}
-	int GenerateString(Rml::RenderManager&, Rml::FontFaceHandle, Rml::FontEffectsHandle, Rml::StringView string, Rml::Vector2f,
-		Rml::ColourbPremultiplied, float, const Rml::TextShapingContext&, Rml::TexturedMeshList&) override
+
+	int GenerateString(Rml::RenderManager&, Rml::FontFaceHandle handle, Rml::FontEffectsHandle, Rml::StringView string,
+		Rml::Vector2f position, Rml::ColourbPremultiplied colour, float, const Rml::TextShapingContext& ctx,
+		Rml::TexturedMeshList& mesh_list) override
 	{
 		generate_calls++;
-		return (int)Codepoints(string) * (last_size / 2);
+		const Face* f = FaceOf(handle);
+		if (!f || f->font == 0) return StubWidth(handle, string);
+
+		double w = stz_guifont_width(f->font, string.begin(), (int)string.size(), (double)f->size);
+		if (w < 0) w = 0;
+		if (ctx.letter_spacing != 0.0f) w += (double)ctx.letter_spacing * (double)Codepoints(string);
+
+		if (string.size() == 0) return (int)(w + 0.5);
+
+		// un-premultiply, as the vertex recorder does
+		const float a = (float)colour.alpha;
+		const float sc = (a > 0.0f) ? (255.0f / a) : 0.0f;
+		unsigned r = (unsigned)((float)colour.red * sc);
+		unsigned g = (unsigned)((float)colour.green * sc);
+		unsigned b = (unsigned)((float)colour.blue * sc);
+		if (r > 255) r = 255;
+		if (g > 255) g = 255;
+		if (b > 255) b = 255;
+
+		Recorder_TextCmd cmd;
+		cmd.font = f->font;
+		cmd.size = (float)f->size;
+		cmd.x = position.x;
+		cmd.y = position.y;
+		cmd.colour = (r << 24) | (g << 16) | (b << 8) | (unsigned)a;
+		cmd.text.assign(string.begin(), string.size());
+		const int slot = TakeSlot(cmd);
+
+		// The quad IS the text's box, so RmlUi culls and sizes it the way
+		// it would any geometry; the marker in the first UV is what says
+		// "this is a string, replay it as a command" (see kTextMarker).
+		Rml::TexturedMesh tm;
+		Rml::Mesh& m = tm.mesh;
+		const float x0 = position.x;
+		const float y0 = position.y - f->metrics.ascent;
+		const float x1 = x0 + (float)w;
+		const float y1 = position.y + f->metrics.descent;
+		m.vertices.resize(4);
+		m.vertices[0].position = Rml::Vector2f(x0, y0);
+		m.vertices[1].position = Rml::Vector2f(x1, y0);
+		m.vertices[2].position = Rml::Vector2f(x1, y1);
+		m.vertices[3].position = Rml::Vector2f(x0, y1);
+		for (int i = 0; i < 4; i++) m.vertices[i].colour = colour;
+		m.vertices[0].tex_coord = Rml::Vector2f(kTextMarker, (float)slot);
+		m.indices = { 0, 1, 2, 0, 2, 3 };
+		mesh_list.push_back(std::move(tm));
+
+		return (int)(w + 0.5);
 	}
+
+	// The persistent bank: a slot lives from GenerateString until RmlUi
+	// releases the geometry that named it, which is exactly as long as the
+	// string is on screen.
+	int TakeSlot(const Recorder_TextCmd& cmd)
+	{
+		if (!free_slots.empty())
+		{
+			const int k = free_slots.back();
+			free_slots.pop_back();
+			bank[(size_t)k] = cmd;
+			return k;
+		}
+		bank.push_back(cmd);
+		return (int)bank.size() - 1;
+	}
+
 	int GetVersion(Rml::FontFaceHandle) override { return 1; }
+
+	void ReleaseFontResources() override
+	{
+		// RmlUi's handles die; OUR font ids survive, because the family
+		// registry owns them and re-resolves on the next GetFontFaceHandle.
+		faces.clear();
+	}
+
+	const Face* FaceOf(Rml::FontFaceHandle handle) const
+	{
+		if (handle == 0 || handle > faces.size()) return nullptr;
+		return &faces[handle - 1];
+	}
+
+	int StubWidth(Rml::FontFaceHandle handle, Rml::StringView string) const
+	{
+		const int size = (handle != 0 && handle <= faces.size()) ? faces[handle - 1].size : 16;
+		return (int)Codepoints(string) * (size / 2);
+	}
 
 	static size_t Codepoints(Rml::StringView s)
 	{
@@ -261,10 +511,17 @@ public:
 		return n;
 	}
 
-	Rml::FontMetrics metrics = {};
-	int last_size = 16;
+	std::unordered_map<Rml::String, long long> families;
+	std::vector<Face> faces;
+	std::vector<Recorder_TextCmd> bank;
+	std::vector<int> free_slots;
+	std::unordered_map<std::string, int> width_cache;
+	std::string key; // reused scratch: 988 lookups/frame must not allocate
 	int width_calls = 0, generate_calls = 0;
+	int width_cache_hits = 0, shape_calls = 0;
 };
+
+using StubFont = StzFontEngine; // the accessor below keeps its name
 
 // ------------------------------------------------------------- contexts
 
@@ -296,6 +553,26 @@ StubFont& Font()
 {
 	if (!g_font_p) g_font_p = new StubFont();
 	return *g_font_p;
+}
+
+// The two StzRender methods that needed the font engine's bank -- and so
+// had to wait until Font() existed.
+void StzRender::EmitText(int index, Rml::Vector2f translation)
+{
+	StzFontEngine& fe = Font();
+	if (index < 0 || index >= (int)fe.bank.size()) return;
+	Recorder_TextCmd cmd = fe.bank[(size_t)index];
+	cmd.x += translation.x;
+	cmd.y += translation.y;
+	Rec().texts.push_back(cmd);
+}
+
+void StzRender::FreeTextSlot(int index)
+{
+	StzFontEngine& fe = Font();
+	if (index < 0 || index >= (int)fe.bank.size()) return;
+	fe.bank[(size_t)index].text.clear();
+	fe.free_slots.push_back(index);
 }
 
 std::vector<Ctx>& Contexts()
@@ -491,16 +768,83 @@ STZ_API const unsigned* stz_gui_indices(int* out_len)
 }
 
 // [draws, droppedTexturedDraws, ignoredScissors, widthCalls, generateCalls,
-//  keyboardActivations]
-STZ_API void stz_gui_counters(int* out6)
+//  keyboardActivations, widthCacheHits, shapeCalls]
+// APPENDED, never reordered -- G1 readers of the first six keep working.
+STZ_API void stz_gui_counters(int* out8)
 {
-	if (!out6) return;
-	out6[0] = Rec().draws;
-	out6[1] = Rec().dropped_textured_draws;
-	out6[2] = Rec().ignored_scissors;
-	out6[3] = Font().width_calls;
-	out6[4] = Font().generate_calls;
-	out6[5] = Sys().keyboard_activations;
+	if (!out8) return;
+	out8[0] = Rec().draws;
+	out8[1] = Rec().dropped_textured_draws;
+	out8[2] = Rec().ignored_scissors;
+	out8[3] = Font().width_calls;
+	out8[4] = Font().generate_calls;
+	out8[5] = Sys().keyboard_activations;
+	out8[6] = Font().width_cache_hits;
+	out8[7] = Font().shape_calls;
+}
+
+// -------------------------------------------------------------- G2: fonts
+
+// A registered font's BYTES must outlive Rml::Shutdown (Core.h's stated
+// lifetime for LoadFontFace(Span)), so the blobs are kept here.
+static std::vector<std::string>* g_font_blobs_p = nullptr;
+
+// Register a font family from memory. The SAME bytes the Ring side hands
+// to stzFont, so the measuring copy of the pipeline (this DLL) and the
+// painting copy (stz_gpu.dll) hold the identical file. Answers THIS
+// DLL's font id (the one text commands will carry), 0 on refusal -- so
+// the Ring face can match a recorded command back to the stzFont it
+// paints with.
+STZ_API long long stz_gui_font_register(const char* family, const unsigned char* bytes, int len)
+{
+	try
+	{
+		if (!g_initialised || !family || !bytes || len <= 0) return 0;
+		if (!g_font_blobs_p) g_font_blobs_p = new std::vector<std::string>();
+		g_font_blobs_p->push_back(std::string(reinterpret_cast<const char*>(bytes), (size_t)len));
+		const std::string& blob = g_font_blobs_p->back();
+		const bool ok = Rml::LoadFontFace(
+			Rml::Span<const Rml::byte>(reinterpret_cast<const Rml::byte*>(blob.data()), blob.size()), Rml::String(family),
+			Rml::Style::FontStyle::Normal);
+		if (!ok)
+		{
+			g_font_blobs_p->pop_back();
+			return 0;
+		}
+		auto it = Font().families.find(Rml::StringUtilities::ToLower(Rml::String(family)));
+		return (it != Font().families.end()) ? it->second : 0;
+	}
+	catch (...)
+	{
+		return 0;
+	}
+}
+
+STZ_API int stz_gui_font_count(void)
+{
+	return (int)Font().families.size();
+}
+
+// The recorded TEXT COMMANDS of the last render -- what to draw, not how.
+// Iterated by index because strings cannot ride a flat array: n from
+// stz_gui_text_count, each entry as (font, size, x, y, colour) + bytes.
+STZ_API int stz_gui_text_count(void)
+{
+	return (int)Rec().texts.size();
+}
+
+STZ_API int stz_gui_text_at(int i, long long* font, float* size, float* x, float* y, unsigned* colour, const char** bytes, int* len)
+{
+	if (i < 0 || i >= (int)Rec().texts.size()) return 2;
+	const Recorder_TextCmd& t = Rec().texts[(size_t)i];
+	if (font) *font = t.font;
+	if (size) *size = t.size;
+	if (x) *x = t.x;
+	if (y) *y = t.y;
+	if (colour) *colour = t.colour;
+	if (bytes) *bytes = t.text.c_str();
+	if (len) *len = (int)t.text.size();
+	return 0;
 }
 
 // The laid-out box of one element, by id: [x, y, w, h] in context pixels.

@@ -53,6 +53,7 @@ class stzPanel from stzObject
 	@nW = 0
 	@nH = 0
 	@bLoaded = FALSE
+	@aFonts = []       # [ [ engineFontId, stzFont ], ... ] -- see UseFont
 
 	def init(pnW, pnH)
 		if NOT (isNumber(pnW) and isNumber(pnH))
@@ -159,16 +160,34 @@ class stzPanel from stzObject
 		return floor(len(StzEngineGuiIndices()) / 3)
 
 	# [ draws, droppedTexturedDraws, ignoredScissors, widthCalls,
-	#   generateCalls, keyboardActivations ]
+	#   generateCalls, keyboardActivations, widthCacheHits, shapeCalls ]
 	#
 	# A bounded record COUNTS what it drops, which is why the second and
-	# third entries exist. In G1 the font engine is a stub that generates
-	# no textures, so a nonzero dropped count means geometry arrived that
-	# this phase cannot draw -- and that is precisely what G2 turns on. A
-	# panel that quietly rendered fewer triangles than it was given would
-	# be indistinguishable from one that rendered them all.
+	# third entries exist: a panel that quietly rendered fewer triangles
+	# than it was given would be indistinguishable from one that rendered
+	# them all.
+	#
+	# The last two are G2's, and they are the phase's own gauge. G0
+	# measured 988 GetStringWidth calls per re-layout, unmemoized by
+	# RmlUi; at ~1 us per real shape that is ~1 ms/frame before a glyph
+	# is drawn, so the plan made a width cache a PRECONDITION. widthCalls
+	# is what RmlUi asked for and shapeCalls is what actually reached the
+	# shaper -- the gap between them is the cache doing its job, and if
+	# they ever converge the precondition has silently lapsed.
 	def Counters()
 		return StzEngineGuiCounters()
+
+	def WidthCalls()
+		_a_ = This.Counters()
+		return _a_[4]
+
+	def ShapeCalls()
+		_a_ = This.Counters()
+		return _a_[8]
+
+	def WidthCacheHits()
+		_a_ = This.Counters()
+		return _a_[7]
 
 	def DroppedTexturedDraws()
 		_a_ = This.Counters()
@@ -177,6 +196,73 @@ class stzPanel from stzObject
 	def IgnoredScissors()
 		_a_ = This.Counters()
 		return _a_[3]
+
+	#-- fonts (G2) ----------------------------------------------------------
+
+	# Bind a family name -- what a document's font-family refers to -- to
+	# real TTF/OTF bytes. From here RmlUi lays out with SHAPED widths:
+	# Arabic joins, kerning kerns, and a line breaks where the glyphs
+	# actually end rather than where a monospace guess put them.
+	#
+	# The SAME bytes go to both DLLs: this one measures with them, the
+	# graphics plane paints with them. Two copies of one pipeline over one
+	# file cannot disagree; a protocol between them could.
+	#
+	# Answers an stzFont for the caller to paint with, or NULL on refusal.
+	def UseFont(pcFamily, pcPathOrBytes)
+		_cBytes_ = "" + pcPathOrBytes
+		if len(_cBytes_) < 512 and fexists(_cBytes_)
+			_cBytes_ = read(_cBytes_)
+		ok
+		if len(_cBytes_) = 0
+			StzRaise("stzPanel.UseFont: nothing to load for family '" +
+				pcFamily + "'.")
+		ok
+		_nId_ = StzEngineGuiFontRegister("" + pcFamily, _cBytes_)
+		if _nId_ = 0
+			return NULL
+		ok
+		_oF_ = new stzFont(_cBytes_)
+		@aFonts + [ _nId_, _oF_ ]
+		return _oF_
+
+	def UseFontQ(pcFamily, pcPathOrBytes)
+		This.UseFont(pcFamily, pcPathOrBytes)
+		return This
+
+	def FontCount()
+		return StzEngineGuiFontCount()
+
+	# The stzFont this panel paints a recorded command with. Matching is
+	# by the engine font id the command carries -- not by family name,
+	# which a fallback may have changed under us.
+	def FontFor(pnEngineId)
+		_n_ = len(@aFonts)
+		for _i_ = 1 to _n_
+			if @aFonts[_i_][1] = pnEngineId
+				return @aFonts[_i_][2]
+			ok
+		next
+		if _n_ > 0
+			return @aFonts[1][2]
+		ok
+		return NULL
+
+	#-- the text the layout wants drawn (G2) --------------------------------
+
+	# [ [ nFontId, nSize, nX, nY, nColour, cUtf8 ], ... ] -- what the last
+	# render decided to draw, where (nX, nY) is the BASELINE origin.
+	#
+	# Text crosses as COMMANDS, not as quads. RmlUi asked our font engine
+	# for the string; the engine recorded the request instead of
+	# rasterizing it, and the canvas draws it with the same shaper. That
+	# is why this plane owns no glyph atlas and no second rasterizer.
+	def Texts()
+		This.Record()
+		return StzEngineGuiTexts()
+
+	def TextCount()
+		return len(This.Texts())
 
 	# The laid-out box of one element: [x, y, w, h], in panel pixels.
 	# Empty when there is no such element -- an absence, not a raise, since
@@ -204,11 +290,29 @@ class stzPanel from stzObject
 			return FALSE     # nothing to draw is a valid answer
 		ok
 		poCanvas.AddMesh(_aV_, _aI_)
+		This._DrawTexts(poCanvas)
 		return TRUE
 
 	def DrawIntoQ(poCanvas)
 		This.DrawInto(poCanvas)
 		return This
+
+	# Paint what the layout asked for, in the order it asked. The chrome
+	# went in as one mesh above, so text lands on top of the boxes it
+	# belongs to -- which is the painter's order RmlUi already assumed.
+	def _DrawTexts(poCanvas)
+		_aT_ = StzEngineGuiTexts()
+		_n_ = len(_aT_)
+		for _i_ = 1 to _n_
+			_oF_ = This.FontFor(_aT_[_i_][1])
+			if _oF_ = NULL
+				loop
+			ok
+			# AddText FIRST, then style it: stzCanvas styles the PENDING
+			# shape, and setting the font first retargets the previous one.
+			poCanvas.AddTextQ(_aT_[_i_][6], _aT_[_i_][3], _aT_[_i_][4]).
+				SetFontQ(_oF_, _aT_[_i_][2]).ColorQ(_aT_[_i_][5])
+		next
 
 	# The panel as a picture, on the tier this machine can reach. A canvas
 	# is made, drawn into and answered -- so the caller gets ToSVG/ToPNG/
@@ -230,3 +334,10 @@ class stzPanel from stzObject
 			@nId = 0
 			@bLoaded = FALSE
 		ok
+		# the engine keeps its own copy of every registered face; these
+		# are OUR painting handles and they are ours to release
+		_n_ = len(@aFonts)
+		for _i_ = 1 to _n_
+			@aFonts[_i_][2].Free()
+		next
+		@aFonts = []

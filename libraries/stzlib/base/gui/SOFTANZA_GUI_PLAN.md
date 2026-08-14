@@ -485,7 +485,7 @@ press-R-to-reload, or `shot` → PNG + SVG). Two findings from contact:
 table, verified by layout), and **flexbox `gap` works** — `GAP 26` on
 the showcase bar laid out correctly, confirming the survey's claim.
 **Not ratified as a Ringua language** — like `.game`, the decisions are
-settled, the expression becomes a Ringua language when Ringuist Phase 2
+settled, the expression becomes a Ringua language when Ringua Phase 2
 reaches it, and v0.1 is marked so.
 
 ---
@@ -1114,3 +1114,129 @@ than trust a status code. That is a G5 obligation, recorded now.
 - **Layout cost was not re-measured here.** G0's numbers (a still frame at
   1/362 of a dirty one, zero geometry re-compiles over 500 frames) stand
   unchallenged but were not repeated through the Ring face.
+
+---
+
+# G2 STATUS — 2026-08-14. The font engine: RmlUi lays out with the glyphs it will be painted with
+
+Guard `base/test/gui/gui_font_narrated.ring` — **30 asserts green**, no
+GPU, on the committed Amiri fixture so CI shapes real Arabic with no
+system font. Sweep after the change: panel 50, adversarial 32, stzui 42,
+font 30 — all green.
+
+## The architecture, and why it is not a second renderer
+
+The plane's own rule (§1) is that it must not grow a renderer, and G0's
+measurement said the font engine needs a width cache to exist at all. Both
+are satisfied by one decision:
+
+> **The same `gpu_text.zig` is compiled into BOTH DLLs.** `stz_gui.dll`
+> measures with it; `stz_gpu.dll` paints with it. Two copies of one source
+> over one font file cannot disagree — a protocol between two DLLs could.
+
+`needs_textshape` and `needs_stb` were added to the `stz_gui` domain, and
+`src/gui_font.zig` exports three entries over a C ABI (`load`, `metrics`,
+`width`) for the C++ font engine. There are **no cross-DLL calls**: each
+DLL holds its own font table over the same bytes, which the Ring face
+guarantees by handing the identical buffer to both (`stzPanel.UseFont`).
+
+**Text crosses the C ABI as COMMANDS, not quads** — font, size, baseline,
+colour, bytes. So this plane still owns no glyph atlas, no textured vertex
+format and no rasterizer, and the canvas paints strings through the same
+scene-text machinery every other graphics face uses. Both tiers come free:
+SVG gets glyph outlines, the GPU tier gets the atlas.
+
+## The seam agrees — the assertion this phase exists for
+
+| string | RmlUi laid out | the shaper says | delta |
+|---|---|---|---|
+| `Hamburgefonstiv` | 164 | 163.59 | 0.41 |
+| `iii` | 19 | 18.94 | 0.06 |
+| `WWW` | 63 | 63.23 | 0.23 |
+| `سوفتانزا` | 59 | 58.59 | 0.40 |
+
+Agreement is **to the integer and no further**, which is G0's recorded
+cost of `GetStringWidth` returning `int` against a 1/64-px `f64`. The
+guard asserts `delta < 1.0` *and* `delta > 0` — "equal" would be a lie
+that passes.
+
+And it is really shaping, not counting: **`iii` is 19 px and `WWW` is
+63 px**, where the G1 stub gave both 36. Arabic joins — the same eight
+letters measure **59 px joined and 163 px apart**.
+
+## The width cache — the precondition, measured
+
+G0 made this a gate: 988 unmemoized `GetStringWidth` calls per re-layout,
+~1 ms/frame at real shaping cost before a glyph is drawn.
+
+> **21 layouts: RmlUi asked 675 times, the shaper ran 26 times** — 649
+> cache hits, and `shapeCalls` did not move at all across the 20
+> re-layouts while `widthCalls` grew every time.
+
+The key carries everything that changes a width (face, size, direction,
+letter-spacing, bytes); the scratch key buffer is reused so 988 lookups a
+frame allocate nothing. `Counters()` grew two fields — `widthCacheHits`
+and `shapeCalls`, appended never reordered — so the gauge is readable
+rather than asserted once and forgotten. **If those two ever converge, the
+precondition has silently lapsed.**
+
+## The finding that shaped the design: text must ride RmlUi's cache
+
+The first implementation recorded a text command inside `GenerateString`,
+which is the obvious place. It produced text on the first frame and
+**nothing on every frame after** — because RmlUi calls `GenerateString`
+only when the text is *dirty* and replays the compiled geometry forever
+after. G0 had already measured that (500 still frames, zero recompiles)
+and the consequence still had to be paid for.
+
+So a string is emitted as a real 4-vertex quad — its own box, so culling
+and sizing behave — with the bank index hidden in the first vertex's
+texture coordinate behind a marker no real UV can reach (`987654.0`).
+`CompileGeometry` recognises it, `RenderGeometry` replays it **with that
+frame's translation** (which is what makes a scrolled label land
+correctly without re-shaping), and `ReleaseGeometry` frees the bank slot.
+The command therefore lives exactly as long as the string is on screen.
+Asserted directly: three renders of an unchanged panel keep every command,
+with the same bytes and the same baseline.
+
+## What this deleted
+
+The G1 bridge — walk `TextsToPaint()`, look up `BoxOf()`, guess a
+baseline, paint with a separate font — **is gone**, and with it the chance
+of painting a label somewhere the layout did not put it. The `.stzui`
+showcase's paint function is now three lines: clear, background,
+`DrawInto`. `stzUiDocument.UseFont()` binds the face *before* `ToPanel()`
+loads the markup, because RmlUi measures during load: a font registered
+afterwards would lay the document out on stub widths and then paint it
+with real glyphs, which is precisely the mismatch this phase forbids.
+
+## Two facts recorded from contact
+
+- **Font families are process-wide**, not per-panel — RmlUi keeps faces in
+  its own global registry and so does this engine. A family registered by
+  any panel is visible to every other one, and a test cannot get the stub
+  back once anything has registered a font. Asserted rather than
+  discovered.
+- **An unknown family falls back to any registered face.** The
+  alternative is the G1 divergence — text that silently vanishes — and
+  one screenshot was enough to pay for that lesson.
+
+## What G2 did NOT do
+
+- **No fallback CHAIN.** One face answers everything; a document mixing
+  Latin and CJK gets tofu for whatever the face lacks. Real fallback needs
+  a per-codepoint face walk, and it belongs with the font *policy* work,
+  not here.
+- **No font effects.** `PrepareFontEffects` is unimplemented, so shadows,
+  outlines and glows declared in RCSS do nothing.
+- **No bold or italic synthesis**, and no weight/style selection: a family
+  is one face. `Style::FontWeight` and `FontStyle` are accepted and
+  ignored.
+- **No `has_ellipsis`**, so RCSS `text-overflow` cannot use the real
+  ellipsis glyph.
+- **Underline metrics are derived, not read** from the face's `post`
+  table — position is half the descender, thickness is size/14.
+- **The layout is still single-line per string.** RmlUi does the line
+  breaking and hands each line down separately; the engine's own layout
+  contract has not changed.
+- **No IME.** §0 made it possible; nothing here makes it cheap.

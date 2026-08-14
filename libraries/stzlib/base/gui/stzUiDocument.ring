@@ -16,7 +16,7 @@
 # projections. It declares the projection only -- boxes, sizes, colours --
 # and never a meaning: there is no :Danger here and there never may be.
 #
-# IT CONFORMS TO THE GRAMMAR COMMONS (C6 v1.0, ringuist/docs/commons.md):
+# IT CONFORMS TO THE GRAMMAR COMMONS (C6 v1.0, ringua/docs/commons.md):
 # DEFINE <KIND> <name> ( fields ) RATIONALE "...", `--` comments,
 # case-sensitive UPPER_SNAKE keywords (every compare is strcmp, never
 # Ring's case-lax `=` -- the commons names that exact trap), [ a, b, c ]
@@ -47,6 +47,7 @@ class stzUiDocument from stzObject
 	@aDiags = []        # C2-shaped: [ :code, :severity, :message, :line ]
 	@cSource = ""
 	@bParsed = FALSE
+	@cFontPath = ""    # see UseFont
 
 	# The closed field sets -- closure is a birth-check, so these lists ARE
 	# the law of v0.1. Lowercase here because field KEYWORDS are validated
@@ -392,6 +393,23 @@ class stzUiDocument from stzObject
 
 	#-- to a living panel ---------------------------------------------------
 
+	# Bind the family a document's FONT field names to real bytes. Called
+	# before ToPanel so the layout is measured with the glyphs it will be
+	# painted with -- which is G2's whole point.
+	def UseFont(pcPathOrBytes)
+		@cFontPath = "" + pcPathOrBytes
+
+	def UseFontQ(pcPathOrBytes)
+		This.UseFont(pcPathOrBytes)
+		return This
+
+	def FontFamily()
+		_d_ = This.PanelDecl()
+		if len(_d_) = 0
+			return "app"
+		ok
+		return This._StrField(_d_[:fields], "FONT", "app")
+
 	def ToPanel()
 		if NOT This.IsClean()
 			StzRaise("stzUiDocument.ToPanel: the document is not clean -- " +
@@ -409,6 +427,13 @@ class stzUiDocument from stzObject
 			ok
 		ok
 		_oP_ = new stzPanel(_nW_, _nH_)
+		# the face FIRST: RmlUi measures during LoadMarkup, so a font
+		# registered afterwards would lay the document out on stub widths
+		# and then paint it with real glyphs -- the one mismatch this
+		# phase exists to make impossible
+		if @cFontPath != ""
+			_oP_.UseFont(This.FontFamily(), @cFontPath)
+		ok
 		_oP_.LoadMarkup(This.ToRml())
 		_oP_.Layout()
 		return _oP_

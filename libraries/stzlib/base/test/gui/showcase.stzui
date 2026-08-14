@@ -79,17 +79,77 @@ DEFINE BOX board (
   CHILDREN [card_graphics, card_sound, card_gpu, card_locale, card_graph, card_perf]
 ) RATIONALE "The card board: wraps at the window's width, top-aligned."
 
-DEFINE BOX card_graphics ( STYLE card ) RATIONALE "GR0-GR6, shipped."
+DEFINE BOX card_graphics (
+  STYLE card,
+  PADDING 14,
+  CHILDREN [label_graphics]
+) RATIONALE "GR0-GR6, shipped."
 
-DEFINE BOX card_sound ( STYLE card ) RATIONALE "SN0-SN6, shipped."
+DEFINE TEXT label_graphics (
+  CONTENT "Graphics",
+  SIZE 17,
+  COLOR "#e8eef5"
+) RATIONALE "Names the plane this tile stands for."
 
-DEFINE BOX card_gpu ( STYLE card ) RATIONALE "G0-G6, shipped."
+DEFINE BOX card_sound (
+  STYLE card,
+  PADDING 14,
+  CHILDREN [label_sound]
+) RATIONALE "SN0-SN6, shipped."
 
-DEFINE BOX card_locale ( STYLE card ) RATIONALE "The locale plane."
+DEFINE TEXT label_sound (
+  CONTENT "Sound",
+  SIZE 17,
+  COLOR "#e8eef5"
+) RATIONALE "Names the plane this tile stands for."
 
-DEFINE BOX card_graph ( STYLE card ) RATIONALE "The graph plane."
+DEFINE BOX card_gpu (
+  STYLE card,
+  PADDING 14,
+  CHILDREN [label_gpu]
+) RATIONALE "G0-G6, shipped."
 
-DEFINE BOX card_perf ( STYLE card ) RATIONALE "P0-P11, the laws live in CLAUDE.md."
+DEFINE TEXT label_gpu (
+  CONTENT "GPU",
+  SIZE 17,
+  COLOR "#e8eef5"
+) RATIONALE "Names the plane this tile stands for."
+
+DEFINE BOX card_locale (
+  STYLE card,
+  PADDING 14,
+  CHILDREN [label_locale]
+) RATIONALE "The locale plane."
+
+DEFINE TEXT label_locale (
+  CONTENT "Locale",
+  SIZE 17,
+  COLOR "#e8eef5"
+) RATIONALE "Names the plane this tile stands for."
+
+DEFINE BOX card_graph (
+  STYLE card,
+  PADDING 14,
+  CHILDREN [label_graph]
+) RATIONALE "The graph plane."
+
+DEFINE TEXT label_graph (
+  CONTENT "Graph",
+  SIZE 17,
+  COLOR "#e8eef5"
+) RATIONALE "Names the plane this tile stands for."
+
+DEFINE BOX card_perf (
+  STYLE card,
+  PADDING 14,
+  CHILDREN [label_perf]
+) RATIONALE "P0-P11, the laws live in CLAUDE.md."
+
+DEFINE TEXT label_perf (
+  CONTENT "Perf",
+  SIZE 17,
+  COLOR "#e8eef5"
+) RATIONALE "Names the plane this tile stands for."
 
 DEFINE BOX foot (
   HEIGHT 30,
