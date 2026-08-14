@@ -504,10 +504,41 @@ entire right-hand side and the loop read as two stray horizontal lines.
 Worth remembering: **making one thing sharper can be what finally shows
 the other.**
 
-### Still open
+### Nested clusters, closed (2026-08-14) — the constraint form CAN express them
 
-- **Nested clusters** — the constraint form cannot express them; see the
-  cluster section above.
+This document twice recorded nesting as the thing the constraint form
+could not do, and gave that as the reason to revisit dot's collapse model.
+**It was wrong.** The cost of nesting was one idea: apply the constraints
+*per depth* rather than once.
+
+**Inferred, not declared.** A cluster whose node set is a subset of
+another's IS inside it. Asking the author to also declare a parent would
+be a second statement of one fact, free to disagree with the first — and
+inference costs no API change, so existing callers gain nesting the
+moment their sets nest. Partial overlap is refused: there is no
+arrangement of two rectangles where each holds all its own members and
+neither holds a stranger.
+
+**Innermost first**, twice. Compacting by an outer key preserves each
+group's internal order, so an inner block made contiguous first survives
+the outer pass; the other direction undoes itself. Cohesion runs the same
+way. The boundary gap needed no new rule — one helping of air per level
+crossed, so outer boxes separate more than inner ones as a consequence of
+counting rather than a second policy.
+
+Two bugs that can only exist once boxes contain boxes: padding was a fixed
+16 (an outer box must clear the inner *label*, drawn 24px above the inner
+box), and boxes were painted in declaration order while each is *filled*,
+so an outer cluster declared second erased the inner one — correct
+geometry, invisible result.
+
+**The refusal fired on the case it exists to permit.** Written as "is i
+inside j, else do they overlap", it never asked whether j was inside i, so
+declaring a nesting raised the error meant to forbid a non-nesting. The
+negative sibling that catches this — *a genuine nesting is NOT refused* —
+is now in the guard.
+
+### Still open
 - **Edge labels do not steer the layout.** dot gives a label its own
   virtual rank, so labels widen the picture where they need it. Ours
   reserve gap height and nudge on collision, which is enough for the
