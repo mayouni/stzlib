@@ -12,10 +12,10 @@ pr()
 
 o1 = new stzDataSet([ 1, 2, 3, 4, 5, 6, 7, 8, 9, 100 ])
 o1 {
-    ? Mean()         	#--> 14.5 (affected by outlier 100)
-    ? TrimmedMean(10) 	#--> 5.5 (trims 10% from each end)
-    ? TrimmedMean(20) 	#--> 5.5 (trims 20% from each end)
-    ? Median()       	#--> 5.5 (for comparison, robust to outliers)
+    ? Mean()         	#--> 14.50 (affected by outlier 100)
+    ? TrimmedMean(10) 	#--> 5.50 (trims 10% from each end)
+    ? TrimmedMean(20) 	#--> 5.50 (trims 20% from each end)
+    ? Median()       	#--> 5.50 (for comparison, robust to outliers)
 }
 
 pf()

@@ -11,11 +11,18 @@ load "../../stzBase.ring"
 
 pr()
 
+# Four decimals, because that is the precision these expectations are
+# written to. Ring renders a float through the PROCESS-GLOBAL decimals
+# setting, which defaults to 2 -- so a standard deviation of 10.8012
+# printed as 10.80 and the promise beside it read as a divergence. The
+# value was always right; only the rendering was short.
+StzDecimals(4)
+
 o1 = new stzDataSet([ 100, 200, 300, 400, 500 ])
 o1 {
-    ? @@(Normalize())     #--> [0, 0.25, 0.5, 0.75, 1]
-    ? @@(Standardize())   #--> [-1.2649, -0.6325, 0, 0.6325, 1.2649]
-    ? @@(RobustScale())   #--> [-1, -0.5, 0, 0.5, 1]
+    ? @@(Normalize())     #--> [ 0, 0.2500, 0.5000, 0.7500, 1 ]
+    ? @@(Standardize())   #--> [ -1.2649, -0.6325, 0, 0.6325, 1.2649 ]
+    ? @@(RobustScale())   #--> [ -1, -0.5000, 0, 0.5000, 1 ]
 }
 
 pf()
