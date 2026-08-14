@@ -661,6 +661,94 @@ chk("...so ALL the curved segments came from the self-loops", nCurve > 20)
 
 #---------------------------------------------------------------------------
 ? ""
+? "-- 14. NESTED clusters: a box inside a box ------------------"
+#
+# The constraint form was recorded as unable to express nesting. It can,
+# once the constraints are applied PER DEPTH -- and the nesting itself
+# needs no new API, because a cluster whose node set is a subset of
+# another's already IS inside it. Asking the author to also declare a
+# parent would be a second statement of one fact, free to disagree.
+#
+# Three properties, and the third is the one that makes it nesting
+# rather than two boxes that happen not to collide.
+#---------------------------------------------------------------------------
+
+oNC = new stzDiagram("svc2")
+for a in [ [ "lb", "Balancer" ], [ "web1", "Web A" ], [ "web2", "Web B" ],
+           [ "api1", "API A" ], [ "api2", "API B" ],
+           [ "db1", "DB A" ], [ "db2", "DB B" ], [ "log", "Logger" ] ]
+	oNC.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
+next
+oNC.AddEdge("lb", "web1")    oNC.AddEdge("lb", "web2")
+oNC.AddEdge("web1", "api1")  oNC.AddEdge("web2", "api2")
+oNC.AddEdge("api1", "db1")   oNC.AddEdge("api2", "db2")
+oNC.AddEdge("web1", "log")   oNC.AddEdge("api2", "log")
+oNC.AddClusterXTT("backend", "Backend",
+	[ "api1", "api2", "db1", "db2" ], "#5E35B1")
+oNC.AddClusterXTT("data", "Data", [ "db1", "db2" ], "#2E7D32")
+
+# 1. the nesting is INFERRED, and the right way round
+aD = oNC._ClusterDepths()
+? "   depths : " + aD[1][1] + "=" + aD[1][3] + "  " + aD[2][1] + "=" + aD[2][3]
+chkeq("the outer cluster is depth 1", aD[1][1], "backend")
+chkeq("...and the inner one depth 2", aD[2][3], 2)
+
+# 2. neither box holds a stranger
+NBW = 100  NBH = 34
+aNP = _DiagramXY(oNC, NBW, NBH)
+nNStr = _StrangersInClusters(oNC, aNP, NBW, NBH)
+? "   non-members inside either box : " + nNStr
+chkeq("no cluster holds a stranger, nested or not", nNStr, 0)
+
+# 3. THE NESTING ITSELF: the inner box lies wholly within the outer.
+#    Without this, two disjoint boxes drawn side by side would satisfy
+#    everything above and be no kind of nesting at all.
+aOut = oNC._ClusterBox(oNC._ClusterById("backend"), _ClusterXY(aNP), NBW, NBH)
+aIn  = oNC._ClusterBox(oNC._ClusterById("data"), _ClusterXY(aNP), NBW, NBH)
+? "   outer " + aOut[1] + "," + aOut[2] + " " + aOut[3] + "x" + aOut[4] +
+  "   inner " + aIn[1] + "," + aIn[2] + " " + aIn[3] + "x" + aIn[4]
+chk("the inner box lies wholly inside the outer",
+    aIn[1] >= aOut[1] and aIn[2] >= aOut[2] and
+    aIn[1] + aIn[3] <= aOut[1] + aOut[3] and
+    aIn[2] + aIn[4] <= aOut[2] + aOut[4])
+
+# ...and with ROOM for the inner cluster's own label, which is drawn 24px
+# above its box. Two borders a few pixels apart would pass the test above
+# and still write one label across the other.
+chk("...with room above it for its label",
+    aIn[2] - aOut[2] >= 24)
+
+# 4. PARTIAL OVERLAP is refused -- two boxes cannot both hold all their
+#    own members without one holding a stranger.
+chk("clusters that overlap without nesting are REFUSED", Raises('
+	o = new stzDiagram("t")
+	for c in [ "a", "b", "c" ]
+		o.AddNodeXTT(c, c, [ :type = "box" ])
+	next
+	o.AddEdge("a", "b")  o.AddEdge("b", "c")
+	o.AddClusterXTT("x", "X", [ "a", "b" ], "#C2185B")
+	o.AddClusterXTT("y", "Y", [ "b", "c" ], "#2E7D32")
+	o.ToCanvasXT([ :NodeWidth = 90, :NodeHeight = 30 ])
+'))
+
+# THE NEGATIVE SIBLING for that refusal: a genuine NESTING must NOT be
+# refused. The first version of the check tested containment in one
+# direction only, so every legitimate outer cluster raised the error
+# written to forbid a non-nesting -- the refusal fired on exactly the
+# case it was meant to permit.
+chk("...but a genuine nesting is NOT refused", NOT Raises('
+	o = new stzDiagram("t")
+	for c in [ "a", "b", "c" ]
+		o.AddNodeXTT(c, c, [ :type = "box" ])
+	next
+	o.AddEdge("a", "b")  o.AddEdge("b", "c")
+	o.AddClusterXTT("big", "Big", [ "a", "b", "c" ], "#C2185B")
+	o.AddClusterXTT("small", "Small", [ "b", "c" ], "#2E7D32")
+	o.ToCanvasXT([ :NodeWidth = 90, :NodeHeight = 30 ])
+'))
+
+#---------------------------------------------------------------------------
+? ""
 ? "=============================================================="
 ? " " + nOk + " ok, " + nBad + " failed"
 ? "=============================================================="

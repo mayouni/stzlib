@@ -1742,7 +1742,15 @@ class stzDiagram from stzGraph
 
 		# 1. CLUSTERS behind everything, each with its LABEL -- the box without
 		#    the label is not what dot draws.
-		for _cl_ in @aClusters
+		#
+		#    OUTERMOST FIRST, because each box is FILLED. In declaration
+		#    order an outer cluster declared second painted its fill over
+		#    the inner box that was already there, and the inner cluster
+		#    vanished into it -- correct geometry, invisible result.
+		#    _ClusterDepths sorts outermost first for exactly this.
+		for _cd_ in This._ClusterDepths()
+			_cl_ = This._ClusterById(_cd_[1])
+			if len(_cl_) = 0  loop  ok
 			_aBox_ = This._ClusterBox(_cl_, _aXY_, _nBoxW_, _nBoxH_)
 			if len(_aBox_) != 4  loop  ok
 			_oC_.Flush()
@@ -2158,10 +2166,95 @@ class stzDiagram from stzGraph
 	# stzDiagram is.
 	def _ClusterPairs()
 		_cp_ = []
-		for _cl_ in @aClusters
-			_cp_ + [ "" + _cl_[:id], _cl_[:nodes] ]
+		for _cd_ in This._ClusterDepths()
+			_cp_ + [ _cd_[1], _cd_[2], _cd_[3] ]
 		next
 		return _cp_
+
+	# [ [ id, nodes, depth ], ... ] with depth 1 = outermost, sorted
+	# outermost first.
+	#
+	# NESTING IS INFERRED, NOT DECLARED, and that is the design decision
+	# here. A cluster whose node set is a SUBSET of another's IS inside it
+	# -- the data already says so, and asking the author to repeat it in a
+	# parent link would be a second statement of one fact, free to
+	# disagree with the first. It also costs no API change: every existing
+	# caller keeps working and gains nesting the moment its sets nest.
+	#
+	# PARTIAL OVERLAP IS REFUSED. Two clusters that share a node while
+	# neither contains the other cannot both be drawn as boxes -- there is
+	# no arrangement of two rectangles where each holds all its own members
+	# and neither holds a stranger. Silently picking one to break would
+	# produce a picture that lies about membership, so it is named instead.
+	def _ClusterDepths()
+		_n_ = len(@aClusters)
+		_res_ = []
+		for _i_ = 1 to _n_
+			_ai_ = This._ClusterNodeSet(@aClusters[_i_])
+			_d_ = 1
+			for _j_ = 1 to _n_
+				if _j_ = _i_  loop  ok
+				_aj_ = This._ClusterNodeSet(@aClusters[_j_])
+				if This._SetInside(_ai_, _aj_)
+					# j contains i; if they are IDENTICAL only one can be
+					# the outer, and the earlier declaration wins so the
+					# result does not depend on list order twice over
+					if This._SetInside(_aj_, _ai_)
+						if _j_ < _i_  _d_++  ok
+					else
+						_d_++
+					ok
+				but This._SetsOverlap(_ai_, _aj_) and
+				    NOT This._SetInside(_aj_, _ai_)
+					# BOTH directions, not one. Checking only "is i inside
+					# j" made every legitimate OUTER cluster refuse its own
+					# child: Backend is not inside Data, they share nodes,
+					# and the overlap branch fired -- so declaring a nesting
+					# raised the error written to forbid a non-nesting.
+					StzRaise("stzDiagram: clusters '" + @aClusters[_i_][:id] +
+						"' and '" + @aClusters[_j_][:id] + "' share nodes " +
+						"but neither contains the other. Two boxes cannot " +
+						"both hold all their own members without one " +
+						"holding a stranger -- nest one inside the other " +
+						"(make its nodes a subset), or keep them disjoint.")
+				ok
+			next
+			_res_ + [ "" + @aClusters[_i_][:id], @aClusters[_i_][:nodes], _d_ ]
+		next
+		# outermost first: the layout compacts inner groups before outer
+		# ones, and the drawing paints outer boxes behind inner ones
+		_ord_ = []
+		for _i_ = 1 to len(_res_)
+			_ord_ + [ _res_[_i_][3] * 100000 + _i_, _i_ ]
+		next
+		_ord_ = sort(_ord_, 1)
+		_out_ = []
+		for _o_ in _ord_  _out_ + _res_[ _o_[2] ]  next
+		return _out_
+
+	def _ClusterById(pcId)
+		_c_ = StzLower("" + pcId)
+		for _cl_ in @aClusters
+			if StzLower("" + _cl_[:id]) = _c_  return _cl_  ok
+		next
+		return []
+
+	def _ClusterNodeSet(aCluster)
+		_s_ = []
+		for _id_ in aCluster[:nodes]  _s_ + StzLower("" + _id_)  next
+		return _s_
+
+	def _SetInside(paA, paB)
+		for _x_ in paA
+			if StzFindFirst(_x_, paB) = 0  return 0  ok
+		next
+		return 1
+
+	def _SetsOverlap(paA, paB)
+		for _x_ in paA
+			if StzFindFirst(_x_, paB) > 0  return 1  ok
+		next
+		return 0
 
 	# How far a self-loop reaches beyond the node box. Named once because
 	# TWO places need the same number: the drawing, and the derived-size
@@ -2541,9 +2634,30 @@ class stzDiagram from stzGraph
 			ok
 		next
 		if NOT _bAny_  return []  ok
-		_pad_ = 16
+		# PADDING GROWS WITH WHAT IS NESTED INSIDE. A fixed 16 was right
+		# while every cluster was a leaf; once one can contain another, the
+		# outer box has to clear not just the inner box but the inner
+		# LABEL, which is drawn 24px above it. At a fixed pad the two
+		# borders landed within a few pixels of each other and the inner
+		# label was written across the outer one.
+		_pad_ = 16 + 34 * This._ClusterLevelsBelow(aCluster)
 		return [ _x0_ - _pad_, _y0_ - _pad_,
 			(_x1_ - _x0_) + 2 * _pad_, (_y1_ - _y0_) + 2 * _pad_ ]
+
+	# How many nesting levels sit INSIDE this cluster: 0 for a leaf.
+	def _ClusterLevelsBelow(aCluster)
+		_mine_ = This._ClusterNodeSet(aCluster)
+		_deep_ = 0
+		for _o_ in @aClusters
+			if StzLower("" + _o_[:id]) = StzLower("" + aCluster[:id])  loop  ok
+			_os_ = This._ClusterNodeSet(_o_)
+			# strictly inside: a subset that is not the whole thing
+			if This._SetInside(_os_, _mine_) and NOT This._SetInside(_mine_, _os_)
+				_d_ = 1 + This._ClusterLevelsBelow(_o_)
+				if _d_ > _deep_  _deep_ = _d_  ok
+			ok
+		next
+		return _deep_
 
 	# DISPLAY, not View. In this very module `View` is already a NOUN for a
 	# data projection -- stzGraphView, stzGraphQuery.ToView(), IsView() --
