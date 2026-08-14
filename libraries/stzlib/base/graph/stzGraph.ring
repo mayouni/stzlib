@@ -994,10 +994,33 @@ class stzGraph from stzObject
 		ok
 	
 		# Check if edge already exists
+		#
+		# THE REFUSAL NOW SAYS WHAT TO DO. "Edge already exists" states the
+		# fact and leaves the caller to guess whether it is a bug in their
+		# code, a missing guard, or a limit of the model -- and it is the
+		# third. stzGraph is a SIMPLE graph BY DECISION (see ConnectIfAbsent
+		# above): a second arrow between one pair is refused because a
+		# silently doubled edge corrupts every count, every path and every
+		# metric that walks the adjacency.
+		#
+		# A self-loop is allowed and is NOT this case, so it is worth saying
+		# so -- the message used to read "already exists between 'b' and
+		# 'b'", which sounds like self-loops are banned when only the SECOND
+		# one is.
 		if This.EdgeExists(pcFromNodeId, pcToNodeId)
-			stzraise("Edge already exists between '" + pcFromNodeId + "' and '" + pcToNodeId + "'!")
+			if StzLower("" + pcFromNodeId) = StzLower("" + pcToNodeId)
+				stzraise("'" + pcFromNodeId + "' already has a self-loop. " +
+					"One is allowed and is drawn as a loop; a second would " +
+					"be a parallel edge, which this model refuses.")
+			ok
+			stzraise("There is already an edge from '" + pcFromNodeId +
+				"' to '" + pcToNodeId + "'. stzGraph is a SIMPLE graph -- " +
+				"parallel edges are refused so that counts, paths and " +
+				"metrics stay true. Use ConnectIfAbsent() to add only when " +
+				"missing, SetEdgeLabel()/SetEdgeProperty() to enrich the " +
+				"edge that is there, or model the second relation as its " +
+				"own node if both must exist at once.")
 		ok
-		#TODO// Should we support multiple edges between two nodes?
 
 		# CONSTRAINT CHECK - Execute before mutation
 		if @bEnforceConstraints

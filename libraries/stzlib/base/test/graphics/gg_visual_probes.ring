@@ -185,8 +185,25 @@ oS.ToCanvasXT([ :Font = oF, :NodeWidth = 110, :NodeHeight = 34 ]).
 	ToPNG("probe_10_clusters.png")
 ? "10 clusters    : members together, strangers outside"
 
+# ---------------------------------------------------------------- 11
+# SELF-LOOPS. A state machine's "stay here" arrow. Before, one self-edge
+# made longest-path layering refuse the whole graph as cyclic -- there
+# was no picture at all -- and underneath that the loop drew as a
+# zero-length segment.
+oSL = new stzDiagram("fsm")
+for a in [ [ "idle", "Idle" ], [ "busy", "Busy" ], [ "done", "Done" ] ]
+	oSL.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
+next
+oSL.AddEdge("idle", "idle")
+oSL.AddEdge("busy", "busy")
+oSL.AddEdge("idle", "busy")
+oSL.AddEdge("busy", "done")
+oSL.ToCanvasXT([ :Font = oF, :NodeWidth = 110, :NodeHeight = 40 ]).
+	ToPNG("probe_11_selfloops.png")
+? "11 self-loops  : drawn as loops, and no longer fatal"
+
 ? ""
-? "wrote 10 probes"
+? "wrote 11 probes"
 
 #---------------------------------------------------------------------------
 
