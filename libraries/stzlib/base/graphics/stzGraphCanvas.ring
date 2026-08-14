@@ -197,6 +197,13 @@ class stzGraphCanvas from stzObject
 	@nLayerCount = 1
 	@bUnitX = 0
 
+	# [ [ fromId, toId, [ [x,y], ... ] ], ... ] -- the route a long edge
+	# takes through the ranks it crosses, in the same coordinate space as
+	# Positions(). Empty for a graph whose edges are all rank-adjacent.
+	@aBendOf = []
+	@aDumEdge = []
+	@nRealCount = 0
+
 	def init(poGraph, paOptions)
 		if NOT isObject(poGraph)
 			StzRaise("stzGraphCanvas: give me an stzGraph.")
@@ -228,6 +235,12 @@ class stzGraphCanvas from stzObject
 
 	def Width()   return @nW
 	def Height()  return @nH
+
+	# The bend points of every edge that spans more than one rank, in the
+	# SAME normalised space as Positions() -- so a face transforms both
+	# with one rule and cannot place an edge in a different frame from the
+	# nodes it joins.
+	def EdgeRoutes()  return @aBendOf
 
 	def RawSpanX()    return @nRawSpanX
 	def RawSpanY()    return @nRawSpanY
@@ -352,6 +365,7 @@ class stzGraphCanvas from stzObject
 			This._LayoutHierarchical()
 		ok
 		This._Normalise()
+		This._ExtractRoutes()
 
 		# SIZE and COLOUR come from a COMPUTED property, which is the whole
 		# claim of this class. Both default to :Degree so a caller who names
@@ -415,18 +429,59 @@ class stzGraphCanvas from stzObject
 
 	def _LayoutHierarchical()
 		_lay_ = StzGraphMetric(@oGraph, :Depth)
-		_n_ = len(@aIds)
+		_nReal_ = len(@aIds)
 		_max_ = 0
-		for _i_ = 1 to _n_
+		for _i_ = 1 to _nReal_
 			if _lay_[_i_] > _max_  _max_ = _lay_[_i_]  ok
 		next
+
+		# DUMMY NODES FOR LONG EDGES -- the step of the Sugiyama pipeline
+		# that was missing, and the one whose absence is impossible to miss
+		# once drawn. An edge spanning more than one rank was a straight
+		# line from source to target, so it went THROUGH every node box in
+		# between: a 9-stage pipeline with a 1->9 edge drew that edge across
+		# seven boxes. Nothing was wrong with the layout; the edge simply
+		# had no presence in the ranks it crossed, so nothing reserved room
+		# for it and nothing could route it.
+		#
+		# Every long edge is now CHAINED through one dummy per intervening
+		# rank. Those dummies are real participants: they take part in the
+		# crossing sweep (so a long edge is ordered against the nodes it
+		# passes) and in the coordinate pass (so it is placed in the gap
+		# rather than over a box). The chain read back out is the edge's
+		# ROUTE -- which is also what turns a straight line into a curve
+		# that bends the way dot's do.
+		@aBendOf = []
+		_aE0_ = @oGraph.Edges()
+		_dumLay_ = []
+		_dumEdge_ = []          # [ eIndex, [ dummy indices, in rank order ] ]
+		_n_ = _nReal_
+		for _ei_ = 1 to len(_aE0_)
+			_u_ = This._IndexOf(_aE0_[_ei_][:from])
+			_v_ = This._IndexOf(_aE0_[_ei_][:to])
+			if _u_ < 1 or _v_ < 1  loop  ok
+			_span_ = _lay_[_v_] - _lay_[_u_]
+			if _span_ <= 1  loop  ok
+			_chain_ = []
+			for _dL_ = _lay_[_u_] + 1 to _lay_[_v_] - 1
+				_n_++
+				_dumLay_ + [ _n_, _dL_ ]
+				_chain_ + _n_
+			next
+			_dumEdge_ + [ _ei_, _chain_ ]
+		next
+
+		# layers for the expanded node set
+		_layX_ = []
+		for _i_ = 1 to _nReal_  _layX_ + _lay_[_i_]  next
+		for _d_ in _dumLay_  _layX_ + _d_[2]  next
 
 		# group by layer, then let the ENGINE reduce crossings -- the same
 		# sweep the GG1 stress suite ran over eight topologies
 		_buck_ = []
 		for _L_ = 0 to _max_  _buck_ + []  next
 		for _i_ = 1 to _n_
-			_buck_[_lay_[_i_] + 1] + (_i_ - 1)
+			_buck_[_layX_[_i_] + 1] + (_i_ - 1)
 		next
 		_order_ = []
 		_starts_ = []
@@ -440,19 +495,36 @@ class stzGraphCanvas from stzObject
 		next
 		_starts_ + _acc_
 
-		_aE_ = @oGraph.Edges()
+		# the edge list the sweep sees is the CHAINED one: a long edge is
+		# its segments, so every rank it crosses has a node to order it
+		# against
+		_aE_ = _aE0_
 		_eu_ = []  _ev_ = []
 		for _e_ = 1 to len(_aE_)
 			_u_ = This._IndexOf(_aE_[_e_][:from])
 			_v_ = This._IndexOf(_aE_[_e_][:to])
-			if _u_ > 0 and _v_ > 0
+			if _u_ < 1 or _v_ < 1  loop  ok
+			_ch_ = []
+			for _de_ in _dumEdge_
+				if _de_[1] = _e_  _ch_ = _de_[2]  exit  ok
+			next
+			if len(_ch_) = 0
 				_eu_ + (_u_ - 1)
+				_ev_ + (_v_ - 1)
+			else
+				_prev_ = _u_
+				for _dn_ in _ch_
+					_eu_ + (_prev_ - 1)
+					_ev_ + (_dn_ - 1)
+					_prev_ = _dn_
+				next
+				_eu_ + (_prev_ - 1)
 				_ev_ + (_v_ - 1)
 			ok
 		next
 
 		_lay0_ = []
-		for _i_ = 1 to _n_  _lay0_ + _lay_[_i_]  next
+		for _i_ = 1 to _n_  _lay0_ + _layX_[_i_]  next
 
 		_aXe_ = []
 		if len(_eu_) > 0 and _max_ > 0
@@ -493,6 +565,20 @@ class stzGraphCanvas from stzObject
 			@bUnitX = 0
 		ok
 		@nLayerCount = _max_ + 1
+
+		# The dummies STAY IN @aX/@aY for now, and that ordering matters:
+		# _Normalise fits the bounding box to the canvas, so reading the
+		# chains before it would capture RAW coordinates while the nodes
+		# ended up normalised -- two frames, and the routes left the picture
+		# through its top-left corner. Keeping them also makes _Normalise
+		# reserve room for the routes, which is the point of having them.
+		# _ExtractRoutes, called after, reads them back and trims.
+		@nRealCount = _nReal_
+		@aDumEdge = []
+		for _de_ in _dumEdge_
+			@aDumEdge + [ "" + _aE0_[_de_[1]][:from],
+			              "" + _aE0_[_de_[1]][:to], _de_[2] ]
+		next
 
 	# The ENGINE lays this out. The face used to carry its own Ring copy of
 	# Fruchterman-Reingold: 443 ms for 40 nodes, 3.7 s for 120, 24.5 s for
@@ -553,6 +639,32 @@ class stzGraphCanvas from stzObject
 	# coordinates in whatever range the layout happened to produce, which is
 	# not a picture -- and it is why every layout above may emit raw numbers
 	# and let ONE place do the fitting.
+	# Read each long edge's chain out of the NORMALISED coordinates, then
+	# drop the dummies. They exist to be laid out, not to be drawn: a
+	# caller asking for Positions() must get its own nodes and nothing
+	# else, or every consumer downstream learns to ignore nodes the graph
+	# does not contain.
+	def _ExtractRoutes()
+		@aBendOf = []
+		if len(@aDumEdge) = 0  return  ok
+		for _de_ in @aDumEdge
+			_pts_ = []
+			for _dn_ in _de_[3]
+				if _dn_ >= 1 and _dn_ <= len(@aX)
+					_pts_ + [ @aX[_dn_], @aY[_dn_] ]
+				ok
+			next
+			if len(_pts_) > 0
+				@aBendOf + [ _de_[1], _de_[2], _pts_ ]
+			ok
+		next
+		if @nRealCount > 0 and len(@aX) > @nRealCount
+			_kx_ = []  _ky_ = []
+			for _i_ = 1 to @nRealCount  _kx_ + @aX[_i_]  _ky_ + @aY[_i_]  next
+			@aX = _kx_
+			@aY = _ky_
+		ok
+
 	def _Normalise()
 		_n_ = len(@aX)
 		_x0_ = @aX[1]  _x1_ = @aX[1]

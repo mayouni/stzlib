@@ -150,8 +150,23 @@ oFan.ToPNGXT("probe_8_fit_after.png", aFit)
 oFan.ToPNGXT("probe_8_fit_before.png", aFit + [ [ :FitBoxes, 0 ] ])
 ? "8 fit          : before/after written"
 
+# ---------------------------------------------------------------- 9
+# LONG EDGES. An edge spanning more than one rank has no presence in the
+# ranks it crosses unless dummy nodes give it one -- without them it was a
+# straight line drawn through every box in between.
+oL = new stzDiagram("pipe")
+for i = 1 to 9
+	oL.AddNodeXTT("s" + i, "Stage " + i, [ :type = "box", :color = "Info.Solid" ])
+next
+for i = 1 to 8  oL.AddEdge("s" + i, "s" + (i+1))  next
+oL.AddEdge("s1", "s9")
+oL.AddEdge("s2", "s7")
+oL.ToCanvasXT([ :Font = oF, :NodeWidth = 110, :NodeHeight = 34 ]).
+	ToPNG("probe_9_longedge.png")
+? "9 long edges   : routed around, not through"
+
 ? ""
-? "wrote 8 probes"
+? "wrote 9 probes"
 
 #---------------------------------------------------------------------------
 

@@ -312,6 +312,47 @@ chk("...and a canvas too small for the contract breaks it", nCr < nSep - 20)
 
 #---------------------------------------------------------------------------
 ? ""
+? "-- 8. A long edge goes AROUND the boxes, not through them ---"
+#
+# The step of the Sugiyama pipeline that was missing. An edge spanning
+# more than one rank was a straight line from source to target, so a
+# 9-stage pipeline with a 1->9 edge drew that edge across seven boxes.
+# No routing rule could have saved it: the edge had no presence in the
+# ranks it crossed, so nothing reserved room for it. Dummy nodes give it
+# one, and the chain read back out IS the route.
+#
+# Measured in pixels, over the node fill: a routed edge never paints
+# grey inside a box.
+#---------------------------------------------------------------------------
+
+BLU = "#1E6FE0"
+oL = new stzDiagram("pipe")
+for i = 1 to 9
+	oL.AddNodeXTT("s" + i, "Stage " + i, [ :type = "box", :color = BLU ])
+next
+for i = 1 to 8  oL.AddEdge("s" + i, "s" + (i+1))  next
+oL.AddEdge("s1", "s9")          # spans eight ranks
+oL.AddEdge("s2", "s7")          # spans five
+
+oLc = oL.ToCanvasXT([ :NodeWidth = 110, :NodeHeight = 34 ])
+nCross = _EdgeInkInsideBoxes(oLc, oLc.Width(), oLc.Height(), BLU)
+? "   canvas " + oLc.Width() + "x" + oLc.Height() +
+  "   edge ink found inside node boxes : " + nCross
+chk("no long edge is drawn through a node", nCross = 0)
+
+# THE NEGATIVE SIBLING: the instrument must be able to SEE an edge over a
+# box, so draw one deliberately and measure the same way.
+oX = new stzCanvas(200, 120)
+oX.SetBackgroundQ("#FFFFFF")
+oX.FillQ(BLU).AddRect(40, 30, 120, 60)
+oX.Flush()
+oX.AddLineQ(20, 60, 180, 60).Stroke("#8A8A8A", 2)
+nX = _EdgeInkInsideBoxes(oX, 200, 120, BLU)
+? "   a line drawn deliberately across a box reads : " + nX
+chk("the crossing check DISCRIMINATES", nX > 0)
+
+#---------------------------------------------------------------------------
+? ""
 ? "=============================================================="
 ? " " + nOk + " ok, " + nBad + " failed"
 ? "=============================================================="
@@ -516,6 +557,40 @@ func _MinGapPx oCanvas, nW, nH, cHex
 		ok
 	next
 	return _mgmin_
+
+# How many pixels of EDGE ink sit inside a node box. A box is a solid run
+# of its fill colour, so a grey pixel with fill on BOTH sides of it, on the
+# same row, is an edge crossing that box -- and nothing else is.
+func _EdgeInkInsideBoxes oCanvas, nW, nH, cHex
+	_ec_ = _HexRGB(cHex)
+	_epx_ = oCanvas.ToPixels()
+	# SCANNED BY COLUMN, not by row. The row version could not see the case
+	# it existed for: a line drawn across a box covers that whole row, so
+	# no fill is left on it to bracket the ink, and the check reported a
+	# clean picture of a deliberately dirty one. A pixel is inside a box
+	# when the box continues ABOVE and BELOW it -- that survives an edge of
+	# any thickness and any direction.
+	_ehits_ = 0
+	for _ey_ = 0 to nH - 1 step 3
+		for _ex_ = 0 to nW - 1 step 2
+			if _IsRGB(_epx_, nW, _ex_, _ey_, _ec_)  loop  ok
+			if _IsRGB(_epx_, nW, _ex_, _ey_, [ 255, 255, 255 ])  loop  ok
+			# ink. is there box above AND below, close by?
+			_eup_ = 0
+			for _ek_ = 1 to 8
+				if _ey_ - _ek_ < 0  exit  ok
+				if _IsRGB(_epx_, nW, _ex_, _ey_ - _ek_, _ec_)  _eup_ = 1  exit  ok
+			next
+			if _eup_ = 0  loop  ok
+			_edn_ = 0
+			for _ek_ = 1 to 8
+				if _ey_ + _ek_ > nH - 1  exit  ok
+				if _IsRGB(_epx_, nW, _ex_, _ey_ + _ek_, _ec_)  _edn_ = 1  exit  ok
+			next
+			if _edn_ = 1  _ehits_++  ok
+		next
+	next
+	return _ehits_
 
 func _IsRGB cPx, nW, nX, nY, aRGB
 	_ir_ = (nY * nW + nX) * 4 + 1
