@@ -39,6 +39,20 @@ extern fn stz_gui_text_at(i: i32, font: *i64, size: *f32, x: *f32, y: *f32, colo
 extern fn stz_gui_element_box(id: i64, elem: [*:0]const u8, out4: [*]f32) callconv(.c) i32;
 extern fn stz_gui_last_error() callconv(.c) [*:0]const u8;
 extern fn stz_gui_set_time(seconds: f64) callconv(.c) void;
+extern fn stz_gui_set_input_source(source: i32) callconv(.c) void;
+extern fn stz_gui_pointer_move(id: i64, x: f32, y: f32, mods: i32) callconv(.c) i32;
+extern fn stz_gui_pointer_button(id: i64, button: i32, down: i32, mods: i32) callconv(.c) i32;
+extern fn stz_gui_pointer_leave(id: i64) callconv(.c) i32;
+extern fn stz_gui_key(id: i64, k: i32, down: i32, mods: i32) callconv(.c) i32;
+extern fn stz_gui_text_input(id: i64, utf8: [*]const u8, len: i32) callconv(.c) i32;
+extern fn stz_gui_focus(id: i64, elem: [*:0]const u8) callconv(.c) i32;
+extern fn stz_gui_focused(id: i64) callconv(.c) [*:0]const u8;
+extern fn stz_gui_focus_move(id: i64, dir: i32) callconv(.c) i32;
+extern fn stz_gui_element_at(id: i64, x: f32, y: f32) callconv(.c) [*:0]const u8;
+extern fn stz_gui_event_count() callconv(.c) i32;
+extern fn stz_gui_events_dropped() callconv(.c) i32;
+extern fn stz_gui_events_clear() callconv(.c) void;
+extern fn stz_gui_event_at(i: i32, t: *i32, src: *i32, x: *f32, y: *f32, button: *i32, k: *i32, mods: *i32, target: *[*]const u8, tlen: *i32) callconv(.c) i32;
 
 pub fn init() i32 {
     return stz_gui_init();
@@ -154,4 +168,90 @@ pub fn lastError() []const u8 {
 
 pub fn setTime(seconds: f64) void {
     stz_gui_set_time(seconds);
+}
+
+// ------------------------------------------------------------ G3: input
+//
+// Every verb takes PANEL pixels. The coordinate-space frame is dissolved
+// rather than surfaced (the plan's §7 M3): one space per panel, converted
+// at the boundary by a named function, so there is nothing to confuse it
+// with.
+
+pub fn setInputSource(source: i32) void {
+    stz_gui_set_input_source(source);
+}
+
+pub fn pointerMove(id: i64, x: f32, y: f32, mods: i32) i32 {
+    return stz_gui_pointer_move(id, x, y, mods);
+}
+
+pub fn pointerButton(id: i64, button: i32, down: bool, mods: i32) i32 {
+    return stz_gui_pointer_button(id, button, if (down) 1 else 0, mods);
+}
+
+pub fn pointerLeave(id: i64) i32 {
+    return stz_gui_pointer_leave(id);
+}
+
+pub fn key(id: i64, k: i32, down: bool, mods: i32) i32 {
+    return stz_gui_key(id, k, if (down) 1 else 0, mods);
+}
+
+pub fn textInput(id: i64, utf8: []const u8) i32 {
+    if (utf8.len == 0) return BAD_ARG;
+    return stz_gui_text_input(id, utf8.ptr, @intCast(utf8.len));
+}
+
+pub fn focus(id: i64, elem: [:0]const u8) i32 {
+    return stz_gui_focus(id, elem.ptr);
+}
+
+pub fn focused(id: i64) []const u8 {
+    return std.mem.span(stz_gui_focused(id));
+}
+
+pub fn focusMove(id: i64, dir: i32) i32 {
+    return stz_gui_focus_move(id, dir);
+}
+
+pub fn elementAt(id: i64, x: f32, y: f32) []const u8 {
+    return std.mem.span(stz_gui_element_at(id, x, y));
+}
+
+pub const Event = struct {
+    kind: i32,
+    source: i32,
+    x: f32,
+    y: f32,
+    button: i32,
+    key: i32,
+    mods: i32,
+    target: []const u8,
+};
+
+pub fn eventCount() i32 {
+    return stz_gui_event_count();
+}
+
+pub fn eventsDropped() i32 {
+    return stz_gui_events_dropped();
+}
+
+pub fn eventsClear() void {
+    stz_gui_events_clear();
+}
+
+pub fn eventAt(i: i32) ?Event {
+    var t: i32 = 0;
+    var src: i32 = 0;
+    var x: f32 = 0;
+    var y: f32 = 0;
+    var button: i32 = 0;
+    var k: i32 = 0;
+    var mods: i32 = 0;
+    var target: [*]const u8 = undefined;
+    var tlen: i32 = 0;
+    if (stz_gui_event_at(i, &t, &src, &x, &y, &button, &k, &mods, &target, &tlen) != 0) return null;
+    if (tlen < 0) return null;
+    return .{ .kind = t, .source = src, .x = x, .y = y, .button = button, .key = k, .mods = mods, .target = target[0..@intCast(tlen)] };
 }

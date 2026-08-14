@@ -456,6 +456,7 @@ find. An author writes none of this:
 | `WIDTH 210, PADDING 20` | **210 total, padding inside**: `box-sizing: border-box` on every element. CSS's content-box default made the first rendered sidebar 250 px and nothing at the call site said why |
 | `TEXT_DIRECTION rtl` **once, on the panel** | the whole subtree flips: `text-align: right`, `flex-direction: row-reverse` on every row, and the shaper's base-direction hint on every element. RmlUi's own direction property reaches ONE line of its layout — a dirty flag feeding the shaper — so it aligns nothing and reverses nothing |
 | `TEXT_ALIGN start` / `end` | direction-**relative**, resolved per element against the direction in force. RCSS knows only `left`/`right`, so without this an author writes two stylesheets |
+| `FOCUSABLE yes` | `tab-index: auto` **and** `nav: auto`. Both are opt-ins that read like defaults, and `nav-*` defaults to `none` — so arrows do nothing until set. The APG contract is one tab stop per composite with arrows *within*; half of it silently absent is the gap Rule 80 forbids |
 
 **A declared size means what it says** is the design decision that makes
 `.stzui` better to write than the CSS it compiles to.
@@ -573,14 +574,63 @@ each: *an essential decision, or noise to dissolve?*
 | **tier** | in-scene, window, texture | **Probably dissolve.** It looks like a frame and behaves like a *target parameter* — the graphics plane already adopted the swapchain frame as an ordinary render target rather than a mode. Watch it in G1 before minting vocabulary |
 | **which document** | several panels alive at once | **Dissolve.** This is an object, not a scope: a panel IS the document |
 
-**M2** (are they small closed sets?), **M3** (the frame goes in the verb,
-each frame picks its carrier), **M4** (what the library computes with
-them) and **M5** (rehearsal) are **due before G3's event model is
-designed**, not after — G3 is where coordinate space and input source both
-become load-bearing at once. The §0 gate has already produced one datum
-for M1: `x` (draw position) and `pen` (hit box) are *two coordinate
-meanings on one axis*, and conflating them is the classic caret bug. That
-is the frame arguing for its own existence.
+### M2–M5, run before G3's event model — 2026-08-14
+
+**M2 — are they small closed sets?**
+
+- **Coordinate space**, *for this plane*: only two conversions exist —
+  a window's pixels, and a texture's uv when a panel hangs in a 3D
+  scene. With the panel's own space that is three. Passes.
+- **Input source**: pointer · keyboard · gamepad · synthetic ·
+  assistive. Five. Passes.
+
+**M3 — and here the two frames take opposite answers, which is the
+useful part.**
+
+**Coordinate space is DISSOLVED, not surfaced.** The paradigm's own
+guidance is that a frame you can eliminate should be eliminated, and
+M1's sanity check asks for exactly one such candidate. This is it: a
+panel admits **one** space — its own pixels — and every input verb takes
+that and nothing else. The conversion is then not a hidden frame but an
+ordinary named function at the boundary, `FromWindow()` or
+`FromTexture()`, called where the conversion actually happens and
+nowhere else. There is no ambient "current space", no mode, and no way
+to pass window pixels to a panel by accident, because the panel has no
+other space to confuse them with.
+
+The §0 gate is the counter-example that proves the frame was real
+before it was dissolved: `x` (draw position) and `pen` (hit box) are two
+coordinate meanings on one axis, and conflating them is the classic
+caret bug. Two names, no frame.
+
+**Input source is SURFACED, and it rides on the event.** It is a
+property of a particular event, not of a region of code, so a carrier on
+the event object is the honest home. It earns its place twice over:
+Rule 80 makes *"was this reachable by a human keyboard"* materially
+different from *"did something dispatch a click"*, and G4 needs an
+assistive-technology activation to be distinguishable from a pointer.
+A synthetic event that could not be told from a real one would make the
+keyboard-sovereignty guard unfalsifiable.
+
+**Tier is DISSOLVED**, as M1 suspected. A panel draws into a canvas and
+the canvas already decides its destination; the graphics plane made the
+same call when it adopted the swapchain frame as an ordinary render
+target rather than a mode. Nothing in G1–G3 needed to know its tier.
+
+**Which document** was dissolved before it was written: a panel *is* the
+document.
+
+**M4 — what the library computes with them.** The input source makes
+Rule 80 checkable: a guard drives a screen with keyboard events only and
+asserts every action was reached, which is a *property of the run*
+rather than a property of the markup. Nothing computes with coordinate
+space, which is the strongest argument for having dissolved it.
+
+**M5 — rehearsal.** `oPanel.PointerMovedTo(x, y)` reads as panel pixels
+because a panel has no other pixels; `oPanel.FromWindow(oWin, nx, ny)`
+says the conversion out loud at the one place it happens; and an event
+answers `Source()` because the answer differs per event and matters to
+the law.
 
 ---
 
@@ -1343,3 +1393,117 @@ agree" would be trivially true of any three identical boxes.
 - **The browser fixture** (§3), still owed from G0.
 - **A panel inside a 3D scene** — §6 says this plane starts with that
   tier; criterion 3 used a canvas texture, not a panel.
+
+---
+
+# G3 STATUS — 2026-08-14. Input, events and focus: a form you can operate with a keyboard
+
+Guard `base/test/gui/gui_input_narrated.ring` — **38 asserts green**, no
+GPU. Live: `gui_form_window.ring` (mouse, Tab/Shift+Tab, arrows, Enter,
+a visible focus ring), or `shot` for `gui_form.png`. Sweep after the
+phase: panel 50, adversarial 32, stzui 43, font 30, rtl 37, tier 24,
+input 38 — **254 all green**.
+
+## The plan under-credited RmlUi, and that changed the phase
+
+G3 was written as *"build a routed event model, a sparse focus tree, and
+traversal policies"*. Measured, RmlUi already ships: full input
+processing (mouse, keyboard, text, wheel, touch), focus with
+`Focus`/`Blur`, **tab order in document order**, and **spatial
+navigation by heuristic** for directional moves. What it does not ship is
+a queryable ring, counted refusals, and any notion of where an input came
+from.
+
+So the phase became: **expose it, decide its shape at the seam, and add
+the three missing things.** That is a smaller phase than the plan
+budgeted and a better outcome than building a parallel model beside a
+working one.
+
+## The two shape decisions
+
+**Events are DRAINED, never dispatched.** Ring cannot be re-entered
+safely from inside a C++ event dispatch, so one listener on the document
+root — subscribed to a closed set of nine event types, in the bubble
+phase, after RmlUi has already routed — writes each event down, and
+`Events()` hands over the list. The house had already settled this shape
+twice (the display list, the text commands), and the Ringine charter's
+*no per-entity callback, ever* is the same rule in another plane.
+
+**Every input verb takes PANEL PIXELS**, which is §7's coordinate-space
+frame **dissolved rather than surfaced**: a panel admits exactly one
+space, so there is nothing to confuse it with, and the two conversions
+are named functions at the boundary — `FromWindow(oWin, x, y)` and
+`FromTexture(u, v)`. The second one *is* the whole in-scene input story
+(§6's tier): a ray hits a quad, the caller has a uv, the panel takes
+pixels, and nothing about the panel knows it is in a scene. `v` is
+flipped in exactly one place, because a texture's origin is bottom-left
+and a panel's is top-left.
+
+## Rule 80, asserted as a property of the RUN
+
+`FOCUSABLE yes` on a box puts it in the ring. `TabRing()` walks the whole
+cycle and answers the stops in order, so *"can a keyboard reach every
+action"* is a question about the run rather than about the markup — the
+form's ring is `row_one → row_two → confirm → cancel`, and the guard
+asserts both the act **and the way back** are in it, since the rule
+requires both. The negative siblings matter as much: the title, the row
+that merely *contains* the buttons, and a label inside a field are all
+absent, or the ring would be a list of everything and prove nothing.
+
+**A ring is a CYCLE and it wraps** — Tab from the last stop returns to
+the first, because a ring that refused at the end would strand a keyboard
+user at the bottom of every screen. Recorded with it: `TabRing()` enters
+the cycle wherever focus currently sits, because RmlUi resumes tabbing
+from the last focused element even after a blur. The set and the order
+are stable; the entry point is not.
+
+## The finding that changed the format
+
+**`nav-up/right/down/left` default to `none`, so arrow keys do nothing at
+all until they are set.** `tab-index: auto` is likewise the opt-in
+despite reading like a default. An author who declares a thing focusable
+means both — the WAI-ARIA APG contract this plane adopted is *one tab
+stop per composite, arrows within* — so `FOCUSABLE yes` now emits
+`tab-index: auto; nav: auto;`. Half that contract silently absent is
+exactly the gap Rule 80 exists to forbid, and it would have shipped
+looking correct.
+
+## The input source, and why it is on the event
+
+§7 chose to surface this frame and it carries on the event, because the
+answer differs per event. It earns its place twice: Rule 80 makes
+*"reachable by a human keyboard"* materially different from *"something
+dispatched a click"*, and G4 needs an assistive activation
+distinguishable from a pointer one. The live form stamps **synthetic** on
+Enter-to-activate deliberately — a dispatched activation that could not
+be told from a real pointer one would make the keyboard guard
+unfalsifiable.
+
+## The bounded record
+
+The queue holds 4096 events and **counts what it drops**: 1600 undrained
+clicks produce the ceiling and a nonzero drop count, so a caller that
+stopped draining can see why it stopped receiving. Asserted with its
+negative sibling — an empty queue reports zero drops.
+
+## What G3 did NOT do
+
+- **No text editing.** RmlUi's `ProcessTextInput` is wired and text
+  events are recorded, but there is no text field in the format, no
+  caret, no selection and no clipboard. The §0 gate's `caretRect` still
+  has no consumer.
+- **No IME**, and nothing here moves it. `ActivateKeyboard` is recorded
+  when RmlUi fires it and fed to nothing.
+- **No gamepad or touch.** The source enum names them; no verb produces
+  them, and `ProcessTouch*` is unexposed.
+- **No composite widgets.** A "composite" is currently any box the author
+  marks focusable; there is no listbox, no tabset, no menu, and so no
+  place where the APG's *one stop per composite* is enforced rather than
+  merely possible. That is G5's vocabulary.
+- **No focus TRAP**, so a modal cannot yet hold focus inside itself.
+- **No hover styling.** `:hover` is not in the profile, so a pointer over
+  a button changes nothing visually — the events fire, the paint does
+  not.
+- **Enter does not activate by itself.** The live form dispatches a
+  synthetic click because RmlUi does not activate a plain `div` on
+  Enter; a real widget vocabulary would.

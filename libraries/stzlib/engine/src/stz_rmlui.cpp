@@ -65,6 +65,7 @@
 // keeps working instead of corrupting a heap three layers down.
 
 #include <RmlUi/Core.h>
+#include <RmlUi/Core/Input.h>
 
 #include <cstring>
 #include <string>
@@ -99,6 +100,39 @@ struct Geometry {
 // frame's translation, and the cache does the rest.
 static const float kTextMarker = 987654.0f;
 
+// G3: an event as DATA, drained by the caller -- never a callback across
+// the C ABI. Ring cannot be re-entered safely from a C++ event dispatch,
+// and the house has settled this shape twice already (the display list,
+// the text commands). It also keeps the Ringine charter's rule that no
+// per-entity callback ever crosses the seam.
+//
+// `source` is the INPUT SOURCE frame, surfaced on the event because that
+// is where it belongs (§7, M3): Rule 80 makes "reachable by a human
+// keyboard" materially different from "something dispatched a click",
+// and G4 needs an assistive activation distinguishable from a pointer.
+struct Recorder_Event {
+	int type = 0;     // see kEv* below
+	int source = 0;   // 0 pointer, 1 keyboard, 2 gamepad, 3 synthetic, 4 assistive
+	float x = 0, y = 0;
+	int button = 0, key = 0, mods = 0;
+	std::string target; // the element's id, "" when it has none
+};
+
+// A closed set, deliberately. An open one would make the drain loop a
+// dispatch table nobody can enumerate, and G4's accessibility mapping
+// needs to know every event that can reach it.
+enum {
+	kEvClick = 1,
+	kEvPointerDown = 2,
+	kEvPointerUp = 3,
+	kEvPointerEnter = 4,
+	kEvPointerLeave = 5,
+	kEvFocus = 6,
+	kEvBlur = 7,
+	kEvKeyDown = 8,
+	kEvText = 9,
+};
+
 struct Recorder_TextCmd {
 	long long font = 0;
 	float size = 0, x = 0, y = 0;
@@ -121,6 +155,12 @@ struct Recorder {
 	// GenerateString writes to, freed when RmlUi releases the geometry.
 	std::vector<Recorder_TextCmd> texts;
 
+	// The event queue. BOUNDED: a caller that never drains must not grow
+	// this without limit, and what is dropped is COUNTED rather than
+	// silently discarded -- the house rule for every bounded record.
+	std::vector<Recorder_Event> events;
+	int events_dropped = 0;
+
 	// what this phase cannot draw, counted rather than silently skipped
 	int dropped_textured_draws = 0;
 	int ignored_scissors = 0;
@@ -131,6 +171,8 @@ struct Recorder {
 		verts.clear();
 		idx.clear();
 		texts.clear();
+		// events are NOT cleared here: they outlive a frame and are
+		// drained by the caller, not by rendering
 		dropped_textured_draws = 0;
 		ignored_scissors = 0;
 		draws = 0;
@@ -549,6 +591,34 @@ public:
 
 using StubFont = StzFontEngine; // the accessor below keeps its name
 
+// ------------------------------------------------------------- events
+//
+// ONE listener on the document root, subscribed in the bubble phase to a
+// closed set of event types. RmlUi has already done the routing by the
+// time this runs -- it walked the tree, found the target, and bubbled --
+// so the listener's whole job is to write down what arrived.
+//
+// The current input source is a global rather than an event parameter
+// because RmlUi has no field for it: the caller says "the next input is
+// a keyboard" by which verb it calls, and the listener stamps whatever
+// is in force. A synthetic Activate() sets it to synthetic, which is
+// what makes the keyboard-sovereignty guard falsifiable.
+
+int g_input_source = 0;
+
+class StzEventListener : public Rml::EventListener {
+public:
+	void ProcessEvent(Rml::Event& event) override;
+};
+
+StzEventListener* g_listener_p = nullptr;
+
+StzEventListener& Listener()
+{
+	if (!g_listener_p) g_listener_p = new StzEventListener();
+	return *g_listener_p;
+}
+
 // ------------------------------------------------------------- contexts
 
 struct Ctx {
@@ -579,6 +649,48 @@ StubFont& Font()
 {
 	if (!g_font_p) g_font_p = new StubFont();
 	return *g_font_p;
+}
+
+void StzEventListener::ProcessEvent(Rml::Event& event)
+{
+	Recorder& rec = Rec();
+	// bounded: 4096 undrained events is far past any real frame, and the
+	// overflow is COUNTED so a caller that stopped draining can see why
+	// it stopped receiving
+	if (rec.events.size() >= 4096)
+	{
+		rec.events_dropped++;
+		return;
+	}
+
+	int type = 0;
+	switch (event.GetId())
+	{
+	case Rml::EventId::Click: type = kEvClick; break;
+	case Rml::EventId::Mousedown: type = kEvPointerDown; break;
+	case Rml::EventId::Mouseup: type = kEvPointerUp; break;
+	case Rml::EventId::Mouseover: type = kEvPointerEnter; break;
+	case Rml::EventId::Mouseout: type = kEvPointerLeave; break;
+	case Rml::EventId::Focus: type = kEvFocus; break;
+	case Rml::EventId::Blur: type = kEvBlur; break;
+	case Rml::EventId::Keydown: type = kEvKeyDown; break;
+	case Rml::EventId::Textinput: type = kEvText; break;
+	default: return; // the set is closed; an unlisted event is not ours
+	}
+
+	Recorder_Event e;
+	e.type = type;
+	e.source = g_input_source;
+	e.x = event.GetParameter<float>("mouse_x", 0.f);
+	e.y = event.GetParameter<float>("mouse_y", 0.f);
+	e.button = event.GetParameter<int>("button", -1);
+	e.key = event.GetParameter<int>("key_identifier", -1);
+	e.mods = 0;
+	if (event.GetParameter<int>("ctrl_key", 0)) e.mods |= 1;
+	if (event.GetParameter<int>("shift_key", 0)) e.mods |= 2;
+	if (event.GetParameter<int>("alt_key", 0)) e.mods |= 4;
+	if (Rml::Element* t = event.GetTargetElement()) e.target = t->GetId();
+	rec.events.push_back(e);
 }
 
 // The two StzRender methods that needed the font engine's bank -- and so
@@ -741,6 +853,13 @@ STZ_API int stz_gui_load_rml(long long id, const char* rml, int len)
 		if (!doc) return 4;
 		doc->Show();
 		c->doc = doc;
+		// ONE listener on the root, bubble phase: RmlUi has already
+		// routed and bubbled by the time it runs, so its whole job is to
+		// write down what arrived.
+		static const Rml::EventId kWatched[] = { Rml::EventId::Click, Rml::EventId::Mousedown, Rml::EventId::Mouseup,
+			Rml::EventId::Mouseover, Rml::EventId::Mouseout, Rml::EventId::Focus, Rml::EventId::Blur, Rml::EventId::Keydown,
+			Rml::EventId::Textinput };
+		for (Rml::EventId id : kWatched) doc->AddEventListener(id, &Listener());
 		return 0;
 	}
 	catch (...)
@@ -908,3 +1027,229 @@ STZ_API const char* stz_gui_last_error(void)
 }
 
 STZ_API void stz_gui_set_time(double seconds) { Sys().elapsed = seconds; }
+
+// ---------------------------------------------------------- G3: input
+//
+// Every verb takes PANEL pixels and nothing else. The coordinate-space
+// frame is DISSOLVED rather than surfaced (§7, M3): a panel has exactly
+// one space, so there is nothing to confuse it with, and a window or a
+// 3D texture converts at its own boundary with a named function.
+//
+// The input SOURCE is set by which verb the caller uses -- a pointer
+// verb stamps pointer, a key verb stamps keyboard -- and Activate()
+// stamps synthetic on purpose, so a guard can tell a real keyboard path
+// from a dispatched one. Rule 80 is unfalsifiable otherwise.
+
+STZ_API void stz_gui_set_input_source(int source) { g_input_source = source; }
+
+STZ_API int stz_gui_pointer_move(long long id, float x, float y, int mods)
+{
+	try
+	{
+		Ctx* c = SlotOf(id);
+		if (!c) return 2;
+		g_input_source = 0;
+		c->ctx->ProcessMouseMove((int)x, (int)y, mods);
+		return 0;
+	}
+	catch (...)
+	{
+		return 3;
+	}
+}
+
+STZ_API int stz_gui_pointer_button(long long id, int button, int down, int mods)
+{
+	try
+	{
+		Ctx* c = SlotOf(id);
+		if (!c) return 2;
+		g_input_source = 0;
+		if (down) c->ctx->ProcessMouseButtonDown(button, mods);
+		else c->ctx->ProcessMouseButtonUp(button, mods);
+		return 0;
+	}
+	catch (...)
+	{
+		return 3;
+	}
+}
+
+STZ_API int stz_gui_pointer_leave(long long id)
+{
+	try
+	{
+		Ctx* c = SlotOf(id);
+		if (!c) return 2;
+		g_input_source = 0;
+		c->ctx->ProcessMouseLeave();
+		return 0;
+	}
+	catch (...)
+	{
+		return 3;
+	}
+}
+
+STZ_API int stz_gui_key(long long id, int key, int down, int mods)
+{
+	try
+	{
+		Ctx* c = SlotOf(id);
+		if (!c) return 2;
+		g_input_source = 1;
+		if (down) c->ctx->ProcessKeyDown((Rml::Input::KeyIdentifier)key, mods);
+		else c->ctx->ProcessKeyUp((Rml::Input::KeyIdentifier)key, mods);
+		return 0;
+	}
+	catch (...)
+	{
+		return 3;
+	}
+}
+
+STZ_API int stz_gui_text_input(long long id, const char* utf8, int len)
+{
+	try
+	{
+		Ctx* c = SlotOf(id);
+		if (!c || !utf8 || len <= 0) return 2;
+		g_input_source = 1;
+		c->ctx->ProcessTextInput(Rml::String(utf8, (size_t)len));
+		return 0;
+	}
+	catch (...)
+	{
+		return 3;
+	}
+}
+
+// ---------------------------------------------------------- G3: focus
+
+// A SPARSE focus tree, in the sense §5's Flutter numbers mean: what is
+// focusable is a small subset of what exists, and it is queried rather
+// than mirrored. RmlUi already owns the traversal (tab order in document
+// order, and a spatial heuristic for directional moves); this exposes it
+// and COUNTS the refusals, which RmlUi does not.
+
+STZ_API int stz_gui_focus(long long id, const char* elem_id)
+{
+	try
+	{
+		Ctx* c = SlotOf(id);
+		if (!c || !c->doc) return 2;
+		if (!elem_id || !*elem_id)
+		{
+			if (Rml::Element* f = c->ctx->GetFocusElement()) f->Blur();
+			return 0;
+		}
+		Rml::Element* e = c->doc->GetElementById(elem_id);
+		if (!e) return 4;
+		// focus_visible: true, so a keyboard-driven focus shows a ring --
+		// Rule 80 is about a person being able to SEE where they are
+		return e->Focus(true) ? 0 : 5;
+	}
+	catch (...)
+	{
+		return 3;
+	}
+}
+
+// The focused element's id, or "" when nothing is focused.
+STZ_API const char* stz_gui_focused(long long id)
+{
+	static std::string out;
+	out.clear();
+	try
+	{
+		Ctx* c = SlotOf(id);
+		if (!c) return out.c_str();
+		if (Rml::Element* e = c->ctx->GetFocusElement()) out = e->GetId();
+	}
+	catch (...)
+	{
+	}
+	return out.c_str();
+}
+
+// Move focus. dir: 0 = next (Tab), 1 = previous (Shift+Tab), and
+// 2/3/4/5 = up/down/left/right for the spatial navigation a gamepad or
+// an arrow key wants. Answers 0 when focus MOVED, 6 when it refused --
+// which is a real answer at the end of a tab ring, not an error.
+STZ_API int stz_gui_focus_move(long long id, int dir)
+{
+	try
+	{
+		Ctx* c = SlotOf(id);
+		if (!c || !c->doc) return 2;
+		g_input_source = 1;
+		Rml::Element* before = c->ctx->GetFocusElement();
+		Rml::Input::KeyIdentifier key = Rml::Input::KI_TAB;
+		int mods = 0;
+		switch (dir)
+		{
+		case 0: key = Rml::Input::KI_TAB; break;
+		case 1: key = Rml::Input::KI_TAB; mods = Rml::Input::KM_SHIFT; break;
+		case 2: key = Rml::Input::KI_UP; break;
+		case 3: key = Rml::Input::KI_DOWN; break;
+		case 4: key = Rml::Input::KI_LEFT; break;
+		case 5: key = Rml::Input::KI_RIGHT; break;
+		default: return 3;
+		}
+		c->ctx->ProcessKeyDown(key, mods);
+		c->ctx->ProcessKeyUp(key, mods);
+		Rml::Element* after = c->ctx->GetFocusElement();
+		return (after != before) ? 0 : 6;
+	}
+	catch (...)
+	{
+		return 3;
+	}
+}
+
+// The element under a point, by id. "" when the point hits nothing that
+// carries an id -- which is a fair answer, not a failure.
+STZ_API const char* stz_gui_element_at(long long id, float x, float y)
+{
+	static std::string out;
+	out.clear();
+	try
+	{
+		Ctx* c = SlotOf(id);
+		if (!c) return out.c_str();
+		if (Rml::Element* e = c->ctx->GetElementAtPoint(Rml::Vector2f(x, y))) out = e->GetId();
+	}
+	catch (...)
+	{
+	}
+	return out.c_str();
+}
+
+// ---------------------------------------------------------- G3: events
+
+STZ_API int stz_gui_event_count(void) { return (int)Rec().events.size(); }
+
+STZ_API int stz_gui_events_dropped(void) { return Rec().events_dropped; }
+
+STZ_API void stz_gui_events_clear(void)
+{
+	Rec().events.clear();
+	Rec().events_dropped = 0;
+}
+
+STZ_API int stz_gui_event_at(int i, int* type, int* source, float* x, float* y, int* button, int* key, int* mods,
+	const char** target, int* target_len)
+{
+	if (i < 0 || i >= (int)Rec().events.size()) return 2;
+	const Recorder_Event& e = Rec().events[(size_t)i];
+	if (type) *type = e.type;
+	if (source) *source = e.source;
+	if (x) *x = e.x;
+	if (y) *y = e.y;
+	if (button) *button = e.button;
+	if (key) *key = e.key;
+	if (mods) *mods = e.mods;
+	if (target) *target = e.target.c_str();
+	if (target_len) *target_len = (int)e.target.size();
+	return 0;
+}
