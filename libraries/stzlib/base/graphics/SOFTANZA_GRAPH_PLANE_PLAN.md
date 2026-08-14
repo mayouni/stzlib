@@ -428,12 +428,40 @@ constraint form gets the property that matters — a box holds its own and
 only its own — at three local passes. Revisit if nested clusters are
 ever needed, which the constraint form does not express.
 
+### Self-loops, closed — and a plan item that was WRONG (2026-08-14)
+
+This list said "self-loops and parallel edges are drawn as degenerate
+segments". Checking it found both halves wrong, in opposite directions.
+
+**A self-loop was not degenerate, it was FATAL.** Longest-path layering
+propagates `lay[u]+1 > lay[v]`, true forever when `v == u`, so one
+self-edge stopped the propagation settling and the engine refused the
+whole graph as cyclic. A state machine with a single "stay in this state"
+arrow could not be drawn at all, and the message blamed a cycle its
+author would never recognise as one. Layering now skips self-edges; the
+refusal for a real cycle is untouched. Underneath that the loop *did*
+draw as a zero-length segment — the second defect the first was hiding.
+
+**Parallel edges cannot be created at all.** `stzGraph` is a SIMPLE graph
+by decision, documented at `ConnectIfAbsent`: a silently doubled edge
+corrupts every count, path and metric that walks the adjacency. So there
+was never a rendering gap here. The work became making the refusal worth
+reading — it now names the model and points at `ConnectIfAbsent`, at edge
+labels/properties, or at modelling the second relation as its own node.
+
+**The lesson for this document.** Both items were written from a
+reasonable assumption about code that was never run. One understated a
+fatal defect, the other invented a defect that did not exist. An "open
+items" list is a set of claims like any other, and claims decay — check
+before scheduling, and expect the check itself to be the finding.
+
 ### Still open
 
-- **Self-loops and parallel edges** are drawn as degenerate segments.
 - **Edge labels** have no reserved space.
-- **Nested clusters** — see above; the constraint form cannot express
-  them.
+- **Nested clusters** — the constraint form cannot express them; see the
+  cluster section above.
+- **Ortho self-loops** draw as a curve rather than a rectangular loop, so
+  a picture set to `splines=ortho` is not uniformly orthogonal.
 
 Guards: `gg_adversarial.ring` §6 (a parent sits over its children: 0.66%
 vs 10.39% respaced the old way), §7 (the tightest gap IS the contract:
