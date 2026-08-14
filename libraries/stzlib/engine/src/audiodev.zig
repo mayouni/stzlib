@@ -451,7 +451,12 @@ pub fn playbackOpen(ring_ptr: i64, period_frames: u32) i64 {
     var cfg = c.ma_device_config_init(c.ma_device_type_playback);
     cfg.playback.format = c.ma_format_f32;
     cfg.playback.channels = ring.channels;
-    cfg.sampleRate = 0; // let the device pick; the graph must already match it
+    // OPEN FOR THE RING'S RATE, and let miniaudio convert to whatever the
+    // hardware runs at. This used to be 0 -- "let the device pick" -- which
+    // handed 22050 Hz speech to a 44100 Hz device and played it at double
+    // speed. Nothing lost a frame, so no counter noticed; it was audible and
+    // nothing else. A caller who declared a rate gets that rate.
+    cfg.sampleRate = ring.rate;
     cfg.periodSizeInFrames = period_frames;
     cfg.dataCallback = sinkCallback;
     cfg.pUserData = sk;
@@ -635,7 +640,10 @@ pub fn captureOpen(ring_ptr: i64, period_frames: u32) i64 {
     var cfg = c.ma_device_config_init(c.ma_device_type_capture);
     cfg.capture.format = c.ma_format_f32;
     cfg.capture.channels = ring.channels;
-    cfg.sampleRate = 0; // the device picks; the caller asked for this ring's rate
+    // the same correction as playbackOpen, in the other direction: a caller
+    // who asked for a 16 kHz ring must receive 16 kHz, not the device's native
+    // rate relabelled -- a recogniser fed the wrong rate mishears everything
+    cfg.sampleRate = ring.rate;
     cfg.periodSizeInFrames = period_frames;
     cfg.dataCallback = captureCallbackRing;
     cfg.pUserData = sk;

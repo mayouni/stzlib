@@ -938,6 +938,7 @@ pub fn recorderNew(channels: u32, rate: u32, max_seconds: f64) i64 {
         .version = sr.VERSION,
         .channels = channels,
         .capacity = @intCast(ring_frames),
+        .rate = rate,
         .write_pos = 0,
         .frames_written = 0,
         .read_pos = 0,
