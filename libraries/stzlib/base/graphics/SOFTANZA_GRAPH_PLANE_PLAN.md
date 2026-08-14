@@ -400,14 +400,40 @@ the shapes measured here, and the visible defects were all downstream of
 layering. Revisit only with a picture that longest-path demonstrably
 spoils — not on the authority of dot doing it.
 
+### Clusters, closed (2026-08-14)
+
+A cluster constrained nothing, so its box bounded its members *exactly*
+and its members were scattered — a "Data" box with the logger inside it.
+Nothing was fixable in the renderer. Three stages, each placed at the
+layer where the property actually lives:
+
+| Property | Layer | Why there |
+|---|---|---|
+| Contiguity | between sweep and placement | it is an ORDERING property |
+| Cohesion | after placement, inward only | span can only shrink, so no neighbour loses room |
+| Room for chrome | derived-size pass | a cluster is bigger than its members |
+
+Contiguity orders groups by their **mean position in the sweep's order**
+and leaves the order *within* a group untouched, so crossing work is kept
+wherever the constraint does not contradict it. An unclustered node is
+its own group — merging them would be a constraint nobody asked for.
+
+Dummies are never clustered: a long edge crossing a cluster's ranks must
+stay free to route around it.
+
+**Not dot's model, deliberately.** dot lays each cluster out as its own
+subgraph, collapses it to a node, lays out the parent, then expands.
+That is the more general answer and it costs a recursive pipeline. The
+constraint form gets the property that matters — a box holds its own and
+only its own — at three local passes. Revisit if nested clusters are
+ever needed, which the constraint form does not express.
+
 ### Still open
 
-- **Clusters do not constrain layout.** `_ClusterBox` draws a box around
-  whatever the layout produced; it does not keep a cluster's nodes
-  together. A cluster whose members scatter gets a box containing
-  strangers.
 - **Self-loops and parallel edges** are drawn as degenerate segments.
 - **Edge labels** have no reserved space.
+- **Nested clusters** — see above; the constraint form cannot express
+  them.
 
 Guards: `gg_adversarial.ring` §6 (a parent sits over its children: 0.66%
 vs 10.39% respaced the old way), §7 (the tightest gap IS the contract:
