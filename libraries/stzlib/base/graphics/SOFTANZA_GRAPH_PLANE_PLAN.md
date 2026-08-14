@@ -488,16 +488,34 @@ accepts a value it will not honour leaves the caller with evidence of
 neither. Graphviz engine names are a different axis through the same
 setter and are named explicitly so they cannot be mistaken for typos.
 
+### Ortho self-loops, closed (2026-08-14) — and geometry that hid a bug
+
+Under `splines=ortho` a loop is now three axis-aligned segments out of the
+same side the curve leaves from. Asserted as the real property: **zero
+segments in the whole picture are neither horizontal nor vertical**,
+against 36 with curves.
+
+**The fix exposed a second defect that was already there.** A self-loop's
+label is anchored at its centre and sat a few pixels past the loop's outer
+edge, so half the label plate lay ON the loop — and the plate is
+background-coloured, so it *erased* what it covered. With a curve that
+removed an arc nobody looked at twice; with a rectangle it removed the
+entire right-hand side and the loop read as two stray horizontal lines.
+Worth remembering: **making one thing sharper can be what finally shows
+the other.**
+
 ### Still open
 
 - **Nested clusters** — the constraint form cannot express them; see the
   cluster section above.
-- **Ortho self-loops** draw as a curve rather than a rectangular loop, so
-  a picture set to `splines=ortho` is not uniformly orthogonal.
 - **Edge labels do not steer the layout.** dot gives a label its own
   virtual rank, so labels widen the picture where they need it. Ours
   reserve gap height and nudge on collision, which is enough for the
   label counts seen so far and is not the same guarantee.
+- **`polyline` and `line` splines are aliases of each other**, and neither
+  changes a self-loop. Only `ortho` and the curved default are distinct
+  routes today, so `$acSplineTypes` advertises six names for three
+  behaviours.
 
 ### The pattern across all four (worth reading before scheduling any of them)
 
