@@ -100,7 +100,7 @@ var g_sampler_linear: c.WGPUSampler = null;
 
 fn samplerFor(kind: i32) c.WGPUSampler {
     // a TARGET read by a later pass is being resampled, so linear
-    if (kind == gpu.TEX_LINEAR or kind == gpu.TEX_TARGET) {
+    if (kind == gpu.TEX_LINEAR or kind == gpu.TEX_TARGET or kind == gpu.TEX_SRGB) {
         if (g_sampler_linear == null) {
             var d = std.mem.zeroes(c.WGPUSamplerDescriptor);
             d.label = sv("stz_linear");

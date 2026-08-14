@@ -287,6 +287,23 @@ fn destroySlot(slot: usize) void {
 pub const TEX_TARGET: i32 = 0; // offscreen render target (RenderAttachment|CopySrc)
 pub const TEX_NEAREST: i32 = 1; // sampled texture, nearest filtering
 pub const TEX_LINEAR: i32 = 2; // sampled texture, linear filtering
+pub const TEX_SRGB: i32 = 4; // sampled, linear filtering, and the texels
+// are sRGB-ENCODED so the sampler decodes them to linear on read.
+//
+// THIS EXISTS BECAUSE THE GUI PLANE'S FIRST IN-SCENE PANEL LOOKED WRONG.
+// gpu_wgsl deliberately does NOT linearise a sample() -- it recorded that
+// "texture colour space is a FORMAT decision (an sRGB texture view lets
+// the sampler do it) and is its own measurement, not this one." That
+// measurement came due the moment a panel's pixels became a texture: the
+// canvas hands over sRGB-encoded bytes, the shader treated them as
+// linear, and the fragment tail encoded them to sRGB a SECOND time. A
+// near-black #0d1219 background rendered as mid slate. Every colour in
+// the interface was wrong, and no assertion could have said so -- it took
+// looking at the picture.
+//
+// TEX_LINEAR stays as it was, because a texture holding DATA (a height
+// field, a mask, a lookup) must not be gamma-decoded. The distinction is
+// what the texels MEAN, which is why it is a kind and not a flag.
 pub const TEX_DEPTH: i32 = 3; // depth buffer, Depth32Float (GR3; never sampled,
 // never read back -- it exists so the GPU can decide what is in front)
 
@@ -724,7 +741,7 @@ pub fn stz_gpu_texture_new(wf2: f64, hf: f64, kind: f64) callconv(.c) i64 {
         return 0;
     }
     const k: i32 = @intFromFloat(kind);
-    if (wf2 < 1 or hf < 1 or k < 0 or k > 3) return 0;
+    if (wf2 < 1 or hf < 1 or k < 0 or k > 4) return 0;
     const w: u32 = @intFromFloat(wf2);
     const h: u32 = @intFromFloat(hf);
     if (w > 16384 or h > 16384) return 0; // WebGPU default maxTextureDimension2D
@@ -746,7 +763,11 @@ pub fn stz_gpu_texture_new(wf2: f64, hf: f64, kind: f64) callconv(.c) i64 {
     };
     desc.dimension = c.WGPUTextureDimension_2D;
     desc.size = .{ .width = w, .height = h, .depthOrArrayLayers = 1 };
-    desc.format = if (k == TEX_DEPTH) c.WGPUTextureFormat_Depth32Float else c.WGPUTextureFormat_RGBA8Unorm;
+    desc.format = switch (k) {
+        TEX_DEPTH => c.WGPUTextureFormat_Depth32Float,
+        TEX_SRGB => c.WGPUTextureFormat_RGBA8UnormSrgb,
+        else => c.WGPUTextureFormat_RGBA8Unorm,
+    };
     desc.mipLevelCount = 1;
     desc.sampleCount = 1;
     const tex = fns.wgpuDeviceCreateTexture(device, &desc);

@@ -1,0 +1,101 @@
+-- console.stzui -- an interface meant to hang in a world, not in a window.
+--
+-- Deliberately asymmetric, top to bottom and left to right: a title bar
+-- along the top, a wide readout, then two unequal buttons. If the quad's
+-- uv mapping were flipped or mirrored, the picture would say so at a
+-- glance -- which a symmetric mock-up would have hidden.
+
+DEFINE PANEL console (
+  SIZE [512, 320],
+  DIRECTION column,
+  FONT "app",
+  BACKGROUND "#0d1219",
+  PADDING 20,
+  GAP 14,
+  CHILDREN [header, readout, actions, footer]
+) RATIONALE "A ship's console: it must read correctly from an angle."
+
+DEFINE STYLE button (
+  HEIGHT 56,
+  PADDING 14,
+  TEXT_ALIGN center,
+  FOCUSABLE yes,
+  ROLE button
+) RATIONALE "An action a pilot can reach by keyboard or by pointing at it."
+
+DEFINE BOX header (
+  HEIGHT 44,
+  BACKGROUND "#1b3a5c",
+  PADDING 10,
+  CHILDREN [title]
+) RATIONALE "The top edge -- so up is unmistakably up."
+
+DEFINE TEXT title (
+  CONTENT "NAV CONSOLE",
+  SIZE 22,
+  COLOR "#cfe6ff",
+  ROLE heading
+) RATIONALE "Names the screen, and marks the top."
+
+DEFINE BOX readout (
+  HEIGHT 96,
+  BACKGROUND "#131c26",
+  PADDING 14,
+  DIRECTION column,
+  GAP 6,
+  CHILDREN [line_one, line_two]
+) RATIONALE "The instrument area: two lines of live text."
+
+DEFINE TEXT line_one (
+  CONTENT "BEARING 137.4   RANGE 8.20 km",
+  SIZE 17,
+  COLOR "#9fe0b0"
+) RATIONALE "The numbers a pilot actually reads."
+
+DEFINE TEXT line_two (
+  CONTENT "drift nominal - hull 98%",
+  SIZE 15,
+  COLOR "#6f8ba6"
+) RATIONALE "Secondary state, quieter on purpose."
+
+DEFINE BOX actions (
+  DIRECTION row,
+  HEIGHT 56,
+  GAP 12,
+  CHILDREN [fire, abort]
+) RATIONALE "Two commands, UNEQUAL in width so a mirrored map is visible."
+
+DEFINE BOX fire (
+  STYLE button,
+  WIDTH 200,
+  BACKGROUND "#a8322c",
+  LABEL "Fire",
+  CHILDREN [fire_text]
+) RATIONALE "The act. Wider, and on the left."
+
+DEFINE TEXT fire_text (
+  CONTENT "FIRE",
+  SIZE 18,
+  COLOR "#ffffff"
+) RATIONALE "button label"
+
+DEFINE BOX abort (
+  STYLE button,
+  WIDTH 120,
+  BACKGROUND "#33404e",
+  LABEL "Abort",
+  CHILDREN [abort_text]
+) RATIONALE "The way back, which Rule 80 requires to exist."
+
+DEFINE TEXT abort_text (
+  CONTENT "ABORT",
+  SIZE 18,
+  COLOR "#dce6f2"
+) RATIONALE "button label"
+
+DEFINE TEXT footer (
+  CONTENT "click me through the camera",
+  SIZE 13,
+  COLOR "#54697f",
+  ROLE status
+) RATIONALE "Says what this screen is for, on the screen itself."
