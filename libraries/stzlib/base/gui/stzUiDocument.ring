@@ -54,15 +54,33 @@ class stzUiDocument from stzObject
 	# the law of v0.1. Lowercase here because field KEYWORDS are validated
 	# case-sensitively during parse; these drive the per-kind check.
 	@aPanelFields = [ "SIZE", "DIRECTION", "FONT", "BACKGROUND", "CHILDREN",
-		"PADDING", "GAP", "ALIGN", "JUSTIFY", "TEXT_DIRECTION", "TEXT_ALIGN" ]
+		"PADDING", "GAP", "ALIGN", "JUSTIFY", "TEXT_DIRECTION", "TEXT_ALIGN",
+		"ROLE", "LABEL" ]
 	@aBoxFields = [ "DIRECTION", "WRAP", "WIDTH", "HEIGHT", "PADDING",
 		"MARGIN", "GAP", "ALIGN", "JUSTIFY", "BACKGROUND", "CHILDREN",
-		"STYLE", "TEXT_DIRECTION", "TEXT_ALIGN", "FOCUSABLE" ]
+		"STYLE", "TEXT_DIRECTION", "TEXT_ALIGN", "FOCUSABLE", "ROLE", "LABEL" ]
 	@aTextFields = [ "CONTENT", "SIZE", "COLOR", "PADDING", "MARGIN",
-		"STYLE", "TEXT_DIRECTION", "TEXT_ALIGN", "FOCUSABLE" ]
+		"STYLE", "TEXT_DIRECTION", "TEXT_ALIGN", "FOCUSABLE", "ROLE", "LABEL" ]
 	@aStyleFields = [ "DIRECTION", "WRAP", "WIDTH", "HEIGHT", "PADDING",
 		"MARGIN", "GAP", "ALIGN", "JUSTIFY", "BACKGROUND", "SIZE", "COLOR",
-		"TEXT_ALIGN", "TEXT_DIRECTION", "FOCUSABLE" ]
+		"TEXT_ALIGN", "TEXT_DIRECTION", "FOCUSABLE", "ROLE", "LABEL" ]
+
+	# THE ROLE VOCABULARY, closed, and deliberately small for v0.1.
+	#
+	# A role is not a MEANING and this plane still computes none: it does
+	# not decide colour, emphasis or refusal, and there is no :Danger
+	# here. It is the accessibility PROJECTION's own term -- the word a
+	# platform API needs to say what a region is -- in the same family as
+	# `display: block`, and it is what lets Softanza EMIT a tree where a
+	# browser can only infer one.
+	#
+	# Every name here exists in ARIA and in AccessKit's 182-role schema,
+	# so nothing has to be invented at the adapter. Growth is by adding a
+	# name the platforms already know, never by minting one.
+	@aRoles = [ "group", "heading", "label", "paragraph", "button", "link",
+		"checkbox", "radio", "textbox", "list", "listitem", "image",
+		"separator", "toolbar", "status", "dialog", "tablist", "tab",
+		"window" ]
 
 	def init(pcTextOrPath)
 		_c_ = "" + pcTextOrPath
@@ -866,6 +884,28 @@ class stzUiDocument from stzObject
 				ok
 			next
 
+			# ROLE comes from the closed vocabulary. An unknown role is
+			# an error rather than a pass-through: a platform adapter
+			# cannot map a word nobody has ever defined, and a screen
+			# reader saying nothing is worse than one saying "group".
+			_vR_ = This._RawField(_aF_, "ROLE")
+			if len(_vR_) > 0
+				_cR_ = This._IdField(_aF_, "ROLE", "")
+				_bKnownRole_ = FALSE
+				_nR_ = len(@aRoles)
+				for _k_ = 1 to _nR_
+					if strcmp(_cR_, @aRoles[_k_]) = 0
+						_bKnownRole_ = TRUE
+					ok
+				next
+				if NOT _bKnownRole_
+					This._Err("UNKNOWN_ROLE", _d_[:line],
+						_d_[:name] + " declares ROLE '" + _cR_ + "', which " +
+						"is not in the closed vocabulary. A platform adapter " +
+						"cannot map a role nobody has defined.")
+				ok
+			ok
+
 			# CHILDREN names resolve, and never to a STYLE or the PANEL
 			_aKids_ = This._ChildrenOf(_d_)
 			_nK_ = len(_aKids_)
@@ -958,6 +998,10 @@ class stzUiDocument from stzObject
 				This._WalkForCycles(_dK_, _aTrail_)
 			ok
 		next
+
+	# The closed role vocabulary, for a caller that wants to offer it.
+	def Roles()
+		return @aRoles
 
 	def _AllowedFields(pcKind)
 		if strcmp(pcKind, "PANEL") = 0

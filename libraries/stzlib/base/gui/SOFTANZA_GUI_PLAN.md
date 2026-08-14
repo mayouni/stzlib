@@ -456,6 +456,7 @@ find. An author writes none of this:
 | `WIDTH 210, PADDING 20` | **210 total, padding inside**: `box-sizing: border-box` on every element. CSS's content-box default made the first rendered sidebar 250 px and nothing at the call site said why |
 | `TEXT_DIRECTION rtl` **once, on the panel** | the whole subtree flips: `text-align: right`, `flex-direction: row-reverse` on every row, and the shaper's base-direction hint on every element. RmlUi's own direction property reaches ONE line of its layout — a dirty flag feeding the shaper — so it aligns nothing and reverses nothing |
 | `TEXT_ALIGN start` / `end` | direction-**relative**, resolved per element against the direction in force. RCSS knows only `left`/`right`, so without this an author writes two stylesheets |
+| `ROLE button` | the accessibility tree's role, from a closed vocabulary every platform already knows — and `LABEL` for the name a reader says. **A role is not a meaning**: it decides no colour, no emphasis, no refusal |
 | `FOCUSABLE yes` | `tab-index: auto` **and** `nav: auto`. Both are opt-ins that read like defaults, and `nav-*` defaults to `none` — so arrows do nothing until set. The APG contract is one tab stop per composite with arrows *within*; half of it silently absent is the gap Rule 80 forbids |
 
 **A declared size means what it says** is the design decision that makes
@@ -1507,3 +1508,176 @@ negative sibling — an empty queue reports zero drops.
 - **Enter does not activate by itself.** The live form dispatches a
   synthetic click because RmlUi does not activate a plain `div` on
   Enter; a real widget vocabulary would.
+
+---
+
+# G4 · THE CONTRADICTION INSIDE THIS PLAN — surfaced 2026-08-14, before any G4 code
+
+**Measured first, as the phase gate requires.** AccessKit publishes
+**60 releases and not one binary asset**: `accesskit_c` exists, but it is
+a crate, and using it means **cargo as a hard build dependency of this
+engine**.
+
+That collides with §2.1 of this document, which gave up **CSS Grid** —
+"the design language of every screen Softanza will ever ship" — on this
+exact reasoning:
+
+> *"Flexbox-only forever — permissive, vendorable, pure C/C++ — or CSS
+> Grid, which costs either **a Rust toolchain as a hard build
+> dependency** or a proprietary licence… Choosing it keeps the entire
+> native stack permissive C/C++ with no Rust in the build."*
+
+And §10 forbids the other road just as plainly: *"Do not implement
+platform accessibility bridges by hand. That is the 3.47 MB mistake."*
+
+So the plan says **no Rust**, **no hand-written bridges**, and **adopt a
+Rust library**. Two of those three can hold. This is the contradiction
+the working discipline asks a session to surface rather than resolve
+quietly, because resolving it changes a standing decision.
+
+## What follows, stated so the choice is made on consequences
+
+**If cargo is adopted**, §2.1's *reasoning* is spent — and CSS Grid
+becomes reconsiderable, because the plane cannot pay the Rust cost and
+still refuse grid *on the grounds of the Rust cost*. That is not an
+argument against adopting cargo; it is the honest price list. Taffy
+would then be available and §2.1 would need rewriting rather than
+merely amending.
+
+**If cargo is refused**, the adapters are hand-written per platform,
+which is the measured 3.47 MB mistake, or accessibility is native-only
+by some other route, or it waits.
+
+**Neither is this session's call.** It changes a decision the plan made
+deliberately and recorded with reasons, and §2.4's discipline — name the
+conditions, decide on evidence — applies to a standing decision at least
+as much as to an engine choice.
+
+## What is NOT blocked by it, and is therefore what G4 builds now
+
+The survey's own accounting says the adapter is **half** of
+accessibility:
+
+> *"The semantics tree — merging, dirty tracking, stable IDs, traversal
+> order, text segmentation — is comparable in size again and **is the
+> part no library removes**."*
+
+AccessKit's adapters are 3,763 lines (Windows), 2,590 (macOS), 2,403
+(Android), 2,499 (iOS), 801 (Unix). The **tree** is ours in every
+scenario — with AccessKit, with a hand-written UIA bridge, with a web
+mirror DOM, or with nothing at all. It is a precondition of all four and
+wasted work in none.
+
+It is also the half where this plane is **better than a browser**, which
+is §5 of `GUI-SYSTEM.md`'s one genuinely optimistic finding: a browser
+*infers* an accessibility tree from markup; Softanza can **emit** one
+from declared intent, which is strictly better information. `.stzui`
+already carries the seed — the commons' mandatory `RATIONALE` on every
+declaration is a sentence per region saying why it exists, which is
+precisely what a description field wants and what no HTML document has.
+
+**So G4 splits**: **G4a — the tree**, built now and offline-testable;
+**G4b — the adapter**, blocked on the decision above and not started.
+
+---
+
+# G4a STATUS — 2026-08-14. The accessibility tree: emitted, not inferred
+
+Guard `base/test/gui/gui_accessibility_narrated.ring` — **37 asserts
+green**, no GPU, no font, no device. Sweep: panel 50, adversarial 32,
+stzui 43, font 30, rtl 37, tier 24, input 38, accessibility 37 —
+**291 all green**.
+
+**G4b, the platform adapter, is NOT started** and is blocked on the
+decision recorded above. Everything here is required whichever way that
+goes.
+
+## What the format gave, without being asked
+
+The tree is `base/gui/stzAccessibilityTree.ring`, built from a
+`.stzui` document plus a laid-out panel. Three of its fields cost
+nothing because the format already carried them:
+
+| the node needs | the format already had |
+|---|---|
+| **stable ids** — the survey lists this as part of the hard half | a declaration's NAME, stable by construction |
+| **a description per region** | **`RATIONALE`**, which the Grammar Commons made mandatory for its own reasons and which turns out to be exactly a sentence saying why a region exists — something no HTML document has |
+| **bounds** | the laid-out box, queryable since G1 |
+
+`ROLE` (closed vocabulary, 19 names all of which exist in ARIA and in
+AccessKit's 182-role schema) and `LABEL` were added to `.stzui`. **A role
+is not a meaning** and this plane still computes none — it decides no
+colour, no emphasis, no refusal, and there is still no `:Danger` here.
+It is the accessibility projection's own term, in the same family as
+`display: block`, and it is what lets Softanza *emit* a tree where a
+browser can only *infer* one.
+
+## Two real defects the first tree had, both invisible to a count
+
+**A focusable button announced as "group" with no name.** A screen-reader
+user tabbing to Confirm would have heard "group". The fix is ARIA's own
+name-from-content rule, and the guard now asserts the law rather than the
+shape: **every focusable node has a role and a name**, with the negative
+sibling that an unnamed focusable in a different document *is* caught.
+
+**Then name-from-content was over-applied**, so the window announced the
+entire screen as its name and a plain grouping row announced "Confirm
+Cancel". ARIA gates that rule by role and so does this now: button, link,
+heading, label, listitem, tab, checkbox, radio take their name from
+content; window, group, textbox and the rest do not. A textbox is absent
+deliberately — its content is its **value**, and a reader announcing the
+value as the name is a classic form-field defect.
+
+Both were found by reading what the tree would *say*, in order, out loud
+— which is the accessibility equivalent of looking at the picture, and it
+found two defects the same way the gallery did.
+
+## The laws the guard asserts
+
+- **Every focusable node has a role and a name.** Not a preference: a
+  focusable thing a reader cannot announce is the failure Rule 60
+  forbids, checkable here instead of in a manual audit.
+- **The reading order and the keyboard order agree** — the same four
+  stops in the tree and in the tab ring. If they drift, a screen-reader
+  user and a keyboard user are operating different screens.
+- **Every node has a description**, because every declaration must.
+- **Unknown bounds are `null`, never a zero rectangle** — a magnifier
+  told a thing is at 0,0 goes there.
+- **The tree is DATA** (JSON), which is Rule 104's requirement: *what a
+  screen reader can operate, an agent can operate*. A tree only a C++
+  adapter can read serves the first and not the second.
+- **An unclean document is refused, not described.**
+
+## The survey's two structural warnings, answered
+
+**"Every toolkit gates accessibility behind a performance flag, which is
+where users silently get nothing."** There is no flag. A tree is built on
+demand from data that already exists, so there is nothing to gate and
+nothing to forget to switch on — asserted by building one with no panel,
+no font and no device.
+
+**"Virtualised lists are the universal failure mode in every custom
+renderer examined."** Not answered, because nothing is virtualised yet:
+every declared box exists and every one becomes a node. The warning is
+recorded against the day a list becomes lazy, which is the day it
+becomes a defect.
+
+## What G4a did NOT do
+
+- **No platform adapter.** Nothing reaches UI Automation, NSAccessibility
+  or AT-SPI. Nothing is announced by a real screen reader; the tree is
+  correct as data and untested against an actual AT.
+- **No live updates.** A tree is a snapshot built on demand. There is no
+  dirty tracking, no incremental push, and no notion of "the tree
+  changed" — which is exactly the merging-and-dirty-tracking half the
+  survey warned about, and it is deferred rather than done.
+- **No rich text.** AccessKit does not have it either; a paragraph is one
+  node with a name, with no runs, no offsets, and no relation to the §0
+  gate's `rectsForRange` — which still has no consumer.
+- **No relations**: no labelled-by, described-by, controls, or owns. The
+  `LABEL` field is a string, not a reference to another node.
+- **No live regions**, so `status` is a role here and announces nothing
+  when it changes.
+- **No hit-testing entry point for AT** — a screen reader's
+  "what is at this point" is `ElementAt`, but nothing maps it to a node
+  yet.
