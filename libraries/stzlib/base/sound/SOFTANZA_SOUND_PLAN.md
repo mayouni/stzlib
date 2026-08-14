@@ -2045,3 +2045,109 @@ motifs are refused as inaudible.
 the floor is still DECLARED rather than measured — S.4's asymmetry with colour
 stands, and SS2 does nothing about it.
 
+
+---
+
+## SS3 STATUS — 2026-08-14. Ducking ships, and the criterion is met by 13×
+
+`stzVoicePool` gains a per-voice bus gain (`SetVoiceGain` / `VoiceGain` /
+`BusNodeOf`); `stzEarcons` gains the policy (`DuckUnder` / `Unduck` /
+`SetDuckDepth` / `SetDuckRampMs` / `GainOf` / `DucksApplied`). Guard:
+`base/test/sound/sound_ss3_narrated.ring` (**26**), plus an audible
+`sound_ss3_demo.ring`.
+
+### The kill criterion
+
+> *if ducking cannot be made click-free at the 10 ms ramp SN3 measured, it is
+> dropped in favour of drop-and-count — a missing sound is better than a click.*
+
+A click is a **step discontinuity**, so the instrument is the largest
+sample-to-sample difference in the buffer, and the yardstick is the test tone's
+own steepest slope — `0.5 · 2π · 440 / 48000 = 0.0288`, derived rather than
+measured so it cannot drift with the thing it is measuring.
+
+| | worst step over 16 phases |
+|---|---|
+| no gain change at all | **0.0288** — the instrument's own noise |
+| change with **no ramp** | **0.3744** — a real click, 13× the slope |
+| change over a **10 ms ramp** | **0.0288** — identical to no change |
+
+**MET.** The unramped jump is **13.02×** the ramped step, and the ramped step is
+indistinguishable from leaving the gain alone. The ramp both moves and arrives:
+50 ms into a 200 ms ramp the render reports **0.7333**, and afterwards **0**.
+
+### The instrument was wrong twice, and both ways are recorded
+
+Either mistake would have "proved" ducking click-free without ever looking at a
+click.
+
+1. **Looking in the wrong buffer.** Set the gain between two renders, then look
+   for the click INSIDE the second one. With no ramp that whole buffer is
+   uniformly quieter, so its steepest step is *smaller* than the original
+   tone's — **the control passed by being quiet.** The discontinuity is at the
+   seam, the one place not being examined.
+2. **A seam that was not a seam.** Looking at the seam gave a step of **0.810**
+   — with **no gain change at all**. `ToSound` renders in whole blocks of 512
+   frames and returns the seconds asked for, so a length that is not a multiple
+   of the block leaves the oscillator further along than the buffer shows. It
+   was measuring discarded samples. Block-aligned, the same seam steps **0.003**.
+
+A third correction followed from the second: one seam is not enough, because
+the size of a jump depends on **where in the cycle it lands** — at a zero
+crossing even an unramped change is nearly silent. 512 frames is 4.693 periods
+of the test tone, so each extra block lands the change at a different phase, and
+sixteen sweep the cycle. The worst is taken, because a real duck lands wherever
+it lands.
+
+**A control for the control** is now the first assertion in the scene: with no
+gain change the worst step must not exceed the tone's own slope. Had that been
+there from the start, mistake 2 would have been caught in one run.
+
+### The shape: one bus per voice
+
+Every voice's slots are mixed together, that mix passes through a gain node
+belonging to the voice alone, and the master mix takes the **gains** rather than
+the slots. One extra node per voice is what makes ducking a value written to an
+atomic instead of a re-render — the audio thread never learns a duck happened.
+
+### The policy, and the number behind the default
+
+`danger > warning > info > success`, and `muted` never contends. Firing a value
+ducks everything **quieter in meaning** and nothing else. Measured live through
+the real buses:
+
+```
+fired Success:  danger=1     warning=1     info=1     success=1
+fired Info:     danger=1     warning=1     info=1     success=0.25
+fired Warning:  danger=1     warning=1     info=0.25  success=0.25
+fired Danger:   danger=1     warning=0.25  info=0.25  success=0.25
+```
+
+**Priority is one-way**, and the guard asserts the negative: a success ducks
+neither danger nor warning. An alert never ducks itself.
+
+**−12 dB is a number with a reason, not a taste.** A duck to silence is
+indistinguishable from a **drop**, and this plane already drops. −12 dB
+(linear 0.2512) leaves the ducked cue audibly present, so a listener can tell
+*quieter* from *gone* — which is information. A positive dB is refused: a duck
+is an attenuation.
+
+Everything is **counted** — `DucksApplied()` — because "why did that get quiet"
+must have an answer that is a number.
+
+### What SS3 did NOT do
+
+- **No ducking of SPEECH.** VC4's phrases play through their own transport, not
+  the pool, so they have no bus. Speech already has a stronger rule — higher
+  priority CANCELS — and a cancelled sentence needs no attenuation.
+- **No automatic unduck.** `Unduck()` is explicit. Restoring on a timer would
+  need the pool to own a clock policy, and a duck that lifts while an alert is
+  still sounding is worse than one that lasts too long.
+- **No per-shot gain.** The bus is per VOICE, not per fire, exactly as the
+  pool's own documentation already says.
+
+### Plane totals
+
+**586 Ring assertions across seventeen guards** and 29 browser assertions;
+67 Zig tests in the sound modules, 13 across `voice.zig` and `listen.zig`.
+SN0–SN6, SS1–SS3 and VC0–VC6 closed. **SS4 remains open.**

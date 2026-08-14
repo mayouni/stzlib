@@ -41,7 +41,14 @@ class stzVoicePool
 	@oGraph = NULL
 	@oTransport = NULL
 	@nRate = 48000
-	# [ name, [slotNode,...], nNext, nFires, nSteals, nSecs, [slotFreeAt,...] ]
+	# [ name, [slotNode,...], nNext, nFires, nSteals, nSecs, [slotFreeAt,...],
+	#   nBusGain ]
+	#
+	# nBusGain is SS3. Every voice gets its OWN gain node between its slots and
+	# the master mix, so one voice can be attenuated without touching another.
+	# Without it there is one mix and nothing to turn down: ducking would have
+	# to be done by re-rendering, which is exactly the sort of work the audio
+	# thread must never do.
 	#
 	# slotFreeAt is WHEN each slot's last shot runs out, on the transport's
 	# clock. Without it a "steal" can only be guessed at from the fire count,
@@ -122,14 +129,21 @@ class stzVoicePool
 			@nRefusals++
 			return This
 		ok
-		_all_ = []
+		# SS3: ONE BUS PER VOICE. Each voice's slots are mixed together, that
+		# mix passes through a gain node that belongs to the voice alone, and
+		# the master mix takes the GAINS rather than the slots. The extra node
+		# per voice is what makes ducking a value written to an atomic instead
+		# of a re-render.
+		_buses_ = []
 		for _v_ = 1 to len(@aVoices)
 			_s_ = @aVoices[_v_][2]
-			for _k_ = 1 to len(_s_)
-				_all_ + _s_[_k_]
-			next
+			@oGraph.AddMixOf(_s_)
+			@oGraph.AddGainOn(@oGraph.OutputNode(), 1.0)
+			_g_ = @oGraph.OutputNode()
+			@aVoices[_v_][8] = _g_
+			_buses_ + _g_
 		next
-		@oGraph.AddMixOf(_all_)
+		@oGraph.AddMixOf(_buses_)
 		@oTransport = new stzSoundTransport(@oGraph)
 
 		# EVERY VOICE STARTS SPENT. Without this the pool makes a noise the
@@ -187,6 +201,60 @@ class stzVoicePool
 	def FireQ(pName)
 		This.Fire(pName)
 		return This
+
+	#-- SS3: DUCKING -------------------------------------------------------
+	#
+	# THE KILL CRITERION this was built against: *if ducking cannot be made
+	# click-free at the 10 ms ramp SN3 measured, it is dropped in favour of
+	# drop-and-count -- a missing sound is better than a click.*
+	#
+	# So the gain is RAMPED, never assigned. A gain that jumps is a step
+	# discontinuity in the waveform, and a step is a click: broadband, audible,
+	# and worse than the sound it was trying to make room for. The ramp length
+	# is the caller's, because the right value depends on what is playing --
+	# 10 ms is the default SN3 measured and the guard asserts against.
+	#
+	# The write is a single atomic store on a node the render already reads
+	# every block. Nothing is allocated, nothing is rebuilt, and the audio
+	# thread never learns that a duck happened.
+	def SetVoiceGain(pName, pnGain, pnRampMs)
+		_i_ = This._IndexOf(pName)
+		if _i_ = 0
+			@cLastError = "no voice is named '" + pName + "'"
+			@nRefusals++
+			return This
+		ok
+		if NOT @bStarted
+			@cLastError = "SetVoiceGain: the bus does not exist until Start()"
+			@nRefusals++
+			return This
+		ok
+		_n_ = @aVoices[_i_][8]
+		if _n_ = 0
+			@cLastError = "SetVoiceGain: '" + pName + "' has no bus"
+			@nRefusals++
+			return This
+		ok
+		StzEngineSoundGraphSetGain(@oGraph.GraphId(), _n_, pnGain, pnRampMs)
+		return This
+
+	def SetVoiceGainQ(pName, pnGain, pnRampMs)
+		This.SetVoiceGain(pName, pnGain, pnRampMs)
+		return This
+
+	# The gain the RENDER is applying right now, which during a ramp is
+	# somewhere between the old value and the target. Read rather than
+	# remembered, so a guard can prove the ramp both MOVES and ARRIVES.
+	def VoiceGain(pName)
+		_i_ = This._IndexOf(pName)
+		if _i_ = 0  return -1 ok
+		if @aVoices[_i_][8] = 0  return -1 ok
+		return StzEngineSoundGraphCurrentGain(@oGraph.GraphId(), @aVoices[_i_][8])
+
+	def BusNodeOf(pName)
+		_i_ = This._IndexOf(pName)
+		if _i_ = 0  return 0 ok
+		return @aVoices[_i_][8]
 
 	def Stop()
 		if isObject(@oTransport)  @oTransport.Stop() ok
@@ -251,7 +319,7 @@ class stzVoicePool
 		for _i_ = 1 to len(paSlots)
 			_free_ + 0
 		next
-		@aVoices + [ lower("" + pName), paSlots, 1, 0, 0, pnSecs, _free_ ]
+		@aVoices + [ lower("" + pName), paSlots, 1, 0, 0, pnSecs, _free_, 0 ]
 		@aNames + ("" + pName)
 
 	def _IndexOf(pName)
