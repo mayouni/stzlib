@@ -783,20 +783,27 @@ class stzStringChar from stzString
 	 #   NUMBER / DIGIT VALUE  #
 	#=========================#
 
+	# The number this char MEANS, or nothing for a char that means none.
+	#
+	# This switched on This.Char() against "0".."9" -- but for a circled
+	# digit This.Char() IS the circled glyph, never its plain form, so no
+	# case could ever match. The switch compared the decorated char against
+	# the very decoration it was supposed to see through. Every circled
+	# digit fell off the end and answered empty; StzNumberQ("<circled one>")
+	# stored "" and .Number() said 0. Only <circled zero> looked right,
+	# because the wrong answer happened to be its right one.
+	#
+	# The engine answers from Unicode's own data (compatibility
+	# decomposition, then the Nd decimal block), so circled, fullwidth,
+	# superscript, subscript, Arabic-Indic, Devanagari, Thai and the rest
+	# arrive together -- including the two-digit circled set, where
+	# <circled twenty> decomposes to "20". The engine says -1 for "no
+	# numeric value"; this keeps the method's old fall-through (answer
+	# nothing) for that case, so no caller sees a -1 it never used to get.
 	def Number()
-		if This.IsCircledNumber()
-			switch This.Char()
-			on "0"  return 0
-			on "1"  return 1
-			on "2"  return 2
-			on "3"  return 3
-			on "4"  return 4
-			on "5"  return 5
-			on "6"  return 6
-			on "7"  return 7
-			on "8"  return 8
-			on "9"  return 9
-			off
+		_nVal_ = StzEngineUnicodeNumericValue(This.Unicode())
+		if _nVal_ >= 0
+			return _nVal_
 		ok
 
 		def NumericValue()

@@ -2607,6 +2607,11 @@ class stzDecimalNumber from stzNumber
 class stzNumber from stzObject
 
 	@cContent = ""
+	# What init() was HANDED, verbatim -- number, string or pair. Stored
+	# because InitialContent() used to `return pNumber`, init's own
+	# parameter, which is gone the moment init returns: the accessor raised
+	# R24 on every call it has ever received.
+	@pInitialValue = ""
 	# THE EXACTNESS REGISTER (numeric foundation phase 1). A number knows whether
 	# its current value is an exact representation of the computation that produced
 	# it, and can say why not. :exact | :inexact
@@ -2656,6 +2661,8 @@ class stzNumber from stzObject
 				StzRaise(stzNumberError(:CanNotCreateStzNumberObject))
 			ok
 		ok
+
+		@pInitialValue = pNumber
 
 		# CASE 1
 		if isNumber(pNumber)
@@ -2709,8 +2716,21 @@ class stzNumber from stzObject
 			# anything. Every ASCII string -- which is every ordinary number --
 			# fails this instantly and builds nothing at all.
 			if StzLen(pNumber) = 1 and len(pNumber) > 1
-				if StzCharQ(pNumber).IsCircledNumber()
-					@cContent = ""+ StzCharQ(pNumber).NumericValue()
+				# Straight to the engine -- no objects at all now. This built
+				# TWO throwaway stzChars (IsCircledNumber, then NumericValue),
+				# which is exactly the handle leak the note above records; and
+				# NumericValue was broken anyway -- it switched the circled
+				# glyph against "0".."9", matched nothing, and answered empty,
+				# so every circled digit constructed the number "".
+				#
+				# The engine reads the value from Unicode's own data, so this
+				# door now also admits fullwidth, superscript, Arabic-Indic,
+				# Devanagari and the other one-codepoint numerals -- not just
+				# the circled set. -1 means "not a numeral": fall through and
+				# let the ordinary string paths judge it.
+				_nUniVal_ = StzEngineUnicodeNumericValue(StzUnicode(pNumber))
+				if _nUniVal_ >= 0
+					@cContent = "" + _nUniVal_
 					@nRound = StzCurrentRound()
 
 					return
@@ -2860,7 +2880,7 @@ class stzNumber from stzObject
 
 	# The value the number was created with.
 	def InitialContent()
-		return pNumber		 
+		return @pInitialValue
 
 	# A new stzNumber with the same content.
 	def Copy()
