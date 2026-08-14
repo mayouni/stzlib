@@ -264,6 +264,60 @@ oG2.Release()
 
 # ---------------------------------------------------------------------------
 ? ""
+? "-- a pool starts SILENT, however long its voices are --"
+? "   Needs no device: this is about how far the graph must be rendered"
+? "   before every source has run out, which is arithmetic."
+? ""
+? "   THE BUG THIS CATCHES: the pool spent its voices by rendering a fixed"
+? "   THREE SECONDS and throwing it away. A sound voice has no envelope to"
+? "   turn down -- it is silent because its source RAN OUT -- so a voice"
+? "   longer than three seconds was left partway through. The device then"
+? "   opened straight into the TAIL of it. With a five-second spoken"
+? "   announcement you heard its last words, then heard the whole sentence"
+? "   again when it was fired. No counter sees this: playing a voice nobody"
+? "   triggered is not a dropped frame."
+
+nLong = 5.0
+oLongSnd = StzSoundOfSilenceQ(nLong, 1, 48000)
+for i = 1 to oLongSnd.Frames()
+	oLongSnd.SetSampleAt(i, 1, 0.5)     # loud for its WHOLE length
+next
+Chk("the test voice really is " + nLong + " s long",
+    fabs(oLongSnd.Duration() - nLong) < 0.01)
+
+oGp = new stzSoundGraph()
+oGp.Reshape(1, 48000)
+oGp.AddSound(oLongSnd)
+oGp.NameIt(:src)
+oGp.AddMixOf([ :src ])
+oGp.Prepare()
+
+# render the OLD distance, then look at what is left
+oSpent3 = oGp.ToSound(3.0)
+oNext3 = oGp.ToSound(0.2)
+nAfter3 = PeakBetween(oNext3, 1, oNext3.Frames())
+? "   after rendering 3 s, the next 200 ms peaks at " + nAfter3
+Chk("THREE SECONDS DOES NOT SPEND A FIVE-SECOND VOICE -- this is the bug",
+    nAfter3 > 0.1)
+
+# now render the rest of its own duration, which is what the fix does
+oRest = oGp.ToSound(nLong - 3.0 + 0.25)
+oNextAll = oGp.ToSound(0.2)
+nAfterAll = PeakBetween(oNextAll, 1, oNextAll.Frames())
+? "   after rendering its own " + nLong + " s, the next 200 ms peaks at " +
+  nAfterAll
+Chk("its OWN duration does spend it -- the pool starts silent",
+    nAfterAll < 0.001)
+
+oSpent3.Release()
+oNext3.Release()
+oRest.Release()
+oNextAll.Release()
+oLongSnd.Release()
+oGp.Release()
+
+# ---------------------------------------------------------------------------
+? ""
 ? "-- a sound plays at ITS rate, not the device's --"
 ? "   THE BUG THIS CATCHES was inaudible to every counter. The device was"
 ? "   opened with sampleRate = 0 -- 'let the device pick' -- so a 22050 Hz"

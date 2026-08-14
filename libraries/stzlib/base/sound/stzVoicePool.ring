@@ -264,9 +264,31 @@ class stzVoicePool
 	# Render past every envelope so each slot is finished before the device
 	# ever hears it. Cheaper and more honest than a gain of zero: the slot is
 	# quiet because its shot is OVER, which is the state Fire() restarts from.
+	# EVERY VOICE STARTS SPENT, and "spent" means EVERY voice, not most.
+	#
+	# A sound voice has no envelope to turn down -- it is silent because its
+	# source has RUN OUT. So silencing means rendering the graph forward far
+	# enough that the longest source has reached its end, and throwing the
+	# result away.
+	#
+	# This rendered a fixed THREE SECONDS, which is fine for the blips a game
+	# pool is made of and wrong for anything longer. A five-second spoken
+	# announcement was left two seconds from its end, so the device opened
+	# straight into the TAIL of the sentence -- you heard its last few words,
+	# and then heard the whole sentence again when it was fired. Reported by
+	# ear; no counter can see it, because playing a voice nobody triggered is
+	# not a dropped frame.
+	#
+	# The pool already records every voice's duration, so the distance is
+	# known rather than assumed. The margin covers the block boundary.
 	def _SilenceAll()
 		if NOT @oGraph.Prepare()  return ok
-		_b_ = StzEngineSoundGraphToBuffer(@oGraph.GraphId(), @nRate * 3)
+		_secs_ = 0.5
+		for _i_ = 1 to len(@aVoices)
+			if @aVoices[_i_][6] > _secs_  _secs_ = @aVoices[_i_][6] ok
+		next
+		_b_ = StzEngineSoundGraphToBuffer(@oGraph.GraphId(),
+		                                  floor((_secs_ + 0.25) * @nRate))
 		if _b_ != 0
 			StzEngineSoundFree(_b_)
 		ok

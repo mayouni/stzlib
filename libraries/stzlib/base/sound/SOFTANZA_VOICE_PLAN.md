@@ -858,6 +858,33 @@ Guarded in `sound_transport_narrated.ring` by the only instrument that can see
 it — **a wall clock**. A 22050 Hz buffer must take its own duration to play, not
 half of it.
 
+### A THIRD defect, also found by ear: the pool started mid-sentence
+
+*"The very first vocal message starts by the last words in the sentence and
+then starts again."*
+
+`stzVoicePool.Start()` spends every voice before opening the device — a pool of
+twelve slots would otherwise fire all twelve at once, because every envelope
+begins at the top of its attack. It did that by rendering a **fixed three
+seconds** and throwing the result away.
+
+A **sound** voice has no envelope to turn down. It is silent because its source
+has RUN OUT — so three seconds spends a 200 ms blip and leaves a **five-second
+spoken announcement two seconds from its end**. The device then opened straight
+into the tail: you heard the last words of the sentence, and heard the whole
+sentence again when it was fired.
+
+Three seconds was never a measurement. It was the length of the sounds the pool
+was first built for, and it stopped being true the moment a spoken phrase became
+one of its voices. The pool already records every voice's duration, so the
+distance is known rather than assumed: it now renders **the longest voice's own
+duration plus a block's margin**.
+
+**No counter could see this either** — playing a voice nobody triggered is not a
+dropped frame. Guarded in `sound_transport_narrated.ring` without a device,
+since it is arithmetic: after 3 s a five-second voice still peaks at **0.500**;
+after its own duration it peaks at **0**.
+
 ### What VC4 did NOT do
 
 - **No ducking.** Lowering a bed under a phrase needs a per-bus gain node; that
@@ -874,7 +901,7 @@ half of it.
 
 ### Plane totals
 
-**527 Ring assertions across fifteen guards** (VC4 adds 24, plus the wall-clock
+**530 Ring assertions across fifteen guards** (VC4 adds 24, plus the wall-clock
 assertion above). **67 Zig tests**
 across `sound.zig`, `soundgraph.zig`, `soundring.zig`, `sounddsp.zig`,
 `soundanalysis.zig`, `soundwasm.zig` and `audiodev.zig`, plus **13** across
