@@ -55,6 +55,14 @@ func StzEarconsQ()
 func StzSemanticValues()
 	return [ "danger", "warning", "info", "success", "muted" ]
 
+# The steps THIS channel has, and they are NOT colour's -- see SS4. Both faces
+# spell a step the same way, value.step, but a SURFACE is not a thing sound has
+# and an ALERT is not a thing colour has. Sharing the lists would force one
+# medium to carry the other's ideas, which is the opposite of what a semantic
+# layer is for. The VALUE is shared; the step is the medium's own.
+func StzEarconSteps()
+	return [ "cue", "alert", "ambient" ]
+
 class stzEarcons
 
 	@nRate = 48000
@@ -151,7 +159,12 @@ class stzEarcons
 	# machine assert the vocabulary.
 	def ToSoundOf(pMeaning)
 		_p_ = This._Parse(pMeaning)
-		if _p_[1] = ""  return "" ok
+		if _p_[1] = ""
+			# say WHY, or a caller holding an empty result has to guess
+			# between "no such value" and "no such step"
+			@cLastError = _p_[3]
+			return ""
+		ok
 		if _p_[1] = "muted"  return "" ok
 		for _i_ = 1 to len(@aMotifs)
 			if @aMotifs[_i_][1] = _p_[1]  return @aMotifs[_i_][2] ok
@@ -238,7 +251,7 @@ class stzEarcons
 	def WouldFireAt(pMeaning, pnNow)
 		_p_ = This._Parse(pMeaning)
 		if _p_[1] = ""
-			@cLastReason = "no semantic value named '" + pMeaning + "'"
+			@cLastReason = _p_[3]
 			return FALSE
 		ok
 		# .Ambient never arrives by default. Rule 1's own lint forbids this
@@ -468,7 +481,7 @@ class stzEarcons
 		_p_ = This._Parse(pMeaning)
 		if _p_[1] = ""
 			@nRefusals++
-			@cLastError = "no semantic value named '" + pMeaning + "'"
+			@cLastError = _p_[3]
 			return ""
 		ok
 		This._EnsureVoice()
@@ -514,7 +527,7 @@ class stzEarcons
 		_p_ = This._Parse(pMeaning)
 		if _p_[1] = ""
 			@nRefusals++
-			@cLastError = "no semantic value named '" + pMeaning + "'"
+			@cLastError = _p_[3]
 			return This
 		ok
 		# :Muted has no earcon and no phrase. Silence is its rendering, and
@@ -773,6 +786,23 @@ class stzEarcons
 	# "Danger" -> ["danger", "cue"] ; "Danger.Alert" -> ["danger", "alert"]
 	# The dot spelling is colour's, deliberately: :Danger.Surface reads the
 	# same way and an author should not have to learn two.
+	# Returns [ value, step, reason ]. An empty value means refused, and the
+	# THIRD element says which of the two halves was wrong -- a caller that
+	# reports "no semantic value named 'danger.surface'" is telling a lie
+	# about a value that exists perfectly well.
+	#
+	# AN UNKNOWN STEP IS REFUSED, and it did not used to be. It was silently
+	# rewritten to "cue", which SS4 caught by asking the two channels the same
+	# question: the colour face REFUSES `danger.alert`, and this one accepted
+	# `danger.surface` and quietly made it a cue. Two faces sharing a
+	# vocabulary must fail the same way, or the vocabulary is only shared when
+	# nothing goes wrong.
+	#
+	# And the downgrade was not harmless. `.alert` is the step that PRE-EMPTS
+	# and holds a bus; a typo in it -- `Danger.Alrt` -- became an ordinary cue
+	# with no alert behaviour and no message. That is the plane's own law
+	# broken: a setting that silently does nothing is worse than one that says
+	# no.
 	def _Parse(pMeaning)
 		_c_ = lower("" + pMeaning)
 		_v_ = _c_
@@ -786,9 +816,28 @@ class stzEarcons
 		for _k_ in StzSemanticValues()
 			if _k_ = _v_  _ok_ = TRUE ok
 		next
-		if NOT _ok_  return [ "", "" ] ok
-		if _s_ != "cue" and _s_ != "alert" and _s_ != "ambient"  _s_ = "cue" ok
-		return [ _v_, _s_ ]
+		if NOT _ok_
+			return [ "", "", "no semantic value named '" + pMeaning + "'" ]
+		ok
+		_sok_ = FALSE
+		for _k_ in StzEarconSteps()
+			if _k_ = _s_  _sok_ = TRUE ok
+		next
+		if NOT _sok_
+			return [ "", "", "'" + _v_ + "' is a semantic value but '" + _s_ +
+			         "' is not one of this channel's steps (" +
+			         This._Joined(StzEarconSteps()) + ") -- colour's steps are " +
+			         "its own, and neither channel borrows the other's" ]
+		ok
+		return [ _v_, _s_, "" ]
+
+	def _Joined(paList)
+		_s_ = ""
+		for _i_ = 1 to len(paList)
+			if _i_ > 1  _s_ += ", " ok
+			_s_ += "" + paList[_i_]
+		next
+		return _s_
 
 	def _LastFiredAt(pcValue)
 		for _i_ = 1 to len(@aLastFiredAt)
