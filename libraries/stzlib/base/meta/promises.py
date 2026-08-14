@@ -131,11 +131,28 @@ def variants(expected):
 
 def expectations(path):
     src = io.open(path, encoding='utf-8', errors='replace', newline='').read().replace('\r\n', '\n')
+    lines = src.split('\n')
     out = []
-    for i, l in enumerate(src.split('\n')):
+    for i, l in enumerate(lines):
         m = TRAILING.match(l)
-        if m:
-            out.append((i + 1, m.group(1)))
+        if not m:
+            continue
+
+        # A TRAILING #--> FOLLOWED BY A STANDALONE ONE IS A LABEL, not a value.
+        #
+        #     ? @@( o1 * 3 )   #--> Leads to a normal Ring list
+        #     #--> [ 1, 2, 3, 1, 2, 3, 1, 2, 3 ]
+        #
+        # The first line says what the reader is about to see; the second is
+        # what it is. Read literally, the label diverges every time -- and it
+        # is not prose in any way a keyword list would catch ("Leads to a
+        # normal Ring list" contains nothing suspicious). The SHAPE is what
+        # gives it away, so the shape is what is read.
+        nxt = lines[i + 1].strip() if i + 1 < len(lines) else ''
+        if nxt.startswith('#-->'):
+            continue
+
+        out.append((i + 1, m.group(1)))
     return out
 
 
