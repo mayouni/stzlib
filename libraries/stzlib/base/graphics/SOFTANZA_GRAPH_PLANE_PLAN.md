@@ -336,3 +336,87 @@ Guard: `test/graphics/gg_baseline.ring` (7).
 
 Nothing from section 4. The remaining risks are the ones the plane
 declared out of scope in section 3.
+
+## GG6 — DIAGRAMMING AS A STRENGTH: the design decision (2026-08-14)
+
+The 40-node tree looked wrong after GG5 and the reason was not a bug. It
+was a **missing model**. Four defects were found by drawing it and
+looking; each is a named stage of the classic Sugiyama pipeline that this
+plane had either skipped or inverted.
+
+### The decision: spacing is the contract, the size is derived
+
+dot's model, and this tier had it **backwards**. The caller fixed a
+canvas and the layout was STRETCHED to fill it, so the minimum gap
+between two nodes was whatever the stretch left over — 2px in a crowded
+rank and 20px in a loose one, *in the same picture*. No amount of layout
+quality survives that, because the last step overwrites it.
+
+`SetNodeSeparation` / `SetRankSeparation` already existed, in dot's own
+units, and **only the dot writer read them** — the port-knob trap again:
+the knob the caller sends and the knob the face reads have to be the same
+knob. A render naming no `:Width`/`:Height` now derives its size from its
+content. Naming a size keeps fill-the-canvas, with `:FitBoxes` as the net.
+
+### The pipeline, stage by stage — what was there, what was not
+
+| Stage | Before | Now |
+|---|---|---|
+| 1. Layer assignment | longest-path, engine | unchanged |
+| 2. **Dummy nodes for long edges** | **absent** | one per intervening rank |
+| 3. Crossing reduction | barycentre sweep, engine | now also orders dummies |
+| 4. **Coordinate assignment** | `position / (width + 1)` | isotonic/PAVA, engine |
+| 5. **Edge routing** | centre-to-centre straight | ports, lanes, routed curves |
+
+Stages 2, 4 and 5 were the gap. Note that 1 and 3 were the *good* ones —
+which is exactly why this survived: **the crossing count was optimal the
+whole time, and the drawing was still wrong.** An optimal answer to one
+question is very effective at hiding that another was never asked.
+
+### Why isotonic regression for stage 4 (and why it beats the textbook)
+
+Place each layer to minimise squared distance from every node to the mean
+of its neighbours, subject to keeping the sweep's order with a minimum
+separation. Substituting `u[k] = t[k] - k*sep` turns the constraint into
+"u non-decreasing" — so it is isotonic regression, and
+pool-adjacent-violators solves it **exactly** in one pass. dot uses a
+priority/median heuristic here; this is the optimum for the layer, and it
+is deterministic (no sort, fixed arithmetic order).
+
+### The two routing disciplines
+
+- **Ports.** A node's edges fan from distinct border points, ORDERED BY
+  DESTINATION. Ordered by rank index instead, two edges swap inside the
+  box's own width and cross a pixel after leaving it.
+- **Lanes.** Each parent's orthogonal trunk crosses the rank gap at its
+  own height, cycled among four. One shared midpoint made neighbouring
+  families read as crossings.
+
+### Refused, and why
+
+**Network simplex for layering.** dot uses it to pull nodes toward their
+neighbours' ranks. Longest-path is already exact for trees and DAGs of
+the shapes measured here, and the visible defects were all downstream of
+layering. Revisit only with a picture that longest-path demonstrably
+spoils — not on the authority of dot doing it.
+
+### Still open
+
+- **Clusters do not constrain layout.** `_ClusterBox` draws a box around
+  whatever the layout produced; it does not keep a cluster's nodes
+  together. A cluster whose members scatter gets a box containing
+  strangers.
+- **Self-loops and parallel edges** are drawn as degenerate segments.
+- **Edge labels** have no reserved space.
+
+Guards: `gg_adversarial.ring` §6 (a parent sits over its children: 0.66%
+vs 10.39% respaced the old way), §7 (the tightest gap IS the contract:
+59px measured, 57px declared), §8 (zero edge ink inside any box, against
+60 for a line drawn across one deliberately).
+
+**Every one of those three instruments was WRONG on its first writing**,
+and every one was caught by its negative sibling rather than by the
+assertion it served — §6 read an `<ellipse>` tag this renderer never
+emits, §7 measured runs of background that a shallow-angle edge chops
+into fragments, §8 scanned by row and called a deliberately dirty picture
+clean. A check that measures the wrong thing agrees with every input.
