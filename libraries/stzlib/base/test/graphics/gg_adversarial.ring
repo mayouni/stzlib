@@ -605,6 +605,62 @@ chk("an engine name is still accepted", NOT Raises('
 
 #---------------------------------------------------------------------------
 ? ""
+? "-- 13. ORTHO means ortho, including the self-loops ----------"
+#
+# The loop ignored the spline setting entirely and was always a curve, so
+# a picture asked for splines=ortho came back with every edge
+# right-angled EXCEPT its self-loops -- one rounded shape among the
+# corners, which reads as a mistake rather than a style.
+#
+# The property is not "the loop looks different now", it is that EVERY
+# segment in the picture is axis-aligned. Read off the emitted geometry,
+# which is where that is decidable.
+#---------------------------------------------------------------------------
+
+oOr = new stzDiagram("fsm3")
+for a in [ [ "a", "Idle" ], [ "b", "Busy" ], [ "c", "Done" ] ]
+	oOr.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
+next
+oOr.AddEdge("a", "a")
+oOr.AddEdge("b", "b")
+oOr.AddEdge("a", "b")
+oOr.AddEdge("b", "c")
+
+oOr.SetSplines("ortho")
+EDGERGB = "rgb(138,138,138)"      # the default edge colour, #8A8A8A
+nSkew = _NonAxialSegments(oOr.ToSVGXT([ :NodeWidth = 110, :NodeHeight = 40 ]), EDGERGB)
+? "   segments that are neither horizontal nor vertical : " + nSkew
+chkeq("under ortho, every segment is axis-aligned", nSkew, 0)
+
+# THE NEGATIVE SIBLING: the same diagram with curves must be full of
+# segments that are neither -- otherwise this counts nothing at all,
+# which is also zero.
+oOr.SetSplines("spline")
+nCurve = _NonAxialSegments(oOr.ToSVGXT([ :NodeWidth = 110, :NodeHeight = 40 ]), EDGERGB)
+? "   the same diagram with curves : " + nCurve
+chk("the orthogonality check DISCRIMINATES", nCurve > 20)
+
+# ...and the LOOP specifically is what changed, not just the edges: with
+# no self-loops at all, ortho and curve differ far less.
+oNS = new stzDiagram("fsm4")
+for a in [ [ "a", "Idle" ], [ "b", "Busy" ], [ "c", "Done" ] ]
+	oNS.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
+next
+oNS.AddEdge("a", "b")  oNS.AddEdge("b", "c")
+oNS.SetSplines("spline")
+nCurveNS = _NonAxialSegments(oNS.ToSVGXT([ :NodeWidth = 110, :NodeHeight = 40 ]), EDGERGB)
+? "   curves, but no self-loops : " + nCurveNS
+# A VERTICAL CHAIN IS STRAIGHT EVEN IN CURVE MODE -- the quadratic between
+# two nodes stacked in one column IS a vertical line -- so this is zero,
+# and every segment counted above came from the loops. Asserted as an
+# EQUALITY: written as `nCurve > nCurveNS * 1.5` it passes for any
+# positive count at all, since anything beats zero.
+chkeq("a straight vertical chain has no diagonal segments either way",
+      nCurveNS, 0)
+chk("...so ALL the curved segments came from the self-loops", nCurve > 20)
+
+#---------------------------------------------------------------------------
+? ""
 ? "=============================================================="
 ? " " + nOk + " ok, " + nBad + " failed"
 ? "=============================================================="
@@ -1024,3 +1080,49 @@ func _PixelsDiffering oA, oB
 		ok
 	next
 	return _dc_
+
+# How many EDGE segments in the SVG are neither horizontal nor vertical.
+#
+# FILTERED BY STROKE COLOUR, and that correction is the whole reason this
+# reads a colour at all. Counting every polyline counted the NODE BOXES:
+# a rounded rectangle is emitted as a polyline and its four corners are
+# twenty-four short diagonal steps, so three nodes contributed 72
+# non-axial segments to an ortho picture and to a curved one alike. The
+# instrument was measuring corner rounding and calling it edge routing.
+# Edges are drawn in the edge colour and node borders are not, so the
+# stroke tells them apart exactly.
+func _NonAxialSegments cSvg, cStroke
+	_nn_ = 0
+	_slen_ = StzLen(cSvg)
+	for _sp_ in StzFindAll('<polyline points="', cSvg)
+		_stail_ = StzSubStr(cSvg, _sp_, min([ 6000, _slen_ - _sp_ + 1 ]))
+		_sq_ = StzFindFirst('"', StzSubStr(_stail_, 19, StzLen(_stail_) - 18))
+		if _sq_ = 0  loop  ok
+		_spts_ = StzSubStr(_stail_, 19, _sq_ - 1)
+		# the whole tag, to read its stroke
+		_stagend_ = StzFindFirst(">", _stail_)
+		if _stagend_ = 0  loop  ok
+		if StzFindFirst(cStroke, StzSubStr(_stail_, 1, _stagend_)) = 0  loop  ok
+		_sprev_ = []
+		for _spair_ in StzSplit(_spts_, " ")
+			_sxy_ = StzSplit(StzTrim(_spair_), ",")
+			if len(_sxy_) != 2  loop  ok
+			try
+				_sx_ = 0 + _sxy_[1]
+				_sy_ = 0 + _sxy_[2]
+			catch
+				loop
+			done
+			if len(_sprev_) = 2
+				# half a pixel of tolerance: the coordinates are written
+				# with decimals, and "axis-aligned" is a claim about the
+				# geometry, not about float formatting
+				if fabs(_sx_ - _sprev_[1]) > 0.5 and
+				   fabs(_sy_ - _sprev_[2]) > 0.5
+					_nn_++
+				ok
+			ok
+			_sprev_ = [ _sx_, _sy_ ]
+		next
+	next
+	return _nn_

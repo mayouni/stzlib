@@ -220,8 +220,28 @@ oEL.SetLayout(:LeftToRight)
 oEL.ToCanvasXT(aELo).ToPNG("probe_12_edgelabels_lr.png")
 ? "12b LR         : and SetLayout(:LeftToRight) now means it"
 
+# ---------------------------------------------------------------- 13
+# ORTHO, uniformly. The self-loop used to ignore the spline setting and
+# stay a curve, so a picture asked for splines=ortho came back with one
+# rounded shape among the corners.
+oOr = new stzDiagram("fsm")
+for a in [ [ "idle", "Idle" ], [ "busy", "Busy" ], [ "done", "Done" ] ]
+	oOr.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
+next
+oOr.AddEdge("idle", "idle")
+oOr.AddEdgeXT("busy", "busy", "retry")
+oOr.AddEdge("idle", "busy")
+oOr.AddEdge("busy", "done")
+oOr.SetSplines("ortho")
+aOro = [ :Font = oF, :NodeWidth = 110, :NodeHeight = 40 ]
+oOr.ToCanvasXT(aOro).ToPNG("probe_13_ortho_loops.png")
+? "13 ortho loops : rectangular, like every other ortho edge"
+oOr.SetLayout(:LeftToRight)
+oOr.ToCanvasXT(aOro).ToPNG("probe_13_ortho_loops_lr.png")
+? "13b LR         : the loop moves to the top edge"
+
 ? ""
-? "wrote 12 probes"
+? "wrote 13 probes"
 
 #---------------------------------------------------------------------------
 

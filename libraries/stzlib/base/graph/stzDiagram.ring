@@ -1784,7 +1784,7 @@ class stzDiagram from stzGraph
 			# because there is nothing wrong to notice.
 			if StzLower("" + _aE_[_ei_][:from]) = StzLower("" + _aE_[_ei_][:to])
 				This._DrawSelfLoop(_oC_, _a_, _nBoxW_, _nBoxH_, _cEdge_,
-					_nEdgeW_, _cRank_)
+					_nEdgeW_, _cRank_, _cSpl_)
 				loop
 			ok
 
@@ -1847,13 +1847,22 @@ class stzDiagram from stzGraph
 				   StzLower("" + _aE_[_ei_][:to])  _bSelf_ = 1  ok
 
 				if _bSelf_
-					# beside the loop, never inside the node
+					# BESIDE the loop, and CLEAR of it. The anchor is the
+					# label's centre, so placing it a few pixels past the
+					# loop's outer edge put half the plate ON the loop --
+					# which, being background-coloured, erased the segment
+					# it covered. Under ortho that was the whole right side
+					# of the rectangle, so the loop read as two stray
+					# horizontal lines. Offset by half the label's own
+					# width, which is the only number that clears it.
 					_lr_ = This._SelfLoopReach(_nBoxW_, _nBoxH_)
+					_slw2_ = _oFont_.WidthOf(_cLab_, _nFsz_) + 8
 					if _bSwap_
 						_lax_ = _a_[1]
 						_lay_ = _a_[2] - _nBoxH_ / 2 - _lr_ - _nFsz_
 					else
-						_lax_ = _a_[1] + _nBoxW_ / 2 + _lr_ + 4
+						_lax_ = _a_[1] + _nBoxW_ / 2 + _lr_ +
+							_slw2_ / 2 + 6
 						_lay_ = _a_[2]
 					ok
 				else
@@ -2166,8 +2175,41 @@ class stzDiagram from stzGraph
 	# off the RIGHT for a top-down picture, off the TOP when the ranks run
 	# left-to-right, so it never points back along the rank axis and gets
 	# confused with an ordinary edge.
-	def _DrawSelfLoop(oC, aAt, nBoxW, nBoxH, cColor, nWidth, cRank)
+	def _DrawSelfLoop(oC, aAt, nBoxW, nBoxH, cColor, nWidth, cRank, cSpline)
 		_R_ = This._SelfLoopReach(nBoxW, nBoxH)
+
+		# ORTHO MEANS ORTHO, INCLUDING THIS ONE. The loop ignored the spline
+		# setting and was always a curve, so a picture asked for
+		# splines=ortho came back with every edge right-angled EXCEPT its
+		# self-loops -- one rounded shape among the corners, which reads as
+		# a mistake rather than a style. A rectangular loop is three
+		# segments out of the same side the curve leaves from.
+		if cSpline = "ortho"
+			if cRank = "LR" or cRank = "RL"
+				_od_ = nBoxW * 0.22
+				_oy_ = aAt[2] - nBoxH / 2
+				_pts_ = [ aAt[1] - _od_, _oy_,
+				          aAt[1] - _od_, _oy_ - _R_,
+				          aAt[1] + _od_, _oy_ - _R_,
+				          aAt[1] + _od_, _oy_ ]
+				_oend_ = [ aAt[1] + _od_, _oy_ ]
+				_oprev_ = [ aAt[1] + _od_, _oy_ - _R_ ]
+			else
+				_od_ = nBoxH * 0.22
+				_ox_ = aAt[1] + nBoxW / 2
+				_pts_ = [ _ox_, aAt[2] - _od_,
+				          _ox_ + _R_, aAt[2] - _od_,
+				          _ox_ + _R_, aAt[2] + _od_,
+				          _ox_, aAt[2] + _od_ ]
+				_oend_ = [ _ox_, aAt[2] + _od_ ]
+				_oprev_ = [ _ox_ + _R_, aAt[2] + _od_ ]
+			ok
+			oC.Flush()
+			oC.AddPolylineQ(_pts_).Stroke(cColor, nWidth)
+			This._DrawArrow(oC, _oprev_, _oend_, cColor, nWidth, "line", cRank)
+			return
+		ok
+
 		if cRank = "LR" or cRank = "RL"
 			# leaves and re-enters the TOP edge
 			_d_ = nBoxW * 0.22
