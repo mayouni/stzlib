@@ -27,3 +27,4 @@
 
 load "stzPanel.ring"
 load "stzUiDocument.ring"
+load "stzAccessibilityTree.ring"

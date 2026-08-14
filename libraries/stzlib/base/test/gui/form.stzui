@@ -14,7 +14,8 @@ DEFINE STYLE field (
   HEIGHT 44,
   PADDING 12,
   BACKGROUND "#1e2530",
-  FOCUSABLE yes
+  FOCUSABLE yes,
+  ROLE textbox
 ) RATIONALE "An input surface: focusable, because a keyboard must reach it."
 
 DEFINE STYLE button (
@@ -23,7 +24,8 @@ DEFINE STYLE button (
   PADDING 12,
   BACKGROUND "#2b6cb0",
   TEXT_ALIGN center,
-  FOCUSABLE yes
+  FOCUSABLE yes,
+  ROLE button
 ) RATIONALE "An action: focusable for the same reason."
 
 DEFINE STYLE caption (
@@ -34,13 +36,14 @@ DEFINE STYLE caption (
 DEFINE TEXT title (
   CONTENT "Transfer",
   SIZE 24,
-  COLOR "#eef4fb"
+  COLOR "#eef4fb",
+  ROLE heading
 ) RATIONALE "What this form is for."
 
-DEFINE BOX row_one ( STYLE field, CHILDREN [label_from] ) RATIONALE "First stop in the ring."
+DEFINE BOX row_one ( STYLE field, LABEL "From account", CHILDREN [label_from] ) RATIONALE "First stop in the ring."
 DEFINE TEXT label_from ( CONTENT "From account", STYLE caption ) RATIONALE "field label"
 
-DEFINE BOX row_two ( STYLE field, CHILDREN [label_to] ) RATIONALE "Second stop."
+DEFINE BOX row_two ( STYLE field, LABEL "To account", CHILDREN [label_to] ) RATIONALE "Second stop."
 DEFINE TEXT label_to ( CONTENT "To account", STYLE caption ) RATIONALE "field label"
 
 DEFINE BOX actions (
@@ -58,5 +61,6 @@ DEFINE TEXT cancel_text ( CONTENT "Cancel", SIZE 16, COLOR "#dce6f2" ) RATIONALE
 
 DEFINE TEXT status (
   CONTENT "Tab moves between stops; arrows move within the action row.",
-  STYLE caption
+  STYLE caption,
+  ROLE status
 ) RATIONALE "Says how the keyboard works, on the screen itself."
