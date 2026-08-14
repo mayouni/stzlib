@@ -115,7 +115,7 @@ table: the same pair referenced from three places is three rows, and a
 diagnostic about the third one can point at it.
 
 **Every `from` and `to` must resolve to a row in `symbols[]`.** A dangling
-reference is a refusal (§6.1) — the gap Ringuist's exemplar study names **G6**,
+reference is a refusal (§6.1) — the gap Ringua's exemplar study names **G6**,
 where a flow enforcing a non-existent norm raises in one runtime and is silently
 skipped in another because no fixture ever covered it. C1 closes it at birth.
 
