@@ -178,6 +178,27 @@ class stzAccessibilityTree from stzObject
 				ok
 				_c_ += This._Q(_aA_[_j_])
 			next
+			_c_ += "], "
+			# CHILDREN, EXPLICIT. The list was always here; the JSON left
+			# it out and published `depth` instead, which makes the tree
+			# RECOVERABLE (a node's children are the following nodes at
+			# depth+1) but not STATED. The first consumer that had to
+			# build a real platform tree had to reconstruct it, and a
+			# structure a reader must infer is one a reader can infer
+			# wrongly. Rule 104 asks that what a screen reader can
+			# operate an agent can operate -- an agent reading this
+			# should not have to know the traversal order it was written
+			# in. `depth` stays, because it is what makes the flat list
+			# readable aloud in order.
+			_c_ += '"children": ['
+			_aC_ = _d_[:children]
+			_nC_ = len(_aC_)
+			for _j_ = 1 to _nC_
+				if _j_ > 1
+					_c_ += ", "
+				ok
+				_c_ += This._Q(_aC_[_j_])
+			next
 			_c_ += "]}"
 			if _i_ < _n_
 				_c_ += ","

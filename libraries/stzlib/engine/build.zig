@@ -23,6 +23,11 @@ const Domain = struct {
     needs_miniaudio_dev: bool = false, // miniaudio, full device backends (SN1 per-OS half)
     needs_speech: bool = false, // the platform speech engine (VC1 -- SAPI on Windows)
     needs_rmlui: bool = false, // vendored RmlUi (G1 layout/markup) -- SEE addRmlUi
+    // vendored AccessKit (G4b). HEADER ONLY: accesskit.dll is loaded at
+    // runtime by name, never linked, exactly as needs_wgpu arranges for
+    // wgpu_native. So stz_a11y.dll always loads and a machine without the
+    // vendored runtime simply has no screen-reader bridge.
+    needs_accesskit: bool = false,
 };
 
 // Core (stk_*): minimal, fast, constrained environments
@@ -139,6 +144,10 @@ const base_domains = [_]Domain{
     // the same source on the same font bytes, so widths and pixels agree
     // by construction rather than by protocol.
     .{ .name = "stz_gui", .entry = "src/stz_gui_entry.zig", .needs_ring = true, .needs_rmlui = true, .needs_textshape = true, .needs_stb = true },
+    // The accessibility bridge (G4b). SEPARATE from stz_gui for the same
+    // reason stz_window is separate from stz_gpu: AccessKit is per-OS,
+    // and a per-OS dependency does not belong in the portable half.
+    .{ .name = "stz_a11y", .entry = "src/stz_a11y_entry.zig", .needs_ring = true, .needs_accesskit = true },
     // SN1 sound plane, TWO DLLs -- the split is FACT 3 of SOFTANZA_SOUND_PLAN.md,
     // adopted up front from the GR5 lesson above rather than rediscovered.
     // stz_sound is portable and cross-compiles everywhere; stz_audiodev carries
@@ -1201,6 +1210,15 @@ pub fn build(b: *std.Build) void {
         if (dom.needs_miniaudio_dec) addMiniaudioDecode(mod, lib, b);
         if (dom.needs_miniaudio_dev) addMiniaudioDevice(mod, lib, b, target.result.os.tag);
         if (dom.needs_speech) addSpeech(lib, target.result.os.tag);
+        if (dom.needs_accesskit) {
+            mod.addIncludePath(b.path("vendor/accesskit/include"));
+            // Ship the vendored runtime beside the engine DLLs, the same
+            // arrangement wgpu_native has, so the Ring loader can hand
+            // stz_a11y an absolute path to it.
+            if (target.result.os.tag == .windows) {
+                b.getInstallStep().dependOn(&b.addInstallBinFile(b.path("vendor/accesskit/lib/accesskit.dll"), "accesskit.dll").step);
+            }
+        }
         if (dom.needs_wgpu) {
             mod.addIncludePath(b.path("vendor/wgpu/include"));
             // Ship the vendored runtime next to the engine DLLs so the Ring
