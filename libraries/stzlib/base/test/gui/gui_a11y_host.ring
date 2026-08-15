@@ -76,6 +76,14 @@ func main
 		if oW.KeyPressed(:Escape)
 			exit
 		ok
+		# CLEAR FIRST. A frame loop that draws into a canvas without
+		# clearing it APPENDS forever -- 7 shapes a frame here, 2,800 by
+		# frame 400 -- and every one of them is re-tessellated and
+		# re-uploaded on every render. It is also what exposed the
+		# 256-bind-group cliff in the render pass, since each frame's
+		# text became another draw segment. The cliff is fixed; this
+		# loop was still wrong.
+		oC.Clear()
 		oP.DrawInto(oC)
 		oW.Draw(oC)
 		if oW.FrameCount() > nEnd

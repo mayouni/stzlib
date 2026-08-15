@@ -312,22 +312,60 @@ fn pipelineInternal(text: [*]const u8, len: f64, fmt: [*]const u8, fmt_len: f64,
 
 // ---------------------------------------------------------------- pass machine
 
-const PASS_MAX_BG = 256;
+// THE BIND-GROUP POOL GROWS. It was a fixed [256] array, and a pass that
+// wanted a 257th bind group had its draw REFUSED -- returning BAD_ARG
+// before the vertex buffer was even set, so the geometry was tessellated,
+// uploaded, and never drawn. Nothing counted it.
+//
+// Only a TEXTURED draw takes a slot, so in practice the ceiling was "256
+// text or image segments in one pass". A panel drawn repeatedly into one
+// canvas crosses that in a few seconds of a frame loop, and what the
+// viewer sees is the boxes rendering perfectly while every label
+// disappears -- which is exactly how it was found: by a person looking at
+// a window and asking why the labels had gone.
+//
+// The house has been here before (the handle-table cliff): the answer is
+// that the table GROWS. `g_pass_bg_refused` stays, because a growth that
+// FAILS must still be a number rather than a silence.
 var g_pass_open = false;
 var g_pass_enc: c.WGPUCommandEncoder = null;
 var g_pass: c.WGPURenderPassEncoder = null;
-var g_pass_bgs: [PASS_MAX_BG]c.WGPUBindGroup = @splat(null);
+var g_pass_bgs: std.ArrayListUnmanaged(c.WGPUBindGroup) = .{};
 var g_pass_nbg: usize = 0;
+var g_pass_bg_refused: u64 = 0;
+var g_pass_bg_peak: usize = 0;
+
+/// [ bind groups in flight, peak ever, refusals ] -- so a caller can see a
+/// pass approaching pathology instead of discovering it in a screenshot.
+pub fn passBindGroupStats() [3]f64 {
+    return .{
+        @floatFromInt(g_pass_nbg),
+        @floatFromInt(g_pass_bg_peak),
+        @floatFromInt(g_pass_bg_refused),
+    };
+}
+
+/// Take the next slot, growing the pool. Answers false only when the
+/// allocator itself refuses, and counts that.
+fn pushPassBindGroup(bg: c.WGPUBindGroup) bool {
+    g_pass_bgs.append(alloc, bg) catch {
+        g_pass_bg_refused += 1;
+        return false;
+    };
+    g_pass_nbg = g_pass_bgs.items.len;
+    if (g_pass_nbg > g_pass_bg_peak) g_pass_bg_peak = g_pass_nbg;
+    return true;
+}
 // The target this pass is drawing INTO. Sampling it while writing it is a
 // genuine read-write hazard; sampling a DIFFERENT target is exactly what a
 // multi-pass effect does, and refusing both was over-broad.
 var g_pass_target: i64 = 0;
 
 fn releasePassBindGroups() void {
-    for (0..g_pass_nbg) |i| {
-        if (g_pass_bgs[i]) |bg| gpu.wfns().wgpuBindGroupRelease(bg);
-        g_pass_bgs[i] = null;
+    for (g_pass_bgs.items) |bg| {
+        if (bg) |b| gpu.wfns().wgpuBindGroupRelease(b);
     }
+    g_pass_bgs.clearRetainingCapacity();
     g_pass_nbg = 0;
 }
 
@@ -446,7 +484,6 @@ pub fn stz_gpu_render_draw_bound_tex(pipe: i64, vbuf: i64, ibuf: i64, nindices: 
     if (nbufs < 1 or nbufs > 6) return gpu.BAD_ARG;
     if (ntex < 0 or ntex > 4) return gpu.BAD_ARG;
     if (pipe <= 0 or pipe > rpipes.items.len) return gpu.BAD_ARG;
-    if (g_pass_nbg == PASS_MAX_BG) return gpu.BAD_ARG;
     const rp = rpipes.items[@intCast(pipe - 1)];
     const vb = gpu.rawBuffer(vbuf) orelse return gpu.STALE;
     const ib = gpu.rawBuffer(ibuf) orelse return gpu.STALE;
@@ -488,8 +525,10 @@ pub fn stz_gpu_render_draw_bound_tex(pipe: i64, vbuf: i64, ibuf: i64, nindices: 
     f.wgpuRenderPassEncoderSetVertexBuffer(g_pass, 0, vb, 0, gpu.rawBufferSize(vbuf));
     f.wgpuRenderPassEncoderSetIndexBuffer(g_pass, ib, c.WGPUIndexFormat_Uint32, 0, gpu.rawBufferSize(ibuf));
     f.wgpuRenderPassEncoderDrawIndexed(g_pass, @intFromFloat(nindices), @intFromFloat(ninstances), 0, 0, @intFromFloat(first_instance));
-    g_pass_bgs[g_pass_nbg] = bg;
-    g_pass_nbg += 1;
+    if (!pushPassBindGroup(bg)) {
+        f.wgpuBindGroupRelease(bg);
+        return gpu.GPU_ERROR;
+    }
     gpu.bumpCounter(gpu.CTR_DRAW_COUNT, 1);
     return gpu.OK;
 }
@@ -502,7 +541,6 @@ fn bindDrawState(pipe: i64, vbuf: i64, tex_id: i64) i32 {
 
     f.wgpuRenderPassEncoderSetPipeline(g_pass, rp.pipeline);
     if (tex_id != 0) {
-        if (g_pass_nbg == PASS_MAX_BG) return gpu.BAD_ARG; // pass bind-group budget
         const t = gpu.rawTexture(tex_id) orelse return gpu.STALE;
         // Refuse ONLY the target being written right now. The old check
         // refused every target, which made a second pass reading the
@@ -521,8 +559,11 @@ fn bindDrawState(pipe: i64, vbuf: i64, tex_id: i64) i32 {
         const bg = f.wgpuDeviceCreateBindGroup(gpu.deviceHandle(), &bgd);
         if (bg == null) return gpu.GPU_ERROR;
         f.wgpuRenderPassEncoderSetBindGroup(g_pass, 0, bg, 0, null);
-        g_pass_bgs[g_pass_nbg] = bg; // released after End() submits
-        g_pass_nbg += 1;
+        // released after End() submits
+        if (!pushPassBindGroup(bg)) {
+            f.wgpuBindGroupRelease(bg);
+            return gpu.GPU_ERROR;
+        }
     }
     f.wgpuRenderPassEncoderSetVertexBuffer(g_pass, 0, vb, 0, gpu.rawBufferSize(vbuf));
     return gpu.OK;

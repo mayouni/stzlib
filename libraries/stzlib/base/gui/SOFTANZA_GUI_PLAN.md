@@ -2226,3 +2226,96 @@ the program did — which is most of them.
   whole tree. Fine at twelve nodes, asserted at twenty-two pushes, and
   the wrong shape for a virtualised list — which is the survey warning
   G4a already recorded against the day a list becomes lazy.
+
+---
+
+# THE 256-SEGMENT CLIFF — 2026-08-15. The labels were right; the render pass refused to draw them
+
+**Reported by the author, from a screenshot**: the G4b probe window's
+labels disappeared after a few seconds. The boxes kept rendering. That
+is a graphics-plane defect, found — again — by a person looking at a
+window, and it had been reachable since GR1.
+
+Sweep after the fix: GUI 380 (scene 62, a11y 27), graphics
+window_narrated 60, gg_adversarial 57, gg5_texture 30, gg5_materialgraph
+36, gg5_gallery 24, gg4_framegraph 18, gg5_material_language 15,
+gg_convergence 15, gg_image_primitive 14, gg_scalewall 11, gg_baseline 7,
+gg4_multipass and gg4_oneframe closed.
+
+## Three innocents, each cleared with a number
+
+The temptation was to blame the newest thing. Every candidate was
+measured instead, and all three were fine:
+
+| suspect | measurement | verdict |
+|---|---|---|
+| the panel's text pipeline | 6 text meshes, 6 generate calls, `TextIsWhole` true at 1, 60, 200 and 400 repeats | innocent |
+| the glyph atlas | 66 entries, **0 dropped**, at every depth | innocent |
+| the tessellator | 204,000 text vertices built at 400 repeats | innocent — it built every glyph |
+
+**The geometry existed, was uploaded, and was never drawn.**
+
+## The cause, and the exact boundary
+
+`PASS_MAX_BG = 256` in `gpu_render.zig`. Only a TEXTURED draw takes a
+bind-group slot, so the real ceiling was **256 text or image segments in
+one render pass** — and the 257th draw returned `BAD_ARG` *before its
+vertex buffer was set*. Refused, and counted nowhere.
+
+Bisected to the pixel:
+
+    255 pairs -> 510 segments -> text renders
+    256 pairs -> 512 segments -> text renders
+    257 pairs -> 514 segments -> TEXT GONE
+
+Reproduced with **no panel and no GUI plane at all** — a bare canvas
+alternating a rect and a string — which is what moved the defect from
+this plane to the graphics one. The alternation matters: consecutive
+text merges into a single segment, so a naive "draw 600 strings" test
+passes while a panel loop fails at 257.
+
+## The fix, and the rule it restores
+
+**The pool grows**, the way the handle table learned to. `g_pass_bgs`
+became an `ArrayListUnmanaged`, both `PASS_MAX_BG` checks are gone, and
+a growth that genuinely fails increments `g_pass_bg_refused` rather than
+returning in silence. `passBindGroupStats()` answers
+`[ in flight, peak, refusals ]`, so a pass approaching pathology is
+visible before a screenshot is.
+
+**Two silent `catch continue`s in the tessellator were also counted.**
+`textLayout` and `glyphEntry` each dropped a whole string or glyph
+without moving a number. `sceneStats` grew two fields — strings dropped,
+glyphs dropped — both gauges describing the current build, the contract
+the atlas's own `dropped` already used. They read 0 throughout this
+investigation, which is exactly why they had to exist: **they are what
+let the tessellator be ACQUITTED** instead of merely suspected.
+
+## The caller's bug, which is a different bug
+
+The probe loop drew the panel into a canvas every frame and never
+cleared it: 7 shapes a frame, 2,800 by frame 400, every one
+re-tessellated and re-uploaded. `stz_gpu.ring` already warns about this
+shape — *"an ANIMATED scene calls Clear each frame; without it a frame
+loop appends shapes forever — a defect a one-shot renderer cannot
+expose"*. The loop now clears.
+
+Both were real. The missing `Clear()` was wasteful and was the thing that
+*exposed* the cliff; the cliff was the thing that ate the labels. Fixing
+only the demo would have left a 256-segment ceiling waiting for the first
+genuinely complex screen.
+
+## What the guard now holds
+
+`gui_scene_narrated` §9 builds **514 segments** — one pair past the old
+ceiling — and asserts three things, in order of how easily each could
+lie:
+
+- the segments were built (514) and nothing was dropped (0, 0)
+- **and the pixels are actually painted**: bright pixels are counted in
+  the readback, because a segment count proves geometry, and only ink
+  proves drawing. That distinction is the entire content of this defect.
+
+The running count for this plane: **seven defects found by looking at
+pictures**, three by reading a tree through something that is not us,
+zero from assertions written first.
