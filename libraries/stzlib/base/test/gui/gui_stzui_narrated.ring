@@ -147,6 +147,12 @@ ok
 
 ? ""
 ? "-- Scene 6: the declared sizes ARE the laid-out sizes --"
+# THE FONT IS NOT DECORATION HERE. This scene lays a document out and
+# checks the boxes came back the declared size -- and it was doing that
+# with NO font registered, which means RmlUi was laying out no text at
+# all and the sizes were measured on an empty screen. ToPanel refuses
+# that now, which is how the gap in this scene was found.
+oU.UseFont(_FontPath())
 oP = oU.ToPanel()
 aA = oP.BoxOf("a")
 chk("the panel took the declared SIZE", oP.Width() = 400 and oP.Height() = 300)
@@ -238,3 +244,14 @@ func chk cLabel, bCond
 		nFail++
 		? "  [FAIL] " + cLabel
 	ok
+
+func _FontPath
+	_a_ = [ "C:/Windows/Fonts/segoeui.ttf", "C:/Windows/Fonts/arial.ttf",
+	        "../gpu/fixtures/amiri_arabic_subset.ttf" ]
+	_n_ = len(_a_)
+	for _i_ = 1 to _n_
+		if fexists(_a_[_i_])
+			return _a_[_i_]
+		ok
+	next
+	return ""
