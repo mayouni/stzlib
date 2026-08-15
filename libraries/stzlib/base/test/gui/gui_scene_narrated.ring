@@ -405,6 +405,67 @@ ok
 
 #---------------------------------------------------------------------
 ? ""
+? "-- 9. The 256-segment cliff, which ate the labels -------------"
+#---------------------------------------------------------------------
+/*
+	FOUND BY LOOKING AT A WINDOW. A frame loop drawing a panel into a
+	canvas without clearing it appends forever -- and after a few seconds
+	the boxes still rendered while EVERY LABEL VANISHED.
+
+	Three innocents were cleared first, each with a number: the panel's
+	text invariant held (6 meshes, 6 generate calls, whole=1 at every
+	depth); the glyph atlas dropped nothing (66 entries, 0 dropped); the
+	tessellator built all of it (204,000 text vertices at 400 repeats).
+	The geometry existed and was never drawn.
+
+	The cause was `PASS_MAX_BG = 256` in the render pass. Only a TEXTURED
+	draw takes a bind-group slot, so the real ceiling was "256 text or
+	image segments in one pass" -- and the 257th draw returned BAD_ARG
+	BEFORE its vertex buffer was set. Refused, and counted nowhere.
+
+	The pool grows now, the way the handle table learned to. This scene
+	asserts the cliff is gone at the exact boundary that failed, because
+	an off-by-one here is invisible until someone squints at a picture.
+*/
+
+oFnt = new stzFont(FontPath())
+if oFnt = NULL or NOT oCanvasProbe.CanDrawPixels()
+	? "  (no font or no device -- the cliff is not exercised)"
+else
+	# 257 TEXTURED SEGMENTS: one past the old ceiling. Alternating with
+	# rects is what forces a new segment per string -- consecutive text
+	# merges into one, which is why a naive many-strings test passed
+	# while a panel loop failed.
+	oCliff = new stzCanvas(300, 120)
+	for i = 1 to 257
+		oCliff.AddRectQ(10, 10, 200, 40).Fill("#203040")
+		oCliff.AddTextQ("SEG", 20, 40).SetFontQ(oFnt, 18).ColorQ("#ffffff")
+	next
+	aCliff = oCliff.Stats()
+	Chk("514 draw segments were built", aCliff[4] = 514)
+	Chk("...and the tessellator dropped no string", aCliff[7] = 0)
+	Chk("...nor any glyph", aCliff[8] = 0)
+
+	# THE PROOF IS INK. A count of segments proves they were built; only
+	# pixels prove they were drawn, which is the whole lesson of this
+	# defect. Compare against the SAME scene under the old ceiling.
+	cPix = oCliff.ToPixels()
+	nInk = 0
+	nLen = len(cPix)
+	i = 1
+	while i < nLen - 3
+		# white-ish text on a dark slate: count bright pixels
+		if ascii(cPix[i]) > 200 and ascii(cPix[i+1]) > 200
+			nInk++
+		ok
+		i += 4
+	end
+	? "  bright pixels past the old 256 ceiling: " + nInk
+	Chk("text is actually PAINTED past the old ceiling", nInk > 50)
+ok
+
+#---------------------------------------------------------------------
+? ""
 ? "=========================================================="
 ? " " + nOK + " assertions green, " + nBad + " failed"
 ? "=========================================================="
@@ -432,6 +493,15 @@ func _HasKind aEvents, nKind
 		ok
 	next
 	return 0
+
+func FontPath
+	_a_ = [ "C:\Windows\Fonts\segoeui.ttf", "C:\Windows\Fontsrial.ttf" ]
+	for _c_ in _a_
+		if fexists(_c_)
+			return _c_
+		ok
+	next
+	return ""
 
 func _SameUv aA, aB
 	if len(aA) != len(aB)

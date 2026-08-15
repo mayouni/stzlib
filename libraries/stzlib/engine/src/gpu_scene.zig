@@ -183,6 +183,9 @@ const SceneSlot = struct {
     dirty: bool = true,
     shape_verts: std.ArrayList(f32) = .{},
     text_verts: std.ArrayList(f32) = .{},
+    // Strings and glyphs this build could not draw. See buildOnce.
+    text_dropped: u32 = 0,
+    glyphs_dropped: u32 = 0,
     segs: std.ArrayList(Seg) = .{},
     build_count: u64 = 0,
     // retained GPU objects
@@ -724,6 +727,10 @@ fn build(s: *SceneSlot) !void {
 }
 
 fn buildOnce(s: *SceneSlot) !void {
+    // GAUGES, not running totals: they describe THIS build, the same
+    // contract the glyph atlas's own `dropped` already uses.
+    s.text_dropped = 0;
+    s.glyphs_dropped = 0;
     s.shape_verts.clearRetainingCapacity();
     s.text_verts.clearRetainingCapacity();
     s.segs.clearRetainingCapacity();
@@ -849,12 +856,26 @@ fn buildOnce(s: *SceneSlot) !void {
             },
             .text => |k| {
                 const col = Rgba.unpack(k.col);
-                const layout = gtext.textLayout(k.font, k.str, k.size) catch continue;
+                // COUNTED, not swallowed. This `catch continue` used to
+                // drop a whole string in silence: the boxes still drew,
+                // the text simply was not there, and nothing anywhere
+                // said a number had changed. That is the failure the
+                // house rule about bounded records exists to prevent --
+                // "a record that drops COUNTS what it dropped" -- and it
+                // was found the only way it could be, by a person looking
+                // at a window and asking why the labels had gone.
+                const layout = gtext.textLayout(k.font, k.str, k.size) catch {
+                    s.text_dropped += 1;
+                    continue;
+                };
                 defer layout.deinit();
                 const aw: f32 = @floatCast(atlas.atlasWidth());
                 const ah: f32 = @floatCast(atlas.atlasHeight());
                 for (layout.glyphs) |g| {
-                    const e = atlas.glyphEntry(k.font, g.gid, k.size) catch continue;
+                    const e = atlas.glyphEntry(k.font, g.gid, k.size) catch {
+                        s.glyphs_dropped += 1;
+                        continue;
+                    };
                     if (e.w == 0 or e.h == 0) continue; // ink-free (space)
                     const px = k.x + @as(f32, @floatCast(g.x));
                     const py = k.y - @as(f32, @floatCast(g.y)); // scene y is DOWN
@@ -884,8 +905,9 @@ fn buildOnce(s: *SceneSlot) !void {
     s.build_count += 1;
 }
 
-/// [commands, shape verts, text verts, draw segments, builds]
-pub fn sceneStats(id: i64) ?[6]f64 {
+/// [commands, shape verts, text verts, draw segments, builds, uploads,
+///  strings dropped, glyphs dropped]
+pub fn sceneStats(id: i64) ?[8]f64 {
     const slot = slotOf(id) orelse return null;
     const s = &scenes.items[slot];
     build(s) catch return null;
@@ -898,6 +920,11 @@ pub fn sceneStats(id: i64) ?[6]f64 {
         // GR5: uploads, which a frame loop cares about and a one-shot
         // render cannot distinguish from builds
         @floatFromInt(s.vertex_uploads),
+        // WHAT THIS BUILD COULD NOT DRAW. Zero on every healthy render;
+        // non-zero is text the viewer cannot see, and it is now a number
+        // a guard can fail on instead of a picture someone has to notice.
+        @floatFromInt(s.text_dropped),
+        @floatFromInt(s.glyphs_dropped),
     };
 }
 
@@ -1079,7 +1106,18 @@ pub fn sceneToSvg(id: i64) !?[]u8 {
             .text => |k| {
                 // glyph OUTLINES from the same layout the GPU path uses:
                 // exact positions, no font needed by the viewer
-                const layout = gtext.textLayout(k.font, k.str, k.size) catch continue;
+                // COUNTED, not swallowed. This `catch continue` used to
+                // drop a whole string in silence: the boxes still drew,
+                // the text simply was not there, and nothing anywhere
+                // said a number had changed. That is the failure the
+                // house rule about bounded records exists to prevent --
+                // "a record that drops COUNTS what it dropped" -- and it
+                // was found the only way it could be, by a person looking
+                // at a window and asking why the labels had gone.
+                const layout = gtext.textLayout(k.font, k.str, k.size) catch {
+                    s.text_dropped += 1;
+                    continue;
+                };
                 defer layout.deinit();
                 var path: std.ArrayList(u8) = .{};
                 defer path.deinit(alloc);
