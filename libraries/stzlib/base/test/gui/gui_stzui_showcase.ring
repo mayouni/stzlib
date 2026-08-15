@@ -76,6 +76,18 @@ func main
 		if oWin.KeyPressed("R")
 			oNew = new stzUiDocument("showcase.stzui")
 			if oNew.IsClean()
+				# THE FONT COMES WITH THE DOCUMENT, and this line was
+				# missing. A reloaded document is a NEW document: it
+				# knows nothing of the UseFont the first one was given,
+				# and RmlUi lays out no text at all for a family it
+				# cannot resolve. Pressing R left the boxes in place and
+				# took every label away -- found by the author looking at
+				# the window, not by any assertion here.
+				#
+				# ToPanel() now REFUSES this rather than drawing a
+				# wordless screen, so the same slip is an error with a
+				# sentence on it instead of a silence.
+				oNew.UseFont(FontPath())
 				oP.Free()
 				oU = oNew
 				oP = oU.ToPanel()

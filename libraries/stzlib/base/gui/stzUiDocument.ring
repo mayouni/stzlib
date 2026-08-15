@@ -565,6 +565,17 @@ class stzUiDocument from stzObject
 		ok
 		return This._StrField(_d_[:fields], "FONT", "app")
 
+	# Does this document declare anything to READ? A panel of boxes does
+	# not need a font; a panel with a single label does.
+	def _HasText()
+		_n_ = len(@aDecls)
+		for _i_ = 1 to _n_
+			if strcmp(@aDecls[_i_][:kind], "TEXT") = 0
+				return TRUE
+			ok
+		next
+		return FALSE
+
 	def ToPanel()
 		if NOT This.IsClean()
 			StzRaise("stzUiDocument.ToPanel: the document is not clean -- " +
@@ -586,6 +597,37 @@ class stzUiDocument from stzObject
 		# registered afterwards would lay the document out on stub widths
 		# and then paint it with real glyphs -- the one mismatch this
 		# phase exists to make impossible
+		# A DECLARED FONT WITH NO FONT FILE IS REFUSED, because the
+		# alternative is a screen with no words on it and no error
+		# anywhere. RmlUi lays out NO TEXT AT ALL when the family it was
+		# told to use was never registered -- divergence 5 in §3 -- so
+		# every label silently disappears while the boxes render
+		# perfectly.
+		#
+		# It cost the author a screenshot to find: the showcase viewer
+		# called UseFont on the document it started with, and its RELOAD
+		# path built a new document without one. Press R, and the
+		# interface lost its words.
+		#
+		# The panel's own `TextIsWhole` invariant cannot see this. It
+		# asserts that every string MEASURED became a mesh, and here
+		# nothing is measured at all -- 0 equals 0. An invariant about
+		# what happened to the work is blind to the work never being
+		# asked for, which is worth remembering the next time one is
+		# written.
+		# ...and ONLY when the document actually has words. A screen of
+		# plain boxes needs no font, and refusing one would be the
+		# over-broad kind of check that teaches people to route around
+		# the court. The condition is "this document declares TEXT and
+		# was given nothing to draw it with".
+		if @cFontPath = "" and This.FontFamily() != "" and This._HasText()
+			StzRaise("stzUiDocument.ToPanel: this document declares " +
+				"FONT " + char(34) + This.FontFamily() + char(34) +
+				" but no font file was given. Call UseFont(path) BEFORE " +
+				"ToPanel() -- RmlUi measures during load, and a family " +
+				"it cannot resolve lays out no text at all, which would " +
+				"give you a screen of empty boxes and no error.")
+		ok
 		if @cFontPath != ""
 			_oP_.UseFont(This.FontFamily(), @cFontPath)
 		ok
