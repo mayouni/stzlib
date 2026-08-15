@@ -1574,6 +1574,13 @@ negative sibling — an empty queue reports zero drops.
 
 # G4 · THE CONTRADICTION INSIDE THIS PLAN — surfaced 2026-08-14, before any G4 code
 
+> **THIS MEASUREMENT WAS WRONG, AND THE CONTRADICTION IT NAMED DOES NOT
+> EXIST.** See *"G4b RESOLVED"* at the foot of this file. The section is
+> left standing because the reasoning below is still the reasoning that
+> would apply IF the premise held, and because a plan that deletes its
+> own mistakes cannot be checked against them. Read it as a record of a
+> question, not of a fact.
+
 **Measured first, as the phase gate requires.** AccessKit publishes
 **60 releases and not one binary asset**: `accesskit_c` exists, but it is
 a crate, and using it means **cargo as a hard build dependency of this
@@ -1861,3 +1868,117 @@ thing it was a proxy for.
 - **No depth ordering against the interface**: a panel is a surface in
   the scene like any other, and nothing here says what happens when
   something occludes it. A ray that passes through a wall still clicks.
+
+---
+
+# G4b RESOLVED — 2026-08-15. The contradiction was a measurement error, not a conflict
+
+**I measured the wrong repository.** `AccessKit/accesskit` is the Rust
+monorepo and it does publish 60 releases with no binary assets — that
+part was true. But the C bindings are **a separate repository**,
+`AccessKit/accesskit-c`, and it ships **official prebuilt binaries for
+fifteen targets**:
+
+    macOS arm64 / x86_64        Windows x86_64 / arm64 / x86  (msvc)
+    iOS + simulator             Windows x86_64 / x86          (mingw)
+    Linux x86_64 / x86          Android arm64-v8a / x86_64
+
+Latest `0.22.3`, released 2026-07-14 — one asset,
+`accesskit-c-0.22.3.zip`, 64.5 MB for all fifteen. Built in CI by
+`.github/workflows/publish.yml` on a pinned stable toolchain, packaged
+with the cbindgen-generated `include/accesskit.h`. The mingw targets
+matter: Zig's default Windows ABI is the gnu one, so there is no ABI
+gamble.
+
+**No cargo enters this build.** The header declares 436 entry points,
+and all three platform adapters are present with one uniform shape —
+`accesskit_windows_subclassing_adapter_new`,
+`accesskit_macos_subclassing_adapter_for_window`,
+`accesskit_unix_adapter_new`, each with `_update_if_active`,
+`_update_window_focus_state`, `_free`. The *subclassing* variants attach
+to a window that already exists, which is exactly the shape GR5's
+`stz_window.dll` presents.
+
+## The rule the house was ACTUALLY following, which is better than the one written down
+
+§2.1 refused CSS Grid on the ground of *"no Rust in the build"*. **The
+repository already contradicts that sentence**: `engine/vendor/wgpu/` is
+wgpu-native — Rust — vendored as a 9 MB prebuilt DLL plus its import
+library and header, under a `VERSION` file carrying the upstream tag,
+the release asset name, the git commit and two SHA-256 checksums. Every
+triangle this library draws goes through Rust. It has since GR0.
+
+So the rule that is genuinely load-bearing is not about a language:
+
+> **A dependency may be written in any language, provided it presents a
+> stable C ABI AND ships official prebuilt binaries — so that no foreign
+> toolchain ever enters our build.**
+
+That is testable, and it sorts the three candidates cleanly:
+
+| candidate | C ABI | official prebuilts | verdict |
+|---|---|---|---|
+| **wgpu-native** | yes (webgpu.h) | yes | already vendored, since GR0 |
+| **accesskit-c** | yes (cbindgen) | **yes, 15 targets** | **PASSES — adopt** |
+| **Taffy** (CSS Grid) | no official bindings | **0 assets, all releases** | **FAILS — grid stays refused** |
+
+## §2.1 is not spent. Its conclusion survives on a better reason
+
+The previous session's price list said adopting AccessKit would spend
+§2.1's reasoning and make CSS Grid reconsiderable. **It does not.** Taffy
+fails the prebuilt test that wgpu and accesskit-c both pass, so grid
+would still mean a cargo toolchain in the build while accessibility does
+not. §2.1's *conclusion* stands unchanged; only its *stated reason* was
+too coarse — and it was already false when written, because the GPU tier
+had disproved it a plane earlier.
+
+**§10 is untouched.** It forbids hand-writing platform bridges, and
+nothing here does.
+
+## The options that lost, recorded so they are not re-litigated
+
+- **Hand-written UIA provider in Zig.** Feasible for Windows — the
+  provider COM surface for a static tree is small — but it is Windows
+  only, macOS needs the Objective-C runtime, and **Linux AT-SPI is
+  D-Bus**, which is where a hand-written bridge stops being a weekend.
+  This is §10's 3.47 MB mistake, and it is now also the *more expensive*
+  road, not merely the forbidden one.
+- **Build accesskit-c ourselves and vendor the artifact.** Was the plan
+  when the premise was that no prebuilt existed. Unnecessary now, and
+  strictly worse: our artifact would not be reproducible by a third
+  party, where upstream's is.
+- **Out-of-process adapter reading the JSON tree.** Attractive under Rule
+  104 and it stays useful for AGENTS, but it cannot serve a screen
+  reader: a UIA provider must answer `WM_GETOBJECT` on the window's own
+  handle, so in-process code is required regardless.
+- **Defer G4b indefinitely.** Rejected as a *reason* — but see the gate
+  below, where the sequencing argument turns out to be real even though
+  the dependency argument was not.
+
+## THE REAL GATE, which the false contradiction was hiding
+
+G4b is not blocked by Rust. It is blocked by **this plane having no
+window.** Every platform adapter attaches to an HWND, an NSWindow or an
+AT-SPI application object. The GUI plane currently renders to a canvas,
+to a PNG, or to a quad in a 3D scene — and §6's status section lists
+"no live window" as its first outstanding item. A panel hanging in a game
+world has no window handle to subclass, and the web tier gets
+accessibility from the browser for free.
+
+**So the order is: wire the panel to GR5's `stz_window.dll` first, then
+G4b.** That is a smaller and better-understood piece of work than the one
+this plan spent a session treating as a standing-decision crisis.
+
+## What to do, concretely
+
+1. Vendor `engine/vendor/accesskit/` in the **wgpu shape** — `include/`,
+   `lib/` for the host target only, and a `VERSION` file with the tag,
+   asset name, upstream commit and SHA-256s. The per-platform artifact
+   size is the one number still unmeasured; measure it at vendoring time
+   and record it, because §10's mistake was 3.47 MB and honesty requires
+   the comparison.
+2. Wire the panel to a real window — the §6 gap, and the actual gate.
+3. Bind `stzAccessibilityTree` to the adapter: our nodes already carry
+   id, role, name, description, bounds, focusable, focused and actions,
+   and AccessKit's 182-role schema was checked against our 19 when G4a
+   chose them.
