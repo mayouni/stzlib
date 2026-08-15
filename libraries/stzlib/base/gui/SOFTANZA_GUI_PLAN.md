@@ -1982,3 +1982,106 @@ this plan spent a session treating as a standing-decision crisis.
    id, role, name, description, bounds, focusable, focused and actions,
    and AccessKit's 182-role schema was checked against our 19 when G4a
    chose them.
+
+---
+
+# §6b / G4b-PRECONDITION STATUS — 2026-08-15. The panel in a real window
+
+Guard `gui_scene_narrated.ring` grew to **58 asserts** (was 43). Sweep:
+panel 50, adversarial 32, stzui 43, font 30, rtl 37, tier 24, input 38,
+accessibility 37, scene 58 — **349 green**. Graphics re-run because two
+graphics faces changed: window_narrated 60, gg5_texture 30,
+gg5_materialgraph 36, gg4_framegraph 18, gg5_material_language 15,
+gg3_hierarchy and gg_visual_probes (narrative) all clean.
+
+New: `base/test/gui/gui_scene_window.ring`. Changed:
+`base/graphics/stzScene.ring`, `base/graphics/stzWindow.ring`,
+`base/gui/stzScenePanel.ring`.
+
+## What was actually blocking G4b, and it was one line
+
+`stzenginewindownativehandle` **has existed since GR5 and was never
+exposed on the Ring face.** It answers an HWND on Windows, an NSWindow
+on macOS and an X11 window id on Linux — which is exactly and only what
+`accesskit_windows_subclassing_adapter_new`,
+`accesskit_macos_subclassing_adapter_for_window` and
+`accesskit_unix_adapter_new` take. `stzWindow.NativeHandle()` and
+`NativeDisplay()` now surface it, documented with *why* a raw platform
+handle is exposed at all, so it does not read as an invitation to reach
+around the library.
+
+Measured live: **3868394** — a real HWND, far below the f64 integer
+limit the guard asserts against, since the house has paid once already
+for an f64 boundary.
+
+## THE DEFECT THIS TRIP FOUND, and it was in the graphics plane
+
+`stzWindow.Draw` keeps the FACE's idea of its size equal to the
+engine's — *"the engine retargets either way; without this the canvas
+would keep reporting the size it was constructed with"* — **for a
+canvas. Not for a scene.** Both `Draw` and `DrawXT` had the gap, in both
+of their `:Scene` branches.
+
+Invisible until now, because the engine resizes a 3D scene by itself on
+draw, so **the picture was always right**. What went stale was the face:
+`stzScene.Width()`, and therefore `Project()`, and therefore the in-scene
+raycast, which divides by the viewport to turn a screen pixel into a ray.
+**In a resized window every click would have landed somewhere else** —
+silently, in the way this plane's defects are always silent.
+
+Fixed by giving `stzScene` a `Resize()` and calling it from both
+`:Scene` branches, mirroring what the canvas branch already did. The
+guard asserts the mapping MOVES when the viewport does, and — the part
+that matters — that it takes a `LooksThrough` to notice, because the
+camera snapshot is deliberate.
+
+## Two more found by writing the loop rather than reasoning about it
+
+**`Mount()` was not idempotent.** `AddMesh` appends, so a second mount
+hangs a second quad in the same place and the scene accumulates a stack
+of identical panels. Exactly the shape of G2's font-family bug: *a
+registration that is not idempotent damages the thing it was called to
+refresh.* Now early-returns TRUE, and the guard counts instances before
+and after with the negative sibling.
+
+**An app that reacts produces a NEW panel, and the quad wore the old
+one.** Three wrong answers were available — mount the new one (a second
+quad), keep the old one (a screen the user dismissed), or swap it.
+`Shows(poPanel)` swaps it: the quad stays, its skin changes, and a panel
+of a different size gets a new texture AND a re-bound material, since
+the old handle would be freed under the sampler.
+
+**`Shows()` is the seam G5 replaces.** A reactive binding would change a
+bound value and re-lay-out the same panel, with no rebuild and no
+re-upload of unchanged pixels. Until then this is the honest shape and
+it says so.
+
+## The live loop
+
+`ring gui_scene_window.ring` — drag orbits the camera, W/S move in and
+out, the pointer hovers the element under the ray, a click activates it
+*through* the camera, TAB walks the panel's own ring unchanged, R
+reloads `console.stzui` from disk through the court, ESC quits.
+
+Two loop-shape decisions worth keeping: a click is refused on the frame
+that ended a drag (letting go of an orbit is not a click on whatever the
+pointer is over), and the camera is polar — an angle around, an angle
+up, a distance — because that is what a drag actually moves. Pitch is
+clamped away from both edge-on and straight-down: neither reads.
+
+`ring gui_scene_window.ring frames N` runs N frames and closes itself,
+so the loop is checkable without a person in it. That is a *build,
+draw and tear down* proof, explicitly **not** a substitute for driving
+it by hand — every visual defect in this plane was found by a person
+looking at a picture, and the count stands at 6.
+
+## What is now unblocked, and what is not
+
+**G4b is unblocked.** The handle exists, the tree exists, the prebuilt
+binaries exist. What remains is vendoring `accesskit-c` in the wgpu
+shape and binding `stzAccessibilityTree` to the adapter.
+
+Still open, unchanged: **G5's reactive binding** (the `Shows()` seam),
+one panel per scene (per-instance materials are a graphics-plane phase),
+the quad fixed at the origin in XZ, no occlusion, and the §3 browser
+fixture.

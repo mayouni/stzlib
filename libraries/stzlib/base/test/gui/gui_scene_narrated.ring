@@ -320,6 +320,91 @@ ok
 
 #---------------------------------------------------------------------
 ? ""
+? "-- 8. Re-skinning the quad, and the platform's handle --------"
+#---------------------------------------------------------------------
+/*
+	An app that reacts to a click RE-DECLARES its interface, which
+	produces a new stzPanel. Three ways to get that wrong, all found by
+	writing the live loop rather than by thinking about it:
+
+	  mount the new one    -> AddMesh APPENDS, so the scene grows a
+	                          stack of identical quads
+	  keep the old one     -> the quad wears a screen the user dismissed
+	  swap it              -> what Shows() does
+
+	And a resized WINDOW is the same class of error one layer up: the
+	engine retargets the scene by itself, so the picture stays right
+	while the FACE keeps reporting its construction size -- and the ray
+	divides by that size.
+*/
+
+oDoc2 = new stzUiDocument(StzReplace(oDoc.ToText(), "WIDTH 140", "WIDTH 90"))
+Chk("a second document is clean", oDoc2.IsClean())
+oPanel2 = oDoc2.ToPanel()
+aFire2 = oPanel2.BoxOf("fire")
+Chk("...and it lays out differently", aFire2[3] != aFire[3])
+
+oSP3 = new stzScenePanel(oPanel, oScene, 2.0)
+Chk("Shows() before mounting is accepted", oSP3.Shows(oPanel2))
+Chk("...and the panel it reports is the new one",
+   oSP3.Panel().BoxOf("fire")[3] = aFire2[3])
+
+# MOUNT IS IDEMPOTENT. Without a device this is vacuous, so the guard
+# says which it measured rather than passing quietly either way.
+if oCanvasProbe.CanDrawPixels()
+	oSP4 = new stzScenePanel(oPanel, oScene, 2.0)
+	nBefore = oScene.InstanceCount()
+	Chk("mounting adds one quad", oSP4.Mount() and
+	   oScene.InstanceCount() = nBefore + 1)
+	Chk("mounting AGAIN is accepted", oSP4.Mount())
+	Chk("...and does NOT add a second quad -- the negative that matters",
+	   oScene.InstanceCount() = nBefore + 1)
+	oSP4.Free()
+else
+	? "  (no device -- the mount-twice check is not exercised)"
+ok
+
+# THE RESIZE PATH. A face that lied about its viewport sent every click
+# somewhere else; assert the mapping actually moves when the viewport
+# does, and that it takes a LooksThrough to notice.
+aAt = oSP.UvAtScreen(450, 300)
+oScene.Resize(1800, 1200)
+Chk("the scene reports its new size", oScene.Width() = 1800)
+Chk("the mapping has NOT noticed yet -- the snapshot is the point",
+   oSP.ViewportInUse()[1] = 800)
+oSP.LooksThrough(oScene)
+Chk("...and now it has", oSP.ViewportInUse()[1] = 1800)
+aAt2 = oSP.UvAtScreen(450, 300)
+? "  pixel 450,300 at 800x600: " + _UvText(aAt) +
+  "   at 1800x1200: " + _UvText(aAt2)
+# A MISS is as good an answer as a different uv here -- in the larger
+# viewport that pixel is a quarter of the way in rather than the centre,
+# and it leaves the quad entirely. What is being asserted is that the
+# viewport is LOAD-BEARING, not which side of the edge it lands on.
+Chk("the same screen pixel no longer means the same thing",
+   NOT _SameUv(aAt, aAt2))
+oScene.Resize(800, 600)
+oSP.LooksThrough(oScene)
+Chk("a bad size is refused rather than adopted",
+   oScene.Resize(0, 600) = FALSE and oScene.Width() = 800)
+
+# THE G4b PRECONDITION. Every accessibility adapter attaches to this;
+# there is no route to a screen reader that does not pass through it.
+if StzWindowingAvailable()
+	oW = new stzWindow(220, 160, "handle probe")
+	nH = oW.NativeHandle()
+	? "  native window handle: " + nH
+	Chk("a real window has a platform handle", nH > 0)
+	# the house has paid once for an f64 boundary already
+	Chk("...and it survives the f64 crossing exactly", nH < 9007199254740992)
+	oW.Free()
+	Chk("a freed window has no handle", oW.NativeHandle() = 0)
+else
+	? "  (no windowing -- the handle is not exercised)"
+ok
+
+#---------------------------------------------------------------------
+? ""
 ? "=========================================================="
 ? " " + nOK + " assertions green, " + nBad + " failed"
 ? "=========================================================="
@@ -347,3 +432,21 @@ func _HasKind aEvents, nKind
 		ok
 	next
 	return 0
+
+func _SameUv aA, aB
+	if len(aA) != len(aB)
+		return 0
+	ok
+	if len(aA) = 0
+		return 1
+	ok
+	if fabs(aA[1] - aB[1]) > 0.0001 or fabs(aA[2] - aB[2]) > 0.0001
+		return 0
+	ok
+	return 1
+
+func _UvText aUv
+	if len(aUv) = 0
+		return "(misses the quad)"
+	ok
+	return "u=" + aUv[1] + " v=" + aUv[2]

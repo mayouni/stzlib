@@ -84,6 +84,15 @@ class stzScenePanel from stzObject
 	# a machine that cannot rasterize cannot hang a panel in a world, and
 	# that is a legitimate state rather than an error.
 	def Mount()
+		# IDEMPOTENT, and it has to be: AddMesh APPENDS, so a second
+		# Mount() would hang a second quad in the same place and the
+		# scene would carry a growing stack of identical panels nobody
+		# asked for. The same shape as the font-family bug in G2 --
+		# a registration that is not idempotent damages the thing it
+		# was called to refresh.
+		if @bMounted
+			return TRUE
+		ok
 		if NOT @oCanvas.CanDrawPixels()
 			return FALSE
 		ok
@@ -99,6 +108,49 @@ class stzScenePanel from stzObject
 		@oScene.SetMaterial(@oMaterial, [ :skin = @nTex ])
 		@bMounted = TRUE
 		return TRUE
+
+	# Put a DIFFERENT panel on the same quad.
+	#
+	# The reason this exists rather than "just mount a new one": an app
+	# that reacts to a click by re-declaring its interface produces a NEW
+	# stzPanel, and the old one is what the quad is wearing. Mounting
+	# again would hang a second quad; keeping the old one shows a screen
+	# the user already dismissed. So the quad stays and its skin changes.
+	#
+	# A panel of a different SIZE gets a new texture, because a texture's
+	# dimensions are fixed at birth.
+	#
+	# When G5's reactive binding lands, this is the seam it replaces: a
+	# bound value would change and the same panel would re-lay-out, with
+	# no rebuild and no re-upload of unchanged pixels.
+	def Shows(poPanel)
+		if NOT isObject(poPanel)
+			StzRaise("stzScenePanel.Shows: give an stzPanel.")
+		ok
+		_bSize_ = (poPanel.Width() != @oPanel.Width()) or
+			(poPanel.Height() != @oPanel.Height())
+		@oPanel = poPanel
+		if _bSize_
+			@oCanvas = new stzCanvas(poPanel.Width(), poPanel.Height())
+			if @nTex != 0
+				StzEngineGpuTextureFree(@nTex)
+				@nTex = 0
+			ok
+		ok
+		if NOT @bMounted
+			return TRUE
+		ok
+		_b_ = This._Upload()
+		if _b_ and _bSize_
+			# a NEW texture id must be re-bound; the material holds the
+			# old one and would sample a freed handle
+			@oScene.SetMaterial(@oMaterial, [ :skin = @nTex ])
+		ok
+		return _b_
+
+	def ShowsQ(poPanel)
+		This.Shows(poPanel)
+		return This
 
 	# Re-render the panel and push its pixels to the texture. Called when
 	# the interface changed -- after a click, a focus move, a reload.

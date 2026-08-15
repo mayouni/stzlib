@@ -131,6 +131,41 @@ class stzWindow from stzObject
 	def Id_()
 		return @nId
 
+	#-- the platform's own handle -------------------------------------------
+	#
+	# THE OPERATING SYSTEM'S NAME FOR THIS WINDOW: an HWND on Windows, an
+	# NSWindow on macOS, an X11 Window id on Linux. 0 when there is none.
+	#
+	# This exists for ONE reason and it is worth naming, because a raw
+	# platform handle is otherwise an invitation to reach around the
+	# library: **every accessibility adapter attaches to it.** AccessKit's
+	# `accesskit_windows_subclassing_adapter_new`,
+	# `accesskit_macos_subclassing_adapter_for_window` and
+	# `accesskit_unix_adapter_new` all take exactly this, and there is no
+	# route to a screen reader that does not pass through here -- a UIA
+	# provider must answer `WM_GETOBJECT` on the window's own handle, so
+	# no out-of-process arrangement can substitute.
+	#
+	# The engine has answered this since GR5; it was simply never exposed.
+	#
+	# It crosses as an f64, which holds integers exactly to 2^53. Real
+	# handles sit far below that on every platform here, but a caller that
+	# means to pass it back to a C API should check rather than assume --
+	# the house has already paid once for an f64 boundary, on epoch nanos.
+	def NativeHandle()
+		if @nId = 0
+			return 0
+		ok
+		return StzEngineWindowNativeHandle(@nId)
+
+	# The X11 Display pointer, which AT-SPI needs alongside the window id.
+	# 0 on Windows and macOS, where the handle alone is the whole address.
+	def NativeDisplay()
+		if @nId = 0
+			return 0
+		ok
+		return StzEngineWindowNativeDisplay(@nId)
+
 	#-- state ---------------------------------------------------------------
 
 	# TRUE until the user closes it (the X button, Alt-F4) or Close() is
@@ -267,6 +302,15 @@ class stzWindow from stzObject
 			poThing.Flush()
 			_bOk_ = StzEngineGpuSceneDrawToTarget(poThing.Id_(), _nT_, _nFmt_, _nW_, _nH_) = 1
 		but _cKind_ = :Scene
+			# Same reason as the canvas above, and it was missing here.
+			# The engine retargets a 3D scene by itself, so the picture
+			# was always right -- but the FACE went on reporting its
+			# construction size, and both `Project()` and the GUI plane's
+			# in-scene raycast divide by it. In a resized window every
+			# click would land somewhere else, silently.
+			if poThing.Width() != _nW_ or poThing.Height() != _nH_
+				poThing.Resize(_nW_, _nH_)
+			ok
 			_bOk_ = StzEngineGpuScene3dDrawToTarget(poThing.Id_(), _nT_, _nFmt_, _nW_, _nH_) = 1
 		ok
 
@@ -316,6 +360,15 @@ class stzWindow from stzObject
 			poThing.Flush()
 			_bOk_ = StzEngineGpuSceneDrawToTarget(poThing.Id_(), _nT_, _nFmt_, _nW_, _nH_) = 1
 		but _cKind_ = :Scene
+			# Same reason as the canvas above, and it was missing here.
+			# The engine retargets a 3D scene by itself, so the picture
+			# was always right -- but the FACE went on reporting its
+			# construction size, and both `Project()` and the GUI plane's
+			# in-scene raycast divide by it. In a resized window every
+			# click would land somewhere else, silently.
+			if poThing.Width() != _nW_ or poThing.Height() != _nH_
+				poThing.Resize(_nW_, _nH_)
+			ok
 			_bOk_ = StzEngineGpuScene3dDrawToTarget(poThing.Id_(), _nT_, _nFmt_, _nW_, _nH_) = 1
 		ok
 

@@ -62,6 +62,30 @@ class stzScene from stzObject
 	def Height()
 		return @nH
 
+	# Adopt a new viewport size. The ENGINE already does this by itself
+	# when a scene is drawn into a differently-sized target (that is what
+	# makes a resizable window work at all) -- this keeps the FACE's idea
+	# of its size equal to the engine's, exactly as stzWindow.Draw already
+	# does for a canvas.
+	#
+	# It matters more than a reported number: `Project()` divides by the
+	# viewport, and the GUI plane's in-scene raycast reads the same size
+	# to turn a screen pixel into a ray. A face that still believed its
+	# construction size would send every click to the wrong place in a
+	# window the user had resized -- silently, since a wrong click looks
+	# like a working program doing something else.
+	def Resize(pnW, pnH)
+		if NOT (isNumber(pnW) and isNumber(pnH) and pnW > 0 and pnH > 0)
+			return FALSE
+		ok
+		@nW = pnW
+		@nH = pnH
+		return TRUE
+
+	def ResizeQ(pnW, pnH)
+		This.Resize(pnW, pnH)
+		return This
+
 	# [ instances, meshesResident, drawCalls, geometryUploads, transformUploads ]
 	def Stats()
 		return StzEngineGpuScene3dStats(@nId)
