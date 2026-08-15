@@ -96,6 +96,12 @@ load "../../engine/stz_window.ring"
 # is a legitimate state, exactly like the window above.
 load "../../engine/stz_gui.ring"
 
+# The accessibility bridge (vendored AccessKit). Its own DLL because
+# AccessKit is per-OS -- UI Automation, NSAccessibility, AT-SPI -- which is
+# the same property that put windowing in its own DLL above. Absent is a
+# legitimate state: no bridge, everything else unchanged.
+load "../../engine/stz_a11y.ring"
+
 # Sound plane (vendored miniaudio), TWO DLLs on purpose -- FACT 3 of
 # SOFTANZA_SOUND_PLAN.md. The portable half carries the whole sample tier and
 # needs no hardware; the device half is per-OS and absent is a legitimate

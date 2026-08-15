@@ -2085,3 +2085,144 @@ Still open, unchanged: **G5's reactive binding** (the `Shows()` seam),
 one panel per scene (per-instance materials are a graphics-plane phase),
 the quad fixed at the origin in XZ, no occlusion, and the §3 browser
 fixture.
+
+---
+
+# G4b STATUS — 2026-08-15. Accessibility, reaching a real screen-reader API
+
+Guard `base/test/gui/gui_a11y_narrated.ring` — **27 asserts green**.
+Sweep: panel 50, adversarial 32, stzui 43, font 30, rtl 37, tier 24,
+input 38, accessibility 37, scene 58, a11y 27 — **376 green** across ten
+suites.
+
+New: `engine/vendor/accesskit/` (VERSION + header + 352 KB DLL),
+`engine/src/a11y.zig`, `engine/src/ring_bridge_a11y.zig`,
+`engine/src/stz_a11y_entry.zig`, `engine/stz_a11y.ring`,
+`base/gui/stzScreenReaderBridge.ring`, `base/test/gui/gui_a11y_host.ring`,
+`base/test/gui/gui_a11y_read.ps1`. Changed: `build.zig`,
+`base/common/stzRingLibs.ring`, `base/gui/stzAccessibilityTree.ring`.
+
+## The shape, and why none of it is a new decision
+
+`stz_a11y.dll` is its **own DLL**, because AccessKit is per-OS — the
+same property that put windowing in `stz_window` and audio devices in
+`stz_audiodev`. The portable half of a plane does not carry a per-OS
+dependency.
+
+The vendored runtime is **loaded by name at runtime, never linked**, the
+arrangement `stz_gpu` has with `wgpu_native.dll`. So `stz_a11y.dll`
+always loads and a machine without `accesskit.dll` simply has no
+screen-reader bridge — a state, reported honestly, exactly like a machine
+with no GPU having no 3D scene. It also dissolves the msvc/gnu ABI
+question, which is why the 352 KB msvc build is vendored rather than the
+5 MB mingw one.
+
+**352 KB.** §10 calls a hand-written bridge "the 3.47 MB mistake". This
+is a tenth of it, and someone else maintains it.
+
+**One JSON string crosses**, the one `stzAccessibilityTree` already
+published. Rule 104 taken literally: what a screen reader can operate an
+agent can operate, and both read the same document. The Ring side gained
+a platform bridge without the tree changing at all.
+
+## THE PROOF HAS TWO SIDES, because one side proves nothing
+
+In-process, *"we pushed a tree"* looks identical on a machine with a
+screen reader and a machine without one. So the verdict comes from a
+client sharing no code with us: **Windows' own UI Automation**, driven by
+`gui_a11y_read.ps1` against `gui_a11y_host.ring`.
+
+    WINDOW name=[STZ-A11Y-PROBE-WINDOW] type=ControlType.Window
+    COUNT 11
+    NODE type=Text      name=[NAV CONSOLE]
+    NODE type=Group     name=[BEARING 137.4   RANGE 8.20 km]
+    NODE type=Group     name=[drift nominal - hull 98%]
+    NODE type=Button    name=[Fire]   focusable=yes
+    NODE type=Button    name=[Abort]  focusable=yes
+    NODE type=StatusBar name=[click me through the camera]
+
+and the same event, seen from our end:
+
+    FINAL announced=1 read=1 nodes=12
+    VERDICT something read the tree
+
+Either half alone is weak — a client could be reading some other window,
+a counter could be counting our own calls. Together they are one event
+observed from both ends. `TimesRead()` exists for exactly this: it stays
+**0** on a quiet machine, and the guard asserts that it does, because a
+bridge that counted its own pushes as success would be indistinguishable
+from a bridge that did nothing.
+
+## THE ROLE MAPPING WAS MEASURED, and two of three candidates lose the text
+
+Our `label` role — a run of static text — has three plausible homes in
+AccessKit. Measured against the real client:
+
+| AccessKit role | what the client saw |
+|---|---|
+| `LABEL` | present as `ControlType.Text` **with an empty name**. The whole instrument readout was SILENT while the heading beside it announced fine. AccessKit's `Label` is the form-label element, so its text is attributed elsewhere. **Present and silent is the worst of the three.** |
+| `TEXT_RUN` | **GONE.** The descendant count fell from 11 to 7 — a text run is an internal text-position node, not a control. |
+| `PARAGRAPH` | visible, named, announced. **Shipped.** |
+
+The cost of the winner is stated: a paragraph arrives as a named `Group`
+rather than the more informative `Text`. A named Group is read aloud
+where a nameless Text is not, so the trade is the right way round.
+
+**No assertion written beforehand would have caught any of this**, and
+none of it is visible from inside the process. That is the fourth time
+this plane has learned the same lesson, and the count now reads: six
+defects found by looking at pictures, three by reading a tree through
+something that isn't us, zero from assertions written first.
+
+## Two defects found in our own code on the way
+
+**The published JSON carried `depth` but not `children`.** The structure
+was RECOVERABLE — a node's children are the following nodes at depth+1 —
+but not STATED, and the first consumer that had to build a real platform
+tree had to reconstruct it. A structure a reader must infer is one a
+reader can infer wrongly. `children` is now explicit; `depth` stays,
+because it is what makes the flat list readable aloud in order.
+
+**An empty tree was accepted and published.** `{"nodes": []}` parses
+perfectly, and pushing it REPLACES a good tree with nothing — a window
+that had been fully described going silent, with no error anywhere. A
+window always has at least a root, so an empty node list is a caller's
+bug; it is refused now and the previous tree is left exactly where it
+was.
+
+## Two sharp edges paid for inside the module
+
+**The adapter panics if the window is already visible**, and GLFW shows a
+window at birth. So `attach` hides the window, builds the adapter, and
+shows it again. Three calls, invisible when done right after creation —
+and the constraint stays inside `a11y.zig` instead of reshaping the
+graphics plane's API. A caller who attaches mid-session will see a blink,
+and the class says so.
+
+**The activation handler runs when an AT first connects**, which may be
+long after the tree was pushed, and it must RETURN a tree. So the latest
+JSON is kept and a fresh AccessKit tree is built on demand. A bridge that
+only answered pushes would be silent for every reader that started after
+the program did — which is most of them.
+
+## What G4b did NOT do
+
+- **No real screen reader was run.** UI Automation is the API a screen
+  reader uses, and a UIA client is a genuinely independent reader, but
+  NVDA or Narrator saying the words out loud is not what was measured.
+- **Descriptions are unverified.** Every node's `RATIONALE` is published,
+  and AccessKit maps it to UIA's `FullDescription` — which the legacy
+  .NET client cannot read (it predates the property and refuses a raw
+  id). Recorded as owed, not reported as working.
+- **Actions do not route back.** A reader can request `Focus` or `Click`;
+  the handler drops them. Counting them would be a lie about capability.
+  Activating a control FROM a screen reader is not delivered.
+- **No live-region announcements**, so a `status` node changing says
+  nothing.
+- **Windows only in practice.** The macOS and Linux adapters are in the
+  vendored ABI and the module is written around them, but only the msvc
+  DLL is vendored and only Windows was measured.
+- **No incremental updates.** Every announce rebuilds and pushes the
+  whole tree. Fine at twelve nodes, asserted at twenty-two pushes, and
+  the wrong shape for a virtualised list — which is the survey warning
+  G4a already recorded against the day a list becomes lazy.
