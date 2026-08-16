@@ -1,3 +1,9 @@
+> **SUPERSEDED — record of intent, not a specification.**
+> The plan of record is `libraries/stzlib/base/stats/SOFTANZA_TUKEY_PLAN.md`,
+> whose §0.5 dispositions every claim below as ADOPT / RESHAPE / REFUSE.
+> **Every output block in this file was written by hand and never executed**;
+> some of the numbers do not add up. Read it for intent only.
+
 # The Tukey-Mind Enhancement Framework for Softanza
 *Bringing Exploratory Data Analysis Principles to ASCII Visualization*
 

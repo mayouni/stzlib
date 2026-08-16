@@ -1,3 +1,10 @@
+> **SUPERSEDED — record of intent, not a specification.**
+> The plan of record is `libraries/stzlib/base/stats/SOFTANZA_TUKEY_PLAN.md`,
+> whose §0.5 dispositions every claim below as ADOPT / RESHAPE / REFUSE.
+> **Every output block in this file was written by hand and never executed**;
+> the "North Q4 = 105 ★" cell is in fact 11.5 units *below* its own fit.
+> Read it for intent only.
+
 # Discovering Hidden Stories in Your Data
 ## Softanza's Revolutionary Tukey Framework for ASCII Data Exploration
 
