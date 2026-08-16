@@ -558,6 +558,17 @@ measured threshold; `:occurs`, `:variants` (REDEFINES), RDW
 variable-length records; guard 8. Optional: `HexView().ToSVG()` via
 graphics.
 
+Also in BN4's framing work: **Fortran unformatted record framing**
+(`:framing = :FortranRecords` — length-prefixed AND length-suffixed
+records, 4- or 8-byte markers, endian-aware; the compiler-dependent
+family gfortran/Intel both emit). Adopted by author decision 2026-08-16
+(the RINGTRAN evaluation, refused commercially — Softanza Central
+`prompts/30-ringbol-charter.md` refusals): decades of simulation
+outputs sit in these files, the framing is a few dozen engine lines,
+and it is the open-source salvage of that evaluation. Guard fixture:
+foreign-made by an actual gfortran write (or Python `scipy.io.FortranFile`
+where gfortran is absent), per the independence law.
+
 ### BN5 — the field-dialect decision
 
 A short comparative pass: does a Kaitai-subset or DFDL-subset importer
@@ -576,7 +587,10 @@ answer is REFUSE and close the plane.
   ELF, PDF... have structure this vocabulary can partially express, but
   doing them justice means dedicated modules (stzZipFile already
   exists). The plane provides the vocabulary; it does not promise the
-  catalog.
+  catalog. This boundary was re-tested 2026-08-16 by the Fortran
+  question: unformatted record *framing* is IN (BN4 — it is layout, our
+  territory); NetCDF/HDF5 are OUT (self-describing containers with
+  their own ecosystems).
 - **No COBOL source translation.** §0.5 #6 — `future/stzCobol.ring`
   stays where it is, untouched by this plane. If code modernization
   ever revives, it is its own plan with its own survey.
