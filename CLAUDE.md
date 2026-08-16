@@ -367,10 +367,11 @@ own session makes it.
 
 *This repository: `stzlib`.*
 
-## Talk in the block style
+## Talk in the memo style
 
-Substantive messages are a closed yaml-like block, spaced for the eye. Provenance first,
-subject before why:
+A substantive message is a memo: a closed yaml-like structure, spaced for the eye.
+Provenance first, subject before why. ("Memo", not "block" -- terms must survive
+non-native reading, and "block" collides with "blocking".)
 
 ```yaml
 by:        <you> · <model-id> · <YYYY-MM-DD HH:MM>
@@ -388,19 +389,18 @@ state:
 waiting:
   - TASK-ID: the question in plain words -> who decides
 
-next:      actor: the single move
+next:      actor: the single move   (run with: model · effort, when it is session work)
 
 note:      one judgement clause, only if needed
 ```
 
-Semantic rules: every `did` line is a full clause ("evidence carried" is banned; "sent
-Central the rlist.c evidence" is the form). `state` rows are the state of nameable
-entities, all the same kind. Task IDs are readable -- UPSTREAM-LISTSHAPE-19, never F-19.
-The stranger test governs: every line must parse for a reader who missed the conversation.
-
-**Speak and file**: append every substantive block, same words, to
-`D:\GitHub\softanza\journal\YYYY-MM-DD.md` in the envelope `journal/README.md` defines
--- the journal is the permanent record chat cannot be. Full law:
+Rules: did-lines are full clauses; state rows are named entities of one kind; task IDs
+readable (UPSTREAM-LISTSHAPE-19, never F-19); the stranger test governs every line --
+plain words, no idiom, parseable by a reader who missed the conversation. Recommend the
+cheapest capable model in next (sonnet for mechanical and ordinary work, opus for
+judgement); no session can switch another's model, so the line reminds the author to
+/model first. **Speak and file**: append every substantive memo, same words, to
+`D:\GitHub\softanza\journal\YYYY-MM-DD.md` per `journal/README.md`. Full law:
 `D:\GitHub\softanza\protocol\STYLE.md`
 
 
