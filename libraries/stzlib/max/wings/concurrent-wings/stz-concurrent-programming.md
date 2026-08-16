@@ -1,3 +1,11 @@
+> **SUPERSEDED (2026-08-16).** This 2024 proposal is claims, not code:
+> none of the constructs below exist, and none of its examples were ever
+> run. It imagined a thread-shaped world; Ring has no threads. The plan
+> of record is `libraries/stzlib/base/concurrent/SOFTANZA_CONCURRENT_PLAN.md`
+> (CN0–CN5), whose §0.5 dispositions every claim in this file as
+> ADOPT / RESHAPE / REFUSE. This file remains as the record of intent —
+> read it once, then work only from the plan.
+
 # Softanza Concurrent Programming - Design Proposal
 
 ## Vision & Philosophy
