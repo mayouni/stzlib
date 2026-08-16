@@ -1,16 +1,26 @@
 # What is next here
 
-**Generated 2026-08-16 19:33 by Central** (`D:\GitHub\softanza\dashboard\central.ps1`).
-Do not edit -- it is rewritten. Regenerate it any time:
+> ## Check this is still true before you answer from it
+>
+> **Generated 2026-08-16 19:39, when Central was at commit `cd40e67`.**
+>
+> This is a snapshot. The plan may have moved since, and a stale answer given
+> confidently is worse than no answer. One command settles it, and it is cheap
+> enough to run every time -- so run it every time, before you answer:
+>
+> ```
+> powershell -ExecutionPolicy Bypass -File D:\GitHub\softanza\dashboard\central.ps1 -Install -Only stzlib
+> ```
+>
+> It rewrites this file and nothing else in your repository. If nothing changed, git
+> shows nothing and you have lost two seconds. **Then answer.**
+>
+> If it still does not answer your question -- the task is unclear, the order looks
+> wrong, or your tree disagrees with it -- **ask Central directly** by appending a
+> block to `D:\GitHub\softanza\mailbox\stzlib-<your plane>.md`. You have every right to; that
+> channel exists for exactly this. Do not guess, and do not wait for permission.
 
-```
-powershell -ExecutionPolicy Bypass -File D:\GitHub\softanza\dashboard\central.ps1 -Install -Only stzlib
-```
-
-**If you are asked what is next, answer from this file** -- and if it looks old,
-regenerate it first. The full cross-repository picture is in
-`D:\GitHub\softanza\prompts\QUEUE.md`; the discipline is in `softanza\protocol\README.md`.
-
+The full cross-repository picture is in
 ## Facts, read when this was written
 
 - Reference design: **v1.5** (from `REFERENCE_DESIGN.md`)
