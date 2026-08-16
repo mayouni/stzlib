@@ -2,7 +2,7 @@
 
 > ## Answer from this file. You need nothing else and no permission.
 >
-> **Written 2026-08-16 20:20, from Central at `f74fe89`.** Central keeps it current: it
+> **Written 2026-08-16 20:35, from Central at `7388143`.** Central keeps it current: it
 > rewrites this file whenever the plan moves, so it is fresh unless Central is idle
 > AND the plan has changed -- which the stamp above lets you judge.
 >
@@ -236,9 +236,9 @@ Commit by explicit path. base/test/ and base/doc/ are shared with three other se
 Your mailbox is `D:\GitHub\softanza\mailbox\stzlib-<your plane>.md`. Open it now and keep it open --
 that is what makes Central's appends arrive as messages.
 
-Disagree by appending a `COUNTER` block **with the local fact Central cannot see**;
-a preference is not a counter. Central answers with `ACCEPT` or `INSIST`; you then
-`CLOSE`. Three messages, never a fourth, and you never counter twice. **If Central
+Disagree by appending a `DISAGREE` block **with the local fact Central cannot see**;
+a preference is not a disagreement. Central answers with `ACCEPT` or `INSIST`; you then
+`CLOSE`. Three messages, never a fourth, and you never disagree twice. **If Central
 does not answer, proceed and record what you did.**
 
 Report conclusions -- not activity -- as one line in `softanza\dashboard\SESSION-LOG.md`.
