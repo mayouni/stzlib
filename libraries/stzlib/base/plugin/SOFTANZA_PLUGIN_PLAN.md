@@ -91,9 +91,10 @@ cd libraries/stzlib/base/test/plugin && ring plugin_kernel_narrated.ring
    `stz_fswatch`, processes ride the reactor/nodes. Ring-side
    orchestration is the *point* here (the kernel must be vendorable),
    not a violation.
-5. **One lexicon.** The prototype's suffix zoo (`XfTMX`, `XffSZX`,
-   `XfUP`…) is refused in writing (§2.2). Capabilities survive; the
-   combinatorial naming does not.
+5. **One lexicon.** The suffix morphology is the authored surface
+   (author's ruling — §2.2): every morpheme registered once, every
+   suffixed form a one-line delegation to the single options-based
+   core. Unregistered morphemes are what is refused.
 6. **Parallel sessions work this repo**: `git add <explicit paths>`,
    never `-A`.
 7. **Push protocol**: `git push origin main` then
@@ -178,7 +179,7 @@ family.
 | 3 | `XString` demo class; per-type X-classes by inheritance | **RESHAPE** — no parallel class tree; `Xf()` lands once on `stzObject`, every face inherits it (§2.6) |
 | 4 | the `Xf()` / `Xff()` / `XfU()` verb trio | **ADOPT** — the entire public call surface (§2.2) |
 | 5 | `XfU` returns 1/0 (unmanaged territory reports outcome) | **ADOPT** |
-| 6 | suffix combinatorics: `XfTM/XfTMX/XfSZ/XfSX/XfL/XfLX/XffTMX/XfP/XfUP/XfUB/XfC/XfV` | **REFUSE the naming** — capabilities dispositioned individually below; expressed as options and manifest properties (§2.2) |
+| 6 | suffix combinatorics: `XfTM/XfTMX/XfSZ/XfSX/XfL/XfLX/XffTMX/XfP/XfUP/XfUB/XfC/XfV` | **ADOPT as a governed morphology** (author's ruling — §2.2): each morpheme registered once, each form a one-line delegation to the options-based core; capabilities dispositioned individually below |
 | 7 | TIMED call with graceful degradation (partial result at timeout) | **RESHAPE** — physically impossible preemptively in-process (§2.3); cooperative via the guard API, preemptive only at the process tier |
 | 8 | SIZED call (byte cap) | **RESHAPE** — same physics, same answer |
 | 9 | LOOPED call (iteration cap) | **ADOPT** — via the host-injected cooperative guard |
@@ -356,27 +357,51 @@ The manifest declares the tier; the host's trust posture (§2.8) may
 declaration. The prototype conflated these two worlds; keeping them
 distinct is what makes every capability below honest.
 
-### 2.2 D2: three verbs, zero suffix combinatorics
+### 2.2 D2: one core call, a REGISTERED suffix morphology on top
 
-The entire public call surface:
+**Author's ruling (2026-08-16), replacing this plan's earlier refusal.**
+The first draft dismissed the prototype's suffixed forms as a "suffix
+zoo". The author corrected it: name extensions are a strategic part of
+the Softanza style — a word-formation system, not ad-hoc naming. The
+library already speaks it everywhere (`Q` chainable, `Z` positions,
+`XT` extended, `CS` case dial, the `#< @FunctionAlternativeForms >`
+blocks). The plane therefore ADOPTS the morphology, and governs it so
+it stays a morphology:
 
-```ring
-o1.Xf(:reverse)                          # compute → returns value
-o1.Xf(:replace = ["Hello","World"])      # with params
-o1.Xff(:mayFail)                         # fault-tolerant: error → ledger row, not raise
-o1.XfU(:reverse)                         # apply result to the host object → 1/0
-```
+**The morpheme lexicon** (each registered here ONCE, aligned with the
+library-wide lexicon per the semantic-unification doctrine):
 
-Everything the prototype spelled as a suffix becomes an options list or
-a manifest property:
+| morpheme | meaning | option it expands to |
+|---|---|---|
+| `Xf` | call the plugin function | — (the core verb) |
+| `ff` | fault-tolerant (error → ledger row, no raise) | `:OnError = :Tolerate` |
+| `U` | apply result to the host object, report 1/0 | `:Update = 1` |
+| `B` | transactional rollback on a list call (Back) | `:Rollback = 1` |
+| `TM` | time-budgeted | `:MaxSeconds = n` |
+| `SZ` | size-budgeted | `:MaxBytes = n` |
+| `L` | loop-budgeted | `:MaxIterations = n` |
+| `X` (trailing) | strict: cancel + raise instead of partial | `:OnExceed = :Raise` |
+| `C` | concurrent list call (`:Process` tier) | `:Concurrent = 1` |
+| `V` | pinned plugin version | `:Version = v` |
+| `Z` | with positions (ledger readers) | — |
 
-```ring
-o1.Xf(:reverse, [ :MaxIterations = 99, :OnExceed = :Partial ])
-o1.Xf(:crunch,  [ :MaxSeconds = 3 ])     # honest only at :Process tier — see D3
-```
+**The two laws that keep it honest:**
 
-`Xf(aList)` runs a host-side pipeline (§2.9). `XfsZ()` keeps its name —
-the `Z` suffix is house vocabulary for "with positions".
+1. **One core, thin skins.** Every suffixed form is a one-line
+   delegation to the single options-based core call —
+   `XfTM(:reverse, 3)` ≡ `Xf(:reverse, [:MaxSeconds = 3, :OnExceed = :Partial])`,
+   `XfTMX(:reverse, 3)` ≡ same with `:OnExceed = :Raise`. The options
+   list is the internal representation; the suffix is the authored
+   surface. Logic lives once; no suffixed form may carry behavior of
+   its own (the duplicated-logic-diverges lesson).
+2. **Physics is unchanged by spelling.** D3 applies to every surface:
+   `XfTM` on a `:State` plugin is cooperative, preemptive only at
+   `:Process`. A morpheme changes the wording, never the truth.
+
+Unregistered morphemes are what is refused (§7) — a new suffix enters
+this table first or it does not exist.
+
+`Xf(aList)` runs a host-side pipeline (§2.9).
 
 ### 2.3 D3: the physics of interruption, stated once
 
@@ -702,7 +727,9 @@ out of scope by definition):**
 - Preemptive interruption of in-process calls (§2.3 — fiction).
 - Serializing/persisting a live Ring VM state (§0.5 #14 — fiction).
 - Plugin-driven control flow (§2.9 — the host never cedes the wheel).
-- The suffix-combinatorics API (§2.2 — one lexicon).
+- Unregistered suffix morphemes, and any suffixed form carrying its
+  own logic instead of delegating to the core (§2.2 — the morphology
+  is welcome, drift inside it is not).
 - Security-sandbox claims for the `:State` tier (§2.8 — honesty).
 - Memoizing undeclared plugins (§2.7 — consent-based only).
 - A plugin marketplace, registry service, or signing scheme (v1 scope).
@@ -742,10 +769,10 @@ out of scope by definition):**
   nowhere) become real predicates in PL1.
 - `max/wings/stzWings.ring` — untouched now; named in §1.4 as the
   future consumer that makes the Max layer's original idea honest.
-- **Recovered implementations (history only, not restored to the
-  tree):** the 2024 single-file system —
-  `git show dfd4b948c:libraries/softanzalib/stzPluginSystem.ring` —
-  is PL1's behavioral reference (with §0.6's one-line injection fix);
-  the 2025 `plugma/` layered refactor —
-  `git ls-tree -r --name-only '0276248b2^' -- libraries/stzlib/max/wings/plugma/`
-  — is an architecture cross-check whose code is not adopted (§0.6 B).
+- **Recovered implementations — RESTORED to the tree** (author's
+  direction, 2026-08-16) at `base/plugin/recovered/` with a provenance
+  README: `2024/` = the working single-file system verbatim, plus
+  `impl_fixed.ring` + `demo.ring` (runs green from that directory on
+  bare Ring + stdlib); `2025-plugma/` = the 17-file layered refactor
+  verbatim, kept as architecture cross-check, its code not adopted
+  (§0.6 B). Not loaded by stzBase.
