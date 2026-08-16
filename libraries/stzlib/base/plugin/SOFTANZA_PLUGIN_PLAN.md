@@ -52,6 +52,8 @@ family project can vendor it.
 | what | where |
 |---|---|
 | this plan | `libraries/stzlib/base/plugin/SOFTANZA_PLUGIN_PLAN.md` |
+| the comparative study (analysis only, never rules) | `base/plugin/SOFTANZA_PLUGIN_COMPARATIVE_STUDY.md` |
+| the recovered 2024/2025 implementations + green demo | `base/plugin/recovered/` (see its README) |
 | legacy claims (read once, then only via §0.5) | `libraries/stzlib/max/test/stzPluginSystemTest.ring`, `stzStateSystemTest.ring` |
 | the VM-state builtins (names only, no wrapper exists) | `base/common/stzFuncs.ring` ~265–278 (`ring_state_init/new/delete/runcode/runfile/findvar/setvar/…`) |
 | the working state technique (2024, runs with a warning) | `max/test/stzStateSystemTest.ring` — note its live `Error (E3): Deleting scope while no scope!` |
@@ -774,6 +776,12 @@ Written at the author's direction, after studying `cordiverse/paper`
 formalization, preprint 2026-08-13). This section reads our plane
 through that lens and through Softanza's own doctrine, and banks three
 adoptions and three refusals. It changes PL2 and PL5; it adds no phase.
+The full comparative analysis behind this section — the mainstream
+field (hooks, OSGi, VS Code, WebExtensions, Lua embeddings, V8
+isolates, WASM components, MCP), the property matrix, and the Cordis
+deep comparison — is documented in
+`SOFTANZA_PLUGIN_COMPARATIVE_STUDY.md` beside this plan. That file is
+ANALYSIS only; rules live here.
 
 ### 9.1 The lens
 
