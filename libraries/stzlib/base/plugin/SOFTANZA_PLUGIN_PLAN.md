@@ -636,10 +636,14 @@ version conflict, the contamination test (§ discipline 2).
 ### PL2 — Softanza faces + currency + memoization
 
 `stzPlugin`, `stzPluginSystem`, `Xf/Xff/XfU` on `stzObject`, monotonic
-timing, perf instruments, fswatch-driven reload, pure-plugin memo.
-Guard mechanism assertions: memo hit proven by a state-execution
-counter (not by timing); file edit between calls proven to re-execute
-by *changed output*, not by belief in the watcher.
+timing, perf instruments, fswatch-driven reload, pure-plugin memo —
+with the memo key closing over the transitive dependency cone (§9.3
+A2: editing a declared provider invalidates every dependent's cache
+and state by construction). Guard mechanism assertions: memo hit
+proven by a state-execution counter (not by timing); file edit between
+calls proven to re-execute by *changed output*, not by belief in the
+watcher; a PROVIDER edit proven to re-execute its dependent the same
+way.
 
 ### PL3 — Constraints
 
@@ -662,7 +666,12 @@ promise.
 Postures gating tiers; `@plugin_version` + `SetActiveVersion`;
 `AsSkill()` lifting a plugin into `stzAgentSkill` (its `SetVerifiedBy`
 becomes the plugin's declared postcondition); rule-report findings for
-every refusal the system makes. **The vendorability guard**: copy
+every refusal the system makes. From §9: the reversible ledger
+(`XfU` records the prior value; `XRevert()` walks commitments back —
+A1), `@plugin_author` provenance in manifest and ledger rows (A3),
+and the agentic capstone guard: an agent-authored plugin file is
+discovered, admitted, called, ledgered, reverted — and the host
+proven byte-identical to before. **The vendorability guard**: copy
 `ringplug.ring` alone to a scratch dir, run its guard under bare `ring`
 with stzlib absent from the path — pure-Ring purity proven by
 execution, not review.
@@ -758,7 +767,124 @@ out of scope by definition):**
 
 ---
 
-## 9. LEGACY DOCUMENT DISPOSITION
+## 9. THE AGENTIC VIEW — ALGORITHMIC COMPOSABILITY (added 2026-08-16)
+
+Written at the author's direction, after studying `cordiverse/paper`
+("A Programming Paradigm for Spatiotemporal Composability", the Cordis
+formalization, preprint 2026-08-13). This section reads our plane
+through that lens and through Softanza's own doctrine, and banks three
+adoptions and three refusals. It changes PL2 and PL5; it adds no phase.
+
+### 9.1 The lens
+
+The paper names two properties a component system needs before agents
+can safely rewrite it at runtime:
+
+- **Temporal composability** — removing a component completely reverts
+  its effects; every effect carries a tracked inverse.
+- **Spatial composability** — components declare their dependencies
+  (coeffects) on a shared context, and react when providers change.
+
+Cordis achieves both by *discipline*: components promise to route
+every effect through the context object, so the runtime can journal
+inverses and re-run dependents. The promise is the weakness — a
+component that touches the world off-context breaks the model
+silently.
+
+### 9.2 Where this plane already stands, said in that vocabulary
+
+| the paper's property | this plane's mechanism |
+|---|---|
+| effects are journaled | the plugin computes in isolation and RETURNS a value; ambient host effects are impossible by physics, not by promise. The only host effect is `XfU`, one explicit act at one seam |
+| effects carry inverses | D10's transactional snapshot is already the inverse for list calls; §9.3 A1 extends it to every `XfU` |
+| removal reverts | `off_` rename or file deletion removes a plugin with zero host residue — there is nothing to revert, because nothing leaked |
+| coeffects declared | `@plugin_loads` in the manifest (primitive today; §9.3 A2 completes it) |
+| reactive currency | fswatch + content-hash reload (the currency clause) |
+| formal admission | the manifest gate + validator + trust postures |
+
+The comparison also names our honest limit, which is ALSO the paper's:
+neither model reverts *world* effects (a file the plugin wrote, a
+process it spawned). Cordis cannot journal what bypasses its context;
+we cannot un-write what a `:State` plugin did to the OS. Our answer is
+governance (postures gate the tier), not a false claim — and D8
+already says so.
+
+### 9.3 Three adoptions
+
+**A1 — The ledger becomes a reversible journal (temporal).** `XfU`
+records the PRIOR value beside the new one; the ledger row gains a
+typed inverse, and `XRevert()` / `XRevert(n)` walks commitments back.
+This is not imported machinery — it is the house's own reversibility
+doctrine (the Refine concordance: every graph op captures prior state
+plus a typed inverse) landing on the plugin seam. A plugin's
+commitment to a host object is a refinement; refinements revert.
+Lands in PL5. Guard: commit three updates, revert two, assert the
+intermediate value — and the negative sibling asserts that `Xf`
+(compute-only) rows carry NO inverse, because they made no commitment.
+
+**A2 — The memo key closes over the dependency cone (spatial).** D7's
+cache key today is `hash(plugin file) + params + value`. It becomes
+`hash(plugin file + transitive declared dependencies) + params + value`:
+if a plugin declares `@plugin_loads = ["mathlib.ring"]` or (new)
+`@plugin_uses = [:otherPlugin]`, the key includes their hashes too.
+A provider edit then invalidates every dependent's cache and state BY
+CONSTRUCTION — the same no-stale-serve invariant D7 already has for
+the plugin's own file, extended to everything it declared it reads.
+This is the paper's reactive coeffect, minus the push machinery: we
+get the reaction at the next call, which is the only moment a
+pull-called plugin can react anyway. Lands in PL2.
+
+**A3 — Plugins are the agent's write surface for capability.** The
+agentic doctrine says the machine programmer is a first-class audience
+(Law 6) and THE MODEL PROPOSES, THE VALIDATOR DECIDES (the DLM canon).
+This plane is where those two meet executable code: a model-written
+`pluginFunc` is exactly the artifact you want from an LLM — one pure
+function, value-in/value-out, no host API to misuse, admitted through
+a textual manifest gate, budgeted by declared constraints, every call
+ledgered, every commitment revertible (A1), removable with zero
+residue. The manifest gains one field, `@plugin_author` (a person, an
+agent name, or a model id), and the ledger carries it — provenance per
+call, which is what separates "agents extend the system" from "code of
+unknown origin runs in the process". `AsSkill()` then lifts the plugin
+into the verified-effect contract, and the capstone scene writes
+itself: **an agent authors a plugin file into a governed folder; the
+running system discovers, admits, calls, ledgers, and then reverts
+it — and the guard proves the host is byte-identical to before.**
+That scene is the plane's answer to "algorithmic composability in the
+agentic era", and it lands in PL5.
+
+### 9.4 Three refusals (in writing, as always)
+
+- **No host HMR.** The paper's implementation hot-swaps whole
+  component trees; our hot reload stays per-plugin. The host is not a
+  plugin, and the distribution plane's refusal of hot code loading
+  stands.
+- **No service container.** Cordis resolves dependencies through a DI
+  context. Softanza already has its dependency answers — default
+  instances behind sugar, and the KG for knowledge — and will not
+  mint a parallel registry object.
+- **No push-reactivity into plugins.** Components in Cordis re-execute
+  when context changes; our plugins are pull-called, never subscribed
+  (D9 — the host owns control flow). Reactivity belongs to the
+  reactive plane; a supervisor ticking `Cycle()` on the plugin system
+  is how currency gets a heartbeat, without plugins ever gaining one.
+
+### 9.5 What the paper teaches that we keep as a sentence
+
+Cordis routes effects through a context and trusts the component;
+Softanza routes effects through a return value and trusts physics.
+Both systems agree on the destination — no ambient effects, journaled
+commitments, declared dependencies, admission before execution — and
+that agreement, reached from a TypeScript meta-framework and a Ring
+VM-state seam independently, is decent evidence the destination is
+real. What we add that the paper does not have: the guard culture
+(every property above is proven by a narrated run with a negative
+sibling), and the honesty clause (the tier that cannot revert world
+effects SAYS so instead of promising composability it cannot keep).
+
+---
+
+## 10. LEGACY DOCUMENT DISPOSITION
 
 - `max/test/stzPluginSystemTest.ring` — header a SUPERSEDED notice
   pointing here; the file stays as the intent record. Its runnable
