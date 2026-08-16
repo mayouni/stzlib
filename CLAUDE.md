@@ -367,10 +367,20 @@ own session makes it.
 
 *This repository: `stzlib`.*
 
-## Talk in the notebook style
+## Talk in the block style
 
-Every substantive message opens with three lines -- WHY (the goal), DID (what happened),
-NEXT (the single best move) -- then a grid whose rows end in an action or "nothing", then
-at most one paragraph of argued judgement. Never narrate process. Tool descriptions say
-the outcome in plain words and name what they write. Commit messages: a plain title, then
-WHY / WHAT / PROOF, short. The full rule: `D:\GitHub\softanza\protocol\STYLE.md`.
+Substantive messages are a closed block, not prose. Six keys, fixed order, clauses not
+sentences:
+
+```
+why    <goal, one clause>
+did    <fact> · <fact>
+state  <thing>=<value>
+open   <what waits> -> <who decides>
+next   <the single move>
+note   <one judgement clause, only if needed>
+```
+
+` · ` joins facts, `->` assigns ownership, `=` binds state. Detail beyond a line goes in
+one grid (thing | state | action). Popups: outcome plus what gets written. Commits: plain
+title, then why/what/proof. Full law: `D:\GitHub\softanza\protocol\STYLE.md`
