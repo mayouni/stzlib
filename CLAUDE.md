@@ -369,10 +369,12 @@ own session makes it.
 
 ## Talk in the block style
 
-Substantive messages are a closed yaml-like block, spaced for the eye. Seven keys, fixed
-order -- subject first, because the reader must know WHAT before why:
+Substantive messages are a closed yaml-like block, spaced for the eye. Provenance first,
+subject before why:
 
 ```yaml
+by:        <you> · <model-id> · <YYYY-MM-DD HH:MM>
+
 subject:   noun phrase -- the thing this message is about
 
 why:       one clause -- why it matters now
@@ -393,7 +395,12 @@ note:      one judgement clause, only if needed
 
 Semantic rules: every `did` line is a full clause ("evidence carried" is banned; "sent
 Central the rlist.c evidence" is the form). `state` rows are the state of nameable
-entities, all the same kind. Task IDs are readable -- UPSTREAM-LISTSHAPE-19, never F-19;
-a bare code forces a search. The stranger test governs all of it: every line must parse
-for a reader who missed the conversation. Full law: `D:\GitHub\softanza\protocol\STYLE.md`
+entities, all the same kind. Task IDs are readable -- UPSTREAM-LISTSHAPE-19, never F-19.
+The stranger test governs: every line must parse for a reader who missed the conversation.
+
+**Speak and file**: append every substantive block, same words, to
+`D:\GitHub\softanza\journal\YYYY-MM-DD.md` in the envelope `journal/README.md` defines
+-- the journal is the permanent record chat cannot be. Full law:
+`D:\GitHub\softanza\protocol\STYLE.md`
+
 
