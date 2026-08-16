@@ -369,18 +369,26 @@ own session makes it.
 
 ## Talk in the block style
 
-Substantive messages are a closed block, not prose. Six keys, fixed order, clauses not
-sentences:
+Substantive messages are a closed block, yaml-like, spaced for the eye -- blank line
+between keys, facts as dashes, states aligned:
 
-```
-why    <goal, one clause>
-did    <fact> · <fact>
-state  <thing>=<value>
-open   <what waits> -> <who decides>
-next   <the single move>
-note   <one judgement clause, only if needed>
+```yaml
+why:      goal, one clause
+
+did:
+  - fact
+  - fact
+
+state:
+  thing:     value
+
+open:     what waits -> who decides
+
+next:     the single move
+
+note:     one judgement clause, only if needed
 ```
 
-` · ` joins facts, `->` assigns ownership, `=` binds state. Detail beyond a line goes in
-one grid (thing | state | action). Popups: outcome plus what gets written. Commits: plain
-title, then why/what/proof. Full law: `D:\GitHub\softanza\protocol\STYLE.md`
+Clauses, not sentences. Detail beyond the block goes in one grid (thing | state |
+action). Popups: outcome plus what gets written. Commits: plain title, then
+why/what/proof. Full law: `D:\GitHub\softanza\protocol\STYLE.md`
