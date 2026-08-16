@@ -113,7 +113,7 @@ numbers are interpreted.
 
 ## 0. THE SURVEY (taken 2026-08-16)
 
-### 0.1 What the prototype actually is
+### 0.1 What the prototype actually is — CORRECTED same day (see §0.6)
 
 `stzPluginSystemTest.ring` is a narrated design document wearing a test
 file's clothes. It "calls" a complete API — discovery (`LoadPlugins`),
@@ -121,19 +121,16 @@ invocation (`Xf`/`Xff`/`XfU`), ledger (`XCalls`, `XfsZ`, `XErrors`,
 `XSuccesses`, `XTime`), constrained calls (timed/sized/looped, eight
 suffix spellings), caching, hot reload, pause/resume, delegated chains,
 concurrency, transactions (`XfUB`), dependencies (`XLibsTree`),
-versioning (`XfV`) — and **none of it exists**. Most sections carry
-`#TODO Add this feature` inside comment blocks. Its sibling
-`stzStateSystemTest.ring` is the one artifact that *ran*: two isolated
-`ring_state_new()` states with per-state variables, fault-tolerant
-execution of code strings, and a planned-but-never-written
-`stzRingState` class. It also preserved a live VM warning
-(`Error (E3): Deleting scope while no scope!`) that PL0 must
-disposition.
+versioning (`XfV`) — and none of it exists **in the current tree**.
 
-**Verdict: a greenfield build with an unusually detailed acceptance
-spec already written.** The same situation as the Tukey notes — and the
-same rule applies: the prototype's hand-written outputs prove intent,
-never behavior.
+The first draft of this plan concluded "greenfield" from that. **The
+author corrected it**: the git history holds TWO real implementations,
+both later removed from the tree — a working 2024 single-file system
+and a 2025 layered refactor, recovered and dispositioned in §0.6. The
+Tukey rule still applies to the *narrated outputs* (they prove intent,
+not behavior — and §0.6 shows one demo output agreed with reality **by
+coincidence**), but the build is a REBUILD WITH A REFERENCE, not a
+greenfield.
 
 ### 0.2 What the library gained since (build on it, do not rewrite it)
 
@@ -198,6 +195,68 @@ family.
 | 20 | versioning by filename suffix `_Vn` + compatibility table | **ADOPT** slim — manifest `@plugin_version`, `SetActiveVersion()`; the compatibility map lives in the system object, never a naked global |
 | 21 | activation by `on_`/`off_` filename prefix | **ADOPT** — visible in a directory listing, no registry needed |
 | 22 | "plugins cannot side-effect the main program" | **ADOPT as the plane's first law** — with §2.8's honest caveat about what isolation does and does not protect |
+
+### 0.6 THE RECOVERED IMPLEMENTATIONS (correction, 2026-08-16 — measured, not read)
+
+The author remembered a working implementation; the history search
+found two, and running them settled what each is worth.
+
+**(A) The July 2024 single-file system — the one that ran.**
+`libraries/softanzalib/stzPluginSystem.ring` at `dfd4b948c`
+(2024-07-06 → 07-11 lineage; recover with
+`git show dfd4b948c:libraries/softanzalib/stzPluginSystem.ring`).
+~400 lines of implementation under the narration: `LoadPlugins()` via
+`dir()`, fresh `ring_state_init()` per call, plugin file executed with
+`ring_state_runcode`, host value and params injected as `@@()`-serialized
+literals, result and self-reported timing read back via
+`ring_state_findvar(...)[3]`, `try/catch` + per-object ledger, state
+deleted after every call. **Re-run 2026-08-16 under Ring 1.27: it
+works** — discovery, isolation, readback, ledger all live — **except
+one seam defect**: the plugin file computes `@plugin_result` at load
+time from its own embedded sample value, and `Xf()` injects the host
+value *afterwards without re-invoking* `pluginFunc`. `Xf(:reverse)` on
+`"ABCDEF-2026"` returned `"!gniR ni gniR olleH"` — the sample's
+reversal. Every demo output looked right because the demo object's
+content EQUALED every plugin's embedded sample ("Hello Ring in Ring!").
+This is the assertions-that-agree-by-coincidence lesson in its purest
+form, and it becomes a standing guard rule here (§6). **The fix is one
+line** (re-invoke after injection) — applied to a scratch copy, the
+same call returned `"6202-FEDCBA"`. Bonus measurements banked for PL0:
+~3.1 ms per call with a FRESH state each time (100-call average,
+Ring 1.27, this machine), and the 2024 `E3` warning did NOT reproduce.
+
+**(B) The June 2025 layered refactor — never ran.**
+`max/wings/plugma/` at `0276248b2^` (17 files, ~1,390 lines:
+foundation/execution/integration + 4 plugin files; recover with
+`git show '0276248b2^:libraries/stzlib/max/wings/plugma/<file>'`).
+Architecturally it *anticipates this plan* — bounded state pool with
+eviction, cache with hit/miss stats and file-time invalidation, a
+mixin ledger, cooperative time/size checks written INSIDE the plugin
+files (D3's insight, reached independently), options lists instead of
+suffixes (D2's insight). But execution shows it was never run:
+constructor arity error on the first `new` (R19), discovery finds zero
+plugins (`fexists()` on a directory), it calls a nonexistent
+`ring_state_runstring()`, invokes `pluginFunc` with one argument where
+two are declared, never transmits the host value at all, and its
+`fgettime()` is a placeholder returning `clock()` — which silently
+neutralizes both the cache and hot reload. It also contains an
+infinite-recursion `Content()` and a Python `pass`. **Verdict: adopt
+its architecture as corroboration, its code not at all.**
+
+**(C) How it left the tree.** Deleted 2025-06-26 by `0276248b2`
+("Softanzifying stzDataModel and stzDataPerfEngine classes code") — a
+commit that renamed every wings folder to `*-wings` and simply never
+migrated `plugma/`. The deletion is mentioned nowhere in the message:
+silent collateral of a repo reorg, the exact hazard the push protocol's
+`git add <explicit paths>` rule now guards against.
+
+**What this changes in the plan:** PL0 shrinks (state round-trip,
+value crossing, and per-call cost are already answered; E3 is
+demoted to "watch for it"); PL1 becomes a rebuild with (A) as the
+behavioral reference and (B) as an architecture cross-check; §6 gains
+the sample-collision rule. The phase structure, the design rulings,
+and the refusals all stand — (B) independently arriving at cooperative
+constraints and options-lists is evidence they were the right calls.
 
 ---
 
@@ -500,6 +559,13 @@ scored the way the GPU and graphics plans were.
 
 ### PL0 — VM-state physics (measurement only, no product code)
 
+**Partially pre-answered by §0.6** (Ring 1.27, this machine): the
+runcode → inject-via-`@@()` → findvar round trip WORKS; a fresh-state
+call costs ~3.1 ms end-to-end; the E3 warning did not reproduce
+(demoted from "disposition" to "watch for it"). Items 3 (containment)
+and 5 (nested/Unicode fidelity) remain the open questions, plus a
+warm-state per-call cost to set the cache's value.
+
 One throwaway spike file per question, run on Ring 1.25 (the repo's
 pinned VM) and Windows first:
 
@@ -601,6 +667,12 @@ mechanism — not the surface — is what gets asserted:
   ledger's error row after killing a hung plugin.
 - Timing rows: BAND assertions from measurement, monotonic clocks only
   (the timing-assertions reference).
+- **The sample-collision rule (from §0.6, paid for):** every guard
+  value must DIFFER from every sample value embedded in the plugin
+  files under test. The 2024 system shipped a dead value-injection
+  seam that its own demo could not see, because the demo string
+  equaled the plugins' embedded sample. A guard whose input collides
+  with a fixture's default is agreeing by coincidence.
 
 Guards live in `base/test/plugin/`, narrated style, run from inside
 their directory per the sensitive-test rules.
@@ -670,3 +742,10 @@ out of scope by definition):**
   nowhere) become real predicates in PL1.
 - `max/wings/stzWings.ring` — untouched now; named in §1.4 as the
   future consumer that makes the Max layer's original idea honest.
+- **Recovered implementations (history only, not restored to the
+  tree):** the 2024 single-file system —
+  `git show dfd4b948c:libraries/softanzalib/stzPluginSystem.ring` —
+  is PL1's behavioral reference (with §0.6's one-line injection fix);
+  the 2025 `plugma/` layered refactor —
+  `git ls-tree -r --name-only '0276248b2^' -- libraries/stzlib/max/wings/plugma/`
+  — is an architecture cross-check whose code is not adopted (§0.6 B).
