@@ -1,26 +1,30 @@
 # What is next here
 
-> ## Check this is still true before you answer from it
+> ## Answer from this file. You need nothing else and no permission.
 >
-> **Generated 2026-08-16 19:39, when Central was at commit `cd40e67`.**
+> **Written 2026-08-16 19:49, from Central at `17e88ad`.** Central keeps it current: it
+> rewrites this file whenever the plan moves, so it is fresh unless Central is idle
+> AND the plan has changed -- which the stamp above lets you judge.
 >
-> This is a snapshot. The plan may have moved since, and a stale answer given
-> confidently is worse than no answer. One command settles it, and it is cheap
-> enough to run every time -- so run it every time, before you answer:
+> **Everything you need is inside this repository.** Do not read across to softanza
+> to answer a routine question -- that is what costs a permission prompt each time:
+>
+> - this file -- what is next, and why
+> - `.central\inbox.md` -- messages from Central, mirrored here
+> - `.central\outbox.md` -- where you reply; Central reads it
+>
+> **Refresh only when you have reason to.** If the stamp is old and something
+> important turns on it, one command rewrites this file and nothing else:
 >
 > ```
 > powershell -ExecutionPolicy Bypass -File D:\GitHub\softanza\dashboard\central.ps1 -Install -Only stzlib
 > ```
 >
-> It rewrites this file and nothing else in your repository. If nothing changed, git
-> shows nothing and you have lost two seconds. **Then answer.**
->
-> If it still does not answer your question -- the task is unclear, the order looks
-> wrong, or your tree disagrees with it -- **ask Central directly** by appending a
-> block to `D:\GitHub\softanza\mailbox\stzlib-<your plane>.md`. You have every right to; that
-> channel exists for exactly this. Do not guess, and do not wait for permission.
+> Asked the same question twice in one session with no new inbox message and no
+> change here? **Answer immediately from what you already read.** Re-checking an
+> unchanged plan is the cost the author noticed, and it buys nothing.
 
-The full cross-repository picture is in
+The full cross-repository picture, when you actually need it, is in
 ## Facts, read when this was written
 
 - Reference design: **v1.5** (from `REFERENCE_DESIGN.md`)
