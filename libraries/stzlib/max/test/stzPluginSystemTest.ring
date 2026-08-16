@@ -1,3 +1,9 @@
+# SUPERSEDED (2026-08-16) — this file is CLAIMS, NOT CODE: nothing it
+# calls (LoadPlugins, XString, Xf, XCalls, ...) exists in the library,
+# and every output block was written by hand, never run. It is kept as
+# the record of intent. The plan of record that dispositions each claim
+# (ADOPT / RESHAPE / REFUSE) is:
+#     libraries/stzlib/base/plugin/SOFTANZA_PLUGIN_PLAN.md   (PL0–PL5)
 
 load "../stzmax.ring"
 

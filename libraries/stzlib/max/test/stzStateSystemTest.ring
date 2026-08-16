@@ -1,3 +1,10 @@
+# SUPERSEDED (2026-08-16) — kept as the record of the 2024 ring-state
+# technique (the one artifact of that exploration that actually RAN).
+# Its promised stzRingState class and its IsRingState()/AreRingStates()
+# calls exist nowhere; its E3 warning below is a PL0 measurement item.
+# Plan of record:
+#     libraries/stzlib/base/plugin/SOFTANZA_PLUGIN_PLAN.md   (PL0–PL5)
+
 load "../stzmax.ring"
 
 #TODO Add tests for creating a stzRingState object
