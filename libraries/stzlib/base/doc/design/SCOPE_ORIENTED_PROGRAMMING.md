@@ -1,9 +1,12 @@
 # Scope-Oriented Programming
 ### A Softanza paradigm for governing the programmability of complex fields
-*Design paradigm — v1.1 (2026-08-13; v1.0 2026-07-20). Governed fields: **Regex**
-(shipped — see `stz-regexp-confusion-solved-deepdive.md`), **System programming**
-(designed — see `SOFTANZA_SYSTEM_FOUNDATION.md`). This document promotes a pattern
-that was born field-specific (regex) into a reusable, field-independent paradigm.*
+*Design paradigm — v1.2 (2026-08-16; v1.1 2026-08-13; v1.0 2026-07-20). Governed
+fields: **Regex** (shipped — see `stz-regexp-confusion-solved-deepdive.md`),
+**System programming** (designed — see `SOFTANZA_SYSTEM_FOUNDATION.md`),
+**Deployment placement** (built — see §7), **Concurrency** (plan of record — see
+§7b and `base/concurrent/SOFTANZA_CONCURRENT_PLAN.md`). This document promotes a
+pattern that was born field-specific (regex) into a reusable, field-independent
+paradigm.*
 
 *v1.1 — **CSS / stylesheets** added as a fifth candidate field (§9), M1 and M2 only.
 Its arrival amends one claim: the candidate cluster is no longer uniformly M1–M4.
@@ -11,6 +14,13 @@ Two lessons it teaches the paradigm are recorded in §9 — a carrier per frame 
 than per field, and the dissolve-or-surface ruling belonging to a layer rather than
 to a field. **No verb names are proposed**: M3 waits until the field is built, so
 that this document does not again describe an intended API as a realised one.*
+
+*v1.2 — **Concurrency promoted from candidate to instance #4** (§7b), on the
+strength of a plan of record, not code — its M1–M5 mapping is design, and this
+note says so plainly. Two corrections flow back into §9: the candidate row's
+scope set was written in thread vocabulary the actual field refuses, and the
+"dissolved" ruling is confirmed as PER-LAYER — dissolved at two layers, surfaced
+at a third, within one field.*
 
 ---
 
@@ -245,6 +255,70 @@ discipline, one field further out.
 
 ---
 
+## 7b. Instance 4 — Concurrency (plan of record)
+
+The fourth governed field — designed in
+`base/concurrent/SOFTANZA_CONCURRENT_PLAN.md` (CN0–CN5, 2026-08-16), no code
+yet, so everything here is *intended* behavior with its measurement gate (CN0)
+named in that plan. It earns instance status now because the plan does not
+merely *fit* the five moves; it corrects two things this document believed.
+
+The disease, in this field: `oList.Map(f)` — on this thread? across cores? in
+another process? on which machine? The line is unreadable without a frame
+written nowhere near it. The field's 2024 design document had answered with the
+anti-paradigm — *hide the frame on purpose* ("the system handles it
+automatically") — which is why it stayed claims, not code.
+
+The five moves, as the plan binds them:
+
+- **M1**: the hidden frame is the **execution substrate** — where the work runs
+  and what must cross to get there.
+- **M2 — and here is the first correction**: it is **two frames, split**, per
+  this document's own advice. The *substrate* frame: `{engine width, reactor,
+  process fleet}`. The *effect* frame: `{:Pure, :ReadOnly, :Effectful}` (what
+  the work touches — which decides serialization and retry). The §9 candidate
+  row had guessed `{isolated, synchronized, main-thread, actor}` — **thread
+  vocabulary**. Ring has no threads; every thread in the system lives inside a
+  Zig DLL, invisible to Ring. A scope no host can perform is not a scope, so
+  the set was wrong the way a good guess before measurement is wrong.
+- **M3**: `Concurrently()` opens the scope in the receiver chain;
+  `oWorkshop.Submit(...)` names the fleet scope in the receiver. The plan's
+  standing refusals are M3 violations by name: per-operation suffix methods
+  (`DoubleEachConcurrently()`) smear the frame across N verbs;
+  `SetAdaptiveMode(TRUE)` is the set-a-flag-earlier antipattern this paradigm
+  was founded against.
+- **M4 — the instance's contribution**: the scope reasons with
+  **measurements**. Earlier instances computed with the scope (regex picked
+  flags; system checked capabilities); here the scope consults the calibration
+  store (`task.fanout_min_ms`, the break-even below which fan-out loses),
+  routes engine-owned ops to the width that is already parallel, serializes
+  effectful work, and gates retry by effect. And it **reports its own
+  decision** (`RanSequentially()` is observable and counted) — the scope is
+  accountable, not just legible.
+- **M5**: live, in both directions. Down-constrain: a Ring closure or live
+  object *cannot* cross the process seam — refused at call time, with the fix
+  in the error (ship data, not objects); an `:Effectful` task is refused
+  parallel access to its declared resource. Envelope honesty: the family
+  kernel (`ringtask.ring`) carries the *same three words* with a smaller
+  declared envelope (batch-only, no async claims) for hosts without the
+  reactor — the placement instance's defer-wisdom applied to a weaker host.
+  And CN0's kill criteria shrink the envelope by measurement before the API
+  can promise it.
+
+**The second correction, which this field settles rather than raises**: §9's
+note observed that concurrency's frame had "so far been dissolved rather than
+surfaced" (Reaxis), and CSS taught that dissolve-or-surface belongs to a
+*layer*. Concurrency now demonstrates both rulings inside one field,
+simultaneously: **dissolved** at the Reaxis stream surface (one thread, no
+scheduler — accidental complexity), **dissolved** at the engine widths
+(multicore is transparent behind calibration gates — the user never asks),
+**surfaced** at the task layer (placement of Ring work is an essential
+decision the programmer must own). Same frame, three layers, three correct
+rulings — the strongest confirmation yet that M1's real question is *essential
+to whom, at which layer?*
+
+---
+
 ## 8. How to bring a new complex field under the paradigm
 
 The paradigm is reusable. To apply it to a candidate field, run the five moves
@@ -263,7 +337,8 @@ as a checklist:
    scopes can exceed the host, add the capability contract: constrain what a
    scope forbids, and rehearse what the host lacks.
 
-Five fields already pass this test — none yet designed, all worth designing.
+Five fields passed this test as candidates; **Concurrency has since graduated
+to instance #4** (§7b), its row below kept with the correction it earned.
 Section 9 runs each through the lens.
 
 ---
@@ -282,7 +357,7 @@ what a browser honours — so a scope there both constrains and rehearses.
 |---|---|---|---|---|
 | **Time** | which *clock* and which *zone* a value lives in | clock `{wall, monotonic, process}`; anchoring `{UTC, zoned, floating}` | subtracting a wall instant from a monotonic one, or comparing a floating time to a zoned one, is refused; zones auto-convert | no |
 | **Units / quantities** | the *unit / dimension* of a number | units grouped by dimension `{length, mass, time, …}` | dimensional algebra: `m + s` refused, `m + ft` converts, `m * m` = area. The runtime does real algebra on the scope | no |
-| **Concurrency** | the *isolation / execution* scope a block runs in | `{isolated, synchronized, main-thread, actor}` | touching UI from a worker, or sharing a non-shareable value across scopes, is refused (Rust's `Send`/`Sync` is exactly this) | partial |
+| **Concurrency** — *graduated to instance #4, §7b* | the *execution substrate* a piece of work runs on — plus a second frame, the work's *effect* | substrate `{engine width, reactor, process fleet}` + effect `{pure, read-only, effectful}` — the earlier guess `{isolated, synchronized, main-thread, actor}` was thread vocabulary Ring cannot perform | a closure crossing a process seam, or an effectful task fanning out over its resource, is refused; fan-out below the measured break-even runs sequentially and *says so* | **yes** |
 | **Memory** | the *ownership / lifetime* region a pointer belongs to | `{owned, borrowed, shared, arena, static}` | use-after-free and double-free become rejected operations; scope-exit frees automatically (the borrow-checker move) | no |
 | **CSS / stylesheets** | which *formatting context* a declaration lands in — and, beneath it, the cascade that decides whether it applies at all | context `{flow, flex, grid, table, absolute}`; unit reference `{root, parent, containing-block, viewport}`; box model `{content, border}` | a property that is a no-op in its context is refused — `align-items` in flow, `z-index` outside a stacking context; and *"why did this rule win?"* becomes a computed answer instead of a bisect | **yes** |
 
@@ -316,16 +391,16 @@ from *pick a carrier* to **pick a carrier per frame**, and the question stops be
 *what kind of field is this?* and becomes **how long must this frame live?** — which
 is the question that was doing the work all along.
 
-**A note on Concurrency specifically.** It is the one candidate whose frame
-Softanza has so far chosen to *dissolve* rather than surface: the reactive layer
+**A note on Concurrency specifically.** It was the one candidate whose frame
+Softanza had so far chosen to *dissolve* rather than surface: the reactive layer
 (Reaxis) runs on a single Ring thread with no call-site scheduler, deliberately
 hiding the execution-context frame because at the ergonomic surface it is
-accidental complexity, not a decision the programmer must own. The essential
-isolation scope still exists — it lives in the reactor *beneath* Reaxis (which
-loop, what may cross a thread boundary) — and that is where a scope-oriented
-treatment of concurrency would belong, not on the declarative stream surface. A
-useful reminder that M1's real question is *"is this frame an essential
-decision, or noise to dissolve?"*
+accidental complexity, not a decision the programmer must own. The prediction
+this paragraph made — that a scope-oriented treatment would belong beneath the
+stream surface, not on it — **held**: instance #4 (§7b) surfaces the frame at
+the *task* layer while Reaxis and the engine widths keep dissolving it at
+theirs. M1's real question — *"is this frame an essential decision, or noise to
+dissolve?"* — turned out to have a per-layer answer inside a single field.
 
 **And a second reading of that question, which CSS sharpens.** Concurrency shows a
 frame can be *dissolved* rather than surfaced. CSS shows the ruling can belong to a
@@ -350,7 +425,10 @@ all-powerful. Regex proved the core (M1–M4). System programming proved the
 extension (M5) and, in doing so, showed the paradigm is not about text at all.
 Deployment placement pushed M5 further still — from a two-way gate into a
 multi-way *placement* across a heterogeneous topology, where the scope sometimes
-wisely **defers** to a richer platform rather than acting at all.
+wisely **defers** to a richer platform rather than acting at all. Concurrency
+(§7b) added two things: a scope that reasons with **measurements** and reports
+its own decisions, and the proof that dissolve-or-surface is decided **per
+layer inside one field** — three layers, three correct rulings.
 
 The Softanza signature holds throughout: **intent over mechanics, made legible,
 and handed to the library as something it can reason about — not left in the
@@ -367,3 +445,6 @@ programmer's head.**
 - `stzDelivery.ring` — the deployment-placement instance: the reasoning behind
   `stzBuilder` that resolves each capability to a delivery vector by the
   differential-value test, and rehearses the plan before a byte is built.
+- `base/concurrent/SOFTANZA_CONCURRENT_PLAN.md` — the concurrency instance
+  (§7b): its §1.6 carries the M1–M5 mapping from the field's side, so the two
+  documents cite each other.

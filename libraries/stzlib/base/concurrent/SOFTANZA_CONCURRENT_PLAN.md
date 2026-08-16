@@ -300,6 +300,49 @@ job-queue product with persistence (tasks live and die with the
 workshop), and not an autoscaling system (the cluster supervisor owns
 that, for the citizens that need it).
 
+### 1.6 The paradigm fit: Scope-Oriented Programming, instance #4
+
+`base/doc/design/SCOPE_ORIENTED_PROGRAMMING.md` lists concurrency
+among its candidate fields; this plane is its fourth instance, and the
+plan already enforces the five moves — stated here so the two
+documents cite each other instead of drifting:
+
+- **M1 (name the hidden frame)**: the *execution substrate* — where
+  work runs and what must cross to get there. `oList.Map(f)` without
+  the frame is unreadable in exactly SOP's sense. The 2024 document's
+  deepest flaw was anti-SOP: it hid the frame on purpose ("the system
+  handles it automatically").
+- **M2 (small closed set — and it is TWO frames, split)**: the
+  substrate frame `{engine width, reactor, process fleet}` and the
+  effect frame `{:Pure, :ReadOnly, :Effectful}` (what the work
+  touches). The SOP doc's candidate row guessed thread vocabulary
+  (`main-thread`, `actor`, `Send/Sync`); the built field corrects it —
+  Ring has no threads, so no scope may name one.
+- **M3 (scope at the call site)**: `Concurrently()` is the
+  scope-opener in the receiver chain; `oWork.Submit(...)` names the
+  fleet scope in the receiver. The refusals are M3 violations by
+  name: the per-op suffix zoo smears the frame over N methods;
+  `SetAdaptiveMode(TRUE)` is the set-a-flag-earlier antipattern.
+- **M4 (the library reasons with the scope)**: the router — and what
+  this instance contributes: the scope reasons with *measurements*.
+  It consults `task.fanout_min_ms`, routes engine ops to the width
+  that is already parallel, serializes effectful tasks, gates retry
+  by effect, and `RanSequentially()` is the scope reporting its own
+  decision.
+- **M5 (capability contract)**: live — a closure or live object
+  CANNOT cross the seam (down-constrain, refused with the fix in the
+  error); the family kernel carries the same three words with a
+  smaller declared envelope (batch-only — the placement instance's
+  honesty about weaker hosts); and CN0's kill criteria shrink the
+  envelope by measurement instead of letting the API lie.
+
+One ruling from the SOP doc survives untouched and is worth restating:
+the frame is **dissolved or surfaced per layer**. Reaxis dissolves it
+(streams on one thread, deliberately); the engine widths dissolve it
+(multicore is transparent); this plane surfaces it at the task layer,
+where placement is a decision the programmer must own. Same frame,
+three layers, three correct rulings.
+
 ---
 
 ## 2. DESIGN — the settled decisions
