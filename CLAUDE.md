@@ -369,26 +369,31 @@ own session makes it.
 
 ## Talk in the block style
 
-Substantive messages are a closed block, yaml-like, spaced for the eye -- blank line
-between keys, facts as dashes, states aligned:
+Substantive messages are a closed yaml-like block, spaced for the eye. Seven keys, fixed
+order -- subject first, because the reader must know WHAT before why:
 
 ```yaml
-why:      goal, one clause
+subject:   noun phrase -- the thing this message is about
+
+why:       one clause -- why it matters now
 
 did:
-  - fact
-  - fact
+  - verb-first full clause, understandable alone
 
 state:
-  thing:     value
+  entity:     its current state   (named system things only)
 
-open:     what waits -> who decides
+waiting:
+  - TASK-ID: the question in plain words -> who decides
 
-next:     the single move
+next:      actor: the single move
 
-note:     one judgement clause, only if needed
+note:      one judgement clause, only if needed
 ```
 
-Clauses, not sentences. Detail beyond the block goes in one grid (thing | state |
-action). Popups: outcome plus what gets written. Commits: plain title, then
-why/what/proof. Full law: `D:\GitHub\softanza\protocol\STYLE.md`
+Semantic rules: every `did` line is a full clause ("evidence carried" is banned; "sent
+Central the rlist.c evidence" is the form). `state` rows are the state of nameable
+entities, all the same kind. Task IDs are readable -- UPSTREAM-LISTSHAPE-19, never F-19;
+a bare code forces a search. The stranger test governs all of it: every line must parse
+for a reader who missed the conversation. Full law: `D:\GitHub\softanza\protocol\STYLE.md`
+
