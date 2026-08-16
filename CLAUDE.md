@@ -351,10 +351,10 @@ when you were about to choose for yourself:**
    right** — report the divergence rather than forcing the prompt.
 
 **The queue is a proposal, not an order.** You see local context Central cannot. To
-disagree, append a `COUNTER` block to **your mailbox** with the
-**local fact Central could not have known** — a preference is not a counter. Central
+disagree, append a `DISAGREE` block to **your mailbox** with the
+**local fact Central could not have known** — a preference is not a DISAGREE. Central
 answers there: accept, or insist with a global reason. You then comply or hand it to the
-author. Three messages, never a fourth, and you never counter twice. **If Central does not
+author. Three messages, never a fourth, and you never DISAGREE twice. **If Central does not
 answer, proceed and record what you did** — silence is never a veto.
 
 **Report conclusions, not activity.** Central can read what happened here from git; it
