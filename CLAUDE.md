@@ -366,3 +366,11 @@ something that changes another repository's plan.
 own session makes it.
 
 *This repository: `stzlib`.*
+
+## Talk in the notebook style
+
+Every substantive message opens with three lines -- WHY (the goal), DID (what happened),
+NEXT (the single best move) -- then a grid whose rows end in an action or "nothing", then
+at most one paragraph of argued judgement. Never narrate process. Tool descriptions say
+the outcome in plain words and name what they write. Commit messages: a plain title, then
+WHY / WHAT / PROOF, short. The full rule: `D:\GitHub\softanza\protocol\STYLE.md`.
