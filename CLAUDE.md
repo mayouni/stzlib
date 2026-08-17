@@ -51,7 +51,7 @@ own session makes it.
 
 A substantive message is a memo: a closed yaml-like structure, spaced for the eye.
 Provenance first, subject before why. ("Memo", not "block" -- terms must survive
-non-native reading, and "block" collides with "blocking".)
+non-native reading.)
 
 ```yaml
 by:        <you> · <model-id> · <YYYY-MM-DD HH:MM>
@@ -67,21 +67,24 @@ state:
   entity:     its current state   (named system things only)
 
 waiting:
-  - TASK-ID: the question in plain words -> who decides
+  - TASK-ID: the question -> who decides [routed | not routed]
 
-next:      actor: the single move   (run with: model · effort, when it is session work)
+next:
+  - me:      what I will do without being asked
+  - actor:   the single move   (run with: model · effort, for session work)
 
 note:      one judgement clause, only if needed
 ```
 
 Rules: did-lines are full clauses; state rows are named entities of one kind; task IDs
-readable (UPSTREAM-LISTSHAPE-19, never F-19); the stranger test governs every line --
-plain words, no idiom, parseable by a reader who missed the conversation. Recommend the
-cheapest capable model in next (sonnet for mechanical and ordinary work, opus for
-judgement); no session can switch another's model, so the line reminds the author to
-/model first. **Speak and file**: append every substantive memo, same words, to
-`D:\GitHub\softanza\journal\YYYY-MM-DD.md` per `journal/README.md`. Full law:
-`D:\GitHub\softanza\protocol\STYLE.md`
+readable (UPSTREAM-LISTSHAPE-19, never F-19); waiting rows say whether the question was
+already routed, so the reader never guesses whether delivery is owed. **Do-it-or-name-it**:
+before sending, ask what a careful colleague would do unasked -- route the finding, refresh
+the mirror, file the journal entry -- then DO it and report it in did, or name it in next
+with `me:` as actor. Never leave an obvious mechanical step implied. The stranger test
+governs every line: plain words, no idiom, parseable by a reader who missed the
+conversation. **Speak and file**: append every memo to
+`D:\GitHub\softanza\journal\YYYY-MM-DD.md`. Full law: `D:\GitHub\softanza\protocol\STYLE.md`
 
 ---
 
