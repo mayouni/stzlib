@@ -1893,19 +1893,18 @@ class stzDiagram from stzGraph
 						# extra room was not. At the shared bias they
 						# inherit the spread the layout just paid for.
 						#
-						# SAMPLED ON THE ACTUAL SPLINE, through the same
-						# ports the edge is drawn from. Interpolating
-						# between two clipped centres describes a straight
-						# line the edge does not take, so a label drifted
-						# off its own curve exactly where the curve bends
-						# most -- and a fanned edge bends most near its
-						# source. One geometry, read twice.
-						_p2_ = This._PortPoint(_a_, _aPort_[_ei_][1],
-							_nBoxW_, _nBoxH_, _cRank_, 1)
-						_q2_ = This._PortPoint(_b_, _aPort_[_ei_][2],
-							_nBoxW_, _nBoxH_, _cRank_, 0)
-						_lat_ = This._SplineAt(_p2_, _q2_, _cRank_,
-							This._EdgeLabelBias())
+						# ON the real path, CENTRED, on its plate. A
+						# beside-the-line placement was tried for dot
+						# parity and reverted the same day: shifted half
+						# its width toward the target, a label on a
+						# rightward edge reached the NEXT edge's arrowhead
+						# -- it traded a plate over its own stroke for ink
+						# over somebody else's. The plate erases a few
+						# pixels of the line it names, which is the
+						# cheaper of the two collisions and the one dot's
+						# own label boxes accept too.
+						_lat_ = This._EdgePathAt(_a_, _b_, _nBoxW_,
+							_nBoxH_, _cRank_, This._EdgeLabelBias())
 						_lax_ = _lat_[1]
 						_lay_ = _lat_[2]
 					ok
@@ -2442,7 +2441,7 @@ class stzDiagram from stzGraph
 
 		# clip the first and last legs at the boxes they touch
 		_p_ = This._ClipToBox(aFrom, _pts_[2], nBoxW, nBoxH)
-		_q_ = This._ClipToBox(aTo, _pts_[ len(_pts_) - 1 ], nBoxW, nBoxH)
+		_q_ = This._ClipExact(aTo, _pts_[ len(_pts_) - 1 ], nBoxW, nBoxH)
 		_pts_[1] = _p_
 		_pts_[ len(_pts_) ] = _q_
 
@@ -2452,14 +2451,13 @@ class stzDiagram from stzGraph
 		else
 			_flat_ = This._SmoothThrough(_pts_)
 		ok
+		# the same cut-for-the-head contract as a single-hop edge: the
+		# stroke stops where the arrow begins, so the head is whole at any
+		# arrival angle
+		_cut_ = This._ArrowCut(_flat_, 9 + nWidth * 2)
 		oC.Flush()
-		oC.AddPolylineQ(_flat_).Stroke(cColor, nWidth)
-
-		_n_ = len(_flat_)
-		if _n_ >= 4
-			This._DrawArrow(oC, [ _flat_[_n_ - 3], _flat_[_n_ - 2] ], _q_,
-				cColor, nWidth, "line", cRank)
-		ok
+		oC.AddPolylineQ(_cut_[1]).Stroke(cColor, nWidth)
+		This._DrawArrowHead(oC, _cut_[2], _cut_[3], cColor)
 
 	# Catmull-Rom through every point, sampled. Passes THROUGH its control points,
 	# unlike the quadratic used for a single hop, which is what a route needs:
@@ -2520,72 +2518,170 @@ class stzDiagram from stzGraph
 		if bOut  return [ aCentre[1] + nPort, aCentre[2] + _hh_ ]  ok
 		return [ aCentre[1] + nPort, aCentre[2] - _hh_ ]
 
-	# A CUBIC whose tangents at BOTH ends run along the rank axis, so an
-	# edge leaves its source square to the border and arrives square to the
-	# target's.
+	# THE EDGE GRAMMAR, learned by rendering the same diagrams through
+	# dot.exe and putting the pictures side by side. Three rules, and the
+	# previous model broke all three:
 	#
-	# The old curve was a QUADRATIC with one control point sitting directly
-	# below the source. One control point cannot fix two tangents: the
-	# departure was square and the arrival was at whatever angle the single
-	# control happened to give, which is the kink visible on every fanned
-	# edge and the reason arrowheads met their node crooked. Two control
-	# points is the least that can satisfy both ends, and is what makes a
-	# layered drawing look drawn rather than plotted.
-	def _SplinePoints(aP, aQ, cRank)
-		if cRank = "LR" or cRank = "RL"
-			_d_ = (aQ[1] - aP[1]) * 0.5
-			_c1_ = [ aP[1] + _d_, aP[2] ]
-			_c2_ = [ aQ[1] - _d_, aQ[2] ]
-		else
-			_d_ = (aQ[2] - aP[2]) * 0.5
-			_c1_ = [ aP[1], aP[2] + _d_ ]
-			_c2_ = [ aQ[1], aQ[2] - _d_ ]
+	# 1. AN EDGE IS AIMED AT ITS TARGET. The exit point sits on the source
+	#    border in the target's direction and the path runs essentially
+	#    straight -- the angles separate a fan by themselves, which is why
+	#    dot needs no port spreading. The old model forced a vertical
+	#    tangent at BOTH ends (ELK's style, not dot's): every lateral edge
+	#    became an S, and an S bows inward somewhere, which is exactly the
+	#    "not an outer arc" a reader notices.
+	#
+	# 2. THE DEPARTURE IS SOFT, THE ARRIVAL IS STRAIGHT. The curve leaves
+	#    leaning along the rank axis and straightens into the aim line --
+	#    one bend, always outward. The arrival tangent IS the aim, so the
+	#    arrowhead points the way the line actually travels.
+	#
+	# 3. THE LINE IS CUT FOR THE ARROW. dot shortens the spline by the
+	#    head's length and sets the tip exactly on the border. Drawing the
+	#    full line and stamping a head over it leaves the line poking past
+	#    the head at any angle the stamp did not cover -- the "arrows not
+	#    always visible" of every hand-rolled renderer.
+	#
+	# One geometry, read three times: the stroke, the arrowhead, and the
+	# label all sample THIS path.
+
+	# The path between two BORDER points: a cubic that departs along the
+	# rank axis and arrives along the straight aim. Flat [x,y,...] samples.
+	def _EdgePathFlat(aP, aQ, cRank)
+		_gdx_ = aQ[1] - aP[1]
+		_gdy_ = aQ[2] - aP[2]
+		_glen_ = sqrt(_gdx_ * _gdx_ + _gdy_ * _gdy_)
+		if _glen_ < 0.001
+			return [ aP[1], aP[2], aQ[1], aQ[2] ]
 		ok
-		_a_ = []
-		for _i_ = 0 to 24
-			_t_ = _i_ / 24
-			_u_ = 1 - _t_
-			_a_ + (_u_*_u_*_u_ * aP[1] + 3*_u_*_u_*_t_ * _c1_[1] +
-				3*_u_*_t_*_t_ * _c2_[1] + _t_*_t_*_t_ * aQ[1])
-			_a_ + (_u_*_u_*_u_ * aP[2] + 3*_u_*_u_*_t_ * _c1_[2] +
-				3*_u_*_t_*_t_ * _c2_[2] + _t_*_t_*_t_ * aQ[2])
+		# departure control: along the rank axis, a quarter of the way
+		_gk_ = _glen_ * 0.25
+		if cRank = "LR" or cRank = "RL"
+			_gsx_ = 1
+			if _gdx_ < 0  _gsx_ = -1  ok
+			_c1_ = [ aP[1] + _gsx_ * _gk_, aP[2] ]
+		else
+			_gsy_ = 1
+			if _gdy_ < 0  _gsy_ = -1  ok
+			_c1_ = [ aP[1], aP[2] + _gsy_ * _gk_ ]
+		ok
+		# arrival control: back along the AIM, so the last stretch is the
+		# straight line the arrowhead will continue
+		_c2_ = [ aQ[1] - _gdx_ / _glen_ * _gk_, aQ[2] - _gdy_ / _glen_ * _gk_ ]
+		_ga_ = []
+		for _gi_ = 0 to 24
+			_gt_ = _gi_ / 24
+			_gu_ = 1 - _gt_
+			_ga_ + (_gu_*_gu_*_gu_ * aP[1] + 3*_gu_*_gu_*_gt_ * _c1_[1] +
+				3*_gu_*_gt_*_gt_ * _c2_[1] + _gt_*_gt_*_gt_ * aQ[1])
+			_ga_ + (_gu_*_gu_*_gu_ * aP[2] + 3*_gu_*_gu_*_gt_ * _c1_[2] +
+				3*_gu_*_gt_*_gt_ * _c2_[2] + _gt_*_gt_*_gt_ * aQ[2])
 		next
-		return _a_
+		return _ga_
 
-	# The point on that spline at fraction t -- so a label sits ON the
-	# curve it names rather than on the straight line between the centres.
-	def _SplineAt(aP, aQ, cRank, nT)
-		_pts_ = This._SplinePoints(aP, aQ, cRank)
-		_n_ = len(_pts_) / 2
-		_k_ = floor(nT * (_n_ - 1)) + 1
-		if _k_ < 1  _k_ = 1  ok
-		if _k_ > _n_  _k_ = _n_  ok
-		return [ _pts_[_k_ * 2 - 1], _pts_[_k_ * 2] ]
+	# Walk back from the end of a flat polyline and CUT it nLen before its
+	# tip: [ aShortenedFlat, aBase, aTip ]. The stroke is drawn to the cut,
+	# the head owns the rest.
+	def _ArrowCut(paFlat, nLen)
+		_an_ = len(paFlat)
+		if _an_ < 4  return [ paFlat, [ 0, 0 ], [ 0, 0 ] ]  ok
+		_atx_ = paFlat[_an_ - 1]
+		_aty_ = paFlat[_an_]
+		_arem_ = nLen
+		_ai_ = _an_ - 2
+		while _ai_ >= 2
+			_ax1_ = paFlat[_ai_ - 1]
+			_ay1_ = paFlat[_ai_]
+			_ax2_ = paFlat[_ai_ + 1]
+			_ay2_ = paFlat[_ai_ + 2]
+			_aseg_ = sqrt((_ax2_ - _ax1_) * (_ax2_ - _ax1_) +
+				(_ay2_ - _ay1_) * (_ay2_ - _ay1_))
+			if _aseg_ >= _arem_ and _aseg_ > 0.0001
+				_af_ = (_aseg_ - _arem_) / _aseg_
+				_abx_ = _ax1_ + (_ax2_ - _ax1_) * _af_
+				_aby_ = _ay1_ + (_ay2_ - _ay1_) * _af_
+				_aout_ = []
+				for _aj_ = 1 to _ai_
+					_aout_ + paFlat[_aj_]
+				next
+				_aout_ + _abx_
+				_aout_ + _aby_
+				return [ _aout_, [ _abx_, _aby_ ], [ _atx_, _aty_ ] ]
+			ok
+			_arem_ -= _aseg_
+			_ai_ -= 2
+		end
+		return [ paFlat, [ paFlat[1], paFlat[2] ], [ _atx_, _aty_ ] ]
 
-	# A `def` signature CANNOT be split across two lines in Ring: the
-	# parser stops at the newline and the file dies with no message at all,
-	# no line number, and an empty exit-1 -- which reads as an environment
-	# failure rather than a typo.
+	# The solid head: base to tip, wings perpendicular. It owns the whole
+	# stretch the cut released, so nothing shows through it.
+	def _DrawArrowHead(oC, aBase, aTip, cColor)
+		_hdx_ = aTip[1] - aBase[1]
+		_hdy_ = aTip[2] - aBase[2]
+		_hl_ = sqrt(_hdx_ * _hdx_ + _hdy_ * _hdy_)
+		if _hl_ < 0.001  return  ok
+		_hdx_ = _hdx_ / _hl_
+		_hdy_ = _hdy_ / _hl_
+		_hw_ = _hl_ * 0.40
+		_hpx_ = 0 - _hdy_
+		_hpy_ = _hdx_
+		oC.Flush()
+		oC.FillQ(cColor).StrokeQ(cColor, 0).
+			AddPolygon([ aTip[1], aTip[2],
+				aBase[1] + _hpx_ * _hw_, aBase[2] + _hpy_ * _hw_,
+				aBase[1] - _hpx_ * _hw_, aBase[2] - _hpy_ * _hw_ ])
+
+	# Clip EXACTLY on the border -- no air. _ClipToBox pads by 2px, which
+	# was right when the stroke ran all the way to the node and must not
+	# overdraw its border; the head's TIP has to touch the border, as
+	# dot's does, and 2px short reads as an arrow shying away from its
+	# target.
+	def _ClipExact(aCentre, aOther, nBoxW, nBoxH)
+		_cdx_ = aOther[1] - aCentre[1]
+		_cdy_ = aOther[2] - aCentre[2]
+		if _cdx_ = 0 and _cdy_ = 0  return [ aCentre[1], aCentre[2] ]  ok
+		_ctx_ = 1000000
+		_cty_ = 1000000
+		if _cdx_ != 0  _ctx_ = fabs(nBoxW / 2 / _cdx_)  ok
+		if _cdy_ != 0  _cty_ = fabs(nBoxH / 2 / _cdy_)  ok
+		_ct_ = min([ _ctx_, _cty_ ])
+		return [ aCentre[1] + _cdx_ * _ct_, aCentre[2] + _cdy_ * _ct_ ]
+
+	# The whole geometry for one single-hop edge, from CENTRES: clip both
+	# ends toward the other, path, cut. [ aFlat, aBase, aTip ].
+	def _EdgeGeometry(aFrom, aTo, nBoxW, nBoxH, cRank, nWidth)
+		_ep_ = This._ClipExact(aFrom, aTo, nBoxW, nBoxH)
+		_eq_ = This._ClipExact(aTo, aFrom, nBoxW, nBoxH)
+		_efl_ = This._EdgePathFlat(_ep_, _eq_, cRank)
+		return This._ArrowCut(_efl_, 9 + nWidth * 2)
+
+	# The point at fraction t along that same path -- the label's anchor,
+	# so a label sits ON the curve it names.
+	def _EdgePathAt(aFrom, aTo, nBoxW, nBoxH, cRank, nT)
+		_ep_ = This._ClipExact(aFrom, aTo, nBoxW, nBoxH)
+		_eq_ = This._ClipExact(aTo, aFrom, nBoxW, nBoxH)
+		_efl_ = This._EdgePathFlat(_ep_, _eq_, cRank)
+		_en_ = len(_efl_) / 2
+		_ek_ = floor(nT * (_en_ - 1)) + 1
+		if _ek_ < 1  _ek_ = 1  ok
+		if _ek_ > _en_  _ek_ = _en_  ok
+		return [ _efl_[_ek_ * 2 - 1], _efl_[_ek_ * 2] ]
+
 	def _DrawEdgeXT(oC, aFrom, aTo, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nLane, nPortA, nPortB)
 		if cSpline = "ortho"
 			This._DrawEdge(oC, aFrom, aTo, nBoxW, nBoxH, cColor, nWidth,
 				cSpline, cRank, nLane)
 			return
 		ok
-		_p_ = This._PortPoint(aFrom, nPortA, nBoxW, nBoxH, cRank, 1)
-		_q_ = This._PortPoint(aTo, nPortB, nBoxW, nBoxH, cRank, 0)
+		_dg_ = This._EdgeGeometry(aFrom, aTo, nBoxW, nBoxH, cRank, nWidth)
 		if cSpline = "line" or cSpline = "polyline"
-			oC.Flush()
-			oC.AddLineQ(_p_[1], _p_[2], _q_[1], _q_[2]).Stroke(cColor, nWidth)
-			This._DrawArrow(oC, _p_, _q_, cColor, nWidth, "line", cRank)
-			return
+			_dp_ = This._ClipExact(aFrom, aTo, nBoxW, nBoxH)
+			_dq_ = This._ClipExact(aTo, aFrom, nBoxW, nBoxH)
+			_dg_ = This._ArrowCut([ _dp_[1], _dp_[2], _dq_[1], _dq_[2] ],
+				9 + nWidth * 2)
 		ok
-		_pts_ = This._SplinePoints(_p_, _q_, cRank)
 		oC.Flush()
-		oC.AddPolylineQ(_pts_).Stroke(cColor, nWidth)
-		_n_ = len(_pts_)
-		This._DrawArrow(oC, [ _pts_[_n_ - 3], _pts_[_n_ - 2] ], _q_,
-			cColor, nWidth, "line", cRank)
+		oC.AddPolylineQ(_dg_[1]).Stroke(cColor, nWidth)
+		This._DrawArrowHead(oC, _dg_[2], _dg_[3], cColor)
 
 	def _DrawEdge(oC, aFrom, aTo, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nLane)
 		_p_ = This._ClipToBox(aFrom, aTo, nBoxW, nBoxH)
