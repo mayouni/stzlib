@@ -539,14 +539,49 @@ negative sibling that catches this — *a genuine nesting is NOT refused* —
 is now in the guard.
 
 ### Still open
-- **Edge labels do not steer the layout.** dot gives a label its own
-  virtual rank, so labels widen the picture where they need it. Ours
-  reserve gap height and nudge on collision, which is enough for the
-  label counts seen so far and is not the same guarantee.
+- ~~Edge labels do not steer the layout.~~ **Closed 2026-08-14.** The
+  engine's coordinate pass took one separation for every pair, so nothing
+  wider than a node could ask for space. It now takes a per-node
+  half-width demand — `sep + extra[a] + extra[b]` — and the isotonic
+  substitution generalises exactly (`u[k] = t[k] - c[k]` with `c` the
+  cumulative offset), so PAVA still solves each layer optimally in one
+  pass. dot buys this with a virtual label node in its own rank; a
+  per-node demand buys the same room without doubling the rank count.
+
+  Charged to the **target**: a fan-out's labels spread the way its
+  children do, so widening the children is what stops the labels meeting.
+
+  **The first attempt widened the picture and the labels still collided.**
+  They were drawn at edge MIDPOINTS, and the midpoints of a fan stay
+  bunched near the parent however far apart the children get — the room
+  was bought in the one place the labels were not standing. They now sit
+  at a fraction of the way to the target and the demand DIVIDES by that
+  same fraction; `_EdgeLabelBias` owns it and both read it. Out of step,
+  the layout buys space the label is not in.
 - **`polyline` and `line` splines are aliases of each other**, and neither
   changes a self-loop. Only `ortho` and the curved default are distinct
   routes today, so `$acSplineTypes` advertises six names for three
   behaviours.
+
+### Every item on this list has now been checked, and every claim was wrong
+
+Six for six. Each entry was written from a reasonable assumption about
+code that was never run, and not one survived contact:
+
+| Plan said | Truth |
+|---|---|
+| clusters "do not constrain layout" | correct, but the box was faithful — the members were scattered |
+| self-loops "drawn as degenerate segments" | **fatal** — refused the whole graph as cyclic |
+| parallel edges "drawn as degenerate segments" | **cannot be created** — simple graph by decision |
+| edge labels "have no reserved space" | **never drawn at all** |
+| nested clusters "the constraint form cannot express them" | it can, per depth — the plan asserted an impossibility about its own design |
+| labels "do not steer the layout" | true, and the enabler was a missing engine capability, not a diagram concern |
+
+The pattern is not carelessness in any single entry — each was plausible
+when written. It is that **an open-items list is a set of claims, and
+claims decay silently** because nothing runs them. The same reason a
+`#-->` block goes stale. Check before scheduling, and expect the check
+itself to be the finding.
 
 ### The pattern across all four (worth reading before scheduling any of them)
 
