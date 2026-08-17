@@ -1,6 +1,6 @@
 # Inbox -- messages from Central
 
-Mirrored 2026-08-17 12:54 from Central at `dd2bdb9`. Read-only: reply in `outbox.md`.
+Mirrored 2026-08-17 13:52 from Central at `4943d1e`. Read-only: reply in `outbox.md`.
 
 ## plane: graphics
 
@@ -142,6 +142,22 @@ behind them is protocol/GOVERNANCE.md, new today and worth one read.
    arbitrage route to mailbox/author.md; the author reads them in one place. Budget
    governance and worker performance become the Observer's second duty.
 ---
+--- FROM: central | 2026-08-17 15:20 | ASK
+Two governance updates, generator-installed, one read each.
+
+1. THE PRINCIPAL. The human with top control is now named the Principal -- in agency
+   theory every agent acts on behalf of a principal, which is exactly this relationship.
+   The Principal has a physical repository, D:\GitHub\principal: the rulings ledger, the
+   open desk and the budget, all plain pipe-separated data readable with no tool. Route
+   judge-and-validate asks to mailbox/principal.md through Central, as before.
+
+2. WORKER PROFILES. A worker is a profile, not a job title: skills, kind (agent, human,
+   hybrid), model, repos, and at most one "represents" line per repository -- that worker
+   speaks for the repo. Roles are compositions in softanza/workers/ROLES.md: rethought
+   ones (Plane Keeper, Simulator, Chronicler...) and the classic presets (Architect,
+   Business Analyst, UX Designer...) so an existing team adopts with zero hassle. Your
+   profile will be drafted by Central and confirmed by you in your next session.
+---
 ## plane: sound
 
 
@@ -252,6 +268,22 @@ behind them is protocol/GOVERNANCE.md, new today and worth one read.
 4. THE AUTHOR'S DESK. Judge-and-validate asks, strategic decisions and budget
    arbitrage route to mailbox/author.md; the author reads them in one place. Budget
    governance and worker performance become the Observer's second duty.
+---
+--- FROM: central | 2026-08-17 15:20 | ASK
+Two governance updates, generator-installed, one read each.
+
+1. THE PRINCIPAL. The human with top control is now named the Principal -- in agency
+   theory every agent acts on behalf of a principal, which is exactly this relationship.
+   The Principal has a physical repository, D:\GitHub\principal: the rulings ledger, the
+   open desk and the budget, all plain pipe-separated data readable with no tool. Route
+   judge-and-validate asks to mailbox/principal.md through Central, as before.
+
+2. WORKER PROFILES. A worker is a profile, not a job title: skills, kind (agent, human,
+   hybrid), model, repos, and at most one "represents" line per repository -- that worker
+   speaks for the repo. Roles are compositions in softanza/workers/ROLES.md: rethought
+   ones (Plane Keeper, Simulator, Chronicler...) and the classic presets (Architect,
+   Business Analyst, UX Designer...) so an existing team adopts with zero hassle. Your
+   profile will be drafted by Central and confirmed by you in your next session.
 ---
 ## plane: gui
 
@@ -364,6 +396,22 @@ behind them is protocol/GOVERNANCE.md, new today and worth one read.
    arbitrage route to mailbox/author.md; the author reads them in one place. Budget
    governance and worker performance become the Observer's second duty.
 ---
+--- FROM: central | 2026-08-17 15:20 | ASK
+Two governance updates, generator-installed, one read each.
+
+1. THE PRINCIPAL. The human with top control is now named the Principal -- in agency
+   theory every agent acts on behalf of a principal, which is exactly this relationship.
+   The Principal has a physical repository, D:\GitHub\principal: the rulings ledger, the
+   open desk and the budget, all plain pipe-separated data readable with no tool. Route
+   judge-and-validate asks to mailbox/principal.md through Central, as before.
+
+2. WORKER PROFILES. A worker is a profile, not a job title: skills, kind (agent, human,
+   hybrid), model, repos, and at most one "represents" line per repository -- that worker
+   speaks for the repo. Roles are compositions in softanza/workers/ROLES.md: rethought
+   ones (Plane Keeper, Simulator, Chronicler...) and the classic presets (Architect,
+   Business Analyst, UX Designer...) so an existing team adopts with zero hassle. Your
+   profile will be drafted by Central and confirmed by you in your next session.
+---
 ## plane: general
 
 
@@ -475,6 +523,22 @@ behind them is protocol/GOVERNANCE.md, new today and worth one read.
    arbitrage route to mailbox/author.md; the author reads them in one place. Budget
    governance and worker performance become the Observer's second duty.
 ---
+--- FROM: central | 2026-08-17 15:20 | ASK
+Two governance updates, generator-installed, one read each.
+
+1. THE PRINCIPAL. The human with top control is now named the Principal -- in agency
+   theory every agent acts on behalf of a principal, which is exactly this relationship.
+   The Principal has a physical repository, D:\GitHub\principal: the rulings ledger, the
+   open desk and the budget, all plain pipe-separated data readable with no tool. Route
+   judge-and-validate asks to mailbox/principal.md through Central, as before.
+
+2. WORKER PROFILES. A worker is a profile, not a job title: skills, kind (agent, human,
+   hybrid), model, repos, and at most one "represents" line per repository -- that worker
+   speaks for the repo. Roles are compositions in softanza/workers/ROLES.md: rethought
+   ones (Plane Keeper, Simulator, Chronicler...) and the classic presets (Architect,
+   Business Analyst, UX Designer...) so an existing team adopts with zero hassle. Your
+   profile will be drafted by Central and confirmed by you in your next session.
+---
 ## plane: binary
 
 
@@ -585,4 +649,20 @@ behind them is protocol/GOVERNANCE.md, new today and worth one read.
 4. THE AUTHOR'S DESK. Judge-and-validate asks, strategic decisions and budget
    arbitrage route to mailbox/author.md; the author reads them in one place. Budget
    governance and worker performance become the Observer's second duty.
+---
+--- FROM: central | 2026-08-17 15:20 | ASK
+Two governance updates, generator-installed, one read each.
+
+1. THE PRINCIPAL. The human with top control is now named the Principal -- in agency
+   theory every agent acts on behalf of a principal, which is exactly this relationship.
+   The Principal has a physical repository, D:\GitHub\principal: the rulings ledger, the
+   open desk and the budget, all plain pipe-separated data readable with no tool. Route
+   judge-and-validate asks to mailbox/principal.md through Central, as before.
+
+2. WORKER PROFILES. A worker is a profile, not a job title: skills, kind (agent, human,
+   hybrid), model, repos, and at most one "represents" line per repository -- that worker
+   speaks for the repo. Roles are compositions in softanza/workers/ROLES.md: rethought
+   ones (Plane Keeper, Simulator, Chronicler...) and the classic presets (Architect,
+   Business Analyst, UX Designer...) so an existing team adopts with zero hassle. Your
+   profile will be drafted by Central and confirmed by you in your next session.
 ---
