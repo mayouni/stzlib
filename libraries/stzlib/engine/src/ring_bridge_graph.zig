@@ -681,6 +681,21 @@ fn readU32List(p: *anyopaque, argn: c_int) ?[]u32 {
     return out;
 }
 
+fn readF64List(p: *anyopaque, argn: c_int) ?[]f64 {
+    const lst = R.gl(p, argn) orelse return null;
+    const n: usize = @intCast(R.ringListSize(lst));
+    if (n == 0) return null;
+    const out = gpa.alloc(f64, n) catch return null;
+    for (0..n) |i| {
+        const item = R.ring_list_getitem_gc(null, lst, @intCast(i + 1)) orelse {
+            out[i] = 0;
+            continue;
+        };
+        out[i] = R.ring_item_getnumber(item);
+    }
+    return out;
+}
+
 fn readF32List(p: *anyopaque, argn: c_int) ?[]f32 {
     const lst = R.gl(p, argn) orelse return null;
     const n: usize = @intCast(R.ringListSize(lst));
@@ -756,6 +771,12 @@ fn ring_LayoutCoords(p: *anyopaque) callconv(.c) void {
     defer gpa.free(starts);
     const sep = g(p, 7);
     const iters: u32 = @intFromFloat(g(p, 8));
+    // OPTIONAL 9th: per-node extra half-width demand. Absent or the wrong
+    // length means uniform separation, which is what every caller before
+    // edge labels wanted and still gets.
+    const extra_opt = readF64List(p, 9);
+    defer if (extra_opt) |e| gpa.free(e);
+    const extra: []const f64 = if (extra_opt) |e| e else &[_]f64{};
 
     const x = gpa.alloc(f64, order.len) catch return;
     defer gpa.free(x);
@@ -765,7 +786,7 @@ fn ring_LayoutCoords(p: *anyopaque) callconv(.c) void {
     // here mean the caller built a malformed CSR, and the honest fallback is
     // the placement the face used before this function existed -- a worse
     // picture, never a blank one.
-    if (glayout.coords(in_off, in_src, out_off, out_dst, order, starts, sep, iters, x) != glayout.OK) {
+    if (glayout.coords(in_off, in_src, out_off, out_dst, order, starts, sep, iters, extra, x) != glayout.OK) {
         for (0..starts.len -| 1) |L| {
             if (starts[L + 1] > order.len or starts[L] > starts[L + 1]) break;
             var k: usize = 0;

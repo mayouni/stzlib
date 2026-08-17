@@ -571,8 +571,18 @@ class stzGraphCanvas from stzObject
 			ok
 
 			_outc_ = _StzCsr(_eu_, _ev_, _n_)         # successors of u
+			# :NodeExtra is a per-node half-width demand in SLOT units --
+			# a node asking for more elbow room than a slot gives. The
+			# face that knows why (an edge label wider than the node it
+			# points at) computes it; this tier only carries it.
+			_xtra_ = This._Opt(:NodeExtra, [])
+			if NOT isList(_xtra_)  _xtra_ = []  ok
+			if len(_xtra_) != _n_
+				_xtra_ = []
+				for _i_ = 1 to _n_  _xtra_ + 0  next
+			ok
 			_aXe_ = StzEngineGraphLayoutCoords(_csr_[1], _csr_[2],
-				_outc_[1], _outc_[2], _order_, _starts_, 1.0, 8)
+				_outc_[1], _outc_[2], _order_, _starts_, 1.0, 8, _xtra_)
 		ok
 
 		# y from the layer; x from the engine when it answered

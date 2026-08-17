@@ -363,6 +363,21 @@ pub fn force(
 /// DETERMINISM, as everywhere in this file: no sort is involved, the
 /// arithmetic runs in a fixed order, and equal inputs pool identically. The
 /// same graph gives the same coordinates bit for bit.
+/// `extra` is a PER-NODE half-width demand, in the same units as `sep`, and
+/// it is what lets something wider than a node steer the layout. The
+/// minimum separation between two neighbours becomes
+/// `sep + extra[a] + extra[b]` instead of a flat `sep`.
+///
+/// It exists for EDGE LABELS. A label is drawn between two ranks, so no
+/// node owns it and nothing in a uniform-separation layout could reserve
+/// room for it: labels were placed after the fact and nudged when they
+/// collided, which moves the label rather than making space for it. dot
+/// reserves the room by giving each label its own virtual node with a
+/// width; a per-node demand buys the same thing without doubling the rank
+/// count -- a node whose incoming edge carries a wide label asks for more
+/// elbow room, and its whole rank spreads to give it.
+///
+/// Pass an empty slice for uniform separation.
 pub fn coords(
     in_off: []const u32,
     in_src: []const u32,
@@ -372,6 +387,7 @@ pub fn coords(
     starts: []const u32,
     sep: f64,
     iters: u32,
+    extra: []const f64,
     x: []f64,
 ) i32 {
     const n = x.len;
@@ -379,6 +395,7 @@ pub fn coords(
     if (starts.len < 2) return BAD_ARG;
     if (in_off.len != n + 1 or out_off.len != n + 1) return BAD_ARG;
     if (!(sep > 0)) return BAD_ARG;
+    if (extra.len != 0 and extra.len != n) return BAD_ARG;
     const nl = starts.len - 1;
     if (starts[nl] != n) return BAD_ARG;
     for (order) |v| if (v >= n) return BAD_ARG;
@@ -398,12 +415,22 @@ pub fn coords(
     defer alloc.free(bval);
     const bcnt = alloc.alloc(f64, maxw) catch return BAD_ARG;
     defer alloc.free(bcnt);
+    const cofs = alloc.alloc(f64, maxw) catch return BAD_ARG;
+    defer alloc.free(cofs);
 
-    // the even spread is the STARTING point, not the answer
+    // the even spread is the STARTING point, not the answer -- but it
+    // still has to be FEASIBLE, so it accumulates the same demands the
+    // relaxation will enforce
     for (0..nl) |L| {
         var k: usize = 0;
+        var acc: f64 = 0;
         while (starts[L] + k < starts[L + 1]) : (k += 1) {
-            x[order[starts[L] + k]] = @as(f64, @floatFromInt(k)) * sep;
+            const v = order[starts[L] + k];
+            if (k > 0) {
+                const prev = order[starts[L] + k - 1];
+                acc += sep + demand(extra, prev) + demand(extra, v);
+            }
+            x[v] = acc;
         }
     }
 
@@ -411,12 +438,12 @@ pub fn coords(
     while (it < iters) : (it += 1) {
         var L: usize = 1;
         while (L < nl) : (L += 1) {
-            relaxLayer(in_off, in_src, order, starts, L, sep, x, t, bval, bcnt);
+            relaxLayer(in_off, in_src, order, starts, L, sep, extra, x, t, bval, bcnt, cofs);
         }
         var Lu: usize = nl - 1;
         while (Lu > 0) {
             Lu -= 1;
-            relaxLayer(out_off, out_dst, order, starts, Lu, sep, x, t, bval, bcnt);
+            relaxLayer(out_off, out_dst, order, starts, Lu, sep, extra, x, t, bval, bcnt, cofs);
         }
     }
     return OK;
@@ -430,10 +457,12 @@ fn relaxLayer(
     starts: []const u32,
     L: usize,
     sep: f64,
+    extra: []const f64,
     x: []f64,
     t: []f64,
     bval: []f64,
     bcnt: []f64,
+    cofs: []f64,
 ) void {
     const s = starts[L];
     const e = starts[L + 1];
@@ -455,12 +484,22 @@ fn relaxLayer(
         t[k] = if (cnt > 0) sum / cnt else x[v];
     }
 
-    // POOL ADJACENT VIOLATORS on u[k] = t[k] - k*sep. Each pooled block
-    // takes the mean of the targets it absorbed, which is the L2 optimum
-    // for a run of nodes forced hard against each other.
+    // POOL ADJACENT VIOLATORS on u[k] = t[k] - c[k], where c[k] is the
+    // CUMULATIVE minimum offset of position k from the start of the layer.
+    // With a flat separation that is just k*sep; with per-node demands the
+    // offsets are uneven, and the substitution is the general form of the
+    // same idea -- "x[k+1] >= x[k] + minsep(k)" becomes "u non-decreasing"
+    // either way, so isotonic regression still solves it exactly. Each
+    // pooled block takes the mean of the targets it absorbed, which is the
+    // L2 optimum for a run of nodes forced hard against each other.
     var nb: usize = 0;
+    var cum: f64 = 0;
     for (0..w) |k| {
-        bval[nb] = t[k] - @as(f64, @floatFromInt(k)) * sep;
+        if (k > 0) {
+            cum += sep + demand(extra, order[s + k - 1]) + demand(extra, order[s + k]);
+        }
+        cofs[k] = cum;
+        bval[nb] = t[k] - cum;
         bcnt[nb] = 1;
         nb += 1;
         while (nb > 1 and bval[nb - 1] < bval[nb - 2]) {
@@ -476,8 +515,18 @@ fn relaxLayer(
     for (0..nb) |b| {
         var c: f64 = 0;
         while (c < bcnt[b]) : (c += 1) {
-            x[order[s + k]] = bval[b] + @as(f64, @floatFromInt(k)) * sep;
+            x[order[s + k]] = bval[b] + cofs[k];
             k += 1;
         }
     }
+}
+
+/// A node's extra half-width demand, or zero when none was supplied.
+fn demand(extra: []const f64, v: u32) f64 {
+    if (extra.len == 0) return 0;
+    const i: usize = @intCast(v);
+    if (i >= extra.len) return 0;
+    const d = extra[i];
+    if (!(d > 0)) return 0;
+    return d;
 }
