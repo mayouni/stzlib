@@ -809,6 +809,78 @@ chk("the bias is a fraction of the way to the target",
 
 #---------------------------------------------------------------------------
 ? ""
+? "-- 16. Edges MEET their nodes, and meet them square --------"
+#
+# Everything above passed while the edges themselves looked hand-drawn,
+# and that is the point of this scene: 63 assertions had nothing to say
+# about whether an edge touches the box it points at.
+#
+# Two faults, both structural. The port offset was added to the node's
+# CENTRE and a box was then clipped around the shifted point -- a box
+# that is not where the node is -- so any edge not near-vertical left
+# from beside its node rather than from it. And the curve was a QUADRATIC
+# with one control point: one control cannot fix two tangents, so an edge
+# departed square and arrived at whatever angle was left over, taking its
+# arrowhead with it.
+#---------------------------------------------------------------------------
+
+oQ = new stzDiagram("q")
+oQ.AddNodeXTT("p", "P", [ :type = "box", :color = "Info.Solid" ])
+oQ.AddNodeXTT("c", "C", [ :type = "box", :color = "Info.Solid" ])
+oQ.AddEdge("p", "c")
+QW = 120  QH = 40
+
+# 1. A PORT IS ON THE BOUNDARY. Offset along the edge it leaves from,
+#    never off the box and never inside it.
+aOut = oQ._PortPoint([ 200, 100 ], 18, QW, QH, "TB", 1)
+aIn  = oQ._PortPoint([ 400, 300 ], -18, QW, QH, "TB", 0)
+? "   out port " + aOut[1] + "," + aOut[2] + "   in port " + aIn[1] + "," + aIn[2]
+chkeq("an out-port sits on the bottom edge", aOut[2], 120)
+chkeq("...offset along it, still within the box", aOut[1], 218)
+chkeq("an in-port sits on the top edge", aIn[2], 280)
+chk("a port never leaves the box's own width",
+    fabs(aOut[1] - 200) <= QW / 2 and fabs(aIn[1] - 400) <= QW / 2)
+
+# 2. THE CURVE MEETS THE BOX SQUARE at both ends. Sampled from the real
+#    spline: the first step away from the source and the last step into
+#    the target must both run along the RANK axis.
+aS = oQ._SplinePoints([ 200, 120 ], [ 400, 280 ], "TB")
+nS = len(aS)
+nDep = fabs(aS[3] - aS[1])          # dx over the first step
+nArr = fabs(aS[nS - 1] - aS[nS - 3])  # dx over the last step
+? "   spline: sideways drift on departure " + nDep + ", on arrival " + nArr
+# NOT ZERO, AND IT SHOULD NOT BE. The tangent at each end is exactly
+# along the rank axis -- both control points share their endpoint's x --
+# but drift is measured over a finite sampling STEP, and a cubic covering
+# 200px of lateral travel moves about a pixel within one 24th of its
+# parameter. Asserting zero would be asserting something about the
+# sampling rate, not about the curve.
+chk("the edge leaves its source square to the border", nDep < 2)
+chk("...and arrives at its target square too", nArr < 2)
+# THE SYMMETRY IS THE REAL SIGNATURE. Fixing both tangents is exactly
+# what one control point cannot do, so a curve that meets both ends
+# square drifts EQUALLY at both -- and the quadratic below is lopsided by
+# a factor of thirty.
+? "   departure and arrival differ by " + fabs(nDep - nArr)
+chk("both ends are treated alike, which one control point cannot do",
+    fabs(nDep - nArr) < 0.1)
+
+# THE NEGATIVE SIBLING, and the proof that the CUBIC is what fixed it:
+# the quadratic this replaced is still here, driving the ortho arrowhead.
+# It departs square -- its one control point sits below the source -- and
+# has nothing left to spend on the arrival.
+aQ2 = oQ._CurvePoints([ 200, 120 ], [ 400, 280 ], "TB")
+nQ2 = len(aQ2)
+nQDep = fabs(aQ2[3] - aQ2[1])
+nQArr = fabs(aQ2[nQ2 - 1] - aQ2[nQ2 - 3])
+? "   the old quadratic: departure " + nQDep + ", arrival " + nQArr
+chk("the old curve also left square, which is why this looked fine",
+    nQDep < 1)
+chk("...but arrived CROOKED, which is what the check must see",
+    nQArr > 4)
+
+#---------------------------------------------------------------------------
+? ""
 ? "=============================================================="
 ? " " + nOk + " ok, " + nBad + " failed"
 ? "=============================================================="
