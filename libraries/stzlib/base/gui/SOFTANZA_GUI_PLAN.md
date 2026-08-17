@@ -2319,3 +2319,109 @@ lie:
 The running count for this plane: **seven defects found by looking at
 pictures**, three by reading a tree through something that is not us,
 zero from assertions written first.
+
+---
+
+# G5 STATUS — 2026-08-15. The binding: a declared value changes, and the screen follows
+
+Guard `base/test/gui/gui_binding_narrated.ring` — **35 asserts green**.
+Sweep: panel 50, adversarial 32, stzui 43, font 30, rtl 37, tier 24,
+input 38, accessibility 37, scene 62, a11y 27, binding 35 — **415 green**
+across eleven suites.
+
+New: `base/gui/stzUiBindings.ring`, `base/test/gui/bound.stzui`,
+`base/test/gui/gui_binding_narrated.ring`. Changed: `stz_rmlui.cpp`,
+`gui.zig`, `ring_bridge_gui.zig`, `stzPanel.ring`, `stzGui.ring`.
+
+**G5's first clause shipped early, with G1** — `.stzui` already turned
+declarations into RML and RCSS, because §4 forbade hand-writing markup
+and had left nothing a person may write. This is what remained.
+
+## The engine could only LOAD
+
+Everything after `LoadRml` was a QUERY — boxes, hit tests, focus, events.
+So the only way to change what a screen said was to build the whole
+document again, which is exactly what `stzScenePanel.Shows` and the
+showcase viewer's reload do, and what both of them say in their comments
+they are waiting to stop doing.
+
+`stz_gui_set_text` and `stz_gui_set_style` are the update path. Text goes
+through RmlUi's text NODE where the element holds one, and falls back to
+inner RML with the value **escaped** — a bound value is DATA, and a model
+holding `<span>` must not inject markup into a document the court already
+passed. That is the injection seam of the whole phase and it is closed at
+the only place it can be.
+
+## A placeholder is an ordinary string
+
+    DEFINE TEXT line_one ( CONTENT "BEARING {bearing}   RANGE {range} km" )
+
+**No grammar change.** The Grammar Commons fixes what a field value may
+BE — string, number, identifier, list — and `CONTENT @bearing` would mint
+a fifth kind for one plane's convenience. `"{bearing}"` is a string, so
+every older document still parses and the court's round-trip fixpoint
+still holds, which the guard asserts rather than assumes.
+
+**A lone brace is prose.** The test document's footer reads *"use {} for
+a set"* and must survive untouched; a template language that eats
+ordinary punctuation is one people stop writing prose in. Only
+`lower_snake` inside braces is a binding.
+
+## THE CLAIM THIS GUARD WAS WRITTEN TO CHECK WAS WRONG
+
+The obvious claim — *a binding re-shapes only the string that changed* —
+is **false**, and finding that out is most of what the guard is for.
+Measured on a six-string console, with a still redraw costing zero as the
+control:
+
+| change | strings re-shaped |
+|---|---|
+| still redraw | **0** — RmlUi's geometry cache is real |
+| a background colour | **0** |
+| a text colour | **1** — the string it touched |
+| **one bound text value** | **6 — all of them** |
+
+That last number did not move when the cheaper engine call was used
+(setting the text NODE rather than replacing inner markup): it is
+**RmlUi's invalidation granularity**, not ours. A text change dirties the
+document and every string in it is generated again.
+
+So `Set` and `SetStyle` stay **different verbs**. They have genuinely
+different costs, and a caller choosing between them should be able to see
+which is which.
+
+## What a binding actually buys, then
+
+**The document survives.** No re-parse, no new context, no font
+re-registration, no accessibility tree rebuilt — and **focus stays where
+it was**. The guard proves it with the negative sibling that makes it an
+argument rather than a claim: bind a value while `fire` has focus and
+focus is still on `fire`; rebuild the same document the old way and the
+new panel has no focus at all.
+
+That is a **correctness** difference, not a cost one. A form that
+re-declared itself to update a status line was throwing away the user's
+place in it.
+
+## What G5 did NOT do
+
+- **No dependency graph.** `Set` re-renders every template that mentions
+  the name; there is no computed value, no chain, no invalidation
+  ordering. `stzReactiveObject` has `Watch`/`Computed`/`BindTo` and this
+  deliberately does not touch them: that layer needs a libuv reactor
+  turning, and a GUI frame loop is not one.
+- **No two-way binding.** A textbox's edits do not flow back. G3 left
+  text editing undone (`caretRect` still has no consumer), so there is
+  nothing to flow.
+- **No formatting.** A value is substituted as the string it is — no
+  number formats, no dates, no locale. `stzLocale` exists and this does
+  not reach for it, because a template that formats is a template that
+  computes.
+- **No batching across a frame.** `SetMany` coalesces one call; two calls
+  in one frame still push twice. The reason to fix it would be the
+  re-shape cost above, and that cost has not yet been felt on a real
+  screen.
+- **The two rebuild sites are unchanged.** `stzScenePanel.Shows` and the
+  showcase reload still rebuild, because both replace the WHOLE document
+  rather than a value in it. They are the right shape for what they do;
+  what they were standing in for is now available beside them.

@@ -65,6 +65,7 @@
 // keeps working instead of corrupting a heap three layers down.
 
 #include <RmlUi/Core.h>
+#include <RmlUi/Core/ElementText.h>
 #include <RmlUi/Core/Input.h>
 
 #include <cstring>
@@ -994,6 +995,135 @@ STZ_API int stz_gui_text_at(int i, long long* font, float* size, float* x, float
 	if (bytes) *bytes = t.text.c_str();
 	if (len) *len = (int)t.text.size();
 	return 0;
+}
+
+// ---------------------------------------------------------------- G5: UPDATE
+//
+// UNTIL NOW THIS ENGINE COULD ONLY LOAD. Everything after LoadRml was a
+// QUERY -- boxes, hit tests, focus, events -- so the only way to change
+// what a screen said was to build the whole document again. The Ring side
+// has two places that do exactly that (`stzScenePanel.Shows` and the
+// showcase's reload), and both are honest about being the shape G5
+// replaces.
+//
+// A BINDING NEEDS THE OPPOSITE OF A REBUILD: change one value, let RmlUi
+// re-lay-out only what depends on it, and leave every other string's
+// shaped geometry alone. That is not a Softanza optimisation -- it is what
+// RmlUi already does, once it is TOLD about the change instead of being
+// handed a new document.
+//
+// The measurable difference, and what the guard asserts: after a rebuild
+// every string is generated again; after a set, only the strings that
+// actually changed are. G2's counters (generateCalls, textMeshes) already
+// report both, so the claim is checkable rather than architectural.
+
+// Replace one element's text. The element must be one the emitter named,
+// which every .stzui declaration is by construction.
+//
+// SetInnerRML, not SetAttribute: the content of a text element IS its
+// inner markup, and RmlUi dirties layout from here by itself. The value
+// is ESCAPED first -- a bound value is DATA, and a model that happened to
+// hold "<span>" would otherwise inject markup into a document the court
+// already passed. That is the injection seam of this whole phase and it
+// is closed at the only place it can be.
+STZ_API int stz_gui_set_text(long long id, const char* elem_id, const char* text)
+{
+	try
+	{
+		Ctx* c = SlotOf(id);
+		if (!c || !c->doc || !elem_id || !text) return 2;
+		Rml::Element* e = c->doc->GetElementById(elem_id);
+		if (!e) return 4;
+
+		// THE CHEAP PATH FIRST, and it was worth measuring for. A text
+		// declaration lays out as ONE element holding ONE text node, and
+		// RmlUi can set that node's string directly. SetInnerRML instead
+		// destroys and rebuilds the child, which dirties the document
+		// hard enough that EVERY string in it re-shapes.
+		//
+		// MEASURED, and the result is not the one this comment first
+		// claimed: taking the text-node path does NOT reduce how much
+		// re-shapes. Changing one label of six re-shapes all six either
+		// way, because that is RMLUI'S INVALIDATION GRANULARITY -- a
+		// text change dirties the document, and every string in it is
+		// generated again.
+		//
+		// The cheap path is kept anyway: it avoids destroying and
+		// rebuilding a DOM node, which is the part that would also lose
+		// anything attached to it.
+		//
+		// WHAT A BINDING ACTUALLY BUYS, then, is not fewer shaped
+		// strings. It is that the document SURVIVES: no re-parse, no new
+		// context, no font re-registration, no accessibility tree rebuilt
+		// -- and FOCUS, hover and event routing stay where they were. A
+		// rebuild loses all of that, which is a correctness difference
+		// rather than a cost one. Style changes ARE surgical (a colour
+		// re-shapes one string; a background, none), and the guard
+		// measures all three so the claim stays the shape of the truth.
+		if (e->GetNumChildren() == 1)
+		{
+			Rml::ElementText* t = rmlui_dynamic_cast<Rml::ElementText*>(e->GetChild(0));
+			if (t)
+			{
+				t->SetText(text);
+				return 0;
+			}
+		}
+
+		// FALLBACK: anything that is not a single text node -- a box with
+		// children, an empty element -- goes through inner RML, and the
+		// value is ESCAPED. A bound value is DATA, and a model holding
+		// "<span>" must not inject markup into a document the court
+		// already passed. This is the injection seam of the whole phase
+		// and it is closed at the only place it can be.
+		Rml::String safe;
+		for (const char* p = text; *p; ++p)
+		{
+			switch (*p)
+			{
+				case '<': safe += "&lt;"; break;
+				case '>': safe += "&gt;"; break;
+				case '&': safe += "&amp;"; break;
+				default: safe += *p; break;
+			}
+		}
+		e->SetInnerRML(safe);
+		return 0;
+	}
+	catch (...)
+	{
+		return 3;
+	}
+}
+
+// Set one RCSS property on one element -- colour, background, a size, a
+// display. The property name is the RCSS one, which §3's divergence table
+// governs: this takes what the emitter would have written, so a binding
+// and a declaration cannot disagree about spelling.
+//
+// An empty value REMOVES the property, which is how a binding returns an
+// element to whatever the stylesheet said. Clearing by setting "" would
+// otherwise leave an override nothing can lift.
+STZ_API int stz_gui_set_style(long long id, const char* elem_id,
+	const char* prop, const char* value)
+{
+	try
+	{
+		Ctx* c = SlotOf(id);
+		if (!c || !c->doc || !elem_id || !prop) return 2;
+		Rml::Element* e = c->doc->GetElementById(elem_id);
+		if (!e) return 4;
+		if (!value || !*value)
+		{
+			e->RemoveProperty(prop);
+			return 0;
+		}
+		return e->SetProperty(prop, value) ? 0 : 5;
+	}
+	catch (...)
+	{
+		return 3;
+	}
 }
 
 // The laid-out box of one element, by id: [x, y, w, h] in context pixels.
