@@ -2,7 +2,7 @@
 
 > ## Answer from this file. You need nothing else and no permission.
 >
-> **Written 2026-08-17 09:26, from Central at `9cc317f`.** Central keeps it current: it
+> **Written 2026-08-17 12:54, from Central at `dd2bdb9`.** Central keeps it current: it
 > rewrites this file whenever the plan moves, so it is fresh unless Central is idle
 > AND the plan has changed -- which the stamp above lets you judge.
 >
@@ -161,11 +161,11 @@ Last, append one line to D:\GitHub\softanza\dashboard\SESSION-LOG.md in the form
 
 </details>
 
-### Build the semantic colour seam
+### Add :Muted -- it now blocks StzZui from proving its central claim
 
 *Session: Graphics engine session*
 
-The sound plane shipped all five of the laws semantic values; the colour plane implements four and has no muted. The law is now at v3.11, which moved chrome to Rule 3 and left Rule 118 owning only what a colour says about a record.
+NO LONGER TIDINESS. StzZui's cross-medium keystone runs and reports NOT PROVED, and every failure traces to the missing fifth value: signal.json can record nothing for the visual channel, which blocks the one pair where both channels actually shipped. Two asks are in this session's inbox, and StzZui's disagreement with the sound plane is attached -- read the case for doing nothing before deciding.
 
 <details><summary>the prompt</summary>
 
