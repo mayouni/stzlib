@@ -37,6 +37,10 @@ extern fn stz_gui_font_count() callconv(.c) i32;
 extern fn stz_gui_text_count() callconv(.c) i32;
 extern fn stz_gui_text_at(i: i32, font: *i64, size: *f32, x: *f32, y: *f32, colour: *u32, bytes: *[*]const u8, len: *i32) callconv(.c) i32;
 extern fn stz_gui_element_box(id: i64, elem: [*:0]const u8, out4: [*]f32) callconv(.c) i32;
+// G5: the update path. Until these, the engine could only LOAD -- so the
+// only way to change a screen was to build the whole document again.
+extern fn stz_gui_set_text(id: i64, elem: [*:0]const u8, text: [*:0]const u8) callconv(.c) i32;
+extern fn stz_gui_set_style(id: i64, elem: [*:0]const u8, prop: [*:0]const u8, value: [*:0]const u8) callconv(.c) i32;
 extern fn stz_gui_last_error() callconv(.c) [*:0]const u8;
 extern fn stz_gui_set_time(seconds: f64) callconv(.c) void;
 extern fn stz_gui_set_input_source(source: i32) callconv(.c) void;
@@ -160,6 +164,14 @@ pub fn textAt(i: i32) ?TextCmd {
 
 pub fn elementBox(id: i64, elem: [:0]const u8, out4: *[4]f32) i32 {
     return stz_gui_element_box(id, elem.ptr, out4);
+}
+
+pub fn setText(id: i64, elem: [:0]const u8, text: [:0]const u8) i32 {
+    return stz_gui_set_text(id, elem.ptr, text.ptr);
+}
+
+pub fn setStyle(id: i64, elem: [:0]const u8, prop: [:0]const u8, value: [:0]const u8) i32 {
+    return stz_gui_set_style(id, elem.ptr, prop.ptr, value.ptr);
 }
 
 pub fn lastError() []const u8 {

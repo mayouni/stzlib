@@ -235,6 +235,44 @@ fn ring_EventsDropped(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(gui.eventsDropped()));
 }
 
+// SetText(nCtx, cElement, cText) -> status. G5's update path: one
+// element's words change and nothing else is rebuilt.
+fn ring_SetText(p: *anyopaque) callconv(.c) void {
+    const e = allocator.dupeZ(u8, getStr(p, 2)) catch {
+        rn(p, 2);
+        return;
+    };
+    defer allocator.free(e);
+    const t = allocator.dupeZ(u8, getStr(p, 3)) catch {
+        rn(p, 2);
+        return;
+    };
+    defer allocator.free(t);
+    rn(p, @floatFromInt(gui.setText(@intFromFloat(gn(p, 1)), e, t)));
+}
+
+// SetStyle(nCtx, cElement, cProperty, cValue) -> status. An empty value
+// REMOVES the property, which is how a binding hands an element back to
+// the stylesheet instead of pinning it forever.
+fn ring_SetStyle(p: *anyopaque) callconv(.c) void {
+    const e = allocator.dupeZ(u8, getStr(p, 2)) catch {
+        rn(p, 2);
+        return;
+    };
+    defer allocator.free(e);
+    const pr = allocator.dupeZ(u8, getStr(p, 3)) catch {
+        rn(p, 2);
+        return;
+    };
+    defer allocator.free(pr);
+    const v = allocator.dupeZ(u8, getStr(p, 4)) catch {
+        rn(p, 2);
+        return;
+    };
+    defer allocator.free(v);
+    rn(p, @floatFromInt(gui.setStyle(@intFromFloat(gn(p, 1)), e, pr, v)));
+}
+
 const regs = [_]R.Reg{
     .{ .name = "stzengineguiinit", .func = &ring_Init },
     .{ .name = "stzengineguiisavailable", .func = &ring_IsAvailable },
@@ -249,6 +287,8 @@ const regs = [_]R.Reg{
     .{ .name = "stzengineguiindices", .func = &ring_Indices },
     .{ .name = "stzengineguicounters", .func = &ring_Counters },
     .{ .name = "stzengineguielementbox", .func = &ring_ElementBox },
+    .{ .name = "stzengineguisettext", .func = &ring_SetText },
+    .{ .name = "stzengineguisetstyle", .func = &ring_SetStyle },
     .{ .name = "stzengineguilasterror", .func = &ring_LastError },
     .{ .name = "stzengineguifontregister", .func = &ring_FontRegister },
     .{ .name = "stzengineguifontcount", .func = &ring_FontCount },

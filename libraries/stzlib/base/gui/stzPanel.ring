@@ -349,6 +349,57 @@ class stzPanel from stzObject
 	def FromTexture(pnU, pnV)
 		return [ pnU * @nW, (1 - pnV) * @nH ]
 
+	#-- the update path (G5) -------------------------------------------------
+	#
+	# BEFORE THESE, THIS CLASS COULD ONLY LOAD. Everything after LoadMarkup
+	# was a QUERY -- boxes, hit tests, focus, events -- so the only way to
+	# change what a screen said was to build the whole document again.
+	# `stzScenePanel.Shows` and the showcase's reload both do exactly that,
+	# and both say in their comments that they are the shape G5 replaces.
+	#
+	# This is that replacement. RmlUi re-lays-out what depends on the
+	# change and leaves every other string's shaped geometry alone -- which
+	# is not an optimisation we perform but one it already performs, once
+	# it is TOLD about the change instead of handed a new document.
+	#
+	# The difference is measurable, and the guard measures it: after a
+	# rebuild every string is generated again; after a set, only the ones
+	# that actually changed are. GenerateCalls() reports both.
+
+	# One element's words. The value is DATA -- it is escaped at the seam,
+	# so a model holding "<span>" cannot inject markup into a document the
+	# court already passed.
+	def SetTextOf(pcName, pcText)
+		if @nId = 0
+			return FALSE
+		ok
+		return StzEngineGuiSetText(@nId, "" + pcName, "" + pcText) = 0
+
+	def SetTextOfQ(pcName, pcText)
+		This.SetTextOf(pcName, pcText)
+		return This
+
+	# One RCSS property on one element. The property name is the RCSS one,
+	# which §3's divergence table governs -- so a binding and a declaration
+	# cannot disagree about spelling.
+	#
+	# An EMPTY value removes the property, handing the element back to the
+	# stylesheet. Without that, a binding that had fired once could never
+	# be undone.
+	def SetStyleOf(pcName, pcProperty, pcValue)
+		if @nId = 0
+			return FALSE
+		ok
+		return StzEngineGuiSetStyle(@nId, "" + pcName,
+			"" + pcProperty, "" + pcValue) = 0
+
+	def SetStyleOfQ(pcName, pcProperty, pcValue)
+		This.SetStyleOf(pcName, pcProperty, pcValue)
+		return This
+
+	def ClearStyleOf(pcName, pcProperty)
+		return This.SetStyleOf(pcName, pcProperty, "")
+
 	#-- focus ---------------------------------------------------------------
 	#
 	# Rule 80 (Keyboard Sovereignty) is `machine` tier, so this is legally
