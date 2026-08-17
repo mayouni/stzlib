@@ -1523,10 +1523,25 @@ class stzDiagram from stzGraph
 
 		if _bNat_
 			# any provisional size -- only the FRACTIONS of it are read back
+			# LABELS STEER THE LAYOUT. Reserving gap HEIGHT gave a label
+			# somewhere to be written; it did nothing about width, so two
+			# edges running close together still fought over the same
+			# horizontal space and the loser was nudged onto something
+			# else. Nudging moves the label; only the layout can make
+			# ROOM. A node whose incoming edge carries a label wider than
+			# the node itself asks for the difference, and its whole rank
+			# spreads to give it.
+			_slot0_ = _nBoxW_
+			if _bSwap_  _slot0_ = _nBoxH_  ok
+			_slot0_ += _nSepN_
+			_aXtra_ = This._LabelDemand(_oFont_, _nFsz_, _nBoxW_, _slot0_,
+				_bSwap_)
+
 			_oGC_ = new stzGraphCanvas(This, [
 				:Layout = :Hierarchical,
 				:Width = 1000, :Height = 700, :Margin = 0,
-				:Clusters = This._ClusterPairs()
+				:Clusters = This._ClusterPairs(),
+				:NodeExtra = _aXtra_
 			])
 			# slot and pitch along the LAYOUT axes; the boxes do not rotate
 			# with the rank direction, so the box dimension that matters
@@ -1883,10 +1898,18 @@ class stzDiagram from stzGraph
 						_lax_ = _mid_[1]
 						_lay_ = _mid_[2]
 					else
+						# BIASED TOWARDS THE TARGET, not the midpoint.
+						# Widening a rank spreads the CHILDREN; the
+						# midpoints of a fan-out stay bunched near the
+						# parent however far apart the children get, so
+						# labels placed at 0.5 crowded exactly where the
+						# extra room was not. At 0.68 they inherit the
+						# spread the layout just paid for.
 						_p2_ = This._ClipToBox(_a_, _b_, _nBoxW_, _nBoxH_)
 						_q2_ = This._ClipToBox(_b_, _a_, _nBoxW_, _nBoxH_)
-						_lax_ = (_p2_[1] + _q2_[1]) / 2
-						_lay_ = (_p2_[2] + _q2_[2]) / 2
+						_bias_ = This._EdgeLabelBias()
+						_lax_ = _p2_[1] + (_q2_[1] - _p2_[1]) * _bias_
+						_lay_ = _p2_[2] + (_q2_[2] - _p2_[2]) * _bias_
 					ok
 				ok
 				_aLabAt_ + [ _cLab_, _lax_, _lay_ ]
@@ -2231,6 +2254,64 @@ class stzDiagram from stzGraph
 		_out_ = []
 		for _o_ in _ord_  _out_ + _res_[ _o_[2] ]  next
 		return _out_
+
+	# WHERE ALONG ITS EDGE A LABEL SITS, as a fraction from source to
+	# target. Named once because TWO places must agree about it: the
+	# drawing, which puts the label there, and the demand below, which buys
+	# the room. They are the same number seen from two sides -- a label
+	# placed at 0.72 of the way to its target inherits 0.72 of the spread
+	# between two targets, so the room needed between them is the label's
+	# width DIVIDED by this. Get the two out of step and the layout pays
+	# for space the label is not standing in.
+	def _EdgeLabelBias()
+		return 0.72
+
+	# Per-node extra half-width demand, in SLOT units, from the edge labels
+	# arriving at each node.
+	#
+	# CHARGED TO THE TARGET, not to the edge. A label sits between two
+	# ranks and no node owns it, so something has to; the target is the
+	# right payer because a fan-out's labels spread the way its children
+	# do -- widening the children is exactly what stops their labels
+	# meeting. Charging the source instead would widen one rank too early
+	# and leave the labels as crowded as before.
+	#
+	# Zero when the label is no wider than the node it points at, so an
+	# ordinary diagram of short labels is laid out exactly as before.
+	def _LabelDemand(oFont, nFsz, nBoxW, nSlot, bSwap)
+		_ids_ = This.NodesIds()
+		_nn_ = len(_ids_)
+		_dem_ = []
+		for _i_ = 1 to _nn_  _dem_ + 0  next
+		if NOT isObject(oFont)  return _dem_  ok
+		if nSlot <= 0  return _dem_  ok
+
+		_pos_ = []
+		for _i_ = 1 to _nn_  _pos_ + [ StzLower("" + _ids_[_i_]), _i_ ]  next
+
+		for _e_ in This.Edges()
+			_cl_ = StzTrim("" + _e_[:label])
+			if _cl_ = ""  loop  ok
+			# a self-loop's label is drawn beside the node, not between
+			# ranks, and the derived-size pass already reserves for it
+			if StzLower("" + _e_[:from]) = StzLower("" + _e_[:to])  loop  ok
+			_at_ = 0
+			for _p_ in _pos_
+				if _p_[1] = StzLower("" + _e_[:to])  _at_ = _p_[2]  exit  ok
+			next
+			if _at_ = 0  loop  ok
+			_w_ = oFont.WidthOf(_cl_, nFsz) + 10
+			if bSwap
+				# ranks run horizontally, so the label's HEIGHT is what
+				# competes along the slot axis
+				_w_ = nFsz + 8
+			ok
+			_need_ = (_w_ / This._EdgeLabelBias() - nBoxW) / 2
+			if _need_ <= 0  loop  ok
+			_d_ = _need_ / nSlot
+			if _d_ > _dem_[_at_]  _dem_[_at_] = _d_  ok
+		next
+		return _dem_
 
 	def _ClusterById(pcId)
 		_c_ = StzLower("" + pcId)

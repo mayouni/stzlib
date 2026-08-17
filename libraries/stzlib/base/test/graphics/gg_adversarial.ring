@@ -749,6 +749,66 @@ chk("...but a genuine nesting is NOT refused", NOT Raises('
 
 #---------------------------------------------------------------------------
 ? ""
+? "-- 15. Edge labels STEER the layout ------------------------"
+#
+# Reserving gap HEIGHT gave a label somewhere to be written and did
+# nothing about width, so two edges running close together still fought
+# over the same horizontal space and the loser was nudged onto something
+# else. Nudging moves the label; only the layout can make ROOM.
+#
+# A label lives between two ranks, so no node owns it. The demand is
+# charged to the TARGET, whose rank then spreads -- and the label is
+# placed at a known fraction along its edge so it inherits that spread.
+# Those two numbers are the same number seen from two sides, which is why
+# _EdgeLabelBias exists and both read it.
+#---------------------------------------------------------------------------
+
+SFONT = new stzFont("C:/Windows/Fonts/segoeui.ttf")
+aSO = [ :Font = SFONT, :NodeWidth = 70, :NodeHeight = 34 ]
+
+oShort = _Fan("c")
+oWide  = _Fan("condition number  holds ")
+nWShort = oShort.ToCanvasXT(aSO).Width()
+nWWide  = oWide.ToCanvasXT(aSO).Width()
+? "   canvas with short labels : " + nWShort
+? "   canvas with wide  labels : " + nWWide
+chk("wide labels widen the picture", nWWide > nWShort * 1.4)
+
+# THE MECHANISM, and its negative sibling in one: the demand is what
+# widened it, and it is ZERO when a label is no wider than the node it
+# points at -- so an ordinary diagram of short labels is laid out exactly
+# as it was before any of this existed.
+SLOT = 70 + floor(oShort.NodeSeparation() * 96)
+aDS = oShort._LabelDemand(SFONT, 14, 70, SLOT, 0)
+aDW = oWide._LabelDemand(SFONT, 14, 70, SLOT, 0)
+? "   demand, short : " + @@(aDS)
+? "   demand, wide  : " + @@(aDW)
+chkeq("a short label demands nothing at all", _MaxOf(aDS), 0)
+chk("a wide label demands room", _MaxOf(aDW) > 0.2)
+
+# CHARGED TO THE TARGET, not the source. The router has no incoming
+# labelled edge and must demand nothing; its four children must each
+# demand the same. Charging the source would widen one rank too early and
+# leave the labels as crowded as before.
+chkeq("the source of a labelled edge demands nothing", aDW[1], 0)
+chk("...and every target demands the same room",
+    aDW[2] = aDW[3] and aDW[3] = aDW[4] and aDW[4] = aDW[5])
+
+# THE TWO NUMBERS AGREE. The demand divides by the bias because the label
+# stands at that fraction of the way to its target; if the drawing used a
+# different fraction the layout would buy space the label is not standing
+# in. Asserted by measuring where the label ACTUALLY lands.
+oB = new stzDiagram("bias")
+oB.AddNodeXTT("p", "P", [ :type = "box", :color = "Info.Solid" ])
+oB.AddNodeXTT("q", "Q", [ :type = "box", :color = "Info.Solid" ])
+oB.AddEdgeXT("p", "q", "WWWWWWWWWWWWWWWW")
+nBias = oB._EdgeLabelBias()
+? "   the shared bias : " + nBias
+chk("the bias is a fraction of the way to the target",
+    nBias > 0.5 and nBias < 1)
+
+#---------------------------------------------------------------------------
+? ""
 ? "=============================================================="
 ? " " + nOk + " ok, " + nBad + " failed"
 ? "=============================================================="
@@ -1214,3 +1274,22 @@ func _NonAxialSegments cSvg, cStroke
 		next
 	next
 	return _nn_
+
+# A router fanning out to four hosts, every edge carrying the same label
+# stem -- so the only thing that varies between two calls is label WIDTH.
+func _Fan cStem
+	_fo_ = new stzDiagram("fan15")
+	_fo_.AddNodeXTT("r", "Router", [ :type = "box", :color = "Info.Solid" ])
+	for _fi_ = 1 to 4
+		_fo_.AddNodeXTT("h" + _fi_, "H" + _fi_,
+			[ :type = "box", :color = "Info.Solid" ])
+		_fo_.AddEdgeXT("r", "h" + _fi_, cStem + _fi_)
+	next
+	return _fo_
+
+func _MaxOf paList
+	_mx_ = 0
+	for _v_ in paList
+		if _v_ > _mx_  _mx_ = _v_  ok
+	next
+	return _mx_

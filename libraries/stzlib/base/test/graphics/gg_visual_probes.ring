@@ -261,8 +261,27 @@ oNC.ToCanvasXT([ :Font = oF, :NodeWidth = 100, :NodeHeight = 34 ]).
 	ToPNG("probe_14_nested_clusters.png")
 ? "14 nested      : Data inside Backend, Logger outside both"
 
+# ---------------------------------------------------------------- 15
+# LABELS STEERING THE LAYOUT. The same fan-out twice: once with short
+# labels, once with labels far wider than the nodes. Reserving gap
+# HEIGHT gave a label somewhere to be written and did nothing about
+# width; the rank now spreads to make the room.
+for aStem in [ [ "c", "probe_15_labels_short.png" ],
+               [ "condition number  holds ", "probe_15_labels_wide.png" ] ]
+	oLS = new stzDiagram("fan15")
+	oLS.AddNodeXTT("r", "Router", [ :type = "box", :color = "Info.Solid" ])
+	for i = 1 to 4
+		oLS.AddNodeXTT("h" + i, "H" + i,
+			[ :type = "box", :color = "Info.Solid" ])
+		oLS.AddEdgeXT("r", "h" + i, aStem[1] + i)
+	next
+	oLS.ToCanvasXT([ :Font = oF, :NodeWidth = 70, :NodeHeight = 34 ]).
+		ToPNG(aStem[2])
+next
+? "15 label steer : the rank spreads to fit what is written on it"
+
 ? ""
-? "wrote 14 probes"
+? "wrote 15 probes"
 
 #---------------------------------------------------------------------------
 
