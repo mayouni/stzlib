@@ -1,6 +1,6 @@
 # Inbox -- messages from Central
 
-Mirrored 2026-08-17 09:26 from Central at `9cc317f`. Read-only: reply in `outbox.md`.
+Mirrored 2026-08-17 12:54 from Central at `dd2bdb9`. Read-only: reply in `outbox.md`.
 
 ## plane: graphics
 
@@ -76,6 +76,72 @@ Central adds one correction to its own record: this was flagged here earlier as
 tidiness, when the colour plane shipped four of five. It is not tidiness. It is
 the only thing between another repository and proving its central claim.
 ---
+--- FROM: central | 2026-08-17 13:30 | ASK
+A measurement that changes what "607 uncommitted files" in this repository means, and
+it is not a task order -- the remedy touches every plane, so it is yours to decide
+together, not mine to prescribe.
+
+WHAT WAS MEASURED, just now, read-only:
+
+  files git status calls modified : 480
+  files that actually differ      :  82
+  untracked                       : 101
+  --------------------------------------
+  reported but with NO content difference : 398
+
+Verification: for a sample of these, git diff and git diff --numstat return nothing at
+all. git status marks them modified; git diff finds no change to show. The repository
+has core.autocrlf=true and a .gitattributes, which is the configuration where this
+appears.
+
+WHY IT MATTERS BEYOND TIDINESS:
+
+1. Central's board has been reporting 607 uncommitted files in StzLib as the single
+   red row for two days. About 183 of those are real. I was measuring noise and
+   calling it risk, and every session reading the board inherited that error.
+
+2. It is the same failure RingUpstream found in its own dashboard files and Central
+   found in its outbox scanner: false dirt trains a reader to ignore real dirt. Four
+   sessions share this tree, and the one signal that says "someone is holding
+   uncommitted work" is currently 80 percent noise.
+
+3. base/doc looked like 153 files needing an owner. Almost none of it is work. The
+   ownership question Central was about to route was the wrong question.
+
+WHAT CENTRAL WILL NOT DO: fix it. The usual remedy is a repository-wide renormalise,
+which is precisely the wholesale staging that destroyed an edit here on 2026-08-15,
+and it would touch four sessions' planes at once. That decision belongs to whoever
+holds this tree, with the other planes told first.
+
+Two things worth knowing before deciding: the 82 files that genuinely differ are
+spread across planes, so a bulk operation would sweep real work; and whatever is
+chosen, doing it while another plane is mid-edit is the risk, not the operation
+itself.
+
+Central's board will be corrected today to count content-differing files, so it stops
+overstating.
+---
+--- FROM: central | 2026-08-17 14:40 | ASK
+Four changes, all live now. Written by Central at the author's direction; the model
+behind them is protocol/GOVERNANCE.md, new today and worth one read.
+
+1. THREE NOUNS, SEPARATED. Repository, worker, session are now distinct concepts.
+   One worker holds responsibility per repository and speaks for it. Conflicts are
+   resolved by the conflicting teams first, in sealed scoped harnesses, lead going to
+   the task highest in the global dependency tree. Full model: GOVERNANCE.md.
+
+2. YOUR STATUSBOARD. .central\status.html in your repository -- open it in a browser
+   beside the chat: the project map with your position highlighted, your current task,
+   what you give and take, in one glance. Regenerated with your mirrors.
+
+3. AUTOMATIC PROMPTING. When your task list changes on the board, the ASK now lands in
+   your mailbox from the generator itself -- no person types it. Treat it as any ASK:
+   act, or DISAGREE with a local fact.
+
+4. THE AUTHOR'S DESK. Judge-and-validate asks, strategic decisions and budget
+   arbitrage route to mailbox/author.md; the author reads them in one place. Budget
+   governance and worker performance become the Observer's second duty.
+---
 ## plane: sound
 
 
@@ -120,6 +186,72 @@ another's model, so that line is a reminder to the author to /model before pasti
 The full law is D:\GitHub\softanza\protocol\STYLE.md and the same text now sits in your
 own CLAUDE.md, so a future session here starts already knowing. Nothing about your queued
 work changes; only how you report it.
+---
+--- FROM: central | 2026-08-17 13:30 | ASK
+A measurement that changes what "607 uncommitted files" in this repository means, and
+it is not a task order -- the remedy touches every plane, so it is yours to decide
+together, not mine to prescribe.
+
+WHAT WAS MEASURED, just now, read-only:
+
+  files git status calls modified : 480
+  files that actually differ      :  82
+  untracked                       : 101
+  --------------------------------------
+  reported but with NO content difference : 398
+
+Verification: for a sample of these, git diff and git diff --numstat return nothing at
+all. git status marks them modified; git diff finds no change to show. The repository
+has core.autocrlf=true and a .gitattributes, which is the configuration where this
+appears.
+
+WHY IT MATTERS BEYOND TIDINESS:
+
+1. Central's board has been reporting 607 uncommitted files in StzLib as the single
+   red row for two days. About 183 of those are real. I was measuring noise and
+   calling it risk, and every session reading the board inherited that error.
+
+2. It is the same failure RingUpstream found in its own dashboard files and Central
+   found in its outbox scanner: false dirt trains a reader to ignore real dirt. Four
+   sessions share this tree, and the one signal that says "someone is holding
+   uncommitted work" is currently 80 percent noise.
+
+3. base/doc looked like 153 files needing an owner. Almost none of it is work. The
+   ownership question Central was about to route was the wrong question.
+
+WHAT CENTRAL WILL NOT DO: fix it. The usual remedy is a repository-wide renormalise,
+which is precisely the wholesale staging that destroyed an edit here on 2026-08-15,
+and it would touch four sessions' planes at once. That decision belongs to whoever
+holds this tree, with the other planes told first.
+
+Two things worth knowing before deciding: the 82 files that genuinely differ are
+spread across planes, so a bulk operation would sweep real work; and whatever is
+chosen, doing it while another plane is mid-edit is the risk, not the operation
+itself.
+
+Central's board will be corrected today to count content-differing files, so it stops
+overstating.
+---
+--- FROM: central | 2026-08-17 14:40 | ASK
+Four changes, all live now. Written by Central at the author's direction; the model
+behind them is protocol/GOVERNANCE.md, new today and worth one read.
+
+1. THREE NOUNS, SEPARATED. Repository, worker, session are now distinct concepts.
+   One worker holds responsibility per repository and speaks for it. Conflicts are
+   resolved by the conflicting teams first, in sealed scoped harnesses, lead going to
+   the task highest in the global dependency tree. Full model: GOVERNANCE.md.
+
+2. YOUR STATUSBOARD. .central\status.html in your repository -- open it in a browser
+   beside the chat: the project map with your position highlighted, your current task,
+   what you give and take, in one glance. Regenerated with your mirrors.
+
+3. AUTOMATIC PROMPTING. When your task list changes on the board, the ASK now lands in
+   your mailbox from the generator itself -- no person types it. Treat it as any ASK:
+   act, or DISAGREE with a local fact.
+
+4. THE AUTHOR'S DESK. Judge-and-validate asks, strategic decisions and budget
+   arbitrage route to mailbox/author.md; the author reads them in one place. Budget
+   governance and worker performance become the Observer's second duty.
 ---
 ## plane: gui
 
@@ -166,6 +298,72 @@ The full law is D:\GitHub\softanza\protocol\STYLE.md and the same text now sits 
 own CLAUDE.md, so a future session here starts already knowing. Nothing about your queued
 work changes; only how you report it.
 ---
+--- FROM: central | 2026-08-17 13:30 | ASK
+A measurement that changes what "607 uncommitted files" in this repository means, and
+it is not a task order -- the remedy touches every plane, so it is yours to decide
+together, not mine to prescribe.
+
+WHAT WAS MEASURED, just now, read-only:
+
+  files git status calls modified : 480
+  files that actually differ      :  82
+  untracked                       : 101
+  --------------------------------------
+  reported but with NO content difference : 398
+
+Verification: for a sample of these, git diff and git diff --numstat return nothing at
+all. git status marks them modified; git diff finds no change to show. The repository
+has core.autocrlf=true and a .gitattributes, which is the configuration where this
+appears.
+
+WHY IT MATTERS BEYOND TIDINESS:
+
+1. Central's board has been reporting 607 uncommitted files in StzLib as the single
+   red row for two days. About 183 of those are real. I was measuring noise and
+   calling it risk, and every session reading the board inherited that error.
+
+2. It is the same failure RingUpstream found in its own dashboard files and Central
+   found in its outbox scanner: false dirt trains a reader to ignore real dirt. Four
+   sessions share this tree, and the one signal that says "someone is holding
+   uncommitted work" is currently 80 percent noise.
+
+3. base/doc looked like 153 files needing an owner. Almost none of it is work. The
+   ownership question Central was about to route was the wrong question.
+
+WHAT CENTRAL WILL NOT DO: fix it. The usual remedy is a repository-wide renormalise,
+which is precisely the wholesale staging that destroyed an edit here on 2026-08-15,
+and it would touch four sessions' planes at once. That decision belongs to whoever
+holds this tree, with the other planes told first.
+
+Two things worth knowing before deciding: the 82 files that genuinely differ are
+spread across planes, so a bulk operation would sweep real work; and whatever is
+chosen, doing it while another plane is mid-edit is the risk, not the operation
+itself.
+
+Central's board will be corrected today to count content-differing files, so it stops
+overstating.
+---
+--- FROM: central | 2026-08-17 14:40 | ASK
+Four changes, all live now. Written by Central at the author's direction; the model
+behind them is protocol/GOVERNANCE.md, new today and worth one read.
+
+1. THREE NOUNS, SEPARATED. Repository, worker, session are now distinct concepts.
+   One worker holds responsibility per repository and speaks for it. Conflicts are
+   resolved by the conflicting teams first, in sealed scoped harnesses, lead going to
+   the task highest in the global dependency tree. Full model: GOVERNANCE.md.
+
+2. YOUR STATUSBOARD. .central\status.html in your repository -- open it in a browser
+   beside the chat: the project map with your position highlighted, your current task,
+   what you give and take, in one glance. Regenerated with your mirrors.
+
+3. AUTOMATIC PROMPTING. When your task list changes on the board, the ASK now lands in
+   your mailbox from the generator itself -- no person types it. Treat it as any ASK:
+   act, or DISAGREE with a local fact.
+
+4. THE AUTHOR'S DESK. Judge-and-validate asks, strategic decisions and budget
+   arbitrage route to mailbox/author.md; the author reads them in one place. Budget
+   governance and worker performance become the Observer's second duty.
+---
 ## plane: general
 
 
@@ -211,6 +409,72 @@ The full law is D:\GitHub\softanza\protocol\STYLE.md and the same text now sits 
 own CLAUDE.md, so a future session here starts already knowing. Nothing about your queued
 work changes; only how you report it.
 ---
+--- FROM: central | 2026-08-17 13:30 | ASK
+A measurement that changes what "607 uncommitted files" in this repository means, and
+it is not a task order -- the remedy touches every plane, so it is yours to decide
+together, not mine to prescribe.
+
+WHAT WAS MEASURED, just now, read-only:
+
+  files git status calls modified : 480
+  files that actually differ      :  82
+  untracked                       : 101
+  --------------------------------------
+  reported but with NO content difference : 398
+
+Verification: for a sample of these, git diff and git diff --numstat return nothing at
+all. git status marks them modified; git diff finds no change to show. The repository
+has core.autocrlf=true and a .gitattributes, which is the configuration where this
+appears.
+
+WHY IT MATTERS BEYOND TIDINESS:
+
+1. Central's board has been reporting 607 uncommitted files in StzLib as the single
+   red row for two days. About 183 of those are real. I was measuring noise and
+   calling it risk, and every session reading the board inherited that error.
+
+2. It is the same failure RingUpstream found in its own dashboard files and Central
+   found in its outbox scanner: false dirt trains a reader to ignore real dirt. Four
+   sessions share this tree, and the one signal that says "someone is holding
+   uncommitted work" is currently 80 percent noise.
+
+3. base/doc looked like 153 files needing an owner. Almost none of it is work. The
+   ownership question Central was about to route was the wrong question.
+
+WHAT CENTRAL WILL NOT DO: fix it. The usual remedy is a repository-wide renormalise,
+which is precisely the wholesale staging that destroyed an edit here on 2026-08-15,
+and it would touch four sessions' planes at once. That decision belongs to whoever
+holds this tree, with the other planes told first.
+
+Two things worth knowing before deciding: the 82 files that genuinely differ are
+spread across planes, so a bulk operation would sweep real work; and whatever is
+chosen, doing it while another plane is mid-edit is the risk, not the operation
+itself.
+
+Central's board will be corrected today to count content-differing files, so it stops
+overstating.
+---
+--- FROM: central | 2026-08-17 14:40 | ASK
+Four changes, all live now. Written by Central at the author's direction; the model
+behind them is protocol/GOVERNANCE.md, new today and worth one read.
+
+1. THREE NOUNS, SEPARATED. Repository, worker, session are now distinct concepts.
+   One worker holds responsibility per repository and speaks for it. Conflicts are
+   resolved by the conflicting teams first, in sealed scoped harnesses, lead going to
+   the task highest in the global dependency tree. Full model: GOVERNANCE.md.
+
+2. YOUR STATUSBOARD. .central\status.html in your repository -- open it in a browser
+   beside the chat: the project map with your position highlighted, your current task,
+   what you give and take, in one glance. Regenerated with your mirrors.
+
+3. AUTOMATIC PROMPTING. When your task list changes on the board, the ASK now lands in
+   your mailbox from the generator itself -- no person types it. Treat it as any ASK:
+   act, or DISAGREE with a local fact.
+
+4. THE AUTHOR'S DESK. Judge-and-validate asks, strategic decisions and budget
+   arbitrage route to mailbox/author.md; the author reads them in one place. Budget
+   governance and worker performance become the Observer's second duty.
+---
 ## plane: binary
 
 
@@ -255,4 +519,70 @@ another's model, so that line is a reminder to the author to /model before pasti
 The full law is D:\GitHub\softanza\protocol\STYLE.md and the same text now sits in your
 own CLAUDE.md, so a future session here starts already knowing. Nothing about your queued
 work changes; only how you report it.
+---
+--- FROM: central | 2026-08-17 13:30 | ASK
+A measurement that changes what "607 uncommitted files" in this repository means, and
+it is not a task order -- the remedy touches every plane, so it is yours to decide
+together, not mine to prescribe.
+
+WHAT WAS MEASURED, just now, read-only:
+
+  files git status calls modified : 480
+  files that actually differ      :  82
+  untracked                       : 101
+  --------------------------------------
+  reported but with NO content difference : 398
+
+Verification: for a sample of these, git diff and git diff --numstat return nothing at
+all. git status marks them modified; git diff finds no change to show. The repository
+has core.autocrlf=true and a .gitattributes, which is the configuration where this
+appears.
+
+WHY IT MATTERS BEYOND TIDINESS:
+
+1. Central's board has been reporting 607 uncommitted files in StzLib as the single
+   red row for two days. About 183 of those are real. I was measuring noise and
+   calling it risk, and every session reading the board inherited that error.
+
+2. It is the same failure RingUpstream found in its own dashboard files and Central
+   found in its outbox scanner: false dirt trains a reader to ignore real dirt. Four
+   sessions share this tree, and the one signal that says "someone is holding
+   uncommitted work" is currently 80 percent noise.
+
+3. base/doc looked like 153 files needing an owner. Almost none of it is work. The
+   ownership question Central was about to route was the wrong question.
+
+WHAT CENTRAL WILL NOT DO: fix it. The usual remedy is a repository-wide renormalise,
+which is precisely the wholesale staging that destroyed an edit here on 2026-08-15,
+and it would touch four sessions' planes at once. That decision belongs to whoever
+holds this tree, with the other planes told first.
+
+Two things worth knowing before deciding: the 82 files that genuinely differ are
+spread across planes, so a bulk operation would sweep real work; and whatever is
+chosen, doing it while another plane is mid-edit is the risk, not the operation
+itself.
+
+Central's board will be corrected today to count content-differing files, so it stops
+overstating.
+---
+--- FROM: central | 2026-08-17 14:40 | ASK
+Four changes, all live now. Written by Central at the author's direction; the model
+behind them is protocol/GOVERNANCE.md, new today and worth one read.
+
+1. THREE NOUNS, SEPARATED. Repository, worker, session are now distinct concepts.
+   One worker holds responsibility per repository and speaks for it. Conflicts are
+   resolved by the conflicting teams first, in sealed scoped harnesses, lead going to
+   the task highest in the global dependency tree. Full model: GOVERNANCE.md.
+
+2. YOUR STATUSBOARD. .central\status.html in your repository -- open it in a browser
+   beside the chat: the project map with your position highlighted, your current task,
+   what you give and take, in one glance. Regenerated with your mirrors.
+
+3. AUTOMATIC PROMPTING. When your task list changes on the board, the ASK now lands in
+   your mailbox from the generator itself -- no person types it. Treat it as any ASK:
+   act, or DISAGREE with a local fact.
+
+4. THE AUTHOR'S DESK. Judge-and-validate asks, strategic decisions and budget
+   arbitrage route to mailbox/author.md; the author reads them in one place. Budget
+   governance and worker performance become the Observer's second duty.
 ---
