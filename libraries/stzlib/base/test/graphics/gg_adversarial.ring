@@ -809,19 +809,17 @@ chk("the bias is a fraction of the way to the target",
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 16. Edges MEET their nodes, and meet them square --------"
+? "-- 16. The edge grammar is DOT'S, asserted against dot's rules ----"
 #
-# Everything above passed while the edges themselves looked hand-drawn,
-# and that is the point of this scene: 63 assertions had nothing to say
-# about whether an edge touches the box it points at.
-#
-# Two faults, both structural. The port offset was added to the node's
-# CENTRE and a box was then clipped around the shifted point -- a box
-# that is not where the node is -- so any edge not near-vertical left
-# from beside its node rather than from it. And the curve was a QUADRATIC
-# with one control point: one control cannot fix two tangents, so an edge
-# departed square and arrived at whatever angle was left over, taking its
-# arrowhead with it.
+# This section has been rewritten ONCE, and the history is the lesson.
+# Its first version asserted square tangents at BOTH ends -- a model
+# built from intuition, and the wrong one: rendering the same diagrams
+# through dot.exe showed near-straight edges AIMED at their targets, a
+# soft departure only, and arrowheads pointing along the line. The old
+# assertions passed perfectly, because the code satisfied the model and
+# the MODEL was what disagreed with the reference. An assertion is only
+# as good as the grammar behind it; this one now encodes dot's, learned
+# from dot's own output rather than assumed.
 #---------------------------------------------------------------------------
 
 oQ = new stzDiagram("q")
@@ -830,54 +828,69 @@ oQ.AddNodeXTT("c", "C", [ :type = "box", :color = "Info.Solid" ])
 oQ.AddEdge("p", "c")
 QW = 120  QH = 40
 
-# 1. A PORT IS ON THE BOUNDARY. Offset along the edge it leaves from,
-#    never off the box and never inside it.
-aOut = oQ._PortPoint([ 200, 100 ], 18, QW, QH, "TB", 1)
-aIn  = oQ._PortPoint([ 400, 300 ], -18, QW, QH, "TB", 0)
-? "   out port " + aOut[1] + "," + aOut[2] + "   in port " + aIn[1] + "," + aIn[2]
-chkeq("an out-port sits on the bottom edge", aOut[2], 120)
-chkeq("...offset along it, still within the box", aOut[1], 218)
-chkeq("an in-port sits on the top edge", aIn[2], 280)
-chk("a port never leaves the box's own width",
-    fabs(aOut[1] - 200) <= QW / 2 and fabs(aIn[1] - 400) <= QW / 2)
+# a strongly lateral hop -- the case every fault showed on
+aGm = oQ._EdgeGeometry([ 200, 100 ], [ 480, 240 ], QW, QH, "TB", 2)
+aFl = aGm[1]
+aBs = aGm[2]
+aTp = aGm[3]
+nFn = len(aFl)
 
-# 2. THE CURVE MEETS THE BOX SQUARE at both ends. Sampled from the real
-#    spline: the first step away from the source and the last step into
-#    the target must both run along the RANK axis.
-aS = oQ._SplinePoints([ 200, 120 ], [ 400, 280 ], "TB")
-nS = len(aS)
-nDep = fabs(aS[3] - aS[1])          # dx over the first step
-nArr = fabs(aS[nS - 1] - aS[nS - 3])  # dx over the last step
-? "   spline: sideways drift on departure " + nDep + ", on arrival " + nArr
-# NOT ZERO, AND IT SHOULD NOT BE. The tangent at each end is exactly
-# along the rank axis -- both control points share their endpoint's x --
-# but drift is measured over a finite sampling STEP, and a cubic covering
-# 200px of lateral travel moves about a pixel within one 24th of its
-# parameter. Asserting zero would be asserting something about the
-# sampling rate, not about the curve.
-chk("the edge leaves its source square to the border", nDep < 2)
-chk("...and arrives at its target square too", nArr < 2)
-# THE SYMMETRY IS THE REAL SIGNATURE. Fixing both tangents is exactly
-# what one control point cannot do, so a curve that meets both ends
-# square drifts EQUALLY at both -- and the quadratic below is lopsided by
-# a factor of thirty.
-? "   departure and arrival differ by " + fabs(nDep - nArr)
-chk("both ends are treated alike, which one control point cannot do",
-    fabs(nDep - nArr) < 0.1)
+# 1. THE TIP IS ON THE TARGET BORDER. dot clips the spline at the node
+#    and puts the head's point exactly there.
+? "   tip " + aTp[1] + "," + aTp[2]
+chk("the arrow tip touches the target's border",
+    fabs(aTp[2] - (240 - QH/2)) < 1.5 or fabs(aTp[1] - (480 - QW/2)) < 1.5)
 
-# THE NEGATIVE SIBLING, and the proof that the CUBIC is what fixed it:
-# the quadratic this replaced is still here, driving the ortho arrowhead.
-# It departs square -- its one control point sits below the source -- and
-# has nothing left to spend on the arrival.
-aQ2 = oQ._CurvePoints([ 200, 120 ], [ 400, 280 ], "TB")
+# 2. THE STROKE IS CUT FOR THE HEAD. The drawn line ends a head's length
+#    short of the tip -- drawing to the tip and stamping a head over it is
+#    how lines poke past arrowheads.
+nGap = sqrt((aTp[1]-aFl[nFn-1])*(aTp[1]-aFl[nFn-1]) +
+            (aTp[2]-aFl[nFn])*(aTp[2]-aFl[nFn]))
+? "   stroke stops " + nGap + "px short of the tip (head length 13)"
+chk("the stroke is cut a head's length before the tip",
+    nGap > 10 and nGap < 16)
+
+# 3. THE HEAD POINTS ALONG THE ARRIVING LINE. The base the head is built
+#    on IS the last point of the stroke, so head and line cannot disagree
+#    by construction -- asserted anyway, against the aim line.
+nAimX = 480 - 200
+nAimY = 240 - 100
+nAimL = sqrt(nAimX*nAimX + nAimY*nAimY)
+nHdX = (aTp[1] - aBs[1])
+nHdY = (aTp[2] - aBs[2])
+nHdL = sqrt(nHdX*nHdX + nHdY*nHdY)
+nDot = (nAimX*nHdX + nAimY*nHdY) / (nAimL * nHdL)
+? "   head direction vs aim line, cosine : " + nDot
+chk("the head points the way the edge travels", nDot > 0.97)
+
+# 4. ONE BEND, ALWAYS OUTWARD -- the outer arc. An S-curve crosses its
+#    own chord; dot's edges never do. Signed area side of every sample
+#    against the chord must not change sign.
+nPos = 0
+nNeg = 0
+for i = 1 to nFn / 2
+	_sx_ = aFl[i*2-1] - aFl[1]
+	_sy_ = aFl[i*2] - aFl[2]
+	_cr_ = (aFl[nFn-1]-aFl[1]) * _sy_ - (aFl[nFn]-aFl[2]) * _sx_
+	if _cr_ > 0.5  nPos++  ok
+	if _cr_ < -0.5  nNeg++  ok
+next
+? "   samples left of the chord " + nPos + ", right " + nNeg
+chk("the curve stays on ONE side of its chord -- an arc, never an S",
+    nPos = 0 or nNeg = 0)
+
+# THE NEGATIVE SIBLING: the OLD model, still present driving the ortho
+# arrowhead, is a quadratic that fails rule 3 -- its arrival is square
+# regardless of the aim, so head and line disagree on a lateral edge.
+aQ2 = oQ._CurvePoints([ 200, 120 ], [ 480, 220 ], "TB")
 nQ2 = len(aQ2)
-nQDep = fabs(aQ2[3] - aQ2[1])
-nQArr = fabs(aQ2[nQ2 - 1] - aQ2[nQ2 - 3])
-? "   the old quadratic: departure " + nQDep + ", arrival " + nQArr
-chk("the old curve also left square, which is why this looked fine",
-    nQDep < 1)
-chk("...but arrived CROOKED, which is what the check must see",
-    nQArr > 4)
+nOdX = aQ2[nQ2-1] - aQ2[nQ2-3]
+nOdY = aQ2[nQ2] - aQ2[nQ2-2]
+nOdL = sqrt(nOdX*nOdX + nOdY*nOdY)
+nDot2 = (nAimX*nOdX + nAimY*nOdY) / (nAimL * nOdL)
+? "   the old curve's arrival vs the aim, cosine : " + nDot2
+chk("the old model really did arrive off the aim, which this must see",
+    nDot2 < 0.97)
 
 #---------------------------------------------------------------------------
 ? ""
