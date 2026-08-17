@@ -1811,36 +1811,23 @@ class stzDiagram from stzGraph
 				loop
 			ok
 
-			if _cSpl_ != "ortho"
-				# the port offset shifts the whole aiming line, so the
-				# clip lands on the shifted point of the border.
-				# FRESH variables, not `_a_ = [ _a_[1]..., ]`: Ring clears
-				# the assignment target BEFORE evaluating the literal's
-				# elements, so a list literal that reads the variable it is
-				# being assigned to indexes an empty list -- an R2 pointing
-				# at a line where every length is provably right.
-				_eax_ = _a_[1]
-				_eay_ = _a_[2]
-				_ebx_ = _b_[1]
-				_eby_ = _b_[2]
-				if _bSwap_
-					_eay_ += _aPort_[_ei_][1]
-					_eby_ += _aPort_[_ei_][2]
-				else
-					_eax_ += _aPort_[_ei_][1]
-					_ebx_ += _aPort_[_ei_][2]
-				ok
-				_a_ = [ _eax_, _eay_ ]
-				_b_ = [ _ebx_, _eby_ ]
-			ok
+			# THE PORT IS APPLIED AT THE BOUNDARY, not to the centre.
+			# It used to shift the node's CENTRE and then clip a box
+			# around the shifted point -- a box that is not where the node
+			# is. For a near-vertical edge that happened to land on the
+			# real bottom edge and looked fine; for anything more sideways
+			# the exit point sat off the node entirely, which is the
+			# "edges leaving from nowhere" in a wide fan-out. _PortPoint
+			# puts it on the real boundary, on the side the rank runs.
 			_aBend_ = This._RouteOf(_aRoute_, "" + _aE_[_ei_][:from],
 				"" + _aE_[_ei_][:to])
 			if len(_aBend_) > 0
 				This._DrawRoutedEdge(_oC_, _a_, _b_, _aBend_, _nBoxW_,
 					_nBoxH_, _cEdge_, _nEdgeW_, _cSpl_, _cRank_)
 			else
-				This._DrawEdge(_oC_, _a_, _b_, _nBoxW_, _nBoxH_, _cEdge_,
-					_nEdgeW_, _cSpl_, _cRank_, _aPort_[_ei_][3])
+				This._DrawEdgeXT(_oC_, _a_, _b_, _nBoxW_, _nBoxH_, _cEdge_,
+					_nEdgeW_, _cSpl_, _cRank_, _aPort_[_ei_][3],
+					_aPort_[_ei_][1], _aPort_[_ei_][2])
 			ok
 		next
 
@@ -1903,13 +1890,24 @@ class stzDiagram from stzGraph
 						# midpoints of a fan-out stay bunched near the
 						# parent however far apart the children get, so
 						# labels placed at 0.5 crowded exactly where the
-						# extra room was not. At 0.68 they inherit the
-						# spread the layout just paid for.
-						_p2_ = This._ClipToBox(_a_, _b_, _nBoxW_, _nBoxH_)
-						_q2_ = This._ClipToBox(_b_, _a_, _nBoxW_, _nBoxH_)
-						_bias_ = This._EdgeLabelBias()
-						_lax_ = _p2_[1] + (_q2_[1] - _p2_[1]) * _bias_
-						_lay_ = _p2_[2] + (_q2_[2] - _p2_[2]) * _bias_
+						# extra room was not. At the shared bias they
+						# inherit the spread the layout just paid for.
+						#
+						# SAMPLED ON THE ACTUAL SPLINE, through the same
+						# ports the edge is drawn from. Interpolating
+						# between two clipped centres describes a straight
+						# line the edge does not take, so a label drifted
+						# off its own curve exactly where the curve bends
+						# most -- and a fanned edge bends most near its
+						# source. One geometry, read twice.
+						_p2_ = This._PortPoint(_a_, _aPort_[_ei_][1],
+							_nBoxW_, _nBoxH_, _cRank_, 1)
+						_q2_ = This._PortPoint(_b_, _aPort_[_ei_][2],
+							_nBoxW_, _nBoxH_, _cRank_, 0)
+						_lat_ = This._SplineAt(_p2_, _q2_, _cRank_,
+							This._EdgeLabelBias())
+						_lax_ = _lat_[1]
+						_lay_ = _lat_[2]
 					ok
 				ok
 				_aLabAt_ + [ _cLab_, _lax_, _lay_ ]
@@ -2496,6 +2494,98 @@ class stzDiagram from stzGraph
 		_o_ + paPts[_n_][1]
 		_o_ + paPts[_n_][2]
 		return _o_
+
+	# WHERE an edge meets a node: a point ON THE BOUNDARY, on the side the
+	# rank direction says edges leave and arrive from.
+	#
+	# This replaces clipping a ray against the box. Clipping is the right
+	# tool when an edge may come from any direction; in a LAYERED drawing
+	# it never does -- everything leaves the bottom and arrives at the top
+	# (or the sides, turned) -- and clipping a ray that had been aimed
+	# through a PORT-SHIFTED centre put the exit point on a box that was
+	# not where the node is.
+	def _PortPoint(aCentre, nPort, nBoxW, nBoxH, cRank, bOut)
+		_hw_ = nBoxW / 2
+		_hh_ = nBoxH / 2
+		if cRank = "LR"
+			if bOut  return [ aCentre[1] + _hw_, aCentre[2] + nPort ]  ok
+			return [ aCentre[1] - _hw_, aCentre[2] + nPort ]
+		but cRank = "RL"
+			if bOut  return [ aCentre[1] - _hw_, aCentre[2] + nPort ]  ok
+			return [ aCentre[1] + _hw_, aCentre[2] + nPort ]
+		but cRank = "BT"
+			if bOut  return [ aCentre[1] + nPort, aCentre[2] - _hh_ ]  ok
+			return [ aCentre[1] + nPort, aCentre[2] + _hh_ ]
+		ok
+		if bOut  return [ aCentre[1] + nPort, aCentre[2] + _hh_ ]  ok
+		return [ aCentre[1] + nPort, aCentre[2] - _hh_ ]
+
+	# A CUBIC whose tangents at BOTH ends run along the rank axis, so an
+	# edge leaves its source square to the border and arrives square to the
+	# target's.
+	#
+	# The old curve was a QUADRATIC with one control point sitting directly
+	# below the source. One control point cannot fix two tangents: the
+	# departure was square and the arrival was at whatever angle the single
+	# control happened to give, which is the kink visible on every fanned
+	# edge and the reason arrowheads met their node crooked. Two control
+	# points is the least that can satisfy both ends, and is what makes a
+	# layered drawing look drawn rather than plotted.
+	def _SplinePoints(aP, aQ, cRank)
+		if cRank = "LR" or cRank = "RL"
+			_d_ = (aQ[1] - aP[1]) * 0.5
+			_c1_ = [ aP[1] + _d_, aP[2] ]
+			_c2_ = [ aQ[1] - _d_, aQ[2] ]
+		else
+			_d_ = (aQ[2] - aP[2]) * 0.5
+			_c1_ = [ aP[1], aP[2] + _d_ ]
+			_c2_ = [ aQ[1], aQ[2] - _d_ ]
+		ok
+		_a_ = []
+		for _i_ = 0 to 24
+			_t_ = _i_ / 24
+			_u_ = 1 - _t_
+			_a_ + (_u_*_u_*_u_ * aP[1] + 3*_u_*_u_*_t_ * _c1_[1] +
+				3*_u_*_t_*_t_ * _c2_[1] + _t_*_t_*_t_ * aQ[1])
+			_a_ + (_u_*_u_*_u_ * aP[2] + 3*_u_*_u_*_t_ * _c1_[2] +
+				3*_u_*_t_*_t_ * _c2_[2] + _t_*_t_*_t_ * aQ[2])
+		next
+		return _a_
+
+	# The point on that spline at fraction t -- so a label sits ON the
+	# curve it names rather than on the straight line between the centres.
+	def _SplineAt(aP, aQ, cRank, nT)
+		_pts_ = This._SplinePoints(aP, aQ, cRank)
+		_n_ = len(_pts_) / 2
+		_k_ = floor(nT * (_n_ - 1)) + 1
+		if _k_ < 1  _k_ = 1  ok
+		if _k_ > _n_  _k_ = _n_  ok
+		return [ _pts_[_k_ * 2 - 1], _pts_[_k_ * 2] ]
+
+	# A `def` signature CANNOT be split across two lines in Ring: the
+	# parser stops at the newline and the file dies with no message at all,
+	# no line number, and an empty exit-1 -- which reads as an environment
+	# failure rather than a typo.
+	def _DrawEdgeXT(oC, aFrom, aTo, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nLane, nPortA, nPortB)
+		if cSpline = "ortho"
+			This._DrawEdge(oC, aFrom, aTo, nBoxW, nBoxH, cColor, nWidth,
+				cSpline, cRank, nLane)
+			return
+		ok
+		_p_ = This._PortPoint(aFrom, nPortA, nBoxW, nBoxH, cRank, 1)
+		_q_ = This._PortPoint(aTo, nPortB, nBoxW, nBoxH, cRank, 0)
+		if cSpline = "line" or cSpline = "polyline"
+			oC.Flush()
+			oC.AddLineQ(_p_[1], _p_[2], _q_[1], _q_[2]).Stroke(cColor, nWidth)
+			This._DrawArrow(oC, _p_, _q_, cColor, nWidth, "line", cRank)
+			return
+		ok
+		_pts_ = This._SplinePoints(_p_, _q_, cRank)
+		oC.Flush()
+		oC.AddPolylineQ(_pts_).Stroke(cColor, nWidth)
+		_n_ = len(_pts_)
+		This._DrawArrow(oC, [ _pts_[_n_ - 3], _pts_[_n_ - 2] ], _q_,
+			cColor, nWidth, "line", cRank)
 
 	def _DrawEdge(oC, aFrom, aTo, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nLane)
 		_p_ = This._ClipToBox(aFrom, aTo, nBoxW, nBoxH)
