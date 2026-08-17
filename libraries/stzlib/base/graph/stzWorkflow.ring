@@ -22,7 +22,7 @@ class stzWorkflow from stzDiagram
 	@aBottlenecks = []
 	
 	# Org chart linking
-	@oLinkedOrgChart = NULL
+	@oLinkedOrgChart = ""
 	@aRoleAssignments = []
 
 	# The events that mean trouble. Empty by default, which means every
@@ -128,8 +128,8 @@ class stzWorkflow from stzDiagram
 		_aState_ = [
 			:id = pcId,
 			:label = pcLabel,
-			:isInitial = FALSE,
-			:isFinal = FALSE,
+			:isInitial = 0,
+			:isFinal = 0,
 			:properties = paProps
 		]
 		@aStates + _aState_
@@ -220,7 +220,7 @@ class stzWorkflow from stzDiagram
 
 	def AddExceptionTransition(pcFrom, pcTo, pcEvent)
 		This.AddTransitionXT(pcFrom, pcTo, pcEvent, "")
-		@aTransitions[len(@aTransitions)][:exceptional] = TRUE
+		@aTransitions[len(@aTransitions)][:exceptional] = 1
 
 	def IsExceptionalTransition(pcFrom, pcTo, pcEvent)
 		_nLen_ = len(@aTransitions)
@@ -230,11 +230,11 @@ class stzWorkflow from stzDiagram
 				return _t_[:exceptional]
 			ok
 		next
-		return FALSE
+		return 0
 
 	def _IsExceptionEvent(pcEvent)
 		if len(@acExceptionEvents) = 0
-			return FALSE
+			return 0
 		ok
 		return StzFindFirst(StzLower("" + pcEvent), @acExceptionEvents) > 0
 	
@@ -378,7 +378,7 @@ class stzWorkflow from stzDiagram
 	def WorkloadByPosition()
 		_aWorkload_ = []
 		
-		if @oLinkedOrgChart = NULL
+		if @oLinkedOrgChart = ""
 			return _aWorkload_
 		ok
 		
@@ -388,13 +388,13 @@ class stzWorkflow from stzDiagram
 			_aStep_ = @aSteps[_iLoopSteps7_]
 			_cPosition_ = This.GetPositionForStep(_aStep_[:id])
 			if _cPosition_ != ""
-				_bFound_ = FALSE
+				_bFound_ = 0
 				_nWorkloadLen_ = len(_aWorkload_)
 				for i = 1 to _nWorkloadLen_
 					if _aWorkload_[i][:position] = _cPosition_
 						_aWorkload_[i][:stepCount]++
 						_aWorkload_[i][:totalDuration] += _aStep_[:duration]
-						_bFound_ = TRUE
+						_bFound_ = 1
 						exit
 					ok
 				end
@@ -891,7 +891,7 @@ class stzSLARuleBase from stzGraphRuleSet
 		_oRule1_ = new stzGraphRule("sla_defined")
 		_oRule1_.SetDomainQ("sla")
 		_oRule1_.SetMessageQ("Critical steps must have SLA defined")
-		_oRule1_.WhenQ("critical", "equals", TRUE)
+		_oRule1_.WhenQ("critical", "equals", 1)
 		_oRule1_.ThenQ("sla", "greaterthan", 0)
 		_oRule1_.ThenViolationQ("Critical step has no SLA")
 		This.AddRule(_oRule1_)
@@ -986,7 +986,7 @@ class stzFlowParser from stzObject
 		return This.Parse(_cContent_)
 	
 	def Parse(pcContent)
-		_oWorkflow_ = NULL
+		_oWorkflow_ = ""
 		_acLines_ = split(pcContent, NL)
 		_cSection_ = ""
 		_cCurrentItem_ = ""
