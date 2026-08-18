@@ -16,9 +16,12 @@ oGraph {
 	AddNode("second")
 	AddNode("third")
 	
-	? FirstNode()["label"]   #--> "First"
-	? LastNode()["label"]    #--> "Third"
-	? NodeAt(2)["label"]     #--> "Second"
+	# AddNode(id) uses the id AS the label, and AddNodeXTT lowercases the
+	# id -- so these are "first", not "First". The capitals were written
+	# by hand. AddNodeXT(id, label) is the door for a label of your own.
+	? FirstNode()["label"]   #--> first
+	? LastNode()["label"]    #--> third
+	? NodeAt(2)["label"]     #--> second
 	? NodePosition("second") #--> 2
 }
 
