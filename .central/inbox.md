@@ -1,6 +1,6 @@
 # Inbox -- messages from Central
 
-Mirrored 2026-08-17 13:52 from Central at `4943d1e`. Read-only: reply in `outbox.md`.
+Mirrored 2026-08-18 08:10 from Central at `1ecc740`. Read-only: reply in `outbox.md`.
 
 ## plane: graphics
 
