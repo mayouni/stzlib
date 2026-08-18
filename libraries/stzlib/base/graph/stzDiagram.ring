@@ -1463,6 +1463,31 @@ class stzDiagram from stzGraph
 		_nEdgeW_= This._DiagOpt(paOptions, "edgewidth", 2)
 		_nRad_  = This._DiagOpt(paOptions, "corner", 10)
 
+		# :SCALE IS RESOLUTION, NOT ZOOM. A raster is only as sharp as the
+		# pixels it was drawn with: enlarging a finished PNG enlarges its
+		# blur, and a 12px label in a 3000px picture is unreadable at 100%
+		# and worse magnified. Scaling every INPUT -- boxes, font,
+		# separations, stroke, corners -- redraws the same diagram with
+		# more pixels, so the glyphs are rasterised at their new size and
+		# the edges are re-antialiased at it. :Scale = 2 gives text a
+		# reader can actually magnify; 3 is print.
+		#
+		# Everything here is proportional, so ONE multiplier is enough and
+		# the picture cannot come out subtly different -- which is what
+		# scaling only some of these would give.
+		_nScl_ = This._DiagOpt(paOptions, "scale", 1)
+		if NOT isNumber(_nScl_)  _nScl_ = 1  ok
+		if _nScl_ < 1  _nScl_ = 1  ok
+		if _nScl_ > 1
+			_nBoxW_ = _nBoxW_ * _nScl_
+			_nBoxH_ = _nBoxH_ * _nScl_
+			_nFsz_  = _nFsz_ * _nScl_
+			_nEdgeW_= _nEdgeW_ * _nScl_
+			_nRad_  = _nRad_ * _nScl_
+			if This._HasOpt(paOptions, "width")   _nW_ = _nW_ * _nScl_  ok
+			if This._HasOpt(paOptions, "height")  _nH_ = _nH_ * _nScl_  ok
+		ok
+
 		# THE DIAGRAM'S OWN SETTINGS ARE READ, not re-asked for. SetLayout and
 		# SetSplines already exist and already drive the dot output; a native
 		# tier that ignored them would be a second diagram over the same data.
@@ -1473,8 +1498,8 @@ class stzDiagram from stzGraph
 		# Layout in a space inset by half a box, so a node on the border is not
 		# half off-canvas -- and TRANSPOSED afterwards for LR/RL/BT, because
 		# rankdir is a property of the picture, not of the graph.
-		_mx_ = _nBoxW_ / 2 + 14
-		_my_ = _nBoxH_ / 2 + 14
+		_mx_ = _nBoxW_ / 2 + 14 * _nScl_
+		_my_ = _nBoxH_ / 2 + 14 * _nScl_
 		_bSwap_ = 0
 		if _cRank_ = "LR" or _cRank_ = "RL"  _bSwap_ = 1  ok
 
@@ -1501,8 +1526,10 @@ class stzDiagram from stzGraph
 		   NOT (This._HasOpt(paOptions, "width") or This._HasOpt(paOptions, "height"))
 			_bNat_ = 1
 		ok
-		_nSepN_ = This._DiagOpt(paOptions, "nodesep", floor(This.NodeSeparation() * 96))
-		_nSepR_ = This._DiagOpt(paOptions, "ranksep", floor(This.RankSeparation() * 96))
+		_nSepN_ = This._DiagOpt(paOptions, "nodesep",
+			floor(This.NodeSeparation() * 96)) * _nScl_
+		_nSepR_ = This._DiagOpt(paOptions, "ranksep",
+			floor(This.RankSeparation() * 96)) * _nScl_
 
 		# A LABELLED EDGE NEEDS THE GAP IT IS WRITTEN IN. dot reserves this
 		# by giving the label its own virtual rank; the same effect, at this
@@ -2287,7 +2314,16 @@ class stzDiagram from stzGraph
 	# width DIVIDED by this. Get the two out of step and the layout pays
 	# for space the label is not standing in.
 	def _EdgeLabelBias()
-		return 0.72
+		# THE MIDPOINT, because the arrowhead lives at the end. Biasing
+		# toward the target was meant to let labels inherit a fan's
+		# spread, and it did -- straight onto the arrowheads, where the
+		# label's own background plate then erased the head it was
+		# standing on. A label that hides the thing it describes is worse
+		# than a label that crowds its neighbour, and crowding already
+		# has an answer: the nudge below moves overlapping labels into
+		# the next band, and the demand that widens the rank is computed
+		# from THIS number, so both stay consistent with wherever it sits.
+		return 0.5
 
 	# Per-node extra half-width demand, in SLOT units, from the edge labels
 	# arriving at each node.
