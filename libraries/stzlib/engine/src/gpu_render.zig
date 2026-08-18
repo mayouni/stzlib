@@ -285,7 +285,10 @@ fn pipelineInternal(text: [*]const u8, len: f64, fmt: [*]const u8, fmt_len: f64,
     desc.primitive.topology = c.WGPUPrimitiveTopology_TriangleList;
     desc.primitive.cullMode = if (cull) c.WGPUCullMode_Back else c.WGPUCullMode_None;
     desc.primitive.frontFace = c.WGPUFrontFace_CCW;
-    desc.multisample.count = 1;
+    // ONE COUNT, EVERYWHERE. A pipeline must agree with the pass it is
+    // drawn in, and every pass is multisampled now, so this is not a knob
+    // -- it is the same constant the attachments use.
+    desc.multisample.count = gpu.MSAA_SAMPLES;
     desc.multisample.mask = 0xFFFFFFFF;
     desc.fragment = &frag;
     if (depth) desc.depthStencil = &ds;
@@ -420,7 +423,17 @@ fn beginInternal(target_id: i64, depth_id: i64, r: f64, g: f64, b: f64, a: f64, 
         f.wgpuDeviceCreateCommandEncoder(gpu.deviceHandle(), null);
     if (g_pass_enc == null) return gpu.GPU_ERROR;
     var att = std.mem.zeroes(c.WGPURenderPassColorAttachment);
-    att.view = t.view;
+    // DRAW INTO THE MULTISAMPLE BUFFER, RESOLVE INTO THE REAL ONE. The
+    // target keeps its identity -- callers read back, sample and save
+    // `t.view` exactly as before and never learn that a second texture
+    // exists. If the companion cannot be made, the pass falls back to
+    // drawing directly: a jagged picture beats no picture.
+    if (gpu.msaaViewFor(target_id)) |msv| {
+        att.view = msv;
+        att.resolveTarget = t.view;
+    } else {
+        att.view = t.view;
+    }
     att.depthSlice = std.math.maxInt(u32); // WGPU_DEPTH_SLICE_UNDEFINED
     att.loadOp = if (clear) c.WGPULoadOp_Clear else c.WGPULoadOp_Load;
     att.storeOp = c.WGPUStoreOp_Store;

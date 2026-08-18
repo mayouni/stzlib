@@ -1051,6 +1051,58 @@ chk("the rule this replaced really did fail the minimum",
 
 #---------------------------------------------------------------------------
 ? ""
+? "-- 20. GEOMETRY is antialiased, and text always was ---------"
+#
+# Reported as "lines are not antialiased", and measuring separated it
+# into two facts that look alike and are not: a diagonal rendered with
+# TWO distinct grey levels -- a hard edge, no coverage blending anywhere
+# -- while TEXT rendered with 184. The glyph rasteriser was never the
+# problem, which is why the unreadable labels turned out to be contrast
+# (section 19) and not sharpness. One complaint, two unrelated causes.
+#
+# Counting distinct greys is the whole test: an aliased edge can only be
+# ink or paper, so it has two. Coverage blending has many.
+#---------------------------------------------------------------------------
+
+oAA = new stzCanvas(200, 200)
+oAA.SetBackgroundQ("#FFFFFF")
+oAA.AddLineQ(20, 20, 180, 120).Stroke("#000000", 2)
+nLev = _GreyLevels(oAA.ToPixels())
+? "   distinct grey levels along a diagonal : " + nLev + "  (was 2)"
+chk("geometry edges are blended, not hard", nLev > 2)
+
+# a shape's CURVE, not just a straight line -- the rounded corners and
+# node outlines are where a reader actually notices the stair-stepping
+oAC = new stzCanvas(200, 200)
+oAC.SetBackgroundQ("#FFFFFF")
+oAC.FillQ("#000000").AddCircle(100, 100, 70)
+nLevC = _GreyLevels(oAC.ToPixels())
+? "   distinct grey levels around a circle : " + nLevC
+chk("curved edges are blended too", nLevC > 2)
+
+# TEXT, asserted so the two are never confused again: it was ALREADY
+# fine, and a future report of "blurry text" is a contrast question or a
+# font-size question, not this one.
+oAT = new stzCanvas(240, 80)
+oAT.SetBackgroundQ("#FFFFFF")
+oAT.AddTextQ("Node 12", 20, 50).
+	SetFontQ(new stzFont("C:/Windows/Fonts/segoeui.ttf"), 20).Color("#000000")
+nLevT = _GreyLevels(oAT.ToPixels())
+? "   distinct grey levels in text : " + nLevT
+chk("text was antialiased all along", nLevT > 50)
+
+# THE NEGATIVE SIBLING: a flat fill has no edges inside it, so the same
+# instrument must report a single level -- otherwise "many levels" is
+# just noise in the readback and proves nothing about edges.
+oAF = new stzCanvas(80, 80)
+oAF.SetBackgroundQ("#FFFFFF")
+oAF.FillQ("#000000").AddRect(0, 0, 80, 80)
+nLevF = _GreyLevels(oAF.ToPixels())
+? "   distinct grey levels in a flat fill : " + nLevF
+chkeq("the counter reads ONE where there is nothing to blend", nLevF, 1)
+
+#---------------------------------------------------------------------------
+? ""
 ? "=============================================================="
 ? " " + nOk + " ok, " + nBad + " failed"
 ? "=============================================================="
@@ -1178,18 +1230,33 @@ func _GapsInDensestRow oCanvas, nW, nH, cHex
 	next
 	if _mfirst_ < 0  return -1  ok
 
+	# NEAR-white, not EXACTLY white. This asked for 255,255,255 and broke
+	# the day the renderer gained anti-aliasing: the pixels bordering a box
+	# became blends, every gap lost a pixel at each end, and a passing
+	# layout reported 9 gaps where it had always had 15. The layout had not
+	# moved. "Background" is what a reader sees as background, which is a
+	# tolerance, and an exact-equality test on a colour is a promise that
+	# nothing will ever be blended into it.
 	_mgaps_ = 0
 	_mlen_ = 0
 	for _mx_ = _mfirst_ to _mlast_
-		if _IsRGB(_mpx_, nW, _mx_, _mrow_, [ 255, 255, 255 ])
+		if _IsNearRGB(_mpx_, nW, _mx_, _mrow_, [ 255, 255, 255 ], 60)
 			_mlen_++
 		else
-			# 2px, so a stroke plus its antialiasing is never a "gap"
-			if _mlen_ >= 2  _mgaps_++  ok
+			# ONE pixel is a gap now, and that is not a weakening. A box
+			# is stroked and the stroke is now antialiased, so between two
+			# boxes a reader sees stroke, blend, background, blend,
+			# stroke -- the background run is genuinely one or two pixels
+			# wide when the fit pass has packed a rank tight. Demanding
+			# two PURE white pixels was demanding the renderer not
+            # antialias. The negative sibling below is what keeps this
+			# honest: with fitting off the boxes fuse and this must read
+			# zero.
+			if _mlen_ >= 1  _mgaps_++  ok
 			_mlen_ = 0
 		ok
 	next
-	if _mlen_ >= 2  _mgaps_++  ok
+	if _mlen_ >= 1  _mgaps_++  ok
 	return _mgaps_
 
 # One node, one label, rendered -- the bytes of the picture.
@@ -1289,6 +1356,12 @@ func _EdgeInkInsideBoxes oCanvas, nW, nH, cHex
 		next
 	next
 	return _ehits_
+
+func _IsNearRGB cPx, nW, nX, nY, aRGB, nTol
+	_nr_ = (nY * nW + nX) * 4 + 1
+	return fabs(ascii(substr(cPx, _nr_, 1)) - aRGB[1]) <= nTol and
+	       fabs(ascii(substr(cPx, _nr_ + 1, 1)) - aRGB[2]) <= nTol and
+	       fabs(ascii(substr(cPx, _nr_ + 2, 1)) - aRGB[3]) <= nTol
 
 func _IsRGB cPx, nW, nX, nY, aRGB
 	_ir_ = (nY * nW + nX) * 4 + 1
@@ -1629,3 +1702,16 @@ func _OverlappingTerritories aPos, nMax
 		if _ahi_ > _blo_ and _bhi_ > _alo_  _o_++  ok
 	next
 	return _o_
+
+# How many distinct values the RED channel takes across a render. An
+# aliased edge can only be ink or paper; coverage blending has many.
+func _GreyLevels cPx
+	_gs_ = []
+	_gn_ = len(cPx)
+	_gi_ = 1
+	while _gi_ <= _gn_ - 3
+		_gv_ = ascii(substr(cPx, _gi_, 1))
+		if StzFindFirst(_gv_, _gs_) = 0  _gs_ + _gv_  ok
+		_gi_ += 4
+	end
+	return len(_gs_)
