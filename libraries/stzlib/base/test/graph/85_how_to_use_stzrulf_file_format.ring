@@ -219,9 +219,18 @@ oBaseline.ApplySimulation(cSimulation)
 	# failed, and every issue it found. (The block used to read aResult[1],
 	# which is the ["status","pass"] PAIR -- a list, so printing it raised
 	# R21. It had never run to find out.)
-	? "  Valid: " + aResult[:status] #--> Valid: pass
-	? "  Validators run: " + aResult[:validatorsRun] #--> Validators run: 3
-	? "  Issues: " + aResult[:totalIssues] #--> Issues: 0
+	# FAIL, and rightly. Four validators run -- dag, reachability,
+	# completeness, bottleneck -- and the first three pass. The fourth
+	# reports "Bottlenecks found: ceo, cto", which is true of an org chart
+	# with a CEO and a CTO: work funnels through them.
+	#
+	# The pass/3/0 written here was never produced by a run -- see the note
+	# above, which says this block "had never run to find out". Fixing the
+	# R21 let it run; these are what it says.
+	? "  Valid: " + aResult[:status] #--> Valid: fail
+	? "  Validators run: " + aResult[:validatorsRun] #--> Validators run: 4
+	? "  Issues: " + aResult[:totalIssues] #--> Issues: 1
+	? "  Failed group: " + aResult[:results][4][:ruleGroup] #--> Failed group: bottleneck
 
 	remove("_mycompany.stzgraf")
 	remove("_add_coo.stzsim")

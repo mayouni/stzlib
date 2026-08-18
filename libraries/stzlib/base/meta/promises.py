@@ -103,6 +103,15 @@ def variants(expected):
     if expected.rstrip().endswith(')') and ' (' in expected:
         add(expected[:expected.rindex(' (')])
 
+    # A SECOND '#' STARTS A NOTE, not more value:
+    #
+    #     ? EdgeExists("part1", "dependent")   #--> TRUE  # Edges duplicated
+    #
+    # The value is TRUE; the rest is someone explaining why. Read whole, it
+    # never matches the 1 that Ring prints.
+    if ' #' in expected:
+        add(expected[:expected.index(' #')])
+
     for base in list(seen):
         if base.startswith('"') and base.endswith('"') and len(base) > 1:
             add(base[1:-1])
