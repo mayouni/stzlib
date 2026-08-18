@@ -1003,6 +1003,54 @@ chk("the territory check DISCRIMINATES",
 
 #---------------------------------------------------------------------------
 ? ""
+? "-- 19. A label must be READABLE on the node it sits on ------"
+#
+# The contrast system was built in C1-C5, shipped, guarded -- and the
+# diagram tier called the naive helper standing next to it. StzContrastingText
+# answered "white if the background is dark, black otherwise": a lightness
+# TEST standing in for a contrast MEASUREMENT. On mid-tones the two
+# disagree, and every semantic role is a mid-tone, so every node label in
+# every diagram this library drew failed the minimum this library states:
+# white on primary 3.77:1, success 3.41, warning 3.58, danger 4.12,
+# against 4.5:1. Black would have cleared all five and was never
+# considered, because nothing measured.
+#
+# A capability built and then not reached for is worse than one never
+# built: the picture looked deliberate.
+#---------------------------------------------------------------------------
+
+nMin = StzContrastMinimumBodyText()
+? "   the stated minimum for body text : " + nMin + ":1"
+nWorstC = 99
+cWorstR = ""
+for cRole in [ :Primary, :Success, :Warning, :Danger, :Info, :Neutral ]
+	cFill = StzResolveColor("" + cRole + ".Solid")
+	if cFill = ""  loop  ok
+	cTxt = StzResolveColor(StzContrastingText(cFill))
+	nC = StzContrastOf(cTxt, cFill)
+	? "   " + cRole + "  " + cFill + " -> " + cTxt + "  " + nC + ":1"
+	if nC < nWorstC  nWorstC = nC  cWorstR = "" + cRole  ok
+next
+? "   worst role : " + cWorstR + " at " + nWorstC + ":1"
+chk("every role's label clears the stated minimum", nWorstC >= nMin)
+
+# THE NEGATIVE SIBLING: the rule this replaced, applied to the same
+# fills, must FAIL -- otherwise "they all pass" says nothing about
+# whether measuring was what fixed it.
+nWorstOld = 99
+for cRole in [ :Primary, :Success, :Warning, :Danger, :Info ]
+	cFill = StzResolveColor("" + cRole + ".Solid")
+	cOld = "black"
+	if StzIsDarkColor(cFill)  cOld = "white"  ok
+	nC = StzContrastOf(StzResolveColor(cOld), cFill)
+	if nC < nWorstOld  nWorstOld = nC  ok
+next
+? "   the lightness-test rule would give, at worst : " + nWorstOld + ":1"
+chk("the rule this replaced really did fail the minimum",
+    nWorstOld < nMin)
+
+#---------------------------------------------------------------------------
+? ""
 ? "=============================================================="
 ? " " + nOk + " ok, " + nBad + " failed"
 ? "=============================================================="

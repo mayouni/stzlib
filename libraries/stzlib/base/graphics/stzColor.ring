@@ -227,7 +227,24 @@ func StzIsDarkColor(pColor)
 # deliberate: at 128 a mid blue takes black text and becomes unreadable.
 # It is the value stzDiagram has shipped with, kept so no existing picture
 # changes.
+# THE FOREGROUND THAT CAN ACTUALLY BE READ ON pColor.
+#
+# It used to answer "white if the background is dark, black otherwise" --
+# a lightness TEST standing in for a contrast MEASUREMENT, and on mid-tone
+# fills the two disagree. Every semantic role is a mid-tone, so every one
+# of them failed: white on primary measured 3.77:1, on success 3.41,
+# warning 3.58, danger 4.12 -- against the 4.5:1 this library states as
+# its own minimum for body text. Black would have cleared all five
+# (5.10 to 6.15:1) and was never considered, because nothing measured.
+#
+# So it MEASURES now, which is what StzBestTextOn already existed to do.
+# The whole C-phase contrast system was in the tree and the diagram tier
+# was calling the naive helper next to it -- the capability was built and
+# then not reached for, which is worse than not having it: the picture
+# looked deliberate.
 func StzContrastingText(pColor)
+	_bt_ = StzBestTextOn(pColor)
+	if isList(_bt_) and len(_bt_) >= 1  return _bt_[1]  ok
 	if StzIsDarkColor(pColor)
 		return "white"
 	ok
