@@ -307,9 +307,29 @@ pub const TEX_SRGB: i32 = 4; // sampled, linear filtering, and the texels
 pub const TEX_DEPTH: i32 = 3; // depth buffer, Depth32Float (GR3; never sampled,
 // never read back -- it exists so the GPU can decide what is in front)
 
+/// EVERY render pass is multisampled, at this count, and that uniformity
+/// is the design decision rather than an implementation detail. A pass and
+/// the pipelines drawn in it must agree on their sample count; letting
+/// some targets be multisampled and others not means two variants of every
+/// pipeline and a mismatch that surfaces as a validation error in whichever
+/// consumer was tested least. One count everywhere cannot disagree with
+/// itself. WebGPU guarantees 4 is supported.
+///
+/// Measured before building it: a diagonal line rendered with 2 distinct
+/// grey levels -- no anti-aliasing at all, on every line of every diagram,
+/// chart and 3D scene this engine has ever drawn. Text was always fine
+/// (184 levels) because glyphs come from a rasteriser, not from geometry.
+pub const MSAA_SAMPLES: u32 = 4;
+
 const TextureSlot = struct {
     tex: c.WGPUTexture = null,
     view: c.WGPUTextureView = null,
+    // The multisampled companion a target is actually drawn into, created
+    // on first use and resolved into `view` when the pass ends. Lazy
+    // because a texture that is only ever SAMPLED never needs one, and
+    // eager allocation would quadruple the memory of every atlas.
+    ms_tex: c.WGPUTexture = null,
+    ms_view: c.WGPUTextureView = null,
     w: u32 = 0,
     h: u32 = 0,
     kind: i32 = 0,
@@ -338,6 +358,12 @@ fn destroyTextureSlot(slot: usize) void {
     const s = &textures.items[slot];
     if (s.view) |v| fns.wgpuTextureViewRelease(v);
     if (s.tex) |t| fns.wgpuTextureRelease(t);
+    // the multisampled companion dies with its target -- it is four times
+    // the size, so leaking it leaks four times as fast
+    if (s.ms_view) |v| fns.wgpuTextureViewRelease(v);
+    if (s.ms_tex) |x| fns.wgpuTextureRelease(x);
+    s.ms_view = null;
+    s.ms_tex = null;
     s.view = null;
     s.tex = null;
     s.live = false;
@@ -769,7 +795,11 @@ pub fn stz_gpu_texture_new(wf2: f64, hf: f64, kind: f64) callconv(.c) i64 {
         else => c.WGPUTextureFormat_RGBA8Unorm,
     };
     desc.mipLevelCount = 1;
-    desc.sampleCount = 1;
+    // A depth attachment must carry the SAME sample count as the colour
+    // attachment it is paired with, and every colour attachment is now
+    // multisampled. Depth is never sampled or read back, so it needs no
+    // resolve -- it exists only for the pass.
+    desc.sampleCount = if (k == TEX_DEPTH) MSAA_SAMPLES else 1;
     const tex = fns.wgpuDeviceCreateTexture(device, &desc);
     if (tex == null) {
         counters[CTR_FALLBACK_COUNT] += 1;
@@ -950,6 +980,49 @@ pub fn rawBuffer(id: i64) ?c.WGPUBuffer {
 pub fn rawBufferSize(id: i64) usize {
     const slot = slotOf(id) orelse return 0;
     return buffers.items[slot].size;
+}
+
+/// The multisampled view a pass draws into for this target, created on
+/// demand. Returns null when it cannot be made, and the caller then draws
+/// unresolved rather than not at all -- a jagged picture beats no picture.
+pub fn msaaViewFor(id: i64) ?c.WGPUTextureView {
+    const slot = texSlotOf(id) orelse return null;
+    const s = &textures.items[slot];
+    if (s.ms_view) |v| return v;
+    if (device == null) return null;
+
+    var desc = std.mem.zeroes(c.WGPUTextureDescriptor);
+    desc.usage = c.WGPUTextureUsage_RenderAttachment;
+    desc.dimension = c.WGPUTextureDimension_2D;
+    desc.size = .{ .width = s.w, .height = s.h, .depthOrArrayLayers = 1 };
+    // the SAME format as the thing it resolves into, or the resolve is
+    // invalid -- an sRGB target needs an sRGB multisample buffer
+    desc.format = switch (s.kind) {
+        TEX_SRGB => c.WGPUTextureFormat_RGBA8UnormSrgb,
+        else => c.WGPUTextureFormat_RGBA8Unorm,
+    };
+    desc.mipLevelCount = 1;
+    desc.sampleCount = MSAA_SAMPLES;
+    const tx = fns.wgpuDeviceCreateTexture(device, &desc) orelse return null;
+    const vw = fns.wgpuTextureCreateView(tx, null) orelse {
+        fns.wgpuTextureRelease(tx);
+        return null;
+    };
+    s.ms_tex = tx;
+    s.ms_view = vw;
+    return vw;
+}
+
+/// A swapchain frame is adopted for ONE frame and its slot is recycled, so
+/// its multisample companion must go with it -- keeping it would resolve
+/// next frame's image into last frame's buffer.
+pub fn dropMsaaFor(id: i64) void {
+    const slot = texSlotOf(id) orelse return;
+    const s = &textures.items[slot];
+    if (s.ms_view) |v| fns.wgpuTextureViewRelease(v);
+    if (s.ms_tex) |x| fns.wgpuTextureRelease(x);
+    s.ms_view = null;
+    s.ms_tex = null;
 }
 
 pub const RawTexture = struct { view: c.WGPUTextureView, tex: c.WGPUTexture, w: u32, h: u32, kind: i32 };
