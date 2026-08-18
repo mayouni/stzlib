@@ -445,8 +445,131 @@ pub fn coords(
             Lu -= 1;
             relaxLayer(out_off, out_dst, order, starts, Lu, sep, extra, x, t, bval, bcnt, cofs);
         }
+
+        // THE COMBINED PASS, and it is what makes the picture tight.
+        //
+        // Down-then-up alternately answers "where do my parents want me"
+        // and "where do my children want me", and the fixed point of that
+        // pins every node at the MEAN of one side or the other. A parent
+        // ends up exactly at its children's mean with no freedom left, so
+        // sparse upper ranks are dragged apart by the width of the
+        // subtrees below them. Measured against dot on the same 40-node
+        // tree: the dense ranks matched to within 3%, the rank of four was
+        // 1.21x too wide and the rank of TWO was 2.09x.
+        //
+        // dot has that freedom because network simplex minimises total
+        // ABSOLUTE edge length: a parent sitting anywhere between its
+        // children costs the same, and the slack is spent shortening the
+        // edge to its own parent. Relaxing against BOTH directions at once
+        // is the least that recovers it here -- a node answers to its
+        // parents and its children in one solve, so the whole tree
+        // shortens together instead of each rank being satisfied in turn.
+        var Lb: usize = 0;
+        while (Lb < nl) : (Lb += 1) {
+            relaxLayerBoth(in_off, in_src, out_off, out_dst, order, starts, Lb, sep, extra, x, t, bval, bcnt, cofs);
+        }
     }
     return OK;
+}
+
+/// THE SOLVER, extracted so the two relaxation passes cannot drift apart.
+/// It was copied once and that copy is exactly how a second pass ends up
+/// enforcing a slightly different separation than the first.
+fn solveLayer(
+    order: []const u32,
+    starts: []const u32,
+    L: usize,
+    sep: f64,
+    extra: []const f64,
+    x: []f64,
+    t: []const f64,
+    bval: []f64,
+    bcnt: []f64,
+    cofs: []f64,
+) void {
+    const s = starts[L];
+    const w = starts[L + 1] - s;
+    if (w == 0) return;
+
+    // POOL ADJACENT VIOLATORS on u[k] = t[k] - c[k], where c[k] is the
+    // CUMULATIVE minimum offset of position k from the start of the layer.
+    // With a flat separation that is just k*sep; with per-node demands the
+    // offsets are uneven, and the substitution is the general form of the
+    // same idea -- "x[k+1] >= x[k] + minsep(k)" becomes "u non-decreasing"
+    // either way, so isotonic regression still solves it exactly. Each
+    // pooled block takes the mean of the targets it absorbed, which is the
+    // L2 optimum for a run of nodes forced hard against each other.
+    var nb: usize = 0;
+    var cum: f64 = 0;
+    for (0..w) |k| {
+        if (k > 0) {
+            cum += sep + demand(extra, order[s + k - 1]) + demand(extra, order[s + k]);
+        }
+        cofs[k] = cum;
+        bval[nb] = t[k] - cum;
+        bcnt[nb] = 1;
+        nb += 1;
+        while (nb > 1 and bval[nb - 1] < bval[nb - 2]) {
+            const c1 = bcnt[nb - 2];
+            const c2 = bcnt[nb - 1];
+            bval[nb - 2] = (bval[nb - 2] * c1 + bval[nb - 1] * c2) / (c1 + c2);
+            bcnt[nb - 2] = c1 + c2;
+            nb -= 1;
+        }
+    }
+
+    var k: usize = 0;
+    for (0..nb) |b| {
+        var c: f64 = 0;
+        while (c < bcnt[b]) : (c += 1) {
+            x[order[s + k]] = bval[b] + cofs[k];
+            k += 1;
+        }
+    }
+}
+
+/// One layer, placed optimally against its neighbours in BOTH directions.
+/// Same solver as relaxLayer -- only the target differs, being the mean
+/// over predecessors and successors together rather than one side.
+fn relaxLayerBoth(
+    a_off: []const u32,
+    a_adj: []const u32,
+    b_off: []const u32,
+    b_adj: []const u32,
+    order: []const u32,
+    starts: []const u32,
+    L: usize,
+    sep: f64,
+    extra: []const f64,
+    x: []f64,
+    t: []f64,
+    bval: []f64,
+    bcnt: []f64,
+    cofs: []f64,
+) void {
+    const s = starts[L];
+    const e = starts[L + 1];
+    const w = e - s;
+    if (w == 0) return;
+
+    for (0..w) |k| {
+        const v = order[s + k];
+        var sum: f64 = 0;
+        var cnt: f64 = 0;
+        var j = a_off[v];
+        while (j < a_off[v + 1]) : (j += 1) {
+            sum += x[a_adj[j]];
+            cnt += 1;
+        }
+        var j2 = b_off[v];
+        while (j2 < b_off[v + 1]) : (j2 += 1) {
+            sum += x[b_adj[j2]];
+            cnt += 1;
+        }
+        t[k] = if (cnt > 0) sum / cnt else x[v];
+    }
+
+    solveLayer(order, starts, L, sep, extra, x, t, bval, bcnt, cofs);
 }
 
 /// One layer, placed optimally against its neighbours in `adj`.
@@ -484,41 +607,7 @@ fn relaxLayer(
         t[k] = if (cnt > 0) sum / cnt else x[v];
     }
 
-    // POOL ADJACENT VIOLATORS on u[k] = t[k] - c[k], where c[k] is the
-    // CUMULATIVE minimum offset of position k from the start of the layer.
-    // With a flat separation that is just k*sep; with per-node demands the
-    // offsets are uneven, and the substitution is the general form of the
-    // same idea -- "x[k+1] >= x[k] + minsep(k)" becomes "u non-decreasing"
-    // either way, so isotonic regression still solves it exactly. Each
-    // pooled block takes the mean of the targets it absorbed, which is the
-    // L2 optimum for a run of nodes forced hard against each other.
-    var nb: usize = 0;
-    var cum: f64 = 0;
-    for (0..w) |k| {
-        if (k > 0) {
-            cum += sep + demand(extra, order[s + k - 1]) + demand(extra, order[s + k]);
-        }
-        cofs[k] = cum;
-        bval[nb] = t[k] - cum;
-        bcnt[nb] = 1;
-        nb += 1;
-        while (nb > 1 and bval[nb - 1] < bval[nb - 2]) {
-            const c1 = bcnt[nb - 2];
-            const c2 = bcnt[nb - 1];
-            bval[nb - 2] = (bval[nb - 2] * c1 + bval[nb - 1] * c2) / (c1 + c2);
-            bcnt[nb - 2] = c1 + c2;
-            nb -= 1;
-        }
-    }
-
-    var k: usize = 0;
-    for (0..nb) |b| {
-        var c: f64 = 0;
-        while (c < bcnt[b]) : (c += 1) {
-            x[order[s + k]] = bval[b] + cofs[k];
-            k += 1;
-        }
-    }
+    solveLayer(order, starts, L, sep, extra, x, t, bval, bcnt, cofs);
 }
 
 /// A node's extra half-width demand, or zero when none was supplied.
