@@ -1779,6 +1779,27 @@ class stzDiagram from stzGraph
 			ok
 		ok
 
+		# A GPU TEXTURE HAS A MAXIMUM DIMENSION, and past it there is no
+		# picture at all. wgpu's floor is 8192; a canvas wider than that
+		# fails to allocate, the view is invalid, and the failure arrives
+		# as a Rust panic from inside the driver -- no line of this
+		# library in the trace and nothing naming the size that caused it.
+		#
+		# It is reachable by accident precisely because :Scale multiplies
+		# a size the caller never typed: a 4064px diagram is fine and the
+		# same diagram at :Scale = 3 is 12192 and cannot be drawn. So the
+		# limit is checked HERE, where both numbers are known and can be
+		# quoted back.
+		if _nW_ > 8192 or _nH_ > 8192
+			StzRaise("stzDiagram: this picture is " + _nW_ + "x" + _nH_ +
+				", and a GPU texture cannot exceed 8192 in either axis. " +
+				"At :Scale = " + _nScl_ + " the diagram's natural " +
+				floor(_nW_ / _nScl_) + "x" + floor(_nH_ / _nScl_) +
+				" is multiplied past that. Use a smaller :Scale, give " +
+				"explicit :Width/:Height, or answer ToSVG() -- which has " +
+				"no such limit and stays sharp at every zoom.")
+		ok
+
 		_oC_ = new stzCanvas(_nW_, _nH_)
 		_oC_.SetBackground(_cBg_)
 
