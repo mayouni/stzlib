@@ -469,6 +469,173 @@ pub fn coords(
             relaxLayerBoth(in_off, in_src, out_off, out_dst, order, starts, Lb, sep, extra, x, t, bval, bcnt, cofs);
         }
     }
+
+    // LAST, and only on a forest. The relaxation produces a good-looking
+    // arrangement that can still put a node inside another branch's span;
+    // this makes territories disjoint by construction. It runs after the
+    // relaxation rather than instead of it, because the relaxation is what
+    // decides the SHAPE and this only enforces the one property it cannot
+    // see.
+    if (isForest(in_off, n)) {
+        _ = tidyTerritories(out_off, out_dst, order, starts, sep, extra, x);
+    }
+    return OK;
+}
+
+/// SUBTREE TERRITORIES MUST NOT OVERLAP -- no node may stand inside
+/// another subtree's horizontal span.
+///
+/// The rank solver satisfies every rank on its own and nothing relates
+/// them, so a node can be correctly ordered, correctly separated from its
+/// own neighbours, and still land under a DIFFERENT branch of the tree.
+/// Seen on the 40-node tree: node 39, a child of 19, sat between the two
+/// children of node 10 -- so the edge down to it crossed the edge coming
+/// out of 10, and a reader tracing the picture reads 39 as belonging to a
+/// family it has nothing to do with. Order was right, separation was
+/// right, and the drawing still lied about the structure.
+///
+/// The fix is Reingold-Tilford's contract done rank by rank instead of
+/// recursively: work bottom-up, and at each rank push each node's WHOLE
+/// SUBTREE right until it clears the previous sibling's subtree. A rigid
+/// shift cannot disturb the layout inside a subtree, so by induction
+/// every rank above inherits disjoint blocks and the property holds for
+/// the whole tree by construction rather than by iteration.
+///
+/// FOREST ONLY, and that is a real limit rather than laziness: with two
+/// parents a node belongs to two territories and "its subtree" names
+/// nothing. Multi-parent graphs keep the relaxation, which is why this
+/// returns a flag instead of asserting.
+fn isForest(in_off: []const u32, n: usize) bool {
+    for (0..n) |v| {
+        if (in_off[v + 1] - in_off[v] > 1) return false;
+    }
+    return true;
+}
+
+/// Shift v and everything below it by d. Iterative: a path-shaped tree is
+/// as deep as it is long, and 10,000 frames of recursion is a crash, not a
+/// layout.
+fn shiftSubtree(out_off: []const u32, out_dst: []const u32, v: u32, d: f64, x: []f64, lo: []f64, hi: []f64, stack: []u32) void {
+    var sp: usize = 0;
+    stack[sp] = v;
+    sp += 1;
+    while (sp > 0) {
+        sp -= 1;
+        const u = stack[sp];
+        x[u] += d;
+        lo[u] += d;
+        hi[u] += d;
+        var j = out_off[u];
+        while (j < out_off[u + 1]) : (j += 1) {
+            if (sp < stack.len) {
+                stack[sp] = out_dst[j];
+                sp += 1;
+            }
+        }
+    }
+}
+
+fn tidyTerritories(
+    out_off: []const u32,
+    out_dst: []const u32,
+    order: []const u32,
+    starts: []const u32,
+    sep: f64,
+    extra: []const f64,
+    x: []f64,
+) i32 {
+    const n = x.len;
+    const nl = starts.len - 1;
+    if (nl == 0) return OK;
+
+    const lo = alloc.alloc(f64, n) catch return BAD_ARG;
+    defer alloc.free(lo);
+    const hi = alloc.alloc(f64, n) catch return BAD_ARG;
+    defer alloc.free(hi);
+    const stack = alloc.alloc(u32, n) catch return BAD_ARG;
+    defer alloc.free(stack);
+
+    for (0..n) |v| {
+        const h = sep / 2 + demand(extra, @intCast(v));
+        lo[v] = x[v] - h;
+        hi[v] = x[v] + h;
+    }
+
+    var L: usize = nl;
+    while (L > 0) {
+        L -= 1;
+        const s = starts[L];
+        const e = starts[L + 1];
+
+        // a parent sits over its own children, then owns their whole span
+        var k = s;
+        while (k < e) : (k += 1) {
+            const v = order[k];
+            if (out_off[v + 1] == out_off[v]) continue;
+            // CLAMPED INTO ITS CHILDREN'S SPAN, not pinned to their mean.
+            //
+            // Both extremes were tried and both were wrong. PINNING the
+            // parent at the mean is exactly what the combined relaxation
+            // exists to undo, and it repealed it: every span sprang back,
+            // the rank of two to 2.25x, worse than before any of this.
+            // NOT MOVING the parent at all is worse still -- shifting a
+            // subtree moves the children while the parent keeps a stale
+            // position, so its territory stretches from where it was to
+            // where they went, and the next rank has to clear that whole
+            // width. Spans reached 3.7x and the pass panicked.
+            //
+            // Clamping keeps whichever position the relaxation chose
+            // whenever it already lies over the children -- the normal
+            // case, so the tightening survives -- and pulls the parent
+            // only as far as the nearest child when it does not, which is
+            // the least that keeps a territory from stretching.
+            var clo: f64 = 0;
+            var chi: f64 = 0;
+            var first = true;
+            var j = out_off[v];
+            while (j < out_off[v + 1]) : (j += 1) {
+                const cx = x[out_dst[j]];
+                if (first) {
+                    clo = cx;
+                    chi = cx;
+                    first = false;
+                } else {
+                    if (cx < clo) clo = cx;
+                    if (cx > chi) chi = cx;
+                }
+            }
+            if (x[v] < clo) x[v] = clo;
+            if (x[v] > chi) x[v] = chi;
+
+            const h = sep / 2 + demand(extra, v);
+            lo[v] = x[v] - h;
+            hi[v] = x[v] + h;
+            j = out_off[v];
+            while (j < out_off[v + 1]) : (j += 1) {
+                const c = out_dst[j];
+                if (lo[c] < lo[v]) lo[v] = lo[c];
+                if (hi[c] > hi[v]) hi[v] = hi[c];
+            }
+        }
+
+        // then no two siblings' territories may touch
+        k = s + 1;
+        while (k < e) : (k += 1) {
+            const prev = order[k - 1];
+            const cur = order[k];
+            // NO EXTRA GAP HERE. Each territory already carries the
+            // node's own half-slot on both sides, so two subtrees whose
+            // extents merely TOUCH are exactly one minimum separation
+            // apart. Adding sep on top charged the separation twice and
+            // doubled the width of the picture -- 5938px against dot's
+            // 2682 -- which is what an off-by-one looks like when the
+            // unit is a distance rather than an index.
+            const need = hi[prev] - lo[cur];
+            if (need > 0) {
+                shiftSubtree(out_off, out_dst, cur, need, x, lo, hi, stack);
+            }
+        }
+    }
     return OK;
 }
 
