@@ -894,6 +894,57 @@ chk("the old model really did arrive off the aim, which this must see",
 
 #---------------------------------------------------------------------------
 ? ""
+? "-- 17. Sparse ranks are TIGHT, measured against dot ---------"
+#
+# The dense ranks always matched dot; the sparse upper ones did not, and
+# nothing in this file could see it because every assertion here was
+# about a picture on its own terms. Rendering the same 40-node tree
+# through dot.exe and comparing SPANS in scale-free units (each
+# renderer's own tightest gap = 1) gave: rank of 16 at 0.97x, rank of 8
+# at 1.03x -- and the rank of four at 1.21x, the rank of TWO at 2.09x.
+#
+# THE CAUSE WAS THE OBJECTIVE. Relaxing each layer against the mean of
+# one side pins a parent exactly at its children's mean, with no freedom
+# left, so a sparse rank is dragged apart by the subtrees below it. dot
+# minimises total ABSOLUTE edge length, where a parent anywhere between
+# its children costs the same and the slack is spent pulling it toward
+# its own parent. A pass relaxing against BOTH directions at once
+# recovers most of that.
+#
+# The numbers below are dot's, measured from `dot -Tplain` on this exact
+# tree, not invented thresholds.
+#---------------------------------------------------------------------------
+
+oTT = new stzGraph("t40")
+for i = 1 to 40  oTT.AddNode("n" + i)  next
+for i = 2 to 40  oTT.Connect("n" + floor(i / 2), "n" + i)  next
+oTC = new stzGraphCanvas(oTT, [ :Layout = :Hierarchical,
+	:Width = 1000, :Height = 700, :Margin = 0 ])
+aTP = oTC.Positions()
+
+# dot -Tplain, same tree: tightest gap 1.458in; spans in those units
+aDotSpan = [ [ 2, 4.0 ], [ 4, 10.5 ], [ 8, 15.0 ], [ 16, 17.5 ], [ 9, 8.0 ] ]
+nUnit = _TightestGap(aTP)
+? "   rank | dot | ours | ratio"
+nWorst = 0
+for aD in aDotSpan
+	nOurs = _RankSpan(aTP, aD[1]) / nUnit
+	nR = nOurs / aD[2]
+	? "   n=" + aD[1] + "   | " + aD[2] + " | " + nOurs + " | " + nR + "x"
+	if fabs(nR - 1) > nWorst  nWorst = fabs(nR - 1)  ok
+next
+? "   worst departure from dot : " + nWorst
+chk("every rank is within half of dot's own span", nWorst < 0.5)
+
+# THE NEGATIVE SIBLING is the measurement that started this: 2.09x on the
+# rank of two. Asserted as a number so a regression to the one-sided
+# relaxation fails here rather than being noticed by eye months later.
+nTwo = _RankSpan(aTP, 2) / nUnit / 4.0
+? "   the rank of two, which was 2.09x before the combined pass : " + nTwo + "x"
+chk("the rank that was worst is no longer twice dot's width", nTwo < 1.6)
+
+#---------------------------------------------------------------------------
+? ""
 ? "=============================================================="
 ? " " + nOk + " ok, " + nBad + " failed"
 ? "=============================================================="
@@ -1378,3 +1429,45 @@ func _MaxOf paList
 		if _v_ > _mx_  _mx_ = _v_  ok
 	next
 	return _mx_
+
+# The smallest gap between adjacent nodes anywhere -- one unit, the same
+# normalisation dot's own numbers were reduced by.
+func _TightestGap aPos
+	_tmin_ = -1
+	for _ta_ in _RanksOf(aPos)
+		_txs_ = sort(_ta_)
+		for _ti_ = 2 to len(_txs_)
+			_td_ = _txs_[_ti_] - _txs_[_ti_ - 1]
+			if _td_ > 0.001 and (_tmin_ < 0 or _td_ < _tmin_)  _tmin_ = _td_  ok
+		next
+	next
+	if _tmin_ < 0  return 1  ok
+	return _tmin_
+
+# The left-to-right extent of the rank holding exactly nCount nodes.
+func _RankSpan aPos, nCount
+	for _ra_ in _RanksOf(aPos)
+		if len(_ra_) = nCount
+			_rx_ = sort(_ra_)
+			return _rx_[len(_rx_)] - _rx_[1]
+		ok
+	next
+	return 0
+
+func _RanksOf aPos
+	_rr_ = []
+	for _p_ in aPos
+		_rk_ = floor(_p_[3] / 4)
+		_rat_ = 0
+		for _rj_ = 1 to len(_rr_)
+			if _rr_[_rj_][1] = _rk_  _rat_ = _rj_  exit  ok
+		next
+		if _rat_ = 0
+			_rr_ + [ _rk_, [ _p_[2] ] ]
+		else
+			_rr_[_rat_][2] + _p_[2]
+		ok
+	next
+	_out_ = []
+	for _r_ in _rr_  _out_ + _r_[2]  next
+	return _out_
