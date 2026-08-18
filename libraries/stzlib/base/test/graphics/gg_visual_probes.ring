@@ -118,7 +118,7 @@ oG.ToPNGXT("probe_6_ortho.png",
 # takes its size from its content: every gap exactly nodesep, every rank
 # exactly ranksep, as dot does. The two above are the same tree squeezed
 # into a canvas that was never wide enough for its contract.
-aNat = [ :Font = oF, :NodeWidth = 96, :NodeHeight = 34, :FontSize = 12 ]
+aNat = [ :Font = oF, :NodeWidth = 96, :NodeHeight = 34, :FontSize = 12, :Scale = 2 ]
 oNat = oG.ToCanvasXT(aNat)
 oNat.ToPNG("probe_6_natural_ortho.png")
 ? "6c natural     : " + oNat.Width() + "x" + oNat.Height() + " derived, ortho"
@@ -161,7 +161,7 @@ next
 for i = 1 to 8  oL.AddEdge("s" + i, "s" + (i+1))  next
 oL.AddEdge("s1", "s9")
 oL.AddEdge("s2", "s7")
-oL.ToCanvasXT([ :Font = oF, :NodeWidth = 110, :NodeHeight = 34 ]).
+oL.ToCanvasXT([ :Font = oF, :NodeWidth = 110, :NodeHeight = 34, :Scale = 2 ]).
 	ToPNG("probe_9_longedge.png")
 ? "9 long edges   : routed around, not through"
 
@@ -181,7 +181,7 @@ oS.AddEdge("api1", "db1")   oS.AddEdge("api2", "db2")
 oS.AddEdge("web1", "log")   oS.AddEdge("api2", "log")
 oS.AddClusterXTT("front", "Frontend", [ "web1", "web2" ], "#C2185B")
 oS.AddClusterXTT("data", "Data", [ "db1", "db2" ], "#2E7D32")
-oS.ToCanvasXT([ :Font = oF, :NodeWidth = 110, :NodeHeight = 34 ]).
+oS.ToCanvasXT([ :Font = oF, :NodeWidth = 110, :NodeHeight = 34, :Scale = 2 ]).
 	ToPNG("probe_10_clusters.png")
 ? "10 clusters    : members together, strangers outside"
 
@@ -198,7 +198,7 @@ oSL.AddEdge("idle", "idle")
 oSL.AddEdge("busy", "busy")
 oSL.AddEdge("idle", "busy")
 oSL.AddEdge("busy", "done")
-oSL.ToCanvasXT([ :Font = oF, :NodeWidth = 110, :NodeHeight = 40 ]).
+oSL.ToCanvasXT([ :Font = oF, :NodeWidth = 110, :NodeHeight = 40, :Scale = 2 ]).
 	ToPNG("probe_11_selfloops.png")
 ? "11 self-loops  : drawn as loops, and no longer fatal"
 
@@ -213,7 +213,7 @@ next
 for i = 1 to 5  oEL.AddEdgeXT("s" + i, "s" + (i+1), "step " + i)  next
 oEL.AddEdgeXT("s1", "s6", "escalates")     # long: labelled where it RUNS
 oEL.AddEdgeXT("s2", "s2", "retry")         # a labelled self-loop
-aELo = [ :Font = oF, :NodeWidth = 100, :NodeHeight = 36 ]
+aELo = [ :Font = oF, :NodeWidth = 100, :NodeHeight = 36, :Scale = 2 ]
 oEL.ToCanvasXT(aELo).ToPNG("probe_12_edgelabels.png")
 ? "12 edge labels : on plates, at the midpoint"
 oEL.SetLayout(:LeftToRight)
@@ -233,7 +233,7 @@ oOr.AddEdgeXT("busy", "busy", "retry")
 oOr.AddEdge("idle", "busy")
 oOr.AddEdge("busy", "done")
 oOr.SetSplines("ortho")
-aOro = [ :Font = oF, :NodeWidth = 110, :NodeHeight = 40 ]
+aOro = [ :Font = oF, :NodeWidth = 110, :NodeHeight = 40, :Scale = 2 ]
 oOr.ToCanvasXT(aOro).ToPNG("probe_13_ortho_loops.png")
 ? "13 ortho loops : rectangular, like every other ortho edge"
 oOr.SetLayout(:LeftToRight)
@@ -257,7 +257,7 @@ oNC.AddEdge("web1", "log")   oNC.AddEdge("api2", "log")
 oNC.AddClusterXTT("backend", "Backend",
 	[ "api1", "api2", "db1", "db2" ], "#5E35B1")
 oNC.AddClusterXTT("data", "Data", [ "db1", "db2" ], "#2E7D32")
-oNC.ToCanvasXT([ :Font = oF, :NodeWidth = 100, :NodeHeight = 34 ]).
+oNC.ToCanvasXT([ :Font = oF, :NodeWidth = 100, :NodeHeight = 34, :Scale = 2 ]).
 	ToPNG("probe_14_nested_clusters.png")
 ? "14 nested      : Data inside Backend, Logger outside both"
 
@@ -275,7 +275,7 @@ for aStem in [ [ "c", "probe_15_labels_short.png" ],
 			[ :type = "box", :color = "Info.Solid" ])
 		oLS.AddEdgeXT("r", "h" + i, aStem[1] + i)
 	next
-	oLS.ToCanvasXT([ :Font = oF, :NodeWidth = 70, :NodeHeight = 34 ]).
+	oLS.ToCanvasXT([ :Font = oF, :NodeWidth = 70, :NodeHeight = 34, :Scale = 2 ]).
 		ToPNG(aStem[2])
 next
 ? "15 label steer : the rank spreads to fit what is written on it"

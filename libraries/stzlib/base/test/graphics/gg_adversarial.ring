@@ -525,7 +525,13 @@ oEL.AddEdgeXT("val", "no", "fails check")
 # node-fill test calls empty. Both measured something real and neither
 # measured labels. Two renders differing ONLY in their labels need no
 # such rule -- whatever changed IS the labels.
-aLOpt = [ :Font = EFONT, :NodeWidth = 110, :NodeHeight = 40 ]
+# AN EXPLICIT SIZE, so the two renders are comparable pixel for pixel.
+# Left to natural sizing they differ in WIDTH -- a labelled diagram
+# reserves room its unlabelled twin does not -- and the comparison
+# answered "different sizes" rather than anything about labels. The
+# reservation is section 15's subject; here it is a confound.
+aLOpt = [ :Font = EFONT, :NodeWidth = 110, :NodeHeight = 40,
+          :Width = 420, :Height = 320 ]
 oELc = oEL.ToCanvasXT(aLOpt)
 
 oNL3 = new stzDiagram("flow2")
@@ -802,10 +808,18 @@ oB = new stzDiagram("bias")
 oB.AddNodeXTT("p", "P", [ :type = "box", :color = "Info.Solid" ])
 oB.AddNodeXTT("q", "Q", [ :type = "box", :color = "Info.Solid" ])
 oB.AddEdgeXT("p", "q", "WWWWWWWWWWWWWWWW")
+# THE MIDPOINT, and this assertion used to demand otherwise. It read
+# `nBias > 0.5` because the bias WAS 0.72 -- pushed toward the target so
+# a fan's labels would inherit its spread. They did, and landed on the
+# arrowheads, where a label's own background plate erased the head it
+# was standing on. A label that hides what it describes is worse than
+# one that crowds a neighbour, and crowding already has an answer in the
+# nudge. The demand that widens a rank divides by this number, so it
+# follows the change rather than having to be retuned beside it.
 nBias = oB._EdgeLabelBias()
 ? "   the shared bias : " + nBias
-chk("the bias is a fraction of the way to the target",
-    nBias > 0.5 and nBias < 1)
+chkeq("a label sits at the MIDPOINT of its edge, clear of the arrowhead",
+      nBias, 0.5)
 
 #---------------------------------------------------------------------------
 ? ""
@@ -1117,6 +1131,38 @@ oAF.FillQ("#000000").AddRect(0, 0, 80, 80)
 nLevF = _GreyLevels(oAF.ToPixels())
 ? "   distinct grey levels in a flat fill : " + nLevF
 chkeq("the counter reads ONE where there is nothing to blend", nLevF, 1)
+
+#---------------------------------------------------------------------------
+? ""
+? "-- 21. :Scale is RESOLUTION, not magnification --------------"
+#
+# A raster is only as sharp as the pixels it was drawn with. A 12px label
+# in a 3000px diagram is unreadable at 100% and worse magnified, because
+# enlarging a finished picture enlarges its blur. Scaling every INPUT
+# redraws the same diagram with more pixels -- glyphs rasterised at the
+# new size, edges antialiased at it.
+#
+# The claim worth asserting is exactly that it is NOT magnification, so
+# the check compares the scaled render against a naive enlargement of the
+# small one. If :Scale were a stretch the two would agree.
+#---------------------------------------------------------------------------
+
+oS1 = _ScaleDiag(1)
+oS2 = _ScaleDiag(2)
+? "   scale 1 : " + oS1.Width() + "x" + oS1.Height() +
+  "   scale 2 : " + oS2.Width() + "x" + oS2.Height()
+chkeq("the canvas doubles exactly", oS2.Width(), oS1.Width() * 2)
+chkeq("...in both axes", oS2.Height(), oS1.Height() * 2)
+
+nDiff = _DiffFromUpscale(oS1, oS2)
+? "   pixels differing from a naive 2x enlargement : " + nDiff + "%"
+chk("the scaled render is NOT an enlargement of the small one", nDiff > 5)
+
+# THE NEGATIVE SIBLING: the comparison must return ~0 when it really IS
+# an enlargement, or "they differ" is just noise in the resampler.
+nSelf = _DiffFromUpscale(oS1, _Upscaled(oS1))
+? "   the same check against a true enlargement : " + nSelf + "%"
+chk("the comparison DISCRIMINATES", nSelf < 1)
 
 #---------------------------------------------------------------------------
 ? ""
@@ -1732,3 +1778,60 @@ func _GreyLevels cPx
 		_gi_ += 4
 	end
 	return len(_gs_)
+
+func _ScaleDiag nScale
+	_sd_ = new stzDiagram("sc")
+	for _si_ = 1 to 3
+		_sd_.AddNodeXTT("s" + _si_, "Node " + _si_,
+			[ :type = "box", :color = "Info.Solid" ])
+	next
+	_sd_.AddEdge("s1", "s2")  _sd_.AddEdge("s1", "s3")
+	return _sd_.ToCanvasXT([ :NodeWidth = 70, :NodeHeight = 28,
+		:FontSize = 10, :Scale = nScale ])
+
+# A canvas doubled by pixel duplication -- what :Scale must NOT be.
+# Returns [ w, h, pixels ] rather than a canvas, since nothing here needs
+# to draw it.
+func _Upscaled oC
+	_uw_ = oC.Width()
+	_uh_ = oC.Height()
+	_up_ = oC.ToPixels()
+	_uo_ = ""
+	for _uy_ = 0 to _uh_ * 2 - 1
+		for _ux_ = 0 to _uw_ * 2 - 1
+			_ua_ = (floor(_uy_ / 2) * _uw_ + floor(_ux_ / 2)) * 4 + 1
+			_uo_ += substr(_up_, _ua_, 4)
+		next
+	next
+	return [ _uw_ * 2, _uh_ * 2, _uo_ ]
+
+# Percentage of sampled pixels where the two disagree. Takes either a
+# canvas or the [w,h,pixels] an enlargement returns.
+func _DiffFromUpscale oSmall, xBig
+	_da_ = _Upscaled(oSmall)
+	if isList(xBig)
+		_dw_ = xBig[1]  _dh_ = xBig[2]  _db_ = xBig[3]
+	else
+		_dw_ = xBig.Width()  _dh_ = xBig.Height()  _db_ = xBig.ToPixels()
+	ok
+	if _dw_ != _da_[1] or _dh_ != _da_[2]  return 100  ok
+	# COUNTED WHERE THERE IS INK, not over the whole canvas. Sampling
+	# everything put most of a mostly-white picture into the denominator
+	# and reported 1% -- true, and useless: the two renders agree
+	# perfectly about the background, and every difference that matters
+	# lives on a glyph or an edge. A metric diluted by the part nobody
+	# disputes cannot see the part they do.
+	_dn_ = min([ len(_da_[3]), len(_db_) ])
+	_dc_ = 0  _dt_ = 0
+	_di_ = 1
+	while _di_ <= _dn_ - 3
+		_dva_ = ascii(substr(_da_[3], _di_, 1))
+		_dvb_ = ascii(substr(_db_, _di_, 1))
+		if _dva_ < 245 or _dvb_ < 245
+			_dt_++
+			if fabs(_dva_ - _dvb_) > 12  _dc_++  ok
+		ok
+		_di_ += 4
+	end
+	if _dt_ = 0  return 0  ok
+	return floor(_dc_ * 100 / _dt_)
