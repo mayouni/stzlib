@@ -945,6 +945,64 @@ chk("the rank that was worst is no longer twice dot's width", nTwo < 1.6)
 
 #---------------------------------------------------------------------------
 ? ""
+? "-- 18. No node stands in another subtree's TERRITORY --------"
+#
+# The Principal's rule, and it is the one property none of the seventy
+# assertions above could see: every one judged a RANK, and this is a
+# claim ACROSS ranks. Node 39, a child of 19, sat between the two
+# children of node 10 -- correctly ordered, correctly separated from its
+# own neighbours, and standing inside a family it has nothing to do with,
+# so the edge reaching it crossed the edge leaving 10. Order was right,
+# separation was right, and the drawing still lied about the structure.
+#
+# A subtree owns the horizontal band from its leftmost to its rightmost
+# descendant. Two siblings' bands must not overlap -- then no node can
+# appear under a branch that is not its own, by construction.
+#---------------------------------------------------------------------------
+
+oTR = new stzGraph("t40b")
+for i = 1 to 40  oTR.AddNode("n" + i)  next
+for i = 2 to 40  oTR.Connect("n" + floor(i / 2), "n" + i)  next
+oRC = new stzGraphCanvas(oTR, [ :Layout = :Hierarchical,
+	:Width = 1000, :Height = 700, :Margin = 0 ])
+aRP = oRC.Positions()
+
+nOverlap = _OverlappingTerritories(aRP, 40)
+? "   sibling subtrees whose bands overlap : " + nOverlap
+chkeq("no subtree stands inside another's territory", nOverlap, 0)
+
+# the case the Principal marked, named outright so a regression is
+# readable rather than a number
+nX39 = _XOf(aRP, "n39")
+nLo20 = _SubtreeLo(aRP, 20, 40)
+nHi20 = _SubtreeHi(aRP, 20, 40)
+? "   node 39 at " + nX39 + " ; node 20's band " + nLo20 + ".." + nHi20
+chk("node 39 is NOT inside node 20's band", nX39 < nLo20 or nX39 > nHi20)
+
+# THE NEGATIVE SIBLING, and it caught a flaw in this very check before it
+# caught anything about the layout. Written first against node 20's band,
+# it reported no violation -- because node 20's subtree is a single chain
+# and its band is a POINT (421.05..421.05), so putting node 39 exactly
+# there failed the strict inequality by exact equality. A degenerate
+# interval is not a place you can be inside of. It now uses node 5's
+# band, which has real width.
+nLo5 = _SubtreeLo(aRP, 5, 40)
+nHi5 = _SubtreeHi(aRP, 5, 40)
+aBad = []
+for aP in aRP
+	if StzLower("" + aP[1]) = "n39"
+		aBad + [ aP[1], (nLo5 + nHi5) / 2, aP[3] ]
+	else
+		aBad + [ aP[1], aP[2], aP[3] ]
+	ok
+next
+? "   node 5's band " + nLo5 + ".." + nHi5 +
+  " ; with node 39 moved into it : " + _OverlappingTerritories(aBad, 40)
+chk("the territory check DISCRIMINATES",
+    _OverlappingTerritories(aBad, 40) > 0)
+
+#---------------------------------------------------------------------------
+? ""
 ? "=============================================================="
 ? " " + nOk + " ok, " + nBad + " failed"
 ? "=============================================================="
@@ -1471,3 +1529,55 @@ func _RanksOf aPos
 	_out_ = []
 	for _r_ in _rr_  _out_ + _r_[2]  next
 	return _out_
+
+# In this tree node k's children are 2k and 2k+1, so a subtree is known
+# without walking edges -- the guard states the structure it is checking
+# rather than trusting the thing under test to describe itself.
+func _SubtreeNodes nRoot, nMax
+	_sn_ = []
+	_sq_ = [ nRoot ]
+	while len(_sq_) > 0
+		_sv_ = _sq_[1]
+		del(_sq_, 1)
+		if _sv_ > nMax  loop  ok
+		_sn_ + _sv_
+		_sq_ + (_sv_ * 2)
+		_sq_ + (_sv_ * 2 + 1)
+	end
+	return _sn_
+
+func _SubtreeLo aPos, nRoot, nMax
+	_l_ = -1
+	for _v_ in _SubtreeNodes(nRoot, nMax)
+		_x_ = _XOf(aPos, "n" + _v_)
+		if _x_ < 0  loop  ok
+		if _l_ < 0 or _x_ < _l_  _l_ = _x_  ok
+	next
+	return _l_
+
+func _SubtreeHi aPos, nRoot, nMax
+	_h_ = -1
+	for _v_ in _SubtreeNodes(nRoot, nMax)
+		_x_ = _XOf(aPos, "n" + _v_)
+		if _x_ < 0  loop  ok
+		if _x_ > _h_  _h_ = _x_  ok
+	next
+	return _h_
+
+# Pairs of SIBLINGS whose bands overlap. Siblings only: an ancestor's band
+# contains its descendant's by definition, and counting that would be
+# counting the tree being a tree.
+func _OverlappingTerritories aPos, nMax
+	_o_ = 0
+	for _p_ = 1 to floor(nMax / 2)
+		_a_ = _p_ * 2
+		_b_ = _p_ * 2 + 1
+		if _b_ > nMax  loop  ok
+		_alo_ = _SubtreeLo(aPos, _a_, nMax)
+		_ahi_ = _SubtreeHi(aPos, _a_, nMax)
+		_blo_ = _SubtreeLo(aPos, _b_, nMax)
+		_bhi_ = _SubtreeHi(aPos, _b_, nMax)
+		if _alo_ < 0 or _blo_ < 0  loop  ok
+		if _ahi_ > _blo_ and _bhi_ > _alo_  _o_++  ok
+	next
+	return _o_
