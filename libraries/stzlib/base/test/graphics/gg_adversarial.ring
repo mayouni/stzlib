@@ -1003,51 +1003,68 @@ chk("the territory check DISCRIMINATES",
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 19. A label must be READABLE on the node it sits on ------"
+? "-- 19. A label is readable AT THE SIZE IT IS DRAWN ----------"
 #
-# The contrast system was built in C1-C5, shipped, guarded -- and the
-# diagram tier called the naive helper standing next to it. StzContrastingText
-# answered "white if the background is dark, black otherwise": a lightness
-# TEST standing in for a contrast MEASUREMENT. On mid-tones the two
-# disagree, and every semantic role is a mid-tone, so every node label in
-# every diagram this library drew failed the minimum this library states:
-# white on primary 3.77:1, success 3.41, warning 3.58, danger 4.12,
-# against 4.5:1. Black would have cleared all five and was never
-# considered, because nothing measured.
+# REWRITTEN, and the first version's mistake is the point. It asserted
+# one flat minimum -- 4.5:1, the body-text figure -- and passed by
+# picking whichever of black/white measured higher. That put BLACK on
+# every saturated role, which scores better and reads worse: dark ink on
+# a dark-ish saturated field is muddy however the number comes out. The
+# assertion was satisfied and the picture was wrong, again, because the
+# assertion encoded half a rule.
 #
-# A capability built and then not reached for is worse than one never
-# built: the picture looked deliberate.
+# WCAG's own answer is the other half: 4.5:1 for normal text, 3:1 for
+# LARGE text -- 24px, or 18.66px bold. White on a saturated role sits
+# between the two. It is not failing; it is text that must be bolder. So
+# the rule has three parts and all three are asserted here: which ink,
+# whether the size can carry it, and that emphasis is drawn when it
+# cannot.
 #---------------------------------------------------------------------------
 
-nMin = StzContrastMinimumBodyText()
-? "   the stated minimum for body text : " + nMin + ":1"
-nWorstC = 99
-cWorstR = ""
+? "   role      fill      ink at 12px   ratio  needs emphasis"
+nBadInk = 0
 for cRole in [ :Primary, :Success, :Warning, :Danger, :Info, :Neutral ]
 	cFill = StzResolveColor("" + cRole + ".Solid")
 	if cFill = ""  loop  ok
-	cTxt = StzResolveColor(StzContrastingText(cFill))
-	nC = StzContrastOf(cTxt, cFill)
-	? "   " + cRole + "  " + cFill + " -> " + cTxt + "  " + nC + ":1"
-	if nC < nWorstC  nWorstC = nC  cWorstR = "" + cRole  ok
+	aInk = StzReadableTextOn(cFill, 12, 0)
+	? "   " + cRole + "  " + cFill + "  " + aInk[1] + "  " + aInk[2] + ":1  " +
+	  iif(aInk[3], "yes", "no")
+	# a saturated role is dark by the library's own test, so white is the
+	# ink and the large-text floor is what it must clear
+	if aInk[1] != "white"  nBadInk++  ok
+	if aInk[2] < StzContrastMinimumLargeText()  nBadInk++  ok
 next
-? "   worst role : " + cWorstR + " at " + nWorstC + ":1"
-chk("every role's label clears the stated minimum", nWorstC >= nMin)
+chkeq("every saturated role takes WHITE, clearing the large-text floor",
+      nBadInk, 0)
 
-# THE NEGATIVE SIBLING: the rule this replaced, applied to the same
-# fills, must FAIL -- otherwise "they all pass" says nothing about
-# whether measuring was what fixed it.
-nWorstOld = 99
+# emphasis is flagged exactly when the size cannot carry the pairing, and
+# NOT flagged when it can -- both directions, or "always emphasise" would
+# pass too
+aSmall = StzReadableTextOn(StzResolveColor("Success.Solid"), 12, 0)
+aLarge = StzReadableTextOn(StzResolveColor("Success.Solid"), 26, 0)
+? "   success at 12px needs emphasis : " + aSmall[3] +
+  " ; at 26px : " + aLarge[3]
+chk("a small label is flagged for emphasis", aSmall[3] = 1)
+chk("...and a large one is not", aLarge[3] = 0)
+
+# the ends of the range, where the rule is not in doubt
+aLight = StzReadableTextOn("#FFE082", 12, 0)
+aDark  = StzReadableTextOn("#102A43", 12, 0)
+? "   a LIGHT fill takes " + aLight[1] + ", a DARK fill takes " + aDark[1]
+chkeq("black on a light field", aLight[1], "black")
+chkeq("white on a dark field", aDark[1], "white")
+
+# THE NEGATIVE SIBLING: pure max-contrast, the rule this replaced, must
+# reach for BLACK on those same saturated fills -- so "white everywhere"
+# is a decision this check can tell apart from an accident.
+nBlackPicks = 0
 for cRole in [ :Primary, :Success, :Warning, :Danger, :Info ]
 	cFill = StzResolveColor("" + cRole + ".Solid")
-	cOld = "black"
-	if StzIsDarkColor(cFill)  cOld = "white"  ok
-	nC = StzContrastOf(StzResolveColor(cOld), cFill)
-	if nC < nWorstOld  nWorstOld = nC  ok
+	if StzBestTextOn(cFill)[1] = "black"  nBlackPicks++  ok
 next
-? "   the lightness-test rule would give, at worst : " + nWorstOld + ":1"
-chk("the rule this replaced really did fail the minimum",
-    nWorstOld < nMin)
+? "   max-contrast alone would pick black on " + nBlackPicks + " of 5 roles"
+chk("the rule this replaced really did choose the muddy ink",
+    nBlackPicks = 5)
 
 #---------------------------------------------------------------------------
 ? ""
