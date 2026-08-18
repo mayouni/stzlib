@@ -1178,6 +1178,53 @@ chk("the comparison DISCRIMINATES", nSelf < 1)
 
 #---------------------------------------------------------------------------
 ? ""
+? "-- 22. A node TYPE draws its shape, in both renderers -------"
+#
+# `start`, `decision`, `storage` say what a node MEANS; `ellipse`,
+# `diamond`, `cylinder` say what it looks like. The translation between
+# them lived as a private method on the DOT exporter, so ToDot drew a
+# decision as a diamond and the native tier -- unable to reach it -- drew
+# a rounded box for every type there is. Two renderers of one model
+# disagreeing, with the correct answer already written down in the file.
+#
+# Found by rendering the types side by side and looking. Nothing here had
+# ever asserted which SHAPE a TYPE produces, only that shapes exist and
+# that types are exported.
+#---------------------------------------------------------------------------
+
+aTypeShape = [ [ "start", "ellipse" ], [ "process", "box" ],
+               [ "decision", "diamond" ], [ "storage", "cylinder" ],
+               [ "state", "circle" ], [ "endpoint", "doublecircle" ] ]
+nBadType = 0
+for aTS in aTypeShape
+	cGot = StzNodeShapeForType(aTS[1])
+	? "   " + aTS[1] + " -> " + cGot
+	if cGot != aTS[2]  nBadType++  ok
+next
+chkeq("every semantic type maps to its shape", nBadType, 0)
+
+# BOTH renderers, from ONE diagram -- which is the property that failed.
+oTy = new stzDiagram("ty")
+oTy.AddNodeXTT("d", "Decide", [ :type = "decision", :color = "Info.Solid" ])
+oTy.AddNodeXTT("s", "Store", [ :type = "storage", :color = "Info.Solid" ])
+oTy.AddEdge("d", "s")
+cDotOut = oTy.ToDot()
+chk("the dot export says diamond", StzFindFirst("shape=diamond", cDotOut) > 0)
+chk("...and cylinder", StzFindFirst("shape=cylinder", cDotOut) > 0)
+chkeq("the native tier agrees about the diamond",
+      "" + oTy._NativeShapeOf(oTy.Nodes()[1]), "diamond")
+chkeq("...and about the cylinder",
+      "" + oTy._NativeShapeOf(oTy.Nodes()[2]), "cylinder")
+
+# an explicit geometric name still wins over the type
+chkeq("an explicit shape passes straight through",
+      StzNodeShapeForType("hexagon"), "hexagon")
+# and a name that is neither is refused rather than guessed at
+chkeq("a word that is neither type nor shape maps to nothing",
+      StzNodeShapeForType("sparkle"), "")
+
+#---------------------------------------------------------------------------
+? ""
 ? "=============================================================="
 ? " " + nOk + " ok, " + nBad + " failed"
 ? "=============================================================="

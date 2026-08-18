@@ -265,6 +265,37 @@ func StzStyleForEdgeType(pcType)
 #  stzDiagram Class - Main Diagram Implementation  #
 #--------------------------------------------------#
 
+# THE SEMANTIC VOCABULARY TRANSLATED TO THE GEOMETRIC ONE, in one place.
+#
+# `start`, `process`, `decision`, `storage`, `endpoint` say what a node
+# MEANS; `ellipse`, `box`, `diamond`, `cylinder`, `doublecircle` say what
+# it looks like. Every renderer needs the mapping between them, and it
+# lived as a private method on the DOT exporter -- so ToDot drew a
+# decision as a diamond and the native tier, unable to reach it, drew a
+# rounded box for every type there is. Two renderers of one model
+# disagreeing, with the right answer already written down.
+#
+# A translation used by more than one face is not a detail of either.
+func StzNodeShapeForType(pcType)
+	_t_ = StzLower(StzTrim("" + pcType))
+	if _t_ = ""  return ""  ok
+	# an explicit geometric name passes straight through
+	if StzIsNodeShape(_t_)  return _t_  ok
+	switch _t_
+	on "process"   return "box"
+	on "task"      return "box"
+	on "data"      return "box"
+	on "decision"  return "diamond"
+	on "start"     return "ellipse"
+	on "event"     return "ellipse"
+	on "end"       return "doublecircle"
+	on "endpoint"  return "doublecircle"
+	on "state"     return "circle"
+	on "storage"   return "cylinder"
+	on "database"  return "cylinder"
+	off
+	return ""
+
 class stzDiagram from stzGraph
 
 	@cTheme = $cDefaultColorTheme
@@ -2940,6 +2971,21 @@ class stzDiagram from stzGraph
 	# unknown name becomes a box rather than a refusal: a diagram that
 	# would not draw at all because one node named a shape graphviz has and
 	# this does not is a worse outcome than a box.
+	# THE SAME TRANSLATION THE DOT WRITER USES, not a second one.
+	#
+	# This read the node's `type` and asked StzIsNodeShape whether it was a
+	# shape. It never is: `start`, `process`, `decision`, `storage` are the
+	# SEMANTIC vocabulary and `ellipse`, `box`, `diamond`, `cylinder` are
+	# the geometric one, and translating between them is exactly what
+	# _GetNodeShape was already written to do for ToDot. So every diagram
+	# that named a type got the fallback -- a rounded box for a decision, a
+	# rounded box for a database, a rounded box for everything -- while the
+	# SAME diagram exported to dot came out with the right shapes. Two
+	# renderers of one model disagreeing, with the correct answer already
+	# in the file.
+	#
+	# Found by rendering the node types side by side and looking at them;
+	# no assertion here had ever named a shape a TYPE should produce.
 	def _NativeShapeOf(aNode)
 		_c_ = ""
 		if HasKey(aNode, "properties") and isList(aNode["properties"])
@@ -2949,6 +2995,7 @@ class stzDiagram from stzGraph
 				_c_ = "" + aNode["properties"]["type"]
 			ok
 		ok
+		_c_ = StzNodeShapeForType(_c_)
 		if _c_ != "" and StzIsNodeShape(_c_)  return _c_  ok
 		return :Box
 
