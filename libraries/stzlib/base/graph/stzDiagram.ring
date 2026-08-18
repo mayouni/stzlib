@@ -1990,9 +1990,35 @@ class stzDiagram from stzGraph
 				_cLb_ = This._FitLabel(_cLb_, _oFont_, _nFsz_, _nBoxW_ - 18)
 				_nTw_ = _oFont_.WidthOf(_cLb_, _nFsz_)
 				_oC_.Flush()
+				# THE SIZE DECIDES THE INK, and whether the ink needs
+				# weight. White is the right colour on a saturated fill --
+				# dark ink on a dark-ish saturated field reads muddy
+				# whatever the ratio says -- but white on those fills sits
+				# between WCAG's normal-text minimum and its LARGE-text
+				# one, so at a small size it is not wrong, it is text that
+				# must be bolder. StzReadableTextOn says which and says
+				# when; this draws the emphasis rather than quietly
+				# swapping to a colour nobody can read either.
+				_aInk_ = StzReadableTextOn(
+					This._NativeFillOf(_aNodes_[_i_]), _nFsz_, 0)
 				_oC_.AddTextQ(_cLb_, _a_[1] - _nTw_ / 2, _a_[2] + _nFsz_ / 3).
-					SetFontQ(_oFont_, _nFsz_).
-					Color(This.ContrastingTextColor(This._NativeFillOf(_aNodes_[_i_])))
+					SetFontQ(_oFont_, _nFsz_).Color(_aInk_[1])
+				if _aInk_[3]
+					# FAUX BOLD: the same glyphs a fraction of a pixel
+					# over, twice. A real bold face would be better and
+					# needs a second font file the caller has not given
+					# us; thickening the stem is what makes 3.4:1 legible
+					# at 12px, and it is what the large-text rule is
+					# actually asking for.
+					_oC_.Flush()
+					_oC_.AddTextQ(_cLb_, _a_[1] - _nTw_ / 2 + 0.6,
+						_a_[2] + _nFsz_ / 3).
+						SetFontQ(_oFont_, _nFsz_).Color(_aInk_[1])
+					_oC_.Flush()
+					_oC_.AddTextQ(_cLb_, _a_[1] - _nTw_ / 2 + 0.3,
+						_a_[2] + _nFsz_ / 3 + 0.3).
+						SetFontQ(_oFont_, _nFsz_).Color(_aInk_[1])
+				ok
 			next
 		ok
 

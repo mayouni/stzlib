@@ -227,28 +227,62 @@ func StzIsDarkColor(pColor)
 # deliberate: at 128 a mid blue takes black text and becomes unreadable.
 # It is the value stzDiagram has shipped with, kept so no existing picture
 # changes.
-# THE FOREGROUND THAT CAN ACTUALLY BE READ ON pColor.
+# WHICH OF BLACK/WHITE TO READ ON pBg AT THIS SIZE AND WEIGHT, and
+# whether the text must be emphasised to carry it.
 #
-# It used to answer "white if the background is dark, black otherwise" --
-# a lightness TEST standing in for a contrast MEASUREMENT, and on mid-tone
-# fills the two disagree. Every semantic role is a mid-tone, so every one
-# of them failed: white on primary measured 3.77:1, on success 3.41,
-# warning 3.58, danger 4.12 -- against the 4.5:1 this library states as
-# its own minimum for body text. Black would have cleared all five
-# (5.10 to 6.15:1) and was never considered, because nothing measured.
+#   -> [ colour, wcagRatio, bNeedsEmphasis ]
 #
-# So it MEASURES now, which is what StzBestTextOn already existed to do.
-# The whole C-phase contrast system was in the tree and the diagram tier
-# was calling the naive helper next to it -- the capability was built and
-# then not reached for, which is worse than not having it: the picture
-# looked deliberate.
-func StzContrastingText(pColor)
-	_bt_ = StzBestTextOn(pColor)
-	if isList(_bt_) and len(_bt_) >= 1  return _bt_[1]  ok
-	if StzIsDarkColor(pColor)
-		return "white"
+# THE RATIO ALONE IS NOT THE ANSWER, and picking the higher of the two was
+# a real regression dressed as a fix. On every saturated mid-tone black
+# measures better than white -- and reads worse: dark ink on a dark-ish
+# saturated field is muddy however the number comes out, which is why dot
+# writes white on exactly these fills and why StzIsDarkColor already sets
+# its threshold at 150 rather than the midpoint 128, with the reason
+# written beside it: "at 128 a mid blue takes black text and becomes
+# unreadable". The intent was in the tree; measuring louder overrode it.
+#
+# WCAG's own answer is the missing half. 4.5:1 is the minimum for normal
+# text and 3:1 for LARGE text -- 24px, or 18.66px when bold. White on a
+# saturated role sits between the two, so it is not "failing", it is text
+# that must be large or bold. That is the rule this encodes: prefer white
+# on anything dark, and say when the size it was asked for cannot carry
+# it, so the renderer can thicken it rather than the colour being swapped
+# for one nobody can read either.
+func StzReadableTextOn(pBg, pnSizePx, pbBold)
+	_lg_ = 0
+	if isNumber(pnSizePx)
+		if pnSizePx >= 24  _lg_ = 1  ok
+		if pbBold and pnSizePx >= 18.66  _lg_ = 1  ok
 	ok
-	return "black"
+	_min_ = StzContrastMinimumBodyText()
+	if _lg_  _min_ = StzContrastMinimumLargeText()  ok
+
+	_w_ = StzContrastOf(:White, pBg)
+	_k_ = StzContrastOf(:Black, pBg)
+
+	if StzIsDarkColor(pBg)
+		# white is the right ink here; the only question is whether this
+		# size can carry it
+		if _w_ >= _min_  return [ "white", _w_, 0 ]  ok
+		if _w_ >= StzContrastMinimumLargeText()  return [ "white", _w_, 1 ]  ok
+		# white cannot reach even the large-text floor -- now black, and
+		# only now, is the better read
+		if _k_ >= StzContrastMinimumBodyText()  return [ "black", _k_, 0 ]  ok
+		return [ "white", _w_, 1 ]
+	ok
+
+	# a light field: black, and white only if black somehow cannot
+	if _k_ >= _min_  return [ "black", _k_, 0 ]  ok
+	if _w_ >= StzContrastMinimumBodyText()  return [ "white", _w_, 0 ]  ok
+	return [ "black", _k_, 1 ]
+
+# THE FOREGROUND THAT CAN ACTUALLY BE READ ON pColor, for a caller that
+# has no size to offer. It reports the colour only; a caller that knows
+# its font size should ask StzReadableTextOn, which also says whether that
+# size needs emphasis.
+func StzContrastingText(pColor)
+	_r_ = StzReadableTextOn(pColor, 0, 0)
+	return _r_[1]
 
 	func StzForegroundOn(pColor)
 		return StzContrastingText(pColor)
