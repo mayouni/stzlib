@@ -101,24 +101,29 @@ next
 for i = 2 to 40
 	oG.AddEdge("n" + floor(i / 2), "n" + i)          # a binary tree
 next
+# NATURAL SIZE, not a fixed 1400x800. Cramming forty nodes into a width
+# they do not fit makes the fit pass shrink every box -- and the text
+# with it -- so the picture was small AND blurry for the same reason.
+# Let it take the width it needs and :Scale = 2 buys the pixels that
+# width deserves.
 oG.ToPNGXT("probe_6_bigdiagram.png",
-	[ :Width = 1400, :Height = 800, :Font = oF, :NodeWidth = 96,
-	  :NodeHeight = 34, :FontSize = 12 ])
+	[ :Font = oF, :NodeWidth = 96, :NodeHeight = 34, :FontSize = 13,
+	  :Scale = 2 ])
 ? "6 big diagram  : 40 nodes, " + len(oG.Edges()) + " edges"
 
 # ...and the same tree with ORTHOGONAL routing. Both are the SAME layout --
 # the difference is only how an edge travels between two placed nodes.
 oG.SetSplines("ortho")
 oG.ToPNGXT("probe_6_ortho.png",
-	[ :Width = 1400, :Height = 800, :Font = oF, :NodeWidth = 96,
-	  :NodeHeight = 34, :FontSize = 12 ])
+	[ :Font = oF, :NodeWidth = 96, :NodeHeight = 34, :FontSize = 13,
+	  :Scale = 2 ])
 ? "6b ortho       : same layout, right-angled edges"
 
 # ...and NAMING NO SIZE, which is the honest way to draw this. The picture
 # takes its size from its content: every gap exactly nodesep, every rank
 # exactly ranksep, as dot does. The two above are the same tree squeezed
 # into a canvas that was never wide enough for its contract.
-aNat = [ :Font = oF, :NodeWidth = 96, :NodeHeight = 34, :FontSize = 12, :Scale = 2 ]
+aNat = [ :Font = oF, :NodeWidth = 96, :NodeHeight = 34, :FontSize = 13, :Scale = 2 ]
 oNat = oG.ToCanvasXT(aNat)
 oNat.ToPNG("probe_6_natural_ortho.png")
 ? "6c natural     : " + oNat.Width() + "x" + oNat.Height() + " derived, ortho"

@@ -477,7 +477,7 @@ pub fn coords(
     // decides the SHAPE and this only enforces the one property it cannot
     // see.
     if (isForest(in_off, n)) {
-        _ = tidyTerritories(out_off, out_dst, order, starts, sep, extra, x);
+        _ = tidyTerritories(in_off, in_src, out_off, out_dst, order, starts, sep, extra, x);
     }
     return OK;
 }
@@ -512,6 +512,14 @@ fn isForest(in_off: []const u32, n: usize) bool {
     return true;
 }
 
+/// The one parent of v in a forest, or maxInt when it is a root. Two
+/// nodes whose parents differ are cousins, and cousins are what a gap has
+/// to make visible.
+fn parentOf(in_off: []const u32, in_src: []const u32, v: u32) u32 {
+    if (in_off[v + 1] > in_off[v]) return in_src[in_off[v]];
+    return std.math.maxInt(u32);
+}
+
 /// Shift v and everything below it by d. Iterative: a path-shaped tree is
 /// as deep as it is long, and 10,000 frames of recursion is a crash, not a
 /// layout.
@@ -536,6 +544,8 @@ fn shiftSubtree(out_off: []const u32, out_dst: []const u32, v: u32, d: f64, x: [
 }
 
 fn tidyTerritories(
+    in_off: []const u32,
+    in_src: []const u32,
     out_off: []const u32,
     out_dst: []const u32,
     order: []const u32,
@@ -623,14 +633,26 @@ fn tidyTerritories(
         while (k < e) : (k += 1) {
             const prev = order[k - 1];
             const cur = order[k];
-            // NO EXTRA GAP HERE. Each territory already carries the
-            // node's own half-slot on both sides, so two subtrees whose
-            // extents merely TOUCH are exactly one minimum separation
+            // TWO FAMILIES NEED MORE AIR THAN TWO SIBLINGS, which is
+            // Walker's distinction between sibling separation and
+            // SUBTREE separation and the thing a reader is actually
+            // using to parse the picture. With one uniform gap every
+            // node in a rank is equidistant, so where one parent's
+            // children end and the next parent's begin is invisible --
+            // the structure is correct and unreadable.
+            //
+            // Nothing is added between siblings: each territory already
+            // carries the node's own half-slot on both sides, so two
+            // that merely TOUCH are exactly one minimum separation
             // apart. Adding sep on top charged the separation twice and
-            // doubled the width of the picture -- 5938px against dot's
-            // 2682 -- which is what an off-by-one looks like when the
-            // unit is a distance rather than an index.
-            const need = hi[prev] - lo[cur];
+            // doubled the picture to 5938px against dot's 2682 -- what
+            // an off-by-one looks like when the unit is a distance
+            // rather than an index.
+            var gap: f64 = 0;
+            if (parentOf(in_off, in_src, prev) != parentOf(in_off, in_src, cur)) {
+                gap = sep * 0.40;
+            }
+            const need = hi[prev] + gap - lo[cur];
             if (need > 0) {
                 shiftSubtree(out_off, out_dst, cur, need, x, lo, hi, stack);
             }
