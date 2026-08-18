@@ -46,12 +46,14 @@ something that changes another repository's plan.
 **Never edit a sibling repository** — not even a one-line fix. Write it in the log and its
 own session makes it.
 
-## Talk in the memo style
+**When you close, append one cost line** to `.central\cost.jsonl` in THIS repository --
+twelve fields, shape and rules in `D:\GitHub\softanza\protocol\COST.md`. Central folds
+every repository's file into the Principal's budget; you never write there. Write `null`
+for a number you cannot see, never a zero.
 
-A substantive message is a memo: a closed yaml-like structure, spaced for the eye.
-Provenance first, subject before why. ("Memo", not "block" -- terms must survive
-non-native reading.)
-
+**Every path in the harness is in `D:\GitHub\softanza\protocol\PATHS.md`** -- one file, so a
+later move of the estate changes six lines and not nineteen. If a path you were given does
+not resolve, that file is the authority, not the prompt.
 
 ## Talk in the memo style
 
@@ -91,6 +93,8 @@ with `me:` as actor. Never leave an obvious mechanical step implied. The strange
 governs every line: plain words, no idiom, parseable by a reader who missed the
 conversation. **Speak and file**: append every memo to
 `D:\GitHub\softanza\journal\YYYY-MM-DD.md`. Full law: `D:\GitHub\softanza\protocol\STYLE.md`
+*This repository: `stzlib`.*
+<!-- /BANGALO-BLOCK -->
 
 ---
 
