@@ -1350,6 +1350,77 @@ chk("the departure check DISCRIMINATES", nSideBad = 1)
 
 #---------------------------------------------------------------------------
 ? ""
+? "-- 25. A UNIQUE link is straight; arrivals do not cross -----"
+#
+# Two rules a reader applies without being told.
+#
+# If exactly one edge joins two cells, nothing needs separating and the
+# line should be strictly along the rank axis -- any lean is the drawing
+# inventing a relationship the data does not have.
+#
+# And where several edges arrive at one cell, the one approaching from
+# the left must take the left port. Arrivals were ordered by the SOURCE
+# node's position, which for a ROUTED edge is nowhere near where it
+# actually arrives from -- so an edge carried around by its route landed
+# on the far port and crossed its neighbour in the last few pixels before
+# the node, which is the one place a reader is certain what they are
+# looking at.
+#---------------------------------------------------------------------------
+
+oUq = new stzDiagram("uniq")
+oUq.AddNodeXTT("u1", "One", [ :type = "box", :color = "Info.Solid" ])
+oUq.AddNodeXTT("u2", "Two", [ :type = "box", :color = "Info.Solid" ])
+oUq.AddEdge("u1", "u2")
+aPu = oUq._EdgePorts(oUq.Edges(), [ [ "u1", 300, 100 ], [ "u2", 300, 400 ] ],
+	200, 60, "TB", [])
+? "   the only edge between two cells gets ports " +
+  aPu[1][1] + " / " + aPu[1][2]
+chkeq("a unique link takes no source offset", aPu[1][1], 0)
+chkeq("...and no target offset", aPu[1][2], 0)
+
+# so it is drawn strictly along the rank axis
+aGu = oUq._EdgeGeometry([ 300, 100 ], [ 300, 400 ], 200, 60, "TB", 2, 0, 0, 10)
+nDrift = fabs(aGu[3][1] - 300)
+? "   its arrow tip is " + nDrift + "px off the centre line"
+chk("a unique link is strictly vertical", nDrift < 0.5)
+
+# ARRIVALS IN APPROACH ORDER. Two edges reaching one node, one from the
+# left and one from the right: the left one must take the left port.
+oAp = new stzDiagram("arrive")
+for c in [ "L", "R", "T" ]
+	oAp.AddNodeXTT(c, c, [ :type = "box", :color = "Info.Solid" ])
+next
+oAp.AddEdge("L", "T")
+oAp.AddEdge("R", "T")
+aPa = oAp._EdgePorts(oAp.Edges(),
+	[ [ "l", 100, 100 ], [ "r", 900, 100 ], [ "t", 500, 400 ] ],
+	200, 60, "TB", [])
+? "   arriving from the left : port " + aPa[1][2] +
+  " ; from the right : port " + aPa[2][2]
+chk("the edge from the LEFT takes the left port", aPa[1][2] < aPa[2][2])
+
+# THE ALIGNED EDGE OWNS THE CENTRE. A node fanning to two targets, one of
+# them exactly on its own cross-position: that edge is the spine and must
+# take port ZERO, or the alignment the layout just bought is spent by the
+# drawing -- which is precisely what happened, and what the Principal's
+# red centre-lines caught.
+oSp = new stzDiagram("spine")
+for c in [ "S", "A", "B" ]
+	oSp.AddNodeXTT(c, c, [ :type = "box", :color = "Info.Solid" ])
+next
+oSp.AddEdge("S", "A")
+oSp.AddEdge("S", "B")
+aPs = oSp._EdgePorts(oSp.Edges(),
+	[ [ "s", 500, 100 ], [ "a", 500, 400 ], [ "b", 900, 400 ] ],
+	200, 60, "TB", [])
+? "   the aligned target's port : " + aPs[1][1] +
+  " ; the lateral one's : " + aPs[2][1]
+chkeq("the aligned edge is pinned to the centre port", aPs[1][1], 0)
+chk("...and the lateral edge spreads AROUND it, not onto it",
+    fabs(aPs[2][1]) > 5)
+
+#---------------------------------------------------------------------------
+? ""
 ? "=============================================================="
 ? " " + nOk + " ok, " + nBad + " failed"
 ? "=============================================================="
