@@ -2757,15 +2757,56 @@ class stzDiagram from stzGraph
 		# edges all span ONE rank. Two paths draw edges in this file and
 		# only one of them was corrected -- the other kept the old rule
 		# and the old faults, and looked fine wherever it was not used.
+		# under ORTHO the arrival must be on the rank-facing border -- the
+		# staircase below ends with a vertical drop, and a vertical drop
+		# into a side border is a contradiction
+		_qveto_ = pBlockSide
+		if cSpline = "ortho"  _qveto_ = 1  ok
 		_p_ = This._AttachPoint(aFrom, _pts_[2], nBoxW, nBoxH, nPortA,
 			This._EdgeCorner(), cRank, 1, 0)
 		_q_ = This._AttachPoint(aTo, _pts_[ len(_pts_) - 1 ], nBoxW, nBoxH,
-			nPortB, This._EdgeCorner(), cRank, 0, pBlockSide)
+			nPortB, This._EdgeCorner(), cRank, 0, _qveto_)
 		_pts_[1] = _p_
 		_pts_[ len(_pts_) ] = _q_
 
 		_flat_ = []
-		if cSpline = "ortho" or cSpline = "line" or cSpline = "polyline"
+		if cSpline = "ortho"
+			# NO OBLIQUE LINES -- and NO CHANNELS AT ROW HEIGHT. The first
+			# staircase folded each leg at the bend's own coordinates, and
+			# the router places bends AT node rows, so the horizontal runs
+			# lay exactly along the ranks: the Web-to-Logger run passed
+			# through the API row and read as an API-to-API link -- the
+			# false-link sin in orthogonal form. The rank GAPS are node-free
+			# by construction, so that is where every horizontal belongs.
+			# Five segments, the classic ortho long edge and the Principal's
+			# red path: drop into the first gap, run to the free column the
+			# router found, descend it, run to the target's column in the
+			# last gap, drop in.
+			_ob1_ = _pts_[2]
+			_obl_ = _pts_[ len(_pts_) - 1 ]
+			_flat_ = []
+			if cRank = "LR" or cRank = "RL"
+				_oc1_ = (_p_[1] + _ob1_[1]) / 2
+				_oc2_ = (_obl_[1] + _q_[1]) / 2
+				_ofy_ = _obl_[2]
+				_flat_ + _p_[1]   _flat_ + _p_[2]
+				_flat_ + _oc1_    _flat_ + _p_[2]
+				_flat_ + _oc1_    _flat_ + _ofy_
+				_flat_ + _oc2_    _flat_ + _ofy_
+				_flat_ + _oc2_    _flat_ + _q_[2]
+				_flat_ + _q_[1]   _flat_ + _q_[2]
+			else
+				_oc1_ = (_p_[2] + _ob1_[2]) / 2
+				_oc2_ = (_obl_[2] + _q_[2]) / 2
+				_ofx_ = _obl_[1]
+				_flat_ + _p_[1]   _flat_ + _p_[2]
+				_flat_ + _p_[1]   _flat_ + _oc1_
+				_flat_ + _ofx_    _flat_ + _oc1_
+				_flat_ + _ofx_    _flat_ + _oc2_
+				_flat_ + _q_[1]   _flat_ + _oc2_
+				_flat_ + _q_[1]   _flat_ + _q_[2]
+			ok
+		but cSpline = "line" or cSpline = "polyline"
 			for _pt_ in _pts_  _flat_ + _pt_[1]  _flat_ + _pt_[2]  next
 		else
 			_flat_ = This._SmoothThrough(_pts_)
