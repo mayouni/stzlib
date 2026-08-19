@@ -867,28 +867,35 @@ nGap = sqrt((aTp[1]-aFl[nFn-1])*(aTp[1]-aFl[nFn-1]) +
 chk("the stroke is cut a head's length before the tip",
     nGap > 10 and nGap < 16)
 
-# 3. THE HEAD POINTS ALONG THE ARRIVING LINE. The base the head is built
-#    on IS the last point of the stroke, so head and line cannot disagree
-#    by construction -- asserted anyway, against the aim line.
-nAimX = 480 - 200
-nAimY = 240 - 100
-nAimL = sqrt(nAimX*nAimX + nAimY*nAimY)
+# 3. THE HEAD MEETS ITS BORDER SQUARE -- grammar v3, from the
+#    Principal's reference sketch. Two grammars preceded it and each
+#    encoded its own mistake into this very assertion: v2 asserted the
+#    head follows the AIM, and passed while arrivals grazed their
+#    borders and fans braided. The head now arrives along the landed
+#    border's NORMAL: this is a top landing, so it points straight down.
 nHdX = (aTp[1] - aBs[1])
 nHdY = (aTp[2] - aBs[2])
 nHdL = sqrt(nHdX*nHdX + nHdY*nHdY)
-nDot = (nAimX*nHdX + nAimY*nHdY) / (nAimL * nHdL)
-? "   head direction vs aim line, cosine : " + nDot
-chk("the head points the way the edge travels", nDot > 0.97)
+? "   head direction : " + (nHdX / nHdL) + "," + (nHdY / nHdL)
+chk("the head enters its top border square, pointing down",
+    nHdY / nHdL > 0.99 and fabs(nHdX / nHdL) < 0.15)
 
 # 4. ONE BEND, ALWAYS OUTWARD -- the outer arc. An S-curve crosses its
 #    own chord; dot's edges never do. Signed area side of every sample
 #    against the chord must not change sign.
+# PERPENDICULAR DISTANCE, not the raw cross product. v3 departs TANGENT
+# to the chord, so early samples sit within float noise of it -- and a
+# raw cross-product threshold of 0.5 is half a SQUARE pixel, which a
+# 0.002px jitter over a 300px chord exceeds. The claim is about pixels a
+# reader could see, so the dead zone is half a pixel of DISTANCE.
+nChL = sqrt((aFl[nFn-1]-aFl[1])*(aFl[nFn-1]-aFl[1]) +
+            (aFl[nFn]-aFl[2])*(aFl[nFn]-aFl[2]))
 nPos = 0
 nNeg = 0
 for i = 1 to nFn / 2
 	_sx_ = aFl[i*2-1] - aFl[1]
 	_sy_ = aFl[i*2] - aFl[2]
-	_cr_ = (aFl[nFn-1]-aFl[1]) * _sy_ - (aFl[nFn]-aFl[2]) * _sx_
+	_cr_ = ((aFl[nFn-1]-aFl[1]) * _sy_ - (aFl[nFn]-aFl[2]) * _sx_) / nChL
 	if _cr_ > 0.5  nPos++  ok
 	if _cr_ < -0.5  nNeg++  ok
 next
@@ -896,18 +903,15 @@ next
 chk("the curve stays on ONE side of its chord -- an arc, never an S",
     nPos = 0 or nNeg = 0)
 
-# THE NEGATIVE SIBLING: the OLD model, still present driving the ortho
-# arrowhead, is a quadratic that fails rule 3 -- its arrival is square
-# regardless of the aim, so head and line disagree on a lateral edge.
-aQ2 = oQ._CurvePoints([ 200, 120 ], [ 480, 220 ], "TB")
-nQ2 = len(aQ2)
-nOdX = aQ2[nQ2-1] - aQ2[nQ2-3]
-nOdY = aQ2[nQ2] - aQ2[nQ2-2]
-nOdL = sqrt(nOdX*nOdX + nOdY*nOdY)
-nDot2 = (nAimX*nOdX + nAimY*nOdY) / (nAimL * nOdL)
-? "   the old curve's arrival vs the aim, cosine : " + nDot2
-chk("the old model really did arrive off the aim, which this must see",
-    nDot2 < 0.97)
+# THE NEGATIVE SIBLING: v2's own geometry, reconstructed -- arrival
+# along the AIM of this same lateral edge -- must FAIL the square-entry
+# test, or "square" is not being measured.
+nAimX = 480 - 200
+nAimY = 240 - 100
+nAimL = sqrt(nAimX*nAimX + nAimY*nAimY)
+? "   v2 arrived along the aim; its downward share was " + (nAimY / nAimL)
+chk("the grammar this replaced really did graze the border",
+    nAimY / nAimL < 0.99)
 
 #---------------------------------------------------------------------------
 ? ""
@@ -1324,19 +1328,19 @@ chk("a short-edged diagram keeps the separation it asked for",
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 24. The ROUTED path obeys the same rules as every edge ---"
+? "-- 24. Every departure makes PROGRESS, routed or not --------"
 #
-# THIS IS THE ASSERTION WHOSE ABSENCE SHIPPED A BUG. Two paths draw edges
-# here: single-hop, and _DrawRoutedEdge for anything spanning more than
-# one rank. Three commits fixed attachment, ports and the corner gap on
-# the first and left the second clipping toward its bend point with no
-# ports -- so a multi-rank edge still left the SIDE of its node and two
-# routed arrivals still landed on one spot. It was verified on a picture
-# whose edges all span ONE rank, so nothing exercised the other route.
-#
-# The property is the same for both paths, so it is asserted for both:
-# in a top-down picture an edge leaves DOWNWARD. A side attachment
-# departs sideways, and that is the difference this measures.
+# REWRITTEN FOR GRAMMAR v3, and its history is the point. v1 of this
+# section asserted "every edge leaves downward" -- first step more
+# vertical than lateral -- and that was v2's rule. The Principal's
+# reference sketch overruled it: edges DEPART ALONG THE AIM, so a shallow
+# aim leaves sideways-dominant by design, and the old assertion would
+# now fail correct pictures. What survives every grammar is the
+# invariant underneath: a departure must make progress toward the next
+# rank -- the first step never runs BACKWARD, which is what a hook at
+# the source looks like in numbers. Asserted for single-hop and routed
+# alike, because the section's original lesson stands: a property worth
+# asserting is worth asserting of every implementation of it.
 #---------------------------------------------------------------------------
 
 oRt = new stzDiagram("routed")
@@ -1347,18 +1351,18 @@ for i = 1 to 4  oRt.AddEdge("r" + i, "r" + (i + 1))  next
 oRt.AddEdge("r1", "r5")          # spans four ranks: the ROUTED path
 oRt.AddEdge("r1", "r4")          # spans three: routed too
 
-nSide = _SidewaysDepartures(oRt.ToSVGXT([ :NodeWidth = 110, :NodeHeight = 40 ]),
+nBack = _BackwardDepartures(oRt.ToSVGXT([ :NodeWidth = 110, :NodeHeight = 40 ]),
 	"rgb(138,138,138)")
-? "   edges departing sideways instead of down : " + nSide
-chkeq("every edge leaves downward, routed or not", nSide, 0)
+? "   edges whose first step runs backward : " + nBack
+chkeq("every departure advances toward the next rank", nBack, 0)
 
-# THE NEGATIVE SIBLING: the measurement must be able to SEE a sideways
-# departure, or zero means the scanner found nothing to look at.
-nSideBad = _SidewaysDepartures(
-	'<polyline points="10,10 90,12 120,80" stroke="rgb(138,138,138)"/>',
+# THE NEGATIVE SIBLING: a polyline that starts by climbing must be
+# counted, or zero means the scanner matched nothing.
+nBackBad = _BackwardDepartures(
+	'<polyline points="10,50 14,30 120,180" stroke="rgb(138,138,138)"/>',
 	"rgb(138,138,138)")
-? "   a deliberately sideways polyline scores : " + nSideBad
-chk("the departure check DISCRIMINATES", nSideBad = 1)
+? "   a deliberately backward polyline scores : " + nBackBad
+chk("the departure check DISCRIMINATES", nBackBad = 1)
 
 #---------------------------------------------------------------------------
 ? ""
@@ -2159,10 +2163,10 @@ func _DiffFromUpscale oSmall, xBig
 	if _dt_ = 0  return 0  ok
 	return floor(_dc_ * 100 / _dt_)
 
-# Edge polylines whose FIRST step travels further sideways than downward.
-# In a top-down picture that is a side attachment, which is what an
-# aim-directed clip produces and what a rank-facing one cannot.
-func _SidewaysDepartures cSvg, cStroke
+# Edge polylines whose FIRST step moves AGAINST the rank direction -- in a
+# top-down picture, upward. Aim-angled departures are grammar v3's right;
+# backward ones are a hook at the source in any grammar.
+func _BackwardDepartures cSvg, cStroke
 	_sd_ = 0
 	_slen2_ = StzLen(cSvg)
 	for _sp2_ in StzFindAll('<polyline points="', cSvg)
@@ -2178,12 +2182,11 @@ func _SidewaysDepartures cSvg, cStroke
 		_sb2_ = StzSplit(StzTrim(_spt2_[2]), ",")
 		if len(_sa2_) != 2 or len(_sb2_) != 2  loop  ok
 		try
-			_sdx2_ = fabs((0 + _sb2_[1]) - (0 + _sa2_[1]))
-			_sdy2_ = fabs((0 + _sb2_[2]) - (0 + _sa2_[2]))
+			_sdy2_ = (0 + _sb2_[2]) - (0 + _sa2_[2])
 		catch
 			loop
 		done
-		if _sdx2_ > _sdy2_  _sd_++  ok
+		if _sdy2_ < 0 - 0.01  _sd_++  ok
 	next
 	return _sd_
 

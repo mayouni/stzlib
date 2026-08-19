@@ -2764,48 +2764,6 @@ class stzDiagram from stzGraph
 		_pts_[1] = _p_
 		_pts_[ len(_pts_) ] = _q_
 
-		# AND IT MUST LEAVE ALONG THE RANK AXIS, not straight at its first
-		# bend. Attaching on the bottom border is necessary and not
-		# sufficient: the next point is the first bend, which can sit far
-		# to the side, so the opening SEGMENT still travelled sideways out
-		# of the node. A short stub along the rank axis gives the routed
-		# path the same soft departure the single-hop path gets from its
-		# control point -- and the same square arrival.
-		#
-		# Found by the assertion written for exactly this, one commit
-		# after the attachment was fixed and declared done.
-		_stub_ = min([ nBoxH * 0.5, 18 ])
-		_sdy_ = _stub_
-		_sdx_ = 0
-		if cRank = "BT"  _sdy_ = 0 - _stub_  ok
-		if cRank = "LR"  _sdx_ = _stub_   _sdy_ = 0  ok
-		if cRank = "RL"  _sdx_ = 0 - _stub_  _sdy_ = 0  ok
-		# TWO stub points at each end, not one. The smoothing through
-		# these points is Catmull-Rom, and its tangent at a point is set
-		# by the point AFTER it -- so with a single stub the opening
-		# tangent was still aimed at the first bend and the curve leaned
-		# sideways out of the node anyway. With two collinear stubs the
-		# neighbour of the first is also directly below it, and no
-		# tangent formula can start the curve anywhere but along the
-		# rank axis.
-		# DEPARTURE stubs only. The arrival had them too, and forcing a
-		# vertical landing on an edge whose route brings it in from the
-		# side bent the last centimetre into a hook: the curve overshot
-		# to a point above the port and doubled back down into it. The
-		# Principal drew the correct line by hand -- a single sweep that
-		# arrives ALONG its approach -- and that is what dot's long edges
-		# do too: the arrowhead takes the angle of the curve, and only
-		# the DEPARTURE is guaranteed to leave along the rank axis.
-		_pts2_ = []
-		_pts2_ + [ _p_[1], _p_[2] ]
-		_pts2_ + [ _p_[1] + _sdx_ * 0.5, _p_[2] + _sdy_ * 0.5 ]
-		_pts2_ + [ _p_[1] + _sdx_, _p_[2] + _sdy_ ]
-		for _k2_ = 2 to len(_pts_) - 1
-			_pts2_ + [ _pts_[_k2_][1], _pts_[_k2_][2] ]
-		next
-		_pts2_ + [ _q_[1], _q_[2] ]
-		_pts_ = _pts2_
-
 		_flat_ = []
 		if cSpline = "ortho" or cSpline = "line" or cSpline = "polyline"
 			for _pt_ in _pts_  _flat_ + _pt_[1]  _flat_ + _pt_[2]  next
@@ -2907,27 +2865,54 @@ class stzDiagram from stzGraph
 
 	# The path between two BORDER points: a cubic that departs along the
 	# rank axis and arrives along the straight aim. Flat [x,y,...] samples.
-	def _EdgePathFlat(aP, aQ, cRank)
+	# THE EDGE GRAMMAR, v3 -- from the Principal's own reference sketch,
+	# which settled a question two earlier grammars got wrong in opposite
+	# ways. v1 forced BOTH tangents vertical: every lateral edge ballooned
+	# into an S. v2 (dot-derived) departed vertical and arrived along the
+	# aim: arrivals grazed their borders, and a fan BRAIDED -- the control
+	# scales with length, so a far edge stayed vertical longest, descended
+	# deepest, then cut flat across every nearer arc. The reference shows
+	# the mirror: DEPART ALONG THE AIM, so the fan spreads immediately and
+	# a farther target means a flatter leave that stays HIGHER -- arcs
+	# nested like onion layers, unable to cross -- and ARRIVE PERPENDICULAR
+	# to the landed border, so every head meets its surface square.
+	#
+	# An aligned pair keeps its straight spine: aim and perpendicular
+	# coincide, both controls sit on the centre line.
+	#
+	# pQSide: which border the arrival landed on (from _AttachPoint) --
+	# perpendicular means the RANK axis into a rank-facing border and the
+	# SLOT axis into a side border.
+	def _EdgePathFlat(aP, aQ, cRank, pQSide)
 		_gdx_ = aQ[1] - aP[1]
 		_gdy_ = aQ[2] - aP[2]
 		_glen_ = sqrt(_gdx_ * _gdx_ + _gdy_ * _gdy_)
 		if _glen_ < 0.001
 			return [ aP[1], aP[2], aQ[1], aQ[2] ]
 		ok
-		# departure control: along the rank axis, a quarter of the way
-		_gk_ = _glen_ * 0.25
-		if cRank = "LR" or cRank = "RL"
+		# departure control: along the aim -- the fan opens at once
+		_gk_ = _glen_ * 0.35
+		_c1_ = [ aP[1] + _gdx_ / _glen_ * _gk_, aP[2] + _gdy_ / _glen_ * _gk_ ]
+		# arrival control: back along the landed border's own normal, its
+		# reach bounded by the travel available on that axis so a shallow
+		# edge turns inside the gap instead of hooking past its target
+		_bH_ = 0
+		if cRank = "LR" or cRank = "RL"  _bH_ = 1  ok
+		if (pQSide and NOT _bH_) or (NOT pQSide and _bH_)
+			# normal is the X axis
+			_gax_ = fabs(_gdx_)
+			_gk2_ = min([ _gk_, _gax_ * 0.9 ])
 			_gsx_ = 1
 			if _gdx_ < 0  _gsx_ = -1  ok
-			_c1_ = [ aP[1] + _gsx_ * _gk_, aP[2] ]
+			_c2_ = [ aQ[1] - _gsx_ * _gk2_, aQ[2] ]
 		else
+			# normal is the Y axis
+			_gax_ = fabs(_gdy_)
+			_gk2_ = min([ _gk_, _gax_ * 0.9 ])
 			_gsy_ = 1
 			if _gdy_ < 0  _gsy_ = -1  ok
-			_c1_ = [ aP[1], aP[2] + _gsy_ * _gk_ ]
+			_c2_ = [ aQ[1], aQ[2] - _gsy_ * _gk2_ ]
 		ok
-		# arrival control: back along the AIM, so the last stretch is the
-		# straight line the arrowhead will continue
-		_c2_ = [ aQ[1] - _gdx_ / _glen_ * _gk_, aQ[2] - _gdy_ / _glen_ * _gk_ ]
 		_ga_ = []
 		for _gi_ = 0 to 24
 			_gt_ = _gi_ / 24
@@ -3161,12 +3146,14 @@ class stzDiagram from stzGraph
 				_apy_ += _avy2_ / _avl2_ * _aov_
 			ok
 		ok
-		return [ _apx_, _apy_ ]
+		return [ _apx_, _apy_, _bSide_ ]
 
 	def _EdgeGeometry(aFrom, aTo, nBoxW, nBoxH, cRank, nWidth, nPortA, nPortB, nRad, pBlockSide)
 		_ep_ = This._AttachPoint(aFrom, aTo, nBoxW, nBoxH, nPortA, nRad, cRank, 1, 0)
 		_eq_ = This._AttachPoint(aTo, aFrom, nBoxW, nBoxH, nPortB, nRad, cRank, 0, pBlockSide)
-		_efl_ = This._EdgePathFlat(_ep_, _eq_, cRank)
+		_eqs_ = 0
+		if len(_eq_) >= 3  _eqs_ = _eq_[3]  ok
+		_efl_ = This._EdgePathFlat(_ep_, _eq_, cRank, _eqs_)
 		return This._ArrowCut(_efl_, 9 + nWidth * 2)
 
 	# The point at fraction t along that same path -- the label's anchor,
@@ -3174,7 +3161,9 @@ class stzDiagram from stzGraph
 	def _EdgePathAt(aFrom, aTo, nBoxW, nBoxH, cRank, nT, nPortA, nPortB, pBlockSide)
 		_ep_ = This._AttachPoint(aFrom, aTo, nBoxW, nBoxH, nPortA, This._EdgeCorner(), cRank, 1, 0)
 		_eq_ = This._AttachPoint(aTo, aFrom, nBoxW, nBoxH, nPortB, This._EdgeCorner(), cRank, 0, pBlockSide)
-		_efl_ = This._EdgePathFlat(_ep_, _eq_, cRank)
+		_eqs_ = 0
+		if len(_eq_) >= 3  _eqs_ = _eq_[3]  ok
+		_efl_ = This._EdgePathFlat(_ep_, _eq_, cRank, _eqs_)
 		_en_ = len(_efl_) / 2
 		_ek_ = floor(nT * (_en_ - 1)) + 1
 		if _ek_ < 1  _ek_ = 1  ok
