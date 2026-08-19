@@ -3004,9 +3004,42 @@ class stzDiagram from stzGraph
 		# fan above its row instead of inside it. The tangent grammar is
 		# unchanged -- it is the ATTACHMENT that is decided by rank, and
 		# the aim still shapes the curve between the two points.
+		# THE BORDER MUST FACE THE APPROACH -- for ARRIVALS. A shallow
+		# approach pierces the rank-facing border at a grazing angle: the
+		# head lies almost parallel to the surface it enters, which is
+		# the wrongness the Principal circled. dot decides by clipping
+		# along the aim, and the geometry of that clip is one comparison:
+		# an aim shallower than the box's own aspect hits the SIDE first,
+		# where it lands near-perpendicular. The 1.4 bias prefers the
+		# side on borderline aims -- a clearly-sideways landing over an
+		# ambiguous top graze. DEPARTURES stay rank-facing always: that
+		# is guard 24's subject, and a fan must leave its parent
+		# downward however lateral its targets.
+		_adx2_ = fabs(aOther[1] - aCentre[1])
+		_ady2_ = fabs(aOther[2] - aCentre[2])
+		_bSide_ = 0
+		if NOT bOut
+			if cRank = "LR" or cRank = "RL"
+				if _ady2_ > 0.001 and _adx2_ / _ady2_ < (nBoxW / nBoxH) * 1.4
+					_bSide_ = 1
+				ok
+			else
+				if _adx2_ > 0.001 and _ady2_ / _adx2_ < (nBoxH / nBoxW) * 1.4
+					_bSide_ = 1
+				ok
+			ok
+		ok
+
 		_asx_ = 0
 		_asy_ = 0
-		if cRank = "LR"
+		if _bSide_
+			if cRank = "LR" or cRank = "RL"
+				# ranks run horizontally: the off-axis border is top/bottom
+				if aOther[2] < aCentre[2]  _asy_ = 0 - _ahh_  else  _asy_ = _ahh_  ok
+			else
+				if aOther[1] < aCentre[1]  _asx_ = 0 - _ahw_  else  _asx_ = _ahw_  ok
+			ok
+		but cRank = "LR"
 			if bOut  _asx_ = _ahw_  else  _asx_ = 0 - _ahw_  ok
 		but cRank = "RL"
 			if bOut  _asx_ = 0 - _ahw_  else  _asx_ = _ahw_  ok
