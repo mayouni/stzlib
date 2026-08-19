@@ -1969,11 +1969,11 @@ class stzDiagram from stzGraph
 			if len(_aBend_) > 0
 				This._DrawRoutedEdge(_oC_, _a_, _b_, _aBend_, _nBoxW_,
 					_nBoxH_, _cEdge_, _nEdgeW_, _cSpl_, _cRank_,
-					_aPort_[_ei_][1], _aPort_[_ei_][2])
+					_aPort_[_ei_][1], _aPort_[_ei_][2], _aPort_[_ei_][5])
 			else
 				This._DrawEdgeXT(_oC_, _a_, _b_, _nBoxW_, _nBoxH_, _cEdge_,
 					_nEdgeW_, _cSpl_, _cRank_, _aPort_[_ei_][3],
-					_aPort_[_ei_][1], _aPort_[_ei_][2])
+					_aPort_[_ei_][1], _aPort_[_ei_][2], _aPort_[_ei_][5])
 			ok
 		next
 
@@ -2051,7 +2051,8 @@ class stzDiagram from stzGraph
 						# own label boxes accept too.
 						_lat_ = This._EdgePathAt(_a_, _b_, _nBoxW_,
 							_nBoxH_, _cRank_, This._EdgeLabelBias(),
-							_aPort_[_ei_][1], _aPort_[_ei_][2])
+							_aPort_[_ei_][1], _aPort_[_ei_][2],
+							_aPort_[_ei_][5])
 						_lax_ = _lat_[1]
 						_lay_ = _lat_[2]
 					ok
@@ -2263,7 +2264,7 @@ class stzDiagram from stzGraph
 	def _EdgePorts(paEdges, paXY, nBoxW, nBoxH, cRank, paRoutes)
 		_epN_ = len(paEdges)
 		_epRes_ = []
-		for _epI_ = 1 to _epN_  _epRes_ + [ 0, 0, 0.5 ]  next
+		for _epI_ = 1 to _epN_  _epRes_ + [ 0, 0, 0.5, 0, 0 ]  next
 		_bV_ = 0
 		if cRank = "LR" or cRank = "RL"  _bV_ = 1  ok    # slot axis = y
 		_epBox_ = nBoxW
@@ -2377,6 +2378,49 @@ class stzDiagram from stzGraph
 					ok
 					_epRes_[ _epSort_[_epJ_][2] ][_epSide_] = _epOff_
 				next
+			next
+		next
+
+		# THE CORRIDOR VETO. A side entry is only honest when the run into
+		# that border is EMPTY: an edge flattening along a rank to reach a
+		# far cell passes over every same-rank cell between -- and a line
+		# grazing a box reads as a link to it, which is exactly the
+		# erroneous information the Principal named on the fan. So a side
+		# landing is refused whenever any same-rank node stands strictly
+		# between the target and the point the edge approaches from; the
+		# aspect rule in _AttachPoint then keeps such an edge on the
+		# rank-facing border, descending into its cell from above instead
+		# of sliding in along the row.
+		for _epI_ = 1 to _epN_
+			_epTo_ = This._XYOf(paXY, "" + paEdges[_epI_][:to])
+			if len(_epTo_) != 2  loop  ok
+			_epRt2_ = This._RouteOf(paRoutes, "" + paEdges[_epI_][:from],
+				"" + paEdges[_epI_][:to])
+			if len(_epRt2_) > 0
+				_epAp_ = _epRt2_[ len(_epRt2_) ]
+			else
+				_epAp_ = This._XYOf(paXY, "" + paEdges[_epI_][:from])
+			ok
+			if len(_epAp_) != 2  loop  ok
+			_epLoT_ = min([ _epTo_[ iif(_bV_, 2, 1) ], _epAp_[ iif(_bV_, 2, 1) ] ])
+			_epHiT_ = max([ _epTo_[ iif(_bV_, 2, 1) ], _epAp_[ iif(_bV_, 2, 1) ] ])
+			_epRkT_ = _epTo_[ iif(_bV_, 1, 2) ]
+			for _epP2_ in paXY
+				if StzLower("" + _epP2_[1]) = StzLower("" + paEdges[_epI_][:to])
+					loop
+				ok
+				if StzLower("" + _epP2_[1]) = StzLower("" + paEdges[_epI_][:from])
+					loop
+				ok
+				# paXY rows are [ id, x, y ] -- one wider than the [ x, y ]
+				# _XYOf answers, so the axis indices shift by one here
+				_epC2_ = _epP2_[ iif(_bV_, 3, 2) ]
+				_epR2_ = _epP2_[ iif(_bV_, 2, 3) ]
+				if fabs(_epR2_ - _epRkT_) < nBoxH * 1.2 and
+				   _epC2_ > _epLoT_ + 2 and _epC2_ < _epHiT_ - 2
+					_epRes_[_epI_][5] = 1
+					exit
+				ok
 			next
 		next
 
@@ -2695,7 +2739,7 @@ class stzDiagram from stzGraph
 	# where the edge must BE, not where it must turn a corner, and a curve
 	# reading smoothly past a box is what distinguishes a routed edge from
 	# a dog-leg. Ortho keeps its corners -- that is the point of ortho.
-	def _DrawRoutedEdge(oC, aFrom, aTo, paBend, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nPortA, nPortB)
+	def _DrawRoutedEdge(oC, aFrom, aTo, paBend, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nPortA, nPortB, pBlockSide)
 		_pts_ = []
 		_pts_ + [ aFrom[1], aFrom[2] ]
 		for _b_ in paBend  _pts_ + [ _b_[1], _b_[2] ]  next
@@ -2714,9 +2758,9 @@ class stzDiagram from stzGraph
 		# only one of them was corrected -- the other kept the old rule
 		# and the old faults, and looked fine wherever it was not used.
 		_p_ = This._AttachPoint(aFrom, _pts_[2], nBoxW, nBoxH, nPortA,
-			This._EdgeCorner(), cRank, 1)
+			This._EdgeCorner(), cRank, 1, 0)
 		_q_ = This._AttachPoint(aTo, _pts_[ len(_pts_) - 1 ], nBoxW, nBoxH,
-			nPortB, This._EdgeCorner(), cRank, 0)
+			nPortB, This._EdgeCorner(), cRank, 0, pBlockSide)
 		_pts_[1] = _p_
 		_pts_[ len(_pts_) ] = _q_
 
@@ -2987,7 +3031,7 @@ class stzDiagram from stzGraph
 	# circled. The point is pulled toward the centre by how far into the
 	# corner region it fell, so it lands under the outline that is
 	# actually drawn.
-	def _AttachPoint(aCentre, aOther, nBoxW, nBoxH, nPort, nRad, cRank, bOut)
+	def _AttachPoint(aCentre, aOther, nBoxW, nBoxH, nPort, nRad, cRank, bOut, pBlockSide)
 		_ahw_ = nBoxW / 2
 		_ahh_ = nBoxH / 2
 
@@ -3017,8 +3061,13 @@ class stzDiagram from stzGraph
 		# downward however lateral its targets.
 		_adx2_ = fabs(aOther[1] - aCentre[1])
 		_ady2_ = fabs(aOther[2] - aCentre[2])
+		# pBlockSide is the CORRIDOR VETO, computed where the whole rank is
+		# visible (in _EdgePorts): a side entry whose horizontal corridor
+		# passes other same-rank nodes is refused there, because an edge
+		# running the row into its target reads as a link with every cell
+		# it grazes -- the erroneous info the Principal named.
 		_bSide_ = 0
-		if NOT bOut
+		if NOT bOut and NOT pBlockSide
 			if cRank = "LR" or cRank = "RL"
 				if _ady2_ > 0.001 and _adx2_ / _ady2_ < (nBoxW / nBoxH) * 1.4
 					_bSide_ = 1
@@ -3051,6 +3100,17 @@ class stzDiagram from stzGraph
 
 		# the port spreads the attachment ALONG that border, which is what
 		# separates the members of a fan from each other
+		# A SIDE LANDING TAKES THE BORDER'S CENTRE, not the group port.
+		# Ports are shares of ONE border, allocated before anyone knew
+		# which border each edge would land on -- so a side-lander
+		# arriving with a port meant for the TOP border was pushed to the
+		# very corner of the side (34px of border, a 30px port: 2px from
+		# the corner). The centre of the side border is "a bit down" from
+		# the corner by construction, which is the red path the Principal
+		# drew. Two edges landing on the SAME side border will overlap at
+		# its centre -- accepted until a real diagram produces the case.
+		if _bSide_  nPort = 0  ok
+
 		_apx_ = aCentre[1] + _asx_
 		_apy_ = aCentre[2] + _asy_
 		if _asx_ = 0
@@ -3103,17 +3163,17 @@ class stzDiagram from stzGraph
 		ok
 		return [ _apx_, _apy_ ]
 
-	def _EdgeGeometry(aFrom, aTo, nBoxW, nBoxH, cRank, nWidth, nPortA, nPortB, nRad)
-		_ep_ = This._AttachPoint(aFrom, aTo, nBoxW, nBoxH, nPortA, nRad, cRank, 1)
-		_eq_ = This._AttachPoint(aTo, aFrom, nBoxW, nBoxH, nPortB, nRad, cRank, 0)
+	def _EdgeGeometry(aFrom, aTo, nBoxW, nBoxH, cRank, nWidth, nPortA, nPortB, nRad, pBlockSide)
+		_ep_ = This._AttachPoint(aFrom, aTo, nBoxW, nBoxH, nPortA, nRad, cRank, 1, 0)
+		_eq_ = This._AttachPoint(aTo, aFrom, nBoxW, nBoxH, nPortB, nRad, cRank, 0, pBlockSide)
 		_efl_ = This._EdgePathFlat(_ep_, _eq_, cRank)
 		return This._ArrowCut(_efl_, 9 + nWidth * 2)
 
 	# The point at fraction t along that same path -- the label's anchor,
 	# so a label sits ON the curve it names.
-	def _EdgePathAt(aFrom, aTo, nBoxW, nBoxH, cRank, nT, nPortA, nPortB)
-		_ep_ = This._AttachPoint(aFrom, aTo, nBoxW, nBoxH, nPortA, This._EdgeCorner(), cRank, 1)
-		_eq_ = This._AttachPoint(aTo, aFrom, nBoxW, nBoxH, nPortB, This._EdgeCorner(), cRank, 0)
+	def _EdgePathAt(aFrom, aTo, nBoxW, nBoxH, cRank, nT, nPortA, nPortB, pBlockSide)
+		_ep_ = This._AttachPoint(aFrom, aTo, nBoxW, nBoxH, nPortA, This._EdgeCorner(), cRank, 1, 0)
+		_eq_ = This._AttachPoint(aTo, aFrom, nBoxW, nBoxH, nPortB, This._EdgeCorner(), cRank, 0, pBlockSide)
 		_efl_ = This._EdgePathFlat(_ep_, _eq_, cRank)
 		_en_ = len(_efl_) / 2
 		_ek_ = floor(nT * (_en_ - 1)) + 1
@@ -3121,16 +3181,16 @@ class stzDiagram from stzGraph
 		if _ek_ > _en_  _ek_ = _en_  ok
 		return [ _efl_[_ek_ * 2 - 1], _efl_[_ek_ * 2] ]
 
-	def _DrawEdgeXT(oC, aFrom, aTo, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nLane, nPortA, nPortB)
+	def _DrawEdgeXT(oC, aFrom, aTo, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nLane, nPortA, nPortB, pBlockSide)
 		if cSpline = "ortho"
 			This._DrawEdge(oC, aFrom, aTo, nBoxW, nBoxH, cColor, nWidth,
 				cSpline, cRank, nLane)
 			return
 		ok
-		_dg_ = This._EdgeGeometry(aFrom, aTo, nBoxW, nBoxH, cRank, nWidth, nPortA, nPortB, This._EdgeCorner())
+		_dg_ = This._EdgeGeometry(aFrom, aTo, nBoxW, nBoxH, cRank, nWidth, nPortA, nPortB, This._EdgeCorner(), pBlockSide)
 		if cSpline = "line" or cSpline = "polyline"
-			_dp_ = This._AttachPoint(aFrom, aTo, nBoxW, nBoxH, nPortA, This._EdgeCorner(), cRank, 1)
-			_dq_ = This._AttachPoint(aTo, aFrom, nBoxW, nBoxH, nPortB, This._EdgeCorner(), cRank, 0)
+			_dp_ = This._AttachPoint(aFrom, aTo, nBoxW, nBoxH, nPortA, This._EdgeCorner(), cRank, 1, 0)
+			_dq_ = This._AttachPoint(aTo, aFrom, nBoxW, nBoxH, nPortB, This._EdgeCorner(), cRank, 0, pBlockSide)
 			_dg_ = This._ArrowCut([ _dp_[1], _dp_[2], _dq_[1], _dq_[2] ],
 				9 + nWidth * 2)
 		ok

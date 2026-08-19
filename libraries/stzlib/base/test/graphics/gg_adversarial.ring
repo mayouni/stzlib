@@ -846,7 +846,7 @@ QW = 120  QH = 40
 # ports and corner radius are part of the geometry now: an edge attaches
 # on the rank-facing border, offset along it, pulled under the rounded
 # outline
-aGm = oQ._EdgeGeometry([ 200, 100 ], [ 480, 240 ], QW, QH, "TB", 2, 0, 0, 10)
+aGm = oQ._EdgeGeometry([ 200, 100 ], [ 480, 240 ], QW, QH, "TB", 2, 0, 0, 10, 0)
 aFl = aGm[1]
 aBs = aGm[2]
 aTp = aGm[3]
@@ -1249,8 +1249,8 @@ chkeq("a word that is neither type nor shape maps to nothing",
 
 FANW = 96  FANH = 36
 # two edges from one node to targets far apart on the same rank
-aP1 = oQ._AttachPoint([ 500, 100 ], [ 100, 400 ], FANW, FANH, -20, 10, "TB", 1)
-aP2 = oQ._AttachPoint([ 500, 100 ], [ 900, 400 ], FANW, FANH,  20, 10, "TB", 1)
+aP1 = oQ._AttachPoint([ 500, 100 ], [ 100, 400 ], FANW, FANH, -20, 10, "TB", 1, 0)
+aP2 = oQ._AttachPoint([ 500, 100 ], [ 900, 400 ], FANW, FANH,  20, 10, "TB", 1, 0)
 ? "   two exits from one node : " + aP1[1] + "," + aP1[2] +
   "  and  " + aP2[1] + "," + aP2[2]
 chk("both leave the BOTTOM border, whatever direction they aim",
@@ -1259,7 +1259,7 @@ chk("...and the ports separate them along it",
     fabs(aP1[1] - aP2[1]) > 20)
 
 # the far end attaches on the TOP, which is what keeps a fan above its row
-aIn = oQ._AttachPoint([ 100, 400 ], [ 500, 100 ], FANW, FANH, 0, 10, "TB", 0)
+aIn = oQ._AttachPoint([ 100, 400 ], [ 500, 100 ], FANW, FANH, 0, 10, "TB", 0, 0)
 ? "   the arrival on a distant target : " + aIn[1] + "," + aIn[2]
 chk("an edge arrives at the TOP of its target, not its side",
     aIn[2] < 400)
@@ -1268,11 +1268,11 @@ chk("an edge arrives at the TOP of its target, not its side",
 # top at a grazing angle -- the head almost parallel to the surface --
 # so an aim shallower than the box's own aspect (with a 1.4 side bias)
 # lands on the SIDE, near-perpendicular; a steep one keeps the top.
-aSh = oQ._AttachPoint([ 100, 400 ], [ 900, 430 ], FANW, FANH, 0, 10, "TB", 0)
+aSh = oQ._AttachPoint([ 100, 400 ], [ 900, 430 ], FANW, FANH, 0, 10, "TB", 0, 0)
 ? "   a shallow approach (slope 0.04) lands at : " + aSh[1] + "," + aSh[2]
 chk("a shallow approach arrives on the SIDE border",
     fabs(aSh[1] - 100) > FANW / 2 - 2)
-aSt = oQ._AttachPoint([ 100, 400 ], [ 160, 100 ], FANW, FANH, 0, 10, "TB", 0)
+aSt = oQ._AttachPoint([ 100, 400 ], [ 160, 100 ], FANW, FANH, 0, 10, "TB", 0, 0)
 ? "   a steep approach (slope 5) lands at : " + aSt[1] + "," + aSt[2]
 chk("...and a steep one arrives on the TOP", aSt[2] < 400 - FANH / 2 + 2)
 
@@ -1291,7 +1291,7 @@ aOld = oQ._ClipExact([ 100, 400 ], [ 900, 410 ], FANW, FANH)
 chk("the rule this replaced really did attach to the side",
     fabs(aOld[1] - 100) > FANW / 2 - 1)
 # ...where the rank-facing rule still uses the border the rank says
-aNew = oQ._AttachPoint([ 100, 400 ], [ 900, 410 ], FANW, FANH, 0, 10, "TB", 1)
+aNew = oQ._AttachPoint([ 100, 400 ], [ 900, 410 ], FANW, FANH, 0, 10, "TB", 1, 0)
 ? "   the rank-facing rule leaves the bottom at : " + aNew[1] + "," + aNew[2]
 chk("...while the rank-facing rule leaves the bottom regardless",
     aNew[2] > 400)
@@ -1391,7 +1391,7 @@ chkeq("a unique link takes no source offset", aPu[1][1], 0)
 chkeq("...and no target offset", aPu[1][2], 0)
 
 # so it is drawn strictly along the rank axis
-aGu = oUq._EdgeGeometry([ 300, 100 ], [ 300, 400 ], 200, 60, "TB", 2, 0, 0, 10)
+aGu = oUq._EdgeGeometry([ 300, 100 ], [ 300, 400 ], 200, 60, "TB", 2, 0, 0, 10, 0)
 nDrift = fabs(aGu[3][1] - 300)
 ? "   its arrow tip is " + nDrift + "px off the centre line"
 chk("a unique link is strictly vertical", nDrift < 0.5)
