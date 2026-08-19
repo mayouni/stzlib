@@ -2341,12 +2341,40 @@ class stzDiagram from stzGraph
 				# as one arrow with a thick head. The border is the
 				# resource being shared, so the share is expressed in it:
 				# a third of it for two edges, all of it from four up.
+				# THE ALIGNED EDGE OWNS THE CENTRE, and the others spread
+				# AROUND it. The alignment pass moves a cell exactly onto
+				# its counterpart so the edge between them can be a
+				# straight column -- and an even port spread then handed
+				# that same edge an offset, leaning it between two
+				# perfectly aligned cells. Two fixes fighting: the layout
+				# buying a spine and the ports spending it. So any member
+				# of the fan whose far end sits exactly on this node's
+				# own cross-position is pinned to port ZERO, and the rest
+				# take successive steps to its left and right in their
+				# sorted order. No aligned member: the even spread as
+				# before.
+				_epAt2_ = This._XYOf(paXY, _epKeys_[_epK_][1])
+				_epAl_ = 0
+				if len(_epAt2_) = 2
+					_epNC_ = _epAt2_[ iif(_bV_, 2, 1) ]
+					for _epJ_ = 1 to _epGn_
+						if fabs(_epSort_[_epJ_][1] - _epNC_) < 1
+							_epAl_ = _epJ_
+							exit
+						ok
+					next
+				ok
 				_epSpread_ = (_epBox_ - 16) *
 					min([ 1, (_epGn_ - 1) / 3 ])
 				if _epSpread_ < 0  _epSpread_ = 0  ok
+				_epStep_ = _epSpread_ / (_epGn_ - 1)
 				for _epJ_ = 1 to _epGn_
-					_epOff_ = 0 - (_epSpread_ / 2) +
-						(_epSpread_ * (_epJ_ - 1) / (_epGn_ - 1))
+					if _epAl_ > 0
+						_epOff_ = _epStep_ * (_epJ_ - _epAl_)
+					else
+						_epOff_ = 0 - (_epSpread_ / 2) +
+							(_epSpread_ * (_epJ_ - 1) / (_epGn_ - 1))
+					ok
 					_epRes_[ _epSort_[_epJ_][2] ][_epSide_] = _epOff_
 				next
 			next
