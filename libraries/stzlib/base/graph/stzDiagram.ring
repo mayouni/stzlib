@@ -2686,13 +2686,23 @@ class stzDiagram from stzGraph
 		if cRank = "BT"  _sdy_ = 0 - _stub_  ok
 		if cRank = "LR"  _sdx_ = _stub_   _sdy_ = 0  ok
 		if cRank = "RL"  _sdx_ = 0 - _stub_  _sdy_ = 0  ok
+		# TWO stub points at each end, not one. The smoothing through
+		# these points is Catmull-Rom, and its tangent at a point is set
+		# by the point AFTER it -- so with a single stub the opening
+		# tangent was still aimed at the first bend and the curve leaned
+		# sideways out of the node anyway. With two collinear stubs the
+		# neighbour of the first is also directly below it, and no
+		# tangent formula can start the curve anywhere but along the
+		# rank axis.
 		_pts2_ = []
 		_pts2_ + [ _p_[1], _p_[2] ]
+		_pts2_ + [ _p_[1] + _sdx_ * 0.5, _p_[2] + _sdy_ * 0.5 ]
 		_pts2_ + [ _p_[1] + _sdx_, _p_[2] + _sdy_ ]
 		for _k2_ = 2 to len(_pts_) - 1
 			_pts2_ + [ _pts_[_k2_][1], _pts_[_k2_][2] ]
 		next
 		_pts2_ + [ _q_[1] - _sdx_, _q_[2] - _sdy_ ]
+		_pts2_ + [ _q_[1] - _sdx_ * 0.5, _q_[2] - _sdy_ * 0.5 ]
 		_pts2_ + [ _q_[1], _q_[2] ]
 		_pts_ = _pts2_
 
