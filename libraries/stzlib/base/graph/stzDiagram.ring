@@ -1968,7 +1968,8 @@ class stzDiagram from stzGraph
 				"" + _aE_[_ei_][:to])
 			if len(_aBend_) > 0
 				This._DrawRoutedEdge(_oC_, _a_, _b_, _aBend_, _nBoxW_,
-					_nBoxH_, _cEdge_, _nEdgeW_, _cSpl_, _cRank_)
+					_nBoxH_, _cEdge_, _nEdgeW_, _cSpl_, _cRank_,
+					_aPort_[_ei_][1], _aPort_[_ei_][2])
 			else
 				This._DrawEdgeXT(_oC_, _a_, _b_, _nBoxW_, _nBoxH_, _cEdge_,
 					_nEdgeW_, _cSpl_, _cRank_, _aPort_[_ei_][3],
@@ -2310,7 +2311,16 @@ class stzDiagram from stzGraph
 				# uses it and still caps at the border's width, so a
 				# heavily-fanned node degrades to evenly packed rather
 				# than to overlapping.
-				_epSpread_ = min([ _epBox_ - 16, 26 * (_epGn_ - 1) ])
+				# A FRACTION OF THE BORDER, never a count of pixels. Both
+				# earlier versions were literals -- 14px per edge, then
+				# 26px -- and a literal cannot know how wide the node is
+				# or that :Scale has just doubled everything, so two
+				# arrivals at a 200px box were placed 26px apart and read
+				# as one arrow with a thick head. The border is the
+				# resource being shared, so the share is expressed in it:
+				# a third of it for two edges, all of it from four up.
+				_epSpread_ = (_epBox_ - 16) *
+					min([ 1, (_epGn_ - 1) / 3 ])
 				if _epSpread_ < 0  _epSpread_ = 0  ok
 				for _epJ_ = 1 to _epGn_
 					_epOff_ = 0 - (_epSpread_ / 2) +
@@ -2635,15 +2645,28 @@ class stzDiagram from stzGraph
 	# where the edge must BE, not where it must turn a corner, and a curve
 	# reading smoothly past a box is what distinguishes a routed edge from
 	# a dog-leg. Ortho keeps its corners -- that is the point of ortho.
-	def _DrawRoutedEdge(oC, aFrom, aTo, paBend, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank)
+	def _DrawRoutedEdge(oC, aFrom, aTo, paBend, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nPortA, nPortB)
 		_pts_ = []
 		_pts_ + [ aFrom[1], aFrom[2] ]
 		for _b_ in paBend  _pts_ + [ _b_[1], _b_[2] ]  next
 		_pts_ + [ aTo[1], aTo[2] ]
 
-		# clip the first and last legs at the boxes they touch
-		_p_ = This._ClipToBox(aFrom, _pts_[2], nBoxW, nBoxH)
-		_q_ = This._ClipExact(aTo, _pts_[ len(_pts_) - 1 ], nBoxW, nBoxH)
+		# THE SAME ATTACHMENT AS EVERY OTHER EDGE. This clipped toward the
+		# first bend instead, which is aim-directed clipping under another
+		# name -- so a ROUTED edge left whichever border faced its first
+		# bend, took no port, and arrived unported too. Every fault just
+		# fixed for single-hop edges was still live here: an edge leaving
+		# the SIDE of its node with a gap at the corner, and two routed
+		# arrivals landing on the same point.
+		#
+		# It survived because the fix was verified on a picture whose
+		# edges all span ONE rank. Two paths draw edges in this file and
+		# only one of them was corrected -- the other kept the old rule
+		# and the old faults, and looked fine wherever it was not used.
+		_p_ = This._AttachPoint(aFrom, _pts_[2], nBoxW, nBoxH, nPortA,
+			This._EdgeCorner(), cRank, 1)
+		_q_ = This._AttachPoint(aTo, _pts_[ len(_pts_) - 1 ], nBoxW, nBoxH,
+			nPortB, This._EdgeCorner(), cRank, 0)
 		_pts_[1] = _p_
 		_pts_[ len(_pts_) ] = _q_
 
