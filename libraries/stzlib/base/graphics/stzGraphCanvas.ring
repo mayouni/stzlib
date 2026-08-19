@@ -698,6 +698,27 @@ class stzGraphCanvas from stzObject
 						_prevD_ = _curD_
 					next
 				next
+
+				# ALIGNMENT IS THE LAST WORD, so it speaks again HERE.
+				# The engine ends its coordinate pass with snapAlign, and
+				# these two cluster passes -- cohesion and boundary air --
+				# then moved whole columns a fraction of a slot. Every
+				# chain the snap had made vertical became a near-miss
+				# again, and the ROOT showed it worst: Balancer measured
+				# 0.35 of a slot off the column it had been snapped onto.
+				# Re-running the engine's own rule (never a Ring copy of
+				# it -- the duplicated-logic law) restores exactness over
+				# whatever the cluster passes chose.
+				if @bUnitX
+					_aXs_ = []
+					for _i_ = 1 to _n_  _aXs_ + @aX[_i_]  next
+					_aXs_ = StzEngineGraphLayoutSnapAlign(_csr_[1], _csr_[2],
+						_outc_[1], _outc_[2], _order_, _starts_, 1.0,
+						_xtra_, _aXs_)
+					if len(_aXs_) = _n_
+						for _i_ = 1 to _n_  @aX[_i_] = _aXs_[_i_]  next
+					ok
+				ok
 			ok
 		else
 			@bUnitX = 0

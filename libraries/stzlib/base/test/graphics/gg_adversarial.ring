@@ -1421,6 +1421,62 @@ chk("...and the lateral edge spreads AROUND it, not onto it",
 
 #---------------------------------------------------------------------------
 ? ""
+? "-- 26. Verticality reaches the ROOT, clusters or not --------"
+#
+# The engine ends its coordinate pass with snapAlign -- and the cluster
+# passes (cohesion, boundary air) run RING-side afterwards, moving whole
+# columns a fraction of a slot. Every chain the snap had made vertical
+# became a near-miss again, worst at the root: Balancer measured 0.35 of
+# a slot off the column it had been snapped onto. Alignment is only worth
+# having if it is the LAST word, so the face re-invokes the engine's own
+# snap after its cluster adjustments.
+#
+# The invariant is the one the Principal has marked three times now, so
+# it is asserted in its general form: NO NEAR-MISSES ANYWHERE. Every edge
+# is either exactly aligned or clearly slanted; the band between reads as
+# a mistake and must be empty.
+#---------------------------------------------------------------------------
+
+oV = new stzDiagram("svc26")
+for a in [ [ "lb", "Balancer" ], [ "web1", "Web A" ], [ "web2", "Web B" ],
+           [ "api1", "API A" ], [ "api2", "API B" ],
+           [ "db1", "DB A" ], [ "db2", "DB B" ], [ "log", "Logger" ] ]
+	oV.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
+next
+oV.AddEdge("lb", "web1")    oV.AddEdge("lb", "web2")
+oV.AddEdge("web1", "api1")  oV.AddEdge("web2", "api2")
+oV.AddEdge("api1", "db1")   oV.AddEdge("api2", "db2")
+oV.AddEdge("web1", "log")   oV.AddEdge("api2", "log")
+oV.AddClusterXTT("backend", "Backend", [ "api1","api2","db1","db2" ], "#5E35B1")
+oV.AddClusterXTT("data", "Data", [ "db1", "db2" ], "#2E7D32")
+oVG = new stzGraphCanvas(oV, [ :Layout = :Hierarchical, :Width = 1000,
+	:Height = 700, :Margin = 0, :Clusters = oV._ClusterPairs() ])
+aVP = oVG.Positions()
+
+nRootOff = fabs(_XOf(aVP, "lb") - _XOf(aVP, "web2"))
+? "   the root sits " + nRootOff + " off its column"
+chk("the root joins its column exactly, through the cluster passes",
+    nRootOff < 0.5)
+
+nMiss = _NearMissEdges(oV, aVP)
+? "   edges in the near-miss band (0.5 .. 40 units) : " + nMiss
+chkeq("no edge is ALMOST aligned -- exact or clearly slanted", nMiss, 0)
+
+# THE NEGATIVE SIBLING: the same census on positions nudged by hand must
+# find the near-miss it was built to see.
+aVB = []
+for aP in aVP
+	if StzLower("" + aP[1]) = "lb"
+		aVB + [ aP[1], aP[2] + 20, aP[3] ]
+	else
+		aVB + [ aP[1], aP[2], aP[3] ]
+	ok
+next
+? "   with the root nudged 20 units : " + _NearMissEdges(oV, aVB)
+chk("the near-miss census DISCRIMINATES", _NearMissEdges(oV, aVB) > 0)
+
+#---------------------------------------------------------------------------
+? ""
 ? "=============================================================="
 ? " " + nOk + " ok, " + nBad + " failed"
 ? "=============================================================="
@@ -2118,3 +2174,17 @@ func _SidewaysDepartures cSvg, cStroke
 		if _sdx2_ > _sdy2_  _sd_++  ok
 	next
 	return _sd_
+
+# Edges whose endpoints differ on the cross-axis by an amount too small to
+# read as a slant and too large to be aligned -- the band the eye flags.
+# Units are the 0..1000 normalised layout space; a slot is ~150 of it.
+func _NearMissEdges oDiag, aPos
+	_nm_ = 0
+	for _e_ in oDiag.Edges()
+		_xa_ = _XOf(aPos, "" + _e_[:from])
+		_xb_ = _XOf(aPos, "" + _e_[:to])
+		if _xa_ < 0 or _xb_ < 0  loop  ok
+		_d_ = fabs(_xa_ - _xb_)
+		if _d_ > 0.5 and _d_ < 40  _nm_++  ok
+	next
+	return _nm_

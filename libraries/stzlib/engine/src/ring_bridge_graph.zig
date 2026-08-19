@@ -802,6 +802,42 @@ fn ring_LayoutCoords(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// GraphLayoutSnapAlign(aInOff, aInSrc, aOutOff, aOutDst, aOrder, aStarts,
+//                       nSep, aExtra, aX) -> aX
+//
+// The SAME snap the coordinate pass ends with, callable again. It exists
+// because a face may adjust positions AFTER the engine has spoken --
+// cluster cohesion and boundary air are Ring-side passes -- and alignment
+// is only worth having if it is the LAST word. Re-running the rule beats
+// re-implementing it: a Ring copy of this logic would drift, and the
+// duplicated-logic law in this repository was paid for already.
+fn ring_LayoutSnapAlign(p: *anyopaque) callconv(.c) void {
+    const in_off = readU32List(p, 1) orelse return;
+    defer gpa.free(in_off);
+    const in_src = readU32List(p, 2) orelse return;
+    defer gpa.free(in_src);
+    const out_off = readU32List(p, 3) orelse return;
+    defer gpa.free(out_off);
+    const out_dst = readU32List(p, 4) orelse return;
+    defer gpa.free(out_dst);
+    const order = readU32List(p, 5) orelse return;
+    defer gpa.free(order);
+    const starts = readU32List(p, 6) orelse return;
+    defer gpa.free(starts);
+    const sep = g(p, 7);
+    const extra_opt = readF64List(p, 8);
+    defer if (extra_opt) |e| gpa.free(e);
+    const extra: []const f64 = if (extra_opt) |e| e else &[_]f64{};
+    const x = readF64List(p, 9) orelse return;
+    defer gpa.free(x);
+    if (x.len == order.len) {
+        glayout.snapAlign(in_off, in_src, out_off, out_dst, order, starts, sep, extra, x);
+    }
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (x) |v| R.ring_list_adddouble(out, v);
+    R.ring_vm_api_retlist(p, out);
+}
+
 // GraphLayoutCrossings(aU, aV, aLayer, aPos, aStarts) -> count
 fn ring_LayoutCrossings(p: *anyopaque) callconv(.c) void {
     const eu = readU32List(p, 1) orelse {
@@ -833,6 +869,7 @@ fn ring_LayoutCrossings(p: *anyopaque) callconv(.c) void {
 }
 
 pub const regs = [_]R.Reg{
+    .{ .name = "stzenginegraphlayoutsnapalign", .func = &ring_LayoutSnapAlign },
     .{ .name = "stzenginegraphlayoutcoords", .func = &ring_LayoutCoords },
     .{ .name = "stzenginegraphcreate", .func = &ring_Create },
     .{ .name = "stzenginegraphfree", .func = &ring_Free },
