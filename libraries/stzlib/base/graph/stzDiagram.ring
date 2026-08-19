@@ -1637,18 +1637,29 @@ class stzDiagram from stzGraph
 			# give every edge a visible descent; diagrams whose edges are
 			# all short never reach the floor and keep exactly the
 			# separation their author asked for.
+			# PER RANK CROSSED, not per edge. Using an edge's whole
+			# horizontal run made one long multi-rank edge inflate EVERY
+			# gap in the picture -- a diagram with a single edge from top
+			# to bottom grew until the guard scanning its pixels stopped
+			# finishing. What decides whether an edge reads as flat is
+			# its run divided by the number of gaps it descends through,
+			# because that is the slope of each leg.
 			_maxdx_ = 0
+			_nlay_ = _oGC_.LayerCount()
 			for _e2_ in This.Edges()
-				_pa_ = 0  _pb_ = 0  _bfa_ = 0  _bfb_ = 0
+				_pa_ = 0  _pb_ = 0  _ya_ = 0  _yb_ = 0
+				_bfa_ = 0  _bfb_ = 0
 				for _p2_ in _oGC_.Positions()
 					if StzLower("" + _p2_[1]) = StzLower("" + _e2_[:from])
-						_pa_ = _p2_[2]  _bfa_ = 1
+						_pa_ = _p2_[2]  _ya_ = _p2_[3]  _bfa_ = 1
 					but StzLower("" + _p2_[1]) = StzLower("" + _e2_[:to])
-						_pb_ = _p2_[2]  _bfb_ = 1
+						_pb_ = _p2_[2]  _yb_ = _p2_[3]  _bfb_ = 1
 					ok
 				next
 				if _bfa_ and _bfb_
-					_dxe_ = fabs(_pa_ - _pb_) / 1000 * _inX_
+					_gaps2_ = fabs(_ya_ - _yb_) / 700 * max([ _nlay_ - 1, 1 ])
+					if _gaps2_ < 1  _gaps2_ = 1  ok
+					_dxe_ = fabs(_pa_ - _pb_) / 1000 * _inX_ / _gaps2_
 					if _dxe_ > _maxdx_  _maxdx_ = _dxe_  ok
 				ok
 			next

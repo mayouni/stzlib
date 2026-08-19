@@ -843,7 +843,10 @@ oQ.AddEdge("p", "c")
 QW = 120  QH = 40
 
 # a strongly lateral hop -- the case every fault showed on
-aGm = oQ._EdgeGeometry([ 200, 100 ], [ 480, 240 ], QW, QH, "TB", 2)
+# ports and corner radius are part of the geometry now: an edge attaches
+# on the rank-facing border, offset along it, pulled under the rounded
+# outline
+aGm = oQ._EdgeGeometry([ 200, 100 ], [ 480, 240 ], QW, QH, "TB", 2, 0, 0, 10)
 aFl = aGm[1]
 aBs = aGm[2]
 aTp = aGm[3]
@@ -1222,6 +1225,90 @@ chkeq("an explicit shape passes straight through",
 # and a name that is neither is refused rather than guessed at
 chkeq("a word that is neither type nor shape maps to nothing",
       StzNodeShapeForType("sparkle"), "")
+
+#---------------------------------------------------------------------------
+? ""
+? "-- 23. A fan SEPARATES, and never travels its own row -------"
+#
+# Three faults the Principal circled, one cause each.
+#
+# Adopting dot's grammar I dropped port spreading, reasoning that the
+# angles separate a fan by themselves. True only when the targets are
+# angularly apart: a broker fanning to fourteen workers strung out
+# sideways aims almost the same direction at all of them, so every edge
+# left the same point and ran parallel. Ports came back -- the aim still
+# decides direction, the port decides where along the border it starts.
+#
+# Worse, clipping in the AIM direction attached an edge to whichever
+# border faced its target, so an edge to a distant sibling left the SIDE
+# of its parent and arrived at the SIDE of its child, travelling along
+# the child row and crossing every node between. In a layered drawing
+# every edge crosses the same gap: out of the rank-facing border, into
+# the one opposite.
+#---------------------------------------------------------------------------
+
+FANW = 96  FANH = 36
+# two edges from one node to targets far apart on the same rank
+aP1 = oQ._AttachPoint([ 500, 100 ], [ 100, 400 ], FANW, FANH, -20, 10, "TB", 1)
+aP2 = oQ._AttachPoint([ 500, 100 ], [ 900, 400 ], FANW, FANH,  20, 10, "TB", 1)
+? "   two exits from one node : " + aP1[1] + "," + aP1[2] +
+  "  and  " + aP2[1] + "," + aP2[2]
+chk("both leave the BOTTOM border, whatever direction they aim",
+    aP1[2] > 100 and aP2[2] > 100)
+chk("...and the ports separate them along it",
+    fabs(aP1[1] - aP2[1]) > 20)
+
+# the far end attaches on the TOP, which is what keeps a fan above its row
+aIn = oQ._AttachPoint([ 100, 400 ], [ 500, 100 ], FANW, FANH, 0, 10, "TB", 0)
+? "   the arrival on a distant target : " + aIn[1] + "," + aIn[2]
+chk("an edge arrives at the TOP of its target, not its side",
+    aIn[2] < 400)
+
+# THE NEGATIVE SIBLING: aim-directed clipping, the rule this replaced,
+# puts that same arrival on the target's SIDE -- which is how an edge
+# ends up travelling along the row it should be descending into.
+# The aim must be NEARLY HORIZONTAL for the old rule to show its fault --
+# which is precisely the case that caused it. A 96x36 node is wide and
+# short, so for most directions the vertical extent dominates and even
+# aim-clipping lands on the top; the first version of this check aimed
+# steeply and proved nothing. An edge to a distant sibling on the SAME
+# rank is the shape that travels the row, so that is the shape to test.
+aOld = oQ._ClipExact([ 100, 400 ], [ 900, 410 ], FANW, FANH)
+? "   aim-directed clipping toward a same-rank sibling : " +
+  aOld[1] + "," + aOld[2]
+chk("the rule this replaced really did attach to the side",
+    fabs(aOld[1] - 100) > FANW / 2 - 1)
+# ...where the rank-facing rule still uses the border the rank says
+aNew = oQ._AttachPoint([ 100, 400 ], [ 900, 410 ], FANW, FANH, 0, 10, "TB", 1)
+? "   the rank-facing rule leaves the bottom at : " + aNew[1] + "," + aNew[2]
+chk("...while the rank-facing rule leaves the bottom regardless",
+    aNew[2] > 400)
+
+# A RANK GAP MUST ANSWER TO THE SPAN IT IS CROSSED BY. An edge running
+# far sideways over a shallow gap is nearly horizontal, and a nearly
+# horizontal edge grazes every node in its target's rank.
+oFanD = new stzDiagram("fan23")
+oFanD.AddNodeXTT("b", "Broker", [ :type = "box", :color = "Info.Solid" ])
+for i = 1 to 14
+	oFanD.AddNodeXTT("f" + i, "W" + i, [ :type = "box", :color = "Info.Solid" ])
+	oFanD.AddEdge("b", "f" + i)
+next
+oFanC = oFanD.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+nSlope = oFanC.Height() / oFanC.Width()
+? "   a 14-way fan renders " + oFanC.Width() + "x" + oFanC.Height() +
+  "  (height/width " + nSlope + ")"
+chk("the gap grew so the fan descends rather than running flat",
+    oFanC.Height() > 200)
+
+# ...and a diagram whose edges are all SHORT must not pay for it
+oNarrow = new stzDiagram("narrow")
+oNarrow.AddNodeXTT("a", "A", [ :type = "box", :color = "Info.Solid" ])
+oNarrow.AddNodeXTT("b", "B", [ :type = "box", :color = "Info.Solid" ])
+oNarrow.AddEdge("a", "b")
+nNarrowH = oNarrow.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ]).Height()
+? "   a two-node diagram stays " + nNarrowH + " tall"
+chk("a short-edged diagram keeps the separation it asked for",
+    nNarrowH < 200)
 
 #---------------------------------------------------------------------------
 ? ""
