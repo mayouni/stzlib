@@ -2302,7 +2302,15 @@ class stzDiagram from stzGraph
 					_epSort_ + [ _epC_, _epGrp_[_epJ_] ]
 				next
 				_epSort_ = sort(_epSort_, 1)
-				_epSpread_ = min([ _epBox_ - 16, 14 * (_epGn_ - 1) ])
+				# PROPORTIONAL TO THE BORDER, not a flat 14px per edge.
+				# Two arrows arriving at one node were placed 14px apart
+				# -- narrower than the arrowheads themselves, so they
+				# overlapped and read as one thick arrow. The border a
+				# node offers is what there is to share; 26px per edge
+				# uses it and still caps at the border's width, so a
+				# heavily-fanned node degrades to evenly packed rather
+				# than to overlapping.
+				_epSpread_ = min([ _epBox_ - 16, 26 * (_epGn_ - 1) ])
 				if _epSpread_ < 0  _epSpread_ = 0  ok
 				for _epJ_ = 1 to _epGn_
 					_epOff_ = 0 - (_epSpread_ / 2) +
@@ -2925,6 +2933,24 @@ class stzDiagram from stzGraph
 					_apx_ += _avx_ / _avl_ * _ain_
 					_apy_ += _avy_ / _avl_ * _ain_
 				ok
+			ok
+		ok
+		# THE SOURCE END STARTS INSIDE THE NODE. Measured, the attachment
+		# is exactly on the border -- and a long edge leaves it and sweeps
+		# away immediately, so at a rounded corner the stroke and the
+		# outline part company within a pixel or two and read as detached.
+		# Nodes are painted AFTER edges, so an overlap costs nothing and
+		# no rounding, antialiasing or curvature can open a gap the node
+		# does not cover. The TARGET end is never overlapped: the arrow
+		# tip belongs on the border, and burying it would hide the head.
+		if bOut
+			_avx2_ = aCentre[1] - _apx_
+			_avy2_ = aCentre[2] - _apy_
+			_avl2_ = sqrt(_avx2_ * _avx2_ + _avy2_ * _avy2_)
+			if _avl2_ > 0.001
+				_aov_ = min([ nBoxH * 0.25, nBoxW * 0.25, _avl2_ * 0.5 ])
+				_apx_ += _avx2_ / _avl2_ * _aov_
+				_apy_ += _avy2_ / _avl2_ * _aov_
 			ok
 		ok
 		return [ _apx_, _apy_ ]
