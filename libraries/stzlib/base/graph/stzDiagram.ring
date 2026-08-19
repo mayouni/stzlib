@@ -301,6 +301,7 @@ class stzDiagram from stzGraph
 	@cTheme = $cDefaultColorTheme
 	@cLayout = $cDefaultLayout
 	@aClusters = []
+	@nEdgeCornerRad = 10
 	@aoAnnotations = []
 	@aoTemplates = []
 
@@ -1620,6 +1621,39 @@ class stzDiagram from stzGraph
 			else
 				_inX_ = max([ 0, _nN_ - 1 ]) * _slot_
 			ok
+			# A RANK GAP MUST ANSWER TO THE SPAN IT IS CROSSED BY.
+			#
+			# An edge running far sideways over a shallow gap is nearly
+			# HORIZONTAL, and a nearly horizontal edge in a layered
+			# drawing travels along its target's rank -- grazing, and
+			# often crossing, every node between. A broker fanning to
+			# fourteen workers put fourteen near-flat lines across the
+			# row: the attachment sides were right, the curve was right,
+			# and the picture was still unreadable because 130px of gap
+			# cannot absorb 4000px of fan.
+			#
+			# So the widest edge in the picture sets a floor under the
+			# pitch. A tenth of the longest horizontal run is enough to
+			# give every edge a visible descent; diagrams whose edges are
+			# all short never reach the floor and keep exactly the
+			# separation their author asked for.
+			_maxdx_ = 0
+			for _e2_ in This.Edges()
+				_pa_ = 0  _pb_ = 0  _bfa_ = 0  _bfb_ = 0
+				for _p2_ in _oGC_.Positions()
+					if StzLower("" + _p2_[1]) = StzLower("" + _e2_[:from])
+						_pa_ = _p2_[2]  _bfa_ = 1
+					but StzLower("" + _p2_[1]) = StzLower("" + _e2_[:to])
+						_pb_ = _p2_[2]  _bfb_ = 1
+					ok
+				next
+				if _bfa_ and _bfb_
+					_dxe_ = fabs(_pa_ - _pb_) / 1000 * _inX_
+					if _dxe_ > _maxdx_  _maxdx_ = _dxe_  ok
+				ok
+			next
+			if _maxdx_ * 0.20 > _pitch_  _pitch_ = _maxdx_ * 0.20  ok
+
 			_inY_ = (_oGC_.LayerCount() - 1) * _pitch_
 			if _bSwap_
 				_nW_ = ceil(_inY_ + 2 * _mx_)
@@ -1714,7 +1748,9 @@ class stzDiagram from stzGraph
 					if len(_cb_) != 4  loop  ok
 					# the label sits 24px above the box, matching the draw
 					if _cb_[1] < _ex0_  _ex0_ = _cb_[1]  ok
-					if _cb_[2] - 24 < _ey0_  _ey0_ = _cb_[2] - 24  ok
+					if _cb_[2] - _nFsz_ * 1.9 < _ey0_
+						_ey0_ = _cb_[2] - _nFsz_ * 1.9
+					ok
 					if _cb_[1] + _cb_[3] > _ex1_  _ex1_ = _cb_[1] + _cb_[3]  ok
 					if _cb_[2] + _cb_[4] > _ey1_  _ey1_ = _cb_[2] + _cb_[4]  ok
 				next
@@ -1831,6 +1867,10 @@ class stzDiagram from stzGraph
 				"no such limit and stays sharp at every zoom.")
 		ok
 
+		# the edge geometry aims under the outline that is drawn, so it
+		# needs the radius this render settled on -- after any fit scaling
+		@nEdgeCornerRad = _nRad_
+
 		_oC_ = new stzCanvas(_nW_, _nH_)
 		_oC_.SetBackground(_cBg_)
 
@@ -1848,11 +1888,26 @@ class stzDiagram from stzGraph
 			_aBox_ = This._ClusterBox(_cl_, _aXY_, _nBoxW_, _nBoxH_)
 			if len(_aBox_) != 4  loop  ok
 			_oC_.Flush()
+			# THE LABEL STRIP IS MEASURED FROM THE FONT, not a constant.
+			# It was a hardcoded 24px while the font scales with :Scale,
+			# so at :Scale = 2 a 26px label had to live in a 24px strip
+			# and the frame's own top rule was drawn through the middle
+			# of the word. A number that must stay in proportion to
+			# another number cannot be a literal beside it.
+			_clstrip_ = _nFsz_ * 1.9
 			_oC_.FillQ("#FFF8FE").StrokeQ(_cl_[:color], 2).
-				AddRect(_aBox_[1], _aBox_[2] - 24, _aBox_[3], _aBox_[4] + 24)
+				AddRect(_aBox_[1], _aBox_[2] - _clstrip_, _aBox_[3],
+					_aBox_[4] + _clstrip_)
 			if isObject(_oFont_)
+				# INSET FROM THE CORNER. At +10/-8 the label sat in the
+				# angle of the frame with its ascenders touching the top
+				# rule and its left edge on the side rule -- legible, and
+				# visibly crammed. The inset scales with the font so it
+				# stays proportional at any :Scale.
 				_oC_.Flush()
-				_oC_.AddTextQ("" + _cl_[:label], _aBox_[1] + 10, _aBox_[2] - 8).
+				_oC_.AddTextQ("" + _cl_[:label],
+					_aBox_[1] + _nFsz_ * 0.8,
+					_aBox_[2] - _nFsz_ * 0.6).
 					SetFontQ(_oFont_, _nFsz_ - 1).Color("#555555")
 			ok
 		next
@@ -1983,7 +2038,8 @@ class stzDiagram from stzGraph
 						# cheaper of the two collisions and the one dot's
 						# own label boxes accept too.
 						_lat_ = This._EdgePathAt(_a_, _b_, _nBoxW_,
-							_nBoxH_, _cRank_, This._EdgeLabelBias())
+							_nBoxH_, _cRank_, This._EdgeLabelBias(),
+							_aPort_[_ei_][1], _aPort_[_ei_][2])
 						_lax_ = _lat_[1]
 						_lay_ = _lat_[2]
 					ok
@@ -2365,6 +2421,11 @@ class stzDiagram from stzGraph
 	# between two targets, so the room needed between them is the label's
 	# width DIVIDED by this. Get the two out of step and the layout pays
 	# for space the label is not standing in.
+	# The corner radius the nodes are drawn with, so the edge geometry can
+	# aim under the outline rather than at the rectangle behind it.
+	def _EdgeCorner()
+		return @nEdgeCornerRad
+
 	def _EdgeLabelBias()
 		# THE MIDPOINT, because the arrowhead lives at the end. Biasing
 		# toward the target was meant to let labels inherit a fan's
@@ -2480,14 +2541,21 @@ class stzDiagram from stzGraph
 				_oend_ = [ aAt[1] + _od_, _oy_ ]
 				_oprev_ = [ aAt[1] + _od_, _oy_ - _R_ ]
 			else
+				# UPWARD, not downward. A loop that leaves high and
+				# returns low points its arrow DOWN -- the same direction
+				# as every ordinary edge in a top-down picture -- so a
+				# self-transition read as flow continuing rather than
+				# returning. Leaving low and coming back high makes the
+				# arrow oppose the rank direction, which is what says
+				# "back to where you were" at a glance.
 				_od_ = nBoxH * 0.22
 				_ox_ = aAt[1] + nBoxW / 2
-				_pts_ = [ _ox_, aAt[2] - _od_,
-				          _ox_ + _R_, aAt[2] - _od_,
+				_pts_ = [ _ox_, aAt[2] + _od_,
 				          _ox_ + _R_, aAt[2] + _od_,
-				          _ox_, aAt[2] + _od_ ]
-				_oend_ = [ _ox_, aAt[2] + _od_ ]
-				_oprev_ = [ _ox_ + _R_, aAt[2] + _od_ ]
+				          _ox_ + _R_, aAt[2] - _od_,
+				          _ox_, aAt[2] - _od_ ]
+				_oend_ = [ _ox_, aAt[2] - _od_ ]
+				_oprev_ = [ _ox_ + _R_, aAt[2] - _od_ ]
 			ok
 			oC.Flush()
 			oC.AddPolylineQ(_pts_).Stroke(cColor, nWidth)
@@ -2503,12 +2571,13 @@ class stzDiagram from stzGraph
 			_c2_ = [ aAt[1] + _d_ + _R_ * 0.4, aAt[2] - nBoxH / 2 - _R_ ]
 			_p3_ = [ aAt[1] + _d_, aAt[2] - nBoxH / 2 ]
 		else
-			# leaves and re-enters the RIGHT edge
+			# leaves LOW and re-enters HIGH on the right edge, so the
+			# arrowhead opposes the rank direction and reads as a return
 			_d_ = nBoxH * 0.22
-			_p0_ = [ aAt[1] + nBoxW / 2, aAt[2] - _d_ ]
-			_c1_ = [ aAt[1] + nBoxW / 2 + _R_, aAt[2] - _d_ - _R_ * 0.4 ]
-			_c2_ = [ aAt[1] + nBoxW / 2 + _R_, aAt[2] + _d_ + _R_ * 0.4 ]
-			_p3_ = [ aAt[1] + nBoxW / 2, aAt[2] + _d_ ]
+			_p0_ = [ aAt[1] + nBoxW / 2, aAt[2] + _d_ ]
+			_c1_ = [ aAt[1] + nBoxW / 2 + _R_, aAt[2] + _d_ + _R_ * 0.4 ]
+			_c2_ = [ aAt[1] + nBoxW / 2 + _R_, aAt[2] - _d_ - _R_ * 0.4 ]
+			_p3_ = [ aAt[1] + nBoxW / 2, aAt[2] - _d_ ]
 		ok
 
 		_pts_ = []
@@ -2762,17 +2831,104 @@ class stzDiagram from stzGraph
 
 	# The whole geometry for one single-hop edge, from CENTRES: clip both
 	# ends toward the other, path, cut. [ aFlat, aBase, aTip ].
-	def _EdgeGeometry(aFrom, aTo, nBoxW, nBoxH, cRank, nWidth)
-		_ep_ = This._ClipExact(aFrom, aTo, nBoxW, nBoxH)
-		_eq_ = This._ClipExact(aTo, aFrom, nBoxW, nBoxH)
+	# THE ATTACHMENT POINT: aimed at the other end, slid ALONG the border by
+	# this edge's port, and pulled under the rounded outline at a corner.
+	#
+	# TWO FAULTS FIXED IN ONE PLACE, because they are both about where a
+	# line meets a box.
+	#
+	# PORTS CAME BACK. Adopting dot's grammar, I dropped port spreading on
+	# the reasoning that "the angles separate a fan by themselves". That
+	# holds only when the targets are angularly apart. A broker fanning to
+	# fourteen workers strung out sideways aims almost the same direction
+	# at all of them, so every edge left the same point and ran parallel --
+	# fourteen lines on top of each other, and any labels on them in the
+	# same place. The aim still decides the DIRECTION; the port decides
+	# where along the border it starts, which is what separates them.
+	#
+	# AND THE BOX IS ROUND. Clipping to a rectangle puts the endpoint
+	# outside the drawn shape wherever the corner is rounded, so the line
+	# stopped short of the node with a visible gap -- always at a corner,
+	# never on a flat edge, which is exactly the pattern the Principal
+	# circled. The point is pulled toward the centre by how far into the
+	# corner region it fell, so it lands under the outline that is
+	# actually drawn.
+	def _AttachPoint(aCentre, aOther, nBoxW, nBoxH, nPort, nRad, cRank, bOut)
+		_ahw_ = nBoxW / 2
+		_ahh_ = nBoxH / 2
+
+		# THE SIDE IS THE RANK'S, NOT THE AIM'S -- and getting that wrong
+		# is what put edges THROUGH other nodes. Clipping in the target's
+		# direction attaches an edge to whichever border faces it, so an
+		# edge to a distant sibling left the SIDE of its parent and
+		# arrived at the SIDE of its child -- travelling along the child
+		# row and crossing every node in between. A broker fanning to
+		# fourteen workers drew fourteen lines through the workers.
+		#
+		# In a layered drawing every edge crosses the same gap: out of the
+		# rank-facing border, into the one opposite. That is what keeps a
+		# fan above its row instead of inside it. The tangent grammar is
+		# unchanged -- it is the ATTACHMENT that is decided by rank, and
+		# the aim still shapes the curve between the two points.
+		_asx_ = 0
+		_asy_ = 0
+		if cRank = "LR"
+			if bOut  _asx_ = _ahw_  else  _asx_ = 0 - _ahw_  ok
+		but cRank = "RL"
+			if bOut  _asx_ = 0 - _ahw_  else  _asx_ = _ahw_  ok
+		but cRank = "BT"
+			if bOut  _asy_ = 0 - _ahh_  else  _asy_ = _ahh_  ok
+		else
+			if bOut  _asy_ = _ahh_  else  _asy_ = 0 - _ahh_  ok
+		ok
+
+		# the port spreads the attachment ALONG that border, which is what
+		# separates the members of a fan from each other
+		_apx_ = aCentre[1] + _asx_
+		_apy_ = aCentre[2] + _asy_
+		if _asx_ = 0
+			_apx_ += nPort
+			_alim_ = _ahw_ - 2
+			if _apx_ - aCentre[1] > _alim_      _apx_ = aCentre[1] + _alim_  ok
+			if _apx_ - aCentre[1] < 0 - _alim_  _apx_ = aCentre[1] - _alim_  ok
+		else
+			_apy_ += nPort
+			_alim_ = _ahh_ - 2
+			if _apy_ - aCentre[2] > _alim_      _apy_ = aCentre[2] + _alim_  ok
+			if _apy_ - aCentre[2] < 0 - _alim_  _apy_ = aCentre[2] - _alim_  ok
+		ok
+
+		# AND THE BOX IS ROUND. A point on the rectangle lies outside the
+		# drawn outline wherever the corner is rounded, so the line
+		# stopped short with a visible gap -- always at a corner, never on
+		# a flat edge, which is exactly the pattern the Principal circled.
+		if nRad > 0
+			_aox_ = fabs(_apx_ - aCentre[1]) - (_ahw_ - nRad)
+			_aoy_ = fabs(_apy_ - aCentre[2]) - (_ahh_ - nRad)
+			if _aox_ > 0 and _aoy_ > 0
+				_avx_ = aCentre[1] - _apx_
+				_avy_ = aCentre[2] - _apy_
+				_avl_ = sqrt(_avx_ * _avx_ + _avy_ * _avy_)
+				if _avl_ > 0.001
+					_ain_ = min([ nRad * 0.9, _avl_ * 0.5 ])
+					_apx_ += _avx_ / _avl_ * _ain_
+					_apy_ += _avy_ / _avl_ * _ain_
+				ok
+			ok
+		ok
+		return [ _apx_, _apy_ ]
+
+	def _EdgeGeometry(aFrom, aTo, nBoxW, nBoxH, cRank, nWidth, nPortA, nPortB, nRad)
+		_ep_ = This._AttachPoint(aFrom, aTo, nBoxW, nBoxH, nPortA, nRad, cRank, 1)
+		_eq_ = This._AttachPoint(aTo, aFrom, nBoxW, nBoxH, nPortB, nRad, cRank, 0)
 		_efl_ = This._EdgePathFlat(_ep_, _eq_, cRank)
 		return This._ArrowCut(_efl_, 9 + nWidth * 2)
 
 	# The point at fraction t along that same path -- the label's anchor,
 	# so a label sits ON the curve it names.
-	def _EdgePathAt(aFrom, aTo, nBoxW, nBoxH, cRank, nT)
-		_ep_ = This._ClipExact(aFrom, aTo, nBoxW, nBoxH)
-		_eq_ = This._ClipExact(aTo, aFrom, nBoxW, nBoxH)
+	def _EdgePathAt(aFrom, aTo, nBoxW, nBoxH, cRank, nT, nPortA, nPortB)
+		_ep_ = This._AttachPoint(aFrom, aTo, nBoxW, nBoxH, nPortA, This._EdgeCorner(), cRank, 1)
+		_eq_ = This._AttachPoint(aTo, aFrom, nBoxW, nBoxH, nPortB, This._EdgeCorner(), cRank, 0)
 		_efl_ = This._EdgePathFlat(_ep_, _eq_, cRank)
 		_en_ = len(_efl_) / 2
 		_ek_ = floor(nT * (_en_ - 1)) + 1
@@ -2786,10 +2942,10 @@ class stzDiagram from stzGraph
 				cSpline, cRank, nLane)
 			return
 		ok
-		_dg_ = This._EdgeGeometry(aFrom, aTo, nBoxW, nBoxH, cRank, nWidth)
+		_dg_ = This._EdgeGeometry(aFrom, aTo, nBoxW, nBoxH, cRank, nWidth, nPortA, nPortB, This._EdgeCorner())
 		if cSpline = "line" or cSpline = "polyline"
-			_dp_ = This._ClipExact(aFrom, aTo, nBoxW, nBoxH)
-			_dq_ = This._ClipExact(aTo, aFrom, nBoxW, nBoxH)
+			_dp_ = This._AttachPoint(aFrom, aTo, nBoxW, nBoxH, nPortA, This._EdgeCorner(), cRank, 1)
+			_dq_ = This._AttachPoint(aTo, aFrom, nBoxW, nBoxH, nPortB, This._EdgeCorner(), cRank, 0)
 			_dg_ = This._ArrowCut([ _dp_[1], _dp_[2], _dq_[1], _dq_[2] ],
 				9 + nWidth * 2)
 		ok
