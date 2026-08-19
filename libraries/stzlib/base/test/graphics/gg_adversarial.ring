@@ -1264,6 +1264,18 @@ aIn = oQ._AttachPoint([ 100, 400 ], [ 500, 100 ], FANW, FANH, 0, 10, "TB", 0)
 chk("an edge arrives at the TOP of its target, not its side",
     aIn[2] < 400)
 
+# THE ARRIVAL BORDER FACES THE APPROACH. A shallow approach pierces the
+# top at a grazing angle -- the head almost parallel to the surface --
+# so an aim shallower than the box's own aspect (with a 1.4 side bias)
+# lands on the SIDE, near-perpendicular; a steep one keeps the top.
+aSh = oQ._AttachPoint([ 100, 400 ], [ 900, 430 ], FANW, FANH, 0, 10, "TB", 0)
+? "   a shallow approach (slope 0.04) lands at : " + aSh[1] + "," + aSh[2]
+chk("a shallow approach arrives on the SIDE border",
+    fabs(aSh[1] - 100) > FANW / 2 - 2)
+aSt = oQ._AttachPoint([ 100, 400 ], [ 160, 100 ], FANW, FANH, 0, 10, "TB", 0)
+? "   a steep approach (slope 5) lands at : " + aSt[1] + "," + aSt[2]
+chk("...and a steep one arrives on the TOP", aSt[2] < 400 - FANH / 2 + 2)
+
 # THE NEGATIVE SIBLING: aim-directed clipping, the rule this replaced,
 # puts that same arrival on the target's SIDE -- which is how an edge
 # ends up travelling along the row it should be descending into.
