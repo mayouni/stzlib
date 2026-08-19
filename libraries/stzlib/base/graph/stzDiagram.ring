@@ -2670,6 +2670,32 @@ class stzDiagram from stzGraph
 		_pts_[1] = _p_
 		_pts_[ len(_pts_) ] = _q_
 
+		# AND IT MUST LEAVE ALONG THE RANK AXIS, not straight at its first
+		# bend. Attaching on the bottom border is necessary and not
+		# sufficient: the next point is the first bend, which can sit far
+		# to the side, so the opening SEGMENT still travelled sideways out
+		# of the node. A short stub along the rank axis gives the routed
+		# path the same soft departure the single-hop path gets from its
+		# control point -- and the same square arrival.
+		#
+		# Found by the assertion written for exactly this, one commit
+		# after the attachment was fixed and declared done.
+		_stub_ = min([ nBoxH * 0.5, 18 ])
+		_sdy_ = _stub_
+		_sdx_ = 0
+		if cRank = "BT"  _sdy_ = 0 - _stub_  ok
+		if cRank = "LR"  _sdx_ = _stub_   _sdy_ = 0  ok
+		if cRank = "RL"  _sdx_ = 0 - _stub_  _sdy_ = 0  ok
+		_pts2_ = []
+		_pts2_ + [ _p_[1], _p_[2] ]
+		_pts2_ + [ _p_[1] + _sdx_, _p_[2] + _sdy_ ]
+		for _k2_ = 2 to len(_pts_) - 1
+			_pts2_ + [ _pts_[_k2_][1], _pts_[_k2_][2] ]
+		next
+		_pts2_ + [ _q_[1] - _sdx_, _q_[2] - _sdy_ ]
+		_pts2_ + [ _q_[1], _q_[2] ]
+		_pts_ = _pts2_
+
 		_flat_ = []
 		if cSpline = "ortho" or cSpline = "line" or cSpline = "polyline"
 			for _pt_ in _pts_  _flat_ + _pt_[1]  _flat_ + _pt_[2]  next
