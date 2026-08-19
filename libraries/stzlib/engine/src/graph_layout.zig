@@ -470,6 +470,20 @@ pub fn coords(
         }
     }
 
+    // ALIGNMENT SNAP, last of all, because it is the polish the Principal
+    // kept marking and every earlier pass kept undoing. Relaxation places a
+    // node NEAR the mean of its neighbours; cohesion and territories then
+    // shift it a little; the result is a cell ALMOST under its counterpart
+    // -- and an almost-vertical edge reads as a mistake where a clearly
+    // slanted one reads as a decision. dot never ships that case: its
+    // network simplex makes some edge of every node exactly straight, which
+    // is why its pictures have vertical spines. This is the cheap form of
+    // the same idea (Brandes-Koepf vertical alignment): if a node can sit
+    // EXACTLY on a neighbour's cross-position without violating its rank's
+    // separations, put it there. All or nothing -- a partial move would
+    // just manufacture a new near-miss, the very thing being killed.
+    snapAlign(in_off, in_src, out_off, out_dst, order, starts, sep, extra, x);
+
     // LAST, and only on a forest. The relaxation produces a good-looking
     // arrangement that can still put a node inside another branch's span;
     // this makes territories disjoint by construction. It runs after the
@@ -505,6 +519,72 @@ pub fn coords(
 /// parents a node belongs to two territories and "its subtree" names
 /// nothing. Multi-parent graphs keep the relaxation, which is why this
 /// returns a flag instead of asserting.
+/// See the call site for why. Two passes, fixed order, deterministic: a
+/// snap freed by an earlier snap in the same pass is caught by the second.
+fn snapAlign(
+    in_off: []const u32,
+    in_src: []const u32,
+    out_off: []const u32,
+    out_dst: []const u32,
+    order: []const u32,
+    starts: []const u32,
+    sep: f64,
+    extra: []const f64,
+    x: []f64,
+) void {
+    const nl = starts.len - 1;
+    const tol = sep * 0.75;
+    var pass: u32 = 0;
+    while (pass < 2) : (pass += 1) {
+        var L: usize = 0;
+        while (L < nl) : (L += 1) {
+            const s = starts[L];
+            const e = starts[L + 1];
+            var k = s;
+            while (k < e) : (k += 1) {
+                const v = order[k];
+                // the nearest cross-position among parents and children,
+                // within tolerance; parents scanned first so a tie goes to
+                // the parent, deterministically
+                var best = tol;
+                var target: f64 = 0;
+                var found = false;
+                var j = in_off[v];
+                while (j < in_off[v + 1]) : (j += 1) {
+                    const c = x[in_src[j]];
+                    const d = @abs(c - x[v]);
+                    if (d > 0.0001 and d < best) {
+                        best = d;
+                        target = c;
+                        found = true;
+                    }
+                }
+                j = out_off[v];
+                while (j < out_off[v + 1]) : (j += 1) {
+                    const c = x[out_dst[j]];
+                    const d = @abs(c - x[v]);
+                    if (d > 0.0001 and d < best) {
+                        best = d;
+                        target = c;
+                        found = true;
+                    }
+                }
+                if (!found) continue;
+                // reachable EXACTLY, or not at all
+                if (k > s) {
+                    const p = order[k - 1];
+                    if (target < x[p] + sep + demand(extra, p) + demand(extra, v)) continue;
+                }
+                if (k + 1 < e) {
+                    const nx = order[k + 1];
+                    if (target > x[nx] - sep - demand(extra, nx) - demand(extra, v)) continue;
+                }
+                x[v] = target;
+            }
+        }
+    }
+}
+
 fn isForest(in_off: []const u32, n: usize) bool {
     for (0..n) |v| {
         if (in_off[v + 1] - in_off[v] > 1) return false;

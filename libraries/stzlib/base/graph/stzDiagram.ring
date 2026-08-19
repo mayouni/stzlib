@@ -2716,6 +2716,14 @@ class stzDiagram from stzGraph
 		# neighbour of the first is also directly below it, and no
 		# tangent formula can start the curve anywhere but along the
 		# rank axis.
+		# DEPARTURE stubs only. The arrival had them too, and forcing a
+		# vertical landing on an edge whose route brings it in from the
+		# side bent the last centimetre into a hook: the curve overshot
+		# to a point above the port and doubled back down into it. The
+		# Principal drew the correct line by hand -- a single sweep that
+		# arrives ALONG its approach -- and that is what dot's long edges
+		# do too: the arrowhead takes the angle of the curve, and only
+		# the DEPARTURE is guaranteed to leave along the rank axis.
 		_pts2_ = []
 		_pts2_ + [ _p_[1], _p_[2] ]
 		_pts2_ + [ _p_[1] + _sdx_ * 0.5, _p_[2] + _sdy_ * 0.5 ]
@@ -2723,8 +2731,6 @@ class stzDiagram from stzGraph
 		for _k2_ = 2 to len(_pts_) - 1
 			_pts2_ + [ _pts_[_k2_][1], _pts_[_k2_][2] ]
 		next
-		_pts2_ + [ _q_[1] - _sdx_, _q_[2] - _sdy_ ]
-		_pts2_ + [ _q_[1] - _sdx_ * 0.5, _q_[2] - _sdy_ * 0.5 ]
 		_pts2_ + [ _q_[1], _q_[2] ]
 		_pts_ = _pts2_
 
