@@ -1312,6 +1312,44 @@ chk("a short-edged diagram keeps the separation it asked for",
 
 #---------------------------------------------------------------------------
 ? ""
+? "-- 24. The ROUTED path obeys the same rules as every edge ---"
+#
+# THIS IS THE ASSERTION WHOSE ABSENCE SHIPPED A BUG. Two paths draw edges
+# here: single-hop, and _DrawRoutedEdge for anything spanning more than
+# one rank. Three commits fixed attachment, ports and the corner gap on
+# the first and left the second clipping toward its bend point with no
+# ports -- so a multi-rank edge still left the SIDE of its node and two
+# routed arrivals still landed on one spot. It was verified on a picture
+# whose edges all span ONE rank, so nothing exercised the other route.
+#
+# The property is the same for both paths, so it is asserted for both:
+# in a top-down picture an edge leaves DOWNWARD. A side attachment
+# departs sideways, and that is the difference this measures.
+#---------------------------------------------------------------------------
+
+oRt = new stzDiagram("routed")
+for i = 1 to 5
+	oRt.AddNodeXTT("r" + i, "R" + i, [ :type = "box", :color = "Info.Solid" ])
+next
+for i = 1 to 4  oRt.AddEdge("r" + i, "r" + (i + 1))  next
+oRt.AddEdge("r1", "r5")          # spans four ranks: the ROUTED path
+oRt.AddEdge("r1", "r4")          # spans three: routed too
+
+nSide = _SidewaysDepartures(oRt.ToSVGXT([ :NodeWidth = 110, :NodeHeight = 40 ]),
+	"rgb(138,138,138)")
+? "   edges departing sideways instead of down : " + nSide
+chkeq("every edge leaves downward, routed or not", nSide, 0)
+
+# THE NEGATIVE SIBLING: the measurement must be able to SEE a sideways
+# departure, or zero means the scanner found nothing to look at.
+nSideBad = _SidewaysDepartures(
+	'<polyline points="10,10 90,12 120,80" stroke="rgb(138,138,138)"/>',
+	"rgb(138,138,138)")
+? "   a deliberately sideways polyline scores : " + nSideBad
+chk("the departure check DISCRIMINATES", nSideBad = 1)
+
+#---------------------------------------------------------------------------
+? ""
 ? "=============================================================="
 ? " " + nOk + " ok, " + nBad + " failed"
 ? "=============================================================="
@@ -1981,3 +2019,31 @@ func _DiffFromUpscale oSmall, xBig
 	end
 	if _dt_ = 0  return 0  ok
 	return floor(_dc_ * 100 / _dt_)
+
+# Edge polylines whose FIRST step travels further sideways than downward.
+# In a top-down picture that is a side attachment, which is what an
+# aim-directed clip produces and what a rank-facing one cannot.
+func _SidewaysDepartures cSvg, cStroke
+	_sd_ = 0
+	_slen2_ = StzLen(cSvg)
+	for _sp2_ in StzFindAll('<polyline points="', cSvg)
+		_st2_ = StzSubStr(cSvg, _sp2_, min([ 6000, _slen2_ - _sp2_ + 1 ]))
+		_se2_ = StzFindFirst(">", _st2_)
+		if _se2_ = 0  loop  ok
+		if StzFindFirst(cStroke, StzSubStr(_st2_, 1, _se2_)) = 0  loop  ok
+		_sq2_ = StzFindFirst('"', StzSubStr(_st2_, 19, StzLen(_st2_) - 18))
+		if _sq2_ = 0  loop  ok
+		_spt2_ = StzSplit(StzSubStr(_st2_, 19, _sq2_ - 1), " ")
+		if len(_spt2_) < 2  loop  ok
+		_sa2_ = StzSplit(StzTrim(_spt2_[1]), ",")
+		_sb2_ = StzSplit(StzTrim(_spt2_[2]), ",")
+		if len(_sa2_) != 2 or len(_sb2_) != 2  loop  ok
+		try
+			_sdx2_ = fabs((0 + _sb2_[1]) - (0 + _sa2_[1]))
+			_sdy2_ = fabs((0 + _sb2_[2]) - (0 + _sa2_[2]))
+		catch
+			loop
+		done
+		if _sdx2_ > _sdy2_  _sd_++  ok
+	next
+	return _sd_
