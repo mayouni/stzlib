@@ -1939,7 +1939,7 @@ class stzDiagram from stzGraph
 		#      not overlap.
 		_aE_ = This.Edges()
 		_nEc_ = len(_aE_)
-		_aPort_ = This._EdgePorts(_aE_, _aXY_, _nBoxW_, _nBoxH_, _cRank_)
+		_aPort_ = This._EdgePorts(_aE_, _aXY_, _nBoxW_, _nBoxH_, _cRank_, _aRoute_)
 		for _ei_ = 1 to _nEc_
 			_a_ = This._XYOf(_aXY_, "" + _aE_[_ei_][:from])
 			_b_ = This._XYOf(_aXY_, "" + _aE_[_ei_][:to])
@@ -2260,7 +2260,7 @@ class stzDiagram from stzGraph
 	# Ports are ORDERED BY DESTINATION: a parent's leftmost edge leaves from
 	# its leftmost port. Assigned by rank order instead, two edges swap
 	# within the box's own width and cross a pixel after leaving it.
-	def _EdgePorts(paEdges, paXY, nBoxW, nBoxH, cRank)
+	def _EdgePorts(paEdges, paXY, nBoxW, nBoxH, cRank, paRoutes)
 		_epN_ = len(paEdges)
 		_epRes_ = []
 		for _epI_ = 1 to _epN_  _epRes_ + [ 0, 0, 0.5 ]  next
@@ -2294,11 +2294,33 @@ class stzDiagram from stzGraph
 				_epSort_ = []
 				for _epJ_ = 1 to _epGn_
 					_epE_ = paEdges[_epGrp_[_epJ_]]
-					_epOth_ = This._XYOf(paXY,
-						"" + _epE_[ iif(_epSide_ = 1, :to, :from) ])
+					# ORDERED BY WHERE THE EDGE ACTUALLY COMES FROM, which
+					# for a ROUTED edge is its nearest bend and not its
+					# far-off source node. Sorting arrivals by the source's
+					# position put the edge approaching from the left onto
+					# the right-hand port whenever its route had carried it
+					# around -- so the two crossed in the last few pixels
+					# before the node, which is the one place a reader is
+					# certain of what they are looking at.
+					_epRt_ = This._RouteOf(paRoutes, "" + _epE_[:from],
+						"" + _epE_[:to])
 					_epC_ = 0
-					if len(_epOth_) = 2
-						_epC_ = _epOth_[ iif(_bV_, 2, 1) ]
+					_epGot_ = 0
+					if len(_epRt_) > 0
+						if _epSide_ = 1
+							_epB_ = _epRt_[1]
+						else
+							_epB_ = _epRt_[ len(_epRt_) ]
+						ok
+						_epC_ = _epB_[ iif(_bV_, 2, 1) ]
+						_epGot_ = 1
+					ok
+					if _epGot_ = 0
+						_epOth_ = This._XYOf(paXY,
+							"" + _epE_[ iif(_epSide_ = 1, :to, :from) ])
+						if len(_epOth_) = 2
+							_epC_ = _epOth_[ iif(_bV_, 2, 1) ]
+						ok
 					ok
 					_epSort_ + [ _epC_, _epGrp_[_epJ_] ]
 				next
