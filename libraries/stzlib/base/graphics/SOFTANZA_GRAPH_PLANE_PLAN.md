@@ -609,3 +609,99 @@ assertion it served — §6 read an `<ellipse>` tag this renderer never
 emits, §7 measured runs of background that a shallow-angle edge chops
 into fragments, §8 scanned by row and called a deliberately dirty picture
 clean. A check that measures the wrong thing agrees with every input.
+
+## GG7 / GG8 REFLECTED — the live diagram, and the diagram larger than its medium
+*(2026-08-19, reflection before any code; the Principal named both features)*
+
+The two features look unrelated and are the same architectural statement:
+**the retained engine scene is the single source, and every face — editor,
+pager, screen viewer — is a viewport over it with different input.** That
+extends this plane's thesis one step: the picture has been *a question
+answered about the graph*; now the question can also be *"which cell is at
+this point"* and *"which part of you fits this page"*.
+
+### GG7 — stzLiveDiagram: the layout becomes a suggestion, the picture becomes an input device
+
+The batch pipeline is `model → layout → paint`, and every stage OWNS its
+successor. A live editor inverts the ownership: the user owns positions,
+the layout only advises, and the picture must answer questions.
+
+**What already exists to build on — measured, not hoped:**
+- `stzWindow` (GR5): input events, and a swapchain still-frame at ~6.7KB
+  of bus traffic — redraw is already cheap enough for dragging.
+- The engine scene is RETAINED: every command lives engine-side. Picking
+  is therefore a *read over data the engine already holds*.
+- The layout is DETERMINISTIC (bit-identical), so a "re-layout" button is
+  safe: same graph, same picture, no surprise shuffle.
+- Every mutation the editor needs already exists with its refusals
+  (`AddNodeXTT`, `AddEdge` refusing parallels, cluster overlap refusal…).
+
+**Design decisions:**
+1. **The model stays stzDiagram.** No parallel "editable graph" class.
+   `stzLiveDiagram` = the same model + a *session* (window, pins, undo
+   log, interaction state). Editing writes through the EXISTING mutation
+   API, so every guard in this plane governs the editor for free, and
+   model refusals surface as editor feedback rather than a second rulebook.
+2. **Pins over positions.** A user-moved cell is *pinned*; layout and
+   snapAlign never override a pin (react-flow's controlled/uncontrolled
+   distinction; yFiles' "layout from sketch"). Unpinned cells keep
+   flowing around pinned ones — the relaxation already accepts fixed
+   points naturally.
+3. **Hit-testing is ENGINE work** — `scene_pick(x, y)` over the retained
+   command list in Zig (point in rounded-rect, point within tolerance of
+   a polyline). One crossing per click. This is the one new engine
+   capability GG7 needs.
+4. **Undo is a command log** with inverses (`MoveCell`, `AddCell`,
+   `RemoveCell`, `Link`, `SetLabel` — each Do/Undo), mxGraph's model:
+   the editor never mutates directly, it *executes commands*.
+5. **Interaction is a state machine** (idle → dragging → linking →
+   editing-label), not event soup.
+
+**Refused for v1:** freeform edge-path hand-editing; rubber-band
+multi-select; a Ring-side scene graph (the engine already retains — a
+copy would fork, which is the engine-wrapper copy law).
+
+**Kill criterion:** on a 500-node diagram, pick < 1ms and drag-redraw
+< 16ms. Only if full-scene rebuild misses that does a
+`scene_update_cmd` incremental path earn existence — measure first; this
+plan has named the wrong bottleneck before.
+
+### GG8 — ToPages: rendered per tile, never rendered whole and cut
+
+A picture larger than its medium must be **rendered per tile**, because
+"whole" already fails: a GPU texture caps at 8192px and we ship that as a
+refusal today. Print never had a whole in the first place. dot's
+precedent is literal — `page="8.27,11.69"` has tiled PostScript across
+A4 sheets for thirty years.
+
+**Design:**
+- `ToPages(:A4)` / `ToPagesXT([ :PageW, :PageH, :DPI, :Overlap, :Marks,
+  :Path ])` — grid computed from the natural size, each tile drawn from
+  the SAME retained scene with a translated viewport into a page-sized
+  target.
+- The one engine addition is **render-region**: offset the scene's
+  orthographic projection by the tile origin. A few lines — and it is
+  the same capability a *screen viewer panning a huge diagram* needs, so
+  tiling and panning are ONE engine feature (viewport), not two.
+- Overlap (default ~12mm) so sheets join with a glue margin; crop marks
+  and a "page r,c of R×C" caption in the margin, dot-style.
+- `ToPagesSVG` is nearly free — the SVG tier has no size limit — and
+  covers vector printing without PDF work.
+- **This retires the 8192 dead end**: the oversize refusal can now name
+  `:Tiled` alongside ToSVG as the way out, and ToPNG on an oversize
+  diagram gains an honest path.
+
+**Refused for v1:** PDF assembly; "never cut through a node"
+repagination (overlap covers it; dot does not do it either).
+
+**Kill criterion:** the SEAM is the property. Adjacent tiles, overlap
+stripped, must reassemble pixel-identical to a reference render of a
+region small enough to render whole — and a 12,000px diagram (refused
+outright today) must come out as a printable A4 grid.
+
+### Order
+
+GG8 before GG7: it is smaller, it retires a shipped refusal, and its
+render-region is a prerequisite piece of the live viewer anyway. GG7's
+hit-testing is the only other engine work; everything else is face
+composition over what this plane already proved.
