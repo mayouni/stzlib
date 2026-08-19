@@ -521,7 +521,7 @@ pub fn coords(
 /// returns a flag instead of asserting.
 /// See the call site for why. Two passes, fixed order, deterministic: a
 /// snap freed by an earlier snap in the same pass is caught by the second.
-fn snapAlign(
+pub fn snapAlign(
     in_off: []const u32,
     in_src: []const u32,
     out_off: []const u32,
