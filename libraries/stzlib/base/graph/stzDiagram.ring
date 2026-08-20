@@ -302,6 +302,14 @@ class stzDiagram from stzGraph
 	@cLayout = $cDefaultLayout
 	@aClusters = []
 	@nEdgeCornerRad = 10
+
+	# The cluster rectangles OF THE CURRENT RENDER, with their member ids:
+	# [ [ x, y, w, h, [ ids... ] ], ... ]. Render-scoped state, refilled by
+	# every ToCanvasXT -- it exists because the edge drawers need to know
+	# what a channel would traverse, and threading it through five
+	# signatures buys nothing over reading it off the object that owns
+	# both the clusters and the render.
+	@aRenderClusRects = []
 	@aoAnnotations = []
 	@aoTemplates = []
 
@@ -1893,19 +1901,25 @@ class stzDiagram from stzGraph
 		#    the inner box that was already there, and the inner cluster
 		#    vanished into it -- correct geometry, invisible result.
 		#    _ClusterDepths sorts outermost first for exactly this.
+		@aRenderClusRects = []
+		# hoisted above the loop: the rect capture below reads it, and in
+		# Ring a method local read before its assigning statement is not
+		# an error but a stale or empty value
+		_clstrip_ = _nFsz_ * 1.9
 		for _cd_ in This._ClusterDepths()
 			_cl_ = This._ClusterById(_cd_[1])
 			if len(_cl_) = 0  loop  ok
 			_aBox_ = This._ClusterBox(_cl_, _aXY_, _nBoxW_, _nBoxH_)
 			if len(_aBox_) != 4  loop  ok
+			_clids_ = []
+			for _cm_ in _cl_[:nodes]  _clids_ + StzLower("" + _cm_)  next
+			# the strip above the box belongs to the frame too -- the label
+			# lives there, so a channel through it crosses the SURFACE
+			@aRenderClusRects + [ _aBox_[1], _aBox_[2] - _clstrip_,
+				_aBox_[3], _aBox_[4] + _clstrip_, _clids_ ]
 			_oC_.Flush()
-			# THE LABEL STRIP IS MEASURED FROM THE FONT, not a constant.
-			# It was a hardcoded 24px while the font scales with :Scale,
-			# so at :Scale = 2 a 26px label had to live in a 24px strip
-			# and the frame's own top rule was drawn through the middle
-			# of the word. A number that must stay in proportion to
-			# another number cannot be a literal beside it.
-			_clstrip_ = _nFsz_ * 1.9
+			# THE LABEL STRIP IS MEASURED FROM THE FONT, not a constant
+			# (hoisted above the loop; history in the commit that sized it)
 			_oC_.FillQ("#FFF8FE").StrokeQ(_cl_[:color], 2).
 				AddRect(_aBox_[1], _aBox_[2] - _clstrip_, _aBox_[3],
 					_aBox_[4] + _clstrip_)
@@ -1969,7 +1983,8 @@ class stzDiagram from stzGraph
 			if len(_aBend_) > 0
 				This._DrawRoutedEdge(_oC_, _a_, _b_, _aBend_, _nBoxW_,
 					_nBoxH_, _cEdge_, _nEdgeW_, _cSpl_, _cRank_,
-					_aPort_[_ei_][1], _aPort_[_ei_][2], _aPort_[_ei_][5])
+					_aPort_[_ei_][1], _aPort_[_ei_][2], _aPort_[_ei_][5],
+					"" + _aE_[_ei_][:from], "" + _aE_[_ei_][:to])
 			else
 				This._DrawEdgeXT(_oC_, _a_, _b_, _nBoxW_, _nBoxH_, _cEdge_,
 					_nEdgeW_, _cSpl_, _cRank_, _aPort_[_ei_][3],
@@ -2739,7 +2754,53 @@ class stzDiagram from stzGraph
 	# where the edge must BE, not where it must turn a corner, and a curve
 	# reading smoothly past a box is what distinguishes a routed edge from
 	# a dog-leg. Ortho keeps its corners -- that is the point of ortho.
-	def _DrawRoutedEdge(oC, aFrom, aTo, paBend, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nPortA, nPortB, pBlockSide)
+	def RenderClusterRects()
+		return @aRenderClusRects
+
+	# A horizontal channel at nY spanning [nX1, nX2], pushed OUT of every
+	# cluster whose surface it would traverse and to which the edge is
+	# FOREIGN -- neither endpoint a member. A member's edge may exit
+	# through its own frame; a stranger's channel through it draws a
+	# relationship with the cluster that does not exist. Pushed to
+	# whichever free side is nearer the channel's own height.
+	def _ForeignFreeChannel(nY, nX1, nX2, cFrom, cTo, bVert)
+		_ffLo_ = min([ nX1, nX2 ])
+		_ffHi_ = max([ nX1, nX2 ])
+		_ffF_ = StzLower("" + cFrom)
+		_ffT_ = StzLower("" + cTo)
+		for _ffPass_ = 1 to 3
+			_ffMoved_ = 0
+			for _ffR_ in @aRenderClusRects
+				if StzFindFirst(_ffF_, _ffR_[5]) > 0  loop  ok
+				if StzFindFirst(_ffT_, _ffR_[5]) > 0  loop  ok
+				if bVert
+					_ffA_ = _ffR_[2]
+					_ffB_ = _ffR_[2] + _ffR_[4]
+					_ffC_ = _ffR_[1]
+					_ffD_ = _ffR_[1] + _ffR_[3]
+				else
+					_ffA_ = _ffR_[1]
+					_ffB_ = _ffR_[1] + _ffR_[3]
+					_ffC_ = _ffR_[2]
+					_ffD_ = _ffR_[2] + _ffR_[4]
+				ok
+				# does the run overlap the rect along its span, at a height
+				# inside the rect?
+				if _ffHi_ > _ffA_ and _ffLo_ < _ffB_ and
+				   nY > _ffC_ and nY < _ffD_
+					if nY - _ffC_ < _ffD_ - nY
+						nY = _ffC_ - 10
+					else
+						nY = _ffD_ + 10
+					ok
+					_ffMoved_ = 1
+				ok
+			next
+			if _ffMoved_ = 0  exit  ok
+		next
+		return nY
+
+	def _DrawRoutedEdge(oC, aFrom, aTo, paBend, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nPortA, nPortB, pBlockSide, cFromId, cToId)
 		_pts_ = []
 		_pts_ + [ aFrom[1], aFrom[2] ]
 		for _b_ in paBend  _pts_ + [ _b_[1], _b_[2] ]  next
@@ -2789,6 +2850,10 @@ class stzDiagram from stzGraph
 				_oc1_ = (_p_[1] + _ob1_[1]) / 2
 				_oc2_ = (_obl_[1] + _q_[1]) / 2
 				_ofy_ = _obl_[2]
+				_oc1_ = This._ForeignFreeChannel(_oc1_, _p_[2], _ofy_,
+					cFromId, cToId, 1)
+				_oc2_ = This._ForeignFreeChannel(_oc2_, _ofy_, _q_[2],
+					cFromId, cToId, 1)
 				_flat_ + _p_[1]   _flat_ + _p_[2]
 				_flat_ + _oc1_    _flat_ + _p_[2]
 				_flat_ + _oc1_    _flat_ + _ofy_
@@ -2799,6 +2864,10 @@ class stzDiagram from stzGraph
 				_oc1_ = (_p_[2] + _ob1_[2]) / 2
 				_oc2_ = (_obl_[2] + _q_[2]) / 2
 				_ofx_ = _obl_[1]
+				_oc1_ = This._ForeignFreeChannel(_oc1_, _p_[1], _ofx_,
+					cFromId, cToId, 0)
+				_oc2_ = This._ForeignFreeChannel(_oc2_, _ofx_, _q_[1],
+					cFromId, cToId, 0)
 				_flat_ + _p_[1]   _flat_ + _p_[2]
 				_flat_ + _p_[1]   _flat_ + _oc1_
 				_flat_ + _ofx_    _flat_ + _oc1_
