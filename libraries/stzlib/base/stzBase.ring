@@ -827,6 +827,10 @@ ok
     load "agentic/stzLLMAgent.ring"
     load "agentic/stzOwnAgentStack.ring"
     load "agentic/stzAgentHost.ring"
+    # agents as FILES: the .pia declaration, its court, and the folder
+    # convention. A front-end onto the classes above -- no new runtime.
+    load "agentic/stzAgentDeclaration.ring"
+    load "agentic/stzAgentFolder.ring"
 
     # refine/ -- REFINEMENT PROGRAMMING (R6): stzPolyCode comes home --
     # code carries typed refinement points; a change is a typed proposal

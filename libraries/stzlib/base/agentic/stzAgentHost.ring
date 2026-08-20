@@ -102,6 +102,7 @@ class stzAgentHost from stzObject
 	@bEngineLoop = 0         # Zig owns the tick when this is on
 	@aDeclared   = []        # [ name, coverage, revClass, priority ]
 	@cLoopWhy    = ""        # the engine's last refusal, verbatim
+	@oFolder     = ""        # the agents/ folder, when one was mounted
 
 	def init()
 		@oReactor = new stzReactor()
@@ -227,6 +228,95 @@ class stzAgentHost from stzObject
 
 	def Trace()
 		return @aTrace
+
+	#-- agents as FILES (the agents/ folder) -----------------------------
+	#
+	# AT START: read the folder, mount everything valid on this host, each
+	# on the schedule its own file declared.
+	#
+	#     oHost.UseAgentsFrom("agents")
+	#     oHost.RunFor(500)
+	#
+	# ON CHANGE: RescanAgents() re-reads and reports what moved. It
+	# supervises what ARRIVED and cancels what VANISHED -- and for a file
+	# that CHANGED under a running agent it does neither, and says so.
+	# Swapping a live agent is not a file operation: it has a memory, a
+	# trace and possibly unfulfilled obligations, and replacing it quietly
+	# would discard all three without anyone asking.
+	#
+	# AND THE REFUSALS ARE NOT SWALLOWED. AgentLoadRefusals() carries every
+	# file the folder would not admit, in the unified finding shape, and
+	# CiteAgentLoadRefusals() prints them. A host that mounted three agents
+	# out of five and said nothing is the shape this exists to prevent.
+
+	def UseAgentsFrom(pcPath)
+		@oFolder = StzAgentFolderQ(pcPath)
+		@oFolder.ReadAgents()
+		_n_ = @oFolder.MountOn(This)
+		@cWhy = "mounted " + _n_ + " agent(s) from '" + pcPath + "'; " +
+			len(@oFolder.Refusals()) + " refusal(s)"
+		return _n_
+
+		def UseAgentsFromQ(pcPath)
+			This.UseAgentsFrom(pcPath)
+			return This
+
+	def AgentFolderQ()
+		return @oFolder
+
+	def IsUsingAgentFolder()
+		if @oFolder = ""
+			return 0
+		ok
+		return 1
+
+	def AgentLoadRefusals()
+		if @oFolder = ""
+			return []
+		ok
+		return @oFolder.Refusals()
+
+	def CiteAgentLoadRefusals()
+		if @oFolder = ""
+			return ""
+		ok
+		return @oFolder.CiteRefusals()
+
+	# Returns [ :added, :changed, :removed ] -- the file names that moved.
+	def RescanAgents()
+		if @oFolder = ""
+			stzraise("stzAgentHost.RescanAgents: no agent folder -- call " +
+				"UseAgentsFrom(path) first.")
+		ok
+		_a_ = @oFolder.Rescan()
+		_ac_ = @oFolder.Names()
+		_n_ = len(_ac_)
+		for _i_ = 1 to _n_
+			if This.IsSupervising(_ac_[_i_]) = 0
+				_oAg_ = @oFolder.AgentQ(_ac_[_i_])
+				_aS_ = @oFolder.ScheduleOf(_ac_[_i_])
+				This.Declare(_ac_[_i_], "" + _oAg_.CoverageStatement(),
+					"" + _oAg_.ReversibilityClass())
+				if _aS_[:mode] = "event"
+					This.SuperviseOnEvent(_oAg_, _aS_[:channel])
+				else
+					This.Supervise(_oAg_, _aS_[:timer])
+				ok
+			ok
+		next
+		# what vanished stops ticking; it is CANCELLED, not retired --
+		# retirement is earned and a deleted file earns nothing
+		_m_ = len(@aAgents)
+		for _i_ = 1 to _m_
+			_cN_ = @aAgents[_i_][1]
+			if @aAgents[_i_][4] = 1 and @oFolder.Has(_cN_) = 0
+				This.Cancel(_cN_)
+			ok
+		next
+		@cWhy = "rescanned '" + @oFolder.Path() + "': " +
+			len(_a_[:added]) + " added, " + len(_a_[:changed]) +
+			" changed, " + len(_a_[:removed]) + " removed"
+		return _a_
 
 	#-- the engine loop (Zig owns the tick) -----------------------------
 
