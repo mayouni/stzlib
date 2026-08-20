@@ -47,17 +47,36 @@
 # validates. What is promised here is INTEGRITY -- the answer has the
 # shape it was asked for, whole, or there is no answer.
 #
-# FLOOR NOTE (updated): type AND STRUCTURE checking here VALIDATES the
-# decoded text -- the declared-structure surface above this line now
-# exists, so what remains below it is the ENGINE rung: the sampler-level
-# grammar constraint (schema -> GBNF, "cannot emit a violating token"),
-# which makes a malformed answer unemittable rather than caught. That
-# rung is filed as an ask to the engine plane, deliberately NOT stubbed
-# here: a stub would let a caller believe decoding was constrained when
-# it was only checked afterwards. The ask is written down --
+# FLOOR NOTE (2026-08-20, second update -- the floor moved once more).
+#
+# Type AND STRUCTURE checking here VALIDATES the decoded text. Two rungs
+# below it have now been built and one has NOT, and the difference is
+# worth stating exactly because it is easy to overclaim:
+#
+#   BUILT -- the declared-structure surface (ReturnsStructure, above).
+#   BUILT -- the GRAMMAR: stzOutputSchema.ToGBNF() compiles a declaration
+#            into GBNF, refusing by name what it cannot express and
+#            listing what a grammar structurally cannot carry
+#            (engine/src/schema_gbnf.zig).
+#   NOT BUILT -- CONSTRAINED DECODING. No sampler consumes that grammar,
+#            so a violating token is still emittable and everything here
+#            still catches rather than prevents. Ask
+#            oSchema.IsDecodingConstrained() -- it answers 0 today, and
+#            DecodingStatus() says why. Never report an answer as
+#            grammar-constrained on the strength of the grammar existing.
+#
+# WHAT THE MISSING RUNG COSTS, MEASURED against the shipped smollm2-135m
+# on ten structured prompts (base/test/neural/_measure_structured.ring):
+# 2/10 valid on the first attempt, 6/10 within four, FIVE model calls per
+# valid answer, and 4 in 10 inputs that no number of retries rescues.
+#
+# The remaining work is a grammar stack machine plus per-candidate token
+# masking in neural_gen.sampleId(). It is tractable here rather than
+# blocked: the sampler is OURS (raw ggml is vendored, not llama.cpp, so
+# there is no vendor sampler to reach) and neural_gen.decodeInto() already
+# turns a candidate id into bytes. Filed as
 # prompts/42-stzlib-engine-schema-constrained-decoding.md in the
-# coordination repository -- and it carries the refusal shapes that
-# would close it honestly.
+# coordination repository.
 
 class stzLLMFunction from stzObject
 
@@ -70,6 +89,9 @@ class stzLLMFunction from stzObject
 	@aLastFindings = []        # why the last validation refused (unified shape)
 	@fResponder = ""           # test/offline door: a FAKE in place of the model
 	@bHasResponder = 0
+	@nRetryTemp = 0.7          # attempt 1 is greedy; retries DRAW AGAIN
+	@nRetrySeed = 1000
+	@nMaxTokens = 128
 	@nMaxCalls = 0
 	@nCallsMade = 0
 	@nRetries = 2
@@ -224,7 +246,7 @@ class stzLLMFunction from stzObject
 				_fR_ = @fResponder
 				_cRaw_ = call _fR_(_cPrompt_, _nTry_)
 			else
-				_cRaw_ = StzAskModel(_cPrompt_)
+				_cRaw_ = This._AskModel(_cPrompt_, _nTry_)
 			ok
 			_aVal_ = This._Validate(_cRaw_)
 			if _aVal_[1] = 1
@@ -288,6 +310,67 @@ class stzLLMFunction from stzObject
 			_c_ = _c_ + char(10) + char(10) + @oSchema.PromptClause()
 		ok
 		return _c_
+
+	# A RETRY THAT CANNOT DIFFER IS NOT A RETRY, and this seam is greedy.
+	#
+	# MEASURED 2026-08-20 against the model this repository ships
+	# (smollm2-135m-instruct-q8_0), 10 structured prompts: eight failed, and
+	# on all EIGHT the second greedy attempt was BYTE-IDENTICAL to the
+	# first. StzAskModel decodes at temperature 0, which is deterministic by
+	# design and correct for it -- so every retry above attempt 1 was
+	# spending budget to receive the same refusal again. SetRetries(n) was,
+	# against this seam, a lie.
+	#
+	# So attempt 1 stays GREEDY -- the common path is unchanged, and its
+	# answer is reproducible -- and every attempt after it DRAWS AGAIN, with
+	# a temperature and a seed derived from the attempt number. Reproducible
+	# per attempt (same function, same input, same attempt -> same seed),
+	# and genuinely a different sample from the one that just failed.
+	#
+	# Determinism-by-cache is untouched: what the memo stores is the
+	# VALIDATED value, so a repeated call still answers from the cache
+	# without sampling at all.
+	# THE ARITY THAT KEPT THE LIVE PATH FROM EVER RUNNING.
+	#
+	# This used to read `StzAskModel(_cPrompt_)`. StzAskModel takes TWO
+	# parameters (question, maxNewTokens), and Ring raises R19 "Calling
+	# function with less number of parameters" for the one-argument form
+	# INSIDE A CLASS -- while tolerating it at top level, which is why it
+	# reads as correct and why no reviewer caught it.
+	#
+	# Nothing in the suite could catch it either: every scene here seeds the
+	# memo or supplies a fake responder, and the machine had no generative
+	# GGUF loaded, so the live branch was never once executed. It was found
+	# by MEASURING against the shipped smollm2 model, not by reading. Both
+	# calls pass the token budget explicitly now.
+	def _AskModel(pcPrompt, pnTry)
+		if pnTry <= 1
+			return StzAskModel(pcPrompt, @nMaxTokens)
+		ok
+		return StzAskModelXT(pcPrompt, [
+			:MaxTokens   = @nMaxTokens,
+			:Temperature = @nRetryTemp,
+			:Seed        = @nRetrySeed + pnTry
+		])
+
+	# The sampling a RETRY uses. Attempt 1 never sees these -- it is greedy.
+	def SetRetrySampling(pnTemperature, pnSeed)
+		This.SetRetrySamplingQ(pnTemperature, pnSeed)
+
+	def SetRetrySamplingQ(pnTemperature, pnSeed)
+		@nRetryTemp = pnTemperature
+		@nRetrySeed = pnSeed
+		return This
+
+	def SetMaxTokens(pnMax)
+		This.SetMaxTokensQ(pnMax)
+
+	def SetMaxTokensQ(pnMax)
+		@nMaxTokens = pnMax
+		return This
+
+	def RetryTemperature()
+		return @nRetryTemp
 
 	def _TypeSaid()
 		if @bHasSchema = 1
