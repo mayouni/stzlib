@@ -1988,7 +1988,8 @@ class stzDiagram from stzGraph
 			else
 				This._DrawEdgeXT(_oC_, _a_, _b_, _nBoxW_, _nBoxH_, _cEdge_,
 					_nEdgeW_, _cSpl_, _cRank_, _aPort_[_ei_][3],
-					_aPort_[_ei_][1], _aPort_[_ei_][2], _aPort_[_ei_][5])
+					_aPort_[_ei_][1], _aPort_[_ei_][2], _aPort_[_ei_][5],
+					"" + _aE_[_ei_][:from], "" + _aE_[_ei_][:to])
 			ok
 		next
 
@@ -2757,6 +2758,17 @@ class stzDiagram from stzGraph
 	def RenderClusterRects()
 		return @aRenderClusRects
 
+	# THE MINIMUM DISTANCE BETWEEN AN EDGE LINE AND ANY PARALLEL LINE -- a
+	# frame rule, another channel. Named because it is a LEGIBILITY
+	# quantity, not a geometric one: two lines a few pixels apart are
+	# distinct on a good screen at 100% and one thick line to tired eyes
+	# or in a thumbnail. Derived from the corner radius because that is
+	# already scaled by :Scale, so the clearance grows with the render
+	# instead of collapsing relative to it -- the fate of every literal
+	# distance this file has shipped.
+	def _LineClearance()
+		return max([ 14, @nEdgeCornerRad * 2 + 4 ])
+
 	# A horizontal channel at nY spanning [nX1, nX2], pushed OUT of every
 	# cluster whose surface it would traverse and to which the edge is
 	# FOREIGN -- neither endpoint a member. A member's edge may exit
@@ -2789,9 +2801,9 @@ class stzDiagram from stzGraph
 				if _ffHi_ > _ffA_ and _ffLo_ < _ffB_ and
 				   nY > _ffC_ and nY < _ffD_
 					if nY - _ffC_ < _ffD_ - nY
-						nY = _ffC_ - 10
+						nY = _ffC_ - This._LineClearance()
 					else
-						nY = _ffD_ + 10
+						nY = _ffD_ + This._LineClearance()
 					ok
 					_ffMoved_ = 1
 				ok
@@ -3280,10 +3292,10 @@ class stzDiagram from stzGraph
 		if _ek_ > _en_  _ek_ = _en_  ok
 		return [ _efl_[_ek_ * 2 - 1], _efl_[_ek_ * 2] ]
 
-	def _DrawEdgeXT(oC, aFrom, aTo, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nLane, nPortA, nPortB, pBlockSide)
+	def _DrawEdgeXT(oC, aFrom, aTo, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nLane, nPortA, nPortB, pBlockSide, cFromId, cToId)
 		if cSpline = "ortho"
 			This._DrawEdge(oC, aFrom, aTo, nBoxW, nBoxH, cColor, nWidth,
-				cSpline, cRank, nLane)
+				cSpline, cRank, nLane, cFromId, cToId)
 			return
 		ok
 		_dg_ = This._EdgeGeometry(aFrom, aTo, nBoxW, nBoxH, cRank, nWidth, nPortA, nPortB, This._EdgeCorner(), pBlockSide)
@@ -3297,7 +3309,7 @@ class stzDiagram from stzGraph
 		oC.AddPolylineQ(_dg_[1]).Stroke(cColor, nWidth)
 		This._DrawArrowHead(oC, _dg_[2], _dg_[3], cColor)
 
-	def _DrawEdge(oC, aFrom, aTo, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nLane)
+	def _DrawEdge(oC, aFrom, aTo, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nLane, cFromId, cToId)
 		_p_ = This._ClipToBox(aFrom, aTo, nBoxW, nBoxH)
 		_q_ = This._ClipToBox(aTo, aFrom, nBoxW, nBoxH)
 
@@ -3316,6 +3328,8 @@ class stzDiagram from stzGraph
 				_pe_ = aFrom[1] + _sgn_ * nBoxW / 2
 				_qe_ = aTo[1] - _sgn_ * nBoxW / 2
 				_chan_ = _pe_ + (_qe_ - _pe_) * nLane
+				_chan_ = This._ForeignFreeChannel(_chan_, aFrom[2], aTo[2],
+					cFromId, cToId, 1)
 				oC.Flush()
 				oC.AddPolylineQ([ _pe_, aFrom[2], _chan_, aFrom[2],
 					_chan_, aTo[2], _qe_, aTo[2] ]).Stroke(cColor, nWidth)
@@ -3327,6 +3341,8 @@ class stzDiagram from stzGraph
 				_pe_ = aFrom[2] + _sgn_ * nBoxH / 2
 				_qe_ = aTo[2] - _sgn_ * nBoxH / 2
 				_chan_ = _pe_ + (_qe_ - _pe_) * nLane
+				_chan_ = This._ForeignFreeChannel(_chan_, aFrom[1], aTo[1],
+					cFromId, cToId, 0)
 				oC.Flush()
 				oC.AddPolylineQ([ aFrom[1], _pe_, aFrom[1], _chan_,
 					aTo[1], _chan_, aTo[1], _qe_ ]).Stroke(cColor, nWidth)
