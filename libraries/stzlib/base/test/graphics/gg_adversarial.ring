@@ -1598,8 +1598,23 @@ nInY = aR1[2] + aR1[4] / 2
 nX1 = aR1[1] - 50
 nX2 = aR1[1] + aR1[3] + 50
 
-nOut = oFC._ChannelBand(nInY, nX1, nX2, "web1", "log", 0, -100000, 100000)
-? "   a foreign channel proposed at " + nInY + " was moved to " + nOut
+# CORRIDOR-BOUNDED, like every channel a real edge asks for. This probe
+# passed -100000..100000 and so let the placer roam the whole picture;
+# once the rank gap grew to fund the cluster chrome, the nearest free
+# band to a proposal inside the frame stopped being the one ABOVE it and
+# became the open space BELOW the whole cluster, 2px nearer. The placer
+# was right and the probe was asking a question no edge asks: a channel
+# lives between its own fold points, and Web-A-to-Logger folds between
+# the web row and the API row.
+nCorrLo = 0
+nCorrHi = 0
+for aN in oFC.RenderNodeRects()
+	if aN[5] = "web1"  nCorrLo = aN[2] + aN[4]  ok
+	if aN[5] = "api1"  nCorrHi = aN[2]  ok
+next
+nOut = oFC._ChannelBand(nInY, nX1, nX2, "web1", "log", 0, nCorrLo, nCorrHi)
+? "   a foreign channel proposed at " + nInY + " was moved to " + nOut +
+  "   (corridor " + nCorrLo + ".." + nCorrHi + ")"
 chk("a FOREIGN channel is pushed off the cluster's surface",
     nOut < aR1[2] or nOut > aR1[2] + aR1[4])
 
@@ -2409,6 +2424,146 @@ next
 ? "   k1 at " + nK1 + " ; its shared child at " + nFar
 chk("a parent is NOT dragged toward a child it shares",
     fabs(nK1 - nFar) > 1)
+
+#---------------------------------------------------------------------------
+? ""
+sec("-- 35. The verticals obey ONE rhythm ------------------------")
+#
+# The Principal measured the drops and found no design system: three
+# different stem lengths -- 29%, 43% and 7% -- inside one constant
+# 92.6px rank gap.
+#
+# Two causes, both of them a rule computing something a better rule
+# already knew.
+#
+#   Parents in a rank took SUCCESSIVE channel heights, cycled through
+#   0.30, 0.43, 0.57, 0.70 of their gap, so neighbouring trunks could
+#   never share a line. That was written before the channel claim
+#   registry existed. The registry asks the real question -- do these
+#   two channels actually overlap in span -- and steps only those that
+#   do, by exactly one clearance. So the cycling was buying with
+#   randomness what measurement now gives for nothing, and it is gone:
+#   every trunk proposes the middle of its own gap.
+#
+#   The 7% stem was worse, because it looked like a placement and was
+#   really a misfit floor. A cluster's chrome eats the rank gap above
+#   its first member row, and the gap floor meant to leave room for a
+#   traversing channel estimated that chrome with a DIFFERENT formula
+#   than the one the boxes are drawn with -- it omitted the 34px per
+#   level of nesting. 42.7 estimated against 76.7 actual: the gap grew,
+#   the frame grew with it, and the band stayed 14px wide. Both now ask
+#   _ClusterChromeAbove.
+#
+# What is left is a system with one rule and one stated exception: a
+# channel takes the middle of the space available to it -- the whole gap
+# when it is free, the free band when a foreign frame occupies the rest,
+# and the reader can see the frame that made the difference.
+#---------------------------------------------------------------------------
+
+
+oRy = new stzDiagram("rhythm36")
+for a in [ [ "lb","Balancer" ],[ "web1","Web A" ],[ "web2","Web B" ],
+           [ "api1","API A" ],[ "api2","API B" ],
+           [ "db1","DB A" ],[ "db2","DB B" ],[ "log","Logger" ] ]
+	oRy.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
+next
+oRy.AddEdge("lb","web1")   oRy.AddEdge("lb","web2")
+oRy.AddEdge("web1","api1") oRy.AddEdge("web2","api2")
+oRy.AddEdge("api1","db1")  oRy.AddEdge("api2","db2")
+oRy.AddEdge("web1","log")  oRy.AddEdge("api2","log")
+oRy.AddClusterXTT("backend","Backend",["api1","api2","db1","db2"],"#5E35B1")
+oRy.AddClusterXTT("data","Data",["db1","db2"],"#2E7D32")
+oRy.SetSplines("ortho")
+oRy.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+
+# every rank gap is one number
+aRows = []
+for r in oRy.RenderNodeRects()
+	bF = 0
+	for i = 1 to len(aRows)
+		if fabs(aRows[i][1] - r[2]) < 2  bF = 1  ok
+	next
+	if bF = 0  aRows + [ r[2], r[2] + r[4] ]  ok
+next
+aRows = sort(aRows, 1)
+nGap = aRows[2][1] - aRows[1][2]
+bGaps = 1
+for i = 3 to len(aRows)
+	if fabs((aRows[i][1] - aRows[i-1][2]) - nGap) > 0.5  bGaps = 0  ok
+next
+? "   rank gap : " + nGap + "px, the same everywhere : " + bGaps
+chk("one rank gap, everywhere", bGaps)
+
+# the STEM of every rank-adjacent edge is half its gap -- one rhythm
+nWorst = 0
+nCount = 0
+for p in oRy.RenderEdgePaths()
+	if p[1] = "web1>log"  loop  ok        # spans two ranks: judged below
+	aF = p[2]
+	for i = 1 to len(aF) - 3 step 2
+		if fabs(aF[i+2] - aF[i]) < 0.5 and fabs(aF[i+3] - aF[i+1]) > 1
+			nLen = fabs(aF[i+3] - aF[i+1])
+			nCount++
+			if fabs(nLen - nGap / 2) > nWorst  nWorst = fabs(nLen - nGap / 2)  ok
+		ok
+	next
+next
+? "   " + nCount + " verticals, worst departure from half the gap : " + nWorst
+chk("every vertical is half its gap", nCount >= 8 and nWorst < 1)
+
+# THE STATED EXCEPTION: an edge that must pass ABOVE a foreign cluster
+# gets the middle of the band it actually has, not the middle of the gap
+# -- and that band is bounded by the frame, which the reader can see.
+nFrameTop = 1000000
+for c in oRy.RenderClusterRects()
+	if c[2] < nFrameTop  nFrameTop = c[2]  ok
+next
+nChan = -1
+for p in oRy.RenderEdgePaths()
+	if p[1] != "web1>log"  loop  ok
+	aF = p[2]
+	for i = 1 to len(aF) - 3 step 2
+		if fabs(aF[i+3] - aF[i+1]) < 0.5 and fabs(aF[i+2] - aF[i]) > 1
+			nChan = aF[i+1]
+		ok
+	next
+next
+nBandTop = aRows[2][2]
+nBandMid = (nBandTop + nFrameTop) / 2
+? "   the traversing channel sits at " + nChan + " ; its band " +
+  nBandTop + ".." + nFrameTop + " has middle " + nBandMid
+chk("a blocked channel takes the middle of the band it HAS",
+    fabs(nChan - nBandMid) < 1.5)
+
+# ...and that band is a real one: the gap funds the cluster's chrome AND
+# a clearance on each side of the line that crosses it.
+nClr = oRy._LineClearance()
+? "   band " + (nFrameTop - nBandTop) + "px against two clearances of " +
+  (nClr * 2)
+chk("the gap funds the chrome AND a crossable band",
+    nFrameTop - nBandTop >= nClr * 2)
+
+# THE NEGATIVE SIBLING: the chrome floor must answer to the SAME formula
+# the boxes are drawn with. Nesting adds 34px per level to a cluster's
+# pad, and the floor once estimated the pad without it -- so deepen the
+# nesting and the floor must grow with it, or it is estimating again.
+oFlat = new stzDiagram("flat36")
+for a in [ "p", "c1", "c2" ]
+	oFlat.AddNodeXTT(a, StzUpper(a), [ :type = "box", :color = "Info.Solid" ])
+next
+oFlat.AddEdge("p", "c1")  oFlat.AddEdge("p", "c2")
+oFlat.AddClusterXTT("g", "G", [ "c1", "c2" ], "#5E35B1")
+nFlat = oFlat._ClusterChromeAbove(13)
+oNest = new stzDiagram("nest36")
+for a in [ "p", "c1", "c2" ]
+	oNest.AddNodeXTT(a, StzUpper(a), [ :type = "box", :color = "Info.Solid" ])
+next
+oNest.AddEdge("p", "c1")  oNest.AddEdge("p", "c2")
+oNest.AddClusterXTT("g", "G", [ "c1", "c2" ], "#5E35B1")
+oNest.AddClusterXTT("h", "H", [ "c1" ], "#2E7D32")
+nNest = oNest._ClusterChromeAbove(13)
+? "   chrome, flat : " + nFlat + " ; nested : " + nNest
+chk("the chrome the floor uses GROWS with nesting", nNest > nFlat + 30)
 
 #---------------------------------------------------------------------------
 ? ""

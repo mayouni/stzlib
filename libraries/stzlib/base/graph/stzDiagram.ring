@@ -1676,9 +1676,11 @@ class stzDiagram from stzGraph
 		# a channel pinned against Web B with nowhere fair to stand. When
 		# clusters exist, the gap must fund the chrome AND the crossable
 		# band.
+		# ...and asked of the SAME expression the boxes are drawn with,
+		# never of a second estimate of it (see _ClusterChromeAbove).
 		if len(@aClusters) > 0
 			_nSepR_ = max([ _nSepR_,
-				_nFsz_ * 1.9 + max([ 16, _nClr0_ * 0.75 ]) + _nClr0_ * 2 ])
+				This._ClusterChromeAbove(_nFsz_) + _nClr0_ * 2 + _nEdgeW_ * 2 ])
 		ok
 
 		if _bNat_
@@ -2832,7 +2834,25 @@ class stzDiagram from stzGraph
 				_epPrevRk_ = _epP_[_epK_][2]
 				_epC_ = 0
 			ok
-			_epLanes_ + [ _epP_[_epK_][3], 0.30 + (0.40 * (_epC_ % 4) / 3) ]
+			# ONE RHYTHM, and the cycling that used to be here is gone.
+			#
+			# Parents in a rank took successive channel heights -- 0.30,
+			# 0.43, 0.57, 0.70 of their gap, cycled by position -- so that
+			# neighbouring trunks could never share a line. That was a
+			# PRE-EMPTIVE spread, invented before the channel claim
+			# registry existed, and it bought its safety by making every
+			# vertical in the picture a different length: the Principal
+			# measured 29%, 43% and 7% of one constant 92.6px gap and read
+			# it, correctly, as no design system at all.
+			#
+			# The registry now answers the real question -- do these two
+			# channels actually OVERLAP in span -- and steps only those
+			# that do, by exactly one clearance. So every trunk proposes
+			# the same canonical height, the middle of its own gap, and a
+			# reader who sees two drops of different length is seeing a
+			# stated reason: an obstacle the band had to clear, or a
+			# conflict the claim had to step.
+			_epLanes_ + [ _epP_[_epK_][3], 0.5 ]
 			_epC_++
 		next
 		for _epI_ = 1 to _epN_
@@ -4506,6 +4526,28 @@ class stzDiagram from stzGraph
 	# The box that contains every member of a cluster, padded. Returns []
 	# when no member has a position, so a cluster naming nodes that are not
 	# in the diagram draws nothing instead of a rectangle at the origin.
+	# HOW MUCH OF A RANK GAP A CLUSTER'S CHROME EATS -- its label strip
+	# plus its padding, at the deepest nesting in the picture.
+	#
+	# Named once because two places must agree about it, and they did not:
+	# the box adds `max(16, clearance*0.75) + 34 per level of nesting` and
+	# then a label strip on top, while the rank-gap floor that was meant to
+	# leave room for it estimated the padding WITHOUT the nesting term. On
+	# the service diagram that was 42.7 estimated against 76.7 actual, so
+	# the gap grew, the frame grew with it, and the band left for a
+	# traversing channel stayed 14px -- the Principal measured a 7px stem
+	# where every other stem was 46. A floor computed from a different
+	# formula than the thing it is flooring is not a floor.
+	def _ClusterChromeAbove(nFsz)
+		_ccaMax_ = 0
+		for _ccaC_ in @aClusters
+			_ccaP_ = max([ 16, This._LineClearance() * 0.75 ]) +
+				34 * This._ClusterLevelsBelow(_ccaC_)
+			_ccaT_ = _ccaP_ + nFsz * 1.9
+			if _ccaT_ > _ccaMax_  _ccaMax_ = _ccaT_  ok
+		next
+		return _ccaMax_
+
 	def _ClusterBox(aCluster, aXY, nBoxW, nBoxH)
 		_bAny_ = 0
 		_x0_ = 0  _y0_ = 0  _x1_ = 0  _y1_ = 0
