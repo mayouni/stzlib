@@ -179,6 +179,20 @@ const SceneSlot = struct {
     h: u32 = 0,
     clear: u32 = 0x00000000,
     cmds: std.ArrayList(Cmd) = .{},
+    // THE VIEW: which rectangle of the scene this render covers, and
+    // therefore how big the target is. Zero width means "the whole
+    // scene", which is every render that existed before tiling.
+    //
+    // A picture larger than its medium has to be rendered PER TILE --
+    // 8192 is a hard GPU texture limit and print never had a "whole" at
+    // all -- and the honest way to do that is to move the projection,
+    // not to render a giant image and cut it. Cutting needs the giant
+    // image to exist.
+    vx: f32 = 0,
+    vy: f32 = 0,
+    vw: u32 = 0,
+    vh: u32 = 0,
+
     // built state (retained; rebuilt only when dirty)
     dirty: bool = true,
     shape_verts: std.ArrayList(f32) = .{},
@@ -186,6 +200,9 @@ const SceneSlot = struct {
     // Strings and glyphs this build could not draw. See buildOnce.
     text_dropped: u32 = 0,
     glyphs_dropped: u32 = 0,
+    // Segments the RENDER PASS refused, this render. See renderToTarget.
+    draws_refused_shape: u32 = 0,
+    draws_refused_text: u32 = 0,
     segs: std.ArrayList(Seg) = .{},
     build_count: u64 = 0,
     // retained GPU objects
@@ -642,13 +659,28 @@ const Builder = struct {
     s: *SceneSlot,
     fw: f32,
     fh: f32,
+    ox: f32 = 0,
+    oy: f32 = 0,
 
+    // The projection IS the viewport: scene coordinates are offset by the
+    // view's origin and scaled by its size, so a tile is drawn from the
+    // same retained scene as the whole picture -- same geometry, same
+    // text, a different window onto it.
+    //
+    // The tile and the whole render divide the same coordinate by
+    // DIFFERENT widths, so antialiased edges can land one quantisation
+    // level apart -- measured at 79 pixels of a 100,000-pixel tile, each
+    // differing by one in one channel. That is the rasteriser's coverage
+    // arithmetic, not a displacement: computing this in f64 changes
+    // nothing, which is how we know where it comes from. The seam is
+    // asserted as what it is -- nothing moves -- rather than as a
+    // bit-identity the hardware does not offer.
     fn ndcX(self: *const Builder, x: f32) f32 {
-        return x / self.fw * 2.0 - 1.0;
+        return (x - self.ox) / self.fw * 2.0 - 1.0;
     }
 
     fn ndcY(self: *const Builder, y: f32) f32 {
-        return 1.0 - y / self.fh * 2.0;
+        return 1.0 - (y - self.oy) / self.fh * 2.0;
     }
 
     fn shapeVert(self: *Builder, x: f32, y: f32, c: Rgba) !void {
@@ -735,7 +767,15 @@ fn buildOnce(s: *SceneSlot) !void {
     s.text_verts.clearRetainingCapacity();
     s.segs.clearRetainingCapacity();
 
-    var b = Builder{ .s = s, .fw = @floatFromInt(s.w), .fh = @floatFromInt(s.h) };
+    const bvw: u32 = if (s.vw > 0) s.vw else s.w;
+    const bvh: u32 = if (s.vh > 0) s.vh else s.h;
+    var b = Builder{
+        .s = s,
+        .fw = @floatFromInt(bvw),
+        .fh = @floatFromInt(bvh),
+        .ox = s.vx,
+        .oy = s.vy,
+    };
     var cur_kind: ?SegKind = null;
     var seg_first: u32 = 0;
 
@@ -906,8 +946,8 @@ fn buildOnce(s: *SceneSlot) !void {
 }
 
 /// [commands, shape verts, text verts, draw segments, builds, uploads,
-///  strings dropped, glyphs dropped]
-pub fn sceneStats(id: i64) ?[8]f64 {
+///  strings dropped, glyphs dropped, shape draws refused, text draws refused]
+pub fn sceneStats(id: i64) ?[10]f64 {
     const slot = slotOf(id) orelse return null;
     const s = &scenes.items[slot];
     build(s) catch return null;
@@ -925,6 +965,8 @@ pub fn sceneStats(id: i64) ?[8]f64 {
         // a guard can fail on instead of a picture someone has to notice.
         @floatFromInt(s.text_dropped),
         @floatFromInt(s.glyphs_dropped),
+        @floatFromInt(s.draws_refused_shape),
+        @floatFromInt(s.draws_refused_text),
     };
 }
 
@@ -1235,14 +1277,19 @@ fn renderToTarget(s: *SceneSlot) !bool {
         // target of the old dimensions and returned nothing at all. A
         // resized scene saved an EMPTY png while drawing perfectly on
         // screen, which is as quiet as a defect gets.
-        if (s.target != 0 and (gpu.stz_gpu_texture_width(s.target) != @as(f64, @floatFromInt(s.w)) or
-            gpu.stz_gpu_texture_height(s.target) != @as(f64, @floatFromInt(s.h))))
+        // sized to the VIEW: a tile's target is one page, never the whole
+        // picture -- which is the point, since the whole picture is what
+        // does not fit
+        const tw: u32 = if (s.vw > 0) s.vw else s.w;
+        const th: u32 = if (s.vh > 0) s.vh else s.h;
+        if (s.target != 0 and (gpu.stz_gpu_texture_width(s.target) != @as(f64, @floatFromInt(tw)) or
+            gpu.stz_gpu_texture_height(s.target) != @as(f64, @floatFromInt(th))))
         {
             _ = gpu.stz_gpu_texture_free(s.target);
             s.target = 0;
         }
         if (s.target == 0) {
-            s.target = gpu.stz_gpu_texture_new(@floatFromInt(s.w), @floatFromInt(s.h), @floatFromInt(gpu.TEX_TARGET));
+            s.target = gpu.stz_gpu_texture_new(@floatFromInt(tw), @floatFromInt(th), @floatFromInt(gpu.TEX_TARGET));
             if (s.target == 0) {
                 gpu.countFallback();
                 return false;
@@ -1290,14 +1337,29 @@ fn renderToTarget(s: *SceneSlot) !bool {
     else
         render.stz_gpu_render_begin(draw_target, cl.r, cl.g, cl.b, cl.a);
     if (begun != gpu.OK) return false;
+    // DRAW RESULTS WERE DISCARDED WITH `_ =`. Every refusal the render
+    // pass could report -- a stale buffer, a bad pipeline, a bind-group
+    // budget -- arrived here and was thrown away, so a segment that never
+    // drew looked exactly like one that did. Counted now, per render, and
+    // split by kind: "the boxes drew and the text did not" is the whole
+    // shape of two defects found this week, and it should be a number.
+    s.draws_refused_shape = 0;
+    s.draws_refused_text = 0;
     for (s.segs.items) |seg| {
         if (seg.kind == .shape) {
-            _ = render.stz_gpu_render_draw(pipe_shape[ti], s.vbuf_shape, @floatFromInt(seg.first), @floatFromInt(seg.count), 0);
+            if (render.stz_gpu_render_draw(pipe_shape[ti], s.vbuf_shape, @floatFromInt(seg.first), @floatFromInt(seg.count), 0) != gpu.OK) {
+                s.draws_refused_shape += 1;
+            }
         } else if (seg.kind == .image) {
-            if (seg.tex != 0)
-                _ = render.stz_gpu_render_draw(pipe_image[ti], s.vbuf_text, @floatFromInt(seg.first), @floatFromInt(seg.count), seg.tex);
+            if (seg.tex != 0) {
+                if (render.stz_gpu_render_draw(pipe_image[ti], s.vbuf_text, @floatFromInt(seg.first), @floatFromInt(seg.count), seg.tex) != gpu.OK) {
+                    s.draws_refused_text += 1;
+                }
+            }
         } else if (atlas_tex != 0) {
-            _ = render.stz_gpu_render_draw(pipe_text[ti], s.vbuf_text, @floatFromInt(seg.first), @floatFromInt(seg.count), atlas_tex);
+            if (render.stz_gpu_render_draw(pipe_text[ti], s.vbuf_text, @floatFromInt(seg.first), @floatFromInt(seg.count), atlas_tex) != gpu.OK) {
+                s.draws_refused_text += 1;
+            }
         }
     }
     if (render.stz_gpu_render_end() != gpu.OK) return false;
@@ -1359,11 +1421,30 @@ pub fn sceneDrawToTarget(id: i64, target_id: i64, tfmt: i32, w: u32, h: u32) boo
 
 /// Raw RGBA8 pixels of the GPU tier. The parity witness: the same bytes the
 /// PNG encodes, before any compression can be blamed. Caller owns.
+/// Point the scene at one rectangle of itself. Width 0 restores the whole
+/// picture. Marks the tessellation dirty, because the projection is baked
+/// into the vertices -- the same reason this is cheap to state and honest
+/// to draw: every tile is the SAME scene seen through a different window,
+/// not a crop of an image nobody could allocate.
+pub fn sceneSetView(id: i64, x: f64, y: f64, w: f64, h: f64) bool {
+    const slot = slotOf(id) orelse return false;
+    const s = &scenes.items[slot];
+    s.vx = @floatCast(x);
+    s.vy = @floatCast(y);
+    s.vw = if (w > 0) @intFromFloat(w) else 0;
+    s.vh = if (h > 0) @intFromFloat(h) else 0;
+    s.dirty = true;
+    s.build_count +%= 1;
+    return true;
+}
+
 pub fn sceneToPixels(id: i64) !?[]u8 {
     const slot = slotOf(id) orelse return null;
     const s = &scenes.items[slot];
     if (!try renderToTarget(s)) return null;
-    const npix = @as(usize, s.w) * s.h * 4;
+    const rw: u32 = if (s.vw > 0) s.vw else s.w;
+    const rh: u32 = if (s.vh > 0) s.vh else s.h;
+    const npix = @as(usize, rw) * rh * 4;
     const out = try alloc.alloc(u8, npix);
     errdefer alloc.free(out);
     if (render.stz_gpu_target_read(s.target, out.ptr, @floatFromInt(npix)) != gpu.OK) {
@@ -1381,7 +1462,9 @@ pub fn sceneToPng(id: i64, level: i32) !?[]u8 {
     defer alloc.free(px);
     const slot = slotOf(id) orelse return null;
     const s = &scenes.items[slot];
-    return try render.pngEncode(s.w, s.h, px, level);
+    const ew: u32 = if (s.vw > 0) s.vw else s.w;
+    const eh: u32 = if (s.vh > 0) s.vh else s.h;
+    return try render.pngEncode(ew, eh, px, level);
 }
 
 test "circle segments honour the sagitta bound at every radius" {

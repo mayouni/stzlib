@@ -888,6 +888,17 @@ fn ring_SceneToSvg(p: *anyopaque) callconv(.c) void {
 
 // SceneToPng(id, nLevel) -> PNG bytes ("" when there is no device -- and
 // that refusal is COUNTED, so a face can fall to the SVG tier knowing why)
+// GpuSceneSetView(nId, nX, nY, nW, nH) -> 1/0
+//
+// Render-region: the scene draws the rectangle (x, y, w, h) of itself into
+// a target of that size. Width 0 restores the whole picture. This is the
+// one engine addition tiling needs -- and the same one a screen viewer
+// panning a huge diagram needs, so panning and printing are one feature.
+fn ring_SceneSetView(p: *anyopaque) callconv(.c) void {
+    const okv = scene.sceneSetView(@intFromFloat(gn(p, 1)), gn(p, 2), gn(p, 3), gn(p, 4), gn(p, 5));
+    rn(p, if (okv) 1 else 0);
+}
+
 fn ring_SceneToPng(p: *anyopaque) callconv(.c) void {
     const png = scene.sceneToPng(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2))) catch {
         R.ring_vm_api_retstring2(p, "", 0);
@@ -1592,6 +1603,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuscenestats", .func = &ring_SceneStats },
     .{ .name = "stzenginegpuscenetosvg", .func = &ring_SceneToSvg },
     .{ .name = "stzenginegpuscenetopng", .func = &ring_SceneToPng },
+    .{ .name = "stzenginegpuscenesetview", .func = &ring_SceneSetView },
     .{ .name = "stzenginegpuscenetopixels", .func = &ring_SceneToPixels },
     .{ .name = "stzenginegpuatlasstats", .func = &ring_AtlasStats },
     .{ .name = "stzenginegpuatlasreset", .func = &ring_AtlasReset },

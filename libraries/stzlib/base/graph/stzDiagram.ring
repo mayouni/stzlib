@@ -1984,14 +1984,23 @@ class stzDiagram from stzGraph
 		# same diagram at :Scale = 3 is 12192 and cannot be drawn. So the
 		# limit is checked HERE, where both numbers are known and can be
 		# quoted back.
-		if _nW_ > 8192 or _nH_ > 8192
+		# ...unless the caller is TILING, which is the honest answer to
+		# this limit rather than a way around it. A tile is rendered
+		# into a page-sized target, so the picture's own size never
+		# has to be allocated at all -- and ToPages is exactly the
+		# caller that never asks for it. Refusing here refused the
+		# feature written to retire the refusal.
+		if (_nW_ > 8192 or _nH_ > 8192) and
+			NOT This._DiagOpt(paOptions, "tiled", 0)
 			StzRaise("stzDiagram: this picture is " + _nW_ + "x" + _nH_ +
 				", and a GPU texture cannot exceed 8192 in either axis. " +
 				"At :Scale = " + _nScl_ + " the diagram's natural " +
 				floor(_nW_ / _nScl_) + "x" + floor(_nH_ / _nScl_) +
 				" is multiplied past that. Use a smaller :Scale, give " +
-				"explicit :Width/:Height, or answer ToSVG() -- which has " +
-				"no such limit and stays sharp at every zoom.")
+				"explicit :Width/:Height, answer ToSVG() -- which has no " +
+				"such limit and stays sharp at every zoom -- or ToPages(), " +
+				"which renders it a sheet at a time and never needs the " +
+				"whole picture to exist.")
 		ok
 
 		# the edge geometry aims under the outline that is drawn, so it
@@ -2466,6 +2475,138 @@ class stzDiagram from stzGraph
 
 	def ToSVGXT(paOptions)
 		return This.ToCanvasXT(paOptions).ToSVG()
+
+	# A PICTURE LARGER THAN ITS MEDIUM IS RENDERED PER TILE, never
+	# rendered whole and cut -- because "whole" is exactly what fails. A
+	# GPU texture stops at 8192 in either axis and this library ships that
+	# as a refusal; print never had a whole at all. dot has tiled
+	# PostScript across A4 since the eighties for the same reason.
+	#
+	# Each page is drawn from the SAME retained scene through a moved
+	# projection (stzCanvas.SetRegion), so a tile is the picture seen
+	# through a window rather than a crop of an image nobody could
+	# allocate. The pages are then composed at page size, which is what
+	# lets the marks and the caption live in the MARGIN in page
+	# coordinates instead of being smuggled into the diagram's own
+	# geometry.
+	#
+	# Overlap is a glue margin: sheets are meant to be trimmed and joined,
+	# so consecutive tiles share a band. Strip the overlap and the tiles
+	# reassemble pixel-identical to a single render -- which is the
+	# property the guard asserts, and the only one that makes tiling a
+	# rendering rather than a resampling.
+	#
+	# Returns [ [ path, row, col, sceneX, sceneY ], ... ] -- what was
+	# written and which part of the picture each sheet holds.
+	def ToPages(pcPath)
+		return This.ToPagesXT(pcPath, [ :Page = :A4 ])
+
+	def ToPagesXT(pcPath, paOptions)
+		if NOT isString(pcPath) or pcPath = ""
+			StzRaise("stzDiagram: ToPages needs a path to write the sheets to.")
+		ok
+		if NOT isList(paOptions)  paOptions = []  ok
+
+		# the page, in pixels at the chosen resolution. A4 at 150dpi is
+		# 1240x1754, which is a real sheet rather than a round number.
+		_pgDpi_ = This._DiagOpt(paOptions, "dpi", 150)
+		_pgName_ = StzLower("" + This._DiagOpt(paOptions, "page", "a4"))
+		_pgWmm_ = 210  _pgHmm_ = 297
+		if _pgName_ = "letter"  _pgWmm_ = 216  _pgHmm_ = 279  ok
+		if _pgName_ = "a3"      _pgWmm_ = 297  _pgHmm_ = 420  ok
+		if _pgName_ = "a5"      _pgWmm_ = 148  _pgHmm_ = 210  ok
+		_pgW_ = floor(This._DiagOpt(paOptions, "pagew",
+			_pgWmm_ / 25.4 * _pgDpi_))
+		_pgH_ = floor(This._DiagOpt(paOptions, "pageh",
+			_pgHmm_ / 25.4 * _pgDpi_))
+		if This._DiagOpt(paOptions, "landscape", 0)
+			_pgT_ = _pgW_  _pgW_ = _pgH_  _pgH_ = _pgT_
+		ok
+		# 12mm of glue, dot's own default order of magnitude
+		_pgOv_ = floor(This._DiagOpt(paOptions, "overlap",
+			12 / 25.4 * _pgDpi_))
+		if _pgOv_ < 0  _pgOv_ = 0  ok
+		if _pgOv_ > _pgW_ / 2  _pgOv_ = floor(_pgW_ / 2)  ok
+		if _pgOv_ > _pgH_ / 2  _pgOv_ = floor(_pgH_ / 2)  ok
+		_pgMarks_ = This._DiagOpt(paOptions, "marks", 1)
+
+		# THE PICTURE IS RENDERED ONCE. Every sheet is a window onto this
+		# one scene, so the layout, the labels and the routing are settled
+		# before any page exists -- pages cannot disagree with each other
+		# about where a node is.
+		_pgOpt_ = []
+		for _pgO_ in paOptions  _pgOpt_ + _pgO_  next
+		# [ key, value ], NOT [ :Key = value ] -- the second nests the pair
+		# one level deeper and every reader skips it in silence, which is
+		# the option-list trap this repository has paid for before
+		_pgOpt_ + [ :Tiled, 1 ]
+		_pgCv_ = This.ToCanvasXT(_pgOpt_)
+		_pgTotW_ = _pgCv_.Width()
+		_pgTotH_ = _pgCv_.Height()
+
+		_pgStepX_ = _pgW_ - _pgOv_
+		_pgStepY_ = _pgH_ - _pgOv_
+		if _pgStepX_ < 1  _pgStepX_ = 1  ok
+		if _pgStepY_ < 1  _pgStepY_ = 1  ok
+		_pgCols_ = max([ 1, ceil((_pgTotW_ - _pgOv_) / _pgStepX_) ])
+		_pgRows_ = max([ 1, ceil((_pgTotH_ - _pgOv_) / _pgStepY_) ])
+
+		# the path becomes a family: name.png -> name_r1c1.png
+		_pgBase_ = pcPath
+		_pgExt_ = ".png"
+		_pgDot_ = StzFindLast(".", pcPath)
+		if _pgDot_ > 1
+			_pgBase_ = StzSubStr(pcPath, 1, _pgDot_ - 1)
+			_pgExt_ = StzSubStr(pcPath, _pgDot_, StzLen(pcPath) - _pgDot_ + 1)
+		ok
+
+		_pgOut_ = []
+		for _pgR_ = 1 to _pgRows_
+			for _pgC_ = 1 to _pgCols_
+				_pgX_ = (_pgC_ - 1) * _pgStepX_
+				_pgY_ = (_pgR_ - 1) * _pgStepY_
+				_pgCv_.SetRegion(_pgX_, _pgY_, _pgW_, _pgH_)
+				_pgPx_ = _pgCv_.ToPixels()
+				if _pgPx_ = ""
+					_pgCv_.ClearRegion()
+					StzRaise("stzDiagram: ToPages needs a graphics " +
+						"device to draw pixels. ToPagesSVG() needs none.")
+				ok
+				_pgSheet_ = new stzCanvas(_pgW_, _pgH_)
+				_pgSheet_.SetBackgroundQ("#FFFFFF")
+				_pgSheet_.AddImage(0, 0, _pgW_, _pgH_, _pgW_, _pgH_, _pgPx_)
+				if _pgMarks_
+					This._PageMarks(_pgSheet_, _pgW_, _pgH_, _pgOv_,
+						_pgR_, _pgC_, _pgRows_, _pgCols_)
+				ok
+				_pgFile_ = _pgBase_ + "_r" + _pgR_ + "c" + _pgC_ + _pgExt_
+				_pgSheet_.ToPNG(_pgFile_)
+				_pgOut_ + [ _pgFile_, _pgR_, _pgC_, _pgX_, _pgY_ ]
+			next
+		next
+		_pgCv_.ClearRegion()
+		return _pgOut_
+
+	# CROP MARKS AND THE SHEET'S NAME, in the overlap margin where the
+	# trim happens -- so a reader with a stack of sheets can tell which
+	# joins which without laying them all out first.
+	def _PageMarks(oSheet, nW, nH, nOv, nR, nC, nRows, nCols)
+		_pmM_ = max([ 6, floor(nOv / 3) ])
+		_pmG_ = "#808080"
+		oSheet.Flush()
+		# a tick at each corner, pointing along the trim line
+		for _pmI_ = 1 to 4
+			_pmX_ = 0  _pmY_ = 0  _pmDx_ = 1  _pmDy_ = 1
+			if _pmI_ = 2  _pmX_ = nW  _pmDx_ = -1  ok
+			if _pmI_ = 3  _pmY_ = nH  _pmDy_ = -1  ok
+			if _pmI_ = 4  _pmX_ = nW  _pmY_ = nH  _pmDx_ = -1  _pmDy_ = -1  ok
+			oSheet.AddLineQ(_pmX_, _pmY_ + _pmDy_ * nOv,
+				_pmX_ + _pmDx_ * _pmM_, _pmY_ + _pmDy_ * nOv).Stroke(_pmG_, 1)
+			oSheet.AddLineQ(_pmX_ + _pmDx_ * nOv, _pmY_,
+				_pmX_ + _pmDx_ * nOv, _pmY_ + _pmDy_ * _pmM_).Stroke(_pmG_, 1)
+		next
+		oSheet.Flush()
+		return This
 
 	def ToPNG(pcPath)
 		return This.ToCanvas().ToPNG(pcPath)

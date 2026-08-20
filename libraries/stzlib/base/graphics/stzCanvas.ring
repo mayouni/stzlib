@@ -338,6 +338,27 @@ class stzCanvas from stzObject
 
 	#-- output: the two tiers of ONE model ---------------------------------
 
+	# RENDER-REGION: draw one rectangle of this canvas, into an image of
+	# that size. Every output method below then answers the REGION --
+	# ToPNG writes a page-sized PNG, ToPixels reads page-sized bytes.
+	#
+	# It exists because a picture larger than its medium has no whole to
+	# cut up: a GPU texture stops at 8192 and print never had a whole at
+	# all. Moving the projection renders each tile from the SAME retained
+	# scene -- same geometry, same text, a different window onto it --
+	# where cropping would need the impossible image to exist first.
+	#
+	# Panning a viewer over a huge diagram is the same call with a
+	# different origin, which is why this is one feature and not two.
+	def SetRegion(pnX, pnY, pnW, pnH)
+		StzEngineGpuSceneSetView(@nId, pnX, pnY, pnW, pnH)
+		return This
+
+	# Back to the whole picture.
+	def ClearRegion()
+		StzEngineGpuSceneSetView(@nId, 0, 0, 0, 0)
+		return This
+
 	# Vector. Needs NO device -- always available, everywhere.
 	def ToSVG()
 		This._Flush()
