@@ -35,26 +35,25 @@ load "../../stzBase.ring"
 decimals(2)
 nOk = 0  nBad = 0  nSecClock = 0
 
-# SCOPE, so the gate can cost what a change actually risks. Three
-# sections -- 4, 7 and 8 -- hold ~484s of the suite's ~8 minutes,
-# because each sweeps many whole renders looking for a pixel property.
-# They are self-contained (nothing later reads what they define), so a
-# run may skip them:
+# THIS SUITE IS ITS OWN FAST PATH -- 20 seconds for every section, so
+# there is nothing to scope away and no skipping to disclose. It was
+# eight minutes until 2026-08-20, and a `quick` switch existed to dodge
+# the three worst sections; measuring them ended that. Every second of
+# the 484 they held was instrument waste, not coverage:
 #
-#   ring gg_adversarial.ring            every section, the full gate
-#   ring gg_adversarial.ring quick      skips the three sweeps (~30s)
+#   - three sections swept the WHOLE canvas hunting the row with the
+#     most paint, to answer what RenderNodeRects() publishes for free
+#   - Ring's substr on a large buffer is O(buffer), about a third of a
+#     millisecond on 1.8MB, so per-pixel substr WAS the cost. Every
+#     scan here now slices its row (or a 64KB chunk) once and indexes
+#     inside it
+#   - one instrument hunted "any pixel that is not fill" and would have
+#     counted the nodes' own labels; it names the edge grey now
 #
-# QUICK IS NOT THE GATE. It is the middle tier between a standalone
-# probe and the pre-commit run: use it while iterating on anything the
-# sweeps cannot reach, and run the full suite once before committing.
-# A section skipped is PRINTED as skipped -- a suite that silently
-# drops coverage reports a green it did not earn.
-cScope = "full"
-if len(sysargv) >= 3
-	if StzLower("" + sysargv[3]) = "quick"  cScope = "quick"  ok
-ok
-bSweeps = 1
-if cScope = "quick"  bSweeps = 0  ok
+# Keep it that way: an instrument that reads a picture should ask the
+# render where to look, name the ink it hunts, and never call substr
+# per pixel. Per-section wall times print below -- CENTRAL-PXLATENCY-01
+# asks that a suite be able to say where its time goes.
 
 ? "=============================================================="
 ? " WHAT THE GUARDS COULD NOT SEE"
@@ -177,53 +176,52 @@ chk("the cap check DISCRIMINATES", nSeen = 1)
 #---------------------------------------------------------------------------
 ? ""
 sec("-- 4. Boxes must FIT the rank they landed in ----------------")
-if bSweeps
-	#
-	# Counted in pixels: the BACKGROUND must still be visible between one box
-	# and the next.
-	#
-	# The obvious instrument was counting runs of the NODE colour and expecting
-	# sixteen. It answered sixteen whether the boxes were separated or fused,
-	# because every box is STROKED -- two abutting boxes are still two runs of
-	# green with a dark border between them. It was measuring "sixteen boxes
-	# were drawn", which was never in doubt, and not "sixteen boxes can be told
-	# apart", which is the whole property. Gaps of background are the thing a
-	# reader actually sees.
-	#---------------------------------------------------------------------------
+#
+# Counted in pixels: the BACKGROUND must still be visible between one box
+# and the next.
+#
+# The obvious instrument was counting runs of the NODE colour and expecting
+# sixteen. It answered sixteen whether the boxes were separated or fused,
+# because every box is STROKED -- two abutting boxes are still two runs of
+# green with a dark border between them. It was measuring "sixteen boxes
+# were drawn", which was never in doubt, and not "sixteen boxes can be told
+# apart", which is the whole property. Gaps of background are the thing a
+# reader actually sees.
+#
+# The row is now ASKED FOR (see _RankRowGaps) rather than hunted across the
+# whole canvas -- same property, same numbers, 140s to under a second.
+#---------------------------------------------------------------------------
 
-	NODEC = "#2E7D32"
-	oG = new stzDiagram("fan")
-	oG.AddNodeXTT("root", "Root", [ :type = "box", :color = NODEC ])
-	for i = 1 to 16
-		oG.AddNodeXTT("k" + i, "Kid " + i, [ :type = "box", :color = NODEC ])
-		oG.AddEdge("root", "k" + i)
-	next
+NODEC = "#2E7D32"
+oG = new stzDiagram("fan")
+oG.AddNodeXTT("root", "Root", [ :type = "box", :color = NODEC ])
+for i = 1 to 16
+	oG.AddNodeXTT("k" + i, "Kid " + i, [ :type = "box", :color = NODEC ])
+	oG.AddEdge("root", "k" + i)
+next
 
-	aOpt = [ :Width = 1200, :Height = 500, :NodeWidth = 96, :NodeHeight = 34 ]
-	nFit = _GapsInDensestRow(oG.ToCanvasXT(aOpt), 1200, 500, NODEC)
-	? "   16 nodes in a 1200px picture, boxes asked for 96px wide"
-	? "   gaps of background between them : " + nFit + " (16 boxes -> 15 gaps)"
-	chkeq("every node in the rank can be told from its neighbour", nFit, 15)
+aOpt = [ :Width = 1200, :Height = 500, :NodeWidth = 96, :NodeHeight = 34 ]
+nFit = _RankRowGaps(oG, oG.ToCanvasXT(aOpt), 1200, NODEC)[1]
+? "   16 nodes in a 1200px picture, boxes asked for 96px wide"
+? "   gaps of background between them : " + nFit + " (16 boxes -> 15 gaps)"
+chkeq("every node in the rank can be told from its neighbour", nFit, 15)
 
-	# THE NEGATIVE SIBLING, and the proof that the fit pass is what fixed it:
-	# the same picture with fitting switched OFF must fuse the boxes into a wall.
-	aOff = [ :Width = 1200, :Height = 500, :NodeWidth = 96, :NodeHeight = 34,
-	         :FitBoxes = 0 ]
-	nRaw = _GapsInDensestRow(oG.ToCanvasXT(aOff), 1200, 500, NODEC)
-	? "   the same picture with :FitBoxes = FALSE : " + nRaw + " gaps"
-	chk("without fitting the boxes really do run together", nRaw < 15)
+# THE NEGATIVE SIBLING, and the proof that the fit pass is what fixed it:
+# the same picture with fitting switched OFF must fuse the boxes into a wall.
+aOff = [ :Width = 1200, :Height = 500, :NodeWidth = 96, :NodeHeight = 34,
+         :FitBoxes = 0 ]
+nRaw = _RankRowGaps(oG, oG.ToCanvasXT(aOff), 1200, NODEC)[1]
+? "   the same picture with :FitBoxes = FALSE : " + nRaw + " gaps"
+chk("without fitting the boxes really do run together", nRaw < 15)
 
-	# and the mechanism itself, where the arithmetic is visible
-	? "   scale for 16 nodes 82px apart, 96px boxes : " +
-	  oG._RankFitScale(_Rank(16, 82), 96, 34)
-	chk("a crowded rank scales DOWN", oG._RankFitScale(_Rank(16, 82), 96, 34) < 1)
-	chk("a roomy rank is left ALONE", oG._RankFitScale(_Rank(4, 300), 96, 34) = 1)
+# and the mechanism itself, where the arithmetic is visible
+? "   scale for 16 nodes 82px apart, 96px boxes : " +
+  oG._RankFitScale(_Rank(16, 82), 96, 34)
+chk("a crowded rank scales DOWN", oG._RankFitScale(_Rank(16, 82), 96, 34) < 1)
+chk("a roomy rank is left ALONE", oG._RankFitScale(_Rank(4, 300), 96, 34) = 1)
 
-	#---------------------------------------------------------------------------
-	? ""
-else
-	? "        [SKIPPED -- quick scope; the full gate runs it]"
-ok
+#---------------------------------------------------------------------------
+? ""
 
 sec("-- 5. A label reaches the picture AS AUTHORED ---------------")
 #
@@ -300,94 +298,82 @@ chk("...and the ordinal spread really was worse", nOld > nErr * 2)
 #---------------------------------------------------------------------------
 ? ""
 sec("-- 7. Spacing is the CONTRACT; the size is derived ----------")
-if bSweeps
-	#
-	# dot's model, and this tier had it inverted: the caller fixed a canvas
-	# and the layout stretched to fill it, so the minimum gap between nodes
-	# was whatever the stretch left over -- 2px in a crowded rank, 20px in a
-	# loose one, in the same picture. Meanwhile SetNodeSeparation existed, in
-	# dot's own units, and only the DOT WRITER read it.
-	#
-	# So: a render that names no size must honour the separation contract
-	# EXACTLY -- the tightest gap in the picture IS nodesep, because the
-	# engine's isotonic pass pins the tightest pair at exactly one slot.
-	#---------------------------------------------------------------------------
+#
+# The caller names the SEPARATION and the picture takes its size from the
+# content -- dot's model, and the one this tier had inverted. So the
+# tightest gap a reader can see must BE the contract, and a canvas too
+# small to hold it must visibly break it.
+#
+# Same one-row instrument as section 4, reading the narrowest gap instead
+# of the count: 109s to under a second.
+#---------------------------------------------------------------------------
 
-	oN = new stzDiagram("fan2")
-	oN.AddNodeXTT("root", "Root", [ :type = "box", :color = NODEC ])
-	for i = 1 to 16
-		oN.AddNodeXTT("k" + i, "Kid " + i, [ :type = "box", :color = NODEC ])
-		oN.AddEdge("root", "k" + i)
-	next
-	nSep = floor(oN.NodeSeparation() * 96)
-	oNat = oN.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 34 ])
-	? "   contract : nodesep = " + nSep + "px   canvas derived : " +
-	  oNat.Width() + "x" + oNat.Height()
-	nGap = _MinGapPx(oNat, oNat.Width(), oNat.Height(), NODEC)
-	? "   tightest gap in the natural render : " + nGap + "px"
-	chk("the tightest gap IS the nodesep contract (within stroke+AA)",
-	    nGap >= nSep - 8 and nGap <= nSep + 2)
+oN = new stzDiagram("fan2")
+oN.AddNodeXTT("root", "Root", [ :type = "box", :color = NODEC ])
+for i = 1 to 16
+	oN.AddNodeXTT("k" + i, "Kid " + i, [ :type = "box", :color = NODEC ])
+	oN.AddEdge("root", "k" + i)
+next
+nSep = floor(oN.NodeSeparation() * 96)
+oNat = oN.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 34 ])
+? "   contract : nodesep = " + nSep + "px   canvas derived : " +
+  oNat.Width() + "x" + oNat.Height()
+nGap = _RankRowGaps(oN, oNat, oNat.Width(), NODEC)[2]
+? "   tightest gap in the natural render : " + nGap + "px"
+chk("the tightest gap IS the nodesep contract (within stroke+AA)",
+    nGap >= nSep - 8 and nGap <= nSep + 2)
 
-	# THE NEGATIVE SIBLING: the same diagram forced into a canvas too small
-	# for the contract must break it -- otherwise the check above would pass
-	# on any renderer that leaves big gaps for any reason at all.
-	oCr = oN.ToCanvasXT([ :Width = 700, :Height = 240,
-		:NodeWidth = 96, :NodeHeight = 34 ])
-	nCr = _MinGapPx(oCr, 700, 240, NODEC)
-	? "   the same diagram crushed into 700px : " + nCr + "px"
-	chk("...and a canvas too small for the contract breaks it", nCr < nSep - 20)
+oCr = oN.ToCanvasXT([ :Width = 700, :Height = 240,
+	:NodeWidth = 96, :NodeHeight = 34 ])
+nCr = _RankRowGaps(oN, oCr, 700, NODEC)[2]
+? "   the same diagram crushed into 700px : " + nCr + "px"
+chk("...and a canvas too small for the contract breaks it", nCr < nSep - 20)
 
-	#---------------------------------------------------------------------------
-	? ""
-else
-	? "        [SKIPPED -- quick scope; the full gate runs it]"
-ok
+#---------------------------------------------------------------------------
+? ""
 
 sec("-- 8. A long edge goes AROUND the boxes, not through them ---")
-if bSweeps
-	#
-	# The step of the Sugiyama pipeline that was missing. An edge spanning
-	# more than one rank was a straight line from source to target, so a
-	# 9-stage pipeline with a 1->9 edge drew that edge across seven boxes.
-	# No routing rule could have saved it: the edge had no presence in the
-	# ranks it crossed, so nothing reserved room for it. Dummy nodes give it
-	# one, and the chain read back out IS the route.
-	#
-	# Measured in pixels, over the node fill: a routed edge never paints
-	# grey inside a box.
-	#---------------------------------------------------------------------------
+#
+# An edge spanning many ranks used to be a straight line from source to
+# target, drawn THROUGH every box between. The property is pixel-true: the
+# EDGE STROKE's own grey must not appear inside any node box.
+#
+# Read only WHERE THE BOXES ARE, from the render's own rects, and hunting a
+# NAMED colour rather than "anything that is not fill" -- which counted the
+# nodes' own labels. 233s to under a second.
+#---------------------------------------------------------------------------
 
-	BLU = "#1E6FE0"
-	oL = new stzDiagram("pipe")
-	for i = 1 to 9
-		oL.AddNodeXTT("s" + i, "Stage " + i, [ :type = "box", :color = BLU ])
-	next
-	for i = 1 to 8  oL.AddEdge("s" + i, "s" + (i+1))  next
-	oL.AddEdge("s1", "s9")          # spans eight ranks
-	oL.AddEdge("s2", "s7")          # spans five
+BLU = "#1E6FE0"
+oL = new stzDiagram("pipe")
+for i = 1 to 9
+	oL.AddNodeXTT("s" + i, "Stage " + i, [ :type = "box", :color = BLU ])
+next
+for i = 1 to 8  oL.AddEdge("s" + i, "s" + (i+1))  next
+oL.AddEdge("s1", "s9")          # spans eight ranks
+oL.AddEdge("s2", "s7")          # spans five
 
-	oLc = oL.ToCanvasXT([ :NodeWidth = 110, :NodeHeight = 34 ])
-	nCross = _EdgeInkInsideBoxes(oLc, oLc.Width(), oLc.Height(), BLU)
-	? "   canvas " + oLc.Width() + "x" + oLc.Height() +
-	  "   edge ink found inside node boxes : " + nCross
-	chk("no long edge is drawn through a node", nCross = 0)
+oLc = oL.ToCanvasXT([ :NodeWidth = 110, :NodeHeight = 34 ])
+nCross = _EdgeInkInRects(oLc.ToPixels(), oLc.Width(), oLc.Height(),
+	oL.RenderNodeRects(), [ 138, 138, 138 ], 40)
+? "   canvas " + oLc.Width() + "x" + oLc.Height() +
+  "   edge ink found inside node boxes : " + nCross
+chk("no long edge is drawn through a node", nCross = 0)
 
-	# THE NEGATIVE SIBLING: the instrument must be able to SEE an edge over a
-	# box, so draw one deliberately and measure the same way.
-	oX = new stzCanvas(200, 120)
-	oX.SetBackgroundQ("#FFFFFF")
-	oX.FillQ(BLU).AddRect(40, 30, 120, 60)
-	oX.Flush()
-	oX.AddLineQ(20, 60, 180, 60).Stroke("#8A8A8A", 2)
-	nX = _EdgeInkInsideBoxes(oX, 200, 120, BLU)
-	? "   a line drawn deliberately across a box reads : " + nX
-	chk("the crossing check DISCRIMINATES", nX > 0)
+# THE NEGATIVE SIBLING: a line drawn deliberately across a box, on a canvas
+# built by hand -- so its box rect is passed explicitly, the instrument
+# having no render to ask.
+oX = new stzCanvas(200, 120)
+oX.SetBackgroundQ("#FFFFFF")
+oX.FillQ(BLU).AddRect(40, 30, 120, 60)
+oX.Flush()
+oX.AddLineQ(20, 60, 180, 60).Stroke("#8A8A8A", 2)
+nX = _EdgeInkInRects(oX.ToPixels(), 200, 120, [ [ 40, 30, 120, 60 ] ],
+	[ 138, 138, 138 ], 40)
+? "   a line drawn deliberately across a box reads : " + nX
+chk("the crossing check DISCRIMINATES", nX > 0)
 
-	#---------------------------------------------------------------------------
-	? ""
-else
-	? "        [SKIPPED -- quick scope; the full gate runs it]"
-ok
+#---------------------------------------------------------------------------
+? ""
 
 sec("-- 9. A cluster box holds its members, and NO STRANGER -------")
 #
@@ -2180,6 +2166,135 @@ func _CapsIn cSvg
 	next
 	return _ca_
 
+# THE RANK ROW, ASKED FOR RATHER THAN HUNTED -- and the two near-identical
+# gap instruments collapsed into one.
+#
+# _GapsInDensestRow and _MinGapPx each swept the WHOLE canvas on a 4x4
+# stride to find the row with the most node paint: 37,500 probes of three
+# substr calls apiece, 17.8 seconds per call, and they did it to answer a
+# question the render already answers for free. RenderNodeRects() publishes
+# every box, so the densest RANK is arithmetic and its centre row is exact --
+# where the paint-density heuristic could land on a row grazing the box tops,
+# which is where antialiasing lives.
+#
+# The pixel property is unchanged and still the reader's-eye truth: gaps of
+# BACKGROUND along a row that cuts every box in the densest rank. Only the
+# instrument got cheap -- one substr for the row, one pass along it, both the
+# gap COUNT (section 4) and the narrowest gap's WIDTH (section 7) out of the
+# same walk. Measured on the 16-node fan: 17.82s -> 0.00s, same 15 gaps.
+func _RankRowGaps oDiag, oCanvas, nW, cHex
+	_rrR_ = oDiag.RenderNodeRects()
+	if len(_rrR_) = 0  return [ -1, -1 ]  ok
+	_rrY_ = _DensestRankRow(_rrR_)
+	if _rrY_ < 0  return [ -1, -1 ]  ok
+	_rrPx_ = oCanvas.ToPixels()
+	_rrRow_ = substr(_rrPx_, (_rrY_ * nW) * 4 + 1, nW * 4)
+	return _RowGaps(_rrRow_, nW, _HexRGB(cHex), 60)
+
+# The centre row of the rank holding the most boxes.
+func _DensestRankRow aRects
+	_drW_ = []
+	for _drR_ in aRects
+		_drC_ = _drR_[2] + _drR_[4] / 2
+		_drF_ = 0
+		for _drI_ = 1 to len(_drW_)
+			if fabs(_drW_[_drI_][1] - _drC_) < 2
+				_drW_[_drI_][2]++
+				_drF_ = 1
+				exit
+			ok
+		next
+		if _drF_ = 0  _drW_ + [ _drC_, 1 ]  ok
+	next
+	_drB_ = 0  _drY_ = -1
+	for _drR_ in _drW_
+		if _drR_[2] > _drB_  _drB_ = _drR_[2]  _drY_ = _drR_[1]  ok
+	next
+	return floor(_drY_)
+
+# One row of RGBA bytes -> [ how many background gaps, the narrowest ].
+# NEAR-white, not exactly white, for the same antialiasing reason the old
+# instrument learned the hard way: a blend beside a stroke is still
+# background to a reader.
+func _RowGaps cRow, nW, aFg, nTol
+	_rgF_ = -1  _rgL_ = -1
+	for _rgX_ = 0 to nW - 1
+		_rgI_ = _rgX_ * 4 + 1
+		if ascii(cRow[_rgI_]) = aFg[1] and ascii(cRow[_rgI_ + 1]) = aFg[2] and
+		   ascii(cRow[_rgI_ + 2]) = aFg[3]
+			if _rgF_ < 0  _rgF_ = _rgX_  ok
+			_rgL_ = _rgX_
+		ok
+	next
+	if _rgF_ < 0  return [ -1, -1 ]  ok
+	_rgN_ = 0  _rgRun_ = 0  _rgMin_ = -1
+	for _rgX_ = _rgF_ to _rgL_
+		_rgI_ = _rgX_ * 4 + 1
+		if fabs(ascii(cRow[_rgI_]) - 255) <= nTol and
+		   fabs(ascii(cRow[_rgI_ + 1]) - 255) <= nTol and
+		   fabs(ascii(cRow[_rgI_ + 2]) - 255) <= nTol
+			_rgRun_++
+		else
+			if _rgRun_ >= 1
+				_rgN_++
+				if _rgMin_ < 0 or _rgRun_ < _rgMin_  _rgMin_ = _rgRun_  ok
+			ok
+			_rgRun_ = 0
+		ok
+	next
+	if _rgRun_ >= 1
+		_rgN_++
+		if _rgMin_ < 0 or _rgRun_ < _rgMin_  _rgMin_ = _rgRun_  ok
+	ok
+	return [ _rgN_, _rgMin_ ]
+
+# EDGE ink inside a node box -- named, and read only where the boxes are.
+#
+# Two faults, one rewrite. The old form swept the ENTIRE canvas asking of
+# every non-box non-white pixel whether box colour lay above AND below it
+# within 8px -- an inside-a-box test performed everywhere including the
+# empty margins, 233 seconds of it. And that test was luck: a node's own
+# LABEL is also neither fill nor background, and it escaped only because
+# 8px above a glyph often is not exact fill either. Scanning box interiors
+# for "anything unexpected" made the luck visible -- 43 hits, every one a
+# letter.
+#
+# So the instrument now NAMES what it hunts: the edge stroke's own grey.
+# Text blends run from fill toward white and miss that colour on all three
+# channels; edge ink matches it. A property worth asserting is worth naming.
+#
+# The speed came from a second finding, and it is the important one:
+# Ring's substr on a 1.8MB pixel buffer costs about a third of a
+# millisecond -- it is O(buffer), not O(1) -- so THREE substr calls per
+# pixel is the whole disease. Each scanned row is sliced ONCE and indexed
+# in place: 7.34s -> 0.06s on the same picture, same verdicts.
+func _EdgeInkInRects cPx, nW, nH, aRects, aInk, nTol
+	_erH_ = 0
+	for _erR_ in aRects
+		_erX1_ = ceil(_erR_[1]) + 4
+		_erX2_ = floor(_erR_[1] + _erR_[3]) - 4
+		_erY1_ = ceil(_erR_[2]) + 4
+		_erY2_ = floor(_erR_[2] + _erR_[4]) - 4
+		if _erX1_ < 0  _erX1_ = 0  ok
+		if _erY1_ < 0  _erY1_ = 0  ok
+		if _erX2_ > nW - 1  _erX2_ = nW - 1  ok
+		if _erY2_ > nH - 1  _erY2_ = nH - 1  ok
+		if _erX2_ < _erX1_ or _erY2_ < _erY1_  loop  ok
+		_erLen_ = (_erX2_ - _erX1_ + 1) * 4
+		for _erY_ = _erY1_ to _erY2_ step 2
+			_erRow_ = substr(cPx, (_erY_ * nW + _erX1_) * 4 + 1, _erLen_)
+			for _erX_ = 0 to _erX2_ - _erX1_
+				_erI_ = _erX_ * 4 + 1
+				if fabs(ascii(_erRow_[_erI_]) - aInk[1]) <= nTol and
+				   fabs(ascii(_erRow_[_erI_ + 1]) - aInk[2]) <= nTol and
+				   fabs(ascii(_erRow_[_erI_ + 2]) - aInk[3]) <= nTol
+					_erH_++
+				ok
+			next
+		next
+	next
+	return _erH_
+
 func _HexRGB cHex
 	_hh_ = StzUpper(StzReplace("" + cHex, "#", ""))
 	if StzLen(_hh_) != 6  return [ -1, -1, -1 ]  ok
@@ -2530,18 +2645,34 @@ func Raises cCode
 # How many pixels differ between two canvases of the SAME size. Answers -1
 # when the sizes differ, which is a different fact and must not be reported
 # as a difference count.
+# ROW BY ROW, and identical rows skipped whole. Six substr calls per pixel
+# over two 537KB buffers cost 18.4 seconds; Ring's substr on a large string
+# is O(buffer), so the calls WERE the work. Slicing each row once and
+# comparing the slices first means two nearly-identical renders -- which is
+# exactly what this compares -- differ on a handful of rows and the rest
+# cost one string comparison each: 18.38s -> 0.03s, same 941 pixels.
 func _PixelsDiffering oA, oB
 	if oA.Width() != oB.Width() or oA.Height() != oB.Height()  return -1  ok
 	_da_ = oA.ToPixels()
 	_db_ = oB.ToPixels()
-	_dn_ = min([ len(_da_), len(_db_) ])
+	if _da_ = _db_  return 0  ok
+	_dw_ = oA.Width()
+	_dh_ = oA.Height()
+	_dl_ = _dw_ * 4
 	_dc_ = 0
-	for _di_ = 1 to _dn_ step 4
-		if substr(_da_, _di_, 1) != substr(_db_, _di_, 1) or
-		   substr(_da_, _di_ + 1, 1) != substr(_db_, _di_ + 1, 1) or
-		   substr(_da_, _di_ + 2, 1) != substr(_db_, _di_ + 2, 1)
-			_dc_++
-		ok
+	for _dy_ = 0 to _dh_ - 1
+		_dOf_ = _dy_ * _dl_ + 1
+		_dRa_ = substr(_da_, _dOf_, _dl_)
+		_dRb_ = substr(_db_, _dOf_, _dl_)
+		if _dRa_ = _dRb_  loop  ok
+		for _dx_ = 0 to _dw_ - 1
+			_di_ = _dx_ * 4 + 1
+			if _dRa_[_di_] != _dRb_[_di_] or
+			   _dRa_[_di_ + 1] != _dRb_[_di_ + 1] or
+			   _dRa_[_di_ + 2] != _dRb_[_di_ + 2]
+				_dc_++
+			ok
+		next
 	next
 	return _dc_
 
@@ -2789,16 +2920,32 @@ func _OverlappingTerritories aPos, nMax
 
 # How many distinct values the RED channel takes across a render. An
 # aliased edge can only be ink or paper; coverage blending has many.
+# DISTINCT RED VALUES, counted with a presence table over sliced chunks.
+# The old form paid twice per byte: a substr on the whole buffer (O(buffer)
+# in Ring) and a StzFindFirst down a list that grew as it went. On one
+# 420x320 canvas that was 37.3 seconds. Slicing 64KB at a time and marking
+# a 256-slot table costs 0.03s for the same 224 levels -- and the table
+# makes the count exact rather than order-dependent.
 func _GreyLevels cPx
-	_gs_ = []
+	_gSeen_ = []
+	for _gk_ = 1 to 256  _gSeen_ + 0  next
 	_gn_ = len(cPx)
-	_gi_ = 1
-	while _gi_ <= _gn_ - 3
-		_gv_ = ascii(substr(cPx, _gi_, 1))
-		if StzFindFirst(_gv_, _gs_) = 0  _gs_ + _gv_  ok
-		_gi_ += 4
+	_gPos_ = 1
+	while _gPos_ <= _gn_
+		_gLen_ = min([ 65536, _gn_ - _gPos_ + 1 ])
+		_gLen_ = _gLen_ - (_gLen_ % 4)
+		if _gLen_ < 4  exit  ok
+		_gS_ = substr(cPx, _gPos_, _gLen_)
+		for _gj_ = 1 to _gLen_ - 3 step 4
+			_gSeen_[ ascii(_gS_[_gj_]) + 1 ] = 1
+		next
+		_gPos_ += _gLen_
 	end
-	return len(_gs_)
+	_gc_ = 0
+	for _gk_ = 1 to 256
+		if _gSeen_[_gk_] = 1  _gc_++  ok
+	next
+	return _gc_
 
 func _ScaleDiag nScale
 	_sd_ = new stzDiagram("sc")
