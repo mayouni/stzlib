@@ -344,6 +344,11 @@ class stzDiagram from stzGraph
 	# the only instrument a guard can put on the label law.
 	@aRenderLabels = []
 
+	# The last render's paper size, so the label placer can refuse a spot
+	# that hangs off it.
+	@nRenderW = 0
+	@nRenderH = 0
+
 	# The layered crossing count of the order the last render drew --
 	# the graph tier's structure fact. Only the crossings the structure
 	# REQUIRES survive the engine sweep, and each survivor earns a wire
@@ -1958,6 +1963,10 @@ class stzDiagram from stzGraph
 		@nEdgeCornerRad = _nRad_
 
 		_oC_ = new stzCanvas(_nW_, _nH_)
+		# the paper's own edges, so a label placed beside its edge cannot
+		# solve its crowding by stepping off the picture
+		@nRenderW = _nW_
+		@nRenderH = _nH_
 		_oC_.SetBackground(_cBg_)
 
 		# 1. CLUSTERS behind everything, each with its LABEL -- the box without
@@ -2210,55 +2219,80 @@ class stzDiagram from stzGraph
 					next
 				ok
 				if len(_aPth_) >= 4
-					# arc-length walk over the drawn flat
-					_nTot_ = 0
-					_aSegL_ = []
-					for _si_ = 1 to len(_aPth_) - 3 step 2
-						_sl_ = fabs(_aPth_[_si_ + 2] - _aPth_[_si_]) +
-							fabs(_aPth_[_si_ + 3] - _aPth_[_si_ + 1])
-						_aSegL_ + _sl_
-						_nTot_ += _sl_
+					# ON THE LINE ONLY WHERE THE LINE CAN HOLD IT, and
+					# BESIDE it otherwise -- the Principal's rule for the
+					# labelled fan, where two labels sat on a bus barely
+					# their own width long and read as a bar laid over it.
+					# A label centred on a segment hides the middle of
+					# that segment; that only reads as a LABELLED LINE if
+					# line still shows on both sides, so a segment must be
+					# the label's length plus a clearance each side to
+					# carry one. Shorter segments -- the drops of a fan --
+					# take the label BESIDE them, offset perpendicular,
+					# where it needs no line length at all and its nearest
+					# ink is still its own edge.
+					#
+					# Segments are tried from the TARGET end backwards, so
+					# a label inherits the spread of the children rather
+					# than crowding the shared trunk they all leave from.
+					# ON EVERY SEGMENT THAT CAN CARRY IT FIRST, beside
+					# only when none can. Ordering the two kinds per
+					# segment instead put a label beside a short drop
+					# while its own long run stood empty two segments
+					# away -- the fallback winning over the answer.
+					_nClr2_ = This._LineClearance()
+					_aOn_ = []
+					_aBes_ = []
+					for _si_ = len(_aPth_) - 3 to 1 step -2
+						_sx1_ = _aPth_[_si_]
+						_sy1_ = _aPth_[_si_ + 1]
+						_sx2_ = _aPth_[_si_ + 2]
+						_sy2_ = _aPth_[_si_ + 3]
+						_sdx_ = fabs(_sx2_ - _sx1_)
+						_sdy_ = fabs(_sy2_ - _sy1_)
+						_smx_ = (_sx1_ + _sx2_) / 2
+						_smy_ = (_sy1_ + _sy2_) / 2
+						if _sdx_ >= _sdy_
+							# a horizontal run carries the label only if
+							# it is longer than the label plus a
+							# clearance of line showing at each end
+							if _sdx_ >= _lw_ + _nClr2_ * 2
+								_aOn_ + [ _smx_, _smy_ ]
+							ok
+							if _sdx_ >= 8
+								_aBes_ + [ _smx_, _smy_ - _lh_ / 2 - _nClr2_ * 0.5 ]
+								_aBes_ + [ _smx_, _smy_ + _lh_ / 2 + _nClr2_ * 0.5 ]
+							ok
+						else
+							if _sdy_ >= _lh_ + _nClr2_ * 2
+								_aOn_ + [ _smx_, _smy_ ]
+							ok
+							if _sdy_ >= 8
+								_aBes_ + [ _smx_ - _lw_ / 2 - _nClr2_ * 0.5, _smy_ ]
+								_aBes_ + [ _smx_ + _lw_ / 2 + _nClr2_ * 0.5, _smy_ ]
+							ok
+						ok
 					next
+					_aCand_ = []
+					for _cOn_ in _aOn_   _aCand_ + _cOn_   next
+					for _cBe_ in _aBes_  _aCand_ + _cBe_   next
 					_nBestD_ = -1
 					_nBestX_ = _lx_
 					_nBestY_ = _ly_
-					for _fr_ in [ 0.50, 0.42, 0.58, 0.34, 0.66,
-					              0.26, 0.74, 0.18, 0.82 ]
-						_nWant_ = _nTot_ * _fr_
-						_cx_ = _aPth_[1]
-						_cy_ = _aPth_[2]
-						_acc_ = 0
-						for _si_ = 1 to len(_aSegL_)
-							if _acc_ + _aSegL_[_si_] >= _nWant_ or
-							   _si_ = len(_aSegL_)
-								_st_ = 0
-								if _aSegL_[_si_] > 0.001
-									_st_ = (_nWant_ - _acc_) / _aSegL_[_si_]
-								ok
-								if _st_ < 0  _st_ = 0  ok
-								if _st_ > 1  _st_ = 1  ok
-								_pj_ = _si_ * 2 - 1
-								_cx_ = _aPth_[_pj_] +
-									(_aPth_[_pj_ + 2] - _aPth_[_pj_]) * _st_
-								_cy_ = _aPth_[_pj_ + 1] +
-									(_aPth_[_pj_ + 3] - _aPth_[_pj_ + 1]) * _st_
-								exit
-							ok
-							_acc_ += _aSegL_[_si_]
-						next
-						_nD_ = This._LabelSpotScore(_cx_, _cy_, _lw_, _lh_,
-							_cLK_, _aDone_)
+					for _cd_ in _aCand_
+						_nD_ = This._LabelSpotScore(_cd_[1], _cd_[2], _lw_,
+							_lh_, _cLK_, _aDone_)
 						if _nD_ < 0  loop  ok
-						if _nD_ >= This._LineClearance() * 0.6
+						if _nD_ >= _nClr2_ * 0.6
 							_nBestD_ = _nD_
-							_nBestX_ = _cx_
-							_nBestY_ = _cy_
+							_nBestX_ = _cd_[1]
+							_nBestY_ = _cd_[2]
 							exit
 						ok
 						if _nD_ > _nBestD_
 							_nBestD_ = _nD_
-							_nBestX_ = _cx_
-							_nBestY_ = _cy_
+							_nBestX_ = _cd_[1]
+							_nBestY_ = _cd_[2]
 						ok
 					next
 					if _nBestD_ >= 0
@@ -2881,7 +2915,28 @@ class stzDiagram from stzGraph
 				# competes along the slot axis
 				_w_ = nFsz + 8
 			ok
-			_need_ = (_w_ / This._EdgeLabelBias() - nBoxW) / 2
+			# WHAT THE LABEL OCCUPIES, not that divided by where it sits.
+			#
+			# This asked for the label's width DIVIDED by the placement
+			# bias -- the arithmetic of a model where a label at fraction
+			# f inherits f of the spread between two targets, so buying
+			# w/f of spread yields w of room. That model died when labels
+			# were anchored on the drawn ortho path: a label now sits
+			# where its own edge has room, which is nowhere near a fixed
+			# fraction. The division stayed, and at bias 0.5 it demanded
+			# TWICE the label's width -- a 108px label pushed a 153px
+			# pitch out to 277px, and the picture paid for 124px of empty
+			# paper per child that no label was standing in.
+			#
+			# What it needs instead is the LINE IT SITS ON: the label's
+			# own width plus a clearance of line showing at each end, so
+			# the label reads as centred inside its edge rather than laid
+			# across it. That is the Principal's rule stated as a
+			# quantity, and it is nearly free -- on the four-way fan it
+			# buys 3px of pitch where the old arithmetic bought 124.
+			# Slots already that wide demand NOTHING, which is why an
+			# ordinary diagram of short labels is untouched.
+			_need_ = (_w_ + This._LineClearance() * 2 - nSlot) / 2
 			if _need_ <= 0  loop  ok
 			_d_ = _need_ / nSlot
 			if _d_ > _dem_[_at_]  _dem_[_at_] = _d_  ok
@@ -3045,6 +3100,17 @@ class stzDiagram from stzGraph
 	def _LabelSpotScore(nLx, nLy, nLw, nLh, cOwnKey, paDone)
 		_lsL_ = nLx - nLw / 2
 		_lsT_ = nLy - nLh / 2
+		# OFF THE PAPER IS NOT A SPOT. Beside-the-edge placement gave the
+		# leftmost label of a fan an empty margin to move into, and it
+		# moved there -- off the canvas, where the picture is not. A spot
+		# outside the paper is refused like any other occupied one, so
+		# the label tries its edge's OTHER side instead.
+		if @nRenderW > 0 and @nRenderH > 0
+			if _lsL_ < 0 or _lsT_ < 0 or
+			   _lsL_ + nLw > @nRenderW or _lsT_ + nLh > @nRenderH
+				return -1
+			ok
+		ok
 		for _lsD_ in paDone
 			if fabs(nLx - _lsD_[1]) < (nLw + _lsD_[3]) / 2 and
 			   fabs(nLy - _lsD_[2]) < (nLh + _lsD_[4]) / 2
