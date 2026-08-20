@@ -2055,7 +2055,20 @@ for aL in aLbs
 next
 ? "   worst own-edge distance " + nWorstOwn +
   "px ; tightest foreign clearance " + nWorstFor + "px"
-chk("every label touches the edge it names", nWorstOwn < 1)
+# ATTACHED, not TOUCHING -- and the difference is a lesson this section
+# had to be taught. It asserted distance ZERO, which was true only
+# because every label happened to sit ON its path at the time. When the
+# aligned child of a fan gained an honest BESIDE placement -- its edge is
+# a pure vertical drop with no run to sit on -- a correct picture failed
+# a guard that had pinned the implementation instead of the property.
+# What incidence actually claims is that a label is near enough to its
+# own edge to read as attached to it, and NEARER to that edge than to
+# any other ink in the picture. Both, or the assertion is one number
+# with no rival.
+chk("every label is attached to the edge it names",
+    nWorstOwn <= oLb._LineClearance())
+chk("...and is NEARER its own edge than any foreign one",
+    nWorstOwn < nWorstFor)
 chk("no plate erases or crowds a foreign edge",
     nWorstFor >= oLb._LineClearance() * 0.6)
 
@@ -2071,6 +2084,114 @@ aN1 = oLb.RenderNodeRects()[1]
 nInN = oLb._LabelSpotScore(aN1[1] + aN1[3]/2, aN1[2] + aN1[4]/2,
 	60, 20, "", [])
 chkeq("a spot inside a node box is refused outright", nInN, -1)
+
+#---------------------------------------------------------------------------
+? ""
+sec("-- 33. A label sits IN its line, and the paper is no bigger --")
+#
+# Two Principal findings on the labelled fan, one root. The labels of the
+# middle two edges lay ACROSS the shared bus, hiding the line they named,
+# and the picture was half again as wide as anything required.
+#
+# The demand was the cause of both. It asked for the label's width DIVIDED
+# by the placement bias -- the arithmetic of a dead model in which a label
+# sat at a fixed fraction of a straight edge and inherited that fraction of
+# the spread. At bias 0.5 it bought TWICE the label's width per child: 124px
+# of paper per child that no label stood in, while the labels themselves
+# crowded onto a bus that had not been widened at all.
+#
+# What a label needs is the LINE IT SITS ON: its own width plus a clearance
+# of line showing at each end, so it reads as centred inside its edge rather
+# than laid over it. The placer honours the same quantity from the other
+# side -- it will only sit ON a segment long enough to show line at both
+# ends, and goes BESIDE the line otherwise (an aligned child's edge is a
+# pure vertical drop; there is no run to sit on, and inventing one would be
+# inventing space).
+#
+# Together they are also the space rule: the picture is as small as its
+# constraints allow, because the only thing widening it is a constraint.
+#---------------------------------------------------------------------------
+
+LFONT = new stzFont("C:/Windows/Fonts/segoeui.ttf")
+oLd = new stzDiagram("fan33")
+oLd.AddNodeXTT("r", "Router", [ :type = "box", :color = "Info.Solid" ])
+for i = 1 to 4
+	oLd.AddNodeXTT("h" + i, "H" + i, [ :type = "box", :color = "Info.Solid" ])
+	oLd.AddEdgeXT("r", "h" + i, "condition " + i + " holds")
+next
+oLd.SetSplines("ortho")
+oLd.ToCanvasXT([ :Font = LFONT, :NodeWidth = 96, :NodeHeight = 36,
+	:FontSize = 13 ])
+nClr33 = oLd._LineClearance()
+nLW33 = LFONT.WidthOf("condition 1 holds", 13) + 8
+
+# A label centred ON a segment must leave line showing at BOTH ends.
+nOnCount = 0
+nWorstTail = 1000000
+for aL in oLd.RenderLabels()
+	for aP in oLd.RenderEdgePaths()
+		if aP[1] != aL[6]  loop  ok
+		aF = aP[2]
+		for i = 1 to len(aF) - 3 step 2
+			nDx = fabs(aF[i+2] - aF[i])
+			nDy = fabs(aF[i+3] - aF[i+1])
+			if nDx >= nDy
+				if fabs(aL[3] - aF[i+1]) > 1  loop  ok
+				if aL[2] < min([ aF[i], aF[i+2] ]) or
+				   aL[2] > max([ aF[i], aF[i+2] ])  loop  ok
+				nTail = (nDx - aL[4]) / 2
+			else
+				if fabs(aL[2] - aF[i]) > 1  loop  ok
+				if aL[3] < min([ aF[i+1], aF[i+3] ]) or
+				   aL[3] > max([ aF[i+1], aF[i+3] ])  loop  ok
+				nTail = (nDy - aL[5]) / 2
+			ok
+			nOnCount++
+			if nTail < nWorstTail  nWorstTail = nTail  ok
+		next
+	next
+next
+? "   labels sitting ON their line : " + nOnCount +
+  " ; least line showing at an end : " + nWorstTail + "px"
+chk("a label rides its own line wherever the line can carry one",
+    nOnCount >= 3)
+chk("a label on a line leaves line showing at BOTH ends",
+    nWorstTail >= nClr33 * 0.9)
+
+# ...and the paper is no wider than the binding constraint.
+aX33 = []
+for r in oLd.RenderNodeRects()
+	if r[5] != "r"  aX33 + r[1]  ok
+next
+aX33 = sort(aX33)
+nPitch = aX33[2] - aX33[1]
+nFloor = max([ 96 + floor(oLd.NodeSeparation() * 96), nLW33 + nClr33 * 2 ])
+? "   child pitch " + nPitch + "px against a floor of " + nFloor + "px"
+chk("every pitch is the same", fabs(aX33[3] - aX33[2] - nPitch) < 0.5 and
+    fabs(aX33[4] - aX33[3] - nPitch) < 0.5)
+chk("the pitch MEETS the binding constraint", nPitch >= nFloor - 0.5)
+chk("...and does not EXCEED it", nPitch <= nFloor + 2)
+
+# THE NEGATIVE SIBLING: strip the labels and the same graph must fall back
+# to the bare separation contract. Without this, a demand that inflated
+# every diagram equally would pass all three assertions above.
+oNo = new stzDiagram("fan33n")
+oNo.AddNodeXTT("r", "Router", [ :type = "box", :color = "Info.Solid" ])
+for i = 1 to 4
+	oNo.AddNodeXTT("h" + i, "H" + i, [ :type = "box", :color = "Info.Solid" ])
+	oNo.AddEdge("r", "h" + i)
+next
+oNo.SetSplines("ortho")
+oNo.ToCanvasXT([ :Font = LFONT, :NodeWidth = 96, :NodeHeight = 36,
+	:FontSize = 13 ])
+aXn = []
+for r in oNo.RenderNodeRects()
+	if r[5] != "r"  aXn + r[1]  ok
+next
+aXn = sort(aXn)
+? "   the same fan unlabelled : pitch " + (aXn[2] - aXn[1]) + "px"
+chkeq("an unlabelled diagram pays NOTHING for labels",
+      aXn[2] - aXn[1], 96 + floor(oNo.NodeSeparation() * 96))
 
 #---------------------------------------------------------------------------
 ? ""
