@@ -2732,16 +2732,41 @@ class stzDiagram from stzGraph
 			# Congruence outranks the lateral form: siblings are drawn
 			# alike, and a genuinely lone edge still gets its border
 			# centre.
-			_epOut_ = 0
+			# ...and SIBLINGS MEANS SIBLINGS OF THE SAME KIND. The
+			# first form of this rule counted out-edges: two or more and
+			# no lateral form, full stop. That drew the four-way fan
+			# correctly and then forced a service's log edge -- whose
+			# sibling drops into a database inside its own cluster while
+			# it leaves for a logger outside every cluster -- to descend
+			# into the cluster's interior and run out sideways beneath
+			# it, three turns instead of two, grazing a foreign frame on
+			# the way. Drawing those two alike states a likeness that is
+			# not there.
+			#
+			# Cluster membership is a DECLARED difference, so edges whose
+			# targets sit in different cluster contexts are different
+			# kinds, and drawing them differently states a difference the
+			# graph does contain. Two out-edges are siblings-in-kind when
+			# their targets belong to exactly the same clusters; the
+			# lateral form asks only that no OTHER edge shares its kind.
+			# A fan with no clusters has one kind and stays a bus.
+			_epKin_ = 0
+			_epMyK_ = This._ClusterKeyOf("" + paEdges[_epI_][:to])
 			for _epJ3_ = 1 to _epN_
+				if _epJ3_ = _epI_  loop  ok
+				if StzLower("" + paEdges[_epJ3_][:from]) !=
+				   StzLower("" + paEdges[_epI_][:from])
+					loop
+				ok
 				if StzLower("" + paEdges[_epJ3_][:from]) =
-				   StzLower("" + paEdges[_epI_][:from]) and
-				   StzLower("" + paEdges[_epJ3_][:from]) !=
 				   StzLower("" + paEdges[_epJ3_][:to])
-					_epOut_++
+					loop
+				ok
+				if This._ClusterKeyOf("" + paEdges[_epJ3_][:to]) = _epMyK_
+					_epKin_++
 				ok
 			next
-			if len(_epRt2_) = 0 and _epOut_ < 2
+			if len(_epRt2_) = 0 and _epKin_ = 0
 				_epFr_ = This._XYOf(paXY, "" + paEdges[_epI_][:from])
 				if len(_epFr_) = 2
 					_epDx2_ = fabs(_epTo_[ iif(_bV_, 2, 1) ] - _epFr_[ iif(_bV_, 2, 1) ])
@@ -3094,6 +3119,24 @@ class stzDiagram from stzGraph
 		next
 		return _dem_
 
+	# WHICH CLUSTERS A NODE BELONGS TO, as one comparable string. Two
+	# nodes with the same key stand in the same declared context, and two
+	# edges reaching them are siblings of the same kind; different keys
+	# are a difference the graph itself states, which is the only kind a
+	# picture is allowed to draw.
+	def _ClusterKeyOf(pcNode)
+		_ckN_ = StzLower("" + pcNode)
+		_ckK_ = ""
+		for _ckC_ in @aClusters
+			for _ckM_ in _ckC_[:nodes]
+				if StzLower("" + _ckM_) = _ckN_
+					_ckK_ += StzLower("" + _ckC_[:id]) + "|"
+					exit
+				ok
+			next
+		next
+		return _ckK_
+
 	def _ClusterById(pcId)
 		_c_ = StzLower("" + pcId)
 		for _cl_ in @aClusters
@@ -3428,8 +3471,30 @@ class stzDiagram from stzGraph
 			# position already lies in it
 			if _cbI_ = 0 and nPos <= _cbGb_ - _cbClr_  _cbCand_ = nPos  ok
 			if _cbI_ = _cbNM_ and nPos >= _cbGa_ + _cbClr_  _cbCand_ = nPos  ok
-			# candidates outside the corridor are not candidates
-			if _cbCand_ < _cbLimLo_ or _cbCand_ > _cbLimHi_  loop  ok
+			# A GAP IS NOT DISQUALIFIED BY ITS CENTRE. This dropped any
+			# gap whose preferred position fell outside the corridor,
+			# even when the gap and the corridor plainly OVERLAP -- and
+			# a channel with no candidate left falls back to its raw
+			# proposal, which is the one position nothing has checked.
+			# That is how an edge came to run 21px from a foreign
+			# cluster's frame with a 24px clearance in force: the gap
+			# above that frame was usable from 387 to 445, the corridor
+			# started at 387, and the gap was thrown away because its
+			# MIDDLE sat at 343.
+			#
+			# So when the centre is unreachable, the gap still offers
+			# what it has: the position nearest the proposal that keeps
+			# a clearance from both blocks and stays inside the
+			# corridor. Only a gap whose usable part is EMPTY is not a
+			# candidate.
+			if _cbCand_ < _cbLimLo_ or _cbCand_ > _cbLimHi_
+				_cbLo2_ = _cbGa_ + _cbClr_
+				_cbHi2_ = _cbGb_ - _cbClr_
+				if _cbLo2_ < _cbLimLo_  _cbLo2_ = _cbLimLo_  ok
+				if _cbHi2_ > _cbLimHi_  _cbHi2_ = _cbLimHi_  ok
+				if _cbHi2_ < _cbLo2_  loop  ok
+				_cbCand_ = min([ max([ nPos, _cbLo2_ ]), _cbHi2_ ])
+			ok
 			_cbD2_ = fabs(_cbCand_ - nPos)
 			if _cbD2_ < _cbBestD_
 				_cbBestD_ = _cbD2_

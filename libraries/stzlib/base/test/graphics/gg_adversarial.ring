@@ -2494,22 +2494,49 @@ next
 ? "   rank gap : " + nGap + "px, the same everywhere : " + bGaps
 chk("one rank gap, everywhere", bGaps)
 
-# the STEM of every rank-adjacent edge is half its gap -- one rhythm
+# THE RHYTHM IS A PAIR, not a number. An edge that crosses one rank
+# gap makes two verticals, a stem out of its source and a drop into its
+# target, and the channel between them sits at the middle of the space
+# it has: so the two are EQUAL, and where the space is the whole gap
+# they are half of it. Stated as the pair, the rule needs no exclusion
+# list -- an edge whose channel had to clear a foreign frame still has
+# a stem and a drop that agree with each other, and an edge that
+# crosses a rank has no pair at all.
+#
+# The first form of this check asserted the NUMBER, half the gap, and
+# excluded the one traversing edge by name. That stopped being honest
+# the moment a second edge earned the lateral form: an exclusion list
+# is a way of not stating the rule.
 nWorst = 0
-nCount = 0
+nPairs = 0
+nCross = 0
+nTween = 0
 for p in oRy.RenderEdgePaths()
-	if p[1] = "web1>log"  loop  ok        # spans two ranks: judged below
 	aF = p[2]
+	aV = []
 	for i = 1 to len(aF) - 3 step 2
 		if fabs(aF[i+2] - aF[i]) < 0.5 and fabs(aF[i+3] - aF[i+1]) > 1
-			nLen = fabs(aF[i+3] - aF[i+1])
-			nCount++
-			if fabs(nLen - nGap / 2) > nWorst  nWorst = fabs(nLen - nGap / 2)  ok
+			aV + fabs(aF[i+3] - aF[i+1])
 		ok
 	next
+	bCross = 0
+	for v in aV
+		if v >= nGap  bCross++  ok
+		if v > nGap * 0.75 and v < nGap  nTween++  ok
+	next
+	if bCross > 0  nCross += bCross  loop  ok
+	if len(aV) != 2  loop  ok
+	nPairs++
+	if fabs(aV[1] - aV[2]) > nWorst  nWorst = fabs(aV[1] - aV[2])  ok
+	if fabs(aV[1] - nGap / 2) > nWorst  nWorst = fabs(aV[1] - nGap / 2)  ok
 next
-? "   " + nCount + " verticals, worst departure from half the gap : " + nWorst
-chk("every vertical is half its gap", nCount >= 8 and nWorst < 1)
+? "   " + nPairs + " stem/drop pairs (worst disagreement " + nWorst +
+  "px), " + nCross + " verticals crossing a rank, " + nTween + " in between"
+chk("a stem and its drop are EQUAL, and half their gap",
+    nPairs >= 6 and nWorst < 1)
+chk("...and the long ones cross a whole rank, by construction",
+    nCross >= 1)
+chkeq("NOTHING lands between the two lengths", nTween, 0)
 
 # THE STATED EXCEPTION: an edge that must pass ABOVE a foreign cluster
 # gets the middle of the band it actually has, not the middle of the gap
@@ -2564,6 +2591,142 @@ oNest.AddClusterXTT("h", "H", [ "c1" ], "#2E7D32")
 nNest = oNest._ClusterChromeAbove(13)
 ? "   chrome, flat : " + nFlat + " ; nested : " + nNest
 chk("the chrome the floor uses GROWS with nesting", nNest > nFlat + 30)
+
+#---------------------------------------------------------------------------
+? ""
+sec("-- 36. A lateral edge goes STRAIGHT there ------------------")
+#
+# The Principal traced the shorter path himself: nothing prevented the
+# service-to-logger edge from leaving the centre of its source's side
+# border and arriving in two moves. Ours took three turns down into its
+# own cluster and out beneath it, and the long run passed close enough
+# to a foreign frame to read as membership in it.
+#
+# Two faults, and neither was the routing shape.
+#
+#   The congruence rule counted OUT-EDGES: two or more from one source
+#   and no lateral form, full stop. That drew the four-way fan right and
+#   then forced this edge into the detour, because its sibling drops
+#   into a database inside its own cluster while it leaves for a logger
+#   outside every cluster. Drawing those two alike states a likeness
+#   that is not there. Cluster membership is a DECLARED difference, so
+#   siblings-in-kind are now those whose targets sit in the same
+#   clusters -- and a fan with no clusters still has exactly one kind.
+#
+#   The channel placer DISQUALIFIED A GAP BY ITS CENTRE. When the
+#   preferred position fell outside the corridor it dropped the whole
+#   gap, even where gap and corridor plainly overlapped, and a channel
+#   left with no candidate falls back to its raw proposal -- the one
+#   position nothing has checked. That is how a line came to run 21px
+#   from a frame with a 24px clearance in force. A gap now offers what
+#   it HAS, and only an empty usable part disqualifies it.
+#---------------------------------------------------------------------------
+
+
+oSv = new stzDiagram("svc37")
+for a in [ [ "lb","Balancer" ],[ "web1","Web A" ],[ "web2","Web B" ],
+           [ "api1","API A" ],[ "api2","API B" ],
+           [ "db1","DB A" ],[ "db2","DB B" ],[ "log","Logger" ] ]
+	oSv.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
+next
+oSv.AddEdge("lb","web1")   oSv.AddEdge("lb","web2")
+oSv.AddEdge("web1","api1") oSv.AddEdge("web2","api2")
+oSv.AddEdge("api1","db1")  oSv.AddEdge("api2","db2")
+oSv.AddEdge("web1","log")  oSv.AddEdge("api2","log")
+oSv.AddClusterXTT("backend","Backend",["api1","api2","db1","db2"],"#5E35B1")
+oSv.AddClusterXTT("data","Data",["db1","db2"],"#2E7D32")
+oSv.SetSplines("ortho")
+oSv.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+nClr = oSv._LineClearance()
+
+# the log edge leaves the SIDE and turns once
+aP = []
+for p in oSv.RenderEdgePaths()
+	if p[1] = "api2>log"  aP = p[2]  ok
+next
+nTurns = 0
+for i = 3 to len(aP) - 3 step 2
+	bH1 = fabs(aP[i+1] - aP[i-1]) < 0.5
+	bH2 = fabs(aP[i+3] - aP[i+1]) < 0.5
+	if bH1 != bH2  nTurns++  ok
+next
+? "   api2->log has " + (len(aP) / 2) + " points and " + nTurns + " turn(s)"
+chk("a lateral edge turns ONCE, not three times", nTurns = 1)
+
+nApiR = 0  nApiCy = 0
+for r in oSv.RenderNodeRects()
+	if r[5] = "api2"
+		nApiR = r[1] + r[3]
+		nApiCy = r[2] + r[4] / 2
+	ok
+next
+? "   it starts at " + aP[1] + "," + aP[2] + " ; the border centre is " +
+  nApiR + "," + nApiCy
+chk("...from the CENTRE of its source's side border",
+    fabs(aP[1] - nApiR) < 1 and fabs(aP[2] - nApiCy) < 1)
+
+# and no segment of it crowds a foreign cluster frame
+nNear = 1000000
+for c in oSv.RenderClusterRects()
+	if StzFindFirst("api2", c[5]) > 0  loop  ok
+	for i = 1 to len(aP) - 3 step 2
+		nAx = min([ aP[i], aP[i+2] ])   nBx = max([ aP[i], aP[i+2] ])
+		nAy = min([ aP[i+1], aP[i+3] ]) nBy = max([ aP[i+1], aP[i+3] ])
+		nDx = 0
+		if nBx < c[1]  nDx = c[1] - nBx  ok
+		if nAx > c[1] + c[3]  nDx = nAx - (c[1] + c[3])  ok
+		nDy = 0
+		if nBy < c[2]  nDy = c[2] - nBy  ok
+		if nAy > c[2] + c[4]  nDy = nAy - (c[2] + c[4])  ok
+		nD = sqrt(nDx*nDx + nDy*nDy)
+		if nD < nNear  nNear = nD  ok
+	next
+next
+? "   its nearest approach to a FOREIGN frame : " + nNear + "px"
+chk("...and never grazes a cluster it does not belong to", nNear >= nClr)
+
+# THE BAND ITSELF: a gap whose centre is out of the corridor still
+# offers what it has. Asked with a corridor that excludes the middle,
+# the placer must answer inside the gap AND a clearance clear of the
+# block -- not fall back to the unchecked proposal.
+nData = 1000000
+for c in oSv.RenderClusterRects()
+	if StzFindFirst("db1", c[5]) > 0 and StzFindFirst("api1", c[5]) = 0
+		nData = c[2]
+	ok
+next
+nApiB = 0  nDbT = 0
+for r in oSv.RenderNodeRects()
+	if r[5] = "api2"  nApiB = r[2] + r[4]  ok
+	if r[5] = "db2"   nDbT = r[2]  ok
+next
+nAns = oSv._ChannelBand(nApiB + 65, 261, 568, "api2", "log", 0,
+	nApiB, nDbT)
+? "   a channel proposed at " + (nApiB + 65) + " with the Data frame at " +
+  nData + " lands at " + nAns
+chk("a gap whose centre is unreachable still offers its usable part",
+    nAns <= nData - nClr + 0.5 and nAns >= nApiB)
+
+# THE NEGATIVE SIBLING: a fan with NO clusters has one kind of child,
+# so no member of it may take the lateral form -- congruence still
+# outranks it where the graph states no difference.
+oFan = new stzDiagram("fan37")
+oFan.AddNodeXTT("r", "R", [ :type = "box", :color = "Info.Solid" ])
+for i = 1 to 4
+	oFan.AddNodeXTT("h" + i, "H" + i, [ :type = "box", :color = "Info.Solid" ])
+	oFan.AddEdge("r", "h" + i)
+next
+oFan.SetSplines("ortho")
+oFan.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+nShapes = 0
+aFirst = []
+for p in oFan.RenderEdgePaths()
+	if len(aFirst) = 0  aFirst = p[2]  ok
+	if len(p[2]) != len(aFirst)  nShapes++  ok
+next
+? "   siblings of one kind drawn differently : " + nShapes
+chkeq("no cluster difference, no lateral form -- siblings stay alike",
+      nShapes, 0)
 
 #---------------------------------------------------------------------------
 ? ""
