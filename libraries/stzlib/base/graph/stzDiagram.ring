@@ -1699,11 +1699,20 @@ class stzDiagram from stzGraph
 			_aXtra_ = This._LabelDemand(_oFont_, _nFsz_, _nBoxW_, _slot0_,
 				_bSwap_)
 
+			# the air a cluster boundary needs, in SLOT units, from the
+			# pixels this face knows: a frame's own padding plus one line
+			# clearance, over the slot it will be measured in
+			_nAir_ = 0.55
+			if len(@aClusters) > 0 and _slot0_ > 0
+				_nAir_ = (This._ClusterPadMax() + This._LineClearance()) /
+					_slot0_
+			ok
 			_oGC_ = new stzGraphCanvas(This, [
 				:Layout = :Hierarchical,
 				:Width = 1000, :Height = 700, :Margin = 0,
 				:Clusters = This._ClusterPairs(),
-				:NodeExtra = _aXtra_
+				:NodeExtra = _aXtra_,
+				:ClusterAir = _nAir_
 			])
 			# the layered crossing count of the order being drawn -- the
 			# graph tier's structure fact, kept with the render's other
@@ -2781,6 +2790,23 @@ class stzDiagram from stzGraph
 							_epShal_ = 1
 						ok
 					ok
+					# ...OR THE EDGE LEAVES ITS SOURCE'S CLUSTER, whatever its
+					# angle. The shallow test asks whether an edge is mostly
+					# sideways, which is a good proxy for 'a side departure will
+					# look natural' and a bad one for the case that matters most:
+					# an edge going OUT of a cluster. Its alternative is to
+					# descend inside the cluster and slide out beneath it, which
+					# is longer and runs the line along frames it does not belong
+					# to. Tightening the boundary air proved the point by
+					# accident: the target came close enough to fail the angle
+					# test, and a correct picture reverted to the detour the
+					# Principal had just had removed. Leaving a cluster is a
+					# reason of its own; the corridor test below still decides
+					# whether the side is actually clear.
+					if This._LeavesCluster("" + paEdges[_epI_][:from],
+						"" + paEdges[_epI_][:to])
+						_epShal_ = 1
+					ok
 					if _epShal_
 						# corridor at the SOURCE's row height
 						_epCy_ = _epFr_[ iif(_bV_, 1, 2) ]
@@ -3118,6 +3144,27 @@ class stzDiagram from stzGraph
 			if _d_ > _dem_[_at_]  _dem_[_at_] = _d_  ok
 		next
 		return _dem_
+
+	# DOES THIS EDGE LEAVE A CLUSTER -- is there a cluster holding the
+	# source and not the target? That is a stricter question than
+	# 'different membership', and the difference is a whole class of
+	# edges: an API inside Backend pointing at a database inside
+	# Backend AND Data has different membership from its source, but
+	# it leaves nothing -- it goes DEEPER. Reading the looser question
+	# sent every such edge out of the side of its box.
+	def _LeavesCluster(pcFrom, pcTo)
+		_lcF_ = StzLower("" + pcFrom)
+		_lcT_ = StzLower("" + pcTo)
+		for _lcC_ in @aClusters
+			_lcHasF_ = 0
+			_lcHasT_ = 0
+			for _lcM_ in _lcC_[:nodes]
+				if StzLower("" + _lcM_) = _lcF_  _lcHasF_ = 1  ok
+				if StzLower("" + _lcM_) = _lcT_  _lcHasT_ = 1  ok
+			next
+			if _lcHasF_ and NOT _lcHasT_  return 1  ok
+		next
+		return 0
 
 	# WHICH CLUSTERS A NODE BELONGS TO, as one comparable string. Two
 	# nodes with the same key stand in the same declared context, and two
@@ -4603,6 +4650,19 @@ class stzDiagram from stzGraph
 	# traversing channel stayed 14px -- the Principal measured a 7px stem
 	# where every other stem was 46. A floor computed from a different
 	# formula than the thing it is flooring is not a floor.
+	# THE DEEPEST PADDING ANY FRAME IN THIS PICTURE CARRIES. A frame
+	# stands this far outside its own members, so a neighbour outside
+	# it must stand this far plus a clearance from those members for
+	# the frame to clear the neighbour.
+	def _ClusterPadMax()
+		_cpMax_ = 0
+		for _cpC_ in @aClusters
+			_cpP_ = max([ 16, This._LineClearance() * 0.75 ]) +
+				34 * This._ClusterLevelsBelow(_cpC_)
+			if _cpP_ > _cpMax_  _cpMax_ = _cpP_  ok
+		next
+		return _cpMax_
+
 	def _ClusterChromeAbove(nFsz)
 		_ccaMax_ = 0
 		for _ccaC_ in @aClusters

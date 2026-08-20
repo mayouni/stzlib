@@ -2851,6 +2851,46 @@ chk("one family, one spacing -- no air where there is no boundary", bEven)
 chk("the family gap exceeds the sibling gap by a stated fraction",
     nCous - nSib > 30 and nCous - nSib < 80)
 
+# A CLUSTER BOUNDARY IS AIR, AND NO MORE AIR THAN THE FRAMES NEED. The
+# same cue, sized wrong: the boundary pass added 0.55 of a slot per
+# LEVEL crossed, so leaving two nested clusters at once bought 1.1
+# slots -- 168px on the service diagram, on top of the 52px of padding
+# the frames already carry. The Principal called the distance good and
+# exaggerated. What a boundary needs is that the FRAME clear the
+# foreign node: the deepest padding plus one clearance, once per
+# crossing, since the padding already grows with nesting.
+oCl = new stzDiagram("air38")
+for a in [ [ "p","P" ],[ "a","A" ],[ "b","B" ],[ "far","FAR" ] ]
+	oCl.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
+next
+oCl.AddEdge("p", "a")  oCl.AddEdge("p", "b")  oCl.AddEdge("p", "far")
+oCl.AddClusterXTT("g", "G", [ "a", "b" ], "#5E35B1")
+oCl.SetSplines("ortho")
+oCl.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+nFrameR = 0
+for c in oCl.RenderClusterRects()
+	if c[1] + c[3] > nFrameR  nFrameR = c[1] + c[3]  ok
+next
+nFarL = 1000000
+for r in oCl.RenderNodeRects()
+	if r[5] = "far" and r[1] < nFarL  nFarL = r[1]  ok
+next
+nNeed = oCl._LineClearance()
+? "   frame ends at " + nFrameR + ", the outside node starts at " + nFarL +
+  " (clearance " + nNeed + ")"
+chk("a frame clears the node outside it", nFarL - nFrameR >= nNeed - 0.5)
+# ...and by no more than the ordinary separation beyond it. The two
+# NODES are still one separation apart as any neighbours would be, and
+# the frame sits inside part of that; what the boundary adds on top is
+# the clearance, not a multiple of the slot. So the frame-to-node
+# distance is nodesep plus a clearance, and anything much past that is
+# the exaggeration again.
+nSep38 = floor(oCl.NodeSeparation() * 96)
+? "   which is " + (nFarL - nFrameR) + "px against nodesep + clearance = " +
+  (nSep38 + nNeed)
+chk("...and by no more than an ordinary separation beyond that",
+    nFarL - nFrameR <= nSep38 + nNeed * 1.5)
+
 #---------------------------------------------------------------------------
 ? ""
 if nSecClock > 0
