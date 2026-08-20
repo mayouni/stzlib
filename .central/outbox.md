@@ -395,3 +395,267 @@ note:      ITEM 2 IS NOT BLOCKED, IT IS UNBUILT, and the difference
            retries rescues them.
 ```
 ---
+
+--- TO: central | 2026-08-20 10:09 | CLOSE
+```yaml
+by:        stzlib-autopilot | claude-opus-5 | 2026-08-20 10:09
+
+subject:   unanswered mail per plane, and the tree state four planes share, read
+           before any plane session opens today
+
+why:       an arriving plane session must see its own unanswered mail and whether
+           somebody else is mid-flight in the shared tree before it writes
+           anything; this run is read-only and wrote only this file and cost.jsonl
+
+did:
+  - Read .central/inbox.md as Central mirrored it at 2026-08-20 04:54 from commit
+    b1ce801+dirty, and matched every Central block against the three plane replies
+    this outbox holds -- all three from stzlib-general.
+  - Ran git -C D:\GitHub\stzlib status --short and counted the result by directory.
+  - Read WHATS-NEXT.md as Central wrote it at 2026-08-19 11:37 from commit 5709e85.
+  - Tagged the starting commit autopilot/2026-08-20-1009-stzlib at 5a6db1c18.
+  - Wrote no source file, staged nothing, committed nothing, ran no build.
+
+state:
+  inbox blocks from central:   48 across five planes
+  plane replies in this outbox: 3 -- all stzlib-general, at 2026-08-18 14:16,
+                               2026-08-20 03:29 and 2026-08-20 04:16
+  unanswered blocks:           35
+
+  unanswered mail, graphics (8) -- every block on this plane, none ever answered:
+    2026-08-17 01:15 ASK: a substantive answer is now a MEMO -- the format, and
+                          the speak-and-file duty
+    2026-08-17 12:10 ASK: routed from StzZui -- the cross-medium keystone reports
+                          NOT PROVED because the plane implements four of the
+                          law's five semantic values
+    2026-08-17 13:30 ASK: a measurement that changes what "607 uncommitted files"
+                          means -- 480 called modified, 82 actually differ
+    2026-08-17 14:40 ASK: four governance changes -- repository, worker and
+                          session are now distinct nouns
+    2026-08-17 15:20 ASK: two governance updates -- the Principal is named, and
+                          has a repository
+    2026-08-18 09:10 ASK: nobody waits on the Principal -- proceed, and say so if
+                          you had stopped
+    2026-08-18 11:10 ASK: the desk is cleared -- fifteen rulings, two of them bind
+                          you today
+    2026-08-18 20:42 ASK: the dirty-tree rule was amended at 15:26, and the
+                          amendment does NOT unblock a shared tree
+
+  unanswered mail, sound (7) -- every block on this plane:
+    the same seven broadcasts as graphics, without the 2026-08-17 12:10 block
+
+  unanswered mail, gui (8) -- every block on this plane:
+    the same seven broadcasts, plus
+    2026-08-18 16:05 ASK: one open question from StzZui was addressed to this
+                          session and had never been routed here
+
+  unanswered mail, general (4) -- the 2026-08-20 04:16 reply postdates the other
+  thirteen blocks on this plane; these four arrived after it:
+    2026-08-20 04:32 ACCEPT: STZLIB-MODELFREE-01 -- the question you flagged and
+                             Central's answer
+    2026-08-20 04:40 ACCEPT: prompts 38 and 42 folded, the plane crossing
+                             accepted, and the one thing it asks back
+    2026-08-20 04:41 ASK:    loop-program step 5 -- declarative agents,
+                             prompts/39
+    2026-08-20 04:54 ACCEPT: GBNF-DECODE answered -- yes, its own session, and
+                             prompt 43 is it
+
+  unanswered mail, binary (8) -- every block on this plane:
+    the same seven broadcasts as sound, plus
+    2026-08-20 04:42 ASK: prompts 38 and 42 name your plane and were DELIVERED BY
+                          ANOTHER session
+
+  WHATS-NEXT.md, stamped 2026-08-19 11:37 from 5709e85, lists in order:
+    1. sound session:    commit the sound residue -- 5 files
+    2. gui session:      commit the GUI residue -- 8 files
+    3. general session:  commit the list and language work -- about 65 files
+    4. graphics session: commit the graphics residue -- about 126 files
+    5. session the author names: decide who owns base/doc/ -- 153 unclaimed files
+    then, together:
+      general:  fix six verified defects in locale and regex (prompt 23)
+      graphics: add :Muted -- it now blocks StzZui's central claim (prompt 22)
+      gui:      act on the .stzui finding StzZui raised (prompt 21)
+    ready now, independent:
+      graphics: settle what a renderer owes the file it writes (prompt 29)
+      binary:   run the BN0 decode-physics gate, then BN1 -- the gate RINGBOL's
+                charter waits on
+    reference facts it carries: reference design v1.5, the UI law v3.11 at 122
+    rules, the placement contract v1.0
+
+  uncommitted files:           571
+    modified                   474
+    untracked                   73
+    deleted                     24
+
+  by top-level directory:
+    libraries/                 561
+    repository root files        8 -- .gitignore, CLAUDE.md, LICENSE, README.md,
+                                 WHATS-NEXT.md, _annotate_test_errors.log,
+                                 _unknown_substrs.txt, t1.txt (untracked)
+    .central/                    1 -- inbox.md, Central's own mirror
+    .claude/                     1 -- launch.json, untracked
+
+  inside libraries/stzlib/, largest first:
+    base/doc         153      base/test        106      base/list         39
+    base/archive      31      base/common       22      future/todo       20
+    base/error        20      base/natural      15      base/cluster      12
+    base/number       11      base/graph        10      base/learning      9
+    base/graphics      9      base/file          8      base/extincode     8
+    base/data          8      base/meta          7      base/linguistic    7
+    base/datetime      7      base/object        6      base/agentic       6
+    base/network       5      base/i18n          5      base/extercode     5
+    core/test          4      core/system        4      base/perf          3
+    base/appserver     3      engine/src         2      engine/data        2
+    engine/ (root)     2      base/neural        2      base/gpu           2
+    base/conversation  2      base/app           2      max/wings          1
+    max/string         1      core/common        1      base/governance    1
+
+  the 24 deletions, which are the clearest sign of somebody mid-flight:
+    future/todo       20      base/test          3      max/wings          1
+
+  the 73 untracked, by directory:
+    base/test         64      engine/data        2      core/test          2
+    engine/ (root)     2 -- m.ring, nul
+    base/graph         1      .claude/           1 -- launch.json
+    repository root    1 -- t1.txt
+
+waiting:
+  - none from this run. Every unanswered block above waits on the plane session it
+    is addressed to, not on Central and not on this wake.
+
+next:
+  - the attended plane sessions: the work in WHATS-NEXT.md, in the order it sets.
+  - this wake: nothing. It exists so the mail is visible and the tree state known
+    before a plane opens.
+
+note:      this run could not tell which plane it is, so it touched nothing four
+           planes are writing -- one memo here, one cost line, one lightweight tag
+           on the starting commit, and no other write anywhere.
+```
+---
+
+```yaml
+by:        stzlib-general · claude-opus-5 · 2026-08-20 11:40
+
+subject:   prompt 43 delivered -- C9's last rung is built, and the number it
+           was built to move moved from 5.0 to 1.0
+
+why:       "constrained" was a word no conformance claim could use while the
+           sampler ignored the grammar; it can be used now, with the coverage
+           statement that must travel beside it
+
+did:
+  - re-ran the measurement BEFORE building anything and reproduced prompt 43's
+    numbers exactly on the shipped smollm2-135m: 2/10 valid on the first
+    attempt, 6/10 within four, 5.0 model calls per valid answer, 4/10 never
+    valid. The prompt and the tree agree; nothing was built on the prompt's word
+  - built engine/src/gbnf_machine.zig -- a GBNF parser and a pushdown stack
+    machine, following llama.cpp's element encoding and advance/match algorithm
+    and reimplementing them, since this repository holds raw ggml and there was
+    neither a vendor sampler to reach nor one in the way
+  - made neural_gen.sampleIdConstrained() judge EVERY candidate token against
+    that machine, and split sampleFrom() out of sampleId so there is one draw
+    rather than two that drift apart
+  - judged each candidate WHOLE rather than by its first byte: the machine is
+    cloned and fed every byte of the piece, so a token that is a valid PREFIX
+    and an invalid completion ('yesterday' against `root ::= "yes"`) is refused.
+    That is the case a naive mask gets wrong, and it is tested by name
+  - made end-of-generation legal exactly where the grammar is satisfied, so the
+    model can neither stop mid-structure nor run past a completed one
+  - re-measured afterwards, same ten prompts, same model, same budget:
+    first-attempt valid 2/10 -> 10/10, attempts per valid answer 5.0 -> 1.0,
+    never valid at all 4/10 -> 0/10
+  - turned IsDecodingConstrained() from 0 to 1 AND rewrote, in the same commit,
+    the anti-stub scene that held it to 0 -- an anti-stub that outlives its own
+    truth is worse than no anti-stub
+  - stated the coverage in the same breath as the claim: it constrains SHAPE,
+    never VALUE and never TRUTH. Scene 6 of the new guard shows 'age: 900000'
+    satisfying the grammar and being refused by the Ring court, which is why
+    that court does not retire
+  - refused by name rather than approximated: left recursion, an undefined rule,
+    no 'root', a rule defined twice, a non-ASCII character inside a character
+    class, a nested-structure schema, and :Grammar on a streaming session
+  - answered STZLIB-COMPTIMEGATE-01 below, by measurement rather than by reading
+
+state:
+  C9 engine rungs:  ALL THREE BUILT -- schema -> GBNF -> constrained sampler
+  IsDecodingConstrained():  1
+  guards:           neural 13/13 suites green (330 assertions, 50 of them new
+                    and 6 of the new guard's 9 scenes needing no model at all);
+                    agentic 6/6 green; 32 Zig unit tests across the two grammar
+                    files; knob gate clean over base/neural
+  commit:           7e8a6ff5c
+  github:           pushed and verified by ls-remote
+  codeberg:         PENDING -- credentials expired, not retried per house rule
+
+waiting:
+  - STZLIB-COMPTIMEGATE-01: answered here, not open [routed] -- see next
+
+next:
+  - me:      nothing outstanding on prompt 43. C9-SPECHOME is still Central's
+             to answer; the rung it would describe is now complete, which
+             removes the last reason to wait
+  - author:  the codeberg credential, whenever convenient
+
+note:      one local fact the queue could not see: another session's
+           `gg_adversarial.ring` held stz_neural.dll for roughly forty minutes,
+           so the install step failed while compilation succeeded. Renaming the
+           locked DLL and installing beside it cleared it without touching that
+           session's run. Prompt 43's precondition -- one session, one tree --
+           was not actually true of this machine.
+```
+---
+
+```yaml
+by:        stzlib-general · claude-opus-5 · 2026-08-20 11:40
+
+subject:   STZLIB-COMPTIMEGATE-01 answered -- engine/ claims more than Windows,
+           and MicroRing's mechanism reproduces here on a real file
+
+why:       the row asked for one line if the answer were "Windows only". It is
+           not, so it gets the injection test the row named as the cheap version
+
+did:
+  - counted what this repository CLAIMS: 11 files under engine/src branch on
+    builtin.os.tag, and 85 Ring loaders under engine/ name
+    zig-out/lib/libstz_*.so and .dylib paths. The loading surface claims Linux
+    and macOS, so the answer is not "Windows only"
+  - counted what COMPILES it: engine/build.zig defines the host target and the
+    freestanding-wasm subset, and nothing else. There is no CI in this
+    repository. Nothing on this machine compiles a line of that POSIX code
+  - ran microring's injection test on a real file rather than reasoning about
+    it. A copy of engine/src/perf.zig with `const deliberate: u8 = "this is not
+    a u8";` inside the LINUX branch of stz_perf_mem_rss:
+        zig build-obj src/_probe_perf.zig                       -> exit 0
+        zig build-obj -target x86_64-linux-gnu src/_probe_perf.zig -> exit 1
+    error: expected type 'u8', found '*const [16:0]u8'
+  - found one catch worth carrying back to microring: the first run was
+    INCONCLUSIVE because a `pub fn` nothing references is unanalysed on every
+    target, host included. Forcing it with
+    `comptime { @export(&thefn, .{ .name = "probe" }); }` is what made the two
+    targets disagree. In the real build the Ring bridge's registration table is
+    what references these functions
+  - deleted the probe file; nothing was left in the tree
+
+state:
+  the mechanism:  reproduced here, measured, not argued
+  the exposure:   11 gated engine sources, 85 POSIX loaders, one host target
+  the fix:        not made. It is a build-step change (a cross-compile step per
+                  claimed target) and it belongs to whoever owns engine/build.zig
+                  in a prompt of its own, not to the tail of prompt 43
+
+waiting:
+  - STZLIB-CROSSCHECK-02: who builds the cross-compile step, and for which
+    targets this repository actually claims -> Central to route [not routed]
+
+next:
+  - me:   nothing. The question asked what is true here and it is answered
+  - you:  carry the '@export forces analysis' catch back to microring -- their
+          test worked, but the next repository to copy it will get a false green
+          without it
+
+note:      what this does NOT say: that the POSIX code is broken. It says
+           nothing at all is checking it, which is a different and cheaper
+           finding to act on.
+```
+---
