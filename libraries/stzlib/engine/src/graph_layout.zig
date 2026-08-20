@@ -493,7 +493,95 @@ pub fn coords(
     if (isForest(in_off, n)) {
         _ = tidyTerritories(in_off, in_src, out_off, out_dst, order, starts, sep, extra, x);
     }
+
+    // AND THE PARENT IS CENTRED OVER ITS CHILDREN, last of all, because
+    // the Principal's rule is unconditional: the mother cell must ALWAYS
+    // be centred. Every pass above respects the children's span without
+    // insisting on its middle -- the compaction clamps INTO the span on
+    // purpose, since pinning at the mean during compaction repealed the
+    // tightening and spans sprang back -- and snapAlign then actively
+    // breaks centring whenever the child count is EVEN: a parent correctly
+    // centred over four children sits half a slot from the two middle
+    // ones, inside the snap tolerance, so it is pulled onto one of them
+    // and the fan leans. That is the picture the Principal circled.
+    //
+    // Safe here in a way it is not inside the compaction: the centre of a
+    // span lies within that span, so no territory grows and no rank widens
+    // -- the pass can only move a parent between positions it was already
+    // allowed to hold. Bottom-up, so a grandparent centres over children
+    // that have already taken their own final places.
+    centerParents(in_off, out_off, out_dst, order, starts, sep, extra, x);
     return OK;
+}
+
+/// A parent sits at the MIDDLE of its children's span, not merely inside
+/// it. One child is the same statement as alignment, so chains keep their
+/// spines; three children put the middle one under the parent, which is
+/// alignment again; four make the difference visible, and that is where
+/// the eye reads a lean as a claim about the graph.
+///
+/// Moves only when the whole distance is available: a partial slide
+/// manufactures the near-miss that snapAlign exists to kill, and a
+/// half-centred parent states nothing.
+fn centerParents(
+    in_off: []const u32,
+    out_off: []const u32,
+    out_dst: []const u32,
+    order: []const u32,
+    starts: []const u32,
+    sep: f64,
+    extra: []const f64,
+    x: []f64,
+) void {
+    var L: usize = starts.len - 1;
+    while (L > 0) {
+        L -= 1;
+        const s = starts[L];
+        const e = starts[L + 1];
+        var k = s;
+        while (k < e) : (k += 1) {
+            const v = order[k];
+            if (out_off[v + 1] - out_off[v] < 2) continue;
+            // OWNED CHILDREN ONLY. A child with more than one parent
+            // belongs to no single parent's territory -- the same reason
+            // tidyTerritories runs on forests alone -- and counting it
+            // drags its parents toward it from both sides. Seen live: a
+            // service whose two children were a database inside its
+            // cluster and a shared logger far outside it was pulled to
+            // the midpoint between them, out of its own cluster's column
+            // and off the spine it had with its own parent, to state a
+            // centring over a child it does not own.
+            var clo: f64 = 0;
+            var chi: f64 = 0;
+            var owned: u32 = 0;
+            var j = out_off[v];
+            while (j < out_off[v + 1]) : (j += 1) {
+                const c = out_dst[j];
+                if (in_off[c + 1] - in_off[c] != 1) continue;
+                const cx = x[c];
+                if (owned == 0) {
+                    clo = cx;
+                    chi = cx;
+                } else {
+                    if (cx < clo) clo = cx;
+                    if (cx > chi) chi = cx;
+                }
+                owned += 1;
+            }
+            if (owned < 2) continue;
+            const mid = (clo + chi) / 2;
+            if (@abs(mid - x[v]) < 0.0001) continue;
+            if (k > s) {
+                const p = order[k - 1];
+                if (mid < x[p] + sep + demand(extra, p) + demand(extra, v)) continue;
+            }
+            if (k + 1 < e) {
+                const nx = order[k + 1];
+                if (mid > x[nx] - sep - demand(extra, nx) - demand(extra, v)) continue;
+            }
+            x[v] = mid;
+        }
+    }
 }
 
 /// SUBTREE TERRITORIES MUST NOT OVERLAP -- no node may stand inside
@@ -583,6 +671,21 @@ pub fn snapAlign(
             }
         }
     }
+
+    // AND THE EXACT POSITION OF A PARENT IS ITS CHILDREN'S MIDDLE, so the
+    // snap ends by restoring it. Snapping alone actively destroys centring
+    // when a parent has an EVEN number of children: correctly centred, it
+    // stands half a slot from the two middle ones -- inside the tolerance
+    // -- and gets pulled onto one, which states a closeness to that child
+    // the graph does not contain.
+    //
+    // Here rather than only in the coordinate pass because this function
+    // is what a face re-invokes when it has moved things itself (cluster
+    // cohesion and boundary air are Ring-side), and alignment is only
+    // worth having if it is the last word. Centring is the same claim for
+    // a node that has children, so it has to be the last word in the same
+    // places.
+    centerParents(in_off, out_off, out_dst, order, starts, sep, extra, x);
 }
 
 fn isForest(in_off: []const u32, n: usize) bool {
