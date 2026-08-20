@@ -2410,7 +2410,7 @@ class stzDiagram from stzGraph
 							_epC_ = _epOth_[ iif(_bV_, 2, 1) ]
 						ok
 					ok
-					_epSort_ + [ _epC_, _epGrp_[_epJ_] ]
+					_epSort_ + [ _epC_, _epGrp_[_epJ_], _epGot_ ]
 				next
 				_epSort_ = sort(_epSort_, 1)
 				# PROPORTIONAL TO THE BORDER, not a flat 14px per edge.
@@ -2441,12 +2441,20 @@ class stzDiagram from stzGraph
 				# take successive steps to its left and right in their
 				# sorted order. No aligned member: the even spread as
 				# before.
+				# ...and only a SINGLE-HOP member can claim the pin. A routed
+				# member's sort key is its nearest bend, and the router aims
+				# bends at the target's own centre -- so a routed arrival
+				# always "aligned" with the node it arrives at, pinned itself
+				# to the centre, and pushed the whole group off it. Alignment
+				# is a claim about two CELLS sharing a spine; a bend the
+				# route derived from this very node cannot make it.
 				_epAt2_ = This._XYOf(paXY, _epKeys_[_epK_][1])
 				_epAl_ = 0
 				if len(_epAt2_) = 2
 					_epNC_ = _epAt2_[ iif(_bV_, 2, 1) ]
 					for _epJ_ = 1 to _epGn_
-						if fabs(_epSort_[_epJ_][1] - _epNC_) < 1
+						if fabs(_epSort_[_epJ_][1] - _epNC_) < 1 and
+						   _epSort_[_epJ_][3] = 0
 							_epAl_ = _epJ_
 							exit
 						ok
@@ -3234,6 +3242,23 @@ class stzDiagram from stzGraph
 			This._EdgeCorner(), cRank, 1, 0)
 		_q_ = This._AttachPoint(aTo, _pts_[ len(_pts_) - 1 ], nBoxW, nBoxH,
 			nPortB, This._EdgeCorner(), cRank, 0, _qveto_)
+		# ...and under ORTHO the DEPARTURE is ported and perpendicular
+		# too. The aim-attach clips toward the first bend, so a routed
+		# edge left at whatever height the aim crossed the border --
+		# 5.4px from its single-hop sibling where the port pitch says
+		# 6.7 -- and two departures at almost-a-lane apart read as a
+		# spacing mistake, not as two lanes. The arrival side already
+		# obeys (the veto forces the rank-facing border at nPortB); this
+		# is the same law at the other end.
+		if cSpline = "ortho"
+			if cRank = "LR" or cRank = "RL"
+				_pdir_ = iif(_pts_[2][1] >= aFrom[1], 1, -1)
+				_p_ = [ aFrom[1] + _pdir_ * nBoxW / 2, aFrom[2] + nPortA ]
+			else
+				_pdir_ = iif(_pts_[2][2] >= aFrom[2], 1, -1)
+				_p_ = [ aFrom[1] + nPortA, aFrom[2] + _pdir_ * nBoxH / 2 ]
+			ok
+		ok
 		_pts_[1] = _p_
 		_pts_[ len(_pts_) ] = _q_
 
@@ -3253,42 +3278,100 @@ class stzDiagram from stzGraph
 			_ob1_ = _pts_[2]
 			_obl_ = _pts_[ len(_pts_) - 1 ]
 			_flat_ = []
+			# A BEND NEEDS A CAUSE. The router chose its free lane before
+			# ports existed, so the staircase ended with a one-lane jog
+			# into the target -- a bend with no obstacle behind it,
+			# claiming a constraint the picture does not contain. When
+			# the corridor straight to the PORTED ARRIVAL is itself
+			# free, the long leg runs there and the jog never exists;
+			# failing that, when the corridor straight from the PORTED
+			# DEPARTURE is free, the one transfer moves to the last gap.
+			# Only when both corridors are blocked does the five-segment
+			# staircase earn all four of its bends.
 			if cRank = "LR" or cRank = "RL"
 				_oc1_ = (_p_[1] + _ob1_[1]) / 2
 				_oc2_ = (_obl_[1] + _q_[1]) / 2
 				_ofy_ = _obl_[2]
 				_oc1_ = This._ChannelBand(_oc1_, _p_[2], _ofy_,
 					cFromId, cToId, 1, _p_[1], _ob1_[1])
-				_oc1_ = This._ClaimChannel(_oc1_, _p_[2], _ofy_, cFromId,
-					_p_[1], _ob1_[1], cFromId, cToId, 1)
-				_oc2_ = This._ChannelBand(_oc2_, _ofy_, _q_[2],
-					cFromId, cToId, 1, _obl_[1], _q_[1])
-				_oc2_ = This._ClaimChannel(_oc2_, _ofy_, _q_[2], cFromId,
-					_obl_[1], _q_[1], cFromId, cToId, 1)
-				_flat_ + _p_[1]   _flat_ + _p_[2]
-				_flat_ + _oc1_    _flat_ + _p_[2]
-				_flat_ + _oc1_    _flat_ + _ofy_
-				_flat_ + _oc2_    _flat_ + _ofy_
-				_flat_ + _oc2_    _flat_ + _q_[2]
-				_flat_ + _q_[1]   _flat_ + _q_[2]
+				_odn_ = This._ChannelBand(_q_[2], _oc1_, _q_[1],
+					cFromId, cToId, 0, -100000, 100000)
+				_oup_ = This._ChannelBand(_p_[2], _p_[1], _oc2_,
+					cFromId, cToId, 0, -100000, 100000)
+				if fabs(_odn_ - _q_[2]) < 0.5
+					_ofy_ = _q_[2]
+					_oc1_ = This._ClaimChannel(_oc1_, _p_[2], _ofy_,
+						cFromId, _p_[1], _ob1_[1], cFromId, cToId, 1)
+					_flat_ + _p_[1]   _flat_ + _p_[2]
+					_flat_ + _oc1_    _flat_ + _p_[2]
+					_flat_ + _oc1_    _flat_ + _ofy_
+					_flat_ + _q_[1]   _flat_ + _ofy_
+				but fabs(_oup_ - _p_[2]) < 0.5
+					_ofy_ = _p_[2]
+					_oc2_ = This._ChannelBand(_oc2_, _ofy_, _q_[2],
+						cFromId, cToId, 1, _obl_[1], _q_[1])
+					_oc2_ = This._ClaimChannel(_oc2_, _ofy_, _q_[2],
+						cFromId, _obl_[1], _q_[1], cFromId, cToId, 1)
+					_flat_ + _p_[1]   _flat_ + _p_[2]
+					_flat_ + _oc2_    _flat_ + _p_[2]
+					_flat_ + _oc2_    _flat_ + _q_[2]
+					_flat_ + _q_[1]   _flat_ + _q_[2]
+				else
+					_oc1_ = This._ClaimChannel(_oc1_, _p_[2], _ofy_,
+						cFromId, _p_[1], _ob1_[1], cFromId, cToId, 1)
+					_oc2_ = This._ChannelBand(_oc2_, _ofy_, _q_[2],
+						cFromId, cToId, 1, _obl_[1], _q_[1])
+					_oc2_ = This._ClaimChannel(_oc2_, _ofy_, _q_[2],
+						cFromId, _obl_[1], _q_[1], cFromId, cToId, 1)
+					_flat_ + _p_[1]   _flat_ + _p_[2]
+					_flat_ + _oc1_    _flat_ + _p_[2]
+					_flat_ + _oc1_    _flat_ + _ofy_
+					_flat_ + _oc2_    _flat_ + _ofy_
+					_flat_ + _oc2_    _flat_ + _q_[2]
+					_flat_ + _q_[1]   _flat_ + _q_[2]
+				ok
 			else
 				_oc1_ = (_p_[2] + _ob1_[2]) / 2
 				_oc2_ = (_obl_[2] + _q_[2]) / 2
 				_ofx_ = _obl_[1]
 				_oc1_ = This._ChannelBand(_oc1_, _p_[1], _ofx_,
 					cFromId, cToId, 0, _p_[2], _ob1_[2])
-				_oc1_ = This._ClaimChannel(_oc1_, _p_[1], _ofx_, cFromId,
-					_p_[2], _ob1_[2], cFromId, cToId, 0)
-				_oc2_ = This._ChannelBand(_oc2_, _ofx_, _q_[1],
-					cFromId, cToId, 0, _obl_[2], _q_[2])
-				_oc2_ = This._ClaimChannel(_oc2_, _ofx_, _q_[1], cFromId,
-					_obl_[2], _q_[2], cFromId, cToId, 0)
-				_flat_ + _p_[1]   _flat_ + _p_[2]
-				_flat_ + _p_[1]   _flat_ + _oc1_
-				_flat_ + _ofx_    _flat_ + _oc1_
-				_flat_ + _ofx_    _flat_ + _oc2_
-				_flat_ + _q_[1]   _flat_ + _oc2_
-				_flat_ + _q_[1]   _flat_ + _q_[2]
+				_odn_ = This._ChannelBand(_q_[1], _oc1_, _q_[2],
+					cFromId, cToId, 1, -100000, 100000)
+				_oup_ = This._ChannelBand(_p_[1], _p_[2], _oc2_,
+					cFromId, cToId, 1, -100000, 100000)
+				if fabs(_odn_ - _q_[1]) < 0.5
+					_ofx_ = _q_[1]
+					_oc1_ = This._ClaimChannel(_oc1_, _p_[1], _ofx_,
+						cFromId, _p_[2], _ob1_[2], cFromId, cToId, 0)
+					_flat_ + _p_[1]   _flat_ + _p_[2]
+					_flat_ + _p_[1]   _flat_ + _oc1_
+					_flat_ + _ofx_    _flat_ + _oc1_
+					_flat_ + _ofx_    _flat_ + _q_[2]
+				but fabs(_oup_ - _p_[1]) < 0.5
+					_ofx_ = _p_[1]
+					_oc2_ = This._ChannelBand(_oc2_, _ofx_, _q_[1],
+						cFromId, cToId, 0, _obl_[2], _q_[2])
+					_oc2_ = This._ClaimChannel(_oc2_, _ofx_, _q_[1],
+						cFromId, _obl_[2], _q_[2], cFromId, cToId, 0)
+					_flat_ + _p_[1]   _flat_ + _p_[2]
+					_flat_ + _p_[1]   _flat_ + _oc2_
+					_flat_ + _q_[1]   _flat_ + _oc2_
+					_flat_ + _q_[1]   _flat_ + _q_[2]
+				else
+					_oc1_ = This._ClaimChannel(_oc1_, _p_[1], _ofx_,
+						cFromId, _p_[2], _ob1_[2], cFromId, cToId, 0)
+					_oc2_ = This._ChannelBand(_oc2_, _ofx_, _q_[1],
+						cFromId, cToId, 0, _obl_[2], _q_[2])
+					_oc2_ = This._ClaimChannel(_oc2_, _ofx_, _q_[1],
+						cFromId, _obl_[2], _q_[2], cFromId, cToId, 0)
+					_flat_ + _p_[1]   _flat_ + _p_[2]
+					_flat_ + _p_[1]   _flat_ + _oc1_
+					_flat_ + _ofx_    _flat_ + _oc1_
+					_flat_ + _ofx_    _flat_ + _oc2_
+					_flat_ + _q_[1]   _flat_ + _oc2_
+					_flat_ + _q_[1]   _flat_ + _q_[2]
+				ok
 			ok
 		but cSpline = "line" or cSpline = "polyline"
 			for _pt_ in _pts_  _flat_ + _pt_[1]  _flat_ + _pt_[2]  next

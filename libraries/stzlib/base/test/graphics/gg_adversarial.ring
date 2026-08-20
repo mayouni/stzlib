@@ -1701,6 +1701,208 @@ chkeq("no crossing, no hop -- the jump DISCRIMINATES", len(aNoCross), 0)
 
 #---------------------------------------------------------------------------
 ? ""
+? "-- 29. One port pitch, and an arrival group sits CENTRED ------"
+#
+# Two findings from one Principal markup, and both were the same organ.
+# The two lines quitting Web A were 5.4px apart while the two entering
+# Logger were 6.7 -- because a ROUTED edge departed at whatever height
+# the aim-attach crossed the border instead of at its port lane. And
+# the Logger pair sat off the border's centre -- because the router
+# aims bends at the target's own centre, so a routed arrival always
+# looked "aligned", claimed the centre pin meant for straight spines,
+# and pushed the group off it. Port lanes are ONE law at both ends of
+# an edge: a group shares its border at one pitch, symmetric about the
+# centre, and only a single-hop member may claim the spine pin.
+#
+# Measured from the SVG endpoints -- oFC is still the svc graph in
+# left-to-right from section 28, where both faults were photographed.
+#---------------------------------------------------------------------------
+
+cP29 = oFC.ToSVGXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+nWebR = 0  nWebCy = 0  nLogL = 0  nLogCy = 0
+for aN in oFC.RenderNodeRects()
+	if aN[5] = "web1"
+		nWebR = aN[1] + aN[3]
+		nWebCy = aN[2] + aN[4] / 2
+	but aN[5] = "log"
+		nLogL = aN[1]
+		nLogCy = aN[2] + aN[4] / 2
+	ok
+next
+# a cut 10px past Web A's right border (before the routed edge's first
+# turn) and one 20px before Logger's left border (after its last)
+aDep = _BorderCrossings(cP29, EDGERGB, nWebR + 10,
+	nWebCy - 40, nWebCy + 40, 0)
+aArr = _BorderCrossings(cP29, EDGERGB, nLogL - 20,
+	nLogCy - 40, nLogCy + 40, 0)
+? "   departures at Web A's border : " + len(aDep) +
+  " ; arrivals at Logger's : " + len(aArr)
+chk("both groups were found on their borders",
+    len(aDep) = 2 and len(aArr) = 2)
+if len(aDep) = 2 and len(aArr) = 2
+	nDepPitch = fabs(aDep[2] - aDep[1])
+	nArrPitch = fabs(aArr[2] - aArr[1])
+	? "   departure pitch " + nDepPitch + " ; arrival pitch " + nArrPitch
+	chk("one pitch at both ends of the picture",
+	    fabs(nDepPitch - nArrPitch) < 0.5 and nDepPitch > 3)
+	nArrMid = (aArr[1] + aArr[2]) / 2
+	? "   the arrival pair's midpoint " + nArrMid +
+	  " vs border centre " + nLogCy
+	chk("the arrival group is CENTRED on its border",
+	    fabs(nArrMid - nLogCy) < 0.5)
+
+	# THE NEGATIVE SIBLING is the pin itself: Web A and API A share a
+	# rank row, so their single-hop edge is a straight spine and its
+	# departure must sit EXACTLY on the border centre -- the pin still
+	# fires where it is true. If centring the group had been
+	# implemented by abolishing the pin, this is the line that catches
+	# it.
+	nSpine = min([ fabs(aDep[1] - nWebCy), fabs(aDep[2] - nWebCy) ])
+	? "   the aligned spine departs " + nSpine + "px from the centre"
+	chk("a TRUE spine still owns the centre port", nSpine < 0.5)
+else
+	chk("one pitch at both ends of the picture", 0)
+	chk("the arrival group is CENTRED on its border", 0)
+	chk("a TRUE spine still owns the centre port", 0)
+ok
+
+#---------------------------------------------------------------------------
+? ""
+? "-- 30. A bend needs a CAUSE ------------------------------------"
+#
+# The Principal's thinking, verbatim in spirit: do we really need to
+# route the edge here? No -- there is no spatial constraint to make the
+# line change direction; the target cell is just ON the direct path.
+# The router chose its free lane before ports existed, so the staircase
+# ended with a one-lane jog into the target -- a bend with no obstacle
+# behind it, claiming a constraint the picture does not contain. The
+# collapse: when the corridor straight to the ported arrival is free,
+# the long leg runs there and the jog never exists.
+#
+# Asserted with two cuts: the lane an edge holds far from the target
+# must be the lane it arrives on. A jog is exactly a disagreement
+# between the two.
+#---------------------------------------------------------------------------
+
+# oFC is still the svc graph in left-to-right. The routed Web-A-to-
+# Logger leg runs from its descent column all the way to Logger; a cut
+# well before the border and one at it must read the same height.
+aNear = _BorderCrossings(cP29, EDGERGB, nLogL - 20,
+	nLogCy - 40, nLogCy + 40, 0)
+aFar = _BorderCrossings(cP29, EDGERGB, 400,
+	nLogCy - 40, nLogCy + 40, 0)
+? "   lanes 20px before Logger : " + len(aNear) +
+  " ; 180px before : " + len(aFar)
+nHold = -1000000
+if len(aFar) = 1 and len(aNear) = 2
+	nHold = min([ fabs(aNear[1] - aFar[1]), fabs(aNear[2] - aFar[1]) ])
+ok
+? "   the routed lane drifts " + nHold + "px between the cuts"
+chk("the lane held far from the target IS the arrival lane",
+    nHold >= 0 and nHold < 0.5)
+
+# THE SAME LAW TOP-DOWN, on both Logger-bound edges at once: every
+# lane crossing a cut below the Backend frame must reappear unchanged
+# at Logger's top border.
+oTD = new stzDiagram("svc30")
+for a in [ [ "lb", "Balancer" ], [ "web1", "Web A" ], [ "web2", "Web B" ],
+           [ "api1", "API A" ], [ "api2", "API B" ],
+           [ "db1", "DB A" ], [ "db2", "DB B" ], [ "log", "Logger" ] ]
+	oTD.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
+next
+oTD.AddEdge("lb", "web1")    oTD.AddEdge("lb", "web2")
+oTD.AddEdge("web1", "api1")  oTD.AddEdge("web2", "api2")
+oTD.AddEdge("api1", "db1")   oTD.AddEdge("api2", "db2")
+oTD.AddEdge("web1", "log")   oTD.AddEdge("api2", "log")
+oTD.AddClusterXTT("backend", "Backend",
+	[ "api1", "api2", "db1", "db2" ], "#5E35B1")
+oTD.AddClusterXTT("data", "Data", [ "db1", "db2" ], "#2E7D32")
+oTD.SetSplines("ortho")
+cTD = oTD.ToSVGXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+nTLogT = 0  nTLogCx = 0
+nTApiT = 0
+for aN in oTD.RenderNodeRects()
+	if aN[5] = "log"
+		nTLogT = aN[2]
+		nTLogCx = aN[1] + aN[3] / 2
+	but aN[5] = "api2"
+		nTApiT = aN[2]
+	ok
+next
+aTFR = oTD.RenderClusterRects()
+# the high cut sits between the frame's top and the API row -- the one
+# stretch where ONLY the Web-to-Logger descent exists (the API edge has
+# not started down yet). A first draft cut below the frame's BOTTOM,
+# which in this layout is below Logger itself: the instrument measured
+# empty paper and called the renderer broken.
+nTHiY = (aTFR[1][2] + nTApiT) / 2
+aHigh = _BorderCrossings(cTD, EDGERGB, nTHiY,
+	nTLogCx - 40, nTLogCx + 40, 1)
+aLow = _BorderCrossings(cTD, EDGERGB, nTLogT - 20,
+	nTLogCx - 40, nTLogCx + 40, 1)
+? "   top-down: the Web descent alone crosses the high cut " +
+  len(aHigh) + " time(s) ; lanes at Logger's border : " + len(aLow)
+nTHold = -1000000
+if len(aHigh) = 1 and len(aLow) = 2
+	nTHold = min([ fabs(aLow[1] - aHigh[1]), fabs(aLow[2] - aHigh[1]) ])
+ok
+? "   its lane drifts " + nTHold + "px between the cuts"
+chk("the top-down descent holds its arrival lane the whole way",
+    nTHold >= 0 and nTHold < 0.5)
+
+# THE NEGATIVE SIBLING: a bend with a cause SURVIVES. A three-node
+# spine a-c-b with c fenced in its own cluster, plus a routed a-to-b:
+# the corridor straight down to b's port passes through c's cluster,
+# so the collapse must refuse and the staircase must keep its detour
+# column -- far from b at mid-height, on b's port only after the last
+# transfer. If straightening had been implemented as "always go
+# direct", this diagram would draw a-to-b through the cluster's frame
+# and the mid-cut would read near b's centre.
+oBn = new stzDiagram("bend30")
+for a in [ [ "a", "A" ], [ "c", "C" ], [ "b", "B" ] ]
+	oBn.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
+next
+oBn.AddEdge("a", "c")
+oBn.AddEdge("c", "b")
+oBn.AddEdge("a", "b")
+oBn.AddClusterXTT("fence", "Fence", [ "c" ], "#5E35B1")
+oBn.SetSplines("ortho")
+cBn = oBn.ToSVGXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+nBCx = 0  nBT = 0  nCB = 0
+for aN in oBn.RenderNodeRects()
+	if aN[5] = "b"
+		nBCx = aN[1] + aN[3] / 2
+		nBT = aN[2]
+	but aN[5] = "c"
+		nCB = aN[2] + aN[4]
+	ok
+next
+aMid = _BorderCrossings(cBn, EDGERGB, nCB + 8, nBCx - 300, nBCx + 300, 1)
+nDetour = -1
+for v in aMid
+	if fabs(v - nBCx) > nDetour  nDetour = fabs(v - nBCx)  ok
+next
+? "   at mid-height the routed edge stands " + nDetour +
+  "px from b's column"
+chk("a bend with a cause keeps its detour", nDetour > 30)
+# -16, not closer: the stroke stops an arrowhead (13px) short of the
+# border, and the last transfer bends ~26px above it -- the cut must
+# land between the two
+aBLow = _BorderCrossings(cBn, EDGERGB, nBT - 16, nBCx - 300, nBCx + 300, 1)
+nBWide = -1
+for v in aBLow
+	if fabs(v - nBCx) > nBWide  nBWide = fabs(v - nBCx)  ok
+next
+? "   at b's border every lane is within " + nBWide + "px of its centre"
+# 35, not the bare pitch: c sits exactly above b, so the c-to-b spine
+# owns b's centre port and the routed arrival stands one full spread
+# step (26.67px) beside it -- the pinned grammar, not a fault. What
+# this line rules out is the DETOUR column, 237px away.
+chk("...and still arrives on b's ported lanes",
+    len(aBLow) = 2 and nBWide < 35)
+
+#---------------------------------------------------------------------------
+? ""
 ? "=============================================================="
 ? " " + nOk + " ok, " + nBad + " failed"
 ? "=============================================================="
@@ -2152,6 +2354,53 @@ func _PixelsDiffering oA, oB
 # instrument was measuring corner rounding and calling it edge routing.
 # Edges are drawn in the edge colour and node borders are not, so the
 # stroke tells them apart exactly.
+# Where the edge strokes CROSS a cut line, within a window on the other
+# axis -- sections 29 and 30 read lane positions off the picture. bH=0
+# cuts vertically at x=nPos and lists heights; bH=1 cuts horizontally
+# at y=nPos and lists x positions. The polylines' own endpoints cannot
+# be used for this: a trunk's first point lies UNDER its node (the box
+# overdraws it) and an arrival's last point stops an arrowhead short of
+# the border, so the honest instrument is the one the reader's eye
+# uses -- a cut just off the border, listing where ink passes through.
+func _BorderCrossings cSvg, cStroke, nPos, nLo, nHi, bH
+	_bc_ = []
+	_bcL_ = StzLen(cSvg)
+	_bcAx_ = iif(bH, 2, 1)
+	_bcOx_ = iif(bH, 1, 2)
+	for _bcP_ in StzFindAll('<polyline points="', cSvg)
+		_bcT_ = StzSubStr(cSvg, _bcP_, min([ 6000, _bcL_ - _bcP_ + 1 ]))
+		_bcQ_ = StzFindFirst('"', StzSubStr(_bcT_, 19, StzLen(_bcT_) - 18))
+		if _bcQ_ = 0  loop  ok
+		_bcTag_ = StzFindFirst(">", _bcT_)
+		if _bcTag_ = 0  loop  ok
+		if StzFindFirst(cStroke, StzSubStr(_bcT_, 1, _bcTag_)) = 0  loop  ok
+		_bcPrev_ = []
+		for _bcPr_ in StzSplit(StzSubStr(_bcT_, 19, _bcQ_ - 1), " ")
+			_bcC_ = StzSplit(StzTrim(_bcPr_), ",")
+			if len(_bcC_) != 2  loop  ok
+			try
+				_bcPt_ = [ 0 + _bcC_[1], 0 + _bcC_[2] ]
+			catch
+				loop
+			done
+			if len(_bcPrev_) = 2
+				_bcA_ = min([ _bcPrev_[_bcAx_], _bcPt_[_bcAx_] ])
+				_bcB_ = max([ _bcPrev_[_bcAx_], _bcPt_[_bcAx_] ])
+				if nPos >= _bcA_ and nPos <= _bcB_ and _bcB_ - _bcA_ > 0.001
+					_bcYc_ = _bcPrev_[_bcOx_] +
+						(_bcPt_[_bcOx_] - _bcPrev_[_bcOx_]) *
+						(nPos - _bcPrev_[_bcAx_]) /
+						(_bcPt_[_bcAx_] - _bcPrev_[_bcAx_])
+					if _bcYc_ >= nLo and _bcYc_ <= nHi
+						_bc_ + _bcYc_
+					ok
+				ok
+			ok
+			_bcPrev_ = _bcPt_
+		next
+	next
+	return _bc_
+
 # The diagonal chords themselves, not just their count -- section 28
 # asserts both that they exist at a crossing and that every one is
 # hop-short. Same colour filter as _NonAxialSegments, same reason.
