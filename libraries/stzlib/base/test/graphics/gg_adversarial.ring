@@ -1537,6 +1537,19 @@ nMem = oFC._ForeignFreeChannel(nInY, nX1, nX2, "api2", "log", 0)
 ? "   the same channel for a MEMBER's edge stays at " + nMem
 chkeq("...while a member's edge may cross its own frame", nMem, nInY)
 
+# THE CLEARANCE IS A LEGIBILITY QUANTITY, and it is asserted as one. The
+# first push used a flat 10px, which the Principal rejected on the right
+# grounds: two lines 10px apart are distinct on a good screen and one
+# thick line to tired eyes or in a thumbnail. The clearance is derived
+# from the corner radius -- already :Scale-scaled -- so it grows with the
+# render instead of collapsing relative to it.
+nClr = oFC._LineClearance()
+nDist = min([ fabs(nOut - aR1[2]), fabs(nOut - (aR1[2] + aR1[4])) ])
+? "   clearance " + nClr + "px ; the pushed channel sits " + nDist +
+  "px off the frame"
+chk("the pushed channel honours the line clearance", nDist >= nClr - 0.5)
+chk("...and the clearance exceeds the literal it replaced", nClr > 10)
+
 # THE NEGATIVE SIBLING: a foreign run whose span does not overlap the
 # cluster must be left alone -- otherwise this is not avoidance, it is a
 # blanket ban that would push every channel in the picture around.
