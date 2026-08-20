@@ -796,31 +796,50 @@ aSO = [ :Font = SFONT, :NodeWidth = 70, :NodeHeight = 34 ]
 
 oShort = _Fan("c")
 oWide  = _Fan("condition number  holds ")
-nWShort = oShort.ToCanvasXT(aSO).Width()
-nWWide  = oWide.ToCanvasXT(aSO).Width()
-? "   canvas with short labels : " + nWShort
-? "   canvas with wide  labels : " + nWWide
-chk("wide labels widen the picture", nWWide > nWShort * 1.4)
+# WIDTH IS TRADED FOR HEIGHT, and this section used to assert only the
+# axis it happened to grow. It read "wide labels widen the picture",
+# which was true while every label was drawn on one line: the layout
+# could only buy room sideways, and a 108px label pushed a rank out by
+# 124px per child. Wrapping changed WHERE the room is bought, not
+# whether it is bought. Width is the scarce axis -- every child's label
+# competes with its neighbours' inside one rank -- while the rank GAP is
+# one number grown once for everybody, so a label that CAN be wrapped to
+# its node's width is wrapped, and the gap pays instead.
+#
+# The property is that a label steers the layout. The axis is an
+# implementation of it, and asserting the axis failed a correct picture
+# the moment the trade improved.
+oSC = oShort.ToCanvasXT(aSO)
+oWC = oWide.ToCanvasXT(aSO)
+? "   short labels : " + oSC.Width() + "x" + oSC.Height()
+? "   wide  labels : " + oWC.Width() + "x" + oWC.Height()
+chk("a wide label still steers the layout",
+    oWC.Width() * oWC.Height() > oSC.Width() * oSC.Height() * 1.2)
+chk("...and it buys its room in the GAP, the cheap axis",
+    oWC.Height() > oSC.Height())
+chkeq("...leaving the scarce axis alone", oWC.Width(), oSC.Width())
 
-# THE MECHANISM, and its negative sibling in one: the demand is what
-# widened it, and it is ZERO when a label is no wider than the node it
-# points at -- so an ordinary diagram of short labels is laid out exactly
-# as it was before any of this existed.
 SLOT = 70 + floor(oShort.NodeSeparation() * 96)
 aDS = oShort._LabelDemand(SFONT, 14, 70, SLOT, 0)
 aDW = oWide._LabelDemand(SFONT, 14, 70, SLOT, 0)
 ? "   demand, short : " + @@(aDS)
 ? "   demand, wide  : " + @@(aDW)
 chkeq("a short label demands nothing at all", _MaxOf(aDS), 0)
-chk("a wide label demands room", _MaxOf(aDW) > 0.2)
+chkeq("...and neither does a wide one, once it is wrapped",
+      _MaxOf(aDW), 0)
 
-# CHARGED TO THE TARGET, not the source. The router has no incoming
-# labelled edge and must demand nothing; its four children must each
-# demand the same. Charging the source would widen one rank too early and
-# leave the labels as crowded as before.
-chkeq("the source of a labelled edge demands nothing", aDW[1], 0)
+# THE NEGATIVE SIBLING, and the case that keeps the width demand honest:
+# a label of ONE unbreakable word cannot be wrapped, so it has no cheap
+# axis to move to and must widen the rank exactly as before. If wrapping
+# had been implemented as "labels never demand width", this is the line
+# that catches it.
+oUnbr = _Fan("WWWWWWWWWWWWWWWWWWWW")
+aDU = oUnbr._LabelDemand(SFONT, 14, 70, SLOT, 0)
+? "   demand, one unbreakable word : " + @@(aDU)
+chk("a label that CANNOT wrap still demands width", _MaxOf(aDU) > 0.2)
+chkeq("the source of a labelled edge demands nothing", aDU[1], 0)
 chk("...and every target demands the same room",
-    aDW[2] = aDW[3] and aDW[3] = aDW[4] and aDW[4] = aDW[5])
+    aDU[2] = aDU[3] and aDU[3] = aDU[4] and aDU[4] = aDU[5])
 
 # THE TWO NUMBERS AGREE. The demand divides by the bias because the label
 # stands at that fraction of the way to its target; if the drawing used a
@@ -2087,29 +2106,37 @@ chkeq("a spot inside a node box is refused outright", nInN, -1)
 
 #---------------------------------------------------------------------------
 ? ""
-sec("-- 33. A label sits IN its line, and the paper is no bigger --")
+sec("-- 33. A label rides its line, wrapped, and siblings match --")
 #
-# Two Principal findings on the labelled fan, one root. The labels of the
-# middle two edges lay ACROSS the shared bus, hiding the line they named,
-# and the picture was half again as wide as anything required.
+# Three Principal findings on one picture of a four-way fan, and they
+# turned out to be one design.
 #
-# The demand was the cause of both. It asked for the label's width DIVIDED
-# by the placement bias -- the arithmetic of a dead model in which a label
-# sat at a fixed fraction of a straight edge and inherited that fraction of
-# the spread. At bias 0.5 it bought TWICE the label's width per child: 124px
-# of paper per child that no label stood in, while the labels themselves
-# crowded onto a bus that had not been widened at all.
+#   "all the 4 cells has the same level and must all fit under the main
+#    one"  -- the outermost child was leaving the parent's SIDE border
+#    while its three siblings dropped off a shared bus. Four children in
+#    one rank stand in one relation; drawing one of them differently
+#    states a difference the graph does not contain. The lateral form
+#    now requires what its own name always said -- the source's ONLY
+#    out-edge -- and congruence outranks it otherwise.
 #
-# What a label needs is the LINE IT SITS ON: its own width plus a clearance
-# of line showing at each end, so it reads as centred inside its edge rather
-# than laid over it. The placer honours the same quantity from the other
-# side -- it will only sit ON a segment long enough to show line at both
-# ends, and goes BESIDE the line otherwise (an aligned child's edge is a
-# pure vertical drop; there is no run to sit on, and inventing one would be
-# inventing space).
+#   "the label MUST ALWAYS be written on the middle of the line, not
+#    outside it"  -- so the line has to be able to carry it, and the
+#    layout is what makes that keepable.
 #
-# Together they are also the space rule: the picture is as small as its
-# constraints allow, because the only thing widening it is a constraint.
+#   "we can let the lines be longer and write labels on two lines so we
+#    gain width"  -- wrapping trades the scarce axis for the cheap one.
+#    Width is scarce because every child's label competes with its
+#    neighbours' inside one rank; the rank GAP is one number the layout
+#    grows once for everybody. A label wrapped to the width of the node
+#    it names can never widen the picture beyond what the nodes already
+#    demand, so the label becomes free.
+#
+# The gap is grown to TWICE the label's room, because the label rides
+# the DROP and the shared channel sits at the middle of the gap -- a gap
+# that merely fits a label leaves a drop that fits half of one.
+#
+# Result on the four-way fan: 954x176 with labels lying across the bus,
+# became 583x279 with every label centred on its own drop.
 #---------------------------------------------------------------------------
 
 LFONT = new stzFont("C:/Windows/Fonts/segoeui.ttf")
@@ -2123,11 +2150,15 @@ oLd.SetSplines("ortho")
 oLd.ToCanvasXT([ :Font = LFONT, :NodeWidth = 96, :NodeHeight = 36,
 	:FontSize = 13 ])
 nClr33 = oLd._LineClearance()
-nLW33 = LFONT.WidthOf("condition 1 holds", 13) + 8
+aBlk33 = oLd._LabelBlock("condition 1 holds", LFONT, 13, 96)
 
-# A label centred ON a segment must leave line showing at BOTH ends.
-nOnCount = 0
-nWorstTail = 1000000
+? "   wrapped to " + len(aBlk33[1]) + " lines, " + aBlk33[2] + "x" +
+  aBlk33[3] + "px"
+chk("a label wider than its node is WRAPPED", len(aBlk33[1]) >= 2)
+chk("...to no wider than the node it names", aBlk33[2] <= 96 + 8)
+
+nOn33 = 0
+nTail33 = 1000000
 for aL in oLd.RenderLabels()
 	for aP in oLd.RenderEdgePaths()
 		if aP[1] != aL[6]  loop  ok
@@ -2139,42 +2170,74 @@ for aL in oLd.RenderLabels()
 				if fabs(aL[3] - aF[i+1]) > 1  loop  ok
 				if aL[2] < min([ aF[i], aF[i+2] ]) or
 				   aL[2] > max([ aF[i], aF[i+2] ])  loop  ok
-				nTail = (nDx - aL[4]) / 2
+				nT33 = (nDx - aL[4]) / 2
 			else
 				if fabs(aL[2] - aF[i]) > 1  loop  ok
 				if aL[3] < min([ aF[i+1], aF[i+3] ]) or
 				   aL[3] > max([ aF[i+1], aF[i+3] ])  loop  ok
-				nTail = (nDy - aL[5]) / 2
+				nT33 = (nDy - aL[5]) / 2
 			ok
-			nOnCount++
-			if nTail < nWorstTail  nWorstTail = nTail  ok
+			nOn33++
+			if nT33 < nTail33  nTail33 = nT33  ok
 		next
 	next
 next
-? "   labels sitting ON their line : " + nOnCount +
-  " ; least line showing at an end : " + nWorstTail + "px"
-chk("a label rides its own line wherever the line can carry one",
-    nOnCount >= 3)
-chk("a label on a line leaves line showing at BOTH ends",
-    nWorstTail >= nClr33 * 0.9)
+? "   labels ON their line : " + nOn33 + " of " + len(oLd.RenderLabels()) +
+  " ; least line showing at an end : " + nTail33 + "px"
+chkeq("EVERY label sits on its own line", nOn33, len(oLd.RenderLabels()))
+chk("...centred, with line showing at both ends", nTail33 >= nClr33 * 0.9)
 
-# ...and the paper is no wider than the binding constraint.
+# CONGRUENCE: four children of one parent, one relation, one drawing.
+aShape33 = []
+for aP in oLd.RenderEdgePaths()
+	aF = aP[2]
+	nDrop33 = 0
+	for i = 1 to len(aF) - 3 step 2
+		if fabs(aF[i+2] - aF[i]) < 0.5  nDrop33 += fabs(aF[i+3] - aF[i+1])  ok
+	next
+	aShape33 + [ len(aF), nDrop33 ]
+next
+bSame33 = 1
+for i = 2 to len(aShape33)
+	if aShape33[i][1] != aShape33[1][1] or
+	   fabs(aShape33[i][2] - aShape33[1][2]) > 0.5
+		bSame33 = 0
+	ok
+next
+? "   sibling edges : " + len(aShape33) + ", each " +
+  (aShape33[1][1] / 2) + " points and " + aShape33[1][2] + "px of drop"
+chk("siblings of one parent are drawn ALIKE", bSame33)
+
+# THE PAPER IS NO BIGGER THAN ITS CONSTRAINTS -- with the label wrapped
+# to the node's width, the binding constraint is the separation contract
+# alone, so the pitch falls back to it exactly.
 aX33 = []
 for r in oLd.RenderNodeRects()
 	if r[5] != "r"  aX33 + r[1]  ok
 next
 aX33 = sort(aX33)
-nPitch = aX33[2] - aX33[1]
-nFloor = max([ 96 + floor(oLd.NodeSeparation() * 96), nLW33 + nClr33 * 2 ])
-? "   child pitch " + nPitch + "px against a floor of " + nFloor + "px"
-chk("every pitch is the same", fabs(aX33[3] - aX33[2] - nPitch) < 0.5 and
-    fabs(aX33[4] - aX33[3] - nPitch) < 0.5)
-chk("the pitch MEETS the binding constraint", nPitch >= nFloor - 0.5)
-chk("...and does not EXCEED it", nPitch <= nFloor + 2)
+? "   child pitch " + (aX33[2] - aX33[1]) + "px"
+chkeq("the pitch is the bare separation contract",
+      aX33[2] - aX33[1], 96 + floor(oLd.NodeSeparation() * 96))
 
-# THE NEGATIVE SIBLING: strip the labels and the same graph must fall back
-# to the bare separation contract. Without this, a demand that inflated
-# every diagram equally would pass all three assertions above.
+# THE NEGATIVE SIBLING, on the MECHANISM so the geometry cannot muddy
+# it: one lateral edge on a synthetic pair of positions must be granted
+# the side-border form, and the SAME edge on the SAME positions must
+# lose it the moment its source gains a sibling. Rendering a scene to
+# test this proved fragile -- a layout that declines to put a node far
+# enough sideways tests nothing and reports a pass.
+aXY33 = [ [ "a", 100, 100 ], [ "z", 600, 140 ], [ "w", 100, 140 ] ]
+aP1_33 = oLd._EdgePorts([ [ :from = "a", :to = "z" ] ], aXY33, 96, 36,
+	"TB", [])
+? "   a lone lateral edge is granted the side form : " + aP1_33[1][6]
+chk("a genuinely lone edge keeps its side-border form", aP1_33[1][6] = 1)
+aP2_33 = oLd._EdgePorts([ [ :from = "a", :to = "z" ],
+	[ :from = "a", :to = "w" ] ], aXY33, 96, 36, "TB", [])
+? "   the same edge once its source has a sibling : " + aP2_33[1][6]
+chkeq("...and loses it the moment it has a sibling to match",
+      aP2_33[1][6], 0)
+
+# ...and an unlabelled fan still pays NOTHING for labels.
 oNo = new stzDiagram("fan33n")
 oNo.AddNodeXTT("r", "Router", [ :type = "box", :color = "Info.Solid" ])
 for i = 1 to 4
@@ -2182,16 +2245,12 @@ for i = 1 to 4
 	oNo.AddEdge("r", "h" + i)
 next
 oNo.SetSplines("ortho")
-oNo.ToCanvasXT([ :Font = LFONT, :NodeWidth = 96, :NodeHeight = 36,
-	:FontSize = 13 ])
-aXn = []
-for r in oNo.RenderNodeRects()
-	if r[5] != "r"  aXn + r[1]  ok
-next
-aXn = sort(aXn)
-? "   the same fan unlabelled : pitch " + (aXn[2] - aXn[1]) + "px"
-chkeq("an unlabelled diagram pays NOTHING for labels",
-      aXn[2] - aXn[1], 96 + floor(oNo.NodeSeparation() * 96))
+nH0 = oNo.ToCanvasXT([ :Font = LFONT, :NodeWidth = 96, :NodeHeight = 36,
+	:FontSize = 13 ]).Height()
+nH1 = oLd.ToCanvasXT([ :Font = LFONT, :NodeWidth = 96, :NodeHeight = 36,
+	:FontSize = 13 ]).Height()
+? "   unlabelled height " + nH0 + " against labelled " + nH1
+chk("the gap grows for labels and ONLY for labels", nH0 < nH1)
 
 #---------------------------------------------------------------------------
 ? ""
