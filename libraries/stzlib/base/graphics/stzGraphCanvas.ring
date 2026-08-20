@@ -699,6 +699,9 @@ class stzGraphCanvas from stzObject
 				# outer boxes separate more than the inner ones do -- which
 				# is exactly what nesting has to look like, and it falls
 				# out of counting rather than being a second rule.
+				_air_ = This._Opt(:ClusterAir, 0.55)
+				if NOT isNumber(_air_)  _air_ = 0.55  ok
+				if _air_ < 0  _air_ = 0  ok
 				for _L_ = 1 to _max_ + 1
 					_sh_ = 0
 					_prevD_ = []
@@ -712,12 +715,29 @@ class stzGraphCanvas from stzObject
 								_curD_ + This._ClusterOf(_n_, _dp3_)[_id_]
 							ok
 						next
+						# ONE HELPING PER BOUNDARY, and the size of it is asked
+						# for rather than guessed at. This added 0.55 of a slot
+						# per LEVEL crossed, so leaving two nested clusters at
+						# once bought 1.1 slots -- 168px on the service diagram,
+						# on top of the 52px of padding the frames already carry:
+						# 204px of empty paper between a frame and its neighbour,
+						# where a clearance is 24. The Principal called that
+						# distance good and exaggerated, which is what a rule
+						# scaling with the wrong quantity produces.
+						#
+						# What a boundary needs is that the FRAME clear the
+						# foreign node: the deepest padding in the picture plus
+						# one clearance. The face knows both in pixels and sends
+						# the ratio (:ClusterAir); this tier only carries it, the
+						# same contract as :NodeExtra. Nesting is already paid for
+						# inside the padding, which grows per level, so the air is
+						# charged once per crossing and not once per level.
 						if len(_prevD_) > 0
+							_bnd_ = 0
 							for _dp4_ = 1 to len(_curD_)
-								if _curD_[_dp4_] != _prevD_[_dp4_]
-									_sh_ += 0.55
-								ok
+								if _curD_[_dp4_] != _prevD_[_dp4_]  _bnd_ = 1  ok
 							next
+							if _bnd_  _sh_ += _air_  ok
 						ok
 						@aX[_id_] += _sh_
 						_prevD_ = _curD_
