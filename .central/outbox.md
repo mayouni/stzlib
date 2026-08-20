@@ -659,3 +659,78 @@ note:      what this does NOT say: that the POSIX code is broken. It says
            finding to act on.
 ```
 ---
+
+```yaml
+by:        stzlib-general · claude-opus-5 · 2026-08-20 12:40
+
+subject:   prompt 39 delivered -- an agent is a file, and the file is judged
+           before it is ever an agent
+
+why:       the Principal's sentence needed a notation and a court, not a
+           runtime; the runtime already existed and is untouched
+
+did:
+  - built the .pia declaration format at base/agentic/stzAgentDeclaration.ring
+    -- name, kind, coverage, reversibility, schedule, memory, governance,
+    skills (precondition / action / verify / effect), and `proposes` for an
+    llm actor. Versioned from day one: `pia: 1`, and an unknown version is
+    refused rather than read hopefully
+  - reused prompt 42's memo parser rather than writing a second one: the
+    format is the memo shape this estate already writes, so _StzOutputParseMemo
+    reads it and there is one parser in the house, not two
+  - made the declaration JUDGED AT LOAD, which is prompt 37's habit carried
+    over: unknown key, missing coverage, a verb outside the closed vocabulary,
+    a verb in the wrong SLOT, wrong arity, a bad risk tier, and a `proposes`
+    structure the schema court itself refuses -- each a refusal naming its
+    rule, before an agent exists rather than at the first tick
+  - gave the vocabulary one door for what it cannot say, `ring:<FunctionName>`,
+    and shut it properly: a clause naming a function that does not exist is
+    REFUSED AT LOAD. That is the whole cost of "Ring for the rest"
+  - quoted stzAgentGraph.Grant's OWN SENTENCE for an llm actor holding an
+    effect rather than paraphrasing it -- one rule, two doors, same words --
+    and refused an llm skill whose action writes the world with it
+  - built base/agentic/stzAgentFolder.ring: two notations through one set of
+    gates, one bad file refused without stopping the folder, and the refusals
+    readable FROM THE HOST via AgentLoadRefusals()
+  - wired stzAgentHost.UseAgentsFrom(path) and RescanAgents(), which
+    supervises what arrived, CANCELS what vanished, and for a file changed
+    under a running agent does neither and says so
+  - proved it is a front-end rather than claiming it: the guard runs a
+    declared agent on an ordinary host AND on the Zig loop from prompt 38,
+    with nothing declared by hand, because the file answers law 18's two
+    questions itself
+  - wrote 88 assertions over 8 scenes, five of which need no model and no
+    files at all
+
+state:
+  format:      pia v1, closed vocabulary, engine-free
+  runtime:     unchanged -- stzPIAgent / stzAgentSkill / stzAgentMemory /
+               stzGovernance / stzAgentHost, plus folder wiring on the host
+  guards:      agentic 7/7 green (228 assertions, 88 of them new), neural
+               13/13 green, knob gate clean over base/agentic
+  commit:      ce453dc4a
+  github:      pushed and verified by ls-remote
+  codeberg:    PENDING -- the push hung on an expired credential, not retried
+
+waiting:
+  - none. Nothing in prompt 39 is left open
+
+next:
+  - me:      nothing outstanding
+  - author:  the codeberg credential, whenever convenient
+
+note:      three Ring facts were paid for here and are written where they
+           were paid, because each would cost the next reader the same hour.
+           (1) eval("load '...'") half-works: the file loads and its entry
+           point becomes callable, but a class defined that way DOES NOT GET
+           ITS PARENT -- ismethod("Cycle") answers 0 and a call raises R14. An
+           agent that cannot inherit stzPIAgent is not an agent, so the folder
+           does not evaluate source and the app loads its own Ring agents;
+           reading a folder now runs nothing, which is better than what was
+           lost. (2) Holding MemoryQ() in a local and writing through it
+           writes a COPY -- the local sees the fact and the agent never does;
+           the chained form reaches the agent, and stzGovernance is immune
+           only because its state lives in a process table keyed by an id.
+           (3) `def Load()` is a C6 and a second `func Swap()` is a C22.
+```
+---
