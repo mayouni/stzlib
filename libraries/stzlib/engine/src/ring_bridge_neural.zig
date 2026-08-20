@@ -6,6 +6,7 @@ const gex = @import("gguf_export.zig");
 const ngpu = @import("neural_gpu.zig");
 const nbb = @import("neural_backbone.zig");
 const gbnf = @import("schema_gbnf.zig");
+const gmach = @import("gbnf_machine.zig");
 const R = @import("ring_api.zig");
 
 const rn = R.ring_vm_api_retnumber;
@@ -328,6 +329,92 @@ fn ring_GbnfUnenforced(p: *anyopaque) callconv(.c) void {
     if (l > 0) R.ring_vm_api_retstring2(p, &buf, @intCast(l)) else R.ring_vm_api_retstring2(p, @constCast(""), 0);
 }
 
+// --- GRAMMAR-CONSTRAINED DECODING (prompt 43). The grammar compiled
+// above is INSTALLED here, and from that moment the sampler in
+// neural_gen.zig draws only from candidates the grammar can still accept.
+// --- the machine on its own, with no model in the way. Checking a
+// grammar, and asking whether a piece of text satisfies it, needs no
+// vocabulary and no GGUF -- so these do not require one, and a guard can
+// prove the enforcement rules on a machine with no model installed.
+// They share the ONE machine the sampler uses, which is safe because a
+// generation call is synchronous: nothing runs between its tokens.
+fn ring_GrammarSet(p: *anyopaque) callconv(.c) void {
+    const t = gs(p, 1);
+    const l: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
+    rn(p, @floatFromInt(gmach.stz_grammar_set(t, l)));
+}
+
+fn ring_GrammarReset(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gmach.stz_grammar_reset()));
+}
+
+fn ring_GrammarAccept(p: *anyopaque) callconv(.c) void {
+    const t = gs(p, 1);
+    const l: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
+    rn(p, @floatFromInt(gmach.stz_grammar_accept(t, l)));
+}
+
+fn ring_GrammarCanAccept(p: *anyopaque) callconv(.c) void {
+    const t = gs(p, 1);
+    const l: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
+    rn(p, @floatFromInt(gmach.stz_grammar_can_accept(t, l)));
+}
+
+fn ring_GrammarCanEnd(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gmach.stz_grammar_can_end()));
+}
+
+fn ring_GrammarLive(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gmach.stz_grammar_live()));
+}
+
+fn ring_GrammarRefusal(p: *anyopaque) callconv(.c) void {
+    var buf: [512]u8 = undefined;
+    const l = gmach.stz_grammar_last_refusal(&buf);
+    if (l > 0) R.ring_vm_api_retstring2(p, &buf, @intCast(l)) else R.ring_vm_api_retstring2(p, @constCast(""), 0);
+}
+
+fn ring_NeuralSetGrammar(p: *anyopaque) callconv(.c) void {
+    const t = gs(p, 1);
+    const l: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
+    rn(p, @floatFromInt(gen.neural_gen_set_grammar(@ptrCast(t), l)));
+}
+
+fn ring_NeuralClearGrammar(p: *anyopaque) callconv(.c) void {
+    gen.neural_gen_clear_grammar();
+    rn(p, 1);
+}
+
+fn ring_NeuralGrammarActive(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gen.neural_gen_grammar_active()));
+}
+
+fn ring_NeuralGrammarMasked(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gen.neural_gen_grammar_masked()));
+}
+
+fn ring_NeuralGrammarJudged(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gen.neural_gen_grammar_judged()));
+}
+
+fn ring_NeuralGrammarSteps(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gen.neural_gen_grammar_steps()));
+}
+
+fn ring_NeuralGrammarStalled(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gen.neural_gen_grammar_stalled()));
+}
+
+fn ring_NeuralGrammarComplete(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gen.neural_gen_grammar_complete()));
+}
+
+fn ring_NeuralGrammarRefusal(p: *anyopaque) callconv(.c) void {
+    var buf: [512]u8 = undefined;
+    const l = gen.neural_gen_grammar_refusal(&buf);
+    if (l > 0) R.ring_vm_api_retstring2(p, &buf, @intCast(l)) else R.ring_vm_api_retstring2(p, @constCast(""), 0);
+}
+
 fn ring_GbnfDecodingSupported(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(gbnf.stz_gbnf_decoding_supported()));
 }
@@ -347,6 +434,22 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegbnfunenforced", .func = &ring_GbnfUnenforced },
     .{ .name = "stzenginegbnfdecodingsupported", .func = &ring_GbnfDecodingSupported },
     .{ .name = "stzenginegbnfdecodingstatus", .func = &ring_GbnfDecodingStatus },
+    .{ .name = "stzenginegrammarset", .func = &ring_GrammarSet },
+    .{ .name = "stzenginegrammarreset", .func = &ring_GrammarReset },
+    .{ .name = "stzenginegrammaraccept", .func = &ring_GrammarAccept },
+    .{ .name = "stzenginegrammarcanaccept", .func = &ring_GrammarCanAccept },
+    .{ .name = "stzenginegrammarcanend", .func = &ring_GrammarCanEnd },
+    .{ .name = "stzenginegrammarlive", .func = &ring_GrammarLive },
+    .{ .name = "stzenginegrammarrefusal", .func = &ring_GrammarRefusal },
+    .{ .name = "stzengineneuralsetgrammar", .func = &ring_NeuralSetGrammar },
+    .{ .name = "stzengineneuralcleargrammar", .func = &ring_NeuralClearGrammar },
+    .{ .name = "stzengineneuralgrammaractive", .func = &ring_NeuralGrammarActive },
+    .{ .name = "stzengineneuralgrammarmasked", .func = &ring_NeuralGrammarMasked },
+    .{ .name = "stzengineneuralgrammarjudged", .func = &ring_NeuralGrammarJudged },
+    .{ .name = "stzengineneuralgrammarsteps", .func = &ring_NeuralGrammarSteps },
+    .{ .name = "stzengineneuralgrammarstalled", .func = &ring_NeuralGrammarStalled },
+    .{ .name = "stzengineneuralgrammarcomplete", .func = &ring_NeuralGrammarComplete },
+    .{ .name = "stzengineneuralgrammarrefusal", .func = &ring_NeuralGrammarRefusal },
     .{ .name = "stzengineneuralbackboneembed", .func = &ring_BackboneEmbed },
     .{ .name = "stzengineneuralbackbonesupported", .func = &ring_BackboneSupported },
     .{ .name = "stzengineneuralbackbonesetmintokens", .func = &ring_BackboneSetMinTokens },

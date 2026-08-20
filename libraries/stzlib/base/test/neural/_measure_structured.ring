@@ -62,8 +62,11 @@ cS2 = StzAskModelXT(cP, [ :MaxTokens = 96, :Temperature = 0.7, :Seed = 1002 ])
 ? ""
 ? "=== PASS C: the full rung, retries included ==="
 #---------------------------------------------------------------------
-# What a caller actually experiences: stzLLMFunction with a budget, its
-# own prompt clause, its own retry policy.
+# What a caller used to experience: stzLLMFunction with a budget, its own
+# prompt clause, its own retry policy, and the model CHECKED afterwards.
+# ConstrainDecoding(0) is what holds this pass at that older behaviour --
+# constraining is the default now, and without the switch this pass would
+# silently become a second copy of pass D and the comparison would vanish.
 nOK_C = 0
 nCalls_C = 0
 for i = 1 to nTotal
@@ -77,6 +80,7 @@ for i = 1 to nTotal
 	oF.SetMaxTokens(96)
 	oF.Budget(4)
 	oF.SetRetries(3)
+	oF.ConstrainDecoding(0)
 	try
 		oF.Call_(acInputs[i])
 		nOK_C++
@@ -86,6 +90,45 @@ for i = 1 to nTotal
 	done
 	nCalls_C += oF.CallsMade()
 next
+
+#---------------------------------------------------------------------
+? ""
+? "=== PASS D: the same rung with DECODING CONSTRAINED ==="
+#---------------------------------------------------------------------
+# The rung prompt 43 built. The schema becomes a grammar, the grammar goes
+# to the sampler, and a token that would break the shape is never drawn.
+# Same inputs, same budget, same court -- only the sampler changed.
+nOK_D = 0
+nCalls_D = 0
+nOK_D1 = 0
+if StzConstrainedDecodingSupported() = 0
+	? "  NOT SUPPORTED in this build -- pass D cannot be taken."
+else
+	for i = 1 to nTotal
+		oF = new stzLLMFunction("cityc-" + i)
+		oF.SetPrompt("The city is {input}.")
+		oF.ReturnsStructure([
+			[ :field = "city",    :type = :string ],
+			[ :field = "country", :type = :string ],
+			[ :field = "founded", :type = :number ]
+		])
+		oF.SetMaxTokens(96)
+		oF.Budget(4)
+		oF.SetRetries(3)
+		try
+			oF.Call_(acInputs[i])
+			nOK_D++
+			if oF.CallsMade() = 1
+				nOK_D1++
+			ok
+			? "  [VALID]   " + acInputs[i] + " on attempt " + oF.CallsMade() +
+				"   (constrained: " + oF.WasLastAnswerConstrained() + ")"
+		catch
+			? "  [REFUSED] " + acInputs[i] + " after " + oF.CallsMade() + " attempts"
+		done
+		nCalls_D += oF.CallsMade()
+	next
+ok
 
 ? ""
 ? "=== THE NUMBERS ==="
@@ -98,3 +141,16 @@ if nOK_C > 0
 else
 	? "PASS C  attempts per answer   : INFINITE -- nothing validated"
 ok
+? ""
+? "PASS D  first-attempt valid   : " + nOK_D1 + "/" + nTotal
+? "PASS D  valid within 4 tries  : " + nOK_D + "/" + nTotal
+? "PASS D  model calls spent     : " + nCalls_D
+if nOK_D > 0
+	? "PASS D  attempts per answer   : " + (nCalls_D / nOK_D)
+else
+	? "PASS D  attempts per answer   : INFINITE -- nothing validated"
+ok
+? ""
+? "WHAT THE NUMBER DOES NOT SAY: a grammar constrains SHAPE. Every answer"
+? "counted valid above has the shape it was asked for; none of them was"
+? "checked for being TRUE, and no grammar could check that."

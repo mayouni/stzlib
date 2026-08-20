@@ -14,6 +14,12 @@
 #                                                              #
 #--------------------------------------------------------------#
 
+# The last constrained run's numbers. Declared HERE, at load, rather than
+# on first write: Ring raises R24 on reading a global that was never
+# assigned, so a caller who asks StzLastGrammarRun() before any grammar
+# has been used deserves zeros rather than an error.
+$aStzLastGrammarRun = [ :judged = 0, :masked = 0, :steps = 0, :stalled = 0, :complete = 0 ]
+
 # StzNeuralModelQ(cPath) -- construct a model object and load the GGUF at
 # cPath. ONE creation function, named for its class + Q (the house rule).
 func StzNeuralModelQ(pcPath)
@@ -90,6 +96,13 @@ func StzGenerate(pcPrompt, pnMaxNewTokens)
 #   [ :MaxTokens = 64, :Temperature = 0, :TopP = 0.95, :TopK = 40, :Seed = 42 ]
 # Temperature 0 = greedy (deterministic); a temperature with a SEED is
 # reproducible too (same prompt + options + seed -> same text).
+#
+# And one knob that is not about sampling at all:
+#   [ :Grammar = cGBNF ]
+# installs a GBNF grammar at the sampler, so a token whose bytes cannot
+# continue it is never drawn. Read StzLastGrammarRun() afterwards for
+# what masking did, and StzConstrainedDecodingStatus() for what it does
+# NOT cover -- shape, never value, never truth.
 func StzGenerateXT(pcPrompt, paOptions)
 	if StzHasGenerativeModel() = 0
 		return ""
@@ -99,6 +112,7 @@ func StzGenerateXT(pcPrompt, paOptions)
 	_nTopP_ = 0.95
 	_nTopK_ = 40
 	_nSeed_ = 42
+	_cGrammar_ = ""
 	if isList(paOptions)
 		_n_ = len(paOptions)
 		for _i_ = 1 to _n_
@@ -114,14 +128,110 @@ func StzGenerateXT(pcPrompt, paOptions)
 					_nTopK_ = paOptions[_i_][2]
 				but _cK_ = "seed"
 					_nSeed_ = paOptions[_i_][2]
+				but _cK_ = "grammar"
+					_cGrammar_ = "" + paOptions[_i_][2]
 				ok
 			ok
 		next
 	ok
-	return StzEngineNeuralGenerateXT(pcPrompt, _nMax_, _nTemp_, _nTopP_, _nTopK_, _nSeed_)
+	# --- GRAMMAR-CONSTRAINED DECODING -------------------------------
+	# With :Grammar = <GBNF text>, a token whose bytes cannot continue
+	# the grammar is never drawn -- the violation is UNEMITTABLE rather
+	# than caught after the fact. The grammar constrains SHAPE only:
+	# it cannot say "this number is between 0 and 130", and it cannot
+	# make a wrong answer right. StzOutputSchemaQ(...).ToGBNF() writes
+	# the text; UnenforcedByGrammar() lists what it does not carry.
+	if _cGrammar_ != ""
+		_rcG_ = StzEngineNeuralSetGrammar(_cGrammar_)
+		if _rcG_ != 0
+			stzraise("StzGenerateXT: the grammar was refused (code " +
+				_rcG_ + ") -- " + StzEngineNeuralGrammarRefusal())
+		ok
+	ok
+
+	_cOut_ = StzEngineNeuralGenerateXT(pcPrompt, _nMax_, _nTemp_, _nTopP_, _nTopK_, _nSeed_)
+
+	# What masking actually did, read BEFORE the grammar is uninstalled --
+	# a caller who cannot see the numbers cannot tell a constrained run
+	# from an unconstrained one, and that is the claim this rung exists
+	# to make checkable.
+	if _cGrammar_ != ""
+		$aStzLastGrammarRun = [
+			:masked   = StzEngineNeuralGrammarMasked(),
+			:judged   = StzEngineNeuralGrammarJudged(),
+			:steps    = StzEngineNeuralGrammarSteps(),
+			:stalled  = StzEngineNeuralGrammarStalled(),
+			:complete = StzEngineNeuralGrammarComplete()
+		]
+		StzEngineNeuralClearGrammar()
+	ok
+	return _cOut_
 
 	func @StzGenerateXT(pcPrompt, paOptions)
 		return StzGenerateXT(pcPrompt, paOptions)
+
+# TRUE when this build enforces a grammar AT THE SAMPLER. Ask before
+# reporting an answer as grammar-constrained: a compiled grammar and a
+# constrained sampler are two different things.
+func StzConstrainedDecodingSupported()
+	return StzEngineGbnfDecodingSupported()
+
+# What constrained decoding does, and what it does NOT do. Read it once.
+func StzConstrainedDecodingStatus()
+	return StzEngineGbnfDecodingStatus()
+
+#--- the grammar on its own, with no model in the way ------------------
+# Checking a grammar, and asking whether a piece of text satisfies it,
+# needs no vocabulary and no GGUF. So these three answer without one --
+# which is also what lets a caller VALIDATE a grammar before spending a
+# model call on it.
+#
+# They drive the same machine the sampler uses. That is safe because a
+# generation call is synchronous: nothing runs between its tokens. Do not
+# call them from a streaming loop opened with StzStartGeneration().
+
+# "" when this build can enforce the grammar; otherwise the refusal,
+# naming the construct it could not take.
+func StzGrammarRefusal(pcGBNF)
+	if StzEngineGrammarSet("" + pcGBNF) = 0
+		return ""
+	ok
+	return StzEngineGrammarRefusal()
+
+# Does cText satisfy the grammar WHOLE -- a complete sentence of it?
+# A legal PREFIX is not enough: "city: Paris" alone answers 0 when the
+# grammar also demands a country line.
+func StzGrammarAccepts(pcGBNF, pcText)
+	if StzEngineGrammarSet("" + pcGBNF) != 0
+		stzraise("StzGrammarAccepts: " + StzEngineGrammarRefusal())
+	ok
+	if StzEngineGrammarAccept("" + pcText) = 0
+		return 0
+	ok
+	return StzEngineGrammarCanEnd()
+
+# Could cText still GROW into a sentence of the grammar? This is the
+# question the sampler asks of every candidate token, and the answer that
+# separates a legal prefix from a dead end.
+func StzGrammarCouldContinue(pcGBNF, pcText)
+	if StzEngineGrammarSet("" + pcGBNF) != 0
+		stzraise("StzGrammarCouldContinue: " + StzEngineGrammarRefusal())
+	ok
+	return StzEngineGrammarCanAccept("" + pcText)
+
+# The last constrained run, as numbers:
+#   :judged   -- candidate tokens the grammar looked at
+#   :masked   -- how many of them it refused
+#   :steps    -- tokens actually emitted
+#   :stalled  -- 1 when some step had NO legal token (generation stopped
+#                there; it did not quietly emit something else)
+#   :complete -- 1 when the grammar was SATISFIED where generation ended,
+#                0 when the token budget cut it off mid-structure
+func StzLastGrammarRun()
+	if NOT isList($aStzLastGrammarRun)
+		return [ :judged = 0, :masked = 0, :steps = 0, :stalled = 0, :complete = 0 ]
+	ok
+	return $aStzLastGrammarRun
 
 # Ask with sampling options (ChatML-wrapped).
 func StzAskModelXT(pcQuestion, paOptions)
@@ -131,7 +241,24 @@ func StzAskModelXT(pcQuestion, paOptions)
 # StzStartGeneration(prompt, options) opens a session; each StzNextToken()
 # returns the next decoded chunk ("" when finished) -- show progress,
 # react mid-generation, or stop early by just not calling again.
+#
+# :Grammar is NOT accepted here, and is REFUSED rather than ignored. A
+# streaming session has no end hook, so nothing would uninstall the
+# grammar afterwards and the next unrelated generation would inherit it.
+# Constrain a blocking call (StzGenerateXT) instead.
 func StzStartGeneration(pcPrompt, paOptions)
+	if isList(paOptions)
+		_nG_ = len(paOptions)
+		for _iG_ = 1 to _nG_
+			if isList(paOptions[_iG_]) and len(paOptions[_iG_]) = 2 and
+			   isString(paOptions[_iG_][1]) and lower(paOptions[_iG_][1]) = "grammar"
+				stzraise("StzStartGeneration: :Grammar is not supported for a " +
+					"STREAMING session -- there is no end hook to uninstall it, and " +
+					"a grammar left installed would silently constrain the next " +
+					"generation. Use StzGenerateXT([:Grammar = ...]) instead.")
+			ok
+		next
+	ok
 	if StzHasGenerativeModel() = 0
 		return 0
 	ok

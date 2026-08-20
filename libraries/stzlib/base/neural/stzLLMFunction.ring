@@ -47,36 +47,41 @@
 # validates. What is promised here is INTEGRITY -- the answer has the
 # shape it was asked for, whole, or there is no answer.
 #
-# FLOOR NOTE (2026-08-20, second update -- the floor moved once more).
-#
-# Type AND STRUCTURE checking here VALIDATES the decoded text. Two rungs
-# below it have now been built and one has NOT, and the difference is
-# worth stating exactly because it is easy to overclaim:
+# FLOOR NOTE (2026-08-20, third update -- ALL THREE RUNGS ARE BUILT).
 #
 #   BUILT -- the declared-structure surface (ReturnsStructure, above).
 #   BUILT -- the GRAMMAR: stzOutputSchema.ToGBNF() compiles a declaration
 #            into GBNF, refusing by name what it cannot express and
 #            listing what a grammar structurally cannot carry
 #            (engine/src/schema_gbnf.zig).
-#   NOT BUILT -- CONSTRAINED DECODING. No sampler consumes that grammar,
-#            so a violating token is still emittable and everything here
-#            still catches rather than prevents. Ask
-#            oSchema.IsDecodingConstrained() -- it answers 0 today, and
-#            DecodingStatus() says why. Never report an answer as
-#            grammar-constrained on the strength of the grammar existing.
+#   BUILT -- CONSTRAINED DECODING. A GBNF stack machine
+#            (engine/src/gbnf_machine.zig) judges every candidate token at
+#            the sampler, so a token whose bytes cannot continue the
+#            grammar is never drawn. Ask oSchema.IsDecodingConstrained() --
+#            it answers 1 now -- and This.IsConstrainingDecoding() for
+#            whether THIS function will use it.
 #
-# WHAT THE MISSING RUNG COSTS, MEASURED against the shipped smollm2-135m
-# on ten structured prompts (base/test/neural/_measure_structured.ring):
-# 2/10 valid on the first attempt, 6/10 within four, FIVE model calls per
-# valid answer, and 4 in 10 inputs that no number of retries rescues.
+# WHAT IT WAS COSTING, and what it costs now, both measured against the
+# shipped smollm2-135m on the same ten structured prompts
+# (base/test/neural/_measure_structured.ring):
 #
-# The remaining work is a grammar stack machine plus per-candidate token
-# masking in neural_gen.sampleId(). It is tractable here rather than
-# blocked: the sampler is OURS (raw ggml is vendored, not llama.cpp, so
-# there is no vendor sampler to reach) and neural_gen.decodeInto() already
-# turns a candidate id into bytes. Filed as
-# prompts/42-stzlib-engine-schema-constrained-decoding.md in the
-# coordination repository.
+#                              checked afterwards    constrained
+#     first attempt valid          2 / 10             10 / 10
+#     valid within four            6 / 10             10 / 10
+#     attempts per valid answer      5.0                 1.0
+#     never valid at all           4 / 10              0 / 10
+#
+# AND THE LINE THAT MUST TRAVEL WITH THAT NUMBER: a grammar constrains
+# SHAPE. It does not constrain VALUE -- no context-free rule says
+# "between 0 and 130" -- and it does not constrain TRUTH. The court below
+# still refuses a value outside its declared band, retries still earn
+# their keep for exactly that reason, and a schema-valid lie still
+# validates. UnenforcedByGrammar() lists, per field, what the grammar
+# does not carry.
+#
+# NOT constrained, and each says so rather than pretending: a declaration
+# a grammar cannot express (a nested structure), ConstrainDecoding(0), or
+# a build without the sampler rung. WhyNotConstrained() names which.
 
 class stzLLMFunction from stzObject
 
@@ -98,6 +103,10 @@ class stzLLMFunction from stzObject
 	@aCache = []               # sha -> validated value
 	@aGoldens = []             # [ input, expected ]
 	@cWhy = ""
+	@bConstrain = 1            # constrain DECODING with the schema's grammar
+	@cGrammar = ""             # compiled once, on first live call
+	@cNoGrammarWhy = ""        # why not, when a schema cannot become a grammar
+	@bLastConstrained = 0      # was the last live answer grammar-constrained?
 
 	def init(pcName)
 		@cName = "" + pcName
@@ -343,15 +352,132 @@ class stzLLMFunction from stzObject
 	# GGUF loaded, so the live branch was never once executed. It was found
 	# by MEASURING against the shipped smollm2 model, not by reading. Both
 	# calls pass the token budget explicitly now.
+	#
+	# AND THE RUNG THAT MOVED UNDER THIS SEAM (2026-08-20). When the
+	# declared structure can be expressed as a grammar and the engine
+	# enforces one, the grammar goes to the SAMPLER: a token that would
+	# violate the shape is never drawn. The retry policy above is
+	# unchanged and still earns its keep -- a grammar constrains SHAPE,
+	# so a value outside a declared band is still refused by the court
+	# and still worth another attempt.
+	#
+	# AND A RING TRAP PAID FOR HERE, so the next reader does not pay it
+	# again: the options list below is written as a LITERAL, never built
+	# by appending. `aOpts + [ :Key = value ]` appends the one-element
+	# WRAPPER list, so the pair ends up nested one level deeper and every
+	# `len(pair) = 2` reader silently skips it. It prints identically at
+	# the console -- Ring shows nested lists recursively -- so the option
+	# simply had no effect, which is how a grammar was passed and not
+	# applied for the length of one debugging session.
 	def _AskModel(pcPrompt, pnTry)
-		if pnTry <= 1
-			return StzAskModel(pcPrompt, @nMaxTokens)
+		_cG_ = This._GrammarOrEmpty()
+		if _cG_ != ""
+			@bLastConstrained = 1
+		else
+			@bLastConstrained = 0
 		ok
-		return StzAskModelXT(pcPrompt, [
-			:MaxTokens   = @nMaxTokens,
-			:Temperature = @nRetryTemp,
-			:Seed        = @nRetrySeed + pnTry
-		])
+
+		# attempt 1 stays GREEDY -- reproducible, unchanged
+		_nT_ = 0
+		_nS_ = @nRetrySeed
+		if pnTry > 1
+			_nT_ = @nRetryTemp
+			_nS_ = @nRetrySeed + pnTry
+		else
+			_nT_ = 0
+			_nS_ = @nRetrySeed
+		ok
+
+		if _cG_ != ""
+			return StzAskModelXT(pcPrompt, [
+				:MaxTokens   = @nMaxTokens,
+				:Temperature = _nT_,
+				:Seed        = _nS_,
+				:Grammar     = _cG_
+			])
+		but pnTry <= 1
+			return StzAskModel(pcPrompt, @nMaxTokens)
+		else
+			return StzAskModelXT(pcPrompt, [
+				:MaxTokens   = @nMaxTokens,
+				:Temperature = _nT_,
+				:Seed        = _nS_
+			])
+		ok
+
+	# The grammar this function will constrain with, or "" and a reason.
+	# Compiled ONCE: the declaration does not change between attempts.
+	def _GrammarOrEmpty()
+		@cNoGrammarWhy = ""
+		if @bHasSchema = 0
+			@cNoGrammarWhy = "no structure is declared -- there is nothing to constrain"
+			return ""
+		ok
+		if @bConstrain = 0
+			@cNoGrammarWhy = "ConstrainDecoding(0) was asked for"
+			return ""
+		ok
+		if StzConstrainedDecodingSupported() = 0
+			@cNoGrammarWhy = "this build does not enforce a grammar at the sampler"
+			return ""
+		ok
+		if @cGrammar != ""
+			return @cGrammar
+		ok
+		_c_ = ""
+		try
+			_c_ = @oSchema.ToGBNF()
+		catch
+			# A declaration a grammar cannot express (a nested structure)
+			# is NOT an error here. The Ring court validates it exactly as
+			# it did before -- but the fall-back is RECORDED, so nobody
+			# reads an unconstrained answer as a constrained one.
+			_c_ = ""
+			@cNoGrammarWhy = "the declaration cannot be expressed as a grammar: " +
+				StzLeft(cCatchError, 160)
+		done
+		@cGrammar = _c_
+		return _c_
+
+	#-- constrained decoding, asked and answered ---------------------------
+
+	# ON by default when a structure is declared and the engine enforces
+	# grammars. Turn it OFF to compare, or when a caller wants the model's
+	# unconstrained voice and the court's verdict on it.
+	def ConstrainDecoding(pbYesNo)
+		This.ConstrainDecodingQ(pbYesNo)
+
+	def ConstrainDecodingQ(pbYesNo)
+		if pbYesNo = 0 or pbYesNo = FALSE
+			@bConstrain = 0
+		else
+			@bConstrain = 1
+		ok
+		return This
+
+	# Will the NEXT live call be grammar-constrained? Ask this rather than
+	# assuming: a nested structure, an off switch, or a build without the
+	# sampler rung all answer 0, and WhyNotConstrained() says which.
+	def IsConstrainingDecoding()
+		if This._GrammarOrEmpty() = ""
+			return 0
+		ok
+		return 1
+
+	def WhyNotConstrained()
+		if This._GrammarOrEmpty() != ""
+			return ""
+		ok
+		return @cNoGrammarWhy
+
+	# The grammar text itself, for a reader who wants to see what was enforced.
+	def GrammarUsed()
+		return This._GrammarOrEmpty()
+
+	# Was the LAST live answer grammar-constrained? (0 for a memo hit and
+	# for a fake responder -- neither of them decoded anything.)
+	def WasLastAnswerConstrained()
+		return @bLastConstrained
 
 	# The sampling a RETRY uses. Attempt 1 never sees these -- it is greedy.
 	def SetRetrySampling(pnTemperature, pnSeed)

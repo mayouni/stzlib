@@ -79,14 +79,15 @@
 	and `contains` on a list is MEMBERSHIP. Both are stated in every
 	refusal message so no reader has to remember which it was.
 
-	NOT IN SCOPE HERE, DELIBERATELY: grammar-constrained decoding. This
-	file validates text the model has already produced. Making a
-	violating token unemittable (type -> GBNF, at the sampler) is the
-	engine rung under this surface; it is filed as an ask to the engine
-	plane rather than stubbed here, so nothing in this file pretends to
-	do it. The ask is
-	prompts/42-stzlib-engine-schema-constrained-decoding.md in the
-	coordination repository.
+	THE RUNG UNDER THIS FILE IS NOW BUILT, AND THIS FILE DOES NOT
+	RETIRE. ToGBNF() compiles this declaration into a grammar and
+	engine/src/gbnf_machine.zig enforces it AT THE SAMPLER, so a token
+	that would break the SHAPE is never emitted. It cannot enforce
+	VALUE -- no context-free rule says "between 0 and 130" -- so every
+	:must clause here is still checked by this court, and
+	UnenforcedByGrammar() lists exactly which ones the grammar dropped.
+	Constrained decoding and this court are two halves of one promise,
+	not a replacement for one another.
 */
 
 #---------------------------------------------------------------------#
@@ -1569,15 +1570,17 @@ class stzOutputSchema from stzObject
 
 	  #-- the grammar half (prompt 42) --------------------------------
 	/*
-		THIS COMPILES THE DECLARATION INTO A GRAMMAR. It does NOT
-		constrain decoding, and the difference is the whole point.
+		THIS COMPILES THE DECLARATION INTO A GRAMMAR. Something else
+		ENFORCES it, and the difference is still worth stating.
 
 		The court above parses and refuses what a model already said.
 		A grammar makes a violating token unemittable in the first
-		place -- but only once a SAMPLER consumes it, which nothing in
-		this build does. IsDecodingConstrained() answers 0 and
-		DecodingStatus() says why, so no caller can mistake a compiled
-		grammar for a constrained one.
+		place -- but only once a SAMPLER consumes it, and since
+		2026-08-20 one does: engine/src/gbnf_machine.zig judges every
+		candidate token, and StzGenerateXT([:Grammar = cText]) installs
+		it. IsDecodingConstrained() answers 1 and DecodingStatus()
+		states the coverage, so no caller has to guess which rung an
+		answer came through.
 
 		AND A GRAMMAR CONSTRAINS SHAPE, NEVER VALUE. No context-free
 		rule says "this number is between 0 and 130", so every :must

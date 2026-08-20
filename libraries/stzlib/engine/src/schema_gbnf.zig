@@ -37,9 +37,10 @@ const std = @import("std");
 // the half that checks what a grammar structurally cannot.
 //
 // AND THE OTHER HALF OF THE HONESTY: stz_gbnf_decoding_supported() answers
-// whether anything actually CONSTRAINS DECODING with this grammar today. It
-// answers 0. Compiling a grammar and constraining a sampler are two rungs,
-// and a caller must be able to tell which one it got.
+// whether anything actually CONSTRAINS DECODING with this grammar. Compiling
+// a grammar and constraining a sampler are two rungs, and a caller must be
+// able to tell which one it got. It answered 0 for as long as that was true;
+// gbnf_machine.zig is the second rung, so it answers 1 now.
 
 const MAX_FIELDS: usize = 64;
 const MAX_NAME: usize = 64;
@@ -325,27 +326,34 @@ pub export fn stz_gbnf_unenforced(out: [*]u8) i32 {
     return @intCast(unenf_len);
 }
 
-// ─── the honest report (prompt 42, item 3) ───
+// ─── the honest report (prompt 42 item 3, answered by prompt 43) ───
 //
-// Does anything CONSTRAIN DECODING with this grammar? No -- not yet. A
-// caller must be able to tell a compiled grammar from a constrained
-// sampler, because only one of them makes a violating token unemittable,
-// and a surface that cannot tell the difference is the stop-switch shape a
-// third time.
+// Does anything CONSTRAIN DECODING with this grammar? YES, since
+// gbnf_machine.zig landed: the sampler in neural_gen.zig judges every
+// candidate against the grammar and draws only from the survivors.
+//
+// This answer stayed 0 for as long as it was true, and that was the point
+// of it. It says 1 now because the rung underneath it exists -- not because
+// a grammar exists, which was never the same claim.
 pub export fn stz_gbnf_decoding_supported() i32 {
-    return 0;
+    return 1;
 }
 
 pub export fn stz_gbnf_decoding_status(out: [*]u8) i32 {
     const s =
-        "COMPILED, NOT CONSTRAINED. This build turns a declared schema into a " ++
-        "GBNF grammar and stops there: no sampler consumes it, so decoding is " ++
-        "NOT constrained and a violating token is still emittable. What you get " ++
-        "today is the Ring court in stzOutputSchema, which parses and refuses " ++
-        "AFTER the model has spoken -- measured at 5.0 model calls per valid " ++
-        "answer on the shipped 135M model, with 4 in 10 inputs never validating. " ++
-        "Do not report output as grammar-constrained on the strength of this " ++
-        "grammar existing.";
+        "CONSTRAINED. A grammar installed with StzGenerateXT([:Grammar = ...]) " ++
+        "is enforced AT THE SAMPLER: every candidate token is judged against a " ++
+        "GBNF stack machine and a token whose bytes cannot continue the grammar " ++
+        "is never drawn -- unemittable, not caught afterwards. A token whose " ++
+        "bytes are a valid PREFIX and an invalid completion is refused too: the " ++
+        "whole piece must survive. End-of-generation is legal only where the " ++
+        "grammar is satisfied. " ++
+        "WHAT IT DOES NOT DO: it constrains SHAPE, never VALUE and never TRUTH. " ++
+        "No context-free rule says 'between 0 and 130', so every :must clause is " ++
+        "still checked by the Ring court in stzOutputSchema, and " ++
+        "UnenforcedByGrammar() lists them by name. A schema-valid lie is still a " ++
+        "lie. Nested structures, left recursion and non-ASCII character classes " ++
+        "are refused by name rather than approximated.";
     @memcpy(out[0..s.len], s);
     return @intCast(s.len);
 }
@@ -459,13 +467,17 @@ test "a schema with no value constraints reports nothing unenforced" {
 
 // THE ANTI-STUB. Compiling a grammar and constraining a sampler are two
 // rungs and a caller must be able to tell which one it got.
-test "the build reports honestly that decoding is NOT constrained" {
-    try std.testing.expectEqual(@as(i32, 0), stz_gbnf_decoding_supported());
+test "the build reports that decoding IS constrained, and says what that does not cover" {
+    try std.testing.expectEqual(@as(i32, 1), stz_gbnf_decoding_supported());
     var buf: [1024]u8 = undefined;
     const l = stz_gbnf_decoding_status(&buf);
     const s = buf[0..@intCast(l)];
-    try std.testing.expect(std.mem.indexOf(u8, s, "COMPILED, NOT CONSTRAINED") != null);
-    try std.testing.expect(std.mem.indexOf(u8, s, "still emittable") != null);
+    try std.testing.expect(std.mem.indexOf(u8, s, "CONSTRAINED") != null);
+    try std.testing.expect(std.mem.indexOf(u8, s, "unemittable") != null);
+    // the coverage statement is not optional: the claim and its limits
+    // travel together or the claim is dishonest
+    try std.testing.expect(std.mem.indexOf(u8, s, "never VALUE and never TRUTH") != null);
+    try std.testing.expect(std.mem.indexOf(u8, s, "UnenforcedByGrammar") != null);
 }
 
 // THE DEFECT THE FIRST EMITTER SHIPPED: the list header carried a RAW
@@ -492,4 +504,64 @@ test "a field name with awkward characters still yields a legal rule name" {
     // the LINE prefix keeps the real name; only the RULE name is folded
     try std.testing.expect(std.mem.indexOf(u8, text(), "first-name-line") != null);
     try std.testing.expect(std.mem.indexOf(u8, text(), "\"first name: \"") != null);
+}
+
+// ═══ the two halves, checked against each other ═══════════════════════
+//
+// THE COMPILER AND THE MACHINE MUST AGREE. This file emits GBNF; the
+// machine in gbnf_machine.zig parses it and enforces it. A grammar that
+// this compiler emits and that machine cannot parse would be a rung
+// broken in the middle, and neither file alone would notice -- so the
+// check lives here, where the text is produced.
+const gm = @import("gbnf_machine.zig");
+
+test "every grammar this compiler emits is one the machine can parse and walk" {
+    stz_gbnf_begin();
+    _ = field("city", T_STRING, 1, 0, "", "");
+    _ = field("mood", T_ONEOF, 1, 0, "positive,negative", "");
+    _ = field("founded", T_NUMBER, 1, 0, "", "greaterequal");
+    _ = field("tags", T_LIST, 0, T_STRING, "", "");
+    try std.testing.expectEqual(RC_OK, stz_gbnf_compile());
+
+    const g = text();
+    try std.testing.expectEqual(gm.RC_OK, gm.stz_grammar_set(g.ptr, g.len));
+
+    // and it enforces what the declaration said
+    try std.testing.expect(gm.canAcceptBytes("city: Paris\n"));
+    try std.testing.expect(!gm.canAcceptBytes("town: Paris\n")); // wrong field name
+    _ = gm.acceptBytes("city: Paris\nmood: ");
+    try std.testing.expect(gm.canAcceptBytes("positive"));
+    try std.testing.expect(!gm.canAcceptBytes("delighted")); // outside the closed set
+    _ = gm.acceptBytes("positive\nfounded: ");
+    try std.testing.expect(!gm.canAcceptBytes("<")); // the measured failure
+    try std.testing.expect(gm.canAcceptBytes("52"));
+
+    // THE VALUE CONSTRAINT IS NOT ENFORCED HERE, and the report says so:
+    // 'founded >= 1' passes the grammar at any number.
+    _ = gm.acceptBytes("0\n");
+    var ub: [MAX_UNENF]u8 = undefined;
+    const ul = stz_gbnf_unenforced(&ub);
+    try std.testing.expect(std.mem.indexOf(u8, ub[0..@intCast(ul)], "greaterequal") != null);
+}
+
+test "an optional field really is optional to the machine, and a required one is not" {
+    stz_gbnf_begin();
+    _ = field("city", T_STRING, 1, 0, "", "");
+    _ = field("note", T_STRING, 0, 0, "", "");
+    _ = stz_gbnf_compile();
+    const g = text();
+    try std.testing.expectEqual(gm.RC_OK, gm.stz_grammar_set(g.ptr, g.len));
+    _ = gm.acceptBytes("city: Paris\n");
+    try std.testing.expectEqual(@as(i32, 1), gm.stz_grammar_can_end()); // note may be skipped
+    try std.testing.expect(gm.canAcceptBytes("note: quiet\n"));
+
+    // the required one, by contrast, cannot be skipped
+    stz_gbnf_begin();
+    _ = field("city", T_STRING, 1, 0, "", "");
+    _ = field("country", T_STRING, 1, 0, "", "");
+    _ = stz_gbnf_compile();
+    const g2 = text();
+    try std.testing.expectEqual(gm.RC_OK, gm.stz_grammar_set(g2.ptr, g2.len));
+    _ = gm.acceptBytes("city: Paris\n");
+    try std.testing.expectEqual(@as(i32, 0), gm.stz_grammar_can_end());
 }

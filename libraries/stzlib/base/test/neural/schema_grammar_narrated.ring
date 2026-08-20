@@ -143,23 +143,27 @@ chk("the same schema is still perfectly valid for the COURT, which is the point"
 
 ? ""
 #=====================================================================#
-? "-- Scene 6: a compiled grammar is NOT a constrained sampler --"
+? "-- Scene 6: the compiled grammar now HAS a sampler that enforces it --"
 #=====================================================================#
-# The anti-stub. Compiling a grammar and constraining decoding are two
-# rungs; a caller must be able to tell which one it got, or the surface
-# is a stop-switch that reports success while doing nothing.
+# THIS SCENE USED TO ASSERT THE OPPOSITE, and that was right at the time.
+# Compiling a grammar and constraining decoding are two rungs; until the
+# second one existed, IsDecodingConstrained() answered 0 and this guard
+# held it to that. The second rung landed (engine/src/gbnf_machine.zig),
+# so the honest answer changed -- and the guard changed with it, in the
+# same commit, which is the only way an anti-stub stays trustworthy.
 
-chk("decoding is NOT constrained in this build", oS.IsDecodingConstrained() = 0)
+chk("decoding IS constrained in this build", oS.IsDecodingConstrained() = 1)
 cSt = oS.DecodingStatus()
-chk("...and the status says so in its first two words",
-	len(StzFind("COMPILED, NOT CONSTRAINED", cSt)) > 0)
-chk("...admits a violating token is still emittable",
-	len(StzFind("still emittable", cSt)) > 0)
-chk("...names what you DO get instead", len(StzFind("Ring court", cSt)) > 0)
-chk("...carries the measured cost of not having the rung",
-	len(StzFind("5.0 model calls", cSt)) > 0)
-chk("...and forbids the claim it would be tempting to make",
-	len(StzFind("Do not report output as grammar-constrained", cSt)) > 0)
+chk("...and the status says so in its first word",
+	len(StzFind("CONSTRAINED", cSt)) > 0)
+chk("...says a violating token is UNEMITTABLE, not caught afterwards",
+	len(StzFind("unemittable", cSt)) > 0)
+chk("...names the prefix case a stack machine has to get right",
+	len(StzFind("valid PREFIX and an invalid completion", cSt)) > 0)
+chk("...and states the coverage in the same breath as the claim",
+	len(StzFind("never VALUE and never TRUTH", cSt)) > 0)
+chk("...pointing at the court that still checks what a grammar cannot",
+	len(StzFind("UnenforcedByGrammar", cSt)) > 0)
 
 ? ""
 ? "=========================================="
