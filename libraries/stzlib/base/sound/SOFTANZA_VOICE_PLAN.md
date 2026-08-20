@@ -946,7 +946,8 @@ than merely passes, and a companion assertion catches the other way to pass it
 ### What VC4 did NOT do
 
 - **No ducking.** Lowering a bed under a phrase needs a per-bus gain node; that
-  is SS3 and it is still open. Nothing here overlaps, so nothing needs ducking
+  is SS3, which was still open when this was written and closed on
+  2026-08-20 — see the sound plan's SS3 STATUS. Nothing here overlaps, so nothing needs ducking
   yet.
 - **No barge-in.** Speaking while listening (VC3) is untested; the two own
   different devices and the interaction is unmeasured.

@@ -2150,7 +2150,11 @@ must have an answer that is a number.
 
 **586 Ring assertions across seventeen guards** and 29 browser assertions;
 67 Zig tests in the sound modules, 13 across `voice.zig` and `listen.zig`.
-SN0–SN6, SS1–SS3 and VC0–VC6 closed. **SS4 remains open.**
+SN0–SN6, SS1–SS3 and VC0–VC6 closed at the time of writing.
+*(Retired 2026-08-20: SS4 and SS5 closed later the same day — see their own
+STATUS sections below. A phase list left saying "remains open" after the phase
+closes is the carry-without-retiring defect this estate keeps finding, and it
+reads exactly as true as the day it was written.)*
 
 ---
 
