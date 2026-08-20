@@ -33,7 +33,7 @@ load "../../stzBase.ring"
 ---------------------------------------------------------------------------*/
 
 decimals(2)
-nOk = 0  nBad = 0
+nOk = 0  nBad = 0  nSecClock = 0
 
 ? "=============================================================="
 ? " WHAT THE GUARDS COULD NOT SEE"
@@ -48,7 +48,7 @@ ok
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 1. Painter order, across the segment KINDS ---------------"
+sec("-- 1. Painter order, across the segment KINDS ---------------")
 #
 # Images arrived as a third SegKind beside shapes and text, and the claim
 # was that the ordered segment list interleaves them. "Both drew" would
@@ -85,7 +85,7 @@ chk("...and the shape covers the image when issued after IT",
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 2. An image's ALPHA blends, it does not replace ----------"
+sec("-- 2. An image's ALPHA blends, it does not replace ----------")
 #---------------------------------------------------------------------------
 
 GROUND = [ 200, 200, 0 ]
@@ -109,7 +109,7 @@ chk("...but lies between the two", aHalf[3] > 90 and aHalf[1] > 60)
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 3. A shape must survive the box a DIAGRAM gives it -------"
+sec("-- 3. A shape must survive the box a DIAGRAM gives it -------")
 #
 # Every node shape was first drawn in a friendly 140x100. A diagram hands
 # over whatever the layout produced -- 300x40 for a long label, 26x200 in a
@@ -155,7 +155,7 @@ chk("the cap check DISCRIMINATES", nSeen = 1)
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 4. Boxes must FIT the rank they landed in ----------------"
+sec("-- 4. Boxes must FIT the rank they landed in ----------------")
 #
 # Counted in pixels: the BACKGROUND must still be visible between one box
 # and the next.
@@ -199,7 +199,7 @@ chk("a roomy rank is left ALONE", oG._RankFitScale(_Rank(4, 300), 96, 34) = 1)
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 5. A label reaches the picture AS AUTHORED ---------------"
+sec("-- 5. A label reaches the picture AS AUTHORED ---------------")
 #
 # Asserted at the far end -- in the drawn output -- because the defect this
 # replaces was invisible everywhere upstream of it.
@@ -237,7 +237,7 @@ chk("a NEWLINE is still normalised -- it would break the emitted dot",
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 6. A parent sits OVER its children -----------------------"
+sec("-- 6. A parent sits OVER its children -----------------------")
 #
 # Ordering and placement are different questions, and only the first had an
 # answer. The engine's sweep minimised crossings, then the face placed each
@@ -273,7 +273,7 @@ chk("...and the ordinal spread really was worse", nOld > nErr * 2)
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 7. Spacing is the CONTRACT; the size is derived ----------"
+sec("-- 7. Spacing is the CONTRACT; the size is derived ----------")
 #
 # dot's model, and this tier had it inverted: the caller fixed a canvas
 # and the layout stretched to fill it, so the minimum gap between nodes
@@ -312,7 +312,7 @@ chk("...and a canvas too small for the contract breaks it", nCr < nSep - 20)
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 8. A long edge goes AROUND the boxes, not through them ---"
+sec("-- 8. A long edge goes AROUND the boxes, not through them ---")
 #
 # The step of the Sugiyama pipeline that was missing. An edge spanning
 # more than one rank was a straight line from source to target, so a
@@ -353,7 +353,7 @@ chk("the crossing check DISCRIMINATES", nX > 0)
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 9. A cluster box holds its members, and NO STRANGER -------"
+sec("-- 9. A cluster box holds its members, and NO STRANGER -------")
 #
 # A cluster used to be a box drawn around whatever the layout produced.
 # It never constrained anything, so a cluster whose members did not
@@ -411,7 +411,7 @@ chk("the containment check DISCRIMINATES", nBad2 > 0)
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 10. A self-loop is a LOOP, and is allowed ----------------"
+sec("-- 10. A self-loop is a LOOP, and is allowed ----------------")
 #
 # Two defects sat on top of each other here, and the first hid the second.
 #
@@ -498,7 +498,7 @@ chk("a second self-loop is refused as the parallel edge it is",
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 11. An edge label reaches the PICTURE --------------------"
+sec("-- 11. An edge label reaches the PICTURE --------------------")
 #
 # The labels were in the model, they reached the dot writer, and this
 # tier never drew them: an edge that said "fails check" in the data was
@@ -571,7 +571,7 @@ chk("...and an unlabelled one keeps the separation it asked for",
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 12. SetLayout HONOURS what it accepted -------------------"
+sec("-- 12. SetLayout HONOURS what it accepted -------------------")
 #
 # It took any string and stored it. An unrecognised name fell through
 # _NativeRankDir's default and became top-down IN SILENCE -- so
@@ -611,7 +611,7 @@ chk("an engine name is still accepted", NOT Raises('
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 13. ORTHO means ortho, including the self-loops ----------"
+sec("-- 13. ORTHO means ortho, including the self-loops ----------")
 #
 # The loop ignored the spline setting entirely and was always a curve, so
 # a picture asked for splines=ortho came back with every edge
@@ -667,7 +667,7 @@ chk("...so ALL the curved segments came from the self-loops", nCurve > 20)
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 14. NESTED clusters: a box inside a box ------------------"
+sec("-- 14. NESTED clusters: a box inside a box ------------------")
 #
 # The constraint form was recorded as unable to express nesting. It can,
 # once the constraints are applied PER DEPTH -- and the nesting itself
@@ -755,7 +755,7 @@ chk("...but a genuine nesting is NOT refused", NOT Raises('
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 15. Edge labels STEER the layout ------------------------"
+sec("-- 15. Edge labels STEER the layout ------------------------")
 #
 # Reserving gap HEIGHT gave a label somewhere to be written and did
 # nothing about width, so two edges running close together still fought
@@ -823,7 +823,7 @@ chkeq("a label sits at the MIDPOINT of its edge, clear of the arrowhead",
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 16. The edge grammar is DOT'S, asserted against dot's rules ----"
+sec("-- 16. The edge grammar is DOT'S, asserted against dot's rules ----")
 #
 # This section has been rewritten ONCE, and the history is the lesson.
 # Its first version asserted square tangents at BOTH ends -- a model
@@ -915,7 +915,7 @@ chk("the grammar this replaced really did graze the border",
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 17. Sparse ranks are TIGHT, measured against dot ---------"
+sec("-- 17. Sparse ranks are TIGHT, measured against dot ---------")
 #
 # The dense ranks always matched dot; the sparse upper ones did not, and
 # nothing in this file could see it because every assertion here was
@@ -978,7 +978,7 @@ chk("the rank that was worst is no longer twice dot's width", nTwo < 1.9)
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 18. No node stands in another subtree's TERRITORY --------"
+sec("-- 18. No node stands in another subtree's TERRITORY --------")
 #
 # The Principal's rule, and it is the one property none of the seventy
 # assertions above could see: every one judged a RANK, and this is a
@@ -1036,7 +1036,7 @@ chk("the territory check DISCRIMINATES",
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 19. A label is readable AT THE SIZE IT IS DRAWN ----------"
+sec("-- 19. A label is readable AT THE SIZE IT IS DRAWN ----------")
 #
 # REWRITTEN, and the first version's mistake is the point. It asserted
 # one flat minimum -- 4.5:1, the body-text figure -- and passed by
@@ -1101,7 +1101,7 @@ chk("the rule this replaced really did choose the muddy ink",
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 20. GEOMETRY is antialiased, and text always was ---------"
+sec("-- 20. GEOMETRY is antialiased, and text always was ---------")
 #
 # Reported as "lines are not antialiased", and measuring separated it
 # into two facts that look alike and are not: a diagonal rendered with
@@ -1153,7 +1153,7 @@ chkeq("the counter reads ONE where there is nothing to blend", nLevF, 1)
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 21. :Scale is RESOLUTION, not magnification --------------"
+sec("-- 21. :Scale is RESOLUTION, not magnification --------------")
 #
 # A raster is only as sharp as the pixels it was drawn with. A 12px label
 # in a 3000px diagram is unreadable at 100% and worse magnified, because
@@ -1185,7 +1185,7 @@ chk("the comparison DISCRIMINATES", nSelf < 1)
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 22. A node TYPE draws its shape, in both renderers -------"
+sec("-- 22. A node TYPE draws its shape, in both renderers -------")
 #
 # `start`, `decision`, `storage` say what a node MEANS; `ellipse`,
 # `diamond`, `cylinder` say what it looks like. The translation between
@@ -1232,7 +1232,7 @@ chkeq("a word that is neither type nor shape maps to nothing",
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 23. A fan SEPARATES, and never travels its own row -------"
+sec("-- 23. A fan SEPARATES, and never travels its own row -------")
 #
 # Three faults the Principal circled, one cause each.
 #
@@ -1328,7 +1328,7 @@ chk("a short-edged diagram keeps the separation it asked for",
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 24. Every departure makes PROGRESS, routed or not --------"
+sec("-- 24. Every departure makes PROGRESS, routed or not --------")
 #
 # REWRITTEN FOR GRAMMAR v3, and its history is the point. v1 of this
 # section asserted "every edge leaves downward" -- first step more
@@ -1366,7 +1366,7 @@ chk("the departure check DISCRIMINATES", nBackBad = 1)
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 25. A UNIQUE link is straight; arrivals do not cross -----"
+sec("-- 25. A UNIQUE link is straight; arrivals do not cross -----")
 #
 # Two rules a reader applies without being told.
 #
@@ -1437,7 +1437,7 @@ chk("...and the lateral edge spreads AROUND it, not onto it",
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 26. Verticality reaches the ROOT, clusters or not --------"
+sec("-- 26. Verticality reaches the ROOT, clusters or not --------")
 #
 # The engine ends its coordinate pass with snapAlign -- and the cluster
 # passes (cohesion, boundary air) run RING-side afterwards, moving whole
@@ -1493,7 +1493,7 @@ chk("the near-miss census DISCRIMINATES", _NearMissEdges(oV, aVB) > 0)
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 27. A FOREIGN edge never traverses a cluster's surface ---"
+sec("-- 27. A FOREIGN edge never traverses a cluster's surface ---")
 #
 # The Principal's rule verbatim: an edge of a node not belonging to a
 # cluster must never traverse the surface of that cluster. The ortho
@@ -1647,7 +1647,7 @@ chkeq("the veto DISCRIMINATES by overlap, not by name", nFar, nInY)
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 28. A crossing is JUMPED, electric-diagram style ------------"
+sec("-- 28. A crossing is JUMPED, electric-diagram style ------------")
 #
 # The Principal's rule verbatim: when the Web-A-to-Logger channel
 # traverses the Web-B-to-API-B line it must do like electric diagrams
@@ -1701,7 +1701,7 @@ chkeq("no crossing, no hop -- the jump DISCRIMINATES", len(aNoCross), 0)
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 29. One port pitch, and an arrival group sits CENTRED ------"
+sec("-- 29. One port pitch, and an arrival group sits CENTRED ------")
 #
 # Two findings from one Principal markup, and both were the same organ.
 # The two lines quitting Web A were 5.4px apart while the two entering
@@ -1768,7 +1768,7 @@ ok
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 30. A bend needs a CAUSE ------------------------------------"
+sec("-- 30. A bend needs a CAUSE ------------------------------------")
 #
 # The Principal's thinking, verbatim in spirit: do we really need to
 # route the edge here? No -- there is no spatial constraint to make the
@@ -1903,7 +1903,7 @@ chk("...and still arrives on b's ported lanes",
 
 #---------------------------------------------------------------------------
 ? ""
-? "-- 31. Only ESSENTIAL crossings survive to earn their hops ----"
+sec("-- 31. Only ESSENTIAL crossings survive to earn their hops ----")
 #
 # The graph tier answers WHAT IS and the renderer draws it: the engine
 # sweep reorders every rank so removable crossings are removed, and the
@@ -1973,11 +1973,106 @@ chkeq("the hop of section 28 is the crossing the structure requires",
 
 #---------------------------------------------------------------------------
 ? ""
+sec("-- 32. A label CLAIMS its edge --------------------------------")
+#
+# I1 for text. The old placer anchored labels on _EdgePathFlat's
+# pre-channel fiction and nudged collisions blindly down the rank
+# axis, clearing other LABELS while ignoring all the INK -- so in the
+# labelled fan two labels floated in empty space attributed to
+# nothing, and two sat on the shared bus whose line their background
+# plates ERASED. The placer now walks the label's OWN drawn path
+# (captured on the dry pass) and takes the first anchor whose plate
+# clears foreign ink, placed labels, and node boxes. Moving ALONG the
+# edge it names keeps incidence; erasing a few pixels of its own
+# stroke stays the accepted cost.
+#
+# The SVG backend emits no text, so the instrument is the placement
+# facts the render stores: RenderLabels() rows against
+# RenderEdgePaths() geometry.
+#---------------------------------------------------------------------------
+
+oLb = new stzDiagram("fan32")
+oLb.AddNodeXTT("r", "Router", [ :type = "box", :color = "Info.Solid" ])
+for i = 1 to 4
+	oLb.AddNodeXTT("h" + i, "H" + i, [ :type = "box", :color = "Info.Solid" ])
+	oLb.AddEdgeXT("r", "h" + i, "condition " + i + " holds")
+next
+oLb.SetSplines("ortho")
+oLb.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36, :FontSize = 13,
+	:Font = new stzFont("C:/Windows/Fonts/segoeui.ttf") ])
+aLbs = oLb.RenderLabels()
+? "   labels placed : " + len(aLbs)
+chkeq("every label was placed and recorded", len(aLbs), 4)
+
+# EVERY label sits ON its own edge (distance zero to its own path) and
+# its plate keeps a clear margin from every other edge's ink.
+nWorstOwn = -1
+nWorstFor = 1000000
+for aL in aLbs
+	# own-path distance, same interval arithmetic as the placer's
+	nOwn = 1000000
+	for aP in oLb.RenderEdgePaths()
+		if aP[1] != aL[6]  loop  ok
+		aF = aP[2]
+		for i = 1 to len(aF) - 3 step 2
+			nAx = min([ aF[i], aF[i+2] ])   nBx = max([ aF[i], aF[i+2] ])
+			nAy = min([ aF[i+1], aF[i+3] ]) nBy = max([ aF[i+1], aF[i+3] ])
+			nDx = 0
+			if nBx < aL[2] - aL[4]/2  nDx = aL[2] - aL[4]/2 - nBx  ok
+			if nAx > aL[2] + aL[4]/2  nDx = nAx - (aL[2] + aL[4]/2)  ok
+			nDy = 0
+			if nBy < aL[3] - aL[5]/2  nDy = aL[3] - aL[5]/2 - nBy  ok
+			if nAy > aL[3] + aL[5]/2  nDy = nAy - (aL[3] + aL[5]/2)  ok
+			nD = sqrt(nDx*nDx + nDy*nDy)
+			if nD < nOwn  nOwn = nD  ok
+		next
+	next
+	if nOwn > nWorstOwn  nWorstOwn = nOwn  ok
+	nFor = oLb._LabelSpotScore(aL[2], aL[3], aL[4], aL[5], aL[6], [])
+	if nFor < nWorstFor  nWorstFor = nFor  ok
+next
+? "   worst own-edge distance " + nWorstOwn +
+  "px ; tightest foreign clearance " + nWorstFor + "px"
+chk("every label touches the edge it names", nWorstOwn < 1)
+chk("no plate erases or crowds a foreign edge",
+    nWorstFor >= oLb._LineClearance() * 0.6)
+
+# THE NEGATIVE SIBLINGS, on the instrument itself: a spot centred ON a
+# foreign edge scores ZERO (that is what erasure looks like in
+# numbers), and a spot inside a node box is refused outright -- if
+# either came back healthy, the two assertions above measure nothing.
+aP1 = oLb.RenderEdgePaths()[1][2]
+nSab = oLb._LabelSpotScore(aP1[3], aP1[4], 60, 20, "not-this-edge", [])
+? "   a plate centred on someone's ink scores " + nSab
+chk("the scorer SEES erasure", nSab < 1)
+aN1 = oLb.RenderNodeRects()[1]
+nInN = oLb._LabelSpotScore(aN1[1] + aN1[3]/2, aN1[2] + aN1[4]/2,
+	60, 20, "", [])
+chkeq("a spot inside a node box is refused outright", nInN, -1)
+
+#---------------------------------------------------------------------------
+? ""
+if nSecClock > 0
+	? "        [section took " +
+	  ((clock() - nSecClock) / clockspersecond()) + "s]"
+ok
 ? "=============================================================="
 ? " " + nOk + " ok, " + nBad + " failed"
 ? "=============================================================="
 
 #---------------------------------------------------------------------------
+
+# Per-section wall time, printed as the NEXT banner arrives -- the
+# profile that decides which section earns a diet. The full suite is
+# the PRE-COMMIT gate, run once in the background; iteration happens on
+# standalone probes, never by re-running this file.
+func sec cTitle
+	if nSecClock > 0
+		? "        [section took " +
+		  ((clock() - nSecClock) / clockspersecond()) + "s]"
+	ok
+	nSecClock = clock()
+	? cTitle
 
 func chk cWhat, bCond
 	if bCond
