@@ -853,12 +853,43 @@ class stzEarcons
 	# salience is loudness and spectral centroid -- and it gets them in one
 	# gesture, not by repeating, because a repeat costs time Rule 18 has
 	# already spent.
+	# THE VOCABULARY IS NOT BUILT HERE ANY MORE, and that is SS5.
+	#
+	# These four motifs were written in Ring, where the native tier could reach
+	# them and the browser could not. Porting them to JavaScript would have
+	# created a SECOND author of what :Danger sounds like -- and two authors of
+	# a vocabulary drift, silently, because nobody renders the same meaning on
+	# two tiers and compares.
+	#
+	# They now live in `sounddsp.zig`, the seam compiled into BOTH stz_sound.dll
+	# and stz.wasm, so there is exactly one. This face asks for them; so does
+	# the browser; and a guard renders the same value through both and compares.
+	#
+	# The numbers did not change when they moved. sound_semantics_narrated and
+	# sound_ss1_narrated assert the vocabulary's shape, and they were run before
+	# and after to prove the move was a MOVE and not a redesign.
 	def _BuildMotifs()
-		@aMotifs + [ "danger",  This._Motif([990, 880, 660], 0.06, :Square,   0.45) ]
-		@aMotifs + [ "warning", This._Motif([990, 660],       0.09, :Triangle, 0.40) ]
-		@aMotifs + [ "info",    This._Motif([770],            0.10, :Sine,     0.32) ]
-		@aMotifs + [ "success", This._Motif([660, 990],       0.08, :Triangle, 0.36) ]
-		@aMotifs + [ "muted",   NULL ]                 # silence IS the rendering
+		for _v_ in StzSemanticValues()
+			_b_ = StzEngineSoundEarconOf(This._EarconIndexOf(_v_), @nRate)
+			if _b_ = 0
+				@aMotifs + [ _v_, NULL ]      # muted: silence IS the rendering
+			else
+				@aMotifs + [ _v_, StzSoundFromBufferQ(_b_) ]
+			ok
+		next
+
+	# The engine's order, and it is StzSemanticValues()' order. Kept as an
+	# explicit lookup rather than a position, so reordering one list cannot
+	# silently remap every meaning to the wrong sound.
+	def _EarconIndexOf(pcValue)
+		switch lower("" + pcValue)
+		on "danger"    return 0
+		on "warning"   return 1
+		on "info"      return 2
+		on "success"   return 3
+		on "muted"     return 4
+		off
+		return 4
 
 	# Rendered OFFLINE into an ordinary sample buffer -- no device, no callback,
 	# no timing path. Each note is shaped at both ends: a step into or out of a

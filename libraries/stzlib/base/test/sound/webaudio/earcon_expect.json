@@ -1,0 +1,10 @@
+{
+  "rate": 48000,
+  "values": [
+    { "name": "danger", "index": 0, "frames": 8640, "sum": 0.026690, "peak": 0.266974 },
+    { "name": "warning", "index": 1, "frames": 8640, "sum": -0.081114, "peak": 0.296147 },
+    { "name": "info", "index": 2, "frames": 4800, "sum": 0.000000, "peak": 0.320000 },
+    { "name": "success", "index": 3, "frames": 7680, "sum": -0.042120, "peak": 0.266533 },
+    { "name": "muted", "index": 4, "frames": 0, "sum": 0, "peak": 0 }
+  ]
+}

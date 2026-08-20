@@ -503,6 +503,19 @@ pub fn renderBlock() u32 {
 
 // ── what JS reads ───────────────────────────────────────────────────────────
 
+/// SS5: fill the block buffer with a slice of an earcon motif, returning the
+/// frames written (0 at the end). MONO -- a cue has no stereo image, and the
+/// caller copies it into whatever AudioBuffer it likes.
+///
+/// This REUSES `out_block` deliberately. A motif is stateless, so streaming it
+/// costs no memory and is bit-identical to rendering it whole; a guard in
+/// sounddsp.zig asserts exactly that. A static buffer of its own would have
+/// been 128 KB of download for a 180 ms cue.
+pub fn earconChunk(value: u32, the_rate: u32, from: u32) u32 {
+    if (the_rate == 0) return 0;
+    return @intCast(dsp.renderMotifRange(value, the_rate, from, out_block[0..]));
+}
+
 pub fn blockPtr() u32 {
     return @intCast(@intFromPtr(&out_block[0]));
 }

@@ -162,6 +162,31 @@ fn wgsl_error(out_ptr: u32, out_cap: usize) callconv(.c) i32 {
 // it out of linear memory at snd_block_ptr(), interleaved f32. No ring, no
 // device thread, no callback -- the worklet IS the clock.
 
+// SS5: THE EARCON VOCABULARY IN THE BROWSER.
+//
+// Not a graph. A motif is a short run of pure arithmetic, so the browser pulls
+// it out, copies it into an AudioBuffer and plays it -- simpler than a worklet
+// and lower latency, because there is no ring and no quantum to wait for.
+//
+// IT CARRIES NO BUFFER OF ITS OWN. The first cut declared a 32768-frame static
+// to render into and added 128 KB to every download, for a cue lasting 180 ms;
+// `undefined` did not keep it out of the module. So the motif is rendered
+// STATELESSLY, in chunks, through stz_snd_block_ptr() -- the buffer the
+// worklet already uses -- and the module grows by nothing. SN6 paid this same
+// tuition when per-node delay lines made a 26 MB wasm: in this tier a static
+// array IS download size.
+fn snd_earcon_chunk(value: u32, rate: u32, from: u32) callconv(.c) u32 {
+    return sw.earconChunk(value, rate, from);
+}
+
+fn snd_earcon_frames(value: u32, rate: u32) callconv(.c) u32 {
+    return @intCast(sdsp.motifFrames(value, rate));
+}
+
+fn snd_earcon_count() callconv(.c) u32 {
+    return sdsp.EARCON_COUNT;
+}
+
 fn snd_reset(r: u32, ch: u32, blk: u32) callconv(.c) i32 {
     return sw.reset(r, ch, blk);
 }
@@ -256,6 +281,9 @@ comptime {
         @export(&snd_refusals, .{ .name = "stz_snd_refusals" });
         @export(&snd_blocks_rendered, .{ .name = "stz_snd_blocks_rendered" });
         @export(&snd_sample_at, .{ .name = "stz_snd_sample_at" });
+        @export(&snd_earcon_chunk, .{ .name = "stz_snd_earcon_chunk" });
+        @export(&snd_earcon_frames, .{ .name = "stz_snd_earcon_frames" });
+        @export(&snd_earcon_count, .{ .name = "stz_snd_earcon_count" });
     }
     if (want_pattern) {
         @export(&pat_is_palindrome, .{ .name = "stz_is_palindrome" });

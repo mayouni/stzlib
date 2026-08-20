@@ -2234,3 +2234,103 @@ plane's business here was its own half of the vocabulary.
 **606 Ring assertions across eighteen guards** and 29 browser assertions;
 67 Zig tests in the sound modules, 13 across `voice.zig` and `listen.zig`.
 **SN0–SN6, SS1–SS4 and VC0–VC6 all closed.**
+
+
+---
+
+## SS5 STATUS — 2026-08-14. The vocabulary moves into the seam, and stops being two
+
+`engine/src/sounddsp.zig` gains the five motifs; `sound.zig` and
+`ring_bridge_sound.zig` reach them for the native tier, `soundwasm.zig` and
+`stz_wasm_entry.zig` for the browser. `stzEarcons._BuildMotifs` now ASKS
+instead of building. Guards: `base/test/sound/sound_ss5_narrated.ring` (**16**)
+and `webaudio/earcon_guard.html` (**26**), plus 3 new Zig tests.
+
+### Why this was left undone, and why it could not stay undone
+
+VC5 declined to build browser earcons and said exactly why:
+
+> *the five motifs live in `stzEarcons.ring`; porting them is a second
+> implementation of a vocabulary, and a second implementation drifts.*
+
+**The drift would have been the silent kind.** Two hand-written copies of a
+vocabulary do not fail a build. They diverge by a frequency or an envelope, and
+nobody finds out until somebody hears the web app and the desktop app side by
+side and cannot say which one moved.
+
+So the motifs moved to `sounddsp.zig` — the seam already compiled into BOTH
+`stz_sound.dll` and `stz.wasm` for exactly this reason. There is now one author
+of what `:Danger` sounds like, and **`stz-earcons.js` contains not one
+frequency, duration, waveform or envelope.**
+
+### It was a MOVE, not a redesign, and that is asserted rather than asserted-of
+
+`sound_semantics_narrated` (48) and `sound_ss1_narrated` (12) were run before
+and after and did not change by an assertion. Beyond that, the SS5 guard
+compares the face's sound against the engine's **sample for sample** — because
+a `_BuildMotifs` that kept a private copy would pass every other assertion in
+this plane while quietly being a second vocabulary again.
+
+### The cross-tier comparison, and why it cannot be gamed
+
+The Ring guard **generates** `webaudio/earcon_expect.json` from the engine on
+every run; the browser guard fetches it and compares what wasm renders. Neither
+side can be edited into agreement, because nothing in it is typed by hand.
+
+| value | frames | native checksum | browser checksum |
+|---|---|---|---|
+| danger | 8640 | 0.026690 | **0.026690** |
+| warning | 8640 | −0.081114 | **−0.081114** |
+| info | 4800 | 0.000000 | **0.000000** |
+| success | 7680 | −0.042120 | **−0.042120** |
+| muted | 0 | — | — |
+
+**A checksum rather than a peak**, deliberately: a peak survives a wrong
+envelope, a wrong note ORDER, and a sign flip — three ways two tiers could
+differ while agreeing exactly on how loud they are. The guard also refuses to
+compare samples when the two tiers run at different sample rates, and says so:
+resampling one to match the other would be measuring the resampler.
+
+### 128 KB for a 180 ms cue, caught by looking at the file
+
+The first cut gave the wasm side a `32768`-frame static to render into. The
+module went from **186,538 to 318,762 bytes** — `undefined` did not keep the
+array out of the download.
+
+The fix is a property rather than a smaller number: a motif sample depends on
+**nothing but its own frame index**, so it is rendered STATELESSLY in chunks
+through `stz_snd_block_ptr()`, the buffer the worklet already uses. Final size
+**187,602 bytes — the whole vocabulary costs 1,064 bytes.** A Zig test asserts
+that chunked and whole renders agree sample for sample, since otherwise the two
+tiers could differ by chunk size alone.
+
+SN6 paid this same tuition when per-node delay lines made a 26 MB wasm. In this
+tier **a static array IS download size**, and the lesson needed learning twice.
+
+### One assertion was wrong, and the vocabulary was right
+
+*"Danger is the longest — it has the most notes"* seemed obvious and failed.
+Danger is three notes of 0.06 s; warning is two of 0.09 s; **both run exactly
+0.18 s.** Danger is not longer, it is DENSER — more events in the same window,
+which is what makes it read as more urgent without spending more of Rule 18's
+budget. The guard now asserts the real property, and that no cue outstays
+0.2 s: a cue that needs attention to finish is a message.
+
+### What SS5 did NOT port, and says so in the face itself
+
+**The POLICY stays in Ring.** Priority, refraction, drop counting and SS3's
+per-bus ducking are not in the browser, and `capabilities()` reports
+`hasPolicy: false` with the reason. Porting them would repeat precisely the
+mistake this phase existed to undo: a second implementation of something that
+must agree with itself across tiers. **What moved is the part that is pure
+arithmetic and therefore movable.**
+
+The browser tier does, however, refuse the same things the Ring face refuses —
+a sixth value, and a step belonging to the other channel. A shared vocabulary
+that only agrees when nothing goes wrong is not shared.
+
+### Plane totals
+
+**622 Ring assertions across nineteen guards** and **55 browser assertions**
+(29 voice + 26 earcon); 70 Zig tests in the sound modules, 13 across
+`voice.zig` and `listen.zig`. SN0–SN6, SS1–SS5 and VC0–VC6 closed.

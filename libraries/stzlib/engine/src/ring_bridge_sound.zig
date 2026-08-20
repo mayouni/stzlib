@@ -63,6 +63,21 @@ fn ring_LoadMemory(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(snd.loadMemory(getStr(p, 1))));
 }
 
+// SS5: the earcon vocabulary, rendered by the seam both tiers share. The Ring
+// face used to build these motifs itself, in Ring; the browser could not reach
+// that code, and a JavaScript copy would have been a SECOND author of what
+// :Danger sounds like.
+fn ring_EarconOf(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(snd.earconOf(
+        @intFromFloat(gn(p, 1)),
+        @intFromFloat(gn(p, 2)),
+    )));
+}
+
+fn ring_EarconFrames(p: *anyopaque) callconv(.c) void {
+    rn(p, snd.earconFrames(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2))));
+}
+
 fn ring_NewSilent(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(snd.newSilent(
         @intFromFloat(gn(p, 1)),
@@ -486,6 +501,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginesoundloadmemory", .func = &ring_LoadMemory },
     .{ .name = "stzenginesoundtowavbytes", .func = &ring_ToWavBytes },
     .{ .name = "stzenginesoundnewsilent", .func = &ring_NewSilent },
+    .{ .name = "stzenginesoundearconof", .func = &ring_EarconOf },
+    .{ .name = "stzenginesoundearconframes", .func = &ring_EarconFrames },
     .{ .name = "stzenginesoundfree", .func = &ring_Free },
     .{ .name = "stzenginesoundframes", .func = &ring_Frames },
     .{ .name = "stzenginesoundchannels", .func = &ring_Channels },

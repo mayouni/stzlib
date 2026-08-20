@@ -226,6 +226,203 @@ pub fn envAt(e: Envelope, p0: usize) f64 {
 
 const testing = std.testing;
 
+// ── the earcon vocabulary ───────────────────────────────────────────────────
+//
+// THE FIVE MOTIFS LIVE HERE, and the reason is the reason this whole file
+// exists. They were written in Ring, where the native tier could reach them
+// and the browser could not. Porting them to JavaScript would have created a
+// SECOND author of what :Danger sounds like, and two authors of a vocabulary
+// drift -- silently, because nobody renders the same meaning on two tiers and
+// compares.
+//
+// Rule 118 legislates the five VALUES; this table is how this channel renders
+// them, and there is now exactly one of it. `soundgraph.zig` reaches it for
+// the native tier, `soundwasm.zig` for the browser, and a guard renders the
+// same value through both and compares sample counts and a checksum.
+//
+// WHAT A MOTIF IS: a short run of notes at one duration each, one waveform,
+// one amplitude. Rising means good and falling means bad -- the one mapping
+// close to universal across musical cultures. Danger gets three notes and the
+// brightest timbre because salience is loudness and spectral centroid, and it
+// gets them in ONE gesture rather than by repeating: a repeat costs time
+// Rule 18 has already spent.
+//
+// EVERY NOTE IS SHAPED AT BOTH ENDS. A step into or out of a note is a click,
+// broadband and worse than the cue it was meant to be. 6 ms, which SS3 later
+// measured independently as enough for a gain change.
+
+pub const EARCON_DANGER: u32 = 0;
+pub const EARCON_WARNING: u32 = 1;
+pub const EARCON_INFO: u32 = 2;
+pub const EARCON_SUCCESS: u32 = 3;
+pub const EARCON_MUTED: u32 = 4; // renders as NOTHING, and that is a rendering
+
+pub const EARCON_COUNT: u32 = 5;
+pub const EARCON_RAMP_SECONDS: f64 = 0.006;
+
+pub const Motif = struct {
+    notes: []const f64,
+    seconds: f64,
+    waveform: u32,
+    amplitude: f64,
+};
+
+const M_DANGER = [_]f64{ 990, 880, 660 };
+const M_WARNING = [_]f64{ 990, 660 };
+const M_INFO = [_]f64{770};
+const M_SUCCESS = [_]f64{ 660, 990 };
+
+/// The table. `muted` is present with no notes, because silence is its
+/// rendering rather than its absence -- asking for it must succeed and produce
+/// nothing, not fail.
+pub fn motifOf(value: u32) Motif {
+    return switch (value) {
+        EARCON_DANGER => .{ .notes = &M_DANGER, .seconds = 0.06, .waveform = WAVE_SQUARE, .amplitude = 0.45 },
+        EARCON_WARNING => .{ .notes = &M_WARNING, .seconds = 0.09, .waveform = WAVE_TRIANGLE, .amplitude = 0.40 },
+        EARCON_INFO => .{ .notes = &M_INFO, .seconds = 0.10, .waveform = WAVE_SINE, .amplitude = 0.32 },
+        EARCON_SUCCESS => .{ .notes = &M_SUCCESS, .seconds = 0.08, .waveform = WAVE_TRIANGLE, .amplitude = 0.36 },
+        else => .{ .notes = &[_]f64{}, .seconds = 0, .waveform = WAVE_SINE, .amplitude = 0 },
+    };
+}
+
+/// How many frames `renderMotif` will write, so a caller can size a buffer
+/// before it allocates one. Zero for muted, which is not an error.
+pub fn motifFrames(value: u32, rate: u32) usize {
+    const m = motifOf(value);
+    if (m.notes.len == 0) return 0;
+    const per: usize = @intFromFloat(m.seconds * @as(f64, @floatFromInt(rate)));
+    return per * m.notes.len;
+}
+
+/// ADDITIVE AND BAND-LIMITED BY CONSTRUCTION -- harmonics only while they fit
+/// under Nyquist. The graph's oscillators are band-limited by polyBLEP because
+/// they run in real time; a motif is rendered ONCE and offline, so summing the
+/// harmonics exactly costs nothing and cannot alias at all.
+fn motifWave(waveform: u32, phase_cycles: f64) f64 {
+    const p = 2.0 * std.math.pi * phase_cycles;
+    return switch (waveform) {
+        WAVE_TRIANGLE => blk: {
+            var sum: f64 = 0;
+            var h: f64 = 1;
+            while (h <= 15) : (h += 2) sum += (0.81 / (h * h)) * @sin(h * p);
+            break :blk sum;
+        },
+        WAVE_SQUARE => blk: {
+            var sum: f64 = 0;
+            var h: f64 = 1;
+            while (h <= 15) : (h += 2) sum += (0.64 / h) * @sin(h * p);
+            break :blk sum;
+        },
+        else => @sin(p),
+    };
+}
+
+/// One sample of a motif, computed from its frame index alone.
+///
+/// STATELESS ON PURPOSE. Every sample depends only on `frame`, so a caller can
+/// render the motif in any order and in any size of chunk -- which is what
+/// lets the browser stream it through a buffer that already exists instead of
+/// carrying a large static one of its own. The first cut of the wasm side
+/// declared a 32768-frame static to render into and put **128 KB into every
+/// download**, for a cue lasting 180 ms. `undefined` did not keep it out of
+/// the module; being stateless does.
+pub fn motifSampleAt(value: u32, rate: u32, frame: usize) f32 {
+    const m = motifOf(value);
+    if (m.notes.len == 0) return 0;
+    const ratef: f64 = @floatFromInt(rate);
+    const per: usize = @intFromFloat(m.seconds * ratef);
+    if (per == 0) return 0;
+    const k = frame / per;
+    if (k >= m.notes.len) return 0;
+    const i = frame % per;
+    const ramp: usize = @intFromFloat(EARCON_RAMP_SECONDS * ratef);
+
+    var e: f64 = 1;
+    if (ramp > 0) {
+        if (i < ramp) {
+            e = @as(f64, @floatFromInt(i)) / @as(f64, @floatFromInt(ramp));
+        } else if (i > per - ramp) {
+            e = @as(f64, @floatFromInt(per - i)) / @as(f64, @floatFromInt(ramp));
+        }
+    }
+    const t = @as(f64, @floatFromInt(i)) / ratef;
+    return @floatCast(m.amplitude * e * motifWave(m.waveform, m.notes[k] * t));
+}
+
+/// Render a RANGE of the motif, starting at `from`. Returns frames written,
+/// which is 0 once `from` is past the end -- how a streaming caller knows to
+/// stop.
+pub fn renderMotifRange(value: u32, rate: u32, from: usize, out: []f32) usize {
+    const total = motifFrames(value, rate);
+    if (from >= total) return 0;
+    const n = @min(out.len, total - from);
+    var i: usize = 0;
+    while (i < n) : (i += 1) out[i] = motifSampleAt(value, rate, from + i);
+    return n;
+}
+
+/// Render one motif into `out`, returning the frames written. Writes NOTHING
+/// and returns 0 for muted or for a buffer too small -- never a partial motif,
+/// which would be a different sound rather than a shorter one.
+pub fn renderMotif(value: u32, rate: u32, out: []f32) usize {
+    const need = motifFrames(value, rate);
+    if (need == 0 or out.len < need) return 0;
+    return renderMotifRange(value, rate, 0, out[0..need]);
+}
+
+test "every motif renders the frames it promised, and muted renders none" {
+    var buf: [8192]f32 = undefined;
+    var v: u32 = 0;
+    while (v < EARCON_COUNT) : (v += 1) {
+        const n = renderMotif(v, 48000, &buf);
+        try testing.expectEqual(motifFrames(v, 48000), n);
+    }
+    try testing.expectEqual(@as(usize, 0), motifFrames(EARCON_MUTED, 48000));
+    // and the negative sibling: the four that DO sound must not be empty
+    try testing.expect(motifFrames(EARCON_DANGER, 48000) > 0);
+}
+
+test "a motif starts and ends at silence -- a step would be a click" {
+    var buf: [8192]f32 = undefined;
+    const n = renderMotif(EARCON_INFO, 48000, &buf);
+    try testing.expect(n > 0);
+    try testing.expectApproxEqAbs(@as(f32, 0), buf[0], 1e-6);
+    try testing.expect(@abs(buf[n - 1]) < 0.02);
+    // and it is LOUD in the middle, or "starts and ends quiet" would pass for
+    // a buffer of zeros
+    var peak: f32 = 0;
+    for (buf[0..n]) |x| {
+        if (@abs(x) > peak) peak = @abs(x);
+    }
+    try testing.expect(peak > 0.2);
+}
+
+test "rendering in CHUNKS gives the same samples as rendering at once" {
+    // The property the browser tier rests on: a motif is stateless, so a
+    // caller streaming it through a small buffer gets bit-identical audio to
+    // one rendering it whole. Without this the two tiers could differ by chunk
+    // size alone, which is exactly the drift this file exists to prevent.
+    var whole: [8192]f32 = undefined;
+    const n = renderMotif(EARCON_DANGER, 44100, &whole);
+    try testing.expect(n > 0);
+
+    var chunk: [37]f32 = undefined; // deliberately a divisor of nothing
+    var at: usize = 0;
+    while (true) {
+        const got = renderMotifRange(EARCON_DANGER, 44100, at, &chunk);
+        if (got == 0) break;
+        for (0..got) |i| try testing.expectEqual(whole[at + i], chunk[i]);
+        at += got;
+    }
+    try testing.expectEqual(n, at);
+}
+
+test "a buffer too small yields NOTHING rather than half a motif" {
+    var small: [4]f32 = @splat(0);
+    try testing.expectEqual(@as(usize, 0), renderMotif(EARCON_DANGER, 48000, &small));
+    try testing.expectEqual(@as(f32, 0), small[0]);
+}
+
 test "a sine at rate/4 is exactly 0, 1, 0, -1 -- arithmetic, not vibes" {
     const dt: f64 = 12000.0 / 48000.0;
     try testing.expectApproxEqAbs(@as(f64, 0), waveAtBl(WAVE_SINE, 0.00, dt), 1e-12);

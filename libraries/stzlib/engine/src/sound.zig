@@ -34,6 +34,8 @@
 
 const std = @import("std");
 const builtin = @import("builtin");
+// the seam both tiers render from -- see sounddsp.zig's header
+const dsp = @import("sounddsp.zig");
 
 const c = @cImport({
     @cDefine("MA_NO_DEVICE_IO", "1");
@@ -304,6 +306,39 @@ pub fn newSilent(frames: usize, channels: u32, rate: u32) i64 {
     };
     @memset(data, 0);
     return adopt(data, frames, channels, rate);
+}
+
+/// THE EARCON VOCABULARY, as an ordinary buffer.
+///
+/// The motif arithmetic lives in `sounddsp.zig` -- the seam compiled into both
+/// the native DLL and stz.wasm -- so there is exactly ONE author of what
+/// :Danger sounds like. This is only the allocation the browser tier does not
+/// need and cannot do: `renderMotif` writes into a slice, and here the slice
+/// comes from the same table every other sound in the plane comes from.
+///
+/// Returns 0 for `muted`, and that is not an error: silence is its rendering,
+/// and a caller asking for it should get nothing rather than a refusal.
+pub fn earconOf(value: u32, rate: u32) i64 {
+    const need = dsp.motifFrames(value, rate);
+    if (need == 0) return 0;
+    const data = alloc.alloc(f32, need) catch {
+        setErr("out of memory allocating an earcon");
+        return 0;
+    };
+    @memset(data, 0);
+    if (dsp.renderMotif(value, rate, data) == 0) {
+        alloc.free(data);
+        bump(CTR_REFUSALS, 1);
+        setErr("earconOf: no motif for that semantic value");
+        return 0;
+    }
+    return adopt(data, need, 1, rate);
+}
+
+/// Frames the motif WOULD occupy, so a caller can size or compare without
+/// allocating. Zero for muted.
+pub fn earconFrames(value: u32, rate: u32) f64 {
+    return @floatFromInt(dsp.motifFrames(value, rate));
 }
 
 // ---------------------------------------------------------------- accessors

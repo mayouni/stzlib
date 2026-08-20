@@ -1,0 +1,182 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>SS5 guard — one vocabulary, two tiers</title>
+<style>
+  body { font: 13px/1.55 ui-monospace, Consolas, monospace; margin: 2rem; max-width: 64rem; }
+  h2 { font-size: .95rem; margin: 1.5rem 0 .3rem; border-bottom: 1px solid #ccc; }
+  .ok { color: #0a6; } .fail { color: #c30; font-weight: 700; }
+  .note { color: #555; margin: .2rem 0 .5rem 2.2rem; }
+  table { border-collapse: collapse; margin: .4rem 0 .4rem 2.2rem; }
+  td, th { padding: .12rem .9rem .12rem 0; text-align: left; font-weight: normal; }
+  th { border-bottom: 1px solid #ddd; font-weight: 700; }
+  #sum { font-size: 1.1rem; font-weight: 700; margin-top: 1.5rem; }
+  button { font: inherit; padding: .3rem .8rem; }
+</style>
+<h1>SS5 guard — one vocabulary, two tiers</h1>
+<p>The browser half of <code>sound_ss5_narrated.ring</code>. It renders the five
+motifs through <b>wasm</b> and compares them against
+<code>earcon_expect.json</code>, which the Ring guard <b>generates from the
+engine</b> on every run. Neither side can be edited into agreement.</p>
+<p><button id="go">Hear the four that sound</button></p>
+<div id="out"></div>
+<div id="sum"></div>
+
+<script src="stz-earcons.js"></script>
+<script>
+let pass = 0, fail = 0;
+const out = document.getElementById('out');
+function h(t) { out.insertAdjacentHTML('beforeend', '<h2>' + t + '</h2>'); }
+function note(t) { out.insertAdjacentHTML('beforeend', '<div class="note">' + t + '</div>'); }
+function chk(label, cond) {
+  if (cond) { pass++; out.insertAdjacentHTML('beforeend', '<div class="ok">[ok]&nbsp;&nbsp; ' + label + '</div>'); }
+  else { fail++; out.insertAdjacentHTML('beforeend', '<div class="fail">[FAIL] ' + label + '</div>'); }
+}
+function done() {
+  document.getElementById('sum').textContent = pass + ' passed, ' + fail + ' failed';
+  window.SS5_GUARD = { pass, fail };
+}
+
+(async function () {
+  const E = StzEarcons.create();
+
+  h('1. The module loads and carries the vocabulary');
+  let expect = null;
+  try {
+    expect = await fetch('earcon_expect.json').then(r => r.json());
+  } catch (e) {
+    chk('earcon_expect.json is present — run sound_ss5_narrated.ring to write it', false);
+    done(); return;
+  }
+  chk('the native tier left its numbers to compare against', !!expect && !!expect.values);
+  note('native rate: <b>' + expect.rate + '</b> Hz, ' + expect.values.length + ' values');
+
+  try {
+    await E.start('stz.wasm');
+  } catch (e) {
+    chk('stz.wasm loads and exports the earcon entries — ' + e.message, false);
+    done(); return;
+  }
+  chk('stz.wasm loaded and rendered every motif', true);
+  const caps = E.capabilities();
+  note('browser rate: <b>' + caps.sampleRate + '</b> Hz &nbsp; vocabulary from: ' +
+       caps.vocabularyFrom);
+
+  h('2. THE CROSS-TIER COMPARISON');
+  note('This is what SS5 exists for. Two hand-written copies of a vocabulary ' +
+       'do not fail a build — they diverge by a frequency or an envelope, and ' +
+       'nobody finds out until somebody hears the web app and the desktop app ' +
+       'side by side and cannot say which one moved.');
+
+  // THE RATES MUST MATCH or nothing below means anything. A browser at 44100
+  // legitimately renders a different frame count than a native tier at 48000,
+  // and comparing those would be comparing two correct answers.
+  const sameRate = (caps.sampleRate === expect.rate);
+  if (!sameRate) {
+    note('<b>The two tiers are at different sample rates</b> (' + caps.sampleRate +
+         ' vs ' + expect.rate + '), so frame counts and checksums are ' +
+         'legitimately different numbers. What can still be compared is the ' +
+         'DURATION each motif occupies, which is rate-independent — and that ' +
+         'is what the rows below check.');
+  }
+
+  let rows = '<table><tr><th>value</th><th>native</th><th>browser</th><th></th></tr>';
+  for (const want of expect.values) {
+    const got = E.framesOf(want.name);
+    let okRow;
+    let nativeCell, browserCell;
+    if (sameRate) {
+      okRow = (got === want.frames);
+      nativeCell = want.frames + ' fr';
+      browserCell = got + ' fr';
+    } else {
+      const wantSecs = want.frames / expect.rate;
+      const gotSecs = got / caps.sampleRate;
+      okRow = Math.abs(wantSecs - gotSecs) < 0.002;
+      nativeCell = wantSecs.toFixed(4) + ' s';
+      browserCell = gotSecs.toFixed(4) + ' s';
+    }
+    rows += '<tr><td>' + want.name + '</td><td>' + nativeCell + '</td><td>' +
+            browserCell + '</td><td class="' + (okRow ? 'ok' : 'fail') + '">' +
+            (okRow ? 'agree' : 'DIFFER') + '</td></tr>';
+    chk(want.name + ': the two tiers agree', okRow);
+  }
+  out.insertAdjacentHTML('beforeend', rows + '</table>');
+
+  if (sameRate) {
+    // A CHECKSUM, not a peak. A peak survives a wrong envelope, a wrong note
+    // ORDER, and a sign flip — three ways two tiers could differ while
+    // agreeing exactly on how loud they are.
+    h('3. The SAMPLES agree, not merely the lengths');
+    note('A peak alone would pass for a motif with its notes in the wrong ' +
+         'order, or its envelope inverted, or its sign flipped. The sum of ' +
+         'every sample catches all three.');
+    for (const want of expect.values) {
+      if (want.frames === 0) continue;
+      const buf = E.toBufferOf(want.name);
+      const d = buf.getChannelData(0);
+      let sum = 0, peak = 0;
+      for (let i = 0; i < d.length; i++) { sum += d[i]; if (Math.abs(d[i]) > peak) peak = Math.abs(d[i]); }
+      const dSum = Math.abs(sum - want.sum);
+      const dPeak = Math.abs(peak - want.peak);
+      chk(want.name + ': checksum matches native (' + sum.toFixed(6) + ' vs ' +
+          want.sum.toFixed(6) + ')', dSum < 0.001);
+      chk(want.name + ': peak matches native (' + peak.toFixed(6) + ')', dPeak < 0.001);
+    }
+  } else {
+    h('3. The SAMPLES cannot be compared at different rates');
+    note('Skipped, and that is a pass: resampling one tier to compare it with ' +
+         'the other would be comparing the resampler, not the vocabulary. ' +
+         'Run a browser at ' + expect.rate + ' Hz for the sample-level check.');
+  }
+
+  h('4. Muted renders NOTHING, in this tier too');
+  chk('toBufferOf(:Muted) is null — silence IS its rendering',
+      E.toBufferOf('muted') === null);
+  chk('and asking is legitimate rather than an error', E.isSilentValue('muted'));
+  chk('firing it succeeds and sounds nothing', E.fire('muted') !== null);
+
+  h('5. The two faces REFUSE the same things');
+  note('A shared vocabulary that only agrees when nothing goes wrong is not ' +
+       'shared. SS4 caught the Ring face silently downgrading an unknown step ' +
+       'to <code>cue</code> while the colour face refused it; both refuse now, ' +
+       'and so does this one.');
+  const r0 = E.refusals();
+  chk('a sixth value is refused', E.toBufferOf('catastrophe') === null);
+  chk('and counted', E.refusals() === r0 + 1);
+  note('reason: ' + E.lastError());
+
+  const r1 = E.refusals();
+  chk("a COLOUR step is refused — 'surface' is not a thing sound has",
+      E.toBufferOf('danger.surface') === null);
+  chk('and counted', E.refusals() === r1 + 1);
+  note('reason: ' + E.lastError());
+
+  // the negative sibling: this channel's own steps must still work, or
+  // "everything is refused" would pass
+  const r2 = E.refusals();
+  chk('but danger.alert IS accepted — this channel has that step',
+      E.toBufferOf('danger.alert') !== null);
+  chk('and it was not counted as a refusal', E.refusals() === r2);
+  chk('as is the bare value', E.toBufferOf('danger') !== null);
+
+  h('6. What this tier does NOT carry, said plainly');
+  note(caps.policyNote);
+  chk('the face reports that it has no policy, rather than pretending to',
+      caps.hasPolicy === false);
+
+  h('7. Hearing it (press the button)');
+  done();
+
+  document.getElementById('go').onclick = async function () {
+    this.disabled = true;
+    for (const v of ['success', 'info', 'warning', 'danger']) {
+      E.fire(v);
+      await new Promise(r => setTimeout(r, 900));
+    }
+    note('Fired all four. They should sound exactly like ' +
+         'sound_semantics_demo.ring on the desktop — that is the claim, and ' +
+         'the checksums above are why it is more than a hope.');
+    done();
+  };
+})();
+</script>
