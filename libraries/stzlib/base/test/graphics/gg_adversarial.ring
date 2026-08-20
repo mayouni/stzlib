@@ -1528,14 +1528,55 @@ nInY = aR1[2] + aR1[4] / 2
 nX1 = aR1[1] - 50
 nX2 = aR1[1] + aR1[3] + 50
 
-nOut = oFC._ForeignFreeChannel(nInY, nX1, nX2, "web1", "log", 0)
+nOut = oFC._ChannelBand(nInY, nX1, nX2, "web1", "log", 0, -100000, 100000)
 ? "   a foreign channel proposed at " + nInY + " was moved to " + nOut
 chk("a FOREIGN channel is pushed off the cluster's surface",
     nOut < aR1[2] or nOut > aR1[2] + aR1[4])
 
-nMem = oFC._ForeignFreeChannel(nInY, nX1, nX2, "api2", "log", 0)
-? "   the same channel for a MEMBER's edge stays at " + nMem
-chkeq("...while a member's edge may cross its own frame", nMem, nInY)
+# AND IT IS CENTRED IN ITS BAND, not merely clear of one side. Pushing a
+# fixed clearance off the frame drove the channel straight into the node
+# row above -- the same illegibility seen from the other side. A band
+# bounded by two obstacles has a centre, and the centre is the only
+# position that treats both sides fairly under miniaturisation.
+# AT THE MIDDLE -- the Principal's rule verbatim. The channel's free
+# band here runs from the web row's bottom to the frame's top, and that
+# band is NARROWER than two clearances (the frame eats into the rank
+# gap), so demanding full clearance from both sides is demanding the
+# impossible; the centre is the fairest position that exists, and the
+# centre is what was asked for. An earlier form of this check counted
+# rows within a clearance and failed the correct answer.
+nRowB2 = -1000000
+for aN in oFC.RenderNodeRects()
+	if aN[5] = "web1" or aN[5] = "web2"
+		if aN[2] + aN[4] > nRowB2  nRowB2 = aN[2] + aN[4]  ok
+	ok
+next
+nMid2 = (nRowB2 + aR1[2]) / 2
+? "   band " + nRowB2 + ".." + aR1[2] + " ; centre " + nMid2 +
+  " ; channel " + nOut
+chk("the channel sits at the MIDDLE of its free band",
+    fabs(nOut - nMid2) < 1)
+
+# A MEMBER'S EDGE MAY CROSS ITS OWN FRAME -- tested just inside the
+# frame's TOP strip, the one stretch of Backend surface holding neither
+# node rows nor the Data frame. This check has been wrong twice: first
+# mid-frame where a node row sits, then near the frame's bottom where
+# the DATA frame sits -- and Data is foreign to API B even though
+# Backend is home, so the placer was RIGHT to move both proposals. A
+# permission test must offer a position where the permission is the
+# only rule in play.
+# ...and the property is NOT EXPELLED, nothing stronger. The placer
+# centres every channel in its free band, home frame or not -- the
+# middle rule does not pause for members -- so the assertion that a
+# member's proposal is returned UNTOUCHED failed against a correct
+# 5px recentring. What the permission actually grants is that the
+# member's channel may REMAIN on its own frame's surface, where the
+# foreign one above was thrown off it.
+nFree = aR1[2] + 10
+nMem = oFC._ChannelBand(nFree, nX1, nX2, "api2", "log", 0, -100000, 100000)
+? "   a member's channel proposed on its frame lands at " + nMem
+chk("...while a member's edge may remain on its own frame",
+    nMem >= aR1[2] and nMem <= aR1[2] + aR1[4])
 
 # THE CLEARANCE IS A LEGIBILITY QUANTITY, and it is asserted as one. The
 # first push used a flat 10px, which the Principal rejected on the right
@@ -1544,17 +1585,46 @@ chkeq("...while a member's edge may cross its own frame", nMem, nInY)
 # from the corner radius -- already :Scale-scaled -- so it grows with the
 # render instead of collapsing relative to it.
 nClr = oFC._LineClearance()
-nDist = min([ fabs(nOut - aR1[2]), fabs(nOut - (aR1[2] + aR1[4])) ])
-? "   clearance " + nClr + "px ; the pushed channel sits " + nDist +
-  "px off the frame"
-chk("the pushed channel honours the line clearance", nDist >= nClr - 0.5)
-chk("...and the clearance exceeds the literal it replaced", nClr > 10)
+? "   clearance " + nClr + "px"
+chk("the clearance exceeds the literal it replaced", nClr > 10)
+
+# A GAP MUST BE CROSSABLE: two clearances plus the line, or centring has
+# nothing to centre in. Asserted on the RANK separation -- the quantity
+# the floor is applied to. The first version measured row-to-FRAME, which
+# is the rank gap minus the cluster's chrome, and so demanded of one
+# quantity a floor that had been placed on another.
+nRankGap = oFC.RankSeparation() * 96
+? "   the rank separation is " + nRankGap + "px against a floor of " +
+  (nClr * 2) + "px"
+chk("a rank gap leaves a readable band on each side of a channel",
+    nRankGap >= nClr * 2)
+
+# THE SAME RULE ON THE OTHER AXIS. Left-to-right makes the gap
+# horizontal and the channel vertical; one rule, stated axis-free.
+oLRc = new stzDiagram("lr27")
+for a in [ [ "a", "A" ], [ "b", "B" ], [ "c", "C" ] ]
+	oLRc.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
+next
+oLRc.AddEdge("a", "b")  oLRc.AddEdge("a", "c")
+oLRc.AddClusterXTT("g", "G", [ "b" ], "#5E35B1")
+oLRc.SetLayout(:LeftToRight)
+oLRc.SetSplines("ortho")
+oLRc.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+aLRR = oLRc.RenderClusterRects()
+chk("the left-to-right render stored its rects too", len(aLRR) >= 1)
+aL1 = aLRR[1]
+nLRIn = aL1[1] + aL1[3] / 2
+nLROut = oLRc._ChannelBand(nLRIn, aL1[2] - 50, aL1[2] + aL1[4] + 50,
+	"a", "c", 1, -100000, 100000)
+? "   LR: a foreign channel at " + nLRIn + " moved to " + nLROut
+chk("the rule holds on the horizontal axis as well",
+    nLROut < aL1[1] or nLROut > aL1[1] + aL1[3])
 
 # THE NEGATIVE SIBLING: a foreign run whose span does not overlap the
 # cluster must be left alone -- otherwise this is not avoidance, it is a
 # blanket ban that would push every channel in the picture around.
-nFar = oFC._ForeignFreeChannel(nInY, aR1[1] + aR1[3] + 100,
-	aR1[1] + aR1[3] + 400, "web1", "log", 0)
+nFar = oFC._ChannelBand(nInY, aR1[1] + aR1[3] + 100,
+	aR1[1] + aR1[3] + 400, "web1", "log", 0, -100000, 100000)
 ? "   a foreign run beside (not over) the cluster stays at " + nFar
 chkeq("the veto DISCRIMINATES by overlap, not by name", nFar, nInY)
 

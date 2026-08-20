@@ -310,6 +310,13 @@ class stzDiagram from stzGraph
 	# signatures buys nothing over reading it off the object that owns
 	# both the clusters and the render.
 	@aRenderClusRects = []
+
+	# The NODE rectangles of the current render, [ [ x, y, w, h, id ], ... ].
+	# A channel must clear these as much as it clears a cluster frame -- a
+	# line grazing the underside of a row is the same illegibility as one
+	# grazing a frame, and the row is what it was pushed into when only
+	# frames were known.
+	@aRenderNodeRects = []
 	@aoAnnotations = []
 	@aoTemplates = []
 
@@ -1588,6 +1595,17 @@ class stzDiagram from stzGraph
 			_nSepR_ = max([ _nSepR_, _nFsz_ * 2 + 34 ])
 		ok
 
+		# A GAP MUST BE CROSSABLE. A horizontal channel divides the rank
+		# gap it runs in, and both halves have to stay comfortably visible
+		# -- otherwise centring the channel has nothing to centre in, and
+		# the line reads as touching the row above or the frame below
+		# whatever the placement rule says. Two clearances plus the line
+		# itself is the least that leaves a readable band on each side.
+		# The same floor serves left-to-right, where the gap is horizontal
+		# and the channel vertical: one rule, one axis-free statement.
+		_nClr0_ = max([ 14, _nRad_ * 2 + 4 ])
+		_nSepR_ = max([ _nSepR_, _nClr0_ * 2 + _nEdgeW_ * 2 ])
+
 		if _bNat_
 			# any provisional size -- only the FRACTIONS of it are read back
 			# LABELS STEER THE LAYOUT. Reserving gap HEIGHT gave a label
@@ -1951,6 +1969,12 @@ class stzDiagram from stzGraph
 		#    - LANES: each parent's orthogonal trunk crosses the rank gap at
 		#      its own height, cycled among four, so neighbouring trunks do
 		#      not overlap.
+		@aRenderNodeRects = []
+		for _nr_ in _aXY_
+			@aRenderNodeRects + [ _nr_[2] - _nBoxW_ / 2, _nr_[3] - _nBoxH_ / 2,
+				_nBoxW_, _nBoxH_, StzLower("" + _nr_[1]) ]
+		next
+
 		_aE_ = This.Edges()
 		_nEc_ = len(_aE_)
 		_aPort_ = This._EdgePorts(_aE_, _aXY_, _nBoxW_, _nBoxH_, _cRank_, _aRoute_)
@@ -2758,6 +2782,9 @@ class stzDiagram from stzGraph
 	def RenderClusterRects()
 		return @aRenderClusRects
 
+	def RenderNodeRects()
+		return @aRenderNodeRects
+
 	# THE MINIMUM DISTANCE BETWEEN AN EDGE LINE AND ANY PARALLEL LINE -- a
 	# frame rule, another channel. Named because it is a LEGIBILITY
 	# quantity, not a geometric one: two lines a few pixels apart are
@@ -2769,48 +2796,130 @@ class stzDiagram from stzGraph
 	def _LineClearance()
 		return max([ 14, @nEdgeCornerRad * 2 + 4 ])
 
-	# A horizontal channel at nY spanning [nX1, nX2], pushed OUT of every
-	# cluster whose surface it would traverse and to which the edge is
-	# FOREIGN -- neither endpoint a member. A member's edge may exit
-	# through its own frame; a stranger's channel through it draws a
-	# relationship with the cluster that does not exist. Pushed to
-	# whichever free side is nearer the channel's own height.
-	def _ForeignFreeChannel(nY, nX1, nX2, cFrom, cTo, bVert)
-		_ffLo_ = min([ nX1, nX2 ])
-		_ffHi_ = max([ nX1, nX2 ])
-		_ffF_ = StzLower("" + cFrom)
-		_ffT_ = StzLower("" + cTo)
-		for _ffPass_ = 1 to 3
-			_ffMoved_ = 0
-			for _ffR_ in @aRenderClusRects
-				if StzFindFirst(_ffF_, _ffR_[5]) > 0  loop  ok
-				if StzFindFirst(_ffT_, _ffR_[5]) > 0  loop  ok
-				if bVert
-					_ffA_ = _ffR_[2]
-					_ffB_ = _ffR_[2] + _ffR_[4]
-					_ffC_ = _ffR_[1]
-					_ffD_ = _ffR_[1] + _ffR_[3]
+	# WHERE A CHANNEL BELONGS: the MIDDLE of the free band it runs in.
+	#
+	# The first version pushed a channel a fixed clearance off whatever
+	# cluster frame it crossed -- and pushed it straight into the node row
+	# on the other side, which is the same illegibility seen from above.
+	# Clearance from ONE obstacle is not placement. A band bounded by two
+	# obstacles has a centre, and the centre is the only position that
+	# treats both sides fairly and survives being miniaturised.
+	#
+	# Obstacles are foreign cluster frames AND node rows -- everything the
+	# run passes that a reader could mistake it for touching. The edge's
+	# own endpoints are exempt (it must reach them) and so are clusters it
+	# belongs to (its frame is its home). Bounded on both sides: take the
+	# centre. Bounded on one: stand a clearance off it. Bounded on
+	# neither: stay where the router put it.
+	#
+	# bVert says which axis the channel RUNS along: 0 = horizontal (a
+	# top-down picture), 1 = vertical (left-to-right). The rule is the
+	# same rule on the other axis, which is what makes it one rule.
+	def _ChannelBand(nPos, nA1, nA2, cFrom, cTo, bVert, nLimA, nLimB)
+		_cbLo_ = min([ nA1, nA2 ])
+		_cbHi_ = max([ nA1, nA2 ])
+		_cbF_ = StzLower("" + cFrom)
+		_cbT_ = StzLower("" + cTo)
+		# BLOCKED INTERVALS, MERGED -- not "the nearest face either side".
+		# That shortcut was wrong whenever the proposed channel fell
+		# INSIDE an obstacle: it recorded that obstacle's near face as a
+		# bound and then centred between it and something beyond, landing
+		# the channel back inside the very rect it was escaping. Free
+		# space is what is left after the blocked spans are unioned, and
+		# nothing shorter than computing that union answers it.
+		_cbBl_ = []
+		for _cbPass_ = 1 to 2
+			if _cbPass_ = 1
+				_cbSet_ = @aRenderClusRects
+			else
+				_cbSet_ = @aRenderNodeRects
+			ok
+			for _cbR_ in _cbSet_
+				if _cbPass_ = 1
+					if StzFindFirst(_cbF_, _cbR_[5]) > 0  loop  ok
+					if StzFindFirst(_cbT_, _cbR_[5]) > 0  loop  ok
 				else
-					_ffA_ = _ffR_[1]
-					_ffB_ = _ffR_[1] + _ffR_[3]
-					_ffC_ = _ffR_[2]
-					_ffD_ = _ffR_[2] + _ffR_[4]
+					if _cbR_[5] = _cbF_ or _cbR_[5] = _cbT_  loop  ok
 				ok
-				# does the run overlap the rect along its span, at a height
-				# inside the rect?
-				if _ffHi_ > _ffA_ and _ffLo_ < _ffB_ and
-				   nY > _ffC_ and nY < _ffD_
-					if nY - _ffC_ < _ffD_ - nY
-						nY = _ffC_ - This._LineClearance()
-					else
-						nY = _ffD_ + This._LineClearance()
-					ok
-					_ffMoved_ = 1
+				if bVert
+					_cbA_ = _cbR_[2]
+					_cbB_ = _cbR_[2] + _cbR_[4]
+					_cbC_ = _cbR_[1]
+					_cbD_ = _cbR_[1] + _cbR_[3]
+				else
+					_cbA_ = _cbR_[1]
+					_cbB_ = _cbR_[1] + _cbR_[3]
+					_cbC_ = _cbR_[2]
+					_cbD_ = _cbR_[2] + _cbR_[4]
 				ok
+				if _cbHi_ <= _cbA_ or _cbLo_ >= _cbB_  loop  ok
+				_cbBl_ + [ _cbC_, _cbD_ ]
 			next
-			if _ffMoved_ = 0  exit  ok
 		next
-		return nY
+		# THE CORRIDOR IS LAW. A single-hop channel lives between its two
+		# attachment borders and a routed one between its fold points;
+		# free space OUTSIDE that range is not usable however empty it is.
+		# Without this the placer once chose a lovely clear band ABOVE the
+		# source's own bottom border, and the trunk obediently folded
+		# BACKWARD up the side of the box it had just left.
+		_cbLimLo_ = min([ nLimA, nLimB ]) + 4
+		_cbLimHi_ = max([ nLimA, nLimB ]) - 4
+		if _cbLimHi_ < _cbLimLo_
+			_cbLimLo_ = (nLimA + nLimB) / 2
+			_cbLimHi_ = _cbLimLo_
+		ok
+		if len(_cbBl_) = 0  return min([ max([ nPos, _cbLimLo_ ]), _cbLimHi_ ])  ok
+
+		_cbBl_ = sort(_cbBl_, 1)
+		_cbM_ = []
+		for _cbI_ = 1 to len(_cbBl_)
+			if len(_cbM_) > 0 and _cbBl_[_cbI_][1] <= _cbM_[len(_cbM_)][2]
+				if _cbBl_[_cbI_][2] > _cbM_[len(_cbM_)][2]
+					_cbM_[len(_cbM_)][2] = _cbBl_[_cbI_][2]
+				ok
+			else
+				_cbM_ + [ _cbBl_[_cbI_][1], _cbBl_[_cbI_][2] ]
+			ok
+		next
+
+		# the free gaps between merged blocks, plus the open ends
+		_cbClr_ = This._LineClearance()
+		_cbBest_ = nPos
+		_cbBestD_ = 1000000
+		_cbNM_ = len(_cbM_)
+		for _cbI_ = 0 to _cbNM_
+			if _cbI_ = 0
+				_cbGa_ = _cbM_[1][1] - 1000000
+				_cbGb_ = _cbM_[1][1]
+				_cbCand_ = _cbGb_ - _cbClr_
+			but _cbI_ = _cbNM_
+				_cbGa_ = _cbM_[_cbNM_][2]
+				_cbGb_ = _cbGa_ + 1000000
+				_cbCand_ = _cbGa_ + _cbClr_
+			else
+				_cbGa_ = _cbM_[_cbI_][2]
+				_cbGb_ = _cbM_[_cbI_ + 1][1]
+				if _cbGb_ - _cbGa_ < 1  loop  ok
+				_cbCand_ = (_cbGa_ + _cbGb_) / 2
+			ok
+			# an open end keeps the router's own position when that
+			# position already lies in it
+			if _cbI_ = 0 and nPos <= _cbGb_ - _cbClr_  _cbCand_ = nPos  ok
+			if _cbI_ = _cbNM_ and nPos >= _cbGa_ + _cbClr_  _cbCand_ = nPos  ok
+			# candidates outside the corridor are not candidates
+			if _cbCand_ < _cbLimLo_ or _cbCand_ > _cbLimHi_  loop  ok
+			_cbD2_ = fabs(_cbCand_ - nPos)
+			if _cbD2_ < _cbBestD_
+				_cbBestD_ = _cbD2_
+				_cbBest_ = _cbCand_
+			ok
+		next
+		if _cbBestD_ >= 1000000
+			# every free band lies outside the corridor: the least-bad
+			# honest answer is the proposal clamped into it
+			return min([ max([ nPos, _cbLimLo_ ]), _cbLimHi_ ])
+		ok
+		return _cbBest_
 
 	def _DrawRoutedEdge(oC, aFrom, aTo, paBend, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nPortA, nPortB, pBlockSide, cFromId, cToId)
 		_pts_ = []
@@ -2862,10 +2971,10 @@ class stzDiagram from stzGraph
 				_oc1_ = (_p_[1] + _ob1_[1]) / 2
 				_oc2_ = (_obl_[1] + _q_[1]) / 2
 				_ofy_ = _obl_[2]
-				_oc1_ = This._ForeignFreeChannel(_oc1_, _p_[2], _ofy_,
-					cFromId, cToId, 1)
-				_oc2_ = This._ForeignFreeChannel(_oc2_, _ofy_, _q_[2],
-					cFromId, cToId, 1)
+				_oc1_ = This._ChannelBand(_oc1_, _p_[2], _ofy_,
+					cFromId, cToId, 1, _p_[1], _ob1_[1])
+				_oc2_ = This._ChannelBand(_oc2_, _ofy_, _q_[2],
+					cFromId, cToId, 1, _obl_[1], _q_[1])
 				_flat_ + _p_[1]   _flat_ + _p_[2]
 				_flat_ + _oc1_    _flat_ + _p_[2]
 				_flat_ + _oc1_    _flat_ + _ofy_
@@ -2876,10 +2985,10 @@ class stzDiagram from stzGraph
 				_oc1_ = (_p_[2] + _ob1_[2]) / 2
 				_oc2_ = (_obl_[2] + _q_[2]) / 2
 				_ofx_ = _obl_[1]
-				_oc1_ = This._ForeignFreeChannel(_oc1_, _p_[1], _ofx_,
-					cFromId, cToId, 0)
-				_oc2_ = This._ForeignFreeChannel(_oc2_, _ofx_, _q_[1],
-					cFromId, cToId, 0)
+				_oc1_ = This._ChannelBand(_oc1_, _p_[1], _ofx_,
+					cFromId, cToId, 0, _p_[2], _ob1_[2])
+				_oc2_ = This._ChannelBand(_oc2_, _ofx_, _q_[1],
+					cFromId, cToId, 0, _obl_[2], _q_[2])
 				_flat_ + _p_[1]   _flat_ + _p_[2]
 				_flat_ + _p_[1]   _flat_ + _oc1_
 				_flat_ + _ofx_    _flat_ + _oc1_
@@ -3328,8 +3437,10 @@ class stzDiagram from stzGraph
 				_pe_ = aFrom[1] + _sgn_ * nBoxW / 2
 				_qe_ = aTo[1] - _sgn_ * nBoxW / 2
 				_chan_ = _pe_ + (_qe_ - _pe_) * nLane
-				_chan_ = This._ForeignFreeChannel(_chan_, aFrom[2], aTo[2],
-					cFromId, cToId, 1)
+				# the span is the run's own axis: a VERTICAL channel in a
+				# left-to-right picture runs across Y
+				_chan_ = This._ChannelBand(_chan_, aFrom[2], aTo[2],
+					cFromId, cToId, 1, _pe_, _qe_)
 				oC.Flush()
 				oC.AddPolylineQ([ _pe_, aFrom[2], _chan_, aFrom[2],
 					_chan_, aTo[2], _qe_, aTo[2] ]).Stroke(cColor, nWidth)
@@ -3341,8 +3452,12 @@ class stzDiagram from stzGraph
 				_pe_ = aFrom[2] + _sgn_ * nBoxH / 2
 				_qe_ = aTo[2] - _sgn_ * nBoxH / 2
 				_chan_ = _pe_ + (_qe_ - _pe_) * nLane
-				_chan_ = This._ForeignFreeChannel(_chan_, aFrom[1], aTo[1],
-					cFromId, cToId, 0)
+				# a HORIZONTAL channel spans X -- the first call here
+				# passed the Y pair, so every obstacle test ran against a
+				# span from the wrong axis and the placer worked on
+				# fiction
+				_chan_ = This._ChannelBand(_chan_, aFrom[1], aTo[1],
+					cFromId, cToId, 0, _pe_, _qe_)
 				oC.Flush()
 				oC.AddPolylineQ([ aFrom[1], _pe_, aFrom[1], _chan_,
 					aTo[1], _chan_, aTo[1], _qe_ ]).Stroke(cColor, nWidth)
