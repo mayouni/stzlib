@@ -1903,6 +1903,76 @@ chk("...and still arrives on b's ported lanes",
 
 #---------------------------------------------------------------------------
 ? ""
+? "-- 31. Only ESSENTIAL crossings survive to earn their hops ----"
+#
+# The graph tier answers WHAT IS and the renderer draws it: the engine
+# sweep reorders every rank so removable crossings are removed, and the
+# crossing count of the order actually drawn is published as a render
+# fact -- RenderCrossings(). A hop then testifies that its crossing is
+# structural, because every removable one died in the sweep before any
+# ink existed.
+#
+# Building this section found and killed two defects the svc scenes had
+# masked: the ortho trunk dropped its arrival port on the floor (K2,2's
+# crossing edge landed ON its target's spine column -- two foreign
+# edges sharing one vertical line), and the lane claimer's step
+# revalidation demanded _ChannelBand return the candidate unchanged,
+# which the band's own recentring guarantees never happens -- so
+# conflicting channels silently shared one lane. The trunk is now a
+# stem with PORTED fingers: departures share their source's stem (I2's
+# blessed merge, what keeps a fan a bus), arrivals take their ports --
+# porting BOTH ends of a crossing pair double-books a column
+# unavoidably, since each edge needs the other's.
+#---------------------------------------------------------------------------
+
+# the fact comes FROM the render, so before one it must say so
+oRm = new stzDiagram("rm31")
+oRm.AddNodeXTT("a1", "A1", [ :type = "box", :color = "Info.Solid" ])
+oRm.AddNodeXTT("a2", "A2", [ :type = "box", :color = "Info.Solid" ])
+oRm.AddNodeXTT("b1", "B1", [ :type = "box", :color = "Info.Solid" ])
+oRm.AddNodeXTT("b2", "B2", [ :type = "box", :color = "Info.Solid" ])
+oRm.AddEdge("a1", "b2")
+oRm.AddEdge("a2", "b1")
+oRm.SetSplines("ortho")
+chkeq("before any render the fact says so", oRm.RenderCrossings(), -1)
+
+# DECLARED CROSSED, DRAWN STRAIGHT: the two edges cross in declaration
+# order, the sweep untangles them, and the picture carries neither a
+# crossing nor a hop.
+cRm = oRm.ToSVGXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+? "   two edges declared crossed : " + oRm.RenderCrossings() +
+  " crossings after the sweep"
+chkeq("a removable crossing is REMOVED before any ink exists",
+      oRm.RenderCrossings(), 0)
+aRmCh = _DiagChords(cRm, EDGERGB)
+chkeq("...so the picture has no crossing to hop", len(aRmCh), 0)
+
+# THE NEGATIVE SIBLING: K2,2 requires one crossing in EVERY ordering.
+# Removal that removed it would be removing required ink; the fact must
+# say one, and the picture must DECLARE it with a hop.
+oK2 = new stzDiagram("k31")
+oK2.AddNodeXTT("a1", "A1", [ :type = "box", :color = "Info.Solid" ])
+oK2.AddNodeXTT("a2", "A2", [ :type = "box", :color = "Info.Solid" ])
+oK2.AddNodeXTT("b1", "B1", [ :type = "box", :color = "Info.Solid" ])
+oK2.AddNodeXTT("b2", "B2", [ :type = "box", :color = "Info.Solid" ])
+oK2.AddEdge("a1", "b1")  oK2.AddEdge("a1", "b2")
+oK2.AddEdge("a2", "b1")  oK2.AddEdge("a2", "b2")
+oK2.SetSplines("ortho")
+cK2 = oK2.ToSVGXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+? "   K2,2 : " + oK2.RenderCrossings() + " crossing"
+chkeq("an essential crossing SURVIVES the sweep", oK2.RenderCrossings(), 1)
+aK2Ch = _DiagChords(cK2, EDGERGB)
+? "   ...and the picture hops it : " + len(aK2Ch) + " chords"
+chk("...and the picture declares it with a hop", len(aK2Ch) > 0)
+
+# ...and the svc graph agrees across sections: the one hop section 28
+# photographed is the one crossing the structure requires.
+? "   the svc graph's fact : " + oFC.RenderCrossings()
+chkeq("the hop of section 28 is the crossing the structure requires",
+      oFC.RenderCrossings(), 1)
+
+#---------------------------------------------------------------------------
+? ""
 ? "=============================================================="
 ? " " + nOk + " ok, " + nBad + " failed"
 ? "=============================================================="
