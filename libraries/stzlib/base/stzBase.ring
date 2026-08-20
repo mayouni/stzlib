@@ -831,6 +831,10 @@ ok
     # convention. A front-end onto the classes above -- no new runtime.
     load "agentic/stzAgentDeclaration.ring"
     load "agentic/stzAgentFolder.ring"
+    # the roster: the estate's own PowerShell mechanisms as ring:
+    # functions behind softanza/roster/*.pia (prompt 46). A front-end
+    # onto the classes above, same as the two files just loaded.
+    load "agentic/stzAgentRoster.ring"
 
     # refine/ -- REFINEMENT PROGRAMMING (R6): stzPolyCode comes home --
     # code carries typed refinement points; a change is a typed proposal
