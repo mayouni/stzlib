@@ -334,6 +334,16 @@ class stzDiagram from stzGraph
 	@aVertSegs = []
 	@nDrawPass = 2
 
+	# The drawn geometry of every ortho edge, keyed "from>to" -- captured
+	# on the dry pass so the label placer anchors on the path the edge
+	# ACTUALLY takes, never on a pre-channel fiction.
+	@aEdgePaths = []
+
+	# Where the labels actually landed: [ text, x, y, w, h, edgeKey ] per
+	# label. The SVG backend emits no text, so the placement facts are
+	# the only instrument a guard can put on the label law.
+	@aRenderLabels = []
+
 	# The layered crossing count of the order the last render drew --
 	# the graph tier's structure fact. Only the crossings the structure
 	# REQUIRES survive the engine sweep, and each survivor earns a wire
@@ -2010,6 +2020,7 @@ class stzDiagram from stzGraph
 		#      not overlap.
 		@aChanUsed = []
 		@aRenderNodeRects = []
+		@aRenderLabels = []
 		for _nr_ in _aXY_
 			@aRenderNodeRects + [ _nr_[2] - _nBoxW_ / 2, _nr_[3] - _nBoxH_ / 2,
 				_nBoxW_, _nBoxH_, StzLower("" + _nr_[1]) ]
@@ -2028,7 +2039,10 @@ class stzDiagram from stzGraph
 		if _cSpl_ = "ortho"
 			@nDrawPass = _ePass_
 			@aChanUsed = []
-			if _ePass_ = 1  @aVertSegs = []  ok
+			if _ePass_ = 1
+				@aVertSegs = []
+				@aEdgePaths = []
+			ok
 		else
 			@nDrawPass = 2
 		ok
@@ -2120,6 +2134,14 @@ class stzDiagram from stzGraph
 						_lay_ = _a_[2]
 					ok
 				else
+					# under ORTHO the drawn path was captured on the dry
+					# pass; the placer walks IT, so the label is deferred
+					# to the placement loop with its key
+					_cLKey_ = ""
+					if _cSpl_ = "ortho"
+						_cLKey_ = "" + _aE_[_ei_][:from] + ">" +
+							"" + _aE_[_ei_][:to]
+					ok
 					_aBend_ = This._RouteOf(_aRoute_, "" + _aE_[_ei_][:from],
 						"" + _aE_[_ei_][:to])
 					if len(_aBend_) > 0
@@ -2155,15 +2177,21 @@ class stzDiagram from stzGraph
 						_lay_ = _lat_[2]
 					ok
 				ok
-				_aLabAt_ + [ _cLab_, _lax_, _lay_ ]
+				if _bSelf_  _cLKey_ = ""  ok
+				_aLabAt_ + [ _cLab_, _lax_, _lay_, _cLKey_ ]
 			next
 
-			# NUDGE APART, because reserving the gap does not stop two
-			# labels landing in the SAME part of it -- two edges leaving one
-			# node into the same rank cross the gap side by side, and their
-			# midpoints can be a few pixels apart. Each label that would
-			# overlap one already placed is pushed along the rank axis into
-			# the next free band.
+			# A LABEL MUST CLAIM ITS EDGE -- I1 for text. The old nudge
+			# pushed an overlapping label blindly down the rank axis: it
+			# cleared the other LABELS and ignored all the INK, so a label
+			# could float in empty space attributed to nothing, or sit on
+			# a foreign edge whose line its background plate then ERASED.
+			# Under ortho the placer now walks the label's OWN drawn path
+			# and takes the first anchor whose plate clears foreign ink,
+			# placed labels, and node boxes -- moving ALONG the edge it
+			# names, never off it. The plate erasing a few pixels of its
+			# own stroke stays the accepted cost; erasing anyone else's is
+			# a false picture.
 			_aDone_ = []
 			for _li_ = 1 to len(_aLabAt_)
 				_cLab_ = _aLabAt_[_li_][1]
@@ -2171,23 +2199,94 @@ class stzDiagram from stzGraph
 				_lh_ = _nFsz_ + 6
 				_lx_ = _aLabAt_[_li_][2]
 				_ly_ = _aLabAt_[_li_][3]
-				for _try_ = 1 to 6
-					_bHit_ = 0
-					for _d_ in _aDone_
-						if fabs(_lx_ - _d_[1]) < (_lw_ + _d_[3]) / 2 and
-						   fabs(_ly_ - _d_[2]) < (_lh_ + _d_[4]) / 2
-							_bHit_ = 1
+				_cLK_ = "" + _aLabAt_[_li_][4]
+				_aPth_ = []
+				if _cLK_ != ""
+					for _pp_ in @aEdgePaths
+						if _pp_[1] = _cLK_
+							_aPth_ = _pp_[2]
 							exit
 						ok
 					next
-					if _bHit_ = 0  exit  ok
-					if _bSwap_
-						_lx_ += _lw_ * 0.55
-					else
-						_ly_ += _lh_ * 1.15
+				ok
+				if len(_aPth_) >= 4
+					# arc-length walk over the drawn flat
+					_nTot_ = 0
+					_aSegL_ = []
+					for _si_ = 1 to len(_aPth_) - 3 step 2
+						_sl_ = fabs(_aPth_[_si_ + 2] - _aPth_[_si_]) +
+							fabs(_aPth_[_si_ + 3] - _aPth_[_si_ + 1])
+						_aSegL_ + _sl_
+						_nTot_ += _sl_
+					next
+					_nBestD_ = -1
+					_nBestX_ = _lx_
+					_nBestY_ = _ly_
+					for _fr_ in [ 0.50, 0.42, 0.58, 0.34, 0.66,
+					              0.26, 0.74, 0.18, 0.82 ]
+						_nWant_ = _nTot_ * _fr_
+						_cx_ = _aPth_[1]
+						_cy_ = _aPth_[2]
+						_acc_ = 0
+						for _si_ = 1 to len(_aSegL_)
+							if _acc_ + _aSegL_[_si_] >= _nWant_ or
+							   _si_ = len(_aSegL_)
+								_st_ = 0
+								if _aSegL_[_si_] > 0.001
+									_st_ = (_nWant_ - _acc_) / _aSegL_[_si_]
+								ok
+								if _st_ < 0  _st_ = 0  ok
+								if _st_ > 1  _st_ = 1  ok
+								_pj_ = _si_ * 2 - 1
+								_cx_ = _aPth_[_pj_] +
+									(_aPth_[_pj_ + 2] - _aPth_[_pj_]) * _st_
+								_cy_ = _aPth_[_pj_ + 1] +
+									(_aPth_[_pj_ + 3] - _aPth_[_pj_ + 1]) * _st_
+								exit
+							ok
+							_acc_ += _aSegL_[_si_]
+						next
+						_nD_ = This._LabelSpotScore(_cx_, _cy_, _lw_, _lh_,
+							_cLK_, _aDone_)
+						if _nD_ < 0  loop  ok
+						if _nD_ >= This._LineClearance() * 0.6
+							_nBestD_ = _nD_
+							_nBestX_ = _cx_
+							_nBestY_ = _cy_
+							exit
+						ok
+						if _nD_ > _nBestD_
+							_nBestD_ = _nD_
+							_nBestX_ = _cx_
+							_nBestY_ = _cy_
+						ok
+					next
+					if _nBestD_ >= 0
+						_lx_ = _nBestX_
+						_ly_ = _nBestY_
 					ok
-				next
+				else
+					# no captured path (splines, self-loops): the old
+					# label-vs-label nudge still applies
+					for _try_ = 1 to 6
+						_bHit_ = 0
+						for _d_ in _aDone_
+							if fabs(_lx_ - _d_[1]) < (_lw_ + _d_[3]) / 2 and
+							   fabs(_ly_ - _d_[2]) < (_lh_ + _d_[4]) / 2
+								_bHit_ = 1
+								exit
+							ok
+						next
+						if _bHit_ = 0  exit  ok
+						if _bSwap_
+							_lx_ += _lw_ * 0.55
+						else
+							_ly_ += _lh_ * 1.15
+						ok
+					next
+				ok
 				_aDone_ + [ _lx_, _ly_, _lw_, _lh_ ]
+				@aRenderLabels + [ _cLab_, _lx_, _ly_, _lw_, _lh_, _cLK_ ]
 
 				_oC_.Flush()
 				_oC_.FillQ(_cBg_).StrokeQ(_cBg_, 1).
@@ -2932,6 +3031,53 @@ class stzDiagram from stzGraph
 	def RenderCrossings()
 		return @nRenderCrossings
 
+	def RenderEdgePaths()
+		return @aEdgePaths
+
+	def RenderLabels()
+		return @aRenderLabels
+
+	# Score one candidate label spot: the distance from the label's plate
+	# to the nearest FOREIGN edge ink, or -1 when the spot is unusable
+	# (it overlaps an already-placed label, or a node box). Zero means
+	# the plate would ERASE foreign ink -- the caller treats that as the
+	# worst legal answer, never as a hit to accept.
+	def _LabelSpotScore(nLx, nLy, nLw, nLh, cOwnKey, paDone)
+		_lsL_ = nLx - nLw / 2
+		_lsT_ = nLy - nLh / 2
+		for _lsD_ in paDone
+			if fabs(nLx - _lsD_[1]) < (nLw + _lsD_[3]) / 2 and
+			   fabs(nLy - _lsD_[2]) < (nLh + _lsD_[4]) / 2
+				return -1
+			ok
+		next
+		for _lsN_ in @aRenderNodeRects
+			if _lsL_ < _lsN_[1] + _lsN_[3] and _lsL_ + nLw > _lsN_[1] and
+			   _lsT_ < _lsN_[2] + _lsN_[4] and _lsT_ + nLh > _lsN_[2]
+				return -1
+			ok
+		next
+		_lsMin_ = 1000000
+		for _lsP_ in @aEdgePaths
+			if _lsP_[1] = cOwnKey  loop  ok
+			_lsF_ = _lsP_[2]
+			for _lsI_ = 1 to len(_lsF_) - 3 step 2
+				_lsAx_ = min([ _lsF_[_lsI_], _lsF_[_lsI_ + 2] ])
+				_lsBx_ = max([ _lsF_[_lsI_], _lsF_[_lsI_ + 2] ])
+				_lsAy_ = min([ _lsF_[_lsI_ + 1], _lsF_[_lsI_ + 3] ])
+				_lsBy_ = max([ _lsF_[_lsI_ + 1], _lsF_[_lsI_ + 3] ])
+				_lsDx_ = 0
+				if _lsBx_ < _lsL_  _lsDx_ = _lsL_ - _lsBx_  ok
+				if _lsAx_ > _lsL_ + nLw  _lsDx_ = _lsAx_ - (_lsL_ + nLw)  ok
+				_lsDy_ = 0
+				if _lsBy_ < _lsT_  _lsDy_ = _lsT_ - _lsBy_  ok
+				if _lsAy_ > _lsT_ + nLh  _lsDy_ = _lsAy_ - (_lsT_ + nLh)  ok
+				_lsD2_ = sqrt(_lsDx_ * _lsDx_ + _lsDy_ * _lsDy_)
+				if _lsD2_ < _lsMin_  _lsMin_ = _lsD2_  ok
+			next
+		next
+		return _lsMin_
+
 	# THE MINIMUM DISTANCE BETWEEN AN EDGE LINE AND ANY PARALLEL LINE -- a
 	# frame rule, another channel. Named because it is a LEGIBILITY
 	# quantity, not a geometric one: two lines a few pixels apart are
@@ -3158,6 +3304,12 @@ class stzDiagram from stzGraph
 		   StzLower("" + This.Layout()) = "rl"  _eoH_ = 1  ok
 
 		if @nDrawPass = 1
+			# the flat IS the edge's drawn geometry -- keep it, keyed, so
+			# the label placer can anchor a label on the path its edge
+			# actually takes. Labels were anchored on _EdgePathFlat's
+			# pre-channel fiction, so under ortho a label could float in
+			# empty space far from its own ink.
+			@aEdgePaths + [ cKey, paFlat ]
 			# learn the rank-axis segments (the drops a channel can cross)
 			for _eoI_ = 1 to _eoN_ - 3 step 2
 				_eoX1_ = paFlat[_eoI_]
