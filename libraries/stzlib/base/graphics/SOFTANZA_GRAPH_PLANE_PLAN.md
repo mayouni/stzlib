@@ -739,7 +739,17 @@ leaves visible space both sides — including the space clusters' chrome
 eats. Every such quantity scales with the render; a literal distance is
 a bug by construction.
 
+**I4 — A BEND IS A CONSTRAINT.** Every change of direction testifies to
+something: an obstacle avoided, or the perpendicular grammar at a
+border. A bend with no cause behind it claims a constraint the picture
+does not contain — the reader looks for the thing the line swerved
+around and finds nothing. So any leg that can run straight to its
+ported end must: the router's reserved lane is a fallback for blocked
+corridors, never the default. Crossings that a straight leg creates are
+I1's problem and the wire hop answers it; they never justify a detour.
+
 The enforcement points are structural, not per-picture: the layout owns
 I1's territories and gap floors; the channel allocator owns I2's lanes
-and I3's bands; attachment owns I1's borders. A new feature is done when
-it names which invariant it serves.
+and I3's bands; attachment owns I1's borders; the routed staircase owns
+I4's collapse. A new feature is done when it names which invariant it
+serves.
