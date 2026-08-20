@@ -748,6 +748,17 @@ ported end must: the router's reserved lane is a fallback for blocked
 corridors, never the default. Crossings that a straight leg creates are
 I1's problem and the wire hop answers it; they never justify a detour.
 
+**I5 — SAMENESS IS A CLAIM.** Two things drawn alike are asserted alike,
+and two spaced alike are asserted equally related. So siblings in one
+relation render identically (a lone member drawn differently states a
+distinction the graph does not contain), and a rank's spacing must show
+where one family ends: equal gaps everywhere state one family. Where the
+graph DOES declare a difference — different cluster membership, a
+different kind of target — the picture may and should state it. The
+converse is the whole rule: nothing may look different for a reason the
+graph cannot supply, and nothing may look alike that the graph
+distinguishes.
+
 The enforcement points are structural, not per-picture: the layout owns
 I1's territories and gap floors; the channel allocator owns I2's lanes
 and I3's bands; attachment owns I1's borders; the routed staircase owns

@@ -510,8 +510,78 @@ pub fn coords(
     // -- the pass can only move a parent between positions it was already
     // allowed to hold. Bottom-up, so a grandparent centres over children
     // that have already taken their own final places.
+    // AIR BETWEEN FAMILIES, on every graph and not only on trees.
+    //
+    // tidyTerritories already opens a gap between cousins -- but it is
+    // FOREST ONLY, because it shifts whole subtrees and a node with two
+    // parents belongs to two of them. So the moment a graph gains one
+    // shared child, every rank in it goes back to being evenly spaced:
+    // six nodes in two families of three, all 57px apart, and a reader
+    // cannot see where one family ends. The structure was right and the
+    // grouping was gone -- and real diagrams are DAGs far more often
+    // than they are trees.
+    //
+    // Whitespace is a semantic channel: proximity is the oldest grouping
+    // cue a reader has, so equal spacing states equal relatedness. This
+    // pass claims none of tidyTerritories' subtree reasoning. It asks
+    // only what a reader asks -- do these two neighbours share a parent
+    // -- and opens the same 0.40 of a separation when they do not, by
+    // sliding the rest of the rank along. Idempotent with the forest
+    // pass, which has already opened exactly that much.
+    familyAir(in_off, in_src, order, starts, sep, extra, x);
+
     centerParents(in_off, out_off, out_dst, order, starts, sep, extra, x);
     return OK;
+}
+
+/// Two nodes are SIBLINGS when their parent sets meet, and COUSINS when
+/// they do not. A tree makes this "same parent"; a DAG needs the sets,
+/// and the sets are what a reader is judging anyway -- two nodes fed by
+/// the same thing look like a pair whether or not the graph is a tree.
+fn sharesParent(in_off: []const u32, in_src: []const u32, a: u32, b: u32) bool {
+    var i = in_off[a];
+    while (i < in_off[a + 1]) : (i += 1) {
+        var j = in_off[b];
+        while (j < in_off[b + 1]) : (j += 1) {
+            if (in_src[i] == in_src[j]) return true;
+        }
+    }
+    return false;
+}
+
+/// The gap that makes a family visible. Applied per rank, sliding the
+/// remainder of the rank rather than any subtree, so it is safe on a
+/// graph tidyTerritories must refuse.
+fn familyAir(
+    in_off: []const u32,
+    in_src: []const u32,
+    order: []const u32,
+    starts: []const u32,
+    sep: f64,
+    extra: []const f64,
+    x: []f64,
+) void {
+    const nl = starts.len - 1;
+    var L: usize = 0;
+    while (L < nl) : (L += 1) {
+        const s = starts[L];
+        const e = starts[L + 1];
+        var k = s + 1;
+        while (k < e) : (k += 1) {
+            const prev = order[k - 1];
+            const cur = order[k];
+            if (sharesParent(in_off, in_src, prev, cur)) continue;
+            const want = x[prev] + sep + demand(extra, prev) +
+                demand(extra, cur) + sep * 0.40;
+            const need = want - x[cur];
+            if (need > 0) {
+                var j = k;
+                while (j < e) : (j += 1) {
+                    x[order[j]] += need;
+                }
+            }
+        }
+    }
 }
 
 /// A parent sits at the MIDDLE of its children's span, not merely inside
