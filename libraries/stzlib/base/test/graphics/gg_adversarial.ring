@@ -1493,6 +1493,60 @@ chk("the near-miss census DISCRIMINATES", _NearMissEdges(oV, aVB) > 0)
 
 #---------------------------------------------------------------------------
 ? ""
+? "-- 27. A FOREIGN edge never traverses a cluster's surface ---"
+#
+# The Principal's rule verbatim: an edge of a node not belonging to a
+# cluster must never traverse the surface of that cluster. The ortho
+# channel picked the geometric middle of its rank gap with no idea
+# clusters existed, and Backend's frame reaches up into that gap -- so a
+# Web-to-Logger channel ran INSIDE the frame, drawing a relationship
+# with the cluster that does not exist. The rule is asymmetric on
+# purpose: a MEMBER's edge may exit through its own frame.
+#
+# Asserted at the decision point, on the same rects the render stored.
+#---------------------------------------------------------------------------
+
+oFC = new stzDiagram("svc27")
+for a in [ [ "lb", "Balancer" ], [ "web1", "Web A" ], [ "web2", "Web B" ],
+           [ "api1", "API A" ], [ "api2", "API B" ],
+           [ "db1", "DB A" ], [ "db2", "DB B" ], [ "log", "Logger" ] ]
+	oFC.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
+next
+oFC.AddEdge("lb", "web1")    oFC.AddEdge("lb", "web2")
+oFC.AddEdge("web1", "api1")  oFC.AddEdge("web2", "api2")
+oFC.AddEdge("api1", "db1")   oFC.AddEdge("api2", "db2")
+oFC.AddEdge("web1", "log")   oFC.AddEdge("api2", "log")
+oFC.AddClusterXTT("backend", "Backend",
+	[ "api1", "api2", "db1", "db2" ], "#5E35B1")
+oFC.SetSplines("ortho")
+oFC.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+
+aFR = oFC.RenderClusterRects()
+chk("the render stored its cluster rects", len(aFR) >= 1)
+aR1 = aFR[1]
+nInY = aR1[2] + aR1[4] / 2
+nX1 = aR1[1] - 50
+nX2 = aR1[1] + aR1[3] + 50
+
+nOut = oFC._ForeignFreeChannel(nInY, nX1, nX2, "web1", "log", 0)
+? "   a foreign channel proposed at " + nInY + " was moved to " + nOut
+chk("a FOREIGN channel is pushed off the cluster's surface",
+    nOut < aR1[2] or nOut > aR1[2] + aR1[4])
+
+nMem = oFC._ForeignFreeChannel(nInY, nX1, nX2, "api2", "log", 0)
+? "   the same channel for a MEMBER's edge stays at " + nMem
+chkeq("...while a member's edge may cross its own frame", nMem, nInY)
+
+# THE NEGATIVE SIBLING: a foreign run whose span does not overlap the
+# cluster must be left alone -- otherwise this is not avoidance, it is a
+# blanket ban that would push every channel in the picture around.
+nFar = oFC._ForeignFreeChannel(nInY, aR1[1] + aR1[3] + 100,
+	aR1[1] + aR1[3] + 400, "web1", "log", 0)
+? "   a foreign run beside (not over) the cluster stays at " + nFar
+chkeq("the veto DISCRIMINATES by overlap, not by name", nFar, nInY)
+
+#---------------------------------------------------------------------------
+? ""
 ? "=============================================================="
 ? " " + nOk + " ok, " + nBad + " failed"
 ? "=============================================================="
