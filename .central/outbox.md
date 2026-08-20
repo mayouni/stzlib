@@ -734,3 +734,13 @@ note:      three Ring facts were paid for here and are written where they
            (3) `def Load()` is a C6 and a second `func Swap()` is a C22.
 ```
 ---
+
+--- FROM: stzlib | 2026-08-20 15:48 | CLOSE
+Prompt 46, rows 1 and 2, delivered. Full memo filed in
+softanza/journal/2026-08-20.md (envelope "prompt 46 rows 1-2 delivered") and
+softanza/dashboard/SESSION-LOG.md. Short version: base/agentic/stzAgentRoster.ring
+backs the six ring: functions both .pia files named; both now load with zero
+findings; 31-assertion narrated suite green (base/test/agentic/roster_narrated.ring);
+no regression in the other 7 agentic suites; commit d6fa4b213, pushed to both
+remotes and verified on codeberg via ls-remote. Nothing waiting on Central.
+---
