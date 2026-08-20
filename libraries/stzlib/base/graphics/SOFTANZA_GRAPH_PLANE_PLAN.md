@@ -759,6 +759,14 @@ converse is the whole rule: nothing may look different for a reason the
 graph cannot supply, and nothing may look alike that the graph
 distinguishes.
 
+**I6 — THE PICTURE FOLLOWS THE GRAPH'S OWN EMPHASIS.** Where the graph
+distinguishes a way onward — one child carrying a longer continuation
+than its siblings — the drawing says so: the line runs straight and the
+branches hang aside. Where the graph does not distinguish, the drawing
+must not either: equal branches tie and the parent centres. A tie is not
+indecision, it is the graph reporting that the line has split, and a
+picture that picks a side there invents emphasis.
+
 The enforcement points are structural, not per-picture: the layout owns
 I1's territories and gap floors; the channel allocator owns I2's lanes
 and I3's bands; attachment owns I1's borders; the routed staircase owns

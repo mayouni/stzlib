@@ -603,6 +603,28 @@ fn centerParents(
     extra: []const f64,
     x: []f64,
 ) void {
+    // how far the graph continues below each node, so a parent can tell
+    // a passing branch from the line that carries on
+    const n = x.len;
+    const height = alloc.alloc(u32, n) catch return;
+    defer alloc.free(height);
+    @memset(height, 0);
+    var hl: usize = starts.len - 1;
+    while (hl > 0) {
+        hl -= 1;
+        var hk = starts[hl];
+        while (hk < starts[hl + 1]) : (hk += 1) {
+            const v = order[hk];
+            var hj = out_off[v];
+            var best: u32 = 0;
+            while (hj < out_off[v + 1]) : (hj += 1) {
+                const c = out_dst[hj];
+                if (height[c] + 1 > best) best = height[c] + 1;
+            }
+            height[v] = best;
+        }
+    }
+
     var L: usize = starts.len - 1;
     while (L > 0) {
         L -= 1;
@@ -639,7 +661,47 @@ fn centerParents(
                 owned += 1;
             }
             if (owned < 2) continue;
-            const mid = (clo + chi) / 2;
+            // ...AND A SPINE OUTRANKS THE MIDDLE, where one exists.
+            //
+            // Centring a parent between a chain child and a leaf child
+            // moves it half a pitch off the chain, and over five ranks
+            // that accumulates: a five-stage pipeline drew as a diagonal
+            // staircase 468px wide, with the main line -- the thing a
+            // reader follows -- the least visible structure in the
+            // picture.
+            //
+            // So the two rules become one: a parent stands over the child
+            // that carries the LONGEST CONTINUATION when exactly one
+            // child does, and at the middle of its children when none
+            // stands out. A fan's children are all leaves and tie at
+            // once, so centring is untouched; two branches of equal depth
+            // tie too, which is why a balanced tree keeps its centred
+            // root. Only where the graph itself says "this way onward"
+            // does the picture say it as well.
+            var target = (clo + chi) / 2;
+            var best_h: u32 = 0;
+            var best_c: u32 = 0;
+            var ties: u32 = 0;
+            j = out_off[v];
+            while (j < out_off[v + 1]) : (j += 1) {
+                const c = out_dst[j];
+                if (in_off[c + 1] - in_off[c] != 1) continue;
+                if (height[c] > best_h or ties == 0) {
+                    if (height[c] > best_h) {
+                        best_h = height[c];
+                        best_c = c;
+                        ties = 1;
+                    } else if (ties == 0) {
+                        best_h = height[c];
+                        best_c = c;
+                        ties = 1;
+                    }
+                } else if (height[c] == best_h) {
+                    ties += 1;
+                }
+            }
+            if (ties == 1 and best_h > 0) target = x[best_c];
+            const mid = target;
             if (@abs(mid - x[v]) < 0.0001) continue;
             if (k > s) {
                 const p = order[k - 1];
