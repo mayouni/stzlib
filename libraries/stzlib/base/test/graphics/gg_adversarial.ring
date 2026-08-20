@@ -3022,6 +3022,161 @@ chk("no chain, no spine -- the fan stays centred",
 
 #---------------------------------------------------------------------------
 ? ""
+sec("-- 39. GG8: a picture larger than its medium is TILED -------")
+#
+# "Whole" is exactly what fails. A GPU texture stops at 8192 in either
+# axis -- this library shipped that as a refusal -- and print never had a
+# whole at all; dot has tiled PostScript across A4 since the eighties for
+# the same reason. So a page is not a crop of a big image, because the
+# big image is the thing that cannot exist. Each sheet is the SAME
+# retained scene drawn through a moved projection: one engine addition
+# (render-region), which is also exactly what a viewer panning a huge
+# diagram needs, so tiling and panning are one feature and not two.
+#
+# THE SEAM IS THE PROPERTY, and it is asserted as what the hardware
+# actually offers. A tile and the whole render divide the same coordinate
+# by different widths, so the rasteriser can land an antialiased edge one
+# quantisation level apart -- 79 pixels of 100,000, each off by one in
+# one channel. Computing the projection in f64 changes nothing, which is
+# how we know it is coverage arithmetic and not displacement. Claiming
+# bit-identity would have been claiming something untrue; the assertion
+# is that NOTHING MOVES, with a negative sibling showing what a real
+# displacement looks like -- one pixel of shift, differences far past one
+# level.
+#
+# Building it found the refusal refusing its own cure: ToPages had to
+# ask for a canvas of the full size, and the 8192 check raised before any
+# tile existed. The check now stands aside for a tiling caller and names
+# ToPages as the way out, so the dead end is retired rather than routed
+# around.
+#---------------------------------------------------------------------------
+
+
+PFONT = new stzFont("C:/Windows/Fonts/segoeui.ttf")
+aPO = [ :Font = PFONT, :NodeWidth = 96, :NodeHeight = 36, :FontSize = 13 ]
+
+oWd = new stzDiagram("wide40")
+oWd.AddNodeXTT("root", "Root", [ :type = "box", :color = "Info.Solid" ])
+for i = 1 to 14
+	oWd.AddNodeXTT("k" + i, "Worker " + i,
+		[ :type = "box", :color = "Info.Solid" ])
+	oWd.AddEdge("root", "k" + i)
+next
+oWd.SetSplines("ortho")
+oWc = oWd.ToCanvasXT(aPO)
+? "   the picture is " + oWc.Width() + "x" + oWc.Height()
+
+# THE SEAM IS THE PROPERTY: a tile must be the same pixels the whole
+# render has there. Not similar -- the same, because a tile is the scene
+# through a moved projection and not a resampling of anything.
+cRef = oWc.ToPixels()
+nPW = 500  nPH = 200
+nOX = 700  nOY = 40
+oWc.SetRegion(nOX, nOY, nPW, nPH)
+cTile = oWc.ToPixels()
+oWc.ClearRegion()
+# NOTHING MOVES -- which is the property, and it is not bit-identity.
+# The tile and the whole render divide the same coordinate by DIFFERENT
+# widths, so the rasteriser's coverage arithmetic can land an
+# antialiased edge one quantisation level apart. Computing the
+# projection in f64 changes nothing, which is how we know it is the
+# hardware's rounding and not a displacement. So the seam is asserted as
+# what it is: every pixel either identical or one level off, and no
+# pixel anywhere showing a different SHAPE.
+nDiff = 0
+nMaxD = 0
+for y = 0 to nPH - 1
+	for x = 0 to nPW - 1
+		i = (y * nPW + x) * 4 + 1
+		j = ((y + nOY) * oWc.Width() + (x + nOX)) * 4 + 1
+		nD = max([ fabs(ascii(cTile[i]) - ascii(cRef[j])),
+		           fabs(ascii(cTile[i+1]) - ascii(cRef[j+1])),
+		           fabs(ascii(cTile[i+2]) - ascii(cRef[j+2])) ])
+		if nD > 0  nDiff++  ok
+		if nD > nMaxD  nMaxD = nD  ok
+	next
+next
+? "   a 500x200 tile against the same rectangle of the whole render : " +
+  nDiff + " pixels differ, by at most " + nMaxD + " of 255"
+chk("a tile IS the picture there -- nothing moved", nMaxD <= 1)
+chk("...and even the rounding is rare", nDiff < nPW * nPH / 100)
+
+# THE NEGATIVE SIBLING: the comparison must be able to fail. The same
+# tile against a rectangle one pixel to the left has to differ, or the
+# check above is comparing something to itself.
+nOff = 0
+nMaxOff = 0
+for y = 0 to nPH - 1
+	for x = 0 to nPW - 1
+		i = (y * nPW + x) * 4 + 1
+		j = ((y + nOY) * oWc.Width() + (x + nOX - 1)) * 4 + 1
+		nD = fabs(ascii(cTile[i]) - ascii(cRef[j]))
+		if nD > 0  nOff++  ok
+		if nD > nMaxOff  nMaxOff = nD  ok
+	next
+next
+? "   ...against a rectangle shifted ONE pixel : " + nOff +
+  " differ, by up to " + nMaxOff
+chk("the seam check DISCRIMINATES", nOff > 100 and nMaxOff > 1)
+
+# THE SHEETS THEMSELVES
+aPg = oWd.ToPagesXT("_g40.png", [ :Font = PFONT, :NodeWidth = 96,
+	:NodeHeight = 36, :FontSize = 13, :Page = :A4, :DPI = 96 ])
+? "   A4 at 96dpi : " + len(aPg) + " sheet(s)"
+chk("a picture wider than a page becomes several", len(aPg) >= 2)
+bAll = 1
+for aS in aPg
+	if NOT (isString(aS[1]) and len(read(aS[1])) > 1000)  bAll = 0  ok
+next
+chk("every sheet was actually written", bAll)
+
+# THE TILES COVER THE PICTURE, with the overlap they promise: the second
+# column starts before the first one ends.
+nStep = aPg[2][4] - aPg[1][4]
+nPgW = floor(210 / 25.4 * 96)
+? "   sheets step " + nStep + "px across a " + nPgW + "px page, so they " +
+  "overlap by " + (nPgW - nStep) + "px"
+chk("consecutive sheets share a glue margin", nPgW - nStep > 20)
+nLast = aPg[len(aPg)][4] + nPgW
+? "   the last sheet ends at " + nLast + ", the picture at " + oWc.Width()
+chk("the sheets cover the whole picture", nLast >= oWc.Width())
+
+# ...AND THE 8192 DEAD END IS RETIRED. A picture past the GPU's texture
+# limit is refused outright by ToPNG -- that refusal is correct and
+# stays -- but it now has an honest way out that is not "make it
+# smaller".
+oBig = new stzDiagram("big40")
+oBig.AddNodeXTT("r", "R", [ :type = "box", :color = "Info.Solid" ])
+for i = 1 to 60
+	oBig.AddNodeXTT("n" + i, "Node " + i,
+		[ :type = "box", :color = "Info.Solid" ])
+	oBig.AddEdge("r", "n" + i)
+next
+oBig.SetSplines("ortho")
+# measured with :Tiled, because asking for the whole thing is exactly
+# what this picture refuses -- and refusing is correct
+aBigO = [ :Font = PFONT, :NodeWidth = 96, :NodeHeight = 36,
+          :FontSize = 13, :Tiled = 1 ]
+nBigW = oBig.ToCanvasXT(aBigO).Width()
+? "   an oversize picture is " + nBigW + "px wide"
+chk("the scene really is past what one texture can hold", nBigW > 8192)
+# ...and asking for it WHOLE is still refused, naming the way out
+bRefused = 0
+try
+	oBig.ToCanvasXT(aPO)
+catch
+	if StzFindFirst("ToPages", cCatchError) > 0  bRefused = 1  ok
+done
+? "   asking for it whole is refused, and the refusal names ToPages : " +
+  bRefused
+chk("the refusal stands, and now has an answer", bRefused = 1)
+aBigPg = oBig.ToPagesXT("_b40.png", [ :Font = PFONT, :NodeWidth = 96,
+	:NodeHeight = 36, :FontSize = 13, :Page = :A4, :DPI = 96 ])
+? "   ...and prints as " + len(aBigPg) + " A4 sheets"
+chk("a picture too big to render whole still prints", len(aBigPg) >= 8)
+
+#---------------------------------------------------------------------------
+? ""
 if nSecClock > 0
 	? "        [section took " +
 	  ((clock() - nSecClock) / clockspersecond()) + "s]"

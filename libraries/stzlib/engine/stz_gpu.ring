@@ -170,6 +170,11 @@
 #       (x,y) is the BASELINE origin, as the text pipeline reports it
 #   StzEngineGpuSceneToSvg(id) -> SVG text
 #   StzEngineGpuSceneToPng(id, nLevel) -> PNG bytes
+#   StzEngineGpuSceneSetView(id, x, y, w, h) -> 1/0
+#       RENDER-REGION: the scene draws that rectangle of itself, into a
+#       target of that size. w = 0 restores the whole picture. Tiling a
+#       picture larger than a GPU texture and panning a viewer over one
+#       are the same feature seen twice.
 #   StzEngineGpuSceneToPixels(id) -> raw RGBA8 of the GPU tier
 #   StzEngineGpuSceneCommandCount(id)
 #   StzEngineGpuSceneStats(id)
