@@ -12,6 +12,7 @@
 
 const std = @import("std");
 const embed = @import("neural_embed.zig");
+const gm = @import("gbnf_machine.zig");
 const c = @cImport({
     @cInclude("ggml.h");
     @cInclude("ggml-cpu.h");
@@ -167,6 +168,9 @@ fn freeBpe() void {
         g_specials.clearAndFree(gpa);
         g_eog.clearAndFree(gpa);
         g_bpe_built = false;
+        // the decoded-piece cache is keyed to THIS vocabulary; a new model
+        // means new pieces, and a stale one would mask the wrong tokens
+        g_pieces_ready = false;
     }
 }
 
@@ -635,6 +639,23 @@ fn sampleId(temp: f32, top_p: f32, top_k: c_int) i32 {
     const cands = gpa.alloc(Cand, n) catch return argmaxLogits();
     defer gpa.free(cands);
     for (g_logits.items, 0..) |v, i| cands[i] = .{ .id = @intCast(i), .v = v };
+    return sampleFrom(cands, temp, top_p, top_k);
+}
+
+// The draw itself, over WHATEVER candidates it is handed. Split out of
+// sampleId so the grammar path can hand it the surviving candidates and
+// get the same temperature / top-k / top-p behaviour, rather than growing
+// a second sampler that drifts from this one.
+fn sampleFrom(cands: []Cand, temp: f32, top_p: f32, top_k: c_int) i32 {
+    const n = cands.len;
+    if (n == 0) return -1;
+    if (temp <= 0) {
+        var best = cands[0];
+        for (cands[1..]) |cd| {
+            if (cd.v > best.v) best = cd;
+        }
+        return best.id;
+    }
     std.mem.sort(Cand, cands, {}, candDesc);
     var k: usize = if (top_k > 0) @min(@as(usize, @intCast(top_k)), n) else n;
     if (k > 200) k = 200; // hard cap: the tail is numerically irrelevant
@@ -668,6 +689,186 @@ fn sampleId(temp: f32, top_p: f32, top_k: c_int) i32 {
         if (r <= acc2) return cands[i].id;
     }
     return cands[kept - 1].id;
+}
+
+// ---- GRAMMAR-CONSTRAINED DECODING ----------------------------------------------
+//
+// THE DIFFERENCE THIS MAKES, AND THE ONLY CLAIM IT EARNS. Without it, a
+// schema is CHECKED after the model has spoken: measured on the model this
+// repository ships, 5.0 calls per valid answer and 4 inputs in 10 that no
+// number of retries rescues (base/test/neural/_measure_structured.ring).
+// With it, a token that would violate the grammar is never among the
+// candidates -- the violation is UNEMITTABLE rather than caught.
+//
+// It constrains SHAPE ONLY. `city: Paris` and `city: Tokyo` are equally
+// grammatical, and no grammar makes a wrong answer right. The Ring court in
+// stzOutputSchema still checks every value constraint, and schema_gbnf's
+// stz_gbnf_unenforced() lists them by name.
+//
+// HOW A CANDIDATE IS JUDGED. A token is not a byte: its piece may be
+// several bytes, and a piece whose first bytes fit while its last does not
+// must be refused (the `yesterday` case, unit-tested in gbnf_machine.zig).
+// So the machine is cloned and fed the WHOLE piece, and only a piece that
+// survives to its last byte is allowed to be drawn.
+//
+// THE COST, HONESTLY. The judgement runs over the whole vocabulary at every
+// step. A one-byte prefilter (the set of bytes any live position could take
+// next) throws away the great majority before the whole-piece test runs,
+// and the decoded piece of every token is cached once per model rather than
+// rebuilt per step.
+
+var g_gram_on: bool = false;
+var g_gram_masked: usize = 0; // candidates refused across this generation
+var g_gram_seen: usize = 0; // candidates judged across this generation
+var g_gram_steps: usize = 0;
+var g_gram_stalled: bool = false; // the grammar admitted NO token at some step
+
+// Every token's decoded bytes, once per model. Control tokens decode to
+// nothing (decodeInto skips them), which is what keeps them out of the
+// candidate set unless the grammar is complete and they are end-of-generation.
+var g_piece_buf: std.ArrayList(u8) = .{};
+var g_piece_off: std.ArrayList(u32) = .{};
+var g_pieces_gen: usize = 0;
+var g_pieces_ready: bool = false;
+
+fn buildPieces() bool {
+    if (!buildBpe()) return false;
+    if (g_pieces_ready and g_pieces_gen == embed.model_generation) return true;
+    g_piece_buf.clearRetainingCapacity();
+    g_piece_off.clearRetainingCapacity();
+    var one: std.ArrayList(u8) = .{};
+    defer one.clearAndFree(gpa);
+    for (0..g_n_vocab) |i| {
+        g_piece_off.append(gpa, @intCast(g_piece_buf.items.len)) catch return false;
+        one.clearRetainingCapacity();
+        const ids = [1]i32{@intCast(i)};
+        decodeInto(ids[0..], &one);
+        g_piece_buf.appendSlice(gpa, one.items) catch return false;
+    }
+    g_piece_off.append(gpa, @intCast(g_piece_buf.items.len)) catch return false;
+    g_pieces_gen = embed.model_generation;
+    g_pieces_ready = true;
+    return true;
+}
+
+fn tokenPiece(id: usize) []const u8 {
+    if (!g_pieces_ready or id + 1 >= g_piece_off.items.len) return "";
+    const a = g_piece_off.items[id];
+    const b = g_piece_off.items[id + 1];
+    return g_piece_buf.items[a..b];
+}
+
+fn sampleIdConstrained(temp: f32, top_p: f32, top_k: c_int) i32 {
+    const n = @min(g_logits.items.len, g_n_vocab);
+    if (n == 0) return -1;
+
+    var mask: [32]u8 = undefined;
+    gm.firstByteMask(&mask);
+    const can_end = gm.stz_grammar_can_end() != 0;
+
+    const cands = gpa.alloc(Cand, n + 8) catch return -1;
+    defer gpa.free(cands);
+    var kept: usize = 0;
+    var seen: usize = 0;
+
+    for (0..n) |i| {
+        const pc = tokenPiece(i);
+        if (pc.len == 0) continue; // a control token: never text, judged below
+        seen += 1;
+        const b = pc[0];
+        if ((mask[b >> 3] & (@as(u8, 1) << @intCast(b & 7))) == 0) continue;
+        if (!gm.canAcceptBytes(pc)) continue;
+        cands[kept] = .{ .id = @intCast(i), .v = g_logits.items[i] };
+        kept += 1;
+    }
+    g_gram_seen += seen;
+    g_gram_masked += seen - kept;
+
+    // End-of-generation is legal exactly when the grammar is SATISFIED. That
+    // is the whole stopping rule: the model may not stop mid-structure, and
+    // it may not continue past a completed one without the grammar allowing it.
+    if (can_end) {
+        for (g_eog.items) |e| {
+            const ei: usize = @intCast(e);
+            if (e < 0 or ei >= g_logits.items.len) continue;
+            if (kept >= cands.len) break;
+            cands[kept] = .{ .id = e, .v = g_logits.items[ei] };
+            kept += 1;
+        }
+    }
+
+    if (kept == 0) {
+        // Not a silent truncation: the grammar admitted nothing here, and
+        // neural_gen_grammar_stalled() says so to whoever asks.
+        g_gram_stalled = true;
+        return -1;
+    }
+    return sampleFrom(cands[0..kept], temp, top_p, top_k);
+}
+
+// Install a grammar. 0 = installed; anything else is gbnf_machine's refusal
+// code, with the sentence in stz_grammar_last_refusal().
+pub export fn neural_gen_set_grammar(text: [*c]const u8, len: usize) callconv(.c) c_int {
+    if (text == null or len == 0) {
+        neural_gen_clear_grammar();
+        return 0;
+    }
+    const rc = gm.stz_grammar_set(text, len);
+    if (rc != 0) {
+        g_gram_on = false;
+        return rc;
+    }
+    if (!buildPieces()) {
+        g_gram_on = false;
+        gm.stz_grammar_clear();
+        return -100; // no tokenizer to mask over: no model, or no vocabulary
+    }
+    g_gram_on = true;
+    g_gram_masked = 0;
+    g_gram_seen = 0;
+    g_gram_steps = 0;
+    g_gram_stalled = false;
+    return 0;
+}
+
+pub export fn neural_gen_clear_grammar() callconv(.c) void {
+    g_gram_on = false;
+    gm.stz_grammar_clear();
+}
+
+pub export fn neural_gen_grammar_active() callconv(.c) c_int {
+    return if (g_gram_on) 1 else 0;
+}
+
+// Candidates the grammar refused during the last generation, and how many
+// it judged. The ratio is the honest picture of what masking did.
+pub export fn neural_gen_grammar_masked() callconv(.c) c_int {
+    return @intCast(@min(g_gram_masked, @as(usize, 2000000000)));
+}
+
+pub export fn neural_gen_grammar_judged() callconv(.c) c_int {
+    return @intCast(@min(g_gram_seen, @as(usize, 2000000000)));
+}
+
+pub export fn neural_gen_grammar_steps() callconv(.c) c_int {
+    return @intCast(g_gram_steps);
+}
+
+// TRUE when some step had NO legal token at all. The generation stopped
+// there; it did not quietly produce something else.
+pub export fn neural_gen_grammar_stalled() callconv(.c) c_int {
+    return if (g_gram_stalled) 1 else 0;
+}
+
+// TRUE when the grammar is SATISFIED where generation stopped -- the
+// difference between a whole answer and one cut off by the token budget.
+pub export fn neural_gen_grammar_complete() callconv(.c) c_int {
+    if (!g_gram_on) return 0;
+    return gm.stz_grammar_can_end();
+}
+
+pub export fn neural_gen_grammar_refusal(out: [*c]u8) callconv(.c) c_int {
+    return gm.stz_grammar_last_refusal(@ptrCast(out));
 }
 
 // ---- generation: STREAM session -------------------------------------------------
@@ -720,6 +921,16 @@ pub export fn neural_gen_start_x(text: [*c]const u8, len: usize, max_new: c_int,
     // splitmix expansion gives a 32-bit seed a full-quality state. The
     // audit note calling this a truncation defect was a misdiagnosis.
     g_prng = std.Random.DefaultPrng.init(@as(u32, @bitCast(seed)));
+    // A grammar constrains THIS generation from its first token: the
+    // machine goes back to the start of the grammar, and the counters that
+    // report what masking did go back to zero with it.
+    if (g_gram_on) {
+        _ = gm.stz_grammar_reset();
+        g_gram_masked = 0;
+        g_gram_seen = 0;
+        g_gram_steps = 0;
+        g_gram_stalled = false;
+    }
     g_stream_active = true;
     return 1;
 }
@@ -730,10 +941,19 @@ pub export fn neural_gen_next() callconv(.c) c_int {
         g_stream_active = false;
         return 0;
     }
-    const id = sampleId(g_stream_temp, g_stream_topp, g_stream_topk);
+    const id = if (g_gram_on)
+        sampleIdConstrained(g_stream_temp, g_stream_topp, g_stream_topk)
+    else
+        sampleId(g_stream_temp, g_stream_topp, g_stream_topk);
     if (id < 0 or isEog(id)) {
         g_stream_active = false;
         return 0;
+    }
+    // The machine really moves here. It cannot refuse: the candidate was
+    // drawn from the set the same machine judged one moment ago.
+    if (g_gram_on) {
+        _ = gm.acceptBytes(tokenPiece(@intCast(id)));
+        g_gram_steps += 1;
     }
     g_chunk.clearRetainingCapacity();
     var one = [1]i32{id};
