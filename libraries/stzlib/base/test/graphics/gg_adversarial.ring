@@ -1518,6 +1518,7 @@ oFC.AddEdge("api1", "db1")   oFC.AddEdge("api2", "db2")
 oFC.AddEdge("web1", "log")   oFC.AddEdge("api2", "log")
 oFC.AddClusterXTT("backend", "Backend",
 	[ "api1", "api2", "db1", "db2" ], "#5E35B1")
+oFC.AddClusterXTT("data", "Data", [ "db1", "db2" ], "#2E7D32")
 oFC.SetSplines("ortho")
 oFC.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
 
@@ -1572,11 +1573,27 @@ chk("the channel sits at the MIDDLE of its free band",
 # 5px recentring. What the permission actually grants is that the
 # member's channel may REMAIN on its own frame's surface, where the
 # foreign one above was thrown off it.
-nFree = aR1[2] + 10
-nMem = oFC._ChannelBand(nFree, nX1, nX2, "api2", "log", 0, -100000, 100000)
-? "   a member's channel proposed on its frame lands at " + nMem
+# ...probed at the centre of a free band DEEP INSIDE the frame -- the
+# API-to-Data band -- because any proposal in an interior gap is
+# recentred to that gap's centre, and near the frame's edge that centre
+# can honestly fall a pixel outside. Asserting "stays within the frame"
+# there failed a correct 1.7px recentring. The mechanism under test is
+# that NO VETO applies to a member: at an interior centre the position
+# must come back untouched, where a foreign edge's channel (asserted
+# above) is thrown out of the frame entirely.
+nApiB = -1000000
+for aN in oFC.RenderNodeRects()
+	if aN[5] = "api2"
+		nApiB = aN[2] + aN[4]
+	ok
+next
+aDR = aFR[2]
+nProbe = (nApiB + aDR[2]) / 2
+nMem = oFC._ChannelBand(nProbe, nX1, nX2, "api2", "log", 0, -100000, 100000)
+? "   a member's channel at its in-frame band centre " + nProbe +
+  " lands at " + nMem
 chk("...while a member's edge may remain on its own frame",
-    nMem >= aR1[2] and nMem <= aR1[2] + aR1[4])
+    fabs(nMem - nProbe) < 2 and nMem > aR1[2] and nMem < aR1[2] + aR1[4])
 
 # THE CLEARANCE IS A LEGIBILITY QUANTITY, and it is asserted as one. The
 # first push used a flat 10px, which the Principal rejected on the right
@@ -1627,6 +1644,60 @@ nFar = oFC._ChannelBand(nInY, aR1[1] + aR1[3] + 100,
 	aR1[1] + aR1[3] + 400, "web1", "log", 0, -100000, 100000)
 ? "   a foreign run beside (not over) the cluster stays at " + nFar
 chkeq("the veto DISCRIMINATES by overlap, not by name", nFar, nInY)
+
+#---------------------------------------------------------------------------
+? ""
+? "-- 28. A crossing is JUMPED, electric-diagram style ------------"
+#
+# The Principal's rule verbatim: when the Web-A-to-Logger channel
+# traverses the Web-B-to-API-B line it must do like electric diagrams
+# and use a demi-cercle, so the reader understands the link does not
+# include Web B and API B at all. Two lines that merely cross must not
+# LOOK like two lines that meet -- incidence is meaning (I1), and a
+# painted-over crossing manufactures incidence.
+#
+# The hop is the only place ortho mode is ALLOWED a diagonal, and only
+# a short one: the semicircle is sampled into chords no longer than its
+# radius. So the assertion is two-sided -- diagonals EXIST at a
+# crossing, and every one of them is hop-short. A long diagonal would
+# be oblique routing sneaking back in under the hop's exemption.
+#---------------------------------------------------------------------------
+
+cHopSvg = oFC.ToSVGXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+aChords = _DiagChords(cHopSvg, EDGERGB)
+? "   diagonal chords in the crossing picture : " + len(aChords)
+chk("a crossing produces hop arcs", len(aChords) > 0)
+nLongest = _MaxOf(aChords)
+? "   the longest is " + nLongest + "px against the hop radius"
+chk("every diagonal is hop-short, none is oblique routing",
+    nLongest <= max([ 5, 10 * 0.8 ]) + 0.5)
+
+# THE MIRROR: left-to-right swaps the axes and the hop must follow --
+# on the SAME graph, because a first draft of this check dropped the DB
+# tier and Logger slid into the API rank: no crossing existed, and the
+# zero it measured was the correct answer to the wrong question.
+oFC.SetLayout(:LeftToRight)
+aChLR = _DiagChords(oFC.ToSVGXT([ :NodeWidth = 96, :NodeHeight = 36 ]),
+	EDGERGB)
+? "   left-to-right : " + len(aChLR) + " chords"
+chk("the hop follows the axes to left-to-right", len(aChLR) > 0)
+
+# THE NEGATIVE SIBLING: the same picture without the crossing edge has
+# no crossing to jump, so no diagonal survives anywhere -- otherwise
+# the counter is counting corner rounding again, or hops are being
+# stamped where nothing crosses.
+oNH = new stzDiagram("svc28")
+for a in [ [ "lb", "Balancer" ], [ "web1", "Web A" ], [ "web2", "Web B" ],
+           [ "api1", "API A" ], [ "api2", "API B" ] ]
+	oNH.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
+next
+oNH.AddEdge("lb", "web1")    oNH.AddEdge("lb", "web2")
+oNH.AddEdge("web1", "api1")  oNH.AddEdge("web2", "api2")
+oNH.SetSplines("ortho")
+aNoCross = _DiagChords(oNH.ToSVGXT([ :NodeWidth = 96, :NodeHeight = 36 ]),
+	EDGERGB)
+? "   without the crossing edge : " + len(aNoCross) + " chords"
+chkeq("no crossing, no hop -- the jump DISCRIMINATES", len(aNoCross), 0)
 
 #---------------------------------------------------------------------------
 ? ""
@@ -2081,6 +2152,42 @@ func _PixelsDiffering oA, oB
 # instrument was measuring corner rounding and calling it edge routing.
 # Edges are drawn in the edge colour and node borders are not, so the
 # stroke tells them apart exactly.
+# The diagonal chords themselves, not just their count -- section 28
+# asserts both that they exist at a crossing and that every one is
+# hop-short. Same colour filter as _NonAxialSegments, same reason.
+func _DiagChords cSvg, cStroke
+	_dc_ = []
+	_dlen_ = StzLen(cSvg)
+	for _dp_ in StzFindAll('<polyline points="', cSvg)
+		_dtail_ = StzSubStr(cSvg, _dp_, min([ 6000, _dlen_ - _dp_ + 1 ]))
+		_dq_ = StzFindFirst('"', StzSubStr(_dtail_, 19, StzLen(_dtail_) - 18))
+		if _dq_ = 0  loop  ok
+		_dpts_ = StzSubStr(_dtail_, 19, _dq_ - 1)
+		_dtagend_ = StzFindFirst(">", _dtail_)
+		if _dtagend_ = 0  loop  ok
+		if StzFindFirst(cStroke, StzSubStr(_dtail_, 1, _dtagend_)) = 0  loop  ok
+		_dprev_ = []
+		for _dpair_ in StzSplit(_dpts_, " ")
+			_dxy_ = StzSplit(StzTrim(_dpair_), ",")
+			if len(_dxy_) != 2  loop  ok
+			try
+				_dx_ = 0 + _dxy_[1]
+				_dy_ = 0 + _dxy_[2]
+			catch
+				loop
+			done
+			if len(_dprev_) = 2
+				if fabs(_dx_ - _dprev_[1]) > 0.5 and
+				   fabs(_dy_ - _dprev_[2]) > 0.5
+					_dc_ + sqrt(pow(_dx_ - _dprev_[1], 2) +
+						pow(_dy_ - _dprev_[2], 2))
+				ok
+			ok
+			_dprev_ = [ _dx_, _dy_ ]
+		next
+	next
+	return _dc_
+
 func _NonAxialSegments cSvg, cStroke
 	_nn_ = 0
 	_slen_ = StzLen(cSvg)
