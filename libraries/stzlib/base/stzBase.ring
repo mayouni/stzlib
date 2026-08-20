@@ -169,6 +169,7 @@ ok
     load "neural/stzNeuralEngine.ring"
     load "neural/stzNeuralModel.ring"
     load "neural/stzSemanticIndex.ring"
+    load "neural/stzOutputSchema.ring"
     load "neural/stzLLMFunction.ring"
 
     # Reflection: self-describing objects -- harvest a class's methods + docs from
