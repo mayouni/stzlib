@@ -705,3 +705,41 @@ GG8 before GG7: it is smaller, it retires a shipped refusal, and its
 render-region is a prerequisite piece of the live viewer anyway. GG7's
 hit-testing is the only other engine work; everything else is face
 composition over what this plane already proved.
+
+## THE VISUAL CONTRACT (2026-08-20, from the Principal's session of marks)
+
+Every correction the Principal made this session — territories, corridors,
+foreign surfaces, clearances, middles, merges — is one law seen from a
+different side. Stated once:
+
+> **A diagram is a visual language, not a painting. Every geometric
+> coincidence a reader can perceive is a semantic claim, so the picture
+> may contain no geometric relation that the graph does not contain.**
+
+Three invariants operationalise it. Every future edge/layout decision is
+judged against these, not against taste:
+
+**I1 — INCIDENCE IS MEANING.** Ink touches a node or cluster surface iff
+the graph relates them, and the touch is the attachment. This owns: the
+territory rule (no node inside a foreign subtree's span), the corridor
+veto (no run along a row), the foreign-surface rule (no crossing a
+cluster you don't belong to), square arrivals.
+
+**I2 — SHARED INK IS SHARED MEANING.** Two edges may run collinear only
+where they share the endpoint on that side of the shared ink — a trunk
+out of one source, a funnel into one target. Edges that merely both go
+somewhere NEVER merge: a reader who sees Web A's line join API B's line
+concludes Web A and API B share something, and the graph says they do
+not. Distinct channels, one lane each, spaced a clearance apart.
+
+**I3 — PROXIMITY IS LEGIBILITY.** Non-incident ink keeps _LineClearance()
+from all other ink; where a band cannot give it, the middle is the
+fairest position that exists. Gaps must be sized so a traversing line
+leaves visible space both sides — including the space clusters' chrome
+eats. Every such quantity scales with the render; a literal distance is
+a bug by construction.
+
+The enforcement points are structural, not per-picture: the layout owns
+I1's territories and gap floors; the channel allocator owns I2's lanes
+and I3's bands; attachment owns I1's borders. A new feature is done when
+it names which invariant it serves.

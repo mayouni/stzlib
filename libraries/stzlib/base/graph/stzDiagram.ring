@@ -317,6 +317,22 @@ class stzDiagram from stzGraph
 	# grazing a frame, and the row is what it was pushed into when only
 	# frames were known.
 	@aRenderNodeRects = []
+
+	# Channels already granted in this render: [ spanLo, spanHi, srcId, y ].
+	# THE VISUAL CONTRACT, I2: two edges may run collinear only where they
+	# share the endpoint on that side of the ink -- a trunk out of one
+	# source is one line honestly; two edges that merely both go somewhere
+	# are two lines, a clearance apart, or the reader concludes their
+	# sources share something the graph never said.
+	@aChanUsed = []
+
+	# Rank-axis segments of every ortho edge, collected on a DRY first
+	# pass: [ pos, lo, hi, edgeKey ]. THE WIRE HOP needs to know every
+	# line it might cross BEFORE anything is drawn -- an edge drawn early
+	# cannot hop a line that does not exist yet, which is why electric
+	# CAD does this in two passes too.
+	@aVertSegs = []
+	@nDrawPass = 2
 	@aoAnnotations = []
 	@aoTemplates = []
 
@@ -1606,6 +1622,18 @@ class stzDiagram from stzGraph
 		_nClr0_ = max([ 14, _nRad_ * 2 + 4 ])
 		_nSepR_ = max([ _nSepR_, _nClr0_ * 2 + _nEdgeW_ * 2 ])
 
+		# ...and clusters EAT the gap. A frame's top strip and padding live
+		# inside the rank gap above its first member row, so a gap that
+		# satisfies the floor on paper leaves a band narrower than one
+		# clearance above the frame -- which is where the Principal found
+		# a channel pinned against Web B with nowhere fair to stand. When
+		# clusters exist, the gap must fund the chrome AND the crossable
+		# band.
+		if len(@aClusters) > 0
+			_nSepR_ = max([ _nSepR_,
+				_nFsz_ * 1.9 + max([ 16, _nClr0_ * 0.75 ]) + _nClr0_ * 2 ])
+		ok
+
 		if _bNat_
 			# any provisional size -- only the FRACTIONS of it are read back
 			# LABELS STEER THE LAYOUT. Reserving gap HEIGHT gave a label
@@ -1969,6 +1997,7 @@ class stzDiagram from stzGraph
 		#    - LANES: each parent's orthogonal trunk crosses the rank gap at
 		#      its own height, cycled among four, so neighbouring trunks do
 		#      not overlap.
+		@aChanUsed = []
 		@aRenderNodeRects = []
 		for _nr_ in _aXY_
 			@aRenderNodeRects + [ _nr_[2] - _nBoxW_ / 2, _nr_[3] - _nBoxH_ / 2,
@@ -1978,6 +2007,20 @@ class stzDiagram from stzGraph
 		_aE_ = This.Edges()
 		_nEc_ = len(_aE_)
 		_aPort_ = This._EdgePorts(_aE_, _aXY_, _nBoxW_, _nBoxH_, _cRank_, _aRoute_)
+		# TWO PASSES under ortho: the first draws nothing and learns every
+		# rank-axis segment; the second draws with wire hops over the
+		# crossings the first pass revealed. One pass cannot hop a line
+		# that has not been drawn yet.
+		_nPassN_ = 1
+		if _cSpl_ = "ortho"  _nPassN_ = 2  ok
+		for _ePass_ = 1 to _nPassN_
+		if _cSpl_ = "ortho"
+			@nDrawPass = _ePass_
+			@aChanUsed = []
+			if _ePass_ = 1  @aVertSegs = []  ok
+		else
+			@nDrawPass = 2
+		ok
 		for _ei_ = 1 to _nEc_
 			_a_ = This._XYOf(_aXY_, "" + _aE_[_ei_][:from])
 			_b_ = This._XYOf(_aXY_, "" + _aE_[_ei_][:to])
@@ -1989,8 +2032,10 @@ class stzDiagram from stzGraph
 			# from the picture -- the most complete kind of rendering bug,
 			# because there is nothing wrong to notice.
 			if StzLower("" + _aE_[_ei_][:from]) = StzLower("" + _aE_[_ei_][:to])
-				This._DrawSelfLoop(_oC_, _a_, _nBoxW_, _nBoxH_, _cEdge_,
-					_nEdgeW_, _cRank_, _cSpl_)
+				if @nDrawPass = 2
+					This._DrawSelfLoop(_oC_, _a_, _nBoxW_, _nBoxH_, _cEdge_,
+						_nEdgeW_, _cRank_, _cSpl_)
+				ok
 				loop
 			ok
 
@@ -2013,8 +2058,10 @@ class stzDiagram from stzGraph
 				This._DrawEdgeXT(_oC_, _a_, _b_, _nBoxW_, _nBoxH_, _cEdge_,
 					_nEdgeW_, _cSpl_, _cRank_, _aPort_[_ei_][3],
 					_aPort_[_ei_][1], _aPort_[_ei_][2], _aPort_[_ei_][5],
-					"" + _aE_[_ei_][:from], "" + _aE_[_ei_][:to])
+					"" + _aE_[_ei_][:from], "" + _aE_[_ei_][:to],
+					_aPort_[_ei_][6])
 			ok
+		next
 		next
 
 		# 2b. EDGE LABELS, drawn LAST of the edge work and on a plate of the
@@ -2304,7 +2351,7 @@ class stzDiagram from stzGraph
 	def _EdgePorts(paEdges, paXY, nBoxW, nBoxH, cRank, paRoutes)
 		_epN_ = len(paEdges)
 		_epRes_ = []
-		for _epI_ = 1 to _epN_  _epRes_ + [ 0, 0, 0.5, 0, 0 ]  next
+		for _epI_ = 1 to _epN_  _epRes_ + [ 0, 0, 0.5, 0, 0, 0 ]  next
 		_bV_ = 0
 		if cRank = "LR" or cRank = "RL"  _bV_ = 1  ok    # slot axis = y
 		_epBox_ = nBoxW
@@ -2462,6 +2509,81 @@ class stzDiagram from stzGraph
 					exit
 				ok
 			next
+
+			# THE UNIQUE LATERAL EDGE LEAVES ITS SIDE-BORDER CENTRE -- the
+			# Principal's rule for image 1. A single edge bound far
+			# sideways, with a free corridor at its own row height and no
+			# sibling out-edge competing for that side, is one horizontal
+			# statement and should read as one: out of the lateral border's
+			# middle, along the row corridor, down into the target. The
+			# conditions are ALL of: single-hop, shallower than the box's
+			# aspect, corridor free at row height, and no other out-edge of
+			# the same source heading the same side.
+			if len(_epRt2_) = 0
+				_epFr_ = This._XYOf(paXY, "" + paEdges[_epI_][:from])
+				if len(_epFr_) = 2
+					_epDx2_ = fabs(_epTo_[ iif(_bV_, 2, 1) ] - _epFr_[ iif(_bV_, 2, 1) ])
+					_epDy2_ = fabs(_epTo_[ iif(_bV_, 1, 2) ] - _epFr_[ iif(_bV_, 1, 2) ])
+					_epShal_ = 0
+					if _bV_
+						if _epDy2_ > 0.001 and _epDx2_ / _epDy2_ < (nBoxW / nBoxH) * 1.4
+							_epShal_ = 1
+						ok
+					else
+						if _epDx2_ > 0.001 and _epDy2_ / _epDx2_ < (nBoxH / nBoxW) * 1.4
+							_epShal_ = 1
+						ok
+					ok
+					if _epShal_
+						# corridor at the SOURCE's row height
+						_epCy_ = _epFr_[ iif(_bV_, 1, 2) ]
+						_epL2_ = min([ _epFr_[ iif(_bV_, 2, 1) ], _epTo_[ iif(_bV_, 2, 1) ] ])
+						_epH2_ = max([ _epFr_[ iif(_bV_, 2, 1) ], _epTo_[ iif(_bV_, 2, 1) ] ])
+						_epFree_ = 1
+						for _epP3_ in paXY
+							if StzLower("" + _epP3_[1]) = StzLower("" + paEdges[_epI_][:to])
+								loop
+							ok
+							if StzLower("" + _epP3_[1]) = StzLower("" + paEdges[_epI_][:from])
+								loop
+							ok
+							_epC3_ = _epP3_[ iif(_bV_, 3, 2) ]
+							_epR3_ = _epP3_[ iif(_bV_, 2, 3) ]
+							if fabs(_epR3_ - _epCy_) < nBoxH * 1.2 and
+							   _epC3_ > _epL2_ + 2 and _epC3_ < _epH2_ - 2
+								_epFree_ = 0
+								exit
+							ok
+						next
+						# no sibling out-edge to the same side
+						if _epFree_
+							_epSgn_ = 1
+							if _epTo_[ iif(_bV_, 2, 1) ] < _epFr_[ iif(_bV_, 2, 1) ]
+								_epSgn_ = -1
+							ok
+							for _epJ2_ = 1 to _epN_
+								if _epJ2_ = _epI_  loop  ok
+								if StzLower("" + paEdges[_epJ2_][:from]) !=
+								   StzLower("" + paEdges[_epI_][:from])
+									loop
+								ok
+								_epOt2_ = This._XYOf(paXY,
+									"" + paEdges[_epJ2_][:to])
+								if len(_epOt2_) != 2  loop  ok
+								_epD3_ = _epOt2_[ iif(_bV_, 2, 1) ] -
+									_epFr_[ iif(_bV_, 2, 1) ]
+								if _epD3_ * _epSgn_ > 0 and
+								   fabs(_epOt2_[ iif(_bV_, 1, 2) ] - _epCy_) <
+								   nBoxH * 1.2
+									_epFree_ = 0
+									exit
+								ok
+							next
+						ok
+						if _epFree_  _epRes_[_epI_][6] = 1  ok
+					ok
+				ok
+			ok
 		next
 
 		# ortho LANES: parents in one rank take successive channel heights,
@@ -2785,6 +2907,9 @@ class stzDiagram from stzGraph
 	def RenderNodeRects()
 		return @aRenderNodeRects
 
+	def ClaimedChannels()
+		return @aChanUsed
+
 	# THE MINIMUM DISTANCE BETWEEN AN EDGE LINE AND ANY PARALLEL LINE -- a
 	# frame rule, another channel. Named because it is a LEGIBILITY
 	# quantity, not a geometric one: two lines a few pixels apart are
@@ -2921,6 +3046,167 @@ class stzDiagram from stzGraph
 		ok
 		return _cbBest_
 
+	# Grant a channel lane: the banded position if free, else the nearest
+	# clearance-stepped lane inside the corridor that no FOREIGN channel
+	# holds. Same-source channels share by design -- that is the trunk of
+	# a fan, one line because it is one origin.
+	def _ClaimChannel(nY, nSpanA, nSpanB, cSrc, nLimA, nLimB, cFrom2, cTo2, bVert2)
+		_ccLo_ = min([ nSpanA, nSpanB ])
+		_ccHi_ = max([ nSpanA, nSpanB ])
+
+		# A ZERO-WIDTH CHANNEL IS NOT A LINE. An aligned edge's trunk has
+		# no horizontal run at all, yet it registered a degenerate span --
+		# and its phantom "channel" then forced a REAL channel to step two
+		# lanes away, off the band's centre and into the frame the band
+		# had just escaped. Only ink a reader can see may claim a lane.
+		if _ccHi_ - _ccLo_ < 2  return nY  ok
+
+		_ccS_ = StzLower("" + cSrc)
+		_ccClr_ = This._LineClearance()
+		_ccLimLo_ = min([ nLimA, nLimB ]) + 4
+		_ccLimHi_ = max([ nLimA, nLimB ]) - 4
+		for _ccK_ in [ 0, 1, -1, 2, -2, 3, -3 ]
+			_ccCand_ = nY + _ccK_ * _ccClr_
+			if _ccLimHi_ > _ccLimLo_
+				if _ccCand_ < _ccLimLo_ or _ccCand_ > _ccLimHi_  loop  ok
+			ok
+			# A STEPPED CANDIDATE OBEYS THE SAME OBSTACLES AS THE FIRST.
+			# Without this, dodging a sibling channel walked candidates
+			# straight into a foreign cluster -- the claimer undoing the
+			# band's work one clearance at a time.
+			if _ccK_ != 0
+				_ccChk_ = This._ChannelBand(_ccCand_, nSpanA, nSpanB,
+					cFrom2, cTo2, bVert2, nLimA, nLimB)
+				if fabs(_ccChk_ - _ccCand_) > 0.5  loop  ok
+			ok
+			_ccBad_ = 0
+			for _ccU_ in @aChanUsed
+				if _ccU_[3] = _ccS_  loop  ok
+				if _ccHi_ > _ccU_[1] and _ccLo_ < _ccU_[2] and
+				   fabs(_ccCand_ - _ccU_[4]) < _ccClr_ * 0.9
+					_ccBad_ = 1
+					exit
+				ok
+			next
+			if _ccBad_ = 0
+				@aChanUsed + [ _ccLo_, _ccHi_, _ccS_, _ccCand_ ]
+				return _ccCand_
+			ok
+		next
+		@aChanUsed + [ _ccLo_, _ccHi_, _ccS_, nY ]
+		return nY
+
+	# Emit an ortho polyline -- or, on the dry pass, only LEARN from it.
+	#
+	# THE WIRE HOP, from the Principal's electric-diagram rule: where one
+	# edge's channel crosses another edge's line, the crossing must read
+	# as a NON-junction, so the channel takes a small semicircular hop
+	# over the line it does not touch -- exactly as circuit schematics
+	# have drawn non-connecting wires for a century. Without it, a
+	# crossing and a junction are the same ink, and the reader must guess
+	# which the author meant. Same-edge segments never hop each other
+	# (their meeting IS a junction), and hops bulge against the rank
+	# direction so they read as "over", not "under".
+	def _EmitOrthoPolyline(oC, paFlat, cColor, nWidth, cKey)
+		_eoN_ = len(paFlat)
+		_eoH_ = 0
+		if StzLower("" + This.Layout()) = "lr" or
+		   StzLower("" + This.Layout()) = "rl"  _eoH_ = 1  ok
+
+		if @nDrawPass = 1
+			# learn the rank-axis segments (the drops a channel can cross)
+			for _eoI_ = 1 to _eoN_ - 3 step 2
+				_eoX1_ = paFlat[_eoI_]
+				_eoY1_ = paFlat[_eoI_ + 1]
+				_eoX2_ = paFlat[_eoI_ + 2]
+				_eoY2_ = paFlat[_eoI_ + 3]
+				if NOT _eoH_ and fabs(_eoX2_ - _eoX1_) < 0.5 and
+				   fabs(_eoY2_ - _eoY1_) > 2
+					@aVertSegs + [ _eoX1_, min([ _eoY1_, _eoY2_ ]),
+						max([ _eoY1_, _eoY2_ ]), cKey ]
+				ok
+				if _eoH_ and fabs(_eoY2_ - _eoY1_) < 0.5 and
+				   fabs(_eoX2_ - _eoX1_) > 2
+					@aVertSegs + [ _eoY1_, min([ _eoX1_, _eoX2_ ]),
+						max([ _eoX1_, _eoX2_ ]), cKey ]
+				ok
+			next
+			return
+		ok
+
+		_eoR_ = max([ 5, @nEdgeCornerRad * 0.8 ])
+		_eoOut_ = []
+		_eoOut_ + paFlat[1]
+		_eoOut_ + paFlat[2]
+		for _eoI_ = 1 to _eoN_ - 3 step 2
+			_eoX1_ = paFlat[_eoI_]
+			_eoY1_ = paFlat[_eoI_ + 1]
+			_eoX2_ = paFlat[_eoI_ + 2]
+			_eoY2_ = paFlat[_eoI_ + 3]
+			_eoCross_ = []
+			if NOT _eoH_ and fabs(_eoY2_ - _eoY1_) < 0.5 and
+			   fabs(_eoX2_ - _eoX1_) > _eoR_ * 2
+				_eoLo_ = min([ _eoX1_, _eoX2_ ])
+				_eoHi_ = max([ _eoX1_, _eoX2_ ])
+				for _eoV_ in @aVertSegs
+					if _eoV_[4] = cKey  loop  ok
+					if _eoV_[1] > _eoLo_ + _eoR_ and _eoV_[1] < _eoHi_ - _eoR_ and
+					   _eoY1_ > _eoV_[2] + 1 and _eoY1_ < _eoV_[3] - 1
+						_eoCross_ + _eoV_[1]
+					ok
+				next
+			ok
+			if _eoH_ and fabs(_eoX2_ - _eoX1_) < 0.5 and
+			   fabs(_eoY2_ - _eoY1_) > _eoR_ * 2
+				_eoLo_ = min([ _eoY1_, _eoY2_ ])
+				_eoHi_ = max([ _eoY1_, _eoY2_ ])
+				for _eoV_ in @aVertSegs
+					if _eoV_[4] = cKey  loop  ok
+					if _eoV_[1] > _eoLo_ + _eoR_ and _eoV_[1] < _eoHi_ - _eoR_ and
+					   _eoX1_ > _eoV_[2] + 1 and _eoX1_ < _eoV_[3] - 1
+						_eoCross_ + _eoV_[1]
+					ok
+				next
+			ok
+			if len(_eoCross_) > 0
+				_eoCross_ = sort(_eoCross_)
+				_eoDir_ = 1
+				if NOT _eoH_
+					if _eoX2_ < _eoX1_  _eoDir_ = -1  ok
+					if _eoDir_ = -1  _eoCross_ = reverse(_eoCross_)  ok
+					for _eoC_ in _eoCross_
+						_eoOut_ + (_eoC_ - _eoDir_ * _eoR_)
+						_eoOut_ + _eoY1_
+						for _eoA_ = 1 to 7
+							_eoT_ = _eoA_ / 8.0
+							_eoOut_ + (_eoC_ - _eoDir_ * _eoR_ * cos(3.14159265 * _eoT_))
+							_eoOut_ + (_eoY1_ - _eoR_ * sin(3.14159265 * _eoT_))
+						next
+						_eoOut_ + (_eoC_ + _eoDir_ * _eoR_)
+						_eoOut_ + _eoY1_
+					next
+				else
+					if _eoY2_ < _eoY1_  _eoDir_ = -1  ok
+					if _eoDir_ = -1  _eoCross_ = reverse(_eoCross_)  ok
+					for _eoC_ in _eoCross_
+						_eoOut_ + _eoX1_
+						_eoOut_ + (_eoC_ - _eoDir_ * _eoR_)
+						for _eoA_ = 1 to 7
+							_eoT_ = _eoA_ / 8.0
+							_eoOut_ + (_eoX1_ - _eoR_ * sin(3.14159265 * _eoT_))
+							_eoOut_ + (_eoC_ - _eoDir_ * _eoR_ * cos(3.14159265 * _eoT_))
+						next
+						_eoOut_ + _eoX1_
+						_eoOut_ + (_eoC_ + _eoDir_ * _eoR_)
+					next
+				ok
+			ok
+			_eoOut_ + _eoX2_
+			_eoOut_ + _eoY2_
+		next
+		oC.Flush()
+		oC.AddPolylineQ(_eoOut_).Stroke(cColor, nWidth)
+
 	def _DrawRoutedEdge(oC, aFrom, aTo, paBend, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nPortA, nPortB, pBlockSide, cFromId, cToId)
 		_pts_ = []
 		_pts_ + [ aFrom[1], aFrom[2] ]
@@ -2973,8 +3259,12 @@ class stzDiagram from stzGraph
 				_ofy_ = _obl_[2]
 				_oc1_ = This._ChannelBand(_oc1_, _p_[2], _ofy_,
 					cFromId, cToId, 1, _p_[1], _ob1_[1])
+				_oc1_ = This._ClaimChannel(_oc1_, _p_[2], _ofy_, cFromId,
+					_p_[1], _ob1_[1], cFromId, cToId, 1)
 				_oc2_ = This._ChannelBand(_oc2_, _ofy_, _q_[2],
 					cFromId, cToId, 1, _obl_[1], _q_[1])
+				_oc2_ = This._ClaimChannel(_oc2_, _ofy_, _q_[2], cFromId,
+					_obl_[1], _q_[1], cFromId, cToId, 1)
 				_flat_ + _p_[1]   _flat_ + _p_[2]
 				_flat_ + _oc1_    _flat_ + _p_[2]
 				_flat_ + _oc1_    _flat_ + _ofy_
@@ -2987,8 +3277,12 @@ class stzDiagram from stzGraph
 				_ofx_ = _obl_[1]
 				_oc1_ = This._ChannelBand(_oc1_, _p_[1], _ofx_,
 					cFromId, cToId, 0, _p_[2], _ob1_[2])
+				_oc1_ = This._ClaimChannel(_oc1_, _p_[1], _ofx_, cFromId,
+					_p_[2], _ob1_[2], cFromId, cToId, 0)
 				_oc2_ = This._ChannelBand(_oc2_, _ofx_, _q_[1],
 					cFromId, cToId, 0, _obl_[2], _q_[2])
+				_oc2_ = This._ClaimChannel(_oc2_, _ofx_, _q_[1], cFromId,
+					_obl_[2], _q_[2], cFromId, cToId, 0)
 				_flat_ + _p_[1]   _flat_ + _p_[2]
 				_flat_ + _p_[1]   _flat_ + _oc1_
 				_flat_ + _ofx_    _flat_ + _oc1_
@@ -3005,9 +3299,17 @@ class stzDiagram from stzGraph
 		# stroke stops where the arrow begins, so the head is whole at any
 		# arrival angle
 		_cut_ = This._ArrowCut(_flat_, 9 + nWidth * 2)
-		oC.Flush()
-		oC.AddPolylineQ(_cut_[1]).Stroke(cColor, nWidth)
-		This._DrawArrowHead(oC, _cut_[2], _cut_[3], cColor)
+		if cSpline = "ortho"
+			This._EmitOrthoPolyline(oC, _cut_[1], cColor, nWidth,
+				cFromId + ">" + cToId)
+			if @nDrawPass = 2
+				This._DrawArrowHead(oC, _cut_[2], _cut_[3], cColor)
+			ok
+		else
+			oC.Flush()
+			oC.AddPolylineQ(_cut_[1]).Stroke(cColor, nWidth)
+			This._DrawArrowHead(oC, _cut_[2], _cut_[3], cColor)
+		ok
 
 	# Catmull-Rom through every point, sampled. Passes THROUGH its control points,
 	# unlike the quadratic used for a single hop, which is what a route needs:
@@ -3401,10 +3703,86 @@ class stzDiagram from stzGraph
 		if _ek_ > _en_  _ek_ = _en_  ok
 		return [ _efl_[_ek_ * 2 - 1], _efl_[_ek_ * 2] ]
 
-	def _DrawEdgeXT(oC, aFrom, aTo, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nLane, nPortA, nPortB, pBlockSide, cFromId, cToId)
+	def _DrawEdgeXT(oC, aFrom, aTo, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nLane, nPortA, nPortB, pBlockSide, cFromId, cToId, pSideDep)
 		if cSpline = "ortho"
+			# THE UNIQUE LATERAL EDGE, image 1's rule: out of the lateral
+			# border's CENTRE, one run along its own free row corridor,
+			# one drop into the target -- a single horizontal statement
+			# drawn as one. Falls back to the trunk form if another
+			# channel already holds the row.
+			if pSideDep and NOT (cRank = "LR" or cRank = "RL")
+				_sdSgn_ = 1
+				if aTo[1] < aFrom[1]  _sdSgn_ = -1  ok
+				_sdX_ = aFrom[1] + _sdSgn_ * nBoxW / 2
+				_sdCy_ = aFrom[2]
+				# the arrival keeps its PORT, or two edges funnelling into
+				# one target share their final drop and read as one line
+				_sdTx_ = aTo[1] + nPortB
+				_sdBad_ = 0
+				for _sdU_ in @aChanUsed
+					if _sdU_[3] = StzLower("" + cFromId)  loop  ok
+					if max([ _sdX_, _sdTx_ ]) > _sdU_[1] and
+					   min([ _sdX_, _sdTx_ ]) < _sdU_[2] and
+					   fabs(_sdCy_ - _sdU_[4]) < This._LineClearance() * 0.9
+						_sdBad_ = 1
+						exit
+					ok
+				next
+				if _sdBad_ = 0
+					@aChanUsed + [ min([ _sdX_, _sdTx_ ]),
+						max([ _sdX_, _sdTx_ ]), StzLower("" + cFromId), _sdCy_ ]
+					_sdQe_ = aTo[2] - nBoxH / 2
+					if aTo[2] < aFrom[2]  _sdQe_ = aTo[2] + nBoxH / 2  ok
+					_sdCut_ = This._ArrowCut([ _sdX_, _sdCy_,
+						_sdTx_, _sdCy_, _sdTx_, _sdQe_ ], 9 + nWidth * 2)
+					This._EmitOrthoPolyline(oC, _sdCut_[1], cColor, nWidth,
+						cFromId + ">" + cToId)
+					if @nDrawPass = 2
+						This._DrawArrowHead(oC, _sdCut_[2], _sdCut_[3], cColor)
+					ok
+					return
+				ok
+			ok
+			if pSideDep and (cRank = "LR" or cRank = "RL")
+				_sdSgn_ = 1
+				if aTo[2] < aFrom[2]  _sdSgn_ = -1  ok
+				_sdY_ = aFrom[2] + _sdSgn_ * nBoxH / 2
+				_sdCx_ = aFrom[1]
+				_sdTy_ = aTo[2] + nPortB
+				_sdBad_ = 0
+				for _sdU_ in @aChanUsed
+					if _sdU_[3] = StzLower("" + cFromId)  loop  ok
+					if max([ _sdY_, _sdTy_ ]) > _sdU_[1] and
+					   min([ _sdY_, _sdTy_ ]) < _sdU_[2] and
+					   fabs(_sdCx_ - _sdU_[4]) < This._LineClearance() * 0.9
+						_sdBad_ = 1
+						exit
+					ok
+				next
+				if _sdBad_ = 0
+					@aChanUsed + [ min([ _sdY_, _sdTy_ ]),
+						max([ _sdY_, _sdTy_ ]), StzLower("" + cFromId), _sdCx_ ]
+					_sdQe_ = aTo[1] - nBoxW / 2
+					if aTo[1] < aFrom[1]  _sdQe_ = aTo[1] + nBoxW / 2  ok
+					_sdCut_ = This._ArrowCut([ _sdCx_, _sdY_,
+						_sdCx_, _sdTy_, _sdQe_, _sdTy_ ], 9 + nWidth * 2)
+					This._EmitOrthoPolyline(oC, _sdCut_[1], cColor, nWidth,
+						cFromId + ">" + cToId)
+					if @nDrawPass = 2
+						This._DrawArrowHead(oC, _sdCut_[2], _sdCut_[3], cColor)
+					ok
+					return
+				ok
+			ok
+			# TRUNK AND CHANNEL, the way dot draws a tree: one stem leaves
+			# the parent's border, runs along the parent's own channel
+			# height, and drops into the child. A parent's edges overlap on
+			# the trunk deliberately -- they ARE one stem until they split.
+			# The old form crossed at the gap's midpoint for every edge, so
+			# every parent in a rank shared one channel and neighbouring
+			# families read as crossings.
 			This._DrawEdge(oC, aFrom, aTo, nBoxW, nBoxH, cColor, nWidth,
-				cSpline, cRank, nLane, cFromId, cToId)
+				cSpline, cRank, nLane, cFromId, cToId, pSideDep)
 			return
 		ok
 		_dg_ = This._EdgeGeometry(aFrom, aTo, nBoxW, nBoxH, cRank, nWidth, nPortA, nPortB, This._EdgeCorner(), pBlockSide)
@@ -3418,19 +3796,12 @@ class stzDiagram from stzGraph
 		oC.AddPolylineQ(_dg_[1]).Stroke(cColor, nWidth)
 		This._DrawArrowHead(oC, _dg_[2], _dg_[3], cColor)
 
-	def _DrawEdge(oC, aFrom, aTo, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nLane, cFromId, cToId)
+	def _DrawEdge(oC, aFrom, aTo, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nLane, cFromId, cToId, pSideDep)
 		_p_ = This._ClipToBox(aFrom, aTo, nBoxW, nBoxH)
 		_q_ = This._ClipToBox(aTo, aFrom, nBoxW, nBoxH)
 
 		switch cSpline
 		on "ortho"
-			# TRUNK AND CHANNEL, the way dot draws a tree: one stem leaves
-			# the parent's border, runs along the parent's own channel
-			# height, and drops into the child. A parent's edges overlap on
-			# the trunk deliberately -- they ARE one stem until they split.
-			# The old form crossed at the gap's midpoint for every edge, so
-			# every parent in a rank shared one channel and neighbouring
-			# families read as crossings.
 			if cRank = "LR" or cRank = "RL"
 				_sgn_ = 1
 				if aTo[1] < aFrom[1]  _sgn_ = -1  ok
@@ -3441,9 +3812,11 @@ class stzDiagram from stzGraph
 				# left-to-right picture runs across Y
 				_chan_ = This._ChannelBand(_chan_, aFrom[2], aTo[2],
 					cFromId, cToId, 1, _pe_, _qe_)
-				oC.Flush()
-				oC.AddPolylineQ([ _pe_, aFrom[2], _chan_, aFrom[2],
-					_chan_, aTo[2], _qe_, aTo[2] ]).Stroke(cColor, nWidth)
+				_chan_ = This._ClaimChannel(_chan_, aFrom[2], aTo[2],
+					cFromId, _pe_, _qe_, cFromId, cToId, 1)
+				This._EmitOrthoPolyline(oC, [ _pe_, aFrom[2], _chan_,
+					aFrom[2], _chan_, aTo[2], _qe_, aTo[2] ],
+					cColor, nWidth, cFromId + ">" + cToId)
 				_p_ = [ _chan_, aTo[2] ]
 				_q_ = [ _qe_, aTo[2] ]
 			else
@@ -3458,9 +3831,11 @@ class stzDiagram from stzGraph
 				# fiction
 				_chan_ = This._ChannelBand(_chan_, aFrom[1], aTo[1],
 					cFromId, cToId, 0, _pe_, _qe_)
-				oC.Flush()
-				oC.AddPolylineQ([ aFrom[1], _pe_, aFrom[1], _chan_,
-					aTo[1], _chan_, aTo[1], _qe_ ]).Stroke(cColor, nWidth)
+				_chan_ = This._ClaimChannel(_chan_, aFrom[1], aTo[1],
+					cFromId, _pe_, _qe_, cFromId, cToId, 0)
+				This._EmitOrthoPolyline(oC, [ aFrom[1], _pe_, aFrom[1],
+					_chan_, aTo[1], _chan_, aTo[1], _qe_ ],
+					cColor, nWidth, cFromId + ">" + cToId)
 				_p_ = [ aTo[1], _chan_ ]
 				_q_ = [ aTo[1], _qe_ ]
 			ok
@@ -3475,7 +3850,9 @@ class stzDiagram from stzGraph
 			oC.AddPolylineQ(This._CurvePoints(_p_, _q_, cRank)).Stroke(cColor, nWidth)
 		off
 
-		This._DrawArrow(oC, _p_, _q_, cColor, nWidth, cSpline, cRank)
+		if @nDrawPass = 2
+			This._DrawArrow(oC, _p_, _q_, cColor, nWidth, cSpline, cRank)
+		ok
 
 	# A quadratic bend, sampled. The control point leans along the RANK axis,
 	# which is what makes dot's splines read as flowing down the hierarchy
@@ -3662,13 +4039,18 @@ class stzDiagram from stzGraph
 			ok
 		next
 		if NOT _bAny_  return []  ok
+		# ...and the BASE pad scales with the render: it was a flat 16px,
+		# so at :Scale = 2 an arrowhead arriving at a member sat visually
+		# on the frame line -- a literal distance is a bug by
+		# construction (the visual contract, I3).
+		_padBase_ = max([ 16, This._LineClearance() * 0.75 ])
 		# PADDING GROWS WITH WHAT IS NESTED INSIDE. A fixed 16 was right
 		# while every cluster was a leaf; once one can contain another, the
 		# outer box has to clear not just the inner box but the inner
 		# LABEL, which is drawn 24px above it. At a fixed pad the two
 		# borders landed within a few pixels of each other and the inner
 		# label was written across the outer one.
-		_pad_ = 16 + 34 * This._ClusterLevelsBelow(aCluster)
+		_pad_ = _padBase_ + 34 * This._ClusterLevelsBelow(aCluster)
 		return [ _x0_ - _pad_, _y0_ - _pad_,
 			(_x1_ - _x0_) + 2 * _pad_, (_y1_ - _y0_) + 2 * _pad_ ]
 
