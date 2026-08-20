@@ -1625,12 +1625,37 @@ class stzDiagram from stzGraph
 		#
 		# Only when a label EXISTS -- an unlabelled diagram keeps exactly the
 		# separation its author asked for.
+		#
+		# THE GAP MUST CARRY THE TALLEST LABEL, wrapped as it will be
+		# drawn, with a clearance of line showing above and below it.
+		# That is the other half of the Principal's rule: a label always
+		# sits IN its line, never outside it, so the line it sits in has
+		# to be longer than the label -- and since wrapping trades width
+		# for height, the gap is where the height is paid. One number,
+		# grown once, for every label in the picture.
 		_bELab_ = 0
+		_nLabH_ = 0
 		for _e0_ in This.Edges()
-			if StzTrim("" + _e0_[:label]) != ""  _bELab_ = 1  exit  ok
+			if StzTrim("" + _e0_[:label]) != ""
+				_bELab_ = 1
+				if isObject(_oFont_)
+					_blk0_ = This._LabelBlock("" + _e0_[:label], _oFont_,
+						_nFsz_, _nBoxW_)
+					if _blk0_[3] > _nLabH_  _nLabH_ = _blk0_[3]  ok
+				ok
+			ok
 		next
 		if _bELab_
 			_nSepR_ = max([ _nSepR_, _nFsz_ * 2 + 34 ])
+			if _nLabH_ > 0
+				# TWICE the label's room, because the label rides the
+				# DROP and the drop is only half the gap: the channel
+				# every fan shares sits at the middle of its rank gap, so
+				# a gap that merely fits a label leaves a drop that fits
+				# half of one. "Let the lines be longer" is this number.
+				_nSepR_ = max([ _nSepR_,
+					(_nLabH_ + max([ 14, _nRad_ * 2 + 4 ]) * 2) * 2 ])
+			ok
 		ok
 
 		# A GAP MUST BE CROSSABLE. A horizontal channel divides the rank
@@ -2204,8 +2229,11 @@ class stzDiagram from stzGraph
 			_aDone_ = []
 			for _li_ = 1 to len(_aLabAt_)
 				_cLab_ = _aLabAt_[_li_][1]
-				_lw_ = _oFont_.WidthOf(_cLab_, _nFsz_) + 8
-				_lh_ = _nFsz_ + 6
+				_aBlk_ = This._LabelBlock(_cLab_, _oFont_, _nFsz_,
+					_nBoxW_)
+				_aLines_ = _aBlk_[1]
+				_lw_ = _aBlk_[2]
+				_lh_ = _aBlk_[3]
 				_lx_ = _aLabAt_[_li_][2]
 				_ly_ = _aLabAt_[_li_][3]
 				_cLK_ = "" + _aLabAt_[_li_][4]
@@ -2273,9 +2301,19 @@ class stzDiagram from stzGraph
 							ok
 						ok
 					next
+					# ON THE LINE, ALWAYS -- the Principal's rule, and the
+					# layout is what makes it keepable: the rank gap is
+					# grown to carry the tallest wrapped label, so every
+					# drop can hold its own. Beside-placement survives
+					# only as the last resort for an edge whose every
+					# segment is too short to carry a label, where the
+					# alternative is not a better position but a label
+					# lying across its own line.
 					_aCand_ = []
 					for _cOn_ in _aOn_   _aCand_ + _cOn_   next
-					for _cBe_ in _aBes_  _aCand_ + _cBe_   next
+					if len(_aOn_) = 0
+						for _cBe_ in _aBes_  _aCand_ + _cBe_   next
+					ok
 					_nBestD_ = -1
 					_nBestX_ = _lx_
 					_nBestY_ = _ly_
@@ -2326,10 +2364,19 @@ class stzDiagram from stzGraph
 				_oC_.FillQ(_cBg_).StrokeQ(_cBg_, 1).
 					AddRect(_lx_ - _lw_ / 2, _ly_ - _lh_ / 2, _lw_, _lh_)
 				_oC_.Flush()
-				_oC_.AddTextQ(_cLab_, _lx_ - (_lw_ - 8) / 2,
-					_ly_ + _nFsz_ / 3).
-					SetFontQ(_oFont_, _nFsz_).
-					Color(This.ContrastingTextColor(_cBg_))
+				# every line of the wrapped block, each centred in the
+				# plate -- a wrapped label whose lines were left-aligned
+				# would lean away from the line it is centred on
+				_nLnH_ = _nFsz_ * 1.35
+				_nTop_ = _ly_ - _lh_ / 2 + (_lh_ - len(_aLines_) * _nLnH_) / 2
+				for _lni_ = 1 to len(_aLines_)
+					_cLn_ = _aLines_[_lni_]
+					_nLnW_ = _oFont_.WidthOf(_cLn_, _nFsz_)
+					_oC_.AddTextQ(_cLn_, _lx_ - _nLnW_ / 2,
+						_nTop_ + _lni_ * _nLnH_ - _nLnH_ * 0.25).
+						SetFontQ(_oFont_, _nFsz_).
+						Color(This.ContrastingTextColor(_cBg_))
+				next
 			next
 		ok
 
@@ -2671,7 +2718,28 @@ class stzDiagram from stzGraph
 			# conditions are ALL of: single-hop, shallower than the box's
 			# aspect, corridor free at row height, and no other out-edge of
 			# the same source heading the same side.
-			if len(_epRt2_) = 0
+			#
+			# UNIQUE MEANS THE SOURCE'S ONLY OUT-EDGE, and that word had
+			# been read too loosely: "no sibling on THIS side" let the
+			# outermost child of a four-way fan leave sideways while its
+			# three siblings dropped off a shared bus. Four children of
+			# one parent stand in one rank in one relation, and a picture
+			# that draws one of them differently states a difference the
+			# graph does not contain -- the same law that forbids two
+			# unrelated edges sharing a line, seen from the other side.
+			# Congruence outranks the lateral form: siblings are drawn
+			# alike, and a genuinely lone edge still gets its border
+			# centre.
+			_epOut_ = 0
+			for _epJ3_ = 1 to _epN_
+				if StzLower("" + paEdges[_epJ3_][:from]) =
+				   StzLower("" + paEdges[_epI_][:from]) and
+				   StzLower("" + paEdges[_epJ3_][:from]) !=
+				   StzLower("" + paEdges[_epJ3_][:to])
+					_epOut_++
+				ok
+			next
+			if len(_epRt2_) = 0 and _epOut_ < 2
 				_epFr_ = This._XYOf(paXY, "" + paEdges[_epI_][:from])
 				if len(_epFr_) = 2
 					_epDx2_ = fabs(_epTo_[ iif(_bV_, 2, 1) ] - _epFr_[ iif(_bV_, 2, 1) ])
@@ -2887,6 +2955,65 @@ class stzDiagram from stzGraph
 	#
 	# Zero when the label is no wider than the node it points at, so an
 	# ordinary diagram of short labels is laid out exactly as before.
+	# A LABEL WRAPPED IS WIDTH TRADED FOR HEIGHT, and in a layered drawing
+	# that is a bargain: width is the scarce axis -- every child's label
+	# competes with its neighbours' for the same rank -- while the rank
+	# GAP is one number the layout can grow once for everybody. The
+	# Principal drew it: "Condition 1 / holds" on two lines, the lines a
+	# little longer, the picture much narrower.
+	#
+	# Returns the lines. ONE function, because the demand that buys the
+	# room and the drawing that fills it must wrap identically -- the
+	# label bug just fixed was exactly those two disagreeing.
+	def _WrapLabel(cText, oFont, nFsz, nTargetW)
+		_wlT_ = StzTrim("" + cText)
+		if _wlT_ = "" or NOT isObject(oFont)  return [ _wlT_ ]  ok
+		if oFont.WidthOf(_wlT_, nFsz) <= nTargetW  return [ _wlT_ ]  ok
+		_wlW_ = StzSplit(_wlT_, " ")
+		if len(_wlW_) < 2  return [ _wlT_ ]  ok
+		# try two lines, then three: the fewest that fits the target, and
+		# never more than three -- a label taller than the node it names
+		# stops being a label and starts being a paragraph
+		for _wlK_ = 2 to 3
+			_wlLim_ = oFont.WidthOf(_wlT_, nFsz) / _wlK_ * 1.25
+			_wlOut_ = []
+			_wlCur_ = ""
+			for _wlI_ = 1 to len(_wlW_)
+				if _wlCur_ = ""
+					_wlTry_ = _wlW_[_wlI_]
+				else
+					_wlTry_ = _wlCur_ + " " + _wlW_[_wlI_]
+				ok
+				if _wlCur_ != "" and oFont.WidthOf(_wlTry_, nFsz) > _wlLim_
+					_wlOut_ + _wlCur_
+					_wlCur_ = _wlW_[_wlI_]
+				else
+					_wlCur_ = _wlTry_
+				ok
+			next
+			if _wlCur_ != ""  _wlOut_ + _wlCur_  ok
+			_wlMax_ = 0
+			for _wlL_ in _wlOut_
+				if oFont.WidthOf(_wlL_, nFsz) > _wlMax_
+					_wlMax_ = oFont.WidthOf(_wlL_, nFsz)
+				ok
+			next
+			if len(_wlOut_) <= _wlK_ and _wlMax_ <= nTargetW  return _wlOut_  ok
+			if _wlK_ = 3  return _wlOut_  ok
+		next
+		return [ _wlT_ ]
+
+	# The wrapped label's block: [ lines, width, height ].
+	def _LabelBlock(cText, oFont, nFsz, nTargetW)
+		_lbL_ = This._WrapLabel(cText, oFont, nFsz, nTargetW)
+		_lbW_ = 0
+		for _lbI_ in _lbL_
+			if isObject(oFont) and oFont.WidthOf(_lbI_, nFsz) > _lbW_
+				_lbW_ = oFont.WidthOf(_lbI_, nFsz)
+			ok
+		next
+		return [ _lbL_, _lbW_ + 8, len(_lbL_) * (nFsz * 1.35) + 6 ]
+
 	def _LabelDemand(oFont, nFsz, nBoxW, nSlot, bSwap)
 		_ids_ = This.NodesIds()
 		_nn_ = len(_ids_)
@@ -2909,11 +3036,15 @@ class stzDiagram from stzGraph
 				if _p_[1] = StzLower("" + _e_[:to])  _at_ = _p_[2]  exit  ok
 			next
 			if _at_ = 0  loop  ok
-			_w_ = oFont.WidthOf(_cl_, nFsz) + 10
+			# WRAPPED, because that is what will be drawn. The width the
+			# demand buys and the width the label occupies have to be the
+			# same number, and wrapping is where they would drift apart.
+			_blk_ = This._LabelBlock(_cl_, oFont, nFsz, nBoxW)
+			_w_ = _blk_[2] + 2
 			if bSwap
 				# ranks run horizontally, so the label's HEIGHT is what
 				# competes along the slot axis
-				_w_ = nFsz + 8
+				_w_ = _blk_[3]
 			ok
 			# WHAT THE LABEL OCCUPIES, not that divided by where it sits.
 			#
