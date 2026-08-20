@@ -35,6 +35,27 @@ load "../../stzBase.ring"
 decimals(2)
 nOk = 0  nBad = 0  nSecClock = 0
 
+# SCOPE, so the gate can cost what a change actually risks. Three
+# sections -- 4, 7 and 8 -- hold ~484s of the suite's ~8 minutes,
+# because each sweeps many whole renders looking for a pixel property.
+# They are self-contained (nothing later reads what they define), so a
+# run may skip them:
+#
+#   ring gg_adversarial.ring            every section, the full gate
+#   ring gg_adversarial.ring quick      skips the three sweeps (~30s)
+#
+# QUICK IS NOT THE GATE. It is the middle tier between a standalone
+# probe and the pre-commit run: use it while iterating on anything the
+# sweeps cannot reach, and run the full suite once before committing.
+# A section skipped is PRINTED as skipped -- a suite that silently
+# drops coverage reports a green it did not earn.
+cScope = "full"
+if len(sysargv) >= 3
+	if StzLower("" + sysargv[3]) = "quick"  cScope = "quick"  ok
+ok
+bSweeps = 1
+if cScope = "quick"  bSweeps = 0  ok
+
 ? "=============================================================="
 ? " WHAT THE GUARDS COULD NOT SEE"
 ? "=============================================================="
@@ -156,49 +177,54 @@ chk("the cap check DISCRIMINATES", nSeen = 1)
 #---------------------------------------------------------------------------
 ? ""
 sec("-- 4. Boxes must FIT the rank they landed in ----------------")
-#
-# Counted in pixels: the BACKGROUND must still be visible between one box
-# and the next.
-#
-# The obvious instrument was counting runs of the NODE colour and expecting
-# sixteen. It answered sixteen whether the boxes were separated or fused,
-# because every box is STROKED -- two abutting boxes are still two runs of
-# green with a dark border between them. It was measuring "sixteen boxes
-# were drawn", which was never in doubt, and not "sixteen boxes can be told
-# apart", which is the whole property. Gaps of background are the thing a
-# reader actually sees.
-#---------------------------------------------------------------------------
+if bSweeps
+	#
+	# Counted in pixels: the BACKGROUND must still be visible between one box
+	# and the next.
+	#
+	# The obvious instrument was counting runs of the NODE colour and expecting
+	# sixteen. It answered sixteen whether the boxes were separated or fused,
+	# because every box is STROKED -- two abutting boxes are still two runs of
+	# green with a dark border between them. It was measuring "sixteen boxes
+	# were drawn", which was never in doubt, and not "sixteen boxes can be told
+	# apart", which is the whole property. Gaps of background are the thing a
+	# reader actually sees.
+	#---------------------------------------------------------------------------
 
-NODEC = "#2E7D32"
-oG = new stzDiagram("fan")
-oG.AddNodeXTT("root", "Root", [ :type = "box", :color = NODEC ])
-for i = 1 to 16
-	oG.AddNodeXTT("k" + i, "Kid " + i, [ :type = "box", :color = NODEC ])
-	oG.AddEdge("root", "k" + i)
-next
+	NODEC = "#2E7D32"
+	oG = new stzDiagram("fan")
+	oG.AddNodeXTT("root", "Root", [ :type = "box", :color = NODEC ])
+	for i = 1 to 16
+		oG.AddNodeXTT("k" + i, "Kid " + i, [ :type = "box", :color = NODEC ])
+		oG.AddEdge("root", "k" + i)
+	next
 
-aOpt = [ :Width = 1200, :Height = 500, :NodeWidth = 96, :NodeHeight = 34 ]
-nFit = _GapsInDensestRow(oG.ToCanvasXT(aOpt), 1200, 500, NODEC)
-? "   16 nodes in a 1200px picture, boxes asked for 96px wide"
-? "   gaps of background between them : " + nFit + " (16 boxes -> 15 gaps)"
-chkeq("every node in the rank can be told from its neighbour", nFit, 15)
+	aOpt = [ :Width = 1200, :Height = 500, :NodeWidth = 96, :NodeHeight = 34 ]
+	nFit = _GapsInDensestRow(oG.ToCanvasXT(aOpt), 1200, 500, NODEC)
+	? "   16 nodes in a 1200px picture, boxes asked for 96px wide"
+	? "   gaps of background between them : " + nFit + " (16 boxes -> 15 gaps)"
+	chkeq("every node in the rank can be told from its neighbour", nFit, 15)
 
-# THE NEGATIVE SIBLING, and the proof that the fit pass is what fixed it:
-# the same picture with fitting switched OFF must fuse the boxes into a wall.
-aOff = [ :Width = 1200, :Height = 500, :NodeWidth = 96, :NodeHeight = 34,
-         :FitBoxes = 0 ]
-nRaw = _GapsInDensestRow(oG.ToCanvasXT(aOff), 1200, 500, NODEC)
-? "   the same picture with :FitBoxes = FALSE : " + nRaw + " gaps"
-chk("without fitting the boxes really do run together", nRaw < 15)
+	# THE NEGATIVE SIBLING, and the proof that the fit pass is what fixed it:
+	# the same picture with fitting switched OFF must fuse the boxes into a wall.
+	aOff = [ :Width = 1200, :Height = 500, :NodeWidth = 96, :NodeHeight = 34,
+	         :FitBoxes = 0 ]
+	nRaw = _GapsInDensestRow(oG.ToCanvasXT(aOff), 1200, 500, NODEC)
+	? "   the same picture with :FitBoxes = FALSE : " + nRaw + " gaps"
+	chk("without fitting the boxes really do run together", nRaw < 15)
 
-# and the mechanism itself, where the arithmetic is visible
-? "   scale for 16 nodes 82px apart, 96px boxes : " +
-  oG._RankFitScale(_Rank(16, 82), 96, 34)
-chk("a crowded rank scales DOWN", oG._RankFitScale(_Rank(16, 82), 96, 34) < 1)
-chk("a roomy rank is left ALONE", oG._RankFitScale(_Rank(4, 300), 96, 34) = 1)
+	# and the mechanism itself, where the arithmetic is visible
+	? "   scale for 16 nodes 82px apart, 96px boxes : " +
+	  oG._RankFitScale(_Rank(16, 82), 96, 34)
+	chk("a crowded rank scales DOWN", oG._RankFitScale(_Rank(16, 82), 96, 34) < 1)
+	chk("a roomy rank is left ALONE", oG._RankFitScale(_Rank(4, 300), 96, 34) = 1)
 
-#---------------------------------------------------------------------------
-? ""
+	#---------------------------------------------------------------------------
+	? ""
+else
+	? "        [SKIPPED -- quick scope; the full gate runs it]"
+ok
+
 sec("-- 5. A label reaches the picture AS AUTHORED ---------------")
 #
 # Asserted at the far end -- in the drawn output -- because the defect this
@@ -274,85 +300,95 @@ chk("...and the ordinal spread really was worse", nOld > nErr * 2)
 #---------------------------------------------------------------------------
 ? ""
 sec("-- 7. Spacing is the CONTRACT; the size is derived ----------")
-#
-# dot's model, and this tier had it inverted: the caller fixed a canvas
-# and the layout stretched to fill it, so the minimum gap between nodes
-# was whatever the stretch left over -- 2px in a crowded rank, 20px in a
-# loose one, in the same picture. Meanwhile SetNodeSeparation existed, in
-# dot's own units, and only the DOT WRITER read it.
-#
-# So: a render that names no size must honour the separation contract
-# EXACTLY -- the tightest gap in the picture IS nodesep, because the
-# engine's isotonic pass pins the tightest pair at exactly one slot.
-#---------------------------------------------------------------------------
+if bSweeps
+	#
+	# dot's model, and this tier had it inverted: the caller fixed a canvas
+	# and the layout stretched to fill it, so the minimum gap between nodes
+	# was whatever the stretch left over -- 2px in a crowded rank, 20px in a
+	# loose one, in the same picture. Meanwhile SetNodeSeparation existed, in
+	# dot's own units, and only the DOT WRITER read it.
+	#
+	# So: a render that names no size must honour the separation contract
+	# EXACTLY -- the tightest gap in the picture IS nodesep, because the
+	# engine's isotonic pass pins the tightest pair at exactly one slot.
+	#---------------------------------------------------------------------------
 
-oN = new stzDiagram("fan2")
-oN.AddNodeXTT("root", "Root", [ :type = "box", :color = NODEC ])
-for i = 1 to 16
-	oN.AddNodeXTT("k" + i, "Kid " + i, [ :type = "box", :color = NODEC ])
-	oN.AddEdge("root", "k" + i)
-next
-nSep = floor(oN.NodeSeparation() * 96)
-oNat = oN.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 34 ])
-? "   contract : nodesep = " + nSep + "px   canvas derived : " +
-  oNat.Width() + "x" + oNat.Height()
-nGap = _MinGapPx(oNat, oNat.Width(), oNat.Height(), NODEC)
-? "   tightest gap in the natural render : " + nGap + "px"
-chk("the tightest gap IS the nodesep contract (within stroke+AA)",
-    nGap >= nSep - 8 and nGap <= nSep + 2)
+	oN = new stzDiagram("fan2")
+	oN.AddNodeXTT("root", "Root", [ :type = "box", :color = NODEC ])
+	for i = 1 to 16
+		oN.AddNodeXTT("k" + i, "Kid " + i, [ :type = "box", :color = NODEC ])
+		oN.AddEdge("root", "k" + i)
+	next
+	nSep = floor(oN.NodeSeparation() * 96)
+	oNat = oN.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 34 ])
+	? "   contract : nodesep = " + nSep + "px   canvas derived : " +
+	  oNat.Width() + "x" + oNat.Height()
+	nGap = _MinGapPx(oNat, oNat.Width(), oNat.Height(), NODEC)
+	? "   tightest gap in the natural render : " + nGap + "px"
+	chk("the tightest gap IS the nodesep contract (within stroke+AA)",
+	    nGap >= nSep - 8 and nGap <= nSep + 2)
 
-# THE NEGATIVE SIBLING: the same diagram forced into a canvas too small
-# for the contract must break it -- otherwise the check above would pass
-# on any renderer that leaves big gaps for any reason at all.
-oCr = oN.ToCanvasXT([ :Width = 700, :Height = 240,
-	:NodeWidth = 96, :NodeHeight = 34 ])
-nCr = _MinGapPx(oCr, 700, 240, NODEC)
-? "   the same diagram crushed into 700px : " + nCr + "px"
-chk("...and a canvas too small for the contract breaks it", nCr < nSep - 20)
+	# THE NEGATIVE SIBLING: the same diagram forced into a canvas too small
+	# for the contract must break it -- otherwise the check above would pass
+	# on any renderer that leaves big gaps for any reason at all.
+	oCr = oN.ToCanvasXT([ :Width = 700, :Height = 240,
+		:NodeWidth = 96, :NodeHeight = 34 ])
+	nCr = _MinGapPx(oCr, 700, 240, NODEC)
+	? "   the same diagram crushed into 700px : " + nCr + "px"
+	chk("...and a canvas too small for the contract breaks it", nCr < nSep - 20)
 
-#---------------------------------------------------------------------------
-? ""
+	#---------------------------------------------------------------------------
+	? ""
+else
+	? "        [SKIPPED -- quick scope; the full gate runs it]"
+ok
+
 sec("-- 8. A long edge goes AROUND the boxes, not through them ---")
-#
-# The step of the Sugiyama pipeline that was missing. An edge spanning
-# more than one rank was a straight line from source to target, so a
-# 9-stage pipeline with a 1->9 edge drew that edge across seven boxes.
-# No routing rule could have saved it: the edge had no presence in the
-# ranks it crossed, so nothing reserved room for it. Dummy nodes give it
-# one, and the chain read back out IS the route.
-#
-# Measured in pixels, over the node fill: a routed edge never paints
-# grey inside a box.
-#---------------------------------------------------------------------------
+if bSweeps
+	#
+	# The step of the Sugiyama pipeline that was missing. An edge spanning
+	# more than one rank was a straight line from source to target, so a
+	# 9-stage pipeline with a 1->9 edge drew that edge across seven boxes.
+	# No routing rule could have saved it: the edge had no presence in the
+	# ranks it crossed, so nothing reserved room for it. Dummy nodes give it
+	# one, and the chain read back out IS the route.
+	#
+	# Measured in pixels, over the node fill: a routed edge never paints
+	# grey inside a box.
+	#---------------------------------------------------------------------------
 
-BLU = "#1E6FE0"
-oL = new stzDiagram("pipe")
-for i = 1 to 9
-	oL.AddNodeXTT("s" + i, "Stage " + i, [ :type = "box", :color = BLU ])
-next
-for i = 1 to 8  oL.AddEdge("s" + i, "s" + (i+1))  next
-oL.AddEdge("s1", "s9")          # spans eight ranks
-oL.AddEdge("s2", "s7")          # spans five
+	BLU = "#1E6FE0"
+	oL = new stzDiagram("pipe")
+	for i = 1 to 9
+		oL.AddNodeXTT("s" + i, "Stage " + i, [ :type = "box", :color = BLU ])
+	next
+	for i = 1 to 8  oL.AddEdge("s" + i, "s" + (i+1))  next
+	oL.AddEdge("s1", "s9")          # spans eight ranks
+	oL.AddEdge("s2", "s7")          # spans five
 
-oLc = oL.ToCanvasXT([ :NodeWidth = 110, :NodeHeight = 34 ])
-nCross = _EdgeInkInsideBoxes(oLc, oLc.Width(), oLc.Height(), BLU)
-? "   canvas " + oLc.Width() + "x" + oLc.Height() +
-  "   edge ink found inside node boxes : " + nCross
-chk("no long edge is drawn through a node", nCross = 0)
+	oLc = oL.ToCanvasXT([ :NodeWidth = 110, :NodeHeight = 34 ])
+	nCross = _EdgeInkInsideBoxes(oLc, oLc.Width(), oLc.Height(), BLU)
+	? "   canvas " + oLc.Width() + "x" + oLc.Height() +
+	  "   edge ink found inside node boxes : " + nCross
+	chk("no long edge is drawn through a node", nCross = 0)
 
-# THE NEGATIVE SIBLING: the instrument must be able to SEE an edge over a
-# box, so draw one deliberately and measure the same way.
-oX = new stzCanvas(200, 120)
-oX.SetBackgroundQ("#FFFFFF")
-oX.FillQ(BLU).AddRect(40, 30, 120, 60)
-oX.Flush()
-oX.AddLineQ(20, 60, 180, 60).Stroke("#8A8A8A", 2)
-nX = _EdgeInkInsideBoxes(oX, 200, 120, BLU)
-? "   a line drawn deliberately across a box reads : " + nX
-chk("the crossing check DISCRIMINATES", nX > 0)
+	# THE NEGATIVE SIBLING: the instrument must be able to SEE an edge over a
+	# box, so draw one deliberately and measure the same way.
+	oX = new stzCanvas(200, 120)
+	oX.SetBackgroundQ("#FFFFFF")
+	oX.FillQ(BLU).AddRect(40, 30, 120, 60)
+	oX.Flush()
+	oX.AddLineQ(20, 60, 180, 60).Stroke("#8A8A8A", 2)
+	nX = _EdgeInkInsideBoxes(oX, 200, 120, BLU)
+	? "   a line drawn deliberately across a box reads : " + nX
+	chk("the crossing check DISCRIMINATES", nX > 0)
 
-#---------------------------------------------------------------------------
-? ""
+	#---------------------------------------------------------------------------
+	? ""
+else
+	? "        [SKIPPED -- quick scope; the full gate runs it]"
+ok
+
 sec("-- 9. A cluster box holds its members, and NO STRANGER -------")
 #
 # A cluster used to be a box drawn around whatever the layout produced.

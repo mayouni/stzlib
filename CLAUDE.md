@@ -75,7 +75,7 @@ state:
   entity:     its current state   (named system things only)
 
 waiting:
-  - TASK-ID: the question -> who decides [routed | not routed]
+  - TASK-ID: the question -> who decides [routed | not routed | withdrawn]
 
 next:
   - me:      what I will do without being asked
@@ -92,7 +92,11 @@ the mirror, file the journal entry -- then DO it and report it in did, or name i
 with `me:` as actor. Never leave an obvious mechanical step implied. The stranger test
 governs every line: plain words, no idiom, parseable by a reader who missed the
 conversation. **Speak and file**: append every memo to
-`D:\GitHub\softanza\journal\YYYY-MM-DD.md`. Full law: `D:\GitHub\softanza\protocol\STYLE.md`
+`D:\GitHub\softanza\journal\YYYY-MM-DD.md` -- **unless you are an unattended run**, in which
+case your memo goes in `.central\outbox.md` and Central folds it into that journal by
+reference. AUTOPILOT rule 3a rules this: rule 3 forbids a run writing outside its own
+repository, and writing the memo twice would be two sources of truth. An attended session
+files it itself. Full law: `D:\GitHub\softanza\protocol\STYLE.md`
 *This repository: `stzlib`.*
 <!-- /BANGALO-BLOCK -->
 
@@ -226,6 +230,28 @@ When systematically reducing `#ERR` count under
 
 The `/grind-err` skill in `.claude/skills/grind-err/` packages this
 loop.
+
+## Guard suites: iterate on probes, gate once
+
+A monolithic guard suite (gg_adversarial.ring is ~8 min) is a PRE-COMMIT
+GATE, not an iteration tool. The author stopped a session for re-running
+it per edit. The rule:
+
+1. Develop and verify each new section as a STANDALONE probe first --
+   the section's code in a scratch file, seconds per run. Fold it into
+   the suite only when green standalone.
+2. Iterate against the QUICK scope, which skips the measured-slow
+   sweeps: `ring gg_adversarial.ring quick` is 70s / 138 assertions
+   against ~8 min / 141. Skipped sections PRINT as skipped -- a suite
+   that silently drops coverage reports a green it did not earn.
+3. Run the full suite EXACTLY ONCE per task, right before the commit,
+   in the background while other work continues.
+4. The suite prints per-section wall times (`sec()` banners): every
+   gate run is also the profile that says which section earns a diet.
+   First profile (2026-08-20): sections 4, 7 and 8 held 484s of 490s --
+   three whole-render sweeps hunting a pixel property. They are the
+   quick scope's exclusions, and the standing candidates for a rewrite
+   that measures the property without re-rendering the world.
 
 ## Background tasks: prefer direct grep over `run_in_background`
 
