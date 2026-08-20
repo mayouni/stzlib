@@ -204,6 +204,14 @@ class stzGraphCanvas from stzObject
 	@aDumEdge = []
 	@nRealCount = 0
 
+	# The crossing count of the FINAL order -- after the engine sweep AND
+	# after cluster compaction, because that is the order that is drawn.
+	# A structure fact the graph tier answers so a face (or a guard) can
+	# ask "does this picture contain only the crossings the graph
+	# requires?" without rebuilding CSR arrays by hand. -1 = no
+	# hierarchical layout has run.
+	@nLayoutCrossings = -1
+
 	def init(poGraph, paOptions)
 		if NOT isObject(poGraph)
 			StzRaise("stzGraphCanvas: give me an stzGraph.")
@@ -246,6 +254,7 @@ class stzGraphCanvas from stzObject
 	def RawSpanY()    return @nRawSpanY
 	def LayerCount()  return @nLayerCount
 	def IsUnitX()     return @bUnitX
+	def LayoutCrossings()  return @nLayoutCrossings
 
 	# Validate HERE. Passing 0 used to be accepted and then surfaced much
 	# later as "stzCanvas refused a 0x0 canvas" from inside ToCanvas -- an
@@ -428,6 +437,8 @@ class stzGraphCanvas from stzObject
 		return _g_
 
 	def _LayoutHierarchical()
+		# a single rank, or a graph with no edges, crosses nothing
+		@nLayoutCrossings = 0
 		_lay_ = StzGraphMetric(@oGraph, :Depth)
 		_nReal_ = len(@aIds)
 		_max_ = 0
@@ -569,6 +580,20 @@ class stzGraphCanvas from stzObject
 						_clOf_)
 				next
 			ok
+
+			# the fact is measured on what will be DRAWN: the sweep's order
+			# as constrained by the clusters, not the sweep's optimum. A
+			# cluster gathering its members can buy contiguity with a
+			# crossing, and the honest count includes that price.
+			_aPosF_ = []
+			for _i_ = 1 to _n_  _aPosF_ + 0  next
+			for _L_ = 1 to _max_ + 1
+				for _k_ = _starts_[_L_] + 1 to _starts_[_L_ + 1]
+					_aPosF_[ _order_[_k_] + 1 ] = _k_ - _starts_[_L_]
+				next
+			next
+			@nLayoutCrossings = StzEngineGraphLayoutCrossings(_eu_, _ev_,
+				_lay0_, _aPosF_, _starts_)
 
 			_outc_ = _StzCsr(_eu_, _ev_, _n_)         # successors of u
 			# :NodeExtra is a per-node half-width demand in SLOT units --

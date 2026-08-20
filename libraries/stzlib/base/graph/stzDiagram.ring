@@ -333,6 +333,13 @@ class stzDiagram from stzGraph
 	# CAD does this in two passes too.
 	@aVertSegs = []
 	@nDrawPass = 2
+
+	# The layered crossing count of the order the last render drew --
+	# the graph tier's structure fact. Only the crossings the structure
+	# REQUIRES survive the engine sweep, and each survivor earns a wire
+	# hop; this number is what a guard compares the picture against.
+	# -1 = no natural hierarchical render has run.
+	@nRenderCrossings = -1
 	@aoAnnotations = []
 	@aoTemplates = []
 
@@ -1656,6 +1663,10 @@ class stzDiagram from stzGraph
 				:Clusters = This._ClusterPairs(),
 				:NodeExtra = _aXtra_
 			])
+			# the layered crossing count of the order being drawn -- the
+			# graph tier's structure fact, kept with the render's other
+			# facts (node rects, cluster rects, claimed channels)
+			@nRenderCrossings = _oGC_.LayoutCrossings()
 			# slot and pitch along the LAYOUT axes; the boxes do not rotate
 			# with the rank direction, so the box dimension that matters
 			# swaps when the picture does
@@ -2918,6 +2929,9 @@ class stzDiagram from stzGraph
 	def ClaimedChannels()
 		return @aChanUsed
 
+	def RenderCrossings()
+		return @nRenderCrossings
+
 	# THE MINIMUM DISTANCE BETWEEN AN EDGE LINE AND ANY PARALLEL LINE -- a
 	# frame rule, another channel. Named because it is a LEGIBILITY
 	# quantity, not a geometric one: two lines a few pixels apart are
@@ -2948,18 +2962,19 @@ class stzDiagram from stzGraph
 	# bVert says which axis the channel RUNS along: 0 = horizontal (a
 	# top-down picture), 1 = vertical (left-to-right). The rule is the
 	# same rule on the other axis, which is what makes it one rule.
-	def _ChannelBand(nPos, nA1, nA2, cFrom, cTo, bVert, nLimA, nLimB)
+	# The merged blocked intervals a channel with this span must avoid --
+	# foreign cluster surfaces and foreign node rows, endpoints exempt.
+	# Factored out of _ChannelBand so the CLAIMER can test a stepped lane
+	# against the same obstacles: its first revalidation asked _ChannelBand
+	# to return the candidate unchanged, but the band always recentres to
+	# the gap's middle, so every honest step candidate failed the test and
+	# two foreign channels fell back onto ONE shared lane -- K2,2's two
+	# trunks drew a single line both ways.
+	def _ChannelBlocked(nA1, nA2, cFrom, cTo, bVert)
 		_cbLo_ = min([ nA1, nA2 ])
 		_cbHi_ = max([ nA1, nA2 ])
 		_cbF_ = StzLower("" + cFrom)
 		_cbT_ = StzLower("" + cTo)
-		# BLOCKED INTERVALS, MERGED -- not "the nearest face either side".
-		# That shortcut was wrong whenever the proposed channel fell
-		# INSIDE an obstacle: it recorded that obstacle's near face as a
-		# bound and then centred between it and something beyond, landing
-		# the channel back inside the very rect it was escaping. Free
-		# space is what is left after the blocked spans are unioned, and
-		# nothing shorter than computing that union answers it.
 		_cbBl_ = []
 		for _cbPass_ = 1 to 2
 			if _cbPass_ = 1
@@ -2989,6 +3004,29 @@ class stzDiagram from stzGraph
 				_cbBl_ + [ _cbC_, _cbD_ ]
 			next
 		next
+		if len(_cbBl_) = 0  return []  ok
+		_cbBl_ = sort(_cbBl_, 1)
+		_cbM_ = []
+		for _cbI_ = 1 to len(_cbBl_)
+			if len(_cbM_) > 0 and _cbBl_[_cbI_][1] <= _cbM_[len(_cbM_)][2]
+				if _cbBl_[_cbI_][2] > _cbM_[len(_cbM_)][2]
+					_cbM_[len(_cbM_)][2] = _cbBl_[_cbI_][2]
+				ok
+			else
+				_cbM_ + [ _cbBl_[_cbI_][1], _cbBl_[_cbI_][2] ]
+			ok
+		next
+		return _cbM_
+
+	def _ChannelBand(nPos, nA1, nA2, cFrom, cTo, bVert, nLimA, nLimB)
+		# BLOCKED INTERVALS, MERGED -- not "the nearest face either side".
+		# That shortcut was wrong whenever the proposed channel fell
+		# INSIDE an obstacle: it recorded that obstacle's near face as a
+		# bound and then centred between it and something beyond, landing
+		# the channel back inside the very rect it was escaping. Free
+		# space is what is left after the blocked spans are unioned, and
+		# nothing shorter than computing that union answers it.
+		_cbM_ = This._ChannelBlocked(nA1, nA2, cFrom, cTo, bVert)
 		# THE CORRIDOR IS LAW. A single-hop channel lives between its two
 		# attachment borders and a routed one between its fold points;
 		# free space OUTSIDE that range is not usable however empty it is.
@@ -3001,19 +3039,7 @@ class stzDiagram from stzGraph
 			_cbLimLo_ = (nLimA + nLimB) / 2
 			_cbLimHi_ = _cbLimLo_
 		ok
-		if len(_cbBl_) = 0  return min([ max([ nPos, _cbLimLo_ ]), _cbLimHi_ ])  ok
-
-		_cbBl_ = sort(_cbBl_, 1)
-		_cbM_ = []
-		for _cbI_ = 1 to len(_cbBl_)
-			if len(_cbM_) > 0 and _cbBl_[_cbI_][1] <= _cbM_[len(_cbM_)][2]
-				if _cbBl_[_cbI_][2] > _cbM_[len(_cbM_)][2]
-					_cbM_[len(_cbM_)][2] = _cbBl_[_cbI_][2]
-				ok
-			else
-				_cbM_ + [ _cbBl_[_cbI_][1], _cbBl_[_cbI_][2] ]
-			ok
-		next
+		if len(_cbM_) = 0  return min([ max([ nPos, _cbLimLo_ ]), _cbLimHi_ ])  ok
 
 		# the free gaps between merged blocks, plus the open ends
 		_cbClr_ = This._LineClearance()
@@ -3073,19 +3099,29 @@ class stzDiagram from stzGraph
 		_ccClr_ = This._LineClearance()
 		_ccLimLo_ = min([ nLimA, nLimB ]) + 4
 		_ccLimHi_ = max([ nLimA, nLimB ]) - 4
+		# A STEPPED CANDIDATE OBEYS THE SAME OBSTACLES AS THE FIRST.
+		# Without this, dodging a sibling channel walked candidates
+		# straight into a foreign cluster -- the claimer undoing the
+		# band's work one clearance at a time. Tested against the blocked
+		# intervals THEMSELVES: the first version asked _ChannelBand to
+		# return the candidate unchanged, but the band recentres every
+		# interior proposal to its gap's middle, so every honest step
+		# failed the test and conflicting channels shared one lane.
+		_ccBlk_ = This._ChannelBlocked(nSpanA, nSpanB, cFrom2, cTo2, bVert2)
 		for _ccK_ in [ 0, 1, -1, 2, -2, 3, -3 ]
 			_ccCand_ = nY + _ccK_ * _ccClr_
 			if _ccLimHi_ > _ccLimLo_
 				if _ccCand_ < _ccLimLo_ or _ccCand_ > _ccLimHi_  loop  ok
 			ok
-			# A STEPPED CANDIDATE OBEYS THE SAME OBSTACLES AS THE FIRST.
-			# Without this, dodging a sibling channel walked candidates
-			# straight into a foreign cluster -- the claimer undoing the
-			# band's work one clearance at a time.
 			if _ccK_ != 0
-				_ccChk_ = This._ChannelBand(_ccCand_, nSpanA, nSpanB,
-					cFrom2, cTo2, bVert2, nLimA, nLimB)
-				if fabs(_ccChk_ - _ccCand_) > 0.5  loop  ok
+				_ccHit_ = 0
+				for _ccB2_ in _ccBlk_
+					if _ccCand_ > _ccB2_[1] - 3 and _ccCand_ < _ccB2_[2] + 3
+						_ccHit_ = 1
+						exit
+					ok
+				next
+				if _ccHit_  loop  ok
 			ok
 			_ccBad_ = 0
 			for _ccU_ in @aChanUsed
@@ -3865,7 +3901,8 @@ class stzDiagram from stzGraph
 			# every parent in a rank shared one channel and neighbouring
 			# families read as crossings.
 			This._DrawEdge(oC, aFrom, aTo, nBoxW, nBoxH, cColor, nWidth,
-				cSpline, cRank, nLane, cFromId, cToId, pSideDep)
+				cSpline, cRank, nLane, nPortA, nPortB, cFromId, cToId,
+				pSideDep)
 			return
 		ok
 		_dg_ = This._EdgeGeometry(aFrom, aTo, nBoxW, nBoxH, cRank, nWidth, nPortA, nPortB, This._EdgeCorner(), pBlockSide)
@@ -3879,13 +3916,28 @@ class stzDiagram from stzGraph
 		oC.AddPolylineQ(_dg_[1]).Stroke(cColor, nWidth)
 		This._DrawArrowHead(oC, _dg_[2], _dg_[3], cColor)
 
-	def _DrawEdge(oC, aFrom, aTo, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nLane, cFromId, cToId, pSideDep)
+	def _DrawEdge(oC, aFrom, aTo, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nLane, nPortA, nPortB, cFromId, cToId, pSideDep)
 		_p_ = This._ClipToBox(aFrom, aTo, nBoxW, nBoxH)
 		_q_ = This._ClipToBox(aTo, aFrom, nBoxW, nBoxH)
 
 		switch cSpline
 		on "ortho"
+			# THE TRUNK IS A STEM WITH PORTED FINGERS. The departure stays
+			# at the source's centre -- same-source edges sharing their
+			# stem is I2's blessed merge, one line because it is one
+			# origin, and it is what keeps a 14-way fan a bus instead of
+			# fourteen micro-spaced lanes. The ARRIVAL takes its port:
+			# this form dropped nPortB on the floor, so K2,2's crossing
+			# edge landed exactly on its target's own spine column and two
+			# foreign edges shared one vertical line. Porting only the
+			# arrival resolves the crossing pair to ONE transversal
+			# crossing -- which the wire hop then declares -- where
+			# porting BOTH ends double-books a column unavoidably: each
+			# edge would use the other's column, and on a shared column
+			# one pair of spans must overlap.
 			if cRank = "LR" or cRank = "RL"
+				_pay_ = aFrom[2]
+				_qay_ = aTo[2] + nPortB
 				_sgn_ = 1
 				if aTo[1] < aFrom[1]  _sgn_ = -1  ok
 				_pe_ = aFrom[1] + _sgn_ * nBoxW / 2
@@ -3893,16 +3945,18 @@ class stzDiagram from stzGraph
 				_chan_ = _pe_ + (_qe_ - _pe_) * nLane
 				# the span is the run's own axis: a VERTICAL channel in a
 				# left-to-right picture runs across Y
-				_chan_ = This._ChannelBand(_chan_, aFrom[2], aTo[2],
+				_chan_ = This._ChannelBand(_chan_, _pay_, _qay_,
 					cFromId, cToId, 1, _pe_, _qe_)
-				_chan_ = This._ClaimChannel(_chan_, aFrom[2], aTo[2],
+				_chan_ = This._ClaimChannel(_chan_, _pay_, _qay_,
 					cFromId, _pe_, _qe_, cFromId, cToId, 1)
-				This._EmitOrthoPolyline(oC, [ _pe_, aFrom[2], _chan_,
-					aFrom[2], _chan_, aTo[2], _qe_, aTo[2] ],
+				This._EmitOrthoPolyline(oC, [ _pe_, _pay_, _chan_,
+					_pay_, _chan_, _qay_, _qe_, _qay_ ],
 					cColor, nWidth, cFromId + ">" + cToId)
-				_p_ = [ _chan_, aTo[2] ]
-				_q_ = [ _qe_, aTo[2] ]
+				_p_ = [ _chan_, _qay_ ]
+				_q_ = [ _qe_, _qay_ ]
 			else
+				_pax_ = aFrom[1]
+				_qax_ = aTo[1] + nPortB
 				_sgn_ = 1
 				if aTo[2] < aFrom[2]  _sgn_ = -1  ok
 				_pe_ = aFrom[2] + _sgn_ * nBoxH / 2
@@ -3912,15 +3966,15 @@ class stzDiagram from stzGraph
 				# passed the Y pair, so every obstacle test ran against a
 				# span from the wrong axis and the placer worked on
 				# fiction
-				_chan_ = This._ChannelBand(_chan_, aFrom[1], aTo[1],
+				_chan_ = This._ChannelBand(_chan_, _pax_, _qax_,
 					cFromId, cToId, 0, _pe_, _qe_)
-				_chan_ = This._ClaimChannel(_chan_, aFrom[1], aTo[1],
+				_chan_ = This._ClaimChannel(_chan_, _pax_, _qax_,
 					cFromId, _pe_, _qe_, cFromId, cToId, 0)
-				This._EmitOrthoPolyline(oC, [ aFrom[1], _pe_, aFrom[1],
-					_chan_, aTo[1], _chan_, aTo[1], _qe_ ],
+				This._EmitOrthoPolyline(oC, [ _pax_, _pe_, _pax_,
+					_chan_, _qax_, _chan_, _qax_, _qe_ ],
 					cColor, nWidth, cFromId + ">" + cToId)
-				_p_ = [ aTo[1], _chan_ ]
-				_q_ = [ aTo[1], _qe_ ]
+				_p_ = [ _qax_, _chan_ ]
+				_q_ = [ _qax_, _qe_ ]
 			ok
 		on "line"
 			oC.Flush()
