@@ -5,6 +5,7 @@ const gen = @import("neural_gen.zig");
 const gex = @import("gguf_export.zig");
 const ngpu = @import("neural_gpu.zig");
 const nbb = @import("neural_backbone.zig");
+const gbnf = @import("schema_gbnf.zig");
 const R = @import("ring_api.zig");
 
 const rn = R.ring_vm_api_retnumber;
@@ -284,7 +285,68 @@ fn ring_BackboneSupported(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(nbb.neural_backbone_supported()));
 }
 
+// --- schema -> GBNF (prompt 42 item 1). The grammar is COMPILED here;
+// nothing constrains decoding with it yet, and ring_GbnfDecodingSupported
+// says so rather than letting a caller assume otherwise.
+fn ring_GbnfBegin(p: *anyopaque) callconv(.c) void {
+    _ = p;
+    gbnf.stz_gbnf_begin();
+}
+
+fn ring_GbnfField(p: *anyopaque) callconv(.c) void {
+    const name = gs(p, 1);
+    const nl: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
+    const ftype: i32 = @intFromFloat(R.ring_vm_api_getnumber(p, 2));
+    const req: i32 = @intFromFloat(R.ring_vm_api_getnumber(p, 3));
+    const of: i32 = @intFromFloat(R.ring_vm_api_getnumber(p, 4));
+    const ch = gs(p, 5);
+    const cl: usize = @intCast(R.ring_vm_api_getstringsize(p, 5));
+    const ms = gs(p, 6);
+    const ml: usize = @intCast(R.ring_vm_api_getstringsize(p, 6));
+    rn(p, @floatFromInt(gbnf.stz_gbnf_field(name, nl, ftype, req, of, ch, cl, ms, ml)));
+}
+
+fn ring_GbnfCompile(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gbnf.stz_gbnf_compile()));
+}
+
+fn ring_GbnfText(p: *anyopaque) callconv(.c) void {
+    var buf: [8192]u8 = undefined;
+    const l = gbnf.stz_gbnf_text(&buf);
+    if (l > 0) R.ring_vm_api_retstring2(p, &buf, @intCast(l)) else R.ring_vm_api_retstring2(p, @constCast(""), 0);
+}
+
+fn ring_GbnfLastRefusal(p: *anyopaque) callconv(.c) void {
+    var buf: [512]u8 = undefined;
+    const l = gbnf.stz_gbnf_last_refusal(&buf);
+    if (l > 0) R.ring_vm_api_retstring2(p, &buf, @intCast(l)) else R.ring_vm_api_retstring2(p, @constCast(""), 0);
+}
+
+fn ring_GbnfUnenforced(p: *anyopaque) callconv(.c) void {
+    var buf: [1024]u8 = undefined;
+    const l = gbnf.stz_gbnf_unenforced(&buf);
+    if (l > 0) R.ring_vm_api_retstring2(p, &buf, @intCast(l)) else R.ring_vm_api_retstring2(p, @constCast(""), 0);
+}
+
+fn ring_GbnfDecodingSupported(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gbnf.stz_gbnf_decoding_supported()));
+}
+
+fn ring_GbnfDecodingStatus(p: *anyopaque) callconv(.c) void {
+    var buf: [1024]u8 = undefined;
+    const l = gbnf.stz_gbnf_decoding_status(&buf);
+    if (l > 0) R.ring_vm_api_retstring2(p, &buf, @intCast(l)) else R.ring_vm_api_retstring2(p, @constCast(""), 0);
+}
+
 pub const regs = [_]R.Reg{
+    .{ .name = "stzenginegbnfbegin", .func = &ring_GbnfBegin },
+    .{ .name = "stzenginegbnffield", .func = &ring_GbnfField },
+    .{ .name = "stzenginegbnfcompile", .func = &ring_GbnfCompile },
+    .{ .name = "stzenginegbnftext", .func = &ring_GbnfText },
+    .{ .name = "stzenginegbnflastrefusal", .func = &ring_GbnfLastRefusal },
+    .{ .name = "stzenginegbnfunenforced", .func = &ring_GbnfUnenforced },
+    .{ .name = "stzenginegbnfdecodingsupported", .func = &ring_GbnfDecodingSupported },
+    .{ .name = "stzenginegbnfdecodingstatus", .func = &ring_GbnfDecodingStatus },
     .{ .name = "stzengineneuralbackboneembed", .func = &ring_BackboneEmbed },
     .{ .name = "stzengineneuralbackbonesupported", .func = &ring_BackboneSupported },
     .{ .name = "stzengineneuralbackbonesetmintokens", .func = &ring_BackboneSetMinTokens },

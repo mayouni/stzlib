@@ -140,6 +140,27 @@ func _StzOutputOpsFor(pcType)
 	ok
 	return []
 
+# The engine's field-type codes. Kept beside the type vocabulary above so
+# the two cannot drift: a new type added there without a code here compiles
+# to the WRONG grammar rather than to none, which is the failure a schema
+# compiler must never have.
+func _StzOutputTypeCode(pcType)
+	_t_ = StzLower(ring_trim("" + pcType))
+	if _t_ = "string"
+		return 0
+	but _t_ = "number"
+		return 1
+	but _t_ = "boolean"
+		return 2
+	but _t_ = "oneof"
+		return 3
+	but _t_ = "list"
+		return 4
+	but _t_ = "structure"
+		return 5
+	ok
+	return 0
+
 func _StzOutputAt(pcPath)
 	if ring_trim("" + pcPath) = ""
 		return ""
@@ -1529,10 +1550,93 @@ class stzOutputSchema from stzObject
 
 	# The shape, written the way the model should write it. Appended to
 	# a prompt, it is the difference between hoping and asking.
+	# The shape, written the way the model should write it. Appended to a
+	# prompt, it is the difference between hoping and asking.
+	#
+	# THE CLAUSE IS SHORT BECAUSE A LONGER ONE MEASURED WORSE, and that is
+	# the only reason. Against the shipped 135M model, ten structured
+	# prompts validated 2/10 with the wording below. Adding two instructions
+	# aimed at the observed failures -- "do not explain the structure", and
+	# "replace every <...> with a real value" -- took it to 0/10: a small
+	# model told not to explain explained more, and the negation was the
+	# thing it echoed. Reverted on the measurement. Do not re-add
+	# instructions here without re-running
+	# base/test/neural/_measure_structured.ring; taste is not evidence.
 	def PromptClause()
 		return "Answer with ONLY this structure, one field per line, " +
 			"nothing before it and nothing after it:" + char(10) + char(10) +
 			_StzOutputShapeLines(@aFields, 0)
+
+	  #-- the grammar half (prompt 42) --------------------------------
+	/*
+		THIS COMPILES THE DECLARATION INTO A GRAMMAR. It does NOT
+		constrain decoding, and the difference is the whole point.
+
+		The court above parses and refuses what a model already said.
+		A grammar makes a violating token unemittable in the first
+		place -- but only once a SAMPLER consumes it, which nothing in
+		this build does. IsDecodingConstrained() answers 0 and
+		DecodingStatus() says why, so no caller can mistake a compiled
+		grammar for a constrained one.
+
+		AND A GRAMMAR CONSTRAINS SHAPE, NEVER VALUE. No context-free
+		rule says "this number is between 0 and 130", so every :must
+		clause is dropped from the grammar -- listed, one line each, by
+		UnenforcedByGrammar(). That is why this court does not retire
+		when constrained decoding lands: it is the half that checks
+		what a grammar structurally cannot.
+	*/
+
+	# The GBNF text for this declaration, or a raise naming the construct
+	# that cannot be expressed. Nested structures are REFUSED rather than
+	# flattened: a grammar that accepted what this schema rejects would
+	# put the two layers into disagreement.
+	def ToGBNF()
+		stzenginegbnfbegin()
+		_n_ = len(@aFields)
+		for _i_ = 1 to _n_
+			_f_ = @aFields[_i_]
+			_cOps_ = ""
+			_nM_ = len(_f_[:must])
+			for _iM_ = 1 to _nM_
+				if _iM_ > 1  _cOps_ += ","  ok
+				_cOps_ += _f_[:must][_iM_][1]
+			next
+			_rc_ = stzenginegbnffield(_f_[:name],
+				_StzOutputTypeCode(_f_[:type]), _f_[:required],
+				_StzOutputTypeCode(_f_[:of]),
+				_StzOutputJoin(_f_[:choices], ","), _cOps_)
+			if _rc_ != 0
+				stzraise("stzOutputSchema.ToGBNF: " + stzenginegbnflastrefusal())
+			ok
+		next
+		if stzenginegbnfcompile() != 0
+			stzraise("stzOutputSchema.ToGBNF: " + stzenginegbnflastrefusal())
+		ok
+		return stzenginegbnftext()
+
+	# TRUE when this declaration can be expressed as a grammar at all.
+	def IsExpressibleAsGrammar()
+		try
+			This.ToGBNF()
+		catch
+			return 0
+		done
+		return 1
+
+	# One line per constraint the grammar does NOT carry. Empty means the
+	# grammar carries everything this schema declared.
+	def UnenforcedByGrammar()
+		This.ToGBNF()
+		return stzenginegbnfunenforced()
+
+	# Does anything actually CONSTRAIN DECODING with this grammar? Ask
+	# before reporting an answer as grammar-constrained -- today this is 0.
+	def IsDecodingConstrained()
+		return stzenginegbnfdecodingsupported()
+
+	def DecodingStatus()
+		return stzenginegbnfdecodingstatus()
 
 	# The declaration read back as prose, for a narrated test or a
 	# reader who wants to see what was actually promised.
