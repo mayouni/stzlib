@@ -2893,6 +2893,135 @@ chk("...and by no more than an ordinary separation beyond that",
 
 #---------------------------------------------------------------------------
 ? ""
+sec("-- 38. A main line runs as ONE straight column --------------")
+#
+# The pin law straightens a single hop; a designer straightens the whole
+# line. Centring alone cannot: a parent placed between a chain child and
+# a leaf child sits half a pitch off the chain, and over five ranks that
+# accumulates -- a five-stage pipeline drew as a diagonal staircase 468px
+# wide, with the main line the least visible structure in the picture.
+#
+# So the two rules become ONE. A parent stands over the child that
+# carries the LONGEST CONTINUATION when exactly one child does, and at
+# the middle of its children when none stands out. Nothing is special-
+# cased: a fan's children are all leaves and tie immediately, so the
+# Principal's centring rule is untouched; two branches of equal depth tie
+# as well, which is why a service diagram keeps its centred root while
+# each of its branches is straight. Only where the graph itself says
+# "this way onward" does the picture say it too.
+#
+# A tie is not a failure to decide -- it is the graph reporting that the
+# line has split, and a picture that picked a side there would state
+# something the graph does not contain.
+#---------------------------------------------------------------------------
+
+
+# A MAIN LINE WITH BRANCHES HANGING OFF IT
+oPl = new stzDiagram("pipe39")
+for i = 1 to 5
+	oPl.AddNodeXTT("s" + i, "Stage " + i,
+		[ :type = "box", :color = "Info.Solid" ])
+next
+for i = 1 to 4  oPl.AddEdge("s" + i, "s" + (i + 1))  next
+for i = 1 to 4
+	oPl.AddNodeXTT("b" + i, "Log " + i,
+		[ :type = "box", :color = "Info.Solid" ])
+	oPl.AddEdge("s" + i, "b" + i)
+next
+oPl.SetSplines("ortho")
+oPl.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+aX = []
+for i = 1 to 4
+	for r in oPl.RenderNodeRects()
+		if r[5] = "s" + i  aX + (r[1] + r[3] / 2)  ok
+	next
+next
+nDrift = 0
+for i = 2 to len(aX)
+	if fabs(aX[i] - aX[1]) > nDrift  nDrift = fabs(aX[i] - aX[1])  ok
+next
+? "   four ranks of a main line drift " + nDrift + "px from the first"
+chk("a chain runs as ONE straight column", nDrift < 0.5)
+
+# ...and every branch hangs to the SAME side of it, which is what makes
+# the line the thing a reader follows rather than one strand among
+# several. Measured against the line's COLUMN, not against particular
+# boxes: a branch and a stage in different ranks may share an x without
+# touching, so the property is about the column the eye traces.
+nBOff = 1000000
+nLeft = 0
+nRight = 0
+for r in oPl.RenderNodeRects()
+	if StzSubStr(r[5], 1, 1) != "b"  loop  ok
+	nD = r[1] + r[3] / 2 - aX[1]
+	if fabs(nD) < nBOff  nBOff = fabs(nD)  ok
+	if nD < 0  nLeft++  else  nRight++  ok
+next
+? "   the nearest branch stands " + nBOff + "px off the line ; " +
+  nLeft + " left, " + nRight + " right"
+chk("no branch stands ON the line", nBOff >= oPl._LineClearance())
+chk("...and they all hang to the same side of it",
+    nLeft = 0 or nRight = 0)
+
+# THE TIE IS THE GRAPH SAYING THE LINE HAS SPLIT, and then the parent
+# centres as always -- two children of equal depth give no reason to
+# prefer either, and inventing one would state something the graph does
+# not. The service diagram is the case: its root's two children carry
+# chains of the same length.
+oSv = new stzDiagram("svc39")
+for a in [ [ "lb","Balancer" ],[ "web1","Web A" ],[ "web2","Web B" ],
+           [ "api1","API A" ],[ "api2","API B" ],
+           [ "db1","DB A" ],[ "db2","DB B" ] ]
+	oSv.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
+next
+oSv.AddEdge("lb","web1")   oSv.AddEdge("lb","web2")
+oSv.AddEdge("web1","api1") oSv.AddEdge("web2","api2")
+oSv.AddEdge("api1","db1")  oSv.AddEdge("api2","db2")
+oSv.SetSplines("ortho")
+oSv.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+nLb = 0  nW1 = 0  nW2 = 0  nA1 = 0  nD1 = 0
+for r in oSv.RenderNodeRects()
+	nC = r[1] + r[3] / 2
+	if r[5] = "lb"    nLb = nC  ok
+	if r[5] = "web1"  nW1 = nC  ok
+	if r[5] = "web2"  nW2 = nC  ok
+	if r[5] = "api1"  nA1 = nC  ok
+	if r[5] = "db1"   nD1 = nC  ok
+next
+? "   two equal branches : root at " + nLb + ", their middle " +
+  ((nW1 + nW2) / 2)
+chk("equal branches TIE, and the parent centres as always",
+    fabs(nLb - (nW1 + nW2) / 2) < 0.5)
+? "   and each branch is itself straight : " + nW1 + ", " + nA1 + ", " + nD1
+chk("...while each branch is its own straight column",
+    fabs(nW1 - nA1) < 0.5 and fabs(nA1 - nD1) < 0.5)
+
+# THE NEGATIVE SIBLING: a fan has no chain at all, so nothing may claim
+# a spine and the parent stays centred over all of its children. A rule
+# that aligned to "the first child" would pass the pipeline above and
+# fail here.
+oFn = new stzDiagram("fan39")
+oFn.AddNodeXTT("r", "R", [ :type = "box", :color = "Info.Solid" ])
+for i = 1 to 4
+	oFn.AddNodeXTT("h" + i, "H" + i, [ :type = "box", :color = "Info.Solid" ])
+	oFn.AddEdge("r", "h" + i)
+next
+oFn.SetSplines("ortho")
+oFn.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+nRx = 0
+aKid = []
+for r in oFn.RenderNodeRects()
+	if r[5] = "r"  nRx = r[1] + r[3] / 2
+	else  aKid + (r[1] + r[3] / 2)  ok
+next
+aKid = sort(aKid)
+? "   a fan of four : parent at " + nRx + ", span middle " +
+  ((aKid[1] + aKid[4]) / 2)
+chk("no chain, no spine -- the fan stays centred",
+    fabs(nRx - (aKid[1] + aKid[4]) / 2) < 0.5)
+
+#---------------------------------------------------------------------------
+? ""
 if nSecClock > 0
 	? "        [section took " +
 	  ((clock() - nSecClock) / clockspersecond()) + "s]"
