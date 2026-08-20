@@ -985,9 +985,23 @@ oTC = new stzGraphCanvas(oTT, [ :Layout = :Hierarchical,
 aTP = oTC.Positions()
 
 # dot -Tplain, same tree: tightest gap 1.458in; spans in those units
-aDotSpan = [ [ 2, 4.0 ], [ 4, 10.5 ], [ 8, 15.0 ], [ 16, 17.5 ], [ 9, 8.0 ] ]
+# MEASURED AGAINST DOT WHERE WE AGREE WITH DOT, and that is not
+# everywhere any more. The Principal's centring rule -- the mother cell
+# always sits at the middle of her children -- is Reingold-Tilford's, not
+# dot's: dot's network simplex BALANCES edge lengths and will lean a
+# parent toward one side to buy a tighter rank. So the upper ranks of a
+# binary tree are wider here than in dot BY CONSTRUCTION, and a guard
+# that read those ranks as slack was reading a deliberate difference as a
+# defect.
+#
+# What is still worth asserting, and is asserted below, is that the extra
+# width is DERIVED rather than wasted: every parent stands exactly at its
+# own children's midpoint, so the rank's span is forced by the subtrees
+# and not by looseness. The leaf ranks, where centring has nothing to
+# say, are still held to dot.
+aDotSpan = [ [ 16, 17.5 ], [ 9, 8.0 ] ]
 nUnit = _TightestGap(aTP)
-? "   rank | dot | ours | ratio"
+? "   leaf ranks | dot | ours | ratio"
 nWorst = 0
 for aD in aDotSpan
 	nOurs = _RankSpan(aTP, aD[1]) / nUnit
@@ -995,27 +1009,26 @@ for aD in aDotSpan
 	? "   n=" + aD[1] + "   | " + aD[2] + " | " + nOurs + " | " + nR + "x"
 	if fabs(nR - 1) > nWorst  nWorst = fabs(nR - 1)  ok
 next
-? "   worst departure from dot : " + nWorst
-# WIDER THAN DOT ON PURPOSE, and the tolerance says so rather than
-# quietly tracking whatever the code does. dot spaces a rank uniformly
-# and lets the reader infer grouping from edge angles; this tier adds
-# Walker's SUBTREE separation -- extra air where one family ends and the
-# next begins -- because the Principal could not see the families
-# otherwise. That costs width, and the cost is the point.
-#
-# The bound is on the SHAPE, not on parity: every rank stays inside twice
-# dot's span, so no rank is being stretched by something other than the
-# family gap. Tightened from 0.75 to 0.40 of a slot when the first value
-# cost 1.4x on every rank -- visible grouping is worth width, not that
-# much of it.
-chk("no rank exceeds twice dot's span", nWorst < 1.0)
+? "   worst departure from dot, where we follow dot : " + nWorst
+chk("a rank of leaves is as tight as dot's", nWorst < 0.5)
 
-# THE NEGATIVE SIBLING is the measurement that started this: 2.09x on the
-# rank of two. Asserted as a number so a regression to the one-sided
-# relaxation fails here rather than being noticed by eye months later.
-nTwo = _RankSpan(aTP, 2) / nUnit / 4.0
-? "   the rank of two, which was 2.09x before the combined pass : " + nTwo + "x"
-chk("the rank that was worst is no longer twice dot's width", nTwo < 1.9)
+# ...and the upper ranks are wide only because the parents are centred.
+# n2 and n3 are the children of the root; each is the parent of its own
+# half of the tree, so its position is FORCED to that half's midpoint.
+nX2 = _XOf(aTP, "n4")
+nX3 = _XOf(aTP, "n5")
+nMid2 = (nX2 + nX3) / 2
+nX6 = _XOf(aTP, "n6")
+nX7 = _XOf(aTP, "n7")
+nMid3 = (nX6 + nX7) / 2
+? "   n2 at " + _XOf(aTP, "n2") + " over its children's middle " + nMid2
+? "   n3 at " + _XOf(aTP, "n3") + " over its children's middle " + nMid3
+chk("the rank of two is wide because both parents are CENTRED",
+    fabs(_XOf(aTP, "n2") - nMid2) < 0.5 and
+    fabs(_XOf(aTP, "n3") - nMid3) < 0.5)
+nSpan2 = fabs(_XOf(aTP, "n2") - _XOf(aTP, "n3"))
+? "   ...so its span " + nSpan2 + " is exactly the gap between those middles"
+chk("...leaving no slack in it at all", fabs(nSpan2 - fabs(nMid2 - nMid3)) < 0.5)
 
 #---------------------------------------------------------------------------
 ? ""
@@ -1510,26 +1523,41 @@ oVG = new stzGraphCanvas(oV, [ :Layout = :Hierarchical, :Width = 1000,
 	:Height = 700, :Margin = 0, :Clusters = oV._ClusterPairs() ])
 aVP = oVG.Positions()
 
-nRootOff = fabs(_XOf(aVP, "lb") - _XOf(aVP, "web2"))
-? "   the root sits " + nRootOff + " off its column"
-chk("the root joins its column exactly, through the cluster passes",
+# THE ROOT'S EXACT POSITION IS ITS CHILDREN'S MIDDLE, and this line used
+# to demand it sit on web2's column. That was the leaning picture the
+# Principal later circled: with two children a snapped root lands on one
+# of them, which states a closeness to that child the graph does not
+# contain. Alignment is still the law for everything the cluster passes
+# might have nudged -- what changed is which position counts as aligned
+# for a parent of several children.
+nRootMid = (_XOf(aVP, "web1") + _XOf(aVP, "web2")) / 2
+nRootOff = fabs(_XOf(aVP, "lb") - nRootMid)
+? "   the root sits " + nRootOff + " off its children's middle"
+chk("the root holds its exact place through the cluster passes",
     nRootOff < 0.5)
 
 nMiss = _NearMissEdges(oV, aVP)
 ? "   edges in the near-miss band (0.5 .. 40 units) : " + nMiss
 chkeq("no edge is ALMOST aligned -- exact or clearly slanted", nMiss, 0)
 
-# THE NEGATIVE SIBLING: the same census on positions nudged by hand must
-# find the near-miss it was built to see.
+# THE NEGATIVE SIBLING: the same census on positions moved by hand must
+# find the near-miss it was built to see. Built by PARKING the root 20
+# units off a child's column, not by nudging it 20 units from wherever
+# it sits -- those were the same thing only while the root stood ON a
+# child, which is exactly the leaning placement centring removed. A
+# centred root is half a pitch from both children, so a 20-unit nudge
+# left it clearly slanted and the census correctly reported nothing:
+# the instrument had quietly stopped testing itself.
 aVB = []
 for aP in aVP
 	if StzLower("" + aP[1]) = "lb"
-		aVB + [ aP[1], aP[2] + 20, aP[3] ]
+		aVB + [ aP[1], _XOf(aVP, "web2") + 20, aP[3] ]
 	else
 		aVB + [ aP[1], aP[2], aP[3] ]
 	ok
 next
-? "   with the root nudged 20 units : " + _NearMissEdges(oV, aVB)
+? "   with the root parked 20 units off a child's column : " +
+  _NearMissEdges(oV, aVB)
 chk("the near-miss census DISCRIMINATES", _NearMissEdges(oV, aVB) > 0)
 
 #---------------------------------------------------------------------------
@@ -2251,6 +2279,136 @@ nH1 = oLd.ToCanvasXT([ :Font = LFONT, :NodeWidth = 96, :NodeHeight = 36,
 	:FontSize = 13 ]).Height()
 ? "   unlabelled height " + nH0 + " against labelled " + nH1
 chk("the gap grows for labels and ONLY for labels", nH0 < nH1)
+
+#---------------------------------------------------------------------------
+? ""
+sec("-- 34. The mother cell is CENTRED over her children --------")
+#
+# The Principal's rule, unconditional: the main cell must ALWAYS be
+# centred. Every layout pass respected the children's SPAN without
+# insisting on its middle -- the engine's compaction clamps a parent
+# INTO the span on purpose, because pinning it at the mean during
+# compaction repealed the tightening and spans sprang back -- and
+# snapAlign then actively broke centring whenever the child count was
+# EVEN: a parent correctly centred over four children sits half a slot
+# from the two middle ones, inside the snap tolerance, so it was pulled
+# onto one of them and the whole fan leaned.
+#
+# Fixed in the ENGINE, in a final pass after every other, because the
+# centre of a span lies inside that span: no territory grows, no rank
+# widens, and a parent can only move between positions it was already
+# allowed to hold. Odd counts are unaffected -- their middle child IS
+# the centre -- which is why this was invisible until a four-way fan.
+#---------------------------------------------------------------------------
+
+
+# EVEN counts are where centring becomes visible and where it was lost.
+for nKids in [ 2, 3, 4, 5, 6 ]
+	oC = new stzDiagram("ctr" + nKids)
+	oC.AddNodeXTT("r", "Router", [ :type = "box", :color = "Info.Solid" ])
+	for i = 1 to nKids
+		oC.AddNodeXTT("h" + i, "H" + i, [ :type = "box", :color = "Info.Solid" ])
+		oC.AddEdge("r", "h" + i)
+	next
+	oC.SetSplines("ortho")
+	oC.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+	nRx = -100000
+	aKid = []
+	for rr in oC.RenderNodeRects()
+		if rr[5] = "r"
+			nRx = rr[1] + rr[3] / 2
+		else
+			aKid + (rr[1] + rr[3] / 2)
+		ok
+	next
+	aKid = sort(aKid)
+	nMid = (aKid[1] + aKid[len(aKid)]) / 2
+	? "   " + nKids + " children : parent at " + nRx + ", span middle " + nMid
+	chk("with " + nKids + " children the parent is CENTRED",
+	    fabs(nRx - nMid) < 0.5)
+next
+
+# A CHAIN KEEPS ITS SPINE: centring must not cost the alignment that a
+# single-child parent has by definition -- if it had been implemented as
+# "always move the parent", a chain would still pass the span test while
+# losing nothing, so this asserts the straight column itself.
+oCh = new stzDiagram("chain35")
+for a in [ "a", "b", "c", "d" ]
+	oCh.AddNodeXTT(a, StzUpper(a), [ :type = "box", :color = "Info.Solid" ])
+next
+oCh.AddEdge("a", "b")  oCh.AddEdge("b", "c")  oCh.AddEdge("c", "d")
+oCh.SetSplines("ortho")
+oCh.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+nSpread = 0
+nFirst = -100000
+for rr in oCh.RenderNodeRects()
+	nCx = rr[1] + rr[3] / 2
+	if nFirst = -100000  nFirst = nCx  ok
+	if fabs(nCx - nFirst) > nSpread  nSpread = fabs(nCx - nFirst)  ok
+next
+? "   a four-node chain spreads " + nSpread + "px across its ranks"
+chk("a chain is still one straight spine", nSpread < 0.5)
+
+# THE NEGATIVE SIBLING: a parent centres over ITS OWN children, not over
+# the rank they happen to share. Two roots, two families, one child rank
+# -- if the rule were "put the parent in the middle" both roots would
+# land on the same column, and the first assertions above would pass
+# just as happily.
+oTwo = new stzDiagram("two35")
+oTwo.AddNodeXTT("p", "P", [ :type = "box", :color = "Info.Solid" ])
+oTwo.AddNodeXTT("q", "Q", [ :type = "box", :color = "Info.Solid" ])
+for i = 1 to 4
+	oTwo.AddNodeXTT("k" + i, "K" + i, [ :type = "box", :color = "Info.Solid" ])
+next
+oTwo.AddEdge("p", "k1")  oTwo.AddEdge("p", "k2")
+oTwo.AddEdge("q", "k3")  oTwo.AddEdge("q", "k4")
+oTwo.SetSplines("ortho")
+oTwo.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+aAt = []
+for rr in oTwo.RenderNodeRects()
+	aAt + [ rr[5], rr[1] + rr[3] / 2 ]
+next
+nP = 0  nQ = 0
+aPk = []  aQk = []
+for e in aAt
+	if e[1] = "p"  nP = e[2]  ok
+	if e[1] = "q"  nQ = e[2]  ok
+	if e[1] = "k1" or e[1] = "k2"  aPk + e[2]  ok
+	if e[1] = "k3" or e[1] = "k4"  aQk + e[2]  ok
+next
+aPk = sort(aPk)  aQk = sort(aQk)
+nPmid = (aPk[1] + aPk[2]) / 2
+nQmid = (aQk[1] + aQk[2]) / 2
+? "   P at " + nP + " over its own span middle " + nPmid +
+  " ; Q at " + nQ + " over " + nQmid
+chk("each parent centres over ITS OWN children", fabs(nP - nPmid) < 0.5 and
+    fabs(nQ - nQmid) < 0.5)
+chk("...and the two families do NOT collapse onto one column",
+    fabs(nP - nQ) > 50)
+
+# A SHARED CHILD IS NOBODY'S TERRITORY, so it is not counted in the span
+# a parent centres over. Found live: a service whose two children were a
+# database inside its own cluster and a logger far outside it was pulled
+# to the midpoint between them -- out of its cluster's column and off the
+# spine it held with its own parent -- to state a centring over a child
+# it does not own. The same reason tidyTerritories runs on forests alone.
+oShr = new stzDiagram("shared35")
+for a in [ "p", "k1", "k2", "s" ]
+	oShr.AddNodeXTT(a, StzUpper(a), [ :type = "box", :color = "Info.Solid" ])
+next
+oShr.AddNodeXTT("far", "FAR", [ :type = "box", :color = "Info.Solid" ])
+oShr.AddEdge("p", "k1")     oShr.AddEdge("p", "k2")
+oShr.AddEdge("s", "far")    oShr.AddEdge("k1", "far")
+oShr.SetSplines("ortho")
+oShr.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+nK1 = -100000  nFar = -100000
+for rr in oShr.RenderNodeRects()
+	if rr[5] = "k1"   nK1 = rr[1] + rr[3] / 2  ok
+	if rr[5] = "far"  nFar = rr[1] + rr[3] / 2  ok
+next
+? "   k1 at " + nK1 + " ; its shared child at " + nFar
+chk("a parent is NOT dragged toward a child it shares",
+    fabs(nK1 - nFar) > 1)
 
 #---------------------------------------------------------------------------
 ? ""
