@@ -33,6 +33,61 @@
 # FULLY before Supervise() and thereafter reaches it via the host's
 # accessors, never the pre-handoff reference.
 
+# ─── THE ENGINE LOOP (2026-08-20) ────────────────────────────────────
+#
+# UseEngineLoop() hands the SCHEDULING DECISION to Zig (agentloop.zig in
+# stz_softanzuter.dll) while every act stays here: the engine decides who
+# ticks, in what order, and why; this class pops that schedule and calls
+# Cycle(). Zig owns time, Ring stays the scripting language of the loop.
+#
+# IT IS OPT-IN, and that is not timidity -- it is what makes the gate
+# real. The engine REFUSES to schedule an agent that declares neither a
+# coverage statement nor a reversibility class (law 18), so switching it
+# on for everybody would break every host that has not declared them yet.
+# A host that does not call UseEngineLoop() runs exactly the Ring pump it
+# always ran, which is why the narrated tests under base/test/agentic
+# needed no edit.
+#
+#   oHost.Declare("kitchen-bot", "covers order intake", :compensable)
+#   oHost.SetPriority("kitchen-bot", 9)
+#   oHost.UseEngineLoop()          # before or after Supervise, either way
+#   oHost.RunFor(200)              # same call, Zig now picks the order
+#
+# An agent that answers CoverageStatement() and ReversibilityClass() for
+# itself needs no Declare(); the host asks the agent first and falls back
+# to what was declared here.
+
+# The engine's agent table and loop registry are PROCESS-GLOBAL (64 slots,
+# shared by every host in the process). Tests that build hosts repeatedly
+# must reset between them, or slot names collide across cases.
+func StzResetEngineAgentLoop()
+	stzengineagentloopclear()
+	stzenginezuterclear()
+
+# What the loop says it schedules -- and what it says it cannot see. Read
+# it from the engine rather than from a comment, which is the point.
+#
+# NOT named StzEngineAgentLoopCoverage(): Ring folds case, so that spelling
+# IS the engine's own `stzengineagentloopcoverage` (the per-agent one), and
+# defining it here silently stole every call to it -- R20, "extra number of
+# parameters", pointing at the CALLER. A Ring wrapper must never spell an
+# engine function's name in different case.
+func StzAgentLoopCoverageStatement()
+	return stzengineagentloopcoveragestatement()
+
+# reversibility words -> the engine's classes. 0 is not a class, it is the
+# ABSENCE of one, and registration refuses it.
+func StzAgentReversibilityCode(pcClass)
+	_c_ = StzLower(ring_trim("" + pcClass))
+	if _c_ = "reversible"
+		return 1
+	but _c_ = "compensable"
+		return 2
+	but _c_ = "irreversible"
+		return 3
+	ok
+	return 0
+
 func StzAgentHostQ()
 	return new stzAgentHost()
 
@@ -44,6 +99,9 @@ class stzAgentHost from stzObject
 	@aAgents     = []        # [ name, oAgent, tickMs, active, nextMs, ticks, retired ]
 	@aTrace      = []        # [ atMs, name, acted, why ]
 	@cWhy        = ""
+	@bEngineLoop = 0         # Zig owns the tick when this is on
+	@aDeclared   = []        # [ name, coverage, revClass, priority ]
+	@cLoopWhy    = ""        # the engine's last refusal, verbatim
 
 	def init()
 		@oReactor = new stzReactor()
@@ -105,9 +163,13 @@ class stzAgentHost from stzObject
 			stzraise("stzAgentHost.Supervise: tick interval must be >= 1ms.")
 		ok
 		# row: name, agent, tickMs, active, nextDue, ticks, retired,
-		#      channel(""=timer), lastEventCount, channelGeneration
+		#      channel(""=timer), lastEventCount, channelGeneration,
+		#      engineSlot(-1 = not registered with the Zig loop)
 		@aAgents + [ poAgent.Name_(), poAgent, nTickMs, 1,
-		             StzEngineTimeNowMs(), 0, 0, "", 0, 0 ]
+		             StzEngineTimeNowMs(), 0, 0, "", 0, 0, -1 ]
+		if @bEngineLoop = 1
+			This._RegisterWithLoop(len(@aAgents))
+		ok
 		return This
 
 	# EVENT-DRIVEN supervision (R5 reactor-runtime): tick the agent once per
@@ -121,7 +183,10 @@ class stzAgentHost from stzObject
 		if _nBase_ < 0  _nBase_ = 0  ok
 		@aAgents + [ poAgent.Name_(), poAgent, 0, 1,
 		             0, 0, 0, "" + pcChannel, _nBase_,
-		             stzengine_reactive_channel_generation("" + pcChannel) ]
+		             stzengine_reactive_channel_generation("" + pcChannel), -1 ]
+		if @bEngineLoop = 1
+			This._RegisterWithLoop(len(@aAgents))
+		ok
 		return This
 
 	# The channel an agent is event-supervised on ("" if timer-supervised).
@@ -163,12 +228,232 @@ class stzAgentHost from stzObject
 	def Trace()
 		return @aTrace
 
+	#-- the engine loop (Zig owns the tick) -----------------------------
+
+	# Declare an agent's COVERAGE STATEMENT and REVERSIBILITY CLASS -- what
+	# law 18 obliges before anything schedules it. Needed only for agents
+	# that do not answer CoverageStatement() / ReversibilityClass()
+	# themselves; the host asks the agent first.
+	def Declare(pcName, pcCoverage, pcReversibility)
+		This.DeclareQ(pcName, pcCoverage, pcReversibility)
+
+	def DeclareQ(pcName, pcCoverage, pcReversibility)
+		_cN_ = "" + pcName
+		_n_ = This._DeclIndex(_cN_)
+		if _n_ = 0
+			@aDeclared + [ _cN_, "" + pcCoverage, "" + pcReversibility, 0 ]
+		else
+			@aDeclared[_n_][2] = "" + pcCoverage
+			@aDeclared[_n_][3] = "" + pcReversibility
+		ok
+		return This
+
+	# Higher runs first in a pass. Ties break on registration order, so the
+	# order is total and reproducible whether or not priorities are set.
+	def SetPriority(pcName, pnPriority)
+		This.SetPriorityQ(pcName, pnPriority)
+
+	def SetPriorityQ(pcName, pnPriority)
+		_cN_ = "" + pcName
+		_n_ = This._DeclIndex(_cN_)
+		if _n_ = 0
+			@aDeclared + [ _cN_, "", "", pnPriority ]
+		else
+			@aDeclared[_n_][4] = pnPriority
+		ok
+		return This
+
+	def PriorityOf(pcName)
+		_n_ = This._DeclIndex("" + pcName)
+		if _n_ = 0  return 0  ok
+		return @aDeclared[_n_][4]
+
+	# Adopt the Zig loop as this host's pump. Agents already supervised are
+	# registered now, so the call order does not matter -- and a refusal
+	# raises HERE, carrying the engine's own diagnostic.
+	def UseEngineLoop()
+		This.UseEngineLoopQ()
+
+	def UseEngineLoopQ()
+		@bEngineLoop = 1
+		_nLen_ = len(@aAgents)
+		for _i_ = 1 to _nLen_
+			if @aAgents[_i_][11] < 0
+				This._RegisterWithLoop(_i_)
+			ok
+		next
+		return This
+
+	def UseRingLoop()
+		@bEngineLoop = 0
+		return This
+
+	def IsUsingEngineLoop()
+		return @bEngineLoop
+
+	# The engine's last refusal, verbatim. A refusal names its code, its
+	# subject and what to do -- do not paraphrase it.
+	def EngineLoopWhy()
+		return @cLoopWhy
+
+	# The engine slot an agent occupies (-1 when the Ring pump is driving).
+	def EngineSlotOf(pcName)
+		_n_ = This._IndexOf(pcName)
+		if _n_ = 0  return -1  ok
+		return @aAgents[_n_][11]
+
+	def _DeclIndex(pcName)
+		_nLen_ = len(@aDeclared)
+		for _i_ = 1 to _nLen_
+			if @aDeclared[_i_][1] = pcName  return _i_  ok
+		next
+		return 0
+
+	def _IndexOfSlot(pnSlot)
+		_nLen_ = len(@aAgents)
+		for _i_ = 1 to _nLen_
+			if @aAgents[_i_][11] = pnSlot  return _i_  ok
+		next
+		return 0
+
+	# Ask the AGENT first, fall back to what the host declared. An agent
+	# that answers for itself needs no Declare() -- and one that answers
+	# neither reaches the engine with an empty coverage statement and is
+	# refused there, which is where the rule lives.
+	def _CoverageFor(poAgent, pcName)
+		if ismethod(poAgent, "CoverageStatement")
+			_c_ = "" + poAgent.CoverageStatement()
+			if ring_trim(_c_) != ""  return _c_  ok
+		ok
+		_n_ = This._DeclIndex(pcName)
+		if _n_ = 0  return ""  ok
+		return @aDeclared[_n_][2]
+
+	def _ReversibilityFor(poAgent, pcName)
+		if ismethod(poAgent, "ReversibilityClass")
+			_n1_ = StzAgentReversibilityCode(poAgent.ReversibilityClass())
+			if _n1_ > 0  return _n1_  ok
+		ok
+		_n_ = This._DeclIndex(pcName)
+		if _n_ = 0  return 0  ok
+		return StzAgentReversibilityCode(@aDeclared[_n_][3])
+
+	# ONE RULE, TWO LAYERS, SAME WORDS. The graph rule `no-llm-effectful`
+	# states it for a composed agent graph; the engine states it at
+	# registration. This method only reports what the agent SAYS it is --
+	# an stzLLMAgent answers Kind()="llm_actor" and HoldsEffectful()=0 by
+	# construction, so it can never trip the rule, and an agent that claims
+	# both is refused by the engine in the graph rule's own sentence.
+	def _KindAndEffect(poAgent)
+		_nKind_ = 0
+		_nEff_  = 0
+		if ismethod(poAgent, "Kind")
+			if StzLower(ring_trim("" + poAgent.Kind())) = "llm_actor"
+				_nKind_ = 1
+			ok
+		ok
+		if ismethod(poAgent, "HoldsEffectful")
+			if poAgent.HoldsEffectful()  _nEff_ = 1  ok
+		ok
+		if _nEff_ = 0 and ismethod(poAgent, "Capabilities")
+			_ac_ = poAgent.Capabilities()
+			if isList(_ac_)
+				_nC_ = len(_ac_)
+				for _i_ = 1 to _nC_
+					if StzLower(ring_trim("" + _ac_[_i_])) = "effectful"
+						_nEff_ = 1
+						exit
+					ok
+				next
+			ok
+		ok
+		return [ _nKind_, _nEff_ ]
+
+	def _RegisterWithLoop(pnIndex)
+		_cName_ = @aAgents[pnIndex][1]
+		_oAgent_ = @aAgents[pnIndex][2]
+
+		_nSlot_ = stzenginezuterfind(_cName_)
+		if _nSlot_ < 0
+			_nSlot_ = stzenginezutercreate(_cName_)
+		ok
+		if _nSlot_ < 0
+			stzraise("stzAgentHost.UseEngineLoop: the engine holds 64 agent slots " +
+				"and they are all taken -- '" + _cName_ + "' has nowhere to live.")
+		ok
+
+		_aKE_ = This._KindAndEffect(_oAgent_)
+		_nTrig_ = 0
+		if @aAgents[pnIndex][8] != ""  _nTrig_ = 1  ok
+		_nInterval_ = @aAgents[pnIndex][3]
+		if _nTrig_ = 1  _nInterval_ = 0  ok
+
+		_rc_ = stzengineagentloopregister(_nSlot_, _aKE_[1],
+			This._ReversibilityFor(_oAgent_, _cName_), _nTrig_, _aKE_[2],
+			This.PriorityOf(_cName_), _nInterval_,
+			This._CoverageFor(_oAgent_, _cName_))
+
+		if _rc_ != 0
+			@cLoopWhy = stzengineagentlooplastrefusal()
+			stzraise("stzAgentHost: the engine loop REFUSED to schedule '" +
+				_cName_ + "'. " + @cLoopWhy)
+		ok
+		@aAgents[pnIndex][11] = _nSlot_
+		return This
+
+	def _ReasonWord(pnReason)
+		if pnReason = 1  return "tick"  ok
+		if pnReason = 2  return "event" ok
+		if pnReason = 3  return "mail"  ok
+		return "nudge"
+
+	# The engine pump: report what the loop cannot see, let Zig DECIDE,
+	# then DO what it decided, in the order it decided.
+	def _TickDueEngine()
+		_nNow_ = StzEngineTimeNowMs()
+
+		# 1. the bus lives in ANOTHER DLL, so the loop is told rather than
+		#    looking (agentloop.zig's coverage statement says exactly this).
+		_nLen_ = len(@aAgents)
+		for _i_ = 1 to _nLen_
+			if @aAgents[_i_][8] != "" and @aAgents[_i_][11] >= 0
+				stzengineagentloopnoteevents(@aAgents[_i_][11],
+					stzengine_reactive_event_count(@aAgents[_i_][8]),
+					stzengine_reactive_channel_generation(@aAgents[_i_][8]))
+			ok
+		next
+
+		# 2. Zig decides who runs, and in what order
+		stzengineagentlooptick(_nNow_)
+
+		# 3. Ring does it
+		_nActed_ = 0
+		while stzengineagentloopnext() = 1
+			_nIdx_ = This._IndexOfSlot(stzengineagentloopcurrentslot())
+			if _nIdx_ = 0  loop  ok
+			if @aAgents[_nIdx_][7]      loop  ok
+			if NOT @aAgents[_nIdx_][4]  loop  ok
+			_nA_ = @aAgents[_nIdx_][2].Cycle()
+			@aAgents[_nIdx_][6] = @aAgents[_nIdx_][6] + 1
+			@aTrace + [ _nNow_, @aAgents[_nIdx_][1], _nA_,
+			            This._ReasonWord(stzengineagentloopcurrentreason()) +
+			            " " + @aAgents[_nIdx_][6] ]
+			_nActed_ += _nA_
+		end
+		return _nActed_
+
 	#-- the perceive-act runtime ---------------------------------------
 
 	# Tick every ACTIVE, non-retired agent whose interval has elapsed:
 	# run ONE Cycle() (perceive-decide-act) through the live index.
 	# Returns the number of skill-firings verified this pass.
 	def TickDue()
+		# ONE CALL, TWO PUMPS. The Ring API does not change when the engine
+		# loop is adopted -- RunFor / RunToQuiet / TickDue are the same
+		# calls; only who decides the ORDER moves.
+		if @bEngineLoop = 1
+			return This._TickDueEngine()
+		ok
 		_nActed_ = 0
 		_nNow_ = StzEngineTimeNowMs()
 		_nLen_ = len(@aAgents)
@@ -268,6 +553,9 @@ class stzAgentHost from stzObject
 			stzraise("stzAgentHost.Cancel: not supervising '" + pcName + "'.")
 		ok
 		@aAgents[_n_][4] = 0
+		if @bEngineLoop = 1 and @aAgents[_n_][11] >= 0
+			stzengineagentlooppause(@aAgents[_n_][11], 1)
+		ok
 		return This
 
 	def Resume(pcName)
@@ -277,6 +565,9 @@ class stzAgentHost from stzObject
 		ok
 		@aAgents[_n_][4] = 1
 		@aAgents[_n_][5] = StzEngineTimeNowMs()
+		if @bEngineLoop = 1 and @aAgents[_n_][11] >= 0
+			stzengineagentlooppause(@aAgents[_n_][11], 0)
+		ok
 		return This
 
 	# DECOMMISSION (R4b): retirement is EARNED. When a governance is
@@ -296,6 +587,10 @@ class stzAgentHost from stzObject
 		ok
 		@aAgents[_n_][4] = 0
 		@aAgents[_n_][7] = 1
+		if @bEngineLoop = 1 and @aAgents[_n_][11] >= 0
+			stzengineagentloopderegister(@aAgents[_n_][11])
+			@aAgents[_n_][11] = -1
+		ok
 		@cWhy = "retired '" + pcName + "'"
 		return 1
 
@@ -338,6 +633,14 @@ class stzAgentHost from stzObject
 	# the run deadline. Returns 0 when nothing more is due before then.
 	def _NextWait(nDeadline)
 		_nNow_ = StzEngineTimeNowMs()
+		# On the engine path the due times live in Zig, so column 5 is not
+		# the thing to read -- wait the shortest declared interval instead
+		# and let the loop decide what that pass actually owes.
+		if @bEngineLoop = 1
+			_nW_ = This._MinInterval()
+			if (_nNow_ + _nW_) > nDeadline  return nDeadline - _nNow_  ok
+			return _nW_
+		ok
 		_nBest_ = nDeadline
 		_bAny_ = 0
 		_nLen_ = len(@aAgents)

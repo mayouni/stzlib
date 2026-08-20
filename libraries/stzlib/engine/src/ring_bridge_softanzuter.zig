@@ -55,6 +55,21 @@ fn ring_Clear(p: *anyopaque) callconv(.c) void {
     mod.stz_agent_clear();
 }
 
+fn ring_InboxCount(p: *anyopaque) callconv(.c) void {
+    const idx: i32 = @intFromFloat(gn(p, 1));
+    rn(p, @floatFromInt(mod.stz_agent_inbox_count(idx)));
+}
+
+fn ring_Find(p: *anyopaque) callconv(.c) void {
+    const name = gs(p, 1);
+    const name_len: usize = @intCast(gl(p, 1));
+    rn(p, @floatFromInt(mod.stz_agent_find(name, name_len)));
+}
+
+fn ring_RefusedSends(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(mod.stz_agent_refused_sends()));
+}
+
 pub const ring_funcs = [_]R.Reg{
     .{ .name = "stzenginezutercreate", .func = ring_Create },
     .{ .name = "stzenginezutersetstate", .func = ring_SetState },
@@ -64,4 +79,7 @@ pub const ring_funcs = [_]R.Reg{
     .{ .name = "stzenginezutercount", .func = ring_Count },
     .{ .name = "stzenginezutername", .func = ring_Name },
     .{ .name = "stzenginezuterclear", .func = ring_Clear },
+    .{ .name = "stzenginezuterinboxcount", .func = ring_InboxCount },
+    .{ .name = "stzenginezuterfind", .func = ring_Find },
+    .{ .name = "stzenginezuterrefusedsends", .func = ring_RefusedSends },
 };
