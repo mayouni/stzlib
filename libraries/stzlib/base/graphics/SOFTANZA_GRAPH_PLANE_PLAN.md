@@ -668,6 +668,30 @@ plan has named the wrong bottleneck before.
 
 ### GG8 — ToPages: rendered per tile, never rendered whole and cut
 
+**DELIVERED 2026-08-20 (9b9d0facc).** `ToPages`/`ToPagesXT` on
+stzDiagram, `SetRegion`/`ClearRegion` on stzCanvas, and one engine
+addition — `sceneSetView` moves the projection and sizes the target, so
+a tile is the same retained scene through a different window. Guard
+section 39 (10 assertions).
+
+Two amendments the work forced, both recorded because they change what
+the plan said:
+
+- **The seam is asserted as NOTHING MOVES, not as pixel-identity.** A
+  tile and the whole render divide the same coordinate by different
+  widths, so the rasteriser lands some antialiased edges one
+  quantisation level apart — 79 pixels of 100,000, each off by one in
+  one channel, unchanged when the projection is computed in f64. The
+  kill criterion's spirit (a tile IS the picture there) holds; its
+  letter (bit-identity) is not something the hardware offers, and
+  claiming it would have been claiming something untrue.
+- **The 8192 refusal had to stand aside for its own cure.** ToPages must
+  ask for a canvas of the full size, so the check raised before any tile
+  existed. It now recognises a tiling caller and names ToPages as the
+  way out.
+
+
+
 A picture larger than its medium must be **rendered per tile**, because
 "whole" already fails: a GPU texture caps at 8192px and we ship that as a
 refusal today. Print never had a whole in the first place. dot's
