@@ -2730,6 +2730,129 @@ chkeq("no cluster difference, no lateral form -- siblings stay alike",
 
 #---------------------------------------------------------------------------
 ? ""
+sec("-- 37. WHITESPACE is grouping, on DAGs as on trees ---------")
+#
+# Proximity is the oldest grouping cue a reader has, which makes equal
+# spacing a claim: these things are equally related. So a rank whose
+# every gap is the same states no families, and a picture of two
+# families of three that spaces all six alike has drawn the structure
+# correctly and made it unreadable.
+#
+# The rule existed and could not reach most diagrams. tidyTerritories
+# opens 0.40 of a separation between cousins, but it is FOREST ONLY --
+# it shifts whole subtrees, and a node with two parents belongs to two
+# of them -- so one shared child anywhere in a graph returned every rank
+# in it to even spacing. Measured before the fix: six leaves, two
+# families, all 57px apart. Real diagrams are DAGs far more often than
+# they are trees.
+#
+# So the cue is now its own pass, claiming none of the subtree
+# reasoning. It asks what a reader asks -- do these two neighbours share
+# a parent -- and opens the same gap when they do not, by sliding the
+# rest of the rank. Parent SETS rather than a single parent, because
+# that is the DAG-true form of the same question and the one a reader is
+# answering anyway.
+#---------------------------------------------------------------------------
+
+
+# TWO FAMILIES OF THREE, and the graph is a DAG: p has two parents, so
+# every subtree-based rule refuses it, which is exactly the case that was
+# losing its grouping.
+oFm = new stzDiagram("fam38")
+oFm.AddNodeXTT("root", "Root", [ :type = "box", :color = "Info.Solid" ])
+oFm.AddNodeXTT("root2", "Root2", [ :type = "box", :color = "Info.Solid" ])
+for a in [ "p", "q" ]
+	oFm.AddNodeXTT(a, StzUpper(a), [ :type = "box", :color = "Info.Solid" ])
+	oFm.AddEdge("root", a)
+	for i = 1 to 3
+		oFm.AddNodeXTT(a + i, StzUpper(a) + i,
+			[ :type = "box", :color = "Info.Solid" ])
+		oFm.AddEdge(a, a + i)
+	next
+next
+oFm.AddEdge("root2", "p")
+oFm.SetSplines("ortho")
+oFm.ToCanvasXT([ :NodeWidth = 70, :NodeHeight = 34 ])
+
+aLeaf = []
+for r in oFm.RenderNodeRects()
+	if StzLen(r[5]) = 2  aLeaf + [ r[5], r[1], r[1] + r[3] ]  ok
+next
+for i = 1 to len(aLeaf)
+	for j = i + 1 to len(aLeaf)
+		if aLeaf[j][2] < aLeaf[i][2]
+			aTmp = aLeaf[i]  aLeaf[i] = aLeaf[j]  aLeaf[j] = aTmp
+		ok
+	next
+next
+nSib = -1
+nCous = -1
+bSibSame = 1
+for i = 2 to len(aLeaf)
+	nG = aLeaf[i][2] - aLeaf[i-1][3]
+	if StzSubStr(aLeaf[i][1], 1, 1) = StzSubStr(aLeaf[i-1][1], 1, 1)
+		if nSib < 0
+			nSib = nG
+		but fabs(nG - nSib) > 0.5
+			bSibSame = 0
+		ok
+	else
+		nCous = nG
+	ok
+next
+? "   six leaves, two families : sibling gap " + nSib +
+  "px, cousin gap " + nCous + "px"
+chk("every sibling gap is the same", bSibSame)
+chk("a family boundary is WIDER than a sibling gap", nCous > nSib * 1.5)
+
+# ...and the scene really is the hard case: p has TWO parents, so the
+# subtree pass refuses the whole graph and the grouping above can only
+# have come from the rank-local rule. Asserted, because a probe that
+# quietly stayed a tree would prove nothing about DAGs.
+nPar = 0
+for e in oFm.Edges()
+	if StzLower("" + e[:to]) = "p"  nPar++  ok
+next
+? "   p has " + nPar + " parents, so every subtree rule refuses this graph"
+chk("the scene is a DAG, which is the case that lost its grouping",
+    nPar >= 2)
+
+# THE NEGATIVE SIBLING: with ONE family the rank must stay evenly spaced.
+# A rule that simply widened every third gap would pass the assertions
+# above and fail this.
+oOne = new stzDiagram("one38")
+oOne.AddNodeXTT("r", "R", [ :type = "box", :color = "Info.Solid" ])
+for i = 1 to 6
+	oOne.AddNodeXTT("k" + i, "K" + i, [ :type = "box", :color = "Info.Solid" ])
+	oOne.AddEdge("r", "k" + i)
+next
+oOne.SetSplines("ortho")
+oOne.ToCanvasXT([ :NodeWidth = 70, :NodeHeight = 34 ])
+aK = []
+for r in oOne.RenderNodeRects()
+	if r[5] != "r"  aK + [ r[1], r[1] + r[3] ]  ok
+next
+for i = 1 to len(aK)
+	for j = i + 1 to len(aK)
+		if aK[j][1] < aK[i][1]  aTmp = aK[i]  aK[i] = aK[j]  aK[j] = aTmp  ok
+	next
+next
+nFirst = aK[2][1] - aK[1][2]
+bEven = 1
+for i = 3 to len(aK)
+	if fabs((aK[i][1] - aK[i-1][2]) - nFirst) > 0.5  bEven = 0  ok
+next
+? "   one family of six : every gap " + nFirst + "px, all equal : " + bEven
+chk("one family, one spacing -- no air where there is no boundary", bEven)
+
+# ...and the mechanism itself, both ways on one rank: two nodes fed by
+# the same parent are siblings; two fed by different parents are not.
+? "   (the rule reads parent SETS, so it holds on a DAG as on a tree)"
+chk("the family gap exceeds the sibling gap by a stated fraction",
+    nCous - nSib > 30 and nCous - nSib < 80)
+
+#---------------------------------------------------------------------------
+? ""
 if nSecClock > 0
 	? "        [section took " +
 	  ((clock() - nSecClock) / clockspersecond()) + "s]"
