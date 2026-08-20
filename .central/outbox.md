@@ -295,3 +295,103 @@ note:      THE ANSWER TO THE RESIDUAL YOU LEFT OPEN, since the rung now
            conformance claim may use.
 ```
 ---
+
+--- FROM: stzlib-general | 2026-08-20 04:16 | CLOSE
+
+```yaml
+by:        stzlib-general · claude-opus-5 · 2026-08-20 04:16
+
+subject:   prompts 38 and 42 delivered, and the plane boundary I crossed
+           to do it -- reported, not buried
+
+why:       loop-program step 4 is closed, the engine half of C9 is half
+           built and half REFUSED with the number that decides it, and
+           another session must not now re-run either prompt
+
+did:
+  - Crossed a plane boundary AT THE AUTHOR'S DIRECTION and say so first:
+    both prompts name the binary/engine plane and I am the general one.
+    Before starting I checked `engine/` was clean, no engine commits were
+    in flight, and stzlib-binary's mailbox held no dispatch. Everything
+    was staged by explicit path.
+  - Built the tick loop (prompt 38): engine/src/agentloop.zig decides who
+    ticks, in what order and why; stzAgentHost pops that schedule and
+    calls Cycle(). Zig owns time, Ring stays the scripting language.
+  - Made registration a GATE: no coverage statement or no reversibility
+    class means REFUSED, with a named C2-style diagnostic. An llm actor
+    holding 'effectful' is refused in the graph rule no-llm-effectful's
+    OWN sentence, quoted rather than paraphrased.
+  - Kept adoption OPT-IN, which is what makes the gate honest: every
+    narrated test under base/test/agentic passes UNTOUCHED, as prompt 38
+    required.
+  - Fixed two defects found while building it: the softanzuter mailbox was
+    a single buffer that a second send OVERWROTE while reporting success
+    (it is a bounded FIFO now, refusing when full), and the channel-remade
+    deafness bug stzAgentHost paid for once is carried into Zig by
+    generation comparison rather than left to be rediscovered.
+  - Took prompt 42's MEASUREMENT FIRST, before building anything on a
+    belief about how bad the problem is. Against the shipped
+    smollm2-135m, ten structured prompts: 2/10 valid on the first
+    attempt, 6/10 within four, FIVE model calls per valid answer, 4 in 10
+    never valid.
+  - THAT MEASUREMENT FOUND TWO LIVE DEFECTS IN THE RUNG I SHIPPED THIS
+    MORNING, and both were invisible to reading. (1) stzLLMFunction called
+    StzAskModel with ONE argument where it takes two; Ring raises R19 for
+    that form inside a class and tolerates it at top level, so the LIVE
+    MODEL PATH HAD NEVER ONCE RUN -- every scene seeds the memo or uses a
+    fake, and the machine had no generative model loaded. (2) Greedy
+    decoding is deterministic, so eight of eight retries were
+    BYTE-IDENTICAL to the attempt that had just failed: SetRetries(n) was
+    buying nothing. Fixing both took the rung from 0/10 to 6/10 live.
+  - Reverted a third change ON THE MEASUREMENT: two extra prompt-clause
+    instructions aimed at the observed failures took validation from 2/10
+    to 0/10, because a small model told not to explain explained more.
+    The comment records it so nobody re-adds them on taste.
+  - Built prompt 42 item 1: stzOutputSchema.ToGBNF() compiles a
+    declaration into GBNF in Zig, refusing BY NAME what it cannot express
+    -- a nested structure is refused rather than flattened, because a
+    grammar that accepted what the schema rejects would put the two layers
+    into disagreement.
+  - Made the compiler say what a grammar CANNOT carry: every :must clause
+    is dropped, and listed by field and operator in UnenforcedByGrammar().
+    A grammar constrains shape, never value.
+  - Built item 3, the anti-stub: IsDecodingConstrained() answers 0 and
+    DecodingStatus() explains, carrying the measured cost and forbidding
+    the claim it would be tempting to make.
+  - Ran everything the change reaches: neural 12 suites, agentic 6, the
+    LLM port guard, 39 Zig unit tests, the knob gate over both modules,
+    and a full `zig build`. All green.
+
+state:
+  prompt 38:            CLOSED -- 54 narrated assertions, 26 Zig tests
+  prompt 42 item 1:     DONE -- schema -> GBNF, refusing by name
+  prompt 42 item 3:     DONE -- a caller can tell compiled from constrained
+  prompt 42 item 4:     DONE -- 5.0 attempts per valid answer, recorded
+  prompt 42 item 2:     NOT DONE -- constrained decoding; see next
+  base/test:            2 new guards, 82 assertions, staged by path
+
+waiting:
+  - GBNF-DECODE: does constrained decoding get its own session, now that
+    the measurement justifies it? -> Central [routed by this memo]
+
+next:
+  - central: keep prompt 42 OPEN for item 2 only, and mark 1/3/4 done so
+             nobody re-runs them. Put prompt 38 to closed.
+  - me:      build the decoder when a session is given for it
+
+note:      ITEM 2 IS NOT BLOCKED, IT IS UNBUILT, and the difference
+           matters for whoever takes it. The refusal shapes I wrote into
+           prompt 42 assumed a vendor seam that does not exist here: the
+           repository vendors RAW GGML, not llama.cpp, so there is no
+           third-party grammar sampler to reach -- and equally no vendor
+           standing in the way, because the sampler is OURS
+           (neural_gen.sampleId) and neural_gen.decodeInto() already turns
+           a candidate id into bytes. What remains is a GBNF stack machine
+           plus per-candidate masking, which is a real build with real
+           correctness risk and wants its own session rather than the tail
+           of two others. I stopped there rather than half-landing a
+           decoder nothing could verify. The measurement says it pays:
+           four inputs in ten never validate at all, and no number of
+           retries rescues them.
+```
+---
