@@ -1,0 +1,22 @@
+# A pi agent, whole. Everything this format can say about one is here.
+pia: 1
+name: kitchen-bot
+kind: pi
+coverage: watches stock levels and reorders when they run low
+reversibility: compensable
+schedule:
+  timer: 20
+memory:
+  - stock level low
+governance:
+  authority: delegated
+  risks:
+    order-stock: 2
+  grants:
+    - order-stock
+skills:
+  - name: restock
+    when: fact stock level low
+    does: learn stock level ordered
+    verify: fact stock level ordered
+    effect: order-stock

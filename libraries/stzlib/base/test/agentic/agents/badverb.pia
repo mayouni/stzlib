@@ -1,0 +1,13 @@
+# REFUSED ON PURPOSE, and it is in the folder on purpose: a folder with
+# one bad file must load the others and say what it would not admit.
+pia: 1
+name: broken
+kind: pi
+coverage: exists only to be refused
+reversibility: reversible
+schedule:
+  timer: 20
+skills:
+  - name: nope
+    when: always
+    does: teleport stock level ordered

@@ -1,0 +1,21 @@
+# A proposer. It writes into its own memory and commits nothing.
+pia: 1
+name: summarizer
+kind: llm
+coverage: proposes a topic and a mood for whatever the inbox holds
+reversibility: reversible
+schedule:
+  timer: 20
+memory:
+  - inbox holds hello-world
+proposes:
+  prompt: Summarize this text: {input}
+  input: recall inbox holds
+  into: summary
+  budget: 2
+  structure:
+    - field: topic
+      type: string
+    - field: mood
+      type: oneof
+      choices: positive, negative
