@@ -606,8 +606,79 @@ class stzGraphCanvas from stzObject
 				_xtra_ = []
 				for _i_ = 1 to _n_  _xtra_ + 0  next
 			ok
+			# PINS: positions the layout may not argue with. The face
+			# that knows which cells a user has moved sends them in slot
+			# units, parallel to the nodes; -999999999 means free (a
+			# position no picture reaches, and one Ring can write --
+			# 1.0e18 is a parse error here). A batch picture sends none and is laid
+			# out exactly as before.
+			_apin_ = This._Opt(:Pins, [])
+			if NOT isList(_apin_)  _apin_ = []  ok
+			# PADDED, not discarded. The node set here is the REAL nodes
+			# plus one dummy per rank a long edge crosses, so a vector
+			# sized to the real nodes -- which is the only size the face
+			# can build -- is shorter than this tier's `n`. Rejecting it
+			# for the mismatch threw every pin away and laid the picture
+			# out as if none had been set: a feature that silently did
+			# nothing. Dummies are never pinned, so the tail is free.
+			_apinN_ = []
+			for _i_ = 1 to _n_
+				if _i_ <= len(_apin_)
+					_apinN_ + _apin_[_i_]
+				else
+					_apinN_ + (0 - 999999999)
+				ok
+			next
+			_apin_ = _apinN_
+
+			# A PIN DECIDES ORDER, NOT ONLY POSITION -- and without this
+			# it decided neither that anyone could see. The rank ORDER is
+			# settled by the crossing sweep before any coordinate exists,
+			# and the coordinate pass only spaces a rank out while
+			# preserving that order. So a pinned cell could shift its
+			# whole rank sideways and never pass a sibling -- and since
+			# _Normalise then refits the bounding box to the canvas, a
+			# uniform shift disappears entirely. The engine honoured
+			# every pin exactly and the picture was identical, which is
+			# the most expensive kind of correct.
+			#
+			# Dragging a cell between two others has to MEAN that, so a
+			# pin now sorts its rank: lay the graph out once free, then
+			# order each rank by where its members actually are -- the
+			# pin's own value for a pinned cell, the free layout's answer
+			# for the rest -- and lay it out again with the pins held.
+			# Two layouts of a 100-node graph cost 0.02s together, which
+			# is the cheapest honest way to let a position outrank a
+			# heuristic.
+			_bAnyPin_ = 0
+			for _pi_ = 1 to _n_
+				if _apin_[_pi_] > (0 - 100000000)  _bAnyPin_ = 1  exit  ok
+			next
+			if _bAnyPin_
+				_aFree_ = StzEngineGraphLayoutCoords(_csr_[1], _csr_[2],
+					_outc_[1], _outc_[2], _order_, _starts_, 1.0, 8, _xtra_, [])
+				if len(_aFree_) = _n_
+					for _L2_ = 1 to _max_ + 1
+						_aKey_ = []
+						for _k2_ = _starts_[_L2_] + 1 to _starts_[_L2_ + 1]
+							_id2_ = _order_[_k2_] + 1
+							_kv_ = _aFree_[_id2_]
+							if _apin_[_id2_] > (0 - 100000000)
+								_kv_ = _apin_[_id2_]
+							ok
+							_aKey_ + [ _kv_, _order_[_k2_] ]
+						next
+						_aKey_ = sort(_aKey_, 1)
+						for _k3_ = 1 to len(_aKey_)
+							_order_[ _starts_[_L2_] + _k3_ ] = _aKey_[_k3_][2]
+						next
+					next
+				ok
+			ok
+
 			_aXe_ = StzEngineGraphLayoutCoords(_csr_[1], _csr_[2],
-				_outc_[1], _outc_[2], _order_, _starts_, 1.0, 8, _xtra_)
+				_outc_[1], _outc_[2], _order_, _starts_, 1.0, 8, _xtra_,
+				_apin_)
 		ok
 
 		# y from the layer; x from the engine when it answered

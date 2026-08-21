@@ -378,6 +378,33 @@ pub fn force(
 /// elbow room, and its whole rank spreads to give it.
 ///
 /// Pass an empty slice for uniform separation.
+/// A PIN IS A POSITION THE LAYOUT MAY NOT ARGUE WITH.
+///
+/// In a live diagram the ownership inverts: the user owns positions and
+/// the layout only advises. A cell the user has moved is pinned, and
+/// every pass here -- relaxation, territories, family air, alignment,
+/// centring -- has to leave it exactly where it was put.
+///
+/// Enforced by RESTORING pins after each pass rather than by teaching
+/// five passes to skip them. That is uniform (no pass can forget), exact
+/// (the pin is the value the user gave, not a value that survived a
+/// clamp), and honest about its one cost: a pinned cell can end up
+/// closer to a neighbour than the separation would allow, because the
+/// user put it there and the user is the authority. Unpinned cells are
+/// laid out around the pins as they stand.
+///
+/// `pins` is parallel to `x`; anything at or below UNPINNED is free.
+/// Above the face's -999999999 sentinel and far below any real
+/// position: a pin is a value greater than this.
+pub const UNPINNED: f64 = -1.0e8;
+
+fn applyPins(pins: []const f64, x: []f64) void {
+    if (pins.len != x.len) return;
+    for (0..x.len) |v| {
+        if (pins[v] > UNPINNED) x[v] = pins[v];
+    }
+}
+
 pub fn coords(
     in_off: []const u32,
     in_src: []const u32,
@@ -388,6 +415,22 @@ pub fn coords(
     sep: f64,
     iters: u32,
     extra: []const f64,
+    x: []f64,
+) i32 {
+    return coordsPinned(in_off, in_src, out_off, out_dst, order, starts, sep, iters, extra, &[_]f64{}, x);
+}
+
+pub fn coordsPinned(
+    in_off: []const u32,
+    in_src: []const u32,
+    out_off: []const u32,
+    out_dst: []const u32,
+    order: []const u32,
+    starts: []const u32,
+    sep: f64,
+    iters: u32,
+    extra: []const f64,
+    pins: []const f64,
     x: []f64,
 ) i32 {
     const n = x.len;
@@ -482,7 +525,9 @@ pub fn coords(
     // EXACTLY on a neighbour's cross-position without violating its rank's
     // separations, put it there. All or nothing -- a partial move would
     // just manufacture a new near-miss, the very thing being killed.
+    applyPins(pins, x);
     snapAlign(in_off, in_src, out_off, out_dst, order, starts, sep, extra, x);
+    applyPins(pins, x);
 
     // LAST, and only on a forest. The relaxation produces a good-looking
     // arrangement that can still put a node inside another branch's span;
@@ -492,6 +537,7 @@ pub fn coords(
     // see.
     if (isForest(in_off, n)) {
         _ = tidyTerritories(in_off, in_src, out_off, out_dst, order, starts, sep, extra, x);
+        applyPins(pins, x);
     }
 
     // AND THE PARENT IS CENTRED OVER ITS CHILDREN, last of all, because
@@ -529,8 +575,10 @@ pub fn coords(
     // sliding the rest of the rank along. Idempotent with the forest
     // pass, which has already opened exactly that much.
     familyAir(in_off, in_src, order, starts, sep, extra, x);
+    applyPins(pins, x);
 
     centerParents(in_off, out_off, out_dst, order, starts, sep, extra, x);
+    applyPins(pins, x);
     return OK;
 }
 
