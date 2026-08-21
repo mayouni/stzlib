@@ -344,6 +344,12 @@ class stzDiagram from stzGraph
 	# the only instrument a guard can put on the label law.
 	@aRenderLabels = []
 
+	# THE SESSION'S MEMORY: every edit and its inverse, so an editor can
+	# be explored rather than merely operated. Nothing here mutates the
+	# model directly -- see Do().
+	@aUndo = []
+	@aRedo = []
+
 	# WHERE THE AUTHOR HAS PLACED A CELL BY HAND: [ id, slotX ]. A pin
 	# is a position the layout may not argue with -- see Pin().
 	@aPins = []
@@ -3539,6 +3545,166 @@ class stzDiagram from stzGraph
 
 	def RenderPicks()
 		return @aRenderPicks
+
+	#-- EDITS: the session executes COMMANDS, never mutations ------------
+	#
+	# A live editor that mutates the model directly can offer no undo, so
+	# nothing here mutates: every edit is a command with an inverse, and
+	# the log is the session's memory. mxGraph's model, and the reason it
+	# has one -- an editor without undo is an editor nobody trusts enough
+	# to explore with.
+	#
+	# The commands go through the EXISTING mutation API and its existing
+	# refusals, so every guard in this plane governs the editor for free
+	# and a refused edit surfaces as feedback rather than as a second
+	# rulebook. That was the design decision: the model stays stzDiagram,
+	# and a session is state ALONGSIDE it, not a parallel graph.
+	#
+	# Five commands cover the editor's whole vocabulary:
+	#   MoveCell   pin a cell somewhere      <-> pin it back (or unpin)
+	#   AddCell    a node exists             <-> it does not
+	#   RemoveCell a node is gone            <-> it is back, with its edges
+	#   Link       an edge exists            <-> it does not
+	#   SetLabel   a node reads this         <-> it read that
+	# NOT Do() -- "do" is a Ring keyword (do...again), so a method named
+	# for it is a parse error four hundred lines away from anything that
+	# looks wrong. Edit() says what it does anyway.
+	def Edit(pcKind, paArgs)
+		_dcK_ = StzLower("" + pcKind)
+		if NOT isList(paArgs)  paArgs = []  ok
+		_dcInv_ = This._ApplyEdit(_dcK_, paArgs)
+		if len(_dcInv_) = 0  return FALSE  ok
+		# a fresh edit closes the redo branch: the future it led to is
+		# not the future this edit leads to
+		@aRedo = []
+		@aUndo + [ _dcK_, paArgs, _dcInv_[1], _dcInv_[2] ]
+		return TRUE
+
+	def Undo()
+		if len(@aUndo) = 0  return FALSE  ok
+		_uE_ = @aUndo[ len(@aUndo) ]
+		_uNew_ = []
+		for _uI_ = 1 to len(@aUndo) - 1  _uNew_ + @aUndo[_uI_]  next
+		@aUndo = _uNew_
+		This._ApplyEdit(_uE_[3], _uE_[4])
+		@aRedo + _uE_
+		return TRUE
+
+	def Redo()
+		if len(@aRedo) = 0  return FALSE  ok
+		_rE_ = @aRedo[ len(@aRedo) ]
+		_rNew_ = []
+		for _rI_ = 1 to len(@aRedo) - 1  _rNew_ + @aRedo[_rI_]  next
+		@aRedo = _rNew_
+		This._ApplyEdit(_rE_[1], _rE_[2])
+		@aUndo + _rE_
+		return TRUE
+
+	def CanUndo()
+		return len(@aUndo) > 0
+
+	def CanRedo()
+		return len(@aRedo) > 0
+
+	def EditLog()
+		return @aUndo
+
+	def ClearEditLog()
+		@aUndo = []
+		@aRedo = []
+		return This
+
+	# Perform one edit and answer its INVERSE as [ kind, args ], or [] if
+	# the edit was refused. The inverse is computed BEFORE the change,
+	# because afterwards the information it needs is gone -- a removed
+	# node's label and edges cannot be read from a model that no longer
+	# holds them.
+	def _ApplyEdit(pcKind, paArgs)
+		switch StzLower("" + pcKind)
+		on "movecell"
+			if len(paArgs) < 2  return []  ok
+			_aeId_ = "" + paArgs[1]
+			if This.IsPinned(_aeId_)
+				_aeWas_ = [ :movecell, [ _aeId_, This._PinOf(_aeId_) ] ]
+			else
+				_aeWas_ = [ :freecell, [ _aeId_ ] ]
+			ok
+			This.Pin(_aeId_, paArgs[2])
+			return _aeWas_
+
+		on "freecell"
+			if len(paArgs) < 1  return []  ok
+			_aeId_ = "" + paArgs[1]
+			if NOT This.IsPinned(_aeId_)  return []  ok
+			_aeWas_ = [ :movecell, [ _aeId_, This._PinOf(_aeId_) ] ]
+			This.Unpin(_aeId_)
+			return _aeWas_
+
+		on "addcell"
+			if len(paArgs) < 1  return []  ok
+			_aeId_ = "" + paArgs[1]
+			if This.NodeExists(_aeId_)  return []  ok
+			_aeLb_ = _aeId_
+			if len(paArgs) >= 2  _aeLb_ = "" + paArgs[2]  ok
+			This.AddNodeXT(_aeId_, _aeLb_)
+			return [ :removecell, [ _aeId_ ] ]
+
+		on "removecell"
+			if len(paArgs) < 1  return []  ok
+			_aeId_ = "" + paArgs[1]
+			if NOT This.NodeExists(_aeId_)  return []  ok
+			# THE EDGES GO WITH IT, so the inverse has to carry them:
+			# undoing a removal that silently dropped three edges would
+			# restore a node into a graph it is no longer part of.
+			_aeLb_ = "" + This.NodeLabel(_aeId_)
+			_aeEd_ = []
+			for _aeE_ in This.Edges()
+				if StzLower("" + _aeE_[:from]) = StzLower(_aeId_) or
+				   StzLower("" + _aeE_[:to]) = StzLower(_aeId_)
+					_aeEd_ + [ "" + _aeE_[:from], "" + _aeE_[:to] ]
+				ok
+			next
+			This.RemoveThisNode(_aeId_)
+			return [ :restorecell, [ _aeId_, _aeLb_, _aeEd_ ] ]
+
+		on "restorecell"
+			if len(paArgs) < 2  return []  ok
+			_aeId_ = "" + paArgs[1]
+			if This.NodeExists(_aeId_)  return []  ok
+			This.AddNodeXT(_aeId_, "" + paArgs[2])
+			if len(paArgs) >= 3 and isList(paArgs[3])
+				for _aeP_ in paArgs[3]
+					if len(_aeP_) = 2  This.AddEdge(_aeP_[1], _aeP_[2])  ok
+				next
+			ok
+			return [ :removecell, [ _aeId_ ] ]
+
+		on "link"
+			if len(paArgs) < 2  return []  ok
+			This.AddEdge("" + paArgs[1], "" + paArgs[2])
+			return [ :unlink, [ "" + paArgs[1], "" + paArgs[2] ] ]
+
+		on "unlink"
+			if len(paArgs) < 2  return []  ok
+			This.RemoveThisEdge("" + paArgs[1], "" + paArgs[2])
+			return [ :link, [ "" + paArgs[1], "" + paArgs[2] ] ]
+
+		on "setlabel"
+			if len(paArgs) < 2  return []  ok
+			_aeId_ = "" + paArgs[1]
+			if NOT This.NodeExists(_aeId_)  return []  ok
+			_aeWas_ = "" + This.NodeLabel(_aeId_)
+			This.SetNodeLabel(_aeId_, "" + paArgs[2])
+			return [ :setlabel, [ _aeId_, _aeWas_ ] ]
+		off
+		return []
+
+	def _PinOf(pcNode)
+		_poN_ = StzLower("" + pcNode)
+		for _poP_ in @aPins
+			if _poP_[1] = _poN_  return _poP_[2]  ok
+		next
+		return 0
 
 	#-- PINS: the layout advises, the author decides ---------------------
 	#
