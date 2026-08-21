@@ -344,6 +344,14 @@ class stzDiagram from stzGraph
 	# the only instrument a guard can put on the label law.
 	@aRenderLabels = []
 
+	# WHAT THE PICTURE CAN BE ASKED ABOUT: tag -> [ kind, a, b ]. The
+	# display list is tagged as it is drawn, so a point in the picture
+	# answers with a NODE or an EDGE rather than with a shape -- the
+	# batch pipeline's one-way street (model -> layout -> paint) opened
+	# so a reader can point back up it.
+	@aRenderPicks = []
+	@oLastCanvas = NULL
+
 	# The last render's paper size, so the label placer can refuse a spot
 	# that hangs off it.
 	@nRenderW = 0
@@ -1760,17 +1768,40 @@ class stzDiagram from stzGraph
 			# finishing. What decides whether an edge reads as flat is
 			# its run divided by the number of gaps it descends through,
 			# because that is the slope of each leg.
+			# ASKED ONCE, AND LOWERED ONCE. This scanned
+			# `_oGC_.Positions()` from inside a per-edge loop -- the
+			# iterator form over a METHOD CALL, so the whole position
+			# list was rebuilt for every step of every edge -- and
+			# compared ids with four StzLower crossings per row. Ninety
+			# nine edges over a hundred nodes came to forty thousand
+			# engine crossings and a rebuilt list per comparison: 4.5
+			# seconds of a 4.7 second picture, all of it in a loop whose
+			# job is to find one number.
+			#
+			# The same graph drawn at a fixed size took 0.55s, because
+			# the fixed path never enters this branch -- which is how the
+			# cost hid: only pictures that size themselves paid it, and
+			# those are the big ones.
 			_maxdx_ = 0
 			_nlay_ = _oGC_.LayerCount()
+			_aPosL_ = []
+			for _pL_ in _oGC_.Positions()
+				_aPosL_ + [ StzLower("" + _pL_[1]), _pL_[2], _pL_[3] ]
+			next
+			_nPosL_ = len(_aPosL_)
 			for _e2_ in This.Edges()
 				_pa_ = 0  _pb_ = 0  _ya_ = 0  _yb_ = 0
 				_bfa_ = 0  _bfb_ = 0
-				for _p2_ in _oGC_.Positions()
-					if StzLower("" + _p2_[1]) = StzLower("" + _e2_[:from])
+				_cFrL_ = StzLower("" + _e2_[:from])
+				_cToL_ = StzLower("" + _e2_[:to])
+				for _pi2_ = 1 to _nPosL_
+					_p2_ = _aPosL_[_pi2_]
+					if _p2_[1] = _cFrL_
 						_pa_ = _p2_[2]  _ya_ = _p2_[3]  _bfa_ = 1
-					but StzLower("" + _p2_[1]) = StzLower("" + _e2_[:to])
+					but _p2_[1] = _cToL_
 						_pb_ = _p2_[2]  _yb_ = _p2_[3]  _bfb_ = 1
 					ok
+					if _bfa_ and _bfb_  exit  ok
 				next
 				if _bfa_ and _bfb_
 					_gaps2_ = fabs(_ya_ - _yb_) / 700 * max([ _nlay_ - 1, 1 ])
@@ -2075,6 +2106,8 @@ class stzDiagram from stzGraph
 		@aChanUsed = []
 		@aRenderNodeRects = []
 		@aRenderLabels = []
+		@aRenderPicks = []
+		@oLastCanvas = _oC_
 		for _nr_ in _aXY_
 			@aRenderNodeRects + [ _nr_[2] - _nBoxW_ / 2, _nr_[3] - _nBoxH_ / 2,
 				_nBoxW_, _nBoxH_, StzLower("" + _nr_[1]) ]
@@ -2110,6 +2143,15 @@ class stzDiagram from stzGraph
 			# all and a state machine's "stay here" arrow was simply absent
 			# from the picture -- the most complete kind of rendering bug,
 			# because there is nothing wrong to notice.
+			# an edge answers as itself, above the node tags because
+			# tags are recorded once and edges are drawn before nodes:
+			# the ranges never overlap
+			if @nDrawPass = 2
+				_oC_.SetPickTag(1000000 + _ei_)
+				@aRenderPicks + [ 1000000 + _ei_, "edge",
+					"" + _aE_[_ei_][:from], "" + _aE_[_ei_][:to] ]
+			ok
+
 			if StzLower("" + _aE_[_ei_][:from]) = StzLower("" + _aE_[_ei_][:to])
 				if @nDrawPass = 2
 					This._DrawSelfLoop(_oC_, _a_, _nBoxW_, _nBoxH_, _cEdge_,
@@ -2405,6 +2447,11 @@ class stzDiagram from stzGraph
 			_cId_ = "" + _aNodes_[_i_][:id]
 			_a_ = This._XYOf(_aXY_, _cId_)
 			if len(_a_) != 2  loop  ok
+			# everything drawn for this node answers as this node: the
+			# fill, the outline and the label are one thing to a reader
+			# pointing at them
+			_oC_.SetPickTag(_i_)
+			@aRenderPicks + [ _i_, "node", _cId_, "" ]
 			_cShape_ = This._NativeShapeOf(_aNodes_[_i_])
 			_cFill_ = This._NativeFillOf(_aNodes_[_i_])
 			_x0_ = _a_[1] - _nBoxW_ / 2
@@ -2467,6 +2514,17 @@ class stzDiagram from stzGraph
 				ok
 			next
 		ok
+
+		# THE PICTURE IS FINISHED WHEN IT IS HANDED OVER. The canvas holds
+		# one shape pending until the next is added, so the LAST thing
+		# drawn -- the last node's outline, most often -- was still in
+		# Ring's hands when the caller received the canvas. Every output
+		# method flushes, so nothing rendered was ever wrong; but a
+		# question asked of the picture BEFORE rendering it, which is what
+		# picking is, could not see that last shape. A returned canvas is
+		# a finished one.
+		_oC_.Flush()
+		_oC_.SetPickTag(0)
 
 		return _oC_
 
@@ -3473,6 +3531,36 @@ class stzDiagram from stzGraph
 
 	def RenderLabels()
 		return @aRenderLabels
+
+	def RenderPicks()
+		return @aRenderPicks
+
+	# WHAT IS AT THIS POINT OF THE LAST PICTURE -- [ :node, id ],
+	# [ :edge, from, to ], or [] for bare paper.
+	#
+	# This is the batch pipeline's one-way street opened: model, layout
+	# and paint each own their successor, so the picture could never be
+	# asked anything. Now it can, and the answer is in the GRAPH's terms
+	# rather than the display list's, because the face tags what it draws
+	# as it draws it.
+	#
+	# The reading itself is engine work over the retained command list --
+	# no copy, one crossing per question -- which is what makes it fast
+	# enough to sit under a cursor.
+	def PickAt(pnX, pnY)
+		return This.PickAtXT(pnX, pnY, 3)
+
+	def PickAtXT(pnX, pnY, pnTol)
+		if NOT isObject(@oLastCanvas)  return []  ok
+		_pkT_ = @oLastCanvas.PickXT(pnX, pnY, pnTol)
+		if _pkT_ = 0  return []  ok
+		for _pkR_ in @aRenderPicks
+			if _pkR_[1] = _pkT_
+				if _pkR_[2] = "node"  return [ :node, _pkR_[3] ]  ok
+				return [ :edge, _pkR_[3], _pkR_[4] ]
+			ok
+		next
+		return []
 
 	# Score one candidate label spot: the distance from the label's plate
 	# to the nearest FOREIGN edge ink, or -1 when the spot is unusable

@@ -894,6 +894,20 @@ fn ring_SceneToSvg(p: *anyopaque) callconv(.c) void {
 // a target of that size. Width 0 restores the whole picture. This is the
 // one engine addition tiling needs -- and the same one a screen viewer
 // panning a huge diagram needs, so panning and printing are one feature.
+// GpuSceneSetPickTag(nId, nTag)
+//
+// Everything drawn after this belongs to nTag. The display list knows
+// shapes, not identities -- this is how a face lends it one, so that a
+// click can be answered as "Web A" rather than "a rounded rectangle".
+fn ring_SceneSetPickTag(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(scene.sceneSetPickTag(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2)))));
+}
+
+// GpuScenePick(nId, nX, nY, nTol) -> tag under the point, 0 for paper
+fn ring_ScenePick(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(scene.scenePick(@intFromFloat(gn(p, 1)), gn(p, 2), gn(p, 3), gn(p, 4))));
+}
+
 fn ring_SceneSetView(p: *anyopaque) callconv(.c) void {
     const okv = scene.sceneSetView(@intFromFloat(gn(p, 1)), gn(p, 2), gn(p, 3), gn(p, 4), gn(p, 5));
     rn(p, if (okv) 1 else 0);
@@ -1604,6 +1618,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuscenetosvg", .func = &ring_SceneToSvg },
     .{ .name = "stzenginegpuscenetopng", .func = &ring_SceneToPng },
     .{ .name = "stzenginegpuscenesetview", .func = &ring_SceneSetView },
+    .{ .name = "stzenginegpuscenesetpicktag", .func = &ring_SceneSetPickTag },
+    .{ .name = "stzenginegpuscenepick", .func = &ring_ScenePick },
     .{ .name = "stzenginegpuscenetopixels", .func = &ring_SceneToPixels },
     .{ .name = "stzenginegpuatlasstats", .func = &ring_AtlasStats },
     .{ .name = "stzenginegpuatlasreset", .func = &ring_AtlasReset },

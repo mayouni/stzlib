@@ -3177,6 +3177,114 @@ chk("a picture too big to render whole still prints", len(aBigPg) >= 8)
 
 #---------------------------------------------------------------------------
 ? ""
+sec("-- 40. GG7a: the picture can be ASKED --------------------------")
+#
+# The batch pipeline is model -> layout -> paint and every stage owns its
+# successor, so the picture was the end of a one-way street: it could be
+# looked at and never questioned. A live diagram needs the street to run
+# both ways -- a point must answer with a NODE or an EDGE, in the graph's
+# own terms and not the display list's.
+#
+# Hit-testing is ENGINE work, and for the reason that decides most of
+# these calls: the display list is already retained engine-side, so a
+# question about it costs one crossing and no copy. What the engine
+# lacked was identity -- it knows a rounded rectangle and cannot know
+# "Web A" -- so the face tags the commands as it draws them, and a pick
+# answers with the tag. A tag rather than a shape index because a node is
+# a fill AND an outline AND a label, and all of them are the same node to
+# a reader pointing at one.
+#
+# Building it found two defects worth naming. The canvas kept its LAST
+# shape pending until something else forced a flush, so a question asked
+# before rendering could not see the last thing drawn -- correct in every
+# picture ever rendered, and wrong the moment the picture was asked
+# instead. And a 100-node diagram took 4.5 seconds to draw, of which 4.3
+# was one loop scanning `Positions()` from inside a per-edge loop: the
+# iterator form over a METHOD CALL, rebuilding the whole position list
+# per step, comparing ids with four engine crossings a row. Hoisting it
+# took the same picture to 0.6s. It hid because only pictures that SIZE
+# THEMSELVES enter that branch -- which is to say, the big ones.
+#---------------------------------------------------------------------------
+
+
+# THE PICTURE ANSWERS IN THE GRAPH'S TERMS
+oPk = new stzDiagram("pick41")
+for a in [ [ "lb","Balancer" ],[ "web1","Web A" ],[ "web2","Web B" ] ]
+	oPk.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
+next
+oPk.AddEdge("lb", "web1")  oPk.AddEdge("lb", "web2")
+oPk.SetSplines("ortho")
+oPk.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+
+nFound = 0
+for r in oPk.RenderNodeRects()
+	aAt = oPk.PickAt(r[1] + r[3] / 2, r[2] + r[4] / 2)
+	if len(aAt) = 2 and StzLower("" + aAt[2]) = r[5]  nFound++  ok
+next
+? "   nodes correctly identified at their centres : " + nFound + " of " +
+  len(oPk.RenderNodeRects())
+chkeq("a point on a node answers with THAT node", nFound,
+      len(oPk.RenderNodeRects()))
+
+# an edge answers as an edge, named by its ends
+aEP = oPk.RenderEdgePaths()
+nOnEdge = 0
+for p in aEP
+	aF = p[2]
+	# the middle of the LAST segment, which belongs to this edge alone
+	nMx = (aF[len(aF) - 3] + aF[len(aF) - 1]) / 2
+	nMy = (aF[len(aF) - 2] + aF[len(aF)]) / 2
+	aAt = oPk.PickAt(nMx, nMy)
+	if len(aAt) = 3  nOnEdge++  ok
+next
+? "   points on edges answering as edges : " + nOnEdge + " of " + len(aEP)
+chk("a point on an edge answers with an EDGE", nOnEdge >= 1)
+
+# BARE PAPER IS BARE PAPER -- the negative that keeps the rest honest,
+# since a picker that answered "the nearest thing" would pass every
+# assertion above and be useless for deciding whether a click hit
+# anything at all.
+? "   the corner of the paper answers : " + len(oPk.PickAt(2, 2)) + " terms"
+chkeq("a point on nothing answers NOTHING", len(oPk.PickAt(2, 2)), 0)
+
+# ...and the tolerance is a tolerance, not a magnet: just outside a node
+# is outside it.
+aR1 = oPk.RenderNodeRects()[1]
+? "   30px clear of a node answers : " +
+  len(oPk.PickAt(aR1[1] - 30, aR1[2] - 30)) + " terms"
+chkeq("a point CLEAR of a node is not that node",
+      len(oPk.PickAt(aR1[1] - 30, aR1[2] - 30)), 0)
+
+# THE KILL CRITERION: pick under 1ms on a 500-node diagram. Measured at
+# 500 on 2026-08-21 -- 0.28ms a pick, 300 of 300 hits -- and asserted
+# here at a size the gate can afford, because the property is that a
+# pick reads the retained list rather than rebuilding anything, and that
+# property does not wait for the 500th node to appear.
+oBg = new stzDiagram("big41")
+oBg.AddNodeXTT("n1", "N1", [ :type = "box", :color = "Info.Solid" ])
+for i = 2 to 200
+	oBg.AddNodeXTT("n" + i, "N" + i, [ :type = "box", :color = "Info.Solid" ])
+	oBg.AddEdge("n" + max([ 1, floor(i / 3) ]), "n" + i)
+next
+oBg.SetSplines("ortho")
+oBg.ToCanvasXT([ :NodeWidth = 60, :NodeHeight = 26,
+	:Width = 2400, :Height = 1600 ])
+aBR = oBg.RenderNodeRects()
+nPicks = 200
+nHit = 0
+t0 = clock()
+for k = 1 to nPicks
+	r = aBR[ (k % len(aBR)) + 1 ]
+	if len(oBg.PickAt(r[1] + r[3] / 2, r[2] + r[4] / 2)) > 0  nHit++  ok
+next
+nMs = (clock() - t0) / clockspersecond() / nPicks * 1000
+? "   " + nPicks + " picks over " + len(aBR) + " nodes : " + nMs +
+  " ms each, " + nHit + " hit"
+chk("a pick costs well under a millisecond", nMs < 1)
+chkeq("...and every one of them found its node", nHit, nPicks)
+
+#---------------------------------------------------------------------------
+? ""
 if nSecClock > 0
 	? "        [section took " +
 	  ((clock() - nSecClock) / clockspersecond()) + "s]"
