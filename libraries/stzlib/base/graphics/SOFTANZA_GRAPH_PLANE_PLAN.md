@@ -622,6 +622,37 @@ this point"* and *"which part of you fits this page"*.
 
 ### GG7 — stzLiveDiagram: the layout becomes a suggestion, the picture becomes an input device
 
+**THREE OF FIVE DELIVERED 2026-08-21.** The model half is done and
+guarded; the window half is not started.
+
+- **GG7a, picking** (72308ddc7). `sceneSetPickTag`/`scenePick` in the
+  engine, `SetPickTag`/`Pick` on stzCanvas, `PickAt` on stzDiagram
+  answering `[ :node, id ]` / `[ :edge, from, to ]` / `[]`. Kill
+  criterion MET and measured: **0.28 ms a pick on a 500-node diagram**,
+  300 of 300 hits, against a 1 ms budget. Section 40.
+- **GG7b, pins** (3cfcf714b). `coordsPinned` in the engine, pins through
+  stzGraphCanvas, `Pin`/`Unpin`/`IsPinned` on stzDiagram. A pin decides
+  ORDER as well as position — without that it decided nothing visible,
+  because rank order is settled before coordinates and `_Normalise`
+  refits the box afterwards. Section 41.
+- **GG7c, the command log** (edbe91454). `Edit(kind, args)` with
+  inverses, `Undo`/`Redo`, over the model's existing mutation API and
+  its existing refusals. Section 42, nineteen assertions.
+
+**Still open:** the interaction state machine and the window session
+(design decisions 1 and 5), and the second kill criterion —
+drag-redraw < 16 ms — which needs stzWindow and has NOT been measured.
+
+**One measurement worth keeping**, found while chasing the pick budget:
+`ToCanvasXT` was superlinear because a per-edge loop scanned
+`Positions()` in the ITERATOR form over a method call, rebuilding the
+list per step with four StzLower crossings a row. A 100-node picture
+went 4.5s → 0.6s when hoisted. Only pictures that size themselves
+entered that branch, so a fixed-size render of the same graph was
+already fast and nothing looked wrong from outside.
+
+
+
 The batch pipeline is `model → layout → paint`, and every stage OWNS its
 successor. A live editor inverts the ownership: the user owns positions,
 the layout only advises, and the picture must answer questions.
