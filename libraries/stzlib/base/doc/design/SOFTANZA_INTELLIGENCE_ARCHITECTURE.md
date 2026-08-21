@@ -430,6 +430,12 @@ engine/ (Zig), the Q-convention, the narrated-test culture.
 
 ## 3. Current-State Audit (2026-07-13)
 
+> **AMENDED 2026-08-22.** The table below is the audit as taken on 2026-07-13 and is
+> preserved unedited. **[3.1](#31-re-audit-2026-08-22----every-rung-marked-with-the-file-or-commit-that-proves-it)
+> is the live one** -- every 2026-07-13 row dispositioned, then every roadmap rung R1-R8
+> marked delivered / partial / not started with its proof. **3.2 is the agent-doctrine
+> ruling** (`CENTRAL-AGENTDOCTRINE-01`).
+
 | Concern | Verdict |
 |---|---|
 | /natural holds entities+relations+suppositions as $-globals | WRONG HOME + WRONG SHAPE -- and a PARALLEL WORLD: graph/stzKnowledgeGraph already offers the power (triples/query/ontology/.zknw). R1 unifies onto a default instance, globals as sugar |
@@ -444,6 +450,278 @@ engine/ (Zig), the Q-convention, the narrated-test culture.
 | Reaxis narration claims "built on libuv" | STALE -- libuv was removed from Reaxis 2026-06-13 (cooperative polling now); real libuv lives in stzReactor. Reconcile in S0 |
 | Conversation constructs scattered: stzNeuralChat (neural/), stzQuestion (natural/), narration = culture-only, goals unbuilt | Conversational programming deserves a DOMAIN -- conversation/ reunites them (R3b) |
 | The house rules (Q-convention, forms, engine-first) live in docs + folklore | LAW 6: agents can't RUN folklore -- meta/ exposes them as checkable validators (R2) |
+
+---
+
+### 3.1 RE-AUDIT 2026-08-22 -- every rung marked, with the file or commit that proves it
+
+*(by the stzlib-intelligence plane, on Central's prompt 47. **The 2026-07-13 table above is
+kept exactly as written and is NOT corrected in place** -- this estate amends by adding, so
+that what was believed on the day remains readable beside what was measured six weeks
+later. Every row above is dispositioned in 3.1.1; the roadmap is marked in 3.1.2.)*
+
+**A source of truth that cannot say where the work stands is not one.** That sentence is
+why this subsection exists. Everything in it was measured against the tree on 2026-08-22,
+and every green verdict names a guard that was RUN, not a file that was seen.
+
+#### 3.1.1 Disposition of the 2026-07-13 audit rows
+
+| 2026-07-13 concern | 2026-08-22 disposition |
+|---|---|
+| /natural holds entities+relations+suppositions as $-globals | **CLOSED.** The globals are sugar over ONE default graph: `natural/stzKnowledgeWorld.ring` delegates `StzKnow` / `StzKnowRelation` / `WhatIs` / `AreRelated` to `DefaultKnowledgeGraph()`. Proven end to end by `test/natural/knowledge_integration_narrated.ring` (19/19) |
+| The 2026-07-13 relation laws ($aStzRelationRules) | **CLOSED.** `:Transitive` / `:Symmetric` / `:Unique` are declared with `StzConstrainRelation` and enforced by the graph's own ontology -- `RelationHasLaw()` reads them back, and they TRAVEL INSIDE THE .zknw FILE (same guard, Scene 3) |
+| stzText lives in natural/ | **CLOSED.** `base/linguistic/` holds stzText, stzPlural, stzSingular, stzOrdinal, stzAdverb, stzParseTree, stzListOfTexts and stzCorpus |
+| /neural consumes GGUFs only | **CLOSED, both ways.** Consumption plus creation: `learning/` holds the ML floor and `stzDLM`; `neural/` now also CONSTRAINS generation (see the C9 row below) |
+| /reflect hosts self-doc | **CLOSED.** `base/meta/` holds stzSelfDoc, stzLibDoc, stzCodeGraph, stzCodeRule(s), stzPredicateSet, stzGovernanceChecks, and the Py / JS / Ring code graphs |
+| Evidential + constraint registers as globals in natural/ | **UNCHANGED, and still acceptable** -- discourse state, not domain data. No persistence need has appeared |
+| stzNeuralChat in neural/ | **UNCHANGED, still the right home** |
+| stzLinearSolver's simplex -- DISHONEST STUB | **CLOSED at the floor, OPEN at the DSL.** A real simplex lives in `engine/src/simplex.zig`, guarded by `test/number/numeric_simplex_narrated.ring`, and the comparison test is un-retired (`test/linearsolver/13_same_problem_different_solvers.ring`). What did NOT arrive is R4 step 5's modelling DSL -- see the R4 row in 3.1.2 |
+| reactive/ vs intelligence modules | **CLOSED.** The event bus is wired (`stzEventBus` + `stzAgentHost.SuperviseOnEvent`), and since 2026-08-20 the SCHEDULING itself can be handed to Zig (`agentloop.zig`, `UseEngineLoop()`), guarded by `test/agentic/agentloop_engine_narrated.ring` (54/54) |
+| Reaxis narration claims "built on libuv" | **CLOSED in S0** |
+| Conversation constructs scattered | **CLOSED.** `base/conversation/` holds stzConversation, stzGoal, stzNarration; wise coding runs (`test/conversation/wisecoding_narrated.ring` 13/13, `wisecoding_rich_narrated.ring` 52/52) |
+| The house rules live in docs + folklore | **CLOSED.** They are runnable: `meta/stzCodeRule(s)` + `graph/stzRuleReport` -- ONE CI gate over six rule domains, and since 2026-08-22 the structured-output verdict enters that same gate |
+
+#### 3.1.2 THE ONE ROADMAP, rung by rung (measured 2026-08-22)
+
+Verdicts are **DELIVERED** / **PARTIAL** (with what is missing named) / **NOT STARTED**.
+A rung is marked DELIVERED only where a guard proving it was RUN on this date.
+
+| Rung | Verdict | The proof | What is still missing |
+|---|---|---|---|
+| **S0** foundation hygiene | **DELIVERED** | `stzGraph.Paths()` implemented (stzGraph.ring:2019); `stzMatrix.Transpose` exposed (stzMatrix.ring:4433); `stzRegexUter.Compute` present; `stznumbrex-copy.ring` deleted; the Reaxis / libuv narration reconciled | -- |
+| **R1** knowledge | **DELIVERED** | `test/natural/knowledge_integration_narrated.ring` -- **19/19 green, 2.5 s**. Authoring, the ontology laws, `StzProve()` with a structured three-step trace, the .zknw round trip, derivation fired by an agent-door write, and strict mode (G8: provenance required, a contradiction RECORDED rather than resolved). `graph/stzKnowledgeGraph.ring` 977 lines, born 590daccd5 | **One author ruling is still open.** §6 R1 said "folder naming (graph/ -> knowledge/?) decided by the author here". The folder is still `graph/` and every consumer imports it as such. **Recommendation: keep `graph/` and retire the question** -- graph/ now holds 27k lines across sixteen files, of which the knowledge graph is one, and renaming a container after its most famous tenant is wrong by LAW 1 |
+| **R2** meta + the code graph | **DELIVERED** | `test/meta/` -- codegraph 28/28, coderule, coderule_project, jscodegraph, pycodegraph, all green. `stzPredicateSet` (G10, the signable constitution) exists; `stzGovernanceChecks` holds the G2 validators; `stzRuleReport` is the ONE gate. Call-edges, deferred at R7, are now read (`stzRingCodeGraph.ring:239`) | -- |
+| **R3** linguistic | **DELIVERED** | `base/linguistic/`, 8 files. The POS-pattern chunker (`test/linguistic/chunker_narrated.ring`) and the n-gram LM tier (`ngram_lm_tier_narrated.ring`) both exist; `stzCorpus` is the corpora entry object | The corpora SHELF is a class, not a folder. That is adequate, but §2's map still draws a `corpora/` directory that does not exist -- **the map is what is wrong here, not the code** |
+| **R3b** conversation | **DELIVERED** | `test/conversation/wisecoding_narrated.ring` **13/13** and `wisecoding_rich_narrated.ring` **52/52**, both green. `ConcludeIn()` WRITES the .zknw at the end of an elicitation -- wise coding ends in an artifact, exactly as 0.3 demanded | The five answer registers are not equally strong: option, data-structure and natural are wired; EXAMPLES-with-induction rides `StzOwnAgent("induction")`, which is declared RESERVED (see the R5 row) |
+| **R4** learning + optim | **PARTIAL** | Steps 0-4, 6 and 7 DELIVERED: `test/learning/` mlfloor 36/36, dlm 16/16, multilingual stress 37/37, knn-approximate green; `stzDLM` + .zdlm is foundry rung 1; `stzLLMFunction` + `stzOutputSchema` are step 6, and are now specified as **C9 v1.0.0** in `base/neural/SOFTANZA_STRUCTURED_OUTPUT.md` (written 2026-08-22) | **STEP 5 IS NOT STARTED. There is no `base/optim/`, no `stzOptimModel`, no `.zopt` format, no `SolveWith(:auto)` and no HiGHS tier.** The solver FLOOR exists (`engine/src/simplex.zig`, `stats/stzLinearSolver`, `stzMultiObjectiveSolver`, `stzStochasticSolver`); what is missing is the MODELLING DSL over it. This is load-bearing rather than cosmetic: R5's OPTIMIZATION leg names `stzOptimModel` as the planner's sub-solver, and the capstone's "optimize a menu straight from the knowledgebase" runs through it. **Step 8** (the neural foundry rung -- corpus synthesis, tokenizer training, GGUF export) is also not started, and was always the ambition tier |
+| **R4b** governance | **DELIVERED -- all five contracts, not one** | `base/governance/stzGovernance.ring`, 744 lines, born 7dd4b7275. ActionRiskTier = `DeclareRisk` / `RiskOf`; AuthorityType = `SetAuthority` / `AuthorityOf`; CommitmentState = `OpenCommitment` / `AdvanceCommitment`; DecommissionContract = `DeclareDecommission` / `FulfillObligation` / `MayRetire`; DecisionLineage = `RecordDecision` / `LineageOf` / `DecisionsSince`. Plus the 5.8 execution trust postures (`DeclarePosture` / `MayExecute`) and the .zgov format. `test/governance/` -- narrated 19/19, lineage 37/37 | **Reversibility is not among them.** See 3.2 -- it is now owed as a sixth contract |
+| **R5** agentic | **PARTIAL -- and the partition is not where 2026-07-13 expected it** | Green: `test/agentic/`, eight suites, **261 assertions, 0 fail** (agentfile 88, agentloop_engine 54, agenthost 32, roster 31, agentrule 21, piagent 14, agentgraph 11, ownagentstack 10). PLANNING = `stzGraphPlanner` + `stzGraphGoal`, both built; REACTION, MEMORY, SKILLS and the governance gate all run; the capability lattice and taint colours are real (`stzAgentGraph`); ACCOUNTABILITY is the per-cycle trace | Named with reasons in **3.2**. In one line: OPTIMIZATION has no sub-solver (R4 step 5), the NATIVE ROSTER is one wired of five, `stzHybridAgent` was never built as a class, and **the safe world and the agents have never been introduced to each other** |
+| **R6** refine | **DELIVERED** | `test/refine/` -- refinablecode 17/17, refine_deepening 24/24, gate_deepening green. `stzRefinableCode` over .zrfn; the four-stage gate; `stzPyCodeGraph` and `stzJsCodeGraph` are the polyglot contracts | The optional research tier (patch-commutation predicates, the ROM-style stable surface) was never started, and was marked optional on the day |
+| **R7** delivery plane | **DELIVERED** (unchanged; marked on the day) | `test/capstone/restaurant_capstone_narrated.ring` green. All four topologies; `HostAgents()` interleaves the serve loop | INBOUND server-side TLS, as already recorded |
+| **R8** scale | **DELIVERED** (unchanged; marked 2026-07-15) | §7 and its six rungs | -- |
+
+**THE CAPSTONE** -- the definition of done for the whole roadmap -- runs and is green, but
+it threads R1->R7 through CODE, not through the DAY-ZERO experience §6 describes: nothing
+in the tree yet starts an owner with NOTHING and interviews them into a `restaurant.zknw`.
+Wise coding proves the mechanism (`wisecoding_rich_narrated`, 52/52); the capstone does
+not yet BEGIN with it. That is the honest gap between "the roadmap is nearly done" and
+"the capstone is passed".
+
+#### 3.1.3 Three measurements Central published, corrected at their source
+
+Central's prompt 47 stated three facts and asked to be falsified rather than trusted. Two
+stand as stated. All three carried an inference that does not.
+
+1. **"`base/agentic/` is 3,808 lines, of which 2,946 arrived in the last four days and 744
+   are R5's own."** The total is right; **the split is wrong in both directions.** The loop
+   program added **2,578** lines (`git log --numstat`, 2026-08-20: stzAgentDeclaration
+   1,207 + stzAgentFolder 505 + stzAgentRoster 470 + 396 into stzAgentHost). R5's own core
+   is **1,230** lines, not 744: the count omitted `stzOwnAgentStack.ring` (118, 2026-07-16)
+   entirely, and attributed ALL of stzAgentHost to the loop program when 368 of its 764
+   lines predate it by five weeks (born f4d1f2edf, 2026-07-14). The true ratio is
+   **68 / 32**, not 77 / 20. It does not overturn Central's worry -- the loop program is
+   still the majority -- but a doctrine question decided on a ratio deserves the right one.
+2. **"No `.zknw` file exists anywhere in the tree."** TRUE, and it is **hygiene, not a
+   gap**. The acceptance guard WRITES one, reloads the brain from it, and `remove()`s it at
+   line 137. The attached inference -- *"the north star's acceptance test has therefore
+   never been run end to end"* -- is **false**: it was run on 2026-08-22 and is **19/19
+   green in 2.5 s**. A test that cleans up after itself leaves exactly the evidence Central
+   went looking for and did not find.
+3. **"C9's normative text does not exist."** TRUE as measured. **Closed 2026-08-22**:
+   `base/neural/SOFTANZA_STRUCTURED_OUTPUT.md`, C9 **v1.0.0**, extracted from
+   `stzOutputSchema.ring`, `stzLLMFunction.ring`, `schema_gbnf.zig` and `gbnf_machine.zig`,
+   and cross-checked by RUNNING the code -- the GBNF printed in its §6.1 is `ToGBNF()`'s
+   real output, not a sketch of it. Central's pointer needs no path change.
+
+Also corrected: `intelligence-wings/zai/` lives at
+`libraries/stzlib/max/wings/intelligence-wings/zai`, not `max/wings/...`, and it is an
+**empty directory that was never filled** -- created 2026-08-16 with the wings tree, and no
+commit has ever added a file to it.
+
+#### 3.1.4 What this re-audit cost, and the one PX finding
+
+Twenty-eight guards run across agentic, governance, conversation, neural, learning, meta,
+refine, knowledgegraph, natural and capstone. **Every one green: 0 failures.** Process cold
+start is about 2.5 s and dominates almost every suite in this territory.
+
+**The one section over budget: `test/meta/codegraph_narrated.ring` at 93 seconds** -- 37x
+the next slowest guard here, for 28 assertions, because it walks the whole library to build
+the graph. It owes a diet or a split (a fixture corpus for the assertions, the
+full-library walk kept as a separate pre-commit gate). Until then it does not belong in
+anyone's inner loop.
+
+**Gates owned but NOT run, named with the reason** (`CENTRAL-PXDENOMINATOR-01`): the
+`test/graph/` numbered suites (about 100 files) and `test/graphplanner/` -- both in this
+territory, both not run because nothing this session changed can reach them.
+`test/reactiveobject/` carries an `_ERR_RUN.txt` from an earlier session and belongs to the
+reactive plane, not this one.
+
+### 3.2 THE AGENT-DOCTRINE RULING (`CENTRAL-AGENTDOCTRINE-01`, settled 2026-08-22)
+
+*(routed by Central to the stzlib-intelligence plane. R5's own DOCTRINE GUARD -- "the
+doctrine must not fork" -- is what this ruling was asked to apply. The question: is the
+`.pia` declaration and the roster shape THE LIBRARY'S AGENT DOCTRINE, which R5 should now
+be rewritten around, or a PRODUCT REALIZATION over interfaces R5 still owes?)*
+
+#### THE RULING, in one sentence
+
+**`.pia` is a product realization -- a DOOR, not the doctrine -- and the doctrine did not
+fork.** But the harness proved two things in practice that R5's 2026-07-13 design does not
+carry, and **both are promoted to doctrine here**: the **registration gate** and the
+**reversibility class**.
+
+#### Why it is a door and not a fork -- the evidence, not the preference
+
+The declaration says so in its own opening, and the code keeps the promise:
+
+> *"NO NEW AGENT RUNTIME LIVES HERE -- this is a front-end onto classes that already
+> work."* -- `stzAgentDeclaration.ring`, line 9
+
+> *"THIS FILE EXTENDS stzAgentGraph's VOCABULARY RATHER THAN INVENTING A SECOND ONE.
+> `kind` is the graph's actor kind, `effect` names a governed action exactly as
+> `AddGovernedSkill` does, and the refusal for an llm actor holding an effect is
+> `stzAgentGraph.Grant`'s OWN SENTENCE, quoted rather than paraphrased -- one rule, two
+> doors, same words."* -- ibid., line 78
+
+That is the test a fork fails and this passes. A `.pia` file compiles to `stzPIAgent` +
+`stzAgentSkill` + `stzAgentMemory` + `stzGovernance`, hosted on `stzAgentHost` -- the
+2026-07-14 classes, unedited. It is exactly §0.2's **DSL DOOR** applied to agentic/, the
+same move `.zknw` is for knowledge and `.zgov` for governance, and LAW 1 predicted it:
+*every stateful domain earns its format*. **agentic/ earning `.pia` is the doctrine
+working, not the doctrine bending.**
+
+The corrected line count says the same thing from the other side (3.1.3): the loop program
+is 2,578 lines of FRONT END over 1,230 lines of runtime that it did not touch. Four fifths
+of a folder being new is alarming only if the new part reimplements the old one. It does
+not.
+
+**So R5 is not rewritten around `.pia`. `.pia` is adopted as R5's declarative door, and
+promoted from "considered here, on demand" (the `*.zagn` line at the end of §6 R5) to
+DELIVERED, under its real name.**
+
+#### What the harness proved that R5's design got wrong -- and is now owed back
+
+*Both directions were real answers, and this is the direction that carries weight.*
+
+**(a) THE REGISTRATION GATE. An actor with no coverage statement and no reversibility class
+is REFUSED.** This was measured in the loop program, not theorised. R5's 2026-07-13 design
+has nothing like it: it gated ACTS (`MayProceed` before a skill fires) and never gated
+REGISTRATION. Those are different failures. A governance gate answers *may this actor do
+this thing*; a registration gate answers *may this actor exist in the loop at all*, and it
+answers before any tick, which is the only moment at which the answer is free.
+
+It is enforced today in `agentloop.zig` and reachable from Ring as
+`oHost.Declare(name, coverage, :compensable)`, with the agent asked for its own
+`CoverageStatement()` / `ReversibilityClass()` first. **It is OPT-IN** (`UseEngineLoop()`),
+and the code is honest about why: switching it on for everybody would break every host that
+has not declared yet.
+
+> **RULING: the gate is DOCTRINE, and opt-in is a MIGRATION STATE, not the design.** It
+> belongs beside `MayProceed` in R4b, not inside one scheduler. A host that does not use
+> the engine loop should reach the same refusal. **The default flips when the last
+> in-tree host declares** -- and the roster's own agents already do, so the distance is
+> short.
+
+**(b) REVERSIBILITY IS A SIXTH GOVERNANCE CONTRACT, and it is missing from R4b.** `.pia`
+declares one of `reversible` / `compensable` / `irreversible`; `stzAgentHost` maps the
+words to engine codes; `agentloop.zig` refuses a registration without one. And
+`stzGovernance` -- the file that holds the five R4b contracts -- **has never heard of it.**
+A grep for `Reversib` across `base/` returns agentic/, `data/stzCharData.ring`, and nothing
+else. The concept is real, enforced, and homeless.
+
+That is a genuine 2026-07-13 design miss, and it is the more interesting of the two,
+because reversibility is precisely the axis `Agents That Cannot Hurt You` turns on. R4b
+declared *how risky* an action is (ActionRiskTier) and never *how undoable* it is -- and
+those are orthogonal. A tier-1 action that cannot be undone deserves more ceremony than a
+tier-3 action that can.
+
+> **RULING: `ReversibilityClass` joins ActionRiskTier, AuthorityType, CommitmentState,
+> DecommissionContract and DecisionLineage as R4b's SIXTH declarable contract.** `.pia`
+> keeps its three words unchanged -- they become the contract's vocabulary rather than one
+> format's private enum. §6 R4b is amended by reference to this paragraph.
+
+#### Where `Agents That Cannot Hurt You` binds today: NOWHERE. That is the finding.
+
+The constitution's whole thesis is *the workbench holds no reference to reality*. Measured
+2026-08-22:
+
+- **The safe world EXISTS and is complete for the file domain.** `stzVirtualOperation`
+  carries `@cActor` and `@cIntent`; `stzCommitScope` has `AllowUnder` / `AllowType` /
+  `SetMaxOperations`; `stzUpdatePlan` has `Validate()`, `Risks()`, `Narration()`,
+  `RejectOperation(n, :Because)`, `MayCommit()`, `Execute()`, `ExecuteStepByStep()` and an
+  `AuditTrail()`; it even takes `SetGovernance(oGov)`, so the crossing is R4b-gated and
+  `test/system/governance_crossing_narrated.ring` proves it.
+- **`base/agentic/` does not mention any of it.** A grep for `VirtualSystem`,
+  `VirtualFileSystem`, `CommitScope` or `UpdatePlan` across `base/agentic/` and
+  `base/governance/` returns **zero lines**.
+- **And an agent in this library reaches reality directly, today.**
+  `stzAgentRoster.RollRelocateMonths` -- a `ring:` function in a live `.pia` agent's `does:`
+  slot -- calls `StzFileRead`, `StzFileWrite`, `StzFileDelete` and `StzDirCreatePath` on the
+  estate's real journal and on `dashboard/SESSION-LOG.md`, on a tick, with no plan, no
+  scope, and no committing actor.
+
+To its credit, that function hand-rolls its own safety: it writes the archive copy, re-reads
+it, compares it to what it wrote, and only then deletes the source -- leaving the ledger
+completely untouched if the verify fails. **That is the right instinct and the wrong place
+for it.** Write-then-verify-then-commit is precisely what `stzUpdatePlan` exists to provide
+ONCE, for every agent, auditable. Every agent that reimplements it will reimplement it
+slightly differently, and the differences will be found in production.
+
+> **ANSWERING CENTRAL'S THIRD SUB-QUESTION DIRECTLY.** *Does an `stzPIAgent` today hold any
+> reference to reality?* **Yes -- through the `ring:` escape, and it is exercised in
+> shipped code.** *Is plan-as-negotiation-medium a thing R5 must build, or a thing
+> `stzAgentHost` already half-is?* **Neither. It is a thing `stzVirtualSystem` already
+> fully is, on the human side, and that no agent has ever been handed.** The missing piece
+> is not the plan -- the plan is built. It is the **binding**: an agent whose memory-write
+> and file-write go to a vfs instead of to reality, and whose only export is
+> `GenerateUpdatePlan()`.
+>
+> What genuinely does NOT exist, from the constitution's own Layer-4 list:
+> `oAgent.Receive(aIssues)` / `oAgent.Revise()` (the agent's side of the negotiation),
+> `stzAgentEvaluation` (the examination hall), and branch-per-hypothesis
+> (`BranchFrom` / `CompareBranches`). `stzHybridAgent` was named in §6 R5 and never built
+> as a class -- `stzAgentGraph.AddHybridActor` is a graph NODE, which proves a composition
+> sound but instantiates nothing.
+
+#### The `ring:` escape, judged
+
+`ring:<FunctionName>` is refused at LOAD if no such function exists -- good, and that is
+what the doc means by *"what 'Ring for the rest' costs and all it costs"*. But that is a
+check on the NAME. **Nothing checks what the function DOES**, and the roster demonstrates
+that a `ring:` function may do anything Ring can do.
+
+This is not a defect to be closed by removing the escape -- the escape is the reason `.pia`
+is usable at all. It is a defect closed by **the trust posture R4b already ships**:
+`DeclarePosture` / `MayExecute` exist and govern exactly this question for polyglot and
+LLM-composed code, and a `ring:` function is the same category of thing. Today a `.pia`
+file cannot declare a posture and the loader never asks for one.
+
+> **RULING: a `ring:` clause must carry an execution posture, and a `does:` slot's posture
+> must be at least as strict as the agent's reversibility class allows.** This is the one
+> place where `.pia` v1's vocabulary is genuinely incomplete rather than merely small, and
+> closing it is a version bump (`pia: 2`), which is what the version header is for.
+
+#### The native roster: honest, and one-fifth wired
+
+`stzOwnAgentStack` declares five library-internal agents and wires one (`wise-coder`);
+asking for a reserved one RAISES rather than returning a stub. **That is LAW 3 working and
+should not be read as a defect** -- but it does mean §0.3's "solution space" (analyze in
+every register, induce, validate, rank, plan) is one-fifth real, and R3b's EXAMPLES
+register depends on `induction`, which is reserved. The roster is the honest measure of how
+far "the library is the first consumer of its own agents" has actually got.
+
+#### What R5 still owes, after this ruling
+
+1. `stzOptimModel` as the planner's sub-solver -- **blocked on R4 step 5**, which is not
+   started (3.1.2).
+2. The four reserved native agents.
+3. `stzHybridAgent` as a class, not only as a graph colour.
+4. **The binding of the safe world** -- the largest of the four, and the one that makes the
+   constitution true instead of aspirational.
+
+And R4b owes the two contracts this ruling promotes: the **registration gate** and
+**ReversibilityClass**.
+
 
 ---
 
@@ -1435,7 +1713,12 @@ FOUNDATION.** Step order matters:
    regression join the ML roster here (post steps 1-2).
 4. FIRST APPLIED TARGET: the trainable TEXT CLASSIFIER (closes the last
    big 4.2 row).
-5. optim/ -- THE MODELING DSL (section 5.5): stzOptimModel entry object +
+5. optim/ -- THE MODELING DSL (section 5.5) [NOT STARTED as of 2026-08-22:
+   no base/optim/, no stzOptimModel, no .zopt -- the SOLVER FLOOR exists
+   (engine/src/simplex.zig + stats/stzLinearSolver + stzMultiObjectiveSolver),
+   the MODELLING DSL over it does not. See 3.1.2 -- it blocks R5's
+   OPTIMIZATION leg and the capstone's menu-optimization scene]:
+   stzOptimModel entry object +
    *.zopt format (sets/params/indexed families); expressions compiled by
    expr.zig (retire stzCoeffExtractor); REAL simplex + B&B in
    engine/src/optim.zig as the floor, vendored HiGHS as the upgrade tier
@@ -1475,8 +1758,24 @@ stzPolyCode's EXECUTION sense): every polyglot / external / LLM-composed
 code execution carries a declared posture (trusted / external /
 sandboxed), resource limits, and lands its trace in the audit chain.
 Mechanism only -- no fixed constitution ships with Softanza.
+[AMENDED 2026-08-22, ruling 3.2: DELIVERED -- all five contracts plus the trust
+postures ship in governance/stzGovernance.ring. TWO ARE NOW OWED ON TOP, promoted
+from what the Bangalo loop program proved in practice: a SIXTH contract
+**ReversibilityClass** (reversible / compensable / irreversible -- .pia declares it,
+the engine loop enforces it, and stzGovernance has never heard of it), and the
+**REGISTRATION GATE** -- an actor with no coverage statement and no reversibility
+class is refused before it can be scheduled at all, which is a different question
+from MayProceed and is answered at a different moment.]
 
 **R5 -- agentic/ (composition) -- THE FOUNDATIONS CONVERGE.**
+[AMENDED 2026-08-22: PARTIAL. **Read ruling 3.2 before this section** -- it settles
+`CENTRAL-AGENTDOCTRINE-01`. In short: the .pia declaration is R5's DECLARATIVE DOOR,
+not a fork of its doctrine, and is promoted from the "*.zagn considered on demand"
+line at the foot of this section to DELIVERED under its real name. What R5 still owes:
+stzOptimModel (blocked on R4 step 5), four of five native agents, stzHybridAgent as a
+class, and -- the largest -- BINDING THE SAFE WORLD: base/agentic/ contains zero
+references to stzVirtualSystem / stzUpdatePlan / stzCommitScope, while a shipped .pia
+agent writes to the real filesystem through the `ring:` escape.]
 stzAgent + stzAgentSkill/Memory/Tool interfaces; stzPIAgent FIRST
 (deterministic, zero-cost, the differentiator), stzLLMAgent second (same
 interfaces over neural/). The PI-agent is ASSEMBLED, not invented (the 5.6 ladder: Xuter
