@@ -3403,6 +3403,112 @@ chk("a pin that agrees with the layout changes no order", nOrderKept = 1)
 
 #---------------------------------------------------------------------------
 ? ""
+sec("-- 42. GG7c: the editor executes COMMANDS, never mutations ----")
+#
+# An editor that mutates its model directly can offer no undo, and an
+# editor without undo is one nobody trusts enough to explore with. So
+# nothing here mutates: every edit is a command with an inverse, and the
+# log is the session's memory -- mxGraph's model, and the reason it has
+# one.
+#
+# The commands go through the model's EXISTING mutation API and its
+# existing refusals, which is the design decision that pays for itself
+# twice: every guard in this plane governs the editor for free, and a
+# refused edit surfaces as feedback rather than as a second rulebook.
+# The model stays stzDiagram; a session is state ALONGSIDE it, never a
+# parallel graph.
+#
+# Five commands cover the vocabulary -- move, add, remove, link, label --
+# and the inverse is computed BEFORE the change, because afterwards the
+# information it needs is gone. A removed cell's label and edges cannot
+# be read from a model that no longer holds them, and an undo that
+# restored a node into a graph it is no longer connected to would be an
+# undo that lies.
+#
+# Named Edit() and not Do(), because `do` is a Ring keyword and a method
+# named for it is a parse error reported four hundred lines from
+# anything that looks wrong.
+#---------------------------------------------------------------------------
+
+
+oEd = new stzDiagram("edit43")
+oEd.AddNodeXT("a", "A")
+oEd.AddNodeXT("b", "B")
+oEd.AddEdge("a", "b")
+
+# AN EDIT IS A COMMAND, and the log is what makes an editor explorable
+chk("nothing to undo before anything is done",
+    NOT oEd.CanUndo() and NOT oEd.CanRedo())
+chk("an edit reports that it happened", oEd.Edit(:AddCell, [ "c", "C" ]))
+oEd.Edit(:Link, [ "b", "c" ])
+? "   after two edits : " + oEd.NodesCount() + " nodes, " +
+  len(oEd.Edges()) + " edges, " + len(oEd.EditLog()) + " logged"
+chkeq("the model changed", oEd.NodesCount(), 3)
+chkeq("...and the log remembers both", len(oEd.EditLog()), 2)
+
+# UNDO RESTORES, REDO REPLAYS
+oEd.Undo()
+oEd.Undo()
+? "   after two undos : " + oEd.NodesCount() + " nodes, " +
+  len(oEd.Edges()) + " edges"
+chkeq("undo took the model back", oEd.NodesCount(), 2)
+chkeq("...and its edge with it", len(oEd.Edges()), 1)
+chk("there is nothing left to undo, and something to redo",
+    NOT oEd.CanUndo() and oEd.CanRedo())
+oEd.Redo()
+oEd.Redo()
+chkeq("redo put both edits back", oEd.NodesCount(), 3)
+
+# A FRESH EDIT CLOSES THE REDO BRANCH -- the future an undo led to is
+# not the future this edit leads to, and offering it would replay a
+# change into a model that no longer expects it.
+oEd.Undo()
+chk("an undone edit is redoable", oEd.CanRedo())
+oEd.Edit(:SetLabel, [ "a", "Alpha" ])
+chk("...until a new edit is made", NOT oEd.CanRedo())
+? "   the label reads " + oEd.NodeLabel("a")
+oEd.Undo()
+? "   and after undo, " + oEd.NodeLabel("a")
+chk("a label edit is reversible", oEd.NodeLabel("a") = "A")
+
+# THE HARD ONE: removing a cell takes its edges with it, so the inverse
+# has to carry them. Restoring a node into a graph it is no longer
+# connected to would be an undo that lies.
+oRm = new stzDiagram("rm43")
+oRm.AddNodeXT("a", "A")  oRm.AddNodeXT("b", "B")  oRm.AddNodeXT("c", "C")
+oRm.AddEdge("a", "b")    oRm.AddEdge("b", "c")
+oRm.Edit(:RemoveCell, [ "b" ])
+? "   b removed : " + oRm.NodesCount() + " nodes, " + len(oRm.Edges()) +
+  " edges"
+chkeq("removing a cell removes its edges", len(oRm.Edges()), 0)
+oRm.Undo()
+? "   b restored : " + oRm.NodesCount() + " nodes, " + len(oRm.Edges()) +
+  " edges, labelled " + oRm.NodeLabel("b")
+chkeq("undo brings the cell back", oRm.NodesCount(), 3)
+chkeq("...with BOTH its edges", len(oRm.Edges()), 2)
+chk("...and its label", oRm.NodeLabel("b") = "B")
+
+# A PIN IS AN EDIT LIKE ANY OTHER, which is the point of routing moves
+# through the log: dragging a cell is undoable because it is a command
+# and not a mutation.
+oRm.Edit(:MoveCell, [ "c", 7 ])
+chk("a move pins the cell", oRm.IsPinned("c"))
+oRm.Undo()
+chk("...and undoing it frees the cell again", NOT oRm.IsPinned("c"))
+
+# THE NEGATIVE SIBLING: a REFUSED edit must not enter the log. The
+# commands go through the model's existing mutation API and its existing
+# refusals, so an impossible edit is refused there -- and a log that
+# recorded it would offer an undo for something that never happened.
+nBefore = len(oRm.EditLog())
+bTook = oRm.Edit(:AddCell, [ "a", "again" ])
+? "   adding a cell that already exists returned " + bTook +
+  ", log went from " + nBefore + " to " + len(oRm.EditLog())
+chk("an impossible edit is refused", NOT bTook)
+chkeq("...and leaves no trace in the log", len(oRm.EditLog()), nBefore)
+
+#---------------------------------------------------------------------------
+? ""
 if nSecClock > 0
 	? "        [section took " +
 	  ((clock() - nSecClock) / clockspersecond()) + "s]"
