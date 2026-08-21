@@ -338,6 +338,32 @@ class stzCanvas from stzObject
 
 	#-- output: the two tiers of ONE model ---------------------------------
 
+	# WHAT THE NEXT SHAPES BELONG TO. The display list knows shapes and
+	# not identities, so a click over it can answer "a rounded
+	# rectangle" and never "Web A". A face that is about to draw a node
+	# says so here, and Pick() answers in those terms.
+	#
+	# A tag rather than a shape index, because a node is several
+	# commands -- a fill, a stroke, a label -- and every one of them is
+	# the same node to a reader pointing at it. Zero is "no identity",
+	# which is what backgrounds and decorations keep.
+	def SetPickTag(pnTag)
+		This._Flush()
+		StzEngineGpuSceneSetPickTag(@nId, pnTag)
+		return This
+
+	# The tag of the TOPMOST tagged shape under a point, or 0 for bare
+	# paper. Read straight from the retained display list: the data is
+	# already engine-side, so a click costs one crossing and no copy.
+	def Pick(pnX, pnY)
+		return This.PickXT(pnX, pnY, 3)
+
+	# ...with a tolerance, because a one-pixel edge cannot be hit
+	# exactly and a reader aiming at a line means the line.
+	def PickXT(pnX, pnY, pnTol)
+		This._Flush()
+		return StzEngineGpuScenePick(@nId, pnX, pnY, pnTol)
+
 	# RENDER-REGION: draw one rectangle of this canvas, into an image of
 	# that size. Every output method below then answers the REGION --
 	# ToPNG writes a page-sized PNG, ToPixels reads page-sized bytes.

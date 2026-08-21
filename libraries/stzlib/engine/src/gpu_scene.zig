@@ -179,6 +179,18 @@ const SceneSlot = struct {
     h: u32 = 0,
     clear: u32 = 0x00000000,
     cmds: std.ArrayList(Cmd) = .{},
+
+    // WHAT EACH COMMAND BELONGS TO. The display list knows shapes and not
+    // identities, so a click over it can answer "a rounded rectangle" and
+    // never "Web A". One tag per command, inherited from cur_tag as
+    // commands are appended, lets the FACE say which node or edge it is
+    // about to draw and lets a pick answer in those terms.
+    //
+    // A tag, not a shape index, because a node is several commands -- a
+    // fill and a stroke and a label -- and all of them are the same node
+    // to a reader pointing at it.
+    tags: std.ArrayList(i64) = .{},
+    cur_tag: i64 = 0,
     // THE VIEW: which rectangle of the scene this render covers, and
     // therefore how big the target is. Zero width means "the whole
     // scene", which is every render that existed before tiling.
@@ -271,6 +283,7 @@ fn freeCmdPayloads(s: *SceneSlot) void {
         }
     }
     s.cmds.clearRetainingCapacity();
+    s.tags.clearRetainingCapacity();
 }
 
 pub fn sceneNew(w: f64, h: f64) i64 {
@@ -319,8 +332,141 @@ fn push(id: i64, cmd: Cmd) i32 {
     const slot = slotOf(id) orelse return STALE;
     const s = &scenes.items[slot];
     s.cmds.append(alloc, cmd) catch return BAD_ARG;
+    s.tags.append(alloc, s.cur_tag) catch return BAD_ARG;
     s.dirty = true;
     return OK;
+}
+
+/// Everything drawn from now on belongs to `tag`. Zero means "no
+/// identity", which is what every command had before picking existed and
+/// what backgrounds and decorations keep.
+pub fn sceneSetPickTag(id: i64, tag: i64) i32 {
+    const slot = slotOf(id) orelse return STALE;
+    scenes.items[slot].cur_tag = tag;
+    return OK;
+}
+
+/// What is under this point -- the tag of the TOPMOST command covering
+/// it, or 0 for bare paper.
+///
+/// Walked in reverse because later commands are painted over earlier
+/// ones, so the last one covering the point is the one a reader sees and
+/// therefore the one they mean. Reading the retained list directly is
+/// the whole reason this is engine work: the data is already here, so a
+/// click costs one crossing and no copy.
+///
+/// `tol` widens thin geometry -- a one-pixel edge is impossible to hit
+/// exactly, and a reader aiming at a line means the line.
+pub fn scenePick(id: i64, x: f64, y: f64, tol: f64) i64 {
+    const slot = slotOf(id) orelse return 0;
+    const s = &scenes.items[slot];
+    const px: f32 = @floatCast(x);
+    const py: f32 = @floatCast(y);
+    const pt: f32 = @floatCast(if (tol > 0) tol else 0);
+    var i: usize = s.cmds.items.len;
+    while (i > 0) {
+        i -= 1;
+        if (i >= s.tags.items.len) continue;
+        const tag = s.tags.items[i];
+        if (tag == 0) continue;
+        if (hits(&s.cmds.items[i], px, py, pt)) return tag;
+    }
+    return 0;
+}
+
+fn hits(cmd: *const Cmd, px: f32, py: f32, tol: f32) bool {
+    switch (cmd.*) {
+        .rect => |r| return px >= r.x - tol and px <= r.x + r.w + tol and
+            py >= r.y - tol and py <= r.y + r.h + tol,
+        .image => |im| return px >= im.x - tol and px <= im.x + im.w + tol and
+            py >= im.y - tol and py <= im.y + im.h + tol,
+        .circle => |c| {
+            const dx = px - c.cx;
+            const dy = py - c.cy;
+            const rr = c.r + tol;
+            return dx * dx + dy * dy <= rr * rr;
+        },
+        .stroke => |st| {
+            // within half the stroke's own width of any segment, plus the
+            // tolerance: a line is as thick as it is drawn, and no thicker
+            const half = st.width * 0.5 + tol;
+            var k: usize = 0;
+            while (k + 3 < st.pts.len) : (k += 2) {
+                if (distToSeg(px, py, st.pts[k], st.pts[k + 1], st.pts[k + 2], st.pts[k + 3]) <= half) return true;
+            }
+            return false;
+        },
+        .polygon => |pg| return inPoly(pg.pts, px, py) or nearOutline(pg.pts, px, py, tol),
+        .text => |tx| {
+            // the baseline box, approximated by the size: text is picked
+            // so that a label counts as its node rather than as a hole
+            const w: f32 = @as(f32, @floatFromInt(tx.str.len)) * tx.size * 0.6;
+            return px >= tx.x - tol and px <= tx.x + w + tol and
+                py >= tx.y - tx.size - tol and py <= tx.y + tx.size * 0.3 + tol;
+        },
+        .mesh => |m| {
+            var k: usize = 0;
+            while (k + 1 < m.verts.len) : (k += 6) {
+                const dx = px - m.verts[k];
+                const dy = py - m.verts[k + 1];
+                if (dx * dx + dy * dy <= (tol + 2) * (tol + 2)) return true;
+            }
+            return false;
+        },
+    }
+}
+
+fn distToSeg(px: f32, py: f32, ax: f32, ay: f32, bx: f32, by: f32) f32 {
+    const vx = bx - ax;
+    const vy = by - ay;
+    const wx = px - ax;
+    const wy = py - ay;
+    const len2 = vx * vx + vy * vy;
+    var tt: f32 = 0;
+    if (len2 > 0.000001) {
+        tt = (wx * vx + wy * vy) / len2;
+        if (tt < 0) tt = 0;
+        if (tt > 1) tt = 1;
+    }
+    const cx = ax + vx * tt;
+    const cy = ay + vy * tt;
+    const dx = px - cx;
+    const dy = py - cy;
+    return @sqrt(dx * dx + dy * dy);
+}
+
+fn inPoly(pts: []const f32, px: f32, py: f32) bool {
+    const n = pts.len / 2;
+    if (n < 3) return false;
+    var inside = false;
+    var i: usize = 0;
+    var j: usize = n - 1;
+    while (i < n) : ({
+        j = i;
+        i += 1;
+    }) {
+        const xi = pts[i * 2];
+        const yi = pts[i * 2 + 1];
+        const xj = pts[j * 2];
+        const yj = pts[j * 2 + 1];
+        if ((yi > py) != (yj > py)) {
+            const xint = (xj - xi) * (py - yi) / (yj - yi) + xi;
+            if (px < xint) inside = !inside;
+        }
+    }
+    return inside;
+}
+
+fn nearOutline(pts: []const f32, px: f32, py: f32, tol: f32) bool {
+    if (tol <= 0) return false;
+    const n = pts.len / 2;
+    if (n < 2) return false;
+    var i: usize = 0;
+    while (i < n) : (i += 1) {
+        const j = (i + 1) % n;
+        if (distToSeg(px, py, pts[i * 2], pts[i * 2 + 1], pts[j * 2], pts[j * 2 + 1]) <= tol) return true;
+    }
+    return false;
 }
 
 pub fn sceneClear(id: i64, col: u32) i32 {
@@ -357,6 +503,7 @@ pub fn sceneReset(id: i64) i32 {
     const slot = slotOf(id) orelse return STALE;
     const s = &scenes.items[slot];
     s.cmds.clearRetainingCapacity();
+    s.tags.clearRetainingCapacity();
     s.dirty = true;
     return OK;
 }
