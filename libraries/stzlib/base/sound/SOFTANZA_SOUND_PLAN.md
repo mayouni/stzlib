@@ -2244,6 +2244,14 @@ plane's business here was its own half of the vocabulary.
 
 ## SS5 STATUS — 2026-08-14. The vocabulary moves into the seam, and stops being two
 
+> **Confirmed by ear, 2026-08-20.** The author opened `earcon_guard.html`, pressed
+> the button, and reported the four cues **sounding right and the same as the
+> desktop**. That is the assertion this whole page cannot make: the checksums
+> prove the two tiers are IDENTICAL, and identical is not correct. Two tiers
+> rendering the same wrong motif would pass every one of the 26 assertions and
+> fail the only listener. The measurement proves sameness; the ear proves
+> rightness; SS5 needed both and now has both.
+
 `engine/src/sounddsp.zig` gains the five motifs; `sound.zig` and
 `ring_bridge_sound.zig` reach them for the native tier, `soundwasm.zig` and
 `stz_wasm_entry.zig` for the browser. `stzEarcons._BuildMotifs` now ASKS
