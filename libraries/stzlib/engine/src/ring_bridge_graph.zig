@@ -778,6 +778,14 @@ fn ring_LayoutCoords(p: *anyopaque) callconv(.c) void {
     defer if (extra_opt) |e| gpa.free(e);
     const extra: []const f64 = if (extra_opt) |e| e else &[_]f64{};
 
+    // PINS, optional and parallel to the nodes: a position the layout may
+    // not argue with. Anything at or below UNPINNED is free. Absent for
+    // every caller that laid out a batch picture before a live one
+    // existed, which is why it is the last argument and may be empty.
+    const pins_opt = readF64List(p, 10);
+    defer if (pins_opt) |pv| gpa.free(pv);
+    const pins: []const f64 = if (pins_opt) |pv| pv else &[_]f64{};
+
     const x = gpa.alloc(f64, order.len) catch return;
     defer gpa.free(x);
     @memset(x, 0);
@@ -786,7 +794,7 @@ fn ring_LayoutCoords(p: *anyopaque) callconv(.c) void {
     // here mean the caller built a malformed CSR, and the honest fallback is
     // the placement the face used before this function existed -- a worse
     // picture, never a blank one.
-    if (glayout.coords(in_off, in_src, out_off, out_dst, order, starts, sep, iters, extra, x) != glayout.OK) {
+    if (glayout.coordsPinned(in_off, in_src, out_off, out_dst, order, starts, sep, iters, extra, pins, x) != glayout.OK) {
         for (0..starts.len -| 1) |L| {
             if (starts[L + 1] > order.len or starts[L] > starts[L + 1]) break;
             var k: usize = 0;

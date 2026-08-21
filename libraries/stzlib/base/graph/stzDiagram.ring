@@ -344,6 +344,10 @@ class stzDiagram from stzGraph
 	# the only instrument a guard can put on the label law.
 	@aRenderLabels = []
 
+	# WHERE THE AUTHOR HAS PLACED A CELL BY HAND: [ id, slotX ]. A pin
+	# is a position the layout may not argue with -- see Pin().
+	@aPins = []
+
 	# WHAT THE PICTURE CAN BE ASKED ABOUT: tag -> [ kind, a, b ]. The
 	# display list is tagged as it is drawn, so a point in the picture
 	# answers with a NODE or an EDGE rather than with a shape -- the
@@ -1720,7 +1724,8 @@ class stzDiagram from stzGraph
 				:Width = 1000, :Height = 700, :Margin = 0,
 				:Clusters = This._ClusterPairs(),
 				:NodeExtra = _aXtra_,
-				:ClusterAir = _nAir_
+				:ClusterAir = _nAir_,
+				:Pins = This._PinVector()
 			])
 			# the layered crossing count of the order being drawn -- the
 			# graph tier's structure fact, kept with the render's other
@@ -3534,6 +3539,68 @@ class stzDiagram from stzGraph
 
 	def RenderPicks()
 		return @aRenderPicks
+
+	#-- PINS: the layout advises, the author decides ---------------------
+	#
+	# The batch pipeline lets the layout own positions. A live diagram
+	# inverts that: a cell someone has placed by hand is PINNED, and no
+	# pass may argue with it -- not the relaxation, not the territories,
+	# not the alignment, not the centring. Unpinned cells are laid out
+	# around the pins as they stand.
+	#
+	# Pinned in SLOT units, the layout's own coordinate, so a pin means
+	# the same thing whatever size the picture is rendered at. That is
+	# what makes a pin survive a re-render, which is the only reason to
+	# have one.
+	def Pin(pcNode, nSlotX)
+		_pnN_ = StzLower("" + pcNode)
+		for _pnI_ = 1 to len(@aPins)
+			if @aPins[_pnI_][1] = _pnN_
+				@aPins[_pnI_][2] = nSlotX
+				return This
+			ok
+		next
+		@aPins + [ _pnN_, nSlotX ]
+		return This
+
+	def Unpin(pcNode)
+		_pnN_ = StzLower("" + pcNode)
+		_pnNew_ = []
+		for _pnP_ in @aPins
+			if _pnP_[1] != _pnN_  _pnNew_ + _pnP_  ok
+		next
+		@aPins = _pnNew_
+		return This
+
+	def UnpinAll()
+		@aPins = []
+		return This
+
+	def IsPinned(pcNode)
+		_pnN_ = StzLower("" + pcNode)
+		for _pnP_ in @aPins
+			if _pnP_[1] = _pnN_  return TRUE  ok
+		next
+		return FALSE
+
+	def Pins()
+		return @aPins
+
+	# The pins as the layout tier wants them: one number per node, in
+	# node order, with -999999999 for "free". Built here because this is
+	# the tier that knows which name is which node.
+	def _PinVector()
+		_pvIds_ = This.NodesIds()
+		_pvOut_ = []
+		for _pvI_ = 1 to len(_pvIds_)
+			_pvV_ = 0 - 999999999
+			_pvN_ = StzLower("" + _pvIds_[_pvI_])
+			for _pvP_ in @aPins
+				if _pvP_[1] = _pvN_  _pvV_ = _pvP_[2]  exit  ok
+			next
+			_pvOut_ + _pvV_
+		next
+		return _pvOut_
 
 	# WHAT IS AT THIS POINT OF THE LAST PICTURE -- [ :node, id ],
 	# [ :edge, from, to ], or [] for bare paper.

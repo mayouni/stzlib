@@ -3285,6 +3285,124 @@ chkeq("...and every one of them found its node", nHit, nPicks)
 
 #---------------------------------------------------------------------------
 ? ""
+sec("-- 41. GG7b: a PIN outranks the layout ------------------------")
+#
+# The batch pipeline lets the layout own positions. A live diagram
+# inverts the ownership: the author owns positions and the layout only
+# advises. A cell placed by hand is PINNED, and no pass may argue with
+# it -- not the relaxation, not the territories, not the family air, not
+# the alignment, not the centring.
+#
+# Enforced by RESTORING pins after each pass rather than by teaching five
+# passes to skip them: uniform, so no pass can forget; exact, so the pin
+# is the value given and not a value that survived a clamp; and honest
+# about its one cost -- a pinned cell may sit closer to a neighbour than
+# the separation would allow, because the author put it there.
+#
+# A PIN DECIDES ORDER, TOO, and without that it decided nothing anyone
+# could see. Rank order is settled by the crossing sweep before any
+# coordinate exists, and the coordinate pass only spaces a rank out while
+# preserving it -- so a pinned cell shifted its whole rank sideways and
+# never passed a sibling, and _Normalise then refitted the bounding box
+# and erased even that. The engine honoured every pin exactly and the
+# picture was pixel-identical, which is the most expensive kind of
+# correct: nothing to notice, nothing failing, feature absent.
+#
+# So a pin now sorts its rank -- lay out once free, order each rank by
+# where its members actually are (the pin's own value where there is
+# one), lay out again with the pins held. Two layouts of a hundred nodes
+# cost 0.02s together, which is a cheap price for letting a position
+# outrank a heuristic.
+#---------------------------------------------------------------------------
+
+
+# THE FREE LAYOUT, as the batch pipeline decides it
+oPn = new stzDiagram("pin42")
+oPn.AddNodeXTT("r", "R", [ :type = "box", :color = "Info.Solid" ])
+for i = 1 to 4
+	oPn.AddNodeXTT("k" + i, "K" + i, [ :type = "box", :color = "Info.Solid" ])
+	oPn.AddEdge("r", "k" + i)
+next
+oPn.SetSplines("ortho")
+oPn.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+aFree = []
+for rr in oPn.RenderNodeRects()  aFree + [ rr[5], rr[1] + rr[3] / 2 ]  next
+? "   free: k1 sits at " + _Xof42(aFree, "k1") + ", k4 at " +
+  _Xof42(aFree, "k4")
+chk("the layout places the children in declaration order",
+    _Xof42(aFree, "k1") < _Xof42(aFree, "k4"))
+chkeq("nothing is pinned yet", len(oPn.Pins()), 0)
+
+# A PIN IS A POSITION THE LAYOUT MAY NOT ARGUE WITH -- and it decides
+# ORDER as well, or it decides nothing a reader can see.
+oPn.Pin("k1", 10)
+chk("the pin is recorded", oPn.IsPinned("k1") and NOT oPn.IsPinned("k2"))
+oPn.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+aPinned = []
+for rr in oPn.RenderNodeRects()
+	aPinned + [ rr[5], rr[1] + rr[3] / 2 ]
+next
+? "   pinned to slot 10: k1 at " + _Xof42(aPinned, "k1") + ", k4 at " +
+  _Xof42(aPinned, "k4")
+chk("a pinned cell moves PAST its siblings",
+    _Xof42(aPinned, "k1") > _Xof42(aPinned, "k4"))
+nGone = 0
+for a in [ "k2", "k3", "k4" ]
+	if _Xof42(aPinned, a) < _Xof42(aPinned, "k1")  nGone++  ok
+next
+chkeq("...and every unpinned sibling flowed around it", nGone, 3)
+
+# UNPINNING RESTORES THE ADVICE, exactly. A pin that could not be
+# undone would be a mutation of the graph rather than a session's state,
+# and the layout is deterministic precisely so this comparison is
+# meaningful.
+oPn.Unpin("k1")
+chkeq("the pin is gone", len(oPn.Pins()), 0)
+oPn.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+nSame = 0
+for rr in oPn.RenderNodeRects()
+	if fabs(rr[1] + rr[3] / 2 - _Xof42(aFree, rr[5])) < 0.5  nSame++  ok
+next
+? "   unpinned again: " + nSame + " of " + len(aFree) +
+  " cells back exactly where the layout wanted them"
+chkeq("unpinning restores the free layout, to the pixel", nSame, len(aFree))
+
+# THE NEGATIVE SIBLING: a pin the layout ALREADY agrees with must change
+# nothing. Without this, "pins move things" and "pins move things
+# correctly" are the same assertion -- and the first version of this
+# feature passed the first while failing the second, because the engine
+# honoured every pin and the rank order, decided earlier, kept the
+# picture identical.
+oAg = new stzDiagram("agree42")
+oAg.AddNodeXTT("r", "R", [ :type = "box", :color = "Info.Solid" ])
+for i = 1 to 4
+	oAg.AddNodeXTT("k" + i, "K" + i, [ :type = "box", :color = "Info.Solid" ])
+	oAg.AddEdge("r", "k" + i)
+next
+oAg.SetSplines("ortho")
+oAg.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+aBefore = []
+for rr in oAg.RenderNodeRects()  aBefore + [ rr[5], rr[1] + rr[3] / 2 ]  next
+# k1 is leftmost already; pinning it to the far left agrees with that
+oAg.Pin("k1", 0 - 3)
+oAg.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+nOrderKept = 1
+for a in [ "k1", "k2", "k3", "k4" ]
+	for b in [ "k1", "k2", "k3", "k4" ]
+		if a = b  loop  ok
+		bB = _Xof42(aBefore, a) < _Xof42(aBefore, b)
+		aNow = []
+		for rr in oAg.RenderNodeRects()
+			aNow + [ rr[5], rr[1] + rr[3] / 2 ]
+		next
+		if bB != (_Xof42(aNow, a) < _Xof42(aNow, b))  nOrderKept = 0  ok
+	next
+next
+? "   a pin the layout already agrees with keeps the order : " + nOrderKept
+chk("a pin that agrees with the layout changes no order", nOrderKept = 1)
+
+#---------------------------------------------------------------------------
+? ""
 if nSecClock > 0
 	? "        [section took " +
 	  ((clock() - nSecClock) / clockspersecond()) + "s]"
@@ -3505,6 +3623,15 @@ func _EdgeInkInRects cPx, nW, nH, aRects, aInk, nTol
 		next
 	next
 	return _erH_
+
+# The x of one id in a [ id, x ] list -- section 41 compares a picture
+# with itself across pins, so it needs to look a cell up by name in a
+# snapshot rather than in the render's live facts.
+func _Xof42 aList, cId
+	for _e_ in aList
+		if _e_[1] = StzLower("" + cId)  return _e_[2]  ok
+	next
+	return -1
 
 func _HexRGB cHex
 	_hh_ = StzUpper(StzReplace("" + cHex, "#", ""))
