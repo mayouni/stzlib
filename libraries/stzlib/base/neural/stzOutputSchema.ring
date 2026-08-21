@@ -1634,7 +1634,10 @@ class stzOutputSchema from stzObject
 		return stzenginegbnfunenforced()
 
 	# Does anything actually CONSTRAIN DECODING with this grammar? Ask
-	# before reporting an answer as grammar-constrained -- today this is 0.
+	# before reporting an answer as grammar-constrained. It answered 0 for
+	# as long as that was true; gbnf_machine.zig is the rung underneath it,
+	# so it answers 1 since 2026-08-20 -- the ENGINE is the authority on
+	# that number, never this comment.
 	def IsDecodingConstrained()
 		return stzenginegbnfdecodingsupported()
 
