@@ -302,6 +302,7 @@ class stzDiagram from stzGraph
 	@cLayout = $cDefaultLayout
 	@aClusters = []
 	@nEdgeCornerRad = 10
+	@bRoundElbows = 1
 
 	# The cluster rectangles OF THE CURRENT RENDER, with their member ids:
 	# [ [ x, y, w, h, [ ids... ] ], ... ]. Render-scoped state, refilled by
@@ -1580,6 +1581,24 @@ class stzDiagram from stzGraph
 		_nEdgeW_= This._DiagOpt(paOptions, "edgewidth", 2)
 		_nRad_  = This._DiagOpt(paOptions, "corner", 10)
 
+		# THE ELBOW IS DRAWN IN THE SAME HAND AS THE CELL -- I5 applied to
+		# style rather than to structure. A rounded box wired with square
+		# elbows is two hands in one picture, and the reader has no graph
+		# fact to attribute the difference to; the Principal saw it as
+		# soon as the rest of the grammar settled. So the corner an edge
+		# turns follows the corner a node is drawn with, and the wholly
+		# rectangular style stays available by asking for it -- either
+		# :Corner = 0, which squares both, or :EdgeCorners = :Sharp,
+		# which squares only the wires.
+		_cEcor_ = StzLower("" + This._DiagOpt(paOptions, "edgecorners", "auto"))
+		if _cEcor_ = "sharp" or _cEcor_ = "square" or _cEcor_ = "0"
+			@bRoundElbows = 0
+		but _cEcor_ = "round" or _cEcor_ = "rounded" or _cEcor_ = "1"
+			@bRoundElbows = 1
+		else
+			@bRoundElbows = (_nRad_ > 0)
+		ok
+
 		# :SCALE IS RESOLUTION, NOT ZOOM. A raster is only as sharp as the
 		# pixels it was drawn with: enlarging a finished PNG enlarges its
 		# blur, and a 12px label in a 3000px picture is unreadable at 100%
@@ -2522,8 +2541,19 @@ class stzDiagram from stzGraph
 			# real shape keeps it; a plain box becomes a rounded box.
 			if StzLower("" + _cShape_) = "box"
 				_oC_.Flush()
-				_oC_.FillQ(_cFill_).StrokeQ(_cStroke_, 2).
-					AddRoundRect(_x0_, _y0_, _nBoxW_, _nBoxH_, _nRad_)
+				# A ROUND RECT OF RADIUS ZERO IS A RECT, and asking for one
+				# lost the fill entirely -- so :Corner = 0, the dial that
+				# selects the wholly rectangular style, drew white boxes
+				# with white labels in them. The degenerate arc is the
+				# canvas's to fix; naming the shape here is what makes the
+				# style usable today.
+				if _nRad_ > 0
+					_oC_.FillQ(_cFill_).StrokeQ(_cStroke_, 2).
+						AddRoundRect(_x0_, _y0_, _nBoxW_, _nBoxH_, _nRad_)
+				else
+					_oC_.FillQ(_cFill_).StrokeQ(_cStroke_, 2).
+						AddRect(_x0_, _y0_, _nBoxW_, _nBoxH_)
+				ok
 			else
 				StzDrawNodeShapeXT(_oC_, _cShape_, _x0_, _y0_,
 					_nBoxW_, _nBoxH_, _cFill_, _cStroke_, 2)
@@ -3523,6 +3553,27 @@ class stzDiagram from stzGraph
 				_oend_ = [ _ox_, aAt[2] - _od_ ]
 				_oprev_ = [ _ox_ + _R_, aAt[2] - _od_ ]
 			ok
+			# ...and its two corners turn in the same hand as everybody
+			# else's. The note above stands either way: what reads as a
+			# mistake is ONE shape disagreeing with the rest, whichever
+			# shape the rest happens to be.
+			if @bRoundElbows
+				_slp_ = []
+				_slp_ + _pts_[1]  _slp_ + _pts_[2]
+				for _sli_ = 1 to len(_pts_) - 5 step 2
+					_sla_ = This._ElbowArc(_pts_[_sli_], _pts_[_sli_+1],
+						_pts_[_sli_+2], _pts_[_sli_+3],
+						_pts_[_sli_+4], _pts_[_sli_+5],
+						max([ 5, @nEdgeCornerRad * 0.8 ]))
+					if len(_sla_) > 0
+						for _slz_ = 1 to len(_sla_)  _slp_ + _sla_[_slz_]  next
+					else
+						_slp_ + _pts_[_sli_+2]  _slp_ + _pts_[_sli_+3]
+					ok
+				next
+				_slp_ + _pts_[len(_pts_) - 1]  _slp_ + _pts_[len(_pts_)]
+				_pts_ = _slp_
+			ok
 			oC.Flush()
 			oC.AddPolylineQ(_pts_).Stroke(cColor, nWidth)
 			This._DrawArrow(oC, _oprev_, _oend_, cColor, nWidth, "line", cRank)
@@ -4408,6 +4459,47 @@ class stzDiagram from stzGraph
 	# which the author meant. Same-edge segments never hop each other
 	# (their meeting IS a junction), and hops bulge against the rank
 	# direction so they read as "over", not "under".
+	# ONE CORNER, TWO CALLERS. The staircase turns corners and so does the
+	# self-loop, and the two used to be drawn by different hands -- which
+	# is how the loop came to be the one rounded shape in a square picture
+	# before, and would have been the one square shape in a rounded one
+	# now. The arc lives here so there is a single place that decides what
+	# a turn looks like.
+	#
+	# Returns the quarter arc from p1->p2->p3 as a flat point list, or an
+	# empty list when the vertex does not earn one: a straight-through
+	# point, a segment too short to give up the radius, or a radius so
+	# small the arc is not ink.
+	def _ElbowArc(nX1, nY1, nX2, nY2, nX3, nY3, nMaxR)
+		_eaAx_ = nX1 - nX2   _eaAy_ = nY1 - nY2
+		_eaBx_ = nX3 - nX2   _eaBy_ = nY3 - nY2
+		_eaL1_ = sqrt(_eaAx_ * _eaAx_ + _eaAy_ * _eaAy_)
+		_eaL2_ = sqrt(_eaBx_ * _eaBx_ + _eaBy_ * _eaBy_)
+		if _eaL1_ < 0.5 or _eaL2_ < 0.5  return []  ok
+		_eaAx_ = _eaAx_ / _eaL1_   _eaAy_ = _eaAy_ / _eaL1_
+		_eaBx_ = _eaBx_ / _eaL2_   _eaBy_ = _eaBy_ / _eaL2_
+		# the two legs leave the vertex in opposite directions: no turn
+		if fabs(_eaAx_ + _eaBx_) < 0.01 and fabs(_eaAy_ + _eaBy_) < 0.01
+			return []
+		ok
+		_eaR_ = min([ nMaxR, _eaL1_ * 0.40, _eaL2_ * 0.40 ])
+		if _eaR_ < 1  return []  ok
+
+		# centre = vertex + r along BOTH legs; the arc then runs from
+		# (vertex + r*A) to (vertex + r*B), which is exactly where each
+		# leg leaves off
+		_eaCx_ = nX2 + _eaR_ * (_eaAx_ + _eaBx_)
+		_eaCy_ = nY2 + _eaR_ * (_eaAy_ + _eaBy_)
+		_eaOut_ = []
+		for _eaS_ = 0 to 6
+			_eaT_ = (_eaS_ / 6.0) * 1.5707963
+			_eaOut_ + (_eaCx_ - _eaR_ *
+				(_eaBx_ * cos(_eaT_) + _eaAx_ * sin(_eaT_)))
+			_eaOut_ + (_eaCy_ - _eaR_ *
+				(_eaBy_ * cos(_eaT_) + _eaAy_ * sin(_eaT_)))
+		next
+		return _eaOut_
+
 	def _EmitOrthoPolyline(oC, paFlat, cColor, nWidth, cKey)
 		_eoN_ = len(paFlat)
 		_eoH_ = 0
@@ -4508,8 +4600,30 @@ class stzDiagram from stzGraph
 					next
 				ok
 			ok
-			_eoOut_ + _eoX2_
-			_eoOut_ + _eoY2_
+
+			# AND THE CORNER ITSELF, rounded in the same hand the cells
+			# are drawn in. Ink only: the logical path this render
+			# publishes still turns at the exact vertex, so channels,
+			# labels and every guard that reads geometry see the same
+			# picture they always did -- the same contract the wire hop
+			# already lives under.
+			#
+			# Never the first or last vertex, which sit on a node border
+			# and carry the attachment; never wider than the segments it
+			# eats into, or a short jog would round away entirely; and
+			# never wider than the hop's own end margin, so an arc and a
+			# hop on one segment cannot reach each other.
+			_eoArc_ = []
+			if @bRoundElbows and _eoI_ + 5 <= _eoN_
+				_eoArc_ = This._ElbowArc(_eoX1_, _eoY1_, _eoX2_, _eoY2_,
+					paFlat[_eoI_ + 4], paFlat[_eoI_ + 5], _eoR_)
+			ok
+			if len(_eoArc_) > 0
+				for _eoS_ = 1 to len(_eoArc_)  _eoOut_ + _eoArc_[_eoS_]  next
+			else
+				_eoOut_ + _eoX2_
+				_eoOut_ + _eoY2_
+			ok
 		next
 		oC.Flush()
 		oC.AddPolylineQ(_eoOut_).Stroke(cColor, nWidth)
