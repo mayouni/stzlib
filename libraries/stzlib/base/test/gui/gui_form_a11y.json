@@ -1,16 +1,16 @@
 {
   "nodes": [
-    {"id": "form", "role": "window", "name": "", "description": "A small operator form: five stops, all reachable by keyboard.", "depth": 0, "bounds": [0, 0, 560, 360], "focusable": false, "focused": false, "actions": []},
-    {"id": "title", "role": "heading", "name": "Transfer", "description": "What this form is for.", "depth": 1, "bounds": [18, 18, 524, 28.80], "focusable": false, "focused": false, "actions": []},
-    {"id": "row_one", "role": "textbox", "name": "From account", "description": "First stop in the ring.", "depth": 1, "bounds": [30, 70.80, 500, 20], "focusable": true, "focused": false, "actions": ["focus", "click"]},
-    {"id": "label_from", "role": "label", "name": "From account", "description": "field label", "depth": 2, "bounds": [30, 70.80, 500, 16.80], "focusable": false, "focused": false, "actions": []},
-    {"id": "row_two", "role": "textbox", "name": "To account", "description": "Second stop.", "depth": 1, "bounds": [30, 126.80, 500, 20], "focusable": true, "focused": false, "actions": ["focus", "click"]},
-    {"id": "label_to", "role": "label", "name": "To account", "description": "field label", "depth": 2, "bounds": [30, 126.80, 500, 16.80], "focusable": false, "focused": false, "actions": []},
-    {"id": "actions", "role": "group", "name": "", "description": "Two actions side by side; arrows move between them.", "depth": 1, "bounds": [18, 170.80, 524, 44], "focusable": false, "focused": false, "actions": []},
-    {"id": "confirm", "role": "button", "name": "Confirm", "description": "The act.", "depth": 2, "bounds": [30, 182.80, 217.04, 20], "focusable": true, "focused": true, "actions": ["focus", "click"]},
-    {"id": "confirm_text", "role": "label", "name": "Confirm", "description": "button label", "depth": 3, "bounds": [30, 182.80, 217.04, 19.20], "focusable": false, "focused": false, "actions": []},
-    {"id": "cancel", "role": "button", "name": "Cancel", "description": "The way back, which Rule 80 requires to exist.", "depth": 2, "bounds": [287.04, 182.80, 217.04, 20], "focusable": true, "focused": false, "actions": ["focus", "click"]},
-    {"id": "cancel_text", "role": "label", "name": "Cancel", "description": "button label", "depth": 3, "bounds": [287.04, 182.80, 217.04, 19.20], "focusable": false, "focused": false, "actions": []},
-    {"id": "status", "role": "status", "name": "Tab moves between stops; arrows move within the action row.", "description": "Says how the keyboard works, on the screen itself.", "depth": 1, "bounds": [18, 226.80, 524, 16.80], "focusable": false, "focused": false, "actions": []}
+    {"id": "form", "role": "window", "name": "", "description": "A small operator form: five stops, all reachable by keyboard.", "depth": 0, "bounds": [0, 0, 560, 360], "focusable": false, "focused": false, "actions": [], "children": ["title", "row_one", "row_two", "actions", "status"]},
+    {"id": "title", "role": "heading", "name": "Transfer", "description": "What this form is for.", "depth": 1, "bounds": [18, 18, 524, 28.80], "focusable": false, "focused": false, "actions": [], "children": []},
+    {"id": "row_one", "role": "textbox", "name": "From account", "description": "First stop in the ring.", "depth": 1, "bounds": [30, 70.80, 500, 20], "focusable": true, "focused": false, "actions": ["focus", "click"], "children": ["label_from"]},
+    {"id": "label_from", "role": "label", "name": "From account", "description": "field label", "depth": 2, "bounds": [30, 70.80, 500, 16.80], "focusable": false, "focused": false, "actions": [], "children": []},
+    {"id": "row_two", "role": "textbox", "name": "To account", "description": "Second stop.", "depth": 1, "bounds": [30, 126.80, 500, 20], "focusable": true, "focused": false, "actions": ["focus", "click"], "children": ["label_to"]},
+    {"id": "label_to", "role": "label", "name": "To account", "description": "field label", "depth": 2, "bounds": [30, 126.80, 500, 16.80], "focusable": false, "focused": false, "actions": [], "children": []},
+    {"id": "actions", "role": "group", "name": "", "description": "Two actions side by side; arrows move between them.", "depth": 1, "bounds": [18, 170.80, 524, 44], "focusable": false, "focused": false, "actions": [], "children": ["confirm", "cancel"]},
+    {"id": "confirm", "role": "button", "name": "Confirm", "description": "The act.", "depth": 2, "bounds": [30, 182.80, 217.04, 20], "focusable": true, "focused": true, "actions": ["focus", "click"], "children": ["confirm_text"]},
+    {"id": "confirm_text", "role": "label", "name": "Confirm", "description": "button label", "depth": 3, "bounds": [30, 182.80, 217.04, 19.20], "focusable": false, "focused": false, "actions": [], "children": []},
+    {"id": "cancel", "role": "button", "name": "Cancel", "description": "The way back, which Rule 80 requires to exist.", "depth": 2, "bounds": [287.04, 182.80, 217.04, 20], "focusable": true, "focused": false, "actions": ["focus", "click"], "children": ["cancel_text"]},
+    {"id": "cancel_text", "role": "label", "name": "Cancel", "description": "button label", "depth": 3, "bounds": [287.04, 182.80, 217.04, 19.20], "focusable": false, "focused": false, "actions": [], "children": []},
+    {"id": "status", "role": "status", "name": "Tab moves between stops; arrows move within the action row.", "description": "Says how the keyboard works, on the screen itself.", "depth": 1, "bounds": [18, 226.80, 524, 16.80], "focusable": false, "focused": false, "actions": [], "children": []}
   ]
 }
