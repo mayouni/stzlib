@@ -42,6 +42,23 @@ $acColors = [
 ]
 
 # Semantic color meanings (abstraction layer)
+#
+# CULTURE-BOUND, and named as such rather than fixed here. Every pairing
+# below is a WESTERN one: red for danger, green for success, yellow for
+# warning. In much of East Asia red is fortune and green can carry the
+# warning; in finance the red/green pair is inverted market by market.
+# A library that ships one table as though it were the table is making a
+# claim about its readers that it has not checked.
+#
+# The remedy is a THIRD lookup -- semantic value plus culture -> colour --
+# and it belongs to base/culture/ when that exists, beside the other
+# things this library will have to stop assuming. Not built here: this
+# file is the mechanism, and a culture table is not one table more, it is
+# a different kind of table with its own provenance and its own defaults.
+#
+# :Muted is deliberately NOT in this list. It is not a hue that a culture
+# assigns a meaning to; it is a treatment applied to whatever hue the
+# culture did assign. See StzMutedOf().
 $acColorsBySemanticMeaning = [
 	:Success = "green",
 	:Warning = "yellow",
@@ -83,6 +100,7 @@ $aPalette = [
 		:danger = "red",
 		:info = $cNeutralNodeColor,
 		:neutral = $cNeutralNodeColor,
+		:muted = "white.muted",
 		:background = $cNeutralNodeColor
 	],
 
@@ -93,6 +111,7 @@ $aPalette = [
 		:danger = "coral",
 		:info = "cyan+",
 		:neutral = "gray+",
+		:muted = "gray+.muted",
 		:background = "white"
 	],
 	:dark = [
@@ -102,6 +121,7 @@ $aPalette = [
 		:danger = "red",
 		:info = "blue",
 		:neutral = "gray-",
+		:muted = "gray-.muted",
 		:background = "gray++"
 	],
 	:vibrant = [
@@ -111,6 +131,11 @@ $aPalette = [
 		:danger = "red",
 		:info = "blue",
 		:neutral = "gray--",
+		# gray-- already sits AT the surface rung, so muting it
+		# cannot recede it and would answer its own neutral back. A
+		# theme states its own role where the derivation has nowhere
+		# to go -- as it does for every other role it names.
+		:muted = "gray.muted",
 		:background = "white"
 	],
 	:pro = [
@@ -120,6 +145,7 @@ $aPalette = [
 		:danger = "red-",
 		:info = "blue",
 		:neutral = "gray",
+		:muted = "gray.muted",
 		:background = "white"
 	],
 	:access = [
@@ -129,6 +155,7 @@ $aPalette = [
 		:danger = "red-",
 		:info = "blue",
 		:neutral = "gray-",
+		:muted = "gray-.muted",
 		:background = "#FFFEF7"
 	],
 	:print = [
@@ -138,6 +165,7 @@ $aPalette = [
 		:danger = "white",
 		:info = "white",
 		:neutral = "white",
+		:muted = "white.muted",
 		:background = "white"
 	],
 	:lightgray = [
@@ -147,6 +175,7 @@ $aPalette = [
 		:danger = "gray++",
 		:info = "gray+",
 		:neutral = "white",
+		:muted = "white.muted",
 		:background = "white"
 	],
 	:gray = [
@@ -156,6 +185,7 @@ $aPalette = [
 		:danger = "gray-",
 		:info = "gray",
 		:neutral = "gray",
+		:muted = "gray.muted",
 		:background = "white"
 	],
 	:darkgray = [
@@ -165,6 +195,7 @@ $aPalette = [
 		:danger = "gray--",
 		:info = "gray-",
 		:neutral = "gray--",
+		:muted = "gray.muted",   # see :vibrant -- the same reason
 		:background = "gray--"
 	]
 ]
@@ -393,6 +424,21 @@ func StzBuildColorPalette()
 		end
 	end
 
+	# :MUTED, DERIVED rather than authored. It is the muting of the grey
+	# seed, so it moves if the grey moves and cannot drift away from what
+	# StzMutedOf() answers for everything else. Registered as a real
+	# palette entry rather than special-cased in the resolver, so every
+	# path that works for a colour works for this one: `muted`, `muted+`,
+	# `muted.surface`, `OnMuted`, and a theme naming it as a role.
+	_cMuted_ = _StzMuteHex($acColors[:gray])
+	_aPalette_["muted"] = _cMuted_
+	_aMutInt_ = StzGenerateColorIntensities("muted", _cMuted_)
+	_acMutKeys_ = keys(_aMutInt_)
+	_nMutLen_ = len(_acMutKeys_)
+	for i = 1 to _nMutLen_
+		_aPalette_[_acMutKeys_[i]] = _aMutInt_[_acMutKeys_[i]]
+	end
+
 	return _aPalette_
 
 	func BuildColorPalette()
@@ -460,6 +506,85 @@ func StzRoleStepL(pcStep)
 func StzRoleStepNames()
 	return [ :Surface, :Border, :Solid, :Text ]
 
+#---------------------------------------------------------------------------#
+#  MUTED -- family one's fifth value, and it is a TREATMENT first           #
+#---------------------------------------------------------------------------#
+#
+# Rule 118 names five semantic values and this plane shipped four. The
+# missing one is not a missing hue, and that is the whole design decision:
+#
+#   :Neutral is FAMILY TWO -- metadata carrying no semantic charge at all.
+#   :Muted   is FAMILY ONE -- a live thing that is temporarily not live.
+#
+# A single grey cannot be the answer, because A WAITING DANGER AND A
+# WAITING SUCCESS ARE DIFFERENT FACTS. Render both as one grey and the
+# picture asserts they are the same thing, which is the same fault this
+# library refuses everywhere else: sameness is a claim, and a claim the
+# model does not contain is a lie whether it is made in geometry or in
+# colour. An operator looking at a queue of waiting work needs to see
+# WHICH waiting work is the alarming one.
+#
+# So muting is a TREATMENT of a status -- hold the hue, keep a quarter of
+# the chroma, and let the lightness travel four tenths of the way to the
+# ramp's own surface rung, which is the step this plane already computes
+# for "a background-ish version of this status". A muted danger stays a
+# dusty red, a muted success a dusty green; neither competes with a live
+# status beside it.
+#
+# AND THE ENUMERATED VALUE IS THAT TREATMENT APPLIED TO THE ONE THING
+# THAT CARRIES NO STATUS. `:Muted` on its own is the muting of grey, so a
+# declaration that says only "muted" still resolves to a real paintable
+# colour with no theme in force -- the law's fifth value exists, Fill(:Muted)
+# works -- and there is ONE mechanism rather than two definitions that
+# will drift. It also comes out distinguishable from :Neutral, which the
+# law requires and which a chroma-only mute could not have given: grey has
+# no chroma to remove, so it is the lightness travel that separates them.
+#
+# THE DISAGREEMENT, weighed rather than ignored. The sound plane holds
+# that muted renders as ABSENCE everywhere -- silence in sound, nothing
+# painted -- and that a paintable :Muted would be the bug. That is right
+# for sound, for a reason the sound plane earned by building it: an earcon
+# announcing inactivity is a contradiction. It does not survive transport
+# to a channel with persistence and no time. Silence is what a sound
+# channel does with a thing that is not an event; a screen has no silence
+# -- it paints something at every pixel, always -- so "paint nothing" is
+# not absence there, it is painting the ACTIVE appearance. A queue whose
+# waiting rows are indistinguishable from its live ones is not a channel
+# declining to speak; it is a channel saying the wrong thing.
+# Named apart from StzRoleStepNames() on purpose: a STEP is a lightness on
+# one status's ramp and a TREATMENT is not. `danger.muted` shares the
+# grammar and nothing else.
+func StzColorTreatments()
+	return [ :Muted ]
+
+func StzMuteChroma()
+	return 0.25
+
+func StzMutePull()
+	return 0.40
+
+# THE ONE MECHANISM. Hex in, hex out, and NO palette lookup -- the palette
+# builder calls this while the palette is still being built, and a lookup
+# here would recurse into it.
+func _StzMuteHex(pcHex)
+	_a_ = StzHexToRGB(pcHex)
+	_rgb_ = _a_[1] * 65536 + _a_[2] * 256 + _a_[3]
+	_l_ = StzEngineColorLightness(_rgb_)
+	_lt_ = _l_ + (StzRoleStepL(:Surface) - _l_) * StzMutePull()
+	_v_ = StzEngineColorMute(_rgb_, StzMuteChroma(), _lt_)
+	_r_ = floor(_v_ / 65536)
+	_g_ = floor((_v_ - _r_ * 65536) / 256)
+	_b_ = _v_ - _r_ * 65536 - _g_ * 256
+	return StzRGBToHex(_r_, _g_, _b_)
+
+# The public treatment: any colour, waiting.
+#
+#   StzMutedOf(:Danger)   a danger that is not live yet
+#   StzMutedOf(:Success)  a success that is not live yet
+#   StzResolveColor(:Muted)  == StzMutedOf(:Neutral)
+func StzMutedOf(pColor)
+	return _StzMuteHex(StzResolveColor(pColor))
+
 # "danger.surface" -> [ "danger", "surface" ], anything else -> []
 func _StzSplitRoleStep(pcExpr)
 	_c_ = StzLower(ring_trim("" + pcExpr))
@@ -467,6 +592,9 @@ func _StzSplitRoleStep(pcExpr)
 	if _n_ < 2 or _n_ >= len(_c_)  return []  ok
 	_base_ = StzSubStr(_c_, 1, _n_ - 1)
 	_step_ = StzSubStr(_c_, _n_ + 1, len(_c_) - _n_)
+	for _k_ in StzColorTreatments()
+		if StzLower("" + _k_) = _step_  return [ _base_, _step_ ]  ok
+	next
 	for _k_ in StzRoleStepNames()
 		if StzLower("" + _k_) = _step_  return [ _base_, _step_ ]  ok
 	next
@@ -504,6 +632,13 @@ func StzTryResolveColor(pColor)
 		_o1_ = new stzColorResolver()
 		_seed_ = _o1_.ResolveWithPalette(_aRS_[1], $acFullColorPalette)
 		if _seed_ = ""  return ""  ok
+		# A TREATMENT IS NOT A RUNG. The four steps are lightnesses on one
+		# status's ramp; muting also collapses chroma, so it cannot be
+		# expressed as a lightness and is not listed among them. It shares
+		# the `base.name` grammar because that is what the grammar is FOR
+		# -- naming a variant of a status for a purpose -- and because a
+		# theme needs a name it can write for "this role, waiting".
+		if _aRS_[2] = "muted"  return _StzMuteHex(_seed_)  ok
 		return StzColorAtLightness(_seed_, StzRoleStepL(_aRS_[2]))
 	ok
 

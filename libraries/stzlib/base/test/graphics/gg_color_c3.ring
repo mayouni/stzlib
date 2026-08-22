@@ -68,7 +68,11 @@ nMin = StzContrastMinimumBodyText()
 ? "   --------   ----------   -------   -------   -----   -------"
 
 aThemes = [ "neutral", "light", "dark", "vibrant", "pro", "access", "print" ]
-aRoles = [ :primary, :success, :warning, :danger, :info, :neutral ]
+# :MUTED joins the sweep, 42 pairs -> 49. It is family one's fifth value
+# and it carries text like any other fill, so it is gated like any other
+# fill. Background stays out -- it is a surface and holds no text -- and
+# the three grey themes stay out, as they were.
+aRoles = [ :primary, :success, :warning, :danger, :info, :muted, :neutral ]
 
 nFail = 0
 nChecked = 0
@@ -188,6 +192,95 @@ chk("the two metrics reach different verdicts somewhere", nDiffer > 0)
 ? "    where the disagreements land, and it is why both are carried.)"
 
 ? ""
+? "-- 4. :MUTED -- family one's fifth value ---------------------"
+#
+# Rule 118 names five values in family one and this plane shipped four.
+# What it did NOT ship was not a hue: a single grey would render a WAITING
+# DANGER and a WAITING SUCCESS identically, which asserts they are the
+# same fact, and they are not. So muting is a TREATMENT -- hold the hue,
+# keep a quarter of the chroma, travel four tenths of the way to the
+# surface rung -- and the enumerated value is that treatment applied to
+# the one thing carrying no status.
+#
+# Four claims, each of which could be false.
+#---------------------------------------------------------------------------
+
+? ""
+? "   value      live      muted     hue    text"
+aMuteC = [ :Danger, :Success, :Warning, :Info ]
+nMuteHueDrift = 0
+nMuteUnread = 0
+aMuteHex = []
+for i = 1 to len(aMuteC)
+	cLive = StzResolveColor(aMuteC[i])
+	cMute = StzMutedOf(aMuteC[i])
+	aMuteHex + cMute
+	nHl = StzEngineColorHue(_Rgb24C3(cLive))
+	nHm = StzEngineColorHue(_Rgb24C3(cMute))
+	nD = fabs(nHl - nHm)
+	if nD > 180  nD = 360 - nD  ok
+	if nD > 12  nMuteHueDrift++  ok
+	nR = StzBestTextOn(cMute)[2]
+	if nR < StzContrastMinimumBodyText()  nMuteUnread++  ok
+	? "   " + PadR("" + aMuteC[i], 10) + PadR(cLive, 10) + PadR(cMute, 10) +
+	  PadR("" + ceil(nD), 7) + "" + nR + ":1"
+next
+
+# 1 · A MUTED STATUS IS STILL THAT STATUS. The hue survives, so a waiting
+#     danger and a waiting success stay different things.
+? "   statuses whose hue drifted when muted : " + nMuteHueDrift
+chkeq("muting holds the hue -- a waiting danger is still a danger",
+      nMuteHueDrift, 0)
+
+nMuteSame = 0
+for i = 1 to len(aMuteHex)
+	for j = i + 1 to len(aMuteHex)
+		if aMuteHex[i] = aMuteHex[j]  nMuteSame++  ok
+	next
+next
+? "   muted statuses that collapsed onto each other : " + nMuteSame
+chkeq("...and no two of them become one grey", nMuteSame, 0)
+
+# 2 · IT IS STILL A FILL. Muted is not "unstyled", it carries text.
+? "   muted statuses that cannot carry text : " + nMuteUnread
+chkeq("a muted fill still reads", nMuteUnread, 0)
+
+# 3 · :MUTED IS NOT :NEUTRAL. Different families, so they must not be the
+#     same colour -- and the standalone value must resolve with no theme.
+cMutedStandalone = StzResolveColor(:Muted)
+? "   :Muted " + cMutedStandalone + " vs :Neutral " + StzResolveColor(:Neutral)
+chk("the fifth value resolves on its own, with no theme in force",
+    cMutedStandalone != "" and StzTryResolveColor(:Muted) != "")
+chk("...and family one's muted is not family two's neutral",
+    cMutedStandalone != StzResolveColor(:Neutral))
+chkeq("it is exactly the treatment applied to neutral -- ONE mechanism",
+      cMutedStandalone, StzMutedOf(:Neutral))
+
+# 4 · EVERY THEME NAMES IT, and where the theme distinguishes neutral from
+#     primary at all, it distinguishes muted from neutral too. The three
+#     wholly white themes are exempt by their own construction rather than
+#     by a list of names: they already collapse primary onto neutral.
+nThemeMissing = 0
+nThemeFlat = 0
+aAllThemes = StzColorThemes()
+for i = 1 to len(aAllThemes)
+	cT = aAllThemes[i]
+	cM = StzThemeColor(cT, :muted)
+	if cM = ""  nThemeMissing++  loop  ok
+	cN = StzResolveColor(StzThemeColor(cT, :neutral))
+	cP = StzResolveColor(StzThemeColor(cT, :primary))
+	if cN = cP  loop  ok
+	if StzResolveColor(cM) = cN
+		nThemeFlat++
+		? "   " + cT + " renders muted as its own neutral"
+	ok
+next
+? "   themes with no muted role : " + nThemeMissing +
+  " , themes where muted = neutral : " + nThemeFlat
+chkeq("every shipped theme names the fifth value", nThemeMissing, 0)
+chkeq("...and states it where it states a neutral at all", nThemeFlat, 0)
+
+? ""
 ? "=============================================================="
 ? " VERDICT : " + iif(nBad = 0, "C3 PASSES -- the themes clear the stated minimum",
                      "C3 FAILS -- see the failures above; they are the finding")
@@ -207,6 +300,10 @@ func chk cWhat, bCond
 
 func chkeq cWhat, xGot, xWant
 	chk(cWhat + "  [got " + xGot + ", want " + xWant + "]", xGot = xWant)
+
+func _Rgb24C3 cHex
+	_a_ = StzHexToRGB(cHex)
+	return _a_[1] * 65536 + _a_[2] * 256 + _a_[3]
 
 func PadR c, n
 	_s_ = "" + c

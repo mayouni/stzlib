@@ -134,6 +134,31 @@ pub fn rampStep(seed: Rgb, l_target: f64) Rgb {
     return gamutClamp(.{ .l = l_target, .c = base.c * falloff, .h = base.h });
 }
 
+/// MUTED: the same colour, temporarily not live.
+///
+/// Hold the HUE, keep a fraction of the chroma, and put the result at a
+/// stated lightness. Hue is held for the reason the whole ramp holds it: a
+/// waiting danger and a waiting success are different facts, and a picture
+/// that renders both as one grey asserts they are the same. Chroma is kept
+/// rather than removed for the same reason -- what is left is enough to
+/// tell a dusty red from a dusty green, and not enough to compete with a
+/// live status beside it.
+///
+/// Not rampStep. That rescales chroma by a falloff curve built for a
+/// four-rung ramp, which would fight the fraction asked for here; this
+/// takes the fraction it was given and says so. The POLICY -- how much
+/// chroma survives, and how far the lightness travels -- is the face's,
+/// beside the role-step lightnesses it belongs with. This is the
+/// mechanism only.
+pub fn muted(seed: Rgb, keep_c: f64, l_target: f64) Rgb {
+    const base = labToLch(rgbToOklab(seed));
+    return gamutClamp(.{
+        .l = l_target,
+        .c = base.c * @max(0, keep_c),
+        .h = base.h,
+    });
+}
+
 // ------------------------------------------------------------------ C ABI
 
 fn u8f(v: f64) u8 {
@@ -148,6 +173,18 @@ pub fn stz_color_ramp_step(rgb: u32, l_target: f64) callconv(.c) u32 {
         .b = @as(f64, @floatFromInt(rgb & 0xFF)) / 255.0,
     };
     const out = rampStep(seed, l_target);
+    return (@as(u32, u8f(out.r)) << 16) | (@as(u32, u8f(out.g)) << 8) | u8f(out.b);
+}
+
+/// 0xRRGGBB in, 0xRRGGBB out: the seed's hue, keep_c of its chroma, at
+/// perceptual lightness l_target.
+pub fn stz_color_mute(rgb: u32, keep_c: f64, l_target: f64) callconv(.c) u32 {
+    const seed = Rgb{
+        .r = @as(f64, @floatFromInt((rgb >> 16) & 0xFF)) / 255.0,
+        .g = @as(f64, @floatFromInt((rgb >> 8) & 0xFF)) / 255.0,
+        .b = @as(f64, @floatFromInt(rgb & 0xFF)) / 255.0,
+    };
+    const out = muted(seed, keep_c, l_target);
     return (@as(u32, u8f(out.r)) << 16) | (@as(u32, u8f(out.g)) << 8) | u8f(out.b);
 }
 
