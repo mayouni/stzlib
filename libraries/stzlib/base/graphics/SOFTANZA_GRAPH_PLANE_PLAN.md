@@ -639,9 +639,30 @@ guarded; the window half is not started.
   inverses, `Undo`/`Redo`, over the model's existing mutation API and
   its existing refusals. Section 42, nineteen assertions.
 
-**Still open:** the interaction state machine and the window session
-(design decisions 1 and 5), and the second kill criterion —
-drag-redraw < 16 ms — which needs stzWindow and has NOT been measured.
+- **GG7d, the interaction** (6de2d40a7). Four states — idle, dragging,
+  linking, labelling — fed explicit events, so the machine is a function
+  of (state, event) and is tested headless. Section 43.
+- **GG7e, the session** (this commit). `Step(window, options)` is one
+  frame; `RunIn(window)` is the loop. Section 44, against a stub window.
+
+**The second kill criterion, measured and ANSWERED rather than met as
+written.** Re-rendering a 500-node diagram per pointer-move costs
+**11,675 ms a frame** against the 16 ms budget — 730× over — and no
+faster scene upload rescues it, because the cost is the layout and the
+edge work, not the drawing. The plan invited exactly this measurement
+("only if full-scene rebuild misses that does an incremental path earn
+existence"); the answer it gives is not an incremental upload but that
+**the model must not move while a gesture is in flight**. A drag records
+the pointer, the window paints the cell over the picture it already has
+(`DragPreview`), and the layout runs once at release. A drag frame then
+costs **0.12 ms on 500 nodes** including a pick. GG7 is COMPLETE.
+
+**Reading the picture backwards** made dragging possible at all:
+stzGraphCanvas keeps the layout's own coordinate before `_Normalise`
+rewrites it to pixels, and stzDiagram publishes the exact linear map
+(`SlotAtPixel`/`PixelAtSlot`) — fitted in the coordinates actually
+drawn, since fitting against the provisional measuring canvas gives a
+map that is self-consistent and wrong.
 
 **One measurement worth keeping**, found while chasing the pick budget:
 `ToCanvasXT` was superlinear because a per-edge loop scanned
