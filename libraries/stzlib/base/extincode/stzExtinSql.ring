@@ -45,7 +45,7 @@ func CREATE_TABLE(pcName)
 	func @CREATE_TABLE(pcName)
 		return CREATE_TABLE(pcName)
 	func CREATE_TABLE@(pcName)
-		return INSERT_INTO(pcName)
+		return CREATE_TABLE(pcName)
 	func @CREATE_TABLE@(pcName)
 		return CREATE_TABLE(pcName)
 	#>

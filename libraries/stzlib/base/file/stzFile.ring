@@ -495,7 +495,7 @@ func StzFileErase(cFileName)
 	    ok
 		_oFile_ = new stzFileEraser(cFileName)
 		_oFile_.Erase()
-		return StzFileAppend(cFileName)
+		return _oFile_
 
 	#>
 
@@ -553,7 +553,7 @@ func StzFileSafeErase(cFileName)
 
 		_oFile_ = new stzFileEraser(cFileName)
 		_oFile_.Erase()
-		return StzFileAppend(cFileName)
+		return _oFile_
 	#>
 
 	#< @FunctionAlternativeForms
