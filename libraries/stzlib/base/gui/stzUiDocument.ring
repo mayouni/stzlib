@@ -53,14 +53,22 @@ class stzUiDocument from stzObject
 	# The closed field sets -- closure is a birth-check, so these lists ARE
 	# the law of v0.1. Lowercase here because field KEYWORDS are validated
 	# case-sensitively during parse; these drive the per-kind check.
+	# SATISFIES appears on the three ELEMENT kinds and not on STYLE. The
+	# founding inversion's test is "every UI ELEMENT must trace to at
+	# least one intent", and a STYLE is not an element -- it is a bag of
+	# properties other declarations borrow. A style that claimed to
+	# satisfy an intent would let one intent be traced through a thing
+	# that never appears on screen.
 	@aPanelFields = [ "SIZE", "DIRECTION", "FONT", "BACKGROUND", "CHILDREN",
 		"PADDING", "GAP", "ALIGN", "JUSTIFY", "TEXT_DIRECTION", "TEXT_ALIGN",
-		"ROLE", "LABEL" ]
+		"ROLE", "LABEL", "SATISFIES" ]
 	@aBoxFields = [ "DIRECTION", "WRAP", "WIDTH", "HEIGHT", "PADDING",
 		"MARGIN", "GAP", "ALIGN", "JUSTIFY", "BACKGROUND", "CHILDREN",
-		"STYLE", "TEXT_DIRECTION", "TEXT_ALIGN", "FOCUSABLE", "ROLE", "LABEL" ]
+		"STYLE", "TEXT_DIRECTION", "TEXT_ALIGN", "FOCUSABLE", "ROLE", "LABEL",
+		"SATISFIES" ]
 	@aTextFields = [ "CONTENT", "SIZE", "COLOR", "PADDING", "MARGIN",
-		"STYLE", "TEXT_DIRECTION", "TEXT_ALIGN", "FOCUSABLE", "ROLE", "LABEL" ]
+		"STYLE", "TEXT_DIRECTION", "TEXT_ALIGN", "FOCUSABLE", "ROLE", "LABEL",
+		"SATISFIES" ]
 	@aStyleFields = [ "DIRECTION", "WRAP", "WIDTH", "HEIGHT", "PADDING",
 		"MARGIN", "GAP", "ALIGN", "JUSTIFY", "BACKGROUND", "SIZE", "COLOR",
 		"TEXT_ALIGN", "TEXT_DIRECTION", "FOCUSABLE", "ROLE", "LABEL" ]
@@ -948,6 +956,30 @@ class stzUiDocument from stzObject
 				ok
 			ok
 
+			# A LITERAL COLOUR IS A MEANING THAT ESCAPED, and this is the
+			# plane's first WARNING rather than an error: it is accepted,
+			# recorded, and refused at G6.
+			#
+			# StzZui filed this, and its reason is a thing this project
+			# has already watched happen: Rule 118, Rule 3 and the
+			# graphics engine independently derived the same five
+			# semantic values and drifted into three incompatible
+			# spellings, because the engine shipped before the law had a
+			# seam to bind to. `stzDiagramColor.ring:45` still hard-codes
+			# :Success = "green" and :Danger = "red" -- the pair that
+			# INVERTS in Chinese, Japanese, Korean and Taiwanese
+			# financial convention.
+			#
+			# Every hex literal written between now and G6 is a meaning
+			# with no record of what it meant, and someone has to guess
+			# it back later. Warning now costs one check; the corpus
+			# grows with a marked trail instead of a silent one.
+			#
+			# THE SHOWCASE RAISES ABOUT TWENTY OF THESE. That is the
+			# check working, not misfiring.
+			This._ColourWarn(_d_, _aF_, "COLOR")
+			This._ColourWarn(_d_, _aF_, "BACKGROUND")
+
 			# CHILDREN names resolve, and never to a STYLE or the PANEL
 			_aKids_ = This._ChildrenOf(_d_)
 			_nK_ = len(_aKids_)
@@ -1045,6 +1077,78 @@ class stzUiDocument from stzObject
 	def Roles()
 		return @aRoles
 
+	#-- the intent slot: parsed, recorded, DELIBERATELY UNRESOLVED --------
+	#
+	# StzZui's finding 2. The founding inversion says every UI element
+	# must trace to at least one intent, and until a phase binds a panel
+	# to a flow, every element in every file is an orphan by that test.
+	# The request was not to build the binding -- it was to let the FIELD
+	# EXIST NOW, so a file written this month is complete when the
+	# binding lands rather than needing a pass over every declaration.
+	#
+	# THE FINDING OFFERED A CHEAPER ANSWER AND IT DOES NOT APPLY. It said
+	# to look at Roles() first, because if that were already an intent
+	# concept the slot belonged beside it. It is not: Roles() is a closed
+	# ARIA vocabulary whose own comment says "a role is NOT a meaning" --
+	# it is the accessibility projection's term, in the family of
+	# `display: block`. An intent is the opposite kind of thing. So the
+	# finding's own proposal is what is built.
+	#
+	# NOTHING IS RESOLVED. There is no .zui to resolve against from here,
+	# and resolution stays StzZui's. The court checks the SHAPE of a name
+	# and nothing else -- an intent this plane cannot find is not an
+	# error, because this plane is not where intents live.
+	#
+	# AND NO WARNING ON AN ORPHAN. Every existing document would raise on
+	# every element, which is noise rather than a trail, and the finding
+	# did not ask for one. `Orphans()` answers the question instead, so
+	# the inversion's test is available the moment anyone wants it.
+
+	# The intents one declaration claims to satisfy, [] when it claims
+	# none.
+	def IntentsOf(pcName)
+		_d_ = This.DeclOf(pcName)
+		if len(_d_) = 0
+			return []
+		ok
+		return This._IdListField(_d_[:fields], "SATISFIES")
+
+	# Every intent named anywhere in the document, in first-seen order.
+	# What a later binding phase reads to know what to look for.
+	def SatisfiedIntents()
+		_a_ = []
+		_n_ = len(@aDecls)
+		for _i_ = 1 to _n_
+			_aI_ = This._IdListField(@aDecls[_i_][:fields], "SATISFIES")
+			_nI_ = len(_aI_)
+			for _j_ = 1 to _nI_
+				if NOT This._HasName(_a_, _aI_[_j_])
+					_a_ + _aI_[_j_]
+				ok
+			next
+		next
+		return _a_
+
+	# The ELEMENTS that trace to no intent -- the founding inversion's own
+	# test, answerable now and without resolving anything. STYLE
+	# declarations are absent by construction, not by omission.
+	def Orphans()
+		_a_ = []
+		_n_ = len(@aDecls)
+		for _i_ = 1 to _n_
+			_d_ = @aDecls[_i_]
+			if strcmp(_d_[:kind], "STYLE") = 0
+				loop
+			ok
+			if len(This._IdListField(_d_[:fields], "SATISFIES")) = 0
+				_a_ + _d_[:name]
+			ok
+		next
+		return _a_
+
+	def TracesToIntent(pcName)
+		return len(This.IntentsOf(pcName)) > 0
+
 	def _AllowedFields(pcKind)
 		if strcmp(pcKind, "PANEL") = 0
 			return @aPanelFields
@@ -1128,6 +1232,64 @@ class stzUiDocument from stzObject
 		ok
 		return _a_
 
+	# A list of identifiers, or a SINGLE identifier read as a list of one.
+	# Both forms are accepted because `SATISFIES transfer_funds` is what a
+	# person writes for the common case, and forcing brackets round one
+	# name is the kind of ceremony that makes a format tiring.
+	def _IdListField(paFields, pcName)
+		_v_ = This._RawField(paFields, pcName)
+		_a_ = []
+		if len(_v_) = 0
+			return _a_
+		ok
+		if isList(_v_[2]) and strcmp(_v_[2][1], ":list") = 0
+			_aI_ = _v_[2][2]
+			_nI_ = len(_aI_)
+			for _i_ = 1 to _nI_
+				if isList(_aI_[_i_]) and strcmp(_aI_[_i_][1], ":id") = 0
+					_a_ + _aI_[_i_][2]
+				ok
+			next
+		but isList(_v_[2]) and strcmp(_v_[2][1], ":id") = 0
+			_a_ + _v_[2][2]
+		ok
+		return _a_
+
+	def _HasName(paList, pcItem)
+		_n_ = len(paList)
+		for _i_ = 1 to _n_
+			if paList[_i_] = pcItem
+				return TRUE
+			ok
+		next
+		return FALSE
+
 	def _Err(pcCode, pnLine, pcMsg)
 		@aDiags + [ :code = pcCode, :severity = "error", :message = pcMsg,
+			:line = pnLine, :cites = [], :language = "stzui" ]
+
+	# One colour field of one declaration. Split out because two fields
+	# ask the same question and a court that repeats itself drifts.
+	def _ColourWarn(pDecl, paFields, pcField)
+		_v_ = This._RawField(paFields, pcField)
+		if len(_v_) = 0
+			return
+		ok
+		_c_ = This._StrField(paFields, pcField, "")
+		if len(_c_) = 0 or _c_[1] != "#"
+			return
+		ok
+		This._Warn("LITERAL_COLOUR", pDecl[:line],
+			pDecl[:name] + " declares " + pcField + " " + _c_ +
+			", a colour that names no meaning. Accepted for now and " +
+			"refused at G6: a hex value carries no record of what it " +
+			"meant, so the meaning has to be guessed back later.")
+
+	# THE PLANE'S FIRST WARNING, and the distinction is the point. An
+	# error refuses to project; a warning records and lets the document
+	# through. The C2 envelope already carried `severity`, so this needed
+	# no new shape -- only the first thing worth saying that is not a
+	# refusal.
+	def _Warn(pcCode, pnLine, pcMsg)
+		@aDiags + [ :code = pcCode, :severity = "warning", :message = pcMsg,
 			:line = pnLine, :cites = [], :language = "stzui" ]

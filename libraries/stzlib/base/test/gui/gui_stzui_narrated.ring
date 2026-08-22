@@ -211,6 +211,92 @@ chk("the showcase round-trips to a fixpoint", oS2.ToText() = cS1)
 oSP.Free()
 
 ? ""
+? "-- Scene 12: the court's first WARNING, not an error --"
+# StzZui's finding 1. A hex literal is a meaning that escaped the
+# semantic layer, and this project has watched that happen once already:
+# Rule 118, Rule 3 and the graphics engine derived the same five semantic
+# values independently and drifted into three spellings. Warn now, refuse
+# at G6 -- so the corpus grows with a marked trail instead of a silent
+# one.
+oW = new stzUiDocument("showcase.stzui")
+nLit = 0
+aDg = oW.Diagnostics()
+nDg = len(aDg)
+for i = 1 to nDg
+	if aDg[i][:code] = "LITERAL_COLOUR"
+		nLit++
+	ok
+next
+? "  the showcase raises " + nLit + " literal-colour warnings"
+chk("the showcase raises them", nLit > 10)
+# THE POINT OF A WARNING: it does not refuse. A check that made every
+# existing document unclean would have been reverted within a day.
+chk("...and the document is STILL CLEAN", oW.IsClean())
+chk("...because a warning is not an error", len(oW.Errors()) = 0)
+chk("...and it still projects", len(oW.ToRml()) > 100)
+
+# The negative sibling: a document with no literal colour raises none.
+oNoLit = new stzUiDocument('
+DEFINE PANEL p ( SIZE [100, 80], FONT "app", CHILDREN [b] ) RATIONALE "No colour named here."
+DEFINE BOX b ( HEIGHT 20 ) RATIONALE "Nor here."
+')
+nLit2 = 0
+aDg = oNoLit.Diagnostics()
+nDg = len(aDg)
+for i = 1 to nDg
+	if aDg[i][:code] = "LITERAL_COLOUR"
+		nLit2++
+	ok
+next
+chk("a document naming no colour raises no warning", nLit2 = 0)
+
+? ""
+? "-- Scene 13: the intent slot, parsed and NOT resolved --"
+# StzZui's finding 2. The founding inversion says every UI element must
+# trace to at least one intent. The field exists NOW so a file written
+# today is complete when the binding lands, rather than needing a pass
+# over every declaration.
+#
+# The finding offered a cheaper answer -- put it beside Roles() -- and
+# looking showed it does not apply: Roles() is a closed ARIA vocabulary
+# whose own comment says a role is NOT a meaning.
+oI = new stzUiDocument('
+DEFINE PANEL form ( SIZE [400, 300], FONT "app", SATISFIES [ transfer_funds ], CHILDREN [ row, note ] ) RATIONALE "A transfer screen."
+DEFINE BOX row ( HEIGHT 40, SATISFIES confirm_amount ) RATIONALE "One name, no brackets."
+DEFINE TEXT note ( CONTENT "nothing claimed" ) RATIONALE "An orphan, by the inversion test."
+DEFINE STYLE quiet ( SIZE 12 ) RATIONALE "A style is not an element."
+')
+chk("a document declaring intents is clean", oI.IsClean())
+chk("a list of intents is read", len(oI.IntentsOf("form")) = 1)
+chk("...and a BARE name is read as a list of one",
+    len(oI.IntentsOf("row")) = 1 and oI.IntentsOf("row")[1] = "confirm_amount")
+chk("every intent named anywhere is collected", len(oI.SatisfiedIntents()) = 2)
+chk("an element claiming none is an ORPHAN", _Has(oI.Orphans(), "note"))
+chk("...and one that claims some is not", NOT _Has(oI.Orphans(), "form"))
+
+# A STYLE IS NOT AN ELEMENT, so it cannot be an orphan -- absent by
+# construction rather than by omission. One intent traced through a thing
+# that never appears on screen would be worse than no trace at all.
+chk("a STYLE is not counted as an orphan", NOT _Has(oI.Orphans(), "quiet"))
+chk("...and cannot declare the field at all",
+    NOT (new stzUiDocument('
+DEFINE PANEL p ( SIZE [10, 10], FONT "app", CHILDREN [s] ) RATIONALE "x"
+DEFINE BOX s ( STYLE bad ) RATIONALE "y"
+DEFINE STYLE bad ( SATISFIES anything ) RATIONALE "A style may not claim an intent."
+')).IsClean())
+
+chk("the slot survives the round-trip fixpoint",
+    oI.ToText() = (new stzUiDocument(oI.ToText())).ToText())
+
+# NOTHING IS RESOLVED, and that is deliberate: there is no .zui to
+# resolve against from here, and resolution stays StzZui's.
+chk("an intent nobody has defined is NOT an error",
+    (new stzUiDocument('
+DEFINE PANEL p ( SIZE [10, 10], FONT "app", SATISFIES no_such_flow, CHILDREN [b] ) RATIONALE "x"
+DEFINE BOX b ( HEIGHT 5 ) RATIONALE "y"
+')).IsClean())
+
+? ""
 ? "=============================================================="
 ? " " + nPass + " ok, " + nFail + " failed"
 ? "=============================================================="
@@ -255,3 +341,12 @@ func _FontPath
 		ok
 	next
 	return ""
+
+func _Has aList, cName
+	_n_ = len(aList)
+	for _i_ = 1 to _n_
+		if aList[_i_] = cName
+			return 1
+		ok
+	next
+	return 0
