@@ -557,6 +557,17 @@ pub fn coords(
     // pass, which has already opened exactly that much.
     familyAir(in_off, in_src, order, starts, sep, extra, x);
 
+    // ALIGNMENT IS THE LAST WORD, AND IT HAS TO ACTUALLY BE LAST. The
+    // snap above runs before tidyTerritories and familyAir, both of
+    // which MOVE nodes -- so every column the snap had made exact was
+    // left a few pixels off by a later pass. Measured on the shipped
+    // service diagram: a web tier sat 47px from the API it feeds and an
+    // API 79px from its database, which is precisely the near-miss band
+    // this library forbids elsewhere and had been quietly producing in
+    // its own default picture. Neither aligned nor clearly slanted is
+    // the one thing a reader cannot parse.
+    snapAlign(in_off, in_src, out_off, out_dst, order, starts, sep, extra, x);
+
     centerParents(in_off, out_off, out_dst, order, starts, sep, extra, x);
     return OK;
 }
