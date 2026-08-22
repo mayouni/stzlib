@@ -1,6 +1,6 @@
 # §6's TIER, SEEN: a real interface hanging in a 3D world.
 #
-#     .stzui  ->  stzPanel  ->  stzCanvas  ->  a GPU texture
+#     .panel  ->  stzPanel  ->  stzCanvas  ->  a GPU texture
 #                                                  |
 #     a camera  ->  a quad in a scene  <------------+
 #          |
@@ -21,9 +21,9 @@ ok
 decimals(2)
 
 func main
-	oU = new stzUiDocument("console.stzui")
+	oU = new stzUiDocument("console.panel")
 	if NOT oU.IsClean()
-		? "console.stzui did not pass the court:"
+		? "console.panel did not pass the court:"
 		? oU.Report()
 		return
 	ok
@@ -86,7 +86,7 @@ func main
 	# proven if what it produced ends up on the quad -- so the app does
 	# what an app does: it reacts, and the reaction is re-declared,
 	# re-laid-out and re-uploaded.
-	cSrc = read("console.stzui")
+	cSrc = read("console.panel")
 	cSrc = StzReplace(cSrc, "click me through the camera",
 		"FIRE acknowledged - ray hit panel pixel " + floor(aPt[1]) +
 		"," + floor(aPt[2]))

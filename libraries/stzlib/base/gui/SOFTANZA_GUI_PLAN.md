@@ -61,7 +61,7 @@ is that different product.
 | build definition (domains + `addXxx` helpers) | `engine/build.zig` |
 | Ring loaders for engine DLLs | `engine/stz_*.ring`, registered in `base/common/stzRingLibs.ring` |
 | Ring faces for this plane | `base/gui/` — `stzPanel`, `stzUiDocument`, `stzAccessibilityTree`, and `stzGui.ring` (a LOADER, never a class — §2.5) |
-| **the authored surface** | `.stzui`, §4b. Examples: `base/test/gui/showcase.stzui`, `gallery.stzui`, `form.stzui` |
+| **the authored surface** | `.panel`, §4b. Examples: `base/test/gui/showcase.panel`, `gallery.panel`, `form.panel` |
 | the engine half | `engine/src/stz_rmlui.cpp` (RmlUi behind a C ABI), `gui.zig`, `gui_font.zig`, `ring_bridge_gui.zig`, loader `engine/stz_gui.ring` |
 | guards | `base/test/gui/` — eight suites, 291 assertions |
 | scope-oriented moves (§7 runs M1–M5) | `base/doc/design/SCOPE_ORIENTED_PROGRAMMING.md` |
@@ -80,7 +80,7 @@ cd libraries/stzlib/base/test/gui && ring gui_panel_narrated.ring
 #   gui_input_narrated 38 · gui_accessibility_narrated 37
 
 # see it, rather than read about it
-ring gui_stzui_showcase.ring      # showcase.stzui, live (R reloads from disk)
+ring gui_stzui_showcase.ring      # showcase.panel, live (R reloads from disk)
 ring gui_form_window.ring         # an operable form: tab, arrows, enter
 ring gui_showcase_window.ring     # 1/2/3 layouts, T theme, S save
 #   any of them with `shot` renders a PNG + SVG instead of opening a window
@@ -379,7 +379,7 @@ same: **the court is blind there** — not that it is forbidden.
 
 ---
 
-## §4b · The authored surface: `.stzui` (v0.1, and it GREW)
+## §4b · The authored surface: `.panel` (v0.1, and it GREW)
 
 **Delivered with G1; extended by every phase since.** The grammar below
 is the shape as first shipped; three fields were added by later phases
@@ -393,12 +393,12 @@ person may write at all**. That gap is real: every other Softanza plane
 has one (`.stzgraf` for graphs, the material language for shaders, `.game`
 for scenes, `.zui` for intent), and a UI plane whose only authoring story
 is "call Ring methods" fails the family's own contracts-are-the-substrate
-doctrine. `.stzui` is that surface: **the file IS the contract, and RML/
+doctrine. `.panel` is that surface: **the file IS the contract, and RML/
 HTML are its projections.**
 
 ### Jurisdiction, stated before the grammar
 
-- `.stzui` declares the **projection**: boxes, sizes, directions, colours.
+- `.panel` declares the **projection**: boxes, sizes, directions, colours.
   It declares **no meanings** — there is no `:Danger` and there never may
   be. When the sense sheet lands (G6), colour fields learn to carry sense
   *references*; resolving them stays StzZui's.
@@ -438,7 +438,7 @@ survey of it produced one adoption, two deferrals and two refusals:
 ### The grammar, v0.1 — four kinds, closed
 
 ```
--- app.stzui -- one sentence saying what this interface is.
+-- app.panel -- one sentence saying what this interface is.
 
 DEFINE PANEL main (
   SIZE [1000, 640],
@@ -498,7 +498,7 @@ find. An author writes none of this:
 | `FOCUSABLE yes` | `tab-index: auto` **and** `nav: auto`. Both are opt-ins that read like defaults, and `nav-*` defaults to `none` — so arrows do nothing until set. The APG contract is one tab stop per composite with arrows *within*; half of it silently absent is the gap Rule 80 forbids |
 
 **A declared size means what it says** is the design decision that makes
-`.stzui` better to write than the CSS it compiles to.
+`.panel` better to write than the CSS it compiles to.
 
 ### The court, from birth
 
@@ -520,7 +520,7 @@ byte-identical, every emitter default asserted on the RML and then
 proven on a laid-out panel (`WIDTH 100` lays out as exactly 100;
 `HEIGHT fill` takes exactly the leftover; `WIDTH 100, PADDING 10`
 occupies 100, not 120). The G1 showcase screen exists as
-`base/test/gui/showcase.stzui` — 20 declarations, court-clean,
+`base/test/gui/showcase.panel` — 20 declarations, court-clean,
 round-trips, renders via `gui_stzui_showcase.ring` (window with
 press-R-to-reload, or `shot` → PNG + SVG). Two findings from contact:
 **RmlUi honors `box-sizing: border-box`** (registered in its property
@@ -784,7 +784,7 @@ neither:**
 ### G5 · The declarative surface
 
 > **HALF DELIVERED, AHEAD OF ITS TURN.** *Softanza declarations →
-> RML/RCSS* is what `.stzui` and its emitter already do (§4b), shipped
+> RML/RCSS* is what `.panel` and its emitter already do (§4b), shipped
 > with G1 because §4 had otherwise left nothing a person may write. What
 > REMAINS of G5 is the second clause: **the binding to the reactive
 > layer** — making a declared value change and the screen follow.
@@ -1317,7 +1317,7 @@ with the same bytes and the same baseline.
 
 The G1 bridge — walk `TextsToPaint()`, look up `BoxOf()`, guess a
 baseline, paint with a separate font — **is gone**, and with it the chance
-of painting a label somewhere the layout did not put it. The `.stzui`
+of painting a label somewhere the layout did not put it. The `.panel`
 showcase's paint function is now three lines: clear, background,
 `DrawInto`. `stzUiDocument.UseFont()` binds the face *before* `ToPanel()`
 loads the markup, because RmlUi measures during load: a font registered
@@ -1385,7 +1385,7 @@ first sits on the right of an Arabic screen. Guard
 `gui_rtl_narrated.ring`, **33 asserts green**, and the fix exists because
 a screenshot showed left-aligned Arabic while every assertion passed.
 
-`.stzui` gains **`TEXT_ALIGN`** (`start | center | end | justify`) on
+`.panel` gains **`TEXT_ALIGN`** (`start | center | end | justify`) on
 PANEL, BOX, TEXT and STYLE. `DirectionOf()`/`IsRtl()` answer before
 anything renders — they were a side effect of `ToRml` at first, which
 made them return `ltr` until something had been emitted.
@@ -1639,7 +1639,7 @@ wasted work in none.
 It is also the half where this plane is **better than a browser**, which
 is §5 of `GUI-SYSTEM.md`'s one genuinely optimistic finding: a browser
 *infers* an accessibility tree from markup; Softanza can **emit** one
-from declared intent, which is strictly better information. `.stzui`
+from declared intent, which is strictly better information. `.panel`
 already carries the seed — the commons' mandatory `RATIONALE` on every
 declaration is a sentence per region saying why it exists, which is
 precisely what a description field wants and what no HTML document has.
@@ -1663,7 +1663,7 @@ goes.
 ## What the format gave, without being asked
 
 The tree is `base/gui/stzAccessibilityTree.ring`, built from a
-`.stzui` document plus a laid-out panel. Three of its fields cost
+`.panel` document plus a laid-out panel. Three of its fields cost
 nothing because the format already carried them:
 
 | the node needs | the format already had |
@@ -1673,7 +1673,7 @@ nothing because the format already carried them:
 | **bounds** | the laid-out box, queryable since G1 |
 
 `ROLE` (closed vocabulary, 19 names all of which exist in ARIA and in
-AccessKit's 182-role schema) and `LABEL` were added to `.stzui`. **A role
+AccessKit's 182-role schema) and `LABEL` were added to `.panel`. **A role
 is not a meaning** and this plane still computes none — it decides no
 colour, no emphasis, no refusal, and there is still no `:Danger` here.
 It is the accessibility projection's own term, in the same family as
@@ -1760,7 +1760,7 @@ input 38, accessibility 37, scene 43 — **334 all green**. Graphics
 guards re-run because the engine changed: gg4_multipass, gg4_framegraph,
 gg5_material_language all green.
 
-`base/gui/stzScenePanel.ring`, `base/test/gui/console.stzui`,
+`base/gui/stzScenePanel.ring`, `base/test/gui/console.panel`,
 `base/test/gui/gui_scene_demo.ring` (four PNGs).
 
 ## It was deferred three times, and the deferral cost something
@@ -2061,7 +2061,7 @@ it says so.
 `ring gui_scene_window.ring` — drag orbits the camera, W/S move in and
 out, the pointer hovers the element under the ray, a click activates it
 *through* the camera, TAB walks the panel's own ring unchanged, R
-reloads `console.stzui` from disk through the court, ESC quits.
+reloads `console.panel` from disk through the court, ESC quits.
 
 Two loop-shape decisions worth keeping: a click is refused on the frame
 that ended a drag (letting go of an orbit is not a click on whatever the
@@ -2329,11 +2329,11 @@ Sweep: panel 50, adversarial 32, stzui 43, font 30, rtl 37, tier 24,
 input 38, accessibility 37, scene 62, a11y 27, binding 35 — **415 green**
 across eleven suites.
 
-New: `base/gui/stzUiBindings.ring`, `base/test/gui/bound.stzui`,
+New: `base/gui/stzUiBindings.ring`, `base/test/gui/bound.panel`,
 `base/test/gui/gui_binding_narrated.ring`. Changed: `stz_rmlui.cpp`,
 `gui.zig`, `ring_bridge_gui.zig`, `stzPanel.ring`, `stzGui.ring`.
 
-**G5's first clause shipped early, with G1** — `.stzui` already turned
+**G5's first clause shipped early, with G1** — `.panel` already turned
 declarations into RML and RCSS, because §4 forbade hand-writing markup
 and had left nothing a person may write. This is what remained.
 

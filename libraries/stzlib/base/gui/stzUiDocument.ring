@@ -1,5 +1,5 @@
 #---------------------------------------------------------------------------#
-#  STZUIDOCUMENT -- a .stzui file: the interface AS TEXT, parsed and judged. #
+#  STZUIDOCUMENT -- a .panel file: the interface AS TEXT, parsed and judged. #
 #---------------------------------------------------------------------------#
 #
 #     oU = new stzUiDocument(cTextOrPath)
@@ -9,7 +9,7 @@
 #     ? oU.ToRml()                       # the projection, inspectable
 #     ? oU.ToText()                      # the canonical print (round-trips)
 #
-# WHAT .stzui IS (SOFTANZA_GUI_PLAN.md §4b): the plane's AUTHORED surface.
+# WHAT .panel IS (SOFTANZA_GUI_PLAN.md §4b): the plane's AUTHORED surface.
 # §4 forbids hand-writing RML and StzZui forbids hand-writing meanings,
 # which left nothing a person may write. This file format is that thing:
 # the file is the CONTRACT, and RML (native) or HTML (web) are its
@@ -193,7 +193,7 @@ class stzUiDocument from stzObject
 	#-- the canonical print (round-trip fixpoint) ---------------------------
 
 	def ToText()
-		_c_ = "-- interface.stzui -- " + This._HeaderSentence() + char(10) + char(10)
+		_c_ = "-- interface.panel -- " + This._HeaderSentence() + char(10) + char(10)
 		_n_ = len(@aDecls)
 		for _i_ = 1 to _n_
 			_d_ = @aDecls[_i_]
@@ -407,7 +407,7 @@ class stzUiDocument from stzObject
 		# PADDING 20 means a 210-pixel region with padding inside it, the
 		# way every modern toolkit reads a size. CSS's content-box default
 		# would make the box 250 and nothing at the call site would say
-		# why -- the first .stzui screenshot had exactly that sidebar.
+		# why -- the first .panel screenshot had exactly that sidebar.
 		_c_ = "box-sizing: border-box; "
 
 		_cDir_ = This.DirectionOf(pDecl[:name])
@@ -663,7 +663,7 @@ class stzUiDocument from stzObject
 			if NOT This._IsTok(_aT_[_i_], "DEFINE")
 				This._Err("UNKNOWN_DECLARATION", _aT_[_i_][3],
 					"Expected DEFINE, got '" + _aT_[_i_][2] + "'. The verb " +
-					"set is closed -- a .stzui file declares and does nothing else.")
+					"set is closed -- a .panel file declares and does nothing else.")
 				return
 			ok
 			_i_++
@@ -865,7 +865,7 @@ class stzUiDocument from stzObject
 				loop
 			ok
 			This._Err("BAD_CHARACTER", _nLine_,
-				"Character '" + _ch_ + "' has no place in .stzui.")
+				"Character '" + _ch_ + "' has no place in .panel.")
 			return NULL
 		end
 		return _aT_
@@ -894,11 +894,11 @@ class stzUiDocument from stzObject
 			ok
 		next
 		if _nPanels_ = 0
-			This._Err("NO_PANEL", 0, "A .stzui file declares exactly one " +
+			This._Err("NO_PANEL", 0, "A .panel file declares exactly one " +
 				"PANEL; this one declares none.")
 		ok
 		if _nPanels_ > 1
-			This._Err("MANY_PANELS", 0, "A .stzui file declares exactly one " +
+			This._Err("MANY_PANELS", 0, "A .panel file declares exactly one " +
 				"PANEL; this one declares " + _nPanels_ + ".")
 		ok
 
@@ -1266,7 +1266,7 @@ class stzUiDocument from stzObject
 
 	def _Err(pcCode, pnLine, pcMsg)
 		@aDiags + [ :code = pcCode, :severity = "error", :message = pcMsg,
-			:line = pnLine, :cites = [], :language = "stzui" ]
+			:line = pnLine, :cites = [], :language = "panel" ]
 
 	# One colour field of one declaration. Split out because two fields
 	# ask the same question and a court that repeats itself drifts.
@@ -1292,4 +1292,4 @@ class stzUiDocument from stzObject
 	# refusal.
 	def _Warn(pcCode, pnLine, pcMsg)
 		@aDiags + [ :code = pcCode, :severity = "warning", :message = pcMsg,
-			:line = pnLine, :cites = [], :language = "stzui" ]
+			:line = pnLine, :cites = [], :language = "panel" ]

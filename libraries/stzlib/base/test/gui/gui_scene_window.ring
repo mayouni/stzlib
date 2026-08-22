@@ -1,6 +1,6 @@
 # §6 LIVE -- an interface hanging in a 3D world, in a real window.
 #
-#     console.stzui -> stzPanel -> stzCanvas -> a texture -> a quad
+#     console.panel -> stzPanel -> stzCanvas -> a texture -> a quad
 #                                                              |
 #     the mouse -> a ray through the camera -> a uv -> panel pixels
 #
@@ -14,7 +14,7 @@
 #     MOVE        hover -- the panel lights the element under the ray
 #     CLICK       activate it, THROUGH the camera
 #     TAB         focus the next stop (the panel's own ring, unchanged)
-#     R           reload console.stzui from disk, through the court
+#     R           reload console.panel from disk, through the court
 #     ESC         quit
 #
 # WHAT TO WATCH FOR, because it is the point: the console reacts to a
@@ -216,11 +216,11 @@ func Reacted oP, cEl, nX, nY, aPt
 	return oP2
 
 func BuildPanel cStatus
-	cSrc = read("console.stzui")
+	cSrc = read("console.panel")
 	cSrc = StzReplace(cSrc, "click me through the camera", cStatus)
 	oU = new stzUiDocument(cSrc)
 	if NOT oU.IsClean()
-		? "console.stzui did not pass the court:"
+		? "console.panel did not pass the court:"
 		? oU.Report()
 		return NULL
 	ok

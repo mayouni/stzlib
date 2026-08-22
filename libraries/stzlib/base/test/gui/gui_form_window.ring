@@ -1,6 +1,6 @@
 # G3 LIVE -- a form you can actually operate.
 #
-#     form.stzui  ->  stzUiDocument  ->  stzPanel  ->  stzCanvas  ->  window
+#     form.panel  ->  stzUiDocument  ->  stzPanel  ->  stzCanvas  ->  window
 #     mouse and keyboard  ->  panel pixels  ->  routed events  ->  drained
 #
 # The whole of G3 in one loop: the window reports raw input, FromWindow
@@ -37,9 +37,9 @@ func main
 		bShot = 1
 	ok
 
-	oU = new stzUiDocument("form.stzui")
+	oU = new stzUiDocument("form.panel")
 	if NOT oU.IsClean()
-		? "form.stzui did not pass the court:"
+		? "form.panel did not pass the court:"
 		? oU.Report()
 		return
 	ok
@@ -59,7 +59,7 @@ func main
 		return
 	ok
 
-	oWin = new stzWindow(oP.Width(), oP.Height(), "Softanza -- form.stzui, live")
+	oWin = new stzWindow(oP.Width(), oP.Height(), "Softanza -- form.panel, live")
 	if NOT oWin.CanDraw()
 		? "The window opened but cannot draw."
 		return

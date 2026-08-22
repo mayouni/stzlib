@@ -1,6 +1,6 @@
 # G5 LIVE -- a screen whose values move, and a screen that gets rebuilt.
 #
-#     bound.stzui   ->  stzUiDocument  ->  stzPanel  ->  a window
+#     bound.panel   ->  stzUiDocument  ->  stzPanel  ->  a window
 #                             |
 #     oB.Set(:bearing, ...)  ->  the element changes, the document lives
 #
@@ -42,7 +42,7 @@ func main
 		nBudget = 0 + sysargv[4]
 	ok
 
-	oU = new stzUiDocument("bound.stzui")
+	oU = new stzUiDocument("bound.panel")
 	if NOT oU.IsClean()
 		? oU.Report()
 		return
@@ -95,7 +95,7 @@ func main
 		# THE OLD WAY, on demand, so the two can be compared in one sitting.
 		if oWin.KeyPressed("R")
 			oP.Free()
-			oU = new stzUiDocument("bound.stzui")
+			oU = new stzUiDocument("bound.panel")
 			oU.UseFont(FontPath())
 			oP = oU.ToPanel()
 			oB = new stzUiBindings(oU, oP)

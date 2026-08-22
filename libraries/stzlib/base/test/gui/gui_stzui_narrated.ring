@@ -1,7 +1,7 @@
 # .STZUI -- THE AUTHORED SURFACE, JUDGED -- §4b of SOFTANZA_GUI_PLAN.md.
 #
 # The plane forbade hand-written RML (§4) and StzZui forbids hand-written
-# meanings, which left nothing a person may write. .stzui is that thing:
+# meanings, which left nothing a person may write. .panel is that thing:
 # the file is the CONTRACT, RML and HTML are its projections. It conforms
 # to the Grammar Commons (C6 v1.0) and records no divergence.
 #
@@ -13,7 +13,7 @@
 #   - the emitter's defaults absorb every divergence G1 paid to find --
 #     asserted on the EMITTED RML, then proven on a LAID-OUT panel
 #   - a declared size MEANS its number: the flexbox squeeze that cost the
-#     showcase two invisible bars cannot happen to a .stzui author
+#     showcase two invisible bars cannot happen to a .panel author
 #
 # Scenes 1-6 need no GPU and no layout engine beyond stz_gui.dll.
 
@@ -164,7 +164,7 @@ oP.Free()
 
 # THE BORDER-BOX LAW: an author who declares WIDTH 210 and PADDING 20
 # means a 210-pixel region with the padding INSIDE. CSS's content-box
-# default would silently make it 250 -- the first .stzui screenshot had
+# default would silently make it 250 -- the first .panel screenshot had
 # exactly that sidebar, which is why this is now emitted on every box.
 oBB = new stzUiDocument(
 	'DEFINE PANEL p ( FONT "app", CHILDREN [x] ) RATIONALE "x"' + char(10) +
@@ -177,8 +177,8 @@ oBP.Free()
 
 ? ""
 ? "-- Scene 7: the showcase file, from disk to geometry --"
-oS = new stzUiDocument("showcase.stzui")
-chk("showcase.stzui is clean", oS.IsClean())
+oS = new stzUiDocument("showcase.panel")
+chk("showcase.panel is clean", oS.IsClean())
 # the committed fixture, so this scene exercises the REAL text path on a
 # CI machine with no system font
 oS.UseFont("../gpu/fixtures/amiri_arabic_subset.ttf")
@@ -218,7 +218,7 @@ oSP.Free()
 # values independently and drifted into three spellings. Warn now, refuse
 # at G6 -- so the corpus grows with a marked trail instead of a silent
 # one.
-oW = new stzUiDocument("showcase.stzui")
+oW = new stzUiDocument("showcase.panel")
 nLit = 0
 aDg = oW.Diagnostics()
 nDg = len(aDg)

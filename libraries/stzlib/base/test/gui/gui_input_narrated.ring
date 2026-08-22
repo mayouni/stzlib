@@ -42,7 +42,7 @@ if NOT StzGuiAvailable()
 	return
 ok
 
-oU = new stzUiDocument("form.stzui")
+oU = new stzUiDocument("form.panel")
 chk("the form document is clean", oU.IsClean())
 oU.UseFont("../gpu/fixtures/amiri_arabic_subset.ttf")
 oP = oU.ToPanel()

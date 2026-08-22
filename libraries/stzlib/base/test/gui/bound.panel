@@ -1,4 +1,4 @@
--- bound.stzui -- the same console, with its live values DECLARED.
+-- bound.panel -- the same console, with its live values DECLARED.
 --
 -- A placeholder is an ordinary string with braces in it, which is the
 -- whole point: the Grammar Commons fixes what a field value may be, and

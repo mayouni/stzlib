@@ -1,4 +1,4 @@
--- console.stzui -- an interface meant to hang in a world, not in a window.
+-- console.panel -- an interface meant to hang in a world, not in a window.
 --
 -- Deliberately asymmetric, top to bottom and left to right: a title bar
 -- along the top, a wide readout, then two unequal buttons. If the quad's

@@ -39,7 +39,7 @@ if NOT StzGuiAvailable()
 	return
 ok
 
-oU = new stzUiDocument("form.stzui")
+oU = new stzUiDocument("form.panel")
 chk("the form document is clean", oU.IsClean())
 oU.UseFont("../gpu/fixtures/amiri_arabic_subset.ttf")
 oP = oU.ToPanel()
@@ -185,7 +185,7 @@ chk("a description with punctuation survives the quoting",
 # silently get nothing. A tree built on demand from data that already
 # exists has nothing to gate -- so the assertion is that building one
 # needs no setup at all, and that a fresh document yields the same tree.
-oFresh = new stzUiDocument("form.stzui")
+oFresh = new stzUiDocument("form.panel")
 oTFresh = new stzAccessibilityTree(oFresh, NULL)
 chk("a tree can be built with no panel, no font and no device",
     oTFresh.NodeCount() = oT.NodeCount())

@@ -1,6 +1,6 @@
-# A .stzui FILE, ON SCREEN -- §4b of SOFTANZA_GUI_PLAN.md.
+# A .panel FILE, ON SCREEN -- §4b of SOFTANZA_GUI_PLAN.md.
 #
-#     showcase.stzui  ->  stzUiDocument (parse + court)  ->  RML  ->
+#     showcase.panel  ->  stzUiDocument (parse + court)  ->  RML  ->
 #     stzPanel (layout)  ->  stzCanvas  ->  a window, or a PNG
 #
 # The point over gui_showcase_window.ring: THERE the markup was emitted by
@@ -28,9 +28,9 @@ func main
 		bShot = 1
 	ok
 
-	oU = new stzUiDocument("showcase.stzui")
+	oU = new stzUiDocument("showcase.panel")
 	if NOT oU.IsClean()
-		? "showcase.stzui did not pass the court:"
+		? "showcase.panel did not pass the court:"
 		? oU.Report()
 		return
 	ok
@@ -47,19 +47,19 @@ func main
 		Paint(oU, oP, oC, NULL)
 		oC.ToPNG("gui_stzui_showcase.png")
 		write("gui_stzui_showcase.svg", oC.ToSVG())
-		? "Wrote gui_stzui_showcase.png and .svg from showcase.stzui (" +
+		? "Wrote gui_stzui_showcase.png and .svg from showcase.panel (" +
 			oP.TriangleCount() + " triangles, " + len(oU.Declarations()) +
 			" declarations)."
 		oP.Free()
 		return
 	ok
 
-	oWin = new stzWindow(nW, nH, "Softanza -- showcase.stzui, live")
+	oWin = new stzWindow(nW, nH, "Softanza -- showcase.panel, live")
 	if NOT oWin.CanDraw()
 		? "The window opened but cannot draw."
 		return
 	ok
-	? "  R  re-read showcase.stzui from disk     ESC  quit"
+	? "  R  re-read showcase.panel from disk     ESC  quit"
 	? "  (edit the file in another window and press R -- the court runs first)"
 
 	nLastW = 0
@@ -74,7 +74,7 @@ func main
 		# THE point of a text format: the interface reloads from disk,
 		# through the court, without touching a line of Ring.
 		if oWin.KeyPressed("R")
-			oNew = new stzUiDocument("showcase.stzui")
+			oNew = new stzUiDocument("showcase.panel")
 			if oNew.IsClean()
 				# THE FONT COMES WITH THE DOCUMENT, and this line was
 				# missing. A reloaded document is a NEW document: it

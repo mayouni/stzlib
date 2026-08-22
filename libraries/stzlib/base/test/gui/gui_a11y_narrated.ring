@@ -74,7 +74,7 @@ Chk("asking twice is idempotent", StzScreenReaderAvailable())
 	consumer is what turns a format into an interface.
 */
 
-oU = new stzUiDocument("console.stzui")
+oU = new stzUiDocument("console.panel")
 Chk("the document is clean", oU.IsClean())
 oU.UseFont(FontPath())
 oP = oU.ToPanel()
