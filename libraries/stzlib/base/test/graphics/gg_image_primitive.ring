@@ -204,6 +204,112 @@ if StzGraphicsDevice()
 ok
 
 ? ""
+#---------------------------------------------------------------------------
+? ""
+? "-- 7. WHAT A RENDERER OWES THE FILE IT WRITES ---------------"
+#
+# Central re-encoded a 594 KB diagram to 103 KB and handed over the method.
+# Its picture was large because something upstream had been through a lossy
+# step and left 16,414 distinct colours in a drawing with about twelve:
+# PNG compresses RUNS, and noise destroys runs. Its remedy was to quantise.
+#
+# THIS PLANE'S ANSWER IS DIFFERENT, and the difference is the finding. There
+# is no lossy upstream here -- the encoder is handed the exact pixels the
+# renderer drew -- so quantising would INVENT loss to fix somebody else's
+# problem. What this renderer owes its file is EXACTNESS, and then not
+# spending bytes on defaults it can see are wrong. Two it could see:
+#
+#   the FILTER    every row was written with filter None, when PNG's whole
+#                 compression story is that a row is usually cheaper as a
+#                 difference from its neighbours
+#   the COLOUR TYPE   8-bit RGBA regardless of what was drawn, when a canvas
+#                 that drew line art KNOWS its colours and never has to
+#                 infer them the way an external optimiser does
+#
+# Both are lossless, so Central's rule 3 -- decode your own output back and
+# diff it -- becomes an ASSERTION here rather than a distribution.
+#---------------------------------------------------------------------------
+
+oEnc = new stzCanvas(600, 400)
+oEnc.SetBackgroundQ("#FFFFFF")
+oEnc.FillQ("#2255CC").StrokeQ("#000000", 2).AddRect(50, 50, 200, 120)
+oEnc.FillQ("#22AA55").StrokeQ("#000000", 2).AddRect(300, 200, 200, 120)
+oEnc.Flush()
+cFlat = oEnc.ToPNG("")
+aFlat = StzEnginePngLastStat()
+
+? "   flat art 600x400 : " + len(cFlat) + " bytes, " + aFlat[1] +
+  " colours, type " + aFlat[2]
+chk("a picture the renderer drew is INDEXED when it can be", aFlat[2] = 3)
+chk("...and the palette is the drawing's own, not a quantisation",
+    aFlat[1] > 0 and aFlat[1] <= 256)
+
+# RULE 3: DECODE YOUR OWN OUTPUT BACK. An encoder that is wrong is usually
+# wrong in a way that still opens in a viewer, so "it looks fine" proves
+# nothing. Lossless means the comparison is equality, not a distribution.
+aBack = StzEngineGpuImageDecode(cFlat)
+cSrc = oEnc.ToPixels()
+? "   decoded back : " + aBack[1] + "x" + aBack[2] + ", " + len(aBack[3]) + " bytes"
+chkeq("the file decodes to the size it claims", aBack[1] * aBack[2] * 4, len(cSrc))
+nDiff = 0
+for i48 = 1 to len(cSrc)
+	if aBack[3][i48] != cSrc[i48]  nDiff++  ok
+next
+? "   pixels that differ from what was drawn : " + nDiff
+chkeq("INDEXED IS EXACT -- every pixel keeps its own colour", nDiff, 0)
+
+# ...AND THE OTHER SIDE, which is where quantisation would have been the
+# mistake. A picture with more colours than a palette can hold keeps every
+# one of them: they are the DRAWING -- a gradient, a blend, an antialiased
+# edge -- and not damage to be undone.
+#
+# THE SCENE HAS TO EARN THAT. A first version drew a filled circle and
+# called it antialiased; it came back with FIVE colours and the assertion
+# passed for the wrong reason. The ramp below is 1,600 colours by
+# construction -- red = x*8, green = y*8 -- so the branch under test is
+# the one that actually runs.
+oAA = new stzCanvas(600, 400)
+oAA.SetBackgroundQ("#FFFFFF")
+oAA.AddImage(100, 50, 400, 300, 40, 40, _Ramp(40, 40))
+oAA.Flush()
+cAA = oAA.ToPNG("")
+aAA = StzEnginePngLastStat()
+? "   many-coloured 600x400 : " + len(cAA) + " bytes, " + aAA[1] +
+  " colours, type " + aAA[2]
+chkeq("a picture past 256 colours reports so", aAA[1], 257)
+chkeq("...and is NOT forced into a palette", aAA[2], 6)
+
+aBackAA = StzEngineGpuImageDecode(cAA)
+cSrcAA = oAA.ToPixels()
+nDiffAA = 0
+for i48 = 1 to len(cSrcAA)
+	if aBackAA[3][i48] != cSrcAA[i48]  nDiffAA++  ok
+next
+? "   pixels that differ : " + nDiffAA
+chkeq("...and RGBA with a Paeth pass is exact too", nDiffAA, 0)
+
+# THE FILTERS EARNED THEIR PASS ON ONE PATH AND NOT THE OTHER, and that
+# split is measured, not tasteful. Trying all five per row bought:
+#
+#   indexed, 1100x760 flat art   29,189 -> 7,607 bytes   4.6 -> 6.7 ms
+#   RGBA, the same size diagram  35,155 -> 31,111 bytes  4.7 -> 18.9 ms
+#
+# One byte per pixel over flat art is exactly what row differencing is for.
+# Four bytes per pixel with many colours is already near deflate's floor, so
+# the trials re-discover the same answer over 3.3 MB, five times. RGBA rows
+# take Paeth instead -- one pass, 31,506 bytes, 10.4 ms.
+nChose = aFlat[5] + aFlat[6] + aFlat[7] + aFlat[8]
+? "   indexed rows choosing a filter other than None : " + nChose +
+  " of " + (aFlat[4] + nChose)
+chk("indexed rows really do choose, per row", nChose > 0)
+chk("...and more than one filter wins somewhere in the picture",
+    (iif(aFlat[4] > 0, 1, 0) + iif(aFlat[5] > 0, 1, 0) + iif(aFlat[6] > 0, 1, 0) +
+     iif(aFlat[7] > 0, 1, 0) + iif(aFlat[8] > 0, 1, 0)) >= 2)
+? "   RGBA filters : none=" + aAA[4] + " sub=" + aAA[5] + " up=" + aAA[6] +
+  " avg=" + aAA[7] + " paeth=" + aAA[8]
+chkeq("the RGBA path spends ONE pass, not five", aAA[8], aAA[4] + aAA[5] +
+      aAA[6] + aAA[7] + aAA[8])
+
 ? "=============================================================="
 ? " " + nOk + " ok, " + nBad + " failed"
 ? "=============================================================="

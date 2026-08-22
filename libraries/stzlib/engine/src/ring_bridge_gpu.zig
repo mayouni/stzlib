@@ -913,6 +913,23 @@ fn ring_SceneSetView(p: *anyopaque) callconv(.c) void {
     rn(p, if (okv) 1 else 0);
 }
 
+// WHAT THE ENCODER SAW AND WHAT IT DECIDED -- prompt 29's third question,
+// "is there a fidelity report worth returning alongside the bytes". For a
+// LOSSLESS encoder the fidelity is not in question, so what is worth
+// returning is the DECISION: how many colours the picture actually held, the
+// colour type that bought, and which filters the rows chose. A caller who
+// knows can act; a caller who knows nothing cannot.
+//   -> [ colors, colorType, bytes, none, sub, up, avg, paeth ]
+fn ring_PngLastStat(p: *anyopaque) callconv(.c) void {
+    const st = render.pngLastStat();
+    const lst = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_list_adddouble(lst, @floatFromInt(st.colors));
+    R.ring_list_adddouble(lst, @floatFromInt(st.color_type));
+    R.ring_list_adddouble(lst, @floatFromInt(st.bytes));
+    for (st.filters) |f| R.ring_list_adddouble(lst, @floatFromInt(f));
+    R.ring_vm_api_retlist(p, lst);
+}
+
 fn ring_SceneToPng(p: *anyopaque) callconv(.c) void {
     const png = scene.sceneToPng(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2))) catch {
         R.ring_vm_api_retstring2(p, "", 0);
@@ -1622,6 +1639,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuscenestats", .func = &ring_SceneStats },
     .{ .name = "stzenginegpuscenetosvg", .func = &ring_SceneToSvg },
     .{ .name = "stzenginegpuscenetopng", .func = &ring_SceneToPng },
+    .{ .name = "stzenginepnglaststat", .func = &ring_PngLastStat },
     .{ .name = "stzenginegpuscenesetview", .func = &ring_SceneSetView },
     .{ .name = "stzenginegpuscenesetpicktag", .func = &ring_SceneSetPickTag },
     .{ .name = "stzenginegpuscenepick", .func = &ring_ScenePick },
