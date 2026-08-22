@@ -22,7 +22,7 @@
 # WHERE EVERY FIELD COMES FROM, and why the format already had them:
 #
 #   id           the declaration's NAME. Stable by construction, because
-#                a .stzui name is stable -- which is exactly the "stable
+#                a .panel name is stable -- which is exactly the "stable
 #                IDs" problem the survey lists as part of the hard half,
 #                solved by the format rather than by bookkeeping.
 #   role         the ROLE field, from a closed vocabulary every platform

@@ -1,4 +1,4 @@
--- showcase.stzui -- the G1 showcase screen, as the text it always wanted to be.
+-- showcase.panel -- the G1 showcase screen, as the text it always wanted to be.
 
 DEFINE PANEL screen (
   SIZE [1000, 640],
@@ -159,7 +159,7 @@ DEFINE BOX foot (
 ) RATIONALE "Status line; a fixed 30 pixels, never squeezed."
 
 DEFINE TEXT status (
-  CONTENT "declared in showcase.stzui -- the file is the contract",
+  CONTENT "declared in showcase.panel -- the file is the contract",
   SIZE 13,
   COLOR "#7c9cbf"
 ) RATIONALE "Says where this screen came from."

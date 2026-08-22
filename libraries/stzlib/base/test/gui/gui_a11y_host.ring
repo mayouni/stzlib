@@ -4,7 +4,7 @@
 #     ring gui_a11y_host.ring [seconds]
 #
 # It opens a window, attaches the bridge, announces the accessibility
-# tree from console.stzui, and then sits there pumping frames while it
+# tree from console.panel, and then sits there pumping frames while it
 # watches ONE number: how many times something has asked for the tree.
 #
 # WHY THIS SHAPE. In-process, the only evidence a bridge works is that we
@@ -39,7 +39,7 @@ func main
 		return
 	ok
 
-	oU = new stzUiDocument("console.stzui")
+	oU = new stzUiDocument("console.panel")
 	if NOT oU.IsClean()
 		? "UNCLEAN"
 		? oU.Report()

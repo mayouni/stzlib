@@ -3,7 +3,7 @@ load "../../stzBase.ring"
 /*
 	G5 -- THE BINDING. A declared value changes, and the screen follows.
 
-	The first clause of G5 shipped early, with G1: `.stzui` already turns
+	The first clause of G5 shipped early, with G1: `.panel` already turns
 	Softanza declarations into RML and RCSS, because §4 forbade
 	hand-writing markup and had left nothing a person may write. This is
 	what remained.
@@ -59,7 +59,7 @@ ok
 	one plane's convenience.
 */
 
-oU = new stzUiDocument("bound.stzui")
+oU = new stzUiDocument("bound.panel")
 if NOT oU.IsClean()
 	? oU.Report()
 ok
@@ -210,7 +210,7 @@ Chk("...and the panel is the same panel", oP.IsAlive())
 # THE NEGATIVE SIBLING, and it is the whole argument: do it the old way
 # and focus is gone. This is what stzScenePanel.Shows and the showcase
 # reload were doing.
-oU2 = new stzUiDocument("bound.stzui")
+oU2 = new stzUiDocument("bound.panel")
 oU2.UseFont(FontPath())
 oP2 = oU2.ToPanel()
 Chk("a REBUILT panel has no focus at all", oP2.Focused() = "")

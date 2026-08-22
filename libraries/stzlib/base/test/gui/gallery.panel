@@ -1,4 +1,4 @@
--- gallery.stzui -- one file exercising the shapes a real screen is made of.
+-- gallery.panel -- one file exercising the shapes a real screen is made of.
 
 DEFINE PANEL gallery (
   SIZE [960, 660],
@@ -165,6 +165,6 @@ DEFINE BOX foot (
 ) RATIONALE "A status strip that keeps its 34 pixels."
 
 DEFINE TEXT foot_text (
-  CONTENT "gallery.stzui -- rendered by the same display list on both tiers",
+  CONTENT "gallery.panel -- rendered by the same display list on both tiers",
   STYLE label
 ) RATIONALE "Says where the picture came from."
