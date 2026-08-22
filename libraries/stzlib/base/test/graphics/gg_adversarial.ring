@@ -4068,6 +4068,140 @@ chk("the shipped picture separates its cells",
     nAuTight >= floor(oAu.NodeSeparation() * 96))
 
 
+sec("-- 47. I7: SIBLINGS STAND ON EITHER SIDE OF THEIR PARENT -------")
+#
+# The Principal, on the picture section 46 had just certified: "when two
+# sibling cells have the same level they must be situated spatially left
+# and right. your current shape suggested they are not siblings and that
+# DB B is more tightly linked to API B since it has a vertical link."
+#
+# He is naming the cost of a coincidence. A vertical column is the
+# strongest statement this grammar has, and I6 already says who earns it
+# -- the child carrying the graph onward. A LEAF that happens to inherit
+# it says the same thing with no graph behind it, and its siblings, all
+# queued down one flank, read as afterthoughts of a relation they hold
+# equally.
+#
+# So the property is positional and checkable before any line is drawn:
+# a parent's column lies strictly INSIDE the span of its children. The
+# instrument is written over the render facts rather than over a scene,
+# so it audits any picture put in front of it; it is pointed at the
+# shipped one for the same reason section 46 is.
+#---------------------------------------------------------------------------
+
+# the shipped picture's own facts, re-read as a graph
+# (_I7Cx / _I7Cy / _I7Kids live with the other helpers at the foot of
+#  the file -- a func here would end the script)
+aI7R = oAu.RenderNodeRects()
+aI7P = oAu.RenderEdgePaths()
+
+nI7Flat = 0    # a parent at the EDGE of its children's span
+nI7Leaf = 0    # a leaf holding its parent's column
+nI7Fan  = 0    # same-rank siblings not reached to either side
+
+for i7 = 1 to len(aI7R)
+	cP7 = aI7R[i7][5]
+	aK7 = _I7Kids(aI7P, cP7)
+	if len(aK7) < 2  loop  ok
+	nPx7 = _I7Cx(aI7R, cP7)
+
+	# only the children sharing one rank are peers of each other
+	for r7 = 1 to len(aK7)
+		aSame = []
+		nRy = _I7Cy(aI7R, aK7[r7])
+		for s7 = 1 to len(aK7)
+			if fabs(_I7Cy(aI7R, aK7[s7]) - nRy) < 2  aSame + aK7[s7]  ok
+		next
+		if len(aSame) < 2  loop  ok
+
+		nLo7 = 1000000  nHi7 = -1000000
+		bSpine7 = 0
+		for s7 = 1 to len(aSame)
+			nCx7 = _I7Cx(aI7R, aSame[s7])
+			if nCx7 < nLo7  nLo7 = nCx7  ok
+			if nCx7 > nHi7  nHi7 = nCx7  ok
+			# a child ON the column that carries the graph onward is
+			# I6 speaking, and I6 outranks the straddle -- the emphasis
+			# is one the graph itself declares
+			if fabs(nCx7 - nPx7) <= 1 and len(_I7Kids(aI7P, aSame[s7])) > 0
+				bSpine7 = 1
+			ok
+		next
+
+		# ...and where no continuation claims it, a leaf may not
+		for s7 = 1 to len(aSame)
+			if fabs(_I7Cx(aI7R, aSame[s7]) - nPx7) > 1  loop  ok
+			if len(_I7Kids(aI7P, aSame[s7])) > 0  loop  ok
+			nI7Leaf++
+			? "   leaf holding its parent's column : " +
+			  cP7 + " > " + aSame[s7]
+		next
+
+		if bSpine7  loop  ok
+		if NOT (nPx7 > nLo7 + 1 and nPx7 < nHi7 - 1)
+			nI7Flat++
+			? "   parent not between its peers : " + cP7 +
+			  "  x=" + nPx7 + " span=[" + nLo7 + "," + nHi7 + "]"
+		ok
+	next
+next
+
+? "   parents standing at the edge of their peers' span : " + nI7Flat
+chkeq("every parent stands BETWEEN its same-rank children", nI7Flat, 0)
+? "   leaves wearing a continuation's column : " + nI7Leaf
+chkeq("no leaf claims the column a spine would earn", nI7Leaf, 0)
+
+# THE EDGE HALF OF THE SAME CLAIM (I5). Peers reached by one grammar:
+# one stem out of the source, one channel, and legs to EITHER side. A
+# picture that fans left and right states a pair; one that goes left
+# twice states a queue.
+for i7 = 1 to len(aI7R)
+	cP7 = aI7R[i7][5]
+	aK7 = _I7Kids(aI7P, cP7)
+	if len(aK7) < 2  loop  ok
+	nPx7 = _I7Cx(aI7R, cP7)
+	nLeft7 = 0  nRight7 = 0  bSp7 = 0
+	for s7 = 1 to len(aK7)
+		nCx7 = _I7Cx(aI7R, aK7[s7])
+		if nCx7 < nPx7 - 1  nLeft7++  ok
+		if nCx7 > nPx7 + 1  nRight7++  ok
+		if fabs(nCx7 - nPx7) <= 1 and len(_I7Kids(aI7P, aK7[s7])) > 0
+			bSp7 = 1
+		ok
+	next
+	if bSp7  loop  ok
+	if nLeft7 = 0 or nRight7 = 0
+		nI7Fan++
+		? "   children all on one flank of " + cP7 +
+		  " : " + nLeft7 + " left, " + nRight7 + " right"
+	ok
+next
+? "   sources whose children queue down one flank : " + nI7Fan
+chkeq("children fan to both sides of their source", nI7Fan, 0)
+
+# AND THE RULE IS THE ENGINE'S, NOT THIS PICTURE'S. The straddle is a
+# layout pass, so a graph shaped the same way anywhere gets the same
+# treatment -- here on a plain fan the demo never draws.
+oI7B = new stzDiagram("i7b")
+for a in [ [ "root","Root" ], [ "spine","Spine" ], [ "leafa","Leaf A" ],
+           [ "deep","Deep" ] ]
+	oI7B.AddNodeXTT(a[1], a[2], [ :type = "box" ])
+next
+oI7B.AddEdge("root","spine")  oI7B.AddEdge("root","leafa")
+oI7B.AddEdge("spine","deep")
+oI7B.SetSplines("ortho")
+oI7B.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36, :Width = 900, :Height = 500 ])
+aI7BR = oI7B.RenderNodeRects()
+nRt7 = _I7Cx(aI7BR, "root")
+nSp7 = _I7Cx(aI7BR, "spine")
+nLf7 = _I7Cx(aI7BR, "leafa")
+? "   root=" + nRt7 + "  spine=" + nSp7 + "  leaf=" + nLf7
+chk("a SPINE keeps the column its continuation earns",
+    fabs(nSp7 - nRt7) < 1)
+chk("...and the leaf sibling takes the other side",
+    fabs(nLf7 - nRt7) > 1)
+
+
 #---------------------------------------------------------------------------
 ? ""
 if nSecClock > 0
@@ -4103,6 +4237,27 @@ func chk cWhat, bCond
 
 func chkeq cWhat, xGot, xWant
 	chk(cWhat + "  [got " + xGot + ", want " + xWant + "]", xGot = xWant)
+
+# --- I7 instruments: a picture re-read as a graph -------------------
+func _I7Cx aR, cId
+	for _i7_ = 1 to len(aR)
+		if aR[_i7_][5] = cId  return aR[_i7_][1] + aR[_i7_][3] / 2  ok
+	next
+	return -1
+
+func _I7Cy aR, cId
+	for _i7_ = 1 to len(aR)
+		if aR[_i7_][5] = cId  return aR[_i7_][2] + aR[_i7_][4] / 2  ok
+	next
+	return -1
+
+func _I7Kids aP, cSrc
+	_k7_ = []
+	for _i7_ = 1 to len(aP)
+		_e7_ = StzSplit(aP[_i7_][1], ">")
+		if _e7_[1] = cSrc  _k7_ + _e7_[2]  ok
+	next
+	return _k7_
 
 func _Solid nW, nH, r, g, b, a
 	_sc_ = ""
