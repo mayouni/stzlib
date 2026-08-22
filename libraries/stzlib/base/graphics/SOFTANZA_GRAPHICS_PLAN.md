@@ -1787,3 +1787,103 @@ here, before anything depends on the other answer.
 `gpu_text_narrated.ring` asserted `len(aLat) = 3` on the layout's shape
 and correctly failed when the list grew to 7. It was a shape pin doing its
 job. Updated with the reason written beside it.
+
+---
+
+# What a renderer owes the file it writes
+
+*Settled 2026-08-22, from evidence Central handed over: it re-encoded a 594 KB
+diagram to 103 KB, 5.8× smaller and visibly identical, and passed on the method
+rather than a design.*
+
+## The finding it came with, and why this plane's answer differs
+
+Central's picture was large because of **noise**. Its most common colours by
+area were `(255,255,255)`, `(254,254,254)`, `(254,255,255)`, and so on —
+**16,414 distinct colours in a drawing with about twelve**. Something upstream
+had been through a lossy step. **PNG compresses runs, and noise destroys runs.**
+Its remedy was to quantise: build a palette from the dominant colours by area,
+and report fidelity as a distribution.
+
+**This plane has no lossy upstream.** The encoder is handed the exact pixels the
+renderer drew. Quantising here would *invent* loss to fix somebody else's
+problem — it would be the library damaging its own output.
+
+So the answer to the question in the title is two words and then a measurement:
+**exactness, then economy.** A renderer owes its file every pixel it drew, and
+after that it owes not spending bytes on defaults it is in a position to know
+are wrong. Two were wrong.
+
+## What was wrong, and what each was worth
+
+`pngEncode` wrote **filter None on every row** and **colour type 6, 8-bit RGBA,
+regardless of what was drawn**.
+
+| picture | before | after | encode |
+|---|---:|---:|---|
+| 1100×760, 40 rects, 5 colours | 29,189 B | **7,607 B** | 4.6 → 4.9 ms |
+| 600×400, 2 rects, 5 colours | 8,145 B | **2,033 B** | — |
+| 1100×760 service diagram, 257+ colours | 35,155 B | **31,506 B** | 4.7 → 10.4 ms |
+
+Both changes are **lossless**. Indexed colour here is not quantisation: where a
+picture holds 256 distinct RGBA values or fewer, every pixel keeps *its own*
+colour and the file carries one byte per pixel instead of four. Where it holds
+more, the encoder says so and stays RGBA.
+
+## The decision that had to be measured, not chosen
+
+Trying all five filters per row is standard advice. It is **wrong on one of the
+two paths here**, and only a measurement says which:
+
+| path | all five filters | one filter |
+|---|---|---|
+| indexed, 1100×760 | 7,607 B, 6.7 ms | — |
+| RGBA, 1100×760 | 31,111 B, **18.9 ms** | 31,506 B, **10.4 ms** |
+
+Trying five bought **11.5% of the bytes for four times the encode**. One byte
+per pixel over flat art is exactly what row differencing is for; four bytes per
+pixel with many colours is already near deflate's floor, so the trials
+re-discover the same answer over 3.3 MB, five times. **Indexed rows choose;
+RGBA rows take Paeth.**
+
+*A separate 4× came from the first implementation writing each candidate row to
+a buffer and then summing it — two passes per filter, eleven per row. Fusing the
+cost pass took the RGBA path from 48.1 ms to 18.9 ms with identical bytes. That
+is a general trap: a per-row "try each option" loop that materialises each
+option is doing twice the work it looks like.*
+
+## The third question: is a fidelity report worth returning?
+
+For a lossy encoder, yes, and Central's rule — *report fidelity as a
+distribution, never as a maximum* — is right, because the worst single pixel in
+its re-encode moved 101/255 while 99.75% moved by 8 or less.
+
+**For a lossless encoder the fidelity is not in question, so what is worth
+returning is the DECISION.** `StzEnginePngLastStat()` answers
+`[ colors, colorType, bytes, none, sub, up, avg, paeth ]` — how many distinct
+colours the picture actually held (or 257, meaning more than a palette can
+carry), the colour type that bought, and the filter profile. A caller who knows
+can act; a caller who knows nothing cannot.
+
+**Central's rule 3 — decode your own output back and diff it — survives whole,
+and becomes stronger.** Against a lossless encoder it is an assertion, not a
+distribution: §7 of `gg_image_primitive.ring` re-decodes both paths through
+stb_image and demands **byte-for-byte equality** with what was drawn. An encoder
+that is wrong is usually wrong in a way that still opens in a viewer, so
+"it looks fine" proves nothing.
+
+## What is not done, and is not hidden
+
+- **No format choice from content.** The prompt asks whether line art, a
+  photograph and a gradient want different *formats*. They do, but the plane
+  has no JPEG or WebP encoder, so the only honest choice available today is
+  *within* PNG, and that is what was made.
+- **No quantisation, deliberately, and it is a refusal rather than an omission.**
+  If a future caller hands this plane pixels it did not draw — a decoded photo,
+  a screenshot — the argument above stops applying and Central's method becomes
+  the right one. That caller does not exist yet.
+- **The antialiased case was nearly asserted by coincidence.** The first version
+  of the guard drew a filled circle, called it antialiased, and got **five
+  colours** back; the assertion passed for the wrong reason. It uses a 1,600
+  colour ramp now. Worth recording because the scene, not the assertion, was
+  the defect.
