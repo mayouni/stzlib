@@ -90,5 +90,11 @@ func CacheFunc(cFunc, aParams, pResult, nSeconds)
 
 	TextFileAddLine("stzCacheFunc.ring", cCacheLine + NL)
 
-func stzTimeStamp()
-	return date() + " " + time()
+# stzTimeStamp() used to be defined HERE, and this file loads ../stzlib.ring
+# at line 1 -- which already provides StzTimeStamp() from base/datetime/
+# stzDate.ring. Ring identifiers are case-insensitive, so the two collided
+# and the file died with Error (C22) at load time, before its first line.
+#
+# The canonical one is also better: it honours $cStzFrozenDate and
+# $cStzFrozenTime, so a profiler run under a frozen clock in a test now
+# reports the frozen time instead of the wall clock.

@@ -214,8 +214,8 @@
 	def ItemsThatAre_Numbers_SextupleOf(n)
 		def AllItemsAre_Numbers_SextupleOf(n)	def ContainsOnly_Numbers_SextupleOf(n)
 		def SomeItemsAre_Numbers_SextupleOf(n)	def ContainsSome_Numbers_SextupleOf(n)
-		def NoItemsAre_Numbers_QuintupleOf(n)	def ContainsNo_Numbers_QuintupleOf(n)
-	def ExcludeItemsThatAre_Numbers_QuintupleOf(n)
+		def NoItemsAre_Numbers_SextupleOf(n)	def ContainsNo_Numbers_SextupleOf(n)
+	def ExcludeItemsThatAre_Numbers_SextupleOf(n)
 
 	def ItemsThatAre_Numbers_OctupleOf(n)
 		def AllItemsAre_Numbers_OctupleOf(n)	def ContainsOnly_Numbers_OctupleOf(n)
@@ -232,7 +232,7 @@
 	def ItemsThatAre_Numbers_DecupleOf(n)
 		def AllItemsAre_Numbers_DecupleOf(n)	def ContainsOnly_Numbers_DecupleOf(n)
 		def SomeItemsAre_Numbers_DecupleOf(n)	def ContainsSome_Numbers_DecupleOf(n)
-		def NoItemsAre_Numbers_DecupleOf(n)	def ContainsNo_Numbers_NonupleOf(n)
+		def NoItemsAre_Numbers_DecupleOf(n)	def ContainsNo_Numbers_DecupleOf(n)
 	def ExcludeItemsThatAre_Numbers_DecupleOf(n)
 
 	def ItemsThatAre_NaturalNumbers()
@@ -1068,11 +1068,10 @@
 		def NoItemsAre_StzGridsHaving_SameCentralRegion()	def ContainsNo_StzGridsHaving_SameCentralRegion()
 	def ExcludeItemsThatAre_StzGridsHaving_SameCentralRegion()
 
-	def ItemsThatAre_StzGridsHaving_SameCenter()
-		def AllItemsAre_StzGridsHaving_SameCenter()	def ContainsOnly_StzGridsHaving_SameCenter()
-		def SomeItemsAre_StzGridsHaving_SameCenter()	def ContainsSome_StzGridsHaving_SameCenter()
-		def NoItemsAre_StzGridsHaving_SameCenter()	def ContainsNo_StzGridsHaving_SameCenter()
-	def ExcludeItemsThatAre_StzGridsHaving_SameCenter()
+	# NOTE: the SameCenter block was declared TWICE in this file -- verbatim,
+	# here and above after SameContent. Ring rejects a duplicate name with
+	# Error (C22) at LOAD time, so the file could not be loaded at all. The
+	# earlier declaration is kept; this copy is removed.
 
 	def ItemsThatAre_StzGridsHaving_SamePositionOfCentralNode()
 		def AllItemsAre_StzGridsHaving_SamePositionOfCentralNode()	def ContainsOnly_StzGridsHaving_SamePositionOfCentralNode()
