@@ -1,0 +1,29 @@
+{
+	"version": "0.0.1",
+	"configurations": [
+		{
+			"name": "sound-webaudio",
+			"runtimeExecutable": "python",
+			"runtimeArgs": [
+				"-m",
+				"http.server",
+				"8777",
+				"--directory",
+				"libraries/stzlib/base/test/sound/webaudio"
+			],
+			"port": 8777
+		},
+		{
+			"name": "gui-fixture",
+			"runtimeExecutable": "python",
+			"runtimeArgs": [
+				"-m",
+				"http.server",
+				"8778",
+				"--directory",
+				"libraries/stzlib/base/test/gui"
+			],
+			"port": 8778
+		}
+	]
+}

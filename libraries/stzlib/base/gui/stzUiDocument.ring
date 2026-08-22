@@ -285,6 +285,248 @@ class stzUiDocument from stzObject
 		return "<rml><head><style>" + char(10) + _cCss_ +
 			"</style></head><body>" + _cBody_ + "</body></rml>"
 
+	#-- the WEB projection, and the fixture that compares the two --------
+	#
+	# §3 says the profile is the contract and RmlUi is ONE conforming
+	# implementation -- "a browser is another. Fixtures render the same
+	# document both ways and compare on stated observables." It also said
+	# G0 would begin the fixture. It did not, and this is the debt.
+	#
+	# THIS SHARES EVERY RULE WITH ToRml. The two projections differ only
+	# where stzUiProfile records a DIVERGENCE, and they ask the profile
+	# for the spelling rather than carrying their own copy -- which is
+	# the whole reason the profile had to become data. If the shared half
+	# ever forks, the fixture below is what says so.
+
+	def ToHtml()
+		if NOT This.IsClean()
+			StzRaise("stzUiDocument.ToHtml: the document is not clean -- " +
+				"ask Report() why. Refusing to project a broken contract.")
+		ok
+		_dP_ = This.PanelDecl()
+		_aPF_ = _dP_[:fields]
+		_aSz_ = This._RawField(_aPF_, "SIZE")
+		_nW_ = 800
+		_nH_ = 600
+		if len(_aSz_) > 0 and isList(_aSz_[2]) and strcmp(_aSz_[2][1], ":list") = 0
+			_aI_ = _aSz_[2][2]
+			if len(_aI_) = 2
+				_nW_ = _aI_[1]
+				_nH_ = _aI_[2]
+			ok
+		ok
+
+		_cFont_ = This._StrField(_aPF_, "FONT", "default")
+		_cRootDir_ = This.DirectionOf(_dP_[:name])
+
+		# THE ROOT IS SIZED IN PIXELS HERE, not 100%. RmlUi's context IS
+		# the panel, so `width: 100%` means the panel; a browser's body
+		# is a viewport that has nothing to do with the declared SIZE.
+		# Pinning it is what makes the two comparable at all -- and it is
+		# a difference of HOST, not of profile, which is why it lives in
+		# the projection rather than in the divergence table.
+		_cCss_ = "html, body { margin: 0; padding: 0; }" + char(10)
+		_cCss_ += "body { box-sizing: border-box; display: flex; flex-direction: " +
+			This._FlexFlow(This._IdField(_aPF_, "DIRECTION", "column"), _cRootDir_) +
+			"; width: " + _nW_ + "px; height: " + _nH_ + "px; font-family: " +
+			_cFont_ + ", sans-serif; font-size: 14px; " +
+			StzUiProfileSpelling("direction", :web) + ": " + _cRootDir_ +
+			"; text-align: " +
+			This._ResolveAlign(This._IdField(_aPF_, "TEXT_ALIGN", "start"), _cRootDir_) + ";" +
+			This._CssCommon(_aPF_, TRUE) + " }" + char(10)
+
+		_n_ = len(@aDecls)
+		for _i_ = 1 to _n_
+			_d_ = @aDecls[_i_]
+			if strcmp(_d_[:kind], "BOX") = 0 or strcmp(_d_[:kind], "TEXT") = 0
+				_cCss_ += "#" + _d_[:name] + " { " +
+					This._WebCssOf(_d_) + " }" + char(10)
+			ok
+		next
+
+		return "<!doctype html>" + char(10) +
+			"<html><head><meta charset=" + char(34) + "utf-8" + char(34) +
+			"><style>" + char(10) + _cCss_ + "</style></head><body>" +
+			This._MarkupOf(_dP_) + "</body></html>"
+
+	# The same rule as _CssOf, translated through the profile. Written as
+	# a translation rather than a second emitter, so a rule added to one
+	# tier cannot silently miss the other.
+	def _WebCssOf(pDecl)
+		_c_ = This._CssOf(pDecl)
+		_aD_ = StzUiProfileDivergences()
+		_n_ = len(_aD_)
+		for _i_ = 1 to _n_
+			_cNative_ = _aD_[_i_][2]
+			_cWeb_ = _aD_[_i_][3]
+			if _cNative_ = ""
+				loop
+			ok
+			if _cWeb_ = ""
+				# the web tier does not carry it at all: drop the whole
+				# declaration rather than emit a property no browser knows
+				_c_ = This._DropDecl(_c_, _cNative_)
+			but _cWeb_ != _cNative_
+				_c_ = StzReplace(_c_, _cNative_ + ":", _cWeb_ + ":")
+			ok
+		next
+		return _c_
+
+	# Remove `name: value;` from a rule body, leaving the rest intact.
+	def _DropDecl(pcRule, pcName)
+		_a_ = StzSplit("" + pcRule, ";")
+		_c_ = ""
+		_n_ = len(_a_)
+		for _i_ = 1 to _n_
+			_cPart_ = ring_trim(_a_[_i_])
+			if len(_cPart_) = 0
+				loop
+			ok
+			if len(StzFindCS(pcName + ":", _cPart_, TRUE)) > 0
+				loop
+			ok
+			_c_ += _cPart_ + "; "
+		next
+		return _c_
+
+	#-- THE FIXTURE: one document, two renderings, compared --------------
+	#
+	# A SELF-CHECKING PAGE. It carries the web projection AND the boxes
+	# the native engine produced, and compares them in the browser --
+	# so the verdict is visible to anyone who opens the file, and needs
+	# no harness to read it.
+	#
+	# That shape was chosen for a reason this project keeps relearning:
+	# a fixture only a CI job can run is a fixture nobody looks at, and
+	# every visual defect in this plane was found by a person looking.
+	#
+	# paNativeBoxes is [ [ name, x, y, w, h ], ... ] from the laid-out
+	# panel -- BoxOf() for every named element.
+	def ToFixture(paNativeBoxes)
+		_cHtml_ = This.ToHtml()
+		_cJson_ = "["
+		_n_ = len(paNativeBoxes)
+		for _i_ = 1 to _n_
+			_b_ = paNativeBoxes[_i_]
+			if _i_ > 1
+				_cJson_ += ","
+			ok
+			_cJson_ += '{"name":"' + _b_[1] + '","x":' + _b_[2] +
+				',"y":' + _b_[3] + ',"w":' + _b_[4] + ',"h":' + _b_[5] +
+				',"sw":' + This._JsBool(This.IsStrictWidth(_b_[1])) +
+				',"sh":' + This._JsBool(This.IsStrictHeight(_b_[1])) +
+				',"sp":' + This._JsBool(This.IsStrictlyPlaced(_b_[1])) + "}"
+		next
+		_cJson_ += "]"
+
+		_cScript_ = "<script>" + char(10) +
+		"var NATIVE = " + _cJson_ + ";" + char(10) +
+		"var TOL = " + StzUiProfileTolerance() + ";" + char(10) +
+		"var rows = [], bad = 0, soft = 0;" + char(10) +
+		"for (var i = 0; i < NATIVE.length; i++) {" + char(10) +
+		"  var n = NATIVE[i], el = document.getElementById(n.name);" + char(10) +
+		"  if (!el) { rows.push([n.name, 'MISSING', '', '']); bad++; continue; }" + char(10) +
+		"  var r = el.getBoundingClientRect();" + char(10) +
+		"  var d = [Math.abs(r.left - n.x), Math.abs(r.top - n.y)," + char(10) +
+		"           Math.abs(r.width - n.w), Math.abs(r.height - n.h)];" + char(10) +
+		# EACH AXIS AGAINST ITS OWN CLAIM. A sidebar declaring WIDTH 210
+		# and no HEIGHT makes a claim about one axis; holding it to the
+		# other would be inventing a claim it never made. Only a claimed
+		# axis can FAIL -- an auto one is measured by whichever shaper
+		# the tier uses, and two shapers disagreeing is not a profile
+		# failure. It is counted separately so it stays visible without
+		# crying wolf, which is the fate of every check that fails on
+		# something nobody can fix.
+		"  var claimed = [n.sp, n.sp, n.sw, n.sh];" + char(10) +
+		"  var worst = 0, worstClaimed = 0;" + char(10) +
+		"  for (var k = 0; k < 4; k++) {" + char(10) +
+		"    if (d[k] > worst) worst = d[k];" + char(10) +
+		"    if (claimed[k] && d[k] > worstClaimed) worstClaimed = d[k];" + char(10) +
+		"  }" + char(10) +
+		"  if (worstClaimed > TOL) bad++;" + char(10) +
+		"  else if (worst > TOL) soft++;" + char(10) +
+		"  rows.push([n.name + (n.sw && n.sh && n.sp ? '' : ' (auto)')," + char(10) +
+		"    n.x + ',' + n.y + ' ' + n.w + 'x' + n.h," + char(10) +
+		"    Math.round(r.left) + ',' + Math.round(r.top) + ' ' +" + char(10) +
+		"      Math.round(r.width) + 'x' + Math.round(r.height)," + char(10) +
+		"    worst.toFixed(2), worstClaimed.toFixed(2)]);" + char(10) +
+		"}" + char(10) +
+		"window.STZ_FIXTURE = { total: NATIVE.length, disagreeing: bad," + char(10) +
+		"  softDiffering: soft, tolerance: TOL, rows: rows };" + char(10) +
+		"var v = document.createElement('div');" + char(10) +
+		"v.id = 'stz-verdict';" + char(10) +
+		"v.setAttribute('data-disagreeing', String(bad));" + char(10) +
+		# ONE LINE, because this is a JS STRING LITERAL and a newline
+		# inside one is a syntax error -- which is exactly what the first
+		# fixture did, and the page reported "no fixture object" rather
+		# than a layout disagreement. A generator that emits code has to
+		# know which of its newlines are cosmetic.
+		"v.style.cssText = 'position:fixed;left:0;bottom:0;right:0;z-index:99;font:12px monospace;padding:6px;background:' + (bad ? '#7a1f1f' : '#1f5a2a') + ';color:#fff';" + char(10) +
+		"v.textContent = (bad ? 'DISAGREE on ' + bad + ' declared boxes' :" + char(10) +
+		"  'AGREE on every declared box') + ' of ' + NATIVE.length +" + char(10) +
+		"  ' (tolerance ' + TOL + 'px); ' + soft + ' auto-width boxes differ, " +
+		"which is two shapers, not the profile';" + char(10) +
+		"document.body.appendChild(v);" + char(10) +
+		"</script>"
+
+		return StzReplace(_cHtml_, "</body>", _cScript_ + "</body>")
+
+	# Is this element's geometry DECLARED, rather than measured from its
+	# text? Only a declared one is a strict observable -- see
+	# StzUiProfileIsStrictBox.
+	def IsStrictWidth(pcName)
+		_d_ = This.DeclOf(pcName)
+		if len(_d_) = 0
+			return FALSE
+		ok
+		return StzUiProfileIsStrictWidth(
+			len(This._RawField(This._EffectiveFields(_d_), "WIDTH")) > 0)
+
+	def IsStrictHeight(pcName)
+		_d_ = This.DeclOf(pcName)
+		if len(_d_) = 0
+			return FALSE
+		ok
+		return StzUiProfileIsStrictHeight(
+			len(This._RawField(This._EffectiveFields(_d_), "HEIGHT")) > 0)
+
+	# A box sits where its predecessors left it, so its POSITION is only
+	# claimed when it and every earlier sibling fix their own size.
+	def IsStrictlyPlaced(pcName)
+		_cP_ = This._ParentOf(pcName)
+		if _cP_ = ""
+			return This.IsStrictWidth(pcName) and This.IsStrictHeight(pcName)
+		ok
+		_aSibs_ = This._ChildrenOf(This.DeclOf(_cP_))
+		_bEarlier_ = TRUE
+		_n_ = len(_aSibs_)
+		for _i_ = 1 to _n_
+			if _aSibs_[_i_] = "" + pcName
+				exit
+			ok
+			if NOT (This.IsStrictWidth(_aSibs_[_i_]) and This.IsStrictHeight(_aSibs_[_i_]))
+				_bEarlier_ = FALSE
+			ok
+		next
+		return StzUiProfileIsStrictPosition(
+			This.IsStrictWidth(pcName) and This.IsStrictHeight(pcName),
+			_bEarlier_)
+
+	def _ParentOf(pcName)
+		_n_ = len(@aDecls)
+		for _i_ = 1 to _n_
+			if This._HasName(This._ChildrenOf(@aDecls[_i_]), "" + pcName)
+				return @aDecls[_i_][:name]
+			ok
+		next
+		return ""
+
+	def _JsBool(pb)
+		if pb
+			return "true"
+		ok
+		return "false"
+
 	def _MarkupOf(pDecl)
 		_c_ = ""
 		_aKids_ = This._ChildrenOf(pDecl)

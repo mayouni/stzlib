@@ -1137,10 +1137,30 @@ STZ_API int stz_gui_element_box(long long id, const char* elem_id, float* out4)
 		if (!c || !c->doc || !elem_id || !out4) return 2;
 		Rml::Element* e = c->doc->GetElementById(elem_id);
 		if (!e) return 4;
-		out4[0] = e->GetAbsoluteOffset().x;
-		out4[1] = e->GetAbsoluteOffset().y;
-		out4[2] = e->GetBox().GetSize().x;
-		out4[3] = e->GetBox().GetSize().y;
+		// THE BORDER BOX, NOT THE CONTENT BOX, and the browser fixture is
+		// what caught it. RmlUi defaults both of these to the CONTENT
+		// area, so a declaration reading `WIDTH 210, PADDING 20`
+		// answered 170 -- while the emitter sets `box-sizing:
+		// border-box` and this plane's stated law is that a declared
+		// size is the TOTAL. The showcase's own rationale says it in as
+		// many words: "210 means 210, whatever the window does."
+		//
+		// It stayed invisible for four phases because every consumer was
+		// SELF-CONSISTENT: hit-testing uses RmlUi's own routing, and a
+		// guard comparing BoxOf against BoxOf agrees with itself. It
+		// took a SECOND implementation -- a browser, whose
+		// getBoundingClientRect is the border box -- to have anything to
+		// disagree with. That is the whole argument of §3.
+		//
+		// The consequence outside the fixture is the accessibility
+		// bounds: a magnifier or a touch-exploration gesture was being
+		// sent to a rectangle inset by the padding on every side.
+		const Rml::Vector2f off = e->GetAbsoluteOffset(Rml::BoxArea::Border);
+		const Rml::Vector2f size = e->GetBox().GetSize(Rml::BoxArea::Border);
+		out4[0] = off.x;
+		out4[1] = off.y;
+		out4[2] = size.x;
+		out4[3] = size.y;
 		return 0;
 	}
 	catch (...)
