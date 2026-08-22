@@ -3791,6 +3791,112 @@ chkeq("...and releasing it writes nothing", len(oSs.EditLog()), nLog)
 
 #---------------------------------------------------------------------------
 ? ""
+sec("-- 45. A PIN OBEYS THE CONTRACT IT SITS INSIDE ----------------")
+#
+# This is the assertion the first pin design lacked, and lacking it cost
+# a whole session's laws in one picture.
+#
+# Pins were built as an OVERRIDE: the author's position restored after
+# every pass, so no pass could argue with it. Every pin was honoured
+# exactly -- measured, to the decimal -- and the picture broke every
+# rule this plane has. A pinned cell escaped the minimum separation and
+# sat touching its neighbour; it escaped the family air, so grouping
+# vanished; it escaped centring, so the parent leaned; and it escaped
+# the order the crossing sweep had settled, so the edges tangled into
+# shapes no rule in this file would ever produce. The Principal read one
+# such picture and named every violation in it.
+#
+# The lesson is that a position is not what an author owns. In a layered
+# drawing the metric placement IS the contract -- separation, rhythm,
+# grouping, centring, all of it -- so overriding one number in it
+# overrides the contract. What dragging a cell MEANS is where it sits
+# among its neighbours, and that is an ordering claim, which the layout
+# can honour with every law intact. Pins now decide ORDER and nothing
+# else; yFiles calls the same idea layout-from-sketch.
+#
+# So the test of a pin is not "did the cell land on that number" but
+# "is the result still a lawful picture" -- and the negative keeps the
+# other half honest, because a contract is most easily satisfied by
+# ignoring pins altogether, which is exactly what the code did for two
+# commits in the branch every live picture takes.
+#---------------------------------------------------------------------------
+
+
+# THE PICTURE A PIN PRODUCES IS STILL A PICTURE. This is the assertion
+# the first pin design lacked, and lacking it cost a whole session's
+# laws: pins were applied as an OVERRIDE, restored after every pass, so
+# a pinned cell escaped the minimum separation and sat touching its
+# neighbour, escaped the family air so grouping vanished, escaped
+# centring so parents leaned, and escaped the order the crossing sweep
+# had settled so edges tangled. Every pin was honoured exactly and the
+# picture broke every rule in the plane.
+#
+# A pin is an ORDER now -- the drop decides where a cell sits among its
+# neighbours, and the layout decides the geometry with all its laws
+# intact. So the test of a pin is not "did the cell land on that
+# number" but "is the result still a lawful picture".
+oPc = new stzDiagram("pincontract")
+oPc.AddNodeXTT("lb", "Balancer", [ :type = "box", :color = "Info.Solid" ])
+for a in [ [ "web1", "Web A" ], [ "web2", "Web B" ] ]
+	oPc.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
+	oPc.AddEdge("lb", a[1])
+next
+oPc.AddNodeXTT("api1", "API A", [ :type = "box", :color = "Info.Solid" ])
+oPc.AddNodeXTT("api2", "API B", [ :type = "box", :color = "Info.Solid" ])
+oPc.AddEdge("web1", "api1")  oPc.AddEdge("web2", "api2")
+oPc.SetSplines("ortho")
+PCF = new stzFont("C:/Windows/Fonts/segoeui.ttf")
+aPO = [ :Font = PCF, :NodeWidth = 96, :NodeHeight = 36, :FontSize = 13,
+        :Width = 1000, :Height = 700 ]
+oPc.ToCanvasXT(aPO)
+nSepFree = _TightestPair46(oPc)
+? "   unpinned : the tightest pair in any rank is " + nSepFree + "px apart"
+chk("the free picture separates its cells", nSepFree > 20)
+
+# now drop Web A past Web B -- the gesture the Principal made
+oPc.Pin("web1", 3)
+oPc.ToCanvasXT(aPO)
+nSepPin = _TightestPair46(oPc)
+nSepLaw = floor(oPc.NodeSeparation() * 96)
+? "   pinned   : the tightest pair is now " + nSepPin +
+  "px apart, against a contract minimum of " + nSepLaw
+# AGAINST THE CONTRACT, not against the free picture. A rank of two in a
+# 1000px canvas spreads to the edges, so the unpinned figure is a
+# property of the paper rather than of the layout; comparing to it would
+# fail every honest pin. What the law says is that no two cells come
+# closer than the separation, and that is what a pin must not break.
+chk("a pinned picture still obeys the separation contract",
+    nSepPin >= nSepLaw)
+chk("...as the free one does", nSepFree >= nSepLaw)
+
+# ...and the drop still means what it looked like
+nW1 = _X46(oPc, "web1")
+nW2 = _X46(oPc, "web2")
+? "   Web A at " + nW1 + ", Web B at " + nW2
+chk("the dropped cell sits where it was dropped -- past its sibling",
+    nW1 > nW2)
+
+# ...and the parent is still centred over them, which the override
+# version broke
+nLb = _X46(oPc, "lb")
+? "   Balancer at " + nLb + ", its children's middle is " +
+  ((nW1 + nW2) / 2)
+chk("the parent is still centred over its children",
+    fabs(nLb - (nW1 + nW2) / 2) < 1)
+
+# THE NEGATIVE SIBLING: the pin must still DO something, or "the
+# contract holds" would be satisfied most easily by ignoring pins
+# altogether -- which is exactly what the code did for two commits in
+# the branch every live picture takes.
+oPc.Unpin("web1")
+oPc.ToCanvasXT(aPO)
+? "   unpinned again : Web A at " + _X46(oPc, "web1") + ", Web B at " +
+  _X46(oPc, "web2")
+chk("removing the pin puts the order back",
+    _X46(oPc, "web1") < _X46(oPc, "web2"))
+
+#---------------------------------------------------------------------------
+? ""
 if nSecClock > 0
 	? "        [section took " +
 	  ((clock() - nSecClock) / clockspersecond()) + "s]"
@@ -4024,6 +4130,27 @@ func _Centre44 oDiag, cId
 		ok
 	next
 	return [ -1, -1 ]
+
+# the closest any two cells sharing a rank come to each other
+func _TightestPair46 oDiag
+	_tpMin_ = 1000000
+	_aR_ = oDiag.RenderNodeRects()
+	for _i_ = 1 to len(_aR_)
+		for _j_ = _i_ + 1 to len(_aR_)
+			if fabs(_aR_[_i_][2] - _aR_[_j_][2]) > 2  loop  ok
+			_gap_ = max([ _aR_[_i_][1], _aR_[_j_][1] ]) -
+				min([ _aR_[_i_][1] + _aR_[_i_][3],
+				      _aR_[_j_][1] + _aR_[_j_][3] ])
+			if _gap_ < _tpMin_  _tpMin_ = _gap_  ok
+		next
+	next
+	return _tpMin_
+
+func _X46 oDiag, cId
+	for _r_ in oDiag.RenderNodeRects()
+		if _r_[5] = StzLower("" + cId)  return _r_[1] + _r_[3] / 2  ok
+	next
+	return -1
 
 func _Xof42 aList, cId
 	for _e_ in aList
