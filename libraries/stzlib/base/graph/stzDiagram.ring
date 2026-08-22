@@ -4326,6 +4326,33 @@ class stzDiagram from stzGraph
 		if _ccHi_ - _ccLo_ < 2  return nY  ok
 
 		_ccS_ = StzLower("" + cSrc)
+
+		# ONE STEM, OR CLEARLY TWO. Channels from the SAME source are
+		# allowed to share a line -- that is the bus a fan draws, one
+		# line because it is one origin -- but nothing made them
+		# actually COINCIDE, and each was banded independently against
+		# its own span's obstacles. On the service diagram two channels
+		# out of the same web tier landed 9px apart with a 24px
+		# clearance in force: neither one line nor two, which is the
+		# near-miss this library forbids everywhere else and was
+		# producing in its own default picture.
+		#
+		# So a channel that lands within a clearance of one its own
+		# source already holds joins it exactly -- but only if that
+		# height is legal for THIS span, since the two spans meet
+		# different obstacles and sharing must never mean colliding.
+		for _ccJ_ in @aChanUsed
+			if _ccJ_[3] != _ccS_  loop  ok
+			if fabs(_ccJ_[4] - nY) < 0.5  return _ccJ_[4]  ok
+			if fabs(_ccJ_[4] - nY) >= This._LineClearance()  loop  ok
+			if NOT This._LegIsClear(_ccJ_[4], nSpanA, nSpanB,
+				cFrom2, cTo2, bVert2)
+				loop
+			ok
+			@aChanUsed + [ min([ nSpanA, nSpanB ]), max([ nSpanA, nSpanB ]),
+				_ccS_, _ccJ_[4] ]
+			return _ccJ_[4]
+		next
 		_ccClr_ = This._LineClearance()
 		_ccLimLo_ = min([ nLimA, nLimB ]) + 4
 		_ccLimHi_ = max([ nLimA, nLimB ]) - 4
@@ -4514,21 +4541,31 @@ class stzDiagram from stzGraph
 			This._EdgeCorner(), cRank, 1, 0)
 		_q_ = This._AttachPoint(aTo, _pts_[ len(_pts_) - 1 ], nBoxW, nBoxH,
 			nPortB, This._EdgeCorner(), cRank, 0, _qveto_)
-		# ...and under ORTHO the DEPARTURE is ported and perpendicular
-		# too. The aim-attach clips toward the first bend, so a routed
-		# edge left at whatever height the aim crossed the border --
-		# 5.4px from its single-hop sibling where the port pitch says
-		# 6.7 -- and two departures at almost-a-lane apart read as a
-		# spacing mistake, not as two lanes. The arrival side already
-		# obeys (the veto forces the rank-facing border at nPortB); this
-		# is the same law at the other end.
+		# ...and under ORTHO IT LEAVES ON THE STEM, perpendicular, like
+		# every other edge of the same source.
+		#
+		# This was ported once, to cure a real fault -- the aim-attach
+		# clipped toward the first bend, so a routed edge left at
+		# whatever height the aim happened to cross the border, half a
+		# lane from its sibling, reading as a spacing mistake. Porting
+		# it fixed the spacing and introduced a worse thing: the trunk
+		# form leaves on the source's CENTRE and the routed form left on
+		# a port, so one cell with a short edge and a long one grew TWO
+		# parallel verticals a few pixels apart. The Principal drew a
+		# ring round them and asked for one line.
+		#
+		# One stem out of a source is I2's blessed merge -- one line
+		# because it is one origin -- and it is what keeps a fan a bus.
+		# The port belongs to the ARRIVAL, where it separates edges that
+		# genuinely converge. Departures merge, arrivals fan: the same
+		# rule the trunk already follows, now followed here too.
 		if cSpline = "ortho"
 			if cRank = "LR" or cRank = "RL"
 				_pdir_ = iif(_pts_[2][1] >= aFrom[1], 1, -1)
-				_p_ = [ aFrom[1] + _pdir_ * nBoxW / 2, aFrom[2] + nPortA ]
+				_p_ = [ aFrom[1] + _pdir_ * nBoxW / 2, aFrom[2] ]
 			else
 				_pdir_ = iif(_pts_[2][2] >= aFrom[2], 1, -1)
-				_p_ = [ aFrom[1] + nPortA, aFrom[2] + _pdir_ * nBoxH / 2 ]
+				_p_ = [ aFrom[1], aFrom[2] + _pdir_ * nBoxH / 2 ]
 			ok
 		ok
 		_pts_[1] = _p_

@@ -1827,8 +1827,24 @@ if len(aDep) = 2 and len(aArr) = 2
 	nDepPitch = fabs(aDep[2] - aDep[1])
 	nArrPitch = fabs(aArr[2] - aArr[1])
 	? "   departure pitch " + nDepPitch + " ; arrival pitch " + nArrPitch
-	chk("one pitch at both ends of the picture",
-	    fabs(nDepPitch - nArrPitch) < 0.5 and nDepPitch > 3)
+	# DEPARTURES MERGE, ARRIVALS FAN -- and this line asserted the
+	# opposite until the Principal drew a ring round two parallel
+	# verticals leaving one cell and asked for one line.
+	#
+	# It was written to cure a real fault: a routed edge left at
+	# whatever height its aim crossed the border, half a lane from its
+	# sibling, which reads as a spacing mistake. Demanding ONE PITCH at
+	# both ends cured that and hid a worse thing -- two edges out of one
+	# source drawn as two lines, when one source is one origin and I2
+	# blesses exactly that merge. The pitch belongs to the ARRIVAL side,
+	# where edges genuinely converge on different cells and must stay
+	# apart.
+	#
+	# So the property is two properties: departures agree with each
+	# other (one stem, pitch zero), arrivals separate (a real pitch).
+	chk("edges leaving one source share ONE stem", nDepPitch < 0.5)
+	chk("...while edges arriving at one target keep their lanes apart",
+	    nArrPitch > 3)
 	nArrMid = (aArr[1] + aArr[2]) / 2
 	? "   the arrival pair's midpoint " + nArrMid +
 	  " vs border centre " + nLogCy
@@ -3930,6 +3946,127 @@ oPc.ToCanvasXT(aPO)
   _X46(oPc, "web2")
 chk("removing the pin puts the order back",
     _X46(oPc, "web1") < _X46(oPc, "web2"))
+
+#---------------------------------------------------------------------------
+? ""
+sec("-- 46. THE SHIPPED PICTURE, audited against the whole contract --")
+#
+# Every law in this plane had a guard, the suite was green, and the
+# Principal kept finding the same violations by looking at the product.
+# That is not bad luck; it is a method fault of mine. Each section tests
+# ONE law on a scene I invented for it, and the scene I invent is the one
+# where the law already holds. Nothing was testing the picture the
+# product actually renders.
+#
+# So this section takes the demo's own graph at the demo's own size with
+# the demo's own font -- the configuration a user sees first -- and
+# audits it against the laws at once. Not a new law: a new PLACE to
+# apply them, which is where they were failing.
+#
+# What it found on its first run, with 277 assertions already green:
+# two channels out of one source 9px apart under a 24px clearance
+# (neither one bus nor two lanes), and two edges whose ends sat 47px and
+# 79px off-column -- the near-miss band this library forbids by name,
+# in its own default picture, because alignment ran before the passes
+# that move things.
+#---------------------------------------------------------------------------
+
+AUFONT = new stzFont("C:/Windows/Fonts/segoeui.ttf")
+oAu = new stzDiagram("audit46")
+for a in [ [ "lb","Balancer" ],[ "web1","Web A" ],[ "web2","Web B" ],
+           [ "api1","API A" ],[ "api2","API B" ],
+           [ "db1","DB A" ],[ "db2","DB B" ],[ "log","Logger" ] ]
+	oAu.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
+next
+oAu.AddEdge("lb","web1")    oAu.AddEdge("lb","web2")
+oAu.AddEdge("web1","api1")  oAu.AddEdge("web2","api2")
+oAu.AddEdge("api1","db1")   oAu.AddEdge("api2","db2")
+oAu.AddEdge("web1","log")   oAu.AddEdge("api2","log")
+oAu.SetSplines("ortho")
+oAu.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 96, :NodeHeight = 36,
+	:FontSize = 13, :Width = 1100, :Height = 760 ])
+nAuClr = oAu._LineClearance()
+aAuP = oAu.RenderEdgePaths()
+
+# NO NEAR-MISS LANES: two horizontals are on one line or a clearance
+# apart, never in between.
+nAuNear = 0
+nAuWorst = 0
+for i = 1 to len(aAuP)
+	for j = i + 1 to len(aAuP)
+		for ia = 1 to len(aAuP[i][2]) - 3 step 2
+			for jb = 1 to len(aAuP[j][2]) - 3 step 2
+				if fabs(aAuP[i][2][ia+1] - aAuP[i][2][ia+3]) > 0.5  loop  ok
+				if fabs(aAuP[j][2][jb+1] - aAuP[j][2][jb+3]) > 0.5  loop  ok
+				nDy = fabs(aAuP[i][2][ia+1] - aAuP[j][2][jb+1])
+				if nDy < 0.5 or nDy >= nAuClr  loop  ok
+				nAuNear++
+				if nDy > nAuWorst  nAuWorst = nDy  ok
+			next
+		next
+	next
+next
+? "   lane pairs neither coincident nor a clearance apart : " + nAuNear
+chkeq("no two lanes sit in the near-miss band", nAuNear, 0)
+
+# NO NEAR-MISS ALIGNMENT: an edge's ends share a column or clearly do
+# not. The band between is what a reader cannot parse.
+nAuNA = 0
+for p2 in aAuP
+	aE2 = StzSplit(p2[1], ">")
+	nSx = -1  nTx2 = -1
+	for r in oAu.RenderNodeRects()
+		if r[5] = StzLower(aE2[1])  nSx = r[1] + r[3] / 2  ok
+		if r[5] = StzLower(aE2[2])  nTx2 = r[1] + r[3] / 2  ok
+	next
+	if nSx < 0 or nTx2 < 0  loop  ok
+	nD2 = fabs(nSx - nTx2)
+	if nD2 < 0.5 or nD2 > 96  loop  ok
+	nAuNA++
+	? "   near-miss alignment on " + p2[1] + " : " + nD2 + "px"
+next
+? "   edges neither aligned nor clearly slanted : " + nAuNA
+chkeq("no edge is ALMOST vertical", nAuNA, 0)
+
+# NO SHARED LANE between edges that share no endpoint.
+nAuShare = 0
+for i = 1 to len(aAuP)
+	for j = i + 1 to len(aAuP)
+		aA = StzSplit(aAuP[i][1], ">")
+		aB = StzSplit(aAuP[j][1], ">")
+		if aA[1] = aB[1] or aA[2] = aB[2]  loop  ok
+		for ia = 1 to len(aAuP[i][2]) - 3 step 2
+			for jb = 1 to len(aAuP[j][2]) - 3 step 2
+				if fabs(aAuP[i][2][ia+1] - aAuP[i][2][ia+3]) > 0.5  loop  ok
+				if fabs(aAuP[j][2][jb+1] - aAuP[j][2][jb+3]) > 0.5  loop  ok
+				if fabs(aAuP[i][2][ia+1] - aAuP[j][2][jb+1]) > 1  loop  ok
+				nOv = min([ max([ aAuP[i][2][ia], aAuP[i][2][ia+2] ]),
+				            max([ aAuP[j][2][jb], aAuP[j][2][jb+2] ]) ]) -
+				      max([ min([ aAuP[i][2][ia], aAuP[i][2][ia+2] ]),
+				            min([ aAuP[j][2][jb], aAuP[j][2][jb+2] ]) ])
+				if nOv > 2  nAuShare++  ok
+			next
+		next
+	next
+next
+? "   unrelated edges sharing a lane : " + nAuShare
+chkeq("no two unrelated edges share ink", nAuShare, 0)
+
+# AND THE SEPARATION CONTRACT, in the shipped size
+nAuTight = 1000000
+aAuR = oAu.RenderNodeRects()
+for i = 1 to len(aAuR)
+	for j = i + 1 to len(aAuR)
+		if fabs(aAuR[i][2] - aAuR[j][2]) > 2  loop  ok
+		nG = max([ aAuR[i][1], aAuR[j][1] ]) -
+			min([ aAuR[i][1] + aAuR[i][3], aAuR[j][1] + aAuR[j][3] ])
+		if nG < nAuTight  nAuTight = nG  ok
+	next
+next
+? "   tightest pair in a rank : " + nAuTight + "px"
+chk("the shipped picture separates its cells",
+    nAuTight >= floor(oAu.NodeSeparation() * 96))
+
 
 #---------------------------------------------------------------------------
 ? ""
