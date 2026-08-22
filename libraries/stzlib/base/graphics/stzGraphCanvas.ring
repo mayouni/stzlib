@@ -204,6 +204,11 @@ class stzGraphCanvas from stzObject
 	@aDumEdge = []
 	@nRealCount = 0
 
+	# The layout's own x per node, kept before _Normalise rewrites it into
+	# canvas pixels -- the space a pin lives in, and the one a cursor
+	# position must be translated back into for a drag to become a pin.
+	@aXRaw = []
+
 	# The crossing count of the FINAL order -- after the engine sweep AND
 	# after cluster compaction, because that is the order that is drawn.
 	# A structure fact the graph tier answers so a face (or a guard) can
@@ -288,6 +293,19 @@ class stzGraphCanvas from stzObject
 		_n_ = len(@aIds)
 		for _i_ = 1 to _n_
 			_a_ + [ @aIds[_i_], @aX[_i_], @aY[_i_] ]
+		next
+		return _a_
+
+	# The layout's OWN coordinates, before the fit to the canvas -- the
+	# space a pin is expressed in, and therefore the space a cursor
+	# position has to be translated back into.
+	def RawPositions()
+		_a_ = []
+		_n_ = len(@aIds)
+		for _i_ = 1 to _n_
+			_rv_ = 0
+			if _i_ <= len(@aXRaw)  _rv_ = @aXRaw[_i_]  ok
+			_a_ + [ @aIds[_i_], _rv_ ]
 		next
 		return _a_
 
@@ -1041,6 +1059,13 @@ class stzGraphCanvas from stzObject
 
 	def _Normalise()
 		_n_ = len(@aX)
+		# THE LAYOUT'S OWN COORDINATE, kept before this pass rewrites it
+		# into canvas pixels. A live diagram has to turn a cursor
+		# position back into a layout position -- a drag only becomes a
+		# pin once someone can say which slot the cursor is over -- and
+		# that inverse needs the map this pass is about to discard.
+		@aXRaw = []
+		for _rk_ = 1 to _n_  @aXRaw + @aX[_rk_]  next
 		_x0_ = @aX[1]  _x1_ = @aX[1]
 		_y0_ = @aY[1]  _y1_ = @aY[1]
 		for _i_ = 2 to _n_
