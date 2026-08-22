@@ -843,8 +843,24 @@ must not either: equal branches tie and the parent centres. A tie is not
 indecision, it is the graph reporting that the line has split, and a
 picture that picks a side there invents emphasis.
 
+**I7 — SIBLINGS STAND ON EITHER SIDE OF THEIR PARENT.** Peers are shown
+to be peers by their POSITIONS, before any line is drawn: a parent's
+column must lie strictly inside the span of its children, so a reader
+sees a pair about a middle rather than a queue down one flank. And the
+vertical column is the strongest statement the grammar has, so it is
+spent only where I6 licenses it — on the child carrying the graph
+onward. A LEAF may never hold its parent's column while its siblings do
+not: the straight line reads as continuation and the siblings read as
+afterthoughts, a difference in kind that exists in the picture and
+nowhere in the graph. The corollary is the edge half of the same claim:
+children of one parent on one rank are reached by ONE grammar — one
+stem, one channel, legs fanning to either side — because I5 makes any
+difference in drawing a difference in meaning.
+
 The enforcement points are structural, not per-picture: the layout owns
 I1's territories and gap floors; the channel allocator owns I2's lanes
 and I3's bands; attachment owns I1's borders; the routed staircase owns
-I4's collapse. A new feature is done when it names which invariant it
-serves.
+I4's collapse; `centerParents` owns I6's emphasis and `siblingStraddle`
+owns I7's positions, both in `graph_layout.zig` and both running after
+every pass that can move a node. A new feature is done when it names
+which invariant it serves.
