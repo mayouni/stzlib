@@ -3214,7 +3214,17 @@ for a in [ [ "lb","Balancer" ],[ "web1","Web A" ],[ "web2","Web B" ] ]
 next
 oPk.AddEdge("lb", "web1")  oPk.AddEdge("lb", "web2")
 oPk.SetSplines("ortho")
-oPk.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+# WITH A FONT, because a picture without one draws no labels -- and this
+# section passed for two commits while every node in a LABELLED picture
+# answered as the last one. Node shapes were tagged in the loop that
+# drew them; the labels are drawn in a later loop, so they all carried
+# whichever tag was current when that loop began. Labels sit over
+# boxes, and a pick answers with the topmost ink it finds. A guard that
+# renders a configuration nobody ships is a guard that tests the wrong
+# picture.
+PKFONT = new stzFont("C:/Windows/Fonts/segoeui.ttf")
+oPk.ToCanvasXT([ :Font = PKFONT, :NodeWidth = 96, :NodeHeight = 36,
+	:FontSize = 13 ])
 
 nFound = 0
 for r in oPk.RenderNodeRects()
@@ -3267,8 +3277,8 @@ for i = 2 to 200
 	oBg.AddEdge("n" + max([ 1, floor(i / 3) ]), "n" + i)
 next
 oBg.SetSplines("ortho")
-oBg.ToCanvasXT([ :NodeWidth = 60, :NodeHeight = 26,
-	:Width = 2400, :Height = 1600 ])
+oBg.ToCanvasXT([ :Font = PKFONT, :NodeWidth = 60, :NodeHeight = 26,
+	:FontSize = 11, :Width = 2400, :Height = 1600 ])
 aBR = oBg.RenderNodeRects()
 nPicks = 200
 nHit = 0
