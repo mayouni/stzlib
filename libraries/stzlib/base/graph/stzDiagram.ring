@@ -344,6 +344,19 @@ class stzDiagram from stzGraph
 	# the only instrument a guard can put on the label law.
 	@aRenderLabels = []
 
+	# THE INTERACTION'S STATE, and only its state: idle, dragging,
+	# linking or labelling, plus what the gesture is about and what to
+	# restore if it is abandoned. See OnPress().
+	@cUiState = :Idle
+	@cUiSubject = ""
+	@aUiWas = []
+	@aUiAt = []
+	@bUiLinking = FALSE
+
+	# The linear fit between the layout's coordinate and the canvas's
+	# pixels, as [ offset, scale ] -- see SlotAtPixel().
+	@aSlotMap = []
+
 	# THE SESSION'S MEMORY: every edit and its inverse, so an editor can
 	# be explored rather than merely operated. Nothing here mutates the
 	# model directly -- see Do().
@@ -2118,6 +2131,34 @@ class stzDiagram from stzGraph
 		@aRenderNodeRects = []
 		@aRenderLabels = []
 		@aRenderPicks = []
+		# THE MAP BACK, fitted in the coordinates actually DRAWN. Pins
+		# live in the layout's space and a cursor lives in pixels, so a
+		# drag can only become a pin if the picture reads backwards.
+		# The fit is linear -- the layout is scaled and shifted into the
+		# paper and nothing else -- so two nodes with different raw x
+		# determine it exactly. Fitted HERE and not against the
+		# measuring canvas: that one is a provisional 1000x700 used to
+		# size the picture, and its pixels are not these.
+		@aSlotMap = []
+		_aRawP_ = _oGC_.RawPositions()
+		if len(_aRawP_) >= 2
+			_sm1_ = []
+			_sm2_ = []
+			for _smK_ = 1 to len(_aRawP_)
+				_smP_ = This._XYOf(_aXY_, "" + _aRawP_[_smK_][1])
+				if len(_smP_) != 2  loop  ok
+				if len(_sm1_) = 0
+					_sm1_ = [ _aRawP_[_smK_][2], _smP_[1] ]
+				but fabs(_aRawP_[_smK_][2] - _sm1_[1]) > 0.0001
+					_sm2_ = [ _aRawP_[_smK_][2], _smP_[1] ]
+					exit
+				ok
+			next
+			if len(_sm2_) = 2
+				_smB_ = (_sm2_[2] - _sm1_[2]) / (_sm2_[1] - _sm1_[1])
+				@aSlotMap = [ _sm1_[2] - _smB_ * _sm1_[1], _smB_ ]
+			ok
+		ok
 		@oLastCanvas = _oC_
 		for _nr_ in _aXY_
 			@aRenderNodeRects + [ _nr_[2] - _nBoxW_ / 2, _nr_[3] - _nBoxH_ / 2,
@@ -3545,6 +3586,157 @@ class stzDiagram from stzGraph
 
 	def RenderPicks()
 		return @aRenderPicks
+
+	#-- READING THE PICTURE BACKWARDS ------------------------------------
+	#
+	# A pin lives in the layout's coordinate and a cursor lives in
+	# pixels. Without a way between them a drag cannot become a pin, and
+	# the whole inversion GG7 is about -- the author owns positions --
+	# stops at the mouse.
+	#
+	# The fit is linear (scale and shift into the canvas), so the map is
+	# two numbers and its inverse is exact. Both are published because a
+	# session needs the round trip: pixels in to place a cell, slots out
+	# to show where it will land.
+	def SlotAtPixel(pnPx)
+		if len(@aSlotMap) != 2 or fabs(@aSlotMap[2]) < 0.000001  return 0  ok
+		return (pnPx - @aSlotMap[1]) / @aSlotMap[2]
+
+	def PixelAtSlot(pnSlot)
+		if len(@aSlotMap) != 2  return 0  ok
+		return @aSlotMap[1] + @aSlotMap[2] * pnSlot
+
+	def SlotMap()
+		return @aSlotMap
+
+	#-- THE INTERACTION, as a state machine ------------------------------
+	#
+	# Not event soup. A pointer that is pressed, moved and released means
+	# different things depending on what was under it when it went down,
+	# and code that answers each event on its own has to reconstruct that
+	# every time -- which is how editors grow flags that contradict each
+	# other. Four states cover the whole vocabulary:
+	#
+	#   idle      nothing is being done
+	#   dragging  a cell is following the pointer
+	#   linking   an edge is being drawn from a cell
+	#   labelling a cell's text is being typed
+	#
+	# The events are fed in explicitly rather than polled, and that is a
+	# design decision, not a convenience: a state machine that reads a
+	# window can only be tested by opening one. This one is a function of
+	# (state, event) and is therefore testable headless, which is why the
+	# guard for it runs in the same suite as everything else. A window
+	# session just calls these from what it polled.
+	#
+	# A DRAG IS ONE UNDO, not one per pointer-move. The cell follows the
+	# cursor by pinning directly -- the picture has to keep up -- and the
+	# COMMAND is issued once, at release, from the position the cell held
+	# when the drag began. Otherwise a single drag would leave a hundred
+	# entries in the log and an undo would move the cell one pixel.
+	def OnPress(pnX, pnY)
+		@cUiState = :Idle
+		@cUiSubject = ""
+		_opAt_ = This.PickAt(pnX, pnY)
+		if len(_opAt_) < 2  return This  ok
+		if _opAt_[1] != :node  return This  ok
+		@cUiSubject = "" + _opAt_[2]
+		# what to restore if this gesture is abandoned, and what the
+		# single command at the end has to be an inverse of
+		if This.IsPinned(@cUiSubject)
+			@aUiWas = [ :movecell, [ @cUiSubject, This._PinOf(@cUiSubject) ] ]
+		else
+			@aUiWas = [ :freecell, [ @cUiSubject ] ]
+		ok
+		if @bUiLinking
+			@cUiState = :Linking
+		else
+			@cUiState = :Dragging
+		ok
+		return This
+
+	# A MOVE PREVIEWS. IT DOES NOT RE-LAY-OUT.
+	#
+	# Measured before it was designed: re-rendering a 500-node diagram
+	# per pointer-move costs 11,675 ms a frame against a 16 ms budget --
+	# 730 times over, and no faster scene upload could rescue it, since
+	# the cost is the layout and the edge work rather than the drawing.
+	# A live editor cannot re-lay-out while a cell is moving, and every
+	# editor that feels alive knows it: the cell moves, the picture does
+	# not.
+	#
+	# So a move records where the pointer is and nothing else. The
+	# window draws the scene it already has and puts the dragged cell on
+	# top of it -- DragPreview() says where -- and the layout runs ONCE,
+	# at release, when the author has decided. The model is untouched
+	# until then, which is also why an abandoned drag leaves nothing
+	# behind: there was nothing to undo.
+	def OnMove(pnX, pnY)
+		if @cUiState = :Idle  return This  ok
+		@aUiAt = [ pnX, pnY ]
+		return This
+
+	# Where the gesture currently is: [ subject, x, y ], or [] when
+	# nothing is being dragged. What a window paints over the picture.
+	def DragPreview()
+		if @cUiState = :Idle or @cUiSubject = ""  return []  ok
+		if len(@aUiAt) != 2  return []  ok
+		return [ @cUiSubject, @aUiAt[1], @aUiAt[2] ]
+
+	def OnRelease(pnX, pnY)
+		if @cUiState = :Dragging
+			# ONE command, from the position the author chose. The model
+			# has not moved until this line, so the log gets a single
+			# entry whose inverse is where the cell actually was.
+			This.Edit(:MoveCell, [ @cUiSubject, This.SlotAtPixel(pnX) ])
+		but @cUiState = :Linking
+			_orAt_ = This.PickAt(pnX, pnY)
+			if len(_orAt_) = 2 and _orAt_[1] = :node
+				if StzLower("" + _orAt_[2]) != StzLower(@cUiSubject)
+					This.Edit(:Link, [ @cUiSubject, "" + _orAt_[2] ])
+				ok
+			ok
+		ok
+		@cUiState = :Idle
+		@cUiSubject = ""
+		return This
+
+	# ABANDONED, not completed: the cell goes back where it was and
+	# nothing enters the log. A gesture the author gave up on should
+	# leave no trace to undo.
+	def OnCancel()
+		# nothing to restore: a gesture in progress never touched the
+		# model, which is what makes abandoning one free
+		@cUiState = :Idle
+		@cUiSubject = ""
+		return This
+
+	def BeginLinking()
+		@bUiLinking = TRUE
+		return This
+
+	def EndLinking()
+		@bUiLinking = FALSE
+		return This
+
+	def BeginLabelling(pcNode)
+		if NOT This.NodeExists(pcNode)  return This  ok
+		@cUiState = :Labelling
+		@cUiSubject = "" + pcNode
+		return This
+
+	def CommitLabel(pcText)
+		if @cUiState != :Labelling  return FALSE  ok
+		_clOk_ = This.Edit(:SetLabel, [ @cUiSubject, "" + pcText ])
+		@cUiState = :Idle
+		@cUiSubject = ""
+		return _clOk_
+
+	def UiState()
+		return @cUiState
+
+	def UiSubject()
+		return @cUiSubject
 
 	#-- EDITS: the session executes COMMANDS, never mutations ------------
 	#

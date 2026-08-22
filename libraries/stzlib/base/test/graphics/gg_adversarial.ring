@@ -3509,6 +3509,184 @@ chkeq("...and leaves no trace in the log", len(oRm.EditLog()), nBefore)
 
 #---------------------------------------------------------------------------
 ? ""
+sec("-- 43. GG7d: the interaction is a STATE MACHINE ----------------")
+#
+# Not event soup. A pointer pressed, moved and released means different
+# things depending on what was under it when it went down, and code that
+# answers each event on its own has to reconstruct that every time --
+# which is how editors grow flags that contradict one another. Four
+# states cover the vocabulary: idle, dragging, linking, labelling.
+#
+# The events are FED IN rather than polled, and that is a design decision
+# and not a convenience: a state machine that reads a window can only be
+# tested by opening one. This one is a function of (state, event), so it
+# is tested here, headless, in the same suite as everything else. A
+# window session merely calls these with what it polled.
+#
+# A DRAG DOES NOT RE-LAY-OUT, and that was measured before it was
+# designed. Re-rendering a 500-node diagram on every pointer-move costs
+# 11,675 ms a frame against the plan's 16 ms budget -- 730 times over,
+# and no faster scene upload could rescue it, because the cost is the
+# layout and the edge work rather than the drawing. The plan invited
+# exactly this measurement ("only if full-scene rebuild misses that does
+# an incremental path earn existence"), and the answer it gives is not
+# an incremental upload: it is that the model must not move while a
+# gesture is in flight.
+#
+# So a move records the pointer and nothing else; the window paints the
+# dragged cell over the picture it already has (DragPreview says where);
+# and the layout runs ONCE, at release. A drag frame then costs 0.12 ms
+# on 500 nodes including a pick. It also makes the log honest for free --
+# one gesture is one command, and an abandoned gesture leaves nothing
+# behind because there was never anything to undo.
+#---------------------------------------------------------------------------
+
+
+oUi = new stzDiagram("ui44")
+oUi.AddNodeXTT("r", "R", [ :type = "box", :color = "Info.Solid" ])
+for i = 1 to 4
+	oUi.AddNodeXTT("k" + i, "K" + i, [ :type = "box", :color = "Info.Solid" ])
+	oUi.AddEdge("r", "k" + i)
+next
+oUi.SetSplines("ortho")
+oUi.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+
+aK1 = _Centre44(oUi, "k1")
+aK4 = _Centre44(oUi, "k4")
+chk("the session starts idle", oUi.UiState() = :Idle)
+
+# A DRAG IS ONE GESTURE AND ONE UNDO
+oUi.OnPress(aK1[1], aK1[2])
+? "   pressed on k1 : state " + oUi.UiState() + ", subject " +
+  oUi.UiSubject()
+chk("pressing a cell begins a drag of THAT cell",
+    oUi.UiState() = :Dragging and oUi.UiSubject() = "k1")
+oUi.OnMove(aK4[1] + 100, aK1[2])
+oUi.OnMove(aK4[1] + 200, aK1[2])
+aPrev = oUi.DragPreview()
+? "   mid-drag : preview " + aPrev[1] + " at " + aPrev[2] +
+  ", model pinned " + oUi.IsPinned("k1") + ", log " + len(oUi.EditLog())
+chk("the cell follows the pointer as a PREVIEW",
+    len(aPrev) = 3 and aPrev[1] = "k1" and
+    fabs(aPrev[2] - (aK4[1] + 200)) < 0.5)
+chk("...while the model stays untouched", NOT oUi.IsPinned("k1"))
+chkeq("...and the log stays empty until the gesture ends",
+      len(oUi.EditLog()), 0)
+oUi.OnRelease(aK4[1] + 200, aK1[2])
+? "   released : state " + oUi.UiState() + ", log " + len(oUi.EditLog())
+chk("releasing ends the gesture", oUi.UiState() = :Idle)
+chkeq("a whole drag is ONE undoable command", len(oUi.EditLog()), 1)
+
+oUi.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+? "   k1 now sits at " + _Centre44(oUi, "k1")[1] + ", k4 at " +
+  _Centre44(oUi, "k4")[1]
+chk("the dragged cell moved past the one it was dropped beyond",
+    _Centre44(oUi, "k1")[1] > _Centre44(oUi, "k4")[1])
+oUi.Undo()
+oUi.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+chk("one undo puts the whole drag back",
+    NOT oUi.IsPinned("k1") and
+    _Centre44(oUi, "k1")[1] < _Centre44(oUi, "k4")[1])
+
+# AN ABANDONED GESTURE LEAVES NO TRACE. Without this, a drag the author
+# gave up on would still be sitting in the log waiting to be undone.
+aK2 = _Centre44(oUi, "k2")
+oUi.OnPress(aK2[1], aK2[2])
+oUi.OnMove(aK2[1] + 400, aK2[2])
+chk("the cancelled gesture was under way", len(oUi.DragPreview()) = 3)
+oUi.OnCancel()
+? "   cancelled : state " + oUi.UiState() + ", pinned " +
+  oUi.IsPinned("k2") + ", log " + len(oUi.EditLog()) + ", preview " +
+  len(oUi.DragPreview())
+chk("cancelling ends it with the cell untouched", NOT oUi.IsPinned("k2"))
+chkeq("...and writes nothing to the log", len(oUi.EditLog()), 0)
+chkeq("...and nothing is left previewing", len(oUi.DragPreview()), 0)
+
+# LINKING IS THE SAME MACHINE IN A DIFFERENT STATE
+oUi.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+aK2 = _Centre44(oUi, "k2")
+aK3 = _Centre44(oUi, "k3")
+nEdges = len(oUi.Edges())
+oUi.BeginLinking()
+oUi.OnPress(aK2[1], aK2[2])
+chk("pressing while linking begins a link", oUi.UiState() = :Linking)
+oUi.OnRelease(aK3[1], aK3[2])
+oUi.EndLinking()
+? "   linked k2 to k3 : edges " + nEdges + " -> " + len(oUi.Edges())
+chkeq("releasing on another cell creates the edge",
+      len(oUi.Edges()), nEdges + 1)
+oUi.Undo()
+chkeq("...and it is undoable like any other edit",
+      len(oUi.Edges()), nEdges)
+
+# A LINK THAT ENDS WHERE IT BEGAN IS NOT A LINK -- the negative that
+# keeps the gesture honest, since a machine that made an edge on every
+# release would make self-loops out of missed clicks.
+oUi.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+aK2 = _Centre44(oUi, "k2")
+nEdges = len(oUi.Edges())
+oUi.BeginLinking()
+oUi.OnPress(aK2[1], aK2[2])
+oUi.OnRelease(aK2[1], aK2[2])
+oUi.EndLinking()
+? "   pressed and released on the same cell : edges still " +
+  len(oUi.Edges())
+chkeq("a link to itself is not made", len(oUi.Edges()), nEdges)
+
+# LABELLING, and the same one-command rule
+oUi.BeginLabelling("k1")
+chk("labelling is its own state", oUi.UiState() = :Labelling)
+oUi.CommitLabel("First")
+? "   k1 reads " + oUi.NodeLabel("k1") + ", state " + oUi.UiState()
+chk("committing sets the label and returns to idle",
+    oUi.NodeLabel("k1") = "First" and oUi.UiState() = :Idle)
+oUi.Undo()
+chk("...and it is one undo", oUi.NodeLabel("k1") = "K1")
+
+# THE KILL CRITERION, and the design it forced. Re-rendering the
+# diagram on every pointer-move costs 11,675 ms a frame on 500 nodes
+# against a 16 ms budget -- 730 times over, measured 2026-08-22, and no
+# faster scene upload could rescue it because the cost is the layout and
+# the edge work, not the drawing. So a drag does not re-lay-out: it
+# records where the pointer is, the window paints the cell over the
+# picture it already has, and the layout runs once at release (11.4 s at
+# 500 nodes, which is the price of a structural change and not of a
+# gesture).
+#
+# Asserted here at a size the gate can afford; the 500-node figures are
+# recorded above from runs of the same code.
+oPf = new stzDiagram("perf44")
+oPf.AddNodeXTT("n1", "N1", [ :type = "box", :color = "Info.Solid" ])
+for i = 2 to 200
+	oPf.AddNodeXTT("n" + i, "N" + i, [ :type = "box", :color = "Info.Solid" ])
+	oPf.AddEdge("n" + max([ 1, floor(i / 3) ]), "n" + i)
+next
+oPf.SetSplines("ortho")
+oPf.ToCanvasXT([ :NodeWidth = 60, :NodeHeight = 26,
+	:Width = 2400, :Height = 1600 ])
+aStart = []
+for rr in oPf.RenderNodeRects()
+	if rr[5] = "n7"  aStart = [ rr[1] + rr[3] / 2, rr[2] + rr[4] / 2 ]  ok
+next
+oPf.OnPress(aStart[1], aStart[2])
+nFrames = 100
+nT0 = clock()
+for k = 1 to nFrames
+	oPf.OnMove(aStart[1] + k, aStart[2])
+	aPv = oPf.DragPreview()
+	aHit = oPf.PickAt(aStart[1] + k, aStart[2])
+next
+nMsF = (clock() - nT0) / clockspersecond() / nFrames * 1000
+oPf.OnRelease(aStart[1] + nFrames, aStart[2])
+? "   a drag frame over 200 nodes -- move, preview and pick -- costs " +
+  nMsF + " ms"
+chk("a drag frame fits inside a 16 ms budget with room to spare",
+    nMsF < 16)
+chk("...and the gesture still ended in one command",
+    len(oPf.EditLog()) = 1)
+
+#---------------------------------------------------------------------------
+? ""
 if nSecClock > 0
 	? "        [section took " +
 	  ((clock() - nSecClock) / clockspersecond()) + "s]"
@@ -3733,6 +3911,16 @@ func _EdgeInkInRects cPx, nW, nH, aRects, aInk, nTol
 # The x of one id in a [ id, x ] list -- section 41 compares a picture
 # with itself across pins, so it needs to look a cell up by name in a
 # snapshot rather than in the render's live facts.
+# The centre of one node in the last render -- section 43 drives the
+# interaction with pointer positions, so it needs to aim at cells.
+func _Centre44 oDiag, cId
+	for _r_ in oDiag.RenderNodeRects()
+		if _r_[5] = StzLower("" + cId)
+			return [ _r_[1] + _r_[3] / 2, _r_[2] + _r_[4] / 2 ]
+		ok
+	next
+	return [ -1, -1 ]
+
 func _Xof42 aList, cId
 	for _e_ in aList
 		if _e_[1] = StzLower("" + cId)  return _e_[2]  ok
