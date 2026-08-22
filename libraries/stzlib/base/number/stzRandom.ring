@@ -360,8 +360,8 @@ func FewXT(paList, nFewRatio)
 	func FewXTQ(paList, nFewRatio)
 		return Q(FewXT(paList, nFewRatio))
 
-	func FewXTQQ(paList)
-		return QQ(Few(paList, nFewRatio))
+	func FewXTQQ(paList, nFewRatio)
+		return QQ(FewXT(paList, nFewRatio))
 
 	#>
 
@@ -679,11 +679,11 @@ func ManyXT(paList, nManyRatio)
 
 	#< @FunctionFluentForms
 
-	func ManyXTQ(paList)
-		return Q(Many(paList))
+	func ManyXTQ(paList, nManyRatio)
+		return Q(ManyXT(paList, nManyRatio))
 
-	func ManyXTQQ(paList)
-		return QQ(Many(paList))
+	func ManyXTQQ(paList, nManyRatio)
+		return QQ(ManyXT(paList, nManyRatio))
 
 	#>
 
@@ -1295,7 +1295,9 @@ func RandomNumberXT(_nSeed_)
 #--
 
 func RandomNumberLessThan(_n_)
-	return RandomNumberIn(1 : _n_)
+	# Engine, not Ring: RandomNumberIn() takes a LIST, so `1 : _n_`
+	# MATERIALISES _n_ elements just to pick one of them.
+	return StzEngineRandomInt(1, _n_)
 
 	#< @FunctionAlternativeForms
 
@@ -1461,7 +1463,17 @@ func RandomNumberGreaterThan(_n_)
 		ok
 	ok
 	
-	return RandomNumberIn(_n_+1 : MaxRingNumber())
+	# Engine, not Ring. This line used to read:
+	#
+	#     return RandomNumberIn(_n_+1 : MaxRingNumber())
+	#
+	# RandomNumberIn() takes a LIST, and `:` materialises the range --
+	# MaxRingNumber() is RingMaxExactInteger() = 2^53, so this asked Ring to
+	# build a list of 9,007,199,254,740,991 elements. It allocated until the
+	# machine died: measured 1,858 MB in 3.8 s before a watchdog killed it.
+	# Reachable from every alias (ARandomNumberGreaterThan, ANumberBiggerThan,
+	# NRandomNumbersGreaterThanU, ...), so it was a live hazard, not dead code.
+	return StzEngineRandomInt(_n_ + 1, MaxRingNumber())
 
 	#< @FunctionAlternativeForms
 
@@ -1487,7 +1499,7 @@ func RandomNumberGreaterThan(_n_)
 		return RandomNumberGreaterThan(_n_)
 
 	func AnyRandomNumberBiggerThan(_n_)
-		return RandomNumberGreaterThan(_n_, _nSeed_)
+		return RandomNumberGreaterThan(_n_)
 
 	func AnyNumberGreaterThan(_n_)
 		return RandomNumberGreaterThan(_n_)
@@ -1550,7 +1562,7 @@ func RandomNumberGreaterThan(_n_)
 		return RandomNumberGreaterThan01(_n_)
 
 	func AnyRandomNumberBiggerThan01(_n_)
-		return RandomNumberGreaterThan01(_n_, _nSeed_)
+		return RandomNumberGreaterThan01(_n_)
 
 	func AnyNumberGreaterThan01(_n_)
 		return RandomNumberGreaterThan01(_n_)
@@ -1631,45 +1643,46 @@ func RandomNumberGreaterThanXT(_n_, _nSeed_)
 	
 		return _nRandom_
 
-	func ARandomNumberGreaterThan01XT(_n_)
-		return RandomNumberGreaterThan01XT(_n_)
-
-	func RandomNumberBiggerThan01XT(_n_)
-		return RandomNumberGreaterThan01XT(_n_)
-
-	func ARandomNumberBiggerThan01XT(_n_)
-		return RandomNumberGreaterThan01XT(_n_)
-
-	func ANumberGreaterThan01XT(_n_)
-		return RandomNumberGreaterThan01XT(_n_)
-
-	func ANumberBiggerThan01XT(_n_)
-		return RandomNumberGreaterThan01XT(_n_)
-
-	func ANumberLargerThan01XT(_n_)
-		return RandomNumberGreaterThan01XT(_n_)
-
-	func AnyRandomNumberGreaterThan01XT(_n_)
-		return RandomNumberGreaterThan01XT(_n_)
-
-	func AnyRandomNumberBiggerThan01XT(_n_)
+	func ARandomNumberGreaterThan01XT(_n_, _nSeed_)
 		return RandomNumberGreaterThan01XT(_n_, _nSeed_)
 
-	func AnyNumberGreaterThan01XT(_n_)
-		return RandomNumberGreaterThan01XT(_n_)
+	func RandomNumberBiggerThan01XT(_n_, _nSeed_)
+		return RandomNumberGreaterThan01XT(_n_, _nSeed_)
 
-	func AnyNumberBiggerThan01XT(_n_)
-		return RandomNumberGreaterThan01XT(_n_)
+	func ARandomNumberBiggerThan01XT(_n_, _nSeed_)
+		return RandomNumberGreaterThan01XT(_n_, _nSeed_)
 
-	func AnyNumberLargerThan01XT(_n_)
-		return RandomNumberGreaterThan01XT(_n_)
+	func ANumberGreaterThan01XT(_n_, _nSeed_)
+		return RandomNumberGreaterThan01XT(_n_, _nSeed_)
+
+	func ANumberBiggerThan01XT(_n_, _nSeed_)
+		return RandomNumberGreaterThan01XT(_n_, _nSeed_)
+
+	func ANumberLargerThan01XT(_n_, _nSeed_)
+		return RandomNumberGreaterThan01XT(_n_, _nSeed_)
+
+	func AnyRandomNumberGreaterThan01XT(_n_, _nSeed_)
+		return RandomNumberGreaterThan01XT(_n_, _nSeed_)
+
+	func AnyRandomNumberBiggerThan01XT(_n_, _nSeed_)
+		return RandomNumberGreaterThan01XT(_n_, _nSeed_)
+
+	func AnyNumberGreaterThan01XT(_n_, _nSeed_)
+		return RandomNumberGreaterThan01XT(_n_, _nSeed_)
+
+	func AnyNumberBiggerThan01XT(_n_, _nSeed_)
+		return RandomNumberGreaterThan01XT(_n_, _nSeed_)
+
+	func AnyNumberLargerThan01XT(_n_, _nSeed_)
+		return RandomNumberGreaterThan01XT(_n_, _nSeed_)
 
 	#>
 
 #--
 
 func RandomNumberOtherThan(_n_)
-	_nResult_ = RandomNumberIn(1 : MaxRingNumber())
+	# Engine, not Ring -- same 2^53 materialisation as RandomNumberGreaterThan().
+	_nResult_ = StzEngineRandomInt(1, MaxRingNumber())
 	if _nResult_ = _n_
 		_nResult_ = _n_ - 1
 		if _nResult_ < 0
@@ -2165,52 +2178,52 @@ func SomeRandomNumbersGreaterThanXTU(_n_, nValue, _nSeed_)
 
 	#< @FunctionAlternativeForms
 
-	func SomeNumbersGreaterThanXTU(nValue, _nSeed_)
-		return SomeRandomNumbersGreaterThanXTU(nValue, _nSeed_)
+	func SomeNumbersGreaterThanXTU(_n_, nValue, _nSeed_)
+		return SomeRandomNumbersGreaterThanXTU(_n_, nValue, _nSeed_)
 
-	func AnyRandomNumbersGreaterThanXTU(nValue, _nSeed_)
-		return SomeRandomNumbersGreaterThanXTU(nValue, _nSeed_)
+	func AnyRandomNumbersGreaterThanXTU(_n_, nValue, _nSeed_)
+		return SomeRandomNumbersGreaterThanXTU(_n_, nValue, _nSeed_)
 
-	func AnyNumbersGreaterThanXTU(nValue, _nSeed_)
-		return SomeRandomNumbersGreaterThanXTU(nValue, _nSeed_)
-
-	#--
-
-	func SomeRandomNumbersBiggerThanXTU(nValue, _nSeed_)
-		return SomeRandomNumbersGreaterThanXTU(nValue, _nSeed_)
-
-	func SomeNumbersBiggerThanXTU(nValue, _nSeed_)
-		return SomeRandomNumbersGreaterThanXTU(nValue, _nSeed_)
-
-	func AnyRandomNumbersBiggerThanXTU(nValue, _nSeed_)
-		return SomeRandomNumbersGreaterThanXTU(nValue, _nSeed_)
-
-	func AnyNumbersBiggerThanXTU(nValue, _nSeed_)
-		return SomeRandomNumbersGreaterThanXTU(nValue, _nSeed_)
+	func AnyNumbersGreaterThanXTU(_n_, nValue, _nSeed_)
+		return SomeRandomNumbersGreaterThanXTU(_n_, nValue, _nSeed_)
 
 	#--
 
-	func SomeUniqueRandomNumbersGreaterThanXTU(nValue, _nSeed_)
-		return SomeRandomNumbersGreaterThanXTU(nValue, _nSeed_)
+	func SomeRandomNumbersBiggerThanXTU(_n_, nValue, _nSeed_)
+		return SomeRandomNumbersGreaterThanXTU(_n_, nValue, _nSeed_)
 
-	func SomeUniqueNumbersGreaterThanXTU(nValue, _nSeed_)
-		return SomeRandomNumbersGreaterThanXTU(nValue, _nSeed_)
+	func SomeNumbersBiggerThanXTU(_n_, nValue, _nSeed_)
+		return SomeRandomNumbersGreaterThanXTU(_n_, nValue, _nSeed_)
 
-	#--
+	func AnyRandomNumbersBiggerThanXTU(_n_, nValue, _nSeed_)
+		return SomeRandomNumbersGreaterThanXTU(_n_, nValue, _nSeed_)
 
-	func SomeUniqueRandomNumbersBiggerThanXTU(nValue, _nSeed_)
-		return SomeRandomNumbersGreaterThanXTU(nValue, _nSeed_)
-
-	func SomeUniqueNumbersBiggerThanXTU(nValue, _nSeed_)
-		return SomeRandomNumbersGreaterThanXTU(nValue, _nSeed_)
+	func AnyNumbersBiggerThanXTU(_n_, nValue, _nSeed_)
+		return SomeRandomNumbersGreaterThanXTU(_n_, nValue, _nSeed_)
 
 	#--
 
-	func RandomNumbersGreaterThanXTU(nValue, _nSeed_)
-		return SomeRandomNumbersGreaterThanXTU(nValue, _nSeed_)
+	func SomeUniqueRandomNumbersGreaterThanXTU(_n_, nValue, _nSeed_)
+		return SomeRandomNumbersGreaterThanXTU(_n_, nValue, _nSeed_)
 
-	func RandomNumbersBiggerThanXTU(nValue, _nSeed_)
-		return SomeRandomNumbersGreaterThanXTU(nValue, _nSeed_)
+	func SomeUniqueNumbersGreaterThanXTU(_n_, nValue, _nSeed_)
+		return SomeRandomNumbersGreaterThanXTU(_n_, nValue, _nSeed_)
+
+	#--
+
+	func SomeUniqueRandomNumbersBiggerThanXTU(_n_, nValue, _nSeed_)
+		return SomeRandomNumbersGreaterThanXTU(_n_, nValue, _nSeed_)
+
+	func SomeUniqueNumbersBiggerThanXTU(_n_, nValue, _nSeed_)
+		return SomeRandomNumbersGreaterThanXTU(_n_, nValue, _nSeed_)
+
+	#--
+
+	func RandomNumbersGreaterThanXTU(_n_, nValue, _nSeed_)
+		return SomeRandomNumbersGreaterThanXTU(_n_, nValue, _nSeed_)
+
+	func RandomNumbersBiggerThanXTU(_n_, nValue, _nSeed_)
+		return SomeRandomNumbersGreaterThanXTU(_n_, nValue, _nSeed_)
 
 	func UniqueRandomNumbersGreaterThanXT(nValue, _nSeed_)
 		return SomeRandomNumbersGreaterThanXT(nValue, _nSeed_)
@@ -2288,7 +2301,7 @@ func SomeRandomNumbersGreaterThanXTU(_n_, nValue, _nSeed_)
 		return SomeRandomNumbersGreaterThan01XTU(_n_, _nSeed_)
 
 	func RandomNumbersBiggerThan01XTU(_n_, _nSeed_)
-		return SomeRandomNumbersGreaterThanXTU(_n_, _nSeed_)
+		return SomeRandomNumbersGreaterThan01XTU(_n_, _nSeed_)
 
 	func UniqueRandomNumbersGreaterThan01XT(_n_, _nSeed_)
 		return SomeRandomNumbersGreaterThan01XTU(_n_, _nSeed_)
@@ -2915,7 +2928,7 @@ func NRandomNumbersLessThanU(_n_, nValue)
 		_i_ = 0
 		while 1
 			_i_++
-			_nRandom_ = ARandomNumberLessthan01(_n_, nValue)
+			_nRandom_ = ARandomNumberLessThan01(nValue)
 
 			if StzFindFirst(_nRandom_, _anResult_) = 0
 				_anResult_ + _nRandom_
@@ -2967,32 +2980,32 @@ func NRandomNumbersLessThanXTU(_n_, nValue, _nSeed_)
 
 	#< @FunctionAlternativeForm
 
-	func NNumbersLessThanXTU(_n_, nValue)
-		return NRandomNumbersLessThanXTU(_n_, nValue)
+	func NNumbersLessThanXTU(_n_, nValue, _nSeed_)
+		return NRandomNumbersLessThanXTU(_n_, nValue, _nSeed_)
 
-	func NNumbersSmallerThanXTU(_n_, nValue)
-		return NRandomNumbersLessThanXTU(_n_, nValue)
+	func NNumbersSmallerThanXTU(_n_, nValue, _nSeed_)
+		return NRandomNumbersLessThanXTU(_n_, nValue, _nSeed_)
 
-	func AnyNNumbersLessThanXTU(_n_, nValue)
-		return NRandomNumbersLessThanXTU(_n_, nValue)
+	func AnyNNumbersLessThanXTU(_n_, nValue, _nSeed_)
+		return NRandomNumbersLessThanXTU(_n_, nValue, _nSeed_)
 
-	func AnyNNumbersSmallerThanXTU(_n_, nValue)
-		return NRandomNumbersLessThanXTU(_n_, nValue)
+	func AnyNNumbersSmallerThanXTU(_n_, nValue, _nSeed_)
+		return NRandomNumbersLessThanXTU(_n_, nValue, _nSeed_)
 
 	#--
 
-	func NUniqueRandomNumbersLessThanXT(_n_, nValue)
-		return NRandomNumbersLessThanXTU(_n_, nValue)
+	func NUniqueRandomNumbersLessThanXT(_n_, nValue, _nSeed_)
+		return NRandomNumbersLessThanXTU(_n_, nValue, _nSeed_)
 
-	func NUniqueRandomNumbersSmallerThanXT(_n_, nValue)
-		return NRandomNumbersLessThanXTU(_n_, nValue)
+	func NUniqueRandomNumbersSmallerThanXT(_n_, nValue, _nSeed_)
+		return NRandomNumbersLessThanXTU(_n_, nValue, _nSeed_)
 
 
-	func NUniqueNumbersLessThanXT(_n_, nValue)
-		return NRandomNumbersLessThanXTU(_n_, nValue)
+	func NUniqueNumbersLessThanXT(_n_, nValue, _nSeed_)
+		return NRandomNumbersLessThanXTU(_n_, nValue, _nSeed_)
 
-	func NUniqueNumbersSmallerThanXT(_n_, nValue)
-		return NRandomNumbersLessThanXTU(_n_, nValue)
+	func NUniqueNumbersSmallerThanXT(_n_, nValue, _nSeed_)
+		return NRandomNumbersLessThanXTU(_n_, nValue, _nSeed_)
 
 	#==
 
@@ -3859,7 +3872,7 @@ func SomeRandomNumbersInXTU(panNumbers, _nSeed_)
 			ok
 		ok
 
-		return SomeRandomNumbersInXTU(_nMin_ : _nMax_)
+		return SomeRandomNumbersInXTU(_nMin_ : _nMax_, _nSeed_)
 
 	func SomeNumbersBetweenXTU(_nMin_, _nMax_, _nSeed_)
 		return SomeRandomNumbersBetweenXTU(_nMin_, _nMax_, _nSeed_)
@@ -3881,7 +3894,7 @@ func SomeRandomNumbersInXTU(panNumbers, _nSeed_)
 	#--
 
 	func RandomNumbersBetweenXTU(_nMin_, _nMax_, _nSeed_)
-		return SomeRandomNumbersBetweenXTU(panNumbers, _nSeed_)
+		return SomeRandomNumbersBetweenXTU(_nMin_, _nMax_, _nSeed_)
 
 	#>
 
@@ -3944,7 +3957,7 @@ func SomeRandomNumbersInXTUZ(panNumbers, _nSeed_)
 			ok
 		ok
 
-		return RandomNumbersInXTUZ(_nMin_ : _nMax_)
+		return RandomNumbersInXTUZ(_nMin_ : _nMax_, _nSeed_)
 
 	func SomeNumbersBetweenXTUZ(_nMin_, _nMax_, _nSeed_)
 		return RandomNumbersBetweenXTUZ(_nMin_, _nMax_, _nSeed_)
@@ -4438,7 +4451,7 @@ func NRandomNumbersInUZ(_n_, panNumbers)
 
 func NRandomNumbersInXTU(_n_, panNumbers, _nSeed_)
 	StzSRandom(_nSeed_)
-	return NRandomNumbersInXTU(_n_, panNumbers)
+	return NRandomNumbersInU(_n_, panNumbers)
 
 	#< @FunctionAlternativeForms
 
