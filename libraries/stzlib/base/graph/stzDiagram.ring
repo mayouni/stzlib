@@ -1971,7 +1971,14 @@ class stzDiagram from stzGraph
 				:Layout = This._DiagOpt(paOptions, "layoutmode", :Hierarchical),
 				:Width  = max([ _lw_, 60 ]),
 				:Height = max([ _lh_, 60 ]),
-				:Clusters = This._ClusterPairs()
+				:Clusters = This._ClusterPairs(),
+				# ...AND THE PINS HERE TOO. This branch draws every
+				# picture given an explicit :Width/:Height -- which is
+				# every LIVE one, since a window has a size -- and it was
+				# the one branch that never received them. Pins worked in
+				# the guard, worked at natural size, and did nothing at
+				# all in the editor they were built for.
+				:Pins = This._PinVector()
 			])
 
 			_aXY_ = []
@@ -2531,6 +2538,14 @@ class stzDiagram from stzGraph
 				_cId_ = "" + _aNodes_[_i_][:id]
 				_a_ = This._XYOf(_aXY_, _cId_)
 				if len(_a_) != 2  loop  ok
+				# A LABEL BELONGS TO ITS NODE, and this loop runs long
+				# after the one that drew the boxes -- so without saying
+				# so again, every label in the picture carried the LAST
+				# node's tag. Labels are drawn over the boxes, and a pick
+				# answers with the topmost thing it finds, so every cell
+				# in the diagram reported itself as the final one. The
+				# tag has to follow the ink, not the loop.
+				_oC_.SetPickTag(_i_)
 				_cLb_ = "" + _aNodes_[_i_][:label]
 				if _cLb_ = ""  _cLb_ = _cId_  ok
 				_cLb_ = This._FitLabel(_cLb_, _oFont_, _nFsz_, _nBoxW_ - 18)
@@ -3587,6 +3602,12 @@ class stzDiagram from stzGraph
 
 	def RenderPicks()
 		return @aRenderPicks
+
+	# The picture as last drawn. A live session redraws THIS between
+	# gestures instead of building a new one -- the difference between a
+	# frame that costs a present and a frame that costs a layout.
+	def LastCanvas()
+		return @oLastCanvas
 
 	#-- READING THE PICTURE BACKWARDS ------------------------------------
 	#

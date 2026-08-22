@@ -1,0 +1,103 @@
+# A LIVE DIAGRAM EDITOR -- GG7, end to end.
+#
+#   run:  ring live_editor_demo.ring
+#
+#   drag a cell        press on it, move, release
+#   draw an edge       hold L, press one cell, release on another
+#   undo / redo        U / R
+#   quit               Escape, or close the window
+#
+# What makes it a live diagram rather than a picture: the layout only
+# ADVISES. A cell you move is pinned and no pass argues with it, the
+# picture answers questions (which cell is under the cursor), and every
+# edit is a command with an inverse.
+#
+# The frame does almost nothing on purpose. A drag records the pointer
+# and paints a ghost over the picture already on screen; the layout runs
+# once, when you let go. Re-laying a 500-node diagram out costs eleven
+# seconds, so a gesture must never ask for one.
+
+load "../../stzBase.ring"
+
+oFont = new stzFont("C:/Windows/Fonts/segoeui.ttf")
+
+oDiag = new stzDiagram("live")
+for a in [ [ "lb", "Balancer" ], [ "web1", "Web A" ], [ "web2", "Web B" ],
+           [ "api1", "API A" ], [ "api2", "API B" ],
+           [ "db1", "DB A" ], [ "db2", "DB B" ], [ "log", "Logger" ] ]
+	oDiag.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
+next
+oDiag.AddEdge("lb", "web1")    oDiag.AddEdge("lb", "web2")
+oDiag.AddEdge("web1", "api1")  oDiag.AddEdge("web2", "api2")
+oDiag.AddEdge("api1", "db1")   oDiag.AddEdge("api2", "db2")
+oDiag.AddEdge("web1", "log")   oDiag.AddEdge("api2", "log")
+oDiag.SetSplines("ortho")
+
+W = 1100  H = 760
+aOpt = [ :Font = oFont, :NodeWidth = 96, :NodeHeight = 36, :FontSize = 13,
+         :Width = W, :Height = H ]
+
+oWin = new stzWindow(W, H, "Softanza -- live diagram (drag, L+drag to link, U undo, R redo)")
+oDiag.ToCanvasXT(aOpt)
+
+? "live editor open. drag a cell; hold L and drag to link; U undo, R redo."
+
+bWasDown = 0
+bLink = 0
+nFrames = 0
+
+while oWin.IsOpen()
+	oWin.Poll()
+	nFrames++
+
+	if oWin.KeyPressed(:Escape)  exit  ok
+
+	# LINK MODE while L is held: the same machine, a different state
+	bNow = oWin.KeyDown(:L)
+	if bNow and NOT bLink   oDiag.BeginLinking()   ok
+	if NOT bNow and bLink   oDiag.EndLinking()     ok
+	bLink = bNow
+
+	if oWin.KeyPressed(:U)
+		if oDiag.Undo()  oDiag.ToCanvasXT(aOpt)  ok
+	ok
+	if oWin.KeyPressed(:R)
+		if oDiag.Redo()  oDiag.ToCanvasXT(aOpt)  ok
+	ok
+
+	# the pointer, fed to the state machine as events
+	nX = oWin.MouseX()
+	nY = oWin.MouseY()
+	bDown = oWin.MouseDown(1)
+	bChanged = 0
+
+	if bDown and NOT bWasDown
+		oDiag.OnPress(nX, nY)
+	but bDown and bWasDown
+		oDiag.OnMove(nX, nY)
+	but NOT bDown and bWasDown
+		nLog = len(oDiag.EditLog())
+		oDiag.OnRelease(nX, nY)
+		if len(oDiag.EditLog()) != nLog  bChanged = 1  ok
+	ok
+	bWasDown = bDown
+
+	# THE LAYOUT RUNS ONLY WHEN THE MODEL MOVED
+	if bChanged  oDiag.ToCanvasXT(aOpt)  ok
+
+	# ...and the gesture is painted OVER the picture we already have
+	aGhost = oDiag.DragPreview()
+	if len(aGhost) = 3
+		oOv = new stzCanvas(W, H)
+		oOv.SetBackgroundQ("#00000000")
+		oOv.FillQ("#00000000").StrokeQ("#FF6A00", 2).
+			AddRect(aGhost[2] - 48, aGhost[3] - 18, 96, 36)
+		oOv.Flush()
+		oWin.DrawXT(oDiag.LastCanvas(), oOv)
+	else
+		oWin.Draw(oDiag.LastCanvas())
+	ok
+end
+
+? "closed after " + nFrames + " frames. " + len(oDiag.EditLog()) +
+  " edit(s) in the log."
