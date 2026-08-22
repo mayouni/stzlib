@@ -7547,11 +7547,30 @@ class stzNumber from stzObject
 
 			if _bRoundItWhenRestricted_ = 1
 
+				#TODO This branch now RUNS (it used to die with R20 at the
+				# decimals() call below) but it does not yet round: the loop
+				# above has already TRUNCATED _cFractionalPart_ to
+				# _nNumberOfDigitsInFractionalPart_ digits, so rounding
+				# "0." + that truncated part can never carry.
+				# Measured: 3.14159265 to 3 places gives +3,141 with
+				# RoundItWhenRestricted both 0 and 1; rounding should give
+				# +3,142. The fix is to round the FULL fractional part and
+				# truncate afterwards -- a change to what the formatter
+				# computes, so it is named here rather than guessed at.
+
 				# Memorise the active round
 				_nCurrentRound_ = GetActiveRound()
 
 				# Setting the rounding system to the number of restricted digits
-				decimals(_nNumberOfDigitsInFractionalPart_)
+				#
+				# StzDecimals(), not decimals(): this code is INSIDE a class
+				# that defines a 0-parameter Decimals() method, and in Ring a
+				# method shadows a same-named builtin. `decimals(n)` therefore
+				# resolved to that method and raised Error (R20) on every call,
+				# killing this whole branch. StzDecimals() is a global function,
+				# so it reaches the builtin -- and it is the idiom used at the
+				# twelve other memorise/restore sites in this file.
+				StzDecimals(_nNumberOfDigitsInFractionalPart_)
 
 				# Composing a dummy number with the restricted fraction part
 				_cTempNumber_ = "0." + _cFractionalPart_
@@ -7567,6 +7586,12 @@ class stzNumber from stzObject
 				for _i_ = StzFindFirst(".", _cTempNumber_) + 1 to _nTempNumberLen_
 					_cFractionalPart_ += _cTempNumber_[_i_]
 				next
+
+				# Restore the rounding system memorised above. Every other
+				# memorise/restore pair in this file does this; this one could
+				# not, because the branch died at the decimals() call before
+				# reaching here. Fixing that made the leak reachable.
+				StzDecimals(_nCurrentRound_)
 			ok
 		ok
 
@@ -7639,14 +7664,14 @@ class stzNumber from stzObject
 
 		if NOT _bRounded_ #TODO // review the round() mechanism! #DONE
 			if _cFractionalPart_ != ""
-				_cFormattedNumber_ += (cFractionalSep + _cFractionalPart_)
+				_cFormattedNumber_ += (_cFractionalSeparator_ + _cFractionalPart_)
 			ok
 		else
 			_oTempNumber_ = new stzNumber(This.RoundTo(_nRoundTo_))
 
 			if _oTempNumber_.FractionalPartWithoutZerodot() != ""
 
-				_cFormattedNumber_ += cFractionalSep
+				_cFormattedNumber_ += _cFractionalSeparator_
 
 				if _nNumberOfDigitsInFractionalPart_ <= len(_oTempNumber_.FractionalPartWithoutZerodot())
 					for _i_ = 1 to _nNumberOfDigitsInFractionalPart_
@@ -7728,7 +7753,7 @@ class stzNumber from stzObject
 		ok
 
 		if _oNumber_.FractionalPart() != ""
-			_cNumber_ += cFractionalSep + _oNumber_.FractionalPartWithoutZerodot()
+			_cNumber_ += _cFractionalSeparator_ + _oNumber_.FractionalPartWithoutZerodot()
 		ok
 
 		if bPercent = 1

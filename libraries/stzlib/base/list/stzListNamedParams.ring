@@ -66,7 +66,13 @@ class stzListNamedParams from stzObject
 		return IsNamedParamList(This.Content())
 
 	def IsNamedParamWith(cKeyword)
-		return IsThisNamedParam(This.Content(), cKeyword)
+		# StzIsThisNamedParam(), not IsThisNamedParam(): the short alias is
+		# SHADOWED here by this class's own 0-parameter IsThisNamedParam()
+		# method (which tests for the literal :This keyword), so the call
+		# raised Error (R20) rather than reaching the 2-parameter global in
+		# base/common/stzNamedParams.ring. The Stz-prefixed canonical name
+		# is not shadowed by anything.
+		return StzIsThisNamedParam(This.Content(), cKeyword)
 
 	# NOTE: IsOneOfTheseNamedParams is defined further below (line ~916)
 	# with the full eval-based implementation. Removed duplicate here.
