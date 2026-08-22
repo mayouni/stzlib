@@ -494,8 +494,8 @@ A rung is marked DELIVERED only where a guard proving it was RUN on this date.
 | **R3** linguistic | **DELIVERED** | `base/linguistic/`, 8 files. The POS-pattern chunker (`test/linguistic/chunker_narrated.ring`) and the n-gram LM tier (`ngram_lm_tier_narrated.ring`) both exist; `stzCorpus` is the corpora entry object | The corpora SHELF is a class, not a folder. That is adequate, but §2's map still draws a `corpora/` directory that does not exist -- **the map is what is wrong here, not the code** |
 | **R3b** conversation | **DELIVERED** | `test/conversation/wisecoding_narrated.ring` **13/13** and `wisecoding_rich_narrated.ring` **52/52**, both green. `ConcludeIn()` WRITES the .zknw at the end of an elicitation -- wise coding ends in an artifact, exactly as 0.3 demanded | The five answer registers are not equally strong: option, data-structure and natural are wired; EXAMPLES-with-induction rides `StzOwnAgent("induction")`, which is declared RESERVED (see the R5 row) |
 | **R4** learning + optim | **PARTIAL** | Steps 0-4, 6 and 7 DELIVERED: `test/learning/` mlfloor 36/36, dlm 16/16, multilingual stress 37/37, knn-approximate green; `stzDLM` + .zdlm is foundry rung 1; `stzLLMFunction` + `stzOutputSchema` are step 6, and are now specified as **C9 v1.0.0** in `base/neural/SOFTANZA_STRUCTURED_OUTPUT.md` (written 2026-08-22) | **STEP 5 IS NOT STARTED. There is no `base/optim/`, no `stzOptimModel`, no `.zopt` format, no `SolveWith(:auto)` and no HiGHS tier.** The solver FLOOR exists (`engine/src/simplex.zig`, `stats/stzLinearSolver`, `stzMultiObjectiveSolver`, `stzStochasticSolver`); what is missing is the MODELLING DSL over it. This is load-bearing rather than cosmetic: R5's OPTIMIZATION leg names `stzOptimModel` as the planner's sub-solver, and the capstone's "optimize a menu straight from the knowledgebase" runs through it. **Step 8** (the neural foundry rung -- corpus synthesis, tokenizer training, GGUF export) is also not started, and was always the ambition tier |
-| **R4b** governance | **DELIVERED -- all five contracts, not one** | `base/governance/stzGovernance.ring`, 744 lines, born 7dd4b7275. ActionRiskTier = `DeclareRisk` / `RiskOf`; AuthorityType = `SetAuthority` / `AuthorityOf`; CommitmentState = `OpenCommitment` / `AdvanceCommitment`; DecommissionContract = `DeclareDecommission` / `FulfillObligation` / `MayRetire`; DecisionLineage = `RecordDecision` / `LineageOf` / `DecisionsSince`. Plus the 5.8 execution trust postures (`DeclarePosture` / `MayExecute`) and the .zgov format. `test/governance/` -- narrated 19/19, lineage 37/37 | **Reversibility is not among them.** See 3.2 -- it is now owed as a sixth contract |
-| **R5** agentic | **PARTIAL -- and the partition is not where 2026-07-13 expected it** | Green: `test/agentic/`, eight suites, **261 assertions, 0 fail** (agentfile 88, agentloop_engine 54, agenthost 32, roster 31, agentrule 21, piagent 14, agentgraph 11, ownagentstack 10). PLANNING = `stzGraphPlanner` + `stzGraphGoal`, both built; REACTION, MEMORY, SKILLS and the governance gate all run; the capability lattice and taint colours are real (`stzAgentGraph`); ACCOUNTABILITY is the per-cycle trace | Named with reasons in **3.2**. In one line: OPTIMIZATION has no sub-solver (R4 step 5), the NATIVE ROSTER is one wired of five, `stzHybridAgent` was never built as a class, and **the safe world and the agents have never been introduced to each other** |
+| **R4b** governance | **DELIVERED -- all five contracts, not one** | `base/governance/stzGovernance.ring`, 744 lines, born 7dd4b7275. ActionRiskTier = `DeclareRisk` / `RiskOf`; AuthorityType = `SetAuthority` / `AuthorityOf`; CommitmentState = `OpenCommitment` / `AdvanceCommitment`; DecommissionContract = `DeclareDecommission` / `FulfillObligation` / `MayRetire`; DecisionLineage = `RecordDecision` / `LineageOf` / `DecisionsSince`. Plus the 5.8 execution trust postures (`DeclarePosture` / `MayExecute`) and the .zgov format. `test/governance/` -- narrated 19/19, lineage 37/37 | **Reversibility is not among them.** See 3.2 -- it is now owed as a sixth contract *[2026-08-22 second session: PAID -- contract 6 + MayRegister delivered, safeworld_narrated 76/76]* |
+| **R5** agentic | **PARTIAL -- and the partition is not where 2026-07-13 expected it** | Green: `test/agentic/`, eight suites, **261 assertions, 0 fail** (agentfile 88, agentloop_engine 54, agenthost 32, roster 31, agentrule 21, piagent 14, agentgraph 11, ownagentstack 10). PLANNING = `stzGraphPlanner` + `stzGraphGoal`, both built; REACTION, MEMORY, SKILLS and the governance gate all run; the capability lattice and taint colours are real (`stzAgentGraph`); ACCOUNTABILITY is the per-cycle trace | Named with reasons in **3.2**. In one line: OPTIMIZATION has no sub-solver (R4 step 5), the NATIVE ROSTER is one wired of five, `stzHybridAgent` was never built as a class, and **the safe world and the agents have never been introduced to each other** *[2026-08-22 second session: INTRODUCED -- stzAgentWorkbench + pia:2 postures + roster as first consumer; OPTIM, the four native agents and stzHybridAgent remain]* |
 | **R6** refine | **DELIVERED** | `test/refine/` -- refinablecode 17/17, refine_deepening 24/24, gate_deepening green. `stzRefinableCode` over .zrfn; the four-stage gate; `stzPyCodeGraph` and `stzJsCodeGraph` are the polyglot contracts | The optional research tier (patch-commutation predicates, the ROM-style stable surface) was never started, and was marked optional on the day |
 | **R7** delivery plane | **DELIVERED** (unchanged; marked on the day) | `test/capstone/restaurant_capstone_narrated.ring` green. All four topologies; `HostAgents()` interleaves the serve loop | INBOUND server-side TLS, as already recorded |
 | **R8** scale | **DELIVERED** (unchanged; marked 2026-07-15) | §7 and its six rungs | -- |
@@ -701,6 +701,17 @@ file cannot declare a posture and the loader never asks for one.
 > place where `.pia` v1's vocabulary is genuinely incomplete rather than merely small, and
 > closing it is a version bump (`pia: 2`), which is what the version header is for.
 
+*[DELIVERED 2026-08-22, second session: `pia: 2` is the current format --
+`posture: trusted | external | sandboxed` required beside any `ring:` clause,
+composed against the agent's reversibility class for `does:` slots via
+`StzPostureReversibilityRefusal` (trusted covers all three classes, external
+covers reversible+compensable, sandboxed covers reversible only -- the
+`no-llm-effectful` rule seen from the other side). v1 stays READ as a stated
+migration state: the estate's live roster declarations are v1 and belong to
+softanza, so their bump is Central's; the debt is recorded in
+stzAgentDeclaration's header. Guard: test/agentic/safeworld_narrated.ring
+scene 4.]*
+
 #### The native roster: honest, and one-fifth wired
 
 `stzOwnAgentStack` declares five library-internal agents and wires one (`wise-coder`);
@@ -718,9 +729,21 @@ far "the library is the first consumer of its own agents" has actually got.
 3. `stzHybridAgent` as a class, not only as a graph colour.
 4. **The binding of the safe world** -- the largest of the four, and the one that makes the
    constitution true instead of aspirational.
+   *[DELIVERED 2026-08-22, second session: stzAgentWorkbench +
+   stzPIAgent.GiveWorkbench()/GenerateUpdatePlan(), the ambient bench bracketed
+   per Cycle(), stzAgentRoster as first consumer. The constitution's remaining
+   Layer-4 gap is the negotiation verbs (Receive/Revise, stzAgentEvaluation,
+   branch-per-hypothesis) -- the plan now reaches the agent; the conversation
+   about the plan does not yet.]*
 
 And R4b owes the two contracts this ruling promotes: the **registration gate** and
 **ReversibilityClass**.
+*[DELIVERED 2026-08-22, second session: contract 6
+(`DeclareReversibility`/`ReversibilityOf`, .zgov-persisted) and
+`MayRegister` refusing in AGENTLOOP-R4/R5's own sentences -- both in
+stzGovernance.ring. The gate's default flip on the Ring pump stays a migration
+step by the ruling's own condition: appserver/, cluster/ and perf/ hosts
+supervise without declaring, and those planes are not this one's to edit.]*
 
 
 ---
@@ -1766,6 +1789,21 @@ the engine loop enforces it, and stzGovernance has never heard of it), and the
 **REGISTRATION GATE** -- an actor with no coverage statement and no reversibility
 class is refused before it can be scheduled at all, which is a different question
 from MayProceed and is answered at a different moment.]
+[AMENDED 2026-08-22, second session -- BOTH OWED CONTRACTS DELIVERED.
+**ReversibilityClass** is contract 6 in stzGovernance
+(`DeclareReversibility`/`ReversibilityOf`, the three .pia words as the whole
+vocabulary, persisted in a `.zgov` `reversibility` section beside the postures it
+composes with). The **registration gate** is `MayRegister(actor, coverage, class)`
+in the same file, refusing in agentloop.zig's own AGENTLOOP-R4/R5 sentences --
+one rule, two doors, same words. The gate's DEFAULT FLIP (Supervise refusing
+undeclared agents on the Ring pump) remains a migration step per the ruling's own
+condition "the default flips when the last in-tree host declares": hosts in
+appserver/, cluster/ and perf/ supervise without declaring and belong to other
+planes. The composition of contract 6 with the 5.8 postures is one sentence,
+`StzPostureReversibilityRefusal` (trusted covers all three classes; external
+covers reversible+compensable; sandboxed covers reversible only), quoted by both
+stzGovernance.MayExecuteFor and the .pia v2 court. Guard:
+test/agentic/safeworld_narrated.ring.]
 
 **R5 -- agentic/ (composition) -- THE FOUNDATIONS CONVERGE.**
 [AMENDED 2026-08-22: PARTIAL. **Read ruling 3.2 before this section** -- it settles
@@ -1776,6 +1814,30 @@ stzOptimModel (blocked on R4 step 5), four of five native agents, stzHybridAgent
 class, and -- the largest -- BINDING THE SAFE WORLD: base/agentic/ contains zero
 references to stzVirtualSystem / stzUpdatePlan / stzCommitScope, while a shipped .pia
 agent writes to the real filesystem through the `ring:` escape.]
+[AMENDED 2026-08-22, second session -- THE SAFE WORLD IS BOUND, and the `ring:`
+escape is closed by version rather than by removal. Delivered:
+**stzAgentWorkbench** (agentic/stzAgentWorkbench.ring) -- an stzVirtualFileSystem
+held in a process-global table, reached through id-carrying faces (the
+engine-wrapper copy law in pure Ring); `stzPIAgent.GiveWorkbench()` opens one,
+`Cycle()` brackets it as the AMBIENT bench so a ring: function reaches it as
+`StzActiveWorkbenchQ()` with no signature change, and the tick's ONLY export
+toward reality is `GenerateUpdatePlan()`, committed by a committing actor under
+stzUpdatePlan's three gates. **pia: 2** requires `posture: trusted | external |
+sandboxed` on any skill (or proposes input) with a ring: clause, composes a
+does:-slot's posture against the agent's reversibility class in
+StzPostureReversibilityRefusal's own sentence, and lands what the file declares in
+the agent's OWN governance (contract 6 + DeclarePosture per ring function). v1
+remains READ -- the stated migration state, recorded in stzAgentDeclaration's
+header: the live estate's declarations are v1 and not this repository's to edit;
+the admission ends when they bump. **stzAgentRoster is the first consumer**: its
+write paths go through the safe-world door (_StzRosterFile* helpers) -- inside a
+workbench-holding agent's tick the relocation rehearses and the ledger moves only
+on plan commit; outside one it is the direct write the live estate still runs.
+Proof: test/agentic/safeworld_narrated.ring, 76 assertions -- including the twin
+producing the IDENTICAL ledger the direct path produces. Still owed by R5 after
+this: stzOptimModel (R4 step 5, prompt 48), four native agents, stzHybridAgent,
+and the constitution's Layer-4 negotiation verbs (Receive/Revise,
+stzAgentEvaluation, branch-per-hypothesis).]
 stzAgent + stzAgentSkill/Memory/Tool interfaces; stzPIAgent FIRST
 (deterministic, zero-cost, the differentiator), stzLLMAgent second (same
 interfaces over neural/). The PI-agent is ASSEMBLED, not invented (the 5.6 ladder: Xuter

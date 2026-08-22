@@ -1,6 +1,9 @@
 # R4b -- stzGovernance: PROGRAMMATIC GOVERNANCE AS DECLARABLE CONTRACTS
-# (SOFTANZA_INTELLIGENCE_ARCHITECTURE.md 5.7 G6 + 5.8 trust postures.)
-# The five primitives closing the industry's governance gaps, plus the
+# (SOFTANZA_INTELLIGENCE_ARCHITECTURE.md 5.7 G6 + 5.8 trust postures,
+#  plus the two contracts ruling 3.2 promoted from the loop program on
+#  2026-08-22: REVERSIBILITY as the sixth declarable contract, and the
+#  REGISTRATION GATE beside MayProceed.)
+# The six primitives closing the industry's governance gaps, plus the
 # structural split the doctrine demands:
 #
 #   PERMISSION (CAN)  is not  AUTHORITY (SHOULD) -- an actor may hold
@@ -52,9 +55,44 @@
 # forking is the correct behaviour.
 #
 # [ [ id, lineage, capacity, dropped, risks, permissions, authorities,
-#     commitments, decommissions, postures ], ... ]
+#     commitments, decommissions, postures, reversibilities ], ... ]
 $aStzGovernances = []
 $nStzGovernanceSeq = 0
+
+# THE COMPOSITION OF CONTRACT 6 WITH THE TRUST POSTURES (5.8), ruled in
+# 3.2: the harder an act is to undo, the more trusted the code
+# performing it must be. Returns "" when the posture covers the class,
+# else the ONE refusal sentence -- built here so every door that judges
+# this question (this file, the .pia court) refuses in the same words.
+#
+#   trusted   (in-process)      covers reversible, compensable, irreversible
+#   external  (out-of-process)  covers reversible, compensable
+#   sandboxed (LLM-composed)    covers reversible only
+#
+# The sandboxed row is `no-llm-effectful` seen from the other side: code
+# an LLM composed may rehearse and propose, and the only acts it may
+# perform directly are the ones anyone can take back.
+func StzPostureReversibilityRefusal(pcPosture, pcRevClass)
+	_cP_ = StzLower(ring_trim("" + pcPosture))
+	_cR_ = StzLower(ring_trim("" + pcRevClass))
+	_bOk_ = 0
+	if _cP_ = "trusted"
+		_bOk_ = 1
+	but _cP_ = "external"
+		if _cR_ != "irreversible"
+			_bOk_ = 1
+		ok
+	but _cP_ = "sandboxed"
+		if _cR_ = "reversible"
+			_bOk_ = 1
+		ok
+	ok
+	if _bOk_ = 1
+		return ""
+	ok
+	return "a '" + _cP_ + "' posture does not cover '" + _cR_ + "' work -- " +
+		"the harder an act is to undo, the more trusted the code performing " +
+		"it must be (reversibility x posture, ruling 3.2)"
 
 class stzGovernance from stzObject
 
@@ -76,9 +114,9 @@ class stzGovernance from stzObject
 		$aStzGovernances + This._EmptySlot(@nId)
 
 	# [ id, lineage, capacity, dropped, risks, permissions, authorities,
-	#   commitments, decommissions, postures ]
+	#   commitments, decommissions, postures, reversibilities ]
 	def _EmptySlot(pnId)
-		return [ pnId, [], 512, 0, [], [], [], [], [], [] ]
+		return [ pnId, [], 512, 0, [], [], [], [], [], [], [] ]
 
 	def SetName(pcName)
 		@cName = "" + pcName
@@ -518,6 +556,12 @@ class stzGovernance from stzObject
 	def _SetPostures(paList)
 		$aStzGovernances[This._Slot()][10] = paList
 
+	def _Revs()
+		return $aStzGovernances[This._Slot()][11]
+
+	def _SetRevs(paList)
+		$aStzGovernances[This._Slot()][11] = paList
+
 	def _Slot()
 		if @nId = 0
 			stzraise("stzGovernance: this object has no table slot -- it was " +
@@ -609,6 +653,91 @@ class stzGovernance from stzObject
 		@cWhy = "allowed: posture '" + _cP_ + "' declared"
 		return 1
 
+	#-- 6. REVERSIBILITY CLASS (the sixth contract, ruling 3.2) ----------------
+
+	# How UNDOABLE a subject's work is -- orthogonal to how RISKY it is
+	# (contract 1): a tier-1 action that cannot be undone deserves more
+	# ceremony than a tier-3 action that can. The three words are .pia's,
+	# adopted whole: they are the contract's vocabulary now, not one
+	# format's private enum. The subject is whatever the caller governs --
+	# an action, or an actor whose whole tick is being classified.
+
+	def DeclareReversibility(pcSubject, pcClass)
+		_cC_ = StzLower(ring_trim("" + pcClass))
+		if ring_find([ "reversible", "compensable", "irreversible" ], _cC_) = 0
+			stzraise("A reversibility class is :Reversible, :Compensable or :Irreversible.")
+		ok
+		_cS_ = StzLower(ring_trim("" + pcSubject))
+		_aRev_ = This._Revs()
+		_n_ = len(_aRev_)
+		for _i_ = 1 to _n_
+			if _aRev_[_i_][1] = _cS_
+				_aRev_[_i_][2] = _cC_
+				This._SetRevs(_aRev_)
+				return This
+			ok
+		next
+		_aRev_ + [ _cS_, _cC_ ]
+		This._SetRevs(_aRev_)
+		return This
+
+	def ReversibilityOf(pcSubject)
+		_cS_ = StzLower(ring_trim("" + pcSubject))
+		_aRev_ = This._Revs()
+		_n_ = len(_aRev_)
+		for _i_ = 1 to _n_
+			if _aRev_[_i_][1] = _cS_
+				return _aRev_[_i_][2]
+			ok
+		next
+		return ""   # undeclared
+
+	# posture x reversibility for a DECLARED executor: may code holding
+	# pcExecutor's declared posture perform work of this class? The one
+	# sentence lives in StzPostureReversibilityRefusal so the .pia court
+	# refuses in the same words.
+	def MayExecuteFor(pcExecutor, pcRevClass)
+		if This.MayExecute(pcExecutor) = 0
+			return 0   # @cWhy already says why
+		ok
+		_cRef_ = StzPostureReversibilityRefusal(This.PostureOf(pcExecutor), pcRevClass)
+		if _cRef_ != ""
+			@cWhy = "refused: '" + pcExecutor + "' -- " + _cRef_
+			return 0
+		ok
+		@cWhy = "allowed: posture '" + This.PostureOf(pcExecutor) +
+			"' covers '" + StzLower(ring_trim("" + pcRevClass)) + "' work"
+		return 1
+
+	#-- THE REGISTRATION GATE (ruling 3.2a) ------------------------------------
+
+	# May this actor EXIST in a loop at all -- asked before any tick, when
+	# the answer is still free. MayProceed gates ACTS; this gates
+	# REGISTRATION, and those are different failures. One rule, two doors,
+	# same words: the sentences are agentloop.zig's own refusals
+	# (AGENTLOOP-R4 / AGENTLOOP-R5), quoted with only the engine's slot
+	# number absent, so a caller who meets the refusal in either door
+	# reads the same law.
+	def MayRegister(pcActor, pcCoverage, pcRevClass)
+		if ring_trim("" + pcCoverage) = ""
+			@cWhy = "AGENTLOOP-R4: agent '" + pcActor + "' declares no coverage " +
+				"statement. Registration refuses it. Say what this agent covers, " +
+				"in one sentence, before the loop will run it. Law 18: nothing " +
+				"schedules what nobody has stated the reach of."
+			return 0
+		ok
+		_cC_ = StzLower(ring_trim("" + pcRevClass))
+		if ring_find([ "reversible", "compensable", "irreversible" ], _cC_) = 0
+			@cWhy = "AGENTLOOP-R5: agent '" + pcActor + "' declares no " +
+				"reversibility class. Registration refuses it. Declare one of: " +
+				"reversible | compensable | irreversible. Law 18: an agent whose " +
+				"reversal nobody stated cannot be scheduled by something that " +
+				"cannot undo it."
+			return 0
+		ok
+		@cWhy = "allowed: coverage stated and reversal declared -- law 18 is met"
+		return 1
+
 	#-- persistence (*.zgov) ------------------------------------------------------
 
 	# LOAD a .zgov back INTO this governance -- the mirror of Save(), and
@@ -657,6 +786,11 @@ class stzGovernance from stzObject
 				_acP_ = StzSplit(_cL_, "|")
 				if len(_acP_) = 2
 					This.DeclarePosture(ring_trim(_acP_[1]), ring_trim(_acP_[2]))
+				ok
+			but _cSection_ = "reversibility"
+				_acP_ = StzSplit(_cL_, "|")
+				if len(_acP_) = 2
+					This.DeclareReversibility(ring_trim(_acP_[1]), ring_trim(_acP_[2]))
 				ok
 			but _cSection_ = "decisions"
 				This._LoadDecisionLine(_cL_)
@@ -714,6 +848,15 @@ class stzGovernance from stzObject
 		next
 		_c_ += "postures" + char(10)
 		_aSec_ = This._Postures()
+		_n_ = len(_aSec_)
+		for _i_ = 1 to _n_
+			_c_ += "    " + _aSec_[_i_][1] + " | " + _aSec_[_i_][2] + char(10)
+		next
+		# contract 6 travels with the regime it composes against -- a .zgov
+		# whose postures survived a round trip while the reversibility they
+		# are judged by did not would judge differently after a reload.
+		_c_ += "reversibility" + char(10)
+		_aSec_ = This._Revs()
 		_n_ = len(_aSec_)
 		for _i_ = 1 to _n_
 			_c_ += "    " + _aSec_[_i_][1] + " | " + _aSec_[_i_][2] + char(10)

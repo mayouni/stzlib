@@ -11,7 +11,7 @@
 
 	A .pia file, whole:
 
-		pia: 1
+		pia: 2
 		name: kitchen-bot
 		kind: pi
 		coverage: watches stock levels and reorders when they run low
@@ -35,7 +35,7 @@
 
 	And the same shape for a proposer:
 
-		pia: 1
+		pia: 2
 		name: summarizer
 		kind: llm
 		coverage: proposes a topic and a mood; commits nothing
@@ -62,11 +62,13 @@
 	honoured never becomes an agent.
 
 	THE VOCABULARY IS SMALL AND CLOSED, AND VERSIONED FROM DAY ONE. The
-	`pia: 1` header is not decoration: a file with no version, or a version
+	`pia:` header is not decoration: a file with no version, or a version
 	this build does not know, is refused rather than guessed at. Growing
-	the vocabulary means growing the version.
+	the vocabulary means growing the version -- which is exactly what
+	`pia: 2` did (ruling 3.2): v1's check on a `ring:` clause was a check
+	on the NAME, and nothing said on what terms the function may run.
 
-	WHAT A CLAUSE MAY SAY (the whole of v1):
+	WHAT A CLAUSE MAY SAY (the whole of v2):
 
 	  always                 -- only in `when:`; the precondition always holds
 	  fact <s> <p> <o>       -- in `when:` / `verify:`; that triple is in memory
@@ -76,9 +78,28 @@
 	  forget <s> <p> <o>     -- only in `does:`; remove it
 	  propose                -- only in `does:`, only for kind: llm
 	  ring:<FunctionName>    -- any slot; a Ring function taking (oMemory).
-	                            REFUSED AT LOAD if no such function exists,
-	                            which is what "Ring for the rest" costs and
-	                            all it costs.
+	                            REFUSED AT LOAD if no such function exists --
+	                            and, from v2, refused unless the skill also
+	                            declares the EXECUTION POSTURE it runs under.
+
+	NEW IN v2 -- THE POSTURE (5.8, ruling 3.2). A skill (or a proposer)
+	whose clause names a Ring function must say on what terms that code
+	runs:
+
+	    posture: trusted | external | sandboxed
+
+	and a `does:` slot's posture must COVER the agent's reversibility
+	class -- the composition StzPostureReversibilityRefusal rules, quoted
+	here in its own words: the harder an act is to undo, the more trusted
+	the code performing it must be. A posture on a skill with no ring:
+	clause is refused too: the declared verbs carry their own terms.
+
+	v1 REMAINS ADMITTED, AND THAT IS A STATED MIGRATION STATE, not a
+	loophole -- the same shape as the registration gate's opt-in (ruling
+	3.2a): the live estate's declarations are v1 and are not this
+	repository's to edit. A v1 file's ring: clauses load exactly as they
+	always did; the admission ends when the estate's declarations bump,
+	and this sentence is where that debt is recorded.
 
 	THIS FILE EXTENDS stzAgentGraph's VOCABULARY RATHER THAN INVENTING A
 	SECOND ONE. `kind` is the graph's actor kind, `effect` names a governed
@@ -96,10 +117,15 @@
 #  THE CLOSED VOCABULARY                                               #
 #---------------------------------------------------------------------#
 
-# The format version this build knows. A file naming any other is
-# refused; the number moves when the vocabulary does.
+# The format version this build WRITES -- the current vocabulary. The
+# number moves when the vocabulary does (v2: the execution posture).
 func StzPiaVersion()
-	return 1
+	return 2
+
+# ...and every version it still READS. v1 is the migration state the
+# header comment records; a version outside this list is refused.
+func StzPiaKnownVersions()
+	return [ "1", "2" ]
 
 func StzPiaTopKeys()
 	return [ "pia", "name", "kind", "coverage", "reversibility",
@@ -162,6 +188,7 @@ class stzAgentDeclaration from stzObject
 	@cSource = ""
 	@aFindings = []
 	@bValid = 0
+	@nVer = 0
 
 	@cName = ""
 	@cKind = "pi"
@@ -185,6 +212,9 @@ class stzAgentDeclaration from stzObject
 
 	def IsValid()
 		return @bValid
+
+	def FormatVersion()
+		return @nVer
 
 	def Findings()
 		return @aFindings
@@ -306,11 +336,14 @@ class stzAgentDeclaration from stzObject
 			return
 		ok
 		_v_ = ring_trim("" + paDoc[:pia])
-		if _v_ != ("" + StzPiaVersion())
+		if ring_find(StzPiaKnownVersions(), _v_) = 0
 			@aFindings + _StzPiaFinding("pia-version", "pia",
-				"this build knows format version " + StzPiaVersion() +
+				"this build knows format versions " +
+				StzJoinWith(StzPiaKnownVersions(), " and ") +
 				" and the file says '" + _v_ + "'.")
+			return
 		ok
+		@nVer = 0 + _v_
 
 	def _JudgeUnknownKeys(paDoc)
 		_acOK_ = StzPiaTopKeys()
@@ -546,7 +579,12 @@ class stzAgentDeclaration from stzObject
 			return
 		ok
 
+		# `posture` is a v2 word: in a v1 file it stays an unknown key, so
+		# v1's vocabulary is exactly what it was the day it was closed.
 		_acOK_ = StzPiaSkillKeys()
+		if @nVer >= 2
+			_acOK_ + "posture"
+		ok
 		_n_ = len(paSk)
 		for _i_ = 1 to _n_
 			_k_ = StzLower(ring_trim("" + paSk[_i_][1]))
@@ -597,8 +635,64 @@ class stzAgentDeclaration from stzObject
 			ok
 		ok
 
+		# THE POSTURE GATE (v2, ruling 3.2). The check on a ring: clause's
+		# NAME says the function exists; the posture says on what terms it
+		# runs. Every ring: clause requires one; a does:-slot's posture is
+		# additionally composed against the agent's reversibility class, in
+		# StzPostureReversibilityRefusal's own words -- one rule, two
+		# doors, same sentence.
+		_cPosture_ = ""
+		if @nVer >= 2 and HasKey(paSk, "posture")
+			_cPosture_ = StzLower(ring_trim("" + paSk[:posture]))
+			if ring_find([ "trusted", "external", "sandboxed" ], _cPosture_) = 0
+				@aFindings + _StzPiaFinding("pia-posture", _cWhere_ + ".posture",
+					"A posture is :Trusted (in-process), :External " +
+					"(out-of-process) or :Sandboxed (LLM-composed) -- and the " +
+					"file says '" + _cPosture_ + "'.")
+				_cPosture_ = ""
+			ok
+		ok
+
+		_acRingFns_ = []
+		_bDoesRing_ = 0
+		if _aWhen_[:verb] = "ring"
+			_acRingFns_ + _aWhen_[:args][1]
+		ok
+		if _aDoes_[:verb] = "ring"
+			_acRingFns_ + _aDoes_[:args][1]
+			_bDoesRing_ = 1
+		ok
+		if _aVerify_[:verb] = "ring"
+			_acRingFns_ + _aVerify_[:args][1]
+		ok
+
+		if @nVer >= 2
+			if len(_acRingFns_) > 0 and _cPosture_ = ""
+				@aFindings + _StzPiaFinding("pia-posture", _cWhere_,
+					"this skill runs the Ring function '" +
+					StzJoinWith(_acRingFns_, "', '") + "' and declares no " +
+					"execution posture. pia 2 requires 'posture: trusted | " +
+					"external | sandboxed' on any skill with a ring: clause -- " +
+					"the load gate says the function EXISTS; the posture says " +
+					"on what TERMS it may run (5.8).")
+			ok
+			if len(_acRingFns_) = 0 and _cPosture_ != ""
+				@aFindings + _StzPiaFinding("pia-posture", _cWhere_ + ".posture",
+					"a posture on a skill with no ring: clause governs " +
+					"nothing -- the declared verbs carry their own terms.")
+			ok
+			if _bDoesRing_ = 1 and _cPosture_ != ""
+				_cRef_ = StzPostureReversibilityRefusal(_cPosture_, @cRev)
+				if _cRef_ != ""
+					@aFindings + _StzPiaFinding("pia-posture-reversibility",
+						_cWhere_ + ".posture", _cRef_)
+				ok
+			ok
+		ok
+
 		@aSkills + [ :name = _cName_, :when = _aWhen_, :does = _aDoes_,
-			     :verify = _aVerify_, :effect = _cEffect_ ]
+			     :verify = _aVerify_, :effect = _cEffect_,
+			     :posture = _cPosture_, :ringfns = _acRingFns_ ]
 
 	# One clause -> [ :verb, :args ]. Every refusal here names the slot as
 	# well as the rule, because the same verb is legal in one slot and not
@@ -730,14 +824,20 @@ class stzAgentDeclaration from stzObject
 		_nBudget_ = 1
 		_nRetries_ = 0
 		_nMax_ = 128
+		_cPosture_ = ""
 
+		# `posture` is a v2 word here too -- see _JudgeOneSkill
+		_acOK_ = StzPiaProposesKeys()
+		if @nVer >= 2
+			_acOK_ + "posture"
+		ok
 		_n_ = len(_aP_)
 		for _i_ = 1 to _n_
 			_k_ = StzLower(ring_trim("" + _aP_[_i_][1]))
-			if ring_find(StzPiaProposesKeys(), _k_) = 0
+			if ring_find(_acOK_, _k_) = 0
 				@aFindings + _StzPiaFinding("pia-unknown-key", "proposes." + _k_,
 					"'" + _k_ + "' is not a proposes key; the whole of it is " +
-					StzJoinWith(StzPiaProposesKeys(), ", ") + ".")
+					StzJoinWith(_acOK_, ", ") + ".")
 				loop
 			ok
 			if _k_ = "prompt"
@@ -752,6 +852,8 @@ class stzAgentDeclaration from stzObject
 				_nRetries_ = 0 + ring_trim("" + _aP_[_i_][2])
 			but _k_ = "maxtokens"
 				_nMax_ = 0 + ring_trim("" + _aP_[_i_][2])
+			but _k_ = "posture"
+				_cPosture_ = StzLower(ring_trim("" + _aP_[_i_][2]))
 			else
 				_aStruct_ = _aP_[_i_][2]
 			ok
@@ -795,9 +897,39 @@ class stzAgentDeclaration from stzObject
 			_nBudget_ = 1
 		ok
 
+		# THE POSTURE GATE for the proposer's input (v2, ruling 3.2) --
+		# the same law _JudgeOneSkill states, applied to the one clause a
+		# proposes block may hand to Ring. Input is a SENSING slot, so
+		# there is no reversibility composition here; the posture is still
+		# required, because "on what terms does this code run" is a
+		# question sensing code must answer too.
+		if @nVer >= 2
+			if _cPosture_ != "" and
+			   ring_find([ "trusted", "external", "sandboxed" ], _cPosture_) = 0
+				@aFindings + _StzPiaFinding("pia-posture", "proposes.posture",
+					"A posture is :Trusted (in-process), :External " +
+					"(out-of-process) or :Sandboxed (LLM-composed) -- and the " +
+					"file says '" + _cPosture_ + "'.")
+				_cPosture_ = ""
+			ok
+			if _aIn_[:verb] = "ring" and _cPosture_ = ""
+				@aFindings + _StzPiaFinding("pia-posture", "proposes.input",
+					"the input clause runs the Ring function '" +
+					_aIn_[:args][1] + "' and declares no execution posture. " +
+					"pia 2 requires 'posture: trusted | external | sandboxed' " +
+					"beside any ring: clause (5.8).")
+			ok
+			if _aIn_[:verb] != "ring" and _cPosture_ != ""
+				@aFindings + _StzPiaFinding("pia-posture", "proposes.posture",
+					"a posture with no ring: clause governs nothing -- the " +
+					"declared vocabulary's verbs carry their own terms.")
+			ok
+		ok
+
 		@aProposes = [ :prompt = _cPrompt_, :input = _aIn_, :into = _cInto_,
 			       :structure = _aStruct_, :budget = _nBudget_,
-			       :retries = _nRetries_, :maxtokens = _nMax_ ]
+			       :retries = _nRetries_, :maxtokens = _nMax_,
+			       :posture = _cPosture_ ]
 
 	# THE ONE PLACE THE FILE'S NOTATION DIFFERS FROM THE API's, and it is
 	# a translation rather than a dialect: a closed enumeration reads
@@ -940,6 +1072,28 @@ class stzAgentDeclaration from stzObject
 				_oAg_.AddGovernedSkill(_oSk_, @aSkills[_i_][:effect])
 			else
 				_oAg_.AddSkill(_oSk_)
+			ok
+		next
+
+		# CONTRACT 6 (ruling 3.2): the file's reversibility class lands in
+		# the agent's OWN governance table, not only in the loop gate's
+		# answer -- so R4b can be asked how undoable this agent's work is.
+		_oAg_.GovernanceQ().DeclareReversibility(@cName, @cRev)
+
+		# ...and every ring: function's declared execution posture (5.8),
+		# so MayExecute / MayExecuteFor answer for the code the file names.
+		# v1 files declare none, which is the migration state made visible:
+		# their ring functions stand in governance with NO posture, and
+		# MayExecute refuses them -- absence is recorded, never papered over.
+		_n_ = len(@aSkills)
+		for _i_ = 1 to _n_
+			if @aSkills[_i_][:posture] != ""
+				_acF_ = @aSkills[_i_][:ringfns]
+				_m_ = len(_acF_)
+				for _j_ = 1 to _m_
+					_oAg_.GovernanceQ().DeclarePosture(_acF_[_j_],
+						@aSkills[_i_][:posture])
+				next
 			ok
 		next
 		return _oAg_
