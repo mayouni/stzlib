@@ -1977,6 +1977,42 @@ nBWide = -1
 for v in aBLow
 	if fabs(v - nBCx) > nBWide  nBWide = fabs(v - nBCx)  ok
 next
+# AND THE CLEAR LEG IS TAKEN EVEN WHEN IT LIES BETWEEN OBSTACLES. This
+# is the case the first version of the collapse could never see: it
+# asked _ChannelBand whether it returned the target column unchanged,
+# and the band RECENTRES any proposal lying in an interior gap to that
+# gap's middle -- so a perfectly clear column came back moved and read
+# as blocked. The straight leg was refused and a four-turn detour drawn
+# in its place, on an edge whose target sat almost directly below its
+# source. A predicate must not be built out of a function whose job is
+# to move things; the second time that confusion cost a picture here.
+oClr = new stzDiagram("clear30")
+for a in [ [ "top", "Top" ], [ "l", "L" ], [ "r", "R" ], [ "far", "FAR" ] ]
+	oClr.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
+next
+oClr.AddNodeXTT("mid", "MID", [ :type = "box", :color = "Info.Solid" ])
+oClr.AddEdge("top", "l")   oClr.AddEdge("top", "r")
+oClr.AddEdge("l", "far")   oClr.AddEdge("r", "far")
+oClr.AddEdge("top", "mid")            # spans two ranks: routed
+oClr.SetSplines("ortho")
+oClr.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36,
+	:Width = 900, :Height = 600 ])
+nTurns30 = -1
+for p in oClr.RenderEdgePaths()
+	if p[1] != "top>mid"  loop  ok
+	aF = p[2]
+	nTurns30 = 0
+	for i = 3 to len(aF) - 3 step 2
+		bH1 = fabs(aF[i+1] - aF[i-1]) < 0.5
+		bH2 = fabs(aF[i+3] - aF[i+1]) < 0.5
+		if bH1 != bH2  nTurns30++  ok
+	next
+next
+? "   a routed edge with a clear corridor between two obstacles turns " +
+  nTurns30 + " time(s)"
+chk("a straight leg is taken even when it runs between obstacles",
+    nTurns30 >= 0 and nTurns30 <= 2)
+
 ? "   at b's border every lane is within " + nBWide + "px of its centre"
 # 35, not the bare pitch: c sits exactly above b, so the c-to-b spine
 # owns b's centre port and the routed arrival stands one full spread
