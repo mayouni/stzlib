@@ -26,6 +26,7 @@
 # grows a :Danger, the layering has collapsed.
 
 load "stzPanel.ring"
+load "stzUiProfile.ring"
 load "stzUiDocument.ring"
 load "stzAccessibilityTree.ring"
 load "stzScenePanel.ring"

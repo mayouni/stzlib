@@ -1,0 +1,62 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><style>
+html, body { margin: 0; padding: 0; }
+body { box-sizing: border-box; display: flex; flex-direction: column; width: 1000px; height: 640px; font-family: app, sans-serif; font-size: 14px; direction: ltr; text-align: left; background: #0f1419; }
+#bar { box-sizing: border-box; direction: ltr; display: flex; flex-direction: row; height: 52px; flex-shrink: 0; background: #2b6cb0; padding: 6px; gap: 26px;  }
+#brand { box-sizing: border-box; direction: ltr; display: block; padding: 14px; font-size: 20px; color: #e8eef5;  }
+#tab_graphics { box-sizing: border-box; direction: ltr; display: block; padding: 14px; font-size: 16px; color: #e8eef5;  }
+#tab_sound { box-sizing: border-box; direction: ltr; display: block; padding: 14px; font-size: 16px; color: #e8eef5;  }
+#tab_gui { box-sizing: border-box; direction: ltr; display: block; padding: 14px; font-size: 16px; color: #e8eef5;  }
+#work { box-sizing: border-box; direction: ltr; display: flex; flex-direction: row; flex: 1 1 auto;  }
+#side { box-sizing: border-box; direction: ltr; display: flex; flex-direction: column; width: 210px; flex-shrink: 0; background: #1a2028; padding: 20px;  }
+#side_title { box-sizing: border-box; direction: ltr; display: block; font-size: 13px; color: #7c9cbf;  }
+#board { box-sizing: border-box; direction: ltr; display: flex; flex-direction: row; flex: 1 1 auto; flex-wrap: wrap; align-content: flex-start; padding: 18px;  }
+#card_graphics { box-sizing: border-box; direction: ltr; display: flex; flex-direction: column; width: 30%; height: 92px; flex-shrink: 0; background: #243040; padding: 14px; margin: 9px;  }
+#label_graphics { box-sizing: border-box; direction: ltr; display: block; font-size: 17px; color: #e8eef5;  }
+#card_sound { box-sizing: border-box; direction: ltr; display: flex; flex-direction: column; width: 30%; height: 92px; flex-shrink: 0; background: #243040; padding: 14px; margin: 9px;  }
+#label_sound { box-sizing: border-box; direction: ltr; display: block; font-size: 17px; color: #e8eef5;  }
+#card_gpu { box-sizing: border-box; direction: ltr; display: flex; flex-direction: column; width: 30%; height: 92px; flex-shrink: 0; background: #243040; padding: 14px; margin: 9px;  }
+#label_gpu { box-sizing: border-box; direction: ltr; display: block; font-size: 17px; color: #e8eef5;  }
+#card_locale { box-sizing: border-box; direction: ltr; display: flex; flex-direction: column; width: 30%; height: 92px; flex-shrink: 0; background: #243040; padding: 14px; margin: 9px;  }
+#label_locale { box-sizing: border-box; direction: ltr; display: block; font-size: 17px; color: #e8eef5;  }
+#card_graph { box-sizing: border-box; direction: ltr; display: flex; flex-direction: column; width: 30%; height: 92px; flex-shrink: 0; background: #243040; padding: 14px; margin: 9px;  }
+#label_graph { box-sizing: border-box; direction: ltr; display: block; font-size: 17px; color: #e8eef5;  }
+#card_perf { box-sizing: border-box; direction: ltr; display: flex; flex-direction: column; width: 30%; height: 92px; flex-shrink: 0; background: #243040; padding: 14px; margin: 9px;  }
+#label_perf { box-sizing: border-box; direction: ltr; display: block; font-size: 17px; color: #e8eef5;  }
+#foot { box-sizing: border-box; direction: ltr; display: flex; flex-direction: column; height: 30px; flex-shrink: 0; background: #1a2028; padding: 8px;  }
+#status { box-sizing: border-box; direction: ltr; display: block; font-size: 13px; color: #7c9cbf;  }
+</style></head><body><div id="bar"><div id="brand">Softanza</div><div id="tab_graphics">Graphics</div><div id="tab_sound">Sound</div><div id="tab_gui">GUI</div></div><div id="work"><div id="side"><div id="side_title">PLANES</div></div><div id="board"><div id="card_graphics"><div id="label_graphics">Graphics</div></div><div id="card_sound"><div id="label_sound">Sound</div></div><div id="card_gpu"><div id="label_gpu">GPU</div></div><div id="card_locale"><div id="label_locale">Locale</div></div><div id="card_graph"><div id="label_graph">Graph</div></div><div id="card_perf"><div id="label_perf">Perf</div></div></div></div><div id="foot"><div id="status">declared in showcase.panel -- the file is the contract</div></div><script>
+var NATIVE = [{"name":"bar","x":0,"y":0,"w":1000,"h":52,"sw":false,"sh":true,"sp":false},{"name":"brand","x":6,"y":6,"w":104,"h":40,"sw":false,"sh":false,"sp":false},{"name":"tab_graphics","x":136,"y":6,"w":89,"h":40,"sw":false,"sh":false,"sp":false},{"name":"tab_sound","x":251,"y":6,"w":73,"h":40,"sw":false,"sh":false,"sp":false},{"name":"tab_gui","x":350,"y":6,"w":54,"h":40,"sw":false,"sh":false,"sp":false},{"name":"work","x":0,"y":52,"w":1000,"h":558,"sw":false,"sh":true,"sp":false},{"name":"side","x":0,"y":52,"w":210,"h":558,"sw":true,"sh":false,"sp":false},{"name":"side_title","x":20,"y":72,"w":170,"h":15.60,"sw":false,"sh":false,"sp":false},{"name":"board","x":210,"y":52,"w":790,"h":558,"sw":true,"sh":false,"sp":false},{"name":"card_graphics","x":237,"y":79,"w":226.20,"h":92,"sw":true,"sh":true,"sp":true},{"name":"label_graphics","x":251,"y":93,"w":198.20,"h":20.40,"sw":false,"sh":false,"sp":false},{"name":"card_sound","x":481.20,"y":79,"w":226.20,"h":92,"sw":true,"sh":true,"sp":true},{"name":"label_sound","x":495.20,"y":93,"w":198.20,"h":20.40,"sw":false,"sh":false,"sp":false},{"name":"card_gpu","x":725.40,"y":79,"w":226.20,"h":92,"sw":true,"sh":true,"sp":true},{"name":"label_gpu","x":739.40,"y":93,"w":198.20,"h":20.40,"sw":false,"sh":false,"sp":false},{"name":"card_locale","x":237,"y":189,"w":226.20,"h":92,"sw":true,"sh":true,"sp":true},{"name":"label_locale","x":251,"y":203,"w":198.20,"h":20.40,"sw":false,"sh":false,"sp":false},{"name":"card_graph","x":481.20,"y":189,"w":226.20,"h":92,"sw":true,"sh":true,"sp":true},{"name":"label_graph","x":495.20,"y":203,"w":198.20,"h":20.40,"sw":false,"sh":false,"sp":false},{"name":"card_perf","x":725.40,"y":189,"w":226.20,"h":92,"sw":true,"sh":true,"sp":true},{"name":"label_perf","x":739.40,"y":203,"w":198.20,"h":20.40,"sw":false,"sh":false,"sp":false},{"name":"foot","x":0,"y":610,"w":1000,"h":30,"sw":false,"sh":true,"sp":false},{"name":"status","x":8,"y":618,"w":984,"h":15.60,"sw":false,"sh":false,"sp":false}];
+var TOL = 1;
+var rows = [], bad = 0, soft = 0;
+for (var i = 0; i < NATIVE.length; i++) {
+  var n = NATIVE[i], el = document.getElementById(n.name);
+  if (!el) { rows.push([n.name, 'MISSING', '', '']); bad++; continue; }
+  var r = el.getBoundingClientRect();
+  var d = [Math.abs(r.left - n.x), Math.abs(r.top - n.y),
+           Math.abs(r.width - n.w), Math.abs(r.height - n.h)];
+  var claimed = [n.sp, n.sp, n.sw, n.sh];
+  var worst = 0, worstClaimed = 0;
+  for (var k = 0; k < 4; k++) {
+    if (d[k] > worst) worst = d[k];
+    if (claimed[k] && d[k] > worstClaimed) worstClaimed = d[k];
+  }
+  if (worstClaimed > TOL) bad++;
+  else if (worst > TOL) soft++;
+  rows.push([n.name + (n.sw && n.sh && n.sp ? '' : ' (auto)'),
+    n.x + ',' + n.y + ' ' + n.w + 'x' + n.h,
+    Math.round(r.left) + ',' + Math.round(r.top) + ' ' +
+      Math.round(r.width) + 'x' + Math.round(r.height),
+    worst.toFixed(2), worstClaimed.toFixed(2)]);
+}
+window.STZ_FIXTURE = { total: NATIVE.length, disagreeing: bad,
+  softDiffering: soft, tolerance: TOL, rows: rows };
+var v = document.createElement('div');
+v.id = 'stz-verdict';
+v.setAttribute('data-disagreeing', String(bad));
+v.style.cssText = 'position:fixed;left:0;bottom:0;right:0;z-index:99;font:12px monospace;padding:6px;background:' + (bad ? '#7a1f1f' : '#1f5a2a') + ';color:#fff';
+v.textContent = (bad ? 'DISAGREE on ' + bad + ' declared boxes' :
+  'AGREE on every declared box') + ' of ' + NATIVE.length +
+  ' (tolerance ' + TOL + 'px); ' + soft + ' auto-width boxes differ, which is two shapers, not the profile';
+document.body.appendChild(v);
+</script></body></html>
