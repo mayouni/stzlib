@@ -3,7 +3,9 @@
 #   run:  ring live_editor_demo.ring
 #
 #   drag a cell        press on it, move, release
-#   draw an edge       hold L, press one cell, release on another
+#   draw a link        hold L, press one cell, release on another
+#   re-aim a link      grab it near either end, drop it on another cell
+#   remove a link      hold X and click it
 #   undo / redo        U / R
 #   quit               Escape, or close the window
 #
@@ -37,10 +39,10 @@ W = 1100  H = 760
 aOpt = [ :Font = oFont, :NodeWidth = 96, :NodeHeight = 36, :FontSize = 13,
          :Width = W, :Height = H ]
 
-oWin = new stzWindow(W, H, "Softanza -- live diagram (drag, L+drag to link, U undo, R redo)")
+oWin = new stzWindow(W, H, "Softanza -- live diagram (drag cells; L+drag links; grab a link by its end; X+click removes)")
 oDiag.ToCanvasXT(aOpt)
 
-? "live editor open. drag a cell; hold L and drag to link; U undo, R redo."
+? "live editor open. drag cells; L+drag to link; grab a link near its end to re-aim it; X+click removes it."
 
 bWasDown = 0
 bLink = 0
@@ -72,7 +74,12 @@ while oWin.IsOpen()
 	bChanged = 0
 
 	if bDown and NOT bWasDown
-		oDiag.OnPress(nX, nY)
+		# X held: the click is a REMOVAL, not a gesture
+		if oWin.KeyDown(:X)
+			if oDiag.RemoveLinkAt(nX, nY)  bChanged = 1  ok
+		else
+			oDiag.OnPress(nX, nY)
+		ok
 	but bDown and bWasDown
 		oDiag.OnMove(nX, nY)
 	but NOT bDown and bWasDown
@@ -85,13 +92,24 @@ while oWin.IsOpen()
 	# THE LAYOUT RUNS ONLY WHEN THE MODEL MOVED
 	if bChanged  oDiag.ToCanvasXT(aOpt)  ok
 
-	# ...and the gesture is painted OVER the picture we already have
+	# ...and the gesture is painted OVER the picture we already have.
+	# A cell in hand ghosts as a box; a link's knob in hand ghosts as a
+	# line from its anchored end to the cursor -- the author sees what
+	# the link WOULD mean before letting go.
 	aGhost = oDiag.DragPreview()
 	if len(aGhost) = 3
 		oOv = new stzCanvas(W, H)
 		oOv.SetBackgroundQ("#00000000")
-		oOv.FillQ("#00000000").StrokeQ("#FF6A00", 2).
-			AddRect(aGhost[2] - 48, aGhost[3] - 18, 96, 36)
+		if oDiag.UiState() = :Rewiring
+			aAnch = oDiag.RewireAnchor()
+			if len(aAnch) = 2
+				oOv.FillQ("#00000000").StrokeQ("#FF6A00", 2).
+					AddLine(aAnch[1], aAnch[2], aGhost[2], aGhost[3])
+			ok
+		else
+			oOv.FillQ("#00000000").StrokeQ("#FF6A00", 2).
+				AddRect(aGhost[2] - 48, aGhost[3] - 18, 96, 36)
+		ok
 		oOv.Flush()
 		oWin.DrawXT(oDiag.LastCanvas(), oOv)
 	else

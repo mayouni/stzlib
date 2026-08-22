@@ -354,6 +354,7 @@ class stzDiagram from stzGraph
 	@aUiAt = []
 	@bUiDown = FALSE
 	@bUiLinking = FALSE
+	@aUiRewire = []
 
 	# The linear fit between the layout's coordinate and the canvas's
 	# pixels, as [ offset, scale ] -- see SlotAtPixel().
@@ -3710,8 +3711,27 @@ class stzDiagram from stzGraph
 	def OnPress(pnX, pnY)
 		@cUiState = :Idle
 		@cUiSubject = ""
+		@aUiRewire = []
 		_opAt_ = This.PickAt(pnX, pnY)
 		if len(_opAt_) < 2  return This  ok
+
+		# A LINK IS GRABBED BY ITS KNOBS. The author's main verb is
+		# managing links -- the Principal's ruling when the editor came
+		# alive -- and a link has exactly two places an author can mean:
+		# its ends. Pressing an edge near either end picks that end up;
+		# the other stays anchored; releasing over a cell is ONE Rewire
+		# command. Pressing the middle of an edge is nothing, on purpose:
+		# the middle's geometry belongs to the plastic layout, not to the
+		# author, so there is nothing there for a gesture to say.
+		if _opAt_[1] = :edge
+			_opKb_ = This._KnobAt("" + _opAt_[2], "" + _opAt_[3], pnX, pnY)
+			if _opKb_ != ""
+				@cUiState = :Rewiring
+				@cUiSubject = StzLower("" + _opAt_[2] + ">" + _opAt_[3])
+				@aUiRewire = [ "" + _opAt_[2], "" + _opAt_[3], _opKb_ ]
+			ok
+			return This
+		ok
 		if _opAt_[1] != :node  return This  ok
 		@cUiSubject = "" + _opAt_[2]
 		# what to restore if this gesture is abandoned, and what the
@@ -3769,9 +3789,19 @@ class stzDiagram from stzGraph
 					This.Edit(:Link, [ @cUiSubject, "" + _orAt_[2] ])
 				ok
 			ok
+		but @cUiState = :Rewiring
+			# released over a cell: that end of the link now means THAT
+			# cell, as one command. Released over paper: the gesture was
+			# abandoned and the model was never touched.
+			_orAt_ = This.PickAt(pnX, pnY)
+			if len(_orAt_) = 2 and _orAt_[1] = :node and len(@aUiRewire) = 3
+				This.Edit(:Rewire, [ @aUiRewire[1], @aUiRewire[2],
+					@aUiRewire[3], "" + _orAt_[2] ])
+			ok
 		ok
 		@cUiState = :Idle
 		@cUiSubject = ""
+		@aUiRewire = []
 		return This
 
 	# ABANDONED, not completed: the cell goes back where it was and
@@ -3782,7 +3812,65 @@ class stzDiagram from stzGraph
 		# model, which is what makes abandoning one free
 		@cUiState = :Idle
 		@cUiSubject = ""
+		@aUiRewire = []
 		return This
+
+	# Which end of the edge from>to sits within a knob's reach of (x, y),
+	# as "from", "to", or "" for neither. The reach scales with the render
+	# -- half a rendered cell's height -- because a literal distance is a
+	# bug by construction (I3): the same gesture must work at every scale.
+	def _KnobAt(pcFrom, pcTo, pnX, pnY)
+		_kaKey_ = StzLower("" + pcFrom + ">" + pcTo)
+		_kaR_ = 16
+		if len(@aRenderNodeRects) > 0
+			_kaR_ = max([ 10, @aRenderNodeRects[1][4] / 2 ])
+		ok
+		for _kaP_ in @aEdgePaths
+			if StzLower("" + _kaP_[1]) != _kaKey_  loop  ok
+			_kaF_ = _kaP_[2]
+			_kaN_ = len(_kaF_)
+			if _kaN_ < 4  loop  ok
+			_kaD1_ = sqrt(pow(pnX - _kaF_[1], 2) + pow(pnY - _kaF_[2], 2))
+			_kaD2_ = sqrt(pow(pnX - _kaF_[_kaN_-1], 2) + pow(pnY - _kaF_[_kaN_], 2))
+			# nearest end wins; outside both reaches, neither
+			if _kaD1_ <= _kaR_ and _kaD1_ <= _kaD2_  return "from"  ok
+			if _kaD2_ <= _kaR_  return "to"  ok
+		next
+		return ""
+
+	# During :Rewiring, the pixel of the end that is NOT moving -- what a
+	# window draws the ghost line from. [] outside the gesture.
+	def RewireAnchor()
+		if @cUiState != :Rewiring or len(@aUiRewire) != 3  return []  ok
+		_raKey_ = StzLower(@aUiRewire[1] + ">" + @aUiRewire[2])
+		for _raP_ in @aEdgePaths
+			if StzLower("" + _raP_[1]) != _raKey_  loop  ok
+			_raF_ = _raP_[2]
+			_raN_ = len(_raF_)
+			if _raN_ < 4  loop  ok
+			if @aUiRewire[3] = "from"
+				# the FROM end is in hand, so the TO end anchors
+				return [ _raF_[_raN_-1], _raF_[_raN_] ]
+			ok
+			return [ _raF_[1], _raF_[2] ]
+		next
+		return []
+
+	# What the gesture in hand is doing to which link: [ from, to, end ],
+	# or [] outside :Rewiring. The window half reads this, the guard
+	# asserts on it.
+	def UiRewire()
+		if @cUiState != :Rewiring  return []  ok
+		return @aUiRewire
+
+	# REMOVE THE LINK UNDER THE POINTER, as one logged command. Not a
+	# gesture: removal is instantaneous, so it is a verb the window binds
+	# to whatever it likes (a key held while clicking, a context action)
+	# rather than a state the machine has to carry.
+	def RemoveLinkAt(pnX, pnY)
+		_rlAt_ = This.PickAt(pnX, pnY)
+		if len(_rlAt_) != 3 or _rlAt_[1] != :edge  return FALSE  ok
+		return This.Edit(:Unlink, [ "" + _rlAt_[2], "" + _rlAt_[3] ])
 
 	def BeginLinking()
 		@bUiLinking = TRUE
@@ -4012,6 +4100,41 @@ class stzDiagram from stzGraph
 			if len(paArgs) < 2  return []  ok
 			This.RemoveThisEdge("" + paArgs[1], "" + paArgs[2])
 			return [ :link, [ "" + paArgs[1], "" + paArgs[2] ] ]
+
+		on "rewire"
+			# [ from, to, whichEnd, newNode ]: the link from>to now ends
+			# (or begins) at newNode instead. ONE command, not an unlink
+			# plus a link, so one undo restores the link the author had --
+			# an edit that leaves two entries needs two undos to take
+			# back, and the author made one gesture.
+			if len(paArgs) < 4  return []  ok
+			_aeF_ = "" + paArgs[1]
+			_aeT_ = "" + paArgs[2]
+			_aeEnd_ = StzLower("" + paArgs[3])
+			_aeNew_ = "" + paArgs[4]
+			if NOT This.EdgeExists(_aeF_, _aeT_)  return []  ok
+			if NOT This.NodeExists(_aeNew_)  return []  ok
+			if _aeEnd_ = "to"
+				_aeF2_ = _aeF_
+				_aeT2_ = _aeNew_
+				_aeBack_ = _aeT_
+			but _aeEnd_ = "from"
+				_aeF2_ = _aeNew_
+				_aeT2_ = _aeT_
+				_aeBack_ = _aeF_
+			else
+				return []
+			ok
+			# dropping the knob back where it came from is not an edit,
+			# and a pair the graph already holds is refused BEFORE the
+			# old link is touched -- a refused rewire must change nothing
+			if StzLower(_aeF2_ + ">" + _aeT2_) = StzLower(_aeF_ + ">" + _aeT_)
+				return []
+			ok
+			if This.EdgeExists(_aeF2_, _aeT2_)  return []  ok
+			This.RemoveThisEdge(_aeF_, _aeT_)
+			This.AddEdge(_aeF2_, _aeT2_)
+			return [ :rewire, [ _aeF2_, _aeT2_, _aeEnd_, _aeBack_ ] ]
 
 		on "setlabel"
 			if len(paArgs) < 2  return []  ok
