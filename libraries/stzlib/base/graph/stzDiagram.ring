@@ -4158,6 +4158,26 @@ class stzDiagram from stzGraph
 	# the gap's middle, so every honest step candidate failed the test and
 	# two foreign channels fell back onto ONE shared lane -- K2,2's two
 	# trunks drew a single line both ways.
+	# IS THIS STRAIGHT LEG ACTUALLY CLEAR? Asked of the obstacles
+	# themselves, because asking _ChannelBand whether it returns the
+	# position unchanged asks the wrong question: the band RECENTRES
+	# any proposal lying in an interior gap to that gap's middle, so a
+	# perfectly clear column comes back moved and reads as blocked.
+	#
+	# That is the second time this exact confusion has cost a picture --
+	# the channel claimer had it too, and its stepped lanes silently
+	# shared a line for it. A predicate must not be built out of a
+	# function whose job is to MOVE things.
+	def _LegIsClear(nPos, nA1, nA2, cFrom, cTo, bVert)
+		_lcB_ = This._ChannelBlocked(nA1, nA2, cFrom, cTo, bVert)
+		_lcC_ = This._LineClearance() * 0.5
+		for _lcI_ in _lcB_
+			if nPos > _lcI_[1] - _lcC_ and nPos < _lcI_[2] + _lcC_
+				return FALSE
+			ok
+		next
+		return TRUE
+
 	def _ChannelBlocked(nA1, nA2, cFrom, cTo, bVert)
 		_cbLo_ = min([ nA1, nA2 ])
 		_cbHi_ = max([ nA1, nA2 ])
@@ -4546,11 +4566,11 @@ class stzDiagram from stzGraph
 				_ofy_ = _obl_[2]
 				_oc1_ = This._ChannelBand(_oc1_, _p_[2], _ofy_,
 					cFromId, cToId, 1, _p_[1], _ob1_[1])
-				_odn_ = This._ChannelBand(_q_[2], _oc1_, _q_[1],
-					cFromId, cToId, 0, -100000, 100000)
-				_oup_ = This._ChannelBand(_p_[2], _p_[1], _oc2_,
-					cFromId, cToId, 0, -100000, 100000)
-				if fabs(_odn_ - _q_[2]) < 0.5
+				_odn_ = This._LegIsClear(_q_[2], _oc1_, _q_[1],
+					cFromId, cToId, 0)
+				_oup_ = This._LegIsClear(_p_[2], _p_[1], _oc2_,
+					cFromId, cToId, 0)
+				if _odn_
 					_ofy_ = _q_[2]
 					_oc1_ = This._ClaimChannel(_oc1_, _p_[2], _ofy_,
 						cFromId, _p_[1], _ob1_[1], cFromId, cToId, 1)
@@ -4558,7 +4578,7 @@ class stzDiagram from stzGraph
 					_flat_ + _oc1_    _flat_ + _p_[2]
 					_flat_ + _oc1_    _flat_ + _ofy_
 					_flat_ + _q_[1]   _flat_ + _ofy_
-				but fabs(_oup_ - _p_[2]) < 0.5
+				but _oup_
 					_ofy_ = _p_[2]
 					_oc2_ = This._ChannelBand(_oc2_, _ofy_, _q_[2],
 						cFromId, cToId, 1, _obl_[1], _q_[1])
@@ -4588,11 +4608,11 @@ class stzDiagram from stzGraph
 				_ofx_ = _obl_[1]
 				_oc1_ = This._ChannelBand(_oc1_, _p_[1], _ofx_,
 					cFromId, cToId, 0, _p_[2], _ob1_[2])
-				_odn_ = This._ChannelBand(_q_[1], _oc1_, _q_[2],
-					cFromId, cToId, 1, -100000, 100000)
-				_oup_ = This._ChannelBand(_p_[1], _p_[2], _oc2_,
-					cFromId, cToId, 1, -100000, 100000)
-				if fabs(_odn_ - _q_[1]) < 0.5
+				_odn_ = This._LegIsClear(_q_[1], _oc1_, _q_[2],
+					cFromId, cToId, 1)
+				_oup_ = This._LegIsClear(_p_[1], _p_[2], _oc2_,
+					cFromId, cToId, 1)
+				if _odn_
 					_ofx_ = _q_[1]
 					_oc1_ = This._ClaimChannel(_oc1_, _p_[1], _ofx_,
 						cFromId, _p_[2], _ob1_[2], cFromId, cToId, 0)
@@ -4600,7 +4620,7 @@ class stzDiagram from stzGraph
 					_flat_ + _p_[1]   _flat_ + _oc1_
 					_flat_ + _ofx_    _flat_ + _oc1_
 					_flat_ + _ofx_    _flat_ + _q_[2]
-				but fabs(_oup_ - _p_[1]) < 0.5
+				but _oup_
 					_ofx_ = _p_[1]
 					_oc2_ = This._ChannelBand(_oc2_, _ofx_, _q_[1],
 						cFromId, cToId, 0, _obl_[2], _q_[2])
