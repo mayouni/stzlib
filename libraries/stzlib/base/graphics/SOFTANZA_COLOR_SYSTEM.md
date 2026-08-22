@@ -154,6 +154,12 @@ pictures depend on it. The new calls are the ones a theme is **gated** by.
 A theme is a hashlist: roles → expressions. That is what it already is.
 What is added is that it can leave Ring:
 
+**Export resolves to HEX, by design.** `ToCSS()` and `ToJSON()` emit the colour a
+role landed on, not the expression that produced it. A consumer wanting the
+*semantic* token — the word `danger` rather than the hex it became — is asking a
+different question, and it belongs to `stzSense` rather than to this plane: a
+theme export says what to paint, and a semantic export says what was meant.
+
 ```ring
 oT = StzTheme(:pro)
 oT.ToCSS()          # custom properties, for stzZui and stzweb
@@ -162,6 +168,57 @@ oT.ToRing()         # a literal, for embedding
 ```
 
 One source of truth for a product whose UI is partly Ring and partly web.
+
+### 3.4b THE FIVE SEMANTIC VALUES, and what this channel renders for each
+
+**Rule 118 — *Two Families of Colour*** is the law this seam implements, and it
+is cited here because the plan of record did not name it and a reader could not
+tell which enumeration the roles came from.
+
+- **Family one — a STATE the thing is in**: `success`, `warning`, `danger`,
+  `info`, `muted`.
+- **Family two — metadata with no semantic charge**: `neutral`.
+
+`:Primary` belongs to neither. It is Rule 3's *one accent per application*
+quantity, and it leads the list because it is a different kind of thing.
+
+**`:Muted` shipped 2026-08-22**, four values after the other four, and its
+absence was not tidiness — it left the visual channel unable to appear in a
+cross-medium conformance record at all. What it is, and why it is a treatment
+rather than a sixth hue, is written where it lives: `StzMutedOf()` in
+`base/graph/stzDiagramColor.ring`.
+
+**What the visual channel renders, per value.** Stated so it can be
+contradicted, and stated from shipped behaviour rather than intent:
+
+| value | rendered | what it is |
+|---|---|---|
+| `success` | perceptibly | a filled colour, hue held across the ramp |
+| `warning` | perceptibly | a filled colour |
+| `danger` | perceptibly | a filled colour |
+| `info` | perceptibly | a filled colour |
+| `muted` | **perceptibly** | a filled colour: the status's own hue at a quarter chroma, receded toward the surface rung |
+
+**`rendersAsAbsence` is therefore `[]` — the empty set.** No value in family one
+renders as nothing in this channel, and `muted` least of all: a screen paints
+something at every pixel always, so *painting nothing* is not absence here, it is
+painting the ACTIVE appearance. A queue whose waiting rows are indistinguishable
+from its live ones is not a channel declining to speak; it is a channel saying
+the wrong thing.
+
+**This is agreement with the sound plane about sound and disagreement about
+colour, and both halves are deliberate.** `:Muted` renders as silence in the
+auditory and voice channels for a reason that plane earned by building it — an
+earcon announcing inactivity is a contradiction. That reason is about *events in
+time*. It does not survive transport to a channel with persistence, parallel
+access, and no time of its own.
+
+**One honest boundary.** The `neutral`, `print` and `lightgray` themes paint every
+role white by construction and distinguish by outline alone. In those three,
+`muted` is as indistinguishable from `success` as `success` already is from
+`primary` — that is the theme collapsing the channel, not the channel lacking the
+value. The other seven themes render all five distinctly, and the C3 contrast
+gate sweeps 49 theme/role pairs to say so.
 
 ### 3.5 The planes, and what each needs that the others do not
 

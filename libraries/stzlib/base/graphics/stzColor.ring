@@ -320,11 +320,24 @@ func StzThemeColor(pcTheme, pcRole)
 #                        these: it is meaningless without a theme to look
 #                        it up in, so it is only ever reached through
 #                        StzThemeColor(theme, :background).
+# TWO FAMILIES, and the order says which is which. :Success .. :Muted are
+# family one -- a STATE the thing is in. :Neutral is family two, metadata
+# carrying no semantic charge, and it is last because it is a different
+# kind of thing rather than a seventh status. :Primary leads because it is
+# Rule 3's one-accent-per-application quantity, not a state either.
+#
+# :Muted was missing until 2026-08-22 and its absence was not tidiness: a
+# channel implementing four of the law's five values cannot be written
+# into a cross-medium conformance record at all, which left another
+# repository's keystone unable to report anything but NOT PROVED. See
+# StzMutedOf() in stzDiagramColor.ring for what muting IS, and why it is a
+# treatment of a status rather than a seventh hue.
 func StzSemanticColors()
-	return [ :Primary, :Success, :Warning, :Danger, :Info, :Neutral ]
+	return [ :Primary, :Success, :Warning, :Danger, :Info, :Muted, :Neutral ]
 
 func StzThemeRoles()
-	return [ :Primary, :Success, :Warning, :Danger, :Info, :Neutral, :Background ]
+	return [ :Primary, :Success, :Warning, :Danger, :Info, :Muted, :Neutral,
+	         :Background ]
 
 	# kept: StzColorRoles reads as the theme's slots, which is where it is used
 	func StzColorRoles()

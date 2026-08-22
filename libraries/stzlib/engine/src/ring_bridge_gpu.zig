@@ -1394,6 +1394,10 @@ fn ring_ColorRampStep(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(pcolor.stz_color_ramp_step(@intFromFloat(gn(p, 1)), gn(p, 2))));
 }
 
+fn ring_ColorMute(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(pcolor.stz_color_mute(@intFromFloat(gn(p, 1)), gn(p, 2), gn(p, 3))));
+}
+
 fn ring_ColorLightness(p: *anyopaque) callconv(.c) void {
     rn(p, pcolor.stz_color_lightness(@intFromFloat(gn(p, 1))));
 }
@@ -1513,6 +1517,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpusceneresize", .func = &ring_SceneResize },
     .{ .name = "stzenginegpuscenecirclestroke", .func = &ring_SceneCircleStroke },
     .{ .name = "stzenginecolorrampstep", .func = &ring_ColorRampStep },
+    .{ .name = "stzenginecolormute", .func = &ring_ColorMute },
     .{ .name = "stzenginecolorlightness", .func = &ring_ColorLightness },
     .{ .name = "stzenginecolorcontrastwcag", .func = &ring_ContrastWcag },
     .{ .name = "stzenginecolorcontrastapca", .func = &ring_ContrastApca },
