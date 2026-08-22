@@ -656,9 +656,31 @@ oOr.AddEdge("b", "c")
 
 oOr.SetSplines("ortho")
 EDGERGB = "rgb(138,138,138)"      # the default edge colour, #8A8A8A
-nSkew = _NonAxialSegments(oOr.ToSVGXT([ :NodeWidth = 110, :NodeHeight = 40 ]), EDGERGB)
+# :EDGECORNERS = :SHARP, because the picture now rounds its elbows to
+# match its cells and a fillet is made of short diagonal chords. That is
+# a corner TREATMENT, not a segment: the claim under test is that no edge
+# RUNS at an angle, so the honest way to test it is to turn the treatment
+# off and read the runs. The rounded style is held to the same claim two
+# assertions down, by bounding every diagonal it does draw.
+nSkew = _NonAxialSegments(oOr.ToSVGXT([ :NodeWidth = 110, :NodeHeight = 40,
+	:EdgeCorners = :Sharp ]), EDGERGB)
 ? "   segments that are neither horizontal nor vertical : " + nSkew
 chkeq("under ortho, every segment is axis-aligned", nSkew, 0)
+
+# ...AND THE ROUNDED STYLE ADDS CORNERS, NEVER SLANTS. Every diagonal it
+# draws must be shorter than the corner radius it was cut from; one
+# longer than that is an edge running at an angle, which is the fault
+# this section exists for.
+nSkR = 0  nLongR = 0
+for _dch_ in _DiagChords(oOr.ToSVGXT([ :NodeWidth = 110, :NodeHeight = 40 ]),
+	EDGERGB)
+	nSkR++
+	if _dch_ > 10  nLongR++  ok
+next
+? "   rounded style : " + nSkR + " diagonal chords, " + nLongR +
+  " longer than a corner"
+chk("the rounded style really does draw corners", nSkR > 0)
+chkeq("...and not one of them is a slanted RUN", nLongR, 0)
 
 # THE NEGATIVE SIBLING: the same diagram with curves must be full of
 # segments that are neither -- otherwise this counts nothing at all,
@@ -1747,7 +1769,15 @@ sec("-- 28. A crossing is JUMPED, electric-diagram style ------------")
 # be oblique routing sneaking back in under the hop's exemption.
 #---------------------------------------------------------------------------
 
-cHopSvg = oFC.ToSVGXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+# :EDGECORNERS = :SHARP throughout this section. Elbows are rounded to
+# match the cells now, and a fillet is short diagonal chords -- exactly
+# what this instrument counts. The comment on the negative sibling below
+# named that risk before the style existed: "otherwise the counter is
+# counting corner rounding again". Turning the treatment off is what
+# leaves the hop as the only diagonal in the picture, which is the thing
+# under test.
+cHopSvg = oFC.ToSVGXT([ :NodeWidth = 96, :NodeHeight = 36,
+	:EdgeCorners = :Sharp ])
 aChords = _DiagChords(cHopSvg, EDGERGB)
 ? "   diagonal chords in the crossing picture : " + len(aChords)
 chk("a crossing produces hop arcs", len(aChords) > 0)
@@ -1761,8 +1791,8 @@ chk("every diagonal is hop-short, none is oblique routing",
 # tier and Logger slid into the API rank: no crossing existed, and the
 # zero it measured was the correct answer to the wrong question.
 oFC.SetLayout(:LeftToRight)
-aChLR = _DiagChords(oFC.ToSVGXT([ :NodeWidth = 96, :NodeHeight = 36 ]),
-	EDGERGB)
+aChLR = _DiagChords(oFC.ToSVGXT([ :NodeWidth = 96, :NodeHeight = 36,
+	:EdgeCorners = :Sharp ]), EDGERGB)
 ? "   left-to-right : " + len(aChLR) + " chords"
 chk("the hop follows the axes to left-to-right", len(aChLR) > 0)
 
@@ -1778,8 +1808,8 @@ next
 oNH.AddEdge("lb", "web1")    oNH.AddEdge("lb", "web2")
 oNH.AddEdge("web1", "api1")  oNH.AddEdge("web2", "api2")
 oNH.SetSplines("ortho")
-aNoCross = _DiagChords(oNH.ToSVGXT([ :NodeWidth = 96, :NodeHeight = 36 ]),
-	EDGERGB)
+aNoCross = _DiagChords(oNH.ToSVGXT([ :NodeWidth = 96, :NodeHeight = 36,
+	:EdgeCorners = :Sharp ]), EDGERGB)
 ? "   without the crossing edge : " + len(aNoCross) + " chords"
 chkeq("no crossing, no hop -- the jump DISCRIMINATES", len(aNoCross), 0)
 
@@ -4202,6 +4232,81 @@ chk("...and the leaf sibling takes the other side",
     fabs(nLf7 - nRt7) > 1)
 
 
+sec("-- 48. THE ELBOW IS DRAWN IN THE SAME HAND AS THE CELL ---------")
+#
+# The Principal, once the geometry stopped arguing with him: "i find it
+# more beautiful when, in this style, the corners of the edge change of
+# directions be rounds, because the celles adopt also the same style.
+# leave the other style where everything is rectangular."
+#
+# That is I5 pointed at style rather than at structure. A rounded box
+# wired with square elbows is two hands in one picture, and a reader has
+# no graph fact to attribute the difference to -- the same objection that
+# retired the one rounded self-loop in a square picture, now running the
+# other way. So the corner an edge turns follows the corner a node is
+# drawn with, and the wholly rectangular style stays reachable.
+#
+# The claim that matters is that this is INK. The logical path is the
+# same either way, so channels, labels and every instrument in this file
+# read one geometry and only the stroke differs.
+#---------------------------------------------------------------------------
+
+# (_CorGraph lives with the other helpers at the foot of the file)
+oCorR = _CorGraph("corR")
+cSvgR = oCorR.ToSVGXT([ :NodeWidth = 120, :NodeHeight = 48, :Corner = 14 ])
+oCorS = _CorGraph("corS")
+cSvgS = oCorS.ToSVGXT([ :NodeWidth = 120, :NodeHeight = 48, :Corner = 0 ])
+
+nChR = len(_DiagChords(cSvgR, EDGERGB))
+nChS = len(_DiagChords(cSvgS, EDGERGB))
+? "   diagonal chords in the wires : rounded " + nChR + " , square " + nChS
+chk("a rounded picture turns its corners with an ARC", nChR > 4)
+chkeq("...and a rectangular one turns them square", nChS, 0)
+
+# THE OVERRIDE: rounded cells, square wires, for anyone who wants it
+oCorX = _CorGraph("corX")
+cSvgX = oCorX.ToSVGXT([ :NodeWidth = 120, :NodeHeight = 48, :Corner = 14,
+	:EdgeCorners = :Sharp ])
+? "   with :EdgeCorners = :Sharp : " + len(_DiagChords(cSvgX, EDGERGB))
+chkeq("the style can be asked for independently of the cells",
+      len(_DiagChords(cSvgX, EDGERGB)), 0)
+
+# AND IT IS INK ONLY -- the geometry every other law is measured against
+# does not move
+aCorPR = oCorR.RenderEdgePaths()
+aCorPS = oCorS.RenderEdgePaths()
+nCorDiff = 0
+if len(aCorPR) != len(aCorPS)
+	nCorDiff = 999
+else
+	for i48 = 1 to len(aCorPR)
+		if aCorPR[i48][1] != aCorPS[i48][1]  nCorDiff++  loop  ok
+		if len(aCorPR[i48][2]) != len(aCorPS[i48][2])  nCorDiff++  loop  ok
+		for j48 = 1 to len(aCorPR[i48][2])
+			if fabs(aCorPR[i48][2][j48] - aCorPS[i48][2][j48]) > 0.001
+				nCorDiff++
+			ok
+		next
+	next
+ok
+? "   published path coordinates that differ between the styles : " + nCorDiff
+chkeq("the corner style is INK, not geometry", nCorDiff, 0)
+
+# A RECTANGULAR CELL IS STILL A FILLED CELL. :Corner = 0 asked the canvas
+# for a round rect of radius zero and got an outline with no fill, so the
+# rectangular style drew white boxes with white labels inside them -- the
+# dial the Principal asked to keep was the one that did not work.
+nCorFill = 0
+for _cf_ in StzFindAll("<rect", cSvgS)
+	_ctail_ = StzSubStr(cSvgS, _cf_, min([ 400, StzLen(cSvgS) - _cf_ + 1 ]))
+	_cend_ = StzFindFirst(">", _ctail_)
+	if _cend_ = 0  loop  ok
+	if StzFindFirst("68,119,255", StzSubStr(_ctail_, 1, _cend_)) > 0  nCorFill++  ok
+next
+? "   filled rectangles in the square render : " + nCorFill
+chk("a square cell keeps its fill", nCorFill >= 4)
+
+
 #---------------------------------------------------------------------------
 ? ""
 if nSecClock > 0
@@ -4237,6 +4342,16 @@ func chk cWhat, bCond
 
 func chkeq cWhat, xGot, xWant
 	chk(cWhat + "  [got " + xGot + ", want " + xWant + "]", xGot = xWant)
+
+func _CorGraph cName
+	_g_ = new stzDiagram(cName)
+	for _a_ in [ [ "p","Parent" ], [ "l","Left" ], [ "r","Right" ],
+	             [ "d","Deep" ] ]
+		_g_.AddNodeXTT(_a_[1], _a_[2], [ :type = "box", :color = "#4477FF" ])
+	next
+	_g_.AddEdge("p","l")  _g_.AddEdge("p","r")  _g_.AddEdge("l","d")
+	_g_.SetSplines("ortho")
+	return _g_
 
 # --- I7 instruments: a picture re-read as a graph -------------------
 func _I7Cx aR, cId
