@@ -351,6 +351,7 @@ class stzDiagram from stzGraph
 	@cUiSubject = ""
 	@aUiWas = []
 	@aUiAt = []
+	@bUiDown = FALSE
 	@bUiLinking = FALSE
 
 	# The linear fit between the layout's coordinate and the canvas's
@@ -3737,6 +3738,65 @@ class stzDiagram from stzGraph
 
 	def UiSubject()
 		return @cUiSubject
+
+	#-- THE SESSION: one poll, one frame ---------------------------------
+	#
+	# The window half of a live diagram is small on purpose, and it is
+	# small because everything above it was built to be driven rather
+	# than to drive. Picking reads the retained scene; the state machine
+	# is a function of (state, event); the log is over the model's own
+	# mutations. So a session is the loop that turns polled input into
+	# those calls, and nothing else -- no second rulebook, no parallel
+	# graph, no event soup.
+	#
+	# Step(oWindow) is ONE frame: read what the pointer did, feed the
+	# machine, re-render only when the model actually changed, and draw.
+	# It answers whether anything changed, so a caller can idle.
+	#
+	# The re-render is the whole reason a drag previews instead of
+	# moving: laying a 500-node diagram out again costs eleven seconds,
+	# and a gesture cannot pay that per frame. Structure changes pay it
+	# once, where the author expects a pause.
+	def Step(oWindow, paOptions)
+		if NOT isObject(oWindow)  return FALSE  ok
+		if NOT isList(paOptions)  paOptions = []  ok
+		oWindow.Poll()
+
+		_stX_ = oWindow.MouseX()
+		_stY_ = oWindow.MouseY()
+		_stDown_ = oWindow.MouseDown(1)
+		_stChanged_ = FALSE
+
+		if _stDown_ and NOT @bUiDown
+			This.OnPress(_stX_, _stY_)
+		but _stDown_ and @bUiDown
+			This.OnMove(_stX_, _stY_)
+		but NOT _stDown_ and @bUiDown
+			_stBefore_ = len(@aUndo)
+			This.OnRelease(_stX_, _stY_)
+			if len(@aUndo) != _stBefore_  _stChanged_ = TRUE  ok
+		ok
+		@bUiDown = _stDown_
+
+		# THE PICTURE IS REBUILT ONLY WHEN THE MODEL MOVED. A frame that
+		# re-lays-out because the pointer twitched is the 730x cost this
+		# design exists to avoid.
+		if _stChanged_ or NOT isObject(@oLastCanvas)
+			This.ToCanvasXT(paOptions)
+		ok
+		if isObject(@oLastCanvas)
+			oWindow.Draw(@oLastCanvas)
+		ok
+		return _stChanged_
+
+	# The loop, for a caller that has nothing else to do. Answers when the
+	# window closes.
+	def RunIn(oWindow, paOptions)
+		if NOT isObject(oWindow)  return This  ok
+		while oWindow.IsOpen()
+			This.Step(oWindow, paOptions)
+		end
+		return This
 
 	#-- EDITS: the session executes COMMANDS, never mutations ------------
 	#

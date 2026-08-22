@@ -3687,6 +3687,100 @@ chk("...and the gesture still ended in one command",
 
 #---------------------------------------------------------------------------
 ? ""
+sec("-- 44. GG7e: the session is one poll, one frame -----------------")
+#
+# The window half of a live diagram is small on purpose, and it is small
+# because everything under it was built to be DRIVEN rather than to
+# drive. Picking reads the retained scene; the state machine is a
+# function of (state, event); the log is over the model's own mutations
+# and refusals. So a session is the loop that turns polled input into
+# those calls -- and nothing else.
+#
+# Step() is one frame: read what the pointer did, feed the machine,
+# re-render ONLY when the model actually moved, draw. It answers whether
+# anything changed, so a caller can idle, and the answer is what this
+# section watches: thirty moving frames must re-lay-out zero times, and
+# the release frame exactly once. That ratio is the whole design --
+# laying a 500-node diagram out again costs eleven seconds, which a
+# gesture cannot pay per frame and a structural change can pay once.
+#
+# Tested against a STUB window, because the contract is a claim about
+# the session and not about any window: poll, feed, re-render on change,
+# draw. A real window would prove the same contract and cost an open
+# window to run it.
+#---------------------------------------------------------------------------
+
+
+oSs = new stzDiagram("sess45")
+oSs.AddNodeXTT("r", "R", [ :type = "box", :color = "Info.Solid" ])
+for i = 1 to 4
+	oSs.AddNodeXTT("k" + i, "K" + i, [ :type = "box", :color = "Info.Solid" ])
+	oSs.AddEdge("r", "k" + i)
+next
+oSs.SetSplines("ortho")
+aOpt45 = [ :NodeWidth = 96, :NodeHeight = 36 ]
+oSs.ToCanvasXT(aOpt45)
+aK1 = []  aK4 = []
+for rr in oSs.RenderNodeRects()
+	if rr[5] = "k1"  aK1 = [ rr[1] + rr[3] / 2, rr[2] + rr[4] / 2 ]  ok
+	if rr[5] = "k4"  aK4 = [ rr[1] + rr[3] / 2, rr[2] + rr[4] / 2 ]  ok
+next
+
+# A STUB WINDOW: the session's contract is "poll, feed the machine,
+# re-render only when the model moved, draw" -- which is a claim about
+# the session and not about any window, so it is tested against a window
+# that only records what it was asked. A real one would prove the same
+# contract and cost an open window to run.
+oW = new _FakeWin45
+oW.SetPointer(aK1[1], aK1[2], FALSE)
+chk("a frame with nothing happening changes nothing",
+    NOT oSs.Step(oW, aOpt45))
+chkeq("...and still draws", oW.Draws(), 1)
+
+oW.SetPointer(aK1[1], aK1[2], TRUE)
+oSs.Step(oW, aOpt45)
+? "   pressed : state " + oSs.UiState() + " on " + oSs.UiSubject()
+chk("the session began the drag from the polled pointer",
+    oSs.UiState() = :Dragging and oSs.UiSubject() = "k1")
+
+nRenders = 0
+for k = 1 to 30
+	oW.SetPointer(aK1[1] + k * 20, aK1[2], TRUE)
+	if oSs.Step(oW, aOpt45)  nRenders++  ok
+next
+? "   30 moving frames re-laid the picture out " + nRenders + " time(s)"
+chkeq("a moving pointer never re-lays-out", nRenders, 0)
+chk("...though the cell is previewed the whole time",
+    len(oSs.DragPreview()) = 3)
+chkeq("...and every frame still drew", oW.Draws(), 32)
+
+oW.SetPointer(aK4[1] + 200, aK1[2], FALSE)
+bChanged = oSs.Step(oW, aOpt45)
+? "   released : the frame reports change = " + bChanged +
+  ", log " + len(oSs.EditLog())
+chk("releasing is the frame that re-lays-out", bChanged)
+chkeq("...and the whole gesture is one command", len(oSs.EditLog()), 1)
+nAfter = -1
+for rr in oSs.RenderNodeRects()
+	if rr[5] = "k1"  nAfter = rr[1] + rr[3] / 2  ok
+next
+? "   k1 ended at " + nAfter + ", having started at " + aK1[1]
+chk("the picture caught up with the model", nAfter > aK1[1])
+
+# THE NEGATIVE SIBLING: a press on bare paper is not a gesture. Without
+# it, "the session starts a drag" would be indistinguishable from "the
+# session starts a drag whenever the button goes down".
+oW.SetPointer(4, 4, TRUE)
+oSs.Step(oW, aOpt45)
+? "   pressed on empty paper : state " + oSs.UiState()
+chk("pressing nothing begins nothing", oSs.UiState() = :Idle)
+oW.SetPointer(4, 4, FALSE)
+nLog = len(oSs.EditLog())
+oSs.Step(oW, aOpt45)
+chkeq("...and releasing it writes nothing", len(oSs.EditLog()), nLog)
+
+#---------------------------------------------------------------------------
+? ""
 if nSecClock > 0
 	? "        [section took " +
 	  ((clock() - nSecClock) / clockspersecond()) + "s]"
@@ -4676,3 +4770,19 @@ func _NearMissEdges oDiag, aPos
 		if _d_ > 0.5 and _d_ < 40  _nm_++  ok
 	next
 	return _nm_
+
+class _FakeWin45
+	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0
+
+	def SetPointer(nX, nY, bDown)
+		@nX = nX  @nY = nY  @bDown = bDown
+		return This
+
+	def Poll()      @nPolls++  return This
+	def MouseX()    return @nX
+	def MouseY()    return @nY
+	def MouseDown(n)  return @bDown
+	def IsOpen()    return TRUE
+	def Draw(o)     @nDraws++  return 1
+	def Draws()     return @nDraws
+	def Polls()     return @nPolls
