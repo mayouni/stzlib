@@ -378,32 +378,32 @@ pub fn force(
 /// elbow room, and its whole rank spreads to give it.
 ///
 /// Pass an empty slice for uniform separation.
-/// A PIN IS A POSITION THE LAYOUT MAY NOT ARGUE WITH.
+/// A PIN IS AN ORDER, NOT A POSITION -- and this comment is the second
+/// version of itself, because the first design was wrong in a way only a
+/// picture could show.
 ///
-/// In a live diagram the ownership inverts: the user owns positions and
-/// the layout only advises. A cell the user has moved is pinned, and
-/// every pass here -- relaxation, territories, family air, alignment,
-/// centring -- has to leave it exactly where it was put.
+/// It began as an override: the author's position restored after every
+/// pass, so no pass could argue with it. That honoured the pin exactly
+/// and broke everything else. A pinned cell escaped the minimum
+/// separation and sat touching its neighbour; it escaped the family air,
+/// so grouping vanished; it escaped centring, so parents leaned; and it
+/// escaped the order the crossing sweep had settled, so edges tangled
+/// into shapes no rule in this file would ever produce. The Principal
+/// read one such picture and named every violation in it.
 ///
-/// Enforced by RESTORING pins after each pass rather than by teaching
-/// five passes to skip them. That is uniform (no pass can forget), exact
-/// (the pin is the value the user gave, not a value that survived a
-/// clamp), and honest about its one cost: a pinned cell can end up
-/// closer to a neighbour than the separation would allow, because the
-/// user put it there and the user is the authority. Unpinned cells are
-/// laid out around the pins as they stand.
+/// The lesson is that positions are not what an author owns. In a
+/// layered drawing the metric placement IS the visual contract --
+/// separation, rhythm, grouping, centring, the lot -- and overriding one
+/// number in it overrides the contract. What an author actually means by
+/// dragging a cell is WHERE IT SITS AMONG ITS NEIGHBOURS, which is an
+/// ordering claim, and an ordering claim the layout can honour while
+/// keeping every law intact.
 ///
-/// `pins` is parallel to `x`; anything at or below UNPINNED is free.
-/// Above the face's -999999999 sentinel and far below any real
-/// position: a pin is a value greater than this.
-pub const UNPINNED: f64 = -1.0e8;
-
-fn applyPins(pins: []const f64, x: []f64) void {
-    if (pins.len != x.len) return;
-    for (0..x.len) |v| {
-        if (pins[v] > UNPINNED) x[v] = pins[v];
-    }
-}
+/// So pins are applied by the face, to the rank ORDER, before this
+/// function runs (stzGraphCanvas), and this function lays the result out
+/// with no override at all. yFiles calls the same idea layout-from-
+/// sketch: the sketch decides the arrangement, the layout decides the
+/// geometry.
 
 pub fn coords(
     in_off: []const u32,
@@ -415,22 +415,6 @@ pub fn coords(
     sep: f64,
     iters: u32,
     extra: []const f64,
-    x: []f64,
-) i32 {
-    return coordsPinned(in_off, in_src, out_off, out_dst, order, starts, sep, iters, extra, &[_]f64{}, x);
-}
-
-pub fn coordsPinned(
-    in_off: []const u32,
-    in_src: []const u32,
-    out_off: []const u32,
-    out_dst: []const u32,
-    order: []const u32,
-    starts: []const u32,
-    sep: f64,
-    iters: u32,
-    extra: []const f64,
-    pins: []const f64,
     x: []f64,
 ) i32 {
     const n = x.len;
@@ -525,9 +509,7 @@ pub fn coordsPinned(
     // EXACTLY on a neighbour's cross-position without violating its rank's
     // separations, put it there. All or nothing -- a partial move would
     // just manufacture a new near-miss, the very thing being killed.
-    applyPins(pins, x);
     snapAlign(in_off, in_src, out_off, out_dst, order, starts, sep, extra, x);
-    applyPins(pins, x);
 
     // LAST, and only on a forest. The relaxation produces a good-looking
     // arrangement that can still put a node inside another branch's span;
@@ -537,7 +519,6 @@ pub fn coordsPinned(
     // see.
     if (isForest(in_off, n)) {
         _ = tidyTerritories(in_off, in_src, out_off, out_dst, order, starts, sep, extra, x);
-        applyPins(pins, x);
     }
 
     // AND THE PARENT IS CENTRED OVER ITS CHILDREN, last of all, because
@@ -575,10 +556,8 @@ pub fn coordsPinned(
     // sliding the rest of the rank along. Idempotent with the forest
     // pass, which has already opened exactly that much.
     familyAir(in_off, in_src, order, starts, sep, extra, x);
-    applyPins(pins, x);
 
     centerParents(in_off, out_off, out_dst, order, starts, sep, extra, x);
-    applyPins(pins, x);
     return OK;
 }
 
