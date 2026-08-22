@@ -29,6 +29,9 @@ class stzPIAgent from stzObject
 	@aSkills = []       # [ skill, governedAction("" = ungoverned) ]
 	@aTrace = []        # per-cycle [ skill, decision, verified, why ]
 	@cWhy = ""
+	@nWorkbench = 0     # the safe-world twin's ID -- an id, never the
+	                    # object: an id survives Ring's copy-on-assign
+	                    # (the engine-wrapper copy law, in pure Ring)
 
 	def init(pcName)
 		@cName = "" + pcName
@@ -50,6 +53,39 @@ class stzPIAgent from stzObject
 
 	def Why()
 		return @cWhy
+
+	# THE BINDING OF THE SAFE WORLD (ruling 3.2). A workbench-holding
+	# agent's ring: functions rehearse their file writes into an
+	# stzVirtualFileSystem instead of touching disk; the tick's ONLY
+	# export toward reality is GenerateUpdatePlan(), which a COMMITTING
+	# ACTOR executes under stzUpdatePlan's three gates (scope, capability,
+	# governance). `Agents That Cannot Hurt You`, made a method call.
+	def GiveWorkbench()
+		if @nWorkbench = 0
+			@nWorkbench = StzOpenAgentWorkbench()
+			StzAgentWorkbenchQ(@nWorkbench).SetActor(@cName)
+		ok
+
+		def GiveWorkbenchQ()
+			This.GiveWorkbench()
+			return This
+
+	def HasWorkbench()
+		if @nWorkbench > 0
+			return 1
+		ok
+		return 0
+
+	def WorkbenchQ()
+		if @nWorkbench = 0
+			stzraise("stzPIAgent.WorkbenchQ: '" + @cName + "' holds no " +
+				"workbench -- GiveWorkbench() first.")
+		ok
+		return StzAgentWorkbenchQ(@nWorkbench)
+
+	# the tick's only export toward reality
+	def GenerateUpdatePlan()
+		return This.WorkbenchQ().GenerateUpdatePlan()
 
 	# a skill may declare the governed action it performs; if it does,
 	# the agent asks stzGovernance.MayProceed BEFORE running it
@@ -76,6 +112,15 @@ class stzPIAgent from stzObject
 	#   act:      Apply, VERIFY, record
 	# Returns the number of skills that ran AND verified.
 	def Cycle()
+		# The AMBIENT workbench: while THIS agent's skills fire, a ring:
+		# function's file writes land in this agent's twin. The previous
+		# ambient is restored on the way out, so cycles nested across
+		# agents stay correct -- and an agent WITHOUT a workbench leaves
+		# the ambient untouched rather than clearing someone else's.
+		_nPrevWb_ = $nStzActiveAgentWorkbench
+		if @nWorkbench > 0
+			$nStzActiveAgentWorkbench = @nWorkbench
+		ok
 		_nActed_ = 0
 		_nS_ = len(@aSkills)
 		for _i_ = 1 to _nS_
@@ -104,6 +149,7 @@ class stzPIAgent from stzObject
 				_nActed_++
 			ok
 		next
+		$nStzActiveAgentWorkbench = _nPrevWb_
 		return _nActed_
 
 	# run cycles until the world stops changing (fixpoint) or the cap

@@ -494,9 +494,13 @@ chk("...verifies", len(StzFind("VERIFIED", oWA.Trace()[1][:why])) > 0)
 chk("...and the freezer is still warm. STRUCTURE IS NOT CORRECTNESS.",
 	oWA.MemoryQ().Fact("freezer", "state", "warm") = 1)
 
-# and the second limit, reported rather than hidden
-chk("the version is a gate, so v1 is the whole of what this build knows",
-	StzPiaVersion() = 1)
+# and the second limit, reported rather than hidden. v2 added the
+# execution posture (ruling 3.2); v1 is still read -- the migration
+# state stzAgentDeclaration's header records -- so every declaration in
+# this suite loads unchanged, and safeworld_narrated.ring is where the
+# v2 vocabulary earns its own scenes.
+chk("the version is a gate: the build writes v2 and still reads v1",
+	StzPiaVersion() = 2 and ring_find(StzPiaKnownVersions(), "1") > 0)
 
 ? ""
 ? "=========================================="

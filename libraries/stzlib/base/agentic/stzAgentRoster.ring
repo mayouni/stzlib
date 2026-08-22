@@ -24,6 +24,16 @@
 	protocol/PATHS.md -- PATHS.md is the harness's own single source for
 	where every repository lives, so this reads the same landmark
 	central.ps1 does rather than a copy of its answer.
+
+	THE SAFE-WORLD DOOR (ruling 3.2, 2026-08-22): this file is the FIRST
+	CONSUMER of the workbench binding. Every file write below goes
+	through the _StzRosterFile* helpers at the foot of this file: inside
+	a workbench-holding agent's tick the write rehearses into the
+	agent's stzVirtualFileSystem and reality changes only when a
+	committing actor executes the exported stzUpdatePlan; outside one --
+	the migration state the live estate still runs -- it is the direct
+	write it always was. safeworld_narrated.ring holds the proof both
+	worlds produce the same ledger.
 */
 
 #---------------------------------------------------------------------#
@@ -231,15 +241,19 @@ func _StzRosterRelocateJournal(poMemory, pcRoot, pcCurMonth)
 		if _StzRosterMonthKey(_cMonth_) >= _StzRosterMonthKey(pcCurMonth)
 			loop
 		ok
-		if NOT StzDirExists(_cJArc_)
-			StzDirCreatePath(_cJArc_)
-		ok
 		_cSrc_ = _cJDir_ + "/" + _cName_
+		# the disk listing above cannot see a rehearsed delete: a source
+		# already moved IN THE TWIN this cycle would otherwise be re-read
+		# as "" and re-archived empty. Absence-through-the-twin skips it.
+		if _StzRosterFileExists(_cSrc_) = 0
+			loop
+		ok
+		_StzRosterDirCreate(_cJArc_)
 		_cDst_ = _cJArc_ + "/" + _cName_
-		_cBody_ = StzFileRead(_cSrc_)
-		StzFileWrite(_cDst_, _cBody_)
-		if StzFileExists(_cDst_) and StzFileRead(_cDst_) = _cBody_
-			StzFileDelete(_cSrc_)
+		_cBody_ = _StzRosterFileRead(_cSrc_)
+		_StzRosterFileWrite(_cDst_, _cBody_)
+		if _StzRosterFileExists(_cDst_) and _StzRosterFileRead(_cDst_) = _cBody_
+			_StzRosterFileDelete(_cSrc_)
 			_nMoved_++
 		ok
 	next
@@ -254,10 +268,10 @@ func _StzRosterRelocateJournal(poMemory, pcRoot, pcCurMonth)
 # unrolled one.
 func _StzRosterRelocateSessionLog(poMemory, pcRoot, pcCurMonth)
 	_cSlF_ = pcRoot + "/dashboard/SESSION-LOG.md"
-	if NOT StzFileExists(_cSlF_)
+	if _StzRosterFileExists(_cSlF_) = 0
 		return 0
 	ok
-	_aLines_ = StzSplit(StzFileRead(_cSlF_), char(10))
+	_aLines_ = StzSplit(_StzRosterFileRead(_cSlF_), char(10))
 	_aKeep_ = []
 	_aByMonth_ = []
 	_n_ = len(_aLines_)
@@ -292,16 +306,14 @@ func _StzRosterRelocateSessionLog(poMemory, pcRoot, pcCurMonth)
 	ok
 
 	_cSlArc_ = pcRoot + "/dashboard/archive"
-	if NOT StzDirExists(_cSlArc_)
-		StzDirCreatePath(_cSlArc_)
-	ok
+	_StzRosterDirCreate(_cSlArc_)
 	_nOk_ = 0
 	for _i_ = 1 to _m_
 		_cMth_ = _aByMonth_[_i_][1]
 		_cBody_ = StzJoinWith(_aByMonth_[_i_][2], char(10)) + char(10)
 		_cArcF_ = _cSlArc_ + "/SESSION-LOG-" + _cMth_ + ".md"
-		StzFileAppend(_cArcF_, _cBody_)
-		if len(StzFind(_cBody_, StzFileRead(_cArcF_))) > 0
+		_StzRosterFileAppend(_cArcF_, _cBody_)
+		if len(StzFind(_cBody_, _StzRosterFileRead(_cArcF_))) > 0
 			_nOk_++
 		ok
 	next
@@ -311,7 +323,7 @@ func _StzRosterRelocateSessionLog(poMemory, pcRoot, pcCurMonth)
 		return 0
 	ok
 
-	StzFileWrite(_cSlF_, StzJoinWith(_aKeep_, char(10)))
+	_StzRosterFileWrite(_cSlF_, StzJoinWith(_aKeep_, char(10)))
 	return _m_
 
 # POINTER -- fires only when RELOCATE archived at least one SESSION-LOG
@@ -328,7 +340,7 @@ func RollWritePointer(poMemory)
 		return
 	ok
 	_cSlF_ = _cRoot_ + "/dashboard/SESSION-LOG.md"
-	if NOT StzFileExists(_cSlF_)
+	if _StzRosterFileExists(_cSlF_) = 0
 		return
 	ok
 
@@ -337,7 +349,7 @@ func RollWritePointer(poMemory)
 		" moved to dashboard/archive/SESSION-LOG-<month>.md. Nothing " +
 		"deleted -- relocation of evidence, not retention."
 
-	_aLines_ = StzSplit(StzFileRead(_cSlF_), char(10))
+	_aLines_ = StzSplit(_StzRosterFileRead(_cSlF_), char(10))
 	_aOut_ = []
 	_bIn_ = 0
 	_n_ = len(_aLines_)
@@ -356,7 +368,7 @@ func RollWritePointer(poMemory)
 		_aOut_ = _aOut2_
 	ok
 
-	StzFileWrite(_cSlF_, StzJoinWith(_aOut_, char(10)))
+	_StzRosterFileWrite(_cSlF_, StzJoinWith(_aOut_, char(10)))
 	poMemory.Learn("ledger", "holds", "pointer")
 
 # SAYZERO -- fires only when RELOCATE found nothing to move. The
@@ -366,6 +378,77 @@ func RollWritePointer(poMemory)
 # an absence.
 func RollReportNothingMoved(poMemory)
 	poMemory.Learn("roll", "moved", "nothing")
+
+#---------------------------------------------------------------------#
+#  THE SAFE-WORLD DOOR (ruling 3.2) -- private to this file            #
+#---------------------------------------------------------------------#
+# Every write-path function above reaches files through these helpers,
+# so the SAME code serves two worlds. Inside a workbench-holding
+# agent's tick (StzInWorkbench), a write REHEARSES into the agent's
+# stzVirtualFileSystem and reality waits for a committed stzUpdatePlan;
+# outside one -- the migration state the live estate still runs -- it
+# is the direct write it always was. Reads go THROUGH the twin so a
+# function sees its own rehearsed writes, and a rehearsed delete reads
+# as absence rather than as the disk's still-standing copy.
+#
+# This file is the binding's FIRST CONSUMER on purpose: its relocate
+# hand-rolled write-then-verify-then-delete against the estate's real
+# ledger, which ruling 3.2 named "the right instinct in the wrong
+# place". Under a workbench the same verify runs against the twin, and
+# the one check that actually needs reality -- did the commit land --
+# belongs to the plan's Execute(), once, audited, for every agent.
+
+func _StzRosterFileRead(pcPath)
+	if StzInWorkbench()
+		return StzActiveWorkbenchQ().ReadThrough(pcPath)
+	ok
+	return StzFileRead(pcPath)
+
+func _StzRosterFileWrite(pcPath, pcBody)
+	if StzInWorkbench()
+		StzActiveWorkbenchQ().WriteFile(pcPath, pcBody)
+	else
+		StzFileWrite(pcPath, pcBody)
+	ok
+
+func _StzRosterFileExists(pcPath)
+	if StzInWorkbench()
+		return StzActiveWorkbenchQ().ExistsThrough(pcPath)
+	ok
+	return StzFileExists(pcPath)
+
+func _StzRosterFileDelete(pcPath)
+	if StzInWorkbench()
+		StzActiveWorkbenchQ().DeleteFile(pcPath)
+	else
+		StzFileDelete(pcPath)
+	ok
+
+func _StzRosterFileAppend(pcPath, pcBody)
+	if StzInWorkbench()
+		_oWb_ = StzActiveWorkbenchQ()
+		_cCur_ = ""
+		if _oWb_.ExistsThrough(pcPath) = 1
+			_cCur_ = _oWb_.ReadThrough(pcPath)
+		ok
+		_oWb_.WriteFile(pcPath, _cCur_ + pcBody)
+	else
+		StzFileAppend(pcPath, pcBody)
+	ok
+
+# idempotent: neither world records a second creation of a folder that
+# is already there
+func _StzRosterDirCreate(pcPath)
+	if StzInWorkbench()
+		_oWb_ = StzActiveWorkbenchQ()
+		if _oWb_.Exists(pcPath) = 0 and NOT StzDirExists(pcPath)
+			_oWb_.CreateFolder(pcPath)
+		ok
+	else
+		if NOT StzDirExists(pcPath)
+			StzDirCreatePath(pcPath)
+		ok
+	ok
 
 #---------------------------------------------------------------------#
 #  SHARED HELPERS -- private to this file                              #

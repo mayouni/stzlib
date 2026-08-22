@@ -819,6 +819,10 @@ ok
     # perceive-decide-act cycle to fixpoint.
     load "agentic/stzAgentSkill.ring"
     load "agentic/stzAgentMemory.ring"
+    # the safe-world binding (ruling 3.2): the workbench registry an
+    # agent rehearses into -- needs system/stzVirtualFileSystem, loaded
+    # far above; stzPIAgent brackets its ambient id per Cycle()
+    load "agentic/stzAgentWorkbench.ring"
     load "agentic/stzPIAgent.ring"
     load "agentic/stzAgentGraph.ring"
     # the four guardrails as declared rules (stzAgentRule IS-A stzGraphRule) +
