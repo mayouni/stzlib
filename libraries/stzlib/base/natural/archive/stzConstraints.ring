@@ -18,25 +18,25 @@ func ConstraintsOn(pcType)
 	ok
 
 func ConstraintsOnStzString()
-	return Constraints([ :OnStzString ])
+	return Constraints()[ :OnStzString ]
 
 	func ConstraintsOnStrings()
 		return ConstraintsOnStzString()
 
 func ConstraintsOnStzNumbers()
-	return Constraints([ :OnStzNumber ])
+	return Constraints()[ :OnStzNumber ]
 
 	func ConstraintsOnNumbers()
 		return ConstraintsOnStzNumber()
 
 func ConstraintsOnStzLists()
-	return Constraints([ :OnStzList ])
+	return Constraints()[ :OnStzList ]
 
 	func ConstraintsOnLists()
 		return ConstraintsOnStzList()
 
 func ConstraintsOnStzObjects()
-	return Constraints([ :OnStzObject ])
+	return Constraints()[ :OnStzObject ]
 
 	func ConstraintsOnObjects()
 		return ConstraintsOnStzObject()

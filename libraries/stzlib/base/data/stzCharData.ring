@@ -2890,7 +2890,7 @@ _cMarquerChar = "#"
 		return NRandomItemsFrom(_n_, Cards())
 
 		func NRandomCards(_n_)
-			return NCards()
+			return NCards(_n_)
 
 	func ACard()
 		return NCards(1)
