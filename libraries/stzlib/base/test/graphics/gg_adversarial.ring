@@ -4307,6 +4307,101 @@ next
 chk("a square cell keeps its fill", nCorFill >= 4)
 
 
+sec("-- 49. A LINK IS EDITED BY ITS KNOBS -------------------------")
+#
+# The Principal, on first contact with the live editor as a product:
+# "the main action is managing links -- now we can add a new, but we need
+# to remove one, and changing one from its knobs -- and let the diagram
+# plastic position algorithm [do the placing]". Cells are the layout's;
+# LINKS are the author's. So a link can be grabbed by either END (its
+# knobs), carried to another cell, and dropped -- one gesture, one
+# command, one undo -- and removed by a direct verb.
+#
+# The refusals carry as much meaning as the gesture: the MIDDLE of an
+# edge belongs to the plastic layout and grabs nothing; a knob dropped on
+# paper abandons the gesture with the model untouched; a rewire onto a
+# pair the graph already holds is refused BEFORE the old link is removed,
+# so a refused gesture changes nothing at all.
+#---------------------------------------------------------------------------
+
+oRw = new stzDiagram("rw49")
+for a in [ [ "a","A" ],[ "b","B" ],[ "c","C" ],[ "d","D" ] ]
+	oRw.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
+next
+oRw.AddEdge("a","b")  oRw.AddEdge("a","c")  oRw.AddEdge("b","d")
+oRw.SetSplines("ortho")
+oRw.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36, :Width = 900, :Height = 600 ])
+
+# the a>c path, pressed 8px shy of its arrow end
+aRwP = []
+for p49 in oRw.RenderEdgePaths()
+	if p49[1] = "a>c"  aRwP = p49[2]  ok
+next
+nRwN = len(aRwP)
+nRwDx = aRwP[nRwN-1] - aRwP[nRwN-3]
+nRwDy = aRwP[nRwN] - aRwP[nRwN-2]
+nRwL = sqrt(nRwDx*nRwDx + nRwDy*nRwDy)
+nRwX = aRwP[nRwN-1] - nRwDx/nRwL*8
+nRwY = aRwP[nRwN] - nRwDy/nRwL*8
+
+oRw.OnPress(nRwX, nRwY)
+chkeq("pressing near a link's end enters :Rewiring", "" + oRw.UiState(), "rewiring")
+aRw49 = oRw.UiRewire()
+chk("...knowing which link and which end",
+    len(aRw49) = 3 and aRw49[1] = "a" and aRw49[2] = "c" and aRw49[3] = "to")
+chk("...and the OTHER end anchors the ghost", len(oRw.RewireAnchor()) = 2)
+
+_r49d_ = _Rect49(oRw, "d")
+oRw.OnRelease(_r49d_[1] + _r49d_[3]/2, _r49d_[2] + _r49d_[4]/2)
+chk("dropped on a cell, that end now means THAT cell",
+    NOT oRw.EdgeExists("a","c") and oRw.EdgeExists("a","d"))
+chkeq("one gesture is ONE log entry", len(oRw.EditLog()), 1)
+oRw.Undo()
+chk("...whose single undo restores the link the author had",
+    oRw.EdgeExists("a","c") and NOT oRw.EdgeExists("a","d"))
+
+# THE REFUSALS
+oRw.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36, :Width = 900, :Height = 600 ])
+aRwP = []
+for p49 in oRw.RenderEdgePaths()
+	if p49[1] = "a>c"  aRwP = p49[2]  ok
+next
+nRwBest = 1  nRwBestL = 0
+for i49 = 1 to len(aRwP) - 3 step 2
+	_l49_ = fabs(aRwP[i49+2]-aRwP[i49]) + fabs(aRwP[i49+3]-aRwP[i49+1])
+	if _l49_ > nRwBestL  nRwBestL = _l49_  nRwBest = i49  ok
+next
+nRwMx = (aRwP[nRwBest] + aRwP[nRwBest+2]) / 2
+nRwMy = (aRwP[nRwBest+1] + aRwP[nRwBest+3]) / 2
+oRw.OnPress(nRwMx, nRwMy)
+chkeq("the MIDDLE of an edge grabs nothing -- it is the layout's",
+      "" + oRw.UiState(), "idle")
+oRw.OnCancel()
+
+nRwN = len(aRwP)
+nRwDx = aRwP[nRwN-1] - aRwP[nRwN-3]
+nRwDy = aRwP[nRwN] - aRwP[nRwN-2]
+nRwL = sqrt(nRwDx*nRwDx + nRwDy*nRwDy)
+oRw.OnPress(aRwP[nRwN-1] - nRwDx/nRwL*8, aRwP[nRwN] - nRwDy/nRwL*8)
+nRw49 = len(oRw.EditLog())
+oRw.OnRelease(20, 20)
+chkeq("a knob dropped on paper abandons the gesture", len(oRw.EditLog()), nRw49)
+
+oRw.OnPress(aRwP[nRwN-1] - nRwDx/nRwL*8, aRwP[nRwN] - nRwDy/nRwL*8)
+_r49b_ = _Rect49(oRw, "b")
+oRw.OnRelease(_r49b_[1] + _r49b_[3]/2, _r49b_[2] + _r49b_[4]/2)
+chk("a rewire onto an existing pair is refused WHOLE",
+    len(oRw.EditLog()) = nRw49 and oRw.EdgeExists("a","c") and oRw.EdgeExists("a","b"))
+
+# THE DIRECT VERB
+chk("RemoveLinkAt removes the link under the pointer",
+    oRw.RemoveLinkAt(nRwMx, nRwMy) and NOT oRw.EdgeExists("a","c"))
+oRw.Undo()
+chk("...and it is one undo away like everything else", oRw.EdgeExists("a","c"))
+chkeq("RemoveLinkAt on paper is a refusal, not an error",
+      oRw.RemoveLinkAt(20, 20), 0)
+
+
 #---------------------------------------------------------------------------
 ? ""
 if nSecClock > 0
@@ -4352,6 +4447,12 @@ func _CorGraph cName
 	_g_.AddEdge("p","l")  _g_.AddEdge("p","r")  _g_.AddEdge("l","d")
 	_g_.SetSplines("ortho")
 	return _g_
+
+func _Rect49 oDg, cId
+	for _r49_ in oDg.RenderNodeRects()
+		if _r49_[5] = cId  return _r49_  ok
+	next
+	return [ 0, 0, 0, 0 ]
 
 # --- I7 instruments: a picture re-read as a graph -------------------
 func _I7Cx aR, cId

@@ -864,3 +864,44 @@ I4's collapse; `centerParents` owns I6's emphasis and `siblingStraddle`
 owns I7's positions, both in `graph_layout.zig` and both running after
 every pass that can move a node. A new feature is done when it names
 which invariant it serves.
+
+## THE PLASTIC LAYOUT (2026-08-22, named by the Principal on first contact with the live editor)
+
+His words, on the day every link he drew came out right: *"I think it is a
+good thing that moving cells does not produce any change, since we are not
+making the system for the sake of beauty, or arbitrary positioning like in
+all the diagramming software. What the user needs to change is the links …
+and let the diagram plastic position algorithm"* — and the name is his:
+**the plastic layout**.
+
+The doctrine it names, which every editor feature is now judged against:
+
+**The author edits MEANING; the layout owns GEOMETRY — all of it.** A
+diagram here is not a drawing that happens to contain a graph; it is a
+graph that the plastic layout re-forms around, the way a plastic material
+takes the shape of what it holds. Every spatial law in the visual contract
+(I1–I7) is a consequence: geometry states facts, so only the algorithm —
+which knows the facts — may write it. An author placing a cell by eye
+would be asserting spatial claims the graph cannot back.
+
+What follows for the editor's verb set, in the order the Principal ranked
+them:
+
+- **Managing links is the main action.** Draw one (L+drag between cells,
+  GG7), **remove one** (`RemoveLinkAt` — a verb, not a gesture, because
+  removal is instantaneous), and **re-aim one by its knobs** — an edge is
+  grabbed near either END, carried, and dropped on another cell as ONE
+  `Rewire` command with one inverse. The MIDDLE of an edge grabs nothing:
+  its geometry belongs to the plastic layout, so there is nothing there
+  for a gesture to say.
+- **Cells and labels are the second rank**: add/remove a cell and edit a
+  label already exist as commands; their gestures come when asked for.
+- **Dragging a cell is advice about ORDER, never geometry** — the pin
+  ruling of GG7b, which this doctrine retroactively explains: a pin
+  reorders the rank and the plastic layout replaces every coordinate.
+
+The refusals carry the doctrine as much as the verbs: a knob dropped on
+paper abandons the gesture with the model untouched; a rewire onto a pair
+the graph already holds is refused BEFORE the old link is removed, so a
+refused gesture changes nothing at all. Section 49 of the guard holds all
+of it headless.
