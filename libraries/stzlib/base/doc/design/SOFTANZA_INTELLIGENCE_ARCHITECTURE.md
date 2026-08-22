@@ -493,7 +493,7 @@ A rung is marked DELIVERED only where a guard proving it was RUN on this date.
 | **R2** meta + the code graph | **DELIVERED** | `test/meta/` -- codegraph 28/28, coderule, coderule_project, jscodegraph, pycodegraph, all green. `stzPredicateSet` (G10, the signable constitution) exists; `stzGovernanceChecks` holds the G2 validators; `stzRuleReport` is the ONE gate. Call-edges, deferred at R7, are now read (`stzRingCodeGraph.ring:239`) | -- |
 | **R3** linguistic | **DELIVERED** | `base/linguistic/`, 8 files. The POS-pattern chunker (`test/linguistic/chunker_narrated.ring`) and the n-gram LM tier (`ngram_lm_tier_narrated.ring`) both exist; `stzCorpus` is the corpora entry object | The corpora SHELF is a class, not a folder. That is adequate, but §2's map still draws a `corpora/` directory that does not exist -- **the map is what is wrong here, not the code** |
 | **R3b** conversation | **DELIVERED** | `test/conversation/wisecoding_narrated.ring` **13/13** and `wisecoding_rich_narrated.ring` **52/52**, both green. `ConcludeIn()` WRITES the .zknw at the end of an elicitation -- wise coding ends in an artifact, exactly as 0.3 demanded | The five answer registers are not equally strong: option, data-structure and natural are wired; EXAMPLES-with-induction rides `StzOwnAgent("induction")`, which is declared RESERVED (see the R5 row) |
-| **R4** learning + optim | **PARTIAL** | Steps 0-4, 6 and 7 DELIVERED: `test/learning/` mlfloor 36/36, dlm 16/16, multilingual stress 37/37, knn-approximate green; `stzDLM` + .zdlm is foundry rung 1; `stzLLMFunction` + `stzOutputSchema` are step 6, and are now specified as **C9 v1.0.0** in `base/neural/SOFTANZA_STRUCTURED_OUTPUT.md` (written 2026-08-22) | **STEP 5 IS NOT STARTED. There is no `base/optim/`, no `stzOptimModel`, no `.zopt` format, no `SolveWith(:auto)` and no HiGHS tier.** The solver FLOOR exists (`engine/src/simplex.zig`, `stats/stzLinearSolver`, `stzMultiObjectiveSolver`, `stzStochasticSolver`); what is missing is the MODELLING DSL over it. This is load-bearing rather than cosmetic: R5's OPTIMIZATION leg names `stzOptimModel` as the planner's sub-solver, and the capstone's "optimize a menu straight from the knowledgebase" runs through it. **Step 8** (the neural foundry rung -- corpus synthesis, tokenizer training, GGUF export) is also not started, and was always the ambition tier |
+| **R4** learning + optim | **PARTIAL** | Steps 0-4, 6 and 7 DELIVERED: `test/learning/` mlfloor 36/36, dlm 16/16, multilingual stress 37/37, knn-approximate green; `stzDLM` + .zdlm is foundry rung 1; `stzLLMFunction` + `stzOutputSchema` are step 6, and are now specified as **C9 v1.0.0** in `base/neural/SOFTANZA_STRUCTURED_OUTPUT.md` (written 2026-08-22) | **STEP 5 IS NOT STARTED. There is no `base/optim/`, no `stzOptimModel`, no `.zopt` format, no `SolveWith(:auto)` and no HiGHS tier.** The solver FLOOR exists (`engine/src/simplex.zig`, `stats/stzLinearSolver`, `stzMultiObjectiveSolver`, `stzStochasticSolver`); what is missing is the MODELLING DSL over it. This is load-bearing rather than cosmetic: R5's OPTIMIZATION leg names `stzOptimModel` as the planner's sub-solver, and the capstone's "optimize a menu straight from the knowledgebase" runs through it. ***[SUPERSEDED 2026-08-22: STEP 5 IS DELIVERED — `base/optim/` with three surfaces onto one AST, `engine/src/optim.zig` as the floor, `SolveWith(:auto)`/`Why()`, and `optim_modelling_narrated.ring` 59/59. The HiGHS tier is deliberately still absent and is REFUSED rather than downgraded. Details and the corrected expression mechanism are in the §6 R4 step 5 and §5.5 amendments. R5's OPTIMIZATION leg is now unblocked.]*** **Step 8** (the neural foundry rung -- corpus synthesis, tokenizer training, GGUF export) is also not started, and was always the ambition tier |
 | **R4b** governance | **DELIVERED -- all five contracts, not one** | `base/governance/stzGovernance.ring`, 744 lines, born 7dd4b7275. ActionRiskTier = `DeclareRisk` / `RiskOf`; AuthorityType = `SetAuthority` / `AuthorityOf`; CommitmentState = `OpenCommitment` / `AdvanceCommitment`; DecommissionContract = `DeclareDecommission` / `FulfillObligation` / `MayRetire`; DecisionLineage = `RecordDecision` / `LineageOf` / `DecisionsSince`. Plus the 5.8 execution trust postures (`DeclarePosture` / `MayExecute`) and the .zgov format. `test/governance/` -- narrated 19/19, lineage 37/37 | **Reversibility is not among them.** See 3.2 -- it is now owed as a sixth contract *[2026-08-22 second session: PAID -- contract 6 + MayRegister delivered, safeworld_narrated 76/76]* |
 | **R5** agentic | **PARTIAL -- and the partition is not where 2026-07-13 expected it** | Green: `test/agentic/`, eight suites, **261 assertions, 0 fail** (agentfile 88, agentloop_engine 54, agenthost 32, roster 31, agentrule 21, piagent 14, agentgraph 11, ownagentstack 10). PLANNING = `stzGraphPlanner` + `stzGraphGoal`, both built; REACTION, MEMORY, SKILLS and the governance gate all run; the capability lattice and taint colours are real (`stzAgentGraph`); ACCOUNTABILITY is the per-cycle trace | Named with reasons in **3.2**. In one line: OPTIMIZATION has no sub-solver (R4 step 5), the NATIVE ROSTER is one wired of five, `stzHybridAgent` was never built as a class, and **the safe world and the agents have never been introduced to each other** *[2026-08-22 second session: INTRODUCED -- stzAgentWorkbench + pia:2 postures + roster as first consumer; OPTIM, the four native agents and stzHybridAgent remain]* |
 | **R6** refine | **DELIVERED** | `test/refine/` -- refinablecode 17/17, refine_deepening 24/24, gate_deepening green. `stzRefinableCode` over .zrfn; the four-stage gate; `stzPyCodeGraph` and `stzJsCodeGraph` are the polyglot contracts | The optional research tier (patch-commutation predicates, the ROM-style stable surface) was never started, and was marked optional on the day |
@@ -1064,12 +1064,55 @@ surfaces, per LAW 1 + the 4.3 multi-paradigm doctrine:
    through expr.zig's bytecode (the W-DSL engine), retiring
    stzCoeffExtractor's eval-based parsing.
 
+   [AMENDED 2026-08-22, on building it: **THE ENGINE NAMED HERE CANNOT DO
+   THIS, AND A BETTER ONE CAN.** Measured from Ring, both directions:
+   `expr.zig` has `<=` but **no named variables** -- its whole variable
+   vocabulary is `@item`, `@i`, `@accumulator`, `@char`,
+   `@numberofitems` and `This[k]`, so `3*x + 2*y` is refused
+   (`StzEngineListEvalColumnsDense` returns an EMPTY list; the same call
+   with `3*This[1] + 2*This[2]` returns 5 at x=y=1). And `autodiff.zig`
+   has named variables but **no comparison operators**
+   (`StzEngineGradCompile("x + y <= 50", "x,y")` is refused with *"there
+   is a character the expression cannot use"*). Neither engine alone
+   spans one constraint string.
+   **What ships instead, and it is strictly better than what was
+   designed:** a linear form's GRADIENT *is* its coefficient vector, so
+   ONE autodiff tape pass returns the constant term and every
+   coefficient exactly -- `4*x - 2*y + 7` answers `[7, 4, -2]`, with no
+   step size to choose and no eval() anywhere. The relation is split
+   Ring-side on `<=` / `>=` / `=` (four string positions, not
+   arithmetic) and each side compiled separately, so `2*x + 3 <= y + 10`
+   is read as `2x - y <= 7` with no term-shuffling. The design's INTENT
+   -- compile expressions in the engine, retire the eval-based parsing --
+   is met; the MECHANISM is `autodiff.zig`, not `expr.zig`.
+   **Scope of the retirement, stated honestly:** the new modelling layer
+   never touches `stzCoeffExtractor`. It still backs `stzStochasticSolver`
+   and `stzMultiObjectiveSolver`, and rewiring those is a separate
+   migration against working code with passing guards -- named here so it
+   is not read as done. See `base/optim/stzOptimExpr.ring`.]
+
 EXECUTION -- two tiers per LAW 2 (graceful degradation): own Zig
 simplex+B&B floor (engine/src/optim.zig -- honest, zero-dependency, small
 models and teaching) -> vendored HiGHS (MIT, modern LP/MIP) as the
 transparent large-model upgrade. SolveWith(:auto) picks; Why() reports
 which tier ran -- identical in shape to lexical->embeddings and
 linguistic->neural.
+
+[AMENDED 2026-08-22: **the floor is BUILT and the upgrade tier is
+deliberately absent.** `engine/src/optim.zig` takes a clean MODEL
+(objective, matrix, senses, right-hand sides, bounds, integrality) and
+owns the tableau layout, because branch-and-bound solves a TREE of LPs
+and rebuilding that tableau Ring-side would pay the build cost once per
+node -- which is the same measured logic that kept the layout in Ring
+for `simplex.zig`, reaching the opposite answer because the node count
+is what grows. It reuses `simplex.zig`'s pivot loop unchanged.
+`SolveWith(:highs)` is **REFUSED** rather than silently downgraded: a
+quiet fallback is how a two-tier claim stops being true. `Why()` names
+the tier that ran and says the upgrade tier is not vendored. Reported
+statuses are optimal / unbounded / infeasible / iteration-limit /
+node-limit / no-lower-bound -- and node-limit is distinct on purpose,
+because a feasible incumbent nobody proved optimal is a different claim
+from an optimum.]
 
 THE CLASSIC-ML ROSTER (ranked by intelligence-per-line; the rollout order
 writes itself):
@@ -1748,6 +1791,31 @@ FOUNDATION.** Step order matters:
    (SolveWith(:auto), Why() names the engine); UN-RETIRE the
    solver-comparison test as the honesty guard; stzMultiObjectiveSolver
    (NSGA-II) moves in beside it.
+   [AMENDED 2026-08-22 -- **DELIVERED**, with one mechanism corrected and
+   one item found already done. `base/optim/` now holds all three
+   surfaces onto ONE AST: `stzOptimModel` (the entry object),
+   `stzOptimFile` (*.zopt with sets, params and indexed variable and
+   constraint families -- `sum ... for p in Products` and
+   `forall p in Products` expand to longhand BEFORE the model sees them,
+   so the format is a front end and not a second engine), and
+   `stzOptimSentence` (`StzOptimNaturally`). The two surfaces are proven
+   to agree by comparing `ASTSignature()`, never answers -- two wrong
+   models can share a number. `engine/src/optim.zig` is the floor
+   (simplex + branch-and-bound over `simplex.zig`'s pivot loop, 12
+   standalone Zig tests); HiGHS is NOT vendored and `SolveWith(:highs)`
+   is refused rather than downgraded, per the "do not vendor on day one"
+   instruction. **Expressions compile through `autodiff.zig`, not
+   `expr.zig`** -- see the amendment in 5.5; the intent is met and the
+   named mechanism was wrong. **stzCoeffExtractor is retired for the new
+   path only** and still backs stzStochasticSolver and
+   stzMultiObjectiveSolver. `stzMultiObjectiveSolver` HAS moved to
+   `base/optim/`, and the stale second copy under `future/` (841 lines,
+   older, referenced by nothing) was removed rather than left to be
+   found again. **The solver-comparison test was already un-retired** by
+   an earlier session (`test/linearsolver/13_same_problem_different_solvers.ring`,
+   green); the new guard extends it to compare the modelling object with
+   both older backends on one model and print all three. Guard:
+   `base/test/optim/optim_modelling_narrated.ring`, 59 assertions, 0.06s.]
 6. stzLLMFunction (5.7 G3): the pure typed LLM primitive -- type->
    grammar compilation (GBNF for local GGUF, JSON-schema for remote),
    content-hash memoization, golden-set tests woven into the narrated

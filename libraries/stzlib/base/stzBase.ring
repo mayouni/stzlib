@@ -863,8 +863,21 @@ ok
     load "stats/stzDataWrangler.ring"
     load "stats/stzCoeffExtractor.ring"
     load "stats/stzLinearSolver.ring"
-    load "stats/stzMultiObjectiveSolver.ring"
     load "stats/stzStochasticSolver.ring"
+
+    # optim/ -- DECISION PROGRAMMING (R4 step 5, section 5.5): the
+    # modelling DSL over the solver floor. Three surfaces onto ONE AST --
+    # the entry object, the *.zopt format, and the sentence -- and two
+    # execution tiers, of which the engine floor is built and the HiGHS
+    # upgrade is deliberately not vendored yet.
+    load "optim/stzOptimExpr.ring"
+    load "optim/stzOptimModel.ring"
+    load "optim/stzOptimFile.ring"
+    load "optim/stzOptimSentence.ring"
+    # the multi-objective solver MOVED HERE from stats/ with R4 step 5:
+    # NSGA-II is a decision procedure, and it belongs beside the model it
+    # will eventually take (section 5.5's own cleanup list).
+    load "optim/stzMultiObjectiveSolver.ring"
 
 // tz1 = clock()
 // ? "Softanza laoding time:"
