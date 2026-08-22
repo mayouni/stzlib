@@ -3,6 +3,7 @@ const numbuf = @import("numbuf.zig");
 const special = @import("special.zig");
 const hyp = @import("hypothesis.zig");
 const simplex = @import("simplex.zig");
+const optim = @import("optim.zig");
 const logistic = @import("logistic.zig");
 const cluster = @import("cluster.zig");
 const tree = @import("tree.zig");
@@ -506,6 +507,134 @@ fn ring_SimplexRun(p: *anyopaque) callconv(.c) void {
     const out = R.ring_vm_api_newlist(p) orelse return;
     R.ring_list_adddouble(out, @floatFromInt(@intFromEnum(st)));
     R.ring_list_adddouble(out, @floatFromInt(iters));
+    for (x) |v| R.ring_list_adddouble(out, v);
+    R.ring_vm_api_retlist(p, out);
+}
+
+// ─── The LP/MIP floor (R4 step 5) ───
+//
+// Where SimplexRun takes a TABLEAU somebody else laid out, this takes a MODEL
+// and owns the layout -- because branch-and-bound solves a tree of LPs and
+// rebuilding that tableau Ring-side would pay the build cost once per node.
+//
+//   StzEngineOptimSolve(aObj, nMaximize, aLb, aUb, aUbFinite, aIsInt,
+//                       aMat, aSense, aRhs, nVars, nCons, nMaxNodes)
+//     -> [ status, objective, nodes, iterations, branched, x1, x2, ... ]
+//
+// status: 0 optimal, 1 unbounded, 2 infeasible, 3 iteration limit,
+//         4 node limit (an incumbent exists but nothing proved it optimal),
+//         5 a lower bound of -infinity, which v1 refuses rather than clamps.
+// aUbFinite is a parallel 1/0 list rather than a magic number in aUb: a
+// sentinel large enough to mean "no bound" is also a number somebody's model
+// could legitimately hold.
+fn ring_OptimSolve(p: *anyopaque) callconv(.c) void {
+    const obj = listToF64(p, 1) orelse {
+        R.ring_vm_api_retnumber(p, 0);
+        return;
+    };
+    defer allocator.free(obj);
+    const maximize = g(p, 2) != 0;
+    const lb = listToF64(p, 3) orelse {
+        R.ring_vm_api_retnumber(p, 0);
+        return;
+    };
+    defer allocator.free(lb);
+    const ubf = listToF64(p, 4) orelse {
+        R.ring_vm_api_retnumber(p, 0);
+        return;
+    };
+    defer allocator.free(ubf);
+    const ubfin = listToF64(p, 5) orelse {
+        R.ring_vm_api_retnumber(p, 0);
+        return;
+    };
+    defer allocator.free(ubfin);
+    const isint = listToF64(p, 6) orelse {
+        R.ring_vm_api_retnumber(p, 0);
+        return;
+    };
+    defer allocator.free(isint);
+    const mat = listToF64(p, 7) orelse {
+        R.ring_vm_api_retnumber(p, 0);
+        return;
+    };
+    defer allocator.free(mat);
+    const sensef = listToF64(p, 8) orelse {
+        R.ring_vm_api_retnumber(p, 0);
+        return;
+    };
+    defer allocator.free(sensef);
+    const rhs = listToF64(p, 9) orelse {
+        R.ring_vm_api_retnumber(p, 0);
+        return;
+    };
+    defer allocator.free(rhs);
+
+    const n: usize = @intFromFloat(g(p, 10));
+    const m: usize = @intFromFloat(g(p, 11));
+    const max_nodes: i32 = @intFromFloat(g(p, 12));
+
+    if (n == 0 or obj.len != n or lb.len != n or ubf.len != n or
+        ubfin.len != n or isint.len != n or mat.len != m * n or
+        sensef.len != m or rhs.len != m)
+    {
+        R.ring_vm_api_retnumber(p, 0);
+        return;
+    }
+
+    const ub = allocator.alloc(f64, n) catch {
+        R.ring_vm_api_retnumber(p, 0);
+        return;
+    };
+    defer allocator.free(ub);
+    const flags = allocator.alloc(bool, n) catch {
+        R.ring_vm_api_retnumber(p, 0);
+        return;
+    };
+    defer allocator.free(flags);
+    for (0..n) |j| {
+        ub[j] = if (ubfin[j] != 0) ubf[j] else optim.INF;
+        flags[j] = isint[j] != 0;
+    }
+
+    const sense = allocator.alloc(i8, m) catch {
+        R.ring_vm_api_retnumber(p, 0);
+        return;
+    };
+    defer allocator.free(sense);
+    for (0..m) |i| sense[i] = @intFromFloat(sensef[i]);
+
+    const x = allocator.alloc(f64, n) catch {
+        R.ring_vm_api_retnumber(p, 0);
+        return;
+    };
+    defer allocator.free(x);
+    @memset(x, 0);
+
+    const mo = optim.Model{
+        .n = n,
+        .m = m,
+        .obj = obj,
+        .maximize = maximize,
+        .lb = lb,
+        .ub = ub,
+        .is_int = flags,
+        .mat = mat,
+        .sense = sense,
+        .rhs = rhs,
+    };
+
+    const res = optim.solve(allocator, mo, x, max_nodes) catch {
+        R.ring_vm_api_retnumber(p, 0);
+        return;
+    };
+
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_list_adddouble(out, @floatFromInt(@intFromEnum(res.status)));
+    R.ring_list_adddouble(out, res.objective);
+    R.ring_list_adddouble(out, @floatFromInt(res.nodes));
+    R.ring_list_adddouble(out, @floatFromInt(res.iterations));
+    R.ring_list_adddouble(out, if (res.branched) 1 else 0);
     for (x) |v| R.ring_list_adddouble(out, v);
     R.ring_vm_api_retlist(p, out);
 }
@@ -3263,6 +3392,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineanova", .func = &ring_Anova },
     .{ .name = "stzenginecorrelationtest", .func = &ring_CorrelationTest },
     .{ .name = "stzenginesimplexrun", .func = &ring_SimplexRun },
+    .{ .name = "stzengineoptimsolve", .func = &ring_OptimSolve },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
