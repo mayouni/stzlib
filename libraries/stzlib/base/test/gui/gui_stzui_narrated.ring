@@ -171,8 +171,18 @@ oBB = new stzUiDocument(
 	'DEFINE BOX x ( WIDTH 100, HEIGHT 60, PADDING 10 ) RATIONALE "x"')
 oBP = oBB.ToPanel()
 aX = oBP.BoxOf("x")
+# THESE FOUR NUMBERS WERE WRONG AND THEIR LABELS WERE RIGHT, which is
+# how they survived. Each label says the box occupies its DECLARED total
+# -- and each number then subtracted the padding back off, because
+# `BoxOf` was answering RmlUi's CONTENT box. The label and the assertion
+# disagreed, and they passed together because the implementation agreed
+# with the assertion rather than with the label.
+#
+# The browser fixture broke the tie: a second engine reported the border
+# box, `stz_gui_element_box` was corrected to do the same, and these
+# four turned red. They now assert what they always claimed.
 chk("WIDTH 100 with PADDING 10 occupies 100, not 120 (border-box)",
-    aX[3] = 80 and aX[4] = 40)
+    aX[3] = 100 and aX[4] = 60)
 oBP.Free()
 
 ? ""
@@ -188,14 +198,14 @@ aBar = oSP.BoxOf("bar")
 aSide = oSP.BoxOf("side")
 aFoot = oSP.BoxOf("foot")
 chk("the bar spans the screen at its declared 52 (padding inside)",
-    aBar[3] = 1000 - 12 and aBar[4] = 52 - 12)
-# BoxOf answers the CONTENT box; border-box puts the padding inside the
-# declared 210, so content = 210 - 2*20. The invariant asserted is the
-# declared TOTAL, reconstructed.
-chk("the sidebar occupies its declared 210 (content 170 + padding 40)",
-    aSide[3] = 210 - 40)
+    aBar[3] = 1000 and aBar[4] = 52)
+# BoxOf answers the BORDER box, so the declared total IS what comes
+# back -- no reconstruction, which is the point of the plane's law that
+# a declared size is the total.
+chk("the sidebar occupies its declared 210, with the padding inside it",
+    aSide[3] = 210)
 chk("the footer was NOT squeezed (30 total, padding inside)",
-    aFoot[4] = 30 - 16)
+    aFoot[4] = 30)
 chk("six cards laid out", len(oSP.BoxOf("card_perf")) = 4)
 # G2 retired the bridge this used to prove: the panel now carries its own
 # text, so what matters is that every TEXT declaration became a real draw
