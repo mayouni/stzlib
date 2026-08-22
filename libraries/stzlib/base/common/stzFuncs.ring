@@ -827,7 +827,7 @@ func @NXT(_n_, pStrOrItem, pcInStrOrList)
 		return @NXT(1, pStrOrItem, pcInStrOrList)
 
 		func OneXT(pStrOrItem, pcInStrOrList)
-			return @N(1, pStrOrItem, pcInStrOrList)
+			return @NXT(1, pStrOrItem, pcInStrOrList)
 
 	func @2XT(pStrOrItem, pcInStrOrList)
 		return @NXT(2, pStrOrItem, pcInStrOrList)
@@ -1140,7 +1140,7 @@ func TheseNumbers(p)
 	#==
 
 	func @TheseNumbers(p)
-		return TheseNumbers()
+		return TheseNumbers(p)
 
 	func @EachOfTheseNumbers(p)
 		return TheseNumbers(p)
@@ -1196,7 +1196,7 @@ func TheseChars(p)
 	#==
 
 	func @TheseChars(p)
-		return TheseChars()
+		return TheseChars(p)
 
 	func @EachOfTheseChars(p)
 		return TheseChars(p)
@@ -1252,7 +1252,7 @@ func TheseStrings(p)
 	#==
 
 	func @TheseStrings(p)
-		return TheseStrings()
+		return TheseStrings(p)
 
 	func @EachOfTheseStrings(p)
 		return TheseStrings(p)
@@ -1308,7 +1308,7 @@ func TheseLists(p)
 	#==
 
 	func @TheseLists(p)
-		return TheseLists()
+		return TheseLists(p)
 
 	func @EachOfTheseLists(p)
 		return TheseLists(p)
@@ -1364,7 +1364,7 @@ func TheseObjects(p)
 	#==
 
 	func @TheseObjects(p)
-		return TheseObjects()
+		return TheseObjects(p)
 
 	func @EachOfTheseObjects(p)
 		return TheseObjects(p)
@@ -1422,7 +1422,7 @@ func TheseStzNumbers(p)
 	#==
 
 	func @TheseStzNumbers(p)
-		return TheseStzNumbers()
+		return TheseStzNumbers(p)
 
 	func @EachOfTheseStzNumbers(p)
 		return TheseStzNumbers(p)
@@ -1478,7 +1478,7 @@ func TheseStzChars(p)
 	#==
 
 	func @TheseStzChars(p)
-		return TheseStzChars()
+		return TheseStzChars(p)
 
 	func @EachOfTheseStzChars(p)
 		return TheseStzChars(p)
@@ -1534,7 +1534,7 @@ func TheseStzStrings(p)
 	#==
 
 	func @TheseStzStrings(p)
-		return TheseStzStrings()
+		return TheseStzStrings(p)
 
 	func @EachOfTheseStzStrings(p)
 		return TheseStzStrings(p)
@@ -1590,7 +1590,7 @@ func TheseStzLists(p)
 	#==
 
 	func @TheseStzLists(p)
-		return TheseStzLists()
+		return TheseStzLists(p)
 
 	func @EachOfTheseStzLists(p)
 		return TheseStzLists(p)
@@ -1646,7 +1646,7 @@ func TheseStzObjects(p)
 	#==
 
 	func @TheseStzObjects(p)
-		return TheseStzObjects()
+		return TheseStzObjects(p)
 
 	func @EachOfTheseStzObjects(p)
 		return TheseStzObjects(p)
@@ -1810,7 +1810,7 @@ func TheseNumbersQ(p)
 	#==
 
 	func @TheseNumbersQ(p)
-		return TheseNumbersQ()
+		return TheseNumbersQ(p)
 
 	func @EachOfTheseNumbersQ(p)
 		return TheseNumbersQ(p)
@@ -1866,7 +1866,7 @@ func TheseCharsQ(p)
 	#==
 
 	func @TheseCharsQ(p)
-		return TheseCharsQ()
+		return TheseCharsQ(p)
 
 	func @EachOfTheseCharsQ(p)
 		return TheseCharsQ(p)
@@ -1922,7 +1922,7 @@ func TheseStringsQ(p)
 	#==
 
 	func @TheseStringsQ(p)
-		return TheseStringsQ()
+		return TheseStringsQ(p)
 
 	func @EachOfTheseStringsQ(p)
 		return TheseStringsQ(p)
@@ -1978,7 +1978,7 @@ func TheseListsQ(p)
 	#==
 
 	func @TheseListsQ(p)
-		return TheseListsQ()
+		return TheseListsQ(p)
 
 	func @EachOfTheseListsQ(p)
 		return TheseListsQ(p)
@@ -2034,7 +2034,7 @@ func TheseObjectsQ(p)
 	#==
 
 	func @TheseObjectsQ(p)
-		return TheseObjectsQ()
+		return TheseObjectsQ(p)
 
 	func @EachOfTheseObjectsQ(p)
 		return TheseObjectsQ(p)
@@ -2090,7 +2090,7 @@ func TheseStzNumbersQ(p)
 	#==
 
 	func @TheseStzNumbersQ(p)
-		return TheseStzNumbersQ()
+		return TheseStzNumbersQ(p)
 
 	func @EachOfTheseStzNumbersQ(p)
 		return TheseStzNumbers(p)
@@ -2146,7 +2146,7 @@ func TheseStzCharsQ(p)
 	#==
 
 	func @TheseStzCharsQ(p)
-		return TheseStzCharsQ()
+		return TheseStzCharsQ(p)
 
 	func @EachOfTheseStzCharsQ(p)
 		return TheseStzCharsQ(p)
@@ -2202,7 +2202,7 @@ func TheseStzStringsQ(p)
 	#==
 
 	func @TheseStzStringsQ(p)
-		return TheseStzStringsQ()
+		return TheseStzStringsQ(p)
 
 	func @EachOfTheseStzStringsQ(p)
 		return TheseStzStringsQ(p)
@@ -2258,7 +2258,7 @@ func TheseStzListsQ(p)
 	#==
 
 	func @TheseStzListsQ(p)
-		return TheseStzListsQ()
+		return TheseStzListsQ(p)
 
 	func @EachOfTheseStzListsQ(p)
 		return TheseStzListsQ(p)
@@ -2315,7 +2315,7 @@ func TheseStzObjectsQ(p)
 	#==
 
 	func @TheseStzObjectsQ(p)
-		return TheseStzObjectsQ()
+		return TheseStzObjectsQ(p)
 
 	func @EachOfTheseStzObjectsQ(p)
 		return TheseStzObjectsQ(p)

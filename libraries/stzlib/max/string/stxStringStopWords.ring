@@ -301,10 +301,10 @@ func ArabicStopWords()
 
 		switch pcReturnType
 		on :stzList
-			return new stzList(ArabicStopWords(pcLang))
+			return new stzList(ArabicStopWords())
 		
 		on :stzListOfStrings
-			return new stzListOfStrings(ArabicStopWords(pcLang))
+			return new stzListOfStrings(ArabicStopWords())
 		
 		other
 				StzRaise("Unsupported return type!")
@@ -332,10 +332,10 @@ func EnglishStopWords()
 
 		switch pcReturnType
 		on :stzList
-			return new stzList(EnglishStopWords(pcLang))
+			return new stzList(EnglishStopWords())
 		
 		on :stzListOfStrings
-			return new stzListOfStrings(EnglishStopWords(pcLang))
+			return new stzListOfStrings(EnglishStopWords())
 		
 		other
 				StzRaise("Unsupported return type!")

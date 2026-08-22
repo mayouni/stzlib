@@ -5363,10 +5363,10 @@ func ListItemsAreAllStrings(paList)
 	return oTempList.ItemsAreAllStrings()
 
 	func ItemsAreAllStrings(paList)
-		return ListItemsAreAllStrings()
+		return ListItemsAreAllStrings(paList)
 
 	func @ItemsAreAllStrings(paList)
-		return ListItemsAreAllStrings()
+		return ListItemsAreAllStrings(paList)
 
 	func AllItemsAreStrings(paList)
 		return ListItemsAreAllStrings(paList)
@@ -5653,7 +5653,7 @@ func AreEqual(paValues)
 		return AreEqual(paValues)
 
 	func @AllAreEqual(paValues)
-		return AreEqualCS(paValues)
+		return AreEqual(paValues)
 
 	#>
 
@@ -6158,7 +6158,7 @@ func ListContainsOneOfTheseCS(paList, paItems, pCaseSensitive)
 	bResult = FALSE
 
 	for i = 1 to nLen
-		if ListContainsCS(paList, paItems[i])
+		if ListContainsCS(paList, paItems[i], pCaseSensitive)
 			bResult = TRUE
 			exit
 		ok
@@ -7229,22 +7229,22 @@ func ComputableFormNLQ(pValue)
 func IsContiguous(paList)
 	return IsContiguous(paList)
 
-	func IsContinuous()
-		return IsContiguous()
+	func IsContinuous(paList)
+		return IsContiguous(paList)
 
-	func IsConsecutive()
-			return IsContiguous()
+	func IsConsecutive(paList)
+		return IsContiguous(paList)
 
 	#--
 
 	func @IsContiguous(paList)
-		return IsContiguous()
+		return IsContiguous(paList)
 
-	func @IsContinuous()
-		return IsContiguous()
+	func @IsContinuous(paList)
+		return IsContiguous(paList)
 
-	func @IsConsecutive()
-			return IsContiguous()
+	func @IsConsecutive(paList)
+		return IsContiguous(paList)
 
 #== Combinations functions by ClaudeAI #ai
 
