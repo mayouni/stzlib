@@ -653,6 +653,23 @@ class stzAgentDeclaration from stzObject
 			ok
 		ok
 
+		# DID THE FILE *SAY* ring:, whatever the clause parser made of it?
+		# A clause naming a function that is not loaded fails to compile,
+		# so _acRingFns_ comes back EMPTY -- and the "a posture here
+		# governs nothing" rule below then fired on a skill that plainly
+		# declares one. That is a second, CONTRADICTORY diagnosis on top
+		# of the real one, and it points the reader at deleting the very
+		# posture they owe. Found 2026-08-22 by running the estate's seven
+		# bumped roster declarations through this court: five of them name
+		# ring functions that live in Central's generator and not in this
+		# process, and every one was told its posture governed nothing.
+		# The TEXT is the honest source for "does this skill reach Ring".
+		_bTextRing_ = 0
+		if This._SaysRing(paSk, "when") or This._SaysRing(paSk, "does") or
+		   This._SaysRing(paSk, "verify")
+			_bTextRing_ = 1
+		ok
+
 		_acRingFns_ = []
 		_bDoesRing_ = 0
 		if _aWhen_[:verb] = "ring"
@@ -667,7 +684,7 @@ class stzAgentDeclaration from stzObject
 		ok
 
 		if @nVer >= 2
-			if len(_acRingFns_) > 0 and _cPosture_ = ""
+			if (len(_acRingFns_) > 0 or _bTextRing_ = 1) and _cPosture_ = ""
 				@aFindings + _StzPiaFinding("pia-posture", _cWhere_,
 					"this skill runs the Ring function '" +
 					StzJoinWith(_acRingFns_, "', '") + "' and declares no " +
@@ -676,7 +693,7 @@ class stzAgentDeclaration from stzObject
 					"the load gate says the function EXISTS; the posture says " +
 					"on what TERMS it may run (5.8).")
 			ok
-			if len(_acRingFns_) = 0 and _cPosture_ != ""
+			if len(_acRingFns_) = 0 and _cPosture_ != "" and _bTextRing_ = 0
 				@aFindings + _StzPiaFinding("pia-posture", _cWhere_ + ".posture",
 					"a posture on a skill with no ring: clause governs " +
 					"nothing -- the declared verbs carry their own terms.")
@@ -693,6 +710,18 @@ class stzAgentDeclaration from stzObject
 		@aSkills + [ :name = _cName_, :when = _aWhen_, :does = _aDoes_,
 			     :verify = _aVerify_, :effect = _cEffect_,
 			     :posture = _cPosture_, :ringfns = _acRingFns_ ]
+
+	# Does this skill's raw text put a `ring:` clause in this slot? Read
+	# from the FILE rather than from the parse, so an unresolvable
+	# function name cannot also erase the posture obligation.
+	def _SaysRing(paSk, pcKey)
+		if NOT HasKey(paSk, pcKey)
+			return 0
+		ok
+		if StzLower(StzLeft(ring_trim("" + paSk[pcKey]), 5)) = "ring:"
+			return 1
+		ok
+		return 0
 
 	# One clause -> [ :verb, :args ]. Every refusal here names the slot as
 	# well as the rule, because the same verb is legal in one slot and not
