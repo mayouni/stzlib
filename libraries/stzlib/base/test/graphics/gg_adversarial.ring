@@ -3947,9 +3947,11 @@ nSepLaw = floor(oPc.NodeSeparation() * 96)
 # property of the paper rather than of the layout; comparing to it would
 # fail every honest pin. What the law says is that no two cells come
 # closer than the separation, and that is what a pin must not break.
+# ...within the same stroke+AA slack S7 grants: natural spacing renders
+# the contract EXACTLY, so the measured gap can land a hair under it
 chk("a pinned picture still obeys the separation contract",
-    nSepPin >= nSepLaw)
-chk("...as the free one does", nSepFree >= nSepLaw)
+    nSepPin >= nSepLaw - 2)
+chk("...as the free one does", nSepFree >= nSepLaw - 2)
 
 # ...and the drop still means what it looked like
 nW1 = _X46(oPc, "web1")
@@ -4028,6 +4030,12 @@ for i = 1 to len(aAuP)
 			for jb = 1 to len(aAuP[j][2]) - 3 step 2
 				if fabs(aAuP[i][2][ia+1] - aAuP[i][2][ia+3]) > 0.5  loop  ok
 				if fabs(aAuP[j][2][jb+1] - aAuP[j][2][jb+3]) > 0.5  loop  ok
+				# A LANE HAS RUN. A straight column's collapsed midpoint
+				# is a zero-length "segment" that reads as horizontal AND
+				# vertical to a coordinate test, and it sat 9px from a
+				# real channel. A point cannot crowd a lane; it is not one.
+				if fabs(aAuP[i][2][ia] - aAuP[i][2][ia+2]) < 2  loop  ok
+				if fabs(aAuP[j][2][jb] - aAuP[j][2][jb+2]) < 2  loop  ok
 				nDy = fabs(aAuP[i][2][ia+1] - aAuP[j][2][jb+1])
 				if nDy < 0.5 or nDy >= nAuClr  loop  ok
 				nAuNear++
@@ -4094,8 +4102,8 @@ for i = 1 to len(aAuR)
 	next
 next
 ? "   tightest pair in a rank : " + nAuTight + "px"
-chk("the shipped picture separates its cells",
-    nAuTight >= floor(oAu.NodeSeparation() * 96))
+chk("the shipped picture separates its cells (within stroke+AA, as S7)",
+    nAuTight >= floor(oAu.NodeSeparation() * 96) - 2)
 
 
 sec("-- 47. I7: SIBLINGS STAND ON EITHER SIDE OF THEIR PARENT -------")
@@ -4384,7 +4392,10 @@ nRwDy = aRwP[nRwN] - aRwP[nRwN-2]
 nRwL = sqrt(nRwDx*nRwDx + nRwDy*nRwDy)
 oRw.OnPress(aRwP[nRwN-1] - nRwDx/nRwL*8, aRwP[nRwN] - nRwDy/nRwL*8)
 nRw49 = len(oRw.EditLog())
-oRw.OnRelease(20, 20)
+# bottom-right corner: content hugs top-left at contract spacing now, so
+# (20,20) is INSIDE the picture -- the first run of this line rewired the
+# link onto the cell that lives there
+oRw.OnRelease(870, 570)
 chkeq("a knob dropped on paper abandons the gesture", len(oRw.EditLog()), nRw49)
 
 oRw.OnPress(aRwP[nRwN-1] - nRwDx/nRwL*8, aRwP[nRwN] - nRwDy/nRwL*8)
@@ -4400,6 +4411,85 @@ oRw.Undo()
 chk("...and it is one undo away like everything else", oRw.EdgeExists("a","c"))
 chkeq("RemoveLinkAt on paper is a refusal, not an error",
       oRw.RemoveLinkAt(20, 20), 0)
+
+
+sec("-- 50. A NAMED SIZE IS A MAXIMUM, NEVER A TARGET --------------")
+#
+# The Principal, marking two voids in the live editor's picture after his
+# own link edits: "at any situation, space is optimised as we agreed."
+#
+# The layout was not the fault -- laid out naturally the same graph was
+# 492px wide and tight. The FIT was: a named :Width was a canvas to fill,
+# so a graph that had lost columns to link edits was stretched until two
+# cells in one rank stood 836px apart with nothing between them. Every
+# gap the contract set was multiplied by whatever the stretch needed;
+# nothing in the graph said "far apart", the paper did. Under the plastic
+# layout geometry states facts, so a distance manufactured by the medium
+# is a lie like any other.
+#
+# The rule now: every hierarchical picture is laid out at CONTRACT
+# spacing first. A named size the natural picture fits inside buys
+# PAPER, not distance -- the content keeps its exact natural geometry.
+# Only when the picture does not fit does the named size constrain, on
+# the fill-and-shrink path that always existed.
+#---------------------------------------------------------------------------
+
+# (_G50 lives at the foot of the file)
+
+o50a = _G50()
+o50a.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+n50W = o50a.LastCanvas().Width()
+n50H = o50a.LastCanvas().Height()
+? "   natural : " + n50W + "x" + n50H
+
+o50b = _G50()
+o50b.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36, :Width = 1100, :Height = 760 ])
+? "   in an 1100x760 window : canvas " + o50b.LastCanvas().Width() + "x" +
+  o50b.LastCanvas().Height()
+chk("the window keeps its size", o50b.LastCanvas().Width() = 1100 and
+    o50b.LastCanvas().Height() = 760)
+
+# THE CLAIM: the window buys paper, not distance -- position for
+# position, the windowed render IS the natural one
+n50Diff = 0
+a50N = o50a.RenderNodeRects()
+a50W = o50b.RenderNodeRects()
+for i50 = 1 to len(a50N)
+	for j50 = 1 to len(a50W)
+		if a50W[j50][5] = a50N[i50][5]
+			if fabs(a50W[j50][1] - a50N[i50][1]) > 0.5 or
+			   fabs(a50W[j50][2] - a50N[i50][2]) > 0.5
+				n50Diff++
+			ok
+		ok
+	next
+next
+? "   cells whose position differs from the natural render : " + n50Diff
+chkeq("a named size buys PAPER, not distance", n50Diff, 0)
+
+# ...so the void his mark circled is gone: no two same-rank neighbours
+# stand further apart than a subtree's width can explain. The 836px gap
+# is the regression this pins against.
+n50Worst = 0
+for i50 = 1 to len(a50W)
+	for j50 = 1 to len(a50W)
+		if i50 = j50  loop  ok
+		if fabs(a50W[i50][2] - a50W[j50][2]) > 2  loop  ok
+		_g50_ = a50W[j50][1] - (a50W[i50][1] + a50W[i50][3])
+		if _g50_ > n50Worst  n50Worst = _g50_  ok
+	next
+next
+? "   widest same-rank gap : " + n50Worst + "px  (was 836 when the paper stretched)"
+chk("no manufactured distance survives", n50Worst < 400)
+
+# THE OTHER SIDE: a picture too big for its medium still fits to it --
+# the named size constrains exactly when it must
+o50c = _G50()
+o50c.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36, :Width = 300, :Height = 240 ])
+? "   in a 300x240 medium : canvas " + o50c.LastCanvas().Width() + "x" +
+  o50c.LastCanvas().Height()
+chk("a picture larger than its medium still fits it",
+    o50c.LastCanvas().Width() = 300 and o50c.LastCanvas().Height() = 240)
 
 
 #---------------------------------------------------------------------------
@@ -4445,6 +4535,20 @@ func _CorGraph cName
 		_g_.AddNodeXTT(_a_[1], _a_[2], [ :type = "box", :color = "#4477FF" ])
 	next
 	_g_.AddEdge("p","l")  _g_.AddEdge("p","r")  _g_.AddEdge("l","d")
+	_g_.SetSplines("ortho")
+	return _g_
+
+func _G50
+	_g_ = new stzDiagram("g50")
+	for _a_ in [ [ "lb","Balancer" ],[ "web1","Web A" ],[ "web2","Web B" ],
+	             [ "api1","API A" ],[ "api2","API B" ],
+	             [ "db1","DB A" ],[ "db2","DB B" ],[ "log","Logger" ] ]
+		_g_.AddNodeXTT(_a_[1], _a_[2], [ :type = "box", :color = "Info.Solid" ])
+	next
+	_g_.AddEdge("lb","web2")   _g_.AddEdge("web2","web1")
+	_g_.AddEdge("web1","api1") _g_.AddEdge("api1","db1")
+	_g_.AddEdge("web1","log")
+	_g_.AddEdge("lb","api2")   _g_.AddEdge("api2","db2")
 	_g_.SetSplines("ortho")
 	return _g_
 

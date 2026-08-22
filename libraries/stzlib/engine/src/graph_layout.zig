@@ -653,6 +653,17 @@ fn centerParents(
     const height = alloc.alloc(u32, n) catch return;
     defer alloc.free(height);
     @memset(height, 0);
+    // ...and the continuation is measured over OWNED descent only. A
+    // shared sink is nobody's continuation: a line that ends at a node
+    // two parents feed has ended, as far as THIS line's emphasis goes.
+    // Found on the shipped picture the moment the paper stopped
+    // stretching: Web A's edge to a shared logger crosses a rank, so the
+    // layered graph routes it through a waypoint node -- owned, and as
+    // "tall" as the real API chain beside it. The tie centred Web A
+    // midway between its API and an edge's waypoint, 76.5px off both,
+    // which is the near-miss band. Counting only owned descent makes the
+    // waypoint's height zero (the logger is shared), and the API chain
+    // is unique again.
     var hl: usize = starts.len - 1;
     while (hl > 0) {
         hl -= 1;
@@ -663,6 +674,8 @@ fn centerParents(
             var best: u32 = 0;
             while (hj < out_off[v + 1]) : (hj += 1) {
                 const c = out_dst[hj];
+                if (c == v) continue;
+                if (in_off[c + 1] - in_off[c] != 1) continue;
                 if (height[c] + 1 > best) best = height[c] + 1;
             }
             height[v] = best;
@@ -705,7 +718,18 @@ fn centerParents(
                 }
                 owned += 1;
             }
-            if (owned < 2) continue;
+            // ONE owned child is not "nothing to centre" -- it is the
+            // strongest case there is: the only child the parent owns IS
+            // its continuation, and the parent belongs on its column. The
+            // old `< 2` skipped it, and the miss was invisible for as
+            // long as the paper stretched: Web A relaxed to the midpoint
+            // of its owned API and a SHARED logger, 76.5px off both --
+            // the near-miss band this library forbids -- but the
+            // fill-the-canvas stretch multiplied 76.5 past the 96px
+            // "clearly slanted" bar and the audit called it lawful. The
+            // moment a named size stopped stretching (space is a maximum,
+            // not a target), the guard saw what had been there all along.
+            if (owned < 1) continue;
             // ...AND A SPINE OUTRANKS THE MIDDLE, where one exists.
             //
             // Centring a parent between a chain child and a leaf child

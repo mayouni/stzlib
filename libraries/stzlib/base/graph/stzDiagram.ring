@@ -1658,9 +1658,28 @@ class stzDiagram from stzGraph
 		# via :NodeSep / :RankSep.
 		_aRoute_ = []
 		_cLM_ = StzLower("" + This._DiagOpt(paOptions, "layoutmode", :Hierarchical))
+
+		# A NAMED SIZE IS A MAXIMUM, NEVER A TARGET -- the plastic layout's
+		# space rule, marked by the Principal on the live editor: "at any
+		# situation, space is optimised". The old rule took :Width/:Height
+		# as a canvas to FILL, so a five-column graph in an 1100px window
+		# was tight and the same window after three link edits -- the graph
+		# now two columns -- was two cells with 836px of void between them:
+		# every gap the contract set was multiplied by whatever the stretch
+		# needed. Nothing in the graph said "far apart"; the paper did.
+		#
+		# So every hierarchical picture is laid out at CONTRACT spacing
+		# first. A named size that the natural picture fits inside buys
+		# paper, not distance -- the content keeps its exact natural
+		# geometry and the canvas grows to the named size (a window has a
+		# size; its diagram does not have to wear it). Only when the
+		# natural picture does NOT fit does the named size constrain, and
+		# that is the fill-and-shrink path below, unchanged.
+		_bNamed_ = This._HasOpt(paOptions, "width") or This._HasOpt(paOptions, "height")
+		_nReqW_ = _nW_
+		_nReqH_ = _nH_
 		_bNat_ = 0
-		if _cLM_ = "hierarchical" and
-		   NOT (This._HasOpt(paOptions, "width") or This._HasOpt(paOptions, "height"))
+		if _cLM_ = "hierarchical"
 			_bNat_ = 1
 		ok
 		_nSepN_ = This._DiagOpt(paOptions, "nodesep",
@@ -1979,7 +1998,24 @@ class stzDiagram from stzGraph
 				_nW_ = ceil(max([ _nW_, _ex1_ + _dx_ + 8 ]))
 				_nH_ = ceil(max([ _nH_, _ey1_ + _dy_ + 8 ]))
 			ok
-		else
+
+			# the named-size verdict: paper, or the fill path
+			if _bNamed_
+				if _nW_ <= _nReqW_ and _nH_ <= _nReqH_
+					_nW_ = _nReqW_
+					_nH_ = _nReqH_
+				else
+					# too big for the medium: the old fit applies whole,
+					# and it reads the REQUESTED size, not the natural one
+					# this attempt computed
+					_bNat_ = 0
+					_aRoute_ = []
+					_nW_ = _nReqW_
+					_nH_ = _nReqH_
+				ok
+			ok
+		ok
+		if NOT _bNat_
 			_lw_ = _nW_ - 2 * _mx_
 			_lh_ = _nH_ - 2 * _my_
 			if _bSwap_

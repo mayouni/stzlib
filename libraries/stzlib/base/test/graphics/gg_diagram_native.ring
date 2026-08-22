@@ -94,19 +94,20 @@ else
 	oC = oD.ToCanvasXT([ :Width = W, :Height = H ])
 	cPx = oC.ToPixels()
 
-	# where each node was actually placed, from the diagram's own layout
-	oGC = new stzGraphCanvas(oD, [ :Layout = :Hierarchical,
-		:Width = W - 156, :Height = H - 82 ])
-	aPos = oGC.Positions()
-
+	# where each node was actually placed -- ASKED OF THE RENDER, never
+	# rebuilt beside it. This probe used to reconstruct positions with a
+	# second stzGraphCanvas tuned to mimic the fill mapping, and the day
+	# a named size stopped stretching (space is a maximum, not a target)
+	# the mimic sampled paper where nodes used to be. The render publishes
+	# where it drew; the instrument reads that.
 	aFill = [ [ "web", 62, 110, 168 ], [ "api", 78, 140, 92 ],
 	          [ "db", 140, 90, 78 ], [ "cache", 122, 90, 158 ],
 	          [ "sla", 158, 140, 78 ] ]
 	nBadCol = 0
-	for p in aPos
-		cId = StzLower("" + p[1])
-		px = floor(p[2] + 78)
-		py = floor(p[3] + 41)
+	for p in oD.RenderNodeRects()
+		cId = StzLower("" + p[5])
+		px = floor(p[1] + p[3] / 2)
+		py = floor(p[2] + p[4] / 2)
 		nAt = (py * W + px) * 4 + 1
 		r = ascii(substr(cPx, nAt, 1))
 		g = ascii(substr(cPx, nAt + 1, 1))
