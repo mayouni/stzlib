@@ -569,6 +569,12 @@ pub fn coords(
     snapAlign(in_off, in_src, out_off, out_dst, order, starts, sep, extra, x);
 
     centerParents(in_off, out_off, out_dst, order, starts, sep, extra, x);
+
+    // ...AND THE STRADDLE IS THE VERY LAST WORD -- I7. Centring says where
+    // a parent stands when it is free to move; this says what its children
+    // may do when it is not. It moves only leaves, so it can neither undo
+    // the centring above nor disturb a spine.
+    siblingStraddle(in_off, out_off, out_dst, order, starts, sep, extra, x);
     return OK;
 }
 
@@ -687,6 +693,7 @@ fn centerParents(
             var j = out_off[v];
             while (j < out_off[v + 1]) : (j += 1) {
                 const c = out_dst[j];
+                if (c == v) continue; // a self-loop is not a child
                 if (in_off[c + 1] - in_off[c] != 1) continue;
                 const cx = x[c];
                 if (owned == 0) {
@@ -723,6 +730,7 @@ fn centerParents(
             j = out_off[v];
             while (j < out_off[v + 1]) : (j += 1) {
                 const c = out_dst[j];
+                if (c == v) continue;
                 if (in_off[c + 1] - in_off[c] != 1) continue;
                 if (height[c] > best_h or ties == 0) {
                     if (height[c] > best_h) {
@@ -856,6 +864,152 @@ pub fn snapAlign(
     // a node that has children, so it has to be the last word in the same
     // places.
     centerParents(in_off, out_off, out_dst, order, starts, sep, extra, x);
+
+    // ...AND SIBLINGS STAND ON EITHER SIDE OF THEIR PARENT, which is the
+    // one thing centring cannot state when the parent is not free to move.
+    siblingStraddle(in_off, out_off, out_dst, order, starts, sep, extra, x);
+}
+
+/// SIBLINGS STRADDLE THEIR PARENT -- I6.
+///
+/// Two nodes fed by the same parent, on the same rank, are peers. A reader
+/// is told that by their POSITIONS: one to the left of the parent and one
+/// to the right, reached the same way, is a pair. All of them crowded onto
+/// one side, with a LEAF sitting on the parent's own column, says something
+/// else entirely -- that one child continues the parent and the others hang
+/// off it. The Principal marked exactly that: a database drawn straight
+/// below its service while its sibling logger sat far to the left, and his
+/// correction moved the database to the far side so the service stood
+/// between them.
+///
+/// A vertical link is the strongest statement this grammar has. It is
+/// spent, correctly, on CONTINUATION -- centerParents already gives the
+/// column to the child carrying the longest chain, because there the graph
+/// itself says "this way onward". A leaf carries nothing onward, so it may
+/// not hold the column while its siblings do not: it would be claiming a
+/// closeness that exists in the picture and nowhere in the graph.
+///
+/// So the pass is narrow on purpose, and the first draft of it was not.
+/// Moving the leaf by sliding the rest of its rank along -- familyAir's
+/// technique -- broke six subtree territories, widened two sparse ranks
+/// past dot's, and pushed a parent off its children's middle. Every one of
+/// those is a law that outranks this one, and every one of those trees was
+/// ALREADY straddled: centerParents centres a parent over two children it
+/// owns, and a centred parent lies between them by construction.
+///
+/// Which says exactly where this pass belongs: the parent centring cannot
+/// reach. A parent with fewer than two OWNED children has no middle that
+/// belongs to it -- centerParents skips it for that reason -- so it stays
+/// wherever its own spine puts it while its children arrange themselves
+/// around nothing. That is the picture the Principal marked. Here, and
+/// nowhere else, the remedy is to move the child instead of the parent.
+///
+/// It moves one leaf, one full slot, into space that is already free.
+/// Never a spine, never a shared node, never the parent, and never by
+/// sliding a neighbour: a leaf shoved into the next family's band trades
+/// I7 for I1, and I1 is the older law. A half slot would land in the
+/// near-miss band snapAlign exists to kill, so it is the whole slot or
+/// nothing.
+fn siblingStraddle(
+    in_off: []const u32,
+    out_off: []const u32,
+    out_dst: []const u32,
+    order: []const u32,
+    starts: []const u32,
+    sep: f64,
+    extra: []const f64,
+    x: []f64,
+) void {
+    const none = std.math.maxInt(u32);
+    const tol = sep * 0.75;
+    const nl = starts.len - 1;
+    var L: usize = 0;
+    while (L + 1 < nl) : (L += 1) {
+        var k = starts[L];
+        while (k < starts[L + 1]) : (k += 1) {
+            const v = order[k];
+            if (out_off[v + 1] - out_off[v] < 2) continue;
+
+            // centring owns every parent it can move, and a centred parent
+            // straddles by construction. Two owned children is exactly the
+            // test centerParents applies, so applying it here keeps the two
+            // passes from arguing over the same picture.
+            var owned: u32 = 0;
+            var jo = out_off[v];
+            while (jo < out_off[v + 1]) : (jo += 1) {
+                // A SELF-LOOP IS NOT A CHILD. It stays on its own node's
+                // rank and its own node's column, so counting it gives a
+                // state machine two children at one position -- and this
+                // pass, reading that as a parent with nothing on either
+                // side, moved the one real child out of the column it
+                // shares with its parent. Found by section 10, which drew
+                // a three-state machine with its last state adrift.
+                if (out_dst[jo] == v) continue;
+                if (in_off[out_dst[jo] + 1] - in_off[out_dst[jo]] == 1) owned += 1;
+            }
+            if (owned >= 2) continue;
+
+            var lo: f64 = 0;
+            var hi: f64 = 0;
+            var cnt: u32 = 0;
+            var on: u32 = none;
+            var best = tol;
+            var j = out_off[v];
+            while (j < out_off[v + 1]) : (j += 1) {
+                const c = out_dst[j];
+                if (c == v) continue;
+                const cx = x[c];
+                if (cnt == 0) {
+                    lo = cx;
+                    hi = cx;
+                } else {
+                    if (cx < lo) lo = cx;
+                    if (cx > hi) hi = cx;
+                }
+                cnt += 1;
+                // the child holding the parent's column -- a leaf it owns,
+                // or nothing worth moving
+                const d = @abs(cx - x[v]);
+                if (d <= best and
+                    out_off[c + 1] == out_off[c] and
+                    in_off[c + 1] - in_off[c] == 1)
+                {
+                    best = d;
+                    on = c;
+                }
+            }
+            if (cnt < 2) continue;
+            if (on == none) continue;
+            // already a pair about the parent: nothing to say
+            if (x[v] > lo + 0.5 and x[v] < hi - 0.5) continue;
+
+            // outward is away from the siblings, and they are all on one
+            // side or this would not have fired
+            const dir: f64 = if (x[v] >= hi - 0.5) 1 else -1;
+            const step = (sep + demand(extra, v) + demand(extra, on)) * dir;
+
+            // ...into space that is already free, or not at all
+            const s2 = starts[L + 1];
+            const e2 = starts[L + 2];
+            var kk = s2;
+            while (kk < e2 and order[kk] != on) : (kk += 1) {}
+            if (kk >= e2) continue;
+            if (dir > 0) {
+                if (kk + 1 < e2) {
+                    const nb = order[kk + 1];
+                    if (x[nb] - (x[on] + step) <
+                        sep + demand(extra, nb) + demand(extra, on)) continue;
+                }
+            } else {
+                if (kk > s2) {
+                    const pb = order[kk - 1];
+                    if ((x[on] + step) - x[pb] <
+                        sep + demand(extra, pb) + demand(extra, on)) continue;
+                }
+            }
+            x[on] += step;
+        }
+    }
 }
 
 fn isForest(in_off: []const u32, n: usize) bool {
