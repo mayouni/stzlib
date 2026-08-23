@@ -91,6 +91,7 @@ class stzNotation from stzObject
 	@cRankDir = ""        # "" = no amendment; the diagram's setting stands
 	@cSplines = ""
 	@cLayoutMode = ""     # "" = layered; :Ring for a domain with no flow
+	@cRegionFill = ""     # the tinted container a discovered region wears
 
 	def init(pcName)
 		@cName = StzLower(ring_trim("" + pcName))
@@ -101,17 +102,54 @@ class stzNotation from stzObject
 	#-- VOCABULARY -------------------------------------------------------
 
 	def AddKind(pcKind, pcGlyph)
+		return This.AddKindXT(pcKind, pcGlyph, "")
+
+	# ...AND ITS COLOUR, which is part of the glyph rather than a
+	# decoration: a domain that says "a state is a rounded box" is not
+	# finished until it says what colour a state IS. Named in the house
+	# ROLE vocabulary (Info.Solid, Danger.Solid) so a profile inherits
+	# the whole colour system -- ramps, contrast pairs, the eight
+	# semantic roles -- instead of carrying hex codes of its own.
+	def AddKindXT(pcKind, pcGlyph, pcFill)
 		_k_ = StzLower(ring_trim("" + pcKind))
 		_g_ = StzLower(ring_trim("" + pcGlyph))
+		_f_ = ring_trim("" + pcFill)
 		_n_ = len(@aKinds)
 		for _i_ = 1 to _n_
 			if @aKinds[_i_][1] = _k_
 				@aKinds[_i_][2] = _g_
+				@aKinds[_i_][3] = _f_
 				return This
 			ok
 		next
-		@aKinds + [ _k_, _g_ ]
+		@aKinds + [ _k_, _g_, _f_ ]
 		return This
+
+		def AddKindXTQ(pcKind, pcGlyph, pcFill)
+			return This.AddKindXT(pcKind, pcGlyph, pcFill)
+
+	# The fill this profile declares for a kind, or "" -- which leaves
+	# the renderer's own default in force. A node that names its own
+	# colour always outranks the profile: the author is closer.
+	def FillOf(pcKind)
+		_k_ = StzLower(ring_trim("" + pcKind))
+		_n_ = len(@aKinds)
+		for _i_ = 1 to _n_
+			if @aKinds[_i_][1] = _k_ and len(@aKinds[_i_]) >= 3
+				return @aKinds[_i_][3]
+			ok
+		next
+		return ""
+
+	# The colour a REGION is painted -- the tinted container step of the
+	# role its members carry. Declared with SetRegionFill, and left "" by
+	# a profile that draws no regions.
+	def SetRegionFill(pcFill)
+		@cRegionFill = "" + pcFill
+		return This
+
+	def RegionFill()
+		return @cRegionFill
 
 		def AddKindQ(pcKind, pcGlyph)
 			return This.AddKind(pcKind, pcGlyph)
