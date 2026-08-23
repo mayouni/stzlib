@@ -4492,6 +4492,114 @@ chk("a picture larger than its medium still fits it",
     o50c.LastCanvas().Width() = 300 and o50c.LastCanvas().Height() = 240)
 
 
+sec("-- 51. DN0: a domain is a DECLARATION, and the default moved NOTHING --")
+#
+# The DN ruling: BPMN, state machines, org charts, UML and electric all
+# land as NOTATION PROFILES over the one foundation -- vocabulary, rules
+# in the house shape, grammar amendments, glyphs -- never as a second
+# renderer. DN0 is the proof the seam is real: the generic diagram is
+# now itself a profile, and expressing it as one moved NOTHING.
+#
+# Byte-identity was proven at the seam's birth on four rendered scenes
+# (service ortho in a window, the full type table, LR with self-loops,
+# the rectangular style): PNG bytes equal before and after the refactor.
+# What this section holds LIVE is everything around that proof: the
+# default's answers are the shared table's, a domain's declaration
+# outranks the table, rules reach the editor as refusals, and the
+# registry always answers.
+#---------------------------------------------------------------------------
+
+# the default profile is installed at birth and answers the shared table
+oDn = new stzDiagram("dn0")
+chkeq("a diagram is born under the DEFAULT notation", oDn.Notation(), "default")
+oDnP = oDn.NotationO()
+nDnTbl = 0
+for aDnK in [ [ "task", "box" ], [ "decision", "diamond" ],
+              [ "database", "cylinder" ], [ "start", "ellipse" ],
+              [ "end", "doublecircle" ], [ "state", "circle" ] ]
+	if oDnP.GlyphOf(aDnK[1]) = aDnK[2]  nDnTbl++  ok
+next
+chkeq("the default's glyphs ARE the shared type table", nDnTbl, 6)
+chk("...and an unknown kind passes through open, unjudged",
+    oDnP.GlyphOf("blorp") = "" and len(oDnP.Check(oDn)) = 0)
+
+# A DOMAIN DECLARES; ITS DECLARATION OUTRANKS THE TABLE
+oFsm = new stzNotation("fsm51")
+oFsm.AddKind("state", "circle")
+oFsm.AddKind("final", "doublecircle")
+oFsm.AddKind("task", "diamond")      # deliberately AGAINST the table
+oFsm.Close()
+oFsm.Forbid(:SelfLink, "a state cannot transition to itself in fsm51; " +
+	"model a stay as a guard on departure instead")
+StzRegisterNotation(oFsm)
+chkeq("a declared kind outranks the shared table",
+      StzNotation("fsm51").GlyphOf("task"), "diamond")
+chkeq("...and a kind outside a CLOSED vocabulary answers nothing",
+      StzNotation("fsm51").GlyphOf("database"), "")
+chkeq("the registry answers a name it does not know with the default",
+      StzNotation("never-registered").Name_(), "default")
+
+# THE RULES REACH THE MODEL in the house rule shape
+oDm = new stzDiagram("m51")
+oDm.SetNotation("fsm51")
+oDm.AddNodeXTT("a", "A", [ :type = "state" ])
+oDm.AddNodeXTT("b", "B", [ :type = "task" ])
+oDm.AddNodeXTT("c", "C", [ :type = "process" ])   # NOT in the vocabulary
+oDm.AddEdge("a", "b")
+aDnF = oDm.Validate()
+? "   findings on the fsm51 model : " + len(aDnF)
+nDnUk = 0
+for aDnR in aDnF
+	if aDnR[:rule] = "notation-unknown-kind" and aDnR[:subject] = "c"
+		nDnUk++
+	ok
+next
+chkeq("a closed vocabulary reports the stranger, in the house shape", nDnUk, 1)
+chk("...naming the kinds it DOES hold, so the refusal teaches",
+    StzFindFirst("state", "" + aDnF[1][:message]) > 0)
+
+# ...AND REACH THE EDITOR AS REFUSALS, with no editor code knowing fsm51
+oDm.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+nDnLog = len(oDm.EditLog())
+bDnGot = oDm.Edit(:Link, [ "a", "a" ])
+chk("a link the domain forbids is refused at the command",
+    bDnGot = 0 and len(oDm.EditLog()) = nDnLog)
+bDnGot = oDm.Edit(:Link, [ "b", "a" ])
+chk("...while a lawful link passes the same gate",
+    bDnGot = 1 and len(oDm.EditLog()) = nDnLog + 1)
+oDm.Undo()
+
+# THE LIVE HALF OF BYTE-IDENTITY: naming the default explicitly is the
+# same picture as never mentioning notations at all
+oDx = new stzDiagram("x51")
+oDx.AddNodeXTT("p", "P", [ :type = "decision" ])
+oDx.AddNodeXTT("q", "Q", [ :type = "database" ])
+oDx.AddEdge("p", "q")
+oDx.SetSplines("ortho")
+oDx.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 40 ])
+cDnA = oDx.LastCanvas().ToSVG()
+oDy = new stzDiagram("x51")
+oDy.SetNotation("default")
+oDy.AddNodeXTT("p", "P", [ :type = "decision" ])
+oDy.AddNodeXTT("q", "Q", [ :type = "database" ])
+oDy.AddEdge("p", "q")
+oDy.SetSplines("ortho")
+oDy.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 40 ])
+chk("naming the default changes not one byte of the picture",
+    cDnA = oDy.LastCanvas().ToSVG())
+
+# a GRAMMAR amendment rides SetNotation
+oLr = new stzNotation("lr51")
+oLr.SetRankDir(:LeftToRight)
+StzRegisterNotation(oLr)
+oDz = new stzDiagram("z51")
+oDz.SetNotation("lr51")
+# the stored name is whatever spelling the profile used; the fact
+# under test is that the amendment ARRIVED, not how it is spelt
+chkeq("a notation may amend the grammar it is read in",
+      StzLower("" + oDz._NativeRankDir()), "lr")
+
+
 #---------------------------------------------------------------------------
 ? ""
 if nSecClock > 0

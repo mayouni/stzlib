@@ -304,6 +304,14 @@ class stzDiagram from stzGraph
 	@nEdgeCornerRad = 10
 	@bRoundElbows = 1
 
+	# THE NOTATION -- which domain's declaration this diagram is judged
+	# and drawn under (DN0). Every diagram has one, the way it has a
+	# theme; the default is the generic diagram expressed AS a profile,
+	# and its answers are byte-identical to the pre-profile renderer --
+	# the guard holds that as a live assertion.
+	@cNotation = "default"
+	@oNotation = NULL
+
 	# The cluster rectangles OF THE CURRENT RENDER, with their member ids:
 	# [ [ x, y, w, h, [ ids... ] ], ... ]. Render-scoped state, refilled by
 	# every ToCanvasXT -- it exists because the edge drawers need to know
@@ -472,6 +480,40 @@ class stzDiagram from stzGraph
 	        ok
 	    ok
 	
+	#-- THE NOTATION (DN0) ------------------------------------------------
+
+	# Takes a registered name or a profile object. A name the registry
+	# does not know resolves to the default -- a diagram always has a
+	# notation, the way it always has a theme.
+	def SetNotation(pNotation)
+		if isObject(pNotation)
+			@oNotation = pNotation
+			@cNotation = StzLower("" + pNotation.Name_())
+		else
+			@cNotation = StzLower(ring_trim("" + pNotation))
+			@oNotation = NULL
+		ok
+		# a notation may amend the grammar; "" amends nothing
+		_oN_ = This.NotationO()
+		if _oN_.RankDir() != ""  This.SetLayout(_oN_.RankDir())  ok
+		if _oN_.Splines() != ""  This.SetSplines(_oN_.Splines())  ok
+		return This
+
+		def SetNotationQ(pNotation)
+			return This.SetNotation(pNotation)
+
+	def NotationO()
+		if isObject(@oNotation)  return @oNotation  ok
+		return StzNotation(@cNotation)
+
+	def Notation()
+		return @cNotation
+
+	# The model swept against its notation's rules, in the house rule
+	# shape -- ready for stzRuleReport.Ingest(), which is the one CI gate.
+	def Validate()
+		return This.NotationO().Check(This)
+
 	# A LAYOUT NAME THIS DOES NOT KNOW IS REFUSED, not stored. It used to
 	# take anything, and an unrecognised name became top-down in silence --
 	# so `SetLayout(:LeftToRight)` drew a top-down picture and there was
@@ -4129,6 +4171,12 @@ class stzDiagram from stzGraph
 
 		on "link"
 			if len(paArgs) < 2  return []  ok
+			# THE NOTATION'S RULES ARE THE EDITOR'S REFUSALS (DN0): a
+			# link the domain forbids is refused at the gesture, with no
+			# editor code knowing any domain.
+			if NOT This.NotationO().MayLink("" + paArgs[1], "" + paArgs[2])
+				return []
+			ok
 			This.AddEdge("" + paArgs[1], "" + paArgs[2])
 			return [ :unlink, [ "" + paArgs[1], "" + paArgs[2] ] ]
 
@@ -4168,6 +4216,9 @@ class stzDiagram from stzGraph
 				return []
 			ok
 			if This.EdgeExists(_aeF2_, _aeT2_)  return []  ok
+			# the same notation gate as Link: a rewire lands on a pair
+			# the domain must also be willing to hold
+			if NOT This.NotationO().MayLink(_aeF2_, _aeT2_)  return []  ok
 			This.RemoveThisEdge(_aeF_, _aeT_)
 			This.AddEdge(_aeF2_, _aeT2_)
 			return [ :rewire, [ _aeF2_, _aeT2_, _aeEnd_, _aeBack_ ] ]
@@ -5686,7 +5737,12 @@ class stzDiagram from stzGraph
 				_c_ = "" + aNode["properties"]["type"]
 			ok
 		ok
-		_c_ = StzNodeShapeForType(_c_)
+		# THROUGH THE NOTATION, which is the DN seam: the profile owns
+		# the kind->glyph answer. The default profile answers through the
+		# same shared table this line used to call directly, so the
+		# default picture cannot move; a domain profile answers from its
+		# own declared vocabulary.
+		_c_ = This.NotationO().GlyphOf(_c_)
 		if _c_ != "" and StzIsNodeShape(_c_)  return _c_  ok
 		return :Box
 

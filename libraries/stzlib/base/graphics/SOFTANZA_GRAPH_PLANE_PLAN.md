@@ -994,9 +994,17 @@ gate it declares.
 
 ### Sequence, each phase with a kill criterion
 
-- **DN0 — the profile shape, proven on the default.** Express today's
-  generic diagram as the DEFAULT profile; render byte-identical pictures
-  through it. KILL: any pixel moves — the abstraction is wrong.
+- **DN0 — the profile shape, proven on the default. SHIPPED 2026-08-23.**
+  `stzNotation` (vocabulary / rules / grammar / glyphs), the registry,
+  and the seam: `_NativeShapeOf` answers through the profile, `Edit`'s
+  Link and Rewire consult `MayLink`, `Validate()` answers house-shape
+  rows. The kill criterion was MET: four scenes (service ortho in a
+  window, the full type table, LR with self-loops, the rectangular
+  style) rendered byte-identical PNGs before and after the refactor.
+  §51 holds the rest live: a declared kind outranks the shared table, a
+  closed vocabulary reports strangers with a teaching message, a
+  forbidden link is refused at the gesture, a grammar amendment rides
+  `SetNotation`.
 - **DN1 — org charts.** `stzOrgChart` re-based as a profile: tree
   grammar, role glyphs. Cheapest domain; proves a MODEL projects.
 - **DN2 — state machines.** Initial/final glyphs, guard/event labels,

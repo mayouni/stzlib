@@ -346,6 +346,7 @@ ok
     load "graph/stzGraphGoal.ring"
     load "graph/stzKnowledgeGraph.ring"
 
+    load "graph/stzNotation.ring"
     load "graph/stzDiagram.ring"
     load "graph/stzDiagramColor.ring"
 
