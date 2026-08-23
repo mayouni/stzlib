@@ -2085,10 +2085,18 @@ class stzDiagram from stzGraph
 			# chrome is paid ONCE PER REGION ROW: three regions side by
 			# side (which is what concurrency looks like) eat one strip
 			# between them, not three
+			# CHROME IS COUNTED ONCE. The generic cluster floor above
+			# already raises the rank separation to fund a frame's strip
+			# and padding, and this added the same money again per
+			# region row -- so the entry gap came out twice as deep as
+			# anything stands in it, which is the "waste" he marked. The
+			# frame's own body still has to be paid for, and that is the
+			# padding, not the strip.
 			if len(@aClusters) > 0
-				_nMdW_ += This._ClusterPadMax() * 2 * @nModeCols
-				_nMdH_ += (This._ClusterChromeAbove(_nFsz_) +
-					This._ClusterPadMax() * 2) *
+				_nMdW_ += (This._ClusterPadMax() * 2 +
+					This._SelfLoopReach(_nBoxW_, _nBoxH_) + 6) * @nModeCols
+				_nMdH_ += (This._ClusterPadMax() * 2 +
+					This._LineClearance() * 2) *
 					max([ @nModeRegionRows, 1 ])
 			ok
 			_nW_ = ceil(_nMdW_)
@@ -3041,8 +3049,17 @@ class stzDiagram from stzGraph
 						_lay_ = _lat_[2]
 					ok
 				ok
-				if _bSelf_  _cLKey_ = ""  ok
-				_aLabAt_ + [ _cLab_, _lax_, _lay_, _cLKey_ ]
+				# THE LOOP'S LABEL CARRIES ITS EDGE'S KEY TOO. It was
+				# blanked, so nothing could relate the word to the ink it
+				# names -- no instrument, and no reader of the render
+				# facts. The loop publishes its path like any edge now,
+				# so its label is keyed like any label; the 5th field
+				# keeps the PLACER off it, because a loop's label is
+				# positioned against the loop's own side and not by
+				# walking a staircase.
+				_aLabAt_ + [ _cLab_, _lax_, _lay_,
+					StzLower("" + _aE_[_ei_][:from] + ">" +
+						"" + _aE_[_ei_][:to]), _bSelf_ ]
 			next
 
 			# A LABEL MUST CLAIM ITS EDGE -- I1 for text. The old nudge
@@ -3076,6 +3093,7 @@ class stzDiagram from stzGraph
 						ok
 					next
 				ok
+				if _aLabAt_[_li_][5]  _aPth_ = []  ok
 				if len(_aPth_) >= 4
 					# ON THE LINE ONLY WHERE THE LINE CAN HOLD IT, and
 					# BESIDE it otherwise -- the Principal's rule for the
@@ -6288,6 +6306,41 @@ class stzDiagram from stzGraph
 
 	def _DrawEdgeXT(oC, aFrom, aTo, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nLane, nPortA, nPortB, pBlockSide, cFromId, cToId, pSideDep)
 		if cSpline = "ortho"
+			# TWO NEIGHBOURS ON ONE ROW ARE JOINED BY ONE LINE -- I4, and
+			# the Principal circled the cost of forgetting it. Every ortho
+			# arrival was forced onto the RANK-FACING border, which is
+			# right when an edge crosses a rank gap and absurd when it
+			# does not: for two peers side by side the path ran out of the
+			# side, along the row, and then UP into the target's top --
+			# a hook where the reader looks for a constraint and finds
+			# none. Peers are joined side to side, one segment, no bends.
+			_srSame_ = 0
+			if cRank = "LR" or cRank = "RL"
+				if fabs(aTo[1] - aFrom[1]) < 1.5  _srSame_ = 1  ok
+			else
+				if fabs(aTo[2] - aFrom[2]) < 1.5  _srSame_ = 1  ok
+			ok
+			if _srSame_
+				_srA_ = This._BoxAt(aFrom, nBoxW, nBoxH)
+				_srB_ = This._BoxAt(aTo, nBoxW, nBoxH)
+				if cRank = "LR" or cRank = "RL"
+					_srSg_ = iif(aTo[2] >= aFrom[2], 1, -1)
+					_srPts_ = [ aFrom[1], aFrom[2] + _srSg_ * _srA_[2] / 2,
+						aTo[1], aTo[2] - _srSg_ * _srB_[2] / 2 ]
+				else
+					_srSg_ = iif(aTo[1] >= aFrom[1], 1, -1)
+					_srPts_ = [ aFrom[1] + _srSg_ * _srA_[1] / 2, aFrom[2],
+						aTo[1] - _srSg_ * _srB_[1] / 2, aTo[2] ]
+				ok
+				_srCut_ = This._ArrowCut(_srPts_, 9 + nWidth * 2)
+				This._EmitOrthoPolyline(oC, _srCut_[1], cColor, nWidth,
+					cFromId + ">" + cToId)
+				if @nDrawPass = 2
+					This._DrawArrowHead(oC, _srCut_[2], _srCut_[3], cColor)
+				ok
+				return
+			ok
+
 			# THE UNIQUE LATERAL EDGE, image 1's rule: out of the lateral
 			# border's CENTRE, one run along its own free row corridor,
 			# one drop into the target -- a single horizontal statement
@@ -6686,6 +6739,12 @@ class stzDiagram from stzGraph
 	# drawn OUTSIDE the region whose states they join. The pad is one
 	# clearance plus the stroke now -- the width of the thing it contains.
 	def _ClusterPadBase()
+		# ONE CLEARANCE, ON EVERY SIDE. Doubling it to make room for the
+		# return rail paid for that rail on all four sides -- including
+		# the top, where nothing runs -- and the entry gap came out twice
+		# as deep as anything standing in it. The rail is paid for where
+		# the rail IS, by measuring it (see the box), not by inflating
+		# every margin in the picture.
 		return max([ 16, This._LineClearance() + 4 ])
 
 	def _ClusterPadMax()
@@ -6743,6 +6802,38 @@ class stzDiagram from stzGraph
 		# so the rightmost member of a region had its loop, and the
 		# loop's label, hanging outside the boundary that is supposed to
 		# hold it. Same law as the return rails, one shape further out.
+		# THE INK THIS FRAME HOLDS, MEASURED WHERE IT RUNS. A return rail
+		# rides one clearance below its row and needs a clearance of air
+		# under it; a self-loop radiates to the right and needs the same
+		# beside it. Both are member ink, so the frame grows on THOSE
+		# sides -- and nowhere else, which is what keeps the entry gap
+		# honest.
+		_y1L_ = _y1_
+		for _clP_ in This.Edges()
+			_cf3_ = StzLower("" + _clP_[:from])
+			_ct3_ = StzLower("" + _clP_[:to])
+			if _cf3_ = _ct3_  loop  ok
+			_bBoth_ = 0
+			for _clQ_ in This.Edges()
+				if StzLower("" + _clQ_[:from]) = _ct3_ and
+				   StzLower("" + _clQ_[:to]) = _cf3_
+					_bBoth_ = 1
+					exit
+				ok
+			next
+			if NOT _bBoth_  loop  ok
+			_bM1_ = 0  _bM2_ = 0
+			for _cm3_ in aCluster[:nodes]
+				if StzLower("" + _cm3_) = _cf3_  _bM1_ = 1  ok
+				if StzLower("" + _cm3_) = _ct3_  _bM2_ = 1  ok
+			next
+			if NOT (_bM1_ and _bM2_)  loop  ok
+			_at3_ = This._XYOf(aXY, "" + _clP_[:from])
+			if len(_at3_) != 2  loop  ok
+			_rail3_ = _at3_[2] + This._LineClearance() * 2
+			if _rail3_ > _y1L_  _y1L_ = _rail3_  ok
+		next
+
 		_x1L_ = _x1_
 		for _clE_ in This.Edges()
 			if StzLower("" + _clE_[:from]) != StzLower("" + _clE_[:to])  loop  ok
@@ -6761,7 +6852,7 @@ class stzDiagram from stzGraph
 			if _reachL_ > _x1L_  _x1L_ = _reachL_  ok
 		next
 		return [ _x0_ - _pad_, _y0_ - _pad_,
-			(_x1L_ - _x0_) + 2 * _pad_, (_y1_ - _y0_) + 2 * _pad_ ]
+			(_x1L_ - _x0_) + 2 * _pad_, (_y1L_ - _y0_) + 2 * _pad_ ]
 
 	# How many nesting levels sit INSIDE this cluster: 0 for a leaf.
 	def _ClusterLevelsBelow(aCluster)
