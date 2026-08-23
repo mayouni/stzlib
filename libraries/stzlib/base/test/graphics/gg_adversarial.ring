@@ -5597,6 +5597,98 @@ next
 chkeq("every event label sits on the ink it names", nFmFar, 0)
 
 
+sec("-- 61. ONE LANE EACH, AND ONE PAYMENT EACH ------------------")
+#
+# The Principal redrew a return rail by hand, lower than the one already
+# there, and wrote "so tall" beside the entry gap. Both are quantities
+# paid twice.
+#
+# ONE LANE EACH -- I2 for the third time. Every return took the same
+# single-clearance offset, so two returns into one state were drawn on
+# top of each other and their two events fought over the strip between.
+# The Nth return in a row rides the Nth lane now. The bug that hid it is
+# worth naming: the allocator worked from the first attempt, and the
+# twin's END CLAMP pulled every end back onto the rank-facing border --
+# right for a twin whose last leg is a vertical drop, catastrophic for
+# one that runs along a row, and it dragged lane two straight back onto
+# lane one.
+#
+# ONE PAYMENT EACH. The frame counted a pair TWICE (a pair is two edges
+# and both passed its test) and carried a hundred pixels of empty floor;
+# the rank separation funded region chrome that the derived size was
+# already funding. Three separate double-payments this session, all with
+# the same shape: a quantity charged where it is measured AND where it
+# is used.
+#---------------------------------------------------------------------------
+
+oLn = new stzWorkflow("lanes61")
+oLn.SetWorkflowType("statemachine")
+oLn.AddStateXTT("i", "", [ :isInitial = 1 ])
+oLn.AddStateXT("closed", "Closed")
+oLn.AddStateXT("open", "Open")
+oLn.AddStateXT("locked", "Locked")
+oLn.AddStateXTT("gone", "Demolished", [ :isFinal = 1 ])
+oLn.AddTransition("i", "closed", "")
+oLn.AddTransition("closed", "open", "open")
+oLn.AddTransition("open", "closed", "close")
+oLn.AddTransition("closed", "locked", "lock")
+oLn.AddTransition("locked", "closed", "unlock")
+oLn.AddTransition("locked", "locked", "lock")
+oLn.AddTransition("closed", "gone", "demolish")
+oLn.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
+	:FontSize = 13 ])
+
+# TWO RETURNS, TWO LANES, a clearance apart
+nLn1 = -1  nLn2 = -1
+for aLnP in oLn.RenderEdgePaths()
+	if aLnP[1] = "open>closed"    nLn1 = aLnP[2][2]  ok
+	if aLnP[1] = "locked>closed"  nLn2 = aLnP[2][2]  ok
+next
+? "   the two returns ride y=" + nLn1 + " and y=" + nLn2
+chk("two returns into one state take two lanes",
+    fabs(nLn1 - nLn2) >= oLn._LineClearance() - 1)
+nLnRow = -1
+for rLn in oLn.RenderNodeRects()
+	if rLn[5] = "closed"  nLnRow = rLn[2] + rLn[4] / 2  ok
+next
+chk("...both below the row they return along",
+    nLn1 > nLnRow and nLn2 > nLnRow)
+
+# ...AND EACH LABEL ON ITS OWN LANE
+nLnC = -1  nLnU = -1
+for aLnL in oLn.RenderLabels()
+	if aLnL[1] = "close"   nLnC = aLnL[3]  ok
+	if aLnL[1] = "unlock"  nLnU = aLnL[3]  ok
+next
+chk("each event sits on its own return, not between two",
+    fabs(nLnC - nLnU) >= oLn._LineClearance() - 1)
+
+# THE FRAME HOLDS THEM, and holds nothing else: no more than a pad of
+# empty floor under the lowest rail
+nLnBot = -1
+for aLnC in oLn.RenderClusterRects()
+	if aLnC[2] + aLnC[4] > nLnBot  nLnBot = aLnC[2] + aLnC[4]  ok
+next
+nLnDeep = max([ nLn1, nLn2 ])
+? "   the frame's floor sits " + (nLnBot - nLnDeep) + "px under the last rail"
+chk("a frame contains its rails", nLnBot > nLnDeep)
+chk("...and does not carry an empty floor under them",
+    nLnBot - nLnDeep < oLn._LineClearance() * 3)
+
+# "SO TALL" -- the entry gap holds the frame's chrome and what crosses
+# it, and is not charged for either twice
+nLnI = -1  nLnTop = 1000000
+for rLn in oLn.RenderNodeRects()
+	if rLn[5] = "i"  nLnI = rLn[2] + rLn[4]  ok
+next
+for aLnC in oLn.RenderClusterRects()
+	if aLnC[2] < nLnTop  nLnTop = aLnC[2]  ok
+next
+? "   the entry gap is " + (nLnTop - nLnI) + "px"
+chk("an entry gap is not charged for the chrome twice",
+    nLnTop - nLnI < 130)
+
+
 #---------------------------------------------------------------------------
 ? ""
 if nSecClock > 0

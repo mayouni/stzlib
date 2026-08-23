@@ -318,6 +318,8 @@ class stzDiagram from stzGraph
 	# and the clipping uses, or an arrow stops short of the thing it
 	# points at.
 	@aBoxOf = []
+	# rows that already hold a return lane, refilled per render
+	@aSameRowLanes = []
 	@nModeCols = 1
 	@nModeRows = 1
 	@nModeRegionRows = 0
@@ -2060,7 +2062,12 @@ class stzDiagram from stzGraph
 		# band.
 		# ...and asked of the SAME expression the boxes are drawn with,
 		# never of a second estimate of it (see _ClusterChromeAbove).
-		if len(@aClusters) > 0
+		# ...ONCE, and not in a mode picture, which funds its regions'
+		# chrome explicitly in its own derived size. Charged in both
+		# places the entry gap came out three times what stands in it --
+		# the "so tall" the Principal marked, and the third time this
+		# session that one quantity was paid for twice.
+		if len(@aClusters) > 0 and NOT _bModes_
 			_nSepR_ = max([ _nSepR_,
 				This._ClusterChromeAbove(_nFsz_) + _nClr0_ * 2 + _nEdgeW_ * 2 ])
 		ok
@@ -2079,7 +2086,16 @@ class stzDiagram from stzGraph
 		# ranks are modes rather than states.
 		if _bModes_ and NOT _bNamed_
 			_nMdW_ = @nModeCols * (_nBoxW_ + _nSepN_) + _nSepN_
-			_nMdH_ = @nModeRows * (_nBoxH_ + _nSepR_) + _nSepR_
+			# A RANK PAYS FOR THE TALLEST THING STANDING IN IT. Every
+			# rank was charged a full cell, including the ones holding
+			# nothing but a mark a fifth that size.
+			_nMdTall_ = 0
+			for _nd4_ in This.Nodes()
+				_b4_ = This._BoxOf("" + _nd4_[:id], _nBoxW_, _nBoxH_)
+				if _b4_[2] > _nMdTall_  _nMdTall_ = _b4_[2]  ok
+			next
+			if _nMdTall_ <= 0  _nMdTall_ = _nBoxH_  ok
+			_nMdH_ = @nModeRows * (_nMdTall_ + _nSepR_) + _nSepR_
 			# region chrome is paid ONCE PER REGION ROW, not per rank: a
 			# rank with no boundary in it eats none of it
 			# chrome is paid ONCE PER REGION ROW: three regions side by
@@ -2096,7 +2112,7 @@ class stzDiagram from stzGraph
 				_nMdW_ += (This._ClusterPadMax() * 2 +
 					This._SelfLoopReach(_nBoxW_, _nBoxH_) + 6) * @nModeCols
 				_nMdH_ += (This._ClusterPadMax() * 2 +
-					This._LineClearance() * 2) *
+					This._LineClearance() * (@nModeCols + 1)) *
 					max([ @nModeRegionRows, 1 ])
 			ok
 			_nW_ = ceil(_nMdW_)
@@ -2701,6 +2717,7 @@ class stzDiagram from stzGraph
 
 		_aE_ = This.Edges()
 		_nEc_ = len(_aE_)
+		@aSameRowLanes = []
 		This._FillBoxSizes(_nBoxW_, _nBoxH_)
 		_aPort_ = This._EdgePorts(_aE_, _aXY_, _nBoxW_, _nBoxH_, _cRank_, _aRoute_)
 
@@ -2913,7 +2930,18 @@ class stzDiagram from stzGraph
 			ok
 		next
 
-		# THE TWINS, after every canonical path exists in @aEdgePaths
+		# THE TWINS, after every canonical path exists in @aEdgePaths.
+		#
+		# ONE LANE EACH, and this is I2 said for the third time: distinct
+		# channels, spaced a clearance apart. Every return took the SAME
+		# single-clearance offset, so two returns into one state -- close
+		# and unlock, in a machine with three peers -- were drawn on top
+		# of each other under the forward line, and their labels fought
+		# over the strip between. The Principal redrew one of them lower
+		# by hand, which is the allocation this loop should have been
+		# doing: the Nth return in a row rides the Nth lane.
+		_nTwLane_ = 0
+		_aTwRow_ = []
 		for _ei_ = 1 to _nEc_
 			if _aTwinOf_[_ei_] = 0  loop  ok
 			if @nDrawPass = 2
@@ -2921,8 +2949,17 @@ class stzDiagram from stzGraph
 				@aRenderPicks + [ 1000000 + _ei_, "edge",
 					"" + _aE_[_ei_][:from], "" + _aE_[_ei_][:to] ]
 			ok
-			This._DrawTwinEdge(_oC_, _ei_, _aTwinOf_[_ei_], _aE_, _aXY_,
-				_nBoxW_, _nBoxH_, _cEdge_, _nEdgeW_, _cRank_)
+			# which lane: count the twins already placed in this row
+			_aTwA_ = This._XYOf(_aXY_, "" + _aE_[_ei_][:from])
+			_nTwLane_ = 1
+			if len(_aTwA_) = 2
+				for _vTw_ in _aTwRow_
+					if fabs(_vTw_ - _aTwA_[2]) < 2  _nTwLane_++  ok
+				next
+				_aTwRow_ + _aTwA_[2]
+			ok
+			This._DrawTwinEdgeXT(_oC_, _ei_, _aTwinOf_[_ei_], _aE_, _aXY_,
+				_nBoxW_, _nBoxH_, _cEdge_, _nEdgeW_, _cRank_, _nTwLane_)
 		next
 		next
 
@@ -5437,6 +5474,10 @@ class stzDiagram from stzGraph
 	# and the twin can never cross its partner. The ends clamp to the
 	# node borders so a wide offset cannot walk off a narrow cell.
 	def _DrawTwinEdge(oC, nEi, nEj, paE, paXY, nBoxW, nBoxH, cColor, nWidth, cRank)
+		return This._DrawTwinEdgeXT(oC, nEi, nEj, paE, paXY, nBoxW, nBoxH,
+			cColor, nWidth, cRank, 1)
+
+	def _DrawTwinEdgeXT(oC, nEi, nEj, paE, paXY, nBoxW, nBoxH, cColor, nWidth, cRank, nLane)
 		_twKey_ = StzLower("" + paE[nEj][:from] + ">" + paE[nEj][:to])
 		_twP_ = []
 		for _twR_ in @aEdgePaths
@@ -5444,7 +5485,7 @@ class stzDiagram from stzGraph
 		next
 		_twN_ = len(_twP_)
 		if _twN_ < 4  return  ok
-		_twOff_ = This._LineClearance()
+		_twOff_ = This._LineClearance() * nLane
 		_bH_ = 0
 		if cRank = "LR" or cRank = "RL"  _bH_ = 1  ok
 
@@ -5500,20 +5541,41 @@ class stzDiagram from stzGraph
 		next
 		_aFm_ = This._XYOf(paXY, StzLower("" + paE[nEi][:from]))
 		_aTo_ = This._XYOf(paXY, StzLower("" + paE[nEi][:to]))
+		# THE END CLAMP FOLLOWS THE END SEGMENT'S AXIS. It pulled every
+		# end onto the rank-facing border, which is right for a twin
+		# whose last leg is a vertical drop and catastrophic for one
+		# whose last leg runs along a row: a return allocated the second
+		# lane was dragged straight back onto the first, so two returns
+		# into one state were drawn on top of each other however many
+		# lanes the allocator handed out. A horizontal end attaches to a
+		# SIDE border and keeps its lane.
+		_twN2_ = len(_twRev_)
+		_bV1_ = 1
+		_bV2_ = 1
+		if _twN2_ >= 2
+			if fabs(_twRev_[1][2] - _twRev_[2][2]) < 0.5  _bV1_ = 0  ok
+			if fabs(_twRev_[_twN2_][2] - _twRev_[_twN2_-1][2]) < 0.5  _bV2_ = 0  ok
+		ok
 		if len(_aFm_) = 2
-			_twRev_[1][1] = min([ max([ _twRev_[1][1], _aFm_[1] - nBoxW/2 + 4 ]),
-				_aFm_[1] + nBoxW/2 - 4 ])
-			if NOT _bH_
+			if _bV1_ and NOT _bH_
+				_twRev_[1][1] = min([ max([ _twRev_[1][1],
+					_aFm_[1] - nBoxW/2 + 4 ]), _aFm_[1] + nBoxW/2 - 4 ])
 				_twRev_[1][2] = iif(_twRev_[1][2] < _aFm_[2],
 					_aFm_[2] - nBoxH/2, _aFm_[2] + nBoxH/2)
+			but NOT _bV1_
+				_twRev_[1][1] = iif(_twRev_[1][1] < _aFm_[1],
+					_aFm_[1] - nBoxW/2, _aFm_[1] + nBoxW/2)
 			ok
 		ok
 		if len(_aTo_) = 2
-			_twRev_[len(_twRev_)][1] = min([ max([ _twRev_[len(_twRev_)][1],
-				_aTo_[1] - nBoxW/2 + 4 ]), _aTo_[1] + nBoxW/2 - 4 ])
-			if NOT _bH_
-				_twRev_[len(_twRev_)][2] = iif(_twRev_[len(_twRev_)][2] < _aTo_[2],
+			if _bV2_ and NOT _bH_
+				_twRev_[_twN2_][1] = min([ max([ _twRev_[_twN2_][1],
+					_aTo_[1] - nBoxW/2 + 4 ]), _aTo_[1] + nBoxW/2 - 4 ])
+				_twRev_[_twN2_][2] = iif(_twRev_[_twN2_][2] < _aTo_[2],
 					_aTo_[2] - nBoxH/2, _aTo_[2] + nBoxH/2)
+			but NOT _bV2_
+				_twRev_[_twN2_][1] = iif(_twRev_[_twN2_][1] < _aTo_[1],
+					_aTo_[1] - nBoxW/2, _aTo_[1] + nBoxW/2)
 			ok
 		ok
 
@@ -6323,14 +6385,45 @@ class stzDiagram from stzGraph
 			if _srSame_
 				_srA_ = This._BoxAt(aFrom, nBoxW, nBoxH)
 				_srB_ = This._BoxAt(aTo, nBoxW, nBoxH)
+				# A RETURN TAKES ITS OWN LANE -- I2, and the Principal
+				# redrew one by hand to say so. Two peers talk both ways;
+				# the forward run keeps the row and every RETURN steps
+				# off it, the Nth return by N clearances, so two returns
+				# into one state are two readable lines with room for
+				# their events between them instead of one line carrying
+				# two words.
+				_srBack_ = 0
+				if cRank = "LR" or cRank = "RL"
+					if aTo[2] < aFrom[2]  _srBack_ = 1  ok
+				else
+					if aTo[1] < aFrom[1]  _srBack_ = 1  ok
+				ok
+				_srLane_ = 0
+				if _srBack_ and This.EdgeExists(cToId, cFromId)
+					_srKey_ = ceil(aFrom[2])
+					if cRank = "LR" or cRank = "RL"  _srKey_ = ceil(aFrom[1])  ok
+					_srLane_ = 1
+					for _srU_ in @aSameRowLanes
+						if _srU_ = _srKey_  _srLane_++  ok
+					next
+					@aSameRowLanes + _srKey_
+				ok
+				_srOff_ = This._LineClearance() * _srLane_
 				if cRank = "LR" or cRank = "RL"
 					_srSg_ = iif(aTo[2] >= aFrom[2], 1, -1)
-					_srPts_ = [ aFrom[1], aFrom[2] + _srSg_ * _srA_[2] / 2,
-						aTo[1], aTo[2] - _srSg_ * _srB_[2] / 2 ]
+					if _srLane_ > 0
+						_srPts_ = [ aFrom[1] + _srOff_, aFrom[2],
+							aTo[1] + _srOff_, aTo[2] ]
+					else
+						_srPts_ = [ aFrom[1], aFrom[2] + _srSg_ * _srA_[2] / 2,
+							aTo[1], aTo[2] - _srSg_ * _srB_[2] / 2 ]
+					ok
 				else
 					_srSg_ = iif(aTo[1] >= aFrom[1], 1, -1)
-					_srPts_ = [ aFrom[1] + _srSg_ * _srA_[1] / 2, aFrom[2],
-						aTo[1] - _srSg_ * _srB_[1] / 2, aTo[2] ]
+					_srPts_ = [ aFrom[1] + _srSg_ * _srA_[1] / 2,
+						aFrom[2] + _srOff_,
+						aTo[1] - _srSg_ * _srB_[1] / 2,
+						aTo[2] + _srOff_ ]
 				ok
 				_srCut_ = This._ArrowCut(_srPts_, 9 + nWidth * 2)
 				This._EmitOrthoPolyline(oC, _srCut_[1], cColor, nWidth,
@@ -6809,6 +6902,7 @@ class stzDiagram from stzGraph
 		# sides -- and nowhere else, which is what keeps the entry gap
 		# honest.
 		_y1L_ = _y1_
+		_nLn3_ = 0
 		for _clP_ in This.Edges()
 			_cf3_ = StzLower("" + _clP_[:from])
 			_ct3_ = StzLower("" + _clP_[:to])
@@ -6828,9 +6922,23 @@ class stzDiagram from stzGraph
 				if StzLower("" + _cm3_) = _ct3_  _bM2_ = 1  ok
 			next
 			if NOT (_bM1_ and _bM2_)  loop  ok
+			# ONE LANE PER PAIR, not per edge. A pair is two edges and
+			# both pass this test, so counting edges bought twice the
+			# depth the rails need and the frame carried a hundred
+			# pixels of empty floor. Only the RETURN member allocates --
+			# the same member the drawing gives a lane to.
+			# ...and the "return" member is picked by POSITION, never by
+			# comparing the two ids: Ring's < on strings coerces to a
+			# number and raises. The member the drawing gives a lane to
+			# is the one running backwards along the row.
+			_atF3_ = This._XYOf(aXY, _cf3_)
+			_atT3_ = This._XYOf(aXY, _ct3_)
+			if len(_atF3_) != 2 or len(_atT3_) != 2  loop  ok
+			if _atF3_[1] <= _atT3_[1]  loop  ok
 			_at3_ = This._XYOf(aXY, "" + _clP_[:from])
 			if len(_at3_) != 2  loop  ok
-			_rail3_ = _at3_[2] + This._LineClearance() * 2
+			_nLn3_++
+			_rail3_ = _at3_[2] + This._LineClearance() * (_nLn3_ + 1)
 			if _rail3_ > _y1L_  _y1L_ = _rail3_  ok
 		next
 
