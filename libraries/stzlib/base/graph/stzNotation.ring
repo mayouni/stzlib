@@ -412,3 +412,23 @@ class stzNotation from stzObject
 
 	def LayoutMode()
 		return @cLayoutMode
+
+	# The kinds this profile declares as SOURCES (nothing may enter) and
+	# SINKS (nothing may leave) -- derived from the kind rules rather
+	# than declared twice, so the placement that reads them can never
+	# disagree with the refusals that enforce them.
+	def SourceKinds()
+		_a_ = []
+		_n_ = len(@aKindRules)
+		for _i_ = 1 to _n_
+			if @aKindRules[_i_][2] = "inbound"  _a_ + @aKindRules[_i_][1]  ok
+		next
+		return _a_
+
+	def SinkKinds()
+		_a_ = []
+		_n_ = len(@aKindRules)
+		for _i_ = 1 to _n_
+			if @aKindRules[_i_][2] = "outbound"  _a_ + @aKindRules[_i_][1]  ok
+		next
+		return _a_
