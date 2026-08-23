@@ -905,3 +905,117 @@ paper abandons the gesture with the model untouched; a rewire onto a pair
 the graph already holds is refused BEFORE the old link is removed, so a
 refused gesture changes nothing at all. Section 49 of the guard holds all
 of it headless.
+
+## DN — DIAGRAMMING AS DOMAINS: a notation is DATA, the contract is LAW (2026-08-23, design ruled before code)
+
+The Principal's ask: BPMN workflows, state machines, org charts,
+electric/electronic, building plans, UML — all of it, model-driven, in a
+visual-DSL style, without dirtying the foundation.
+
+### The one decision everything else follows from
+
+**A domain is a NOTATION PROFILE — a declaration — over the single
+foundation. It is never a second renderer.** The estate already owns the
+proof of both halves of this rule. The affirmative proof: one `_ElbowArc`
+serves the staircase and the self-loop; one `stzRuleReport` gates six
+rule domains; one plastic layout serves every picture drawn so far. The
+negative proof: `stzBpmnDiagram` was built as its own renderer with its
+own layout and its own SVG writer, and it arrived broken in exactly the
+way duplicated machinery breaks — its emitter reset a shared accumulator
+the main renderer had already learned not to, and nobody's guard saw it
+because it lived beside the guarded path, not on it.
+
+A notation profile declares FOUR things, each landing on machinery that
+already exists:
+
+1. **A VOCABULARY** — node kinds and edge kinds, typed. `:Task`,
+   `:Gateway`, `:State`, `:Resistor`, `:Class`, `:Room`; `:Transition`,
+   `:Wire`, `:Inheritance`, `:ReportsTo`. A kind carries its glyph, its
+   ports, its compartments. Lands on: node properties and
+   `_NativeShapeOf`, which already dispatch per node.
+
+2. **WELL-FORMEDNESS RULES, in the house rule shape** —
+   `[ :rule, :subject, :where, :severity, :message ]` through
+   `stzRuleReport`, the one CI gate. A BPMN end event with an outgoing
+   flow, a wire joining two outputs, a class inheriting from itself: all
+   REFUSALS THAT TEACH, like the parallel-edge refusal that names the
+   model and points at the way forward. The editor inherits them free:
+   `Edit()` already refuses commands whose apply returns empty, so an
+   illegal link in a domain is refused at the gesture, with the domain's
+   own sentence.
+
+3. **A GRAMMAR AMENDMENT** — what geometry MEANS in this domain, as
+   deltas to the visual contract, never as a new contract. BPMN: the
+   happy path is a straight spine, exceptions hang off it (the law
+   `stzBpmnDiagram` already states; it becomes a named layout pass like
+   `tidyTerritories`, gated by profile, instead of a fork). State
+   machines: cycles are first-class and the self-loop is prominent (the
+   loop grammar exists). Electric: junction dots assert connection,
+   hops deny it (the hop exists — it was BORN from electric diagrams),
+   wires are orthogonal always, components have FIXED ports. Org: strict
+   tree, rank IS hierarchy. UML: edge-END adornments carry the meaning
+   (diamond, triangle, multiplicity labels).
+
+4. **A GLYPH SET** — per-kind drawing into the same canvas, same theme
+   roles (the eight semantic roles, `:Muted` included), same pick tags.
+   A glyph may declare PORTS (an electric component's pins, a UML class's
+   compartment anchors); the knob machinery generalises — `PickAt`
+   answers `[ :node, id ]` today and grows `[ :port, id, n ]`, and a
+   rewire gesture lands on a port the way it lands on a cell.
+
+### The model stays the model — this is the model-driven half
+
+A diagram is a VIEW of a live domain object, never a parallel document.
+`stzWorkflow`, `stzOrgChart`, a state machine, a circuit: each projects
+into `stzGraph` + typed properties, and every edit command mutates the
+MODEL through the existing undoable command set. The domain classes
+already exist as models — what they gain is a projection, not a
+rewrite: `oWorkflow.ToDiagramQ([ :Notation = :BPMN ])`.
+
+The notation declaration itself follows the `.pia` precedent (an agent
+is a FILE judged at load): a profile is a Ring declaration first, a
+`.stznotation` file when one earns it — judged at load by the same rule
+gate it declares.
+
+### What is refused, and why
+
+- **A meta-meta-framework** (MOF/EMF's tower). Profiles are small
+  declarations over one strong foundation, each earning its place with
+  a guard and a real picture. The tower is the enterprise trap: it
+  makes every diagram equally easy to half-support and none fully.
+- **Per-domain layout engines.** One plastic layout, parameterised.
+  Where a domain truly needs a pass (BPMN's spine), the pass is named,
+  guarded, and profile-gated — `tidyTerritories` is the shape: forest
+  only, one property, refuses elsewhere.
+- **Freeform geometry as domain surface.** Building plans tempt with
+  "the author places the walls" — that is a floor-plan CAD, a different
+  product. What this plane offers building diagrams is the same offer
+  it makes everyone: topology in, lawful geometry out.
+
+### Sequence, each phase with a kill criterion
+
+- **DN0 — the profile shape, proven on the default.** Express today's
+  generic diagram as the DEFAULT profile; render byte-identical pictures
+  through it. KILL: any pixel moves — the abstraction is wrong.
+- **DN1 — org charts.** `stzOrgChart` re-based as a profile: tree
+  grammar, role glyphs. Cheapest domain; proves a MODEL projects.
+- **DN2 — state machines.** Initial/final glyphs, guard/event labels,
+  cycles prominent. Proves the loop grammar carries a domain.
+- **DN3 — BPMN, by RE-BASING `stzBpmnDiagram`.** Its spine law becomes
+  a profile-gated pass; its glyphs join the set; its own SVG writer is
+  DELETED. KILL: if the spine law cannot express as a pass over the
+  plastic layout, say so and keep the class separate — measured, not
+  assumed.
+- **DN4 — UML class diagrams.** Compartments and edge-end adornments —
+  the notation half the industry reads daily.
+- **DN5 — electric/electronic.** The stress test, LAST on purpose: a
+  net is a HYPEREDGE (one wire, three pins), which the pair-edge model
+  must earn honestly — junction nodes drawn as dots, or the domain is
+  faked. KILL: if nets cannot be modelled without lying about the
+  graph, the domain waits for the model to grow, and the plan says so.
+
+The doctrine that makes all of it Softanza-ish is already written: the
+plastic layout. In every domain the author edits domain MEANING — a
+transition, a wire, a reporting line — and geometry belongs to the
+algorithm, which is what makes one editor, one layout and one contract
+able to serve them all.
