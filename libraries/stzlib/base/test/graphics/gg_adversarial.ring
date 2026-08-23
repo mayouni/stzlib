@@ -5253,6 +5253,95 @@ chkeq("a declared grouping is never overruled by discovery",
 chkeq("...and it is the author's", "" + oMd4.Clusters()[1][:id], "mine")
 
 
+sec("-- 58. A PSEUDOSTATE IS A MARK, NOT A CELL -------------------")
+#
+# The Principal, comparing our gallery to mermaid's page: the
+# beautification window is still open. The largest gap was not colour or
+# spacing -- it was that our entry and exit pseudostates were drawn as
+# full CELLS. They hold no information, carry no name and are not
+# somewhere a machine waits: they are punctuation, and every reference
+# notation draws them as a dot a fraction of a state's size.
+#
+# So a notation may declare a kind's SCALE, and the number it declares
+# has to be the SAME number three different pieces of geometry use --
+# the box that is painted, the border an edge clips to, and the port an
+# edge leaves from. Getting two of the three right is what leaves an
+# arrow pointing at paper beside the thing it names.
+#---------------------------------------------------------------------------
+
+oMk = new stzWorkflow("marks58")
+oMk.SetWorkflowType("statemachine")
+oMk.AddStateXTT("i", "", [ :isInitial = 1 ])
+oMk.AddStateXT("still", "Still")
+oMk.AddStateXT("moving", "Moving")
+oMk.AddStateXTT("e", "", [ :isFinal = 1 ])
+oMk.AddTransition("i", "still", "")
+oMk.AddTransition("still", "moving", "")
+oMk.AddTransition("moving", "still", "")
+oMk.AddTransition("still", "e", "")
+oMk.AddTransition("moving", "e", "")
+oMk.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
+	:FontSize = 13 ])
+
+nMkState = 0  nMkMark = 0
+for rMk in oMk.RenderNodeRects()
+	if rMk[5] = "still"  nMkState = rMk[3]  ok
+	if rMk[5] = "i"      nMkMark = rMk[3]  ok
+next
+? "   a state is " + nMkState + "px wide, a mark " + nMkMark
+chk("a pseudostate is drawn far smaller than a state",
+    nMkMark > 0 and nMkMark < nMkState / 2)
+chk("...and it is SQUARE, since it carries no text",
+    nMkMark = oMk._BoxOf("i", 104, 40)[2])
+
+# THE THREE GEOMETRIES AGREE, which is the assertion that matters: an
+# arrow must MEET the mark it points at. Every published path ending at
+# a mark has its last point ON that mark's border.
+nMkGap = 0
+nMkWorst = 0
+for aMkP in oMk.RenderEdgePaths()
+	aMkE = StzSplit(aMkP[1], ">")
+	if len(aMkE) != 2  loop  ok
+	if aMkE[2] != "e"  loop  ok
+	_fMk_ = aMkP[2]
+	_nMk_ = len(_fMk_)
+	if _nMk_ < 4  loop  ok
+	for rMk in oMk.RenderNodeRects()
+		if rMk[5] != "e"  loop  ok
+		# distance from the path's last point to the mark's rectangle
+		_dxMk_ = 0
+		if _fMk_[_nMk_-1] < rMk[1]  _dxMk_ = rMk[1] - _fMk_[_nMk_-1]  ok
+		if _fMk_[_nMk_-1] > rMk[1] + rMk[3]
+			_dxMk_ = _fMk_[_nMk_-1] - (rMk[1] + rMk[3])
+		ok
+		_dyMk_ = 0
+		if _fMk_[_nMk_] < rMk[2]  _dyMk_ = rMk[2] - _fMk_[_nMk_]  ok
+		if _fMk_[_nMk_] > rMk[2] + rMk[4]
+			_dyMk_ = _fMk_[_nMk_] - (rMk[2] + rMk[4])
+		ok
+		_dMk_ = sqrt(_dxMk_*_dxMk_ + _dyMk_*_dyMk_)
+		if _dMk_ > nMkWorst  nMkWorst = _dMk_  ok
+		if _dMk_ > 2  nMkGap++  ok
+	next
+next
+? "   arrows into the mark that stop short : " + nMkGap +
+  " (worst " + nMkWorst + "px)"
+chkeq("an arrow MEETS the mark it points at", nMkGap, 0)
+
+# THE NEGATIVE SIBLING: a domain that declares no scale still draws
+# cells -- the mark is a declaration, not a new default
+oMk2 = new stzDiagram("cells58")
+oMk2.AddNodeXTT("a", "A", [ :type = "start" ])
+oMk2.AddNodeXTT("b", "B", [ :type = "box" ])
+oMk2.AddEdge("a", "b")
+oMk2.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+nMk2 = 0
+for rMk in oMk2.RenderNodeRects()
+	if rMk[5] = "a"  nMk2 = rMk[3]  ok
+next
+chkeq("a diagram that declares no scale keeps full cells", nMk2, 96)
+
+
 #---------------------------------------------------------------------------
 ? ""
 if nSecClock > 0

@@ -92,6 +92,7 @@ class stzNotation from stzObject
 	@cSplines = ""
 	@cLayoutMode = ""     # "" = layered; :Ring for a domain with no flow
 	@cRegionFill = ""     # the tinted container a discovered region wears
+	@aKindScale = []      # [ kind, fraction-of-a-cell ] -- a mark is not a cell
 
 	def init(pcName)
 		@cName = StzLower(ring_trim("" + pcName))
@@ -110,6 +111,34 @@ class stzNotation from stzObject
 	# ROLE vocabulary (Info.Solid, Danger.Solid) so a profile inherits
 	# the whole colour system -- ramps, contrast pairs, the eight
 	# semantic roles -- instead of carrying hex codes of its own.
+	# ...AND ITS SIZE, as a fraction of the picture's cell. A PSEUDOSTATE
+	# IS A MARK, NOT A CELL: an initial or final state holds no
+	# information, has no name to carry and is not somewhere the machine
+	# waits -- it is punctuation. Drawn at cell size it reads as another
+	# state, and it dominated pictures where the real states were small.
+	# Every reference notation draws it as a dot a fifth the size.
+	def AddKindXTT(pcKind, pcGlyph, pcFill, pnScale)
+		This.AddKindXT(pcKind, pcGlyph, pcFill)
+		_k_ = StzLower(ring_trim("" + pcKind))
+		_n_ = len(@aKindScale)
+		for _i_ = 1 to _n_
+			if @aKindScale[_i_][1] = _k_
+				@aKindScale[_i_][2] = pnScale
+				return This
+			ok
+		next
+		@aKindScale + [ _k_, pnScale ]
+		return This
+
+	# The fraction of a cell this kind is drawn at, 1 when it is a cell.
+	def ScaleOf(pcKind)
+		_k_ = StzLower(ring_trim("" + pcKind))
+		_n_ = len(@aKindScale)
+		for _i_ = 1 to _n_
+			if @aKindScale[_i_][1] = _k_  return @aKindScale[_i_][2]  ok
+		next
+		return 1
+
 	def AddKindXT(pcKind, pcGlyph, pcFill)
 		_k_ = StzLower(ring_trim("" + pcKind))
 		_g_ = StzLower(ring_trim("" + pcGlyph))

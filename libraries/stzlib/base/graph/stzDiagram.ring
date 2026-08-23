@@ -313,6 +313,11 @@ class stzDiagram from stzGraph
 	@oNotation = NULL
 	@cNotationLayout = ""
 	@cSelfLoopId = ""
+	# per-node drawn size: [ id, w, h ] for anything that is not a full
+	# cell. A mark's geometry has to be the SAME number the drawing uses
+	# and the clipping uses, or an arrow stops short of the thing it
+	# points at.
+	@aBoxOf = []
 	@nModeCols = 1
 	@nModeRows = 1
 	@nModeRegionRows = 0
@@ -605,6 +610,54 @@ class stzDiagram from stzGraph
 			else
 				This.AddClusterXT("mode" + _k_, "", _aIn_)
 			ok
+		next
+		return This
+
+	# The drawn size of a node: the picture's cell, scaled by whatever
+	# fraction its KIND declares. One place, so the box that is painted,
+	# the border an edge clips to and the port it leaves from can never
+	# be three different rectangles.
+	# THE SAME ANSWER, KEYED BY POSITION. The attachment and clipping
+	# helpers are handed a node's CENTRE, not its id -- they sit six
+	# layers below the loop that knows both -- and threading an id
+	# through six signatures to ask one question is how a rule ends up
+	# with two implementations. The published rects hold the answer and
+	# are filled before any edge is drawn, so a centre is enough.
+	def _BoxAt(aCentre, nBoxW, nBoxH)
+		if len(aCentre) < 2  return [ nBoxW, nBoxH ]  ok
+		for _bq_ in @aRenderNodeRects
+			if fabs(_bq_[1] + _bq_[3] / 2 - aCentre[1]) < 1.5 and
+			   fabs(_bq_[2] + _bq_[4] / 2 - aCentre[2]) < 1.5
+				return [ _bq_[3], _bq_[4] ]
+			ok
+		next
+		return [ nBoxW, nBoxH ]
+
+	def _BoxOf(pcId, nBoxW, nBoxH)
+		_bid_ = StzLower("" + pcId)
+		for _br_ in @aBoxOf
+			if _br_[1] = _bid_  return [ _br_[2], _br_[3] ]  ok
+		next
+		return [ nBoxW, nBoxH ]
+
+	def _FillBoxSizes(nBoxW, nBoxH)
+		@aBoxOf = []
+		_oNn_ = This.NotationO()
+		for _nd_ in This.Nodes()
+			_k_ = ""
+			if HasKey(_nd_, "properties") and isList(_nd_["properties"])
+				if HasKey(_nd_["properties"], "type")
+					_k_ = "" + _nd_["properties"]["type"]
+				ok
+			ok
+			if _k_ = ""  loop  ok
+			_sc_ = _oNn_.ScaleOf(_k_)
+			if NOT isNumber(_sc_)  loop  ok
+			if _sc_ >= 0.999 or _sc_ <= 0  loop  ok
+			# a MARK is square: it carries no text, so nothing makes it
+			# wider than it is tall
+			_d_ = min([ nBoxW, nBoxH ]) * _sc_
+			@aBoxOf + [ StzLower("" + _nd_[:id]), _d_, _d_ ]
 		next
 		return This
 
@@ -2599,14 +2652,35 @@ class stzDiagram from stzGraph
 			ok
 		ok
 		@oLastCanvas = _oC_
+		This._FillBoxSizes(_nBoxW_, _nBoxH_)
 		for _nr_ in _aXY_
-			@aRenderNodeRects + [ _nr_[2] - _nBoxW_ / 2, _nr_[3] - _nBoxH_ / 2,
-				_nBoxW_, _nBoxH_, StzLower("" + _nr_[1]) ]
+			_aRb_ = This._BoxOf("" + _nr_[1], _nBoxW_, _nBoxH_)
+			@aRenderNodeRects + [ _nr_[2] - _aRb_[1] / 2, _nr_[3] - _aRb_[2] / 2,
+				_aRb_[1], _aRb_[2], StzLower("" + _nr_[1]) ]
 		next
 
 		_aE_ = This.Edges()
 		_nEc_ = len(_aE_)
+		This._FillBoxSizes(_nBoxW_, _nBoxH_)
 		_aPort_ = This._EdgePorts(_aE_, _aXY_, _nBoxW_, _nBoxH_, _cRank_, _aRoute_)
+
+		# A PORT IS A POSITION ON A BORDER, so it is clamped to the border
+		# it sits on -- and to the node's OWN border, not the picture's
+		# cell. Two edges arriving at a MARK were spread across a full
+		# cell's width, and the outer one dropped beside the mark with its
+		# arrow pointing at paper. Clamped here, where the values are
+		# made, because the ortho staircase reads them directly to choose
+		# its arrival column and never passes through _PortPoint.
+		for _pcI_ = 1 to len(_aPort_)
+			_pcA_ = This._BoxOf("" + _aE_[_pcI_][:from], _nBoxW_, _nBoxH_)
+			_pcB_ = This._BoxOf("" + _aE_[_pcI_][:to], _nBoxW_, _nBoxH_)
+			_pcLa_ = max([ _pcA_[1], _pcA_[2] ]) * 0.34
+			_pcLb_ = max([ _pcB_[1], _pcB_[2] ]) * 0.34
+			if _aPort_[_pcI_][1] > _pcLa_   _aPort_[_pcI_][1] = _pcLa_   ok
+			if _aPort_[_pcI_][1] < 0 - _pcLa_  _aPort_[_pcI_][1] = 0 - _pcLa_  ok
+			if _aPort_[_pcI_][2] > _pcLb_   _aPort_[_pcI_][2] = _pcLb_   ok
+			if _aPort_[_pcI_][2] < 0 - _pcLb_  _aPort_[_pcI_][2] = 0 - _pcLb_  ok
+		next
 
 		# AN OPPOSITE PAIR IS ONE CONVERSATION, DRAWN AS TWO PARALLEL
 		# LANES -- the state machine's convention, ruled by the Principal
@@ -3108,8 +3182,11 @@ class stzDiagram from stzGraph
 			@aRenderPicks + [ _i_, "node", _cId_, "" ]
 			_cShape_ = This._NativeShapeOf(_aNodes_[_i_])
 			_cFill_ = This._NativeFillOf(_aNodes_[_i_])
-			_x0_ = _a_[1] - _nBoxW_ / 2
-			_y0_ = _a_[2] - _nBoxH_ / 2
+			_aBx_ = This._BoxOf(_cId_, _nBoxW_, _nBoxH_)
+			_nBw_ = _aBx_[1]
+			_nBh_ = _aBx_[2]
+			_x0_ = _a_[1] - _nBw_ / 2
+			_y0_ = _a_[2] - _nBh_ / 2
 			_cStroke_ = This._DiagOpt(paOptions, "strokecolor", "#3A3A3A")
 
 			# ROUNDED is the default look of these charts. A node that named a
@@ -3124,14 +3201,14 @@ class stzDiagram from stzGraph
 				# style usable today.
 				if _nRad_ > 0
 					_oC_.FillQ(_cFill_).StrokeQ(_cStroke_, 2).
-						AddRoundRect(_x0_, _y0_, _nBoxW_, _nBoxH_, _nRad_)
+						AddRoundRect(_x0_, _y0_, _nBw_, _nBh_, _nRad_)
 				else
 					_oC_.FillQ(_cFill_).StrokeQ(_cStroke_, 2).
-						AddRect(_x0_, _y0_, _nBoxW_, _nBoxH_)
+						AddRect(_x0_, _y0_, _nBw_, _nBh_)
 				ok
 			else
 				StzDrawNodeShapeXT(_oC_, _cShape_, _x0_, _y0_,
-					_nBoxW_, _nBoxH_, _cFill_, _cStroke_, 2)
+					_nBw_, _nBh_, _cFill_, _cStroke_, 2)
 			ok
 		next
 
@@ -5610,10 +5687,10 @@ class stzDiagram from stzGraph
 		if cSpline = "ortho"
 			if cRank = "LR" or cRank = "RL"
 				_pdir_ = iif(_pts_[2][1] >= aFrom[1], 1, -1)
-				_p_ = [ aFrom[1] + _pdir_ * nBoxW / 2, aFrom[2] ]
+				_p_ = [ aFrom[1] + _pdir_ * This._BoxAt(aFrom, nBoxW, nBoxH)[1] / 2, aFrom[2] ]
 			else
 				_pdir_ = iif(_pts_[2][2] >= aFrom[2], 1, -1)
-				_p_ = [ aFrom[1], aFrom[2] + _pdir_ * nBoxH / 2 ]
+				_p_ = [ aFrom[1], aFrom[2] + _pdir_ * This._BoxAt(aFrom, nBoxW, nBoxH)[2] / 2 ]
 			ok
 		ok
 		_pts_[1] = _p_
@@ -5795,8 +5872,17 @@ class stzDiagram from stzGraph
 	# through a PORT-SHIFTED centre put the exit point on a box that was
 	# not where the node is.
 	def _PortPoint(aCentre, nPort, nBoxW, nBoxH, cRank, bOut)
-		_hw_ = nBoxW / 2
-		_hh_ = nBoxH / 2
+		# THE BORDER IS THE NODE'S OWN, and the port spread is clamped to
+		# it. Two edges arriving at a MARK were ported across a full
+		# cell's width, so one of them landed beside the mark and its
+		# arrow pointed at paper. A port is a position ON a border; it
+		# cannot be further out than the border is.
+		_apB_ = This._BoxAt(aCentre, nBoxW, nBoxH)
+		_hw_ = _apB_[1] / 2
+		_hh_ = _apB_[2] / 2
+		_lim_ = max([ _hw_, _hh_ ]) * 0.8
+		if nPort > _lim_   nPort = _lim_   ok
+		if nPort < 0 - _lim_  nPort = 0 - _lim_  ok
 		if cRank = "LR"
 			if bOut  return [ aCentre[1] + _hw_, aCentre[2] + nPort ]  ok
 			return [ aCentre[1] - _hw_, aCentre[2] + nPort ]
@@ -6122,8 +6208,10 @@ class stzDiagram from stzGraph
 		return [ _apx_, _apy_, _bSide_ ]
 
 	def _EdgeGeometry(aFrom, aTo, nBoxW, nBoxH, cRank, nWidth, nPortA, nPortB, nRad, pBlockSide)
-		_ep_ = This._AttachPoint(aFrom, aTo, nBoxW, nBoxH, nPortA, nRad, cRank, 1, 0)
-		_eq_ = This._AttachPoint(aTo, aFrom, nBoxW, nBoxH, nPortB, nRad, cRank, 0, pBlockSide)
+		_bA_ = This._BoxAt(aFrom, nBoxW, nBoxH)
+		_bB_ = This._BoxAt(aTo, nBoxW, nBoxH)
+		_ep_ = This._AttachPoint(aFrom, aTo, _bA_[1], _bA_[2], nPortA, nRad, cRank, 1, 0)
+		_eq_ = This._AttachPoint(aTo, aFrom, _bB_[1], _bB_[2], nPortB, nRad, cRank, 0, pBlockSide)
 		_eqs_ = 0
 		if len(_eq_) >= 3  _eqs_ = _eq_[3]  ok
 		_efl_ = This._EdgePathFlat(_ep_, _eq_, cRank, _eqs_)
@@ -6132,8 +6220,10 @@ class stzDiagram from stzGraph
 	# The point at fraction t along that same path -- the label's anchor,
 	# so a label sits ON the curve it names.
 	def _EdgePathAt(aFrom, aTo, nBoxW, nBoxH, cRank, nT, nPortA, nPortB, pBlockSide)
-		_ep_ = This._AttachPoint(aFrom, aTo, nBoxW, nBoxH, nPortA, This._EdgeCorner(), cRank, 1, 0)
-		_eq_ = This._AttachPoint(aTo, aFrom, nBoxW, nBoxH, nPortB, This._EdgeCorner(), cRank, 0, pBlockSide)
+		_bA_ = This._BoxAt(aFrom, nBoxW, nBoxH)
+		_bB_ = This._BoxAt(aTo, nBoxW, nBoxH)
+		_ep_ = This._AttachPoint(aFrom, aTo, _bA_[1], _bA_[2], nPortA, This._EdgeCorner(), cRank, 1, 0)
+		_eq_ = This._AttachPoint(aTo, aFrom, _bB_[1], _bB_[2], nPortB, This._EdgeCorner(), cRank, 0, pBlockSide)
 		_eqs_ = 0
 		if len(_eq_) >= 3  _eqs_ = _eq_[3]  ok
 		_efl_ = This._EdgePathFlat(_ep_, _eq_, cRank, _eqs_)
@@ -6228,8 +6318,10 @@ class stzDiagram from stzGraph
 		ok
 		_dg_ = This._EdgeGeometry(aFrom, aTo, nBoxW, nBoxH, cRank, nWidth, nPortA, nPortB, This._EdgeCorner(), pBlockSide)
 		if cSpline = "line" or cSpline = "polyline"
-			_dp_ = This._AttachPoint(aFrom, aTo, nBoxW, nBoxH, nPortA, This._EdgeCorner(), cRank, 1, 0)
-			_dq_ = This._AttachPoint(aTo, aFrom, nBoxW, nBoxH, nPortB, This._EdgeCorner(), cRank, 0, pBlockSide)
+			_bdA_ = This._BoxAt(aFrom, nBoxW, nBoxH)
+			_bdB_ = This._BoxAt(aTo, nBoxW, nBoxH)
+			_dp_ = This._AttachPoint(aFrom, aTo, _bdA_[1], _bdA_[2], nPortA, This._EdgeCorner(), cRank, 1, 0)
+			_dq_ = This._AttachPoint(aTo, aFrom, _bdB_[1], _bdB_[2], nPortB, This._EdgeCorner(), cRank, 0, pBlockSide)
 			_dg_ = This._ArrowCut([ _dp_[1], _dp_[2], _dq_[1], _dq_[2] ],
 				9 + nWidth * 2)
 		ok
@@ -6242,8 +6334,10 @@ class stzDiagram from stzGraph
 		This._PublishPath(cFromId, cToId, _dg_[1])
 
 	def _DrawEdge(oC, aFrom, aTo, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nLane, nPortA, nPortB, cFromId, cToId, pSideDep)
-		_p_ = This._ClipToBox(aFrom, aTo, nBoxW, nBoxH)
-		_q_ = This._ClipToBox(aTo, aFrom, nBoxW, nBoxH)
+		_bcA_ = This._BoxAt(aFrom, nBoxW, nBoxH)
+		_bcB_ = This._BoxAt(aTo, nBoxW, nBoxH)
+		_p_ = This._ClipToBox(aFrom, aTo, _bcA_[1], _bcA_[2])
+		_q_ = This._ClipToBox(aTo, aFrom, _bcB_[1], _bcB_[2])
 
 		switch cSpline
 		on "ortho"
@@ -6265,8 +6359,8 @@ class stzDiagram from stzGraph
 				_qay_ = aTo[2] + nPortB
 				_sgn_ = 1
 				if aTo[1] < aFrom[1]  _sgn_ = -1  ok
-				_pe_ = aFrom[1] + _sgn_ * nBoxW / 2
-				_qe_ = aTo[1] - _sgn_ * nBoxW / 2
+				_pe_ = aFrom[1] + _sgn_ * _bcA_[1] / 2
+				_qe_ = aTo[1] - _sgn_ * _bcB_[1] / 2
 				_chan_ = _pe_ + (_qe_ - _pe_) * nLane
 				# the span is the run's own axis: a VERTICAL channel in a
 				# left-to-right picture runs across Y
@@ -6284,8 +6378,8 @@ class stzDiagram from stzGraph
 				_qax_ = aTo[1] + nPortB
 				_sgn_ = 1
 				if aTo[2] < aFrom[2]  _sgn_ = -1  ok
-				_pe_ = aFrom[2] + _sgn_ * nBoxH / 2
-				_qe_ = aTo[2] - _sgn_ * nBoxH / 2
+				_pe_ = aFrom[2] + _sgn_ * _bcA_[2] / 2
+				_qe_ = aTo[2] - _sgn_ * _bcB_[2] / 2
 				_chan_ = _pe_ + (_qe_ - _pe_) * nLane
 				# a HORIZONTAL channel spans X -- the first call here
 				# passed the Y pair, so every obstacle test ran against a
