@@ -176,9 +176,32 @@ class stzNotation from stzObject
 	# editor's Link and Rewire commands, so an illegal link is refused at
 	# the gesture -- the domain's rules become the editor's refusals with
 	# no editor code knowing any domain.
-	def MayLink(pcFrom, pcTo)
-		if StzLower("" + pcFrom) = StzLower("" + pcTo)
+	#
+	# Takes the DIAGRAM because two of the primitives are about the graph
+	# the link would join, not about the link alone (DN1, org charts): a
+	# second parent is only a second parent given the edges that exist,
+	# and a cycle is only a cycle given the paths that do.
+	def MayLink(poDiag, pcFrom, pcTo)
+		_f_ = StzLower("" + pcFrom)
+		_t_ = StzLower("" + pcTo)
+		if _f_ = _t_
 			if This._Forbids(:SelfLink) != ""  return FALSE  ok
+		ok
+		if isObject(poDiag)
+			# :SecondParent -- the target may hold at most one incoming
+			# edge. The TREE grammar's editor face: in an org chart this
+			# reads "one supervisor per position".
+			if This._Forbids(:SecondParent) != "" and _f_ != _t_
+				for _e_ in poDiag.Edges()
+					if StzLower("" + _e_[:to]) = _t_  return FALSE  ok
+				next
+			ok
+			# :Cycle -- the link may not close a loop. PathExists answers
+			# 1 for from=to, which :SelfLink already owns, so the guard
+			# above keeps the two rules from answering for each other.
+			if This._Forbids(:Cycle) != "" and _f_ != _t_
+				if poDiag.PathExists(pcTo, pcFrom)  return FALSE  ok
+			ok
 		ok
 		return TRUE
 
@@ -218,6 +241,53 @@ class stzNotation from stzObject
 						:where = @cName,
 						:severity = :error,
 						:message = _cSelfMsg_ ]
+				ok
+			next
+		ok
+
+		# :SecondParent over the MODEL: every node with two or more
+		# incoming edges is one finding, named once, however many edges
+		# it holds -- the finding is the node's, not each edge's.
+		_cPar_ = This._Forbids(:SecondParent)
+		if _cPar_ != ""
+			_aSeen_ = []
+			for _e_ in poDiagram.Edges()
+				_t_ = StzLower("" + _e_[:to])
+				if _t_ = StzLower("" + _e_[:from])  loop  ok
+				_nAt_ = 0
+				_n_ = len(_aSeen_)
+				for _i_ = 1 to _n_
+					if _aSeen_[_i_][1] = _t_  _nAt_ = _i_  exit  ok
+				next
+				if _nAt_ = 0
+					_aSeen_ + [ _t_, 1 ]
+				else
+					_aSeen_[_nAt_][2]++
+					if _aSeen_[_nAt_][2] = 2
+						_aOut_ + [ :rule = "notation-second-parent",
+							:subject = _t_,
+							:where = @cName,
+							:severity = :error,
+							:message = _cPar_ ]
+					ok
+				ok
+			next
+		ok
+
+		# :Cycle over the MODEL: report each edge that closes a loop --
+		# the edge whose removal breaks it is the actionable subject.
+		_cCyc_ = This._Forbids(:Cycle)
+		if _cCyc_ != ""
+			for _e_ in poDiagram.Edges()
+				_f_ = "" + _e_[:from]
+				_t_ = "" + _e_[:to]
+				if StzLower(_f_) = StzLower(_t_)  loop  ok
+				if poDiagram.PathExists(_t_, _f_)
+					_aOut_ + [ :rule = "notation-cycle",
+						:subject = _f_ + ">" + _t_,
+						:where = @cName,
+						:severity = :error,
+						:message = _cCyc_ ]
 				ok
 			next
 		ok

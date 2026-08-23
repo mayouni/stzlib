@@ -997,16 +997,27 @@ gate it declares.
 - **DN0 — the profile shape, proven on the default. SHIPPED 2026-08-23.**
   `stzNotation` (vocabulary / rules / grammar / glyphs), the registry,
   and the seam: `_NativeShapeOf` answers through the profile, `Edit`'s
-  Link and Rewire consult `MayLink`, `Validate()` answers house-shape
-  rows. The kill criterion was MET: four scenes (service ortho in a
+  Link and Rewire consult `MayLink`, `NotationFindings()` answers
+  house-shape rows (`Validate()` was already the org chart's governance
+  name -- DN1 found the collision). The kill criterion was MET: four scenes (service ortho in a
   window, the full type table, LR with self-loops, the rectangular
   style) rendered byte-identical PNGs before and after the refactor.
   §51 holds the rest live: a declared kind outranks the shared table, a
   closed vocabulary reports strangers with a teaching message, a
   forbidden link is refused at the gesture, a grammar amendment rides
   `SetNotation`.
-- **DN1 — org charts.** `stzOrgChart` re-based as a profile: tree
-  grammar, role glyphs. Cheapest domain; proves a MODEL projects.
+- **DN1 — org charts. SHIPPED 2026-08-23.** `stzOrgChart` is born under
+  its own registered notation, built beside the model it speaks for. The
+  tree grammar became three rule primitives (`:SelfLink`,
+  `:SecondParent`, `:Cycle` — the latter two graph-aware, which is why
+  `MayLink` gained the diagram), and reaches the editor as refusals with
+  no editor code knowing what an org is. Governance rule bases are
+  untouched: they judge content and keep `Validate()`; the notation
+  sweep is `NotationFindings()` because DN1 found the name collision.
+  One subtlety paid for: a from-end REWIRE under a one-parent rule must
+  be judged on the graph WITHOUT the edge being re-aimed, or every
+  target looks already-parented. §52 holds it all, including I6 proven
+  on a real domain's model.
 - **DN2 — state machines.** Initial/final glyphs, guard/event labels,
   cycles prominent. Proves the loop grammar carries a domain.
 - **DN3 — BPMN, by RE-BASING `stzBpmnDiagram`.** Its spine law becomes
