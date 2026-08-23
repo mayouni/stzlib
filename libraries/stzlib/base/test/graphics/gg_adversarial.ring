@@ -4739,12 +4739,16 @@ chk("a cyclic machine RENDERS -- layering by acyclic orientation",
     len(aSmR) = 5)
 nSmCl = 0  nSmLk = 0
 for r53 in aSmR
-	if r53[5] = "closed"  nSmCl = r53[1]  ok
-	if r53[5] = "locked"  nSmLk = r53[1]  ok
+	if r53[5] = "closed"  nSmCl = r53[2]  ok
+	if r53[5] = "locked"  nSmLk = r53[2]  ok
 next
-# the lifecycle reads LEFT TO RIGHT, so a return runs leftward
-chk("the back edge's target ranks BEFORE its source -- return reads back",
-    nSmCl < nSmLk)
+# THE CLAIM HAD TO CHANGE WITH THE MODEL, and it would otherwise have
+# passed by coincidence: this used to assert that a back edge's target
+# RANKS BEFORE its source, which was a statement about a layered
+# picture. Under modes there is no rank between mutually reachable
+# states at all -- and that is the point. They share a row.
+chk("mutually reachable states share a row -- no rank between them",
+    fabs(nSmCl - nSmLk) < 2)
 
 # kind-scoped refusals at the gesture, and the difference from the org
 # chart in one breath: a CYCLE passes here
@@ -5093,96 +5097,155 @@ chk("a diagram that declares no layout mode is still LAYERED",
     nRg2 < nRg2b - 20)
 
 
-sec("-- 57. THE LIFECYCLE: reading order outranks link concentration --")
+sec("-- 57. MODES: a state machine has no NEXT -------------------")
 #
-# The Principal's second correction on state machines, after the ring:
-# positioning does not follow link concentration alone. The reader's
-# mental model and reading habits enter -- reading runs top-down and
-# left-to-right, the machine's FIRST thing sits at the top-left, its
-# VERY LAST thing at the bottom-right, and the organic steps of the
-# lifecycle each take a spatial COLUMN left to right, even though
-# events fire in an uncontrollable order.
+# Three templates were wrong before this one, and all three in the same
+# way. A tree drew a progression. A ring drew a space with a centre. A
+# lifecycle drew a progression again, sideways. Every one answered "what
+# happens NEXT", and the Principal's ruling is that a state machine has
+# no next: "it fits dynamic flows that are NOT deterministic, since
+# events and change of state are what determine their flow".
 #
-# So the state machine's template is the LIFECYCLE: LR columns with
-# everything the layered grammar has learned, and two placement rules
-# DERIVED from the rules the domain already declares -- a kind that
-# admits nothing is a SOURCE and leads its column; a kind that releases
-# nothing is a SINK, and sinks SINK: last column, bottom of it. One
-# declaration, two consumers, no way to disagree.
+# Lucid's UML tutorial says it outright -- a state diagram is "not
+# necessarily the best tool for capturing an overall progression of
+# events" -- and the practitioners' thread points at the structural
+# answer: statecharts tame complexity by GROUPING states that share
+# their event handling, not by placing them more cleverly.
+#
+# So what may a picture honestly order? One thing, and it is a fact
+# about the graph rather than a taste:
+#
+#   INSIDE a set of mutually reachable states there is NO order. Closed
+#   to Open to Closed, all day, decided at runtime by events.
+#   BETWEEN such sets the order is REAL and IRREVERSIBLE. A demolished
+#   door is never closed again.
+#
+# A MODE is a strongly connected component. The picture ranks the MODES
+# -- their condensation is a DAG by construction -- and leaves the
+# states inside each mode unordered, inside a drawn REGION.
 #---------------------------------------------------------------------------
 
-chkeq("the state machine reads left to right",
-      StzLower("" + StzNotation("statemachine").RankDir()), "lefttoright")
-chkeq("...in the ortho grammar with everything it has learned",
-      StzLower("" + StzNotation("statemachine").Splines()), "ortho")
+chkeq("the state machine is read as MODES",
+      StzLower("" + StzNotation("statemachine").LayoutMode()), "modes")
 
-oLf = new stzWorkflow("door57")
-oLf.SetWorkflowType("statemachine")
-oLf.AddStateXTT("init", "", [ :isInitial = 1 ])
-oLf.AddStateXT("closed", "Closed")
-oLf.AddStateXT("open", "Open")
-oLf.AddStateXT("locked", "Locked")
-oLf.AddStateXTT("gone", "Demolished", [ :isFinal = 1 ])
-oLf.AddTransition("init", "closed", "")
-oLf.AddTransition("closed", "open", "open")
-oLf.AddTransition("open", "closed", "close")
-oLf.AddTransition("closed", "locked", "lock")
-oLf.AddTransition("locked", "closed", "unlock")
-oLf.AddTransition("locked", "locked", "lock")
-oLf.AddTransition("closed", "gone", "demolish")
-oLf.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
+oMd = new stzWorkflow("door57")
+oMd.SetWorkflowType("statemachine")
+oMd.AddStateXTT("init", "", [ :isInitial = 1 ])
+oMd.AddStateXT("closed", "Closed")
+oMd.AddStateXT("open", "Open")
+oMd.AddStateXT("locked", "Locked")
+oMd.AddStateXTT("gone", "Demolished", [ :isFinal = 1 ])
+oMd.AddTransition("init", "closed", "")
+oMd.AddTransition("closed", "open", "open")
+oMd.AddTransition("open", "closed", "close")
+oMd.AddTransition("closed", "locked", "lock")
+oMd.AddTransition("locked", "closed", "unlock")
+oMd.AddTransition("locked", "locked", "lock")
+oMd.AddTransition("closed", "gone", "demolish")
+oMd.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
 	:FontSize = 13 ])
 
-aLfR = oLf.RenderNodeRects()
-nLfInX = -1  nLfInY = -1  nLfGnX = -1  nLfGnY = -1
-nLfMaxX = 0  nLfMaxY = 0  nLfMinX = 1000000  nLfMinY = 1000000
-for rLf in aLfR
-	if rLf[5] = "init"  nLfInX = rLf[1]  nLfInY = rLf[2]  ok
-	if rLf[5] = "gone"  nLfGnX = rLf[1]  nLfGnY = rLf[2]  ok
-	if rLf[1] > nLfMaxX  nLfMaxX = rLf[1]  ok
-	if rLf[2] > nLfMaxY  nLfMaxY = rLf[2]  ok
-	if rLf[1] < nLfMinX  nLfMinX = rLf[1]  ok
-	if rLf[2] < nLfMinY  nLfMinY = rLf[2]  ok
-next
-chk("the FIRST thing sits at the start of the reading",
-    nLfInX = nLfMinX)
-chk("the VERY LAST thing sits at the bottom-right",
-    nLfGnX = nLfMaxX and nLfGnY = nLfMaxY)
-
-# STAGES ARE COLUMNS: init, then the hub, then its peers -- three
-# distinct x-columns, reading as the lifecycle's organic steps
-aLfCols = []
-for rLf in aLfR
-	_bLfSeen_ = 0
-	for cLf in aLfCols
-		if fabs(cLf - rLf[1]) < 2  _bLfSeen_ = 1  exit  ok
+# THE MODE IS DISCOVERED, not declared: the author never grouped these
+aMdC = oMd.Clusters()
+? "   regions discovered : " + len(aMdC)
+chkeq("the mutually reachable states form ONE region", len(aMdC), 1)
+nMdIn = 0
+for cMd in aMdC
+	for idMd in cMd[:nodes]
+		if StzLower("" + idMd) = "closed"  nMdIn++  ok
+		if StzLower("" + idMd) = "open"    nMdIn++  ok
+		if StzLower("" + idMd) = "locked"  nMdIn++  ok
 	next
-	if NOT _bLfSeen_  aLfCols + rLf[1]  ok
 next
-? "   columns : " + len(aLfCols)
-chkeq("the lifecycle's stages each take a COLUMN", len(aLfCols), 3)
+chkeq("...and it holds exactly the states you can move among", nMdIn, 3)
+chkeq("...and only those", len(aMdC[1][:nodes]), 3)
 
-# AND THE ELEGANCE IS THE LAYERED GRAMMAR'S, not a new dialect: the
-# space is the contract's (a maximum, never a stretch), and the pair
-# rails are the twins
-? "   canvas : " + oLf.LastCanvas().Width() + "x" + oLf.LastCanvas().Height()
-chk("the lifecycle picture is space-optimised",
-    oLf.LastCanvas().Width() < 700 and oLf.LastCanvas().Height() < 350)
-aLfD = []  aLfU = []
-for aLfP in oLf.RenderEdgePaths()
-	if aLfP[1] = "closed>open"  aLfD = aLfP[2]  ok
-	if aLfP[1] = "open>closed"  aLfU = aLfP[2]  ok
+# A SINGLE STATE IS NOT A REGION: init and gone are one-way doors, not
+# places the machine lives in
+nMdSolo = 0
+for cMd in aMdC
+	for idMd in cMd[:nodes]
+		if StzLower("" + idMd) = "init"  nMdSolo++  ok
+		if StzLower("" + idMd) = "gone"  nMdSolo++  ok
+	next
 next
-chk("the open/close pair rides the twin rails",
-    len(aLfD) >= 4 and len(aLfU) >= 4)
+chkeq("a state you cannot return to is not a region", nMdSolo, 0)
 
-# the loop publishes its path and its label stands off the loop's own
-# side -- follow the ink, never the assumption
-bLfLoop = 0
-for aLfP in oLf.RenderEdgePaths()
-	if aLfP[1] = "locked>locked" and len(aLfP[2]) >= 8  bLfLoop = 1  ok
+# NO ORDER INSIDE A MODE: the peers share a row, so the picture makes no
+# claim about which comes first -- that is the whole correction
+aMdR = oMd.RenderNodeRects()
+nMdY = -1  nMdSame = 0
+for rMd in aMdR
+	if rMd[5] = "closed"  nMdY = rMd[2]  ok
 next
-chk("a self-loop publishes its drawn path like any edge", bLfLoop)
+for rMd in aMdR
+	if rMd[5] = "open" or rMd[5] = "locked"
+		if fabs(rMd[2] - nMdY) < 2  nMdSame++  ok
+	ok
+next
+chkeq("states you move freely among are drawn as PEERS, unordered",
+      nMdSame, 2)
+
+# AND THE IRREVERSIBLE PASSAGE IS THE ONLY THING RANKED
+nMdInit = -1  nMdGone = -1
+for rMd in aMdR
+	if rMd[5] = "init"  nMdInit = rMd[2]  ok
+	if rMd[5] = "gone"  nMdGone = rMd[2]  ok
+next
+chk("what you enter from ranks BEFORE the mode", nMdInit < nMdY)
+chk("what you can never leave ranks AFTER it", nMdGone > nMdY)
+
+# THE NEGATIVE SIBLING, and it is the one that proves the model rather
+# than the picture: make the door repairable, and Demolished JOINS the
+# mode -- the region grows because the GRAPH changed, with no layout
+# knob touched anywhere
+oMd2 = new stzWorkflow("door57b")
+oMd2.SetWorkflowType("statemachine")
+oMd2.AddStateXT("closed", "Closed")
+oMd2.AddStateXT("open", "Open")
+oMd2.AddStateXT("broken", "Broken")
+oMd2.AddTransition("closed", "open", "open")
+oMd2.AddTransition("open", "closed", "close")
+oMd2.AddTransition("closed", "broken", "break")
+oMd2.AddTransition("broken", "closed", "repair")
+oMd2.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
+	:FontSize = 13 ])
+nMd2 = 0
+for cMd in oMd2.Clusters()
+	if len(cMd[:nodes]) > nMd2  nMd2 = len(cMd[:nodes])  ok
+next
+? "   with a repairable door, the mode holds : " + nMd2
+chkeq("a state that becomes reversible JOINS the mode", nMd2, 3)
+
+# ...and one that is truly terminal never does
+oMd3 = new stzWorkflow("door57c")
+oMd3.SetWorkflowType("statemachine")
+oMd3.AddStateXT("closed", "Closed")
+oMd3.AddStateXT("open", "Open")
+oMd3.AddStateXTT("gone", "Gone", [ :isFinal = 1 ])
+oMd3.AddTransition("closed", "open", "open")
+oMd3.AddTransition("open", "closed", "close")
+oMd3.AddTransition("closed", "gone", "demolish")
+oMd3.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
+	:FontSize = 13 ])
+nMd3 = 0
+for cMd in oMd3.Clusters()
+	if len(cMd[:nodes]) > nMd3  nMd3 = len(cMd[:nodes])  ok
+next
+chkeq("...while a terminal state stays outside it", nMd3, 2)
+
+# AN AUTHOR'S OWN GROUPING ALWAYS WINS: discovery fills a vacuum, it
+# never overrules a declaration
+oMd4 = new stzWorkflow("door57d")
+oMd4.SetWorkflowType("statemachine")
+oMd4.AddStateXT("a", "A")  oMd4.AddStateXT("b", "B")
+oMd4.AddTransition("a", "b", "go")
+oMd4.AddTransition("b", "a", "back")
+oMd4.AddCluster("mine", [ "a" ])
+oMd4.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+chkeq("a declared grouping is never overruled by discovery",
+      len(oMd4.Clusters()), 1)
+chkeq("...and it is the author's", "" + oMd4.Clusters()[1][:id], "mine")
 
 
 #---------------------------------------------------------------------------
