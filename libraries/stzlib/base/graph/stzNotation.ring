@@ -90,6 +90,7 @@ class stzNotation from stzObject
 	                      # state, :Outbound from a final one)
 	@cRankDir = ""        # "" = no amendment; the diagram's setting stands
 	@cSplines = ""
+	@cLayoutMode = ""     # "" = layered; :Ring for a domain with no flow
 
 	def init(pcName)
 		@cName = StzLower(ring_trim("" + pcName))
@@ -397,3 +398,17 @@ class stzNotation from stzObject
 
 	def Splines()
 		return @cSplines
+
+	# THE STRONGEST GRAMMAR AMENDMENT A DOMAIN CAN MAKE: which layout it
+	# is read in at all. Layered is right where the graph has a
+	# direction; a domain whose objects are PEERS -- a state machine's
+	# states, a network's nodes -- declares :Ring and is drawn in a
+	# space rather than in ranks. Graphviz makes the same split by
+	# shipping dot and circo as different programs; here it is one word
+	# in the profile.
+	def SetLayoutMode(pcMode)
+		@cLayoutMode = "" + pcMode
+		return This
+
+	def LayoutMode()
+		return @cLayoutMode

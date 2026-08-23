@@ -311,6 +311,7 @@ class stzDiagram from stzGraph
 	# the guard holds that as a live assertion.
 	@cNotation = "default"
 	@oNotation = NULL
+	@cNotationLayout = ""
 
 	# The cluster rectangles OF THE CURRENT RENDER, with their member ids:
 	# [ [ x, y, w, h, [ ids... ] ], ... ]. Render-scoped state, refilled by
@@ -500,6 +501,7 @@ class stzDiagram from stzGraph
 		_oN_ = This.NotationO()
 		if _oN_.RankDir() != ""  This.SetLayout(_oN_.RankDir())  ok
 		if _oN_.Splines() != ""  This.SetSplines(_oN_.Splines())  ok
+		@cNotationLayout = "" + _oN_.LayoutMode()
 		return This
 
 		def SetNotationQ(pNotation)
@@ -1685,8 +1687,27 @@ class stzDiagram from stzGraph
 		# Layout in a space inset by half a box, so a node on the border is not
 		# half off-canvas -- and TRANSPOSED afterwards for LR/RL/BT, because
 		# rankdir is a property of the picture, not of the graph.
+		_cLM_ = StzLower("" + This._DiagOpt(paOptions, "layoutmode", :Hierarchical))
+		# ...and the NOTATION may name it instead: a domain whose objects
+		# are peers is read in a ring, not in ranks (DN2b). An explicit
+		# :LayoutMode option still wins -- the caller is closer than the
+		# profile.
+		if @cNotationLayout != "" and NOT This._HasOpt(paOptions, "layoutmode")
+			_cLM_ = StzLower("" + @cNotationLayout)
+		ok
+		_bRing_ = (_cLM_ = "ring" or _cLM_ = "circular")
+
 		_mx_ = _nBoxW_ / 2 + 14 * _nScl_
 		_my_ = _nBoxH_ / 2 + 14 * _nScl_
+		# A RING IS INSET EQUALLY ON BOTH AXES. The inset is half a cell
+		# plus air, and a cell is wider than it is tall -- so a square
+		# canvas still handed the layout a 768x832 box, and the circle
+		# arrived as an ellipse with its "border" radii 32px apart. The
+		# ring's one hard requirement is a square inner box.
+		if _bRing_
+			_mx_ = max([ _mx_, _my_ ])
+			_my_ = _mx_
+		ok
 		_bSwap_ = 0
 		if _cRank_ = "LR" or _cRank_ = "RL"  _bSwap_ = 1  ok
 
@@ -1707,7 +1728,6 @@ class stzDiagram from stzGraph
 		# Separations arrive in dot's inches (96dpi), overridable in pixels
 		# via :NodeSep / :RankSep.
 		_aRoute_ = []
-		_cLM_ = StzLower("" + This._DiagOpt(paOptions, "layoutmode", :Hierarchical))
 
 		# A NAMED SIZE IS A MAXIMUM, NEVER A TARGET -- the plastic layout's
 		# space rule, marked by the Principal on the live editor: "at any
@@ -1732,6 +1752,8 @@ class stzDiagram from stzGraph
 		if _cLM_ = "hierarchical"
 			_bNat_ = 1
 		ok
+
+		if _bRing_  _bNat_ = 0  ok
 		_nSepN_ = This._DiagOpt(paOptions, "nodesep",
 			floor(This.NodeSeparation() * 96)) * _nScl_
 		_nSepR_ = This._DiagOpt(paOptions, "ranksep",
@@ -1756,6 +1778,7 @@ class stzDiagram from stzGraph
 		# grown once, for every label in the picture.
 		_bELab_ = 0
 		_nLabH_ = 0
+		_nLabW_ = 0
 		for _e0_ in This.Edges()
 			if StzTrim("" + _e0_[:label]) != ""
 				_bELab_ = 1
@@ -1763,6 +1786,7 @@ class stzDiagram from stzGraph
 					_blk0_ = This._LabelBlock("" + _e0_[:label], _oFont_,
 						_nFsz_, _nBoxW_)
 					if _blk0_[3] > _nLabH_  _nLabH_ = _blk0_[3]  ok
+					if _blk0_[2] > _nLabW_  _nLabW_ = _blk0_[2]  ok
 				ok
 			ok
 		next
@@ -1814,6 +1838,39 @@ class stzDiagram from stzGraph
 		if len(@aClusters) > 0
 			_nSepR_ = max([ _nSepR_,
 				This._ClusterChromeAbove(_nFsz_) + _nClr0_ * 2 + _nEdgeW_ * 2 ])
+		ok
+
+		# A RING SIZES ITSELF FROM ITS CIRCUMFERENCE, and stays SQUARE:
+		# _Normalise fits the layout's bounding box to the canvas, so a
+		# non-square canvas would deliver the circle as an ellipse. The
+		# radius is what makes adjacent cells clear each other -- the
+		# circumference must hold every cell plus its separation -- and
+		# the box adds a cell's width all round, for the outward
+		# self-loops and the labels that ride the chords.
+		if _bRing_ and NOT _bNamed_
+			_nRingN_ = max([ This.NumberOfNodes(), 3 ])
+			_nRingR_ = _nRingN_ * (_nBoxW_ + _nSepN_) / 6.283185307179586
+			# ...AND A CHORD MUST HOLD ITS EVENT. The shortest chord in a
+			# ring is the radius -- centre to border, where a hub's
+			# transitions run -- and BOTH members of an opposite pair
+			# write their event on it. A circumference-sized radius left
+			# 50px of visible line for two labels, so "open" and "close"
+			# lay across the cells they join. The radius therefore also
+			# clears both cells' halves plus two labels stacked with a
+			# clearance each: the same "the line must be longer than
+			# what is written on it" rule the rank gap already obeys,
+			# stated in the ring's own geometry.
+			if _nLabW_ > 0
+				_nRingR_ = max([ _nRingR_,
+					_nBoxW_ / 2 + _nBoxH_ / 2 +
+					(_nLabW_ + This._LineClearance() * 2) * 2 ])
+			ok
+			_nRingSide_ = ceil(_nRingR_ * 2 + _nBoxW_ * 2 + _nSepN_ * 2)
+			_nW_ = _nRingSide_
+			_nH_ = _nRingSide_
+			_bNamed_ = 1
+			_nReqW_ = _nW_
+			_nReqH_ = _nH_
 		ok
 
 		if _bNat_
@@ -2162,7 +2219,7 @@ class stzDiagram from stzGraph
 			ok
 
 			_oGC_ = new stzGraphCanvas(This, [
-				:Layout = This._DiagOpt(paOptions, "layoutmode", :Hierarchical),
+				:Layout = _cLM_,
 				:Width  = max([ _lw_, 60 ]),
 				:Height = max([ _lh_, 60 ]),
 				:Clusters = This._ClusterPairs(),
@@ -2174,6 +2231,9 @@ class stzDiagram from stzGraph
 				# all in the editor they were built for.
 				:Pins = This._PinVector()
 			])
+			# the crossing count is a render fact on EVERY path, not only
+			# the natural one -- a ring reaches the picture through here
+			@nRenderCrossings = _oGC_.LayoutCrossings()
 
 			_aXY_ = []
 			for _p_ in _oGC_.Positions()
@@ -2382,8 +2442,9 @@ class stzDiagram from stzGraph
 		# never wanders through foreign channels. The downward edge (the
 		# rank-forward one) is the CANONICAL path; its twin is derived.
 		_aTwinOf_ = []
-		for _ti_ = 1 to _nEc_  _aTwinOf_ + 0  next
-		if _cSpl_ = "ortho"
+		_aPairSide_ = []
+		for _ti_ = 1 to _nEc_  _aTwinOf_ + 0  _aPairSide_ + 0  next
+		if 1 = 1
 			for _ti_ = 1 to _nEc_
 				_cTf_ = StzLower("" + _aE_[_ti_][:from])
 				_cTt_ = StzLower("" + _aE_[_ti_][:to])
@@ -2397,10 +2458,23 @@ class stzDiagram from stzGraph
 						_aTa_ = This._XYOf(_aXY_, _cTf_)
 						_aTb_ = This._XYOf(_aXY_, _cTt_)
 						if len(_aTa_) = 2 and len(_aTb_) = 2
-							_nTfw_ = _aTb_[2] - _aTa_[2]
-							if _bSwap_  _nTfw_ = _aTb_[1] - _aTa_[1]  ok
-							if _nTfw_ < 0 or (_nTfw_ = 0 and _ti_ > _tj_)
-								_aTwinOf_[_ti_] = _tj_
+							# ON A RING there is no forward: both members
+							# are chords of equal standing, so each takes
+							# its own side of the line they share.
+							if _bRing_
+								_aPairSide_[_ti_] = iif(_ti_ < _tj_, 1, -1)
+							else
+								_nTfw_ = _aTb_[2] - _aTa_[2]
+								if _bSwap_  _nTfw_ = _aTb_[1] - _aTa_[1]  ok
+								if _nTfw_ < 0 or (_nTfw_ = 0 and _ti_ > _tj_)
+									if _cSpl_ = "ortho"
+										_aTwinOf_[_ti_] = _tj_
+									else
+										_aPairSide_[_ti_] = -1
+									ok
+								but _cSpl_ != "ortho"
+									_aPairSide_[_ti_] = 1
+								ok
 							ok
 						ok
 					ok
@@ -2445,8 +2519,17 @@ class stzDiagram from stzGraph
 
 			if StzLower("" + _aE_[_ei_][:from]) = StzLower("" + _aE_[_ei_][:to])
 				if @nDrawPass = 2
+					# ON A RING a self-loop radiates OUTWARD, away from
+					# the space -- inward it would cross the very chords
+					# it sits among. The rank direction handed to the
+					# loop drawer is what chooses its side, so the
+					# outward quadrant is named in those terms.
+					_cLoopDir_ = _cRank_
+					if _bRing_
+						_cLoopDir_ = This._RingOutward(_a_, _nW_, _nH_)
+					ok
 					This._DrawSelfLoop(_oC_, _a_, _nBoxW_, _nBoxH_, _cEdge_,
-						_nEdgeW_, _cRank_, _cSpl_)
+						_nEdgeW_, _cLoopDir_, _cSpl_)
 				ok
 				loop
 			ok
@@ -2463,6 +2546,45 @@ class stzDiagram from stzGraph
 			# the exit point sat off the node entirely, which is the
 			# "edges leaving from nowhere" in a wide fan-out. _PortPoint
 			# puts it on the real boundary, on the side the rank runs.
+			# A PAIR SEPARATES ON A CHORD TOO. Under ortho the return is
+			# its partner's path offset a clearance (the twin block
+			# below); a straight chord has no path to mirror, so both
+			# members simply step half a clearance to their own side of
+			# the line they share -- symmetric rails, which is how every
+			# statechart draws a two-way transition.
+			if _aPairSide_[_ei_] != 0
+				# the coordinates are read into NUMBERS before any method
+				# call: a Ring helper's locals can reach back into this
+				# scope, and rebuilding _a_ from itself after calling one
+				# is exactly where that bites
+				_pax_ = _a_[1]  _pay_ = _a_[2]
+				_pbx_ = _b_[1]  _pby_ = _b_[2]
+				# THE PERPENDICULAR IS TAKEN FROM A CANONICAL DIRECTION,
+				# never from the edge's own: the two members of a pair
+				# run opposite ways, so a perpendicular computed per
+				# edge flips with it and both members step the SAME way
+				# -- they overlapped instead of separating, which is
+				# what the crossed rails in the first ring were. The
+				# member the pair named FIRST defines the direction for
+				# both, so the two sides are genuinely opposite sides of
+				# one line.
+				_pdx_ = _pbx_ - _pax_
+				_pdy_ = _pby_ - _pay_
+				if _aPairSide_[_ei_] < 0
+					_pdx_ = 0 - _pdx_
+					_pdy_ = 0 - _pdy_
+				ok
+				_pln_ = sqrt(_pdx_*_pdx_ + _pdy_*_pdy_)
+				_pclr_ = This._LineClearance()
+				if _pln_ > 0.001
+					_poff_ = _pclr_ * _aPairSide_[_ei_]
+					_pox_ = 0 - _pdy_ / _pln_ * _poff_
+					_poy_ = _pdx_ / _pln_ * _poff_
+					_a_ = [ _pax_ + _pox_, _pay_ + _poy_ ]
+					_b_ = [ _pbx_ + _pox_, _pby_ + _poy_ ]
+				ok
+			ok
+
 			_aBend_ = This._RouteOf(_aRoute_, "" + _aE_[_ei_][:from],
 				"" + _aE_[_ei_][:to])
 			if len(_aBend_) > 0
@@ -3797,6 +3919,21 @@ class stzDiagram from stzGraph
 	# off the RIGHT for a top-down picture, off the TOP when the ranks run
 	# left-to-right, so it never points back along the rank axis and gets
 	# confused with an ordinary edge.
+	# Which way is OUT of the ring from this cell: the loop drawer places
+	# a loop on the TOP for a top-down picture and on the RIGHT for a
+	# left-to-right one, so naming the outward quadrant in rank terms is
+	# how a ring asks for an outward loop without the drawer learning
+	# what a ring is.
+	def _RingOutward(aAt, nW, nH)
+		_dx_ = aAt[1] - nW / 2
+		_dy_ = aAt[2] - nH / 2
+		if fabs(_dx_) >= fabs(_dy_)
+			if _dx_ >= 0  return "TB"  ok      # right cell -> right loop
+			return "RINGLEFT"
+		ok
+		if _dy_ >= 0  return "RINGDOWN"  ok    # bottom cell -> down loop
+		return "LR"                            # top cell -> top loop
+
 	def _DrawSelfLoop(oC, aAt, nBoxW, nBoxH, cColor, nWidth, cRank, cSpline)
 		_R_ = This._SelfLoopReach(nBoxW, nBoxH)
 
@@ -3807,7 +3944,30 @@ class stzDiagram from stzGraph
 		# a mistake rather than a style. A rectangular loop is three
 		# segments out of the same side the curve leaves from.
 		if cSpline = "ortho"
-			if cRank = "LR" or cRank = "RL"
+			if cRank = "RINGDOWN"
+				# A RING'S SELF-LOOP RADIATES AWAY FROM THE SPACE. The
+				# two rank-derived sides -- top and right -- cover a
+				# top or right cell; a cell at the bottom or on the
+				# left needs the other two, or its loop is drawn INTO
+				# the ring, across the very chords it sits among.
+				_od_ = nBoxW * 0.22
+				_oy_ = aAt[2] + nBoxH / 2
+				_pts_ = [ aAt[1] + _od_, _oy_,
+				          aAt[1] + _od_, _oy_ + _R_,
+				          aAt[1] - _od_, _oy_ + _R_,
+				          aAt[1] - _od_, _oy_ ]
+				_oend_ = [ aAt[1] - _od_, _oy_ ]
+				_oprev_ = [ aAt[1] - _od_, _oy_ + _R_ ]
+			but cRank = "RINGLEFT"
+				_od_ = nBoxH * 0.22
+				_ox_ = aAt[1] - nBoxW / 2
+				_pts_ = [ _ox_, aAt[2] - _od_,
+				          _ox_ - _R_, aAt[2] - _od_,
+				          _ox_ - _R_, aAt[2] + _od_,
+				          _ox_, aAt[2] + _od_ ]
+				_oend_ = [ _ox_, aAt[2] + _od_ ]
+				_oprev_ = [ _ox_ - _R_, aAt[2] + _od_ ]
+			but cRank = "LR" or cRank = "RL"
 				_od_ = nBoxW * 0.22
 				_oy_ = aAt[2] - nBoxH / 2
 				_pts_ = [ aAt[1] - _od_, _oy_,
@@ -3860,7 +4020,21 @@ class stzDiagram from stzGraph
 			return
 		ok
 
-		if cRank = "LR" or cRank = "RL"
+		if cRank = "RINGDOWN"
+			# a ring cell at the BOTTOM loops downward, away from the space
+			_d_ = nBoxW * 0.22
+			_p0_ = [ aAt[1] + _d_, aAt[2] + nBoxH / 2 ]
+			_c1_ = [ aAt[1] + _d_ + _R_ * 0.4, aAt[2] + nBoxH / 2 + _R_ ]
+			_c2_ = [ aAt[1] - _d_ - _R_ * 0.4, aAt[2] + nBoxH / 2 + _R_ ]
+			_p3_ = [ aAt[1] - _d_, aAt[2] + nBoxH / 2 ]
+		but cRank = "RINGLEFT"
+			# ...and one on the LEFT loops leftward, for the same reason
+			_d_ = nBoxH * 0.22
+			_p0_ = [ aAt[1] - nBoxW / 2, aAt[2] - _d_ ]
+			_c1_ = [ aAt[1] - nBoxW / 2 - _R_, aAt[2] - _d_ - _R_ * 0.4 ]
+			_c2_ = [ aAt[1] - nBoxW / 2 - _R_, aAt[2] + _d_ + _R_ * 0.4 ]
+			_p3_ = [ aAt[1] - nBoxW / 2, aAt[2] + _d_ ]
+		but cRank = "LR" or cRank = "RL"
 			# leaves and re-enters the TOP edge
 			_d_ = nBoxW * 0.22
 			_p0_ = [ aAt[1] - _d_, aAt[2] - nBoxH / 2 ]
@@ -5834,6 +6008,10 @@ class stzDiagram from stzGraph
 		oC.Flush()
 		oC.AddPolylineQ(_dg_[1]).Stroke(cColor, nWidth)
 		This._DrawArrowHead(oC, _dg_[2], _dg_[3], cColor)
+		# THE DRAWN GEOMETRY, PUBLISHED -- this is where a straight edge
+		# is actually drawn (the delegation below serves the ortho trunk
+		# alone), so it is where the path has to be recorded
+		This._PublishPath(cFromId, cToId, _dg_[1])
 
 	def _DrawEdge(oC, aFrom, aTo, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nLane, nPortA, nPortB, cFromId, cToId, pSideDep)
 		_p_ = This._ClipToBox(aFrom, aTo, nBoxW, nBoxH)
@@ -5898,17 +6076,33 @@ class stzDiagram from stzGraph
 		on "line"
 			oC.Flush()
 			oC.AddLineQ(_p_[1], _p_[2], _q_[1], _q_[2]).Stroke(cColor, nWidth)
+			This._PublishPath(cFromId, cToId, [ _p_[1], _p_[2], _q_[1], _q_[2] ])
 		on "polyline"
 			oC.Flush()
 			oC.AddLineQ(_p_[1], _p_[2], _q_[1], _q_[2]).Stroke(cColor, nWidth)
+			This._PublishPath(cFromId, cToId, [ _p_[1], _p_[2], _q_[1], _q_[2] ])
 		other
 			oC.Flush()
-			oC.AddPolylineQ(This._CurvePoints(_p_, _q_, cRank)).Stroke(cColor, nWidth)
+			_cvp_ = This._CurvePoints(_p_, _q_, cRank)
+			oC.AddPolylineQ(_cvp_).Stroke(cColor, nWidth)
+			This._PublishPath(cFromId, cToId, _cvp_)
 		off
 
 		if @nDrawPass = 2
 			This._DrawArrow(oC, _p_, _q_, cColor, nWidth, cSpline, cRank)
 		ok
+
+	# THE DRAWN GEOMETRY, PUBLISHED. Ortho edges have recorded their path
+	# since the label placer needed one; straight chords and curves never
+	# did, so under a non-ortho spline every instrument -- and the label
+	# placer itself -- fell back to guessing. A ring is drawn in straight
+	# chords, so the ring made the omission matter.
+	def _PublishPath(cFromId, cToId, paFlat)
+		_ppK_ = StzLower("" + cFromId + ">" + cToId)
+		for _ppR_ in @aEdgePaths
+			if StzLower("" + _ppR_[1]) = _ppK_  return  ok
+		next
+		@aEdgePaths + [ _ppK_, paFlat ]
 
 	# A quadratic bend, sampled. The control point leans along the RANK axis,
 	# which is what makes dot's splines read as flowing down the hierarchy

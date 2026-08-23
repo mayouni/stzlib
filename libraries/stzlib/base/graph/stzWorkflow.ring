@@ -27,6 +27,13 @@ func StzStateMachineNotation()
 	_o_ = StzNotation("statemachine")
 	if _o_.Name_() = "statemachine"  return _o_  ok
 	_o_ = new stzNotation("statemachine")
+	# A STATE MACHINE IS NOT A TREE -- the Principal's ruling, and the
+	# domain declares it in one line. States are peers in a SPACE, drawn
+	# around its border with the hubs inside; events are the chords
+	# between them. Straight chords, because a ring has no ranks for an
+	# orthogonal staircase to step through.
+	_o_.SetLayoutMode(:Ring)
+	_o_.SetSplines(:line)
 	_o_.AddKind("state", "box")
 	_o_.AddKind("initial", "circle")
 	_o_.AddKind("start", "circle")
