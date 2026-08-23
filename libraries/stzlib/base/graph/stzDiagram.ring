@@ -352,6 +352,9 @@ class stzDiagram from stzGraph
 	# label. The SVG backend emits no text, so the placement facts are
 	# the only instrument a guard can put on the label law.
 	@aRenderLabels = []
+	# node labels of the current render: [ id, x, y, w, h, bOutside ] --
+	# bOutside says the label sits BELOW its glyph (non-rectangular cells)
+	@aRenderNodeLabels = []
 
 	# THE INTERACTION'S STATE, and only its state: idle, dragging,
 	# linking or labelling, plus what the gesture is about and what to
@@ -1977,6 +1980,20 @@ class stzDiagram from stzGraph
 					exit
 				ok
 			next
+			# ...and a non-rectangular cell's label lives BELOW its glyph,
+			# which is content too: a final state on the bottom rank would
+			# otherwise have its name clipped by a canvas sized to boxes
+			_bOutLb_ = 0
+			if isObject(_oFont_)
+				for _n0_ in This.Nodes()
+					_cSh0_ = StzLower("" + This._NativeShapeOf(_n0_))
+					for _cO0_ in [ "circle", "doublecircle", "dot",
+						"diamond", "triangle", "invtriangle" ]
+						if _cSh0_ = _cO0_  _bOutLb_ = 1  _bChrome_ = 1  exit  ok
+					next
+					if _bOutLb_  exit  ok
+				next
+			ok
 			if _bChrome_
 				_ex0_ = 0  _ey0_ = 0  _ex1_ = _nW_  _ey1_ = _nH_
 
@@ -2011,6 +2028,23 @@ class stzDiagram from stzGraph
 						ok
 					ok
 				next
+
+				if _bOutLb_
+					for _n0_ in This.Nodes()
+						_cSh0_ = StzLower("" + This._NativeShapeOf(_n0_))
+						_bO0_ = 0
+						for _cO0_ in [ "circle", "doublecircle", "dot",
+							"diamond", "triangle", "invtriangle" ]
+							if _cSh0_ = _cO0_  _bO0_ = 1  exit  ok
+						next
+						if NOT _bO0_  loop  ok
+						_at0_ = This._XYOf(_aXY_, "" + _n0_[:id])
+						if len(_at0_) != 2  loop  ok
+						if _at0_[2] + _nBoxH_ / 2 + _nFsz_ * 2 > _ey1_
+							_ey1_ = _at0_[2] + _nBoxH_ / 2 + _nFsz_ * 2
+						ok
+					next
+				ok
 
 				for _cl_ in @aClusters
 					_cb_ = This._ClusterBox(_cl_, _aXY_, _nBoxW_, _nBoxH_)
@@ -2241,6 +2275,7 @@ class stzDiagram from stzGraph
 		@aChanUsed = []
 		@aRenderNodeRects = []
 		@aRenderLabels = []
+		@aRenderNodeLabels = []
 		@aRenderPicks = []
 		# THE MAP BACK, fitted in the coordinates actually DRAWN. Pins
 		# live in the layout's space and a cursor lives in pixels, so a
@@ -2526,19 +2561,21 @@ class stzDiagram from stzGraph
 							ok
 						ok
 					next
-					# ON THE LINE, ALWAYS -- the Principal's rule, and the
-					# layout is what makes it keepable: the rank gap is
-					# grown to carry the tallest wrapped label, so every
-					# drop can hold its own. Beside-placement survives
-					# only as the last resort for an edge whose every
-					# segment is too short to carry a label, where the
-					# alternative is not a better position but a label
-					# lying across its own line.
+					# ON THE LINE where the line can hold it -- and NEVER at
+					# the price of another line's meaning. The Principal's
+					# second ruling, from the state machine's "unlock": the
+					# best ON spot sat beside two foreign drops, and a label
+					# that stands against ink it does not name has CACHED the
+					# meaning of a connection -- the reader cannot tell which
+					# line is being spoken about. So a spot within the
+					# clearance of FOREIGN ink is not a candidate that scored
+					# poorly; it is not an answer at all. BESIDE spots are in
+					# the same race now, after the ON spots, and only when NO
+					# spot anywhere clears the bar does the least-bad one win
+					# -- a crowded picture still labels every edge.
 					_aCand_ = []
 					for _cOn_ in _aOn_   _aCand_ + _cOn_   next
-					if len(_aOn_) = 0
-						for _cBe_ in _aBes_  _aCand_ + _cBe_   next
-					ok
+					for _cBe_ in _aBes_  _aCand_ + _cBe_   next
 					_nBestD_ = -1
 					_nBestX_ = _lx_
 					_nBestY_ = _ly_
@@ -2662,8 +2699,45 @@ class stzDiagram from stzGraph
 				_oC_.SetPickTag(_i_)
 				_cLb_ = "" + _aNodes_[_i_][:label]
 				if _cLb_ = ""  _cLb_ = _cId_  ok
+
+				# A CELL THAT IS NOT A RECTANGLE WRITES ITS LABEL OUTSIDE
+				# -- the Principal's ruling on the state machine's final
+				# state, whose name was crammed inside its doublecircle.
+				# The criterion behind the list: these are the glyphs
+				# whose inscribed text rectangle is under about half the
+				# node box, so text inside them is squeezed, clipped, or
+				# laid over their geometry. The label sits BELOW, centred,
+				# in the outline's ink on a plate of paper -- the same
+				# legibility mechanism edge labels use -- and it still
+				# answers as its node to a pick.
+				_cShp2_ = StzLower("" + This._NativeShapeOf(_aNodes_[_i_]))
+				_bOut_ = 0
+				for _cOsh_ in [ "circle", "doublecircle", "dot", "diamond",
+					"triangle", "invtriangle" ]
+					if _cShp2_ = _cOsh_  _bOut_ = 1  exit  ok
+				next
+				if _bOut_
+					_cLb_ = This._FitLabel(_cLb_, _oFont_, _nFsz_,
+						_nBoxW_ + 24)
+					_nTw_ = _oFont_.WidthOf(_cLb_, _nFsz_)
+					_nLbY_ = _a_[2] + _nBoxH_ / 2 + _nFsz_ * 1.15
+					_oC_.Flush()
+					_oC_.FillQ(_cBg_).StrokeQ(_cBg_, 1).
+						AddRect(_a_[1] - _nTw_ / 2 - 3,
+							_nLbY_ - _nFsz_ * 0.75,
+							_nTw_ + 6, _nFsz_ * 1.5)
+					_oC_.Flush()
+					_oC_.AddTextQ(_cLb_, _a_[1] - _nTw_ / 2,
+						_nLbY_ + _nFsz_ / 3).
+						SetFontQ(_oFont_, _nFsz_).Color(_cStroke_)
+					@aRenderNodeLabels + [ _cId_, _a_[1], _nLbY_, _nTw_,
+						_nFsz_ * 1.5, 1 ]
+					loop
+				ok
 				_cLb_ = This._FitLabel(_cLb_, _oFont_, _nFsz_, _nBoxW_ - 18)
 				_nTw_ = _oFont_.WidthOf(_cLb_, _nFsz_)
+				@aRenderNodeLabels + [ _cId_, _a_[1], _a_[2], _nTw_,
+					_nFsz_ * 1.5, 0 ]
 				_oC_.Flush()
 				# THE SIZE DECIDES THE INK, and whether the ink needs
 				# weight. White is the right colour on a saturated fill --
@@ -3731,6 +3805,9 @@ class stzDiagram from stzGraph
 
 	def RenderEdgePaths()
 		return @aEdgePaths
+
+	def RenderNodeLabels()
+		return @aRenderNodeLabels
 
 	def RenderLabels()
 		return @aRenderLabels
