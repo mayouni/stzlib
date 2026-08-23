@@ -4781,6 +4781,119 @@ chkeq(":Depth still refuses a cycle -- the orientation is layout-private",
       bSm53, 1)
 
 
+sec("-- 54. A label NAMES a connection; it may not CACHE one -------")
+#
+# Two rulings from the state machine's first picture. "unlock" stood
+# against two foreign drops -- a label beside ink it does not name has
+# cached that ink's meaning, because the reader cannot tell which line
+# is being spoken about. And "Demolished" was crammed inside its own
+# doublecircle -- a cell that is not a rectangle has no room for words,
+# so its label belongs OUTSIDE, below the glyph.
+#
+# The placer's law now: a spot within the clearance of foreign ink is
+# not a candidate that scored poorly, it is not an answer at all --
+# BESIDE spots race the ON spots, and only when nothing anywhere clears
+# the bar does the least-bad spot win, so a crowded picture still
+# labels every edge. The FLOOR this section holds is absolute: no
+# plate may TOUCH foreign ink, ever.
+#---------------------------------------------------------------------------
+
+oLc = new stzWorkflow("door54")
+oLc.SetWorkflowType("statemachine")
+oLc.AddStateXTT("init", "", [ :isInitial = 1 ])
+oLc.AddStateXT("closed", "Closed")
+oLc.AddStateXT("open", "Open")
+oLc.AddStateXT("locked", "Locked")
+oLc.AddStateXTT("gone", "Demolished", [ :isFinal = 1 ])
+oLc.AddTransition("init", "closed", "")
+oLc.AddTransition("closed", "open", "open")
+oLc.AddTransition("open", "closed", "close")
+oLc.AddTransition("closed", "locked", "lock")
+oLc.AddTransition("locked", "closed", "unlock")
+oLc.AddTransition("locked", "locked", "lock")
+oLc.AddTransition("closed", "gone", "demolish")
+oLc.SetSplines("ortho")
+oLc.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
+	:FontSize = 13 ])
+
+nLcClr = oLc._LineClearance()
+nLcTouch = 0
+nLcUnlock = -1
+for aLcL in oLc.RenderLabels()
+	_nLcMin_ = 1000000
+	for aLcP in oLc.RenderEdgePaths()
+		if aLcP[1] = aLcL[6]  loop  ok
+		_fLc_ = aLcP[2]
+		for iLc = 1 to len(_fLc_) - 3 step 2
+			_ax_ = min([ _fLc_[iLc], _fLc_[iLc+2] ])
+			_bx_ = max([ _fLc_[iLc], _fLc_[iLc+2] ])
+			_ay_ = min([ _fLc_[iLc+1], _fLc_[iLc+3] ])
+			_by_ = max([ _fLc_[iLc+1], _fLc_[iLc+3] ])
+			_dx_ = 0
+			if _bx_ < aLcL[2] - aLcL[4]/2  _dx_ = aLcL[2] - aLcL[4]/2 - _bx_  ok
+			if _ax_ > aLcL[2] + aLcL[4]/2  _dx_ = _ax_ - (aLcL[2] + aLcL[4]/2)  ok
+			_dy_ = 0
+			if _by_ < aLcL[3] - aLcL[5]/2  _dy_ = aLcL[3] - aLcL[5]/2 - _by_  ok
+			if _ay_ > aLcL[3] + aLcL[5]/2  _dy_ = _ay_ - (aLcL[3] + aLcL[5]/2)  ok
+			_dLc_ = sqrt(_dx_*_dx_ + _dy_*_dy_)
+			if _dLc_ < _nLcMin_  _nLcMin_ = _dLc_  ok
+		next
+	next
+	if _nLcMin_ < 2  nLcTouch++  ok
+	if aLcL[1] = "unlock"  nLcUnlock = _nLcMin_  ok
+next
+? "   label plates touching foreign ink : " + nLcTouch
+chkeq("no label plate TOUCHES ink it does not name", nLcTouch, 0)
+? "   'unlock', the marked label, stands " + nLcUnlock + "px clear"
+chk("...and the marked label clears the placer's own bar",
+    nLcUnlock >= nLcClr * 0.6)
+
+# THE OUTSIDE RULE: non-rectangular glyphs write their name below
+nLcOut = 0
+nLcIn = 0
+nLcBad = 0
+for aLcN in oLc.RenderNodeLabels()
+	if aLcN[6] = 1
+		nLcOut++
+		# below means BELOW: the plate's top at or under the glyph's
+		# bottom, for the two circle-family cells
+		for aLcR in oLc.RenderNodeRects()
+			if aLcR[5] != aLcN[1]  loop  ok
+			if aLcN[3] - aLcN[5]/2 < aLcR[2] + aLcR[4] - 2  nLcBad++  ok
+		next
+	else
+		nLcIn++
+	ok
+next
+? "   outside labels : " + nLcOut + " , inside : " + nLcIn
+chkeq("the two circle-family cells write their names OUTSIDE", nLcOut, 2)
+chkeq("...strictly below the glyph", nLcBad, 0)
+chkeq("...while every rectangle keeps its name inside", nLcIn, 3)
+
+# the paper was BOUGHT for the bottom label, not borrowed
+nLcH = oLc.LastCanvas().Height()
+nLcLow = 0
+for aLcN in oLc.RenderNodeLabels()
+	if aLcN[3] + aLcN[5]/2 > nLcLow  nLcLow = aLcN[3] + aLcN[5]/2  ok
+next
+? "   lowest label bottom " + nLcLow + " in a " + nLcH + "px canvas"
+chk("an outside label on the bottom rank is inside the picture",
+    nLcLow <= nLcH)
+
+# the negative sibling: a rectangles-only picture has no outside labels
+oLc2 = new stzDiagram("boxes54")
+oLc2.AddNodeXTT("a", "Alpha", [ :type = "box" ])
+oLc2.AddNodeXTT("b", "Beta", [ :type = "box" ])
+oLc2.AddEdge("a", "b")
+oLc2.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 96, :NodeHeight = 36,
+	:FontSize = 13 ])
+nLc2 = 0
+for aLcN in oLc2.RenderNodeLabels()
+	if aLcN[6] = 1  nLc2++  ok
+next
+chkeq("a rectangles-only picture writes nothing outside", nLc2, 0)
+
+
 #---------------------------------------------------------------------------
 ? ""
 if nSecClock > 0
