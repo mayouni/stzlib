@@ -37,6 +37,57 @@ func IsStzOrgChart(pObj)
 	ok
 	return 0
 
+# THE ORG CHART'S NOTATION -- DN1, the first real domain profile.
+#
+# The profile lives HERE, beside the model it speaks for, and registers
+# itself the first time an org chart is born (file-top code after a class
+# region never runs, so registration cannot be a load-time side effect).
+#
+# What the domain declares:
+#   VOCABULARY  the levels the Add* constructors already write, every
+#               one a box -- an org chart's differences are colour and
+#               rank, never shape. OPEN, because positions carry :level
+#               rather than :type and a chart may hold plain nodes too.
+#   RULES       the tree grammar as refusals that teach. One supervisor
+#               per position (:SecondParent), reporting lines flow one
+#               way (:Cycle), and nobody reports to themselves
+#               (:SelfLink). These are the STRUCTURAL floor; the
+#               governance rule bases (separation-of-duties, vacancy,
+#               succession) stay where they are -- they judge content,
+#               not shape, and CheckCompliance already owns them.
+#   GRAMMAR     none: top-down rank-is-hierarchy is already the
+#               diagram's default reading.
+#
+# The editor inherits the floor at the gesture: dragging a reporting
+# line onto a position that has a supervisor is refused before the
+# model hears about it, with no editor code knowing what an org is.
+func StzOrgChartNotation()
+	_o_ = StzNotation("orgchart")
+	if _o_.Name_() = "orgchart"  return _o_  ok
+	_o_ = new stzNotation("orgchart")
+	_o_.AddKind("position", "box")
+	_o_.AddKind("executive", "box")
+	_o_.AddKind("management", "box")
+	_o_.AddKind("staff", "box")
+	_o_.Forbid(:SelfLink,
+		"a position cannot report to itself. If the intent is that it " +
+		"reports to nobody, leave it unconnected: roots are how boards " +
+		"are drawn.")
+	_o_.Forbid(:SecondParent,
+		"a position reports to ONE supervisor. For dotted-line or " +
+		"matrix reporting, model the second relation as its own edge " +
+		"kind when DN grows one -- a second solid line states a second " +
+		"boss, and the chart would be asserting it.")
+	_o_.Forbid(:Cycle,
+		"reporting lines flow one way. This link would make a position " +
+		"an indirect supervisor of its own supervisor, and the chart " +
+		"would have no top.")
+	StzRegisterNotation(_o_)
+	return _o_
+
+	func OrgChartNotation()
+		return StzOrgChartNotation()
+
 class stzOrgChart from stzDiagram
 
 	@aPositions = []
@@ -56,6 +107,11 @@ class stzOrgChart from stzDiagram
 
 	        # Auto-apply orgchart preset
 	        This.SetLayoutPreset("orgchart")
+
+		# born under its own notation (DN1): the tree grammar's rules
+		# reach Validate() and the editor's gestures from the first
+		# moment, not after somebody remembers to ask
+		This.SetNotation(StzOrgChartNotation())
 
 	#==========================#
 	#  POSITION MANAGEMENT     #

@@ -511,7 +511,12 @@ class stzDiagram from stzGraph
 
 	# The model swept against its notation's rules, in the house rule
 	# shape -- ready for stzRuleReport.Ingest(), which is the one CI gate.
-	def Validate()
+	#
+	# NOT Validate(): stzOrgChart already owns Validate() for its
+	# governance rule bases, and a name that answers structure on one
+	# class and content on its child is two faces disagreeing. The
+	# notation's sweep is named for what it sweeps.
+	def NotationFindings()
 		return This.NotationO().Check(This)
 
 	# A LAYOUT NAME THIS DOES NOT KNOW IS REFUSED, not stored. It used to
@@ -4174,7 +4179,7 @@ class stzDiagram from stzGraph
 			# THE NOTATION'S RULES ARE THE EDITOR'S REFUSALS (DN0): a
 			# link the domain forbids is refused at the gesture, with no
 			# editor code knowing any domain.
-			if NOT This.NotationO().MayLink("" + paArgs[1], "" + paArgs[2])
+			if NOT This.NotationO().MayLink(This, "" + paArgs[1], "" + paArgs[2])
 				return []
 			ok
 			This.AddEdge("" + paArgs[1], "" + paArgs[2])
@@ -4216,10 +4221,17 @@ class stzDiagram from stzGraph
 				return []
 			ok
 			if This.EdgeExists(_aeF2_, _aeT2_)  return []  ok
-			# the same notation gate as Link: a rewire lands on a pair
-			# the domain must also be willing to hold
-			if NOT This.NotationO().MayLink(_aeF2_, _aeT2_)  return []  ok
+			# the same notation gate as Link -- asked of the graph WITHOUT
+			# the edge being re-aimed, or a from-end rewire under a
+			# one-parent rule would refuse itself: the old edge into the
+			# same target is the one being replaced, and counting it makes
+			# every target look already-parented. Remove, ask, and put it
+			# back on refusal, so a refused rewire still changes nothing.
 			This.RemoveThisEdge(_aeF_, _aeT_)
+			if NOT This.NotationO().MayLink(This, _aeF2_, _aeT2_)
+				This.AddEdge(_aeF_, _aeT_)
+				return []
+			ok
 			This.AddEdge(_aeF2_, _aeT2_)
 			return [ :rewire, [ _aeF2_, _aeT2_, _aeEnd_, _aeBack_ ] ]
 

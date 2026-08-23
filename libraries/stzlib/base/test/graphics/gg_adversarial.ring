@@ -4546,7 +4546,7 @@ oDm.AddNodeXTT("a", "A", [ :type = "state" ])
 oDm.AddNodeXTT("b", "B", [ :type = "task" ])
 oDm.AddNodeXTT("c", "C", [ :type = "process" ])   # NOT in the vocabulary
 oDm.AddEdge("a", "b")
-aDnF = oDm.Validate()
+aDnF = oDm.NotationFindings()
 ? "   findings on the fsm51 model : " + len(aDnF)
 nDnUk = 0
 for aDnR in aDnF
@@ -4598,6 +4598,91 @@ oDz.SetNotation("lr51")
 # under test is that the amendment ARRIVED, not how it is spelt
 chkeq("a notation may amend the grammar it is read in",
       StzLower("" + oDz._NativeRankDir()), "lr")
+
+
+sec("-- 52. DN1: the org chart is the first real DOMAIN ------------")
+#
+# DN1's claim: a MODEL projects. stzOrgChart -- positions, levels,
+# ReportsTo -- is born under its own notation, drawn by the same plastic
+# layout as everything else, and its tree grammar reaches the editor as
+# refusals with no editor code knowing what an org is.
+#
+# The structural floor lives in the notation (:SelfLink, :SecondParent,
+# :Cycle); the governance rule bases (separation of duties, vacancy,
+# succession) stay where they were -- they judge CONTENT, and Validate()
+# was already their name, which is why the notation sweep is called
+# NotationFindings(): a name that answers structure on the parent and
+# content on the child would be two faces disagreeing.
+#---------------------------------------------------------------------------
+
+oOg = new stzOrgChart("acme52")
+chkeq("an org chart is born under its own notation", oOg.Notation(), "orgchart")
+
+oOg.AddExecutiveXT("ceo", "CEO")
+oOg.AddManagerXT("cto", "CTO")
+oOg.AddManagerXT("cfo", "CFO")
+oOg.AddStaffXT("dev1", "Dev One")
+oOg.AddStaffXT("acc1", "Accountant")
+oOg.ReportsTo("cto", "ceo")
+oOg.ReportsTo("cfo", "ceo")
+oOg.ReportsTo("dev1", "cto")
+oOg.ReportsTo("acc1", "cfo")
+chkeq("a lawful chart has no structural findings",
+      len(oOg.NotationFindings()), 0)
+
+# the model can be damaged behind the notation's back; the sweep says so
+oOg.Connect("cfo", "dev1")
+aOg = oOg.NotationFindings()
+nOg2 = 0
+for aOgR in aOg
+	if aOgR[:rule] = "notation-second-parent" and aOgR[:subject] = "dev1"
+		nOg2++
+	ok
+next
+chkeq("a second supervisor is ONE finding, on the position", nOg2, 1)
+chkeq("...and the node is named once, not once per edge", len(aOg), 1)
+oOg.RemoveThisEdge("cfo", "dev1")
+
+# THE TREE GRAMMAR AT THE GESTURE, through the same Edit gate as any
+# diagram -- the editor knows nothing of supervisors
+oOg.SetSplines("ortho")
+oOg.ToCanvasXT([ :NodeWidth = 110, :NodeHeight = 40 ])
+nOgLog = len(oOg.EditLog())
+chk("a link onto a supervised position is refused at the gesture",
+    oOg.Edit(:Link, [ "cfo", "dev1" ]) = 0 and len(oOg.EditLog()) = nOgLog)
+chk("a link that would close a reporting cycle is refused",
+    oOg.Edit(:Link, [ "dev1", "ceo" ]) = 0 and len(oOg.EditLog()) = nOgLog)
+oOg.AddStaffXT("intern", "Intern")
+chk("...while supervising the unsupervised passes the same gate",
+    oOg.Edit(:Link, [ "cto", "intern" ]) = 1)
+oOg.Undo()
+
+# AND THE GOVERNANCE FACE IS UNTOUCHED: Validate() still answers the
+# rule bases, not the notation -- the two sweeps coexist by name
+chk("Validate() still belongs to governance, untouched by DN1",
+    isList(oOg.Validate()))
+
+# THE PICTURE IS THE PLASTIC LAYOUT'S: same laws, no org-specific
+# geometry code. The root is centred over its children and the two
+# families are told apart by air -- I6/I7 on a real domain's model.
+oOg2 = new stzOrgChart("acme52b")
+oOg2.AddExecutiveXT("ceo", "CEO")
+oOg2.AddManagerXT("cto", "CTO")
+oOg2.AddManagerXT("cfo", "CFO")
+oOg2.AddStaffXT("d1", "Dev One")
+oOg2.AddStaffXT("d2", "Dev Two")
+oOg2.AddStaffXT("a1", "Accountant")
+oOg2.ReportsTo("cto", "ceo")  oOg2.ReportsTo("cfo", "ceo")
+oOg2.ReportsTo("d1", "cto")   oOg2.ReportsTo("d2", "cto")
+oOg2.ReportsTo("a1", "cfo")
+oOg2.SetSplines("ortho")
+oOg2.ToCanvasXT([ :NodeWidth = 110, :NodeHeight = 40 ])
+nOgCeo = _I7Cx(oOg2.RenderNodeRects(), "ceo")
+nOgCto = _I7Cx(oOg2.RenderNodeRects(), "cto")
+nOgCfo = _I7Cx(oOg2.RenderNodeRects(), "cfo")
+? "   ceo=" + nOgCeo + "  cto=" + nOgCto + "  cfo=" + nOgCfo
+chk("the org root is centred over its two branches -- I6 on a domain",
+    fabs(nOgCeo - (nOgCto + nOgCfo) / 2) < 1)
 
 
 #---------------------------------------------------------------------------
