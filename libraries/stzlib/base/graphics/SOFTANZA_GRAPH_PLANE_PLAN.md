@@ -1120,3 +1120,80 @@ stays layered, so the ring is a declaration and not a new default.
 space, the entry at the top, a counted crossing number of zero, chords of
 a pair on opposite sides — and the negative sibling, that a diagram
 declaring no layout mode is still layered.
+
+
+## DN2c — THE LIFECYCLE TEMPLATE, and what outranks what (2026-08-23)
+
+The Principal's second correction on state machines, on top of "a state
+machine is not a tree":
+
+> *"Positioning logic in state machines does not depend only from the
+> concentration of links. The real-world semantics and reader mental
+> model as well as UX habits and best practices all enter in play:
+> reading happens from top to down and from left to right, the very last
+> things to happen on the machine must be at the bottom right, and start
+> at the top; other events take each a spatial column from left to right
+> to understand visually the organic steps, even if events happen in an
+> uncontrollable manner."*
+
+And, in the same breath, that the ring had **thrown away the elegance**:
+the colours, the visual semantics, the space optimisation and the edge
+fluidity the layered grammar had spent weeks earning.
+
+**Both critiques have one answer: the domain's template is a LIFECYCLE,
+drawn in the layered grammar.** Not a third dialect — the same ortho
+staircase, twin rails, rounded elbows, per-gap pricing, label laws and
+space contract, pointed left-to-right so that stages become columns.
+
+### The ordering law this mints
+
+**READING ORDER OUTRANKS LINK CONCENTRATION.** The ring placed `Closed`
+at the centre because four transitions met there; a reader does not
+care. What a reader needs is where the life of the thing begins and
+where it ends. So:
+
+- **a SOURCE leads its column** — the first thing sits where reading
+  starts
+- **a SINK sinks** — last column, bottom of it: the very last thing to
+  happen sits at the very end of the reading direction
+- and these are **derived from the rules the notation already
+  declares** — a kind that forbids `:Inbound` IS a source, a kind that
+  forbids `:Outbound` IS a sink. One declaration, two consumers, no way
+  for the placement to disagree with the refusals.
+- the sweep still minimises crossings **within** those constraints:
+  reading order is applied after it, because a crossing or two costs
+  less than a lifecycle read backwards.
+
+### What the template made visible
+
+- **A self-loop had a side per rank direction, and that was wrong.** LR
+  put loops on TOP — exactly where the lifecycle's return channels run,
+  so `Locked`'s loop was drawn across the `close` and `unlock` rails.
+  One side for every direction now (the right border), which is also
+  one size reservation instead of two.
+- **A self-loop's label followed an assumption, not the ink.** With the
+  loop's side no longer a function of the rank direction, the label
+  reads the DRAWN path and stands off its outer extreme — so the loop
+  publishes its path like any other edge.
+- **A label could only stand at a segment's MIDDLE.** In a lawful funnel
+  — two returns sharing their arrival lane, a drop crossing the run at
+  its centre — every midpoint touched foreign ink, and the least-bad
+  rule put `unlock` on a line it does not name. A label SLIDES along its
+  own segment now; the middle is the first seat it tries, not the only
+  one.
+
+§57 holds the template: first thing at the start of the reading, last
+thing at the bottom-right, stages as columns, the picture space-
+optimised, the pair on twin rails, the loop publishing its path.
+
+### Still open, and named
+
+The **ring survives as a declared layout** for graphs of genuine peers
+(§56) — it is right for a network, wrong for a lifecycle. And the
+Principal has named the next inspiration: **DRAKON**, the Russian visual
+programming language whose editor he calls the best visual language for
+designing any diagram, to be embraced as a first-class citizen. Its
+governing ideas — a single vertical "skewer" for the main path, no
+crossing lines by construction, the happy path always leftmost — are a
+much stronger version of the lifecycle rule this section mints, and the
+next deep task in this plane.

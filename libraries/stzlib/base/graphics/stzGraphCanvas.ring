@@ -752,7 +752,7 @@ class stzGraphCanvas from stzObject
 		next
 
 		if NOT _bCyc_
-			return StzGraphMetric(@oGraph, :Depth)
+			return This._SinkRanks(StzGraphMetric(@oGraph, :Depth))
 		ok
 
 		# longest-path ranks over the kept orientation: relax until fixed.
@@ -770,7 +770,73 @@ class stzGraphCanvas from stzObject
 			next
 			if NOT _bMoved_  exit  ok
 		next
-		return _lay_
+		return This._SinkRanks(_lay_)
+
+	# SINKS SINK -- the lifecycle template's placement rule, from the
+	# rules the notation already declares: a kind that releases nothing
+	# closes the lifecycle, so its nodes take the LAST rank. The reader's
+	# rule it serves: the very last thing to happen sits at the very end
+	# of the reading direction. Nodes only ever move DOWN ranks, so no
+	# edge that was forward becomes backward.
+	def _LifecycleOrder(paOrder, paStarts)
+		_aSo_ = This._Opt(:Sources, [])
+		_aSk_ = This._Opt(:Sinks, [])
+		if (NOT isList(_aSo_) or len(_aSo_) = 0) and
+		   (NOT isList(_aSk_) or len(_aSk_) = 0)
+			return paOrder
+		ok
+		_n_ = len(@aIds)
+		_bSo_ = []
+		_bSk_ = []
+		for _i_ = 1 to _n_  _bSo_ + 0  _bSk_ + 0  next
+		if isList(_aSo_)
+			for _c_ in _aSo_
+				_i_ = This._IndexOf(_c_)
+				if _i_ >= 1  _bSo_[_i_] = 1  ok
+			next
+		ok
+		if isList(_aSk_)
+			for _c_ in _aSk_
+				_i_ = This._IndexOf(_c_)
+				if _i_ >= 1  _bSk_[_i_] = 1  ok
+			next
+		ok
+		_nL_ = len(paStarts) - 1
+		for _L_ = 1 to _nL_
+			_s_ = paStarts[_L_] + 1
+			_e_ = paStarts[_L_ + 1]
+			_aFront_ = []  _aMid_ = []  _aBack_ = []
+			for _k_ = _s_ to _e_
+				_v_ = paOrder[_k_]
+				# order entries are 0-based; dummies past _n_ stay mid
+				if _v_ + 1 <= _n_ and _bSo_[_v_ + 1]
+					_aFront_ + _v_
+				but _v_ + 1 <= _n_ and _bSk_[_v_ + 1]
+					_aBack_ + _v_
+				else
+					_aMid_ + _v_
+				ok
+			next
+			_k_ = _s_
+			for _v_ in _aFront_  paOrder[_k_] = _v_  _k_++  next
+			for _v_ in _aMid_    paOrder[_k_] = _v_  _k_++  next
+			for _v_ in _aBack_   paOrder[_k_] = _v_  _k_++  next
+		next
+		return paOrder
+
+	def _SinkRanks(paLay)
+		_aSk_ = This._Opt(:Sinks, [])
+		if NOT isList(_aSk_) or len(_aSk_) = 0  return paLay  ok
+		_n_ = len(@aIds)
+		_max_ = 0
+		for _i_ = 1 to _n_
+			if paLay[_i_] > _max_  _max_ = paLay[_i_]  ok
+		next
+		for _cSk_ in _aSk_
+			_i_ = This._IndexOf(_cSk_)
+			if _i_ >= 1 and _i_ <= _n_  paLay[_i_] = _max_  ok
+		next
+		return paLay
 
 	# One DFS from pnRoot: forward/cross edges join paFwd, back edges are
 	# dropped (they become the upward arrows). Answers whether it saw a
@@ -911,6 +977,13 @@ class stzGraphCanvas from stzObject
 			_csr_ = _StzCsr(_ev_, _eu_, _n_)          # predecessors of v
 			_order_ = StzEngineGraphLayoutSweep(_csr_[1], _csr_[2], _lay0_,
 				_order_, _starts_, 12, _eu_, _ev_)
+
+			# SOURCES LEAD, SINKS CLOSE -- within their rank, after the
+			# sweep, because the lifecycle's reading order outranks a
+			# crossing or two: the entry belongs at the top of its
+			# column and the final at the bottom of its, whatever the
+			# crossing count would prefer.
+			_order_ = This._LifecycleOrder(_order_, _starts_)
 
 			# ORDER IS NOT PLACEMENT. The sweep above settles who sits beside
 			# whom; it says nothing about WHERE. This face used to answer that

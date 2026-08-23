@@ -27,13 +27,29 @@ func StzStateMachineNotation()
 	_o_ = StzNotation("statemachine")
 	if _o_.Name_() = "statemachine"  return _o_  ok
 	_o_ = new stzNotation("statemachine")
-	# A STATE MACHINE IS NOT A TREE -- the Principal's ruling, and the
-	# domain declares it in one line. States are peers in a SPACE, drawn
-	# around its border with the hubs inside; events are the chords
-	# between them. Straight chords, because a ring has no ranks for an
-	# orthogonal staircase to step through.
-	_o_.SetLayoutMode(:Ring)
-	_o_.SetSplines(:line)
+	# THE LIFECYCLE TEMPLATE -- the Principal's second correction, on
+	# top of "a state machine is not a tree": positioning does not
+	# follow link concentration alone. The reader's mental model, the
+	# real-world semantics and reading habits all enter: reading runs
+	# top-down and left-to-right, the machine's FIRST thing sits at the
+	# top-left, its VERY LAST thing at the bottom-right, and the organic
+	# steps of the lifecycle each take a spatial COLUMN left to right --
+	# even though events fire in an uncontrollable order, the columns
+	# are what let a reader see the life of the thing.
+	#
+	# So: LEFT-TO-RIGHT columns (a column per lifecycle stage), ortho
+	# splines with everything the layered grammar has learned -- twin
+	# rails for the open/close pairs, rounded elbows, per-gap pricing,
+	# the label laws -- and two placement rules derived from the RULES
+	# the domain already declares: a kind that admits nothing (:Inbound
+	# forbidden) is a SOURCE and leads its column; a kind that releases
+	# nothing (:Outbound forbidden) is a SINK, and sinks SINK -- last
+	# column, bottom of it.
+	#
+	# The ring (:Ring) remains available to any diagram that declares
+	# it; the state machine's own template is the lifecycle.
+	_o_.SetRankDir(:LeftToRight)
+	_o_.SetSplines(:ortho)
 	_o_.AddKind("state", "box")
 	_o_.AddKind("initial", "circle")
 	_o_.AddKind("start", "circle")

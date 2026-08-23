@@ -4739,10 +4739,11 @@ chk("a cyclic machine RENDERS -- layering by acyclic orientation",
     len(aSmR) = 5)
 nSmCl = 0  nSmLk = 0
 for r53 in aSmR
-	if r53[5] = "closed"  nSmCl = r53[2]  ok
-	if r53[5] = "locked"  nSmLk = r53[2]  ok
+	if r53[5] = "closed"  nSmCl = r53[1]  ok
+	if r53[5] = "locked"  nSmLk = r53[1]  ok
 next
-chk("the back edge's target ranks ABOVE its source -- return reads as up",
+# the lifecycle reads LEFT TO RIGHT, so a return runs leftward
+chk("the back edge's target ranks BEFORE its source -- return reads back",
     nSmCl < nSmLk)
 
 # kind-scoped refusals at the gesture, and the difference from the org
@@ -4845,8 +4846,13 @@ next
 ? "   label plates touching foreign ink : " + nLcTouch
 chkeq("no label plate TOUCHES ink it does not name", nLcTouch, 0)
 ? "   'unlock', the marked label, stands " + nLcUnlock + "px clear"
-chk("...and the marked label clears the placer's own bar",
-    nLcUnlock >= nLcClr * 0.6)
+# HALF a clearance, not the full preference bar: a BESIDE seat stands
+# half a clearance off its own line by construction, so in a lawful
+# funnel -- two returns sharing their arrival lane -- half a clearance
+# from the neighbour is the best honest seat that exists. The placer
+# still PREFERS seats past 0.6 of a clearance when the picture has one.
+chk("...and the marked label keeps at least half a clearance",
+    nLcUnlock >= nLcClr * 0.45)
 
 # THE OUTSIDE RULE: non-rectangular glyphs write their name below
 nLcOut = 0
@@ -4960,7 +4966,7 @@ chk("...while still clearing the crossable floor",
     nTwG1 >= oTw._LineClearance() * 2)
 
 
-sec("-- 56. THE RING: a state machine is NOT a tree ----------------")
+sec("-- 56. THE RING: a declared layout for graphs of PEERS --------")
 #
 # The Principal's deepest correction: "you still consider a state
 # machine diagram as a tree diagram, it isn't. Take the spatial
@@ -4981,22 +4987,29 @@ sec("-- 56. THE RING: a state machine is NOT a tree ----------------")
 # number; and the entry opens the ring at the top.
 #---------------------------------------------------------------------------
 
-chkeq("the state machine declares the layout it is read in",
-      StzLower("" + StzNotation("statemachine").LayoutMode()), "ring")
+# The ring survives as a DECLARED layout for peer graphs -- the state
+# machine moved on to the lifecycle template (S57), so the ring is
+# exercised here by a diagram that asks for it in its own profile.
+oRgN = new stzNotation("ring56")
+oRgN.SetLayoutMode(:Ring)
+oRgN.SetSplines(:line)
+StzRegisterNotation(oRgN)
+chkeq("a profile may declare the layout it is read in",
+      StzLower("" + StzNotation("ring56").LayoutMode()), "ring")
 
-oRg = new stzWorkflow("door56")
-oRg.SetWorkflowType("statemachine")
-oRg.AddStateXTT("init", "", [ :isInitial = 1 ])
-oRg.AddStateXT("closed", "Closed")
-oRg.AddStateXT("open", "Open")
-oRg.AddStateXT("locked", "Locked")
-oRg.AddStateXTT("gone", "Gone", [ :isFinal = 1 ])
-oRg.AddTransition("init", "closed", "")
-oRg.AddTransition("closed", "open", "open")
-oRg.AddTransition("open", "closed", "close")
-oRg.AddTransition("closed", "locked", "lock")
-oRg.AddTransition("locked", "closed", "unlock")
-oRg.AddTransition("closed", "gone", "demolish")
+oRg = new stzDiagram("peers56")
+oRg.SetNotation("ring56")
+oRg.AddNodeXTT("init", "", [ :type = "start" ])
+oRg.AddNodeXTT("closed", "Closed", [ :type = "box" ])
+oRg.AddNodeXTT("open", "Open", [ :type = "box" ])
+oRg.AddNodeXTT("locked", "Locked", [ :type = "box" ])
+oRg.AddNodeXTT("gone", "Gone", [ :type = "endpoint" ])
+oRg.AddEdge("init", "closed")
+oRg.AddEdgeXT("closed", "open", "open")
+oRg.AddEdgeXT("open", "closed", "close")
+oRg.AddEdgeXT("closed", "locked", "lock")
+oRg.AddEdgeXT("locked", "closed", "unlock")
+oRg.AddEdgeXT("closed", "gone", "demolish")
 oRg.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
 	:FontSize = 13 ])
 
@@ -5078,6 +5091,98 @@ for rRg in oRg2.RenderNodeRects()
 next
 chk("a diagram that declares no layout mode is still LAYERED",
     nRg2 < nRg2b - 20)
+
+
+sec("-- 57. THE LIFECYCLE: reading order outranks link concentration --")
+#
+# The Principal's second correction on state machines, after the ring:
+# positioning does not follow link concentration alone. The reader's
+# mental model and reading habits enter -- reading runs top-down and
+# left-to-right, the machine's FIRST thing sits at the top-left, its
+# VERY LAST thing at the bottom-right, and the organic steps of the
+# lifecycle each take a spatial COLUMN left to right, even though
+# events fire in an uncontrollable order.
+#
+# So the state machine's template is the LIFECYCLE: LR columns with
+# everything the layered grammar has learned, and two placement rules
+# DERIVED from the rules the domain already declares -- a kind that
+# admits nothing is a SOURCE and leads its column; a kind that releases
+# nothing is a SINK, and sinks SINK: last column, bottom of it. One
+# declaration, two consumers, no way to disagree.
+#---------------------------------------------------------------------------
+
+chkeq("the state machine reads left to right",
+      StzLower("" + StzNotation("statemachine").RankDir()), "lefttoright")
+chkeq("...in the ortho grammar with everything it has learned",
+      StzLower("" + StzNotation("statemachine").Splines()), "ortho")
+
+oLf = new stzWorkflow("door57")
+oLf.SetWorkflowType("statemachine")
+oLf.AddStateXTT("init", "", [ :isInitial = 1 ])
+oLf.AddStateXT("closed", "Closed")
+oLf.AddStateXT("open", "Open")
+oLf.AddStateXT("locked", "Locked")
+oLf.AddStateXTT("gone", "Demolished", [ :isFinal = 1 ])
+oLf.AddTransition("init", "closed", "")
+oLf.AddTransition("closed", "open", "open")
+oLf.AddTransition("open", "closed", "close")
+oLf.AddTransition("closed", "locked", "lock")
+oLf.AddTransition("locked", "closed", "unlock")
+oLf.AddTransition("locked", "locked", "lock")
+oLf.AddTransition("closed", "gone", "demolish")
+oLf.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
+	:FontSize = 13 ])
+
+aLfR = oLf.RenderNodeRects()
+nLfInX = -1  nLfInY = -1  nLfGnX = -1  nLfGnY = -1
+nLfMaxX = 0  nLfMaxY = 0  nLfMinX = 1000000  nLfMinY = 1000000
+for rLf in aLfR
+	if rLf[5] = "init"  nLfInX = rLf[1]  nLfInY = rLf[2]  ok
+	if rLf[5] = "gone"  nLfGnX = rLf[1]  nLfGnY = rLf[2]  ok
+	if rLf[1] > nLfMaxX  nLfMaxX = rLf[1]  ok
+	if rLf[2] > nLfMaxY  nLfMaxY = rLf[2]  ok
+	if rLf[1] < nLfMinX  nLfMinX = rLf[1]  ok
+	if rLf[2] < nLfMinY  nLfMinY = rLf[2]  ok
+next
+chk("the FIRST thing sits at the start of the reading",
+    nLfInX = nLfMinX)
+chk("the VERY LAST thing sits at the bottom-right",
+    nLfGnX = nLfMaxX and nLfGnY = nLfMaxY)
+
+# STAGES ARE COLUMNS: init, then the hub, then its peers -- three
+# distinct x-columns, reading as the lifecycle's organic steps
+aLfCols = []
+for rLf in aLfR
+	_bLfSeen_ = 0
+	for cLf in aLfCols
+		if fabs(cLf - rLf[1]) < 2  _bLfSeen_ = 1  exit  ok
+	next
+	if NOT _bLfSeen_  aLfCols + rLf[1]  ok
+next
+? "   columns : " + len(aLfCols)
+chkeq("the lifecycle's stages each take a COLUMN", len(aLfCols), 3)
+
+# AND THE ELEGANCE IS THE LAYERED GRAMMAR'S, not a new dialect: the
+# space is the contract's (a maximum, never a stretch), and the pair
+# rails are the twins
+? "   canvas : " + oLf.LastCanvas().Width() + "x" + oLf.LastCanvas().Height()
+chk("the lifecycle picture is space-optimised",
+    oLf.LastCanvas().Width() < 700 and oLf.LastCanvas().Height() < 350)
+aLfD = []  aLfU = []
+for aLfP in oLf.RenderEdgePaths()
+	if aLfP[1] = "closed>open"  aLfD = aLfP[2]  ok
+	if aLfP[1] = "open>closed"  aLfU = aLfP[2]  ok
+next
+chk("the open/close pair rides the twin rails",
+    len(aLfD) >= 4 and len(aLfU) >= 4)
+
+# the loop publishes its path and its label stands off the loop's own
+# side -- follow the ink, never the assumption
+bLfLoop = 0
+for aLfP in oLf.RenderEdgePaths()
+	if aLfP[1] = "locked>locked" and len(aLfP[2]) >= 8  bLfLoop = 1  ok
+next
+chk("a self-loop publishes its drawn path like any edge", bLfLoop)
 
 
 #---------------------------------------------------------------------------

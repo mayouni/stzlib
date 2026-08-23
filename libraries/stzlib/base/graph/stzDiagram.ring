@@ -312,6 +312,7 @@ class stzDiagram from stzGraph
 	@cNotation = "default"
 	@oNotation = NULL
 	@cNotationLayout = ""
+	@cSelfLoopId = ""
 
 	# The cluster rectangles OF THE CURRENT RENDER, with their member ids:
 	# [ [ x, y, w, h, [ ids... ] ], ... ]. Render-scoped state, refilled by
@@ -523,6 +524,28 @@ class stzDiagram from stzGraph
 	# notation's sweep is named for what it sweeps.
 	def NotationFindings()
 		return This.NotationO().Check(This)
+
+	# The nodes whose KIND the notation declares as a source or a sink --
+	# the lifecycle template's anchors. Lowercased ids, for the layout.
+	def _KindedIds(paKinds)
+		_aOut_ = []
+		if len(paKinds) = 0  return _aOut_  ok
+		for _nd_ in This.Nodes()
+			_k_ = ""
+			if HasKey(_nd_, "properties") and isList(_nd_["properties"])
+				if HasKey(_nd_["properties"], "type")
+					_k_ = StzLower("" + _nd_["properties"]["type"])
+				ok
+			ok
+			if _k_ = ""  loop  ok
+			for _kk_ in paKinds
+				if _kk_ = _k_
+					_aOut_ + StzLower("" + _nd_[:id])
+					exit
+				ok
+			next
+		next
+		return _aOut_
 
 	# A LAYOUT NAME THIS DOES NOT KNOW IS REFUSED, not stored. It used to
 	# take anything, and an unrecognised name became top-down in silence --
@@ -1903,7 +1926,9 @@ class stzDiagram from stzGraph
 				:Clusters = This._ClusterPairs(),
 				:NodeExtra = _aXtra_,
 				:ClusterAir = _nAir_,
-				:Pins = This._PinVector()
+				:Pins = This._PinVector(),
+				:Sources = This._KindedIds(This.NotationO().SourceKinds()),
+				:Sinks = This._KindedIds(This.NotationO().SinkKinds())
 			])
 			# the layered crossing count of the order being drawn -- the
 			# graph tier's structure fact, kept with the render's other
@@ -2128,18 +2153,14 @@ class stzDiagram from stzGraph
 					if StzTrim("" + _e0_[:label]) != "" and isObject(_oFont_)
 						_slx_ += _nFsz_ * 2
 					ok
-					if _bSwap_
-						if _at_[2] - _nBoxH_ / 2 - _slx_ < _ey0_
-							_ey0_ = _at_[2] - _nBoxH_ / 2 - _slx_
-						ok
-					else
-						_slw_ = 0
-						if StzTrim("" + _e0_[:label]) != "" and isObject(_oFont_)
-							_slw_ = _oFont_.WidthOf("" + _e0_[:label], _nFsz_) + 10
-						ok
-						if _at_[1] + _nBoxW_ / 2 + _slr_ + _slw_ > _ex1_
-							_ex1_ = _at_[1] + _nBoxW_ / 2 + _slr_ + _slw_
-						ok
+					# one side, one reservation: the loop lives on the
+					# right border for every rank direction now
+					_slw_ = 0
+					if StzTrim("" + _e0_[:label]) != "" and isObject(_oFont_)
+						_slw_ = _oFont_.WidthOf("" + _e0_[:label], _nFsz_) + 10
+					ok
+					if _at_[1] + _nBoxW_ / 2 + _slr_ + _slw_ > _ex1_
+						_ex1_ = _at_[1] + _nBoxW_ / 2 + _slr_ + _slw_
 					ok
 				next
 
@@ -2229,7 +2250,9 @@ class stzDiagram from stzGraph
 				# the one branch that never received them. Pins worked in
 				# the guard, worked at natural size, and did nothing at
 				# all in the editor they were built for.
-				:Pins = This._PinVector()
+				:Pins = This._PinVector(),
+				:Sources = This._KindedIds(This.NotationO().SourceKinds()),
+				:Sinks = This._KindedIds(This.NotationO().SinkKinds())
 			])
 			# the crossing count is a render fact on EVERY path, not only
 			# the natural one -- a ring reaches the picture through here
@@ -2528,6 +2551,7 @@ class stzDiagram from stzGraph
 					if _bRing_
 						_cLoopDir_ = This._RingOutward(_a_, _nW_, _nH_)
 					ok
+					@cSelfLoopId = StzLower("" + _aE_[_ei_][:from])
 					This._DrawSelfLoop(_oC_, _a_, _nBoxW_, _nBoxH_, _cEdge_,
 						_nEdgeW_, _cLoopDir_, _cSpl_)
 				ok
@@ -2650,9 +2674,44 @@ class stzDiagram from stzGraph
 					# width, which is the only number that clears it.
 					_lr_ = This._SelfLoopReach(_nBoxW_, _nBoxH_)
 					_slw2_ = _oFont_.WidthOf(_cLab_, _nFsz_) + 8
-					if _bSwap_
-						_lax_ = _a_[1]
-						_lay_ = _a_[2] - _nBoxH_ / 2 - _lr_ - _nFsz_
+					# BESIDE THE LOOP'S OWN SIDE. The loop's side is no
+					# longer a function of the rank direction alone (the
+					# ring radiates outward, the lifecycle keeps every
+					# loop on the right), so the label reads the DRAWN
+					# path and stands off its outer extreme -- the same
+					# "follow the ink, never the assumption" rule as
+					# every other label.
+					_slK2_ = StzLower("" + _aE_[_ei_][:from] + ">" +
+						"" + _aE_[_ei_][:to])
+					_slP2_ = []
+					for _pp2_ in @aEdgePaths
+						if StzLower("" + _pp2_[1]) = _slK2_
+							_slP2_ = _pp2_[2]
+						ok
+					next
+					if len(_slP2_) >= 4
+						_sbx_ = 0  _sby_ = 0
+						for _sq2_ = 1 to len(_slP2_) - 1 step 2
+							_sbx_ += _slP2_[_sq2_]
+							_sby_ += _slP2_[_sq2_ + 1]
+						next
+						_sbx_ = _sbx_ / (len(_slP2_) / 2)
+						_sby_ = _sby_ / (len(_slP2_) / 2)
+						_sdx2_ = _sbx_ - _a_[1]
+						_sdy2_ = _sby_ - _a_[2]
+						if fabs(_sdx2_) >= fabs(_sdy2_)
+							_lax_ = _a_[1] +
+								iif(_sdx2_ >= 0,
+									_nBoxW_ / 2 + _lr_ + _slw2_ / 2 + 6,
+									0 - _nBoxW_ / 2 - _lr_ - _slw2_ / 2 - 6)
+							_lay_ = _a_[2]
+						else
+							_lax_ = _a_[1]
+							_lay_ = _a_[2] +
+								iif(_sdy2_ >= 0,
+									_nBoxH_ / 2 + _lr_ + _nFsz_,
+									0 - _nBoxH_ / 2 - _lr_ - _nFsz_)
+						ok
 					else
 						_lax_ = _a_[1] + _nBoxW_ / 2 + _lr_ +
 							_slw2_ / 2 + 6
@@ -2762,6 +2821,15 @@ class stzDiagram from stzGraph
 					_nClr2_ = This._LineClearance()
 					_aOn_ = []
 					_aBes_ = []
+					# THREE STANDS PER SEGMENT, not one. The midpoint was
+					# the only candidate, and the lifecycle template made
+					# that a dead end: two returns lawfully share the
+					# funnel lane into one target, and a drop crosses the
+					# run at its exact middle -- every midpoint candidate
+					# touched ink, and the least-bad rule put "unlock" ON
+					# a line it does not name. A label can SLIDE along
+					# its own segment; the middle is only the first seat
+					# it tries.
 					for _si_ = len(_aPth_) - 3 to 1 step -2
 						_sx1_ = _aPth_[_si_]
 						_sy1_ = _aPth_[_si_ + 1]
@@ -2769,28 +2837,30 @@ class stzDiagram from stzGraph
 						_sy2_ = _aPth_[_si_ + 3]
 						_sdx_ = fabs(_sx2_ - _sx1_)
 						_sdy_ = fabs(_sy2_ - _sy1_)
-						_smx_ = (_sx1_ + _sx2_) / 2
-						_smy_ = (_sy1_ + _sy2_) / 2
-						if _sdx_ >= _sdy_
-							# a horizontal run carries the label only if
-							# it is longer than the label plus a
-							# clearance of line showing at each end
-							if _sdx_ >= _lw_ + _nClr2_ * 2
-								_aOn_ + [ _smx_, _smy_ ]
+						for _sfr_ in [ 0.5, 0.3, 0.7, 0.2, 0.8 ]
+							_smx_ = _sx1_ + (_sx2_ - _sx1_) * _sfr_
+							_smy_ = _sy1_ + (_sy2_ - _sy1_) * _sfr_
+							if _sdx_ >= _sdy_
+								# a horizontal run carries the label only
+								# if it is longer than the label plus a
+								# clearance of line showing at each end
+								if _sdx_ >= _lw_ + _nClr2_ * 2
+									_aOn_ + [ _smx_, _smy_ ]
+								ok
+								if _sdx_ >= 8
+									_aBes_ + [ _smx_, _smy_ - _lh_ / 2 - _nClr2_ * 0.5 ]
+									_aBes_ + [ _smx_, _smy_ + _lh_ / 2 + _nClr2_ * 0.5 ]
+								ok
+							else
+								if _sdy_ >= _lh_ + _nClr2_ * 2
+									_aOn_ + [ _smx_, _smy_ ]
+								ok
+								if _sdy_ >= 8
+									_aBes_ + [ _smx_ - _lw_ / 2 - _nClr2_ * 0.5, _smy_ ]
+									_aBes_ + [ _smx_ + _lw_ / 2 + _nClr2_ * 0.5, _smy_ ]
+								ok
 							ok
-							if _sdx_ >= 8
-								_aBes_ + [ _smx_, _smy_ - _lh_ / 2 - _nClr2_ * 0.5 ]
-								_aBes_ + [ _smx_, _smy_ + _lh_ / 2 + _nClr2_ * 0.5 ]
-							ok
-						else
-							if _sdy_ >= _lh_ + _nClr2_ * 2
-								_aOn_ + [ _smx_, _smy_ ]
-							ok
-							if _sdy_ >= 8
-								_aBes_ + [ _smx_ - _lw_ / 2 - _nClr2_ * 0.5, _smy_ ]
-								_aBes_ + [ _smx_ + _lw_ / 2 + _nClr2_ * 0.5, _smy_ ]
-							ok
-						ok
+						next
 					next
 					# ON THE LINE where the line can hold it -- and NEVER at
 					# the price of another line's meaning. The Principal's
@@ -3967,16 +4037,14 @@ class stzDiagram from stzGraph
 				          _ox_, aAt[2] + _od_ ]
 				_oend_ = [ _ox_, aAt[2] + _od_ ]
 				_oprev_ = [ _ox_ - _R_, aAt[2] + _od_ ]
-			but cRank = "LR" or cRank = "RL"
-				_od_ = nBoxW * 0.22
-				_oy_ = aAt[2] - nBoxH / 2
-				_pts_ = [ aAt[1] - _od_, _oy_,
-				          aAt[1] - _od_, _oy_ - _R_,
-				          aAt[1] + _od_, _oy_ - _R_,
-				          aAt[1] + _od_, _oy_ ]
-				_oend_ = [ aAt[1] + _od_, _oy_ ]
-				_oprev_ = [ aAt[1] + _od_, _oy_ - _R_ ]
 			else
+				# ONE SIDE FOR EVERY RANK DIRECTION: the right border.
+				# The LR form used to put the loop on TOP, where the
+				# lifecycle template's return channels live -- the
+				# Locked loop was drawn straight across the close and
+				# unlock rails. The right border is the one side no
+				# channel runs along in either direction, and one side
+				# means ONE size reservation.
 				# UPWARD, not downward. A loop that leaves high and
 				# returns low points its arrow DOWN -- the same direction
 				# as every ordinary edge in a top-down picture -- so a
@@ -4017,6 +4085,11 @@ class stzDiagram from stzGraph
 			oC.Flush()
 			oC.AddPolylineQ(_pts_).Stroke(cColor, nWidth)
 			This._DrawArrow(oC, _oprev_, _oend_, cColor, nWidth, "line", cRank)
+			# the loop PUBLISHES its path like any edge, so its label is
+			# placed beside its own ink instead of guessed at the node
+			_slFlat_ = []
+			for _slQ_ = 1 to len(_pts_)  _slFlat_ + _pts_[_slQ_]  next
+			This._PublishPath("" + @cSelfLoopId, "" + @cSelfLoopId, _slFlat_)
 			return
 		ok
 
@@ -4034,13 +4107,6 @@ class stzDiagram from stzGraph
 			_c1_ = [ aAt[1] - nBoxW / 2 - _R_, aAt[2] - _d_ - _R_ * 0.4 ]
 			_c2_ = [ aAt[1] - nBoxW / 2 - _R_, aAt[2] + _d_ + _R_ * 0.4 ]
 			_p3_ = [ aAt[1] - nBoxW / 2, aAt[2] + _d_ ]
-		but cRank = "LR" or cRank = "RL"
-			# leaves and re-enters the TOP edge
-			_d_ = nBoxW * 0.22
-			_p0_ = [ aAt[1] - _d_, aAt[2] - nBoxH / 2 ]
-			_c1_ = [ aAt[1] - _d_ - _R_ * 0.4, aAt[2] - nBoxH / 2 - _R_ ]
-			_c2_ = [ aAt[1] + _d_ + _R_ * 0.4, aAt[2] - nBoxH / 2 - _R_ ]
-			_p3_ = [ aAt[1] + _d_, aAt[2] - nBoxH / 2 ]
 		else
 			# leaves LOW and re-enters HIGH on the right edge, so the
 			# arrowhead opposes the rank direction and reads as a return
