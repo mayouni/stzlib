@@ -315,6 +315,8 @@ class stzDiagram from stzGraph
 	@cSelfLoopId = ""
 	@nModeCols = 1
 	@nModeRows = 1
+	@nModeRegionRows = 0
+	@aModeRegionRowsAt = []
 
 	# The cluster rectangles OF THE CURRENT RENDER, with their member ids:
 	# [ [ x, y, w, h, [ ids... ] ], ... ]. Render-scoped state, refilled by
@@ -534,6 +536,7 @@ class stzDiagram from stzGraph
 	# same regions at every size.
 	def _DeclareModeRegions()
 		if This.NumberOfNodes() < 2  return This  ok
+		@aModeRegionRowsAt = []
 		_oMc_ = new stzGraphCanvas(This, [ :Layout = :Modes,
 			:Width = 600, :Height = 400 ])
 		_aM_ = _oMc_.ModeOf()
@@ -546,6 +549,7 @@ class stzDiagram from stzGraph
 		# guess about a layout it did not run.
 		@nModeCols = 1
 		@nModeRows = _oMc_.LayerCount()
+		@nModeRegionRows = 0
 		_aWid_ = []
 		for _r_ = 1 to max([ @nModeRows, 1 ])  _aWid_ + 0  next
 		_aPos_ = _oMc_.RawPositions()
@@ -570,11 +574,37 @@ class stzDiagram from stzGraph
 				if _aM_[_i_] = _k_  _aIn_ + ("" + _aNd_[_i_][:id])  ok
 			next
 			if len(_aIn_) < 2  loop  ok
+			# how many RANKS hold a region -- three regions side by side
+			# eat their chrome ONCE, not three times
+			_nRw_ = 0
+			for _pM2_ in _oMc_.Positions()
+				if StzLower("" + _pM2_[1]) = StzLower("" + _aIn_[1])
+					_nRw_ = floor(_pM2_[3])
+					exit
+				ok
+			next
+			_bNewRw_ = 1
+			for _vRw_ in @aModeRegionRowsAt
+				if fabs(_vRw_ - _nRw_) < 2  _bNewRw_ = 0  exit  ok
+			next
+			if _bNewRw_
+				@aModeRegionRowsAt + _nRw_
+				@nModeRegionRows++
+			ok
 			# UNLABELLED on purpose. The graph knows these states belong
 			# together; it does not know what to CALL the grouping, and a
 			# manufactured name ("Mode 2") is noise a reader must ignore.
 			# An author who wants one declares the cluster themselves.
-			This.AddClusterXT("mode" + _k_, "", _aIn_)
+			# THE REGION WEARS THE TINTED CONTAINER STEP of its members'
+			# role -- .Surface, which the OKLCH ramp already computes and
+			# keeps hue-stable, so a region reads as "the same colour,
+			# quieter" rather than as a second palette
+			_cRf_ = This.NotationO().RegionFill()
+			if _cRf_ != ""
+				This.AddClusterXTT("mode" + _k_, "", _aIn_, _cRf_)
+			else
+				This.AddClusterXT("mode" + _k_, "", _aIn_)
+			ok
 		next
 		return This
 
@@ -1913,6 +1943,16 @@ class stzDiagram from stzGraph
 				_nSepR_ = max([ _nSepR_,
 					_nLabH_ + max([ 14, _nRad_ * 2 + 4 ]) * 2 ])
 			ok
+			# ...AND THE PEER CHORD CARRIES ITS EVENT. Inside a region the
+			# transitions run sideways between neighbours, so it is the
+			# NODE separation that must be longer than what is written on
+			# it -- the same rule the rank gap obeys, on the other axis.
+			# Without it "EvNumLock" was drawn across the two cells it
+			# joins.
+			if _bModes_ and _nLabW_ > 0
+				_nSepN_ = max([ _nSepN_,
+					_nLabW_ + max([ 14, _nRad_ * 2 + 4 ]) * 2 ])
+			ok
 		ok
 
 		# A GAP MUST BE CROSSABLE. A horizontal channel divides the rank
@@ -1957,10 +1997,14 @@ class stzDiagram from stzGraph
 			_nMdH_ = @nModeRows * (_nBoxH_ + _nSepR_) + _nSepR_
 			# region chrome is paid ONCE PER REGION ROW, not per rank: a
 			# rank with no boundary in it eats none of it
+			# chrome is paid ONCE PER REGION ROW: three regions side by
+			# side (which is what concurrency looks like) eat one strip
+			# between them, not three
 			if len(@aClusters) > 0
-				_nMdW_ += This._ClusterPadMax() * 2
+				_nMdW_ += This._ClusterPadMax() * 2 * @nModeCols
 				_nMdH_ += (This._ClusterChromeAbove(_nFsz_) +
-					This._ClusterPadMax() * 2) * len(@aClusters)
+					This._ClusterPadMax() * 2) *
+					max([ @nModeRegionRows, 1 ])
 			ok
 			_nW_ = ceil(_nMdW_)
 			_nH_ = ceil(_nMdH_)
@@ -2480,7 +2524,17 @@ class stzDiagram from stzGraph
 			_oC_.Flush()
 			# THE LABEL STRIP IS MEASURED FROM THE FONT, not a constant
 			# (hoisted above the loop; history in the commit that sized it)
-			_oC_.FillQ("#FFF8FE").StrokeQ(_cl_[:color], 2).
+			# THE FRAME IS PAINTED IN ITS OWN COLOUR, not in a literal.
+			# The fill was hard-coded #FFF8FE -- a pale pink that belongs
+			# to no palette and answers to no theme, so a diagram whose
+			# regions were declared Info.Surface still drew pink. A
+			# cluster's colour is the tinted container; its rule is the
+			# next step down, which the ramp already computes hue-stable.
+			_cClFill_ = "" + _cl_[:color]
+			_cClRule_ = _cClFill_
+			if _cClFill_ = ""  _cClFill_ = "#FFF8FE"  ok
+			_cClRule_ = StzColorAtLightness(_cClFill_, StzRoleStepL(:Border))
+			_oC_.FillQ(_cClFill_).StrokeQ(_cClRule_, 2).
 				AddRect(_aBox_[1], _aBox_[2] - _clstrip_, _aBox_[3],
 					_aBox_[4] + _clstrip_)
 			if isObject(_oFont_)
@@ -3098,7 +3152,16 @@ class stzDiagram from stzGraph
 				# tag has to follow the ink, not the loop.
 				_oC_.SetPickTag(_i_)
 				_cLb_ = "" + _aNodes_[_i_][:label]
-				if _cLb_ = ""  _cLb_ = _cId_  ok
+				# AN EMPTY LABEL IS A CHOICE, not a missing value. The id
+				# was used as a fallback, which is right for a node
+				# nobody labelled and wrong for one labelled "" on
+				# purpose -- a state machine's entry and exit
+				# pseudostates are drawn as marks, and printing "i" and
+				# "e" under them is the id leaking into the picture.
+				if _cLb_ = ""
+					if HasKey(_aNodes_[_i_], "label")  loop  ok
+					_cLb_ = _cId_
+				ok
 
 				# A CELL THAT IS NOT A RECTANGLE WRITES ITS LABEL OUTSIDE
 				# -- the Principal's ruling on the state machine's final
@@ -6428,12 +6491,24 @@ class stzDiagram from stzGraph
 		return :Box
 
 	def _NativeFillOf(aNode)
+		_cKd_ = ""
 		if HasKey(aNode, "properties") and isList(aNode["properties"])
 			if HasKey(aNode["properties"], "color")
 				return ResolveColor("" + aNode["properties"]["color"])
 			but HasKey(aNode["properties"], "fillcolor")
 				return ResolveColor("" + aNode["properties"]["fillcolor"])
 			ok
+			if HasKey(aNode["properties"], "type")
+				_cKd_ = "" + aNode["properties"]["type"]
+			ok
+		ok
+		# THE NOTATION'S OWN PALETTE, when the author named no colour.
+		# A domain that declares what a state IS should declare what a
+		# state LOOKS like, in the house role vocabulary -- so a profile
+		# inherits the whole colour system rather than carrying hex.
+		if _cKd_ != ""
+			_cNf_ = This.NotationO().FillOf(_cKd_)
+			if _cNf_ != ""  return ResolveColor(_cNf_)  ok
 		ok
 		return "#2E4970"
 
@@ -6456,10 +6531,20 @@ class stzDiagram from stzGraph
 	# stands this far outside its own members, so a neighbour outside
 	# it must stand this far plus a clearance from those members for
 	# the frame to clear the neighbour.
+	# A FRAME CONTAINS THE INK OF ITS OWN MEMBERS, not just their boxes --
+	# I1, which the region model made visible. Two peers inside a mode
+	# talk both ways, and the return rail of an opposite pair rides one
+	# clearance below the row: at 0.75 of a clearance the padding was
+	# narrower than the ink it had to hold, so `close` and `unlock` were
+	# drawn OUTSIDE the region whose states they join. The pad is one
+	# clearance plus the stroke now -- the width of the thing it contains.
+	def _ClusterPadBase()
+		return max([ 16, This._LineClearance() + 4 ])
+
 	def _ClusterPadMax()
 		_cpMax_ = 0
 		for _cpC_ in @aClusters
-			_cpP_ = max([ 16, This._LineClearance() * 0.75 ]) +
+			_cpP_ = This._ClusterPadBase() +
 				34 * This._ClusterLevelsBelow(_cpC_)
 			if _cpP_ > _cpMax_  _cpMax_ = _cpP_  ok
 		next
@@ -6468,7 +6553,7 @@ class stzDiagram from stzGraph
 	def _ClusterChromeAbove(nFsz)
 		_ccaMax_ = 0
 		for _ccaC_ in @aClusters
-			_ccaP_ = max([ 16, This._LineClearance() * 0.75 ]) +
+			_ccaP_ = This._ClusterPadBase() +
 				34 * This._ClusterLevelsBelow(_ccaC_)
 			_ccaT_ = _ccaP_ + nFsz * 1.9
 			if _ccaT_ > _ccaMax_  _ccaMax_ = _ccaT_  ok
@@ -6498,7 +6583,7 @@ class stzDiagram from stzGraph
 		# so at :Scale = 2 an arrowhead arriving at a member sat visually
 		# on the frame line -- a literal distance is a bug by
 		# construction (the visual contract, I3).
-		_padBase_ = max([ 16, This._LineClearance() * 0.75 ])
+		_padBase_ = This._ClusterPadBase()
 		# PADDING GROWS WITH WHAT IS NESTED INSIDE. A fixed 16 was right
 		# while every cluster was a leaf; once one can contain another, the
 		# outer box has to clear not just the inner box but the inner

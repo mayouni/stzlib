@@ -57,11 +57,20 @@ func StzStateMachineNotation()
 	_o_.SetLayoutMode(:Modes)
 	_o_.SetRankDir(:TopToBottom)
 	_o_.SetSplines(:ortho)
-	_o_.AddKind("state", "box")
-	_o_.AddKind("initial", "circle")
-	_o_.AddKind("start", "circle")
-	_o_.AddKind("final", "doublecircle")
-	_o_.AddKind("endpoint", "doublecircle")
+	# THE DOMAIN'S PALETTE, in the house role vocabulary. A state is
+	# INFORMATION -- it carries no urgency of its own, and a machine that
+	# paints every state a warning colour has said nothing. The
+	# pseudostates are NEUTRAL: they are punctuation, not states, and
+	# they should recede. The region is the tinted container step of the
+	# states' own role, so it reads as "the same colour, quieter".
+	_o_.AddKindXT("state", "box", "Info.Solid")
+	_o_.AddKindXT("initial", "circle", "Neutral.Text")
+	_o_.AddKindXT("start", "circle", "Neutral.Text")
+	_o_.AddKindXT("final", "doublecircle", "Neutral.Text")
+	_o_.AddKindXT("endpoint", "doublecircle", "Neutral.Text")
+	_o_.AddKindXT("choice", "diamond", "Info.Border")
+	_o_.AddKindXT("decision", "diamond", "Info.Border")
+	_o_.SetRegionFill("Info.Surface")
 	_o_.ForbidFor("initial", :Inbound,
 		"nothing transitions INTO the initial pseudostate -- it is " +
 		"where the machine wakes up, not a state it returns to. A " +
@@ -227,8 +236,20 @@ class stzWorkflow from stzDiagram
 			_cType_ = "endpoint"
 		ok
 		
-		paProps + [ "nodetype", "state" ]
-		paProps + [ "type", _cType_ ]
+		# A DECLARED KIND OUTRANKS THE DERIVED ONE. This appended "type"
+		# unconditionally, so a state declared as a pseudostate -- a
+		# choice, a fork, a join, all of which the notation's vocabulary
+		# names -- arrived with TWO type keys and broke the hashlist.
+		# The three kinds this method can derive (state, start,
+		# endpoint) are a default, not a ceiling.
+		if NOT HasKey(paProps, "nodetype")
+			paProps + [ "nodetype", "state" ]
+		ok
+		if HasKey(paProps, "type")
+			_cType_ = "" + paProps[:type]
+		else
+			paProps + [ "type", _cType_ ]
+		ok
 
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	

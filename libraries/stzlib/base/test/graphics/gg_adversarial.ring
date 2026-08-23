@@ -4876,9 +4876,14 @@ for aLcN in oLc.RenderNodeLabels()
 	ok
 next
 ? "   outside labels : " + nLcOut + " , inside : " + nLcIn
-chkeq("the two circle-family cells write their names OUTSIDE", nLcOut, 2)
+# ONE of the two circle-family cells carries a name; the entry
+# pseudostate is labelled "" on purpose and now writes NOTHING, where
+# it used to fall back to printing its id ("i") under the mark.
+chkeq("a named circle-family cell writes its name OUTSIDE", nLcOut, 1)
 chkeq("...strictly below the glyph", nLcBad, 0)
 chkeq("...while every rectangle keeps its name inside", nLcIn, 3)
+chkeq("...and an empty label draws nothing at all",
+      len(oLc.RenderNodeLabels()), 4)
 
 # the paper was BOUGHT for the bottom label, not borrowed
 nLcH = oLc.LastCanvas().Height()
