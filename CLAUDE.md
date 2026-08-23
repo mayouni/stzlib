@@ -326,9 +326,25 @@ with the server itself:
 ```bash
 git ls-remote codeberg main   # must equal `git rev-parse main`
 ```
-If it lags, push an explicit refspec, which forces the negotiation:
+If it lags, push an explicit refspec, which forces the negotiation --
+and name the SOURCE COMMIT, never `HEAD`:
 ```bash
-git push codeberg HEAD:refs/heads/main
+git push codeberg main:refs/heads/main
+```
+
+**`HEAD:refs/heads/main` IS A TRAP ON A SHARED TREE, and this file used to
+recommend it.** It reads as "push main" and means "push whatever is
+checked out". A parallel session had switched this working tree to its own
+branch mid-session, so that line pushed a FEATURE BRANCH onto codeberg's
+`main`: the two remotes diverged, and one of the other session's commits
+briefly existed nowhere but on codeberg's main. Recovering it needed a
+force push. Say `main:refs/heads/main`, or the explicit sha you verified --
+both are wrong loudly if you are not where you think you are, where `HEAD`
+is wrong silently.
+
+**Check where you are before any push**, for the same reason:
+```bash
+git status -sb | head -1     # the branch, not an assumption
 ```
 
 ## Sensitive test patterns
