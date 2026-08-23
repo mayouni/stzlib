@@ -5486,6 +5486,117 @@ chk("a mode gap is priced by what CROSSES it, not by peer chords",
     fabs(nLwGapLong - nLwGapShort) < 2)
 
 
+sec("-- 60. FOUR MARKS ON ONE PICTURE, AND EACH AN OLD LAW ---------")
+#
+# The Principal, marking the door and surprised these were still here:
+# "waste" on the entry gap, "??" on two hooked arrowheads, "mal
+# positioned" on two labels, "too tight" on a rail against its frame.
+# Not one needed a new idea -- every one was a law this file already
+# holds, unapplied to the mode template.
+#
+# TWO NEIGHBOURS ON ONE ROW ARE JOINED BY ONE LINE (I4). Every ortho
+# arrival was forced onto the rank-facing border, which is right for an
+# edge crossing a rank gap and absurd for two peers side by side: the
+# path ran out of the side, along the row, then UP into the target's
+# top. A hook where the reader looks for a constraint and finds none --
+# the "??" he circled.
+#
+# A FRAME PAYS FOR INK WHERE THE INK RUNS. Doubling the pad to hold the
+# return rail paid for that rail on all four sides, including the top
+# where nothing runs, and the entry gap came out twice as deep as
+# anything standing in it -- the "waste". The rail is measured where it
+# is instead, and gets its clearance of air -- the "too tight".
+#
+# And the labels followed: given a rail with room around it, the placer
+# put each event back on its own line.
+#---------------------------------------------------------------------------
+
+oFm = new stzWorkflow("marks60")
+oFm.SetWorkflowType("statemachine")
+oFm.AddStateXTT("i", "", [ :isInitial = 1 ])
+oFm.AddStateXT("closed", "Closed")
+oFm.AddStateXT("open", "Open")
+oFm.AddStateXT("locked", "Locked")
+oFm.AddStateXTT("gone", "Demolished", [ :isFinal = 1 ])
+oFm.AddTransition("i", "closed", "")
+oFm.AddTransition("closed", "open", "open")
+oFm.AddTransition("open", "closed", "close")
+oFm.AddTransition("closed", "locked", "lock")
+oFm.AddTransition("locked", "closed", "unlock")
+oFm.AddTransition("locked", "locked", "lock")
+oFm.AddTransition("closed", "gone", "demolish")
+oFm.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
+	:FontSize = 13 ])
+
+# "??" -- a peer edge is ONE segment, and it is horizontal
+aFmP = []
+for aFmR in oFm.RenderEdgePaths()
+	if aFmR[1] = "closed>open"  aFmP = aFmR[2]  ok
+next
+? "   the peer edge has " + (len(aFmP) / 2) + " points"
+chkeq("two neighbours on one row are joined by ONE segment",
+      len(aFmP), 4)
+chk("...and it is horizontal, with no hook into a border",
+    fabs(aFmP[2] - aFmP[4]) < 1)
+
+# "too tight" -- the rail stands clear of the frame it lives in
+nFmRail = -1
+for aFmR in oFm.RenderEdgePaths()
+	if aFmR[1] != "open>closed"  loop  ok
+	for iFm = 2 to len(aFmR[2]) step 2
+		if aFmR[2][iFm] > nFmRail  nFmRail = aFmR[2][iFm]  ok
+	next
+next
+nFmBot = -1
+for aFmC in oFm.RenderClusterRects()
+	if aFmC[2] + aFmC[4] > nFmBot  nFmBot = aFmC[2] + aFmC[4]  ok
+next
+? "   the rail sits " + (nFmBot - nFmRail) + "px above the frame's rule"
+chk("a rail inside a frame keeps its air", nFmBot - nFmRail >= 12)
+chk("...and is inside it at all", nFmRail < nFmBot)
+
+# "waste" -- the entry gap holds what crosses it and no more. Compared
+# against the frame's own chrome, which is the only thing that
+# legitimately lives there.
+nFmIy = -1  nFmTop = 1000000
+for rFm in oFm.RenderNodeRects()
+	if rFm[5] = "i"  nFmIy = rFm[2] + rFm[4]  ok
+next
+for aFmC in oFm.RenderClusterRects()
+	if aFmC[2] < nFmTop  nFmTop = aFmC[2]  ok
+next
+? "   the entry gap is " + (nFmTop - nFmIy) + "px above the frame"
+chk("an unlabelled entry gap is not twice what stands in it",
+    nFmTop - nFmIy < 200)
+
+# "mal positioned" -- every event label sits on ITS OWN edge's ink
+nFmFar = 0
+for aFmL in oFm.RenderLabels()
+	_dFm_ = 1000000
+	for aFmR in oFm.RenderEdgePaths()
+		if aFmR[1] != aFmL[6]  loop  ok
+		_fFm_ = aFmR[2]
+		for iFm = 1 to len(_fFm_) - 3 step 2
+			_axF_ = min([ _fFm_[iFm], _fFm_[iFm+2] ])
+			_bxF_ = max([ _fFm_[iFm], _fFm_[iFm+2] ])
+			_ayF_ = min([ _fFm_[iFm+1], _fFm_[iFm+3] ])
+			_byF_ = max([ _fFm_[iFm+1], _fFm_[iFm+3] ])
+			_dxF_ = 0
+			if _bxF_ < aFmL[2]  _dxF_ = aFmL[2] - _bxF_  ok
+			if _axF_ > aFmL[2]  _dxF_ = _axF_ - aFmL[2]  ok
+			_dyF_ = 0
+			if _byF_ < aFmL[3]  _dyF_ = aFmL[3] - _byF_  ok
+			if _ayF_ > aFmL[3]  _dyF_ = _ayF_ - aFmL[3]  ok
+			_dF_ = sqrt(_dxF_*_dxF_ + _dyF_*_dyF_)
+			if _dF_ < _dFm_  _dFm_ = _dF_  ok
+		next
+	next
+	if _dFm_ > oFm._LineClearance() * 1.5  nFmFar++  ok
+next
+? "   labels standing away from their own edge : " + nFmFar
+chkeq("every event label sits on the ink it names", nFmFar, 0)
+
+
 #---------------------------------------------------------------------------
 ? ""
 if nSecClock > 0
