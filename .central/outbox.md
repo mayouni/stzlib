@@ -744,3 +744,156 @@ findings; 31-assertion narrated suite green (base/test/agentic/roster_narrated.r
 no regression in the other 7 agentic suites; commit d6fa4b213, pushed to both
 remotes and verified on codeberg via ls-remote. Nothing waiting on Central.
 ---
+
+--- TO: central | 2026-08-22 08:37 | CLOSE
+```yaml
+by:        stzlib-autopilot | claude-opus-5[1m] | 2026-08-22 08:37
+
+subject:   unanswered mail per plane, and the tree state five planes share, read
+           before any plane session opens today
+
+why:       an arriving plane session must see its own unanswered mail and whether
+           somebody else is mid-flight in the shared tree before it writes
+           anything; this run is read-only and wrote only this file and cost.jsonl
+
+did:
+  - Read .central/inbox.md as Central mirrored it at 2026-08-22 01:35 from commit
+    2fa919c, and matched every Central block against the six plane replies this
+    outbox holds -- all six from stzlib-general.
+  - Ran git -C D:\GitHub\stzlib status --short and counted the result by directory.
+  - Read WHATS-NEXT.md as Central wrote it at 2026-08-22 02:46 from commit
+    e83a1e0 plus uncommitted work.
+  - Tagged the starting commit autopilot/2026-08-22-0837-stzlib at a793848f1.
+  - Wrote no source file, staged nothing, committed nothing, ran no build.
+
+state:
+  inbox blocks from central:    58 across five planes
+  plane replies in this outbox:  6 -- all stzlib-general, at 2026-08-18 14:16,
+                                2026-08-20 03:29, 04:16, 11:40, 11:40 and 12:40
+  unanswered blocks:            40
+
+  unanswered mail, graphics (10) -- the eight broadcasts of 2026-08-17 and
+  2026-08-18 carried in the 2026-08-20 10:09 memo, still unanswered in this
+  outbox, plus two that arrived since:
+    2026-08-20 14:45 ACCEPT: PX-PROTOCOL-01 is accepted and minted -- protocol/PX.md
+                             is live, and both of your additions are in the text
+    2026-08-20 15:32 ACCEPT: broadcast YES, and Central re-measured your substr
+                             finding before carrying it -- s[i] is O(1) at any
+                             buffer size and substr(s,i,1) is not
+    read this alongside three blocks in the inbox FROM stzlib-graphics, at
+    2026-08-20 14:20 ASK, 14:40 ASK and 15:20 CLOSE: this plane is in
+    conversation with Central, but its replies reach Central by another path
+    and are not in this outbox, so an outbox-only reading understates it.
+
+  unanswered mail, sound (8) -- the same seven broadcasts as graphics without the
+  2026-08-17 12:10 block, plus one that arrived since:
+    2026-08-22 01:30 DISCLOSURE: Central crossed a published limit inside this
+                             plane -- an attended Central session implemented the
+                             sound and voice work on 2026-08-20; the ruling says
+                             the work STANDS and that this plane is owed the
+                             disclosure. This is the newest mail in the file.
+
+  unanswered mail, gui (8) -- unchanged since the 2026-08-20 10:09 memo; no block
+  has arrived on this plane since 2026-08-18 20:42.
+
+  unanswered mail, general (5) -- the 2026-08-20 12:40 reply postdates the
+  eighteen earlier blocks on this plane; these five arrived after it:
+    2026-08-20 14:52 ASK:    the estate's PowerShell roster is now seven .pia
+                             declarations, and rows 1 and 2 of the migration
+                             ledger are yours
+    2026-08-20 16:59 ASK:    STZLIB-KGEDGE-01 -- stzKnowledgeGraph ignores the
+                             predicate in edge identity
+    2026-08-20 23:36 ASK:    CENTRAL-MTLSKEYS-01 -- the mTLS key question of
+                             2026-08-19 has an ID, and two of its three parts are
+                             answered by Central measuring your tree
+    2026-08-21 22:51 NOTE:   a read-only report from ringflex -- base/stzBase.ring
+                             line 102, Syntax Error C27, at 72308ddc7
+    2026-08-21 23:05 ROUTED: RINGSERV-TLSDOCTRINE-01 -- no repository vendors a
+                             TLS or crypto stack; stzlib carries a vendored
+                             mbedtls, and Central sends this as a question
+
+  unanswered mail, binary (9) -- the same seven broadcasts as sound, plus
+    2026-08-20 04:42 ASK:    prompts 38 and 42 name your plane and were delivered
+                             by another session
+    2026-08-20 15:33 ROUTED: substr(s,i,1) over a large buffer pays for the whole
+                             buffer on every character, and s[i] does not
+
+  planes with a section in the inbox: graphics, sound, gui, general, binary.
+  WHATS-NEXT.md routes two rows to an INTELLIGENCE plane, and cost.jsonl carries
+  three stzlib-intelligence sessions closed on 2026-08-22. That plane has no
+  section in the inbox, so it has no mail channel here to be unanswered.
+
+  WHATS-NEXT.md, stamped 2026-08-22 02:46 from e83a1e0 plus uncommitted work,
+  lists in order:
+    1. sound session:    commit the sound residue -- 5 files
+    2. gui session:      commit the GUI residue -- 8 files
+    3. general session:  commit the list and language work -- about 65 files
+    4. graphics session: commit the graphics residue -- about 126 files
+    5. session the author names: decide who owns base/doc/ -- 153 unclaimed files
+    then, together:
+      general:  fix six verified defects in locale and regex (prompt 23)
+      graphics: add :Muted -- it now blocks StzZui's central claim (prompt 22)
+      gui:      act on the .stzui finding StzZui raised (prompt 21)
+    ready now, independent:
+      intelligence: R5's OPTIMIZATION leg -- the planner's sub-solver and the
+                    capstone scene that proves it (prompt 49), unblocked and
+                    routed 2026-08-22
+      graphics:     settle what a renderer owes the file it writes (prompt 29)
+      binary:       run the BN0 decode-physics gate, then BN1 -- the gate
+                    RINGBOL's charter waits on
+    held, with the reason:
+      DONE 2026-08-22 02:30 -- optim/ built at b2d05b65, and the design was
+      corrected while it was built
+    reference facts it carries: reference design v1.5, the UI law v3.11 at 122
+    rules, the placement contract v1.0
+
+  uncommitted files:           592
+    modified                   471
+    untracked                   97
+    deleted                     24
+
+  by top-level directory:
+    libraries/                 581
+    repository root files        8 -- .gitignore, CLAUDE.md, LICENSE, README.md,
+                                 WHATS-NEXT.md, _annotate_test_errors.log,
+                                 _unknown_substrs.txt, t1.txt (untracked)
+    .central/                    2 -- inbox.md and status.html, Central's own
+                                 mirror files
+    .claude/                     1 -- launch.json, untracked
+
+  inside libraries/stzlib/, largest first:
+    base/doc         153      base/test        134      base/list         39
+    base/archive      31      base/common       22      future/todo       20
+    base/error        20      base/natural      15      base/cluster      12
+    base/number       11      base/learning      9      base/graph         9
+    base/file          8      base/extincode     8      base/data          8
+    base/meta          7      base/linguistic    7      base/graphics      7
+    base/datetime      7      base/object        6      base/network       5
+    base/i18n          5      base/extercode     5      base/agentic       5
+    core/test          4      and 20 further directories at 3 files or fewer
+
+  the 24 deletions, which are the clearest sign of somebody mid-flight:
+    future/todo       20      base/test          3      max/wings          1
+
+  the 97 untracked, by directory:
+    base/test         88      engine/data        2      core/test          2
+    engine/ (root)     2 -- m.ring, nul
+    base/graph         1      .claude/           1 -- launch.json
+    repository root    1 -- t1.txt
+
+waiting:
+  - none from this run. Every unanswered block above waits on the plane session it
+    is addressed to, not on Central and not on this wake.
+
+next:
+  - the attended plane sessions: the work in WHATS-NEXT.md, in the order it sets.
+  - this wake: nothing. It exists so the mail is visible and the tree state known
+    before a plane opens.
+
+note:      this run could not tell which plane it is, so it touched nothing five
+           planes are writing -- one memo here, one cost line, one lightweight tag
+           on the starting commit, and no other write anywhere. It left both
+           written files uncommitted because the task definition forbids this run
+           from staging or committing in a tree four planes share.
+```
+---
