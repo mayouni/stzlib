@@ -4685,6 +4685,102 @@ chk("the org root is centred over its two branches -- I6 on a domain",
     fabs(nOgCeo - (nOgCto + nOgCfo) / 2) < 1)
 
 
+sec("-- 53. DN2: the state machine -- cycles are FIRST-CLASS -------")
+#
+# The org chart forbade cycles; the state machine IS cycles -- open and
+# close, lock and unlock. Same foundation, near-opposite law, which is
+# what profiles are for. And DN2 earned its grammar the hard way: the
+# hierarchical layout refused any cyclic graph outright, because :Depth
+# is longest-path layering and no layering exists on a cycle. The layout
+# now picks an acyclic ORIENTATION (drop the DFS back edges from ranking
+# only), ranks against that, and draws the original arrows -- a back
+# edge points UP the picture, which is how a reader knows it returns.
+# The orientation is layout-private; :Depth the metric still refuses,
+# because on a cycle the FACT still does not exist.
+#---------------------------------------------------------------------------
+
+oSm3 = new stzWorkflow("door53")
+oSm3.SetWorkflowType("statemachine")
+chkeq("declaring a state machine puts it under its own law",
+      oSm3.Notation(), "statemachine")
+
+oSm3.AddStateXTT("init", "go", [ :isInitial = 1 ])
+oSm3.AddStateXT("closed", "Closed")
+oSm3.AddStateXT("open", "Open")
+oSm3.AddStateXT("locked", "Locked")
+oSm3.AddStateXTT("gone", "Gone", [ :isFinal = 1 ])
+oSm3.AddTransition("init", "closed", "")
+oSm3.AddTransition("closed", "open", "open")
+oSm3.AddTransition("open", "closed", "close")
+oSm3.AddTransition("closed", "locked", "lock")
+oSm3.AddTransition("locked", "closed", "unlock")
+oSm3.AddTransition("locked", "locked", "lock")
+oSm3.AddTransition("closed", "gone", "demolish")
+chkeq("a machine full of cycles has NO structural findings",
+      len(oSm3.NotationFindings()), 0)
+
+# the glyph vocabulary, declared against the table where the domain
+# disagrees with it: a state is a rounded BOX (a label barely fits a
+# circle); the pseudostates keep their circles
+oSmP = StzNotation("statemachine")
+chkeq("a state is a rounded box, the declaration outranking the table",
+      oSmP.GlyphOf("state"), "box")
+chkeq("...the initial pseudostate is the small circle",
+      oSmP.GlyphOf("start"), "circle")
+chkeq("...and the final state is the double one",
+      oSmP.GlyphOf("endpoint"), "doublecircle")
+
+# THE CYCLIC PICTURE EXISTS -- the refusal this section retired -- and
+# the back edge points UP: unlock returns, and the picture says so
+oSm3.SetSplines("ortho")
+oSm3.ToCanvasXT([ :NodeWidth = 104, :NodeHeight = 40 ])
+aSmR = oSm3.RenderNodeRects()
+chk("a cyclic machine RENDERS -- layering by acyclic orientation",
+    len(aSmR) = 5)
+nSmCl = 0  nSmLk = 0
+for r53 in aSmR
+	if r53[5] = "closed"  nSmCl = r53[2]  ok
+	if r53[5] = "locked"  nSmLk = r53[2]  ok
+next
+chk("the back edge's target ranks ABOVE its source -- return reads as up",
+    nSmCl < nSmLk)
+
+# kind-scoped refusals at the gesture, and the difference from the org
+# chart in one breath: a CYCLE passes here
+nSmLog = len(oSm3.EditLog())
+chk("nothing transitions INTO the initial pseudostate",
+    oSm3.Edit(:Link, [ "open", "init" ]) = 0 and len(oSm3.EditLog()) = nSmLog)
+chk("nothing LEAVES a final state",
+    oSm3.Edit(:Link, [ "gone", "open" ]) = 0 and len(oSm3.EditLog()) = nSmLog)
+chk("...while a link that closes a CYCLE is welcome in this domain",
+    oSm3.Edit(:Link, [ "open", "locked" ]) = 1)
+oSm3.Undo()
+
+# damaged behind the gate, the sweep names the EDGE -- the thing the
+# domain refuses -- in the house shape
+oSm3.Connect("gone", "open")
+aSm53 = oSm3.NotationFindings()
+nSm53 = 0
+for r53 in aSm53
+	if r53[:rule] = "notation-outbound" and r53[:subject] = "gone>open"
+		nSm53++
+	ok
+next
+chkeq("an exit from a final state is a finding on that edge", nSm53, 1)
+oSm3.RemoveThisEdge("gone", "open")
+
+# and the metric keeps its honesty: :Depth on a cyclic graph still
+# refuses -- the LAYOUT earned cycles, the FACT did not change
+bSm53 = 0
+try
+	StzGraphMetric(oSm3, :Depth)
+catch
+	bSm53 = 1
+done
+chkeq(":Depth still refuses a cycle -- the orientation is layout-private",
+      bSm53, 1)
+
+
 #---------------------------------------------------------------------------
 ? ""
 if nSecClock > 0

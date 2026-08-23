@@ -6,6 +6,56 @@
 $acWorkflowTypes = ["sequential", "statemachine"]
 $acWorkflowDefaultValidators = ["deadlock", "reachability", "completeness", "sla", "bottleneck"]
 
+# THE STATE MACHINE'S NOTATION -- DN2. Beside the model it speaks for,
+# like the org chart's (DN1), and its declarations are near-opposites,
+# which is the point of profiles: the same foundation reads differently
+# under a different domain's law.
+#
+#   VOCABULARY  a state is a rounded BOX -- the table says circle, and a
+#               label barely fits a circle; the declared kind outranks
+#               the table (the DN0 power, first used in anger here). The
+#               initial pseudostate is the small circle, the final state
+#               the double one. Start/endpoint spellings ride along
+#               because AddStateXTT already writes them.
+#   RULES       CYCLES ARE FIRST-CLASS -- no :Cycle, no :SecondParent,
+#               no :SelfLink: a state that transitions to itself is the
+#               most ordinary sentence in the language. What the domain
+#               DOES refuse is kind-scoped: nothing transitions INTO the
+#               initial pseudostate, and nothing LEAVES a final state.
+#   GRAMMAR     none; the loop and label grammar already earn their keep.
+func StzStateMachineNotation()
+	_o_ = StzNotation("statemachine")
+	if _o_.Name_() = "statemachine"  return _o_  ok
+	_o_ = new stzNotation("statemachine")
+	_o_.AddKind("state", "box")
+	_o_.AddKind("initial", "circle")
+	_o_.AddKind("start", "circle")
+	_o_.AddKind("final", "doublecircle")
+	_o_.AddKind("endpoint", "doublecircle")
+	_o_.ForbidFor("initial", :Inbound,
+		"nothing transitions INTO the initial pseudostate -- it is " +
+		"where the machine wakes up, not a state it returns to. A " +
+		"machine that can be re-entered wants an ordinary state named " +
+		"'idle' or 'ready' after its initial.")
+	_o_.ForbidFor("start", :Inbound,
+		"nothing transitions INTO the initial pseudostate -- it is " +
+		"where the machine wakes up, not a state it returns to. A " +
+		"machine that can be re-entered wants an ordinary state named " +
+		"'idle' or 'ready' after its initial.")
+	_o_.ForbidFor("final", :Outbound,
+		"a final state has no exits -- final is what the word means. " +
+		"If work continues after it, it was not final: make it an " +
+		"ordinary state, and let the machine end somewhere true.")
+	_o_.ForbidFor("endpoint", :Outbound,
+		"a final state has no exits -- final is what the word means. " +
+		"If work continues after it, it was not final: make it an " +
+		"ordinary state, and let the machine end somewhere true.")
+	StzRegisterNotation(_o_)
+	return _o_
+
+	func StateMachineNotation()
+		return StzStateMachineNotation()
+
 class stzWorkflow from stzDiagram
 	@cWorkflowType = "sequential"  # or "statemachine"
 	
@@ -43,6 +93,11 @@ class stzWorkflow from stzDiagram
 		_cType_ = StzLower(pcType)
 		if StzFindFirst(_cType_, $acWorkflowTypes) > 0
 			@cWorkflowType = _cType_
+			# a state machine is judged and drawn under its own law
+			# from the moment it declares itself one (DN2)
+			if _cType_ = "statemachine"
+				This.SetNotation(StzStateMachineNotation())
+			ok
 		ok
 	
 	def WorkflowType()
