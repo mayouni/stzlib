@@ -1051,3 +1051,72 @@ plastic layout. In every domain the author edits domain MEANING — a
 transition, a wire, a reporting line — and geometry belongs to the
 algorithm, which is what makes one editor, one layout and one contract
 able to serve them all.
+
+
+## DN2b — THE RING: a state machine is not a tree (2026-08-23)
+
+The Principal's deepest correction of the plane, and it invalidates an
+assumption every picture before it carried: *"you still consider a state
+machine diagram as a tree diagram, it isn't. Take the spatial metaphor of
+a space with states as cells sitting around its border, and for some of
+them when it is required, in the middle."*
+
+**Layered layout answers "what flows into what".** It is built for a DAG,
+and it treats a cycle as a defect to be oriented away. A statechart has
+no flow direction: its states are PEERS and its edges are EVENTS. Every
+mark on the layered state machines — the knot of channels, the
+scrambling, the arbitrary up-and-down of states that have no up or down
+— traces to that single mistake. **Graphviz says the same thing by
+shipping two programs**: `dot` for hierarchies, `circo`/`neato` for
+everything cyclic. We had been drawing a `circo` problem with `dot`'s
+model.
+
+### What shipped
+
+**A notation may declare THE LAYOUT IT IS READ IN** — the strongest
+grammar amendment in DN, and one line in the profile:
+`SetLayoutMode(:Ring)`. The state machine declares it; everything else
+stays layered, so the ring is a declaration and not a new default.
+
+`_LayoutRing()` in `stzGraphCanvas`, built to the metaphor:
+
+- **the border** — peers on a circle, no state above another because none
+  is
+- **the middle** — a HUB (degree ≥ 4 and talking to half the machine)
+  moves inside, where its edges become short radials instead of chords
+  sawing the space in half
+- **the order** — a traversal, so states that talk are neighbours and an
+  event is a short chord, then adjacent swaps kept only when a COUNTED
+  crossing number falls. Two chords cross iff exactly one endpoint of one
+  lies strictly between the other's: that is the whole geometry of a
+  circular layout, and it makes the improvement an honest hill-climb
+- **the entry** — the initial pseudostate opens the ring at the top
+
+### What the ring made visible elsewhere
+
+- **A ring needs a SQUARE inner box.** The inset is half a cell plus air,
+  and a cell is wider than it is tall, so a square canvas still handed
+  the layout a 768×832 box and the circle arrived as an ellipse — border
+  radii 32px apart. Ring renders inset equally on both axes.
+- **A chord must hold its event.** The shortest chord is the radius, and
+  BOTH members of an opposite pair write on it. A circumference-sized
+  radius left 50px for two labels. The radius now also clears both cells
+  plus two stacked labels — the "the line must be longer than what is
+  written on it" rule, in the ring's own geometry.
+- **A pair separates on a chord too**, and the perpendicular must come
+  from a CANONICAL direction: computed per edge it flips with the edge,
+  so both members stepped the same way and overlapped instead of
+  separating.
+- **A straight edge now PUBLISHES its drawn path.** Ortho edges have done
+  so since the label placer needed one; chords and curves never did, so
+  under a non-ortho spline every instrument — and the placer itself —
+  fell back to guessing.
+- **A self-loop radiates outward** on a ring: the two rank-derived sides
+  (top, right) cover a top or right cell, and the other two were added
+  for cells at the bottom and on the left, whose loops were otherwise
+  drawn INTO the space, across the chords they sit among.
+
+§56 holds it: one circle for the peers and the hub off it, a square
+space, the entry at the top, a counted crossing number of zero, chords of
+a pair on opposite sides — and the negative sibling, that a diagram
+declaring no layout mode is still layered.

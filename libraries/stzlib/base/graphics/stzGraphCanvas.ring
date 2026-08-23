@@ -388,6 +388,8 @@ class stzGraphCanvas from stzObject
 
 		if _cLay_ = "force"
 			This._LayoutForce()
+		but _cLay_ = "ring" or _cLay_ = "circular"
+			This._LayoutRing()
 		else
 			This._LayoutHierarchical()
 		ok
@@ -453,6 +455,249 @@ class stzGraphCanvas from stzObject
 			if _ys_[_k_] - _ys_[_k_-1] < _g_  _g_ = _ys_[_k_] - _ys_[_k_-1]  ok
 		next
 		return _g_
+
+	#-- THE RING: a space with states around its border ---------------------
+	#
+	# The Principal's correction, and it is the deep one: A STATE MACHINE IS
+	# NOT A TREE. Layered layout answers "what flows into what" -- it is
+	# built for a DAG and it reads a cycle as a defect to be oriented away.
+	# A statechart has no flow direction: its states are PEERS, and its
+	# edges are EVENTS fired between them. Graphviz says the same thing by
+	# shipping two engines: `dot` for hierarchies, `circo`/`neato` for
+	# everything cyclic. Drawing a machine with `dot`'s model was the fault
+	# under every mark he made -- the knot of channels, the scrambling, the
+	# arbitrary up-down of states that have no up or down.
+	#
+	# His metaphor is the template: A SPACE, with the states as cells
+	# sitting around its BORDER, and the ones that need it in the MIDDLE.
+	# So:
+	#
+	#   THE BORDER   states on a circle, every one a peer of every other,
+	#                and no state above another because none is
+	#   THE MIDDLE   a HUB -- a state most of the others talk to -- moves
+	#                inside, where its edges become short radials instead
+	#                of long chords sawing the space in half
+	#   THE ORDER    neighbours on the ring are states that talk, so an
+	#                event is a SHORT chord; found by traversal (which
+	#                follows the machine's own sequences) and improved by
+	#                adjacent swaps against a real crossing count
+	#   THE ENTRY    the initial pseudostate opens the ring at the top,
+	#                where every convention puts it, and reading runs
+	#                clockwise from there
+	#
+	# Crossings are counted, not hoped for: two chords (a,b) and (c,d)
+	# cross iff exactly one of c,d lies strictly between a and b around
+	# the ring. That is the whole geometry of a circular layout, and it
+	# makes the improvement pass an honest hill-climb rather than a shuffle.
+	def _LayoutRing()
+		@nLayoutCrossings = 0
+		_n_ = len(@aIds)
+		@aX = []  @aY = []
+		for _i_ = 1 to _n_  @aX + 0  @aY + 0  next
+		if _n_ = 0  return  ok
+		if _n_ = 1
+			@aX[1] = 0  @aY[1] = 0
+			@nLayerCount = 1
+			@aBendOf = []
+			@nRealCount = 1
+			@aDumEdge = []
+			return
+		ok
+
+		# undirected adjacency: an event relates two states whichever way
+		# it fires, and the ring is about relation, not direction
+		_aAdj_ = []
+		for _i_ = 1 to _n_  _aAdj_ + []  next
+		_aDeg_ = []
+		for _i_ = 1 to _n_  _aDeg_ + 0  next
+		_aIn_ = []
+		for _i_ = 1 to _n_  _aIn_ + 0  next
+		for _e_ in @oGraph.Edges()
+			_u_ = This._IndexOf(_e_[:from])
+			_v_ = This._IndexOf(_e_[:to])
+			if _u_ < 1 or _v_ < 1 or _u_ = _v_  loop  ok
+			_bDup_ = 0
+			for _k_ in _aAdj_[_u_]
+				if _k_ = _v_  _bDup_ = 1  exit  ok
+			next
+			if _bDup_  loop  ok
+			_aAdj_[_u_] + _v_
+			_aAdj_[_v_] + _u_
+			_aDeg_[_u_]++
+			_aDeg_[_v_]++
+			_aIn_[_v_]++
+		next
+
+		# THE MIDDLE: a hub talks to at least half the machine and to four
+		# states at least. Below that, the ring is the better place -- an
+		# interior node with two neighbours is not central to anything, it
+		# is just off the border where the reader's eye does not expect it.
+		_aInner_ = []
+		_aRing_ = []
+		for _i_ = 1 to _n_
+			if _aDeg_[_i_] >= 4 and _aDeg_[_i_] * 2 >= _n_ - 1
+				_aInner_ + _i_
+			else
+				_aRing_ + _i_
+			ok
+		next
+		# a ring of fewer than three is not a ring
+		if len(_aRing_) < 3
+			_aRing_ = []
+			_aInner_ = []
+			for _i_ = 1 to _n_  _aRing_ + _i_  next
+		ok
+
+		# THE ENTRY opens the ring: a state nothing transitions into is
+		# where reading starts, and it goes to the top
+		_nStart_ = _aRing_[1]
+		for _i_ in _aRing_
+			if _aIn_[_i_] = 0  _nStart_ = _i_  exit  ok
+		next
+
+		# THE ORDER: a traversal, so states that talk end up adjacent --
+		# the machine's own sequences become the ring's arcs
+		_aOrd_ = []
+		_aSeen_ = []
+		for _i_ = 1 to _n_  _aSeen_ + 0  next
+		_bOnRing_ = []
+		for _i_ = 1 to _n_  _bOnRing_ + 0  next
+		for _i_ in _aRing_  _bOnRing_[_i_] = 1  next
+		_aStack_ = [ _nStart_ ]
+		_aSeen_[_nStart_] = 1
+		while len(_aStack_) > 0
+			_u_ = _aStack_[ len(_aStack_) ]
+			_aNew_ = []
+			for _k_ = 1 to len(_aStack_) - 1  _aNew_ + _aStack_[_k_]  next
+			_aStack_ = _aNew_
+			if _bOnRing_[_u_]  _aOrd_ + _u_  ok
+			# push neighbours in reverse so the first-declared is visited
+			# first: a machine reads in the order its author wrote it
+			for _k_ = len(_aAdj_[_u_]) to 1 step -1
+				_v_ = _aAdj_[_u_][_k_]
+				if _aSeen_[_v_]  loop  ok
+				_aSeen_[_v_] = 1
+				_aStack_ + _v_
+			next
+		end
+		for _i_ in _aRing_
+			if _aSeen_[_i_] = 0  _aOrd_ + _i_  ok
+		next
+
+		# IMPROVE BY MEASUREMENT: adjacent swaps kept only when the counted
+		# crossing number falls. Bounded passes, deterministic order.
+		_nBest_ = This._RingCrossings(_aOrd_, _aAdj_)
+		_m_ = len(_aOrd_)
+		for _pass_ = 1 to 6
+			_bMoved_ = 0
+			for _k_ = 1 to _m_
+				_k2_ = _k_ + 1
+				if _k2_ > _m_  _k2_ = 1  ok
+				_t_ = _aOrd_[_k_]
+				_aOrd_[_k_] = _aOrd_[_k2_]
+				_aOrd_[_k2_] = _t_
+				_nTry_ = This._RingCrossings(_aOrd_, _aAdj_)
+				if _nTry_ < _nBest_
+					_nBest_ = _nTry_
+					_bMoved_ = 1
+				else
+					_t_ = _aOrd_[_k_]
+					_aOrd_[_k_] = _aOrd_[_k2_]
+					_aOrd_[_k2_] = _t_
+				ok
+			next
+			if NOT _bMoved_  exit  ok
+		next
+		@nLayoutCrossings = _nBest_
+
+		# ...and the entry state is rotated to the top, where every
+		# convention puts it, without disturbing the order around it
+		_nAt_ = 0
+		for _k_ = 1 to _m_
+			if _aOrd_[_k_] = _nStart_  _nAt_ = _k_  exit  ok
+		next
+		if _nAt_ > 1
+			_aRot_ = []
+			for _k_ = _nAt_ to _m_  _aRot_ + _aOrd_[_k_]  next
+			for _k_ = 1 to _nAt_ - 1  _aRot_ + _aOrd_[_k_]  next
+			_aOrd_ = _aRot_
+		ok
+
+		# THE SPACE. Radius 1 in layout units; _Normalise fits it to the
+		# canvas, and the diagram keeps the canvas square so a circle
+		# cannot arrive as an ellipse.
+		_pi2_ = 6.283185307179586
+		for _k_ = 1 to _m_
+			_ang_ = -1.5707963267948966 + (_k_ - 1) * _pi2_ / _m_
+			@aX[ _aOrd_[_k_] ] = cos(_ang_)
+			@aY[ _aOrd_[_k_] ] = sin(_ang_)
+		next
+
+		# THE MIDDLE, placed where its own edges pull it, then pushed
+		# apart so two hubs never share a point
+		for _i_ in _aInner_
+			_sx_ = 0  _sy_ = 0  _c_ = 0
+			for _v_ in _aAdj_[_i_]
+				if NOT _bOnRing_[_v_]  loop  ok
+				_sx_ += @aX[_v_]
+				_sy_ += @aY[_v_]
+				_c_++
+			next
+			if _c_ > 0
+				@aX[_i_] = _sx_ / _c_ * 0.34
+				@aY[_i_] = _sy_ / _c_ * 0.34
+			else
+				@aX[_i_] = 0
+				@aY[_i_] = 0
+			ok
+		next
+		_nI_ = len(_aInner_)
+		if _nI_ > 1
+			for _k_ = 1 to _nI_
+				_ang_ = (_k_ - 1) * _pi2_ / _nI_
+				@aX[ _aInner_[_k_] ] += cos(_ang_) * 0.22
+				@aY[ _aInner_[_k_] ] += sin(_ang_) * 0.22
+			next
+		ok
+
+		# a ring has no layers, and says so: nothing downstream may read
+		# rank meaning out of a picture that has none
+		@nLayerCount = 1
+		@aBendOf = []
+		@nRealCount = _n_
+		@aDumEdge = []
+
+	# Chords (a,b) and (c,d) on a circle cross iff exactly one of c,d lies
+	# strictly between a and b going one way round. Counted over the ring
+	# order, which is the only geometry a circular layout has.
+	def _RingCrossings(paOrd, paAdj)
+		_m_ = len(paOrd)
+		_aPos_ = []
+		for _i_ = 1 to len(@aIds)  _aPos_ + 0  next
+		for _k_ = 1 to _m_  _aPos_[ paOrd[_k_] ] = _k_  next
+		_aCh_ = []
+		for _k_ = 1 to _m_
+			_u_ = paOrd[_k_]
+			for _v_ in paAdj[_u_]
+				if _aPos_[_v_] = 0  loop  ok
+				if _aPos_[_v_] <= _k_  loop  ok
+				_aCh_ + [ _k_, _aPos_[_v_] ]
+			next
+		next
+		_nC_ = len(_aCh_)
+		_nX_ = 0
+		for _i_ = 1 to _nC_
+			for _j_ = _i_ + 1 to _nC_
+				_a_ = _aCh_[_i_][1]  _b_ = _aCh_[_i_][2]
+				_c_ = _aCh_[_j_][1]  _d_ = _aCh_[_j_][2]
+				# share an endpoint: meeting, not crossing
+				if _a_ = _c_ or _a_ = _d_ or _b_ = _c_ or _b_ = _d_  loop  ok
+				_bC_ = (_c_ > _a_ and _c_ < _b_)
+				_bD_ = (_d_ > _a_ and _d_ < _b_)
+				if (_bC_ and NOT _bD_) or (_bD_ and NOT _bC_)  _nX_++  ok
+			next
+		next
+		return _nX_
 
 	# THE RANK OF EVERY NODE, and cycles are a LAYOUT question here, not a
 	# metric one -- DN2, where the first cyclic domain arrived.

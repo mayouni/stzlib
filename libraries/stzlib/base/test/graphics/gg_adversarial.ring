@@ -4896,95 +4896,188 @@ chkeq("a rectangles-only picture writes nothing outside", nLc2, 0)
 
 sec("-- 55. A PAIR IS ONE CONVERSATION; A GAP COSTS WHAT CROSSES IT --")
 #
-# The Principal on the first FSM picture: "not expressive at all,
-# somehow scrambled, does not resemble state machines' conventional
-# diagrams" -- with the knot of channels circled and the dead stretch
-# init->Closed named. Two grammar rules close it:
+# Two laws the state machine was first to need, but neither is
+# state-machine code -- they are held here on an ordinary LAYERED
+# diagram, which is where the twin-path machinery lives.
 #
-# TWIN LANES. A->B and B->A are the same relationship read both ways,
-# so the return edge mirrors its partner's exact path, offset one
+# TWIN LANES. A->B and B->A are the same relationship read both ways, so
+# under ortho the return mirrors its partner's exact path, offset one
 # clearance: two rails, unmistakably one pair, and the return never
 # wanders through foreign channels the way a lone back edge must.
 #
-# PER-GAP PITCH. One uniform rank pitch made the unlabelled entry gap
-# as tall as the gap carrying four event labels. A gap is priced by
-# what crosses it: labelled gaps buy label room, unlabelled gaps keep
-# the base separation.
+# PER-GAP PITCH. One uniform rank pitch made an unlabelled gap as tall
+# as a gap carrying labels. A gap is priced by what crosses it.
 #---------------------------------------------------------------------------
 
-oTw = new stzWorkflow("door55")
-oTw.SetWorkflowType("statemachine")
-oTw.AddStateXTT("init", "", [ :isInitial = 1 ])
-oTw.AddStateXT("closed", "Closed")
-oTw.AddStateXT("open", "Open")
-oTw.AddStateXT("locked", "Locked")
-oTw.AddTransition("init", "closed", "")
-oTw.AddTransition("closed", "open", "open")
-oTw.AddTransition("open", "closed", "close")
-oTw.AddTransition("closed", "locked", "lock")
-oTw.AddTransition("locked", "closed", "unlock")
+oTw = new stzDiagram("pair55")
+oTw.AddNodeXTT("a", "A", [ :type = "box" ])
+oTw.AddNodeXTT("b", "B", [ :type = "box" ])
+oTw.AddNodeXTT("c", "C", [ :type = "box" ])
+oTw.AddEdge("a", "b")
+oTw.AddEdgeXT("b", "c", "go")
+oTw.AddEdgeXT("c", "b", "back")
 oTw.SetSplines("ortho")
 oTw.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
 	:FontSize = 13 ])
 
-# THE TWIN IS ITS PARTNER'S PATH, one clearance away: same number of
-# points, every segment parallel at the same distance
 aTwD = []  aTwU = []
 for aTwP in oTw.RenderEdgePaths()
-	if aTwP[1] = "closed>locked"  aTwD = aTwP[2]  ok
-	if aTwP[1] = "locked>closed"  aTwU = aTwP[2]  ok
+	if aTwP[1] = "b>c"  aTwD = aTwP[2]  ok
+	if aTwP[1] = "c>b"  aTwU = aTwP[2]  ok
 next
 chk("both members of the pair have drawn paths",
     len(aTwD) >= 4 and len(aTwU) >= 4)
+# RAILS, measured as DISTANCE TO THE PARTNER PATH, not as a point-count
+# match: the twin is rebuilt from segment intersections, so it may hold a
+# different number of vertices while being the same shape offset. What
+# makes it a rail is that every one of its vertices stands about a
+# clearance from the partner's ink -- never on it, never wandering off.
 nTwClr = oTw._LineClearance()
-# compare the down path with the REVERSED up path, point by point
-nTwPts = len(aTwD) / 2
 nTwBad = 0
-if len(aTwU) = len(aTwD)
-	for iTw = 1 to nTwPts
-		_dxT_ = aTwU[ len(aTwU) - iTw*2 + 1 ] - aTwD[ iTw*2 - 1 ]
-		_dyT_ = aTwU[ len(aTwU) - iTw*2 + 2 ] - aTwD[ iTw*2 ]
-		_dT_ = sqrt(_dxT_*_dxT_ + _dyT_*_dyT_)
-		# every reversed point sits within about one diagonal clearance
-		# of its partner point -- rails, not two routes
-		if _dT_ > nTwClr * 1.5 + 1  nTwBad++  ok
-	next
-else
-	nTwBad = 99
-ok
-? "   pair points off the rail : " + nTwBad
-chkeq("the return is its partner's path, one clearance away", nTwBad, 0)
-
-# ...and the twin's lane is ITS OWN: no point of it coincides with the
-# partner (the old failure drew the return through foreign channels;
-# a zero offset would draw it ON its partner)
 nTwZero = 0
-if len(aTwU) = len(aTwD)
-	for iTw = 1 to nTwPts
-		_dxT_ = aTwU[ len(aTwU) - iTw*2 + 1 ] - aTwD[ iTw*2 - 1 ]
-		_dyT_ = aTwU[ len(aTwU) - iTw*2 + 2 ] - aTwD[ iTw*2 ]
-		if sqrt(_dxT_*_dxT_ + _dyT_*_dyT_) < 2  nTwZero++  ok
-	next
-ok
+for iTw = 1 to len(aTwU) - 1 step 2
+	_dT_ = _Dist55(aTwU[iTw], aTwU[iTw+1], aTwD)
+	if _dT_ > nTwClr * 1.6 + 1  nTwBad++  ok
+	if _dT_ < 2  nTwZero++  ok
+next
+? "   twin vertices off the rail : " + nTwBad + " of " + (len(aTwU) / 2)
+chkeq("the return is its partner's path, one clearance away", nTwBad, 0)
 chkeq("...and never ON it", nTwZero, 0)
 
-# PER-GAP PITCH: the unlabelled entry gap is tighter than the labelled
-# one below it
-nTwInit = -1  nTwClosed = -1  nTwOpen = -1
+# PER-GAP PITCH: a>b crosses an unlabelled gap, b>c a labelled one
+nTwA = -1  nTwB = -1  nTwB2 = -1  nTwC = -1
 for rTw in oTw.RenderNodeRects()
-	if rTw[5] = "init"    nTwInit = rTw[2] + rTw[4]  ok
-	if rTw[5] = "closed"  nTwClosed = rTw[2]  ok
-	if rTw[5] = "open"    nTwOpen = rTw[2]  ok
+	if rTw[5] = "a"  nTwA = rTw[2] + rTw[4]  ok
+	if rTw[5] = "b"  nTwB = rTw[2]  nTwB2 = rTw[2] + rTw[4]  ok
+	if rTw[5] = "c"  nTwC = rTw[2]  ok
 next
-nTwG1 = nTwClosed - nTwInit
-for rTw in oTw.RenderNodeRects()
-	if rTw[5] = "closed"  nTwG2 = nTwOpen - (rTw[2] + rTw[4])  ok
-next
-? "   entry gap " + nTwG1 + "px, labelled gap " + nTwG2 + "px"
+nTwG1 = nTwB - nTwA
+nTwG2 = nTwC - nTwB2
+? "   unlabelled gap " + nTwG1 + "px, labelled gap " + nTwG2 + "px"
 chk("an unlabelled gap does not pay the labelled gap's price",
     nTwG1 < nTwG2 - 20)
 chk("...while still clearing the crossable floor",
     nTwG1 >= oTw._LineClearance() * 2)
+
+
+sec("-- 56. THE RING: a state machine is NOT a tree ----------------")
+#
+# The Principal's deepest correction: "you still consider a state
+# machine diagram as a tree diagram, it isn't. Take the spatial
+# metaphor of a space with states as cells sitting around its border,
+# and for some of them, in the middle."
+#
+# He is right, and graphviz says the same thing by shipping two
+# programs: dot for hierarchies, circo and neato for everything cyclic.
+# Layered layout answers "what flows into what" -- a statechart has no
+# flow direction, its states are PEERS and its edges are EVENTS. Every
+# mark he made on the layered pictures traces to that one mistake.
+#
+# So a notation may now declare THE LAYOUT IT IS READ IN -- the
+# strongest grammar amendment there is -- and the state machine
+# declares :Ring. States sit around a space; a hub moves to the middle,
+# where its edges become short radials instead of chords sawing the
+# space in half; the ring ORDER is chosen against a counted crossing
+# number; and the entry opens the ring at the top.
+#---------------------------------------------------------------------------
+
+chkeq("the state machine declares the layout it is read in",
+      StzLower("" + StzNotation("statemachine").LayoutMode()), "ring")
+
+oRg = new stzWorkflow("door56")
+oRg.SetWorkflowType("statemachine")
+oRg.AddStateXTT("init", "", [ :isInitial = 1 ])
+oRg.AddStateXT("closed", "Closed")
+oRg.AddStateXT("open", "Open")
+oRg.AddStateXT("locked", "Locked")
+oRg.AddStateXTT("gone", "Gone", [ :isFinal = 1 ])
+oRg.AddTransition("init", "closed", "")
+oRg.AddTransition("closed", "open", "open")
+oRg.AddTransition("open", "closed", "close")
+oRg.AddTransition("closed", "locked", "lock")
+oRg.AddTransition("locked", "closed", "unlock")
+oRg.AddTransition("closed", "gone", "demolish")
+oRg.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
+	:FontSize = 13 ])
+
+# THE SPACE IS SQUARE, or the fit would deliver the circle as an
+# ellipse -- the ring's one hard requirement on the canvas
+chkeq("a ring is drawn in a square space",
+      oRg.LastCanvas().Width(), oRg.LastCanvas().Height())
+
+# THE BORDER: the peers are equidistant from the centre, and the hub is
+# NOT -- that is the whole metaphor, measured
+aRgR = oRg.RenderNodeRects()
+nRgCx = oRg.LastCanvas().Width() / 2
+nRgCy = oRg.LastCanvas().Height() / 2
+nRgHub = -1
+aRgRad = []
+for rRg in aRgR
+	_rx_ = rRg[1] + rRg[3] / 2 - nRgCx
+	_ry_ = rRg[2] + rRg[4] / 2 - nRgCy
+	_rr_ = sqrt(_rx_*_rx_ + _ry_*_ry_)
+	if rRg[5] = "closed"
+		nRgHub = _rr_
+	else
+		aRgRad + _rr_
+	ok
+next
+nRgLo = 1000000  nRgHi = 0
+for vRg in aRgRad
+	if vRg < nRgLo  nRgLo = vRg  ok
+	if vRg > nRgHi  nRgHi = vRg  ok
+next
+? "   border radii " + nRgLo + ".." + nRgHi + " , hub at " + nRgHub
+chk("the peers sit on ONE circle -- a border, not a rank",
+    nRgHi - nRgLo < 2)
+chk("...and the hub is in the MIDDLE, not on it", nRgHub < nRgLo / 2)
+
+# THE ENTRY OPENS THE RING AT THE TOP, where every convention puts it
+nRgInitY = 0  nRgTop = 1000000
+for rRg in aRgR
+	if rRg[5] = "init"  nRgInitY = rRg[2]  ok
+	if rRg[2] < nRgTop  nRgTop = rRg[2]  ok
+next
+chkeq("the initial pseudostate opens the ring at the top",
+      nRgInitY, nRgTop)
+
+# AND THE CROSSING NUMBER IS COUNTED, not hoped for
+? "   ring crossings : " + oRg.RenderCrossings()
+chkeq("the ring order is chosen against a counted crossing number",
+      oRg.RenderCrossings(), 0)
+
+# A PAIR SEPARATES ON A CHORD TOO -- the two members take opposite
+# sides of the line they share, so neither is drawn on the other
+aRgOc = []  aRgCo = []
+for aRgP in oRg.RenderEdgePaths()
+	if aRgP[1] = "closed>open"  aRgOc = aRgP[2]  ok
+	if aRgP[1] = "open>closed"  aRgCo = aRgP[2]  ok
+next
+chk("both chords of the pair are drawn",
+    len(aRgOc) >= 4 and len(aRgCo) >= 4)
+nRgSep = fabs((aRgOc[2] + aRgOc[4]) / 2 - (aRgCo[2] + aRgCo[4]) / 2)
+? "   the pair's chords stand " + nRgSep + "px apart"
+chk("...on opposite sides of the line they share",
+    nRgSep >= oRg._LineClearance())
+
+# THE NEGATIVE SIBLING: a domain that declares NO layout mode is still
+# layered -- the ring is a declaration, not a new default
+oRg2 = new stzDiagram("plain56")
+oRg2.AddNodeXTT("p", "P", [ :type = "box" ])
+oRg2.AddNodeXTT("q", "Q", [ :type = "box" ])
+oRg2.AddNodeXTT("r", "R", [ :type = "box" ])
+oRg2.AddEdge("p", "q")  oRg2.AddEdge("p", "r")
+oRg2.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
+nRg2 = 0
+for rRg in oRg2.RenderNodeRects()
+	if rRg[5] = "p"  nRg2 = rRg[2]  ok
+next
+nRg2b = 1000000
+for rRg in oRg2.RenderNodeRects()
+	if rRg[5] != "p" and rRg[2] < nRg2b  nRg2b = rRg[2]  ok
+next
+chk("a diagram that declares no layout mode is still LAYERED",
+    nRg2 < nRg2b - 20)
 
 
 #---------------------------------------------------------------------------
@@ -5046,6 +5139,28 @@ func _G50
 	_g_.AddEdge("lb","api2")   _g_.AddEdge("api2","db2")
 	_g_.SetSplines("ortho")
 	return _g_
+
+# The distance from a point to a flat polyline -- what makes two paths
+# rails rather than two routes.
+func _Dist55 nX, nY, paFlat
+	_best55_ = 1000000
+	for _i55_ = 1 to len(paFlat) - 3 step 2
+		_ax_ = paFlat[_i55_]    _ay_ = paFlat[_i55_+1]
+		_bx_ = paFlat[_i55_+2]  _by_ = paFlat[_i55_+3]
+		_vx_ = _bx_ - _ax_      _vy_ = _by_ - _ay_
+		_ll_ = _vx_*_vx_ + _vy_*_vy_
+		_t55_ = 0
+		if _ll_ > 0.000001
+			_t55_ = ((nX - _ax_) * _vx_ + (nY - _ay_) * _vy_) / _ll_
+			if _t55_ < 0  _t55_ = 0  ok
+			if _t55_ > 1  _t55_ = 1  ok
+		ok
+		_px_ = _ax_ + _vx_ * _t55_
+		_py_ = _ay_ + _vy_ * _t55_
+		_d55_ = sqrt((nX - _px_) * (nX - _px_) + (nY - _py_) * (nY - _py_))
+		if _d55_ < _best55_  _best55_ = _d55_  ok
+	next
+	return _best55_
 
 func _Rect49 oDg, cId
 	for _r49_ in oDg.RenderNodeRects()
