@@ -454,10 +454,116 @@ class stzGraphCanvas from stzObject
 		next
 		return _g_
 
+	# THE RANK OF EVERY NODE, and cycles are a LAYOUT question here, not a
+	# metric one -- DN2, where the first cyclic domain arrived.
+	#
+	# :Depth is a graph FACT: longest-path depth, which does not exist on
+	# a cycle, and the engine rightly refuses to invent it. But a state
+	# machine's whole vocabulary is cycles -- open/close, lock/unlock --
+	# and "draw me" is not a question about depth. dot answered this in
+	# 1993: pick an acyclic ORIENTATION (reverse the back edges found by a
+	# DFS), rank against that, and draw the original arrows -- a back edge
+	# simply points up the picture, which is exactly how a reader knows it
+	# returns. The orientation is layout-private; no fact is misreported,
+	# because no face ever sees it.
+	#
+	# Ring-side, deliberately, where everything else here is engine-first:
+	# the DFS runs once per RENDER on a picture-sized graph (a drawable
+	# state machine is tens of states), and crossing the seam would mean
+	# teaching the engine a second, weaker meaning of :Depth. The acyclic
+	# case keeps the engine's exact metric, so DAGs pay nothing.
+	def _Layering()
+		# back edges, by iterative DFS from every root (or node 1 when the
+		# cycle leaves no roots at all)
+		_n_ = len(@aIds)
+		_aAdj_ = []
+		for _i_ = 1 to _n_  _aAdj_ + []  next
+		_aIn_ = []
+		for _i_ = 1 to _n_  _aIn_ + 0  next
+		_aE_ = @oGraph.Edges()
+		_nE_ = len(_aE_)
+		_aFwd_ = []                    # [ u, v ] pairs kept for ranking
+		for _ei_ = 1 to _nE_
+			_u_ = This._IndexOf(_aE_[_ei_][:from])
+			_v_ = This._IndexOf(_aE_[_ei_][:to])
+			if _u_ < 1 or _v_ < 1 or _u_ = _v_  loop  ok
+			_aAdj_[_u_] + _v_
+			_aIn_[_v_]++
+		next
+
+		_aState_ = []                  # 0 unseen, 1 on stack, 2 done
+		for _i_ = 1 to _n_  _aState_ + 0  next
+		_bCyc_ = 0
+		for _root_ = 1 to _n_
+			if _aState_[_root_] != 0  loop  ok
+			if _aIn_[_root_] > 0 and _bCyc_ = 0  loop  ok
+			_bCyc_ = This._DfsOrient(_root_, _aAdj_, _aState_, _aFwd_) or _bCyc_
+		next
+		# a pure cycle has no roots; sweep whatever is still unseen
+		for _root_ = 1 to _n_
+			if _aState_[_root_] = 0
+				_bCyc_ = This._DfsOrient(_root_, _aAdj_, _aState_, _aFwd_) or _bCyc_
+			ok
+		next
+
+		if NOT _bCyc_
+			return StzGraphMetric(@oGraph, :Depth)
+		ok
+
+		# longest-path ranks over the kept orientation: relax until fixed.
+		# Bounded by n passes -- the orientation is acyclic by construction.
+		_lay_ = []
+		for _i_ = 1 to _n_  _lay_ + 0  next
+		_nF_ = len(_aFwd_)
+		for _pass_ = 1 to _n_
+			_bMoved_ = 0
+			for _k_ = 1 to _nF_
+				if _lay_[_aFwd_[_k_][2]] < _lay_[_aFwd_[_k_][1]] + 1
+					_lay_[_aFwd_[_k_][2]] = _lay_[_aFwd_[_k_][1]] + 1
+					_bMoved_ = 1
+				ok
+			next
+			if NOT _bMoved_  exit  ok
+		next
+		return _lay_
+
+	# One DFS from pnRoot: forward/cross edges join paFwd, back edges are
+	# dropped (they become the upward arrows). Answers whether it saw a
+	# back edge at all. Iterative -- a chain-shaped machine is as deep as
+	# it is long.
+	def _DfsOrient(pnRoot, paAdj, paState, paFwd)
+		_bCyc_ = 0
+		_aStack_ = [ [ pnRoot, 1 ] ]
+		paState[pnRoot] = 1
+		while len(_aStack_) > 0
+			_top_ = _aStack_[ len(_aStack_) ]
+			_u_ = _top_[1]
+			_k_ = _top_[2]
+			if _k_ > len(paAdj[_u_])
+				paState[_u_] = 2
+				_aNew_ = []
+				for _i_ = 1 to len(_aStack_) - 1  _aNew_ + _aStack_[_i_]  next
+				_aStack_ = _aNew_
+				loop
+			ok
+			_aStack_[ len(_aStack_) ][2] = _k_ + 1
+			_v_ = paAdj[_u_][_k_]
+			if paState[_v_] = 1
+				_bCyc_ = 1               # back edge: dropped from ranking
+			but paState[_v_] = 0
+				paFwd + [ _u_, _v_ ]
+				paState[_v_] = 1
+				_aStack_ + [ _v_, 1 ]
+			else
+				paFwd + [ _u_, _v_ ]     # cross/forward edge: kept
+			ok
+		end
+		return _bCyc_
+
 	def _LayoutHierarchical()
 		# a single rank, or a graph with no edges, crosses nothing
 		@nLayoutCrossings = 0
-		_lay_ = StzGraphMetric(@oGraph, :Depth)
+		_lay_ = This._Layering()
 		_nReal_ = len(@aIds)
 		_max_ = 0
 		for _i_ = 1 to _nReal_

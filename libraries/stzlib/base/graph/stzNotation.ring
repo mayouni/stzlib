@@ -85,6 +85,9 @@ class stzNotation from stzObject
 	@bClosed = 0          # 0 = open vocabulary: unknown kinds pass through
 	@aEdgeKinds = []      # named edge kinds (adornments arrive at DN4)
 	@aRules = []          # [ [ cForbid, cMessage ] ] over the primitives
+	@aKindRules = []      # [ [ cKind, cForbid, cMessage ] ] -- DN2: rules
+	                      # scoped to a KIND (:Inbound into an initial
+	                      # state, :Outbound from a final one)
 	@cRankDir = ""        # "" = no amendment; the diagram's setting stands
 	@cSplines = ""
 
@@ -172,6 +175,45 @@ class stzNotation from stzObject
 		next
 		return ""
 
+	# A rule a KIND carries -- DN2. :Inbound forbidden for an initial
+	# pseudostate means nothing may transition INTO it; :Outbound for a
+	# final state means nothing leaves. The kind is the subject because
+	# that is how the domain speaks: "a final state has no exits" is a
+	# statement about final states, not about any edge.
+	def ForbidFor(pcKind, pcWhat, pcMessage)
+		@aKindRules + [ StzLower(ring_trim("" + pcKind)),
+			StzLower(ring_trim("" + pcWhat)), "" + pcMessage ]
+		return This
+
+		def ForbidForQ(pcKind, pcWhat, pcMessage)
+			return This.ForbidFor(pcKind, pcWhat, pcMessage)
+
+	def _KindForbids(pcKind, pcWhat)
+		_k_ = StzLower("" + pcKind)
+		_w_ = StzLower("" + pcWhat)
+		_n_ = len(@aKindRules)
+		for _i_ = 1 to _n_
+			if @aKindRules[_i_][1] = _k_ and @aKindRules[_i_][2] = _w_
+				return @aKindRules[_i_][3]
+			ok
+		next
+		return ""
+
+	# The declared kind of a node in this diagram, from the same property
+	# the glyph dispatch reads. "" when the node is untyped or absent.
+	def _KindOfNode(poDiag, pcId)
+		_id_ = StzLower("" + pcId)
+		for _nd_ in poDiag.Nodes()
+			if StzLower("" + _nd_[:id]) != _id_  loop  ok
+			if HasKey(_nd_, "properties") and isList(_nd_["properties"])
+				if HasKey(_nd_["properties"], "type")
+					return StzLower("" + _nd_["properties"]["type"])
+				ok
+			ok
+			return ""
+		next
+		return ""
+
 	# May an edge from -> to exist under this profile? Consulted by the
 	# editor's Link and Rewire commands, so an illegal link is refused at
 	# the gesture -- the domain's rules become the editor's refusals with
@@ -201,6 +243,18 @@ class stzNotation from stzObject
 			# above keeps the two rules from answering for each other.
 			if This._Forbids(:Cycle) != "" and _f_ != _t_
 				if poDiag.PathExists(pcTo, pcFrom)  return FALSE  ok
+			ok
+			# kind-scoped: into a kind that admits nothing, out of a
+			# kind that releases nothing
+			if len(@aKindRules) > 0
+				if This._KindForbids(This._KindOfNode(poDiag, pcTo),
+					:Inbound) != ""
+					return FALSE
+				ok
+				if This._KindForbids(This._KindOfNode(poDiag, pcFrom),
+					:Outbound) != ""
+					return FALSE
+				ok
 			ok
 		ok
 		return TRUE
@@ -288,6 +342,32 @@ class stzNotation from stzObject
 						:where = @cName,
 						:severity = :error,
 						:message = _cCyc_ ]
+				ok
+			next
+		ok
+
+		# kind-scoped rules over the MODEL: each offending edge is a
+		# finding, because unlike :SecondParent the edge itself is the
+		# thing the domain refuses
+		if len(@aKindRules) > 0
+			for _e_ in poDiagram.Edges()
+				_cIn_ = This._KindForbids(
+					This._KindOfNode(poDiagram, "" + _e_[:to]), :Inbound)
+				if _cIn_ != ""
+					_aOut_ + [ :rule = "notation-inbound",
+						:subject = "" + _e_[:from] + ">" + _e_[:to],
+						:where = @cName,
+						:severity = :error,
+						:message = _cIn_ ]
+				ok
+				_cOut_ = This._KindForbids(
+					This._KindOfNode(poDiagram, "" + _e_[:from]), :Outbound)
+				if _cOut_ != ""
+					_aOut_ + [ :rule = "notation-outbound",
+						:subject = "" + _e_[:from] + ">" + _e_[:to],
+						:where = @cName,
+						:severity = :error,
+						:message = _cOut_ ]
 				ok
 			next
 		ok

@@ -1018,8 +1018,21 @@ gate it declares.
   be judged on the graph WITHOUT the edge being re-aimed, or every
   target looks already-parented. §52 holds it all, including I6 proven
   on a real domain's model.
-- **DN2 — state machines.** Initial/final glyphs, guard/event labels,
-  cycles prominent. Proves the loop grammar carries a domain.
+- **DN2 — state machines. SHIPPED 2026-08-23.** `SetWorkflowType(
+  "statemachine")` puts the workflow under its own law: states are
+  rounded boxes (the declaration outranking the table), initial keeps
+  the small circle and final the double one, and the rules are
+  KIND-SCOPED — `ForbidFor(kind, :Inbound/:Outbound, msg)` — nothing
+  transitions into the initial, nothing leaves a final, while cycles
+  and self-loops are first-class. The real cost was the layout: the
+  hierarchical tier refused any cyclic graph, because `:Depth` has no
+  answer on a cycle. It now ranks against an acyclic ORIENTATION (DFS
+  back edges dropped from ranking only) and draws the original arrows —
+  a back edge points up, which is how return reads. The orientation is
+  layout-private: `:Depth` the metric still refuses, because the fact
+  still does not exist. §53 holds it, including the org/state contrast
+  in one breath: the same Edit gate refuses a cycle in one domain and
+  welcomes it in the other.
 - **DN3 — BPMN, by RE-BASING `stzBpmnDiagram`.** Its spine law becomes
   a profile-gated pass; its glyphs join the set; its own SVG writer is
   DELETED. KILL: if the spine law cannot express as a pass over the
