@@ -1197,3 +1197,91 @@ governing ideas — a single vertical "skewer" for the main path, no
 crossing lines by construction, the happy path always leftmost — are a
 much stronger version of the lifecycle rule this section mints, and the
 next deep task in this plane.
+
+
+## DN2d — MODES: the state machine's own model (2026-08-23)
+
+Three templates were wrong before this one, and all three in the same
+way. The Principal, refusing the third:
+
+> *"A state machine is not a life cycle! You should understand its use
+> case in the real world, where it fits dynamic flows that are NOT
+> deterministic, since events and change of state are what determine
+> their flow. Maybe you should build its own model."*
+
+He is right, and the sources say so plainly. **Lucid's UML tutorial:** a
+state diagram is *"not necessarily the best tool for capturing an overall
+progression of events"* — it shows *"how an object gets to each state"*.
+**The practitioners' thread:** statecharts tame complexity by letting a
+group of states *share their event handling*, i.e. by GROUPING, not by
+placing more cleverly. **Mermaid's syntax** confirms the structural
+vocabulary a real notation needs: `[*]` entry/exit, composite states,
+`<<choice>>`, `<<fork>>`/`<<join>>`, concurrent regions with `--`.
+
+A tree drew a progression. A ring drew a space with a centre. A lifecycle
+drew a progression again, sideways. **Every one of them answered "what
+happens NEXT", and a state machine has no next**: it sits somewhere and
+waits, and what happens is whatever event arrives.
+
+### The model
+
+What may a picture honestly order? Exactly one thing, and it is a fact
+about the graph rather than a taste:
+
+- **INSIDE a set of mutually reachable states there is NO order.** Closed
+  → Open → Closed, all day; which one you are in is decided at runtime by
+  events. Drawing those as a sequence is a lie — the lie all three
+  templates told.
+- **BETWEEN such sets the order is REAL and IRREVERSIBLE.** A demolished
+  door is never closed again.
+
+So: **a MODE is a strongly connected component** — a region the machine
+lives in, whose states are peers. The picture **ranks the modes**, whose
+condensation is a DAG by construction, and leaves the states inside each
+mode unordered, side by side, inside a drawn **region**.
+
+This is Harel's answer arriving from the other direction: a mode is
+exactly the group of states that share their event handling, **discovered
+from the graph rather than declared by the author**. And it makes the
+picture's structure a consequence of the model — change the graph so a
+broken door can be repaired, and `Broken` JOINS the mode, with no layout
+knob touched anywhere. §57 asserts precisely that, which is what makes it
+a test of the MODEL and not of a picture.
+
+### What it reuses
+
+A mode is drawn with the **cluster machinery** — boundaries, chrome, air,
+the containment guard — because a region IS a cluster and inventing a
+second kind of box would be the `stzBpmnDiagram` mistake again. **An
+author's own clusters always win**: discovery fills a vacuum, it never
+overrules a declaration.
+
+Sizing follows the house contract: the widest rank in states across, the
+mode depth down, region chrome paid once per region rather than per rank.
+And a mode gap carries ONE transition — a one-way door out of a region —
+rather than a fan riding a shared channel, so it is priced for one label
+and the picture is a quarter shorter for saying so.
+
+### What is refused, and what is next
+
+- **Single states are not regions.** A box inside a box says nothing.
+- **Regions are unlabelled.** The graph knows those states belong
+  together; it does not know what to CALL the grouping, and a
+  manufactured name is noise a reader must ignore. An author who wants
+  one declares the cluster.
+- **Still to build, from the sources:** the transition grammar
+  `trigger [guard] / effect`; explicit composite states (author-declared
+  nesting, the other half of Harel); `<<choice>>`, `<<fork>>`/`<<join>>`
+  pseudostates; concurrent regions; history. Each is a vocabulary and
+  glyph addition on this model, not a new layout.
+- **And DRAKON**, which the Principal has named as the next inspiration
+  and wants embraced as a first-class citizen.
+
+### The lesson, which cost three templates
+
+A layout is a **claim about what kind of thing is being drawn**. Choosing
+the wrong one is not a cosmetic error, and no amount of edge polish
+repairs it: three rounds went into channels, labels and rails inside
+templates that could not be right. The question to ask first is not "how
+shall I place these" but **"what does this domain's reader actually want
+to know, and what may I honestly order?"**

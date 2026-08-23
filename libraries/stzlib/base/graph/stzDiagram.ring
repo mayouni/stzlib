@@ -313,6 +313,8 @@ class stzDiagram from stzGraph
 	@oNotation = NULL
 	@cNotationLayout = ""
 	@cSelfLoopId = ""
+	@nModeCols = 1
+	@nModeRows = 1
 
 	# The cluster rectangles OF THE CURRENT RENDER, with their member ids:
 	# [ [ x, y, w, h, [ ids... ] ], ... ]. Render-scoped state, refilled by
@@ -522,6 +524,60 @@ class stzDiagram from stzGraph
 	# governance rule bases, and a name that answers structure on one
 	# class and content on its child is two faces disagreeing. The
 	# notation's sweep is named for what it sweeps.
+	# The regions a MODE layout draws: one per strongly connected component
+	# holding two or more states. A single state is not a region -- a box
+	# inside a box says nothing, and the picture would gain a boundary for
+	# every leaf.
+	#
+	# Membership is computed on a throwaway canvas because the modes are a
+	# property of the GRAPH, not of any render: the same machine gives the
+	# same regions at every size.
+	def _DeclareModeRegions()
+		if This.NumberOfNodes() < 2  return This  ok
+		_oMc_ = new stzGraphCanvas(This, [ :Layout = :Modes,
+			:Width = 600, :Height = 400 ])
+		_aM_ = _oMc_.ModeOf()
+		if len(_aM_) != This.NumberOfNodes()  return This  ok
+		_nK_ = _oMc_.ModeCount()
+		_aNd_ = This.Nodes()
+		# the SHAPE of the mode picture, kept so the natural size can be
+		# derived from it: the widest rank in states, and the depth in
+		# modes. A picture sized from anything else would be sized from a
+		# guess about a layout it did not run.
+		@nModeCols = 1
+		@nModeRows = _oMc_.LayerCount()
+		_aWid_ = []
+		for _r_ = 1 to max([ @nModeRows, 1 ])  _aWid_ + 0  next
+		_aPos_ = _oMc_.RawPositions()
+		_aRy_ = []
+		for _pM_ in _oMc_.Positions()
+			_bS_ = 0
+			for _vR_ in _aRy_
+				if fabs(_vR_ - _pM_[3]) < 2  _bS_ = 1  exit  ok
+			next
+			if NOT _bS_  _aRy_ + _pM_[3]  ok
+		next
+		for _vR_ in _aRy_
+			_nAt_ = 0
+			for _pM_ in _oMc_.Positions()
+				if fabs(_pM_[3] - _vR_) < 2  _nAt_++  ok
+			next
+			if _nAt_ > @nModeCols  @nModeCols = _nAt_  ok
+		next
+		for _k_ = 1 to _nK_
+			_aIn_ = []
+			for _i_ = 1 to len(_aM_)
+				if _aM_[_i_] = _k_  _aIn_ + ("" + _aNd_[_i_][:id])  ok
+			next
+			if len(_aIn_) < 2  loop  ok
+			# UNLABELLED on purpose. The graph knows these states belong
+			# together; it does not know what to CALL the grouping, and a
+			# manufactured name ("Mode 2") is noise a reader must ignore.
+			# An author who wants one declares the cluster themselves.
+			This.AddClusterXT("mode" + _k_, "", _aIn_)
+		next
+		return This
+
 	def NotationFindings()
 		return This.NotationO().Check(This)
 
@@ -1719,6 +1775,7 @@ class stzDiagram from stzGraph
 			_cLM_ = StzLower("" + @cNotationLayout)
 		ok
 		_bRing_ = (_cLM_ = "ring" or _cLM_ = "circular")
+		_bModes_ = (_cLM_ = "modes")
 
 		_mx_ = _nBoxW_ / 2 + 14 * _nScl_
 		_my_ = _nBoxH_ / 2 + 14 * _nScl_
@@ -1751,6 +1808,16 @@ class stzDiagram from stzGraph
 		# Separations arrive in dot's inches (96dpi), overridable in pixels
 		# via :NodeSep / :RankSep.
 		_aRoute_ = []
+
+		# A MODE OF TWO OR MORE STATES IS DRAWN AS A REGION. The cluster
+		# machinery already owns boundaries, chrome, air and containment,
+		# so a mode reuses it rather than inventing a second kind of box.
+		# Discovered, not declared: the author never names a mode, the
+		# graph does -- and an author's OWN clusters always win, so this
+		# only ever fills a vacuum.
+		if _bModes_ and len(@aClusters) = 0
+			This._DeclareModeRegions()
+		ok
 
 		# A NAMED SIZE IS A MAXIMUM, NEVER A TARGET -- the plastic layout's
 		# space rule, marked by the Principal on the live editor: "at any
@@ -1833,8 +1900,18 @@ class stzDiagram from stzGraph
 				_nSepLab_ = max([ _nSepLab_,
 					(_nLabH_ + max([ 14, _nRad_ * 2 + 4 ]) * 2) * 2 ])
 			ok
-			if NOT _bNat_
+			# ...but NOT for a MODE picture, whose vertical gaps carry one
+			# transition each -- a one-way door out of a region -- rather
+			# than a fan riding a shared channel. The doubled figure buys
+			# a channel plus its drop; a single labelled drop needs the
+			# label and its clearances, and the picture is 27% shorter
+			# for saying so.
+			if NOT _bNat_ and NOT _bModes_
 				_nSepR_ = max([ _nSepR_, _nSepLab_ ])
+			ok
+			if _bModes_ and _nLabH_ > 0
+				_nSepR_ = max([ _nSepR_,
+					_nLabH_ + max([ 14, _nRad_ * 2 + 4 ]) * 2 ])
 			ok
 		ok
 
@@ -1870,6 +1947,28 @@ class stzDiagram from stzGraph
 		# circumference must hold every cell plus its separation -- and
 		# the box adds a cell's width all round, for the outward
 		# self-loops and the labels that ride the chords.
+		# A MODE PICTURE SIZES ITSELF FROM ITS SHAPE: the widest rank in
+		# states across, the mode depth down, plus the region chrome the
+		# boundaries eat. Same contract as everywhere else -- spacing is
+		# the contract, the size is derived -- applied to a layout whose
+		# ranks are modes rather than states.
+		if _bModes_ and NOT _bNamed_
+			_nMdW_ = @nModeCols * (_nBoxW_ + _nSepN_) + _nSepN_
+			_nMdH_ = @nModeRows * (_nBoxH_ + _nSepR_) + _nSepR_
+			# region chrome is paid ONCE PER REGION ROW, not per rank: a
+			# rank with no boundary in it eats none of it
+			if len(@aClusters) > 0
+				_nMdW_ += This._ClusterPadMax() * 2
+				_nMdH_ += (This._ClusterChromeAbove(_nFsz_) +
+					This._ClusterPadMax() * 2) * len(@aClusters)
+			ok
+			_nW_ = ceil(_nMdW_)
+			_nH_ = ceil(_nMdH_)
+			_bNamed_ = 1
+			_nReqW_ = _nW_
+			_nReqH_ = _nH_
+		ok
+
 		if _bRing_ and NOT _bNamed_
 			_nRingN_ = max([ This.NumberOfNodes(), 3 ])
 			_nRingR_ = _nRingN_ * (_nBoxW_ + _nSepN_) / 6.283185307179586

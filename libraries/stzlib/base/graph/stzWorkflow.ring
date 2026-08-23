@@ -48,7 +48,14 @@ func StzStateMachineNotation()
 	#
 	# The ring (:Ring) remains available to any diagram that declares
 	# it; the state machine's own template is the lifecycle.
-	_o_.SetRankDir(:LeftToRight)
+	# THE MODE TEMPLATE. A state machine is not a tree, not a space with a
+	# centre, and not a lifecycle -- it is a machine that SITS somewhere and
+	# WAITS. What a picture may order is the one thing events cannot undo:
+	# the passage from one set of mutually reachable states to the next.
+	# Inside such a set -- a MODE -- there is no order at all, and the
+	# region says so by drawing them as peers inside one boundary.
+	_o_.SetLayoutMode(:Modes)
+	_o_.SetRankDir(:TopToBottom)
 	_o_.SetSplines(:ortho)
 	_o_.AddKind("state", "box")
 	_o_.AddKind("initial", "circle")

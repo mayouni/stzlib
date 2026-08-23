@@ -175,6 +175,11 @@ func _StzCsr(paFrom, paTo, n)
 
 class stzGraphCanvas from stzObject
 
+	# the MODE each node landed in, and how many modes exist -- a property
+	# of the graph, refilled by the modes layout
+	@aModeOf = []
+	@nModeCount = 0
+
 	@oGraph = ""
 	@aOpt = []
 	@nW = 1000
@@ -390,6 +395,8 @@ class stzGraphCanvas from stzObject
 			This._LayoutForce()
 		but _cLay_ = "ring" or _cLay_ = "circular"
 			This._LayoutRing()
+		but _cLay_ = "modes"
+			This._LayoutModes()
 		else
 			This._LayoutHierarchical()
 		ok
@@ -455,6 +462,206 @@ class stzGraphCanvas from stzObject
 			if _ys_[_k_] - _ys_[_k_-1] < _g_  _g_ = _ys_[_k_] - _ys_[_k_-1]  ok
 		next
 		return _g_
+
+	#-- MODES: what a state machine actually is -----------------------------
+	#
+	# The Principal, on the third try: "a state machine is not a life cycle.
+	# Understand its use case in the real world, where it fits dynamic flows
+	# that are NOT deterministic, since events and change of state are what
+	# determine their flow."
+	#
+	# The sources agree, and one says it outright -- Lucid's UML tutorial: a
+	# state diagram is "not necessarily the best tool for capturing an
+	# overall progression of events". A tree drew a progression. A ring drew
+	# a space with a centre. A lifecycle drew a progression again, sideways.
+	# All three answered "what happens NEXT", and a state machine has no
+	# next: it sits in a state and waits, and what happens is whatever event
+	# arrives.
+	#
+	# So what CAN a picture honestly order? Exactly one thing, and it is a
+	# fact about the graph rather than a taste:
+	#
+	#   INSIDE a set of mutually reachable states there is NO order. You can
+	#   go Closed -> Open -> Closed all day; which one you are in is decided
+	#   at runtime, by events. Drawing those as a sequence is a lie, and it
+	#   is the lie every one of my templates told.
+	#
+	#   BETWEEN such sets the order is REAL and IRREVERSIBLE. Once a door is
+	#   demolished it is never closed again. That is the condensation of the
+	#   graph by its strongly connected components -- a DAG by construction,
+	#   and the only thing in a state machine that has earned a rank.
+	#
+	# A MODE is therefore a strongly connected component: a region the
+	# machine lives in, whose states are peers. The picture ranks the MODES
+	# and leaves the states inside each one unordered. That is also Harel's
+	# answer arriving from the other side -- the practitioners' summary of
+	# statecharts is that nesting lets a group of states share their event
+	# handling, and a mode is exactly such a group, DISCOVERED rather than
+	# declared.
+	#
+	# Tarjan, iteratively: a machine deep enough to matter is deep enough to
+	# blow a recursive stack.
+	def _LayoutModes()
+		@nLayoutCrossings = 0
+		_n_ = len(@aIds)
+		if _n_ = 0  return  ok
+
+		_aAdj_ = []
+		for _i_ = 1 to _n_  _aAdj_ + []  next
+		for _e_ in @oGraph.Edges()
+			_u_ = This._IndexOf(_e_[:from])
+			_v_ = This._IndexOf(_e_[:to])
+			if _u_ < 1 or _v_ < 1 or _u_ = _v_  loop  ok
+			_aAdj_[_u_] + _v_
+		next
+
+		_aComp_ = This._Sccs(_aAdj_, _n_)
+		_nC_ = 0
+		for _i_ = 1 to _n_
+			if _aComp_[_i_] > _nC_  _nC_ = _aComp_[_i_]  ok
+		next
+		@aModeOf = _aComp_
+		@nModeCount = _nC_
+
+		# THE CONDENSATION, RANKED: an edge between two modes is a one-way
+		# door, so a longest path over the quotient is honest where a
+		# longest path over the states was not
+		_aCE_ = []
+		for _i_ = 1 to _n_
+			for _v_ in _aAdj_[_i_]
+				if _aComp_[_i_] != _aComp_[_v_]
+					_aCE_ + [ _aComp_[_i_], _aComp_[_v_] ]
+				ok
+			next
+		next
+		_aCLay_ = []
+		for _k_ = 1 to _nC_  _aCLay_ + 0  next
+		for _pass_ = 1 to _nC_
+			_bMoved_ = 0
+			for _ce_ in _aCE_
+				if _aCLay_[_ce_[2]] < _aCLay_[_ce_[1]] + 1
+					_aCLay_[_ce_[2]] = _aCLay_[_ce_[1]] + 1
+					_bMoved_ = 1
+				ok
+			next
+			if NOT _bMoved_  exit  ok
+		next
+
+		# PLACEMENT. The rank axis carries the irreversible progression;
+		# across it, a mode's states are peers -- side by side, in
+		# declaration order, because no other order is defensible.
+		_aMembers_ = []
+		for _k_ = 1 to _nC_  _aMembers_ + []  next
+		for _i_ = 1 to _n_  _aMembers_[ _aComp_[_i_] ] + _i_  next
+
+		_nMaxL_ = 0
+		for _k_ = 1 to _nC_
+			if _aCLay_[_k_] > _nMaxL_  _nMaxL_ = _aCLay_[_k_]  ok
+		next
+		_aRankW_ = []
+		for _L_ = 0 to _nMaxL_  _aRankW_ + 0  next
+		for _k_ = 1 to _nC_
+			_aRankW_[ _aCLay_[_k_] + 1 ] += len(_aMembers_[_k_])
+		next
+
+		@aX = []  @aY = []
+		for _i_ = 1 to _n_  @aX + 0  @aY + 0  next
+		_aUsed_ = []
+		for _L_ = 0 to _nMaxL_  _aUsed_ + 0  next
+		for _k_ = 1 to _nC_
+			_L_ = _aCLay_[_k_]
+			_w_ = _aRankW_[_L_ + 1]
+			_at_ = _aUsed_[_L_ + 1]
+			_m_ = len(_aMembers_[_k_])
+			for _j_ = 1 to _m_
+				_i_ = _aMembers_[_k_][_j_]
+				@aX[_i_] = (_at_ + _j_ - 0.5) / max([ _w_, 1 ]) - 0.5
+				@aY[_i_] = _L_
+			next
+			_aUsed_[_L_ + 1] = _at_ + _m_
+		next
+
+		@nLayerCount = _nMaxL_ + 1
+		@aBendOf = []
+		@nRealCount = _n_
+		@aDumEdge = []
+
+	# The strongly connected components, Tarjan, iteratively. Answers one
+	# component index per node, numbered from 1 in declaration order so a
+	# region's name is deterministic.
+	def _Sccs(paAdj, pnN)
+		_idx_ = []  _low_ = []  _onS_ = []  _comp_ = []
+		for _i_ = 1 to pnN  _idx_ + 0  _low_ + 0  _onS_ + 0  _comp_ + 0  next
+		_nNext_ = 1
+		_nComp_ = 0
+		_aS_ = []
+		for _root_ = 1 to pnN
+			if _idx_[_root_] != 0  loop  ok
+			_aW_ = [ [ _root_, 1 ] ]
+			_idx_[_root_] = _nNext_
+			_low_[_root_] = _nNext_
+			_nNext_++
+			_aS_ + _root_
+			_onS_[_root_] = 1
+			while len(_aW_) > 0
+				_top_ = _aW_[ len(_aW_) ]
+				_u_ = _top_[1]
+				_ci_ = _top_[2]
+				if _ci_ <= len(paAdj[_u_])
+					_aW_[ len(_aW_) ][2] = _ci_ + 1
+					_v_ = paAdj[_u_][_ci_]
+					if _idx_[_v_] = 0
+						_idx_[_v_] = _nNext_
+						_low_[_v_] = _nNext_
+						_nNext_++
+						_aS_ + _v_
+						_onS_[_v_] = 1
+						_aW_ + [ _v_, 1 ]
+					but _onS_[_v_]
+						if _idx_[_v_] < _low_[_u_]  _low_[_u_] = _idx_[_v_]  ok
+					ok
+					loop
+				ok
+				_aNew_ = []
+				for _q_ = 1 to len(_aW_) - 1  _aNew_ + _aW_[_q_]  next
+				_aW_ = _aNew_
+				if len(_aW_) > 0
+					_par_ = _aW_[ len(_aW_) ][1]
+					if _low_[_u_] < _low_[_par_]  _low_[_par_] = _low_[_u_]  ok
+				ok
+				if _low_[_u_] = _idx_[_u_]
+					_nComp_++
+					while len(_aS_) > 0
+						_w_ = _aS_[ len(_aS_) ]
+						_aNew2_ = []
+						for _q_ = 1 to len(_aS_) - 1  _aNew2_ + _aS_[_q_]  next
+						_aS_ = _aNew2_
+						_onS_[_w_] = 0
+						_comp_[_w_] = _nComp_
+						if _w_ = _u_  exit  ok
+					end
+				ok
+			end
+		next
+		_aMap_ = []
+		for _k_ = 1 to _nComp_  _aMap_ + 0  next
+		_nSeen_ = 0
+		for _i_ = 1 to pnN
+			if _aMap_[ _comp_[_i_] ] = 0
+				_nSeen_++
+				_aMap_[ _comp_[_i_] ] = _nSeen_
+			ok
+		next
+		for _i_ = 1 to pnN  _comp_[_i_] = _aMap_[ _comp_[_i_] ]  next
+		return _comp_
+
+	# Which mode each node landed in, and how many there are -- read by the
+	# face, which turns a mode of two or more states into a drawn REGION.
+	def ModeOf()
+		return @aModeOf
+
+	def ModeCount()
+		return @nModeCount
 
 	#-- THE RING: a space with states around its border ---------------------
 	#
