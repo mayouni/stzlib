@@ -1766,16 +1766,28 @@ class stzDiagram from stzGraph
 				ok
 			ok
 		next
+		# THE LABEL'S GAP DEMAND IS KEPT APART from the base separation,
+		# because a gap only owes label room if a LABELLED edge actually
+		# crosses it (the Principal's state machine: init's unlabelled
+		# entry gap was as tall as the gap holding four labels, so the
+		# picture opened with a dead vertical stretch and read as
+		# "somehow scrambled"). _nSepLab_ is the labelled gap's height;
+		# the natural branch applies it per gap, the fill branch -- which
+		# stretches anyway -- keeps the old uniform maximum.
+		_nSepLab_ = 0
 		if _bELab_
-			_nSepR_ = max([ _nSepR_, _nFsz_ * 2 + 34 ])
+			_nSepLab_ = max([ _nSepR_, _nFsz_ * 2 + 34 ])
 			if _nLabH_ > 0
 				# TWICE the label's room, because the label rides the
 				# DROP and the drop is only half the gap: the channel
 				# every fan shares sits at the middle of its rank gap, so
 				# a gap that merely fits a label leaves a drop that fits
 				# half of one. "Let the lines be longer" is this number.
-				_nSepR_ = max([ _nSepR_,
+				_nSepLab_ = max([ _nSepLab_,
 					(_nLabH_ + max([ 14, _nRad_ * 2 + 4 ]) * 2) * 2 ])
+			ok
+			if NOT _bNat_
+				_nSepR_ = max([ _nSepR_, _nSepLab_ ])
 			ok
 		ok
 
@@ -1926,7 +1938,52 @@ class stzDiagram from stzGraph
 			next
 			if _maxdx_ * 0.20 > _pitch_  _pitch_ = _maxdx_ * 0.20  ok
 
-			_inY_ = (_oGC_.LayerCount() - 1) * _pitch_
+			# EACH GAP IS PRICED BY WHAT CROSSES IT. One uniform pitch made
+			# the state machine's unlabelled entry gap as tall as the gap
+			# carrying four event labels -- a dead stretch between the
+			# initial dot and its first state, marked as "somehow
+			# scrambled". A gap crossed by at least one labelled edge is
+			# _nSepLab_ tall; every other gap keeps the base separation.
+			# Cumulative heights replace L*pitch, and the same piecewise
+			# map carries the route bends.
+			_nlay2_ = _oGC_.LayerCount()
+			_aGapSep_ = []
+			for _gi_ = 1 to max([ _nlay2_ - 1, 1 ])  _aGapSep_ + _nSepR_  next
+			if _nSepLab_ > _nSepR_ and _nlay2_ > 1
+				# a node's layer, recovered from the provisional frame the
+				# engine normalised into (rank rows are even there)
+				_aLayOf_ = []
+				for _pL2_ in _aPosL_
+					_aLayOf_ + [ _pL2_[1],
+						floor(_pL2_[3] / 700.0 * (_nlay2_ - 1) + 0.5) ]
+				next
+				for _e0_ in This.Edges()
+					if StzTrim("" + _e0_[:label]) = ""  loop  ok
+					_lu_ = -1  _lv_ = -1
+					_cF0_ = StzLower("" + _e0_[:from])
+					_cT0_ = StzLower("" + _e0_[:to])
+					for _pL2_ in _aLayOf_
+						if _pL2_[1] = _cF0_  _lu_ = _pL2_[2]  ok
+						if _pL2_[1] = _cT0_  _lv_ = _pL2_[2]  ok
+					next
+					if _lu_ < 0 or _lv_ < 0 or _lu_ = _lv_  loop  ok
+					for _gi_ = min([ _lu_, _lv_ ]) + 1 to max([ _lu_, _lv_ ])
+						_aGapSep_[_gi_] = _nSepLab_
+					next
+				next
+			ok
+			# the fan floor raises every gap alike -- slope is slope
+			for _gi_ = 1 to len(_aGapSep_)
+				if _pitchB_ + _aGapSep_[_gi_] < _pitch_
+					_aGapSep_[_gi_] = _pitch_ - _pitchB_
+				ok
+			next
+			_aCumY_ = [ 0 ]
+			for _gi_ = 1 to _nlay2_ - 1
+				_aCumY_ + (_aCumY_[_gi_] + _pitchB_ + _aGapSep_[_gi_])
+			next
+
+			_inY_ = _aCumY_[ max([ _nlay2_, 1 ]) ]
 			if _bSwap_
 				_nW_ = ceil(_inY_ + 2 * _mx_)
 				_nH_ = ceil(_inX_ + 2 * _my_)
@@ -1937,7 +1994,7 @@ class stzDiagram from stzGraph
 			_aXY_ = []
 			for _p_ in _oGC_.Positions()
 				_px_ = _p_[2] / 1000 * _inX_
-				_py_ = _p_[3] / 700 * _inY_
+				_py_ = This._GapMapY(_p_[3], _nlay2_, _aCumY_)
 				if _bSwap_
 					_t_ = _px_
 					_px_ = _py_
@@ -1954,7 +2011,7 @@ class stzDiagram from stzGraph
 				_rp_ = []
 				for _bp_ in _r_[3]
 					_px_ = _bp_[1] / 1000 * _inX_
-					_py_ = _bp_[2] / 700 * _inY_
+					_py_ = This._GapMapY(_bp_[2], _nlay2_, _aCumY_)
 					if _bSwap_
 						_t_ = _px_
 						_px_ = _py_
@@ -2314,6 +2371,42 @@ class stzDiagram from stzGraph
 		_aE_ = This.Edges()
 		_nEc_ = len(_aE_)
 		_aPort_ = This._EdgePorts(_aE_, _aXY_, _nBoxW_, _nBoxH_, _cRank_, _aRoute_)
+
+		# AN OPPOSITE PAIR IS ONE CONVERSATION, DRAWN AS TWO PARALLEL
+		# LANES -- the state machine's convention, ruled by the Principal
+		# when open/close and lock/unlock came out as tree edges plus
+		# long detour channels and the middle of the picture scrambled.
+		# A->B and B->A are the same relationship read both ways, so the
+		# RETURN edge mirrors its partner's exact path, offset one
+		# clearance -- two rails, unmistakably one pair, and the return
+		# never wanders through foreign channels. The downward edge (the
+		# rank-forward one) is the CANONICAL path; its twin is derived.
+		_aTwinOf_ = []
+		for _ti_ = 1 to _nEc_  _aTwinOf_ + 0  next
+		if _cSpl_ = "ortho"
+			for _ti_ = 1 to _nEc_
+				_cTf_ = StzLower("" + _aE_[_ti_][:from])
+				_cTt_ = StzLower("" + _aE_[_ti_][:to])
+				if _cTf_ = _cTt_  loop  ok
+				for _tj_ = 1 to _nEc_
+					if _tj_ = _ti_  loop  ok
+					if StzLower("" + _aE_[_tj_][:from]) = _cTt_ and
+					   StzLower("" + _aE_[_tj_][:to]) = _cTf_
+						# the pair found: the rank-forward member is
+						# canonical, the other is its twin
+						_aTa_ = This._XYOf(_aXY_, _cTf_)
+						_aTb_ = This._XYOf(_aXY_, _cTt_)
+						if len(_aTa_) = 2 and len(_aTb_) = 2
+							_nTfw_ = _aTb_[2] - _aTa_[2]
+							if _bSwap_  _nTfw_ = _aTb_[1] - _aTa_[1]  ok
+							if _nTfw_ < 0 or (_nTfw_ = 0 and _ti_ > _tj_)
+								_aTwinOf_[_ti_] = _tj_
+							ok
+						ok
+					ok
+				next
+			next
+		ok
 		# TWO PASSES under ortho: the first draws nothing and learns every
 		# rank-axis segment; the second draws with wire hops over the
 		# crossings the first pass revealed. One pass cannot hop a line
@@ -2358,6 +2451,10 @@ class stzDiagram from stzGraph
 				loop
 			ok
 
+			# a return edge is drawn FROM its partner's path, after the
+			# partner exists -- see the twin block after this loop
+			if _aTwinOf_[_ei_] > 0  loop  ok
+
 			# THE PORT IS APPLIED AT THE BOUNDARY, not to the centre.
 			# It used to shift the node's CENTRE and then clip a box
 			# around the shifted point -- a box that is not where the node
@@ -2380,6 +2477,18 @@ class stzDiagram from stzGraph
 					"" + _aE_[_ei_][:from], "" + _aE_[_ei_][:to],
 					_aPort_[_ei_][6])
 			ok
+		next
+
+		# THE TWINS, after every canonical path exists in @aEdgePaths
+		for _ei_ = 1 to _nEc_
+			if _aTwinOf_[_ei_] = 0  loop  ok
+			if @nDrawPass = 2
+				_oC_.SetPickTag(1000000 + _ei_)
+				@aRenderPicks + [ 1000000 + _ei_, "edge",
+					"" + _aE_[_ei_][:from], "" + _aE_[_ei_][:to] ]
+			ok
+			This._DrawTwinEdge(_oC_, _ei_, _aTwinOf_[_ei_], _aE_, _aXY_,
+				_nBoxW_, _nBoxH_, _cEdge_, _nEdgeW_, _cRank_)
 		next
 		next
 
@@ -3454,6 +3563,19 @@ class stzDiagram from stzGraph
 	# for space the label is not standing in.
 	# The corner radius the nodes are drawn with, so the edge geometry can
 	# aim under the outline rather than at the rectangle behind it.
+	# The piecewise rank-axis map for per-gap pitches: a provisional
+	# 0..700 coordinate whose rank rows are even becomes the cumulative
+	# frame where each gap has its own height. Within a gap the map is
+	# linear, so a route bend keeps its fraction of the gap it rides in.
+	def _GapMapY(pnY, pnLayers, paCum)
+		if pnLayers < 2  return 0  ok
+		_lf_ = pnY / 700.0 * (pnLayers - 1)
+		_l0_ = floor(_lf_)
+		if _l0_ < 0  _l0_ = 0  ok
+		if _l0_ > pnLayers - 2  _l0_ = pnLayers - 2  ok
+		_fr_ = _lf_ - _l0_
+		return paCum[_l0_ + 1] + _fr_ * (paCum[_l0_ + 2] - paCum[_l0_ + 1])
+
 	def _EdgeCorner()
 		return @nEdgeCornerRad
 
@@ -4758,6 +4880,117 @@ class stzDiagram from stzGraph
 	# which the author meant. Same-edge segments never hop each other
 	# (their meeting IS a junction), and hops bulge against the rank
 	# direction so they read as "over", not "under".
+	# THE RETURN LANE OF AN OPPOSITE PAIR: its partner's path, reversed,
+	# offset one clearance so the two read as rails of one conversation.
+	# Rank-axis legs shift along the slot axis and slot-axis legs along
+	# the rank axis -- a true parallel offset, so the corners stay square
+	# and the twin can never cross its partner. The ends clamp to the
+	# node borders so a wide offset cannot walk off a narrow cell.
+	def _DrawTwinEdge(oC, nEi, nEj, paE, paXY, nBoxW, nBoxH, cColor, nWidth, cRank)
+		_twKey_ = StzLower("" + paE[nEj][:from] + ">" + paE[nEj][:to])
+		_twP_ = []
+		for _twR_ in @aEdgePaths
+			if StzLower("" + _twR_[1]) = _twKey_  _twP_ = _twR_[2]  ok
+		next
+		_twN_ = len(_twP_)
+		if _twN_ < 4  return  ok
+		_twOff_ = This._LineClearance()
+		_bH_ = 0
+		if cRank = "LR" or cRank = "RL"  _bH_ = 1  ok
+
+		# offset each segment perpendicular to its own direction, then
+		# rebuild the corners from consecutive segment intersections
+		_aSegs_ = []
+		for _twI_ = 1 to _twN_ - 3 step 2
+			_x1_ = _twP_[_twI_]    _y1_ = _twP_[_twI_+1]
+			_x2_ = _twP_[_twI_+2]  _y2_ = _twP_[_twI_+3]
+			if fabs(_x2_ - _x1_) < 0.5 and fabs(_y2_ - _y1_) < 0.5  loop  ok
+			if fabs(_x2_ - _x1_) < 0.5
+				# vertical: shift in x
+				_aSegs_ + [ 1, _x1_ + _twOff_, min([ _y1_, _y2_ ]),
+					max([ _y1_, _y2_ ]) ]
+			else
+				# horizontal: shift in y
+				_aSegs_ + [ 0, _y1_ + _twOff_, min([ _x1_, _x2_ ]),
+					max([ _x1_, _x2_ ]) ]
+			ok
+		next
+		_nSg_ = len(_aSegs_)
+		if _nSg_ = 0  return  ok
+
+		_twOut_ = []
+		# the first end: the partner's start border, offset along it
+		if _aSegs_[1][1] = 1
+			_twOut_ + [ _aSegs_[1][2], _twP_[2] ]
+		else
+			_twOut_ + [ _twP_[1], _aSegs_[1][2] ]
+		ok
+		for _twI_ = 1 to _nSg_ - 1
+			_sA_ = _aSegs_[_twI_]
+			_sB_ = _aSegs_[_twI_ + 1]
+			if _sA_[1] = _sB_[1]  loop  ok
+			if _sA_[1] = 1
+				_twOut_ + [ _sA_[2], _sB_[2] ]
+			else
+				_twOut_ + [ _sB_[2], _sA_[2] ]
+			ok
+		next
+		_sZ_ = _aSegs_[_nSg_]
+		if _sZ_[1] = 1
+			_twOut_ + [ _sZ_[2], _twP_[_twN_] ]
+		else
+			_twOut_ + [ _twP_[_twN_ - 1], _sZ_[2] ]
+		ok
+
+		# REVERSE: the twin runs from the partner's target back to its
+		# source, and both ends clamp onto their node borders
+		_twRev_ = []
+		for _twI_ = len(_twOut_) to 1 step -1
+			_twRev_ + [ _twOut_[_twI_][1], _twOut_[_twI_][2] ]
+		next
+		_aFm_ = This._XYOf(paXY, StzLower("" + paE[nEi][:from]))
+		_aTo_ = This._XYOf(paXY, StzLower("" + paE[nEi][:to]))
+		if len(_aFm_) = 2
+			_twRev_[1][1] = min([ max([ _twRev_[1][1], _aFm_[1] - nBoxW/2 + 4 ]),
+				_aFm_[1] + nBoxW/2 - 4 ])
+			if NOT _bH_
+				_twRev_[1][2] = iif(_twRev_[1][2] < _aFm_[2],
+					_aFm_[2] - nBoxH/2, _aFm_[2] + nBoxH/2)
+			ok
+		ok
+		if len(_aTo_) = 2
+			_twRev_[len(_twRev_)][1] = min([ max([ _twRev_[len(_twRev_)][1],
+				_aTo_[1] - nBoxW/2 + 4 ]), _aTo_[1] + nBoxW/2 - 4 ])
+			if NOT _bH_
+				_twRev_[len(_twRev_)][2] = iif(_twRev_[len(_twRev_)][2] < _aTo_[2],
+					_aTo_[2] - nBoxH/2, _aTo_[2] + nBoxH/2)
+			ok
+		ok
+
+		_twFlat_ = []
+		for _twQ_ in _twRev_
+			_twFlat_ + _twQ_[1]
+			_twFlat_ + _twQ_[2]
+		next
+		_cTwKey_ = StzLower("" + paE[nEi][:from] + ">" + paE[nEi][:to])
+		if @nDrawPass = 1
+			@aEdgePaths + [ _cTwKey_, _twFlat_ ]
+			for _twI_ = 1 to len(_twFlat_) - 3 step 2
+				if fabs(_twFlat_[_twI_+2] - _twFlat_[_twI_]) < 0.5 and
+				   fabs(_twFlat_[_twI_+3] - _twFlat_[_twI_+1]) > 2
+					@aVertSegs + [ _twFlat_[_twI_],
+						min([ _twFlat_[_twI_+1], _twFlat_[_twI_+3] ]),
+						max([ _twFlat_[_twI_+1], _twFlat_[_twI_+3] ]), _cTwKey_ ]
+				ok
+			next
+			return
+		ok
+		This._EmitOrthoPolyline(oC, _twFlat_, cColor, nWidth, _cTwKey_)
+		_nTF_ = len(_twFlat_)
+		This._DrawArrow(oC, [ _twFlat_[_nTF_-3], _twFlat_[_nTF_-2] ],
+			[ _twFlat_[_nTF_-1], _twFlat_[_nTF_] ], cColor, nWidth,
+			"line", cRank)
+
 	# ONE CORNER, TWO CALLERS. The staircase turns corners and so does the
 	# self-loop, and the two used to be drawn by different hands -- which
 	# is how the loop came to be the one rounded shape in a square picture

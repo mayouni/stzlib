@@ -4894,6 +4894,99 @@ next
 chkeq("a rectangles-only picture writes nothing outside", nLc2, 0)
 
 
+sec("-- 55. A PAIR IS ONE CONVERSATION; A GAP COSTS WHAT CROSSES IT --")
+#
+# The Principal on the first FSM picture: "not expressive at all,
+# somehow scrambled, does not resemble state machines' conventional
+# diagrams" -- with the knot of channels circled and the dead stretch
+# init->Closed named. Two grammar rules close it:
+#
+# TWIN LANES. A->B and B->A are the same relationship read both ways,
+# so the return edge mirrors its partner's exact path, offset one
+# clearance: two rails, unmistakably one pair, and the return never
+# wanders through foreign channels the way a lone back edge must.
+#
+# PER-GAP PITCH. One uniform rank pitch made the unlabelled entry gap
+# as tall as the gap carrying four event labels. A gap is priced by
+# what crosses it: labelled gaps buy label room, unlabelled gaps keep
+# the base separation.
+#---------------------------------------------------------------------------
+
+oTw = new stzWorkflow("door55")
+oTw.SetWorkflowType("statemachine")
+oTw.AddStateXTT("init", "", [ :isInitial = 1 ])
+oTw.AddStateXT("closed", "Closed")
+oTw.AddStateXT("open", "Open")
+oTw.AddStateXT("locked", "Locked")
+oTw.AddTransition("init", "closed", "")
+oTw.AddTransition("closed", "open", "open")
+oTw.AddTransition("open", "closed", "close")
+oTw.AddTransition("closed", "locked", "lock")
+oTw.AddTransition("locked", "closed", "unlock")
+oTw.SetSplines("ortho")
+oTw.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
+	:FontSize = 13 ])
+
+# THE TWIN IS ITS PARTNER'S PATH, one clearance away: same number of
+# points, every segment parallel at the same distance
+aTwD = []  aTwU = []
+for aTwP in oTw.RenderEdgePaths()
+	if aTwP[1] = "closed>locked"  aTwD = aTwP[2]  ok
+	if aTwP[1] = "locked>closed"  aTwU = aTwP[2]  ok
+next
+chk("both members of the pair have drawn paths",
+    len(aTwD) >= 4 and len(aTwU) >= 4)
+nTwClr = oTw._LineClearance()
+# compare the down path with the REVERSED up path, point by point
+nTwPts = len(aTwD) / 2
+nTwBad = 0
+if len(aTwU) = len(aTwD)
+	for iTw = 1 to nTwPts
+		_dxT_ = aTwU[ len(aTwU) - iTw*2 + 1 ] - aTwD[ iTw*2 - 1 ]
+		_dyT_ = aTwU[ len(aTwU) - iTw*2 + 2 ] - aTwD[ iTw*2 ]
+		_dT_ = sqrt(_dxT_*_dxT_ + _dyT_*_dyT_)
+		# every reversed point sits within about one diagonal clearance
+		# of its partner point -- rails, not two routes
+		if _dT_ > nTwClr * 1.5 + 1  nTwBad++  ok
+	next
+else
+	nTwBad = 99
+ok
+? "   pair points off the rail : " + nTwBad
+chkeq("the return is its partner's path, one clearance away", nTwBad, 0)
+
+# ...and the twin's lane is ITS OWN: no point of it coincides with the
+# partner (the old failure drew the return through foreign channels;
+# a zero offset would draw it ON its partner)
+nTwZero = 0
+if len(aTwU) = len(aTwD)
+	for iTw = 1 to nTwPts
+		_dxT_ = aTwU[ len(aTwU) - iTw*2 + 1 ] - aTwD[ iTw*2 - 1 ]
+		_dyT_ = aTwU[ len(aTwU) - iTw*2 + 2 ] - aTwD[ iTw*2 ]
+		if sqrt(_dxT_*_dxT_ + _dyT_*_dyT_) < 2  nTwZero++  ok
+	next
+ok
+chkeq("...and never ON it", nTwZero, 0)
+
+# PER-GAP PITCH: the unlabelled entry gap is tighter than the labelled
+# one below it
+nTwInit = -1  nTwClosed = -1  nTwOpen = -1
+for rTw in oTw.RenderNodeRects()
+	if rTw[5] = "init"    nTwInit = rTw[2] + rTw[4]  ok
+	if rTw[5] = "closed"  nTwClosed = rTw[2]  ok
+	if rTw[5] = "open"    nTwOpen = rTw[2]  ok
+next
+nTwG1 = nTwClosed - nTwInit
+for rTw in oTw.RenderNodeRects()
+	if rTw[5] = "closed"  nTwG2 = nTwOpen - (rTw[2] + rTw[4])  ok
+next
+? "   entry gap " + nTwG1 + "px, labelled gap " + nTwG2 + "px"
+chk("an unlabelled gap does not pay the labelled gap's price",
+    nTwG1 < nTwG2 - 20)
+chk("...while still clearing the crossable floor",
+    nTwG1 >= oTw._LineClearance() * 2)
+
+
 #---------------------------------------------------------------------------
 ? ""
 if nSecClock > 0
