@@ -322,6 +322,7 @@ class stzDiagram from stzGraph
 	@nModeRows = 1
 	@nModeRegionRows = 0
 	@aModeRegionRowsAt = []
+	@aModeOfId = []
 
 	# The cluster rectangles OF THE CURRENT RENDER, with their member ids:
 	# [ [ x, y, w, h, [ ids... ] ], ... ]. Render-scoped state, refilled by
@@ -548,6 +549,7 @@ class stzDiagram from stzGraph
 		if len(_aM_) != This.NumberOfNodes()  return This  ok
 		_nK_ = _oMc_.ModeCount()
 		_aNd_ = This.Nodes()
+		@aModeOfId = []
 		# the SHAPE of the mode picture, kept so the natural size can be
 		# derived from it: the widest rank in states, and the depth in
 		# modes. A picture sized from anything else would be sized from a
@@ -555,6 +557,10 @@ class stzDiagram from stzGraph
 		@nModeCols = 1
 		@nModeRows = _oMc_.LayerCount()
 		@nModeRegionRows = 0
+		@aModeOfId = []
+		for _iM_ = 1 to len(_aM_)
+			@aModeOfId + [ StzLower("" + _aNd_[_iM_][:id]), _aM_[_iM_] ]
+		next
 		_aWid_ = []
 		for _r_ = 1 to max([ @nModeRows, 1 ])  _aWid_ + 0  next
 		_aPos_ = _oMc_.RawPositions()
@@ -632,6 +638,14 @@ class stzDiagram from stzGraph
 			ok
 		next
 		return [ nBoxW, nBoxH ]
+
+	# Which mode an id landed in, 0 when the picture has none.
+	def _ModeOfId(pcId)
+		_mid_ = StzLower("" + pcId)
+		for _mr_ in @aModeOfId
+			if _mr_[1] = _mid_  return _mr_[2]  ok
+		next
+		return 0
 
 	def _BoxOf(pcId, nBoxW, nBoxH)
 		_bid_ = StzLower("" + pcId)
@@ -1992,9 +2006,27 @@ class stzDiagram from stzGraph
 			if NOT _bNat_ and NOT _bModes_
 				_nSepR_ = max([ _nSepR_, _nSepLab_ ])
 			ok
-			if _bModes_ and _nLabH_ > 0
-				_nSepR_ = max([ _nSepR_,
-					_nLabH_ + max([ 14, _nRad_ * 2 + 4 ]) * 2 ])
+			# A GAP PAYS FOR WHAT CROSSES IT, and in a mode picture what
+			# crosses a gap is a transition BETWEEN modes. The peer
+			# chords inside a region run sideways and carry the longest
+			# labels in the machine -- pricing the vertical gap from
+			# those bought height for words that never stand in it.
+			if _bModes_
+				_nMdLabH_ = 0
+				if isObject(_oFont_)
+					for _e0_ in This.Edges()
+						if StzTrim("" + _e0_[:label]) = ""  loop  ok
+						if This._ModeOfId("" + _e0_[:from]) =
+						   This._ModeOfId("" + _e0_[:to])  loop  ok
+						_blk1_ = This._LabelBlock("" + _e0_[:label],
+							_oFont_, _nFsz_, _nBoxW_)
+						if _blk1_[3] > _nMdLabH_  _nMdLabH_ = _blk1_[3]  ok
+					next
+				ok
+				if _nMdLabH_ > 0
+					_nSepR_ = max([ _nSepR_,
+						_nMdLabH_ + max([ 14, _nRad_ * 2 + 4 ]) * 2 ])
+				ok
 			ok
 			# ...AND THE PEER CHORD CARRIES ITS EVENT. Inside a region the
 			# transitions run sideways between neighbours, so it is the
@@ -2671,15 +2703,36 @@ class stzDiagram from stzGraph
 		# arrow pointing at paper. Clamped here, where the values are
 		# made, because the ortho staircase reads them directly to choose
 		# its arrival column and never passes through _PortPoint.
+		# A SURFACE TOO SMALL FOR PORTS TAKES NONE -- the Principal's
+		# rule, and it is I2 finishing a sentence it had already begun.
+		# Ports exist so a node's edges leave from distinct places and
+		# never cross at birth; a MARK has no distinct places, so
+		# spreading its edges over a 17px circle draws several lines
+		# grazing one dot instead of one line arriving at it. Edges
+		# sharing an endpoint may share ink -- that is the blessed merge
+		# -- so at a mark they MUST: every edge takes the centre, and the
+		# picture shows one stem that splits (or converges) away from the
+		# mark, where there is room for the split to be read.
+		#
+		# For an ordinary cell the port still spreads, clamped to the
+		# node's OWN border rather than the picture's cell.
 		for _pcI_ = 1 to len(_aPort_)
 			_pcA_ = This._BoxOf("" + _aE_[_pcI_][:from], _nBoxW_, _nBoxH_)
 			_pcB_ = This._BoxOf("" + _aE_[_pcI_][:to], _nBoxW_, _nBoxH_)
-			_pcLa_ = max([ _pcA_[1], _pcA_[2] ]) * 0.34
-			_pcLb_ = max([ _pcB_[1], _pcB_[2] ]) * 0.34
-			if _aPort_[_pcI_][1] > _pcLa_   _aPort_[_pcI_][1] = _pcLa_   ok
-			if _aPort_[_pcI_][1] < 0 - _pcLa_  _aPort_[_pcI_][1] = 0 - _pcLa_  ok
-			if _aPort_[_pcI_][2] > _pcLb_   _aPort_[_pcI_][2] = _pcLb_   ok
-			if _aPort_[_pcI_][2] < 0 - _pcLb_  _aPort_[_pcI_][2] = 0 - _pcLb_  ok
+			if _pcA_[1] < _nBoxW_ - 0.5 or _pcA_[2] < _nBoxH_ - 0.5
+				_aPort_[_pcI_][1] = 0
+			else
+				_pcLa_ = max([ _pcA_[1], _pcA_[2] ]) * 0.34
+				if _aPort_[_pcI_][1] > _pcLa_   _aPort_[_pcI_][1] = _pcLa_   ok
+				if _aPort_[_pcI_][1] < 0 - _pcLa_  _aPort_[_pcI_][1] = 0 - _pcLa_  ok
+			ok
+			if _pcB_[1] < _nBoxW_ - 0.5 or _pcB_[2] < _nBoxH_ - 0.5
+				_aPort_[_pcI_][2] = 0
+			else
+				_pcLb_ = max([ _pcB_[1], _pcB_[2] ]) * 0.34
+				if _aPort_[_pcI_][2] > _pcLb_   _aPort_[_pcI_][2] = _pcLb_   ok
+				if _aPort_[_pcI_][2] < 0 - _pcLb_  _aPort_[_pcI_][2] = 0 - _pcLb_  ok
+			ok
 		next
 
 		# AN OPPOSITE PAIR IS ONE CONVERSATION, DRAWN AS TWO PARALLEL
@@ -6685,8 +6738,30 @@ class stzDiagram from stzGraph
 		# borders landed within a few pixels of each other and the inner
 		# label was written across the outer one.
 		_pad_ = _padBase_ + 34 * This._ClusterLevelsBelow(aCluster)
+		# ...AND A MEMBER'S SELF-LOOP IS THE MEMBER'S INK. The frame
+		# contains what its members draw, and a loop radiates OUTWARD --
+		# so the rightmost member of a region had its loop, and the
+		# loop's label, hanging outside the boundary that is supposed to
+		# hold it. Same law as the return rails, one shape further out.
+		_x1L_ = _x1_
+		for _clE_ in This.Edges()
+			if StzLower("" + _clE_[:from]) != StzLower("" + _clE_[:to])  loop  ok
+			_bMem_ = 0
+			for _cm2_ in aCluster[:nodes]
+				if StzLower("" + _cm2_) = StzLower("" + _clE_[:from])
+					_bMem_ = 1
+					exit
+				ok
+			next
+			if NOT _bMem_  loop  ok
+			_atL_ = This._XYOf(aXY, "" + _clE_[:from])
+			if len(_atL_) != 2  loop  ok
+			_reachL_ = _atL_[1] + nBoxW / 2 +
+				This._SelfLoopReach(nBoxW, nBoxH) + 6
+			if _reachL_ > _x1L_  _x1L_ = _reachL_  ok
+		next
 		return [ _x0_ - _pad_, _y0_ - _pad_,
-			(_x1_ - _x0_) + 2 * _pad_, (_y1_ - _y0_) + 2 * _pad_ ]
+			(_x1L_ - _x0_) + 2 * _pad_, (_y1_ - _y0_) + 2 * _pad_ ]
 
 	# How many nesting levels sit INSIDE this cluster: 0 for a leaf.
 	def _ClusterLevelsBelow(aCluster)

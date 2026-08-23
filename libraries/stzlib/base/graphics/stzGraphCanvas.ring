@@ -581,6 +581,45 @@ class stzGraphCanvas from stzObject
 			_aUsed_[_L_ + 1] = _at_ + _m_
 		next
 
+		# ...AND ALIGNMENT IS THE LAST WORD HERE TOO. The modes layout
+		# placed every rank on its own even spread and stopped, so the
+		# ONE law the layered tier learned first was missing: a lone
+		# state whose only neighbour sits in another mode belongs on
+		# that neighbour's column. An entry mark centred over a whole
+		# region, with a jog across to the single state it enters,
+		# states a relationship to the region that the graph does not
+		# contain -- it enters ONE state.
+		#
+		# All or nothing, and only when the column is free: a partial
+		# slide manufactures the near-miss this library forbids by name.
+		for _k_ = 1 to _nC_
+			if len(_aMembers_[_k_]) != 1  loop  ok
+			_i_ = _aMembers_[_k_][1]
+			_aNb_ = []
+			for _v_ in _aAdj_[_i_]
+				if _aComp_[_v_] != _k_  _aNb_ + _v_  ok
+			next
+			for _j_ = 1 to _n_
+				if _aComp_[_j_] = _k_  loop  ok
+				for _w_ in _aAdj_[_j_]
+					if _w_ = _i_  _aNb_ + _j_  ok
+				next
+			next
+			if len(_aNb_) != 1  loop  ok
+			_tgt_ = @aX[ _aNb_[1] ]
+			# free? nothing else on this node's own rank may be there
+			_bFree_ = 1
+			for _j_ = 1 to _n_
+				if _j_ = _i_  loop  ok
+				if fabs(@aY[_j_] - @aY[_i_]) > 0.01  loop  ok
+				if fabs(@aX[_j_] - _tgt_) < 0.9 / max([ _n_, 1 ])
+					_bFree_ = 0
+					exit
+				ok
+			next
+			if _bFree_  @aX[_i_] = _tgt_  ok
+		next
+
 		@nLayerCount = _nMaxL_ + 1
 		@aBendOf = []
 		@nRealCount = _n_

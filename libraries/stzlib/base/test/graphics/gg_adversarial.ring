@@ -5342,6 +5342,150 @@ next
 chkeq("a diagram that declares no scale keeps full cells", nMk2, 96)
 
 
+sec("-- 59. THE LEARNED LAWS, APPLIED TO THE NEW TEMPLATE ---------")
+#
+# The Principal, tired of marking red diagrams: apply what we learned
+# about orthogonality, verticality and label placement to the new
+# designs yourself. He gave one example and it generalises --
+#
+#   "when the node is circular (start or end) the edges that quit or
+#    arrive must be unified before quitting or reaching the node,
+#    because the surface is so small"
+#
+# That is I2 finishing a sentence it had already begun. Ports exist so a
+# node's edges leave from distinct places; a MARK has no distinct
+# places, so a port spread across a 17px circle draws several lines
+# grazing a dot instead of one line arriving at it. Edges sharing an
+# endpoint may share ink -- at a mark they MUST.
+#
+# Reviewing the rest myself, three more of our own laws were missing
+# from the mode template, and each is asserted below: a lone state
+# belongs on its one neighbour's column (verticality); a region contains
+# its members' LOOP ink as well as their boxes (I1); and a gap pays for
+# what CROSSES it, which in a mode picture means transitions between
+# modes -- not the peer chords that carry the longest labels sideways.
+#---------------------------------------------------------------------------
+
+oLw = new stzWorkflow("laws59")
+oLw.SetWorkflowType("statemachine")
+oLw.AddStateXTT("i", "", [ :isInitial = 1 ])
+oLw.AddStateXT("still", "Still")
+oLw.AddStateXT("moving", "Moving")
+oLw.AddStateXTT("e", "", [ :isFinal = 1 ])
+oLw.AddTransition("i", "still", "")
+oLw.AddTransition("still", "moving", "")
+oLw.AddTransition("moving", "still", "")
+oLw.AddTransition("still", "e", "")
+oLw.AddTransition("moving", "e", "")
+oLw.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
+	:FontSize = 13 ])
+
+# UNIFIED AT THE MARK: both arrivals end at the same point, which is the
+# mark's own centre-line -- one arrow, not two grazing a dot
+aLwA = []  aLwB = []
+for aLwP in oLw.RenderEdgePaths()
+	if aLwP[1] = "still>e"   aLwA = aLwP[2]  ok
+	if aLwP[1] = "moving>e"  aLwB = aLwP[2]  ok
+next
+chk("both edges into the mark are drawn",
+    len(aLwA) >= 4 and len(aLwB) >= 4)
+nLwDx = fabs(aLwA[ len(aLwA) - 1 ] - aLwB[ len(aLwB) - 1 ])
+? "   the two arrivals differ by " + nLwDx + "px at the mark"
+chk("edges arriving at a MARK are unified before reaching it",
+    nLwDx < 1)
+nLwMx = -1
+for rLw in oLw.RenderNodeRects()
+	if rLw[5] = "e"  nLwMx = rLw[1] + rLw[3] / 2  ok
+next
+chk("...on the mark's own centre-line", fabs(aLwA[ len(aLwA) - 1 ] - nLwMx) < 2)
+
+# ...AND THE SAME AT A DEPARTURE: one stem out of the entry mark
+nLwOut = 0
+for aLwP in oLw.RenderEdgePaths()
+	aLwE = StzSplit(aLwP[1], ">")
+	if len(aLwE) = 2 and aLwE[1] = "i"  nLwOut++  ok
+next
+chkeq("the entry mark has one edge, drawn from its centre", nLwOut, 1)
+
+# VERTICALITY: a lone state sits on its one neighbour's column
+nLwI = -1  nLwS = -1
+for rLw in oLw.RenderNodeRects()
+	if rLw[5] = "i"      nLwI = rLw[1] + rLw[3] / 2  ok
+	if rLw[5] = "still"  nLwS = rLw[1] + rLw[3] / 2  ok
+next
+? "   entry mark at " + nLwI + " , the state it enters at " + nLwS
+chk("a lone state stands on its one neighbour's column",
+    fabs(nLwI - nLwS) < 2)
+
+# I1 FOR REGIONS: the frame contains its members' LOOP ink
+oLw2 = new stzWorkflow("loop59")
+oLw2.SetWorkflowType("statemachine")
+oLw2.AddStateXT("a", "A")
+oLw2.AddStateXT("b", "B")
+oLw2.AddTransition("a", "b", "go")
+oLw2.AddTransition("b", "a", "back")
+oLw2.AddTransition("b", "b", "stay")
+oLw2.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
+	:FontSize = 13 ])
+nLwOutside = 0
+for aLwR in oLw2.RenderClusterRects()
+	for aLwP in oLw2.RenderEdgePaths()
+		if aLwP[1] != "b>b"  loop  ok
+		for iLw = 1 to len(aLwP[2]) - 1 step 2
+			if aLwP[2][iLw] > aLwR[1] + aLwR[3] + 1  nLwOutside++  ok
+		next
+	next
+next
+? "   loop points outside the region : " + nLwOutside
+chkeq("a region contains its members' LOOP ink, not only their boxes",
+      nLwOutside, 0)
+
+# A GAP PAYS FOR WHAT CROSSES IT: the mode gap is priced by the
+# transitions BETWEEN modes, not by the long peer labels inside one
+oLw3 = new stzWorkflow("gap59")
+oLw3.SetWorkflowType("statemachine")
+oLw3.AddStateXTT("i", "", [ :isInitial = 1 ])
+oLw3.AddStateXT("p", "P")
+oLw3.AddStateXT("q", "Q")
+oLw3.AddTransition("i", "p", "")
+oLw3.AddTransition("p", "q", "a very long peer event name indeed")
+oLw3.AddTransition("q", "p", "another very long peer event name")
+oLw3.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
+	:FontSize = 13 ])
+nLwIy = -1  nLwPy = -1
+for rLw in oLw3.RenderNodeRects()
+	if rLw[5] = "i"  nLwIy = rLw[2] + rLw[4]  ok
+	if rLw[5] = "p"  nLwPy = rLw[2]  ok
+next
+nLwGapLong = nLwPy - nLwIy
+
+# THE SAME MACHINE with SHORT peer labels. The claim is comparative,
+# because an absolute figure would be measuring the region's chrome --
+# which genuinely does live in the gap above the frame -- rather than
+# the thing under test. What must not happen is the VERTICAL gap
+# growing because the labels riding the HORIZONTAL chords got longer.
+oLw4 = new stzWorkflow("gap59b")
+oLw4.SetWorkflowType("statemachine")
+oLw4.AddStateXTT("i", "", [ :isInitial = 1 ])
+oLw4.AddStateXT("p", "P")
+oLw4.AddStateXT("q", "Q")
+oLw4.AddTransition("i", "p", "")
+oLw4.AddTransition("p", "q", "a")
+oLw4.AddTransition("q", "p", "b")
+oLw4.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
+	:FontSize = 13 ])
+nLwIy2 = -1  nLwPy2 = -1
+for rLw in oLw4.RenderNodeRects()
+	if rLw[5] = "i"  nLwIy2 = rLw[2] + rLw[4]  ok
+	if rLw[5] = "p"  nLwPy2 = rLw[2]  ok
+next
+nLwGapShort = nLwPy2 - nLwIy2
+? "   the mode gap with long peer labels " + nLwGapLong +
+  " , with short ones " + nLwGapShort
+chk("a mode gap is priced by what CROSSES it, not by peer chords",
+    fabs(nLwGapLong - nLwGapShort) < 2)
+
+
 #---------------------------------------------------------------------------
 ? ""
 if nSecClock > 0
