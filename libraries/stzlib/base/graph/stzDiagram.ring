@@ -320,6 +320,9 @@ class stzDiagram from stzGraph
 	@aBoxOf = []
 	# rows that already hold a return lane, refilled per render
 	@aSameRowLanes = []
+	# how far apart two return lanes stand -- a clearance plus whatever
+	# is written beside them
+	@nLanePitch = 24
 	# the font this render is using, so geometry that must reserve room
 	# for a word can ask how wide the word is
 	@oLastFont = NULL
@@ -682,6 +685,20 @@ class stzDiagram from stzGraph
 		return [ nBoxW, nBoxH ]
 
 	# Which mode an id landed in, 0 when the picture has none.
+	# Which placed ROW a node sits in, 0 when it is not placed. The row
+	# list is the distinct y values, sorted, so this is the index a gap
+	# is counted from.
+	def _RowOfXY(paXY, paRows, pcId)
+		_rid_ = StzLower("" + pcId)
+		for _rq_ in paXY
+			if _rq_[1] != _rid_  loop  ok
+			for _rk_ = 1 to len(paRows)
+				if fabs(paRows[_rk_] - _rq_[3]) < 2  return _rk_  ok
+			next
+			return 0
+		next
+		return 0
+
 	def _ModeOfId(pcId)
 		_mid_ = StzLower("" + pcId)
 		for _mr_ in @aModeOfId
@@ -1937,6 +1954,7 @@ class stzDiagram from stzGraph
 		# the name written under it. Half a cell alone let the frame run
 		# off the right edge and cut "Demolished" in half.
 		if _bModes_
+			This._SetLanePitch(_oFont_, _nFsz_, _nBoxW_)
 			# ...INCLUDING THE WORD BESIDE A LOOP, which sits beyond the
 			# loop and so beyond everything else on that side. Funded in
 			# the WIDTH it merely made the canvas bigger while the layout
@@ -2130,6 +2148,9 @@ class stzDiagram from stzGraph
 		# and the channel vertical: one rule, one axis-free statement.
 		_nClr0_ = max([ 14, _nRad_ * 2 + 4 ])
 		_nSepR_ = max([ _nSepR_, _nClr0_ * 2 + _nEdgeW_ * 2 ])
+		# the floor a gap owes whatever crosses it -- kept apart from
+		# the label demand, which is per gap and not per picture
+		_nSepBase_ = _nClr0_ * 2 + _nEdgeW_ * 2
 
 		# ...and clusters EAT the gap. A frame's top strip and padding live
 		# inside the rank gap above its first member row, so a gap that
@@ -2185,6 +2206,13 @@ class stzDiagram from stzGraph
 			# how a picture grows a border nobody asked for.
 			_nMdH_ = @nModeRows * _nMdTall_ +
 				max([ @nModeRows - 1, 0 ]) * _nSepR_ + _my_ * 2
+			# ...and the frame's own height sits in ITS row, counted once
+			if len(@aClusters) > 0
+				_nMdH_ += (This._ClusterChromeAbove(_nFsz_) +
+					This._ClusterPadMax() +
+					This._LaneOffset(max([ @nModeCols - 1, 1 ]), _nMdTall_) -
+					_nMdTall_ / 2) * max([ @nModeRegionRows, 1 ])
+			ok
 			# region chrome is paid ONCE PER REGION ROW, not per rank: a
 			# rank with no boundary in it eats none of it
 			# chrome is paid ONCE PER REGION ROW: three regions side by
@@ -2212,9 +2240,9 @@ class stzDiagram from stzGraph
 					if _w5_ > _nMdLoopW_  _nMdLoopW_ = _w5_  ok
 				next
 			ok
-			if len(@aClusters) > 0
-				# the inset holds the frame's pad, the loop and the word
-				# beside it -- nothing further is owed here
+			if 1 = 0
+				# the frame's height is counted in its own row above, and
+				# the inset holds its pad, its loop and the word beside
 				_nMdH_ += (This._ClusterPadMax() * 2 +
 					This._LineClearance() * (@nModeCols + 1)) *
 					max([ @nModeRegionRows, 1 ])
@@ -2628,29 +2656,91 @@ class stzDiagram from stzGraph
 				if _cRank_ = "BT"  _py_ = _lh_ - _py_  ok
 				_aXY_ + [ StzLower("" + _p_[1]), _px_ + _mx_, _py_ + _my_ ]
 			next
-			# A FRAME IS CENTRED BETWEEN ITS NEIGHBOURS, not its row. The
-			# ranks are evenly spaced, so a region that grows downward to
-			# hold its return lanes leaves more white above it than
-			# below -- 103px against 74 on the door, which is what the
-			# Principal braced as unequal. The row moves up by half its
-			# own overhang, and the two gaps a reader actually sees come
-			# out the same.
-			if _bModes_ and len(@aClusters) > 0
-				_nOvB_ = This._ClusterOverhangBelow(_aXY_, _nBoxH_)
-				_nOvA_ = This._ClusterChromeAbove(_nFsz_)
-				_nShift_ = (_nOvB_ - _nOvA_) / 2
-				if fabs(_nShift_) > 1
-					for _clC_ in @aClusters
-						for _clM_ in _clC_[:nodes]
-							_cmL_ = StzLower("" + _clM_)
-							for _xi_ = 1 to len(_aXY_)
-								if _aXY_[_xi_][1] = _cmL_
-									_aXY_[_xi_][3] -= _nShift_
+			# A ROW IS AS TALL AS WHAT STANDS IN IT, AND A GAP IS A GAP.
+			#
+			# This is the entry edge the Principal has now marked four
+			# times, and every previous attempt trimmed the wrong number.
+			# The layout spreads rank CENTRES evenly across whatever
+			# height it is given, so EVERY pixel added to the total is
+			# split between the gaps -- and a region's frame adds a lot:
+			# its label strip above, its return lanes and padding below.
+			# On the door that was 152px of frame, handed 76px each to
+			# the gap above and the gap below, which is why the mark sat
+			# 160px from the state it enters with nothing in between.
+			#
+			# A frame's height belongs to the ROW THAT HOLDS IT. So the
+			# rows are re-placed here, cumulatively: each row is as tall
+			# as the tallest thing standing in it -- plus, where a region
+			# lives there, the frame drawn around it -- and between two
+			# rows there is one separation and nothing else.
+			if _bModes_
+				_aRows_ = []
+				for _xi_ = 1 to len(_aXY_)
+					_bSeen_ = 0
+					for _vr_ in _aRows_
+						if fabs(_vr_ - _aXY_[_xi_][3]) < 2  _bSeen_ = 1  exit  ok
+					next
+					if NOT _bSeen_  _aRows_ + _aXY_[_xi_][3]  ok
+				next
+				_aRows_ = ring_sort(_aRows_)
+				_nAt_ = _my_
+				for _ri_ = 1 to len(_aRows_)
+					# the tallest cell standing in this row
+					_nTall_ = 0
+					_bReg_ = 0
+					for _xi_ = 1 to len(_aXY_)
+						if fabs(_aXY_[_xi_][3] - _aRows_[_ri_]) > 2  loop  ok
+						_bx_ = This._BoxOf(_aXY_[_xi_][1], _nBoxW_, _nBoxH_)
+						if _bx_[2] > _nTall_  _nTall_ = _bx_[2]  ok
+						for _clC_ in @aClusters
+							for _clM_ in _clC_[:nodes]
+								if StzLower("" + _clM_) = _aXY_[_xi_][1]
+									_bReg_ = 1
 								ok
 							next
 						next
 					next
-				ok
+					if _nTall_ <= 0  _nTall_ = _nBoxH_  ok
+					_nAbove_ = 0
+					_nBelow_ = 0
+					if _bReg_
+						_nAbove_ = This._ClusterChromeAbove(_nFsz_)
+						_nBelow_ = This._ClusterPadMax() +
+							This._LaneOffset(max([ @nModeCols - 1, 1 ]),
+								_nTall_) - _nTall_ / 2
+					ok
+					_nCy_ = _nAt_ + _nAbove_ + _nTall_ / 2
+					for _xi_ = 1 to len(_aXY_)
+						if fabs(_aXY_[_xi_][3] - _aRows_[_ri_]) > 2  loop  ok
+						_aXY_[_xi_][3] = _nCy_
+					next
+					# ...AND THE GAP BELOW THIS ROW IS PRICED BY WHAT
+					# CROSSES IT. Rows are placed explicitly now, so the
+					# gaps no longer have to be equal -- and they should
+					# not be: the entry gap on the door carries an
+					# unlabelled edge and was paying for "demolish",
+					# which crosses the gap two rows down. A gap holds
+					# what stands in it.
+					_nGap_ = _nSepBase_
+					if _ri_ < len(_aRows_) and isObject(_oFont_)
+						for _e7_ in This.Edges()
+							if StzTrim("" + _e7_[:label]) = ""  loop  ok
+							_r7a_ = This._RowOfXY(_aXY_, _aRows_,
+								"" + _e7_[:from])
+							_r7b_ = This._RowOfXY(_aXY_, _aRows_,
+								"" + _e7_[:to])
+							if _r7a_ < 1 or _r7b_ < 1  loop  ok
+							if min([ _r7a_, _r7b_ ]) > _ri_  loop  ok
+							if max([ _r7a_, _r7b_ ]) <= _ri_  loop  ok
+							_blk7_ = This._LabelBlock("" + _e7_[:label],
+								_oFont_, _nFsz_, _nBoxW_)
+							_nWant_ = _blk7_[3] +
+								max([ 14, _nRad_ * 2 + 4 ]) * 2
+							if _nWant_ > _nGap_  _nGap_ = _nWant_  ok
+						next
+					ok
+					_nAt_ += _nAbove_ + _nTall_ + _nBelow_ + _nGap_
+				next
 			ok
 
 			for _r_ in _oGC_.EdgeRoutes()
@@ -2747,6 +2837,7 @@ class stzDiagram from stzGraph
 		@aRenderClusRects = []
 		@oLastFont = _oFont_
 		@nLastFsz = _nFsz_
+		This._SetLanePitch(_oFont_, _nFsz_, _nBoxW_)
 		# hoisted above the loop: the rect capture below reads it, and in
 		# Ring a method local read before its assigning statement is not
 		# an error but a stale or empty value
@@ -3517,7 +3608,12 @@ class stzDiagram from stzGraph
 					_nTw_ = _oFont_.WidthOf(_cLb_, _nFsz_)
 					_nLbY_ = _a_[2] + _nBoxH_ / 2 + _nFsz_ * 1.15
 					_oC_.Flush()
-					_cPl2_ = This._SurfaceAt(_lx_, _ly_, _cBg_)
+					# ITS OWN POSITION, not the edge labels'. This asked
+					# what surface was under the last EDGE label placed,
+					# so a cell's name outside a region was painted in
+					# the region's tint on white paper -- a coloured card
+					# under a word that stands nowhere near the frame.
+					_cPl2_ = This._SurfaceAt(_a_[1], _nLbY_, _cBg_)
 					_oC_.FillQ(_cPl2_).StrokeQ(_cPl2_, 1).
 						AddRect(_a_[1] - _nTw_ / 2 - 3,
 							_nLbY_ - _nFsz_ * 0.75,
@@ -5307,6 +5403,19 @@ class stzDiagram from stzGraph
 		# than to the line. The same clearance every other pair of marks
 		# in this picture gets.
 		_lsG_ = This._LineClearance() * 0.5
+		# A FRAME'S RULE IS INK TOO. A label straddling a region's
+		# boundary erases the rule under it -- the plate now takes the
+		# surface, and on a boundary there are two surfaces, so it must
+		# get one wrong. Kept off the line entirely instead.
+		for _lsC_ in @aRenderClusRects
+			for _lsE_ = 1 to 2
+				_lsY_ = _lsC_[2]
+				if _lsE_ = 2  _lsY_ = _lsC_[2] + _lsC_[4]  ok
+				if nLx + nLw / 2 < _lsC_[1] or
+				   nLx - nLw / 2 > _lsC_[1] + _lsC_[3]  loop  ok
+				if fabs(nLy - _lsY_) < nLh / 2 + 3  return -1  ok
+			next
+		next
 		for _lsN_ in @aRenderNodeRects
 			if _lsL_ < _lsN_[1] + _lsN_[3] + _lsG_ and
 			   _lsL_ + nLw > _lsN_[1] - _lsG_ and
@@ -7055,7 +7164,34 @@ class stzDiagram from stzGraph
 	# from the state it named.
 	def _LaneOffset(nLane, nBoxH)
 		if nLane < 1  return 0  ok
-		return nBoxH / 2 + This._LineClearance() * nLane
+		# THE PITCH BETWEEN LANES HOLDS WHAT IS WRITTEN BESIDE THEM. At
+		# one clearance the lanes cleared each other and left nowhere for
+		# their events to stand: the placer found every beside-spot
+		# refused and fell back to putting "close" ON its own rail, where
+		# the plate erased the line -- the alteration this library has
+		# now been marked for twice. A lane's pitch is a clearance plus a
+		# label, so a return can always be named beside itself.
+		return nBoxH / 2 + @nLanePitch * nLane
+
+	def _SetLanePitch(oFont, nFsz, nBoxW)
+		@nLanePitch = This._LineClearance()
+		if NOT isObject(oFont)  return This  ok
+		_nH_ = 0
+		for _lpE_ in This.Edges()
+			if StzTrim("" + _lpE_[:label]) = ""  loop  ok
+			if StzLower("" + _lpE_[:from]) = StzLower("" + _lpE_[:to])
+				loop
+			ok
+			if NOT This.EdgeExists("" + _lpE_[:to], "" + _lpE_[:from])
+				loop
+			ok
+			_lpB_ = This._LabelBlock("" + _lpE_[:label], oFont, nFsz, nBoxW)
+			if _lpB_[3] > _nH_  _nH_ = _lpB_[3]  ok
+		next
+		if _nH_ > 0
+			@nLanePitch = This._LineClearance() + _nH_
+		ok
+		return This
 
 	def _ClusterPadBase()
 		# ONE CLEARANCE, ON EVERY SIDE. Doubling it to make room for the
