@@ -5639,11 +5639,9 @@ oLn.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
 	:FontSize = 13 ])
 
 # TWO RETURNS, TWO LANES, a clearance apart
-nLn1 = -1  nLn2 = -1
-for aLnP in oLn.RenderEdgePaths()
-	if aLnP[1] = "open>closed"    nLn1 = aLnP[2][2]  ok
-	if aLnP[1] = "locked>closed"  nLn2 = aLnP[2][2]  ok
-next
+# (_LaneY62 lives at the foot: a func here would end the script)
+nLn1 = _LaneY62(oLn, "open>closed")
+nLn2 = _LaneY62(oLn, "locked>closed")
 ? "   the two returns ride y=" + nLn1 + " and y=" + nLn2
 chk("two returns into one state take two lanes",
     fabs(nLn1 - nLn2) >= oLn._LineClearance() - 1)
@@ -5687,6 +5685,196 @@ next
 ? "   the entry gap is " + (nLnTop - nLnI) + "px"
 chk("an entry gap is not charged for the chrome twice",
     nLnTop - nLnI < 130)
+
+
+sec("-- 62. THE UNIVERSAL INVARIANTS, over EVERY scene -----------")
+#
+# The Principal, on four basic faults returning: "I start to fear that
+# maybe we lost all what we implemented before." He is right to ask, and
+# the honest answer is not that the laws were lost -- it is that they
+# were never asserted UNIVERSALLY.
+#
+# Every law in this file is checked on a scene chosen to exercise it.
+# Nothing walked EVERY picture asking the questions that must hold in
+# all of them. So an edge could end 28px from the state it points at,
+# and 400 assertions stayed green -- section 58 asks that question only
+# of arrows into a mark.
+#
+# The deeper cause was structural and is worth writing down: FIVE places
+# decided where an edge meets a node -- the attachment, the clip, the
+# same-rank branch, the lateral branch, and the twin's end clamp. "An
+# edge touches its node" lived in each of them separately, so changing
+# one to preserve a lane silently removed the only copy holding that end
+# on the border.
+#
+# This section is the remedy. It renders a set of pictures that between
+# them use every template and every glyph kind this plane has, and asks
+# the same small set of questions of all of them. A new template joins
+# by adding a row to the list -- not by hoping someone remembers.
+#---------------------------------------------------------------------------
+
+aUni = []
+
+oU1 = new stzWorkflow("uni-door")
+oU1.SetWorkflowType("statemachine")
+oU1.AddStateXTT("i", "", [ :isInitial = 1 ])
+oU1.AddStateXT("closed", "Closed")
+oU1.AddStateXT("open", "Open")
+oU1.AddStateXT("locked", "Locked")
+oU1.AddStateXTT("gone", "Demolished", [ :isFinal = 1 ])
+oU1.AddTransition("i", "closed", "")
+oU1.AddTransition("closed", "open", "open")
+oU1.AddTransition("open", "closed", "close")
+oU1.AddTransition("closed", "locked", "lock")
+oU1.AddTransition("locked", "closed", "unlock")
+oU1.AddTransition("locked", "locked", "lock")
+oU1.AddTransition("closed", "gone", "demolish")
+oU1.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
+	:FontSize = 13 ])
+aUni + [ "modes/statemachine", oU1 ]
+
+oU2 = new stzOrgChart("uni-org")
+oU2.AddExecutiveXT("ceo", "CEO")
+oU2.AddManagerXT("cto", "CTO")
+oU2.AddManagerXT("cfo", "CFO")
+oU2.AddStaffXT("d1", "Dev One")
+oU2.AddStaffXT("d2", "Dev Two")
+oU2.ReportsTo("cto", "ceo")  oU2.ReportsTo("cfo", "ceo")
+oU2.ReportsTo("d1", "cto")   oU2.ReportsTo("d2", "cto")
+oU2.SetSplines("ortho")
+oU2.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
+	:FontSize = 13 ])
+aUni + [ "layered/orgchart", oU2 ]
+
+oU3 = new stzDiagram("uni-svc")
+for aU3 in [ [ "lb","Balancer" ],[ "web1","Web A" ],[ "web2","Web B" ],
+             [ "api1","API A" ],[ "api2","API B" ],
+             [ "db1","DB A" ],[ "db2","DB B" ],[ "log","Logger" ] ]
+	oU3.AddNodeXTT(aU3[1], aU3[2], [ :type = "box", :color = "Info.Solid" ])
+next
+oU3.AddEdge("lb","web1")   oU3.AddEdge("lb","web2")
+oU3.AddEdgeXT("web1","api1", "call")  oU3.AddEdge("web2","api2")
+oU3.AddEdge("api1","db1")  oU3.AddEdge("api2","db2")
+oU3.AddEdge("web1","log")  oU3.AddEdge("api2","log")
+oU3.SetSplines("ortho")
+oU3.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 96, :NodeHeight = 36,
+	:FontSize = 13 ])
+aUni + [ "layered/default", oU3 ]
+
+oU4 = new stzDiagram("uni-shapes")
+oU4.AddNodeXTT("s", "Start", [ :type = "start" ])
+oU4.AddNodeXTT("d", "Decide", [ :type = "decision" ])
+oU4.AddNodeXTT("b", "Store", [ :type = "database" ])
+oU4.AddNodeXTT("e", "End", [ :type = "end" ])
+oU4.AddEdgeXT("s", "d", "go")
+oU4.AddEdgeXT("d", "b", "yes")
+oU4.AddEdgeXT("d", "e", "no")
+oU4.SetSplines("ortho")
+oU4.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 44,
+	:FontSize = 13 ])
+aUni + [ "layered/every-glyph", oU4 ]
+
+# THE ARROWHEAD'S OWN LENGTH is the only daylight an endpoint may have:
+# the path is published AFTER the head is cut off it, so an endpoint
+# sits one arrowhead short of the border by construction. Anything more
+# is an edge that does not touch what it names.
+nUniHead = 9 + 2 * 2 + 2
+
+nUniLoose = 0
+nUniWorst = 0
+nUniPlate = 0
+nUniOut = 0
+for aUniS in aUni
+	cUniN = aUniS[1]
+	oUni = aUniS[2]
+
+	# (a) EVERY EDGE TOUCHES BOTH ITS NODES
+	for aUniP in oUni.RenderEdgePaths()
+		aUniE = StzSplit(aUniP[1], ">")
+		if len(aUniE) != 2  loop  ok
+		fUni = aUniP[2]
+		nUniL = len(fUni)
+		if nUniL < 4  loop  ok
+		rUniA = _Rect49(oUni, StzLower(aUniE[1]))
+		rUniB = _Rect49(oUni, StzLower(aUniE[2]))
+		if rUniA[3] = 0 or rUniB[3] = 0  loop  ok
+		dUni1 = _DistRect62(rUniA, fUni[1], fUni[2])
+		dUni2 = _DistRect62(rUniB, fUni[nUniL-1], fUni[nUniL])
+		if dUni1 > nUniHead or dUni2 > nUniHead
+			nUniLoose++
+			? "   " + cUniN + " : " + aUniP[1] + " floats by " +
+			  max([ dUni1, dUni2 ]) + "px"
+		ok
+		if max([ dUni1, dUni2 ]) > nUniWorst
+			nUniWorst = max([ dUni1, dUni2 ])
+		ok
+	next
+
+	# (b) EVERY LABEL SITS INSIDE THE FRAME ITS EDGE LIVES IN. A word
+	#     outside the region whose states it joins belongs to nothing a
+	#     reader can name.
+	for aUniL in oUni.RenderLabels()
+		aUniK = StzSplit("" + aUniL[6], ">")
+		if len(aUniK) != 2  loop  ok
+		for aUniC in oUni.RenderClusterRects()
+			bUniIn = 0
+			for cUniM in aUniC[5]
+				if cUniM = StzLower(aUniK[1])  bUniIn++  ok
+				if cUniM = StzLower(aUniK[2])  bUniIn++  ok
+			next
+			if bUniIn < 2  loop  ok
+			if aUniL[2] + aUniL[4]/2 > aUniC[1] + aUniC[3] + 1 or
+			   aUniL[2] - aUniL[4]/2 < aUniC[1] - 1
+				nUniOut++
+				? "   " + cUniN + " : label '" + aUniL[1] +
+				  "' outside the frame its edge lives in"
+			ok
+		next
+	next
+next
+
+? "   edges not touching a node they name : " + nUniLoose +
+  " (worst " + nUniWorst + "px, arrowhead is " + nUniHead + ")"
+chkeq("EVERY edge touches both its nodes, in every template",
+      nUniLoose, 0)
+? "   labels outside the frame their edge lives in : " + nUniOut
+chkeq("EVERY label stays inside the frame its edge lives in", nUniOut, 0)
+
+# (c) A LABEL PLATE TAKES THE SURFACE IT COVERS. Asked of the DRAWN
+#     pixels, because this is a claim about what a reader sees: the
+#     pixel just outside a plate and the pixel just inside it must be
+#     the same colour, or the plate reads as a card lying on the field.
+if NOT StzGraphicsDevice()
+	? "   (no device -- the plate colour is a pixel property; skipped)"
+else
+	oUp = new stzWorkflow("plate62")
+	oUp.SetWorkflowType("statemachine")
+	oUp.AddStateXT("a", "A")
+	oUp.AddStateXT("b", "B")
+	oUp.AddTransition("a", "b", "go")
+	oUp.AddTransition("b", "a", "back")
+	oUpC = oUp.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104,
+		:NodeHeight = 40, :FontSize = 13 ])
+	cUpPx = oUpC.ToPixels()
+	nUpW = oUpC.Width()
+	nUpBad = 0
+	for aUpL in oUp.RenderLabels()
+		# a pixel inside the plate's top edge, and one just above it
+		nUpX = floor(aUpL[2])
+		nUpIn = floor(aUpL[3] - aUpL[5] / 2 + 2)
+		nUpOut = floor(aUpL[3] - aUpL[5] / 2 - 3)
+		aUpA = _Px62(cUpPx, nUpW, nUpX, nUpIn)
+		aUpB = _Px62(cUpPx, nUpW, nUpX, nUpOut)
+		nUpD = fabs(aUpA[1] - aUpB[1]) + fabs(aUpA[2] - aUpB[2]) +
+			fabs(aUpA[3] - aUpB[3])
+		? "   plate for '" + aUpL[1] + "' : inside rgb " + aUpA[1] + "," +
+		  aUpA[2] + "," + aUpA[3] + "  outside " + aUpB[1] + "," +
+		  aUpB[2] + "," + aUpB[3]
+		if nUpD > 12  nUpBad++  ok
+	next
+	chkeq("a label plate is the colour of the surface it covers",
+	      nUpBad, 0)
+ok
 
 
 #---------------------------------------------------------------------------
@@ -5770,6 +5958,38 @@ func _Dist55 nX, nY, paFlat
 		if _d55_ < _best55_  _best55_ = _d55_  ok
 	next
 	return _best55_
+
+func _LaneY62 oDg, cKey
+	_ly62_ = -1
+	_lw62_ = 0
+	for _lp62_ in oDg.RenderEdgePaths()
+		if _lp62_[1] != cKey  loop  ok
+		_lf62_ = _lp62_[2]
+		for _li62_ = 1 to len(_lf62_) - 3 step 2
+			if fabs(_lf62_[_li62_+3] - _lf62_[_li62_+1]) > 0.5  loop  ok
+			_lr62_ = fabs(_lf62_[_li62_+2] - _lf62_[_li62_])
+			if _lr62_ > _lw62_
+				_lw62_ = _lr62_
+				_ly62_ = _lf62_[_li62_+1]
+			ok
+		next
+	next
+	return _ly62_
+
+
+func _DistRect62 aR, nX, nY
+	_dx62_ = 0
+	if nX < aR[1]  _dx62_ = aR[1] - nX  ok
+	if nX > aR[1] + aR[3]  _dx62_ = nX - (aR[1] + aR[3])  ok
+	_dy62_ = 0
+	if nY < aR[2]  _dy62_ = aR[2] - nY  ok
+	if nY > aR[2] + aR[4]  _dy62_ = nY - (aR[2] + aR[4])  ok
+	return sqrt(_dx62_*_dx62_ + _dy62_*_dy62_)
+
+func _Px62 cPx, nW, nX, nY
+	_i62_ = (nY * nW + nX) * 4 + 1
+	if _i62_ + 2 > len(cPx)  return [ 0, 0, 0 ]  ok
+	return [ ascii(cPx[_i62_]), ascii(cPx[_i62_+1]), ascii(cPx[_i62_+2]) ]
 
 func _Rect49 oDg, cId
 	for _r49_ in oDg.RenderNodeRects()
