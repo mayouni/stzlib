@@ -2213,8 +2213,14 @@ chk("every label is attached to the edge it names",
     nWorstOwn <= oLb._LineClearance())
 chk("...and is NEARER its own edge than any foreign one",
     nWorstOwn < nWorstFor)
+# HALF A CLEARANCE, since the Principal asked for a label to sit
+# CLOSER to its own line -- and a label closer to its own ink is
+# necessarily closer to everything near it. What must never happen is
+# a plate erasing or touching foreign ink, and that floor is absolute
+# and asserted over every picture in section 62. This is the comfort
+# margin above it, and half a clearance is still visible separation.
 chk("no plate erases or crowds a foreign edge",
-    nWorstFor >= oLb._LineClearance() * 0.6)
+    nWorstFor >= oLb._LineClearance() * 0.5)
 
 # THE NEGATIVE SIBLINGS, on the instrument itself: a spot centred ON a
 # foreign edge scores ZERO (that is what erasure looks like in
@@ -5964,6 +5970,40 @@ chk("the MIDDLE of the edge wins, but for the tight few",
     nUniOff * 2 <= nUniLab)
 ? "   labels standing on a frame's rule : " + nUniRule
 chkeq("no label stands on a frame's own rule", nUniRule, 0)
+
+# (f) EVERY GAP IN ONE PICTURE IS THE SAME GAP -- I5 for whitespace.
+#     Two gaps drawn differently assert a difference, and between an
+#     entry and an exit there is none. Measured to the FRAME where a
+#     frame stands, because that is the edge a reader sees.
+oUg = new stzWorkflow("gaps62")
+oUg.SetWorkflowType("statemachine")
+oUg.AddStateXTT("i", "", [ :isInitial = 1 ])
+oUg.AddStateXT("closed", "Closed")
+oUg.AddStateXT("open", "Open")
+oUg.AddStateXTT("gone", "Gone", [ :isFinal = 1 ])
+oUg.AddTransition("i", "closed", "")
+oUg.AddTransition("closed", "open", "open")
+oUg.AddTransition("open", "closed", "close")
+oUg.AddTransition("closed", "gone", "demolish")
+oUg.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
+	:FontSize = 13 ])
+nUgI = 0  nUgG = 0
+for rUg in oUg.RenderNodeRects()
+	if rUg[5] = "i"     nUgI = rUg[2] + rUg[4]  ok
+	if rUg[5] = "gone"  nUgG = rUg[2]  ok
+next
+nUgTop = 1000000  nUgBot = 0
+for cUg in oUg.RenderClusterRects()
+	if cUg[2] < nUgTop  nUgTop = cUg[2]  ok
+	if cUg[2] + cUg[4] > nUgBot  nUgBot = cUg[2] + cUg[4]  ok
+next
+nUgA = nUgTop - nUgI
+nUgB = nUgG - nUgBot
+? "   entry gap " + nUgA + "px, exit gap " + nUgB + "px"
+chk("the way in and the way out are the same distance",
+    fabs(nUgA - nUgB) < 3)
+chk("...and neither is longer than the picture needs",
+    nUgA < 120 and nUgB < 120)
 
 # (c) A LABEL PLATE TAKES THE SURFACE IT COVERS. Asked of the DRAWN
 #     pixels, because this is a claim about what a reader sees: the
