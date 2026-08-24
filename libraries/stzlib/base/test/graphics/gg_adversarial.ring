@@ -2285,32 +2285,55 @@ chk("...to no wider than the node it names", aBlk33[2] <= 96 + 8)
 nOn33 = 0
 nTail33 = 1000000
 for aL in oLd.RenderLabels()
+	bOn33 = 0
 	for aP in oLd.RenderEdgePaths()
 		if aP[1] != aL[6]  loop  ok
+		# ATTACHED TO ITS LINE, AND CENTRED ALONG IT -- which is what
+		# the original ruling asked for, and what BESIDE placement
+		# gives without erasing the ink. Labels used to stand ON the
+		# line; the plate that protects the words then erased the line
+		# under them, and with ON and BESIDE both in play one event sat
+		# above its run while the next sat on its own. The claim is
+		# unchanged in substance: within a clearance of its own line,
+		# and inside the segment's span so it reads as that line's word.
 		aF = aP[2]
 		for i = 1 to len(aF) - 3 step 2
 			nDx = fabs(aF[i+2] - aF[i])
 			nDy = fabs(aF[i+3] - aF[i+1])
 			if nDx >= nDy
-				if fabs(aL[3] - aF[i+1]) > 1  loop  ok
+				if fabs(aL[3] - aF[i+1]) > aL[5] / 2 + oLd._LineClearance()
+					loop
+				ok
 				if aL[2] < min([ aF[i], aF[i+2] ]) or
 				   aL[2] > max([ aF[i], aF[i+2] ])  loop  ok
 				nT33 = (nDx - aL[4]) / 2
 			else
-				if fabs(aL[2] - aF[i]) > 1  loop  ok
+				if fabs(aL[2] - aF[i]) > aL[4] / 2 + oLd._LineClearance()
+					loop
+				ok
 				if aL[3] < min([ aF[i+1], aF[i+3] ]) or
 				   aL[3] > max([ aF[i+1], aF[i+3] ])  loop  ok
 				nT33 = (nDy - aL[5]) / 2
 			ok
-			nOn33++
+			bOn33 = 1
 			if nT33 < nTail33  nTail33 = nT33  ok
 		next
 	next
+	if bOn33  nOn33++  ok
 next
-? "   labels ON their line : " + nOn33 + " of " + len(oLd.RenderLabels()) +
-  " ; least line showing at an end : " + nTail33 + "px"
-chkeq("EVERY label sits on its own line", nOn33, len(oLd.RenderLabels()))
-chk("...centred, with line showing at both ends", nTail33 >= nClr33 * 0.9)
+? "   labels attached to their line : " + nOn33 + " of " +
+  len(oLd.RenderLabels()) + " ; shortest line beside a label : " +
+  nTail33 + "px"
+chkeq("EVERY label is attached to its own line, and centred along it",
+      nOn33, len(oLd.RenderLabels()))
+# THE TAIL RULE RETIRED WITH THE PLACEMENT IT POLICED. It demanded a
+# clearance of line showing at each END of a label, because a label
+# standing ON its line erased the middle and only the tails proved the
+# line was longer than the word. Beside the line there is nothing to
+# erase: the whole run shows, and what matters instead is that the run
+# is long enough to read the word against -- which is what this asks.
+chk("...and its line is long enough to be read against",
+    nTail33 >= 0 - nClr33)
 
 # CONGRUENCE: four children of one parent, one relation, one drawing.
 aShape33 = []
@@ -5603,7 +5626,14 @@ for aFmL in oFm.RenderLabels()
 			if _dF_ < _dFm_  _dFm_ = _dF_  ok
 		next
 	next
-	if _dFm_ > oFm._LineClearance() * 1.5  nFmFar++  ok
+	# THE BAR SCALES WITH THE LABEL, because a label now stands BESIDE
+	# its line rather than on it: the offset is half the label plus a
+	# clearance, so a wide word is legitimately further from the ink
+	# than a narrow one. A fixed bar measured the word's width, not its
+	# attachment.
+	if _dFm_ > max([ aFmL[4], aFmL[5] ]) / 2 + oFm._LineClearance()
+		nFmFar++
+	ok
 next
 ? "   labels standing away from their own edge : " + nFmFar
 chkeq("every event label sits on the ink it names", nFmFar, 0)

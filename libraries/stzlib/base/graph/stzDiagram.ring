@@ -1927,6 +1927,44 @@ class stzDiagram from stzGraph
 			_mx_ = max([ _mx_, _my_ ])
 			_my_ = _mx_
 		ok
+
+		# A MODE PICTURE'S INSET HOLDS WHAT REACHES PAST A CENTRE. Its
+		# layout is given :Margin = 0 -- two margin systems stacked is
+		# how a picture grows a border nobody asked for -- so the layout
+		# spreads node CENTRES to the edges of the box, and everything a
+		# node draws BEYOND its centre lives in this inset: half a cell,
+		# the frame drawn around it, the loop radiating out of it, and
+		# the name written under it. Half a cell alone let the frame run
+		# off the right edge and cut "Demolished" in half.
+		if _bModes_
+			# ...INCLUDING THE WORD BESIDE A LOOP, which sits beyond the
+			# loop and so beyond everything else on that side. Funded in
+			# the WIDTH it merely made the canvas bigger while the layout
+			# still spread centres to the same edges, and the word stayed
+			# outside. What reaches past a centre is paid for in the
+			# inset, not in the total.
+			_nLoopLabW_ = 0
+			if isObject(_oFont_)
+				for _e6_ in This.Edges()
+					if StzLower("" + _e6_[:from]) != StzLower("" + _e6_[:to])
+						loop
+					ok
+					_l6_ = StzTrim("" + _e6_[:label])
+					if _l6_ = ""  loop  ok
+					_w6_ = _oFont_.WidthOf(_l6_, _nFsz_) + 14
+					if _w6_ > _nLoopLabW_  _nLoopLabW_ = _w6_  ok
+				next
+			ok
+			# ...and the frame's own RULE needs room to be seen: at
+			# exactly the inset it lands on the paper's last column and
+			# reads as a picture cut off rather than a frame closed.
+			_mx_ = max([ _mx_, _nBoxW_ / 2 + This._ClusterPadMax() +
+				This._SelfLoopReach(_nBoxW_, _nBoxH_) + 6 + _nLoopLabW_ +
+				_nEdgeW_ * 2 + 6 ])
+			_my_ = max([ _my_, _nBoxH_ / 2 + This._ClusterChromeAbove(_nFsz_),
+				_nBoxH_ / 2 + _nFsz_ * 2.4 ])
+		ok
+
 		_bSwap_ = 0
 		if _cRank_ = "LR" or _cRank_ = "RL"  _bSwap_ = 1  ok
 
@@ -2125,7 +2163,8 @@ class stzDiagram from stzGraph
 		# the contract, the size is derived -- applied to a layout whose
 		# ranks are modes rather than states.
 		if _bModes_ and NOT _bNamed_
-			_nMdW_ = @nModeCols * (_nBoxW_ + _nSepN_) + _nSepN_
+			_nMdW_ = @nModeCols * _nBoxW_ +
+				max([ @nModeCols - 1, 0 ]) * _nSepN_ + _mx_ * 2
 			# A RANK PAYS FOR THE TALLEST THING STANDING IN IT. Every
 			# rank was charged a full cell, including the ones holding
 			# nothing but a mark a fifth that size.
@@ -2135,7 +2174,17 @@ class stzDiagram from stzGraph
 				if _b4_[2] > _nMdTall_  _nMdTall_ = _b4_[2]  ok
 			next
 			if _nMdTall_ <= 0  _nMdTall_ = _nBoxH_  ok
-			_nMdH_ = @nModeRows * (_nMdTall_ + _nSepR_) + _nSepR_
+			# THE SIZE IS THE CONTENT, and the content is N rows plus the
+			# N-1 gaps BETWEEN them -- not N gaps, and not N+1. Charging
+			# a gap per row bought two gaps the picture has no room to
+			# put anywhere, and the canvas then handed them to its own
+			# margins: 104px of white above the entry mark, which is the
+			# long vertical the Principal keeps marking. The layout is
+			# told :Margin = 0 for the same reason -- the diagram adds
+			# its own inset already, and two margin systems stacked is
+			# how a picture grows a border nobody asked for.
+			_nMdH_ = @nModeRows * _nMdTall_ +
+				max([ @nModeRows - 1, 0 ]) * _nSepR_ + _my_ * 2
 			# region chrome is paid ONCE PER REGION ROW, not per rank: a
 			# rank with no boundary in it eats none of it
 			# chrome is paid ONCE PER REGION ROW: three regions side by
@@ -2164,8 +2213,8 @@ class stzDiagram from stzGraph
 				next
 			ok
 			if len(@aClusters) > 0
-				_nMdW_ += This._ClusterPadMax() * 2 +
-					This._SelfLoopReach(_nBoxW_, _nBoxH_) + 6 + _nMdLoopW_
+				# the inset holds the frame's pad, the loop and the word
+				# beside it -- nothing further is owed here
 				_nMdH_ += (This._ClusterPadMax() * 2 +
 					This._LineClearance() * (@nModeCols + 1)) *
 					max([ @nModeRegionRows, 1 ])
@@ -2548,6 +2597,7 @@ class stzDiagram from stzGraph
 
 			_oGC_ = new stzGraphCanvas(This, [
 				:Layout = _cLM_,
+				:Margin = iif(_bModes_, 0, 70),
 				:Width  = max([ _lw_, 60 ]),
 				:Height = max([ _lh_, 60 ]),
 				:Clusters = This._ClusterPairs(),
@@ -3291,9 +3341,23 @@ class stzDiagram from stzGraph
 					# the same race now, after the ON spots, and only when NO
 					# spot anywhere clears the bar does the least-bad one win
 					# -- a crowded picture still labels every edge.
+					# BESIDE THE LINE, ALWAYS, AND AT ONE DISTANCE. Two
+					# rulings met here. A label ON its line needs a plate,
+					# and the plate ERASES the line it sits on -- the
+					# notch the Principal circled under "close". And with
+					# ON and BESIDE both in play, one event sat above its
+					# run and the next sat on its own, so the picture had
+					# two conventions and the reader had to learn both.
+					#
+					# Beside-placement satisfies the older ruling too: the
+					# label is still centred ALONG its line, which is what
+					# "in the middle of the line, not outside it" asks --
+					# it just does not stand ON the ink. The ON candidates
+					# remain as the last resort for an edge whose every
+					# segment is too short to carry a word beside it.
 					_aCand_ = []
-					for _cOn_ in _aOn_   _aCand_ + _cOn_   next
 					for _cBe_ in _aBes_  _aCand_ + _cBe_   next
+					for _cOn_ in _aOn_   _aCand_ + _cOn_   next
 					_nBestD_ = -1
 					_nBestX_ = _lx_
 					_nBestY_ = _ly_
@@ -5236,9 +5300,18 @@ class stzDiagram from stzGraph
 				return -1
 			ok
 		next
+		# A CELL IS INK TOO, and a label must CLEAR it, not merely miss
+		# it. Refusing only overlap let a word sit flush against a
+		# node's underside once labels moved beside their lines --
+		# legible by a pixel, and read as belonging to the cell rather
+		# than to the line. The same clearance every other pair of marks
+		# in this picture gets.
+		_lsG_ = This._LineClearance() * 0.5
 		for _lsN_ in @aRenderNodeRects
-			if _lsL_ < _lsN_[1] + _lsN_[3] and _lsL_ + nLw > _lsN_[1] and
-			   _lsT_ < _lsN_[2] + _lsN_[4] and _lsT_ + nLh > _lsN_[2]
+			if _lsL_ < _lsN_[1] + _lsN_[3] + _lsG_ and
+			   _lsL_ + nLw > _lsN_[1] - _lsG_ and
+			   _lsT_ < _lsN_[2] + _lsN_[4] + _lsG_ and
+			   _lsT_ + nLh > _lsN_[2] - _lsG_
 				return -1
 			ok
 		next
