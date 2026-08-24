@@ -4948,16 +4948,28 @@ chk("both members of the pair have drawn paths",
 # makes it a rail is that every one of its vertices stands about a
 # clearance from the partner's ink -- never on it, never wandering off.
 nTwClr = oTw._LineClearance()
+# THE CLAIM IS PARALLELISM, not a magnitude. How FAR a return sits from
+# its partner is the LANE rule's business, and that number moved when
+# lanes began clearing the boxes instead of the centre-line -- a rail a
+# clearance from the row's middle is four pixels from the cells, which
+# is the hugging the Principal circled. What makes a pair read as one
+# conversation is that the rails keep a CONSTANT distance.
 nTwBad = 0
 nTwZero = 0
+nTwRail = -1
 for iTw = 1 to len(aTwU) - 1 step 2
 	_dT_ = _Dist55(aTwU[iTw], aTwU[iTw+1], aTwD)
-	if _dT_ > nTwClr * 1.6 + 1  nTwBad++  ok
 	if _dT_ < 2  nTwZero++  ok
+	if _dT_ < 2  loop  ok
+	if nTwRail < 0  nTwRail = _dT_  ok
+	if fabs(_dT_ - nTwRail) > 2  nTwBad++  ok
 next
-? "   twin vertices off the rail : " + nTwBad + " of " + (len(aTwU) / 2)
-chkeq("the return is its partner's path, one clearance away", nTwBad, 0)
+? "   twin vertices off the rail : " + nTwBad + " of " + (len(aTwU) / 2) +
+  " , the rails run " + nTwRail + "px apart"
+chkeq("the return runs PARALLEL to its partner, all the way", nTwBad, 0)
 chkeq("...and never ON it", nTwZero, 0)
+chk("...clearing the cells it runs under, not just their centre-line",
+    nTwRail >= nTwClr - 1)
 
 # PER-GAP PITCH: a>b crosses an unlabelled gap, b>c a labelled one
 nTwA = -1  nTwB = -1  nTwB2 = -1  nTwC = -1
@@ -5784,6 +5796,7 @@ nUniLoose = 0
 nUniWorst = 0
 nUniPlate = 0
 nUniOut = 0
+nUniHug = 0
 for aUniS in aUni
 	cUniN = aUniS[1]
 	oUni = aUniS[2]
@@ -5833,12 +5846,49 @@ for aUniS in aUni
 	next
 next
 
+	# (c) EVERY HORIZONTAL RUN CLEARS THE CELLS IT PASSES UNDER. A
+	#     clearance is clearance FROM THE INK: measured from the row's
+	#     centre-line the first return lane landed four pixels from the
+	#     boxes, a rail hugging the cells it runs beneath. Asked of
+	#     every picture, because the rule is not the state machine's.
+	for aUniP in oUni.RenderEdgePaths()
+		aUniE = StzSplit(aUniP[1], ">")
+		if len(aUniE) != 2  loop  ok
+		if aUniE[1] = aUniE[2]  loop  ok
+		fUni = aUniP[2]
+		for iUni = 1 to len(fUni) - 3 step 2
+			if fabs(fUni[iUni+3] - fUni[iUni+1]) > 0.5  loop  ok
+			if fabs(fUni[iUni+2] - fUni[iUni]) < 20  loop  ok
+			_axU_ = min([ fUni[iUni], fUni[iUni+2] ]) + 6
+			_bxU_ = max([ fUni[iUni], fUni[iUni+2] ]) - 6
+			_yU_ = fUni[iUni+1]
+			for rUni in oUni.RenderNodeRects()
+				# a cell this run passes under or over, and not one of
+				# its own endpoints
+				if rUni[5] = StzLower(aUniE[1]) or
+				   rUni[5] = StzLower(aUniE[2])  loop  ok
+				if rUni[1] + rUni[3] < _axU_ or rUni[1] > _bxU_  loop  ok
+				_dU_ = 1000000
+				if _yU_ > rUni[2] + rUni[4]  _dU_ = _yU_ - (rUni[2] + rUni[4])  ok
+				if _yU_ < rUni[2]  _dU_ = rUni[2] - _yU_  ok
+				if _dU_ < oUni._LineClearance() - 2
+					nUniHug++
+					? "   " + cUniN + " : " + aUniP[1] +
+					  " runs " + _dU_ + "px from " + rUni[5]
+				ok
+			next
+		next
+	next
+
 ? "   edges not touching a node they name : " + nUniLoose +
   " (worst " + nUniWorst + "px, arrowhead is " + nUniHead + ")"
 chkeq("EVERY edge touches both its nodes, in every template",
       nUniLoose, 0)
 ? "   labels outside the frame their edge lives in : " + nUniOut
 chkeq("EVERY label stays inside the frame its edge lives in", nUniOut, 0)
+? "   horizontal runs hugging a cell they pass : " + nUniHug
+chkeq("EVERY run clears the cells it passes, in every template",
+      nUniHug, 0)
 
 # (c) A LABEL PLATE TAKES THE SURFACE IT COVERS. Asked of the DRAWN
 #     pixels, because this is a claim about what a reader sees: the

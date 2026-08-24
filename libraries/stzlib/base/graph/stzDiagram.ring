@@ -5569,7 +5569,8 @@ class stzDiagram from stzGraph
 		next
 		_twN_ = len(_twP_)
 		if _twN_ < 4  return  ok
-		_twOff_ = This._LineClearance() * nLane
+		_twOff_ = This._LaneOffset(nLane,
+			This._BoxOf("" + paE[nEi][:from], nBoxW, nBoxH)[2])
 		_bH_ = 0
 		if cRank = "LR" or cRank = "RL"  _bH_ = 1  ok
 
@@ -6520,7 +6521,7 @@ class stzDiagram from stzGraph
 					next
 					@aSameRowLanes + _srKey_
 				ok
-				_srOff_ = This._LineClearance() * _srLane_
+				_srOff_ = This._LaneOffset(_srLane_, _srA_[2])
 				if cRank = "LR" or cRank = "RL"
 					_srSg_ = iif(aTo[2] >= aFrom[2], 1, -1)
 					if _srLane_ > 0
@@ -6967,6 +6968,22 @@ class stzDiagram from stzGraph
 		next
 		return _nOv_
 
+	# HOW FAR A RETURN LANE SITS FROM ITS ROW -- ONE ANSWER, THREE
+	# CALLERS. The offset was counted from the row's CENTRE-LINE, so the
+	# first lane landed a clearance from the centre and four pixels from
+	# the boxes: a rail hugging the cells it runs under, which is what
+	# the Principal circled. A clearance is clearance FROM THE INK, and
+	# the ink here is the row of cells -- so a lane clears the box first
+	# and then counts.
+	#
+	# One method because three places need this number -- the drawing,
+	# the twin's mirror, and the frame that has to contain them -- and
+	# the last time one rule lived in several places an edge ended 28px
+	# from the state it named.
+	def _LaneOffset(nLane, nBoxH)
+		if nLane < 1  return 0  ok
+		return nBoxH / 2 + This._LineClearance() * nLane
+
 	def _ClusterPadBase()
 		# ONE CLEARANCE, ON EVERY SIDE. Doubling it to make room for the
 		# return rail paid for that rail on all four sides -- including
@@ -7074,7 +7091,8 @@ class stzDiagram from stzGraph
 			_at3_ = This._XYOf(aXY, "" + _clP_[:from])
 			if len(_at3_) != 2  loop  ok
 			_nLn3_++
-			_rail3_ = _at3_[2] + This._LineClearance() * (_nLn3_ + 1)
+			_rail3_ = _at3_[2] + This._LaneOffset(_nLn3_, nBoxH) +
+				This._LineClearance()
 			if _rail3_ > _y1L_  _y1L_ = _rail3_  ok
 		next
 
