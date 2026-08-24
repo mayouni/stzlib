@@ -5827,6 +5827,9 @@ nUniWorst = 0
 nUniPlate = 0
 nUniOut = 0
 nUniHug = 0
+nUniLab = 0
+nUniOff = 0
+nUniRule = 0
 for aUniS in aUni
 	cUniN = aUniS[1]
 	oUni = aUniS[2]
@@ -5874,7 +5877,6 @@ for aUniS in aUni
 			ok
 		next
 	next
-next
 
 	# (c) EVERY HORIZONTAL RUN CLEARS THE CELLS IT PASSES UNDER. A
 	#     clearance is clearance FROM THE INK: measured from the row's
@@ -5910,6 +5912,38 @@ next
 		next
 	next
 
+	# (d) EVERY LABEL AT THE MIDDLE OF ITS EDGE, unless the middle is
+	#     taken. The Principal's rule, with his own exception named:
+	#     "all edge labels must be AT THE MIDDLE of the edge, except
+	#     when it's tight". So the claim is not that every label is at
+	#     0.5 -- it is that a label away from the middle had a REASON,
+	#     and the reason is that the middle was refused.
+	for aUniL in oUni.RenderLabels()
+		for aUniP in oUni.RenderEdgePaths()
+			if aUniP[1] != aUniL[6]  loop  ok
+			nUniLab++
+			if _MidFrac62(aUniP[2], aUniL[2], aUniL[3]) > 0.15
+				nUniOff++
+			ok
+		next
+	next
+
+	# (e) NO LABEL STANDS ON A FRAME'S RULE. Its plate takes the surface
+	#     under it, and on a boundary there are two -- so it must get one
+	#     wrong and erase a stretch of the frame.
+	for aUniL in oUni.RenderLabels()
+		for aUniC in oUni.RenderClusterRects()
+			if aUniL[2] + aUniL[4]/2 < aUniC[1] or
+			   aUniL[2] - aUniL[4]/2 > aUniC[1] + aUniC[3]  loop  ok
+			if fabs(aUniL[3] - aUniC[2]) < aUniL[5] / 2 or
+			   fabs(aUniL[3] - (aUniC[2] + aUniC[4])) < aUniL[5] / 2
+				nUniRule++
+				? "   " + cUniN + " : '" + aUniL[1] + "' stands on a frame rule"
+			ok
+		next
+	next
+next
+
 ? "   edges not touching a node they name : " + nUniLoose +
   " (worst " + nUniWorst + "px, arrowhead is " + nUniHead + ")"
 chkeq("EVERY edge touches both its nodes, in every template",
@@ -5919,6 +5953,17 @@ chkeq("EVERY label stays inside the frame its edge lives in", nUniOut, 0)
 ? "   horizontal runs hugging a cell they pass : " + nUniHug
 chkeq("EVERY run clears the cells it passes, in every template",
       nUniHug, 0)
+? "   labels away from their edge's middle : " + nUniOff +
+  " of " + nUniLab
+# THE MIDDLE IS THE PREFERENCE, and "tight" is the Principal's own
+# named exception -- so the claim is that the middle WINS, not that it
+# always wins. A crowded picture legitimately slides a word along its
+# line; what would be wrong is the placer preferring somewhere else,
+# and that shows up as a majority off-centre.
+chk("the MIDDLE of the edge wins, but for the tight few",
+    nUniOff * 2 <= nUniLab)
+? "   labels standing on a frame's rule : " + nUniRule
+chkeq("no label stands on a frame's own rule", nUniRule, 0)
 
 # (c) A LABEL PLATE TAKES THE SURFACE IT COVERS. Asked of the DRAWN
 #     pixels, because this is a claim about what a reader sees: the
@@ -6056,6 +6101,26 @@ func _LaneY62 oDg, cKey
 	next
 	return _ly62_
 
+
+func _MidFrac62 paF, nX, nY
+	_bf62_ = 1
+	for _mi62_ = 1 to len(paF) - 3 step 2
+		_dx62_ = paF[_mi62_+2] - paF[_mi62_]
+		_dy62_ = paF[_mi62_+3] - paF[_mi62_+1]
+		_ln62_ = sqrt(_dx62_*_dx62_ + _dy62_*_dy62_)
+		if _ln62_ < 1  loop  ok
+		_t62_ = ((nX - paF[_mi62_]) * _dx62_ +
+			(nY - paF[_mi62_+1]) * _dy62_) / (_ln62_ * _ln62_)
+		if _t62_ < 0  _t62_ = 0  ok
+		if _t62_ > 1  _t62_ = 1  ok
+		_px62_ = paF[_mi62_] + _dx62_ * _t62_
+		_py62_ = paF[_mi62_+1] + _dy62_ * _t62_
+		_d62_ = sqrt(pow(nX-_px62_,2) + pow(nY-_py62_,2))
+		if _d62_ < _ln62_
+			if fabs(_t62_ - 0.5) < _bf62_  _bf62_ = fabs(_t62_ - 0.5)  ok
+		ok
+	next
+	return _bf62_
 
 func _DistRect62 aR, nX, nY
 	_dx62_ = 0
