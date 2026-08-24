@@ -64,8 +64,13 @@ func StzStateMachineNotation()
 	# they should recede. The region is the tinted container step of the
 	# states' own role, so it reads as "the same colour, quieter".
 	_o_.AddKindXT("state", "box", "Info.Solid")
-	_o_.AddKindXTT("initial", "circle", "Neutral.Text", 0.42)
-	_o_.AddKindXTT("start", "circle", "Neutral.Text", 0.42)
+	# WHERE IT BEGINS IS OPEN, WHERE IT ENDS IS CLOSED. The Principal's
+	# convention, and it reads the way the words do: an empty circle is
+	# a machine about to start, a filled one is a machine that has
+	# stopped. Both were filled, so the two ends of a lifetime looked
+	# identical.
+	_o_.AddKindXTT("initial", "circle", "white", 0.42)
+	_o_.AddKindXTT("start", "circle", "white", 0.42)
 	_o_.AddKindXTT("final", "doublecircle", "Neutral.Text", 0.48)
 	_o_.AddKindXTT("endpoint", "doublecircle", "Neutral.Text", 0.48)
 	_o_.AddKindXT("choice", "diamond", "Info.Border")

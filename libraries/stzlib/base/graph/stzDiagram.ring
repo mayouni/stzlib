@@ -646,6 +646,38 @@ class stzDiagram from stzGraph
 	# "you can't write a label in a background different from the
 	# underlying background". Innermost frame wins, since that is what is
 	# actually visible there.
+	# The point at a fraction of a PATH's own length, with the direction
+	# of the leg it lands on: [ x, y, |dx|, |dy| ]. A label centred at
+	# 0.5 of the journey is what a reader calls the middle of an edge;
+	# 0.5 of whichever leg the placer happened to walk first is not.
+	def _PointAlong(paFlat, nFrac)
+		_paN_ = len(paFlat)
+		if _paN_ < 4  return []  ok
+		_paTot_ = 0
+		for _paI_ = 1 to _paN_ - 3 step 2
+			_paTot_ += sqrt(pow(paFlat[_paI_+2] - paFlat[_paI_], 2) +
+				pow(paFlat[_paI_+3] - paFlat[_paI_+1], 2))
+		next
+		if _paTot_ <= 0  return []  ok
+		_paWant_ = _paTot_ * nFrac
+		_paAcc_ = 0
+		for _paI_ = 1 to _paN_ - 3 step 2
+			_paDx_ = paFlat[_paI_+2] - paFlat[_paI_]
+			_paDy_ = paFlat[_paI_+3] - paFlat[_paI_+1]
+			_paL_ = sqrt(_paDx_*_paDx_ + _paDy_*_paDy_)
+			if _paL_ <= 0  loop  ok
+			if _paAcc_ + _paL_ >= _paWant_ or _paI_ + 4 > _paN_
+				_paT_ = (_paWant_ - _paAcc_) / _paL_
+				if _paT_ < 0  _paT_ = 0  ok
+				if _paT_ > 1  _paT_ = 1  ok
+				return [ paFlat[_paI_] + _paDx_ * _paT_,
+					paFlat[_paI_+1] + _paDy_ * _paT_,
+					fabs(_paDx_), fabs(_paDy_) ]
+			ok
+			_paAcc_ += _paL_
+		next
+		return []
+
 	def _SurfaceAt(nX, nY, cPaper)
 		_cS_ = "" + cPaper
 		_nBest_ = -1
@@ -688,6 +720,34 @@ class stzDiagram from stzGraph
 	# Which placed ROW a node sits in, 0 when it is not placed. The row
 	# list is the distinct y values, sorted, so this is the index a gap
 	# is counted from.
+	# How far the frame on this row reaches above and below the cells
+	# standing in it: [ above, below ], or [] when the row holds none.
+	# Asked of the frame's OWN box, so the placement and the drawing
+	# cannot disagree about where a region ends.
+	def _RowFrameBox(paXY, nRowY, nBoxW, nBoxH)
+		_rfTop_ = 1000000
+		_rfBot_ = 0 - 1000000
+		_bAny_ = 0
+		for _rfC_ in @aClusters
+			_bHere_ = 0
+			for _rfM_ in _rfC_[:nodes]
+				_rfA_ = This._XYOf(paXY, "" + _rfM_)
+				if len(_rfA_) != 2  loop  ok
+				if fabs(_rfA_[2] - nRowY) < 2  _bHere_ = 1  ok
+			next
+			if NOT _bHere_  loop  ok
+			_rfB_ = This._ClusterBox(_rfC_, paXY, nBoxW, nBoxH)
+			if len(_rfB_) != 4  loop  ok
+			# the label strip lives above the box and is drawn too
+			_rfT2_ = _rfB_[2] - @nLastFsz * 1.9
+			if _rfT2_ < _rfTop_  _rfTop_ = _rfT2_  ok
+			if _rfB_[2] + _rfB_[4] > _rfBot_  _rfBot_ = _rfB_[2] + _rfB_[4]  ok
+			_bAny_ = 1
+		next
+		if NOT _bAny_  return []  ok
+		return [ max([ 0, nRowY - nBoxH / 2 - _rfTop_ ]),
+			max([ 0, _rfBot_ - (nRowY + nBoxH / 2) ]) ]
+
 	def _RowOfXY(paXY, paRows, pcId)
 		_rid_ = StzLower("" + pcId)
 		for _rq_ in paXY
@@ -2673,6 +2733,7 @@ class stzDiagram from stzGraph
 			# as the tallest thing standing in it -- plus, where a region
 			# lives there, the frame drawn around it -- and between two
 			# rows there is one separation and nothing else.
+			for _mpass_ = 1 to 2
 			if _bModes_
 				_aRows_ = []
 				for _xi_ = 1 to len(_aXY_)
@@ -2701,13 +2762,29 @@ class stzDiagram from stzGraph
 						next
 					next
 					if _nTall_ <= 0  _nTall_ = _nBoxH_  ok
+					# THE OVERHANG IS MEASURED, NOT ESTIMATED. A formula
+					# for how far a frame reaches above and below its row
+					# has to predict the padding, the label strip, the
+					# lanes and their labels -- and being wrong by 40px
+					# put the exit edge at a third of the entry edge,
+					# which is the inequality marked over and over. The
+					# frame knows its own box; this asks it. Two passes,
+					# because the box needs positions and the positions
+					# need the box: place, measure, place again.
 					_nAbove_ = 0
 					_nBelow_ = 0
 					if _bReg_
-						_nAbove_ = This._ClusterChromeAbove(_nFsz_)
-						_nBelow_ = This._ClusterPadMax() +
-							This._LaneOffset(max([ @nModeCols - 1, 1 ]),
-								_nTall_) - _nTall_ / 2
+						_aBx_ = This._RowFrameBox(_aXY_, _aRows_[_ri_],
+							_nBoxW_, _nBoxH_)
+						if len(_aBx_) = 2
+							_nAbove_ = _aBx_[1]
+							_nBelow_ = _aBx_[2]
+						else
+							_nAbove_ = This._ClusterChromeAbove(_nFsz_)
+							_nBelow_ = This._ClusterPadMax() +
+								This._LaneOffset(max([ @nModeCols - 1, 1 ]),
+									_nTall_) - _nTall_ / 2
+						ok
 					ok
 					_nCy_ = _nAt_ + _nAbove_ + _nTall_ / 2
 					for _xi_ = 1 to len(_aXY_)
@@ -2721,6 +2798,16 @@ class stzDiagram from stzGraph
 					# unlabelled edge and was paying for "demolish",
 					# which crosses the gap two rows down. A gap holds
 					# what stands in it.
+					# ...AND EVERY GAP IN ONE PICTURE IS THE SAME GAP.
+					# Pricing each gap by its own crossings shortened the
+					# entry edge and made it a different length from the
+					# exit edge -- which is I5: two gaps drawn differently
+					# assert a difference, and between an entry and an
+					# exit there is none. The price is taken over ALL the
+					# crossings and paid to every gap. The entry edge
+					# stays short, because the shortening came from
+					# putting a frame in its own row, never from charging
+					# the gaps unequally.
 					_nGap_ = _nSepBase_
 					if _ri_ < len(_aRows_) and isObject(_oFont_)
 						for _e7_ in This.Edges()
@@ -2730,8 +2817,7 @@ class stzDiagram from stzGraph
 							_r7b_ = This._RowOfXY(_aXY_, _aRows_,
 								"" + _e7_[:to])
 							if _r7a_ < 1 or _r7b_ < 1  loop  ok
-							if min([ _r7a_, _r7b_ ]) > _ri_  loop  ok
-							if max([ _r7a_, _r7b_ ]) <= _ri_  loop  ok
+							if _r7a_ = _r7b_  loop  ok
 							_blk7_ = This._LabelBlock("" + _e7_[:label],
 								_oFont_, _nFsz_, _nBoxW_)
 							_nWant_ = _blk7_[3] +
@@ -2742,6 +2828,7 @@ class stzDiagram from stzGraph
 					_nAt_ += _nAbove_ + _nTall_ + _nBelow_ + _nGap_
 				next
 			ok
+			next
 
 			for _r_ in _oGC_.EdgeRoutes()
 				_rp_ = []
@@ -3388,16 +3475,22 @@ class stzDiagram from stzGraph
 					# a line it does not name. A label can SLIDE along
 					# its own segment; the middle is only the first seat
 					# it tries.
-					for _si_ = len(_aPth_) - 3 to 1 step -2
-						_sx1_ = _aPth_[_si_]
-						_sy1_ = _aPth_[_si_ + 1]
-						_sx2_ = _aPth_[_si_ + 2]
-						_sy2_ = _aPth_[_si_ + 3]
-						_sdx_ = fabs(_sx2_ - _sx1_)
-						_sdy_ = fabs(_sy2_ - _sy1_)
-						for _sfr_ in [ 0.5, 0.3, 0.7, 0.2, 0.8 ]
-							_smx_ = _sx1_ + (_sx2_ - _sx1_) * _sfr_
-							_smy_ = _sy1_ + (_sy2_ - _sy1_) * _sfr_
+					# CENTRED ON THE FULL EDGE, not on a segment of it.
+					# The candidates used to be the middle of each
+					# SEGMENT, so a three-legged return was labelled at
+					# the middle of whichever leg the placer reached
+					# first -- never at the middle of the journey. The
+					# fractions below are of the PATH's own length, and
+					# the point at each fraction is found by walking the
+					# legs, so 0.5 means what a reader means by it.
+					for _sfr_ in [ 0.5, 0.42, 0.58, 0.32, 0.68, 0.22, 0.78 ]
+						_aAt_ = This._PointAlong(_aPth_, _sfr_)
+						if len(_aAt_) != 4  loop  ok
+						_smx_ = _aAt_[1]
+						_smy_ = _aAt_[2]
+						_sdx_ = _aAt_[3]
+						_sdy_ = _aAt_[4]
+						if 1 = 1
 							if _sdx_ >= _sdy_
 								# a horizontal run carries the label only
 								# if it is longer than the label plus a
@@ -3406,19 +3499,19 @@ class stzDiagram from stzGraph
 									_aOn_ + [ _smx_, _smy_ ]
 								ok
 								if _sdx_ >= 8
-									_aBes_ + [ _smx_, _smy_ - _lh_ / 2 - _nClr2_ * 0.5 ]
-									_aBes_ + [ _smx_, _smy_ + _lh_ / 2 + _nClr2_ * 0.5 ]
+									_aBes_ + [ _smx_, _smy_ - _lh_ / 2 - _nClr2_ * 0.25 ]
+									_aBes_ + [ _smx_, _smy_ + _lh_ / 2 + _nClr2_ * 0.25 ]
 								ok
 							else
 								if _sdy_ >= _lh_ + _nClr2_ * 2
 									_aOn_ + [ _smx_, _smy_ ]
 								ok
 								if _sdy_ >= 8
-									_aBes_ + [ _smx_ - _lw_ / 2 - _nClr2_ * 0.5, _smy_ ]
-									_aBes_ + [ _smx_ + _lw_ / 2 + _nClr2_ * 0.5, _smy_ ]
+									_aBes_ + [ _smx_ - _lw_ / 2 - _nClr2_ * 0.25, _smy_ ]
+									_aBes_ + [ _smx_ + _lw_ / 2 + _nClr2_ * 0.25, _smy_ ]
 								ok
 							ok
-						next
+						ok
 					next
 					# ON THE LINE where the line can hold it -- and NEVER at
 					# the price of another line's meaning. The Principal's
