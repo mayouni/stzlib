@@ -320,6 +320,10 @@ class stzDiagram from stzGraph
 	@aBoxOf = []
 	# rows that already hold a return lane, refilled per render
 	@aSameRowLanes = []
+	# the font this render is using, so geometry that must reserve room
+	# for a word can ask how wide the word is
+	@oLastFont = NULL
+	@nLastFsz = 13
 	@nModeCols = 1
 	@nModeRows = 1
 	@nModeRegionRows = 0
@@ -631,6 +635,42 @@ class stzDiagram from stzGraph
 	# through six signatures to ask one question is how a rule ends up
 	# with two implementations. The published rects hold the answer and
 	# are filled before any edge is drawn, so a centre is enough.
+	# THE COLOUR OF WHATEVER A POINT SITS ON. A label plate exists to
+	# hide the line under the words, so it must be painted in the colour
+	# it covers -- and inside a region that is the region's tint, not the
+	# paper's white. Painted in the paper's colour it becomes a white
+	# card lying on a tinted field, which is what the Principal marked:
+	# "you can't write a label in a background different from the
+	# underlying background". Innermost frame wins, since that is what is
+	# actually visible there.
+	def _SurfaceAt(nX, nY, cPaper)
+		_cS_ = "" + cPaper
+		_nBest_ = -1
+		for _srR_ in @aRenderClusRects
+			if nX < _srR_[1] or nX > _srR_[1] + _srR_[3]  loop  ok
+			if nY < _srR_[2] or nY > _srR_[2] + _srR_[4]  loop  ok
+			_nA_ = _srR_[3] * _srR_[4]
+			if _nBest_ < 0 or _nA_ < _nBest_
+				_nBest_ = _nA_
+				_cS_ = "" + This._ClusterFillAt(_srR_)
+			ok
+		next
+		if _cS_ = ""  _cS_ = "" + cPaper  ok
+		return _cS_
+
+	def _ClusterFillAt(aRect)
+		for _cfC_ in @aClusters
+			_cfB_ = []
+			for _cfM_ in _cfC_[:nodes]  _cfB_ + StzLower("" + _cfM_)  next
+			if len(_cfB_) != len(aRect[5])  loop  ok
+			_bSame_ = 1
+			for _cfI_ = 1 to len(_cfB_)
+				if _cfB_[_cfI_] != aRect[5][_cfI_]  _bSame_ = 0  exit  ok
+			next
+			if _bSame_  return "" + _cfC_[:color]  ok
+		next
+		return ""
+
 	def _BoxAt(aCentre, nBoxW, nBoxH)
 		if len(aCentre) < 2  return [ nBoxW, nBoxH ]  ok
 		for _bq_ in @aRenderNodeRects
@@ -2108,9 +2148,24 @@ class stzDiagram from stzGraph
 			# anything stands in it, which is the "waste" he marked. The
 			# frame's own body still has to be paid for, and that is the
 			# padding, not the strip.
+			# the frame's own width: its padding, the loops that radiate
+			# out of its rightmost member, and the words beside them --
+			# paid ONCE for the region, not once per column
+			_nMdLoopW_ = 0
+			if isObject(_oFont_)
+				for _e5_ in This.Edges()
+					if StzLower("" + _e5_[:from]) != StzLower("" + _e5_[:to])
+						loop
+					ok
+					_l5_ = StzTrim("" + _e5_[:label])
+					if _l5_ = ""  loop  ok
+					_w5_ = _oFont_.WidthOf(_l5_, _nFsz_) + 14
+					if _w5_ > _nMdLoopW_  _nMdLoopW_ = _w5_  ok
+				next
+			ok
 			if len(@aClusters) > 0
-				_nMdW_ += (This._ClusterPadMax() * 2 +
-					This._SelfLoopReach(_nBoxW_, _nBoxH_) + 6) * @nModeCols
+				_nMdW_ += This._ClusterPadMax() * 2 +
+					This._SelfLoopReach(_nBoxW_, _nBoxH_) + 6 + _nMdLoopW_
 				_nMdH_ += (This._ClusterPadMax() * 2 +
 					This._LineClearance() * (@nModeCols + 1)) *
 					max([ @nModeRegionRows, 1 ])
@@ -2523,6 +2578,31 @@ class stzDiagram from stzGraph
 				if _cRank_ = "BT"  _py_ = _lh_ - _py_  ok
 				_aXY_ + [ StzLower("" + _p_[1]), _px_ + _mx_, _py_ + _my_ ]
 			next
+			# A FRAME IS CENTRED BETWEEN ITS NEIGHBOURS, not its row. The
+			# ranks are evenly spaced, so a region that grows downward to
+			# hold its return lanes leaves more white above it than
+			# below -- 103px against 74 on the door, which is what the
+			# Principal braced as unequal. The row moves up by half its
+			# own overhang, and the two gaps a reader actually sees come
+			# out the same.
+			if _bModes_ and len(@aClusters) > 0
+				_nOvB_ = This._ClusterOverhangBelow(_aXY_, _nBoxH_)
+				_nOvA_ = This._ClusterChromeAbove(_nFsz_)
+				_nShift_ = (_nOvB_ - _nOvA_) / 2
+				if fabs(_nShift_) > 1
+					for _clC_ in @aClusters
+						for _clM_ in _clC_[:nodes]
+							_cmL_ = StzLower("" + _clM_)
+							for _xi_ = 1 to len(_aXY_)
+								if _aXY_[_xi_][1] = _cmL_
+									_aXY_[_xi_][3] -= _nShift_
+								ok
+							next
+						next
+					next
+				ok
+			ok
+
 			for _r_ in _oGC_.EdgeRoutes()
 				_rp_ = []
 				for _bp_ in _r_[3]
@@ -2615,6 +2695,8 @@ class stzDiagram from stzGraph
 		#    vanished into it -- correct geometry, invisible result.
 		#    _ClusterDepths sorts outermost first for exactly this.
 		@aRenderClusRects = []
+		@oLastFont = _oFont_
+		@nLastFsz = _nFsz_
 		# hoisted above the loop: the rect capture below reads it, and in
 		# Ring a method local read before its assigning statement is not
 		# an error but a stale or empty value
@@ -3259,7 +3341,8 @@ class stzDiagram from stzGraph
 				@aRenderLabels + [ _cLab_, _lx_, _ly_, _lw_, _lh_, _cLK_ ]
 
 				_oC_.Flush()
-				_oC_.FillQ(_cBg_).StrokeQ(_cBg_, 1).
+				_cPl1_ = This._SurfaceAt(_lx_, _ly_, _cBg_)
+				_oC_.FillQ(_cPl1_).StrokeQ(_cPl1_, 1).
 					AddRect(_lx_ - _lw_ / 2, _ly_ - _lh_ / 2, _lw_, _lh_)
 				_oC_.Flush()
 				# every line of the wrapped block, each centred in the
@@ -3370,7 +3453,8 @@ class stzDiagram from stzGraph
 					_nTw_ = _oFont_.WidthOf(_cLb_, _nFsz_)
 					_nLbY_ = _a_[2] + _nBoxH_ / 2 + _nFsz_ * 1.15
 					_oC_.Flush()
-					_oC_.FillQ(_cBg_).StrokeQ(_cBg_, 1).
+					_cPl2_ = This._SurfaceAt(_lx_, _ly_, _cBg_)
+					_oC_.FillQ(_cPl2_).StrokeQ(_cPl2_, 1).
 						AddRect(_a_[1] - _nTw_ / 2 - 3,
 							_nLbY_ - _nFsz_ * 0.75,
 							_nTw_ + 6, _nFsz_ * 1.5)
@@ -5556,6 +5640,14 @@ class stzDiagram from stzGraph
 			if fabs(_twRev_[1][2] - _twRev_[2][2]) < 0.5  _bV1_ = 0  ok
 			if fabs(_twRev_[_twN2_][2] - _twRev_[_twN2_-1][2]) < 0.5  _bV2_ = 0  ok
 		ok
+		# AN END EITHER SITS ON THE BORDER OR TURNS INTO IT. Keeping a
+		# lane and touching the node are not alternatives -- the previous
+		# version chose the lane and left the endpoint floating beside
+		# the cell (measured: 28px of daylight between an arrow and the
+		# state it points at). A horizontal end running in a lane below
+		# its node TURNS: it runs to the node's own column and then goes
+		# up into the border. One bend, and the line ends on the thing it
+		# names, which is I1 and is not negotiable for a lane.
 		if len(_aFm_) = 2
 			if _bV1_ and NOT _bH_
 				_twRev_[1][1] = min([ max([ _twRev_[1][1],
@@ -5563,8 +5655,19 @@ class stzDiagram from stzGraph
 				_twRev_[1][2] = iif(_twRev_[1][2] < _aFm_[2],
 					_aFm_[2] - nBoxH/2, _aFm_[2] + nBoxH/2)
 			but NOT _bV1_
-				_twRev_[1][1] = iif(_twRev_[1][1] < _aFm_[1],
-					_aFm_[1] - nBoxW/2, _aFm_[1] + nBoxW/2)
+				_aFb_ = This._BoxAt(_aFm_, nBoxW, nBoxH)
+				if fabs(_twRev_[1][2] - _aFm_[2]) <= _aFb_[2] / 2
+					_twRev_[1][1] = iif(_twRev_[1][1] < _aFm_[1],
+						_aFm_[1] - _aFb_[1] / 2, _aFm_[1] + _aFb_[1] / 2)
+				else
+					_aNw_ = [ [ _aFm_[1],
+						iif(_twRev_[1][2] < _aFm_[2],
+							_aFm_[2] - _aFb_[2] / 2, _aFm_[2] + _aFb_[2] / 2) ],
+						[ _aFm_[1], _twRev_[1][2] ] ]
+					for _tq_ = 1 to len(_twRev_)  _aNw_ + _twRev_[_tq_]  next
+					_twRev_ = _aNw_
+					_twN2_ = len(_twRev_)
+				ok
 			ok
 		ok
 		if len(_aTo_) = 2
@@ -5574,8 +5677,17 @@ class stzDiagram from stzGraph
 				_twRev_[_twN2_][2] = iif(_twRev_[_twN2_][2] < _aTo_[2],
 					_aTo_[2] - nBoxH/2, _aTo_[2] + nBoxH/2)
 			but NOT _bV2_
-				_twRev_[_twN2_][1] = iif(_twRev_[_twN2_][1] < _aTo_[1],
-					_aTo_[1] - nBoxW/2, _aTo_[1] + nBoxW/2)
+				_aTb_ = This._BoxAt(_aTo_, nBoxW, nBoxH)
+				if fabs(_twRev_[_twN2_][2] - _aTo_[2]) <= _aTb_[2] / 2
+					_twRev_[_twN2_][1] = iif(_twRev_[_twN2_][1] < _aTo_[1],
+						_aTo_[1] - _aTb_[1] / 2, _aTo_[1] + _aTb_[1] / 2)
+				else
+					_twRev_[_twN2_][1] = _aTo_[1]
+					_twRev_ + [ _aTo_[1],
+						iif(_twRev_[_twN2_][2] < _aTo_[2],
+							_aTo_[2] - _aTb_[2] / 2, _aTo_[2] + _aTb_[2] / 2) ]
+					_twN2_ = len(_twRev_)
+				ok
 			ok
 		ok
 
@@ -6831,6 +6943,30 @@ class stzDiagram from stzGraph
 	# narrower than the ink it had to hold, so `close` and `unlock` were
 	# drawn OUTSIDE the region whose states they join. The pad is one
 	# clearance plus the stroke now -- the width of the thing it contains.
+	# HOW FAR A FRAME OVERHANGS ITS OWN ROW, above and below. A region
+	# grows downward to hold the return lanes its peers ride, so equal
+	# RANK gaps come out as unequal WHITE -- 103px of paper above the
+	# frame against 74 below, which is what the Principal braced. What a
+	# reader sees is the distance to the FRAME, so that is the distance
+	# the layout has to make equal: the gap below a region owes the
+	# overhang the gap above does not carry.
+	def _ClusterOverhangBelow(paXY, nBoxH)
+		_nOv_ = 0
+		for _ohC_ in @aClusters
+			_ohLo_ = -1
+			for _ohM_ in _ohC_[:nodes]
+				_ohA_ = This._XYOf(paXY, "" + _ohM_)
+				if len(_ohA_) != 2  loop  ok
+				if _ohA_[2] > _ohLo_  _ohLo_ = _ohA_[2]  ok
+			next
+			if _ohLo_ < 0  loop  ok
+			_ohB_ = This._ClusterBox(_ohC_, paXY, 0, nBoxH)
+			if len(_ohB_) != 4  loop  ok
+			_ohD_ = (_ohB_[2] + _ohB_[4]) - (_ohLo_ + nBoxH / 2)
+			if _ohD_ > _nOv_  _nOv_ = _ohD_  ok
+		next
+		return _nOv_
+
 	def _ClusterPadBase()
 		# ONE CLEARANCE, ON EVERY SIDE. Doubling it to make room for the
 		# return rail paid for that rail on all four sides -- including
@@ -6955,8 +7091,16 @@ class stzDiagram from stzGraph
 			if NOT _bMem_  loop  ok
 			_atL_ = This._XYOf(aXY, "" + _clE_[:from])
 			if len(_atL_) != 2  loop  ok
+			# ...AND ITS LABEL, which is the part that escaped: the frame
+			# grew to hold the loop and stopped three pixels short of the
+			# word beside it, so "lock" sat outside the region whose
+			# state it belongs to.
 			_reachL_ = _atL_[1] + nBoxW / 2 +
 				This._SelfLoopReach(nBoxW, nBoxH) + 6
+			_labL_ = StzTrim("" + _clE_[:label])
+			if _labL_ != "" and isObject(@oLastFont)
+				_reachL_ += @oLastFont.WidthOf(_labL_, @nLastFsz) + 14
+			ok
 			if _reachL_ > _x1L_  _x1L_ = _reachL_  ok
 		next
 		return [ _x0_ - _pad_, _y0_ - _pad_,
