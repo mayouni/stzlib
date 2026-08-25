@@ -325,6 +325,7 @@ class stzDiagram from stzGraph
 	@aDrawXY = []
 	@aLaneKept = []
 	@aStubOf = []
+	@aRenderHops = []
 	# how far apart two return lanes stand -- a clearance plus whatever
 	# is written beside them
 	@nLanePitch = 24
@@ -3334,6 +3335,7 @@ class stzDiagram from stzGraph
 			if _ePass_ = 1
 				@aVertSegs = []
 				@aEdgePaths = []
+				@aRenderHops = []
 			ok
 		else
 			@nDrawPass = 2
@@ -5120,6 +5122,13 @@ class stzDiagram from stzGraph
 	def RenderEdgePaths()
 		return @aEdgePaths
 
+	# Where the picture declared a crossing with a wire hop. Published
+	# so an instrument can ask whether each one had room to be read as
+	# one -- a bump a few pixels from a rounded elbow is two curves in a
+	# row, and the reader cannot tell which is the corner.
+	def RenderHops()
+		return @aRenderHops
+
 	# Which edges left their row, and how deep each one runs. Published
 	# for the same reason the paths are: a frame has to be tall enough
 	# to hold its rails, and an instrument has to be able to ask whether
@@ -6367,6 +6376,21 @@ class stzDiagram from stzGraph
 		ok
 
 		_eoR_ = max([ 5, @nEdgeCornerRad * 0.8 ])
+		# A HOP NEEDS ROOM, OR IT IS NOT A HOP.
+		#
+		# The wire hop says "these two cross and do not touch", and it
+		# says it with a curve. Drawn a few pixels from a rounded elbow,
+		# the reader sees two curves in a row and cannot tell which is
+		# the corner and which is the crossing -- the Principal circled
+		# exactly that on the door, where a hop sat one elbow away from
+		# the turn into Closed.
+		#
+		# So a hop stands clear of a bend by its own DIAMETER plus a
+		# clearance, and two hops stand that far apart from each other.
+		# Where there is not room, the crossing is drawn plain: an
+		# unmarked crossing is a small ambiguity, and a bump nobody can
+		# read as a bump is a wrong statement.
+		_eoRoom_ = _eoR_ * 2 + This._LineClearance()
 		_eoOut_ = []
 		_eoOut_ + paFlat[1]
 		_eoOut_ + paFlat[2]
@@ -6382,7 +6406,8 @@ class stzDiagram from stzGraph
 				_eoHi_ = max([ _eoX1_, _eoX2_ ])
 				for _eoV_ in @aVertSegs
 					if _eoV_[4] = cKey  loop  ok
-					if _eoV_[1] > _eoLo_ + _eoR_ and _eoV_[1] < _eoHi_ - _eoR_ and
+					if _eoV_[1] > _eoLo_ + _eoRoom_ and
+					   _eoV_[1] < _eoHi_ - _eoRoom_ and
 					   _eoY1_ > _eoV_[2] + 1 and _eoY1_ < _eoV_[3] - 1
 						_eoCross_ + _eoV_[1]
 					ok
@@ -6394,7 +6419,8 @@ class stzDiagram from stzGraph
 				_eoHi_ = max([ _eoY1_, _eoY2_ ])
 				for _eoV_ in @aVertSegs
 					if _eoV_[4] = cKey  loop  ok
-					if _eoV_[1] > _eoLo_ + _eoR_ and _eoV_[1] < _eoHi_ - _eoR_ and
+					if _eoV_[1] > _eoLo_ + _eoRoom_ and
+					   _eoV_[1] < _eoHi_ - _eoRoom_ and
 					   _eoX1_ > _eoV_[2] + 1 and _eoX1_ < _eoV_[3] - 1
 						_eoCross_ + _eoV_[1]
 					ok
@@ -6402,11 +6428,22 @@ class stzDiagram from stzGraph
 			ok
 			if len(_eoCross_) > 0
 				_eoCross_ = sort(_eoCross_)
+				# ...and two hops that close together are one squiggle
+				_eoKeep_ = []
+				for _eoQ_ in _eoCross_
+					_eoOk_ = 1
+					for _eoK_ in _eoKeep_
+						if fabs(_eoQ_ - _eoK_) < _eoRoom_  _eoOk_ = 0  ok
+					next
+					if _eoOk_  _eoKeep_ + _eoQ_  ok
+				next
+				_eoCross_ = _eoKeep_
 				_eoDir_ = 1
 				if NOT _eoH_
 					if _eoX2_ < _eoX1_  _eoDir_ = -1  ok
 					if _eoDir_ = -1  _eoCross_ = reverse(_eoCross_)  ok
 					for _eoC_ in _eoCross_
+						if @nDrawPass = 2  @aRenderHops + [ _eoC_, _eoY1_, cKey ]  ok
 						_eoOut_ + (_eoC_ - _eoDir_ * _eoR_)
 						_eoOut_ + _eoY1_
 						for _eoA_ = 1 to 7
@@ -6421,6 +6458,7 @@ class stzDiagram from stzGraph
 					if _eoY2_ < _eoY1_  _eoDir_ = -1  ok
 					if _eoDir_ = -1  _eoCross_ = reverse(_eoCross_)  ok
 					for _eoC_ in _eoCross_
+						if @nDrawPass = 2  @aRenderHops + [ _eoX1_, _eoC_, cKey ]  ok
 						_eoOut_ + _eoX1_
 						_eoOut_ + (_eoC_ - _eoDir_ * _eoR_)
 						for _eoA_ = 1 to 7
@@ -7347,8 +7385,17 @@ class stzDiagram from stzGraph
 					cFromId, cToId, 0, _pe_, _qe_)
 				_chan_ = This._ClaimChannel(_chan_, _pax_, _qax_,
 					cFromId, _pe_, _qe_, cFromId, cToId, 0)
-				_chan_ = This._ChannelBelowRails(_chan_, aFrom[2], nBoxH,
-					_pe_, _qe_, nWidth)
+				# THE RUNG IT WAS GIVEN, if it was given one -- see
+				# _PlanRowLanes. Falling back to "below the rails" is
+				# what produced the uneven spacing; a rung is a rung.
+				_chLn_ = This._LaneKept(StzLower("" + cFromId) + ">" +
+					StzLower("" + cToId))
+				if _chLn_ > 0
+					_chan_ = aFrom[2] + This._LaneOffset(_chLn_, nBoxH)
+				else
+					_chan_ = This._ChannelBelowRails(_chan_, aFrom[2],
+						nBoxH, _pe_, _qe_, nWidth)
+				ok
 				_chan_ = This._ChannelClear(_chan_, _pe_, _qe_, nWidth)
 				This._EmitOrthoPolyline(oC, [ _pax_, _pe_, _pax_,
 					_chan_, _qax_, _chan_, _qax_, _qe_ ],
@@ -7912,6 +7959,50 @@ class stzDiagram from stzGraph
 			_plLane_ = This._SameRowLane(_plKey_, _plA_[_plAx_], _plB_[_plAx_])
 			@aLaneKept + [ StzLower(_plF_) + ">" + StzLower(_plT_), _plLane_ ]
 		next
+		# ...AND THE EDGES THAT LEAVE THE ROW ALTOGETHER.
+		#
+		# A row's returns run under it on a ladder. An edge crossing to
+		# the next rank ALSO runs under it -- once, horizontally, on its
+		# way out -- and that run was placed by a different mechanism
+		# with a different spacing: the order put its exit line 26px
+		# under the rail above it where the ladder's own rung is 52.95,
+		# and 2px above the frame's floor, because the floor had been
+		# computed from the rails alone and did not know the run was
+		# there.
+		#
+		# That is the whole answer to "why is it sometimes right and
+		# sometimes wrong": TWO PLACES DECIDING ONE THING, and which one
+		# wins depends on the picture. A run under a row is a run under
+		# a row. One ladder holds all of them.
+		for _plE2_ in This.Edges()
+			_plF2_ = "" + _plE2_[:from]
+			_plT2_ = "" + _plE2_[:to]
+			if StzLower(_plF2_) = StzLower(_plT2_)  loop  ok
+			if This._LaneKept(StzLower(_plF2_) + ">" + StzLower(_plT2_)) > 0
+				loop
+			ok
+			_plA2_ = This._XYOf(paXY, _plF2_)
+			_plB2_ = This._XYOf(paXY, _plT2_)
+			if len(_plA2_) != 2 or len(_plB2_) != 2  loop  ok
+			# the same row is the first pass's business
+			if fabs(_plA2_[_plCr_] - _plB2_[_plCr_]) <= 1.5  loop  ok
+			# it only joins the ladder if there IS one under this row
+			if _plB2_[_plCr_] < _plA2_[_plCr_]  loop  ok
+			# ...AND ONLY IF IT ACTUALLY RUNS. An edge whose two ends
+			# share a column drops straight down and has no horizontal
+			# stretch at all: giving it a rung reserved a whole rung's
+			# depth, and the frame grew 75px to contain a run of zero
+			# length. A rung is for something that travels along it.
+			if fabs(_plA2_[_plAx_] - _plB2_[_plAx_]) <= This._LineClearance()
+				loop
+			ok
+			if This._DeepestRailAt(_plA2_[_plCr_], nBoxH) <= 0  loop  ok
+			_plKey2_ = ceil(_plA2_[_plCr_])
+			_plLn2_ = This._SameRowLane(_plKey2_, _plA2_[_plAx_],
+				_plB2_[_plAx_])
+			@aLaneKept + [ StzLower(_plF2_) + ">" + StzLower(_plT2_),
+				_plLn2_ ]
+		next
 		This._PlanLaneStubs(paXY, nBoxW, nBoxH, cRank)
 
 	# WHERE EACH LANED EDGE MEETS ITS NODE'S BORDER.
@@ -8036,7 +8127,12 @@ class stzDiagram from stzGraph
 				if StzLower("" + _mlM_) = _mlF_  _mlIn1_ = 1  ok
 				if StzLower("" + _mlM_) = _mlT_  _mlIn2_ = 1  ok
 			next
-			if NOT (_mlIn1_ and _mlIn2_)  loop  ok
+			# ...AND A RUN ON ITS WAY OUT IS STILL A RUN INSIDE IT. The
+			# frame counted only edges with BOTH ends among its members,
+			# so the horizontal an exit takes under the row -- drawn
+			# inside the frame, every time -- was invisible to the floor
+			# that has to contain it.
+			if NOT _mlIn1_  loop  ok
 			_mlAt_ = This._XYOf(paXY, _mlF_)
 			if len(_mlAt_) != 2  loop  ok
 			if fabs(_mlAt_[2] - nRowY) > 2  loop  ok
