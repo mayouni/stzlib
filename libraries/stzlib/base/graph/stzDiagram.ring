@@ -1957,6 +1957,18 @@ class stzDiagram from stzGraph
 		@nLastEdgeW = _nEdgeW_
 		@nEdgeCornerRad = _nRad_
 
+		# A MARK IS SMALLER THAN A CELL, AND THE LAYOUT HAS TO KNOW IT
+		# NOW. Per-node drawn sizes were computed in the DRAWING section,
+		# so every row was budgeted as though the thing standing in it
+		# were a full cell -- an initial mark 21.84px tall was given a
+		# 52px row, and the 30px it did not use was handed to whichever
+		# side of it the arithmetic happened to fall on. That is why the
+		# way in and the way out came out 1.56px apart on the door: the
+		# two marks are different sizes, so they wasted different
+		# amounts. It is also a row and a half of paper in every picture
+		# that has a mark in it.
+		This._FillBoxSizes(_nBoxW_, _nBoxH_)
+
 		# WHERE AN EVENT IS WRITTEN, as a dial rather than a rule: beside
 		# its line (the default -- the line stays unbroken) or ON the
 		# middle of it, plated with the surface underneath.
@@ -8275,9 +8287,22 @@ class stzDiagram from stzGraph
 			# state it belongs to.
 			_reachL_ = _atL_[1] + nBoxW / 2 +
 				This._SelfLoopReach(nBoxW, nBoxH) + 6
+			# ...and the reserve ends where the WORD ends. A further 14px
+			# of padding was being added after it, so the frame stood
+			# 34px clear of "lock" on the right while it stood 28px clear
+			# of "Closed" on the left -- the same distance measured two
+			# ways, which is what the Principal compared. The frame's
+			# padding is the air; ink is where the ink stops.
+			# ...measured with the SAME call the placer uses. WidthOf is
+			# the width of a run of glyphs; _LabelBlock is the width of
+			# the thing that actually gets drawn, and the two differ by
+			# enough (8px on "lock") to leave the frame short of the
+			# word it is supposed to contain.
 			_labL_ = StzTrim("" + _clE_[:label])
 			if _labL_ != "" and isObject(@oLastFont)
-				_reachL_ += @oLastFont.WidthOf(_labL_, @nLastFsz) + 14
+				_lbkL_ = This._LabelBlock(_labL_, @oLastFont, @nLastFsz,
+					nBoxW)
+				_reachL_ += _lbkL_[2]
 			ok
 			if _reachL_ > _x1L_  _x1L_ = _reachL_  ok
 		next
