@@ -6642,6 +6642,116 @@ next
 chk("a frame stands as far from its loop's word as from its first cell",
     fabs((nL7 - aFr7[1]) - (aFr7[1] + aFr7[3] - nR7)) < 3)
 
+# (8) AN EXIT RUNS ON THE LADDER TOO, AND ITS FRAME CONTAINS IT. The
+#     horizontal an edge takes on its way OUT of a region is drawn
+#     inside that region, every time -- and it was placed by the channel
+#     mechanism rather than by the lane one, so the order's exit sat
+#     26px under a rail whose ladder rung is 52.95, and 2px above a
+#     floor computed from the rails alone.
+#
+#     "Why is it sometimes right and sometimes wrong" has one answer,
+#     and it is this shape: two places deciding one thing, and which of
+#     them wins depending on the picture.
+oEx = new stzWorkflow("exit64")
+oEx.SetWorkflowType("statemachine")
+oEx.AddStateXT("pend", "Pending")  oEx.AddStateXT("fail", "Failed")
+oEx.AddStateXT("paid", "Paid")     oEx.AddStateXT("lost", "Lost")
+oEx.AddTransition("pend", "fail", "declined")
+oEx.AddTransition("fail", "pend", "retry")
+# the two exits CROSS, so each has a horizontal run to place. An exit
+# landing straight under its source has no run at all and rightly gets
+# no rung -- which is why the obvious version of this scene proves
+# nothing, and why it is written this way.
+oEx.AddTransition("pend", "lost", "abandoned")
+oEx.AddTransition("fail", "paid", "authorised")
+oEx.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
+	:FontSize = 13 ])
+
+nExRow = -1
+for rEx in oEx.RenderNodeRects()
+	if rEx[5] = "pend"  nExRow = rEx[2] + rEx[4] / 2  ok
+next
+aExRun = []
+for aExP in oEx.RenderEdgePaths()
+	nExN = len(aExP[2]) / 2
+	for iEx = 1 to nExN - 1
+		if fabs(aExP[2][iEx * 2] - aExP[2][iEx * 2 + 2]) > 1  loop  ok
+		if fabs(aExP[2][iEx * 2 + 1] - aExP[2][iEx * 2 - 1]) < 20  loop  ok
+		if aExP[2][iEx * 2] <= nExRow + 4  loop  ok
+		# one RUN, not one segment: a staircase can turn twice at the
+		# same depth and that is still one line at that depth
+		bExSeen = 0
+		for nExQ in aExRun
+			if fabs(nExQ - aExP[2][iEx * 2]) < 1  bExSeen = 1  ok
+		next
+		if bExSeen  loop  ok
+		aExRun + aExP[2][iEx * 2]
+	next
+next
+aExRun = sort(aExRun)
+nExGap = -1
+if len(aExRun) >= 2  nExGap = aExRun[2] - aExRun[1]  ok
+? "   the return and the exit ride " + aExRun[1] + " and " +
+  aExRun[len(aExRun)] + " -- " + nExGap + "px apart, one rung is " +
+  oEx._LanePitchValue()
+chk("an exit takes the next rung of the same ladder",
+    nExGap > 0 and fabs(nExGap - oEx._LanePitchValue()) < 2)
+
+nExFloor = 0
+for aExC in oEx.RenderClusterRects()
+	if aExC[2] + aExC[4] > nExFloor  nExFloor = aExC[2] + aExC[4]  ok
+next
+? "   the floor sits " + (nExFloor - aExRun[len(aExRun)]) +
+  "px under the deepest run"
+chk("...and the frame's floor contains it, one pad down",
+    nExFloor - aExRun[len(aExRun)] > 20 and
+    nExFloor - aExRun[len(aExRun)] < 40)
+
+# (9) A HOP NEEDS ROOM. The wire hop says "these cross and do not
+#     touch", and it says it with a curve; drawn a few pixels from a
+#     rounded elbow the reader sees two curves in a row and cannot tell
+#     which is the corner and which is the crossing. The Principal
+#     circled exactly that on the door. Where there is no room the
+#     crossing is drawn plain: an unmarked crossing is a small
+#     ambiguity, a bump nobody can read as a bump is a wrong statement.
+oHp = new stzWorkflow("hop64")
+oHp.SetWorkflowType("statemachine")
+oHp.AddStateXTT("i", "", [ :isInitial = 1 ])
+oHp.AddStateXT("closed", "Closed")  oHp.AddStateXT("open", "Open")
+oHp.AddStateXT("locked", "Locked")
+oHp.AddStateXTT("gone", "Gone", [ :isFinal = 1 ])
+oHp.AddTransition("i", "closed", "")
+oHp.AddTransition("closed", "open", "open")
+oHp.AddTransition("open", "closed", "close")
+oHp.AddTransition("closed", "locked", "lock")
+oHp.AddTransition("locked", "closed", "unlock")
+oHp.AddTransition("closed", "gone", "demolish")
+oHp.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
+	:FontSize = 13 ])
+
+nHpR = 5
+if oHp._EdgeCorner() * 0.8 > nHpR  nHpR = oHp._EdgeCorner() * 0.8  ok
+nHpRoom = nHpR * 2 + oHp._LineClearance()
+nHpBad = 0
+nHpNear = 1000000
+for aHp in oHp.RenderHops()
+	for aHpP in oHp.RenderEdgePaths()
+		if aHpP[1] != aHp[3]  loop  ok
+		# every bend and endpoint on the line this hop belongs to
+		nHpN = len(aHpP[2]) / 2
+		for iHp = 1 to nHpN
+			nHpD = fabs(aHpP[2][iHp * 2 - 1] - aHp[1]) +
+				fabs(aHpP[2][iHp * 2] - aHp[2])
+			if nHpD < nHpNear  nHpNear = nHpD  ok
+			if nHpD < nHpRoom  nHpBad++  ok
+		next
+	next
+next
+? "   " + len(oHp.RenderHops()) + " hops drawn, nearest bend " + nHpNear +
+  "px away, room wanted " + nHpRoom
+chk("every hop drawn had room to be read as one",
+    len(oHp.RenderHops()) > 0 and nHpBad = 0)
+
 
 #---------------------------------------------------------------------------
 ? ""
