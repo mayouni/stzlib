@@ -320,6 +320,8 @@ class stzDiagram from stzGraph
 	@aBoxOf = []
 	# rows that already hold a return lane, refilled per render
 	@aSameRowLanes = []
+	@aDrawXY = []
+	@aLaneKept = []
 	# how far apart two return lanes stand -- a clearance plus whatever
 	# is written beside them
 	@nLanePitch = 24
@@ -1972,6 +1974,46 @@ class stzDiagram from stzGraph
 			if This._HasOpt(paOptions, "height")  _nH_ = _nH_ * _nScl_  ok
 		ok
 
+		# A CELL IS AS WIDE AS THE WIDEST NAME IN THE PICTURE.
+		#
+		# "Awaiting Payment" came out as "Awaiting Pay..." in a box the
+		# caller had sized for "In Cart", and an elided name is a diagram
+		# that has quietly stopped saying what it is about. The author
+		# writes MEANING and the layout owns GEOMETRY -- the plastic
+		# position algorithm the Principal named -- and a width is
+		# geometry.
+		#
+		# ONE width for every cell, not a width each: I5 says two cells
+		# drawn differently assert a difference, and between two states
+		# whose names happen to be different lengths there is none. So
+		# the widest name sets the width and every cell takes it.
+		#
+		# The requested width is a MINIMUM, and there is a ceiling: past
+		# two and a half times what was asked for, one enormous name
+		# would blow up every cell in the picture, and eliding that one
+		# is the smaller lie.
+		if isObject(_oFont_)
+			_nWide_ = 0
+			for _nd9_ in _aNodes_
+				_cLb9_ = StzTrim("" + _nd9_[:label])
+				if _cLb9_ = ""  loop  ok
+				# a mark writes its name OUTSIDE itself, so it asks
+				# nothing of the box
+				_cSh9_ = StzLower("" + This._NativeShapeOf(_nd9_))
+				_bMk9_ = 0
+				for _cO9_ in [ "circle", "doublecircle", "dot" ]
+					if _cSh9_ = _cO9_  _bMk9_ = 1  exit  ok
+				next
+				if _bMk9_  loop  ok
+				_w9_ = _oFont_.WidthOf(_cLb9_, _nFsz_)
+				if _w9_ > _nWide_  _nWide_ = _w9_  ok
+			next
+			_nNeed_ = _nWide_ + 24
+			_nCap9_ = _nBoxW_ * 2.5
+			if _nNeed_ > _nCap9_  _nNeed_ = _nCap9_  ok
+			if _nNeed_ > _nBoxW_  _nBoxW_ = ceil(_nNeed_)  ok
+		ok
+
 		# THE DIAGRAM'S OWN SETTINGS ARE READ, not re-asked for. SetLayout and
 		# SetSplines already exist and already drive the dot output; a native
 		# tier that ignored them would be a second diagram over the same data.
@@ -2556,6 +2598,13 @@ class stzDiagram from stzGraph
 			# off the bottom of its own picture, drawn correctly into space
 			# that was never reserved. Deriving a size from content means
 			# ALL the content, chrome included.
+			# THE FRAME ASKS THE LANE PLAN HOW DEEP ITS RAILS RUN, so
+			# the plan has to exist before the frame is measured -- and
+			# this is the branch that measures it. Without this line the
+			# frames on the natural-size path were sized against an
+			# EMPTY plan and came out shorter than the rails they hold.
+			@aDrawXY = _aXY_
+			This._PlanRowLanes(_aXY_, _nBoxW_, _nBoxH_, _cRank_)
 			_bChrome_ = len(@aClusters) > 0
 			for _e0_ in This.Edges()
 				if StzLower("" + _e0_[:from]) = StzLower("" + _e0_[:to])
@@ -2578,7 +2627,38 @@ class stzDiagram from stzGraph
 				next
 			ok
 			if _bChrome_
-				_ex0_ = 0  _ey0_ = 0  _ex1_ = _nW_  _ey1_ = _nH_
+				# THE PAPER IS THE CONTENT, and seeding this from the
+				# canvas is what stopped it being. Starting at [0,0,W,H]
+				# meant the extent could only GROW, so a picture whose
+				# rows collapsed into regions kept the height its layers
+				# had asked for before the regions existed -- the three
+				# switches were 539px tall over 276px of drawing, and
+				# "space is optimised" had been said of exactly this.
+				#
+				# Seeded from the node boxes, every clause below still
+				# grows it to cover loops, outside labels and frames, and
+				# what is left over is white nobody drew on.
+				_ex0_ = 1000000000  _ey0_ = 1000000000  _ex1_ = 0 - 1000000000  _ey1_ = 0 - 1000000000
+				for _n1_ in This.Nodes()
+					_at1_ = This._XYOf(_aXY_, "" + _n1_[:id])
+					if len(_at1_) != 2  loop  ok
+					_bb1_ = This._BoxOf("" + _n1_[:id], _nBoxW_, _nBoxH_)
+					if _at1_[1] - _bb1_[1] / 2 < _ex0_
+						_ex0_ = _at1_[1] - _bb1_[1] / 2
+					ok
+					if _at1_[2] - _bb1_[2] / 2 < _ey0_
+						_ey0_ = _at1_[2] - _bb1_[2] / 2
+					ok
+					if _at1_[1] + _bb1_[1] / 2 > _ex1_
+						_ex1_ = _at1_[1] + _bb1_[1] / 2
+					ok
+					if _at1_[2] + _bb1_[2] / 2 > _ey1_
+						_ey1_ = _at1_[2] + _bb1_[2] / 2
+					ok
+				next
+				if _ex1_ < _ex0_
+					_ex0_ = 0  _ey0_ = 0  _ex1_ = _nW_  _ey1_ = _nH_
+				ok
 
 				# a self-loop reaches beyond its node, on the side the
 				# drawing puts it
@@ -2636,10 +2716,15 @@ class stzDiagram from stzGraph
 					if _cb_[1] + _cb_[3] > _ex1_  _ex1_ = _cb_[1] + _cb_[3]  ok
 					if _cb_[2] + _cb_[4] > _ey1_  _ey1_ = _cb_[2] + _cb_[4]  ok
 				next
-				_dx_ = 0  _dy_ = 0
-				if _ex0_ < 0  _dx_ = 0 - _ex0_ + 8  ok
-				if _ey0_ < 0  _dy_ = 0 - _ey0_ + 8  ok
-				if _dx_ != 0 or _dy_ != 0
+				# ONE BORDER, ON ALL FOUR SIDES. The content is moved so
+				# its own top-left lands on the border, whether it was
+				# hanging off the paper or floating well inside it --
+				# trimming only where it overflowed is what left 32px of
+				# white on one side and 8 on the other.
+				_nBor_ = 16
+				_dx_ = _nBor_ - _ex0_
+				_dy_ = _nBor_ - _ey0_
+				if fabs(_dx_) > 0.001 or fabs(_dy_) > 0.001
 					_moved_ = []
 					for _p2_ in _aXY_
 						_moved_ + [ _p2_[1], _p2_[2] + _dx_, _p2_[3] + _dy_ ]
@@ -2655,11 +2740,22 @@ class stzDiagram from stzGraph
 					next
 					_aRoute_ = _movedR_
 				ok
-				_nW_ = ceil(max([ _nW_, _ex1_ + _dx_ + 8 ]))
-				_nH_ = ceil(max([ _nH_, _ey1_ + _dy_ + 8 ]))
+				_nW_ = ceil(_ex1_ + _dx_ + _nBor_)
+				_nH_ = ceil(_ey1_ + _dy_ + _nBor_)
 			ok
 
 			# the named-size verdict: paper, or the fill path
+			#
+			# ...EXCEPT WHERE THE NAME WAS A PREDICTION. A modes picture
+			# computes its size before it knows how the rows will fall,
+			# and then the regions collapse ranks into single rows and
+			# the prediction is simply too big. Padding back up to it
+			# is how three switches came out 539px tall over 276px of
+			# drawing. The prediction still buys the layout its working
+			# space; the PAPER is what was measured.
+			if _bNamed_ and _bModes_ and _bChrome_
+				_bNamed_ = 0
+			ok
 			if _bNamed_
 				if _nW_ <= _nReqW_ and _nH_ <= _nReqH_
 					_nW_ = _nReqW_
@@ -2733,6 +2829,8 @@ class stzDiagram from stzGraph
 			# as the tallest thing standing in it -- plus, where a region
 			# lives there, the frame drawn around it -- and between two
 			# rows there is one separation and nothing else.
+			@aDrawXY = _aXY_
+			This._PlanRowLanes(_aXY_, _nBoxW_, _nBoxH_, _cRank_)
 			for _mpass_ = 1 to 2
 			if _bModes_
 				_aRows_ = []
@@ -2829,6 +2927,42 @@ class stzDiagram from stzGraph
 				next
 			ok
 			next
+
+			# THE PAPER IS TRIMMED TO WHAT WAS DRAWN. The size above was
+			# computed BEFORE the regions existed, from a layer count the
+			# regions then collapse -- a prediction, and one that buys
+			# the layout its working space honestly enough. It is not the
+			# paper: three independent switch pairs came out 539px tall
+			# over 276px of drawing, and "space is optimised" has been
+			# said of exactly this. Measure, shift onto one border, trim.
+			if _bModes_
+				_aMx_ = This._ContentExtent(_aXY_, _nBoxW_, _nBoxH_,
+					_oFont_, _nFsz_)
+				if len(_aMx_) = 4
+					_nBor2_ = 16
+					_dx2_ = _nBor2_ - _aMx_[1]
+					_dy2_ = _nBor2_ - _aMx_[2]
+					if fabs(_dx2_) > 0.001 or fabs(_dy2_) > 0.001
+						_mv2_ = []
+						for _p3_ in _aXY_
+							_mv2_ + [ _p3_[1], _p3_[2] + _dx2_,
+								_p3_[3] + _dy2_ ]
+						next
+						_aXY_ = _mv2_
+						_mr2_ = []
+						for _r3_ in _aRoute_
+							_rp3_ = []
+							for _bp3_ in _r3_[3]
+								_rp3_ + [ _bp3_[1] + _dx2_, _bp3_[2] + _dy2_ ]
+							next
+							_mr2_ + [ _r3_[1], _r3_[2], _rp3_ ]
+						next
+						_aRoute_ = _mr2_
+					ok
+					_nW_ = ceil(_aMx_[3] + _dx2_ + _nBor2_)
+					_nH_ = ceil(_aMx_[4] + _dy2_ + _nBor2_)
+				ok
+			ok
 
 			for _r_ in _oGC_.EdgeRoutes()
 				_rp_ = []
@@ -3123,6 +3257,13 @@ class stzDiagram from stzGraph
 		# rank-axis segment; the second draws with wire hops over the
 		# crossings the first pass revealed. One pass cannot hop a line
 		# that has not been drawn yet.
+		# THE DRAWERS NEED TO KNOW WHO ELSE IS ON THE ROW. An edge
+		# joining two peers may only keep the row if the row between
+		# them is EMPTY -- see _SomethingBetween(). Without the
+		# positions here, that question cannot be asked, and a peer
+		# edge was drawn straight through whatever stood in the way.
+		@aDrawXY = _aXY_
+		This._PlanRowLanes(_aXY_, _nBoxW_, _nBoxH_, _cRank_)
 		_nPassN_ = 1
 		if _cSpl_ = "ortho"  _nPassN_ = 2  ok
 		for _ePass_ = 1 to _nPassN_
@@ -3175,7 +3316,9 @@ class stzDiagram from stzGraph
 
 			# a return edge is drawn FROM its partner's path, after the
 			# partner exists -- see the twin block after this loop
-			if _aTwinOf_[_ei_] > 0  loop  ok
+			if _aTwinOf_[_ei_] > 0 and
+			   This._TwinIsPlain("" + _aE_[_ei_][:from],
+				"" + _aE_[_ei_][:to])  loop  ok
 
 			# THE PORT IS APPLIED AT THE BOUNDARY, not to the centre.
 			# It used to shift the node's CENTRE and then clip a box
@@ -3254,20 +3397,31 @@ class stzDiagram from stzGraph
 		_aTwRow_ = []
 		for _ei_ = 1 to _nEc_
 			if _aTwinOf_[_ei_] = 0  loop  ok
+			if NOT This._TwinIsPlain("" + _aE_[_ei_][:from],
+				"" + _aE_[_ei_][:to])  loop  ok
 			if @nDrawPass = 2
 				_oC_.SetPickTag(1000000 + _ei_)
 				@aRenderPicks + [ 1000000 + _ei_, "edge",
 					"" + _aE_[_ei_][:from], "" + _aE_[_ei_][:to] ]
 			ok
-			# which lane: count the twins already placed in this row
-			_aTwA_ = This._XYOf(_aXY_, "" + _aE_[_ei_][:from])
-			_nTwLane_ = 1
-			if len(_aTwA_) = 2
-				for _vTw_ in _aTwRow_
-					if fabs(_vTw_ - _aTwA_[2]) < 2  _nTwLane_++  ok
-				next
-				_aTwRow_ + _aTwA_[2]
+			# WHICH LANE -- asked of the ONE allocator, so a return
+			# and a step-aside edge on the same stretch of row cannot
+			# be handed the same depth. Counting twins privately was
+			# how "resume" and "stop" ended up drawn on one line with
+			# their two words fighting over it.
+			# ...OF THE MEMBER THAT ACTUALLY TAKES ONE. A pair keeps the
+			# row with its forward member and steps aside with its
+			# return, so the depth to draw at is the RETURN's lane --
+			# whichever of the two that is.
+			_nTwLane_ = This._LaneKept(
+				StzLower("" + _aE_[_ei_][:from]) + ">" +
+				StzLower("" + _aE_[_ei_][:to]))
+			if _nTwLane_ < 1
+				_nTwLane_ = This._LaneKept(
+					StzLower("" + _aE_[_aTwinOf_[_ei_]][:from]) + ">" +
+					StzLower("" + _aE_[_aTwinOf_[_ei_]][:to]))
 			ok
+			if _nTwLane_ < 1  _nTwLane_ = 1  ok
 			This._DrawTwinEdgeXT(_oC_, _ei_, _aTwinOf_[_ei_], _aE_, _aXY_,
 				_nBoxW_, _nBoxH_, _cEdge_, _nEdgeW_, _cRank_, _nTwLane_)
 		next
@@ -4851,6 +5005,13 @@ class stzDiagram from stzGraph
 
 	def RenderEdgePaths()
 		return @aEdgePaths
+
+	# Which edges left their row, and how deep each one runs. Published
+	# for the same reason the paths are: a frame has to be tall enough
+	# to hold its rails, and an instrument has to be able to ask whether
+	# it is -- without either of them re-deriving the answer.
+	def LanePlan()
+		return @aLaneKept
 
 	def RenderNodeLabels()
 		return @aRenderNodeLabels
@@ -6507,7 +6668,53 @@ class stzDiagram from stzGraph
 	# Walk back from the end of a flat polyline and CUT it nLen before its
 	# tip: [ aShortenedFlat, aBase, aTip ]. The stroke is drawn to the cut,
 	# the head owns the rest.
+	# THE ARRIVAL MUST BE LONG ENOUGH TO CARRY ITS OWN HEAD.
+	#
+	# An arrowhead is drawn from the point the cut released to the point
+	# the edge ends, so its direction is the direction of ARRIVAL -- as
+	# long as the arrival segment is at least as long as the cut. The
+	# connection's "handshake ok" turned left 5.6 pixels above its
+	# target and dropped in; the cut, 13 pixels, walked straight back
+	# through that and around the corner, and the head came out pointing
+	# LEFT at a spot above the state instead of DOWN into it. The
+	# Principal has marked "edges that are not linked to their nodes"
+	# more than once, and this is one of the ways one gets made.
+	#
+	# So a short final segment is LENGTHENED rather than argued with:
+	# the corner slides back along the arrival's own axis, taking the
+	# run before it along, which keeps every angle square and moves the
+	# turn to where a reader can see it turn. Ortho only -- a curve has
+	# no corner to slide.
+	def _EnsureArrival(paFlat, nMin)
+		_eaN_ = len(paFlat)
+		if _eaN_ < 6  return paFlat  ok
+		_eaX1_ = paFlat[_eaN_ - 3]  _eaY1_ = paFlat[_eaN_ - 2]
+		_eaX2_ = paFlat[_eaN_ - 1]  _eaY2_ = paFlat[_eaN_]
+		_eaDx_ = _eaX2_ - _eaX1_
+		_eaDy_ = _eaY2_ - _eaY1_
+		# axis-aligned, or this is not a staircase and not ours to touch
+		if fabs(_eaDx_) > 0.001 and fabs(_eaDy_) > 0.001  return paFlat  ok
+		_eaLen_ = fabs(_eaDx_) + fabs(_eaDy_)
+		if _eaLen_ >= nMin  return paFlat  ok
+		if _eaLen_ < 0.001  return paFlat  ok
+		_eaGrow_ = nMin - _eaLen_
+		_eaSx_ = 0  _eaSy_ = 0
+		if fabs(_eaDy_) > 0.001
+			_eaSy_ = 0 - _eaGrow_ * iif(_eaDy_ > 0, 1, -1)
+		else
+			_eaSx_ = 0 - _eaGrow_ * iif(_eaDx_ > 0, 1, -1)
+		ok
+		# the corner and the run that feeds it move together
+		_eaOut_ = []
+		for _eaJ_ = 1 to _eaN_  _eaOut_ + paFlat[_eaJ_]  next
+		_eaOut_[_eaN_ - 3] = _eaX1_ + _eaSx_
+		_eaOut_[_eaN_ - 2] = _eaY1_ + _eaSy_
+		_eaOut_[_eaN_ - 5] = _eaOut_[_eaN_ - 5] + _eaSx_
+		_eaOut_[_eaN_ - 4] = _eaOut_[_eaN_ - 4] + _eaSy_
+		return _eaOut_
+
 	def _ArrowCut(paFlat, nLen)
+		paFlat = This._EnsureArrival(paFlat, nLen + This._LineClearance())
 		_an_ = len(paFlat)
 		if _an_ < 4  return [ paFlat, [ 0, 0 ], [ 0, 0 ] ]  ok
 		_atx_ = paFlat[_an_ - 1]
@@ -6786,32 +6993,46 @@ class stzDiagram from stzGraph
 				else
 					if aTo[1] < aFrom[1]  _srBack_ = 1  ok
 				ok
-				_srLane_ = 0
-				if _srBack_ and This.EdgeExists(cToId, cFromId)
-					_srKey_ = ceil(aFrom[2])
-					if cRank = "LR" or cRank = "RL"  _srKey_ = ceil(aFrom[1])  ok
-					_srLane_ = 1
-					for _srU_ in @aSameRowLanes
-						if _srU_ = _srKey_  _srLane_++  ok
-					next
-					@aSameRowLanes + _srKey_
-				ok
+				# A LANE IS TAKEN FOR ONE OF TWO REASONS, and the
+				# second was missing. A RETURN steps off the row so it
+				# does not overlay its partner. And an edge with
+				# SOMETHING IN THE WAY steps off the row because the
+				# row is not free -- the case that drew a line through
+				# the middle of an innocent state.
+				_srLane_ = This._LaneKept(
+					StzLower("" + cFromId) + ">" + StzLower("" + cToId))
 				_srOff_ = This._LaneOffset(_srLane_, _srA_[2])
 				if cRank = "LR" or cRank = "RL"
 					_srSg_ = iif(aTo[2] >= aFrom[2], 1, -1)
 					if _srLane_ > 0
-						_srPts_ = [ aFrom[1] + _srOff_, aFrom[2],
-							aTo[1] + _srOff_, aTo[2] ]
+						# OUT OF THE SIDE, ALONG THE LANE, BACK IN --
+						# four points, so the ends still sit on their
+						# nodes' borders and only the MIDDLE leaves the
+						# row. A two-point path at the lane's depth had
+						# both ends hanging in open paper.
+						_srLn_ = aFrom[1] + _srOff_
+						_srPts_ = [ aFrom[1] + _srA_[1] / 2, aFrom[2],
+							_srLn_, aFrom[2],
+							_srLn_, aTo[2],
+							aTo[1] + _srB_[1] / 2, aTo[2] ]
 					else
 						_srPts_ = [ aFrom[1], aFrom[2] + _srSg_ * _srA_[2] / 2,
 							aTo[1], aTo[2] - _srSg_ * _srB_[2] / 2 ]
 					ok
 				else
 					_srSg_ = iif(aTo[1] >= aFrom[1], 1, -1)
-					_srPts_ = [ aFrom[1] + _srSg_ * _srA_[1] / 2,
-						aFrom[2] + _srOff_,
-						aTo[1] - _srSg_ * _srB_[1] / 2,
-						aTo[2] + _srOff_ ]
+					if _srLane_ > 0
+						_srLn_ = aFrom[2] + _srOff_
+						_srPts_ = [ aFrom[1], aFrom[2] + _srA_[2] / 2,
+							aFrom[1], _srLn_,
+							aTo[1], _srLn_,
+							aTo[1], aTo[2] + _srB_[2] / 2 ]
+					else
+						_srPts_ = [ aFrom[1] + _srSg_ * _srA_[1] / 2,
+							aFrom[2],
+							aTo[1] - _srSg_ * _srB_[1] / 2,
+							aTo[2] ]
+					ok
 				ok
 				_srCut_ = This._ArrowCut(_srPts_, 9 + nWidth * 2)
 				This._EmitOrthoPolyline(oC, _srCut_[1], cColor, nWidth,
@@ -6955,6 +7176,7 @@ class stzDiagram from stzGraph
 					cFromId, cToId, 1, _pe_, _qe_)
 				_chan_ = This._ClaimChannel(_chan_, _pay_, _qay_,
 					cFromId, _pe_, _qe_, cFromId, cToId, 1)
+				_chan_ = This._ChannelClear(_chan_, _pe_, _qe_, nWidth)
 				This._EmitOrthoPolyline(oC, [ _pe_, _pay_, _chan_,
 					_pay_, _chan_, _qay_, _qe_, _qay_ ],
 					cColor, nWidth, cFromId + ">" + cToId)
@@ -6976,6 +7198,7 @@ class stzDiagram from stzGraph
 					cFromId, cToId, 0, _pe_, _qe_)
 				_chan_ = This._ClaimChannel(_chan_, _pax_, _qax_,
 					cFromId, _pe_, _qe_, cFromId, cToId, 0)
+				_chan_ = This._ChannelClear(_chan_, _pe_, _qe_, nWidth)
 				This._EmitOrthoPolyline(oC, [ _pax_, _pe_, _pax_,
 					_chan_, _qax_, _chan_, _qax_, _qe_ ],
 					cColor, nWidth, cFromId + ">" + cToId)
@@ -7006,6 +7229,39 @@ class stzDiagram from stzGraph
 	# did, so under a non-ortho spline every instrument -- and the label
 	# placer itself -- fell back to guessing. A ring is drawn in straight
 	# chords, so the ring made the omission matter.
+	# A CHANNEL MUST LEAVE ROOM FOR THE HEAD IT FEEDS.
+	#
+	# The channel placer's whole job is dodging obstacles, and it will
+	# happily park a run five pixels above the state it is arriving at.
+	# The arrowhead is thirteen: it then overlaps its own approach run
+	# and comes out as a smudged tee rather than an arrow entering a
+	# cell. The connection diagram's "handshake ok" was exactly this.
+	#
+	# So the channel is pushed back off both borders -- the head's length
+	# at the arrival, one clearance at the departure -- and where the gap
+	# is too small to hold both, it takes the middle, which is the best
+	# a narrow gap allows and is at least symmetric.
+	def _ChannelClear(nChan, nPe, nQe, nWidth)
+		_ccHead_ = 9 + nWidth * 2 + This._LineClearance()
+		_ccFoot_ = This._LineClearance()
+		_ccLo_ = nPe  _ccHi_ = nQe
+		_ccSg_ = 1
+		if _ccLo_ > _ccHi_
+			_ccSg_ = -1
+			_ccT_ = _ccLo_  _ccLo_ = _ccHi_  _ccHi_ = _ccT_
+		ok
+		if _ccHi_ - _ccLo_ < _ccHead_ + _ccFoot_
+			return (_ccLo_ + _ccHi_) / 2
+		ok
+		if _ccSg_ > 0
+			if nChan < _ccLo_ + _ccFoot_  return _ccLo_ + _ccFoot_  ok
+			if nChan > _ccHi_ - _ccHead_  return _ccHi_ - _ccHead_  ok
+		else
+			if nChan < _ccLo_ + _ccHead_  return _ccLo_ + _ccHead_  ok
+			if nChan > _ccHi_ - _ccFoot_  return _ccHi_ - _ccFoot_  ok
+		ok
+		return nChan
+
 	def _PublishPath(cFromId, cToId, paFlat)
 		_ppK_ = StzLower("" + cFromId + ">" + cToId)
 		for _ppR_ in @aEdgePaths
@@ -7255,6 +7511,262 @@ class stzDiagram from stzGraph
 	# the twin's mirror, and the frame that has to contain them -- and
 	# the last time one rule lived in several places an edge ended 28px
 	# from the state it named.
+	# IS ANYTHING STANDING BETWEEN THESE TWO?
+	#
+	# Two peers on one row are joined by one straight segment, which is
+	# right when they are neighbours and a LIE when they are not: the
+	# Principal's player drew paused>stopped as a horizontal line
+	# through the middle of Playing, and the picture then said that
+	# Playing was on the way from Paused to Stopped. It is not on the
+	# way; it is merely in the way.
+	#
+	# The margin is half a box plus a clearance on each side, so a node
+	# whose EDGE reaches into the corridor counts as standing in it --
+	# grazing a box is as unreadable as crossing it.
+	# WHAT THE PICTURE ACTUALLY OCCUPIES -- every mark, not every
+	# coordinate the layout reserved. A canvas sized from a reservation
+	# is a canvas with white on it nobody drew, and that white reads as
+	# space the author left deliberately.
+	#
+	# Five kinds of mark reach past a node's centre, and each of them was
+	# learnt by something falling off an edge: half a cell; the name
+	# written UNDER a cell that is not a rectangle; the loop that
+	# radiates out of a cell; the word beside that loop; and the frame
+	# drawn around a region, with its own name above it.
+	def _ContentExtent(paXY, nBoxW, nBoxH, poFont, nFsz)
+		_ceX0_ = 1000000000  _ceY0_ = 1000000000  _ceX1_ = 0 - 1000000000  _ceY1_ = 0 - 1000000000
+		_ceAny_ = 0
+		for _ceN_ in This.Nodes()
+			_ceAt_ = This._XYOf(paXY, "" + _ceN_[:id])
+			if len(_ceAt_) != 2  loop  ok
+			_ceB_ = This._BoxOf("" + _ceN_[:id], nBoxW, nBoxH)
+			_ceL_ = _ceAt_[1] - _ceB_[1] / 2
+			_ceR_ = _ceAt_[1] + _ceB_[1] / 2
+			_ceT_ = _ceAt_[2] - _ceB_[2] / 2
+			_ceBo_ = _ceAt_[2] + _ceB_[2] / 2
+			# a round cell writes its name underneath
+			_ceSh_ = StzLower("" + This._NativeShapeOf(_ceN_))
+			for _ceO_ in [ "circle", "doublecircle", "dot", "diamond",
+				"triangle", "invtriangle" ]
+				if _ceSh_ != _ceO_  loop  ok
+				_ceBo_ += nFsz * 2.4
+				if isObject(poFont)
+					_ceW2_ = poFont.WidthOf("" + _ceN_[:label], nFsz) / 2
+					if _ceAt_[1] - _ceW2_ < _ceL_  _ceL_ = _ceAt_[1] - _ceW2_  ok
+					if _ceAt_[1] + _ceW2_ > _ceR_  _ceR_ = _ceAt_[1] + _ceW2_  ok
+				ok
+				exit
+			next
+			if _ceL_ < _ceX0_  _ceX0_ = _ceL_  ok
+			if _ceT_ < _ceY0_  _ceY0_ = _ceT_  ok
+			if _ceR_ > _ceX1_  _ceX1_ = _ceR_  ok
+			if _ceBo_ > _ceY1_  _ceY1_ = _ceBo_  ok
+			_ceAny_ = 1
+		next
+		if NOT _ceAny_  return []  ok
+
+		# the loops, and the words beside them
+		_ceSlr_ = This._SelfLoopReach(nBoxW, nBoxH) + 6
+		for _ceE_ in This.Edges()
+			if StzLower("" + _ceE_[:from]) != StzLower("" + _ceE_[:to])
+				loop
+			ok
+			_ceAt_ = This._XYOf(paXY, "" + _ceE_[:from])
+			if len(_ceAt_) != 2  loop  ok
+			_ceRch_ = _ceSlr_
+			if StzTrim("" + _ceE_[:label]) != "" and isObject(poFont)
+				_ceRch_ += poFont.WidthOf("" + _ceE_[:label], nFsz) + 14
+			ok
+			if _ceAt_[1] - _ceRch_ < _ceX0_  _ceX0_ = _ceAt_[1] - _ceRch_  ok
+			if _ceAt_[1] + _ceRch_ > _ceX1_  _ceX1_ = _ceAt_[1] + _ceRch_  ok
+			if _ceAt_[2] - _ceSlr_ < _ceY0_  _ceY0_ = _ceAt_[2] - _ceSlr_  ok
+			if _ceAt_[2] + _ceSlr_ > _ceY1_  _ceY1_ = _ceAt_[2] + _ceSlr_  ok
+		next
+
+		# the frames, and their names above them
+		for _ceC_ in @aClusters
+			_ceBx_ = This._ClusterBox(_ceC_, paXY, nBoxW, nBoxH)
+			if len(_ceBx_) != 4  loop  ok
+			if _ceBx_[1] < _ceX0_  _ceX0_ = _ceBx_[1]  ok
+			if _ceBx_[2] - nFsz * 1.9 < _ceY0_
+				_ceY0_ = _ceBx_[2] - nFsz * 1.9
+			ok
+			if _ceBx_[1] + _ceBx_[3] > _ceX1_  _ceX1_ = _ceBx_[1] + _ceBx_[3]  ok
+			if _ceBx_[2] + _ceBx_[4] > _ceY1_  _ceY1_ = _ceBx_[2] + _ceBx_[4]  ok
+		next
+		return [ _ceX0_, _ceY0_, _ceX1_, _ceY1_ ]
+
+	def _SomethingBetween(paA, paB, nBoxW, nBoxH, cRank, pcFrom, pcTo)
+		_sbAx_ = 1  _sbCr_ = 2
+		if cRank = "LR" or cRank = "RL"  _sbAx_ = 2  _sbCr_ = 1  ok
+		_sbLo_ = paA[_sbAx_]
+		_sbHi_ = paB[_sbAx_]
+		if _sbLo_ > _sbHi_
+			_sbT_ = _sbLo_  _sbLo_ = _sbHi_  _sbHi_ = _sbT_
+		ok
+		_sbF_ = StzLower("" + pcFrom)
+		_sbT2_ = StzLower("" + pcTo)
+		for _sbR_ in @aDrawXY
+			if len(_sbR_) < 3  loop  ok
+			_sbId_ = StzLower("" + _sbR_[1])
+			if _sbId_ = _sbF_ or _sbId_ = _sbT2_  loop  ok
+			_sbP_ = [ _sbR_[2], _sbR_[3] ]
+			# only what shares the row is in the way
+			if fabs(_sbP_[_sbCr_] - paA[_sbCr_]) > 1.5  loop  ok
+			_sbB_ = This._BoxOf(_sbId_, nBoxW, nBoxH)
+			_sbHalf_ = _sbB_[1] / 2
+			if _sbAx_ = 2  _sbHalf_ = _sbB_[2] / 2  ok
+			_sbHalf_ += This._LineClearance()
+			if _sbP_[_sbAx_] + _sbHalf_ > _sbLo_ and
+			   _sbP_[_sbAx_] - _sbHalf_ < _sbHi_
+				return 1
+			ok
+		next
+		return 0
+
+	# A LANE BELONGS TO A CORRIDOR, NOT TO A ROW.
+	#
+	# The old bookkeeping counted lanes per row coordinate, so three
+	# INDEPENDENT switch pairs sitting on one row -- nothing linking
+	# them, three separate regions -- were given lanes one, two and
+	# three. Three pictures of the same shape came out looking like
+	# three different shapes, and the third region's return line was
+	# pushed clean outside the frame that was supposed to contain it.
+	#
+	# Two edges only contend for a lane when their spans OVERLAP. This
+	# hands back the lowest lane free over [nLo, nHi] and records the
+	# claim, so identical structures get identical lanes wherever they
+	# sit on the row.
+	# A LANE IS DECIDED ONCE, IN PASS ONE, AND REMEMBERED. Ortho draws
+	# twice -- pass one learns the segments, pass two draws with the
+	# hops. Allocating again in pass two would see pass one's claims
+	# still standing and hand every edge a second, deeper lane, so the
+	# picture drawn would not be the picture measured.
+	# IS THIS PAIR THE SHAPE THE TWIN DRAWER KNOWS?
+	#
+	# The twin drawer builds the return by MIRRORING its partner's path,
+	# offset by a lane -- which is right, and only right, while the
+	# partner is a single run along the row. When the forward member is
+	# ITSELF a staircase (because a state stands between the two, so it
+	# had to step off the row as well), mirroring it produces a shape
+	# that is neither: the door's "unlock" came out as two diagonals
+	# reaching 22px off the right-hand edge of its own picture.
+	#
+	# So the pair is the twin drawer's only while exactly ONE member
+	# leaves the row. When both leave it, they are two ordinary laned
+	# edges and each is drawn as one.
+	def _TwinIsPlain(pcA, pcB)
+		_tpA_ = This._LaneKept(
+			StzLower("" + pcA) + ">" + StzLower("" + pcB))
+		_tpB_ = This._LaneKept(
+			StzLower("" + pcB) + ">" + StzLower("" + pcA))
+		if _tpA_ > 0 and _tpB_ > 0  return 0  ok
+		return 1
+
+
+	def _LaneKept(pcKey)
+		for _lkR_ in @aLaneKept
+			if _lkR_[1] = pcKey  return _lkR_[2]  ok
+		next
+		return 0
+
+	# EVERY LANE IN THE PICTURE, DECIDED ONCE, BEFORE ANYTHING IS DRAWN.
+	#
+	# The frame around a region has to be tall enough to hold the return
+	# lines inside it, so it needs the lane depths -- and it is measured
+	# during LAYOUT, while the lanes were being handed out during
+	# DRAWING. So the frame estimated them, by a rule ("count the twin
+	# pairs") that was a good guess and not the answer: a return with no
+	# partner was invisible to it, and the third rail was drawn on top of
+	# the frame's own bottom rule.
+	#
+	# An estimate of something the program will later compute exactly is
+	# a bug waiting for its picture. This computes it, once; the frame
+	# reads it, the drawing reads it, and the two cannot disagree.
+	def _PlanRowLanes(paXY, nBoxW, nBoxH, cRank)
+		@aSameRowLanes = []
+		@aLaneKept = []
+		_plAx_ = 1  _plCr_ = 2
+		if cRank = "LR" or cRank = "RL"  _plAx_ = 2  _plCr_ = 1  ok
+		for _plE_ in This.Edges()
+			_plF_ = "" + _plE_[:from]
+			_plT_ = "" + _plE_[:to]
+			if StzLower(_plF_) = StzLower(_plT_)  loop  ok
+			_plA_ = This._XYOf(paXY, _plF_)
+			_plB_ = This._XYOf(paXY, _plT_)
+			if len(_plA_) != 2 or len(_plB_) != 2  loop  ok
+			if fabs(_plA_[_plCr_] - _plB_[_plCr_]) > 1.5  loop  ok
+			# A RETURN steps off the row so it does not overlay its
+			# partner; an edge WITH SOMETHING IN THE WAY steps off it
+			# because the row is not free. Everything else keeps the row.
+			_plWant_ = 0
+			if _plB_[_plAx_] < _plA_[_plAx_] and This.EdgeExists(_plT_, _plF_)
+				_plWant_ = 1
+			ok
+			if This._SomethingBetween(_plA_, _plB_, nBoxW, nBoxH,
+				cRank, _plF_, _plT_)  _plWant_ = 1  ok
+			if NOT _plWant_  loop  ok
+			_plKey_ = ceil(_plA_[_plCr_])
+			_plLane_ = This._SameRowLane(_plKey_, _plA_[_plAx_], _plB_[_plAx_])
+			@aLaneKept + [ StzLower(_plF_) + ">" + StzLower(_plT_), _plLane_ ]
+		next
+
+	# The deepest lane running inside one region, so the frame drawn
+	# around it can be tall enough to contain it -- read from the plan,
+	# never guessed.
+	def _MaxLaneIn(paXY, paMembers, nRowY)
+		_mlBest_ = 0
+		for _mlE_ in This.Edges()
+			_mlF_ = StzLower("" + _mlE_[:from])
+			_mlT_ = StzLower("" + _mlE_[:to])
+			if _mlF_ = _mlT_  loop  ok
+			_mlIn1_ = 0  _mlIn2_ = 0
+			for _mlM_ in paMembers
+				if StzLower("" + _mlM_) = _mlF_  _mlIn1_ = 1  ok
+				if StzLower("" + _mlM_) = _mlT_  _mlIn2_ = 1  ok
+			next
+			if NOT (_mlIn1_ and _mlIn2_)  loop  ok
+			_mlAt_ = This._XYOf(paXY, _mlF_)
+			if len(_mlAt_) != 2  loop  ok
+			if fabs(_mlAt_[2] - nRowY) > 2  loop  ok
+			_mlL_ = This._LaneKept(_mlF_ + ">" + _mlT_)
+			if _mlL_ > _mlBest_  _mlBest_ = _mlL_  ok
+		next
+		return _mlBest_
+
+	def _SameRowLane(nRowKey, nLo, nHi)
+		_slLo_ = nLo  _slHi_ = nHi
+		if _slLo_ > _slHi_
+			_slT_ = _slLo_  _slLo_ = _slHi_  _slHi_ = _slT_
+		ok
+		# TOUCHING IS OVERLAPPING. Two runs that meet at one x are
+		# disjoint by arithmetic and a single continuous line to the
+		# eye: "stop" ended where "resume" began, both at the same
+		# depth, and the picture showed one wire from Paused to Stopped
+		# with a tee in it. A span is claimed with a clearance at each
+		# end, so a shared endpoint pushes the second run to its own
+		# lane.
+		_slPad_ = This._LineClearance()
+		_slLo_ -= _slPad_
+		_slHi_ += _slPad_
+		_slLane_ = 1
+		while _slLane_ < 64
+			_slFree_ = 1
+			for _slR_ in @aSameRowLanes
+				if len(_slR_) < 4  loop  ok
+				if _slR_[4] != _slLane_  loop  ok
+				if fabs(_slR_[1] - nRowKey) > 1.5  loop  ok
+				if _slR_[3] > _slLo_ and _slR_[2] < _slHi_
+					_slFree_ = 0
+					exit
+				ok
+			next
+			if _slFree_  exit  ok
+			_slLane_++
+		end
+		@aSameRowLanes + [ nRowKey, _slLo_, _slHi_, _slLane_ ]
+		return _slLane_
+
 	def _LaneOffset(nLane, nBoxH)
 		if nLane < 1  return 0  ok
 		# THE PITCH BETWEEN LANES HOLDS WHAT IS WRITTEN BESIDE THEM. At
@@ -7356,47 +7868,32 @@ class stzDiagram from stzGraph
 		# beside it. Both are member ink, so the frame grows on THOSE
 		# sides -- and nowhere else, which is what keeps the entry gap
 		# honest.
+		# ...AND THE DEPTH IS READ FROM THE LANE PLAN, never counted
+		# here. This used to count the twin PAIRS among the members and
+		# take that as the number of rails -- a good guess, and wrong
+		# for a return with no partner, and wrong again for an edge that
+		# steps off the row because a state stands in its way. Both
+		# exist in the player: three rails where two were budgeted, and
+		# the third was drawn across the frame's own bottom rule.
 		_y1L_ = _y1_
-		_nLn3_ = 0
-		for _clP_ in This.Edges()
-			_cf3_ = StzLower("" + _clP_[:from])
-			_ct3_ = StzLower("" + _clP_[:to])
-			if _cf3_ = _ct3_  loop  ok
-			_bBoth_ = 0
-			for _clQ_ in This.Edges()
-				if StzLower("" + _clQ_[:from]) = _ct3_ and
-				   StzLower("" + _clQ_[:to]) = _cf3_
-					_bBoth_ = 1
-					exit
-				ok
-			next
-			if NOT _bBoth_  loop  ok
-			_bM1_ = 0  _bM2_ = 0
-			for _cm3_ in aCluster[:nodes]
-				if StzLower("" + _cm3_) = _cf3_  _bM1_ = 1  ok
-				if StzLower("" + _cm3_) = _ct3_  _bM2_ = 1  ok
-			next
-			if NOT (_bM1_ and _bM2_)  loop  ok
-			# ONE LANE PER PAIR, not per edge. A pair is two edges and
-			# both pass this test, so counting edges bought twice the
-			# depth the rails need and the frame carried a hundred
-			# pixels of empty floor. Only the RETURN member allocates --
-			# the same member the drawing gives a lane to.
-			# ...and the "return" member is picked by POSITION, never by
-			# comparing the two ids: Ring's < on strings coerces to a
-			# number and raises. The member the drawing gives a lane to
-			# is the one running backwards along the row.
-			_atF3_ = This._XYOf(aXY, _cf3_)
-			_atT3_ = This._XYOf(aXY, _ct3_)
-			if len(_atF3_) != 2 or len(_atT3_) != 2  loop  ok
-			if _atF3_[1] <= _atT3_[1]  loop  ok
-			_at3_ = This._XYOf(aXY, "" + _clP_[:from])
+		_nRowY3_ = 0
+		_bRow3_ = 0
+		for _cm3_ in aCluster[:nodes]
+			_at3_ = This._XYOf(aXY, "" + _cm3_)
 			if len(_at3_) != 2  loop  ok
-			_nLn3_++
-			_rail3_ = _at3_[2] + This._LaneOffset(_nLn3_, nBoxH) +
-				This._LineClearance()
-			if _rail3_ > _y1L_  _y1L_ = _rail3_  ok
+			if NOT _bRow3_ or _at3_[2] > _nRowY3_
+				_nRowY3_ = _at3_[2]
+				_bRow3_ = 1
+			ok
 		next
+		if _bRow3_
+			_nLn3_ = This._MaxLaneIn(aXY, aCluster[:nodes], _nRowY3_)
+			if _nLn3_ > 0
+				_rail3_ = _nRowY3_ + This._LaneOffset(_nLn3_, nBoxH) +
+					This._LineClearance()
+				if _rail3_ > _y1L_  _y1L_ = _rail3_  ok
+			ok
+		ok
 
 		_x1L_ = _x1_
 		for _clE_ in This.Edges()
