@@ -8101,20 +8101,41 @@ class stzDiagram from stzGraph
 		@nLanePitch = This._LineClearance()
 		if This._ArrowRun() > @nLanePitch  @nLanePitch = This._ArrowRun()  ok
 		if NOT isObject(oFont)  return This  ok
+		# EVERY EDGE THAT CAN TAKE A LANE, not just the paired ones.
+		# The gap above a rail is where that rail's word goes; measured
+		# over twins alone it was big enough for a twin's word and not
+		# for anyone else's, so a return with no partner -- the traffic
+		# light's, and it is the whole machine -- had no room above its
+		# line and its word was pushed BELOW instead. The frame then had
+		# to reserve for a word underneath, and the air above the row
+		# stopped matching the air below it, which is the equilibrium
+		# the Principal drew twice.
+		#
+		# A row is what makes an edge a candidate for a lane, so a row
+		# is the filter.
 		_nH_ = 0
 		for _lpE_ in This.Edges()
 			if StzTrim("" + _lpE_[:label]) = ""  loop  ok
-			if StzLower("" + _lpE_[:from]) = StzLower("" + _lpE_[:to])
-				loop
-			ok
-			if NOT This.EdgeExists("" + _lpE_[:to], "" + _lpE_[:from])
-				loop
+			_lpF_ = StzLower("" + _lpE_[:from])
+			_lpT_ = StzLower("" + _lpE_[:to])
+			if _lpF_ = _lpT_  loop  ok
+			if len(@aDrawXY) > 0
+				_lpA_ = This._XYOf(@aDrawXY, _lpF_)
+				_lpZ_ = This._XYOf(@aDrawXY, _lpT_)
+				if len(_lpA_) = 2 and len(_lpZ_) = 2
+					if fabs(_lpA_[2] - _lpZ_[2]) > 1.5 and
+					   fabs(_lpA_[1] - _lpZ_[1]) > 1.5  loop  ok
+				ok
 			ok
 			_lpB_ = This._LabelBlock("" + _lpE_[:label], oFont, nFsz, nBoxW)
 			if _lpB_[3] > _nH_  _nH_ = _lpB_[3]  ok
 		next
 		if _nH_ > 0
-			@nLanePitch = This._LineClearance() + _nH_
+			# the DRAWN height of a word, not its glyph box -- the same
+			# quantity the frame and the placer use, so the three agree
+			_nHd_ = _nH_
+			if nFsz * 1.7 > _nHd_  _nHd_ = nFsz * 1.7  ok
+			@nLanePitch = This._LineClearance() + _nHd_
 		ok
 		if This._ArrowRun() > @nLanePitch  @nLanePitch = This._ArrowRun()  ok
 		return This
@@ -8210,22 +8231,27 @@ class stzDiagram from stzGraph
 		if _bRow3_
 			_nLn3_ = This._MaxLaneIn(aXY, aCluster[:nodes], _nRowY3_)
 			if _nLn3_ > 0
-				# ...AND THE FRAME HOLDS THE RAIL'S WORD, not just the
-				# rail. The deepest return writes its event below itself,
-				# and that word was left standing 4px from the frame's
-				# own bottom rule -- inside by arithmetic and crammed to
-				# the eye. What the frame contains is INK, and a label is
-				# ink.
-				_rail3_ = _nRowY3_ + This._LaneOffset(_nLn3_, nBoxH) +
-					This._LineClearance()
-				if isObject(@oLastFont)
-					_lb3_ = This._DeepestRailLabel(aXY, aCluster[:nodes],
-						_nRowY3_, _nLn3_, nBoxW)
-					if _lb3_ > 0
-						_rail3_ = _nRowY3_ +
-							This._LaneOffset(_nLn3_, nBoxH) + _lb3_
-					ok
-				ok
+				# ...AND NOTHING IS RESERVED BELOW IT. A rail writes its
+				# word ABOVE its own line -- the gap above every rail is
+				# sized to hold one (see _SetLanePitch) -- so the deepest
+				# rail is the deepest ink in the frame and one clearance
+				# under it is the whole floor.
+				#
+				# Reserving for a word underneath was the second half of
+				# the same defect: the pitch was too small for the word
+				# to go above, the word went below, the frame paid for it
+				# there, and the air under the frame's last rail came out
+				# larger than the air over its first row. Sizing the gap
+				# correctly removes the need for the reservation, which
+				# is why both changes are one change.
+				# ...and the rail IS the edge of the ink, with nothing
+				# added. A clearance here plus the frame's own padding
+				# is the same distance paid twice -- 52px under the last
+				# rail against 28px over the first row, which is the
+				# equilibrium marked on the player. The padding is what
+				# keeps ink off the rule, and it keeps this ink off it
+				# exactly as it keeps a cell's.
+				_rail3_ = _nRowY3_ + This._LaneOffset(_nLn3_, nBoxH)
 				if _rail3_ > _y1L_  _y1L_ = _rail3_  ok
 			ok
 		ok
