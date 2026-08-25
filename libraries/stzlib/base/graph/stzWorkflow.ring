@@ -3,8 +3,110 @@
 #  Sequential & State Machine workflows      #
 #============================================#
 
-$acWorkflowTypes = ["sequential", "statemachine"]
+$acWorkflowTypes = ["sequential", "statemachine", "bpmn"]
 $acWorkflowDefaultValidators = ["deadlock", "reachability", "completeness", "sla", "bottleneck"]
+
+# THE BUSINESS PROCESS'S NOTATION -- DN3.
+#
+# BPMN arrives differently from the two domains before it, and the
+# difference is worth stating because it is what a profile is FOR.
+#
+# The org chart (DN1) and the state machine (DN2) had no notation before
+# their profile: the profile is where their law was first written down.
+# BPMN already had one -- a written, versioned specification with a
+# second conforming implementation in another repository and a digest
+# the two are held to:
+#
+#     D:\GitHub\ringflex\docs\bpmn-layout-law.md   (version 1.0.0)
+#
+# So this profile is not the domain's first law. It is the domain's
+# VOCABULARY, lifted out of the one renderer that held it privately, so
+# that the two faces of BPMN in this library cannot disagree about what
+# a gateway looks like or what a verdict is coloured.
+#
+#   VOCABULARY  L15's model kinds. An entry is a MARK, not a cell -- it
+#               is punctuation. Every task kind is a rounded box of
+#               FIXED size (the law is explicit: never grown to fit a
+#               name), a gateway is a diamond, a terminal and a
+#               suspension are ringed circles.
+#   COLOUR      L16, and it is the strongest colour law in this library:
+#               WHITE BY DEFAULT, and the only thing that colours a node
+#               is a verdict from an analyzer. A drawing with no colour
+#               in it is a drawing with nothing wrong. That is why every
+#               kind below declares "white" and none declares a role.
+#   RULES       BPMN's own well-formedness, in the house rule shape: a
+#               start event admits nothing, an end event releases
+#               nothing, and a gateway that does not branch is not a
+#               gateway.
+#   GRAMMAR     the process reads LEFT TO RIGHT -- L4's "one
+#               uninterrupted left-to-right line" is the spine -- with
+#               ortho splines, which is what the law's fwd/lat/ret
+#               routing already is.
+#
+# WHAT THIS PROFILE DOES NOT DO, and the plan asked for a measurement
+# rather than an assumption (DN3's KILL criterion). The spine law itself
+# EXPRESSES as a pass: L3-L11 assign a column, a row and an arrow class,
+# the conformance digest fixes exactly those decisions and explicitly
+# frees geometry ("two conforming implementations can still draw
+# differently"), and this library already has the hook that carries a
+# decided position into the plastic layout -- pins. Two other things
+# block deleting stzBpmnDiagram's own SVG writer, and neither is the
+# layout:
+#
+#   1. L15'S GLYPHS ARE NOT IN THE SHARED VOCABULARY. A gateway bearing
+#      an X; a task bearing a gear, a person, an envelope, a clock or
+#      BPMN's own compensation marker; a thick ring; a DASHED double
+#      circle. DN0 defines a glyph as "the shape name the renderer
+#      already draws", and the renderer draws none of these six.
+#   2. L18/L19 IS A CONSUMER CONTRACT. Every drawn element carries a
+#      stable identifier and a set of classes, and a consumer binds to
+#      them and may say nothing else. stzGraphCanvas.ToSVG() emits
+#      neither ids nor classes, so deleting the private writer today
+#      would delete the contract.
+#
+# Both are buildable and both are named with their cost rather than
+# deferred vaguely: markers and a dash discipline are DN4's business
+# (compartments and adornments), and the id/class channel is one seam in
+# the canvas. Until then BPMN has two faces on purpose -- a CONFORMANCE
+# face that answers the digest and the consumer contract, and a HOUSE
+# face that draws a process under the visual contract like every other
+# domain -- and one vocabulary between them, which is this file.
+func StzBpmnNotation()
+	_o_ = StzNotation("bpmn")
+	if _o_.Name_() = "bpmn"  return _o_  ok
+	_o_ = new stzNotation("bpmn")
+
+	_o_.SetRankDir(:LeftToRight)
+	_o_.SetSplines(:ortho)
+
+	# L16 -- WHITE, ALL OF IT. Nothing here names a role, and that is
+	# the declaration, not an omission.
+	_o_.AddKindXTT("entry", "dot", "white", 0.30)
+	_o_.AddKindXT("invoke", "box", "white")
+	_o_.AddKindXT("human", "box", "white")
+	_o_.AddKindXT("event-wait", "box", "white")
+	_o_.AddKindXT("timer-wait", "box", "white")
+	_o_.AddKindXT("compensate", "box", "white")
+	_o_.AddKindXT("step", "box", "white")
+	_o_.AddKindXT("gateway", "diamond", "white")
+	_o_.AddKindXTT("terminal", "doublecircle", "white", 0.48)
+	_o_.AddKindXTT("suspension", "doublecircle", "white", 0.48)
+
+	# A CLOSED VOCABULARY. BPMN is a standard: a kind it does not have
+	# is a modelling mistake, not a shape to improvise. This is the
+	# opposite of the default profile, which is open on purpose.
+	_o_.Close()
+
+	_o_.ForbidFor("entry", :Inbound,
+		"a start event admits nothing -- a process begins here")
+	_o_.ForbidFor("terminal", :Outbound,
+		"an end event releases nothing -- the process is over")
+	_o_.ForbidFor("suspension", :Outbound,
+		"a suspension is parked; it resumes by declaration (L10), " +
+		"never by an ordinary sequence flow")
+
+	StzRegisterNotation(_o_)
+	return _o_
 
 # THE STATE MACHINE'S NOTATION -- DN2. Beside the model it speaks for,
 # like the org chart's (DN1), and its declarations are near-opposites,
@@ -141,6 +243,11 @@ class stzWorkflow from stzDiagram
 			# from the moment it declares itself one (DN2)
 			if _cType_ = "statemachine"
 				This.SetNotation(StzStateMachineNotation())
+			ok
+			# ...and a business process under BPMN's, from the same
+			# moment and for the same reason (DN3)
+			if _cType_ = "bpmn"
+				This.SetNotation(StzBpmnNotation())
 			ok
 		ok
 	

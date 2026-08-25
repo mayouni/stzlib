@@ -720,6 +720,25 @@ class stzDiagram from stzGraph
 				return [ _bq_[3], _bq_[4] ]
 			ok
 		next
+		# ...AND THE DRAWN RECTS DO NOT EXIST YET WHEN THE EDGES ARE
+		# DRAWN. Edges are laid before nodes -- a node must sit ON TOP of
+		# the lines that reach it -- so this scan found nothing every
+		# time an EDGE asked, and every edge in the library clipped to
+		# the generic cell instead of to the glyph it was actually
+		# meeting.
+		#
+		# In a top-down picture the error is vertical, half a cell
+		# against half a mark -- 13px, inside the arrowhead, invisible.
+		# The first LEFT-TO-RIGHT picture made it horizontal, where a
+		# cell is 132 and a mark is 25: a flow stopped 66px short of the
+		# end event it named. The positions and the per-node sizes are
+		# both known well before the drawing starts, so ask them.
+		for _bq2_ in @aDrawXY
+			if fabs(_bq2_[2] - aCentre[1]) < 1.5 and
+			   fabs(_bq2_[3] - aCentre[2]) < 1.5
+				return This._BoxOf(_bq2_[1], nBoxW, nBoxH)
+			ok
+		next
 		return [ nBoxW, nBoxH ]
 
 	# Which mode an id landed in, 0 when the picture has none.
@@ -2753,6 +2772,29 @@ class stzDiagram from stzGraph
 						if _at0_[2] + _nBoxH_ / 2 + _nFsz_ * 2 > _ey1_
 							_ey1_ = _at0_[2] + _nBoxH_ / 2 + _nFsz_ * 2
 						ok
+						# ...AND IT IS WIDER THAN THE MARK IT NAMES.
+						# This grew the paper DOWNWARD only, which is
+						# every direction a name under a mark reaches
+						# in a top-down picture, and half of what it
+						# reaches in one that reads left to right. The
+						# first BPMN process drawn here put a final
+						# event at the right-hand edge and "Out of
+						# Stock" ran 12px off the page.
+						#
+						# Measured with the SAME calls the drawing makes
+						# -- the fitted text, at the drawn size -- for
+						# the same reason the loop's word is.
+						if isObject(_oFont_)
+							_lb0_ = This._FitLabel("" + _n0_[:label],
+								_oFont_, _nFsz_, _nBoxW_ + 24)
+							_hw0_ = _oFont_.WidthOf(_lb0_, _nFsz_) / 2
+							if _at0_[1] - _hw0_ < _ex0_
+								_ex0_ = _at0_[1] - _hw0_
+							ok
+							if _at0_[1] + _hw0_ > _ex1_
+								_ex1_ = _at0_[1] + _hw0_
+							ok
+						ok
 					next
 				ok
 
@@ -3048,7 +3090,7 @@ class stzDiagram from stzGraph
 		# genuinely wants the exact size it asked for, overlap included, passes
 		# :FitBoxes = FALSE.
 		if This._DiagOpt(paOptions, "fitboxes", 1)
-			_nSc_ = This._RankFitScale(_aXY_, _nBoxW_, _nBoxH_)
+			_nSc_ = This._RankFitScale(_aXY_, _nBoxW_, _nBoxH_, _cRank_)
 			if _nSc_ < 1
 				_nBoxW_ = max([ floor(_nBoxW_ * _nSc_), 6 ])
 				_nBoxH_ = max([ floor(_nBoxH_ * _nSc_), 6 ])
@@ -4193,16 +4235,39 @@ class stzDiagram from stzGraph
 	# horizontal neighbour is the previous entry in the same bucket -- one pass
 	# after a builtin sort, which keeps a 10,000-node picture out of a
 	# 50-million-comparison loop written in Ring.
-	def _RankFitScale(paXY, pnBoxW, pnBoxH)
+	# WHICH WAY THE RANKS RUN IS NOT THIS FUNCTION'S TO ASSUME.
+	#
+	# It read "a rank is the same y" and "a neighbour is a difference in
+	# x", which is true of a top-down picture and false of a
+	# left-to-right one -- where a rank is the same X and the ranks are
+	# separated along x. Under :LeftToRight it therefore compared the
+	# wrong pairs on both axes: two nodes in DIFFERENT ranks that happen
+	# to sit at nearly the same y were read as adjacent RANKS five
+	# pixels apart, and every box in the picture was shrunk to 37% to
+	# fit a separation that does not exist. A BPMN process -- the first
+	# domain in this library that reads left to right -- came out with
+	# 49x19 cells and unreadable labels.
+	#
+	# One rule, stated on whichever axis the picture is using.
+	def _RankFitScale(paXY, pnBoxW, pnBoxH, cRank)
 		_rfN_ = len(paXY)
 		if _rfN_ < 2  return 1  ok
+		# _rfR_ is the index of the RANK axis, _rfW_ the one nodes are
+		# spread along inside a rank
+		_rfR_ = 3  _rfW_ = 2
+		_rfBoxA_ = pnBoxW  _rfBoxB_ = pnBoxH
+		if cRank = "LR" or cRank = "RL"
+			_rfR_ = 2  _rfW_ = 3
+			_rfBoxA_ = pnBoxH  _rfBoxB_ = pnBoxW
+		ok
 
-		# 4px of tolerance: a rank is "the same y", not "the identical float"
+		# 4px of tolerance: a rank is "the same coordinate", not "the
+		# identical float"
 		_rfA_ = []
 		for _rfI_ = 1 to _rfN_
-			_rfB_ = floor(paXY[_rfI_][3] / 4)
-			_rfA_ + [ _rfB_ * 1000000 + paXY[_rfI_][2], _rfB_,
-			          paXY[_rfI_][2], paXY[_rfI_][3] ]
+			_rfB_ = floor(paXY[_rfI_][_rfR_] / 4)
+			_rfA_ + [ _rfB_ * 1000000 + paXY[_rfI_][_rfW_], _rfB_,
+			          paXY[_rfI_][_rfW_], paXY[_rfI_][_rfR_] ]
 		next
 		_rfA_ = sort(_rfA_, 1)
 
@@ -4227,11 +4292,11 @@ class stzDiagram from stzGraph
 
 		# 6px of air, so adjacent boxes read as two boxes and not as one wall
 		_rfS_ = 1
-		if _rfMinX_ > 0 and pnBoxW > 0
-			_rfS_ = min([ _rfS_, _rfMinX_ / (pnBoxW + 6) ])
+		if _rfMinX_ > 0 and _rfBoxA_ > 0
+			_rfS_ = min([ _rfS_, _rfMinX_ / (_rfBoxA_ + 6) ])
 		ok
-		if _rfMinY_ > 0 and pnBoxH > 0
-			_rfS_ = min([ _rfS_, _rfMinY_ / (pnBoxH + 6) ])
+		if _rfMinY_ > 0 and _rfBoxB_ > 0
+			_rfS_ = min([ _rfS_, _rfMinY_ / (_rfBoxB_ + 6) ])
 		ok
 		return _rfS_
 
@@ -6522,9 +6587,19 @@ class stzDiagram from stzGraph
 		# into a side border is a contradiction
 		_qveto_ = pBlockSide
 		if cSpline = "ortho"  _qveto_ = 1  ok
-		_p_ = This._AttachPoint(aFrom, _pts_[2], nBoxW, nBoxH, nPortA,
+		# ...ON THE GLYPH IT IS ACTUALLY MEETING, not on a generic cell.
+		# This handed the caller's box size to both ends, so an edge
+		# arriving at a MARK -- an end event drawn at a quarter of a
+		# cell's size -- stopped where a full cell's border would have
+		# been. Vertically that is half a cell against half a mark, 13px,
+		# hidden inside the arrowhead; horizontally it is 132 against 25,
+		# and the first left-to-right picture showed a flow stopping 66px
+		# short of the event it named. Both ids are in hand here.
+		_rbA_ = This._BoxOf(cFromId, nBoxW, nBoxH)
+		_rbB_ = This._BoxOf(cToId, nBoxW, nBoxH)
+		_p_ = This._AttachPoint(aFrom, _pts_[2], _rbA_[1], _rbA_[2], nPortA,
 			This._EdgeCorner(), cRank, 1, 0)
-		_q_ = This._AttachPoint(aTo, _pts_[ len(_pts_) - 1 ], nBoxW, nBoxH,
+		_q_ = This._AttachPoint(aTo, _pts_[ len(_pts_) - 1 ], _rbB_[1], _rbB_[2],
 			nPortB, This._EdgeCorner(), cRank, 0, _qveto_)
 		# ...and under ORTHO IT LEAVES ON THE STEM, perpendicular, like
 		# every other edge of the same source.
@@ -7235,10 +7310,20 @@ class stzDiagram from stzGraph
 			# one drop into the target -- a single horizontal statement
 			# drawn as one. Falls back to the trunk form if another
 			# channel already holds the row.
+			# EACH END ON ITS OWN GLYPH. This form -- and it is the one
+			# a business process uses most, one lateral run between two
+			# ranks -- handed the caller's box size to both ends. An
+			# edge arriving at a MARK stopped where a full CELL's border
+			# would have been: vertically 13px, hidden inside the
+			# arrowhead; horizontally 132 against 25, and the first
+			# left-to-right picture showed a flow stopping 66px short of
+			# the end event it named.
+			_sdA_ = This._BoxOf(cFromId, nBoxW, nBoxH)
+			_sdB_ = This._BoxOf(cToId, nBoxW, nBoxH)
 			if pSideDep and NOT (cRank = "LR" or cRank = "RL")
 				_sdSgn_ = 1
 				if aTo[1] < aFrom[1]  _sdSgn_ = -1  ok
-				_sdX_ = aFrom[1] + _sdSgn_ * nBoxW / 2
+				_sdX_ = aFrom[1] + _sdSgn_ * _sdA_[1] / 2
 				_sdCy_ = aFrom[2]
 				# the arrival keeps its PORT, or two edges funnelling into
 				# one target share their final drop and read as one line
@@ -7256,8 +7341,8 @@ class stzDiagram from stzGraph
 				if _sdBad_ = 0
 					@aChanUsed + [ min([ _sdX_, _sdTx_ ]),
 						max([ _sdX_, _sdTx_ ]), StzLower("" + cFromId), _sdCy_ ]
-					_sdQe_ = aTo[2] - nBoxH / 2
-					if aTo[2] < aFrom[2]  _sdQe_ = aTo[2] + nBoxH / 2  ok
+					_sdQe_ = aTo[2] - _sdB_[2] / 2
+					if aTo[2] < aFrom[2]  _sdQe_ = aTo[2] + _sdB_[2] / 2  ok
 					_sdCut_ = This._ArrowCut([ _sdX_, _sdCy_,
 						_sdTx_, _sdCy_, _sdTx_, _sdQe_ ], 9 + nWidth * 2)
 					This._EmitOrthoPolyline(oC, _sdCut_[1], cColor, nWidth,
@@ -7271,7 +7356,7 @@ class stzDiagram from stzGraph
 			if pSideDep and (cRank = "LR" or cRank = "RL")
 				_sdSgn_ = 1
 				if aTo[2] < aFrom[2]  _sdSgn_ = -1  ok
-				_sdY_ = aFrom[2] + _sdSgn_ * nBoxH / 2
+				_sdY_ = aFrom[2] + _sdSgn_ * _sdA_[2] / 2
 				_sdCx_ = aFrom[1]
 				_sdTy_ = aTo[2] + nPortB
 				_sdBad_ = 0
@@ -7287,8 +7372,8 @@ class stzDiagram from stzGraph
 				if _sdBad_ = 0
 					@aChanUsed + [ min([ _sdY_, _sdTy_ ]),
 						max([ _sdY_, _sdTy_ ]), StzLower("" + cFromId), _sdCx_ ]
-					_sdQe_ = aTo[1] - nBoxW / 2
-					if aTo[1] < aFrom[1]  _sdQe_ = aTo[1] + nBoxW / 2  ok
+					_sdQe_ = aTo[1] - _sdB_[1] / 2
+					if aTo[1] < aFrom[1]  _sdQe_ = aTo[1] + _sdB_[1] / 2  ok
 					_sdCut_ = This._ArrowCut([ _sdCx_, _sdY_,
 						_sdCx_, _sdTy_, _sdQe_, _sdTy_ ], 9 + nWidth * 2)
 					This._EmitOrthoPolyline(oC, _sdCut_[1], cColor, nWidth,

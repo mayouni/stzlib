@@ -216,9 +216,9 @@ chk("without fitting the boxes really do run together", nRaw < 15)
 
 # and the mechanism itself, where the arithmetic is visible
 ? "   scale for 16 nodes 82px apart, 96px boxes : " +
-  oG._RankFitScale(_Rank(16, 82), 96, 34)
-chk("a crowded rank scales DOWN", oG._RankFitScale(_Rank(16, 82), 96, 34) < 1)
-chk("a roomy rank is left ALONE", oG._RankFitScale(_Rank(4, 300), 96, 34) = 1)
+  oG._RankFitScale(_Rank(16, 82), 96, 34, "TB")
+chk("a crowded rank scales DOWN", oG._RankFitScale(_Rank(16, 82), 96, 34, "TB") < 1)
+chk("a roomy rank is left ALONE", oG._RankFitScale(_Rank(4, 300), 96, 34, "TB") = 1)
 
 #---------------------------------------------------------------------------
 ? ""
@@ -6751,6 +6751,168 @@ next
   "px away, room wanted " + nHpRoom
 chk("every hop drawn had room to be read as one",
     len(oHp.RenderHops()) > 0 and nHpBad = 0)
+
+
+sec("-- 65. BPMN IS A PROFILE, AND IT READS LEFT TO RIGHT -------")
+#
+# DN3, and it arrived differently from the two domains before it.
+#
+# The org chart and the state machine had no notation before their
+# profile -- the profile is where their law was first written down. BPMN
+# already had one: a written, versioned specification, a second
+# conforming implementation in another repository, and a digest the two
+# are held to. So the profile is not this domain's first law; it is its
+# VOCABULARY, lifted out of the one renderer that held it privately.
+#
+# THE PLAN'S KILL CRITERION asked for a measurement rather than an
+# assumption -- "if the spine law cannot express as a pass over the
+# plastic layout, say so and keep the class separate". Measured:
+#
+#   THE SPINE LAW EXPRESSES. L3-L11 assign a column, a row and an arrow
+#   class; the conformance digest fixes exactly those decisions and
+#   explicitly frees geometry; and pins already carry a decided position
+#   into the plastic layout.
+#
+#   TWO OTHER THINGS DO NOT, and neither is the layout. L15's glyphs --
+#   a gateway bearing an X, tasks bearing a gear, a person, an envelope,
+#   a clock, a compensation marker, a thick ring, a DASHED double circle
+#   -- are six shapes the shared renderer does not draw, and DN0 defines
+#   a glyph as one it does. And L18/L19 is a consumer contract: every
+#   element carries a stable id and a set of classes and a consumer may
+#   say nothing else, where ToSVG() emits neither.
+#
+# So BPMN has two faces on purpose, and ONE vocabulary between them,
+# which is what this section holds. Drawing the first left-to-right
+# domain in the library also found two defects that only a
+# left-to-right picture could have found, and they are here too.
+#---------------------------------------------------------------------------
+
+oBp = new stzWorkflow("bpmn65")
+oBp.SetWorkflowType("bpmn")
+oBp.AddStateXTT("s", "", [ :type = "entry" ])
+oBp.AddStateXTT("recv", "Receive Order", [ :type = "invoke" ])
+oBp.AddStateXTT("check", "Check Stock", [ :type = "gateway" ])
+oBp.AddStateXTT("pack", "Pack", [ :type = "human" ])
+oBp.AddStateXTT("bill", "Bill", [ :type = "invoke" ])
+oBp.AddStateXTT("done", "Shipped", [ :type = "terminal" ])
+oBp.AddStateXTT("nope", "Out of Stock", [ :type = "terminal" ])
+oBp.AddTransition("s", "recv", "")
+oBp.AddTransition("recv", "check", "received")
+oBp.AddTransition("check", "pack", "in stock")
+oBp.AddTransition("check", "nope", "none left")
+oBp.AddTransition("pack", "bill", "packed")
+oBp.AddTransition("bill", "done", "invoiced")
+
+chkeq("declaring a workflow BPMN puts it under BPMN's notation",
+      oBp.NotationO().Name_(), "bpmn")
+
+# (1) ONE VOCABULARY, TWO FACES. The conformance renderer asks the
+#     profile which glyph a kind takes, so the two cannot come to
+#     disagree about what a gateway looks like -- which is exactly how
+#     duplicated machinery diverges, and this library has the scar.
+oBpN = StzBpmnNotation()
+chkeq("a gateway is a diamond", StzLower("" + oBpN.GlyphOf("gateway")),
+      "diamond")
+chkeq("an end event is a ringed circle",
+      StzLower("" + oBpN.GlyphOf("terminal")), "doublecircle")
+chkeq("a start event is a mark, not a cell",
+      StzLower("" + oBpN.GlyphOf("entry")), "dot")
+
+# (2) L16 -- THE COLOUR LAW, DECLARED. The strongest colour law in this
+#     library: white by default, and the ONLY thing that colours a node
+#     is a verdict from an analyzer. A drawing with no colour in it is a
+#     drawing with nothing wrong. So every kind declares white and NONE
+#     of them names a role -- that absence is the declaration.
+nBpRole = 0
+for cBpK in [ "entry", "invoke", "human", "event-wait", "timer-wait",
+	"compensate", "step", "gateway", "terminal", "suspension" ]
+	if StzLower("" + oBpN.FillOf(cBpK)) != "white"  nBpRole++  ok
+next
+chkeq("no BPMN kind carries a colour of its own", nBpRole, 0)
+
+# (3) A CLOSED VOCABULARY. BPMN is a standard: a kind it does not have
+#     is a modelling mistake, not a shape to improvise. The opposite of
+#     the default profile, which is open on purpose -- and the contrast
+#     is what makes "closed" mean something.
+chk("BPMN's vocabulary is closed", oBpN.IsClosed())
+chk("...so a kind it does not have is a finding",
+    NOT oBpN.KnowsKind("subprocess-with-a-hat"))
+chk("...where the default profile takes any kind at all",
+    NOT StzNotation("default").IsClosed())
+
+# (4) THE RULES REFUSE WHAT BPMN REFUSES. A start event admits nothing
+#     and an end event releases nothing -- and the editor inherits both
+#     for free, because a link a rule forbids is refused at the gesture.
+chkeq("a well-formed process has nothing to report",
+      len(oBpN.Check(oBp)), 0)
+chk("nothing may flow INTO a start event",
+    NOT oBpN.MayLink(oBp, "recv", "s"))
+chk("nothing may flow OUT of an end event",
+    NOT oBpN.MayLink(oBp, "done", "recv"))
+chk("...but an ordinary sequence flow is allowed",
+    oBpN.MayLink(oBp, "recv", "pack"))
+
+# (5) A LEFT-TO-RIGHT PICTURE IS NOT CRUSHED.
+#
+#     The rank-fit pass shrinks boxes when a rank is too crowded to hold
+#     them, and it read "a rank is the same y, a neighbour is a
+#     difference in x" -- true of a top-down picture and false of this
+#     one. Under :LeftToRight it compared the wrong pairs on both axes:
+#     two nodes in DIFFERENT ranks that happen to sit at nearly the same
+#     y were read as adjacent RANKS five pixels apart, and every box in
+#     the picture was shrunk to 37% of the size the caller asked for.
+#     BPMN is the first domain in this library that reads left to right,
+#     which is why nothing had found it.
+oBp.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 132, :NodeHeight = 52,
+	:FontSize = 15 ])
+nBpW = 0  nBpH = 0
+for rBp in oBp.RenderNodeRects()
+	if rBp[5] != "recv"  loop  ok
+	nBpW = rBp[3]  nBpH = rBp[4]
+next
+? "   a left-to-right cell asked for 132x52 and got " + nBpW + "x" + nBpH
+chk("a left-to-right picture keeps the size it asked for",
+    nBpW > 130 and nBpH > 50)
+
+# (6) A NAME UNDER A MARK REACHES SIDEWAYS TOO. The paper reserved room
+#     BELOW a mark's name -- every direction it reaches in a top-down
+#     picture, and half of what it reaches in one that reads left to
+#     right. This process puts a final event at the right-hand edge, and
+#     "Out of Stock" ran 12px off the page.
+nBpOff = 0
+for aBpL in oBp.RenderNodeLabels()
+	if aBpL[6] != 1  loop  ok       # the ones written OUTSIDE their glyph
+	if aBpL[2] - aBpL[4] / 2 < 0  nBpOff++  ok
+	if aBpL[2] + aBpL[4] / 2 > oBp.LastCanvas().Width()  nBpOff++  ok
+next
+chkeq("a name written outside its mark stays on the paper", nBpOff, 0)
+
+# (7) ...AND THE PICTURE STILL OBEYS THE CONTRACT. A domain is a
+#     profile, not an exemption: every law sections 62 and 63 hold of
+#     every other template holds here.
+nBpBad = 0
+for aBpE in oBp.Edges()
+	rBpA = _Rect49(oBp, StzLower("" + aBpE[:from]))
+	rBpB = _Rect49(oBp, StzLower("" + aBpE[:to]))
+	aBpP = []
+	for aBpR in oBp.RenderEdgePaths()
+		if aBpR[1] = StzLower("" + aBpE[:from]) + ">" +
+		   StzLower("" + aBpE[:to])  aBpP = aBpR[2]  ok
+	next
+	if len(aBpP) < 4  loop  ok
+	nBpN = len(aBpP) / 2
+	if _DistRect62(rBpA, aBpP[1], aBpP[2]) > 16
+		nBpBad++
+		? "      " + aBpE[:from] + ">" + aBpE[:to] + " leaves " +
+		  _DistRect62(rBpA, aBpP[1], aBpP[2]) + "px away"
+	ok
+	if _DistRect62(rBpB, aBpP[nBpN * 2 - 1], aBpP[nBpN * 2]) > 16
+		nBpBad++
+		? "      " + aBpE[:from] + ">" + aBpE[:to] + " arrives " +
+		  _DistRect62(rBpB, aBpP[nBpN * 2 - 1], aBpP[nBpN * 2]) + "px away"
+	ok
+next
+chkeq("every flow touches both the steps it names", nBpBad, 0)
 
 
 #---------------------------------------------------------------------------
