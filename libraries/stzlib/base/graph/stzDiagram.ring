@@ -302,6 +302,8 @@ class stzDiagram from stzGraph
 	@cLayout = $cDefaultLayout
 	@aClusters = []
 	@nEdgeCornerRad = 10
+	@nLastEdgeW = 2
+	@cLabelPlacement = "beside"
 	@bRoundElbows = 1
 
 	# THE NOTATION -- which domain's declaration this diagram is judged
@@ -322,6 +324,7 @@ class stzDiagram from stzGraph
 	@aSameRowLanes = []
 	@aDrawXY = []
 	@aLaneKept = []
+	@aStubOf = []
 	# how far apart two return lanes stand -- a clearance plus whatever
 	# is written beside them
 	@nLanePitch = 24
@@ -740,8 +743,19 @@ class stzDiagram from stzGraph
 			if NOT _bHere_  loop  ok
 			_rfB_ = This._ClusterBox(_rfC_, paXY, nBoxW, nBoxH)
 			if len(_rfB_) != 4  loop  ok
-			# the label strip lives above the box and is drawn too
-			_rfT2_ = _rfB_[2] - @nLastFsz * 1.9
+			# the label strip lives above the box and is drawn too --
+			# WHEN THERE IS A LABEL. Reserved unconditionally, it was
+			# 24.7px of air above a row that nothing balanced below it,
+			# and the entry gap read 107.85 against an exit gap of
+			# 81.95. Three places had to be told; this is the third, and
+			# they are three because each one answers a different
+			# question about the same strip -- what the frame draws,
+			# what the paper must hold, and what the row must reserve.
+			_rfSt_ = 0
+			if StzTrim("" + _rfC_[:label]) != ""
+				_rfSt_ = @nLastFsz * 1.9
+			ok
+			_rfT2_ = _rfB_[2] - _rfSt_
 			if _rfT2_ < _rfTop_  _rfTop_ = _rfT2_  ok
 			if _rfB_[2] + _rfB_[4] > _rfBot_  _rfBot_ = _rfB_[2] + _rfB_[4]  ok
 			_bAny_ = 1
@@ -1931,6 +1945,30 @@ class stzDiagram from stzGraph
 		_nEdgeW_= This._DiagOpt(paOptions, "edgewidth", 2)
 		_nRad_  = This._DiagOpt(paOptions, "corner", 10)
 
+		# THE FONT IS KNOWN NOW, so say so now. Everything that measures
+		# a picture before it is drawn -- how tall a frame must be to
+		# hold the word under its deepest rail, for one -- needs the
+		# font, and these were published only in the DRAWING section.
+		# A measurement taken with no font silently answers zero, which
+		# is the kind of failure that shows up as a label 4px from a
+		# frame's rule rather than as an error.
+		@oLastFont = _oFont_
+		@nLastFsz = _nFsz_
+		@nLastEdgeW = _nEdgeW_
+		@nEdgeCornerRad = _nRad_
+
+		# WHERE AN EVENT IS WRITTEN, as a dial rather than a rule: beside
+		# its line (the default -- the line stays unbroken) or ON the
+		# middle of it, plated with the surface underneath.
+		_cLP_ = StzLower("" + This._DiagOpt(paOptions, "labelplacement",
+			"beside"))
+		if _cLP_ = "middle" or _cLP_ = "on" or _cLP_ = "online" or
+		   _cLP_ = "center" or _cLP_ = "centre"
+			@cLabelPlacement = "middle"
+		else
+			@cLabelPlacement = "beside"
+		ok
+
 		# THE ELBOW IS DRAWN IN THE SAME HAND AS THE CELL -- I5 applied to
 		# style rather than to structure. A rounded box wired with square
 		# elbows is two hands in one picture, and the reader has no graph
@@ -3068,6 +3106,17 @@ class stzDiagram from stzGraph
 			if len(_cl_) = 0  loop  ok
 			_aBox_ = This._ClusterBox(_cl_, _aXY_, _nBoxW_, _nBoxH_)
 			if len(_aBox_) != 4  loop  ok
+			# NO NAME, NO STRIP. The band above a frame exists to carry
+			# the frame's name; reserved unconditionally it became air
+			# above the row that had no counterpart below it, and the
+			# Principal drew the two distances on the traffic light to
+			# say they were not the same. A frame's air is the same on
+			# every side, and a strip nobody writes in is not air, it is
+			# a reservation for something that never arrives.
+			_clstrip_ = 0
+			if StzTrim("" + _cl_[:label]) != ""
+				_clstrip_ = _nFsz_ * 1.9
+			ok
 			_clids_ = []
 			for _cm_ in _cl_[:nodes]  _clids_ + StzLower("" + _cm_)  next
 			# the strip above the box belongs to the frame too -- the label
@@ -3693,9 +3742,27 @@ class stzDiagram from stzGraph
 					# it just does not stand ON the ink. The ON candidates
 					# remain as the last resort for an edge whose every
 					# segment is too short to carry a word beside it.
+					#
+					# ...AND THE AUTHOR MAY ASK FOR THE OTHER ONE.
+					# :LabelPlacement = :Middle puts every event ON the
+					# middle of its own line, on a plate of whatever
+					# surface it covers -- paper, or a region's tint --
+					# so the word reads as sitting on top of the line
+					# rather than beside it. Both orders are legible and
+					# they say slightly different things: BESIDE keeps
+					# the line unbroken, ON binds the word to the line
+					# past any doubt about which line it belongs to. The
+					# Principal asked for the second where several
+					# events run close together, and it is a dial
+					# because the answer depends on the picture.
 					_aCand_ = []
-					for _cBe_ in _aBes_  _aCand_ + _cBe_   next
-					for _cOn_ in _aOn_   _aCand_ + _cOn_   next
+					if @cLabelPlacement = "middle"
+						for _cOn_ in _aOn_   _aCand_ + _cOn_   next
+						for _cBe_ in _aBes_  _aCand_ + _cBe_   next
+					else
+						for _cBe_ in _aBes_  _aCand_ + _cBe_   next
+						for _cOn_ in _aOn_   _aCand_ + _cOn_   next
+					ok
 					_nBestD_ = -1
 					_nBestX_ = _lx_
 					_nBestY_ = _ly_
@@ -3782,6 +3849,23 @@ class stzDiagram from stzGraph
 			_y0_ = _a_[2] - _nBh_ / 2
 			_cStroke_ = This._DiagOpt(paOptions, "strokecolor", "#3A3A3A")
 
+			# AN OUTLINE IS PROPORTIONAL TO WHAT IT OUTLINES. Every glyph
+			# was stroked at 2px, which is a hairline round a 132px cell
+			# and a BAND round a 25px mark: the order's final state was
+			# 186 pixels of dark outline over 241 pixels of green, so the
+			# stroke was very nearly as much ink as the thing it was
+			# drawn around, and the Principal read the mark as dark
+			# rather than as green.
+			#
+			# The rule is I5 the other way up. A stroke of one width on
+			# two glyph sizes does not read as the same treatment -- it
+			# reads as two, one of them shouting. Sameness is in the
+			# RATIO, so the width follows the glyph and is floored at a
+			# pixel, because a stroke thinner than that is not a stroke.
+			_nStkW_ = 2 * min([ _nBw_ / _nBoxW_, _nBh_ / _nBoxH_ ])
+			if _nStkW_ > 2  _nStkW_ = 2  ok
+			if _nStkW_ < 1  _nStkW_ = 1  ok
+
 			# ROUNDED is the default look of these charts. A node that named a
 			# real shape keeps it; a plain box becomes a rounded box.
 			if StzLower("" + _cShape_) = "box"
@@ -3793,15 +3877,15 @@ class stzDiagram from stzGraph
 				# canvas's to fix; naming the shape here is what makes the
 				# style usable today.
 				if _nRad_ > 0
-					_oC_.FillQ(_cFill_).StrokeQ(_cStroke_, 2).
+					_oC_.FillQ(_cFill_).StrokeQ(_cStroke_, _nStkW_).
 						AddRoundRect(_x0_, _y0_, _nBw_, _nBh_, _nRad_)
 				else
-					_oC_.FillQ(_cFill_).StrokeQ(_cStroke_, 2).
+					_oC_.FillQ(_cFill_).StrokeQ(_cStroke_, _nStkW_).
 						AddRect(_x0_, _y0_, _nBw_, _nBh_)
 				ok
 			else
 				StzDrawNodeShapeXT(_oC_, _cShape_, _x0_, _y0_,
-					_nBw_, _nBh_, _cFill_, _cStroke_, 2)
+					_nBw_, _nBh_, _cFill_, _cStroke_, _nStkW_)
 			ok
 		next
 
@@ -3809,6 +3893,24 @@ class stzDiagram from stzGraph
 		#    White text on a gold box is the failure this avoids, and
 		#    stzDiagram already knows how to pick: ContrastingTextColor.
 		if isObject(_oFont_)
+			# ONE WEIGHT FOR EVERY NAME IN THE PICTURE -- I5, and the
+			# Principal read the failure as a contrast problem, which is
+			# how it looks from the outside. "In Cart" on muted grey was
+			# black at 9.14:1 -- objectively the most readable label on
+			# that page -- and it looked the weakest, because every cell
+			# BESIDE it carried bolded white and it carried thin black.
+			#
+			# The weight was being decided per cell, from that cell's own
+			# contrast ratio. So a picture came out in two weights, and
+			# two weights among things that are all states asserts a
+			# difference between them that the graph does not contain.
+			# The heaviest any label needs is the weight they all take.
+			_bInkBold_ = 0
+			for _i_ = 1 to _nN_
+				_aInk0_ = StzReadableTextOn(
+					This._NativeFillOf(_aNodes_[_i_]), _nFsz_, 0)
+				if _aInk0_[3]  _bInkBold_ = 1  exit  ok
+			next
 			for _i_ = 1 to _nN_
 				_cId_ = "" + _aNodes_[_i_][:id]
 				_a_ = This._XYOf(_aXY_, _cId_)
@@ -3891,7 +3993,7 @@ class stzDiagram from stzGraph
 					This._NativeFillOf(_aNodes_[_i_]), _nFsz_, 0)
 				_oC_.AddTextQ(_cLb_, _a_[1] - _nTw_ / 2, _a_[2] + _nFsz_ / 3).
 					SetFontQ(_oFont_, _nFsz_).Color(_aInk_[1])
-				if _aInk_[3]
+				if _bInkBold_
 					# FAUX BOLD: the same glyphs a fraction of a pixel
 					# over, twice. A real bold face would be better and
 					# needs a second font file the caller has not given
@@ -6128,6 +6230,32 @@ class stzDiagram from stzGraph
 			ok
 		ok
 
+		# ...AND THE ENDS TAKE THEIR OWN COLUMNS. Every clamp above puts
+		# an end on its node's CENTRE line, which is right until a second
+		# edge does the same at the same border: a departure and an
+		# arrival then stand on one column running opposite ways, and the
+		# Principal read the player exactly as it draws -- one line with
+		# an arrowhead at each end, from which no reader can tell which
+		# direction is meant. The column comes from the border's own
+		# allocation (see _PlanLaneStubs), and the segment feeding the
+		# end moves with it so the stub stays vertical.
+		_cTwSk_ = StzLower("" + paE[nEi][:from] + ">" + paE[nEi][:to])
+		_nTwSa_ = This._StubOf(_cTwSk_, 1)
+		_nTwSb_ = This._StubOf(_cTwSk_, 2)
+		_nTwR_ = len(_twRev_)
+		if NOT _bH_ and _nTwR_ >= 2
+			if len(_aFm_) = 2 and fabs(_nTwSa_) > 0.01 and
+			   fabs(_twRev_[1][1] - _twRev_[2][1]) < 0.5
+				_twRev_[1][1] = _aFm_[1] + _nTwSa_
+				_twRev_[2][1] = _aFm_[1] + _nTwSa_
+			ok
+			if len(_aTo_) = 2 and fabs(_nTwSb_) > 0.01 and
+			   fabs(_twRev_[_nTwR_][1] - _twRev_[_nTwR_-1][1]) < 0.5
+				_twRev_[_nTwR_][1] = _aTo_[1] + _nTwSb_
+				_twRev_[_nTwR_-1][1] = _aTo_[1] + _nTwSb_
+			ok
+		ok
+
 		_twFlat_ = []
 		for _twQ_ in _twRev_
 			_twFlat_ + _twQ_[1]
@@ -7011,10 +7139,14 @@ class stzDiagram from stzGraph
 						# row. A two-point path at the lane's depth had
 						# both ends hanging in open paper.
 						_srLn_ = aFrom[1] + _srOff_
-						_srPts_ = [ aFrom[1] + _srA_[1] / 2, aFrom[2],
-							_srLn_, aFrom[2],
-							_srLn_, aTo[2],
-							aTo[1] + _srB_[1] / 2, aTo[2] ]
+						_srK_ = StzLower("" + cFromId) + ">" +
+							StzLower("" + cToId)
+						_srPts_ = [ aFrom[1] + _srA_[1] / 2,
+							aFrom[2] + This._StubOf(_srK_, 1),
+							_srLn_, aFrom[2] + This._StubOf(_srK_, 1),
+							_srLn_, aTo[2] + This._StubOf(_srK_, 2),
+							aTo[1] + _srB_[1] / 2,
+							aTo[2] + This._StubOf(_srK_, 2) ]
 					else
 						_srPts_ = [ aFrom[1], aFrom[2] + _srSg_ * _srA_[2] / 2,
 							aTo[1], aTo[2] - _srSg_ * _srB_[2] / 2 ]
@@ -7023,10 +7155,15 @@ class stzDiagram from stzGraph
 					_srSg_ = iif(aTo[1] >= aFrom[1], 1, -1)
 					if _srLane_ > 0
 						_srLn_ = aFrom[2] + _srOff_
-						_srPts_ = [ aFrom[1], aFrom[2] + _srA_[2] / 2,
-							aFrom[1], _srLn_,
-							aTo[1], _srLn_,
-							aTo[1], aTo[2] + _srB_[2] / 2 ]
+						_srK_ = StzLower("" + cFromId) + ">" +
+							StzLower("" + cToId)
+						_srDx_ = This._StubOf(_srK_, 1)
+						_srAx2_ = This._StubOf(_srK_, 2)
+						_srPts_ = [ aFrom[1] + _srDx_,
+							aFrom[2] + _srA_[2] / 2,
+							aFrom[1] + _srDx_, _srLn_,
+							aTo[1] + _srAx2_, _srLn_,
+							aTo[1] + _srAx2_, aTo[2] + _srB_[2] / 2 ]
 					else
 						_srPts_ = [ aFrom[1] + _srSg_ * _srA_[1] / 2,
 							aFrom[2],
@@ -7198,6 +7335,8 @@ class stzDiagram from stzGraph
 					cFromId, cToId, 0, _pe_, _qe_)
 				_chan_ = This._ClaimChannel(_chan_, _pax_, _qax_,
 					cFromId, _pe_, _qe_, cFromId, cToId, 0)
+				_chan_ = This._ChannelBelowRails(_chan_, aFrom[2], nBoxH,
+					_pe_, _qe_, nWidth)
 				_chan_ = This._ChannelClear(_chan_, _pe_, _qe_, nWidth)
 				This._EmitOrthoPolyline(oC, [ _pax_, _pe_, _pax_,
 					_chan_, _qax_, _chan_, _qax_, _qe_ ],
@@ -7241,6 +7380,52 @@ class stzDiagram from stzGraph
 	# at the arrival, one clearance at the departure -- and where the gap
 	# is too small to hold both, it takes the middle, which is the best
 	# a narrow gap allows and is at least symmetric.
+	# THE DEEPEST RAIL RUNNING UNDER ONE ROW, in the picture's own
+	# coordinates. Asked by anything that wants to put a line under that
+	# row and would rather not put it ON one.
+	def _DeepestRailAt(nRowY, nBoxH)
+		_drBest_ = 0
+		for _drE_ in This.Edges()
+			_drF_ = StzLower("" + _drE_[:from])
+			_drT_ = StzLower("" + _drE_[:to])
+			if _drF_ = _drT_  loop  ok
+			_drL_ = This._LaneKept(_drF_ + ">" + _drT_)
+			if _drL_ < 1  loop  ok
+			_drAt_ = This._XYOf(@aDrawXY, _drF_)
+			if len(_drAt_) != 2  loop  ok
+			if fabs(_drAt_[2] - nRowY) > 2  loop  ok
+			_drY_ = _drAt_[2] + This._LaneOffset(_drL_, nBoxH)
+			if _drY_ > _drBest_  _drBest_ = _drY_  ok
+		next
+		return _drBest_
+
+	# ONE LADDER FOR EVERYTHING THAT RUNS UNDER A ROW.
+	#
+	# Two allocators were handing out horizontal runs under the same row
+	# and neither could see the other's: the lane placer for returns and
+	# the channel placer for edges crossing a rank. In the order they
+	# put "retry" at y=431.55 and "authorised" at y=443.20 -- ELEVEN
+	# pixels apart, two lines a reader has to separate by eye, and the
+	# Principal marked it twice in one picture.
+	#
+	# A row's rails belong to that row. An edge LEAVING the row passes
+	# under all of them, which is the true reading as well as the legible
+	# one -- so a channel that would land in the rails' band is pushed
+	# past the deepest of them, and it keeps a clearance there like
+	# everything else.
+	def _ChannelBelowRails(nChan, nRowY, nBoxH, nPe, nQe, nWidth)
+		_cbRail_ = This._DeepestRailAt(nRowY, nBoxH)
+		if _cbRail_ <= 0  return nChan  ok
+		_cbClr_ = This._LineClearance()
+		if nQe <= nPe  return nChan  ok             # this edge goes UP
+		if nChan > _cbRail_ + _cbClr_  return nChan  ok
+		_cbWant_ = _cbRail_ + _cbClr_
+		# ...but never past the border it is about to arrive at
+		_cbHead_ = 9 + nWidth * 2 + _cbClr_
+		if _cbWant_ > nQe - _cbHead_  _cbWant_ = nQe - _cbHead_  ok
+		if _cbWant_ < nChan  return nChan  ok
+		return _cbWant_
+
 	def _ChannelClear(nChan, nPe, nQe, nWidth)
 		_ccHead_ = 9 + nWidth * 2 + This._LineClearance()
 		_ccFoot_ = This._LineClearance()
@@ -7588,8 +7773,13 @@ class stzDiagram from stzGraph
 			_ceBx_ = This._ClusterBox(_ceC_, paXY, nBoxW, nBoxH)
 			if len(_ceBx_) != 4  loop  ok
 			if _ceBx_[1] < _ceX0_  _ceX0_ = _ceBx_[1]  ok
-			if _ceBx_[2] - nFsz * 1.9 < _ceY0_
-				_ceY0_ = _ceBx_[2] - nFsz * 1.9
+			# ...and the name strip only when there is a name, the same
+			# rule the drawing follows -- reserved either way, it was air
+			# above the picture that nothing balanced below it
+			_ceSt_ = 0
+			if StzTrim("" + _ceC_[:label]) != ""  _ceSt_ = nFsz * 1.9  ok
+			if _ceBx_[2] - _ceSt_ < _ceY0_
+				_ceY0_ = _ceBx_[2] - _ceSt_
 			ok
 			if _ceBx_[1] + _ceBx_[3] > _ceX1_  _ceX1_ = _ceBx_[1] + _ceBx_[3]  ok
 			if _ceBx_[2] + _ceBx_[4] > _ceY1_  _ceY1_ = _ceBx_[2] + _ceBx_[4]  ok
@@ -7710,10 +7900,119 @@ class stzDiagram from stzGraph
 			_plLane_ = This._SameRowLane(_plKey_, _plA_[_plAx_], _plB_[_plAx_])
 			@aLaneKept + [ StzLower(_plF_) + ">" + StzLower(_plT_), _plLane_ ]
 		next
+		This._PlanLaneStubs(paXY, nBoxW, nBoxH, cRank)
+
+	# WHERE EACH LANED EDGE MEETS ITS NODE'S BORDER.
+	#
+	# The staircase used the node's CENTRE at both ends, so an edge
+	# leaving a state and an edge arriving at it stood on the same
+	# column running opposite ways -- and the Principal read the result
+	# exactly as it looks: one line carrying an arrowhead at each end,
+	# from which no reader can tell which direction is meant. Two edges
+	# are two lines, and two lines do not share a column.
+	#
+	# So each border hands out its own columns, spread evenly across it
+	# and ordered by where the other end lies, which is also what stops
+	# them crossing each other on the way out.
+	def _PlanLaneStubs(paXY, nBoxW, nBoxH, cRank)
+		@aStubOf = []
+		_psAx_ = 1
+		if cRank = "LR" or cRank = "RL"  _psAx_ = 2  ok
+		for _psN_ in This.Nodes()
+			_psId_ = StzLower("" + _psN_[:id])
+			_psAt_ = This._XYOf(paXY, _psId_)
+			if len(_psAt_) != 2  loop  ok
+			# every laned edge touching this node, with the coordinate
+			# of its OTHER end -- the key that orders them
+			_psTouch_ = []
+			for _psE_ in This.Edges()
+				_psF_ = StzLower("" + _psE_[:from])
+				_psT_ = StzLower("" + _psE_[:to])
+				if _psF_ = _psT_  loop  ok
+				if This._LaneKept(_psF_ + ">" + _psT_) < 1  loop  ok
+				_psOther_ = ""
+				_psEnd_ = 0
+				if _psF_ = _psId_
+					_psOther_ = _psT_  _psEnd_ = 1
+				but _psT_ = _psId_
+					_psOther_ = _psF_  _psEnd_ = 2
+				else
+					loop
+				ok
+				_psOAt_ = This._XYOf(paXY, _psOther_)
+				if len(_psOAt_) != 2  loop  ok
+				_psTouch_ + [ _psF_ + ">" + _psT_, _psEnd_,
+					_psOAt_[_psAx_] ]
+			next
+			_psN2_ = len(_psTouch_)
+			if _psN2_ = 0  loop  ok
+			# ordered by the other end, so the columns fan the way the
+			# lines go and no two of them have to cross to get there
+			for _psI_ = 1 to _psN2_ - 1
+				for _psJ_ = 1 to _psN2_ - _psI_
+					if _psTouch_[_psJ_][3] > _psTouch_[_psJ_ + 1][3]
+						_psSw_ = _psTouch_[_psJ_]
+						_psTouch_[_psJ_] = _psTouch_[_psJ_ + 1]
+						_psTouch_[_psJ_ + 1] = _psSw_
+					ok
+				next
+			next
+			_psB_ = This._BoxOf(_psId_, nBoxW, nBoxH)
+			_psSpan_ = _psB_[1]
+			if _psAx_ = 2  _psSpan_ = _psB_[2]  ok
+			# ...and a SINGLE stub takes the middle. Spreading one edge
+			# off-centre says there is another one to make room for,
+			# and there is not.
+			for _psI_ = 1 to _psN2_
+				_psOff_ = 0
+				if _psN2_ > 1
+					_psOff_ = 0 - _psSpan_ / 2 +
+						_psSpan_ * _psI_ / (_psN2_ + 1)
+				ok
+				@aStubOf + [ _psTouch_[_psI_][1], _psTouch_[_psI_][2],
+					_psOff_ ]
+			next
+		next
+
+	# The offset for one end of one laned edge: 1 for where it leaves,
+	# 2 for where it arrives.
+	def _StubOf(pcKey, nEnd)
+		for _soR_ in @aStubOf
+			if _soR_[1] = pcKey and _soR_[2] = nEnd  return _soR_[3]  ok
+		next
+		return 0
 
 	# The deepest lane running inside one region, so the frame drawn
 	# around it can be tall enough to contain it -- read from the plan,
 	# never guessed.
+	# How far below its rail the deepest return writes its event. The
+	# label sits beside the line, so the frame must hold a whole label
+	# plus the air it keeps from the line -- and zero when the deepest
+	# rail carries no word at all.
+	def _DeepestRailLabel(paXY, paMembers, nRowY, nLane, nBoxW)
+		for _dlE_ in This.Edges()
+			_dlF_ = StzLower("" + _dlE_[:from])
+			_dlT_ = StzLower("" + _dlE_[:to])
+			if _dlF_ = _dlT_  loop  ok
+			if This._LaneKept(_dlF_ + ">" + _dlT_) != nLane  loop  ok
+			_dlIn1_ = 0  _dlIn2_ = 0
+			for _dlM_ in paMembers
+				if StzLower("" + _dlM_) = _dlF_  _dlIn1_ = 1  ok
+				if StzLower("" + _dlM_) = _dlT_  _dlIn2_ = 1  ok
+			next
+			if NOT (_dlIn1_ and _dlIn2_)  loop  ok
+			if StzTrim("" + _dlE_[:label]) = ""  loop  ok
+			_dlB_ = This._LabelBlock("" + _dlE_[:label], @oLastFont,
+				@nLastFsz, nBoxW)
+			# the DRAWN height, which is what has to fit -- a block's
+			# measured height is its glyphs, and a label occupies its
+			# line box
+			_dlH_ = _dlB_[3]
+			if @nLastFsz * 1.7 > _dlH_  _dlH_ = @nLastFsz * 1.7  ok
+			return _dlH_ + This._LineClearance() * 0.25
+		next
+		return 0
+
 	def _MaxLaneIn(paXY, paMembers, nRowY)
 		_mlBest_ = 0
 		for _mlE_ in This.Edges()
@@ -7767,6 +8066,9 @@ class stzDiagram from stzGraph
 		@aSameRowLanes + [ nRowKey, _slLo_, _slHi_, _slLane_ ]
 		return _slLane_
 
+	def _LanePitchValue()
+		return @nLanePitch
+
 	def _LaneOffset(nLane, nBoxH)
 		if nLane < 1  return 0  ok
 		# THE PITCH BETWEEN LANES HOLDS WHAT IS WRITTEN BESIDE THEM. At
@@ -7778,8 +8080,26 @@ class stzDiagram from stzGraph
 		# label, so a return can always be named beside itself.
 		return nBoxH / 2 + @nLanePitch * nLane
 
+	# HOW FAR APART TWO RAILS RUN.
+	#
+	# Two things set it, and only one of them was being asked. A rail
+	# carries a word, so consecutive rails are at least a word apart --
+	# that was here. And a rail CLIMBS into its node at the end, and that
+	# climb has to be long enough to hold an arrowhead -- that was not,
+	# so _EnsureArrival lengthened the climb afterwards, silently, by
+	# pushing the rail deeper than the depth it had been given. The frame
+	# measured the allocation and the picture drew the correction: the
+	# traffic light's return ran 13px below where its frame believed it
+	# was, and the word under it stood 4px from the frame's own rule.
+	#
+	# A correction applied after a measurement is a measurement that was
+	# wrong. The floor is in the pitch now, so nothing needs correcting.
+	def _ArrowRun()
+		return 9 + @nLastEdgeW * 2 + This._LineClearance()
+
 	def _SetLanePitch(oFont, nFsz, nBoxW)
 		@nLanePitch = This._LineClearance()
+		if This._ArrowRun() > @nLanePitch  @nLanePitch = This._ArrowRun()  ok
 		if NOT isObject(oFont)  return This  ok
 		_nH_ = 0
 		for _lpE_ in This.Edges()
@@ -7796,6 +8116,7 @@ class stzDiagram from stzGraph
 		if _nH_ > 0
 			@nLanePitch = This._LineClearance() + _nH_
 		ok
+		if This._ArrowRun() > @nLanePitch  @nLanePitch = This._ArrowRun()  ok
 		return This
 
 	def _ClusterPadBase()
@@ -7889,8 +8210,22 @@ class stzDiagram from stzGraph
 		if _bRow3_
 			_nLn3_ = This._MaxLaneIn(aXY, aCluster[:nodes], _nRowY3_)
 			if _nLn3_ > 0
+				# ...AND THE FRAME HOLDS THE RAIL'S WORD, not just the
+				# rail. The deepest return writes its event below itself,
+				# and that word was left standing 4px from the frame's
+				# own bottom rule -- inside by arithmetic and crammed to
+				# the eye. What the frame contains is INK, and a label is
+				# ink.
 				_rail3_ = _nRowY3_ + This._LaneOffset(_nLn3_, nBoxH) +
 					This._LineClearance()
+				if isObject(@oLastFont)
+					_lb3_ = This._DeepestRailLabel(aXY, aCluster[:nodes],
+						_nRowY3_, _nLn3_, nBoxW)
+					if _lb3_ > 0
+						_rail3_ = _nRowY3_ +
+							This._LaneOffset(_nLn3_, nBoxH) + _lb3_
+					ok
+				ok
 				if _rail3_ > _y1L_  _y1L_ = _rail3_  ok
 			ok
 		ok

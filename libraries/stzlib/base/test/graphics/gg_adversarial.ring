@@ -6298,6 +6298,281 @@ next
 chkeq("every arrival is long enough to carry its arrowhead", nAhBad, 0)
 
 
+sec("-- 64. ONE LINE IS ONE EDGE, AND ONE LADDER HOLDS THEM ALL -")
+#
+# Five more marks on the six practical machines, and every one of them
+# is a rule the picture had been getting right by luck.
+#
+# (1) A LINE WITH AN ARROWHEAD AT EACH END. An edge leaving a state and
+#     an edge arriving at it stood on the SAME column, running opposite
+#     ways, so the pair read as one line pointing both directions --
+#     "like that we can't know which direction is concerned". Two edges
+#     are two lines. A border hands out its own columns.
+#
+# (2) ...AND ONE STUB TAKES THE MIDDLE. Spreading a single edge off a
+#     border's centre says there is a second one to make room for.
+#
+# (3) ONE LADDER FOR EVERYTHING RUNNING UNDER A ROW. Two allocators
+#     were placing horizontal runs under one row without seeing each
+#     other's: the order put "retry" and "authorised" ELEVEN pixels
+#     apart. A row's rails belong to the row; an edge leaving the row
+#     passes under all of them.
+#
+# (4) A FRAME'S AIR IS THE SAME ON EVERY SIDE. It reserved a strip for
+#     its own name whether or not it had one, and did not count the
+#     word written under its deepest rail -- so 60px of air above the
+#     row and 4px below the last label.
+#
+# (5) AN OUTLINE IS PROPORTIONAL TO WHAT IT OUTLINES, and a picture
+#     writes its names in ONE weight. Both are I5: a treatment that
+#     changes between two things asserts a difference between them.
+#---------------------------------------------------------------------------
+
+oLd = new stzWorkflow("ladder64")
+oLd.SetWorkflowType("statemachine")
+oLd.AddStateXTT("i", "", [ :isInitial = 1 ])
+oLd.AddStateXT("a", "Alpha")   oLd.AddStateXT("b", "Beta")
+oLd.AddStateXT("c", "Gamma")
+oLd.AddStateXTT("z", "Done", [ :isFinal = 1 ])
+oLd.AddTransition("i", "a", "")
+oLd.AddTransition("a", "b", "one")
+oLd.AddTransition("b", "a", "back")
+oLd.AddTransition("b", "c", "two")
+oLd.AddTransition("c", "a", "reset")
+oLd.AddTransition("a", "z", "finish")
+oLd.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
+	:FontSize = 13 ])
+
+# (1) NO TWO EDGES SHARE A COLUMN AT ONE BORDER. Collect, per node, the
+#     x of every end that meets its bottom border, and demand they
+#     differ -- because two ends on one column IS the line with two
+#     arrowheads, whichever way each is pointing.
+nLdSame = 0
+nLdEnds = 0
+for rLd in oLd.RenderNodeRects()
+	nLdCy = rLd[2] + rLd[4] / 2
+	aLdX = []
+	for aLdP in oLd.RenderEdgePaths()
+		nLdN = len(aLdP[2]) / 2
+		for iLd in [ 1, nLdN ]
+			nLdEx = aLdP[2][iLd * 2 - 1]
+			nLdEy = aLdP[2][iLd * 2]
+			# an end ON this node's bottom border
+			if fabs(nLdEy - (rLd[2] + rLd[4])) > 18  loop  ok
+			if nLdEx < rLd[1] - 2 or nLdEx > rLd[1] + rLd[3] + 2  loop  ok
+			aLdX + nLdEx
+		next
+	next
+	nLdEnds += len(aLdX)
+	for iLd = 1 to len(aLdX)
+		for jLd = iLd + 1 to len(aLdX)
+			if fabs(aLdX[iLd] - aLdX[jLd]) < 6  nLdSame++  ok
+		next
+	next
+next
+? "   " + nLdEnds + " ends on a lower border, " + nLdSame + " pairs sharing a column"
+chkeq("no two edges meet one border on the same column", nLdSame, 0)
+
+# (2) ...AND A LONE STUB IS CENTRED. Gamma has exactly one laned edge
+#     leaving it, so nothing is being made room for.
+nLdOff = -1
+for rLd in oLd.RenderNodeRects()
+	if rLd[5] != "c"  loop  ok
+	for aLdP in oLd.RenderEdgePaths()
+		if aLdP[1] != "c>a"  loop  ok
+		nLdOff = fabs(aLdP[2][1] - (rLd[1] + rLd[3] / 2))
+	next
+next
+? "   the lone stub sits " + nLdOff + "px off its border's centre"
+chk("a border with one edge on it puts that edge in the middle",
+    nLdOff >= 0 and nLdOff < 1)
+
+# (3) ONE LADDER. Every horizontal run below the row -- rails and the
+#     channels of edges leaving the row alike -- keeps a clearance from
+#     every other one.
+nLdRow = -1
+for rLd in oLd.RenderNodeRects()
+	if rLd[5] = "a"  nLdRow = rLd[2] + rLd[4] / 2  ok
+next
+aLdRun = []
+for aLdP in oLd.RenderEdgePaths()
+	nLdN = len(aLdP[2]) / 2
+	for iLd = 1 to nLdN - 1
+		if fabs(aLdP[2][iLd * 2] - aLdP[2][iLd * 2 + 2]) > 1  loop  ok
+		if fabs(aLdP[2][iLd * 2 + 1] - aLdP[2][iLd * 2 - 1]) < 20  loop  ok
+		if aLdP[2][iLd * 2] <= nLdRow + 4  loop  ok
+		aLdRun + [ aLdP[2][iLd * 2], aLdP[1] ]
+	next
+next
+nLdTight = 0
+nLdWorst = 1000000
+for iLd = 1 to len(aLdRun)
+	for jLd = iLd + 1 to len(aLdRun)
+		if aLdRun[iLd][2] = aLdRun[jLd][2]  loop  ok
+		nLdD = fabs(aLdRun[iLd][1] - aLdRun[jLd][1])
+		if nLdD < nLdWorst  nLdWorst = nLdD  ok
+		if nLdD < oLd._LineClearance() - 1  nLdTight++  ok
+	next
+next
+? "   " + len(aLdRun) + " runs under the row, closest pair " + nLdWorst + "px"
+chkeq("every run under a row keeps a clearance from every other",
+      nLdTight, 0)
+
+# (4) A FRAME'S AIR IS THE SAME ON EVERY SIDE. Measured against the
+#     outermost ink the frame contains -- its members' boxes above and
+#     beside, and the word under its deepest rail below.
+oAir = new stzWorkflow("air64")
+oAir.SetWorkflowType("statemachine")
+oAir.AddStateXT("red", "Red")   oAir.AddStateXT("green", "Green")
+oAir.AddStateXT("amber", "Amber")
+oAir.AddTransition("red", "green", "timer")
+oAir.AddTransition("green", "amber", "timer")
+oAir.AddTransition("amber", "red", "timer")
+oAir.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
+	:FontSize = 13 ])
+
+aAirF = []
+for rAir in oAir.RenderClusterRects()  aAirF = rAir  next
+nAirT = 1000000  nAirL = 1000000  nAirR = 0  nAirB = 0
+for rAir in oAir.RenderNodeRects()
+	if rAir[2] < nAirT  nAirT = rAir[2]  ok
+	if rAir[1] < nAirL  nAirL = rAir[1]  ok
+	if rAir[1] + rAir[3] > nAirR  nAirR = rAir[1] + rAir[3]  ok
+	if rAir[2] + rAir[4] > nAirB  nAirB = rAir[2] + rAir[4]  ok
+next
+for aAirL in oAir.RenderLabels()
+	if aAirL[3] + aAirL[5] / 2 > nAirB  nAirB = aAirL[3] + aAirL[5] / 2  ok
+next
+nAirAbove = nAirT - aAirF[2]
+nAirBelow = aAirF[2] + aAirF[4] - nAirB
+nAirLeft  = nAirL - aAirF[1]
+nAirRight = aAirF[1] + aAirF[3] - nAirR
+? "   frame air: " + nAirAbove + " above, " + nAirBelow + " below, " +
+  nAirLeft + " left, " + nAirRight + " right"
+chk("a frame keeps the same air on every side",
+    fabs(nAirAbove - nAirBelow) < 3 and fabs(nAirLeft - nAirRight) < 3)
+
+# (5) AN OUTLINE IS PROPORTIONAL TO WHAT IT OUTLINES. Read from the
+#     drawn pixels: a 25px mark stroked like a 104px cell gives its
+#     outline nearly as much ink as its fill, and the Principal read
+#     the order's final state as dark rather than as green.
+oInk = new stzWorkflow("ink64")
+oInk.SetWorkflowType("statemachine")
+oInk.AddStateXTT("i", "", [ :isInitial = 1 ])
+oInk.AddStateXT("run", "Running")
+oInk.AddStateXTT("done", "Done", [ :color = "Success.Solid", :isFinal = 1 ])
+oInk.AddTransition("i", "run", "")
+oInk.AddTransition("run", "done", "finish")
+oInkC = oInk.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104,
+	:NodeHeight = 40, :FontSize = 13 ])
+cInkPx = oInkC.ToPixels()
+nInkW = oInkC.Width()
+aInkR = []
+for rInk in oInk.RenderNodeRects()
+	if rInk[5] = "done"  aInkR = rInk  ok
+next
+nInkFill = 0  nInkDark = 0
+for yInk = floor(aInkR[2]) to floor(aInkR[2] + aInkR[4])
+	for xInk = floor(aInkR[1]) to floor(aInkR[1] + aInkR[3])
+		aInkC = _Px62(cInkPx, nInkW, xInk, yInk)
+		# the green of the fill against the near-black of the outline
+		if aInkC[2] > aInkC[1] + 30 and aInkC[2] > aInkC[3] + 30
+			nInkFill++
+		but aInkC[1] < 110 and aInkC[2] < 110 and aInkC[3] < 110
+			nInkDark++
+		ok
+	next
+next
+? "   the final mark: " + nInkFill + "px of its colour, " + nInkDark +
+  "px of outline"
+chk("a mark's outline never rivals the mark", nInkDark * 2 < nInkFill)
+
+# ...AND ONE WEIGHT FOR EVERY NAME. A picture whose labels come in two
+# weights asserts a difference between its states that the graph does
+# not contain -- and the lighter one reads as the weaker state, which
+# is how the Principal saw it. Measured as INK PER LETTER: a bolder
+# stem is more pixels of ink over the same glyph box, so two labels
+# drawn in one weight cover their boxes at the same rate.
+oWt = new stzWorkflow("weight64")
+oWt.SetWorkflowType("statemachine")
+oWt.AddStateXTT("m", "Same", [ :color = "Muted" ])
+oWt.AddStateXTT("s", "Same", [ :color = "Info.Solid" ])
+oWt.AddTransition("m", "s", "go")
+oWtC = oWt.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104,
+	:NodeHeight = 40, :FontSize = 13 ])
+cWtPx = oWtC.ToPixels()
+nWtW = oWtC.Width()
+aWtDens = []
+iWtN = 0
+for cWtId in [ "m", "s" ]
+	iWtN++
+	aWtR = []
+	for rWt in oWt.RenderNodeRects()
+		if rWt[5] = cWtId  aWtR = rWt  ok
+	next
+	# this cell's own fill, sampled where no glyph can be, and the ink
+	# the library chose for it
+	aWtBg = _Px62(cWtPx, nWtW, floor(aWtR[1] + 8),
+		floor(aWtR[2] + aWtR[4] / 2))
+	aWtFg = StzHexToRGB(StzResolveColor(StzReadableTextOn(
+		oWt._NativeFillOf(oWt.Nodes()[iWtN]), 13, 0)[1]))
+	# A PIXEL IS INK WHEN IT IS NEARER THE INK THAN THE FILL, never
+	# when it is "far enough" from the fill by some absolute number.
+	# Black on grey and white on blue cross any fixed threshold at
+	# different points along their own antialiasing ramps, so a fixed
+	# threshold measures the RAMP and reports it as weight -- which is
+	# an instrument that would have passed whatever the drawing did.
+	nWtInk = 0  nWtAll = 0
+	for yWt = floor(aWtR[2] + 8) to floor(aWtR[2] + aWtR[4] - 8)
+		for xWt = floor(aWtR[1] + 10) to floor(aWtR[1] + aWtR[3] - 10)
+			aWtC = _Px62(cWtPx, nWtW, xWt, yWt)
+			nWtAll++
+			nWtDf = fabs(aWtC[1] - aWtBg[1]) + fabs(aWtC[2] - aWtBg[2]) +
+				fabs(aWtC[3] - aWtBg[3])
+			nWtDi = fabs(aWtC[1] - aWtFg[1]) + fabs(aWtC[2] - aWtFg[2]) +
+				fabs(aWtC[3] - aWtFg[3])
+			if nWtDi < nWtDf  nWtInk++  ok
+		next
+	next
+	aWtDens + (nWtInk / max([ nWtAll, 1 ]))
+next
+? "   ink density: muted " + aWtDens[1] + ", solid " + aWtDens[2]
+chk("two names of one length are written in one weight",
+    aWtDens[1] > 0 and aWtDens[2] > 0 and
+    fabs(aWtDens[1] - aWtDens[2]) < 0.05)
+
+# (6) THE DIAL THE PRINCIPAL ASKED FOR. :LabelPlacement = :Middle puts
+#     every event ON the middle of its own line; the plate under it
+#     takes the surface it covers, so the word reads as sitting on the
+#     line and not on a card of the wrong colour.
+oMid = new stzWorkflow("middle64")
+oMid.SetWorkflowType("statemachine")
+oMid.AddStateXT("a", "Alpha")  oMid.AddStateXT("b", "Beta")
+oMid.AddTransition("a", "b", "go")
+oMid.AddTransition("b", "a", "back")
+oMid.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
+	:FontSize = 13, :LabelPlacement = :Middle ])
+nMidOff = 0
+nMidSeen = 0
+for aMidL in oMid.RenderLabels()
+	for aMidP in oMid.RenderEdgePaths()
+		if aMidP[1] != aMidL[6]  loop  ok
+		nMidSeen++
+		nMidBest = 1000000
+		nMidN = len(aMidP[2]) / 2
+		for iMid = 1 to nMidN - 1
+			if fabs(aMidP[2][iMid * 2] - aMidP[2][iMid * 2 + 2]) > 1  loop  ok
+			nMidD = fabs(aMidL[3] - aMidP[2][iMid * 2])
+			if nMidD < nMidBest  nMidBest = nMidD  ok
+		next
+		if nMidBest > 2  nMidOff++  ok
+	next
+next
+? "   " + nMidSeen + " events asked to sit on their line, " + nMidOff +
+  " sitting beside it"
+chkeq("...and :LabelPlacement = :Middle puts them on it", nMidOff, 0)
+
+
 #---------------------------------------------------------------------------
 ? ""
 if nSecClock > 0
