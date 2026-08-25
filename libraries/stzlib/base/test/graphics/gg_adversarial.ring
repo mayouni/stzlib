@@ -6582,6 +6582,66 @@ next
   " sitting beside it"
 chkeq("...and :LabelPlacement = :Middle puts them on it", nMidOff, 0)
 
+# (7) THE SAME FOUR DISTANCES, ON A PICTURE THAT HAS SOMETHING ON EVERY
+#     SIDE. The traffic light above has no mark and no loop, so it could
+#     not have caught either of these. The door has both: an initial
+#     mark and a final one of DIFFERENT sizes above and below it, and a
+#     labelled self-loop reaching out to the right.
+oDr7 = new stzWorkflow("door7")
+oDr7.SetWorkflowType("statemachine")
+oDr7.AddStateXTT("i", "", [ :isInitial = 1 ])
+oDr7.AddStateXT("closed", "Closed")  oDr7.AddStateXT("open", "Open")
+oDr7.AddStateXT("locked", "Locked")
+oDr7.AddStateXTT("gone", "Demolished", [ :isFinal = 1 ])
+oDr7.AddTransition("i", "closed", "")
+oDr7.AddTransition("closed", "open", "open")
+oDr7.AddTransition("open", "closed", "close")
+oDr7.AddTransition("closed", "locked", "lock")
+oDr7.AddTransition("locked", "closed", "unlock")
+oDr7.AddTransition("locked", "locked", "lock")
+oDr7.AddTransition("closed", "gone", "demolish")
+oDr7.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
+	:FontSize = 13 ])
+
+aFr7 = []
+for rDr7 in oDr7.RenderClusterRects()  aFr7 = rDr7  next
+nMk7I = 0  nMk7G = 0
+for rDr7 in oDr7.RenderNodeRects()
+	if rDr7[5] = "i"     nMk7I = rDr7[2] + rDr7[4]  ok
+	if rDr7[5] = "gone"  nMk7G = rDr7[2]  ok
+next
+? "   the door: in " + (aFr7[2] - nMk7I) + "px, out " +
+  (nMk7G - (aFr7[2] + aFr7[4])) + "px"
+# A MARK IS SMALLER THAN A CELL and the two marks here are different
+# sizes, so a layout budgeting every row as a full cell wastes a
+# different amount above and below -- 1.56px on this picture, which is
+# small, invisible, and a rule broken.
+chk("the way in equals the way out, even between marks of two sizes",
+    fabs((aFr7[2] - nMk7I) - (nMk7G - (aFr7[2] + aFr7[4]))) < 1)
+
+nL7 = 1000000  nR7 = 0
+for rDr7 in oDr7.RenderNodeRects()
+	if rDr7[5] = "i" or rDr7[5] = "gone"  loop  ok
+	if rDr7[1] < nL7  nL7 = rDr7[1]  ok
+	if rDr7[1] + rDr7[3] > nR7  nR7 = rDr7[1] + rDr7[3]  ok
+next
+for aL7 in oDr7.RenderLabels()
+	if aL7[2] + aL7[4] / 2 > nR7  nR7 = aL7[2] + aL7[4] / 2  ok
+next
+for aP7 in oDr7.RenderEdgePaths()
+	nN7 = len(aP7[2]) / 2
+	for i7 = 1 to nN7
+		if aP7[2][i7 * 2 - 1] > nR7  nR7 = aP7[2][i7 * 2 - 1]  ok
+	next
+next
+? "   the door's frame: " + (nL7 - aFr7[1]) + "px left, " +
+  (aFr7[1] + aFr7[3] - nR7) + "px right"
+# the word beside a self-loop is the rightmost ink, and it has to be
+# measured with the ruler the PLACER uses -- WidthOf is a run of
+# glyphs, _LabelBlock is the thing that gets drawn, and they differ
+chk("a frame stands as far from its loop's word as from its first cell",
+    fabs((nL7 - aFr7[1]) - (aFr7[1] + aFr7[3] - nR7)) < 3)
+
 
 #---------------------------------------------------------------------------
 ? ""
