@@ -540,7 +540,20 @@ class stzBpmnDiagram from stzObject
 		ok
 		_nd_ += nl
 
-		if cK = "gateway"
+		# WHICH GLYPH A KIND TAKES IS THE PROFILE'S ANSWER, not this
+		# file's (DN3). The vocabulary was written here, privately, and
+		# a second face of BPMN drawing the same process through the
+		# shared renderer would have had its own copy -- which is how
+		# two faces come to disagree about what a gateway looks like.
+		# The profile owns the table; both faces read it.
+		#
+		# The COLOUR law stays here, and deliberately: L16 and L17 are
+		# the domain's own written law -- white by default, colour only
+		# from a verdict, and a verdict carried in three channels so it
+		# survives a print theme that paints every fill white. The house
+		# ramp answers a different question. The profile DECLARES the
+		# law (every kind white, no role named); this face implements it.
+		if StzLower("" + StzBpmnNotation().GlyphOf(cK)) = "diamond"
 			_nd_ += '  <polygon points="' + nCx + ',' + (nCy-30) + ' ' + (nCx+30) + ',' + nCy
 			_nd_ += ' ' + nCx + ',' + (nCy+30) + ' ' + (nCx-30) + ',' + nCy + '"'
 			_nd_ += ' fill="' + cFill + '" stroke="' + cLine + '" stroke-width="' + nSw + '"/>' + nl

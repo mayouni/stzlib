@@ -1033,11 +1033,62 @@ gate it declares.
   still does not exist. §53 holds it, including the org/state contrast
   in one breath: the same Edit gate refuses a cycle in one domain and
   welcomes it in the other.
-- **DN3 — BPMN, by RE-BASING `stzBpmnDiagram`.** Its spine law becomes
-  a profile-gated pass; its glyphs join the set; its own SVG writer is
-  DELETED. KILL: if the spine law cannot express as a pass over the
-  plastic layout, say so and keep the class separate — measured, not
-  assumed.
+- **DN3 — BPMN. SHIPPED as DN3a; the KILL criterion FIRED, and here is
+  the measurement it asked for.**
+
+  BPMN arrived unlike the two domains before it. The org chart and the
+  state machine had no notation before their profile — the profile is
+  where their law was first written down. BPMN already had one: a
+  written, versioned specification (`ringflex/docs/bpmn-layout-law.md`
+  v1.0.0), a second conforming implementation in that repository, and a
+  **layout digest** the two are held to.
+
+  **THE SPINE LAW EXPRESSES.** L3–L11 assign a column, a row and an
+  arrow class; §8's digest fixes exactly those decisions and §9
+  explicitly frees geometry ("two conforming implementations can still
+  draw differently"); and this library already has the hook that carries
+  a decided position into the plastic layout — pins. So the pass is
+  buildable and conformance survives it.
+
+  **TWO OTHER THINGS DO NOT EXPRESS, and neither is the layout:**
+
+  1. **L15's glyphs are not in the shared vocabulary.** A gateway
+     bearing an X; a task bearing a gear, a person, an envelope, a clock
+     or BPMN's own compensation marker; a thick ring; a DASHED double
+     circle. DN0 defines a glyph as "the shape name the renderer already
+     draws", and the renderer draws none of these six.
+  2. **L18/L19 is a consumer contract.** Every drawn element carries a
+     stable identifier and a set of classes, and a consumer binds to
+     them and may say nothing else. `stzGraphCanvas.ToSVG()` emits
+     neither ids nor classes, so deleting the private writer today would
+     delete the contract.
+
+  **SO DN3 SPLITS, and the split is measured rather than assumed:**
+
+  - **DN3a — SHIPPED.** `StzBpmnNotation()`: the vocabulary (L15), the
+    colour law declared (L16 — every kind white, no role named, because
+    the only thing that colours a node is a verdict), the rules (a start
+    event admits nothing, an end event releases nothing, a suspension
+    resumes by declaration), the grammar (left-to-right, ortho), and a
+    CLOSED vocabulary because BPMN is a standard. `stzBpmnDiagram` asks
+    the profile which glyph a kind takes, so the two faces cannot come
+    to disagree. `SetWorkflowType("bpmn")` draws a process through the
+    one renderer under the visual contract. Guard §65.
+  - **DN3b — NEXT, named with its cost.** An id/class channel in
+    `stzGraphCanvas`, then the law's col/row handed to the plastic
+    layout as pins, then the private writer is deleted. The markers and
+    the dash discipline are DN4's business (compartments and
+    adornments), which is where they were always going.
+
+  **AND DRAWING THE FIRST LEFT-TO-RIGHT DOMAIN FOUND THREE DEFECTS**
+  that only a left-to-right picture could have found, every one of them
+  a rule stated on the axis that happened to have been tested:
+  the rank-fit pass read "a rank is the same y" and crushed every box to
+  37%; the paper reserved room BELOW a mark's name and not beside it, so
+  a final event at the right-hand edge ran off the page; and three edge
+  drawers clipped to the CALLER's box rather than to the glyph they were
+  meeting — 13px vertically, hidden inside an arrowhead, and 66px
+  horizontally.
 - **DN4 — UML class diagrams.** Compartments and edge-end adornments —
   the notation half the industry reads daily.
 - **DN5 — electric/electronic.** The stress test, LAST on purpose: a
