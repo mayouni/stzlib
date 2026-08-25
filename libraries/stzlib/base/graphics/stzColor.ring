@@ -335,6 +335,15 @@ func StzThemeColor(pcTheme, pcRole)
 func StzSemanticColors()
 	return [ :Primary, :Success, :Warning, :Danger, :Info, :Muted, :Neutral ]
 
+# THE ONE THAT IS NOT A MEANING. :Focus says LOOK HERE and says nothing
+# about what a thing IS, so it is deliberately absent from the semantic
+# list -- a caller asking "what can a state be" must not be offered it.
+# It resolves like any other name; this is where a caller reaches for it
+# by INTENT rather than by hue, so a project that wants a different
+# highlight changes one answer instead of every diagram.
+func StzHighlightColor()
+	return :Focus
+
 func StzThemeRoles()
 	return [ :Primary, :Success, :Warning, :Danger, :Info, :Muted, :Neutral,
 	         :Background ]

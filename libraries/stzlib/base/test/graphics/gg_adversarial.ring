@@ -6042,6 +6042,262 @@ else
 ok
 
 
+sec("-- 63. THE ROW IS NOT FREE JUST BECAUSE IT IS A ROW ---------")
+#
+# Six practical machines were drawn to see what the engine is worth in
+# use, and they found four defects that no scene INVENTED to exercise a
+# law had found. That is section 46 and section 62 restated once more:
+# the picture you draw to prove a rule is the picture the rule fits.
+#
+# (1) TWO PEERS ARE JOINED BY ONE STRAIGHT LINE -- and the rule said
+#     nothing about what stands between them. A media player's
+#     paused->stopped ran horizontally through the middle of Playing,
+#     and the picture then claimed Playing was on the way from Paused to
+#     Stopped. It is not on the way; it is in the way.
+#
+# (2) A LANE BELONGED TO A ROW, so three INDEPENDENT switch pairs --
+#     three regions, nothing linking them -- were handed lanes one, two
+#     and three. Three drawings of one shape came out as three shapes,
+#     and the third region's return line was pushed outside the frame
+#     that exists to contain it.
+#
+# (3) THE FRAME GUESSED how deep its rails ran, by counting twin pairs.
+#     A return with no partner was invisible to that count, and so was
+#     an edge stepping off the row because of (1). An estimate of a
+#     quantity the program later computes exactly is a bug waiting for
+#     its picture.
+#
+# (4) THE PAPER WAS A RESERVATION, not the drawing: the three switches
+#     came out 539px tall over 276px of ink. "Space is optimised, at any
+#     situation" has been said of exactly this.
+#---------------------------------------------------------------------------
+
+# (1) THE ROW MUST BE FREE. Three peers, and an edge from the first to
+#     the third -- the one shape that cannot keep the row.
+oBt = new stzWorkflow("between63")
+oBt.SetWorkflowType("statemachine")
+oBt.AddStateXT("a", "Alpha")  oBt.AddStateXT("b", "Beta")
+oBt.AddStateXT("c", "Gamma")
+oBt.AddTransition("a", "b", "one")
+oBt.AddTransition("b", "c", "two")
+oBt.AddTransition("c", "a", "back")
+oBt.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
+	:FontSize = 13 ])
+
+aBtMid = _Rect49(oBt, "b")
+nBtWorst = 0
+for aBtP in oBt.RenderEdgePaths()
+	if aBtP[1] != "c>a"  loop  ok
+	nBtN = len(aBtP[2]) / 2
+	for iBt = 1 to nBtN - 1
+		nBtY1 = aBtP[2][iBt * 2]
+		nBtY2 = aBtP[2][iBt * 2 + 2]
+		if fabs(nBtY1 - nBtY2) > 1  loop  ok
+		nBtX1 = aBtP[2][iBt * 2 - 1]
+		nBtX2 = aBtP[2][iBt * 2 + 1]
+		if nBtX1 > nBtX2
+			nBtT = nBtX1  nBtX1 = nBtX2  nBtX2 = nBtT
+		ok
+		if nBtX2 < aBtMid[1] or nBtX1 > aBtMid[1] + aBtMid[3]  loop  ok
+		nBtD = _DistRect62(aBtMid, (nBtX1 + nBtX2) / 2, nBtY1)
+		if nBtD > nBtWorst  nBtWorst = nBtD  ok
+	next
+next
+? "   the long peer run clears the state between it by " + nBtWorst + "px"
+chk("a run keeps the row only while the row is free",
+    nBtWorst >= oBt._LineClearance())
+
+# ...AND IT STILL ARRIVES AT ITS TARGET. Stepping aside must not become
+# stepping away: the ends stay on their nodes' borders.
+aBtA = _Rect49(oBt, "a")
+nBtGap = -1
+for aBtP in oBt.RenderEdgePaths()
+	if aBtP[1] != "c>a"  loop  ok
+	nBtN = len(aBtP[2]) / 2
+	nBtGap = _DistRect62(aBtA, aBtP[2][nBtN * 2 - 1], aBtP[2][nBtN * 2])
+next
+chk("...and the run that stepped aside still lands on its node",
+    nBtGap >= 0 and nBtGap <= 16)
+
+# (2) THE SAME SHAPE IS THE SAME PICTURE. Three independent pairs, side
+#     by side, sharing a row and nothing else.
+oIn = new stzWorkflow("indep63")
+oIn.SetWorkflowType("statemachine")
+oIn.AddStateXT("p0", "P Off")   oIn.AddStateXT("p1", "P On")
+oIn.AddStateXT("a0", "A Off")   oIn.AddStateXT("a1", "A On")
+oIn.AddStateXT("d0", "D Off")   oIn.AddStateXT("d1", "D On")
+oIn.AddTransition("p0", "p1", "on")  oIn.AddTransition("p1", "p0", "off")
+oIn.AddTransition("a0", "a1", "on")  oIn.AddTransition("a1", "a0", "off")
+oIn.AddTransition("d0", "d1", "on")  oIn.AddTransition("d1", "d0", "off")
+oIn.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
+	:FontSize = 13 ])
+
+nInRow = -1
+for rIn in oIn.RenderNodeRects()
+	if rIn[5] = "p0"  nInRow = rIn[2] + rIn[4] / 2  ok
+next
+aInDepth = []
+for cInK in [ "p1>p0", "a1>a0", "d1>d0" ]
+	aInP = []
+	for aInR in oIn.RenderEdgePaths()
+		if aInR[1] = cInK  aInP = aInR[2]  ok
+	next
+	nInD = 0
+	nInN = len(aInP) / 2
+	for iIn = 1 to nInN
+		if aInP[iIn * 2] - nInRow > nInD  nInD = aInP[iIn * 2] - nInRow  ok
+	next
+	aInDepth + nInD
+next
+? "   the three returns ride " + aInDepth[1] + ", " + aInDepth[2] +
+  " and " + aInDepth[3] + "px under their row"
+chk("three identical structures are drawn identically",
+    fabs(aInDepth[1] - aInDepth[2]) < 1 and
+    fabs(aInDepth[2] - aInDepth[3]) < 1)
+
+# ...AND EACH RETURN STAYS IN ITS OWN FRAME. A lane counted across the
+# whole row pushed the third one out through the floor.
+nInOut = 0
+for aInC in oIn.RenderClusterRects()
+	for cInK in [ "p1>p0", "a1>a0", "d1>d0" ]
+		for aInR in oIn.RenderEdgePaths()
+			if aInR[1] != cInK  loop  ok
+			nInN = len(aInR[2]) / 2
+			for iIn = 1 to nInN
+				nInX = aInR[2][iIn * 2 - 1]
+				nInY = aInR[2][iIn * 2]
+				if nInX < aInC[1] or nInX > aInC[1] + aInC[3]  loop  ok
+				if nInY > aInC[2] + aInC[4] + 1  nInOut++  ok
+			next
+		next
+	next
+next
+chkeq("every return stays inside the frame that contains its states",
+      nInOut, 0)
+
+# (3) THE FRAME HOLDS EVERY RAIL, INCLUDING ONE NO PAIR ASKED FOR. The
+#     door has three now: one return, one forward that had to step off
+#     the row, and that forward edge's own return.
+oDr = new stzWorkflow("door63")
+oDr.SetWorkflowType("statemachine")
+oDr.AddStateXTT("i", "", [ :isInitial = 1 ])
+oDr.AddStateXT("closed", "Closed")  oDr.AddStateXT("open", "Open")
+oDr.AddStateXT("locked", "Locked")
+oDr.AddStateXTT("gone", "Demolished", [ :isFinal = 1 ])
+oDr.AddTransition("i", "closed", "")
+oDr.AddTransition("closed", "open", "open")
+oDr.AddTransition("open", "closed", "close")
+oDr.AddTransition("closed", "locked", "lock")
+oDr.AddTransition("locked", "closed", "unlock")
+oDr.AddTransition("closed", "gone", "demolish")
+oDr.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
+	:FontSize = 13 ])
+
+nDrRow = -1
+for rDr in oDr.RenderNodeRects()
+	if rDr[5] = "closed"  nDrRow = rDr[2] + rDr[4] / 2  ok
+next
+nDrDeep = nDrRow
+for cDrK in [ "open>closed", "closed>locked", "locked>closed" ]
+	for aDrR in oDr.RenderEdgePaths()
+		if aDrR[1] != cDrK  loop  ok
+		nDrN = len(aDrR[2]) / 2
+		for iDr = 1 to nDrN
+			if aDrR[2][iDr * 2] > nDrDeep  nDrDeep = aDrR[2][iDr * 2]  ok
+		next
+	next
+next
+nDrFloor = 0
+for aDrC in oDr.RenderClusterRects()
+	if aDrC[2] + aDrC[4] > nDrFloor  nDrFloor = aDrC[2] + aDrC[4]  ok
+next
+? "   three rails, the deepest at y=" + nDrDeep + ", floor at y=" + nDrFloor
+chk("a frame holds every rail, not just the ones a pair asked for",
+    nDrFloor >= nDrDeep)
+
+# ...AND THE PAIR THAT BOTH STEPPED ASIDE IS STILL TWO STAIRCASES, not
+# one mirrored into a diagonal off the edge of its own picture.
+nDrSkew = 0
+for cDrK in [ "closed>locked", "locked>closed" ]
+	for aDrR in oDr.RenderEdgePaths()
+		if aDrR[1] != cDrK  loop  ok
+		nDrN = len(aDrR[2]) / 2
+		for iDr = 1 to nDrN - 1
+			nDrDx = fabs(aDrR[2][iDr * 2 + 1] - aDrR[2][iDr * 2 - 1])
+			nDrDy = fabs(aDrR[2][iDr * 2 + 2] - aDrR[2][iDr * 2])
+			if nDrDx > 1 and nDrDy > 1  nDrSkew++  ok
+		next
+	next
+next
+chkeq("...and both members stay orthogonal", nDrSkew, 0)
+
+# (4) THE PAPER IS THE CONTENT. Measured over every scene in this
+#     section, because a reservation only shows as dead paper when the
+#     reservation and the drawing disagree -- which is never on the
+#     scene you wrote to test it.
+nPpBad = 0
+for aPpO in [ oBt, oIn, oDr ]
+	nPpX1 = 0  nPpY1 = 0
+	for rPp in aPpO.RenderNodeRects()
+		if rPp[1] + rPp[3] > nPpX1  nPpX1 = rPp[1] + rPp[3]  ok
+		if rPp[2] + rPp[4] > nPpY1  nPpY1 = rPp[2] + rPp[4]  ok
+	next
+	for rPp in aPpO.RenderClusterRects()
+		if rPp[1] + rPp[3] > nPpX1  nPpX1 = rPp[1] + rPp[3]  ok
+		if rPp[2] + rPp[4] > nPpY1  nPpY1 = rPp[2] + rPp[4]  ok
+	next
+	for aPpP in aPpO.RenderEdgePaths()
+		nPpN = len(aPpP[2]) / 2
+		for iPp = 1 to nPpN
+			if aPpP[2][iPp * 2 - 1] > nPpX1  nPpX1 = aPpP[2][iPp * 2 - 1]  ok
+			if aPpP[2][iPp * 2] > nPpY1  nPpY1 = aPpP[2][iPp * 2]  ok
+		next
+	next
+	# ...and a name written OUTSIDE its cell is ink like any other.
+	# Guessing what it costs (a multiple of the font size) is the same
+	# mistake this section is about, one layer out: the renderer knows
+	# where it put every one of them, so ask it.
+	for aPpL in aPpO.RenderNodeLabels()
+		if aPpL[2] + aPpL[4] > nPpX1  nPpX1 = aPpL[2] + aPpL[4]  ok
+		if aPpL[3] + aPpL[5] > nPpY1  nPpY1 = aPpL[3] + aPpL[5]  ok
+	next
+	for aPpL in aPpO.RenderLabels()
+		if aPpL[2] + aPpL[4] > nPpX1  nPpX1 = aPpL[2] + aPpL[4]  ok
+		if aPpL[3] + aPpL[5] > nPpY1  nPpY1 = aPpL[3] + aPpL[5]  ok
+	next
+	nPpSlack = 24
+	? "   " + aPpO.Name() + ": slack right " +
+	  (aPpO.LastCanvas().Width() - nPpX1) + "px, below " +
+	  (aPpO.LastCanvas().Height() - nPpY1) + "px (allowed " + nPpSlack + ")"
+	if aPpO.LastCanvas().Width() - nPpX1 > nPpSlack  nPpBad++  ok
+	if aPpO.LastCanvas().Height() - nPpY1 > nPpSlack  nPpBad++  ok
+next
+chkeq("no picture carries a band of paper nothing was drawn on",
+      nPpBad, 0)
+
+# (5) AN ARRIVAL CARRIES ITS OWN HEAD. An arrowhead is drawn from the
+#     point the stroke was cut back to, so when the final segment is
+#     SHORTER than that cut the head takes the PREVIOUS segment's
+#     direction: the connection's "handshake ok" turned left five pixels
+#     above its target, and its arrow pointed sideways at a spot above
+#     the state instead of down into it.
+nAhBad = 0
+nAhSeen = 0
+for aAhO in [ oBt, oIn, oDr ]
+	for aAhP in aAhO.RenderEdgePaths()
+		nAhN = len(aAhP[2]) / 2
+		if nAhN < 2  loop  ok
+		nAhDx = fabs(aAhP[2][nAhN * 2 - 1] - aAhP[2][nAhN * 2 - 3])
+		nAhDy = fabs(aAhP[2][nAhN * 2] - aAhP[2][nAhN * 2 - 2])
+		if nAhDx > 1 and nAhDy > 1  loop  ok
+		nAhSeen++
+		if nAhDx + nAhDy < 13  nAhBad++  ok
+	next
+next
+? "   " + nAhSeen + " orthogonal arrivals, " + nAhBad + " too short for a head"
+chkeq("every arrival is long enough to carry its arrowhead", nAhBad, 0)
+
+
 #---------------------------------------------------------------------------
 ? ""
 if nSecClock > 0

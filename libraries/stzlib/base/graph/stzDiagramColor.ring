@@ -61,11 +61,26 @@ $acColors = [
 # culture did assign. See StzMutedOf().
 $acColorsBySemanticMeaning = [
 	:Success = "green",
-	:Warning = "yellow",
+
+	# ORANGE, NOT YELLOW, and the file already said so everywhere else:
+	# eight of the nine themes below map :warning to orange. Only this
+	# table -- the one every OTHER lookup falls back to -- said yellow,
+	# and yellow taken down to the solid rung's lightness is OLIVE. An
+	# order waiting on a payment came out the colour of a military
+	# jacket, which is not what a reader takes "warning" to look like in
+	# any of the cultures this table is already admitting it speaks for.
+	:Warning = "orange",
 	:Danger = "red",
 	:Info = "blue",
 	:Primary = "blue",
-	:Neutral = "gray"
+	:Neutral = "gray",
+
+	# FOCUS IS NOT A STATUS -- it is the reader's attention, and that is
+	# why it is magenta. The other seven say what a thing IS; this one
+	# says LOOK HERE, and it has to be a hue none of them can be
+	# mistaken for, or "look here" would read as "this is dangerous" or
+	# "this is fine". Family two, like :Neutral: it carries no verdict.
+	:Focus = "magenta"
 ]
 
 # Global color palette - lazy initialization
