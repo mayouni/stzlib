@@ -6443,6 +6443,16 @@ next
 for aAirL in oAir.RenderLabels()
 	if aAirL[3] + aAirL[5] / 2 > nAirB  nAirB = aAirL[3] + aAirL[5] / 2  ok
 next
+# ...AND THE RAILS THEMSELVES. A rail writes its word above its own
+# line, so the deepest ink in a frame is the deepest LINE -- measuring
+# only the words answered the air under a word that has a rail beneath
+# it, which is not the distance anybody looks at.
+for aAirP in oAir.RenderEdgePaths()
+	nAirN = len(aAirP[2]) / 2
+	for iAir = 1 to nAirN
+		if aAirP[2][iAir * 2] > nAirB  nAirB = aAirP[2][iAir * 2]  ok
+	next
+next
 nAirAbove = nAirT - aAirF[2]
 nAirBelow = aAirF[2] + aAirF[4] - nAirB
 nAirLeft  = nAirL - aAirF[1]
