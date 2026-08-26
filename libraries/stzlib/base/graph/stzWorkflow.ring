@@ -90,7 +90,14 @@ func StzBpmnNotation()
 
 	# L16 -- WHITE, ALL OF IT. Nothing here names a role, and that is
 	# the declaration, not an omission.
-	_o_.AddKindXTT("entry", "dot", "white", 0.30)
+	# A CIRCLE, and "dot" was a glyph the renderer cannot draw -- DN0's
+	# own rule, which says a glyph is the shape name the renderer
+	# ALREADY draws. An unknown name falls back to a box, so the start
+	# event was silently a 15.6px rounded rectangle, and the corner
+	# radius (10) being larger than half its side (7.8) made it spill
+	# outside its own rectangle and clip against the paper's edge.
+	# A profile naming a shape nobody draws is a profile lying quietly.
+	_o_.AddKindXTT("entry", "circle", "white", 0.30)
 	_o_.AddKindXT("invoke", "box", "white")
 	_o_.AddKindXT("human", "box", "white")
 	_o_.AddKindXT("event-wait", "box", "white")

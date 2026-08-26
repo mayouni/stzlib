@@ -6816,7 +6816,8 @@ chkeq("a gateway is a diamond", StzLower("" + oBpN.GlyphOf("gateway")),
 chkeq("an end event is a ringed circle",
       StzLower("" + oBpN.GlyphOf("terminal")), "doublecircle")
 chkeq("a start event is a mark, not a cell",
-      StzLower("" + oBpN.GlyphOf("entry")), "dot")
+      StzLower("" + oBpN.GlyphOf("entry")), "circle")
+chk("...and it is drawn at a fraction of a cell", oBpN.ScaleOf("entry") < 0.5)
 
 # (2) L16 -- THE COLOUR LAW, DECLARED. The strongest colour law in this
 #     library: white by default, and the ONLY thing that colours a node
@@ -6958,6 +6959,47 @@ chk("the two answers to one question are at one moment",
 # knob is a declaration, not a new default.
 chkeq("a domain that says nothing keeps the old convention",
       StzLower("" + StzNotation("default").RankPolicy()), "")
+
+# (9) A PROFILE MAY NOT NAME A GLYPH THE RENDERER CANNOT DRAW.
+#
+#     DN0's own definition -- "a glyph is the geometric shape name the
+#     renderer already draws" -- and this profile broke it on its first
+#     day. BPMN's start event was declared "dot", which is not one of the
+#     shapes there are, so it fell back silently to a box: a 15.6px
+#     rounded rectangle, drawn with a corner radius of 10 that is larger
+#     than half its own side, spilling outside its rectangle and sliced
+#     in half by the edge of the paper.
+#
+#     Silently is the word that matters. Nothing failed, nothing was
+#     reported, and the picture was wrong in a way that looked like a
+#     rendering bug rather than a declaration one. Swept over EVERY
+#     profile the library ships, because the next one will be written by
+#     somebody reading the last one.
+nGlBad = 0
+for cGlN in StzNotations()
+	oGl = StzNotation(cGlN)
+	for cGlK in oGl.Kinds()
+		cGlS = "" + oGl.GlyphOf(cGlK)
+		if cGlS = ""  loop  ok
+		if StzIsNodeShape(cGlS)  loop  ok
+		nGlBad++
+		? "      " + cGlN + " declares '" + cGlK + "' as '" + cGlS +
+		  "', which nothing draws"
+	next
+next
+chkeq("every glyph every shipped profile names is one the renderer draws",
+      nGlBad, 0)
+
+# ...AND A CORNER IS NEVER BIGGER THAN THE THING IT ROUNDS. The radius
+# is one number for a whole picture, which is right while every cell is
+# one size and wrong the moment a MARK is drawn beside them.
+nCnBad = 0
+for rCn in oBp.RenderNodeRects()
+	if rCn[1] < 0 or rCn[2] < 0  nCnBad++  ok
+	if rCn[1] + rCn[3] > oBp.LastCanvas().Width()  nCnBad++  ok
+	if rCn[2] + rCn[4] > oBp.LastCanvas().Height()  nCnBad++  ok
+next
+chkeq("no glyph is drawn off the edge of its own paper", nCnBad, 0)
 
 
 #---------------------------------------------------------------------------
