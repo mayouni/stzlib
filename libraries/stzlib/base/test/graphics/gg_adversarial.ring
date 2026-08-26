@@ -6947,12 +6947,30 @@ for cSpN in [ "s", "recv", "check", "pack", "bill", "done" ]
 next
 chkeq("a chain that does not branch is one straight line", nSpBad, 0)
 
+# ...AND AN ANSWER THAT ENDS DOES NOT TRAVEL AT ALL.
+#
+#     This used to assert that the two answers sat in the SAME column,
+#     which was the right correction to make when one of them was being
+#     dragged to the far end of the picture beside an unrelated ending.
+#     The rule that superseded it is sharper, and it came from the
+#     Principal reading the picture as an argument rather than a
+#     drawing: "maybe" and "no" lead to an END, so there is nothing for
+#     them to travel towards. A dead end hangs off the summit it leaves
+#     by, in the decision's own column -- one short vertical. A line's
+#     LENGTH is a claim that something happens along it.
 rSpP = _Rect49(oBp, "pack")
 rSpN = _Rect49(oBp, "nope")
-? "   the two answers sit at x=" + (rSpP[1] + rSpP[3] / 2) + " and x=" +
-  (rSpN[1] + rSpN[3] / 2)
-chk("the two answers to one question are at one moment",
-    fabs((rSpP[1] + rSpP[3] / 2) - (rSpN[1] + rSpN[3] / 2)) < 2)
+rSpG = _Rect49(oBp, "check")
+rSpD = _Rect49(oBp, "done")
+? "   the decision is at x=" + (rSpG[1] + rSpG[3] / 2) +
+  ", its dead end at x=" + (rSpN[1] + rSpN[3] / 2) +
+  ", the far ending at x=" + (rSpD[1] + rSpD[3] / 2)
+chk("an answer that ends hangs off its own decision",
+    fabs((rSpG[1] + rSpG[3] / 2) - (rSpN[1] + rSpN[3] / 2)) < 2)
+chk("...and never travels to the far end beside an unrelated ending",
+    rSpN[1] + rSpN[3] / 2 < rSpD[1])
+chk("...while the answer that CONTINUES does advance a rank",
+    rSpP[1] + rSpP[3] / 2 > rSpG[1] + rSpG[3])
 
 # ...AND THE LIFECYCLE DOMAINS ARE UNTOUCHED. A state machine's endings
 # are a destination, not an alternative, so its sinks still sink -- the
