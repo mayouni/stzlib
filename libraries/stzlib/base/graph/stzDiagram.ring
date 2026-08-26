@@ -2937,9 +2937,9 @@ class stzDiagram from stzGraph
 							# back along the reading, not centred
 							_l0_ = _at0_[1] - _w0_ / 2
 							if _cRank_ = "LR"
-								_l0_ = _at0_[1] + _bb0_[1] / 2 - _w0_
+								_l0_ = _at0_[1] + _bb0_[1] / 2 + 8
 							but _cRank_ = "RL"
-								_l0_ = _at0_[1] - _bb0_[1] / 2
+								_l0_ = _at0_[1] - _bb0_[1] / 2 - 8 - _w0_
 							ok
 							if _l0_ < _ex0_  _ex0_ = _l0_  ok
 							if _l0_ + _w0_ > _ex1_  _ex1_ = _l0_ + _w0_  ok
@@ -4289,7 +4289,19 @@ class stzDiagram from stzGraph
 					# between two branches where it read as belonging to
 					# neither. The Principal drew an arrow from four of
 					# them back up to the thing they name.
+					# BESIDE THE GLYPH, ON THE SIDE THE READING LEAVES
+					# FREE. A name written UNDER a mark competes with
+					# whatever the edge below is doing, and in a
+					# left-to-right picture there is nothing at all to
+					# the right of a closing circle -- which is where
+					# the Principal put it. A top-down picture has its
+					# free space underneath, and keeps it there.
 					_nLbY_ = _a_[2] + _aBx2_[2] / 2 + _nFsz_ * 0.95
+					_bSide2_ = 0
+					if _cRank_ = "LR" or _cRank_ = "RL"
+						_bSide2_ = 1
+						_nLbY_ = _a_[2] + _nFsz_ * 0.35
+					ok
 					# ...AND IT EXTENDS BACK ALONG THE READING.
 					#
 					# A name wider than the glyph it names has to lean
@@ -4307,9 +4319,9 @@ class stzDiagram from stzGraph
 					# and centred is what a reader expects there.
 					_nLbX_ = _a_[1] - _nTw_ / 2
 					if _cRank_ = "LR"
-						_nLbX_ = _a_[1] + _aBx2_[1] / 2 - _nTw_
+						_nLbX_ = _a_[1] + _aBx2_[1] / 2 + 8
 					but _cRank_ = "RL"
-						_nLbX_ = _a_[1] - _aBx2_[1] / 2
+						_nLbX_ = _a_[1] - _aBx2_[1] / 2 - 8 - _nTw_
 					ok
 					_oC_.Flush()
 					# ITS OWN POSITION, not the edge labels'. This asked
@@ -4733,6 +4745,53 @@ class stzDiagram from stzGraph
 		# summit makes that answer climb over the picture and come back
 		# down through it, which is worse than the shared stem it was
 		# meant to cure. The summit and the side are one decision.
+		# AN ANSWER THAT ENDS NEEDS NO JOURNEY.
+		#
+		# "Maybe" and "no" both lead to an END: nothing follows them, and
+		# nothing ever will. Advancing them a rank -- which is what every
+		# other edge does, because every other edge is going somewhere --
+		# sends them travelling sideways alongside the flow they just
+		# left, and a reader following that line spends its whole length
+		# waiting to find out where it goes. It goes nowhere. It stops.
+		#
+		# So a dead end hangs directly off the summit it leaves by: one
+		# short vertical, in the decision's OWN column, above or below
+		# according to its summit. The picture then says "this answer
+		# terminates here" instead of "this answer runs beside the main
+		# flow for a while and then terminates".
+		#
+		# The Principal's reasoning, and it is the reason these are
+		# thinking machines rather than paintings: the shape of the line
+		# is an argument about the process, and a long line is an
+		# argument that something happens along it.
+		for _srI_ = 1 to len(_srOut_)
+			if _srOn_[_srI_]  loop  ok
+			_srId5_ = StzLower("" + _srOut_[_srI_][1])
+			# nothing leaves it
+			_srOut5_ = 0
+			for _srE5_ in This.Edges()
+				if StzLower("" + _srE5_[:from]) = _srId5_
+					if StzLower("" + _srE5_[:to]) != _srId5_  _srOut5_++  ok
+				ok
+			next
+			if _srOut5_ > 0  loop  ok
+			# exactly one thing reaches it, by a perpendicular summit
+			_srIn5_ = 0
+			_srSrc5_ = ""
+			for _srE5_ in This.Edges()
+				if StzLower("" + _srE5_[:to]) != _srId5_  loop  ok
+				_srIn5_++
+				_srSrc5_ = "" + _srE5_[:from]
+			next
+			if _srIn5_ != 1  loop  ok
+			_srSm5_ = This._SummitOf(_srSrc5_, _srOut_[_srI_][1], cRank)
+			if _srSm5_ = ""  loop  ok
+			_srAt5_ = This._XYOf(paXY, _srSrc5_)
+			if len(_srAt5_) != 2  loop  ok
+			# ...in the decision's own column
+			_srOut_[_srI_][_srR_] = _srAt5_[_srR_ - 1]
+		next
+
 		_srUp_ = []
 		for _srI_ = 1 to len(_srOut_)
 			_srU_ = 0
@@ -7765,6 +7824,47 @@ class stzDiagram from stzGraph
 				_svA_ = This._BoxAt(aFrom, nBoxW, nBoxH)
 				_svB_ = This._BoxAt(aTo, nBoxW, nBoxH)
 				_svStub_ = This._LineClearance()
+				# ONE VERTICAL, when there is nowhere to travel to. A
+				# dead end sits in the decision's own column, so the
+				# journey is a straight drop from the summit to the
+				# glyph -- no stub, no corner, nothing for a reader to
+				# follow and wonder about.
+				if fabs(aTo[1] - aFrom[1]) < 1.5 and
+				   NOT (cRank = "TB" or cRank = "BT")
+					if aTo[2] < aFrom[2]
+						_svPts_ = [ aFrom[1], aFrom[2] - _svA_[2] / 2,
+							aTo[1], aTo[2] + _svB_[2] / 2 ]
+					else
+						_svPts_ = [ aFrom[1], aFrom[2] + _svA_[2] / 2,
+							aTo[1], aTo[2] - _svB_[2] / 2 ]
+					ok
+					_svCut2_ = This._ArrowCut(_svPts_, 9 + nWidth * 2)
+					This._EmitOrthoPolyline(oC, _svCut2_[1], cColor,
+						nWidth, cFromId + ">" + cToId)
+					if @nDrawPass = 2
+						This._DrawArrowHead(oC, _svCut2_[2], _svCut2_[3],
+							cColor)
+					ok
+					return
+				ok
+				if fabs(aTo[2] - aFrom[2]) < 1.5 and
+				   (cRank = "TB" or cRank = "BT")
+					if aTo[1] < aFrom[1]
+						_svPts_ = [ aFrom[1] - _svA_[1] / 2, aFrom[2],
+							aTo[1] + _svB_[1] / 2, aTo[2] ]
+					else
+						_svPts_ = [ aFrom[1] + _svA_[1] / 2, aFrom[2],
+							aTo[1] - _svB_[1] / 2, aTo[2] ]
+					ok
+					_svCut2_ = This._ArrowCut(_svPts_, 9 + nWidth * 2)
+					This._EmitOrthoPolyline(oC, _svCut2_[1], cColor,
+						nWidth, cFromId + ">" + cToId)
+					if @nDrawPass = 2
+						This._DrawArrowHead(oC, _svCut2_[2], _svCut2_[3],
+							cColor)
+					ok
+					return
+				ok
 				if _svS_ = "top"
 					_svY_ = aFrom[2] - _svA_[2] / 2 - _svStub_
 					_svPts_ = [ aFrom[1], aFrom[2] - _svA_[2] / 2,
