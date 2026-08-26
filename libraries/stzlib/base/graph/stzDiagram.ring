@@ -3920,6 +3920,16 @@ class stzDiagram from stzGraph
 			# reads as two, one of them shouting. Sameness is in the
 			# RATIO, so the width follows the glyph and is floored at a
 			# pixel, because a stroke thinner than that is not a stroke.
+			# A CORNER CANNOT BE BIGGER THAN THE THING IT ROUNDS.
+			# The radius is one number for the whole picture, which is
+			# right for cells that are all one size and wrong the
+			# moment a MARK is drawn: a 15.6px glyph rounded at 10 is a
+			# degenerate round rect, and it draws outside its own
+			# rectangle -- so the start event spilled past the paper's
+			# edge and came out sliced in half.
+			_nRadN_ = _nRad_
+			if _nRadN_ > _nBw_ / 2  _nRadN_ = _nBw_ / 2  ok
+			if _nRadN_ > _nBh_ / 2  _nRadN_ = _nBh_ / 2  ok
 			_nStkW_ = 2 * min([ _nBw_ / _nBoxW_, _nBh_ / _nBoxH_ ])
 			if _nStkW_ > 2  _nStkW_ = 2  ok
 			if _nStkW_ < 1  _nStkW_ = 1  ok
@@ -3934,9 +3944,9 @@ class stzDiagram from stzGraph
 				# with white labels in them. The degenerate arc is the
 				# canvas's to fix; naming the shape here is what makes the
 				# style usable today.
-				if _nRad_ > 0
+				if _nRadN_ > 0
 					_oC_.FillQ(_cFill_).StrokeQ(_cStroke_, _nStkW_).
-						AddRoundRect(_x0_, _y0_, _nBw_, _nBh_, _nRad_)
+						AddRoundRect(_x0_, _y0_, _nBw_, _nBh_, _nRadN_)
 				else
 					_oC_.FillQ(_cFill_).StrokeQ(_cStroke_, _nStkW_).
 						AddRect(_x0_, _y0_, _nBw_, _nBh_)
