@@ -87,6 +87,14 @@ func StzBpmnNotation()
 	# two outcomes happen at different times. They are the two answers
 	# to one question, and they are drawn as such.
 	_o_.SetRankPolicy(:Earliest)
+	# L3 and L4 -- THE HAPPY PATH IS ONE LINE. A business process has a
+	# path it takes when things go as intended and paths it takes when
+	# they do not, and the first must read as one straight line while the
+	# others hang off it. Without it a chain with nothing branching from
+	# it changed direction wherever a side path pulled at it: the expense
+	# claim's File -> Review -> Approve -> Reimburse zig-zagged because
+	# one rework loop hung off Review.
+	_o_.SetSpine(:HappyPath)
 
 	# L16 -- WHITE, ALL OF IT. Nothing here names a role, and that is
 	# the declaration, not an omission.

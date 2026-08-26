@@ -325,6 +325,7 @@ class stzDiagram from stzGraph
 	@aDrawXY = []
 	@aLaneKept = []
 	@aStubOf = []
+	@aReturnOf = []
 	@aRenderHops = []
 	# how far apart two return lanes stand -- a clearance plus whatever
 	# is written beside them
@@ -1989,6 +1990,18 @@ class stzDiagram from stzGraph
 		# that has a mark in it.
 		This._FillBoxSizes(_nBoxW_, _nBoxH_)
 
+		# ...AND THE LADDER'S RUNG, for the same reason and at the same
+		# moment. The pitch depends on the font, the size and the box width
+		# -- all known here -- and it was being set just before the DRAWING,
+		# long after the paper had been measured. So the reserve was
+		# computed against a pitch of nearly nothing and the picture drawn
+		# against the real one: the expense claim's correction loop ran 10px
+		# off the bottom of its own page.
+		#
+		# Every defect of this shape this session reads the same way: one
+		# quantity, computed twice, at two moments.
+		This._SetLanePitch(_oFont_, _nFsz_, _nBoxW_)
+
 		# WHERE AN EVENT IS WRITTEN, as a dial rather than a rule: beside
 		# its line (the default -- the line stays unbroken) or ON the
 		# middle of it, plated with the surface underneath.
@@ -2643,6 +2656,8 @@ class stzDiagram from stzGraph
 				if _cRank_ = "BT"  _py_ = _inY_ - _py_  ok
 				_aXY_ + [ StzLower("" + _p_[1]), _px_ + _mx_, _py_ + _my_ ]
 			next
+			_aXY_ = This._ApplySpineRows(_aXY_, _nBoxW_, _nBoxH_, _cRank_,
+				This._LineClearance() * 2)
 			# the long edges' routes ride the SAME transform as the nodes --
 			# one rule, so a route can never land in a different frame from
 			# the boxes it joins
@@ -2799,6 +2814,18 @@ class stzDiagram from stzGraph
 					next
 				ok
 
+				# ...AND THE RETURNS, which are drawn in space no node
+				# occupies and are therefore the easiest content to
+				# forget reserving for.
+				_rrch_ = This._ReturnReach(_nBoxW_, _nBoxH_, _cRank_)
+				if _rrch_ > 0
+					if _cRank_ = "LR" or _cRank_ = "RL"
+						if _rrch_ > _ey1_  _ey1_ = _rrch_  ok
+					else
+						if _rrch_ > _ex1_  _ex1_ = _rrch_  ok
+					ok
+				ok
+
 				for _cl_ in @aClusters
 					_cb_ = This._ClusterBox(_cl_, _aXY_, _nBoxW_, _nBoxH_)
 					if len(_cb_) != 4  loop  ok
@@ -2907,6 +2934,8 @@ class stzDiagram from stzGraph
 				if _cRank_ = "BT"  _py_ = _lh_ - _py_  ok
 				_aXY_ + [ StzLower("" + _p_[1]), _px_ + _mx_, _py_ + _my_ ]
 			next
+			_aXY_ = This._ApplySpineRows(_aXY_, _nBoxW_, _nBoxH_, _cRank_,
+				This._LineClearance() * 2)
 			# A ROW IS AS TALL AS WHAT STANDS IN IT, AND A GAP IS A GAP.
 			#
 			# This is the entry edge the Principal has now marked four
@@ -4313,6 +4342,158 @@ class stzDiagram from stzGraph
 		return _rfS_
 
 	# rankdir, from the diagram's OWN SetLayout -- TB / BT / LR / RL.
+	# THE PATH THE THING TAKES WHEN ALL GOES WELL -- L3, and it is
+	# computed from the graph, never declared node by node.
+	#
+	# Start at the entry; from the node you are on take its FIRST
+	# outgoing edge in DECLARATION ORDER; stop on reaching something with
+	# no way out, or somewhere you have already been. Declaration order
+	# is the rule because it is the one thing an author controls without
+	# being asked to think about layout: the flow you wrote first is the
+	# flow you meant.
+	def _HappyPath()
+		_hpIds_ = This.NodesIds()
+		if len(_hpIds_) = 0  return []  ok
+		# the entry: a node nothing flows into. Failing that, the first
+		# declared -- a process with no entry is a modelling mistake the
+		# rules report, not a reason to draw nothing.
+		_hpStart_ = ""
+		for _hpI_ in _hpIds_
+			_hpIn_ = 0
+			for _hpE_ in This.Edges()
+				if StzLower("" + _hpE_[:to]) = StzLower("" + _hpI_)
+					_hpIn_ = 1
+					exit
+				ok
+			next
+			if NOT _hpIn_  _hpStart_ = StzLower("" + _hpI_)  exit  ok
+		next
+		if _hpStart_ = ""  _hpStart_ = StzLower("" + _hpIds_[1])  ok
+
+		_hpOut_ = [ _hpStart_ ]
+		_hpAt_ = _hpStart_
+		_hpGuard_ = 0
+		while _hpGuard_ < len(_hpIds_) + 2
+			_hpGuard_++
+			_hpNext_ = ""
+			for _hpE_ in This.Edges()
+				if StzLower("" + _hpE_[:from]) != _hpAt_  loop  ok
+				if StzLower("" + _hpE_[:to]) = _hpAt_  loop  ok
+				_hpNext_ = StzLower("" + _hpE_[:to])
+				exit
+			next
+			if _hpNext_ = ""  exit  ok
+			_hpSeen_ = 0
+			for _hpQ_ in _hpOut_
+				if _hpQ_ = _hpNext_  _hpSeen_ = 1  exit  ok
+			next
+			if _hpSeen_  exit  ok
+			_hpOut_ + _hpNext_
+			_hpAt_ = _hpNext_
+		end
+		return _hpOut_
+
+	# ...AND IT IS PUT ON ONE LINE -- L4, and it needs its own mechanism
+	# rather than the pins.
+	#
+	# A PIN DECIDES ORDER, NOT COORDINATE. That is written on the pin
+	# machinery itself and it is the right design: dragging a cell
+	# between two others has to mean "put it between them", not "put it
+	# at exactly this pixel". Pinning every spine node to one slot
+	# therefore gave them all the same ORDER key and aligned nothing --
+	# each rank is still spaced on its own.
+	#
+	# So the spine is aligned after the layout has run and before
+	# anything measures the result: every node on the path takes the
+	# path's own line, and anything else sharing a rank with it steps
+	# BELOW -- L6, "the first free row below row 0". An author who has
+	# pinned something outranks the profile, which is the whole point of
+	# the plastic layout.
+	def _ApplySpineRows(paXY, nBoxW, nBoxH, cRank, nSep)
+		_srO_ = This.NotationO()
+		if NOT isObject(_srO_)  return paXY  ok
+		if StzTrim("" + _srO_.Spine()) = ""  return paXY  ok
+		if len(@aPins) > 0  return paXY  ok
+		_srPath_ = This._HappyPath()
+		if len(_srPath_) < 2  return paXY  ok
+
+		# which axis a rank runs along, and which one a node moves on
+		# INSIDE its rank
+		_srW_ = 3   _srR_ = 2
+		if cRank = "LR" or cRank = "RL"  _srW_ = 3  _srR_ = 2  ok
+		if cRank = "TB" or cRank = "BT"  _srW_ = 2  _srR_ = 3  ok
+
+		_srOn_ = []
+		for _srI_ = 1 to len(paXY)
+			_srB_ = 0
+			for _srQ_ in _srPath_
+				if _srQ_ = StzLower("" + paXY[_srI_][1])  _srB_ = 1  exit  ok
+			next
+			_srOn_ + _srB_
+		next
+
+		# THE LINE IS THE TOP ONE. L6 puts everything else below it, and
+		# a reader running along a process expects the main flow where
+		# the reading starts.
+		_srLine_ = 0
+		_srHave_ = 0
+		for _srI_ = 1 to len(paXY)
+			if NOT _srOn_[_srI_]  loop  ok
+			if NOT _srHave_ or paXY[_srI_][_srW_] < _srLine_
+				_srLine_ = paXY[_srI_][_srW_]
+				_srHave_ = 1
+			ok
+		next
+		if NOT _srHave_  return paXY  ok
+
+		_srOut_ = []
+		for _srI_ = 1 to len(paXY)
+			_srOut_ + [ paXY[_srI_][1], paXY[_srI_][2], paXY[_srI_][3] ]
+		next
+		for _srI_ = 1 to len(_srOut_)
+			if _srOn_[_srI_]  _srOut_[_srI_][_srW_] = _srLine_  ok
+		next
+
+		# ...AND WHATEVER SHARED THAT RANK STEPS BELOW, in the order it
+		# was already in, each clearing the one before it by its own size
+		# rather than by a number picked for the biggest cell.
+		_srRanks_ = []
+		for _srI_ = 1 to len(_srOut_)
+			_srSeen_ = 0
+			for _srV_ in _srRanks_
+				if fabs(_srV_ - _srOut_[_srI_][_srR_]) < 2  _srSeen_ = 1  exit  ok
+			next
+			if NOT _srSeen_  _srRanks_ + _srOut_[_srI_][_srR_]  ok
+		next
+		for _srK_ in _srRanks_
+			_srAt_ = _srLine_
+			_srAny_ = 0
+			for _srI_ = 1 to len(_srOut_)
+				if fabs(_srOut_[_srI_][_srR_] - _srK_) > 2  loop  ok
+				if _srOn_[_srI_]  _srAny_ = 1  ok
+			next
+			for _srI_ = 1 to len(_srOut_)
+				if fabs(_srOut_[_srI_][_srR_] - _srK_) > 2  loop  ok
+				if _srOn_[_srI_]  loop  ok
+				_srBx_ = This._BoxOf(_srOut_[_srI_][1], nBoxW, nBoxH)
+				_srSz_ = _srBx_[2]
+				if _srW_ = 2  _srSz_ = _srBx_[1]  ok
+				if _srAny_ = 0 and fabs(_srAt_ - _srLine_) < 0.001
+					# nothing of the spine stands here, so the rank's own
+					# members keep the line rather than all stepping off
+					# it for a spine that is somewhere else
+					_srOut_[_srI_][_srW_] = _srLine_
+					_srAt_ = _srLine_ + nSep + _srSz_
+					_srAny_ = 1
+					loop
+				ok
+				_srAt_ += nSep
+				_srOut_[_srI_][_srW_] = _srAt_ + _srSz_ / 2
+				_srAt_ += _srSz_
+			next
+		next
+		return _srOut_
+
 	# WHEN A NODE SITS, if the domain has an opinion. A profile that
 	# says nothing leaves the layout's own convention standing -- the
 	# deltas-only rule every other grammar amendment obeys.
@@ -7238,6 +7419,46 @@ class stzDiagram from stzGraph
 
 	def _DrawEdgeXT(oC, aFrom, aTo, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nLane, nPortA, nPortB, pBlockSide, cFromId, cToId, pSideDep)
 		if cSpline = "ortho"
+			# A RETURN RUNS UNDER THE PICTURE -- L12, and I2 for the
+			# fourth time. A correction loop goes back the way the flow
+			# came, and the generic router drew it along whatever row its
+			# two ends happened to share: the expense claim's
+			# "resubmitted" ran ON TOP of "reviewed", two different
+			# transitions on one line, with a label naming neither.
+			#
+			# Where a reader expects a correction is beneath the flow it
+			# corrects, and that is also the only place it can go without
+			# crossing what it is correcting. Out of the source on the
+			# stacking axis, along its own rung of the ladder, and back
+			# up into the target the same way.
+			_rtK_ = StzLower("" + cFromId) + ">" + StzLower("" + cToId)
+			_rtRow_ = This._ReturnRowOf(_rtK_)
+			if _rtRow_ > 0
+				_rtA_ = This._BoxAt(aFrom, nBoxW, nBoxH)
+				_rtB_ = This._BoxAt(aTo, nBoxW, nBoxH)
+				_rtLn_ = This._LaneKept(_rtK_)
+				if _rtLn_ < 1  _rtLn_ = 1  ok
+				if cRank = "LR" or cRank = "RL"
+					_rtCh_ = _rtRow_ + This._LaneOffset(_rtLn_, _rtA_[2])
+					_rtPts_ = [ aFrom[1], aFrom[2] + _rtA_[2] / 2,
+						aFrom[1], _rtCh_,
+						aTo[1], _rtCh_,
+						aTo[1], aTo[2] + _rtB_[2] / 2 ]
+				else
+					_rtCh_ = _rtRow_ + This._LaneOffset(_rtLn_, _rtA_[1])
+					_rtPts_ = [ aFrom[1] + _rtA_[1] / 2, aFrom[2],
+						_rtCh_, aFrom[2],
+						_rtCh_, aTo[2],
+						aTo[1] + _rtB_[1] / 2, aTo[2] ]
+				ok
+				_rtCut_ = This._ArrowCut(_rtPts_, 9 + nWidth * 2)
+				This._EmitOrthoPolyline(oC, _rtCut_[1], cColor, nWidth,
+					cFromId + ">" + cToId)
+				if @nDrawPass = 2
+					This._DrawArrowHead(oC, _rtCut_[2], _rtCut_[3], cColor)
+				ok
+				return
+			ok
 			# TWO NEIGHBOURS ON ONE ROW ARE JOINED BY ONE LINE -- I4, and
 			# the Principal circled the cost of forgetting it. Every ortho
 			# arrival was forced onto the RANK-FACING border, which is
@@ -7934,6 +8155,10 @@ class stzDiagram from stzGraph
 			if _ceAt_[2] + _ceSlr_ > _ceY1_  _ceY1_ = _ceAt_[2] + _ceSlr_  ok
 		next
 
+		# the returns, drawn where no node stands
+		_ceRr_ = This._ReturnReach(nBoxW, nBoxH, "")
+		if _ceRr_ > _ceY1_  _ceY1_ = _ceRr_  ok
+
 		# the frames, and their names above them
 		for _ceC_ in @aClusters
 			_ceBx_ = This._ClusterBox(_ceC_, paXY, nBoxW, nBoxH)
@@ -8042,6 +8267,7 @@ class stzDiagram from stzGraph
 	def _PlanRowLanes(paXY, nBoxW, nBoxH, cRank)
 		@aSameRowLanes = []
 		@aLaneKept = []
+		@aReturnOf = []
 		_plAx_ = 1  _plCr_ = 2
 		if cRank = "LR" or cRank = "RL"  _plAx_ = 2  _plCr_ = 1  ok
 		for _plE_ in This.Edges()
@@ -8109,6 +8335,79 @@ class stzDiagram from stzGraph
 				_plB2_[_plAx_])
 			@aLaneKept + [ StzLower(_plF2_) + ">" + StzLower(_plT2_),
 				_plLn2_ ]
+		next
+		# ...AND FOR THE EDGES THAT RUN BACKWARDS ACROSS RANKS.
+		#
+		# A correction loop goes back the way the flow came, and it was
+		# drawn straight along whatever row the two ends happened to
+		# share -- so the expense claim's "resubmitted" ran ON TOP of
+		# "reviewed", two different transitions on one line, with a label
+		# sitting where it named neither. I2 for the fourth time.
+		#
+		# A return runs UNDER the picture, which is where a reader
+		# expects a correction and is also the only place it can go
+		# without crossing the flow it is correcting. It joins the same
+		# ladder as everything else that runs under a row -- the lowest
+		# one, since it passes beneath every row it spans.
+		# THE FAR SIDE OF THE READING DIRECTION. Ranks advance along one
+		# axis and nodes stack along the other; a return passes beyond
+		# everything on the STACKING axis, which is under the picture in
+		# a left-to-right reading and beside it in a top-down one.
+		# ...AND ONLY WHERE THERE IS A FLOW TO RUN UNDER. "A return runs
+		# underneath" is a statement about a FLOW: it means "back the way
+		# the process came", and it needs a forward direction to be back
+		# FROM. A domain with no principal path has none -- a state
+		# machine's events fire in an order nobody controls, and naming
+		# one chain the flow would be a claim the graph does not make --
+		# so the same declaration that puts a spine on one line is what
+		# says a return has somewhere to be under.
+		#
+		# Applied without that gate it disturbed seven assertions in
+		# domains that had never asked for it, which is the correct
+		# answer from a guard: a rule borrowed from one domain is a rule
+		# until some other domain proves it was never general.
+		_plSp_ = This.NotationO()
+		_plHasSp_ = 0
+		if isObject(_plSp_)
+			if StzTrim("" + _plSp_.Spine()) != ""  _plHasSp_ = 1  ok
+		ok
+		if NOT _plHasSp_
+			This._PlanLaneStubs(paXY, nBoxW, nBoxH, cRank)
+			return
+		ok
+		_plLowY_ = 0
+		_plHave_ = 0
+		for _plR3_ in paXY
+			if NOT _plHave_ or _plR3_[_plAx_ + 1] > _plLowY_
+				_plLowY_ = _plR3_[_plAx_ + 1]
+				_plHave_ = 1
+			ok
+		next
+		for _plE3_ in This.Edges()
+			_plF3_ = "" + _plE3_[:from]
+			_plT3_ = "" + _plE3_[:to]
+			if StzLower(_plF3_) = StzLower(_plT3_)  loop  ok
+			if This._LaneKept(StzLower(_plF3_) + ">" + StzLower(_plT3_)) > 0
+				loop
+			ok
+			_plA3_ = This._XYOf(paXY, _plF3_)
+			_plB3_ = This._XYOf(paXY, _plT3_)
+			if len(_plA3_) != 2 or len(_plB3_) != 2  loop  ok
+			# BACKWARDS ALONG THE RANK AXIS -- which is the axis the
+			# flow advances on, not the one nodes stack on. Reading the
+			# stacking axis instead called every edge that happened to
+			# rise a "return": the compensation process sent its
+			# "refunded" flow -- which goes strictly FORWARD -- around
+			# the outside of its own picture and back up into a target
+			# one column to its right.
+			if _plB3_[_plCr_] >= _plA3_[_plCr_]  loop  ok
+			_plKey3_ = ceil(_plLowY_)
+			_plLn3_ = This._SameRowLane(_plKey3_, _plA3_[_plCr_],
+				_plB3_[_plCr_])
+			@aLaneKept + [ StzLower(_plF3_) + ">" + StzLower(_plT3_),
+				_plLn3_ ]
+			@aReturnOf + [ StzLower(_plF3_) + ">" + StzLower(_plT3_),
+				_plLowY_ ]
 		next
 		This._PlanLaneStubs(paXY, nBoxW, nBoxH, cRank)
 
@@ -8186,6 +8485,32 @@ class stzDiagram from stzGraph
 
 	# The offset for one end of one laned edge: 1 for where it leaves,
 	# 2 for where it arrives.
+	# HOW FAR THE RETURNS REACH BEYOND THE PICTURE, on the stacking axis.
+	# Content like any other -- and the kind that is easiest to forget,
+	# because it is drawn in space no node occupies. The expense claim's
+	# correction loop ran off the bottom of its own paper the first time
+	# it was routed properly.
+	def _ReturnReach(nBoxW, nBoxH, cRank)
+		_rrBest_ = 0
+		for _rrR_ in @aReturnOf
+			_rrLn_ = This._LaneKept(_rrR_[1])
+			if _rrLn_ < 1  _rrLn_ = 1  ok
+			_rrSz_ = nBoxH
+			if NOT (cRank = "LR" or cRank = "RL")  _rrSz_ = nBoxW  ok
+			_rrY_ = _rrR_[2] + This._LaneOffset(_rrLn_, _rrSz_)
+			if _rrY_ > _rrBest_  _rrBest_ = _rrY_  ok
+		next
+		return _rrBest_
+
+	# The row a cross-rank return passes beneath, or 0 when this edge is
+	# not one. Recorded by the planner so the drawer never has to work
+	# out again what the planner already decided.
+	def _ReturnRowOf(pcKey)
+		for _roR_ in @aReturnOf
+			if _roR_[1] = pcKey  return _roR_[2]  ok
+		next
+		return 0
+
 	def _StubOf(pcKey, nEnd)
 		for _soR_ in @aStubOf
 			if _soR_[1] = pcKey and _soR_[2] = nEnd  return _soR_[3]  ok
