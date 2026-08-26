@@ -92,6 +92,7 @@ class stzNotation from stzObject
 	@cSplines = ""
 	@cLayoutMode = ""     # "" = layered; :Ring for a domain with no flow
 	@cRankPolicy = ""     # "" = :Latest -- sinks line up at the last rank
+	@cSpine = ""          # "" = no principal path; the layout decides rows
 	@cRegionFill = ""     # the tinted container a discovered region wears
 	@aKindScale = []      # [ kind, fraction-of-a-cell ] -- a mark is not a cell
 
@@ -480,6 +481,26 @@ class stzNotation from stzObject
 	# its sources allow, which is what a domain wants when its endings
 	# are ALTERNATIVES rather than a common destination. BPMN declares
 	# it, because BPMN's own law does (L5).
+	# A DOMAIN WITH A PRINCIPAL PATH SAYS SO.
+	#
+	# Some domains have one: a business process has the path it takes
+	# when things go as intended, and everything else hangs off it. A
+	# state machine does NOT -- events fire in an order nobody controls,
+	# and naming one chain "the" path would be a claim the graph does not
+	# make. So this is a declaration, never a default.
+	#
+	# Declared, the layout puts that chain on ONE line. The Principal
+	# asked for it in the plainest possible terms -- "why change
+	# direction when a direct line is sufficient" -- and BPMN's own law
+	# says the same thing in L4: the spine must read as one uninterrupted
+	# line and two of its nodes may never share a cell.
+	def SetSpine(pcKind)
+		@cSpine = StzLower("" + pcKind)
+		return This
+
+	def Spine()
+		return @cSpine
+
 	def SetRankPolicy(pcPolicy)
 		@cRankPolicy = StzLower("" + pcPolicy)
 		return This
