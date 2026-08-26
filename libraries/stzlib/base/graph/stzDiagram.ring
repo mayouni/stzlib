@@ -2951,12 +2951,13 @@ class stzDiagram from stzGraph
 				# occupies and are therefore the easiest content to
 				# forget reserving for.
 				_rrch_ = This._ReturnReach(_nBoxW_, _nBoxH_, _cRank_)
-				if _rrch_ > 0
-					if _cRank_ = "LR" or _cRank_ = "RL"
-						if _rrch_ > _ey1_  _ey1_ = _rrch_  ok
-					else
-						if _rrch_ > _ex1_  _ex1_ = _rrch_  ok
-					ok
+				_rrup_ = This._ReturnReachUp(_nBoxW_, _nBoxH_, _cRank_)
+				if _cRank_ = "LR" or _cRank_ = "RL"
+					if _rrch_ > _ey1_  _ey1_ = _rrch_  ok
+					if _rrup_ < _ey0_  _ey0_ = _rrup_  ok
+				else
+					if _rrch_ > _ex1_  _ex1_ = _rrch_  ok
+					if _rrup_ < _ex0_  _ex0_ = _rrup_  ok
 				ok
 
 				for _cl_ in @aClusters
@@ -4672,6 +4673,8 @@ class stzDiagram from stzGraph
 		if len(@aPins) > 0  return paXY  ok
 		_srPath_ = This._HappyPath()
 		if len(_srPath_) < 2  return paXY  ok
+		# the summit rule reads positions, and this is where they are
+		@aDrawXY = paXY
 
 		# which axis a rank runs along, and which one a node moves on
 		# INSIDE its rank
@@ -4721,6 +4724,32 @@ class stzDiagram from stzGraph
 			next
 			if NOT _srSeen_  _srRanks_ + _srOut_[_srI_][_srR_]  ok
 		next
+		# WHICH SIDE OF THE SPINE EACH BRANCH SITS ON.
+		#
+		# A decision leaves by three summits -- one above, one straight
+		# ahead, one below -- and a summit only means something if the
+		# thing it points at is actually there. Sending every branch
+		# BELOW the spine and then leaving one of them out of the TOP
+		# summit makes that answer climb over the picture and come back
+		# down through it, which is worse than the shared stem it was
+		# meant to cure. The summit and the side are one decision.
+		_srUp_ = []
+		for _srI_ = 1 to len(_srOut_)
+			_srU_ = 0
+			if NOT _srOn_[_srI_]
+				for _srE4_ in This.Edges()
+					if StzLower("" + _srE4_[:to]) != StzLower("" + _srOut_[_srI_][1])
+						loop
+					ok
+					if This._SummitOf("" + _srE4_[:from], "" + _srE4_[:to],
+						cRank) = "top"  _srU_ = 1  ok
+					if This._SummitOf("" + _srE4_[:from], "" + _srE4_[:to],
+						cRank) = "left"  _srU_ = 1  ok
+				next
+			ok
+			_srUp_ + _srU_
+		next
+
 		for _srK_ in _srRanks_
 			# THE FIRST BRANCH CLEARS THE SPINE'S CELLS, not its centre
 			# line. Measured from the line, a branch row sat 48px below
@@ -4746,9 +4775,23 @@ class stzDiagram from stzGraph
 				if fabs(_srOut_[_srI_][_srR_] - _srK_) > 2  loop  ok
 				if _srOn_[_srI_]  _srAny_ = 1  ok
 			next
+			# the ones that go ABOVE, stacked away from the line
+			_srAtU_ = _srLine_ - _srTall_
 			for _srI_ = 1 to len(_srOut_)
 				if fabs(_srOut_[_srI_][_srR_] - _srK_) > 2  loop  ok
 				if _srOn_[_srI_]  loop  ok
+				if NOT _srUp_[_srI_]  loop  ok
+				_srBxU_ = This._BoxOf(_srOut_[_srI_][1], nBoxW, nBoxH)
+				_srSzU_ = _srBxU_[2]
+				if _srW_ = 2  _srSzU_ = _srBxU_[1]  ok
+				_srAtU_ -= nSep
+				_srOut_[_srI_][_srW_] = _srAtU_ - _srSzU_ / 2
+				_srAtU_ -= _srSzU_
+			next
+			for _srI_ = 1 to len(_srOut_)
+				if fabs(_srOut_[_srI_][_srR_] - _srK_) > 2  loop  ok
+				if _srOn_[_srI_]  loop  ok
+				if _srUp_[_srI_]  loop  ok
 				_srBx_ = This._BoxOf(_srOut_[_srI_][1], nBoxW, nBoxH)
 				_srSz_ = _srBx_[2]
 				if _srW_ = 2  _srSz_ = _srBx_[1]  ok
@@ -7714,6 +7757,52 @@ class stzDiagram from stzGraph
 			# crossing what it is correcting. Out of the source on the
 			# stacking axis, along its own rung of the ladder, and back
 			# up into the target the same way.
+			# OUT OF ITS OWN SUMMIT -- see _SummitOf. Three points of the
+			# diamond, three answers, and none of them sharing a line
+			# with another from the moment it leaves.
+			_svS_ = This._SummitOf(cFromId, cToId, cRank)
+			if _svS_ != ""
+				_svA_ = This._BoxAt(aFrom, nBoxW, nBoxH)
+				_svB_ = This._BoxAt(aTo, nBoxW, nBoxH)
+				_svStub_ = This._LineClearance()
+				if _svS_ = "top"
+					_svY_ = aFrom[2] - _svA_[2] / 2 - _svStub_
+					_svPts_ = [ aFrom[1], aFrom[2] - _svA_[2] / 2,
+						aFrom[1], _svY_,
+						aTo[1] - _svB_[1] / 2 - _svStub_, _svY_,
+						aTo[1] - _svB_[1] / 2 - _svStub_, aTo[2],
+						aTo[1] - _svB_[1] / 2, aTo[2] ]
+				but _svS_ = "bottom"
+					_svY_ = aFrom[2] + _svA_[2] / 2 + _svStub_
+					_svPts_ = [ aFrom[1], aFrom[2] + _svA_[2] / 2,
+						aFrom[1], _svY_,
+						aTo[1] - _svB_[1] / 2 - _svStub_, _svY_,
+						aTo[1] - _svB_[1] / 2 - _svStub_, aTo[2],
+						aTo[1] - _svB_[1] / 2, aTo[2] ]
+				but _svS_ = "left"
+					_svX_ = aFrom[1] - _svA_[1] / 2 - _svStub_
+					_svPts_ = [ aFrom[1] - _svA_[1] / 2, aFrom[2],
+						_svX_, aFrom[2],
+						_svX_, aTo[2] - _svB_[2] / 2 - _svStub_,
+						aTo[1], aTo[2] - _svB_[2] / 2 - _svStub_,
+						aTo[1], aTo[2] - _svB_[2] / 2 ]
+				else
+					_svX_ = aFrom[1] + _svA_[1] / 2 + _svStub_
+					_svPts_ = [ aFrom[1] + _svA_[1] / 2, aFrom[2],
+						_svX_, aFrom[2],
+						_svX_, aTo[2] - _svB_[2] / 2 - _svStub_,
+						aTo[1], aTo[2] - _svB_[2] / 2 - _svStub_,
+						aTo[1], aTo[2] - _svB_[2] / 2 ]
+				ok
+				_svCut_ = This._ArrowCut(_svPts_, 9 + nWidth * 2)
+				This._EmitOrthoPolyline(oC, _svCut_[1], cColor, nWidth,
+					cFromId + ">" + cToId)
+				if @nDrawPass = 2
+					This._DrawArrowHead(oC, _svCut_[2], _svCut_[3], cColor)
+				ok
+				return
+			ok
+
 			_rtK_ = StzLower("" + cFromId) + ">" + StzLower("" + cToId)
 			_rtRow_ = This._ReturnRowOf(_rtK_)
 			if _rtRow_ > 0
@@ -7721,18 +7810,21 @@ class stzDiagram from stzGraph
 				_rtB_ = This._BoxAt(aTo, nBoxW, nBoxH)
 				_rtLn_ = This._LaneKept(_rtK_)
 				if _rtLn_ < 1  _rtLn_ = 1  ok
+				_rtSd_ = This._ReturnSideOf(_rtK_)
 				if cRank = "LR" or cRank = "RL"
-					_rtCh_ = _rtRow_ + This._LaneOffset(_rtLn_, _rtA_[2])
-					_rtPts_ = [ aFrom[1], aFrom[2] + _rtA_[2] / 2,
+					_rtCh_ = _rtRow_ +
+						_rtSd_ * This._LaneOffset(_rtLn_, _rtA_[2])
+					_rtPts_ = [ aFrom[1], aFrom[2] + _rtSd_ * _rtA_[2] / 2,
 						aFrom[1], _rtCh_,
 						aTo[1], _rtCh_,
-						aTo[1], aTo[2] + _rtB_[2] / 2 ]
+						aTo[1], aTo[2] + _rtSd_ * _rtB_[2] / 2 ]
 				else
-					_rtCh_ = _rtRow_ + This._LaneOffset(_rtLn_, _rtA_[1])
-					_rtPts_ = [ aFrom[1] + _rtA_[1] / 2, aFrom[2],
+					_rtCh_ = _rtRow_ +
+						_rtSd_ * This._LaneOffset(_rtLn_, _rtA_[1])
+					_rtPts_ = [ aFrom[1] + _rtSd_ * _rtA_[1] / 2, aFrom[2],
 						_rtCh_, aFrom[2],
 						_rtCh_, aTo[2],
-						aTo[1] + _rtB_[1] / 2, aTo[2] ]
+						aTo[1] + _rtSd_ * _rtB_[1] / 2, aTo[2] ]
 				ok
 				_rtCut_ = This._ArrowCut(_rtPts_, 9 + nWidth * 2)
 				This._EmitOrthoPolyline(oC, _rtCut_[1], cColor, nWidth,
@@ -8426,6 +8518,70 @@ class stzDiagram from stzGraph
 		# it costs no width at all.
 		return This._TurnFraction(_afK_, _afN_)
 
+	# WHICH SUMMIT THIS ANSWER LEAVES BY.
+	#
+	# A decision is drawn as a diamond and a diamond has FOUR summits.
+	# The edge arriving takes one; the other three are free, and a
+	# gateway with three answers has exactly one summit for each. Sending
+	# them all out of the single facing summit and separating them
+	# afterwards wastes what the glyph is FOR -- the Principal drew the
+	# three lines leaving three different points of the diamond, which is
+	# also how every flowchart in the world draws a decision.
+	#
+	# The answer that continues the flow keeps the FACING summit, because
+	# the spine is a straight line and that outranks everything here. The
+	# others take the perpendicular summits in declaration order: the
+	# first written leaves over the top, the second underneath.
+	#
+	# Answers with nowhere left to go keep the facing summit and are
+	# separated by their turn fractions, as before. A glyph with no
+	# summits -- a box, a circle -- has none of this and is unchanged.
+	def _SummitOf(pcFrom, pcTo, cRank)
+		_smF_ = StzLower("" + pcFrom)
+		if NOT This._EdgeIsAlternative(pcFrom, pcTo)  return ""  ok
+		_smNd_ = []
+		for _smN_ in This.Nodes()
+			if StzLower("" + _smN_[:id]) = _smF_  _smNd_ = _smN_  ok
+		next
+		if len(_smNd_) = 0  return ""  ok
+		_smSh_ = StzLower("" + This._NativeShapeOf(_smNd_))
+		_smHas_ = 0
+		for _smV_ in [ "diamond", "triangle", "invtriangle" ]
+			if _smSh_ = _smV_  _smHas_ = 1  exit  ok
+		next
+		if NOT _smHas_  return ""  ok
+
+		# where the source sits, so "on its own line" can be asked
+		_smAt_ = This._XYOf(@aDrawXY, _smF_)
+		if len(_smAt_) != 2  return ""  ok
+		_smCr_ = 2
+		if cRank = "LR" or cRank = "RL"  _smCr_ = 2  ok
+		if cRank = "TB" or cRank = "BT"  _smCr_ = 1  ok
+
+		# the free perpendicular summits, handed out in declaration order
+		_smSide_ = [ "top", "bottom" ]
+		if cRank = "TB" or cRank = "BT"  _smSide_ = [ "left", "right" ]  ok
+		_smK_ = 0
+		for _smE_ in This.Edges()
+			if StzLower("" + _smE_[:from]) != _smF_  loop  ok
+			if StzLower("" + _smE_[:to]) = _smF_  loop  ok
+			_smTo_ = This._XYOf(@aDrawXY, "" + _smE_[:to])
+			if len(_smTo_) != 2  loop  ok
+			# the one continuing the flow keeps the facing summit
+			if fabs(_smTo_[_smCr_] - _smAt_[_smCr_]) <= 1.5
+				if StzLower("" + _smE_[:to]) = StzLower("" + pcTo)
+					return ""
+				ok
+				loop
+			ok
+			_smK_++
+			if StzLower("" + _smE_[:to]) = StzLower("" + pcTo)
+				if _smK_ > len(_smSide_)  return ""  ok
+				return _smSide_[_smK_]
+			ok
+		next
+		return ""
+
 	# Where the kth of n turners leaves the shared line. Kept in one
 	# place because the LAYOUT sizes its gaps from the same number.
 	def _TurnFraction(nK, nN)
@@ -8842,12 +8998,24 @@ class stzDiagram from stzGraph
 			return
 		ok
 		_plLowY_ = 0
+		_plHighY_ = 0
 		_plHave_ = 0
 		for _plR3_ in paXY
-			if NOT _plHave_ or _plR3_[_plAx_ + 1] > _plLowY_
+			if NOT _plHave_
 				_plLowY_ = _plR3_[_plAx_ + 1]
+				_plHighY_ = _plR3_[_plAx_ + 1]
 				_plHave_ = 1
+				loop
 			ok
+			if _plR3_[_plAx_ + 1] > _plLowY_   _plLowY_ = _plR3_[_plAx_ + 1]   ok
+			if _plR3_[_plAx_ + 1] < _plHighY_  _plHighY_ = _plR3_[_plAx_ + 1]  ok
+		next
+		# the spine's own line, so "which side is this source on" can be
+		# asked -- see the side rule below
+		_plSpn_ = _plHighY_
+		for _plQ3_ in This._HappyPath()
+			_plS3_ = This._XYOf(paXY, _plQ3_)
+			if len(_plS3_) = 2  _plSpn_ = _plS3_[_plAx_]  exit  ok
 		next
 		for _plE3_ in This.Edges()
 			_plF3_ = "" + _plE3_[:from]
@@ -8867,13 +9035,28 @@ class stzDiagram from stzGraph
 			# the outside of its own picture and back up into a target
 			# one column to its right.
 			if _plB3_[_plCr_] >= _plA3_[_plCr_]  loop  ok
-			_plKey3_ = ceil(_plLowY_)
+			# A RETURN RUNS ON THE SIDE ITS SOURCE IS ON.
+			#
+			# "Underneath" is shorthand for "clear of the flow", and it
+			# stops being true the moment a source sits ABOVE the spine
+			# -- which a decision's first answer now does, because the
+			# summit it leaves by and the side it lands on are one
+			# decision. The expense claim's Correct sits above the line,
+			# and its correction loop went down to the channel below,
+			# straight through Reimburse on the way.
+			_plSide3_ = 1
+			_plRow3_ = _plLowY_
+			if _plA3_[_plAx_] < _plSpn_ - 1.5
+				_plSide3_ = -1
+				_plRow3_ = _plHighY_
+			ok
+			_plKey3_ = ceil(_plRow3_)
 			_plLn3_ = This._SameRowLane(_plKey3_, _plA3_[_plCr_],
 				_plB3_[_plCr_])
 			@aLaneKept + [ StzLower(_plF3_) + ">" + StzLower(_plT3_),
 				_plLn3_ ]
 			@aReturnOf + [ StzLower(_plF3_) + ">" + StzLower(_plT3_),
-				_plLowY_ ]
+				_plRow3_, _plSide3_ ]
 		next
 		This._PlanLaneStubs(paXY, nBoxW, nBoxH, cRank)
 
@@ -8959,6 +9142,7 @@ class stzDiagram from stzGraph
 	def _ReturnReach(nBoxW, nBoxH, cRank)
 		_rrBest_ = 0
 		for _rrR_ in @aReturnOf
+			if _rrR_[3] < 0  loop  ok
 			_rrLn_ = This._LaneKept(_rrR_[1])
 			if _rrLn_ < 1  _rrLn_ = 1  ok
 			_rrSz_ = nBoxH
@@ -8968,6 +9152,27 @@ class stzDiagram from stzGraph
 		next
 		return _rrBest_
 
+	# ...and how far the ones running OVER the picture reach the other
+	# way. Returned as a coordinate, so a caller compares it against its
+	# own top edge.
+	def _ReturnReachUp(nBoxW, nBoxH, cRank)
+		_ruBest_ = 0
+		_ruHave_ = 0
+		for _ruR_ in @aReturnOf
+			if _ruR_[3] > 0  loop  ok
+			_ruLn_ = This._LaneKept(_ruR_[1])
+			if _ruLn_ < 1  _ruLn_ = 1  ok
+			_ruSz_ = nBoxH
+			if NOT (cRank = "LR" or cRank = "RL")  _ruSz_ = nBoxW  ok
+			_ruY_ = _ruR_[2] - This._LaneOffset(_ruLn_, _ruSz_)
+			if NOT _ruHave_ or _ruY_ < _ruBest_
+				_ruBest_ = _ruY_
+				_ruHave_ = 1
+			ok
+		next
+		if NOT _ruHave_  return 999999  ok
+		return _ruBest_
+
 	# The row a cross-rank return passes beneath, or 0 when this edge is
 	# not one. Recorded by the planner so the drawer never has to work
 	# out again what the planner already decided.
@@ -8976,6 +9181,14 @@ class stzDiagram from stzGraph
 			if _roR_[1] = pcKey  return _roR_[2]  ok
 		next
 		return 0
+
+	# +1 when this return passes beneath the picture, -1 when it passes
+	# over it. See the side rule in _PlanRowLanes.
+	def _ReturnSideOf(pcKey)
+		for _roS_ in @aReturnOf
+			if _roS_[1] = pcKey  return _roS_[3]  ok
+		next
+		return 1
 
 	def _StubOf(pcKey, nEnd)
 		for _soR_ in @aStubOf
