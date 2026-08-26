@@ -78,6 +78,15 @@ func StzBpmnNotation()
 
 	_o_.SetRankDir(:LeftToRight)
 	_o_.SetSplines(:ortho)
+	# L5 -- A NODE'S COLUMN IS ITS SOURCE'S PLUS ONE. The layout's own
+	# convention ranks by distance from the far end, so every ending
+	# lines up at the last column: right when the endings are a common
+	# destination, wrong when they are ALTERNATIVES. A process that
+	# refuses an order at its second step had that refusal drawn level
+	# with the shipment four steps later, and the picture then said the
+	# two outcomes happen at different times. They are the two answers
+	# to one question, and they are drawn as such.
+	_o_.SetRankPolicy(:Earliest)
 
 	# L16 -- WHITE, ALL OF IT. Nothing here names a role, and that is
 	# the declaration, not an omission.

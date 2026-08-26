@@ -997,7 +997,26 @@ class stzGraphCanvas from stzObject
 			ok
 		next
 
-		if NOT _bCyc_
+		# AS EARLY AS ITS SOURCES ALLOW, when the domain asks for it.
+		#
+		# The default ranks a node by its distance from the FAR END, which
+		# lines every sink up at the last rank -- a good convention when
+		# the endings are the destination and a false one when they are
+		# ALTERNATIVES. A business process that refuses an order at its
+		# second step had that refusal drawn at the far right, level with
+		# the shipment four steps later, so the picture said the two
+		# outcomes happen at different times. They do not: they are the
+		# two answers to one question.
+		#
+		# BPMN says so itself -- L5, "a node's column is source column
+		# plus one" -- and a profile is where a domain says such a thing.
+		# The relaxation below is exactly that rule, and it is already
+		# written for the cyclic case; this only stops the acyclic case
+		# taking the other road.
+		_bAsap_ = 0
+		_cRp_ = StzLower("" + This._Opt(:RankPolicy, :Latest))
+		if _cRp_ = "earliest" or _cRp_ = "asap"  _bAsap_ = 1  ok
+		if NOT _bCyc_ and NOT _bAsap_
 			return This._SinkRanks(StzGraphMetric(@oGraph, :Depth))
 		ok
 
@@ -1071,6 +1090,22 @@ class stzGraphCanvas from stzObject
 		return paOrder
 
 	def _SinkRanks(paLay)
+		# SINKS SINK ONLY WHERE SINKING MEANS SOMETHING. This list is
+		# INFERRED from the profile's own rules -- a kind that may not
+		# release anything is a sink -- which is right for a lifecycle,
+		# where the last thing to happen belongs at the end of the
+		# reading direction, and wrong for a domain whose endings are
+		# ALTERNATIVES. BPMN forbids outbound on an end event for the
+		# same reason a state machine does, and inherited a placement it
+		# never asked for: "Out of Stock", refused at the second step,
+		# was drawn level with the shipment four steps later.
+		#
+		# So it follows the rank policy, which is the one knob that
+		# already says which of the two a domain is. :Earliest means a
+		# node sits as early as its sources allow -- and a sink pushed
+		# to the last rank is the exact opposite of that.
+		_cSkRp_ = StzLower("" + This._Opt(:RankPolicy, :Latest))
+		if _cSkRp_ = "earliest" or _cSkRp_ = "asap"  return paLay  ok
 		_aSk_ = This._Opt(:Sinks, [])
 		if NOT isList(_aSk_) or len(_aSk_) = 0  return paLay  ok
 		_n_ = len(@aIds)
