@@ -2359,6 +2359,53 @@ class stzDiagram from stzGraph
 			if NOT _bNat_ and NOT _bModes_
 				_nSepR_ = max([ _nSepR_, _nSepLab_ ])
 			ok
+
+			# A GAP THAT RUNS SIDEWAYS IS MEASURED IN WIDTHS.
+			#
+			# Everything above is the label's HEIGHT, which is what a
+			# rank gap has to hold when the ranks run down the page. When
+			# they run ACROSS it, the gap is horizontal and what has to
+			# fit in it is the label's WIDTH -- the same rule stated on
+			# the axis that had actually been drawn, which is the shape
+			# of nearly every defect this plane has had.
+			#
+			# And a gap crossed by several ANSWERS is divided among them:
+			# each turner takes a share, and the answer running straight
+			# through owns only what is left after the last turn. So the
+			# gap must be big enough that the LAST share still holds a
+			# word -- otherwise the word has nowhere to go but on top of
+			# the cell ahead, which is what the expense claim did.
+			if _cRank_ = "LR" or _cRank_ = "RL"
+				_nFanW_ = 0
+				if isObject(_oFont_)
+					for _n5_ in This.NodesIds()
+						_c5_ = StzLower("" + _n5_)
+						_k5_ = 0
+						_w5_ = 0
+						for _e5_ in This.Edges()
+							if StzLower("" + _e5_[:from]) != _c5_  loop  ok
+							if StzLower("" + _e5_[:to]) = _c5_  loop  ok
+							_l5_ = StzTrim("" + _e5_[:label])
+							if _l5_ = ""  loop  ok
+							_k5_++
+							_b5_ = This._LabelBlock(_l5_, _oFont_, _nFsz_,
+								_nBoxW_)
+							if _b5_[2] > _w5_  _w5_ = _b5_[2]  ok
+						next
+						if _k5_ < 1 or _w5_ <= 0  loop  ok
+						# what the STRAIGHT answer is left with after the
+						# last turner has gone -- see _TurnFraction. The
+						# gap must be big enough that this remainder
+						# still holds a word.
+						_rem5_ = 1 - This._TurnFraction(max([ _k5_ - 1, 1 ]),
+							max([ _k5_ - 1, 1 ]))
+						if _rem5_ < 0.3  _rem5_ = 0.3  ok
+						_want5_ = (_w5_ + This._LineClearance() * 2) / _rem5_
+						if _want5_ > _nFanW_  _nFanW_ = _want5_  ok
+					next
+				ok
+				if _nFanW_ > _nSepR_  _nSepR_ = _nFanW_  ok
+			ok
 			# A GAP PAYS FOR WHAT CROSSES IT, and in a mode picture what
 			# crosses a gap is a transition BETWEEN modes. The peer
 			# chords inside a region run sideways and carry the longest
@@ -2883,13 +2930,19 @@ class stzDiagram from stzGraph
 						if isObject(_oFont_)
 							_lb0_ = This._FitLabel("" + _n0_[:label],
 								_oFont_, _nFsz_, _nBoxW_ + 24)
-							_hw0_ = _oFont_.WidthOf(_lb0_, _nFsz_) / 2
-							if _at0_[1] - _hw0_ < _ex0_
-								_ex0_ = _at0_[1] - _hw0_
+							_w0_ = _oFont_.WidthOf(_lb0_, _nFsz_)
+							_bb0_ = This._BoxOf("" + _n0_[:id],
+								_nBoxW_, _nBoxH_)
+							# measured where the name is DRAWN -- leaning
+							# back along the reading, not centred
+							_l0_ = _at0_[1] - _w0_ / 2
+							if _cRank_ = "LR"
+								_l0_ = _at0_[1] + _bb0_[1] / 2 - _w0_
+							but _cRank_ = "RL"
+								_l0_ = _at0_[1] - _bb0_[1] / 2
 							ok
-							if _at0_[1] + _hw0_ > _ex1_
-								_ex1_ = _at0_[1] + _hw0_
-							ok
+							if _l0_ < _ex0_  _ex0_ = _l0_  ok
+							if _l0_ + _w0_ > _ex1_  _ex1_ = _l0_ + _w0_  ok
 						ok
 					next
 				ok
@@ -3410,9 +3463,29 @@ class stzDiagram from stzGraph
 		#
 		# For an ordinary cell the port still spreads, clamped to the
 		# node's OWN border rather than the picture's cell.
+		# A LONE ATTACHMENT IS CENTRED ON ITS BORDER.
+		#
+		# Ports exist so that SEVERAL edges at one border leave from
+		# distinct places. One edge has no one to be distinct from, and
+		# spreading it says there is another to make room for: the
+		# compensation process sent its only outgoing flow out of Refund
+		# Card well above the cell's middle, which the Principal named
+		# exactly -- an error of centrality.
 		for _pcI_ = 1 to len(_aPort_)
 			_pcA_ = This._BoxOf("" + _aE_[_pcI_][:from], _nBoxW_, _nBoxH_)
 			_pcB_ = This._BoxOf("" + _aE_[_pcI_][:to], _nBoxW_, _nBoxH_)
+			_pcNo_ = 0  _pcNi_ = 0
+			_pcF_ = StzLower("" + _aE_[_pcI_][:from])
+			_pcT_ = StzLower("" + _aE_[_pcI_][:to])
+			for _pcE2_ in _aE_
+				if StzLower("" + _pcE2_[:from]) = StzLower("" + _pcE2_[:to])
+					loop
+				ok
+				if StzLower("" + _pcE2_[:from]) = _pcF_  _pcNo_++  ok
+				if StzLower("" + _pcE2_[:to]) = _pcT_  _pcNi_++  ok
+			next
+			if _pcNo_ <= 1  _aPort_[_pcI_][1] = 0  ok
+			if _pcNi_ <= 1  _aPort_[_pcI_][2] = 0  ok
 			if _pcA_[1] < _nBoxW_ - 0.5 or _pcA_[2] < _nBoxH_ - 0.5
 				_aPort_[_pcI_][1] = 0
 			else
@@ -3934,17 +4007,42 @@ class stzDiagram from stzGraph
 					# Principal asked for the second where several
 					# events run close together, and it is a dial
 					# because the answer depends on the picture.
+					# ...AND ONE PICTURE KEEPS ONE CONVENTION.
+					#
+					# This offered the OTHER order as a fallback, so a
+					# label that could not find a seat under the chosen
+					# convention quietly took a seat under the opposite
+					# one -- and the expense claim came out with
+					# "approved" sitting ON its line and "needs work"
+					# beside its own, two conventions in one drawing.
+					# The Principal ruled it an OVERALL option: middle
+					# or beside, applying to all.
+					#
+					# So the fallback is gone. A label that cannot find a
+					# good seat takes the least bad one IN ITS OWN
+					# convention -- and where that happens, the honest
+					# reading is that the picture was short of room,
+					# which is a layout question, not a placement one.
 					_aCand_ = []
 					if @cLabelPlacement = "middle"
 						for _cOn_ in _aOn_   _aCand_ + _cOn_   next
-						for _cBe_ in _aBes_  _aCand_ + _cBe_   next
 					else
 						for _cBe_ in _aBes_  _aCand_ + _cBe_   next
-						for _cOn_ in _aOn_   _aCand_ + _cOn_   next
 					ok
+					# ...AND THE SEAT OF LAST RESORT IS IN THE SAME
+					# CONVENTION TOO. Defaulting to the raw anchor put
+					# the label back ON its line whenever no candidate
+					# scored -- the fallback removed above, arriving by
+					# another door. A picture keeps one convention even
+					# when it is short of room; being short of room is a
+					# LAYOUT fact and it should look like one.
 					_nBestD_ = -1
 					_nBestX_ = _lx_
 					_nBestY_ = _ly_
+					if len(_aCand_) > 0
+						_nBestX_ = _aCand_[1][1]
+						_nBestY_ = _aCand_[1][2]
+					ok
 					for _cd_ in _aCand_
 						_nD_ = This._LabelSpotScore(_cd_[1], _cd_[2], _lw_,
 							_lh_, _cLK_, _aDone_)
@@ -3961,7 +4059,19 @@ class stzDiagram from stzGraph
 							_nBestY_ = _cd_[2]
 						ok
 					next
-					if _nBestD_ >= 0
+					# ...AND THE SEAT IS TAKEN EVEN WHEN EVERY CANDIDATE
+					# WAS REFUSED. This applied the answer only when some
+					# candidate SCORED, so a label whose every beside
+					# seat was crowded kept the raw anchor -- which sits
+					# ON the line. That is the mixed convention arriving
+					# by a third door, after the fallback list and the
+					# default seat had both been closed against it.
+					#
+					# A refused beside seat is still beside. Where they
+					# are all refused the picture is short of room, and
+					# short of room should LOOK short of room rather than
+					# quietly borrow the other convention to hide it.
+					if len(_aCand_) > 0
 						_lx_ = _nBestX_
 						_ly_ = _nBestY_
 					ok
@@ -4179,23 +4289,43 @@ class stzDiagram from stzGraph
 					# neither. The Principal drew an arrow from four of
 					# them back up to the thing they name.
 					_nLbY_ = _a_[2] + _aBx2_[2] / 2 + _nFsz_ * 0.95
+					# ...AND IT EXTENDS BACK ALONG THE READING.
+					#
+					# A name wider than the glyph it names has to lean
+					# somewhere. Centred, it leans BOTH ways -- and in a
+					# left-to-right picture the right-hand half leans
+					# into paper the picture then has to grow to hold,
+					# while the left-hand half leans over the arrow that
+					# just arrived, which is space its own edge already
+					# owns. So it leans left: the name ends where the
+					# glyph ends, and runs back the way the reader came.
+					#
+					# Only where there IS a reading direction across the
+					# page. In a top-down picture a name under a mark
+					# leans into the gap between two ranks either way,
+					# and centred is what a reader expects there.
+					_nLbX_ = _a_[1] - _nTw_ / 2
+					if _cRank_ = "LR"
+						_nLbX_ = _a_[1] + _aBx2_[1] / 2 - _nTw_
+					but _cRank_ = "RL"
+						_nLbX_ = _a_[1] - _aBx2_[1] / 2
+					ok
 					_oC_.Flush()
 					# ITS OWN POSITION, not the edge labels'. This asked
 					# what surface was under the last EDGE label placed,
 					# so a cell's name outside a region was painted in
 					# the region's tint on white paper -- a coloured card
 					# under a word that stands nowhere near the frame.
-					_cPl2_ = This._SurfaceAt(_a_[1], _nLbY_, _cBg_)
+					_cPl2_ = This._SurfaceAt(_nLbX_ + _nTw_ / 2, _nLbY_, _cBg_)
 					_oC_.FillQ(_cPl2_).StrokeQ(_cPl2_, 1).
-						AddRect(_a_[1] - _nTw_ / 2 - 3,
+						AddRect(_nLbX_ - 3,
 							_nLbY_ - _nFsz_ * 0.75,
 							_nTw_ + 6, _nFsz_ * 1.5)
 					_oC_.Flush()
-					_oC_.AddTextQ(_cLb_, _a_[1] - _nTw_ / 2,
-						_nLbY_ + _nFsz_ / 3).
+					_oC_.AddTextQ(_cLb_, _nLbX_, _nLbY_ + _nFsz_ / 3).
 						SetFontQ(_oFont_, _nFsz_).Color(_cStroke_)
-					@aRenderNodeLabels + [ _cId_, _a_[1], _nLbY_, _nTw_,
-						_nFsz_ * 1.5, 1 ]
+					@aRenderNodeLabels + [ _cId_, _nLbX_ + _nTw_ / 2,
+						_nLbY_, _nTw_, _nFsz_ * 1.5, 1 ]
 					loop
 				ok
 				_cLb_ = This._FitLabel(_cLb_, _oFont_, _nFsz_, _nBoxW_ - 18)
@@ -6455,7 +6585,16 @@ class stzDiagram from stzGraph
 		# source already holds joins it exactly -- but only if that
 		# height is legal for THIS span, since the two spans meet
 		# different obstacles and sharing must never mean colliding.
+		# ...UNLESS THEY ARE ALTERNATIVES. The bus is one line because it
+		# is ONE THING reaching several places. Two answers to one
+		# question are not one thing, and snapping them onto a shared run
+		# says they were the same until the moment they parted. The
+		# Principal asked for all the lines to quit the decision cell,
+		# and this snap is what kept pulling two of the three back
+		# together after they had.
+		_ccAlt_ = This._EdgeIsAlternative(cFrom2, cTo2)
 		for _ccJ_ in @aChanUsed
+			if _ccAlt_  exit  ok
 			if _ccJ_[3] != _ccS_  loop  ok
 			if fabs(_ccJ_[4] - nY) < 0.5  return _ccJ_[4]  ok
 			if fabs(_ccJ_[4] - nY) >= This._LineClearance()  loop  ok
@@ -7801,6 +7940,12 @@ class stzDiagram from stzGraph
 		This._PublishPath(cFromId, cToId, _dg_[1])
 
 	def _DrawEdge(oC, aFrom, aTo, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nLane, nPortA, nPortB, cFromId, cToId, pSideDep)
+		# WHERE THIS ANSWER TURNS, when it is one of several. Computed
+		# HERE and not handed down from the caller: Ring's locals do
+		# reach between frames often enough to look like they always
+		# will, and a value that arrives by that route is a value that
+		# silently becomes zero the day the call chain changes.
+		_dgFr_ = This._AlternativeFraction(cFromId, cToId)
 		_bcA_ = This._BoxAt(aFrom, nBoxW, nBoxH)
 		_bcB_ = This._BoxAt(aTo, nBoxW, nBoxH)
 		_p_ = This._ClipToBox(aFrom, aTo, _bcA_[1], _bcA_[2])
@@ -7821,14 +7966,30 @@ class stzDiagram from stzGraph
 			# porting BOTH ends double-books a column unavoidably: each
 			# edge would use the other's column, and on a shared column
 			# one pair of spans must overlap.
+			# ...AND AN ALTERNATIVE TAKES ITS OWN RUN.
+			#
+			# They all leave from the same place, and that is right: a
+			# gateway has one point facing the flow, and every answer
+			# departs from it. A POINT is not a stem. What was wrong is
+			# what happened next -- two of the three ran down ONE
+			# vertical before parting, which says they were the same
+			# thing until that moment, and answers to a question never
+			# are.
+			#
+			# (Spreading the DEPARTURE was tried first and is worse on a
+			# diamond: a port offset walks along the box's edge, and a
+			# diamond's edge is not there, so two of the three lines
+			# began in mid-air beside the glyph.)
+			_ptA_ = 0
+			_ptFr_ = This._AlternativeFraction(cFromId, cToId)
 			if cRank = "LR" or cRank = "RL"
-				_pay_ = aFrom[2]
+				_pay_ = aFrom[2] + _ptA_
 				_qay_ = aTo[2] + nPortB
 				_sgn_ = 1
 				if aTo[1] < aFrom[1]  _sgn_ = -1  ok
 				_pe_ = aFrom[1] + _sgn_ * _bcA_[1] / 2
 				_qe_ = aTo[1] - _sgn_ * _bcB_[1] / 2
-				_chan_ = _pe_ + (_qe_ - _pe_) * nLane
+				_chan_ = _pe_ + (_qe_ - _pe_) * iif(_dgFr_ > 0, _dgFr_, nLane)
 				# the span is the run's own axis: a VERTICAL channel in a
 				# left-to-right picture runs across Y
 				_chan_ = This._ChannelBand(_chan_, _pay_, _qay_,
@@ -7842,13 +8003,13 @@ class stzDiagram from stzGraph
 				_p_ = [ _chan_, _qay_ ]
 				_q_ = [ _qe_, _qay_ ]
 			else
-				_pax_ = aFrom[1]
+				_pax_ = aFrom[1] + _ptA_
 				_qax_ = aTo[1] + nPortB
 				_sgn_ = 1
 				if aTo[2] < aFrom[2]  _sgn_ = -1  ok
 				_pe_ = aFrom[2] + _sgn_ * _bcA_[2] / 2
 				_qe_ = aTo[2] - _sgn_ * _bcB_[2] / 2
-				_chan_ = _pe_ + (_qe_ - _pe_) * nLane
+				_chan_ = _pe_ + (_qe_ - _pe_) * iif(_dgFr_ > 0, _dgFr_, nLane)
 				# a HORIZONTAL channel spans X -- the first call here
 				# passed the Y pair, so every obstacle test ran against a
 				# span from the wrong axis and the placer worked on
@@ -8184,6 +8345,107 @@ class stzDiagram from stzGraph
 			if _ifS_ = _ifR_[1]  return [ _ifR_[2], _ifR_[3] ]  ok
 		next
 		return [ 1, 1 ]
+
+	# IS THIS EDGE ONE ANSWER AMONG SEVERAL?
+	#
+	# Edges leaving one source share a stem, and that merge is right when
+	# they are ONE THING reaching several places -- a manager's reports,
+	# a bus. It is wrong when they are ALTERNATIVES: a decision's answers
+	# are not one until they split, they are separate from the moment the
+	# question is asked, and drawing them as a stem that divides later
+	# says the opposite. The Principal put it plainly: all the lines must
+	# quit from the decision cell, since they are all plausible answers.
+	#
+	# What tells them apart is already in the graph. An edge carrying a
+	# LABEL is a distinct claim -- "yes", "maybe", "no" -- while an
+	# unlabelled fan is the same thing going to several places. So a
+	# labelled edge among several leaves on its own port, and an
+	# unlabelled one keeps the shared stem.
+	# WHERE ALONG THE GAP THIS ANSWER TURNS. One of n answers turns at
+	# k/(n+1) of the way across, so n answers make n distinct runs and
+	# none of them is shared. Zero when the edge is not one of several
+	# answers, and the caller keeps its own rule.
+	def _AlternativeFraction(pcFrom, pcTo)
+		if NOT This._EdgeIsAlternative(pcFrom, pcTo)  return 0  ok
+		_afF_ = StzLower("" + pcFrom)
+		_afT_ = StzLower("" + pcTo)
+		# ...COUNTED AMONG THE ANSWERS THAT ACTUALLY TURN.
+		#
+		# An answer running straight through never turns at all, so
+		# giving it a share of the gap only pushes the turning ones
+		# LATER -- and the stretch left over after the last turn is
+		# exactly the stretch the straight answer owns alone, which is
+		# where its own word has to sit. Counting all three, the expense
+		# claim left "approved" 47px of its own line for a 70px word,
+		# and the word had nowhere to go but on top of the cell ahead.
+		#
+		# So the turners share the gap between them and turn as early as
+		# they can, and the straight answer keeps the rest.
+		_afSrcY_ = 0
+		_afHave_ = 0
+		for _afR_ in @aDrawXY
+			if StzLower("" + _afR_[1]) != _afF_  loop  ok
+			_afSrcY_ = _afR_[3]
+			_afHave_ = 1
+		next
+		_afN_ = 0
+		_afK_ = 0
+		_afAll_ = 0
+		for _afE_ in This.Edges()
+			if StzLower("" + _afE_[:from]) != _afF_  loop  ok
+			if StzLower("" + _afE_[:to]) = _afF_  loop  ok
+			_afAll_++
+			# does this answer turn? -- its target sits off the source's
+			# own line, so the path must leave that line to reach it
+			_afTurns_ = 1
+			if _afHave_
+				for _afR2_ in @aDrawXY
+					if StzLower("" + _afR2_[1]) != StzLower("" + _afE_[:to])
+						loop
+					ok
+					if fabs(_afR2_[3] - _afSrcY_) <= 1.5  _afTurns_ = 0  ok
+				next
+			ok
+			if NOT _afTurns_  loop  ok
+			_afN_++
+			if StzLower("" + _afE_[:to]) = _afT_  _afK_ = _afN_  ok
+		next
+		if _afAll_ < 2  return 0  ok
+		if _afN_ < 1 or _afK_ < 1  return 0  ok
+		# EARLY, which is what "quit the decision cell" looks like.
+		#
+		# Sharing the gap evenly put the last turn at the middle of it,
+		# and the answer running STRAIGHT through then owned only the
+		# half beyond that turn -- so the gap had to be twice a word wide
+		# before the word fitted, and every gap in the picture grew with
+		# it, because gaps are uniform and they should be.
+		#
+		# A turner has no reason to wait. It leaves the cell and goes,
+		# inside the first half of the gap, and the straight answer keeps
+		# the rest: the drawing reads the way the Principal drew it and
+		# it costs no width at all.
+		return This._TurnFraction(_afK_, _afN_)
+
+	# Where the kth of n turners leaves the shared line. Kept in one
+	# place because the LAYOUT sizes its gaps from the same number.
+	def _TurnFraction(nK, nN)
+		if nN < 1  return 0  ok
+		return 0.15 + 0.25 * (nK - 1) / nN
+
+	def _EdgeIsAlternative(pcFrom, pcTo)
+		_eaF_ = StzLower("" + pcFrom)
+		_eaN_ = 0
+		_eaMe_ = 0
+		for _eaE_ in This.Edges()
+			if StzLower("" + _eaE_[:from]) != _eaF_  loop  ok
+			if StzLower("" + _eaE_[:to]) = _eaF_  loop  ok
+			_eaN_++
+			if StzLower("" + _eaE_[:to]) = StzLower("" + pcTo)
+				if StzTrim("" + _eaE_[:label]) != ""  _eaMe_ = 1  ok
+			ok
+		next
+		if _eaN_ < 2  return 0  ok
+		return _eaMe_
 
 	def _NativeShapeOf(aNode)
 		_c_ = ""
