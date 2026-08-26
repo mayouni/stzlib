@@ -91,6 +91,7 @@ class stzNotation from stzObject
 	@cRankDir = ""        # "" = no amendment; the diagram's setting stands
 	@cSplines = ""
 	@cLayoutMode = ""     # "" = layered; :Ring for a domain with no flow
+	@cRankPolicy = ""     # "" = :Latest -- sinks line up at the last rank
 	@cRegionFill = ""     # the tinted container a discovered region wears
 	@aKindScale = []      # [ kind, fraction-of-a-cell ] -- a mark is not a cell
 
@@ -473,6 +474,19 @@ class stzNotation from stzObject
 	# space rather than in ranks. Graphviz makes the same split by
 	# shipping dot and circo as different programs; here it is one word
 	# in the profile.
+	# WHEN A NODE SITS. :Latest -- the default -- ranks by distance from
+	# the far end, so every sink lines up at the last rank: right when
+	# the endings are the destination. :Earliest ranks a node as soon as
+	# its sources allow, which is what a domain wants when its endings
+	# are ALTERNATIVES rather than a common destination. BPMN declares
+	# it, because BPMN's own law does (L5).
+	def SetRankPolicy(pcPolicy)
+		@cRankPolicy = StzLower("" + pcPolicy)
+		return This
+
+	def RankPolicy()
+		return @cRankPolicy
+
 	def SetLayoutMode(pcMode)
 		@cLayoutMode = "" + pcMode
 		return This

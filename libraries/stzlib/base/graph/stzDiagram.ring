@@ -2483,6 +2483,7 @@ class stzDiagram from stzGraph
 				:NodeExtra = _aXtra_,
 				:ClusterAir = _nAir_,
 				:Pins = This._PinVector(),
+				:RankPolicy = This._NotationRankPolicy(),
 				:Sources = This._KindedIds(This.NotationO().SourceKinds()),
 				:Sinks = This._KindedIds(This.NotationO().SinkKinds())
 			])
@@ -2885,6 +2886,7 @@ class stzDiagram from stzGraph
 				# the guard, worked at natural size, and did nothing at
 				# all in the editor they were built for.
 				:Pins = This._PinVector(),
+				:RankPolicy = This._NotationRankPolicy(),
 				:Sources = This._KindedIds(This.NotationO().SourceKinds()),
 				:Sinks = This._KindedIds(This.NotationO().SinkKinds())
 			])
@@ -4301,6 +4303,16 @@ class stzDiagram from stzGraph
 		return _rfS_
 
 	# rankdir, from the diagram's OWN SetLayout -- TB / BT / LR / RL.
+	# WHEN A NODE SITS, if the domain has an opinion. A profile that
+	# says nothing leaves the layout's own convention standing -- the
+	# deltas-only rule every other grammar amendment obeys.
+	def _NotationRankPolicy()
+		_oNr_ = This.NotationO()
+		if NOT isObject(_oNr_)  return :Latest  ok
+		_cNr_ = StzTrim("" + _oNr_.RankPolicy())
+		if _cNr_ = ""  return :Latest  ok
+		return _cNr_
+
 	def _NativeRankDir()
 		_c_ = StzLower("" + @cLayout)
 		if _c_ = ""  _c_ = $cDefaultLayout  ok

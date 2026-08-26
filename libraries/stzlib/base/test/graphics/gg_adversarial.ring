@@ -6914,6 +6914,51 @@ for aBpE in oBp.Edges()
 next
 chkeq("every flow touches both the steps it names", nBpBad, 0)
 
+# (8) A CHAIN THAT DOES NOT BRANCH IS ONE STRAIGHT LINE, and the two
+#     answers to one question are at one moment.
+#
+#     The Principal asked both in one breath -- "why change direction
+#     when a direct line is sufficient", and "the two branches have the
+#     same importance and there is no sense of timing order" -- and one
+#     thing answered both.
+#
+#     The layout ranks a node by its distance from the FAR END, which
+#     lines every sink up at the last rank. That is right when the
+#     endings are a common destination, and it is inferred here from the
+#     profile's own rules: a kind that may not release anything is a
+#     sink. BPMN forbids outbound on an end event for exactly the reason
+#     a state machine does, and so inherited a placement it never asked
+#     for -- "Out of Stock", refused at the second step, drawn level
+#     with the shipment four steps later. The picture said the two
+#     outcomes happen at different times. They are the two answers to
+#     one question.
+#
+#     BPMN says so itself (L5, "a node's column is source column plus
+#     one"), a profile is where a domain says such a thing, and sinks
+#     now sink only where the rank policy says sinking means something.
+nSpY = -1
+nSpBad = 0
+for cSpN in [ "s", "recv", "check", "pack", "bill", "done" ]
+	rSp = _Rect49(oBp, cSpN)
+	nSpC = rSp[2] + rSp[4] / 2
+	if nSpY < 0  nSpY = nSpC  ok
+	if fabs(nSpC - nSpY) > 1  nSpBad++  ok
+next
+chkeq("a chain that does not branch is one straight line", nSpBad, 0)
+
+rSpP = _Rect49(oBp, "pack")
+rSpN = _Rect49(oBp, "nope")
+? "   the two answers sit at x=" + (rSpP[1] + rSpP[3] / 2) + " and x=" +
+  (rSpN[1] + rSpN[3] / 2)
+chk("the two answers to one question are at one moment",
+    fabs((rSpP[1] + rSpP[3] / 2) - (rSpN[1] + rSpN[3] / 2)) < 2)
+
+# ...AND THE LIFECYCLE DOMAINS ARE UNTOUCHED. A state machine's endings
+# are a destination, not an alternative, so its sinks still sink -- the
+# knob is a declaration, not a new default.
+chkeq("a domain that says nothing keeps the old convention",
+      StzLower("" + StzNotation("default").RankPolicy()), "")
+
 
 #---------------------------------------------------------------------------
 ? ""
