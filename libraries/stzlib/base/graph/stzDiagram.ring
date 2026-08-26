@@ -657,6 +657,76 @@ class stzDiagram from stzGraph
 	# of the leg it lands on: [ x, y, |dx|, |dy| ]. A label centred at
 	# 0.5 of the journey is what a reader calls the middle of an edge;
 	# 0.5 of whichever leg the placer happened to walk first is not.
+	# THE PART OF A PATH THAT BELONGS TO THIS EDGE ALONE -- L14.
+	#
+	# Edges leaving one source share a stem: that is the blessed merge,
+	# one line because it is one origin, and it is what keeps a fan a bus
+	# instead of a dozen micro-spaced lanes. But a WORD written on that
+	# stem names every edge running through it, which is to say none of
+	# them. The Principal drew an arrow from "maybe", from "no" and from
+	# "incomplete" back to the line each actually belongs to.
+	#
+	# So a label is placed along the exclusive remainder: the segments no
+	# other edge's path runs down. Where an edge shares its whole path
+	# with another -- which can happen -- the full path is handed back
+	# rather than nothing, because a label somewhere is better than a
+	# label nowhere.
+	def _ExclusivePath(pcKey, paFlat)
+		_epN_ = len(paFlat)
+		if _epN_ < 4  return paFlat  ok
+		_epK_ = StzLower("" + pcKey)
+		_epOut_ = []
+		for _epI_ = 1 to _epN_ - 3 step 2
+			_epX1_ = paFlat[_epI_]      _epY1_ = paFlat[_epI_ + 1]
+			_epX2_ = paFlat[_epI_ + 2]  _epY2_ = paFlat[_epI_ + 3]
+			_epMx_ = (_epX1_ + _epX2_) / 2
+			_epMy_ = (_epY1_ + _epY2_) / 2
+			_epShared_ = 0
+			for _epR_ in @aEdgePaths
+				if StzLower("" + _epR_[1]) = _epK_  loop  ok
+				if This._OnPath(_epR_[2], _epMx_, _epMy_, 2.5)
+					_epShared_ = 1
+					exit
+				ok
+			next
+			if _epShared_  loop  ok
+			if len(_epOut_) = 0
+				_epOut_ + _epX1_  _epOut_ + _epY1_
+			but fabs(_epOut_[ len(_epOut_) - 1 ] - _epX1_) > 0.5 or
+			    fabs(_epOut_[ len(_epOut_) ] - _epY1_) > 0.5
+				# a gap: the exclusive part is not one run, so start
+				# again from here and keep the LATER piece, which is the
+				# one nearer this edge's own target
+				_epOut_ = [ _epX1_, _epY1_ ]
+			ok
+			_epOut_ + _epX2_  _epOut_ + _epY2_
+		next
+		if len(_epOut_) < 4  return paFlat  ok
+		return _epOut_
+
+	# Is [x, y] on this polyline, within a tolerance?
+	def _OnPath(paFlat, nX, nY, nTol)
+		_opN_ = len(paFlat)
+		for _opI_ = 1 to _opN_ - 3 step 2
+			_opX1_ = paFlat[_opI_]      _opY1_ = paFlat[_opI_ + 1]
+			_opX2_ = paFlat[_opI_ + 2]  _opY2_ = paFlat[_opI_ + 3]
+			_opLo_ = min([ _opX1_, _opX2_ ]) - nTol
+			_opHi_ = max([ _opX1_, _opX2_ ]) + nTol
+			if nX < _opLo_ or nX > _opHi_  loop  ok
+			_opLo_ = min([ _opY1_, _opY2_ ]) - nTol
+			_opHi_ = max([ _opY1_, _opY2_ ]) + nTol
+			if nY < _opLo_ or nY > _opHi_  loop  ok
+			# axis-aligned: inside both spans and on the line
+			if fabs(_opX2_ - _opX1_) < 0.5
+				if fabs(nX - _opX1_) <= nTol  return 1  ok
+			but fabs(_opY2_ - _opY1_) < 0.5
+				if fabs(nY - _opY1_) <= nTol  return 1  ok
+			else
+				return 1
+			ok
+		next
+		return 0
+
 	def _PointAlong(paFlat, nFrac)
 		_paN_ = len(paFlat)
 		if _paN_ < 4  return []  ok
@@ -2656,8 +2726,18 @@ class stzDiagram from stzGraph
 				if _cRank_ = "BT"  _py_ = _inY_ - _py_  ok
 				_aXY_ + [ StzLower("" + _p_[1]), _px_ + _mx_, _py_ + _my_ ]
 			next
+			# ...AND THE GAP HOLDS WHAT STANDS IN IT. A branch carries an
+			# event label into that gap, so the gap is at least a label
+			# tall with a clearance on each side of it.
+			_spSep_ = This._LineClearance() * 2
+			if isObject(_oFont_)
+				_spBk_ = This._LabelBlock("Wg", _oFont_, _nFsz_, _nBoxW_)
+				if _spBk_[3] + This._LineClearance() > _spSep_
+					_spSep_ = _spBk_[3] + This._LineClearance()
+				ok
+			ok
 			_aXY_ = This._ApplySpineRows(_aXY_, _nBoxW_, _nBoxH_, _cRank_,
-				This._LineClearance() * 2)
+				_spSep_)
 			# the long edges' routes ride the SAME transform as the nodes --
 			# one rule, so a route can never land in a different frame from
 			# the boxes it joins
@@ -2934,8 +3014,18 @@ class stzDiagram from stzGraph
 				if _cRank_ = "BT"  _py_ = _lh_ - _py_  ok
 				_aXY_ + [ StzLower("" + _p_[1]), _px_ + _mx_, _py_ + _my_ ]
 			next
+			# ...AND THE GAP HOLDS WHAT STANDS IN IT. A branch carries an
+			# event label into that gap, so the gap is at least a label
+			# tall with a clearance on each side of it.
+			_spSep_ = This._LineClearance() * 2
+			if isObject(_oFont_)
+				_spBk_ = This._LabelBlock("Wg", _oFont_, _nFsz_, _nBoxW_)
+				if _spBk_[3] + This._LineClearance() > _spSep_
+					_spSep_ = _spBk_[3] + This._LineClearance()
+				ok
+			ok
 			_aXY_ = This._ApplySpineRows(_aXY_, _nBoxW_, _nBoxH_, _cRank_,
-				This._LineClearance() * 2)
+				_spSep_)
 			# A ROW IS AS TALL AS WHAT STANDS IN IT, AND A GAP IS A GAP.
 			#
 			# This is the entry edge the Principal has now marked four
@@ -3773,8 +3863,10 @@ class stzDiagram from stzGraph
 					# fractions below are of the PATH's own length, and
 					# the point at each fraction is found by walking the
 					# legs, so 0.5 means what a reader means by it.
+					# ...along the part of it this edge owns ALONE
+					_aPthX_ = This._ExclusivePath(_cLK_, _aPth_)
 					for _sfr_ in [ 0.5, 0.42, 0.58, 0.32, 0.68, 0.22, 0.78 ]
-						_aAt_ = This._PointAlong(_aPth_, _sfr_)
+						_aAt_ = This._PointAlong(_aPthX_, _sfr_)
 						if len(_aAt_) != 4  loop  ok
 						_smx_ = _aAt_[1]
 						_smy_ = _aAt_[2]
@@ -4042,17 +4134,51 @@ class stzDiagram from stzGraph
 				# in the outline's ink on a plate of paper -- the same
 				# legibility mechanism edge labels use -- and it still
 				# answers as its node to a pick.
+				# A GLYPH BIG ENOUGH TO HOLD ITS NAME HOLDS IT.
+				#
+				# This was a LIST of shapes -- circle, doublecircle,
+				# diamond and three more -- and a list is a guess about
+				# sizes it never looks at. A doublecircle drawn as a MARK
+				# genuinely cannot hold "Demolished", which is the ruling
+				# the list came from. A diamond drawn at a full cell can
+				# hold "Approved?" easily, and writing it underneath left
+				# the diamond empty and put a second grey word beside the
+				# event label already there.
+				#
+				# So the question is asked of the ACTUAL glyph: does the
+				# name fit the rectangle inscribed in it? The fractions
+				# below are that rectangle -- 0.70 of a circle's diameter
+				# is its inscribed square, half a diamond is the rectangle
+				# between its four points -- and the answer changes with
+				# the size, which is what a list could never do.
 				_cShp2_ = StzLower("" + This._NativeShapeOf(_aNodes_[_i_]))
+				_aBx2_ = This._BoxOf(_cId_, _nBoxW_, _nBoxH_)
+				_aFit2_ = This._InscribedFraction(_cShp2_)
 				_bOut_ = 0
-				for _cOsh_ in [ "circle", "doublecircle", "dot", "diamond",
-					"triangle", "invtriangle" ]
-					if _cShp2_ = _cOsh_  _bOut_ = 1  exit  ok
-				next
+				if _aFit2_[1] < 0.999
+					_nNw2_ = 0
+					if isObject(_oFont_)
+						_nNw2_ = _oFont_.WidthOf(_cLb_, _nFsz_)
+					ok
+					_nTh2_ = _nFsz_ * 1.25
+					_nIn2_ = This._InscribedWidth(_cShp2_, _aBx2_[1],
+						_aBx2_[2], _nTh2_)
+					if _nNw2_ + 4 > _nIn2_  _bOut_ = 1  ok
+					if _nTh2_ > _aBx2_[2] * _aFit2_[2] * 1.6  _bOut_ = 1  ok
+				ok
 				if _bOut_
 					_cLb_ = This._FitLabel(_cLb_, _oFont_, _nFsz_,
 						_nBoxW_ + 24)
 					_nTw_ = _oFont_.WidthOf(_cLb_, _nFsz_)
-					_nLbY_ = _a_[2] + _nBoxH_ / 2 + _nFsz_ * 1.15
+					# ...AT ITS OWN GLYPH'S EDGE. Measured from the
+					# generic cell, a name under a 25px mark stood 31px
+					# clear of it while a name under a 52px cell stood 17
+					# -- so the smallest glyphs, which need their name
+					# nearest, had it furthest away, floating in a band
+					# between two branches where it read as belonging to
+					# neither. The Principal drew an arrow from four of
+					# them back up to the thing they name.
+					_nLbY_ = _a_[2] + _aBx2_[2] / 2 + _nFsz_ * 0.95
 					_oC_.Flush()
 					# ITS OWN POSITION, not the edge labels'. This asked
 					# what surface was under the last EDGE label placed,
@@ -4466,7 +4592,25 @@ class stzDiagram from stzGraph
 			if NOT _srSeen_  _srRanks_ + _srOut_[_srI_][_srR_]  ok
 		next
 		for _srK_ in _srRanks_
-			_srAt_ = _srLine_
+			# THE FIRST BRANCH CLEARS THE SPINE'S CELLS, not its centre
+			# line. Measured from the line, a branch row sat 48px below
+			# the spine's MIDDLE -- which is 22px below a cell's bottom
+			# edge, less than one clearance -- so the gap could not hold
+			# the event label that belongs in it, and the label was
+			# pushed to the far side of its own line. Every other label
+			# in the picture sat above its line and that one sat below,
+			# which is the inconsistency the Principal circled: the
+			# placer was right and the room was wrong.
+			_srTall_ = 0
+			for _srI_ = 1 to len(_srOut_)
+				if fabs(_srOut_[_srI_][_srR_] - _srK_) > 2  loop  ok
+				if NOT _srOn_[_srI_]  loop  ok
+				_srBt_ = This._BoxOf(_srOut_[_srI_][1], nBoxW, nBoxH)
+				_srSz2_ = _srBt_[2]
+				if _srW_ = 2  _srSz2_ = _srBt_[1]  ok
+				if _srSz2_ / 2 > _srTall_  _srTall_ = _srSz2_ / 2  ok
+			next
+			_srAt_ = _srLine_ + _srTall_
 			_srAny_ = 0
 			for _srI_ = 1 to len(_srOut_)
 				if fabs(_srOut_[_srI_][_srR_] - _srK_) > 2  loop  ok
@@ -4478,7 +4622,7 @@ class stzDiagram from stzGraph
 				_srBx_ = This._BoxOf(_srOut_[_srI_][1], nBoxW, nBoxH)
 				_srSz_ = _srBx_[2]
 				if _srW_ = 2  _srSz_ = _srBx_[1]  ok
-				if _srAny_ = 0 and fabs(_srAt_ - _srLine_) < 0.001
+				if _srAny_ = 0 and _srTall_ < 0.001
 					# nothing of the spine stands here, so the rank's own
 					# members keep the line rather than all stepping off
 					# it for a spine that is somewhere else
@@ -7981,6 +8125,66 @@ class stzDiagram from stzGraph
 	#
 	# Found by rendering the node types side by side and looking at them;
 	# no assertion here had ever named a shape a TYPE should produce.
+	# HOW WIDE A LINE OF TEXT MAY BE INSIDE THIS GLYPH, at this height.
+	#
+	# The fraction table below is a constant where the geometry gives an
+	# exact answer, and a constant is wrong in the one way that matters:
+	# it does not know how TALL the text is. A diamond narrows as you
+	# move away from its middle, so a short line fits far wider than a
+	# tall one -- and a fixed 0.5 let "Decision" inside while pushing
+	# "Reserved?" out, which is two pictures making different claims
+	# about the same kind of thing.
+	#
+	#   diamond   |a|/w + |b|/h = 1 at the edge, so a = w * (1 - b/h)
+	#   ellipse   the inscribed chord at height b: w * sqrt(1 - (b/h)^2)
+	#
+	# Anything else keeps its fraction, which is an honest approximation
+	# until somebody needs it exact.
+	def _InscribedWidth(pcShape, nW, nH, nTextH)
+		_iwS_ = StzLower("" + pcShape)
+		if nH <= 0  return 0  ok
+		_iwR_ = nTextH / nH
+		if _iwR_ >= 1  return 0  ok
+		if _iwS_ = "diamond"  return nW * (1 - _iwR_)  ok
+		for _iwC_ in [ "circle", "ellipse", "doublecircle", "dot", "egg" ]
+			if _iwS_ != _iwC_  loop  ok
+			_iwK_ = 1 - _iwR_ * _iwR_
+			if _iwK_ <= 0  return 0  ok
+			_iwW_ = nW * sqrt(_iwK_)
+			# a double ring gives its inner ring away
+			if _iwS_ = "doublecircle"  _iwW_ = _iwW_ * 0.78  ok
+			return _iwW_
+		next
+		_iwF_ = This._InscribedFraction(_iwS_)
+		return nW * _iwF_[1]
+
+	# THE RECTANGLE INSCRIBED IN A GLYPH, as a fraction of its box.
+	#
+	# What a shape can hold, rather than what a list of shape names once
+	# guessed it could. A box holds all of itself; a circle holds the
+	# square inscribed in it, which is 0.707 of the diameter; a diamond
+	# holds the rectangle between its four points, which is half; a
+	# triangle less again, and off-centre, so it is treated as half of a
+	# half. Anything unlisted is a box until somebody measures it.
+	def _InscribedFraction(pcShape)
+		_ifS_ = StzLower("" + pcShape)
+		for _ifR_ in [
+			[ "circle", 0.70, 0.70 ], [ "ellipse", 0.70, 0.70 ],
+			[ "egg", 0.66, 0.62 ],
+			[ "doublecircle", 0.60, 0.60 ], [ "dot", 0.50, 0.50 ],
+			[ "diamond", 0.50, 0.50 ],
+			[ "triangle", 0.50, 0.45 ], [ "invtriangle", 0.50, 0.45 ],
+			[ "trapezium", 0.70, 0.90 ], [ "invtrapezium", 0.70, 0.90 ],
+			[ "parallelogram", 0.75, 0.90 ],
+			[ "house", 0.85, 0.70 ], [ "invhouse", 0.85, 0.70 ],
+			[ "pentagon", 0.75, 0.70 ], [ "hexagon", 0.75, 0.90 ],
+			[ "septagon", 0.80, 0.80 ], [ "octagon", 0.80, 0.80 ],
+			[ "tripleoctagon", 0.60, 0.60 ]
+		]
+			if _ifS_ = _ifR_[1]  return [ _ifR_[2], _ifR_[3] ]  ok
+		next
+		return [ 1, 1 ]
+
 	def _NativeShapeOf(aNode)
 		_c_ = ""
 		if HasKey(aNode, "properties") and isList(aNode["properties"])
