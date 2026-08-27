@@ -7161,6 +7161,72 @@ rAf2P = _Rect49(oAf2, "p")
 chk("...and with no yes among them, the first declared leads",
     fabs((rAf2P[2] + rAf2P[4] / 2) - (rAf2G[2] + rAf2G[4] / 2)) < 2)
 
+# (12) A BEND IS A CONSTRAINT -- I4, counted.
+#
+#      Every edge in these pictures joins two cells that are either on
+#      one line or one line apart, and there is nothing in the way of
+#      any of them. The MINIMUM number of turns such an edge needs is
+#      therefore zero or one: none when the two cells face each other,
+#      one when the flow has to change rows on its way.
+#
+#      The summit route was taking FOUR -- out of the summit, a short
+#      stub, along, down, and in. The stub and the turn after it were
+#      caution, and caution is not a constraint: a reader who counts
+#      four corners looks for four reasons and finds two. The Principal
+#      marked it three times before it was counted rather than eyeballed.
+nBnBad = 0
+for aBnO in [ oBp, oAf, oSm ]
+	for aBnP in aBnO.RenderEdgePaths()
+		nBnN = len(aBnP[2]) / 2
+		if nBnN < 2  loop  ok
+		# turns, counting only points where the direction actually
+		# changes -- a duplicated coordinate is not a corner
+		nBnT = 0
+		for iBn = 2 to nBnN - 1
+			nBnAx = aBnP[2][iBn * 2 - 1] - aBnP[2][iBn * 2 - 3]
+			nBnAy = aBnP[2][iBn * 2] - aBnP[2][iBn * 2 - 2]
+			nBnBx = aBnP[2][iBn * 2 + 1] - aBnP[2][iBn * 2 - 1]
+			nBnBy = aBnP[2][iBn * 2 + 2] - aBnP[2][iBn * 2]
+			if fabs(nBnAx) + fabs(nBnAy) < 0.5  loop  ok
+			if fabs(nBnBx) + fabs(nBnBy) < 0.5  loop  ok
+			if (fabs(nBnAx) > 0.5 and fabs(nBnBy) > 0.5) or
+			   (fabs(nBnAy) > 0.5 and fabs(nBnBx) > 0.5)
+				nBnT++
+			ok
+		next
+		# how many rows this edge has to cross: none, or one
+		if nBnT > 2
+			nBnBad++
+			? "      " + aBnP[1] + " turns " + nBnT + " times"
+		ok
+	next
+next
+chkeq("no edge turns more often than it has reason to", nBnBad, 0)
+
+# ...and the summit routes specifically take ONE, which is the shape
+# that was drawn for me: out of the summit, straight to the target's
+# line, straight in.
+nSvT = -1
+for aSvP in oSm.RenderEdgePaths()
+	if aSvP[1] != "g>back"  loop  ok
+	nSvN = len(aSvP[2]) / 2
+	nSvT = 0
+	for iSv = 2 to nSvN - 1
+		nSvAx = aSvP[2][iSv * 2 - 1] - aSvP[2][iSv * 2 - 3]
+		nSvAy = aSvP[2][iSv * 2] - aSvP[2][iSv * 2 - 2]
+		nSvBx = aSvP[2][iSv * 2 + 1] - aSvP[2][iSv * 2 - 1]
+		nSvBy = aSvP[2][iSv * 2 + 2] - aSvP[2][iSv * 2]
+		if fabs(nSvAx) + fabs(nSvAy) < 0.5  loop  ok
+		if fabs(nSvBx) + fabs(nSvBy) < 0.5  loop  ok
+		if (fabs(nSvAx) > 0.5 and fabs(nSvBy) > 0.5) or
+		   (fabs(nSvAy) > 0.5 and fabs(nSvBx) > 0.5)
+			nSvT++
+		ok
+	next
+next
+? "   the summit route turns " + nSvT + " time(s)"
+chkeq("a summit route turns exactly once", nSvT, 1)
+
 
 #---------------------------------------------------------------------------
 ? ""
