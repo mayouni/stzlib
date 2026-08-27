@@ -8651,24 +8651,35 @@ class stzDiagram from stzGraph
 		next
 		if NOT _smHas_  return ""  ok
 
-		# where the source sits, so "on its own line" can be asked
-		_smAt_ = This._XYOf(@aDrawXY, _smF_)
-		if len(_smAt_) != 2  return ""  ok
-		_smCr_ = 2
-		if cRank = "LR" or cRank = "RL"  _smCr_ = 2  ok
-		if cRank = "TB" or cRank = "BT"  _smCr_ = 1  ok
-
-		# the free perpendicular summits, handed out in declaration order
+		# WHICH ANSWER CONTINUES THE FLOW IS A QUESTION FOR THE GRAPH,
+		# NOT FOR THE POSITIONS.
+		#
+		# This asked "is the target on the source's own line?", which is
+		# a question about a picture that does not exist yet -- and the
+		# answer changed between the two moments it was asked. The
+		# PLACEMENT asks first, to decide which side a branch goes on;
+		# the DRAWING asks again, to decide which summit it leaves by.
+		# Before placement the raw layout had the compensation process's
+		# "yes" off the line, so "no" was second and took the bottom
+		# summit; after placement "yes" was ON the line, so "no" became
+		# first and took the top. The branch was placed below and drawn
+		# leaving upward, and its line went off the top of the paper.
+		#
+		# The happy path is computed from the graph alone and cannot
+		# drift: the answer whose target is on it is the one continuing
+		# the flow, which is also what "continuing the flow" MEANS.
+		_smPath_ = This._HappyPath()
 		_smSide_ = [ "top", "bottom" ]
 		if cRank = "TB" or cRank = "BT"  _smSide_ = [ "left", "right" ]  ok
 		_smK_ = 0
 		for _smE_ in This.Edges()
 			if StzLower("" + _smE_[:from]) != _smF_  loop  ok
 			if StzLower("" + _smE_[:to]) = _smF_  loop  ok
-			_smTo_ = This._XYOf(@aDrawXY, "" + _smE_[:to])
-			if len(_smTo_) != 2  loop  ok
-			# the one continuing the flow keeps the facing summit
-			if fabs(_smTo_[_smCr_] - _smAt_[_smCr_]) <= 1.5
+			_smOnP_ = 0
+			for _smQ_ in _smPath_
+				if _smQ_ = StzLower("" + _smE_[:to])  _smOnP_ = 1  exit  ok
+			next
+			if _smOnP_
 				if StzLower("" + _smE_[:to]) = StzLower("" + pcTo)
 					return ""
 				ok
