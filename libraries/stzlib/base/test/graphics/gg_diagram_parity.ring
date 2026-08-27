@@ -173,12 +173,28 @@ oOrtho.ToPNGXT("parity_5_ortho.png",
 # every style must actually CHANGE the picture, or the option is decorative
 if StzGraphicsDevice()
 	aSeen = []
+	# ...ASKED WHERE THE STYLES HAVE SOMETHING TO DISAGREE ABOUT.
+	#
+	# This used two nodes, one above the other. Between two ALIGNED
+	# cells an orthogonal route and a straight line are the same
+	# picture -- there is nothing to turn -- and the two answers
+	# differed only because the ortho path carried a redundant point in
+	# the middle of its own straight run. Invisible in the drawing, and
+	# the whole of what this assertion was measuring: it went red the
+	# day those points were cleaned up, having never tested the claim it
+	# names.
+	#
+	# A third cell puts b off the centre line, so ortho must turn a
+	# corner where line runs diagonally, and the difference is one a
+	# reader can see.
 	for cS in [ "line", "ortho", "curved", "spline" ]
 		oT = new stzDiagram("t" + cS)
 		oT.SetSplines(cS)
 		oT.AddNodeXTT(:a, "a", [ :type = "box", :color = "blue" ])
 		oT.AddNodeXTT(:b, "b", [ :type = "box", :color = "blue" ])
+		oT.AddNodeXTT(:c, "c", [ :type = "box", :color = "blue" ])
 		oT.AddEdge(:a, :b)
+		oT.AddEdge(:a, :c)
 		aSeen + [ cS, len(oT.ToSVGXT([ :Width = 400, :Height = 300 ])) ]
 	next
 	for a in aSeen

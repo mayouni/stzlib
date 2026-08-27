@@ -4849,64 +4849,90 @@ class stzDiagram from stzGraph
 			_srUp_ + _srU_
 		next
 
+		# A ROW IS A LINE, AND EVERYTHING ON IT IS CENTRED ON THAT LINE.
+		#
+		# This is the answer to a fault the Principal has now marked
+		# three times under three different names -- "an error of
+		# centrality", and twice more as an edge leaving a cell by its
+		# corner instead of its side.
+		#
+		# Rows below the spine were built by STACKING: each node placed
+		# at the running offset plus half its OWN height. Two nodes in
+		# the same row with different heights therefore had different
+		# CENTRE LINES -- a 25px mark beside a 52px cell came out 13px
+		# high of it -- and an edge between them could not leave either
+		# one by its side, because their sides do not face each other.
+		# Every "off-centre departure" in these pictures was that, seen
+		# from the other end.
+		#
+		# So a row index gets ONE line, computed from the tallest thing
+		# standing anywhere in that row, and every member is centred on
+		# it. The spine already worked this way, which is why the spine
+		# was the only line that never showed the fault.
+		_srIdx_ = []
+		for _srI_ = 1 to len(_srOut_)  _srIdx_ + 0  next
 		for _srK_ in _srRanks_
-			# THE FIRST BRANCH CLEARS THE SPINE'S CELLS, not its centre
-			# line. Measured from the line, a branch row sat 48px below
-			# the spine's MIDDLE -- which is 22px below a cell's bottom
-			# edge, less than one clearance -- so the gap could not hold
-			# the event label that belongs in it, and the label was
-			# pushed to the far side of its own line. Every other label
-			# in the picture sat above its line and that one sat below,
-			# which is the inconsistency the Principal circled: the
-			# placer was right and the room was wrong.
-			_srTall_ = 0
-			for _srI_ = 1 to len(_srOut_)
-				if fabs(_srOut_[_srI_][_srR_] - _srK_) > 2  loop  ok
-				if NOT _srOn_[_srI_]  loop  ok
-				_srBt_ = This._BoxOf(_srOut_[_srI_][1], nBoxW, nBoxH)
-				_srSz2_ = _srBt_[2]
-				if _srW_ = 2  _srSz2_ = _srBt_[1]  ok
-				if _srSz2_ / 2 > _srTall_  _srTall_ = _srSz2_ / 2  ok
-			next
-			_srAt_ = _srLine_ + _srTall_
-			_srAny_ = 0
-			for _srI_ = 1 to len(_srOut_)
-				if fabs(_srOut_[_srI_][_srR_] - _srK_) > 2  loop  ok
-				if _srOn_[_srI_]  _srAny_ = 1  ok
-			next
-			# the ones that go ABOVE, stacked away from the line
-			_srAtU_ = _srLine_ - _srTall_
+			_srNu_ = 0
+			_srNd_ = 0
 			for _srI_ = 1 to len(_srOut_)
 				if fabs(_srOut_[_srI_][_srR_] - _srK_) > 2  loop  ok
 				if _srOn_[_srI_]  loop  ok
-				if NOT _srUp_[_srI_]  loop  ok
-				_srBxU_ = This._BoxOf(_srOut_[_srI_][1], nBoxW, nBoxH)
-				_srSzU_ = _srBxU_[2]
-				if _srW_ = 2  _srSzU_ = _srBxU_[1]  ok
-				_srAtU_ -= nSep
-				_srOut_[_srI_][_srW_] = _srAtU_ - _srSzU_ / 2
-				_srAtU_ -= _srSzU_
-			next
-			for _srI_ = 1 to len(_srOut_)
-				if fabs(_srOut_[_srI_][_srR_] - _srK_) > 2  loop  ok
-				if _srOn_[_srI_]  loop  ok
-				if _srUp_[_srI_]  loop  ok
-				_srBx_ = This._BoxOf(_srOut_[_srI_][1], nBoxW, nBoxH)
-				_srSz_ = _srBx_[2]
-				if _srW_ = 2  _srSz_ = _srBx_[1]  ok
-				if _srAny_ = 0 and _srTall_ < 0.001
-					# nothing of the spine stands here, so the rank's own
-					# members keep the line rather than all stepping off
-					# it for a spine that is somewhere else
-					_srOut_[_srI_][_srW_] = _srLine_
-					_srAt_ = _srLine_ + nSep + _srSz_
-					_srAny_ = 1
-					loop
+				if _srUp_[_srI_]
+					_srNu_++
+					_srIdx_[_srI_] = 0 - _srNu_
+				else
+					_srNd_++
+					_srIdx_[_srI_] = _srNd_
 				ok
-				_srAt_ += nSep
-				_srOut_[_srI_][_srW_] = _srAt_ + _srSz_ / 2
-				_srAt_ += _srSz_
 			next
+		next
+
+		# how tall each row is: the tallest member anywhere in it
+		_srHi_ = []
+		for _srQ_ = -8 to 8  _srHi_ + 0  next
+		for _srI_ = 1 to len(_srOut_)
+			if _srIdx_[_srI_] = 0  loop  ok
+			_srBx_ = This._BoxOf(_srOut_[_srI_][1], nBoxW, nBoxH)
+			_srSz_ = _srBx_[2]
+			if _srW_ = 2  _srSz_ = _srBx_[1]  ok
+			_srSlot_ = _srIdx_[_srI_] + 9
+			if _srSlot_ < 1 or _srSlot_ > 17  loop  ok
+			if _srSz_ > _srHi_[_srSlot_]  _srHi_[_srSlot_] = _srSz_  ok
+		next
+		# ...and the spine's own half, which every first row must clear
+		_srTall_ = 0
+		for _srI_ = 1 to len(_srOut_)
+			if NOT _srOn_[_srI_]  loop  ok
+			_srBt_ = This._BoxOf(_srOut_[_srI_][1], nBoxW, nBoxH)
+			_srSz2_ = _srBt_[2]
+			if _srW_ = 2  _srSz2_ = _srBt_[1]  ok
+			if _srSz2_ / 2 > _srTall_  _srTall_ = _srSz2_ / 2  ok
+		next
+
+		# the line each row rides, cumulative from the spine outward
+		_srLineAt_ = []
+		for _srQ_ = -8 to 8  _srLineAt_ + 0  next
+		_srRun_ = _srLine_ + _srTall_
+		for _srQ_ = 1 to 8
+			if _srHi_[_srQ_ + 9] <= 0  loop  ok
+			_srRun_ += nSep + _srHi_[_srQ_ + 9] / 2
+			_srLineAt_[_srQ_ + 9] = _srRun_
+			_srRun_ += _srHi_[_srQ_ + 9] / 2
+		next
+		_srRun_ = _srLine_ - _srTall_
+		for _srQ_ = 1 to 8
+			if _srHi_[9 - _srQ_] <= 0  loop  ok
+			_srRun_ -= nSep + _srHi_[9 - _srQ_] / 2
+			_srLineAt_[9 - _srQ_] = _srRun_
+			_srRun_ -= _srHi_[9 - _srQ_] / 2
+		next
+
+		for _srI_ = 1 to len(_srOut_)
+			if _srIdx_[_srI_] = 0  loop  ok
+			_srSlot_ = _srIdx_[_srI_] + 9
+			if _srSlot_ < 1 or _srSlot_ > 17  loop  ok
+			if fabs(_srLineAt_[_srSlot_]) < 0.001  loop  ok
+			_srOut_[_srI_][_srW_] = _srLineAt_[_srSlot_]
 		next
 		return _srOut_
 
@@ -7083,7 +7109,56 @@ class stzDiagram from stzGraph
 		# Where there is not room, the crossing is drawn plain: an
 		# unmarked crossing is a small ambiguity, and a bump nobody can
 		# read as a bump is a wrong statement.
-		_eoRoom_ = _eoR_ * 2 + This._LineClearance()
+		# ...AND THE ROOM IT NEEDS IS ITS OWN REACH PLUS A CLEARANCE.
+		#
+		# This asked for the hop's DIAMETER plus a clearance, which is
+		# the radius counted twice: a hop reaches _eoR_ from the crossing
+		# in each direction, so what has to fit between it and a bend is
+		# _eoR_ and then air. At 40px it was refusing hops with 39px of
+		# room -- a crossing missing its hop by seven tenths of a pixel,
+		# in a picture where two lines then simply met.
+		#
+		# Two HOPS still keep the wider distance from each other, and
+		# that is not the same number by accident: two curved features
+		# are confusable with each other in a way that a curve and a
+		# corner are not, since a corner turns and a hop comes back.
+		_eoRoom_ = _eoR_ + This._LineClearance()
+		_eoPair_ = _eoR_ * 2 + This._LineClearance()
+
+		# A BEND IS WHERE THE DIRECTION CHANGES, and a path carries
+		# points that are not bends: a duplicated coordinate, or a point
+		# left in the middle of a straight stretch by whichever stage put
+		# it there. They are invisible in the drawing and they were
+		# splitting a RUN into segments, so "how far is this crossing
+		# from a bend" was answered against a boundary that is not one --
+		# and a hop was refused for being 31px from a point on a
+		# perfectly straight line. The room rule is about what a reader
+		# can see, so it is asked of the shape a reader sees.
+		_eoP2_ = [ paFlat[1], paFlat[2] ]
+		for _eoJ_ = 2 to _eoN_ / 2
+			_eoCx_ = paFlat[_eoJ_ * 2 - 1]
+			_eoCy_ = paFlat[_eoJ_ * 2]
+			_eoLn_ = len(_eoP2_)
+			if fabs(_eoP2_[_eoLn_ - 1] - _eoCx_) < 0.5 and
+			   fabs(_eoP2_[_eoLn_] - _eoCy_) < 0.5  loop  ok
+			if _eoLn_ >= 4
+				# collinear with the two before it? then the middle one
+				# is not a bend and goes
+				_eoAx_ = _eoP2_[_eoLn_ - 3]  _eoAy_ = _eoP2_[_eoLn_ - 2]
+				_eoBx_ = _eoP2_[_eoLn_ - 1]  _eoBy_ = _eoP2_[_eoLn_]
+				if (fabs(_eoAx_ - _eoBx_) < 0.5 and fabs(_eoBx_ - _eoCx_) < 0.5) or
+				   (fabs(_eoAy_ - _eoBy_) < 0.5 and fabs(_eoBy_ - _eoCy_) < 0.5)
+					_eoP2_[_eoLn_ - 1] = _eoCx_
+					_eoP2_[_eoLn_] = _eoCy_
+					loop
+				ok
+			ok
+			_eoP2_ + _eoCx_  _eoP2_ + _eoCy_
+		next
+		if len(_eoP2_) >= 4
+			paFlat = _eoP2_
+			_eoN_ = len(paFlat)
+		ok
 		_eoOut_ = []
 		_eoOut_ + paFlat[1]
 		_eoOut_ + paFlat[2]
@@ -7126,7 +7201,7 @@ class stzDiagram from stzGraph
 				for _eoQ_ in _eoCross_
 					_eoOk_ = 1
 					for _eoK_ in _eoKeep_
-						if fabs(_eoQ_ - _eoK_) < _eoRoom_  _eoOk_ = 0  ok
+						if fabs(_eoQ_ - _eoK_) < _eoPair_  _eoOk_ = 0  ok
 					next
 					if _eoOk_  _eoKeep_ + _eoQ_  ok
 				next
@@ -8078,6 +8153,25 @@ class stzDiagram from stzGraph
 			# the end event it named.
 			_sdA_ = This._BoxOf(cFromId, nBoxW, nBoxH)
 			_sdB_ = This._BoxOf(cToId, nBoxW, nBoxH)
+			# TWO CELLS FACING EACH OTHER ARE JOINED SIDE TO SIDE.
+			#
+			# The lateral form exists for an edge that has to get AROUND
+			# something: it leaves by the border across the flow, runs
+			# along a free corridor, and drops in. Between two cells that
+			# already sit on one line it is a detour with nothing to
+			# detour around -- and it leaves by a corner, which is the
+			# "error of centrality" the Principal has marked three times.
+			#
+			# Once a row is a line (see _ApplySpineRows) this case exists
+			# in every picture with a branch in it, so the check belongs
+			# here rather than in the caller that happens to notice.
+			_sdSame_ = 0
+			if cRank = "LR" or cRank = "RL"
+				if fabs(aTo[2] - aFrom[2]) < 1.5  _sdSame_ = 1  ok
+			else
+				if fabs(aTo[1] - aFrom[1]) < 1.5  _sdSame_ = 1  ok
+			ok
+			if _sdSame_  pSideDep = 0  ok
 			if pSideDep and NOT (cRank = "LR" or cRank = "RL")
 				_sdSgn_ = 1
 				if aTo[1] < aFrom[1]  _sdSgn_ = -1  ok
