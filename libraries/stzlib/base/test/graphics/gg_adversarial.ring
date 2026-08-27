@@ -7019,6 +7019,81 @@ for rCn in oBp.RenderNodeRects()
 next
 chkeq("no glyph is drawn off the edge of its own paper", nCnBad, 0)
 
+# (10) THE SUMMIT AND THE SIDE AGREE -- asked of the DRAWN picture, not
+#      of the rule that produced it.
+#
+#      A decision leaves by three summits, one above, one straight
+#      ahead, one below, and each branch is placed on the side its
+#      summit points at. Those are two decisions in two places, and they
+#      were made from POSITIONS -- a question about a picture that does
+#      not exist yet, whose answer changed between the moment the
+#      placement asked and the moment the drawing asked. The
+#      compensation process placed a branch below the spine and drew its
+#      line leaving upward, off the top of the paper.
+#
+#      The check is the agreement itself, so it holds however the rule
+#      is next rewritten: a branch drawn leaving upward is a branch
+#      standing above.
+oSm = new stzWorkflow("summit65")
+oSm.SetWorkflowType("bpmn")
+oSm.AddStateXTT("s", "", [ :type = "entry" ])
+oSm.AddStateXTT("a", "Charge", [ :type = "invoke" ])
+oSm.AddStateXTT("g", "Reserved?", [ :type = "gateway" ])
+oSm.AddStateXTT("ship", "Ship", [ :type = "invoke" ])
+oSm.AddStateXTT("back", "Refund", [ :type = "compensate" ])
+oSm.AddStateXTT("ok", "Delivered", [ :type = "terminal" ])
+oSm.AddStateXTT("un", "Reversed", [ :type = "terminal" ])
+oSm.AddTransition("s", "a", "")
+oSm.AddTransition("a", "g", "charged")
+oSm.AddTransition("g", "ship", "yes")
+oSm.AddTransition("g", "back", "no")
+oSm.AddTransition("ship", "ok", "dispatched")
+oSm.AddTransition("back", "un", "refunded")
+oSm.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
+	:FontSize = 13 ])
+
+rSmG = _Rect49(oSm, "g")
+nSmGy = rSmG[2] + rSmG[4] / 2
+nSmBad = 0
+for aSmE in [ [ "g", "ship" ], [ "g", "back" ] ]
+	aSmP = []
+	for aSmR in oSm.RenderEdgePaths()
+		if aSmR[1] = aSmE[1] + ">" + aSmE[2]  aSmP = aSmR[2]  ok
+	next
+	if len(aSmP) < 4  loop  ok
+	# which way it LEAVES: the first segment's direction off the glyph
+	nSmUp = 0
+	if aSmP[2] < nSmGy - 1  nSmUp = 1  ok
+	if aSmP[4] < aSmP[2] - 1  nSmUp = 1  ok
+	# where the TARGET stands
+	rSmT = _Rect49(oSm, aSmE[2])
+	nSmTy = rSmT[2] + rSmT[4] / 2
+	nSmAbove = 0
+	if nSmTy < nSmGy - 1  nSmAbove = 1  ok
+	if nSmUp != nSmAbove
+		nSmBad++
+		? "      " + aSmE[1] + ">" + aSmE[2] + " leaves up=" + nSmUp +
+		  " but its target stands above=" + nSmAbove
+	ok
+next
+chkeq("a branch drawn leaving upward is a branch standing above",
+      nSmBad, 0)
+
+# ...AND NO PART OF ANY FLOW IS DRAWN OFF THE PAPER, which is what the
+# disagreement above actually produced and the shape a reader notices
+# first.
+nSmOff = 0
+for aSmR in oSm.RenderEdgePaths()
+	nSmN = len(aSmR[2]) / 2
+	for iSm = 1 to nSmN
+		if aSmR[2][iSm * 2 - 1] < 0  nSmOff++  ok
+		if aSmR[2][iSm * 2] < 0  nSmOff++  ok
+		if aSmR[2][iSm * 2 - 1] > oSm.LastCanvas().Width()  nSmOff++  ok
+		if aSmR[2][iSm * 2] > oSm.LastCanvas().Height()  nSmOff++  ok
+	next
+next
+chkeq("every flow is drawn on the paper it was measured for", nSmOff, 0)
+
 
 #---------------------------------------------------------------------------
 ? ""
