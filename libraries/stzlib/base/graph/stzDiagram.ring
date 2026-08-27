@@ -7980,33 +7980,33 @@ class stzDiagram from stzGraph
 					ok
 					return
 				ok
+				# ONE TURN. A BEND IS A CONSTRAINT -- I4 -- and a bend
+				# with no constraint behind it is noise a reader has to
+				# account for and cannot.
+				#
+				# This route took four: out of the summit, a short stub,
+				# along, down, and in. The stub and the turn after it
+				# were caution and bought nothing -- the summit already
+				# points the way the edge must go, and the target's own
+				# line is where it must arrive. Out of the summit,
+				# straight to that line, straight in. One corner, which
+				# is what the Principal drew after asking for it more
+				# than once.
 				if _svS_ = "top"
-					_svY_ = aFrom[2] - _svA_[2] / 2 - _svStub_
 					_svPts_ = [ aFrom[1], aFrom[2] - _svA_[2] / 2,
-						aFrom[1], _svY_,
-						aTo[1] - _svB_[1] / 2 - _svStub_, _svY_,
-						aTo[1] - _svB_[1] / 2 - _svStub_, aTo[2],
+						aFrom[1], aTo[2],
 						aTo[1] - _svB_[1] / 2, aTo[2] ]
 				but _svS_ = "bottom"
-					_svY_ = aFrom[2] + _svA_[2] / 2 + _svStub_
 					_svPts_ = [ aFrom[1], aFrom[2] + _svA_[2] / 2,
-						aFrom[1], _svY_,
-						aTo[1] - _svB_[1] / 2 - _svStub_, _svY_,
-						aTo[1] - _svB_[1] / 2 - _svStub_, aTo[2],
+						aFrom[1], aTo[2],
 						aTo[1] - _svB_[1] / 2, aTo[2] ]
 				but _svS_ = "left"
-					_svX_ = aFrom[1] - _svA_[1] / 2 - _svStub_
 					_svPts_ = [ aFrom[1] - _svA_[1] / 2, aFrom[2],
-						_svX_, aFrom[2],
-						_svX_, aTo[2] - _svB_[2] / 2 - _svStub_,
-						aTo[1], aTo[2] - _svB_[2] / 2 - _svStub_,
+						aTo[1], aFrom[2],
 						aTo[1], aTo[2] - _svB_[2] / 2 ]
 				else
-					_svX_ = aFrom[1] + _svA_[1] / 2 + _svStub_
 					_svPts_ = [ aFrom[1] + _svA_[1] / 2, aFrom[2],
-						_svX_, aFrom[2],
-						_svX_, aTo[2] - _svB_[2] / 2 - _svStub_,
-						aTo[1], aTo[2] - _svB_[2] / 2 - _svStub_,
+						aTo[1], aFrom[2],
 						aTo[1], aTo[2] - _svB_[2] / 2 ]
 				ok
 				_svCut_ = This._ArrowCut(_svPts_, 9 + nWidth * 2)
