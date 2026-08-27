@@ -7094,6 +7094,73 @@ for aSmR in oSm.RenderEdgePaths()
 next
 chkeq("every flow is drawn on the paper it was measured for", nSmOff, 0)
 
+# (11) THE AFFIRMATIVE ANSWER CONTINUES THE LINE, AND THE NEXT ONE
+#      HANGS BELOW.
+#
+#      A decision's answers are not interchangeable. One of them is the
+#      one where things went as intended, and a reader looks for it
+#      first -- so it continues along the line, and the picture says
+#      "this is the way through" before a single word is read.
+#
+#      Declaration order was standing in for that, and it is a good
+#      proxy for exactly as long as the author writes the affirmative
+#      branch first. It is still a proxy, and one that fails silently:
+#      declare "no" before "yes" and the whole spine bends around the
+#      refusal. So the scene below declares them in the WRONG order on
+#      purpose -- a picture that looked right under the old rule cannot
+#      tell you the old rule was wrong.
+oAf = new stzWorkflow("affirm65")
+oAf.SetWorkflowType("bpmn")
+oAf.AddStateXTT("s", "", [ :type = "entry" ])
+oAf.AddStateXTT("g", "Valid?", [ :type = "gateway" ])
+oAf.AddStateXTT("bad", "Bounced", [ :type = "terminal" ])
+oAf.AddStateXTT("hold", "Held", [ :type = "terminal" ])
+oAf.AddStateXTT("go", "Process", [ :type = "invoke" ])
+oAf.AddStateXTT("done", "Done", [ :type = "terminal" ])
+oAf.AddTransition("s", "g", "")
+oAf.AddTransition("g", "bad", "no")          # declared FIRST
+oAf.AddTransition("g", "hold", "maybe")
+oAf.AddTransition("g", "go", "yes")          # declared LAST
+oAf.AddTransition("go", "done", "processed")
+oAf.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
+	:FontSize = 13 ])
+
+rAfG = _Rect49(oAf, "g")
+nAfGy = rAfG[2] + rAfG[4] / 2
+rAfGo = _Rect49(oAf, "go")
+? "   the gateway rides y=" + nAfGy + ", 'yes' leads to y=" +
+  (rAfGo[2] + rAfGo[4] / 2)
+chk("the AFFIRMATIVE answer continues the line, whatever the order",
+    fabs((rAfGo[2] + rAfGo[4] / 2) - nAfGy) < 2)
+
+# ...AND THE SECOND ANSWER HANGS BELOW. The side a reader looks to for
+# "what else can happen" is the one the page continues onto -- downward
+# in a left-to-right reading. The first non-straight answer was going
+# UPWARD, which puts the exceptional case where the eye has already
+# been.
+rAfB = _Rect49(oAf, "bad")
+? "   the first other answer sits at y=" + (rAfB[2] + rAfB[4] / 2)
+chk("the next answer hangs BELOW the line, not above it",
+    rAfB[2] + rAfB[4] / 2 > nAfGy)
+
+# ...and where nothing says yes, declaration order still decides, which
+# is what keeps the rule a refinement rather than a replacement.
+oAf2 = new stzWorkflow("affirm65b")
+oAf2.SetWorkflowType("bpmn")
+oAf2.AddStateXTT("s", "", [ :type = "entry" ])
+oAf2.AddStateXTT("g", "Which?", [ :type = "gateway" ])
+oAf2.AddStateXTT("p", "Path A", [ :type = "invoke" ])
+oAf2.AddStateXTT("q", "Path B", [ :type = "terminal" ])
+oAf2.AddTransition("s", "g", "")
+oAf2.AddTransition("g", "p", "left")
+oAf2.AddTransition("g", "q", "right")
+oAf2.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
+	:FontSize = 13 ])
+rAf2G = _Rect49(oAf2, "g")
+rAf2P = _Rect49(oAf2, "p")
+chk("...and with no yes among them, the first declared leads",
+    fabs((rAf2P[2] + rAf2P[4] / 2) - (rAf2G[2] + rAf2G[4] / 2)) < 2)
+
 
 #---------------------------------------------------------------------------
 ? ""

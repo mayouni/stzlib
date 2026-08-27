@@ -4620,6 +4620,35 @@ class stzDiagram from stzGraph
 	# is the rule because it is the one thing an author controls without
 	# being asked to think about layout: the flow you wrote first is the
 	# flow you meant.
+	# IS THIS THE AFFIRMATIVE ANSWER?
+	#
+	# A decision's answers are not interchangeable. One of them is the
+	# one where things went as intended, and a reader looks for it first
+	# -- so it is the one that continues along the line, and the picture
+	# says "this is the way through" before a single word is read.
+	#
+	# Declaration order was standing in for this, and it is a good proxy
+	# exactly as long as the author writes the affirmative branch first.
+	# It is a proxy, though, and a proxy that fails silently: declare
+	# "no" before "yes" and the whole spine bends around the refusal.
+	# The affirmative answer is a thing the label already SAYS.
+	#
+	# The vocabulary is deliberately small and deliberately not clever.
+	# A word not on it is not a refusal, it is merely not a recognised
+	# yes -- and where nothing is recognised, declaration order stands
+	# as it always did.
+	def _IsAffirmative(pcLabel)
+		_ifL_ = StzLower(StzTrim("" + pcLabel))
+		if _ifL_ = ""  return 0  ok
+		for _ifY_ in [ "yes", "y", "true", "ok", "okay", "approved",
+			"approve", "accepted", "accept", "valid", "complete",
+			"completed", "success", "successful", "granted", "pass",
+			"passed", "in stock", "available", "authorised",
+			"authorized", "confirmed", "signed", "paid" ]
+			if _ifL_ = _ifY_  return 1  ok
+		next
+		return 0
+
 	def _HappyPath()
 		_hpIds_ = This.NodesIds()
 		if len(_hpIds_) = 0  return []  ok
@@ -4644,13 +4673,24 @@ class stzDiagram from stzGraph
 		_hpGuard_ = 0
 		while _hpGuard_ < len(_hpIds_) + 2
 			_hpGuard_++
+			# THE AFFIRMATIVE ANSWER CONTINUES THE FLOW, and only where
+			# no answer says yes does declaration order decide.
 			_hpNext_ = ""
 			for _hpE_ in This.Edges()
 				if StzLower("" + _hpE_[:from]) != _hpAt_  loop  ok
 				if StzLower("" + _hpE_[:to]) = _hpAt_  loop  ok
+				if NOT This._IsAffirmative("" + _hpE_[:label])  loop  ok
 				_hpNext_ = StzLower("" + _hpE_[:to])
 				exit
 			next
+			if _hpNext_ = ""
+				for _hpE_ in This.Edges()
+					if StzLower("" + _hpE_[:from]) != _hpAt_  loop  ok
+					if StzLower("" + _hpE_[:to]) = _hpAt_  loop  ok
+					_hpNext_ = StzLower("" + _hpE_[:to])
+					exit
+				next
+			ok
 			if _hpNext_ = ""  exit  ok
 			_hpSeen_ = 0
 			for _hpQ_ in _hpOut_
@@ -8668,9 +8708,15 @@ class stzDiagram from stzGraph
 		# The happy path is computed from the graph alone and cannot
 		# drift: the answer whose target is on it is the one continuing
 		# the flow, which is also what "continuing the flow" MEANS.
+		# BELOW FIRST. A decision's other answers hang off the flow, and
+		# the side a reader looks to for "what else can happen" is the
+		# one the page continues onto -- downward in a left-to-right
+		# reading, rightward in a top-down one. The first was going
+		# UPWARD, which puts the exceptional case where the eye has
+		# already been.
 		_smPath_ = This._HappyPath()
-		_smSide_ = [ "top", "bottom" ]
-		if cRank = "TB" or cRank = "BT"  _smSide_ = [ "left", "right" ]  ok
+		_smSide_ = [ "bottom", "top" ]
+		if cRank = "TB" or cRank = "BT"  _smSide_ = [ "right", "left" ]  ok
 		_smK_ = 0
 		for _smE_ in This.Edges()
 			if StzLower("" + _smE_[:from]) != _smF_  loop  ok
