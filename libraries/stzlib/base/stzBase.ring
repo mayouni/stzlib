@@ -350,6 +350,7 @@ ok
     load "graph/stzDiagram.ring"
     load "graph/stzDiagramColor.ring"
 
+    load "graph/stzUmlNotation.ring"
     load "graph/stzOrgChart.ring"
     # org-governance rules over the org chart's graph projection (phase 2b):
     # the compliance bases carry these -- loaded after stzOrgChart (its bases
