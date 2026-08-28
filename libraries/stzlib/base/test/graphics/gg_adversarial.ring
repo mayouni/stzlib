@@ -7597,6 +7597,117 @@ chk("...while an initial node stays a mark", rAcI[3] < 120 * 0.5)
 
 #---------------------------------------------------------------------------
 ? ""
+sec("-- 67. A SEQUENCE IS A MODE, NOT A SECOND RENDERER --------")
+
+# The plan attached its sharpest kill criterion to this one diagram:
+# "its y-axis is TIME and its x-axis is participants -- that is not a
+# graph layout, it is a schedule. If it cannot express as a layout MODE
+# over the one renderer, it is a second renderer wearing a profile's
+# clothes, and the plan says so."
+#
+# It expresses, because the two axes are not symmetrical: only the
+# participant axis belongs to the nodes, and the time axis belongs to
+# the messages, which are edges. What follows asserts the MECHANISM of
+# that claim -- one row, ordinals descending, a repeated pair drawn
+# twice -- and each positive has the negative sibling that proves the
+# assertion could have failed.
+
+OPT67 = [ :Font = EFONT, :NodeWidth = 120, :NodeHeight = 50, :FontSize = 13 ]
+oSqA = _SqScene("sq_row", 1)
+oSqA.AddMessage("a", "b", "m1")
+oSqA.AddMessage("b", "c", "m2")
+oSqA.ToCanvasXT(OPT67)
+aSqR = oSqA.RenderNodeRects()
+nSqSame = 1
+nSqRl = len(aSqR)
+for iSq = 2 to nSqRl
+	if fabs(aSqR[iSq][2] - aSqR[1][2]) > 0.5  nSqSame = 0  ok
+next
+chk("participants share ONE row", nSqSame = 1)
+nSqDist = 1
+for iSq = 2 to nSqRl
+	if fabs(aSqR[iSq][1] - aSqR[1][1]) < 1  nSqDist = 0  ok
+next
+chk("...and stand at distinct x", nSqDist = 1)
+
+# THE NEGATIVE SIBLING. The same three nodes and the same two links
+# without the profile are ranked, not rowed -- so the row above is a
+# fact about the mode and not about the scene.
+oSqB = _SqScene("sq_norow", 0)
+oSqB.AddEdgeXT("a", "b", "m1")
+oSqB.AddEdgeXT("b", "c", "m2")
+oSqB.ToCanvasXT(OPT67)
+aSqR2 = oSqB.RenderNodeRects()
+nSqSame2 = 1
+nSqR2l = len(aSqR2)
+for iSq = 2 to nSqR2l
+	if fabs(aSqR2[iSq][2] - aSqR2[1][2]) > 0.5  nSqSame2 = 0  ok
+next
+chk("NEGATIVE: without the profile they do not", nSqSame2 = 0)
+
+# TIME IS THE ORDER THE AUTHOR WROTE. Nothing computes it -- the reader
+# already knows a sequence reads downward, and the author already said
+# what happens next by writing it next.
+oSqC = _SqScene("sq_desc", 1)
+oSqC.AddMessage("a", "b", "one")
+oSqC.AddMessage("b", "c", "two")
+oSqC.AddMessage("c", "a", "three")
+oSqC.AddMessage("a", "b", "four")
+oSqC.ToCanvasXT(OPT67)
+aSqY = _MsgYs(oSqC)
+chkeq("four messages, four drawn paths", len(aSqY), 4)
+nSqMono = 1
+nSqYl = len(aSqY)
+for iSq = 2 to nSqYl
+	if aSqY[iSq] <= aSqY[iSq - 1]  nSqMono = 0  ok
+next
+chk("each message is strictly below the one before", nSqMono = 1)
+
+# A REPEATED PAIR IS TWO MOMENTS. This is the case that broke the first
+# build twice over: the twin-pairing drew the reply as a hook back to
+# its call, and the path key "a>b" could name only one of the two.
+chk("the repeated pair a>b is at two different moments",
+    len(aSqY) = 4 and fabs(aSqY[4] - aSqY[1]) > 1)
+nSqK = 0
+nSqPl = len(oSqC.@aEdgePaths)
+for iSq = 1 to nSqPl
+	if oSqC.@aEdgePaths[iSq][1] = "a>b#1"  nSqK++  ok
+	if oSqC.@aEdgePaths[iSq][1] = "a>b#4"  nSqK++  ok
+next
+chkeq("...and each claims its own key", nSqK, 2)
+
+# AND THE GRAPH UNDERNEATH STAYS TRUE. stzGraph is simple on purpose so
+# that counts, paths and metrics mean something; four messages over
+# three relations must leave the degree of every participant alone.
+chkeq("three relations underneath", oSqC.NumberOfEdges(), 3)
+chkeq("...carrying four messages", oSqC.NumberOfMessages(), 4)
+
+# A REPLY IS DRAWN AS A REPLY -- and a call is not, which is the half
+# that makes the dash mean anything.
+oSqD = _SqScene("sq_reply", 1)
+oSqD.AddMessage("a", "b", "call")
+oSqD.AddMessageXT("b", "a", "answer", [ :kind = "return" ])
+oSqD.ToCanvasXT(OPT67)
+chkeq("the call is not a reply", oSqD._MessageIsReturn(oSqD.Messages(), 1), 0)
+chkeq("the reply is", oSqD._MessageIsReturn(oSqD.Messages(), 2), 1)
+
+# THE PAPER IS THE CONTENT MEASURED, and a sequence's content is longer
+# than its layout: the height comes from the message count, which the
+# sizing pass cannot know because it runs before the messages are placed.
+nSqLow = aSqY[1]
+for iSq = 2 to nSqYl
+	if aSqY[iSq] > nSqLow  nSqLow = aSqY[iSq]  ok
+next
+chk("the paper holds the lifelines below the last message",
+    oSqC.LastCanvas().Height() > nSqLow)
+
+# AND THE PROFILE SAYS NOTHING ABOUT RANK DIRECTION, on purpose. Every
+# other profile in the UML file declares one and the first draft of this
+# one copied them, which rotated the two axes and drew the participants
+# in a column. There is no right-to-left sequence diagram.
+chkeq("the profile declares no rank direction",
+    StzUmlSequenceNotation().RankDir(), "")
+
 if nSecClock > 0
 	? "        [section took " +
 	  ((clock() - nSecClock) / clockspersecond()) + "s]"
@@ -8741,6 +8852,27 @@ func _NearMissEdges oDiag, aPos
 		if _d_ > 0.5 and _d_ < 40  _nm_++  ok
 	next
 	return _nm_
+
+# Three participants, with or without the sequence profile -- the same
+# scene both ways, so the row is attributable to the mode.
+func _SqScene cName, bProfile
+	_sqO_ = new stzDiagram(cName)
+	if bProfile  _sqO_.SetNotation(StzUmlSequenceNotation())  ok
+	_sqO_.AddNodeXTT("a", "A", [ :type = "participant" ])
+	_sqO_.AddNodeXTT("b", "B", [ :type = "participant" ])
+	_sqO_.AddNodeXTT("c", "C", [ :type = "participant" ])
+	return _sqO_
+
+# The y of every drawn message, in declaration order -- read off the
+# recorded paths, which is the ink, never off the model that asked for it.
+func _MsgYs oD
+	_sqYs_ = []
+	_sqNp_ = len(oD.@aEdgePaths)
+	for _sqI_ = 1 to _sqNp_
+		_sqP_ = oD.@aEdgePaths[_sqI_]
+		if len(_sqP_[2]) >= 4  _sqYs_ + _sqP_[2][2]  ok
+	next
+	return _sqYs_
 
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0

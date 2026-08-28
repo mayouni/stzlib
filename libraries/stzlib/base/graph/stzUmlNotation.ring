@@ -288,3 +288,52 @@ func StzUmlCommunicationNotation()
 # type reads the same way for all eight.
 func StzUmlClassNotation()
 	return StzUmlNotation()
+
+# SEQUENCE: the one UML diagram whose second axis is TIME.
+#
+# THE KILL CRITERION, MEASURED. The plan attached the plane's sharpest
+# one here: a schedule is not a graph layout, and if this needed a
+# renderer of its own it was to be said so. It does not, and the reason
+# is that the two axes are NOT symmetrical.
+#
+# Only ONE axis belongs to the nodes. Participants stand side by side --
+# a single row, which the layout contract already describes, and the
+# mode that produces it is four lines long. The other axis belongs to
+# the MESSAGES, and a message is an EDGE: its position comes from its
+# ordinal in the model, exactly as a lane's depth or a summit's side
+# does. So the time axis was never a layout question.
+#
+# WHAT IT ADDED to the renderer, and each entered the way the plane's
+# earlier domains did:
+#
+#   A LIFELINE is a node property -- "this node has a tail of length L"
+#   -- drawn by the node drawer, the way a class's compartments are.
+#   A MESSAGE is one more branch of the edge drawer, beside the
+#   self-loop, the summit route and the return-under-the-picture.
+#   A RETURN is the dashed stroke DN4a already built for dependency.
+#
+# Nothing here is a second draw loop, which is the criterion the plan
+# actually named.
+func StzUmlSequenceNotation()
+	_o_ = StzNotation("umlsequence")
+	if _o_.Name_() = "umlsequence"  return _o_  ok
+	_o_ = new stzNotation("umlsequence")
+	_o_.SetLayoutMode(:Sequence)
+	# AND NO RANK DIRECTION, deliberately. Every other profile in this
+	# file declares one, and the first draft of this one declared
+	# :LeftToRight by copying them -- which drew the participants in a
+	# COLUMN. A rank direction rotates the layout's two axes, and a
+	# sequence's axes are not interchangeable: participants are across
+	# and time is down, always, in every UML document ever printed.
+	# There is no such thing as a right-to-left sequence diagram, so the
+	# field has no meaning here and saying nothing is the accurate thing
+	# to say.
+	_o_.SetSplines(:ortho)
+	_o_.AddKindXT("participant", "box", "white")
+	_o_.AddKindXT("object", "box", "white")
+	_o_.AddKindXT("actor", "actor", "white")
+	_o_.AddKindXT("boundary", "box", "white")
+	_o_.AddKindXT("control", "circle", "white")
+	_o_.AddKindXT("entity", "box", "white")
+	StzRegisterNotation(_o_)
+	return _o_

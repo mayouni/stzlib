@@ -397,6 +397,8 @@ class stzGraphCanvas from stzObject
 			This._LayoutRing()
 		but _cLay_ = "modes"
 			This._LayoutModes()
+		but _cLay_ = "sequence"
+			This._LayoutSequence()
 		else
 			This._LayoutHierarchical()
 		ok
@@ -750,6 +752,39 @@ class stzGraphCanvas from stzObject
 	# cross iff exactly one of c,d lies strictly between a and b around
 	# the ring. That is the whole geometry of a circular layout, and it
 	# makes the improvement pass an honest hill-climb rather than a shuffle.
+	# A SEQUENCE IS ONE ROW, AND THAT IS THE WHOLE LAYOUT.
+	#
+	# This is the mode the graph plane's plan attached its sharpest KILL
+	# criterion to: a sequence diagram's y-axis is TIME and its x-axis is
+	# participants, which is a schedule and not a graph layout. If it
+	# could not express as a MODE over the one renderer it would be a
+	# second renderer wearing a profile's clothes, and the plan said to
+	# say so.
+	#
+	# It expresses, and the reason is that the two axes are NOT
+	# symmetrical. Only ONE of them belongs to the nodes: participants
+	# stand side by side and that is a single row, which this contract
+	# already describes. The other axis belongs to the MESSAGES, and a
+	# message is an edge -- so the time axis is not a layout question at
+	# all. It is an ordinal the drawing reads off the model, the same way
+	# a lane's depth or a summit's side is read.
+	#
+	# So the mode is four lines, and that is the finding rather than an
+	# embarrassment: the hard half of a sequence diagram was never the
+	# placement.
+	def _LayoutSequence()
+		@nLayoutCrossings = 0
+		_n_ = len(@aIds)
+		@aX = []  @aY = []
+		for _i_ = 1 to _n_
+			@aX + ((_i_ - 1) * 100)
+			@aY + 0
+		next
+		@nLayerCount = 1
+		@aBendOf = []
+		@nRealCount = _n_
+		@aDumEdge = []
+
 	def _LayoutRing()
 		@nLayoutCrossings = 0
 		_n_ = len(@aIds)

@@ -328,6 +328,9 @@ class stzDiagram from stzGraph
 	@aReturnOf = []
 	@aRenderAdorn = []
 	@aRenderForks = []
+	@bSequence = 0
+	@aMessages = []
+	@nSeqPitch = 0
 	@aRenderHops = []
 	# how far apart two return lanes stand -- a clearance plus whatever
 	# is written beside them
@@ -2385,6 +2388,20 @@ class stzDiagram from stzGraph
 		ok
 		_bRing_ = (_cLM_ = "ring" or _cLM_ = "circular")
 		_bModes_ = (_cLM_ = "modes")
+		# A SEQUENCE READS DOWN. Its participants are one row and its
+		# messages carry the second axis themselves, so the mode is told
+		# to the layout and everything else is drawing.
+		@bSequence = (_cLM_ = "sequence")
+		@nSeqPitch = 0
+		if @bSequence
+			@nSeqPitch = _nBoxH_ * 0.92
+			if isObject(_oFont_)
+				_sqB_ = This._LabelBlock("Wg", _oFont_, _nFsz_, _nBoxW_)
+				if _sqB_[3] + This._LineClearance() > @nSeqPitch
+					@nSeqPitch = _sqB_[3] + This._LineClearance()
+				ok
+			ok
+		ok
 
 		_mx_ = _nBoxW_ / 2 + 14 * _nScl_
 		_my_ = _nBoxH_ / 2 + 14 * _nScl_
@@ -2520,7 +2537,7 @@ class stzDiagram from stzGraph
 		_bELab_ = 0
 		_nLabH_ = 0
 		_nLabW_ = 0
-		_aE049_ = This.Edges()
+		_aE049_ = This._DrawnEdges()
 		_nE049_ = len(_aE049_)
 		for _iE049_ = 1 to _nE049_
 			_e0_ = _aE049_[_iE049_]
@@ -3542,7 +3559,15 @@ class stzDiagram from stzGraph
 			# paper: three independent switch pairs came out 539px tall
 			# over 276px of drawing, and "space is optimised" has been
 			# said of exactly this. Measure, shift onto one border, trim.
-			if _bModes_
+			# ...AND A SEQUENCE IS MEASURED FOR THE SAME REASON, once
+			# more sharply. Its height is not a function of its layout at
+			# all -- the layout is ONE ROW -- it is a function of how many
+			# messages there are, which the sizing above cannot know
+			# because it runs before the messages are placed. Given a
+			# fixed sheet the picture came out with a third of the page
+			# empty above the participants and the last two messages off
+			# the bottom edge.
+			if _bModes_ or @bSequence
 				_aMx_ = This._ContentExtent(_aXY_, _nBoxW_, _nBoxH_,
 					_oFont_, _nFsz_)
 				if len(_aMx_) = 4
@@ -3822,7 +3847,61 @@ class stzDiagram from stzGraph
 				_aRb_[1], _aRb_[2], StzLower("" + _nr_[1]) ]
 		next
 
-		_aE_ = This.Edges()
+		# THE LIFELINES, before the messages that hang on them.
+		#
+		# A lifeline is a NODE PROPERTY -- "this participant has a tail
+		# of length L" -- exactly as a class's compartments are, and it
+		# is drawn by the node pass for the same reason. It goes first so
+		# that every message arrow lands ON TOP of the line it crosses:
+		# a lifeline drawn afterwards would cut every arrowhead in the
+		# picture in half.
+		#
+		# Dashed, because that is what a lifeline is in every UML book
+		# printed -- and the dash it uses is DN4a's, the one dependency
+		# already needed. Nothing new was written to draw it.
+		if @bSequence
+			_sqD_ = This._SeqDepth()
+			_aSqN_ = This.Nodes()
+			_nSqN_ = len(_aSqN_)
+			for _iSqN_ = 1 to _nSqN_
+				_sqId_ = "" + _aSqN_[_iSqN_][:id]
+				_sqAt_ = This._XYOf(_aXY_, _sqId_)
+				if len(_sqAt_) != 2  loop  ok
+				_sqBx_ = This._BoxOf(_sqId_, _nBoxW_, _nBoxH_)
+				_sqTop_ = _sqAt_[2] + _sqBx_[2] / 2
+				# BELOW THE WHOLE PARTICIPANT, name included. A stick
+				# figure writes its name UNDERNEATH itself -- there is no
+				# inside to write it in -- so a lifeline started at the
+				# glyph's lower edge was drawn through the name of the
+				# participant it belongs to. The extent measurement
+				# already knows which shapes do this; the lifeline has to
+				# ask the same question, or the two disagree.
+				if This._WritesNameBelow(_sqId_)
+					_sqTop_ += _nFsz_ * 2.4
+				ok
+				# QUIETER THAN THE QUIETEST MESSAGE, deliberately. A
+				# lifeline is scaffolding -- it says "this participant
+				# still exists", which is true of every participant at
+				# every moment and is therefore the least informative
+				# ink on the page. Drawn at the message weight it
+				# competes with the messages for the reader's eye, and
+				# there are as many lifelines as participants.
+				This._StrokeDashed(_oC_,
+					[ _sqAt_[1], _sqTop_, _sqAt_[1], _sqTop_ + _sqD_ ],
+					"#B4B4B4", 1.4, [])
+			next
+		ok
+
+		# EDGES, OR MESSAGES. Everything downstream -- the pick tags,
+		# the label pass, the message branch itself -- reads this one
+		# list, so a message is drawn, labelled and answers a click
+		# exactly as an edge does without any of them being told which
+		# it is.
+		#
+		# A sequence built from plain AddEdge still draws: an author who
+		# never repeats a pair never meets the difference, and should not
+		# have to learn a second call to find that out.
+		_aE_ = This._DrawnEdges()
 		_nEc_ = len(_aE_)
 		@aSameRowLanes = []
 		This._FillBoxSizes(_nBoxW_, _nBoxH_)
@@ -3927,7 +4006,19 @@ class stzDiagram from stzGraph
 		_aTwinOf_ = []
 		_aPairSide_ = []
 		for _ti_ = 1 to _nEc_  _aTwinOf_ + 0  _aPairSide_ + 0  next
-		if 1 = 1
+		# ...EXCEPT IN A SEQUENCE, WHERE THERE ARE NO TWINS.
+		#
+		# A twin is one RELATIONSHIP drawn as two rails: A calls B and B
+		# answers, and the answer belongs beside the call because they are
+		# the same conversation. In a sequence diagram they are not. A
+		# reply is a MOMENT of its own, later than the call by however
+		# many messages happened in between, and pairing it with its call
+		# drew it as a hook back up to the caller's row -- which is the
+		# rounded route that appeared where three straight lines belonged.
+		#
+		# Same picture, opposite meanings, because the second axis differs:
+		# a statechart's y is structure and a sequence's y is time.
+		if NOT @bSequence
 			for _ti_ = 1 to _nEc_
 				_cTf_ = StzLower("" + _aE_[_ti_][:from])
 				_cTt_ = StzLower("" + _aE_[_ti_][:to])
@@ -4006,6 +4097,52 @@ class stzDiagram from stzGraph
 				_oC_.SetPickTag(1000000 + _ei_)
 				@aRenderPicks + [ 1000000 + _ei_, "edge",
 					"" + _aE_[_ei_][:from], "" + _aE_[_ei_][:to] ]
+			ok
+
+			# A MESSAGE IS A MOMENT, DRAWN WHERE THAT MOMENT IS.
+			#
+			# One more branch in the loop that already had four -- the
+			# self-loop, the routed path, the twin and the generic edge.
+			# That is the plan's KILL criterion answered in the only way
+			# that counts: a sequence diagram needed no second draw loop.
+			#
+			# It comes FIRST, and that is the whole of its correctness.
+			# Every branch below decides a ROUTE -- which lane, which
+			# summit, which side -- and a message has no route to decide:
+			# its two x's are the two lifelines and its y is _ei_, this
+			# loop's own index, because the author wrote the messages in
+			# the order they happen. Placed after the self-loop branch
+			# instead, "verify hash" was drawn beside the box at the top
+			# of the picture while the ladder below left an empty rung
+			# exactly where it belonged.
+			#
+			# A message to oneself cannot be a straight line, so it steps
+			# out and back -- the only shape here that is not one segment.
+			if @bSequence
+				_sqA_ = This._BoxOf("" + _aE_[_ei_][:from], _nBoxW_, _nBoxH_)
+				_sqY_ = _a_[2] + _sqA_[2] / 2 + _ei_ * @nSeqPitch
+				if StzLower("" + _aE_[_ei_][:from]) =
+				   StzLower("" + _aE_[_ei_][:to])
+					_sqW_ = _nBoxW_ * 0.30
+					_sqPts_ = [ _a_[1], _sqY_,
+						_a_[1] + _sqW_, _sqY_,
+						_a_[1] + _sqW_, _sqY_ + @nSeqPitch * 0.42,
+						_a_[1], _sqY_ + @nSeqPitch * 0.42 ]
+				else
+					_sqPts_ = [ _a_[1], _sqY_, _b_[1], _sqY_ ]
+				ok
+				_sqCut_ = This._ArrowCut(_sqPts_, 9 + _nEdgeW_ * 2)
+				if This._MessageIsReturn(_aE_, _ei_) and @nDrawPass = 2
+					This._StrokeDashed(_oC_, _sqCut_[1], _cEdge_,
+						_nEdgeW_, [])
+				else
+					This._EmitOrthoPolyline(_oC_, _sqCut_[1], _cEdge_,
+						_nEdgeW_, This._DrawnEdgeKey(_aE_, _ei_))
+				ok
+				if @nDrawPass = 2
+					This._DrawArrowHead(_oC_, _sqCut_[2], _sqCut_[3], _cEdge_)
+				ok
+				loop
 			ok
 
 			if StzLower("" + _aE_[_ei_][:from]) = StzLower("" + _aE_[_ei_][:to])
@@ -4200,8 +4337,7 @@ class stzDiagram from stzGraph
 					# path and stands off its outer extreme -- the same
 					# "follow the ink, never the assumption" rule as
 					# every other label.
-					_slK2_ = StzLower("" + _aE_[_ei_][:from] + ">" +
-						"" + _aE_[_ei_][:to])
+					_slK2_ = This._DrawnEdgeKey(_aE_, _ei_)
 					_slP2_ = []
 					_aPp279_ = @aEdgePaths
 					_nPp279_ = len(_aPp279_)
@@ -4211,7 +4347,31 @@ class stzDiagram from stzGraph
 							_slP2_ = _pp2_[2]
 						ok
 					next
-					if len(_slP2_) >= 4
+					# ...AND IN A SEQUENCE THE LOOP IS NOT AT THE NODE.
+					#
+					# Everything below stands the word off the NODE's
+					# border, because in every other picture that is
+					# where a self-loop is. A self-message hangs on the
+					# ladder at its own moment, which can be the length
+					# of the diagram below the box -- so read the word's
+					# place off the ink, which is what the branch below
+					# says it does and then does not do: it measures the
+					# drawn path's centroid and then anchors on _a_.
+					if @bSequence and len(_slP2_) >= 4
+						_sqR_ = _slP2_[1]  _sqTy_ = _slP2_[2]
+						_sqBy_ = _slP2_[2]
+						for _sq9_ = 1 to len(_slP2_) - 1 step 2
+							if _slP2_[_sq9_] > _sqR_  _sqR_ = _slP2_[_sq9_]  ok
+							if _slP2_[_sq9_ + 1] < _sqTy_
+								_sqTy_ = _slP2_[_sq9_ + 1]
+							ok
+							if _slP2_[_sq9_ + 1] > _sqBy_
+								_sqBy_ = _slP2_[_sq9_ + 1]
+							ok
+						next
+						_lax_ = _sqR_ + _slw2_ / 2 + 8
+						_lay_ = (_sqTy_ + _sqBy_) / 2
+					but len(_slP2_) >= 4
 						_sbx_ = 0  _sby_ = 0
 						for _sq2_ = 1 to len(_slP2_) - 1 step 2
 							_sbx_ += _slP2_[_sq2_]
@@ -4245,8 +4405,7 @@ class stzDiagram from stzGraph
 					# to the placement loop with its key
 					_cLKey_ = ""
 					if _cSpl_ = "ortho"
-						_cLKey_ = "" + _aE_[_ei_][:from] + ">" +
-							"" + _aE_[_ei_][:to]
+						_cLKey_ = This._DrawnEdgeKey(_aE_, _ei_)
 					ok
 					_aBend_ = This._RouteOf(_aRoute_, "" + _aE_[_ei_][:from],
 						"" + _aE_[_ei_][:to])
@@ -4292,8 +4451,7 @@ class stzDiagram from stzGraph
 				# positioned against the loop's own side and not by
 				# walking a staircase.
 				_aLabAt_ + [ _cLab_, _lax_, _lay_,
-					StzLower("" + _aE_[_ei_][:from] + ">" +
-						"" + _aE_[_ei_][:to]), _bSelf_ ]
+					This._DrawnEdgeKey(_aE_, _ei_), _bSelf_ ]
 			next
 
 			# A LABEL MUST CLAIM ITS EDGE -- I1 for text. The old nudge
@@ -9658,6 +9816,21 @@ class stzDiagram from stzGraph
 		_iwF_ = This._InscribedFraction(_iwS_)
 		return nW * _iwF_[1]
 
+	# WHEN THIS MESSAGE HAPPENS -- its ordinal in the model, 0 when the
+	# picture is not a sequence.
+	#
+	# This is the whole of the "time axis" the plan called a schedule.
+	# It is not a layout question: the author already wrote the order by
+	# writing the messages in order, which is the one thing about a
+	# sequence diagram every reader already knows.
+	# How far the lifelines run: one pitch per message, plus a tail so
+	# the last arrow is not drawn on the very end of the line.
+	def _SeqDepth()
+		if NOT @bSequence  return 0  ok
+		_sdC_ = This.NumberOfEdges()
+		if len(@aMessages) > 0  _sdC_ = len(@aMessages)  ok
+		return (_sdC_ + 1) * @nSeqPitch
+
 	# THE RECTANGLE INSCRIBED IN A GLYPH, as a fraction of its box.
 	#
 	# What a shape can hold, rather than what a list of shape names once
@@ -10032,6 +10205,140 @@ class stzDiagram from stzGraph
 	# written UNDER a cell that is not a rectangle; the loop that
 	# radiates out of a cell; the word beside that loop; and the frame
 	# drawn around a region, with its own name above it.
+	#---------------------------------------------------------------
+	# MESSAGES -- the ordered list a sequence diagram is made of
+	#---------------------------------------------------------------
+
+	# A MESSAGE IS NOT AN EDGE, AND THE GRAPH WAS RIGHT TO SAY SO.
+	#
+	# The first sequence pictures used AddEdge, and it worked until the
+	# ordinary case: a checkout that calls Inventory twice, once to
+	# reserve and once to commit. stzGraph refused the second -- it is a
+	# SIMPLE graph, deliberately, so that counts, paths and metrics stay
+	# true -- and that refusal is correct and must not be weakened for a
+	# picture.
+	#
+	# The two things are genuinely different. WHO TALKS TO WHOM is a
+	# relation, and Checkout-to-Inventory is one relation however many
+	# times it is used; that is the graph, and every metric the tier
+	# computes is about it. WHAT WAS SAID AND WHEN is a sequence over
+	# that relation, and it repeats. Modelling the second as the first
+	# would have made a graph in which Inventory has degree 4, which is
+	# false about the system being described.
+	#
+	# So messages are their own ordered list, and adding one also
+	# ensures the RELATION exists -- ConnectIfAbsent, never Connect, so
+	# the tenth call between two participants does not raise. The graph
+	# stays true and the picture becomes possible, without either giving
+	# ground to the other.
+	def AddMessage(pcFrom, pcTo, pcLabel)
+		return This.AddMessageXT(pcFrom, pcTo, pcLabel, [])
+
+	def AddMessageXT(pcFrom, pcTo, pcLabel, paProps)
+		_amF_ = "" + pcFrom
+		_amT_ = "" + pcTo
+		if NOT This.NodeExists(_amF_)
+			StzRaise("stzDiagram.AddMessage: there is no participant '" +
+				_amF_ + "'.")
+		ok
+		if NOT This.NodeExists(_amT_)
+			StzRaise("stzDiagram.AddMessage: there is no participant '" +
+				_amT_ + "'.")
+		ok
+		This.ConnectIfAbsent(_amF_, _amT_)
+		_amP_ = []
+		if isList(paProps)  _amP_ = paProps  ok
+		@aMessages + [ :from = _amF_, :to = _amT_,
+			:label = "" + pcLabel, :properties = _amP_ ]
+		return This
+
+	def Messages()
+		return @aMessages
+
+	# WHAT THIS PICTURE ACTUALLY DRAWS -- edges, or messages when there
+	# are messages. ONE answer, because there were three questioners.
+	#
+	# The drawer read the messages while the label GATE read the edges,
+	# and the gate's question is "does anything in this picture carry a
+	# word". Messages carry the words and the graph's edges carry none,
+	# so the gate answered no and a sequence diagram came out as nine
+	# unlabelled arrows -- the exact defect this session has now met
+	# five times: one quantity computed in two places, at two moments,
+	# from two sources.
+	def _DrawnEdges()
+		if @bSequence and len(@aMessages) > 0  return @aMessages  ok
+		return This.Edges()
+
+	# A REPLY IS DRAWN AS A REPLY.
+	#
+	# UML dashes the return message, and the dash is not decoration: it
+	# is what separates "B is now doing something because A asked" from
+	# "A is being told the answer". A picture in which every message
+	# looks alike makes the reader count arrows to find out which is
+	# which, and counting is what a notation exists to spare them.
+	#
+	# The stroke it uses is DN4a's, the one written for dependency.
+	# Nothing new was drawn to say this.
+	def _MessageIsReturn(paList, pnIx)
+		if NOT @bSequence  return 0  ok
+		_mrE_ = paList[pnIx]
+		if NOT HasKey(_mrE_, "properties")  return 0  ok
+		if NOT isList(_mrE_["properties"])  return 0  ok
+		_aMrP_ = [ "uml", "relation", "kind", "type" ]
+		_nMrP_ = len(_aMrP_)
+		for _iMrP_ = 1 to _nMrP_
+			if NOT HasKey(_mrE_["properties"], _aMrP_[_iMrP_])  loop  ok
+			_mrV_ = StzLower("" + _mrE_["properties"][_aMrP_[_iMrP_]])
+			if _mrV_ = "return" or _mrV_ = "reply" or _mrV_ = "dashed"
+				return 1
+			ok
+		next
+		return 0
+
+	# AND ITS KEY, which must be unique per DRAWN LINE and not per pair.
+	#
+	# Paths are looked up by "from>to", which is an identity in a graph
+	# where a pair has one edge. A sequence repeats pairs -- Checkout
+	# calls Inventory to reserve and again to commit -- so both messages
+	# claimed one key, the label placer took the first match for both,
+	# and the second word was placed onto the first line or dropped.
+	def _DrawnEdgeKey(paList, pnIx)
+		_dkK_ = StzLower("" + paList[pnIx][:from] + ">" +
+			"" + paList[pnIx][:to])
+		if @bSequence  _dkK_ += "#" + pnIx  ok
+		return _dkK_
+
+	def NumberOfMessages()
+		return len(@aMessages)
+
+	# WHICH SHAPES WRITE THEIR NAME UNDERNEATH THEMSELVES.
+	#
+	# A round mark, a diamond, a stick figure and a bar have no inside a
+	# word will fit in, so the name goes below the glyph and the thing
+	# occupies more paper than its box. Two places needed this answer --
+	# the paper measurement and the lifeline -- and the second was about
+	# to hard-code its own list, which is how the two come to disagree
+	# and how a picture ends up correct in its size and wrong in its ink.
+	def _WritesNameBelow(pcId)
+		_wnId_ = StzLower("" + pcId)
+		_wnS_ = ""
+		_aWnN_ = This.Nodes()
+		_nWnN_ = len(_aWnN_)
+		for _iWnN_ = 1 to _nWnN_
+			if StzLower("" + _aWnN_[_iWnN_][:id]) = _wnId_
+				_wnS_ = StzLower("" + This._NativeShapeOf(_aWnN_[_iWnN_]))
+				exit
+			ok
+		next
+		if _wnS_ = ""  return 0  ok
+		_aWn_ = [ "circle", "doublecircle", "dot", "diamond",
+			"triangle", "invtriangle", "actor", "bar" ]
+		_nWn_ = len(_aWn_)
+		for _iWn_ = 1 to _nWn_
+			if _wnS_ = _aWn_[_iWn_]  return 1  ok
+		next
+		return 0
+
 	def _ContentExtent(paXY, nBoxW, nBoxH, poFont, nFsz)
 		_ceX0_ = 1000000000  _ceY0_ = 1000000000  _ceX1_ = 0 - 1000000000  _ceY1_ = 0 - 1000000000
 		_ceAny_ = 0
@@ -10046,22 +10353,17 @@ class stzDiagram from stzGraph
 			_ceR_ = _ceAt_[1] + _ceB_[1] / 2
 			_ceT_ = _ceAt_[2] - _ceB_[2] / 2
 			_ceBo_ = _ceAt_[2] + _ceB_[2] / 2
-			# a round cell writes its name underneath
-			_ceSh_ = StzLower("" + This._NativeShapeOf(_ceN_))
-			_aCeO5_ = [ "circle", "doublecircle", "dot", "diamond",
-				"triangle", "invtriangle", "actor", "bar" ]
-			_nCeO5_ = len(_aCeO5_)
-			for _iCeO5_ = 1 to _nCeO5_
-				_ceO_ = _aCeO5_[_iCeO5_]
-				if _ceSh_ != _ceO_  loop  ok
+			# a round cell writes its name underneath -- ASKED, not
+			# re-listed. The list used to live here and the lifeline was
+			# about to grow a second copy of it.
+			if This._WritesNameBelow("" + _ceN_[:id])
 				_ceBo_ += nFsz * 2.4
 				if isObject(poFont)
 					_ceW2_ = poFont.WidthOf("" + _ceN_[:label], nFsz) / 2
 					if _ceAt_[1] - _ceW2_ < _ceL_  _ceL_ = _ceAt_[1] - _ceW2_  ok
 					if _ceAt_[1] + _ceW2_ > _ceR_  _ceR_ = _ceAt_[1] + _ceW2_  ok
 				ok
-				exit
-			next
+			ok
 			if _ceL_ < _ceX0_  _ceX0_ = _ceL_  ok
 			if _ceT_ < _ceY0_  _ceY0_ = _ceT_  ok
 			if _ceR_ > _ceX1_  _ceX1_ = _ceR_  ok
@@ -10071,8 +10373,17 @@ class stzDiagram from stzGraph
 		if NOT _ceAny_  return []  ok
 
 		# the loops, and the words beside them
+		#
+		# ASKED OF THE DRAWN LIST, for the third time in this file. A
+		# sequence's self-message is a MESSAGE and carries the word; the
+		# graph edge underneath it carries none, so measuring the edges
+		# reserved a bare loop's width and "3-D Secure" was published
+		# with its last two letters off the right edge of the paper.
+		# A sequence's loop is its own width, too -- it is drawn from the
+		# lifeline, not around a box.
 		_ceSlr_ = This._SelfLoopReach(nBoxW, nBoxH) + 6
-		_aCeE11_ = This.Edges()
+		if @bSequence  _ceSlr_ = nBoxW * 0.30 + 6  ok
+		_aCeE11_ = This._DrawnEdges()
 		_nCeE11_ = len(_aCeE11_)
 		for _iCeE11_ = 1 to _nCeE11_
 			_ceE_ = _aCeE11_[_iCeE11_]
@@ -10090,6 +10401,12 @@ class stzDiagram from stzGraph
 			if _ceAt_[2] - _ceSlr_ < _ceY0_  _ceY0_ = _ceAt_[2] - _ceSlr_  ok
 			if _ceAt_[2] + _ceSlr_ > _ceY1_  _ceY1_ = _ceAt_[2] + _ceSlr_  ok
 		next
+
+		# the lifelines, which reach further down than any node does
+		if @bSequence
+			_ceSq_ = _ceY1_ + This._SeqDepth()
+			if _ceSq_ > _ceY1_  _ceY1_ = _ceSq_  ok
+		ok
 
 		# the returns, drawn where no node stands
 		_ceRr_ = This._ReturnReach(nBoxW, nBoxH, "")
