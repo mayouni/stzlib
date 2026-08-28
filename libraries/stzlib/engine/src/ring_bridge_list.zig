@@ -1,7 +1,27 @@
 const std = @import("std");
 const list = @import("list.zig");
 const value = @import("value.zig");
+const expr_mod = @import("expr.zig");
 const R = @import("ring_api.zig");
+
+// A W expression that does not compile is REFUSED with a named Ring
+// error -- NEVER mapped to an empty result. Before 2026-08-28 every W
+// seat answered an empty list for a malformed expression (unknown
+// @variable, host call, unclosed paren, trailing input, empty string),
+// so a broken condition read as "no items matched". Found by the W
+// conformance kit (stz: declarative/w). EvalColumns is deliberately
+// exempt: its empty-on-noncompile answer is a documented fallback
+// contract with the Ring caller's own eval path.
+fn requireCompilingExpr(p: *anyopaque) bool {
+    const src = gs(p, 2);
+    const n: usize = @intCast(gss(p, 2));
+    if (expr_mod.compile(src, n)) |prog| {
+        prog.deinit();
+        return true;
+    }
+    R.ring_vm_error(p, "W: the expression does not compile -- refused, not answered empty");
+    return false;
+}
 
 const g = R.ring_vm_api_getnumber;
 const gs = R.ring_vm_api_getstring;
@@ -286,9 +306,11 @@ fn ring_EqualsCS(p: *anyopaque) callconv(.c) void {
 
 // Expression-based operations (Map/Filter/Reduce/FindW)
 fn ring_MapExpr(p: *anyopaque) callconv(.c) void {
+    if (!requireCompilingExpr(p)) return;
     rcp(p, @ptrCast(list.stz_list_map_expr(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)))), HL);
 }
 fn ring_FilterExpr(p: *anyopaque) callconv(.c) void {
+    if (!requireCompilingExpr(p)) return;
     rcp(p, @ptrCast(list.stz_list_filter_expr(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)))), HL);
 }
 // Table calculated-column, engine-side. Arg1 = columns (a Ring list of column
@@ -388,6 +410,7 @@ fn retReduceValue(p: *anyopaque, r: ?*value.StzValue) void {
     value.stz_value_free(v);
 }
 fn ring_ReduceExpr(p: *anyopaque) callconv(.c) void {
+    if (!requireCompilingExpr(p)) return;
     // Build the init value INSIDE this DLL from a raw number (arg 3).
     const initv = value.stz_value_new_int(@intFromFloat(g(p, 3)));
     const r = list.stz_list_reduce_expr(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)), initv);
@@ -395,9 +418,11 @@ fn ring_ReduceExpr(p: *anyopaque) callconv(.c) void {
     retReduceValue(p, r);
 }
 fn ring_ReduceExprNoInit(p: *anyopaque) callconv(.c) void {
+    if (!requireCompilingExpr(p)) return;
     retReduceValue(p, list.stz_list_reduce_expr(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)), null));
 }
 fn ring_FindW(p: *anyopaque) callconv(.c) void {
+    if (!requireCompilingExpr(p)) return;
     const result = list.stz_list_find_first_w(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)));
     rn(p, if (result >= 0) @as(f64, @floatFromInt(result + 1)) else 0);
 }
@@ -529,6 +554,7 @@ fn ring_ContainsStringCS(p: *anyopaque) callconv(.c) void {
 }
 
 fn ring_FindAllW(p: *anyopaque) callconv(.c) void {
+    if (!requireCompilingExpr(p)) return;
     const l = getLC(p, 1);
     const n = if (l) |ll| ll.len() else 0;
     if (n == 0) {

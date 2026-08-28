@@ -1524,10 +1524,10 @@ fn valMul(a: Val, b: Val) Val {
 }
 
 fn valDiv(a: Val, b: Val) Val {
-    if (a.tag == .int_v and b.tag == .int_v) {
-        if (b.data.i == 0) return Val.initNull();
-        return Val.initInt(@divTrunc(a.data.i, b.data.i));
-    }
+    // Ring's own `/` is ALWAYS real division (Ring numbers are doubles).
+    // This seat used @divTrunc on int/int and diverged from its host --
+    // Map("7 / 2") answered 3 where plain Ring answers 3.50. Found by
+    // the W conformance kit (declarative/w, eval-division), 2026-08-28.
     if ((a.tag == .int_v or a.tag == .float_v) and (b.tag == .int_v or b.tag == .float_v)) {
         const bf = b.asFloat();
         if (bf == 0.0) return Val.initNull();
