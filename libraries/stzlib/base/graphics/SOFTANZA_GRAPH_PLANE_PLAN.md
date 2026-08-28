@@ -1117,13 +1117,49 @@ gate it declares.
   use case), Note and Cylinder, and clusters already draw a system
   boundary.
 
-  **KILL, and it fires on two of them:**
+  **KILL, and it was aimed at two of them — one measured and cleared,
+  one standing:**
 
   - **SEQUENCE.** Its y-axis is TIME and its x-axis is participants.
     That is not a graph layout, it is a schedule. If it cannot express
     as a layout MODE over the one renderer — the way :Modes and :Ring
     do — it is a second renderer wearing a profile's clothes, and the
     plan says so. Measured when built, never before.
+
+    **MEASURED 2026-08-28, AND IT DOES NOT FIRE — DN4c SHIPPED.** The
+    criterion was answerable because the two axes are NOT symmetrical,
+    which the question above assumes they are. Only ONE axis belongs to
+    the nodes: participants stand side by side, a single row, and
+    `_LayoutSequence()` is four lines of `stzGraphCanvas`. The other
+    axis belongs to the MESSAGES, and a message is an EDGE — its place
+    comes from its ordinal in the model, the same way a lane's depth or
+    a summit's side does. The time axis was never a layout question.
+
+    What it added, each entering the way DN1–DN4b did: a LIFELINE is a
+    node property drawn by the node pass (as a class's compartments
+    are); a MESSAGE is one more branch in the edge loop that already
+    had four — self-loop, routed, twin, generic; a REPLY is DN4a's
+    dashed stroke unchanged. **No second draw loop, which is the
+    criterion this paragraph actually named.**
+
+    **AND ONE THING THE MODEL OWED, found by the ordinary case.** A
+    checkout calls Inventory twice — reserve, then commit — and
+    `stzGraph` refused the second: it is a SIMPLE graph so that counts,
+    paths and metrics stay true. That refusal is CORRECT and was not
+    weakened for a picture. Who-talks-to-whom is a RELATION and does not
+    repeat; what-was-said-and-when is a SEQUENCE over it and repeats
+    freely. Modelling the second as the first would have produced a
+    graph in which Inventory has degree 4, which is false about the
+    system described. So messages became their own ordered list —
+    `AddMessage` / `AddMessageXT`, which also ensures the relation
+    exists via `ConnectIfAbsent`. The graph stays true and the picture
+    became possible, with neither giving ground. A sequence written with
+    plain `AddEdge` still draws, so an author whose pairs never repeat
+    never meets the difference.
+
+    Guards: `gg_adversarial.ring` §67, 13 assertions, each positive with
+    the negative sibling that proves it could have failed. Gallery:
+    `gg_uml_sequence.ring`.
   - **TIMING.** A timing diagram is a chart with a time axis and value
     bands. This library has a plot pipeline and that is the right home;
     drawing it here would be the graph plane pretending. Named as OUT
