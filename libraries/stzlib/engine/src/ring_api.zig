@@ -15,6 +15,11 @@ pub extern fn ring_vm_api_retnumber(p: *anyopaque, n: f64) void;
 pub extern fn ring_vm_api_retstring(p: *anyopaque, s: [*:0]const u8) void;
 pub extern fn ring_vm_api_retstring2(p: *anyopaque, s: [*]const u8, len: c_uint) void;
 pub extern fn ring_vm_api_retcpointer(p: *anyopaque, ptr: ?*anyopaque, cType: [*:0]const u8) void;
+// Ring's RING_API_ERROR macro expands to ring_vm_error(VM*, msg), and the
+// pPointer every bridge fn receives IS that VM pointer. Added 2026-08-28
+// for the W-seat refusal fix (synced from stz/engine, the authoritative
+// home -- see its PROVENANCE.md).
+pub extern fn ring_vm_error(p: *anyopaque, cStr: [*:0]const u8) void;
 
 // ─── Handle Table ───
 // Maps integer IDs (1-based) to raw engine pointers.
