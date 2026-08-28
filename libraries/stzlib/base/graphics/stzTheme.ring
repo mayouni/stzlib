@@ -53,7 +53,10 @@ func StzThemeCssPrefix()
 func StzThemeFromCSS(pcCss)
 	_p_ = StzThemeCssPrefix()
 	_a_ = []
-	for _line_ in StzSplit(pcCss, char(10))
+	_aLine2_ = StzSplit(pcCss, char(10))
+	_nLine2_ = len(_aLine2_)
+	for _iLine2_ = 1 to _nLine2_
+		_line_ = _aLine2_[_iLine2_]
 		_l_ = StzTrim(_line_)
 		if len(_l_) < len(_p_)  loop  ok
 		if StzSubStr(_l_, 1, len(_p_)) != _p_  loop  ok
@@ -72,7 +75,10 @@ func StzThemeFromCSS(pcCss)
 # guard reads the far side the way a web face would.
 func StzThemeTokenOf(paTokens, pcName)
 	_c_ = StzLower("" + pcName)
-	for _t_ in paTokens
+	_aT1_ = paTokens
+	_nT1_ = len(_aT1_)
+	for _iT1_ = 1 to _nT1_
+		_t_ = _aT1_[_iT1_]
 		if StzLower("" + _t_[1]) = _c_  return _t_[2]  ok
 	next
 	return ""
@@ -132,7 +138,10 @@ class stzTheme from stzObject
 	# so the three cannot disagree about which tokens exist.
 	def Tokens()
 		_a_ = []
-		for _r_ in This.Roles()
+		_aR2_ = This.Roles()
+		_nR2_ = len(_aR2_)
+		for _iR2_ = 1 to _nR2_
+			_r_ = _aR2_[_iR2_]
 			_cR_ = StzLower("" + _r_)
 			_base_ = This.ColorOf(_r_)
 			if _base_ = ""  loop  ok
@@ -141,7 +150,10 @@ class stzTheme from stzObject
 			# steps -- emitting steps for it would be four tokens nobody can
 			# use
 			if _cR_ = "background"  loop  ok
-			for _s_ in StzRoleStepNames()
+			_aS1_ = StzRoleStepNames()
+			_nS1_ = len(_aS1_)
+			for _iS1_ = 1 to _nS1_
+				_s_ = _aS1_[_iS1_]
 				_a_ + [ _cR_ + "-" + StzLower("" + _s_), This.StepOf(_r_, _s_) ]
 			next
 			_a_ + [ "on-" + _cR_, This.OnColorOf(_r_) ]
@@ -154,7 +166,10 @@ class stzTheme from stzObject
 		_p_ = StzThemeCssPrefix()
 		_c_ = "/* Softanza theme: " + @cName + " */" + char(10)
 		_c_ += ":root {" + char(10)
-		for _t_ in This.Tokens()
+		_aT1_ = This.Tokens()
+		_nT1_ = len(_aT1_)
+		for _iT1_ = 1 to _nT1_
+			_t_ = _aT1_[_iT1_]
 			_c_ += "  " + _p_ + _t_[1] + ": " + _t_[2] + ";" + char(10)
 		next
 		_c_ += "}" + char(10)

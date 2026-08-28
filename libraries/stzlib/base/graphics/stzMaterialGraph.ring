@@ -154,7 +154,10 @@ class stzMaterialGraph from stzObject
 		ok
 
 		_aI_ = []
-		for _x_ in _aIn_
+		_aX6_ = _aIn_
+		_nX6_ = len(_aX6_)
+		for _iX6_ = 1 to _nX6_
+			_x_ = _aX6_[_iX6_]
 			if isNumber(_x_)
 				_aI_ + _x_
 			else
@@ -205,7 +208,10 @@ class stzMaterialGraph from stzObject
 		#    a plausible-looking wrong order rather than refusing.
 		_nn_ = len(@aNodes)
 		for _cmi_ = 1 to _nn_
-			for _cmx_ in @aNodes[_cmi_][3]
+			_aCmx6_ = @aNodes[_cmi_][3]
+			_nCmx6_ = len(_aCmx6_)
+			for _iCmx6_ = 1 to _nCmx6_
+				_cmx_ = _aCmx6_[_iCmx6_]
 				if isNumber(_cmx_)  loop  ok
 				if This._NodeIndex(_cmx_) > 0  loop  ok
 				if This._IsDeclaredValue(_cmx_)  loop  ok
@@ -225,7 +231,10 @@ class stzMaterialGraph from stzObject
 			@oGraph.AddNode(@aNodes[_cmi_][1])
 		next
 		for _cmi_ = 1 to _nn_
-			for _cmx_ in @aNodes[_cmi_][3]
+			_aCmx5_ = @aNodes[_cmi_][3]
+			_nCmx5_ = len(_aCmx5_)
+			for _iCmx5_ = 1 to _nCmx5_
+				_cmx_ = _aCmx5_[_iCmx5_]
 				if isString(_cmx_) and This._NodeIndex(_cmx_) > 0
 					@oGraph.AddEdge(_cmx_, @aNodes[_cmi_][1])
 				ok
@@ -243,7 +252,10 @@ class stzMaterialGraph from stzObject
 		# stzGraph folds node ids to lowercase; the names already are.
 		_raw_ = @oGraph.TopologicalSort()
 		@aOrder = []
-		for _cmx_ in _raw_
+		_aCmx5_ = _raw_
+		_nCmx5_ = len(_aCmx5_)
+		for _iCmx5_ = 1 to _nCmx5_
+			_cmx_ = _aCmx5_[_iCmx5_]
 			@aOrder + ("" + _cmx_)
 		next
 
@@ -281,7 +293,10 @@ class stzMaterialGraph from stzObject
 	def ReuseSaved()
 		This._RequireCompiled()
 		_n_ = 0
-		for _u_ in @aUses
+		_aU4_ = @aUses
+		_nU4_ = len(_aU4_)
+		for _iU4_ = 1 to _nU4_
+			_u_ = _aU4_[_iU4_]
 			if _u_[2] > 1  _n_ += (_u_[2] - 1)  ok
 		next
 		return _n_
@@ -297,7 +312,10 @@ class stzMaterialGraph from stzObject
 		if NOT isObject(@oGraph)  return []  ok
 		_cN_ = StzLower("" + pcNode)
 		_a_ = []
-		for _x_ in @oGraph.ReachableFrom(_cN_)
+		_aX1_ = @oGraph.ReachableFrom(_cN_)
+		_nX1_ = len(_aX1_)
+		for _iX1_ = 1 to _nX1_
+			_x_ = _aX1_[_iX1_]
 			if StzLower("" + _x_) != _cN_  _a_ + ("" + _x_)  ok
 		next
 		return _a_
@@ -315,7 +333,10 @@ class stzMaterialGraph from stzObject
 
 	def IsSound()
 		This._RequireCompiled()
-		for _f_ in @aFindings
+		_aF3_ = @aFindings
+		_nF3_ = len(_aF3_)
+		for _iF3_ = 1 to _nF3_
+			_f_ = _aF3_[_iF3_]
 			if _f_[4] = :error  return 0  ok
 		next
 		return 1
@@ -338,7 +359,10 @@ class stzMaterialGraph from stzObject
 				"shader whose refusal names the wrong thing.")
 		ok
 		_c_ = "{ "
-		for _cN_ in @aOrder
+		_aCN2_ = @aOrder
+		_nCN2_ = len(_aCN2_)
+		for _iCN2_ = 1 to _nCN2_
+			_cN_ = _aCN2_[_iCN2_]
 			if _cN_ = @cOut  loop  ok
 			_c_ += "let n_" + _cN_ + " = " + This._Expr(_cN_) + "; "
 		next
@@ -348,9 +372,24 @@ class stzMaterialGraph from stzObject
 	# The material itself, ready for stzScene.SetMaterial.
 	def ToMaterial()
 		_o_ = new stzMaterialMaker()
-		for _c_ in @aColors    _o_.TakesColor(_c_)    next
-		for _s_ in @aScalars   _o_.TakesScalar(_s_)   next
-		for _t_ in @aTextures  _o_.TakesTexture(_t_)  next
+		_aC7_ = @aColors
+		_nC7_ = len(_aC7_)
+		for _iC7_ = 1 to _nC7_
+			_c_ = _aC7_[_iC7_]
+			_o_.TakesColor(_c_)
+		next
+		_aS6_ = @aScalars
+		_nS6_ = len(_aS6_)
+		for _iS6_ = 1 to _nS6_
+			_s_ = _aS6_[_iS6_]
+			_o_.TakesScalar(_s_)
+		next
+		_aT5_ = @aTextures
+		_nT5_ = len(_aT5_)
+		for _iT5_ = 1 to _nT5_
+			_t_ = _aT5_[_iT5_]
+			_o_.TakesTexture(_t_)
+		next
 		_o_.ForEachFragment(This.ToW())
 		return _o_
 
@@ -374,7 +413,10 @@ class stzMaterialGraph from stzObject
 		_exOp_ = This._Op(@aNodes[_exi_][2])
 		_exc_ = _exOp_[3]
 		_exk_ = 0
-		for _exx_ in @aNodes[_exi_][3]
+		_aExx4_ = @aNodes[_exi_][3]
+		_nExx4_ = len(_aExx4_)
+		for _iExx4_ = 1 to _nExx4_
+			_exx_ = _aExx4_[_iExx4_]
 			_exk_++
 			_exc_ = StzReplace(_exc_, "$" + _exk_, This._Ref(_exx_))
 		next
@@ -402,16 +444,34 @@ class stzMaterialGraph from stzObject
 	def _ConsumerCount(cName)
 		_ccn_ = len(@aNodes)  _cck_ = 0
 		for _cci_ = 1 to _ccn_
-			for _ccx_ in @aNodes[_cci_][3]
+			_aCcx3_ = @aNodes[_cci_][3]
+			_nCcx3_ = len(_aCcx3_)
+			for _iCcx3_ = 1 to _nCcx3_
+				_ccx_ = _aCcx3_[_iCcx3_]
 				if isString(_ccx_) and _ccx_ = cName  _cck_++  ok
 			next
 		next
 		return _cck_
 
 	def _IsDeclaredValue(cName)
-		for _c_ in @aColors    if _c_ = cName  return 1  ok  next
-		for _s_ in @aScalars   if _s_ = cName  return 1  ok  next
-		for _t_ in @aTextures  if _t_ = cName  return 1  ok  next
+		_aC4_ = @aColors
+		_nC4_ = len(_aC4_)
+		for _iC4_ = 1 to _nC4_
+			_c_ = _aC4_[_iC4_]
+			if _c_ = cName  return 1  ok
+		next
+		_aS3_ = @aScalars
+		_nS3_ = len(_aS3_)
+		for _iS3_ = 1 to _nS3_
+			_s_ = _aS3_[_iS3_]
+			if _s_ = cName  return 1  ok
+		next
+		_aT2_ = @aTextures
+		_nT2_ = len(_aT2_)
+		for _iT2_ = 1 to _nT2_
+			_t_ = _aT2_[_iT2_]
+			if _t_ = cName  return 1  ok
+		next
 		return 0
 
 	# "@normal", "@position.y" ... validated HERE so a typo is caught with
@@ -426,20 +486,29 @@ class stzMaterialGraph from stzObject
 		if _nDot_ > 0
 			_r_ = StzSubStr(_r_, 1, _nDot_ - 1)
 		ok
-		for _b_ in [ "normal", "position", "uv", "lambert", "color" ]
+		_aB1_ = [ "normal", "position", "uv", "lambert", "color" ]
+		_nB1_ = len(_aB1_)
+		for _iB1_ = 1 to _nB1_
+			_b_ = _aB1_[_iB1_]
 			if _r_ = _b_  return 1  ok
 		next
 		return 0
 
 	def _Op(cOp)
-		for _a_ in StzMaterialGraphOps()
+		_aA2_ = StzMaterialGraphOps()
+		_nA2_ = len(_aA2_)
+		for _iA2_ = 1 to _nA2_
+			_a_ = _aA2_[_iA2_]
 			if StzLower("" + _a_[1]) = cOp  return _a_  ok
 		next
 		return []
 
 	def _OpList()
 		_c_ = ""
-		for _a_ in StzMaterialGraphOps()
+		_aA1_ = StzMaterialGraphOps()
+		_nA1_ = len(_aA1_)
+		for _iA1_ = 1 to _nA1_
+			_a_ = _aA1_[_iA1_]
 			if _c_ != ""  _c_ += ", "  ok
 			_c_ += "" + _a_[1]
 		next
@@ -447,7 +516,10 @@ class stzMaterialGraph from stzObject
 
 	def _Spec(paSpec, cKey)
 		if NOT isList(paSpec)  return ""  ok
-		for _p_ in paSpec
+		_aP1_ = paSpec
+		_nP1_ = len(_aP1_)
+		for _iP1_ = 1 to _nP1_
+			_p_ = _aP1_[_iP1_]
 			if isList(_p_) and len(_p_) = 2
 				if StzLower("" + _p_[1]) = StzLower("" + cKey)
 					return _p_[2]

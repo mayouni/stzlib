@@ -273,7 +273,10 @@ class stzNotation from stzObject
 	# the glyph dispatch reads. "" when the node is untyped or absent.
 	def _KindOfNode(poDiag, pcId)
 		_id_ = StzLower("" + pcId)
-		for _nd_ in poDiag.Nodes()
+		_aNd7_ = poDiag.Nodes()
+		_nNd7_ = len(_aNd7_)
+		for _iNd7_ = 1 to _nNd7_
+			_nd_ = _aNd7_[_iNd7_]
 			if StzLower("" + _nd_[:id]) != _id_  loop  ok
 			if HasKey(_nd_, "properties") and isList(_nd_["properties"])
 				if HasKey(_nd_["properties"], "type")
@@ -304,7 +307,10 @@ class stzNotation from stzObject
 			# edge. The TREE grammar's editor face: in an org chart this
 			# reads "one supervisor per position".
 			if This._Forbids(:SecondParent) != "" and _f_ != _t_
-				for _e_ in poDiag.Edges()
+				_aE6_ = poDiag.Edges()
+				_nE6_ = len(_aE6_)
+				for _iE6_ = 1 to _nE6_
+					_e_ = _aE6_[_iE6_]
 					if StzLower("" + _e_[:to]) = _t_  return FALSE  ok
 				next
 			ok
@@ -336,7 +342,10 @@ class stzNotation from stzObject
 		if NOT isObject(poDiagram)  return _aOut_  ok
 
 		if @bClosed
-			for _nd_ in poDiagram.Nodes()
+			_aNd5_ = poDiagram.Nodes()
+			_nNd5_ = len(_aNd5_)
+			for _iNd5_ = 1 to _nNd5_
+				_nd_ = _aNd5_[_iNd5_]
 				_k_ = ""
 				if HasKey(_nd_, "properties") and isList(_nd_["properties"])
 					if HasKey(_nd_["properties"], "type")
@@ -358,7 +367,10 @@ class stzNotation from stzObject
 
 		_cSelfMsg_ = This._Forbids(:SelfLink)
 		if _cSelfMsg_ != ""
-			for _e_ in poDiagram.Edges()
+			_aE4_ = poDiagram.Edges()
+			_nE4_ = len(_aE4_)
+			for _iE4_ = 1 to _nE4_
+				_e_ = _aE4_[_iE4_]
 				if StzLower("" + _e_[:from]) = StzLower("" + _e_[:to])
 					_aOut_ + [ :rule = "notation-self-link",
 						:subject = "" + _e_[:from],
@@ -375,7 +387,10 @@ class stzNotation from stzObject
 		_cPar_ = This._Forbids(:SecondParent)
 		if _cPar_ != ""
 			_aSeen_ = []
-			for _e_ in poDiagram.Edges()
+			_aE3_ = poDiagram.Edges()
+			_nE3_ = len(_aE3_)
+			for _iE3_ = 1 to _nE3_
+				_e_ = _aE3_[_iE3_]
 				_t_ = StzLower("" + _e_[:to])
 				if _t_ = StzLower("" + _e_[:from])  loop  ok
 				_nAt_ = 0
@@ -402,7 +417,10 @@ class stzNotation from stzObject
 		# the edge whose removal breaks it is the actionable subject.
 		_cCyc_ = This._Forbids(:Cycle)
 		if _cCyc_ != ""
-			for _e_ in poDiagram.Edges()
+			_aE2_ = poDiagram.Edges()
+			_nE2_ = len(_aE2_)
+			for _iE2_ = 1 to _nE2_
+				_e_ = _aE2_[_iE2_]
 				_f_ = "" + _e_[:from]
 				_t_ = "" + _e_[:to]
 				if StzLower(_f_) = StzLower(_t_)  loop  ok
@@ -420,7 +438,10 @@ class stzNotation from stzObject
 		# finding, because unlike :SecondParent the edge itself is the
 		# thing the domain refuses
 		if len(@aKindRules) > 0
-			for _e_ in poDiagram.Edges()
+			_aE1_ = poDiagram.Edges()
+			_nE1_ = len(_aE1_)
+			for _iE1_ = 1 to _nE1_
+				_e_ = _aE1_[_iE1_]
 				_cIn_ = This._KindForbids(
 					This._KindOfNode(poDiagram, "" + _e_[:to]), :Inbound)
 				if _cIn_ != ""

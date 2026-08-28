@@ -607,10 +607,16 @@ func _StzSplitRoleStep(pcExpr)
 	if _n_ < 2 or _n_ >= len(_c_)  return []  ok
 	_base_ = StzSubStr(_c_, 1, _n_ - 1)
 	_step_ = StzSubStr(_c_, _n_ + 1, len(_c_) - _n_)
-	for _k_ in StzColorTreatments()
+	_ctA_ = StzColorTreatments()
+	_ctN_ = len(_ctA_)
+	for _ctI_ = 1 to _ctN_
+		_k_ = _ctA_[_ctI_]
 		if StzLower("" + _k_) = _step_  return [ _base_, _step_ ]  ok
 	next
-	for _k_ in StzRoleStepNames()
+	_rsA_ = StzRoleStepNames()
+	_rsN_ = len(_rsA_)
+	for _rsI_ = 1 to _rsN_
+		_k_ = _rsA_[_rsI_]
 		if StzLower("" + _k_) = _step_  return [ _base_, _step_ ]  ok
 	next
 	return []

@@ -91,8 +91,18 @@ class stzFrameGraph from stzObject
 				"no edges to anything.")
 		ok
 		@aPasses + [ _cN_, _aR_, _aW_, _f_ ]
-		for _r_ in _aR_  This._Note(_r_)  next
-		for _w_ in _aW_  This._Note(_w_)  next
+		_aR3_ = _aR_
+		_nR3_ = len(_aR3_)
+		for _iR3_ = 1 to _nR3_
+			_r_ = _aR3_[_iR3_]
+			This._Note(_r_)
+		next
+		_aW2_ = _aW_
+		_nW2_ = len(_aW2_)
+		for _iW2_ = 1 to _nW2_
+			_w_ = _aW2_[_iW2_]
+			This._Note(_w_)
+		next
 		@bCompiled = 0
 
 	def AddPassQ(pcName, paSpec)
@@ -125,7 +135,10 @@ class stzFrameGraph from stzObject
 			oG.AddNode(@aPasses[_i_][1])
 		next
 		for _i_ = 1 to _np_
-			for _r_ in @aPasses[_i_][2]
+			_aR5_ = @aPasses[_i_][2]
+			_nR5_ = len(_aR5_)
+			for _iR5_ = 1 to _nR5_
+				_r_ = _aR5_[_iR5_]
 				for _j_ = 1 to _np_
 					if _j_ != _i_ and This._Writes(_j_, _r_)
 						oG.AddEdge(@aPasses[_j_][1], @aPasses[_i_][1])
@@ -146,7 +159,10 @@ class stzFrameGraph from stzObject
 			# read "Composite" out, not "composite".
 			_raw_ = oG.TopologicalSort()
 			@aOrder = []
-			for _x_ in _raw_
+			_aX11_ = _raw_
+			_nX11_ = len(_aX11_)
+			for _iX11_ = 1 to _nX11_
+				_x_ = _aX11_[_iX11_]
 				@aOrder + This._DeclaredName("" + _x_)
 			next
 		ok
@@ -156,7 +172,10 @@ class stzFrameGraph from stzObject
 		#    last frame left, which is the classic source of a flicker that
 		#    only shows on the second frame.
 		for _i_ = 1 to _np_
-			for _r_ in @aPasses[_i_][2]
+			_aR4_ = @aPasses[_i_][2]
+			_nR4_ = len(_aR4_)
+			for _iR4_ = 1 to _nR4_
+				_r_ = _aR4_[_iR4_]
 				if NOT This._AnyWriter(_r_)
 					This._Finding(:read_before_write, :error,
 						"pass '" + @aPasses[_i_][1] + "' reads '" + _r_ +
@@ -166,7 +185,10 @@ class stzFrameGraph from stzObject
 		next
 
 		# 4. a resource WRITTEN and never READ is dead work
-		for _r_ in @aResources
+		_aR10_ = @aResources
+		_nR10_ = len(_aR10_)
+		for _iR10_ = 1 to _nR10_
+			_r_ = _aR10_[_iR10_]
 			if This._AnyWriter(_r_) and NOT This._AnyReader(_r_) and
 			   _r_ != :screen and _r_ != "screen"
 				This._Finding(:dead_resource, :warning,
@@ -215,7 +237,10 @@ class stzFrameGraph from stzObject
 
 	def IsSound()
 		This._RequireCompiled()
-		for _f_ in @aFindings
+		_aF9_ = @aFindings
+		_nF9_ = len(_aF9_)
+		for _iF9_ = 1 to _nF9_
+			_f_ = _aF9_[_iF9_]
 			if _f_[4] = :error  return 0  ok
 		next
 		return 1
@@ -252,7 +277,10 @@ class stzFrameGraph from stzObject
 		next
 
 		StzEngineGpuFrameBegin()
-		for _cP_ in @aOrder
+		_aCP8_ = @aOrder
+		_nCP8_ = len(_aCP8_)
+		for _iCP8_ = 1 to _nCP8_
+			_cP_ = _aCP8_[_iCP8_]
 			_i_ = This._PassIndex(_cP_)
 			if _i_ > 0
 				# `call` takes a VARIABLE holding the function, never an
@@ -270,7 +298,10 @@ class stzFrameGraph from stzObject
 	# draw into or sample.
 	def TargetOf(pcResource)
 		_c_ = "" + pcResource
-		for _a_ in @aAlias
+		_aA7_ = @aAlias
+		_nA7_ = len(_aA7_)
+		for _iA7_ = 1 to _nA7_
+			_a_ = _aA7_[_iA7_]
 			if _a_[1] = _c_
 				if _a_[2] >= 1 and _a_[2] <= len(@aTargets)
 					return @aTargets[_a_[2]]
@@ -280,7 +311,10 @@ class stzFrameGraph from stzObject
 		return 0
 
 	def FreeTargets()
-		for _t_ in @aTargets
+		_aT6_ = @aTargets
+		_nT6_ = len(_aT6_)
+		for _iT6_ = 1 to _nT6_
+			_t_ = _aT6_[_iT6_]
 			if _t_ > 0  StzEngineGpuTextureFree(_t_)  ok
 		next
 		@aTargets = []
@@ -298,7 +332,12 @@ class stzFrameGraph from stzObject
 		_v_ = This._SpecRaw(paSpec, cKey)
 		if isList(_v_)
 			_o_ = []
-			for _x_ in _v_  _o_ + ("" + _x_)  next
+			_aX1_ = _v_
+			_nX1_ = len(_aX1_)
+			for _iX1_ = 1 to _nX1_
+				_x_ = _aX1_[_iX1_]
+				_o_ + ("" + _x_)
+			next
 			return _o_
 		ok
 		if isString(_v_) and _v_ != ""
@@ -308,7 +347,10 @@ class stzFrameGraph from stzObject
 
 	def _SpecRaw(paSpec, cKey)
 		if NOT isList(paSpec)  return ""  ok
-		for _p_ in paSpec
+		_aP5_ = paSpec
+		_nP5_ = len(_aP5_)
+		for _iP5_ = 1 to _nP5_
+			_p_ = _aP5_[_iP5_]
 			if isList(_p_) and len(_p_) = 2
 				if StzLower("" + _p_[1]) = StzLower("" + cKey)
 					return _p_[2]
@@ -318,7 +360,10 @@ class stzFrameGraph from stzObject
 		return ""
 
 	def _Note(cRes)
-		for _r_ in @aResources
+		_aR4_ = @aResources
+		_nR4_ = len(_aR4_)
+		for _iR4_ = 1 to _nR4_
+			_r_ = _aR4_[_iR4_]
 			if _r_ = cRes  return  ok
 		next
 		@aResources + cRes
@@ -341,7 +386,10 @@ class stzFrameGraph from stzObject
 		return 0
 
 	def _Writes(nPass, cRes)
-		for _w_ in @aPasses[nPass][3]
+		_aW3_ = @aPasses[nPass][3]
+		_nW3_ = len(_aW3_)
+		for _iW3_ = 1 to _nW3_
+			_w_ = _aW3_[_iW3_]
 			if _w_ = cRes  return 1  ok
 		next
 		return 0
@@ -356,7 +404,10 @@ class stzFrameGraph from stzObject
 	def _AnyReader(cRes)
 		_n_ = len(@aPasses)
 		for _i_ = 1 to _n_
-			for _r_ in @aPasses[_i_][2]
+			_aR2_ = @aPasses[_i_][2]
+			_nR2_ = len(_aR2_)
+			for _iR2_ = 1 to _nR2_
+				_r_ = _aR2_[_iR2_]
 				if _r_ = cRes  return 1  ok
 			next
 		next
@@ -368,18 +419,27 @@ class stzFrameGraph from stzObject
 	# reason the order is derived first.
 	def _ComputeLifetimes()
 		@aLive = []
-		for _r_ in @aResources
+		_aR3_ = @aResources
+		_nR3_ = len(_aR3_)
+		for _iR3_ = 1 to _nR3_
+			_r_ = _aR3_[_iR3_]
 			_first_ = 0
 			_last_ = 0
 			_step_ = 0
-			for _cP_ in @aOrder
+			_aCP2_ = @aOrder
+			_nCP2_ = len(_aCP2_)
+			for _iCP2_ = 1 to _nCP2_
+				_cP_ = _aCP2_[_iCP2_]
 				_step_++
 				_i_ = This._PassIndex(_cP_)
 				if _i_ = 0  loop  ok
 				if This._Writes(_i_, _r_) and _first_ = 0
 					_first_ = _step_
 				ok
-				for _rd_ in @aPasses[_i_][2]
+				_aRd1_ = @aPasses[_i_][2]
+				_nRd1_ = len(_aRd1_)
+				for _iRd1_ = 1 to _nRd1_
+					_rd_ = _aRd1_[_iRd1_]
 					if _rd_ = _r_  _last_ = _step_  ok
 				next
 			next
@@ -395,7 +455,10 @@ class stzFrameGraph from stzObject
 	def _ComputeAliasing()
 		@aAlias = []
 		_slotEnd_ = []          # last step each physical slot is busy until
-		for _L_ in @aLive
+		_aL1_ = @aLive
+		_nL1_ = len(_aL1_)
+		for _iL1_ = 1 to _nL1_
+			_L_ = _aL1_[_iL1_]
 			_placed_ = 0
 			for _s_ = 1 to len(_slotEnd_)
 				if _slotEnd_[_s_] < _L_[2]        # free before this one starts
