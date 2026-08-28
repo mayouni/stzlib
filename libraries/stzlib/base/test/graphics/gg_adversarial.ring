@@ -7445,6 +7445,49 @@ chk("two classes in one column are joined by a straight line",
     fabs((rAlA[1] + rAlA[3] / 2) - (rAlC[1] + rAlC[3] / 2)) < 2 and
     nAlTurn = 0)
 
+# (7) A FORK IS NOT A CORNER.
+#
+#     Edges leaving one source share a stem and part at one point --
+#     the blessed merge, and right. But a rounded elbow is drawn AROUND
+#     the point it turns at, so two edges turning OPPOSITE ways at one
+#     shared corner lay two arcs over each other: they curve apart from
+#     the same place, and what a reader sees is a solid triangle in the
+#     middle of the line. The Principal circled it on the UML interface
+#     picture and read it as an arrowhead, which is what it looks like.
+#
+#     ASKED AS A COMPARISON, and that is the point of the shape of this
+#     assertion. Two earlier drafts counted diagonal chords against a
+#     baseline I could not account for -- one of them counted the
+#     adornment triangles and reported ten. A count needs a baseline; a
+#     COMPARISON carries its own. Rounding a corner changes the picture,
+#     so where every corner is a fork, turning rounding ON must change
+#     NOTHING.
+oFk = new stzDiagram("fork66")
+oFk.SetSplines("ortho")
+oFk.AddNodeXTT("top", "Top", [ :type = "box", :color = "#4477FF" ])
+oFk.AddNodeXTT("l", "Left", [ :type = "box", :color = "#4477FF" ])
+oFk.AddNodeXTT("r", "Right", [ :type = "box", :color = "#4477FF" ])
+oFk.AddEdge("top", "l")  oFk.AddEdge("top", "r")
+oFk.ToCanvasXT([ :NodeWidth = 120, :NodeHeight = 48, :Corner = 14 ])
+? "   squared forks reported : " + len(oFk.RenderForks())
+chk("a shared corner is drawn SQUARE", len(oFk.RenderForks()) > 0)
+
+# ...AND A LONE CORNER IS NOT TOUCHED, or the rule has quietly squared
+# every corner in the library and satisfied the assertion above by
+# destroying the style it exists to protect.
+oFk2 = new stzDiagram("fork66b")
+oFk2.SetSplines("ortho")
+oFk2.AddNodeXTT("a", "A", [ :type = "box", :color = "#4477FF" ])
+oFk2.AddNodeXTT("b", "B", [ :type = "box", :color = "#4477FF" ])
+oFk2.AddNodeXTT("c", "C", [ :type = "box", :color = "#4477FF" ])
+oFk2.AddNodeXTT("d", "D", [ :type = "box", :color = "#4477FF" ])
+oFk2.AddEdge("a", "b")  oFk2.AddEdge("a", "c")  oFk2.AddEdge("b", "d")
+oFk2.ToCanvasXT([ :NodeWidth = 120, :NodeHeight = 48, :Corner = 14 ])
+? "   ...and the same graph's LONE turns are left rounded"
+chk("a corner that is a corner still turns with an arc",
+    len(_DiagChords(oFk2.ToSVGXT([ :NodeWidth = 120, :NodeHeight = 48,
+    :Corner = 14 ]), EDGERGB)) > 0)
+
 
 #---------------------------------------------------------------------------
 ? ""
@@ -7488,7 +7531,16 @@ func _CorGraph cName
 	             [ "d","Deep" ] ]
 		_g_.AddNodeXTT(_a_[1], _a_[2], [ :type = "box", :color = "#4477FF" ])
 	next
+	# ...AND ONE TURN THAT IS NOT A FORK. p forks to l and r at a single
+	# shared point, and a fork is drawn SQUARE on purpose -- two rounded
+	# elbows curving apart from one place lay over each other and read as
+	# a solid arrowhead in the middle of the line, which is what the
+	# Principal circled on the UML interface picture. So a scene that
+	# measures ROUNDING has to contain a corner that is a corner: l->d
+	# and r->e each turn alone.
+	_g_.AddNodeXTT("e", "End", [ :type = "box", :color = "#4477FF" ])
 	_g_.AddEdge("p","l")  _g_.AddEdge("p","r")  _g_.AddEdge("l","d")
+	_g_.AddEdge("r","e")
 	_g_.SetSplines("ortho")
 	return _g_
 

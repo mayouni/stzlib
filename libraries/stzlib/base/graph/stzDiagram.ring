@@ -327,6 +327,7 @@ class stzDiagram from stzGraph
 	@aStubOf = []
 	@aReturnOf = []
 	@aRenderAdorn = []
+	@aRenderForks = []
 	@aRenderHops = []
 	# how far apart two return lanes stand -- a clearance plus whatever
 	# is written beside them
@@ -3525,6 +3526,7 @@ class stzDiagram from stzGraph
 		#      its own height, cycled among four, so neighbouring trunks do
 		#      not overlap.
 		@aChanUsed = []
+		@aRenderForks = []
 		@aRenderNodeRects = []
 		@aRenderLabels = []
 		@aRenderNodeLabels = []
@@ -6058,6 +6060,11 @@ class stzDiagram from stzGraph
 	def RenderAdornments()
 		return @aRenderAdorn
 
+	# The vertices where a stem forked and the corner was therefore drawn
+	# SQUARE: [ x, y, key ]. See _VertexIsFork.
+	def RenderForks()
+		return @aRenderForks
+
 	# Where the picture declared a crossing with a wire hop. Published
 	# so an instrument can ask whether each one had room to be read as
 	# one -- a bump a few pixels from a rounded elbow is two curves in a
@@ -7257,6 +7264,26 @@ class stzDiagram from stzGraph
 	# empty list when the vertex does not earn one: a straight-through
 	# point, a segment too short to give up the radius, or a radius so
 	# small the arc is not ink.
+	# DOES ANOTHER EDGE TURN AT THIS SAME POINT?
+	#
+	# Asked of the published paths, so it reads what the other edges
+	# actually DO rather than what the router meant them to. A vertex
+	# shared by two paths is a fork, and a fork drawn as two rounded
+	# corners is a shape rather than a junction.
+	def _VertexIsFork(nX, nY, pcKey)
+		_vfK_ = StzLower("" + pcKey)
+		for _vfR_ in @aEdgePaths
+			if StzLower("" + _vfR_[1]) = _vfK_  loop  ok
+			_vfN_ = len(_vfR_[2]) / 2
+			for _vfI_ = 1 to _vfN_
+				if fabs(_vfR_[2][_vfI_ * 2 - 1] - nX) < 1.5 and
+				   fabs(_vfR_[2][_vfI_ * 2] - nY) < 1.5
+					return 1
+				ok
+			next
+		next
+		return 0
+
 	def _ElbowArc(nX1, nY1, nX2, nY2, nX3, nY3, nMaxR)
 		_eaAx_ = nX1 - nX2   _eaAy_ = nY1 - nY2
 		_eaBx_ = nX3 - nX2   _eaBy_ = nY3 - nY2
@@ -7348,6 +7375,7 @@ class stzDiagram from stzGraph
 		# that is not the same number by accident: two curved features
 		# are confusable with each other in a way that a curve and a
 		# corner are not, since a corner turns and a hop comes back.
+		_eoArcs_ = []
 		_eoRoom_ = _eoR_ + This._LineClearance()
 		_eoPair_ = _eoR_ * 2 + This._LineClearance()
 
@@ -7438,6 +7466,8 @@ class stzDiagram from stzGraph
 					if _eoDir_ = -1  _eoCross_ = reverse(_eoCross_)  ok
 					for _eoC_ in _eoCross_
 						if @nDrawPass = 2  @aRenderHops + [ _eoC_, _eoY1_, cKey ]  ok
+						_eoArcs_ + [ len(_eoOut_) / 2 + 1,
+							len(_eoOut_) / 2 + 9 ]
 						_eoOut_ + (_eoC_ - _eoDir_ * _eoR_)
 						_eoOut_ + _eoY1_
 						for _eoA_ = 1 to 7
@@ -7453,6 +7483,8 @@ class stzDiagram from stzGraph
 					if _eoDir_ = -1  _eoCross_ = reverse(_eoCross_)  ok
 					for _eoC_ in _eoCross_
 						if @nDrawPass = 2  @aRenderHops + [ _eoX1_, _eoC_, cKey ]  ok
+						_eoArcs_ + [ len(_eoOut_) / 2 + 1,
+							len(_eoOut_) / 2 + 9 ]
 						_eoOut_ + _eoX1_
 						_eoOut_ + (_eoC_ - _eoDir_ * _eoR_)
 						for _eoA_ = 1 to 7
@@ -7478,10 +7510,37 @@ class stzDiagram from stzGraph
 			# eats into, or a short jog would round away entirely; and
 			# never wider than the hop's own end margin, so an arc and a
 			# hop on one segment cannot reach each other.
+			# ...AND NEVER WHERE A STEM FORKS.
+			#
+			# Edges leaving one source share a stem and part at one
+			# point -- the blessed merge, and right. But a rounded elbow
+			# is drawn AROUND the point it turns at, so two edges
+			# turning opposite ways at one shared corner lay two arcs
+			# over each other: they curve apart from the same place and
+			# what a reader sees is a solid triangle sitting in the
+			# middle of the line. The Principal circled it and read it
+			# as an arrowhead, which is exactly what it looks like.
+			#
+			# A fork is not a corner. Where more than one path turns at
+			# this vertex the corner is drawn SQUARE, which is what a
+			# fork actually is, and each line leaves it cleanly.
 			_eoArc_ = []
 			if @bRoundElbows and _eoI_ + 5 <= _eoN_
-				_eoArc_ = This._ElbowArc(_eoX1_, _eoY1_, _eoX2_, _eoY2_,
-					paFlat[_eoI_ + 4], paFlat[_eoI_ + 5], _eoR_)
+				if This._VertexIsFork(_eoX2_, _eoY2_, cKey)
+					# PUBLISHED, so an instrument can ask what the
+					# drawing DID rather than infer it from a chord
+					# count against a baseline nobody can account for.
+					# Two drafts of the guard for this rule measured the
+					# wrong thing -- one of them counted the adornment
+					# triangles -- because the fact was not readable.
+					if @nDrawPass = 2
+						@aRenderForks + [ _eoX2_, _eoY2_, cKey ]
+					ok
+				else
+					_eoArc_ = This._ElbowArc(_eoX1_, _eoY1_, _eoX2_,
+						_eoY2_, paFlat[_eoI_ + 4], paFlat[_eoI_ + 5],
+						_eoR_)
+				ok
 			ok
 			if len(_eoArc_) > 0
 				for _eoS_ = 1 to len(_eoArc_)  _eoOut_ + _eoArc_[_eoS_]  next
@@ -7503,7 +7562,7 @@ class stzDiagram from stzGraph
 		# UML needs it for dependency, which is dashed by definition and
 		# means something different from the solid line beside it.
 		if This._EdgeIsDashed(cKey)
-			This._StrokeDashed(oC, _eoOut_, cColor, nWidth)
+			This._StrokeDashed(oC, _eoOut_, cColor, nWidth, _eoArcs_)
 		else
 			oC.AddPolylineQ(_eoOut_).Stroke(cColor, nWidth)
 		ok
@@ -8736,13 +8795,41 @@ class stzDiagram from stzGraph
 	# One polyline, drawn as alternating pieces. Walks the path by
 	# LENGTH rather than by segment, so a dash never restarts at a
 	# corner and the pattern reads as one rhythm around the whole turn.
-	def _StrokeDashed(oC, paFlat, cColor, nWidth)
+	def _StrokeDashed(oC, paFlat, cColor, nWidth, paArcs)
 		_sdN_ = len(paFlat)
 		if _sdN_ < 4  return  ok
 		_sdOn_ = 7  _sdOff_ = 5
 		_sdRem_ = _sdOn_
 		_sdInk_ = 1
 		for _sdI_ = 1 to _sdN_ - 3 step 2
+			# WHILE THE LINE IS BROKEN, THE ARC STAYS WHOLE.
+			#
+			# A dash says what KIND of relationship this is. A hop says
+			# "these two cross and do not touch". Let the dash cut the
+			# hop and the two meanings corrupt each other: what survives
+			# of a broken quarter-arc is a short stroke with a bend in
+			# it, and the Principal read it as an arrowhead in the middle
+			# of a line -- which is exactly what it looks like.
+			#
+			# So the arc is drawn CONTINUOUS on a dashed edge, and the
+			# dash resumes on the far side of it. A statement drawn in
+			# fragments is not that statement.
+			_sdArc_ = 0
+			for _sdA_ in paArcs
+				if _sdI_ >= _sdA_[1] * 2 - 1 and _sdI_ < _sdA_[2] * 2 - 1
+					_sdArc_ = 1
+					exit
+				ok
+			next
+			if _sdArc_
+				oC.Flush()
+				oC.AddLineQ(paFlat[_sdI_], paFlat[_sdI_ + 1],
+					paFlat[_sdI_ + 2], paFlat[_sdI_ + 3]).
+					Stroke(cColor, nWidth)
+				_sdInk_ = 1
+				_sdRem_ = _sdOn_
+				loop
+			ok
 			_sdX1_ = paFlat[_sdI_]      _sdY1_ = paFlat[_sdI_ + 1]
 			_sdX2_ = paFlat[_sdI_ + 2]  _sdY2_ = paFlat[_sdI_ + 3]
 			_sdLen_ = sqrt((_sdX2_ - _sdX1_) * (_sdX2_ - _sdX1_) +
