@@ -7228,6 +7228,152 @@ next
 chkeq("a summit route turns exactly once", nSvT, 1)
 
 
+sec("-- 66. UML: THE DOMAIN THAT IS ONLY A NOTATION ------------")
+#
+# DN4, and the strongest test DN0's claim has had.
+#
+# Every other domain in this plane arrived beside a MODEL -- the org
+# chart has stzOrgChart, the state machine and BPMN have stzWorkflow.
+# UML class diagrams have none and need none: a class diagram IS a
+# graph, and everything that makes it UML rather than a box-and-line
+# drawing is notation. So the domain is one profile, with no renderer
+# behind it.
+#
+# THE PLAN'S KILL CRITERION asked whether compartments could express as
+# a node PROPERTY over the existing glyph machinery. They can, and the
+# reason is worth keeping: a compartmented class is NOT a glyph -- DN0
+# defines a glyph as the shape name the renderer already draws, and this
+# is a plain box with contents. It is a size derived from what the node
+# holds, over _BoxOf, which every consumer already reads.
+#---------------------------------------------------------------------------
+
+oUm = new stzDiagram("uml66")
+oUm.SetNotation(StzUmlNotation())
+oUm.AddNodeXTT("shape", "Shape", [ :type = "abstract",
+	:attributes = [ "# origin : Point" ],
+	:operations = [ "+ area() : Real",
+		"+ intersects(Shape, Tolerance) : Boolean" ] ])
+oUm.AddNodeXTT("circle", "Circle", [ :type = "class",
+	:attributes = [ "- radius : Real" ] ])
+oUm.AddNodeXTT("poly", "Polygon", [ :type = "class",
+	:attributes = [ "- vertices : Point[]" ] ])
+oUm.AddNodeXTT("pt", "Point", [ :type = "datatype",
+	:attributes = [ "- x : Real", "- y : Real" ] ])
+oUm.AddNodeXTT("bag", "Bag", [ :type = "class" ])
+oUm.AddNodeXTT("log", "Logger", [ :type = "class",
+	:operations = [ "+ log(String)" ] ])
+oUm.AddEdgeXTT("shape", "circle", "", [ :uml = :Inheritance ])
+oUm.AddEdgeXTT("poly", "pt", "", [ :uml = :Composition ])
+oUm.AddEdgeXTT("bag", "pt", "", [ :uml = :Aggregation ])
+oUm.AddEdgeXTT("shape", "log", "", [ :uml = :Dependency ])
+oUm.AddEdgeXTT("circle", "pt", "", [ :uml = :Association ])
+oUm.AddEdgeXTT("bag", "log", "", [ :uml = :Realization ])
+oUm.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 140, :NodeHeight = 52,
+	:FontSize = 13 ])
+
+chkeq("declaring the UML notation puts the picture under it",
+      oUm.NotationO().Name_(), "uml")
+
+# (1) A CLASS IS AS BIG AS WHAT IT HOLDS. The criterion's own claim,
+#     asked of the drawn rectangles: a class with four members is taller
+#     than one with none, and a class whose longest signature is wide is
+#     wider than the caller's cell.
+rUmS = _Rect49(oUm, "shape")
+rUmB = _Rect49(oUm, "bag")
+? "   Shape (4 members) is " + rUmS[3] + "x" + rUmS[4] +
+  ", Bag (none) is " + rUmB[3] + "x" + rUmB[4]
+chk("a class with members is taller than one without", rUmS[4] > rUmB[4])
+chk("...and a long signature makes it wider than the caller's cell",
+    rUmS[3] > 140)
+
+# ...AND THE BAND RULES ARE PART OF THAT HEIGHT. The drawing inserts
+# 6px at each rule; the SIZE counted only the lines, so a class with
+# four lines and two rules was measured 12px shorter than it draws. The
+# text then reached the box's own border and the adornment -- whose apex
+# touches that border -- landed on the last signature. Two places
+# computing one height, which is this session's whole story.
+nUmLo = 0
+for aUmL in oUm.RenderNodeLabels()
+	if aUmL[1] != "shape"  loop  ok
+	nUmLo = aUmL[3] + aUmL[5] / 2
+next
+chk("a class's box holds its own text, rules included",
+    nUmLo <= rUmS[2] + rUmS[4] + 1)
+
+# (2) THE LINE IS THE SAME LINE. This is the claim UML rests on and the
+#     reason an adornment is not decoration: inheritance, composition
+#     and aggregation are drawn with an IDENTICAL stroke, and the shape
+#     at its end is the entire difference between "is a kind of", "is
+#     part of and dies with it", and "is part of and outlives it".
+#
+#     Asserted by SHAPE rather than by pixels -- an instrument that has
+#     to read pixels to find out what an edge ended in is one that gets
+#     written once and never maintained.
+aUmAd = oUm.RenderAdornments()
+? "   " + len(aUmAd) + " adornments drawn"
+nUmTri = 0  nUmFilled = 0  nUmHollow = 0
+for aUmA in aUmAd
+	if aUmA[2] = "triangle"  nUmTri++  ok
+	if aUmA[2] = "diamond" and aUmA[3]  nUmFilled++  ok
+	if aUmA[2] = "diamond" and NOT aUmA[3]  nUmHollow++  ok
+next
+chkeq("inheritance and realization both end in a hollow triangle",
+      nUmTri, 2)
+chkeq("composition ends in a FILLED diamond", nUmFilled, 1)
+chkeq("aggregation ends in a HOLLOW one", nUmHollow, 1)
+chkeq("...and an association ends in neither", len(aUmAd), 4)
+
+# ...AT THE END THE AUTHOR NAMED FIRST. The general class, or the whole,
+# is written first -- the direction this library declares every
+# hierarchy in -- so the adornment sits at the SOURCE.
+nUmAt = 0
+for aUmA in aUmAd
+	if aUmA[1] != "poly>pt"  loop  ok
+	rUmP = _Rect49(oUm, "poly")
+	if _DistRect62(rUmP, aUmA[4], aUmA[5]) <= 2  nUmAt = 1  ok
+next
+chk("the adornment sits on the end the author named first", nUmAt = 1)
+
+# (3) A DEPENDENCY IS DASHED AND AN ASSOCIATION IS NOT. The stroke is
+#     the only thing that separates them, and the dash needed no new
+#     canvas capability -- it is the polyline emitted in pieces, which
+#     is what a dash IS. BPMN's suspension gets it back as a side
+#     effect, which is what a shared foundation is for.
+chk("a dependency is drawn dashed", oUm._EdgeIsDashed("shape>log"))
+chk("...and an association is not", NOT oUm._EdgeIsDashed("circle>pt"))
+chk("...nor is an inheritance", NOT oUm._EdgeIsDashed("shape>circle"))
+chk("...while a REALIZATION is, being a dashed generalization",
+    oUm._EdgeIsDashed("bag>log"))
+
+# (4) THE PICTURE STILL OBEYS THE CONTRACT. A domain is a profile, not
+#     an exemption.
+nUmBad = 0
+for aUmE in oUm.Edges()
+	rUmA = _Rect49(oUm, StzLower("" + aUmE[:from]))
+	rUmB2 = _Rect49(oUm, StzLower("" + aUmE[:to]))
+	aUmP = []
+	for aUmR in oUm.RenderEdgePaths()
+		if aUmR[1] = StzLower("" + aUmE[:from]) + ">" +
+		   StzLower("" + aUmE[:to])  aUmP = aUmR[2]  ok
+	next
+	if len(aUmP) < 4  loop  ok
+	nUmN = len(aUmP) / 2
+	if _DistRect62(rUmA, aUmP[1], aUmP[2]) > 16  nUmBad++  ok
+	if _DistRect62(rUmB2, aUmP[nUmN * 2 - 1], aUmP[nUmN * 2]) > 16
+		nUmBad++
+	ok
+next
+chkeq("every relationship touches both the classes it names", nUmBad, 0)
+
+nUmOff = 0
+for rUm in oUm.RenderNodeRects()
+	if rUm[1] < 0 or rUm[2] < 0  nUmOff++  ok
+	if rUm[1] + rUm[3] > oUm.LastCanvas().Width()  nUmOff++  ok
+	if rUm[2] + rUm[4] > oUm.LastCanvas().Height()  nUmOff++  ok
+next
+chkeq("...and no class is drawn off the paper measured for it", nUmOff, 0)
+
+
 #---------------------------------------------------------------------------
 ? ""
 if nSecClock > 0

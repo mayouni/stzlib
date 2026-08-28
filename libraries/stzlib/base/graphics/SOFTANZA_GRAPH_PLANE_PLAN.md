@@ -1090,7 +1090,35 @@ gate it declares.
   meeting — 13px vertically, hidden inside an arrowhead, and 66px
   horizontally.
 - **DN4 — UML class diagrams.** Compartments and edge-end adornments —
-  the notation half the industry reads daily.
+  the notation half the industry reads daily. Scoped to the CLASS
+  diagram: classes, interfaces, the five relationship kinds,
+  multiplicities. Sequence and activity diagrams are separate notations
+  that happen to share a name.
+
+  **KILL: if compartments cannot express as a node PROPERTY over the
+  existing glyph machinery, say so and keep them out — measured, not
+  assumed.** Measured before building, and it passes on three counts:
+
+  1. **Per-node size already exists.** `@aBoxOf` / `_BoxOf` give every
+     node its own drawn size, and this week established that every
+     consumer reads it — the edge clip, the paper's extent, the row
+     placement, the arrival attach. A class taller than a cell needs no
+     new mechanism; it needs a size derived from its content.
+  2. **A compartmented class is drawable with the primitives in hand.**
+     A rectangle, two horizontal rules, three text blocks. `AddRect`,
+     `AddLine`, `AddText` — nothing new, and `_WrapLabel` /
+     `_LabelBlock` already measure text the way the drawing draws it.
+  3. **It is NOT a glyph, and saying so is the answer.** DN0 defines a
+     glyph as the shape name the renderer already draws, and a
+     compartmented class is not a shape — it is a BOX plus content. So
+     it enters as a node property whose size derives from what it holds,
+     which is exactly the form the criterion asked about.
+
+  The edge-end adornments pass the same way: a hollow triangle, a filled
+  or hollow diamond and an open arrow are `AddPolygon`, and a DASHED
+  line — the channel DN3a recorded as missing for BPMN's suspension —
+  is the existing polyline emitted as alternating segments. No new
+  canvas capability, which also makes DN3b cheaper rather than dearer.
 - **DN5 — electric/electronic.** The stress test, LAST on purpose: a
   net is a HYPEREDGE (one wire, three pins), which the pair-edge model
   must earn honestly — junction nodes drawn as dots, or the domain is

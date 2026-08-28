@@ -326,6 +326,7 @@ class stzDiagram from stzGraph
 	@aLaneKept = []
 	@aStubOf = []
 	@aReturnOf = []
+	@aRenderAdorn = []
 	@aRenderHops = []
 	# how far apart two return lanes stand -- a clearance plus whatever
 	# is written beside them
@@ -884,6 +885,22 @@ class stzDiagram from stzGraph
 		@aBoxOf = []
 		_oNn_ = This.NotationO()
 		for _nd_ in This.Nodes()
+			# A CLASS IS AS BIG AS WHAT IT HOLDS -- DN4.
+			#
+			# A compartmented node is not a new GLYPH: DN0 defines a
+			# glyph as the shape name the renderer already draws, and
+			# this is a plain box with contents. It is a node PROPERTY
+			# whose SIZE derives from what it holds, which is why it
+			# belongs here beside the mark's scale rather than in the
+			# vocabulary. Everything downstream already asks _BoxOf for
+			# a node's own size, so a class taller than a cell needed no
+			# new mechanism -- only a size to answer with.
+			_aCp_ = This._CompartmentsOf(_nd_)
+			if len(_aCp_) > 1
+				_aSz_ = This._CompartmentBox(_aCp_, nBoxW, nBoxH)
+				@aBoxOf + [ StzLower("" + _nd_[:id]), _aSz_[1], _aSz_[2] ]
+				loop
+			ok
 			_k_ = ""
 			if HasKey(_nd_, "properties") and isList(_nd_["properties"])
 				if HasKey(_nd_["properties"], "type")
@@ -900,6 +917,76 @@ class stzDiagram from stzGraph
 			@aBoxOf + [ StzLower("" + _nd_[:id]), _d_, _d_ ]
 		next
 		return This
+
+	# WHAT THIS NODE HOLDS, compartment by compartment.
+	#
+	# The first is always the name -- every class has one, and a class
+	# with nothing else is a plain labelled box, which is what a reader
+	# expects of a class whose members are not the point of the picture.
+	# The rest come from properties the author writes in the domain's own
+	# words: attributes and operations for UML.
+	#
+	# Returns a list of BLOCKS, each a list of lines. One block means
+	# "no compartments" and the caller draws an ordinary node.
+	def _CompartmentsOf(aNode)
+		_cpOut_ = [ [ "" + aNode[:label] ] ]
+		if NOT HasKey(aNode, "properties")  return _cpOut_  ok
+		if NOT isList(aNode["properties"])  return _cpOut_  ok
+		for _cpK_ in [ "attributes", "operations" ]
+			if NOT HasKey(aNode["properties"], _cpK_)  loop  ok
+			_cpV_ = aNode["properties"][_cpK_]
+			_cpB_ = []
+			if isList(_cpV_)
+				for _cpI_ in _cpV_  _cpB_ + ("" + _cpI_)  next
+			but StzTrim("" + _cpV_) != ""
+				_cpB_ + ("" + _cpV_)
+			ok
+			# AN EMPTY COMPARTMENT IS STILL A COMPARTMENT. A class
+			# declaring "operations" and listing none is saying it has
+			# none, and UML draws that as an empty band -- which is a
+			# different statement from a class that never mentioned
+			# them. The rule is the same one the colour law makes: an
+			# absence the author DECLARED is information.
+			_cpOut_ + _cpB_
+		next
+		return _cpOut_
+
+	# The box a set of compartments needs: the widest line plus padding,
+	# and every line's height plus a rule between the blocks.
+	def _CompartmentBox(paBlocks, nBoxW, nBoxH)
+		_cbW_ = nBoxW
+		_cbLines_ = 0
+		_cbFsz_ = @nLastFsz
+		if NOT isNumber(_cbFsz_) or _cbFsz_ <= 0  _cbFsz_ = 14  ok
+		for _cbB_ in paBlocks
+			_cbLines_ += len(_cbB_)
+			if NOT isObject(@oLastFont)  loop  ok
+			for _cbL_ in _cbB_
+				_cbLw_ = @oLastFont.WidthOf("" + _cbL_, _cbFsz_) + 20
+				if _cbLw_ > _cbW_  _cbW_ = _cbLw_  ok
+			next
+		next
+		# a block with no lines still occupies a band a reader can see
+		_cbBands_ = 0
+		for _cbB_ in paBlocks
+			if len(_cbB_) = 0  _cbBands_++  ok
+		next
+		# ...AND THE RULES BETWEEN THE BANDS ARE PART OF THE HEIGHT.
+		#
+		# The drawing inserts 6px at each rule and this counted only the
+		# LINES, so a class with four lines and two rules was measured
+		# 12px shorter than it draws. The text then ran to the box's own
+		# border, and the adornment -- whose apex touches that border --
+		# landed on the last signature. Two places computing one height,
+		# which is the fault this whole session has been about; it is
+		# written here beside the arithmetic so the next person adding a
+		# band adds it in both.
+		_cbRules_ = len(paBlocks) - 1
+		if _cbRules_ < 0  _cbRules_ = 0  ok
+		_cbH_ = (_cbLines_ + _cbBands_) * (_cbFsz_ * 1.55) +
+			_cbRules_ * 6 + 14
+		if _cbH_ < nBoxH  _cbH_ = nBoxH  ok
+		return [ ceil(_cbW_), ceil(_cbH_) ]
 
 	def NotationFindings()
 		return This.NotationO().Check(This)
@@ -2818,7 +2905,26 @@ class stzDiagram from stzGraph
 			# EMPTY plan and came out shorter than the rails they hold.
 			@aDrawXY = _aXY_
 			This._PlanRowLanes(_aXY_, _nBoxW_, _nBoxH_, _cRank_)
+			# ...AND A NODE THAT IS NOT THE CALLER'S SIZE IS CHROME TOO.
+			#
+			# The natural size is computed from the caller's cell size
+			# times the counts, which is exact while every node IS that
+			# size. A compartmented class is not: it is as big as what it
+			# holds. Without this the first UML picture came out 160px
+			# wide holding a 180px class -- the paper measured for a
+			# diagram that was not the one being drawn.
+			#
+			# The extent block below already measures every node's OWN
+			# box; it simply was not being entered.
 			_bChrome_ = len(@aClusters) > 0
+			for _nb0_ in This.Nodes()
+				_bb0_ = This._BoxOf("" + _nb0_[:id], _nBoxW_, _nBoxH_)
+				if fabs(_bb0_[1] - _nBoxW_) > 0.5 or
+				   fabs(_bb0_[2] - _nBoxH_) > 0.5
+					_bChrome_ = 1
+					exit
+				ok
+			next
 			for _e0_ in This.Edges()
 				if StzLower("" + _e0_[:from]) = StzLower("" + _e0_[:to])
 					_bChrome_ = 1
@@ -3727,6 +3833,21 @@ class stzDiagram from stzGraph
 		next
 		next
 
+		# 2a. THE RELATIONSHIP ADORNMENTS -- DN4.
+		#
+		#     Drawn here, after every path exists and before the labels,
+		#     from @aEdgePaths rather than from inside the drawers.
+		#     There are six places an edge gets emitted and one place
+		#     they all publish to, so the adornment is written once
+		#     against the published truth. That is also the difference
+		#     between this and every quantity that went wrong this week:
+		#     it reads what was DRAWN, not what a drawer intended.
+		@aRenderAdorn = []
+		for _adR_ in @aEdgePaths
+			This._DrawRelationEnd(_oC_, _adR_[1], _adR_[2], _cEdge_,
+				_nEdgeW_)
+		next
+
 		# 2b. EDGE LABELS, drawn LAST of the edge work and on a plate of the
 		#     background colour.
 		#
@@ -4341,6 +4462,60 @@ class stzDiagram from stzGraph
 						_nLbY_, _nTw_, _nFsz_ * 1.5, 1 ]
 					loop
 				ok
+				# A CLASS DRAWS WHAT IT HOLDS -- DN4.
+				#
+				# Its name centred in the first band, its members left
+				# aligned below, and a rule between the bands. Left
+				# aligned because a list is READ down its left edge:
+				# centring a column of signatures makes a reader find
+				# the start of every one of them separately, which is
+				# the whole reason UML draws them this way.
+				_aCp3_ = This._CompartmentsOf(_aNodes_[_i_])
+				if len(_aCp3_) > 1
+					_cbB3_ = This._BoxOf(_cId_, _nBoxW_, _nBoxH_)
+					_x03_ = _a_[1] - _cbB3_[1] / 2
+					_y03_ = _a_[2] - _cbB3_[2] / 2
+					_lh3_ = _nFsz_ * 1.55
+					_yy3_ = _y03_ + 6
+					_aInk3_ = StzReadableTextOn(
+						This._NativeFillOf(_aNodes_[_i_]), _nFsz_, 0)
+					for _bi3_ = 1 to len(_aCp3_)
+						if _bi3_ > 1
+							# the rule between two bands, in the same
+							# ink as the box's own outline so it reads
+							# as part of the glyph and not as an edge
+							_oC_.Flush()
+							_oC_.StrokeQ(_cStroke_, _nStkW_).
+								AddLine(_x03_, _yy3_ + 3,
+									_x03_ + _cbB3_[1], _yy3_ + 3)
+							_yy3_ += 6
+						ok
+						for _ln3_ in _aCp3_[_bi3_]
+							_t3_ = This._FitLabel("" + _ln3_, _oFont_,
+								_nFsz_, _cbB3_[1] - 16)
+							_w3_ = _oFont_.WidthOf(_t3_, _nFsz_)
+							_tx3_ = _x03_ + 8
+							if _bi3_ = 1  _tx3_ = _a_[1] - _w3_ / 2  ok
+							_oC_.Flush()
+							_oC_.AddTextQ(_t3_, _tx3_,
+								_yy3_ + _nFsz_ * 1.05).
+								SetFontQ(_oFont_, _nFsz_).Color(_aInk3_[1])
+							if _bInkBold_ and _bi3_ = 1
+								_oC_.Flush()
+								_oC_.AddTextQ(_t3_, _tx3_ + 0.5,
+									_yy3_ + _nFsz_ * 1.05).
+									SetFontQ(_oFont_, _nFsz_).
+									Color(_aInk3_[1])
+							ok
+							_yy3_ += _lh3_
+						next
+						if len(_aCp3_[_bi3_]) = 0  _yy3_ += _lh3_  ok
+					next
+					@aRenderNodeLabels + [ _cId_, _a_[1], _a_[2],
+						_cbB3_[1], _cbB3_[2], 0 ]
+					loop
+				ok
+
 				_cLb_ = This._FitLabel(_cLb_, _oFont_, _nFsz_, _nBoxW_ - 18)
 				_nTw_ = _oFont_.WidthOf(_cLb_, _nFsz_)
 				@aRenderNodeLabels + [ _cId_, _a_[1], _a_[2], _nTw_,
@@ -5832,6 +6007,11 @@ class stzDiagram from stzGraph
 	def RenderEdgePaths()
 		return @aEdgePaths
 
+	# What each edge ended in, when it declared a relationship:
+	# [ key, shape, filled, x, y ]. See _DrawRelationEnd.
+	def RenderAdornments()
+		return @aRenderAdorn
+
 	# Where the picture declared a crossing with a wire hop. Published
 	# so an instrument can ask whether each one had room to be read as
 	# one -- a bump a few pixels from a rounded elbow is two curves in a
@@ -7265,7 +7445,22 @@ class stzDiagram from stzGraph
 			ok
 		next
 		oC.Flush()
-		oC.AddPolylineQ(_eoOut_).Stroke(cColor, nWidth)
+		# A DASHED LINE IS THE SAME LINE, EMITTED IN PIECES.
+		#
+		# The canvas has no dash, and DN3a recorded that as the channel
+		# BPMN's suspension was missing -- a dashed double circle it
+		# could not draw, so a parked process looked identical to a
+		# finished one. It needs no new canvas capability: a dash is the
+		# polyline walked and emitted as alternating segments, which is
+		# what a dash IS.
+		#
+		# UML needs it for dependency, which is dashed by definition and
+		# means something different from the solid line beside it.
+		if This._EdgeIsDashed(cKey)
+			This._StrokeDashed(oC, _eoOut_, cColor, nWidth)
+		else
+			oC.AddPolylineQ(_eoOut_).Stroke(cColor, nWidth)
+		ok
 
 	def _DrawRoutedEdge(oC, aFrom, aTo, paBend, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nPortA, nPortB, pBlockSide, cFromId, cToId)
 		_pts_ = []
@@ -8464,6 +8659,145 @@ class stzDiagram from stzGraph
 			if nChan > _ccHi_ - _ccFoot_  return _ccHi_ - _ccFoot_  ok
 		ok
 		return nChan
+
+	# THE RELATIONSHIP THIS EDGE DECLARES, in the domain's own word.
+	# Empty when the author declared none, and every rule below then
+	# leaves the edge exactly as it was.
+	def _EdgeRelation(pcKey)
+		_erK_ = StzLower("" + pcKey)
+		for _erE_ in This.Edges()
+			_erN_ = StzLower("" + _erE_[:from]) + ">" +
+				StzLower("" + _erE_[:to])
+			if _erN_ != _erK_  loop  ok
+			if NOT HasKey(_erE_, "properties")  return ""  ok
+			if NOT isList(_erE_["properties"])  return ""  ok
+			for _erP_ in [ "uml", "relation", "kind" ]
+				if HasKey(_erE_["properties"], _erP_)
+					return StzLower("" + _erE_["properties"][_erP_])
+				ok
+			next
+			return ""
+		next
+		return ""
+
+	def _EdgeIsDashed(pcKey)
+		_edR_ = This._EdgeRelation(pcKey)
+		if _edR_ = "dependency"  return 1  ok
+		if _edR_ = "realization"  return 1  ok
+		if _edR_ = "dashed"  return 1  ok
+		return 0
+
+	# One polyline, drawn as alternating pieces. Walks the path by
+	# LENGTH rather than by segment, so a dash never restarts at a
+	# corner and the pattern reads as one rhythm around the whole turn.
+	def _StrokeDashed(oC, paFlat, cColor, nWidth)
+		_sdN_ = len(paFlat)
+		if _sdN_ < 4  return  ok
+		_sdOn_ = 7  _sdOff_ = 5
+		_sdRem_ = _sdOn_
+		_sdInk_ = 1
+		for _sdI_ = 1 to _sdN_ - 3 step 2
+			_sdX1_ = paFlat[_sdI_]      _sdY1_ = paFlat[_sdI_ + 1]
+			_sdX2_ = paFlat[_sdI_ + 2]  _sdY2_ = paFlat[_sdI_ + 3]
+			_sdLen_ = sqrt((_sdX2_ - _sdX1_) * (_sdX2_ - _sdX1_) +
+				(_sdY2_ - _sdY1_) * (_sdY2_ - _sdY1_))
+			if _sdLen_ < 0.001  loop  ok
+			_sdUx_ = (_sdX2_ - _sdX1_) / _sdLen_
+			_sdUy_ = (_sdY2_ - _sdY1_) / _sdLen_
+			_sdAt_ = 0
+			while _sdAt_ < _sdLen_ - 0.001
+				_sdStep_ = _sdRem_
+				if _sdAt_ + _sdStep_ > _sdLen_  _sdStep_ = _sdLen_ - _sdAt_  ok
+				if _sdInk_
+					oC.Flush()
+					oC.AddLineQ(_sdX1_ + _sdUx_ * _sdAt_,
+						_sdY1_ + _sdUy_ * _sdAt_,
+						_sdX1_ + _sdUx_ * (_sdAt_ + _sdStep_),
+						_sdY1_ + _sdUy_ * (_sdAt_ + _sdStep_)).
+						Stroke(cColor, nWidth)
+				ok
+				_sdAt_ += _sdStep_
+				_sdRem_ -= _sdStep_
+				if _sdRem_ <= 0.001
+					_sdInk_ = 1 - _sdInk_
+					_sdRem_ = iif(_sdInk_, _sdOn_, _sdOff_)
+				ok
+			end
+		next
+
+	# THE ADORNMENT AT AN EDGE'S END -- DN4, and the half of UML that
+	# carries the meaning.
+	#
+	# A hollow triangle says "is a kind of". A filled diamond says "is
+	# part of, and dies with it". A hollow one says "is part of, and
+	# outlives it". The LINE between two classes is the same line in all
+	# three; the shape at its end is the entire difference, which is why
+	# an adornment is not decoration and why a notation without them
+	# cannot express the domain at all.
+	#
+	# It sits at the SOURCE end, because that is the end this library
+	# declares first everywhere else: a hierarchy is written parent to
+	# child, in the org chart and in every tree it draws. So the general
+	# class, or the whole, is the one you name first.
+	def _DrawRelationEnd(oC, pcKey, paFlat, cColor, nWidth)
+		_reR_ = This._EdgeRelation(pcKey)
+		if _reR_ = ""  return  ok
+		_reShape_ = ""
+		_reFill_ = 0
+		if _reR_ = "inheritance" or _reR_ = "generalization" or
+		   _reR_ = "extends"
+			_reShape_ = "triangle"
+		but _reR_ = "composition"
+			_reShape_ = "diamond"  _reFill_ = 1
+		but _reR_ = "aggregation"
+			_reShape_ = "diamond"
+		but _reR_ = "realization" or _reR_ = "implements"
+			_reShape_ = "triangle"
+		ok
+		if _reShape_ = ""  return  ok
+		_reN_ = len(paFlat)
+		if _reN_ < 4  return  ok
+		# the first segment's direction, pointing INTO the source
+		_reDx_ = paFlat[1] - paFlat[3]
+		_reDy_ = paFlat[2] - paFlat[4]
+		_reL_ = sqrt(_reDx_ * _reDx_ + _reDy_ * _reDy_)
+		if _reL_ < 0.001  return  ok
+		_reDx_ = _reDx_ / _reL_
+		_reDy_ = _reDy_ / _reL_
+		_rePx_ = 0 - _reDy_
+		_rePy_ = _reDx_
+		_reH_ = 11 + nWidth * 2
+		_reW_ = _reH_ * 0.42
+		_reTx_ = paFlat[1]
+		_reTy_ = paFlat[2]
+		_reBx_ = _reTx_ - _reDx_ * _reH_
+		_reBy_ = _reTy_ - _reDy_ * _reH_
+		# PUBLISHED, like every other drawn fact in this file. An
+		# instrument that has to read pixels to find out what shape an
+		# edge ended in is an instrument that will be written once and
+		# never maintained -- and the claim worth testing here (the line
+		# is identical, only the end differs) cannot be made at all
+		# without both halves being readable.
+		@aRenderAdorn + [ StzLower("" + pcKey), _reShape_, _reFill_,
+			paFlat[1], paFlat[2] ]
+		oC.Flush()
+		_reInk_ = cColor
+		_rePaper_ = This._SurfaceAt(_reTx_, _reTy_, "#FFFFFF")
+		if _reFill_  _rePaper_ = cColor  ok
+		if _reShape_ = "triangle"
+			oC.FillQ(_rePaper_).StrokeQ(_reInk_, nWidth).
+				AddPolygon([ _reTx_, _reTy_,
+					_reBx_ + _rePx_ * _reW_, _reBy_ + _rePy_ * _reW_,
+					_reBx_ - _rePx_ * _reW_, _reBy_ - _rePy_ * _reW_ ])
+		else
+			_reMx_ = _reTx_ - _reDx_ * _reH_ / 2
+			_reMy_ = _reTy_ - _reDy_ * _reH_ / 2
+			oC.FillQ(_rePaper_).StrokeQ(_reInk_, nWidth).
+				AddPolygon([ _reTx_, _reTy_,
+					_reMx_ + _rePx_ * _reW_, _reMy_ + _rePy_ * _reW_,
+					_reBx_, _reBy_,
+					_reMx_ - _rePx_ * _reW_, _reMy_ - _rePy_ * _reW_ ])
+		ok
 
 	def _PublishPath(cFromId, cToId, paFlat)
 		_ppK_ = StzLower("" + cFromId + ">" + cToId)
