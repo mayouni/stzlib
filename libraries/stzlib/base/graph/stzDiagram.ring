@@ -2711,12 +2711,33 @@ class stzDiagram from stzGraph
 			# slot and pitch along the LAYOUT axes; the boxes do not rotate
 			# with the rank direction, so the box dimension that matters
 			# swaps when the picture does
+			# ...AND THE PITCH IS THE TALLEST BOX THERE ACTUALLY IS.
+			#
+			# A rank's pitch is "one box plus a separation", and it took
+			# the CALLER's box -- exact while every node is that size,
+			# and badly wrong once a node can be bigger. A UML class 113
+			# pixels tall was given a 52-pixel pitch, so two ranks of
+			# classes ended up 25px apart: a corridor in that gap leaves
+			# 12px of stub on each side, which is a vertical line nobody
+			# can see is vertical, and an arrival too short to carry its
+			# own arrowhead.
+			#
+			# Same family as everything else this week -- one quantity,
+			# two sources -- and the fix is the same one: ask the sizes
+			# that exist rather than the size that was requested.
 			_slotB_ = _nBoxW_
 			_pitchB_ = _nBoxH_
 			if _bSwap_
 				_slotB_ = _nBoxH_
 				_pitchB_ = _nBoxW_
 			ok
+			for _pbN_ in This.Nodes()
+				_pbB_ = This._BoxOf("" + _pbN_[:id], _nBoxW_, _nBoxH_)
+				_pbW_ = _pbB_[1]  _pbH_ = _pbB_[2]
+				if _bSwap_  _pbW_ = _pbB_[2]  _pbH_ = _pbB_[1]  ok
+				if _pbW_ > _slotB_   _slotB_ = _pbW_   ok
+				if _pbH_ > _pitchB_  _pitchB_ = _pbH_  ok
+			next
 			_slot_ = _slotB_ + _nSepN_
 			_pitch_ = _pitchB_ + _nSepR_
 			# unit-true x: 1.0 = one minimum separation, so span * slot IS
@@ -3593,6 +3614,31 @@ class stzDiagram from stzGraph
 			next
 			if _pcNo_ <= 1  _aPort_[_pcI_][1] = 0  ok
 			if _pcNi_ <= 1  _aPort_[_pcI_][2] = 0  ok
+
+			# AN EDGE THAT COULD BE STRAIGHT IS STRAIGHT.
+			#
+			# Ports exist so several edges at one border leave from
+			# distinct places, and spreading them is right -- until it
+			# takes the ONE edge that needed no bend at all and gives it
+			# two. Basket sits directly above Product, and its
+			# aggregation was pushed 20px off that column and back,
+			# drawing an S where a reader sees a straight line and
+			# nothing to explain the detour.
+			#
+			# So an edge whose two ends are already ALIGNED keeps the
+			# centre at both, and the others spread around it. The
+			# aligned edge is the one with something to lose: the others
+			# were bending anyway.
+			_pcA2_ = This._XYOf(_aXY_, _pcF_)
+			_pcB2_ = This._XYOf(_aXY_, _pcT_)
+			if len(_pcA2_) = 2 and len(_pcB2_) = 2
+				_pcAx_ = 1
+				if _cRank_ = "LR" or _cRank_ = "RL"  _pcAx_ = 2  ok
+				if fabs(_pcA2_[_pcAx_] - _pcB2_[_pcAx_]) < 1.5
+					_aPort_[_pcI_][1] = 0
+					_aPort_[_pcI_][2] = 0
+				ok
+			ok
 			if _pcA_[1] < _nBoxW_ - 0.5 or _pcA_[2] < _nBoxH_ - 0.5
 				_aPort_[_pcI_][1] = 0
 			else
