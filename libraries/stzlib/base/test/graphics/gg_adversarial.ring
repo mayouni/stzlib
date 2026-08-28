@@ -7373,6 +7373,78 @@ for rUm in oUm.RenderNodeRects()
 next
 chkeq("...and no class is drawn off the paper measured for it", nUmOff, 0)
 
+# (5) A RANK'S PITCH IS THE TALLEST BOX THERE ACTUALLY IS.
+#
+#     "One box plus a separation" took the CALLER's box -- exact while
+#     every node is that size, and badly wrong once a node can be
+#     bigger. A UML class 113px tall was given a 52px pitch, so two
+#     ranks of classes ended 25px apart: a corridor in that gap leaves
+#     12px of stub on each side, which is a vertical nobody can see is
+#     vertical and an arrival too short to carry its own arrowhead.
+#
+#     Asked as the thing a reader actually sees: every stub at the ends
+#     of a staircase is long enough to read as a direction.
+nUmStub = 0
+nUmSeen = 0
+for aUmR in oUm.RenderEdgePaths()
+	nUmN = len(aUmR[2]) / 2
+	if nUmN < 3  loop  ok
+	nUmSeen++
+	nUmD1 = fabs(aUmR[2][3] - aUmR[2][1]) + fabs(aUmR[2][4] - aUmR[2][2])
+	nUmD2 = fabs(aUmR[2][nUmN * 2 - 1] - aUmR[2][nUmN * 2 - 3]) +
+	        fabs(aUmR[2][nUmN * 2] - aUmR[2][nUmN * 2 - 2])
+	if nUmD1 < 22  nUmStub++  ok
+	if nUmD2 < 22  nUmStub++  ok
+next
+? "   " + nUmSeen + " staircases, " + nUmStub + " with a stub too short to read"
+chkeq("a rank gap leaves a readable stub on each side of its corridor",
+      nUmStub, 0)
+
+# (6) AN EDGE THAT COULD BE STRAIGHT IS STRAIGHT.
+#
+#     Ports spread several edges at one border so they leave from
+#     distinct places, which is right -- until it takes the ONE edge
+#     that needed no bend and gives it two. Basket sits directly above
+#     Product and its aggregation was pushed 20px off that column and
+#     back, drawing an S where a reader sees a straight line and nothing
+#     to explain the detour.
+oAl = new stzDiagram("aligned66")
+oAl.SetNotation(StzUmlNotation())
+oAl.AddNodeXTT("a", "Above", [ :type = "class",
+	:operations = [ "+ go()" ] ])
+oAl.AddNodeXTT("b", "Beside", [ :type = "class",
+	:attributes = [ "- n : Int" ] ])
+oAl.AddNodeXTT("c", "Below", [ :type = "class",
+	:attributes = [ "- m : Int" ] ])
+oAl.AddEdgeXTT("a", "c", "", [ :uml = :Aggregation ])
+oAl.AddEdgeXTT("b", "c", "", [ :uml = :Association ])
+oAl.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 140, :NodeHeight = 52,
+	:FontSize = 13 ])
+rAlA = _Rect49(oAl, "a")
+rAlC = _Rect49(oAl, "c")
+nAlTurn = -1
+for aAlP in oAl.RenderEdgePaths()
+	if aAlP[1] != "a>c"  loop  ok
+	nAlN = len(aAlP[2]) / 2
+	nAlTurn = 0
+	for iAl = 2 to nAlN - 1
+		nAlAx = aAlP[2][iAl * 2 - 1] - aAlP[2][iAl * 2 - 3]
+		nAlAy = aAlP[2][iAl * 2] - aAlP[2][iAl * 2 - 2]
+		nAlBx = aAlP[2][iAl * 2 + 1] - aAlP[2][iAl * 2 - 1]
+		nAlBy = aAlP[2][iAl * 2 + 2] - aAlP[2][iAl * 2]
+		if fabs(nAlAx) + fabs(nAlAy) < 0.5  loop  ok
+		if fabs(nAlBx) + fabs(nAlBy) < 0.5  loop  ok
+		if (fabs(nAlAx) > 0.5 and fabs(nAlBy) > 0.5) or
+		   (fabs(nAlAy) > 0.5 and fabs(nAlBx) > 0.5)
+			nAlTurn++
+		ok
+	next
+next
+? "   Above and Below share a column; their edge turns " + nAlTurn + " time(s)"
+chk("two classes in one column are joined by a straight line",
+    fabs((rAlA[1] + rAlA[3] / 2) - (rAlC[1] + rAlC[3] / 2)) < 2 and
+    nAlTurn = 0)
+
 
 #---------------------------------------------------------------------------
 ? ""
