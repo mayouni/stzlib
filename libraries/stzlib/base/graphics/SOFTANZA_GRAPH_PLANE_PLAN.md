@@ -1090,10 +1090,45 @@ gate it declares.
   meeting — 13px vertically, hidden inside an arrowhead, and 66px
   horizontally.
 - **DN4 — UML class diagrams.** Compartments and edge-end adornments —
-  the notation half the industry reads daily. Scoped to the CLASS
-  diagram: classes, interfaces, the five relationship kinds,
-  multiplicities. Sequence and activity diagrams are separate notations
-  that happen to share a name.
+  the notation half the industry reads daily.
+
+  **DN4a scoped to the CLASS diagram** — classes, interfaces, the five
+  relationship kinds. The rest of UML follows as DN4b, and the reason
+  that first scoping was wrong is worth keeping: *"sequence and activity
+  are separate notations that happen to share a name"* was a JUDGEMENT
+  written as if it were a fact. They share a metamodel, a stereotype
+  mechanism and a reader; what differs between them is the LAYOUT, which
+  is exactly what a profile is for. The Principal overruled it and was
+  right.
+
+  **DN4b — THE REST OF UML, measured before ordering.** Fourteen diagram
+  types, and they do not cost the same:
+
+  - **already shipped** — state machine (DN2, the modes model)
+  - **profile only** — object · package · component · deployment ·
+    communication
+  - **one new glyph each** — use case (an ACTOR) · activity (a fork/join
+    BAR)
+  - **a new layout mode** — sequence (time is an AXIS)
+  - **out of scope** — timing (a chart, not a graph; see the KILL)
+
+  Those middle rows are the whole of what has to be built, because the
+  shape table already carries Folder (a package), Component, Ellipse (a
+  use case), Note and Cylinder, and clusters already draw a system
+  boundary.
+
+  **KILL, and it fires on two of them:**
+
+  - **SEQUENCE.** Its y-axis is TIME and its x-axis is participants.
+    That is not a graph layout, it is a schedule. If it cannot express
+    as a layout MODE over the one renderer — the way :Modes and :Ring
+    do — it is a second renderer wearing a profile's clothes, and the
+    plan says so. Measured when built, never before.
+  - **TIMING.** A timing diagram is a chart with a time axis and value
+    bands. This library has a plot pipeline and that is the right home;
+    drawing it here would be the graph plane pretending. Named as OUT
+    rather than left unmentioned, because a domain nobody lists is a
+    domain nobody notices is missing.
 
   **KILL: if compartments cannot express as a node PROPERTY over the
   existing glyph machinery, say so and keep them out — measured, not

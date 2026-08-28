@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------#
-#  stzUmlNotation -- UML CLASS DIAGRAMS AS A NOTATION PROFILE (DN4)        #
+#  stzUmlNotation -- UML AS NOTATION PROFILES (DN4a class, DN4b the rest) #
 #-------------------------------------------------------------------------#
 #
 # THIS FILE IS THE WHOLE DOMAIN, and that is the claim worth reading
@@ -59,9 +59,17 @@
 #   :Association   a plain line -- the default, and declaring it is
 #                  saying so on purpose
 #
-# SCOPE: the CLASS diagram. Sequence and activity diagrams are separate
-# notations that happen to share a name, and folding them in here would
-# be the "one profile per family" mistake this plane exists to avoid.
+# SCOPE OF THIS PROFILE: the CLASS diagram. THE FILE covers more -- see
+# DN4b below, which adds seven more diagram types.
+#
+# What stood here until the Principal read it said sequence and activity
+# were "separate notations that happen to share a name". That was a
+# JUDGEMENT written as though it were a fact, and it was wrong: they
+# share a metamodel, a stereotype mechanism and a reader, and what
+# differs between them is the LAYOUT -- which is the thing a profile
+# exists to declare. The sentence is left described rather than deleted,
+# because a scoping decision that turns out to be an opinion is worth
+# more visible than tidy.
 #
 #=========================================================================#
 
@@ -106,3 +114,177 @@ func StzUmlNotation()
 
 	StzRegisterNotation(_o_)
 	return _o_
+
+
+#-------------------------------------------------------------------------#
+#  THE REST OF UML -- DN4b                                                #
+#-------------------------------------------------------------------------#
+#
+# UML IS NOT ONLY CLASS DIAGRAMS, and the scoping above said otherwise
+# until the Principal overruled it. The wording was "sequence and
+# activity are separate notations that happen to share a name", which
+# was a JUDGEMENT written as though it were a fact. They share a
+# metamodel, a stereotype mechanism and a reader. What differs is the
+# LAYOUT -- and a layout is what a profile declares.
+#
+# ONE PROFILE PER DIAGRAM TYPE, and that is not duplication. A profile
+# is vocabulary plus rules plus grammar, and it is the GRAMMAR that
+# separates these: a use case diagram reads left to right with the
+# actors outside, an activity reads top down with a spine, a package
+# diagram has no flow at all. Folding them into one profile would mean
+# one rankdir for all of them, which is the same as having no grammar.
+#
+# WHAT EACH ONE COST, measured rather than estimated:
+#
+#   use case      the ACTOR glyph (new)      · everything else existed
+#   activity      the fork/join BAR (new)    · everything else existed
+#   component     nothing new                · Component was in the table
+#   package       nothing new                · Folder was in the table
+#   deployment    nothing new                · Box and Cylinder
+#   object        nothing new                · a class with no compartments
+#   communication nothing new                · a graph with numbered edges
+#
+# Two glyphs for seven diagram types. That is what a shared foundation
+# is worth, and it is only visible because the foundation was built
+# first and the domains after.
+#
+#=========================================================================#
+
+# USE CASES: what the system does, and who is outside it.
+#
+# The whole claim of the drawing is that the figures round the edge are
+# OUTSIDE -- people, and other systems acting like people. That is why
+# an actor is a stick figure and not a box: a box would say it is a part
+# of what is being built. The system's own boundary is a cluster, which
+# this library already draws.
+func StzUmlUseCaseNotation()
+	_o_ = StzNotation("umlusecase")
+	if _o_.Name_() = "umlusecase"  return _o_  ok
+	_o_ = new stzNotation("umlusecase")
+	_o_.SetRankDir(:LeftToRight)
+	_o_.SetSplines(:ortho)
+	_o_.AddKindXT("actor", "actor", "white")
+	_o_.AddKindXT("usecase", "ellipse", "white")
+	_o_.AddKindXT("system", "box", "white")
+	# AN ACTOR IS NOT A DESTINATION. A use case diagram says who starts
+	# what; an arrow INTO an actor would say the system uses the person,
+	# which is the relationship the other way round and almost never
+	# what is meant.
+	StzRegisterNotation(_o_)
+	return _o_
+
+# ACTIVITIES: the same shape as a business process, and it should be --
+# BPMN and a UML activity diagram describe the same thing in two
+# vocabularies, which is why this profile declares the same grammar.
+#
+# What it adds is the BAR: a moment when control splits into parallel
+# paths or waits for them to rejoin. It carries no name because it is
+# not a step, and a reader who looks for one has misread the glyph.
+func StzUmlActivityNotation()
+	_o_ = StzNotation("umlactivity")
+	if _o_.Name_() = "umlactivity"  return _o_  ok
+	_o_ = new stzNotation("umlactivity")
+	_o_.SetRankDir(:TopToBottom)
+	_o_.SetSplines(:ortho)
+	_o_.SetRankPolicy(:Earliest)
+	_o_.SetSpine(:HappyPath)
+	_o_.AddKindXT("action", "box", "white")
+	_o_.AddKindXT("decision", "diamond", "white")
+	_o_.AddKindXT("merge", "diamond", "white")
+	_o_.AddKindXTT("fork", "bar", "Neutral.Text", 0.55)
+	_o_.AddKindXTT("join", "bar", "Neutral.Text", 0.55)
+	_o_.AddKindXTT("initial", "circle", "Neutral.Text", 0.28)
+	_o_.AddKindXTT("final", "doublecircle", "Neutral.Text", 0.36)
+	_o_.ForbidFor("initial", :Inbound,
+		"an initial node admits nothing -- the activity begins here")
+	_o_.ForbidFor("final", :Outbound,
+		"a final node releases nothing -- the activity is over")
+	StzRegisterNotation(_o_)
+	return _o_
+
+# COMPONENTS: the pieces a system is assembled from, and what each one
+# offers or needs. The glyph was already in the shape table, which is
+# the whole of what this profile cost.
+func StzUmlComponentNotation()
+	_o_ = StzNotation("umlcomponent")
+	if _o_.Name_() = "umlcomponent"  return _o_  ok
+	_o_ = new stzNotation("umlcomponent")
+	_o_.SetRankDir(:TopToBottom)
+	_o_.SetSplines(:ortho)
+	_o_.AddKindXT("component", "component", "white")
+	_o_.AddKindXT("interface", "box", "white")
+	_o_.AddKindXTT("port", "square", "white", 0.18)
+	_o_.AddKindXT("artifact", "note", "white")
+	StzRegisterNotation(_o_)
+	return _o_
+
+# PACKAGES: what depends on what, at the scale where a reader has
+# stopped caring about classes. No flow, so no spine and no rank policy
+# -- a dependency graph has no happy path and claiming one would be a
+# claim the model does not make.
+func StzUmlPackageNotation()
+	_o_ = StzNotation("umlpackage")
+	if _o_.Name_() = "umlpackage"  return _o_  ok
+	_o_ = new stzNotation("umlpackage")
+	_o_.SetRankDir(:TopToBottom)
+	_o_.SetSplines(:ortho)
+	_o_.AddKindXT("package", "folder", "white")
+	_o_.AddKindXT("subsystem", "folder", "white")
+	StzRegisterNotation(_o_)
+	return _o_
+
+# DEPLOYMENT: where the pieces actually run. A device holds artifacts; a
+# database is drawn as a cylinder because thirty years of diagrams have
+# made that shape mean "this is where the data lives", and a notation
+# that ignored it would be technically free and practically unreadable.
+func StzUmlDeploymentNotation()
+	_o_ = StzNotation("umldeployment")
+	if _o_.Name_() = "umldeployment"  return _o_  ok
+	_o_ = new stzNotation("umldeployment")
+	_o_.SetRankDir(:TopToBottom)
+	_o_.SetSplines(:ortho)
+	_o_.AddKindXT("node", "box", "white")
+	_o_.AddKindXT("device", "box", "white")
+	_o_.AddKindXT("database", "cylinder", "white")
+	_o_.AddKindXT("artifact", "note", "white")
+	_o_.AddKindXT("environment", "folder", "white")
+	StzRegisterNotation(_o_)
+	return _o_
+
+# OBJECTS: a class diagram at one instant, with instances instead of
+# classes. Deliberately the same vocabulary as the class profile --
+# because it IS the class notation, populated. What marks an object is
+# that its name is written `name : Class` and underlined, which is a
+# LABEL convention and not a glyph, so there is nothing here to declare
+# beyond saying the domain exists.
+func StzUmlObjectNotation()
+	_o_ = StzNotation("umlobject")
+	if _o_.Name_() = "umlobject"  return _o_  ok
+	_o_ = new stzNotation("umlobject")
+	_o_.SetRankDir(:TopToBottom)
+	_o_.SetSplines(:ortho)
+	_o_.AddKindXT("object", "box", "white")
+	_o_.AddKindXT("class", "box", "white")
+	StzRegisterNotation(_o_)
+	return _o_
+
+# COMMUNICATION: the same interactions a sequence diagram shows, drawn
+# as a GRAPH instead of a schedule -- participants wherever they fit,
+# and the ordering carried in the message numbers rather than in the
+# geometry. Which is precisely why it costs nothing here and a sequence
+# diagram does not: this one IS a graph.
+func StzUmlCommunicationNotation()
+	_o_ = StzNotation("umlcommunication")
+	if _o_.Name_() = "umlcommunication"  return _o_  ok
+	_o_ = new stzNotation("umlcommunication")
+	_o_.SetRankDir(:LeftToRight)
+	_o_.SetSplines(:ortho)
+	_o_.AddKindXT("object", "box", "white")
+	_o_.AddKindXT("actor", "actor", "white")
+	StzRegisterNotation(_o_)
+	return _o_
+
+# The class profile under its full name, so a caller naming the diagram
+# type reads the same way for all eight.
+func StzUmlClassNotation()
+	return StzUmlNotation()

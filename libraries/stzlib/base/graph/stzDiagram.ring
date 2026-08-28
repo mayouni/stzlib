@@ -915,6 +915,28 @@ class stzDiagram from stzGraph
 			# a MARK is square: it carries no text, so nothing makes it
 			# wider than it is tall
 			_d_ = min([ nBoxW, nBoxH ]) * _sc_
+			# ...EXCEPT A BAR, WHICH IS A MOMENT DRAWN ACROSS THE FLOW.
+			#
+			# A fork splits control into parallel paths and a join waits
+			# for them, and the glyph says so by REACHING ACROSS what it
+			# splits. Sized as a square mark it came out narrower than
+			# the two branches leaving it, which reads as a small blob
+			# the paths happen to pass -- the opposite of the claim.
+			#
+			# So it keeps the cell's full extent across the flow and
+			# takes its scale only along it: wide and thin in a top-down
+			# picture, tall and thin in a left-to-right one.
+			if StzLower("" + This._NativeShapeOf(_nd_)) = "bar"
+				if This._NativeRankDir() = "LR" or
+				   This._NativeRankDir() = "RL"
+					@aBoxOf + [ StzLower("" + _nd_[:id]),
+						nBoxW * _sc_, nBoxH ]
+				else
+					@aBoxOf + [ StzLower("" + _nd_[:id]),
+						nBoxW, nBoxH * _sc_ ]
+				ok
+				loop
+			ok
 			@aBoxOf + [ StzLower("" + _nd_[:id]), _d_, _d_ ]
 		next
 		return This
@@ -2961,7 +2983,8 @@ class stzDiagram from stzGraph
 				for _n0_ in This.Nodes()
 					_cSh0_ = StzLower("" + This._NativeShapeOf(_n0_))
 					for _cO0_ in [ "circle", "doublecircle", "dot",
-						"diamond", "triangle", "invtriangle" ]
+						"diamond", "triangle", "invtriangle",
+						"actor", "bar" ]
 						if _cSh0_ = _cO0_  _bOutLb_ = 1  _bChrome_ = 1  exit  ok
 					next
 					if _bOutLb_  exit  ok
@@ -3034,7 +3057,8 @@ class stzDiagram from stzGraph
 						_cSh0_ = StzLower("" + This._NativeShapeOf(_n0_))
 						_bO0_ = 0
 						for _cO0_ in [ "circle", "doublecircle", "dot",
-							"diamond", "triangle", "invtriangle" ]
+							"diamond", "triangle", "invtriangle",
+						"actor", "bar" ]
 							if _cSh0_ = _cO0_  _bO0_ = 1  exit  ok
 						next
 						if NOT _bO0_  loop  ok
@@ -3493,7 +3517,25 @@ class stzDiagram from stzGraph
 			_cClFill_ = "" + _cl_[:color]
 			_cClRule_ = _cClFill_
 			if _cClFill_ = ""  _cClFill_ = "#FFF8FE"  ok
+			# A CONTAINER THAT HIDES WHAT IT CONTAINS IS NOT A CONTAINER.
+			#
+			# The colour an author declares for a region is a HUE -- the
+			# family this group belongs to -- and it was being used as
+			# the fill exactly as written, while the RULE was taken down
+			# to the border step. So the boundary receded and the fill
+			# shouted: a use case diagram came back with a solid purple
+			# block, its own name unreadable on it and its three use
+			# cases sitting on a colour that means nothing.
+			#
+			# The fill is the SURFACE step of that hue and the rule is
+			# the BORDER step, which is what the state machine's profile
+			# had been saying for itself with SetRegionFill. Every other
+			# caller now gets it without having to know to ask, and a
+			# colour already at the surface rung is unchanged, because
+			# the ramp is idempotent there.
 			_cClRule_ = StzColorAtLightness(_cClFill_, StzRoleStepL(:Border))
+			_cClFill_ = StzColorAtLightness(_cClFill_,
+				StzRoleStepL(:Surface))
 			_oC_.FillQ(_cClFill_).StrokeQ(_cClRule_, 2).
 				AddRect(_aBox_[1], _aBox_[2] - _clstrip_, _aBox_[3],
 					_aBox_[4] + _clstrip_)
@@ -4466,10 +4508,30 @@ class stzDiagram from stzGraph
 					# the Principal put it. A top-down picture has its
 					# free space underneath, and keeps it there.
 					_nLbY_ = _a_[2] + _aBx2_[2] / 2 + _nFsz_ * 0.95
+					# ...AND BESIDE IT ONLY WHERE IT IS A MARK.
+					#
+					# This put every outside name beside its glyph in a
+					# left-to-right picture, which is right for a MARK --
+					# a start or end event is a point, its name is the
+					# only content it has, and beside it is where the
+					# room is. It is wrong for a glyph with real extent:
+					# an ACTOR is a figure as tall as a cell, and a name
+					# at its waist competes with the very edges leaving
+					# it. The first use case diagram put "Customer"
+					# through the arrow it was drawing.
+					#
+					# A mark is smaller than the caller's cell, which is
+					# the distinction _BoxOf already carries -- so the
+					# rule asks the size rather than the shape, and a
+					# domain that declares a full-size circle gets a name
+					# under it without having to know this exists.
 					_bSide2_ = 0
 					if _cRank_ = "LR" or _cRank_ = "RL"
-						_bSide2_ = 1
-						_nLbY_ = _a_[2] + _nFsz_ * 0.35
+						if _aBx2_[1] < _nBoxW_ - 0.5 or
+						   _aBx2_[2] < _nBoxH_ - 0.5
+							_bSide2_ = 1
+							_nLbY_ = _a_[2] + _nFsz_ * 0.35
+						ok
 					ok
 					# ...AND IT EXTENDS BACK ALONG THE READING.
 					#
@@ -4486,11 +4548,20 @@ class stzDiagram from stzGraph
 					# page. In a top-down picture a name under a mark
 					# leans into the gap between two ranks either way,
 					# and centred is what a reader expects there.
+					# ...and the SAME distinction decides the x. A name
+					# beside a mark starts past the mark's edge; a name
+					# UNDER a glyph is centred on it. These were two
+					# halves of one placement written apart, so gating
+					# only the y left an actor's name below the figure
+					# and 76px to the right of it -- half-corrected,
+					# which is worse than either whole answer.
 					_nLbX_ = _a_[1] - _nTw_ / 2
-					if _cRank_ = "LR"
-						_nLbX_ = _a_[1] + _aBx2_[1] / 2 + 8
-					but _cRank_ = "RL"
-						_nLbX_ = _a_[1] - _aBx2_[1] / 2 - 8 - _nTw_
+					if _bSide2_
+						if _cRank_ = "LR"
+							_nLbX_ = _a_[1] + _aBx2_[1] / 2 + 8
+						but _cRank_ = "RL"
+							_nLbX_ = _a_[1] - _aBx2_[1] / 2 - 8 - _nTw_
+						ok
 					ok
 					_oC_.Flush()
 					# ITS OWN POSITION, not the edge labels'. This asked
@@ -9126,6 +9197,14 @@ class stzDiagram from stzGraph
 			[ "circle", 0.70, 0.70 ], [ "ellipse", 0.70, 0.70 ],
 			[ "egg", 0.66, 0.62 ],
 			[ "doublecircle", 0.60, 0.60 ], [ "dot", 0.50, 0.50 ],
+			# AN ACTOR HOLDS NOTHING. A stick figure has no inscribed
+			# rectangle at all -- a name written across it lands on the
+			# chest, which is where the first use-case picture put
+			# "Customer". A BAR holds nothing either, and for a stronger
+			# reason: a fork carries no name because it is a MOMENT, not
+			# a step, and if one is given a name the name belongs beside
+			# it where a reader can see it is an annotation.
+			[ "actor", 0.02, 0.02 ], [ "bar", 0.02, 0.02 ],
 			[ "diamond", 0.50, 0.50 ],
 			[ "triangle", 0.50, 0.45 ], [ "invtriangle", 0.50, 0.45 ],
 			[ "trapezium", 0.70, 0.90 ], [ "invtrapezium", 0.70, 0.90 ],
@@ -9459,7 +9538,7 @@ class stzDiagram from stzGraph
 			# a round cell writes its name underneath
 			_ceSh_ = StzLower("" + This._NativeShapeOf(_ceN_))
 			for _ceO_ in [ "circle", "doublecircle", "dot", "diamond",
-				"triangle", "invtriangle" ]
+				"triangle", "invtriangle", "actor", "bar" ]
 				if _ceSh_ != _ceO_  loop  ok
 				_ceBo_ += nFsz * 2.4
 				if isObject(poFont)

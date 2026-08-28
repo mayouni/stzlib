@@ -31,7 +31,7 @@ func StzNodeShapeNames()
 		:Diamond, :Triangle, :InvTriangle, :Trapezium, :InvTrapezium,
 		:Parallelogram, :House, :InvHouse, :Pentagon, :Hexagon, :Septagon,
 		:Octagon, :TripleOctagon, :Cylinder, :Folder, :Tab, :Note,
-		:Component
+		:Component, :Actor, :Bar
 	]
 
 func StzIsNodeShape(pcName)
@@ -211,6 +211,41 @@ func StzDrawNodeShape(poCanvas, pcShape, pnX, pnY, pnW, pnH)
 		poCanvas.AddRect(_x_ + _w_ * 0.1, _y_, _w_ * 0.9, _h_)
 		poCanvas.AddRect(_x_, _y_ + _h_ * 0.18, _w_ * 0.22, _h_ * 0.2)
 		poCanvas.AddRect(_x_, _y_ + _h_ * 0.62, _w_ * 0.22, _h_ * 0.2)
+
+	# AN ACTOR IS A PERSON, and UML draws one as a stick figure -- which
+	# is not decoration. A use case diagram's whole claim is that the
+	# things round the outside are OUTSIDE: people, and other systems
+	# acting like people. A box would say they are parts of what is
+	# being built.
+	#
+	# Drawn to the box it is given, so it scales with every other glyph:
+	# a head one fifth of the height, a body to the waist, arms across
+	# and legs apart.
+	on "actor"
+		_hr_ = min([ _w_, _h_ ]) * 0.16
+		_cx_ = _x_ + _w_ / 2
+		poCanvas.AddEllipse(_cx_, _y_ + _h_ * 0.02 + _hr_, _hr_, _hr_)
+		poCanvas.AddLine(_cx_, _y_ + _h_ * 0.02 + _hr_ * 2,
+			_cx_, _y_ + _h_ * 0.60)
+		poCanvas.AddLine(_cx_ - _w_ * 0.26, _y_ + _h_ * 0.40,
+			_cx_ + _w_ * 0.26, _y_ + _h_ * 0.40)
+		poCanvas.AddLine(_cx_, _y_ + _h_ * 0.60,
+			_cx_ - _w_ * 0.22, _y_ + _h_ * 0.96)
+		poCanvas.AddLine(_cx_, _y_ + _h_ * 0.60,
+			_cx_ + _w_ * 0.22, _y_ + _h_ * 0.96)
+
+	# A BAR IS A MOMENT WHEN CONTROL SPLITS OR REJOINS -- a fork or a
+	# join in an activity. It is a THICK LINE and nothing else, and that
+	# is the point: it carries no name, no state and no duration. Drawn
+	# across the flow, so it is wide in a top-down picture and tall in a
+	# left-to-right one -- which the caller expresses by the box it
+	# hands over, exactly as it does for every other glyph.
+	on "bar"
+		if _w_ >= _h_
+			poCanvas.AddRect(_x_, _y_ + _h_ * 0.36, _w_, _h_ * 0.28)
+		else
+			poCanvas.AddRect(_x_ + _w_ * 0.36, _y_, _w_ * 0.28, _h_)
+		ok
 	off
 
 	# and leave nothing pending, so the caller's NEXT Fill/Stroke sets
