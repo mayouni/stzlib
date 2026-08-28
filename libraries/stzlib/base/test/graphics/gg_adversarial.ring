@@ -7488,6 +7488,81 @@ chk("a corner that is a corner still turns with an arc",
     len(_DiagChords(oFk2.ToSVGXT([ :NodeWidth = 120, :NodeHeight = 48,
     :Corner = 14 ]), EDGERGB)) > 0)
 
+# (8) THE REST OF UML -- DN4b, and what it cost.
+#
+#     UML is not only class diagrams, and the first scoping of DN4 said
+#     otherwise: "sequence and activity are separate notations that
+#     happen to share a name" was a judgement written as though it were
+#     a fact. Seven more diagram types followed, and TWO GLYPHS were the
+#     whole of what had to be built -- an actor and a fork bar. The rest
+#     was already in the shape table.
+#
+#     That number is the claim worth asserting: a foundation is only
+#     worth what the next domain does NOT have to add.
+nUmNew = 0
+for cUmS in [ "actor", "bar" ]
+	if StzIsNodeShape(cUmS)  nUmNew++  ok
+next
+nUmHad = 0
+for cUmS in [ "ellipse", "folder", "component", "note", "cylinder",
+	"box", "diamond", "circle", "doublecircle", "square" ]
+	if StzIsNodeShape(cUmS)  nUmHad++  ok
+next
+? "   seven diagram types: " + nUmNew + " glyphs added, " + nUmHad +
+  " already there"
+chkeq("the actor and the bar are the only glyphs UML had to add",
+      nUmNew, 2)
+chkeq("...and every other glyph seven diagram types need existed",
+      nUmHad, 10)
+
+# ONE PROFILE PER DIAGRAM TYPE, because it is the GRAMMAR that separates
+# them. Folding them into one would mean one rankdir for all of them,
+# which is the same as having no grammar at all.
+aUmFam = [
+	[ StzUmlClassNotation(), "uml", "toptobottom" ],
+	[ StzUmlUseCaseNotation(), "umlusecase", "lefttoright" ],
+	[ StzUmlActivityNotation(), "umlactivity", "toptobottom" ],
+	[ StzUmlComponentNotation(), "umlcomponent", "toptobottom" ],
+	[ StzUmlPackageNotation(), "umlpackage", "toptobottom" ],
+	[ StzUmlDeploymentNotation(), "umldeployment", "toptobottom" ],
+	[ StzUmlObjectNotation(), "umlobject", "toptobottom" ],
+	[ StzUmlCommunicationNotation(), "umlcommunication", "lefttoright" ] ]
+nUmBad = 0
+for aUmF in aUmFam
+	if aUmF[1].Name_() != aUmF[2]  nUmBad++  ok
+	if StzLower("" + aUmF[1].RankDir()) != aUmF[3]  nUmBad++  ok
+	if len(aUmF[1].Kinds()) < 2  nUmBad++  ok
+next
+chkeq("eight profiles, each with its own vocabulary and grammar",
+      nUmBad, 0)
+
+# AN ACTIVITY HAS A SPINE AND A PACKAGE DIAGRAM DOES NOT, which is the
+# whole reason they are two profiles. A dependency graph has no happy
+# path, and declaring one would be a claim the model does not make.
+chk("an activity declares a principal path",
+    StzTrim("" + StzUmlActivityNotation().Spine()) != "")
+chk("...and a package diagram does not",
+    StzTrim("" + StzUmlPackageNotation().Spine()) = "")
+
+# A BAR REACHES ACROSS WHAT IT SPLITS. Sized as a square mark it came
+# out narrower than the two branches leaving it, which reads as a small
+# blob the paths happen to pass -- the opposite of the claim it makes.
+oAc = new stzDiagram("act66")
+oAc.SetNotation(StzUmlActivityNotation())
+oAc.AddNodeXTT("i", "", [ :type = "initial" ])
+oAc.AddNodeXTT("fk", "", [ :type = "fork" ])
+oAc.AddNodeXTT("a", "Pack", [ :type = "action" ])
+oAc.AddNodeXTT("b", "Bill", [ :type = "action" ])
+oAc.AddEdge("i", "fk")  oAc.AddEdge("fk", "a")  oAc.AddEdge("fk", "b")
+oAc.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 120, :NodeHeight = 48,
+	:FontSize = 13 ])
+rAcF = _Rect49(oAc, "fk")
+rAcI = _Rect49(oAc, "i")
+? "   the fork bar is " + rAcF[3] + "x" + rAcF[4] +
+  ", the initial mark " + rAcI[3] + "x" + rAcI[4]
+chk("a fork bar reaches across the flow", rAcF[3] > rAcF[4] * 2)
+chk("...while an initial node stays a mark", rAcI[3] < 120 * 0.5)
+
 
 #---------------------------------------------------------------------------
 ? ""
