@@ -3075,11 +3075,16 @@ func RepresentsSignedRealNumber(pcStr)
 	if NOT isString(pcStr) return 0 ok
 	_c_ = ring_trim(pcStr)
 	if len(_c_) = 0 return 0 ok
+	# THE BOUND IS READ ONCE -- see IsNumberInString in stzString.ring
+	# for the measurement. These two are number validators, so they are
+	# the ones most likely to be called per FIELD over parsed input,
+	# where the string is whatever arrived.
+	_nLc_ = len(_c_)
 	_i_ = 1
 	if _c_[1] = "-" or _c_[1] = "+" _i_ = 2 ok
-	if _i_ > len(_c_) return 0 ok
+	if _i_ > _nLc_ return 0 ok
 	_bDot_ = 0
-	while _i_ <= len(_c_)
+	while _i_ <= _nLc_
 		if _c_[_i_] = "."
 			if _bDot_ return 0 ok
 			_bDot_ = 1
@@ -3094,9 +3099,10 @@ func RepresentsUnsignedRealNumber(pcStr)
 	if NOT isString(pcStr) return 0 ok
 	_c_ = ring_trim(pcStr)
 	if len(_c_) = 0 return 0 ok
+	_nLc_ = len(_c_)
 	_bDot_ = 0
 	_i_ = 1
-	while _i_ <= len(_c_)
+	while _i_ <= _nLc_
 		if _c_[_i_] = "."
 			if _bDot_ return 0 ok
 			_bDot_ = 1
