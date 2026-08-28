@@ -13010,10 +13010,22 @@ class stzString from stzObject
 	def IsAnInteger()
 		_c_ = ring_trim(This.Content())
 		if len(_c_) = 0 return 0 ok
+		# THE BOUND IS READ ONCE. Ring re-evaluates a while-condition on
+		# every pass and copies a STRING argument whole into each len(),
+		# so this reads as O(n) and runs as O(n^2): measured on Ring 1.27
+		# over 20,000 iterations, 5,194 ms on a 1 MB string against 4 ms
+		# with the bound hoisted. Found by ringpp's len-in-loop-header
+		# rule (Ring++ F-41).
+		#
+		# Safe here because the loop never touches _c_ -- where a body
+		# MUTATES what it is measuring, the bound must stay in the
+		# header, and three loops in this file are correct for exactly
+		# that reason.
+		_nLc_ = len(_c_)
 		_i_ = 1
 		if _c_[1] = "-" or _c_[1] = "+" _i_ = 2 ok
-		if _i_ > len(_c_) return 0 ok
-		while _i_ <= len(_c_)
+		if _i_ > _nLc_ return 0 ok
+		while _i_ <= _nLc_
 			if NOT isDigit(_c_[_i_]) return 0 ok
 			_i_++
 		end
@@ -13239,7 +13251,12 @@ class stzString from stzObject
 		_c_ = This.Content()
 		if len(_c_) < 2 return 0 ok
 		if _c_[1] != "#" return 0 ok
-		for _i_ = 2 to len(_c_)
+		# ...and the same for a for-BOUND, which Ring also re-reads on
+		# every pass. (Its START is read once, so the descending form
+		# `for i = len(s) to 1 step -1` is NOT this trap -- 12 of 30
+		# hits in this folder were that shape.)
+		_nLm_ = len(_c_)
+		for _i_ = 2 to _nLm_
 			if NOT isDigit(_c_[_i_]) return 0 ok
 		next
 		return 1
