@@ -1,0 +1,15 @@
+# SCRATCH RENDERS AND PROBES, which are not evidence.
+#
+# This folder holds two kinds of file and they have opposite lifetimes.
+# The COMMITTED pictures -- gal_*, sm_*, bpmn_*, uml_*, parity_* -- are
+# the library's proof of what it draws: they are re-rendered by a suite,
+# and when they change, the change is the finding. The rest are working
+# files a suite writes and forgets -- a cropped probe, a tile of a
+# scale-wall, a log of a gate run -- and they arrive by the dozen.
+#
+# Uncommitted, they made `git status` unreadable in a folder FOUR
+# sessions share, which is exactly where an unreadable status turns into
+# somebody staging a file that is not theirs. The convention is the
+# leading underscore, and it is now enforced rather than remembered:
+# anything a suite writes as scratch is named _*.
+_*
