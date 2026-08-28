@@ -36,7 +36,10 @@ func StzNodeShapeNames()
 
 func StzIsNodeShape(pcName)
 	_c_ = StzLower("" + pcName)
-	for _s_ in StzNodeShapeNames()
+	_nsA_ = StzNodeShapeNames()
+	_nsN_ = len(_nsA_)
+	for _nsI_ = 1 to _nsN_
+		_s_ = _nsA_[_nsI_]
 		if StzLower("" + _s_) = _c_  return 1  ok
 	next
 	return 0

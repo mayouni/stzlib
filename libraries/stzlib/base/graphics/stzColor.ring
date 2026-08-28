@@ -294,9 +294,14 @@ func StzThemeColor(pcTheme, pcRole)
 	_t_ = lower("" + pcTheme)
 	_r_ = lower("" + pcRole)
 	if NOT isList($aPalette)  return ""  ok
-	for _p_ in $aPalette
+	_pgN_ = len($aPalette)
+	for _pgI_ = 1 to _pgN_
+		_p_ = $aPalette[_pgI_]
 		if isList(_p_) and len(_p_) = 2 and lower("" + _p_[1]) = _t_
-			for _q_ in _p_[2]
+			_aQ1_ = _p_[2]
+			_nQ1_ = len(_aQ1_)
+			for _iQ1_ = 1 to _nQ1_
+				_q_ = _aQ1_[_iQ1_]
 				if isList(_q_) and len(_q_) = 2 and lower("" + _q_[1]) = _r_
 					return _q_[2]
 				ok

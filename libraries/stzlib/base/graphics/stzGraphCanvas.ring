@@ -508,7 +508,10 @@ class stzGraphCanvas from stzObject
 
 		_aAdj_ = []
 		for _i_ = 1 to _n_  _aAdj_ + []  next
-		for _e_ in @oGraph.Edges()
+		_aE2_ = @oGraph.Edges()
+		_nE2_ = len(_aE2_)
+		for _iE2_ = 1 to _nE2_
+			_e_ = _aE2_[_iE2_]
 			_u_ = This._IndexOf(_e_[:from])
 			_v_ = This._IndexOf(_e_[:to])
 			if _u_ < 1 or _v_ < 1 or _u_ = _v_  loop  ok
@@ -528,7 +531,10 @@ class stzGraphCanvas from stzObject
 		# longest path over the states was not
 		_aCE_ = []
 		for _i_ = 1 to _n_
-			for _v_ in _aAdj_[_i_]
+			_aV25_ = _aAdj_[_i_]
+			_nV25_ = len(_aV25_)
+			for _iV25_ = 1 to _nV25_
+				_v_ = _aV25_[_iV25_]
 				if _aComp_[_i_] != _aComp_[_v_]
 					_aCE_ + [ _aComp_[_i_], _aComp_[_v_] ]
 				ok
@@ -538,7 +544,10 @@ class stzGraphCanvas from stzObject
 		for _k_ = 1 to _nC_  _aCLay_ + 0  next
 		for _pass_ = 1 to _nC_
 			_bMoved_ = 0
-			for _ce_ in _aCE_
+			_aCe24_ = _aCE_
+			_nCe24_ = len(_aCe24_)
+			for _iCe24_ = 1 to _nCe24_
+				_ce_ = _aCe24_[_iCe24_]
 				if _aCLay_[_ce_[2]] < _aCLay_[_ce_[1]] + 1
 					_aCLay_[_ce_[2]] = _aCLay_[_ce_[1]] + 1
 					_bMoved_ = 1
@@ -596,12 +605,18 @@ class stzGraphCanvas from stzObject
 			if len(_aMembers_[_k_]) != 1  loop  ok
 			_i_ = _aMembers_[_k_][1]
 			_aNb_ = []
-			for _v_ in _aAdj_[_i_]
+			_aV23_ = _aAdj_[_i_]
+			_nV23_ = len(_aV23_)
+			for _iV23_ = 1 to _nV23_
+				_v_ = _aV23_[_iV23_]
 				if _aComp_[_v_] != _k_  _aNb_ + _v_  ok
 			next
 			for _j_ = 1 to _n_
 				if _aComp_[_j_] = _k_  loop  ok
-				for _w_ in _aAdj_[_j_]
+				_aW22_ = _aAdj_[_j_]
+				_nW22_ = len(_aW22_)
+				for _iW22_ = 1 to _nW22_
+					_w_ = _aW22_[_iW22_]
 					if _w_ = _i_  _aNb_ + _j_  ok
 				next
 			next
@@ -758,12 +773,18 @@ class stzGraphCanvas from stzObject
 		for _i_ = 1 to _n_  _aDeg_ + 0  next
 		_aIn_ = []
 		for _i_ = 1 to _n_  _aIn_ + 0  next
-		for _e_ in @oGraph.Edges()
+		_aE1_ = @oGraph.Edges()
+		_nE1_ = len(_aE1_)
+		for _iE1_ = 1 to _nE1_
+			_e_ = _aE1_[_iE1_]
 			_u_ = This._IndexOf(_e_[:from])
 			_v_ = This._IndexOf(_e_[:to])
 			if _u_ < 1 or _v_ < 1 or _u_ = _v_  loop  ok
 			_bDup_ = 0
-			for _k_ in _aAdj_[_u_]
+			_aK21_ = _aAdj_[_u_]
+			_nK21_ = len(_aK21_)
+			for _iK21_ = 1 to _nK21_
+				_k_ = _aK21_[_iK21_]
 				if _k_ = _v_  _bDup_ = 1  exit  ok
 			next
 			if _bDup_  loop  ok
@@ -797,7 +818,10 @@ class stzGraphCanvas from stzObject
 		# THE ENTRY opens the ring: a state nothing transitions into is
 		# where reading starts, and it goes to the top
 		_nStart_ = _aRing_[1]
-		for _i_ in _aRing_
+		_aI20_ = _aRing_
+		_nI20_ = len(_aI20_)
+		for _iI20_ = 1 to _nI20_
+			_i_ = _aI20_[_iI20_]
 			if _aIn_[_i_] = 0  _nStart_ = _i_  exit  ok
 		next
 
@@ -808,7 +832,12 @@ class stzGraphCanvas from stzObject
 		for _i_ = 1 to _n_  _aSeen_ + 0  next
 		_bOnRing_ = []
 		for _i_ = 1 to _n_  _bOnRing_ + 0  next
-		for _i_ in _aRing_  _bOnRing_[_i_] = 1  next
+		_aI6_ = _aRing_
+		_nI6_ = len(_aI6_)
+		for _iI6_ = 1 to _nI6_
+			_i_ = _aI6_[_iI6_]
+			_bOnRing_[_i_] = 1
+		next
 		_aStack_ = [ _nStart_ ]
 		_aSeen_[_nStart_] = 1
 		while len(_aStack_) > 0
@@ -826,7 +855,10 @@ class stzGraphCanvas from stzObject
 				_aStack_ + _v_
 			next
 		end
-		for _i_ in _aRing_
+		_aI19_ = _aRing_
+		_nI19_ = len(_aI19_)
+		for _iI19_ = 1 to _nI19_
+			_i_ = _aI19_[_iI19_]
 			if _aSeen_[_i_] = 0  _aOrd_ + _i_  ok
 		next
 
@@ -881,9 +913,15 @@ class stzGraphCanvas from stzObject
 
 		# THE MIDDLE, placed where its own edges pull it, then pushed
 		# apart so two hubs never share a point
-		for _i_ in _aInner_
+		_aI18_ = _aInner_
+		_nI18_ = len(_aI18_)
+		for _iI18_ = 1 to _nI18_
+			_i_ = _aI18_[_iI18_]
 			_sx_ = 0  _sy_ = 0  _c_ = 0
-			for _v_ in _aAdj_[_i_]
+			_aV17_ = _aAdj_[_i_]
+			_nV17_ = len(_aV17_)
+			for _iV17_ = 1 to _nV17_
+				_v_ = _aV17_[_iV17_]
 				if NOT _bOnRing_[_v_]  loop  ok
 				_sx_ += @aX[_v_]
 				_sy_ += @aY[_v_]
@@ -924,7 +962,10 @@ class stzGraphCanvas from stzObject
 		_aCh_ = []
 		for _k_ = 1 to _m_
 			_u_ = paOrd[_k_]
-			for _v_ in paAdj[_u_]
+			_aV16_ = paAdj[_u_]
+			_nV16_ = len(_aV16_)
+			for _iV16_ = 1 to _nV16_
+				_v_ = _aV16_[_iV16_]
 				if _aPos_[_v_] = 0  loop  ok
 				if _aPos_[_v_] <= _k_  loop  ok
 				_aCh_ + [ _k_, _aPos_[_v_] ]
@@ -1055,13 +1096,19 @@ class stzGraphCanvas from stzObject
 		_bSk_ = []
 		for _i_ = 1 to _n_  _bSo_ + 0  _bSk_ + 0  next
 		if isList(_aSo_)
-			for _c_ in _aSo_
+			_aC15_ = _aSo_
+			_nC15_ = len(_aC15_)
+			for _iC15_ = 1 to _nC15_
+				_c_ = _aC15_[_iC15_]
 				_i_ = This._IndexOf(_c_)
 				if _i_ >= 1  _bSo_[_i_] = 1  ok
 			next
 		ok
 		if isList(_aSk_)
-			for _c_ in _aSk_
+			_aC14_ = _aSk_
+			_nC14_ = len(_aC14_)
+			for _iC14_ = 1 to _nC14_
+				_c_ = _aC14_[_iC14_]
 				_i_ = This._IndexOf(_c_)
 				if _i_ >= 1  _bSk_[_i_] = 1  ok
 			next
@@ -1083,9 +1130,24 @@ class stzGraphCanvas from stzObject
 				ok
 			next
 			_k_ = _s_
-			for _v_ in _aFront_  paOrder[_k_] = _v_  _k_++  next
-			for _v_ in _aMid_    paOrder[_k_] = _v_  _k_++  next
-			for _v_ in _aBack_   paOrder[_k_] = _v_  _k_++  next
+			_aV5_ = _aFront_
+			_nV5_ = len(_aV5_)
+			for _iV5_ = 1 to _nV5_
+				_v_ = _aV5_[_iV5_]
+				paOrder[_k_] = _v_  _k_++
+			next
+			_aV4_ = _aMid_
+			_nV4_ = len(_aV4_)
+			for _iV4_ = 1 to _nV4_
+				_v_ = _aV4_[_iV4_]
+				paOrder[_k_] = _v_  _k_++
+			next
+			_aV3_ = _aBack_
+			_nV3_ = len(_aV3_)
+			for _iV3_ = 1 to _nV3_
+				_v_ = _aV3_[_iV3_]
+				paOrder[_k_] = _v_  _k_++
+			next
 		next
 		return paOrder
 
@@ -1113,7 +1175,10 @@ class stzGraphCanvas from stzObject
 		for _i_ = 1 to _n_
 			if paLay[_i_] > _max_  _max_ = paLay[_i_]  ok
 		next
-		for _cSk_ in _aSk_
+		_aCSk13_ = _aSk_
+		_nCSk13_ = len(_aCSk13_)
+		for _iCSk13_ = 1 to _nCSk13_
+			_cSk_ = _aCSk13_[_iCSk13_]
 			_i_ = This._IndexOf(_cSk_)
 			if _i_ >= 1 and _i_ <= _n_  paLay[_i_] = _max_  ok
 		next
@@ -1201,7 +1266,12 @@ class stzGraphCanvas from stzObject
 		# layers for the expanded node set
 		_layX_ = []
 		for _i_ = 1 to _nReal_  _layX_ + _lay_[_i_]  next
-		for _d_ in _dumLay_  _layX_ + _d_[2]  next
+		_aD2_ = _dumLay_
+		_nD2_ = len(_aD2_)
+		for _iD2_ = 1 to _nD2_
+			_d_ = _aD2_[_iD2_]
+			_layX_ + _d_[2]
+		next
 
 		# group by layer, then let the ENGINE reduce crossings -- the same
 		# sweep the GG1 stress suite ran over eight topologies
@@ -1232,7 +1302,10 @@ class stzGraphCanvas from stzObject
 			_v_ = This._IndexOf(_aE_[_e_][:to])
 			if _u_ < 1 or _v_ < 1  loop  ok
 			_ch_ = []
-			for _de_ in _dumEdge_
+			_aDe12_ = _dumEdge_
+			_nDe12_ = len(_aDe12_)
+			for _iDe12_ = 1 to _nDe12_
+				_de_ = _aDe12_[_iDe12_]
 				if _de_[1] = _e_  _ch_ = _de_[2]  exit  ok
 			next
 			if len(_ch_) = 0
@@ -1240,7 +1313,10 @@ class stzGraphCanvas from stzObject
 				_ev_ + (_v_ - 1)
 			else
 				_prev_ = _u_
-				for _dn_ in _ch_
+				_aDn11_ = _ch_
+				_nDn11_ = len(_aDn11_)
+				for _iDn11_ = 1 to _nDn11_
+					_dn_ = _aDn11_[_iDn11_]
 					_eu_ + (_prev_ - 1)
 					_ev_ + (_dn_ - 1)
 					_prev_ = _dn_
@@ -1434,7 +1510,10 @@ class stzGraphCanvas from stzObject
 			_cmd2_ = This._ClusterMaxDepth()
 			_clOf2_ = This._ClusterOf(_n_, 0)
 			_bAnyC_ = 0
-			for _v_ in _clOf2_
+			_aV10_ = _clOf2_
+			_nV10_ = len(_aV10_)
+			for _iV10_ = 1 to _nV10_
+				_v_ = _aV10_[_iV10_]
 				if _v_ > 0  _bAnyC_ = 1  exit  ok
 			next
 			if _bAnyC_
@@ -1464,7 +1543,10 @@ class stzGraphCanvas from stzObject
 						_key_ = _clOfD_[_id_]
 						if _key_ = 0  loop  ok
 						_dup_ = 0
-						for _sk_ in _seen_
+						_aSk9_ = _seen_
+						_nSk9_ = len(_aSk9_)
+						for _iSk9_ = 1 to _nSk9_
+							_sk_ = _aSk9_[_iSk9_]
 							if _sk_ = _key_  _dup_ = 1  exit  ok
 						next
 						if _dup_  loop  ok
@@ -1477,7 +1559,12 @@ class stzGraphCanvas from stzObject
 						_mn_ = len(_mem_)
 						if _mn_ < 2  loop  ok
 						_sum_ = 0
-						for _m_ in _mem_  _sum_ += @aX[_m_]  next
+						_aM1_ = _mem_
+						_nM1_ = len(_aM1_)
+						for _iM1_ = 1 to _nM1_
+							_m_ = _aM1_[_iM1_]
+							_sum_ += @aX[_m_]
+						next
 						_mid_ = _sum_ / _mn_
 						for _mi_ = 1 to _mn_
 							@aX[ _mem_[_mi_] ] = _mid_ +
@@ -1573,7 +1660,10 @@ class stzGraphCanvas from stzObject
 		# _ExtractRoutes, called after, reads them back and trims.
 		@nRealCount = _nReal_
 		@aDumEdge = []
-		for _de_ in _dumEdge_
+		_aDe8_ = _dumEdge_
+		_nDe8_ = len(_aDe8_)
+		for _iDe8_ = 1 to _nDe8_
+			_de_ = _aDe8_[_iDe8_]
 			@aDumEdge + [ "" + _aE0_[_de_[1]][:from],
 			              "" + _aE0_[_de_[1]][:to], _de_[2] ]
 		next
@@ -1659,7 +1749,10 @@ class stzGraphCanvas from stzObject
 		_cls_ = This._Opt(:Clusters, [])
 		if NOT isList(_cls_)  return _co_  ok
 		_k_ = 0
-		for _cl_ in _cls_
+		_aCl7_ = _cls_
+		_nCl7_ = len(_aCl7_)
+		for _iCl7_ = 1 to _nCl7_
+			_cl_ = _aCl7_[_iCl7_]
 			if NOT (isList(_cl_) and len(_cl_) >= 2)  loop  ok
 			_k_++
 			if nDepth > 0
@@ -1667,7 +1760,10 @@ class stzGraphCanvas from stzObject
 				if len(_cl_) >= 3 and isNumber(_cl_[3])  _d_ = _cl_[3]  ok
 				if _d_ != nDepth  loop  ok
 			ok
-			for _id_ in _cl_[2]
+			_aId6_ = _cl_[2]
+			_nId6_ = len(_aId6_)
+			for _iId6_ = 1 to _nId6_
+				_id_ = _aId6_[_iId6_]
 				_ix_ = This._IndexOf("" + _id_)
 				if _ix_ >= 1 and _ix_ <= nCount  _co_[_ix_] = _k_  ok
 			next
@@ -1679,7 +1775,10 @@ class stzGraphCanvas from stzObject
 		_m_ = 0
 		_cls_ = This._Opt(:Clusters, [])
 		if NOT isList(_cls_)  return 0  ok
-		for _cl_ in _cls_
+		_aCl5_ = _cls_
+		_nCl5_ = len(_aCl5_)
+		for _iCl5_ = 1 to _nCl5_
+			_cl_ = _aCl5_[_iCl5_]
 			if NOT (isList(_cl_) and len(_cl_) >= 2)  loop  ok
 			_d_ = 1
 			if len(_cl_) >= 3 and isNumber(_cl_[3])  _d_ = _cl_[3]  ok
@@ -1698,7 +1797,10 @@ class stzGraphCanvas from stzObject
 	# for no reason.
 	def _ClusterCompact(paOrder, paStarts, nMax, paClusterOf)
 		_cc_ = 0
-		for _v_ in paClusterOf
+		_aV4_ = paClusterOf
+		_nV4_ = len(_aV4_)
+		for _iV4_ = 1 to _nV4_
+			_v_ = _aV4_[_iV4_]
 			if _v_ > 0  _cc_ = 1  exit  ok
 		next
 		if _cc_ = 0  return paOrder  ok
@@ -1733,8 +1835,14 @@ class stzGraphCanvas from stzObject
 				_rank_ + [ _grp_[_gi_][3] / _grp_[_gi_][4], _gi_ ]
 			next
 			_rank_ = sort(_rank_, 1)
-			for _r_ in _rank_
-				for _m_ in _grp_[ _r_[2] ][2]
+			_aR3_ = _rank_
+			_nR3_ = len(_aR3_)
+			for _iR3_ = 1 to _nR3_
+				_r_ = _aR3_[_iR3_]
+				_fgA_ = _grp_[ _r_[2] ][2]
+				_fgN_ = len(_fgA_)
+				for _fgI_ = 1 to _fgN_
+					_m_ = _fgA_[_fgI_]
 					_out_ + _m_
 				next
 			next
@@ -1744,9 +1852,15 @@ class stzGraphCanvas from stzObject
 	def _ExtractRoutes()
 		@aBendOf = []
 		if len(@aDumEdge) = 0  return  ok
-		for _de_ in @aDumEdge
+		_aDe2_ = @aDumEdge
+		_nDe2_ = len(_aDe2_)
+		for _iDe2_ = 1 to _nDe2_
+			_de_ = _aDe2_[_iDe2_]
 			_pts_ = []
-			for _dn_ in _de_[3]
+			_aDn1_ = _de_[3]
+			_nDn1_ = len(_aDn1_)
+			for _iDn1_ = 1 to _nDn1_
+				_dn_ = _aDn1_[_iDn1_]
 				if _dn_ >= 1 and _dn_ <= len(@aX)
 					_pts_ + [ @aX[_dn_], @aY[_dn_] ]
 				ok

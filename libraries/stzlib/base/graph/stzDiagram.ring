@@ -583,16 +583,28 @@ class stzDiagram from stzGraph
 		for _r_ = 1 to max([ @nModeRows, 1 ])  _aWid_ + 0  next
 		_aPos_ = _oMc_.RawPositions()
 		_aRy_ = []
-		for _pM_ in _oMc_.Positions()
+		_aPM55_ = _oMc_.Positions()
+		_nPM55_ = len(_aPM55_)
+		for _iPM55_ = 1 to _nPM55_
+			_pM_ = _aPM55_[_iPM55_]
 			_bS_ = 0
-			for _vR_ in _aRy_
+			_aVR114_ = _aRy_
+			_nVR114_ = len(_aVR114_)
+			for _iVR114_ = 1 to _nVR114_
+				_vR_ = _aVR114_[_iVR114_]
 				if fabs(_vR_ - _pM_[3]) < 2  _bS_ = 1  exit  ok
 			next
 			if NOT _bS_  _aRy_ + _pM_[3]  ok
 		next
-		for _vR_ in _aRy_
+		_aVR113_ = _aRy_
+		_nVR113_ = len(_aVR113_)
+		for _iVR113_ = 1 to _nVR113_
+			_vR_ = _aVR113_[_iVR113_]
 			_nAt_ = 0
-			for _pM_ in _oMc_.Positions()
+			_aPM54_ = _oMc_.Positions()
+			_nPM54_ = len(_aPM54_)
+			for _iPM54_ = 1 to _nPM54_
+				_pM_ = _aPM54_[_iPM54_]
 				if fabs(_pM_[3] - _vR_) < 2  _nAt_++  ok
 			next
 			if _nAt_ > @nModeCols  @nModeCols = _nAt_  ok
@@ -606,14 +618,20 @@ class stzDiagram from stzGraph
 			# how many RANKS hold a region -- three regions side by side
 			# eat their chrome ONCE, not three times
 			_nRw_ = 0
-			for _pM2_ in _oMc_.Positions()
+			_aPM253_ = _oMc_.Positions()
+			_nPM253_ = len(_aPM253_)
+			for _iPM253_ = 1 to _nPM253_
+				_pM2_ = _aPM253_[_iPM253_]
 				if StzLower("" + _pM2_[1]) = StzLower("" + _aIn_[1])
 					_nRw_ = floor(_pM2_[3])
 					exit
 				ok
 			next
 			_bNewRw_ = 1
-			for _vRw_ in @aModeRegionRowsAt
+			_aVRw112_ = @aModeRegionRowsAt
+			_nVRw112_ = len(_aVRw112_)
+			for _iVRw112_ = 1 to _nVRw112_
+				_vRw_ = _aVRw112_[_iVRw112_]
 				if fabs(_vRw_ - _nRw_) < 2  _bNewRw_ = 0  exit  ok
 			next
 			if _bNewRw_
@@ -684,7 +702,10 @@ class stzDiagram from stzGraph
 			_epMx_ = (_epX1_ + _epX2_) / 2
 			_epMy_ = (_epY1_ + _epY2_) / 2
 			_epShared_ = 0
-			for _epR_ in @aEdgePaths
+			_aEpR111_ = @aEdgePaths
+			_nEpR111_ = len(_aEpR111_)
+			for _iEpR111_ = 1 to _nEpR111_
+				_epR_ = _aEpR111_[_iEpR111_]
 				if StzLower("" + _epR_[1]) = _epK_  loop  ok
 				if This._OnPath(_epR_[2], _epMx_, _epMy_, 2.5)
 					_epShared_ = 1
@@ -760,7 +781,10 @@ class stzDiagram from stzGraph
 	def _SurfaceAt(nX, nY, cPaper)
 		_cS_ = "" + cPaper
 		_nBest_ = -1
-		for _srR_ in @aRenderClusRects
+		_aSrR110_ = @aRenderClusRects
+		_nSrR110_ = len(_aSrR110_)
+		for _iSrR110_ = 1 to _nSrR110_
+			_srR_ = _aSrR110_[_iSrR110_]
 			if nX < _srR_[1] or nX > _srR_[1] + _srR_[3]  loop  ok
 			if nY < _srR_[2] or nY > _srR_[2] + _srR_[4]  loop  ok
 			_nA_ = _srR_[3] * _srR_[4]
@@ -773,9 +797,17 @@ class stzDiagram from stzGraph
 		return _cS_
 
 	def _ClusterFillAt(aRect)
-		for _cfC_ in @aClusters
+		_aCfC109_ = @aClusters
+		_nCfC109_ = len(_aCfC109_)
+		for _iCfC109_ = 1 to _nCfC109_
+			_cfC_ = _aCfC109_[_iCfC109_]
 			_cfB_ = []
-			for _cfM_ in _cfC_[:nodes]  _cfB_ + StzLower("" + _cfM_)  next
+			_aCfM19_ = _cfC_[:nodes]
+			_nCfM19_ = len(_aCfM19_)
+			for _iCfM19_ = 1 to _nCfM19_
+				_cfM_ = _aCfM19_[_iCfM19_]
+				_cfB_ + StzLower("" + _cfM_)
+			next
 			if len(_cfB_) != len(aRect[5])  loop  ok
 			_bSame_ = 1
 			for _cfI_ = 1 to len(_cfB_)
@@ -787,7 +819,10 @@ class stzDiagram from stzGraph
 
 	def _BoxAt(aCentre, nBoxW, nBoxH)
 		if len(aCentre) < 2  return [ nBoxW, nBoxH ]  ok
-		for _bq_ in @aRenderNodeRects
+		_aBq108_ = @aRenderNodeRects
+		_nBq108_ = len(_aBq108_)
+		for _iBq108_ = 1 to _nBq108_
+			_bq_ = _aBq108_[_iBq108_]
 			if fabs(_bq_[1] + _bq_[3] / 2 - aCentre[1]) < 1.5 and
 			   fabs(_bq_[2] + _bq_[4] / 2 - aCentre[2]) < 1.5
 				return [ _bq_[3], _bq_[4] ]
@@ -806,7 +841,10 @@ class stzDiagram from stzGraph
 		# cell is 132 and a mark is 25: a flow stopped 66px short of the
 		# end event it named. The positions and the per-node sizes are
 		# both known well before the drawing starts, so ask them.
-		for _bq2_ in @aDrawXY
+		_aBq2107_ = @aDrawXY
+		_nBq2107_ = len(_aBq2107_)
+		for _iBq2107_ = 1 to _nBq2107_
+			_bq2_ = _aBq2107_[_iBq2107_]
 			if fabs(_bq2_[2] - aCentre[1]) < 1.5 and
 			   fabs(_bq2_[3] - aCentre[2]) < 1.5
 				return This._BoxOf(_bq2_[1], nBoxW, nBoxH)
@@ -826,9 +864,15 @@ class stzDiagram from stzGraph
 		_rfTop_ = 1000000
 		_rfBot_ = 0 - 1000000
 		_bAny_ = 0
-		for _rfC_ in @aClusters
+		_aRfC106_ = @aClusters
+		_nRfC106_ = len(_aRfC106_)
+		for _iRfC106_ = 1 to _nRfC106_
+			_rfC_ = _aRfC106_[_iRfC106_]
 			_bHere_ = 0
-			for _rfM_ in _rfC_[:nodes]
+			_aRfM105_ = _rfC_[:nodes]
+			_nRfM105_ = len(_aRfM105_)
+			for _iRfM105_ = 1 to _nRfM105_
+				_rfM_ = _aRfM105_[_iRfM105_]
 				_rfA_ = This._XYOf(paXY, "" + _rfM_)
 				if len(_rfA_) != 2  loop  ok
 				if fabs(_rfA_[2] - nRowY) < 2  _bHere_ = 1  ok
@@ -859,7 +903,10 @@ class stzDiagram from stzGraph
 
 	def _RowOfXY(paXY, paRows, pcId)
 		_rid_ = StzLower("" + pcId)
-		for _rq_ in paXY
+		_aRq104_ = paXY
+		_nRq104_ = len(_aRq104_)
+		for _iRq104_ = 1 to _nRq104_
+			_rq_ = _aRq104_[_iRq104_]
 			if _rq_[1] != _rid_  loop  ok
 			for _rk_ = 1 to len(paRows)
 				if fabs(paRows[_rk_] - _rq_[3]) < 2  return _rk_  ok
@@ -870,14 +917,20 @@ class stzDiagram from stzGraph
 
 	def _ModeOfId(pcId)
 		_mid_ = StzLower("" + pcId)
-		for _mr_ in @aModeOfId
+		_aMr103_ = @aModeOfId
+		_nMr103_ = len(_aMr103_)
+		for _iMr103_ = 1 to _nMr103_
+			_mr_ = _aMr103_[_iMr103_]
 			if _mr_[1] = _mid_  return _mr_[2]  ok
 		next
 		return 0
 
 	def _BoxOf(pcId, nBoxW, nBoxH)
 		_bid_ = StzLower("" + pcId)
-		for _br_ in @aBoxOf
+		_aBr102_ = @aBoxOf
+		_nBr102_ = len(_aBr102_)
+		for _iBr102_ = 1 to _nBr102_
+			_br_ = _aBr102_[_iBr102_]
 			if _br_[1] = _bid_  return [ _br_[2], _br_[3] ]  ok
 		next
 		return [ nBoxW, nBoxH ]
@@ -885,7 +938,10 @@ class stzDiagram from stzGraph
 	def _FillBoxSizes(nBoxW, nBoxH)
 		@aBoxOf = []
 		_oNn_ = This.NotationO()
-		for _nd_ in This.Nodes()
+		_aNd52_ = This.Nodes()
+		_nNd52_ = len(_aNd52_)
+		for _iNd52_ = 1 to _nNd52_
+			_nd_ = _aNd52_[_iNd52_]
 			# A CLASS IS AS BIG AS WHAT IT HOLDS -- DN4.
 			#
 			# A compartmented node is not a new GLYPH: DN0 defines a
@@ -955,12 +1011,20 @@ class stzDiagram from stzGraph
 		_cpOut_ = [ [ "" + aNode[:label] ] ]
 		if NOT HasKey(aNode, "properties")  return _cpOut_  ok
 		if NOT isList(aNode["properties"])  return _cpOut_  ok
-		for _cpK_ in [ "attributes", "operations" ]
+		_aCpK18_ = [ "attributes", "operations" ]
+		_nCpK18_ = len(_aCpK18_)
+		for _iCpK18_ = 1 to _nCpK18_
+			_cpK_ = _aCpK18_[_iCpK18_]
 			if NOT HasKey(aNode["properties"], _cpK_)  loop  ok
 			_cpV_ = aNode["properties"][_cpK_]
 			_cpB_ = []
 			if isList(_cpV_)
-				for _cpI_ in _cpV_  _cpB_ + ("" + _cpI_)  next
+				_aCpI17_ = _cpV_
+				_nCpI17_ = len(_aCpI17_)
+				for _iCpI17_ = 1 to _nCpI17_
+					_cpI_ = _aCpI17_[_iCpI17_]
+					_cpB_ + ("" + _cpI_)
+				next
 			but StzTrim("" + _cpV_) != ""
 				_cpB_ + ("" + _cpV_)
 			ok
@@ -981,17 +1045,26 @@ class stzDiagram from stzGraph
 		_cbLines_ = 0
 		_cbFsz_ = @nLastFsz
 		if NOT isNumber(_cbFsz_) or _cbFsz_ <= 0  _cbFsz_ = 14  ok
-		for _cbB_ in paBlocks
+		_aCbB101_ = paBlocks
+		_nCbB101_ = len(_aCbB101_)
+		for _iCbB101_ = 1 to _nCbB101_
+			_cbB_ = _aCbB101_[_iCbB101_]
 			_cbLines_ += len(_cbB_)
 			if NOT isObject(@oLastFont)  loop  ok
-			for _cbL_ in _cbB_
+			_aCbL100_ = _cbB_
+			_nCbL100_ = len(_aCbL100_)
+			for _iCbL100_ = 1 to _nCbL100_
+				_cbL_ = _aCbL100_[_iCbL100_]
 				_cbLw_ = @oLastFont.WidthOf("" + _cbL_, _cbFsz_) + 20
 				if _cbLw_ > _cbW_  _cbW_ = _cbLw_  ok
 			next
 		next
 		# a block with no lines still occupies a band a reader can see
 		_cbBands_ = 0
-		for _cbB_ in paBlocks
+		_aCbB99_ = paBlocks
+		_nCbB99_ = len(_aCbB99_)
+		for _iCbB99_ = 1 to _nCbB99_
+			_cbB_ = _aCbB99_[_iCbB99_]
 			if len(_cbB_) = 0  _cbBands_++  ok
 		next
 		# ...AND THE RULES BETWEEN THE BANDS ARE PART OF THE HEIGHT.
@@ -1019,7 +1092,10 @@ class stzDiagram from stzGraph
 	def _KindedIds(paKinds)
 		_aOut_ = []
 		if len(paKinds) = 0  return _aOut_  ok
-		for _nd_ in This.Nodes()
+		_aNd51_ = This.Nodes()
+		_nNd51_ = len(_aNd51_)
+		for _iNd51_ = 1 to _nNd51_
+			_nd_ = _aNd51_[_iNd51_]
 			_k_ = ""
 			if HasKey(_nd_, "properties") and isList(_nd_["properties"])
 				if HasKey(_nd_["properties"], "type")
@@ -1027,7 +1103,10 @@ class stzDiagram from stzGraph
 				ok
 			ok
 			if _k_ = ""  loop  ok
-			for _kk_ in paKinds
+			_aKk98_ = paKinds
+			_nKk98_ = len(_aKk98_)
+			for _iKk98_ = 1 to _nKk98_
+				_kk_ = _aKk98_[_iKk98_]
 				if _kk_ = _k_
 					_aOut_ + StzLower("" + _nd_[:id])
 					exit
@@ -1049,7 +1128,10 @@ class stzDiagram from stzGraph
 				":BottomUp, :LeftRight, :RightLeft) or a graphviz engine.")
 		ok
 		_bOk_ = 0
-		for _k_ in [ :TopDown, :BottomUp, :LeftRight, :RightLeft ]
+		_aK16_ = [ :TopDown, :BottomUp, :LeftRight, :RightLeft ]
+		_nK16_ = len(_aK16_)
+		for _iK16_ = 1 to _nK16_
+			_k_ = _aK16_[_iK16_]
 			if _c_ = StzLower("" + _k_) or StzFindFirst(_c_, $acLayouts[_k_]) > 0
 				_bOk_ = 1
 				exit
@@ -2257,14 +2339,20 @@ class stzDiagram from stzGraph
 		# is the smaller lie.
 		if isObject(_oFont_)
 			_nWide_ = 0
-			for _nd9_ in _aNodes_
+			_aNd997_ = _aNodes_
+			_nNd997_ = len(_aNd997_)
+			for _iNd997_ = 1 to _nNd997_
+				_nd9_ = _aNd997_[_iNd997_]
 				_cLb9_ = StzTrim("" + _nd9_[:label])
 				if _cLb9_ = ""  loop  ok
 				# a mark writes its name OUTSIDE itself, so it asks
 				# nothing of the box
 				_cSh9_ = StzLower("" + This._NativeShapeOf(_nd9_))
 				_bMk9_ = 0
-				for _cO9_ in [ "circle", "doublecircle", "dot" ]
+				_aCO915_ = [ "circle", "doublecircle", "dot" ]
+				_nCO915_ = len(_aCO915_)
+				for _iCO915_ = 1 to _nCO915_
+					_cO9_ = _aCO915_[_iCO915_]
 					if _cSh9_ = _cO9_  _bMk9_ = 1  exit  ok
 				next
 				if _bMk9_  loop  ok
@@ -2328,7 +2416,10 @@ class stzDiagram from stzGraph
 			# inset, not in the total.
 			_nLoopLabW_ = 0
 			if isObject(_oFont_)
-				for _e6_ in This.Edges()
+				_aE650_ = This.Edges()
+				_nE650_ = len(_aE650_)
+				for _iE650_ = 1 to _nE650_
+					_e6_ = _aE650_[_iE650_]
 					if StzLower("" + _e6_[:from]) != StzLower("" + _e6_[:to])
 						loop
 					ok
@@ -2429,7 +2520,10 @@ class stzDiagram from stzGraph
 		_bELab_ = 0
 		_nLabH_ = 0
 		_nLabW_ = 0
-		for _e0_ in This.Edges()
+		_aE049_ = This.Edges()
+		_nE049_ = len(_aE049_)
+		for _iE049_ = 1 to _nE049_
+			_e0_ = _aE049_[_iE049_]
 			if StzTrim("" + _e0_[:label]) != ""
 				_bELab_ = 1
 				if isObject(_oFont_)
@@ -2488,11 +2582,17 @@ class stzDiagram from stzGraph
 			if _cRank_ = "LR" or _cRank_ = "RL"
 				_nFanW_ = 0
 				if isObject(_oFont_)
-					for _n5_ in This.NodesIds()
+					_aN548_ = This.NodesIds()
+					_nN548_ = len(_aN548_)
+					for _iN548_ = 1 to _nN548_
+						_n5_ = _aN548_[_iN548_]
 						_c5_ = StzLower("" + _n5_)
 						_k5_ = 0
 						_w5_ = 0
-						for _e5_ in This.Edges()
+						_aE547_ = This.Edges()
+						_nE547_ = len(_aE547_)
+						for _iE547_ = 1 to _nE547_
+							_e5_ = _aE547_[_iE547_]
 							if StzLower("" + _e5_[:from]) != _c5_  loop  ok
 							if StzLower("" + _e5_[:to]) = _c5_  loop  ok
 							_l5_ = StzTrim("" + _e5_[:label])
@@ -2524,7 +2624,10 @@ class stzDiagram from stzGraph
 			if _bModes_
 				_nMdLabH_ = 0
 				if isObject(_oFont_)
-					for _e0_ in This.Edges()
+					_aE046_ = This.Edges()
+					_nE046_ = len(_aE046_)
+					for _iE046_ = 1 to _nE046_
+						_e0_ = _aE046_[_iE046_]
 						if StzTrim("" + _e0_[:label]) = ""  loop  ok
 						if This._ModeOfId("" + _e0_[:from]) =
 						   This._ModeOfId("" + _e0_[:to])  loop  ok
@@ -2602,7 +2705,10 @@ class stzDiagram from stzGraph
 			# rank was charged a full cell, including the ones holding
 			# nothing but a mark a fifth that size.
 			_nMdTall_ = 0
-			for _nd4_ in This.Nodes()
+			_aNd445_ = This.Nodes()
+			_nNd445_ = len(_aNd445_)
+			for _iNd445_ = 1 to _nNd445_
+				_nd4_ = _aNd445_[_iNd445_]
 				_b4_ = This._BoxOf("" + _nd4_[:id], _nBoxW_, _nBoxH_)
 				if _b4_[2] > _nMdTall_  _nMdTall_ = _b4_[2]  ok
 			next
@@ -2642,7 +2748,10 @@ class stzDiagram from stzGraph
 			# paid ONCE for the region, not once per column
 			_nMdLoopW_ = 0
 			if isObject(_oFont_)
-				for _e5_ in This.Edges()
+				_aE544_ = This.Edges()
+				_nE544_ = len(_aE544_)
+				for _iE544_ = 1 to _nE544_
+					_e5_ = _aE544_[_iE544_]
 					if StzLower("" + _e5_[:from]) != StzLower("" + _e5_[:to])
 						loop
 					ok
@@ -2754,7 +2863,10 @@ class stzDiagram from stzGraph
 				_slotB_ = _nBoxH_
 				_pitchB_ = _nBoxW_
 			ok
-			for _pbN_ in This.Nodes()
+			_aPbN43_ = This.Nodes()
+			_nPbN43_ = len(_aPbN43_)
+			for _iPbN43_ = 1 to _nPbN43_
+				_pbN_ = _aPbN43_[_iPbN43_]
 				_pbB_ = This._BoxOf("" + _pbN_[:id], _nBoxW_, _nBoxH_)
 				_pbW_ = _pbB_[1]  _pbH_ = _pbB_[2]
 				if _bSwap_  _pbW_ = _pbB_[2]  _pbH_ = _pbB_[1]  ok
@@ -2811,11 +2923,17 @@ class stzDiagram from stzGraph
 			_maxdx_ = 0
 			_nlay_ = _oGC_.LayerCount()
 			_aPosL_ = []
-			for _pL_ in _oGC_.Positions()
+			_aPL42_ = _oGC_.Positions()
+			_nPL42_ = len(_aPL42_)
+			for _iPL42_ = 1 to _nPL42_
+				_pL_ = _aPL42_[_iPL42_]
 				_aPosL_ + [ StzLower("" + _pL_[1]), _pL_[2], _pL_[3] ]
 			next
 			_nPosL_ = len(_aPosL_)
-			for _e2_ in This.Edges()
+			_aE241_ = This.Edges()
+			_nE241_ = len(_aE241_)
+			for _iE241_ = 1 to _nE241_
+				_e2_ = _aE241_[_iE241_]
 				_pa_ = 0  _pb_ = 0  _ya_ = 0  _yb_ = 0
 				_bfa_ = 0  _bfb_ = 0
 				_cFrL_ = StzLower("" + _e2_[:from])
@@ -2853,16 +2971,25 @@ class stzDiagram from stzGraph
 				# a node's layer, recovered from the provisional frame the
 				# engine normalised into (rank rows are even there)
 				_aLayOf_ = []
-				for _pL2_ in _aPosL_
+				_aPL296_ = _aPosL_
+				_nPL296_ = len(_aPL296_)
+				for _iPL296_ = 1 to _nPL296_
+					_pL2_ = _aPL296_[_iPL296_]
 					_aLayOf_ + [ _pL2_[1],
 						floor(_pL2_[3] / 700.0 * (_nlay2_ - 1) + 0.5) ]
 				next
-				for _e0_ in This.Edges()
+				_aE040_ = This.Edges()
+				_nE040_ = len(_aE040_)
+				for _iE040_ = 1 to _nE040_
+					_e0_ = _aE040_[_iE040_]
 					if StzTrim("" + _e0_[:label]) = ""  loop  ok
 					_lu_ = -1  _lv_ = -1
 					_cF0_ = StzLower("" + _e0_[:from])
 					_cT0_ = StzLower("" + _e0_[:to])
-					for _pL2_ in _aLayOf_
+					_aPL295_ = _aLayOf_
+					_nPL295_ = len(_aPL295_)
+					for _iPL295_ = 1 to _nPL295_
+						_pL2_ = _aPL295_[_iPL295_]
 						if _pL2_[1] = _cF0_  _lu_ = _pL2_[2]  ok
 						if _pL2_[1] = _cT0_  _lv_ = _pL2_[2]  ok
 					next
@@ -2892,7 +3019,10 @@ class stzDiagram from stzGraph
 				_nH_ = ceil(_inY_ + 2 * _my_)
 			ok
 			_aXY_ = []
-			for _p_ in _oGC_.Positions()
+			_aP39_ = _oGC_.Positions()
+			_nP39_ = len(_aP39_)
+			for _iP39_ = 1 to _nP39_
+				_p_ = _aP39_[_iP39_]
 				_px_ = _p_[2] / 1000 * _inX_
 				_py_ = This._GapMapY(_p_[3], _nlay2_, _aCumY_)
 				if _bSwap_
@@ -2919,9 +3049,15 @@ class stzDiagram from stzGraph
 			# the long edges' routes ride the SAME transform as the nodes --
 			# one rule, so a route can never land in a different frame from
 			# the boxes it joins
-			for _r_ in _oGC_.EdgeRoutes()
+			_aR38_ = _oGC_.EdgeRoutes()
+			_nR38_ = len(_aR38_)
+			for _iR38_ = 1 to _nR38_
+				_r_ = _aR38_[_iR38_]
 				_rp_ = []
-				for _bp_ in _r_[3]
+				_aBp94_ = _r_[3]
+				_nBp94_ = len(_aBp94_)
+				for _iBp94_ = 1 to _nBp94_
+					_bp_ = _aBp94_[_iBp94_]
 					_px_ = _bp_[1] / 1000 * _inX_
 					_py_ = This._GapMapY(_bp_[2], _nlay2_, _aCumY_)
 					if _bSwap_
@@ -2961,7 +3097,10 @@ class stzDiagram from stzGraph
 			# The extent block below already measures every node's OWN
 			# box; it simply was not being entered.
 			_bChrome_ = len(@aClusters) > 0
-			for _nb0_ in This.Nodes()
+			_aNb037_ = This.Nodes()
+			_nNb037_ = len(_aNb037_)
+			for _iNb037_ = 1 to _nNb037_
+				_nb0_ = _aNb037_[_iNb037_]
 				_bb0_ = This._BoxOf("" + _nb0_[:id], _nBoxW_, _nBoxH_)
 				if fabs(_bb0_[1] - _nBoxW_) > 0.5 or
 				   fabs(_bb0_[2] - _nBoxH_) > 0.5
@@ -2969,7 +3108,10 @@ class stzDiagram from stzGraph
 					exit
 				ok
 			next
-			for _e0_ in This.Edges()
+			_aE036_ = This.Edges()
+			_nE036_ = len(_aE036_)
+			for _iE036_ = 1 to _nE036_
+				_e0_ = _aE036_[_iE036_]
 				if StzLower("" + _e0_[:from]) = StzLower("" + _e0_[:to])
 					_bChrome_ = 1
 					exit
@@ -2980,11 +3122,17 @@ class stzDiagram from stzGraph
 			# otherwise have its name clipped by a canvas sized to boxes
 			_bOutLb_ = 0
 			if isObject(_oFont_)
-				for _n0_ in This.Nodes()
+				_aN035_ = This.Nodes()
+				_nN035_ = len(_aN035_)
+				for _iN035_ = 1 to _nN035_
+					_n0_ = _aN035_[_iN035_]
 					_cSh0_ = StzLower("" + This._NativeShapeOf(_n0_))
-					for _cO0_ in [ "circle", "doublecircle", "dot",
+					_aCO01_ = [ "circle", "doublecircle", "dot",
 						"diamond", "triangle", "invtriangle",
 						"actor", "bar" ]
+					_nCO01_ = len(_aCO01_)
+					for _iCO01_ = 1 to _nCO01_
+						_cO0_ = _aCO01_[_iCO01_]
 						if _cSh0_ = _cO0_  _bOutLb_ = 1  _bChrome_ = 1  exit  ok
 					next
 					if _bOutLb_  exit  ok
@@ -3003,7 +3151,10 @@ class stzDiagram from stzGraph
 				# grows it to cover loops, outside labels and frames, and
 				# what is left over is white nobody drew on.
 				_ex0_ = 1000000000  _ey0_ = 1000000000  _ex1_ = 0 - 1000000000  _ey1_ = 0 - 1000000000
-				for _n1_ in This.Nodes()
+				_aN134_ = This.Nodes()
+				_nN134_ = len(_aN134_)
+				for _iN134_ = 1 to _nN134_
+					_n1_ = _aN134_[_iN134_]
 					_at1_ = This._XYOf(_aXY_, "" + _n1_[:id])
 					if len(_at1_) != 2  loop  ok
 					_bb1_ = This._BoxOf("" + _n1_[:id], _nBoxW_, _nBoxH_)
@@ -3027,7 +3178,10 @@ class stzDiagram from stzGraph
 				# a self-loop reaches beyond its node, on the side the
 				# drawing puts it
 				_slr_ = This._SelfLoopReach(_nBoxW_, _nBoxH_) + 6
-				for _e0_ in This.Edges()
+				_aE033_ = This.Edges()
+				_nE033_ = len(_aE033_)
+				for _iE033_ = 1 to _nE033_
+					_e0_ = _aE033_[_iE033_]
 					if StzLower("" + _e0_[:from]) != StzLower("" + _e0_[:to])
 						loop
 					ok
@@ -3053,12 +3207,18 @@ class stzDiagram from stzGraph
 				next
 
 				if _bOutLb_
-					for _n0_ in This.Nodes()
+					_aN032_ = This.Nodes()
+					_nN032_ = len(_aN032_)
+					for _iN032_ = 1 to _nN032_
+						_n0_ = _aN032_[_iN032_]
 						_cSh0_ = StzLower("" + This._NativeShapeOf(_n0_))
 						_bO0_ = 0
-						for _cO0_ in [ "circle", "doublecircle", "dot",
+						_aCO02_ = [ "circle", "doublecircle", "dot",
 							"diamond", "triangle", "invtriangle",
-						"actor", "bar" ]
+							"actor", "bar" ]
+						_nCO02_ = len(_aCO02_)
+						for _iCO02_ = 1 to _nCO02_
+							_cO0_ = _aCO02_[_iCO02_]
 							if _cSh0_ = _cO0_  _bO0_ = 1  exit  ok
 						next
 						if NOT _bO0_  loop  ok
@@ -3112,7 +3272,10 @@ class stzDiagram from stzGraph
 					if _rrup_ < _ex0_  _ex0_ = _rrup_  ok
 				ok
 
-				for _cl_ in @aClusters
+				_aCl93_ = @aClusters
+				_nCl93_ = len(_aCl93_)
+				for _iCl93_ = 1 to _nCl93_
+					_cl_ = _aCl93_[_iCl93_]
 					_cb_ = This._ClusterBox(_cl_, _aXY_, _nBoxW_, _nBoxH_)
 					if len(_cb_) != 4  loop  ok
 					# the label sits 24px above the box, matching the draw
@@ -3133,14 +3296,23 @@ class stzDiagram from stzGraph
 				_dy_ = _nBor_ - _ey0_
 				if fabs(_dx_) > 0.001 or fabs(_dy_) > 0.001
 					_moved_ = []
-					for _p2_ in _aXY_
+					_aP292_ = _aXY_
+					_nP292_ = len(_aP292_)
+					for _iP292_ = 1 to _nP292_
+						_p2_ = _aP292_[_iP292_]
 						_moved_ + [ _p2_[1], _p2_[2] + _dx_, _p2_[3] + _dy_ ]
 					next
 					_aXY_ = _moved_
 					_movedR_ = []
-					for _r2_ in _aRoute_
+					_aR291_ = _aRoute_
+					_nR291_ = len(_aR291_)
+					for _iR291_ = 1 to _nR291_
+						_r2_ = _aR291_[_iR291_]
 						_rp2_ = []
-						for _bp2_ in _r2_[3]
+						_aBp290_ = _r2_[3]
+						_nBp290_ = len(_aBp290_)
+						for _iBp290_ = 1 to _nBp290_
+							_bp2_ = _aBp290_[_iBp290_]
 							_rp2_ + [ _bp2_[1] + _dx_, _bp2_[2] + _dy_ ]
 						next
 						_movedR_ + [ _r2_[1], _r2_[2], _rp2_ ]
@@ -3208,7 +3380,10 @@ class stzDiagram from stzGraph
 			@nRenderCrossings = _oGC_.LayoutCrossings()
 
 			_aXY_ = []
-			for _p_ in _oGC_.Positions()
+			_aP31_ = _oGC_.Positions()
+			_nP31_ = len(_aP31_)
+			for _iP31_ = 1 to _nP31_
+				_p_ = _aP31_[_iP31_]
 				_px_ = _p_[2]
 				_py_ = _p_[3]
 				if _bSwap_
@@ -3256,7 +3431,10 @@ class stzDiagram from stzGraph
 				_aRows_ = []
 				for _xi_ = 1 to len(_aXY_)
 					_bSeen_ = 0
-					for _vr_ in _aRows_
+					_aVr89_ = _aRows_
+					_nVr89_ = len(_aVr89_)
+					for _iVr89_ = 1 to _nVr89_
+						_vr_ = _aVr89_[_iVr89_]
 						if fabs(_vr_ - _aXY_[_xi_][3]) < 2  _bSeen_ = 1  exit  ok
 					next
 					if NOT _bSeen_  _aRows_ + _aXY_[_xi_][3]  ok
@@ -3271,8 +3449,14 @@ class stzDiagram from stzGraph
 						if fabs(_aXY_[_xi_][3] - _aRows_[_ri_]) > 2  loop  ok
 						_bx_ = This._BoxOf(_aXY_[_xi_][1], _nBoxW_, _nBoxH_)
 						if _bx_[2] > _nTall_  _nTall_ = _bx_[2]  ok
-						for _clC_ in @aClusters
-							for _clM_ in _clC_[:nodes]
+						_aClC88_ = @aClusters
+						_nClC88_ = len(_aClC88_)
+						for _iClC88_ = 1 to _nClC88_
+							_clC_ = _aClC88_[_iClC88_]
+							_aClM87_ = _clC_[:nodes]
+							_nClM87_ = len(_aClM87_)
+							for _iClM87_ = 1 to _nClM87_
+								_clM_ = _aClM87_[_iClM87_]
 								if StzLower("" + _clM_) = _aXY_[_xi_][1]
 									_bReg_ = 1
 								ok
@@ -3328,7 +3512,10 @@ class stzDiagram from stzGraph
 					# the gaps unequally.
 					_nGap_ = _nSepBase_
 					if _ri_ < len(_aRows_) and isObject(_oFont_)
-						for _e7_ in This.Edges()
+						_aE730_ = This.Edges()
+						_nE730_ = len(_aE730_)
+						for _iE730_ = 1 to _nE730_
+							_e7_ = _aE730_[_iE730_]
 							if StzTrim("" + _e7_[:label]) = ""  loop  ok
 							_r7a_ = This._RowOfXY(_aXY_, _aRows_,
 								"" + _e7_[:from])
@@ -3364,15 +3551,24 @@ class stzDiagram from stzGraph
 					_dy2_ = _nBor2_ - _aMx_[2]
 					if fabs(_dx2_) > 0.001 or fabs(_dy2_) > 0.001
 						_mv2_ = []
-						for _p3_ in _aXY_
+						_aP386_ = _aXY_
+						_nP386_ = len(_aP386_)
+						for _iP386_ = 1 to _nP386_
+							_p3_ = _aP386_[_iP386_]
 							_mv2_ + [ _p3_[1], _p3_[2] + _dx2_,
 								_p3_[3] + _dy2_ ]
 						next
 						_aXY_ = _mv2_
 						_mr2_ = []
-						for _r3_ in _aRoute_
+						_aR385_ = _aRoute_
+						_nR385_ = len(_aR385_)
+						for _iR385_ = 1 to _nR385_
+							_r3_ = _aR385_[_iR385_]
 							_rp3_ = []
-							for _bp3_ in _r3_[3]
+							_aBp384_ = _r3_[3]
+							_nBp384_ = len(_aBp384_)
+							for _iBp384_ = 1 to _nBp384_
+								_bp3_ = _aBp384_[_iBp384_]
 								_rp3_ + [ _bp3_[1] + _dx2_, _bp3_[2] + _dy2_ ]
 							next
 							_mr2_ + [ _r3_[1], _r3_[2], _rp3_ ]
@@ -3384,9 +3580,15 @@ class stzDiagram from stzGraph
 				ok
 			ok
 
-			for _r_ in _oGC_.EdgeRoutes()
+			_aR29_ = _oGC_.EdgeRoutes()
+			_nR29_ = len(_aR29_)
+			for _iR29_ = 1 to _nR29_
+				_r_ = _aR29_[_iR29_]
 				_rp_ = []
-				for _bp_ in _r_[3]
+				_aBp83_ = _r_[3]
+				_nBp83_ = len(_aBp83_)
+				for _iBp83_ = 1 to _nBp83_
+					_bp_ = _aBp83_[_iBp83_]
 					_px_ = _bp_[1]
 					_py_ = _bp_[2]
 					if _bSwap_
@@ -3483,7 +3685,10 @@ class stzDiagram from stzGraph
 		# Ring a method local read before its assigning statement is not
 		# an error but a stale or empty value
 		_clstrip_ = _nFsz_ * 1.9
-		for _cd_ in This._ClusterDepths()
+		_aCd28_ = This._ClusterDepths()
+		_nCd28_ = len(_aCd28_)
+		for _iCd28_ = 1 to _nCd28_
+			_cd_ = _aCd28_[_iCd28_]
 			_cl_ = This._ClusterById(_cd_[1])
 			if len(_cl_) = 0  loop  ok
 			_aBox_ = This._ClusterBox(_cl_, _aXY_, _nBoxW_, _nBoxH_)
@@ -3500,7 +3705,12 @@ class stzDiagram from stzGraph
 				_clstrip_ = _nFsz_ * 1.9
 			ok
 			_clids_ = []
-			for _cm_ in _cl_[:nodes]  _clids_ + StzLower("" + _cm_)  next
+			_aCm14_ = _cl_[:nodes]
+			_nCm14_ = len(_aCm14_)
+			for _iCm14_ = 1 to _nCm14_
+				_cm_ = _aCm14_[_iCm14_]
+				_clids_ + StzLower("" + _cm_)
+			next
 			# the strip above the box belongs to the frame too -- the label
 			# lives there, so a channel through it crosses the SURFACE
 			@aRenderClusRects + [ _aBox_[1], _aBox_[2] - _clstrip_,
@@ -3603,7 +3813,10 @@ class stzDiagram from stzGraph
 		ok
 		@oLastCanvas = _oC_
 		This._FillBoxSizes(_nBoxW_, _nBoxH_)
-		for _nr_ in _aXY_
+		_aNr82_ = _aXY_
+		_nNr82_ = len(_aNr82_)
+		for _iNr82_ = 1 to _nNr82_
+			_nr_ = _aNr82_[_iNr82_]
 			_aRb_ = This._BoxOf("" + _nr_[1], _nBoxW_, _nBoxH_)
 			@aRenderNodeRects + [ _nr_[2] - _aRb_[1] / 2, _nr_[3] - _aRb_[2] / 2,
 				_aRb_[1], _aRb_[2], StzLower("" + _nr_[1]) ]
@@ -3649,7 +3862,10 @@ class stzDiagram from stzGraph
 			_pcNo_ = 0  _pcNi_ = 0
 			_pcF_ = StzLower("" + _aE_[_pcI_][:from])
 			_pcT_ = StzLower("" + _aE_[_pcI_][:to])
-			for _pcE2_ in _aE_
+			_aPcE281_ = _aE_
+			_nPcE281_ = len(_aPcE281_)
+			for _iPcE281_ = 1 to _nPcE281_
+				_pcE2_ = _aPcE281_[_iPcE281_]
 				if StzLower("" + _pcE2_[:from]) = StzLower("" + _pcE2_[:to])
 					loop
 				ok
@@ -3933,7 +4149,10 @@ class stzDiagram from stzGraph
 		#     between this and every quantity that went wrong this week:
 		#     it reads what was DRAWN, not what a drawer intended.
 		@aRenderAdorn = []
-		for _adR_ in @aEdgePaths
+		_aAdR80_ = @aEdgePaths
+		_nAdR80_ = len(_aAdR80_)
+		for _iAdR80_ = 1 to _nAdR80_
+			_adR_ = _aAdR80_[_iAdR80_]
 			This._DrawRelationEnd(_oC_, _adR_[1], _adR_[2], _cEdge_,
 				_nEdgeW_)
 		next
@@ -3984,7 +4203,10 @@ class stzDiagram from stzGraph
 					_slK2_ = StzLower("" + _aE_[_ei_][:from] + ">" +
 						"" + _aE_[_ei_][:to])
 					_slP2_ = []
-					for _pp2_ in @aEdgePaths
+					_aPp279_ = @aEdgePaths
+					_nPp279_ = len(_aPp279_)
+					for _iPp279_ = 1 to _nPp279_
+						_pp2_ = _aPp279_[_iPp279_]
 						if StzLower("" + _pp2_[1]) = _slK2_
 							_slP2_ = _pp2_[2]
 						ok
@@ -4098,7 +4320,10 @@ class stzDiagram from stzGraph
 				_cLK_ = "" + _aLabAt_[_li_][4]
 				_aPth_ = []
 				if _cLK_ != ""
-					for _pp_ in @aEdgePaths
+					_aPp78_ = @aEdgePaths
+					_nPp78_ = len(_aPp78_)
+					for _iPp78_ = 1 to _nPp78_
+						_pp_ = _aPp78_[_iPp78_]
 						if _pp_[1] = _cLK_
 							_aPth_ = _pp_[2]
 							exit
@@ -4150,7 +4375,10 @@ class stzDiagram from stzGraph
 					# legs, so 0.5 means what a reader means by it.
 					# ...along the part of it this edge owns ALONE
 					_aPthX_ = This._ExclusivePath(_cLK_, _aPth_)
-					for _sfr_ in [ 0.5, 0.42, 0.58, 0.32, 0.68, 0.22, 0.78 ]
+					_aSfr13_ = [ 0.5, 0.42, 0.58, 0.32, 0.68, 0.22, 0.78 ]
+					_nSfr13_ = len(_aSfr13_)
+					for _iSfr13_ = 1 to _nSfr13_
+						_sfr_ = _aSfr13_[_iSfr13_]
 						_aAt_ = This._PointAlong(_aPthX_, _sfr_)
 						if len(_aAt_) != 4  loop  ok
 						_smx_ = _aAt_[1]
@@ -4237,9 +4465,19 @@ class stzDiagram from stzGraph
 					# which is a layout question, not a placement one.
 					_aCand_ = []
 					if @cLabelPlacement = "middle"
-						for _cOn_ in _aOn_   _aCand_ + _cOn_   next
+						_aCOn12_ = _aOn_
+						_nCOn12_ = len(_aCOn12_)
+						for _iCOn12_ = 1 to _nCOn12_
+							_cOn_ = _aCOn12_[_iCOn12_]
+							_aCand_ + _cOn_
+						next
 					else
-						for _cBe_ in _aBes_  _aCand_ + _cBe_   next
+						_aCBe11_ = _aBes_
+						_nCBe11_ = len(_aCBe11_)
+						for _iCBe11_ = 1 to _nCBe11_
+							_cBe_ = _aCBe11_[_iCBe11_]
+							_aCand_ + _cBe_
+						next
 					ok
 					# ...AND THE SEAT OF LAST RESORT IS IN THE SAME
 					# CONVENTION TOO. Defaulting to the raw anchor put
@@ -4255,7 +4493,10 @@ class stzDiagram from stzGraph
 						_nBestX_ = _aCand_[1][1]
 						_nBestY_ = _aCand_[1][2]
 					ok
-					for _cd_ in _aCand_
+					_aCd77_ = _aCand_
+					_nCd77_ = len(_aCd77_)
+					for _iCd77_ = 1 to _nCd77_
+						_cd_ = _aCd77_[_iCd77_]
 						_nD_ = This._LabelSpotScore(_cd_[1], _cd_[2], _lw_,
 							_lh_, _cLK_, _aDone_)
 						if _nD_ < 0  loop  ok
@@ -4292,7 +4533,10 @@ class stzDiagram from stzGraph
 					# label-vs-label nudge still applies
 					for _try_ = 1 to 6
 						_bHit_ = 0
-						for _d_ in _aDone_
+						_aD76_ = _aDone_
+						_nD76_ = len(_aD76_)
+						for _iD76_ = 1 to _nD76_
+							_d_ = _aD76_[_iD76_]
 							if fabs(_lx_ - _d_[1]) < (_lw_ + _d_[3]) / 2 and
 							   fabs(_ly_ - _d_[2]) < (_lh_ + _d_[4]) / 2
 								_bHit_ = 1
@@ -4609,7 +4853,10 @@ class stzDiagram from stzGraph
 									_x03_ + _cbB3_[1], _yy3_ + 3)
 							_yy3_ += 6
 						ok
-						for _ln3_ in _aCp3_[_bi3_]
+						_aLn375_ = _aCp3_[_bi3_]
+						_nLn375_ = len(_aLn375_)
+						for _iLn375_ = 1 to _nLn375_
+							_ln3_ = _aLn375_[_iLn375_]
 							_t3_ = This._FitLabel("" + _ln3_, _oFont_,
 								_nFsz_, _cbB3_[1] - 16)
 							_w3_ = _oFont_.WidthOf(_t3_, _nFsz_)
@@ -4750,7 +4997,12 @@ class stzDiagram from stzGraph
 		# before any page exists -- pages cannot disagree with each other
 		# about where a node is.
 		_pgOpt_ = []
-		for _pgO_ in paOptions  _pgOpt_ + _pgO_  next
+		_aPgO10_ = paOptions
+		_nPgO10_ = len(_aPgO10_)
+		for _iPgO10_ = 1 to _nPgO10_
+			_pgO_ = _aPgO10_[_iPgO10_]
+			_pgOpt_ + _pgO_
+		next
 		# [ key, value ], NOT [ :Key = value ] -- the second nests the pair
 		# one level deeper and every reader skips it in silence, which is
 		# the option-list trap this repository has paid for before
@@ -4934,11 +5186,14 @@ class stzDiagram from stzGraph
 	def _IsAffirmative(pcLabel)
 		_ifL_ = StzLower(StzTrim("" + pcLabel))
 		if _ifL_ = ""  return 0  ok
-		for _ifY_ in [ "yes", "y", "true", "ok", "okay", "approved",
+		_aIfY3_ = [ "yes", "y", "true", "ok", "okay", "approved",
 			"approve", "accepted", "accept", "valid", "complete",
 			"completed", "success", "successful", "granted", "pass",
 			"passed", "in stock", "available", "authorised",
 			"authorized", "confirmed", "signed", "paid" ]
+		_nIfY3_ = len(_aIfY3_)
+		for _iIfY3_ = 1 to _nIfY3_
+			_ifY_ = _aIfY3_[_iIfY3_]
 			if _ifL_ = _ifY_  return 1  ok
 		next
 		return 0
@@ -4950,9 +5205,15 @@ class stzDiagram from stzGraph
 		# declared -- a process with no entry is a modelling mistake the
 		# rules report, not a reason to draw nothing.
 		_hpStart_ = ""
-		for _hpI_ in _hpIds_
+		_aHpI74_ = _hpIds_
+		_nHpI74_ = len(_aHpI74_)
+		for _iHpI74_ = 1 to _nHpI74_
+			_hpI_ = _aHpI74_[_iHpI74_]
 			_hpIn_ = 0
-			for _hpE_ in This.Edges()
+			_aHpE27_ = This.Edges()
+			_nHpE27_ = len(_aHpE27_)
+			for _iHpE27_ = 1 to _nHpE27_
+				_hpE_ = _aHpE27_[_iHpE27_]
 				if StzLower("" + _hpE_[:to]) = StzLower("" + _hpI_)
 					_hpIn_ = 1
 					exit
@@ -4970,7 +5231,10 @@ class stzDiagram from stzGraph
 			# THE AFFIRMATIVE ANSWER CONTINUES THE FLOW, and only where
 			# no answer says yes does declaration order decide.
 			_hpNext_ = ""
-			for _hpE_ in This.Edges()
+			_aHpE26_ = This.Edges()
+			_nHpE26_ = len(_aHpE26_)
+			for _iHpE26_ = 1 to _nHpE26_
+				_hpE_ = _aHpE26_[_iHpE26_]
 				if StzLower("" + _hpE_[:from]) != _hpAt_  loop  ok
 				if StzLower("" + _hpE_[:to]) = _hpAt_  loop  ok
 				if NOT This._IsAffirmative("" + _hpE_[:label])  loop  ok
@@ -4978,7 +5242,10 @@ class stzDiagram from stzGraph
 				exit
 			next
 			if _hpNext_ = ""
-				for _hpE_ in This.Edges()
+				_aHpE25_ = This.Edges()
+				_nHpE25_ = len(_aHpE25_)
+				for _iHpE25_ = 1 to _nHpE25_
+					_hpE_ = _aHpE25_[_iHpE25_]
 					if StzLower("" + _hpE_[:from]) != _hpAt_  loop  ok
 					if StzLower("" + _hpE_[:to]) = _hpAt_  loop  ok
 					_hpNext_ = StzLower("" + _hpE_[:to])
@@ -4987,7 +5254,10 @@ class stzDiagram from stzGraph
 			ok
 			if _hpNext_ = ""  exit  ok
 			_hpSeen_ = 0
-			for _hpQ_ in _hpOut_
+			_aHpQ73_ = _hpOut_
+			_nHpQ73_ = len(_aHpQ73_)
+			for _iHpQ73_ = 1 to _nHpQ73_
+				_hpQ_ = _aHpQ73_[_iHpQ73_]
 				if _hpQ_ = _hpNext_  _hpSeen_ = 1  exit  ok
 			next
 			if _hpSeen_  exit  ok
@@ -5031,7 +5301,10 @@ class stzDiagram from stzGraph
 		_srOn_ = []
 		for _srI_ = 1 to len(paXY)
 			_srB_ = 0
-			for _srQ_ in _srPath_
+			_aSrQ72_ = _srPath_
+			_nSrQ72_ = len(_aSrQ72_)
+			for _iSrQ72_ = 1 to _nSrQ72_
+				_srQ_ = _aSrQ72_[_iSrQ72_]
 				if _srQ_ = StzLower("" + paXY[_srI_][1])  _srB_ = 1  exit  ok
 			next
 			_srOn_ + _srB_
@@ -5065,7 +5338,10 @@ class stzDiagram from stzGraph
 		_srRanks_ = []
 		for _srI_ = 1 to len(_srOut_)
 			_srSeen_ = 0
-			for _srV_ in _srRanks_
+			_aSrV71_ = _srRanks_
+			_nSrV71_ = len(_aSrV71_)
+			for _iSrV71_ = 1 to _nSrV71_
+				_srV_ = _aSrV71_[_iSrV71_]
 				if fabs(_srV_ - _srOut_[_srI_][_srR_]) < 2  _srSeen_ = 1  exit  ok
 			next
 			if NOT _srSeen_  _srRanks_ + _srOut_[_srI_][_srR_]  ok
@@ -5103,7 +5379,10 @@ class stzDiagram from stzGraph
 			_srId5_ = StzLower("" + _srOut_[_srI_][1])
 			# nothing leaves it
 			_srOut5_ = 0
-			for _srE5_ in This.Edges()
+			_aSrE524_ = This.Edges()
+			_nSrE524_ = len(_aSrE524_)
+			for _iSrE524_ = 1 to _nSrE524_
+				_srE5_ = _aSrE524_[_iSrE524_]
 				if StzLower("" + _srE5_[:from]) = _srId5_
 					if StzLower("" + _srE5_[:to]) != _srId5_  _srOut5_++  ok
 				ok
@@ -5112,7 +5391,10 @@ class stzDiagram from stzGraph
 			# exactly one thing reaches it, by a perpendicular summit
 			_srIn5_ = 0
 			_srSrc5_ = ""
-			for _srE5_ in This.Edges()
+			_aSrE523_ = This.Edges()
+			_nSrE523_ = len(_aSrE523_)
+			for _iSrE523_ = 1 to _nSrE523_
+				_srE5_ = _aSrE523_[_iSrE523_]
 				if StzLower("" + _srE5_[:to]) != _srId5_  loop  ok
 				_srIn5_++
 				_srSrc5_ = "" + _srE5_[:from]
@@ -5130,7 +5412,10 @@ class stzDiagram from stzGraph
 		for _srI_ = 1 to len(_srOut_)
 			_srU_ = 0
 			if NOT _srOn_[_srI_]
-				for _srE4_ in This.Edges()
+				_aSrE422_ = This.Edges()
+				_nSrE422_ = len(_aSrE422_)
+				for _iSrE422_ = 1 to _nSrE422_
+					_srE4_ = _aSrE422_[_iSrE422_]
 					if StzLower("" + _srE4_[:to]) != StzLower("" + _srOut_[_srI_][1])
 						loop
 					ok
@@ -5165,7 +5450,10 @@ class stzDiagram from stzGraph
 		# was the only line that never showed the fault.
 		_srIdx_ = []
 		for _srI_ = 1 to len(_srOut_)  _srIdx_ + 0  next
-		for _srK_ in _srRanks_
+		_aSrK70_ = _srRanks_
+		_nSrK70_ = len(_aSrK70_)
+		for _iSrK70_ = 1 to _nSrK70_
+			_srK_ = _aSrK70_[_iSrK70_]
 			_srNu_ = 0
 			_srNd_ = 0
 			for _srI_ = 1 to len(_srOut_)
@@ -5416,7 +5704,10 @@ class stzDiagram from stzGraph
 			_epLoT_ = min([ _epTo_[ iif(_bV_, 2, 1) ], _epAp_[ iif(_bV_, 2, 1) ] ])
 			_epHiT_ = max([ _epTo_[ iif(_bV_, 2, 1) ], _epAp_[ iif(_bV_, 2, 1) ] ])
 			_epRkT_ = _epTo_[ iif(_bV_, 1, 2) ]
-			for _epP2_ in paXY
+			_aEpP269_ = paXY
+			_nEpP269_ = len(_aEpP269_)
+			for _iEpP269_ = 1 to _nEpP269_
+				_epP2_ = _aEpP269_[_iEpP269_]
 				if StzLower("" + _epP2_[1]) = StzLower("" + paEdges[_epI_][:to])
 					loop
 				ok
@@ -5527,7 +5818,10 @@ class stzDiagram from stzGraph
 						_epL2_ = min([ _epFr_[ iif(_bV_, 2, 1) ], _epTo_[ iif(_bV_, 2, 1) ] ])
 						_epH2_ = max([ _epFr_[ iif(_bV_, 2, 1) ], _epTo_[ iif(_bV_, 2, 1) ] ])
 						_epFree_ = 1
-						for _epP3_ in paXY
+						_aEpP368_ = paXY
+						_nEpP368_ = len(_aEpP368_)
+						for _iEpP368_ = 1 to _nEpP368_
+							_epP3_ = _aEpP368_[_iEpP368_]
 							if StzLower("" + _epP3_[1]) = StzLower("" + paEdges[_epI_][:to])
 								loop
 							ok
@@ -5637,7 +5931,10 @@ class stzDiagram from stzGraph
 	# stzDiagram is.
 	def _ClusterPairs()
 		_cp_ = []
-		for _cd_ in This._ClusterDepths()
+		_aCd21_ = This._ClusterDepths()
+		_nCd21_ = len(_aCd21_)
+		for _iCd21_ = 1 to _nCd21_
+			_cd_ = _aCd21_[_iCd21_]
 			_cp_ + [ _cd_[1], _cd_[2], _cd_[3] ]
 		next
 		return _cp_
@@ -5700,7 +5997,12 @@ class stzDiagram from stzGraph
 		next
 		_ord_ = sort(_ord_, 1)
 		_out_ = []
-		for _o_ in _ord_  _out_ + _res_[ _o_[2] ]  next
+		_aO9_ = _ord_
+		_nO9_ = len(_aO9_)
+		for _iO9_ = 1 to _nO9_
+			_o_ = _aO9_[_iO9_]
+			_out_ + _res_[ _o_[2] ]
+		next
 		return _out_
 
 	# WHERE ALONG ITS EDGE A LABEL SITS, as a fraction from source to
@@ -5791,7 +6093,10 @@ class stzDiagram from stzGraph
 			next
 			if _wlCur_ != ""  _wlOut_ + _wlCur_  ok
 			_wlMax_ = 0
-			for _wlL_ in _wlOut_
+			_aWlL67_ = _wlOut_
+			_nWlL67_ = len(_aWlL67_)
+			for _iWlL67_ = 1 to _nWlL67_
+				_wlL_ = _aWlL67_[_iWlL67_]
 				if oFont.WidthOf(_wlL_, nFsz) > _wlMax_
 					_wlMax_ = oFont.WidthOf(_wlL_, nFsz)
 				ok
@@ -5805,7 +6110,10 @@ class stzDiagram from stzGraph
 	def _LabelBlock(cText, oFont, nFsz, nTargetW)
 		_lbL_ = This._WrapLabel(cText, oFont, nFsz, nTargetW)
 		_lbW_ = 0
-		for _lbI_ in _lbL_
+		_aLbI66_ = _lbL_
+		_nLbI66_ = len(_aLbI66_)
+		for _iLbI66_ = 1 to _nLbI66_
+			_lbI_ = _aLbI66_[_iLbI66_]
 			if isObject(oFont) and oFont.WidthOf(_lbI_, nFsz) > _lbW_
 				_lbW_ = oFont.WidthOf(_lbI_, nFsz)
 			ok
@@ -5823,14 +6131,20 @@ class stzDiagram from stzGraph
 		_pos_ = []
 		for _i_ = 1 to _nn_  _pos_ + [ StzLower("" + _ids_[_i_]), _i_ ]  next
 
-		for _e_ in This.Edges()
+		_aE20_ = This.Edges()
+		_nE20_ = len(_aE20_)
+		for _iE20_ = 1 to _nE20_
+			_e_ = _aE20_[_iE20_]
 			_cl_ = StzTrim("" + _e_[:label])
 			if _cl_ = ""  loop  ok
 			# a self-loop's label is drawn beside the node, not between
 			# ranks, and the derived-size pass already reserves for it
 			if StzLower("" + _e_[:from]) = StzLower("" + _e_[:to])  loop  ok
 			_at_ = 0
-			for _p_ in _pos_
+			_aP65_ = _pos_
+			_nP65_ = len(_aP65_)
+			for _iP65_ = 1 to _nP65_
+				_p_ = _aP65_[_iP65_]
 				if _p_[1] = StzLower("" + _e_[:to])  _at_ = _p_[2]  exit  ok
 			next
 			if _at_ = 0  loop  ok
@@ -5882,10 +6196,16 @@ class stzDiagram from stzGraph
 	def _LeavesCluster(pcFrom, pcTo)
 		_lcF_ = StzLower("" + pcFrom)
 		_lcT_ = StzLower("" + pcTo)
-		for _lcC_ in @aClusters
+		_aLcC64_ = @aClusters
+		_nLcC64_ = len(_aLcC64_)
+		for _iLcC64_ = 1 to _nLcC64_
+			_lcC_ = _aLcC64_[_iLcC64_]
 			_lcHasF_ = 0
 			_lcHasT_ = 0
-			for _lcM_ in _lcC_[:nodes]
+			_aLcM63_ = _lcC_[:nodes]
+			_nLcM63_ = len(_aLcM63_)
+			for _iLcM63_ = 1 to _nLcM63_
+				_lcM_ = _aLcM63_[_iLcM63_]
 				if StzLower("" + _lcM_) = _lcF_  _lcHasF_ = 1  ok
 				if StzLower("" + _lcM_) = _lcT_  _lcHasT_ = 1  ok
 			next
@@ -5901,8 +6221,14 @@ class stzDiagram from stzGraph
 	def _ClusterKeyOf(pcNode)
 		_ckN_ = StzLower("" + pcNode)
 		_ckK_ = ""
-		for _ckC_ in @aClusters
-			for _ckM_ in _ckC_[:nodes]
+		_aCkC62_ = @aClusters
+		_nCkC62_ = len(_aCkC62_)
+		for _iCkC62_ = 1 to _nCkC62_
+			_ckC_ = _aCkC62_[_iCkC62_]
+			_aCkM61_ = _ckC_[:nodes]
+			_nCkM61_ = len(_aCkM61_)
+			for _iCkM61_ = 1 to _nCkM61_
+				_ckM_ = _aCkM61_[_iCkM61_]
 				if StzLower("" + _ckM_) = _ckN_
 					_ckK_ += StzLower("" + _ckC_[:id]) + "|"
 					exit
@@ -5913,24 +6239,38 @@ class stzDiagram from stzGraph
 
 	def _ClusterById(pcId)
 		_c_ = StzLower("" + pcId)
-		for _cl_ in @aClusters
+		_aCl60_ = @aClusters
+		_nCl60_ = len(_aCl60_)
+		for _iCl60_ = 1 to _nCl60_
+			_cl_ = _aCl60_[_iCl60_]
 			if StzLower("" + _cl_[:id]) = _c_  return _cl_  ok
 		next
 		return []
 
 	def _ClusterNodeSet(aCluster)
 		_s_ = []
-		for _id_ in aCluster[:nodes]  _s_ + StzLower("" + _id_)  next
+		_aId8_ = aCluster[:nodes]
+		_nId8_ = len(_aId8_)
+		for _iId8_ = 1 to _nId8_
+			_id_ = _aId8_[_iId8_]
+			_s_ + StzLower("" + _id_)
+		next
 		return _s_
 
 	def _SetInside(paA, paB)
-		for _x_ in paA
+		_aX59_ = paA
+		_nX59_ = len(_aX59_)
+		for _iX59_ = 1 to _nX59_
+			_x_ = _aX59_[_iX59_]
 			if StzFindFirst(_x_, paB) = 0  return 0  ok
 		next
 		return 1
 
 	def _SetsOverlap(paA, paB)
-		for _x_ in paA
+		_aX58_ = paA
+		_nX58_ = len(_aX58_)
+		for _iX58_ = 1 to _nX58_
+			_x_ = _aX58_[_iX58_]
 			if StzFindFirst(_x_, paB) > 0  return 1  ok
 		next
 		return 0
@@ -6094,7 +6434,10 @@ class stzDiagram from stzGraph
 	def _RouteOf(paRoutes, cFrom, cTo)
 		_rf_ = StzLower("" + cFrom)
 		_rt_ = StzLower("" + cTo)
-		for _r_ in paRoutes
+		_aR57_ = paRoutes
+		_nR57_ = len(_aR57_)
+		for _iR57_ = 1 to _nR57_
+			_r_ = _aR57_[_iR57_]
 			if _r_[1] = _rf_ and _r_[2] = _rt_  return _r_[3]  ok
 		next
 		return []
@@ -6329,7 +6672,10 @@ class stzDiagram from stzGraph
 		if len(@aRenderNodeRects) > 0
 			_kaR_ = max([ 10, @aRenderNodeRects[1][4] / 2 ])
 		ok
-		for _kaP_ in @aEdgePaths
+		_aKaP56_ = @aEdgePaths
+		_nKaP56_ = len(_aKaP56_)
+		for _iKaP56_ = 1 to _nKaP56_
+			_kaP_ = _aKaP56_[_iKaP56_]
 			if StzLower("" + _kaP_[1]) != _kaKey_  loop  ok
 			_kaF_ = _kaP_[2]
 			_kaN_ = len(_kaF_)
@@ -6347,7 +6693,10 @@ class stzDiagram from stzGraph
 	def RewireAnchor()
 		if @cUiState != :Rewiring or len(@aUiRewire) != 3  return []  ok
 		_raKey_ = StzLower(@aUiRewire[1] + ">" + @aUiRewire[2])
-		for _raP_ in @aEdgePaths
+		_aRaP55_ = @aEdgePaths
+		_nRaP55_ = len(_aRaP55_)
+		for _iRaP55_ = 1 to _nRaP55_
+			_raP_ = _aRaP55_[_iRaP55_]
 			if StzLower("" + _raP_[1]) != _raKey_  loop  ok
 			_raF_ = _raP_[2]
 			_raN_ = len(_raF_)
@@ -6574,7 +6923,10 @@ class stzDiagram from stzGraph
 			# restore a node into a graph it is no longer part of.
 			_aeLb_ = "" + This.NodeLabel(_aeId_)
 			_aeEd_ = []
-			for _aeE_ in This.Edges()
+			_aAeE19_ = This.Edges()
+			_nAeE19_ = len(_aAeE19_)
+			for _iAeE19_ = 1 to _nAeE19_
+				_aeE_ = _aAeE19_[_iAeE19_]
 				if StzLower("" + _aeE_[:from]) = StzLower(_aeId_) or
 				   StzLower("" + _aeE_[:to]) = StzLower(_aeId_)
 					_aeEd_ + [ "" + _aeE_[:from], "" + _aeE_[:to] ]
@@ -6589,7 +6941,10 @@ class stzDiagram from stzGraph
 			if This.NodeExists(_aeId_)  return []  ok
 			This.AddNodeXT(_aeId_, "" + paArgs[2])
 			if len(paArgs) >= 3 and isList(paArgs[3])
-				for _aeP_ in paArgs[3]
+				_aAeP54_ = paArgs[3]
+				_nAeP54_ = len(_aAeP54_)
+				for _iAeP54_ = 1 to _nAeP54_
+					_aeP_ = _aAeP54_[_iAeP54_]
 					if len(_aeP_) = 2  This.AddEdge(_aeP_[1], _aeP_[2])  ok
 				next
 			ok
@@ -6668,7 +7023,10 @@ class stzDiagram from stzGraph
 
 	def _PinOf(pcNode)
 		_poN_ = StzLower("" + pcNode)
-		for _poP_ in @aPins
+		_aPoP53_ = @aPins
+		_nPoP53_ = len(_aPoP53_)
+		for _iPoP53_ = 1 to _nPoP53_
+			_poP_ = _aPoP53_[_iPoP53_]
 			if _poP_[1] = _poN_  return _poP_[2]  ok
 		next
 		return 0
@@ -6699,7 +7057,10 @@ class stzDiagram from stzGraph
 	def Unpin(pcNode)
 		_pnN_ = StzLower("" + pcNode)
 		_pnNew_ = []
-		for _pnP_ in @aPins
+		_aPnP52_ = @aPins
+		_nPnP52_ = len(_aPnP52_)
+		for _iPnP52_ = 1 to _nPnP52_
+			_pnP_ = _aPnP52_[_iPnP52_]
 			if _pnP_[1] != _pnN_  _pnNew_ + _pnP_  ok
 		next
 		@aPins = _pnNew_
@@ -6711,7 +7072,10 @@ class stzDiagram from stzGraph
 
 	def IsPinned(pcNode)
 		_pnN_ = StzLower("" + pcNode)
-		for _pnP_ in @aPins
+		_aPnP51_ = @aPins
+		_nPnP51_ = len(_aPnP51_)
+		for _iPnP51_ = 1 to _nPnP51_
+			_pnP_ = _aPnP51_[_iPnP51_]
 			if _pnP_[1] = _pnN_  return TRUE  ok
 		next
 		return FALSE
@@ -6728,7 +7092,10 @@ class stzDiagram from stzGraph
 		for _pvI_ = 1 to len(_pvIds_)
 			_pvV_ = 0 - 999999999
 			_pvN_ = StzLower("" + _pvIds_[_pvI_])
-			for _pvP_ in @aPins
+			_aPvP50_ = @aPins
+			_nPvP50_ = len(_aPvP50_)
+			for _iPvP50_ = 1 to _nPvP50_
+				_pvP_ = _aPvP50_[_iPvP50_]
 				if _pvP_[1] = _pvN_  _pvV_ = _pvP_[2]  exit  ok
 			next
 			_pvOut_ + _pvV_
@@ -6754,7 +7121,10 @@ class stzDiagram from stzGraph
 		if NOT isObject(@oLastCanvas)  return []  ok
 		_pkT_ = @oLastCanvas.PickXT(pnX, pnY, pnTol)
 		if _pkT_ = 0  return []  ok
-		for _pkR_ in @aRenderPicks
+		_aPkR49_ = @aRenderPicks
+		_nPkR49_ = len(_aPkR49_)
+		for _iPkR49_ = 1 to _nPkR49_
+			_pkR_ = _aPkR49_[_iPkR49_]
 			if _pkR_[1] = _pkT_
 				if _pkR_[2] = "node"  return [ :node, _pkR_[3] ]  ok
 				return [ :edge, _pkR_[3], _pkR_[4] ]
@@ -6781,7 +7151,10 @@ class stzDiagram from stzGraph
 				return -1
 			ok
 		ok
-		for _lsD_ in paDone
+		_aLsD48_ = paDone
+		_nLsD48_ = len(_aLsD48_)
+		for _iLsD48_ = 1 to _nLsD48_
+			_lsD_ = _aLsD48_[_iLsD48_]
 			if fabs(nLx - _lsD_[1]) < (nLw + _lsD_[3]) / 2 and
 			   fabs(nLy - _lsD_[2]) < (nLh + _lsD_[4]) / 2
 				return -1
@@ -6798,7 +7171,10 @@ class stzDiagram from stzGraph
 		# boundary erases the rule under it -- the plate now takes the
 		# surface, and on a boundary there are two surfaces, so it must
 		# get one wrong. Kept off the line entirely instead.
-		for _lsC_ in @aRenderClusRects
+		_aLsC47_ = @aRenderClusRects
+		_nLsC47_ = len(_aLsC47_)
+		for _iLsC47_ = 1 to _nLsC47_
+			_lsC_ = _aLsC47_[_iLsC47_]
 			for _lsE_ = 1 to 2
 				_lsY_ = _lsC_[2]
 				if _lsE_ = 2  _lsY_ = _lsC_[2] + _lsC_[4]  ok
@@ -6807,7 +7183,10 @@ class stzDiagram from stzGraph
 				if fabs(nLy - _lsY_) < nLh / 2 + 3  return -1  ok
 			next
 		next
-		for _lsN_ in @aRenderNodeRects
+		_aLsN46_ = @aRenderNodeRects
+		_nLsN46_ = len(_aLsN46_)
+		for _iLsN46_ = 1 to _nLsN46_
+			_lsN_ = _aLsN46_[_iLsN46_]
 			if _lsL_ < _lsN_[1] + _lsN_[3] + _lsG_ and
 			   _lsL_ + nLw > _lsN_[1] - _lsG_ and
 			   _lsT_ < _lsN_[2] + _lsN_[4] + _lsG_ and
@@ -6816,7 +7195,10 @@ class stzDiagram from stzGraph
 			ok
 		next
 		_lsMin_ = 1000000
-		for _lsP_ in @aEdgePaths
+		_aLsP45_ = @aEdgePaths
+		_nLsP45_ = len(_aLsP45_)
+		for _iLsP45_ = 1 to _nLsP45_
+			_lsP_ = _aLsP45_[_iLsP45_]
 			if _lsP_[1] = cOwnKey  loop  ok
 			_lsF_ = _lsP_[2]
 			for _lsI_ = 1 to len(_lsF_) - 3 step 2
@@ -6887,7 +7269,10 @@ class stzDiagram from stzGraph
 	def _LegIsClear(nPos, nA1, nA2, cFrom, cTo, bVert)
 		_lcB_ = This._ChannelBlocked(nA1, nA2, cFrom, cTo, bVert)
 		_lcC_ = This._LineClearance() * 0.5
-		for _lcI_ in _lcB_
+		_aLcI44_ = _lcB_
+		_nLcI44_ = len(_aLcI44_)
+		for _iLcI44_ = 1 to _nLcI44_
+			_lcI_ = _aLcI44_[_iLcI44_]
 			if nPos > _lcI_[1] - _lcC_ and nPos < _lcI_[2] + _lcC_
 				return FALSE
 			ok
@@ -6906,7 +7291,10 @@ class stzDiagram from stzGraph
 			else
 				_cbSet_ = @aRenderNodeRects
 			ok
-			for _cbR_ in _cbSet_
+			_aCbR43_ = _cbSet_
+			_nCbR43_ = len(_aCbR43_)
+			for _iCbR43_ = 1 to _nCbR43_
+				_cbR_ = _aCbR43_[_iCbR43_]
 				if _cbPass_ = 1
 					if StzFindFirst(_cbF_, _cbR_[5]) > 0  loop  ok
 					if StzFindFirst(_cbT_, _cbR_[5]) > 0  loop  ok
@@ -7065,7 +7453,10 @@ class stzDiagram from stzGraph
 		# and this snap is what kept pulling two of the three back
 		# together after they had.
 		_ccAlt_ = This._EdgeIsAlternative(cFrom2, cTo2)
-		for _ccJ_ in @aChanUsed
+		_aCcJ42_ = @aChanUsed
+		_nCcJ42_ = len(_aCcJ42_)
+		for _iCcJ42_ = 1 to _nCcJ42_
+			_ccJ_ = _aCcJ42_[_iCcJ42_]
 			if _ccAlt_  exit  ok
 			if _ccJ_[3] != _ccS_  loop  ok
 			if fabs(_ccJ_[4] - nY) < 0.5  return _ccJ_[4]  ok
@@ -7090,14 +7481,20 @@ class stzDiagram from stzGraph
 		# interior proposal to its gap's middle, so every honest step
 		# failed the test and conflicting channels shared one lane.
 		_ccBlk_ = This._ChannelBlocked(nSpanA, nSpanB, cFrom2, cTo2, bVert2)
-		for _ccK_ in [ 0, 1, -1, 2, -2, 3, -3 ]
+		_aCcK7_ = [ 0, 1, -1, 2, -2, 3, -3 ]
+		_nCcK7_ = len(_aCcK7_)
+		for _iCcK7_ = 1 to _nCcK7_
+			_ccK_ = _aCcK7_[_iCcK7_]
 			_ccCand_ = nY + _ccK_ * _ccClr_
 			if _ccLimHi_ > _ccLimLo_
 				if _ccCand_ < _ccLimLo_ or _ccCand_ > _ccLimHi_  loop  ok
 			ok
 			if _ccK_ != 0
 				_ccHit_ = 0
-				for _ccB2_ in _ccBlk_
+				_aCcB241_ = _ccBlk_
+				_nCcB241_ = len(_aCcB241_)
+				for _iCcB241_ = 1 to _nCcB241_
+					_ccB2_ = _aCcB241_[_iCcB241_]
 					if _ccCand_ > _ccB2_[1] - 3 and _ccCand_ < _ccB2_[2] + 3
 						_ccHit_ = 1
 						exit
@@ -7106,7 +7503,10 @@ class stzDiagram from stzGraph
 				if _ccHit_  loop  ok
 			ok
 			_ccBad_ = 0
-			for _ccU_ in @aChanUsed
+			_aCcU40_ = @aChanUsed
+			_nCcU40_ = len(_aCcU40_)
+			for _iCcU40_ = 1 to _nCcU40_
+				_ccU_ = _aCcU40_[_iCcU40_]
 				if _ccU_[3] = _ccS_  loop  ok
 				if _ccHi_ > _ccU_[1] and _ccLo_ < _ccU_[2] and
 				   fabs(_ccCand_ - _ccU_[4]) < _ccClr_ * 0.9
@@ -7146,7 +7546,10 @@ class stzDiagram from stzGraph
 	def _DrawTwinEdgeXT(oC, nEi, nEj, paE, paXY, nBoxW, nBoxH, cColor, nWidth, cRank, nLane)
 		_twKey_ = StzLower("" + paE[nEj][:from] + ">" + paE[nEj][:to])
 		_twP_ = []
-		for _twR_ in @aEdgePaths
+		_aTwR39_ = @aEdgePaths
+		_nTwR39_ = len(_aTwR39_)
+		for _iTwR39_ = 1 to _nTwR39_
+			_twR_ = _aTwR39_[_iTwR39_]
 			if StzLower("" + _twR_[1]) = _twKey_  _twP_ = _twR_[2]  ok
 		next
 		_twN_ = len(_twP_)
@@ -7301,7 +7704,10 @@ class stzDiagram from stzGraph
 		ok
 
 		_twFlat_ = []
-		for _twQ_ in _twRev_
+		_aTwQ38_ = _twRev_
+		_nTwQ38_ = len(_aTwQ38_)
+		for _iTwQ38_ = 1 to _nTwQ38_
+			_twQ_ = _aTwQ38_[_iTwQ38_]
 			_twFlat_ + _twQ_[1]
 			_twFlat_ + _twQ_[2]
 		next
@@ -7343,7 +7749,10 @@ class stzDiagram from stzGraph
 	# corners is a shape rather than a junction.
 	def _VertexIsFork(nX, nY, pcKey)
 		_vfK_ = StzLower("" + pcKey)
-		for _vfR_ in @aEdgePaths
+		_aVfR37_ = @aEdgePaths
+		_nVfR37_ = len(_aVfR37_)
+		for _iVfR37_ = 1 to _nVfR37_
+			_vfR_ = _aVfR37_[_iVfR37_]
 			if StzLower("" + _vfR_[1]) = _vfK_  loop  ok
 			_vfN_ = len(_vfR_[2]) / 2
 			for _vfI_ = 1 to _vfN_
@@ -7497,7 +7906,10 @@ class stzDiagram from stzGraph
 			   fabs(_eoX2_ - _eoX1_) > _eoR_ * 2
 				_eoLo_ = min([ _eoX1_, _eoX2_ ])
 				_eoHi_ = max([ _eoX1_, _eoX2_ ])
-				for _eoV_ in @aVertSegs
+				_aEoV36_ = @aVertSegs
+				_nEoV36_ = len(_aEoV36_)
+				for _iEoV36_ = 1 to _nEoV36_
+					_eoV_ = _aEoV36_[_iEoV36_]
 					if _eoV_[4] = cKey  loop  ok
 					if _eoV_[1] > _eoLo_ + _eoRoom_ and
 					   _eoV_[1] < _eoHi_ - _eoRoom_ and
@@ -7510,7 +7922,10 @@ class stzDiagram from stzGraph
 			   fabs(_eoY2_ - _eoY1_) > _eoR_ * 2
 				_eoLo_ = min([ _eoY1_, _eoY2_ ])
 				_eoHi_ = max([ _eoY1_, _eoY2_ ])
-				for _eoV_ in @aVertSegs
+				_aEoV35_ = @aVertSegs
+				_nEoV35_ = len(_aEoV35_)
+				for _iEoV35_ = 1 to _nEoV35_
+					_eoV_ = _aEoV35_[_iEoV35_]
 					if _eoV_[4] = cKey  loop  ok
 					if _eoV_[1] > _eoLo_ + _eoRoom_ and
 					   _eoV_[1] < _eoHi_ - _eoRoom_ and
@@ -7523,9 +7938,15 @@ class stzDiagram from stzGraph
 				_eoCross_ = sort(_eoCross_)
 				# ...and two hops that close together are one squiggle
 				_eoKeep_ = []
-				for _eoQ_ in _eoCross_
+				_aEoQ34_ = _eoCross_
+				_nEoQ34_ = len(_aEoQ34_)
+				for _iEoQ34_ = 1 to _nEoQ34_
+					_eoQ_ = _aEoQ34_[_iEoQ34_]
 					_eoOk_ = 1
-					for _eoK_ in _eoKeep_
+					_aEoK33_ = _eoKeep_
+					_nEoK33_ = len(_aEoK33_)
+					for _iEoK33_ = 1 to _nEoK33_
+						_eoK_ = _aEoK33_[_iEoK33_]
 						if fabs(_eoQ_ - _eoK_) < _eoPair_  _eoOk_ = 0  ok
 					next
 					if _eoOk_  _eoKeep_ + _eoQ_  ok
@@ -7535,7 +7956,10 @@ class stzDiagram from stzGraph
 				if NOT _eoH_
 					if _eoX2_ < _eoX1_  _eoDir_ = -1  ok
 					if _eoDir_ = -1  _eoCross_ = reverse(_eoCross_)  ok
-					for _eoC_ in _eoCross_
+					_aEoC32_ = _eoCross_
+					_nEoC32_ = len(_aEoC32_)
+					for _iEoC32_ = 1 to _nEoC32_
+						_eoC_ = _aEoC32_[_iEoC32_]
 						if @nDrawPass = 2  @aRenderHops + [ _eoC_, _eoY1_, cKey ]  ok
 						_eoArcs_ + [ len(_eoOut_) / 2 + 1,
 							len(_eoOut_) / 2 + 9 ]
@@ -7552,7 +7976,10 @@ class stzDiagram from stzGraph
 				else
 					if _eoY2_ < _eoY1_  _eoDir_ = -1  ok
 					if _eoDir_ = -1  _eoCross_ = reverse(_eoCross_)  ok
-					for _eoC_ in _eoCross_
+					_aEoC31_ = _eoCross_
+					_nEoC31_ = len(_aEoC31_)
+					for _iEoC31_ = 1 to _nEoC31_
+						_eoC_ = _aEoC31_[_iEoC31_]
 						if @nDrawPass = 2  @aRenderHops + [ _eoX1_, _eoC_, cKey ]  ok
 						_eoArcs_ + [ len(_eoOut_) / 2 + 1,
 							len(_eoOut_) / 2 + 9 ]
@@ -7641,7 +8068,12 @@ class stzDiagram from stzGraph
 	def _DrawRoutedEdge(oC, aFrom, aTo, paBend, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nPortA, nPortB, pBlockSide, cFromId, cToId)
 		_pts_ = []
 		_pts_ + [ aFrom[1], aFrom[2] ]
-		for _b_ in paBend  _pts_ + [ _b_[1], _b_[2] ]  next
+		_aB6_ = paBend
+		_nB6_ = len(_aB6_)
+		for _iB6_ = 1 to _nB6_
+			_b_ = _aB6_[_iB6_]
+			_pts_ + [ _b_[1], _b_[2] ]
+		next
 		_pts_ + [ aTo[1], aTo[2] ]
 
 		# THE SAME ATTACHMENT AS EVERY OTHER EDGE. This clipped toward the
@@ -7817,7 +8249,12 @@ class stzDiagram from stzGraph
 				ok
 			ok
 		but cSpline = "line" or cSpline = "polyline"
-			for _pt_ in _pts_  _flat_ + _pt_[1]  _flat_ + _pt_[2]  next
+			_aPt5_ = _pts_
+			_nPt5_ = len(_aPt5_)
+			for _iPt5_ = 1 to _nPt5_
+				_pt_ = _aPt5_[_iPt5_]
+				_flat_ + _pt_[1]  _flat_ + _pt_[2]
+			next
 		else
 			_flat_ = This._SmoothThrough(_pts_)
 		ok
@@ -7844,7 +8281,12 @@ class stzDiagram from stzGraph
 		_n_ = len(paPts)
 		if _n_ < 3
 			_o_ = []
-			for _pt_ in paPts  _o_ + _pt_[1]  _o_ + _pt_[2]  next
+			_aPt4_ = paPts
+			_nPt4_ = len(_aPt4_)
+			for _iPt4_ = 1 to _nPt4_
+				_pt_ = _aPt4_[_iPt4_]
+				_o_ + _pt_[1]  _o_ + _pt_[2]
+			next
 			return _o_
 		ok
 		_o_ = []
@@ -8552,7 +8994,10 @@ class stzDiagram from stzGraph
 				# one target share their final drop and read as one line
 				_sdTx_ = aTo[1] + nPortB
 				_sdBad_ = 0
-				for _sdU_ in @aChanUsed
+				_aSdU30_ = @aChanUsed
+				_nSdU30_ = len(_aSdU30_)
+				for _iSdU30_ = 1 to _nSdU30_
+					_sdU_ = _aSdU30_[_iSdU30_]
 					if _sdU_[3] = StzLower("" + cFromId)  loop  ok
 					if max([ _sdX_, _sdTx_ ]) > _sdU_[1] and
 					   min([ _sdX_, _sdTx_ ]) < _sdU_[2] and
@@ -8583,7 +9028,10 @@ class stzDiagram from stzGraph
 				_sdCx_ = aFrom[1]
 				_sdTy_ = aTo[2] + nPortB
 				_sdBad_ = 0
-				for _sdU_ in @aChanUsed
+				_aSdU29_ = @aChanUsed
+				_nSdU29_ = len(_aSdU29_)
+				for _iSdU29_ = 1 to _nSdU29_
+					_sdU_ = _aSdU29_[_iSdU29_]
 					if _sdU_[3] = StzLower("" + cFromId)  loop  ok
 					if max([ _sdY_, _sdTy_ ]) > _sdU_[1] and
 					   min([ _sdY_, _sdTy_ ]) < _sdU_[2] and
@@ -8774,7 +9222,10 @@ class stzDiagram from stzGraph
 	# row and would rather not put it ON one.
 	def _DeepestRailAt(nRowY, nBoxH)
 		_drBest_ = 0
-		for _drE_ in This.Edges()
+		_aDrE18_ = This.Edges()
+		_nDrE18_ = len(_aDrE18_)
+		for _iDrE18_ = 1 to _nDrE18_
+			_drE_ = _aDrE18_[_iDrE18_]
 			_drF_ = StzLower("" + _drE_[:from])
 			_drT_ = StzLower("" + _drE_[:to])
 			if _drF_ = _drT_  loop  ok
@@ -8841,13 +9292,19 @@ class stzDiagram from stzGraph
 	# leaves the edge exactly as it was.
 	def _EdgeRelation(pcKey)
 		_erK_ = StzLower("" + pcKey)
-		for _erE_ in This.Edges()
+		_aErE17_ = This.Edges()
+		_nErE17_ = len(_aErE17_)
+		for _iErE17_ = 1 to _nErE17_
+			_erE_ = _aErE17_[_iErE17_]
 			_erN_ = StzLower("" + _erE_[:from]) + ">" +
 				StzLower("" + _erE_[:to])
 			if _erN_ != _erK_  loop  ok
 			if NOT HasKey(_erE_, "properties")  return ""  ok
 			if NOT isList(_erE_["properties"])  return ""  ok
-			for _erP_ in [ "uml", "relation", "kind" ]
+			_aErP3_ = [ "uml", "relation", "kind" ]
+			_nErP3_ = len(_aErP3_)
+			for _iErP3_ = 1 to _nErP3_
+				_erP_ = _aErP3_[_iErP3_]
 				if HasKey(_erE_["properties"], _erP_)
 					return StzLower("" + _erE_["properties"][_erP_])
 				ok
@@ -8886,7 +9343,10 @@ class stzDiagram from stzGraph
 			# dash resumes on the far side of it. A statement drawn in
 			# fragments is not that statement.
 			_sdArc_ = 0
-			for _sdA_ in paArcs
+			_aSdA28_ = paArcs
+			_nSdA28_ = len(_aSdA28_)
+			for _iSdA28_ = 1 to _nSdA28_
+				_sdA_ = _aSdA28_[_iSdA28_]
 				if _sdI_ >= _sdA_[1] * 2 - 1 and _sdI_ < _sdA_[2] * 2 - 1
 					_sdArc_ = 1
 					exit
@@ -9005,7 +9465,10 @@ class stzDiagram from stzGraph
 
 	def _PublishPath(cFromId, cToId, paFlat)
 		_ppK_ = StzLower("" + cFromId + ">" + cToId)
-		for _ppR_ in @aEdgePaths
+		_aPpR27_ = @aEdgePaths
+		_nPpR27_ = len(_aPpR27_)
+		for _iPpR27_ = 1 to _nPpR27_
+			_ppR_ = _aPpR27_[_iPpR27_]
 			if StzLower("" + _ppR_[1]) = _ppK_  return  ok
 		next
 		@aEdgePaths + [ _ppK_, paFlat ]
@@ -9106,7 +9569,10 @@ class stzDiagram from stzGraph
 	# exactly when a size was not named.
 	def _HasOpt(paOptions, cKey)
 		if NOT isList(paOptions)  return 0  ok
-		for _ho_ in paOptions
+		_aHo26_ = paOptions
+		_nHo26_ = len(_aHo26_)
+		for _iHo26_ = 1 to _nHo26_
+			_ho_ = _aHo26_[_iHo26_]
 			if isList(_ho_) and len(_ho_) = 2
 				if StzLower("" + _ho_[1]) = StzLower("" + cKey)  return 1  ok
 			ok
@@ -9115,7 +9581,10 @@ class stzDiagram from stzGraph
 
 	def _DiagOpt(paOptions, cKey, xDefault)
 		if NOT isList(paOptions)  return xDefault  ok
-		for _p_ in paOptions
+		_aP25_ = paOptions
+		_nP25_ = len(_aP25_)
+		for _iP25_ = 1 to _nP25_
+			_p_ = _aP25_[_iP25_]
 			if isList(_p_) and len(_p_) = 2
 				if StzLower("" + _p_[1]) = StzLower("" + cKey)
 					return _p_[2]
@@ -9126,7 +9595,10 @@ class stzDiagram from stzGraph
 
 	def _XYOf(aXY, cId)
 		_c_ = StzLower(cId)
-		for _r_ in aXY
+		_aR24_ = aXY
+		_nR24_ = len(_aR24_)
+		for _iR24_ = 1 to _nR24_
+			_r_ = _aR24_[_iR24_]
 			if _r_[1] = _c_  return [ _r_[2], _r_[3] ]  ok
 		next
 		return []
@@ -9171,7 +9643,10 @@ class stzDiagram from stzGraph
 		_iwR_ = nTextH / nH
 		if _iwR_ >= 1  return 0  ok
 		if _iwS_ = "diamond"  return nW * (1 - _iwR_)  ok
-		for _iwC_ in [ "circle", "ellipse", "doublecircle", "dot", "egg" ]
+		_aIwC2_ = [ "circle", "ellipse", "doublecircle", "dot", "egg" ]
+		_nIwC2_ = len(_aIwC2_)
+		for _iIwC2_ = 1 to _nIwC2_
+			_iwC_ = _aIwC2_[_iIwC2_]
 			if _iwS_ != _iwC_  loop  ok
 			_iwK_ = 1 - _iwR_ * _iwR_
 			if _iwK_ <= 0  return 0  ok
@@ -9193,7 +9668,7 @@ class stzDiagram from stzGraph
 	# half. Anything unlisted is a box until somebody measures it.
 	def _InscribedFraction(pcShape)
 		_ifS_ = StzLower("" + pcShape)
-		for _ifR_ in [
+		_aIfR4_ = [
 			[ "circle", 0.70, 0.70 ], [ "ellipse", 0.70, 0.70 ],
 			[ "egg", 0.66, 0.62 ],
 			[ "doublecircle", 0.60, 0.60 ], [ "dot", 0.50, 0.50 ],
@@ -9213,7 +9688,10 @@ class stzDiagram from stzGraph
 			[ "pentagon", 0.75, 0.70 ], [ "hexagon", 0.75, 0.90 ],
 			[ "septagon", 0.80, 0.80 ], [ "octagon", 0.80, 0.80 ],
 			[ "tripleoctagon", 0.60, 0.60 ]
-		]
+			]
+		_nIfR4_ = len(_aIfR4_)
+		for _iIfR4_ = 1 to _nIfR4_
+			_ifR_ = _aIfR4_[_iIfR4_]
 			if _ifS_ = _ifR_[1]  return [ _ifR_[2], _ifR_[3] ]  ok
 		next
 		return [ 1, 1 ]
@@ -9255,7 +9733,10 @@ class stzDiagram from stzGraph
 		# they can, and the straight answer keeps the rest.
 		_afSrcY_ = 0
 		_afHave_ = 0
-		for _afR_ in @aDrawXY
+		_aAfR23_ = @aDrawXY
+		_nAfR23_ = len(_aAfR23_)
+		for _iAfR23_ = 1 to _nAfR23_
+			_afR_ = _aAfR23_[_iAfR23_]
 			if StzLower("" + _afR_[1]) != _afF_  loop  ok
 			_afSrcY_ = _afR_[3]
 			_afHave_ = 1
@@ -9263,7 +9744,10 @@ class stzDiagram from stzGraph
 		_afN_ = 0
 		_afK_ = 0
 		_afAll_ = 0
-		for _afE_ in This.Edges()
+		_aAfE16_ = This.Edges()
+		_nAfE16_ = len(_aAfE16_)
+		for _iAfE16_ = 1 to _nAfE16_
+			_afE_ = _aAfE16_[_iAfE16_]
 			if StzLower("" + _afE_[:from]) != _afF_  loop  ok
 			if StzLower("" + _afE_[:to]) = _afF_  loop  ok
 			_afAll_++
@@ -9271,7 +9755,10 @@ class stzDiagram from stzGraph
 			# own line, so the path must leave that line to reach it
 			_afTurns_ = 1
 			if _afHave_
-				for _afR2_ in @aDrawXY
+				_aAfR222_ = @aDrawXY
+				_nAfR222_ = len(_aAfR222_)
+				for _iAfR222_ = 1 to _nAfR222_
+					_afR2_ = _aAfR222_[_iAfR222_]
 					if StzLower("" + _afR2_[1]) != StzLower("" + _afE_[:to])
 						loop
 					ok
@@ -9320,13 +9807,19 @@ class stzDiagram from stzGraph
 		_smF_ = StzLower("" + pcFrom)
 		if NOT This._EdgeIsAlternative(pcFrom, pcTo)  return ""  ok
 		_smNd_ = []
-		for _smN_ in This.Nodes()
+		_aSmN15_ = This.Nodes()
+		_nSmN15_ = len(_aSmN15_)
+		for _iSmN15_ = 1 to _nSmN15_
+			_smN_ = _aSmN15_[_iSmN15_]
 			if StzLower("" + _smN_[:id]) = _smF_  _smNd_ = _smN_  ok
 		next
 		if len(_smNd_) = 0  return ""  ok
 		_smSh_ = StzLower("" + This._NativeShapeOf(_smNd_))
 		_smHas_ = 0
-		for _smV_ in [ "diamond", "triangle", "invtriangle" ]
+		_aSmV1_ = [ "diamond", "triangle", "invtriangle" ]
+		_nSmV1_ = len(_aSmV1_)
+		for _iSmV1_ = 1 to _nSmV1_
+			_smV_ = _aSmV1_[_iSmV1_]
 			if _smSh_ = _smV_  _smHas_ = 1  exit  ok
 		next
 		if NOT _smHas_  return ""  ok
@@ -9358,11 +9851,17 @@ class stzDiagram from stzGraph
 		_smSide_ = [ "bottom", "top" ]
 		if cRank = "TB" or cRank = "BT"  _smSide_ = [ "right", "left" ]  ok
 		_smK_ = 0
-		for _smE_ in This.Edges()
+		_aSmE14_ = This.Edges()
+		_nSmE14_ = len(_aSmE14_)
+		for _iSmE14_ = 1 to _nSmE14_
+			_smE_ = _aSmE14_[_iSmE14_]
 			if StzLower("" + _smE_[:from]) != _smF_  loop  ok
 			if StzLower("" + _smE_[:to]) = _smF_  loop  ok
 			_smOnP_ = 0
-			for _smQ_ in _smPath_
+			_aSmQ21_ = _smPath_
+			_nSmQ21_ = len(_aSmQ21_)
+			for _iSmQ21_ = 1 to _nSmQ21_
+				_smQ_ = _aSmQ21_[_iSmQ21_]
 				if _smQ_ = StzLower("" + _smE_[:to])  _smOnP_ = 1  exit  ok
 			next
 			if _smOnP_
@@ -9389,7 +9888,10 @@ class stzDiagram from stzGraph
 		_eaF_ = StzLower("" + pcFrom)
 		_eaN_ = 0
 		_eaMe_ = 0
-		for _eaE_ in This.Edges()
+		_aEaE13_ = This.Edges()
+		_nEaE13_ = len(_aEaE13_)
+		for _iEaE13_ = 1 to _nEaE13_
+			_eaE_ = _aEaE13_[_iEaE13_]
 			if StzLower("" + _eaE_[:from]) != _eaF_  loop  ok
 			if StzLower("" + _eaE_[:to]) = _eaF_  loop  ok
 			_eaN_++
@@ -9475,9 +9977,15 @@ class stzDiagram from stzGraph
 	# overhang the gap above does not carry.
 	def _ClusterOverhangBelow(paXY, nBoxH)
 		_nOv_ = 0
-		for _ohC_ in @aClusters
+		_aOhC20_ = @aClusters
+		_nOhC20_ = len(_aOhC20_)
+		for _iOhC20_ = 1 to _nOhC20_
+			_ohC_ = _aOhC20_[_iOhC20_]
 			_ohLo_ = -1
-			for _ohM_ in _ohC_[:nodes]
+			_aOhM19_ = _ohC_[:nodes]
+			_nOhM19_ = len(_aOhM19_)
+			for _iOhM19_ = 1 to _nOhM19_
+				_ohM_ = _aOhM19_[_iOhM19_]
 				_ohA_ = This._XYOf(paXY, "" + _ohM_)
 				if len(_ohA_) != 2  loop  ok
 				if _ohA_[2] > _ohLo_  _ohLo_ = _ohA_[2]  ok
@@ -9527,7 +10035,10 @@ class stzDiagram from stzGraph
 	def _ContentExtent(paXY, nBoxW, nBoxH, poFont, nFsz)
 		_ceX0_ = 1000000000  _ceY0_ = 1000000000  _ceX1_ = 0 - 1000000000  _ceY1_ = 0 - 1000000000
 		_ceAny_ = 0
-		for _ceN_ in This.Nodes()
+		_aCeN12_ = This.Nodes()
+		_nCeN12_ = len(_aCeN12_)
+		for _iCeN12_ = 1 to _nCeN12_
+			_ceN_ = _aCeN12_[_iCeN12_]
 			_ceAt_ = This._XYOf(paXY, "" + _ceN_[:id])
 			if len(_ceAt_) != 2  loop  ok
 			_ceB_ = This._BoxOf("" + _ceN_[:id], nBoxW, nBoxH)
@@ -9537,8 +10048,11 @@ class stzDiagram from stzGraph
 			_ceBo_ = _ceAt_[2] + _ceB_[2] / 2
 			# a round cell writes its name underneath
 			_ceSh_ = StzLower("" + This._NativeShapeOf(_ceN_))
-			for _ceO_ in [ "circle", "doublecircle", "dot", "diamond",
+			_aCeO5_ = [ "circle", "doublecircle", "dot", "diamond",
 				"triangle", "invtriangle", "actor", "bar" ]
+			_nCeO5_ = len(_aCeO5_)
+			for _iCeO5_ = 1 to _nCeO5_
+				_ceO_ = _aCeO5_[_iCeO5_]
 				if _ceSh_ != _ceO_  loop  ok
 				_ceBo_ += nFsz * 2.4
 				if isObject(poFont)
@@ -9558,7 +10072,10 @@ class stzDiagram from stzGraph
 
 		# the loops, and the words beside them
 		_ceSlr_ = This._SelfLoopReach(nBoxW, nBoxH) + 6
-		for _ceE_ in This.Edges()
+		_aCeE11_ = This.Edges()
+		_nCeE11_ = len(_aCeE11_)
+		for _iCeE11_ = 1 to _nCeE11_
+			_ceE_ = _aCeE11_[_iCeE11_]
 			if StzLower("" + _ceE_[:from]) != StzLower("" + _ceE_[:to])
 				loop
 			ok
@@ -9579,7 +10096,10 @@ class stzDiagram from stzGraph
 		if _ceRr_ > _ceY1_  _ceY1_ = _ceRr_  ok
 
 		# the frames, and their names above them
-		for _ceC_ in @aClusters
+		_aCeC18_ = @aClusters
+		_nCeC18_ = len(_aCeC18_)
+		for _iCeC18_ = 1 to _nCeC18_
+			_ceC_ = _aCeC18_[_iCeC18_]
 			_ceBx_ = This._ClusterBox(_ceC_, paXY, nBoxW, nBoxH)
 			if len(_ceBx_) != 4  loop  ok
 			if _ceBx_[1] < _ceX0_  _ceX0_ = _ceBx_[1]  ok
@@ -9606,7 +10126,10 @@ class stzDiagram from stzGraph
 		ok
 		_sbF_ = StzLower("" + pcFrom)
 		_sbT2_ = StzLower("" + pcTo)
-		for _sbR_ in @aDrawXY
+		_aSbR17_ = @aDrawXY
+		_nSbR17_ = len(_aSbR17_)
+		for _iSbR17_ = 1 to _nSbR17_
+			_sbR_ = _aSbR17_[_iSbR17_]
 			if len(_sbR_) < 3  loop  ok
 			_sbId_ = StzLower("" + _sbR_[1])
 			if _sbId_ = _sbF_ or _sbId_ = _sbT2_  loop  ok
@@ -9665,7 +10188,10 @@ class stzDiagram from stzGraph
 
 
 	def _LaneKept(pcKey)
-		for _lkR_ in @aLaneKept
+		_aLkR16_ = @aLaneKept
+		_nLkR16_ = len(_aLkR16_)
+		for _iLkR16_ = 1 to _nLkR16_
+			_lkR_ = _aLkR16_[_iLkR16_]
 			if _lkR_[1] = pcKey  return _lkR_[2]  ok
 		next
 		return 0
@@ -9689,7 +10215,10 @@ class stzDiagram from stzGraph
 		@aReturnOf = []
 		_plAx_ = 1  _plCr_ = 2
 		if cRank = "LR" or cRank = "RL"  _plAx_ = 2  _plCr_ = 1  ok
-		for _plE_ in This.Edges()
+		_aPlE10_ = This.Edges()
+		_nPlE10_ = len(_aPlE10_)
+		for _iPlE10_ = 1 to _nPlE10_
+			_plE_ = _aPlE10_[_iPlE10_]
 			_plF_ = "" + _plE_[:from]
 			_plT_ = "" + _plE_[:to]
 			if StzLower(_plF_) = StzLower(_plT_)  loop  ok
@@ -9726,7 +10255,10 @@ class stzDiagram from stzGraph
 		# sometimes wrong": TWO PLACES DECIDING ONE THING, and which one
 		# wins depends on the picture. A run under a row is a run under
 		# a row. One ladder holds all of them.
-		for _plE2_ in This.Edges()
+		_aPlE29_ = This.Edges()
+		_nPlE29_ = len(_aPlE29_)
+		for _iPlE29_ = 1 to _nPlE29_
+			_plE2_ = _aPlE29_[_iPlE29_]
 			_plF2_ = "" + _plE2_[:from]
 			_plT2_ = "" + _plE2_[:to]
 			if StzLower(_plF2_) = StzLower(_plT2_)  loop  ok
@@ -9797,7 +10329,10 @@ class stzDiagram from stzGraph
 		_plLowY_ = 0
 		_plHighY_ = 0
 		_plHave_ = 0
-		for _plR3_ in paXY
+		_aPlR315_ = paXY
+		_nPlR315_ = len(_aPlR315_)
+		for _iPlR315_ = 1 to _nPlR315_
+			_plR3_ = _aPlR315_[_iPlR315_]
 			if NOT _plHave_
 				_plLowY_ = _plR3_[_plAx_ + 1]
 				_plHighY_ = _plR3_[_plAx_ + 1]
@@ -9810,11 +10345,17 @@ class stzDiagram from stzGraph
 		# the spine's own line, so "which side is this source on" can be
 		# asked -- see the side rule below
 		_plSpn_ = _plHighY_
-		for _plQ3_ in This._HappyPath()
+		_aPlQ38_ = This._HappyPath()
+		_nPlQ38_ = len(_aPlQ38_)
+		for _iPlQ38_ = 1 to _nPlQ38_
+			_plQ3_ = _aPlQ38_[_iPlQ38_]
 			_plS3_ = This._XYOf(paXY, _plQ3_)
 			if len(_plS3_) = 2  _plSpn_ = _plS3_[_plAx_]  exit  ok
 		next
-		for _plE3_ in This.Edges()
+		_aPlE37_ = This.Edges()
+		_nPlE37_ = len(_aPlE37_)
+		for _iPlE37_ = 1 to _nPlE37_
+			_plE3_ = _aPlE37_[_iPlE37_]
 			_plF3_ = "" + _plE3_[:from]
 			_plT3_ = "" + _plE3_[:to]
 			if StzLower(_plF3_) = StzLower(_plT3_)  loop  ok
@@ -9873,14 +10414,20 @@ class stzDiagram from stzGraph
 		@aStubOf = []
 		_psAx_ = 1
 		if cRank = "LR" or cRank = "RL"  _psAx_ = 2  ok
-		for _psN_ in This.Nodes()
+		_aPsN6_ = This.Nodes()
+		_nPsN6_ = len(_aPsN6_)
+		for _iPsN6_ = 1 to _nPsN6_
+			_psN_ = _aPsN6_[_iPsN6_]
 			_psId_ = StzLower("" + _psN_[:id])
 			_psAt_ = This._XYOf(paXY, _psId_)
 			if len(_psAt_) != 2  loop  ok
 			# every laned edge touching this node, with the coordinate
 			# of its OTHER end -- the key that orders them
 			_psTouch_ = []
-			for _psE_ in This.Edges()
+			_aPsE5_ = This.Edges()
+			_nPsE5_ = len(_aPsE5_)
+			for _iPsE5_ = 1 to _nPsE5_
+				_psE_ = _aPsE5_[_iPsE5_]
 				_psF_ = StzLower("" + _psE_[:from])
 				_psT_ = StzLower("" + _psE_[:to])
 				if _psF_ = _psT_  loop  ok
@@ -9938,7 +10485,10 @@ class stzDiagram from stzGraph
 	# it was routed properly.
 	def _ReturnReach(nBoxW, nBoxH, cRank)
 		_rrBest_ = 0
-		for _rrR_ in @aReturnOf
+		_aRrR14_ = @aReturnOf
+		_nRrR14_ = len(_aRrR14_)
+		for _iRrR14_ = 1 to _nRrR14_
+			_rrR_ = _aRrR14_[_iRrR14_]
 			if _rrR_[3] < 0  loop  ok
 			_rrLn_ = This._LaneKept(_rrR_[1])
 			if _rrLn_ < 1  _rrLn_ = 1  ok
@@ -9955,7 +10505,10 @@ class stzDiagram from stzGraph
 	def _ReturnReachUp(nBoxW, nBoxH, cRank)
 		_ruBest_ = 0
 		_ruHave_ = 0
-		for _ruR_ in @aReturnOf
+		_aRuR13_ = @aReturnOf
+		_nRuR13_ = len(_aRuR13_)
+		for _iRuR13_ = 1 to _nRuR13_
+			_ruR_ = _aRuR13_[_iRuR13_]
 			if _ruR_[3] > 0  loop  ok
 			_ruLn_ = This._LaneKept(_ruR_[1])
 			if _ruLn_ < 1  _ruLn_ = 1  ok
@@ -9974,7 +10527,10 @@ class stzDiagram from stzGraph
 	# not one. Recorded by the planner so the drawer never has to work
 	# out again what the planner already decided.
 	def _ReturnRowOf(pcKey)
-		for _roR_ in @aReturnOf
+		_aRoR12_ = @aReturnOf
+		_nRoR12_ = len(_aRoR12_)
+		for _iRoR12_ = 1 to _nRoR12_
+			_roR_ = _aRoR12_[_iRoR12_]
 			if _roR_[1] = pcKey  return _roR_[2]  ok
 		next
 		return 0
@@ -9982,13 +10538,19 @@ class stzDiagram from stzGraph
 	# +1 when this return passes beneath the picture, -1 when it passes
 	# over it. See the side rule in _PlanRowLanes.
 	def _ReturnSideOf(pcKey)
-		for _roS_ in @aReturnOf
+		_aRoS11_ = @aReturnOf
+		_nRoS11_ = len(_aRoS11_)
+		for _iRoS11_ = 1 to _nRoS11_
+			_roS_ = _aRoS11_[_iRoS11_]
 			if _roS_[1] = pcKey  return _roS_[3]  ok
 		next
 		return 1
 
 	def _StubOf(pcKey, nEnd)
-		for _soR_ in @aStubOf
+		_aSoR10_ = @aStubOf
+		_nSoR10_ = len(_aSoR10_)
+		for _iSoR10_ = 1 to _nSoR10_
+			_soR_ = _aSoR10_[_iSoR10_]
 			if _soR_[1] = pcKey and _soR_[2] = nEnd  return _soR_[3]  ok
 		next
 		return 0
@@ -10001,13 +10563,19 @@ class stzDiagram from stzGraph
 	# plus the air it keeps from the line -- and zero when the deepest
 	# rail carries no word at all.
 	def _DeepestRailLabel(paXY, paMembers, nRowY, nLane, nBoxW)
-		for _dlE_ in This.Edges()
+		_aDlE4_ = This.Edges()
+		_nDlE4_ = len(_aDlE4_)
+		for _iDlE4_ = 1 to _nDlE4_
+			_dlE_ = _aDlE4_[_iDlE4_]
 			_dlF_ = StzLower("" + _dlE_[:from])
 			_dlT_ = StzLower("" + _dlE_[:to])
 			if _dlF_ = _dlT_  loop  ok
 			if This._LaneKept(_dlF_ + ">" + _dlT_) != nLane  loop  ok
 			_dlIn1_ = 0  _dlIn2_ = 0
-			for _dlM_ in paMembers
+			_aDlM9_ = paMembers
+			_nDlM9_ = len(_aDlM9_)
+			for _iDlM9_ = 1 to _nDlM9_
+				_dlM_ = _aDlM9_[_iDlM9_]
 				if StzLower("" + _dlM_) = _dlF_  _dlIn1_ = 1  ok
 				if StzLower("" + _dlM_) = _dlT_  _dlIn2_ = 1  ok
 			next
@@ -10026,12 +10594,18 @@ class stzDiagram from stzGraph
 
 	def _MaxLaneIn(paXY, paMembers, nRowY)
 		_mlBest_ = 0
-		for _mlE_ in This.Edges()
+		_aMlE3_ = This.Edges()
+		_nMlE3_ = len(_aMlE3_)
+		for _iMlE3_ = 1 to _nMlE3_
+			_mlE_ = _aMlE3_[_iMlE3_]
 			_mlF_ = StzLower("" + _mlE_[:from])
 			_mlT_ = StzLower("" + _mlE_[:to])
 			if _mlF_ = _mlT_  loop  ok
 			_mlIn1_ = 0  _mlIn2_ = 0
-			for _mlM_ in paMembers
+			_aMlM8_ = paMembers
+			_nMlM8_ = len(_aMlM8_)
+			for _iMlM8_ = 1 to _nMlM8_
+				_mlM_ = _aMlM8_[_iMlM8_]
 				if StzLower("" + _mlM_) = _mlF_  _mlIn1_ = 1  ok
 				if StzLower("" + _mlM_) = _mlT_  _mlIn2_ = 1  ok
 			next
@@ -10067,7 +10641,10 @@ class stzDiagram from stzGraph
 		_slLane_ = 1
 		while _slLane_ < 64
 			_slFree_ = 1
-			for _slR_ in @aSameRowLanes
+			_aSlR7_ = @aSameRowLanes
+			_nSlR7_ = len(_aSlR7_)
+			for _iSlR7_ = 1 to _nSlR7_
+				_slR_ = _aSlR7_[_iSlR7_]
 				if len(_slR_) < 4  loop  ok
 				if _slR_[4] != _slLane_  loop  ok
 				if fabs(_slR_[1] - nRowKey) > 1.5  loop  ok
@@ -10130,7 +10707,10 @@ class stzDiagram from stzGraph
 		# A row is what makes an edge a candidate for a lane, so a row
 		# is the filter.
 		_nH_ = 0
-		for _lpE_ in This.Edges()
+		_aLpE2_ = This.Edges()
+		_nLpE2_ = len(_aLpE2_)
+		for _iLpE2_ = 1 to _nLpE2_
+			_lpE_ = _aLpE2_[_iLpE2_]
 			if StzTrim("" + _lpE_[:label]) = ""  loop  ok
 			_lpF_ = StzLower("" + _lpE_[:from])
 			_lpT_ = StzLower("" + _lpE_[:to])
@@ -10167,7 +10747,10 @@ class stzDiagram from stzGraph
 
 	def _ClusterPadMax()
 		_cpMax_ = 0
-		for _cpC_ in @aClusters
+		_aCpC6_ = @aClusters
+		_nCpC6_ = len(_aCpC6_)
+		for _iCpC6_ = 1 to _nCpC6_
+			_cpC_ = _aCpC6_[_iCpC6_]
 			_cpP_ = This._ClusterPadBase() +
 				34 * This._ClusterLevelsBelow(_cpC_)
 			if _cpP_ > _cpMax_  _cpMax_ = _cpP_  ok
@@ -10176,7 +10759,10 @@ class stzDiagram from stzGraph
 
 	def _ClusterChromeAbove(nFsz)
 		_ccaMax_ = 0
-		for _ccaC_ in @aClusters
+		_aCcaC5_ = @aClusters
+		_nCcaC5_ = len(_aCcaC5_)
+		for _iCcaC5_ = 1 to _nCcaC5_
+			_ccaC_ = _aCcaC5_[_iCcaC5_]
 			_ccaP_ = This._ClusterPadBase() +
 				34 * This._ClusterLevelsBelow(_ccaC_)
 			_ccaT_ = _ccaP_ + nFsz * 1.9
@@ -10187,7 +10773,10 @@ class stzDiagram from stzGraph
 	def _ClusterBox(aCluster, aXY, nBoxW, nBoxH)
 		_bAny_ = 0
 		_x0_ = 0  _y0_ = 0  _x1_ = 0  _y1_ = 0
-		for _id_ in aCluster[:nodes]
+		_aId4_ = aCluster[:nodes]
+		_nId4_ = len(_aId4_)
+		for _iId4_ = 1 to _nId4_
+			_id_ = _aId4_[_iId4_]
 			_a_ = This._XYOf(aXY, "" + _id_)
 			if len(_a_) != 2  loop  ok
 			_lx_ = _a_[1] - nBoxW / 2  _rx_ = _a_[1] + nBoxW / 2
@@ -10236,7 +10825,10 @@ class stzDiagram from stzGraph
 		_y1L_ = _y1_
 		_nRowY3_ = 0
 		_bRow3_ = 0
-		for _cm3_ in aCluster[:nodes]
+		_aCm33_ = aCluster[:nodes]
+		_nCm33_ = len(_aCm33_)
+		for _iCm33_ = 1 to _nCm33_
+			_cm3_ = _aCm33_[_iCm33_]
 			_at3_ = This._XYOf(aXY, "" + _cm3_)
 			if len(_at3_) != 2  loop  ok
 			if NOT _bRow3_ or _at3_[2] > _nRowY3_
@@ -10273,10 +10865,16 @@ class stzDiagram from stzGraph
 		ok
 
 		_x1L_ = _x1_
-		for _clE_ in This.Edges()
+		_aClE1_ = This.Edges()
+		_nClE1_ = len(_aClE1_)
+		for _iClE1_ = 1 to _nClE1_
+			_clE_ = _aClE1_[_iClE1_]
 			if StzLower("" + _clE_[:from]) != StzLower("" + _clE_[:to])  loop  ok
 			_bMem_ = 0
-			for _cm2_ in aCluster[:nodes]
+			_aCm22_ = aCluster[:nodes]
+			_nCm22_ = len(_aCm22_)
+			for _iCm22_ = 1 to _nCm22_
+				_cm2_ = _aCm22_[_iCm22_]
 				if StzLower("" + _cm2_) = StzLower("" + _clE_[:from])
 					_bMem_ = 1
 					exit
@@ -10317,7 +10915,10 @@ class stzDiagram from stzGraph
 	def _ClusterLevelsBelow(aCluster)
 		_mine_ = This._ClusterNodeSet(aCluster)
 		_deep_ = 0
-		for _o_ in @aClusters
+		_aO1_ = @aClusters
+		_nO1_ = len(_aO1_)
+		for _iO1_ = 1 to _nO1_
+			_o_ = _aO1_[_iO1_]
 			if StzLower("" + _o_[:id]) = StzLower("" + aCluster[:id])  loop  ok
 			_os_ = This._ClusterNodeSet(_o_)
 			# strictly inside: a subset that is not the whole thing

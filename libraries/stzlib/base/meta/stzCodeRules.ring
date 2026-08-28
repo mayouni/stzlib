@@ -141,7 +141,8 @@ func _StzTextPassFindings(pcSource)
 		_StzCheckLibraryPrints(_cClean_),
 		_StzCheckEmptyBodies(_cClean_),
 		_StzCheckConstantWrites(_cClean_),
-		_StzCheckValueCalls(_cClean_)
+		_StzCheckValueCalls(_cClean_),
+		_StzCheckForInLoops(_cClean_)
 	]
 	_nP_ = len(_aPasses_)
 	for _i_ = 1 to _nP_
@@ -1107,6 +1108,60 @@ func _StzUnderADebugFlag(pacOpenIfs)
 # multi-line literals, where `)(` is a legitimate function-pointer form, and
 # stzStringArtData holds ASCII art full of it. A per-line blanker reported 549
 # findings here, every one of them noise.
+# THE LOOP BOUND IS READ ONCE -- and `for X in SOURCE` cannot read it
+# once, which is why the form is refused rather than merely discouraged.
+#
+# Ring re-evaluates a for/in SOURCE on every step. Measured on Ring 1.27
+# with a 400-element list:
+#
+#     for _x_ in This._Method()   ->  the method ran 801 TIMES
+#     hoisted into a variable     ->  once
+#
+# Twice per iteration plus one. When the source is a method that sorts,
+# filters or builds -- and in this library most of them are -- the loop
+# is quadratic with a heavy constant, and nothing in the source looks
+# slow. Over a plain list it is still 3x, because the list is copied.
+#
+# The Principal found it in stzDiagram at `for _cd_ in
+# This._ClusterDepths()`, a method that SORTS, called once per cluster
+# per cluster. The rule was already in this project's operating notes
+# and had been ignored across 193 sites in that one file.
+#
+# THE FORM THAT IS ALWAYS RIGHT:
+#
+#     _aX_ = <source>
+#     _nX_ = len(_aX_)
+#     for _i_ = 1 to _nX_
+#         _x_ = _aX_[_i_]
+#
+# Reported for library code only -- a test or a one-shot script may use
+# whichever form reads best, since neither the size nor the source is a
+# surprise there.
+func _StzCheckForInLoops(pcSource)
+	_aOut_ = []
+	_cBlank_ = _StzBlankStringsAll(StzReplace("" + pcSource, char(13), ""))
+	_acLines_ = StzSplit(_cBlank_, char(10))
+	_nLen_ = len(_acLines_)
+
+	for _i_ = 1 to _nLen_
+		_cL_ = StzTrim("" + _acLines_[_i_])
+		if StzLeft(_cL_, 1) = "#"  loop  ok
+		if StzLeft(_cL_, 4) != "for "  loop  ok
+		# `for X in ...` -- never `for X = 1 to N`, which is the form
+		# this rule exists to ask for
+		if StzFindFirst(" in ", _cL_) < 1  loop  ok
+		if StzFindFirst(" = ", _cL_) > 0 and
+		   StzFindFirst(" = ", _cL_) < StzFindFirst(" in ", _cL_)
+			loop
+		ok
+		_aOut_ + [ :rule = :for_in_loop, :line = _i_,
+			:severity = :warning,
+			:message = "the loop source is re-read on every step -- " +
+				"hoist it: aX = <source> / nX = len(aX) / " +
+				"for i = 1 to nX" ]
+	next
+	return _aOut_
+
 func _StzCheckValueCalls(pcSource)
 	_aOut_ = []
 	_cBlank_ = _StzBlankStringsAll(StzReplace("" + pcSource, char(13), ""))
