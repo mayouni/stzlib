@@ -30,6 +30,12 @@
   --stz-info-solid: #447CFF;
   --stz-info-text: #002BD0;
   --stz-on-info: #000000;
+  --stz-muted: #ABABAB;
+  --stz-muted-surface: #EEEEEE;
+  --stz-muted-border: #BEBEBE;
+  --stz-muted-solid: #868686;
+  --stz-muted-text: #4D4D4D;
+  --stz-on-muted: #000000;
   --stz-neutral: #808080;
   --stz-neutral-surface: #EEEEEE;
   --stz-neutral-border: #BEBEBE;
