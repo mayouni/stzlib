@@ -5357,7 +5357,38 @@ class stzDiagram from stzGraph
 	#
 	# The raw form is tried first, so "success" and "yes" match as
 	# themselves before anything strips a letter off them.
+	# A LABEL IS A PHRASE, AND THE MOOD LIVES IN A WORD OF IT.
+	#
+	# This matched the WHOLE label, so it knew "ok" and did not know
+	# "handshake ok", and it did not know "gave up" at all. The socket
+	# machine therefore had no mood fork, so the happy path never ran on
+	# it -- the Principal's straight line down the middle was missing for
+	# the same reason a third time, on this same function.
+	#
+	# This morning it was widened for INFLECTION and not for PHRASE: I
+	# fixed the axis I had been shown and not the claim, which is the
+	# thing this plane keeps paying for. A transition is labelled the way
+	# a person speaks -- "handshake ok", "payment declined", "gave up" --
+	# and the word carrying the mood sits inside the phrase.
+	#
+	# Multi-word entries are still matched whole, first, so "gave up" and
+	# "out of stock" say what they mean rather than being read a word at
+	# a time.
 	def _MoodMatches(pcWord, paList)
+		_mmW_ = StzLower(StzTrim("" + pcWord))
+		if _mmW_ = ""  return 0  ok
+		if This._MoodMatchesOne(_mmW_, paList)  return 1  ok
+		_aMmWs_ = StzSplit(_mmW_, " ")
+		_nMmWs_ = len(_aMmWs_)
+		if _nMmWs_ < 2  return 0  ok
+		for _iMmWs_ = 1 to _nMmWs_
+			if This._MoodMatchesOne(StzTrim("" + _aMmWs_[_iMmWs_]), paList)
+				return 1
+			ok
+		next
+		return 0
+
+	def _MoodMatchesOne(pcWord, paList)
 		_mmW_ = StzLower(StzTrim("" + pcWord))
 		if _mmW_ = ""  return 0  ok
 		_aMmF_ = [ _mmW_ ]
@@ -5396,6 +5427,9 @@ class stzDiagram from stzGraph
 		if StzLen(_inL_) > 4 and StzLeft(_inL_, 4) = "not "  return 1  ok
 		if StzLen(_inL_) > 3 and StzLeft(_inL_, 3) = "no "  return 1  ok
 		_aInN_ = [ "no", "n", "false", "fail", "failed", "failure",
+			"gave up", "give up", "gives up", "given up", "timed out",
+			"ran out", "backed off", "dropped", "drop", "drops",
+			"lost", "lose", "broken", "break", "aborted", "abort",
 			"reject", "rejected", "invalid", "denied", "deny", "decline",
 			"declined", "refused", "refuse", "incomplete", "error",
 			"errored", "cancelled", "canceled", "cancel", "expired",
@@ -5414,6 +5448,8 @@ class stzDiagram from stzGraph
 			"pass", "passed", "in stock", "available", "authorised",
 			"authorized", "confirmed", "confirm", "signed", "sign",
 			"paid", "pay", "match", "matched", "found", "eligible",
+			"recovered", "recover", "resumed", "resume", "restored",
+			"restore", "reconnected", "healthy", "up", "ready",
 			"allowed", "allow", "verified", "verify", "clear",
 			"cleared", "settled", "settle", "done" ]
 		return This._MoodMatches(_ifL_, _aIfY3_)
@@ -5496,6 +5532,31 @@ class stzDiagram from stzGraph
 				_hpNext_ = StzLower("" + _hpE_[:to])
 				exit
 			next
+			# ...AND A REFUSAL IS THE LAST THING THE FLOW CONTINUES BY.
+			#
+			# Declaration order used to decide whenever no answer said
+			# yes, and it would happily continue the main line down a
+			# branch that says NO. On the socket machine Connected
+			# leaves by "dropped" and by "close", and the first declared
+			# is the failure -- so the spine would have run through it
+			# and the picture would say the ordinary way out of Connected
+			# is to break.
+			#
+			# A neutral word is not an answer, but it is not a refusal
+			# either, and the flow continues through it before it
+			# continues through a no.
+			if _hpNext_ = ""
+				_aHpE24_ = This.Edges()
+				_nHpE24_ = len(_aHpE24_)
+				for _iHpE24_ = 1 to _nHpE24_
+					_hpE_ = _aHpE24_[_iHpE24_]
+					if StzLower("" + _hpE_[:from]) != _hpAt_  loop  ok
+					if StzLower("" + _hpE_[:to]) = _hpAt_  loop  ok
+					if This._IsNegative("" + _hpE_[:label])  loop  ok
+					_hpNext_ = StzLower("" + _hpE_[:to])
+					exit
+				next
+			ok
 			if _hpNext_ = ""
 				_aHpE25_ = This.Edges()
 				_nHpE25_ = len(_aHpE25_)
@@ -7664,6 +7725,23 @@ class stzDiagram from stzGraph
 				# Testing the corner POINT instead was the second draft
 				# and it missed by 8px -- the plate covered the drop
 				# BETWEEN two vertices without containing either.
+				# ...AND CLEAR OF IT, not merely not ON it.
+				#
+				# This refused a plate that its own turn CROSSED, and
+				# "gave up" then wedged itself into the corner of its own
+				# path with 6.2px of air -- which is not crossing and
+				# reads as inside the line, which is what the Principal
+				# marked. Beside means beside: the plate stands off its
+				# own turn by a readable margin, the same clearance every
+				# other pair of marks in this picture is given.
+				# A MARGIN HERE WAS TRIED AND REFUSED BY THE GATE.
+				#
+				# Widening this to half a clearance made three
+				# assertions fail at once: refusing more seats does not
+				# produce better ones, it pushes labels onto the
+				# unscored seat of last resort, and one landed on a
+				# foreign edge at -1px. The placer improves by being
+				# offered a good seat, never by being denied a bad one.
 				_lsOw_ = _lsP_[2]
 				for _lsV_ = 1 to len(_lsOw_) - 3 step 2
 					if fabs(_lsOw_[_lsV_ + 2] - _lsOw_[_lsV_]) > 0.5  loop  ok

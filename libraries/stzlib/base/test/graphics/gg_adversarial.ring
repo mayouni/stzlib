@@ -8688,6 +8688,45 @@ chkeq("NEGATIVE: 'not approved' is not affirmative",
 chkeq("...and a moodless label is neither",
     oHp._IsAffirmative("submits") + oHp._IsNegative("submits"), 0)
 
+# A LABEL IS A PHRASE, AND THE MOOD LIVES IN A WORD OF IT. The
+# vocabulary matched the WHOLE label, so it knew "ok" and not "handshake
+# ok", and did not know "gave up" at all -- so the socket machine had no
+# mood fork and never got its main line. Widened for INFLECTION this
+# morning and for PHRASE only after the Principal asked why the rule
+# still did not apply: the same predicate, the same defect, twice.
+chkeq("'handshake ok' is affirmative -- the mood is in a word of it",
+    oHp._IsAffirmative("handshake ok"), 1)
+chkeq("'gave up' is negative, as a phrase", oHp._IsNegative("gave up"), 1)
+chkeq("NEGATIVE: 'connect' is neither", 
+    oHp._IsAffirmative("connect") + oHp._IsNegative("connect"), 0)
+# ...AND A MULTI-WORD ENTRY IS STILL READ WHOLE, so a phrase says what
+# it means rather than being taken a word at a time.
+chkeq("'out of stock' is negative as a phrase, not as 'stock'",
+    oHp._IsNegative("out of stock"), 1)
+
+# A REFUSAL IS THE LAST THING THE FLOW CONTINUES BY. Declaration order
+# used to decide wherever no answer said yes, so a spine could run
+# straight down a branch that says NO -- on the socket machine Connected
+# declares "dropped" before "close", and the main line would have gone
+# through the failure.
+oNeu = new stzDiagram("neutral-first")
+oNeu.AddNodeXTT("a", "A", [ :type = "box" ])
+oNeu.AddNodeXTT("bad", "Bad", [ :type = "box" ])
+oNeu.AddNodeXTT("on", "Onward", [ :type = "box" ])
+oNeu.AddEdgeXT("a", "bad", "failed")
+oNeu.AddEdgeXT("a", "on", "close")
+aPath = oNeu._HappyPath()
+bOnward = 0
+for iN = 1 to len(aPath)
+	if StzLower("" + aPath[iN]) = "on"  bOnward = 1  ok
+next
+chk("the flow continues through a NEUTRAL before a refusal", bOnward = 1)
+bBad = 0
+for iN = 1 to len(aPath)
+	if StzLower("" + aPath[iN]) = "bad"  bBad = 1  ok
+next
+chkeq("NEGATIVE: ...and not through the refusal declared first", bBad, 0)
+
 # A GRAPH WITH NO MOOD GETS NO SPINE -- the package diagram's case, which
 # says in its own words that a dependency graph has no happy path and
 # claiming one would be a claim the model does not make.
