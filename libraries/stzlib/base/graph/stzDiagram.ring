@@ -10066,15 +10066,9 @@ class stzDiagram from stzGraph
 			if StzLower("" + _smN_[:id]) = _smF_  _smNd_ = _smN_  ok
 		next
 		if len(_smNd_) = 0  return ""  ok
-		_smSh_ = StzLower("" + This._NativeShapeOf(_smNd_))
-		_smHas_ = 0
-		_aSmV1_ = [ "diamond", "triangle", "invtriangle" ]
-		_nSmV1_ = len(_aSmV1_)
-		for _iSmV1_ = 1 to _nSmV1_
-			_smV_ = _aSmV1_[_iSmV1_]
-			if _smSh_ = _smV_  _smHas_ = 1  exit  ok
-		next
-		if NOT _smHas_  return ""  ok
+		# (the shape question moved INTO _EdgeIsAlternative above, where
+		# the name always promised it was -- this branch asked it a
+		# second time and _ClaimChannel asked it not at all)
 
 		# WHICH ANSWER CONTINUES THE FLOW IS A QUESTION FOR THE GRAPH,
 		# NOT FOR THE POSITIONS.
@@ -10136,8 +10130,42 @@ class stzDiagram from stzGraph
 		if nN < 1  return 0  ok
 		return 0.15 + 0.25 * (nK - 1) / nN
 
+	# TWO ANSWERS TO ONE QUESTION -- and a question is asked by a
+	# BRANCHING CELL, not by any cell that happens to have two children.
+	#
+	# The shape test used to live in _SummitOf, which called this and then
+	# asked the shape itself. So the predicate's name promised
+	# "alternatives" while its body only checked "labelled, and the source
+	# forks" -- correct for the one caller that filtered afterwards, and
+	# wrong for _ClaimChannel, which takes this as the whole answer.
+	#
+	# The cost was visible in the communication diagram. A Cart reserving
+	# stock and charging a payment are not alternatives: both happen, in
+	# that order, and the numbers on the labels say so. Called alternatives
+	# they were refused the shared stem a fan is entitled to, so the two
+	# lines left one point and turned at two columns 22px apart -- which is
+	# the near-miss band, and reads as neither one fan nor two.
+	#
+	# The family is the one _SummitOf already named, asked once now.
+	def _IsBranchCell(pcId)
+		_bcI_ = StzLower("" + pcId)
+		_aBcN_ = This.Nodes()
+		_nBcN_ = len(_aBcN_)
+		for _iBcN_ = 1 to _nBcN_
+			if StzLower("" + _aBcN_[_iBcN_][:id]) != _bcI_  loop  ok
+			_bcSh_ = StzLower("" + This._NativeShapeOf(_aBcN_[_iBcN_]))
+			_aBcV_ = [ "diamond", "triangle", "invtriangle" ]
+			_nBcV_ = len(_aBcV_)
+			for _iBcV_ = 1 to _nBcV_
+				if _bcSh_ = _aBcV_[_iBcV_]  return 1  ok
+			next
+			return 0
+		next
+		return 0
+
 	def _EdgeIsAlternative(pcFrom, pcTo)
 		_eaF_ = StzLower("" + pcFrom)
+		if NOT This._IsBranchCell(_eaF_)  return 0  ok
 		_eaN_ = 0
 		_eaMe_ = 0
 		_aEaE13_ = This.Edges()
