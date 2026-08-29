@@ -329,6 +329,7 @@ class stzDiagram from stzGraph
 	@aRenderAdorn = []
 	@aRenderForks = []
 	@bSequence = 0
+	@nSpineLabelDemand = 0
 	@aMessages = []
 	@nSeqPitch = 0
 	@aRenderHops = []
@@ -3061,6 +3062,8 @@ class stzDiagram from stzGraph
 					_spSep_ = _spBk_[3] + This._LineClearance()
 				ok
 			ok
+			@nSpineLabelDemand = This._SpineLabelDemand(_oFont_, _nFsz_,
+				_nBoxW_, _cRank_)
 			_aXY_ = This._ApplySpineRows(_aXY_, _nBoxW_, _nBoxH_, _cRank_,
 				_spSep_)
 			# the long edges' routes ride the SAME transform as the nodes --
@@ -3422,6 +3425,8 @@ class stzDiagram from stzGraph
 					_spSep_ = _spBk_[3] + This._LineClearance()
 				ok
 			ok
+			@nSpineLabelDemand = This._SpineLabelDemand(_oFont_, _nFsz_,
+				_nBoxW_, _cRank_)
 			_aXY_ = This._ApplySpineRows(_aXY_, _nBoxW_, _nBoxH_, _cRank_,
 				_spSep_)
 			# A ROW IS AS TALL AS WHAT STANDS IN IT, AND A GAP IS A GAP.
@@ -5341,18 +5346,110 @@ class stzDiagram from stzGraph
 	# A word not on it is not a refusal, it is merely not a recognised
 	# yes -- and where nothing is recognised, declaration order stands
 	# as it always did.
+	# DOES THIS WORD MATCH ONE OF A LIST, ALLOWING ORDINARY INFLECTION.
+	#
+	# The first version compared the label to 24 strings with `=`, so it
+	# knew "pass" and "passed" and did not know "passes". A rule keyed on
+	# a closed list of exact word forms does not fail when it meets a
+	# form it lacks -- it silently declines to apply, which is the same
+	# shape as every scope defect this plane has paid for, at the level
+	# of a word.
+	#
+	# The raw form is tried first, so "success" and "yes" match as
+	# themselves before anything strips a letter off them.
+	def _MoodMatches(pcWord, paList)
+		_mmW_ = StzLower(StzTrim("" + pcWord))
+		if _mmW_ = ""  return 0  ok
+		_aMmF_ = [ _mmW_ ]
+		_nMmL_ = StzLen(_mmW_)
+		if _nMmL_ >= 4 and StzRight(_mmW_, 2) = "es"
+			_aMmF_ + StzLeft(_mmW_, _nMmL_ - 2)
+		ok
+		if _nMmL_ >= 3 and StzRight(_mmW_, 1) = "s"
+			_aMmF_ + StzLeft(_mmW_, _nMmL_ - 1)
+		ok
+		if _nMmL_ >= 4 and StzRight(_mmW_, 2) = "ed"
+			_aMmF_ + StzLeft(_mmW_, _nMmL_ - 2)
+		ok
+		if _nMmL_ >= 3 and StzRight(_mmW_, 1) = "d"
+			_aMmF_ + StzLeft(_mmW_, _nMmL_ - 1)
+		ok
+		_nMmF_ = len(_aMmF_)
+		_nMmP_ = len(paList)
+		for _iMmF_ = 1 to _nMmF_
+			for _iMmP_ = 1 to _nMmP_
+				if _aMmF_[_iMmF_] = paList[_iMmP_]  return 1  ok
+			next
+		next
+		return 0
+
+	# THE WORDS THAT MEAN NO, and they are checked FIRST.
+	#
+	# Without them, folding inflections is dangerous rather than useful:
+	# "unapproved" and "not valid" contain their own opposite, and any
+	# rule that reads only the affirmative list would call them yes. A
+	# negative always wins, so widening the affirmative list can never
+	# turn a refusal into an acceptance.
+	def _IsNegative(pcLabel)
+		_inL_ = StzLower(StzTrim("" + pcLabel))
+		if _inL_ = ""  return 0  ok
+		if StzLen(_inL_) > 4 and StzLeft(_inL_, 4) = "not "  return 1  ok
+		if StzLen(_inL_) > 3 and StzLeft(_inL_, 3) = "no "  return 1  ok
+		_aInN_ = [ "no", "n", "false", "fail", "failed", "failure",
+			"reject", "rejected", "invalid", "denied", "deny", "decline",
+			"declined", "refused", "refuse", "incomplete", "error",
+			"errored", "cancelled", "canceled", "cancel", "expired",
+			"expire", "unavailable", "out of stock", "unauthorised",
+			"unauthorized", "unapproved", "unpaid", "unsigned",
+			"timeout", "timed out", "insufficient" ]
+		return This._MoodMatches(_inL_, _aInN_)
+
 	def _IsAffirmative(pcLabel)
 		_ifL_ = StzLower(StzTrim("" + pcLabel))
 		if _ifL_ = ""  return 0  ok
+		if This._IsNegative(_ifL_)  return 0  ok
 		_aIfY3_ = [ "yes", "y", "true", "ok", "okay", "approved",
 			"approve", "accepted", "accept", "valid", "complete",
-			"completed", "success", "successful", "granted", "pass",
-			"passed", "in stock", "available", "authorised",
-			"authorized", "confirmed", "signed", "paid" ]
-		_nIfY3_ = len(_aIfY3_)
-		for _iIfY3_ = 1 to _nIfY3_
-			_ifY_ = _aIfY3_[_iIfY3_]
-			if _ifL_ = _ifY_  return 1  ok
+			"completed", "success", "successful", "granted", "grant",
+			"pass", "passed", "in stock", "available", "authorised",
+			"authorized", "confirmed", "confirm", "signed", "sign",
+			"paid", "pay", "match", "matched", "found", "eligible",
+			"allowed", "allow", "verified", "verify", "clear",
+			"cleared", "settled", "settle", "done" ]
+		return This._MoodMatches(_ifL_, _aIfY3_)
+
+	# DOES THIS PICTURE ACTUALLY FORK INTO YES AND NO?
+	#
+	# The self-scoping the spine needs. A dependency graph has no happy
+	# path and claiming one would be a claim its model does not make --
+	# the package profile says exactly that in prose. A branch whose
+	# answers say "passes" and "fails" is the opposite case: the author
+	# has already told the reader which way is forward, and drawing the
+	# refusal on the main line contradicts them.
+	#
+	# So the rule asks the GRAPH, not a profile: is there a cell whose
+	# answers disagree in mood? Where there is, the affirmative one
+	# continues the flow. Where there is not, nothing is imposed.
+	def _HasMoodBranch()
+		_aMbN_ = This.NodesIds()
+		_nMbN_ = len(_aMbN_)
+		for _iMbN_ = 1 to _nMbN_
+			_mbYes_ = 0
+			_mbNo_ = 0
+			_aMbE_ = This.Edges()
+			_nMbE_ = len(_aMbE_)
+			for _iMbE_ = 1 to _nMbE_
+				if StzLower("" + _aMbE_[_iMbE_][:from]) !=
+				   StzLower("" + _aMbN_[_iMbN_])  loop  ok
+				if StzLower("" + _aMbE_[_iMbE_][:to]) =
+				   StzLower("" + _aMbN_[_iMbN_])  loop  ok
+				if This._IsAffirmative("" + _aMbE_[_iMbE_][:label])
+					_mbYes_++
+				but This._IsNegative("" + _aMbE_[_iMbE_][:label])
+					_mbNo_++
+				ok
+			next
+			if _mbYes_ > 0 and _mbNo_ > 0  return 1  ok
 		next
 		return 0
 
@@ -5440,10 +5537,92 @@ class stzDiagram from stzGraph
 	# BELOW -- L6, "the first free row below row 0". An author who has
 	# pinned something outranks the profile, which is the whole point of
 	# the plastic layout.
+	# THE WORD THAT CROSSES THE SIDESTEP.
+	#
+	# The spine opens a gap of exactly nSep between the main line and the
+	# row it steps a branch into, and the edge that crosses that gap
+	# carries a label. Nothing reserved room for it, so on the review
+	# machine "request changes" was drawn across two boxes -- the label
+	# had nowhere to go and took the seat of last resort.
+	#
+	# It is the plane's oldest law arriving on its third axis. The rank
+	# gap has held its label's HEIGHT for a long time; a rank gap that
+	# runs sideways was taught to hold its WIDTH later, and that clause
+	# says in its own comment that stating a rule on one axis is "the
+	# shape of nearly every defect this plane has had". The row gap --
+	# the one the spine itself opens -- was the axis nobody had drawn.
+	def _SpineLabelDemand(poFont, nFsz, nBoxW, cRank)
+		if NOT isObject(poFont)  return 0  ok
+		_slPath_ = This._HappyPath()
+		if len(_slPath_) < 2  return 0  ok
+		_slOn_ = []
+		_nSlP_ = len(_slPath_)
+		for _iSlP_ = 1 to _nSlP_  _slOn_ + StzLower("" + _slPath_[_iSlP_])  next
+		_slMax_ = 0
+		_aSlE_ = This.Edges()
+		_nSlE_ = len(_aSlE_)
+		for _iSlE_ = 1 to _nSlE_
+			_slL_ = StzTrim("" + _aSlE_[_iSlE_][:label])
+			if _slL_ = ""  loop  ok
+			# an edge with ONE end on the spine crosses the gap the spine
+			# opens; an edge with both ends on it runs along the line and
+			# is the rank gap's business, not this one
+			_slF_ = StzLower("" + _aSlE_[_iSlE_][:from])
+			_slT_ = StzLower("" + _aSlE_[_iSlE_][:to])
+			_slA_ = 0  _slB_ = 0
+			_nSlO_ = len(_slOn_)
+			for _iSlO_ = 1 to _nSlO_
+				if _slOn_[_iSlO_] = _slF_  _slA_ = 1  ok
+				if _slOn_[_iSlO_] = _slT_  _slB_ = 1  ok
+			next
+			if _slA_ = _slB_  loop  ok
+			_slBlk_ = This._LabelBlock(_slL_, poFont, nFsz, nBoxW)
+			# the sidestep runs ACROSS the ranks, so what must fit is the
+			# label's width in a top-down picture and its height in a
+			# left-to-right one -- the two axes stated once, here, rather
+			# than one of them stated and the other discovered
+			_slWant_ = _slBlk_[2]
+			if cRank = "LR" or cRank = "RL"  _slWant_ = _slBlk_[3]  ok
+			if _slWant_ > _slMax_  _slMax_ = _slWant_  ok
+		next
+		if _slMax_ = 0  return 0  ok
+		return _slMax_ + This._LineClearance() * 2
+
 	def _ApplySpineRows(paXY, nBoxW, nBoxH, cRank, nSep)
+		# THE HAPPY PATH IS A RULE OF THE PLANE, NOT A BPMN SETTING.
+		#
+		# The Principal ruled that the affirmative branch continues down
+		# the main line and the refusal steps aside. This asked the
+		# NOTATION whether to obey that, and only StzBpmnNotation() ever
+		# said yes -- so a plain diagram drew "fails -> Reject" straight
+		# down its spine with "passes -> Accept" hanging off to the left,
+		# for as long as the rule has existed.
+		#
+		# The ruling was given while we were working on BPMN and I scoped
+		# it to the conversation it arrived in rather than to the claim it
+		# makes. "The affirmative answer continues the flow" is about how
+		# a reader reads a branch; nothing in it is about BPMN. That is
+		# the same defect this plane keeps paying for -- a rule whose
+		# scope is narrower than its sentence -- and the governance built
+		# for exactly it never saw this one, because the rule lives in an
+		# early return here instead of being declared.
+		#
+		# It is self-scoping now, and the graph answers rather than a
+		# profile: where a cell's answers disagree in MOOD -- one says
+		# yes, another says no -- the author has already told the reader
+		# which way is forward. Where no branch says yes or no, nothing
+		# is imposed, which is the package diagram's case and it says so
+		# in its own comment: a dependency graph has no happy path, and
+		# claiming one would be a claim the model does not make.
+		#
+		# A profile may still force it on (:HappyPath) or off (:None).
+		_srSp_ = ""
 		_srO_ = This.NotationO()
-		if NOT isObject(_srO_)  return paXY  ok
-		if StzTrim("" + _srO_.Spine()) = ""  return paXY  ok
+		if isObject(_srO_)  _srSp_ = StzLower(StzTrim("" + _srO_.Spine()))  ok
+		if _srSp_ = "none"  return paXY  ok
+		if _srSp_ = ""
+			if NOT This._HasMoodBranch()  return paXY  ok
+		ok
 		if len(@aPins) > 0  return paXY  ok
 		_srPath_ = This._HappyPath()
 		if len(_srPath_) < 2  return paXY  ok
@@ -5652,17 +5831,20 @@ class stzDiagram from stzGraph
 		# the line each row rides, cumulative from the spine outward
 		_srLineAt_ = []
 		for _srQ_ = -8 to 8  _srLineAt_ + 0  next
+		# the gap the spine opens must hold the word that crosses it
+		_srSep_ = nSep
+		if @nSpineLabelDemand > _srSep_  _srSep_ = @nSpineLabelDemand  ok
 		_srRun_ = _srLine_ + _srTall_
 		for _srQ_ = 1 to 8
 			if _srHi_[_srQ_ + 9] <= 0  loop  ok
-			_srRun_ += nSep + _srHi_[_srQ_ + 9] / 2
+			_srRun_ += _srSep_ + _srHi_[_srQ_ + 9] / 2
 			_srLineAt_[_srQ_ + 9] = _srRun_
 			_srRun_ += _srHi_[_srQ_ + 9] / 2
 		next
 		_srRun_ = _srLine_ - _srTall_
 		for _srQ_ = 1 to 8
 			if _srHi_[9 - _srQ_] <= 0  loop  ok
-			_srRun_ -= nSep + _srHi_[9 - _srQ_] / 2
+			_srRun_ -= _srSep_ + _srHi_[9 - _srQ_] / 2
 			_srLineAt_[9 - _srQ_] = _srRun_
 			_srRun_ -= _srHi_[9 - _srQ_] / 2
 		next

@@ -19,6 +19,33 @@
 	hence _NodeKey / _EdgeKey rather than each rule inventing its own.
 */
 
+# IS THIS NODE THE REFUSED SIDE OF A YES/NO FORK?
+#
+# The happy-path rule steps the negative branch off the main line ON
+# PURPOSE, so such a node is DELIBERATELY not on its neighbour's line.
+# Without this, leaf_follows_its_neighbour convicts it of the very bend
+# the other rule just created -- which is not a picture defect, it is two
+# rules reaching for one subject with nothing said about which wins.
+#
+# The governance found it that way: as a failing picture, because the
+# precedence had not been declared. Declaring it is the fix; this
+# predicate is what makes the boundary sayable.
+func _PlIsRefusedBranch(poDg, pcId)
+	_k_ = StzLower("" + pcId)
+	_a_ = poDg.Edges()
+	_n_ = len(_a_)
+	for _i_ = 1 to _n_
+		if StzLower("" + _a_[_i_][:to]) != _k_  loop  ok
+		if NOT poDg._IsNegative("" + _a_[_i_][:label])  loop  ok
+		# ...and its source really does offer an affirmative alternative
+		_src_ = StzLower("" + _a_[_i_][:from])
+		for _j_ = 1 to _n_
+			if StzLower("" + _a_[_j_][:from]) != _src_  loop  ok
+			if poDg._IsAffirmative("" + _a_[_j_][:label])  return 1  ok
+		next
+	next
+	return 0
+
 func _PlKeyNode(pcId)   return "node:" + StzLower("" + pcId)
 func _PlKeyEdge(pcF, pcT)
 	return "edge:" + StzLower("" + pcF) + ">" + StzLower("" + pcT)
@@ -196,6 +223,9 @@ func StzPlasticRuleSet()
 				if _share_  exit  ok
 			next
 			if _share_  loop  ok
+			# ...and the refused branch of a yes/no fork is stepped
+			# aside by the happy-path rule, which outranks this one
+			if _PlIsRefusedBranch(oDg, _ids_[_i_])  loop  ok
 			_r_ + _PlKeyNode(_ids_[_i_])
 		next
 		return _r_
@@ -203,8 +233,17 @@ func StzPlasticRuleSet()
 	_o1_.SetCounter(func(oDg) {
 		# leaves that DO share their neighbour with a rank peer -- these
 		# straddle, and pulling them onto the parent would collapse them
+		# -- and the refused branch of a yes/no fork, which the happy
+		# path steps aside deliberately
 		_r_ = []
 		if _PlCrossAxis(oDg) = 0  return _r_  ok
+		_aRf_ = _PlDrawnIds(oDg)
+		_nRf_ = len(_aRf_)
+		for _iRf_ = 1 to _nRf_
+			if _PlIsRefusedBranch(oDg, _aRf_[_iRf_])
+				_r_ + _PlKeyNode(_aRf_[_iRf_])
+			ok
+		next
 		_ids_ = _PlDrawnIds(oDg)
 		_n_ = len(_ids_)
 		for _i_ = 1 to _n_
@@ -553,6 +592,112 @@ func StzPlasticRuleSet()
 	})
 	_ao_ + _o6_
 
+	# --- THE HAPPY PATH HOLDS THE MAIN LINE ---------------------
+	#
+	# Declared here because it was NOT declared anywhere, and that is why
+	# nothing caught it. The Principal ruled it months ago; it was built
+	# as an early return inside _ApplySpineRows gated on a notation
+	# profile, so it applied to BPMN and to nothing else, and a plain
+	# diagram drew "fails -> Reject" down its spine with "passes ->
+	# Accept" hanging off to the side for as long as the rule existed.
+	#
+	# The governance could not have found that: it governs rules that
+	# declare themselves, and this one lived in a conditional. A rule
+	# nobody declares is a rule nobody can check, which is the argument
+	# for the whole layer stated by its own worst omission.
+	_o7_ = StzPlasticRule("the_happy_path_holds_the_main_line")
+	_o7_.SetClaim("where a cell's answers disagree in mood, the " +
+		"affirmative one continues down the main line")
+	_o7_.SetOrder(20)
+	_o7_.SetReads([ "edge.label", "node.cross" ])
+	_o7_.SetWrites([ "node.cross" ])
+	_o7_.SetScope(func(oDg) {
+		# the forks that actually say yes AND no -- self-scoping, so a
+		# dependency graph with no mood is outside the rule rather than
+		# compliant with it
+		_r_ = []
+		if _PlCrossAxis(oDg) = 0  return _r_  ok
+		_ids_ = _PlDrawnIds(oDg)
+		_n_ = len(_ids_)
+		for _i_ = 1 to _n_
+			_y_ = 0  _no_ = 0
+			_a_ = oDg.Edges()
+			_na_ = len(_a_)
+			for _ia_ = 1 to _na_
+				if StzLower("" + _a_[_ia_][:from]) != _ids_[_i_]  loop  ok
+				if oDg._IsAffirmative("" + _a_[_ia_][:label])  _y_++  ok
+				if oDg._IsNegative("" + _a_[_ia_][:label])  _no_++  ok
+			next
+			if _y_ > 0 and _no_ > 0  _r_ + _PlKeyNode(_ids_[_i_])  ok
+		next
+		return _r_
+	})
+	_o7_.SetCounter(func(oDg) {
+		# a fork whose answers carry no mood -- the package diagram's
+		# case, which says so in its own words: a dependency graph has no
+		# happy path and claiming one would be a claim the model does
+		# not make
+		_r_ = []
+		if _PlCrossAxis(oDg) = 0  return _r_  ok
+		_ids_ = _PlDrawnIds(oDg)
+		_n_ = len(_ids_)
+		for _i_ = 1 to _n_
+			_k_ = 0  _y_ = 0  _no_ = 0
+			_a_ = oDg.Edges()
+			_na_ = len(_a_)
+			for _ia_ = 1 to _na_
+				if StzLower("" + _a_[_ia_][:from]) != _ids_[_i_]  loop  ok
+				if StzLower("" + _a_[_ia_][:to]) = _ids_[_i_]  loop  ok
+				_k_++
+				if oDg._IsAffirmative("" + _a_[_ia_][:label])  _y_++  ok
+				if oDg._IsNegative("" + _a_[_ia_][:label])  _no_++  ok
+			next
+			if _k_ < 2  loop  ok
+			if _y_ > 0 and _no_ > 0  loop  ok
+			_r_ + _PlKeyNode(_ids_[_i_])
+		next
+		return _r_
+	})
+	_o7_.SetClaimCheck(func(oDg, cSub) {
+		_id_ = StzSubStr(cSub, 6, StzLen(cSub) - 5)
+		_ax_ = _PlCrossAxis(oDg)
+		_me_ = _PlCentre(oDg, _id_, _ax_)
+		if _me_ < -999999  return [ 1, "" ]  ok
+		_yes_ = ""  _nos_ = []
+		_a_ = oDg.Edges()
+		_na_ = len(_a_)
+		for _ia_ = 1 to _na_
+			if StzLower("" + _a_[_ia_][:from]) != _id_  loop  ok
+			if oDg._IsAffirmative("" + _a_[_ia_][:label])
+				_yes_ = StzLower("" + _a_[_ia_][:to])
+			ok
+			if oDg._IsNegative("" + _a_[_ia_][:label])
+				_nos_ + StzLower("" + _a_[_ia_][:to])
+			ok
+		next
+		if _yes_ = ""  return [ 1, "" ]  ok
+		_cy_ = _PlCentre(oDg, _yes_, _ax_)
+		if _cy_ < -999999  return [ 1, "" ]  ok
+		if fabs(_cy_ - _me_) >= 1
+			return [ 0, "the affirmative answer '" + _yes_ + "' stands " +
+				(fabs(_cy_ - _me_)) + "px off the line, so the picture " +
+				"puts the refusal where the reader looks first" ]
+		ok
+		# ...and a refusal must NOT be on it
+		_nn_ = len(_nos_)
+		for _in_ = 1 to _nn_
+			_cn_ = _PlCentre(oDg, _nos_[_in_], _ax_)
+			if _cn_ < -999999  loop  ok
+			if fabs(_cn_ - _me_) < 1
+				return [ 0, "the refusal '" + _nos_[_in_] + "' shares " +
+					"the main line with the affirmative answer, so " +
+					"nothing in the geometry says which way is forward" ]
+			ok
+		next
+		return [ 1, "" ]
+	})
+	_ao_ + _o7_
+
 	return _ao_
 
 # THE GOVERNANCE, with the precedences this plane has actually settled.
@@ -573,6 +718,11 @@ func StzPlasticGovernanceOf(pcName)
 		"straddled, never pulled -- collapsing two siblings onto their " +
 		"parent's column would deny I7, and the engine runs " +
 		"siblingStraddle before followLeaves to say so")
+	_g_.DeclarePrecedence("the_happy_path_holds_the_main_line",
+		"leaf_follows_its_neighbour",
+		"the refused branch of a yes/no fork is stepped off the main " +
+		"line on purpose, so it is not a leaf that failed to align -- " +
+		"the author said which way is forward and the picture obeys them")
 	_g_.DeclarePrecedence("a_fan_leaves_on_one_stem",
 		"an_aligned_edge_does_not_bend",
 		"a fan's members share a stem and then part, so the second and " +
