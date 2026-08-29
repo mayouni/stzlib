@@ -7887,6 +7887,81 @@ chk("a diamond is a branch cell", oD2._IsBranchCell("src") = 1)
 chk("...and a box is not", oF._IsBranchCell("src") = 0)
 
 
+
+OPTGOV = [ :Font = EFONT, :NodeWidth = 130, :NodeHeight = 52, :FontSize = 14 ]
+
+# The meta layer: rules that state what they GOVERN, separately from what
+# they assert, so the SELECTION half can be checked at all. Six defects of
+# this plane in one session were a right rule applied outside its scope,
+# and not one was findable by testing the rule -- the rule passes its own
+# tests. What follows tests the layer BOTH ways, because a governor that
+# reports nothing is indistinguishable from a governor that is broken.
+sec("-- 71. THE GOVERNOR, AND THE PROOF THAT IT FIRES --------")
+
+oG = StzPlasticGovernanceOf("graph-plane")
+oG.AddPicture("uml/component", _GvComponent())
+oG.AddPicture("uml/communication", _GvComm(0))
+oG.AddPicture("uml/comm-middle", _GvComm(1))
+oG.AddPicture("flow/decision", _GvDecision())
+oG.AddPicture("plain/chain", _GvChain())
+
+# THE SHIPPED PICTURES OBEY THE RULES THEY WERE DRAWN BY.
+aP = oG.CheckPictures()
+chkeq("every shipped picture passes every plastic rule", len(aP), 0)
+
+# ...AND THE GOVERNOR IS NOT SIMPLY SILENT. A layer that reports nothing
+# is indistinguishable from a layer that is broken, which is this
+# project's own negative-sibling law applied to the instrument itself.
+# A pin overrides every layout pass by design, so it is the one lever
+# that can produce a genuinely wrong picture on purpose.
+oBad = _GvChain()
+# The rules read RENDER FACTS -- where the ink actually went -- so the
+# precise way to prove they discriminate is to hand them a fact that is
+# wrong. This moves ONE node off the line of its only neighbour by 40px
+# and changes nothing else, which is the exact geometry the Principal
+# marked on two pictures.
+aRb = oBad.@aRenderNodeRects
+for iB = 1 to len(aRb)
+	if StzLower("" + aRb[iB][5]) = "a"
+		aRb[iB][2] = aRb[iB][2] + 40
+	ok
+next
+oBad.@aRenderNodeRects = aRb
+oG2 = StzPlasticGovernanceOf("proof")
+oG2.AddPicture("plain/chain-leaf-displaced", oBad)
+aB = oG2.CheckPictures()
+chk("NEGATIVE: a leaf moved off its neighbour's line IS caught",
+    len(aB) > 0)
+bNamed = 0
+for iB2 = 1 to len(aB)
+	if aB[iB2][:rule] = "leaf_follows_its_neighbour"  bNamed = 1  ok
+next
+chk("...and the finding names the rule that was broken", bNamed = 1)
+
+# THE META HALF -- what the rules cannot ask about themselves.
+aR = oG.CheckRules()
+nErr = 0
+for iR = 1 to len(aR)
+	if aR[iR][:severity] = :error  nErr++  ok
+next
+chkeq("no rule in the set is dead, unclaimed, or reading a stale value",
+    nErr, 0)
+
+# EVERY RULE GOVERNS SOMETHING, AND EXCLUDES SOMETHING. The exclusion is
+# the half that had no tests, and a rule declaring itself universal must
+# say why in words somebody can argue with.
+aT = oG.ScopeTable()
+nNoScope = 0  nNoBound = 0
+aoR = oG.Rules()
+for iT = 1 to len(aT)
+	if aT[iT][2] = 0  nNoScope++  ok
+	if aT[iT][3] = 0 and NOT aoR[iT].IsUniversal()  nNoBound++  ok
+next
+chkeq("every rule governs at least one subject in the corpus", nNoScope, 0)
+chkeq("...and every rule's boundary is witnessed, or declared universal",
+    nNoBound, 0)
+
+
 if nSecClock > 0
 	? "        [section took " +
 	  ((clock() - nSecClock) / clockspersecond()) + "s]"
@@ -9079,6 +9154,68 @@ func Scene cName, cShape
 	o.ToCanvasXT([ :Font = EFONT, :NodeWidth = 120, :NodeHeight = 50,
 		:FontSize = 13 ])
 	return o
+
+func _GvComponent()
+	_o_ = new stzDiagram("components")
+	_o_.SetNotation(StzUmlComponentNotation())
+	_o_.AddNodeXTT("web", "Web UI", [ :type = "component" ])
+	_o_.AddNodeXTT("api", "Order API", [ :type = "component" ])
+	_o_.AddNodeXTT("pay", "Payments", [ :type = "component" ])
+	_o_.AddNodeXTT("store", "Catalogue", [ :type = "component" ])
+	_o_.AddEdgeXTT("web", "api", "", [ :uml = :Dependency ])
+	_o_.AddEdgeXTT("api", "pay", "", [ :uml = :Dependency ])
+	_o_.AddEdgeXTT("api", "store", "", [ :uml = :Dependency ])
+	_o_.ToCanvasXT(OPTGOV)
+	return _o_
+
+# bMiddle switches the label convention, which is the WITNESS for the
+# label rule's boundary -- under :Middle a word sits on its line by
+# design, so those labels are outside that rule entirely.
+func _GvComm bMiddle
+	_o_ = new stzDiagram("comm")
+	_o_.SetNotation(StzUmlCommunicationNotation())
+	_o_.AddNodeXTT("u", "Shopper", [ :type = "actor" ])
+	_o_.AddNodeXTT("c", ": Cart", [ :type = "object" ])
+	_o_.AddNodeXTT("s", ": Stock", [ :type = "object" ])
+	_o_.AddNodeXTT("p", ": Payment", [ :type = "object" ])
+	_o_.AddEdgeXT("u", "c", "1: add(item)")
+	_o_.AddEdgeXT("c", "s", "2: reserve(item)")
+	_o_.AddEdgeXT("c", "p", "3: charge(total)")
+	if bMiddle
+		_o_.ToCanvasXT([ :Font = EFONT, :NodeWidth = 130, :NodeHeight = 52,
+			:FontSize = 14, :LabelPlacement = :Middle ])
+	else
+		_o_.ToCanvasXT(OPTGOV)
+	ok
+	return _o_
+
+func _GvDecision()
+	_o_ = new stzDiagram("decision")
+	_o_.SetLayout(:LeftToRight)
+	_o_.SetSplines(:ortho)
+	_o_.AddNodeXTT("start", "Start", [ :type = "box" ])
+	_o_.AddNodeXTT("d", "Ready?", [ :type = "diamond" ])
+	_o_.AddNodeXTT("yes", "Ship", [ :type = "box" ])
+	_o_.AddNodeXTT("no", "Hold", [ :type = "box" ])
+	_o_.AddEdge("start", "d")
+	_o_.AddEdgeXT("d", "yes", "yes")
+	_o_.AddEdgeXT("d", "no", "no")
+	_o_.ToCanvasXT(OPTGOV)
+	return _o_
+
+func _GvChain()
+	_o_ = new stzDiagram("chain")
+	_o_.SetLayout(:LeftToRight)
+	_o_.SetSplines(:ortho)
+	_o_.AddNodeXTT("a", "One", [ :type = "box" ])
+	_o_.AddNodeXTT("b", "Two", [ :type = "box" ])
+	_o_.AddNodeXTT("c", "Three", [ :type = "box" ])
+	_o_.AddNodeXTT("d", "Four", [ :type = "box" ])
+	_o_.AddEdge("a", "b")
+	_o_.AddEdge("b", "c")
+	_o_.AddEdge("b", "d")
+	_o_.ToCanvasXT(OPTGOV)
+	return _o_
 
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0
