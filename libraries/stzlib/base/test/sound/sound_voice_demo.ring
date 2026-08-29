@@ -34,7 +34,10 @@ sleep(0.3)
 
 ? ""
 ? "2. In every language this machine HAS -- and it refuses the rest."
-for a in oV.ToVoiceList()
+_aA187_ = oV.ToVoiceList()
+_nA187_ = len(_aA187_)
+for _iA187_ = 1 to _nA187_
+	a = _aA187_[_iA187_]
 	? "   " + a[2] + ": " + a[1]
 	oV.UseLanguage(a[2])
 	if left(a[2], 2) = "fr"

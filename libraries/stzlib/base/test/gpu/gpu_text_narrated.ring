@@ -74,7 +74,10 @@ for _i_ = 2 to len(aG)
         bAdv = FALSE
     ok
 next
-for _g_ in aG
+_aG12_ = aG
+_nG12_ = len(_aG12_)
+for _iG12_ = 1 to _nG12_
+	_g_ = _aG12_[_iG12_]
     if _g_[1] = 0
         bIds = FALSE
     ok
@@ -118,20 +121,29 @@ nAlefIso = aAlefOnly[3][1][1]
 # generic joined forms from neutral contexts
 aLB = StzEngineGpuTextLayout(hF, cLam + cBeh, 32)
 nLamInit = 0
-for _g_ in aLB[3]
+_aG13_ = aLB[3]
+_nG13_ = len(_aG13_)
+for _iG13_ = 1 to _nG13_
+	_g_ = _aG13_[_iG13_]
     if _g_[4] = 0
         nLamInit = _g_[1]
     ok
 next
 aBA = StzEngineGpuTextLayout(hF, cBeh + cAlef, 32)
 nAlefFin = 0
-for _g_ in aBA[3]
+_aG14_ = aBA[3]
+_nG14_ = len(_aG14_)
+for _iG14_ = 1 to _nG14_
+	_g_ = _aG14_[_iG14_]
     if _g_[4] = 2
         nAlefFin = _g_[1]
     ok
 next
 bSpecial = TRUE
-for _g_ in aLA[3]
+_aG15_ = aLA[3]
+_nG15_ = len(_aG15_)
+for _iG15_ = 1 to _nG15_
+	_g_ = _aG15_[_iG15_]
     if _g_[1] = nLamIso or _g_[1] = nAlefIso or _g_[1] = nLamInit or _g_[1] = nAlefFin
         bSpecial = FALSE
     ok

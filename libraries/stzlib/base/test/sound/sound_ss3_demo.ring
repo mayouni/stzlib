@@ -98,7 +98,10 @@ oP.Start()
 if NOT oP.IsStarted()
 	? "   the pool would not start: " + oP.LastError()
 else
-	for cV in [ "Success", "Info", "Warning", "Danger" ]
+	_aCV176_ = [ "Success", "Info", "Warning", "Danger" ]
+	_nCV176_ = len(_aCV176_)
+	for _iCV176_ = 1 to _nCV176_
+		cV = _aCV176_[_iCV176_]
 		oP.Unduck()
 		sleep(0.3)
 		oP.Fire(cV)

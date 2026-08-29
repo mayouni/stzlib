@@ -39,8 +39,11 @@ aTok = oT.Tokens()
 ? "   theme '" + oT.Name() + "' exports " + len(aTok) + " tokens"
 chk("more tokens than roles", len(aTok) > len(oT.Roles()))
 
-for c in [ "danger", "danger-surface", "danger-border", "danger-solid",
+_aC60_ = [ "danger", "danger-surface", "danger-border", "danger-solid",
            "danger-text", "on-danger", "background" ]
+_nC60_ = len(_aC60_)
+for _iC60_ = 1 to _nC60_
+	c = _aC60_[_iC60_]
 	cV = StzThemeTokenOf(aTok, c)
 	? "     " + PadR(c, 16) + " " + cV
 	chk("  " + c + " is exported", cV != "")
@@ -49,7 +52,10 @@ next
 # EVERY token must be a resolved hex. An expression like "blue+" leaving
 # in a CSS file is a colour no browser can render.
 nNotHex = 0
-for a in aTok
+_aA61_ = aTok
+_nA61_ = len(_aA61_)
+for _iA61_ = 1 to _nA61_
+	a = _aA61_[_iA61_]
 	if left(a[2], 1) != "#" or len(a[2]) != 7  nNotHex++  ok
 next
 chkeq("every token is a resolved #rrggbb", nNotHex, 0)
@@ -75,7 +81,10 @@ cRing = oT.ToRing()
   "   Ring " + len(cRing)
 
 nMissing = 0
-for a in aTok
+_aA62_ = aTok
+_nA62_ = len(_aA62_)
+for _iA62_ = 1 to _nA62_
+	a = _aA62_[_iA62_]
 	if StzFindFirst(a[2], cCss) = 0   nMissing++  ok
 	if StzFindFirst(a[2], cJson) = 0  nMissing++  ok
 	if StzFindFirst(a[2], cRing) = 0  nMissing++  ok
@@ -126,7 +135,10 @@ else
 	# SAME thing give, so prove the comparison can see a difference: nudge
 	# one token and the same check must fail.
 	aBent = []
-	for a in aBack
+	_aA63_ = aBack
+	_nA63_ = len(_aA63_)
+	for _iA63_ = 1 to _nA63_
+		a = _aA63_[_iA63_]
 		if a[1] = "danger-solid"
 			aBent + [ a[1], "#00FF00" ]
 		else
@@ -153,12 +165,18 @@ ok
 
 nBadPair = 0
 ? "   theme      tokens   worst on/solid contrast"
-for cT in StzColorThemes()
+_aCT64_ = StzColorThemes()
+_nCT64_ = len(_aCT64_)
+for _iCT64_ = 1 to _nCT64_
+	cT = _aCT64_[_iCT64_]
 	if StzThemeColor(cT, :primary) = ""  loop  ok
 	oX = new stzTheme(cT)
 	aX = oX.Tokens()
 	nWorst = 99
-	for cR in [ "primary", "success", "warning", "danger", "info" ]
+	_aCR65_ = [ "primary", "success", "warning", "danger", "info" ]
+	_nCR65_ = len(_aCR65_)
+	for _iCR65_ = 1 to _nCR65_
+		cR = _aCR65_[_iCR65_]
 		cOn = StzThemeTokenOf(aX, "on-" + cR)
 		cSol = StzThemeTokenOf(aX, cR + "-solid")
 		if cOn = "" or cSol = ""  loop  ok
@@ -242,7 +260,10 @@ func _Paint aTokens, aWhich
 	_o_ = new stzCanvas(360, 200)
 	_o_.SetBackground(StzThemeTokenOf(aTokens, "background"))
 	_k_ = 0
-	for _c_ in aWhich
+	_aC66_ = aWhich
+	_nC66_ = len(_aC66_)
+	for _iC66_ = 1 to _nC66_
+		_c_ = _aC66_[_iC66_]
 		if _c_ = "background"  loop  ok
 		_v_ = StzThemeTokenOf(aTokens, _c_)
 		if _v_ = ""  loop  ok

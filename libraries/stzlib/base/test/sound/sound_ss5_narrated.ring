@@ -48,7 +48,10 @@ Chk("Rule 118's five are still five", len(StzSemanticValues()) = 5)
 
 nRate = 48000
 aFrames = []
-for cV in StzSemanticValues()
+_aCV182_ = StzSemanticValues()
+_nCV182_ = len(_aCV182_)
+for _iCV182_ = 1 to _nCV182_
+	cV = _aCV182_[_iCV182_]
 	nF = StzEngineSoundEarconFrames(IndexOfValue(cV), nRate)
 	aFrames + nF
 	? "   " + cV + ": " + nF + " frames at " + nRate + " Hz"
@@ -78,7 +81,10 @@ Chk("a sixth index renders nothing", StzEngineSoundEarconFrames(9, nRate) = 0)
 ? "   If _BuildMotifs had kept a private copy, this would still pass every"
 ? "   other assertion in this plane while quietly being a second vocabulary."
 
-for cV in [ "danger", "warning", "info", "success" ]
+_aCV183_ = [ "danger", "warning", "info", "success" ]
+_nCV183_ = len(_aCV183_)
+for _iCV183_ = 1 to _nCV183_
+	cV = _aCV183_[_iCV183_]
 	oFromFace = oE.ToSoundOf(cV)
 	nBuf = StzEngineSoundEarconOf(IndexOfValue(cV), nRate)
 	oFromEngine = StzSoundFromBufferQ(nBuf)
@@ -121,7 +127,10 @@ Chk("and it is LOUD in between -- otherwise 'quiet at both ends' would pass " +
 
 cJson = "{" + nl + '  "rate": ' + nRate + "," + nl + '  "values": [' + nl
 aRows = []
-for cV in StzSemanticValues()
+_aCV184_ = StzSemanticValues()
+_nCV184_ = len(_aCV184_)
+for _iCV184_ = 1 to _nCV184_
+	cV = _aCV184_[_iCV184_]
 	nIdx = IndexOfValue(cV)
 	nF = StzEngineSoundEarconFrames(nIdx, nRate)
 	nSum = 0

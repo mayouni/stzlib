@@ -168,8 +168,14 @@ else
     aV + [ 0.0,  0.9]  aV + [240/255.0, 200/255.0, 40/255.0, 1]
     aV + [ 0.8, -0.8]  aV + [240/255.0, 200/255.0, 40/255.0, 1]
     aFlat = []
-    for _row_ in aV
-        for _v_ in _row_
+    _aRow2_ = aV
+    _nRow2_ = len(_aRow2_)
+    for _iRow2_ = 1 to _nRow2_
+    	_row_ = _aRow2_[_iRow2_]
+        _aV3_ = _row_
+        _nV3_ = len(_aV3_)
+        for _iV3_ = 1 to _nV3_
+        	_v_ = _aV3_[_iV3_]
             aFlat + _v_
         next
     next
@@ -215,8 +221,14 @@ else
     aQ + [ 1.0,  1.0]  aQ + [1.0, 0.0]
     aQ + [-1.0,  1.0]  aQ + [0.0, 0.0]
     aQF = []
-    for _row_ in aQ
-        for _v_ in _row_
+    _aRow4_ = aQ
+    _nRow4_ = len(_aRow4_)
+    for _iRow4_ = 1 to _nRow4_
+    	_row_ = _aRow4_[_iRow4_]
+        _aV5_ = _row_
+        _nV5_ = len(_aV5_)
+        for _iV5_ = 1 to _nV5_
+        	_v_ = _aV5_[_iV5_]
             aQF + _v_
         next
     next
@@ -241,8 +253,14 @@ else
     aQI + [ 1.0,  1.0]  aQI + [1.0, 0.0]
     aQI + [-1.0,  1.0]  aQI + [0.0, 0.0]
     aQIF = []
-    for _row_ in aQI
-        for _v_ in _row_
+    _aRow6_ = aQI
+    _nRow6_ = len(_aRow6_)
+    for _iRow6_ = 1 to _nRow6_
+    	_row_ = _aRow6_[_iRow6_]
+        _aV7_ = _row_
+        _nV7_ = len(_aV7_)
+        for _iV7_ = 1 to _nV7_
+        	_v_ = _aV7_[_iV7_]
             aQIF + _v_
         next
     next
@@ -285,14 +303,20 @@ else
                [12,18,10,10,4], [18,9,8,8,1], [27,20,11,8,3], [3,25,30,4,2], [20,14,15,5,1] ]
     # GPU: 6 verts per rect, integer pixel corners -> NDC, painter order
     aBV = []
-    for _r_ in aRects
+    _aR8_ = aRects
+    _nR8_ = len(_aR8_)
+    for _iR8_ = 1 to _nR8_
+    	_r_ = _aR8_[_iR8_]
         _x0_ = _r_[1] / nBW * 2 - 1
         _x1_ = (_r_[1] + _r_[3]) / nBW * 2 - 1
         _y0_ = 1 - _r_[2] / nBH * 2
         _y1_ = 1 - (_r_[2] + _r_[4]) / nBH * 2
         _aC_ = aPal[_r_[5]]
         _aP_ = [ [_x0_,_y0_], [_x1_,_y0_], [_x1_,_y1_], [_x0_,_y0_], [_x1_,_y1_], [_x0_,_y1_] ]
-        for _p_ in _aP_
+        _aP9_ = _aP_
+        _nP9_ = len(_aP9_)
+        for _iP9_ = 1 to _nP9_
+        	_p_ = _aP9_[_iP9_]
             aBV + _p_[1]  aBV + _p_[2]
             aBV + (_aC_[1]/255.0)  aBV + (_aC_[2]/255.0)  aBV + (_aC_[3]/255.0)  aBV + 1
         next
@@ -308,7 +332,10 @@ else
     for _i_ = 1 to nBW * nBH
         aRef[_i_] = 0
     next
-    for _r_ in aRects
+    _aR10_ = aRects
+    _nR10_ = len(_aR10_)
+    for _iR10_ = 1 to _nR10_
+    	_r_ = _aR10_[_iR10_]
         for _dy_ = 0 to _r_[4] - 1
             _nRow_ = (_r_[2] + _dy_) * nBW
             for _dx_ = 0 to _r_[3] - 1

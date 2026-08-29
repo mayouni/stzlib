@@ -444,7 +444,10 @@ oMem {
 	#--> "Created 5 temporary buffers"
 	
 	# Process all buffers
-	for oBuff in aTempBuffers {
+	_aOBuff188_ = aTempBuffers {
+	_nOBuff188_ = len(_aOBuff188_)
+	for _iOBuff188_ = 1 to _nOBuff188_
+		oBuff = _aOBuff188_[_iOBuff188_]
 		cData = ReadFromBuffer(oBuff.Id(), 0, oBuff.Size())
 		? "Processing: " + cData
 		#--> "Processing: Batch item 1"
@@ -455,7 +458,10 @@ oMem {
 	}
 	
 	# Cleanup temporary buffers
-	for oBuff in aTempBuffers {
+	_aOBuff189_ = aTempBuffers {
+	_nOBuff189_ = len(_aOBuff189_)
+	for _iOBuff189_ = 1 to _nOBuff189_
+		oBuff = _aOBuff189_[_iOBuff189_]
 		DestroyBuffer(oBuff.Id())
 	}
 	

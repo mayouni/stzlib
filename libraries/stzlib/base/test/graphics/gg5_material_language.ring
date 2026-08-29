@@ -169,14 +169,23 @@ else
 		  '  @out = mix(core * (@lambert * 0.8 + 0.2), edge, s) }' ]
 	]
 
-	for aS in aShows
+	_aAS27_ = aShows
+	_nAS27_ = len(_aAS27_)
+	for _iAS27_ = 1 to _nAS27_
+		aS = _aAS27_[_iAS27_]
 		oMM = new stzMaterialMaker()
 		aBind = []
-		for c in aS[3]
+		_aC28_ = aS[3]
+		_nC28_ = len(_aC28_)
+		for _iC28_ = 1 to _nC28_
+			c = _aC28_[_iC28_]
 			oMM.TakesColor(c[1])
 			aBind + [ c[1], c[2] ]
 		next
-		for s in aS[4]
+		_aS29_ = aS[4]
+		_nS29_ = len(_aS29_)
+		for _iS29_ = 1 to _nS29_
+			s = _aS29_[_iS29_]
 			oMM.TakesScalar(s[1])
 			aBind + [ s[1], s[2] ]
 		next

@@ -104,7 +104,10 @@ oReuse.AddNode(:mixed, [ :Op = :Mix,      :In = [ :base, :soft, :edge ] ])
 oReuse.Emits(:mixed)
 oReuse.Compile()
 
-for a in oReuse.Uses()
+_aA25_ = oReuse.Uses()
+_nA25_ = len(_aA25_)
+for _iA25_ = 1 to _nA25_
+	a = _aA25_[_iA25_]
 	? "     " + PadR(a[1], 8) + " read by " + a[2] + " node(s)"
 next
 ? "   lets saved over a tree expansion : " + oReuse.ReuseSaved()
@@ -375,7 +378,10 @@ func _Has aList, cWhat
 	return _At(aList, cWhat) > 0
 
 func _UseOf aUses, cName
-	for _a_ in aUses
+	_aA26_ = aUses
+	_nA26_ = len(_aA26_)
+	for _iA26_ = 1 to _nA26_
+		_a_ = _aA26_[_iA26_]
 		if _a_[1] = cName  return _a_[2]  ok
 	next
 	return -1

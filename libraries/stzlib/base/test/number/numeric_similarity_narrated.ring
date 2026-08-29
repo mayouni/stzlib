@@ -33,7 +33,10 @@ Scenario("the cap is gone, and it was a silent zero rather than an error")
 
 	# A vector is perfectly similar to itself. At every dimension -- including the
 	# ones that used to answer 0.
-	for nDim in [ 384, 768, 1024, 1536, 4096 ]
+	_aNDim150_ = [ 384, 768, 1024, 1536, 4096 ]
+	_nNDim150_ = len(_aNDim150_)
+	for _iNDim150_ = 1 to _nNDim150_
+		nDim = _aNDim150_[_iNDim150_]
 		av = []
 		for i = 1 to nDim
 			av + ((i % 17) + 1)

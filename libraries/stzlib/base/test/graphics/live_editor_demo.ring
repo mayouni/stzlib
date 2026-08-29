@@ -24,9 +24,12 @@ load "../../stzBase.ring"
 oFont = new stzFont("C:/Windows/Fonts/segoeui.ttf")
 
 oDiag = new stzDiagram("live")
-for a in [ [ "lb", "Balancer" ], [ "web1", "Web A" ], [ "web2", "Web B" ],
+_aA123_ = [ [ "lb", "Balancer" ], [ "web1", "Web A" ], [ "web2", "Web B" ],
            [ "api1", "API A" ], [ "api2", "API B" ],
            [ "db1", "DB A" ], [ "db2", "DB B" ], [ "log", "Logger" ] ]
+_nA123_ = len(_aA123_)
+for _iA123_ = 1 to _nA123_
+	a = _aA123_[_iA123_]
 	oDiag.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
 next
 oDiag.AddEdge("lb", "web1")    oDiag.AddEdge("lb", "web2")

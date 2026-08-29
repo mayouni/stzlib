@@ -66,7 +66,10 @@ ok
 
 oE = new stzEarcons()
 aShipped = []
-for cV in [ "Danger", "Warning", "Info", "Success" ]
+_aCV175_ = [ "Danger", "Warning", "Info", "Success" ]
+_nCV175_ = len(_aCV175_)
+for _iCV175_ = 1 to _nCV175_
+	cV = _aCV175_[_iCV175_]
 	aShipped + [ cV, oE.ToSoundOf(cV) ]
 next
 aSep = Separability(aShipped)

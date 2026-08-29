@@ -629,7 +629,10 @@ aSections = reverse( @Sort(o1.FindDupSecutiveSubStringsZZ()) )
 # Now, if we remove these sections one by one to clean up the duplicate
 # substrings, we end up with an unexpected result! Here’s why:
 
-for section in aSections
+_aSectio225_ = aSections
+_nSectio225_ = len(_aSectio225_)
+for _iSectio225_ = 1 to _nSectio225_
+	section = _aSectio225_[_iSectio225_]
 	o1.RemoveSection(section[1], section[2])
 next
 ? o1.Content() + NL

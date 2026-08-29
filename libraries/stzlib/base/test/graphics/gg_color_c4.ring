@@ -84,7 +84,10 @@ oFlat.TakesColor(:tint)
 oFlat.ForEachFragment("{ @out = tint }")
 
 nDrift = 0
-for c in [ "#808080", "#E0A030", "#1B3A5C", "#FFFFFF", "#010101", "#7F00FF" ]
+_aC58_ = [ "#808080", "#E0A030", "#1B3A5C", "#FFFFFF", "#010101", "#7F00FF" ]
+_nC58_ = len(_aC58_)
+for _iC58_ = 1 to _nC58_
+	c = _aC58_[_iC58_]
 	aW = StzHexToRGB(c)
 	aG = _CentreRGB(oFlat, [ :tint = c ])
 	nD = fabs(aG[1] - aW[1]) + fabs(aG[2] - aW[2]) + fabs(aG[3] - aW[3])
@@ -104,7 +107,10 @@ chkeq("every flat colour survives the round trip", nDrift, 0)
 #---------------------------------------------------------------------------
 
 nBadBg = 0
-for c in [ "#808080", "#1B3A5C", "#E0A030" ]
+_aC59_ = [ "#808080", "#1B3A5C", "#E0A030" ]
+_nC59_ = len(_aC59_)
+for _iC59_ = 1 to _nC59_
+	c = _aC59_[_iC59_]
 	oB = new stzScene(80, 80)
 	oB.SetBackgroundQ(c).SetCamera(0, 0, 3, 0, 0, 0)
 	oB.AddMesh(new stzMesh([ :Sphere, 0.15, 8, 6 ]), 0, 0, 0)

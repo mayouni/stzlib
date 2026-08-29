@@ -172,7 +172,11 @@ Scenario("Probabilistic quantifiers")
     When("Some(aTen) is sampled")
     aSample = Some(aTen)
     bAllIn = TRUE
-    for x in aSample if ring_find(aTen, x) = 0 bAllIn = FALSE ok next
+    _aSmp9_ = aSample
+_nSmp9_ = len(_aSmp9_)
+for _iSmp9_ = 1 to _nSmp9_
+	if ring_find(aTen, _aSmp9_[_iSmp9_]) = 0  bAllIn = FALSE  ok
+next
     Then("every sampled item belongs to the source", bAllIn, TRUE)
 EndScenario()
 

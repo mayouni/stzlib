@@ -105,7 +105,10 @@ else
 		[ "centre",      128, 128 ]
 	]
 	nWrong = 0
-	for a in aCases
+	_aA99_ = aCases
+	_nA99_ = len(_aA99_)
+	for _iA99_ = 1 to _nA99_
+		a = _aA99_[_iA99_]
 		nSx = floor(a[2] * IW / W)
 		nSy = floor(a[3] * IH / H)
 		nWantR = nSx * 8

@@ -124,10 +124,21 @@ aGallery = [
 # material rather than dying inside a render.
 #---------------------------------------------------------------------------
 
-for aM in aGallery
+_aAM20_ = aGallery
+_nAM20_ = len(_aAM20_)
+for _iAM20_ = 1 to _nAM20_
+	aM = _aAM20_[_iAM20_]
 	oMM = new stzMaterialMaker()
-	for c in aM[2]  oMM.TakesColor(c[1])   next
-	for s in aM[3]  oMM.TakesScalar(s[1])  next
+	_aMc9_ = aM[2]
+	_nMc9_ = len(_aMc9_)
+	for _iMc9_ = 1 to _nMc9_
+		oMM.TakesColor(_aMc9_[_iMc9_][1])
+	next
+	_aMs9_ = aM[3]
+	_nMs9_ = len(_aMs9_)
+	for _iMs9_ = 1 to _nMs9_
+		oMM.TakesScalar(_aMs9_[_iMs9_][1])
+	next
 	oMM.ForEachFragment(aM[4])
 	cW = oMM.ToWGSL()
 	chk(PadR(aM[1], 13) + len(cW) + " chars of WGSL",
@@ -173,14 +184,23 @@ else
 	nTiles = 0
 	aLevels = []
 
-	for aM in aGallery
+	_aAM21_ = aGallery
+	_nAM21_ = len(_aAM21_)
+	for _iAM21_ = 1 to _nAM21_
+		aM = _aAM21_[_iAM21_]
 		oMM = new stzMaterialMaker()
 		aBind = []
-		for c in aM[2]
+		_aC22_ = aM[2]
+		_nC22_ = len(_aC22_)
+		for _iC22_ = 1 to _nC22_
+			c = _aC22_[_iC22_]
 			oMM.TakesColor(c[1])
 			aBind + [ c[1], c[2] ]
 		next
-		for s in aM[3]
+		_aS23_ = aM[3]
+		_nS23_ = len(_aS23_)
+		for _iS23_ = 1 to _nS23_
+			s = _aS23_[_iS23_]
 			oMM.TakesScalar(s[1])
 			aBind + [ s[1], s[2] ]
 		next
@@ -225,7 +245,10 @@ else
 	# built on mix and smoothstep. If that ordering ever inverts, step stopped
 	# stepping, and no per-material band would have to be re-tuned to notice.
 	nToon = 0  nSmoothMin = 9999
-	for a in aLevels
+	_aA24_ = aLevels
+	_nA24_ = len(_aA24_)
+	for _iA24_ = 1 to _nA24_
+		a = _aA24_[_iA24_]
 		if a[1] = "4_toon"
 			nToon = a[2]
 		else

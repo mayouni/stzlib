@@ -306,8 +306,11 @@ func JoinWords paLines
 	return _c_
 
 func FindAFont
-	for _p_ in [ "C:/Windows/Fonts/segoeui.ttf", "C:/Windows/Fonts/arial.ttf",
+	_aP160_ = [ "C:/Windows/Fonts/segoeui.ttf", "C:/Windows/Fonts/arial.ttf",
 	             "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf" ]
+	_nP160_ = len(_aP160_)
+	for _iP160_ = 1 to _nP160_
+		_p_ = _aP160_[_iP160_]
 		if fexists(_p_)
 			return new stzFont(_p_)
 		ok
@@ -360,7 +363,10 @@ func PathYExtent pcSvg
 		_e_ = substr(_s_, '"')
 		if _e_ = 0  exit ok
 		_d_ = left(_s_, _e_ - 1)
-		for _ch_ in [ "M", "L", "Q", "C", "Z", "H", "V", "," ]
+		_aCh161_ = [ "M", "L", "Q", "C", "Z", "H", "V", "," ]
+		_nCh161_ = len(_aCh161_)
+		for _iCh161_ = 1 to _nCh161_
+			_ch_ = _aCh161_[_iCh161_]
 			_d_ = substr(_d_, _ch_, " ")
 		next
 		_nums_ = split(_d_, " ")

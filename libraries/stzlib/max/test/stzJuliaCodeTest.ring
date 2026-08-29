@@ -160,7 +160,10 @@ jl() { @('
 	
 	# Training loop
 	losses = Float32[]
-	for epoch in 1:100
+	_aEpoch224_ = 1:100
+	_nEpoch224_ = len(_aEpoch224_)
+	for _iEpoch224_ = 1 to _nEpoch224_
+		epoch = _aEpoch224_[_iEpoch224_]
 	    # Define loss function
 	    function loss_fn(m)
 	        pred = m(x_batched)

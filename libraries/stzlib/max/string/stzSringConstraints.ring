@@ -47,7 +47,10 @@ class stzStringConstraints
 	def VerifyConstraints()
 		bResult = 1
 
-		for aPair in This.Constraints()
+		_aAPair194_ = This.Constraints()
+		_nAPair194_ = len(_aAPair194_)
+		for _iAPair194_ = 1 to _nAPair194_
+			aPair = _aAPair194_[_iAPair194_]
 			cConstraintName = aPair[1]
 			This.VerifyConstraint(cConstraintName) = 0
 			

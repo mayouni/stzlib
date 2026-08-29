@@ -85,13 +85,19 @@ Scenario("two invariants that tie eigenvalues to code that computed them differe
 		nTrace += aA[i][i]
 	next
 	nSum = 0
-	for v in anL
+	_aV143_ = anL
+	_nV143_ = len(_aV143_)
+	for _iV143_ = 1 to _nV143_
+		v = _aV143_[_iV143_]
 		nSum += v
 	next
 	Then("the trace equals the sum of the eigenvalues", Rnd6(nTrace), Rnd6(nSum))
 
 	nProd = 1
-	for v in anL
+	_aV144_ = anL
+	_nV144_ = len(_aV144_)
+	for _iV144_ = 1 to _nV144_
+		v = _aV144_[_iV144_]
 		nProd *= v
 	next
 	Then("...and the LU determinant equals their product",
@@ -206,7 +212,10 @@ Scenario("POSITIVE DEFINITENESS, answered twice by unrelated algorithms")
 	for i = 1 to nLen
 		oM = new stzMatrix(aCases[i])
 		bAllPositive = TRUE
-		for v in oM.EigenValues()
+		_aV145_ = oM.EigenValues()
+		_nV145_ = len(_aV145_)
+		for _iV145_ = 1 to _nV145_
+			v = _aV145_[_iV145_]
 			if v <= 0.000000000001
 				bAllPositive = FALSE
 			ok

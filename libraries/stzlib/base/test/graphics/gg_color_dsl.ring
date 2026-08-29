@@ -44,7 +44,10 @@ aExpr = [ "blue", "blue+", "blue++", "gray--", "gold-", "#3E6EA8",
           :Success, :Warning, :Danger, :Info, :Primary, :Neutral ]
 
 nDisagree = 0
-for x in aExpr
+_aX67_ = aExpr
+_nX67_ = len(_aX67_)
+for _iX67_ = 1 to _nX67_
+	x = _aX67_[_iX67_]
 	cHex = StzResolveColor(x)
 	nDirect = StzColorToNumber(x)
 	nViaHex = StzColorToNumber(cHex)
@@ -146,7 +149,10 @@ chk("StzIsDarkColor agrees with it",
 # and stzDiagram must now DELEGATE, not carry a second copy
 oDg = new stzDiagram("dg")
 nSame = 0
-for c in [ "gold", "blue+", "gray--", "red", "#123456", "#EEEEEE" ]
+_aC68_ = [ "gold", "blue+", "gray--", "red", "#123456", "#EEEEEE" ]
+_nC68_ = len(_aC68_)
+for _iC68_ = 1 to _nC68_
+	c = _aC68_[_iC68_]
 	if oDg.ContrastingTextColor(c) = StzContrastingText(c)  nSame++  ok
 next
 chkeq("stzDiagram's answer IS the universal answer, on all six", nSame, 6)
@@ -165,7 +171,10 @@ chk("the rule DISCRIMINATES (it does not always answer the same)",
 ? ""
 ? "   theme      primary    danger     background"
 ? "   --------   --------   --------   ----------"
-for cT in [ "neutral", "light", "dark", "pro", "access" ]
+_aCT69_ = [ "neutral", "light", "dark", "pro", "access" ]
+_nCT69_ = len(_aCT69_)
+for _iCT69_ = 1 to _nCT69_
+	cT = _aCT69_[_iCT69_]
 	? "   " + PadR(cT, 8) + "   " +
 	  PadR(StzThemeColor(cT, :primary), 8) + "   " +
 	  PadR(StzThemeColor(cT, :danger), 8) + "   " +

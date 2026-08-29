@@ -148,7 +148,10 @@ class stzEarcons
 
 	def init()
 		This._BuildMotifs()
-		for _v_ in StzSemanticValues()
+		_aV1_ = StzSemanticValues()
+		_nV1_ = len(_aV1_)
+		for _iV1_ = 1 to _nV1_
+			_v_ = _aV1_[_iV1_]
 			@aLastFiredAt + [ _v_, -999 ]
 			@aDrops + [ _v_, 0 ]
 		next
@@ -417,7 +420,10 @@ class stzEarcons
 		_pri_ = This.PriorityOf(pMeaning)
 		_g_ = pow(10, @nDuckDb / 20)
 		_any_ = FALSE
-		for _v_ in StzSemanticValues()
+		_aV2_ = StzSemanticValues()
+		_nV2_ = len(_aV2_)
+		for _iV2_ = 1 to _nV2_
+			_v_ = _aV2_[_iV2_]
 			if _v_ = "muted"  loop ok
 			if This.PriorityOf(_v_) < _pri_
 				@oPool.SetVoiceGain(_v_, _g_, @nDuckRampMs)
@@ -431,7 +437,10 @@ class stzEarcons
 	# click exactly as ducking with one would.
 	def Unduck()
 		if NOT @bStarted  return This ok
-		for _v_ in StzSemanticValues()
+		_aV3_ = StzSemanticValues()
+		_nV3_ = len(_aV3_)
+		for _iV3_ = 1 to _nV3_
+			_v_ = _aV3_[_iV3_]
 			if _v_ = "muted"  loop ok
 			@oPool.SetVoiceGain(_v_, 1.0, @nDuckRampMs)
 		next
@@ -813,14 +822,20 @@ class stzEarcons
 			_s_ = substr(_c_, _d_ + 1)
 		ok
 		_ok_ = FALSE
-		for _k_ in StzSemanticValues()
+		_aK4_ = StzSemanticValues()
+		_nK4_ = len(_aK4_)
+		for _iK4_ = 1 to _nK4_
+			_k_ = _aK4_[_iK4_]
 			if _k_ = _v_  _ok_ = TRUE ok
 		next
 		if NOT _ok_
 			return [ "", "", "no semantic value named '" + pMeaning + "'" ]
 		ok
 		_sok_ = FALSE
-		for _k_ in StzEarconSteps()
+		_aK5_ = StzEarconSteps()
+		_nK5_ = len(_aK5_)
+		for _iK5_ = 1 to _nK5_
+			_k_ = _aK5_[_iK5_]
 			if _k_ = _s_  _sok_ = TRUE ok
 		next
 		if NOT _sok_
@@ -869,7 +884,10 @@ class stzEarcons
 	# sound_ss1_narrated assert the vocabulary's shape, and they were run before
 	# and after to prove the move was a MOVE and not a redesign.
 	def _BuildMotifs()
-		for _v_ in StzSemanticValues()
+		_aV6_ = StzSemanticValues()
+		_nV6_ = len(_aV6_)
+		for _iV6_ = 1 to _nV6_
+			_v_ = _aV6_[_iV6_]
 			_b_ = StzEngineSoundEarconOf(This._EarconIndexOf(_v_), @nRate)
 			if _b_ = 0
 				@aMotifs + [ _v_, NULL ]      # muted: silence IS the rendering

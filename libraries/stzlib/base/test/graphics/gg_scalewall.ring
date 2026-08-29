@@ -40,7 +40,10 @@ nOk = 0  nBad = 0
 aSizes = [ 100, 1000, 2000, 2500, 3000, 5000 ]
 nFirstBad = 0
 
-for nN in aSizes
+_aNN109_ = aSizes
+_nNN109_ = len(_aNN109_)
+for _iNN109_ = 1 to _nNN109_
+	nN = _aNN109_[_iNN109_]
 	oS = new stzGraph("star" + nN)
 	oS.AddNode("hub")
 	for i = 1 to nN
@@ -87,7 +90,10 @@ next
 aR = oT.ReachableFrom("hub")
 nGhosts = 0
 cGhost = ""
-for c in aR
+_aC110_ = aR
+_nC110_ = len(_aC110_)
+for _iC110_ = 1 to _nC110_
+	c = _aC110_[_iC110_]
 	if NOT oT.NodeExists(c)
 		nGhosts++
 		if cGhost = ""  cGhost = "" + c  ok
@@ -129,8 +135,14 @@ chkeq("DFS visits root + 4,000", len(aD), 4001)
 
 # and none of them may invent a name
 nBad2 = 0
-for aList in [ aN, aB, aD ]
-	for c in aList
+_aAList111_ = [ aN, aB, aD ]
+_nAList111_ = len(_aAList111_)
+for _iAList111_ = 1 to _nAList111_
+	aList = _aAList111_[_iAList111_]
+	_aC112_ = aList
+	_nC112_ = len(_aC112_)
+	for _iC112_ = 1 to _nC112_
+		c = _aC112_[_iC112_]
 		if NOT oW.NodeExists(c)  nBad2++  ok
 	next
 next

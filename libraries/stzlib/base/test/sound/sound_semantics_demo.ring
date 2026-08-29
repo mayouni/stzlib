@@ -30,7 +30,10 @@ if NOT oE.IsStarted()
 ok
 
 ? "1. The four that sound, in order of severity."
-for cV in [ "Danger", "Warning", "Info", "Success" ]
+_aCV162_ = [ "Danger", "Warning", "Info", "Success" ]
+_nCV162_ = len(_aCV162_)
+for _iCV162_ = 1 to _nCV162_
+	cV = _aCV162_[_iCV162_]
 	? "   " + cV + "  (" + oE.LevelOf(cV) + " dB, " +
 	  oE.AudibilityMarginOf(cV) + " dB over a quiet room)"
 	oE.Fire(cV)

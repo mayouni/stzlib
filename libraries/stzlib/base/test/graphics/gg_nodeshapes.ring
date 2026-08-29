@@ -42,7 +42,10 @@ aShapes = StzNodeShapeNames()
 #---------------------------------------------------------------------------
 
 aSvg = []
-for cS in aShapes
+_aCS103_ = aShapes
+_nCS103_ = len(_aCS103_)
+for _iCS103_ = 1 to _nCS103_
+	cS = _aCS103_[_iCS103_]
 	oC = new stzCanvas(200, 140)
 	oC.SetBackgroundQ("#FFFFFF").FillQ("#3C6E9A").StrokeQ("#12222F", 2)
 	StzDrawNodeShape(oC, cS, 30, 20, 140, 100)
@@ -51,7 +54,10 @@ for cS in aShapes
 next
 
 nEmpty = 0
-for a in aSvg
+_aA104_ = aSvg
+_nA104_ = len(_aA104_)
+for _iA104_ = 1 to _nA104_
+	a = _aA104_[_iA104_]
 	if len(a[2]) < 200  nEmpty++  ok
 next
 ? "   shapes that produced no geometry : " + nEmpty
@@ -109,7 +115,10 @@ else
 
 	nOut = 0
 	cWorst = ""
-	for cS in aShapes
+	_aCS105_ = aShapes
+	_nCS105_ = len(_aCS105_)
+	for _iCS105_ = 1 to _nCS105_
+		cS = _aCS105_[_iCS105_]
 		oC = new stzCanvas(400, 300)
 		oC.SetBackgroundQ("#FFFFFF").FillQ("#000000").StrokeQ("#000000", 2)
 		StzDrawNodeShape(oC, cS, BX, BY, BW, BH)
@@ -210,7 +219,10 @@ if NOT StzGraphicsDevice()
 	? "   (no device -- the SVG tier above needed none)"
 else
 	nBlank = 0
-	for cS in aShapes
+	_aCS106_ = aShapes
+	_nCS106_ = len(_aCS106_)
+	for _iCS106_ = 1 to _nCS106_
+		cS = _aCS106_[_iCS106_]
 		oC = new stzCanvas(160, 120)
 		oC.SetBackgroundQ("#FFFFFF").FillQ("#204060")
 		StzDrawNodeShape(oC, cS, 24, 16, 112, 88)
@@ -235,7 +247,10 @@ CW = 150  CH = 110
 oSheet = new stzCanvas(COLS * CW, ceil(len(aShapes) / COLS) * CH)
 oSheet.SetBackgroundQ("#0D1220")
 k = 0
-for cS in aShapes
+_aCS107_ = aShapes
+_nCS107_ = len(_aCS107_)
+for _iCS107_ = 1 to _nCS107_
+	cS = _aCS107_[_iCS107_]
 	cx = (k % COLS) * CW
 	cy = floor(k / COLS) * CH
 	oSheet.FillQ(StzColorFromHSL(20 + k * 14, 52, 58)).StrokeQ("#08101C", 2)
@@ -312,7 +327,10 @@ func _NumbersIn cSvg
 	return _a_
 
 func _IsAlias aPairs, cA, cB
-	for _p_ in aPairs
+	_aP108_ = aPairs
+	_nP108_ = len(_aP108_)
+	for _iP108_ = 1 to _nP108_
+		_p_ = _aP108_[_iP108_]
 		_x_ = StzLower("" + cA)  _y_ = StzLower("" + cB)
 		if (_p_[1] = _x_ and _p_[2] = _y_) or (_p_[1] = _y_ and _p_[2] = _x_)
 			return TRUE

@@ -57,7 +57,10 @@ Chk("and it is NOT 48 kHz -- so loudness needs a resample first",
 
 aVoices = oV.ToVoiceList()
 ? "   voices this machine can SPEAK with:"
-for a in aVoices
+_aA186_ = aVoices
+_nA186_ = len(_aA186_)
+for _iA186_ = 1 to _nA186_
+	a = _aA186_[_iA186_]
 	? "     " + a[1] + "  ->  " + a[2]
 next
 Chk("at least one voice", len(aVoices) >= 1)

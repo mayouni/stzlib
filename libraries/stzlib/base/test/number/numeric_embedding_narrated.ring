@@ -2495,7 +2495,10 @@ func WithinSpread(aE, nPer)
 
 # neither collapsed (within ~ 0) nor diverged (within enormous), at every rate
 func StableAcrossRates(aD, aRates)
-	for r in aRates
+	_aR146_ = aRates
+	_nR146_ = len(_aR146_)
+	for _iR146_ = 1 to _nR146_
+		r = _aR146_[_iR146_]
 		o = new stzUMAP(aD)
 		o.SetNeighborsQ(6).SetEpochsQ(400).SetHiddenLayersQ([24,24]).LearnMappingQ()
 		o.SetLearningRateQ(r).FitQ()

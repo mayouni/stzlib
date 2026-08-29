@@ -31,7 +31,10 @@ oE = new stzEarcons()
 
 aVals = [ "danger", "warning", "info", "success" ]
 aCues = []
-for cV in aVals
+_aCV177_ = aVals
+_nCV177_ = len(_aCV177_)
+for _iCV177_ = 1 to _nCV177_
+	cV = _aCV177_[_iCV177_]
 	aCues + oE.ToSoundOf(cV)
 next
 
@@ -103,7 +106,10 @@ sleep(2)
 ? "     sound : " + Joined(StzEarconSteps())
 ? ""
 
-for c in [ "danger.solid", "danger.alert" ]
+_aC178_ = [ "danger.solid", "danger.alert" ]
+_nC178_ = len(_aC178_)
+for _iC178_ = 1 to _nC178_
+	c = _aC178_[_iC178_]
 	cR = "refused"
 	try
 		cR = StzColorToHex(StzColorToNumber(c))

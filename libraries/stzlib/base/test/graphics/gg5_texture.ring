@@ -56,8 +56,11 @@ cW = oM.ToWGSL()
 
 ? ""
 ? "   became:"
-for cNeed in [ "var t_skin : texture_2d<f32>", "var sm_skin : sampler",
+_aCNeed30_ = [ "var t_skin : texture_2d<f32>", "var sm_skin : sampler",
                "textureSample(t_skin, sm_skin" ]
+_nCNeed30_ = len(_aCNeed30_)
+for _iCNeed30_ = 1 to _nCNeed30_
+	cNeed = _aCNeed30_[_iCNeed30_]
 	nAt = StzFindFirst(cNeed, cW)
 	? "     " + cNeed + "   " + iif(nAt > 0, "[emitted]", "[MISSING]")
 	chk("emitted: " + cNeed, nAt > 0)

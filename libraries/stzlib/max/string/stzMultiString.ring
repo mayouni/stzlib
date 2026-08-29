@@ -62,7 +62,10 @@ class stzMultiString
 				# to short abbreviations. This enables using whatever
 				# alternative you want in describing the Multilingual string
 
-				for aTrans in paMultilingualString
+				_aATrans193_ = paMultilingualString
+				_nATrans193_ = len(_aATrans193_)
+				for _iATrans193_ = 1 to _nATrans193_
+					aTrans = _aATrans193_[_iATrans193_]
 					aTrans[1] = StzLanguageQ(aTrans[1]).ShortAbbreviation()
 				next
 

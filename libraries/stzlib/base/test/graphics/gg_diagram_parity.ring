@@ -187,7 +187,10 @@ if StzGraphicsDevice()
 	# A third cell puts b off the centre line, so ortho must turn a
 	# corner where line runs diagonally, and the difference is one a
 	# reader can see.
-	for cS in [ "line", "ortho", "curved", "spline" ]
+	_aCS88_ = [ "line", "ortho", "curved", "spline" ]
+	_nCS88_ = len(_aCS88_)
+	for _iCS88_ = 1 to _nCS88_
+		cS = _aCS88_[_iCS88_]
 		oT = new stzDiagram("t" + cS)
 		oT.SetSplines(cS)
 		oT.AddNodeXTT(:a, "a", [ :type = "box", :color = "blue" ])
@@ -197,7 +200,10 @@ if StzGraphicsDevice()
 		oT.AddEdge(:a, :c)
 		aSeen + [ cS, len(oT.ToSVGXT([ :Width = 400, :Height = 300 ])) ]
 	next
-	for a in aSeen
+	_aA89_ = aSeen
+	_nA89_ = len(_aA89_)
+	for _iA89_ = 1 to _nA89_
+		a = _aA89_[_iA89_]
 		? "   spline '" + PadR(a[1], 7) + "' -> " + a[2] + " chars of SVG"
 	next
 	chk("'ortho' and 'line' produce DIFFERENT geometry",

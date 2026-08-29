@@ -794,7 +794,10 @@ o1 {
     # Test different plans
     plans = ["default", "web", "analytics", "mobile"]
     
-    for plan in plans
+    _aPlan201_ = plans
+    _nPlan201_ = len(_aPlan201_)
+    for _iPlan201_ = 1 to _nPlan201_
+    	plan = _aPlan201_[_iPlan201_]
         UsePerfPlan(plan)
         hints = PerfHints()
         ? ("- Plan " + plan + ": " + len(hints) + " recommendations")

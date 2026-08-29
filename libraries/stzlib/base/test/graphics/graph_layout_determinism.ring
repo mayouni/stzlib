@@ -270,7 +270,10 @@ nBigMs = (nT4 - nT3) / clockspersecond() * 1000
 #---------------------------------------------------------------------------
 
 aPrev = RunLayout(hStep, hOff, hTgt, aSeed, N, 10)
-for nStage in [ 20, 30, 40, 50, 60, 80, 110 ]
+_aNStage122_ = [ 20, 30, 40, 50, 60, 80, 110 ]
+_nNStage122_ = len(_aNStage122_)
+for _iNStage122_ = 1 to _nNStage122_
+	nStage = _aNStage122_[_iNStage122_]
 	aNow = RunLayout(hStep, hOff, hTgt, aSeed, N, nStage)
 	nMax = 0
 	for i = 1 to len(aNow) step 2

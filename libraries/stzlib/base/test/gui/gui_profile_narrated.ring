@@ -185,7 +185,10 @@ Chk("the accessibility bounds carry the corrected box",
 #---------------------------------------------------------------------
 
 aBoxes = []
-for cName in oU.Names()
+_aCName133_ = oU.Names()
+_nCName133_ = len(_aCName133_)
+for _iCName133_ = 1 to _nCName133_
+	cName = _aCName133_[_iCName133_]
 	a = oP.BoxOf(cName)
 	if len(a) = 4
 		aBoxes + [ cName, a[1], a[2], a[3], a[4] ]

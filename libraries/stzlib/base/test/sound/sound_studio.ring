@@ -276,7 +276,10 @@ func AddVoice nG, nWave, nHz, nAmp, nStart, nGate, nA, nD, nSus, nR, nPan
 # rejected input -- the failure mode this whole file exists to make audible.
 func MixOf nG, aVoices
 	_m_ = StzEngineSoundGraphAddMix(nG)
-	for _v_ in aVoices
+	_aV185_ = aVoices
+	_nV185_ = len(_aV185_)
+	for _iV185_ = 1 to _nV185_
+		_v_ = _aV185_[_iV185_]
 		if StzEngineSoundGraphMixAdd(nG, _m_, _v_) != 0
 			? "   !! a voice was REFUSED by the mix: " + StzEngineSoundGraphLastError()
 		ok

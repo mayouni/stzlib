@@ -37,9 +37,15 @@ aSteps = StzRoleStepNames()
 
 ? "   role       surface   border    solid     text      on"
 ? "   --------   -------   -------   -------   -------   -----"
-for cR in aRoles
+_aCR43_ = aRoles
+_nCR43_ = len(_aCR43_)
+for _iCR43_ = 1 to _nCR43_
+	cR = _aCR43_[_iCR43_]
 	cRow = "   " + PadR("" + cR, 9) + " "
-	for cS in aSteps
+	_aCS44_ = aSteps
+	_nCS44_ = len(_aCS44_)
+	for _iCS44_ = 1 to _nCS44_
+		cS = _aCS44_[_iCS44_]
 		cRow += PadR(StzResolveColor("" + cR + "." + cS), 10)
 	next
 	? cRow + StzResolveColor("On" + cR)
@@ -61,10 +67,16 @@ else
 	SW = 150  SH = 90
 	nWorst = 999
 	cWorstPair = ""
-	for cR in aRoles
+	_aCR45_ = aRoles
+	_nCR45_ = len(_aCR45_)
+	for _iCR45_ = 1 to _nCR45_
+		cR = _aCR45_[_iCR45_]
 		oC = new stzCanvas(len(aSteps) * SW, SH)
 		k = 0
-		for cS in aSteps
+		_aCS46_ = aSteps
+		_nCS46_ = len(_aCS46_)
+		for _iCS46_ = 1 to _nCS46_
+			cS = _aCS46_[_iCS46_]
 			oC.Flush()
 			oC.FillQ("" + cR + "." + cS).AddRect(k * SW, 0, SW, SH)
 			k++
@@ -99,9 +111,15 @@ ok
 #---------------------------------------------------------------------------
 
 nBadOrder = 0
-for cR in aRoles
+_aCR47_ = aRoles
+_nCR47_ = len(_aCR47_)
+for _iCR47_ = 1 to _nCR47_
+	cR = _aCR47_[_iCR47_]
 	aL = []
-	for cS in aSteps
+	_aCS48_ = aSteps
+	_nCS48_ = len(_aCS48_)
+	for _iCS48_ = 1 to _nCS48_
+		cS = _aCS48_[_iCS48_]
 		aL + _L("" + cR + "." + cS)
 	next
 	for i = 1 to len(aL) - 1
@@ -133,7 +151,10 @@ chkeq("every role's steps run light to dark", nBadOrder, 0)
 ? "   raw name        L        .Solid          L"
 nMinS = 9  nMaxS = 0
 nMinR = 9  nMaxR = 0
-for cR in aRoles
+_aCR49_ = aRoles
+_nCR49_ = len(_aCR49_)
+for _iCR49_ = 1 to _nCR49_
+	cR = _aCR49_[_iCR49_]
 	nRaw = _L("" + cR)
 	nSol = _L("" + cR + ".Solid")
 	if nRaw < nMinR  nMinR = nRaw  ok
@@ -161,7 +182,10 @@ chk("...and .Solid makes them so", (nMaxS - nMinS) < 0.02)
 # the instrument it stands in for is a second rule, and the house has a
 # law about those.
 nBadPair = 0
-for cR in aRoles
+_aCR50_ = aRoles
+_nCR50_ = len(_aCR50_)
+for _iCR50_ = 1 to _nCR50_
+	cR = _aCR50_[_iCR50_]
 	cOn = StzResolveColor("On" + cR)
 	cSolid = StzResolveColor("" + cR + ".Solid")
 	nW = StzContrastOf(cOn, cSolid)
@@ -178,7 +202,10 @@ chkeq("every pair clears the WCAG body-text minimum", nBadPair, 0)
 # fill it must choose white.
 ? ""
 ? "   on a DARK fill the pair must flip:"
-for cDark in [ "#101828", "#22304F", "navy" ]
+_aCDark51_ = [ "#101828", "#22304F", "navy" ]
+_nCDark51_ = len(_aCDark51_)
+for _iCDark51_ = 1 to _nCDark51_
+	cDark = _aCDark51_[_iCDark51_]
 	cBest = StzBestTextOn(cDark)[1]
 	? "     " + PadR(cDark, 10) + " -> " + cBest
 next
@@ -212,7 +239,10 @@ if StzGraphicsDevice()
 	oS = new stzCanvas(len(aRoles) * CW, CH + 46)
 	oS.SetBackground(:White)
 	k = 0
-	for cR in aRoles
+	_aCR52_ = aRoles
+	_nCR52_ = len(_aCR52_)
+	for _iCR52_ = 1 to _nCR52_
+		cR = _aCR52_[_iCR52_]
 		x = k * CW + 12
 		# surface panel, border, solid chip, text -- each step doing its job
 		oS.Flush()

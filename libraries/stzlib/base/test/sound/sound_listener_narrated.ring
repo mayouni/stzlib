@@ -60,7 +60,10 @@ if oV.IsUsable()  aSpeak = oV.Languages() ok
 ? "   SPEAKS: " + This_Join(aSpeak)
 ? "   HEARS : " + This_Join(aHear)
 Chk("it can hear at least one language", len(aHear) >= 1)
-for a in oL.ToRecognizerList()
+_aA157_ = oL.ToRecognizerList()
+_nA157_ = len(_aA157_)
+for _iA157_ = 1 to _nA157_
+	a = _aA157_[_iA157_]
 	? "     " + a[1] + "  ->  " + a[2]
 	Chk("each recognizer reports a language tag", substr(a[2], "-") > 0)
 next
@@ -69,7 +72,10 @@ next
 # it cannot hear. If this ever stops being true here, the assertion below is
 # the thing that will say so.
 nSpeakOnly = 0
-for cS in aSpeak
+_aCS158_ = aSpeak
+_nCS158_ = len(_aCS158_)
+for _iCS158_ = 1 to _nCS158_
+	cS = _aCS158_[_iCS158_]
 	if NOT oL.HasLanguage(cS)  nSpeakOnly++ ok
 next
 ? "   languages it can SPEAK but not HEAR: " + nSpeakOnly
@@ -115,7 +121,10 @@ else
 	oV.WarmUp()
 	nHit = 0
 	nConfSum = 0
-	for c in aCmds
+	_aC159_ = aCmds
+	_nC159_ = len(_aC159_)
+	for _iC159_ = 1 to _nC159_
+		c = _aC159_[_iC159_]
 		oSay = oV.ToSoundOf(c)
 		oL.HearSound(oSay)
 		cGot = oL.HeardText()

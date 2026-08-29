@@ -118,11 +118,17 @@ Scenario("The identities every transform must satisfy")
 	next
 	oE = new stzFourier(aE)
 	nTime = 0
-	for v in aE
+	_aV147_ = aE
+	_nV147_ = len(_aV147_)
+	for _iV147_ = 1 to _nV147_
+		v = _aV147_[_iV147_]
 		nTime += v*v
 	next
 	nFreq = 0
-	for w in oE.PowerSpectrum()
+	_aW148_ = oE.PowerSpectrum()
+	_nW148_ = len(_aW148_)
+	for _iW148_ = 1 to _nW148_
+		w = _aW148_[_iW148_]
 		nFreq += w
 	next
 	Then("Parseval holds: energy is conserved (n=20, Bluestein)",

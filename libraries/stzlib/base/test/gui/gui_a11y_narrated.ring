@@ -245,7 +245,10 @@ func Chk(cWhat, bCond)
 
 func FontPath
 	_a_ = [ "C:\Windows\Fonts\segoeui.ttf", "C:\Windows\Fonts\arial.ttf" ]
-	for _c_ in _a_
+	_aC132_ = _a_
+	_nC132_ = len(_aC132_)
+	for _iC132_ = 1 to _nC132_
+		_c_ = _aC132_[_iC132_]
 		if fexists(_c_)
 			return _c_
 		ok

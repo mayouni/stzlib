@@ -30,7 +30,10 @@ oGoal = StzGoalQ().RequireEach("dish", "contains")
 answers = [ [ "margherita", "tomato-sauce" ], [ "tiramisu", "mascarpone" ] ]
 oWC = StzOwnAgent("wise-coder")
 aR = oWC.PursueGoal(oGoal, oKB, func subj, rel {
-	for a in answers
+	_aA1_ = answers
+	_nA1_ = len(_aA1_)
+	for _iA1_ = 1 to _nA1_
+		a = _aA1_[_iA1_]
 		if a[1] = subj
 			return a[2]
 		ok

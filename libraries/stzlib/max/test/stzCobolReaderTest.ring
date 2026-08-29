@@ -25,7 +25,10 @@ pr()
         249   # EBCDIC '9' -> ASCII '9' (57)
     ]
     
-    for ebcdicVal in testBytes
+    _aEbcdic199_ = testBytes
+    _nEbcdic199_ = len(_aEbcdic199_)
+    for _iEbcdic199_ = 1 to _nEbcdic199_
+    	ebcdicVal = _aEbcdic199_[_iEbcdic199_]
         ebcdicChar = char(ebcdicVal)
         asciiChar = ebcdicToAscii(ebcdicChar)
         see "EBCDIC " + ebcdicVal + " -> ASCII " + ascii(asciiChar) + " ('" + asciiChar + "')" + nl

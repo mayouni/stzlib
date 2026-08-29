@@ -496,7 +496,10 @@ func _HasKind aEvents, nKind
 
 func FontPath
 	_a_ = [ "C:\Windows\Fonts\segoeui.ttf", "C:\Windows\Fontsrial.ttf" ]
-	for _c_ in _a_
+	_aC135_ = _a_
+	_nC135_ = len(_aC135_)
+	for _iC135_ = 1 to _nC135_
+		_c_ = _aC135_[_iC135_]
 		if fexists(_c_)
 			return _c_
 		ok
