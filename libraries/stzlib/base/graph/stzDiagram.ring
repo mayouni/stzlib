@@ -7611,13 +7611,32 @@ class stzDiagram from stzGraph
 		_nLsC47_ = len(_aLsC47_)
 		for _iLsC47_ = 1 to _nLsC47_
 			_lsC_ = _aLsC47_[_iLsC47_]
-			for _lsE_ = 1 to 2
-				_lsY_ = _lsC_[2]
-				if _lsE_ = 2  _lsY_ = _lsC_[2] + _lsC_[4]  ok
-				if nLx + nLw / 2 < _lsC_[1] or
-				   nLx - nLw / 2 > _lsC_[1] + _lsC_[3]  loop  ok
-				if fabs(nLy - _lsY_) < nLh / 2 + 3  return -1  ok
-			next
+			# ONE PLATE, ONE SURFACE.
+			#
+			# A plate is painted in the colour of what it covers, and
+			# _SurfaceAt samples ONE POINT to decide that -- the label's
+			# centre. A plate covers an AREA, so a plate lying half in a
+			# region gets one half right and paints the other half in
+			# the wrong colour: a white card on a tinted field, which is
+			# what the Principal marked, twice now.
+			#
+			# The refusal that existed tested the region's TOP and
+			# BOTTOM rules only, so a plate hanging off a region's SIDE
+			# was never asked about -- and the corner, where "authorised"
+			# sat, is where both are true at once. Stated completely, the
+			# rule is not about rules at all: a plate is wholly inside a
+			# region or wholly outside it, and never partly, because
+			# partly is the only case where one sample cannot answer for
+			# the whole.
+			_lsPl_ = nLx - nLw / 2      _lsPr_ = nLx + nLw / 2
+			_lsPt_ = nLy - nLh / 2      _lsPb_ = nLy + nLh / 2
+			_lsCl_ = _lsC_[1]           _lsCr_ = _lsC_[1] + _lsC_[3]
+			_lsCt_ = _lsC_[2]           _lsCb_ = _lsC_[2] + _lsC_[4]
+			_lsIn_ = _lsPl_ >= _lsCl_ and _lsPr_ <= _lsCr_ and
+			         _lsPt_ >= _lsCt_ and _lsPb_ <= _lsCb_
+			_lsOut_ = _lsPr_ <= _lsCl_ or _lsPl_ >= _lsCr_ or
+			          _lsPb_ <= _lsCt_ or _lsPt_ >= _lsCb_
+			if NOT _lsIn_ and NOT _lsOut_  return -1  ok
 			# ...AND A WORD THAT NAMES A WAY OUT DOES NOT SIT INSIDE.
 			#
 			# The rule above refuses a plate ON a region's rule, because

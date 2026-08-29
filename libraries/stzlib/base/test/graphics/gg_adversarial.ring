@@ -8741,6 +8741,77 @@ chkeq("NEGATIVE: a graph whose branches carry no mood has no happy path",
 chkeq("...while one whose branches disagree does",
     oHp._HasMoodBranch(), 1)
 
+sec("-- 70c. ONE PLATE, ONE SURFACE ---------------------------")
+
+# A label plate is painted in the colour of what it covers, and the
+# surface is decided from ONE POINT -- the label's centre. A plate covers
+# an AREA, so a plate lying half in a region paints half of itself in the
+# wrong colour: a white card on a tinted field. The refusal that existed
+# tested a region's TOP and BOTTOM rules only, so a plate hanging off its
+# SIDE was never asked about, and the corner is where both are true.
+oPs = new stzWorkflow("plates")
+oPs.SetWorkflowType("statemachine")
+oPs.AddStateXTT("i", "", [ :isInitial = 1 ])
+oPs.AddStateXTT("cart", "In Cart", [ :color = "Muted" ])
+oPs.AddStateXTT("pend", "Awaiting Payment", [ :color = "Warning.Solid" ])
+oPs.AddStateXTT("fail", "Payment Failed", [ :color = "Danger.Solid" ])
+oPs.AddStateXTT("paid", "Paid", [ :color = "Focus.Solid" ])
+oPs.AddStateXTT("done", "Delivered", [ :color = "Success.Solid",
+	:isFinal = 1 ])
+oPs.AddTransition("i", "cart", "")
+oPs.AddTransition("cart", "pend", "checkout")
+oPs.AddTransition("pend", "fail", "declined")
+oPs.AddTransition("fail", "pend", "retry")
+oPs.AddTransition("pend", "paid", "authorised")
+oPs.AddTransition("paid", "done", "signed for")
+oPs.ToCanvasXT(OPT67)
+
+nPsPart = 0
+nPsSeen = 0
+for iPs = 1 to len(oPs.@aRenderLabels)
+	aPsL = oPs.@aRenderLabels[iPs]
+	nPl = aPsL[2] - aPsL[4] / 2   nPr = aPsL[2] + aPsL[4] / 2
+	nPt = aPsL[3] - aPsL[5] / 2   nPb = aPsL[3] + aPsL[5] / 2
+	nPsSeen++
+	for jPs = 1 to len(oPs.@aRenderClusRects)
+		aPsC = oPs.@aRenderClusRects[jPs]
+		nCl = aPsC[1]   nCr = aPsC[1] + aPsC[3]
+		nCt = aPsC[2]   nCb = aPsC[2] + aPsC[4]
+		bIn = (nPl >= nCl and nPr <= nCr and nPt >= nCt and nPb <= nCb)
+		bOut = (nPr <= nCl or nPl >= nCr or nPb <= nCt or nPt >= nCb)
+		if NOT bIn and NOT bOut  nPsPart++  ok
+	next
+next
+? "   " + nPsSeen + " plates, " + nPsPart + " lying half in a region"
+chkeq("every plate is wholly inside a region or wholly outside it",
+	nPsPart, 0)
+
+# THE NEGATIVE SIBLING: the instrument must be able to SEE a straddle,
+# or the zero above is worth nothing. A plate moved onto the region's
+# lower rule by hand is one, and is counted as one.
+nPsFake = 0
+if len(oPs.@aRenderClusRects) > 0 and len(oPs.@aRenderLabels) > 0
+	aPsC = oPs.@aRenderClusRects[1]
+	nCb = aPsC[2] + aPsC[4]
+	nPl = aPsC[1] + 20   nPr = aPsC[1] + 80
+	nPt = nCb - 10       nPb = nCb + 10
+	bIn = (nPl >= aPsC[1] and nPr <= aPsC[1] + aPsC[3] and
+	       nPt >= aPsC[2] and nPb <= nCb)
+	bOut = (nPr <= aPsC[1] or nPl >= aPsC[1] + aPsC[3] or
+	        nPb <= aPsC[2] or nPt >= nCb)
+	if NOT bIn and NOT bOut  nPsFake = 1  ok
+ok
+chkeq("NEGATIVE: ...and a plate laid ON the rule IS counted as one",
+	nPsFake, 1)
+
+# ...AND THE SURFACE A PLATE IS PAINTED IN IS THE ONE UNDER IT.
+chkeq("a point inside the region reads the region's tint",
+	oPs._SurfaceAt(oPs.@aRenderClusRects[1][1] + 40,
+		oPs.@aRenderClusRects[1][2] + 40, "#FFFFFF"),
+	"" + oPs._ClusterFillAt(oPs.@aRenderClusRects[1]))
+chkeq("NEGATIVE: ...and a point outside it reads the paper",
+	oPs._SurfaceAt(4, 4, "#FFFFFF"), "#FFFFFF")
+
 sec("-- 71. THE GOVERNOR, AND THE PROOF THAT IT FIRES --------")
 
 oG = StzPlasticGovernanceOf("graph-plane")
