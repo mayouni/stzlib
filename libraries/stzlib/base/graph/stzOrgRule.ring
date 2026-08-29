@@ -42,6 +42,33 @@ func _StzAddUniversalOrgRules(poSet)
 	_oSelf_ = new stzOrgRule("no-self-report")
 	_oSelf_.SetSeverityQ("error")
 	_oSelf_.SetMessageQ("a position must not report to itself")
+	# A position that names a supervisor at all. One with no reportsTo
+	# cannot report to itself, so it is outside this rule rather than
+	# passing it -- a distinction nothing could previously express.
+	_oSelf_.SetOrderQ(10)
+	_oSelf_.SetReadsQ([ "node.reportsTo" ])
+	_oSelf_.GovernsQ(func oGraph {
+		_r_ = []
+		_a_ = oGraph.NodesIds()
+		for _i_ = 1 to len(_a_)
+			if StzTrim("" + oGraph.NodeProperty(_a_[_i_], "reportsTo")) = ""
+				loop
+			ok
+			_r_ + ("position:" + StzLower("" + _a_[_i_]))
+		next
+		return _r_
+	})
+	_oSelf_.ExcludesQ(func oGraph {
+		_r_ = []
+		_a_ = oGraph.NodesIds()
+		for _i_ = 1 to len(_a_)
+			if StzTrim("" + oGraph.NodeProperty(_a_[_i_], "reportsTo")) != ""
+				loop
+			ok
+			_r_ + ("position:" + StzLower("" + _a_[_i_]))
+		next
+		return _r_
+	})
 	_oSelf_.UseCheckerQ(func oGraph {
 		_aOut_ = []
 		_aIds_ = oGraph.NodesIds()
@@ -60,6 +87,35 @@ func _StzAddUniversalOrgRules(poSet)
 	_oCyc_ = new stzOrgRule("no-cyclic-reporting")
 	_oCyc_.SetSeverityQ("error")
 	_oCyc_.SetMessageQ("the reporting structure must be acyclic")
+	# THE BOUNDARY THIS RULE ALREADY KNEW AND NEVER STATED. Its checker
+	# carries the comment "a self-loop -- no-self-report owns it" and
+	# then loops past them, so the exclusion was real, deliberate, and
+	# invisible to everything outside the closure. Declared, it becomes a
+	# precedence two people can read.
+	_oCyc_.SetOrderQ(20)
+	_oCyc_.SetReadsQ([ "node.reportsTo", "graph.reachability" ])
+	_oCyc_.GovernsQ(func oGraph {
+		_r_ = []
+		_a_ = oGraph.NodesIds()
+		for _i_ = 1 to len(_a_)
+			if StzLower("" + oGraph.NodeProperty(_a_[_i_], "reportsTo")) =
+			   StzLower("" + _a_[_i_])  loop  ok
+			if oGraph.OutDegree(_a_[_i_]) = 0  loop  ok
+			_r_ + ("position:" + StzLower("" + _a_[_i_]))
+		next
+		return _r_
+	})
+	_oCyc_.ExcludesQ(func oGraph {
+		_r_ = []
+		_a_ = oGraph.NodesIds()
+		for _i_ = 1 to len(_a_)
+			if StzLower("" + oGraph.NodeProperty(_a_[_i_], "reportsTo")) =
+			   StzLower("" + _a_[_i_])
+				_r_ + ("position:" + StzLower("" + _a_[_i_]))
+			ok
+		next
+		return _r_
+	})
 	_oCyc_.UseCheckerQ(func oGraph {
 		_aOut_ = []
 		_aIds_ = oGraph.NodesIds()
@@ -89,6 +145,32 @@ func _StzAddUniversalOrgRules(poSet)
 	_oOrph_ = new stzOrgRule("no-orphan-position")
 	_oOrph_.SetSeverityQ("warning")
 	_oOrph_.SetMessageQ("a non-executive position must have a supervisor")
+	# An executive legitimately has no supervisor, which is why the
+	# checker tests the level before the in-degree. That test IS the
+	# scope, and it was buried in the judgement.
+	_oOrph_.SetOrderQ(30)
+	_oOrph_.SetReadsQ([ "node.level", "graph.indegree" ])
+	_oOrph_.GovernsQ(func oGraph {
+		_r_ = []
+		_a_ = oGraph.NodesIds()
+		for _i_ = 1 to len(_a_)
+			if StzLower("" + oGraph.NodeProperty(_a_[_i_], "level")) =
+			   "executive"  loop  ok
+			_r_ + ("position:" + StzLower("" + _a_[_i_]))
+		next
+		return _r_
+	})
+	_oOrph_.ExcludesQ(func oGraph {
+		_r_ = []
+		_a_ = oGraph.NodesIds()
+		for _i_ = 1 to len(_a_)
+			if StzLower("" + oGraph.NodeProperty(_a_[_i_], "level")) =
+			   "executive"
+				_r_ + ("position:" + StzLower("" + _a_[_i_]))
+			ok
+		next
+		return _r_
+	})
 	_oOrph_.UseCheckerQ(func oGraph {
 		_aOut_ = []
 		_aIds_ = oGraph.NodesIds()
@@ -110,6 +192,29 @@ func _StzAddUniversalOrgRules(poSet)
 	_oSpan_ = new stzOrgRule("span-of-control")
 	_oSpan_.SetSeverityQ("warning")
 	_oSpan_.SetMessageQ("a supervisor should not have an excessive span of control")
+	# Only a supervisor has a span. A position with no direct reports is
+	# not passing this rule -- it is outside it, and reporting the two as
+	# the same thing is what makes a coverage figure meaningless.
+	_oSpan_.SetOrderQ(40)
+	_oSpan_.SetReadsQ([ "graph.outdegree" ])
+	_oSpan_.GovernsQ(func oGraph {
+		_r_ = []
+		_a_ = oGraph.NodesIds()
+		for _i_ = 1 to len(_a_)
+			if oGraph.OutDegree(_a_[_i_]) = 0  loop  ok
+			_r_ + ("position:" + StzLower("" + _a_[_i_]))
+		next
+		return _r_
+	})
+	_oSpan_.ExcludesQ(func oGraph {
+		_r_ = []
+		_a_ = oGraph.NodesIds()
+		for _i_ = 1 to len(_a_)
+			if oGraph.OutDegree(_a_[_i_]) > 0  loop  ok
+			_r_ + ("position:" + StzLower("" + _a_[_i_]))
+		next
+		return _r_
+	})
 	_oSpan_.UseCheckerQ(func oGraph {
 		_aOut_ = []
 		_aIds_ = oGraph.NodesIds()
@@ -133,6 +238,32 @@ func StzAddSODRule(poSet)
 	_oSOD_ = new stzOrgRule("separation-of-duties")
 	_oSOD_.SetSeverityQ("error")
 	_oSOD_.SetMessageQ("a position must not hold conflicting duties (approver AND executor)")
+	# A position that carries a roles list at all. One with no roles
+	# cannot hold two conflicting ones, and counting it as compliant
+	# overstates what this rule has actually inspected -- which for a
+	# control that exists to be audited is the difference that matters.
+	_oSOD_.SetOrderQ(50)
+	_oSOD_.SetReadsQ([ "node.roles" ])
+	_oSOD_.GovernsQ(func oGraph {
+		_r_ = []
+		_a_ = oGraph.NodesIds()
+		for _i_ = 1 to len(_a_)
+			if NOT isList(oGraph.NodeProperty(_a_[_i_], "roles"))  loop  ok
+			if len(oGraph.NodeProperty(_a_[_i_], "roles")) = 0  loop  ok
+			_r_ + ("position:" + StzLower("" + _a_[_i_]))
+		next
+		return _r_
+	})
+	_oSOD_.ExcludesQ(func oGraph {
+		_r_ = []
+		_a_ = oGraph.NodesIds()
+		for _i_ = 1 to len(_a_)
+			if isList(oGraph.NodeProperty(_a_[_i_], "roles")) and
+			   len(oGraph.NodeProperty(_a_[_i_], "roles")) > 0  loop  ok
+			_r_ + ("position:" + StzLower("" + _a_[_i_]))
+		next
+		return _r_
+	})
 	_oSOD_.UseCheckerQ(func oGraph {
 		_aOut_ = []
 		_aIds_ = oGraph.NodesIds()

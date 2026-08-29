@@ -1,5 +1,5 @@
 #================================================================#
-#  STZPLASTICGOVERNANCE -- the checks a rule cannot run on itself #
+#  STZRULEGOVERNANCE -- the checks a rule cannot run on itself    #
 #================================================================#
 
 /*--- The five questions, and the defect each one was built from.
@@ -48,13 +48,19 @@
 	    different pipeline, and both invisible to any test of either rule.
 */
 
+func StzRuleGovernanceQ(pcName)
+	return new stzRuleGovernance(pcName)
+
+func StzRuleGovernance(pcName)
+	return new stzRuleGovernance(pcName)
+
 func StzPlasticGovernanceQ(pcName)
-	return new stzPlasticGovernance(pcName)
+	return new stzRuleGovernance(pcName)
 
 func StzPlasticGovernance(pcName)
-	return new stzPlasticGovernance(pcName)
+	return new stzRuleGovernance(pcName)
 
-class stzPlasticGovernance from stzObject
+class stzRuleGovernance from stzObject
 
 	@cName = ""
 	@aoRules = []
@@ -81,9 +87,17 @@ class stzPlasticGovernance from stzObject
 	# every plastic rule reads render facts, and a diagram that has not
 	# been drawn answers with empty lists -- which would read as an empty
 	# scope and convict every rule in the set of being dead.
-	def AddPicture(pcName, poDg)
-		@aoCorpus + [ "" + pcName, poDg ]
+	# THE CASE a rule set is judged against -- a rendered picture for the
+	# graph plane, a code graph for stzCodeRule, an agent graph, an org
+	# chart. The governance never asks what kind it is; it asks the RULES
+	# what they govern in it, which is the only thing that has to be
+	# domain-specific.
+	def AddCase(pcName, poSubject)
+		@aoCorpus + [ "" + pcName, poSubject ]
 		return This
+
+	def AddPicture(pcName, poDg)
+		return This.AddCase(pcName, poDg)
 
 	# A DECLARED PRECEDENCE between two rules that reach for one subject.
 	# The reason is required: a precedence without one is a coin toss that
@@ -99,6 +113,9 @@ class stzPlasticGovernance from stzObject
 	# so one call answers both halves and neither can be run without the
 	# other being available.
 	def CheckPictures()
+		return This.CheckCases()
+
+	def CheckCases()
 		_aF_ = []
 		_nC_ = len(@aoCorpus)
 		_nR_ = len(@aoRules)
@@ -326,7 +343,7 @@ class stzPlasticGovernance from stzObject
 	# governor says about the rules.
 	def CheckAll()
 		_aF_ = This.CheckRules()
-		_aP_ = This.CheckPictures()
+		_aP_ = This.CheckCases()
 		_nP_ = len(_aP_)
 		for _iP_ = 1 to _nP_
 			_aF_ + _aP_[_iP_]

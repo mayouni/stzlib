@@ -93,6 +93,29 @@ class stzCodeRuleSet from stzGraphRuleSet
 		_oLen_ = new stzCodeRule("no-len-method")
 		_oLen_.SetSeverityQ("error")
 		_oLen_.SetMessageQ("never define Len() on a class -- it shadows Ring's builtin")
+		# EVERY METHOD DEFINITION, and the boundary is that a FUNCTION is
+		# not one. `func len(...)` outside a class shadows nothing, and
+		# this rule has never claimed it does -- but nothing said so, so
+		# a reader could not tell the exclusion from an oversight.
+		_oLen_.SetOrderQ(10)
+		_oLen_.SetReadsQ([ "code.methods" ])
+		_oLen_.GovernsQ(func oCG {
+			_r_ = []
+			_a_ = oCG.MethodsWithLines()
+			for _i_ = 1 to len(_a_)
+				_r_ + ("method:" + StzLower("" + _a_[_i_][1]) + "." +
+					StzLower("" + _a_[_i_][2]))
+			next
+			return _r_
+		})
+		_oLen_.ExcludesQ(func oCG {
+			_r_ = []
+			_a_ = oCG.FunctionsWithLines()
+			for _i_ = 1 to len(_a_)
+				_r_ + ("function:" + StzLower("" + _a_[_i_][1]))
+			next
+			return _r_
+		})
 		_oLen_.UseCheckerQ(func oCG {
 			_aOut_ = []
 			_aM_ = oCG.MethodsWithLines()
@@ -113,6 +136,29 @@ class stzCodeRuleSet from stzGraphRuleSet
 		_oVerb_ = new stzCodeRule("no-aggressive-verbs")
 		_oVerb_.SetSeverityQ("warning")
 		_oVerb_.SetMessageQ("aggressive verb in a name -- prefer Remove/Delete/Dispose/Clear/Close")
+		# BOTH methods and functions -- this rule is about TONE, which a
+		# free function carries as much as a method does. Declaring the
+		# union is what distinguishes it from no-len-method above, whose
+		# scope is deliberately narrower for a structural reason.
+		_oVerb_.SetOrderQ(20)
+		_oVerb_.SetReadsQ([ "code.methods", "code.functions" ])
+		_oVerb_.DeclareUniversalQ("every name a reader will see is in " +
+			"scope, because tone is a property of the vocabulary and not " +
+			"of where a name is declared -- there is no definition this " +
+			"rule could legitimately decline to look at")
+		_oVerb_.GovernsQ(func oCG {
+			_r_ = []
+			_a_ = oCG.MethodsWithLines()
+			for _i_ = 1 to len(_a_)
+				_r_ + ("method:" + StzLower("" + _a_[_i_][1]) + "." +
+					StzLower("" + _a_[_i_][2]))
+			next
+			_b_ = oCG.FunctionsWithLines()
+			for _i_ = 1 to len(_b_)
+				_r_ + ("function:" + StzLower("" + _b_[_i_][1]))
+			next
+			return _r_
+		})
 		_oVerb_.UseCheckerQ(func oCG {
 			_aOut_ = []
 			_aM_ = oCG.MethodsWithLines()
@@ -146,6 +192,33 @@ class stzCodeRuleSet from stzGraphRuleSet
 		_oEng_ = new stzCodeRule("engine-first")
 		_oEng_.SetSeverityQ("warning")
 		_oEng_.SetMessageQ("Ring's substr()/lower()/upper() are byte-oriented (break UTF-8)")
+		# CALL SITES, never definitions -- the exclusion the comment above
+		# already names as the text scan's false positive. It was a real
+		# design decision recorded in prose and nowhere a machine could
+		# read it.
+		_oEng_.SetOrderQ(30)
+		_oEng_.SetReadsQ([ "code.calls" ])
+		_oEng_.GovernsQ(func oCG {
+			_r_ = []
+			_a_ = oCG.RawCallEntries()
+			for _i_ = 1 to len(_a_)
+				_r_ + ("call:" + StzLower("" + _a_[_i_][3]) + "@" +
+					"" + _a_[_i_][4])
+			next
+			return _r_
+		})
+		_oEng_.ExcludesQ(func oCG {
+			_r_ = []
+			_a_ = oCG.FunctionsWithLines()
+			for _i_ = 1 to len(_a_)
+				_n_ = StzLower("" + _a_[_i_][1])
+				if _n_ != "substr" and _n_ != "lower" and _n_ != "upper"
+					loop
+				ok
+				_r_ + ("function:" + _n_)
+			next
+			return _r_
+		})
 		_oEng_.UseCheckerQ(func oCG {
 			_aOut_ = []
 			_aC_ = oCG.RawCallEntries()
@@ -171,6 +244,39 @@ class stzCodeRuleSet from stzGraphRuleSet
 		_oTwin_ = new stzCodeRule("q-has-plain-twin")
 		_oTwin_.SetSeverityQ("warning")
 		_oTwin_.SetMessageQ("a Q mutator must have a plain twin")
+		# ONLY THE Q MUTATORS, and the comment above explains why the set
+		# is a candidate rather than a proof: the graph has no bodies, so
+		# mutator-ness is inferred from the verb. That uncertainty belongs
+		# in the SCOPE, where a reader can see how much of the class the
+		# rule actually inspected -- not in the severity, which only says
+		# how loudly it complains about what it happened to look at.
+		_oTwin_.SetOrderQ(40)
+		_oTwin_.SetReadsQ([ "code.methods" ])
+		_oTwin_.GovernsQ(func oCG {
+			_r_ = []
+			_a_ = oCG.MethodsWithLines()
+			for _i_ = 1 to len(_a_)
+				_m_ = "" + _a_[_i_][2]
+				if StzLen(_m_) < 2  loop  ok
+				if StzLower(StzRight(_m_, 1)) != "q"  loop  ok
+				_r_ + ("method:" + StzLower("" + _a_[_i_][1]) + "." +
+					StzLower(_m_))
+			next
+			return _r_
+		})
+		_oTwin_.ExcludesQ(func oCG {
+			_r_ = []
+			_a_ = oCG.MethodsWithLines()
+			for _i_ = 1 to len(_a_)
+				_m_ = "" + _a_[_i_][2]
+				if StzLen(_m_) >= 2 and StzLower(StzRight(_m_, 1)) = "q"
+					loop
+				ok
+				_r_ + ("method:" + StzLower("" + _a_[_i_][1]) + "." +
+					StzLower(_m_))
+			next
+			return _r_
+		})
 		_oTwin_.UseCheckerQ(func oCG {
 			_aOut_ = []
 			_aM_ = oCG.MethodsWithLines()

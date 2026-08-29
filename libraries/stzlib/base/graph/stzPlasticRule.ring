@@ -1,5 +1,5 @@
 #==============================================================#
-#  STZPLASTICRULE -- a visual rule that knows what it GOVERNS   #
+#  STZSCOPEDRULE -- a rule that knows what it GOVERNS            #
 #==============================================================#
 
 /*--- WHY THIS LAYER EXISTS, and it is not a general wish for rigour.
@@ -81,13 +81,30 @@
 	agent and security domains. One gate, as phase 6 established.
 */
 
+# NAMED FOR THE MECHANISM, NOT FOR ITS FIRST USE.
+#
+# This shipped as stzPlasticRule because the graph plane's visual rules
+# were the first thing it governed -- and every member of it is
+# domain-neutral. Naming a general mechanism after its first caller is
+# the same error this file exists to catch, one level up: a thing whose
+# name promises less than its body does, so the next domain that needs it
+# writes a second copy instead. The code, agent, security and org rule
+# sets need exactly this, and none of them is plastic.
+#
+# StzPlasticRule stays as the graph plane's spelling of it.
+func StzScopedRuleQ(pcName)
+	return new stzScopedRule(pcName)
+
+func StzScopedRule(pcName)
+	return new stzScopedRule(pcName)
+
 func StzPlasticRuleQ(pcName)
-	return new stzPlasticRule(pcName)
+	return new stzScopedRule(pcName)
 
 func StzPlasticRule(pcName)
-	return new stzPlasticRule(pcName)
+	return new stzScopedRule(pcName)
 
-class stzPlasticRule from stzObject
+class stzScopedRule from stzObject
 
 	@cName    = ""
 	@cClaim   = ""
