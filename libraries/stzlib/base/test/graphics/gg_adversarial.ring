@@ -7425,7 +7425,12 @@ oHp.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
 
 nHpR = 5
 if oHp._EdgeCorner() * 0.8 > nHpR  nHpR = oHp._EdgeCorner() * 0.8  ok
-nHpRoom = nHpR * 2 + oHp._LineClearance()
+# ASKED OF THE DRAWING, not recomputed here. This carried its own copy
+# of the figure -- nHpR * 2 + clearance -- which is the one the drawing
+# RETIRED when it was corrected to "the hop's reach plus a clearance".
+# The two disagreed by 8px for months and nothing noticed, because no
+# hop had landed between 32 and 40 until a stub moved one line.
+nHpRoom = oHp._HopRoom(nHpR)
 nHpBad = 0
 nHpNear = 1000000
 _aAHp216_ = oHp.RenderHops()

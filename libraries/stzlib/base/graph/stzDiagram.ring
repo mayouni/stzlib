@@ -7477,6 +7477,41 @@ class stzDiagram from stzGraph
 	# (it overlaps an already-placed label, or a node box). Zero means
 	# the plate would ERASE foreign ink -- the caller treats that as the
 	# worst legal answer, never as a hit to accept.
+	# DOES THIS EDGE CROSS THAT REGION'S BOUNDARY -- one end inside it
+	# and one end out? Read from the DRAWN rectangles and the drawn node
+	# boxes, so it asks the picture rather than the model: a cluster is a
+	# rectangle by the time a label is placed, and membership is where a
+	# node actually stands.
+	def _EdgeLeavesCluster(pcKey, paClus)
+		if len(paClus) < 4  return 0  ok
+		_elP_ = StzSplit(StzLower("" + pcKey), ">")
+		if len(_elP_) != 2  return 0  ok
+		_elIn_ = 0
+		_elOut_ = 0
+		for _elE_ = 1 to 2
+			_elB_ = This._BoxAt(This._XYOf(@aDrawXY, _elP_[_elE_]), 0, 0)
+			_elR_ = This._NodeRectOf(_elP_[_elE_])
+			if len(_elR_) < 4  return 0  ok
+			_elCx_ = _elR_[1] + _elR_[3] / 2
+			_elCy_ = _elR_[2] + _elR_[4] / 2
+			if _elCx_ > paClus[1] and _elCx_ < paClus[1] + paClus[3] and
+			   _elCy_ > paClus[2] and _elCy_ < paClus[2] + paClus[4]
+				_elIn_++
+			else
+				_elOut_++
+			ok
+		next
+		return _elIn_ = 1 and _elOut_ = 1
+
+	def _NodeRectOf(pcId)
+		_nrK_ = StzLower("" + pcId)
+		_aNr_ = @aRenderNodeRects
+		_nNr_ = len(_aNr_)
+		for _iNr_ = 1 to _nNr_
+			if StzLower("" + _aNr_[_iNr_][5]) = _nrK_  return _aNr_[_iNr_]  ok
+		next
+		return []
+
 	def _LabelSpotScore(nLx, nLy, nLw, nLh, cOwnKey, paDone)
 		_lsL_ = nLx - nLw / 2
 		_lsT_ = nLy - nLh / 2
@@ -7522,6 +7557,29 @@ class stzDiagram from stzGraph
 				   nLx - nLw / 2 > _lsC_[1] + _lsC_[3]  loop  ok
 				if fabs(nLy - _lsY_) < nLh / 2 + 3  return -1  ok
 			next
+			# ...AND A WORD THAT NAMES A WAY OUT DOES NOT SIT INSIDE.
+			#
+			# The rule above refuses a plate ON a region's rule, because
+			# there are two surfaces at a boundary and a plate must get
+			# one of them wrong. This is the other half: a transition
+			# that LEAVES a region is not one of that region's own, and
+			# its word placed inside says it is.
+			#
+			# Found when the order lifecycle's "authorised" moved --
+			# the anchor at its own midpoint would have straddled the
+			# payment region's lower rule, so the placer stepped back
+			# along the edge and landed INSIDE the region, beside
+			# "retry", reading as a fourth thing that happens in there.
+			# It is the boundary rule applied to the wrong side of the
+			# same line.
+			if This._EdgeLeavesCluster(cOwnKey, _lsC_)
+				if nLx - nLw / 2 > _lsC_[1] and
+				   nLx + nLw / 2 < _lsC_[1] + _lsC_[3] and
+				   nLy - nLh / 2 > _lsC_[2] and
+				   nLy + nLh / 2 < _lsC_[2] + _lsC_[4]
+					return -1
+				ok
+			ok
 		next
 		_aLsN46_ = @aRenderNodeRects
 		_nLsN46_ = len(_aLsN46_)
@@ -7645,6 +7703,31 @@ class stzDiagram from stzGraph
 	# already scaled by :Scale, so the clearance grows with the render
 	# instead of collapsing relative to it -- the fate of every literal
 	# distance this file has shipped.
+	# HOW MUCH ROOM A HOP NEEDS FROM A BEND, and from another hop.
+	#
+	# Named because the number was written down TWICE and the two copies
+	# drifted. The drawing was corrected from "the hop's diameter plus a
+	# clearance" to "its reach plus a clearance" -- a hop extends _eoR_
+	# each side of the crossing, so what must fit between it and a corner
+	# is _eoR_ and then air, and the old figure was refusing hops with
+	# 39px of room. The GUARD kept the retired number, and passed for
+	# months because no hop had landed in the band between the two: 32px
+	# was allowed by the drawing and 40px demanded by the test.
+	#
+	# It surfaced the moment a stub moved one line, which is the whole
+	# character of a duplicated constant -- it is not wrong until
+	# something innocent walks into the gap. One number, asked of one
+	# place, by both.
+	def _HopRoom(nRadius)
+		return nRadius + This._LineClearance()
+
+	# Two HOPS keep the wider distance, and that is not the same number
+	# by accident: two curved features are confusable with each other in
+	# a way that a curve and a corner are not, since a corner turns and a
+	# hop comes back.
+	def _HopPairRoom(nRadius)
+		return nRadius * 2 + This._LineClearance()
+
 	def _LineClearance()
 		return max([ 14, @nEdgeCornerRad * 2 + 4 ])
 
@@ -8275,8 +8358,8 @@ class stzDiagram from stzGraph
 		# are confusable with each other in a way that a curve and a
 		# corner are not, since a corner turns and a hop comes back.
 		_eoArcs_ = []
-		_eoRoom_ = _eoR_ + This._LineClearance()
-		_eoPair_ = _eoR_ * 2 + This._LineClearance()
+		_eoRoom_ = This._HopRoom(_eoR_)
+		_eoPair_ = This._HopPairRoom(_eoR_)
 
 		# A BEND IS WHERE THE DIRECTION CHANGES, and a path carries
 		# points that are not bends: a duplicated coordinate, or a point
@@ -9258,20 +9341,38 @@ class stzDiagram from stzGraph
 				_rtLn_ = This._LaneKept(_rtK_)
 				if _rtLn_ < 1  _rtLn_ = 1  ok
 				_rtSd_ = This._ReturnSideOf(_rtK_)
+				# THE ARRIVAL COLUMN IS THE ONE THE ALLOCATOR HANDED OUT.
+				#
+				# This used aTo[1] raw, so every edge reaching a node by
+				# a row came down that node's exact centre. Two of them
+				# reaching one node therefore shared a column for as long
+				# as the shorter one ran -- on the socket machine, 102px
+				# of it into Closed, which is the line with an arrow at
+				# each end the Principal has now marked three times.
+				#
+				# The return route already asks _StubOf for the same
+				# reason, three hundred lines below. One of the two paths
+				# into a border consulted the allocator and the other did
+				# not, which is why the allocator could be correct and
+				# the picture still wrong.
+				_rtAx_ = This._StubOf(_rtK_, 2)
+				_rtDx_ = This._StubOf(_rtK_, 1)
 				if cRank = "LR" or cRank = "RL"
 					_rtCh_ = _rtRow_ +
 						_rtSd_ * This._LaneOffset(_rtLn_, _rtA_[2])
-					_rtPts_ = [ aFrom[1], aFrom[2] + _rtSd_ * _rtA_[2] / 2,
-						aFrom[1], _rtCh_,
-						aTo[1], _rtCh_,
-						aTo[1], aTo[2] + _rtSd_ * _rtB_[2] / 2 ]
+					_rtPts_ = [ aFrom[1] + _rtDx_,
+						aFrom[2] + _rtSd_ * _rtA_[2] / 2,
+						aFrom[1] + _rtDx_, _rtCh_,
+						aTo[1] + _rtAx_, _rtCh_,
+						aTo[1] + _rtAx_, aTo[2] + _rtSd_ * _rtB_[2] / 2 ]
 				else
 					_rtCh_ = _rtRow_ +
 						_rtSd_ * This._LaneOffset(_rtLn_, _rtA_[1])
-					_rtPts_ = [ aFrom[1] + _rtSd_ * _rtA_[1] / 2, aFrom[2],
-						_rtCh_, aFrom[2],
-						_rtCh_, aTo[2],
-						aTo[1] + _rtSd_ * _rtB_[1] / 2, aTo[2] ]
+					_rtPts_ = [ aFrom[1] + _rtSd_ * _rtA_[1] / 2,
+						aFrom[2] + _rtDx_,
+						_rtCh_, aFrom[2] + _rtDx_,
+						_rtCh_, aTo[2] + _rtAx_,
+						aTo[1] + _rtSd_ * _rtB_[1] / 2, aTo[2] + _rtAx_ ]
 				ok
 				_rtCut_ = This._ArrowCut(_rtPts_, 9 + nWidth * 2)
 				This._EmitOrthoPolyline(oC, _rtCut_[1], cColor, nWidth,
@@ -11027,9 +11128,28 @@ class stzDiagram from stzGraph
 			_psId_ = StzLower("" + _psN_[:id])
 			_psAt_ = This._XYOf(paXY, _psId_)
 			if len(_psAt_) != 2  loop  ok
-			# every laned edge touching this node, with the coordinate
-			# of its OTHER end -- the key that orders them
+			# EVERY edge touching this node, with the coordinate of its
+			# OTHER end -- the key that orders them.
+			#
+			# THIS COUNTED ONLY LANED EDGES, and that is how a line came
+			# to carry an arrow at each end for the third time. A node
+			# with one laned edge and one STRAIGHT one saw a single
+			# claimant, took the "a single stub takes the middle" branch
+			# below, and handed the laned edge the centre -- which the
+			# straight edge was already using, because an aligned edge
+			# owns the centre port by an older law.
+			#
+			# On the order lifecycle both `pending -> paid` and the
+			# `failed -> pending` return met at exactly (119, 323.18),
+			# the bottom-centre of Awaiting Payment, and shared fifty
+			# pixels of column: one line, an arrowhead at each end, and
+			# nothing to tell a reader which way to read it.
+			#
+			# The allocator has to see every claimant on a border or it
+			# is not allocating anything -- an edge it cannot see is an
+			# edge it will collide with.
 			_psTouch_ = []
+			_psStraight_ = ""
 			_aPsE5_ = This.Edges()
 			_nPsE5_ = len(_aPsE5_)
 			for _iPsE5_ = 1 to _nPsE5_
@@ -11037,7 +11157,6 @@ class stzDiagram from stzGraph
 				_psF_ = StzLower("" + _psE_[:from])
 				_psT_ = StzLower("" + _psE_[:to])
 				if _psF_ = _psT_  loop  ok
-				if This._LaneKept(_psF_ + ">" + _psT_) < 1  loop  ok
 				_psOther_ = ""
 				_psEnd_ = 0
 				if _psF_ = _psId_
@@ -11049,8 +11168,42 @@ class stzDiagram from stzGraph
 				ok
 				_psOAt_ = This._XYOf(paXY, _psOther_)
 				if len(_psOAt_) != 2  loop  ok
+				# ...AND THE ALIGNED ONE KEEPS THE CENTRE. An edge whose
+				# two ends already share a column is a straight line, and
+				# a straight line moved off centre gains a bend that says
+				# something the graph does not. It is recorded so the
+				# spread below can step everything else AROUND it rather
+				# than through it.
+				if fabs(_psOAt_[_psAx_] - _psAt_[_psAx_]) < 1 and
+				   _psStraight_ = ""
+					_psStraight_ = _psF_ + ">" + _psT_
+				ok
+				# WHICH BORDER IT LEAVES BY, because a collision is a
+				# fact about a BORDER and not about a node. Counting per
+				# node spreads edges that were never going to meet --
+				# one on the top edge and one on the bottom -- and
+				# section 64 says so in as many words: "a border with
+				# one edge on it puts that edge in the middle".
+				#
+				# READ FROM THE EDGE'S ROLE, NEVER FROM WHERE ITS OTHER
+				# END SITS. The first draft compared ranks, and a RETURN
+				# broke it immediately: a return's target is above it and
+				# it still leaves by the BOTTOM, because a return runs
+				# under the picture -- which is L12, and the reason the
+				# lane machinery exists at all. Section 64's Gamma caught
+				# it on the first run: one edge on its lower border,
+				# bucketed as an upper one, and the lone stub lost the
+				# middle it is entitled to.
+				#
+				# A LANED edge is a return: both its ends meet the lower
+				# border. Anything else leaves the source's lower border
+				# and arrives at the target's upper one.
+				_psSide_ = 1
+				if This._LaneKept(_psF_ + ">" + _psT_) < 1 and _psEnd_ = 2
+					_psSide_ = -1
+				ok
 				_psTouch_ + [ _psF_ + ">" + _psT_, _psEnd_,
-					_psOAt_[_psAx_] ]
+					_psOAt_[_psAx_], _psSide_ ]
 			next
 			_psN2_ = len(_psTouch_)
 			if _psN2_ = 0  loop  ok
@@ -11071,14 +11224,59 @@ class stzDiagram from stzGraph
 			# ...and a SINGLE stub takes the middle. Spreading one edge
 			# off-centre says there is another one to make room for,
 			# and there is not.
-			for _psI_ = 1 to _psN2_
-				_psOff_ = 0
-				if _psN2_ > 1
-					_psOff_ = 0 - _psSpan_ / 2 +
-						_psSpan_ * _psI_ / (_psN2_ + 1)
-				ok
-				@aStubOf + [ _psTouch_[_psI_][1], _psTouch_[_psI_][2],
-					_psOff_ ]
+			#
+			# WITH A STRAIGHT EDGE PRESENT the middle is already spoken
+			# for, so the others are spread over the span with the centre
+			# REMOVED from the choices: the straight line keeps its
+			# column and every other claimant on that border steps clear
+			# of it. Without this the spread can still hand somebody the
+			# centre slot, which is the collision under another name.
+			# ONE ALLOCATION PER BORDER. Each side of the cell hands
+			# out its own columns to the edges that actually use it, so
+			# a lone edge on a border keeps the middle however busy the
+			# opposite border is.
+			for _psSd_ = -1 to 1
+				_psHere_ = []
+				for _psI_ = 1 to _psN2_
+					if _psTouch_[_psI_][4] != _psSd_  loop  ok
+					_psHere_ + _psTouch_[_psI_]
+				next
+				_psNh_ = len(_psHere_)
+				if _psNh_ = 0  loop  ok
+
+				# is the straight edge on THIS border?
+				_psStr2_ = ""
+				for _psI_ = 1 to _psNh_
+					if _psHere_[_psI_][1] = _psStraight_
+						_psStr2_ = _psStraight_
+					ok
+				next
+
+				_psK_ = 0
+				for _psI_ = 1 to _psNh_
+					if _psHere_[_psI_][1] = _psStr2_ and _psStr2_ != ""
+						@aStubOf + [ _psHere_[_psI_][1], _psHere_[_psI_][2], 0 ]
+						loop
+					ok
+					_psK_++
+					_psN3_ = _psNh_
+					if _psStr2_ != ""  _psN3_ = _psNh_ - 1  ok
+					_psOff_ = 0
+					# a LONE edge on a border takes the middle, unless a
+					# straight edge is already holding it
+					if _psN3_ > 1 or _psStr2_ != ""
+						_psOff_ = 0 - _psSpan_ / 2 +
+							_psSpan_ * _psK_ / (_psN3_ + 1)
+						if _psStr2_ != "" and fabs(_psOff_) < _psSpan_ / 8
+							_psOff_ = _psSpan_ / 4
+							if _psK_ * 2 <= _psN3_
+								_psOff_ = 0 - _psSpan_ / 4
+							ok
+						ok
+					ok
+					@aStubOf + [ _psHere_[_psI_][1], _psHere_[_psI_][2],
+						_psOff_ ]
+				next
 			next
 		next
 
