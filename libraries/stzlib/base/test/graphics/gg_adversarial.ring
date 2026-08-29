@@ -7708,6 +7708,154 @@ chk("the paper holds the lifelines below the last message",
 chkeq("the profile declares no rank direction",
     StzUmlSequenceNotation().RankDir(), "")
 
+OPT6869 = [ :Font = EFONT, :NodeWidth = 120, :NodeHeight = 50, :FontSize = 13 ]
+
+# MEASURED BEFORE FIXED, and the shape of the numbers named the cause. A
+# root with one child, over a parent with N children:
+#
+#     N = 1  aligned          N = 3  aligned
+#     N = 2  off by 93.50     N = 4  off by 93.50   (half a slot, exactly)
+#
+# An ODD fan-out puts the parent's centre ON a child's column -- where the
+# snap had already put the leaf -- so it came out right by luck. An EVEN
+# one moves the parent half a slot off every column and leaves the leaf
+# behind. centerParents runs after the snap deliberately, and that order
+# was never wrong; what was missing is that a leaf's position is purely
+# DERIVED, and a derived value computed before its input is final is not
+# a rule, it is a stale read.
+sec("-- 68. A LEAF IS SETTLED LAST, FROM SOMETHING ELSE -------")
+
+# A root with one child, over a parent with N children. The defect was
+# EVEN-ONLY and always exactly half a slot -- an odd fan-out puts the
+# parent's centre on a child's column, which is where the leaf already
+# was, so it came out right by luck.
+for nK = 1 to 4
+	oL = new stzDiagram("leaf" + nK)
+	oL.AddNodeXTT("root", "Root", [ :type = "box" ])
+	oL.AddNodeXTT("mid", "Mid", [ :type = "box" ])
+	oL.AddEdge("root", "mid")
+	for iK = 1 to nK
+		oL.AddNodeXTT("k" + iK, "Kid" + iK, [ :type = "box" ])
+		oL.AddEdge("mid", "k" + iK)
+	next
+	oL.ToCanvasXT(OPT6869)
+	aL = oL.RenderNodeRects()
+	nR = -1  nM = -1
+	for iL = 1 to len(aL)
+		if aL[iL][5] = "root"  nR = aL[iL][1] + aL[iL][3] / 2  ok
+		if aL[iL][5] = "mid"   nM = aL[iL][1] + aL[iL][3] / 2  ok
+	next
+	chk("a lone root stands over its only child, " + nK + " kids below it",
+	    fabs(nR - nM) < 0.5)
+next
+
+# THE NEGATIVE SIBLING. Two leaves on one rank hanging from one node are
+# SIBLINGS -- pulling both onto the parent's column would collapse them
+# onto each other. They straddle, and that is I7, not a missed alignment.
+oS = new stzDiagram("straddle")
+oS.AddNodeXTT("p", "Parent", [ :type = "box" ])
+oS.AddNodeXTT("a", "Left", [ :type = "box" ])
+oS.AddNodeXTT("b", "Right", [ :type = "box" ])
+oS.AddEdge("p", "a")
+oS.AddEdge("p", "b")
+oS.ToCanvasXT(OPT6869)
+aS = oS.RenderNodeRects()
+nPx = -1  nAx = -1  nBx = -1
+for iS = 1 to len(aS)
+	if aS[iS][5] = "p"  nPx = aS[iS][1] + aS[iS][3] / 2  ok
+	if aS[iS][5] = "a"  nAx = aS[iS][1] + aS[iS][3] / 2  ok
+	if aS[iS][5] = "b"  nBx = aS[iS][1] + aS[iS][3] / 2  ok
+next
+chk("NEGATIVE: two leaves under one parent do NOT collapse onto it",
+    fabs(nAx - nBx) > 1)
+chk("...they straddle it, one on each side",
+    (nAx < nPx and nBx > nPx) or (nBx < nPx and nAx > nPx))
+
+sec("-- 69. A LABEL CLEARS ITS OWN BEND -------------------------")
+
+# The asymmetry that hid this: both sides of a beside-placement are
+# offered in a fixed order, so an edge turning UP kept its elbow below
+# its run and read correctly, while an edge turning DOWN put its elbow
+# where the first-choice label goes.
+oC = new stzDiagram("comm")
+oC.SetNotation(StzUmlCommunicationNotation())
+oC.AddNodeXTT("u", "Shopper", [ :type = "actor" ])
+oC.AddNodeXTT("c", ": Cart", [ :type = "object" ])
+oC.AddNodeXTT("s", ": Stock", [ :type = "object" ])
+oC.AddNodeXTT("p", ": Payment", [ :type = "object" ])
+oC.AddEdgeXT("u", "c", "1: add(item)")
+oC.AddEdgeXT("c", "s", "2: reserve(item)")
+oC.AddEdgeXT("c", "p", "3: charge(total)")
+oC.ToCanvasXT(OPT6869)
+
+# the actor hangs from one neighbour and nothing else, so it stands on
+# the line that leaves it -- one straight run, no bend at all
+aC = oC.RenderNodeRects()
+nUy = -1  nCy = -1
+for iC = 1 to len(aC)
+	if aC[iC][5] = "u"  nUy = aC[iC][2] + aC[iC][4] / 2  ok
+	if aC[iC][5] = "c"  nCy = aC[iC][2] + aC[iC][4] / 2  ok
+next
+chk("the actor stands on the line it speaks along", fabs(nUy - nCy) < 0.5)
+
+# and no label covers a bend of the edge it names
+nHid = 0
+for iC = 1 to len(oC.@aRenderLabels)
+	aLR = oC.@aRenderLabels[iC]
+	nL0 = aLR[2] - aLR[4] / 2   nT0 = aLR[3] - aLR[5] / 2
+	nR0 = aLR[2] + aLR[4] / 2   nB0 = aLR[3] + aLR[5] / 2
+	for jC = 1 to len(oC.@aEdgePaths)
+		if StzLower("" + oC.@aEdgePaths[jC][1]) != StzLower("" + aLR[6])  loop  ok
+		aFl = oC.@aEdgePaths[jC][2]
+		# every SEGMENT of its own path, not only the corner points --
+		# what the plate covered was the vertical drop between two
+		# vertices, and testing the vertices alone missed it by 8px
+		for kC = 1 to len(aFl) - 3 step 2
+			nSx1 = min([ aFl[kC], aFl[kC+2] ])  nSx2 = max([ aFl[kC], aFl[kC+2] ])
+			nSy1 = min([ aFl[kC+1], aFl[kC+3] ])  nSy2 = max([ aFl[kC+1], aFl[kC+3] ])
+			if nSx2 < nL0 or nSx1 > nR0 or nSy2 < nT0 or nSy1 > nB0  loop  ok
+			nHid++
+		next
+	next
+next
+chkeq("no label is laid over a bend of the edge it names", nHid, 0)
+
+# THE NEGATIVE SIBLING, and it is the same instrument asking the same
+# question of the other convention. MIDDLE means the word sits ON the
+# line on purpose -- so the counter above must come back NON-zero here,
+# or it is not measuring what it claims to measure and the zero above
+# was worth nothing.
+oM = new stzDiagram("comm_mid")
+oM.SetNotation(StzUmlCommunicationNotation())
+oM.AddNodeXTT("u", "Shopper", [ :type = "actor" ])
+oM.AddNodeXTT("c", ": Cart", [ :type = "object" ])
+oM.AddNodeXTT("s", ": Stock", [ :type = "object" ])
+oM.AddNodeXTT("p", ": Payment", [ :type = "object" ])
+oM.AddEdgeXT("u", "c", "1: add(item)")
+oM.AddEdgeXT("c", "s", "2: reserve(item)")
+oM.AddEdgeXT("c", "p", "3: charge(total)")
+oM.ToCanvasXT([ :Font = EFONT, :NodeWidth = 120, :NodeHeight = 50,
+	:FontSize = 13, :LabelPlacement = :Middle ])
+nOn = 0
+for iM = 1 to len(oM.@aRenderLabels)
+	aLM = oM.@aRenderLabels[iM]
+	nL1 = aLM[2] - aLM[4] / 2   nT1 = aLM[3] - aLM[5] / 2
+	nR1 = aLM[2] + aLM[4] / 2   nB1 = aLM[3] + aLM[5] / 2
+	for jM = 1 to len(oM.@aEdgePaths)
+		if StzLower("" + oM.@aEdgePaths[jM][1]) != StzLower("" + aLM[6])  loop  ok
+		aFM = oM.@aEdgePaths[jM][2]
+		for kM = 1 to len(aFM) - 3 step 2
+			nMx1 = min([ aFM[kM], aFM[kM+2] ])  nMx2 = max([ aFM[kM], aFM[kM+2] ])
+			nMy1 = min([ aFM[kM+1], aFM[kM+3] ])  nMy2 = max([ aFM[kM+1], aFM[kM+3] ])
+			if nMx2 < nL1 or nMx1 > nR1 or nMy2 < nT1 or nMy1 > nB1  loop  ok
+			nOn++
+		next
+	next
+next
+chk("NEGATIVE: under :Middle the word sits ON its line, by design",
+    nOn > 0)
+
+
 if nSecClock > 0
 	? "        [section took " +
 	  ((clock() - nSecClock) / clockspersecond()) + "s]"

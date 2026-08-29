@@ -7357,7 +7357,86 @@ class stzDiagram from stzGraph
 		_nLsP45_ = len(_aLsP45_)
 		for _iLsP45_ = 1 to _nLsP45_
 			_lsP_ = _aLsP45_[_iLsP45_]
-			if _lsP_[1] = cOwnKey  loop  ok
+			# ITS OWN LINE IS NOT FOREIGN INK -- but ITS OWN BEND IS.
+			#
+			# A plate erasing a few pixels of the stroke it names is the
+			# accepted cost, and this file has said so since labels moved
+			# onto their lines: the reader still sees the line entering
+			# and leaving, so nothing is in doubt. A CORNER is not that.
+			# I4 says a bend is a constraint, and a plate laid over one
+			# hides the constraint -- the edge appears to begin in
+			# mid-air, which is what the Principal circled on the
+			# communication diagram.
+			#
+			# The two sides of a beside-placement are offered in a fixed
+			# order and the first that clears wins, so this asymmetry
+			# decided it: an edge turning UP has its elbow BELOW its
+			# final run, and a label offered the upper side first is
+			# clear of it. An edge turning DOWN has its elbow ABOVE, and
+			# the same first choice lands on it. "2: reserve(item)"
+			# turned up and looked right; "3: charge(total)" turned down
+			# and did not. Same code, opposite outcomes, and the side was
+			# never asked which one its own path occupied.
+			#
+			# So the exemption narrows from the whole path to the
+			# STRAIGHT parts of it: the plate must clear every interior
+			# vertex, and may still lie along any run between them.
+			# UNDER "BESIDE", ITS OWN LINE IS INK LIKE ANY OTHER.
+			#
+			# The exemption exists for the MIDDLE convention, where the
+			# plate sits on the stroke it names on purpose and erasing a
+			# few pixels of it is the accepted cost -- the reader still
+			# sees the line entering and leaving, so nothing is in doubt.
+			# Under BESIDE that reasoning does not hold, because a plate
+			# resting on its own line is not beside anything.
+			#
+			# The asymmetry that exposed it: both sides are offered in a
+			# fixed order and the first that clears wins. An edge turning
+			# UP has its elbow BELOW its final run, so the upper side is
+			# free; an edge turning DOWN has its elbow ABOVE, and the
+			# same first choice lands on it. "2: reserve(item)" turned up
+			# and read correctly, "3: charge(total)" turned down and
+			# covered its own corner -- same code, opposite outcomes,
+			# because the side was never asked what its own path was
+			# doing there. Scoring the own path closes it without anyone
+			# having to name a side: the covered candidate simply stops
+			# being a candidate, and the free side wins on its merits.
+			if _lsP_[1] = cOwnKey
+				if @cLabelPlacement = "middle"  loop  ok
+				# ...AND THE EXEMPTION IS FOR THE RUN, NOT THE TURN.
+				#
+				# Clearing the WHOLE of its own path was tried first and
+				# the gate refused it in the same run: a label must be
+				# NEARER the line it names than any foreign one, or it is
+				# not attributable, and pushed clear of its own edge
+				# entirely it tied with a stranger at 6px. Two laws, and
+				# the first draft satisfied one by breaking the other.
+				#
+				# What the plate must not hide is the BEND -- I4, a bend
+				# is a constraint, and a hidden constraint is a picture
+				# that lies. Lying ALONG a run hides nothing: the reader
+				# sees the line enter and leave. So the test is on
+				# ORIENTATION, not on the path: text is drawn horizontally
+				# whatever the rank direction, so a segment running ACROSS
+				# the plate is a vertical one, and that is the piece a
+				# turning edge puts where the label wants to be.
+				#
+				# Testing the corner POINT instead was the second draft
+				# and it missed by 8px -- the plate covered the drop
+				# BETWEEN two vertices without containing either.
+				_lsOw_ = _lsP_[2]
+				for _lsV_ = 1 to len(_lsOw_) - 3 step 2
+					if fabs(_lsOw_[_lsV_ + 2] - _lsOw_[_lsV_]) > 0.5  loop  ok
+					_lsVy1_ = min([ _lsOw_[_lsV_ + 1], _lsOw_[_lsV_ + 3] ])
+					_lsVy2_ = max([ _lsOw_[_lsV_ + 1], _lsOw_[_lsV_ + 3] ])
+					if _lsOw_[_lsV_] > _lsL_ and
+					   _lsOw_[_lsV_] < _lsL_ + nLw and
+					   _lsVy2_ > _lsT_ and _lsVy1_ < _lsT_ + nLh
+						return -1
+					ok
+				next
+				loop
+			ok
 			_lsF_ = _lsP_[2]
 			for _lsI_ = 1 to len(_lsF_) - 3 step 2
 				_lsAx_ = min([ _lsF_[_lsI_], _lsF_[_lsI_ + 2] ])

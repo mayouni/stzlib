@@ -892,6 +892,117 @@ pub fn snapAlign(
     // ...AND SIBLINGS STAND ON EITHER SIDE OF THEIR PARENT, which is the
     // one thing centring cannot state when the parent is not free to move.
     siblingStraddle(in_off, out_off, out_dst, order, starts, sep, extra, x);
+
+    // ...AND A LEAF IS SETTLED LAST, BECAUSE IT IS SETTLED FROM SOMETHING
+    // ELSE. Every pass above can move the node a leaf hangs from, and a
+    // leaf aligned before that move is a leaf left behind.
+    followLeaves(in_off, in_src, out_off, out_dst, order, starts, sep, extra, x);
+}
+
+/// A LEAF FOLLOWS THE THING IT HANGS FROM.
+///
+/// MEASURED, and the shape of the defect names the cause exactly. A root
+/// with one child, over a parent with N children:
+///
+///     N = 1  aligned      N = 3  aligned
+///     N = 2  off by half a slot     N = 4  off by half a slot
+///
+/// An ODD child count puts the parent's centre ON a child's column, which
+/// is where the snap loop had already put the leaf -- so it comes out
+/// aligned by luck. An EVEN count moves the parent half a slot off every
+/// column, and the leaf, aligned to a position the parent no longer
+/// occupies, is left behind. Always exactly half a slot, always only on
+/// even fan-outs.
+///
+/// The snap loop runs FIRST and centerParents runs after it, deliberately:
+/// centring is the stronger claim and the file says so. Nothing was wrong
+/// with that order. What was missing is that a leaf has NO competing claim
+/// of its own -- one neighbour, no children, nothing to centre and nothing
+/// to straddle -- so its position is purely derived, and a derived value
+/// computed before its input is final is not a layout rule, it is a stale
+/// read. It belongs here, after every pass that can move its neighbour.
+///
+/// ONLY WHEN THE LEAF IS ALONE IN THE CLAIM. Two leaves on one rank
+/// hanging from one node are SIBLINGS, and siblings straddle -- pulling
+/// both onto the parent's column would collapse them onto each other and
+/// contradict I7. So a leaf follows only when it is the only node on its
+/// own rank adjacent to that neighbour.
+fn followLeaves(
+    in_off: []const u32,
+    in_src: []const u32,
+    out_off: []const u32,
+    out_dst: []const u32,
+    order: []const u32,
+    starts: []const u32,
+    sep: f64,
+    extra: []const f64,
+    x: []f64,
+) void {
+    const n = x.len;
+    const nl = starts.len - 1;
+
+    // which rank each node sits on, so "alone on my rank" is askable
+    const rank = alloc.alloc(u32, n) catch return;
+    defer alloc.free(rank);
+    var L: usize = 0;
+    while (L < nl) : (L += 1) {
+        var k = starts[L];
+        while (k < starts[L + 1]) : (k += 1) rank[order[k]] = @intCast(L);
+    }
+
+    L = 0;
+    while (L < nl) : (L += 1) {
+        const s = starts[L];
+        const e = starts[L + 1];
+        var k = s;
+        while (k < e) : (k += 1) {
+            const v = order[k];
+
+            // exactly one neighbour, in either direction, and never
+            // itself -- a self-loop is not something to hang from
+            var w: u32 = 0;
+            var deg: u32 = 0;
+            var j = in_off[v];
+            while (j < in_off[v + 1]) : (j += 1) {
+                if (in_src[j] == v) continue;
+                w = in_src[j];
+                deg += 1;
+            }
+            j = out_off[v];
+            while (j < out_off[v + 1]) : (j += 1) {
+                if (out_dst[j] == v) continue;
+                w = out_dst[j];
+                deg += 1;
+            }
+            if (deg != 1) continue;
+
+            // ...and alone on this rank in hanging from it, or these are
+            // siblings and straddling is the right answer instead
+            var peers: u32 = 0;
+            var pj = in_off[w];
+            while (pj < in_off[w + 1]) : (pj += 1) {
+                if (in_src[pj] != v and rank[in_src[pj]] == rank[v]) peers += 1;
+            }
+            pj = out_off[w];
+            while (pj < out_off[w + 1]) : (pj += 1) {
+                if (out_dst[pj] != v and rank[out_dst[pj]] == rank[v]) peers += 1;
+            }
+            if (peers > 0) continue;
+
+            // reachable EXACTLY, or not at all -- the same contract the
+            // snap loop keeps, so this pass can never reorder a rank
+            const target = x[w];
+            if (k > s) {
+                const pv = order[k - 1];
+                if (target < x[pv] + sep + demand(extra, pv) + demand(extra, v)) continue;
+            }
+            if (k + 1 < e) {
+                const nx = order[k + 1];
+                if (target > x[nx] - sep - demand(extra, nx) - demand(extra, v)) continue;
+            }
+            x[v] = target;
+        }
+    }
 }
 
 /// SIBLINGS STRADDLE THEIR PARENT -- I6.
