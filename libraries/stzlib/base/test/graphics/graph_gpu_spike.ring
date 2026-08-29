@@ -62,7 +62,10 @@ hFin  = StzEngineGpuKernelCompile(cFinal)
 aSizes = [ 512, 1024, 10000 ]
 nLayers = 20
 
-for nN in aSizes
+_aNN119_ = aSizes
+_nNN119_ = len(_aNN119_)
+for _iNN119_ = 1 to _nNN119_
+	nN = _aNN119_[_iNN119_]
     # --- a deterministic layered DAG: every edge goes to a later layer
     aOff = []  aTgt = []
     nPerL = ceil(nN / nLayers)

@@ -101,7 +101,10 @@ aW = oC.WorldPosition(nA)     # must RETURN
 # whether resolving parents is even visible in a frame.
 #---------------------------------------------------------------------------
 
-for nCount in [ 200, 1000, 4000 ]
+_aNCount17_ = [ 200, 1000, 4000 ]
+_nNCount17_ = len(_aNCount17_)
+for _iNCount17_ = 1 to _nNCount17_
+	nCount = _aNCount17_[_iNCount17_]
 	oD = new stzScene(400, 300)
 	oD.SetCamera(0, 40, 90, 0, 0, 0)
 	nPrev = 0
@@ -171,7 +174,10 @@ nSun2 = oP.LastIndex()
 
 aPlanets = [ [ 4.5, "#4FA3E0" ], [ 7.5, "#E06C4F" ], [ 10.5, "#7FD8A0" ] ]
 nIdx = 1
-for p in aPlanets
+_aP18_ = aPlanets
+_nP18_ = len(_aP18_)
+for _iP18_ = 1 to _nP18_
+	p = _aP18_[_iP18_]
 	oP.AddMeshQ(oPlanetMesh, p[1], 0, 0).Color(p[2])
 	nId = oP.LastIndex()
 	oP.SetParent(nId, nSun2)

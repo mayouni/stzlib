@@ -57,7 +57,10 @@ RATE = 0.94
 ? "   schedule : t_i = " + T0 + " * " + RATE + "^(i-1)"
 ? "   tail sum : remaining(K) <= " + (T0 / (1 - RATE)) + " * " + RATE + "^K"
 ? ""
-for nEps in [ 10, 5, 1, 0.5, 0.1 ]
+_aNEps120_ = [ 10, 5, 1, 0.5, 0.1 ]
+_nNEps120_ = len(_aNEps120_)
+for _iNEps120_ = 1 to _nNEps120_
+	nEps = _aNEps120_[_iNEps120_]
 	nK = ceil(log(nEps * (1 - RATE) / T0) / log(RATE))
 	? "   eps " + nEps + " px  ->  K = " + nK + " iterations  (bound " +
 	  (T0 / (1 - RATE) * pow(RATE, nK)) + " px)"
@@ -106,7 +109,10 @@ ok
 
 bCapHeld = TRUE
 nWorstRatio = 0
-for nAt in [ 1, 5, 10, 25, 50, 80, 120 ]
+_aNAt121_ = [ 1, 5, 10, 25, 50, 80, 120 ]
+_nNAt121_ = len(_aNAt121_)
+for _iNAt121_ = 1 to _nNAt121_
+	nAt = _aNAt121_[_iNAt121_]
 	aA = RunLayout(hStep, hOff, hTgt, aSeed, N, nAt)
 	aB = RunLayout(hStep, hOff, hTgt, aSeed, N, nAt + 1)
 	nMax = MaxMove(aA, aB)

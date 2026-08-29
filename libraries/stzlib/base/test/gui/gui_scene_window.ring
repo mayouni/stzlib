@@ -229,7 +229,10 @@ func BuildPanel cStatus
 
 func FontPath
 	_a_ = [ "C:\Windows\Fonts\segoeui.ttf", "C:\Windows\Fonts\arial.ttf" ]
-	for _c_ in _a_
+	_aC136_ = _a_
+	_nC136_ = len(_aC136_)
+	for _iC136_ = 1 to _nC136_
+		_c_ = _aC136_[_iC136_]
 		if fexists(_c_)
 			return _c_
 		ok

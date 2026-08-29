@@ -84,7 +84,11 @@ for i = 1 to 3
     aV + aTri[i][1]  aV + aTri[i][2]  aV + aTri[i][3]
     aV + 0  aV + 0  aV + 1
     aV + 0  aV + 0
-    for c in aCols[i]  aV + c  next
+    _aCol9_ = aCols[i]
+	_nCol9_ = len(_aCol9_)
+	for _iCol9_ = 1 to _nCol9_
+		aV + _aCol9_[_iCol9_]
+	next
 next
 hVC = StzEngineGpuMeshCustom([3,3,2,4], aV, [0,1,2])
 aVC = StzEngineGpuMeshStats(hVC)

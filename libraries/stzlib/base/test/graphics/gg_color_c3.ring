@@ -77,8 +77,14 @@ aRoles = [ :primary, :success, :warning, :danger, :info, :muted, :neutral ]
 nFail = 0
 nChecked = 0
 aFailures = []
-for cT in aThemes
-	for cR in aRoles
+_aCT53_ = aThemes
+_nCT53_ = len(_aCT53_)
+for _iCT53_ = 1 to _nCT53_
+	cT = _aCT53_[_iCT53_]
+	_aCR54_ = aRoles
+	_nCR54_ = len(_aCR54_)
+	for _iCR54_ = 1 to _nCR54_
+		cR = _aCR54_[_iCR54_]
 		cFill = StzThemeColor(cT, cR)
 		if cFill = ""  loop  ok
 		aBest = StzBestTextOn(cFill)
@@ -103,7 +109,10 @@ next
 if nFail > 0
 	? ""
 	? "   THE FAILURES, written down rather than explained away:"
-	for a in aFailures
+	_aA55_ = aFailures
+	_nA55_ = len(_aA55_)
+	for _iA55_ = 1 to _nA55_
+		a = _aA55_[_iA55_]
 		? "     " + PadR(a[1], 10) + PadR("" + a[2], 12) + PadR(a[3], 10) +
 		  "best achievable " + a[4] + ":1"
 	next
@@ -123,7 +132,10 @@ chkeq("every shipped theme role can carry legible text", nFail, 0)
 ? "   role       .Text on white   :On<Role> on .Solid"
 ? "   --------   --------------   -------------------"
 nStepFail = 0
-for cR in [ :Primary, :Success, :Warning, :Danger, :Info ]
+_aCR56_ = [ :Primary, :Success, :Warning, :Danger, :Info ]
+_nCR56_ = len(_aCR56_)
+for _iCR56_ = 1 to _nCR56_
+	cR = _aCR56_[_iCR56_]
 	nT = StzContrastOf("" + cR + ".Text", :White)
 	nO = StzContrastOf("On" + cR, "" + cR + ".Solid")
 	? "   " + PadR("" + cR, 10) + " " + PadR("" + nT, 16) + nO
@@ -168,7 +180,10 @@ nDiffer = 0
 cFirst = ""
 for nG = 0 to 255 step 5
 	cG = StzRGBToHex(nG, nG, nG)
-	for cBg in [ "#FFFFFF", "#000000", "#767676" ]
+	_aCBg57_ = [ "#FFFFFF", "#000000", "#767676" ]
+	_nCBg57_ = len(_aCBg57_)
+	for _iCBg57_ = 1 to _nCBg57_
+		cBg = _aCBg57_[_iCBg57_]
 		nW = StzContrastOf(cG, cBg)
 		nA = fabs(StzContrastLc(cG, cBg))
 		nPairs++

@@ -56,7 +56,10 @@ Scenario("the normal distribution, and its inverse being its own inverse")
 	# The round trip is the real test: because the quantile is the CDF bisected,
 	# the two cannot drift apart the way two independent approximations would.
 	nWorst = 0
-	for nP in [ 0.001, 0.01, 0.1, 0.25, 0.5, 0.75, 0.9, 0.99, 0.999 ]
+	_aNP151_ = [ 0.001, 0.01, 0.1, 0.25, 0.5, 0.75, 0.9, 0.99, 0.999 ]
+	_nNP151_ = len(_aNP151_)
+	for _iNP151_ = 1 to _nNP151_
+		nP = _aNP151_[_iNP151_]
 		nBack = StzEngineNormalCdf(StzEngineNormalQuantile(nP))
 		if fabs(nBack - nP) > nWorst
 			nWorst = fabs(nBack - nP)

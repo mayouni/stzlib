@@ -364,7 +364,10 @@ load "../stzlib.ring"
 	loop over it to populate it with list of strings, like this:
 
 */		oQStrList = new QStringList()	
-		for str in [ "Ring", "Python", "Ruby" ]
+		_aStr195_ = [ "Ring", "Python", "Ruby" ]
+		_nStr195_ = len(_aStr195_)
+		for _iStr195_ = 1 to _nStr195_
+			str = _aStr195_[_iStr195_]
 			oQStrList.append(str)	
 		next
 

@@ -42,11 +42,17 @@ aBases = [ "blue", "green", "yellow", "red", "purple", "cyan", "gold" ]
 ? "   -------   -----------------------------------   ---------"
 
 nNonMono = 0
-for cB in aBases
+_aCB32_ = aBases
+_nCB32_ = len(_aCB32_)
+for _iCB32_ = 1 to _nCB32_
+	cB = _aCB32_[_iCB32_]
 	nSeed = _Hex24(StzResolveColor(cB))
 	cRow = "   " + PadR(cB, 9) + " "
 	aGot = []
-	for x in aL
+	_aX33_ = aL
+	_nX33_ = len(_aX33_)
+	for _iX33_ = 1 to _nX33_
+		x = _aX33_[_iX33_]
 		nRamp = StzEngineColorRampStep(nSeed, x)
 		nGot = StzEngineColorLightness(nRamp)
 		aGot + nGot
@@ -72,10 +78,16 @@ chkeq("every ramp decreases at every step", nNonMono, 0)
 
 nWorstSpread = 0
 cWorst = ""
-for cB in aBases
+_aCB34_ = aBases
+_nCB34_ = len(_aCB34_)
+for _iCB34_ = 1 to _nCB34_
+	cB = _aCB34_[_iCB34_]
 	nSeed = _Hex24(StzResolveColor(cB))
 	aGot = []
-	for x in aL
+	_aX35_ = aL
+	_nX35_ = len(_aX35_)
+	for _iX35_ = 1 to _nX35_
+		x = _aX35_[_iX35_]
 		aGot + StzEngineColorLightness(StzEngineColorRampStep(nSeed, x))
 	next
 	nMin = 99  nMax = 0
@@ -107,9 +119,15 @@ chk("no ramp's steps differ by more than 1.5x", nWorstSpread < 1.5)
 # meaning two completely different brightnesses.
 #---------------------------------------------------------------------------
 
-for x in [ 0.92, 0.62, 0.30 ]
+_aX36_ = [ 0.92, 0.62, 0.30 ]
+_nX36_ = len(_aX36_)
+for _iX36_ = 1 to _nX36_
+	x = _aX36_[_iX36_]
 	nMin = 99  nMax = 0
-	for cB in aBases
+	_aCB37_ = aBases
+	_nCB37_ = len(_aCB37_)
+	for _iCB37_ = 1 to _nCB37_
+		cB = _aCB37_[_iCB37_]
 		nGot = StzEngineColorLightness(
 			StzEngineColorRampStep(_Hex24(StzResolveColor(cB)), x))
 		if nGot < nMin  nMin = nGot  ok
@@ -142,10 +160,16 @@ next
 nDrift = 0
 cWorstHue = ""
 nWorstD = 0
-for cB in aBases
+_aCB38_ = aBases
+_nCB38_ = len(_aCB38_)
+for _iCB38_ = 1 to _nCB38_
+	cB = _aCB38_[_iCB38_]
 	nSeed = _Hex24(StzResolveColor(cB))
 	nH0 = StzEngineColorHue(nSeed)
-	for x in aL
+	_aX39_ = aL
+	_nX39_ = len(_aX39_)
+	for _iX39_ = 1 to _nX39_
+		x = _aX39_[_iX39_]
 		nV = StzEngineColorRampStep(nSeed, x)
 		# no chroma, no hue: below this there is nothing to preserve
 		if StzEngineColorChroma(nV) < 0.02  loop  ok
@@ -178,10 +202,16 @@ else
 	ok
 
 	r = 0
-	for cB in aBases
+	_aCB40_ = aBases
+	_nCB40_ = len(_aCB40_)
+	for _iCB40_ = 1 to _nCB40_
+		cB = _aCB40_[_iCB40_]
 		# the sRGB algebra, as shipped
 		c = 0
-		for cS in [ "--", "-", "", "+", "++" ]
+		_aCS41_ = [ "--", "-", "", "+", "++" ]
+		_nCS41_ = len(_aCS41_)
+		for _iCS41_ = 1 to _nCS41_
+			cS = _aCS41_[_iCS41_]
 			oC.Flush()
 			oC.FillQ(cB + cS).AddRect(180 + c * SW, 30 + r * SH, SW - 6, SH - 8)
 			c++
@@ -195,7 +225,10 @@ else
 
 		# the OKLCH ramp
 		c = 0
-		for x in aL
+		_aX42_ = aL
+		_nX42_ = len(_aX42_)
+		for _iX42_ = 1 to _nX42_
+			x = _aX42_[_iX42_]
 			nHx = StzEngineColorRampStep(_Hex24(StzResolveColor(cB)), x)
 			oC.Flush()
 			oC.FillQ(_ToHex(nHx)).AddRect(180 + c * SW, 30 + r * SH, SW - 6, SH - 8)

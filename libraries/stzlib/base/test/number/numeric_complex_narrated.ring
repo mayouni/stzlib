@@ -121,7 +121,10 @@ Scenario("conjugate pairs, because the matrix is real")
 	aZ = oM.ComplexEigenValues()
 	nImSum = 0
 	nComplex = 0
-	for z in aZ
+	_aZ138_ = aZ
+	_nZ138_ = len(_aZ138_)
+	for _iZ138_ = 1 to _nZ138_
+		z = _aZ138_[_iZ138_]
 		nImSum += z.ImaginaryPart()
 		if fabs(z.ImaginaryPart()) > 0.000000001
 			nComplex++
@@ -135,7 +138,10 @@ Scenario("conjugate pairs, because the matrix is real")
 	# and multiply to the other, whatever they individually are
 	nTrace = 1 + 5 + 9
 	nSum = 0
-	for z in aZ
+	_aZ139_ = aZ
+	_nZ139_ = len(_aZ139_)
+	for _iZ139_ = 1 to _nZ139_
+		z = _aZ139_[_iZ139_]
 		nSum += z.RealPart()
 	next
 	Then("they sum to the trace", Rnd6(nSum), nTrace)
@@ -181,7 +187,10 @@ func Rnd6(n)
 	return ceil(n * 1000000 - 0.5) / 1000000
 
 func HasNear(aList, n)
-	for v in aList
+	_aV140_ = aList
+	_nV140_ = len(_aV140_)
+	for _iV140_ = 1 to _nV140_
+		v = _aV140_[_iV140_]
 		if fabs(v - n) < 0.0000001
 			return TRUE
 		ok
@@ -189,7 +198,10 @@ func HasNear(aList, n)
 	return FALSE
 
 func HasNearZ(aZ, n)
-	for z in aZ
+	_aZ141_ = aZ
+	_nZ141_ = len(_aZ141_)
+	for _iZ141_ = 1 to _nZ141_
+		z = _aZ141_[_iZ141_]
 		if fabs(z.RealPart() - n) < 0.000001 and fabs(z.ImaginaryPart()) < 0.000001
 			return TRUE
 		ok

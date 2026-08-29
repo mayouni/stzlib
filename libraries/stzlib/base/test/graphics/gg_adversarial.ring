@@ -143,11 +143,17 @@ sec("-- 3. A shape must survive the box a DIAGRAM gives it -------")
 
 nBadCap = 0
 cWorst = ""
-for aBox in [ [ 140, 100 ], [ 300, 40 ], [ 26, 200 ], [ 40, 300 ], [ 200, 26 ] ]
+_aABox1_ = [ [ 140, 100 ], [ 300, 40 ], [ 26, 200 ], [ 40, 300 ], [ 200, 26 ] ]
+_nABox1_ = len(_aABox1_)
+for _iABox1_ = 1 to _nABox1_
+	aBox = _aABox1_[_iABox1_]
 	oD = new stzCanvas(400, 400)
 	oD.SetBackgroundQ("#FFFFFF").FillQ("#3C6E9A")
 	StzDrawNodeShape(oD, :Cylinder, 20, 20, aBox[1], aBox[2])
-	for aE in _CapsIn(oD.ToSVG())
+	_aAE2_ = _CapsIn(oD.ToSVG())
+	_nAE2_ = len(_aAE2_)
+	for _iAE2_ = 1 to _nAE2_
+		aE = _aAE2_[_iAE2_]
 		if aE[1] < aE[2]
 			nBadCap++
 			if cWorst = ""
@@ -167,7 +173,10 @@ oE = new stzCanvas(120, 260)
 oE.SetBackgroundQ("#FFFFFF").FillQ("#3C6E9A")
 oE.AddEllipse(60, 40, 13, 26)              # rx 13, ry 26 -- the old defect
 nSeen = 0
-for aE in _CapsIn(oE.ToSVG())
+_aAE3_ = _CapsIn(oE.ToSVG())
+_nAE3_ = len(_aAE3_)
+for _iAE3_ = 1 to _nAE3_
+	aE = _aAE3_[_iAE3_]
 	if aE[1] < aE[2]  nSeen++  ok
 next
 ? "   the old geometry, drawn deliberately, is seen : " + nSeen + " time(s)"
@@ -389,9 +398,12 @@ sec("-- 9. A cluster box holds its members, and NO STRANGER -------")
 #---------------------------------------------------------------------------
 
 oS = new stzDiagram("svc")
-for a in [ [ "web1", "Web A" ], [ "web2", "Web B" ], [ "api1", "API A" ],
+_aA4_ = [ [ "web1", "Web A" ], [ "web2", "Web B" ], [ "api1", "API A" ],
            [ "api2", "API B" ], [ "db1", "DB A" ], [ "db2", "DB B" ],
            [ "lb", "Balancer" ], [ "log", "Logger" ] ]
+_nA4_ = len(_aA4_)
+for _iA4_ = 1 to _nA4_
+	a = _aA4_[_iA4_]
 	oS.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
 next
 oS.AddEdge("lb", "web1")    oS.AddEdge("lb", "web2")
@@ -418,7 +430,10 @@ chkeq("...and it does contain all of them", nHeld, 4)
 # members are deliberately NOT together must report an intruder, or the
 # check cannot tell a constrained layout from an unconstrained one.
 oB2 = new stzDiagram("bad")
-for a in [ [ "x1", "X1" ], [ "mid", "Mid" ], [ "x2", "X2" ], [ "r", "R" ] ]
+_aA5_ = [ [ "x1", "X1" ], [ "mid", "Mid" ], [ "x2", "X2" ], [ "r", "R" ] ]
+_nA5_ = len(_aA5_)
+for _iA5_ = 1 to _nA5_
+	a = _aA5_[_iA5_]
 	oB2.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
 next
 oB2.AddEdge("r", "x1")  oB2.AddEdge("r", "mid")  oB2.AddEdge("r", "x2")
@@ -451,7 +466,10 @@ sec("-- 10. A self-loop is a LOOP, and is allowed ----------------")
 
 LOOPC = "#1E6FE0"
 oSL = new stzDiagram("fsm")
-for a in [ [ "a", "Idle" ], [ "b", "Busy" ], [ "c", "Done" ] ]
+_aA6_ = [ [ "a", "Idle" ], [ "b", "Busy" ], [ "c", "Done" ] ]
+_nA6_ = len(_aA6_)
+for _iA6_ = 1 to _nA6_
+	a = _aA6_[_iA6_]
 	oSL.AddNodeXTT(a[1], a[2], [ :type = "box", :color = LOOPC ])
 next
 oSL.AddEdge("a", "a")
@@ -472,7 +490,10 @@ chk("the loop is actually drawn", nInk > 20)
 # THE NEGATIVE SIBLING: the same diagram WITHOUT the self-loops must have
 # nothing out there, or this counts any stray pixel as a loop.
 oNL2 = new stzDiagram("fsm2")
-for a in [ [ "a", "Idle" ], [ "b", "Busy" ], [ "c", "Done" ] ]
+_aA7_ = [ [ "a", "Idle" ], [ "b", "Busy" ], [ "c", "Done" ] ]
+_nA7_ = len(_aA7_)
+for _iA7_ = 1 to _nA7_
+	a = _aA7_[_iA7_]
 	oNL2.AddNodeXTT(a[1], a[2], [ :type = "box", :color = LOOPC ])
 next
 oNL2.AddEdge("a", "b")
@@ -531,8 +552,11 @@ sec("-- 11. An edge label reaches the PICTURE --------------------")
 
 EFONT = new stzFont("C:/Windows/Fonts/segoeui.ttf")
 oEL = new stzDiagram("flow")
-for a in [ [ "req", "Request" ], [ "val", "Validate" ],
+_aA8_ = [ [ "req", "Request" ], [ "val", "Validate" ],
            [ "ok", "Accept" ], [ "no", "Reject" ] ]
+_nA8_ = len(_aA8_)
+for _iA8_ = 1 to _nA8_
+	a = _aA8_[_iA8_]
 	oEL.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
 next
 oEL.AddEdgeXT("req", "val", "submits")
@@ -557,8 +581,11 @@ aLOpt = [ :Font = EFONT, :NodeWidth = 110, :NodeHeight = 40,
 oELc = oEL.ToCanvasXT(aLOpt)
 
 oNL3 = new stzDiagram("flow2")
-for a in [ [ "req", "Request" ], [ "val", "Validate" ],
+_aA9_ = [ [ "req", "Request" ], [ "val", "Validate" ],
            [ "ok", "Accept" ], [ "no", "Reject" ] ]
+_nA9_ = len(_aA9_)
+for _iA9_ = 1 to _nA9_
+	a = _aA9_[_iA9_]
 	oNL3.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
 next
 oNL3.AddEdge("req", "val")  oNL3.AddEdge("val", "ok")  oNL3.AddEdge("val", "no")
@@ -603,9 +630,12 @@ sec("-- 12. SetLayout HONOURS what it accepted -------------------")
 # spellings each and the horizontal ones had exactly one.
 #---------------------------------------------------------------------------
 
-for aL in [ [ :TopDown, "TB" ], [ :BottomUp, "BT" ],
+_aAL10_ = [ [ :TopDown, "TB" ], [ :BottomUp, "BT" ],
             [ :LeftRight, "LR" ], [ :LeftToRight, "LR" ],
             [ :RightLeft, "RL" ], [ "lr", "LR" ] ]
+_nAL10_ = len(_aAL10_)
+for _iAL10_ = 1 to _nAL10_
+	aL = _aAL10_[_iAL10_]
 	oLy = new stzDiagram("t")
 	oLy.SetLayout(aL[1])
 	chkeq("  " + aL[1] + " means " + aL[2], oLy._NativeRankDir(), aL[2])
@@ -646,7 +676,10 @@ sec("-- 13. ORTHO means ortho, including the self-loops ----------")
 #---------------------------------------------------------------------------
 
 oOr = new stzDiagram("fsm3")
-for a in [ [ "a", "Idle" ], [ "b", "Busy" ], [ "c", "Done" ] ]
+_aA11_ = [ [ "a", "Idle" ], [ "b", "Busy" ], [ "c", "Done" ] ]
+_nA11_ = len(_aA11_)
+for _iA11_ = 1 to _nA11_
+	a = _aA11_[_iA11_]
 	oOr.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
 next
 oOr.AddEdge("a", "a")
@@ -672,8 +705,11 @@ chkeq("under ortho, every segment is axis-aligned", nSkew, 0)
 # longer than that is an edge running at an angle, which is the fault
 # this section exists for.
 nSkR = 0  nLongR = 0
-for _dch_ in _DiagChords(oOr.ToSVGXT([ :NodeWidth = 110, :NodeHeight = 40 ]),
+_aDch12_ = _DiagChords(oOr.ToSVGXT([ :NodeWidth = 110, :NodeHeight = 40 ]),
 	EDGERGB)
+_nDch12_ = len(_aDch12_)
+for _iDch12_ = 1 to _nDch12_
+	_dch_ = _aDch12_[_iDch12_]
 	nSkR++
 	if _dch_ > 10  nLongR++  ok
 next
@@ -693,7 +729,10 @@ chk("the orthogonality check DISCRIMINATES", nCurve > 20)
 # ...and the LOOP specifically is what changed, not just the edges: with
 # no self-loops at all, ortho and curve differ far less.
 oNS = new stzDiagram("fsm4")
-for a in [ [ "a", "Idle" ], [ "b", "Busy" ], [ "c", "Done" ] ]
+_aA13_ = [ [ "a", "Idle" ], [ "b", "Busy" ], [ "c", "Done" ] ]
+_nA13_ = len(_aA13_)
+for _iA13_ = 1 to _nA13_
+	a = _aA13_[_iA13_]
 	oNS.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
 next
 oNS.AddEdge("a", "b")  oNS.AddEdge("b", "c")
@@ -724,9 +763,12 @@ sec("-- 14. NESTED clusters: a box inside a box ------------------")
 #---------------------------------------------------------------------------
 
 oNC = new stzDiagram("svc2")
-for a in [ [ "lb", "Balancer" ], [ "web1", "Web A" ], [ "web2", "Web B" ],
+_aA14_ = [ [ "lb", "Balancer" ], [ "web1", "Web A" ], [ "web2", "Web B" ],
            [ "api1", "API A" ], [ "api2", "API B" ],
            [ "db1", "DB A" ], [ "db2", "DB B" ], [ "log", "Logger" ] ]
+_nA14_ = len(_aA14_)
+for _iA14_ = 1 to _nA14_
+	a = _aA14_[_iA14_]
 	oNC.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
 next
 oNC.AddEdge("lb", "web1")    oNC.AddEdge("lb", "web2")
@@ -772,7 +814,10 @@ chk("...with room above it for its label",
 #    own members without one holding a stranger.
 chk("clusters that overlap without nesting are REFUSED", Raises('
 	o = new stzDiagram("t")
-	for c in [ "a", "b", "c" ]
+	_aC15_ = [ "a", "b", "c" ]
+	_nC15_ = len(_aC15_)
+	for _iC15_ = 1 to _nC15_
+		c = _aC15_[_iC15_]
 		o.AddNodeXTT(c, c, [ :type = "box" ])
 	next
 	o.AddEdge("a", "b")  o.AddEdge("b", "c")
@@ -788,7 +833,10 @@ chk("clusters that overlap without nesting are REFUSED", Raises('
 # case it was meant to permit.
 chk("...but a genuine nesting is NOT refused", NOT Raises('
 	o = new stzDiagram("t")
-	for c in [ "a", "b", "c" ]
+	_aC16_ = [ "a", "b", "c" ]
+	_nC16_ = len(_aC16_)
+	for _iC16_ = 1 to _nC16_
+		c = _aC16_[_iC16_]
 		o.AddNodeXTT(c, c, [ :type = "box" ])
 	next
 	o.AddEdge("a", "b")  o.AddEdge("b", "c")
@@ -1025,7 +1073,10 @@ aDotSpan = [ [ 16, 17.5 ], [ 9, 8.0 ] ]
 nUnit = _TightestGap(aTP)
 ? "   leaf ranks | dot | ours | ratio"
 nWorst = 0
-for aD in aDotSpan
+_aAD17_ = aDotSpan
+_nAD17_ = len(_aAD17_)
+for _iAD17_ = 1 to _nAD17_
+	aD = _aAD17_[_iAD17_]
 	nOurs = _RankSpan(aTP, aD[1]) / nUnit
 	nR = nOurs / aD[2]
 	? "   n=" + aD[1] + "   | " + aD[2] + " | " + nOurs + " | " + nR + "x"
@@ -1098,7 +1149,10 @@ chk("node 39 is NOT inside node 20's band", nX39 < nLo20 or nX39 > nHi20)
 nLo5 = _SubtreeLo(aRP, 5, 40)
 nHi5 = _SubtreeHi(aRP, 5, 40)
 aBad = []
-for aP in aRP
+_aAP18_ = aRP
+_nAP18_ = len(_aAP18_)
+for _iAP18_ = 1 to _nAP18_
+	aP = _aAP18_[_iAP18_]
 	if StzLower("" + aP[1]) = "n39"
 		aBad + [ aP[1], (nLo5 + nHi5) / 2, aP[3] ]
 	else
@@ -1132,7 +1186,10 @@ sec("-- 19. A label is readable AT THE SIZE IT IS DRAWN ----------")
 
 ? "   role      fill      ink at 12px   ratio  needs emphasis"
 nBadInk = 0
-for cRole in [ :Primary, :Success, :Warning, :Danger, :Info, :Neutral ]
+_aCRole19_ = [ :Primary, :Success, :Warning, :Danger, :Info, :Neutral ]
+_nCRole19_ = len(_aCRole19_)
+for _iCRole19_ = 1 to _nCRole19_
+	cRole = _aCRole19_[_iCRole19_]
 	cFill = StzResolveColor("" + cRole + ".Solid")
 	if cFill = ""  loop  ok
 	aInk = StzReadableTextOn(cFill, 12, 0)
@@ -1167,7 +1224,10 @@ chkeq("white on a dark field", aDark[1], "white")
 # reach for BLACK on those same saturated fills -- so "white everywhere"
 # is a decision this check can tell apart from an accident.
 nBlackPicks = 0
-for cRole in [ :Primary, :Success, :Warning, :Danger, :Info ]
+_aCRole20_ = [ :Primary, :Success, :Warning, :Danger, :Info ]
+_nCRole20_ = len(_aCRole20_)
+for _iCRole20_ = 1 to _nCRole20_
+	cRole = _aCRole20_[_iCRole20_]
 	cFill = StzResolveColor("" + cRole + ".Solid")
 	if StzBestTextOn(cFill)[1] = "black"  nBlackPicks++  ok
 next
@@ -1279,7 +1339,10 @@ aTypeShape = [ [ "start", "ellipse" ], [ "process", "box" ],
                [ "decision", "diamond" ], [ "storage", "cylinder" ],
                [ "state", "circle" ], [ "endpoint", "doublecircle" ] ]
 nBadType = 0
-for aTS in aTypeShape
+_aATS21_ = aTypeShape
+_nATS21_ = len(_aATS21_)
+for _iATS21_ = 1 to _nATS21_
+	aTS = _aATS21_[_iATS21_]
 	cGot = StzNodeShapeForType(aTS[1])
 	? "   " + aTS[1] + " -> " + cGot
 	if cGot != aTS[2]  nBadType++  ok
@@ -1479,7 +1542,10 @@ chk("a unique link is strictly vertical", nDrift < 0.5)
 # ARRIVALS IN APPROACH ORDER. Two edges reaching one node, one from the
 # left and one from the right: the left one must take the left port.
 oAp = new stzDiagram("arrive")
-for c in [ "L", "R", "T" ]
+_aC22_ = [ "L", "R", "T" ]
+_nC22_ = len(_aC22_)
+for _iC22_ = 1 to _nC22_
+	c = _aC22_[_iC22_]
 	oAp.AddNodeXTT(c, c, [ :type = "box", :color = "Info.Solid" ])
 next
 oAp.AddEdge("L", "T")
@@ -1497,7 +1563,10 @@ chk("the edge from the LEFT takes the left port", aPa[1][2] < aPa[2][2])
 # drawing -- which is precisely what happened, and what the Principal's
 # red centre-lines caught.
 oSp = new stzDiagram("spine")
-for c in [ "S", "A", "B" ]
+_aC23_ = [ "S", "A", "B" ]
+_nC23_ = len(_aC23_)
+for _iC23_ = 1 to _nC23_
+	c = _aC23_[_iC23_]
 	oSp.AddNodeXTT(c, c, [ :type = "box", :color = "Info.Solid" ])
 next
 oSp.AddEdge("S", "A")
@@ -1530,9 +1599,12 @@ sec("-- 26. Verticality reaches the ROOT, clusters or not --------")
 #---------------------------------------------------------------------------
 
 oV = new stzDiagram("svc26")
-for a in [ [ "lb", "Balancer" ], [ "web1", "Web A" ], [ "web2", "Web B" ],
+_aA24_ = [ [ "lb", "Balancer" ], [ "web1", "Web A" ], [ "web2", "Web B" ],
            [ "api1", "API A" ], [ "api2", "API B" ],
            [ "db1", "DB A" ], [ "db2", "DB B" ], [ "log", "Logger" ] ]
+_nA24_ = len(_aA24_)
+for _iA24_ = 1 to _nA24_
+	a = _aA24_[_iA24_]
 	oV.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
 next
 oV.AddEdge("lb", "web1")    oV.AddEdge("lb", "web2")
@@ -1571,7 +1643,10 @@ chkeq("no edge is ALMOST aligned -- exact or clearly slanted", nMiss, 0)
 # left it clearly slanted and the census correctly reported nothing:
 # the instrument had quietly stopped testing itself.
 aVB = []
-for aP in aVP
+_aAP25_ = aVP
+_nAP25_ = len(_aAP25_)
+for _iAP25_ = 1 to _nAP25_
+	aP = _aAP25_[_iAP25_]
 	if StzLower("" + aP[1]) = "lb"
 		aVB + [ aP[1], _XOf(aVP, "web2") + 20, aP[3] ]
 	else
@@ -1598,9 +1673,12 @@ sec("-- 27. A FOREIGN edge never traverses a cluster's surface ---")
 #---------------------------------------------------------------------------
 
 oFC = new stzDiagram("svc27")
-for a in [ [ "lb", "Balancer" ], [ "web1", "Web A" ], [ "web2", "Web B" ],
+_aA26_ = [ [ "lb", "Balancer" ], [ "web1", "Web A" ], [ "web2", "Web B" ],
            [ "api1", "API A" ], [ "api2", "API B" ],
            [ "db1", "DB A" ], [ "db2", "DB B" ], [ "log", "Logger" ] ]
+_nA26_ = len(_aA26_)
+for _iA26_ = 1 to _nA26_
+	a = _aA26_[_iA26_]
 	oFC.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
 next
 oFC.AddEdge("lb", "web1")    oFC.AddEdge("lb", "web2")
@@ -1630,7 +1708,10 @@ nX2 = aR1[1] + aR1[3] + 50
 # the web row and the API row.
 nCorrLo = 0
 nCorrHi = 0
-for aN in oFC.RenderNodeRects()
+_aAN27_ = oFC.RenderNodeRects()
+_nAN27_ = len(_aAN27_)
+for _iAN27_ = 1 to _nAN27_
+	aN = _aAN27_[_iAN27_]
 	if aN[5] = "web1"  nCorrLo = aN[2] + aN[4]  ok
 	if aN[5] = "api1"  nCorrHi = aN[2]  ok
 next
@@ -1653,7 +1734,10 @@ chk("a FOREIGN channel is pushed off the cluster's surface",
 # centre is what was asked for. An earlier form of this check counted
 # rows within a clearance and failed the correct answer.
 nRowB2 = -1000000
-for aN in oFC.RenderNodeRects()
+_aAN28_ = oFC.RenderNodeRects()
+_nAN28_ = len(_aAN28_)
+for _iAN28_ = 1 to _nAN28_
+	aN = _aAN28_[_iAN28_]
 	if aN[5] = "web1" or aN[5] = "web2"
 		if aN[2] + aN[4] > nRowB2  nRowB2 = aN[2] + aN[4]  ok
 	ok
@@ -1688,7 +1772,10 @@ chk("the channel sits at the MIDDLE of its free band",
 # must come back untouched, where a foreign edge's channel (asserted
 # above) is thrown out of the frame entirely.
 nApiB = -1000000
-for aN in oFC.RenderNodeRects()
+_aAN29_ = oFC.RenderNodeRects()
+_nAN29_ = len(_aAN29_)
+for _iAN29_ = 1 to _nAN29_
+	aN = _aAN29_[_iAN29_]
 	if aN[5] = "api2"
 		nApiB = aN[2] + aN[4]
 	ok
@@ -1725,7 +1812,10 @@ chk("a rank gap leaves a readable band on each side of a channel",
 # THE SAME RULE ON THE OTHER AXIS. Left-to-right makes the gap
 # horizontal and the channel vertical; one rule, stated axis-free.
 oLRc = new stzDiagram("lr27")
-for a in [ [ "a", "A" ], [ "b", "B" ], [ "c", "C" ] ]
+_aA30_ = [ [ "a", "A" ], [ "b", "B" ], [ "c", "C" ] ]
+_nA30_ = len(_aA30_)
+for _iA30_ = 1 to _nA30_
+	a = _aA30_[_iA30_]
 	oLRc.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
 next
 oLRc.AddEdge("a", "b")  oLRc.AddEdge("a", "c")
@@ -1801,8 +1891,11 @@ chk("the hop follows the axes to left-to-right", len(aChLR) > 0)
 # the counter is counting corner rounding again, or hops are being
 # stamped where nothing crosses.
 oNH = new stzDiagram("svc28")
-for a in [ [ "lb", "Balancer" ], [ "web1", "Web A" ], [ "web2", "Web B" ],
+_aA31_ = [ [ "lb", "Balancer" ], [ "web1", "Web A" ], [ "web2", "Web B" ],
            [ "api1", "API A" ], [ "api2", "API B" ] ]
+_nA31_ = len(_aA31_)
+for _iA31_ = 1 to _nA31_
+	a = _aA31_[_iA31_]
 	oNH.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
 next
 oNH.AddEdge("lb", "web1")    oNH.AddEdge("lb", "web2")
@@ -1834,7 +1927,10 @@ sec("-- 29. One port pitch, and an arrival group sits CENTRED ------")
 
 cP29 = oFC.ToSVGXT([ :NodeWidth = 96, :NodeHeight = 36 ])
 nWebR = 0  nWebCy = 0  nLogL = 0  nLogCy = 0
-for aN in oFC.RenderNodeRects()
+_aAN32_ = oFC.RenderNodeRects()
+_nAN32_ = len(_aAN32_)
+for _iAN32_ = 1 to _nAN32_
+	aN = _aAN32_[_iAN32_]
 	if aN[5] = "web1"
 		nWebR = aN[1] + aN[3]
 		nWebCy = aN[2] + aN[4] / 2
@@ -1935,9 +2031,12 @@ chk("the lane held far from the target IS the arrival lane",
 # lane crossing a cut below the Backend frame must reappear unchanged
 # at Logger's top border.
 oTD = new stzDiagram("svc30")
-for a in [ [ "lb", "Balancer" ], [ "web1", "Web A" ], [ "web2", "Web B" ],
+_aA33_ = [ [ "lb", "Balancer" ], [ "web1", "Web A" ], [ "web2", "Web B" ],
            [ "api1", "API A" ], [ "api2", "API B" ],
            [ "db1", "DB A" ], [ "db2", "DB B" ], [ "log", "Logger" ] ]
+_nA33_ = len(_aA33_)
+for _iA33_ = 1 to _nA33_
+	a = _aA33_[_iA33_]
 	oTD.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
 next
 oTD.AddEdge("lb", "web1")    oTD.AddEdge("lb", "web2")
@@ -1951,7 +2050,10 @@ oTD.SetSplines("ortho")
 cTD = oTD.ToSVGXT([ :NodeWidth = 96, :NodeHeight = 36 ])
 nTLogT = 0  nTLogCx = 0
 nTApiT = 0
-for aN in oTD.RenderNodeRects()
+_aAN34_ = oTD.RenderNodeRects()
+_nAN34_ = len(_aAN34_)
+for _iAN34_ = 1 to _nAN34_
+	aN = _aAN34_[_iAN34_]
 	if aN[5] = "log"
 		nTLogT = aN[2]
 		nTLogCx = aN[1] + aN[3] / 2
@@ -1989,7 +2091,10 @@ chk("the top-down descent holds its arrival lane the whole way",
 # direct", this diagram would draw a-to-b through the cluster's frame
 # and the mid-cut would read near b's centre.
 oBn = new stzDiagram("bend30")
-for a in [ [ "a", "A" ], [ "c", "C" ], [ "b", "B" ] ]
+_aA35_ = [ [ "a", "A" ], [ "c", "C" ], [ "b", "B" ] ]
+_nA35_ = len(_aA35_)
+for _iA35_ = 1 to _nA35_
+	a = _aA35_[_iA35_]
 	oBn.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
 next
 oBn.AddEdge("a", "c")
@@ -1999,7 +2104,10 @@ oBn.AddClusterXTT("fence", "Fence", [ "c" ], "#5E35B1")
 oBn.SetSplines("ortho")
 cBn = oBn.ToSVGXT([ :NodeWidth = 96, :NodeHeight = 36 ])
 nBCx = 0  nBT = 0  nCB = 0
-for aN in oBn.RenderNodeRects()
+_aAN36_ = oBn.RenderNodeRects()
+_nAN36_ = len(_aAN36_)
+for _iAN36_ = 1 to _nAN36_
+	aN = _aAN36_[_iAN36_]
 	if aN[5] = "b"
 		nBCx = aN[1] + aN[3] / 2
 		nBT = aN[2]
@@ -2009,7 +2117,10 @@ for aN in oBn.RenderNodeRects()
 next
 aMid = _BorderCrossings(cBn, EDGERGB, nCB + 8, nBCx - 300, nBCx + 300, 1)
 nDetour = -1
-for v in aMid
+_aV37_ = aMid
+_nV37_ = len(_aV37_)
+for _iV37_ = 1 to _nV37_
+	v = _aV37_[_iV37_]
 	if fabs(v - nBCx) > nDetour  nDetour = fabs(v - nBCx)  ok
 next
 ? "   at mid-height the routed edge stands " + nDetour +
@@ -2020,7 +2131,10 @@ chk("a bend with a cause keeps its detour", nDetour > 30)
 # land between the two
 aBLow = _BorderCrossings(cBn, EDGERGB, nBT - 16, nBCx - 300, nBCx + 300, 1)
 nBWide = -1
-for v in aBLow
+_aV38_ = aBLow
+_nV38_ = len(_aV38_)
+for _iV38_ = 1 to _nV38_
+	v = _aV38_[_iV38_]
 	if fabs(v - nBCx) > nBWide  nBWide = fabs(v - nBCx)  ok
 next
 # AND THE CLEAR LEG IS TAKEN EVEN WHEN IT LIES BETWEEN OBSTACLES. This
@@ -2033,7 +2147,10 @@ next
 # source. A predicate must not be built out of a function whose job is
 # to move things; the second time that confusion cost a picture here.
 oClr = new stzDiagram("clear30")
-for a in [ [ "top", "Top" ], [ "l", "L" ], [ "r", "R" ], [ "far", "FAR" ] ]
+_aA39_ = [ [ "top", "Top" ], [ "l", "L" ], [ "r", "R" ], [ "far", "FAR" ] ]
+_nA39_ = len(_aA39_)
+for _iA39_ = 1 to _nA39_
+	a = _aA39_[_iA39_]
 	oClr.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
 next
 oClr.AddNodeXTT("mid", "MID", [ :type = "box", :color = "Info.Solid" ])
@@ -2044,7 +2161,10 @@ oClr.SetSplines("ortho")
 oClr.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36,
 	:Width = 900, :Height = 600 ])
 nTurns30 = -1
-for p in oClr.RenderEdgePaths()
+_aP40_ = oClr.RenderEdgePaths()
+_nP40_ = len(_aP40_)
+for _iP40_ = 1 to _nP40_
+	p = _aP40_[_iP40_]
 	if p[1] != "top>mid"  loop  ok
 	aF = p[2]
 	nTurns30 = 0
@@ -2174,10 +2294,16 @@ chkeq("every label was placed and recorded", len(aLbs), 4)
 # its plate keeps a clear margin from every other edge's ink.
 nWorstOwn = -1
 nWorstFor = 1000000
-for aL in aLbs
+_aAL41_ = aLbs
+_nAL41_ = len(_aAL41_)
+for _iAL41_ = 1 to _nAL41_
+	aL = _aAL41_[_iAL41_]
 	# own-path distance, same interval arithmetic as the placer's
 	nOwn = 1000000
-	for aP in oLb.RenderEdgePaths()
+	_aAP42_ = oLb.RenderEdgePaths()
+	_nAP42_ = len(_aAP42_)
+	for _iAP42_ = 1 to _nAP42_
+		aP = _aAP42_[_iAP42_]
 		if aP[1] != aL[6]  loop  ok
 		aF = aP[2]
 		for i = 1 to len(aF) - 3 step 2
@@ -2290,9 +2416,15 @@ chk("...to no wider than the node it names", aBlk33[2] <= 96 + 8)
 
 nOn33 = 0
 nTail33 = 1000000
-for aL in oLd.RenderLabels()
+_aAL43_ = oLd.RenderLabels()
+_nAL43_ = len(_aAL43_)
+for _iAL43_ = 1 to _nAL43_
+	aL = _aAL43_[_iAL43_]
 	bOn33 = 0
-	for aP in oLd.RenderEdgePaths()
+	_aAP44_ = oLd.RenderEdgePaths()
+	_nAP44_ = len(_aAP44_)
+	for _iAP44_ = 1 to _nAP44_
+		aP = _aAP44_[_iAP44_]
 		if aP[1] != aL[6]  loop  ok
 		# ATTACHED TO ITS LINE, AND CENTRED ALONG IT -- which is what
 		# the original ruling asked for, and what BESIDE placement
@@ -2343,7 +2475,10 @@ chk("...and its line is long enough to be read against",
 
 # CONGRUENCE: four children of one parent, one relation, one drawing.
 aShape33 = []
-for aP in oLd.RenderEdgePaths()
+_aAP45_ = oLd.RenderEdgePaths()
+_nAP45_ = len(_aAP45_)
+for _iAP45_ = 1 to _nAP45_
+	aP = _aAP45_[_iAP45_]
 	aF = aP[2]
 	nDrop33 = 0
 	for i = 1 to len(aF) - 3 step 2
@@ -2366,7 +2501,10 @@ chk("siblings of one parent are drawn ALIKE", bSame33)
 # to the node's width, the binding constraint is the separation contract
 # alone, so the pitch falls back to it exactly.
 aX33 = []
-for r in oLd.RenderNodeRects()
+_aR46_ = oLd.RenderNodeRects()
+_nR46_ = len(_aR46_)
+for _iR46_ = 1 to _nR46_
+	r = _aR46_[_iR46_]
 	if r[5] != "r"  aX33 + r[1]  ok
 next
 aX33 = sort(aX33)
@@ -2429,7 +2567,10 @@ sec("-- 34. The mother cell is CENTRED over her children --------")
 
 
 # EVEN counts are where centring becomes visible and where it was lost.
-for nKids in [ 2, 3, 4, 5, 6 ]
+_aNKids47_ = [ 2, 3, 4, 5, 6 ]
+_nNKids47_ = len(_aNKids47_)
+for _iNKids47_ = 1 to _nNKids47_
+	nKids = _aNKids47_[_iNKids47_]
 	oC = new stzDiagram("ctr" + nKids)
 	oC.AddNodeXTT("r", "Router", [ :type = "box", :color = "Info.Solid" ])
 	for i = 1 to nKids
@@ -2440,7 +2581,10 @@ for nKids in [ 2, 3, 4, 5, 6 ]
 	oC.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
 	nRx = -100000
 	aKid = []
-	for rr in oC.RenderNodeRects()
+	_aRr48_ = oC.RenderNodeRects()
+	_nRr48_ = len(_aRr48_)
+	for _iRr48_ = 1 to _nRr48_
+		rr = _aRr48_[_iRr48_]
 		if rr[5] = "r"
 			nRx = rr[1] + rr[3] / 2
 		else
@@ -2459,7 +2603,10 @@ next
 # "always move the parent", a chain would still pass the span test while
 # losing nothing, so this asserts the straight column itself.
 oCh = new stzDiagram("chain35")
-for a in [ "a", "b", "c", "d" ]
+_aA49_ = [ "a", "b", "c", "d" ]
+_nA49_ = len(_aA49_)
+for _iA49_ = 1 to _nA49_
+	a = _aA49_[_iA49_]
 	oCh.AddNodeXTT(a, StzUpper(a), [ :type = "box", :color = "Info.Solid" ])
 next
 oCh.AddEdge("a", "b")  oCh.AddEdge("b", "c")  oCh.AddEdge("c", "d")
@@ -2467,7 +2614,10 @@ oCh.SetSplines("ortho")
 oCh.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
 nSpread = 0
 nFirst = -100000
-for rr in oCh.RenderNodeRects()
+_aRr50_ = oCh.RenderNodeRects()
+_nRr50_ = len(_aRr50_)
+for _iRr50_ = 1 to _nRr50_
+	rr = _aRr50_[_iRr50_]
 	nCx = rr[1] + rr[3] / 2
 	if nFirst = -100000  nFirst = nCx  ok
 	if fabs(nCx - nFirst) > nSpread  nSpread = fabs(nCx - nFirst)  ok
@@ -2491,12 +2641,18 @@ oTwo.AddEdge("q", "k3")  oTwo.AddEdge("q", "k4")
 oTwo.SetSplines("ortho")
 oTwo.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
 aAt = []
-for rr in oTwo.RenderNodeRects()
+_aRr51_ = oTwo.RenderNodeRects()
+_nRr51_ = len(_aRr51_)
+for _iRr51_ = 1 to _nRr51_
+	rr = _aRr51_[_iRr51_]
 	aAt + [ rr[5], rr[1] + rr[3] / 2 ]
 next
 nP = 0  nQ = 0
 aPk = []  aQk = []
-for e in aAt
+_aE52_ = aAt
+_nE52_ = len(_aE52_)
+for _iE52_ = 1 to _nE52_
+	e = _aE52_[_iE52_]
 	if e[1] = "p"  nP = e[2]  ok
 	if e[1] = "q"  nQ = e[2]  ok
 	if e[1] = "k1" or e[1] = "k2"  aPk + e[2]  ok
@@ -2519,7 +2675,10 @@ chk("...and the two families do NOT collapse onto one column",
 # spine it held with its own parent -- to state a centring over a child
 # it does not own. The same reason tidyTerritories runs on forests alone.
 oShr = new stzDiagram("shared35")
-for a in [ "p", "k1", "k2", "s" ]
+_aA53_ = [ "p", "k1", "k2", "s" ]
+_nA53_ = len(_aA53_)
+for _iA53_ = 1 to _nA53_
+	a = _aA53_[_iA53_]
 	oShr.AddNodeXTT(a, StzUpper(a), [ :type = "box", :color = "Info.Solid" ])
 next
 oShr.AddNodeXTT("far", "FAR", [ :type = "box", :color = "Info.Solid" ])
@@ -2528,7 +2687,10 @@ oShr.AddEdge("s", "far")    oShr.AddEdge("k1", "far")
 oShr.SetSplines("ortho")
 oShr.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
 nK1 = -100000  nFar = -100000
-for rr in oShr.RenderNodeRects()
+_aRr54_ = oShr.RenderNodeRects()
+_nRr54_ = len(_aRr54_)
+for _iRr54_ = 1 to _nRr54_
+	rr = _aRr54_[_iRr54_]
 	if rr[5] = "k1"   nK1 = rr[1] + rr[3] / 2  ok
 	if rr[5] = "far"  nFar = rr[1] + rr[3] / 2  ok
 next
@@ -2573,9 +2735,12 @@ sec("-- 35. The verticals obey ONE rhythm ------------------------")
 
 
 oRy = new stzDiagram("rhythm36")
-for a in [ [ "lb","Balancer" ],[ "web1","Web A" ],[ "web2","Web B" ],
+_aA55_ = [ [ "lb","Balancer" ],[ "web1","Web A" ],[ "web2","Web B" ],
            [ "api1","API A" ],[ "api2","API B" ],
            [ "db1","DB A" ],[ "db2","DB B" ],[ "log","Logger" ] ]
+_nA55_ = len(_aA55_)
+for _iA55_ = 1 to _nA55_
+	a = _aA55_[_iA55_]
 	oRy.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
 next
 oRy.AddEdge("lb","web1")   oRy.AddEdge("lb","web2")
@@ -2589,7 +2754,10 @@ oRy.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
 
 # every rank gap is one number
 aRows = []
-for r in oRy.RenderNodeRects()
+_aR56_ = oRy.RenderNodeRects()
+_nR56_ = len(_aR56_)
+for _iR56_ = 1 to _nR56_
+	r = _aR56_[_iR56_]
 	bF = 0
 	for i = 1 to len(aRows)
 		if fabs(aRows[i][1] - r[2]) < 2  bF = 1  ok
@@ -2622,7 +2790,10 @@ nWorst = 0
 nPairs = 0
 nCross = 0
 nTween = 0
-for p in oRy.RenderEdgePaths()
+_aP57_ = oRy.RenderEdgePaths()
+_nP57_ = len(_aP57_)
+for _iP57_ = 1 to _nP57_
+	p = _aP57_[_iP57_]
 	aF = p[2]
 	aV = []
 	for i = 1 to len(aF) - 3 step 2
@@ -2631,7 +2802,10 @@ for p in oRy.RenderEdgePaths()
 		ok
 	next
 	bCross = 0
-	for v in aV
+	_aV58_ = aV
+	_nV58_ = len(_aV58_)
+	for _iV58_ = 1 to _nV58_
+		v = _aV58_[_iV58_]
 		if v >= nGap  bCross++  ok
 		if v > nGap * 0.75 and v < nGap  nTween++  ok
 	next
@@ -2653,11 +2827,17 @@ chkeq("NOTHING lands between the two lengths", nTween, 0)
 # gets the middle of the band it actually has, not the middle of the gap
 # -- and that band is bounded by the frame, which the reader can see.
 nFrameTop = 1000000
-for c in oRy.RenderClusterRects()
+_aC59_ = oRy.RenderClusterRects()
+_nC59_ = len(_aC59_)
+for _iC59_ = 1 to _nC59_
+	c = _aC59_[_iC59_]
 	if c[2] < nFrameTop  nFrameTop = c[2]  ok
 next
 nChan = -1
-for p in oRy.RenderEdgePaths()
+_aP60_ = oRy.RenderEdgePaths()
+_nP60_ = len(_aP60_)
+for _iP60_ = 1 to _nP60_
+	p = _aP60_[_iP60_]
 	if p[1] != "web1>log"  loop  ok
 	aF = p[2]
 	for i = 1 to len(aF) - 3 step 2
@@ -2686,14 +2866,20 @@ chk("the gap funds the chrome AND a crossable band",
 # pad, and the floor once estimated the pad without it -- so deepen the
 # nesting and the floor must grow with it, or it is estimating again.
 oFlat = new stzDiagram("flat36")
-for a in [ "p", "c1", "c2" ]
+_aA61_ = [ "p", "c1", "c2" ]
+_nA61_ = len(_aA61_)
+for _iA61_ = 1 to _nA61_
+	a = _aA61_[_iA61_]
 	oFlat.AddNodeXTT(a, StzUpper(a), [ :type = "box", :color = "Info.Solid" ])
 next
 oFlat.AddEdge("p", "c1")  oFlat.AddEdge("p", "c2")
 oFlat.AddClusterXTT("g", "G", [ "c1", "c2" ], "#5E35B1")
 nFlat = oFlat._ClusterChromeAbove(13)
 oNest = new stzDiagram("nest36")
-for a in [ "p", "c1", "c2" ]
+_aA62_ = [ "p", "c1", "c2" ]
+_nA62_ = len(_aA62_)
+for _iA62_ = 1 to _nA62_
+	a = _aA62_[_iA62_]
 	oNest.AddNodeXTT(a, StzUpper(a), [ :type = "box", :color = "Info.Solid" ])
 next
 oNest.AddEdge("p", "c1")  oNest.AddEdge("p", "c2")
@@ -2735,9 +2921,12 @@ sec("-- 36. A lateral edge goes STRAIGHT there ------------------")
 
 
 oSv = new stzDiagram("svc37")
-for a in [ [ "lb","Balancer" ],[ "web1","Web A" ],[ "web2","Web B" ],
+_aA63_ = [ [ "lb","Balancer" ],[ "web1","Web A" ],[ "web2","Web B" ],
            [ "api1","API A" ],[ "api2","API B" ],
            [ "db1","DB A" ],[ "db2","DB B" ],[ "log","Logger" ] ]
+_nA63_ = len(_aA63_)
+for _iA63_ = 1 to _nA63_
+	a = _aA63_[_iA63_]
 	oSv.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
 next
 oSv.AddEdge("lb","web1")   oSv.AddEdge("lb","web2")
@@ -2752,7 +2941,10 @@ nClr = oSv._LineClearance()
 
 # the log edge leaves the SIDE and turns once
 aP = []
-for p in oSv.RenderEdgePaths()
+_aP64_ = oSv.RenderEdgePaths()
+_nP64_ = len(_aP64_)
+for _iP64_ = 1 to _nP64_
+	p = _aP64_[_iP64_]
 	if p[1] = "api2>log"  aP = p[2]  ok
 next
 nTurns = 0
@@ -2765,7 +2957,10 @@ next
 chk("a lateral edge turns ONCE, not three times", nTurns = 1)
 
 nApiR = 0  nApiCy = 0
-for r in oSv.RenderNodeRects()
+_aR65_ = oSv.RenderNodeRects()
+_nR65_ = len(_aR65_)
+for _iR65_ = 1 to _nR65_
+	r = _aR65_[_iR65_]
 	if r[5] = "api2"
 		nApiR = r[1] + r[3]
 		nApiCy = r[2] + r[4] / 2
@@ -2778,7 +2973,10 @@ chk("...from the CENTRE of its source's side border",
 
 # and no segment of it crowds a foreign cluster frame
 nNear = 1000000
-for c in oSv.RenderClusterRects()
+_aC66_ = oSv.RenderClusterRects()
+_nC66_ = len(_aC66_)
+for _iC66_ = 1 to _nC66_
+	c = _aC66_[_iC66_]
 	if StzFindFirst("api2", c[5]) > 0  loop  ok
 	for i = 1 to len(aP) - 3 step 2
 		nAx = min([ aP[i], aP[i+2] ])   nBx = max([ aP[i], aP[i+2] ])
@@ -2801,13 +2999,19 @@ chk("...and never grazes a cluster it does not belong to", nNear >= nClr)
 # the placer must answer inside the gap AND a clearance clear of the
 # block -- not fall back to the unchecked proposal.
 nData = 1000000
-for c in oSv.RenderClusterRects()
+_aC67_ = oSv.RenderClusterRects()
+_nC67_ = len(_aC67_)
+for _iC67_ = 1 to _nC67_
+	c = _aC67_[_iC67_]
 	if StzFindFirst("db1", c[5]) > 0 and StzFindFirst("api1", c[5]) = 0
 		nData = c[2]
 	ok
 next
 nApiB = 0  nDbT = 0
-for r in oSv.RenderNodeRects()
+_aR68_ = oSv.RenderNodeRects()
+_nR68_ = len(_aR68_)
+for _iR68_ = 1 to _nR68_
+	r = _aR68_[_iR68_]
 	if r[5] = "api2"  nApiB = r[2] + r[4]  ok
 	if r[5] = "db2"   nDbT = r[2]  ok
 next
@@ -2831,7 +3035,10 @@ oFan.SetSplines("ortho")
 oFan.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
 nShapes = 0
 aFirst = []
-for p in oFan.RenderEdgePaths()
+_aP69_ = oFan.RenderEdgePaths()
+_nP69_ = len(_aP69_)
+for _iP69_ = 1 to _nP69_
+	p = _aP69_[_iP69_]
 	if len(aFirst) = 0  aFirst = p[2]  ok
 	if len(p[2]) != len(aFirst)  nShapes++  ok
 next
@@ -2872,7 +3079,10 @@ sec("-- 37. WHITESPACE is grouping, on DAGs as on trees ---------")
 oFm = new stzDiagram("fam38")
 oFm.AddNodeXTT("root", "Root", [ :type = "box", :color = "Info.Solid" ])
 oFm.AddNodeXTT("root2", "Root2", [ :type = "box", :color = "Info.Solid" ])
-for a in [ "p", "q" ]
+_aA70_ = [ "p", "q" ]
+_nA70_ = len(_aA70_)
+for _iA70_ = 1 to _nA70_
+	a = _aA70_[_iA70_]
 	oFm.AddNodeXTT(a, StzUpper(a), [ :type = "box", :color = "Info.Solid" ])
 	oFm.AddEdge("root", a)
 	for i = 1 to 3
@@ -2886,7 +3096,10 @@ oFm.SetSplines("ortho")
 oFm.ToCanvasXT([ :NodeWidth = 70, :NodeHeight = 34 ])
 
 aLeaf = []
-for r in oFm.RenderNodeRects()
+_aR71_ = oFm.RenderNodeRects()
+_nR71_ = len(_aR71_)
+for _iR71_ = 1 to _nR71_
+	r = _aR71_[_iR71_]
 	if StzLen(r[5]) = 2  aLeaf + [ r[5], r[1], r[1] + r[3] ]  ok
 next
 for i = 1 to len(aLeaf)
@@ -2921,7 +3134,10 @@ chk("a family boundary is WIDER than a sibling gap", nCous > nSib * 1.5)
 # have come from the rank-local rule. Asserted, because a probe that
 # quietly stayed a tree would prove nothing about DAGs.
 nPar = 0
-for e in oFm.Edges()
+_aE72_ = oFm.Edges()
+_nE72_ = len(_aE72_)
+for _iE72_ = 1 to _nE72_
+	e = _aE72_[_iE72_]
 	if StzLower("" + e[:to]) = "p"  nPar++  ok
 next
 ? "   p has " + nPar + " parents, so every subtree rule refuses this graph"
@@ -2940,7 +3156,10 @@ next
 oOne.SetSplines("ortho")
 oOne.ToCanvasXT([ :NodeWidth = 70, :NodeHeight = 34 ])
 aK = []
-for r in oOne.RenderNodeRects()
+_aR73_ = oOne.RenderNodeRects()
+_nR73_ = len(_aR73_)
+for _iR73_ = 1 to _nR73_
+	r = _aR73_[_iR73_]
 	if r[5] != "r"  aK + [ r[1], r[1] + r[3] ]  ok
 next
 for i = 1 to len(aK)
@@ -2971,7 +3190,10 @@ chk("the family gap exceeds the sibling gap by a stated fraction",
 # foreign node: the deepest padding plus one clearance, once per
 # crossing, since the padding already grows with nesting.
 oCl = new stzDiagram("air38")
-for a in [ [ "p","P" ],[ "a","A" ],[ "b","B" ],[ "far","FAR" ] ]
+_aA74_ = [ [ "p","P" ],[ "a","A" ],[ "b","B" ],[ "far","FAR" ] ]
+_nA74_ = len(_aA74_)
+for _iA74_ = 1 to _nA74_
+	a = _aA74_[_iA74_]
 	oCl.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
 next
 oCl.AddEdge("p", "a")  oCl.AddEdge("p", "b")  oCl.AddEdge("p", "far")
@@ -2979,11 +3201,17 @@ oCl.AddClusterXTT("g", "G", [ "a", "b" ], "#5E35B1")
 oCl.SetSplines("ortho")
 oCl.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
 nFrameR = 0
-for c in oCl.RenderClusterRects()
+_aC75_ = oCl.RenderClusterRects()
+_nC75_ = len(_aC75_)
+for _iC75_ = 1 to _nC75_
+	c = _aC75_[_iC75_]
 	if c[1] + c[3] > nFrameR  nFrameR = c[1] + c[3]  ok
 next
 nFarL = 1000000
-for r in oCl.RenderNodeRects()
+_aR76_ = oCl.RenderNodeRects()
+_nR76_ = len(_aR76_)
+for _iR76_ = 1 to _nR76_
+	r = _aR76_[_iR76_]
 	if r[5] = "far" and r[1] < nFarL  nFarL = r[1]  ok
 next
 nNeed = oCl._LineClearance()
@@ -3043,7 +3271,10 @@ oPl.SetSplines("ortho")
 oPl.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
 aX = []
 for i = 1 to 4
-	for r in oPl.RenderNodeRects()
+	_aR77_ = oPl.RenderNodeRects()
+	_nR77_ = len(_aR77_)
+	for _iR77_ = 1 to _nR77_
+		r = _aR77_[_iR77_]
 		if r[5] = "s" + i  aX + (r[1] + r[3] / 2)  ok
 	next
 next
@@ -3062,7 +3293,10 @@ chk("a chain runs as ONE straight column", nDrift < 0.5)
 nBOff = 1000000
 nLeft = 0
 nRight = 0
-for r in oPl.RenderNodeRects()
+_aR78_ = oPl.RenderNodeRects()
+_nR78_ = len(_aR78_)
+for _iR78_ = 1 to _nR78_
+	r = _aR78_[_iR78_]
 	if StzSubStr(r[5], 1, 1) != "b"  loop  ok
 	nD = r[1] + r[3] / 2 - aX[1]
 	if fabs(nD) < nBOff  nBOff = fabs(nD)  ok
@@ -3080,9 +3314,12 @@ chk("...and they all hang to the same side of it",
 # not. The service diagram is the case: its root's two children carry
 # chains of the same length.
 oSv = new stzDiagram("svc39")
-for a in [ [ "lb","Balancer" ],[ "web1","Web A" ],[ "web2","Web B" ],
+_aA79_ = [ [ "lb","Balancer" ],[ "web1","Web A" ],[ "web2","Web B" ],
            [ "api1","API A" ],[ "api2","API B" ],
            [ "db1","DB A" ],[ "db2","DB B" ] ]
+_nA79_ = len(_aA79_)
+for _iA79_ = 1 to _nA79_
+	a = _aA79_[_iA79_]
 	oSv.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
 next
 oSv.AddEdge("lb","web1")   oSv.AddEdge("lb","web2")
@@ -3091,7 +3328,10 @@ oSv.AddEdge("api1","db1")  oSv.AddEdge("api2","db2")
 oSv.SetSplines("ortho")
 oSv.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
 nLb = 0  nW1 = 0  nW2 = 0  nA1 = 0  nD1 = 0
-for r in oSv.RenderNodeRects()
+_aR80_ = oSv.RenderNodeRects()
+_nR80_ = len(_aR80_)
+for _iR80_ = 1 to _nR80_
+	r = _aR80_[_iR80_]
 	nC = r[1] + r[3] / 2
 	if r[5] = "lb"    nLb = nC  ok
 	if r[5] = "web1"  nW1 = nC  ok
@@ -3121,7 +3361,10 @@ oFn.SetSplines("ortho")
 oFn.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
 nRx = 0
 aKid = []
-for r in oFn.RenderNodeRects()
+_aR81_ = oFn.RenderNodeRects()
+_nR81_ = len(_aR81_)
+for _iR81_ = 1 to _nR81_
+	r = _aR81_[_iR81_]
 	if r[5] = "r"  nRx = r[1] + r[3] / 2
 	else  aKid + (r[1] + r[3] / 2)  ok
 next
@@ -3236,7 +3479,10 @@ aPg = oWd.ToPagesXT("_g40.png", [ :Font = PFONT, :NodeWidth = 96,
 ? "   A4 at 96dpi : " + len(aPg) + " sheet(s)"
 chk("a picture wider than a page becomes several", len(aPg) >= 2)
 bAll = 1
-for aS in aPg
+_aAS82_ = aPg
+_nAS82_ = len(_aAS82_)
+for _iAS82_ = 1 to _nAS82_
+	aS = _aAS82_[_iAS82_]
 	if NOT (isString(aS[1]) and len(read(aS[1])) > 1000)  bAll = 0  ok
 next
 chk("every sheet was actually written", bAll)
@@ -3320,7 +3566,10 @@ sec("-- 40. GG7a: the picture can be ASKED --------------------------")
 
 # THE PICTURE ANSWERS IN THE GRAPH'S TERMS
 oPk = new stzDiagram("pick41")
-for a in [ [ "lb","Balancer" ],[ "web1","Web A" ],[ "web2","Web B" ] ]
+_aA83_ = [ [ "lb","Balancer" ],[ "web1","Web A" ],[ "web2","Web B" ] ]
+_nA83_ = len(_aA83_)
+for _iA83_ = 1 to _nA83_
+	a = _aA83_[_iA83_]
 	oPk.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
 next
 oPk.AddEdge("lb", "web1")  oPk.AddEdge("lb", "web2")
@@ -3338,7 +3587,10 @@ oPk.ToCanvasXT([ :Font = PKFONT, :NodeWidth = 96, :NodeHeight = 36,
 	:FontSize = 13 ])
 
 nFound = 0
-for r in oPk.RenderNodeRects()
+_aR84_ = oPk.RenderNodeRects()
+_nR84_ = len(_aR84_)
+for _iR84_ = 1 to _nR84_
+	r = _aR84_[_iR84_]
 	aAt = oPk.PickAt(r[1] + r[3] / 2, r[2] + r[4] / 2)
 	if len(aAt) = 2 and StzLower("" + aAt[2]) = r[5]  nFound++  ok
 next
@@ -3350,7 +3602,10 @@ chkeq("a point on a node answers with THAT node", nFound,
 # an edge answers as an edge, named by its ends
 aEP = oPk.RenderEdgePaths()
 nOnEdge = 0
-for p in aEP
+_aP85_ = aEP
+_nP85_ = len(_aP85_)
+for _iP85_ = 1 to _nP85_
+	p = _aP85_[_iP85_]
 	aF = p[2]
 	# the middle of the LAST segment, which belongs to this edge alone
 	nMx = (aF[len(aF) - 3] + aF[len(aF) - 1]) / 2
@@ -3478,7 +3733,12 @@ next
 oPn.SetSplines("ortho")
 oPn.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
 aFree = []
-for rr in oPn.RenderNodeRects()  aFree + [ rr[5], rr[1] + rr[3] / 2 ]  next
+_aFreeR_ = oPn.RenderNodeRects()
+_nFreeR_ = len(_aFreeR_)
+for _iFreeR_ = 1 to _nFreeR_
+	rr = _aFreeR_[_iFreeR_]
+	aFree + [ rr[5], rr[1] + rr[3] / 2 ]
+next
 ? "   free: k1 sits at " + _Xof42(aFree, "k1") + ", k4 at " +
   _Xof42(aFree, "k4")
 chk("the layout places the children in declaration order",
@@ -3491,7 +3751,10 @@ oPn.Pin("k1", 10)
 chk("the pin is recorded", oPn.IsPinned("k1") and NOT oPn.IsPinned("k2"))
 oPn.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
 aPinned = []
-for rr in oPn.RenderNodeRects()
+_aRr86_ = oPn.RenderNodeRects()
+_nRr86_ = len(_aRr86_)
+for _iRr86_ = 1 to _nRr86_
+	rr = _aRr86_[_iRr86_]
 	aPinned + [ rr[5], rr[1] + rr[3] / 2 ]
 next
 ? "   pinned to slot 10: k1 at " + _Xof42(aPinned, "k1") + ", k4 at " +
@@ -3499,7 +3762,10 @@ next
 chk("a pinned cell moves PAST its siblings",
     _Xof42(aPinned, "k1") > _Xof42(aPinned, "k4"))
 nGone = 0
-for a in [ "k2", "k3", "k4" ]
+_aA87_ = [ "k2", "k3", "k4" ]
+_nA87_ = len(_aA87_)
+for _iA87_ = 1 to _nA87_
+	a = _aA87_[_iA87_]
 	if _Xof42(aPinned, a) < _Xof42(aPinned, "k1")  nGone++  ok
 next
 chkeq("...and every unpinned sibling flowed around it", nGone, 3)
@@ -3512,7 +3778,10 @@ oPn.Unpin("k1")
 chkeq("the pin is gone", len(oPn.Pins()), 0)
 oPn.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
 nSame = 0
-for rr in oPn.RenderNodeRects()
+_aRr88_ = oPn.RenderNodeRects()
+_nRr88_ = len(_aRr88_)
+for _iRr88_ = 1 to _nRr88_
+	rr = _aRr88_[_iRr88_]
 	if fabs(rr[1] + rr[3] / 2 - _Xof42(aFree, rr[5])) < 0.5  nSame++  ok
 next
 ? "   unpinned again: " + nSame + " of " + len(aFree) +
@@ -3534,17 +3803,31 @@ next
 oAg.SetSplines("ortho")
 oAg.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
 aBefore = []
-for rr in oAg.RenderNodeRects()  aBefore + [ rr[5], rr[1] + rr[3] / 2 ]  next
+_aBefR_ = oAg.RenderNodeRects()
+_nBefR_ = len(_aBefR_)
+for _iBefR_ = 1 to _nBefR_
+	rr = _aBefR_[_iBefR_]
+	aBefore + [ rr[5], rr[1] + rr[3] / 2 ]
+next
 # k1 is leftmost already; pinning it to the far left agrees with that
 oAg.Pin("k1", 0 - 3)
 oAg.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
 nOrderKept = 1
-for a in [ "k1", "k2", "k3", "k4" ]
-	for b in [ "k1", "k2", "k3", "k4" ]
+_aA89_ = [ "k1", "k2", "k3", "k4" ]
+_nA89_ = len(_aA89_)
+for _iA89_ = 1 to _nA89_
+	a = _aA89_[_iA89_]
+	_aB90_ = [ "k1", "k2", "k3", "k4" ]
+	_nB90_ = len(_aB90_)
+	for _iB90_ = 1 to _nB90_
+		b = _aB90_[_iB90_]
 		if a = b  loop  ok
 		bB = _Xof42(aBefore, a) < _Xof42(aBefore, b)
 		aNow = []
-		for rr in oAg.RenderNodeRects()
+		_aRr91_ = oAg.RenderNodeRects()
+		_nRr91_ = len(_aRr91_)
+		for _iRr91_ = 1 to _nRr91_
+			rr = _aRr91_[_iRr91_]
 			aNow + [ rr[5], rr[1] + rr[3] / 2 ]
 		next
 		if bB != (_Xof42(aNow, a) < _Xof42(aNow, b))  nOrderKept = 0  ok
@@ -3817,7 +4100,10 @@ oPf.SetSplines("ortho")
 oPf.ToCanvasXT([ :NodeWidth = 60, :NodeHeight = 26,
 	:Width = 2400, :Height = 1600 ])
 aStart = []
-for rr in oPf.RenderNodeRects()
+_aRr92_ = oPf.RenderNodeRects()
+_nRr92_ = len(_aRr92_)
+for _iRr92_ = 1 to _nRr92_
+	rr = _aRr92_[_iRr92_]
 	if rr[5] = "n7"  aStart = [ rr[1] + rr[3] / 2, rr[2] + rr[4] / 2 ]  ok
 next
 oPf.OnPress(aStart[1], aStart[2])
@@ -3873,7 +4159,10 @@ oSs.SetSplines("ortho")
 aOpt45 = [ :NodeWidth = 96, :NodeHeight = 36 ]
 oSs.ToCanvasXT(aOpt45)
 aK1 = []  aK4 = []
-for rr in oSs.RenderNodeRects()
+_aRr93_ = oSs.RenderNodeRects()
+_nRr93_ = len(_aRr93_)
+for _iRr93_ = 1 to _nRr93_
+	rr = _aRr93_[_iRr93_]
 	if rr[5] = "k1"  aK1 = [ rr[1] + rr[3] / 2, rr[2] + rr[4] / 2 ]  ok
 	if rr[5] = "k4"  aK4 = [ rr[1] + rr[3] / 2, rr[2] + rr[4] / 2 ]  ok
 next
@@ -3913,7 +4202,10 @@ bChanged = oSs.Step(oW, aOpt45)
 chk("releasing is the frame that re-lays-out", bChanged)
 chkeq("...and the whole gesture is one command", len(oSs.EditLog()), 1)
 nAfter = -1
-for rr in oSs.RenderNodeRects()
+_aRr94_ = oSs.RenderNodeRects()
+_nRr94_ = len(_aRr94_)
+for _iRr94_ = 1 to _nRr94_
+	rr = _aRr94_[_iRr94_]
 	if rr[5] = "k1"  nAfter = rr[1] + rr[3] / 2  ok
 next
 ? "   k1 ended at " + nAfter + ", having started at " + aK1[1]
@@ -3979,7 +4271,10 @@ sec("-- 45. A PIN OBEYS THE CONTRACT IT SITS INSIDE ----------------")
 # number" but "is the result still a lawful picture".
 oPc = new stzDiagram("pincontract")
 oPc.AddNodeXTT("lb", "Balancer", [ :type = "box", :color = "Info.Solid" ])
-for a in [ [ "web1", "Web A" ], [ "web2", "Web B" ] ]
+_aA95_ = [ [ "web1", "Web A" ], [ "web2", "Web B" ] ]
+_nA95_ = len(_aA95_)
+for _iA95_ = 1 to _nA95_
+	a = _aA95_[_iA95_]
 	oPc.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
 	oPc.AddEdge("lb", a[1])
 next
@@ -4065,9 +4360,12 @@ sec("-- 46. THE SHIPPED PICTURE, audited against the whole contract --")
 
 AUFONT = new stzFont("C:/Windows/Fonts/segoeui.ttf")
 oAu = new stzDiagram("audit46")
-for a in [ [ "lb","Balancer" ],[ "web1","Web A" ],[ "web2","Web B" ],
+_aA96_ = [ [ "lb","Balancer" ],[ "web1","Web A" ],[ "web2","Web B" ],
            [ "api1","API A" ],[ "api2","API B" ],
            [ "db1","DB A" ],[ "db2","DB B" ],[ "log","Logger" ] ]
+_nA96_ = len(_aA96_)
+for _iA96_ = 1 to _nA96_
+	a = _aA96_[_iA96_]
 	oAu.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
 next
 oAu.AddEdge("lb","web1")    oAu.AddEdge("lb","web2")
@@ -4110,10 +4408,16 @@ chkeq("no two lanes sit in the near-miss band", nAuNear, 0)
 # NO NEAR-MISS ALIGNMENT: an edge's ends share a column or clearly do
 # not. The band between is what a reader cannot parse.
 nAuNA = 0
-for p2 in aAuP
+_aP297_ = aAuP
+_nP297_ = len(_aP297_)
+for _iP297_ = 1 to _nP297_
+	p2 = _aP297_[_iP297_]
 	aE2 = StzSplit(p2[1], ">")
 	nSx = -1  nTx2 = -1
-	for r in oAu.RenderNodeRects()
+	_aR98_ = oAu.RenderNodeRects()
+	_nR98_ = len(_aR98_)
+	for _iR98_ = 1 to _nR98_
+		r = _aR98_[_iR98_]
 		if r[5] = StzLower(aE2[1])  nSx = r[1] + r[3] / 2  ok
 		if r[5] = StzLower(aE2[2])  nTx2 = r[1] + r[3] / 2  ok
 	next
@@ -4281,8 +4585,11 @@ chkeq("children fan to both sides of their source", nI7Fan, 0)
 # layout pass, so a graph shaped the same way anywhere gets the same
 # treatment -- here on a plain fan the demo never draws.
 oI7B = new stzDiagram("i7b")
-for a in [ [ "root","Root" ], [ "spine","Spine" ], [ "leafa","Leaf A" ],
+_aA99_ = [ [ "root","Root" ], [ "spine","Spine" ], [ "leafa","Leaf A" ],
            [ "deep","Deep" ] ]
+_nA99_ = len(_aA99_)
+for _iA99_ = 1 to _nA99_
+	a = _aA99_[_iA99_]
 	oI7B.AddNodeXTT(a[1], a[2], [ :type = "box" ])
 next
 oI7B.AddEdge("root","spine")  oI7B.AddEdge("root","leafa")
@@ -4365,7 +4672,10 @@ chkeq("the corner style is INK, not geometry", nCorDiff, 0)
 # rectangular style drew white boxes with white labels inside them -- the
 # dial the Principal asked to keep was the one that did not work.
 nCorFill = 0
-for _cf_ in StzFindAll("<rect", cSvgS)
+_aCf100_ = StzFindAll("<rect", cSvgS)
+_nCf100_ = len(_aCf100_)
+for _iCf100_ = 1 to _nCf100_
+	_cf_ = _aCf100_[_iCf100_]
 	_ctail_ = StzSubStr(cSvgS, _cf_, min([ 400, StzLen(cSvgS) - _cf_ + 1 ]))
 	_cend_ = StzFindFirst(">", _ctail_)
 	if _cend_ = 0  loop  ok
@@ -4393,7 +4703,10 @@ sec("-- 49. A LINK IS EDITED BY ITS KNOBS -------------------------")
 #---------------------------------------------------------------------------
 
 oRw = new stzDiagram("rw49")
-for a in [ [ "a","A" ],[ "b","B" ],[ "c","C" ],[ "d","D" ] ]
+_aA101_ = [ [ "a","A" ],[ "b","B" ],[ "c","C" ],[ "d","D" ] ]
+_nA101_ = len(_aA101_)
+for _iA101_ = 1 to _nA101_
+	a = _aA101_[_iA101_]
 	oRw.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
 next
 oRw.AddEdge("a","b")  oRw.AddEdge("a","c")  oRw.AddEdge("b","d")
@@ -4402,7 +4715,10 @@ oRw.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36, :Width = 900, :Height = 600 
 
 # the a>c path, pressed 8px shy of its arrow end
 aRwP = []
-for p49 in oRw.RenderEdgePaths()
+_aP49102_ = oRw.RenderEdgePaths()
+_nP49102_ = len(_aP49102_)
+for _iP49102_ = 1 to _nP49102_
+	p49 = _aP49102_[_iP49102_]
 	if p49[1] = "a>c"  aRwP = p49[2]  ok
 next
 nRwN = len(aRwP)
@@ -4431,7 +4747,10 @@ chk("...whose single undo restores the link the author had",
 # THE REFUSALS
 oRw.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36, :Width = 900, :Height = 600 ])
 aRwP = []
-for p49 in oRw.RenderEdgePaths()
+_aP49103_ = oRw.RenderEdgePaths()
+_nP49103_ = len(_aP49103_)
+for _iP49103_ = 1 to _nP49103_
+	p49 = _aP49103_[_iP49103_]
 	if p49[1] = "a>c"  aRwP = p49[2]  ok
 next
 nRwBest = 1  nRwBestL = 0
@@ -4574,9 +4893,12 @@ oDn = new stzDiagram("dn0")
 chkeq("a diagram is born under the DEFAULT notation", oDn.Notation(), "default")
 oDnP = oDn.NotationO()
 nDnTbl = 0
-for aDnK in [ [ "task", "box" ], [ "decision", "diamond" ],
+_aADnK104_ = [ [ "task", "box" ], [ "decision", "diamond" ],
               [ "database", "cylinder" ], [ "start", "ellipse" ],
               [ "end", "doublecircle" ], [ "state", "circle" ] ]
+_nADnK104_ = len(_aADnK104_)
+for _iADnK104_ = 1 to _nADnK104_
+	aDnK = _aADnK104_[_iADnK104_]
 	if oDnP.GlyphOf(aDnK[1]) = aDnK[2]  nDnTbl++  ok
 next
 chkeq("the default's glyphs ARE the shared type table", nDnTbl, 6)
@@ -4609,7 +4931,10 @@ oDm.AddEdge("a", "b")
 aDnF = oDm.NotationFindings()
 ? "   findings on the fsm51 model : " + len(aDnF)
 nDnUk = 0
-for aDnR in aDnF
+_aADnR105_ = aDnF
+_nADnR105_ = len(_aADnR105_)
+for _iADnR105_ = 1 to _nADnR105_
+	aDnR = _aADnR105_[_iADnR105_]
 	if aDnR[:rule] = "notation-unknown-kind" and aDnR[:subject] = "c"
 		nDnUk++
 	ok
@@ -4694,7 +5019,10 @@ chkeq("a lawful chart has no structural findings",
 oOg.Connect("cfo", "dev1")
 aOg = oOg.NotationFindings()
 nOg2 = 0
-for aOgR in aOg
+_aAOgR106_ = aOg
+_nAOgR106_ = len(_aAOgR106_)
+for _iAOgR106_ = 1 to _nAOgR106_
+	aOgR = _aAOgR106_[_iAOgR106_]
 	if aOgR[:rule] = "notation-second-parent" and aOgR[:subject] = "dev1"
 		nOg2++
 	ok
@@ -4798,7 +5126,10 @@ aSmR = oSm3.RenderNodeRects()
 chk("a cyclic machine RENDERS -- layering by acyclic orientation",
     len(aSmR) = 5)
 nSmCl = 0  nSmLk = 0
-for r53 in aSmR
+_aR53107_ = aSmR
+_nR53107_ = len(_aR53107_)
+for _iR53107_ = 1 to _nR53107_
+	r53 = _aR53107_[_iR53107_]
 	if r53[5] = "closed"  nSmCl = r53[2]  ok
 	if r53[5] = "locked"  nSmLk = r53[2]  ok
 next
@@ -4826,7 +5157,10 @@ oSm3.Undo()
 oSm3.Connect("gone", "open")
 aSm53 = oSm3.NotationFindings()
 nSm53 = 0
-for r53 in aSm53
+_aR53108_ = aSm53
+_nR53108_ = len(_aR53108_)
+for _iR53108_ = 1 to _nR53108_
+	r53 = _aR53108_[_iR53108_]
 	if r53[:rule] = "notation-outbound" and r53[:subject] = "gone>open"
 		nSm53++
 	ok
@@ -4884,9 +5218,15 @@ oLc.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
 nLcClr = oLc._LineClearance()
 nLcTouch = 0
 nLcUnlock = -1
-for aLcL in oLc.RenderLabels()
+_aALcL109_ = oLc.RenderLabels()
+_nALcL109_ = len(_aALcL109_)
+for _iALcL109_ = 1 to _nALcL109_
+	aLcL = _aALcL109_[_iALcL109_]
 	_nLcMin_ = 1000000
-	for aLcP in oLc.RenderEdgePaths()
+	_aALcP110_ = oLc.RenderEdgePaths()
+	_nALcP110_ = len(_aALcP110_)
+	for _iALcP110_ = 1 to _nALcP110_
+		aLcP = _aALcP110_[_iALcP110_]
 		if aLcP[1] = aLcL[6]  loop  ok
 		_fLc_ = aLcP[2]
 		for iLc = 1 to len(_fLc_) - 3 step 2
@@ -4922,12 +5262,18 @@ chk("...and the marked label keeps at least half a clearance",
 nLcOut = 0
 nLcIn = 0
 nLcBad = 0
-for aLcN in oLc.RenderNodeLabels()
+_aALcN111_ = oLc.RenderNodeLabels()
+_nALcN111_ = len(_aALcN111_)
+for _iALcN111_ = 1 to _nALcN111_
+	aLcN = _aALcN111_[_iALcN111_]
 	if aLcN[6] = 1
 		nLcOut++
 		# below means BELOW: the plate's top at or under the glyph's
 		# bottom, for the two circle-family cells
-		for aLcR in oLc.RenderNodeRects()
+		_aALcR112_ = oLc.RenderNodeRects()
+		_nALcR112_ = len(_aALcR112_)
+		for _iALcR112_ = 1 to _nALcR112_
+			aLcR = _aALcR112_[_iALcR112_]
 			if aLcR[5] != aLcN[1]  loop  ok
 			if aLcN[3] - aLcN[5]/2 < aLcR[2] + aLcR[4] - 2  nLcBad++  ok
 		next
@@ -4948,7 +5294,10 @@ chkeq("...and an empty label draws nothing at all",
 # the paper was BOUGHT for the bottom label, not borrowed
 nLcH = oLc.LastCanvas().Height()
 nLcLow = 0
-for aLcN in oLc.RenderNodeLabels()
+_aALcN113_ = oLc.RenderNodeLabels()
+_nALcN113_ = len(_aALcN113_)
+for _iALcN113_ = 1 to _nALcN113_
+	aLcN = _aALcN113_[_iALcN113_]
 	if aLcN[3] + aLcN[5]/2 > nLcLow  nLcLow = aLcN[3] + aLcN[5]/2  ok
 next
 ? "   lowest label bottom " + nLcLow + " in a " + nLcH + "px canvas"
@@ -4963,7 +5312,10 @@ oLc2.AddEdge("a", "b")
 oLc2.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 96, :NodeHeight = 36,
 	:FontSize = 13 ])
 nLc2 = 0
-for aLcN in oLc2.RenderNodeLabels()
+_aALcN114_ = oLc2.RenderNodeLabels()
+_nALcN114_ = len(_aALcN114_)
+for _iALcN114_ = 1 to _nALcN114_
+	aLcN = _aALcN114_[_iALcN114_]
 	if aLcN[6] = 1  nLc2++  ok
 next
 chkeq("a rectangles-only picture writes nothing outside", nLc2, 0)
@@ -4996,7 +5348,10 @@ oTw.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
 	:FontSize = 13 ])
 
 aTwD = []  aTwU = []
-for aTwP in oTw.RenderEdgePaths()
+_aATwP115_ = oTw.RenderEdgePaths()
+_nATwP115_ = len(_aATwP115_)
+for _iATwP115_ = 1 to _nATwP115_
+	aTwP = _aATwP115_[_iATwP115_]
 	if aTwP[1] = "b>c"  aTwD = aTwP[2]  ok
 	if aTwP[1] = "c>b"  aTwU = aTwP[2]  ok
 next
@@ -5033,7 +5388,10 @@ chk("...clearing the cells it runs under, not just their centre-line",
 
 # PER-GAP PITCH: a>b crosses an unlabelled gap, b>c a labelled one
 nTwA = -1  nTwB = -1  nTwB2 = -1  nTwC = -1
-for rTw in oTw.RenderNodeRects()
+_aRTw116_ = oTw.RenderNodeRects()
+_nRTw116_ = len(_aRTw116_)
+for _iRTw116_ = 1 to _nRTw116_
+	rTw = _aRTw116_[_iRTw116_]
 	if rTw[5] = "a"  nTwA = rTw[2] + rTw[4]  ok
 	if rTw[5] = "b"  nTwB = rTw[2]  nTwB2 = rTw[2] + rTw[4]  ok
 	if rTw[5] = "c"  nTwC = rTw[2]  ok
@@ -5106,7 +5464,10 @@ nRgCx = oRg.LastCanvas().Width() / 2
 nRgCy = oRg.LastCanvas().Height() / 2
 nRgHub = -1
 aRgRad = []
-for rRg in aRgR
+_aRRg117_ = aRgR
+_nRRg117_ = len(_aRRg117_)
+for _iRRg117_ = 1 to _nRRg117_
+	rRg = _aRRg117_[_iRRg117_]
 	_rx_ = rRg[1] + rRg[3] / 2 - nRgCx
 	_ry_ = rRg[2] + rRg[4] / 2 - nRgCy
 	_rr_ = sqrt(_rx_*_rx_ + _ry_*_ry_)
@@ -5117,7 +5478,10 @@ for rRg in aRgR
 	ok
 next
 nRgLo = 1000000  nRgHi = 0
-for vRg in aRgRad
+_aVRg118_ = aRgRad
+_nVRg118_ = len(_aVRg118_)
+for _iVRg118_ = 1 to _nVRg118_
+	vRg = _aVRg118_[_iVRg118_]
 	if vRg < nRgLo  nRgLo = vRg  ok
 	if vRg > nRgHi  nRgHi = vRg  ok
 next
@@ -5128,7 +5492,10 @@ chk("...and the hub is in the MIDDLE, not on it", nRgHub < nRgLo / 2)
 
 # THE ENTRY OPENS THE RING AT THE TOP, where every convention puts it
 nRgInitY = 0  nRgTop = 1000000
-for rRg in aRgR
+_aRRg119_ = aRgR
+_nRRg119_ = len(_aRRg119_)
+for _iRRg119_ = 1 to _nRRg119_
+	rRg = _aRRg119_[_iRRg119_]
 	if rRg[5] = "init"  nRgInitY = rRg[2]  ok
 	if rRg[2] < nRgTop  nRgTop = rRg[2]  ok
 next
@@ -5143,7 +5510,10 @@ chkeq("the ring order is chosen against a counted crossing number",
 # A PAIR SEPARATES ON A CHORD TOO -- the two members take opposite
 # sides of the line they share, so neither is drawn on the other
 aRgOc = []  aRgCo = []
-for aRgP in oRg.RenderEdgePaths()
+_aARgP120_ = oRg.RenderEdgePaths()
+_nARgP120_ = len(_aARgP120_)
+for _iARgP120_ = 1 to _nARgP120_
+	aRgP = _aARgP120_[_iARgP120_]
 	if aRgP[1] = "closed>open"  aRgOc = aRgP[2]  ok
 	if aRgP[1] = "open>closed"  aRgCo = aRgP[2]  ok
 next
@@ -5163,11 +5533,17 @@ oRg2.AddNodeXTT("r", "R", [ :type = "box" ])
 oRg2.AddEdge("p", "q")  oRg2.AddEdge("p", "r")
 oRg2.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
 nRg2 = 0
-for rRg in oRg2.RenderNodeRects()
+_aRRg121_ = oRg2.RenderNodeRects()
+_nRRg121_ = len(_aRRg121_)
+for _iRRg121_ = 1 to _nRRg121_
+	rRg = _aRRg121_[_iRRg121_]
 	if rRg[5] = "p"  nRg2 = rRg[2]  ok
 next
 nRg2b = 1000000
-for rRg in oRg2.RenderNodeRects()
+_aRRg122_ = oRg2.RenderNodeRects()
+_nRRg122_ = len(_aRRg122_)
+for _iRRg122_ = 1 to _nRRg122_
+	rRg = _aRRg122_[_iRRg122_]
 	if rRg[5] != "p" and rRg[2] < nRg2b  nRg2b = rRg[2]  ok
 next
 chk("a diagram that declares no layout mode is still LAYERED",
@@ -5227,8 +5603,14 @@ aMdC = oMd.Clusters()
 ? "   regions discovered : " + len(aMdC)
 chkeq("the mutually reachable states form ONE region", len(aMdC), 1)
 nMdIn = 0
-for cMd in aMdC
-	for idMd in cMd[:nodes]
+_aCMd123_ = aMdC
+_nCMd123_ = len(_aCMd123_)
+for _iCMd123_ = 1 to _nCMd123_
+	cMd = _aCMd123_[_iCMd123_]
+	_aIdMd124_ = cMd[:nodes]
+	_nIdMd124_ = len(_aIdMd124_)
+	for _iIdMd124_ = 1 to _nIdMd124_
+		idMd = _aIdMd124_[_iIdMd124_]
 		if StzLower("" + idMd) = "closed"  nMdIn++  ok
 		if StzLower("" + idMd) = "open"    nMdIn++  ok
 		if StzLower("" + idMd) = "locked"  nMdIn++  ok
@@ -5240,8 +5622,14 @@ chkeq("...and only those", len(aMdC[1][:nodes]), 3)
 # A SINGLE STATE IS NOT A REGION: init and gone are one-way doors, not
 # places the machine lives in
 nMdSolo = 0
-for cMd in aMdC
-	for idMd in cMd[:nodes]
+_aCMd125_ = aMdC
+_nCMd125_ = len(_aCMd125_)
+for _iCMd125_ = 1 to _nCMd125_
+	cMd = _aCMd125_[_iCMd125_]
+	_aIdMd126_ = cMd[:nodes]
+	_nIdMd126_ = len(_aIdMd126_)
+	for _iIdMd126_ = 1 to _nIdMd126_
+		idMd = _aIdMd126_[_iIdMd126_]
 		if StzLower("" + idMd) = "init"  nMdSolo++  ok
 		if StzLower("" + idMd) = "gone"  nMdSolo++  ok
 	next
@@ -5252,10 +5640,16 @@ chkeq("a state you cannot return to is not a region", nMdSolo, 0)
 # claim about which comes first -- that is the whole correction
 aMdR = oMd.RenderNodeRects()
 nMdY = -1  nMdSame = 0
-for rMd in aMdR
+_aRMd127_ = aMdR
+_nRMd127_ = len(_aRMd127_)
+for _iRMd127_ = 1 to _nRMd127_
+	rMd = _aRMd127_[_iRMd127_]
 	if rMd[5] = "closed"  nMdY = rMd[2]  ok
 next
-for rMd in aMdR
+_aRMd128_ = aMdR
+_nRMd128_ = len(_aRMd128_)
+for _iRMd128_ = 1 to _nRMd128_
+	rMd = _aRMd128_[_iRMd128_]
 	if rMd[5] = "open" or rMd[5] = "locked"
 		if fabs(rMd[2] - nMdY) < 2  nMdSame++  ok
 	ok
@@ -5265,7 +5659,10 @@ chkeq("states you move freely among are drawn as PEERS, unordered",
 
 # AND THE IRREVERSIBLE PASSAGE IS THE ONLY THING RANKED
 nMdInit = -1  nMdGone = -1
-for rMd in aMdR
+_aRMd129_ = aMdR
+_nRMd129_ = len(_aRMd129_)
+for _iRMd129_ = 1 to _nRMd129_
+	rMd = _aRMd129_[_iRMd129_]
 	if rMd[5] = "init"  nMdInit = rMd[2]  ok
 	if rMd[5] = "gone"  nMdGone = rMd[2]  ok
 next
@@ -5288,7 +5685,10 @@ oMd2.AddTransition("broken", "closed", "repair")
 oMd2.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
 	:FontSize = 13 ])
 nMd2 = 0
-for cMd in oMd2.Clusters()
+_aCMd130_ = oMd2.Clusters()
+_nCMd130_ = len(_aCMd130_)
+for _iCMd130_ = 1 to _nCMd130_
+	cMd = _aCMd130_[_iCMd130_]
 	if len(cMd[:nodes]) > nMd2  nMd2 = len(cMd[:nodes])  ok
 next
 ? "   with a repairable door, the mode holds : " + nMd2
@@ -5306,7 +5706,10 @@ oMd3.AddTransition("closed", "gone", "demolish")
 oMd3.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
 	:FontSize = 13 ])
 nMd3 = 0
-for cMd in oMd3.Clusters()
+_aCMd131_ = oMd3.Clusters()
+_nCMd131_ = len(_aCMd131_)
+for _iCMd131_ = 1 to _nCMd131_
+	cMd = _aCMd131_[_iCMd131_]
 	if len(cMd[:nodes]) > nMd3  nMd3 = len(cMd[:nodes])  ok
 next
 chkeq("...while a terminal state stays outside it", nMd3, 2)
@@ -5356,7 +5759,10 @@ oMk.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
 	:FontSize = 13 ])
 
 nMkState = 0  nMkMark = 0
-for rMk in oMk.RenderNodeRects()
+_aRMk132_ = oMk.RenderNodeRects()
+_nRMk132_ = len(_aRMk132_)
+for _iRMk132_ = 1 to _nRMk132_
+	rMk = _aRMk132_[_iRMk132_]
 	if rMk[5] = "still"  nMkState = rMk[3]  ok
 	if rMk[5] = "i"      nMkMark = rMk[3]  ok
 next
@@ -5371,14 +5777,20 @@ chk("...and it is SQUARE, since it carries no text",
 # a mark has its last point ON that mark's border.
 nMkGap = 0
 nMkWorst = 0
-for aMkP in oMk.RenderEdgePaths()
+_aAMkP133_ = oMk.RenderEdgePaths()
+_nAMkP133_ = len(_aAMkP133_)
+for _iAMkP133_ = 1 to _nAMkP133_
+	aMkP = _aAMkP133_[_iAMkP133_]
 	aMkE = StzSplit(aMkP[1], ">")
 	if len(aMkE) != 2  loop  ok
 	if aMkE[2] != "e"  loop  ok
 	_fMk_ = aMkP[2]
 	_nMk_ = len(_fMk_)
 	if _nMk_ < 4  loop  ok
-	for rMk in oMk.RenderNodeRects()
+	_aRMk134_ = oMk.RenderNodeRects()
+	_nRMk134_ = len(_aRMk134_)
+	for _iRMk134_ = 1 to _nRMk134_
+		rMk = _aRMk134_[_iRMk134_]
 		if rMk[5] != "e"  loop  ok
 		# distance from the path's last point to the mark's rectangle
 		_dxMk_ = 0
@@ -5408,7 +5820,10 @@ oMk2.AddNodeXTT("b", "B", [ :type = "box" ])
 oMk2.AddEdge("a", "b")
 oMk2.ToCanvasXT([ :NodeWidth = 96, :NodeHeight = 36 ])
 nMk2 = 0
-for rMk in oMk2.RenderNodeRects()
+_aRMk135_ = oMk2.RenderNodeRects()
+_nRMk135_ = len(_aRMk135_)
+for _iRMk135_ = 1 to _nRMk135_
+	rMk = _aRMk135_[_iRMk135_]
 	if rMk[5] = "a"  nMk2 = rMk[3]  ok
 next
 chkeq("a diagram that declares no scale keeps full cells", nMk2, 96)
@@ -5455,7 +5870,10 @@ oLw.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
 # UNIFIED AT THE MARK: both arrivals end at the same point, which is the
 # mark's own centre-line -- one arrow, not two grazing a dot
 aLwA = []  aLwB = []
-for aLwP in oLw.RenderEdgePaths()
+_aALwP136_ = oLw.RenderEdgePaths()
+_nALwP136_ = len(_aALwP136_)
+for _iALwP136_ = 1 to _nALwP136_
+	aLwP = _aALwP136_[_iALwP136_]
 	if aLwP[1] = "still>e"   aLwA = aLwP[2]  ok
 	if aLwP[1] = "moving>e"  aLwB = aLwP[2]  ok
 next
@@ -5466,14 +5884,20 @@ nLwDx = fabs(aLwA[ len(aLwA) - 1 ] - aLwB[ len(aLwB) - 1 ])
 chk("edges arriving at a MARK are unified before reaching it",
     nLwDx < 1)
 nLwMx = -1
-for rLw in oLw.RenderNodeRects()
+_aRLw137_ = oLw.RenderNodeRects()
+_nRLw137_ = len(_aRLw137_)
+for _iRLw137_ = 1 to _nRLw137_
+	rLw = _aRLw137_[_iRLw137_]
 	if rLw[5] = "e"  nLwMx = rLw[1] + rLw[3] / 2  ok
 next
 chk("...on the mark's own centre-line", fabs(aLwA[ len(aLwA) - 1 ] - nLwMx) < 2)
 
 # ...AND THE SAME AT A DEPARTURE: one stem out of the entry mark
 nLwOut = 0
-for aLwP in oLw.RenderEdgePaths()
+_aALwP138_ = oLw.RenderEdgePaths()
+_nALwP138_ = len(_aALwP138_)
+for _iALwP138_ = 1 to _nALwP138_
+	aLwP = _aALwP138_[_iALwP138_]
 	aLwE = StzSplit(aLwP[1], ">")
 	if len(aLwE) = 2 and aLwE[1] = "i"  nLwOut++  ok
 next
@@ -5481,7 +5905,10 @@ chkeq("the entry mark has one edge, drawn from its centre", nLwOut, 1)
 
 # VERTICALITY: a lone state sits on its one neighbour's column
 nLwI = -1  nLwS = -1
-for rLw in oLw.RenderNodeRects()
+_aRLw139_ = oLw.RenderNodeRects()
+_nRLw139_ = len(_aRLw139_)
+for _iRLw139_ = 1 to _nRLw139_
+	rLw = _aRLw139_[_iRLw139_]
 	if rLw[5] = "i"      nLwI = rLw[1] + rLw[3] / 2  ok
 	if rLw[5] = "still"  nLwS = rLw[1] + rLw[3] / 2  ok
 next
@@ -5500,8 +5927,14 @@ oLw2.AddTransition("b", "b", "stay")
 oLw2.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
 	:FontSize = 13 ])
 nLwOutside = 0
-for aLwR in oLw2.RenderClusterRects()
-	for aLwP in oLw2.RenderEdgePaths()
+_aALwR140_ = oLw2.RenderClusterRects()
+_nALwR140_ = len(_aALwR140_)
+for _iALwR140_ = 1 to _nALwR140_
+	aLwR = _aALwR140_[_iALwR140_]
+	_aALwP141_ = oLw2.RenderEdgePaths()
+	_nALwP141_ = len(_aALwP141_)
+	for _iALwP141_ = 1 to _nALwP141_
+		aLwP = _aALwP141_[_iALwP141_]
 		if aLwP[1] != "b>b"  loop  ok
 		for iLw = 1 to len(aLwP[2]) - 1 step 2
 			if aLwP[2][iLw] > aLwR[1] + aLwR[3] + 1  nLwOutside++  ok
@@ -5525,7 +5958,10 @@ oLw3.AddTransition("q", "p", "another very long peer event name")
 oLw3.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
 	:FontSize = 13 ])
 nLwIy = -1  nLwPy = -1
-for rLw in oLw3.RenderNodeRects()
+_aRLw142_ = oLw3.RenderNodeRects()
+_nRLw142_ = len(_aRLw142_)
+for _iRLw142_ = 1 to _nRLw142_
+	rLw = _aRLw142_[_iRLw142_]
 	if rLw[5] = "i"  nLwIy = rLw[2] + rLw[4]  ok
 	if rLw[5] = "p"  nLwPy = rLw[2]  ok
 next
@@ -5547,7 +5983,10 @@ oLw4.AddTransition("q", "p", "b")
 oLw4.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
 	:FontSize = 13 ])
 nLwIy2 = -1  nLwPy2 = -1
-for rLw in oLw4.RenderNodeRects()
+_aRLw143_ = oLw4.RenderNodeRects()
+_nRLw143_ = len(_aRLw143_)
+for _iRLw143_ = 1 to _nRLw143_
+	rLw = _aRLw143_[_iRLw143_]
 	if rLw[5] = "i"  nLwIy2 = rLw[2] + rLw[4]  ok
 	if rLw[5] = "p"  nLwPy2 = rLw[2]  ok
 next
@@ -5602,7 +6041,10 @@ oFm.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
 
 # "??" -- a peer edge is ONE segment, and it is horizontal
 aFmP = []
-for aFmR in oFm.RenderEdgePaths()
+_aAFmR144_ = oFm.RenderEdgePaths()
+_nAFmR144_ = len(_aAFmR144_)
+for _iAFmR144_ = 1 to _nAFmR144_
+	aFmR = _aAFmR144_[_iAFmR144_]
 	if aFmR[1] = "closed>open"  aFmP = aFmR[2]  ok
 next
 ? "   the peer edge has " + (len(aFmP) / 2) + " points"
@@ -5613,14 +6055,20 @@ chk("...and it is horizontal, with no hook into a border",
 
 # "too tight" -- the rail stands clear of the frame it lives in
 nFmRail = -1
-for aFmR in oFm.RenderEdgePaths()
+_aAFmR145_ = oFm.RenderEdgePaths()
+_nAFmR145_ = len(_aAFmR145_)
+for _iAFmR145_ = 1 to _nAFmR145_
+	aFmR = _aAFmR145_[_iAFmR145_]
 	if aFmR[1] != "open>closed"  loop  ok
 	for iFm = 2 to len(aFmR[2]) step 2
 		if aFmR[2][iFm] > nFmRail  nFmRail = aFmR[2][iFm]  ok
 	next
 next
 nFmBot = -1
-for aFmC in oFm.RenderClusterRects()
+_aAFmC146_ = oFm.RenderClusterRects()
+_nAFmC146_ = len(_aAFmC146_)
+for _iAFmC146_ = 1 to _nAFmC146_
+	aFmC = _aAFmC146_[_iAFmC146_]
 	if aFmC[2] + aFmC[4] > nFmBot  nFmBot = aFmC[2] + aFmC[4]  ok
 next
 ? "   the rail sits " + (nFmBot - nFmRail) + "px above the frame's rule"
@@ -5631,10 +6079,16 @@ chk("...and is inside it at all", nFmRail < nFmBot)
 # against the frame's own chrome, which is the only thing that
 # legitimately lives there.
 nFmIy = -1  nFmTop = 1000000
-for rFm in oFm.RenderNodeRects()
+_aRFm147_ = oFm.RenderNodeRects()
+_nRFm147_ = len(_aRFm147_)
+for _iRFm147_ = 1 to _nRFm147_
+	rFm = _aRFm147_[_iRFm147_]
 	if rFm[5] = "i"  nFmIy = rFm[2] + rFm[4]  ok
 next
-for aFmC in oFm.RenderClusterRects()
+_aAFmC148_ = oFm.RenderClusterRects()
+_nAFmC148_ = len(_aAFmC148_)
+for _iAFmC148_ = 1 to _nAFmC148_
+	aFmC = _aAFmC148_[_iAFmC148_]
 	if aFmC[2] < nFmTop  nFmTop = aFmC[2]  ok
 next
 ? "   the entry gap is " + (nFmTop - nFmIy) + "px above the frame"
@@ -5643,9 +6097,15 @@ chk("an unlabelled entry gap is not twice what stands in it",
 
 # "mal positioned" -- every event label sits on ITS OWN edge's ink
 nFmFar = 0
-for aFmL in oFm.RenderLabels()
+_aAFmL149_ = oFm.RenderLabels()
+_nAFmL149_ = len(_aAFmL149_)
+for _iAFmL149_ = 1 to _nAFmL149_
+	aFmL = _aAFmL149_[_iAFmL149_]
 	_dFm_ = 1000000
-	for aFmR in oFm.RenderEdgePaths()
+	_aAFmR150_ = oFm.RenderEdgePaths()
+	_nAFmR150_ = len(_aAFmR150_)
+	for _iAFmR150_ = 1 to _nAFmR150_
+		aFmR = _aAFmR150_[_iAFmR150_]
 		if aFmR[1] != aFmL[6]  loop  ok
 		_fFm_ = aFmR[2]
 		for iFm = 1 to len(_fFm_) - 3 step 2
@@ -5725,7 +6185,10 @@ nLn2 = _LaneY62(oLn, "locked>closed")
 chk("two returns into one state take two lanes",
     fabs(nLn1 - nLn2) >= oLn._LineClearance() - 1)
 nLnRow = -1
-for rLn in oLn.RenderNodeRects()
+_aRLn151_ = oLn.RenderNodeRects()
+_nRLn151_ = len(_aRLn151_)
+for _iRLn151_ = 1 to _nRLn151_
+	rLn = _aRLn151_[_iRLn151_]
 	if rLn[5] = "closed"  nLnRow = rLn[2] + rLn[4] / 2  ok
 next
 chk("...both below the row they return along",
@@ -5733,7 +6196,10 @@ chk("...both below the row they return along",
 
 # ...AND EACH LABEL ON ITS OWN LANE
 nLnC = -1  nLnU = -1
-for aLnL in oLn.RenderLabels()
+_aALnL152_ = oLn.RenderLabels()
+_nALnL152_ = len(_aALnL152_)
+for _iALnL152_ = 1 to _nALnL152_
+	aLnL = _aALnL152_[_iALnL152_]
 	if aLnL[1] = "close"   nLnC = aLnL[3]  ok
 	if aLnL[1] = "unlock"  nLnU = aLnL[3]  ok
 next
@@ -5743,7 +6209,10 @@ chk("each event sits on its own return, not between two",
 # THE FRAME HOLDS THEM, and holds nothing else: no more than a pad of
 # empty floor under the lowest rail
 nLnBot = -1
-for aLnC in oLn.RenderClusterRects()
+_aALnC153_ = oLn.RenderClusterRects()
+_nALnC153_ = len(_aALnC153_)
+for _iALnC153_ = 1 to _nALnC153_
+	aLnC = _aALnC153_[_iALnC153_]
 	if aLnC[2] + aLnC[4] > nLnBot  nLnBot = aLnC[2] + aLnC[4]  ok
 next
 nLnDeep = max([ nLn1, nLn2 ])
@@ -5755,10 +6224,16 @@ chk("...and does not carry an empty floor under them",
 # "SO TALL" -- the entry gap holds the frame's chrome and what crosses
 # it, and is not charged for either twice
 nLnI = -1  nLnTop = 1000000
-for rLn in oLn.RenderNodeRects()
+_aRLn154_ = oLn.RenderNodeRects()
+_nRLn154_ = len(_aRLn154_)
+for _iRLn154_ = 1 to _nRLn154_
+	rLn = _aRLn154_[_iRLn154_]
 	if rLn[5] = "i"  nLnI = rLn[2] + rLn[4]  ok
 next
-for aLnC in oLn.RenderClusterRects()
+_aALnC155_ = oLn.RenderClusterRects()
+_nALnC155_ = len(_aALnC155_)
+for _iALnC155_ = 1 to _nALnC155_
+	aLnC = _aALnC155_[_iALnC155_]
 	if aLnC[2] < nLnTop  nLnTop = aLnC[2]  ok
 next
 ? "   the entry gap is " + (nLnTop - nLnI) + "px"
@@ -5826,9 +6301,12 @@ oU2.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
 aUni + [ "layered/orgchart", oU2 ]
 
 oU3 = new stzDiagram("uni-svc")
-for aU3 in [ [ "lb","Balancer" ],[ "web1","Web A" ],[ "web2","Web B" ],
+_aAU3156_ = [ [ "lb","Balancer" ],[ "web1","Web A" ],[ "web2","Web B" ],
              [ "api1","API A" ],[ "api2","API B" ],
              [ "db1","DB A" ],[ "db2","DB B" ],[ "log","Logger" ] ]
+_nAU3156_ = len(_aAU3156_)
+for _iAU3156_ = 1 to _nAU3156_
+	aU3 = _aAU3156_[_iAU3156_]
 	oU3.AddNodeXTT(aU3[1], aU3[2], [ :type = "box", :color = "Info.Solid" ])
 next
 oU3.AddEdge("lb","web1")   oU3.AddEdge("lb","web2")
@@ -5867,12 +6345,18 @@ nUniHug = 0
 nUniLab = 0
 nUniOff = 0
 nUniRule = 0
-for aUniS in aUni
+_aAUniS157_ = aUni
+_nAUniS157_ = len(_aAUniS157_)
+for _iAUniS157_ = 1 to _nAUniS157_
+	aUniS = _aAUniS157_[_iAUniS157_]
 	cUniN = aUniS[1]
 	oUni = aUniS[2]
 
 	# (a) EVERY EDGE TOUCHES BOTH ITS NODES
-	for aUniP in oUni.RenderEdgePaths()
+	_aAUniP158_ = oUni.RenderEdgePaths()
+	_nAUniP158_ = len(_aAUniP158_)
+	for _iAUniP158_ = 1 to _nAUniP158_
+		aUniP = _aAUniP158_[_iAUniP158_]
 		aUniE = StzSplit(aUniP[1], ">")
 		if len(aUniE) != 2  loop  ok
 		fUni = aUniP[2]
@@ -5896,12 +6380,21 @@ for aUniS in aUni
 	# (b) EVERY LABEL SITS INSIDE THE FRAME ITS EDGE LIVES IN. A word
 	#     outside the region whose states it joins belongs to nothing a
 	#     reader can name.
-	for aUniL in oUni.RenderLabels()
+	_aAUniL159_ = oUni.RenderLabels()
+	_nAUniL159_ = len(_aAUniL159_)
+	for _iAUniL159_ = 1 to _nAUniL159_
+		aUniL = _aAUniL159_[_iAUniL159_]
 		aUniK = StzSplit("" + aUniL[6], ">")
 		if len(aUniK) != 2  loop  ok
-		for aUniC in oUni.RenderClusterRects()
+		_aAUniC160_ = oUni.RenderClusterRects()
+		_nAUniC160_ = len(_aAUniC160_)
+		for _iAUniC160_ = 1 to _nAUniC160_
+			aUniC = _aAUniC160_[_iAUniC160_]
 			bUniIn = 0
-			for cUniM in aUniC[5]
+			_aCUniM161_ = aUniC[5]
+			_nCUniM161_ = len(_aCUniM161_)
+			for _iCUniM161_ = 1 to _nCUniM161_
+				cUniM = _aCUniM161_[_iCUniM161_]
 				if cUniM = StzLower(aUniK[1])  bUniIn++  ok
 				if cUniM = StzLower(aUniK[2])  bUniIn++  ok
 			next
@@ -5920,7 +6413,10 @@ for aUniS in aUni
 	#     centre-line the first return lane landed four pixels from the
 	#     boxes, a rail hugging the cells it runs beneath. Asked of
 	#     every picture, because the rule is not the state machine's.
-	for aUniP in oUni.RenderEdgePaths()
+	_aAUniP162_ = oUni.RenderEdgePaths()
+	_nAUniP162_ = len(_aAUniP162_)
+	for _iAUniP162_ = 1 to _nAUniP162_
+		aUniP = _aAUniP162_[_iAUniP162_]
 		aUniE = StzSplit(aUniP[1], ">")
 		if len(aUniE) != 2  loop  ok
 		if aUniE[1] = aUniE[2]  loop  ok
@@ -5931,7 +6427,10 @@ for aUniS in aUni
 			_axU_ = min([ fUni[iUni], fUni[iUni+2] ]) + 6
 			_bxU_ = max([ fUni[iUni], fUni[iUni+2] ]) - 6
 			_yU_ = fUni[iUni+1]
-			for rUni in oUni.RenderNodeRects()
+			_aRUni163_ = oUni.RenderNodeRects()
+			_nRUni163_ = len(_aRUni163_)
+			for _iRUni163_ = 1 to _nRUni163_
+				rUni = _aRUni163_[_iRUni163_]
 				# a cell this run passes under or over, and not one of
 				# its own endpoints
 				if rUni[5] = StzLower(aUniE[1]) or
@@ -5955,8 +6454,14 @@ for aUniS in aUni
 	#     when it's tight". So the claim is not that every label is at
 	#     0.5 -- it is that a label away from the middle had a REASON,
 	#     and the reason is that the middle was refused.
-	for aUniL in oUni.RenderLabels()
-		for aUniP in oUni.RenderEdgePaths()
+	_aAUniL164_ = oUni.RenderLabels()
+	_nAUniL164_ = len(_aAUniL164_)
+	for _iAUniL164_ = 1 to _nAUniL164_
+		aUniL = _aAUniL164_[_iAUniL164_]
+		_aAUniP165_ = oUni.RenderEdgePaths()
+		_nAUniP165_ = len(_aAUniP165_)
+		for _iAUniP165_ = 1 to _nAUniP165_
+			aUniP = _aAUniP165_[_iAUniP165_]
 			if aUniP[1] != aUniL[6]  loop  ok
 			nUniLab++
 			if _MidFrac62(aUniP[2], aUniL[2], aUniL[3]) > 0.15
@@ -5968,8 +6473,14 @@ for aUniS in aUni
 	# (e) NO LABEL STANDS ON A FRAME'S RULE. Its plate takes the surface
 	#     under it, and on a boundary there are two -- so it must get one
 	#     wrong and erase a stretch of the frame.
-	for aUniL in oUni.RenderLabels()
-		for aUniC in oUni.RenderClusterRects()
+	_aAUniL166_ = oUni.RenderLabels()
+	_nAUniL166_ = len(_aAUniL166_)
+	for _iAUniL166_ = 1 to _nAUniL166_
+		aUniL = _aAUniL166_[_iAUniL166_]
+		_aAUniC167_ = oUni.RenderClusterRects()
+		_nAUniC167_ = len(_aAUniC167_)
+		for _iAUniC167_ = 1 to _nAUniC167_
+			aUniC = _aAUniC167_[_iAUniC167_]
 			if aUniL[2] + aUniL[4]/2 < aUniC[1] or
 			   aUniL[2] - aUniL[4]/2 > aUniC[1] + aUniC[3]  loop  ok
 			if fabs(aUniL[3] - aUniC[2]) < aUniL[5] / 2 or
@@ -6019,12 +6530,18 @@ oUg.AddTransition("closed", "gone", "demolish")
 oUg.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
 	:FontSize = 13 ])
 nUgI = 0  nUgG = 0
-for rUg in oUg.RenderNodeRects()
+_aRUg168_ = oUg.RenderNodeRects()
+_nRUg168_ = len(_aRUg168_)
+for _iRUg168_ = 1 to _nRUg168_
+	rUg = _aRUg168_[_iRUg168_]
 	if rUg[5] = "i"     nUgI = rUg[2] + rUg[4]  ok
 	if rUg[5] = "gone"  nUgG = rUg[2]  ok
 next
 nUgTop = 1000000  nUgBot = 0
-for cUg in oUg.RenderClusterRects()
+_aCUg169_ = oUg.RenderClusterRects()
+_nCUg169_ = len(_aCUg169_)
+for _iCUg169_ = 1 to _nCUg169_
+	cUg = _aCUg169_[_iCUg169_]
 	if cUg[2] < nUgTop  nUgTop = cUg[2]  ok
 	if cUg[2] + cUg[4] > nUgBot  nUgBot = cUg[2] + cUg[4]  ok
 next
@@ -6054,7 +6571,10 @@ else
 	cUpPx = oUpC.ToPixels()
 	nUpW = oUpC.Width()
 	nUpBad = 0
-	for aUpL in oUp.RenderLabels()
+	_aAUpL170_ = oUp.RenderLabels()
+	_nAUpL170_ = len(_aAUpL170_)
+	for _iAUpL170_ = 1 to _nAUpL170_
+		aUpL = _aAUpL170_[_iAUpL170_]
 		# a pixel inside the plate's top edge, and one just above it
 		nUpX = floor(aUpL[2])
 		nUpIn = floor(aUpL[3] - aUpL[5] / 2 + 2)
@@ -6117,7 +6637,10 @@ oBt.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
 
 aBtMid = _Rect49(oBt, "b")
 nBtWorst = 0
-for aBtP in oBt.RenderEdgePaths()
+_aABtP171_ = oBt.RenderEdgePaths()
+_nABtP171_ = len(_aABtP171_)
+for _iABtP171_ = 1 to _nABtP171_
+	aBtP = _aABtP171_[_iABtP171_]
 	if aBtP[1] != "c>a"  loop  ok
 	nBtN = len(aBtP[2]) / 2
 	for iBt = 1 to nBtN - 1
@@ -6142,7 +6665,10 @@ chk("a run keeps the row only while the row is free",
 # stepping away: the ends stay on their nodes' borders.
 aBtA = _Rect49(oBt, "a")
 nBtGap = -1
-for aBtP in oBt.RenderEdgePaths()
+_aABtP172_ = oBt.RenderEdgePaths()
+_nABtP172_ = len(_aABtP172_)
+for _iABtP172_ = 1 to _nABtP172_
+	aBtP = _aABtP172_[_iABtP172_]
 	if aBtP[1] != "c>a"  loop  ok
 	nBtN = len(aBtP[2]) / 2
 	nBtGap = _DistRect62(aBtA, aBtP[2][nBtN * 2 - 1], aBtP[2][nBtN * 2])
@@ -6164,13 +6690,22 @@ oIn.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
 	:FontSize = 13 ])
 
 nInRow = -1
-for rIn in oIn.RenderNodeRects()
+_aRIn173_ = oIn.RenderNodeRects()
+_nRIn173_ = len(_aRIn173_)
+for _iRIn173_ = 1 to _nRIn173_
+	rIn = _aRIn173_[_iRIn173_]
 	if rIn[5] = "p0"  nInRow = rIn[2] + rIn[4] / 2  ok
 next
 aInDepth = []
-for cInK in [ "p1>p0", "a1>a0", "d1>d0" ]
+_aCInK174_ = [ "p1>p0", "a1>a0", "d1>d0" ]
+_nCInK174_ = len(_aCInK174_)
+for _iCInK174_ = 1 to _nCInK174_
+	cInK = _aCInK174_[_iCInK174_]
 	aInP = []
-	for aInR in oIn.RenderEdgePaths()
+	_aAInR175_ = oIn.RenderEdgePaths()
+	_nAInR175_ = len(_aAInR175_)
+	for _iAInR175_ = 1 to _nAInR175_
+		aInR = _aAInR175_[_iAInR175_]
 		if aInR[1] = cInK  aInP = aInR[2]  ok
 	next
 	nInD = 0
@@ -6189,9 +6724,18 @@ chk("three identical structures are drawn identically",
 # ...AND EACH RETURN STAYS IN ITS OWN FRAME. A lane counted across the
 # whole row pushed the third one out through the floor.
 nInOut = 0
-for aInC in oIn.RenderClusterRects()
-	for cInK in [ "p1>p0", "a1>a0", "d1>d0" ]
-		for aInR in oIn.RenderEdgePaths()
+_aAInC176_ = oIn.RenderClusterRects()
+_nAInC176_ = len(_aAInC176_)
+for _iAInC176_ = 1 to _nAInC176_
+	aInC = _aAInC176_[_iAInC176_]
+	_aCInK177_ = [ "p1>p0", "a1>a0", "d1>d0" ]
+	_nCInK177_ = len(_aCInK177_)
+	for _iCInK177_ = 1 to _nCInK177_
+		cInK = _aCInK177_[_iCInK177_]
+		_aAInR178_ = oIn.RenderEdgePaths()
+		_nAInR178_ = len(_aAInR178_)
+		for _iAInR178_ = 1 to _nAInR178_
+			aInR = _aAInR178_[_iAInR178_]
 			if aInR[1] != cInK  loop  ok
 			nInN = len(aInR[2]) / 2
 			for iIn = 1 to nInN
@@ -6225,12 +6769,21 @@ oDr.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
 	:FontSize = 13 ])
 
 nDrRow = -1
-for rDr in oDr.RenderNodeRects()
+_aRDr179_ = oDr.RenderNodeRects()
+_nRDr179_ = len(_aRDr179_)
+for _iRDr179_ = 1 to _nRDr179_
+	rDr = _aRDr179_[_iRDr179_]
 	if rDr[5] = "closed"  nDrRow = rDr[2] + rDr[4] / 2  ok
 next
 nDrDeep = nDrRow
-for cDrK in [ "open>closed", "closed>locked", "locked>closed" ]
-	for aDrR in oDr.RenderEdgePaths()
+_aCDrK180_ = [ "open>closed", "closed>locked", "locked>closed" ]
+_nCDrK180_ = len(_aCDrK180_)
+for _iCDrK180_ = 1 to _nCDrK180_
+	cDrK = _aCDrK180_[_iCDrK180_]
+	_aADrR181_ = oDr.RenderEdgePaths()
+	_nADrR181_ = len(_aADrR181_)
+	for _iADrR181_ = 1 to _nADrR181_
+		aDrR = _aADrR181_[_iADrR181_]
 		if aDrR[1] != cDrK  loop  ok
 		nDrN = len(aDrR[2]) / 2
 		for iDr = 1 to nDrN
@@ -6239,7 +6792,10 @@ for cDrK in [ "open>closed", "closed>locked", "locked>closed" ]
 	next
 next
 nDrFloor = 0
-for aDrC in oDr.RenderClusterRects()
+_aADrC182_ = oDr.RenderClusterRects()
+_nADrC182_ = len(_aADrC182_)
+for _iADrC182_ = 1 to _nADrC182_
+	aDrC = _aADrC182_[_iADrC182_]
 	if aDrC[2] + aDrC[4] > nDrFloor  nDrFloor = aDrC[2] + aDrC[4]  ok
 next
 ? "   three rails, the deepest at y=" + nDrDeep + ", floor at y=" + nDrFloor
@@ -6249,8 +6805,14 @@ chk("a frame holds every rail, not just the ones a pair asked for",
 # ...AND THE PAIR THAT BOTH STEPPED ASIDE IS STILL TWO STAIRCASES, not
 # one mirrored into a diagonal off the edge of its own picture.
 nDrSkew = 0
-for cDrK in [ "closed>locked", "locked>closed" ]
-	for aDrR in oDr.RenderEdgePaths()
+_aCDrK183_ = [ "closed>locked", "locked>closed" ]
+_nCDrK183_ = len(_aCDrK183_)
+for _iCDrK183_ = 1 to _nCDrK183_
+	cDrK = _aCDrK183_[_iCDrK183_]
+	_aADrR184_ = oDr.RenderEdgePaths()
+	_nADrR184_ = len(_aADrR184_)
+	for _iADrR184_ = 1 to _nADrR184_
+		aDrR = _aADrR184_[_iADrR184_]
 		if aDrR[1] != cDrK  loop  ok
 		nDrN = len(aDrR[2]) / 2
 		for iDr = 1 to nDrN - 1
@@ -6267,17 +6829,29 @@ chkeq("...and both members stay orthogonal", nDrSkew, 0)
 #     reservation and the drawing disagree -- which is never on the
 #     scene you wrote to test it.
 nPpBad = 0
-for aPpO in [ oBt, oIn, oDr ]
+_aAPpO185_ = [ oBt, oIn, oDr ]
+_nAPpO185_ = len(_aAPpO185_)
+for _iAPpO185_ = 1 to _nAPpO185_
+	aPpO = _aAPpO185_[_iAPpO185_]
 	nPpX1 = 0  nPpY1 = 0
-	for rPp in aPpO.RenderNodeRects()
+	_aRPp186_ = aPpO.RenderNodeRects()
+	_nRPp186_ = len(_aRPp186_)
+	for _iRPp186_ = 1 to _nRPp186_
+		rPp = _aRPp186_[_iRPp186_]
 		if rPp[1] + rPp[3] > nPpX1  nPpX1 = rPp[1] + rPp[3]  ok
 		if rPp[2] + rPp[4] > nPpY1  nPpY1 = rPp[2] + rPp[4]  ok
 	next
-	for rPp in aPpO.RenderClusterRects()
+	_aRPp187_ = aPpO.RenderClusterRects()
+	_nRPp187_ = len(_aRPp187_)
+	for _iRPp187_ = 1 to _nRPp187_
+		rPp = _aRPp187_[_iRPp187_]
 		if rPp[1] + rPp[3] > nPpX1  nPpX1 = rPp[1] + rPp[3]  ok
 		if rPp[2] + rPp[4] > nPpY1  nPpY1 = rPp[2] + rPp[4]  ok
 	next
-	for aPpP in aPpO.RenderEdgePaths()
+	_aAPpP188_ = aPpO.RenderEdgePaths()
+	_nAPpP188_ = len(_aAPpP188_)
+	for _iAPpP188_ = 1 to _nAPpP188_
+		aPpP = _aAPpP188_[_iAPpP188_]
 		nPpN = len(aPpP[2]) / 2
 		for iPp = 1 to nPpN
 			if aPpP[2][iPp * 2 - 1] > nPpX1  nPpX1 = aPpP[2][iPp * 2 - 1]  ok
@@ -6288,11 +6862,17 @@ for aPpO in [ oBt, oIn, oDr ]
 	# Guessing what it costs (a multiple of the font size) is the same
 	# mistake this section is about, one layer out: the renderer knows
 	# where it put every one of them, so ask it.
-	for aPpL in aPpO.RenderNodeLabels()
+	_aAPpL189_ = aPpO.RenderNodeLabels()
+	_nAPpL189_ = len(_aAPpL189_)
+	for _iAPpL189_ = 1 to _nAPpL189_
+		aPpL = _aAPpL189_[_iAPpL189_]
 		if aPpL[2] + aPpL[4] > nPpX1  nPpX1 = aPpL[2] + aPpL[4]  ok
 		if aPpL[3] + aPpL[5] > nPpY1  nPpY1 = aPpL[3] + aPpL[5]  ok
 	next
-	for aPpL in aPpO.RenderLabels()
+	_aAPpL190_ = aPpO.RenderLabels()
+	_nAPpL190_ = len(_aAPpL190_)
+	for _iAPpL190_ = 1 to _nAPpL190_
+		aPpL = _aAPpL190_[_iAPpL190_]
 		if aPpL[2] + aPpL[4] > nPpX1  nPpX1 = aPpL[2] + aPpL[4]  ok
 		if aPpL[3] + aPpL[5] > nPpY1  nPpY1 = aPpL[3] + aPpL[5]  ok
 	next
@@ -6314,8 +6894,14 @@ chkeq("no picture carries a band of paper nothing was drawn on",
 #     the state instead of down into it.
 nAhBad = 0
 nAhSeen = 0
-for aAhO in [ oBt, oIn, oDr ]
-	for aAhP in aAhO.RenderEdgePaths()
+_aAAhO191_ = [ oBt, oIn, oDr ]
+_nAAhO191_ = len(_aAAhO191_)
+for _iAAhO191_ = 1 to _nAAhO191_
+	aAhO = _aAAhO191_[_iAAhO191_]
+	_aAAhP192_ = aAhO.RenderEdgePaths()
+	_nAAhP192_ = len(_aAAhP192_)
+	for _iAAhP192_ = 1 to _nAAhP192_
+		aAhP = _aAAhP192_[_iAAhP192_]
 		nAhN = len(aAhP[2]) / 2
 		if nAhN < 2  loop  ok
 		nAhDx = fabs(aAhP[2][nAhN * 2 - 1] - aAhP[2][nAhN * 2 - 3])
@@ -6380,12 +6966,21 @@ oLd.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
 #     arrowheads, whichever way each is pointing.
 nLdSame = 0
 nLdEnds = 0
-for rLd in oLd.RenderNodeRects()
+_aRLd193_ = oLd.RenderNodeRects()
+_nRLd193_ = len(_aRLd193_)
+for _iRLd193_ = 1 to _nRLd193_
+	rLd = _aRLd193_[_iRLd193_]
 	nLdCy = rLd[2] + rLd[4] / 2
 	aLdX = []
-	for aLdP in oLd.RenderEdgePaths()
+	_aALdP194_ = oLd.RenderEdgePaths()
+	_nALdP194_ = len(_aALdP194_)
+	for _iALdP194_ = 1 to _nALdP194_
+		aLdP = _aALdP194_[_iALdP194_]
 		nLdN = len(aLdP[2]) / 2
-		for iLd in [ 1, nLdN ]
+		_aILd195_ = [ 1, nLdN ]
+		_nILd195_ = len(_aILd195_)
+		for _iILd195_ = 1 to _nILd195_
+			iLd = _aILd195_[_iILd195_]
 			nLdEx = aLdP[2][iLd * 2 - 1]
 			nLdEy = aLdP[2][iLd * 2]
 			# an end ON this node's bottom border
@@ -6407,9 +7002,15 @@ chkeq("no two edges meet one border on the same column", nLdSame, 0)
 # (2) ...AND A LONE STUB IS CENTRED. Gamma has exactly one laned edge
 #     leaving it, so nothing is being made room for.
 nLdOff = -1
-for rLd in oLd.RenderNodeRects()
+_aRLd196_ = oLd.RenderNodeRects()
+_nRLd196_ = len(_aRLd196_)
+for _iRLd196_ = 1 to _nRLd196_
+	rLd = _aRLd196_[_iRLd196_]
 	if rLd[5] != "c"  loop  ok
-	for aLdP in oLd.RenderEdgePaths()
+	_aALdP197_ = oLd.RenderEdgePaths()
+	_nALdP197_ = len(_aALdP197_)
+	for _iALdP197_ = 1 to _nALdP197_
+		aLdP = _aALdP197_[_iALdP197_]
 		if aLdP[1] != "c>a"  loop  ok
 		nLdOff = fabs(aLdP[2][1] - (rLd[1] + rLd[3] / 2))
 	next
@@ -6422,11 +7023,17 @@ chk("a border with one edge on it puts that edge in the middle",
 #     channels of edges leaving the row alike -- keeps a clearance from
 #     every other one.
 nLdRow = -1
-for rLd in oLd.RenderNodeRects()
+_aRLd198_ = oLd.RenderNodeRects()
+_nRLd198_ = len(_aRLd198_)
+for _iRLd198_ = 1 to _nRLd198_
+	rLd = _aRLd198_[_iRLd198_]
 	if rLd[5] = "a"  nLdRow = rLd[2] + rLd[4] / 2  ok
 next
 aLdRun = []
-for aLdP in oLd.RenderEdgePaths()
+_aALdP199_ = oLd.RenderEdgePaths()
+_nALdP199_ = len(_aALdP199_)
+for _iALdP199_ = 1 to _nALdP199_
+	aLdP = _aALdP199_[_iALdP199_]
 	nLdN = len(aLdP[2]) / 2
 	for iLd = 1 to nLdN - 1
 		if fabs(aLdP[2][iLd * 2] - aLdP[2][iLd * 2 + 2]) > 1  loop  ok
@@ -6463,22 +7070,35 @@ oAir.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
 	:FontSize = 13 ])
 
 aAirF = []
-for rAir in oAir.RenderClusterRects()  aAirF = rAir  next
+_aAirR_ = oAir.RenderClusterRects()
+_nAirR_ = len(_aAirR_)
+for _iAirR_ = 1 to _nAirR_
+	aAirF = _aAirR_[_iAirR_]
+next
 nAirT = 1000000  nAirL = 1000000  nAirR = 0  nAirB = 0
-for rAir in oAir.RenderNodeRects()
+_aRAir200_ = oAir.RenderNodeRects()
+_nRAir200_ = len(_aRAir200_)
+for _iRAir200_ = 1 to _nRAir200_
+	rAir = _aRAir200_[_iRAir200_]
 	if rAir[2] < nAirT  nAirT = rAir[2]  ok
 	if rAir[1] < nAirL  nAirL = rAir[1]  ok
 	if rAir[1] + rAir[3] > nAirR  nAirR = rAir[1] + rAir[3]  ok
 	if rAir[2] + rAir[4] > nAirB  nAirB = rAir[2] + rAir[4]  ok
 next
-for aAirL in oAir.RenderLabels()
+_aAAirL201_ = oAir.RenderLabels()
+_nAAirL201_ = len(_aAAirL201_)
+for _iAAirL201_ = 1 to _nAAirL201_
+	aAirL = _aAAirL201_[_iAAirL201_]
 	if aAirL[3] + aAirL[5] / 2 > nAirB  nAirB = aAirL[3] + aAirL[5] / 2  ok
 next
 # ...AND THE RAILS THEMSELVES. A rail writes its word above its own
 # line, so the deepest ink in a frame is the deepest LINE -- measuring
 # only the words answered the air under a word that has a rail beneath
 # it, which is not the distance anybody looks at.
-for aAirP in oAir.RenderEdgePaths()
+_aAAirP202_ = oAir.RenderEdgePaths()
+_nAAirP202_ = len(_aAAirP202_)
+for _iAAirP202_ = 1 to _nAAirP202_
+	aAirP = _aAAirP202_[_iAAirP202_]
 	nAirN = len(aAirP[2]) / 2
 	for iAir = 1 to nAirN
 		if aAirP[2][iAir * 2] > nAirB  nAirB = aAirP[2][iAir * 2]  ok
@@ -6509,7 +7129,10 @@ oInkC = oInk.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104,
 cInkPx = oInkC.ToPixels()
 nInkW = oInkC.Width()
 aInkR = []
-for rInk in oInk.RenderNodeRects()
+_aRInk203_ = oInk.RenderNodeRects()
+_nRInk203_ = len(_aRInk203_)
+for _iRInk203_ = 1 to _nRInk203_
+	rInk = _aRInk203_[_iRInk203_]
 	if rInk[5] = "done"  aInkR = rInk  ok
 next
 nInkFill = 0  nInkDark = 0
@@ -6545,10 +7168,16 @@ cWtPx = oWtC.ToPixels()
 nWtW = oWtC.Width()
 aWtDens = []
 iWtN = 0
-for cWtId in [ "m", "s" ]
+_aCWtId204_ = [ "m", "s" ]
+_nCWtId204_ = len(_aCWtId204_)
+for _iCWtId204_ = 1 to _nCWtId204_
+	cWtId = _aCWtId204_[_iCWtId204_]
 	iWtN++
 	aWtR = []
-	for rWt in oWt.RenderNodeRects()
+	_aRWt205_ = oWt.RenderNodeRects()
+	_nRWt205_ = len(_aRWt205_)
+	for _iRWt205_ = 1 to _nRWt205_
+		rWt = _aRWt205_[_iRWt205_]
 		if rWt[5] = cWtId  aWtR = rWt  ok
 	next
 	# this cell's own fill, sampled where no glyph can be, and the ink
@@ -6595,8 +7224,14 @@ oMid.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
 	:FontSize = 13, :LabelPlacement = :Middle ])
 nMidOff = 0
 nMidSeen = 0
-for aMidL in oMid.RenderLabels()
-	for aMidP in oMid.RenderEdgePaths()
+_aAMidL206_ = oMid.RenderLabels()
+_nAMidL206_ = len(_aAMidL206_)
+for _iAMidL206_ = 1 to _nAMidL206_
+	aMidL = _aAMidL206_[_iAMidL206_]
+	_aAMidP207_ = oMid.RenderEdgePaths()
+	_nAMidP207_ = len(_aAMidP207_)
+	for _iAMidP207_ = 1 to _nAMidP207_
+		aMidP = _aAMidP207_[_iAMidP207_]
 		if aMidP[1] != aMidL[6]  loop  ok
 		nMidSeen++
 		nMidBest = 1000000
@@ -6635,9 +7270,16 @@ oDr7.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
 	:FontSize = 13 ])
 
 aFr7 = []
-for rDr7 in oDr7.RenderClusterRects()  aFr7 = rDr7  next
+_aDr7R_ = oDr7.RenderClusterRects()
+_nDr7R_ = len(_aDr7R_)
+for _iDr7R_ = 1 to _nDr7R_
+	aFr7 = _aDr7R_[_iDr7R_]
+next
 nMk7I = 0  nMk7G = 0
-for rDr7 in oDr7.RenderNodeRects()
+_aRDr7208_ = oDr7.RenderNodeRects()
+_nRDr7208_ = len(_aRDr7208_)
+for _iRDr7208_ = 1 to _nRDr7208_
+	rDr7 = _aRDr7208_[_iRDr7208_]
 	if rDr7[5] = "i"     nMk7I = rDr7[2] + rDr7[4]  ok
 	if rDr7[5] = "gone"  nMk7G = rDr7[2]  ok
 next
@@ -6651,15 +7293,24 @@ chk("the way in equals the way out, even between marks of two sizes",
     fabs((aFr7[2] - nMk7I) - (nMk7G - (aFr7[2] + aFr7[4]))) < 1)
 
 nL7 = 1000000  nR7 = 0
-for rDr7 in oDr7.RenderNodeRects()
+_aRDr7209_ = oDr7.RenderNodeRects()
+_nRDr7209_ = len(_aRDr7209_)
+for _iRDr7209_ = 1 to _nRDr7209_
+	rDr7 = _aRDr7209_[_iRDr7209_]
 	if rDr7[5] = "i" or rDr7[5] = "gone"  loop  ok
 	if rDr7[1] < nL7  nL7 = rDr7[1]  ok
 	if rDr7[1] + rDr7[3] > nR7  nR7 = rDr7[1] + rDr7[3]  ok
 next
-for aL7 in oDr7.RenderLabels()
+_aAL7210_ = oDr7.RenderLabels()
+_nAL7210_ = len(_aAL7210_)
+for _iAL7210_ = 1 to _nAL7210_
+	aL7 = _aAL7210_[_iAL7210_]
 	if aL7[2] + aL7[4] / 2 > nR7  nR7 = aL7[2] + aL7[4] / 2  ok
 next
-for aP7 in oDr7.RenderEdgePaths()
+_aAP7211_ = oDr7.RenderEdgePaths()
+_nAP7211_ = len(_aAP7211_)
+for _iAP7211_ = 1 to _nAP7211_
+	aP7 = _aAP7211_[_iAP7211_]
 	nN7 = len(aP7[2]) / 2
 	for i7 = 1 to nN7
 		if aP7[2][i7 * 2 - 1] > nR7  nR7 = aP7[2][i7 * 2 - 1]  ok
@@ -6699,11 +7350,17 @@ oEx.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
 	:FontSize = 13 ])
 
 nExRow = -1
-for rEx in oEx.RenderNodeRects()
+_aREx212_ = oEx.RenderNodeRects()
+_nREx212_ = len(_aREx212_)
+for _iREx212_ = 1 to _nREx212_
+	rEx = _aREx212_[_iREx212_]
 	if rEx[5] = "pend"  nExRow = rEx[2] + rEx[4] / 2  ok
 next
 aExRun = []
-for aExP in oEx.RenderEdgePaths()
+_aAExP213_ = oEx.RenderEdgePaths()
+_nAExP213_ = len(_aAExP213_)
+for _iAExP213_ = 1 to _nAExP213_
+	aExP = _aAExP213_[_iAExP213_]
 	nExN = len(aExP[2]) / 2
 	for iEx = 1 to nExN - 1
 		if fabs(aExP[2][iEx * 2] - aExP[2][iEx * 2 + 2]) > 1  loop  ok
@@ -6712,7 +7369,10 @@ for aExP in oEx.RenderEdgePaths()
 		# one RUN, not one segment: a staircase can turn twice at the
 		# same depth and that is still one line at that depth
 		bExSeen = 0
-		for nExQ in aExRun
+		_aNExQ214_ = aExRun
+		_nNExQ214_ = len(_aNExQ214_)
+		for _iNExQ214_ = 1 to _nNExQ214_
+			nExQ = _aNExQ214_[_iNExQ214_]
 			if fabs(nExQ - aExP[2][iEx * 2]) < 1  bExSeen = 1  ok
 		next
 		if bExSeen  loop  ok
@@ -6729,7 +7389,10 @@ chk("an exit takes the next rung of the same ladder",
     nExGap > 0 and fabs(nExGap - oEx._LanePitchValue()) < 2)
 
 nExFloor = 0
-for aExC in oEx.RenderClusterRects()
+_aAExC215_ = oEx.RenderClusterRects()
+_nAExC215_ = len(_aAExC215_)
+for _iAExC215_ = 1 to _nAExC215_
+	aExC = _aAExC215_[_iAExC215_]
 	if aExC[2] + aExC[4] > nExFloor  nExFloor = aExC[2] + aExC[4]  ok
 next
 ? "   the floor sits " + (nExFloor - aExRun[len(aExRun)]) +
@@ -6765,8 +7428,14 @@ if oHp._EdgeCorner() * 0.8 > nHpR  nHpR = oHp._EdgeCorner() * 0.8  ok
 nHpRoom = nHpR * 2 + oHp._LineClearance()
 nHpBad = 0
 nHpNear = 1000000
-for aHp in oHp.RenderHops()
-	for aHpP in oHp.RenderEdgePaths()
+_aAHp216_ = oHp.RenderHops()
+_nAHp216_ = len(_aAHp216_)
+for _iAHp216_ = 1 to _nAHp216_
+	aHp = _aAHp216_[_iAHp216_]
+	_aAHpP217_ = oHp.RenderEdgePaths()
+	_nAHpP217_ = len(_aAHpP217_)
+	for _iAHpP217_ = 1 to _nAHpP217_
+		aHpP = _aAHpP217_[_iAHpP217_]
 		if aHpP[1] != aHp[3]  loop  ok
 		# every bend and endpoint on the line this hop belongs to
 		nHpN = len(aHpP[2]) / 2
@@ -6856,8 +7525,11 @@ chk("...and it is drawn at a fraction of a cell", oBpN.ScaleOf("entry") < 0.5)
 #     drawing with nothing wrong. So every kind declares white and NONE
 #     of them names a role -- that absence is the declaration.
 nBpRole = 0
-for cBpK in [ "entry", "invoke", "human", "event-wait", "timer-wait",
+_aCBpK218_ = [ "entry", "invoke", "human", "event-wait", "timer-wait",
 	"compensate", "step", "gateway", "terminal", "suspension" ]
+_nCBpK218_ = len(_aCBpK218_)
+for _iCBpK218_ = 1 to _nCBpK218_
+	cBpK = _aCBpK218_[_iCBpK218_]
 	if StzLower("" + oBpN.FillOf(cBpK)) != "white"  nBpRole++  ok
 next
 chkeq("no BPMN kind carries a colour of its own", nBpRole, 0)
@@ -6898,7 +7570,10 @@ chk("...but an ordinary sequence flow is allowed",
 oBp.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 132, :NodeHeight = 52,
 	:FontSize = 15 ])
 nBpW = 0  nBpH = 0
-for rBp in oBp.RenderNodeRects()
+_aRBp219_ = oBp.RenderNodeRects()
+_nRBp219_ = len(_aRBp219_)
+for _iRBp219_ = 1 to _nRBp219_
+	rBp = _aRBp219_[_iRBp219_]
 	if rBp[5] != "recv"  loop  ok
 	nBpW = rBp[3]  nBpH = rBp[4]
 next
@@ -6912,7 +7587,10 @@ chk("a left-to-right picture keeps the size it asked for",
 #     right. This process puts a final event at the right-hand edge, and
 #     "Out of Stock" ran 12px off the page.
 nBpOff = 0
-for aBpL in oBp.RenderNodeLabels()
+_aABpL220_ = oBp.RenderNodeLabels()
+_nABpL220_ = len(_aABpL220_)
+for _iABpL220_ = 1 to _nABpL220_
+	aBpL = _aABpL220_[_iABpL220_]
 	if aBpL[6] != 1  loop  ok       # the ones written OUTSIDE their glyph
 	if aBpL[2] - aBpL[4] / 2 < 0  nBpOff++  ok
 	if aBpL[2] + aBpL[4] / 2 > oBp.LastCanvas().Width()  nBpOff++  ok
@@ -6923,11 +7601,17 @@ chkeq("a name written outside its mark stays on the paper", nBpOff, 0)
 #     profile, not an exemption: every law sections 62 and 63 hold of
 #     every other template holds here.
 nBpBad = 0
-for aBpE in oBp.Edges()
+_aABpE221_ = oBp.Edges()
+_nABpE221_ = len(_aABpE221_)
+for _iABpE221_ = 1 to _nABpE221_
+	aBpE = _aABpE221_[_iABpE221_]
 	rBpA = _Rect49(oBp, StzLower("" + aBpE[:from]))
 	rBpB = _Rect49(oBp, StzLower("" + aBpE[:to]))
 	aBpP = []
-	for aBpR in oBp.RenderEdgePaths()
+	_aABpR222_ = oBp.RenderEdgePaths()
+	_nABpR222_ = len(_aABpR222_)
+	for _iABpR222_ = 1 to _nABpR222_
+		aBpR = _aABpR222_[_iABpR222_]
 		if aBpR[1] = StzLower("" + aBpE[:from]) + ">" +
 		   StzLower("" + aBpE[:to])  aBpP = aBpR[2]  ok
 	next
@@ -6970,7 +7654,10 @@ chkeq("every flow touches both the steps it names", nBpBad, 0)
 #     now sink only where the rank policy says sinking means something.
 nSpY = -1
 nSpBad = 0
-for cSpN in [ "s", "recv", "check", "pack", "bill", "done" ]
+_aCSpN223_ = [ "s", "recv", "check", "pack", "bill", "done" ]
+_nCSpN223_ = len(_aCSpN223_)
+for _iCSpN223_ = 1 to _nCSpN223_
+	cSpN = _aCSpN223_[_iCSpN223_]
 	rSp = _Rect49(oBp, cSpN)
 	nSpC = rSp[2] + rSp[4] / 2
 	if nSpY < 0  nSpY = nSpC  ok
@@ -7025,9 +7712,15 @@ chkeq("a domain that says nothing keeps the old convention",
 #     profile the library ships, because the next one will be written by
 #     somebody reading the last one.
 nGlBad = 0
-for cGlN in StzNotations()
+_aCGlN224_ = StzNotations()
+_nCGlN224_ = len(_aCGlN224_)
+for _iCGlN224_ = 1 to _nCGlN224_
+	cGlN = _aCGlN224_[_iCGlN224_]
 	oGl = StzNotation(cGlN)
-	for cGlK in oGl.Kinds()
+	_aCGlK225_ = oGl.Kinds()
+	_nCGlK225_ = len(_aCGlK225_)
+	for _iCGlK225_ = 1 to _nCGlK225_
+		cGlK = _aCGlK225_[_iCGlK225_]
 		cGlS = "" + oGl.GlyphOf(cGlK)
 		if cGlS = ""  loop  ok
 		if StzIsNodeShape(cGlS)  loop  ok
@@ -7043,7 +7736,10 @@ chkeq("every glyph every shipped profile names is one the renderer draws",
 # is one number for a whole picture, which is right while every cell is
 # one size and wrong the moment a MARK is drawn beside them.
 nCnBad = 0
-for rCn in oBp.RenderNodeRects()
+_aRCn226_ = oBp.RenderNodeRects()
+_nRCn226_ = len(_aRCn226_)
+for _iRCn226_ = 1 to _nRCn226_
+	rCn = _aRCn226_[_iRCn226_]
 	if rCn[1] < 0 or rCn[2] < 0  nCnBad++  ok
 	if rCn[1] + rCn[3] > oBp.LastCanvas().Width()  nCnBad++  ok
 	if rCn[2] + rCn[4] > oBp.LastCanvas().Height()  nCnBad++  ok
@@ -7086,9 +7782,15 @@ oSm.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
 rSmG = _Rect49(oSm, "g")
 nSmGy = rSmG[2] + rSmG[4] / 2
 nSmBad = 0
-for aSmE in [ [ "g", "ship" ], [ "g", "back" ] ]
+_aASmE227_ = [ [ "g", "ship" ], [ "g", "back" ] ]
+_nASmE227_ = len(_aASmE227_)
+for _iASmE227_ = 1 to _nASmE227_
+	aSmE = _aASmE227_[_iASmE227_]
 	aSmP = []
-	for aSmR in oSm.RenderEdgePaths()
+	_aASmR228_ = oSm.RenderEdgePaths()
+	_nASmR228_ = len(_aASmR228_)
+	for _iASmR228_ = 1 to _nASmR228_
+		aSmR = _aASmR228_[_iASmR228_]
 		if aSmR[1] = aSmE[1] + ">" + aSmE[2]  aSmP = aSmR[2]  ok
 	next
 	if len(aSmP) < 4  loop  ok
@@ -7114,7 +7816,10 @@ chkeq("a branch drawn leaving upward is a branch standing above",
 # disagreement above actually produced and the shape a reader notices
 # first.
 nSmOff = 0
-for aSmR in oSm.RenderEdgePaths()
+_aASmR229_ = oSm.RenderEdgePaths()
+_nASmR229_ = len(_aASmR229_)
+for _iASmR229_ = 1 to _nASmR229_
+	aSmR = _aASmR229_[_iASmR229_]
 	nSmN = len(aSmR[2]) / 2
 	for iSm = 1 to nSmN
 		if aSmR[2][iSm * 2 - 1] < 0  nSmOff++  ok
@@ -7206,8 +7911,14 @@ chk("...and with no yes among them, the first declared leads",
 #      four corners looks for four reasons and finds two. The Principal
 #      marked it three times before it was counted rather than eyeballed.
 nBnBad = 0
-for aBnO in [ oBp, oAf, oSm ]
-	for aBnP in aBnO.RenderEdgePaths()
+_aABnO230_ = [ oBp, oAf, oSm ]
+_nABnO230_ = len(_aABnO230_)
+for _iABnO230_ = 1 to _nABnO230_
+	aBnO = _aABnO230_[_iABnO230_]
+	_aABnP231_ = aBnO.RenderEdgePaths()
+	_nABnP231_ = len(_aABnP231_)
+	for _iABnP231_ = 1 to _nABnP231_
+		aBnP = _aABnP231_[_iABnP231_]
 		nBnN = len(aBnP[2]) / 2
 		if nBnN < 2  loop  ok
 		# turns, counting only points where the direction actually
@@ -7238,7 +7949,10 @@ chkeq("no edge turns more often than it has reason to", nBnBad, 0)
 # that was drawn for me: out of the summit, straight to the target's
 # line, straight in.
 nSvT = -1
-for aSvP in oSm.RenderEdgePaths()
+_aASvP232_ = oSm.RenderEdgePaths()
+_nASvP232_ = len(_aASvP232_)
+for _iASvP232_ = 1 to _nASvP232_
+	aSvP = _aASvP232_[_iASvP232_]
 	if aSvP[1] != "g>back"  loop  ok
 	nSvN = len(aSvP[2]) / 2
 	nSvT = 0
@@ -7324,7 +8038,10 @@ chk("...and a long signature makes it wider than the caller's cell",
 # touches that border -- landed on the last signature. Two places
 # computing one height, which is this session's whole story.
 nUmLo = 0
-for aUmL in oUm.RenderNodeLabels()
+_aAUmL233_ = oUm.RenderNodeLabels()
+_nAUmL233_ = len(_aAUmL233_)
+for _iAUmL233_ = 1 to _nAUmL233_
+	aUmL = _aAUmL233_[_iAUmL233_]
 	if aUmL[1] != "shape"  loop  ok
 	nUmLo = aUmL[3] + aUmL[5] / 2
 next
@@ -7343,7 +8060,10 @@ chk("a class's box holds its own text, rules included",
 aUmAd = oUm.RenderAdornments()
 ? "   " + len(aUmAd) + " adornments drawn"
 nUmTri = 0  nUmFilled = 0  nUmHollow = 0
-for aUmA in aUmAd
+_aAUmA234_ = aUmAd
+_nAUmA234_ = len(_aAUmA234_)
+for _iAUmA234_ = 1 to _nAUmA234_
+	aUmA = _aAUmA234_[_iAUmA234_]
 	if aUmA[2] = "triangle"  nUmTri++  ok
 	if aUmA[2] = "diamond" and aUmA[3]  nUmFilled++  ok
 	if aUmA[2] = "diamond" and NOT aUmA[3]  nUmHollow++  ok
@@ -7358,7 +8078,10 @@ chkeq("...and an association ends in neither", len(aUmAd), 4)
 # is written first -- the direction this library declares every
 # hierarchy in -- so the adornment sits at the SOURCE.
 nUmAt = 0
-for aUmA in aUmAd
+_aAUmA235_ = aUmAd
+_nAUmA235_ = len(_aAUmA235_)
+for _iAUmA235_ = 1 to _nAUmA235_
+	aUmA = _aAUmA235_[_iAUmA235_]
 	if aUmA[1] != "poly>pt"  loop  ok
 	rUmP = _Rect49(oUm, "poly")
 	if _DistRect62(rUmP, aUmA[4], aUmA[5]) <= 2  nUmAt = 1  ok
@@ -7379,11 +8102,17 @@ chk("...while a REALIZATION is, being a dashed generalization",
 # (4) THE PICTURE STILL OBEYS THE CONTRACT. A domain is a profile, not
 #     an exemption.
 nUmBad = 0
-for aUmE in oUm.Edges()
+_aAUmE236_ = oUm.Edges()
+_nAUmE236_ = len(_aAUmE236_)
+for _iAUmE236_ = 1 to _nAUmE236_
+	aUmE = _aAUmE236_[_iAUmE236_]
 	rUmA = _Rect49(oUm, StzLower("" + aUmE[:from]))
 	rUmB2 = _Rect49(oUm, StzLower("" + aUmE[:to]))
 	aUmP = []
-	for aUmR in oUm.RenderEdgePaths()
+	_aAUmR237_ = oUm.RenderEdgePaths()
+	_nAUmR237_ = len(_aAUmR237_)
+	for _iAUmR237_ = 1 to _nAUmR237_
+		aUmR = _aAUmR237_[_iAUmR237_]
 		if aUmR[1] = StzLower("" + aUmE[:from]) + ">" +
 		   StzLower("" + aUmE[:to])  aUmP = aUmR[2]  ok
 	next
@@ -7397,7 +8126,10 @@ next
 chkeq("every relationship touches both the classes it names", nUmBad, 0)
 
 nUmOff = 0
-for rUm in oUm.RenderNodeRects()
+_aRUm238_ = oUm.RenderNodeRects()
+_nRUm238_ = len(_aRUm238_)
+for _iRUm238_ = 1 to _nRUm238_
+	rUm = _aRUm238_[_iRUm238_]
 	if rUm[1] < 0 or rUm[2] < 0  nUmOff++  ok
 	if rUm[1] + rUm[3] > oUm.LastCanvas().Width()  nUmOff++  ok
 	if rUm[2] + rUm[4] > oUm.LastCanvas().Height()  nUmOff++  ok
@@ -7417,7 +8149,10 @@ chkeq("...and no class is drawn off the paper measured for it", nUmOff, 0)
 #     of a staircase is long enough to read as a direction.
 nUmStub = 0
 nUmSeen = 0
-for aUmR in oUm.RenderEdgePaths()
+_aAUmR239_ = oUm.RenderEdgePaths()
+_nAUmR239_ = len(_aAUmR239_)
+for _iAUmR239_ = 1 to _nAUmR239_
+	aUmR = _aAUmR239_[_iAUmR239_]
 	nUmN = len(aUmR[2]) / 2
 	if nUmN < 3  loop  ok
 	nUmSeen++
@@ -7454,7 +8189,10 @@ oAl.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 140, :NodeHeight = 52,
 rAlA = _Rect49(oAl, "a")
 rAlC = _Rect49(oAl, "c")
 nAlTurn = -1
-for aAlP in oAl.RenderEdgePaths()
+_aAAlP240_ = oAl.RenderEdgePaths()
+_nAAlP240_ = len(_aAAlP240_)
+for _iAAlP240_ = 1 to _nAAlP240_
+	aAlP = _aAAlP240_[_iAAlP240_]
 	if aAlP[1] != "a>c"  loop  ok
 	nAlN = len(aAlP[2]) / 2
 	nAlTurn = 0
@@ -7531,12 +8269,18 @@ chk("a corner that is a corner still turns with an arc",
 #     That number is the claim worth asserting: a foundation is only
 #     worth what the next domain does NOT have to add.
 nUmNew = 0
-for cUmS in [ "actor", "bar" ]
+_aCUmS241_ = [ "actor", "bar" ]
+_nCUmS241_ = len(_aCUmS241_)
+for _iCUmS241_ = 1 to _nCUmS241_
+	cUmS = _aCUmS241_[_iCUmS241_]
 	if StzIsNodeShape(cUmS)  nUmNew++  ok
 next
 nUmHad = 0
-for cUmS in [ "ellipse", "folder", "component", "note", "cylinder",
+_aCUmS242_ = [ "ellipse", "folder", "component", "note", "cylinder",
 	"box", "diamond", "circle", "doublecircle", "square" ]
+_nCUmS242_ = len(_aCUmS242_)
+for _iCUmS242_ = 1 to _nCUmS242_
+	cUmS = _aCUmS242_[_iCUmS242_]
 	if StzIsNodeShape(cUmS)  nUmHad++  ok
 next
 ? "   seven diagram types: " + nUmNew + " glyphs added, " + nUmHad +
@@ -7559,7 +8303,10 @@ aUmFam = [
 	[ StzUmlObjectNotation(), "umlobject", "toptobottom" ],
 	[ StzUmlCommunicationNotation(), "umlcommunication", "lefttoright" ] ]
 nUmBad = 0
-for aUmF in aUmFam
+_aAUmF243_ = aUmFam
+_nAUmF243_ = len(_aAUmF243_)
+for _iAUmF243_ = 1 to _nAUmF243_
+	aUmF = _aAUmF243_[_iAUmF243_]
 	if aUmF[1].Name_() != aUmF[2]  nUmBad++  ok
 	if StzLower("" + aUmF[1].RankDir()) != aUmF[3]  nUmBad++  ok
 	if len(aUmF[1].Kinds()) < 2  nUmBad++  ok
@@ -7998,8 +8745,11 @@ func chkeq cWhat, xGot, xWant
 
 func _CorGraph cName
 	_g_ = new stzDiagram(cName)
-	for _a_ in [ [ "p","Parent" ], [ "l","Left" ], [ "r","Right" ],
+	_aA244_ = [ [ "p","Parent" ], [ "l","Left" ], [ "r","Right" ],
 	             [ "d","Deep" ] ]
+	_nA244_ = len(_aA244_)
+	for _iA244_ = 1 to _nA244_
+		_a_ = _aA244_[_iA244_]
 		_g_.AddNodeXTT(_a_[1], _a_[2], [ :type = "box", :color = "#4477FF" ])
 	next
 	# ...AND ONE TURN THAT IS NOT A FORK. p forks to l and r at a single
@@ -8017,9 +8767,12 @@ func _CorGraph cName
 
 func _G50
 	_g_ = new stzDiagram("g50")
-	for _a_ in [ [ "lb","Balancer" ],[ "web1","Web A" ],[ "web2","Web B" ],
+	_aA245_ = [ [ "lb","Balancer" ],[ "web1","Web A" ],[ "web2","Web B" ],
 	             [ "api1","API A" ],[ "api2","API B" ],
 	             [ "db1","DB A" ],[ "db2","DB B" ],[ "log","Logger" ] ]
+	_nA245_ = len(_aA245_)
+	for _iA245_ = 1 to _nA245_
+		_a_ = _aA245_[_iA245_]
 		_g_.AddNodeXTT(_a_[1], _a_[2], [ :type = "box", :color = "Info.Solid" ])
 	next
 	_g_.AddEdge("lb","web2")   _g_.AddEdge("web2","web1")
@@ -8054,7 +8807,10 @@ func _Dist55 nX, nY, paFlat
 func _LaneY62 oDg, cKey
 	_ly62_ = -1
 	_lw62_ = 0
-	for _lp62_ in oDg.RenderEdgePaths()
+	_aLp62246_ = oDg.RenderEdgePaths()
+	_nLp62246_ = len(_aLp62246_)
+	for _iLp62246_ = 1 to _nLp62246_
+		_lp62_ = _aLp62246_[_iLp62246_]
 		if _lp62_[1] != cKey  loop  ok
 		_lf62_ = _lp62_[2]
 		for _li62_ = 1 to len(_lf62_) - 3 step 2
@@ -8104,7 +8860,10 @@ func _Px62 cPx, nW, nX, nY
 	return [ ascii(cPx[_i62_]), ascii(cPx[_i62_+1]), ascii(cPx[_i62_+2]) ]
 
 func _Rect49 oDg, cId
-	for _r49_ in oDg.RenderNodeRects()
+	_aR49247_ = oDg.RenderNodeRects()
+	_nR49247_ = len(_aR49247_)
+	for _iR49247_ = 1 to _nR49247_
+		_r49_ = _aR49247_[_iR49247_]
 		if _r49_[5] = cId  return _r49_  ok
 	next
 	return [ 0, 0, 0, 0 ]
@@ -8162,13 +8921,19 @@ func _Near aGot, aWant, nTol
 func _CapsIn cSvg
 	_ca_ = []
 	_clen_ = StzLen(cSvg)
-	for _cn_ in StzFindAll('<polygon points="', cSvg)
+	_aCn248_ = StzFindAll('<polygon points="', cSvg)
+	_nCn248_ = len(_aCn248_)
+	for _iCn248_ = 1 to _nCn248_
+		_cn_ = _aCn248_[_iCn248_]
 		_ctail_ = StzSubStr(cSvg, _cn_, min([ 4000, _clen_ - _cn_ + 1 ]))
 		_cq_ = StzFindFirst('"', StzSubStr(_ctail_, 18, StzLen(_ctail_) - 17))
 		if _cq_ = 0  loop  ok
 		_cpts_ = StzSubStr(_ctail_, 18, _cq_ - 1)
 		_cminx_ = -1  _cmaxx_ = -1  _cminy_ = -1  _cmaxy_ = -1
-		for _cpair_ in StzSplit(_cpts_, " ")
+		_aCpair249_ = StzSplit(_cpts_, " ")
+		_nCpair249_ = len(_aCpair249_)
+		for _iCpair249_ = 1 to _nCpair249_
+			_cpair_ = _aCpair249_[_iCpair249_]
 			_cxy_ = StzSplit(StzTrim(_cpair_), ",")
 			if len(_cxy_) != 2  loop  ok
 			try
@@ -8216,7 +8981,10 @@ func _RankRowGaps oDiag, oCanvas, nW, cHex
 # The centre row of the rank holding the most boxes.
 func _DensestRankRow aRects
 	_drW_ = []
-	for _drR_ in aRects
+	_aDrR250_ = aRects
+	_nDrR250_ = len(_aDrR250_)
+	for _iDrR250_ = 1 to _nDrR250_
+		_drR_ = _aDrR250_[_iDrR250_]
 		_drC_ = _drR_[2] + _drR_[4] / 2
 		_drF_ = 0
 		for _drI_ = 1 to len(_drW_)
@@ -8229,7 +8997,10 @@ func _DensestRankRow aRects
 		if _drF_ = 0  _drW_ + [ _drC_, 1 ]  ok
 	next
 	_drB_ = 0  _drY_ = -1
-	for _drR_ in _drW_
+	_aDrR251_ = _drW_
+	_nDrR251_ = len(_aDrR251_)
+	for _iDrR251_ = 1 to _nDrR251_
+		_drR_ = _aDrR251_[_iDrR251_]
 		if _drR_[2] > _drB_  _drB_ = _drR_[2]  _drY_ = _drR_[1]  ok
 	next
 	return floor(_drY_)
@@ -8292,7 +9063,10 @@ func _RowGaps cRow, nW, aFg, nTol
 # in place: 7.34s -> 0.06s on the same picture, same verdicts.
 func _EdgeInkInRects cPx, nW, nH, aRects, aInk, nTol
 	_erH_ = 0
-	for _erR_ in aRects
+	_aErR252_ = aRects
+	_nErR252_ = len(_aErR252_)
+	for _iErR252_ = 1 to _nErR252_
+		_erR_ = _aErR252_[_iErR252_]
 		_erX1_ = ceil(_erR_[1]) + 4
 		_erX2_ = floor(_erR_[1] + _erR_[3]) - 4
 		_erY1_ = ceil(_erR_[2]) + 4
@@ -8323,7 +9097,10 @@ func _EdgeInkInRects cPx, nW, nH, aRects, aInk, nTol
 # The centre of one node in the last render -- section 43 drives the
 # interaction with pointer positions, so it needs to aim at cells.
 func _Centre44 oDiag, cId
-	for _r_ in oDiag.RenderNodeRects()
+	_aR253_ = oDiag.RenderNodeRects()
+	_nR253_ = len(_aR253_)
+	for _iR253_ = 1 to _nR253_
+		_r_ = _aR253_[_iR253_]
 		if _r_[5] = StzLower("" + cId)
 			return [ _r_[1] + _r_[3] / 2, _r_[2] + _r_[4] / 2 ]
 		ok
@@ -8346,13 +9123,19 @@ func _TightestPair46 oDiag
 	return _tpMin_
 
 func _X46 oDiag, cId
-	for _r_ in oDiag.RenderNodeRects()
+	_aR254_ = oDiag.RenderNodeRects()
+	_nR254_ = len(_aR254_)
+	for _iR254_ = 1 to _nR254_
+		_r_ = _aR254_[_iR254_]
 		if _r_[5] = StzLower("" + cId)  return _r_[1] + _r_[3] / 2  ok
 	next
 	return -1
 
 func _Xof42 aList, cId
-	for _e_ in aList
+	_aE255_ = aList
+	_nE255_ = len(_aE255_)
+	for _iE255_ = 1 to _nE255_
+		_e_ = _aE255_[_iE255_]
 		if _e_[1] = StzLower("" + cId)  return _e_[2]  ok
 	next
 	return -1
@@ -8556,7 +9339,10 @@ func _Rank nCount, nGap
 	return _ra_
 
 func _XOf aPos, cId
-	for _p_ in aPos
+	_aP256_ = aPos
+	_nP256_ = len(_aP256_)
+	for _iP256_ = 1 to _nP256_
+		_p_ = _aP256_[_iP256_]
 		if StzLower("" + _p_[1]) = StzLower("" + cId)  return _p_[2]  ok
 	next
 	return -1
@@ -8572,7 +9358,10 @@ func _MeanCentringError aPos, nW
 		if _ep_ < 0  loop  ok
 		_ekid_ = 0
 		_ekn_ = 0
-		for _ec_ in [ _ei_ * 2, _ei_ * 2 + 1 ]
+		_aEc257_ = [ _ei_ * 2, _ei_ * 2 + 1 ]
+		_nEc257_ = len(_aEc257_)
+		for _iEc257_ = 1 to _nEc257_
+			_ec_ = _aEc257_[_iEc257_]
 			if _ec_ > 40  loop  ok
 			_ex_ = _XOf(aPos, "n" + _ec_)
 			if _ex_ < 0  loop  ok
@@ -8594,7 +9383,10 @@ func _MeanCentringError aPos, nW
 # out of the real positions instead of inventing one.
 func _RespaceByOrdinal aPos, nW
 	_rrows_ = []
-	for _rp_ in aPos
+	_aRp258_ = aPos
+	_nRp258_ = len(_aRp258_)
+	for _iRp258_ = 1 to _nRp258_
+		_rp_ = _aRp258_[_iRp258_]
 		_rk_ = floor(_rp_[3] / 4)
 		_rat_ = 0
 		for _rj_ = 1 to len(_rrows_)
@@ -8607,7 +9399,10 @@ func _RespaceByOrdinal aPos, nW
 		_rrows_[_rat_][2] + [ _rp_[2], "" + _rp_[1] ]
 	next
 	_rout_ = []
-	for _rr_ in _rrows_
+	_aRr259_ = _rrows_
+	_nRr259_ = len(_aRr259_)
+	for _iRr259_ = 1 to _nRr259_
+		_rr_ = _aRr259_[_iRr259_]
 		_rsorted_ = sort(_rr_[2], 1)
 		_rw_ = len(_rsorted_)
 		for _rk2_ = 1 to _rw_
@@ -8629,12 +9424,21 @@ func _DiagramXY oDiag, nBW, nBH
 # cluster's rectangle.
 func _StrangersInClusters oDiag, aPos, nBW, nBH
 	_si_ = 0
-	for _cl_ in oDiag.Clusters()
+	_aCl260_ = oDiag.Clusters()
+	_nCl260_ = len(_aCl260_)
+	for _iCl260_ = 1 to _nCl260_
+		_cl_ = _aCl260_[_iCl260_]
 		_box_ = oDiag._ClusterBox(_cl_, _ClusterXY(aPos), nBW, nBH)
 		if len(_box_) != 4  loop  ok
-		for _p_ in aPos
+		_aP261_ = aPos
+		_nP261_ = len(_aP261_)
+		for _iP261_ = 1 to _nP261_
+			_p_ = _aP261_[_iP261_]
 			_isMem_ = 0
-			for _m_ in _cl_[:nodes]
+			_aM262_ = _cl_[:nodes]
+			_nM262_ = len(_aM262_)
+			for _iM262_ = 1 to _nM262_
+				_m_ = _aM262_[_iM262_]
 				if StzLower("" + _m_) = StzLower("" + _p_[1])  _isMem_ = 1  exit  ok
 			next
 			if _isMem_  loop  ok
@@ -8645,11 +9449,20 @@ func _StrangersInClusters oDiag, aPos, nBW, nBH
 
 func _MembersInClusters oDiag, aPos, nBW, nBH
 	_mi_ = 0
-	for _cl_ in oDiag.Clusters()
+	_aCl263_ = oDiag.Clusters()
+	_nCl263_ = len(_aCl263_)
+	for _iCl263_ = 1 to _nCl263_
+		_cl_ = _aCl263_[_iCl263_]
 		_box_ = oDiag._ClusterBox(_cl_, _ClusterXY(aPos), nBW, nBH)
 		if len(_box_) != 4  loop  ok
-		for _m_ in _cl_[:nodes]
-			for _p_ in aPos
+		_aM264_ = _cl_[:nodes]
+		_nM264_ = len(_aM264_)
+		for _iM264_ = 1 to _nM264_
+			_m_ = _aM264_[_iM264_]
+			_aP265_ = aPos
+			_nP265_ = len(_aP265_)
+			for _iP265_ = 1 to _nP265_
+				_p_ = _aP265_[_iP265_]
 				if StzLower("" + _p_[1]) != StzLower("" + _m_)  loop  ok
 				if _BoxInside(_p_[2], _p_[3], nBW, nBH, _box_)  _mi_++  ok
 			next
@@ -8660,7 +9473,12 @@ func _MembersInClusters oDiag, aPos, nBW, nBH
 # _ClusterBox wants ids lowercased, the way ToCanvasXT feeds it
 func _ClusterXY aPos
 	_cx_ = []
-	for _p_ in aPos  _cx_ + [ StzLower("" + _p_[1]), _p_[2], _p_[3] ]  next
+	_aPos9_ = aPos
+	_nPos9_ = len(_aPos9_)
+	for _iPos9_ = 1 to _nPos9_
+		_p_ = _aPos9_[_iPos9_]
+		_cx_ + [ StzLower("" + _p_[1]), _p_[2], _p_[3] ]
+	next
 	return _cx_
 
 # Is the node box CENTRED at (x,y) wholly within the cluster rectangle?
@@ -8761,7 +9579,10 @@ func _BorderCrossings cSvg, cStroke, nPos, nLo, nHi, bH
 	_bcL_ = StzLen(cSvg)
 	_bcAx_ = iif(bH, 2, 1)
 	_bcOx_ = iif(bH, 1, 2)
-	for _bcP_ in StzFindAll('<polyline points="', cSvg)
+	_aBcP266_ = StzFindAll('<polyline points="', cSvg)
+	_nBcP266_ = len(_aBcP266_)
+	for _iBcP266_ = 1 to _nBcP266_
+		_bcP_ = _aBcP266_[_iBcP266_]
 		_bcT_ = StzSubStr(cSvg, _bcP_, min([ 6000, _bcL_ - _bcP_ + 1 ]))
 		_bcQ_ = StzFindFirst('"', StzSubStr(_bcT_, 19, StzLen(_bcT_) - 18))
 		if _bcQ_ = 0  loop  ok
@@ -8769,7 +9590,10 @@ func _BorderCrossings cSvg, cStroke, nPos, nLo, nHi, bH
 		if _bcTag_ = 0  loop  ok
 		if StzFindFirst(cStroke, StzSubStr(_bcT_, 1, _bcTag_)) = 0  loop  ok
 		_bcPrev_ = []
-		for _bcPr_ in StzSplit(StzSubStr(_bcT_, 19, _bcQ_ - 1), " ")
+		_aBcPr267_ = StzSplit(StzSubStr(_bcT_, 19, _bcQ_ - 1), " ")
+		_nBcPr267_ = len(_aBcPr267_)
+		for _iBcPr267_ = 1 to _nBcPr267_
+			_bcPr_ = _aBcPr267_[_iBcPr267_]
 			_bcC_ = StzSplit(StzTrim(_bcPr_), ",")
 			if len(_bcC_) != 2  loop  ok
 			try
@@ -8801,7 +9625,10 @@ func _BorderCrossings cSvg, cStroke, nPos, nLo, nHi, bH
 func _DiagChords cSvg, cStroke
 	_dc_ = []
 	_dlen_ = StzLen(cSvg)
-	for _dp_ in StzFindAll('<polyline points="', cSvg)
+	_aDp268_ = StzFindAll('<polyline points="', cSvg)
+	_nDp268_ = len(_aDp268_)
+	for _iDp268_ = 1 to _nDp268_
+		_dp_ = _aDp268_[_iDp268_]
 		_dtail_ = StzSubStr(cSvg, _dp_, min([ 6000, _dlen_ - _dp_ + 1 ]))
 		_dq_ = StzFindFirst('"', StzSubStr(_dtail_, 19, StzLen(_dtail_) - 18))
 		if _dq_ = 0  loop  ok
@@ -8810,7 +9637,10 @@ func _DiagChords cSvg, cStroke
 		if _dtagend_ = 0  loop  ok
 		if StzFindFirst(cStroke, StzSubStr(_dtail_, 1, _dtagend_)) = 0  loop  ok
 		_dprev_ = []
-		for _dpair_ in StzSplit(_dpts_, " ")
+		_aDpair269_ = StzSplit(_dpts_, " ")
+		_nDpair269_ = len(_aDpair269_)
+		for _iDpair269_ = 1 to _nDpair269_
+			_dpair_ = _aDpair269_[_iDpair269_]
 			_dxy_ = StzSplit(StzTrim(_dpair_), ",")
 			if len(_dxy_) != 2  loop  ok
 			try
@@ -8834,7 +9664,10 @@ func _DiagChords cSvg, cStroke
 func _NonAxialSegments cSvg, cStroke
 	_nn_ = 0
 	_slen_ = StzLen(cSvg)
-	for _sp_ in StzFindAll('<polyline points="', cSvg)
+	_aSp270_ = StzFindAll('<polyline points="', cSvg)
+	_nSp270_ = len(_aSp270_)
+	for _iSp270_ = 1 to _nSp270_
+		_sp_ = _aSp270_[_iSp270_]
 		_stail_ = StzSubStr(cSvg, _sp_, min([ 6000, _slen_ - _sp_ + 1 ]))
 		_sq_ = StzFindFirst('"', StzSubStr(_stail_, 19, StzLen(_stail_) - 18))
 		if _sq_ = 0  loop  ok
@@ -8844,7 +9677,10 @@ func _NonAxialSegments cSvg, cStroke
 		if _stagend_ = 0  loop  ok
 		if StzFindFirst(cStroke, StzSubStr(_stail_, 1, _stagend_)) = 0  loop  ok
 		_sprev_ = []
-		for _spair_ in StzSplit(_spts_, " ")
+		_aSpair271_ = StzSplit(_spts_, " ")
+		_nSpair271_ = len(_aSpair271_)
+		for _iSpair271_ = 1 to _nSpair271_
+			_spair_ = _aSpair271_[_iSpair271_]
 			_sxy_ = StzSplit(StzTrim(_spair_), ",")
 			if len(_sxy_) != 2  loop  ok
 			try
@@ -8881,7 +9717,10 @@ func _Fan cStem
 
 func _MaxOf paList
 	_mx_ = 0
-	for _v_ in paList
+	_aV272_ = paList
+	_nV272_ = len(_aV272_)
+	for _iV272_ = 1 to _nV272_
+		_v_ = _aV272_[_iV272_]
 		if _v_ > _mx_  _mx_ = _v_  ok
 	next
 	return _mx_
@@ -8890,7 +9729,10 @@ func _MaxOf paList
 # normalisation dot's own numbers were reduced by.
 func _TightestGap aPos
 	_tmin_ = -1
-	for _ta_ in _RanksOf(aPos)
+	_aTa273_ = _RanksOf(aPos)
+	_nTa273_ = len(_aTa273_)
+	for _iTa273_ = 1 to _nTa273_
+		_ta_ = _aTa273_[_iTa273_]
 		_txs_ = sort(_ta_)
 		for _ti_ = 2 to len(_txs_)
 			_td_ = _txs_[_ti_] - _txs_[_ti_ - 1]
@@ -8902,7 +9744,10 @@ func _TightestGap aPos
 
 # The left-to-right extent of the rank holding exactly nCount nodes.
 func _RankSpan aPos, nCount
-	for _ra_ in _RanksOf(aPos)
+	_aRa274_ = _RanksOf(aPos)
+	_nRa274_ = len(_aRa274_)
+	for _iRa274_ = 1 to _nRa274_
+		_ra_ = _aRa274_[_iRa274_]
 		if len(_ra_) = nCount
 			_rx_ = sort(_ra_)
 			return _rx_[len(_rx_)] - _rx_[1]
@@ -8912,7 +9757,10 @@ func _RankSpan aPos, nCount
 
 func _RanksOf aPos
 	_rr_ = []
-	for _p_ in aPos
+	_aP275_ = aPos
+	_nP275_ = len(_aP275_)
+	for _iP275_ = 1 to _nP275_
+		_p_ = _aP275_[_iP275_]
 		_rk_ = floor(_p_[3] / 4)
 		_rat_ = 0
 		for _rj_ = 1 to len(_rr_)
@@ -8925,7 +9773,11 @@ func _RanksOf aPos
 		ok
 	next
 	_out_ = []
-	for _r_ in _rr_  _out_ + _r_[2]  next
+	_aRr9_ = _rr_
+	_nRr9_ = len(_aRr9_)
+	for _iRr9_ = 1 to _nRr9_
+		_out_ + _aRr9_[_iRr9_][2]
+	next
 	return _out_
 
 # In this tree node k's children are 2k and 2k+1, so a subtree is known
@@ -8946,7 +9798,10 @@ func _SubtreeNodes nRoot, nMax
 
 func _SubtreeLo aPos, nRoot, nMax
 	_l_ = -1
-	for _v_ in _SubtreeNodes(nRoot, nMax)
+	_aV276_ = _SubtreeNodes(nRoot, nMax)
+	_nV276_ = len(_aV276_)
+	for _iV276_ = 1 to _nV276_
+		_v_ = _aV276_[_iV276_]
 		_x_ = _XOf(aPos, "n" + _v_)
 		if _x_ < 0  loop  ok
 		if _l_ < 0 or _x_ < _l_  _l_ = _x_  ok
@@ -8955,7 +9810,10 @@ func _SubtreeLo aPos, nRoot, nMax
 
 func _SubtreeHi aPos, nRoot, nMax
 	_h_ = -1
-	for _v_ in _SubtreeNodes(nRoot, nMax)
+	_aV277_ = _SubtreeNodes(nRoot, nMax)
+	_nV277_ = len(_aV277_)
+	for _iV277_ = 1 to _nV277_
+		_v_ = _aV277_[_iV277_]
 		_x_ = _XOf(aPos, "n" + _v_)
 		if _x_ < 0  loop  ok
 		if _x_ > _h_  _h_ = _x_  ok
@@ -9072,7 +9930,10 @@ func _DiffFromUpscale oSmall, xBig
 func _BackwardDepartures cSvg, cStroke
 	_sd_ = 0
 	_slen2_ = StzLen(cSvg)
-	for _sp2_ in StzFindAll('<polyline points="', cSvg)
+	_aSp2278_ = StzFindAll('<polyline points="', cSvg)
+	_nSp2278_ = len(_aSp2278_)
+	for _iSp2278_ = 1 to _nSp2278_
+		_sp2_ = _aSp2278_[_iSp2278_]
 		_st2_ = StzSubStr(cSvg, _sp2_, min([ 6000, _slen2_ - _sp2_ + 1 ]))
 		_se2_ = StzFindFirst(">", _st2_)
 		if _se2_ = 0  loop  ok
@@ -9098,7 +9959,10 @@ func _BackwardDepartures cSvg, cStroke
 # Units are the 0..1000 normalised layout space; a slot is ~150 of it.
 func _NearMissEdges oDiag, aPos
 	_nm_ = 0
-	for _e_ in oDiag.Edges()
+	_aE279_ = oDiag.Edges()
+	_nE279_ = len(_aE279_)
+	for _iE279_ = 1 to _nE279_
+		_e_ = _aE279_[_iE279_]
 		_xa_ = _XOf(aPos, "" + _e_[:from])
 		_xb_ = _XOf(aPos, "" + _e_[:to])
 		if _xa_ < 0 or _xb_ < 0  loop  ok

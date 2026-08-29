@@ -112,7 +112,10 @@ else
 	? "   hears  : " + Joined(oL.Languages())
 
 	cBoth = ""
-	for cTag in oL.Languages()
+	_aCTag155_ = oL.Languages()
+	_nCTag155_ = len(_aCTag155_)
+	for _iCTag155_ = 1 to _nCTag155_
+		cTag = _aCTag155_[_iCTag155_]
 		if oV.HasLanguage(cTag)  cBoth = cTag  exit ok
 	next
 	Chk("a language BOTH directions support was found", cBoth != "")
@@ -217,7 +220,10 @@ ok
 
 nBoth = 0
 cOnlySound = ""
-for v in StzSemanticValues()
+_aV156_ = StzSemanticValues()
+_nV156_ = len(_aV156_)
+for _iV156_ = 1 to _nV156_
+	v = _aV156_[_iV156_]
 	bHas = TRUE
 	try
 		nX = StzColorToNumber(v)

@@ -214,7 +214,10 @@ chk("and it accounts for essentially the whole headline number",
 ? "   -----   ----------   ----------   ---------------"
 
 nCross = 0
-for nSize in [ 240, 600, 1200, 2400 ]
+_aNSize31_ = [ 240, 600, 1200, 2400 ]
+_nNSize31_ = len(_aNSize31_)
+for _iNSize31_ = 1 to _nNSize31_
+	nSize = _aNSize31_[_iNSize31_]
 	oS = new stzGraph("sweep" + nSize)
 	for i = 1 to nSize
 		oS.AddNode("s" + i)

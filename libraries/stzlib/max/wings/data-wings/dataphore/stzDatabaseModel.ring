@@ -230,7 +230,10 @@ class stzDatabaseModel from stzDataModel
         aRelationships = []
         
         # Add relationships from @aRelations with correct structure
-        for aRel in @aRelations
+        _aARel229_ = @aRelations
+        _nARel229_ = len(_aARel229_)
+        for _iARel229_ = 1 to _nARel229_
+        	aRel = _aARel229_[_iARel229_]
             aRelationships + [
                 :type = aRel[:type],
                 :from = aRel[:from],
@@ -241,9 +244,15 @@ class stzDatabaseModel from stzDataModel
         
         # Add enhanced table data with relationship counts
         aEnhancedTables = []
-        for aTable in @aTables
+        _aATable230_ = @aTables
+        _nATable230_ = len(_aATable230_)
+        for _iATable230_ = 1 to _nATable230_
+        	aTable = _aATable230_[_iATable230_]
             nRelCount = 0
-            for aRel in @aRelations
+            _aARel231_ = @aRelations
+            _nARel231_ = len(_aARel231_)
+            for _iARel231_ = 1 to _nARel231_
+            	aRel = _aARel231_[_iARel231_]
                 if aRel[:from] = aTable[:name] or aRel[:to] = aTable[:name]
                     nRelCount++
                 ok
@@ -264,9 +273,15 @@ class stzDatabaseModel from stzDataModel
     def GroupByPriority(aHints)
         aGrouped = []
         aPriorities = ["critical", "high", "medium", "low"]
-        for cPriority in aPriorities
+        _aCPrior232_ = aPriorities
+        _nCPrior232_ = len(_aCPrior232_)
+        for _iCPrior232_ = 1 to _nCPrior232_
+        	cPriority = _aCPrior232_[_iCPrior232_]
             nCount = 0
-            for aHint in aHints
+            _aAHint233_ = aHints
+            _nAHint233_ = len(_aAHint233_)
+            for _iAHint233_ = 1 to _nAHint233_
+            	aHint = _aAHint233_[_iAHint233_]
                 if aHint[:priority] = cPriority
                     nCount++
                 ok
@@ -280,14 +295,23 @@ class stzDatabaseModel from stzDataModel
     def GroupByType(aHints)
         aTypes = []
         aGrouped = []
-        for aHint in aHints
+        _aAHint234_ = aHints
+        _nAHint234_ = len(_aAHint234_)
+        for _iAHint234_ = 1 to _nAHint234_
+        	aHint = _aAHint234_[_iAHint234_]
             if find(aTypes, aHint[:type]) = 0
                 aTypes + aHint[:type]
             ok
         next
-        for cType in aTypes
+        _aCType235_ = aTypes
+        _nCType235_ = len(_aCType235_)
+        for _iCType235_ = 1 to _nCType235_
+        	cType = _aCType235_[_iCType235_]
             nCount = 0
-            for aHint in aHints
+            _aAHint236_ = aHints
+            _nAHint236_ = len(_aAHint236_)
+            for _iAHint236_ = 1 to _nAHint236_
+            	aHint = _aAHint236_[_iAHint236_]
                 if aHint[:type] = cType
                     nCount++
                 ok
@@ -298,7 +322,10 @@ class stzDatabaseModel from stzDataModel
 
     def PerfCriticalActions(aHints)
         aActions = []
-        for aHint in aHints
+        _aAHint237_ = aHints
+        _nAHint237_ = len(_aAHint237_)
+        for _iAHint237_ = 1 to _nAHint237_
+        	aHint = _aAHint237_[_iAHint237_]
             if aHint[:priority] = "critical" or aHint[:priority] = "high"
                 aActions + [
                     :priority = aHint[:priority],
@@ -364,9 +391,15 @@ class stzDatabaseModel from stzDataModel
         cDBML += "  database_type: 'Generic'" + nl
         cDBML += "  Note: 'Generated from stzDataModel'" + nl
         cDBML += "}" + nl + nl
-        for aTable in @aTables
+        _aATable238_ = @aTables
+        _nATable238_ = len(_aATable238_)
+        for _iATable238_ = 1 to _nATable238_
+        	aTable = _aATable238_[_iATable238_]
             cDBML += "Table " + aTable[:name] + " {" + nl
-            for aField in aTable[:fields]
+            _aAField239_ = aTable[:fields]
+            _nAField239_ = len(_aAField239_)
+            for _iAField239_ = 1 to _nAField239_
+            	aField = _aAField239_[_iAField239_]
                 cLine = "  " + aField[:name] + " " + This.MapTypeToDBML(aField[:type])
                 aConstraints = []
                 if aField[:is_primary]
@@ -392,7 +425,10 @@ class stzDatabaseModel from stzDataModel
             next
             cDBML += "}" + nl + nl
         next
-        for aRel in @aRelations
+        _aARel240_ = @aRelations
+        _nARel240_ = len(_aARel240_)
+        for _iARel240_ = 1 to _nARel240_
+        	aRel = _aARel240_[_iARel240_]
             if aRel[:type] = "belongs_to" and aRel[:from] != aRel[:to]
                 cDBML += "Ref: " + aRel[:from] + "."
                 if HasKey(aRel, :foreign_key) and aRel[:foreign_key] != ""
@@ -454,7 +490,10 @@ class stzDatabaseModel from stzDataModel
     def FromDDL(cDDL)
         This.ClearModel()
         acStatements = This.SplitDDLStatements(cDDL)
-        for cStatement in acStatements
+        _aCState241_ = acStatements
+        _nCState241_ = len(_aCState241_)
+        for _iCState241_ = 1 to _nCState241_
+        	cStatement = _aCState241_[_iCState241_]
             cStatement = trim(cStatement)
             if cStatement = ""
                 loop
@@ -489,7 +528,10 @@ class stzDatabaseModel from stzDataModel
             ok
             acFields = split(cFieldsPart, ",")
             aAddedFields = []
-            for cFieldDef in acFields
+            _aCField242_ = acFields
+            _nCField242_ = len(_aCField242_)
+            for _iCField242_ = 1 to _nCField242_
+            	cFieldDef = _aCField242_[_iCField242_]
                 cFieldDef = trim(cFieldDef)
                 if cFieldDef = ""
                     loop
@@ -762,7 +804,10 @@ class stzDatabaseModel from stzDataModel
     def AddTable(cTableName, aFields)
         super.AddTable(cTableName, aFields)
         aTable = This.Table(cTableName)
-        for field in aTable[:fields]
+        _aField243_ = aTable[:fields]
+        _nField243_ = len(_aField243_)
+        for _iField243_ = 1 to _nField243_
+        	field = _aField243_[_iField243_]
             cFieldName = field[:name]
             cFieldType = field[:type]
             if cFieldType = :primary_key
@@ -788,7 +833,10 @@ class stzDatabaseModel from stzDataModel
         acLines = split(cMermaidERD, NL())
         cCurrentEntity = ""
         bInEntity = FALSE
-        for cLine in acLines
+        _aCLine244_ = acLines
+        _nCLine244_ = len(_aCLine244_)
+        for _iCLine244_ = 1 to _nCLine244_
+        	cLine = _aCLine244_[_iCLine244_]
             cLine = trim(cLine)
             if cLine = "erDiagram"
                 loop

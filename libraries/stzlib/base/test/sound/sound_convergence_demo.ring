@@ -54,7 +54,10 @@ ok
 ? "speaks : " + Joined(oV.Languages())
 ? "hears  : " + Joined(oL.Languages())
 cLang = ""
-for cTag in oL.Languages()
+_aCTag152_ = oL.Languages()
+_nCTag152_ = len(_aCTag152_)
+for _iCTag152_ = 1 to _nCTag152_
+	cTag = _aCTag152_[_iCTag152_]
 	if oV.HasLanguage(cTag)  cLang = cTag  exit ok
 next
 if cLang = ""
@@ -89,12 +92,18 @@ else
 ok
 
 aDecl = []
-for a in aPairs
+_aA153_ = aPairs
+_nA153_ = len(_aA153_)
+for _iA153_ = 1 to _nA153_
+	a = _aA153_[_iA153_]
 	aDecl + [ a[1], a[2] ]
 next
 oL.AcceptMeanings(aDecl)
 ? "the grammar and the meanings, declared together:"
-for a in aPairs
+_aA154_ = aPairs
+_nA154_ = len(_aA154_)
+for _iA154_ = 1 to _nA154_
+	a = _aA154_[_iA154_]
 	? "   " + a[1] + "  ->  " + a[2]
 next
 ? ""

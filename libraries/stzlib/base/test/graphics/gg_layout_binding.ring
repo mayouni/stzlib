@@ -50,7 +50,10 @@ nOk = 0  nBad = 0
 
 oG = new stzGraph("mixed")
 aNames = [ "Alpha", "BETA", "gamma", "DeltaOne", "Epsilon_2" ]
-for c in aNames
+_aC100_ = aNames
+_nC100_ = len(_aC100_)
+for _iC100_ = 1 to _nC100_
+	c = _aC100_[_iC100_]
 	oG.AddNode(c)
 next
 oG.AddEdge("Alpha", "BETA")
@@ -66,7 +69,10 @@ oG.AddEdge("DeltaOne", "Epsilon_2")
 # layout indexes by. This is the exact lookup _IndexOf does.
 aIds = oG.NodesIds()
 nMissed = 0
-for aE in oG.Edges()
+_aAE101_ = oG.Edges()
+_nAE101_ = len(_aAE101_)
+for _iAE101_ = 1 to _nAE101_
+	aE = _aAE101_[_iAE101_]
 	if _At(aIds, "" + aE[:from]) = 0  nMissed++  ok
 	if _At(aIds, "" + aE[:to]) = 0    nMissed++  ok
 next
@@ -190,7 +196,10 @@ chk("insertion order really did move the coordinates", nSameCoord < 10)
 
 chkeq("as many positions as nodes", len(oCv.Positions()), len(oTwo.NodesIds()))
 nGhost = 0
-for a in oCv.Positions()
+_aA102_ = oCv.Positions()
+_nA102_ = len(_aA102_)
+for _iA102_ = 1 to _nA102_
+	a = _aA102_[_iA102_]
 	if NOT oTwo.NodeExists(a[1])  nGhost++  ok
 next
 chkeq("every position names a real node", nGhost, 0)

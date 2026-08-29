@@ -108,7 +108,10 @@ EndScenario()
 Scenario("so 'calculable' is exactly 'well-formed', and nothing more")
 	# All three predicates ARE their plain twins. Pinned as identities, so if anyone
 	# ever gives them independent behaviour again this fails loudly.
-	for c in [ "42", "-42", "4.2", "0.1", "99999999999999999999", ".5", "12.", "abc", "", "1_000" ]
+	_aC137_ = [ "42", "-42", "4.2", "0.1", "99999999999999999999", ".5", "12.", "abc", "", "1_000" ]
+	_nC137_ = len(_aC137_)
+	for _iC137_ = 1 to _nC137_
+		c = _aC137_[_iC137_]
 		Then("calculable = number, for '" + c + "'",
 		     StzStringQ(c).RepresentsCalculableNumber(),
 		     StzStringQ(c).RepresentsNumber())

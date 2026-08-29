@@ -106,7 +106,10 @@ func main
 
 func FontPath
 	_a_ = [ "C:\Windows\Fonts\segoeui.ttf", "C:\Windows\Fonts\arial.ttf" ]
-	for _c_ in _a_
+	_aC131_ = _a_
+	_nC131_ = len(_aC131_)
+	for _iC131_ = 1 to _nC131_
+		_c_ = _aC131_[_iC131_]
 		if fexists(_c_)
 			return _c_
 		ok

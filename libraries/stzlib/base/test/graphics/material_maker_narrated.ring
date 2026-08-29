@@ -47,7 +47,10 @@ chk("ToWGSL is cached -- the same text twice", oM.ToWGSL() = cW)
 
 ? ""
 ? "-- Scene 2: the fragment builtins are the point --"
-for cB in [ "normal", "position", "uv", "lambert", "color" ]
+_aCB124_ = [ "normal", "position", "uv", "lambert", "color" ]
+_nCB124_ = len(_aCB124_)
+for _iCB124_ = 1 to _nCB124_
+	cB = _aCB124_[_iCB124_]
     oB = new stzMaterialMaker
     oB.TakesColor(:c)
     oB.ForEachFragment("{ @out = c * (0.5 + 0.5 * @" + cB + ".x) }")

@@ -76,7 +76,10 @@ oCyc.AddEdge("k6", "k1")            # the edge that closes it
 ? "   the graph has a cycle : " + oCyc.HasCyclicDependencies()
 aC = StzEngineGraphLayersAll(oCyc.EngineHandle())
 cShow = ""
-for a in aC
+_aA78_ = aC
+_nA78_ = len(_aA78_)
+for _iA78_ = 1 to _nA78_
+	a = _aA78_[_iA78_]
 	if cShow != ""  cShow += ", "  ok
 	cShow += "" + a[2]
 next
@@ -242,7 +245,10 @@ func Raises cCode
 
 func _MaxOf aPairs
 	_m_ = 0
-	for _a_ in aPairs
+	_aA79_ = aPairs
+	_nA79_ = len(_aA79_)
+	for _iA79_ = 1 to _nA79_
+		_a_ = _aA79_[_iA79_]
 		if _a_[2] > _m_  _m_ = _a_[2]  ok
 	next
 	return _m_

@@ -55,9 +55,15 @@ chk("and the dot LANGUAGE is still an export, not a dependency",
 aWant = [ [ "web", "box" ], [ "api", "hexagon" ], [ "db", "cylinder" ],
           [ "cache", "ellipse" ], [ "sla", "note" ] ]
 nWrong = 0
-for a in oD.Nodes()
+_aA80_ = oD.Nodes()
+_nA80_ = len(_aA80_)
+for _iA80_ = 1 to _nA80_
+	a = _aA80_[_iA80_]
 	cGot = StzLower("" + oD._NativeShapeOf(a))
-	for w in aWant
+	_aW81_ = aWant
+	_nW81_ = len(_aW81_)
+	for _iW81_ = 1 to _nW81_
+		w = _aW81_[_iW81_]
 		if w[1] = StzLower("" + a[:id]) and w[2] != cGot
 			nWrong++
 			? "   " + a[:id] + " wanted " + w[2] + " got " + cGot
@@ -104,7 +110,10 @@ else
 	          [ "db", 140, 90, 78 ], [ "cache", 122, 90, 158 ],
 	          [ "sla", 158, 140, 78 ] ]
 	nBadCol = 0
-	for p in oD.RenderNodeRects()
+	_aP82_ = oD.RenderNodeRects()
+	_nP82_ = len(_aP82_)
+	for _iP82_ = 1 to _nP82_
+		p = _aP82_[_iP82_]
 		cId = StzLower("" + p[5])
 		px = floor(p[1] + p[3] / 2)
 		py = floor(p[2] + p[4] / 2)
@@ -112,7 +121,10 @@ else
 		r = ascii(substr(cPx, nAt, 1))
 		g = ascii(substr(cPx, nAt + 1, 1))
 		b = ascii(substr(cPx, nAt + 2, 1))
-		for f in aFill
+		_aF83_ = aFill
+		_nF83_ = len(_aF83_)
+		for _iF83_ = 1 to _nF83_
+			f = _aF83_[_iF83_]
 			if f[1] = cId
 				nD = fabs(r - f[2]) + fabs(g - f[3]) + fabs(b - f[4])
 				? "   " + PadR(cId, 7) + " centre rgb " + r + "," + g + "," + b +
@@ -137,7 +149,10 @@ W2 = 900  H2 = 620
 oGC2 = new stzGraphCanvas(oD, [ :Layout = :Hierarchical,
 	:Width = W2 - 156, :Height = H2 - 82 ])
 aXY = []
-for p in oGC2.Positions()
+_aP84_ = oGC2.Positions()
+_nP84_ = len(_aP84_)
+for _iP84_ = 1 to _nP84_
+	p = _aP84_[_iP84_]
 	aXY + [ StzLower("" + p[1]), p[2] + 78, p[3] + 41 ]
 next
 aBox = oD._ClusterBox(oD.Clusters()[1], aXY, 132, 58)
@@ -145,8 +160,14 @@ aBox = oD._ClusterBox(oD.Clusters()[1], aXY, 132, 58)
 chk("the cluster produced a box", len(aBox) = 4)
 
 nOutside = 0
-for cM in [ "api", "db", "cache" ]
-	for r in aXY
+_aCM85_ = [ "api", "db", "cache" ]
+_nCM85_ = len(_aCM85_)
+for _iCM85_ = 1 to _nCM85_
+	cM = _aCM85_[_iCM85_]
+	_aR86_ = aXY
+	_nR86_ = len(_aR86_)
+	for _iR86_ = 1 to _nR86_
+		r = _aR86_[_iR86_]
 		if r[1] = cM
 			if r[2] < aBox[1] or r[2] > aBox[1] + aBox[3] or
 			   r[3] < aBox[2] or r[3] > aBox[2] + aBox[4]
@@ -160,7 +181,10 @@ chkeq("every member sits inside its cluster box", nOutside, 0)
 # the negative sibling: a NON-member must be able to fall outside, or the
 # check above is satisfied by a box that swallows the canvas
 nWebIn = 0
-for r in aXY
+_aR87_ = aXY
+_nR87_ = len(_aR87_)
+for _iR87_ = 1 to _nR87_
+	r = _aR87_[_iR87_]
 	if r[1] = "web"
 		if r[2] >= aBox[1] and r[2] <= aBox[1] + aBox[3] and
 		   r[3] >= aBox[2] and r[3] <= aBox[2] + aBox[4]

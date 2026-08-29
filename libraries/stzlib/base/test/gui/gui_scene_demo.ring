@@ -127,7 +127,10 @@ func Look oScene, oSP, nEX, nEY, nEZ, cPath, cWhat
 
 func FontPath
 	_a_ = [ "C:\Windows\Fonts\segoeui.ttf", "C:\Windows\Fonts\arial.ttf" ]
-	for _c_ in _a_
+	_aC134_ = _a_
+	_nC134_ = len(_aC134_)
+	for _iC134_ = 1 to _nC134_
+		_c_ = _aC134_[_iC134_]
 		if fexists(_c_)
 			return _c_
 		ok

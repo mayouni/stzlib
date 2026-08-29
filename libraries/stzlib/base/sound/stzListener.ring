@@ -126,7 +126,10 @@ class stzListener
 
 	def HasLanguage(pcTag)
 		_want_ = lower("" + pcTag)
-		for _t_ in This.Languages()
+		_aT7_ = This.Languages()
+		_nT7_ = len(_aT7_)
+		for _iT7_ = 1 to _nT7_
+			_t_ = _aT7_[_iT7_]
 			if lower(_t_) = _want_  return TRUE ok
 			if This._PrimaryOf(lower(_t_)) = This._PrimaryOf(_want_)  return TRUE ok
 		next
@@ -145,7 +148,10 @@ class stzListener
 		ok
 		_c_ = ""
 		_n_ = 0
-		for _p_ in paPhrases
+		_aP8_ = paPhrases
+		_nP8_ = len(_aP8_)
+		for _iP8_ = 1 to _nP8_
+			_p_ = _aP8_[_iP8_]
 			_s_ = trim("" + _p_)
 			if _s_ = ""  loop ok
 			if _c_ != ""  _c_ += nl ok

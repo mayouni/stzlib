@@ -749,7 +749,10 @@ func DataModelValidationModes()
 
 # Helper function to find template by name
 func FindTemplateByName(cTemplateName)
-    for aTemplate in $aDataModelTemplates
+    _aATempl190_ = $aDataModelTemplates
+    _nATempl190_ = len(_aATempl190_)
+    for _iATempl190_ = 1 to _nATempl190_
+    	aTemplate = _aATempl190_[_iATempl190_]
         if aTemplate[1] = cTemplateName
             return aTemplate
         ok

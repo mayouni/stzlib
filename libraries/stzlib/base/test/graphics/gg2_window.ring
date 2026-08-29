@@ -32,7 +32,10 @@ aE = [ ["mine","smelt"], ["smelt","chip"], ["smelt","cell"],
        ["board","ecu"], ["ecu","line1"], ["ecu","line2"],
        ["line1","car"], ["line2","car"],
        ["paint","line1"], ["glass","line2"], ["seats","line2"] ]
-for e in aE
+_aE16_ = aE
+_nE16_ = len(_aE16_)
+for _iE16_ = 1 to _nE16_
+	e = _aE16_[_iE16_]
 	oG.AddEdge(e[1], e[2])
 next
 

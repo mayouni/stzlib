@@ -78,7 +78,10 @@ Scenario("the identities, which need no reference")
 	# the decomposition redistributes the variance; it cannot create or destroy any
 	aV = oPca.ExplainedVariance()
 	nSum = 0
-	for v in aV
+	_aV149_ = aV
+	_nV149_ = len(_aV149_)
+	for _iV149_ = 1 to _nV149_
+		v = _aV149_[_iV149_]
 		nSum += v
 	next
 	Then("the explained variances sum to the total",

@@ -325,7 +325,10 @@ func BuildHud(nW, nH, oFont, cMat, cTheme, nAmt, nFps, oGraph, nPanel)
 		[ "ESC",   "quit" ]
 	]
 	_y_ = 140
-	for _r_ in _aRows_
+	_aR125_ = _aRows_
+	_nR125_ = len(_aR125_)
+	for _iR125_ = 1 to _nR125_
+		_r_ = _aR125_[_iR125_]
 		_o_.Flush()
 		_o_.FillQ("Info.Solid").AddRoundRect(48, _y_ - 18, 74, 28, 6)
 		_o_.Flush()
@@ -371,13 +374,19 @@ func BuildHud(nW, nH, oFont, cMat, cTheme, nAmt, nFps, oGraph, nPanel)
 		_aLines_ + [ "THE MATERIAL'S OWN CODE", 1 ]
 		_aLines_ + [ "the graph wrote this; nobody typed it", 2 ]
 		_aLines_ + [ "", 0 ]
-		for _seg_ in _Wrap(oGraph.ToW(), 58)
+		_aSeg126_ = _Wrap(oGraph.ToW(), 58)
+		_nSeg126_ = len(_aSeg126_)
+		for _iSeg126_ = 1 to _nSeg126_
+			_seg_ = _aSeg126_[_iSeg126_]
 			_aLines_ + [ _seg_, 3 ]
 		next
 	ok
 
 	_ly_ = 66
-	for _l_ in _aLines_
+	_aL127_ = _aLines_
+	_nL127_ = len(_aL127_)
+	for _iL127_ = 1 to _nL127_
+		_l_ = _aL127_[_iL127_]
 		if _l_[1] != ""
 			_sz_ = _BODY_
 			_col_ = "#E4EAF7"
@@ -395,7 +404,10 @@ func BuildHud(nW, nH, oFont, cMat, cTheme, nAmt, nFps, oGraph, nPanel)
 # parse Ring's list notation off a moving screen.
 func _Join aList
 	_c_ = ""
-	for _x_ in aList
+	_aX128_ = aList
+	_nX128_ = len(_aX128_)
+	for _iX128_ = 1 to _nX128_
+		_x_ = _aX128_[_iX128_]
 		if _c_ != ""  _c_ += ", "  ok
 		_c_ += "" + _x_
 	next
@@ -406,7 +418,10 @@ func _Join aList
 func _Wrap cText, nWidth
 	_a_ = []
 	_cur_ = ""
-	for _w_ in StzSplit(cText, " ")
+	_aW129_ = StzSplit(cText, " ")
+	_nW129_ = len(_aW129_)
+	for _iW129_ = 1 to _nW129_
+		_w_ = _aW129_[_iW129_]
 		if len(_cur_) + len(_w_) + 1 > nWidth
 			_a_ + _cur_
 			_cur_ = _w_

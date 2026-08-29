@@ -858,7 +858,10 @@ pf()
 
 	# Add makes it possible to run a plugin in any of its compatible versions
 
-	for version in XCompatibleVersions(:reverse)
+	_aVersio226_ = XCompatibleVersions(:reverse)
+	_nVersio226_ = len(_aVersio226_)
+	for _iVersio226_ = 1 to _nVersio226_
+		version = _aVersio226_[_iVersio226_]
 		? "Output of version " + version + ": "
 		see XfV(:reverse, "أهلا بالعالم !", version)
 	next

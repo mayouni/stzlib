@@ -45,7 +45,10 @@ func ListFlatten(aList)
 	for i = 1 to _nLen_
 		if isList(aList[i])
 			_aFlat_ = ListFlatten(aList[i])
-			for item in _aFlat_
+			_aItem9_ = _aFlat_
+			_nItem9_ = len(_aItem9_)
+			for _iItem9_ = 1 to _nItem9_
+				item = _aItem9_[_iItem9_]
 				_aResult_ + item
 			next
 		else

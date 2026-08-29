@@ -49,7 +49,10 @@ oSw = new stzCanvas(len(aRoles) * CW, CH + 40)
 oSw.SetBackground(:White)
 
 k = 0
-for cRole in aRoles
+_aCRole70_ = aRoles
+_nCRole70_ = len(_aCRole70_)
+for _iCRole70_ = 1 to _nCRole70_
+	cRole = _aCRole70_[_iCRole70_]
 	x = k * CW + 14
 	oSw.Flush()
 	oSw.FillQ(cRole).StrokeQ(:Neutral, 1).
@@ -67,7 +70,10 @@ write("showcase_roles.svg", oSw.ToSVG())
 if StzGraphicsDevice()  oSw.ToPNG("showcase_roles.png")  ok
 ? "   wrote showcase_roles.png   (" + len(aRoles) + " roles, auto-contrast labels)"
 
-for cRole in aRoles
+_aCRole71_ = aRoles
+_nCRole71_ = len(_aCRole71_)
+for _iCRole71_ = 1 to _nCRole71_
+	cRole = _aCRole71_[_iCRole71_]
 	? "     " + PadR("" + cRole, 11) + " -> " + PadR(StzResolveColor(cRole), 9) +
 	  "  label " + StzContrastingText(cRole)
 next
@@ -89,14 +95,20 @@ oRamp = new stzCanvas(len(aSteps) * SW + 120, len(aBases) * SH + 30)
 oRamp.SetBackground(:White)
 
 r = 0
-for cB in aBases
+_aCB72_ = aBases
+_nCB72_ = len(_aCB72_)
+for _iCB72_ = 1 to _nCB72_
+	cB = _aCB72_[_iCB72_]
 	if isObject(oFont)
 		oRamp.Flush()
 		oRamp.AddTextQ(cB, 14, r * SH + 30 + SH / 2 - 6).
 			SetFontQ(oFont, 14).Color(:Black)
 	ok
 	c = 0
-	for cS in aSteps
+	_aCS73_ = aSteps
+	_nCS73_ = len(_aCS73_)
+	for _iCS73_ = 1 to _nCS73_
+		cS = _aCS73_[_iCS73_]
 		cExpr = cB + cS
 		oRamp.Flush()
 		oRamp.FillQ(cExpr).StrokeQ("gray-", 1).
@@ -137,7 +149,10 @@ oAll = new stzCanvas(PW * len(aThemes), PH)
 oAll.SetBackground(:White)
 
 t = 0
-for cTheme in aThemes
+_aCTheme74_ = aThemes
+_nCTheme74_ = len(_aCTheme74_)
+for _iCTheme74_ = 1 to _nCTheme74_
+	cTheme = _aCTheme74_[_iCTheme74_]
 	_Panel(oAll, t * PW, 0, PW, PH, cTheme, oFont)
 	t++
 next
@@ -145,7 +160,10 @@ write("showcase_themes.svg", oAll.ToSVG())
 if StzGraphicsDevice()  oAll.ToPNG("showcase_themes.png")  ok
 ? "   wrote showcase_themes.png   (" + len(aThemes) + " themes, identical code)"
 
-for cT in aThemes
+_aCT75_ = aThemes
+_nCT75_ = len(_aCT75_)
+for _iCT75_ = 1 to _nCT75_
+	cT = _aCT75_[_iCT75_]
 	? "     " + PadR(cT, 9) + " primary " + PadR(StzThemeColor(cT, :primary), 8) +
 	  "  background " + StzThemeColor(cT, :background)
 next
@@ -193,7 +211,10 @@ if isObject(oFont)
 ok
 
 r = 0
-for a in aRows
+_aA76_ = aRows
+_nA76_ = len(_aA76_)
+for _iA76_ = 1 to _nA76_
+	a = _aA76_[_iA76_]
 	y = 66 + r * BH
 	oBoard.Flush()
 	oBoard.FillQ(:White).StrokeQ("gray-", 1).AddRoundRect(24, y, BW - 48, BH - 14, 8)
@@ -266,7 +287,10 @@ func _Panel oC, nX, nY, nW, nH, cTheme, oFont
 	ok
 
 	_k_ = 0
-	for _c_ in [ _ok_, _warn_, _bad_ ]
+	_aC77_ = [ _ok_, _warn_, _bad_ ]
+	_nC77_ = len(_aC77_)
+	for _iC77_ = 1 to _nC77_
+		_c_ = _aC77_[_iC77_]
 		oC.Flush()
 		oC.FillQ(_c_).AddRoundRect(nX + 22 + _k_ * ((nW - 44) / 3),
 			nY + 100, (nW - 44) / 3 - 10, 36, 8)

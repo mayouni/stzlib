@@ -120,7 +120,10 @@ class StzDocParser
 	private
 
 	def findOpeningAt(nPos)
-		for aDelim in aDomain
+		_aADelim196_ = aDomain
+		_nADelim196_ = len(_aADelim196_)
+		for _iADelim196_ = 1 to _nADelim196_
+			aDelim = _aADelim196_[_iADelim196_]
 			cOpening = aDelim[1]
 			if substr(cContent, nPos, len(cOpening)) = cOpening
 				return cOpening
@@ -146,7 +149,10 @@ class StzDocParser
 		return 0
 
 	func showNode(aNodes, nLevel, aLastBranches)
-		for node in aNodes
+		_aNode197_ = aNodes
+		_nNode197_ = len(_aNode197_)
+		for _iNode197_ = 1 to _nNode197_
+			node = _aNode197_[_iNode197_]
 			isLast = (node = aNodes[len(aNodes)])
 			
 			# Draw branch based on level
@@ -176,7 +182,10 @@ class StzDocParser
 	func _formatContent(cContent)
 		# Get first non-empty line of content
 		aLines = split(cContent, nl)
-		for cLine in aLines
+		_aCLine198_ = aLines
+		_nCLine198_ = len(_aCLine198_)
+		for _iCLine198_ = 1 to _nCLine198_
+			cLine = _aCLine198_[_iCLine198_]
 			cLine = trim(cLine)
 			if len(cLine) > 0
 				if len(cLine) > 30

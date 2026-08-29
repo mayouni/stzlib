@@ -66,7 +66,10 @@ chk("Blur sits between them", StzLower(aOrd[2]) = "blur")
 ? "   physical targets  : " + oFG.PhysicalTargets()
 ? "   saved             : " + oFG.TargetsSaved()
 aL = oFG.Lifetimes()
-for a in aL
+_aA19_ = aL
+_nA19_ = len(_aA19_)
+for _iA19_ = 1 to _nA19_
+	a = _aA19_[_iA19_]
 	? "     " + PadR(a[1], 9) + " live from step " + a[2] + " to " + a[3]
 next
 # HONEST: this frame saves NOTHING, and that is the right answer. scene,

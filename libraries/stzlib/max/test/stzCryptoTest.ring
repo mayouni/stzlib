@@ -997,7 +997,10 @@ o1 = new stzCrypto()
 o1 {
     aKeySizes = [512, 1024, 2048]
     
-    for nKeySize in aKeySizes
+    _aNKeySi200_ = aKeySizes
+    _nNKeySi200_ = len(_aNKeySi200_)
+    for _iNKeySi200_ = 1 to _nNKeySi200_
+    	nKeySize = _aNKeySi200_[_iNKeySi200_]
         see "Testing RSA " + nKeySize + "-bit key:" + nl
         
         pRSAKey = RSAGenerate(nKeySize)

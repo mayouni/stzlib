@@ -38,7 +38,10 @@ oE = new stzEarcons()
 
 aBoth = [ "danger", "warning", "info", "success" ]
 nOK = 0
-for cV in aBoth
+_aCV179_ = aBoth
+_nCV179_ = len(_aCV179_)
+for _iCV179_ = 1 to _nCV179_
+	cV = _aCV179_[_iCV179_]
 	cHex = ""
 	bCol = TRUE
 	try
@@ -99,7 +102,10 @@ Chk("and sound says so rather than leaving it to be guessed",
 
 aColourSteps = [ "surface", "border", "text", "solid" ]
 nColourOK = 0
-for cS in aColourSteps
+_aCS180_ = aColourSteps
+_nCS180_ = len(_aCS180_)
+for _iCS180_ = 1 to _nCS180_
+	cS = _aCS180_[_iCS180_]
 	try
 		nX = StzColorToNumber("danger." + cS)
 		nColourOK++
@@ -109,7 +115,10 @@ next
 Chk("all four of colour's steps resolve in colour", nColourOK = 4)
 
 nSoundOK = 0
-for cS in StzEarconSteps()
+_aCS181_ = StzEarconSteps()
+_nCS181_ = len(_aCS181_)
+for _iCS181_ = 1 to _nCS181_
+	cS = _aCS181_[_iCS181_]
 	if oE.ToStepOf("danger." + cS) = cS  nSoundOK++ ok
 next
 Chk("all three of sound's steps resolve in sound", nSoundOK = 3)

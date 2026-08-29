@@ -220,7 +220,10 @@ func ShFilterSweep
 
 func ShResonance
 	_a_ = []
-	for _q_ in [ 0.7, 8.0 ]
+	_aQ167_ = [ 0.7, 8.0 ]
+	_nQ167_ = len(_aQ167_)
+	for _iQ167_ = 1 to _nQ167_
+		_q_ = _aQ167_[_iQ167_]
 		_g_ = new stzSoundGraph()
 		_g_.Reshape(1, RATE)
 		# BOTH halves lowered equally, so the Q comparison stays fair. At 0.5
@@ -238,9 +241,12 @@ func ShResonance
 func ShEnvelopes
 	_a_ = []
 	# pluck, pad, stab
-	for _e_ in [ [0.002, 0.30, 0.0, 0.10, 0.30],
+	_aE168_ = [ [0.002, 0.30, 0.0, 0.10, 0.30],
 	             [0.400, 0.30, 0.7, 0.60, 1.20],
 	             [0.005, 0.06, 0.0, 0.05, 0.08] ]
+	_nE168_ = len(_aE168_)
+	for _iE168_ = 1 to _nE168_
+		_e_ = _aE168_[_iE168_]
 		_g_ = new stzSoundGraph()
 		_g_.Reshape(1, RATE)
 		_g_.AddOscillator(:Triangle, 330, 0.6)
@@ -278,14 +284,20 @@ func ShChord
 	_g_ = new stzSoundGraph()
 	_g_.Reshape(1, RATE)
 	_a_ = []
-	for _hz_ in [ 261.63, 329.63, 392.00 ]
+	_aHz169_ = [ 261.63, 329.63, 392.00 ]
+	_nHz169_ = len(_aHz169_)
+	for _iHz169_ = 1 to _nHz169_
+		_hz_ = _aHz169_[_iHz169_]
 		_g_.AddOscillator(:Triangle, _hz_, 0.30)
 		_g_.NameIt("n" + _hz_)
 		_a_ + ("n" + _hz_)
 	next
 	_g_.AddMixOf(_a_)
 	_parts_ = [ _g_.ToSound(1.4), ShSilence(0.25) ]
-	for _hz_ in [ 261.63, 329.63, 392.00 ]
+	_aHz170_ = [ 261.63, 329.63, 392.00 ]
+	_nHz170_ = len(_aHz170_)
+	for _iHz170_ = 1 to _nHz170_
+		_hz_ = _aHz170_[_iHz170_]
 		_parts_ + ShTone(:Triangle, _hz_, 0.5, 0.32)
 	next
 	return ShConcat(_parts_)
@@ -303,7 +315,10 @@ func ShBell
 func ShEarcons
 	_e_ = new stzEarcons()
 	_a_ = []
-	for _v_ in [ "Danger", "Warning", "Info", "Success" ]
+	_aV171_ = [ "Danger", "Warning", "Info", "Success" ]
+	_nV171_ = len(_aV171_)
+	for _iV171_ = 1 to _nV171_
+		_v_ = _aV171_[_iV171_]
 		_s_ = _e_.ToSoundOf(_v_)
 		if isObject(_s_)  _a_ + _s_  _a_ + ShSilence(0.45) ok
 	next
@@ -449,12 +464,18 @@ func ShSilence nSecs
 
 func ShConcat paSounds
 	_total_ = 0
-	for _s_ in paSounds
+	_aS172_ = paSounds
+	_nS172_ = len(_aS172_)
+	for _iS172_ = 1 to _nS172_
+		_s_ = _aS172_[_iS172_]
 		if isObject(_s_)  _total_ += _s_.Duration() ok
 	next
 	_o_ = StzSoundOfSilenceQ(_total_ + 0.02, 1, RATE)
 	_at_ = 0
-	for _s_ in paSounds
+	_aS173_ = paSounds
+	_nS173_ = len(_aS173_)
+	for _iS173_ = 1 to _nS173_
+		_s_ = _aS173_[_iS173_]
 		if NOT isObject(_s_)  loop ok
 		_n_ = _s_.Frames()
 		for _i_ = 1 to _n_
@@ -479,7 +500,10 @@ func ShMix2 oA, oB
 
 func ShMax paList
 	_m_ = paList[1]
-	for _v_ in paList
+	_aV174_ = paList
+	_nV174_ = len(_aV174_)
+	for _iV174_ = 1 to _nV174_
+		_v_ = _aV174_[_iV174_]
 		if _v_ > _m_  _m_ = _v_ ok
 	next
 	return _m_

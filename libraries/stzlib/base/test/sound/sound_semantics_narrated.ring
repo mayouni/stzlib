@@ -49,7 +49,10 @@ oE = new stzEarcons()
 aV = StzSemanticValues()
 ? "   the five: " + This_Join(aV)
 Chk("there are exactly five", len(aV) = 5)
-for cWant in [ "danger", "warning", "info", "success", "muted" ]
+_aCWant163_ = [ "danger", "warning", "info", "success", "muted" ]
+_nCWant163_ = len(_aCWant163_)
+for _iCWant163_ = 1 to _nCWant163_
+	cWant = _aCWant163_[_iCWant163_]
 	Chk("the law's '" + cWant + "' is one of them", This_Has(aV, cWant))
 next
 
@@ -74,7 +77,10 @@ Chk("firing it is refused, with silence as the reason",
 # the negative sibling: the OTHER four are not silent, so "silence" is a
 # property of muted and not of the whole vocabulary
 nSounding = 0
-for cV in aV
+_aCV164_ = aV
+_nCV164_ = len(_aCV164_)
+for _iCV164_ = 1 to _nCV164_
+	cV = _aCV164_[_iCV164_]
 	if isObject(oE.ToSoundOf(cV))  nSounding++ ok
 next
 ? "   " + nSounding + " of the five render to a sound"
@@ -105,7 +111,10 @@ Chk("but Fire never produces it", NOT oE.WouldFireAt("Info.Ambient", 1))
 ? "   that sent the floor to a substitute metric and SS2 to the plan."
 
 aShort = [ 0.04, 0.06, 0.10, 0.20 ]
-for nS in aShort
+_aNS165_ = aShort
+_nNS165_ = len(_aNS165_)
+for _iNS165_ = 1 to _nNS165_
+	nS = _aNS165_[_iNS165_]
 	oT = This_Tone(nS, 880, 0.5)
 	nL = oT.Loudness()
 	? "   " + (nS * 1000) + " ms at peak " + oT.Peak() + " -> " + nL + " LUFS"
@@ -155,7 +164,10 @@ oBlock.Release()
 ? "   microphone, a consent, and an input this machine may not have."
 
 ? "   declared floor: " + oE.DeclaredFloor() + " dB"
-for cV in [ "Danger", "Warning", "Info", "Success" ]
+_aCV166_ = [ "Danger", "Warning", "Info", "Success" ]
+_nCV166_ = len(_aCV166_)
+for _iCV166_ = 1 to _nCV166_
+	cV = _aCV166_[_iCV166_]
 	? "     " + cV + ": level " + oE.LevelOf(cV) + " dB, margin " +
 	  oE.AudibilityMarginOf(cV) + " dB (needs " + oE.RequiredMarginOf(cV) + ")"
 next

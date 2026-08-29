@@ -110,9 +110,15 @@ class stzDatabasePerfEngine from stzObject
         
         aPlan = $aPerfPlans[@cActivePlan]
         
-        for aRule in aPlan[:rules]
+        _aARule245_ = aPlan[:rules]
+        _nARule245_ = len(_aARule245_)
+        for _iARule245_ = 1 to _nARule245_
+        	aRule = _aARule245_[_iARule245_]
             aMatches = This.EvaluateRule(aRule, aModelData)
-            for aMatch in aMatches
+            _aAMatch246_ = aMatches
+            _nAMatch246_ = len(_aAMatch246_)
+            for _iAMatch246_ = 1 to _nAMatch246_
+            	aMatch = _aAMatch246_[_iAMatch246_]
                 aHints + This.CreateHint(aRule, aMatch)
             next
         next
@@ -149,7 +155,10 @@ class stzDatabasePerfEngine from stzObject
         aResults = []
         if HasKey(aModelData, :relationships)
 
-            for aRel in aModelData[:relationships]
+            _aARel247_ = aModelData[:relationships]
+            _nARel247_ = len(_aARel247_)
+            for _iARel247_ = 1 to _nARel247_
+            	aRel = _aARel247_[_iARel247_]
                 if aRel[:type] = "belongs_to"
                     aResults + [
                         :table = aRel[:from],
@@ -167,7 +176,10 @@ class stzDatabasePerfEngine from stzObject
 
         if HasKey(aModelData, :relationships)
 
-            for aRel in aModelData[:relationships]
+            _aARel248_ = aModelData[:relationships]
+            _nARel248_ = len(_aARel248_)
+            for _iARel248_ = 1 to _nARel248_
+            	aRel = _aARel248_[_iARel248_]
                 if aRel[:type] = "has_many"
                     aResults + [
                         :from_table = aRel[:from],
@@ -183,7 +195,10 @@ class stzDatabasePerfEngine from stzObject
         aResults = []
 
         if HasKey(aModelData, :tables)
-            for aTable in aModelData[:tables]
+            _aATable249_ = aModelData[:tables]
+            _nATable249_ = len(_aATable249_)
+            for _iATable249_ = 1 to _nATable249_
+            	aTable = _aATable249_[_iATable249_]
                 if aTable[:relationship_count] > @aThresholds[:moderate_relationship_count]
                     aResults + [
                         :table = aTable[:name],
@@ -201,11 +216,17 @@ class stzDatabasePerfEngine from stzObject
 
         if HasKey(aModelData, :tables)
 
-            for aTable in aModelData[:tables]
+            _aATable250_ = aModelData[:tables]
+            _nATable250_ = len(_aATable250_)
+            for _iATable250_ = 1 to _nATable250_
+            	aTable = _aATable250_[_iATable250_]
 
                 if HasKey(aTable, :fields)
 
-                    for aField in aTable[:fields]
+                    _aAField251_ = aTable[:fields]
+                    _nAField251_ = len(_aAField251_)
+                    for _iAField251_ = 1 to _nAField251_
+                    	aField = _aAField251_[_iAField251_]
                         if aField[:type] = "text" or aField[:type] = "longtext"
                             aResults + [
                                 :table = aTable[:name],
@@ -225,7 +246,10 @@ class stzDatabasePerfEngine from stzObject
 
         if HasKey(aModelData, :tables)
 
-            for aTable in aModelData[:tables]
+            _aATable252_ = aModelData[:tables]
+            _nATable252_ = len(_aATable252_)
+            for _iATable252_ = 1 to _nATable252_
+            	aTable = _aATable252_[_iATable252_]
 
                 if aTable[:relationship_count] >= @aThresholds[:high_relationship_count]
                     aResults + [

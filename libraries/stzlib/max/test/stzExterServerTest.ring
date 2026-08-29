@@ -24,7 +24,10 @@ XS {
     // List available code language servers
     See nl + "Available Language Servers:" + nl
     langs = getAvailableLanguages()
-    for lang in langs
+    _aLang218_ = langs
+    _nLang218_ = len(_aLang218_)
+    for _iLang218_ = 1 to _nLang218_
+    	lang = _aLang218_[_iLang218_]
         ? "- " + lang["name"] + " (ID: " + lang["id"] + "): " + 
           (lang["status"] ? "Running" : "Not Running")
     next
@@ -112,7 +115,10 @@ const result = names.map(name => `${greeting}, ${name}!`);
     if response["status"] = "success"
         ? "NodeJS Execution Results:"
         greetings = response["result"]
-        for greeting in greetings
+        _aGreeti219_ = greetings
+        _nGreeti219_ = len(_aGreeti219_)
+        for _iGreeti219_ = 1 to _nGreeti219_
+        	greeting = _aGreeti219_[_iGreeti219_]
             ? greeting
         next
     else
@@ -175,7 +181,10 @@ ORDER BY avg_salary DESC;
     
     if response["status"] = "success"
         ? nl + "Department Analysis:"
-        for dept in response["result"]
+        _aDept220_ = response["result"]
+        _nDept220_ = len(_aDept220_)
+        for _iDept220_ = 1 to _nDept220_
+        	dept = _aDept220_[_iDept220_]
             ? "Department: " + dept["department"]
             ? "- Employee Count: " + dept["employee_count"]
             ? "- Average Salary: $" + dept["avg_salary"]
@@ -244,7 +253,10 @@ months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
           
 sales_data = {
     month: round(float(np.random.normal(10000, 2000)), 2) 
-    for month in months
+    _aMonth221_ = months
+    _nMonth221_ = len(_aMonth221_)
+    for _iMonth221_ = 1 to _nMonth221_
+    	month = _aMonth221_[_iMonth221_]
 }
 
 result = sales_data
@@ -340,14 +352,20 @@ XS {
     ? "Date: " + date() + " | Time: " + time()
     ? "========================================"
     
-    for category in serverCategories
+    _aCatego222_ = serverCategories
+    _nCatego222_ = len(_aCatego222_)
+    for _iCatego222_ = 1 to _nCatego222_
+    	category = _aCatego222_[_iCatego222_]
         catName = category[1]
         servers = category[2]
         
         ? nl + "[ " + upper(catName) + " SERVERS ]"
         ? "--------------------------"
         
-        for server in servers
+        _aServer223_ = servers
+        _nServer223_ = len(_aServer223_)
+        for _iServer223_ = 1 to _nServer223_
+        	server = _aServer223_[_iServer223_]
             status = server.checkHealth()
             statusText = status ? "✓ ONLINE" : "✗ OFFLINE"
             

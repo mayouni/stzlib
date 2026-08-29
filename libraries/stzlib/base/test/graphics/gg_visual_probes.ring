@@ -58,7 +58,10 @@ oD = new stzCanvas(900, 300)
 oD.SetBackgroundQ("#FFFFFF")
 aS = [ :Cylinder, :Hexagon, :Note, :Egg, :TripleOctagon, :Component ]
 k = 0
-for s in aS
+_aS113_ = aS
+_nS113_ = len(_aS113_)
+for _iS113_ = 1 to _nS113_
+	s = _aS113_[_iS113_]
 	StzDrawNodeShapeXT(oD, s, 20 + k * 145, 20, 130, 26,
 		"Warning.Solid", "#333333", 1)                 # very WIDE
 	StzDrawNodeShapeXT(oD, s, 20 + k * 145, 70, 26, 200,
@@ -175,9 +178,12 @@ oL.ToCanvasXT([ :Font = oF, :NodeWidth = 110, :NodeHeight = 34, :Scale = 2 ]).
 # around whatever the layout produced -- so a cluster whose members did
 # not land together got a box containing other people's nodes.
 oS = new stzDiagram("svc")
-for a in [ [ "web1", "Web A" ], [ "web2", "Web B" ], [ "api1", "API A" ],
+_aA114_ = [ [ "web1", "Web A" ], [ "web2", "Web B" ], [ "api1", "API A" ],
            [ "api2", "API B" ], [ "db1", "DB A" ], [ "db2", "DB B" ],
            [ "lb", "Balancer" ], [ "log", "Logger" ] ]
+_nA114_ = len(_aA114_)
+for _iA114_ = 1 to _nA114_
+	a = _aA114_[_iA114_]
 	oS.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
 next
 oS.AddEdge("lb", "web1")    oS.AddEdge("lb", "web2")
@@ -196,7 +202,10 @@ oS.ToCanvasXT([ :Font = oF, :NodeWidth = 110, :NodeHeight = 34, :Scale = 2 ]).
 # was no picture at all -- and underneath that the loop drew as a
 # zero-length segment.
 oSL = new stzDiagram("fsm")
-for a in [ [ "idle", "Idle" ], [ "busy", "Busy" ], [ "done", "Done" ] ]
+_aA115_ = [ [ "idle", "Idle" ], [ "busy", "Busy" ], [ "done", "Done" ] ]
+_nA115_ = len(_aA115_)
+for _iA115_ = 1 to _nA115_
+	a = _aA115_[_iA115_]
 	oSL.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
 next
 oSL.AddEdge("idle", "idle")
@@ -230,7 +239,10 @@ oEL.ToCanvasXT(aELo).ToPNG("probe_12_edgelabels_lr.png")
 # stay a curve, so a picture asked for splines=ortho came back with one
 # rounded shape among the corners.
 oOr = new stzDiagram("fsm")
-for a in [ [ "idle", "Idle" ], [ "busy", "Busy" ], [ "done", "Done" ] ]
+_aA116_ = [ [ "idle", "Idle" ], [ "busy", "Busy" ], [ "done", "Done" ] ]
+_nA116_ = len(_aA116_)
+for _iA116_ = 1 to _nA116_
+	a = _aA116_[_iA116_]
 	oOr.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
 next
 oOr.AddEdge("idle", "idle")
@@ -250,9 +262,12 @@ oOr.ToCanvasXT(aOro).ToPNG("probe_13_ortho_loops_lr.png")
 # Backend's, so Data is inside Backend. No parent link to declare, and
 # nothing that can disagree with the node sets.
 oNC = new stzDiagram("svc2")
-for a in [ [ "lb", "Balancer" ], [ "web1", "Web A" ], [ "web2", "Web B" ],
+_aA117_ = [ [ "lb", "Balancer" ], [ "web1", "Web A" ], [ "web2", "Web B" ],
            [ "api1", "API A" ], [ "api2", "API B" ],
            [ "db1", "DB A" ], [ "db2", "DB B" ], [ "log", "Logger" ] ]
+_nA117_ = len(_aA117_)
+for _iA117_ = 1 to _nA117_
+	a = _aA117_[_iA117_]
 	oNC.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
 next
 oNC.AddEdge("lb", "web1")    oNC.AddEdge("lb", "web2")
@@ -271,8 +286,11 @@ oNC.ToCanvasXT([ :Font = oF, :NodeWidth = 100, :NodeHeight = 34, :Scale = 2 ]).
 # labels, once with labels far wider than the nodes. Reserving gap
 # HEIGHT gave a label somewhere to be written and did nothing about
 # width; the rank now spreads to make the room.
-for aStem in [ [ "c", "probe_15_labels_short.png" ],
+_aAStem118_ = [ [ "c", "probe_15_labels_short.png" ],
                [ "condition number  holds ", "probe_15_labels_wide.png" ] ]
+_nAStem118_ = len(_aAStem118_)
+for _iAStem118_ = 1 to _nAStem118_
+	aStem = _aAStem118_[_iAStem118_]
 	oLS = new stzDiagram("fan15")
 	oLS.AddNodeXTT("r", "Router", [ :type = "box", :color = "Info.Solid" ])
 	for i = 1 to 4

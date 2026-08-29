@@ -199,7 +199,10 @@ else
     for _y_ = 0 to nH - 1
         for _x_ = 0 to nW - 1
             _aC_ = [16, 20, 24]
-            for _r_ in aRefRects       # painter order: later wins
+            _aR11_ = aRefRects       # painter order: later wins
+            _nR11_ = len(_aR11_)
+            for _iR11_ = 1 to _nR11_
+            	_r_ = _aR11_[_iR11_]
                 if _x_ >= _r_[1] and _x_ < _r_[1] + _r_[3] and
                    _y_ >= _r_[2] and _y_ < _r_[2] + _r_[4]
                     _aC_ = [_r_[5], _r_[6], _r_[7]]

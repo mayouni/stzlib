@@ -22,8 +22,11 @@ aBase = [ :Font = oF, :NodeWidth = 96, :NodeHeight = 36, :FontSize = 13,
 ? "=============================================================="
 
 #-- 1. the four RANK DIRECTIONS, one graph -----------------------------
-for aD in [ [ :TopDown, "tb" ], [ :BottomUp, "bt" ],
+_aAD90_ = [ [ :TopDown, "tb" ], [ :BottomUp, "bt" ],
             [ :LeftRight, "lr" ], [ :RightLeft, "rl" ] ]
+_nAD90_ = len(_aAD90_)
+for _iAD90_ = 1 to _nAD90_
+	aD = _aAD90_[_iAD90_]
 	oD = _Flow()
 	oD.SetLayout(aD[1])
 	oD.ToPNGXT("gal_1_rank_" + aD[2] + ".png", aBase)
@@ -31,7 +34,10 @@ next
 ? "  1. rank directions   : tb bt lr rl"
 
 #-- 2. the SPLINE styles ----------------------------------------------
-for cS in [ "spline", "ortho", "line" ]
+_aCS91_ = [ "spline", "ortho", "line" ]
+_nCS91_ = len(_aCS91_)
+for _iCS91_ = 1 to _nCS91_
+	cS = _aCS91_[_iCS91_]
 	oS = _Flow()
 	oS.SetSplines(cS)
 	oS.ToPNGXT("gal_2_spline_" + cS + ".png", aBase)
@@ -45,7 +51,10 @@ CW = 190  CH = 130
 oSheet = new stzCanvas(COLS * CW * S, ceil(len(aSh) / COLS) * CH * S)
 oSheet.SetBackgroundQ("#FFFFFF")
 k = 0
-for cS in aSh
+_aCS92_ = aSh
+_nCS92_ = len(_aCS92_)
+for _iCS92_ = 1 to _nCS92_
+	cS = _aCS92_[_iCS92_]
 	cx = (k % COLS) * CW * S
 	cy = floor(k / COLS) * CH * S
 	oSheet.Flush()
@@ -73,9 +82,15 @@ oC2.ToPNGXT("gal_4_clusters_nested.png", aBase)
 ? "  4. clusters          : flat, nested"
 
 #-- 5. SELF-LOOPS in both routings ------------------------------------
-for cS in [ "spline", "ortho" ]
+_aCS93_ = [ "spline", "ortho" ]
+_nCS93_ = len(_aCS93_)
+for _iCS93_ = 1 to _nCS93_
+	cS = _aCS93_[_iCS93_]
 	oL = new stzDiagram("fsm")
-	for a in [ [ "idle", "Idle" ], [ "busy", "Busy" ], [ "done", "Done" ] ]
+	_aA94_ = [ [ "idle", "Idle" ], [ "busy", "Busy" ], [ "done", "Done" ] ]
+	_nA94_ = len(_aA94_)
+	for _iA94_ = 1 to _nA94_
+		a = _aA94_[_iA94_]
 		oL.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Info.Solid" ])
 	next
 	oL.AddEdge("idle", "idle")
@@ -100,7 +115,10 @@ oE.ToPNGXT("gal_6_labels_wide.png", aBase)
 #-- 7. THE SEMANTIC ROLES ---------------------------------------------
 oRol = new stzDiagram("roles")
 oRol.AddNodeXTT("hub", "Hub", [ :type = "box", :color = "Neutral.Solid" ])
-for cRole in [ :Primary, :Success, :Warning, :Danger, :Info ]
+_aCRole95_ = [ :Primary, :Success, :Warning, :Danger, :Info ]
+_nCRole95_ = len(_aCRole95_)
+for _iCRole95_ = 1 to _nCRole95_
+	cRole = _aCRole95_[_iCRole95_]
 	oRol.AddNodeXTT("" + cRole, "" + cRole,
 		[ :type = "box", :color = "" + cRole + ".Solid" ])
 	oRol.AddEdge("hub", "" + cRole)
@@ -119,8 +137,11 @@ oT.ToPNGXT("gal_8_deep_tree.png", aBase)
 
 #-- 9. A DAG -- multi-parent, where the tidy pass does NOT apply ------
 oG = new stzDiagram("dag")
-for a in [ [ "src", "Source" ], [ "a", "Parse" ], [ "b", "Validate" ],
+_aA96_ = [ [ "src", "Source" ], [ "a", "Parse" ], [ "b", "Validate" ],
            [ "c", "Enrich" ], [ "sink", "Store" ], [ "log", "Audit" ] ]
+_nA96_ = len(_aA96_)
+for _iA96_ = 1 to _nA96_
+	a = _aA96_[_iA96_]
 	oG.AddNodeXTT(a[1], a[2], [ :type = "box", :color = "Success.Solid" ])
 next
 oG.AddEdge("src", "a")   oG.AddEdge("src", "b")
@@ -165,8 +186,11 @@ oN.ToPNGXT("gal_12_node_types.png", aBase)
 
 func _Flow
 	_o_ = new stzDiagram("flow")
-	for _a_ in [ [ "req", "Request" ], [ "val", "Validate" ],
+	_aA97_ = [ [ "req", "Request" ], [ "val", "Validate" ],
 	             [ "ok", "Accept" ], [ "no", "Reject" ], [ "log", "Audit" ] ]
+	_nA97_ = len(_aA97_)
+	for _iA97_ = 1 to _nA97_
+		_a_ = _aA97_[_iA97_]
 		_o_.AddNodeXTT(_a_[1], _a_[2], [ :type = "box", :color = "Info.Solid" ])
 	next
 	_o_.AddEdgeXT("req", "val", "submits")
@@ -177,9 +201,12 @@ func _Flow
 
 func _Svc
 	_o_ = new stzDiagram("svc")
-	for _a_ in [ [ "lb", "Balancer" ], [ "web1", "Web A" ], [ "web2", "Web B" ],
+	_aA98_ = [ [ "lb", "Balancer" ], [ "web1", "Web A" ], [ "web2", "Web B" ],
 	             [ "api1", "API A" ], [ "api2", "API B" ],
 	             [ "db1", "DB A" ], [ "db2", "DB B" ], [ "log", "Logger" ] ]
+	_nA98_ = len(_aA98_)
+	for _iA98_ = 1 to _nA98_
+		_a_ = _aA98_[_iA98_]
 		_o_.AddNodeXTT(_a_[1], _a_[2], [ :type = "box", :color = "Info.Solid" ])
 	next
 	_o_.AddEdge("lb", "web1")    _o_.AddEdge("lb", "web2")

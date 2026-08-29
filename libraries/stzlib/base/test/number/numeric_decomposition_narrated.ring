@@ -94,7 +94,10 @@ Scenario("the answers are checked by residual, not by eye")
 	# For each system, compute A*x and compare it with b. This tests the solve
 	# against the definition of a solution rather than against a remembered number.
 	nWorst = 0
-	for nD in [ 3, 5, 9, 15 ]
+	_aND142_ = [ 3, 5, 9, 15 ]
+	_nND142_ = len(_aND142_)
+	for _iND142_ = 1 to _nND142_
+		nD = _aND142_[_iND142_]
 		aM = TestSystem(nD)
 		ab = []
 		for i = 1 to nD

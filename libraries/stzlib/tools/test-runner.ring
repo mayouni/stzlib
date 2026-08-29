@@ -55,7 +55,10 @@ nSkipped = 0
 ? "============================================"
 ? ""
 
-for aLayer in aLayers
+_aALayer270_ = aLayers
+_nALayer270_ = len(_aALayer270_)
+for _iALayer270_ = 1 to _nALayer270_
+	aLayer = _aALayer270_[_iALayer270_]
     if cLayer != "all" and aLayer[:name] != cLayer
         loop
     ok
@@ -70,7 +73,10 @@ for aLayer in aLayers
     aFiles = dir(cTestDir)
     nLayerTests = 0
 
-    for aFile in aFiles
+    _aAFile271_ = aFiles
+    _nAFile271_ = len(_aAFile271_)
+    for _iAFile271_ = 1 to _nAFile271_
+    	aFile = _aAFile271_[_iAFile271_]
         cFile = aFile[1]
 
         if not (right(lower(cFile), 5) = ".ring")
@@ -104,7 +110,10 @@ nTotalTests = len(aTestFiles)
 ? ""
 
 if bListOnly
-    for aTest in aTestFiles
+    _aATest272_ = aTestFiles
+    _nATest272_ = len(_aATest272_)
+    for _iATest272_ = 1 to _nATest272_
+    	aTest = _aATest272_[_iATest272_]
         ? "  [" + aTest[:layer] + "] " + aTest[:file]
     next
     ? ""
@@ -123,21 +132,30 @@ if bReport
 
     # Core production files
     aCoreFiles = dir(cBaseDir + "core/string/")
-    for aFile in aCoreFiles
+    _aAFile273_ = aCoreFiles
+    _nAFile273_ = len(_aAFile273_)
+    for _iAFile273_ = 1 to _nAFile273_
+    	aFile = _aAFile273_[_iAFile273_]
         if right(lower(aFile[1]), 5) = ".ring" and substr(lower(aFile[1]), "test") = 0
             aProduction + [:layer = "core", :module = "string", :file = aFile[1]]
         ok
     next
 
     aCoreFiles = dir(cBaseDir + "core/number/")
-    for aFile in aCoreFiles
+    _aAFile274_ = aCoreFiles
+    _nAFile274_ = len(_aAFile274_)
+    for _iAFile274_ = 1 to _nAFile274_
+    	aFile = _aAFile274_[_iAFile274_]
         if right(lower(aFile[1]), 5) = ".ring" and substr(lower(aFile[1]), "test") = 0
             aProduction + [:layer = "core", :module = "number", :file = aFile[1]]
         ok
     next
 
     aCoreFiles = dir(cBaseDir + "core/list/")
-    for aFile in aCoreFiles
+    _aAFile275_ = aCoreFiles
+    _nAFile275_ = len(_aAFile275_)
+    for _iAFile275_ = 1 to _nAFile275_
+    	aFile = _aAFile275_[_iAFile275_]
         if right(lower(aFile[1]), 5) = ".ring" and substr(lower(aFile[1]), "test") = 0
             aProduction + [:layer = "core", :module = "list", :file = aFile[1]]
         ok
@@ -146,12 +164,18 @@ if bReport
     nCovered = 0
     nUncovered = 0
 
-    for aProd in aProduction
+    _aAProd276_ = aProduction
+    _nAProd276_ = len(_aAProd276_)
+    for _iAProd276_ = 1 to _nAProd276_
+    	aProd = _aAProd276_[_iAProd276_]
         cBaseName = left(aProd[:file], len(aProd[:file]) - 5)
         cTestName = cBaseName + "test.ring"
         bFound = false
 
-        for aTest in aTestFiles
+        _aATest277_ = aTestFiles
+        _nATest277_ = len(_aATest277_)
+        for _iATest277_ = 1 to _nATest277_
+        	aTest = _aATest277_[_iATest277_]
             if lower(aTest[:file]) = lower(cTestName)
                 bFound = true
                 exit

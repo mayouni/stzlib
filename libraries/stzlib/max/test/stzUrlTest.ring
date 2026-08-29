@@ -124,7 +124,10 @@ aUrls = [
 	"invalid url with spaces"
 ]
 
-for cUrl in aUrls
+_aCUrl227_ = aUrls
+_nCUrl227_ = len(_aCUrl227_)
+for _iCUrl227_ = 1 to _nCUrl227_
+	cUrl = _aCUrl227_[_iCUrl227_]
 	o1 = new stzUrl(cUrl)
 	? "URL: " + cUrl
 	? "  Valid: " + o1.IsValid()
@@ -525,7 +528,10 @@ aEndpoints = [
 ]
 
 ? "Building multiple URLs:"
-for aEndpoint in aEndpoints
+_aAEndpo228_ = aEndpoints
+_nAEndpo228_ = len(_aAEndpo228_)
+for _iAEndpo228_ = 1 to _nAEndpo228_
+	aEndpoint = _aAEndpo228_[_iAEndpo228_]
 	o1.SetScheme(aEndpoint[1])
 	o1.SetHost(aEndpoint[2])
 	o1.SetPath(aEndpoint[3])

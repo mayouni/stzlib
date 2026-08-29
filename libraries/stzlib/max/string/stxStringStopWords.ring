@@ -30,7 +30,10 @@ func StopWords()
 	i = 0
 	
 	aLang = AvailbaleLanguagesForStopWords()
-	for cLang in aLang
+	_aCLang191_ = aLang
+	_nCLang191_ = len(_aCLang191_)
+	for _iCLang191_ = 1 to _nCLang191_
+		cLang = _aCLang191_[_iCLang191_]
 		i++
 		cTemp += "StopWordsIn(:" + cLang + ")"
 		if i < len(aLang)
@@ -398,7 +401,10 @@ func VietnameseStopWords()
 func PersianStopWords()
 
 func StopWordLanguage(pcStopWord)
-	for cLang in StopWordsLanguages()
+	_aCLang192_ = StopWordsLanguages()
+	_nCLang192_ = len(_aCLang192_)
+	for _iCLang192_ = 1 to _nCLang192_
+		cLang = _aCLang192_[_iCLang192_]
 		
 		cCode = "bExists = StzListOfStringsQ(" + cLang + "StopWords()).ContainsCS(pcStopWord, :CS = FALSE)"
 		eval(cCode)
