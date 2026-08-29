@@ -8643,6 +8643,60 @@ OPTGOV = [ :Font = EFONT, :NodeWidth = 130, :NodeHeight = 52, :FontSize = 14 ]
 # and not one was findable by testing the rule -- the rule passes its own
 # tests. What follows tests the layer BOTH ways, because a governor that
 # reports nothing is indistinguishable from a governor that is broken.
+sec("-- 70b. THE HAPPY PATH IS A RULE OF THE PLANE ------------")
+
+# The Principal ruled that the affirmative branch continues down the
+# main line and the refusal steps aside. It was built gated on a
+# NOTATION profile, and only BPMN ever set one -- so a plain diagram
+# drew "fails -> Reject" down its spine with "passes -> Accept" hanging
+# off to the side, for as long as the rule existed. This scene has NO
+# notation, which is exactly the case that was broken.
+oHp = new stzDiagram("plain-fork")
+oHp.AddNodeXTT("req", "Request", [ :type = "box" ])
+oHp.AddNodeXTT("val", "Validate", [ :type = "box" ])
+oHp.AddNodeXTT("ok", "Accept", [ :type = "box" ])
+oHp.AddNodeXTT("no", "Reject", [ :type = "box" ])
+oHp.AddEdgeXT("req", "val", "submits")
+oHp.AddEdgeXT("val", "ok", "passes")
+oHp.AddEdgeXT("val", "no", "fails")
+oHp.ToCanvasXT(OPT67)
+aHp = oHp.RenderNodeRects()
+nHpV = -1  nHpOk = -1  nHpNo = -1
+for iHp = 1 to len(aHp)
+	if aHp[iHp][5] = "val"  nHpV = aHp[iHp][1] + aHp[iHp][3] / 2  ok
+	if aHp[iHp][5] = "ok"   nHpOk = aHp[iHp][1] + aHp[iHp][3] / 2  ok
+	if aHp[iHp][5] = "no"   nHpNo = aHp[iHp][1] + aHp[iHp][3] / 2  ok
+next
+chk("the affirmative answer holds the main line, with NO notation set",
+    fabs(nHpOk - nHpV) < 1)
+chk("NEGATIVE: ...and the refusal does not share it",
+    fabs(nHpNo - nHpV) > 1)
+
+# ...AND THE VOCABULARY KNOWS AN INFLECTION. It matched 24 exact strings
+# and knew "pass" and "passed" but not "passes", so it declined to apply
+# rather than failing -- the scope defect of this plane, at the level of
+# a word.
+chkeq("'passes' is affirmative", oHp._IsAffirmative("passes"), 1)
+chkeq("'fails' is negative", oHp._IsNegative("fails"), 1)
+chkeq("NEGATIVE: 'not approved' is not affirmative",
+    oHp._IsAffirmative("not approved"), 0)
+chkeq("...and a moodless label is neither",
+    oHp._IsAffirmative("submits") + oHp._IsNegative("submits"), 0)
+
+# A GRAPH WITH NO MOOD GETS NO SPINE -- the package diagram's case, which
+# says in its own words that a dependency graph has no happy path and
+# claiming one would be a claim the model does not make.
+oNm = new stzDiagram("no-mood")
+oNm.AddNodeXTT("a", "A", [ :type = "box" ])
+oNm.AddNodeXTT("b", "B", [ :type = "box" ])
+oNm.AddNodeXTT("c", "C", [ :type = "box" ])
+oNm.AddEdgeXT("a", "b", "uses")
+oNm.AddEdgeXT("a", "c", "uses")
+chkeq("NEGATIVE: a graph whose branches carry no mood has no happy path",
+    oNm._HasMoodBranch(), 0)
+chkeq("...while one whose branches disagree does",
+    oHp._HasMoodBranch(), 1)
+
 sec("-- 71. THE GOVERNOR, AND THE PROOF THAT IT FIRES --------")
 
 oG = StzPlasticGovernanceOf("graph-plane")
