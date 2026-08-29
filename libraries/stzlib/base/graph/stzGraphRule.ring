@@ -882,13 +882,48 @@ class stzGraphRule from stzObject
 	  # stzGraphRule can be governed exactly as a plastic rule is, with no
 	  # wrapper and no second implementation of the same idea.
 
+	# ...AND A CLAUSE RULE ALREADY HAS A SCOPE: its When clauses.
+	#
+	# The first governance run over the BPM set reported every clause
+	# rule as scope_empty, which was the governance's own defect and not
+	# the rules'. "When" is the scope -- this file has said so since it
+	# was written -- so a rule that declares one needs no second copy of
+	# it as a closure, and asking for one would have been this layer
+	# demanding duplication in the name of catching duplication.
+	#
+	# A rule with BOTH is answered by the closure, because a closure is
+	# reached for exactly when the clauses cannot say the thing.
 	def SubjectsIn(poGraph)
-		if @fGoverns = ""  return []  ok
-		return call @fGoverns(poGraph)
+		if @fGoverns != ""  return call @fGoverns(poGraph)  ok
+		if len(@aClauses) = 0  return []  ok
+		return This._NodesMatchingClauses(poGraph, 1)
 
+	# ...and the boundary of a clause rule is the complement: the nodes
+	# it looked at and did not take. Free, exact, and available for every
+	# clause rule in the library without anyone writing a line.
 	def CounterSubjectsIn(poGraph)
-		if @fExcludes = ""  return []  ok
-		return call @fExcludes(poGraph)
+		if @fExcludes != ""  return call @fExcludes(poGraph)  ok
+		if len(@aClauses) = 0  return []  ok
+		return This._NodesMatchingClauses(poGraph, 0)
+
+	def _NodesMatchingClauses(poGraph, bWant)
+		_r_ = []
+		_a_ = poGraph.NodesIds()
+		_n_ = len(_a_)
+		_nc_ = len(@aClauses)
+		for _i_ = 1 to _n_
+			_hit_ = 1
+			for _j_ = 1 to _nc_
+				if NOT _StzGraphRuleClauseHolds(poGraph, _a_[_i_],
+					@aClauses[_j_])
+					_hit_ = 0
+					exit
+				ok
+			next
+			if _hit_ != bWant  loop  ok
+			_r_ + ("node:" + StzLower("" + _a_[_i_]))
+		next
+		return _r_
 
 	def Name_()        return @cName
 	def Claim()        return @cMessage
