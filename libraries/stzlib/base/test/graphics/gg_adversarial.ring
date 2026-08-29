@@ -7856,6 +7856,37 @@ chk("NEGATIVE: under :Middle the word sits ON its line, by design",
     nOn > 0)
 
 
+
+# The Principal asked why two lines leaving one cell turn at two columns
+# 22px apart. They do not any more, and the cause was a predicate whose
+# NAME promised more than its body checked: _EdgeIsAlternative answered
+# "labelled, and the source forks", while the only caller that filtered
+# afterwards -- _SummitOf -- asked the shape question itself. The other
+# caller, _ClaimChannel, took the unfiltered answer as the whole truth,
+# so every labelled fan-out was treated as a decision and refused the
+# shared stem a fan is entitled to.
+sec("-- 70. A FAN LEAVES ON ONE STEM; A DECISION DOES NOT ----")
+
+oF = Scene("fan", "box")
+aF2 = TurnsOf(oF, "src")
+chkeq("a plain cell's two lines are read", len(aF2), 2)
+chk("...and they turn at ONE column -- one origin, one stem",
+    len(aF2) = 2 and fabs(aF2[1] - aF2[2]) < 0.5)
+
+# THE NEGATIVE SIBLING, and it is the Principal's earlier ruling: every
+# answer must QUIT the decision cell on its own. Two answers to one
+# question are not one thing, and a shared stem would say they were the
+# same until the moment they parted.
+oD2 = Scene("decision", "diamond")
+aD2 = TurnsOf(oD2, "src")
+chkeq("a decision's two answers are read", len(aD2), 2)
+chk("NEGATIVE: ...and they do NOT share a stem",
+    len(aD2) = 2 and fabs(aD2[1] - aD2[2]) > 0.5)
+
+chk("a diamond is a branch cell", oD2._IsBranchCell("src") = 1)
+chk("...and a box is not", oF._IsBranchCell("src") = 0)
+
+
 if nSecClock > 0
 	? "        [section took " +
 	  ((clock() - nSecClock) / clockspersecond()) + "s]"
@@ -9021,6 +9052,33 @@ func _MsgYs oD
 		if len(_sqP_[2]) >= 4  _sqYs_ + _sqP_[2][2]  ok
 	next
 	return _sqYs_
+
+# the turn column of each edge out of the source, read off the ink
+func TurnsOf oD, cSrc
+	aT = []
+	for i = 1 to len(oD.@aEdgePaths)
+		cK = StzLower("" + oD.@aEdgePaths[i][1])
+		nPre = len(cSrc) + 1
+		if len(cK) < nPre  loop  ok
+		if StzSubStr(cK, 1, nPre) != cSrc + ">"  loop  ok
+		aF = oD.@aEdgePaths[i][2]
+		if len(aF) < 6  loop  ok
+		aT + aF[3]
+	next
+	return aT
+
+func Scene cName, cShape
+	o = new stzDiagram(cName)
+	o.SetLayout(:LeftToRight)
+	o.SetSplines(:ortho)
+	o.AddNodeXTT("src", "Src", [ :type = cShape ])
+	o.AddNodeXTT("a", "Up", [ :type = "box" ])
+	o.AddNodeXTT("b", "Down", [ :type = "box" ])
+	o.AddEdgeXT("src", "a", "first")
+	o.AddEdgeXT("src", "b", "second")
+	o.ToCanvasXT([ :Font = EFONT, :NodeWidth = 120, :NodeHeight = 50,
+		:FontSize = 13 ])
+	return o
 
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0
