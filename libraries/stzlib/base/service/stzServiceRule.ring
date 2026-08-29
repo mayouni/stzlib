@@ -74,6 +74,47 @@ func StzCheckServiceDelivery(poDelivery)
 # Rules 1 and 2 additionally require the part to be destined for production;
 # rule 3 applies whatever the destination, which is why the flag is derived from
 # the property being asked about rather than passed in.
+# THE THREE POPULATIONS THIS DOMAIN REASONS ABOUT, named once so the
+# rules can declare them instead of each re-deriving them -- and so that
+# "every part" and "every production part" are two names a reader can
+# tell apart rather than one boolean computed from a value string.
+func _StzServiceAllParts(poGraph)
+	_r_ = []
+	_a_ = poGraph.NodesIds()
+	for _i_ = 1 to len(_a_)
+		if StzLower("" + poGraph.NodeProperty(_a_[_i_], "kind")) != "part"
+			loop
+		ok
+		_r_ + ("part:" + StzLower("" + _a_[_i_]))
+	next
+	return _r_
+
+func _StzServiceProductionParts(poGraph)
+	_r_ = []
+	_a_ = poGraph.NodesIds()
+	for _i_ = 1 to len(_a_)
+		if StzLower("" + poGraph.NodeProperty(_a_[_i_], "kind")) != "part"
+			loop
+		ok
+		if StzLower("" + poGraph.NodeProperty(_a_[_i_], "destination")) !=
+		   "production"  loop  ok
+		_r_ + ("part:" + StzLower("" + _a_[_i_]))
+	next
+	return _r_
+
+func _StzServiceNonProductionParts(poGraph)
+	_r_ = []
+	_a_ = poGraph.NodesIds()
+	for _i_ = 1 to len(_a_)
+		if StzLower("" + poGraph.NodeProperty(_a_[_i_], "kind")) != "part"
+			loop
+		ok
+		if StzLower("" + poGraph.NodeProperty(_a_[_i_], "destination")) =
+		   "production"  loop  ok
+		_r_ + ("part:" + StzLower("" + _a_[_i_]))
+	next
+	return _r_
+
 func _StzServicePartsDependingOn(poGraph, pcProp, pValue, pcMid, pcTail)
 	_aOut_ = []
 	_bProdOnly_ = ("" + pValue) != "undeclared"
@@ -135,6 +176,16 @@ class stzServiceRuleSet from stzGraphRuleSet
 		_oR1_ = new stzServiceRule("production-part-uses-sandbox")
 		_oR1_.SetSeverityQ("error")
 		_oR1_.SetMessageQ("a part destined for production must not depend on a sandboxed service")
+		# PARTS DESTINED FOR PRODUCTION. A part bound for staging may
+		# depend on a double quite legitimately -- that is what a double
+		# is for -- so it is outside this rule, not compliant with it.
+		# The difference matters at a release gate: "no production part
+		# touches a sandbox" and "nothing here is going to production"
+		# are the two answers, and they were one answer.
+		_oR1_.SetOrderQ(10)
+		_oR1_.SetReadsQ([ "node.kind", "node.destination", "graph.edges" ])
+		_oR1_.GovernsQ(func oGraph { return _StzServiceProductionParts(oGraph) })
+		_oR1_.ExcludesQ(func oGraph { return _StzServiceNonProductionParts(oGraph) })
 		_oR1_.UseCheckerQ(func oGraph {
 			return _StzServicePartsDependingOn(oGraph, "posture", "sandbox",
 			       "is destined for production but depends on '",
@@ -146,6 +197,13 @@ class stzServiceRuleSet from stzGraphRuleSet
 		_oR2_ = new stzServiceRule("production-part-uses-ephemeral")
 		_oR2_.SetSeverityQ("error")
 		_oR2_.SetMessageQ("a part destined for production must not depend on an ephemeral store")
+		# The same population as the rule above, asking about a different
+		# property of what it depends on. Sharing a subject is correct
+		# here and the governance is told so.
+		_oR2_.SetOrderQ(20)
+		_oR2_.SetReadsQ([ "node.kind", "node.destination", "graph.edges" ])
+		_oR2_.GovernsQ(func oGraph { return _StzServiceProductionParts(oGraph) })
+		_oR2_.ExcludesQ(func oGraph { return _StzServiceNonProductionParts(oGraph) })
 		_oR2_.UseCheckerQ(func oGraph {
 			return _StzServicePartsDependingOn(oGraph, "ephemeral", 1,
 			       "is destined for production but depends on '",
@@ -158,6 +216,37 @@ class stzServiceRuleSet from stzGraphRuleSet
 		_oR3_ = new stzServiceRule("part-uses-undeclared-service")
 		_oR3_.SetSeverityQ("warning")
 		_oR3_.SetMessageQ("a part depends on a service that is not declared in the registry")
+		# EVERY PART, WHATEVER ITS DESTINATION -- and this rule is the
+		# reason the scope is worth declaring at all. The shared checker
+		# selects its population from a BOOLEAN derived from the value
+		# being matched:
+		#
+		#     _bProdOnly_ = ("" + pValue) != "undeclared"
+		#
+		# So "which parts do I govern" is decided by "what string am I
+		# looking for", and the two have nothing to do with each other.
+		# It is correct today and it is correct by coincidence: a fourth
+		# rule matching the value "undeclared" on some other property
+		# would silently inherit the wider population, and a rule that
+		# genuinely wanted every part would have to spell its value
+		# "undeclared" to get one.
+		#
+		# Declared here, the distinction is a statement instead of a
+		# side effect, and the next rule added has to say which it means.
+		_oR3_.SetOrderQ(30)
+		_oR3_.SetReadsQ([ "node.kind", "graph.edges" ])
+		_oR3_.GovernsQ(func oGraph { return _StzServiceAllParts(oGraph) })
+		_oR3_.ExcludesQ(func oGraph {
+			_r_ = []
+			_a_ = oGraph.NodesIds()
+			for _i_ = 1 to len(_a_)
+				if StzLower("" + oGraph.NodeProperty(_a_[_i_], "kind")) = "part"
+					loop
+				ok
+				_r_ + ("node:" + StzLower("" + _a_[_i_]))
+			next
+			return _r_
+		})
 		_oR3_.UseCheckerQ(func oGraph {
 			return _StzServicePartsDependingOn(oGraph, "posture", "undeclared",
 			       "depends on '",

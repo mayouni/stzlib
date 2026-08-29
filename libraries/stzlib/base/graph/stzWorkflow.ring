@@ -1055,6 +1055,29 @@ class stzBPMRuleBase from stzGraphRuleSet
 		_oRule1_ = new stzGraphRule("bpm_no_orphans")
 		_oRule1_.SetDomainQ("bpm")
 		_oRule1_.SetMessageQ("Step has no incoming or outgoing connections")
+		_oRule1_.SetOrderQ(10)
+		_oRule1_.SetReadsQ([ "node.nodeType", "graph.degree" ])
+		_oRule1_.GovernsQ(func oGraph {
+			_r_ = []
+			_a_ = oGraph.NodesIds()
+			for _i_ = 1 to len(_a_)
+				if StzLower("" + oGraph.NodeProperty(_a_[_i_], "nodeType")) !=
+				   "step"  loop  ok
+				_r_ + ("step:" + StzLower("" + _a_[_i_]))
+			next
+			return _r_
+		})
+		_oRule1_.ExcludesQ(func oGraph {
+			# a decision, a gateway, an event -- not steps, so not orphans
+			_r_ = []
+			_a_ = oGraph.NodesIds()
+			for _i_ = 1 to len(_a_)
+				if StzLower("" + oGraph.NodeProperty(_a_[_i_], "nodeType")) =
+				   "step"  loop  ok
+				_r_ + ("node:" + StzLower("" + _a_[_i_]))
+			next
+			return _r_
+		})
 		_oRule1_.UseCheckerQ(func oGraph {
 			_aOut_ = []
 			_aIds_ = oGraph.NodesIds()
@@ -1075,6 +1098,19 @@ class stzBPMRuleBase from stzGraphRuleSet
 		_oRule2_ = new stzGraphRule("bpm_single_start")
 		_oRule2_.SetDomainQ("bpm")
 		_oRule2_.SetMessageQ("Workflow must have exactly one start")
+		# THE SUBJECT IS THE WORKFLOW, not any node in it -- the only
+		# rule in this set whose finding carries an empty :where, because
+		# "there are three starts" is a fact about the whole graph. It is
+		# universal for that reason: every workflow has a start count.
+		_oRule2_.SetOrderQ(20)
+		_oRule2_.SetReadsQ([ "graph.indegree" ])
+		_oRule2_.DeclareUniversalQ("the subject is the workflow itself " +
+			"and every workflow has exactly one start count, so there is " +
+			"no graph this rule could decline to inspect")
+		_oRule2_.GovernsQ(func oGraph {
+			if len(oGraph.NodesIds()) = 0  return []  ok
+			return [ "workflow" ]
+		})
 		_oRule2_.UseCheckerQ(func oGraph {
 			_aStarts_ = []
 			_aIds_ = oGraph.NodesIds()
@@ -1095,6 +1131,31 @@ class stzBPMRuleBase from stzGraphRuleSet
 		_oRule3_ = new stzGraphRule("bpm_decision_branches")
 		_oRule3_.SetDomainQ("bpm")
 		_oRule3_.SetMessageQ("Decision must have at least 2 outgoing paths")
+		# DECISIONS ONLY. A step with one outgoing path is correct and a
+		# decision with one is a decision that decides nothing, so the
+		# nodeType test is scope and not judgement.
+		_oRule3_.SetOrderQ(30)
+		_oRule3_.SetReadsQ([ "node.nodeType", "graph.outdegree" ])
+		_oRule3_.GovernsQ(func oGraph {
+			_r_ = []
+			_a_ = oGraph.NodesIds()
+			for _i_ = 1 to len(_a_)
+				if StzLower("" + oGraph.NodeProperty(_a_[_i_], "nodeType")) !=
+				   "decision"  loop  ok
+				_r_ + ("decision:" + StzLower("" + _a_[_i_]))
+			next
+			return _r_
+		})
+		_oRule3_.ExcludesQ(func oGraph {
+			_r_ = []
+			_a_ = oGraph.NodesIds()
+			for _i_ = 1 to len(_a_)
+				if StzLower("" + oGraph.NodeProperty(_a_[_i_], "nodeType")) =
+				   "decision"  loop  ok
+				_r_ + ("node:" + StzLower("" + _a_[_i_]))
+			next
+			return _r_
+		})
 		_oRule3_.UseCheckerQ(func oGraph {
 			_aOut_ = []
 			_aIds_ = oGraph.NodesIds()
@@ -1115,9 +1176,30 @@ class stzBPMRuleBase from stzGraphRuleSet
 		_oRule4_ = new stzGraphRule("bpm_assignment_required")
 		_oRule4_.SetDomainQ("bpm")
 		_oRule4_.SetMessageQ("Step must be assigned to an actor")
+		# THE SCOPE IS EVERY STEP; BEING UNASSIGNED IS THE VIOLATION.
+		#
+		# It declared both as scope -- When nodeType=step AND When
+		# assignedTo missing -- so it governed only the steps already
+		# breaking it, and "governs nothing" meant both "every step is
+		# assigned" and "this workflow has no steps".
+		#
+		# The same shape as no-llm-effectful in the agentic set, with one
+		# difference that matters: THERE the operator set had no way to
+		# say the correct thing, and here it always did. `exists` is the
+		# negation of `missing` and has been in the vocabulary since the
+		# beginning. sla_defined, eighteen lines below this, uses the
+		# correct When/Then form on the same page.
+		#
+		# So the missing operator was never the whole cause. Nothing ever
+		# checked the SHAPE of a rule, so both forms shipped side by side
+		# in one file and neither reader had a reason to prefer one --
+		# the findings are identical either way, and only the coverage
+		# differs.
 		_oRule4_.WhenQ("nodeType", "equals", "step")
-		_oRule4_.WhenQ("assignedTo", "missing", "")
+		_oRule4_.ThenQ("assignedTo", "exists", "")
 		_oRule4_.ThenViolationQ("Unassigned step")
+		_oRule4_.SetOrderQ(40)
+		_oRule4_.SetReadsQ([ "node.nodeType", "node.assignedTo" ])
 		This.AddRule(_oRule4_)
 
 
@@ -1144,6 +1226,30 @@ class stzSLARuleBase from stzGraphRuleSet
 		_oRule2_ = new stzGraphRule("sla_compliance")
 		_oRule2_.SetDomainQ("sla")
 		_oRule2_.SetMessageQ("Step duration exceeds SLA")
+		# ONLY A STEP THAT HAS AN SLA TO EXCEED. A step with no sla is
+		# not compliant with this rule -- sla_defined above decides
+		# whether it should have had one, and this rule has nothing to
+		# say about it. Two rules, one population, different questions.
+		_oRule2_.SetOrderQ(20)
+		_oRule2_.SetReadsQ([ "node.sla", "node.duration" ])
+		_oRule2_.GovernsQ(func oGraph {
+			_r_ = []
+			_a_ = oGraph.NodesIds()
+			for _i_ = 1 to len(_a_)
+				if oGraph.NodeProperty(_a_[_i_], "sla") <= 0  loop  ok
+				_r_ + ("step:" + StzLower("" + _a_[_i_]))
+			next
+			return _r_
+		})
+		_oRule2_.ExcludesQ(func oGraph {
+			_r_ = []
+			_a_ = oGraph.NodesIds()
+			for _i_ = 1 to len(_a_)
+				if oGraph.NodeProperty(_a_[_i_], "sla") > 0  loop  ok
+				_r_ + ("node:" + StzLower("" + _a_[_i_]))
+			next
+			return _r_
+		})
 		_oRule2_.UseCheckerQ(func oGraph {
 			_aOut_ = []
 			_aIds_ = oGraph.NodesIds()

@@ -168,6 +168,123 @@ for iP = 1 to len(aProof)
 next
 chk("NEGATIVE: a rule that governs nothing IS reported", bDead = 1)
 
+
+#-- 6. A PROHIBITION WHOSE SCOPE IS NOT ITS VIOLATION -----------------------
+sec("-- 6. workflow: the shape, measured on the two cases that matter")
+
+# bpm_assignment_required declared BOTH clauses as scope -- When step AND
+# When assignedTo missing -- so it governed only the steps already
+# breaking it. The findings were identical either way, which is exactly
+# why it shipped, three lines above sla_defined getting it right on the
+# same page. The DSL always had `exists`; nothing ever checked the shape.
+oWfOk = new stzGraph("all-assigned")
+oWfOk.AddNode("a")  oWfOk.SetNodeProperty("a", "nodeType", "step")
+oWfOk.SetNodeProperty("a", "assignedTo", "clerk")
+oWfOk.AddNode("b")  oWfOk.SetNodeProperty("b", "nodeType", "step")
+oWfOk.SetNodeProperty("b", "assignedTo", "manager")
+oWfOk.AddNode("d")  oWfOk.SetNodeProperty("d", "nodeType", "decision")
+
+oOldShape = new stzGraphRule("old-shape")
+oOldShape.SetDomainQ("bpm").SetSeverityQ("error")
+oOldShape.SetMessageQ("Step must be assigned to an actor")
+oOldShape.WhenQ("nodeType", "equals", "step")
+oOldShape.WhenQ("assignedTo", "missing", "")
+oOldShape.ThenViolationQ("Unassigned step")
+
+oWfEmpty = new stzGraph("no-steps")
+oWfEmpty.AddNode("d")  oWfEmpty.SetNodeProperty("d", "nodeType", "decision")
+
+# THE DEFECT, IN FOUR NUMBERS. Under the old shape a fully compliant
+# workflow and a workflow with no steps produce the SAME output, so the
+# reading "nothing is wrong" cannot be told from "nothing was looked at".
+chkeq("old shape: a compliant workflow reports 0 findings",
+	len(oOldShape.Check(oWfOk)), 0)
+chkeq("old shape: ...and 0 governed, which is the defect",
+	len(oOldShape.SubjectsIn(oWfOk)), 0)
+chkeq("old shape: a workflow with no steps reports the SAME 0 governed",
+	len(oOldShape.SubjectsIn(oWfEmpty)), 0)
+
+# The shipped rule, in the corrected shape.
+oBpm = new stzBPMRuleBase()
+aoBpm = oBpm.Rules()
+oAssign = NULL
+for iA = 1 to len(aoBpm)
+	if aoBpm[iA].Name_() = "bpm_assignment_required"  oAssign = aoBpm[iA]  ok
+next
+chkeq("the shipped rule inspects both steps of a compliant workflow",
+	len(oAssign.SubjectsIn(oWfOk)), 2)
+chkeq("...and still reports no violation", len(oAssign.Check(oWfOk)), 0)
+chkeq("NEGATIVE: ...while a workflow with no steps inspects nothing",
+	len(oAssign.SubjectsIn(oWfEmpty)), 0)
+chkeq("...and it excludes the decision, which is not a step",
+	len(oAssign.CounterSubjectsIn(oWfOk)), 1)
+
+# ...AND IT STILL CATCHES WHAT IT ALWAYS CAUGHT.
+oWfBad = new stzGraph("one-unassigned")
+oWfBad.AddNode("a")  oWfBad.SetNodeProperty("a", "nodeType", "step")
+oWfBad.SetNodeProperty("a", "assignedTo", "clerk")
+oWfBad.AddNode("b")  oWfBad.SetNodeProperty("b", "nodeType", "step")
+chkeq("an unassigned step is still a finding", len(oAssign.Check(oWfBad)), 1)
+
+#-- 7. A CLAUSE RULE CARRIES ITS OWN SCOPE ---------------------------------
+sec("-- 7. When IS the scope, so no clause rule needs a second copy")
+
+# The first governance run over the BPM set convicted every clause rule
+# of governing nothing. That was the governance's defect: "When" has been
+# the scope since stzGraphRule was written, and demanding a closure
+# alongside it would have been this layer requiring duplication in the
+# name of catching duplication.
+chk("a clause rule's subjects come from its When clauses",
+	len(oAssign.SubjectsIn(oWfOk)) > 0)
+chk("...and its boundary is the complement, for free",
+	len(oAssign.CounterSubjectsIn(oWfOk)) > 0)
+
+#-- 8. SERVICE: A POPULATION CHOSEN BY NAME, NOT BY COINCIDENCE ------------
+sec("-- 8. service: two populations that were one boolean")
+
+oSvc = new stzGraph("delivery")
+oSvc.AddNode("api")  oSvc.SetNodeProperty("api", "kind", "part")
+oSvc.SetNodeProperty("api", "destination", "production")
+oSvc.AddNode("ui")   oSvc.SetNodeProperty("ui", "kind", "part")
+oSvc.SetNodeProperty("ui", "destination", "staging")
+oSvc.AddNode("pay")  oSvc.SetNodeProperty("pay", "kind", "service")
+oSvc.SetNodeProperty("pay", "posture", "sandbox")
+oSvc.AddEdge("ui", "pay")
+
+gSvc = StzRuleGovernance("service")
+aoSvc = StzServiceRuleSetQ().Rules()
+for iV = 1 to len(aoSvc)  gSvc.AddRule(aoSvc[iV])  next
+gSvc.AddCase("delivery", oSvc)
+aSt = gSvc.ScopeTable()
+nProd = -1  nAll = -1
+for iV = 1 to len(aSt)
+	if aSt[iV][1] = "production-part-uses-sandbox"  nProd = aSt[iV][2]  ok
+	if aSt[iV][1] = "part-uses-undeclared-service"  nAll = aSt[iV][2]  ok
+next
+# The shared checker derives its population from the VALUE it matches --
+# _bProdOnly_ = (pValue != "undeclared") -- so "which parts do I govern"
+# and "what am I looking for" are the same decision. Correct today, and
+# correct by coincidence. Declared, the two populations are readable.
+chk("the production rules govern only the production part", nProd = 1)
+chk("...while the undeclared rule governs every part", nAll = 2)
+chk("...and they are genuinely different populations", nAll > nProd)
+
+# A STAGING PART MAY DEPEND ON A DOUBLE -- that is what a double is for,
+# so this must NOT be a finding, and the part must be OUT of scope
+# rather than compliant.
+chkeq("a staging part on a sandbox service is no violation",
+	len(StzServiceRuleSetQ().Check(oSvc)), 0)
+bOut = 0
+for iV = 1 to len(aoSvc)
+	if aoSvc[iV].Name_() != "production-part-uses-sandbox"  loop  ok
+	aEx = aoSvc[iV].CounterSubjectsIn(oSvc)
+	for iE = 1 to len(aEx)
+		if aEx[iE] = "part:ui"  bOut = 1  ok
+	next
+next
+chk("NEGATIVE: ...because it is OUT OF SCOPE, not because it complied",
+	bOut = 1)
+
 ? ""
 ? "=============================================================="
 ? " " + nOk + " ok, " + nBad + " failed"
