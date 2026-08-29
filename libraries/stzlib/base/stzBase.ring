@@ -337,6 +337,12 @@ ok
     # stzCodeRule IS-A stzGraphRule, so it loads AFTER it -- though it lives in
     # meta/ (StzCheckCode, in meta/stzCodeRules.ring, builds it only at runtime).
     load "graph/stzRuleReport.ring"
+    # THE META LAYER -- rules that state what they GOVERN, and the checks
+    # that a rule cannot run on itself. After stzRuleReport because the
+    # governance emits its findings in that gate's shape.
+    load "graph/stzPlasticRule.ring"
+    load "graph/stzPlasticGovernance.ring"
+    load "graph/stzPlasticRules.ring"
     load "meta/stzCodeRule.ring"
 
     load "graph/stzGraphQuery.ring"
