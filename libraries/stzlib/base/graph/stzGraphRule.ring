@@ -607,6 +607,8 @@ func _StzGraphRuleClauseHolds(oGraph, pcId, aClause)
 		return NOT _StzGraphRuleValEq(_actual_, _want_)
 	but _op_ = "contains"
 		return isList(_actual_) and ring_find(_actual_, _want_) > 0
+	but _op_ = "not-contains"
+		return NOT (isList(_actual_) and ring_find(_actual_, _want_) > 0)
 	but _op_ = "exists"
 		return NOT _StzGraphRuleValEmpty(_actual_)
 	but _op_ = "missing"
@@ -667,6 +669,26 @@ func _StzGraphRuleNormalizeOp(pcOp)
 		return "not-equals"
 	but _o_ = "contains" or _o_ = "has" or _o_ = "includes"
 		return "contains"
+	# THE VOCABULARY HAD NO WAY TO SAY "MUST NOT", and a prohibition is
+	# most of what a rule set is for. Without this, the only way to write
+	# one in clauses is to put the violation INTO the scope -- which the
+	# file's own example does, at no-llm-effectful:
+	#
+	#     WhenQ("kind", "equals", "llm_actor")
+	#     WhenQ("capabilities", "contains", "effectful")
+	#
+	# That rule governs only the actors already violating it, so "governs
+	# nothing" and "everything complies" are the same output. On an
+	# error-severity agentic control, those are the two readings a person
+	# most needs to tell apart: no LLM actor holds the effectful capability,
+	# versus there is no LLM actor in this graph at all.
+	#
+	# The absence was not an oversight in any one rule. Every prohibition
+	# written in this DSL was forced into the same shape by the operator
+	# set, so the coverage figure of each was unreadable in the same way.
+	but _o_ = "not-contains" or _o_ = "lacks" or _o_ = "excludes" or
+	   _o_ = "!contains"
+		return "not-contains"
 	but _o_ = "exists" or _o_ = "present"
 		return "exists"
 	but _o_ = "missing" or _o_ = "absent"
@@ -681,7 +703,7 @@ func _StzGraphRuleNormalizeOp(pcOp)
 		return "lessequal"
 	ok
 	stzraise("stzGraphRule: unknown operator '" + pcOp + "' (use equals|not-equals|" +
-	         "contains|exists|missing|greaterthan|lessthan|greaterequal|lessequal).")
+	         "contains|not-contains|exists|missing|greaterthan|lessthan|greaterequal|lessequal).")
 
 func StzGraphRuleQ(pcName)
 	return new stzGraphRule(pcName)
@@ -697,6 +719,37 @@ class stzGraphRule from stzObject
 	@aClauses     = []             # When: [ [ prop, op, want ], ... ] -- the SCOPE
 	@aRequirements = []            # Then: [ [ prop, op, want ], ... ] -- must HOLD
 	@fChecker   = ""             # explicit checker closure (overrides clauses)
+
+	# THE SCOPE, FOR A RULE THAT USES A CHECKER.
+	#
+	# @aClauses above is a scope and always was -- "When" is the word this
+	# file chose for it. But a checker OVERRIDES the clauses, and MEASURED
+	# 2026-08-29 across the shipped rule sets: 26 of 34 rules use a checker
+	# and 5 declare any When at all.
+	#
+	#     org 6 rules / 5 checkers / 0 scopes      code  8 / 7 / 0
+	#     security 4 / 3 / 0                       service 4 / 3 / 0
+	#     agent 6 / 4 / 2                          workflow 6 / 4 / 3
+	#
+	# So the declarative scope was built, shipped, and then bypassed by
+	# three quarters of the rules written after it -- and not out of
+	# laziness. A checker computes reachability, in-degree, cross-node
+	# queries; the clause DSL cannot say those things, so a real rule had
+	# to choose between an expressible scope and a correct check, and
+	# correctly chose the check.
+	#
+	# These two let it have both. They do not replace the checker, and
+	# they are not consulted when the rule runs -- they exist so the
+	# SELECTION half becomes visible to stzRuleGovernance, which is where
+	# every scope defect this library has paid for actually lived. A rule
+	# that selects the wrong subjects and judges them correctly returns
+	# "pass", and a suite sees a pass.
+	@fGoverns   = ""             # func(oGraph) -> subject keys it governs
+	@fExcludes  = ""             # func(oGraph) -> subject keys it must NOT
+	@cUniversal = ""             # declared universal, with the reason
+	@nOrder     = 0
+	@acReads    = []
+	@acWrites   = []
 
 	def init(pcName)
 		if ring_trim("" + pcName) = ""
@@ -779,6 +832,72 @@ class stzGraphRule from stzObject
 
 	# supply an explicit checker for rules too rich for the clause DSL. It is
 	# called as call fChecker(oGraph) and returns [ [ :where, :message ], ... ].
+	# WHICH SUBJECTS THIS RULE GOVERNS -- declared beside the checker, not
+	# instead of it. See the block at @fGoverns for why both are needed.
+	def Governs(fFunc)
+		This.GovernsQ(fFunc)
+
+	def GovernsQ(fFunc)
+		@fGoverns = fFunc
+		return This
+
+	# ...AND WHICH IT MUST NOT. The negative sibling, at rule level: a
+	# boundary that is never exercised is a boundary that could be
+	# anywhere.
+	def Excludes(fFunc)
+		This.ExcludesQ(fFunc)
+
+	def ExcludesQ(fFunc)
+		@fExcludes = fFunc
+		return This
+
+	# A rule with no boundary because the claim genuinely has none. The
+	# reason is required: "universal" without one is indistinguishable
+	# from a scope predicate that broke, which is the case worth catching.
+	def DeclareUniversal(pcWhy)
+		This.DeclareUniversalQ(pcWhy)
+
+	def DeclareUniversalQ(pcWhy)
+		@cUniversal = "" + pcWhy
+		return This
+
+	# What it reads, what it writes, and when it runs -- so an ordering
+	# defect is a fact about declarations rather than something found by
+	# rendering the world and squinting at it.
+	def SetReadsQ(pacNames)
+		@acReads = pacNames
+		return This
+
+	def SetWritesQ(pacNames)
+		@acWrites = pacNames
+		return This
+
+	def SetOrderQ(pnOrder)
+		@nOrder = pnOrder
+		return This
+
+	  #-- the governance interface ---------------------------------------
+	  #
+	  # stzRuleGovernance asks a rule these and nothing else, so an
+	  # stzGraphRule can be governed exactly as a plastic rule is, with no
+	  # wrapper and no second implementation of the same idea.
+
+	def SubjectsIn(poGraph)
+		if @fGoverns = ""  return []  ok
+		return call @fGoverns(poGraph)
+
+	def CounterSubjectsIn(poGraph)
+		if @fExcludes = ""  return []  ok
+		return call @fExcludes(poGraph)
+
+	def Name_()        return @cName
+	def Claim()        return @cMessage
+	def Reads()        return @acReads
+	def Writes()       return @acWrites
+	def Order()        return @nOrder
+	def IsUniversal()  return @cUniversal != ""
+	def UniversalWhy() return @cUniversal
+
 	def UseChecker(fChecker)
 		This.UseCheckerQ(fChecker)
 

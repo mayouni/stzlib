@@ -46,6 +46,40 @@ class stzSecurityRuleSet from stzGraphRuleSet
 		_oR1_ = new stzSecurityRule("sandboxed-reaches-effectful")
 		_oR1_.SetSeverityQ("error")
 		_oR1_.SetMessageQ("a sandboxed actor must not be able to reach the effectful capability")
+		# SANDBOXED ACTORS, and nothing else. The distinction this makes
+		# visible is the one a security control most needs: "no sandboxed
+		# actor can reach an effect" and "this graph has no sandboxed
+		# actor" are opposite facts, and a clean report used to say both.
+		# An unsandboxed actor is not compliant with this rule; it is
+		# outside it, which is a different thing to tell an auditor.
+		_oR1_.SetOrderQ(10)
+		_oR1_.SetReadsQ([ "node.posture", "node.kind", "graph.reachability" ])
+		_oR1_.GovernsQ(func oGraph {
+			_r_ = []
+			_a_ = oGraph.NodesIds()
+			for _i_ = 1 to len(_a_)
+				if StzLower("" + oGraph.NodeProperty(_a_[_i_], "kind")) != "actor"
+					loop
+				ok
+				if StzLower("" + oGraph.NodeProperty(_a_[_i_], "posture")) !=
+				   "sandboxed"  loop  ok
+				_r_ + ("actor:" + StzLower("" + _a_[_i_]))
+			next
+			return _r_
+		})
+		_oR1_.ExcludesQ(func oGraph {
+			_r_ = []
+			_a_ = oGraph.NodesIds()
+			for _i_ = 1 to len(_a_)
+				if StzLower("" + oGraph.NodeProperty(_a_[_i_], "kind")) != "actor"
+					loop
+				ok
+				if StzLower("" + oGraph.NodeProperty(_a_[_i_], "posture")) =
+				   "sandboxed"  loop  ok
+				_r_ + ("actor:" + StzLower("" + _a_[_i_]))
+			next
+			return _r_
+		})
 		_oR1_.UseCheckerQ(func oGraph {
 			_aOut_ = []
 			_aIds_ = oGraph.NodesIds()
@@ -81,6 +115,35 @@ class stzSecurityRuleSet from stzGraphRuleSet
 		_oR2_ = new stzSecurityRule("sandboxed-holds-secret")
 		_oR2_.SetSeverityQ("error")
 		_oR2_.SetMessageQ("a sandboxed actor must not hold a live secret")
+		# The same population as the rule above, which is why the two
+		# share a subject and neither contradicts the other -- one asks
+		# what an actor can REACH, the other what it HOLDS.
+		_oR2_.SetOrderQ(20)
+		_oR2_.SetReadsQ([ "node.posture", "node.kind", "graph.edges" ])
+		_oR2_.GovernsQ(func oGraph {
+			_r_ = []
+			_a_ = oGraph.NodesIds()
+			for _i_ = 1 to len(_a_)
+				if StzLower("" + oGraph.NodeProperty(_a_[_i_], "kind")) != "actor"
+					loop
+				ok
+				if StzLower("" + oGraph.NodeProperty(_a_[_i_], "posture")) !=
+				   "sandboxed"  loop  ok
+				_r_ + ("actor:" + StzLower("" + _a_[_i_]))
+			next
+			return _r_
+		})
+		_oR2_.ExcludesQ(func oGraph {
+			_r_ = []
+			_a_ = oGraph.NodesIds()
+			for _i_ = 1 to len(_a_)
+				if StzLower("" + oGraph.NodeProperty(_a_[_i_], "kind")) = "actor" and
+				   StzLower("" + oGraph.NodeProperty(_a_[_i_], "posture")) =
+				   "sandboxed"  loop  ok
+				_r_ + ("node:" + StzLower("" + _a_[_i_]))
+			next
+			return _r_
+		})
 		_oR2_.UseCheckerQ(func oGraph {
 			_aOut_ = []
 			_aIds_ = oGraph.NodesIds()
@@ -110,6 +173,53 @@ class stzSecurityRuleSet from stzGraphRuleSet
 		_oR3_ = new stzSecurityRule("unstored-secret")
 		_oR3_.SetSeverityQ("warning")
 		_oR3_.SetMessageQ("a referenced secret should live in a central store")
+		# SECRETS A SITE REFERENCES. An unreferenced secret is not a
+		# finding and never was -- the checker tests referenced-ness
+		# before storedness -- so that test is scope, not judgement, and
+		# saying so is what stops a graph full of unreferenced secrets
+		# reading as a graph that was audited.
+		_oR3_.SetOrderQ(30)
+		_oR3_.SetReadsQ([ "node.kind", "graph.edges" ])
+		_oR3_.GovernsQ(func oGraph {
+			_r_ = []
+			_a_ = oGraph.NodesIds()
+			_e_ = oGraph.Edges()
+			for _i_ = 1 to len(_a_)
+				if StzLower("" + oGraph.NodeProperty(_a_[_i_], "kind")) != "secret"
+					loop
+				ok
+				_ref_ = 0
+				for _j_ = 1 to len(_e_)
+					if _e_[_j_][:to] = _a_[_i_] and
+					   StzLower("" + oGraph.NodeProperty(_e_[_j_][:from], "kind")) = "site"
+						_ref_ = 1  exit
+					ok
+				next
+				if NOT _ref_  loop  ok
+				_r_ + ("secret:" + StzLower("" + _a_[_i_]))
+			next
+			return _r_
+		})
+		_oR3_.ExcludesQ(func oGraph {
+			_r_ = []
+			_a_ = oGraph.NodesIds()
+			_e_ = oGraph.Edges()
+			for _i_ = 1 to len(_a_)
+				if StzLower("" + oGraph.NodeProperty(_a_[_i_], "kind")) != "secret"
+					loop
+				ok
+				_ref_ = 0
+				for _j_ = 1 to len(_e_)
+					if _e_[_j_][:to] = _a_[_i_] and
+					   StzLower("" + oGraph.NodeProperty(_e_[_j_][:from], "kind")) = "site"
+						_ref_ = 1  exit
+					ok
+				next
+				if _ref_  loop  ok
+				_r_ + ("secret:" + StzLower("" + _a_[_i_]))
+			next
+			return _r_
+		})
 		_oR3_.UseCheckerQ(func oGraph {
 			_aOut_ = []
 			_aIds_ = oGraph.NodesIds()

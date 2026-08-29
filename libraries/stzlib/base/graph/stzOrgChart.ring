@@ -262,8 +262,38 @@ class stzOrgChart from stzDiagram
 		end
 		return []
 
-		def Node(pcId)
-			return This.Position(pcId)
+	# THERE IS NO Node() ALIAS HERE, AND THAT IS THE FIX.
+	#
+	# Position() returns the org record -- [ :id, :title, ...attributes ]
+	# with the attributes FLAT. stzGraph.Node() returns the graph record,
+	# which keeps them nested under "properties". Aliasing one to the
+	# other made an org chart answer Node() with a shape that has no
+	# "properties" key at all.
+	#
+	# stzGraph.NodeProperty() reads through Node(), so on an org chart it
+	# returned empty for every property ever set -- including properties
+	# the chart had stored correctly two lines earlier. Two stores, one
+	# name, and the reader and the writer disagreeing about which one
+	# they meant.
+	#
+	# WHAT IT COST, and it is why this is a defect rather than a tidy-up:
+	# three of the five org rules read node properties, so all three could
+	# only ever return "no findings" on a chart built through the org
+	# chart's own API --
+	#
+	#     no-self-report        reads reportsTo
+	#     no-orphan-position    reads level, to spare executives
+	#     separation-of-duties  reads roles
+	#
+	# -- and the last of those describes itself as a SOX exemplar. It has
+	# been reporting every organisation compliant since it was written.
+	#
+	# Found 2026-08-29 by the scope governance on its first run over this
+	# domain, and not by any of the 22 assertions the org suite already
+	# passed: every one of them checks what the rules SAY, and a rule that
+	# governs nothing says nothing. The count of governed subjects is what
+	# made it visible -- no-self-report governs 0 positions in a chart of
+	# four, which no verdict-shaped test can express.
 
 	def Positions()
 		return @aPositions

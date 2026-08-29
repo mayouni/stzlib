@@ -59,8 +59,25 @@ class stzAgentRuleSet from stzGraphRuleSet
 		_oR1_ = new stzAgentRule("no-llm-effectful")
 		_oR1_.SetSeverityQ("error")
 		_oR1_.SetMessageQ("an llm actor must not hold the effectful capability")
+		# THE SCOPE IS EVERY LLM ACTOR; HOLDING 'effectful' IS THE
+		# VIOLATION. It used to declare both as scope --
+		#
+		#     WhenQ("kind", "equals", "llm_actor")
+		#     WhenQ("capabilities", "contains", "effectful")
+		#
+		# -- which made the rule govern only the actors already breaking
+		# it. Findings were identical either way, and that is exactly why
+		# it survived: the output is right and the COVERAGE is unreadable.
+		# "governs 0 subjects" meant both "no LLM actor holds effectful"
+		# and "there is no LLM actor here", and on an error-severity
+		# control those are the two answers a person most needs to tell
+		# apart.
+		#
+		# It was not this rule's mistake. The operator set had no way to
+		# say "must not", so every prohibition in the DSL was forced into
+		# the same shape; not-contains was added for this.
 		_oR1_.WhenQ("kind", "equals", "llm_actor")
-		_oR1_.WhenQ("capabilities", "contains", "effectful")
+		_oR1_.ThenQ("capabilities", "not-contains", "effectful")
 		_oR1_.ThenViolationQ("llm actor holds 'effectful' -- an LLM proposes, only a pi-gate commits")
 		This.AddRule(_oR1_)
 
@@ -69,6 +86,32 @@ class stzAgentRuleSet from stzGraphRuleSet
 		_oR2_ = new stzAgentRule("effects-guarded")
 		_oR2_.SetSeverityQ("error")
 		_oR2_.SetMessageQ("every effect passes a pi-gate")
+		# EFFECT NODES. Everything else in an agent graph -- actors,
+		# gates, inputs -- is outside this rule, not compliant with it.
+		_oR2_.SetOrderQ(20)
+		_oR2_.SetReadsQ([ "node.kind", "graph.edges" ])
+		_oR2_.GovernsQ(func oGraph {
+			_r_ = []
+			_a_ = oGraph.NodesIds()
+			for _i_ = 1 to len(_a_)
+				if StzLower("" + oGraph.NodeProperty(_a_[_i_], "kind")) != "effect"
+					loop
+				ok
+				_r_ + ("effect:" + StzLower("" + _a_[_i_]))
+			next
+			return _r_
+		})
+		_oR2_.ExcludesQ(func oGraph {
+			_r_ = []
+			_a_ = oGraph.NodesIds()
+			for _i_ = 1 to len(_a_)
+				if StzLower("" + oGraph.NodeProperty(_a_[_i_], "kind")) = "effect"
+					loop
+				ok
+				_r_ + ("node:" + StzLower("" + _a_[_i_]))
+			next
+			return _r_
+		})
 		_oR2_.UseCheckerQ(func oGraph {
 			_aOut_ = []
 			_aIds_ = oGraph.NodesIds()
@@ -132,6 +175,34 @@ class stzAgentRuleSet from stzGraphRuleSet
 		_oR4_ = new stzAgentRule("effects-traced")
 		_oR4_.SetSeverityQ("error")
 		_oR4_.SetMessageQ("every effect leaves an audit witness")
+		# The same population as effects-guarded, asking a different
+		# question of it -- guarded is about what precedes an effect,
+		# traced about what follows. Sharing a subject is correct here
+		# and the governance is told so rather than inferring it.
+		_oR4_.SetOrderQ(40)
+		_oR4_.SetReadsQ([ "node.kind", "graph.edges" ])
+		_oR4_.GovernsQ(func oGraph {
+			_r_ = []
+			_a_ = oGraph.NodesIds()
+			for _i_ = 1 to len(_a_)
+				if StzLower("" + oGraph.NodeProperty(_a_[_i_], "kind")) != "effect"
+					loop
+				ok
+				_r_ + ("effect:" + StzLower("" + _a_[_i_]))
+			next
+			return _r_
+		})
+		_oR4_.ExcludesQ(func oGraph {
+			_r_ = []
+			_a_ = oGraph.NodesIds()
+			for _i_ = 1 to len(_a_)
+				if StzLower("" + oGraph.NodeProperty(_a_[_i_], "kind")) = "effect"
+					loop
+				ok
+				_r_ + ("node:" + StzLower("" + _a_[_i_]))
+			next
+			return _r_
+		})
 		_oR4_.UseCheckerQ(func oGraph {
 			_aOut_ = []
 			_aIds_ = oGraph.NodesIds()
