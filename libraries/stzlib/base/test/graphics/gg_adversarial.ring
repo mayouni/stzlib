@@ -5867,8 +5867,25 @@ oLw.AddTransition("moving", "e", "")
 oLw.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 104, :NodeHeight = 40,
 	:FontSize = 13 ])
 
-# UNIFIED AT THE MARK: both arrivals end at the same point, which is the
-# mark's own centre-line -- one arrow, not two grazing a dot
+# BOTH EDGES REACH THE MARK, AND NEITHER TRAVELS DOWN THE OTHER.
+#
+# THIS ASSERTION WAS RESTATED, and the reason is a finding rather than a
+# convenience. It used to demand that both arrivals end at the SAME
+# POINT -- "unified at the mark, one arrow not two grazing a dot" -- and
+# measured that by comparing the final x of the two paths.
+#
+# That is a PROXY, and the cheapest way to satisfy it is for both edges
+# to descend down one column and merge before they get there. Measured
+# on this very scene, that is what they did: `moving>e` ran down
+# `still>e`'s column for 80px. So the guard was requiring the thing the
+# Principal has marked three times -- two lines with an arrow at each
+# end -- and calling it unity.
+#
+# The intent is kept and the measurement is fixed. What "not grazing"
+# means is that both edges genuinely REACH the mark, and what the
+# Principal asks is that they not run together on the way. Those are two
+# properties and the old form could only express one, by forcing the
+# other to fail.
 aLwA = []  aLwB = []
 _aALwP136_ = oLw.RenderEdgePaths()
 _nALwP136_ = len(_aALwP136_)
@@ -5879,18 +5896,36 @@ for _iALwP136_ = 1 to _nALwP136_
 next
 chk("both edges into the mark are drawn",
     len(aLwA) >= 4 and len(aLwB) >= 4)
-nLwDx = fabs(aLwA[ len(aLwA) - 1 ] - aLwB[ len(aLwB) - 1 ])
-? "   the two arrivals differ by " + nLwDx + "px at the mark"
-chk("edges arriving at a MARK are unified before reaching it",
-    nLwDx < 1)
-nLwMx = -1
+aLwR = []
 _aRLw137_ = oLw.RenderNodeRects()
 _nRLw137_ = len(_aRLw137_)
 for _iRLw137_ = 1 to _nRLw137_
 	rLw = _aRLw137_[_iRLw137_]
-	if rLw[5] = "e"  nLwMx = rLw[1] + rLw[3] / 2  ok
+	if rLw[5] = "e"  aLwR = rLw  ok
 next
-chk("...on the mark's own centre-line", fabs(aLwA[ len(aLwA) - 1 ] - nLwMx) < 2)
+
+# (1) BOTH REACH IT -- each path's last point lies on the mark's border,
+#     which is what "not grazing" actually asserts.
+nLwPad = 3
+bLwA = _OnBorder(aLwA, aLwR, nLwPad)
+bLwB = _OnBorder(aLwB, aLwR, nLwPad)
+? "   still>e ends on the mark: " + bLwA + " ; moving>e: " + bLwB
+chk("both edges reach the mark itself, neither stopping short",
+    bLwA and bLwB)
+
+# (2) ...AND NEITHER RUNS DOWN THE OTHER. The verticals of the two paths
+#     must not share a column over a readable stretch.
+nLwOv = _SharedColumn(aLwA, aLwB, oLw._LineClearance())
+? "   longest column they share: " + nLwOv + "px"
+chkeq("...and neither travels down the other's column", nLwOv, 0)
+
+# THE NEGATIVE SIBLING: the instrument must be able to SEE a shared
+# column, or the zero above says nothing. Two paths built to share one
+# is counted as sharing one.
+nLwFake = _SharedColumn([ 10, 10, 10, 200 ], [ 10, 50, 10, 260 ],
+    oLw._LineClearance())
+chk("NEGATIVE: ...and a shared column IS measured when there is one",
+    nLwFake > 100)
 
 # ...AND THE SAME AT A DEPARTURE: one stem out of the entry mark
 nLwOut = 0
@@ -10249,6 +10284,37 @@ func _GvChain()
 	_o_.AddEdge("b", "d")
 	_o_.ToCanvasXT(OPTGOV)
 	return _o_
+
+# Does a path's last point lie on this rect's border (within a pad)?
+func _OnBorder aFlat, aRect, nPad
+	if len(aFlat) < 4 or len(aRect) < 4  return 0  ok
+	_x_ = aFlat[ len(aFlat) - 1 ]
+	_y_ = aFlat[ len(aFlat) ]
+	_l_ = aRect[1] - nPad   _r_ = aRect[1] + aRect[3] + nPad
+	_t_ = aRect[2] - nPad   _b_ = aRect[2] + aRect[4] + nPad
+	if _x_ < _l_ or _x_ > _r_ or _y_ < _t_ or _y_ > _b_  return 0  ok
+	return 1
+
+# The longest stretch two paths run down one column, 0 when they never
+# do. A shared column is the line with an arrow at each end, whichever
+# way each arrow points.
+func _SharedColumn aA, aB, nClr
+	_best_ = 0
+	for _i_ = 1 to len(aA) - 3 step 2
+		if fabs(aA[_i_ + 2] - aA[_i_]) > 0.5  loop  ok
+		_ax_ = aA[_i_]
+		_a1_ = min([ aA[_i_ + 1], aA[_i_ + 3] ])
+		_a2_ = max([ aA[_i_ + 1], aA[_i_ + 3] ])
+		for _j_ = 1 to len(aB) - 3 step 2
+			if fabs(aB[_j_ + 2] - aB[_j_]) > 0.5  loop  ok
+			if fabs(aB[_j_] - _ax_) >= nClr  loop  ok
+			_b1_ = min([ aB[_j_ + 1], aB[_j_ + 3] ])
+			_b2_ = max([ aB[_j_ + 1], aB[_j_ + 3] ])
+			_ov_ = min([ _a2_, _b2_ ]) - max([ _a1_, _b1_ ])
+			if _ov_ > nClr and _ov_ > _best_  _best_ = _ov_  ok
+		next
+	next
+	return _best_
 
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0
