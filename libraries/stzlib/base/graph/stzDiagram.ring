@@ -329,6 +329,7 @@ class stzDiagram from stzGraph
 	@aRenderAdorn = []
 	@aRenderForks = []
 	@bSequence = 0
+	@bMesh = 0
 	@aSideApproach = []
 	@aRenderHeads = []
 	@cHeadKey = ""
@@ -2456,6 +2457,8 @@ class stzDiagram from stzGraph
 		# messages carry the second axis themselves, so the mode is told
 		# to the layout and everything else is drawing.
 		@bSequence = (_cLM_ = "sequence")
+		@bMesh = (_cLM_ = "mesh")
+
 		@nSeqPitch = 0
 		if @bSequence
 			@nSeqPitch = _nBoxH_ * 0.92
@@ -3626,7 +3629,21 @@ class stzDiagram from stzGraph
 			# fixed sheet the picture came out with a third of the page
 			# empty above the participants and the last two messages off
 			# the bottom edge.
-			if _bModes_ or @bSequence
+			# ...AND A MESH FOR THE SAME REASON, made visible by the
+			# Principal asking why the labels were so small.
+			#
+			# They were not small: the PAPER was large. A mesh spreads
+			# its members over a 1000-unit square whatever the circuit
+			# holds, so a four-component loop was drawn on a sheet sized
+			# for a hundred, and every glyph and word on it read as
+			# tiny -- 13px of type across 1000px of paper, where a state
+			# machine puts 17 across 500. Nothing was the wrong size
+			# except the sheet.
+			#
+			# "The paper is the content measured" is this plane's law and
+			# it was written for :Modes, extended to :Sequence, and not
+			# extended again. Three modes, one law, asked once.
+			if _bModes_ or @bSequence or @bMesh
 				_aMx_ = This._ContentExtent(_aXY_, _nBoxW_, _nBoxH_,
 					_oFont_, _nFsz_)
 				if len(_aMx_) = 4
