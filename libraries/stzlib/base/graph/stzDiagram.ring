@@ -984,8 +984,30 @@ class stzDiagram from stzGraph
 			   _ndSh_ = "source" or _ndSh_ = "inductor"
 				_ndLong_ = max([ nBoxW, nBoxH ])
 				_ndThin_ = min([ nBoxW, nBoxH ])
-				if This._NativeRankDir() = "LR" or
-				   This._NativeRankDir() = "RL"
+				# WHICH WAY THE WIRE RUNS THROUGH IT -- read from the
+				# PLACEMENT where there is one, and from the rank
+				# direction only where there is not.
+				#
+				# The rank direction was the first answer and it is right
+				# only while every wire runs the same way. On a MESH they
+				# do not: a component on the top side of the loop lies
+				# across, one on the right side lies down, and asking a
+				# global setting gave every one of them the same
+				# orientation on a rectangle that has four. That is the
+				# same shape as the arrowhead that read the rank while
+				# the ink was in its hand.
+				_ndH_ = 0
+				_ndKnown_ = 0
+				_aNbP_ = This._NeighbourPoints("" + _nd_[:id])
+				if len(_aNbP_) >= 4
+					_ndKnown_ = 1
+					if fabs(_aNbP_[3] - _aNbP_[1]) >=
+					   fabs(_aNbP_[4] - _aNbP_[2])  _ndH_ = 1  ok
+				but This._NativeRankDir() = "LR" or
+				    This._NativeRankDir() = "RL"
+					_ndH_ = 1
+				ok
+				if _ndH_
 					@aBoxOf + [ StzLower("" + _nd_[:id]), _ndLong_, _ndThin_ ]
 				else
 					@aBoxOf + [ StzLower("" + _nd_[:id]), _ndThin_, _ndLong_ ]
@@ -11151,6 +11173,29 @@ class stzDiagram from stzGraph
 			if _f_ = _niK_ or _t_ = _niK_  _niD_++  ok
 		next
 		return _niD_ = 2
+
+	# THE TWO POINTS A COMPONENT SITS BETWEEN, as placed: [x1,y1,x2,y2].
+	# Empty when the picture has not been placed yet, or the component
+	# does not join exactly two things -- in either case the caller has
+	# nothing to read and says so rather than guessing.
+	def _NeighbourPoints(pcId)
+		if len(@aDrawXY) = 0  return []  ok
+		_npK_ = StzLower("" + pcId)
+		_npN_ = []
+		_aNpE_ = This.Edges()
+		_nNpE_ = len(_aNpE_)
+		for _iNpE_ = 1 to _nNpE_
+			_f_ = StzLower("" + _aNpE_[_iNpE_][:from])
+			_t_ = StzLower("" + _aNpE_[_iNpE_][:to])
+			if _f_ = _t_  loop  ok
+			if _f_ = _npK_  _npN_ + _t_  ok
+			if _t_ = _npK_  _npN_ + _f_  ok
+		next
+		if len(_npN_) != 2  return []  ok
+		_a_ = This._XYOf(@aDrawXY, _npN_[1])
+		_b_ = This._XYOf(@aDrawXY, _npN_[2])
+		if len(_a_) != 2 or len(_b_) != 2  return []  ok
+		return [ _a_[1], _a_[2], _b_[1], _b_[2] ]
 
 	# WHICH SHAPES WRITE THEIR NAME UNDERNEATH THEMSELVES.
 	#

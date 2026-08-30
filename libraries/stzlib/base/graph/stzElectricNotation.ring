@@ -77,6 +77,10 @@ func StzElectricNotation()
 	_o_ = new stzNotation("electric")
 	_o_.SetRankDir(:TopDown)
 	_o_.SetSplines(:ortho)
+	# A CIRCUIT IS READ AS A LOOP -- DN5b. A layered layout orients cycles
+	# away and a circuit is nothing but cycles, so the mode is declared
+	# here in one line, exactly as the state machine declares :Ring.
+	_o_.SetLayoutMode(:Mesh)
 	# A WIRE HAS NO DIRECTION. Current flows both ways along it depending
 	# on the moment, and an arrowhead would state a direction the circuit
 	# does not have.

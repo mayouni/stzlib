@@ -399,6 +399,8 @@ class stzGraphCanvas from stzObject
 			This._LayoutModes()
 		but _cLay_ = "sequence"
 			This._LayoutSequence()
+		but _cLay_ = "mesh"
+			This._LayoutMesh()
 		else
 			This._LayoutHierarchical()
 		ok
@@ -784,6 +786,193 @@ class stzGraphCanvas from stzObject
 		@aBendOf = []
 		@nRealCount = _n_
 		@aDumEdge = []
+
+	# THE MESH -- DN5b, and the word is the domain's own.
+	#
+	# A layered layout answers "what flows into what" and orients cycles
+	# AWAY. A circuit is nothing but cycles: current leaves a source and
+	# must return to it or nothing flows. So the smallest closed loop in
+	# existence came out as a straight line with two dangling ends, and a
+	# voltage divider a textbook draws roughly square came out 124 x 1141
+	# because every element took a rank of its own.
+	#
+	# MEASURED BEFORE BUILDING. A closed RC filter is 6 nodes and 6 edges,
+	# so E - V + 1 = 1: exactly one independent loop. That quantity is not
+	# a metaphor borrowed from graph theory -- in circuit theory it is the
+	# MESH COUNT, and mesh analysis (Kirchhoff's voltage law taken once
+	# around each mesh) is the method built on it. The domain already
+	# reasons in the units this layout needs.
+	#
+	# So: ONE RECTANGLE PER MESH, its members distributed around the
+	# perimeter, and anything hanging off the loop -- a ground symbol, a
+	# probe -- placed beside the node it attaches to. That is a PLACEMENT,
+	# so it fills @aX and @aY like every other mode and is not a second
+	# renderer.
+	#
+	# WHAT IT DOES NOT YET DO, said here rather than discovered later: a
+	# circuit with SEVERAL independent meshes gets its first mesh as the
+	# rectangle and everything else hung off it, not interlocked sharing a
+	# branch the way a ladder network is drawn. Every canonical
+	# two-terminal example is single-mesh and comes out right.
+	def _LayoutMesh()
+		@nLayoutCrossings = 0
+		_n_ = len(@aIds)
+		@aX = []  @aY = []
+		for _i_ = 1 to _n_  @aX + 0  @aY + 0  next
+		@nLayerCount = 1
+		@aBendOf = []
+		@nRealCount = _n_
+		@aDumEdge = []
+		if _n_ = 0  return  ok
+
+		# adjacency, UNDIRECTED: a wire is joined at both ends, and which
+		# end the author typed first is not a fact about the circuit
+		_adj_ = []
+		for _i_ = 1 to _n_  _adj_ + []  next
+		_aE_ = @oGraph.Edges()
+		_nE_ = len(_aE_)
+		for _i_ = 1 to _nE_
+			_u_ = This._IndexOf(_aE_[_i_][:from])
+			_v_ = This._IndexOf(_aE_[_i_][:to])
+			if _u_ < 1 or _v_ < 1 or _u_ = _v_  loop  ok
+			_adj_[_u_] + _v_
+			_adj_[_v_] + _u_
+		next
+
+		# THE LOOP, by spanning tree: the first edge reaching a node
+		# already seen closes a fundamental cycle, and climbing both ends
+		# back to their meeting point IS that cycle.
+		_par_ = []
+		_seen_ = []
+		for _i_ = 1 to _n_  _par_ + 0  _seen_ + 0  next
+		_cyc_ = []
+		_q_ = [ 1 ]
+		_seen_[1] = 1
+		_qi_ = 1
+		while _qi_ <= len(_q_) and len(_cyc_) = 0
+			_u_ = _q_[_qi_]
+			_qi_++
+			_na_ = len(_adj_[_u_])
+			for _k_ = 1 to _na_
+				_v_ = _adj_[_u_][_k_]
+				if _v_ = _par_[_u_]  loop  ok
+				if _seen_[_v_] = 0
+					_seen_[_v_] = 1
+					_par_[_v_] = _u_
+					_q_ + _v_
+					loop
+				ok
+				_pa_ = [ _u_ ]
+				_x_ = _u_
+				while _par_[_x_] != 0
+					_x_ = _par_[_x_]
+					_pa_ + _x_
+				end
+				_pb_ = [ _v_ ]
+				_y_ = _v_
+				while _par_[_y_] != 0
+					_y_ = _par_[_y_]
+					_pb_ + _y_
+				end
+				_meet_ = 0
+				for _ia_ = 1 to len(_pa_)
+					for _ib_ = 1 to len(_pb_)
+						if _pa_[_ia_] = _pb_[_ib_]
+							_meet_ = _pa_[_ia_]
+							exit
+						ok
+					next
+					if _meet_ != 0  exit  ok
+				next
+				if _meet_ = 0  loop  ok
+				for _ia_ = 1 to len(_pa_)
+					_cyc_ + _pa_[_ia_]
+					if _pa_[_ia_] = _meet_  exit  ok
+				next
+				_tail_ = []
+				for _ib_ = 1 to len(_pb_)
+					if _pb_[_ib_] = _meet_  exit  ok
+					_tail_ + _pb_[_ib_]
+				next
+				for _ib_ = len(_tail_) to 1 step -1
+					_cyc_ + _tail_[_ib_]
+				next
+				exit
+			next
+		end
+
+		# NO LOOP AT ALL is an OPEN circuit, which carries no current --
+		# a modelling mistake, not a picture to draw cleverly. It is laid
+		# in a line and left for the rules to report; drawing it as a
+		# rectangle would invent a return path the model does not have.
+		if len(_cyc_) < 3
+			for _i_ = 1 to _n_
+				@aX[_i_] = (_i_ - 1) * 100
+				@aY[_i_] = 0
+			next
+			return
+		ok
+
+		_nc_ = len(_cyc_)
+		_onCyc_ = []
+		for _i_ = 1 to _n_  _onCyc_ + 0  next
+		for _i_ = 1 to _nc_  _onCyc_[ _cyc_[_i_] ] = 1  next
+
+		# THE RECTANGLE. Members walk the perimeter -- across the top,
+		# down the right, back along the bottom -- so the picture reads
+		# the way a schematic is read.
+		# WALKED ALL THE WAY ROUND, which the first version did not: it
+		# spent its members on the top, the right and the bottom and
+		# never reached the LEFT side, so the edge closing the loop cut
+		# straight across the middle instead of completing the rectangle.
+		# A perimeter that does not come back to where it started is not
+		# a perimeter.
+		#
+		# The walk is one parameter t in [0,1) around the rectangle, so
+		# the members are spread evenly however many there are, and the
+		# last one is always a step short of the first.
+		for _i_ = 1 to _nc_
+			_id_ = _cyc_[_i_]
+			_t_ = (_i_ - 1) / _nc_
+			if _t_ < 0.25
+				@aX[_id_] = _t_ * 4
+				@aY[_id_] = 0
+			but _t_ < 0.5
+				@aX[_id_] = 1
+				@aY[_id_] = (_t_ - 0.25) * 4
+			but _t_ < 0.75
+				@aX[_id_] = 1 - (_t_ - 0.5) * 4
+				@aY[_id_] = 1
+			else
+				@aX[_id_] = 0
+				@aY[_id_] = 1 - (_t_ - 0.75) * 4
+			ok
+		next
+
+		# ...AND WHAT HANGS OFF IT. A ground symbol is on no loop -- it is
+		# a stub on one node of one -- so it stands just outside the
+		# rectangle beside whatever it attaches to, rather than being
+		# given a rank of its own somewhere else entirely.
+		for _pass_ = 1 to 3
+			for _i_ = 1 to _n_
+				if _onCyc_[_i_]  loop  ok
+				if @aX[_i_] != 0 or @aY[_i_] != 0  loop  ok
+				_na_ = len(_adj_[_i_])
+				for _k_ = 1 to _na_
+					_v_ = _adj_[_i_][_k_]
+					if _onCyc_[_v_] = 0  loop  ok
+					@aX[_i_] = @aX[_v_]
+					@aY[_i_] = @aY[_v_] + 0.45
+					_onCyc_[_i_] = 1
+					exit
+				next
+			next
+		next
+
+		for _i_ = 1 to _n_
+			@aX[_i_] = @aX[_i_] * 1000
+			@aY[_i_] = @aY[_i_] * 1000
+		next
 
 	def _LayoutRing()
 		@nLayoutCrossings = 0
