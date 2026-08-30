@@ -11292,11 +11292,23 @@ class stzDiagram from stzGraph
 				# bucketed as an upper one, and the lone stub lost the
 				# middle it is entitled to.
 				#
-				# A LANED edge is a return: both its ends meet the lower
-				# border. Anything else leaves the source's lower border
-				# and arrives at the target's upper one.
+				# A RETURN meets the lower border at BOTH ends, because
+				# it goes out underneath and comes back up. Anything
+				# else leaves the source's lower border and arrives at
+				# the target's upper one.
+				#
+				# THE PREDICATE IS "IS IT A RETURN", NOT "IS IT LANED",
+				# and the two are not the same thing. A laned edge uses
+				# a row corridor; it can still run FORWARD. On the socket
+				# machine `re -> closed` is laned and forward -- it goes
+				# down, across, and down again -- and reading it as a
+				# return put its arrival on the mark's lower border while
+				# the spine's arrival sat on the upper one. Two borders,
+				# one edge each, so each took the middle it is entitled
+				# to, and the two middles are the same column.
 				_psSide_ = 1
-				if This._LaneKept(_psF_ + ">" + _psT_) < 1 and _psEnd_ = 2
+				if _psEnd_ = 2 and
+				   This._ReturnRowOf(_psF_ + ">" + _psT_) <= 0
 					_psSide_ = -1
 				ok
 				_psTouch_ + [ _psF_ + ">" + _psT_, _psEnd_,
