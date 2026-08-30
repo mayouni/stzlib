@@ -14,7 +14,12 @@ load "../../stzBase.ring"
 
 decimals(2)
 FONT = new stzFont("C:/Windows/Fonts/segoeui.ttf")
-OPT = [ :Font = FONT, :NodeWidth = 92, :NodeHeight = 58, :FontSize = 13 ]
+# TYPE SIZED TO THE PICTURE IT LANDS ON. These came out at 13px on an
+# 830px sheet -- 1.6% of the width, where every other gallery in this
+# folder runs about 3.4% -- so the words read as half the size the rest
+# of the library draws. The glyphs were never small: a resistor asked
+# for at 92px draws at 79. The type was.
+OPT = [ :Font = FONT, :NodeWidth = 110, :NodeHeight = 68, :FontSize = 26 ]
 
 ? "=============================================================="
 ? " DN5 -- THE CANONICAL CIRCUITS"

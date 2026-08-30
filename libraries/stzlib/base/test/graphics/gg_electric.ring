@@ -36,7 +36,8 @@ load "../../stzBase.ring"
 
 decimals(2)
 FONT = new stzFont("C:/Windows/Fonts/segoeui.ttf")
-OPT = [ :Font = FONT, :NodeWidth = 96, :NodeHeight = 60, :FontSize = 13 ]
+# TYPE SIZED TO THE PICTURE IT LANDS ON -- see gg_electric_compare.ring.
+OPT = [ :Font = FONT, :NodeWidth = 110, :NodeHeight = 68, :FontSize = 26 ]
 
 ? "=============================================================="
 ? " DN5 -- ELECTRIC"
