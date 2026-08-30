@@ -8683,6 +8683,85 @@ OPTGOV = [ :Font = EFONT, :NodeWidth = 130, :NodeHeight = 52, :FontSize = 14 ]
 # and not one was findable by testing the rule -- the rule passes its own
 # tests. What follows tests the layer BOTH ways, because a governor that
 # reports nothing is indistinguishable from a governor that is broken.
+sec("-- 72. DN5 -- A NET IS A NODE, AND A JUNCTION IS A CLAIM -")
+
+# The plan's kill: "a net is a HYPEREDGE (one wire, three pins), which
+# the pair-edge model must earn honestly -- junction nodes drawn as
+# dots, or the domain is faked."
+#
+# It does not fire because its premise is about a DRAWING. In SPICE,
+# KiCad and Verilog a net is a first-class named OBJECT that pins attach
+# to, with a name, a width and a type -- properties no edge can carry --
+# existing whether or not anything is attached. Net-as-node is the
+# domain's own model.
+#
+# What IS owed is a drawing rule, and both halves of it are asserted
+# here: a schematic draws a junction dot only where three or more wires
+# meet, so at degree two the net stays in the GRAPH and leaves the
+# PICTURE.
+oEl = new stzDiagram("rc72")
+oEl.SetNotation(StzElectricNotation())
+oEl.AddNodeXTT("v1", "V1", [ :type = "source" ])
+oEl.AddNodeXTT("r1", "R1", [ :type = "resistor" ])
+oEl.AddNodeXTT("c1", "C1", [ :type = "capacitor" ])
+oEl.AddNodeXTT("gnd", "", [ :type = "ground" ])
+oEl.AddNodeXTT("nin", "IN", [ :type = "net" ])
+oEl.AddNodeXTT("n0", "GND", [ :type = "net" ])
+oEl.AddEdge("v1", "nin")
+oEl.AddEdge("nin", "r1")
+oEl.AddEdge("r1", "n0")
+oEl.AddEdge("c1", "n0")
+oEl.AddEdge("n0", "gnd")
+oEl.ToCanvasXT(OPT67)
+
+# THE MODEL DOES NOT BEND. Every net is a node in the graph whatever its
+# degree, so it is named, queryable, and carries its own properties.
+aEl = StzCircuitNets(oEl)
+chkeq("every net is a node in the graph, at any degree", len(aEl), 2)
+nElDeg2 = 0  nElDeg3 = 0
+for iEl = 1 to len(aEl)
+	if len(aEl[iEl][3]) = 2  nElDeg2++  ok
+	if len(aEl[iEl][3]) >= 3  nElDeg3++  ok
+next
+chk("...and this circuit exercises both halves of the rule",
+    nElDeg2 > 0 and nElDeg3 > 0)
+
+# THE PICTURE TELLS THE TRUTH ABOUT A JUNCTION. A dot where three wires
+# meet; no dot where two do.
+chkeq("a net joining 3 pins is drawn as a junction",
+    oEl._NetIsSpliced("n0"), 0)
+chkeq("NEGATIVE: ...and a net joining 2 is drawn as a wire",
+    oEl._NetIsSpliced("nin"), 1)
+
+# ...AND THE SPLICED NET LEAVES NO MARK AND NO WORD. Its box collapses,
+# so its two edges meet at a point and read as one line.
+nElBox = -1
+_aElR_ = oEl.RenderNodeRects()
+for iEl = 1 to len(_aElR_)
+	if StzLower("" + _aElR_[iEl][5]) = "nin"  nElBox = _aElR_[iEl][3]  ok
+next
+chk("a spliced net has no extent, so its wire is unbroken", nElBox < 1)
+nElLab = 0
+for iEl = 1 to len(oEl.@aRenderLabels)
+	if StzLower("" + oEl.@aRenderLabels[iEl][1]) = "in"  nElLab++  ok
+next
+chkeq("...and no word floats on the plain stretch of it", nElLab, 0)
+
+# A WIRE CARRIES NO DIRECTION, so it carries no head. Declared by the
+# profile, not special-cased in the drawer.
+chkeq("the electric profile declares its edges undirected",
+    StzElectricNotation().EdgesDirected(), 0)
+chkeq("NEGATIVE: ...while a UML profile does not",
+    StzUmlClassNotation().EdgesDirected(), 1)
+chkeq("...so no arrowhead is drawn on a wire",
+    len(oEl.@aRenderHeads), 0)
+
+# AN ELECTRIC SYMBOL HOLDS NO TEXT -- its outline IS the value, and a
+# name written across it destroys what a reader reads first.
+chk("a resistor holds no text", oEl._InscribedFraction("resistor")[1] < 0.1)
+chk("NEGATIVE: ...while a box holds nearly all of itself",
+    oEl._InscribedFraction("box")[1] > 0.5)
+
 sec("-- 70a. AN ARROWHEAD POINTS THE WAY ITS LINE ARRIVES -----")
 
 # The head's direction was derived from the RANK -- down in a top-down

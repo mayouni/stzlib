@@ -31,7 +31,8 @@ func StzNodeShapeNames()
 		:Diamond, :Triangle, :InvTriangle, :Trapezium, :InvTrapezium,
 		:Parallelogram, :House, :InvHouse, :Pentagon, :Hexagon, :Septagon,
 		:Octagon, :TripleOctagon, :Cylinder, :Folder, :Tab, :Note,
-		:Component, :Actor, :Bar
+		:Component, :Actor, :Bar,
+		:Resistor, :Capacitor, :Ground, :Source, :Junction
 	]
 
 func StzIsNodeShape(pcName)
@@ -249,6 +250,75 @@ func StzDrawNodeShape(poCanvas, pcShape, pnX, pnY, pnW, pnH)
 		else
 			poCanvas.AddRect(_x_ + _w_ * 0.36, _y_, _w_ * 0.28, _h_)
 		ok
+
+	#-- DN5, the electric set ------------------------------------------
+	#
+	# These are the only glyphs in the table that are READ AS VALUES
+	# rather than as containers. A box with "R1" in it is a thing called
+	# R1; a resistor symbol IS a resistance, and an engineer reads the
+	# component from the outline before reading the label. That is why
+	# the domain could not borrow: no rectangle means resistor to anyone.
+	#
+	# Each is drawn to the box it is handed, like every other glyph, and
+	# each carries its leads out to the box's edges -- so an edge that
+	# attaches to the border attaches to a LEAD, which is what a wire
+	# joins in a schematic.
+
+	# A RESISTOR: the IEC rectangle, leads either side. The zig-zag is
+	# the older ANSI form and is harder to read at small sizes, which
+	# a diagram tier cares about more than a schematic capture tool.
+	on "resistor"
+		poCanvas.AddRect(_x_ + _w_ * 0.22, _y_ + _h_ * 0.28,
+			_w_ * 0.56, _h_ * 0.44)
+		poCanvas.AddLine(_x_, _y_ + _h_ / 2, _x_ + _w_ * 0.22, _y_ + _h_ / 2)
+		poCanvas.AddLine(_x_ + _w_ * 0.78, _y_ + _h_ / 2, _x_ + _w_, _y_ + _h_ / 2)
+
+	# A CAPACITOR: two plates facing across a gap, and the GAP is the
+	# component -- it is what says no current passes at rest.
+	on "capacitor"
+		poCanvas.AddLine(_x_ + _w_ * 0.44, _y_ + _h_ * 0.18,
+			_x_ + _w_ * 0.44, _y_ + _h_ * 0.82)
+		poCanvas.AddLine(_x_ + _w_ * 0.56, _y_ + _h_ * 0.18,
+			_x_ + _w_ * 0.56, _y_ + _h_ * 0.82)
+		poCanvas.AddLine(_x_, _y_ + _h_ / 2, _x_ + _w_ * 0.44, _y_ + _h_ / 2)
+		poCanvas.AddLine(_x_ + _w_ * 0.56, _y_ + _h_ / 2, _x_ + _w_, _y_ + _h_ / 2)
+
+	# GROUND: three bars narrowing downward, and a lead UP. It is the one
+	# glyph with a single terminal, which is the whole of what it says --
+	# everything connected to a ground symbol is connected to everything
+	# else connected to one, anywhere on the sheet.
+	on "ground"
+		_gcx_ = _x_ + _w_ / 2
+		poCanvas.AddLine(_gcx_, _y_, _gcx_, _y_ + _h_ * 0.42)
+		poCanvas.AddLine(_gcx_ - _w_ * 0.30, _y_ + _h_ * 0.42,
+			_gcx_ + _w_ * 0.30, _y_ + _h_ * 0.42)
+		poCanvas.AddLine(_gcx_ - _w_ * 0.19, _y_ + _h_ * 0.62,
+			_gcx_ + _w_ * 0.19, _y_ + _h_ * 0.62)
+		poCanvas.AddLine(_gcx_ - _w_ * 0.08, _y_ + _h_ * 0.82,
+			_gcx_ + _w_ * 0.08, _y_ + _h_ * 0.82)
+
+	# A SOURCE: a circle with its polarity inside, leads top and bottom.
+	on "source"
+		_scx_ = _x_ + _w_ / 2
+		_scy_ = _y_ + _h_ / 2
+		_sr_ = min([ _w_, _h_ ]) * 0.30
+		poCanvas.AddEllipse(_scx_, _scy_, _sr_, _sr_)
+		poCanvas.AddLine(_scx_, _y_, _scx_, _scy_ - _sr_)
+		poCanvas.AddLine(_scx_, _scy_ + _sr_, _scx_, _y_ + _h_)
+		poCanvas.AddLine(_scx_ - _sr_ * 0.45, _scy_ - _sr_ * 0.38,
+			_scx_ + _sr_ * 0.45, _scy_ - _sr_ * 0.38)
+		poCanvas.AddLine(_scx_, _scy_ - _sr_ * 0.62,
+			_scx_, _scy_ - _sr_ * 0.14)
+		poCanvas.AddLine(_scx_ - _sr_ * 0.45, _scy_ + _sr_ * 0.42,
+			_scx_ + _sr_ * 0.45, _scy_ + _sr_ * 0.42)
+
+	# A JUNCTION: a filled dot, and it is the DN5 kill answered in one
+	# glyph. A net joining three or more pins is drawn as the dot every
+	# schematic draws at such a meeting -- not as a lie about the graph,
+	# but as the mark the domain itself uses to say "these are one node".
+	on "junction"
+		poCanvas.AddEllipse(_x_ + _w_ / 2, _y_ + _h_ / 2,
+			min([ _w_, _h_ ]) * 0.5, min([ _w_, _h_ ]) * 0.5)
 	off
 
 	# and leave nothing pending, so the caller's NEXT Fill/Stroke sets
