@@ -9826,15 +9826,32 @@ class stzDiagram from stzGraph
 					_dvSide_ = This._SideApproachOf(_dvK_)
 				ok
 				if _dvSide_
+					# ONE TURN, NOT THREE.
+					#
+					# The first version of this route went down to the
+					# row, across it, down again in a column of its own,
+					# and across into the target -- three bends to say
+					# one thing. The Principal drew the answer twice:
+					# straight down the source's OWN column to the
+					# target's line, and one turn in.
+					#
+					# It needs no row at all. The row exists to carry an
+					# edge ACROSS the picture at a height nothing else
+					# uses; an edge that is going to turn into its
+					# target's side has its own column already -- the one
+					# it leaves by -- and that column is by construction
+					# not the one it was about to collide with.
+					#
+					# So this is now FEWER turns than the ordinary drop,
+					# which spends two. A bend must be caused, and the
+					# two this used to add were caused by nothing.
 					_dvSg_ = 1
 					if aFrom[1] < aTo[1]  _dvSg_ = -1  ok
 					_dvEdge_ = aTo[1] + _dvSg_ * _bcB_[1] / 2
-					_dvCol_ = _dvEdge_ + _dvSg_ * This._LineClearance()
-					This._EmitOrthoPolyline(oC, [ _pax_, _pe_, _pax_,
-						_chan_, _dvCol_, _chan_, _dvCol_, aTo[2],
-						_dvEdge_, aTo[2] ],
+					This._EmitOrthoPolyline(oC, [ _pax_, _pe_,
+						_pax_, aTo[2], _dvEdge_, aTo[2] ],
 						cColor, nWidth, cFromId + ">" + cToId)
-					_p_ = [ _dvCol_, aTo[2] ]
+					_p_ = [ _pax_, aTo[2] ]
 					_q_ = [ _dvEdge_, aTo[2] ]
 				else
 					This._EmitOrthoPolyline(oC, [ _pax_, _pe_, _pax_,

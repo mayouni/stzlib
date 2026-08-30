@@ -8745,6 +8745,32 @@ nAhFake = 0
 if (fabs(-24) > fabs(0)) != (fabs(0) > fabs(1))  nAhFake = 1  ok
 chkeq("NEGATIVE: ...and a head across its line IS counted", nAhFake, 1)
 
+# ...AND THE SIDE APPROACH TURNS ONCE.
+#
+# Its first version went down to the row, across it, down again in a
+# column of its own, and across into the target -- three bends to say
+# one thing, and the Principal drew the answer twice before I saw it.
+# The route needs no row: an edge that will turn into its target's side
+# already has a column of its own, the one it leaves by. One turn, which
+# is FEWER than the ordinary drop spends.
+nAhTurns = -1
+for iAh = 1 to len(oAh.@aRenderHeads)
+	aAhH = oAh.@aRenderHeads[iAh]
+	if fabs(aAhH[4]) <= fabs(aAhH[5])  loop  ok      # not a side arrival
+	for jAh = 1 to len(oAh.@aEdgePaths)
+		if StzLower("" + oAh.@aEdgePaths[jAh][1]) != StzLower("" + aAhH[1])
+			loop
+		ok
+		nAhTurns = _TurnsIn(oAh.@aEdgePaths[jAh][2])
+	next
+next
+? "   the side approach turns " + nAhTurns + " time(s)"
+chkeq("a side approach turns exactly once", nAhTurns, 1)
+
+# THE NEGATIVE SIBLING: the counter must be able to count more than one.
+chkeq("NEGATIVE: ...and a three-turn path IS counted as three",
+    _TurnsIn([ 0,0, 0,10, 10,10, 10,20, 20,20 ]), 3)
+
 sec("-- 70b. THE HAPPY PATH IS A RULE OF THE PLANE ------------")
 
 # The Principal ruled that the affirmative branch continues down the
@@ -10377,6 +10403,24 @@ func _SharedColumn aA, aB, nClr
 		next
 	next
 	return _best_
+
+# How many genuine corners a flat path turns -- duplicated points and
+# points left in the middle of a straight run are not bends, and counting
+# them is how a route gets blamed for turns a reader cannot see.
+func _TurnsIn aFlat
+	_t_ = 0
+	for _i_ = 1 to len(aFlat) - 5 step 2
+		_dx1_ = aFlat[_i_ + 2] - aFlat[_i_]
+		_dy1_ = aFlat[_i_ + 3] - aFlat[_i_ + 1]
+		_dx2_ = aFlat[_i_ + 4] - aFlat[_i_ + 2]
+		_dy2_ = aFlat[_i_ + 5] - aFlat[_i_ + 3]
+		if fabs(_dx1_) + fabs(_dy1_) < 0.5  loop  ok
+		if fabs(_dx2_) + fabs(_dy2_) < 0.5  loop  ok
+		if (fabs(_dx1_) > fabs(_dy1_)) != (fabs(_dx2_) > fabs(_dy2_))
+			_t_++
+		ok
+	next
+	return _t_
 
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0
