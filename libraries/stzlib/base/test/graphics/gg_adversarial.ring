@@ -8683,6 +8683,68 @@ OPTGOV = [ :Font = EFONT, :NodeWidth = 130, :NodeHeight = 52, :FontSize = 14 ]
 # and not one was findable by testing the rule -- the rule passes its own
 # tests. What follows tests the layer BOTH ways, because a governor that
 # reports nothing is indistinguishable from a governor that is broken.
+sec("-- 70a. AN ARROWHEAD POINTS THE WAY ITS LINE ARRIVES -----")
+
+# The head's direction was derived from the RANK -- down in a top-down
+# picture, right in a left-to-right one -- and aP, the point the final
+# segment comes from, was passed in and discarded. Harmless while every
+# ortho arrival was a drop onto the target's near border; wrong the
+# moment an edge arrives from the SIDE, which the side approach makes it
+# do. The result was an arrow drawn across the end of its own line.
+#
+# TWO INDEPENDENT READINGS, and the first draft of this section had one.
+# It derived the head's direction from the path and compared it to the
+# path, which is a value against itself: it passes on any picture,
+# including one where every head is drawn sideways. The drawn head is
+# published now, so the assertion has something to disagree with.
+oAh = new stzWorkflow("heads")
+oAh.SetWorkflowType("statemachine")
+oAh.AddStateXTT("i", "", [ :isInitial = 1 ])
+oAh.AddStateXT("a", "Alpha")
+oAh.AddStateXT("b", "Beta")
+oAh.AddStateXTT("z", "Done", [ :isFinal = 1 ])
+oAh.AddTransition("i", "a", "")
+oAh.AddTransition("a", "b", "on")
+oAh.AddTransition("a", "z", "close")
+oAh.AddTransition("b", "z", "give up")
+oAh.ToCanvasXT(OPT67)
+
+nAhSeen = 0  nAhBad = 0  nAhSide = 0
+for iAh = 1 to len(oAh.@aRenderHeads)
+	aAhH = oAh.@aRenderHeads[iAh]
+	aAhP = []
+	for jAh = 1 to len(oAh.@aEdgePaths)
+		if StzLower("" + oAh.@aEdgePaths[jAh][1]) = StzLower("" + aAhH[1])
+			aAhP = oAh.@aEdgePaths[jAh][2]
+		ok
+	next
+	if len(aAhP) < 4  loop  ok
+	nAhSeen++
+	# the path's own last segment -- the OTHER reading
+	nAhDx = aAhP[len(aAhP) - 1] - aAhP[len(aAhP) - 3]
+	nAhDy = aAhP[len(aAhP)] - aAhP[len(aAhP) - 2]
+	if fabs(nAhDx) < 0.5 and fabs(nAhDy) < 0.5  loop  ok
+	if fabs(nAhDx) > fabs(nAhDy)  nAhSide++  ok
+	# a head is across its line when the two disagree about which axis
+	# the arrival ran along
+	if (fabs(nAhDx) > fabs(nAhDy)) != (fabs(aAhH[4]) > fabs(aAhH[5]))
+		nAhBad++
+	ok
+next
+? "   " + nAhSeen + " arrivals (" + nAhSide + " from the side), " +
+  nAhBad + " met by a head across the line"
+chkeq("every arrowhead points the way its line arrives", nAhBad, 0)
+
+# ...AND THE SCENE MUST CONTAIN THE CASE. A zero from a picture where
+# every arrival is a plain drop would have passed before the fix too.
+chk("...and this scene really does contain a side arrival", nAhSide > 0)
+
+# THE NEGATIVE SIBLING: the comparison must be able to FAIL. A head
+# turned across its own line is counted as one.
+nAhFake = 0
+if (fabs(-24) > fabs(0)) != (fabs(0) > fabs(1))  nAhFake = 1  ok
+chkeq("NEGATIVE: ...and a head across its line IS counted", nAhFake, 1)
+
 sec("-- 70b. THE HAPPY PATH IS A RULE OF THE PLANE ------------")
 
 # The Principal ruled that the affirmative branch continues down the

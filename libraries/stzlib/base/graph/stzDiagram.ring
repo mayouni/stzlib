@@ -330,6 +330,8 @@ class stzDiagram from stzGraph
 	@aRenderForks = []
 	@bSequence = 0
 	@aSideApproach = []
+	@aRenderHeads = []
+	@cHeadKey = ""
 	@nSpineLabelDemand = 0
 	@aMessages = []
 	@nSeqPitch = 0
@@ -4083,6 +4085,7 @@ class stzDiagram from stzGraph
 				@aEdgePaths = []
 				@aRenderHops = []
 				@aSideApproach = []
+				@aRenderHeads = []
 			ok
 		else
 			@nDrawPass = 2
@@ -9857,7 +9860,9 @@ class stzDiagram from stzGraph
 		off
 
 		if @nDrawPass = 2
+			@cHeadKey = StzLower("" + cFromId) + ">" + StzLower("" + cToId)
 			This._DrawArrow(oC, _p_, _q_, cColor, nWidth, cSpline, cRank)
+			@cHeadKey = ""
 		ok
 
 	# THE DRAWN GEOMETRY, PUBLISHED. Ortho edges have recorded their path
@@ -10209,7 +10214,31 @@ class stzDiagram from stzGraph
 		_bx_ = aP[1]
 		_by_ = aP[2]
 		if cSpline = "ortho"
-			if cRank = "LR" or cRank = "RL"
+			# THE HEAD POINTS THE WAY THE LINE ARRIVES.
+			#
+			# This derived the direction from the RANK: down in a
+			# top-down picture, right in a left-to-right one, whatever
+			# the line actually did. aP -- the point the segment comes
+			# from, passed in for exactly this -- was discarded.
+			#
+			# It was harmless for as long as every ortho arrival was a
+			# drop onto the target's near border, which is why it stood.
+			# The side approach added yesterday makes an edge arrive
+			# HORIZONTALLY, and the head went on pointing down: an arrow
+			# across the end of its own line, which is what the Principal
+			# marked on `gave up`.
+			#
+			# Read from the ink, and the rank only where the ink cannot
+			# say -- a degenerate segment has no direction to read. For
+			# every arrival that WAS a drop this computes the same two
+			# numbers it always did, so nothing else in the library moves.
+			_adx_ = aQ[1] - aP[1]
+			_ady_ = aQ[2] - aP[2]
+			_adL_ = sqrt(_adx_ * _adx_ + _ady_ * _ady_)
+			if _adL_ > 0.001
+				_bx_ = aQ[1] - _adx_ / _adL_ * 10
+				_by_ = aQ[2] - _ady_ / _adL_ * 10
+			but cRank = "LR" or cRank = "RL"
 				_bx_ = aQ[1] - 10
 				_by_ = aQ[2]
 			else
@@ -10230,6 +10259,17 @@ class stzDiagram from stzGraph
 		if _L_ < 0.001  return  ok
 		_dx_ = _dx_ / _L_
 		_dy_ = _dy_ / _L_
+		# PUBLISHED, like every other drawn fact in this file, and for
+		# the reason this file already gives: an instrument that has to
+		# read pixels to find out which way an arrow points is one that
+		# will be written once and never maintained.
+		#
+		# It is also the only way to TEST the rule above. A guard that
+		# derives the head's direction from the path and then compares it
+		# to the path is comparing a value with itself -- it passes on
+		# any picture, including one where every head is drawn sideways.
+		# Two independent readings or no assertion.
+		@aRenderHeads + [ StzLower("" + @cHeadKey), aQ[1], aQ[2], _dx_, _dy_ ]
 		_sz_ = 6 + nWidth * 2
 		_px_ = 0 - _dy_
 		_py_ = _dx_
