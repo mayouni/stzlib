@@ -989,6 +989,16 @@ class stzDiagram from stzGraph
 			# So it keeps the cell's full extent across the flow and
 			# takes its scale only along it: wide and thin in a top-down
 			# picture, tall and thin in a left-to-right one.
+			# A SPLICED NET HAS NO EXTENT -- DN5. Two pins on one net
+			# are ONE WIRE, so the net's node is drawn at no size: its
+			# two edges meet at a point and read as a single line, with
+			# no dot and no gap. The net is still in the graph, still
+			# named, still answering every query -- only its mark is
+			# absent, because at degree two a junction dot is false.
+			if This._NetIsSpliced("" + _nd_[:id])
+				@aBoxOf + [ StzLower("" + _nd_[:id]), 0.01, 0.01 ]
+				loop
+			ok
 			if StzLower("" + This._NativeShapeOf(_nd_)) = "bar"
 				if This._NativeRankDir() = "LR" or
 				   This._NativeRankDir() = "RL"
@@ -3149,16 +3159,11 @@ class stzDiagram from stzGraph
 				_nN035_ = len(_aN035_)
 				for _iN035_ = 1 to _nN035_
 					_n0_ = _aN035_[_iN035_]
-					_cSh0_ = StzLower("" + This._NativeShapeOf(_n0_))
-					_aCO01_ = [ "circle", "doublecircle", "dot",
-						"diamond", "triangle", "invtriangle",
-						"actor", "bar" ]
-					_nCO01_ = len(_aCO01_)
-					for _iCO01_ = 1 to _nCO01_
-						_cO0_ = _aCO01_[_iCO01_]
-						if _cSh0_ = _cO0_  _bOutLb_ = 1  _bChrome_ = 1  exit  ok
-					next
-					if _bOutLb_  exit  ok
+					if This._WritesNameBelow("" + _n0_[:id])
+						_bOutLb_ = 1
+						_bChrome_ = 1
+						exit
+					ok
 				next
 			ok
 			if _bChrome_
@@ -3234,17 +3239,13 @@ class stzDiagram from stzGraph
 					_nN032_ = len(_aN032_)
 					for _iN032_ = 1 to _nN032_
 						_n0_ = _aN032_[_iN032_]
-						_cSh0_ = StzLower("" + This._NativeShapeOf(_n0_))
-						_bO0_ = 0
-						_aCO02_ = [ "circle", "doublecircle", "dot",
-							"diamond", "triangle", "invtriangle",
-							"actor", "bar" ]
-						_nCO02_ = len(_aCO02_)
-						for _iCO02_ = 1 to _nCO02_
-							_cO0_ = _aCO02_[_iCO02_]
-							if _cSh0_ = _cO0_  _bO0_ = 1  exit  ok
-						next
-						if NOT _bO0_  loop  ok
+						# ASKED, not re-listed. This was the third copy
+						# of the family and the fourth is below; DN5
+						# added five glyphs to it and two copies would
+						# have quietly kept the old answer.
+						if NOT This._WritesNameBelow("" + _n0_[:id])
+							loop
+						ok
 						_at0_ = This._XYOf(_aXY_, "" + _n0_[:id])
 						if len(_at0_) != 2  loop  ok
 						if _at0_[2] + _nBoxH_ / 2 + _nFsz_ * 2 > _ey1_
@@ -4806,6 +4807,10 @@ class stzDiagram from stzGraph
 					_oC_.FillQ(_cFill_).StrokeQ(_cStroke_, _nStkW_).
 						AddRect(_x0_, _y0_, _nBw_, _nBh_)
 				ok
+			but This._NetIsSpliced(_cId_)
+				# NOTHING IS DRAWN, and the wire is the drawing. A net
+				# joining exactly two pins is one line; a dot on it would
+				# state a branch that is not there.
 			else
 				StzDrawNodeShapeXT(_oC_, _cShape_, _x0_, _y0_,
 					_nBw_, _nBh_, _cFill_, _cStroke_, _nStkW_)
@@ -4838,6 +4843,11 @@ class stzDiagram from stzGraph
 				_cId_ = "" + _aNodes_[_i_][:id]
 				_a_ = This._XYOf(_aXY_, _cId_)
 				if len(_a_) != 2  loop  ok
+				# ...AND A SPLICED NET HAS NO LABEL EITHER. Its name is
+				# real and every query answers with it; what is not real
+				# is a word floating on a plain stretch of wire, naming
+				# nothing a reader can see.
+				if This._NetIsSpliced(_cId_)  loop  ok
 				# A LABEL BELONGS TO ITS NODE, and this loop runs long
 				# after the one that drew the boxes -- so without saying
 				# so again, every label in the picture carried the LAST
@@ -9121,6 +9131,7 @@ class stzDiagram from stzGraph
 	# The solid head: base to tip, wings perpendicular. It owns the whole
 	# stretch the cut released, so nothing shows through it.
 	def _DrawArrowHead(oC, aBase, aTip, cColor)
+		if NOT This._EdgesAreDirected()  return  ok
 		_hdx_ = aTip[1] - aBase[1]
 		_hdy_ = aTip[2] - aBase[2]
 		_hl_ = sqrt(_hdx_ * _hdx_ + _hdy_ * _hdy_)
@@ -10339,7 +10350,16 @@ class stzDiagram from stzGraph
 	# The arrowhead points the way the edge ARRIVES. On a curve that is the
 	# tangent at the end, which is NOT the straight line between centres --
 	# an arrow pointing the wrong way is worse than no arrow.
+	# AN EDGE THAT CARRIES NO DIRECTION CARRIES NO HEAD. Asked once, of
+	# the profile, in the two places a head is drawn -- rather than at
+	# each of the dozen call sites that reach them.
+	def _EdgesAreDirected()
+		_edO_ = This.NotationO()
+		if NOT isObject(_edO_)  return 1  ok
+		return _edO_.EdgesDirected()
+
 	def _DrawArrow(oC, aP, aQ, cColor, nWidth, cSpline, cRank)
+		if NOT This._EdgesAreDirected()  return  ok
 		_bx_ = aP[1]
 		_by_ = aP[2]
 		if cSpline = "ortho"
@@ -10573,6 +10593,15 @@ class stzDiagram from stzGraph
 			# a step, and if one is given a name the name belongs beside
 			# it where a reader can see it is an annotation.
 			[ "actor", 0.02, 0.02 ], [ "bar", 0.02, 0.02 ],
+			# ...AND EVERY ELECTRIC SYMBOL, for the strongest version of
+			# the same reason. These are the only glyphs in the table
+			# read as VALUES: an engineer reads "resistor" off the
+			# outline before reading any label, so text across it does
+			# not merely crowd the shape, it destroys the thing the
+			# shape was drawn to say.
+			[ "resistor", 0.02, 0.02 ], [ "capacitor", 0.02, 0.02 ],
+			[ "ground", 0.02, 0.02 ], [ "source", 0.02, 0.02 ],
+			[ "junction", 0.02, 0.02 ],
 			[ "diamond", 0.50, 0.50 ],
 			[ "triangle", 0.50, 0.45 ], [ "invtriangle", 0.50, 0.45 ],
 			[ "trapezium", 0.70, 0.90 ], [ "invtrapezium", 0.70, 0.90 ],
@@ -11059,6 +11088,42 @@ class stzDiagram from stzGraph
 	def NumberOfMessages()
 		return len(@aMessages)
 
+	# A NET OF DEGREE TWO IS A WIRE, NOT A JUNCTION -- DN5.
+	#
+	# A schematic draws a junction dot only where THREE OR MORE wires
+	# meet. Two pins joined by one net are one wire, and a dot there
+	# states a branch that does not exist.
+	#
+	# The net stays in the GRAPH either way -- named, carrying its
+	# properties, answering every query -- because it is a first-class
+	# object in every netlist format there is. What changes is the
+	# DRAWING: at degree two the dot is not drawn and the net's two edges
+	# are spliced into one line. That is a rule about a glyph, and the
+	# distinction is the whole of the plan's kill criterion: the model
+	# does not bend, the picture tells the truth about a junction.
+	def _NetIsSpliced(pcId)
+		_niN_ = []
+		_niK_ = StzLower("" + pcId)
+		_aNiN_ = This.Nodes()
+		_nNiN_ = len(_aNiN_)
+		for _iNiN_ = 1 to _nNiN_
+			if StzLower("" + _aNiN_[_iNiN_][:id]) != _niK_  loop  ok
+			_niN_ = _aNiN_[_iNiN_]
+			exit
+		next
+		if len(_niN_) = 0  return 0  ok
+		if StzLower("" + This._NativeShapeOf(_niN_)) != "junction"  return 0  ok
+		_niD_ = 0
+		_aNiE_ = This.Edges()
+		_nNiE_ = len(_aNiE_)
+		for _iNiE_ = 1 to _nNiE_
+			_f_ = StzLower("" + _aNiE_[_iNiE_][:from])
+			_t_ = StzLower("" + _aNiE_[_iNiE_][:to])
+			if _f_ = _t_  loop  ok
+			if _f_ = _niK_ or _t_ = _niK_  _niD_++  ok
+		next
+		return _niD_ = 2
+
 	# WHICH SHAPES WRITE THEIR NAME UNDERNEATH THEMSELVES.
 	#
 	# A round mark, a diamond, a stick figure and a bar have no inside a
@@ -11080,7 +11145,8 @@ class stzDiagram from stzGraph
 		next
 		if _wnS_ = ""  return 0  ok
 		_aWn_ = [ "circle", "doublecircle", "dot", "diamond",
-			"triangle", "invtriangle", "actor", "bar" ]
+			"triangle", "invtriangle", "actor", "bar",
+			"resistor", "capacitor", "ground", "source", "junction" ]
 		_nWn_ = len(_aWn_)
 		for _iWn_ = 1 to _nWn_
 			if _wnS_ = _aWn_[_iWn_]  return 1  ok

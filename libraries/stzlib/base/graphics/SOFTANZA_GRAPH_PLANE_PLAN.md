@@ -1196,6 +1196,51 @@ gate it declares.
   faked. KILL: if nets cannot be modelled without lying about the
   graph, the domain waits for the model to grow, and the plan says so.
 
+  **MEASURED 2026-08-30, AND IT DOES NOT FIRE — DN5 SHIPPED.** The
+  criterion's premise is a statement about a DRAWING. A net looks like a
+  line, so "edge" is the natural reach, and then edges turn out to have
+  two ends. Ask the domain's own formats what a net IS and none of them
+  answers "a connection between two things":
+
+  ```
+  SPICE     R1 n1 n2 1k                    components NAME nets
+  KiCad     (net (code 1) (name "GND")     a net is an OBJECT with a
+              (node (ref R1) (pin 2))      name, a code and a LIST of
+              (node (ref C1) (pin 1)))     nodes -- of any length
+  Verilog   wire [7:0] databus;            declared, typed, sized
+  ```
+
+  A net is a first-class named object that pins attach to, carrying
+  properties no edge can hold — a name, a width, a class — and existing
+  whether or not anything is attached. **Net-as-node is the domain's own
+  model; net-as-edge is what would have been the lie.**
+
+  **ONE THING IS GENUINELY OWED, and it is a drawing rule.** A schematic
+  draws a junction dot only where THREE OR MORE wires meet; two pins on
+  one net are a plain wire, and a dot there states a branch that does not
+  exist. So the net stays in the graph at every degree — named,
+  queryable, carrying its properties — and the PICTURE elides the dot at
+  degree two, collapsing the node's extent so its two edges meet at a
+  point and read as one line. The model does not bend; the picture tells
+  the truth about a junction.
+
+  **WHAT IT COST:** five glyphs — resistor, capacitor, ground, source,
+  junction — and they are the first in the table read as VALUES rather
+  than as containers. A box with "R1" in it is a thing called R1; a
+  resistor symbol IS a resistance, and an engineer reads the component
+  from the outline before reading any label. That is why this domain
+  could not borrow from the other nine, and why every electric glyph
+  writes its name OUTSIDE itself.
+
+  **ONE GRAMMAR AMENDMENT, and it is not electric-only:**
+  `SetEdgesDirected(0)`. A wire carries no direction — current flows
+  both ways depending on the moment — so it carries no arrowhead. A UML
+  association and a communication link are undirected for the same
+  reason.
+
+  Guards: `gg_adversarial.ring` §72, 12 assertions, each positive with
+  its negative sibling. Gallery: `gg_electric.ring`.
+
 The doctrine that makes all of it Softanza-ish is already written: the
 plastic layout. In every domain the author edits domain MEANING — a
 transition, a wire, a reporting line — and geometry belongs to the

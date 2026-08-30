@@ -93,6 +93,7 @@ class stzNotation from stzObject
 	@cLayoutMode = ""     # "" = layered; :Ring for a domain with no flow
 	@cRankPolicy = ""     # "" = :Latest -- sinks line up at the last rank
 	@cSpine = ""          # "" = no principal path; the layout decides rows
+	@bEdgesDirected = 1   # a wire has no direction; a transition has
 	@cRegionFill = ""     # the tinted container a discovered region wears
 	@aKindScale = []      # [ kind, fraction-of-a-cell ] -- a mark is not a cell
 
@@ -515,6 +516,25 @@ class stzNotation from stzObject
 	# direction when a direct line is sufficient" -- and BPMN's own law
 	# says the same thing in L4: the spine must read as one uninterrupted
 	# line and two of its nodes may never share a cell.
+	# DOES AN EDGE IN THIS NOTATION CARRY A DIRECTION?
+	#
+	# Most do: a transition goes one way, a dependency points at what it
+	# needs. A WIRE does not. Current flows both ways along it depending
+	# on the moment, and a schematic draws no arrowheads for that reason
+	# -- an arrow on a wire is a claim about direction the circuit does
+	# not make.
+	#
+	# Declared by the profile, so it is one line in a domain rather than
+	# a special case in the drawer, and it is not electric-only: a UML
+	# association and a communication link are undirected for the same
+	# reason.
+	def SetEdgesDirected(pbYes)
+		@bEdgesDirected = pbYes
+		return This
+
+	def EdgesDirected()
+		return @bEdgesDirected
+
 	def SetSpine(pcKind)
 		@cSpine = StzLower("" + pcKind)
 		return This
