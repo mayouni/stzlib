@@ -965,6 +965,34 @@ class stzDiagram from stzGraph
 				@aBoxOf + [ StzLower("" + _nd_[:id]), _aSz_[1], _aSz_[2] ]
 				loop
 			ok
+			# A COMPONENT LIES ALONG ITS WIRE -- DN5, and the same rule
+			# the bar already follows, for the same reason. A component's
+			# terminals are its LEADS, so its box must be long in the
+			# direction the wire runs, or the wire arrives at a BODY
+			# instead of a terminal: the first DN5 pictures ran a
+			# top-down wire straight through every resistor while both
+			# leads pointed sideways into empty paper, connected to
+			# nothing. That is not a stylistic shortfall -- a schematic
+			# whose wires do not meet the terminals is not a schematic.
+			#
+			# ASKED BEFORE THE SCALE FILTER BELOW, which is where the
+			# first attempt put it: that filter passes only nodes with a
+			# scale of their own, and a component has none, so the rule
+			# ran for nothing and the pictures did not move.
+			_ndSh_ = StzLower("" + This._NativeShapeOf(_nd_))
+			if _ndSh_ = "resistor" or _ndSh_ = "capacitor" or
+			   _ndSh_ = "source" or _ndSh_ = "inductor"
+				_ndLong_ = max([ nBoxW, nBoxH ])
+				_ndThin_ = min([ nBoxW, nBoxH ])
+				if This._NativeRankDir() = "LR" or
+				   This._NativeRankDir() = "RL"
+					@aBoxOf + [ StzLower("" + _nd_[:id]), _ndLong_, _ndThin_ ]
+				else
+					@aBoxOf + [ StzLower("" + _nd_[:id]), _ndThin_, _ndLong_ ]
+				ok
+				loop
+			ok
+
 			_k_ = ""
 			if HasKey(_nd_, "properties") and isList(_nd_["properties"])
 				if HasKey(_nd_["properties"], "type")

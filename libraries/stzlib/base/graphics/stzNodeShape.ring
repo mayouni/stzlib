@@ -268,20 +268,45 @@ func StzDrawNodeShape(poCanvas, pcShape, pnX, pnY, pnW, pnH)
 	# the older ANSI form and is harder to read at small sizes, which
 	# a diagram tier cares about more than a schematic capture tool.
 	on "resistor"
-		poCanvas.AddRect(_x_ + _w_ * 0.22, _y_ + _h_ * 0.28,
-			_w_ * 0.56, _h_ * 0.44)
-		poCanvas.AddLine(_x_, _y_ + _h_ / 2, _x_ + _w_ * 0.22, _y_ + _h_ / 2)
-		poCanvas.AddLine(_x_ + _w_ * 0.78, _y_ + _h_ / 2, _x_ + _w_, _y_ + _h_ / 2)
+		# ORIENTED BY THE BOX IT IS GIVEN, like the bar. A component's
+		# TERMINALS are its leads, and a wire has to arrive AT one --
+		# the first version drew every resistor with leads left and
+		# right whatever the wire did, so a top-down circuit ran its
+		# wire through the body and left both leads in empty space,
+		# connected to nothing. That is not a stylistic shortfall; a
+		# schematic whose wires do not meet the terminals is not a
+		# schematic.
+		if _w_ >= _h_
+			poCanvas.AddRect(_x_ + _w_ * 0.22, _y_ + _h_ * 0.28,
+				_w_ * 0.56, _h_ * 0.44)
+			poCanvas.AddLine(_x_, _y_ + _h_ / 2, _x_ + _w_ * 0.22, _y_ + _h_ / 2)
+			poCanvas.AddLine(_x_ + _w_ * 0.78, _y_ + _h_ / 2, _x_ + _w_, _y_ + _h_ / 2)
+		else
+			poCanvas.AddRect(_x_ + _w_ * 0.28, _y_ + _h_ * 0.22,
+				_w_ * 0.44, _h_ * 0.56)
+			poCanvas.AddLine(_x_ + _w_ / 2, _y_, _x_ + _w_ / 2, _y_ + _h_ * 0.22)
+			poCanvas.AddLine(_x_ + _w_ / 2, _y_ + _h_ * 0.78, _x_ + _w_ / 2, _y_ + _h_)
+		ok
 
 	# A CAPACITOR: two plates facing across a gap, and the GAP is the
 	# component -- it is what says no current passes at rest.
 	on "capacitor"
-		poCanvas.AddLine(_x_ + _w_ * 0.44, _y_ + _h_ * 0.18,
-			_x_ + _w_ * 0.44, _y_ + _h_ * 0.82)
-		poCanvas.AddLine(_x_ + _w_ * 0.56, _y_ + _h_ * 0.18,
-			_x_ + _w_ * 0.56, _y_ + _h_ * 0.82)
-		poCanvas.AddLine(_x_, _y_ + _h_ / 2, _x_ + _w_ * 0.44, _y_ + _h_ / 2)
-		poCanvas.AddLine(_x_ + _w_ * 0.56, _y_ + _h_ / 2, _x_ + _w_, _y_ + _h_ / 2)
+		# The plates stand ACROSS the leads, whichever way the leads run.
+		if _w_ >= _h_
+			poCanvas.AddLine(_x_ + _w_ * 0.44, _y_ + _h_ * 0.18,
+				_x_ + _w_ * 0.44, _y_ + _h_ * 0.82)
+			poCanvas.AddLine(_x_ + _w_ * 0.56, _y_ + _h_ * 0.18,
+				_x_ + _w_ * 0.56, _y_ + _h_ * 0.82)
+			poCanvas.AddLine(_x_, _y_ + _h_ / 2, _x_ + _w_ * 0.44, _y_ + _h_ / 2)
+			poCanvas.AddLine(_x_ + _w_ * 0.56, _y_ + _h_ / 2, _x_ + _w_, _y_ + _h_ / 2)
+		else
+			poCanvas.AddLine(_x_ + _w_ * 0.18, _y_ + _h_ * 0.44,
+				_x_ + _w_ * 0.82, _y_ + _h_ * 0.44)
+			poCanvas.AddLine(_x_ + _w_ * 0.18, _y_ + _h_ * 0.56,
+				_x_ + _w_ * 0.82, _y_ + _h_ * 0.56)
+			poCanvas.AddLine(_x_ + _w_ / 2, _y_, _x_ + _w_ / 2, _y_ + _h_ * 0.44)
+			poCanvas.AddLine(_x_ + _w_ / 2, _y_ + _h_ * 0.56, _x_ + _w_ / 2, _y_ + _h_)
+		ok
 
 	# GROUND: three bars narrowing downward, and a lead UP. It is the one
 	# glyph with a single terminal, which is the whole of what it says --
@@ -303,8 +328,13 @@ func StzDrawNodeShape(poCanvas, pcShape, pnX, pnY, pnW, pnH)
 		_scy_ = _y_ + _h_ / 2
 		_sr_ = min([ _w_, _h_ ]) * 0.30
 		poCanvas.AddEllipse(_scx_, _scy_, _sr_, _sr_)
-		poCanvas.AddLine(_scx_, _y_, _scx_, _scy_ - _sr_)
-		poCanvas.AddLine(_scx_, _scy_ + _sr_, _scx_, _y_ + _h_)
+		if _w_ >= _h_
+			poCanvas.AddLine(_x_, _scy_, _scx_ - _sr_, _scy_)
+			poCanvas.AddLine(_scx_ + _sr_, _scy_, _x_ + _w_, _scy_)
+		else
+			poCanvas.AddLine(_scx_, _y_, _scx_, _scy_ - _sr_)
+			poCanvas.AddLine(_scx_, _scy_ + _sr_, _scx_, _y_ + _h_)
+		ok
 		poCanvas.AddLine(_scx_ - _sr_ * 0.45, _scy_ - _sr_ * 0.38,
 			_scx_ + _sr_ * 0.45, _scy_ - _sr_ * 0.38)
 		poCanvas.AddLine(_scx_, _scy_ - _sr_ * 0.62,

@@ -1238,8 +1238,39 @@ gate it declares.
   association and a communication link are undirected for the same
   reason.
 
-  Guards: `gg_adversarial.ring` §72, 12 assertions, each positive with
-  its negative sibling. Gallery: `gg_electric.ring`.
+  Guards: `gg_adversarial.ring` §72, each positive with its negative
+  sibling. Galleries: `gg_electric.ring`, `gg_electric_compare.ring`.
+
+  **DN5a IS NOT THE WHOLE DOMAIN, AND THE PRINCIPAL SAID SO.** Measured
+  against the circuits every textbook and EDA tool uses as its worked
+  example, the pictures are right in their parts and wrong in their
+  whole:
+
+  | what | verdict |
+  |---|---|
+  | symbols | IEC forms, readable, labels outside the outline |
+  | terminals | a component lies ALONG its wire, so the wire meets a lead |
+  | junctions | a dot at 3+ wires, a plain wire at 2 |
+  | wires | undirected, no arrowheads |
+  | left-to-right circuits | genuinely schematic-like |
+  | **a closed loop** | **drawn as a straight line with two dangling ends** |
+  | **proportions** | **a voltage divider comes out 124 x 1141** |
+
+  **THE MISSING PIECE IS A LAYOUT, NOT MORE GLYPHS**, and it is DN2b's
+  lesson arriving a second time. A layered layout answers "what flows
+  into what" and orients cycles away. **A circuit is nothing but
+  cycles** — current leaves a source and must return to it or nothing
+  flows — so the smallest closed loop in existence comes out as a line.
+  And because every element takes a rank of its own, a divider that a
+  book draws roughly square is drawn nine times taller than it is wide.
+
+  Real tools place parts on a GRID at a fixed pitch and route wires
+  orthogonally between them. That is neither `dot` nor `circo`: it is a
+  third mode, and the plane already has the seam for it —
+  `SetLayoutMode(:Mesh)` would be one line in the profile, exactly as
+  `:Ring` was for DN2b. **DN5b is that mode.** Until it exists, DN5
+  draws correct schematic ELEMENTS in a layout that is not a schematic,
+  and the plan says so rather than calling the domain finished.
 
 The doctrine that makes all of it Softanza-ish is already written: the
 plastic layout. In every domain the author edits domain MEANING — a

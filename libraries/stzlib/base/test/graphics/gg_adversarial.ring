@@ -8747,6 +8747,46 @@ for iEl = 1 to len(oEl.@aRenderLabels)
 next
 chkeq("...and no word floats on the plain stretch of it", nElLab, 0)
 
+# A COMPONENT LIES ALONG ITS WIRE, so the wire meets a TERMINAL.
+#
+# The first DN5 pictures drew every resistor with its leads left and
+# right whatever the wire did, so a top-down circuit ran its wire
+# straight through the body while both leads pointed into empty paper.
+# A schematic whose wires do not meet the terminals is not a schematic,
+# and the Principal said so by comparing it to the ones in books.
+oElV = new stzDiagram("vertical")
+oElV.SetNotation(StzElectricNotation())
+oElV.AddNodeXTT("a", "R1", [ :type = "resistor" ])
+oElV.AddNodeXTT("b", "R2", [ :type = "resistor" ])
+oElV.AddEdge("a", "b")
+oElV.ToCanvasXT(OPT67)
+nElVw = -1  nElVh = -1
+_aElV_ = oElV.RenderNodeRects()
+for iEl = 1 to len(_aElV_)
+	if StzLower("" + _aElV_[iEl][5]) = "a"
+		nElVw = _aElV_[iEl][3]  nElVh = _aElV_[iEl][4]
+	ok
+next
+chk("in a top-down circuit a component stands ALONG the wire",
+    nElVh > nElVw)
+
+oElH = new stzDiagram("horizontal")
+oElH.SetNotation(StzElectricNotation())
+oElH.SetLayout(:LeftToRight)
+oElH.AddNodeXTT("a", "R1", [ :type = "resistor" ])
+oElH.AddNodeXTT("b", "R2", [ :type = "resistor" ])
+oElH.AddEdge("a", "b")
+oElH.ToCanvasXT(OPT67)
+nElHw = -1  nElHh = -1
+_aElH_ = oElH.RenderNodeRects()
+for iEl = 1 to len(_aElH_)
+	if StzLower("" + _aElH_[iEl][5]) = "a"
+		nElHw = _aElH_[iEl][3]  nElHh = _aElH_[iEl][4]
+	ok
+next
+chk("NEGATIVE: ...and lies ACROSS it in a left-to-right one",
+    nElHw > nElHh)
+
 # A WIRE CARRIES NO DIRECTION, so it carries no head. Declared by the
 # profile, not special-cased in the drawer.
 chkeq("the electric profile declares its edges undirected",
