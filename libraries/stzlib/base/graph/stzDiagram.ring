@@ -9747,6 +9747,23 @@ class stzDiagram from stzGraph
 			# diamond: a port offset walks along the box's edge, and a
 			# diamond's edge is not there, so two of the three lines
 			# began in mid-air beside the glyph.)
+			# THE DEPARTURE STUB IS DELIBERATELY NOT APPLIED HERE, and
+			# it was tried. Spreading a fan's departures over the source
+			# border looks like the "two lines must not share a column"
+			# rule, and it is its opposite: L14 blesses the shared stem
+			# -- ONE line because it is ONE origin -- and the picture a
+			# fan should draw is a bus that splits, not a handful of
+			# lines that happen to start near each other.
+			#
+			# The gate said so immediately and in two independent voices:
+			# the stem/drop symmetry lost its equality, and the squared
+			# fork found no shared corner left to square, because there
+			# was no longer a shared vertex anywhere in the picture.
+			#
+			# The rule the Principal has marked is about two edges
+			# TRAVELLING together to different places. A fan travelling
+			# together and then parting is the thing that rule exists to
+			# make readable.
 			_ptA_ = 0
 			_ptFr_ = This._AlternativeFraction(cFromId, cToId)
 			if cRank = "LR" or cRank = "RL"
@@ -9825,6 +9842,41 @@ class stzDiagram from stzGraph
 				else
 					_dvSide_ = This._SideApproachOf(_dvK_)
 				ok
+				# THE PLAIN L, WHEN THE PICTURE ALLOWS ONE. Same shape as
+				# the side approach below and taken for a different
+				# reason: not to dodge a column, but because a second
+				# bend nothing causes is a bend I4 refuses.
+				# ...AND ONLY FOR A LONE EDGE. A source that FANS OUT
+				# shares a stem -- L14, one line because it is one origin
+				# -- and letting one member of a fan take its own L is
+				# how a bus becomes a handful of lines that happen to
+				# start near each other. The governance said exactly that
+				# on the first run: api's two lines "turn across 63px of
+				# columns -- one origin drawn as several".
+				#
+				# So the second bend is caused by nothing only when there
+				# is nothing to share it with. Where the source fans, the
+				# stem IS the cause.
+				if NOT _dvSide_
+					_dvOut_ = 0
+					_aDvE_ = This.Edges()
+					_nDvE_ = len(_aDvE_)
+					for _iDvE_ = 1 to _nDvE_
+						if StzLower("" + _aDvE_[_iDvE_][:from]) !=
+						   StzLower("" + cFromId)  loop  ok
+						if StzLower("" + _aDvE_[_iDvE_][:to]) =
+						   StzLower("" + cFromId)  loop  ok
+						_dvOut_++
+					next
+					_dvSg2_ = 1
+					if aFrom[1] < aTo[1]  _dvSg2_ = -1  ok
+					_dvEd2_ = aTo[1] + _dvSg2_ * _bcB_[1] / 2
+					if _dvOut_ = 1 and fabs(aTo[1] - aFrom[1]) > 1 and
+					   This._LRouteClear(_pax_, _pe_, aTo[2], _dvEd2_,
+						cFromId, cToId)
+						_dvSide_ = 1
+					ok
+				ok
 				if _dvSide_
 					# ONE TURN, NOT THREE.
 					#
@@ -9902,6 +9954,66 @@ class stzDiagram from stzGraph
 	# THE DEEPEST RAIL RUNNING UNDER ONE ROW, in the picture's own
 	# coordinates. Asked by anything that wants to put a line under that
 	# row and would rather not put it ON one.
+	# IS AN AXIS-ALIGNED SEGMENT CLEAR OF EVERY CELL IT IS NOT JOINING?
+	#
+	# Asked of the DRAWN rectangles, so it is a question about the picture
+	# rather than about what a layout intended. The two ends' own boxes
+	# are excluded -- a segment must touch them, that is what arriving is.
+	def _SegClearOfCells(nX1, nY1, nX2, nY2, cFrom, cTo)
+		_scF_ = StzLower("" + cFrom)
+		_scT_ = StzLower("" + cTo)
+		_scPad_ = This._LineClearance() * 0.5
+		_scL_ = min([ nX1, nX2 ]) - _scPad_
+		_scR_ = max([ nX1, nX2 ]) + _scPad_
+		_scTp_ = min([ nY1, nY2 ]) - _scPad_
+		_scB_ = max([ nY1, nY2 ]) + _scPad_
+		_aSc_ = @aRenderNodeRects
+		_nSc_ = len(_aSc_)
+		for _iSc_ = 1 to _nSc_
+			_scN_ = StzLower("" + _aSc_[_iSc_][5])
+			if _scN_ = _scF_ or _scN_ = _scT_  loop  ok
+			if _aSc_[_iSc_][1] > _scR_  loop  ok
+			if _aSc_[_iSc_][1] + _aSc_[_iSc_][3] < _scL_  loop  ok
+			if _aSc_[_iSc_][2] > _scB_  loop  ok
+			if _aSc_[_iSc_][2] + _aSc_[_iSc_][4] < _scTp_  loop  ok
+			return 0
+		next
+		return 1
+
+	# ONE TURN WHERE ONE TURN WILL DO -- I4, stated as a preference
+	# rather than as a repair.
+	#
+	# The ordinary ortho route spends TWO bends: down out of the source,
+	# across a channel, down into the target's top. That shape earns its
+	# second bend when several edges share the channel, or when the
+	# direct L would cross a cell -- and it was being spent unconditionally,
+	# including between two cells with nothing at all between them.
+	#
+	# The Principal marked it twice on one picture and then said the
+	# obvious thing: the rule I had just applied to one route is not a
+	# property of that route. An L is clear or it is not, and where it is
+	# clear the second bend is caused by nothing, which is exactly what
+	# I4 refuses.
+	#
+	# So the L is TRIED FIRST and taken when the picture allows it: down
+	# the source's own column to the target's line, one turn into its
+	# side. The channel remains for everything else, unchanged, which is
+	# most edges in most pictures.
+	def _LRouteClear(nPax, nPe, nQy, nQx, cFrom, cTo)
+		if NOT This._SegClearOfCells(nPax, nPe, nPax, nQy, cFrom, cTo)
+			return 0
+		ok
+		if NOT This._SegClearOfCells(nPax, nQy, nQx, nQy, cFrom, cTo)
+			return 0
+		ok
+		# ...and it must not lie along another edge's column, which is
+		# the defect the side approach was built for
+		if This._DescentBlocked(nPax, nPe, nQy,
+			StzLower("" + cFrom) + ">" + StzLower("" + cTo))
+			return 0
+		ok
+		return 1
+
 	# IS THIS DESCENT ABOUT TO RUN DOWN SOMEBODY ELSE'S COLUMN?
 	#
 	# Two edges may CONVERGE on a node -- that is what arriving at a node
@@ -11395,7 +11507,6 @@ class stzDiagram from stzGraph
 			# is not allocating anything -- an edge it cannot see is an
 			# edge it will collide with.
 			_psTouch_ = []
-			_psStraight_ = ""
 			_aPsE5_ = This.Edges()
 			_nPsE5_ = len(_aPsE5_)
 			for _iPsE5_ = 1 to _nPsE5_
@@ -11420,10 +11531,16 @@ class stzDiagram from stzGraph
 				# something the graph does not. It is recorded so the
 				# spread below can step everything else AROUND it rather
 				# than through it.
-				if fabs(_psOAt_[_psAx_] - _psAt_[_psAx_]) < 1 and
-				   _psStraight_ = ""
-					_psStraight_ = _psF_ + ">" + _psT_
-				ok
+				# ...RECORDED PER EDGE, because the allocation is per
+				# BORDER and this was one flag per NODE. On the activity
+				# diagram the fork's INCOMING edge is aligned and claimed
+				# it from the top border, so the bottom border -- where
+				# the two branches actually leave -- believed it had no
+				# straight edge to make room for. Both branches were then
+				# spread off centre, and the one that WAS straight gained
+				# two bends going nowhere.
+				_psAli_ = 0
+				if fabs(_psOAt_[_psAx_] - _psAt_[_psAx_]) < 1  _psAli_ = 1  ok
 				# WHICH BORDER IT LEAVES BY, because a collision is a
 				# fact about a BORDER and not about a node. Counting per
 				# node spreads edges that were never going to meet --
@@ -11461,7 +11578,7 @@ class stzDiagram from stzGraph
 					_psSide_ = -1
 				ok
 				_psTouch_ + [ _psF_ + ">" + _psT_, _psEnd_,
-					_psOAt_[_psAx_], _psSide_ ]
+					_psOAt_[_psAx_], _psSide_, _psAli_ ]
 			next
 			_psN2_ = len(_psTouch_)
 			if _psN2_ = 0  loop  ok
@@ -11502,11 +11619,11 @@ class stzDiagram from stzGraph
 				_psNh_ = len(_psHere_)
 				if _psNh_ = 0  loop  ok
 
-				# is the straight edge on THIS border?
+				# the straight edge ON THIS BORDER, if there is one
 				_psStr2_ = ""
 				for _psI_ = 1 to _psNh_
-					if _psHere_[_psI_][1] = _psStraight_
-						_psStr2_ = _psStraight_
+					if _psHere_[_psI_][5] and _psStr2_ = ""
+						_psStr2_ = _psHere_[_psI_][1]
 					ok
 				next
 
