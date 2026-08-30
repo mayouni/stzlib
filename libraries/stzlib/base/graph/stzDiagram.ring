@@ -5022,6 +5022,46 @@ class stzDiagram from stzGraph
 							_nLbY_ = _a_[2] + _nFsz_ * 0.35
 						ok
 					ok
+					# ...AND "THE SIDE THE READING LEAVES FREE" IS ASKED
+					# OF THE INK, not of the rank direction.
+					#
+					# The rule above is right and its test is a proxy: it
+					# reads the RANK to guess where the free space is,
+					# which holds while a picture has one reading
+					# direction. A mesh has none -- its wires run four
+					# ways round a rectangle -- so "below" was chosen for
+					# a capacitor whose wire also leaves below, and the
+					# label's own background plate erased the first
+					# stretch of that wire. The Principal saw a line
+					# starting too late; what was actually happening is
+					# that a word was standing on its beginning.
+					#
+					# So: if a wire leaves through the bottom border, the
+					# name steps aside instead. Read from the drawn
+					# paths, which is the only place that knows.
+					# ...AND A NAME MAKES ROOM FOR THE WIRE IT SHARES A
+					# SIDE WITH.
+					#
+					# A component writes its name below itself, and where
+					# a wire ALSO leaves below, the name's background
+					# plate erased the first stretch of that wire: the
+					# line appeared to start late, well under the part it
+					# belongs to. The Principal asked for the starting
+					# portion of the vertical to be longer, and that is
+					# exactly what it needs -- a visible stub of wire
+					# between the terminal and the word.
+					#
+					# STEPPING THE NAME ASIDE WAS TRIED FIRST AND IS
+					# WRONG, for the reason the comment above already
+					# gives: beside is right for a MARK, whose name is
+					# the only content it has, and lands ON a glyph with
+					# real extent. Every label came out written across
+					# its own component. So the name keeps its side and
+					# moves further down it.
+					if NOT _bSide2_ and This._LeavesThroughBottom(_cId_,
+						_a_, _aBx2_)
+						_nLbY_ = _nLbY_ + This._LineClearance()
+					ok
 					# ...AND IT EXTENDS BACK ALONG THE READING.
 					#
 					# A name wider than the glyph it names has to lean
@@ -11190,6 +11230,35 @@ class stzDiagram from stzGraph
 			if _f_ = _niK_ or _t_ = _niK_  _niD_++  ok
 		next
 		return _niD_ = 2
+
+	# DOES A DRAWN WIRE LEAVE THIS NODE THROUGH ITS BOTTOM BORDER?
+	#
+	# Asked of the recorded paths, so it is a question about the picture
+	# and not about what a layout intended. An endpoint within a whisker
+	# of the bottom edge, and inside its span, is a wire leaving there --
+	# and a name written below would stand on it.
+	def _LeavesThroughBottom(pcId, paAt, paBox)
+		if len(paAt) != 2 or len(paBox) < 2  return 0  ok
+		_lbB_ = paAt[2] + paBox[2] / 2
+		_lbL_ = paAt[1] - paBox[1] / 2
+		_lbR_ = paAt[1] + paBox[1] / 2
+		_lbK_ = StzLower("" + pcId)
+		_aLbP_ = @aEdgePaths
+		_nLbP_ = len(_aLbP_)
+		for _iLbP_ = 1 to _nLbP_
+			_lbKey_ = StzLower("" + _aLbP_[_iLbP_][1])
+			_lbF_ = _aLbP_[_iLbP_][2]
+			_nF_ = len(_lbF_)
+			if _nF_ < 4  loop  ok
+			for _lbE_ = 1 to 2
+				_lbX_ = _lbF_[1]  _lbY_ = _lbF_[2]
+				if _lbE_ = 2  _lbX_ = _lbF_[_nF_ - 1]  _lbY_ = _lbF_[_nF_]  ok
+				if fabs(_lbY_ - _lbB_) > 4  loop  ok
+				if _lbX_ < _lbL_ - 2 or _lbX_ > _lbR_ + 2  loop  ok
+				return 1
+			next
+		next
+		return 0
 
 	# THE TWO POINTS A COMPONENT SITS BETWEEN, as placed: [x1,y1,x2,y2].
 	# Empty when the picture has not been placed yet, or the component
