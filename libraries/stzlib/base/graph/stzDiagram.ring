@@ -329,6 +329,7 @@ class stzDiagram from stzGraph
 	@aRenderAdorn = []
 	@aRenderForks = []
 	@bSequence = 0
+	@aSideApproach = []
 	@nSpineLabelDemand = 0
 	@aMessages = []
 	@nSeqPitch = 0
@@ -4081,6 +4082,7 @@ class stzDiagram from stzGraph
 				@aVertSegs = []
 				@aEdgePaths = []
 				@aRenderHops = []
+				@aSideApproach = []
 			ok
 		else
 			@nDrawPass = 2
@@ -9792,11 +9794,52 @@ class stzDiagram from stzGraph
 						nBoxH, _pe_, _qe_, nWidth)
 				ok
 				_chan_ = This._ChannelClear(_chan_, _pe_, _qe_, nWidth)
-				This._EmitOrthoPolyline(oC, [ _pax_, _pe_, _pax_,
-					_chan_, _qax_, _chan_, _qax_, _qe_ ],
-					cColor, nWidth, cFromId + ">" + cToId)
-				_p_ = [ _qax_, _chan_ ]
-				_q_ = [ _qax_, _qe_ ]
+
+				# A DESCENT THAT WOULD LIE ON ANOTHER COMES IN FROM THE
+				# SIDE INSTEAD.
+				#
+				# The ordinary shape drops from the row straight into the
+				# target's near border. Where that drop would run down a
+				# column another edge is already using, the two lines
+				# read as one line with an arrow at each end -- and the
+				# fix is NOT to nudge the arrival, which buys six pixels
+				# on a mark and breaks the law that says arrivals at a
+				# mark unify. It is to move the RUN: descend in a column
+				# of its own, and turn into the target's side.
+				#
+				# One more bend, and it is a bend a reader can account
+				# for -- I4 asks that a bend be caused, and "this line
+				# does not travel down that one" is a cause.
+				#
+				# The side is the one the edge ARRIVES FROM, so the new
+				# leg never crosses back over the picture to enter from
+				# the far side.
+				_dvK_ = StzLower("" + cFromId) + ">" + StzLower("" + cToId)
+				_dvSide_ = 0
+				if @nDrawPass = 1
+					_dvSide_ = This._DescentBlocked(_qax_, _chan_, _qe_, _dvK_)
+					if _dvSide_  @aSideApproach + [ _dvK_, 1 ]  ok
+				else
+					_dvSide_ = This._SideApproachOf(_dvK_)
+				ok
+				if _dvSide_
+					_dvSg_ = 1
+					if aFrom[1] < aTo[1]  _dvSg_ = -1  ok
+					_dvEdge_ = aTo[1] + _dvSg_ * _bcB_[1] / 2
+					_dvCol_ = _dvEdge_ + _dvSg_ * This._LineClearance()
+					This._EmitOrthoPolyline(oC, [ _pax_, _pe_, _pax_,
+						_chan_, _dvCol_, _chan_, _dvCol_, aTo[2],
+						_dvEdge_, aTo[2] ],
+						cColor, nWidth, cFromId + ">" + cToId)
+					_p_ = [ _dvCol_, aTo[2] ]
+					_q_ = [ _dvEdge_, aTo[2] ]
+				else
+					This._EmitOrthoPolyline(oC, [ _pax_, _pe_, _pax_,
+						_chan_, _qax_, _chan_, _qax_, _qe_ ],
+						cColor, nWidth, cFromId + ">" + cToId)
+					_p_ = [ _qax_, _chan_ ]
+					_q_ = [ _qax_, _qe_ ]
+				ok
 			ok
 		on "line"
 			oC.Flush()
@@ -9837,6 +9880,55 @@ class stzDiagram from stzGraph
 	# THE DEEPEST RAIL RUNNING UNDER ONE ROW, in the picture's own
 	# coordinates. Asked by anything that wants to put a line under that
 	# row and would rather not put it ON one.
+	# IS THIS DESCENT ABOUT TO RUN DOWN SOMEBODY ELSE'S COLUMN?
+	#
+	# Two edges may CONVERGE on a node -- that is what arriving at a node
+	# looks like, and section 59 holds it as law for a mark: "one arrow,
+	# not two grazing a dot". What they may never do is RUN PARALLEL in
+	# one column for a stretch, which is the line with an arrow at each
+	# end the Principal has marked more than any other.
+	#
+	# The two are easy to confuse and I confused them: every earlier fix
+	# aimed at the shared ENDPOINT, and the endpoint was never the
+	# defect. Offsetting an arrival on a 25px mark buys six pixels, which
+	# is a near-miss, and widening it breaks section 59 -- correctly.
+	#
+	# So the question is asked about the RUN. @aVertSegs already holds
+	# every vertical the picture has drawn, keyed, so a descent can ask
+	# whether it is about to lie on top of one.
+	def _DescentBlocked(nX, nY1, nY2, cKey)
+		_dbLo_ = min([ nY1, nY2 ])
+		_dbHi_ = max([ nY1, nY2 ])
+		_dbClr_ = This._LineClearance()
+		_dbK_ = StzLower("" + cKey)
+		_aDbV_ = @aVertSegs
+		_nDbV_ = len(_aDbV_)
+		for _iDbV_ = 1 to _nDbV_
+			_dbS_ = _aDbV_[_iDbV_]
+			if StzLower("" + _dbS_[4]) = _dbK_  loop  ok
+			if fabs(_dbS_[1] - nX) >= _dbClr_  loop  ok
+			# they must actually run TOGETHER, not merely meet: an
+			# overlap shorter than a clearance is two lines touching at a
+			# node, which is allowed and ordinary
+			_dbOv_ = min([ _dbHi_, _dbS_[3] ]) - max([ _dbLo_, _dbS_[2] ])
+			if _dbOv_ > _dbClr_  return 1  ok
+		next
+		return 0
+
+	# The decision is taken on the dry pass and REUSED on the wet one.
+	# @aVertSegs fills as the first pass draws, so asking again on the
+	# second would ask a different question -- and the recorded path and
+	# the drawn line would part company, which is the defect this file
+	# has paid for more than once.
+	def _SideApproachOf(cKey)
+		_saK_ = StzLower("" + cKey)
+		_aSa_ = @aSideApproach
+		_nSa_ = len(_aSa_)
+		for _iSa_ = 1 to _nSa_
+			if StzLower("" + _aSa_[_iSa_][1]) = _saK_  return _aSa_[_iSa_][2]  ok
+		next
+		return 0
+
 	def _DeepestRailAt(nRowY, nBoxH)
 		_drBest_ = 0
 		_aDrE18_ = This.Edges()
