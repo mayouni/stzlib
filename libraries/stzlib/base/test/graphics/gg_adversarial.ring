@@ -8683,6 +8683,84 @@ OPTGOV = [ :Font = EFONT, :NodeWidth = 130, :NodeHeight = 52, :FontSize = 14 ]
 # and not one was findable by testing the rule -- the rule passes its own
 # tests. What follows tests the layer BOTH ways, because a governor that
 # reports nothing is indistinguishable from a governor that is broken.
+sec("-- 73. DN5b -- A CIRCUIT IS READ AS A LOOP --------------")
+
+# A layered layout answers "what flows into what" and orients cycles
+# AWAY. A circuit is nothing but cycles: current leaves a source and must
+# return to it or nothing flows. So the smallest closed loop in existence
+# came out as a STRAIGHT LINE with two dangling ends, and a divider a
+# textbook draws roughly square came out 124 x 1141.
+#
+# MEASURED BEFORE BUILDING: a closed RC filter is 6 nodes and 6 edges, so
+# E - V + 1 = 1 -- exactly one independent loop. In circuit theory that
+# quantity is the MESH COUNT and mesh analysis is built on it, so the
+# mode is named in the domain's own word.
+oMs = new stzDiagram("mesh73")
+oMs.SetNotation(StzElectricNotation())
+oMs.AddNodeXTT("v", "9V", [ :type = "source" ])
+oMs.AddNodeXTT("r", "R", [ :type = "resistor" ])
+oMs.AddNodeXTT("a", "A", [ :type = "net" ])
+oMs.AddNodeXTT("b", "B", [ :type = "net" ])
+oMs.AddEdge("v", "a")  oMs.AddEdge("a", "r")
+oMs.AddEdge("r", "b")  oMs.AddEdge("b", "v")
+oMs.ToCanvasXT(OPT67)
+
+chkeq("the electric profile is read as a mesh",
+	StzLower("" + StzElectricNotation().LayoutMode()), "mesh")
+
+# A LOOP OCCUPIES TWO DIMENSIONS. The layered layout gave this circuit
+# one column; a mesh gives it a rectangle, and the test is that no axis
+# collapses.
+nMsW = oMs.LastCanvas().Width()
+nMsH = oMs.LastCanvas().Height()
+nMsRatio = max([ nMsW, nMsH ]) / max([ 1, min([ nMsW, nMsH ]) ])
+? "   the loop is drawn " + nMsW + "x" + nMsH + ", ratio " + nMsRatio
+chk("a closed loop is drawn in two dimensions, not one column",
+	nMsRatio < 4)
+
+# ...AND ITS MEMBERS STAND ON MORE THAN ONE COLUMN AND MORE THAN ONE ROW.
+# A ratio alone can be satisfied by empty paper.
+aMsX = []  aMsY = []
+_aMsR_ = oMs.RenderNodeRects()
+for iMs = 1 to len(_aMsR_)
+	aMsX + (_aMsR_[iMs][1] + _aMsR_[iMs][3] / 2)
+	aMsY + (_aMsR_[iMs][2] + _aMsR_[iMs][4] / 2)
+next
+nMsDx = 0  nMsDy = 0
+for iMs = 2 to len(aMsX)
+	if fabs(aMsX[iMs] - aMsX[1]) > 1  nMsDx++  ok
+	if fabs(aMsY[iMs] - aMsY[1]) > 1  nMsDy++  ok
+next
+chk("...and its members occupy both axes", nMsDx > 0 and nMsDy > 0)
+
+# AN OPEN CIRCUIT IS NOT DRAWN AS A LOOP. It carries no current, and
+# drawing a rectangle would invent a return path the model does not have.
+oOp = new stzDiagram("open73")
+oOp.SetNotation(StzElectricNotation())
+oOp.AddNodeXTT("v", "9V", [ :type = "source" ])
+oOp.AddNodeXTT("r", "R", [ :type = "resistor" ])
+oOp.AddNodeXTT("a", "A", [ :type = "net" ])
+oOp.AddEdge("v", "a")  oOp.AddEdge("a", "r")
+oOp.ToCanvasXT(OPT67)
+aOpY = []
+_aOpR_ = oOp.RenderNodeRects()
+for iMs = 1 to len(_aOpR_)
+	aOpY + (_aOpR_[iMs][2] + _aOpR_[iMs][4] / 2)
+next
+nOpDy = 0
+for iMs = 2 to len(aOpY)
+	if fabs(aOpY[iMs] - aOpY[1]) > 1  nOpDy++  ok
+next
+chkeq("NEGATIVE: an OPEN circuit is laid in a line, not a rectangle",
+	nOpDy, 0)
+
+# A COMPONENT'S ORIENTATION IS READ FROM ITS PLACEMENT, not from a
+# global rank -- on a rectangle the wire runs four different ways.
+chk("a component knows the two points it sits between",
+	len(oMs._NeighbourPoints("r")) = 4)
+chkeq("NEGATIVE: ...and says so plainly when it does not",
+	len(oMs._NeighbourPoints("nosuchnode")), 0)
+
 sec("-- 72. DN5 -- A NET IS A NODE, AND A JUNCTION IS A CLAIM -")
 
 # The plan's kill: "a net is a HYPEREDGE (one wire, three pins), which

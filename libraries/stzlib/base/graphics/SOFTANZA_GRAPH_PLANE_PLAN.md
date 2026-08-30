@@ -1268,9 +1268,42 @@ gate it declares.
   orthogonally between them. That is neither `dot` nor `circo`: it is a
   third mode, and the plane already has the seam for it —
   `SetLayoutMode(:Mesh)` would be one line in the profile, exactly as
-  `:Ring` was for DN2b. **DN5b is that mode.** Until it exists, DN5
-  draws correct schematic ELEMENTS in a layout that is not a schematic,
-  and the plan says so rather than calling the domain finished.
+  `:Ring` was for DN2b.
+
+  **DN5b SHIPPED 2026-08-30, and the word is the domain's own.** Measured
+  before building: a closed RC filter is 6 nodes and 6 edges, so
+  E − V + 1 = 1 — exactly one independent loop. In circuit theory that
+  quantity is the **mesh count**, and mesh analysis (Kirchhoff's voltage
+  law taken once around each mesh) is the method built on it. The domain
+  already reasons in the units the layout needs, so `:Mesh` is not a
+  metaphor.
+
+  `_LayoutMesh()` finds the fundamental cycle by spanning tree and walks
+  it around a rectangle's perimeter as one parameter, so members spread
+  evenly however many there are; anything hanging off the loop — a ground
+  symbol — stands beside the node it attaches to. It fills `@aX`/`@aY`
+  like every other mode, so it is a placement and not a second renderer.
+
+  | measured | before | after |
+  |---|---|---|
+  | the smallest closed loop | a straight line, two dangling ends | a closed rectangle |
+  | the RC filter | 124 × 1141 | 1000 × 700 |
+  | component orientation | one global rank direction | read from the placement |
+
+  **AND AN OPEN CIRCUIT IS NOT DRAWN AS A LOOP.** It carries no current,
+  so it is laid in a line and left for the rules to report — drawing a
+  rectangle would invent a return path the model does not have. Building
+  this found that the first DN5 galleries were themselves open: a source
+  whose other terminal reaches nothing, which is part of why they drew as
+  chains.
+
+  **WHAT REMAINS, named rather than left to be discovered.** A circuit
+  with SEVERAL independent meshes gets its first mesh as the rectangle
+  and the rest hung off it, not interlocked sharing a branch the way a
+  ladder network is drawn — every canonical two-terminal example is
+  single-mesh and comes out right. And a component at a CORNER of the
+  rectangle has two perpendicular neighbours, so its orientation is
+  ambiguous and it is drawn along whichever axis dominates.
 
 The doctrine that makes all of it Softanza-ish is already written: the
 plastic layout. In every domain the author edits domain MEANING — a
