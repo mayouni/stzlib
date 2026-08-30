@@ -8683,6 +8683,74 @@ OPTGOV = [ :Font = EFONT, :NodeWidth = 130, :NodeHeight = 52, :FontSize = 14 ]
 # and not one was findable by testing the rule -- the rule passes its own
 # tests. What follows tests the layer BOTH ways, because a governor that
 # reports nothing is indistinguishable from a governor that is broken.
+sec("-- 73b. A NAME MAKES ROOM FOR THE WIRE BESIDE IT ---------")
+
+# A component writes its name below itself. Where a wire ALSO leaves
+# below, the name's background plate erased the first stretch of that
+# wire, so the line appeared to start late and well under the part it
+# belongs to. The Principal asked for the starting portion of the
+# vertical to be longer, which is exactly what it needs: a visible stub
+# between the terminal and the word.
+oNm = new stzDiagram("stub73b")
+oNm.SetNotation(StzElectricNotation())
+oNm.AddNodeXTT("v", "9V", [ :type = "source" ])
+oNm.AddNodeXTT("r", "R", [ :type = "resistor" ])
+oNm.AddNodeXTT("c", "C", [ :type = "capacitor" ])
+oNm.AddNodeXTT("a", "A", [ :type = "net" ])
+oNm.AddNodeXTT("b", "B", [ :type = "net" ])
+oNm.AddNodeXTT("d", "D", [ :type = "net" ])
+oNm.AddEdge("v", "a")  oNm.AddEdge("a", "r")  oNm.AddEdge("r", "b")
+oNm.AddEdge("b", "c")  oNm.AddEdge("c", "d")  oNm.AddEdge("d", "v")
+oNm.ToCanvasXT(OPT67)
+
+# For every component whose wire leaves through the bottom, the name's
+# plate must begin BELOW where that wire starts -- so a stretch of wire
+# is visible first.
+nNmBad = 0  nNmSeen = 0
+_aNmR_ = oNm.RenderNodeRects()
+for iNm = 1 to len(_aNmR_)
+	cNmId = StzLower("" + _aNmR_[iNm][5])
+	nNmBot = _aNmR_[iNm][2] + _aNmR_[iNm][4]
+	aNmAt = [ _aNmR_[iNm][1] + _aNmR_[iNm][3] / 2,
+	          _aNmR_[iNm][2] + _aNmR_[iNm][4] / 2 ]
+	if NOT oNm._LeavesThroughBottom(cNmId, aNmAt,
+		[ _aNmR_[iNm][3], _aNmR_[iNm][4] ])  loop  ok
+	nNmSeen++
+	for jNm = 1 to len(oNm.@aRenderLabels)
+		aNmL = oNm.@aRenderLabels[jNm]
+		if StzLower("" + aNmL[6]) != ""  loop  ok
+		if fabs(aNmL[2] - aNmAt[1]) > _aNmR_[iNm][3]  loop  ok
+		if (aNmL[3] - aNmL[5] / 2) - nNmBot < 6  nNmBad++  ok
+	next
+next
+? "   " + nNmSeen + " components with a wire leaving below, " +
+  nNmBad + " whose name stands on its start"
+chkeq("a name leaves a visible stub of the wire below its component",
+	nNmBad, 0)
+
+# THE NEGATIVE SIBLING: the scene must actually contain the case, or the
+# zero above is a zero from an empty question.
+chk("...and this circuit really does contain one", nNmSeen > 0)
+
+# AND THE NAME STAYS BELOW, not beside. Stepping it aside was tried and
+# is wrong for a glyph with real extent -- every label came out written
+# across its own component, which is what the outside-label rule already
+# warns about for the actor.
+nNmOn = 0
+for jNm = 1 to len(oNm.@aRenderLabels)
+	aNmL = oNm.@aRenderLabels[jNm]
+	if StzLower("" + aNmL[6]) != ""  loop  ok
+	for iNm = 1 to len(_aNmR_)
+		if aNmL[2] < _aNmR_[iNm][1]  loop  ok
+		if aNmL[2] > _aNmR_[iNm][1] + _aNmR_[iNm][3]  loop  ok
+		if aNmL[3] < _aNmR_[iNm][2]  loop  ok
+		if aNmL[3] > _aNmR_[iNm][2] + _aNmR_[iNm][4]  loop  ok
+		nNmOn++
+	next
+next
+chkeq("NEGATIVE: ...and no name is written across its own glyph",
+	nNmOn, 0)
+
 sec("-- 73. DN5b -- A CIRCUIT IS READ AS A LOOP --------------")
 
 # A layered layout answers "what flows into what" and orients cycles
