@@ -313,46 +313,32 @@ func StzDrawNodeShape(poCanvas, pcShape, pnX, pnY, pnW, pnH)
 	# everything connected to a ground symbol is connected to everything
 	# else connected to one, anywhere on the sheet.
 	on "ground"
-		# ORIENTED LIKE EVERY OTHER PART HERE, and for the same reason.
-		# This drew its lead upward whatever the wire did, so a
-		# left-to-right chain ending at earth ran its wire horizontally
-		# across the BARS at mid-height and then turned up into the top
-		# of the lead -- leaving the lead standing above the wire,
-		# joined to nothing, and the bars crossed by the line that was
-		# supposed to end at them.
+		# UPRIGHT, ALWAYS. Every schematic draws earth pointing down and
+		# enters it from above, and _MeshAttach joins the wire at the
+		# top of this box for the same reason.
 		#
-		# A ground has ONE terminal, so its box says which end that is:
-		# on top when the wire arrives vertically, on the left when it
-		# arrives along a horizontal run. _MeshAttach reads the same box
-		# and joins the wire there, so the drawing and the join cannot
-		# disagree.
-		#
-		# THE HORIZONTAL FORM PUTS ITS LEAD ON THE LEFT, which is right
-		# for a run read left to right and would be backwards for a
-		# ground whose net lies to its RIGHT. The wire then reaches
-		# around to the left lead: longer, and still incident on the
-		# terminal, which is the property that may not be traded. No
-		# shipped circuit does it -- a chain ends at earth, it does not
-		# start there.
-		if _w_ >= _h_
-			_gcy_ = _y_ + _h_ / 2
-			poCanvas.AddLine(_x_, _gcy_, _x_ + _w_ * 0.42, _gcy_)
-			poCanvas.AddLine(_x_ + _w_ * 0.42, _gcy_ - _h_ * 0.30,
-				_x_ + _w_ * 0.42, _gcy_ + _h_ * 0.30)
-			poCanvas.AddLine(_x_ + _w_ * 0.62, _gcy_ - _h_ * 0.19,
-				_x_ + _w_ * 0.62, _gcy_ + _h_ * 0.19)
-			poCanvas.AddLine(_x_ + _w_ * 0.82, _gcy_ - _h_ * 0.08,
-				_x_ + _w_ * 0.82, _gcy_ + _h_ * 0.08)
-		else
-			_gcx_ = _x_ + _w_ / 2
-			poCanvas.AddLine(_gcx_, _y_, _gcx_, _y_ + _h_ * 0.42)
-			poCanvas.AddLine(_gcx_ - _w_ * 0.30, _y_ + _h_ * 0.42,
-				_gcx_ + _w_ * 0.30, _y_ + _h_ * 0.42)
-			poCanvas.AddLine(_gcx_ - _w_ * 0.19, _y_ + _h_ * 0.62,
-				_gcx_ + _w_ * 0.19, _y_ + _h_ * 0.62)
-			poCanvas.AddLine(_gcx_ - _w_ * 0.08, _y_ + _h_ * 0.82,
-				_gcx_ + _w_ * 0.08, _y_ + _h_ * 0.82)
-		ok
+		# A ROTATED FORM WAS BUILT AND THEN DELETED, which is worth
+		# recording because both steps were right. The symbol used to
+		# draw its lead upward whatever the wire did, so a horizontal
+		# run ended ACROSS its bars and turned up into the lead from
+		# underneath -- the stub the Principal marked. Laying the symbol
+		# on its side fixed the incidence and left it drawn in a way no
+		# textbook uses. The real fault was the PLACEMENT: a ground that
+		# would be entered from the side is dropped below the run before
+		# anything measures it (see the drop pass in stzDiagram), and
+		# the wire then turns down into an upright symbol, which is what
+		# a schematic has always done. With the placement right there is
+		# no arrangement left that needs a rotated glyph, and keeping
+		# one would have meant the shape catalogue advertising a form no
+		# circuit can produce.
+		_gcx_ = _x_ + _w_ / 2
+		poCanvas.AddLine(_gcx_, _y_, _gcx_, _y_ + _h_ * 0.42)
+		poCanvas.AddLine(_gcx_ - _w_ * 0.30, _y_ + _h_ * 0.42,
+			_gcx_ + _w_ * 0.30, _y_ + _h_ * 0.42)
+		poCanvas.AddLine(_gcx_ - _w_ * 0.19, _y_ + _h_ * 0.62,
+			_gcx_ + _w_ * 0.19, _y_ + _h_ * 0.62)
+		poCanvas.AddLine(_gcx_ - _w_ * 0.08, _y_ + _h_ * 0.82,
+			_gcx_ + _w_ * 0.08, _y_ + _h_ * 0.82)
 
 	# A SOURCE: a circle with its polarity inside, leads top and bottom.
 	on "source"
