@@ -5179,7 +5179,28 @@ class stzDiagram from stzGraph
 					# the right of a closing circle -- which is where
 					# the Principal put it. A top-down picture has its
 					# free space underneath, and keeps it there.
+					# ONE GAP, EVERY SIDE. The distance between a name
+					# and the thing it names was three different numbers
+					# depending on which branch had placed it: 5.2px for
+					# a plain name below, 8px for one stepped aside, and
+					# 24px where the departing-wire push had fired. The
+					# Principal marked all four gaps in one picture and
+					# asked for one distance, which is right for a
+					# reason beyond tidiness -- a reader uses proximity
+					# to decide WHICH glyph a word belongs to, so a gap
+					# that varies is a claim that varies.
+					#
+					# It is a fraction of the TYPE, not a count of
+					# pixels, for the reason this file already learned
+					# about the departing-wire stub: a fixed number is
+					# the same arithmetic in a bigger picture, and the
+					# thing the gap has to be read against is the word.
+					_nLbGap_ = _nFsz_ * 0.42
 					_nLbY_ = _a_[2] + _aBx2_[2] / 2 + _nFsz_ * 0.95
+					if @bMesh
+						_nLbY_ = _a_[2] + _aBx2_[2] / 2 +
+							_nFsz_ * 0.75 + _nLbGap_
+					ok
 					# ...AND BESIDE IT ONLY WHERE IT IS A MARK.
 					#
 					# This put every outside name beside its glyph in a
@@ -5251,7 +5272,15 @@ class stzDiagram from stzGraph
 					# they can SEE between the glyph and the word, so that
 					# is the quantity, and it scales with the type it has
 					# to be read against.
-					if NOT _bSide2_ and This._LeavesThroughBottom(_cId_,
+					# ...AND ON A MESH THE PUSH BELOW IS RETIRED, not
+					# merely overridden. It existed to keep a name off
+					# the wire leaving underneath, which is now the job
+					# of the rule that refuses to lay a name on a wire
+					# at all -- and where that rule moves the word, the
+					# push would only have made one of the four gaps
+					# three times the others.
+					if NOT _bSide2_ and NOT @bMesh and
+					   This._LeavesThroughBottom(_cId_,
 						_a_, _aBx2_)
 						_nGapW_ = max([ This._LineClearance(), _nFsz_ * 0.6 ])
 						_nTopW_ = _nLbY_ - _nFsz_ * 0.75
@@ -5312,8 +5341,10 @@ class stzDiagram from stzGraph
 							_nLbY_ - _nPlH_ / 2, _a_[1] + _nPlW_,
 							_nLbY_ + _nPlH_ / 2)
 							_aCtA_ = This._MeshCentroid()
-							_nInX_ = _a_[1] + _aBx2_[1] / 2 + 8
-							_nOutX_ = _a_[1] - _aBx2_[1] / 2 - 8 - _nTw_
+							_nInX_ = _a_[1] + _aBx2_[1] / 2 + 3 +
+								_nLbGap_
+							_nOutX_ = _a_[1] - _aBx2_[1] / 2 - 3 -
+								_nLbGap_ - _nTw_
 							if _a_[1] > _aCtA_[1]
 								_nSw_ = _nInX_
 								_nInX_ = _nOutX_
@@ -5323,7 +5354,8 @@ class stzDiagram from stzGraph
 								[ _nInX_, _a_[2] ],
 								[ _nOutX_, _a_[2] ],
 								[ _a_[1] - _nTw_ / 2,
-								  _a_[2] - _aBx2_[2] / 2 - _nFsz_ * 0.95 ]
+								  _a_[2] - _aBx2_[2] / 2 -
+								  _nFsz_ * 0.75 - _nLbGap_ ]
 							]
 							_nCand_ = len(_aCand_)
 							for _iCand_ = 1 to _nCand_
@@ -5392,8 +5424,18 @@ class stzDiagram from stzGraph
 					_oC_.Flush()
 					_oC_.AddTextQ(_cLb_, _nLbX_, _nLbY_ + _nFsz_ / 3).
 						SetFontQ(_oFont_, _nFsz_).Color(_cStroke_)
+					# THE PLATE AS DRAWN, which is _nTw_ + 6 wide: the
+					# rect painted two lines above starts at _nLbX_ - 3
+					# and runs _nTw_ + 6. Publishing the bare text width
+					# described something 3px narrower on each side than
+					# the ink, so every instrument reading this saw a
+					# plate smaller than the one on the paper -- the
+					# name-on-a-wire scans were optimistic by exactly
+					# that, and the gap to a glyph measured 3px larger
+					# beside a name than under one, which is what made
+					# four gaps meant to be equal read as two numbers.
 					@aRenderNodeLabels + [ _cId_, _nLbX_ + _nTw_ / 2,
-						_nLbY_, _nTw_, _nFsz_ * 1.5, 1 ]
+						_nLbY_, _nTw_ + 6, _nFsz_ * 1.5, 1 ]
 					loop
 				ok
 				# A CLASS DRAWS WHAT IT HOLDS -- DN4.
