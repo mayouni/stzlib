@@ -387,6 +387,7 @@ class stzDiagram from stzGraph
 	# on the dry pass so the label placer anchors on the path the edge
 	# ACTUALLY takes, never on a pre-channel fiction.
 	@aEdgePaths = []
+	@aOuterBox = []
 
 	# Where the labels actually landed: [ text, x, y, w, h, edgeKey ] per
 	# label. The SVG backend emits no text, so the placement facts are
@@ -4318,6 +4319,7 @@ class stzDiagram from stzGraph
 			if _ePass_ = 1
 				@aVertSegs = []
 				@aEdgePaths = []
+		@aOuterBox = []
 				@aRenderHops = []
 				@aSideApproach = []
 				@aRenderHeads = []
@@ -9027,8 +9029,40 @@ class stzDiagram from stzGraph
 			# A fork is not a corner. Where more than one path turns at
 			# this vertex the corner is drawn SQUARE, which is what a
 			# fork actually is, and each line leaves it cleanly.
+			# A CURVE ON A WIRE ALREADY MEANS SOMETHING ELSE.
+			#
+			# This renderer draws a HOP as an arc, and says so a few
+			# lines above: "these two cross and do not touch". A rounded
+			# elbow is the same mark used for decoration, and on a
+			# schematic that is not a neutral choice -- the Principal
+			# read the arc where a rung meets a rail as a statement
+			# about which way the current turns, which is exactly the
+			# kind of claim a curve is reserved to make here. The comment
+			# on the hop already argues that a curve beside a curve
+			# cannot be told apart; this is the same argument one step
+			# earlier.
+			#
+			# So a wire on a mesh turns SQUARE, and the only curve left
+			# in the picture is a crossing. The four corners of the loop
+			# itself keep their radius, which the Principal allowed and
+			# which no reader mistakes for a crossing: a corner where
+			# the whole outline turns is read as the outline.
+			_bSqEl_ = 0
+			if @bMesh
+				_aObB_ = This._OuterBendBox()
+				if len(_aObB_) = 4
+					_bObC_ = 0
+					if (fabs(_eoX2_ - _aObB_[1]) < 2 or
+					    fabs(_eoX2_ - _aObB_[3]) < 2) and
+					   (fabs(_eoY2_ - _aObB_[2]) < 2 or
+					    fabs(_eoY2_ - _aObB_[4]) < 2)
+						_bObC_ = 1
+					ok
+					if NOT _bObC_  _bSqEl_ = 1  ok
+				ok
+			ok
 			_eoArc_ = []
-			if @bRoundElbows and _eoI_ + 5 <= _eoN_
+			if @bRoundElbows and NOT _bSqEl_ and _eoI_ + 5 <= _eoN_
 				if This._VertexIsFork(_eoX2_, _eoY2_, cKey)
 					# PUBLISHED, so an instrument can ask what the
 					# drawing DID rather than infer it from a chord
@@ -11987,6 +12021,47 @@ class stzDiagram from stzGraph
 			next
 		next
 		return 0
+
+	# THE BOX THE LOOP ITSELF OCCUPIES, so "an outer corner" is a
+	# measured place and not a guess.
+	#
+	# Stubs are LEFT OUT of it. A ground hangs below the bottom rail and
+	# would drag the box down with it, and then the rail's own corners
+	# would no longer be at the extreme -- the two bends a reader thinks
+	# of as the corners of the circuit would test as inner ones. A stub
+	# is a thing attached to the loop, not part of its outline.
+	def _OuterBendBox()
+		if len(@aOuterBox) = 4  return @aOuterBox  ok
+		_aObE_ = This.Edges()
+		_nObE_ = len(_aObE_)
+		_aObD_ = []
+		_aObN_ = @aDrawXY
+		_nObN_ = len(_aObN_)
+		for _iObN_ = 1 to _nObN_
+			_obK_ = StzLower("" + _aObN_[_iObN_][1])
+			_obD_ = 0
+			for _iObE_ = 1 to _nObE_
+				_obF_ = StzLower("" + _aObE_[_iObE_][:from])
+				_obT_ = StzLower("" + _aObE_[_iObE_][:to])
+				if _obF_ = _obT_  loop  ok
+				if _obF_ = _obK_ or _obT_ = _obK_  _obD_++  ok
+			next
+			_aObD_ + _obD_
+		next
+		_obX0_ = 1000000000   _obX1_ = 0 - 1000000000
+		_obY0_ = 1000000000   _obY1_ = 0 - 1000000000
+		_bObAny_ = 0
+		for _iObN_ = 1 to _nObN_
+			if _aObD_[_iObN_] < 2  loop  ok
+			_bObAny_ = 1
+			if _aObN_[_iObN_][2] < _obX0_  _obX0_ = _aObN_[_iObN_][2]  ok
+			if _aObN_[_iObN_][2] > _obX1_  _obX1_ = _aObN_[_iObN_][2]  ok
+			if _aObN_[_iObN_][3] < _obY0_  _obY0_ = _aObN_[_iObN_][3]  ok
+			if _aObN_[_iObN_][3] > _obY1_  _obY1_ = _aObN_[_iObN_][3]  ok
+		next
+		if NOT _bObAny_  return []  ok
+		@aOuterBox = [ _obX0_, _obY0_, _obX1_, _obY1_ ]
+		return @aOuterBox
 
 	def _WritesNameBelow(pcId)
 		_wnId_ = StzLower("" + pcId)
