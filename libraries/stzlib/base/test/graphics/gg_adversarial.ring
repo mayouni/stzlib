@@ -8967,6 +8967,149 @@ if fabs(nTmMid - aTmB[1]) >= 1.5 and fabs(nTmMid - (aTmB[1] + aTmB[3])) >= 1.5
 ok
 chkeq("NEGATIVE: the middle of an edge is NOT read as a lead", nTmFake, 1)
 
+sec("-- 73f. MESHES THAT SHARE A BRANCH INTERLOCK -----------")
+
+# TWO MESHES SHARING A BRANCH ARE DRAWN AS A LADDER.
+#
+# The mesh layout drew ONE rectangle and hung everything else off it,
+# which is right for every single-mesh circuit and wrong the moment a
+# circuit has two. On the divider with a tap, R2 and the load sit in
+# parallel between the same two nets: hanging one off the other put
+# both of the load's wires on the same side of it, and a part with
+# both wires on one lead is drawn as a SHORT.
+#
+# Contract every degree-2 node and a circuit becomes junctions joined
+# by branches. Where exactly two junctions carry several branches those
+# branches are parallel, and a schematic draws them as RUNGS between
+# two rails -- which is the ladder, and is the domain's own reading
+# rather than a graph-drawing convenience.
+oLd = new stzDiagram("ladder73f")
+oLd.SetNotation(StzElectricNotation())
+oLd.AddNodeXTT("v", "9V", [ :type = "source" ])
+oLd.AddNodeXTT("ra", "R1", [ :type = "resistor" ])
+oLd.AddNodeXTT("rb", "R2", [ :type = "resistor" ])
+oLd.AddNodeXTT("load", "LOAD", [ :type = "device" ])
+oLd.AddNodeXTT("g", "", [ :type = "ground" ])
+oLd.AddNodeXTT("top", "VCC", [ :type = "net" ])
+oLd.AddNodeXTT("mid", "TAP", [ :type = "net" ])
+oLd.AddNodeXTT("bot", "GND", [ :type = "net" ])
+oLd.AddEdge("v","top")    oLd.AddEdge("top","ra")
+oLd.AddEdge("ra","mid")   oLd.AddEdge("mid","rb")
+oLd.AddEdge("mid","load") oLd.AddEdge("rb","bot")
+oLd.AddEdge("load","bot") oLd.AddEdge("bot","g")
+oLd.AddEdge("bot","v")
+oLd.ToCanvasXT([ :Font = EFONT, :NodeWidth = 110, :NodeHeight = 68,
+                 :FontSize = 26 ])
+
+# THE RUNGS STAND IN DIFFERENT COLUMNS. Three parallel branches, three
+# columns: if they shared one they would be stacked in series, which is
+# a different circuit.
+aLdCol = []
+aLdRung = [ "ra", "rb", "load" ]
+for iLd = 1 to len(aLdRung)
+	aLdB = oLd._NodeRectOf(aLdRung[iLd])
+	if len(aLdB) < 4  loop  ok
+	nLdCx = aLdB[1] + aLdB[3] / 2
+	bLdSeen = 0
+	for jLd = 1 to len(aLdCol)
+		if fabs(aLdCol[jLd] - nLdCx) < 2  bLdSeen = 1  exit  ok
+	next
+	if NOT bLdSeen  aLdCol + nLdCx  ok
+next
+? "   rungs occupy " + len(aLdCol) + " distinct columns"
+chkeq("three parallel branches stand in three columns", len(aLdCol), 3)
+
+# ...AND THE TWO JUNCTIONS ARE THE RAILS' ENDS, one above the other in
+# the SAME column. That is what makes them rails rather than two more
+# rungs.
+aLdT = oLd._NodeRectOf("mid")
+aLdG = oLd._NodeRectOf("bot")
+nLdTx = aLdT[1] + aLdT[3] / 2   nLdTy = aLdT[2] + aLdT[4] / 2
+nLdGx = aLdG[1] + aLdG[3] / 2   nLdGy = aLdG[2] + aLdG[4] / 2
+? "   TAP (" + nLdTx + "," + nLdTy + ")  GND (" + nLdGx + "," + nLdGy + ")"
+chk("the two junctions share a column", fabs(nLdTx - nLdGx) < 2)
+chk("...and one stands above the other", nLdGy - nLdTy > 50)
+
+# EVERY PART IS JOINED AT TWO DIFFERENT PLACES. This is the claim the
+# old picture broke: it is weaker than 73e's -- it does not ask WHICH
+# points -- and it is the one that catches a short, so it is asked of
+# the device box too, whose rectangle has no leads to miss.
+aLdPart = [ "ra", "rb", "v", "load" ]
+nLdEnds = 0  nLdShort = 0
+for iLd = 1 to len(aLdPart)
+	cLdId = aLdPart[iLd]
+	aLdPts = []
+	for jLd = 1 to len(oLd.@aEdgePaths)
+		cLdK = StzLower("" + oLd.@aEdgePaths[jLd][1])
+		aLdF = oLd.@aEdgePaths[jLd][2]
+		if len(aLdF) < 4  loop  ok
+		if StzFindFirst(">", cLdK) < 1  loop  ok
+		aLdS = StzSplit(cLdK, ">")
+		if aLdS[1] = cLdId
+			aLdPts + [ aLdF[1], aLdF[2] ]
+		but aLdS[2] = cLdId
+			aLdPts + [ aLdF[len(aLdF) - 1], aLdF[len(aLdF)] ]
+		ok
+	next
+	nLdEnds += len(aLdPts)
+	if len(aLdPts) = 2
+		if fabs(aLdPts[1][1] - aLdPts[2][1]) < 1.5 and
+		   fabs(aLdPts[1][2] - aLdPts[2][2]) < 1.5
+			nLdShort++
+			? "   " + cLdId + ": BOTH wires join at (" +
+			  aLdPts[1][1] + "," + aLdPts[1][2] + ")"
+		ok
+	ok
+next
+? "   " + nLdEnds + " wire ends on four parts, " + nLdShort + " shorted"
+chkeq("...and all four parts were reached", nLdEnds, 8)
+chkeq("no part has both its wires on one point", nLdShort, 0)
+
+# THE NEGATIVE SIBLING: a circuit with ONE mesh must NOT become a
+# ladder. The RC low-pass has a single junction, so the decomposition
+# cannot apply, and its members must still occupy all four sides of a
+# rectangle -- both extremes of both axes. Without this the ladder
+# could swallow every circuit and the section would still pass.
+oLd1 = new stzDiagram("single73f")
+oLd1.SetNotation(StzElectricNotation())
+oLd1.AddNodeXTT("v", "VIN", [ :type = "source" ])
+oLd1.AddNodeXTT("r", "R", [ :type = "resistor" ])
+oLd1.AddNodeXTT("c", "C", [ :type = "capacitor" ])
+oLd1.AddNodeXTT("g", "", [ :type = "ground" ])
+oLd1.AddNodeXTT("nin", "IN", [ :type = "net" ])
+oLd1.AddNodeXTT("nout", "OUT", [ :type = "net" ])
+oLd1.AddNodeXTT("n0", "GND", [ :type = "net" ])
+oLd1.AddEdge("v","nin")   oLd1.AddEdge("nin","r")
+oLd1.AddEdge("r","nout")  oLd1.AddEdge("nout","c")
+oLd1.AddEdge("c","n0")    oLd1.AddEdge("n0","g")
+oLd1.AddEdge("n0","v")
+oLd1.ToCanvasXT([ :Font = EFONT, :NodeWidth = 110, :NodeHeight = 68,
+                  :FontSize = 26 ])
+nLdX0 = 9999999  nLdX1 = -9999999
+nLdY0 = 9999999  nLdY1 = -9999999
+_aLd1_ = oLd1.RenderNodeRects()
+for iLd = 1 to len(_aLd1_)
+	nLdCx = _aLd1_[iLd][1] + _aLd1_[iLd][3] / 2
+	nLdCy = _aLd1_[iLd][2] + _aLd1_[iLd][4] / 2
+	if nLdCx < nLdX0  nLdX0 = nLdCx  ok
+	if nLdCx > nLdX1  nLdX1 = nLdCx  ok
+	if nLdCy < nLdY0  nLdY0 = nLdCy  ok
+	if nLdCy > nLdY1  nLdY1 = nLdCy  ok
+next
+nLdCorner = 0
+for iLd = 1 to len(_aLd1_)
+	nLdCx = _aLd1_[iLd][1] + _aLd1_[iLd][3] / 2
+	nLdCy = _aLd1_[iLd][2] + _aLd1_[iLd][4] / 2
+	if (fabs(nLdCx - nLdX0) < 2 or fabs(nLdCx - nLdX1) < 2) and
+	   (fabs(nLdCy - nLdY0) < 2 or fabs(nLdCy - nLdY1) < 2)
+		nLdCorner++
+	ok
+next
+? "   single-mesh circuit spans " + (nLdX1 - nLdX0) + " x " +
+  (nLdY1 - nLdY0)
+chk("NEGATIVE: a ONE-mesh circuit stays a rectangle, not a ladder",
+    nLdX1 - nLdX0 > 100 and nLdY1 - nLdY0 > 100)
+
 sec("-- 73b. A NAME MAKES ROOM FOR THE WIRE BESIDE IT ---------")
 
 # A component writes its name below itself. Where a wire ALSO leaves
