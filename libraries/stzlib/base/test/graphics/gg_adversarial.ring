@@ -9110,6 +9110,105 @@ next
 chk("NEGATIVE: a ONE-mesh circuit stays a rectangle, not a ladder",
     nLdX1 - nLdX0 > 100 and nLdY1 - nLdY0 > 100)
 
+sec("-- 73g. A GROUND IS MET AT ITS LEAD, NOT ITS BARS ------")
+
+# A GROUND HAS ONE TERMINAL AND THE BARS ARE NOT IT.
+#
+# The symbol drew its lead upward whatever the wire did, so a
+# left-to-right chain ending at earth ran its wire horizontally ACROSS
+# the bars at mid-height and then turned up into the top of the lead --
+# leaving the lead standing above the wire joined to nothing, and the
+# bars crossed by the line that was supposed to end at them. The
+# Principal marked the stub.
+#
+# Both arrangements are checked, because the fix for one of them broke
+# the other on its first attempt: laying the ground flat whenever its
+# net was further sideways than downward turned the ground of a
+# TOP-DOWN circuit on its side, since a stub is offset right AND down
+# and the sideways part happened to be larger.
+aGrCase = [ "upright", "flat" ]
+nGrOk = 0  nGrBad = 0
+for iGr = 1 to 2
+	oGr = new stzDiagram("gnd73g" + iGr)
+	oGr.SetNotation(StzElectricNotation())
+	if iGr = 2  oGr.SetLayout(:LeftToRight)  ok
+	oGr.AddNodeXTT("v", "VIN", [ :type = "source" ])
+	oGr.AddNodeXTT("r", "R", [ :type = "resistor" ])
+	oGr.AddNodeXTT("c", "C", [ :type = "capacitor" ])
+	oGr.AddNodeXTT("g", "", [ :type = "ground" ])
+	if iGr = 1
+		oGr.AddNodeXTT("nin", "IN", [ :type = "net" ])
+		oGr.AddNodeXTT("nout", "OUT", [ :type = "net" ])
+		oGr.AddNodeXTT("n0", "GND", [ :type = "net" ])
+		oGr.AddEdge("v","nin")   oGr.AddEdge("nin","r")
+		oGr.AddEdge("r","nout")  oGr.AddEdge("nout","c")
+		oGr.AddEdge("c","n0")    oGr.AddEdge("n0","g")
+		oGr.AddEdge("n0","v")
+	else
+		oGr.AddEdge("v","r")  oGr.AddEdge("r","c")  oGr.AddEdge("c","g")
+	ok
+	oGr.ToCanvasXT([ :Font = EFONT, :NodeWidth = 110, :NodeHeight = 68,
+	                 :FontSize = 26 ])
+	aGrB = oGr._NodeRectOf("g")
+	if len(aGrB) < 4  loop  ok
+	nGrCx = aGrB[1] + aGrB[3] / 2
+	nGrCy = aGrB[2] + aGrB[4] / 2
+	# the lead is at the end the BOX names: the top of an upright
+	# symbol, the left of one lying along a run
+	if aGrB[3] >= aGrB[4]
+		aGrLead = [ aGrB[1], nGrCy ]
+	else
+		aGrLead = [ nGrCx, aGrB[2] ]
+	ok
+	# where its one wire actually ends
+	aGrEnd = []
+	for jGr = 1 to len(oGr.@aEdgePaths)
+		cGrK = StzLower("" + oGr.@aEdgePaths[jGr][1])
+		aGrF = oGr.@aEdgePaths[jGr][2]
+		if len(aGrF) < 4  loop  ok
+		if StzFindFirst(">", cGrK) < 1  loop  ok
+		aGrS = StzSplit(cGrK, ">")
+		if aGrS[1] = "g"
+			aGrEnd = [ aGrF[1], aGrF[2] ]
+		but aGrS[2] = "g"
+			aGrEnd = [ aGrF[len(aGrF) - 1], aGrF[len(aGrF)] ]
+		ok
+	next
+	if len(aGrEnd) < 2  loop  ok
+	nGrD = fabs(aGrEnd[1] - aGrLead[1]) + fabs(aGrEnd[2] - aGrLead[2])
+	? "   " + aGrCase[iGr] + ": box " + aGrB[3] + "x" + aGrB[4] +
+	  ", wire ends (" + aGrEnd[1] + "," + aGrEnd[2] + "), lead at (" +
+	  aGrLead[1] + "," + aGrLead[2] + ")"
+	if nGrD < 1.5  nGrOk++  else  nGrBad++  ok
+next
+chkeq("both arrangements were drawn", nGrOk + nGrBad, 2)
+chkeq("a ground's wire ends ON its lead, in both", nGrBad, 0)
+
+# THE NEGATIVE SIBLING: the reader must be able to tell the lead from
+# the middle of the symbol, or it would pass on a wire ending anywhere.
+# The centre of a ground's box is where its bars are, and it is NOT the
+# lead in either arrangement.
+oGr2 = new stzDiagram("gnd73gN")
+oGr2.SetNotation(StzElectricNotation())
+oGr2.SetLayout(:LeftToRight)
+oGr2.AddNodeXTT("v", "VIN", [ :type = "source" ])
+oGr2.AddNodeXTT("c", "C", [ :type = "capacitor" ])
+oGr2.AddNodeXTT("g", "", [ :type = "ground" ])
+oGr2.AddEdge("v","c")  oGr2.AddEdge("c","g")
+oGr2.ToCanvasXT([ :Font = EFONT, :NodeWidth = 110, :NodeHeight = 68,
+                  :FontSize = 26 ])
+aGrB2 = oGr2._NodeRectOf("g")
+nGrMx = aGrB2[1] + aGrB2[3] / 2
+nGrMy = aGrB2[2] + aGrB2[4] / 2
+if aGrB2[3] >= aGrB2[4]
+	aGrL2 = [ aGrB2[1], nGrMy ]
+else
+	aGrL2 = [ nGrMx, aGrB2[2] ]
+ok
+nGrMid = fabs(nGrMx - aGrL2[1]) + fabs(nGrMy - aGrL2[2])
+? "   the centre sits " + nGrMid + "px from the lead"
+chk("NEGATIVE: the middle of the symbol is NOT its lead", nGrMid > 1.5)
+
 sec("-- 73b. A NAME MAKES ROOM FOR THE WIRE BESIDE IT ---------")
 
 # A component writes its name below itself. Where a wire ALSO leaves
