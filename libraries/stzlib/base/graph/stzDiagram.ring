@@ -330,6 +330,7 @@ class stzDiagram from stzGraph
 	@aRenderForks = []
 	@bSequence = 0
 	@bMesh = 0
+	@nFszNow = 0
 	@aSideApproach = []
 	@aRenderHeads = []
 	@cHeadKey = ""
@@ -2458,6 +2459,7 @@ class stzDiagram from stzGraph
 		# to the layout and everything else is drawing.
 		@bSequence = (_cLM_ = "sequence")
 		@bMesh = (_cLM_ = "mesh")
+		@nFszNow = _nFsz_
 
 		@nSeqPitch = 0
 		if @bSequence
@@ -9933,6 +9935,47 @@ class stzDiagram from stzGraph
 				ok
 				_chan_ = This._ChannelClear(_chan_, _pe_, _qe_, nWidth)
 
+				# A NAME WRITTEN OUTSIDE ITS GLYPH IS INK TOO.
+				#
+				# The placer clears cells and frames and knew nothing of
+				# the WORDS beside them. A mark that writes its name
+				# below itself -- a junction, a ground, an end state --
+				# occupies far more paper than its box says, so a channel
+				# measured against the BOX came to rest just under the
+				# word: legal by the arithmetic and crowded to a reader,
+				# which is the GND wire the Principal marked.
+				#
+				# Asked HERE rather than in _ChannelBlocked, which was
+				# the first attempt and had no effect at all: that
+				# function answers the BAND, and this route then
+				# overwrites the band with its lane or with the
+				# below-rails figure. The last hand to touch the channel
+				# is the one that has to know.
+				# THE NAME ITS OWN WIRE LEAVES PAST. A mark that writes
+				# its name below occupies far more paper than its box
+				# says, so a channel measured against the BOX came to
+				# rest just under the word -- legal by the arithmetic and
+				# crowded to a reader, which is the GND wire the
+				# Principal marked.
+				#
+				# WIDENING THIS TO EVERY NAME THE RUN PASSES WAS TRIED
+				# AND REVERTED, and both reasons are worth keeping. It
+				# still left a violation, because the channel is bounded
+				# by its two borders and cannot always be pushed past a
+				# third party's word. And it cost the gate its speed: a
+				# scan of every node inside the per-edge loop, with two
+				# helpers that each walk the nodes again, took the suite
+				# from twenty seconds to over ten minutes. A correctness
+				# rule that has to be paid for per edge belongs in the
+				# PLAN, not in the inner loop.
+				if This._WritesNameBelow(cFromId) and
+				   StzTrim("" + This._LabelTextOf(cFromId)) != ""
+					_chNm_ = _pe_ + @nFszNow * 2.4
+					if _chan_ > _pe_ and _chan_ < _chNm_
+						_chan_ = _chNm_
+					ok
+				ok
+
 				# A DESCENT THAT WOULD LIE ON ANOTHER COMES IN FROM THE
 				# SIDE INSTEAD.
 				#
@@ -11230,6 +11273,19 @@ class stzDiagram from stzGraph
 			if _f_ = _niK_ or _t_ = _niK_  _niD_++  ok
 		next
 		return _niD_ = 2
+
+	# The label a node carries, or "" -- asked so a rule can tell a named
+	# glyph from an unnamed one without reaching into the node record.
+	def _LabelTextOf(pcId)
+		_ltK_ = StzLower("" + pcId)
+		_aLt_ = This.Nodes()
+		_nLt_ = len(_aLt_)
+		for _iLt_ = 1 to _nLt_
+			if StzLower("" + _aLt_[_iLt_][:id]) = _ltK_
+				return "" + _aLt_[_iLt_][:label]
+			ok
+		next
+		return ""
 
 	# DOES A DRAWN WIRE LEAVE THIS NODE THROUGH ITS BOTTOM BORDER?
 	#
