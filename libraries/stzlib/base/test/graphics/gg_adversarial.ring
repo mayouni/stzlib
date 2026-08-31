@@ -9242,6 +9242,97 @@ ok
 chkeq("NEGATIVE: a sideways arrival is not read as coming down",
     nGrFake, 1)
 
+sec("-- 73h. ONE INK, ONE WEIGHT, AND A STUB YOU CAN SEE ----")
+
+# A WIRE AND A PART'S OUTLINE ARE ONE CONDUCTOR.
+#
+# The Principal asked whether the thinner line on the electrical
+# objects was a norm or a defect. Measured on the divider: outline and
+# wire were both 2px, and the outline was drawn at 58 against the
+# wire's 138 -- so the wire read as the thinner of two lines that are
+# the same width. A chart draws its boxes darker than its arrows
+# because the boxes are the subject; a schematic has no such division.
+#
+# AND A ROTATED PART WAS GENUINELY THINNER, which is the other half of
+# the same question. The stroke width was 2 * min of the two side
+# ratios, so a resistor standing on end -- 68x110 against a generic
+# 110x68 -- scored 0.62 and was stroked at 1.24 where the same resistor
+# lying down was stroked at 2. Two identical parts at two weights in
+# one picture is I5 exactly.
+oIk = new stzDiagram("ink73h")
+oIk.SetNotation(StzElectricNotation())
+oIk.AddNodeXTT("v", "12V", [ :type = "source" ])
+oIk.AddNodeXTT("r1", "R1 10k", [ :type = "resistor" ])
+oIk.AddNodeXTT("r2", "R2 10k", [ :type = "resistor" ])
+oIk.AddNodeXTT("g", "", [ :type = "ground" ])
+oIk.AddNodeXTT("vcc", "VCC", [ :type = "net" ])
+oIk.AddNodeXTT("out", "VOUT", [ :type = "net" ])
+oIk.AddNodeXTT("gnd", "GND", [ :type = "net" ])
+oIk.AddEdge("v","vcc")   oIk.AddEdge("vcc","r1")
+oIk.AddEdge("r1","out")  oIk.AddEdge("out","r2")
+oIk.AddEdge("r2","gnd")  oIk.AddEdge("gnd","g")
+oIk.AddEdge("gnd","v")
+oIk.ToCanvasXT([ :Font = EFONT, :NodeWidth = 110, :NodeHeight = 68,
+                 :FontSize = 26 ])
+nIkW = oIk.LastCanvas().Width()
+cIkPx = oIk.LastCanvas().ToPixels()
+
+# the darkest ink down a column, which is the stroke wherever it falls
+nIkR2 = _DarkestDown(cIkPx, nIkW, 336, 20, 50)     # through R2's body
+nIkRail = _DarkestDown(cIkPx, nIkW, 450, 20, 50)   # the rail beside it
+nIkR1 = _DarkestAcross(cIkPx, nIkW, 20, 50, 430)   # through R1's body
+nIkArm = _DarkestAcross(cIkPx, nIkW, 20, 50, 300)  # the arm above it
+? "   R2 outline " + nIkR2 + " vs its rail " + nIkRail
+? "   R1 outline " + nIkR1 + " vs its arm  " + nIkArm
+chk("a wire is drawn in the same ink as the part it joins",
+    fabs(nIkR2 - nIkRail) < 8 and fabs(nIkR1 - nIkArm) < 8)
+chk("...and a part standing on end weighs the same as one lying down",
+    fabs(nIkR2 - nIkR1) < 8)
+
+# THE NEGATIVE SIBLING: this is a PROFILE's ruling, not a new default.
+# An ordinary chart must still draw its arrows lighter than its boxes,
+# or the change has leaked out of the domain that asked for it.
+oIk2 = new stzDiagram("ink73hN")
+oIk2.AddNode("a")  oIk2.AddNode("b")  oIk2.AddEdge("a","b")
+oIk2.ToCanvasXT([ :Font = EFONT, :NodeWidth = 110, :NodeHeight = 68,
+                  :FontSize = 26 ])
+nIk2W = oIk2.LastCanvas().Width()
+cIk2Px = oIk2.LastCanvas().ToPixels()
+aIk2 = oIk2.RenderNodeRects()
+nIk2Node = 255  nIk2Edge = 255
+for iIk = 1 to len(aIk2)
+	if StzLower("" + aIk2[iIk][5]) != "a"  loop  ok
+	nIk2Cx = floor(aIk2[iIk][1] + aIk2[iIk][3] / 2)
+	# down through the cell's own bottom outline, then through the
+	# edge that leaves it
+	nIk2Node = _DarkestDown(cIk2Px, nIk2W, nIk2Cx,
+		floor(aIk2[iIk][2] + aIk2[iIk][4]) - 4, 8)
+	nIk2Edge = _DarkestDown(cIk2Px, nIk2W, nIk2Cx,
+		floor(aIk2[iIk][2] + aIk2[iIk][4]) + 12, 10)
+next
+? "   plain chart: cell outline " + nIk2Node + ", its edge " + nIk2Edge
+chk("NEGATIVE: an ordinary chart still draws its edges lighter",
+    nIk2Edge > nIk2Node + 20)
+
+# ...AND THE STUB BETWEEN A MARK AND ITS NAME IS VISIBLE. A junction is
+# joined at its CENTRE so the wire runs through unbroken, and the test
+# that makes room for a departing wire asked only about the bottom
+# BORDER -- so a junction's name sat 5.2px under the dot and the plate
+# erased the wire from there down.
+aIkD = oIk._NodeRectOf("gnd")
+nIkBot = aIkD[2] + aIkD[4]
+nIkPlate = -1
+_aIkL_ = oIk.RenderNodeLabels()
+for iIk = 1 to len(_aIkL_)
+	if StzLower("" + _aIkL_[iIk][1]) = "gnd"
+		nIkPlate = _aIkL_[iIk][3] - _aIkL_[iIk][5] / 2
+	ok
+next
+? "   dot bottom " + nIkBot + ", name plate starts " + nIkPlate +
+  "  -> stub " + (nIkPlate - nIkBot) + "px"
+chk("a mark's name leaves a visible stub of wire above it",
+    nIkPlate - nIkBot >= 14)
+
 sec("-- 73b. A NAME MAKES ROOM FOR THE WIRE BESIDE IT ---------")
 
 # A component writes its name below itself. Where a wire ALSO leaves
@@ -10026,6 +10117,24 @@ func _PixelAt cPx, nW, nX, nY
 	_pa_ = (nY * nW + nX) * 4 + 1
 	return [ ascii(substr(cPx, _pa_, 1)), ascii(substr(cPx, _pa_ + 1, 1)),
 	         ascii(substr(cPx, _pa_ + 2, 1)) ]
+
+func _DarkestDown cPx, nW, nX, nY0, nN
+	_dk_ = 255
+	for _k_ = 0 to nN
+		_p_ = ((nY0 + _k_) * nW + nX) * 4 + 1
+		_v_ = ascii(substr(cPx, _p_, 1))
+		if _v_ < _dk_  _dk_ = _v_  ok
+	next
+	return _dk_
+
+func _DarkestAcross cPx, nW, nX0, nN, nY
+	_dk_ = 255
+	for _k_ = 0 to nN
+		_p_ = (nY * nW + nX0 + _k_) * 4 + 1
+		_v_ = ascii(substr(cPx, _p_, 1))
+		if _v_ < _dk_  _dk_ = _v_  ok
+	next
+	return _dk_
 
 func _Near aGot, aWant, nTol
 	for _ni_ = 1 to 3

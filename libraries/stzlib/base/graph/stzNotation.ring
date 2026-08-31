@@ -90,6 +90,7 @@ class stzNotation from stzObject
 	                      # state, :Outbound from a final one)
 	@cRankDir = ""        # "" = no amendment; the diagram's setting stands
 	@cSplines = ""
+	@bOneInk = 0
 	@cLayoutMode = ""     # "" = layered; :Ring for a domain with no flow
 	@cRankPolicy = ""     # "" = :Latest -- sinks line up at the last rank
 	@cSpine = ""          # "" = no principal path; the layout decides rows
@@ -548,6 +549,26 @@ class stzNotation from stzObject
 
 	def RankPolicy()
 		return @cRankPolicy
+
+	# ONE INK FOR THE OUTLINE AND THE WIRE.
+	#
+	# A chart draws its boxes darker than its arrows on purpose: the
+	# boxes are the subject and the arrows are connective tissue, so the
+	# default is a #3A3A3A outline against a #8A8A8A edge.
+	#
+	# A SCHEMATIC HAS NO SUCH DIVISION. The outline of a resistor and
+	# the wire joined to it are one conductor drawing, and two inks
+	# there state a difference that does not exist -- the wires read as
+	# thinner and lighter than the parts, which is what the Principal
+	# saw. A profile whose edges ARE part of the same object as its
+	# nodes says so here, and the diagram then draws both in the node
+	# ink.
+	def SetOneInk(pbYes)
+		@bOneInk = pbYes
+		return This
+
+	def OneInk()
+		return @bOneInk
 
 	def SetLayoutMode(pcMode)
 		@cLayoutMode = "" + pcMode
