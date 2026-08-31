@@ -983,7 +983,8 @@ class stzDiagram from stzGraph
 			# ran for nothing and the pictures did not move.
 			_ndSh_ = StzLower("" + This._NativeShapeOf(_nd_))
 			if _ndSh_ = "resistor" or _ndSh_ = "capacitor" or
-			   _ndSh_ = "source" or _ndSh_ = "inductor"
+			   _ndSh_ = "source" or _ndSh_ = "inductor" or
+			   _ndSh_ = "ground"
 				_ndLong_ = max([ nBoxW, nBoxH ])
 				_ndThin_ = min([ nBoxW, nBoxH ])
 				# WHICH WAY THE WIRE RUNS THROUGH IT -- read from the
@@ -1023,6 +1024,17 @@ class stzDiagram from stzGraph
 					    This._NativeRankDir() = "RL"
 						_ndH_ = 1
 					ok
+				ok
+				# ...AND A GROUND IS UPRIGHT UNLESS ITS NET IS LEVEL
+				# WITH IT -- see _SoleNeighbourDrop. Every other part
+				# here lies along its wire whichever way that runs; a
+				# ground points down, and lying flat is the exception it
+				# makes only when pointing down would put its lead where
+				# no wire can reach.
+				if _ndSh_ = "ground"
+					_ndDrop_ = This._SoleNeighbourDrop("" + _nd_[:id])
+					_ndH_ = 0
+					if _ndDrop_ >= 0 and _ndDrop_ < 2  _ndH_ = 1  ok
 				ok
 				if _ndH_
 					@aBoxOf + [ StzLower("" + _nd_[:id]), _ndLong_, _ndThin_ ]
@@ -11184,6 +11196,12 @@ class stzDiagram from stzGraph
 		# happens at the end of a left-to-right chain, and it drew the
 		# wire into the earth bars from underneath.
 		if This._ShapeOfId(pcId) = "ground"
+			# ...and WHICH end is the one its glyph draws the lead
+			# from, which the box settles: the top of an upright
+			# symbol, the left of one lying along a horizontal run.
+			if nW >= nH
+				return [ paCentre[1] - nW / 2, paCentre[2] ]
+			ok
 			return [ paCentre[1], paCentre[2] - nH / 2 ]
 		ok
 		# TWO WIRES, TWO TERMINALS. Choosing the terminal that FACES the
@@ -11667,6 +11685,34 @@ class stzDiagram from stzGraph
 	# answers nothing unless there are exactly two -- it is asked "which
 	# way does the wire run THROUGH this" -- so a part at the end of a
 	# chain needs its own question: which way does the one wire LEAVE.
+	# HOW FAR ITS ONE NET SITS ABOVE OR BELOW IT, or -1 when it has not
+	# exactly one. A ground is the only part that needs this: it points
+	# DOWN in every schematic there is, and may only be laid flat when
+	# its net is genuinely LEVEL with it -- the one arrangement where a
+	# downward lead cannot be reached without the wire crossing the
+	# symbol. Asking the plain |dx| >= |dy| question instead turned the
+	# ground of a TOP-DOWN circuit on its side, because the stub is
+	# offset right AND down from its net and the sideways part of that
+	# offset happened to be the larger one.
+	def _SoleNeighbourDrop(pcId)
+		if len(@aDrawXY) = 0  return -1  ok
+		_sdK_ = StzLower("" + pcId)
+		_sdN_ = []
+		_aSdE_ = This.Edges()
+		_nSdE_ = len(_aSdE_)
+		for _iSdE_ = 1 to _nSdE_
+			_sdF_ = StzLower("" + _aSdE_[_iSdE_][:from])
+			_sdT_ = StzLower("" + _aSdE_[_iSdE_][:to])
+			if _sdF_ = _sdT_  loop  ok
+			if _sdF_ = _sdK_  _sdN_ + _sdT_  ok
+			if _sdT_ = _sdK_  _sdN_ + _sdF_  ok
+		next
+		if len(_sdN_) != 1  return -1  ok
+		_sdMe_ = This._XYOf(@aDrawXY, _sdK_)
+		_sdOt_ = This._XYOf(@aDrawXY, _sdN_[1])
+		if len(_sdMe_) != 2 or len(_sdOt_) != 2  return -1  ok
+		return fabs(_sdOt_[2] - _sdMe_[2])
+
 	def _SoleNeighbourAxis(pcId)
 		if len(@aDrawXY) = 0  return ""  ok
 		_snK_ = StzLower("" + pcId)
