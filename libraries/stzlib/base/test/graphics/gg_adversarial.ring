@@ -8683,6 +8683,100 @@ OPTGOV = [ :Font = EFONT, :NodeWidth = 130, :NodeHeight = 52, :FontSize = 14 ]
 # and not one was findable by testing the rule -- the rule passes its own
 # tests. What follows tests the layer BOTH ways, because a governor that
 # reports nothing is indistinguishable from a governor that is broken.
+sec("-- 73c. A WIRE CLEARS THE NAME IT PASSES -----------------")
+
+# The channel placer clears CELLS and FRAMES and knew nothing of the
+# WORDS beside them. A mark that writes its name below itself -- a
+# junction, a ground, an end state -- occupies far more paper than its
+# box says, so a channel measured against the BOX came to rest just
+# under the word: legal by the arithmetic, crowded to a reader.
+oWc = new stzDiagram("clear73c")
+oWc.SetNotation(StzElectricNotation())
+oWc.AddNodeXTT("v", "VIN", [ :type = "source" ])
+oWc.AddNodeXTT("r", "R", [ :type = "resistor" ])
+oWc.AddNodeXTT("c", "C", [ :type = "capacitor" ])
+oWc.AddNodeXTT("g", "", [ :type = "ground" ])
+oWc.AddNodeXTT("nin", "IN", [ :type = "net" ])
+oWc.AddNodeXTT("nout", "OUT", [ :type = "net" ])
+oWc.AddNodeXTT("n0", "GND", [ :type = "net" ])
+oWc.AddEdge("v","nin")  oWc.AddEdge("nin","r")  oWc.AddEdge("r","nout")
+oWc.AddEdge("nout","c") oWc.AddEdge("c","n0")   oWc.AddEdge("n0","g")
+oWc.AddEdge("n0","v")
+oWc.ToCanvasXT(OPT67)
+
+# For every NAMED mark that writes its name below, any wire turning
+# beneath it must turn below the band that name occupies.
+#
+# THE BAND IS READ FROM THE SCENE, NEVER TYPED. The first version of
+# this guard wrote `26 * 2.4` -- 26 being the font size of the GALLERY
+# this defect was found in -- while the scene above renders at 13. It
+# then reported a violation that no renderer could ever clear, because
+# it was demanding room for type twice the size of the type on the
+# paper. It is the plane's own signature defect wearing a guard's
+# clothes: one quantity written in two places, the second copy stale.
+# The size now comes from the option list the render was given, so the
+# two cannot drift apart again.
+nWcFsz = OPT67[4][2]
+nWcSeen = 0  nWcBad = 0
+_aWcR_ = oWc.RenderNodeRects()
+for iWc = 1 to len(_aWcR_)
+	cWcId = StzLower("" + _aWcR_[iWc][5])
+	if NOT oWc._WritesNameBelow(cWcId)  loop  ok
+	if StzTrim("" + oWc._LabelTextOf(cWcId)) = ""  loop  ok
+	nWcBot = _aWcR_[iWc][2] + _aWcR_[iWc][4]
+	nWcBand = nWcBot + nWcFsz * 2.4
+	nWcL = _aWcR_[iWc][1]   nWcR = _aWcR_[iWc][1] + _aWcR_[iWc][3]
+	for jWc = 1 to len(oWc.@aEdgePaths)
+		aWcF = oWc.@aEdgePaths[jWc][2]
+		for kWc = 1 to len(aWcF) - 3 step 2
+			# a HORIZONTAL run passing under this mark
+			if fabs(aWcF[kWc + 3] - aWcF[kWc + 1]) > 0.5  loop  ok
+			nWcY = aWcF[kWc + 1]
+			if nWcY <= nWcBot or nWcY >= nWcBand  loop  ok
+			nWcX1 = min([ aWcF[kWc], aWcF[kWc + 2] ])
+			nWcX2 = max([ aWcF[kWc], aWcF[kWc + 2] ])
+			if nWcX2 < nWcL or nWcX1 > nWcR  loop  ok
+			nWcSeen++
+			nWcBad++
+		next
+	next
+next
+? "   " + nWcBad + " wire(s) turning inside a name's band"
+chkeq("a wire turns below the name it passes, not through it", nWcBad, 0)
+
+# THE NEGATIVE SIBLING: the instrument must be able to SEE one, IN THIS
+# SCENE. It used to read `if 100 > 90 and 100 < 152` -- three constants
+# the reader can fold in their head, which proves the comparison was
+# typed correctly and nothing whatever about the scan. So the scan is
+# run a second time over the same picture with the band inflated to the
+# stale figure the broken version used. It must find at least one, which
+# says two things at once: the instrument can see a violation, and the
+# violation the first version reported was the BAND being wrong rather
+# than the wire.
+nWcFake = 0
+for iWc = 1 to len(_aWcR_)
+	cWcId = StzLower("" + _aWcR_[iWc][5])
+	if NOT oWc._WritesNameBelow(cWcId)  loop  ok
+	if StzTrim("" + oWc._LabelTextOf(cWcId)) = ""  loop  ok
+	nWcBot = _aWcR_[iWc][2] + _aWcR_[iWc][4]
+	nWcBand = nWcBot + nWcFsz * 2 * 2.4
+	nWcL = _aWcR_[iWc][1]   nWcR = _aWcR_[iWc][1] + _aWcR_[iWc][3]
+	for jWc = 1 to len(oWc.@aEdgePaths)
+		aWcF = oWc.@aEdgePaths[jWc][2]
+		for kWc = 1 to len(aWcF) - 3 step 2
+			if fabs(aWcF[kWc + 3] - aWcF[kWc + 1]) > 0.5  loop  ok
+			nWcY = aWcF[kWc + 1]
+			if nWcY <= nWcBot or nWcY >= nWcBand  loop  ok
+			nWcX1 = min([ aWcF[kWc], aWcF[kWc + 2] ])
+			nWcX2 = max([ aWcF[kWc], aWcF[kWc + 2] ])
+			if nWcX2 < nWcL or nWcX1 > nWcR  loop  ok
+			nWcFake++
+		next
+	next
+next
+? "   " + nWcFake + " found when the band is inflated to the stale figure"
+chk("NEGATIVE: the same scan DOES see one at the wrong band", nWcFake > 0)
+
 sec("-- 73b. A NAME MAKES ROOM FOR THE WIRE BESIDE IT ---------")
 
 # A component writes its name below itself. Where a wire ALSO leaves
