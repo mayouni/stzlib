@@ -12061,6 +12061,38 @@ class stzDiagram from stzGraph
 				else
 					_ceBo_ += nFsz * 2.4
 				ok
+				# ...AND ON A MESH IT IS RESERVED ON EVERY SIDE,
+				# because the placer is allowed to CHOOSE one.
+				#
+				# A name on a mesh goes wherever it is clear of the
+				# wires, and a junction at a corner has wires on two
+				# sides -- so the two it can use are the two this
+				# measurement decides whether the paper contains. It
+				# did not: the sheet is cropped to the ink BEFORE any
+				# name is placed, so TAP's only free directions were
+				# both off the paper, every candidate was refused, and
+				# the placer fell back to writing over its own rung.
+				# The rule was running and had nowhere to put the word.
+				#
+				# That is the shape of this whole plane's recurring
+				# defect once more -- one decision needing a quantity
+				# that a later step computes -- and the answer is the
+				# same as it was for :Scale: reserve for what the later
+				# step is ALLOWED to do, not for what it usually does.
+				if @bMesh and isObject(poFont)
+					_ceTwM_ = poFont.WidthOf("" + _ceN_[:label], nFsz)
+					_ceSpM_ = _ceB_[1] / 2 + 11 + _ceTwM_
+					if _ceAt_[1] - _ceSpM_ < _ceL_
+						_ceL_ = _ceAt_[1] - _ceSpM_
+					ok
+					if _ceAt_[1] + _ceSpM_ > _ceR_
+						_ceR_ = _ceAt_[1] + _ceSpM_
+					ok
+					_ceUpM_ = _ceB_[2] / 2 + nFsz * 1.6
+					if _ceAt_[2] - _ceUpM_ < _ceT_
+						_ceT_ = _ceAt_[2] - _ceUpM_
+					ok
+				ok
 			ok
 			if _ceL_ < _ceX0_  _ceX0_ = _ceL_  ok
 			if _ceT_ < _ceY0_  _ceY0_ = _ceT_  ok
