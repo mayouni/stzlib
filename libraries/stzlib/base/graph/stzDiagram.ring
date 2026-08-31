@@ -1005,9 +1005,24 @@ class stzDiagram from stzGraph
 					_ndKnown_ = 1
 					if fabs(_aNbP_[3] - _aNbP_[1]) >=
 					   fabs(_aNbP_[4] - _aNbP_[2])  _ndH_ = 1  ok
-				but This._NativeRankDir() = "LR" or
-				    This._NativeRankDir() = "RL"
-					_ndH_ = 1
+				else
+					# ONE WIRE IS STILL A DIRECTION. _NeighbourPoints
+					# answers only for a part with exactly two, so a
+					# part at the END of a chain fell through to the
+					# rank -- and the rank is the global setting this
+					# whole block exists to stop asking. On the
+					# left-to-right open circuit that drew the source
+					# with its leads pointing left and right while its
+					# one wire left downward: the same dangling lead,
+					# in the branch nobody had looked at.
+					_ndSole_ = This._SoleNeighbourAxis("" + _nd_[:id])
+					if _ndSole_ != ""
+						_ndKnown_ = 1
+						if _ndSole_ = "h"  _ndH_ = 1  ok
+					but This._NativeRankDir() = "LR" or
+					    This._NativeRankDir() = "RL"
+						_ndH_ = 1
+					ok
 				ok
 				if _ndH_
 					@aBoxOf + [ StzLower("" + _nd_[:id]), _ndLong_, _ndThin_ ]
@@ -3684,6 +3699,31 @@ class stzDiagram from stzGraph
 			# it was written for :Modes, extended to :Sequence, and not
 			# extended again. Three modes, one law, asked once.
 			if _bModes_ or @bSequence or @bMesh
+				# THE BOXES ARE SETTLED BEFORE THEY ARE MEASURED.
+				#
+				# _FillBoxSizes runs once before any position exists --
+				# where a component has no neighbours to read and falls
+				# back to the rank -- and again after the placement,
+				# where it learns which way each part's wire actually
+				# runs. The measurement below sat BETWEEN the two, so it
+				# reserved paper for the rank's guess while the drawing
+				# used the placement's answer: on the left-to-right
+				# circuit it measured every part at 110x68 and drew them
+				# at 68x110, which put the source's name at the side and
+				# reserved for it underneath. "VIN" was published with
+				# its last letters off the right edge of the paper and
+				# the source's own glyph five pixels above the top of
+				# it.
+				#
+				# One quantity, computed at two moments, the later
+				# silently correcting the earlier -- the same shape as
+				# the arrowhead that read the rank, the label anchored
+				# on a pre-channel fiction, and the guard that measured
+				# a name with the wrong font size. Asking for the
+				# placement-aware answer BEFORE measuring is the whole
+				# fix.
+				@aDrawXY = _aXY_
+				This._FillBoxSizes(_nBoxW_, _nBoxH_)
 				_aMx_ = This._ContentExtent(_aXY_, _nBoxW_, _nBoxH_,
 					_oFont_, _nFsz_)
 				if len(_aMx_) = 4
@@ -3760,7 +3800,18 @@ class stzDiagram from stzGraph
 		# cylinder's cap stops being an ellipse in perspective). A caller who
 		# genuinely wants the exact size it asked for, overlap included, passes
 		# :FitBoxes = FALSE.
-		if This._DiagOpt(paOptions, "fitboxes", 1)
+		# ...BUT A MESH HAS NO RANKS, SO THE FITTER MUST NOT JUDGE IT.
+		# Everything above reasons about a RANK: nodes sharing a row,
+		# spread across the available width, colliding when the row is
+		# crowded. A mesh has one "rank" holding every member of a
+		# rectangle, so two members on perpendicular arms -- a component
+		# on the left side and a net below it -- share an x by
+		# construction, and the fitter reads that as a 2px collision and
+		# shrinks every box to the 6px floor. It is the shape of a
+		# rectangle, not a crowded row. Members on the same arm are
+		# separated by a whole share of the perimeter, which is far more
+		# than a box, so there is nothing here for it to fix.
+		if This._DiagOpt(paOptions, "fitboxes", 1) and NOT @bMesh
 			_nSc_ = This._RankFitScale(_aXY_, _nBoxW_, _nBoxH_, _cRank_)
 			if _nSc_ < 1
 				_nBoxW_ = max([ floor(_nBoxW_ * _nSc_), 6 ])
@@ -9494,6 +9545,20 @@ class stzDiagram from stzGraph
 		return [ _efl_[_ek_ * 2 - 1], _efl_[_ek_ * 2] ]
 
 	def _DrawEdgeXT(oC, aFrom, aTo, nBoxW, nBoxH, cColor, nWidth, cSpline, cRank, nLane, nPortA, nPortB, pBlockSide, cFromId, cToId, pSideDep)
+		# A MESH ROUTES ITS OWN WIRES -- see _MeshWire for why the general
+		# router cannot. It is taken FIRST and returns, so nothing below
+		# this line changes for any other picture in the library: the
+		# ladder rungs, the summit rule, the lanes and the channels are
+		# all still the only path a layered diagram can take.
+		if @bMesh and cSpline = "ortho"
+			_mwPts_ = This._MeshWire(aFrom, aTo, nBoxW, nBoxH,
+				cFromId, cToId)
+			if len(_mwPts_) >= 4
+				This._EmitOrthoPolyline(oC, _mwPts_, cColor, nWidth,
+					cFromId + ">" + cToId)
+				return
+			ok
+		ok
 		if cSpline = "ortho"
 			# A RETURN RUNS UNDER THE PICTURE -- L12, and I2 for the
 			# fourth time. A correction loop goes back the way the flow
@@ -11041,6 +11106,224 @@ class stzDiagram from stzGraph
 		if _eaN_ < 2  return 0  ok
 		return _eaMe_
 
+	# THE SHAPE A NODE IS DRAWN AS, asked by ID. _NativeShapeOf takes the
+	# node itself, which every caller inside the node loop already has and
+	# no caller in the EDGE loop does -- an edge knows two ids and nothing
+	# else.
+	def _ShapeOfId(pcId)
+		_sqId_ = StzLower("" + pcId)
+		_aSq_ = This.Nodes()
+		_nSq_ = len(_aSq_)
+		for _iSq_ = 1 to _nSq_
+			if StzLower("" + _aSq_[_iSq_][:id]) = _sqId_
+				return StzLower("" + This._NativeShapeOf(_aSq_[_iSq_]))
+			ok
+		next
+		return ""
+
+	# A COMPONENT HAS TWO TERMINALS AND THEY LIE ALONG ONE AXIS.
+	#
+	# This answers WHICH axis, or "" for anything that is not read as a
+	# two-terminal part. A junction is a dot and has no axis at all; a
+	# ground has one terminal, at the top, and is treated as vertical so
+	# that the single lead is the one a wire can reach.
+	def _LeadAxisOf(pcId, nBoxW, nBoxH)
+		_laSh_ = This._ShapeOfId(pcId)
+		if _laSh_ = "ground"  return "v"  ok
+		# A PLAIN BOX IS NOT GIVEN LEADS, and the reason is measured
+		# rather than assumed. Electrically a device on a loop IS a
+		# two-terminal part, so it was tried -- and on the divider it
+		# put LOAD's two nets on its two opposite terminals, both of
+		# which lie to its RIGHT, so the wire to the nearer one crossed
+		# the whole body to reach the far lead. A wire drawn through a
+		# part is a worse lie than two wires on one side of it.
+		#
+		# The honest fix is not here: LOAD sits on a SECOND mesh sharing
+		# the TAP-GND branch, and drawn on that rectangle its terminals
+		# face its two nets with no detour at all. That is the
+		# interlocking-mesh remainder the plan already names, and this
+		# is the case that shows why it is worth doing.
+		if _laSh_ != "resistor" and _laSh_ != "capacitor" and
+		   _laSh_ != "source" and _laSh_ != "inductor"
+			return ""
+		ok
+		if nBoxW >= nBoxH  return "h"  ok
+		return "v"
+
+	# WHERE A WIRE MEETS THIS NODE. A component is met at the TERMINAL
+	# facing the other end -- the tip of a lead, which is the only place
+	# a schematic joins a part. Everything else is met at its border, or
+	# at its centre when it is a dimensionless mark.
+	def _MeshAttach(pcId, paCentre, nW, nH, cAxis, paOther)
+		# A GROUND HAS ONE TERMINAL AND IT IS AT THE TOP. Every
+		# schematic draws the symbol pointing down and enters it from
+		# above; the bars are the earth and nothing joins them. Choosing
+		# its end by direction, as a two-terminal part does, entered it
+		# from BELOW whenever its net sat level with it -- which is what
+		# happens at the end of a left-to-right chain, and it drew the
+		# wire into the earth bars from underneath.
+		if This._ShapeOfId(pcId) = "ground"
+			return [ paCentre[1], paCentre[2] - nH / 2 ]
+		ok
+		# TWO WIRES, TWO TERMINALS. Choosing the terminal that FACES the
+		# other end is right whenever a part's two neighbours sit on
+		# opposite sides of it, which is every component standing on a
+		# run -- and wrong the moment they do not. Both wires then take
+		# the same lead, and a two-terminal part with both wires on one
+		# pin is drawn as a SHORT: the picture states an electrical
+		# claim the model does not make. Seen on the divider's LOAD,
+		# whose two nets both lie to its right.
+		#
+		# So where a part has exactly two neighbours they are dealt one
+		# terminal each, by their order along the part's own axis. The
+		# facing rule stays for everything else -- a ground has one
+		# terminal, and a part with three would be a different component.
+		if cAxis = "h" or cAxis = "v"
+			_maNb_ = This._NeighbourPoints(pcId)
+			if len(_maNb_) = 4
+				if cAxis = "h"
+					_ma1_ = _maNb_[1]   _ma2_ = _maNb_[3]
+					_maMe_ = paOther[1]
+				else
+					_ma1_ = _maNb_[2]   _ma2_ = _maNb_[4]
+					_maMe_ = paOther[2]
+				ok
+				if fabs(_ma1_ - _ma2_) > 0.5
+					_maLo_ = min([ _ma1_, _ma2_ ])
+					_maHi_ = max([ _ma1_, _ma2_ ])
+					_bLow_ = 0
+					if fabs(_maMe_ - _maLo_) < fabs(_maMe_ - _maHi_)
+						_bLow_ = 1
+					ok
+					if cAxis = "h"
+						if _bLow_
+							return [ paCentre[1] - nW / 2, paCentre[2] ]
+						ok
+						return [ paCentre[1] + nW / 2, paCentre[2] ]
+					ok
+					if _bLow_
+						return [ paCentre[1], paCentre[2] - nH / 2 ]
+					ok
+					return [ paCentre[1], paCentre[2] + nH / 2 ]
+				ok
+			ok
+		ok
+		if cAxis = "h"
+			if paOther[1] >= paCentre[1]
+				return [ paCentre[1] + nW / 2, paCentre[2] ]
+			ok
+			return [ paCentre[1] - nW / 2, paCentre[2] ]
+		ok
+		if cAxis = "v"
+			if paOther[2] >= paCentre[2]
+				return [ paCentre[1], paCentre[2] + nH / 2 ]
+			ok
+			return [ paCentre[1], paCentre[2] - nH / 2 ]
+		ok
+		# a MARK is smaller than the ink of the wire's own join, so its
+		# centre IS the meeting point and a border clip would leave a gap
+		if nW < 14 and nH < 14  return [ paCentre[1], paCentre[2] ]  ok
+		if fabs(paOther[1] - paCentre[1]) >= fabs(paOther[2] - paCentre[2])
+			if paOther[1] >= paCentre[1]
+				return [ paCentre[1] + nW / 2, paCentre[2] ]
+			ok
+			return [ paCentre[1] - nW / 2, paCentre[2] ]
+		ok
+		if paOther[2] >= paCentre[2]
+			return [ paCentre[1], paCentre[2] + nH / 2 ]
+		ok
+		return [ paCentre[1], paCentre[2] - nH / 2 ]
+
+	# A WIRE ON A MESH, TERMINAL TO TERMINAL.
+	#
+	# The general router attaches by clipping toward the target, which is
+	# right for a CELL -- a box means the same thing wherever you touch
+	# it -- and wrong for a PART, whose two ends are the only places a
+	# wire may join. On the RC low-pass that put the wire from OUT into
+	# the middle of the capacitor's bottom edge, where a capacitor has no
+	# terminal, and left the opposite lead running out to the paper's
+	# border joined to nothing. That dangling lead is the defect the
+	# Principal saw; the wire meeting a BODY is the same defect stated
+	# from the other end.
+	#
+	# So a mesh routes its own wires: attach at the terminals, then bend
+	# at most twice, and NEVER let the segment that touches a part run
+	# across its lead. That last clause is the whole of it -- an
+	# approach perpendicular to a lead is a wire arriving at the side of
+	# a terminal, which is not a join.
+	def _MeshWire(paFrom, paTo, nBoxW, nBoxH, cFromId, cToId)
+		_mwA_ = This._BoxAt(paFrom, nBoxW, nBoxH)
+		_mwB_ = This._BoxAt(paTo, nBoxW, nBoxH)
+		_axA_ = This._LeadAxisOf(cFromId, _mwA_[1], _mwA_[2])
+		_axB_ = This._LeadAxisOf(cToId, _mwB_[1], _mwB_[2])
+		_pA_ = This._MeshAttach(cFromId, paFrom, _mwA_[1], _mwA_[2],
+			_axA_, paTo)
+		_pB_ = This._MeshAttach(cToId, paTo, _mwB_[1], _mwB_[2],
+			_axB_, paFrom)
+
+		# already on one line: the straight run a schematic prefers
+		if fabs(_pA_[1] - _pB_[1]) < 1.0
+			return [ _pA_[1], _pA_[2], _pA_[1], _pB_[2] ]
+		ok
+		if fabs(_pA_[2] - _pB_[2]) < 1.0
+			return [ _pA_[1], _pA_[2], _pB_[1], _pA_[2] ]
+		ok
+
+		# ONE BEND, if a bend can honour both leads. Option H leaves A
+		# horizontally and enters B vertically; option V is its mirror.
+		_okH_ = (_axA_ = "" or _axA_ = "h") and (_axB_ = "" or _axB_ = "v")
+		_okV_ = (_axA_ = "" or _axA_ = "v") and (_axB_ = "" or _axB_ = "h")
+		if _okH_ and _okV_
+			# NEITHER END CONSTRAINS IT, so the corner is chosen rather
+			# than defaulted: the one FARTHER from the middle of the
+			# picture, which is the corner of the loop rather than a
+			# dog-leg through the middle of it.
+			_mwC_ = This._MeshCentroid()
+			_d1_ = fabs(_pB_[1] - _mwC_[1]) + fabs(_pA_[2] - _mwC_[2])
+			_d2_ = fabs(_pA_[1] - _mwC_[1]) + fabs(_pB_[2] - _mwC_[2])
+			if _d1_ >= _d2_
+				return [ _pA_[1], _pA_[2], _pB_[1], _pA_[2],
+					_pB_[1], _pA_[2], _pB_[1], _pB_[2] ]
+			ok
+			return [ _pA_[1], _pA_[2], _pA_[1], _pB_[2],
+				_pA_[1], _pB_[2], _pB_[1], _pB_[2] ]
+		ok
+		if _okH_
+			return [ _pA_[1], _pA_[2], _pB_[1], _pA_[2],
+				_pB_[1], _pA_[2], _pB_[1], _pB_[2] ]
+		ok
+		if _okV_
+			return [ _pA_[1], _pA_[2], _pA_[1], _pB_[2],
+				_pA_[1], _pB_[2], _pB_[1], _pB_[2] ]
+		ok
+
+		# TWO BENDS, because both ends insist on the same axis and one
+		# bend cannot give it to them. The crossing runs midway between,
+		# so neither part has the jog against its own body.
+		if _axA_ = "h"
+			_mwM_ = (_pA_[1] + _pB_[1]) / 2
+			return [ _pA_[1], _pA_[2], _mwM_, _pA_[2],
+				_mwM_, _pA_[2], _mwM_, _pB_[2],
+				_mwM_, _pB_[2], _pB_[1], _pB_[2] ]
+		ok
+		_mwM_ = (_pA_[2] + _pB_[2]) / 2
+		return [ _pA_[1], _pA_[2], _pA_[1], _mwM_,
+			_pA_[1], _mwM_, _pB_[1], _mwM_,
+			_pB_[1], _mwM_, _pB_[1], _pB_[2] ]
+
+	# The middle of the drawn members, so "the outer corner" is a
+	# measured direction and not a guess about which way is out.
+	def _MeshCentroid()
+		_aMc_ = @aDrawXY
+		_nMc_ = len(_aMc_)
+		if _nMc_ = 0  return [ 0, 0 ]  ok
+		_sx_ = 0  _sy_ = 0
+		for _iMc_ = 1 to _nMc_
+			_sx_ += _aMc_[_iMc_][2]
+			_sy_ += _aMc_[_iMc_][3]
+		next
+		return [ _sx_ / _nMc_, _sy_ / _nMc_ ]
+
 	def _NativeShapeOf(aNode)
 		_c_ = ""
 		if HasKey(aNode, "properties") and isList(aNode["properties"])
@@ -11359,6 +11642,32 @@ class stzDiagram from stzGraph
 	# Empty when the picture has not been placed yet, or the component
 	# does not join exactly two things -- in either case the caller has
 	# nothing to read and says so rather than guessing.
+	# THE DIRECTION OF A PART'S ONLY WIRE. _NeighbourPoints deliberately
+	# answers nothing unless there are exactly two -- it is asked "which
+	# way does the wire run THROUGH this" -- so a part at the end of a
+	# chain needs its own question: which way does the one wire LEAVE.
+	def _SoleNeighbourAxis(pcId)
+		if len(@aDrawXY) = 0  return ""  ok
+		_snK_ = StzLower("" + pcId)
+		_snN_ = []
+		_aSnE_ = This.Edges()
+		_nSnE_ = len(_aSnE_)
+		for _iSnE_ = 1 to _nSnE_
+			_snF_ = StzLower("" + _aSnE_[_iSnE_][:from])
+			_snT_ = StzLower("" + _aSnE_[_iSnE_][:to])
+			if _snF_ = _snT_  loop  ok
+			if _snF_ = _snK_  _snN_ + _snT_  ok
+			if _snT_ = _snK_  _snN_ + _snF_  ok
+		next
+		if len(_snN_) != 1  return ""  ok
+		_snMe_ = This._XYOf(@aDrawXY, _snK_)
+		_snOt_ = This._XYOf(@aDrawXY, _snN_[1])
+		if len(_snMe_) != 2 or len(_snOt_) != 2  return ""  ok
+		if fabs(_snOt_[1] - _snMe_[1]) >= fabs(_snOt_[2] - _snMe_[2])
+			return "h"
+		ok
+		return "v"
+
 	def _NeighbourPoints(pcId)
 		if len(@aDrawXY) = 0  return []  ok
 		_npK_ = StzLower("" + pcId)
@@ -11425,11 +11734,39 @@ class stzDiagram from stzGraph
 			# re-listed. The list used to live here and the lifeline was
 			# about to grow a second copy of it.
 			if This._WritesNameBelow("" + _ceN_[:id])
-				_ceBo_ += nFsz * 2.4
-				if isObject(poFont)
+				# ...UNLESS THE DRAWING PUTS IT AT THE SIDE, which under
+				# a left-to-right rank it does for exactly the marks
+				# this branch is about. Reserving BELOW for a name drawn
+				# BESIDE is a reservation in the wrong direction: it is
+				# the same quantity held in two places with the second
+				# copy describing a layout the first had stopped using,
+				# and it published "VIN" with its last letters off the
+				# right edge of the paper. The test below is the
+				# drawing's own -- a box smaller than the generic one in
+				# either axis -- so the two cannot answer differently.
+				_ceSide_ = 0
+				_ceRk_ = This._NativeRankDir()
+				if _ceRk_ = "LR" or _ceRk_ = "RL"
+					if _ceB_[1] < nBoxW - 0.5 or _ceB_[2] < nBoxH - 0.5
+						_ceSide_ = 1
+					ok
+				ok
+				if _ceSide_ and isObject(poFont)
+					_ceTw_ = poFont.WidthOf("" + _ceN_[:label], nFsz)
+					if _ceRk_ = "LR"
+						_ceSx_ = _ceAt_[1] + _ceB_[1] / 2 + 11 + _ceTw_
+						if _ceSx_ > _ceR_  _ceR_ = _ceSx_  ok
+					else
+						_ceSx_ = _ceAt_[1] - _ceB_[1] / 2 - 11 - _ceTw_
+						if _ceSx_ < _ceL_  _ceL_ = _ceSx_  ok
+					ok
+				but isObject(poFont)
+					_ceBo_ += nFsz * 2.4
 					_ceW2_ = poFont.WidthOf("" + _ceN_[:label], nFsz) / 2
 					if _ceAt_[1] - _ceW2_ < _ceL_  _ceL_ = _ceAt_[1] - _ceW2_  ok
 					if _ceAt_[1] + _ceW2_ > _ceR_  _ceR_ = _ceAt_[1] + _ceW2_  ok
+				else
+					_ceBo_ += nFsz * 2.4
 				ok
 			ok
 			if _ceL_ < _ceX0_  _ceX0_ = _ceL_  ok
