@@ -9175,6 +9175,52 @@ next
 ? "   " + nLdFake + " found when every plate is grown fourfold"
 chk("NEGATIVE: the same scan DOES see a name on a wire", nLdFake > 0)
 
+# ...AND A WIRE TURNS SQUARE, EXCEPT AT THE LOOP'S OWN CORNERS.
+#
+# This renderer draws a HOP as an arc and says so in its own source:
+# "these two cross and do not touch". A rounded elbow is that same mark
+# spent on decoration, and the Principal read the arc where a rung
+# meets a rail as a statement about which way the current turns --
+# exactly the kind of claim a curve is reserved to make here.
+#
+# So an inner bend is square and the four corners of the loop itself
+# keep their radius. Both halves are measured on the SAME picture, in
+# the pixels, because a square corner has ink AT the vertex and a
+# rounded one does not -- the arc cuts that pixel away. Asserting only
+# the square half would pass on a picture with no rounding anywhere.
+nCoW = oLd.LastCanvas().Width()
+cCoPx = oLd.LastCanvas().ToPixels()
+aCoR2 = oLd._NodeRectOf("rb")
+aCoTap = oLd._NodeRectOf("mid")
+aCoLoad = oLd._NodeRectOf("load")
+nCoInX = floor(aCoR2[1] + aCoR2[3] / 2)
+nCoRailY = floor(aCoTap[2] + aCoTap[4] / 2)
+nCoOutX = floor(aCoLoad[1] + aCoLoad[3] / 2)
+
+# the darkest pixel in the 3x3 square centred on each vertex -- the
+# existing helpers scan a RUN, and what is asked here is one point
+nCoIn = 255  nCoOut = 255
+for dCoY = -1 to 1
+	for dCoX = -1 to 1
+		nCoI = ((nCoRailY + dCoY) * nCoW + (nCoInX + dCoX)) * 4 + 1
+		if nCoI > 0 and nCoI + 2 <= len(cCoPx)
+			nCoV = ascii(cCoPx[nCoI])
+			if nCoV < nCoIn  nCoIn = nCoV  ok
+		ok
+		nCoI = ((nCoRailY + dCoY) * nCoW + (nCoOutX + dCoX)) * 4 + 1
+		if nCoI > 0 and nCoI + 2 <= len(cCoPx)
+			nCoV = ascii(cCoPx[nCoI])
+			if nCoV < nCoOut  nCoOut = nCoV  ok
+		ok
+	next
+next
+? "   inner bend ink " + nCoIn + " (square, wants dark)" +
+  "   outer corner ink " + nCoOut + " (rounded, wants pale)"
+chk("a rung meets a rail SQUARE, so the vertex itself is inked",
+    nCoIn < 140)
+chk("NEGATIVE: ...and the loop's own corner is still rounded away",
+    nCoOut > nCoIn + 60)
+
 sec("-- 73g. A GROUND IS MET AT ITS LEAD, NOT ITS BARS ------")
 
 # A GROUND HAS ONE TERMINAL, IT IS ON TOP, AND THE WIRE ARRIVES THERE
