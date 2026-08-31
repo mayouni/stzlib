@@ -8707,32 +8707,41 @@ oWc.ToCanvasXT(OPT67)
 # For every NAMED mark that writes its name below, any wire turning
 # beneath it must turn below the band that name occupies.
 #
-# THE BAND IS READ FROM THE SCENE, NEVER TYPED. The first version of
-# this guard wrote `26 * 2.4` -- 26 being the font size of the GALLERY
-# this defect was found in -- while the scene above renders at 13. It
-# then reported a violation that no renderer could ever clear, because
-# it was demanding room for type twice the size of the type on the
-# paper. It is the plane's own signature defect wearing a guard's
-# clothes: one quantity written in two places, the second copy stale.
-# The size now comes from the option list the render was given, so the
-# two cannot drift apart again.
-nWcFsz = OPT67[4][2]
+# THE NAME IS READ AS DRAWN, NEVER ESTIMATED. Two versions of this
+# guard estimated it and both were wrong in a different direction. The
+# first wrote `26 * 2.4` -- the font size of the GALLERY the defect was
+# found in -- against a scene rendered at 13, demanding room for type
+# twice the size of the type on the paper. The second read the size
+# from the scene and still used `fsz * 2.4`, which is what the LAYOUT
+# reserves below a mark, not where the letters land: the reservation
+# starts at the box and the ink sits lower inside it, so a wire resting
+# at the top of the reservation is clear of the word and was convicted
+# anyway. It convicted four wires in pictures a reader can see are
+# fine.
+#
+# The renderer already publishes the plate it painted, the same way it
+# publishes its node rects and its arrowheads. So the wire is tested
+# against the INK. This is not the guard marking its own homework --
+# the claim is about the WIRE's position, and the wire's geometry and
+# the name's geometry are produced by two different parts of the
+# render.
 nWcSeen = 0  nWcBad = 0
-_aWcR_ = oWc.RenderNodeRects()
-for iWc = 1 to len(_aWcR_)
-	cWcId = StzLower("" + _aWcR_[iWc][5])
+_aWcL_ = oWc.RenderNodeLabels()
+for iWc = 1 to len(_aWcL_)
+	cWcId = StzLower("" + _aWcL_[iWc][1])
 	if NOT oWc._WritesNameBelow(cWcId)  loop  ok
-	if StzTrim("" + oWc._LabelTextOf(cWcId)) = ""  loop  ok
-	nWcBot = _aWcR_[iWc][2] + _aWcR_[iWc][4]
-	nWcBand = nWcBot + nWcFsz * 2.4
-	nWcL = _aWcR_[iWc][1]   nWcR = _aWcR_[iWc][1] + _aWcR_[iWc][3]
+	# the published plate is centre-x, centre-y, width, height
+	nWcT = _aWcL_[iWc][3] - _aWcL_[iWc][5] / 2
+	nWcB = _aWcL_[iWc][3] + _aWcL_[iWc][5] / 2
+	nWcL = _aWcL_[iWc][2] - _aWcL_[iWc][4] / 2
+	nWcR = _aWcL_[iWc][2] + _aWcL_[iWc][4] / 2
 	for jWc = 1 to len(oWc.@aEdgePaths)
 		aWcF = oWc.@aEdgePaths[jWc][2]
 		for kWc = 1 to len(aWcF) - 3 step 2
-			# a HORIZONTAL run passing under this mark
+			# a HORIZONTAL run crossing the word itself
 			if fabs(aWcF[kWc + 3] - aWcF[kWc + 1]) > 0.5  loop  ok
 			nWcY = aWcF[kWc + 1]
-			if nWcY <= nWcBot or nWcY >= nWcBand  loop  ok
+			if nWcY <= nWcT or nWcY >= nWcB  loop  ok
 			nWcX1 = min([ aWcF[kWc], aWcF[kWc + 2] ])
 			nWcX2 = max([ aWcF[kWc], aWcF[kWc + 2] ])
 			if nWcX2 < nWcL or nWcX1 > nWcR  loop  ok
@@ -8741,32 +8750,30 @@ for iWc = 1 to len(_aWcR_)
 		next
 	next
 next
-? "   " + nWcBad + " wire(s) turning inside a name's band"
-chkeq("a wire turns below the name it passes, not through it", nWcBad, 0)
+? "   " + nWcBad + " wire(s) running through a name"
+chkeq("a wire passes clear of the name it goes by, not through it", nWcBad, 0)
 
 # THE NEGATIVE SIBLING: the instrument must be able to SEE one, IN THIS
 # SCENE. It used to read `if 100 > 90 and 100 < 152` -- three constants
-# the reader can fold in their head, which proves the comparison was
-# typed correctly and nothing whatever about the scan. So the scan is
-# run a second time over the same picture with the band inflated to the
-# stale figure the broken version used. It must find at least one, which
-# says two things at once: the instrument can see a violation, and the
-# violation the first version reported was the BAND being wrong rather
-# than the wire.
+# a reader can fold in their head, which proves the comparison was
+# typed correctly and nothing whatever about the scan. So the same scan
+# runs again over the same picture with each plate grown to four times
+# its height, which must catch something: the instrument's sight is
+# then measured rather than asserted.
 nWcFake = 0
-for iWc = 1 to len(_aWcR_)
-	cWcId = StzLower("" + _aWcR_[iWc][5])
+for iWc = 1 to len(_aWcL_)
+	cWcId = StzLower("" + _aWcL_[iWc][1])
 	if NOT oWc._WritesNameBelow(cWcId)  loop  ok
-	if StzTrim("" + oWc._LabelTextOf(cWcId)) = ""  loop  ok
-	nWcBot = _aWcR_[iWc][2] + _aWcR_[iWc][4]
-	nWcBand = nWcBot + nWcFsz * 2 * 2.4
-	nWcL = _aWcR_[iWc][1]   nWcR = _aWcR_[iWc][1] + _aWcR_[iWc][3]
+	nWcT = _aWcL_[iWc][3] - _aWcL_[iWc][5] * 2
+	nWcB = _aWcL_[iWc][3] + _aWcL_[iWc][5] * 2
+	nWcL = _aWcL_[iWc][2] - _aWcL_[iWc][4] / 2
+	nWcR = _aWcL_[iWc][2] + _aWcL_[iWc][4] / 2
 	for jWc = 1 to len(oWc.@aEdgePaths)
 		aWcF = oWc.@aEdgePaths[jWc][2]
 		for kWc = 1 to len(aWcF) - 3 step 2
 			if fabs(aWcF[kWc + 3] - aWcF[kWc + 1]) > 0.5  loop  ok
 			nWcY = aWcF[kWc + 1]
-			if nWcY <= nWcBot or nWcY >= nWcBand  loop  ok
+			if nWcY <= nWcT or nWcY >= nWcB  loop  ok
 			nWcX1 = min([ aWcF[kWc], aWcF[kWc + 2] ])
 			nWcX2 = max([ aWcF[kWc], aWcF[kWc + 2] ])
 			if nWcX2 < nWcL or nWcX1 > nWcR  loop  ok
@@ -8774,8 +8781,8 @@ for iWc = 1 to len(_aWcR_)
 		next
 	next
 next
-? "   " + nWcFake + " found when the band is inflated to the stale figure"
-chk("NEGATIVE: the same scan DOES see one at the wrong band", nWcFake > 0)
+? "   " + nWcFake + " found when every plate is grown fourfold"
+chk("NEGATIVE: the same scan DOES see one at a grown plate", nWcFake > 0)
 
 sec("-- 73d. :SCALE IS RESOLUTION, SO MORE IS BIGGER ---------")
 
@@ -8863,6 +8870,102 @@ oScB.ToCanvasXT([ :Font = EFONT, :NodeWidth = 110, :NodeHeight = 68,
                   :FontSize = 26, :Scale = 2 ])
 nScB = oScB.LastCanvas().Width()
 chk("NEGATIVE: the same scale twice is NOT growth", NOT (nScB > nScA))
+
+sec("-- 73e. A WIRE MEETS A TERMINAL, NOT A BODY ------------")
+
+# A COMPONENT IS JOINED AT ITS LEADS AND NOWHERE ELSE.
+#
+# The general router attaches an edge by clipping toward the target,
+# which is right for a CELL -- a box means the same thing wherever you
+# touch it -- and wrong for a PART. On the RC low-pass it put the wire
+# from OUT into the middle of the capacitor's bottom edge, where a
+# capacitor has no terminal, and left the opposite lead running out to
+# the paper's border joined to nothing. The Principal saw the dangling
+# lead; the wire meeting a BODY is the same fault stated from the other
+# end, and it is the one that makes the picture false rather than
+# merely untidy.
+#
+# Two claims, because one of them alone can be satisfied by a wrong
+# picture: every wire lands ON a terminal, AND a part's two wires land
+# on DIFFERENT terminals. A part with both wires on one lead is drawn
+# as a short.
+oTm = new stzDiagram("term73e")
+oTm.SetNotation(StzElectricNotation())
+oTm.AddNodeXTT("v", "VIN", [ :type = "source" ])
+oTm.AddNodeXTT("r", "R 1k", [ :type = "resistor" ])
+oTm.AddNodeXTT("c", "C 100n", [ :type = "capacitor" ])
+oTm.AddNodeXTT("g", "", [ :type = "ground" ])
+oTm.AddNodeXTT("nin", "IN", [ :type = "net" ])
+oTm.AddNodeXTT("nout", "OUT", [ :type = "net" ])
+oTm.AddNodeXTT("n0", "GND", [ :type = "net" ])
+oTm.AddEdge("v","nin")   oTm.AddEdge("nin","r")
+oTm.AddEdge("r","nout")  oTm.AddEdge("nout","c")
+oTm.AddEdge("c","n0")    oTm.AddEdge("n0","g")
+oTm.AddEdge("n0","v")
+oTm.ToCanvasXT([ :Font = EFONT, :NodeWidth = 110, :NodeHeight = 68,
+                 :FontSize = 26 ])
+
+aTmPart = [ "v", "r", "c" ]
+nTmEnds = 0  nTmBody = 0  nTmShort = 0
+for iTm = 1 to len(aTmPart)
+	cTmId = aTmPart[iTm]
+	aTmB = oTm._NodeRectOf(cTmId)
+	if len(aTmB) < 4  loop  ok
+	nTmCx = aTmB[1] + aTmB[3] / 2
+	nTmCy = aTmB[2] + aTmB[4] / 2
+	if aTmB[3] >= aTmB[4]
+		aTmT1 = [ aTmB[1], nTmCy ]
+		aTmT2 = [ aTmB[1] + aTmB[3], nTmCy ]
+	else
+		aTmT1 = [ nTmCx, aTmB[2] ]
+		aTmT2 = [ nTmCx, aTmB[2] + aTmB[4] ]
+	ok
+	nTmU1 = 0  nTmU2 = 0
+	for jTm = 1 to len(oTm.@aEdgePaths)
+		cTmK = StzLower("" + oTm.@aEdgePaths[jTm][1])
+		aTmF = oTm.@aEdgePaths[jTm][2]
+		if len(aTmF) < 4  loop  ok
+		aTmP = []
+		if StzFindFirst(">", cTmK) > 0
+			if StzSplit(cTmK, ">")[1] = cTmId
+				aTmP = [ aTmF[1], aTmF[2] ]
+			but StzSplit(cTmK, ">")[2] = cTmId
+				aTmP = [ aTmF[len(aTmF) - 1], aTmF[len(aTmF)] ]
+			ok
+		ok
+		if len(aTmP) < 2  loop  ok
+		nTmEnds++
+		nTmD1 = fabs(aTmP[1] - aTmT1[1]) + fabs(aTmP[2] - aTmT1[2])
+		nTmD2 = fabs(aTmP[1] - aTmT2[1]) + fabs(aTmP[2] - aTmT2[2])
+		if nTmD1 < 1.5
+			nTmU1++
+		but nTmD2 < 1.5
+			nTmU2++
+		else
+			nTmBody++
+			? "   " + cTmId + ": a wire lands at (" + aTmP[1] + "," +
+			  aTmP[2] + "), terminals are (" + aTmT1[1] + "," +
+			  aTmT1[2] + ") and (" + aTmT2[1] + "," + aTmT2[2] + ")"
+		ok
+	next
+	if nTmU1 > 1 or nTmU2 > 1  nTmShort++  ok
+next
+? "   " + nTmEnds + " wire ends on three parts, " + nTmBody + " on a body"
+chk("every wire end lands on a lead, never on the body", nTmBody = 0)
+chkeq("...and both wires of a part were checked", nTmEnds, 6)
+chkeq("a part's two wires take two DIFFERENT leads", nTmShort, 0)
+
+# THE NEGATIVE SIBLING: the same reader, given a point that is NOT a
+# terminal, must report it. Without this the section passes whenever
+# the loop finds nothing to look at.
+nTmFake = 0
+aTmB = oTm._NodeRectOf("c")
+nTmMid = aTmB[1] + aTmB[3] / 2
+nTmBot = aTmB[2] + aTmB[4]
+if fabs(nTmMid - aTmB[1]) >= 1.5 and fabs(nTmMid - (aTmB[1] + aTmB[3])) >= 1.5
+	nTmFake = 1
+ok
+chkeq("NEGATIVE: the middle of an edge is NOT read as a lead", nTmFake, 1)
 
 sec("-- 73b. A NAME MAKES ROOM FOR THE WIRE BESIDE IT ---------")
 
@@ -8991,17 +9094,27 @@ oOp.AddNodeXTT("r", "R", [ :type = "resistor" ])
 oOp.AddNodeXTT("a", "A", [ :type = "net" ])
 oOp.AddEdge("v", "a")  oOp.AddEdge("a", "r")
 oOp.ToCanvasXT(OPT67)
-aOpY = []
+# "IN A LINE" IS COLLINEAR, ON EITHER AXIS. This used to require every
+# Y to be equal, which is not the claim -- it is the claim plus an
+# assumption about which way the line runs. The open chain was laid
+# along X at the time and the test was written to match, so when the
+# chain moved onto the axis its rank actually reads, a guard whose
+# sentence was still true reported a failure. A line is a line in both
+# directions.
+aOpX = []  aOpY = []
 _aOpR_ = oOp.RenderNodeRects()
 for iMs = 1 to len(_aOpR_)
+	aOpX + (_aOpR_[iMs][1] + _aOpR_[iMs][3] / 2)
 	aOpY + (_aOpR_[iMs][2] + _aOpR_[iMs][4] / 2)
 next
-nOpDy = 0
+nOpDx = 0  nOpDy = 0
 for iMs = 2 to len(aOpY)
+	if fabs(aOpX[iMs] - aOpX[1]) > 1  nOpDx++  ok
 	if fabs(aOpY[iMs] - aOpY[1]) > 1  nOpDy++  ok
 next
-chkeq("NEGATIVE: an OPEN circuit is laid in a line, not a rectangle",
-	nOpDy, 0)
+? "   open circuit: " + nOpDx + " off the column, " + nOpDy + " off the row"
+chk("NEGATIVE: an OPEN circuit is laid in a line, not a rectangle",
+	nOpDx = 0 or nOpDy = 0)
 
 # A COMPONENT'S ORIENTATION IS READ FROM ITS PLACEMENT, not from a
 # global rank -- on a rectangle the wire runs four different ways.

@@ -906,9 +906,17 @@ class stzGraphCanvas from stzObject
 		# in a line and left for the rules to report; drawing it as a
 		# rectangle would invent a return path the model does not have.
 		if len(_cyc_) < 3
+			# ...AND THE LINE RUNS DOWN THE LAYOUT, not across it.
+			# This laid the chain along X, which is the axis a
+			# top-down picture does NOT read along and the one a
+			# left-to-right picture transposes away: a TB circuit came
+			# out as parts side by side, and the fixture actually named
+			# "left-to-right" came out as a column. Laying it along Y
+			# puts each picture's chain on the axis its rank reads,
+			# because the transpose for LR/RL happens downstream.
 			for _i_ = 1 to _n_
-				@aX[_i_] = (_i_ - 1) * 100
-				@aY[_i_] = 0
+				@aX[_i_] = 0
+				@aY[_i_] = (_i_ - 1) * 100
 			next
 			return
 		ok
@@ -931,9 +939,58 @@ class stzGraphCanvas from stzObject
 		# The walk is one parameter t in [0,1) around the rectangle, so
 		# the members are spread evenly however many there are, and the
 		# last one is always a step short of the first.
+		# A CORNER IS A BEND, NOT A SEAT.
+		#
+		# The walk started at t = 0, which IS the top-left corner, and
+		# with six members it seated the fourth at t = 0.5, the
+		# bottom-right one. A corner is the one place on the perimeter
+		# where the run changes axis, so whatever sits there has one
+		# neighbour beside it and one BELOW it -- and a component has
+		# two terminals along a single axis and cannot face both.
+		#
+		# MEASURED on the RC low-pass. The capacitor held the top-left
+		# corner, so the left arm rose to the MIDDLE of the component
+		# instead of past its end: the wire from OUT arrived at
+		# (55.99, 95.50), the middle of the box's bottom edge, where a
+		# capacitor has no terminal at all, while its left lead ran out
+		# to the paper's border pointing at nothing. That dangling lead
+		# is what the Principal saw. It is not a clipping fault -- the
+		# box is wholly on the paper -- it is a wire meeting a BODY,
+		# which is the one thing this domain's comments already say a
+		# schematic may not do.
+		#
+		# So the walk is PHASED off the corners. The offset is chosen,
+		# not assumed: every candidate is scored by how far its worst
+		# member lands from the nearest corner, and the best wins. A
+		# fixed half-step would have been worse than no fix at all here
+		# -- at six members it puts the second one exactly on t = 0.25.
+		# Corners are then bare elbows, which is how every schematic in
+		# the canon draws them.
+		_bestPh_ = 0
+		_bestD_ = -1
+		for _iPh_ = 0 to 50
+			_ph_ = _iPh_ / 50
+			_minD_ = 9
+			for _i_ = 1 to _nc_
+				_tt_ = (_i_ - 1 + _ph_) / _nc_
+				_tt_ = _tt_ - floor(_tt_)
+				_dd_ = 9
+				for _kk_ = 0 to 4
+					_d1_ = fabs(_tt_ - _kk_ / 4)
+					if _d1_ < _dd_  _dd_ = _d1_  ok
+				next
+				if _dd_ < _minD_  _minD_ = _dd_  ok
+			next
+			if _minD_ > _bestD_
+				_bestD_ = _minD_
+				_bestPh_ = _ph_
+			ok
+		next
+
 		for _i_ = 1 to _nc_
 			_id_ = _cyc_[_i_]
-			_t_ = (_i_ - 1) / _nc_
+			_t_ = (_i_ - 1 + _bestPh_) / _nc_
+			_t_ = _t_ - floor(_t_)
 			if _t_ < 0.25
 				@aX[_id_] = _t_ * 4
 				@aY[_id_] = 0
@@ -961,8 +1018,34 @@ class stzGraphCanvas from stzObject
 				for _k_ = 1 to _na_
 					_v_ = _adj_[_i_][_k_]
 					if _onCyc_[_v_] = 0  loop  ok
-					@aX[_i_] = @aX[_v_]
-					@aY[_i_] = @aY[_v_] + 0.45
+					# OUTWARD FROM THE LOOP, not simply downward.
+					# "Below its anchor" is right only for an anchor
+					# on the BOTTOM run; for one on a side arm, down
+					# is ALONG the arm, so the ground symbol was laid
+					# on the wire and drawn across the components
+					# further down it. Which way is out is read from
+					# which run the anchor stands on.
+					#
+					# A side arm also carries the stub a little
+					# further down, because a ground is drawn pointing
+					# down in every schematic there is: the wire then
+					# leaves the net sideways and turns into the
+					# symbol's one terminal, which is the shape the
+					# canon uses and what _MeshWire already builds
+					# once the two are not in line.
+					if @aX[_v_] >= 0.999
+						@aX[_i_] = @aX[_v_] + 0.30
+						@aY[_i_] = @aY[_v_] + 0.18
+					but @aX[_v_] <= 0.001
+						@aX[_i_] = @aX[_v_] - 0.30
+						@aY[_i_] = @aY[_v_] + 0.18
+					but @aY[_v_] <= 0.001
+						@aX[_i_] = @aX[_v_]
+						@aY[_i_] = @aY[_v_] - 0.30
+					else
+						@aX[_i_] = @aX[_v_]
+						@aY[_i_] = @aY[_v_] + 0.30
+					ok
 					_onCyc_[_i_] = 1
 					exit
 				next

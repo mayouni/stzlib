@@ -95,6 +95,14 @@ o2.AddEdge("mid", "load")
 o2.AddEdge("rb", "bot")
 o2.AddEdge("load", "bot")
 o2.AddEdge("bot", "g")
+# THE SOURCE'S RETURN, which this fixture never had. Current leaves a
+# source and must come back to it or nothing flows, and every other
+# edge here was written while the picture was too tangled to notice the
+# one that was missing: the 9V had a single connection, to R1, and its
+# other terminal ended in air. The terminal-true wiring is what made it
+# visible -- a lead pointing at nothing is obvious the moment every
+# other lead is joined to something.
+o2.AddEdge("bot", "v")
 o2.ToCanvasXT(OPT)
 o2.LastCanvas().ToPNG("elec_2_divider.png")
 ? ""
