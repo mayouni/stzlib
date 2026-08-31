@@ -11130,19 +11130,40 @@ class stzDiagram from stzGraph
 	def _LeadAxisOf(pcId, nBoxW, nBoxH)
 		_laSh_ = This._ShapeOfId(pcId)
 		if _laSh_ = "ground"  return "v"  ok
-		# A PLAIN BOX IS NOT GIVEN LEADS, and the reason is measured
-		# rather than assumed. Electrically a device on a loop IS a
-		# two-terminal part, so it was tried -- and on the divider it
-		# put LOAD's two nets on its two opposite terminals, both of
-		# which lie to its RIGHT, so the wire to the nearer one crossed
-		# the whole body to reach the far lead. A wire drawn through a
-		# part is a worse lie than two wires on one side of it.
+		# A PLAIN BOX ON A CIRCUIT IS A TWO-TERMINAL PART, and the
+		# history of this line is worth keeping because it was RIGHT to
+		# refuse and then right to allow.
 		#
-		# The honest fix is not here: LOAD sits on a SECOND mesh sharing
-		# the TAP-GND branch, and drawn on that rectangle its terminals
-		# face its two nets with no detour at all. That is the
-		# interlocking-mesh remainder the plan already names, and this
-		# is the case that shows why it is worth doing.
+		# It was tried while the divider still hung its load off a
+		# single rectangle, and there it put LOAD's two nets on its two
+		# opposite leads -- both of which lay to its RIGHT -- so the
+		# nearer wire crossed the whole body to reach the far lead. It
+		# was reverted, and the note said the honest fix was the
+		# interlocking mesh rather than the lead.
+		#
+		# That is now done. On the ladder LOAD stands on a rung with one
+		# net above it and one below, which is what a two-terminal part
+		# is FOR, and the detour cannot arise. The same line that made
+		# the picture worse makes it right, because what changed was not
+		# the rule but the placement it was asked about.
+		# A BOX READS ITS AXIS FROM ITS NETS, NOT FROM ITS SHAPE. A
+		# resistor is DRAWN long-ways and its box says which way it
+		# lies; a device box is a rectangle whose proportions mean
+		# nothing, so asking its aspect answered "wide" for a part
+		# standing on a vertical rung and put both its wires on the
+		# side. Where its two nets are is the only thing that settles
+		# it, and unlike a component nothing has to be redrawn: a wire
+		# meeting the middle of a box's top edge is a join, because a
+		# box has no leads to miss.
+		if _laSh_ = "box"
+			_laNb_ = This._NeighbourPoints(pcId)
+			if len(_laNb_) < 4  return ""  ok
+			if fabs(_laNb_[3] - _laNb_[1]) >=
+			   fabs(_laNb_[4] - _laNb_[2])
+				return "h"
+			ok
+			return "v"
+		ok
 		if _laSh_ != "resistor" and _laSh_ != "capacitor" and
 		   _laSh_ != "source" and _laSh_ != "inductor"
 			return ""

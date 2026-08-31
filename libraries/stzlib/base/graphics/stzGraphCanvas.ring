@@ -921,90 +921,197 @@ class stzGraphCanvas from stzObject
 			return
 		ok
 
-		_nc_ = len(_cyc_)
-		_onCyc_ = []
-		for _i_ = 1 to _n_  _onCyc_ + 0  next
-		for _i_ = 1 to _nc_  _onCyc_[ _cyc_[_i_] ] = 1  next
-
-		# THE RECTANGLE. Members walk the perimeter -- across the top,
-		# down the right, back along the bottom -- so the picture reads
-		# the way a schematic is read.
-		# WALKED ALL THE WAY ROUND, which the first version did not: it
-		# spent its members on the top, the right and the bottom and
-		# never reached the LEFT side, so the edge closing the loop cut
-		# straight across the middle instead of completing the rectangle.
-		# A perimeter that does not come back to where it started is not
-		# a perimeter.
+		# INTERLOCKING MESHES -- the ladder, and how a circuit says it
+		# has more than one.
 		#
-		# The walk is one parameter t in [0,1) around the rectangle, so
-		# the members are spread evenly however many there are, and the
-		# last one is always a step short of the first.
-		# A CORNER IS A BEND, NOT A SEAT.
+		# Everything below draws ONE rectangle and hangs the rest off
+		# it, which is right for a single-mesh circuit and is what every
+		# canonical two-terminal example is. A divider WITH A TAP is
+		# not: R2 and the load sit in parallel between the same two
+		# nets, so they are two meshes SHARING a branch, and hanging one
+		# off the other put the load's two wires on the same side of it
+		# -- a part with both wires on one lead is drawn as a short.
 		#
-		# The walk started at t = 0, which IS the top-left corner, and
-		# with six members it seated the fourth at t = 0.5, the
-		# bottom-right one. A corner is the one place on the perimeter
-		# where the run changes axis, so whatever sits there has one
-		# neighbour beside it and one BELOW it -- and a component has
-		# two terminals along a single axis and cannot face both.
+		# THE DOMAIN'S OWN DECOMPOSITION, not a graph-drawing heuristic.
+		# Contract every degree-2 node and a circuit becomes JUNCTIONS
+		# joined by BRANCHES; where exactly two junctions carry several
+		# branches, those branches are in parallel, and a schematic
+		# draws parallel branches as RUNGS between two rails. That is
+		# the ladder. It is the same reasoning as the mesh count itself:
+		# ask the domain what the structure is rather than asking the
+		# picture what would fit.
 		#
-		# MEASURED on the RC low-pass. The capacitor held the top-left
-		# corner, so the left arm rose to the MIDDLE of the component
-		# instead of past its end: the wire from OUT arrived at
-		# (55.99, 95.50), the middle of the box's bottom edge, where a
-		# capacitor has no terminal at all, while its left lead ran out
-		# to the paper's border pointing at nothing. That dangling lead
-		# is what the Principal saw. It is not a clipping fault -- the
-		# box is wholly on the paper -- it is a wire meeting a BODY,
-		# which is the one thing this domain's comments already say a
-		# schematic may not do.
-		#
-		# So the walk is PHASED off the corners. The offset is chosen,
-		# not assumed: every candidate is scored by how far its worst
-		# member lands from the nearest corner, and the best wins. A
-		# fixed half-step would have been worse than no fix at all here
-		# -- at six members it puts the second one exactly on t = 0.25.
-		# Corners are then bare elbows, which is how every schematic in
-		# the canon draws them.
-		_bestPh_ = 0
-		_bestD_ = -1
-		for _iPh_ = 0 to 50
-			_ph_ = _iPh_ / 50
-			_minD_ = 9
-			for _i_ = 1 to _nc_
-				_tt_ = (_i_ - 1 + _ph_) / _nc_
-				_tt_ = _tt_ - floor(_tt_)
-				_dd_ = 9
-				for _kk_ = 0 to 4
-					_d1_ = fabs(_tt_ - _kk_ / 4)
-					if _d1_ < _dd_  _dd_ = _d1_  ok
-				next
-				if _dd_ < _minD_  _minD_ = _dd_  ok
+		# MORE THAN TWO JUNCTIONS IS NOT DONE and falls through to the
+		# single rectangle, said here rather than discovered later. A
+		# three-section RC ladder has a junction per section and needs
+		# rails that carry several rungs each; this handles the parallel
+		# case, which is the one the shipped fixtures contain and the
+		# one that was drawing a short.
+		_bLadder_ = 0
+		_deg_ = []
+		for _i_ = 1 to _n_  _deg_ + len(_adj_[_i_])  next
+		_junc_ = []
+		for _i_ = 1 to _n_
+			if _deg_[_i_] >= 3  _junc_ + _i_  ok
+		next
+		if len(_junc_) = 2
+			_ja_ = _junc_[1]
+			_jb_ = _junc_[2]
+			# the busier junction is the bottom rail -- a ground and its
+			# returns hang there, and a schematic puts that at the foot
+			if _deg_[_ja_] > _deg_[_jb_]
+				_jt_ = _ja_   _ja_ = _jb_   _jb_ = _jt_
+			ok
+			_brs_ = []
+			_naJ_ = len(_adj_[_ja_])
+			for _k_ = 1 to _naJ_
+				_pth_ = []
+				_prv_ = _ja_
+				_cur_ = _adj_[_ja_][_k_]
+				_bReach_ = 0
+				while 1
+					if _cur_ = _jb_  _bReach_ = 1  exit  ok
+					if _deg_[_cur_] != 2  exit  ok
+					_pth_ + _cur_
+					_nx_ = 0
+					_naC_ = len(_adj_[_cur_])
+					for _q_ = 1 to _naC_
+						if _adj_[_cur_][_q_] != _prv_
+							_nx_ = _adj_[_cur_][_q_]
+							exit
+						ok
+					next
+					if _nx_ = 0  exit  ok
+					_prv_ = _cur_
+					_cur_ = _nx_
+				end
+				if _bReach_  _brs_ + _pth_  ok
 			next
-			if _minD_ > _bestD_
-				_bestD_ = _minD_
-				_bestPh_ = _ph_
+			if len(_brs_) >= 2
+				# LONGEST RUNG ON THE LEFT. The branch carrying the
+				# source is the longest one -- it holds the series
+				# elements -- and every textbook drawing puts it on the
+				# left, with the shunts to its right in the order a
+				# reader meets them.
+				_nbr_ = len(_brs_)
+				for _p_ = 1 to _nbr_ - 1
+					for _q_ = 1 to _nbr_ - _p_
+						if len(_brs_[_q_]) < len(_brs_[_q_ + 1])
+							_sw_ = _brs_[_q_]
+							_brs_[_q_] = _brs_[_q_ + 1]
+							_brs_[_q_ + 1] = _sw_
+						ok
+					next
+				next
+				_onCyc_ = []
+				for _i_ = 1 to _n_  _onCyc_ + 0  next
+				@aX[_ja_] = 0   @aY[_ja_] = 0
+				@aX[_jb_] = 0   @aY[_jb_] = 1
+				_onCyc_[_ja_] = 1
+				_onCyc_[_jb_] = 1
+				for _i_ = 1 to _nbr_
+					_bxx_ = (_i_ - 1) / max([ 1, _nbr_ - 1 ])
+					_pp_ = _brs_[_i_]
+					_mm_ = len(_pp_)
+					for _t_ = 1 to _mm_
+						@aX[ _pp_[_t_] ] = _bxx_
+						@aY[ _pp_[_t_] ] = 0.18 +
+							(_t_ - 0.5) / _mm_ * 0.64
+						_onCyc_[ _pp_[_t_] ] = 1
+					next
+				next
+				_bLadder_ = 1
 			ok
-		next
+		ok
 
-		for _i_ = 1 to _nc_
-			_id_ = _cyc_[_i_]
-			_t_ = (_i_ - 1 + _bestPh_) / _nc_
-			_t_ = _t_ - floor(_t_)
-			if _t_ < 0.25
-				@aX[_id_] = _t_ * 4
-				@aY[_id_] = 0
-			but _t_ < 0.5
-				@aX[_id_] = 1
-				@aY[_id_] = (_t_ - 0.25) * 4
-			but _t_ < 0.75
-				@aX[_id_] = 1 - (_t_ - 0.5) * 4
-				@aY[_id_] = 1
-			else
-				@aX[_id_] = 0
-				@aY[_id_] = 1 - (_t_ - 0.75) * 4
-			ok
-		next
+		if NOT _bLadder_
+
+			_nc_ = len(_cyc_)
+			_onCyc_ = []
+			for _i_ = 1 to _n_  _onCyc_ + 0  next
+			for _i_ = 1 to _nc_  _onCyc_[ _cyc_[_i_] ] = 1  next
+
+			# THE RECTANGLE. Members walk the perimeter -- across the top,
+			# down the right, back along the bottom -- so the picture reads
+			# the way a schematic is read.
+			# WALKED ALL THE WAY ROUND, which the first version did not: it
+			# spent its members on the top, the right and the bottom and
+			# never reached the LEFT side, so the edge closing the loop cut
+			# straight across the middle instead of completing the rectangle.
+			# A perimeter that does not come back to where it started is not
+			# a perimeter.
+			#
+			# The walk is one parameter t in [0,1) around the rectangle, so
+			# the members are spread evenly however many there are, and the
+			# last one is always a step short of the first.
+			# A CORNER IS A BEND, NOT A SEAT.
+			#
+			# The walk started at t = 0, which IS the top-left corner, and
+			# with six members it seated the fourth at t = 0.5, the
+			# bottom-right one. A corner is the one place on the perimeter
+			# where the run changes axis, so whatever sits there has one
+			# neighbour beside it and one BELOW it -- and a component has
+			# two terminals along a single axis and cannot face both.
+			#
+			# MEASURED on the RC low-pass. The capacitor held the top-left
+			# corner, so the left arm rose to the MIDDLE of the component
+			# instead of past its end: the wire from OUT arrived at
+			# (55.99, 95.50), the middle of the box's bottom edge, where a
+			# capacitor has no terminal at all, while its left lead ran out
+			# to the paper's border pointing at nothing. That dangling lead
+			# is what the Principal saw. It is not a clipping fault -- the
+			# box is wholly on the paper -- it is a wire meeting a BODY,
+			# which is the one thing this domain's comments already say a
+			# schematic may not do.
+			#
+			# So the walk is PHASED off the corners. The offset is chosen,
+			# not assumed: every candidate is scored by how far its worst
+			# member lands from the nearest corner, and the best wins. A
+			# fixed half-step would have been worse than no fix at all here
+			# -- at six members it puts the second one exactly on t = 0.25.
+			# Corners are then bare elbows, which is how every schematic in
+			# the canon draws them.
+			_bestPh_ = 0
+			_bestD_ = -1
+			for _iPh_ = 0 to 50
+				_ph_ = _iPh_ / 50
+				_minD_ = 9
+				for _i_ = 1 to _nc_
+					_tt_ = (_i_ - 1 + _ph_) / _nc_
+					_tt_ = _tt_ - floor(_tt_)
+					_dd_ = 9
+					for _kk_ = 0 to 4
+						_d1_ = fabs(_tt_ - _kk_ / 4)
+						if _d1_ < _dd_  _dd_ = _d1_  ok
+					next
+					if _dd_ < _minD_  _minD_ = _dd_  ok
+				next
+				if _minD_ > _bestD_
+					_bestD_ = _minD_
+					_bestPh_ = _ph_
+				ok
+			next
+
+			for _i_ = 1 to _nc_
+				_id_ = _cyc_[_i_]
+				_t_ = (_i_ - 1 + _bestPh_) / _nc_
+				_t_ = _t_ - floor(_t_)
+				if _t_ < 0.25
+					@aX[_id_] = _t_ * 4
+					@aY[_id_] = 0
+				but _t_ < 0.5
+					@aX[_id_] = 1
+					@aY[_id_] = (_t_ - 0.25) * 4
+				but _t_ < 0.75
+					@aX[_id_] = 1 - (_t_ - 0.5) * 4
+					@aY[_id_] = 1
+				else
+					@aX[_id_] = 0
+					@aY[_id_] = 1 - (_t_ - 0.75) * 4
+				ok
+			next
+		ok
+
 
 		# ...AND WHAT HANGS OFF IT. A ground symbol is on no loop -- it is
 		# a stub on one node of one -- so it stands just outside the
@@ -1033,7 +1140,17 @@ class stzGraphCanvas from stzObject
 					# symbol's one terminal, which is the shape the
 					# canon uses and what _MeshWire already builds
 					# once the two are not in line.
-					if @aX[_v_] >= 0.999
+					# THE FOOT IS ASKED FIRST. An anchor at a CORNER
+					# satisfies two of these tests, so their order is
+					# the answer rather than a formality: a ladder's
+					# bottom rail junction is at x = 0 AND y = 1, and
+					# asking about the side first sent the ground out
+					# to the left of the picture on a long wire. Down
+					# is where a ground goes when down is available.
+					if @aY[_v_] >= 0.999
+						@aX[_i_] = @aX[_v_]
+						@aY[_i_] = @aY[_v_] + 0.30
+					but @aX[_v_] >= 0.999
 						@aX[_i_] = @aX[_v_] + 0.30
 						@aY[_i_] = @aY[_v_] + 0.18
 					but @aX[_v_] <= 0.001
