@@ -9330,8 +9330,42 @@ for iIk = 1 to len(_aIkL_)
 next
 ? "   dot bottom " + nIkBot + ", name plate starts " + nIkPlate +
   "  -> stub " + (nIkPlate - nIkBot) + "px"
-chk("a mark's name leaves a visible stub of wire above it",
-    nIkPlate - nIkBot >= 14)
+
+# THE CLAIM IS THAT THE WORD DOES NOT ERASE THE WIRE, and there are now
+# TWO ways to satisfy it. This used to require a stub of at least 14px
+# between the dot and the plate, which is the only answer available
+# while a name is always written BELOW. A name that steps to the SIDE
+# satisfies the same claim better -- there is no wire between them to
+# be crowded at all -- and the stub arithmetic then reads as a negative
+# number and convicts the improvement.
+#
+# So the property is asked directly: the plate, wherever it went, is
+# clear of every wire. The stub above is still printed, because when
+# the name IS below it remains the thing a reader looks at.
+nIkOn = 0
+_aIkP_ = []
+for iIk = 1 to len(_aIkL_)
+	if StzLower("" + _aIkL_[iIk][1]) = "gnd"
+		_aIkP_ = [ _aIkL_[iIk][2] - _aIkL_[iIk][4] / 2,
+			_aIkL_[iIk][3] - _aIkL_[iIk][5] / 2,
+			_aIkL_[iIk][2] + _aIkL_[iIk][4] / 2,
+			_aIkL_[iIk][3] + _aIkL_[iIk][5] / 2 ]
+	ok
+next
+for iIk = 1 to len(oIk.@aEdgePaths)
+	aIkF = oIk.@aEdgePaths[iIk][2]
+	for kIk = 1 to len(aIkF) - 3 step 2
+		nIkX1 = min([ aIkF[kIk], aIkF[kIk + 2] ])
+		nIkX2 = max([ aIkF[kIk], aIkF[kIk + 2] ])
+		nIkY1 = min([ aIkF[kIk + 1], aIkF[kIk + 3] ])
+		nIkY2 = max([ aIkF[kIk + 1], aIkF[kIk + 3] ])
+		if nIkX2 < _aIkP_[1] or nIkX1 > _aIkP_[3]  loop  ok
+		if nIkY2 < _aIkP_[2] or nIkY1 > _aIkP_[4]  loop  ok
+		nIkOn++
+	next
+next
+? "   its plate sits on " + nIkOn + " wire segment(s)"
+chk("a mark's name does not stand on the wire it names", nIkOn = 0)
 
 sec("-- 73b. A NAME MAKES ROOM FOR THE WIRE BESIDE IT ---------")
 
