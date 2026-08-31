@@ -1025,17 +1025,14 @@ class stzDiagram from stzGraph
 						_ndH_ = 1
 					ok
 				ok
-				# ...AND A GROUND IS UPRIGHT UNLESS ITS NET IS LEVEL
-				# WITH IT -- see _SoleNeighbourDrop. Every other part
-				# here lies along its wire whichever way that runs; a
-				# ground points down, and lying flat is the exception it
-				# makes only when pointing down would put its lead where
-				# no wire can reach.
-				if _ndSh_ = "ground"
-					_ndDrop_ = This._SoleNeighbourDrop("" + _nd_[:id])
-					_ndH_ = 0
-					if _ndDrop_ >= 0 and _ndDrop_ < 2  _ndH_ = 1  ok
-				ok
+				# ...AND A GROUND IS UPRIGHT, FULL STOP. Every other
+				# part here lies along its wire whichever way that runs.
+				# A ground points down: it is the one symbol with a
+				# conventional orientation, and the placement is what
+				# makes that reachable -- a ground that would be met
+				# from the side is dropped below the run before this
+				# ever sees it.
+				if _ndSh_ = "ground"  _ndH_ = 0  ok
 				if _ndH_
 					@aBoxOf + [ StzLower("" + _nd_[:id]), _ndLong_, _ndThin_ ]
 				else
@@ -3734,6 +3731,58 @@ class stzDiagram from stzGraph
 				# a name with the wrong font size. Asking for the
 				# placement-aware answer BEFORE measuring is the whole
 				# fix.
+				# A GROUND IS ENTERED FROM ABOVE, so one that would be
+				# entered from the SIDE is dropped below the run before
+				# anything measures it.
+				#
+				# The layout that placed it cannot do this: it works in
+				# its own space, where "down" is one axis for a top-down
+				# picture and the OTHER for a left-to-right one, because
+				# the transpose happens downstream of it. Here the
+				# transpose has already happened and these are the
+				# coordinates the reader will see, so down is down.
+				#
+				# It runs BEFORE _FillBoxSizes on purpose: the drop is
+				# what makes the symbol upright, since a ground lies
+				# flat only while its net is level with it. Move it
+				# first and the orientation follows without being told.
+				_aGd_ = This.Nodes()
+				_nGd_ = len(_aGd_)
+				for _iGd_ = 1 to _nGd_
+					if StzLower("" + This._NativeShapeOf(_aGd_[_iGd_])) !=
+					   "ground"
+						loop
+					ok
+					_cGd_ = StzLower("" + _aGd_[_iGd_][:id])
+					_aGdN_ = []
+					_aGdE_ = This.Edges()
+					_nGdE_ = len(_aGdE_)
+					for _iGdE_ = 1 to _nGdE_
+						_gf_ = StzLower("" + _aGdE_[_iGdE_][:from])
+						_gt_ = StzLower("" + _aGdE_[_iGdE_][:to])
+						if _gf_ = _gt_  loop  ok
+						if _gf_ = _cGd_  _aGdN_ + _gt_  ok
+						if _gt_ = _cGd_  _aGdN_ + _gf_  ok
+					next
+					if len(_aGdN_) != 1  loop  ok
+					_pG_ = This._XYOf(_aXY_, _cGd_)
+					_pN_ = This._XYOf(_aXY_, _aGdN_[1])
+					if len(_pG_) != 2 or len(_pN_) != 2  loop  ok
+					# already below its net: nothing to do
+					if _pN_[2] < _pG_[2] - 2  loop  ok
+					_mvG_ = []
+					_nMvG_ = len(_aXY_)
+					for _iMvG_ = 1 to _nMvG_
+						if StzLower("" + _aXY_[_iMvG_][1]) = _cGd_
+							_mvG_ + [ _aXY_[_iMvG_][1], _aXY_[_iMvG_][2],
+								_aXY_[_iMvG_][3] + _nBoxH_ * 1.15 ]
+						else
+							_mvG_ + _aXY_[_iMvG_]
+						ok
+					next
+					_aXY_ = _mvG_
+				next
+
 				@aDrawXY = _aXY_
 				This._FillBoxSizes(_nBoxW_, _nBoxH_)
 				_aMx_ = This._ContentExtent(_aXY_, _nBoxW_, _nBoxH_,
@@ -11196,12 +11245,9 @@ class stzDiagram from stzGraph
 		# happens at the end of a left-to-right chain, and it drew the
 		# wire into the earth bars from underneath.
 		if This._ShapeOfId(pcId) = "ground"
-			# ...and WHICH end is the one its glyph draws the lead
-			# from, which the box settles: the top of an upright
-			# symbol, the left of one lying along a horizontal run.
-			if nW >= nH
-				return [ paCentre[1] - nW / 2, paCentre[2] ]
-			ok
+			# ...and that terminal is the TOP, because the symbol is
+			# drawn upright and a ground that would be met from the
+			# side has already been dropped below the run.
 			return [ paCentre[1], paCentre[2] - nH / 2 ]
 		ok
 		# TWO WIRES, TWO TERMINALS. Choosing the terminal that FACES the

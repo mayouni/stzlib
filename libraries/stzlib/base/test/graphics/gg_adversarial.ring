@@ -9112,7 +9112,8 @@ chk("NEGATIVE: a ONE-mesh circuit stays a rectangle, not a ladder",
 
 sec("-- 73g. A GROUND IS MET AT ITS LEAD, NOT ITS BARS ------")
 
-# A GROUND HAS ONE TERMINAL AND THE BARS ARE NOT IT.
+# A GROUND HAS ONE TERMINAL, IT IS ON TOP, AND THE WIRE ARRIVES THERE
+# GOING DOWN.
 #
 # The symbol drew its lead upward whatever the wire did, so a
 # left-to-right chain ending at earth ran its wire horizontally ACROSS
@@ -9121,13 +9122,20 @@ sec("-- 73g. A GROUND IS MET AT ITS LEAD, NOT ITS BARS ------")
 # bars crossed by the line that was supposed to end at them. The
 # Principal marked the stub.
 #
-# Both arrangements are checked, because the fix for one of them broke
-# the other on its first attempt: laying the ground flat whenever its
-# net was further sideways than downward turned the ground of a
-# TOP-DOWN circuit on its side, since a stub is offset right AND down
-# and the sideways part happened to be larger.
-aGrCase = [ "upright", "flat" ]
-nGrOk = 0  nGrBad = 0
+# ROTATING THE SYMBOL FIXED THE INCIDENCE AND WAS STILL WRONG, which is
+# why this section asserts the ARRIVAL and not merely the contact: a
+# sideways ground is joined correctly and is drawn in a way no textbook
+# uses. The placement was the fault. A ground that would be met from
+# the side is dropped below the run, and the wire turns down into an
+# upright symbol.
+#
+# Both a top-down and a left-to-right circuit are checked, because the
+# first attempt at the orientation rule broke the one it was not aimed
+# at: judging it by "is my net further sideways than downward" turned a
+# TOP-DOWN circuit's ground on its side, since a stub is offset right
+# AND down and the sideways part happened to be larger.
+aGrCase = [ "top-down", "left-to-right" ]
+nGrUp = 0  nGrOnLead = 0  nGrDown = 0  nGrSeen = 0
 for iGr = 1 to 2
 	oGr = new stzDiagram("gnd73g" + iGr)
 	oGr.SetNotation(StzElectricNotation())
@@ -9151,17 +9159,11 @@ for iGr = 1 to 2
 	                 :FontSize = 26 ])
 	aGrB = oGr._NodeRectOf("g")
 	if len(aGrB) < 4  loop  ok
-	nGrCx = aGrB[1] + aGrB[3] / 2
-	nGrCy = aGrB[2] + aGrB[4] / 2
-	# the lead is at the end the BOX names: the top of an upright
-	# symbol, the left of one lying along a run
-	if aGrB[3] >= aGrB[4]
-		aGrLead = [ aGrB[1], nGrCy ]
-	else
-		aGrLead = [ nGrCx, aGrB[2] ]
-	ok
-	# where its one wire actually ends
-	aGrEnd = []
+	nGrSeen++
+	if aGrB[4] > aGrB[3]  nGrUp++  ok
+	aGrLead = [ aGrB[1] + aGrB[3] / 2, aGrB[2] ]
+	# its one wire: the end that touches it, and the segment before it
+	aGrEnd = []  aGrPrev = []
 	for jGr = 1 to len(oGr.@aEdgePaths)
 		cGrK = StzLower("" + oGr.@aEdgePaths[jGr][1])
 		aGrF = oGr.@aEdgePaths[jGr][2]
@@ -9170,26 +9172,39 @@ for iGr = 1 to 2
 		aGrS = StzSplit(cGrK, ">")
 		if aGrS[1] = "g"
 			aGrEnd = [ aGrF[1], aGrF[2] ]
+			aGrPrev = [ aGrF[3], aGrF[4] ]
 		but aGrS[2] = "g"
-			aGrEnd = [ aGrF[len(aGrF) - 1], aGrF[len(aGrF)] ]
+			nGrL = len(aGrF)
+			aGrEnd = [ aGrF[nGrL - 1], aGrF[nGrL] ]
+			aGrPrev = [ aGrF[nGrL - 3], aGrF[nGrL - 2] ]
 		ok
 	next
 	if len(aGrEnd) < 2  loop  ok
 	nGrD = fabs(aGrEnd[1] - aGrLead[1]) + fabs(aGrEnd[2] - aGrLead[2])
+	if nGrD < 1.5  nGrOnLead++  ok
+	# the segment that touches it must be VERTICAL and coming DOWN
+	if fabs(aGrPrev[1] - aGrEnd[1]) < 1.5 and aGrPrev[2] < aGrEnd[2]
+		nGrDown++
+	ok
 	? "   " + aGrCase[iGr] + ": box " + aGrB[3] + "x" + aGrB[4] +
-	  ", wire ends (" + aGrEnd[1] + "," + aGrEnd[2] + "), lead at (" +
-	  aGrLead[1] + "," + aGrLead[2] + ")"
-	if nGrD < 1.5  nGrOk++  else  nGrBad++  ok
+	  ", arrives (" + aGrPrev[1] + "," + aGrPrev[2] + ") -> (" +
+	  aGrEnd[1] + "," + aGrEnd[2] + "), lead at (" + aGrLead[1] +
+	  "," + aGrLead[2] + ")"
 next
-chkeq("both arrangements were drawn", nGrOk + nGrBad, 2)
-chkeq("a ground's wire ends ON its lead, in both", nGrBad, 0)
+chkeq("both circuits were drawn", nGrSeen, 2)
+chkeq("the symbol stands upright in both", nGrUp, 2)
+chkeq("its wire ends ON the lead, in both", nGrOnLead, 2)
+chkeq("...arriving from ABOVE, in both", nGrDown, 2)
 
 # THE NEGATIVE SIBLING: the reader must be able to tell the lead from
-# the middle of the symbol, or it would pass on a wire ending anywhere.
-# The centre of a ground's box is where its bars are, and it is NOT the
-# lead in either arrangement.
+# the middle of the symbol, or it would pass on a wire ending anywhere;
+# and it must be able to tell a descent from a sideways arrival, or the
+# clause above would pass on the very picture that was marked.
 oGr2 = new stzDiagram("gnd73gN")
 oGr2.SetNotation(StzElectricNotation())
+# read left to right ON PURPOSE: that is the arrangement whose wire has
+# to TURN to reach the lead, so it is the only one carrying a
+# horizontal segment for the negative below to be tested against
 oGr2.SetLayout(:LeftToRight)
 oGr2.AddNodeXTT("v", "VIN", [ :type = "source" ])
 oGr2.AddNodeXTT("c", "C", [ :type = "capacitor" ])
@@ -9200,14 +9215,32 @@ oGr2.ToCanvasXT([ :Font = EFONT, :NodeWidth = 110, :NodeHeight = 68,
 aGrB2 = oGr2._NodeRectOf("g")
 nGrMx = aGrB2[1] + aGrB2[3] / 2
 nGrMy = aGrB2[2] + aGrB2[4] / 2
-if aGrB2[3] >= aGrB2[4]
-	aGrL2 = [ aGrB2[1], nGrMy ]
-else
-	aGrL2 = [ nGrMx, aGrB2[2] ]
-ok
-nGrMid = fabs(nGrMx - aGrL2[1]) + fabs(nGrMy - aGrL2[2])
-? "   the centre sits " + nGrMid + "px from the lead"
+nGrMid = fabs(nGrMx - nGrMx) + fabs(nGrMy - aGrB2[2])
+? "   the centre sits " + nGrMid + "px below the lead"
 chk("NEGATIVE: the middle of the symbol is NOT its lead", nGrMid > 1.5)
+# ...and a horizontal arrival, which is what the marked picture had,
+# must NOT read as a descent. Measured on a REAL segment rather than on
+# three literals: the wire reaching this ground turns down at the end,
+# so the segment BEFORE that turn is horizontal, and the same predicate
+# applied to it has to answer no. If it answered yes the clause above
+# would pass on the picture the Principal circled.
+aGrP2 = []
+for jGr = 1 to len(oGr2.@aEdgePaths)
+	cGrK = StzLower("" + oGr2.@aEdgePaths[jGr][1])
+	if cGrK != "c>g"  loop  ok
+	aGrP2 = oGr2.@aEdgePaths[jGr][2]
+next
+nGrFake = 0
+if len(aGrP2) >= 6
+	# the first segment of that wire, before it turns
+	if NOT (fabs(aGrP2[1] - aGrP2[3]) < 1.5 and aGrP2[2] < aGrP2[4])
+		nGrFake = 1
+	ok
+	? "   the segment before the turn runs (" + aGrP2[1] + "," +
+	  aGrP2[2] + ") -> (" + aGrP2[3] + "," + aGrP2[4] + ")"
+ok
+chkeq("NEGATIVE: a sideways arrival is not read as coming down",
+    nGrFake, 1)
 
 sec("-- 73b. A NAME MAKES ROOM FOR THE WIRE BESIDE IT ---------")
 
