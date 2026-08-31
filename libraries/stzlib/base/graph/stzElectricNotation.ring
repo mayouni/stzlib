@@ -81,6 +81,13 @@ func StzElectricNotation()
 	# away and a circuit is nothing but cycles, so the mode is declared
 	# here in one line, exactly as the state machine declares :Ring.
 	_o_.SetLayoutMode(:Mesh)
+	# A WIRE AND A PART'S OUTLINE ARE ONE CONDUCTOR, so they are drawn
+	# in one ink. The chart default is a dark outline against a lighter
+	# edge, which is right where the boxes are the subject and the
+	# arrows join them; here there is no such division and the lighter
+	# wire read as a thinner line than the parts it joins.
+	_o_.SetOneInk(1)
+
 	# A WIRE HAS NO DIRECTION. Current flows both ways along it depending
 	# on the moment, and an arrowhead would state a direction the circuit
 	# does not have.

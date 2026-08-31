@@ -314,6 +314,7 @@ class stzDiagram from stzGraph
 	@cNotation = "default"
 	@oNotation = NULL
 	@cNotationLayout = ""
+	@bNotationOneInk = 0
 	@cSelfLoopId = ""
 	# per-node drawn size: [ id, w, h ] for anything that is not a full
 	# cell. A mark's geometry has to be the SAME number the drawing uses
@@ -540,6 +541,7 @@ class stzDiagram from stzGraph
 		if _oN_.RankDir() != ""  This.SetLayout(_oN_.RankDir())  ok
 		if _oN_.Splines() != ""  This.SetSplines(_oN_.Splines())  ok
 		@cNotationLayout = "" + _oN_.LayoutMode()
+		@bNotationOneInk = _oN_.OneInk()
 		return This
 
 		def SetNotationQ(pNotation)
@@ -2318,6 +2320,18 @@ class stzDiagram from stzGraph
 		_nFsz_  = This._DiagOpt(paOptions, "fontsize", 14)
 		_cBg_   = This._DiagOpt(paOptions, "background", "#FFFFFF")
 		_cEdge_ = This._DiagOpt(paOptions, "edgecolor", "#8A8A8A")
+		# ...UNLESS THE PROFILE SAYS THE WIRE AND THE OUTLINE ARE ONE
+		# THING. A chart draws its boxes darker than its arrows because
+		# the boxes are the subject; a schematic has no such division,
+		# and a resistor's outline and the wire joined to it are one
+		# conductor. Measured on the divider: the outline came out at
+		# 58 and the wire at 138 on the same 2px stroke, so the wire
+		# read as the thinner of two lines that are the same width.
+		# An explicit :EdgeColor still wins -- the caller is closer than
+		# the profile, the same rule the layout mode follows.
+		if @bNotationOneInk and NOT This._HasOpt(paOptions, "edgecolor")
+			_cEdge_ = This._DiagOpt(paOptions, "strokecolor", "#3A3A3A")
+		ok
 		_nEdgeW_= This._DiagOpt(paOptions, "edgewidth", 2)
 		_nRad_  = This._DiagOpt(paOptions, "corner", 10)
 
@@ -5006,7 +5020,21 @@ class stzDiagram from stzGraph
 			_nRadN_ = _nRad_
 			if _nRadN_ > _nBw_ / 2  _nRadN_ = _nBw_ / 2  ok
 			if _nRadN_ > _nBh_ / 2  _nRadN_ = _nBh_ / 2  ok
-			_nStkW_ = 2 * min([ _nBw_ / _nBoxW_, _nBh_ / _nBoxH_ ])
+			# ...AND THE RATIO IS OF SIZE, NOT OF ASPECT. Taking the
+			# smaller of the two side ratios reads a ROTATED glyph as a
+			# small one: a resistor standing on end is 68x110 against a
+			# generic 110x68, so min(0.62, 1.62) is 0.62 and it was
+			# stroked at 1.24 where the same resistor lying down was
+			# stroked at 2. Two identical parts in one picture drawn at
+			# two weights is I5 exactly -- a difference asserted where
+			# there is none -- and the Principal saw it as some lines
+			# being thinner than others.
+			#
+			# The area ratio is the same question without the aspect in
+			# it: a rotated glyph has the same area and keeps its
+			# weight, a MARK has a fraction of it and still thins, which
+			# is what this was for.
+			_nStkW_ = 2 * sqrt((_nBw_ * _nBh_) / (_nBoxW_ * _nBoxH_))
 			if _nStkW_ > 2  _nStkW_ = 2  ok
 			if _nStkW_ < 1  _nStkW_ = 1  ok
 
@@ -5211,9 +5239,24 @@ class stzDiagram from stzGraph
 					# real extent. Every label came out written across
 					# its own component. So the name keeps its side and
 					# moves further down it.
+					# ...AND THE ROOM IT MAKES IS MEASURED, not added.
+					# This pushed the name down by a fixed clearance
+					# whatever gap already existed, which answers "is it
+					# further?" and never "is it far enough?". The gap a
+					# mark starts with is _nFsz_ * 0.20 -- five pixels at
+					# this size -- and a fixed push is the same arithmetic
+					# in a bigger picture. What a reader needs is a STUB
+					# they can SEE between the glyph and the word, so that
+					# is the quantity, and it scales with the type it has
+					# to be read against.
 					if NOT _bSide2_ and This._LeavesThroughBottom(_cId_,
 						_a_, _aBx2_)
-						_nLbY_ = _nLbY_ + This._LineClearance()
+						_nGapW_ = max([ This._LineClearance(), _nFsz_ * 0.6 ])
+						_nTopW_ = _nLbY_ - _nFsz_ * 0.75
+						_nBotW_ = _a_[2] + _aBx2_[2] / 2
+						if _nTopW_ - _nBotW_ < _nGapW_
+							_nLbY_ = _nLbY_ + (_nGapW_ - (_nTopW_ - _nBotW_))
+						ok
 					ok
 					# ...AND IT EXTENDS BACK ALONG THE READING.
 					#
@@ -11714,11 +11757,26 @@ class stzDiagram from stzGraph
 			_nF_ = len(_lbF_)
 			if _nF_ < 4  loop  ok
 			for _lbE_ = 1 to 2
-				_lbX_ = _lbF_[1]  _lbY_ = _lbF_[2]
-				if _lbE_ = 2  _lbX_ = _lbF_[_nF_ - 1]  _lbY_ = _lbF_[_nF_]  ok
-				if fabs(_lbY_ - _lbB_) > 4  loop  ok
+				_lbX_ = _lbF_[1]   _lbY_ = _lbF_[2]
+				_lbNy_ = _lbF_[4]
+				if _lbE_ = 2
+					_lbX_ = _lbF_[_nF_ - 1]   _lbY_ = _lbF_[_nF_]
+					_lbNy_ = _lbF_[_nF_ - 2]
+				ok
 				if _lbX_ < _lbL_ - 2 or _lbX_ > _lbR_ + 2  loop  ok
-				return 1
+				# attached AT the bottom border, which is how a CELL is
+				# joined: the router clips the edge to the outline
+				if fabs(_lbY_ - _lbB_) <= 4  return 1  ok
+				# ...OR JOINED INSIDE THE GLYPH, which is how a MARK is.
+				# A junction is a dot and the wire meets its CENTRE, on
+				# purpose, so the line runs through it unbroken. This
+				# asked only about the bottom border, so a junction's
+				# wire -- starting 5.44px above it -- did not count as a
+				# wire leaving through the bottom, and the name that
+				# should have made room for it did not. The Principal
+				# has raised that stub more than once: it was 5.2px of
+				# visible line between the dot and the word.
+				if _lbY_ <= _lbB_ + 4 and _lbNy_ > _lbB_ + 2  return 1  ok
 			next
 		next
 		return 0
