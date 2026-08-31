@@ -8777,6 +8777,93 @@ next
 ? "   " + nWcFake + " found when the band is inflated to the stale figure"
 chk("NEGATIVE: the same scan DOES see one at the wrong band", nWcFake > 0)
 
+sec("-- 73d. :SCALE IS RESOLUTION, SO MORE IS BIGGER ---------")
+
+# ASKING FOR THREE TIMES THE RESOLUTION GAVE A SMALLER PICTURE. The
+# scale block multiplies every input -- box, font, stroke, corner --
+# and gated the PAGE on whether the caller had typed one. That was
+# sound for a layered picture, whose page is derived from the boxes
+# downstream, and wrong for every layout that NORMALISES into the page:
+# there the usable area is page MINUS box, so scaling the box against a
+# fixed page spent the picture's own room, and the box fitter then
+# shrank the components to fit the room just taken from them.
+#
+# The claim is the contract's own sentence -- the same diagram with
+# more pixels -- so it is checked on a mesh, which is where it broke,
+# AND on a layered picture, which is where it always held. Two layouts,
+# because a fix that repaired one by breaking the other would pass a
+# guard that only watched the patient.
+aScSheet = []  aScPart = []
+for iSc = 1 to 3
+	oSc = new stzDiagram("scale73d")
+	oSc.SetNotation(StzElectricNotation())
+	oSc.AddNodeXTT("v", "VIN", [ :type = "source" ])
+	oSc.AddNodeXTT("r", "R 1k", [ :type = "resistor" ])
+	oSc.AddNodeXTT("c", "C 100n", [ :type = "capacitor" ])
+	oSc.AddNodeXTT("g", "", [ :type = "ground" ])
+	oSc.AddNodeXTT("nin", "IN", [ :type = "net" ])
+	oSc.AddNodeXTT("nout", "OUT", [ :type = "net" ])
+	oSc.AddNodeXTT("n0", "GND", [ :type = "net" ])
+	oSc.AddEdge("v","nin")   oSc.AddEdge("nin","r")
+	oSc.AddEdge("r","nout")  oSc.AddEdge("nout","c")
+	oSc.AddEdge("c","n0")    oSc.AddEdge("n0","g")
+	oSc.AddEdge("n0","v")
+	oSc.ToCanvasXT([ :Font = EFONT, :NodeWidth = 110, :NodeHeight = 68,
+	                 :FontSize = 26, :Scale = iSc ])
+	aScSheet + oSc.LastCanvas().Width()
+	aScR = oSc.RenderNodeRects()
+	nScW = 0
+	for jSc = 1 to len(aScR)
+		if StzLower("" + aScR[jSc][5]) = "r"  nScW = aScR[jSc][3]  ok
+	next
+	aScPart + nScW
+next
+? "   mesh sheet widths  " + aScSheet[1] + " " + aScSheet[2] + " " + aScSheet[3]
+? "   mesh resistor      " + aScPart[1] + " " + aScPart[2] + " " + aScPart[3]
+
+chk("a mesh grows with :Scale, it does not shrink",
+    aScSheet[2] > aScSheet[1] and aScSheet[3] > aScSheet[2])
+chk("...and so does the component drawn on it",
+    aScPart[2] > aScPart[1] and aScPart[3] > aScPart[2])
+
+# NOT MERELY MONOTONIC -- ROUGHLY PROPORTIONAL. Growth alone would be
+# satisfied by one pixel a step, which is not what "resolution" means.
+nScRat = aScSheet[3] / aScSheet[1]
+? "   sheet(3)/sheet(1)  " + nScRat + "   (want near 3)"
+chk("...and three times the resolution is about three times the picture",
+    nScRat > 2.5 and nScRat < 3.5)
+
+# THE LAYOUT THAT WAS NEVER BROKEN, checked in the same breath, and it
+# is EXACT there -- a layered page is derived from the boxes, so its
+# growth is the multiplier itself with nothing to round.
+aScH = []
+for iSc = 1 to 3
+	oSh = new stzDiagram("scaleh73d")
+	oSh.AddNode("a")  oSh.AddNode("b")  oSh.AddNode("c")  oSh.AddNode("d")
+	oSh.AddEdge("a","b")  oSh.AddEdge("a","c")  oSh.AddEdge("b","d")
+	oSh.ToCanvasXT([ :Font = EFONT, :NodeWidth = 110, :NodeHeight = 68,
+	                 :FontSize = 26, :Scale = iSc ])
+	aScH + oSh.LastCanvas().Width()
+next
+? "   layered widths     " + aScH[1] + " " + aScH[2] + " " + aScH[3]
+chkeq("a layered picture scales EXACTLY, and still does", aScH[3], aScH[1] * 3)
+
+# THE NEGATIVE SIBLING: the instrument reads real sizes, so it must be
+# able to report a picture that did NOT grow. The same reader is run
+# over one diagram rendered twice at the SAME scale, where growth is
+# impossible, and must find none.
+oScA = new stzDiagram("flat73d")
+oScA.AddNode("a")  oScA.AddNode("b")  oScA.AddEdge("a","b")
+oScA.ToCanvasXT([ :Font = EFONT, :NodeWidth = 110, :NodeHeight = 68,
+                  :FontSize = 26, :Scale = 2 ])
+nScA = oScA.LastCanvas().Width()
+oScB = new stzDiagram("flat73d")
+oScB.AddNode("a")  oScB.AddNode("b")  oScB.AddEdge("a","b")
+oScB.ToCanvasXT([ :Font = EFONT, :NodeWidth = 110, :NodeHeight = 68,
+                  :FontSize = 26, :Scale = 2 ])
+nScB = oScB.LastCanvas().Width()
+chk("NEGATIVE: the same scale twice is NOT growth", NOT (nScB > nScA))
+
 sec("-- 73b. A NAME MAKES ROOM FOR THE WIRE BESIDE IT ---------")
 
 # A component writes its name below itself. Where a wire ALSO leaves

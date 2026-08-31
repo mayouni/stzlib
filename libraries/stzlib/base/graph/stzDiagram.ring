@@ -2384,8 +2384,34 @@ class stzDiagram from stzGraph
 			_nFsz_  = _nFsz_ * _nScl_
 			_nEdgeW_= _nEdgeW_ * _nScl_
 			_nRad_  = _nRad_ * _nScl_
-			if This._HasOpt(paOptions, "width")   _nW_ = _nW_ * _nScl_  ok
-			if This._HasOpt(paOptions, "height")  _nH_ = _nH_ * _nScl_  ok
+			# ...AND THE PAGE, WHETHER OR NOT THE CALLER TYPED ONE.
+			#
+			# These two lines used to be gated on _HasOpt, which made the
+			# paragraph above false in its own last sentence: the page was
+			# the one input :Scale did not multiply. The reasoning was
+			# sound for a LAYERED picture, whose page is derived from the
+			# boxes downstream and where multiplying an unused default
+			# would be pointless. It is wrong for every layout that
+			# NORMALISES its coordinates into the page -- mesh, modes,
+			# sequence, ring -- because there the page is an input
+			# regardless of who typed it, and the usable area is the page
+			# MINUS a box. Scaling the box against a fixed page therefore
+			# spent the picture's own room: the space between components
+			# shrank by exactly what the components grew.
+			#
+			# MEASURED on the RC low-pass. Asking for three times the
+			# resolution gave a SMALLER picture -- centres spanning
+			# 722x464 at :Scale = 1 and 446x272 at 3, on a sheet falling
+			# 828x669 -> 662x602 -- and the box fitter then shrank every
+			# component to fit the room that had just been taken from it,
+			# so a resistor asked for at three times the size drew at
+			# 49x30 against 80x49. The same circuit with an explicit
+			# :Width/:Height, which this gate did scale, grew correctly at
+			# every step. That is the whole diagnosis: not the mesh, not
+			# the fitter, but a default page that never heard about
+			# :Scale.
+			_nW_ = _nW_ * _nScl_
+			_nH_ = _nH_ * _nScl_
 		ok
 
 		# A CELL IS AS WIDE AS THE WIDEST NAME IN THE PICTURE.
@@ -2428,7 +2454,10 @@ class stzDiagram from stzGraph
 				_w9_ = _oFont_.WidthOf(_cLb9_, _nFsz_)
 				if _w9_ > _nWide_  _nWide_ = _w9_  ok
 			next
-			_nNeed_ = _nWide_ + 24
+			# the pad is paper too, and 24 flat made a cell relatively
+				# fatter at :Scale = 1 than at 3 -- the widest NAME scales
+				# with the font, so the air around it must as well
+				_nNeed_ = _nWide_ + 24 * _nScl_
 			_nCap9_ = _nBoxW_ * 2.5
 			if _nNeed_ > _nCap9_  _nNeed_ = _nCap9_  ok
 			if _nNeed_ > _nBoxW_  _nBoxW_ = ceil(_nNeed_)  ok
@@ -3370,7 +3399,16 @@ class stzDiagram from stzGraph
 				# hanging off the paper or floating well inside it --
 				# trimming only where it overflowed is what left 32px of
 				# white on one side and 8 on the other.
-				_nBor_ = 16
+				# ...AND THE BORDER IS PAPER, SO IT SCALES. Its sibling
+				# margins at the top of this method are 14 * _nScl_; this
+				# one was a bare 16, so it was the same absolute white
+				# edge on a 828px picture and a 2662px one. That is what
+				# was left of the scale inversion once the page was
+				# fixed: the diagram stopped SHRINKING but was still not
+				# geometrically similar, drawing 5% less cramped at
+				# :Scale = 3 than at 1, because a constant border is a
+				# bigger share of a small sheet.
+				_nBor_ = 16 * _nScl_
 				_dx_ = _nBor_ - _ex0_
 				_dy_ = _nBor_ - _ey0_
 				if fabs(_dx_) > 0.001 or fabs(_dy_) > 0.001
@@ -3649,7 +3687,8 @@ class stzDiagram from stzGraph
 				_aMx_ = This._ContentExtent(_aXY_, _nBoxW_, _nBoxH_,
 					_oFont_, _nFsz_)
 				if len(_aMx_) = 4
-					_nBor2_ = 16
+					# paper, and therefore scaled -- see _nBor_ above
+					_nBor2_ = 16 * _nScl_
 					_dx2_ = _nBor2_ - _aMx_[1]
 					_dy2_ = _nBor2_ - _aMx_[2]
 					if fabs(_dx2_) > 0.001 or fabs(_dy2_) > 0.001
