@@ -8753,36 +8753,45 @@ next
 ? "   " + nWcBad + " wire(s) running through a name"
 chkeq("a wire passes clear of the name it goes by, not through it", nWcBad, 0)
 
-# THE NEGATIVE SIBLING: the instrument must be able to SEE one, IN THIS
-# SCENE. It used to read `if 100 > 90 and 100 < 152` -- three constants
-# a reader can fold in their head, which proves the comparison was
-# typed correctly and nothing whatever about the scan. So the same scan
-# runs again over the same picture with each plate grown to four times
-# its height, which must catch something: the instrument's sight is
-# then measured rather than asserted.
+# THE NEGATIVE SIBLING: the instrument must be able to SEE one.
+#
+# It used to inflate every plate fourfold and require a hit, and that
+# stopped working -- not because the reader broke, but because the
+# placement got good enough that even a plate four times its size
+# touches nothing in this scene. A negative that depends on the picture
+# still being crowded expires the moment the picture is fixed.
+#
+# So the probe is put ON a wire instead of near one: a small rect
+# centred on the midpoint of a real segment, run through the same
+# overlap test. That cannot go stale, because it is built from the ink
+# it is supposed to find.
 nWcFake = 0
-for iWc = 1 to len(_aWcL_)
-	cWcId = StzLower("" + _aWcL_[iWc][1])
-	if NOT oWc._WritesNameBelow(cWcId)  loop  ok
-	nWcT = _aWcL_[iWc][3] - _aWcL_[iWc][5] * 2
-	nWcB = _aWcL_[iWc][3] + _aWcL_[iWc][5] * 2
-	nWcL = _aWcL_[iWc][2] - _aWcL_[iWc][4] / 2
-	nWcR = _aWcL_[iWc][2] + _aWcL_[iWc][4] / 2
+aWcSeg = []
+for jWc = 1 to len(oWc.@aEdgePaths)
+	aWcF = oWc.@aEdgePaths[jWc][2]
+	if len(aWcF) < 4  loop  ok
+	aWcSeg = [ (aWcF[1] + aWcF[3]) / 2, (aWcF[2] + aWcF[4]) / 2 ]
+	exit
+next
+if len(aWcSeg) = 2
+	nWcPl = aWcSeg[1] - 6   nWcPr = aWcSeg[1] + 6
+	nWcPt = aWcSeg[2] - 6   nWcPb = aWcSeg[2] + 6
 	for jWc = 1 to len(oWc.@aEdgePaths)
 		aWcF = oWc.@aEdgePaths[jWc][2]
 		for kWc = 1 to len(aWcF) - 3 step 2
-			if fabs(aWcF[kWc + 3] - aWcF[kWc + 1]) > 0.5  loop  ok
-			nWcY = aWcF[kWc + 1]
-			if nWcY <= nWcT or nWcY >= nWcB  loop  ok
 			nWcX1 = min([ aWcF[kWc], aWcF[kWc + 2] ])
 			nWcX2 = max([ aWcF[kWc], aWcF[kWc + 2] ])
-			if nWcX2 < nWcL or nWcX1 > nWcR  loop  ok
+			nWcY1 = min([ aWcF[kWc + 1], aWcF[kWc + 3] ])
+			nWcY2 = max([ aWcF[kWc + 1], aWcF[kWc + 3] ])
+			if nWcX2 < nWcPl or nWcX1 > nWcPr  loop  ok
+			if nWcY2 < nWcPt or nWcY1 > nWcPb  loop  ok
 			nWcFake++
 		next
 	next
-next
-? "   " + nWcFake + " found when every plate is grown fourfold"
-chk("NEGATIVE: the same scan DOES see one at a grown plate", nWcFake > 0)
+	? "   a probe placed ON a wire is seen " + nWcFake + " time(s)"
+ok
+chk("NEGATIVE: the same scan DOES see a plate that is on a wire",
+    nWcFake > 0)
 
 sec("-- 73d. :SCALE IS RESOLUTION, SO MORE IS BIGGER ---------")
 
@@ -9220,6 +9229,80 @@ chk("a rung meets a rail SQUARE, so the vertex itself is inked",
     nCoIn < 140)
 chk("NEGATIVE: ...and the loop's own corner is still rounded away",
     nCoOut > nCoIn + 60)
+
+# ...AND EVERY NAME STANDS THE SAME DISTANCE FROM WHAT IT NAMES.
+#
+# The gap was three numbers depending on which branch had placed the
+# word: 5.2px for a plain name below, 8px stepped aside, and 24px where
+# the departing-wire push had fired. The Principal marked all four gaps
+# in one picture. It matters beyond tidiness -- a reader uses PROXIMITY
+# to decide which glyph a word belongs to, so a gap that varies is a
+# claim that varies.
+#
+# The scene is the RC low-pass, which places names on three different
+# sides -- below, left and right -- so the measurement crosses the
+# branches that used to disagree rather than repeating one of them.
+oGp = new stzDiagram("gap73j")
+oGp.SetNotation(StzElectricNotation())
+oGp.AddNodeXTT("v", "VIN", [ :type = "source" ])
+oGp.AddNodeXTT("r", "R 1k", [ :type = "resistor" ])
+oGp.AddNodeXTT("c", "C 100n", [ :type = "capacitor" ])
+oGp.AddNodeXTT("g", "", [ :type = "ground" ])
+oGp.AddNodeXTT("nin", "IN", [ :type = "net" ])
+oGp.AddNodeXTT("nout", "OUT", [ :type = "net" ])
+oGp.AddNodeXTT("n0", "GND", [ :type = "net" ])
+oGp.AddEdge("v","nin")   oGp.AddEdge("nin","r")
+oGp.AddEdge("r","nout")  oGp.AddEdge("nout","c")
+oGp.AddEdge("c","n0")    oGp.AddEdge("n0","g")
+oGp.AddEdge("n0","v")
+oGp.ToCanvasXT([ :Font = EFONT, :NodeWidth = 110, :NodeHeight = 68,
+                 :FontSize = 26 ])
+aGpG = []  aGpSide = []
+_aGpL_ = oGp.RenderNodeLabels()
+for iGp = 1 to len(_aGpL_)
+	aGpB = oGp._NodeRectOf(StzLower("" + _aGpL_[iGp][1]))
+	if len(aGpB) < 4  loop  ok
+	nGpPl = _aGpL_[iGp][2] - _aGpL_[iGp][4] / 2
+	nGpPr = _aGpL_[iGp][2] + _aGpL_[iGp][4] / 2
+	nGpPt = _aGpL_[iGp][3] - _aGpL_[iGp][5] / 2
+	nGpPb = _aGpL_[iGp][3] + _aGpL_[iGp][5] / 2
+	nGpBl = aGpB[1]  nGpBr = aGpB[1] + aGpB[3]
+	nGpBt = aGpB[2]  nGpBb = aGpB[2] + aGpB[4]
+	if nGpPt >= nGpBb - 0.5
+		aGpG + (nGpPt - nGpBb)   aGpSide + "below"
+	but nGpPb <= nGpBt + 0.5
+		aGpG + (nGpBt - nGpPb)   aGpSide + "above"
+	but nGpPl >= nGpBr - 0.5
+		aGpG + (nGpPl - nGpBr)   aGpSide + "right"
+	but nGpPr <= nGpBl + 0.5
+		aGpG + (nGpBl - nGpPr)   aGpSide + "left"
+	ok
+next
+nGpLo = 99999  nGpHi = -99999
+for iGp = 1 to len(aGpG)
+	? "   " + aGpSide[iGp] + "  gap " + aGpG[iGp] + "px"
+	if aGpG[iGp] < nGpLo  nGpLo = aGpG[iGp]  ok
+	if aGpG[iGp] > nGpHi  nGpHi = aGpG[iGp]  ok
+next
+chk("names were placed on more than one side", len(aGpG) >= 3)
+chkeq("...and every gap is the same", floor((nGpHi - nGpLo) * 10), 0)
+
+# THE NEGATIVE SIBLING: the reader must be able to SEE a difference, or
+# an equal answer proves only that it measured one thing four times.
+# The same spread is taken over the four gaps with one of them shifted
+# by a pixel, which has to show.
+nGpFake = 0
+if len(aGpG) >= 2
+	nGpLo2 = 99999  nGpHi2 = -99999
+	for iGp = 1 to len(aGpG)
+		nGpV = aGpG[iGp]
+		if iGp = 1  nGpV = nGpV + 1  ok
+		if nGpV < nGpLo2  nGpLo2 = nGpV  ok
+		if nGpV > nGpHi2  nGpHi2 = nGpV  ok
+	next
+	if floor((nGpHi2 - nGpLo2) * 10) != 0  nGpFake = 1  ok
+ok
+chkeq("NEGATIVE: a one-pixel difference would have shown", nGpFake, 1)
 
 sec("-- 73g. A GROUND IS MET AT ITS LEAD, NOT ITS BARS ------")
 
