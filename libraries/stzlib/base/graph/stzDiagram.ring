@@ -5258,6 +5258,93 @@ class stzDiagram from stzGraph
 							_nLbY_ = _nLbY_ + (_nGapW_ - (_nTopW_ - _nBotW_))
 						ok
 					ok
+					# ...AND WHERE THERE IS NO ROOM BELOW AT ALL, IT GOES
+					# BESIDE. The clause above makes a stub between the
+					# glyph and the word, which answers "is the wire's
+					# start visible?" and never "does the word FIT down
+					# there?". On the divider it did not: R1 stands on
+					# the left arm with its bottom terminal at y 488.6
+					# and the bottom rail at 514, so the room below it is
+					# 25px and the name's plate is 39px tall. The plate
+					# was written over the corner where the arm turns
+					# into the rail, which is the line the Principal
+					# marked as crashed.
+					#
+					# STEPPING ASIDE UNCONDITIONALLY IS THE MISTAKE THE
+					# COMMENT ABOVE RECORDS, and this is not that. It
+					# steps aside only where the measurement says the
+					# word cannot fit, so a component with room below
+					# keeps its name below -- which is every horizontal
+					# part on a rail, and is what a schematic does.
+					#
+					# The side is the one facing the middle of the
+					# drawing: that is where the room is for a part
+					# standing on an outer arm, and it needs no more
+					# paper, where leaning outward would.
+					# ...AND WHERE IT WOULD, IT IS MOVED -- TO A PLACE
+					# THAT IS CHECKED, not to a side that is assumed.
+					#
+					# The first version of this stepped the name to the
+					# side facing the middle of the drawing, on the
+					# reasoning that an outer arm has its room inwards.
+					# True for a part standing on an arm, and false for
+					# a junction at a CORNER, whose free side is the one
+					# the rails leave along: TAP and GND came out with
+					# their names written over the rail instead of over
+					# the rung, which is the same defect moved ninety
+					# degrees.
+					#
+					# So the places are tried in order and each is
+					# MEASURED -- inward first, then outward, then above,
+					# with below kept as the fallback when a glyph is
+					# hemmed in on every side. A candidate that leaves
+					# the paper is refused too: the sheet was measured
+					# before the names were placed, so a word pushed off
+					# it is simply cut, and being cut is worse than
+					# standing on a line.
+					_bAside_ = 0
+					if NOT _bSide2_ and @bMesh
+						_nPlH_ = _nFsz_ * 1.5
+						_nPlW_ = _nTw_ / 2 + 3
+						if This._PlateHitsWire(_a_[1] - _nPlW_,
+							_nLbY_ - _nPlH_ / 2, _a_[1] + _nPlW_,
+							_nLbY_ + _nPlH_ / 2)
+							_aCtA_ = This._MeshCentroid()
+							_nInX_ = _a_[1] + _aBx2_[1] / 2 + 8
+							_nOutX_ = _a_[1] - _aBx2_[1] / 2 - 8 - _nTw_
+							if _a_[1] > _aCtA_[1]
+								_nSw_ = _nInX_
+								_nInX_ = _nOutX_
+								_nOutX_ = _nSw_
+							ok
+							_aCand_ = [
+								[ _nInX_, _a_[2] ],
+								[ _nOutX_, _a_[2] ],
+								[ _a_[1] - _nTw_ / 2,
+								  _a_[2] - _aBx2_[2] / 2 - _nFsz_ * 0.95 ]
+							]
+							_nCand_ = len(_aCand_)
+							for _iCand_ = 1 to _nCand_
+								_cdX_ = _aCand_[_iCand_][1]
+								_cdY_ = _aCand_[_iCand_][2]
+								if _cdX_ < 2  loop  ok
+								if _cdX_ + _nTw_ > @nRenderW - 2  loop  ok
+								if _cdY_ - _nPlH_ / 2 < 2  loop  ok
+								if _cdY_ + _nPlH_ / 2 > @nRenderH - 2
+									loop
+								ok
+								if This._PlateHitsWire(_cdX_ - 3,
+									_cdY_ - _nPlH_ / 2, _cdX_ + _nTw_ + 3,
+									_cdY_ + _nPlH_ / 2)
+									loop
+								ok
+								_bAside_ = 1
+								_nLbX2_ = _cdX_
+								_nLbY_ = _cdY_
+								exit
+							next
+						ok
+					ok
 					# ...AND IT EXTENDS BACK ALONG THE READING.
 					#
 					# A name wider than the glyph it names has to lean
@@ -5288,6 +5375,7 @@ class stzDiagram from stzGraph
 							_nLbX_ = _a_[1] - _aBx2_[1] / 2 - 8 - _nTw_
 						ok
 					ok
+					if _bAside_  _nLbX_ = _nLbX2_  ok
 					_oC_.Flush()
 					# ITS OWN POSITION, not the edge labels'. This asked
 					# what surface was under the last EDGE label placed,
@@ -11866,6 +11954,40 @@ class stzDiagram from stzGraph
 	# the paper measurement and the lifeline -- and the second was about
 	# to hard-code its own list, which is how the two come to disagree
 	# and how a picture ends up correct in its size and wrong in its ink.
+	# DOES A WORD PUT HERE LAND ON A WIRE? Asked of the drawn paths,
+	# which are the only thing that knows where the ink went.
+	#
+	# The name's plate is OPAQUE -- it has to be, or the word would be
+	# unreadable over whatever it crosses -- so a plate on a wire does
+	# not overlap the line, it ERASES a stretch of it. That is the
+	# defect the Principal has now marked twice: a corner rubbed out
+	# where an arm turns into a rail, and a run between two parts left
+	# as two stubs with a word in the gap.
+	#
+	# The test is the segment's bounding box against the plate, which is
+	# exact for the orthogonal wires this is asked about and errs toward
+	# moving the word when a wire is diagonal. Erring that way is right:
+	# a name a little further from its glyph is read correctly, and a
+	# name over a wire is a picture that has stopped saying what it is
+	# about.
+	def _PlateHitsWire(nL, nT, nR, nB)
+		_aPh_ = @aEdgePaths
+		_nPh_ = len(_aPh_)
+		for _iPh_ = 1 to _nPh_
+			_aPhF_ = _aPh_[_iPh_][2]
+			_nPhF_ = len(_aPhF_)
+			for _kPh_ = 1 to _nPhF_ - 3 step 2
+				_phX1_ = min([ _aPhF_[_kPh_], _aPhF_[_kPh_ + 2] ])
+				_phX2_ = max([ _aPhF_[_kPh_], _aPhF_[_kPh_ + 2] ])
+				_phY1_ = min([ _aPhF_[_kPh_ + 1], _aPhF_[_kPh_ + 3] ])
+				_phY2_ = max([ _aPhF_[_kPh_ + 1], _aPhF_[_kPh_ + 3] ])
+				if _phX2_ < nL or _phX1_ > nR  loop  ok
+				if _phY2_ < nT or _phY1_ > nB  loop  ok
+				return 1
+			next
+		next
+		return 0
+
 	def _WritesNameBelow(pcId)
 		_wnId_ = StzLower("" + pcId)
 		_wnS_ = ""
