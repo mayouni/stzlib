@@ -9110,6 +9110,71 @@ next
 chk("NEGATIVE: a ONE-mesh circuit stays a rectangle, not a ladder",
     nLdX1 - nLdX0 > 100 and nLdY1 - nLdY0 > 100)
 
+# ...AND NO NAME IN IT STANDS ON A WIRE, THE CORNER JUNCTIONS INCLUDED.
+#
+# This is the clause the Principal had to raise four times, and the
+# reason it kept coming back is that the rule was running and had
+# NOWHERE TO PUT THE WORD. A junction at a corner has wires on two of
+# its sides; the other two were off the paper, because the sheet is
+# cropped to the ink before any name is placed. Every candidate was
+# refused and the placer fell back to writing over its own rung -- so
+# the picture looked exactly as it had before the rule existed.
+#
+# The ladder is the scene that has corner junctions, which is why the
+# check lives here rather than beside the single-loop circuits: those
+# have room on three sides and would have passed throughout.
+nLdOn = 0
+_aLdL_ = oLd.RenderNodeLabels()
+for iLd = 1 to len(_aLdL_)
+	nLdPl = _aLdL_[iLd][2] - _aLdL_[iLd][4] / 2
+	nLdPt = _aLdL_[iLd][3] - _aLdL_[iLd][5] / 2
+	nLdPr = _aLdL_[iLd][2] + _aLdL_[iLd][4] / 2
+	nLdPb = _aLdL_[iLd][3] + _aLdL_[iLd][5] / 2
+	for jLd = 1 to len(oLd.@aEdgePaths)
+		aLdF = oLd.@aEdgePaths[jLd][2]
+		for kLd = 1 to len(aLdF) - 3 step 2
+			nLdSx1 = min([ aLdF[kLd], aLdF[kLd + 2] ])
+			nLdSx2 = max([ aLdF[kLd], aLdF[kLd + 2] ])
+			nLdSy1 = min([ aLdF[kLd + 1], aLdF[kLd + 3] ])
+			nLdSy2 = max([ aLdF[kLd + 1], aLdF[kLd + 3] ])
+			if nLdSx2 < nLdPl or nLdSx1 > nLdPr  loop  ok
+			if nLdSy2 < nLdPt or nLdSy1 > nLdPb  loop  ok
+			nLdOn++
+			? "   " + _aLdL_[iLd][1] + "'s name stands on a wire"
+			exit
+		next
+		if nLdOn > 0 and jLd > 0  ok
+	next
+next
+? "   " + len(_aLdL_) + " names placed, " + nLdOn + " standing on a wire"
+chkeq("no name on the ladder stands on a wire", nLdOn, 0)
+
+# THE NEGATIVE SIBLING: the scan must be able to SEE one. The same
+# reader is run with every plate grown to four times its height, which
+# on a picture this dense has to catch something -- so a zero above is
+# a placement that worked and not a reader that never looked.
+nLdFake = 0
+for iLd = 1 to len(_aLdL_)
+	nLdPl = _aLdL_[iLd][2] - _aLdL_[iLd][4] / 2
+	nLdPt = _aLdL_[iLd][3] - _aLdL_[iLd][5] * 2
+	nLdPr = _aLdL_[iLd][2] + _aLdL_[iLd][4] / 2
+	nLdPb = _aLdL_[iLd][3] + _aLdL_[iLd][5] * 2
+	for jLd = 1 to len(oLd.@aEdgePaths)
+		aLdF = oLd.@aEdgePaths[jLd][2]
+		for kLd = 1 to len(aLdF) - 3 step 2
+			nLdSx1 = min([ aLdF[kLd], aLdF[kLd + 2] ])
+			nLdSx2 = max([ aLdF[kLd], aLdF[kLd + 2] ])
+			nLdSy1 = min([ aLdF[kLd + 1], aLdF[kLd + 3] ])
+			nLdSy2 = max([ aLdF[kLd + 1], aLdF[kLd + 3] ])
+			if nLdSx2 < nLdPl or nLdSx1 > nLdPr  loop  ok
+			if nLdSy2 < nLdPt or nLdSy1 > nLdPb  loop  ok
+			nLdFake++
+		next
+	next
+next
+? "   " + nLdFake + " found when every plate is grown fourfold"
+chk("NEGATIVE: the same scan DOES see a name on a wire", nLdFake > 0)
+
 sec("-- 73g. A GROUND IS MET AT ITS LEAD, NOT ITS BARS ------")
 
 # A GROUND HAS ONE TERMINAL, IT IS ON TOP, AND THE WIRE ARRIVES THERE
