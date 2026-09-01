@@ -317,14 +317,14 @@ class stzSecurityLedger from stzObject
 		bReady = 1
 
 	def _Ensure()
-		if bReady = 0
+		if $bReady = 0
 			pHandle = StzEngineSecLogCreate(@nCapacity)
 			bReady = 1
 		ok
 
 	def Handle()
 		This._Ensure()
-		return pHandle
+		return $pHandle
 
 	# Bind this face to a ledger owned elsewhere (the process ledger).
 	# Destroy() will not free an adopted handle -- the owner does.
@@ -341,7 +341,7 @@ class stzSecurityLedger from stzObject
 	# (AdoptHandle) never knew the capacity it was created with.
 	def Capacity()
 		This._Ensure()
-		return StzEngineSecLogCapacity(pHandle)
+		return StzEngineSecLogCapacity($pHandle)
 
 	  #-- recording ---------------------------------------------------
 
@@ -349,7 +349,7 @@ class stzSecurityLedger from stzObject
 	# the digest is under the caller's control.
 	def Record(poEvent)
 		This._Ensure()
-		StzEngineSecLogAppend(pHandle, poEvent.CanonicalString(),
+		StzEngineSecLogAppend($pHandle, poEvent.CanonicalString(),
 			poEvent.AtWall(), This._SevCode(poEvent.Severity()))
 		return This
 
@@ -358,18 +358,18 @@ class stzSecurityLedger from stzObject
 	# is recomputed here; it does not carry the original file's.
 	def AppendCanonical(pcCanonical, pnWallMs, pnSeverityCode)
 		This._Ensure()
-		StzEngineSecLogAppend(pHandle, pcCanonical, pnWallMs, pnSeverityCode)
+		StzEngineSecLogAppend($pHandle, pcCanonical, pnWallMs, pnSeverityCode)
 		return This
 
 	# Events ever recorded (keeps counting past capacity).
 	def Count()
 		This._Ensure()
-		return StzEngineSecLogCount(pHandle)
+		return StzEngineSecLogCount($pHandle)
 
 	# Events still retained in the window.
 	def Size()
 		This._Ensure()
-		return StzEngineSecLogSize(pHandle)
+		return StzEngineSecLogSize($pHandle)
 
 	  #-- reading -----------------------------------------------------
 
@@ -377,18 +377,18 @@ class stzSecurityLedger from stzObject
 	# I0 field shape plus its chain digest.
 	def At(pnIndex)
 		This._Ensure()
-		_cCanon_ = StzEngineSecLogCanonicalAt(pHandle, pnIndex)
+		_cCanon_ = StzEngineSecLogCanonicalAt($pHandle, pnIndex)
 		if _cCanon_ = ""
 			return []
 		ok
 		_aR_ = This._Parse(_cCanon_)
-		_aR_ + [ :digest, StzEngineSecLogDigestAt(pHandle, pnIndex) ]
+		_aR_ + [ :digest, StzEngineSecLogDigestAt($pHandle, pnIndex) ]
 		return _aR_
 
 	def All()
 		This._Ensure()
 		_aOut_ = []
-		_nN_ = StzEngineSecLogSize(pHandle)
+		_nN_ = StzEngineSecLogSize($pHandle)
 		for _i_ = 1 to _nN_
 			_aOut_ + This.At(_i_)
 		next
@@ -476,18 +476,18 @@ class stzSecurityLedger from stzObject
 	# ever recorded (including evicted entries).
 	def Digest()
 		This._Ensure()
-		return StzEngineSecLogHeadDigest(pHandle)
+		return StzEngineSecLogHeadDigest($pHandle)
 
 	def DigestAt(pnIndex)
 		This._Ensure()
-		return StzEngineSecLogDigestAt(pHandle, pnIndex)
+		return StzEngineSecLogDigestAt($pHandle, pnIndex)
 
 	# [ :intact, :brokenAt, :message ] -- brokenAt is the 1-based index
 	# of the first entry whose stored digest disagrees with a
 	# recomputation, 0 when the retained window is consistent.
 	def Verify()
 		This._Ensure()
-		_n_ = StzEngineSecLogVerify(pHandle)
+		_n_ = StzEngineSecLogVerify($pHandle)
 		if _n_ = 0
 			return [ :intact = 1, :brokenAt = 0,
 				:message = "chain intact over " + This.Size() + " retained entr(ies)" ]
@@ -517,12 +517,12 @@ class stzSecurityLedger from stzObject
 
 	def SealTo(pcPath, pcKey)
 		This._Ensure()
-		_nN_ = StzEngineSecLogSize(pHandle)
+		_nN_ = StzEngineSecLogSize($pHandle)
 		_cLast_ = ""
 		_cBody_ = ""
 		for _i_ = 1 to _nN_
-			_cD_ = StzEngineSecLogDigestAt(pHandle, _i_)
-			_cBody_ += (_cD_ + Char(9) + StzEngineSecLogCanonicalAt(pHandle, _i_) + Char(10))
+			_cD_ = StzEngineSecLogDigestAt($pHandle, _i_)
+			_cBody_ += (_cD_ + Char(9) + StzEngineSecLogCanonicalAt($pHandle, _i_) + Char(10))
 			_cLast_ = _cD_
 		next
 		_cSeal_ = ""
@@ -663,13 +663,13 @@ class stzSecurityLedger from stzObject
 
 	def Reset()
 		This._Ensure()
-		StzEngineSecLogReset(pHandle)
+		StzEngineSecLogReset($pHandle)
 		return This
 
 	def Destroy()
-		if bReady
-			if NOT bAdopted
-				StzEngineSecLogDestroy(pHandle)
+		if $bReady
+			if NOT $bAdopted
+				StzEngineSecLogDestroy($pHandle)
 			ok
 			pHandle = ""
 			bReady = 0

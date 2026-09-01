@@ -97,7 +97,7 @@ class stzConstraint from stzObject
 
 	def Expression()
 
-		_cCode_ = "if " + _cConstraint_ + char(10) +
+		_cCode_ = "if " + $_cConstraint_ + char(10) +
 				char(9) + " // Pass" + char(10) +
 			"else" + char(10) +
 				char(9) + "StzRaise('Constraint unverified!')" + char(10) +

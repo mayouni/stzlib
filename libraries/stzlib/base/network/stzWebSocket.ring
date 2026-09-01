@@ -13,11 +13,11 @@ class stzWebSocket from stzNetwork
     
     def Connect(cUrl)
         _curl_handle_ = curl_easy_init()
-        curl_easy_setopt_2(_curl_handle_, CURLOPT_URL, cUrl)
-        curl_easy_setopt_1(_curl_handle_, CURLOPT_CONNECT_ONLY, 2)
+        curl_easy_setopt_2(_curl_handle_, $CURLOPT_URL, cUrl)
+        curl_easy_setopt_1(_curl_handle_, $CURLOPT_CONNECT_ONLY, 2)
         
         _result_ = curl_easy_perform(_curl_handle_)
-        if _result_ = CURLE_OK
+        if _result_ = $CURLE_OK
             @is_connected = 1
             ClearErrors()
             if @on_open_callback != ""
@@ -38,8 +38,8 @@ class stzWebSocket from stzNetwork
             return This
         ok
         
-        _result_ = curl_ws_send(_curl_handle_, cText, 0, CURLWS_TEXT)
-        if _result_[1] != CURLE_OK
+        _result_ = curl_ws_send($_curl_handle_, cText, 0, $CURLWS_TEXT)
+        if _result_[1] != $CURLE_OK
             @last_error = "Failed to send message"
             @error_code = _result_[1]
         ok
@@ -59,8 +59,8 @@ class stzWebSocket from stzNetwork
             _binary_string_ += StzChar(_byte_)
         next
         
-        _result_ = curl_ws_send(_curl_handle_, _binary_string_, 0, CURLWS_BINARY)
-        if _result_[1] != CURLE_OK
+        _result_ = curl_ws_send($_curl_handle_, _binary_string_, 0, $CURLWS_BINARY)
+        if _result_[1] != $CURLE_OK
             @last_error = "Failed to send binary data"
             @error_code = _result_[1]
         ok
@@ -72,8 +72,8 @@ class stzWebSocket from stzNetwork
             return This
         ok
         
-        _result_ = curl_ws_recv(_curl_handle_, 1024)
-        if _result_[1] = CURLE_OK
+        _result_ = curl_ws_recv($_curl_handle_, 1024)
+        if _result_[1] = $CURLE_OK
             @last_message = _result_[2]
             # Determine message type based on WebSocket frame
             @message_type = "TEXT"  # Simplified - would need proper frame parsing
@@ -91,10 +91,10 @@ class stzWebSocket from stzNetwork
         return This
     
     def Close()
-        if @is_connected and _curl_handle_ != ""
+        if @is_connected and $_curl_handle_ != ""
             # Send close frame
-            curl_ws_send(_curl_handle_, "", 0, CURLWS_CLOSE)
-            curl_easy_cleanup(_curl_handle_)
+            curl_ws_send($_curl_handle_, "", 0, $CURLWS_CLOSE)
+            curl_easy_cleanup($_curl_handle_)
             @is_connected = 0
             
             if @on_close_callback != ""

@@ -5,12 +5,12 @@
  ///  VARIABLES  ///
 ///////////////////
 
-_aTempVars = []
-_aVars = []	# the list of all temp vars and their values
+$_aTempVars = []
+$_aVars = []	# the list of all temp vars and their values
 
-_bVarReset = 0
-_var = []	# Current temp var and its value
-_oldVar = []	# A copy of the temp var before it is changed
+$_bVarReset = 0
+$_var = []	# Current temp var and its value
+$_oldVar = []	# A copy of the temp var before it is changed
 
   ///////////////////
  ///  FUNCTIONS  ///
@@ -18,9 +18,9 @@ _oldVar = []	# A copy of the temp var before it is changed
 
 func StzTempVars()
 	_aResult_ = []
-	_nLen_ = len(_aVars)
+	_nLen_ = len($_aVars)
 	for i = 1 to _nLen_
-		_aResult_ + _aVars[i][1]
+		_aResult_ + $_aVars[i][1]
 	next
 
 	return _aResult_
@@ -51,9 +51,9 @@ func StzTempVars()
 
 func StzTempVals()
 	_aResult_ = []
-	_nLen_ = len(_aVars)
+	_nLen_ = len($_aVars)
 	for i = 1 to _nLen_
-		_aResult_ + _aVars[i][2]
+		_aResult_ + $_aVars[i][2]
 	next
 
 	return _aResult_
@@ -65,7 +65,7 @@ func StzTempVals()
 		return StzTempVals()
 
 func StzTempVarsVals()
-	return _aVars
+	return $_aVars
 
 	func TempVarsVals()
 		return StzTempVarsVals()
@@ -80,10 +80,10 @@ func StzTempVarsVals()
 		return StzTempVarsVals()
 
 func StzTempVar()
-	if len(_var) = 0
+	if len($_var) = 0
 		return []
 	else
-		return _var[1]
+		return $_var[1]
 	ok
 
 	func TempVar()
@@ -102,10 +102,10 @@ func StzTempVar()
 		return StzTempVar()
 
 func StzTempVal()
-	if len(_var) = 0
+	if len($_var) = 0
 		return ""
 	else
-		return _var[2]
+		return $_var[2]
 	ok
 
 	func TempVal()
@@ -115,7 +115,7 @@ func StzTempVal()
 		return StzTempVal()
 
 func StzTempVarVal()
-	return _var
+	return $_var
 
 	func TempVarVal()
 		return StzTempVarVal()
@@ -218,29 +218,29 @@ func StzSetV(paVarNamesAndTheirValues)
 
 	# Memorizing the current var
 
-	if len(_aVars) = 0
+	if len($_aVars) = 0
 		_oldVar = []
 	else
-		_oldVar = _aVars[ len(_aVars) ]
+		_oldVar = $_aVars[ len($_aVars) ]
 	ok
 
 	# Setting the new var
 
 	_nLen_ = len(paVarNamesAndTheirValues)
-	_oHash_ = new stzHashList(_aVars)
+	_oHash_ = new stzHashList($_aVars)
 
 	for i = 1 to _nLen_
 		_n_ = _oHash_.FindKey(paVarNamesAndTheirValues[i][1])
 		if _n_ = 0
-			_aVars + paVarNamesAndTheirValues[i]
+			$_aVars + paVarNamesAndTheirValues[i]
 		else
-			_aVars[_n_] = paVarNamesAndTheirValues[i]
+			$_aVars[_n_] = paVarNamesAndTheirValues[i]
 		ok
 	next
 
 	# The new var is the temp var
 
-	_var = _aVars[len(_aVars)]
+	_var = $_aVars[len($_aVars)]
 
 	func SetV(paVarNamesAndTheirValues)
 		StzSetV(paVarNamesAndTheirValues)
@@ -249,12 +249,12 @@ func StzSetV(paVarNamesAndTheirValues)
 		StzSetV(paVarNamesAndTheirValues)
 
 func StzReadV(p)
-	_oHash_ = new stzHashList(_aVars)
+	_oHash_ = new stzHashList($_aVars)
 	_n_ = _oHash_.FindKey(p)
 	if _n_ = 0
 		StzRaise("Undefined named variable!")
 	else
-		return _aVars[_n_][2]
+		return $_aVars[_n_][2]
 	ok
 
 	func ReadV(p)
@@ -280,10 +280,10 @@ func StzReadManyV(paVars)
 		return StzReadManyV(paVars)
 
 func StzDataVars()
-	_nLen_ = len(_aVars)
+	_nLen_ = len($_aVars)
 	_aResult_ = []
 	for i = 1 to _nLen_
-		_aResult_ + _aVars[i]
+		_aResult_ + $_aVars[i]
 	next
 	return _aResult_
 
@@ -294,7 +294,7 @@ func StzDataVars()
 		return StzDataVars()
 
 func StzDataVarsXT()
-	return _aVars
+	return $_aVars
 
 	func DataVarsXT()
 		return StzDataVarsXT()
@@ -321,12 +321,12 @@ func StzVr(pacVars)
 
 		_aTempVars + [ pacVars[i], "" ]
 
-		_oHash_ = StzHashListQ(_aVars)
+		_oHash_ = StzHashListQ($_aVars)
 		_n_ = _oHash_.FindKey(pacVars[i])
 		if _n_ = 0
-			_aVars + [ pacVars[i], "" ]
+			$_aVars + [ pacVars[i], "" ]
 		else
-			_aVars[_n_][2] = []
+			$_aVars[_n_][2] = []
 		ok
 	next
 
@@ -340,7 +340,7 @@ func StzVr(pacVars)
 		return StzVr(pacVars)
 
 func StzOldVar()
-	return _oldVar
+	return $_oldVar
 
 	func OldVar()
 		return StzOldVar()
@@ -376,7 +376,7 @@ func StzOldVal()
 
 func StzVl(paVals)
 	# Checking the paVals param
-	if len(_aTempVars) = 0 or (isList(paVals) and len(paVals) = 0)
+	if len($_aTempVars) = 0 or (isList(paVals) and len(paVals) = 0)
 		return
 	ok
 
@@ -391,27 +391,27 @@ func StzVl(paVals)
 	_oldVar = _Var
 
 	# Doing the job
-	_nLen_ = @Min([ len(_aTempVars), len(paVals) ])
-	_oHash_ = new stzHashList(_aVars)
+	_nLen_ = @Min([ len($_aTempVars), len(paVals) ])
+	_oHash_ = new stzHashList($_aVars)
 
 	for i = 1 to _nLen_
-		_aTempVars[i][2] = paVals[i]
-		_n_ = _oHash_.FindKey(_aTempVars[i][1])
+		$_aTempVars[i][2] = paVals[i]
+		_n_ = _oHash_.FindKey($_aTempVars[i][1])
 		if _n_ > 0
-			_aVars[_n_][2] = paVals[i]
+			$_aVars[_n_][2] = paVals[i]
 			if ObjectIsStzObject(paVals[i])
-				paVals[i].SetObjectVarNameTo(_aVars[_n_][1])
+				paVals[i].SetObjectVarNameTo($_aVars[_n_][1])
 			ok
 		else
-			_aVars + [ _aTempVars[i][1], paVals[i] ]
+			$_aVars + [ $_aTempVars[i][1], paVals[i] ]
 			if ObjectIsStzObject(paVals[i])
-				paVals[i].SetObjectVarNameTo(_aTempVars[i][1])
+				paVals[i].SetObjectVarNameTo($_aTempVars[i][1])
 			ok
 		ok
 	next
 
 	# Memorizing the last variable/value processed
-	_var = [ _aTempVars[_nLen_][1], paVals[_nLen_] ]
+	_var = [ $_aTempVars[_nLen_][1], paVals[_nLen_] ]
 	if StzOldVal() = ""
 		_oldVar = _var
 	ok
@@ -451,7 +451,7 @@ func StzVarExists(_cVarName_)
 		return 0
 	ok
 
-	_oHash_ = new stzHashList(_aVars)
+	_oHash_ = new stzHashList($_aVars)
 	return (_oHash_.FindKey(_cVarName_) > 0)
 
 	func VarExists(_cVarName_)
@@ -475,7 +475,7 @@ func StzRemoveVar(_cVarName_)
 		StzRaise("Incorrect param type! cVarName must be a string.")
 	ok
 
-	_oHash_ = new stzHashList(_aVars)
+	_oHash_ = new stzHashList($_aVars)
 	_n_ = _oHash_.FindKey(_cVarName_)
 	if _n_ > 0
 		del(_aVars, _n_)
@@ -498,7 +498,7 @@ func StzRemoveVar(_cVarName_)
 
 # Get number of variables
 func StzNumberOfVars()
-	return len(_aVars)
+	return len($_aVars)
 
 	func NumberOfVars()
 		return StzNumberOfVars()

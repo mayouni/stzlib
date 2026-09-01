@@ -7,14 +7,14 @@ from octal to binary and vice-versa. It is easier to handle
 input and output in the octal form.
 */
 
-_aOctalPrefixes = [ "o", "0o" ]
-_cOctalNumberPrefix = "0o"
+$_aOctalPrefixes = [ "o", "0o" ]
+$_cOctalNumberPrefix = "0o"
 
 func OctalPrefixes()
-	return _aOctalPrefixes
+	return $_aOctalPrefixes
 
 func OctalPrefix()
-	return _cOctalNumberPrefix
+	return $_cOctalNumberPrefix
 
 	def OctalNumberPrefix()
 		return OctalPrefix()

@@ -1467,7 +1467,7 @@ def ParseConjunction(_cTokenStr_)
 		return new stzMatrex(_cCombined_)
 	
 		def Andd(oOtherMatrex)
-			return THis.And_(oOtherMatriex)
+			return THis.And_($oOtherMatriex)
 
 	def Or_(oOtherMatrex)
 		if CheckParams() and NOT IsStzMatrex(oOtherMatrex)

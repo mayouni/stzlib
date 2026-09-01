@@ -641,7 +641,7 @@ func PathsWithDepth(aPaths, nDepth)
     return _aResult_
 
     func @PathsWithPath(aPaths, n)
-	return PathsWithDepth(aPaths, nDepth)
+	return PathsWithDepth(aPaths, $nDepth)
 
 # Returns all paths that are superpaths of a given path
 

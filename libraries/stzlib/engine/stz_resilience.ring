@@ -36,6 +36,6 @@ else
 ok
 
 # State constants (mirror engine CircuitState enum)
-STZ_CIRCUIT_CLOSED    = 0
-STZ_CIRCUIT_OPEN      = 1
-STZ_CIRCUIT_HALF_OPEN = 2
+$STZ_CIRCUIT_CLOSED    = 0
+$STZ_CIRCUIT_OPEN      = 1
+$STZ_CIRCUIT_HALF_OPEN = 2

@@ -25,17 +25,17 @@
 #-----------------#
 
 # Task Status
-TASK_PENDING = "pending"
-TASK_RUNNING = "running"
-TASK_COMPLETED = "completed"
-TASK_ERROR = "error"
-TASK_CANCELLED = "cancelled"
+$TASK_PENDING = "pending"
+$TASK_RUNNING = "running"
+$TASK_COMPLETED = "completed"
+$TASK_ERROR = "error"
+$TASK_CANCELLED = "cancelled"
 
 # HTTP Tasks
-HTTP_TASK_GET = "http_get"
-HTTP_TASK_POST = "http_post"
-HTTP_TASK_PUT = "http_put"
-HTTP_TASK_DELETE = "http_delete"
+$HTTP_TASK_GET = "http_get"
+$HTTP_TASK_POST = "http_post"
+$HTTP_TASK_PUT = "http_put"
+$HTTP_TASK_DELETE = "http_delete"
 
 class stzReactiveTask from stzObject
 
@@ -48,10 +48,10 @@ class stzReactiveTask from stzObject
 	@taskFunc = ""
 	@onComplete = ""
 	@onError = ""
-	@status = TASK_PENDING
+	@status = $TASK_PENDING
 	@result = ""
 	@oEngine = ""
-	@errorHandling = DEFAULT_ERROR_HANDLING
+	@errorHandling = $DEFAULT_ERROR_HANDLING
 	@errorMsg = ""
 	@bReported = 0
 
@@ -60,7 +60,7 @@ class stzReactiveTask from stzObject
 		@taskId = id
 		@taskFunc = f
 		@oEngine = engine
-		@status = TASK_PENDING
+		@status = $TASK_PENDING
 		
 		if errorMode != ""
 			@errorHandling = errorMode
@@ -98,9 +98,9 @@ class stzReactiveTask from stzObject
 		# once the second was corrected the two were identical and the question
 		# had no purpose.
 		try
-			@status = TASK_RUNNING
+			@status = $TASK_RUNNING
 			@result = call @taskFunc()
-			@status = TASK_COMPLETED
+			@status = $TASK_COMPLETED
 			if @onComplete != ""
 				call @onComplete(@result)
 			ok
@@ -184,13 +184,13 @@ class stzReactiveTask from stzObject
 	# Error() mean the same thing however the work happened.
 
 	def Complete(pResult)
-		@status = TASK_COMPLETED
+		@status = $TASK_COMPLETED
 		@result = pResult
 		@errorMsg = ""
 		return This
 
 	def Fail(pcMsg)
-		@status = TASK_ERROR
+		@status = $TASK_ERROR
 		@errorMsg = "" + pcMsg
 		@bReported = 1      # the caller is reporting it, right here
 		return This

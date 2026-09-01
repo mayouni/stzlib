@@ -981,7 +981,7 @@ class stzGraph from stzObject
 		ok
 	
 		if isList(pcToNodeId)
-			This.AddEdgesXTT(pcFromNodeId, paToNodesIdsAndLabelsAndProps)
+			This.AddEdgesXTT(pcFromNodeId, $paToNodesIdsAndLabelsAndProps)
 			return
 		ok
 
@@ -4184,7 +4184,7 @@ class stzGraph from stzObject
 		# Metrics section
 		_nDensity_ = This.NodeDensity()
 		if _nDensity_ = 0
-			aoExplanation[:metrics] + "Density: 0% (no connections)"
+			$aoExplanation[:metrics] + "Density: 0% (no connections)"
 		but _nDensity_ < 25
 			_aExplanation_[:metrics] + ("Density: " + _nDensity_ + "% (sparse)")
 		but _nDensity_ < 50

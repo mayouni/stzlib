@@ -38,7 +38,7 @@ func ContentSizeInBytes(_item_)
 	ok
 
 	if isNumber(_item_)
-		return RING_NUMBER_CONTENT_SIZE
+		return $RING_NUMBER_CONTENT_SIZE
 
 	but isString(_item_)
 		return len(_item_)
@@ -234,7 +234,7 @@ func SizeInBytesXT(_item_)
 		return SizeInBytesXT(p)
 
 		func @MSizeXT(p)
-			return SizeInBytesXT(n)
+			return SizeInBytesXT($n)
 
 	func MemorySizeXT(p)
 		return SizeInBytesXT(p)

@@ -47,7 +47,7 @@ func StzReactiveSetAttr(pObj, pcName, pValue)
 class stzReactiveObject from stzObject
 
 	# Core reactive infrastructure
-	@wrappedObject = OBJECT_STANDALONE       # OBJECT_STANDALONE = standalone, not OBJECT_STANDALONE = wrapper mode
+	@wrappedObject = $OBJECT_STANDALONE       # OBJECT_STANDALONE = standalone, not OBJECT_STANDALONE = wrapper mode
 	@oEngine = ""
 
 	# Attribute watching system
@@ -58,8 +58,8 @@ class stzReactiveObject from stzObject
 	@aSettleWatchers = []       # [attr, delayMs, @callback, timerId] (F5)
 	
 	# State management
-	@bReactiveMode = DEFAULT_REACTIVE_MODE
-	@bBatchMode = DEFAULT_BATCH_MODE
+	@bReactiveMode = $DEFAULT_REACTIVE_MODE
+	@bBatchMode = $DEFAULT_BATCH_MODE
 	@aPendingChanges = []       # Changes accumulated during batch mode
 	
 	# Change tracking
@@ -149,7 +149,7 @@ class stzReactiveObject from stzObject
 	    if existingObject != ""
 	        @wrappedObject = existingObject
 	    else
-	        @wrappedObject = OBJECT_STANDALONE
+	        @wrappedObject = $OBJECT_STANDALONE
 	    ok
 	    @oEngine = reactiveEngine
 
@@ -161,7 +161,7 @@ class stzReactiveObject from stzObject
 	# half of the init bug that retired the suite). Use Ring's reflection
 	# builtins directly: attributes() gives the NAMES, getattribute() the
 	# values. (The bare-name/method-vs-builtin trap -- see the VM-traps.)
-	if @wrappedObject != OBJECT_STANDALONE
+	if @wrappedObject != $OBJECT_STANDALONE
 	    _aObjectAttrs_ = StzReactiveHarvestAttrs(@wrappedObject)
 	    _nLen_ = len(_aObjectAttrs_)
 	    for i = 1 to _nLen_
@@ -172,12 +172,12 @@ class stzReactiveObject from stzObject
 
 	# Ring's object access hooks - integrate with reactive system
 	def BraceStart()
-		if @bReactiveMode = REACTIVE_ON
+		if @bReactiveMode = $REACTIVE_ON
 			# Notify reactive system of object access start
 		ok
 
 	def BraceEnd()
-		if @bReactiveMode = REACTIVE_ON
+		if @bReactiveMode = $REACTIVE_ON
 			ProcessPendingReactions()
 		ok
 
@@ -210,11 +210,11 @@ class stzReactiveObject from stzObject
 		# Set the new value
 		SetAttributeValue(_cAttribute_, _newValue_)
 		
-		if This.@bReactiveMode = REACTIVE_ON and _cOldValue_ != _newValue_
+		if This.@bReactiveMode = $REACTIVE_ON and _cOldValue_ != _newValue_
 			# Update Attribute cache
 			This.UpdateAttributeCache(_cAttribute_, _newValue_)
 			
-			if this.@bBatchMode = BATCH_MODE_ON
+			if this.@bBatchMode = $BATCH_MODE_ON
 				# Accumulate change for batch processing
 				this.@aPendingChanges + [_cAttribute_, _cOldValue_, _newValue_]
 			else
@@ -235,7 +235,7 @@ class stzReactiveObject from stzObject
 		_cAttribute_ = StzLower(_cAttribute_)
 		_value_ = GetAttributeValue(_cAttribute_)
 		
-		if @bReactiveMode = REACTIVE_ON
+		if @bReactiveMode = $REACTIVE_ON
 			# Notify reactive system of Attribute access
 		ok
 		
@@ -251,7 +251,7 @@ class stzReactiveObject from stzObject
 	        return @aCachedAttributeValues[_nIndex_][2]
 	    ok
 	    
-	    if @wrappedObject != OBJECT_STANDALONE
+	    if @wrappedObject != $OBJECT_STANDALONE
 	        # Wrapper mode: get from wrapped object
 	        if hasattribute(@wrappedObject, _cAttribute_)
 	            return eval("@wrappedObject." + _cAttribute_)
@@ -273,7 +273,7 @@ class stzReactiveObject from stzObject
 		# strings referenced a bare 'value' that never bound _value_.
 		_cAttribute_ = StzLower(_cAttribute_)
 
-		if @wrappedObject != OBJECT_STANDALONE
+		if @wrappedObject != $OBJECT_STANDALONE
 			# Wrapper mode: set on wrapped object (global helper: the
 			# reflection builtins are builtins only outside class scope)
 			StzReactiveSetAttr(@wrappedObject, _cAttribute_, _value_)
@@ -299,7 +299,7 @@ class stzReactiveObject from stzObject
 	# so isString cannot tell one from "not a function", and isFunction can.
 	def Watch(_cAttribute_, fCallback)
 		if NOT (isString(fCallback) and isFunction(fCallback))
-			This._RecordError("Watch:" + _cAttribute_, WATCH_ERROR_NOT_A_FUNCTION)
+			This._RecordError("Watch:" + _cAttribute_, $WATCH_ERROR_NOT_A_FUNCTION)
 			return This
 		ok
 
@@ -314,11 +314,11 @@ class stzReactiveObject from stzObject
 	# long way from the registration that caused it.
 	def Computed(_cAttribute_, _fnComputer_, _aDependencies_)
 		if NOT (isString(_fnComputer_) and isFunction(_fnComputer_))
-			This._RecordError("Computed:" + _cAttribute_, COMPUTED_ERROR_NOT_A_FUNCTION)
+			This._RecordError("Computed:" + _cAttribute_, $COMPUTED_ERROR_NOT_A_FUNCTION)
 			return This
 		ok
 		if NOT isList(_aDependencies_)
-			This._RecordError("Computed:" + _cAttribute_, COMPUTED_ERROR_DEPS_NOT_LIST)
+			This._RecordError("Computed:" + _cAttribute_, $COMPUTED_ERROR_DEPS_NOT_LIST)
 			return This
 		ok
 
@@ -336,7 +336,7 @@ class stzReactiveObject from stzObject
 	# of being refused.
 	def BindTo(oTargetObject, _cSourceAttribute_, _cTargetAttribute_)
 		if NOT isObject(oTargetObject)
-			This._RecordError("BindTo:" + _cSourceAttribute_, BIND_ERROR_TARGET_NOT_OBJECT)
+			This._RecordError("BindTo:" + _cSourceAttribute_, $BIND_ERROR_TARGET_NOT_OBJECT)
 			return This
 		ok
 
@@ -353,7 +353,7 @@ class stzReactiveObject from stzObject
 		# recorded rather than raised: the binding is already registered, and
 		# UpdateBoundAttributes reports the same way on every later change.
 		_sourceValue_ = GetAttributeValue(_cSourceAttribute_)
-		if DEFAULT_SYNC_MODE = BIND_AUTO_SYNC
+		if $DEFAULT_SYNC_MODE = $BIND_AUTO_SYNC
 			try
 				oTargetObject.SetAttributeValue(_cTargetAttribute_, _sourceValue_)
 			catch
@@ -380,7 +380,7 @@ class stzReactiveObject from stzObject
 		# call raised R19 "Calling function with less number of parameters" on
 		# the construction itself, before anything else could run. SetAsync had
 		# never worked. The engine is @oEngine, not `this`.
-		_task_ = new stzReactiveTask(_taskId_, "", @oEngine, ERROR_CALLBACK)
+		_task_ = new stzReactiveTask(_taskId_, "", @oEngine, $ERROR_CALLBACK)
 		
 		@aAsyncOperations + [_cAttribute_, _newValue_, fnSuccess, _task_, _fnErrorCallback_]
 
@@ -409,7 +409,7 @@ class stzReactiveObject from stzObject
 
 	# Batch multiple Attribute updates
 	def Batch(fnUpdates)
-		@bBatchMode = BATCH_MODE_ON
+		@bBatchMode = $BATCH_MODE_ON
 		@aPendingChanges = []
 		
 		try
@@ -418,7 +418,7 @@ class stzReactiveObject from stzObject
 			This._RecordError("Batch", CatchError())
 		done
 
-		@bBatchMode = BATCH_MODE_OFF
+		@bBatchMode = $BATCH_MODE_OFF
 
 		# BATCH IS NOT ATOMIC, and cannot be made so from here. SetAttribute
 		# writes the value immediately and queues only the reactive
@@ -449,7 +449,7 @@ class stzReactiveObject from stzObject
 			_aData_ + ["oldValue", oldVal]
 			_aData_ + ["newValue", newVal]
 			_aData_ + ["changeType", CHANGE_TYPE_VALUE]
-			_stream_.Emit(_aData_)
+			$_stream_.Emit(_aData_)
 		})
 		
 		return _stream_
@@ -552,7 +552,7 @@ class stzReactiveObject from stzObject
 		_cAttribute_ = StzLower(_cAttribute_)
 
 		# Notify watchers with immediate processing
-		if DEFAULT_WATCH_MODE = WATCH_IMMEDIATE
+		if $DEFAULT_WATCH_MODE = $WATCH_IMMEDIATE
 			TriggerAttributeWatchers(_cAttribute_, oldValue, _newValue_)
 		ok
 		
@@ -626,7 +626,7 @@ class stzReactiveObject from stzObject
 
 			if StzLower(_cSourceAttr_) = StzLower(_cAttribute_)
 				try
-					if DEFAULT_BINDING_MODE = BIND_ONE_WAY
+					if $DEFAULT_BINDING_MODE = $BIND_ONE_WAY
 						_oTargetObj_.SetAttributeValue(_cTargetAttr_, _newValue_)
 					ok
 				catch

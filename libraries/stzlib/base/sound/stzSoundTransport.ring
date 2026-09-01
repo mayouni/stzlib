@@ -258,7 +258,7 @@ class stzSoundTransport
 			return This
 		ok
 		_me_ = This
-		poReactive.RunEvery(0.02, func { _me_.Tick() })
+		poReactive.RunEvery(0.02, func { $_me_.Tick() })
 		return This
 
 	def DriveWithQ(poReactive)

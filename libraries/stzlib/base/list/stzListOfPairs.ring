@@ -73,7 +73,7 @@ func SectionsToRanges(paSections)
 	return _anRanges_
 
 func ListThatHasMoreNumberOfItems(paList1, paList2)
-	_oList1_ = new stzList(aList1)
+	_oList1_ = new stzList($aList1)
 	if _oList1_.HasMoreNumberOfItemsThen(paList2)
 		return paList1
 	else

@@ -279,7 +279,7 @@ class stzTree from stzList
 		_cCode_ = '_aResult_ = This.Content()' + pcBranch
 		eval(_cCode_)
 
-		return _aResult_
+		return $_aResult_
 
 	def NodesAt(pacBranches)
 
@@ -622,7 +622,7 @@ class stzTree from stzList
 
 		_cCode_ = "_result_ = This.Content()" + pcPath
 		eval(_cCode_)
-		return _result_
+		return $_result_
 
 	def ItemsAt(pcNodePath)
 		if NOT @IsValidNodePath(pcNodePath)
@@ -631,7 +631,7 @@ class stzTree from stzList
 
 		_cCode_ = '_aResult_ = This.Content()' + pcNodePath
 		eval(_cCode_)
-		return _aResult_
+		return $_aResult_
 
 	def ItemsInNode(pcNode)
 		return This.Node(pcNode)

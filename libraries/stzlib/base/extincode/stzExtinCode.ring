@@ -11,8 +11,8 @@
  ///  VARIABLES  ///
 ///////////////////
 
-None = ""
-Nothing = ""
+$None = ""
+$Nothing = ""
 
   ///////////////////
  ///  FUNCTIONS  ///
@@ -60,7 +60,7 @@ func iif(pCondition, pTrue, pFalse)
 
 	eval(_cCode_)
 
-	if _bOk_
+	if $_bOk_
 		return pTrue
 	else
 		return pFalse

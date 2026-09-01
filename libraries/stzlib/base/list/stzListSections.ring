@@ -371,7 +371,7 @@ class stzListSections from stzObject
 		return _aRgsResult_
 
 		def ManyRanges(paSections)
-			return This.Ranges(paRanges)
+			return This.Ranges($paRanges)
 
 	  #--------------------------------------------------------#
 	 #   GETTING THE ANTI-RANGES OF A GIVEN SET OF SECTIONS   #

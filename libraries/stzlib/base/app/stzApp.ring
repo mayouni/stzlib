@@ -504,16 +504,16 @@ class stzApp from stzObject
 
     def _FlushCursors()
         if @nCurGoal > 0
-            @aGoals[@nCurGoal][2] = Means
-            @aGoals[@nCurGoal][3] = ReachedBy
-            @aGoals[@nCurGoal][4] = Within
-            @aGoals[@nCurGoal][5] = Respecting
+            @aGoals[@nCurGoal][2] = $Means
+            @aGoals[@nCurGoal][3] = $ReachedBy
+            @aGoals[@nCurGoal][4] = $Within
+            @aGoals[@nCurGoal][5] = $Respecting
             @nCurGoal = 0
         ok
         if @bBodyPending
-            @aBody[2] = Graph
-            @aBody[3] = Files
-            @aBody[4] = Keep
+            @aBody[2] = $Graph
+            @aBody[3] = $Files
+            @aBody[4] = $Keep
             @bBodyPending = 0
         ok
 
@@ -785,9 +785,9 @@ class stzAppGoal from stzObject
     def Name()
         return @cName
     def Profile()
-        return ReachedBy
+        return $ReachedBy
     def Narrate()
-        cW = "" if Within != ""  cW = " within " + Within  ok
+        cW = "" if $Within != ""  cW = " within " + $Within  ok
         return "wants " + @cName + cW + " -> reached by " + ReachedBy
 
 

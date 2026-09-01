@@ -231,7 +231,7 @@ func ring_substr(paParams)
 	ok
 
 	_nLen_ = len(paParams)
-	if n < 2 or n > 3
+	if $n < 2 or $n > 3
 		raise("ERR-" + StkError(:IncorrectNumberOfParams))
 	ok
 

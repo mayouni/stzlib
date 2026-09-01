@@ -196,7 +196,7 @@ func MaxRound(_n_) # Maximum number of digits n can have in its fractional part
 	if _n_ = 0 return $MAX_NUMBER_SIZE ok  // Special case for zero
 	    
 	_nIntPart_   = floor(Abs(_n_))
-	_nIntDigits_ = len(""+ intPart)
+	_nIntDigits_ = len(""+ $intPart)
 
 	if _nIntDigits_ >= $MAX_NUMBER_SIZE
 		return 0

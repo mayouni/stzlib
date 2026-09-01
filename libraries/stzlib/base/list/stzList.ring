@@ -469,7 +469,7 @@ class stzList from stzObject
 
 		This._SetContent(paNewList)
 
-		if _bInHistoryUpdate = 0
+		if $_bInHistoryUpdate = 0
 			@TraceObjectHistory(This)
 		ok
 
@@ -4017,7 +4017,7 @@ class stzList from stzObject
 		_cAreM_ = "islistof" + _cAreD_
 		if StzFindFirst(_cAreM_, ring_methods(This)) > 0
 			eval("_bAre_ = This." + _cAreM_ + "()")
-			return _bAre_
+			return $_bAre_
 		ok
 
 		# 2-4. otherwise every item answers for itself
@@ -4036,11 +4036,11 @@ class stzList from stzObject
 
 		if StzFindFirst("is" + pcDesc, _aAreM_) > 0
 			eval("_bAreOne_ = _oAreIt_.Is" + pcDesc + "()")
-			return _bAreOne_
+			return $_bAreOne_
 		ok
 		if StzFindFirst("is" + pcSing, _aAreM_) > 0
 			eval("_bAreOne_ = _oAreIt_.Is" + pcSing + "()")
-			return _bAreOne_
+			return $_bAreOne_
 		ok
 
 		# a char-only trait (:Punctuation) read through the char face
@@ -4049,7 +4049,7 @@ class stzList from stzObject
 			_aAreCM_ = ring_methods(_oAreCh_)
 			if StzFindFirst("is" + pcSing, _aAreCM_) > 0
 				eval("_bAreOne_ = _oAreCh_.Is" + pcSing + "()")
-				return _bAreOne_
+				return $_bAreOne_
 			ok
 		ok
 
@@ -10337,10 +10337,10 @@ class stzList from stzObject
 		if pOp = "+"
 
 			if isList(pValue)
-				if _bTheseQ
+				if $_bTheseQ
 					_bTheseQ = 0
 					return new stzList( This.ManyAdded(pValue) )
-				but _bThese
+				but $_bThese
 					_bThese = 0
 					return This.ManyAdded(pValue)
 				else
@@ -10348,10 +10348,10 @@ class stzList from stzObject
 				ok
 
 			but @IsStzObject(pValue)
-				if _bAsObject
+				if $_bAsObject
 					_bAsObject = 0
 					return This.ItemAdded(pValue)
-				but _bAsObjectQ
+				but $_bAsObjectQ
 					_bAsObjectQ = 0
 					return new stzList( This.ItemAdded(pValue) )
 				but _bTheseQ

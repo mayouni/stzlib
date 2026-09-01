@@ -7,8 +7,8 @@ They are base16 numbers -> formed of 16 bits -> the digits
 */
 
 
-_cHexNumberPrefix = "0x"
-_acHexPrefixes = [ "x", "0x", "U+" ]
+$_cHexNumberPrefix = "0x"
+$_acHexPrefixes = [ "x", "0x", "U+" ]
 
 func StzHexNumberQ(_cHex_)
 	return new stzHexNumber(_cHex_)
@@ -85,7 +85,7 @@ func DecToHex(nDec)
 	return hex(nDec)
 
 func HexNumberPrefix()
-	return _cHexNumberPrefix
+	return $_cHexNumberPrefix
 
 	#< @FunctionAlternativeForm
 
@@ -95,7 +95,7 @@ func HexNumberPrefix()
 	#>
 
 func HexPrefixes()
-	return _acHexPrefixes
+	return $_acHexPrefixes
 
 	def HexNumberPrefixes()
 		return HexPrefixes()
@@ -254,7 +254,7 @@ class stzHexNumber from stzObject
 			return This.IntegerPartToBaseNForm(n)
 
 	def ToScientificForm()
-		return This.ToStzNumber().ToScientificForm(n)
+		return This.ToStzNumber().ToScientificForm($n)
 
 		def ToScientific()
 			return This.ToScientificForm()

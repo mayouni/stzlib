@@ -220,9 +220,9 @@ class stzSet from stzList
 
 		_aUnion_ = this.Content()
 		_oTempSet_ = this
-		_nListOfLists1Len_ = len(paListOfLists)
+		_nListOfLists1Len_ = len($paListOfLists)
 		for _iLoopListOfLists1_ = 1 to _nListOfLists1Len_
-			_lst_ = paListOfLists[_iLoopListOfLists1_]
+			_lst_ = $paListOfLists[_iLoopListOfLists1_]
 			_nLst1Len_ = len(_lst_)
 			for _iLoopLst1_ = 1 to _nLst1Len_
 				_item_ = _lst_[_iLoopLst1_]

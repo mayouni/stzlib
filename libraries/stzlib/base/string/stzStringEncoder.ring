@@ -121,7 +121,7 @@ class stzStringEncoder from stzObject
 		# Same as AsciiCodes -- returns Unicode codepoints
 		return This.AsciiCodes()
 
-		return _acResult_
+		return $_acResult_
 
 	  #===============================#
 	 #     BINARY                    #

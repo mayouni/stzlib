@@ -1816,7 +1816,7 @@ class stzFileModifier from stzFileReadingMixin
 	        return This
 
 		def InsertLine(_nPos_, cNewLine)
-			This.InsertLineAt(_nPos_, nNewLine)
+			This.InsertLineAt(_nPos_, $nNewLine)
 
 			def InertLineQ(_nPos_, cNewLine)
 				return This.InsertLineAtQ(_nPos_, cNewLine)

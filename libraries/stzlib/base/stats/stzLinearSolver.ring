@@ -992,7 +992,7 @@ class stzLinearSolver from stzObject
 
 		for i = 1 to _nLen_
 			_aConst_ = @constraints[i]
-			_nLeftSide_ = this.evaluateConstraintLeft(oConst[:expression], _aIndividual_)
+			_nLeftSide_ = this.evaluateConstraintLeft($oConst[:expression], _aIndividual_)
 			_nLeftSide_ = this.evaluateConstraintLeft(_aConst_[:expression], _aIndividual_)
 			_nRightSide_ = _aConst_[:value]
 			_cOperator_ = _aConst_[:operator]

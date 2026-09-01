@@ -11,13 +11,13 @@ func IsSciForm(cNumber)
 
 	_cBase_ = ""
 	for i = 1 to _nPos_-1
-		_cBase_ += cNumberInStr[i]
+		_cBase_ += $cNumberInStr[i]
 	next
 
 	_cExp_ = ""
-	_nLen_ = len(cNumberInStr)
+	_nLen_ = len($cNumberInStr)
 	for i = _nPos_+1 to _nLen_
-		_cExp_ += cNumberInStr[i]
+		_cExp_ += $cNumberInStr[i]
 	next
 
 	_nBase_ = 0+ _cBase_
@@ -58,13 +58,13 @@ class stkSciNumber
 	
 		_cBase_ = ""
 		for i = 1 to _nPos_-1
-			_cBase_ += cNumberInStr[i]
+			_cBase_ += $cNumberInStr[i]
 		next
 	
 		_cExp_ = ""
 		_nLen_ = len(cNumberInSciForm)
 		for i = _nPos_+1 to _nLen_
-			_cExp_ += cNumberInStr[i]
+			_cExp_ += $cNumberInStr[i]
 		next
 	
 		_nBase_ = 0+ _cBase_

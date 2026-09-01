@@ -24,10 +24,10 @@
 #    - Technical details (system files) handled internally
 #
 
-_nMaxTreeDisplayLevel = 5 #TODO //Move it to stzTree.ring and use it there
+$_nMaxTreeDisplayLevel = 5 #TODO //Move it to stzTree.ring and use it there
 
 func DefaultMaxTreeDisplayLevel()
-	return _nMaxTreeDisplayLevel
+	return $_nMaxTreeDisplayLevel
 
 func SetDefaultMaxTreeDisplayLevel(n)
 	if NOT isNumber(n)
@@ -1067,7 +1067,7 @@ class stzFolder from stzObject
 
 		for i = 1 to _nLen_
 	        if This.Exists(acPaths[i])
-	            _acResult_ + _cPath_
+	            _acResult_ + $_cPath_
 	        ok
 	    next
 	    
@@ -1089,7 +1089,7 @@ class stzFolder from stzObject
 
 		for i = 1 to _nLen_
 	        if NOT This.Exists(acPaths[i])
-	            _acMissing_ + _cPath_
+	            _acMissing_ + $_cPath_
 	        ok
 	    next
 	    
@@ -1555,7 +1555,7 @@ class stzFolder from stzObject
 		return len(This.FindFileIn(cFileName, _cPath_))
 
 	def DeepCountTheseFiles(acFilesNames)
-		return len(This.DeepCountTheseFilesIn(acFilesNames, _cPath_))
+		return len(This.DeepCountTheseFilesIn(acFilesNames, $_cPath_))
 
 	def DeepCountTheseFilesIn(acFilesNames, _cPath_)
 		if CheckParams()
@@ -2575,7 +2575,7 @@ class stzFolder from stzObject
 		for i = 1 to _nLen_
 			try
 				This.CreateFile(acFileNames[i])
-				_acCreated_ + cFileName
+				_acCreated_ + $cFileName
 				# Track last successful creation for intelligent navigation
 				_cLastSuccessfulDir_ = This.GetDirectoryPath(acFileNames[i])
 			catch
@@ -3999,12 +3999,12 @@ class stzFolder from stzObject
 
 			if isdir(_acFolderPaths_[i])
 
-				_aEntries_ = @dir(_cFolderPath_)
+				_aEntries_ = @dir($_cFolderPath_)
 				_nLenE_ = len(_aEntries_)
 
 				for j = 1 to _nLenE_
 					if _aEntries_[j][2] = 0
-						_cFilePath_ = _cFolderPath_ + This.Separator() + _aEntries_[j][1]
+						_cFilePath_ = $_cFolderPath_ + This.Separator() + _aEntries_[j][1]
 
 						if fexists(_cFilePath_)
 
@@ -4222,7 +4222,7 @@ class stzFolder from stzObject
 			This.ExpandFolders([_cFolder_])
 
 		def ExpandThis(_cFolder_)
-			This.ExpandFolders([cFolders])
+			This.ExpandFolders([$cFolders])
 
 	def ExpandFolders(_acFolders_)
 	    if CheckParams()
@@ -4631,7 +4631,7 @@ class stzFolder from stzObject
 		for i = 1 to _nLen_
 
 			if _aList_[i][2] = 0
-				_aResult_ + [:name = _aEntry_[1], :type = "file"]
+				_aResult_ + [:name = $_aEntry_[1], :type = "file"]
 
 			but _aList_[i][2] = 1 and _aList_[i][1] != "." and _aList_[i][1] != ".."
 				_aResult_ + [:name = _aList_[i][1], :type = "folder"]

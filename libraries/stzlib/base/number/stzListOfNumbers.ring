@@ -1013,7 +1013,7 @@ func PositiveNumbersBetween(_n1_, _n2_)
 		ok
 	ok
 
-	return PositiveNumbersIn(_n1_:n2)
+	return PositiveNumbersIn(_n1_:$n2)
 
 	#< @FunctionAlternativeForms
 
@@ -1029,7 +1029,7 @@ func NegativeNumbersBetween(_n1_, _n2_)
 		ok
 	ok
 
-	return NegativeNumbersIn(_n1_:n2)
+	return NegativeNumbersIn(_n1_:$n2)
 
 	#< @FunctionAlternativeForms
 
@@ -1243,7 +1243,7 @@ func NextPrimeST(_nbr_)
 	#< @FunctionAlternativeForms
 
 	func NextPrime(Start)
-		return NextPrimeST(_nStart_)
+		return NextPrimeST($_nStart_)
 
 	func NextPrimeAfter(_nStart_)
 		return NextPrimeST(_nStart_)
@@ -3753,9 +3753,9 @@ class stzListOfNumbers from stzList
 
 	def Absolute()
 		_anContent_ = This.Content()*
-		_nLen_ = len(_anContent_)
+		$_nLen_ = len(_anContent_)
 
-		for i = 1 to _nLen_
+		for i = 1 to $_nLen_
 			if _anContent_[i] < 0
 				_anContent_[i] = -_anContent_[i]
 			ok
@@ -3941,7 +3941,7 @@ class stzListOfNumbers from stzList
 		next
 
 		def ClipQ(nMin, nMax)
-			return This.ClipQRT(nMin, nMax, pcReturnType)
+			return This.ClipQRT(nMin, nMax, $pcReturnType)
 
 		def ClipQRT(nMin, nMax, pcReturnType)
 			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
@@ -4020,16 +4020,16 @@ class stzListOfNumbers from stzList
 
 		# The running sums, in the requested return type (QRT).
 		def CumulateQRT()
-			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
+			if isList($pcReturnType) and IsOneOfTheseNamedParamsList($pcReturnType, [ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
-			switch pcReturnType
+			switch $pcReturnType
 			on :stzList
 				return new stzList( This.Cumulate() )
 
 			on :stzListOfNumbers
-				return new stzList( This.Cumulate(_n1_) )
+				return new stzList( This.Cumulate($_n1_) )
 
 			other
 				StzRaise("Unsupported return type!")
@@ -4647,7 +4647,7 @@ class stzListOfNumbers from stzList
 
 		for @i = _nStart_ to _nEnd_
 			eval(_cCode_)
-			if bOk
+			if $bOk
 				_anResult_ + (_anContent_[@i] + _n_)
 			ok
 		next
@@ -4745,7 +4745,7 @@ class stzListOfNumbers from stzList
 
 		for @i = _nStart_ to _nEnd_
 			eval(_cCode_)
-			if bOk
+			if $bOk
 				_anResult_ + (_anContent_[@i] * _n_)
 			ok
 		next
@@ -4763,7 +4763,7 @@ class stzListOfNumbers from stzList
 		#< @FunctionAlternativeForm
 
 		def MultiplyEachByW()
-			This.MultiplyEachWithW(_n_, pcCondition)
+			This.MultiplyEachWithW($_n_, $pcCondition)
 
 			def MultiplyEachByWQ()
 				This.MultiplyEachByW()
@@ -6517,7 +6517,7 @@ class stzListOfNumbers from stzList
 
 	def AnyNumberOutsidePosition(_n_)
 		_anPositions_ = Q(1 : This.NumberOfItems()) - _n_
-		_nRandom_ = AnyNumberIn(_anPos_)
+		_nRandom_ = AnyNumberIn($_anPos_)
 		_nResult_ = This.Number(_nRandom_)
 
 		return _nResult_
@@ -6594,7 +6594,7 @@ class stzListOfNumbers from stzList
 	# position.
 	def AnyNumberOutsidePositionZ(_n_)
 		_anPositions_ = Q(1 : This.NumberOfItems()) - _n_
-		_nRandom_ = AnyNumberIn(_anPos_)
+		_nRandom_ = AnyNumberIn($_anPos_)
 		_aResult_ = [ This.Number(_nRandom_), _nRandom_ ]
 
 		return _aResult_
@@ -6852,7 +6852,7 @@ class stzListOfNumbers from stzList
 	# n numbers less than the given one, with their positions.
 	def NNumbersLessThanZ(_n_, _nNumber_)
 		_aResult_ = This.NumbersLessThanQ(_nNumber_).NRandomNumbersZ(_n_)
-		return _anResult_
+		return $_anResult_
 
 		#< @FunctionAlternativeForms
 
@@ -6944,7 +6944,7 @@ class stzListOfNumbers from stzList
 		_anRandoms_ = NRandomNumbersIn(_anPos_)
 		_aResult_ = This.ItemsAtPositions(_anRandoms_)
 
-		return _anResult_
+		return $_anResult_
 
 		#< @FunctionAlternativeForms
 
@@ -6988,7 +6988,7 @@ class stzListOfNumbers from stzList
 		// #TODO Make a more performant solution!
 
 		_anRandoms_ = NRandomNumbersIn(_anPos_)
-		_nLen_ = len(aRandoms)
+		_nLen_ = len($aRandoms)
 		
 		_aResult_ = []
 
@@ -7088,7 +7088,7 @@ class stzListOfNumbers from stzList
 		_anNumbers_ = This.NumbersBetweenIB(nMin, nMax)
 		_aResult_ = NRandomNumbersInZ(_n_, _anNumbers_)
 
-		return _anResult_
+		return $_anResult_
 
 		def NRandomNumbersBetweenIBZ(nMin, nMax)
 			return This.NNumbersBetweenIBZ(nMin, nMax)
@@ -7307,7 +7307,7 @@ class stzListOfNumbers from stzList
 
 	# Some numbers other than the given ones, with their positions.
 	def SomeNumbersOtherThanManyZ(paNumbers)
-		_anNumbers_ = This.NumbersOtherThanMany(_nNumber_)
+		_anNumbers_ = This.NumbersOtherThanMany($_nNumber_)
 		_aResult_   = StzListOfNumbers(_anNumbers_).SomeRandomNumbersZ()
 
 		return _aResult_
@@ -7444,11 +7444,11 @@ class stzListOfNumbers from stzList
 
 		for i = 1 to _nLen_
 			if _anContent_[i] < _n_
-				_aResult_ + [ _anContent_[i], i ]
+				$_aResult_ + [ _anContent_[i], i ]
 			ok
 		next
 
-		return _aResult_
+		return $_aResult_
 
 		#< @FunctionAlternativeForm
 
@@ -7543,7 +7543,7 @@ class stzListOfNumbers from stzList
 
 		for i = 1 to _nLen_
 			if _anContent_[i] > _n_
-				_aResult_ + [ _aContent_[i], i ]
+				_aResult_ + [ $_aContent_[i], i ]
 			ok
 		next
 
@@ -7648,7 +7648,7 @@ class stzListOfNumbers from stzList
 
 		for i = 1 to _nLen_
 			if _anContent_[i] != _n_
-				_aResult_ + [ _aContent_[i], i ]
+				_aResult_ + [ $_aContent_[i], i ]
 			ok
 		next
 
@@ -7677,13 +7677,13 @@ class stzListOfNumbers from stzList
 		ok
 
 		_anContent_ = This.Content()
-		_nLen_ = len(_aContent_)
+		_nLen_ = len($_aContent_)
 
 		_anResult_ = []
 
 		for i = 1 to _nLen_
 			if NOT StzFindFirst(_anNumbers_, _anContent_[i])
-				_anResult_ + _aContent_[i]
+				_anResult_ + $_aContent_[i]
 			ok
 		next
 
@@ -7724,13 +7724,13 @@ class stzListOfNumbers from stzList
 		ok
 
 		_anContent_ = This.Content()
-		_nLen_ = len(_aContent_)
+		_nLen_ = len($_aContent_)
 
 		_aResult_ = []
 
 		for i = 1 to _nLen_
 			if NOT StzFindFirst(_anNumbers_, _anContent_[i])
-				_aResult_ + [ _aContent_[i], i ]
+				_aResult_ + [ $_aContent_[i], i ]
 			ok
 		next
 
@@ -7801,7 +7801,7 @@ class stzListOfNumbers from stzList
 			_aResult_ + [ This.Item(_anPos_[i]), _anPos_[i] ]
 		next
 
-		return _nResult_
+		return $_nResult_
 
 		#< @FunctionAlternativeForms
 

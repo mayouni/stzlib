@@ -38,9 +38,9 @@ class stzReactiveHttp from stzObject
 
 	def Get_(url, onSuccess, onError)
 		if This._CanAsync(url)
-			return This._SubmitAsync("GET", url, HTTP_RESPONSE_NULL, onSuccess, onError)
+			return This._SubmitAsync("GET", url, $HTTP_RESPONSE_NULL, onSuccess, onError)
 		ok
-		_task_ = new stzHttpTask(HTTP_TASK_GET, url, HTTP_GET, HTTP_RESPONSE_NULL, @oEngine)
+		_task_ = new stzHttpTask($HTTP_TASK_GET, url, $HTTP_GET, $HTTP_RESPONSE_NULL, @oEngine)
 		_task_.Then_(onSuccess)
 		_task_.Catch_(onError)
 		@oEngine.AddTask(_task_)
@@ -51,7 +51,7 @@ class stzReactiveHttp from stzObject
 		if This._CanAsync(url)
 			return This._SubmitAsync("POST", url, data, onSuccess, onError)
 		ok
-		_task_ = new stzHttpTask(HTTP_TASK_POST, url, HTTP_POST, data, @oEngine)
+		_task_ = new stzHttpTask($HTTP_TASK_POST, url, $HTTP_POST, data, @oEngine)
 		_task_.Then_(onSuccess)
 		_task_.Catch_(onError)
 		@oEngine.AddTask(_task_)
@@ -62,7 +62,7 @@ class stzReactiveHttp from stzObject
 		if This._CanAsync(url)
 			return This._SubmitAsync("PUT", url, data, onSuccess, onError)
 		ok
-		_task_ = new stzHttpTask(HTTP_TASK_PUT, url, HTTP_PUT, data, @oEngine)
+		_task_ = new stzHttpTask($HTTP_TASK_PUT, url, $HTTP_PUT, data, @oEngine)
 		_task_.Then_(onSuccess)
 		_task_.Catch_(onError)
 		@oEngine.AddTask(_task_)
@@ -71,9 +71,9 @@ class stzReactiveHttp from stzObject
 
 	def Delete(url, onSuccess, onError)
 		if This._CanAsync(url)
-			return This._SubmitAsync("DELETE", url, HTTP_RESPONSE_NULL, onSuccess, onError)
+			return This._SubmitAsync("DELETE", url, $HTTP_RESPONSE_NULL, onSuccess, onError)
 		ok
-		_task_ = new stzHttpTask(HTTP_TASK_DELETE, url, HTTP_DELETE, HTTP_RESPONSE_NULL, @oEngine)
+		_task_ = new stzHttpTask($HTTP_TASK_DELETE, url, $HTTP_DELETE, $HTTP_RESPONSE_NULL, @oEngine)
 		_task_.Then_(onSuccess)
 		_task_.Catch_(onError)
 		@oEngine.AddTask(_task_)
@@ -183,13 +183,13 @@ class stzReactiveHttp from stzObject
 
 class stzHttpTask from stzReactiveTask
 
-	@url = HTTP_RESPONSE_EMPTY
-	@method = HTTP_GET
-	@data = HTTP_RESPONSE_NULL
+	@url = $HTTP_RESPONSE_EMPTY
+	@method = $HTTP_GET
+	@data = $HTTP_RESPONSE_NULL
 	@lastStatus = 0   # HTTP status of the blocking request, 0 = never got one
 	
 	def Init(id, url, method, data, engine)
-		super.Init(id, HTTP_RESPONSE_NULL, engine, DEFAULT_ERROR_HANDLING)
+		super.Init(id, $HTTP_RESPONSE_NULL, engine, $DEFAULT_ERROR_HANDLING)
 		@url = url
 		@method = method
 		@data = data
@@ -198,26 +198,26 @@ class stzHttpTask from stzReactiveTask
 	    # (S0 fix, 2026-07-14): store the status on the TASK, not in a
 	    # local -- the old code wrote _status_ locally and dropped it,
 	    # so task status was unreliable for HTTP.
-	    @status = TASK_RUNNING
+	    @status = $TASK_RUNNING
 	    
 	    # Use Ring's built-in HTTP capabilities
-	    if @method = HTTP_GET
+	    if @method = $HTTP_GET
 	        _result_ = PerformHttpGet(@url)
-	    elseif @method = HTTP_POST
+	    elseif @method = $HTTP_POST
 	        _result_ = PerformHttpPost(@url, @data)
-	    elseif @method = HTTP_PUT
+	    elseif @method = $HTTP_PUT
 	        _result_ = PerformHttpPut(@url, @data)
-	    elseif @method = HTTP_DELETE
+	    elseif @method = $HTTP_DELETE
 	        _result_ = PerformHttpDelete(@url)
 	    else
-	        _result_ = HTTP_RESPONSE_NULL
+	        _result_ = $HTTP_RESPONSE_NULL
 	    ok
 	    
 	    # Check if we got a valid result
-	    if _result_ != HTTP_RESPONSE_NULL and _result_ != HTTP_RESPONSE_EMPTY
+	    if $_result_ != $HTTP_RESPONSE_NULL and _result_ != $HTTP_RESPONSE_EMPTY
 	        @result = _result_
-	        @status = TASK_COMPLETED
-	        if @onComplete != HTTP_RESPONSE_NULL
+	        @status = $TASK_COMPLETED
+	        if @onComplete != $HTTP_RESPONSE_NULL
 	            call @onComplete(@result)
 	        ok
 	    else
@@ -247,7 +247,7 @@ class stzHttpTask from stzReactiveTask
 	# SetReactor(NULL) selects, and what the reactor switch falls back TO. The
 	# switch had an off position that could not work.
 	def PerformHttpGet(url)
-	    return This._EngineRequest(0, url, HTTP_RESPONSE_EMPTY)
+	    return This._EngineRequest(0, url, $HTTP_RESPONSE_EMPTY)
 
 	def PerformHttpPost(url, data)
 	    return This._EngineRequest(1, url, data)
@@ -256,13 +256,13 @@ class stzHttpTask from stzReactiveTask
 	    return This._EngineRequest(2, url, data)
 
 	def PerformHttpDelete(url)
-	    return This._EngineRequest(3, url, HTTP_RESPONSE_EMPTY)
+	    return This._EngineRequest(3, url, $HTTP_RESPONSE_EMPTY)
 
 	# One door for all four. The codes are the engine's own -- GET 0, POST 1,
 	# PUT 2, DELETE 3 -- the same numbering the reactor's SubmitHttp takes and
 	# the same _MethodCode produces. Zero timeouts mean "engine default".
 	def _EngineRequest(pnCode, purl, pData)
-	    _cBody_ = HTTP_RESPONSE_EMPTY
+	    _cBody_ = $HTTP_RESPONSE_EMPTY
 	    if isString(pData)
 	        _cBody_ = pData
 	    ok
@@ -273,9 +273,9 @@ class stzHttpTask from stzReactiveTask
 	    # A non-2xx is a failure here, as it is on the async path. Returning the
 	    # body would make Execute() call the SUCCESS handler with an error page.
 	    if @lastStatus < 200 or @lastStatus > 299
-	        return HTTP_RESPONSE_EMPTY
+	        return $HTTP_RESPONSE_EMPTY
 	    ok
-	    if _cOut_ = HTTP_RESPONSE_NULL
-	        return HTTP_RESPONSE_EMPTY
+	    if _cOut_ = $HTTP_RESPONSE_NULL
+	        return $HTTP_RESPONSE_EMPTY
 	    ok
 	    return _cOut_

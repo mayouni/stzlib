@@ -1,14 +1,14 @@
 # Functions and classes for porting SQL code to Ring
 
-SMALLINT = :SMALLINT
-TABLE = :TABLE
+$SMALLINT = :SMALLINT
+$TABLE = :TABLE
 
-_oInitialTable = new stzTable([])
-_oIntermediateTable = new stzTable([])
+$_oInitialTable = new stzTable([])
+$_oIntermediateTable = new stzTable([])
 
-_aINSERT_INTO_VALUES = []
+$_aINSERT_INTO_VALUES = []
 
-_aSELECT_FROM_WHERE = []
+$_aSELECT_FROM_WHERE = []
 
 func VARCHAR(_n_)
 	# Does nothing now --> TODO (future)
@@ -85,9 +85,9 @@ func VALUES(paValues)
 			StzRaise("Incorrect param type! paValues must be a list of lists.")
 		ok
 	ok
-	_aINSERT_INTO_VALUES + paValues
-	_cTableName_ = _aINSERT_INTO_VALUES[1]
-	_oStzTable_  = v(_aINSERT_INTO_VALUES[1])
+	$_aINSERT_INTO_VALUES + paValues
+	_cTableName_ = $_aINSERT_INTO_VALUES[1]
+	_oStzTable_  = v($_aINSERT_INTO_VALUES[1])
 	_nLen_ = len(paValues)
 	if _nLen_ > 0
 		if _oStzTable_.NumberOfRows() = 1 AND _oStzTable_.IsEmpty()
@@ -100,7 +100,7 @@ func VALUES(paValues)
 			_oStzTable_.AddRows(paValues)
 		ok
 	ok
-	_aVars[_cTableName_] = _oStzTable_
+	$_aVars[_cTableName_] = _oStzTable_
 	
 	#< @FunctionAlternativeForms
 	func _VALUES(paValues)
@@ -124,7 +124,7 @@ func SELECT(pacColNames)
 			StzRaise("Incorrect param type! pacColNames must be a list of string.")
 		ok
 	ok
-	_aSELECT_FROM_WHERE + pacColNames
+	$_aSELECT_FROM_WHERE + pacColNames
 	
 	#< @FunctionAlternativeForms
 	func _SELECT(pacColNames)
@@ -153,14 +153,14 @@ func FROM_(pcTableName)
 			StzRaise("Incorrect param type! The named variable managed by the SQL statement is not a stzTable object.")
 		ok
 	ok
-	_aSELECT_FROM_WHERE + pcTableName
+	$_aSELECT_FROM_WHERE + pcTableName
 	_oInitialTable = v(pcTableName)
 	_oIntermediateTable = _oInitialTable
-	if isString(_aSELECT_FROM_WHERE[1]) and 
-	   _aSELECT_FROM_WHERE[1] = "*"
+	if isString($_aSELECT_FROM_WHERE[1]) and 
+	   $_aSELECT_FROM_WHERE[1] = "*"
 		// do nothing
 	else
-		_oIntermediateTable.RemoveColsOtherThan(_aSELECT_FROM_WHERE[1])
+		_oIntermediateTable.RemoveColsOtherThan($_aSELECT_FROM_WHERE[1])
 		return _oIntermediateTable
 	ok
 	
@@ -182,17 +182,17 @@ func WHERE_(pcCondition)
 		if NOT isString(pcCondition)
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
-		if NOT Q(pcCondition).ContainsOneOfTheseCS(_oIntermediateTable.ColsNames(), 0)
+		if NOT Q(pcCondition).ContainsOneOfTheseCS($_oIntermediateTable.ColsNames(), 0)
 			StzRaise("Incorrect param type! The pcCondition must contain columns names of the stzTable object managed by the SQL statement.")
 		ok
 	ok
-	_aSELECT_FROM_WHERE + pcCondition
-	_acColNames_  = _aSELECT_FROM_WHERE[1]
-	_cTableName_ = _aSELECT_FROM_WHERE[2]
-	_cCondition_  = _aSELECT_FROM_WHERE[3]
-	_aRows_ = _oIntermediateTable.Rows()
+	$_aSELECT_FROM_WHERE + pcCondition
+	_acColNames_  = $_aSELECT_FROM_WHERE[1]
+	_cTableName_ = $_aSELECT_FROM_WHERE[2]
+	_cCondition_  = $_aSELECT_FROM_WHERE[3]
+	_aRows_ = $_oIntermediateTable.Rows()
 	_nLen_ = len(_aRows_)
-	_acColNames_ = _oIntermediateTable.ColNames()
+	_acColNames_ = $_oIntermediateTable.ColNames()
 	_nLenCols_ = len(_acColNames_)
 	for i = 1 to _nLenCols_
 		_cColName_ = _acColNames_[i]
@@ -202,13 +202,13 @@ func WHERE_(pcCondition)
 	_anPos_ = []
 	for i = 1 to _nLen_
 		eval(_cCode_)
-		if NOT _bOk_
+		if NOT $_bOk_
 			_anPos_ + i
 		ok
 	next
-	_oIntermediateTable.RemoveRows(_anPos_)
-	_aVars[_cTableName_] = _oInitialTable
-	return _oIntermediateTable
+	$_oIntermediateTable.RemoveRows(_anPos_)
+	$_aVars[_cTableName_] = $_oInitialTable
+	return $_oIntermediateTable
 	
 	#< @FunctionAlternativeForms
 	func _WHERE(pcCondition)
@@ -281,15 +281,15 @@ class WITH
 				StzRaise("Incorrect param type! paParams must be a list of 1 to 3 items.")
 			ok
 		ok
-		_n_ = StzHashListQ(_aVars).FindKey(_cSQL_)
+		_n_ = StzHashListQ($_aVars).FindKey($_cSQL_)
 		if _n_ = 0
-			_aVars + [ _cSQL_, _oIntermediateTable.rows() ]
-			_aVars + [ _cSQL_ + 'Data', _oIntermediateTable.rows() ]
-			_aVars + [ _cSQL_ + 'Table', _oIntermediateTable ]
-			_aVars + [ _cSQL_ + 'Object', _oIntermediateTable ]
+			$_aVars + [ $_cSQL_, $_oIntermediateTable.rows() ]
+			$_aVars + [ $_cSQL_ + 'Data', $_oIntermediateTable.rows() ]
+			$_aVars + [ $_cSQL_ + 'Table', $_oIntermediateTable ]
+			$_aVars + [ $_cSQL_ + 'Object', $_oIntermediateTable ]
 		else
-			_aVars[_n_] = [ _cSQL_, _oIntermediateTable.rows() ]
-			_aVars[_n_] = [ _cSQL_ + 'Data', _oIntermediateTable.rows() ]
-			_aVars[_n_] = [ _cSQL_ + 'Table', _oIntermediateTable ]
-			_aVars[_n_] = [ _cSQL_ + 'Object', _oIntermediateTable ]
+			$_aVars[_n_] = [ $_cSQL_, $_oIntermediateTable.rows() ]
+			$_aVars[_n_] = [ $_cSQL_ + 'Data', $_oIntermediateTable.rows() ]
+			$_aVars[_n_] = [ $_cSQL_ + 'Table', $_oIntermediateTable ]
+			$_aVars[_n_] = [ $_cSQL_ + 'Object', $_oIntermediateTable ]
 		ok

@@ -308,7 +308,7 @@ func StzAttributesXT(pObj)
 	for i = 1 to _nLen_
 		_cCode_ = "_val_ = pObj." + _acAttr_[i]
 		eval(_cCode_)
-		_aResult_ + [ _acAttr_[i], _val_ ]
+		_aResult_ + [ _acAttr_[i], $_val_ ]
 	next
 
 	return _aResult_
@@ -522,7 +522,7 @@ func StzNamedObject(paNamed)
 		return StzNamedObject(paNamed)
 
 func StzNamedObjectFrom(pcObjName)
-	? @@(_avars)
+	? @@($_avars)
 	if CheckingParams()
 
 	ok
@@ -608,7 +608,7 @@ func StzObjectIsUnnamed(pObject)
 
 func StzPluralOfRingType(_cType_)
 	if CheckingParams()
-		if NOT IsString(_cPlural_)
+		if NOT IsString($_cPlural_)
 			StzRaise("Incorrect param type! cPlural must be a string.")
 		ok
 	ok
@@ -712,7 +712,7 @@ func StzIsPluralOfRingType(_cPlural_)
 	#>
 
 func StzRingTypesXT()
-	return _aRingTypesXT
+	return $_aRingTypesXT
 
 	func RingTypesXT()
 		return StzRingTypesXT()
@@ -2066,7 +2066,7 @@ class stzObject
 
 			_cCode_ = '_bOk_ = isObject(' + pObject + ')'
 			eval(_cCode_)
-			if NOT _bOk_
+			if NOT $_bOk_
 				StzRaise("Can't create a stzObject from the provided string! The string must be a valid object name.")
 			ok
 
@@ -2970,7 +2970,7 @@ class stzObject
 		_cCode_ = '_bResult_ = This.IsListOf'+ pcType + '()'
 
 		eval(_cCode_)
-		return _bResult_
+		return $_bResult_
 
 		#< @FunctionAlternativeForms
 
@@ -3188,7 +3188,7 @@ class stzObject
 
 	def WhichAreBoth()
 		_aContent_ = This.Content()
-		if NOT (isList(_aList_) and len(_aList_) = 2)
+		if NOT (isList($_aList_) and len($_aList_) = 2)
 			return AFalseObjectXT(This)
 		ok
 
@@ -3736,7 +3736,7 @@ class stzObject
 
 
 	def OfBM(_n_)
-		return This.OfCSBM(_n_, pCaseSensitive)
+		return This.OfCSBM(_n_, $pCaseSensitive)
 
 
 		def OfMB(_n_)
@@ -3750,7 +3750,7 @@ class stzObject
 	#==
 
 	def OfXTCSB(_n_, cIgnored, pCaseSensitive)
-		return This.OfCSB(c, pCaseSensitive)
+		return This.OfCSB($c, pCaseSensitive)
 
 		def OfXTCSBM(_n_, cIgnored, pCaseSensitive)
 			return This.OfCSBM(_n_, pCaseSensitive)
@@ -3765,7 +3765,7 @@ class stzObject
 
 
 	def OfXTBM(_n_)
-		return This.OfXTCSB(_n_, cIgnored, 1)
+		return This.OfXTCSB(_n_, $cIgnored, 1)
 
 
 		def OfXTMB(_n_)
@@ -4989,7 +4989,7 @@ class stzObject
 		_cCode_ = '_bOk_ = (' + pcCondition + ')'
 		eval(_cCode_)
 
-		if _bOk_
+		if $_bOk_
 			return This
 		else
 			# An error message is returned:
@@ -5504,12 +5504,12 @@ class stzObject
 		for i = 1 to _nLen_
 			_cCode_ = '_value_ = This.' + _acAttributes_[i]
 			eval(_cCode_)
-			_aValues_ + _value_
+			_aValues_ + $_value_
 		next
 
 		return @MemorySizeInBytes(_aValues_)		
 
-		return _nResult_
+		return $_nResult_
 
 		#< @FunctionAlternativeForms
 
@@ -5546,12 +5546,12 @@ class stzObject
 		for i = 1 to _nLen_
 			_cCode_ = '_value_ = This.' + _acAttributes_[i]
 			eval(_cCode_)
-			_aValues_ + _value_
+			_aValues_ + $_value_
 		next
 
 		return @MemorySizeInBytes32(_aValues_)		
 
-		return _nResult_
+		return $_nResult_
 
 		#< @FunctionAlternativeForms
 
@@ -5580,12 +5580,12 @@ class stzObject
 		for i = 1 to _nLen_
 			_cCode_ = '_value_ = This.' + _acAttributes_[i]
 			eval(_cCode_)
-			_aValues_ + _value_
+			_aValues_ + $_value_
 		next
 
 		return @MemorySizeInBytes64(_aValues_)		
 
-		return _nResult_
+		return $_nResult_
 
 		#< @FunctionAlternativeForms
 
@@ -5708,7 +5708,7 @@ class stzObject
 		for i = 1 to _nLen_
 			_cCode_ = '_value_ = This.' + _acAttributes_[i]
 			eval(_cCode_)
-			_aValues_ + _value_
+			_aValues_ + $_value_
 		next
 
 		return @ContentSizeInBytes(_aValues_)
@@ -5776,7 +5776,7 @@ class stzObject
 
 	def AddHistoricValue(value)
 
-		_aHisto + value
+		$_aHisto + value
 
 		def AddHistValue(value)
 			AddHistoricValue(value)
@@ -5812,7 +5812,7 @@ class stzObject
 	#== XT
 
 	def AddHistoricValueXT(value)
-		_aHistoXT + value
+		$_aHistoXT + value
 
 		def AddHistValueXT(value)
 			AddHistoricValueXT(value)
@@ -5845,7 +5845,7 @@ class stzObject
 	#---------------------------------#
 
 	def StartTime()
-		return _nStartTimeInClocks // A global variable
+		return $_nStartTimeInClocks // A global variable
 
 		def StartingTime()
 			return This.StartTime()
@@ -5862,7 +5862,7 @@ class stzObject
 			StzRaise("Can't proceed! Keeping object execution time must be turned ON.")
 		ok
 
-		_nResult_ = ( clock() - _nStartTimeInClocks ) / clockspersecond()
+		_nResult_ = ( clock() - $_nStartTimeInClocks ) / clockspersecond()
 
 		return _nResult_
 
@@ -5910,7 +5910,7 @@ class stzObject
 		#>
 
 	def AddTimeValue()
-		_aTime + This.ExecutionTime()
+		$_aTime + This.ExecutionTime()
 		
 		def AddExecutionTimeValue()
 			This.AddTimeValue()
@@ -5993,7 +5993,7 @@ class stzObject
 		next
 		_cCode_ += ")"
 		eval(_cCode_)
-		return _vNNL_
+		return $_vNNL_
 
 	# run one ACTION given naturally: :Uppercase, "remove duplicates",
 	# or [ :Replace, "a", "b" ] -- the conditional mood's executor
@@ -6062,7 +6062,7 @@ class stzObject
 	def _NNLNounCount(pcMethod)
 		if StzFindFirst(StzLower(pcMethod), ring_methods(This)) > 0
 			eval("_nNNL_ = This." + StzLower(pcMethod) + "()")
-			return _nNNL_
+			return $_nNNL_
 		ok
 		# SELECTIONAL ATTACHMENT (anaphora without markers): the current
 		# object cannot answer this noun -- if the chain's SUBJECT can,
@@ -6073,7 +6073,7 @@ class stzObject
 		if isObject(@oNNLMain)
 			if StzFindFirst(StzLower(pcMethod), ring_methods(@oNNLMain)) > 0
 				eval("_nNNL_ = @oNNLMain." + StzLower(pcMethod) + "()")
-				return _nNNL_
+				return $_nNNL_
 			ok
 		ok
 		StzRaise("NNL: a " + This.StzType() + " cannot count '" +
@@ -6762,7 +6762,7 @@ class stzObject
 		# a stream); a tense device must not read another chain's
 		# leftovers -- the stream belongs to THIS object only if its
 		# latest state IS this object's current content
-		_aTense_ = _aHisto
+		_aTense_ = $_aHisto
 		_nTe_ = len(_aTense_)
 		if _nTe_ = 0
 			return []
@@ -6775,7 +6775,7 @@ class stzObject
 	def _NNLStateHolds(pState, pcDesc)
 		_vTense_ = pState
 		eval("_bTh_ = @is" + pcDesc + "(_vTense_)")
-		return _bTh_
+		return $_bTh_
 
 	def WasEver(pcDesc)
 		_aPast_ = This._NNLPastStates()

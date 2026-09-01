@@ -1,7 +1,7 @@
 
 # A random 100 words in english, french and arabic
 
-_a100Words = [ 
+$_a100Words = [ 
   [ "apple", "pomme", "تفاحة" ], 
   [ "book", "livre", "كتاب" ], 
   [ "chair", "chaise", "كرسيّ" ], 
@@ -108,7 +108,7 @@ _a100Words = [
 
 
 func 100WordsXT()
-	return _a100Words
+	return $_a100Words
 
 func 100Words()
 	return 100EnglishWords()
@@ -124,10 +124,10 @@ func AWord()
 
 func 100EnglishWords()
 	_acResult_ = []
-	_nLen_ = len(_a100Words)
+	_nLen_ = len($_a100Words)
 
 	for i = 1 to _nLen_
-		_acResult_ + _a100Words[i][1]
+		_acResult_ + $_a100Words[i][1]
 	next
 
 	return _acResult_
@@ -143,10 +143,10 @@ func AnEnglishWord()
 
 func 100FrenchWords()
 	_acResult_ = []
-	_nLen_ = len(_a100Words)
+	_nLen_ = len($_a100Words)
 
 	for i = 1 to _nLen_
-		_acResult_ + _a100Words[i][2]
+		_acResult_ + $_a100Words[i][2]
 	next
 
 	return _acResult_
@@ -162,10 +162,10 @@ func AFrenchWord()
 
 func 100ArabicWords()
 	_acResult_ = []
-	_nLen_ = len(_a100Words)
+	_nLen_ = len($_a100Words)
 
 	for i = 1 to _nLen_
-		_acResult_ + _a100Words[i][3]
+		_acResult_ + $_a100Words[i][3]
 	next
 
 	return _acResult_

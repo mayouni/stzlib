@@ -72,8 +72,8 @@ class stzListOfNamedObjects from stzList
 
 			return _result_
 
-		but isNumber(n)
-			return This.Content()[n]
+		but isNumber($n)
+			return This.Content()[$n]
 
 		else
 			StzRaise("Incorrect param type! p must be a string or number.")
