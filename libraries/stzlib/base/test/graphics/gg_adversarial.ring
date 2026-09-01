@@ -9820,6 +9820,27 @@ for iSl = 1 to len(oSl.@aEdgePaths)
 next
 chkeq("NEGATIVE: ...and the lines INSIDE a branch are still drawn",
     nSlIn, 3)
+# ...AND THE PAPER IS THE DRAWING, which a form that suppresses lines
+# can lose without anything looking wrong.
+#
+# The lane plan reserved a return rail for every inter-branch transfer,
+# and a silhouette does not DRAW those -- so the sheet came out 1006px
+# tall for 524px of picture. Paper reserved for a line nobody draws is
+# the same defect as a name reserved in the wrong direction: a
+# measurement describing a layout other than the one on the page.
+nSlLow = 0
+for iSl = 1 to len(oSl.RenderNodeRects())
+	aSlR = oSl.RenderNodeRects()[iSl]
+	if aSlR[2] + aSlR[4] > nSlLow  nSlLow = aSlR[2] + aSlR[4]  ok
+next
+nSlH = oSl.LastCanvas().Height()
+? "   lowest ink " + nSlLow + ", sheet " + oSl.LastCanvas().Width() +
+  "x" + nSlH + "   slack " + (nSlH - nSlLow) + "px"
+chk("the sheet is the drawing's own height", nSlH - nSlLow < 60)
+
+# NEGATIVE: the sheet must still CLEAR the ink -- a height that merely
+# hugged the number would pass the clause above by cropping.
+chk("NEGATIVE: ...and still clears it", nSlH > nSlLow)
 
 sec("-- 73g. A GROUND IS MET AT ITS LEAD, NOT ITS BARS ------")
 
