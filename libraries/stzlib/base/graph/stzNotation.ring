@@ -91,6 +91,7 @@ class stzNotation from stzObject
 	@cRankDir = ""        # "" = no amendment; the diagram's setting stands
 	@cSplines = ""
 	@cBranchSide = ""
+	@aNameInside = []
 	@bOneInk = 0
 	@cLayoutMode = ""     # "" = layered; :Ring for a domain with no flow
 	@cRankPolicy = ""     # "" = :Latest -- sinks line up at the last rank
@@ -583,6 +584,33 @@ class stzNotation from stzObject
 	#
 	# Declared by the notation because it is a claim about the domain --
 	# an algorithm has a normal path, a peer network does not.
+	# A KIND THAT HOLDS ITS OWN NAME.
+	#
+	# The plane writes a name UNDER a glyph that has no inside for a word
+	# -- a dot, a bar, a stick figure. A diamond is on that list because
+	# a diamond is usually drawn as a small mark. DRAKON draws it as a
+	# QUESTION, sized to the question, and the text belongs in it: that
+	# is what makes the rhombus readable as a decision rather than as a
+	# marker with a caption.
+	#
+	# Declared per kind, because it is a claim about how the DOMAIN draws
+	# that glyph, not about the glyph everywhere.
+	def SetNameInside(pcKind)
+		_niK_ = StzLower("" + pcKind)
+		_nNi_ = len(@aNameInside)
+		for _iNi_ = 1 to _nNi_
+			if @aNameInside[_iNi_] = _niK_  return  ok
+		next
+		@aNameInside + _niK_
+
+	def WritesNameInside(pcKind)
+		_niK_ = StzLower("" + pcKind)
+		_nNi_ = len(@aNameInside)
+		for _iNi_ = 1 to _nNi_
+			if @aNameInside[_iNi_] = _niK_  return 1  ok
+		next
+		return 0
+
 	def SetBranchSide(pcSide)
 		@cBranchSide = StzLower("" + pcSide)
 

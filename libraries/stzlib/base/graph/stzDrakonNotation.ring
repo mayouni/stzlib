@@ -115,6 +115,12 @@ func StzDrakonNotation()
 	_o_.AddKindXT("action", "box", "white")
 	_o_.AddKindXT("question", "diamond", "#fff7e6")
 	_o_.AddKindXT("select", "diamond", "#fff7e6")
+	# THE QUESTION IS WRITTEN IN THE RHOMBUS, which is what makes it
+	# read as a decision rather than as a marker with a caption. The
+	# plane writes a name UNDER a diamond because a diamond is usually
+	# a small mark; DRAKON sizes it to the question, so it holds it.
+	_o_.SetNameInside("question")
+	_o_.SetNameInside("select")
 	_o_.AddKindXT("case", "box", "white")
 	# an insertion is a call to another algorithm: the component glyph
 	# is the table's nearest reading, a body with something attached
