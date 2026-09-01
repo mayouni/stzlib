@@ -332,7 +332,7 @@ class stzRegexMaker from stzObject
 			return This.Sequences()
 
 	def NumberOfSequences()
-		return len(acSequences)
+		return len($acSequences)
 
 		#< @FunctionAlternativeForms
 
@@ -401,19 +401,19 @@ class stzRegexMaker from stzObject
 		#--
 
 		def CommandXT()
-			return This.SequenceXT(n)
+			return This.SequenceXT($n)
 
 		def CommandAndFragment()
-			return This.SequenceXT(n)
+			return This.SequenceXT($n)
 
 		def CommandAndFrag()
-			return This.SequenceXT(n)
+			return This.SequenceXT($n)
 
 		def CommandAndItsFragment()
-			return This.SequenceXT(n)
+			return This.SequenceXT($n)
 
 		def CommandAndItsFrag()
-			return This.SequenceXT(n)
+			return This.SequenceXT($n)
 
 		#>
 
@@ -1367,7 +1367,7 @@ class stzConditionalRegexMaker from stzObject
 
 	def IfCaptured(pcGroupName)
 		if isList(pcGroupName) and len(pcGroupName) = 2 and isString(pcGroupName[1]) and pcGroupName[1] = "group"
-			_cGroupName_ = pGroupName[2]
+			_cGroupName_ = $pGroupName[2]
 		ok
 
 		if NOT isString(pcGroupName)

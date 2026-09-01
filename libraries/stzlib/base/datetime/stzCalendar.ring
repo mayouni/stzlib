@@ -1417,7 +1417,7 @@ def MarkTimeline(oTimeLine)
 	ok
 
 def TimelineEventsXT()
-	if NOT (isObject(oTimeLine) and ring_classname(oTimeLine) = "stztimeline")
+	if NOT (isObject($oTimeLine) and ring_classname($oTimeLine) = "stztimeline")
 		StzRaise("Incorrect param type! oTimeLine must be a stzTimeLine object.")
 	ok
 	
@@ -1654,7 +1654,7 @@ def ConflictsWith(oTimeLine)
 	return 0
 
 def ConflictsWithSpan(cLabel, aParams)
-	if NOT (isObject(oTimeLine) and ring_classname(oTimeLine) = "stztimeline")
+	if NOT (isObject($oTimeLine) and ring_classname($oTimeLine) = "stztimeline")
 		StzRaise("Incorrect param type! oTimeLine must be a stzTimeLine object.")
 	ok
 	

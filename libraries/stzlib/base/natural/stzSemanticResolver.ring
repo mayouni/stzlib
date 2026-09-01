@@ -767,18 +767,18 @@ func _StzSemProbeBehavior(pcClass, pcMethod)
 	_cObs_ = "unknown"
 	try
 		eval("_oPrb_ = " + _cNew_)
-		_xBefore_ = @@( _oPrb_.Content() )
+		_xBefore_ = @@( $_oPrb_.Content() )
 		eval("_vPrbRet_ = _oPrb_." + pcMethod + "()")
-		_xAfter_ = @@( _oPrb_.Content() )
+		_xAfter_ = @@( $_oPrb_.Content() )
 		if _xAfter_ != _xBefore_
 			_cObs_ = "mutator"
 		else
 			_bHas_ = 0
-			if isNumber(_vPrbRet_)
+			if isNumber($_vPrbRet_)
 				_bHas_ = 1
-			but isString(_vPrbRet_) and _vPrbRet_ != ""
+			but isString($_vPrbRet_) and $_vPrbRet_ != ""
 				_bHas_ = 1
-			but isList(_vPrbRet_) and len(_vPrbRet_) > 0
+			but isList($_vPrbRet_) and len($_vPrbRet_) > 0
 				_bHas_ = 1
 			ok
 			if _bHas_
@@ -873,7 +873,7 @@ func _StzSemMethodsOf(pcNewExpr)
 	_aOut_ = []
 	try
 		eval("_oObj_ = " + pcNewExpr)
-		_aM_ = methods(_oObj_)
+		_aM_ = methods($_oObj_)
 		_nM_ = len(_aM_)
 		for _i_ = 1 to _nM_
 			_aOut_ + lower(_aM_[_i_])
@@ -939,13 +939,13 @@ func StzSemanticLexicon()
 	# entry lists the FORM FAMILY of one canonical action (active, passive,
 	# interrogative, progressive...) -- fold every form into the action's bag.
 
-	_nA_ = len(_ActionsXT)
+	_nA_ = len($_ActionsXT)
 	for _i_ = 1 to _nA_
-		_cId_ = "METHOD_" + upper(_ActionsXT[_i_][1])
+		_cId_ = "METHOD_" + upper($_ActionsXT[_i_][1])
 		if NOT _StzSemOpKnown(_cId_)
 			loop
 		ok
-		_aForms_ = _ActionsXT[_i_][2]
+		_aForms_ = $_ActionsXT[_i_][2]
 		_nF_ = len(_aForms_)
 		for _j_ = 1 to _nF_
 			_StzSemBagAdd(_aBags_, _cId_, lower(_aForms_[_j_]))

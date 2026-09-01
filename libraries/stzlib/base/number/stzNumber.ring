@@ -78,10 +78,10 @@
  ///   GLOBALS   ///
 ///////////////////
 	
-	_nDefaultRound = 2
-	_nActiveRound = 2
+	$_nDefaultRound = 2
+	$_nActiveRound = 2
 
-	_nMaxRound = 14		# Ring says that the max round is 90. But actually
+	$_nMaxRound = 14		# Ring says that the max round is 90. But actually
 				# the most calculable number can't exceed 15 digits.
 				# That's why, I will take 14 as a realistic maximum
 				# round in Softanza.
@@ -129,25 +129,25 @@
 	# double is exact only up to 2^53. That is a real limit a caller may need to know
 	# when handing a value to bare Ring arithmetic, and it is what RingMaxNumber()
 	# ought to have meant all along. It is stated below at its true value.
-	_cMaxCalculableInteger = "999_999_999_999_999"
-	_nMaxNumberOfDigitsInUnsignedInteger = 15
+	$_cMaxCalculableInteger = "999_999_999_999_999"
+	$_nMaxNumberOfDigitsInUnsignedInteger = 15
 	
-	_cMaxCalculableRealNumber = "9_999_999_999_999.9"
-	_nMaxNumberOfDigitsInUnsignedRealNumber = 14
+	$_cMaxCalculableRealNumber = "9_999_999_999_999.9"
+	$_nMaxNumberOfDigitsInUnsignedRealNumber = 14
 	
 	# 2^53 -- the largest integer a Ring double holds EXACTLY. Above it, n and n+1
 	# can be the same value: (2^53 + 1) = 2^53 is TRUE in Ring.
-	_cRingMaxExactInteger = "9007199254740992"
+	$_cRingMaxExactInteger = "9007199254740992"
 	
-	_cMoneyNumberPrefix = "0m"
+	$_cMoneyNumberPrefix = "0m"
 
-	_cNumberFractionalSeparator = "."
+	$_cNumberFractionalSeparator = "."
 
-	_anDecimalDigits = 0:9
+	$_anDecimalDigits = 0:9
 
-	_anOctalDigits = 0:7
+	$_anOctalDigits = 0:7
 
-	_anBinaryDigits = [0,1]
+	$_anBinaryDigits = [0,1]
 
 
   //////////////////////
@@ -285,13 +285,13 @@ func IsBoolean(n)
 	#>
 
 func MaxNumberOfDigitsInUnsignedInteger()
-	return _nMaxNumberOfDigitsInUnsignedInteger
+	return $_nMaxNumberOfDigitsInUnsignedInteger
 	
 func MaxNumberOfDigitsInSignedInteger()
 	return MaxNumberOfDigitsInUnsignedInteger() - 1
 	
 func MaxNumberOfDigitsInUnsignedRealNumber()
-	return _nMaxNumberOfDigitsInUnsignedRealNumber
+	return $_nMaxNumberOfDigitsInUnsignedRealNumber
 	
 func MaxNumberOfDigitsInSignedRealNumber()
 	return MaxNumberOfDigitsInUnsignedRealNumber() - 1
@@ -304,7 +304,7 @@ func MaxNumberOfDigitsInSignedRealNumber()
 # you are about to hand a value to BARE RING arithmetic and need to know whether Ring
 # will keep every digit.
 func RingMaxExactInteger()
-	return 0 + _cRingMaxExactInteger
+	return 0 + $_cRingMaxExactInteger
 
 	func RingMinExactInteger()
 		return -1 * RingMaxExactInteger()
@@ -397,7 +397,7 @@ func MinCalculableNumber()
 		return MinCalculableNumberXT()
 
 	func CalculableSmallestNumberXT()
-		return "-" + _cMaxCalculableInteger
+		return "-" + $_cMaxCalculableInteger
 
 	func RingMinNumberXT()
 		return MinCalculableNumberXT()
@@ -431,7 +431,7 @@ func MaxCalculableInteger()
 	#--
 
 	func MaxCalculableIntegerXT()
-		return _cMaxCalculableInteger
+		return $_cMaxCalculableInteger
 
 	func RingMaxIntegerXT()
 		return MaxCalculableIntegerXT()
@@ -473,7 +473,7 @@ func MinCalculableInteger()
 	#--
 
 	func MinCalculableIntegerXT()
-		return "-" + _cMaxCalculableInteger
+		return "-" + $_cMaxCalculableInteger
 
 	func RingMinIntegerXT()
 		return MinCalculableIntegerXT()
@@ -490,7 +490,7 @@ func MinCalculableInteger()
 	#>
 
 func MaxCalculableRealNumber()
-	_oStr_ = new stzString(_cMaxCalculableRealNumber)
+	_oStr_ = new stzString($_cMaxCalculableRealNumber)
 	_cMax_ - "_"
 	_cMax_ = _oStr_.Content()
 
@@ -516,7 +516,7 @@ func MaxCalculableRealNumber()
 	#--
 
 	func MaxCalculableRealNumberXT()
-		return _cMaxCalculableRealNumber
+		return $_cMaxCalculableRealNumber
 
 	func GreatestCalculableRealNumberXT()
 		return MaxCalculableRealNumberXT()
@@ -549,7 +549,7 @@ func MinCalculableRealNumber()
 	#--
 
 	func MinCalculableRealNumberXT()
-		return "-" + _cMaxCalculableRealNumber
+		return "-" + $_cMaxCalculableRealNumber
 
 	func RingMinRealNumberXT()
 		return MinCalculableRealNumberXT()
@@ -560,7 +560,7 @@ func MinCalculableRealNumber()
 	#>
 
 func MoneyNumberPrefix()
-	return _cMoneyNumberPrefix
+	return $_cMoneyNumberPrefix
 
 	#< @FunctionAlternativeForm
 
@@ -570,7 +570,7 @@ func MoneyNumberPrefix()
 	#>
 
 func DefaultFractionalSeparator()
-	return _cNumberFractionalSeparator
+	return $_cNumberFractionalSeparator
 
 	func DefaultDecimalSeparator()
 		return This.DefaultFractionalSeparator()
@@ -716,10 +716,10 @@ func IsRGBColor(anColor)
 
 
 func DecimalDigits()
-	return _anDecimalDigits
+	return $_anDecimalDigits
 
 func OctalDigits()
-	return _anOctalDigits
+	return $_anOctalDigits
 
 func Double(n)
 	if isList(n) and IsOfNamedParamList(n)
@@ -930,7 +930,7 @@ func OddOrEven(n)
 #---- ROUNDS
 
 func MaxRingRound()
-	return _nMaxRound
+	return $_nMaxRound
 
 	func RingMaxRound()
 		 return MaxRingRound()
@@ -942,7 +942,7 @@ func MaxRingRound()
 		return MaxRingRound()
 
 func DefaultRound()
-	return _nDefaultRound
+	return $_nDefaultRound
 
 	func StzDefaultRound()
 		return DefaultRound()
@@ -954,7 +954,7 @@ func DefaultRound()
 		return DefaultRound()
 
 func StzResetRound()
-	SetActiveRound(_nDefaultRound)
+	SetActiveRound($_nDefaultRound)
 
 	func ResetRound()
 		StzResetRound()
@@ -1022,7 +1022,7 @@ func StzRoundXT(p)
 # the ring StzDecimals() function in the program
 
 func GetActiveRound()
-	return _nActiveRound
+	return $_nActiveRound
 
 	#< @FunctionAlternativeForms
 
@@ -1292,7 +1292,7 @@ func ZeroIfEmpty(pcStr)
 	ok
 
 func Derivative(pFunction)
-	_nTemp_ = call pFunction(_n1_)
+	_nTemp_ = call pFunction($_n1_)
 	return _nTemp_ * (1 - _nTemp_)
 		
 func NumberIsDividorOf(pNumber,pOf)
@@ -3071,7 +3071,7 @@ class stzNumber from stzObject
 		ok
 
 	    # Tracing the history of updates (only if not already in history update)
-	    if _bInHistoryUpdate = 0
+	    if $_bInHistoryUpdate = 0
 	        @TraceObjectHistory(This)
 	    ok
 
@@ -5246,7 +5246,7 @@ class stzNumber from stzObject
 
 		# The value after subtracting all the given numbers, as data.
 		def SubstractedMany(pOtherNumber)
-			return This.SubStructedMany(pOtherNumbers)
+			return This.SubStructedMany($pOtherNumbers)
 
 		# The value after subtracting all the given numbers, as data.
 		def SubtractedMany(pOtherNumbers)
@@ -5807,7 +5807,7 @@ class stzNumber from stzObject
 
 	# The derivative via the engine calculator (reserved form).
 	def Derivative(pcFunc)
-		return This.pvtCalculate( "derivative", pcdef ) 
+		return This.pvtCalculate( "derivative", $pcdef ) 
 
 		def DerivativeQ(pcFunc)
 				return new stzNumber(This.Derivative(pcFunc))
@@ -6158,7 +6158,7 @@ class stzNumber from stzObject
 
 		_nOtherRound_ = _nCurrentRound_
 		if isString(pOtherNumber)
-			_nOtherRound_ = StzNumberQ(n).Round()
+			_nOtherRound_ = StzNumberQ($n).Round()
 		ok
 
 		# Applying the max between the two rounds
@@ -7710,7 +7710,7 @@ class stzNumber from stzObject
 		return _cFormattedNumber_
 
 		_oNumber_ = This
-		if bPercent = 1
+		if $bPercent = 1
 			_cNumber_ = _oNumber_.InPercentage()
 			_oNumber_ = new stzNumber(_cNumber_)
 		ok
@@ -7733,19 +7733,19 @@ class stzNumber from stzObject
 		ok
 
 		if _oNumber_.Trillions() != ""
-			_cNumber_ += _oNumber_.Trillions() + cThousandsSep
+			_cNumber_ += _oNumber_.Trillions() + $cThousandsSep
 		ok
 
 		if _oNumber_.Billions() != ""
-			_cNumber_ += _oNumber_.Billions() + cThousandsSep
+			_cNumber_ += _oNumber_.Billions() + $cThousandsSep
 		ok
 
 		if _oNumber_.Millions() != ""
-			_cNumber_ += _oNumber_.Millions() + cThousandsSep
+			_cNumber_ += _oNumber_.Millions() + $cThousandsSep
 		ok
 
 		if _oNumber_.Thousands() != ""
-			_cNumber_ += _oNumber_.Thousands() + cThousandsSep
+			_cNumber_ += _oNumber_.Thousands() + $cThousandsSep
 		ok
 
 		if _oNumber_.Hundreds() != ""
@@ -7756,7 +7756,7 @@ class stzNumber from stzObject
 			_cNumber_ += _cFractionalSeparator_ + _oNumber_.FractionalPartWithoutZerodot()
 		ok
 
-		if bPercent = 1
+		if $bPercent = 1
 			_cNumber_ += "%"
 		ok
 

@@ -65,7 +65,7 @@ class stzListCounter from stzObject
 			return This.CountItemsW(pCondition)
 
 		def HowManyItemsW(pcCondition)
-			return This.CountItemsW(pCondition)
+			return This.CountItemsW($pCondition)
 
 	def NumberOfUniqueItemsW(pCondition)
 		return len( @oList.UniqueItemsW(pCondition) )
@@ -77,7 +77,7 @@ class stzListCounter from stzObject
 			return This.NumberOfUniqueItemsW(pCondition)
 
 		def HowManyUniqueItemsW(pcCondition)
-			return This.NumberOfUniqueItemsW(pCondition)
+			return This.NumberOfUniqueItemsW($pCondition)
 
 	  #------------------------------------------------------------#
 	 #     COUNTING ITEMS VERIFYING A GIVEN CONDITION -- XTended  #
@@ -101,11 +101,11 @@ class stzListCounter from stzObject
 		@oList.InsertAfterManyPositions( _anPos_, pNewItem )
 
 		def InsertAfterWQ( pcCondition, pNewItem )
-			This.InsertAfterW( pCondition, pNewItem )
+			This.InsertAfterW( $pCondition, pNewItem )
 			return This
 
 		def InsertAfterWhere(pcCondition, pNewItem)
-			This.InsertAfterW(pCondition, pNewItem)
+			This.InsertAfterW($pCondition, pNewItem)
 
 	def InsertBeforeW(pcCondition, pNewItem)
 		_anPos_ = @oList.FindItemsW(pcCondition)

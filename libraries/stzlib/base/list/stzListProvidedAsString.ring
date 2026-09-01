@@ -46,7 +46,7 @@ class stzListProvidedAsString from stzObject
 	*/
 
 	def Items()
-		return _aItems_
+		return $_aItems_
 
 	def IsListOfValues()
 		return ContainsOnlyValues()

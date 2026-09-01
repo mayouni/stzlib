@@ -5,7 +5,7 @@
 # Module-level default so ElapsedTime() works without a prior
 # StartTimer() call (tests that just want a duration but didn't
 # bootstrap the timer trigger an R24 otherwise).
-_time0 = clock()
+$_time0 = clock()
 
 # Concat(aList): join string items into one string. Common helper
 # used by perf-narration tests; not living in a more specific file.
@@ -61,20 +61,20 @@ func StzElapsedTimeXT(pIn)
 
 	switch pIn
 	on :Clocks
-		return clock() - _time0 + " clocks"
+		return clock() - $_time0 + " clocks"
 
 	on :Seconds
-		_nTime_ = ( clock() - _time0 ) / clockspersecond()
+		_nTime_ = ( clock() - $_time0 ) / clockspersecond()
 		_cTime_ = "" + _nTime_
 		return _cTime_ + " second(s)"
 
 	on :Minutes
-		_nTime_ = ( clock() - _time0 ) / clockspersecond() / 60
+		_nTime_ = ( clock() - $_time0 ) / clockspersecond() / 60
 		_cTime_ = "" + _nTime_
 		return _cTime_ + " minute(s)"
 
 	on :Hours
-		_nTime_ = ( clock() - _time0 ) / clockspersecond() / 3600
+		_nTime_ = ( clock() - $_time0 ) / clockspersecond() / 3600
 		_cTime_ = "" + _nTime_
 		return _cTime_ + " hour(s)"
 

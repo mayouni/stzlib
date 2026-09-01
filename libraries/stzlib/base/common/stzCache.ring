@@ -29,23 +29,23 @@ func CacheCreateIfInexistant(pcCacheName,pcStorageType)
 func CacheActivate(pcCacheName)
 	_cCompleteCacheFileName_ = CacheCompleteFileName(pcCacheName)
 
-	_oTempHashList_ = new stzHashList(_aStzCaches)
+	_oTempHashList_ = new stzHashList($_aStzCaches)
 	_n_ = _oTempHashList_.FindInKeys(_cCompleteCacheFileName_)
-	_aStzCaches[_n_][2] = 1
+	$_aStzCaches[_n_][2] = 1
 	return 1
 
 func CacheDeactivate(pcFileName)
-	_cCompleteCacheFileName_ = CacheCompleteFileName(pcCacheName)
-	_oTempHashList_ = new stzHashList(_aStzCaches)
+	_cCompleteCacheFileName_ = CacheCompleteFileName($pcCacheName)
+	_oTempHashList_ = new stzHashList($_aStzCaches)
 	_n_ = _oTempHashList_.FindInKeys(_cCompleteCacheFileName_)
-	_aStzCaches[_n_][2] = 0
+	$_aStzCaches[_n_][2] = 0
 	return 1
 
 func IsCacheActivated(pcFileName)
-	_cCompleteCacheFileName_ = CacheCompleteFileName(pcCacheName)
-	_oTempHashList_ = new stzHashList(_aStzCaches)
+	_cCompleteCacheFileName_ = CacheCompleteFileName($pcCacheName)
+	_oTempHashList_ = new stzHashList($_aStzCaches)
 	_n_ = _oTempHashList_.FindInKeys(_cCompleteCacheFileName_)
-	return _aSteCaches[_n_][2]
+	return $_aSteCaches[_n_][2]
 
 	func @IsCacheActivated(pcFileName)
 		return IsCacheActivated(pcFileName)
@@ -59,9 +59,9 @@ func CacheComposeLine(paPieces)
 
 func CacheAddLine(pcCacheName,pcEntry,pcStorageType)
 	switch pcStorageType
-	on :InFile	TextFileAddLine(CacheFileHandler(pcCacheName), cCacheLine)
-	on :InMemomry	_cMemCache + cCacheLine
-	on :InDatabase	DatabaseAddLine(_cCacheDatabase, _cCacheTable, cCacheLine)
+	on :InFile	TextFileAddLine(CacheFileHandler(pcCacheName), $cCacheLine)
+	on :InMemomry	$_cMemCache + $cCacheLine
+	on :InDatabase	DatabaseAddLine($_cCacheDatabase, $_cCacheTable, $cCacheLine)
 	other
 		stzError(:UnsupportedCacheStorage)
 	off
@@ -70,8 +70,8 @@ func CacheFileHandler(pcCacheName)
 	// A global variable that maintains the list of caches and their related file handlers
 	// needs to be addedd
 	_cCompleteCacheFileName_ = CacheCompleteFileName(pcCacheName)
-	_n_ = find(_aStzCaches,_cCompleteCacheFileName_)
-	return aStzCaches[_cCompleteCacheFileName_][1]
+	_n_ = find($_aStzCaches,_cCompleteCacheFileName_)
+	return $aStzCaches[_cCompleteCacheFileName_][1]
 
 class stzCache from stzObject
 	_cCacheName_
@@ -82,7 +82,7 @@ class stzCache from stzObject
 	bActivated = 0
 
 	def Content()
-		return cCacheContent
+		return $cCacheContent
 
 		def Value()
 			return This.Content()
@@ -92,7 +92,7 @@ class stzCache from stzObject
 		_oCacheStorage_ = new stzCacheStorage("cache", pcCacheName, pcStorageType)
 
 	def StorageType()
-		return _oCacheStorage_.StorageType()
+		return $_oCacheStorage_.StorageType()
 
 	def Activate()
 		bActivated = 1
@@ -101,22 +101,22 @@ class stzCache from stzObject
 		bActivated = 0
 
 	def IsActivated()
-		return bActivated
+		return $bActivated
 
 	func CacheOpen()
 		switch StorageType()
 		on :InFile
-			return TextFileOpen(_cCacheFileName)
+			return TextFileOpen($_cCacheFileName)
 		on :InDatabase
-			return DatabaseConnect(_cCacheDbName)
+			return DatabaseConnect($_cCacheDbName)
 		off
 		
 	
 	def CacheFileHandler()
-		return _oCacheStorage_.FileHandler()
+		return $_oCacheStorage_.FileHandler()
 
 	func CacheFileColse()
-		return TextFileColse(_CacheFileHandler)
+		return TextFileColse($_CacheFileHandler)
 	
 	
 	func CacheFindEntry(pcFunc, pcParamValues)
@@ -147,10 +147,10 @@ class stzCache from stzObject
 		_cLineStr_ = CacheFileLines()[ pnLineNumber ]
 		_cCode_ = "_aTempList_ = " + _cLineStr_
 		eval(_cCode_)
-		return _aTempList_[4]
+		return $_aTempList_[4]
 	
 	func CacheFileLines()
-		_cCache_ = read(_oCacheStorage_.CompleteFileName())
+		_cCache_ = read($_oCacheStorage_.CompleteFileName())
 		_oStr_ = new stzString(_cCache_)
 		_nLen_ = _oStr_.NumberOfChars()
 
@@ -200,13 +200,13 @@ class stzCacheStorage from stzObject
 		_oStorage_ = new stzStorage(pcStoragePath, pcCacheName, pcStorageType)
 
 	def FileHandler()
-		return _oStorage_.FileHandler()
+		return $_oStorage_.FileHandler()
 
 	def FileName()
-		return _oStorage_.FileName()
+		return $_oStorage_.FileName()
 
 	def CompleteFileName()
-		return _oStorage_.CompleteFileName()
+		return $_oStorage_.CompleteFileName()
 
 	def StorageType()
-		return _oStorage_.StorageType()
+		return $_oStorage_.StorageType()

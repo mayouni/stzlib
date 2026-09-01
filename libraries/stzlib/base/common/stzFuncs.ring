@@ -3,7 +3,7 @@
 # with JSDoc (https://jsdoc.app/)
 #--> Create a generator of a static web site documentation
 
-_cSoftanzaLogo = '
+$_cSoftanzaLogo = '
 ╭━━━┳━━━┳━━━┳━━━━┳━━━┳━╮╱╭┳━━━━┳━━━╮
 ┃╭━╮┃╭━╮┃╭━━┫╭╮╭╮┃╭━╮┃┃╰╮┃┣━━╮━┃╭━╮┃
 ┃╰━━┫┃╱┃┃╰━━╋╯┃┃╰┫┃╱┃┃╭╮╰╯┃╱╭╯╭┫┃╱┃┃
@@ -24,26 +24,26 @@ Programming, by Heart! By: M.Ayouni╭
  ///  GLOBALS VARIABLES  ///
 ///////////////////////////
 
-_bInHistoryUpdate = 0
+$_bInHistoryUpdate = 0
 
 $TEMP_LIST = [] # A temp list value used with @() inside objects
 $TEMP_STRING = ""
 $TEMP_NUMBER = 0
 $TEMP_OBJECT = ""
 
-_bKeepHisto = 0 // for keeping objec update history
-_aHisto = []
+$_bKeepHisto = 0 // for keeping objec update history
+$_aHisto = []
 
-_aKeepHistoXT = [ 0, "" ]
-_aHistoXT = []
+$_aKeepHistoXT = [ 0, "" ]
+$_aHistoXT = []
 
-_bKeepTime = 0 // for keeping object execution time
-_nTimeInSeconds = 0
-_nStartTimeInClocks = 0
+$_bKeepTime = 0 // for keeping object execution time
+$_nTimeInSeconds = 0
+$_nStartTimeInClocks = 0
 
-_aRingTypes = [ :number, :string, :char, :list, :object, :cobject ]
+$_aRingTypes = [ :number, :string, :char, :list, :object, :cobject ]
 
-_aRingTypesXT = [
+$_aRingTypesXT = [
 		[ "number", "numbers" ],
 		[ "string", "strings" ],
 		[ "char", "chars" ],
@@ -54,9 +54,9 @@ _aRingTypesXT = [
 @ = 0
 
 # Temporary Truth Statement and Negation (read X as Truth)
-bXStatement = 1
+$bXStatement = 1
 
-_aStzFindableTypes = [
+$_aStzFindableTypes = [
 	:stzListOfNumbers, :stzListOfUnicodes, :stzString, :stzMultiString,
 	:stzSubString, :stzItem, :stzStopWords,
 	:stzListOfStrings, :stzListInString, :stzListOfBytes,
@@ -68,34 +68,34 @@ _aStzFindableTypes = [
 	:stzSection
 ]
 
-_MainValue = ""
-_LastValue = ""
+$_MainValue = ""
+$_LastValue = ""
 
-_bThese = 0	     	# Used in case like: Q(1:5) - These(3:5) 	--> [1,2]
-_bTheseQ = 0     	# Used in case like: Q(1:5) - TheseQ(3:5) 	--> Q([1,2])
+$_bThese = 0	     	# Used in case like: Q(1:5) - These(3:5) 	--> [1,2]
+$_bTheseQ = 0     	# Used in case like: Q(1:5) - TheseQ(3:5) 	--> Q([1,2])
 
-_bAsObject = 0	# Used in case like: Q(1:2) + Obj(Q(3:4))	--> [ [1,2], Q([3,4]) ]
-_bAsObjectQ = 0
+$_bAsObject = 0	# Used in case like: Q(1:2) + Obj(Q(3:4))	--> [ [1,2], Q([3,4]) ]
+$_bAsObjectQ = 0
 
-_bModifiable = 0	# Used with operators that modify stz objects
+$_bModifiable = 0	# Used with operators that modify stz objects
 
-_bParamCheck = 1  	# Activates the "# Checking params region" in softanza functions
+$_bParamCheck = 1  	# Activates the "# Checking params region" in softanza functions
 		     	#--> Set it to FALSE if the functions are used inside large loops
 		    	# so you can gain performance (the checks can then be made once,
 		     	# by yourself, outside the loop).
 			# Use the SetParamCheckingTo(FALSE)
 
-_bEarlyCheck = 1	# Used for the same reason as _bParamCheck
+$_bEarlyCheck = 1	# Used for the same reason as _bParamCheck
 
-_nVizWidth = 50		# Default wrap width (columns) for the VizFind* visuals.
+$_nVizWidth = 50		# Default wrap width (columns) for the VizFind* visuals.
 			#--> Change it with SetVizWidth(80); read it with DefaultVizWidth().
 
-cCacheFileName = "stzcache.txt"
-_CacheFileHandler = ""
+$cCacheFileName = "stzcache.txt"
+$_CacheFileHandler = ""
 
-_cCacheMemoryString = ""
+$_cCacheMemoryString = ""
 
-_acRingFunctions = [ // #TODO // Add the new functions added in Ring 1.21
+$_acRingFunctions = [ // #TODO // Add the new functions added in Ring 1.21
 	"acos",
 	"add",
 	"addattribute",
@@ -337,7 +337,7 @@ _acRingFunctions = [ // #TODO // Add the new functions added in Ring 1.21
 ]
 
 #TODO // Review the list for last ring version
-_acRingKeywords = [
+$_acRingKeywords = [
 	"again",
 	"and",
 	"but",
@@ -389,11 +389,11 @@ _acRingKeywords = [
 	"endpackage"
 ]
 
-_nQuietEqualityRatio = 0.09
+$_nQuietEqualityRatio = 0.09
 
 # Softanza keywords used in Conditaional Code (CCode)
 
-_acStzCCKeywords = [
+$_acStzCCKeywords = [
 	:@Number,
 		:@CurrentNumber,
 		:@PreviousNumber,
@@ -526,7 +526,7 @@ func StzFindAll(pThing, pContainer)
 #---
 
 func StzTruthStatement()
-	return bXStatement
+	return $bXStatement
 
 	func TruthStatement()
 		return StzTruthStatement()
@@ -534,7 +534,7 @@ func StzTruthStatement()
 #---
 
 func StzKeepingTime()
-	return _bKeepTime
+	return $_bKeepTime
 
 	func KeepingTime()
 		return StzKeepingTime()
@@ -697,7 +697,7 @@ func AttributesValues(pObject) # Compliments Ring attributes() function
 	for i = 1 to _nLen_
 		_cCode_ = '_value_ = pObject.' + _acAttributes_[i]
 		eval(_cCode_)
-		_aResult_ + _value_
+		_aResult_ + $_value_
 	next
 
 	return _aResult_
@@ -2513,7 +2513,7 @@ func StzDesactivateParamChecking()
 	#>
 
 func StzParamChecking()
-	return _bParamCheck
+	return $_bParamCheck
 
 	func ParamChecking()
 		return StzParamChecking()
@@ -2521,22 +2521,22 @@ func StzParamChecking()
 	#< @FunctionAlternativeForms
 
 	func ParamsChecking()
-		return _bParamCheck
+		return $_bParamCheck
 
 	func ParamCheck()
-		return _bParamCheck
+		return $_bParamCheck
 
 	func ParamsCheck()
-		return _bParamCheck
+		return $_bParamCheck
 
 	# NOTE: CheckParam(pValue, p2, p3) is defined in stznamedparams_engine.ring
 	# The 0-arg alias was removed to avoid Ring's redefinition error.
 
 	func CheckingParam()
-		return _bParamCheck
+		return $_bParamCheck
 
 	func CheckParams()
-		return _bParamCheck
+		return $_bParamCheck
 
 	#>
 
@@ -2544,31 +2544,31 @@ func StzParamChecking()
 	# Forgetting the "c" in "Check"
 
 	func ParamCheking()
-		return _bParamCheck
+		return $_bParamCheck
 
 	func ParamsCheking()
-		return _bParamCheck
+		return $_bParamCheck
 
 	func ParamChek()
-		return _bParamCheck
+		return $_bParamCheck
 
 	func ParamsChek()
-		return _bParamCheck
+		return $_bParamCheck
 
 	func ChekParam()
-		return _bParamCheck
+		return $_bParamCheck
 
 	func ChekingParam()
-		return _bParamCheck
+		return $_bParamCheck
 
 	func ChekParams()
-		return _bParamCheck
+		return $_bParamCheck
 
 	func ChekingParams()
-		return _bParamCheck
+		return $_bParamCheck
 
 	func ChekcParams()
-		return _bParamCheck
+		return $_bParamCheck
 
 	#>
 
@@ -2577,13 +2577,13 @@ func StzParamChecking()
 #-- globally with SetVizWidth(80). A width < 1 restores the 50-column default.
 
 func DefaultVizWidth()
-	return _nVizWidth
+	return $_nVizWidth
 
 	func VizWidth()
-		return _nVizWidth
+		return $_nVizWidth
 
 	func GetVizWidth()
-		return _nVizWidth
+		return $_nVizWidth
 
 func SetVizWidth(_n_)
 	if isList(_n_) and len(_n_) = 2 and isString(_n_[1])
@@ -2612,7 +2612,7 @@ func ResetVizWidth()
 #--
 
 func StzEarlyCheck()
-	return _bEarlyCheck
+	return $_bEarlyCheck
 
 	func EarlyCheck()
 		return StzEarlyCheck()
@@ -2870,7 +2870,7 @@ func StzCaseSensitive(p)
 #--
 
 func StzKeywords()
-	return _acStzCCKeywords
+	return $_acStzCCKeywords
 
 	func StzCCodeKeywords()
 		return StzKeywords()
@@ -2912,7 +2912,7 @@ func StzNSpaces(_n_)
 		return StzNSpaces(_n_)
 
 func StzQuietEqualityRatio()
-	return _nQuietEqualityRatio
+	return $_nQuietEqualityRatio
 
 	func QuietEqualityRatio()
 		return StzQuietEqualityRatio()
@@ -2942,13 +2942,13 @@ func StzSetQuietEqualityRatio(_n_)
 		StzSetQuietEqualityRatio(_n_)
 
 func StzRingTypes()
-	return _aRingTypes
+	return $_aRingTypes
 
 	func RingTypes()
 		return StzRingTypes()
 
 func StzRingFunctions()
-	return _acRingFunctions
+	return $_acRingFunctions
 
 	func RingFunctions()
 		return StzRingFunctions()
@@ -5060,7 +5060,7 @@ func new_stz(_cType_, p)
 
 	eval(_cCode_)
 
-	return _oObject_
+	return $_oObject_
 
 	func StzTypedQ(_cType_, p)
 		return stz(_cType_, p)
@@ -5518,7 +5518,7 @@ func StzNewLine()
 		return StzNewLine()
 
 func StzNumberOfStzFindableTypes()
-	return len(_aStzFindableTypes)
+	return len($_aStzFindableTypes)
 
 	func NumberOfStzFindableTypes()
 		return StzNumberOfStzFindableTypes()
@@ -5545,7 +5545,7 @@ func IsStzFindableType(_cType_)
 		return IsStzFindableType(_cType_)
 
 func StzFindableTypes()
-	return _aStzFindableTypes
+	return $_aStzFindableTypes
 
 func IsStzFindable(p)
 	if NOT ( isObject(p) and IsStzObject(p) )

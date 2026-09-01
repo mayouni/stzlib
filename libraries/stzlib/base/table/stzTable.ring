@@ -655,7 +655,7 @@ Class stzTable from stzList
 			_bResult_ = 1
 		ok
 */
-		return _bResult_
+		return $_bResult_
 
 		#< @FunctionAlternativeForm
 
@@ -1428,10 +1428,10 @@ func _NormalizeColLookupKey(pVal)
 		return _aResult_
 
 		def CellAndPosition(pCol, pRow)
-			return This.CellZ(pCol, pnRow)
+			return This.CellZ(pCol, $pnRow)
 
 		def CellAndItsPosition(pCol, pRow)
-			return This.CellZ(pCol, pnRow)
+			return This.CellZ(pCol, $pnRow)
 
 	  #-----------------------------#
 	 #  CELL FUNTCTION - EXTENDED  #
@@ -1779,7 +1779,7 @@ func _NormalizeColLookupKey(pVal)
 		#< @FunctionFluentForm
 
 		def TheseCellsToHashListQ(paCellsPos)
-			return This.TheseCellsToHashListQRT(paCellsPos, pcReturnType)
+			return This.TheseCellsToHashListQRT(paCellsPos, $pcReturnType)
 
 		def TheseCellsToHashListQRT(paCellsPos, pcReturnType)
 			switch pcReturnType
@@ -1801,7 +1801,7 @@ func _NormalizeColLookupKey(pVal)
 			return This.TheseCellsToHashList(paCellsPos)
 
 			def TheseCellsAsHashListQ(paCellsPos)
-				return This.TheseCellsAsHashListQRT(paCellsPos, pcReturnType)
+				return This.TheseCellsAsHashListQRT(paCellsPos, $pcReturnType)
 
 			def TheseCellsAsHashListQRT(paCellsPos, pcReturnType)
 				return This.TheseCellsToHashListQRT(paCellsPos, pcReturnType)
@@ -3098,7 +3098,7 @@ func _NormalizeColLookupKey(pVal)
 		#< @FunctionFluentForm
 
 		def RowZQ(_n_)
-			return This.RowZQRT(p, :stzList)
+			return This.RowZQRT($p, :stzList)
 
 		def RowZQRT(_n_, pcReturnType)
 			switch pcReturnType
@@ -3138,7 +3138,7 @@ func _NormalizeColLookupKey(pVal)
 				return This.RowZQRT(_n_, pcReturnType)
 
 		def CellsInRowNAndTheirPositions(_n_)
-			return This.RowZ(p)
+			return This.RowZ($p)
 
 			def CellsInRowNAndTheirsPositionsQ(_n_)
 				return This.CellsInRowNAndTheirsPositionsQRT(_n_, :stzList)
@@ -3156,7 +3156,7 @@ func _NormalizeColLookupKey(pVal)
 				return This.RowZQRT(_n_, pcReturnType)
 
 		def CellsAndPositionsInNthRow(_n_)
-			return This.RowZ(p)
+			return This.RowZ($p)
 
 			def CellsAndPositionsInNthRowQ(_n_)
 				return This.CellsAndPositionsInNthRowQRT(_n_, :stzList)
@@ -3165,7 +3165,7 @@ func _NormalizeColLookupKey(pVal)
 				return This.RowZQRT(_n_, pcReturnType)
 
 		def CellsInNthRowAndTheirPositions(_n_)
-			return This.RowZ(p)
+			return This.RowZ($p)
 
 			def CellsInNthRowAndTheirPositionsQ(_n_)
 				return This.CellsInNthRowAndTheirPositionsQRT(_n_, :stzList)
@@ -3593,7 +3593,7 @@ func _NormalizeColLookupKey(pVal)
 			This.RenameNthCol(_n_, pcNewName)
 
 	def RemnameNthCols(panColsNumbers)
-		if NOT (isList(paColsNumbers) and @IsListOfNumbers(paColsNumbers) )
+		if NOT (isList($paColsNumbers) and @IsListOfNumbers($paColsNumbers) )
 			StzRaise("Incorrect param type! panColsNumbers must be a list of numbers.")
 		ok
 
@@ -3649,7 +3649,7 @@ func _NormalizeColLookupKey(pVal)
 			This.RemoveColumnsAt(panColNumbers)
 
 	def RemoveAllColsExceptAt(panColNumbers)
-		This.RemoveAllColsExcept(paColNumbers)
+		This.RemoveAllColsExcept($paColNumbers)
 
 		#< @FunctionAlternativeForms
 
@@ -4015,7 +4015,7 @@ func _NormalizeColLookupKey(pVal)
 
 	def EraseSection(paCellPos1, paCellPos2)
 		_aCellsPso_ = This.SectionAsPositions()
-		This.EraseCells(_aCellsPos_)
+		This.EraseCells($_aCellsPos_)
 
 	  #======================#
 	 #  INSERTING A COLUMN  #
@@ -4042,7 +4042,7 @@ func _NormalizeColLookupKey(pVal)
 		ok
 
 		if isList(_n_)
-			This.InsertColAtPositions(_n_, paRowData)
+			This.InsertColAtPositions(_n_, $paRowData)
 			return
 		ok
 
@@ -4712,13 +4712,13 @@ func _NormalizeColLookupKey(pVal)
 			StzRaise("Incorrect param type! panRowsNumbers must be a list of numbers.")
 		ok
 
-		_nLen_ = len(apnRowsNumbers)
+		_nLen_ = len($apnRowsNumbers)
 
 		_aResult_ = []
 		_nLen1Len_ = len(_nLen_)
 		for _iLoopLen1_ = 1 to _nLen1Len_
 			_n_ = _nLen_[_iLoopLen1_]
-			_aResult_ + This.RowZ(panRowsNumbers[i])
+			_aResult_ + This.RowZ(panRowsNumbers[$i])
 		next
 
 		return _aResult_
@@ -4861,7 +4861,7 @@ func _NormalizeColLookupKey(pVal)
 
 		if isString(pnFrom)
 
-			if StzFindFirst(pnForm, [
+			if StzFindFirst($pnForm, [
 				:First, :FirstCol, :FirstColumn, :FirstPosition ]) > 0
 
 				pnFrom = 1
@@ -6032,7 +6032,7 @@ func _NormalizeColLookupKey(pVal)
 		return This.FindNthSubValueCS(_n_, pSubValue, 1)
 
 		def FindNthOccurrenceOfSubValue(_n_, pSubValueValue)
-			return This.FindNthSubValue(_n_, pSubValue)
+			return This.FindNthSubValue(_n_, $pSubValue)
 
 	  #-----------------------------------------------------------------------------------------#
 	 #  FINDING FIRST OCCURRENCE OF A GIVEN CELL (OR A GIVEN SUBVALUE IN A CELL) IN THE TABLE  #
@@ -6133,7 +6133,7 @@ func _NormalizeColLookupKey(pVal)
 		return This.FindFirstSubValueCS(pSubValue, 1)
 
 		def FindFirstOccurrenceOfSubValue(pSubValueValue)
-			return This.FindFirstSubValue(pSubValue)
+			return This.FindFirstSubValue($pSubValue)
 
 	  #----------------------------------------------------------------------------------------#
 	 #  FINDING LAST OCCURRENCE OF A GIVEN CELL (OR A GIVEN SUBVALUE IN A CELL) IN THE TABLE  #
@@ -6224,7 +6224,7 @@ func _NormalizeColLookupKey(pVal)
 			return This.FindLastSubValueCS(pSubValue, 1)
 
 			def FindLastOccurrenceOfSubValue(pSubValueValue)
-				return This.FindLastSubValue(pSubValue)
+				return This.FindLastSubValue($pSubValue)
 
 	  #==========================================================================================#
 	 #  GETTING NUMBER OF OCCURRENCE A GIVEN CELL (OR A GIVEN SUBVALUE IN A CELL) IN THE TABLE  #
@@ -6812,10 +6812,10 @@ func _NormalizeColLookupKey(pVal)
 			return This.ContainsCols(paCols)
 
 		def ContainsColumns(paCols)
-			return This.ContainsCols(paCol)
+			return This.ContainsCols($paCol)
 
 		def ContainsTheseColumns(paCols)
-			return This.ContainsCols(paCol)
+			return This.ContainsCols($paCol)
 
 	  #----------------------------------------------------------------------#
 	 #  CHECKING IF THE TABLE CONTAINS CELLS THAT INCLUDE A GIVEN SUBVALUE  #
@@ -7017,7 +7017,7 @@ func _NormalizeColLookupKey(pVal)
 			return This.FindAllInCells(paCells, pCellValueOrSubValue)
 	
 		def OccurrencesInCells(pCellValueOrSubValue)
-			return This.FindAllInCells(paCells, pCellValueOrSubValue)
+			return This.FindAllInCells($paCells, pCellValueOrSubValue)
 		
 		def PositionsInCells(paCells, pCellValueOrSubValue)
 			return This.FindAllInCells(paCells, pCellValueOrSubValue)
@@ -7071,7 +7071,7 @@ func _NormalizeColLookupKey(pVal)
 			return This.FindValueInCellsCS(paCells, pCellValue, pCaseSensitive)
 
 		def PositionsOfValueInCellsCS(paCells, pCellValue, pCaseSensitive)
-			return This.FindValueInCellsCS(ppaCells, _cellValue_, pCaseSensitive)
+			return This.FindValueInCellsCS($ppaCells, $_cellValue_, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -7082,7 +7082,7 @@ func _NormalizeColLookupKey(pVal)
 			return This.FindValueInCells(paCells, pCellValue)
 
 		def PositionsOfValueInCells(paCells, pCellValue)
-			return This.FindValueInCells(ppaCells, _cellValue_)
+			return This.FindValueInCells($ppaCells, $_cellValue_)
 	
 	  #-----------------------------------------------#
 	 #  FINDING A SUBVALUE IN A GIVEN LIST OF CELLS  #
@@ -7228,7 +7228,7 @@ func _NormalizeColLookupKey(pVal)
 		return This.FindNthCellCS(_n_, pValue, 1)
 
 		def FindNthOccurrenceOfValueInCells(_n_, paCells, pCellValue)
-			return This.FindNthValueInCells(_n_, paCells, pValue)
+			return This.FindNthValueInCells(_n_, paCells, $pValue)
 	
 	  #-------------------------------------------------#
 	 #  FINDING NTH SUBVALUE IN A GIVEN LIST OF CELLS  #
@@ -7282,7 +7282,7 @@ func _NormalizeColLookupKey(pVal)
 		return This.FindNthSubValueInCellsCS(_n_, paCells, pSubValue, 1)
 
 		def FindNthOccurrenceOfSubValueInCells(_n_, paCells, pSubValueValue)
-			return This.FindNthSubValueInCells(_n_, paCells, pSubValue)
+			return This.FindNthSubValueInCells(_n_, paCells, $pSubValue)
 
 	  #------------------------------------------------------------------------------------------------#
 	 #  FINDING FIRST OCCURRENCE OF A GIVEN CELL (OR A GIVEN SUBVALUE IN A CELL) IN SOME GIVEN CELLS  #
@@ -7338,7 +7338,7 @@ func _NormalizeColLookupKey(pVal)
 		return This.FindFirstValueInCellCS(paCells, pValue, 1)
 
 		def FindFirstOccurrenceOfValueInCells(paCells, pCellValue)
-			return This.FindFirstValueInCells(paCells, pValue)
+			return This.FindFirstValueInCells(paCells, $pValue)
 
 	  #------------------------------------------------------------------------------#
 	 #  FINDING FIRST OCCURRENCE OF A GIVEN SUBVALUE IN THE PROVIDED LIST OF CELLS  #
@@ -7356,7 +7356,7 @@ func _NormalizeColLookupKey(pVal)
 		return This.FindFirstSubValueInCellsCS(paCells, pSubValue, 1)
 
 		def FindFirstOccurrenceOfSubValueInCells(paCells, pSubValueValue)
-			return This.FindFirstSubValueInCells(paCells, pSubValue)
+			return This.FindFirstSubValueInCells(paCells, $pSubValue)
 
 	  #-----------------------------------------------------------------------------------------------#
 	 #  FINDING LAST OCCURRENCE OF A GIVEN CELL (OR A GIVEN SUBVALUE IN A CELL) IN SOME GIVEN CELLS  #
@@ -7412,7 +7412,7 @@ func _NormalizeColLookupKey(pVal)
 		return This.FindLastValueInCellCS(paCells, pValue, 1)
 
 		def FindLastOccurrenceOfValueInCells(paCells, pCellValue)
-			return This.FindLastValueInCells(paCells, pValue)
+			return This.FindLastValueInCells(paCells, $pValue)
 
 	  #-------------------------------------------------------------------#
 	 #  FINDING LAST OCCURRENCE OF A GIVEN SUBVALUE IN SOME GIVEN CELLS  #
@@ -7430,7 +7430,7 @@ func _NormalizeColLookupKey(pVal)
 		return This.FindLastSubValueInCellsCS(paCells, pSubValue, 1)
 
 		def FindLasttOccurrenceOfSubValueInCells(paCells, pSubValueValue)
-			return This.FindLastSubValueInCells(paCells, pSubValue)
+			return This.FindLastSubValueInCells(paCells, $pSubValue)
 
 	  #----------------------------------------------------------------------------------------#
 	 #  NUMBER OF OCCURRENCES OF A CELL (OR A SUVALUE OF THE CELL) IN A GIVEN LIST OF  CELLS  #
@@ -8082,7 +8082,7 @@ func _NormalizeColLookupKey(pVal)
 		#-- WITHOUT CASESENSITIVITY
 
 		def FindValueInRow(pRow, pCellValue)
-			return This.FindValueInRowCS(pRow, pSubValue, 1)
+			return This.FindValueInRowCS(pRow, $pSubValue, 1)
 
 	def FindSubValueInRowCS(pRow, pSubValue, pCaseSensitive)
 		return This.FindSubValueInCellsCS( This.RowAsPositions(pRow), pSubValue, pCaseSensitive)
@@ -8336,7 +8336,7 @@ func _NormalizeColLookupKey(pVal)
 		#--
 
 		def NumberOfOccurrenceOfValueInRow(pRow, pValue)
-			return This.NumberOfOccurrenceOfCellInRow(pRow, pValue, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCellInRow(pRow, pValue, $pCaseSensitive)
 
 		def NumberOfOccurrencesOfValueInRow(pRow, pValue)
 			return This.NumberOfOccurrenceOfCellInRow(pRow, pValue)
@@ -8526,7 +8526,7 @@ func _NormalizeColLookupKey(pVal)
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindValueInRows(panRows, pCellValue)
-		return This.FindValueInRowsCS(panRows, pSubValue, 1)
+		return This.FindValueInRowsCS(panRows, $pSubValue, 1)
 
 	  #----------------------------------------------------------#
 	 #  FINDING NTH OCCURRENCE OF A SUBVALUE IN THE GIVEN ROWS  #
@@ -8722,7 +8722,7 @@ func _NormalizeColLookupKey(pVal)
 	#----------------------------------------------------------------------------------------#
 
 	def FindLastInRowsCS(panRows, pCellValueOrSubValue, pCaseSensitive)
-		return This.FindNthInRowsCS(:Last, pRow, pCellValueOrSubValue, pCaseSensitive)
+		return This.FindNthInRowsCS(:Last, $pRow, pCellValueOrSubValue, pCaseSensitive)
 
 		#< @FunctionAlternativeForm
 
@@ -9057,7 +9057,7 @@ func _NormalizeColLookupKey(pVal)
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindValueInCol(pCol, pCellValue)
-		return This.FindValueInColCS(pCol, pSubValue, 1)
+		return This.FindValueInColCS(pCol, $pSubValue, 1)
 
 		def FindValueInColumn(pCol, pCellValue)
 			return This.FindValueInCol(pCol, pCellValue)
@@ -10147,7 +10147,7 @@ func _NormalizeColLookupKey(pVal)
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindValueInCols(paCols, pCellValue)
-		return This.FindValueInColsCS(paCols, pSubValue, 1)
+		return This.FindValueInColsCS(paCols, $pSubValue, 1)
 
 		def FindValueInColumns(paCols, pCellValue)
 			return This.FindValueInCols(paCols, pCellValue)
@@ -10420,7 +10420,7 @@ func _NormalizeColLookupKey(pVal)
 	#-------------------------------------------------------------------------------------------#
 
 	def FindLastInColsCS(paCols, pCellValueOrSubValue, pCaseSensitive)
-		return This.FindNthInColsCS(:Last, pCol, pCellValueOrSubValue, pCaseSensitive)
+		return This.FindNthInColsCS(:Last, $pCol, pCellValueOrSubValue, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
 
@@ -11191,7 +11191,7 @@ func _NormalizeColLookupKey(pVal)
 		#-- WITHOUT CASESENSITIVITY
 
 		def FindValueInSection(paSection1, paSection2, pCellValue)
-			return This.FindValueInSectionCS(paSection1, paSection2, pSubValue, 1)
+			return This.FindValueInSectionCS(paSection1, paSection2, $pSubValue, 1)
 
 	def FindSubValueInSectionCS(paSection1, paSection2, pSubValue, pCaseSensitive)
 		return This.FindSubValueInCellsCS( This.SectionAsPositions(paSection1, paSection2), pSubValue, pCaseSensitive)
@@ -11487,7 +11487,7 @@ func _NormalizeColLookupKey(pVal)
 		#--
 
 		def NumberOfOccurrenceOfValueInSection(paSection1, paSection2, pValue)
-			return This.NumberOfOccurrenceOfCellInSection(paSection1, paSection2, pValue, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCellInSection(paSection1, paSection2, pValue, $pCaseSensitive)
 
 		def NumberOfOccurrencesOfValueInSection(paSection1, paSection2, pValue)
 			return This.NumberOfOccurrenceOfCellInSection(paSection1, paSection2, pValue)
@@ -12035,7 +12035,7 @@ func _NormalizeColLookupKey(pVal)
 			This.SortOnBy(pCol, pcExpr)
 
 			def SortInAscendingOnColByQ(pCol, pcExp)
-				return This.SortOnByQ(pCol, pcExpr)
+				return This.SortOnByQ(pCol, $pcExpr)
 
 		def SortOnColumnBy(pCol, pcExpr)
 			This.SortOnBy(pCol, pcExpr)
@@ -12053,7 +12053,7 @@ func _NormalizeColLookupKey(pVal)
 			This.SortOnBy(pCol, pcExpr)
 
 			def SortInAscendingOnColumnByQ(pCol, pcExp)
-				return This.SortOnByQ(pCol, pcExpr)
+				return This.SortOnByQ(pCol, $pcExpr)
 
 		#>
 
@@ -12119,16 +12119,16 @@ func _NormalizeColLookupKey(pVal)
 		#< @FunctionAlternativeForms
 
 		def SortInDescendingOnBy(pCol, pcExpr)
-			This.SortDownOnBy(_nCol_, pcExpr)
+			This.SortDownOnBy($_nCol_, pcExpr)
 
 			def SortInDescendingOnByQ(pCol, pcExpr)
 				return This.SortDownOnByQ(pCol, pcExpr)
 
 		def SortDownOnColBy(_nCol_, pcExpr)
-			This.SortDownOnBy(pCol, pcExpr)
+			This.SortDownOnBy($pCol, pcExpr)
 
 			def SortDownOnColByQ(_nCol_, pcExpr)
-				return This.SortDownOnByQ(pCol, pcExpr)
+				return This.SortDownOnByQ($pCol, pcExpr)
 
 		def SortInDescendingOnColBy(pCol, pcExpr)
 			This.SortDownOnBy(pCol, pcExpr)
@@ -12160,7 +12160,7 @@ func _NormalizeColLookupKey(pVal)
 			return This.SortedDownOnBy(pCol, pcExpr)
 
 		def SortedDownOnColBy(_nCol_, pcExpr)
-			return This.SortedDownOnBy(pCol, pcExpr)
+			return This.SortedDownOnBy($pCol, pcExpr)
 
 		def SortedInDescendingInColBy(pCol, pcExpr)
 			return This.SortedDownOnBy(pCol, pcExpr)
@@ -13123,7 +13123,7 @@ func _NormalizeColLookupKey(pVal)
 		#< @FunctionAlternativeForms
 
 		def ReplaceOccurrencesOfCellByValueCS(pCellValue, pNewCell, pCaseSensitive)
-			This.ReplaceCellByValueCS(pCellValue, pNewCellValue, pCaseSensitive)
+			This.ReplaceCellByValueCS(pCellValue, $pNewCellValue, pCaseSensitive)
 
 		#--
 
@@ -13131,7 +13131,7 @@ func _NormalizeColLookupKey(pVal)
 			This.ReplaceCellByValueCS(pCellValue, pNewCellValue, pCaseSensitive)
 
 		def ReplaceByValueOccurrencesOfCellByCS(pCellValue, pNewCell, pCaseSensitive)
-			This.ReplaceCellByValueCS(pCellValue, pNewCellValue, pCaseSensitive)
+			This.ReplaceCellByValueCS(pCellValue, $pNewCellValue, pCaseSensitive)
 
 		#>
 
@@ -13143,7 +13143,7 @@ func _NormalizeColLookupKey(pVal)
 		#< @FunctionAlternativeForms
 
 		def ReplaceOccurrencesOfCellByValue(pCellValue, pNewCell)
-			This.ReplaceCellByValue(pCellValue, pNewCellValue)
+			This.ReplaceCellByValue(pCellValue, $pNewCellValue)
 
 		#--
 
@@ -13151,7 +13151,7 @@ func _NormalizeColLookupKey(pVal)
 			This.ReplaceCellByValue(pCellValue, pNewCellValue)
 
 		def ReplaceByValueOccurrencesOfCellBy(pCellValue, pNewCell)
-			This.ReplaceCellByValue(pCellValue, pNewCellValue)
+			This.ReplaceCellByValue(pCellValue, $pNewCellValue)
 
 		#>
 
@@ -14030,7 +14030,7 @@ func _NormalizeColLookupKey(pVal)
 	#===============================================================#
 
 	def ReplaceCellsInTheseRows(paRows, pCell)
-		if IsOneOfTheseNamedParamsList(paNewrows,[ :With, :By, :Using ])
+		if IsOneOfTheseNamedParamsList($paNewrows,[ :With, :By, :Using ])
 			paNewrows = paNewrows[2]
 		ok
 
@@ -14190,7 +14190,7 @@ func _NormalizeColLookupKey(pVal)
 		stzraise("Function not yet implemented!")
 
 	def ReplaceInSectionByMany(paCellPos1, paCellPos2,  pSubValues, pNewSubValue)
-		This.ReplaceInSectionByManyCS(paCellPos1, paCellPos2,  pSubValues, pNewSubValue, ;CaseSensitive = 1)
+		This.ReplaceInSectionByManyCS(paCellPos1, paCellPos2,  pSubValues, pNewSubValue, ;$CaseSensitive = 1)
 
 	# Add ReplaceInSectionByManyXT() : if all replaced restart at the 1st one
 
@@ -14634,7 +14634,7 @@ func _NormalizeColLookupKey(pVal)
 			_cCode_ = "_value_ = " + _oForumla_.Content()
 			for i = 1 to _nRows_
 				eval(_cCode_)
-				_aColData_ + _value_
+				_aColData_ + $_value_
 			next
 		ok
 
@@ -14704,7 +14704,7 @@ func _NormalizeColLookupKey(pVal)
 		for i = 1 to _nMin_
 			if _acCodes_[i] != ""
 				eval(_acCodes_[i])
-				_aRowData_ + _value_
+				_aRowData_ + $_value_
 			else
 				_aRowData_ + " "
 			ok
@@ -15339,7 +15339,7 @@ func _NormalizeColLookupKey(pVal)
 		for nRow = 1 to _nRows_
 			# Evaluate the condition for the current row
 			eval(_cCode_)
-			if _bResult_
+			if $_bResult_
 				_aRowsToKeep_ + This.Row(nRow)
 			ok
 		next
@@ -15451,7 +15451,7 @@ func _NormalizeColLookupKey(pVal)
 		for nRow = 1 to _nRows_
 			try
 				eval(_cCode_)
-				if _bOk_
+				if $_bOk_
 					_aRowsToKeep_ + This.Row(nRow)
 				ok
 			catch
@@ -15637,7 +15637,7 @@ func _NormalizeColLookupKey(pVal)
 			This.Aggregate(paAggregations)
 
 			def AggregateByQ(paAggregations)
-				return This.AggregateQ(paAggregation)
+				return This.AggregateQ($paAggregation)
 
 		#>
 
@@ -16621,8 +16621,8 @@ func _NormalizeColLookupKey(pVal)
 			but i = @if(_bRowNumber_, 3, 2)
 				_cLine_ += " " + PadLeft("", _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
 			else
-				if isNumber(_aGrandTotals_[i]) and _aGrandTotals_[i] != 0
-					_cLine_ += " " + PadLeft("" + _aGrandTotals_[i], _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
+				if isNumber($_aGrandTotals_[i]) and $_aGrandTotals_[i] != 0
+					_cLine_ += " " + PadLeft("" + $_aGrandTotals_[i], _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
 				else
 					_cLine_ += " " + PadLeft("", _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
 				ok
@@ -16931,7 +16931,7 @@ func _NormalizeColLookupKey(pVal)
 
 	    # Generate header row - ensure format matches parser expectations
 	    for i = 1 to _nLen_
-	        _cHtml_ += '            ' + '<th scope="col">' + data[i][1] + '</th>' + nl
+	        _cHtml_ += '            ' + '<th scope="col">' + $data[i][1] + '</th>' + nl
 	    next
 
 	    _cHtml_ += '</tr>' + nl

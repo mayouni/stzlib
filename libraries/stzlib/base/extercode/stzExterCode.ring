@@ -319,7 +319,7 @@ class stzExterCode from stzObject
             remove(@cResultFile)
             remove(@cLogFile)
         catch
-            stzraise(cError)
+            stzraise($cError)
         done
 
     	def Cleanup()
@@ -372,7 +372,7 @@ class stzExterCode from stzObject
                 This.CleanupFiles()
             ok
 
-            return _result_
+            return $_result_
 
         catch
             ? "Eval error: " + cCatchError + char(10)

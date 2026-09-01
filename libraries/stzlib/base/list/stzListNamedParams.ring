@@ -969,7 +969,7 @@ class stzListNamedParams from stzObject
 		for i = 1 to _nLen_
 			_cCode_ = '_bFound_ = This.Is' + pacParamNames[i] + 'NamedParam()'
 			eval(_cCode_)
-			if _bFound_
+			if $_bFound_
 				_bResult_ = 1
 				exit
 			ok
@@ -13769,7 +13769,7 @@ class stzListNamedParams from stzObject
 		if This.IsForwardNamedParam() or This.IsBackwardNamedParam()
 			return 1
 		else
-			return FALE
+			return $FALE
 		ok
 
 		def IsForwardOrBackwardNamedParams()

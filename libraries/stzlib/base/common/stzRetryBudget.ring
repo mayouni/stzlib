@@ -48,12 +48,12 @@ class stzRetryBudget from stzObject
 	# Lazy handle creation -- robust whether or not init() ran (paren-less
 	# `new` skips init in Ring); guarded by a plain boolean.
 	def _Ensure()
-		if bReady = 0
-			nRefill = nBudget / nWindow
+		if $bReady = 0
+			nRefill = $nBudget / $nWindow
 			if nRefill < 1
 				nRefill = 1
 			ok
-			pHandle = StzEngineRateCreate(nBudget, nRefill)
+			pHandle = StzEngineRateCreate($nBudget, nRefill)
 			bReady = 1
 		ok
 
@@ -61,35 +61,35 @@ class stzRetryBudget from stzObject
 	# (Named Allow, not Try -- `try` is a Ring keyword.)
 	def Allow()
 		This._Ensure()
-		return StzEngineRateTryTake(pHandle, 1) = 1
+		return StzEngineRateTryTake($pHandle, 1) = 1
 
 	# Alias for Allow().
 	def Spend()
 		This._Ensure()
-		return StzEngineRateTryTake(pHandle, 1) = 1
+		return StzEngineRateTryTake($pHandle, 1) = 1
 
 	# Spend n retries at once (all-or-nothing). Returns TRUE if granted.
 	def AllowN(n)
 		This._Ensure()
-		return StzEngineRateTryTake(pHandle, n) = 1
+		return StzEngineRateTryTake($pHandle, n) = 1
 
 	# Tokens (retries) currently available -- a float, refills continuously.
 	def Available()
 		This._Ensure()
-		return StzEngineRateAvailable(pHandle)
+		return StzEngineRateAvailable($pHandle)
 
 	def Budget()
-		return nBudget
+		return $nBudget
 
 	def Window()
-		return nWindow
+		return $nWindow
 
 	def RefillPerSecond()
-		return nRefill
+		return $nRefill
 
 	def Destroy()
-		if bReady = 1
-			StzEngineRateDestroy(pHandle)
+		if $bReady = 1
+			StzEngineRateDestroy($pHandle)
 			pHandle = ""
 			bReady = 0
 		ok

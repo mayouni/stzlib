@@ -6,14 +6,14 @@ Read this about binary arithmetic opeartions:
 https://sciencing.com/convert-between-base-number-systems-8442032.html
 */
 
-_acBinaryPrefixes = [ "b", "0b" ]
-_cBinaryNumberPrefix = "0b"
+$_acBinaryPrefixes = [ "b", "0b" ]
+$_cBinaryNumberPrefix = "0b"
 
 func StzBinaryNumberQ(cNumber)
 	return new stzBinaryNumber(cNumber)
 
 func BinaryNumberPrefix()
-	return _cBinaryNumberPrefix
+	return $_cBinaryNumberPrefix
 
 	#< @FunctionAlternativeForm
 
@@ -23,7 +23,7 @@ func BinaryNumberPrefix()
 	#>
 
 def BinaryPrefixes()
-	return _acBinaryPrefixes
+	return $_acBinaryPrefixes
 
 def SetBinaryNumberPrefix(pcBinaryPrefix)
 
@@ -151,7 +151,7 @@ class stzBinaryNumber from stzObject
 			return This.BinaryNumber()
 
 		else
-			return _oTempStr_.Section( 1, _n_-1 )
+			return $_oTempStr_.Section( 1, _n_-1 )
 		ok
 
 	def FractionalPart()

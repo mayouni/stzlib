@@ -3,7 +3,7 @@
 
 
 func StzKeepingHistory()
-	return _bKeepHisto
+	return $_bKeepHisto
 
 	func KeepingHistory()
 		return StzKeepingHistory()
@@ -22,7 +22,7 @@ func StzKeepingHistory()
 
 
 func StzKeepingHistoryXT()
-	return _aKeepHistoXT[1]
+	return $_aKeepHistoXT[1]
 
 	func KeepingHistoryXT()
 		return StzKeepingHistoryXT()
@@ -99,7 +99,7 @@ func StzTraceObjectHistory(poStzObj)
 
 		# Extended history tracking
 		if StzKeepingHistoryXT() = 1
-			_cDisp_ = _aKeepHistoXT[2]
+			_cDisp_ = $_aKeepHistoXT[2]
 			_aHistoryData_ = []
 
 			switch _cDisp_
@@ -197,13 +197,13 @@ func StzTraceObjectHistory(poStzObj)
 #-- Utility Functions for Debugging
 
 func StzIsInHistoryUpdate()
-	return _bInHistoryUpdate
+	return $_bInHistoryUpdate
 
 	func IsInHistoryUpdate()
 		return StzIsInHistoryUpdate()
 
 func StzGetHistoryUpdateState()
-	return _bInHistoryUpdate
+	return $_bInHistoryUpdate
 
 	func GetHistoryUpdateState()
 		return StzGetHistoryUpdateState()

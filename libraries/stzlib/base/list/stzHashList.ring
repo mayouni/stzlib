@@ -964,7 +964,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	
 	# The first [key, value] pair.
 	def FirstPair()
-		return This.NthPair(_n_)
+		return This.NthPair($_n_)
 
 		def FirstPairQ()
 			return This.NthPairQ(1)
@@ -976,7 +976,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	# The last [key, value] pair.
 	def LastPair()
-		return This.LastPair(_n_)
+		return This.LastPair($_n_)
 
 		def LastPairQ()
 			return This.NthPairQ(This.NumberOfPairs())
@@ -1938,7 +1938,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#< @FunctionAlternativeForms
 
 		def ContainsTheseValuesCS(paValues, pCaseSensitive)
-			return This.ContainsValuesCS(pValue, pCaseSensitive)
+			return This.ContainsValuesCS($pValue, pCaseSensitive)
 
 		def ValuesExistCS(paValues, pCaseSensitive)
 			return This.ContainsValuesCS(paValues, pCaseSensitive)
@@ -1957,7 +1957,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#< @FunctionAlternativeForms
 
 		def ContainsTheseValues(paValues)
-			return This.ContainsValues(pValue)
+			return This.ContainsValues($pValue)
 
 		def ValuesExist(paValues)
 			return This.ContainsValues(paValues)
@@ -3420,7 +3420,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#< @FunctionFluentForm
 
 		def ClassifyQ()
-			return This.ClassifyQRT(pcReturnType)
+			return This.ClassifyQRT($pcReturnType)
 
 		# The classification, in the requested return type (QRT).
 		def ClassifyQRT(pcReturnType)
@@ -3600,7 +3600,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#< @FunctionFluentForms
 
 		def KlassQ(pcClass)
-			return This.KlassQRT(pClass, :stzList)
+			return This.KlassQRT($pClass, :stzList)
 
 		def KlassQRT(pcClass, pcReturnType)
 			if isList(pcReturnType) and StzListIsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
@@ -4295,7 +4295,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.Top3Classes(_n_)
 
 		def Strongest3Classes()
-			return This.Top3Classes(_n_)
+			return This.Top3Classes($_n_)
 
 		def Strongest3Klasses(_n_)
 			return This.Top3Classes(_n_)
@@ -4311,7 +4311,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.Top3ClassesXT(_n_)
 
 		def Strongest3ClassesXT()
-			return This.Top3ClassesXT(_n_)
+			return This.Top3ClassesXT($_n_)
 
 		def Strongest3KlassesXT(_n_)
 			return This.Top3ClassesXT(_n_)
@@ -4325,7 +4325,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.Top3ClassesXT(_n_)
 
 		def Strongest3ClassesAndTheirFrequencies()
-			return This.Top3ClassesXT(_n_)
+			return This.Top3ClassesXT($_n_)
 
 		def Strongest3KlassesAndTheirFrequencies(_n_)
 			return This.Top3ClassesXT(_n_)
@@ -4477,7 +4477,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.Bottom3Classes(_n_)
 
 		def Weakest3Classes()
-			return This.Bottom3Classes(_n_)
+			return This.Bottom3Classes($_n_)
 
 		def Weakest3Klasses(_n_)
 			return This.Bottom3Classes(_n_)
@@ -4492,7 +4492,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.Bottom3ClassesXT(_n_)
 
 		def Weakest3ClassesXT()
-			return This.Bottom3ClassesXT(_n_)
+			return This.Bottom3ClassesXT($_n_)
 
 		def Weakest3KlassesXT(_n_)
 			return This.Bottom3ClassesXT(_n_)
@@ -4503,7 +4503,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.Bottom3ClassesXT(_n_)
 
 		def Weakest3ClassesAndTheirFrequencies()
-			return This.Bottom3ClassesXT(_n_)
+			return This.Bottom3ClassesXT($_n_)
 
 		def Weakest3KlassesAndTheirFrequencies(_n_)
 			return This.Bottom3ClassesXT(_n_)
@@ -4645,7 +4645,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#< @FunctionFluentForm
 
 		def ClassifyInListQ()
-			return This.ClassifyInListQRT(pcReturnType)
+			return This.ClassifyInListQRT($pcReturnType)
 
 		def ClassifyInListQRT(pcReturnType)
 			if isList(pcReturnType) and StzListIsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])

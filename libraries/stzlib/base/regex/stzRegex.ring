@@ -53,14 +53,14 @@
 # engine expects (stz_regex_match_typed, MT_ENTIRE..MT_NONE = 0..3). Adding
 # a type means adding it engine-side too, at the same index.
 
-_$aMATCH_TYPES = [
+$_$aMATCH_TYPES = [
 	:MatchEntireContent,			# -> 0
 	:MatchEntireContentIfNotGoPartial,	# -> 1
 	:MatchFirstOccurrenceIfNotGoPartial,	# -> 2
 	:ReturnFalseForAnyMatch			# -> 3
 ]
 
-_$aMATCH_OPTIONS = [
+$_$aMATCH_OPTIONS = [
 	:CaseInsensitive,	# flag 1
 	:DotMatchesAll,		# flag 2
 	:MultiLine,		# flag 4
@@ -83,7 +83,7 @@ func StzRegexQ(pcPattern)
 		return StzRegexQ(pcPattern)
 
 func StzMatchTypes()
-	return _$aMATCH_TYPES
+	return $_$aMATCH_TYPES
 
 	func MatchTypes()
 		return StzMatchTypes()
@@ -92,7 +92,7 @@ func StzMatchTypes()
 		return StzMatchTypes()
 
 func StzMatchOptions()
-	return _$aMATCH_OPTIONS
+	return $_$aMATCH_OPTIONS
 
 	func MatchOptions()
 		return StzMatchOptions()

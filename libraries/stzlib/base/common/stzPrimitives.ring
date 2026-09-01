@@ -489,7 +489,7 @@ func StzReplaceCS(_cStr_, cSubStr, cNewSubStr, bCaseSensitive)
 		return StzReplaceCS(_cStr_, cSubStr, cNewSubStr, bCaseSensitive)
 
 	func ReplaceCS(str, cSubStr, cNewSubStr, bCaseSensitive)
-		return StzReplaceCS(_cStr_, cSubStr, cNewSubStr, bCaseSensitive)
+		return StzReplaceCS($_cStr_, cSubStr, cNewSubStr, bCaseSensitive)
 
 	#>
 

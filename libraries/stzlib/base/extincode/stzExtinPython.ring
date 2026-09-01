@@ -150,7 +150,7 @@ func exec(_cCode_)
 	eval(_cCode_)
 
 func _if(pExpressionOrBoolean)
-	if len(_aTempVars) = 0
+	if len($_aTempVars) = 0
 	    StzRaise("No temp vars defined! Call vr() first.")
 	ok
 	_bVarReset = 0
@@ -175,26 +175,26 @@ func _else(_value_)
         _value_ = _aTemp_
     ok
     _aValues_ = _value_
-    if _bVarReset = 1 and len(_aTempVars) > 0
-        _nTempVars_ = len(_aTempVars)
+    if $_bVarReset = 1 and len($_aTempVars) > 0
+        _nTempVars_ = len($_aTempVars)
         _nValues_ = len(_aValues_)
         _nLen_ = @Min([ _nTempVars_, _nValues_ ])
-        _oHash_ = new stzHashList(_aVars)
+        _oHash_ = new stzHashList($_aVars)
         for i = 1 to _nLen_
-            _cVarName_ = _aTempVars[i][1]
-            _aTempVars[i][2] = _aValues_[i]
+            _cVarName_ = $_aTempVars[i][1]
+            $_aTempVars[i][2] = _aValues_[i]
             _n_ = _oHash_.FindKey(_cVarName_)
             if _n_ > 0
-                _aVars[_n_][2] = _aValues_[i]
+                $_aVars[_n_][2] = _aValues_[i]
             else
-                _aVars + [ _cVarName_, _aValues_[i] ]
+                $_aVars + [ _cVarName_, _aValues_[i] ]
             ok
             if ObjectIsStzObject(_aValues_[i])
                 _aValues_[i].SetObjectVarNameTo(_cVarName_)
             ok
         next
         if _nLen_ > 0
-            _var = [ _aTempVars[_nLen_][1], _aValues_[_nLen_] ]
+            _var = [ $_aTempVars[_nLen_][1], _aValues_[_nLen_] ]
         ok
         if oldval() = ""
             _oldVar = _var

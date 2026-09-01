@@ -18,30 +18,30 @@
  ///   GLOBALS   ///
 ///////////////////
 
-_cSentenceSeparator = "."
-_cParagraphSeparator = char(10)
-_cDefaultLanguage = :English
+$_cSentenceSeparator = "."
+$_cParagraphSeparator = char(10)
+$_cDefaultLanguage = :English
 
-_cWordIdentificationMode = :Quick	# or :Strict
+$_cWordIdentificationMode = :Quick	# or :Strict
 
   /////////////////////
  ///   FUNCTIONS   ///
 /////////////////////
 
 func StzSentenceSeparator()
-	return _cSentenceSeparator
+	return $_cSentenceSeparator
 
 	func SentenceSeparator()
 		return StzSentenceSeparator()
 
 func StzParagraphSeparator()
-	return _cParagraphSeparator
+	return $_cParagraphSeparator
 
 	func ParagraphSeparator()
 		return StzParagraphSeparator()
 
 func StzDefaultLanguage()
-	return _cDefaultLanguage
+	return $_cDefaultLanguage
 
 	func DefaultLanguage()
 		return StzDefaultLanguage()
@@ -53,7 +53,7 @@ func IsStzStringText(p)
 	return IsObject(p) and classname(p) = "stzstringtext"
 
 func StzWordIdentificationMode()
-	return _cWordIdentificationMode
+	return $_cWordIdentificationMode
 
 	func WordIdentificationMode()
 		return StzWordIdentificationMode()

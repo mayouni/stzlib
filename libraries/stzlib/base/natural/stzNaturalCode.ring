@@ -18,7 +18,7 @@
 #  Full original: git history / natural/archive of this file's ancestors.   #
 #---------------------------------------------------------------------------#
 
-_LastValue = ""
+$_LastValue = ""
 
 func QRT(p, pcType)
 	if NOT isString(pcType)
@@ -30,13 +30,13 @@ func QRT(p, pcType)
 
 		eval(_cCode_)
 
-		return oResult
+		return $oResult
 	else
 		StzRaise("Unsupported Softanza type!")
 	ok
 
 func LastValue()
-	return _LastValue
+	return $_LastValue
 
 func SetLastValue(value)
 	_LastValue = value

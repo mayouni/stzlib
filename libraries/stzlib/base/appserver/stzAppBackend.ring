@@ -927,7 +927,7 @@ class stzAppBackend from stzObject
 
 	# The ring interpreter running US -- so the child is the same build.
 	def _RingExecutable()
-		_a_ = sysargv
+		_a_ = $sysargv
 		_n_ = len(_a_)
 		for _i_ = 1 to _n_
 			_c_ = StzLower("" + _a_[_i_])

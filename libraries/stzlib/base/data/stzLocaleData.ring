@@ -1,12 +1,12 @@
 // Specifies the format of the currency symbol
-_aLocaleCurrencyFormats = [
+$_aLocaleCurrencyFormats = [
 	[ "0", :ISOSymbol 	], #  ISO-4217 code of the currency (in latin script)
 	[ "1", :NativeSymbol 	], # Native currency symbol (in native language)
 	[ "2", :NativeName 	]  # User (complete) readable name of the currency (in native language)
 ]
 
 // Specifies the format for representation of data quantities
-_aLocaleDataSizeFormats = [
+$_aLocaleDataSizeFormats = [
 	[ "0", :IECFormat 	  ], # format using base 1024 and IEC prefixes: KiB, MiB, GiB..
 	[ "1", :TraditionalFormat ], # format using base 1024 and SI prefixes: kB, MB, GB..
 	[ "2", :SIFormat 	  ]  # format using base 1000 and SI prefixes: kB, MB, GB..
@@ -15,7 +15,7 @@ _aLocaleDataSizeFormats = [
 // Describes the different formats that can be used when
 // converting date, time, and datetime values, as well as months
 // and days, to strings specific to the locale
-_aLocaleTimeFormatTypes = [
+$_aLocaleTimeFormatTypes = [
 	:Long   = 0,
 	:Short  = 1,
 	:Narrow = 2 # A special version for use when space is very limited
@@ -23,7 +23,7 @@ _aLocaleTimeFormatTypes = [
 
 // Defines a set of options for number-to-string and string-to-number conversions
 // They can be retrieved with oLocale.numberOptions() and set with oLocale.setNumberOptions()
-_aLocaleNumberOptions = [
+$_aLocaleNumberOptions = [
 	:Default = 0,
 	:OmitGroupSeparator = 1,
 	:RejectGroupSeparator = 2,
@@ -34,13 +34,13 @@ _aLocaleNumberOptions = [
 ]
 
 // Defines a set of possible styles for locale specific quotation
-_aLocaleQuotationStyles = [
+$_aLocaleQuotationStyles = [
 	[ "0", :StandardQuotation  ],
 	[ "1", :AlternateQuotation ]
 ]
 
 // defines which units are used for measurement
-_aLocaleMeasurementSystems = [
+$_aLocaleMeasurementSystems = [
 	# Metric units, such as meters, centimeters and millimeters
 	[ "0", :MetricSytem 	 ],
 	# Imperial units, such as inches and miles as they are used in the United States
@@ -50,7 +50,7 @@ _aLocaleMeasurementSystems = [
 
 ]
 
-_aLocaleAbbreviationsXT = [
+$_aLocaleAbbreviationsXT = [
 	# For each country, the supported abbreviations are provided for each
 	# suppoted language and each supported script.
 	# Based on: https://www.localeplanet.com/compare/country.html()
@@ -1292,7 +1292,7 @@ _aLocaleAbbreviationsXT = [
 # for performance reasons (string parsing is
 # quicker than parsing the deep Ring list LocaleAbbreviationsXT()
 
-_cLocaleAbbreviations = trim("
+$_cLocaleAbbreviations = trim("
 	fa-AF, fa-Arab-AF, ps-AF, ps-Arab-AF, uz-AF, uz-Arab-AF,
 	en-AG, en-Latn-AG, en-AI, en-Latn-AI, sq-AL, sq-Latn-AL,
 	hy-AM, hy-Armn-AM, pt-AO, pt-Latn-AO, ln-AO, ln-Latn-AO,
@@ -1466,17 +1466,17 @@ _cLocaleAbbreviations = trim("
 ")
 
 func LocaleQuotationStyles()
-	return _aLocaleQuotationStyles
+	return $_aLocaleQuotationStyles
 
 func LocaleNumberOptions()
-	return _aLocaleNumberOptions
+	return $_aLocaleNumberOptions
 
 func LocaleDataSizeFormats()
-	return _aLocaleDataSizeFormats
+	return $_aLocaleDataSizeFormats
 
 func LocaleCurrencyFormats()
-	return _aLocaleCurrencyFormats
+	return $_aLocaleCurrencyFormats
 
 func LocaleTimeFormatTypes()
-	return _aLocaleTimeFormatTypes
+	return $_aLocaleTimeFormatTypes
 

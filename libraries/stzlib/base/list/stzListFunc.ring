@@ -598,7 +598,7 @@ func Listify(cStrInList)
 	if _oTempStr_.IsListInString()
 		_cCode_ = '_aResult_ = ' + _oTempStr_.Content()
 		eval(_cCode_)
-		return _aResult_
+		return $_aResult_
 	ok
 
 	StzRaise("Can't proceed! cStrInList must be a string containing a well formatted Ring list.")
@@ -641,7 +641,7 @@ func FirstN(_n_, _aList_)
 	#< @FunctionAlternativeForms
 
 	func FirstNItems(_aList_)
-		return FirstN(_n_, _aList_)
+		return FirstN($_n_, _aList_)
 
 	func @FirstN(_n_, _aList_)
 		return FirstN(_n_, _aList_)
@@ -655,7 +655,7 @@ func FirstN(_n_, _aList_)
 	#--
 
 	func NFirstItems(_aList_)
-		return FirstN(_n_, _aList_)
+		return FirstN($_n_, _aList_)
 
 	func @NFirst(_n_, _aList_)
 		return FirstN(_n_, _aList_)
@@ -688,7 +688,7 @@ func First3(_aList_)
 		return First3(_aList_)
 
 	func @3First(_aList_)
-		return FirstN(_n_, _aList_)
+		return FirstN($_n_, _aList_)
 
 	func @3FirstItems(_aList_)
 		return First3(_aList_)
@@ -2189,7 +2189,7 @@ func IsPairOfPairs(paList)
 		return 0
 	ok
 
-	if IsPair(paList[_i_][1]) and  IsPair(paList[2])
+	if IsPair(paList[$_i_][1]) and  IsPair(paList[2])
 		return 1
 	else
 		return 0
@@ -3394,7 +3394,7 @@ func IsUniformListCS(paList, pCaseSensitive) # Is made of the same item
 
 	_aStzObjects_ = []
 	for _i_ = 1 to _nLen_
-		aStzObects + Q(paList[_i_])
+		$aStzObects + Q(paList[_i_])
 	next
 
 	_bResult_ = 1
@@ -3449,7 +3449,7 @@ func IsHybridList(paList) # Contains at least two different types
 
 	_nLen_ = len(paList)
 	if _nLen_ < 1
-		return _FALSE
+		return $_FALSE
 	ok
 
 	_bResult_ = 1
@@ -3459,7 +3459,7 @@ func IsHybridList(paList) # Contains at least two different types
 		_acTypes_ + type(paList[_i_])
 	next
 
-	if len( U(_acTypes) ) != _nLen_
+	if len( U($_acTypes) ) != _nLen_
 		return 1
 	else
 		return 0
@@ -3486,7 +3486,7 @@ func IsPureList(paList) # Made of itmes of same type
 
 	_nLen_ = len(paList)
 	if _nLen_ < 1
-		return _FALSE
+		return $_FALSE
 	ok
 
 	_bResult_ = 1
@@ -3496,7 +3496,7 @@ func IsPureList(paList) # Made of itmes of same type
 		_acTypes_ + type(paList[_i_])
 	next
 
-	if len( U(_acTypes) ) = 1
+	if len( U($_acTypes) ) = 1
 		return 1
 	else
 		return 0
@@ -3766,7 +3766,7 @@ func IsListOfNumbersInStrings(paList)
 
 	_nLen_ = len(paList)
 
-	for @i = 1 to _nLen
+	for @i = 1 to $_nLen
 		if NOT isString(paList[@i])
 			return 0
 		ok
@@ -3846,7 +3846,7 @@ func IsListOfNumbersAndStrings(paList)
 
 			return 1
 	else
-			return _FALSE
+			return $_FALSE
 
 	ok
 
@@ -4137,7 +4137,7 @@ func IsListOfPairsOfNumbers(paList)
 	#>
 
 func IsPairOfSections(paPair)
-	if NOT ( isList(paList) and len(paList) = 2 )
+	if NOT ( isList($paList) and len($paList) = 2 )
 		return 0
 	ok
 
@@ -4192,8 +4192,8 @@ func IsListOfPairsOfSections(paList)
 	#>
 
 func IsPairOfLists(paPair)
-	if isList(paList) and len(paList) = 2 and
-	   isList(paList[1]) and isList(paList[2])
+	if isList($paList) and len($paList) = 2 and
+	   isList($paList[1]) and isList($paList[2])
 
 		return 1
 	else
@@ -4245,8 +4245,8 @@ func IsListOfPairsOfLists(paList)
 	#>
 
 func IsPairOfObjects(paPair)
-	if isList(paList) and len(paList) = 2 and
-	   isObject(paList[1]) and isObject(paList[2])
+	if isList($paList) and len($paList) = 2 and
+	   isObject($paList[1]) and isObject($paList[2])
 
 		return 1
 	else
@@ -4503,10 +4503,10 @@ func IsPairOfStzLists(paList)
 		return IsPairOfStzLists(paList)
 
 	func IsAPairOfStzLists(paList)
-		return IsPairOfStzLists(paPair)
+		return IsPairOfStzLists($paPair)
 
 	func @IsAPairOfStzLists(paPair)
-		return IsPairOfStzLists(paList)
+		return IsPairOfStzLists($paList)
 
 	#>
 
@@ -5132,7 +5132,7 @@ func IsListOfPairsOfListAndObject(paList)
 		return IsListOfPairsOfListAndObject(paList)
 
 	func @IsAListOfPairsOfListAndObject(paPair)
-		return IsListOfPairsOfListAndObject(paList)
+		return IsListOfPairsOfListAndObject($paList)
 
 	#>
 

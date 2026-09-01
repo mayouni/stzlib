@@ -39,7 +39,7 @@ class stzSetOfSections from stzListOfSections
 	def Update(paNewSections)
 
 		if CheckingParam()
-			if isList(paNewSections) and IsWithNamedParamList(paSections)
+			if isList(paNewSections) and IsWithNamedParamList($paSections)
 				paNewSections = paNewSections[2]
 			ok
 

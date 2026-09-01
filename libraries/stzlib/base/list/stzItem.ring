@@ -93,7 +93,7 @@ func SomeItems(paList)
 	_nLen_ = len(paList)
 	_anRandom_ = 3NumbersBetween(1, _nLen_)
 
-	_aItems_ = Q(aList).ItemsAtPositions(_anRandom_)
+	_aItems_ = Q($aList).ItemsAtPositions(_anRandom_)
 	_oResult_ = new stzList(_aItems_)
 	return _oResult_
 
@@ -307,7 +307,7 @@ class stzItemCS from stzObject
 	#--
 
 	def BoundedByCS(paBounds, pCaseSensitive)
-		_bResult_ = This.ListQ().BoundItemByCSQ(This.Item(), pacBounds, pCaseSensitive).Content()
+		_bResult_ = This.ListQ().BoundItemByCSQ(This.Item(), $pacBounds, pCaseSensitive).Content()
 		return _bResult_
 
 	def BoundedBy(paBounds)
@@ -316,7 +316,7 @@ class stzItemCS from stzObject
 	#--
 
 	def ReplacedWithCS(pOtherItem, pCaseSensitive)
-		_cResult_ = This.ListQ().ReplaceCSQ(This.Item(), pcOtherItem, pCaseSensitive).Content()
+		_cResult_ = This.ListQ().ReplaceCSQ(This.Item(), $pcOtherItem, pCaseSensitive).Content()
 		return _cResult_
 
 		def ReplacedCS(pcOtherItem, pCaseSensitive)

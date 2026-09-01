@@ -31,7 +31,7 @@ class stzReactiveFunc from stzObject
 	# papering over it here would hide it. Execute() on the LOCAL task is what
 	# makes the result real, which is exactly how CallAsync has always worked.
 	def Call_(params) #TODO //#WARNING May confuse user with the normal Ring call() function
-		_task_ = new stzFunctionTask(FUNC_CALL_SYNC, @originalFunc, params, @oEngine)
+		_task_ = new stzFunctionTask($FUNC_CALL_SYNC, @originalFunc, params, @oEngine)
 		@oEngine.AddTask(_task_)
 		_task_.Execute()
 		return _task_
@@ -42,7 +42,7 @@ class stzReactiveFunc from stzObject
 
 	def CallAsync(params, onComplete, onError)
 
-		_task_ = new stzFunctionTask(FUNC_CALL_ASYNC, @originalFunc, params, @oEngine)
+		_task_ = new stzFunctionTask($FUNC_CALL_ASYNC, @originalFunc, params, @oEngine)
 		_task_.Then_(onComplete)
 		_task_.Catch_(onError)
 		@oEngine.AddTask(_task_)
@@ -55,7 +55,7 @@ class stzFunctionTask from stzReactiveTask
 	@params = []
 	
 	def Init(id, f, params, engine)
-		super.Init(id, "", engine, DEFAULT_ERROR_HANDLING)
+		super.Init(id, "", engine, $DEFAULT_ERROR_HANDLING)
 		this.@f = f
 		@params = params
 		
@@ -67,7 +67,7 @@ class stzFunctionTask from stzReactiveTask
 		# stzHttpTask had exactly this fix applied in July ("store the status on
 		# the TASK, not in a local"); its sibling here was missed.
 		try
-			@status = TASK_RUNNING
+			@status = $TASK_RUNNING
 
 			# THE SHAPE IS CHECKED BEFORE THE SWITCH, so a refusal says what
 			# was wrong. Anything but a list used to reach len() and surface
@@ -76,14 +76,14 @@ class stzFunctionTask from stzReactiveTask
 			# reported as "Calling function with LESS number of parameters",
 			# the opposite of what had happened.
 			if NOT isList(@params)
-				raise(FUNC_ERROR_PARAMS_NOT_LIST)
+				raise($FUNC_ERROR_PARAMS_NOT_LIST)
 			ok
-			if len(@params) > MAX_FUNCTION_PARAMS
-				raise(FUNC_ERROR_TOO_MANY_PARAMS + " " + len(@params) +
-				      " (the limit is " + MAX_FUNCTION_PARAMS + ")")
+			if len(@params) > $MAX_FUNCTION_PARAMS
+				raise($FUNC_ERROR_TOO_MANY_PARAMS + " " + len(@params) +
+				      " (the limit is " + $MAX_FUNCTION_PARAMS + ")")
 			ok
 
-			if len(@params) = NO_PARAMS
+			if len(@params) = $NO_PARAMS
 				_result_ = call @f()
 			else
 				# Handle parameters - Ring requires individual params
@@ -112,11 +112,11 @@ class stzFunctionTask from stzReactiveTask
 					# Unreachable: the count is refused above. Kept as a
 					# guard, and it refuses rather than silently calling
 					# with no arguments.
-					raise(FUNC_ERROR_TOO_MANY_PARAMS + " " + len(@params))
+					raise($FUNC_ERROR_TOO_MANY_PARAMS + " " + len(@params))
 				end
 			ok
 			@result = _result_
-			@status = TASK_COMPLETED
+			@status = $TASK_COMPLETED
 			if @onComplete != ""
 				call @onComplete(@result)
 			ok

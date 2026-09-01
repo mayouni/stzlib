@@ -125,10 +125,10 @@ func Association(paLists)
 		return Association(paLists)
 
 	func Associate(paList)
-		return Association(paLists)
+		return Association($paLists)
 
 	func @Associate(paList)
-		return Association(paLists)
+		return Association($paLists)
 
 	#>
 
@@ -179,7 +179,7 @@ func Pairify(paPairOfLists) # A @SpecializedForm of Association()
 		next
 	else
 		for @i = 1 to _nDiff_
-			_aList2_ + _NULL
+			_aList2_ + $_NULL
 		next
 	ok
 
@@ -203,7 +203,7 @@ func CommonItemsCS(paLists, pCaseSensitive)
 	return _aResult_
 
 	func IntersectionCS(paLists, pCaseSensitive)
-		return CommonItemsCS(paList, pCaseSensitive)
+		return CommonItemsCS($paList, pCaseSensitive)
 
 	func CommonCS(paLists, pCaseSensitive)
 		return CommonItemsCS(paLists, pCaseSensitive)
@@ -214,7 +214,7 @@ func CommonItemsCS(paLists, pCaseSensitive)
 		return CommonItemsCS(paLists, pCaseSensitive)
 
 	func @IntersectionCS(paLists, pCaseSensitive)
-		return CommonItemsCS(paList, pCaseSensitive)
+		return CommonItemsCS($paList, pCaseSensitive)
 
 func CommonItems(paLists)
 	return CommonItemsCS(paLists, 1)
@@ -563,7 +563,7 @@ class stzListOfLists from stzList
 		#< @FunctionAlternativeForms
 
 		def FindItemsInLists(paItems)
-			return This.FindManyInLists(pItem)
+			return This.FindManyInLists($pItem)
 
 		#>
 
@@ -575,7 +575,7 @@ class stzListOfLists from stzList
 		StzRaise("Function non implemented yet!")
 
 	def FindSubListInList(paSubList)
-		return This.FindSubListInListCS(paSubList, pCaseSensitive)
+		return This.FindSubListInListCS(paSubList, $pCaseSensitive)
 
 	  #======================#
 	 #   POSITIONS WHERE    #
@@ -1684,7 +1684,7 @@ class stzListOfLists from stzList
 				return This.ExtendXTQ(pItem)
 
 		def JustifyEachListWith()
-			This.ExtendXT(pItem)
+			This.ExtendXT($pItem)
 
 			def JustiffyEachListWithQ(pItem)
 				return This.ExtendXTQ(pItem)
@@ -2654,7 +2654,7 @@ class stzListOfLists from stzList
 		return _aIxResult_
 
 		def IndexCSQ()
-			return This.IndexCSQRT(pCaseSensitive, :stzList)
+			return This.IndexCSQRT($pCaseSensitive, :stzList)
 
 		def IndexCSQRT(pCaseSensitive, pcReturnType)
 			switch pcReturnType
@@ -2743,7 +2743,7 @@ class stzListOfLists from stzList
 		return _aIxxResult_
 
 		def IndexCSXTQ()
-			return This.IndexCSXTQRT(pCaseSensitive, :stzList)
+			return This.IndexCSXTQRT($pCaseSensitive, :stzList)
 
 		def IndexCSXTQRT(pCaseSensitive, pcReturnType)
 			switch pcReturnType
@@ -3094,7 +3094,7 @@ class stzListOfLists from stzList
 		#--
 
 		def ListsAreEqualCS(pCaseSensitie)
-			return This.AllListsAreEqualCS(pCaseSensitive)
+			return This.AllListsAreEqualCS($pCaseSensitive)
 
 		def ListsAreMadeOfSameItemsCS(pCaseSensitive)
 			return This.AllListsAreEqualCS(pCaseSensitive)
@@ -3858,7 +3858,7 @@ class stzListOfLists from stzList
 		for @i = 1 to _nSobLenCol_
 			@item = _aSobCol_[@i]
 			eval(_cSobCode_)
-			ring_insert(_aSobContent_[@i], 1, _value_)
+			ring_insert(_aSobContent_[@i], 1, $_value_)
 		next
 
 		This.UpdateWith( @SortLists(_aSobContent_) )
@@ -4200,7 +4200,7 @@ class stzListOfLists from stzList
 		for @i = 1 to _nCobLenCol_
 			@item = _aCobCol_[@i]
 			eval(_cCobCode_)
-			ring_insert(_aCobContent_[@i], nCol, _value_)
+			ring_insert(_aCobContent_[@i], nCol, $_value_)
 		next
 
 		_aCobResult_ = StzListOfListsQ(_aCobContent_).

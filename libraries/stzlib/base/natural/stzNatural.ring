@@ -1117,8 +1117,8 @@ class stzNaturalEngine from stzObject
 				catch
 				done
 				if _bParsed_
-					_aTokens_ + [:type = "literal", :value = _aListValue_, :word = 0]
-					This.AddToDebugLog("List literal parsed: " + stzlen(_aListValue_) + " items")
+					_aTokens_ + [:type = "literal", :value = $_aListValue_, :word = 0]
+					This.AddToDebugLog("List literal parsed: " + stzlen($_aListValue_) + " items")
 					_i_++
 					loop
 				ok

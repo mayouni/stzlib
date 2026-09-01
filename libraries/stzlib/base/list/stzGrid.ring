@@ -548,16 +548,16 @@ class stzGrid From stzObject
 			This.MoveRightN(n)
 
 		def MoveNRight()
-			This.MoveRightN(n)
+			This.MoveRightN($n)
 
 		def MoveNNodesRight()
-			This.MoveRightN(n)
+			This.MoveRightN($n)
 
 		def MoveRightNCells(n)
 			This.MoveRightN(n)
 
 		def MoveNCellsRight()
-			This.MoveRightN(n)
+			This.MoveRightN($n)
 
 	def MoveRight()
 		This.MoveRightN(1)
@@ -581,16 +581,16 @@ class stzGrid From stzObject
 			This.MoveLeftN(n)
 
 		def MoveNLeft()
-			This.MoveLeftN(n)
+			This.MoveLeftN($n)
 
 		def MoveNNodesLeft()
-			This.MoveLeftN(n)
+			This.MoveLeftN($n)
 
 		def MoveLeftNCells(n)
 			This.MoveLeftN(n)
 
 		def MoveNCellsLeft()
-			This.MoveLeftN(n)
+			This.MoveLeftN($n)
 
 	def MoveLeft()
 		This.MoveLeftN(1)
@@ -614,16 +614,16 @@ class stzGrid From stzObject
 			This.MoveUpN(n)
 
 		def MoveNUp()
-			This.MoveUpN(n)
+			This.MoveUpN($n)
 
 		def MoveNNodesUp()
-			This.MoveUpN(n)
+			This.MoveUpN($n)
 
 		def MoveUpNCells(n)
 			This.MoveUpN(n)
 
 		def MoveNCellsUp()
-			This.MoveUpN(n)
+			This.MoveUpN($n)
 
 	def MoveUp()
 		This.MoveUpN(1)
@@ -647,16 +647,16 @@ class stzGrid From stzObject
 			This.MoveDownN(n)
 
 		def MoveNDown()
-			This.MoveDownN(n)
+			This.MoveDownN($n)
 
 		def MoveNNodesDown()
-			This.MoveDownN(n)
+			This.MoveDownN($n)
 
 		def MoveDownNCells(n)
 			This.MoveDownN(n)
 
 		def MoveNCellsDown()
-			This.MoveDownN(n)
+			This.MoveDownN($n)
 
 	def MoveDown()
 		This.MoveDownN(1)

@@ -41,7 +41,7 @@ class stzListInString from stzString
 
 			_cCode_ = "_oResult_ = new " + pcType + "(This.List())"
 			eval(_cCode_)
-			return _oResult_
+			return $_oResult_
 
 	def Content()
 		return This.List()
@@ -102,7 +102,7 @@ class stzListInString from stzString
 				_aResult_ + [
 					_oStzStr_.Content(),
 					:IsVarName,
-					:Is + cType
+					:Is + $cType
 				]
 			ok
 
@@ -166,7 +166,7 @@ class stzListInString from stzString
 			_cVarName_ = _aThisVarNames1_[_iLoopThisVarNames1_]
 			_cCode_ = '_cType_ = ring_type('+ _cVarName_ +')'
 			eval(_cCode_)
-			_acResult_ + _cType_
+			_acResult_ + $_cType_
 		next
 
 		return _acResult_

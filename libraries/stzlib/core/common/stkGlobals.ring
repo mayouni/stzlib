@@ -3,10 +3,10 @@
 #---------------------------------#
 
 # Parameter checking (can be disabled for performance in loops)
-_bParamCheck = 1
+$_bParamCheck = 1
 
 func CheckingParams()
-	return _bParamCheck
+	return $_bParamCheck
 
 func SetParamCheckingTo(bValue)
 	_bParamCheck = bValue
@@ -15,7 +15,7 @@ func SetParamCheckingTo(bValue)
 _bEarlyCheck = 1
 
 func EarlyChecking()
-	return _bEarlyCheck
+	return $_bEarlyCheck
 
 func SetEarlyCheckingTo(bValue)
 	_bEarlyCheck = bValue
