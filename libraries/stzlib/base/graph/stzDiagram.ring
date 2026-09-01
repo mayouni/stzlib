@@ -13225,6 +13225,17 @@ class stzDiagram from stzGraph
 			_plF_ = "" + _plE_[:from]
 			_plT_ = "" + _plE_[:to]
 			if StzLower(_plF_) = StzLower(_plT_)  loop  ok
+			# A LINE THAT IS NOT DRAWN NEEDS NO RAIL AND NO PAPER.
+			#
+			# A silhouette writes its inter-branch transfers instead of
+			# drawing them, and this plan was still reserving a return
+			# rail for each -- so _ReturnReach answered 945 for a drawing
+			# that ends at 480, and the sheet came out 1006x1006 for
+			# 524px of picture. Paper reserved for a line nobody draws is
+			# the same defect as a name reserved in the wrong direction,
+			# one plane over: a measurement describing a layout that is
+			# not the one being drawn.
+			if This._SilhouetteSuppressed(_plF_, _plT_)  loop  ok
 			_plA_ = This._XYOf(paXY, _plF_)
 			_plB_ = This._XYOf(paXY, _plT_)
 			if len(_plA_) != 2 or len(_plB_) != 2  loop  ok
@@ -13361,6 +13372,14 @@ class stzDiagram from stzGraph
 			_plE3_ = _aPlE37_[_iPlE37_]
 			_plF3_ = "" + _plE3_[:from]
 			_plT3_ = "" + _plE3_[:to]
+			# ...AND HERE TOO. The skip above covered the first of the
+			# two loops that plan lanes, and this is the one that records
+			# a RETURN -- so the reservation survived the fix and the
+			# sheet stayed 1006px for 524px of drawing. A rule applied to
+			# one of two places that do the same thing is the defect this
+			# plane keeps paying for, and the tell was that the number
+			# did not move at all.
+			if This._SilhouetteSuppressed(_plF3_, _plT3_)  loop  ok
 			if StzLower(_plF3_) = StzLower(_plT3_)  loop  ok
 			if This._LaneKept(StzLower(_plF3_) + ">" + StzLower(_plT3_)) > 0
 				loop
