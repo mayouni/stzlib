@@ -321,6 +321,8 @@ class stzDiagram from stzGraph
 	# and the clipping uses, or an arrow stops short of the thing it
 	# points at.
 	@aBoxOf = []
+	@oBoxFont = ""
+	@nBoxFsz = 13
 	# rows that already hold a return lane, refilled per render
 	@aSameRowLanes = []
 	@aDrawXY = []
@@ -949,6 +951,50 @@ class stzDiagram from stzGraph
 
 	def _FillBoxSizes(nBoxW, nBoxH)
 		@aBoxOf = []
+		# A RHOMBUS HOLDING ITS NAME NEEDS TWICE THE BOX.
+		#
+		# A diamond inscribed in a box gives a word only the middle of
+		# it: the widest rectangle that fits inside has HALF the box's
+		# width and half its height, because the sides slope away from
+		# the centre in both directions at once. A question sized like a
+		# rectangle therefore holds about a quarter of the text a
+		# rectangle would, and the rest hangs out over the sloping
+		# edges.
+		#
+		# So a kind the profile declares as holding its own name, drawn
+		# as a diamond, is measured from its text and given twice it.
+		# This is the same reasoning as the cell that is as wide as the
+		# widest name in the picture -- the author writes MEANING and the
+		# layout owns geometry -- applied to a glyph whose usable area is
+		# not its box.
+		_oNfb_ = This.NotationO()
+		if isObject(_oNfb_) and isObject(@oBoxFont)
+			_aNfb_ = This.Nodes()
+			_nNfb_ = len(_aNfb_)
+			for _iNfb_ = 1 to _nNfb_
+				_ndFb_ = _aNfb_[_iNfb_]
+				_kFb_ = ""
+				if HasKey(_ndFb_, "properties") and
+				   isList(_ndFb_["properties"])
+					if HasKey(_ndFb_["properties"], "type")
+						_kFb_ = "" + _ndFb_["properties"]["type"]
+					ok
+				ok
+				if _kFb_ = ""  loop  ok
+				if NOT _oNfb_.WritesNameInside(_kFb_)  loop  ok
+				if StzLower("" + This._NativeShapeOf(_ndFb_)) != "diamond"
+					loop
+				ok
+				_cLfb_ = StzTrim("" + _ndFb_[:label])
+				if _cLfb_ = ""  loop  ok
+				_wFb_ = @oBoxFont.WidthOf(_cLfb_, @nBoxFsz)
+				_nWfb_ = ceil((_wFb_ + 16) * 2)
+				_nHfb_ = ceil((@nBoxFsz * 1.5 + 12) * 2)
+				if _nWfb_ < nBoxW  _nWfb_ = nBoxW  ok
+				if _nHfb_ < nBoxH  _nHfb_ = nBoxH  ok
+				@aBoxOf + [ StzLower("" + _ndFb_[:id]), _nWfb_, _nHfb_ ]
+			next
+		ok
 		_oNn_ = This.NotationO()
 		_aNd52_ = This.Nodes()
 		_nNd52_ = len(_aNd52_)
@@ -2318,6 +2364,8 @@ class stzDiagram from stzGraph
 		_nBoxW_ = This._DiagOpt(paOptions, "nodewidth", 150)
 		_nBoxH_ = This._DiagOpt(paOptions, "nodeheight", 56)
 		_oFont_ = This._DiagOpt(paOptions, "font", "")
+		@oBoxFont = _oFont_
+		@nBoxFsz = This._DiagOpt(paOptions, "fontsize", 13)
 		_nFsz_  = This._DiagOpt(paOptions, "fontsize", 14)
 		_cBg_   = This._DiagOpt(paOptions, "background", "#FFFFFF")
 		_cEdge_ = This._DiagOpt(paOptions, "edgecolor", "#8A8A8A")
@@ -12240,6 +12288,30 @@ class stzDiagram from stzGraph
 			ok
 		next
 		if _wnS_ = ""  return 0  ok
+		# ...UNLESS THE PROFILE SAYS THIS KIND HOLDS ITS OWN NAME. The
+		# list below asks the SHAPE, which is right while a shape is
+		# always drawn the same size -- and a diamond is not. DRAKON
+		# sizes its rhombus to the question inside it, so asking the
+		# shape would write that question underneath an empty diamond.
+		_oWn_ = This.NotationO()
+		if isObject(_oWn_)
+			_cWnK_ = ""
+			for _iWnN_ = 1 to _nWnN_
+				if StzLower("" + _aWnN_[_iWnN_][:id]) = _wnId_
+					if HasKey(_aWnN_[_iWnN_], "properties") and
+					   isList(_aWnN_[_iWnN_]["properties"])
+						if HasKey(_aWnN_[_iWnN_]["properties"], "type")
+							_cWnK_ = "" +
+								_aWnN_[_iWnN_]["properties"]["type"]
+						ok
+					ok
+					exit
+				ok
+			next
+			if _cWnK_ != "" and _oWn_.WritesNameInside(_cWnK_)
+				return 0
+			ok
+		ok
 		_aWn_ = [ "circle", "doublecircle", "dot", "diamond",
 			"triangle", "invtriangle", "actor", "bar",
 			"resistor", "capacitor", "ground", "source", "junction" ]
@@ -13532,7 +13604,7 @@ class stzDiagram from stzGraph
 			return This.WriteToDiagFile(pcFolder)
 
 		def SaveToStzDiagXT()
-			return This.WriteToDiagFileXT(pcFolder)
+			return This.WriteToDiagFileXT($pcFolder)
 
 		#--
 
@@ -13584,7 +13656,7 @@ class stzDiagram from stzGraph
 			return This.WriteToDiagFile(pcFolder)
 
 		def SaveToStzDiagInFolder()
-			return This.WriteToDiagFileXT(pcFolder)
+			return This.WriteToDiagFileXT($pcFolder)
 
 		#--
 

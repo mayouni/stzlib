@@ -9485,6 +9485,75 @@ chk("the nested branches take two columns, both right of the skewer",
     fabs(nDkM1 - nDkM2) > 20)
 chk("...and the OUTER branch is the one further out", nDkM1 > nDkM2 + 20)
 
+# ...AND THE QUESTION IS WRITTEN IN THE RHOMBUS.
+#
+# The plane writes a name UNDER a glyph with no inside for a word -- a
+# dot, a bar, a stick figure -- and a diamond is on that list because a
+# diamond is usually drawn as a small mark. DRAKON draws it as a
+# QUESTION, sized to the question, and the text belongs in it: that is
+# what makes the rhombus read as a decision rather than as a marker with
+# a caption. The Principal asked for it after seeing "Question" hanging
+# under an empty diamond.
+#
+# TWO THINGS HAD TO BE TRUE and the guard asks both, because either
+# alone passes on a wrong picture: the word must be placed inside, AND
+# the rhombus must be big enough to hold it. A diamond gives a word only
+# the middle of its box -- the widest rectangle that fits has HALF the
+# width and half the height, since the sides slope away from the centre
+# in both directions -- so a question sized like a rectangle holds about
+# a quarter of the text and the rest hangs over the sloping edges.
+nQiIn = 0  nQiFits = 0  nQiSeen = 0
+_aQiL_ = oDk.RenderNodeLabels()
+for iQi = 1 to len(_aQiL_)
+	if StzLower("" + _aQiL_[iQi][1]) != "q"  loop  ok
+	nQiSeen++
+	aQiB = oDk._NodeRectOf("q")
+	nQiCx = aQiB[1] + aQiB[3] / 2
+	nQiCy = aQiB[2] + aQiB[4] / 2
+	# placed inside: the word's centre is the glyph's centre
+	if fabs(_aQiL_[iQi][2] - nQiCx) < 3 and
+	   fabs(_aQiL_[iQi][3] - nQiCy) < 3
+		nQiIn++
+	ok
+	# and it FITS the inscribed rectangle, which is half the box
+	if _aQiL_[iQi][4] <= aQiB[3] / 2 and _aQiL_[iQi][5] <= aQiB[4] / 2
+		nQiFits++
+	ok
+	? "   rhombus " + aQiB[3] + "x" + aQiB[4] + ", word " +
+	  _aQiL_[iQi][4] + "x" + _aQiL_[iQi][5] + ", inscribed room " +
+	  (aQiB[3] / 2) + "x" + (aQiB[4] / 2)
+next
+chkeq("the question was found", nQiSeen, 1)
+chkeq("...is written INSIDE the rhombus", nQiIn, 1)
+chkeq("...and the rhombus is big enough to hold it", nQiFits, 1)
+
+# THE NEGATIVE SIBLING: this is the PROFILE's declaration, not a change
+# to what a diamond is. BPMN's gateway is a diamond too and does NOT
+# declare name-inside, so it must still write its name below -- or the
+# knob has leaked into every diamond in the library.
+oQi2 = new stzDiagram("gw73k")
+oQi2.SetNotation(StzBpmnNotation())
+oQi2.AddNodeXTT("s", "Start", [ :type = "start" ])
+oQi2.AddNodeXTT("g", "Approved?", [ :type = "gateway" ])
+oQi2.AddNodeXTT("y", "Pay", [ :type = "task" ])
+oQi2.AddNodeXTT("n", "Reject", [ :type = "task" ])
+oQi2.AddEdge("s","g")
+oQi2.AddEdgeXT("g","y","passes")
+oQi2.AddEdgeXT("g","n","fails")
+oQi2.ToCanvasXT([ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56,
+                  :FontSize = 20 ])
+nQiBelow = 0
+aQiB2 = oQi2._NodeRectOf("g")
+_aQiL2_ = oQi2.RenderNodeLabels()
+for iQi = 1 to len(_aQiL2_)
+	if StzLower("" + _aQiL2_[iQi][1]) != "g"  loop  ok
+	if _aQiL2_[iQi][3] > aQiB2[2] + aQiB2[4] - 1  nQiBelow = 1  ok
+	? "   a gateway's name sits at y " + _aQiL2_[iQi][3] +
+	  ", its glyph ends at " + (aQiB2[2] + aQiB2[4])
+next
+chkeq("NEGATIVE: a gateway's diamond still writes its name BELOW",
+    nQiBelow, 1)
+
 sec("-- 73g. A GROUND IS MET AT ITS LEAD, NOT ITS BARS ------")
 
 # A GROUND HAS ONE TERMINAL, IT IS ON TOP, AND THE WIRE ARRIVES THERE
