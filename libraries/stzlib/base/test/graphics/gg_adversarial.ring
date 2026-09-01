@@ -9726,6 +9726,101 @@ chkeq("...and both place 'no' the same way", nLbSameNo, 1)
 chk("NEGATIVE: the two words are not in the same place as each other",
     fabs(nLbYesDx - nLbNoDx) > 5 or fabs(nLbYesDy - nLbNoDy) > 5)
 
+sec("-- 73l. THE SILHOUETTE: A TRANSFER IS WRITTEN, NOT DRAWN --")
+
+# DRAKON'S FORM FOR AN ALGORITHM TOO LARGE FOR ONE SKEWER.
+#
+# Several skewers side by side, each under its own NAME, control leaving
+# the foot of one to resume at the head of another. The transfer is
+# written -- an ADDRESS names where control goes -- and that is the
+# whole trick: a silhouette has no long connecting lines, so it has
+# nothing to cross.
+#
+# MEASURED BEFORE BUILDING, as this plane requires. The kill was that
+# the form buys nothing if a model needs as many branches as nodes: over
+# this plane's flow models the minimum path cover is 162 branches for
+# 432 nodes, ratio 0.38. It compresses, so the kill does not fire.
+oSl = new stzDiagram("silhouette73l")
+oSl.SetNotation(StzDrakonNotation())
+oSl.AddNodeXTT("b1","Take the order",[ :type = "branch" ])
+oSl.AddNodeXTT("read","Read basket",[ :type = "input" ])
+oSl.AddNodeXTT("q1","Basket empty?",[ :type = "question" ])
+oSl.AddNodeXTT("warn","Say so",[ :type = "action" ])
+oSl.AddNodeXTT("a1","Charge",[ :type = "address" ])
+oSl.AddNodeXTT("b2","Charge",[ :type = "branch" ])
+oSl.AddNodeXTT("auth","Authorise card",[ :type = "action" ])
+oSl.AddNodeXTT("a2","Ship",[ :type = "address" ])
+oSl.AddNodeXTT("b3","Ship",[ :type = "branch" ])
+oSl.AddNodeXTT("pack","Pack",[ :type = "action" ])
+oSl.AddNodeXTT("a3","End",[ :type = "address" ])
+oSl.AddEdge("b1","read")  oSl.AddEdge("read","q1")
+oSl.AddEdgeXT("q1","a1","no")  oSl.AddEdgeXT("q1","warn","yes")
+oSl.AddEdge("warn","a1")  oSl.AddEdge("a1","b2")
+oSl.AddEdge("b2","auth")  oSl.AddEdge("auth","a2")
+oSl.AddEdge("a2","b3")
+oSl.AddEdge("b3","pack")  oSl.AddEdge("pack","a3")
+oSl.ToCanvasXT([ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56,
+                 :FontSize = 20, :LayoutMode = :Silhouette ])
+
+# THE BRANCHES STAND SIDE BY SIDE, each header in its own column and all
+# of them on one row -- so a reader knows where each begins without
+# hunting for it.
+nSlCols = 0  nSlHeadY = -1  nSlSameRow = 1
+aSlHx = []
+for iSl = 1 to len(oSl.RenderNodeRects())
+	aSlR = oSl.RenderNodeRects()[iSl]
+	cSlId = StzLower("" + aSlR[5])
+	if cSlId != "b1" and cSlId != "b2" and cSlId != "b3"  loop  ok
+	aSlHx + (aSlR[1] + aSlR[3] / 2)
+	if nSlHeadY < 0
+		nSlHeadY = aSlR[2] + aSlR[4] / 2
+	else
+		if fabs(aSlR[2] + aSlR[4] / 2 - nSlHeadY) > 2  nSlSameRow = 0  ok
+	ok
+next
+for iSl = 1 to len(aSlHx)
+	bSlNew = 1
+	for jSl = 1 to iSl - 1
+		if fabs(aSlHx[iSl] - aSlHx[jSl]) < 2  bSlNew = 0  exit  ok
+	next
+	if bSlNew  nSlCols++  ok
+next
+? "   " + len(aSlHx) + " branch headers in " + nSlCols +
+  " columns, all on one row: " + nSlSameRow
+chkeq("each branch stands in its own column", nSlCols, 3)
+chkeq("...and every header sits on the same row", nSlSameRow, 1)
+
+# THE TRANSFER IS NOT DRAWN. This is the property the whole form exists
+# for, and the one a picture can silently lose: the model still carries
+# the edge -- it must, or the graph would not be connected and could not
+# be queried -- and the DRAWING leaves it out, because the address
+# already says where control goes.
+nSlDrawn = 0
+for iSl = 1 to len(oSl.@aEdgePaths)
+	cSlK = StzLower("" + oSl.@aEdgePaths[iSl][1])
+	if cSlK = "a1>b2" or cSlK = "a2>b3"  nSlDrawn++  ok
+next
+? "   inter-branch transfers drawn as lines: " + nSlDrawn
+chkeq("a transfer between branches is written, not drawn", nSlDrawn, 0)
+
+# NEGATIVE: the model still HOLDS those edges. Suppressing the line must
+# not have quietly removed the fact -- a picture that tells the truth by
+# forgetting is not telling the truth.
+chk("NEGATIVE: ...but the model still carries them",
+    oSl.EdgeExists("a1","b2") and oSl.EdgeExists("a2","b3"))
+
+# ...AND THE EDGES INSIDE A BRANCH ARE STILL DRAWN, or "no lines" would
+# be satisfied by drawing nothing at all.
+nSlIn = 0
+for iSl = 1 to len(oSl.@aEdgePaths)
+	cSlK = StzLower("" + oSl.@aEdgePaths[iSl][1])
+	if cSlK = "b1>read" or cSlK = "read>q1" or cSlK = "b3>pack"
+		nSlIn++
+	ok
+next
+chkeq("NEGATIVE: ...and the lines INSIDE a branch are still drawn",
+    nSlIn, 3)
+
 sec("-- 73g. A GROUND IS MET AT ITS LEAD, NOT ITS BARS ------")
 
 # A GROUND HAS ONE TERMINAL, IT IS ON TOP, AND THE WIRE ARRIVES THERE
