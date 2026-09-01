@@ -9266,8 +9266,18 @@ for iGp = 1 to len(_aGpL_)
 	nGpPr = _aGpL_[iGp][2] + _aGpL_[iGp][4] / 2
 	nGpPt = _aGpL_[iGp][3] - _aGpL_[iGp][5] / 2
 	nGpPb = _aGpL_[iGp][3] + _aGpL_[iGp][5] / 2
-	nGpBl = aGpB[1]  nGpBr = aGpB[1] + aGpB[3]
-	nGpBt = aGpB[2]  nGpBb = aGpB[2] + aGpB[4]
+	# FROM THE INK, NOT THE BOX. A resistor asked for 68x110 paints a
+	# body 30x62 and spends the rest on leads, so a distance measured
+	# from its box starts inside paper nobody drew on -- and the same
+	# nominal gap then LOOKS bigger beside a resistor than beside a
+	# junction dot, whose box is its ink. The first version of this
+	# guard measured boxes and passed on a picture the Principal could
+	# see was uneven.
+	aGpI = StzNodeShapeInk(oGp._ShapeOfId(StzLower("" + _aGpL_[iGp][1])),
+		aGpB[3], aGpB[4])
+	nGpCx = aGpB[1] + aGpB[3] / 2   nGpCy = aGpB[2] + aGpB[4] / 2
+	nGpBl = nGpCx - aGpI[1]   nGpBr = nGpCx + aGpI[1]
+	nGpBt = nGpCy - aGpI[2]   nGpBb = nGpCy + aGpI[2]
 	if nGpPt >= nGpBb - 0.5
 		aGpG + (nGpPt - nGpBb)   aGpSide + "below"
 	but nGpPb <= nGpBt + 0.5
