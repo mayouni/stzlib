@@ -1297,13 +1297,41 @@ gate it declares.
   whose other terminal reaches nothing, which is part of why they drew as
   chains.
 
-  **WHAT REMAINS, named rather than left to be discovered.** A circuit
-  with SEVERAL independent meshes gets its first mesh as the rectangle
-  and the rest hung off it, not interlocked sharing a branch the way a
-  ladder network is drawn — every canonical two-terminal example is
-  single-mesh and comes out right. And a component at a CORNER of the
-  rectangle has two perpendicular neighbours, so its orientation is
-  ambiguous and it is drawn along whichever axis dominates.
+  **BOTH OF THE REMAINDERS THIS SECTION NAMED ARE NOW CLOSED
+  (2026-08-31/09-01), and what closed them is worth more than the fact.**
+
+  *Interlocking meshes*, 841e853da. Contract every degree-2 node and a
+  circuit states its own structure as JUNCTIONS joined by BRANCHES; two
+  junctions carrying several branches ARE a ladder, which is how
+  schematics have drawn parallel branches for a century. The same move
+  as taking the mesh count from circuit theory rather than inventing a
+  cycle metric: ask the domain for the structure, never the picture for
+  a fit. What it removed was not cosmetic — the load's two wires left
+  the same side, and a two-terminal part with both wires on one lead is
+  drawn as a SHORT.
+
+  *Corner orientation*, 574f10dbd. A corner is where the run changes
+  axis, so whatever sits there has one neighbour beside it and one
+  below — and a part has two terminals on ONE axis and cannot face
+  both. The answer was not a better orientation rule but to stop
+  SEATING a part there: the perimeter walk is phased off the corners,
+  and the offset is scored rather than assumed, because a fixed
+  half-step lands a member exactly on a corner at six members.
+
+  **WHAT REMAINS, named rather than left to be discovered.** A ladder
+  with MORE THAN TWO junctions — a three-section RC ladder has one per
+  section — needs rails carrying several rungs each, and falls through
+  to the single rectangle. No shipped fixture needs it, and the source
+  says so at the decision.
+
+  **AND THE PRINCIPAL'S MARKS ON THIS DOMAIN MINTED FOUR RULES THAT ARE
+  NOT ABOUT CIRCUITS.** A wire meets a TERMINAL, never a body. A name is
+  never laid ON a wire — the plate is opaque, so it does not overlap a
+  line, it erases it. A curve is RESERVED here (a hop says "these cross
+  and do not touch"), so a wire turns square and only the loop's own
+  corners keep a radius. And every distance to a name is measured from
+  the INK a glyph paints, not from the box it was allotted — a resistor
+  asked for 68x110 paints a body 30x62 and spends the rest on leads.
 
 The doctrine that makes all of it Softanza-ish is already written: the
 plastic layout. In every domain the author edits domain MEANING — a
