@@ -333,6 +333,7 @@ class stzDiagram from stzGraph
 	@aRenderForks = []
 	@bSequence = 0
 	@bMesh = 0
+	@bSilhouette = 0
 	@nFszNow = 0
 	@aSideApproach = []
 	@aRenderHeads = []
@@ -2575,6 +2576,7 @@ class stzDiagram from stzGraph
 		# to the layout and everything else is drawing.
 		@bSequence = (_cLM_ = "sequence")
 		@bMesh = (_cLM_ = "mesh")
+		@bSilhouette = (_cLM_ = "silhouette")
 		@nFszNow = _nFsz_
 
 		@nSeqPitch = 0
@@ -3248,8 +3250,12 @@ class stzDiagram from stzGraph
 			ok
 			@nSpineLabelDemand = This._SpineLabelDemand(_oFont_, _nFsz_,
 				_nBoxW_, _cRank_)
-			_aXY_ = This._ApplySpineRows(_aXY_, _nBoxW_, _nBoxH_, _cRank_,
-				_spSep_)
+			_aXY_ = This._ApplySpineRows(_aXY_, _nBoxW_, _nBoxH_,
+				_cRank_, _spSep_)
+			if @bSilhouette
+				_aXY_ = This._ApplySilhouette(_aXY_, _nBoxW_, _nBoxH_,
+					_spSep_)
+			ok
 			# the long edges' routes ride the SAME transform as the nodes --
 			# one rule, so a route can never land in a different frame from
 			# the boxes it joins
@@ -3611,8 +3617,12 @@ class stzDiagram from stzGraph
 			ok
 			@nSpineLabelDemand = This._SpineLabelDemand(_oFont_, _nFsz_,
 				_nBoxW_, _cRank_)
-			_aXY_ = This._ApplySpineRows(_aXY_, _nBoxW_, _nBoxH_, _cRank_,
-				_spSep_)
+			_aXY_ = This._ApplySpineRows(_aXY_, _nBoxW_, _nBoxH_,
+				_cRank_, _spSep_)
+			if @bSilhouette
+				_aXY_ = This._ApplySilhouette(_aXY_, _nBoxW_, _nBoxH_,
+					_spSep_)
+			ok
 			# A ROW IS AS TALL AS WHAT STANDS IN IT, AND A GAP IS A GAP.
 			#
 			# This is the entry edge the Principal has now marked four
@@ -3770,7 +3780,7 @@ class stzDiagram from stzGraph
 			# "The paper is the content measured" is this plane's law and
 			# it was written for :Modes, extended to :Sequence, and not
 			# extended again. Three modes, one law, asked once.
-			if _bModes_ or @bSequence or @bMesh
+			if _bModes_ or @bSequence or @bMesh or @bSilhouette
 				# THE BOXES ARE SETTLED BEFORE THEY ARE MEASURED.
 				#
 				# _FillBoxSizes runs once before any position exists --
@@ -3935,7 +3945,8 @@ class stzDiagram from stzGraph
 		# rectangle, not a crowded row. Members on the same arm are
 		# separated by a whole share of the perimeter, which is far more
 		# than a box, so there is nothing here for it to fix.
-		if This._DiagOpt(paOptions, "fitboxes", 1) and NOT @bMesh
+		if This._DiagOpt(paOptions, "fitboxes", 1) and NOT @bMesh and
+		   NOT @bSilhouette
 			_nSc_ = This._RankFitScale(_aXY_, _nBoxW_, _nBoxH_, _cRank_)
 			if _nSc_ < 1
 				_nBoxW_ = max([ floor(_nBoxW_ * _nSc_), 6 ])
@@ -4511,6 +4522,11 @@ class stzDiagram from stzGraph
 				ok
 			ok
 
+			# AN INTER-BRANCH TRANSFER IS WRITTEN, NOT DRAWN.
+			if This._SilhouetteSuppressed("" + _aE_[_ei_][:from],
+				"" + _aE_[_ei_][:to])
+				loop
+			ok
 			# A DRAKON RETURN IS DRAWN BY ITS OWN RULE -- see
 			# _DrakonReturnPath. Taken before the router is chosen at
 			# all, because the height of the shared line IS the rule.
@@ -6854,6 +6870,285 @@ class stzDiagram from stzGraph
 				_y1_ - _xClr_ - nLh / 2 ]
 		ok
 		return []
+
+	# THE SILHOUETTE -- DN6b, DRAKON's form for an algorithm too large for
+	# one skewer.
+	#
+	# Several skewers stand side by side, each under its own NAME, and
+	# control leaves the foot of one to resume at the head of another.
+	# The transfer is WRITTEN, not drawn: an address icon names where
+	# control goes. That is the whole trick -- a silhouette has no long
+	# connecting lines, so it has nothing to cross, and it stays readable
+	# at a size where a single skewer would not.
+	#
+	# MEASURED BEFORE BUILDING, as this plane requires. The kill was that
+	# the form buys nothing if a model needs as many branches as it has
+	# nodes: over this plane's flow models the minimum path cover is 162
+	# branches for 432 nodes, a ratio of 0.38, so it genuinely compresses
+	# and the kill does not fire. The same measurement said something
+	# worth acting on -- a mean of 2.5 branches per model, which is why
+	# the fixture for this is written large rather than borrowed from the
+	# ones already here.
+	#
+	# The branches are the AUTHOR'S, not the algorithm's: a branch is a
+	# phase with a name a reader recognises, and no decomposition
+	# computed from the graph knows what to call it.
+	def _ApplySilhouette(paXY, nBoxW, nBoxH, nSep)
+		_aSlN_ = This.Nodes()
+		_nSlN_ = len(_aSlN_)
+		_aSlH_ = []
+		for _iSl_ = 1 to _nSlN_
+			if This._KindOfNode(_aSlN_[_iSl_]) = "branch"
+				_aSlH_ + StzLower("" + _aSlN_[_iSl_][:id])
+			ok
+		next
+		if len(_aSlH_) < 2  return paXY  ok
+
+		# A SILHOUETTE IS SEVERAL PRIMITIVES SIDE BY SIDE.
+		#
+		# The first version walked one successor chain per branch and
+		# placed what it found. A branch is not a chain -- it has its own
+		# questions and its own refusals to the right -- so everything on
+		# a sub-branch was never reached, kept the position the layered
+		# pass had given it, and landed in another branch's column on top
+		# of whatever was there. Two nodes drawn on one another is the
+		# most visible defect a layout can have and it came from treating
+		# the part as simpler than the whole.
+		#
+		# So each branch keeps the layout it already has -- skewer,
+		# alternatives to the right, everything DN6 settled -- and the
+		# branches are TRANSLATED apart. The form is composition, not a
+		# new geometry.
+		_aSlOwn_ = []
+		for _iSl_ = 1 to _nSlN_  _aSlOwn_ + 0  next
+		for _iSlH_ = 1 to len(_aSlH_)
+			_aSlQ_ = [ _aSlH_[_iSlH_] ]
+			_slQi_ = 1
+			while _slQi_ <= len(_aSlQ_)
+				_slU_ = _aSlQ_[_slQi_]
+				_slQi_++
+				for _iSl_ = 1 to _nSlN_
+					if StzLower("" + _aSlN_[_iSl_][:id]) != _slU_  loop  ok
+					if _aSlOwn_[_iSl_] != 0  loop  ok
+					_aSlOwn_[_iSl_] = _iSlH_
+					exit
+				next
+				# an ADDRESS is the foot: control leaves it by NAME, so
+				# the branch stops there and does not swallow the next
+				if This._KindOfId(_slU_) = "address"  loop  ok
+				_aSlE2_ = This.Edges()
+				for _iSlE_ = 1 to len(_aSlE2_)
+					if StzLower("" + _aSlE2_[_iSlE_][:from]) != _slU_
+						loop
+					ok
+					_slT_ = StzLower("" + _aSlE2_[_iSlE_][:to])
+					if This._KindOfId(_slT_) = "branch"  loop  ok
+					_bSlIn_ = 0
+					for _iSlQ_ = 1 to len(_aSlQ_)
+						if _aSlQ_[_iSlQ_] = _slT_  _bSlIn_ = 1  exit  ok
+					next
+					if NOT _bSlIn_  _aSlQ_ + _slT_  ok
+				next
+			end
+		next
+
+		_aSlOut_ = []
+		_nSlP_ = len(paXY)
+		for _iSl_ = 1 to _nSlP_
+			_aSlOut_ + [ paXY[_iSl_][1], paXY[_iSl_][2], paXY[_iSl_][3] ]
+		next
+		_slGap_ = nSep
+		_slPen_ = 0
+		_bSlFirst_ = 1
+		for _iSlH_ = 1 to len(_aSlH_)
+			# this branch's own extent, as the layout left it
+			_slL_ = 1000000000   _slR_ = 0 - 1000000000
+			_slT2_ = 1000000000
+			for _iSl_ = 1 to _nSlP_
+				_slIdx_ = 0
+				for _kSl_ = 1 to _nSlN_
+					if StzLower("" + _aSlN_[_kSl_][:id]) =
+					   StzLower("" + _aSlOut_[_iSl_][1])
+						_slIdx_ = _kSl_
+						exit
+					ok
+				next
+				if _slIdx_ = 0  loop  ok
+				if _aSlOwn_[_slIdx_] != _iSlH_  loop  ok
+				if _aSlOut_[_iSl_][2] < _slL_  _slL_ = _aSlOut_[_iSl_][2]  ok
+				if _aSlOut_[_iSl_][2] > _slR_  _slR_ = _aSlOut_[_iSl_][2]  ok
+				if _aSlOut_[_iSl_][3] < _slT2_  _slT2_ = _aSlOut_[_iSl_][3]  ok
+			next
+			if _slR_ < _slL_  loop  ok
+			# ...AND A BRANCH IS SPACED FOR ITSELF, not for the chain it
+			# was cut out of.
+			#
+			# The layered pass sees the whole algorithm as ONE column --
+			# fourteen ranks here -- and squeezes it into the page, so
+			# every row came out 36px apart for boxes 56 tall and the
+			# branches overlapped themselves the moment they were stood
+			# side by side. A branch is five rows, not fourteen, and it
+			# is spaced as five. The ORDER and the SIDE are kept, since
+			# those carry the skewer's meaning; only the pitch is
+			# restored.
+			_aSlYs_ = []
+			_aSlXs_ = []
+			for _iSl_ = 1 to _nSlP_
+				_slIdx_ = 0
+				for _kSl_ = 1 to _nSlN_
+					if StzLower("" + _aSlN_[_kSl_][:id]) =
+					   StzLower("" + _aSlOut_[_iSl_][1])
+						_slIdx_ = _kSl_
+						exit
+					ok
+				next
+				if _slIdx_ = 0  loop  ok
+				if _aSlOwn_[_slIdx_] != _iSlH_  loop  ok
+				_bSlNew_ = 1
+				for _jSl_ = 1 to len(_aSlYs_)
+					if fabs(_aSlYs_[_jSl_] - _aSlOut_[_iSl_][3]) < 2
+						_bSlNew_ = 0
+						exit
+					ok
+				next
+				if _bSlNew_  _aSlYs_ + _aSlOut_[_iSl_][3]  ok
+				_bSlNew_ = 1
+				for _jSl_ = 1 to len(_aSlXs_)
+					if fabs(_aSlXs_[_jSl_] - _aSlOut_[_iSl_][2]) < 2
+						_bSlNew_ = 0
+						exit
+					ok
+				next
+				if _bSlNew_  _aSlXs_ + _aSlOut_[_iSl_][2]  ok
+			next
+			for _p1_ = 1 to len(_aSlYs_) - 1
+				for _q1_ = 1 to len(_aSlYs_) - _p1_
+					if _aSlYs_[_q1_] > _aSlYs_[_q1_ + 1]
+						_slSw_ = _aSlYs_[_q1_]
+						_aSlYs_[_q1_] = _aSlYs_[_q1_ + 1]
+						_aSlYs_[_q1_ + 1] = _slSw_
+					ok
+				next
+			next
+			for _p1_ = 1 to len(_aSlXs_) - 1
+				for _q1_ = 1 to len(_aSlXs_) - _p1_
+					if _aSlXs_[_q1_] > _aSlXs_[_q1_ + 1]
+						_slSw_ = _aSlXs_[_q1_]
+						_aSlXs_[_q1_] = _aSlXs_[_q1_ + 1]
+						_aSlXs_[_q1_ + 1] = _slSw_
+					ok
+				next
+			next
+			for _iSl_ = 1 to _nSlP_
+				_slIdx_ = 0
+				for _kSl_ = 1 to _nSlN_
+					if StzLower("" + _aSlN_[_kSl_][:id]) =
+					   StzLower("" + _aSlOut_[_iSl_][1])
+						_slIdx_ = _kSl_
+						exit
+					ok
+				next
+				if _slIdx_ = 0  loop  ok
+				if _aSlOwn_[_slIdx_] != _iSlH_  loop  ok
+				for _jSl_ = 1 to len(_aSlYs_)
+					if fabs(_aSlYs_[_jSl_] - _aSlOut_[_iSl_][3]) < 2
+						_aSlOut_[_iSl_][3] = (_jSl_ - 1) *
+							(nBoxH + nSep)
+						exit
+					ok
+				next
+				for _jSl_ = 1 to len(_aSlXs_)
+					if fabs(_aSlXs_[_jSl_] - _aSlOut_[_iSl_][2]) < 2
+						_aSlOut_[_iSl_][2] = (_jSl_ - 1) *
+							(nBoxW + nSep)
+						exit
+					ok
+				next
+			next
+			# THE BRANCH IS AS WIDE AS ITS WIDEST GLYPH, not as its
+			# generic cell. A rhombus sized to hold its question is 288
+			# wide where the cell is 157, so an advance counted in cells
+			# let the two questions of neighbouring branches touch.
+			_slL_ = 0
+			_slR_ = 0
+			for _iSl_ = 1 to _nSlP_
+				_slIdx_ = 0
+				for _kSl_ = 1 to _nSlN_
+					if StzLower("" + _aSlN_[_kSl_][:id]) =
+					   StzLower("" + _aSlOut_[_iSl_][1])
+						_slIdx_ = _kSl_
+						exit
+					ok
+				next
+				if _slIdx_ = 0  loop  ok
+				if _aSlOwn_[_slIdx_] != _iSlH_  loop  ok
+				_slBw_ = This._BoxOf("" + _aSlOut_[_iSl_][1], nBoxW,
+					nBoxH)[1]
+				_slRt_ = _aSlOut_[_iSl_][2] + _slBw_ / 2
+				if _slRt_ > _slR_  _slR_ = _slRt_  ok
+				_slLf_ = _aSlOut_[_iSl_][2] - _slBw_ / 2
+				if _slLf_ < _slL_  _slL_ = _slLf_  ok
+			next
+			_slT2_ = 0
+			if _bSlFirst_
+				_slPen_ = _slL_
+				_bSlFirst_ = 0
+			ok
+			# ...AND EVERY BRANCH STARTS AT THE SAME HEIGHT, so the
+			# headers read as one row and a reader knows where each
+			# begins without hunting for it.
+			_slDx_ = _slPen_ - _slL_
+			_slDy_ = 0 - _slT2_
+			for _iSl_ = 1 to _nSlP_
+				_slIdx_ = 0
+				for _kSl_ = 1 to _nSlN_
+					if StzLower("" + _aSlN_[_kSl_][:id]) =
+					   StzLower("" + _aSlOut_[_iSl_][1])
+						_slIdx_ = _kSl_
+						exit
+					ok
+				next
+				if _slIdx_ = 0  loop  ok
+				if _aSlOwn_[_slIdx_] != _iSlH_  loop  ok
+				_aSlOut_[_iSl_][2] = _aSlOut_[_iSl_][2] + _slDx_
+				_aSlOut_[_iSl_][3] = _aSlOut_[_iSl_][3] + _slDy_
+			next
+			# THE ADVANCE COUNTS THE BOXES, NOT ONLY THEIR CENTRES.
+			# _slR_ - _slL_ is a span of CENTRES, so a branch one column
+			# wide measured as zero and the next one started 143px along
+			# for boxes 157 wide -- the two overlapped by the difference.
+			_slPen_ = _slPen_ + (_slR_ - _slL_) + _slGap_
+		next
+		return _aSlOut_
+
+	# THE KIND AN AUTHOR DECLARED, by node and by id. Two callers needed
+	# it and neither had the other's hand -- a node inside a loop, an id
+	# inside a walk.
+	def _KindOfNode(paNode)
+		if NOT HasKey(paNode, "properties")  return ""  ok
+		if NOT isList(paNode["properties"])  return ""  ok
+		if NOT HasKey(paNode["properties"], "type")  return ""  ok
+		return StzLower("" + paNode["properties"]["type"])
+
+	def _KindOfId(pcId)
+		_kiI_ = StzLower("" + pcId)
+		_aKi_ = This.Nodes()
+		_nKi_ = len(_aKi_)
+		for _iKi_ = 1 to _nKi_
+			if StzLower("" + _aKi_[_iKi_][:id]) = _kiI_
+				return This._KindOfNode(_aKi_[_iKi_])
+			ok
+		next
+		return ""
+
+	# AN INTER-BRANCH TRANSFER IS WRITTEN, NOT DRAWN. The address names
+	# where control goes, so a line saying the same thing again is the
+	# long connecting line the silhouette exists to remove.
+	def _SilhouetteSuppressed(cFromId, cToId)
+		if NOT @bSilhouette  return 0  ok
+		if This._KindOfId(cFromId) != "address"  return 0  ok
+		if This._KindOfId(cToId) != "branch"  return 0  ok
+		return 1
 
 	def _NotationBranchSide()
 		_oNb_ = This.NotationO()

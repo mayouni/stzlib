@@ -105,3 +105,52 @@ o3.LastCanvas().ToPNG("drakon_3_icons.png")
 
 ? ""
 ? "wrote drakon_1..drakon_3"
+
+#-- 4. THE SILHOUETTE -- DN6b -----------------------------------------------
+#   An algorithm too large for one skewer. Several skewers side by side,
+#   each under its own NAME, and control leaves the foot of one to resume
+#   at the head of another -- written as an ADDRESS, not drawn, which is
+#   why a silhouette has no long connecting lines to cross.
+#
+#   Written LARGE on purpose. The measurement that cleared this form also
+#   said the plane's own fixtures average 2.5 branches, which is too few
+#   to need it: a feature demonstrated only on cases that do not want it
+#   is not demonstrated.
+o4 = new stzDiagram("order")
+o4.SetNotation(StzDrakonNotation())
+
+o4.AddNodeXTT("b1", "Take the order",  [ :type = "branch" ])
+o4.AddNodeXTT("read", "Read basket",   [ :type = "input" ])
+o4.AddNodeXTT("q1", "Basket empty?",   [ :type = "question" ])
+o4.AddNodeXTT("warn", "Say so",        [ :type = "action" ])
+o4.AddNodeXTT("a1", "Charge",          [ :type = "address" ])
+
+o4.AddNodeXTT("b2", "Charge",          [ :type = "branch" ])
+o4.AddNodeXTT("auth", "Authorise card",[ :type = "action" ])
+o4.AddNodeXTT("q2", "Authorised?",     [ :type = "question" ])
+o4.AddNodeXTT("decl", "Record refusal",[ :type = "action" ])
+o4.AddNodeXTT("a2", "Ship",            [ :type = "address" ])
+
+o4.AddNodeXTT("b3", "Ship",            [ :type = "branch" ])
+o4.AddNodeXTT("pack", "Pack",          [ :type = "action" ])
+o4.AddNodeXTT("send", "Hand to carrier",[ :type = "action" ])
+o4.AddNodeXTT("a3", "End",             [ :type = "address" ])
+
+o4.AddEdge("b1","read")   o4.AddEdge("read","q1")
+o4.AddEdgeXT("q1","a1","no")   o4.AddEdgeXT("q1","warn","yes")
+o4.AddEdge("warn","a1")
+o4.AddEdge("a1","b2")
+
+o4.AddEdge("b2","auth")   o4.AddEdge("auth","q2")
+o4.AddEdgeXT("q2","a2","yes")  o4.AddEdgeXT("q2","decl","no")
+o4.AddEdge("decl","a2")
+o4.AddEdge("a2","b3")
+
+o4.AddEdge("b3","pack")   o4.AddEdge("pack","send")
+o4.AddEdge("send","a3")
+
+o4.ToCanvasXT([ :Font = FONT, :NodeWidth = 150, :NodeHeight = 56,
+                :FontSize = 20, :LayoutMode = :Silhouette ])
+o4.LastCanvas().ToPNG("drakon_4_silhouette.png")
+? "  the silhouette     " + o4.LastCanvas().Width() + "x" +
+  o4.LastCanvas().Height()

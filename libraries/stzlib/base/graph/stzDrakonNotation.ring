@@ -132,6 +132,25 @@ func StzDrakonNotation()
 	_o_.AddKindXT("pause", "hexagon", "#f3f4f6")
 	_o_.AddKindXT("comment", "note", "#fffbe6")
 
+	# THE SILHOUETTE'S TWO ICONS -- DN6b.
+	#
+	# A large algorithm does not fit one skewer, and DRAKON's answer is
+	# not a longer picture: it is several skewers side by side, each
+	# under its own NAME, with control leaving the foot of one and
+	# resuming at the head of another. The transfer is written, not
+	# drawn -- an ADDRESS names where control goes, and that is why a
+	# silhouette has no long connecting lines to cross.
+	#
+	# The branches are named by the AUTHOR, not derived. That is the
+	# plane's doctrine (the author writes MEANING, the layout owns
+	# geometry) and it is also DRAKON's: a branch is a phase of the
+	# algorithm with a name a reader recognises, and no decomposition
+	# computed from the graph knows what to call it.
+	_o_.AddKindXT("branch", "tab", "#eef2ff")
+	_o_.AddKindXT("address", "invhouse", "#eef2ff")
+	_o_.SetNameInside("branch")
+	_o_.SetNameInside("address")
+
 	StzRegisterNotation(_o_)
 	return _o_
 
