@@ -4516,7 +4516,7 @@ class stzDiagram from stzGraph
 			# all, because the height of the shared line IS the rule.
 			_aRpP_ = This._DrakonReturnPath("" + _aE_[_ei_][:from],
 				"" + _aE_[_ei_][:to], _a_, _b_, _nBoxW_, _nBoxH_)
-			if len(_aRpP_) >= 8
+			if len(_aRpP_) >= 6
 				_aRpC_ = This._ArrowCut(_aRpP_, 9 + _nEdgeW_ * 2)
 				This._EmitOrthoPolyline(_oC_, _aRpC_[1], _cEdge_,
 					_nEdgeW_, StzLower("" + _aE_[_ei_][:from]) + ">" +
@@ -6772,17 +6772,25 @@ class stzDiagram from stzGraph
 			if _rpBot_ > _rpLow_  _rpLow_ = _rpBot_  ok
 		next
 		if _rpLow_ = 0  return []  ok
+		# THE RETURN LINE RUNS AT THE TERMINAL'S OWN LEVEL, and enters
+		# it from the side.
+		#
+		# Held one clearance ABOVE the terminal, the shared line needed a
+		# further drop into the top of the icon -- so the picture had a
+		# horizontal, then a stub, then the icon, and the stub belonged
+		# to nothing a reader could name. Run at the terminal's own
+		# height the line simply ARRIVES: the skewer comes in at the top
+		# and the returns come in at the side, which is two statements a
+		# reader can tell apart at a glance instead of one shape with a
+		# tail.
 		_rpBxT_ = This._BoxOf(cToId, nBoxW, nBoxH)
-		_rpY_ = _rpLow_ + _rpGap_
-		_rpTop_ = paTo[2] - _rpBxT_[2] / 2
-		if _rpY_ > _rpTop_ - 4  _rpY_ = _rpTop_ - 4  ok
+		_rpY_ = paTo[2]
 		_rpBxF_ = This._BoxOf(cFromId, nBoxW, nBoxH)
 		_rpStart_ = paFrom[2] + _rpBxF_[2] / 2
 		if _rpY_ <= _rpStart_ + 2  return []  ok
 		return [ paFrom[1], _rpStart_,
 			paFrom[1], _rpY_,
-			paTo[1], _rpY_,
-			paTo[1], _rpTop_ ]
+			paTo[1] + _rpBxT_[1] / 2, _rpY_ ]
 
 	# WHERE A BRANCH LABEL BELONGS, in DRAKON's own terms.
 	#
