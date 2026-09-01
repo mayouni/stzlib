@@ -9639,7 +9639,7 @@ nNxYin = -1  nNxYout = -1  nNxXin = -1  nNxXout = -1
 for iNx = 1 to len(oNx.@aEdgePaths)
 	cNxK = StzLower("" + oNx.@aEdgePaths[iNx][1])
 	aNxP = oNx.@aEdgePaths[iNx][2]
-	if len(aNxP) < 8  loop  ok
+	if len(aNxP) < 6  loop  ok
 	# the shared run, and where it hands over to the terminal
 	if cNxK = "n2>e"  nNxYin = aNxP[4]   nNxXin = aNxP[5]  ok
 	if cNxK = "n1>e"  nNxYout = aNxP[4]  nNxXout = aNxP[5]  ok
@@ -9650,6 +9650,31 @@ chk("the inner branch is nearer the skewer", nNxIn < nNxOut)
 chk("...and BOTH returns run at one height", fabs(nNxYin - nNxYout) < 1.5)
 chk("...and arrive at one point, so the picture shows ONE line",
     fabs(nNxXin - nNxXout) < 1.5)
+
+# ...AND THAT LINE RUNS AT THE TERMINAL'S OWN LEVEL, entering from the
+# side. Held one clearance ABOVE it, the shared line needed a further
+# drop into the top of the icon, and the picture had a horizontal, then
+# a stub, then the icon -- a stub belonging to nothing a reader could
+# name. At the terminal's height the line simply ARRIVES: the skewer
+# comes in at the top, the returns come in at the side, and the two are
+# told apart at a glance.
+nNxTy = -1  nNxTr = -1  nNxTc = -1
+for iNx = 1 to len(_aNxR_)
+	if StzLower("" + _aNxR_[iNx][5]) != "e"  loop  ok
+	nNxTy = _aNxR_[iNx][2] + _aNxR_[iNx][4] / 2
+	nNxTr = _aNxR_[iNx][1] + _aNxR_[iNx][3]
+	nNxTc = _aNxR_[iNx][1] + _aNxR_[iNx][3] / 2
+next
+? "   the terminal sits at y " + nNxTy + ", its right edge at x " + nNxTr
+chk("the return runs at the terminal's own level", fabs(nNxYin - nNxTy) < 2)
+# ...MEETING ITS SIDE. The arrival stops SHORT of the border by an
+# arrowhead's length -- every arrow in this library does, and requiring
+# the exact edge would have been asserting against the drawing's own
+# convention rather than against the rule. What the rule says is that
+# the line comes in from the right at the terminal's level, so that is
+# what is asked: past its centre, and near its edge.
+chk("...and meets its SIDE, not its top",
+    nNxXin > nNxTc and nNxXin > nNxTr - 24)
 
 # A BRANCH LABEL SITS AT ITS QUESTION'S EXIT, THE SAME WAY EVERY TIME.
 #
