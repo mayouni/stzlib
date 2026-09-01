@@ -25,6 +25,43 @@
 # The box given is the shape's BOUNDING BOX (x, y = top-left), so a caller
 # laying out nodes reasons in boxes and never in shape-specific geometry.
 
+# HOW MUCH OF ITS BOX A GLYPH ACTUALLY PAINTS, as half-extents from
+# the centre.
+#
+# A cell fills its box, so for most shapes the answer is the box. The
+# electric symbols do not: a resistor asked for 68x110 paints a body
+# 30x62 and spends the rest on leads, which are wire and not part.
+# Anything measuring a distance from such a glyph -- a name's gap, most
+# of all -- measures from paper nobody drew on, and the same nominal
+# gap then LOOKS different beside a resistor and beside a junction dot,
+# whose box IS its ink. That is what the Principal saw when four gaps
+# set to one number still read as four.
+#
+# The fractions are the ones the drawing above uses, and they belong
+# here for that reason: a glyph that changes its proportions changes
+# this in the same edit.
+func StzNodeShapeInk(pcShape, pnW, pnH)
+	_isS_ = StzLower("" + pcShape)
+	if _isS_ = "resistor" or _isS_ = "inductor"
+		if pnW >= pnH  return [ pnW * 0.28, pnH * 0.22 ]  ok
+		return [ pnW * 0.22, pnH * 0.28 ]
+	ok
+	if _isS_ = "capacitor"
+		if pnW >= pnH  return [ pnW * 0.06, pnH * 0.32 ]  ok
+		return [ pnW * 0.32, pnH * 0.06 ]
+	ok
+	if _isS_ = "source"
+		_isR_ = min([ pnW, pnH ]) * 0.30
+		return [ _isR_, _isR_ ]
+	ok
+	# a ground paints from its top down to 0.82 of its height, so it is
+	# not centred in its box; 0.41 is that reach taken symmetrically,
+	# which is what a gap measured from the centre needs
+	if _isS_ = "ground"
+		return [ pnW * 0.30, pnH * 0.41 ]
+	ok
+	return [ pnW / 2, pnH / 2 ]
+
 func StzNodeShapeNames()
 	return [
 		:Box, :Rect, :Square, :Circle, :DoubleCircle, :Ellipse, :Egg,

@@ -5196,9 +5196,22 @@ class stzDiagram from stzGraph
 					# the same arithmetic in a bigger picture, and the
 					# thing the gap has to be read against is the word.
 					_nLbGap_ = _nFsz_ * 0.42
+					# ...AND IT IS MEASURED FROM THE INK, NOT THE BOX.
+					# A resistor asked for 68x110 paints a body 30x62
+					# and spends the rest on leads, so a gap measured
+					# from the box starts 19px inside paper nobody drew
+					# on. A junction's box IS its dot, so the same
+					# number looked right there and exaggerated
+					# everywhere else -- which is what the Principal
+					# saw after the gaps had already been set equal.
+					_aInk_ = [ _aBx2_[1] / 2, _aBx2_[2] / 2 ]
+					if @bMesh
+						_aInk_ = StzNodeShapeInk(This._ShapeOfId(_cId_),
+							_aBx2_[1], _aBx2_[2])
+					ok
 					_nLbY_ = _a_[2] + _aBx2_[2] / 2 + _nFsz_ * 0.95
 					if @bMesh
-						_nLbY_ = _a_[2] + _aBx2_[2] / 2 +
+						_nLbY_ = _a_[2] + _aInk_[2] +
 							_nFsz_ * 0.75 + _nLbGap_
 					ok
 					# ...AND BESIDE IT ONLY WHERE IT IS A MARK.
@@ -5341,9 +5354,9 @@ class stzDiagram from stzGraph
 							_nLbY_ - _nPlH_ / 2, _a_[1] + _nPlW_,
 							_nLbY_ + _nPlH_ / 2)
 							_aCtA_ = This._MeshCentroid()
-							_nInX_ = _a_[1] + _aBx2_[1] / 2 + 3 +
+							_nInX_ = _a_[1] + _aInk_[1] + 3 +
 								_nLbGap_
-							_nOutX_ = _a_[1] - _aBx2_[1] / 2 - 3 -
+							_nOutX_ = _a_[1] - _aInk_[1] - 3 -
 								_nLbGap_ - _nTw_
 							if _a_[1] > _aCtA_[1]
 								_nSw_ = _nInX_
@@ -5354,7 +5367,7 @@ class stzDiagram from stzGraph
 								[ _nInX_, _a_[2] ],
 								[ _nOutX_, _a_[2] ],
 								[ _a_[1] - _nTw_ / 2,
-								  _a_[2] - _aBx2_[2] / 2 -
+								  _a_[2] - _aInk_[2] -
 								  _nFsz_ * 0.75 - _nLbGap_ ]
 							]
 							_nCand_ = len(_aCand_)
