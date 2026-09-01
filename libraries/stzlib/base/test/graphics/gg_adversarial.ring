@@ -9554,6 +9554,95 @@ next
 chkeq("NEGATIVE: a gateway's diamond still writes its name BELOW",
     nQiBelow, 1)
 
+# ...AND THE NESTED ALGORITHM DRAWS WITH NO CROSSING AT ALL.
+#
+# This is the notation's whole promise and it was the last thing still
+# broken. Two branches returning to one terminal ran their horizontals
+# at the same height, so the outer crossed the inner's descent.
+#
+# The fix is the nesting rule again, applied to the JOIN: the inner
+# branch comes back FIRST, its column is then empty, and the outer can
+# reach across it meeting nothing. Getting there took two wrong turns
+# worth recording -- a router bias that never fired because an edge the
+# LAYOUT routed never reaches the router at all, and then a route
+# rewrite that governed only the edges which already HAD routes, so the
+# ungoverned one descended to the terminal's row and inverted the very
+# order the rule was imposing. A rule that governs some of the lines
+# governs none of the picture.
+oNx = new stzDiagram("nocross73k")
+oNx.SetNotation(StzDrakonNotation())
+oNx.AddNodeXTT("t","Sign in",[ :type = "title" ])
+oNx.AddNodeXTT("q1","Known user?",[ :type = "question" ])
+oNx.AddNodeXTT("q2","Password ok?",[ :type = "question" ])
+oNx.AddNodeXTT("ok","Open session",[ :type = "action" ])
+oNx.AddNodeXTT("n1","Report unknown",[ :type = "action" ])
+oNx.AddNodeXTT("n2","Report refusal",[ :type = "action" ])
+oNx.AddNodeXTT("e","Done",[ :type = "end" ])
+oNx.AddEdge("t","q1")
+oNx.AddEdgeXT("q1","q2","yes")   oNx.AddEdgeXT("q1","n1","no")
+oNx.AddEdgeXT("q2","ok","yes")   oNx.AddEdgeXT("q2","n2","no")
+oNx.AddEdge("ok","e")  oNx.AddEdge("n1","e")  oNx.AddEdge("n2","e")
+oNx.ToCanvasXT([ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56,
+                 :FontSize = 20 ])
+nNxX = 0
+for iNx = 1 to len(oNx.@aEdgePaths)
+	aNxP = oNx.@aEdgePaths[iNx][2]
+	for jNx = iNx + 1 to len(oNx.@aEdgePaths)
+		aNxQ = oNx.@aEdgePaths[jNx][2]
+		for kNx = 1 to len(aNxP) - 3 step 2
+			for mNx = 1 to len(aNxQ) - 3 step 2
+				nAx1 = aNxP[kNx]     nAy1 = aNxP[kNx+1]
+				nAx2 = aNxP[kNx+2]   nAy2 = aNxP[kNx+3]
+				nBx1 = aNxQ[mNx]     nBy1 = aNxQ[mNx+1]
+				nBx2 = aNxQ[mNx+2]   nBy2 = aNxQ[mNx+3]
+				if fabs(nAx1-nAx2) < 0.5 and fabs(nBy1-nBy2) < 0.5
+					if nAx1 > min([nBx1,nBx2]) + 1 and
+					   nAx1 < max([nBx1,nBx2]) - 1 and
+					   nBy1 > min([nAy1,nAy2]) + 1 and
+					   nBy1 < max([nAy1,nAy2]) - 1
+						nNxX++
+					ok
+				ok
+				if fabs(nAy1-nAy2) < 0.5 and fabs(nBx1-nBx2) < 0.5
+					if nBx1 > min([nAx1,nAx2]) + 1 and
+					   nBx1 < max([nAx1,nAx2]) - 1 and
+					   nAy1 > min([nBy1,nBy2]) + 1 and
+					   nAy1 < max([nBy1,nBy2]) - 1
+						nNxX++
+					ok
+				ok
+			next
+		next
+	next
+next
+? "   nested algorithm, crossings: " + nNxX
+chkeq("a NESTED algorithm draws with no crossing either", nNxX, 0)
+
+# ...AND THE INNER BRANCH COMES BACK ABOVE THE OUTER, which is the
+# mechanism rather than the symptom. Asserting only "no crossings"
+# would pass on a picture that avoided them by luck.
+nNxIn = 0  nNxOut = 0  nNxSk = 0
+_aNxR_ = oNx.RenderNodeRects()
+for iNx = 1 to len(_aNxR_)
+	cNxId = StzLower("" + _aNxR_[iNx][5])
+	nNxCx = _aNxR_[iNx][1] + _aNxR_[iNx][3] / 2
+	if cNxId = "t"   nNxSk = nNxCx  ok
+	if cNxId = "n1"  nNxOut = nNxCx  ok
+	if cNxId = "n2"  nNxIn = nNxCx  ok
+next
+nNxYin = -1  nNxYout = -1
+for iNx = 1 to len(oNx.@aEdgePaths)
+	cNxK = StzLower("" + oNx.@aEdgePaths[iNx][1])
+	aNxP = oNx.@aEdgePaths[iNx][2]
+	if len(aNxP) < 6  loop  ok
+	# the height of the horizontal run that carries it back
+	if cNxK = "n2>e"  nNxYin = aNxP[4]  ok
+	if cNxK = "n1>e"  nNxYout = aNxP[4]  ok
+next
+? "   inner returns at y " + nNxYin + ", outer at y " + nNxYout
+chk("the inner branch is nearer the skewer", nNxIn < nNxOut)
+chk("...and it comes BACK above the outer one", nNxYin < nNxYout - 5)
+
 sec("-- 73g. A GROUND IS MET AT ITS LEAD, NOT ITS BARS ------")
 
 # A GROUND HAS ONE TERMINAL, IT IS ON TOP, AND THE WIRE ARRIVES THERE

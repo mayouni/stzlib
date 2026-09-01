@@ -4375,6 +4375,8 @@ class stzDiagram from stzGraph
 		else
 			@nDrawPass = 2
 		ok
+		_aRoute_ = This._DrakonReturnRoutes(_aRoute_, _aXY_, _nBoxW_,
+			_nBoxH_)
 		for _ei_ = 1 to _nEc_
 			_a_ = This._XYOf(_aXY_, "" + _aE_[_ei_][:from])
 			_b_ = This._XYOf(_aXY_, "" + _aE_[_ei_][:to])
@@ -4931,6 +4933,24 @@ class stzDiagram from stzGraph
 							_cBe_ = _aCBe11_[_iCBe11_]
 							_aCand_ + _cBe_
 						next
+					ok
+					# ...AND ON A SKEWER, NOT IN THE CROOK OF A BEND.
+					# DRAKON exists to be read without hesitation, and a
+					# word equidistant from two lines belongs to neither.
+					# Refused only where a seat survives the refusal --
+					# a picture short of room should look short of room,
+					# which is the ruling three comments above.
+					if This._NotationBranchSide() = "right"
+						_aCbK_ = []
+						_nCbC_ = len(_aCand_)
+						for _iCbC_ = 1 to _nCbC_
+							if This._ClearOfOwnBends(_aCand_[_iCbC_][1],
+								_aCand_[_iCbC_][2], _cLK_,
+								This._LineClearance() * 1.4)
+								_aCbK_ + _aCand_[_iCbC_]
+							ok
+						next
+						if len(_aCbK_) > 0  _aCand_ = _aCbK_  ok
 					ok
 					# ...AND THE SEAT OF LAST RESORT IS IN THE SAME
 					# CONVENTION TOO. Defaulting to the raw anchor put
@@ -6538,6 +6558,119 @@ class stzDiagram from stzGraph
 	# WHICH SIDE THE PROFILE PUTS ITS ALTERNATIVES ON, "both" when it
 	# does not say -- so every domain that existed before DRAKON keeps
 	# the plane's two-sided law without being edited.
+	# BRANCHES REJOIN THE SKEWER IN NESTING ORDER -- inner first, outer
+	# below it. This is DRAKON's no-crossing law at the one place it was
+	# still broken.
+	#
+	# A branch that spans ranks gets DUMMY nodes from the layered layout,
+	# and the route through them is built from the layout's own
+	# coordinates. The spine post-pass then moves the REAL nodes into
+	# columns and the dummies do not follow -- so the outer branch's
+	# route still ran toward the skewer at an intermediate rank and cut
+	# straight through the inner branch's descent. One crossing, in the
+	# notation whose whole promise is that there are none.
+	#
+	# The picture DRAKON draws instead is a sequence of merges: the inner
+	# branch comes back first, the outer comes back below it, and each
+	# vertical stops at its own merge. Nothing overlaps because nothing
+	# is still in a column by the time another branch reaches across it.
+	#
+	# WHY THIS IS A ROUTE REWRITE AND NOT A ROUTER FIX. The router never
+	# sees these edges: an edge the LAYOUT supplied bends for is drawn by
+	# _DrawRoutedEdge, and _DrawEdgeXT -- where the channel logic lives
+	# -- is never called. Two attempts to bias the channel did nothing at
+	# all for exactly that reason, and the second only stopped when a
+	# probe showed the edge never entering the function.
+	def _DrakonReturnRoutes(paRoute, paXY, nBoxW, nBoxH)
+		if This._NotationBranchSide() != "right"  return paRoute  ok
+		if len(paRoute) = 0  return paRoute  ok
+		# the skewer is the leftmost column: the main path holds it
+		_drSk_ = 1000000000
+		_nDrX_ = len(paXY)
+		for _iDrX_ = 1 to _nDrX_
+			if paXY[_iDrX_][2] < _drSk_  _drSk_ = paXY[_iDrX_][2]  ok
+		next
+		# the columns to its right, in order out
+		_aDrC_ = []
+		for _iDrX_ = 1 to _nDrX_
+			_drV_ = paXY[_iDrX_][2]
+			if _drV_ <= _drSk_ + 2  loop  ok
+			_bDrNew_ = 1
+			for _jDrC_ = 1 to len(_aDrC_)
+				if fabs(_aDrC_[_jDrC_] - _drV_) < 2  _bDrNew_ = 0  exit  ok
+			next
+			if _bDrNew_  _aDrC_ + _drV_  ok
+		next
+		for _p_ = 1 to len(_aDrC_) - 1
+			for _q_ = 1 to len(_aDrC_) - _p_
+				if _aDrC_[_q_] > _aDrC_[_q_ + 1]
+					_drT_ = _aDrC_[_q_]
+					_aDrC_[_q_] = _aDrC_[_q_ + 1]
+					_aDrC_[_q_ + 1] = _drT_
+				ok
+			next
+		next
+		_nDrK_ = len(_aDrC_)
+		if _nDrK_ = 0  return paRoute  ok
+		_drGap_ = This._LineClearance()
+
+		# EVERY RETURN, not only the ones the layout already routed.
+		#
+		# The first version rewrote the existing routes and left the
+		# crossing exactly where it was, because only a RANK-SPANNING
+		# edge gets a route at all: the outer branch had one and the
+		# inner did not, so the inner descended all the way to the
+		# terminal's row -- BELOW the outer's merge -- and the ordering
+		# came out inverted. A rule that governs some of the lines
+		# governs none of the picture.
+		_aDrOut_ = []
+		_nDrR_ = len(paRoute)
+		_aDrDone_ = []
+		for _iDrR_ = 1 to _nDrR_
+			_aDrOut_ + paRoute[_iDrR_]
+		next
+		_aDrE_ = This.Edges()
+		_nDrE_ = len(_aDrE_)
+		for _iDrE_ = 1 to _nDrE_
+			_drF_ = StzLower("" + _aDrE_[_iDrE_][:from])
+			_drT_ = StzLower("" + _aDrE_[_iDrE_][:to])
+			if _drF_ = _drT_  loop  ok
+			_drA_ = This._XYOf(paXY, _drF_)
+			_drB_ = This._XYOf(paXY, _drT_)
+			if len(_drA_) != 2 or len(_drB_) != 2  loop  ok
+			# a RETURN: out of a column, into the skewer, going down
+			if _drA_[1] <= _drSk_ + 2  loop  ok
+			if fabs(_drB_[1] - _drSk_) > 2  loop  ok
+			if _drB_[2] <= _drA_[2]  loop  ok
+			_drCol_ = 0
+			for _jDrC_ = 1 to _nDrK_
+				if fabs(_aDrC_[_jDrC_] - _drA_[1]) < 2  _drCol_ = _jDrC_  ok
+			next
+			if _drCol_ = 0  loop  ok
+			# THE INNER MERGES HIGHER. A branch nearer the skewer comes
+			# back first and its column is then EMPTY, so the branch
+			# further out can reach across it without meeting anything.
+			# That is the whole of the no-crossing law at a join.
+			_drBx_ = This._BoxOf(_drT_, nBoxW, nBoxH)
+			_drBase_ = _drB_[2] - _drBx_[2] / 2 - _drGap_
+			_drY_ = _drBase_ - (_nDrK_ - _drCol_) * _drGap_ * 1.6
+			# replace an existing route for this pair, or add one
+			_bDrRep_ = 0
+			for _kDrO_ = 1 to len(_aDrOut_)
+				if StzLower("" + _aDrOut_[_kDrO_][1]) = _drF_ and
+				   StzLower("" + _aDrOut_[_kDrO_][2]) = _drT_
+					_aDrOut_[_kDrO_] = [ _drF_, _drT_,
+						[ [ _drA_[1], _drY_ ] ] ]
+					_bDrRep_ = 1
+					exit
+				ok
+			next
+			if NOT _bDrRep_
+				_aDrOut_ + [ _drF_, _drT_, [ [ _drA_[1], _drY_ ] ] ]
+			ok
+		next
+		return _aDrOut_
+
 	def _NotationBranchSide()
 		_oNb_ = This.NotationO()
 		if NOT isObject(_oNb_)  return "both"  ok
@@ -8193,6 +8326,38 @@ class stzDiagram from stzGraph
 			if StzLower("" + _aNr_[_iNr_][5]) = _nrK_  return _aNr_[_iNr_]  ok
 		next
 		return []
+
+	# IS THIS SPOT CLEAR OF ITS OWN EDGE'S CORNERS?
+	#
+	# A beside-seat is offset from a SEGMENT, and near the end of one it
+	# lands in the crook of the bend -- clear of both lines by a few
+	# pixels and reading as attached to neither. The Principal marked
+	# exactly that: a "no" tucked four pixels under the horizontal and
+	# six to the left of the vertical.
+	#
+	# The clearance a reader needs at a corner is not the same as beside
+	# a straight run, because at a corner there is ink on TWO sides. So a
+	# candidate within reach of a bend of its own path is refused, and
+	# the seat moves along the segment to where only one line is near.
+	def _ClearOfOwnBends(nLx, nLy, cKey, nClr)
+		_aCbP_ = @aEdgePaths
+		_nCbP_ = len(_aCbP_)
+		for _iCbP_ = 1 to _nCbP_
+			if StzLower("" + _aCbP_[_iCbP_][1]) != StzLower("" + cKey)
+				loop
+			ok
+			_aCbF_ = _aCbP_[_iCbP_][2]
+			_nCbF_ = len(_aCbF_)
+			# the interior points of a path are its bends; the two ends
+			# are terminals and a label near one of those is fine
+			for _kCb_ = 3 to _nCbF_ - 2 step 2
+				if fabs(nLx - _aCbF_[_kCb_]) < nClr and
+				   fabs(nLy - _aCbF_[_kCb_ + 1]) < nClr
+					return 0
+				ok
+			next
+		next
+		return 1
 
 	def _LabelSpotScore(nLx, nLy, nLw, nLh, cOwnKey, paDone)
 		_lsL_ = nLx - nLw / 2
