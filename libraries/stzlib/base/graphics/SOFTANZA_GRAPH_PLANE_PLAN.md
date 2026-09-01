@@ -1340,6 +1340,106 @@ algorithm, which is what makes one editor, one layout and one contract
 able to serve them all.
 
 
+## DN6 — DRAKON: the skewer, and a law this plane had already half-found (2026-09-01)
+
+The Principal named DRAKON as the next deep task in this plane — the
+visual language built for the Buran programme, "the best visual language
+for designing any diagram", to be embraced as a first-class citizen. Its
+three governing ideas are laws about READING, not about drawing:
+
+| | |
+|---|---|
+| the skewer | one vertical line carries the main path |
+| no crossings | by construction, not by a router |
+| the happy path is leftmost | horizontal distance measures how unusual a branch is |
+
+**The third is one this library had already arrived at from the other
+end**, by the Principal marking pictures where the refusal ran down the
+main line. DN6 is where it stops being a rule the plane patched in and
+becomes a law a notation declares: `SetBranchSide(:Right)`.
+
+### The kill, measured before a line of code
+
+DRAKON's no-crossing guarantee is not free — it comes from the source
+being a STRUCTURED algorithm, so that every path lies on vertical
+skewers with only downward flow. An IRREDUCIBLE flow graph cannot: it
+needs a crossing or a duplicated node. **KILL: if the models this plane
+holds are irreducible, a DRAKON profile would either draw crossings in
+the one notation that forbids them, or refuse most real models.**
+
+Measured over every model in the plane's own fixtures, by extracting the
+edge lists and running the standard T1/T2 collapse:
+
+| | |
+|---|---|
+| models (weakly connected, 3+ nodes) | 139 |
+| containing a cycle | 52 |
+| with exactly one entry | 110 |
+| reducible once given a single entry | **117** |
+| genuinely irreducible | **0** |
+
+**The kill does not fire.** The other 22 have no entry at all — circuits
+and ring lifecycles, outside DRAKON's scope by construction rather than
+by failure.
+
+**THE INSTRUMENT TOOK THREE PASSES AND THE FIRST TWO WERE WRONG**, which
+is the part worth keeping. Pass one read one variable name per file, so
+scenes reusing `_o_` merged into a single graph and a FOREST failed the
+collapse. Pass two split by component and reported 7 irreducible — all
+ACYCLIC, which is impossible, and that impossibility is what exposed the
+cause: those 7 have several roots, and T2 needs a unique predecessor. A
+DRAKON diagram BEGINS somewhere, so pass three gives each root a virtual
+entry — which is what a Title icon is — and asks the question the
+criterion actually meant.
+
+### What shipped
+
+`StzDrakonNotation()`: the icon vocabulary mapped onto glyphs the
+renderer already draws (DN0's rule for what a glyph is), and the skewer
+declared rather than coded — `SetSpine(:HappyPath)` plus
+`SetBranchSide(:Right)`.
+
+**ONE COLUMN PER OVERLAPPING SPAN, which is the no-crossing law itself.**
+A branch occupies the vertical stretch from where it leaves the skewer
+to where it rejoins; two branches whose stretches overlap cannot share a
+column without one running through the other. Counting them per RANK —
+what the two-sided allocation does — cannot see that: the first DRAKON
+picture put two refusals at different depths in one column, and the
+router escaped the collision by taking a lane **194px beyond the paper**.
+
+**And the OUTER branch stands further out.** The first allocation was a
+downward sweep, first-come-first-served, so the branch leaving earliest
+took the nearest column and the later one drew its wire straight through
+the earlier one's box. Nesting is the answer and it is DRAKON's own: a
+branch still out when a second one leaves CONTAINS it, and the contained
+branch is nearer the normal case.
+
+Measured, on the nested scene: without the profile both refusals occupy
+**one** column; with it they take **two**, outer at 549 and inner at 320
+against a skewer at 91. §73k holds it, with the negative asking about the
+COLUMN rather than the side — two earlier drafts asked about the side and
+both proved nothing, because the plain layout already sends a lone
+refusal right.
+
+### Still open, and named rather than left to be discovered
+
+- **A question writes its text BELOW the rhombus**, where DRAKON puts it
+  inside. The diamond is in the plane's writes-name-below family, which
+  is right while a diamond is drawn small and wrong for a notation that
+  sizes it to its question.
+- **Two branches returning to the same terminal cross once at the join.**
+  Measured: 1 crossing at (350.03, 796) on the nested scene. The fix is
+  not a router bias — two attempts at one were reverted, the second
+  after measuring that the edge never reaches that code path and that
+  `@aDrawXY` does not carry post-spine columns. It needs the branches to
+  rejoin the skewer at SUCCESSIVE points, which is a layout change: the
+  terminal has no room under it for a second join.
+- **The SILHOUETTE**, DRAKON's form for a large algorithm — several
+  skewers side by side, each under its own header, control jumping from
+  the foot of one to the head of another. What shipped is the PRIMITIVE,
+  the single-skewer form, which is what every fixture in this plane is.
+
+
 ## DN2b — THE RING: a state machine is not a tree (2026-08-23)
 
 The Principal's deepest correction of the plane, and it invalidates an

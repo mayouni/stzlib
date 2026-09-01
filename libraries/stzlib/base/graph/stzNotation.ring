@@ -90,6 +90,7 @@ class stzNotation from stzObject
 	                      # state, :Outbound from a final one)
 	@cRankDir = ""        # "" = no amendment; the diagram's setting stands
 	@cSplines = ""
+	@cBranchSide = ""
 	@bOneInk = 0
 	@cLayoutMode = ""     # "" = layered; :Ring for a domain with no flow
 	@cRankPolicy = ""     # "" = :Latest -- sinks line up at the last rank
@@ -569,6 +570,25 @@ class stzNotation from stzObject
 
 	def OneInk()
 		return @bOneInk
+
+	# WHICH SIDE OF THE SPINE AN ALTERNATIVE STANDS ON.
+	#
+	# The plane's own law (I7) puts siblings on EITHER side of their
+	# parent, which is right when the two are peers. DRAKON refuses that
+	# for a flow: its main path is the leftmost line and EVERY branch
+	# goes right, so that horizontal distance from the skewer reads as
+	# "how far from the normal case this is". A reader can then answer
+	# "is this the usual outcome?" from position alone, which is a
+	# question a two-sided layout cannot be asked.
+	#
+	# Declared by the notation because it is a claim about the domain --
+	# an algorithm has a normal path, a peer network does not.
+	def SetBranchSide(pcSide)
+		@cBranchSide = StzLower("" + pcSide)
+
+	def BranchSide()
+		if @cBranchSide = ""  return "both"  ok
+		return @cBranchSide
 
 	def SetLayoutMode(pcMode)
 		@cLayoutMode = "" + pcMode

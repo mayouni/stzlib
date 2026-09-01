@@ -6317,6 +6317,108 @@ class stzDiagram from stzGraph
 			_srK_ = _aSrK70_[_iSrK70_]
 			_srNu_ = 0
 			_srNd_ = 0
+			# ...UNLESS THE NOTATION PUTS EVERY BRANCH ON ONE SIDE.
+			#
+			# Two sides is the plane's own law (I7, siblings either side
+			# of their parent) and it is right for peers. DRAKON refuses
+			# it for a FLOW: the main path is the leftmost line and every
+			# alternative goes right, so horizontal distance reads as
+			# "how far from the normal case this is" -- a question a
+			# two-sided layout cannot be asked at all.
+			#
+			# ONE COLUMN PER OVERLAPPING SPAN, WHICH IS THE NO-CROSSING
+			# LAW ITSELF. A branch occupies the vertical stretch from
+			# where it leaves the skewer to where it rejoins. Two
+			# branches whose stretches overlap cannot share a column
+			# without one running through the other -- and counting them
+			# per RANK, which is what the two-sided allocation does, does
+			# not see that: on the first DRAKON picture two refusals at
+			# different depths both took column 1, and the router escaped
+			# the collision by taking a lane 194px beyond the paper.
+			# Colouring the intervals is what makes "no crossings by
+			# construction" a construction and not a hope.
+			if This._NotationBranchSide() = "right"
+				# only once, on the first rank -- the allocation is
+				# global, where the two-sided one is per rank
+				if _iSrK70_ > 1  loop  ok
+				_aSrEd_ = This.Edges()
+				_nSrEd_ = len(_aSrEd_)
+				_srOrd_ = []
+				for _srI_ = 1 to len(_srOut_)
+					if _srOn_[_srI_]  loop  ok
+					_srOrd_ + _srI_
+				next
+				# by where each branch STARTS, so the sweep is downward
+				for _srP_ = 1 to len(_srOrd_) - 1
+					for _srQ2_ = 1 to len(_srOrd_) - _srP_
+						_srA_ = _srOrd_[_srQ2_]
+						_srB_ = _srOrd_[_srQ2_ + 1]
+						if _srOut_[_srA_][_srR_] > _srOut_[_srB_][_srR_]
+							_srOrd_[_srQ2_] = _srB_
+							_srOrd_[_srQ2_ + 1] = _srA_
+						ok
+					next
+				next
+				# THE SPAN OF EACH BRANCH FIRST: from where it leaves
+				# the skewer to the lowest thing it flows into, which is
+				# where it rejoins.
+				_srS0_ = []   _srS1_ = []
+				for _srZ_ = 1 to len(_srOrd_)
+					_srI_ = _srOrd_[_srZ_]
+					_srId2_ = StzLower("" + _srOut_[_srI_][1])
+					_srY0_ = _srOut_[_srI_][_srR_]
+					_srY1_ = _srY0_
+					for _iSrE2_ = 1 to _nSrEd_
+						if StzLower("" + _aSrEd_[_iSrE2_][:from]) != _srId2_
+							loop
+						ok
+						_srTo2_ = StzLower("" + _aSrEd_[_iSrE2_][:to])
+						for _srJ2_ = 1 to len(_srOut_)
+							if StzLower("" + _srOut_[_srJ2_][1]) != _srTo2_
+								loop
+							ok
+							if _srOut_[_srJ2_][_srR_] > _srY1_
+								_srY1_ = _srOut_[_srJ2_][_srR_]
+							ok
+						next
+					next
+					_srS0_ + _srY0_
+					_srS1_ + _srY1_
+				next
+
+				# THE OUTER BRANCH STANDS FURTHER OUT, which is the
+				# nesting read as distance.
+				#
+				# The first version allocated columns by a downward sweep,
+				# first-come-first-served, so the branch that left the
+				# skewer EARLIEST took the nearest column -- and then the
+				# later, shorter branch had to reach past it, drawing its
+				# wire straight through the earlier branch's box. A
+				# crossing, in the one notation that forbids them.
+				#
+				# Nesting is the answer and it is DRAKON's own: a branch
+				# that leaves earlier and is still out when a second one
+				# leaves CONTAINS that second one, and the contained
+				# branch is nearer the normal case. So a branch's column
+				# is one plus the number of branches nested inside it,
+				# and the reach that used to cross now passes over an
+				# empty column.
+				for _srZ_ = 1 to len(_srOrd_)
+					_srI_ = _srOrd_[_srZ_]
+					_srIn_ = 0
+					for _srZ2_ = 1 to len(_srOrd_)
+						if _srZ2_ = _srZ_  loop  ok
+						# overlapping, and starting later: nested
+						if _srS0_[_srZ2_] <= _srS0_[_srZ_]  loop  ok
+						if _srS0_[_srZ2_] > _srS1_[_srZ_]  loop  ok
+						_srIn_++
+					next
+					_srCol_ = _srIn_ + 1
+					if _srCol_ > 8  _srCol_ = 8  ok
+					_srIdx_[_srI_] = _srCol_
+				next
+				loop
+			ok
 			for _srI_ = 1 to len(_srOut_)
 				if fabs(_srOut_[_srI_][_srR_] - _srK_) > 2  loop  ok
 				if _srOn_[_srI_]  loop  ok
@@ -6385,6 +6487,14 @@ class stzDiagram from stzGraph
 	# WHEN A NODE SITS, if the domain has an opinion. A profile that
 	# says nothing leaves the layout's own convention standing -- the
 	# deltas-only rule every other grammar amendment obeys.
+	# WHICH SIDE THE PROFILE PUTS ITS ALTERNATIVES ON, "both" when it
+	# does not say -- so every domain that existed before DRAKON keeps
+	# the plane's two-sided law without being edited.
+	def _NotationBranchSide()
+		_oNb_ = This.NotationO()
+		if NOT isObject(_oNb_)  return "both"  ok
+		return StzLower("" + _oNb_.BranchSide())
+
 	def _NotationRankPolicy()
 		_oNr_ = This.NotationO()
 		if NOT isObject(_oNr_)  return :Latest  ok
