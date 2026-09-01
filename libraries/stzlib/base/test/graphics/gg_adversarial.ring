@@ -9618,30 +9618,88 @@ next
 ? "   nested algorithm, crossings: " + nNxX
 chkeq("a NESTED algorithm draws with no crossing either", nNxX, 0)
 
-# ...AND THE INNER BRANCH COMES BACK ABOVE THE OUTER, which is the
-# mechanism rather than the symptom. Asserting only "no crossings"
-# would pass on a picture that avoided them by luck.
-nNxIn = 0  nNxOut = 0  nNxSk = 0
+# ...AND THE TWO RETURNS ARE ONE LINE, which is the mechanism rather
+# than the symptom. Asserting only "no crossings" would pass on a
+# picture that avoided them by luck, and an earlier version of this
+# section asserted the wrong mechanism: it required the inner branch to
+# come back ABOVE the outer, which was true of a staggered design that
+# removed the crossing and still drew TWO returns at two heights. Two
+# horizontals say two continuations and make a reader check whether
+# they are the same one. Branches that end in the same place are one
+# continuation and DRAKON draws them as one.
+nNxIn = 0  nNxOut = 0
 _aNxR_ = oNx.RenderNodeRects()
 for iNx = 1 to len(_aNxR_)
 	cNxId = StzLower("" + _aNxR_[iNx][5])
 	nNxCx = _aNxR_[iNx][1] + _aNxR_[iNx][3] / 2
-	if cNxId = "t"   nNxSk = nNxCx  ok
 	if cNxId = "n1"  nNxOut = nNxCx  ok
 	if cNxId = "n2"  nNxIn = nNxCx  ok
 next
-nNxYin = -1  nNxYout = -1
+nNxYin = -1  nNxYout = -1  nNxXin = -1  nNxXout = -1
 for iNx = 1 to len(oNx.@aEdgePaths)
 	cNxK = StzLower("" + oNx.@aEdgePaths[iNx][1])
 	aNxP = oNx.@aEdgePaths[iNx][2]
-	if len(aNxP) < 6  loop  ok
-	# the height of the horizontal run that carries it back
-	if cNxK = "n2>e"  nNxYin = aNxP[4]  ok
-	if cNxK = "n1>e"  nNxYout = aNxP[4]  ok
+	if len(aNxP) < 8  loop  ok
+	# the shared run, and where it hands over to the terminal
+	if cNxK = "n2>e"  nNxYin = aNxP[4]   nNxXin = aNxP[5]  ok
+	if cNxK = "n1>e"  nNxYout = aNxP[4]  nNxXout = aNxP[5]  ok
 next
-? "   inner returns at y " + nNxYin + ", outer at y " + nNxYout
+? "   returns share y " + nNxYin + " / " + nNxYout +
+  " and arrive at x " + nNxXin + " / " + nNxXout
 chk("the inner branch is nearer the skewer", nNxIn < nNxOut)
-chk("...and it comes BACK above the outer one", nNxYin < nNxYout - 5)
+chk("...and BOTH returns run at one height", fabs(nNxYin - nNxYout) < 1.5)
+chk("...and arrive at one point, so the picture shows ONE line",
+    fabs(nNxXin - nNxXout) < 1.5)
+
+# A BRANCH LABEL SITS AT ITS QUESTION'S EXIT, THE SAME WAY EVERY TIME.
+#
+# The Principal marked the same word placed two ways in one picture --
+# one riding a horizontal a third of the way along, one tucked beside a
+# vertical. DRAKON labels the two exits of a question AT the exits, so a
+# reader answers "which way is yes?" by looking at the icon and never by
+# following a line.
+#
+# The claim is SAMENESS, so it is measured as sameness: the two
+# questions in this algorithm must place their exit words in the same
+# relationship to their own glyph. A rule that merely puts them "near"
+# would pass with two different nears.
+nLbYesDx = -9999  nLbYesDy = -9999  nLbNoDx = -9999  nLbNoDy = -9999
+nLbSameYes = 0  nLbSameNo = 0
+for iNx = 1 to len(oNx.@aRenderLabels)
+	aNxL = oNx.@aRenderLabels[iNx]
+	cNxK = StzLower("" + aNxL[6])
+	cNxSrc = ""
+	if StzFindFirst(">", cNxK) > 0  cNxSrc = StzSplit(cNxK, ">")[1]  ok
+	if cNxSrc != "q1" and cNxSrc != "q2"  loop  ok
+	aNxB = oNx._NodeRectOf(cNxSrc)
+	if len(aNxB) < 4  loop  ok
+	nDx = aNxL[2] - (aNxB[1] + aNxB[3] / 2)
+	nDy = aNxL[3] - (aNxB[2] + aNxB[4] / 2)
+	if StzLower("" + aNxL[1]) = "yes"
+		if nLbYesDx = -9999
+			nLbYesDx = nDx  nLbYesDy = nDy
+		else
+			if fabs(nDx - nLbYesDx) < 1.5 and fabs(nDy - nLbYesDy) < 1.5
+				nLbSameYes = 1
+			ok
+		ok
+	ok
+	if StzLower("" + aNxL[1]) = "no"
+		if nLbNoDx = -9999
+			nLbNoDx = nDx  nLbNoDy = nDy
+		else
+			if fabs(nDx - nLbNoDx) < 8 and fabs(nDy - nLbNoDy) < 1.5
+				nLbSameNo = 1
+			ok
+		ok
+	ok
+next
+? "   yes sits at (" + nLbYesDx + "," + nLbYesDy + ") from its rhombus," +
+  " no at (" + nLbNoDx + "," + nLbNoDy + ")"
+chkeq("both questions place 'yes' the same way", nLbSameYes, 1)
+chkeq("...and both place 'no' the same way", nLbSameNo, 1)
+chk("NEGATIVE: the two words are not in the same place as each other",
+    fabs(nLbYesDx - nLbNoDx) > 5 or fabs(nLbYesDy - nLbNoDy) > 5)
 
 sec("-- 73g. A GROUND IS MET AT ITS LEAD, NOT ITS BARS ------")
 

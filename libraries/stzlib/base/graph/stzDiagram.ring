@@ -4375,8 +4375,6 @@ class stzDiagram from stzGraph
 		else
 			@nDrawPass = 2
 		ok
-		_aRoute_ = This._DrakonReturnRoutes(_aRoute_, _aXY_, _nBoxW_,
-			_nBoxH_)
 		for _ei_ = 1 to _nEc_
 			_a_ = This._XYOf(_aXY_, "" + _aE_[_ei_][:from])
 			_b_ = This._XYOf(_aXY_, "" + _aE_[_ei_][:to])
@@ -4513,6 +4511,22 @@ class stzDiagram from stzGraph
 				ok
 			ok
 
+			# A DRAKON RETURN IS DRAWN BY ITS OWN RULE -- see
+			# _DrakonReturnPath. Taken before the router is chosen at
+			# all, because the height of the shared line IS the rule.
+			_aRpP_ = This._DrakonReturnPath("" + _aE_[_ei_][:from],
+				"" + _aE_[_ei_][:to], _a_, _b_, _nBoxW_, _nBoxH_)
+			if len(_aRpP_) >= 8
+				_aRpC_ = This._ArrowCut(_aRpP_, 9 + _nEdgeW_ * 2)
+				This._EmitOrthoPolyline(_oC_, _aRpC_[1], _cEdge_,
+					_nEdgeW_, StzLower("" + _aE_[_ei_][:from]) + ">" +
+					StzLower("" + _aE_[_ei_][:to]))
+				if @nDrawPass = 2
+					This._DrawArrowHead(_oC_, _aRpC_[2], _aRpC_[3],
+						_cEdge_)
+				ok
+				loop
+			ok
 			_aBend_ = This._RouteOf(_aRoute_, "" + _aE_[_ei_][:from],
 				"" + _aE_[_ei_][:to])
 			if len(_aBend_) > 0
@@ -5025,6 +5039,17 @@ class stzDiagram from stzGraph
 					next
 				ok
 				_aDone_ + [ _lx_, _ly_, _lw_, _lh_ ]
+				# ...AND A DRAKON EXIT LABEL SITS AT ITS EXIT. Applied
+				# last, after the clearance search, because it is not a
+				# better seat -- it is the seat the notation names, and
+				# a search that could overrule it would be the second
+				# convention all over again.
+				_aXsp_ = This._DrakonExitLabelSpot(_cLK_, _aPth_, _lw_,
+					_lh_, _nBoxW_, _nBoxH_)
+				if len(_aXsp_) = 2
+					_lx_ = _aXsp_[1]
+					_ly_ = _aXsp_[2]
+				ok
 				@aRenderLabels + [ _cLab_, _lx_, _ly_, _lw_, _lh_, _cLK_ ]
 
 				_oC_.Flush()
@@ -6647,13 +6672,38 @@ class stzDiagram from stzGraph
 				if fabs(_aDrC_[_jDrC_] - _drA_[1]) < 2  _drCol_ = _jDrC_  ok
 			next
 			if _drCol_ = 0  loop  ok
-			# THE INNER MERGES HIGHER. A branch nearer the skewer comes
-			# back first and its column is then EMPTY, so the branch
-			# further out can reach across it without meeting anything.
-			# That is the whole of the no-crossing law at a join.
+			# ONE RETURN LINE, SHARED. Branches that lead to the same
+			# place are ONE continuation, and DRAKON draws them as one:
+			# each descends its own column to a COMMON height and a
+			# single horizontal carries them in.
+			#
+			# STAGGERING THEM WAS THE PREVIOUS ANSWER AND IT WAS WRONG,
+			# though it did remove the crossing. Two horizontals at two
+			# heights say two returns; the picture then asks a reader to
+			# check whether they are the same continuation or different
+			# ones, which is the hesitation this notation exists to
+			# remove. The Principal drew the single line.
+			#
+			# The shared height sits below the LOWEST branch that returns
+			# here, so every column's descent ends on it and no descent
+			# crosses it -- a vertical meeting the line it ends on is a
+			# junction, not a crossing.
 			_drBx_ = This._BoxOf(_drT_, nBoxW, nBoxH)
-			_drBase_ = _drB_[2] - _drBx_[2] / 2 - _drGap_
-			_drY_ = _drBase_ - (_nDrK_ - _drCol_) * _drGap_ * 1.6
+			_drLow_ = 0
+			for _iDrE3_ = 1 to _nDrE_
+				_drF3_ = StzLower("" + _aDrE_[_iDrE3_][:from])
+				_drT3_ = StzLower("" + _aDrE_[_iDrE3_][:to])
+				if _drT3_ != _drT_  loop  ok
+				_drA3_ = This._XYOf(paXY, _drF3_)
+				if len(_drA3_) != 2  loop  ok
+				if _drA3_[1] <= _drSk_ + 2  loop  ok
+				_drB3_ = This._BoxOf(_drF3_, nBoxW, nBoxH)
+				_drBot3_ = _drA3_[2] + _drB3_[2] / 2
+				if _drBot3_ > _drLow_  _drLow_ = _drBot3_  ok
+			next
+			_drY_ = _drLow_ + _drGap_
+			_drCeil_ = _drB_[2] - _drBx_[2] / 2 - 4
+			if _drY_ > _drCeil_  _drY_ = _drCeil_  ok
 			# replace an existing route for this pair, or add one
 			_bDrRep_ = 0
 			for _kDrO_ = 1 to len(_aDrOut_)
@@ -6670,6 +6720,132 @@ class stzDiagram from stzGraph
 			ok
 		next
 		return _aDrOut_
+
+	# ONE RETURN LINE FOR ALL THE BRANCHES THAT LEAD TO THE SAME PLACE.
+	#
+	# Branches that end in the same continuation ARE one continuation,
+	# and DRAKON draws them as one: each descends its own column to a
+	# COMMON height, and a single horizontal carries them in. Two
+	# horizontals at two heights say two returns, and then a reader has
+	# to check whether they are the same thing -- which is the hesitation
+	# this notation exists to remove.
+	#
+	# WHY THIS DRAWS THE PATH ITSELF instead of handing the router a
+	# hint. Two earlier attempts did the latter and both failed, for
+	# reasons worth keeping: a bias in the channel logic never ran at all
+	# (an edge the LAYOUT routes is drawn by _DrawRoutedEdge and never
+	# reaches _DrawEdgeXT), and a route rewrite was overruled -- the
+	# staircase picks its own horizontal from the channel band and uses
+	# the supplied bend only to choose between three shapes. The height
+	# of that line IS the rule here, so the rule has to own it.
+	#
+	# The shared height sits one clearance below the LOWEST branch that
+	# returns here, so every descent ends ON the line rather than
+	# crossing it: a vertical meeting the line it terminates on is a
+	# junction, which is what a merge looks like.
+	def _DrakonReturnPath(cFromId, cToId, paFrom, paTo, nBoxW, nBoxH)
+		if This._NotationBranchSide() != "right"  return []  ok
+		_aRpX_ = @aDrawXY
+		if len(_aRpX_) = 0  return []  ok
+		_rpSk_ = 1000000000
+		for _iRp_ = 1 to len(_aRpX_)
+			if _aRpX_[_iRp_][2] < _rpSk_  _rpSk_ = _aRpX_[_iRp_][2]  ok
+		next
+		# a RETURN leaves a column and comes back to the skewer, going down
+		if paFrom[1] <= _rpSk_ + 2  return []  ok
+		if fabs(paTo[1] - _rpSk_) > 2  return []  ok
+		if paTo[2] <= paFrom[2]  return []  ok
+		_rpGap_ = This._LineClearance()
+		_rpLow_ = 0
+		_aRpE_ = This.Edges()
+		_nRpE_ = len(_aRpE_)
+		for _iRpE_ = 1 to _nRpE_
+			if StzLower("" + _aRpE_[_iRpE_][:to]) != StzLower("" + cToId)
+				loop
+			ok
+			_rpF_ = StzLower("" + _aRpE_[_iRpE_][:from])
+			_rpA_ = This._XYOf(_aRpX_, _rpF_)
+			if len(_rpA_) != 2  loop  ok
+			if _rpA_[1] <= _rpSk_ + 2  loop  ok
+			_rpB_ = This._BoxOf(_rpF_, nBoxW, nBoxH)
+			_rpBot_ = _rpA_[2] + _rpB_[2] / 2
+			if _rpBot_ > _rpLow_  _rpLow_ = _rpBot_  ok
+		next
+		if _rpLow_ = 0  return []  ok
+		_rpBxT_ = This._BoxOf(cToId, nBoxW, nBoxH)
+		_rpY_ = _rpLow_ + _rpGap_
+		_rpTop_ = paTo[2] - _rpBxT_[2] / 2
+		if _rpY_ > _rpTop_ - 4  _rpY_ = _rpTop_ - 4  ok
+		_rpBxF_ = This._BoxOf(cFromId, nBoxW, nBoxH)
+		_rpStart_ = paFrom[2] + _rpBxF_[2] / 2
+		if _rpY_ <= _rpStart_ + 2  return []  ok
+		return [ paFrom[1], _rpStart_,
+			paFrom[1], _rpY_,
+			paTo[1], _rpY_,
+			paTo[1], _rpTop_ ]
+
+	# WHERE A BRANCH LABEL BELONGS, in DRAKON's own terms.
+	#
+	# DRAKON labels the two exits of a question, and it labels them AT
+	# the exits -- the word sits in the corner between the icon and the
+	# wire leaving it, so a reader answers "which way is yes?" by looking
+	# at the icon and never by following a line. Placed anywhere along
+	# the wire the word is still legible and still says less: it becomes
+	# a note about a line rather than an answer belonging to a question.
+	#
+	# This library placed them by clearance instead, so the same word
+	# landed in two different relationships in one picture -- one riding
+	# a horizontal a third of the way along, one tucked beside a
+	# vertical. Two placements is two conventions, which is exactly what
+	# this notation exists to refuse.
+	#
+	# One rule, both exits: the label stands in the quadrant between the
+	# glyph and its own wire, one clearance clear of each.
+	def _DrakonExitLabelSpot(cKey, paPath, nLw, nLh, nBoxW, nBoxH)
+		if This._NotationBranchSide() != "right"  return []  ok
+		if len(paPath) < 4  return []  ok
+		if StzFindFirst(">", cKey) < 1  return []  ok
+		_aXk_ = StzSplit(StzLower("" + cKey), ">")
+		if len(_aXk_) < 2  return []  ok
+		_xF_ = _aXk_[1]
+		# only a QUESTION labels its exits this way -- the icon whose
+		# whole content is the choice being made
+		_oXn_ = This.NotationO()
+		if NOT isObject(_oXn_)  return []  ok
+		_cXk_ = ""
+		_aXn_ = This.Nodes()
+		_nXn_ = len(_aXn_)
+		for _iXn_ = 1 to _nXn_
+			if StzLower("" + _aXn_[_iXn_][:id]) != _xF_  loop  ok
+			if HasKey(_aXn_[_iXn_], "properties") and
+			   isList(_aXn_[_iXn_]["properties"])
+				if HasKey(_aXn_[_iXn_]["properties"], "type")
+					_cXk_ = "" + _aXn_[_iXn_]["properties"]["type"]
+				ok
+			ok
+			exit
+		next
+		if _cXk_ = ""  return []  ok
+		if NOT _oXn_.WritesNameInside(_cXk_)  return []  ok
+		_aXa_ = This._XYOf(@aDrawXY, _xF_)
+		if len(_aXa_) != 2  return []  ok
+		_aXb_ = This._BoxOf(_xF_, nBoxW, nBoxH)
+		_xClr_ = This._LineClearance() * 0.55
+		_x1_ = paPath[1]   _y1_ = paPath[2]
+		_x2_ = paPath[3]   _y2_ = paPath[4]
+		# the DOWN exit: the word stands to the right of the line, just
+		# below the glyph
+		if fabs(_x2_ - _x1_) < 1.5 and _y2_ > _y1_
+			return [ _x1_ + _xClr_ + nLw / 2,
+				_aXa_[2] + _aXb_[2] / 2 + _xClr_ + nLh / 2 ]
+		ok
+		# the SIDE exit: the word stands above the line, just past the
+		# glyph
+		if fabs(_y2_ - _y1_) < 1.5 and _x2_ > _x1_
+			return [ _aXa_[1] + _aXb_[1] / 2 + _xClr_ + nLw / 2,
+				_y1_ - _xClr_ - nLh / 2 ]
+		ok
+		return []
 
 	def _NotationBranchSide()
 		_oNb_ = This.NotationO()
