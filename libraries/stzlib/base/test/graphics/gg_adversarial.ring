@@ -9314,6 +9314,177 @@ if len(aGpG) >= 2
 ok
 chkeq("NEGATIVE: a one-pixel difference would have shown", nGpFake, 1)
 
+sec("-- 73k. DRAKON: THE SKEWER, AND WHOSE LAW IT IS ---------")
+
+# THE MAIN PATH IS ONE VERTICAL LINE AND EVERY BRANCH STANDS RIGHT OF
+# IT.
+#
+# The Principal named DRAKON as this plane's next domain, and its third
+# law is one this library had already arrived at from the other end --
+# by the Principal marking pictures where the refusal ran down the main
+# line. DN6 is where it stops being a rule patched in and becomes a law
+# a notation declares.
+#
+# Two claims, and the second is the one that matters: the skewer is
+# straight, AND the profile is what asks for it. A rule that leaked into
+# every diagram would be a new default, not a domain.
+oDk = new stzDiagram("drakon73k")
+oDk.SetNotation(StzDrakonNotation())
+oDk.AddNodeXTT("t", "Withdraw",      [ :type = "title" ])
+oDk.AddNodeXTT("q", "Funds enough?", [ :type = "question" ])
+oDk.AddNodeXTT("y", "Pay out",       [ :type = "action" ])
+oDk.AddNodeXTT("n", "Decline",       [ :type = "action" ])
+oDk.AddNodeXTT("e", "Done",          [ :type = "end" ])
+oDk.AddEdge("t","q")
+oDk.AddEdgeXT("q","y","yes")
+oDk.AddEdgeXT("q","n","no")
+oDk.AddEdge("y","e")  oDk.AddEdge("n","e")
+oDk.ToCanvasXT([ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56,
+                 :FontSize = 20 ])
+aDkC = []
+aDkSpine = [ "t", "q", "y", "e" ]
+nDkSp = -1  nDkOff = -1
+_aDkR_ = oDk.RenderNodeRects()
+for iDk = 1 to len(_aDkR_)
+	cDkId = StzLower("" + _aDkR_[iDk][5])
+	nDkCx = _aDkR_[iDk][1] + _aDkR_[iDk][3] / 2
+	bDkOn = 0
+	for jDk = 1 to len(aDkSpine)
+		if aDkSpine[jDk] = cDkId  bDkOn = 1  exit  ok
+	next
+	if bDkOn
+		if nDkSp < 0  nDkSp = nDkCx  ok
+		aDkC + [ cDkId, nDkCx, 1 ]
+	else
+		nDkOff = nDkCx
+		aDkC + [ cDkId, nDkCx, 0 ]
+	ok
+next
+nDkStray = 0
+for iDk = 1 to len(aDkC)
+	if aDkC[iDk][3] = 1 and fabs(aDkC[iDk][2] - nDkSp) > 1.5  nDkStray++  ok
+next
+? "   skewer x " + nDkSp + ", the refusal at x " + nDkOff
+chkeq("every node on the main path shares one vertical", nDkStray, 0)
+chk("...and the refusal stands to the RIGHT of it", nDkOff > nDkSp + 20)
+
+# NO CROSSINGS, which is the notation's whole promise. Counted on the
+# drawn wires: a vertical run properly crossing a horizontal one.
+nDkX = 0
+for iDk = 1 to len(oDk.@aEdgePaths)
+	aDkP = oDk.@aEdgePaths[iDk][2]
+	for jDk = iDk + 1 to len(oDk.@aEdgePaths)
+		aDkQ = oDk.@aEdgePaths[jDk][2]
+		for kDk = 1 to len(aDkP) - 3 step 2
+			for mDk = 1 to len(aDkQ) - 3 step 2
+				nAx1 = aDkP[kDk]    nAy1 = aDkP[kDk+1]
+				nAx2 = aDkP[kDk+2]  nAy2 = aDkP[kDk+3]
+				nBx1 = aDkQ[mDk]    nBy1 = aDkQ[mDk+1]
+				nBx2 = aDkQ[mDk+2]  nBy2 = aDkQ[mDk+3]
+				if fabs(nAx1-nAx2) < 0.5 and fabs(nBy1-nBy2) < 0.5
+					if nAx1 > min([nBx1,nBx2]) + 1 and
+					   nAx1 < max([nBx1,nBx2]) - 1 and
+					   nBy1 > min([nAy1,nAy2]) + 1 and
+					   nBy1 < max([nAy1,nAy2]) - 1
+						nDkX++
+					ok
+				ok
+				if fabs(nAy1-nAy2) < 0.5 and fabs(nBx1-nBx2) < 0.5
+					if nBx1 > min([nAx1,nAx2]) + 1 and
+					   nBx1 < max([nAx1,nAx2]) - 1 and
+					   nAy1 > min([nBy1,nBy2]) + 1 and
+					   nAy1 < max([nBy1,nBy2]) - 1
+						nDkX++
+					ok
+				ok
+			next
+		next
+	next
+next
+? "   crossings between drawn wires: " + nDkX
+chkeq("a one-question algorithm draws with no crossing at all", nDkX, 0)
+
+# THE NEGATIVE SIBLING: this is a PROFILE's law, not a new default.
+#
+# The scene is the NESTED one, and choosing it is the point. On a single
+# question the plain layout already puts the refusal to the right --
+# the spine rule sees to that -- so the two agree and a negative built
+# on that shape proves nothing at all, which is what the first version
+# of this did. Where they part company is two branches at different
+# depths: the plane's own law (I7) puts siblings on EITHER side of the
+# parent, so one goes left; DRAKON refuses that and sends both right.
+oDk2 = new stzDiagram("plain73k")
+oDk2.SetSplines(:ortho)
+oDk2.AddNode("t")   oDk2.AddNode("q1")  oDk2.AddNode("q2")
+oDk2.AddNode("ok")  oDk2.AddNode("n1")  oDk2.AddNode("n2")
+oDk2.AddNode("e")
+oDk2.AddEdge("t","q1")
+oDk2.AddEdgeXT("q1","q2","yes")
+oDk2.AddEdgeXT("q1","n1","no")
+oDk2.AddEdgeXT("q2","ok","yes")
+oDk2.AddEdgeXT("q2","n2","no")
+oDk2.AddEdge("ok","e")  oDk2.AddEdge("n1","e")  oDk2.AddEdge("n2","e")
+oDk2.ToCanvasXT([ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56,
+                  :FontSize = 20 ])
+# WHAT THE PROFILE ACTUALLY CHANGES, measured rather than assumed. Two
+# earlier versions of this negative asked whether a branch went LEFT,
+# and both passed the wrong way: the plain layout already sends a lone
+# refusal right, because the spine rule does that, and it sends BOTH
+# refusals right in the nested case too. Asking about the side proved
+# nothing, twice.
+#
+# The difference is the COLUMN. Without the profile the two branches
+# share one -- which is what made the first DRAKON picture escape 194px
+# off the paper to get around itself. With it they are nested, the
+# outer standing further out, and that is the no-crossing law doing
+# work a reader can see.
+nDkPlainCols = 0  nDkN1 = 0  nDkN2 = 0
+_aDk2_ = oDk2.RenderNodeRects()
+for iDk = 1 to len(_aDk2_)
+	cDkId = StzLower("" + _aDk2_[iDk][5])
+	if cDkId = "n1"  nDkN1 = _aDk2_[iDk][1] + _aDk2_[iDk][3] / 2  ok
+	if cDkId = "n2"  nDkN2 = _aDk2_[iDk][1] + _aDk2_[iDk][3] / 2  ok
+next
+if fabs(nDkN1 - nDkN2) > 2  nDkPlainCols = 2  else  nDkPlainCols = 1  ok
+? "   without the profile the two branches occupy " +
+  nDkPlainCols + " column(s)"
+chkeq("NEGATIVE: without the profile they share ONE column",
+    nDkPlainCols, 1)
+
+# ...AND WITH IT, TWO -- the same scene under the notation.
+oDk3 = new stzDiagram("nested73k")
+oDk3.SetNotation(StzDrakonNotation())
+oDk3.AddNodeXTT("t","T",[ :type = "title" ])
+oDk3.AddNodeXTT("q1","Q1",[ :type = "question" ])
+oDk3.AddNodeXTT("q2","Q2",[ :type = "question" ])
+oDk3.AddNodeXTT("ok","OK",[ :type = "action" ])
+oDk3.AddNodeXTT("n1","N1",[ :type = "action" ])
+oDk3.AddNodeXTT("n2","N2",[ :type = "action" ])
+oDk3.AddNodeXTT("e","E",[ :type = "end" ])
+oDk3.AddEdge("t","q1")
+oDk3.AddEdgeXT("q1","q2","yes")
+oDk3.AddEdgeXT("q1","n1","no")
+oDk3.AddEdgeXT("q2","ok","yes")
+oDk3.AddEdgeXT("q2","n2","no")
+oDk3.AddEdge("ok","e")  oDk3.AddEdge("n1","e")  oDk3.AddEdge("n2","e")
+oDk3.ToCanvasXT([ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56,
+                  :FontSize = 20 ])
+nDkM1 = 0  nDkM2 = 0  nDkSk3 = 0
+_aDk3_ = oDk3.RenderNodeRects()
+for iDk = 1 to len(_aDk3_)
+	cDkId = StzLower("" + _aDk3_[iDk][5])
+	nDkCx3 = _aDk3_[iDk][1] + _aDk3_[iDk][3] / 2
+	if cDkId = "n1"  nDkM1 = nDkCx3  ok
+	if cDkId = "n2"  nDkM2 = nDkCx3  ok
+	if cDkId = "t"   nDkSk3 = nDkCx3  ok
+next
+? "   with it: outer at " + nDkM1 + ", inner at " + nDkM2 +
+  ", skewer at " + nDkSk3
+chk("the nested branches take two columns, both right of the skewer",
+    nDkM1 > nDkSk3 + 20 and nDkM2 > nDkSk3 + 20 and
+    fabs(nDkM1 - nDkM2) > 20)
+chk("...and the OUTER branch is the one further out", nDkM1 > nDkM2 + 20)
+
 sec("-- 73g. A GROUND IS MET AT ITS LEAD, NOT ITS BARS ------")
 
 # A GROUND HAS ONE TERMINAL, IT IS ON TOP, AND THE WIRE ARRIVES THERE
