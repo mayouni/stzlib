@@ -146,6 +146,64 @@ func StzDrakonNotation()
 	# geometry) and it is also DRAKON's: a branch is a phase of the
 	# algorithm with a name a reader recognises, and no decomposition
 	# computed from the graph knows what to call it.
+	# ...AND THE ICONS THE REFERENCE ENGINE HAS THAT THIS PROFILE DID
+	# NOT. Read from DrakonWidget's own item list rather than from
+	# memory of DRAKON's pictures: action, address, branch, case, end,
+	# header, question, select, foreach, insertion, comment, parblock,
+	# par, timer, pause, duration, shelf, process, input, output,
+	# ctrlstart, ctrlend.
+	#
+	# FOREACH IS THE ONE THAT MATTERED. A language for algorithms
+	# without a LOOP icon is not that language, and this profile had
+	# none -- a gap invisible from the pictures I had been correcting,
+	# because none of them looped.
+	_o_.AddKindXT("foreach", "hexagon", "#eef2ff")
+	# ...AND IT HOLDS ITS OWN NAME. "for each line" is the loop, not a
+	# caption near it -- written outside it landed on the loop's own
+	# return wires, which is the same defect the question had.
+	_o_.SetNameInside("foreach")
+	_o_.AddKindXT("process", "box", "white")
+	_o_.AddKindXT("duration", "hexagon", "#f3f4f6")
+	_o_.AddKindXT("par", "box", "#f5f3ff")
+	_o_.AddKindXT("parblock", "tab", "#f5f3ff")
+	_o_.AddKindXT("ctrlstart", "circle", "#eef2ff")
+	_o_.AddKindXT("ctrlend", "doublecircle", "#eef2ff")
+	# the reference engine calls the two ends HEADER and END, and draws
+	# them alike; "title" is kept as the name this profile shipped with
+	_o_.AddKindXT("header", "ellipse", "#eef2ff")
+
+	# EVERY ICON THAT CARRIES TEXT CARRIES IT INSIDE ITSELF.
+	#
+	# Declared one at a time as each picture showed a name outside, which
+	# is why the list was three long and wrong: the rhombus was declared
+	# because the Principal marked it, the loop because its name landed
+	# on its own return wires -- and the input icon went on writing
+	# "Read credentials" underneath an empty parallelogram in the very
+	# first fixture, unmarked and unnoticed, for as long as this profile
+	# has existed.
+	#
+	# In DRAKON a name outside an icon is not a variant, it is a
+	# different statement: the icons are the sentences and a word beside
+	# one is a note about it. So the question is not which icons happen
+	# to look wrong, it is which icons SAY something -- and the answer is
+	# all of them except the two control marks, which are punctuation.
+	_o_.SetNameInside("action")
+	_o_.SetNameInside("input")
+	_o_.SetNameInside("output")
+	_o_.SetNameInside("insertion")
+	_o_.SetNameInside("shelf")
+	_o_.SetNameInside("process")
+	_o_.SetNameInside("case")
+	_o_.SetNameInside("timer")
+	_o_.SetNameInside("pause")
+	_o_.SetNameInside("duration")
+	_o_.SetNameInside("par")
+	_o_.SetNameInside("parblock")
+	_o_.SetNameInside("comment")
+	_o_.SetNameInside("title")
+	_o_.SetNameInside("header")
+	_o_.SetNameInside("end")
+
 	_o_.AddKindXT("branch", "tab", "#eef2ff")
 	_o_.AddKindXT("address", "invhouse", "#eef2ff")
 	_o_.SetNameInside("branch")

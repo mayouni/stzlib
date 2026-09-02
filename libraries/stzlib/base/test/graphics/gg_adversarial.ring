@@ -9841,6 +9841,259 @@ chk("the sheet is the drawing's own height", nSlH - nSlLow < 60)
 # NEGATIVE: the sheet must still CLEAR the ink -- a height that merely
 # hugged the number would pass the clause above by cropping.
 chk("NEGATIVE: ...and still clears it", nSlH > nSlLow)
+sec("-- 73m. DRAKON DECLARES ITS EXITS, IT DOES NOT GUESS ---")
+
+# LEARNED FROM THE LANGUAGE ITSELF rather than from its pictures.
+#
+# DrakonWidget, the reference engine, gives every icon exactly two
+# exits and fixes what each one MEANS: `one` is the next item BELOW,
+# `two` the next to the RIGHT. A question is not an icon with two
+# outgoing arrows to be sorted out by reading their labels -- which is
+# how this library had been doing it, affirmative first, then neutral,
+# then anything. That works on yes/no and is a GUESS everywhere else.
+#
+# The scene is built so the words mislead: the main path leaves by
+# "insufficient" and the branch by "ok". A reading of the wording puts
+# the skewer through the branch and is confident about it.
+aDcOpt = [ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56,
+           :FontSize = 20 ]
+
+# WITHOUT the declaration: the heuristic is wrong, and the guard shows
+# it rather than asserting it from memory.
+oDc1 = new stzDiagram("guess73m")
+oDc1.SetNotation(StzDrakonNotation())
+oDc1.AddNodeXTT("t","Top up",[ :type = "title" ])
+oDc1.AddNodeXTT("q","Balance?",[ :type = "question" ])
+oDc1.AddNodeXTT("add","Add funds",[ :type = "action" ])
+oDc1.AddNodeXTT("skip","Nothing to do",[ :type = "action" ])
+oDc1.AddNodeXTT("e","Done",[ :type = "end" ])
+oDc1.AddEdge("t","q")
+oDc1.AddEdgeXT("q","add","insufficient")
+oDc1.AddEdgeXT("q","skip","ok")
+oDc1.AddEdge("add","e")  oDc1.AddEdge("skip","e")
+oDc1.ToCanvasXT(aDcOpt)
+aDcP1 = oDc1._HappyPath()
+bDcGuessAdd = 0
+for iDc = 1 to len(aDcP1)
+	if StzLower("" + aDcP1[iDc]) = "add"  bDcGuessAdd = 1  ok
+next
+
+# WITH it: the model says which exit goes down, and nothing else votes.
+oDc2 = new stzDiagram("declared73m")
+oDc2.SetNotation(StzDrakonNotation())
+oDc2.AddNodeXTT("t","Top up",[ :type = "title" ])
+oDc2.AddNodeXTT("q","Balance?",[ :type = "question" ])
+oDc2.AddNodeXTT("add","Add funds",[ :type = "action" ])
+oDc2.AddNodeXTT("skip","Nothing to do",[ :type = "action" ])
+oDc2.AddNodeXTT("e","Done",[ :type = "end" ])
+oDc2.AddEdge("t","q")
+oDc2.AddEdgeXTT("q","add","insufficient", [ :exit = :down ])
+oDc2.AddEdgeXTT("q","skip","ok", [ :exit = :right ])
+oDc2.AddEdge("add","e")  oDc2.AddEdge("skip","e")
+oDc2.ToCanvasXT(aDcOpt)
+aDcP2 = oDc2._HappyPath()
+bDcDeclAdd = 0
+for iDc = 1 to len(aDcP2)
+	if StzLower("" + aDcP2[iDc]) = "add"  bDcDeclAdd = 1  ok
+next
+
+? "   reading the words, the skewer takes Add funds: " + bDcGuessAdd
+? "   reading the model, it takes Add funds:         " + bDcDeclAdd
+chkeq("a declared down-exit carries the skewer", bDcDeclAdd, 1)
+
+# THE NEGATIVE THAT MAKES THE POSITIVE MEAN SOMETHING: on this scene
+# the word-reading answer is DIFFERENT. Without it the clause above
+# would pass on a diagram where the guess happened to agree, and prove
+# nothing about the declaration at all.
+chkeq("NEGATIVE: ...and the wording alone gets it WRONG here",
+    bDcGuessAdd, 0)
+
+# ...AND THE DECLARED SIDE EXIT IS THE ONE THAT STANDS RIGHT.
+nDcSk = 0  nDcSide = 0
+for iDc = 1 to len(oDc2.RenderNodeRects())
+	aDcR = oDc2.RenderNodeRects()[iDc]
+	cDcId = StzLower("" + aDcR[5])
+	if cDcId = "add"   nDcSk = aDcR[1] + aDcR[3] / 2  ok
+	if cDcId = "skip"  nDcSide = aDcR[1] + aDcR[3] / 2  ok
+next
+? "   down-exit at x " + nDcSk + ", side exit at x " + nDcSide
+chk("the declared side exit stands to the right of the skewer",
+    nDcSide > nDcSk + 20)
+sec("-- 73n. DRAKON HAS A LOOP, AND SO DOES THIS PLANE -----")
+
+# A LANGUAGE FOR ALGORITHMS WITHOUT A LOOP IS NOT THAT LANGUAGE.
+# foreach is in DRAKON's icon list and this profile had nothing for
+# it -- a gap invisible from the pictures being corrected, because
+# not one of them looped.
+oLp = new stzDiagram("loop73n")
+oLp.SetNotation(StzDrakonNotation())
+oLp.AddNodeXTT("t","Total a basket",[ :type = "title" ])
+oLp.AddNodeXTT("f","for each line",[ :type = "foreach" ])
+oLp.AddNodeXTT("a","Add its price",[ :type = "action" ])
+oLp.AddNodeXTT("e","Done",[ :type = "end" ])
+oLp.AddEdge("t","f")
+oLp.AddEdgeXTT("f","a","", [ :exit = :down ])
+oLp.AddEdge("a","f")
+oLp.AddEdgeXTT("f","e","", [ :exit = :right ])
+oLp.ToCanvasXT([ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56,
+                 :FontSize = 20 ])
+chkeq("the model holds a loop", oLp._HasLoopReturn(), 1)
+
+# THE RETURN IS NOT A TWIN. Two nodes with an edge each way are
+# normally a pair drawn as two lines side by side; a cycle is one
+# thing happening twice. Twinned, the return came up the skewer's own
+# column -- two arrows in one line of ink pointing opposite ways,
+# inside the notation whose whole claim is that it cannot happen.
+aLpR = oLp.RenderNodeRects()
+aLpA = []  aLpF = []
+for iLp = 1 to len(aLpR)
+	if StzLower("" + aLpR[iLp][5]) = "a"
+		aLpA = [ aLpR[iLp][1] + aLpR[iLp][3] / 2,
+		         aLpR[iLp][2] + aLpR[iLp][4] / 2 ]
+	ok
+	if StzLower("" + aLpR[iLp][5]) = "f"
+		aLpF = [ aLpR[iLp][1] + aLpR[iLp][3] / 2,
+		         aLpR[iLp][2] + aLpR[iLp][4] / 2 ]
+	ok
+next
+aLpP = oLp._DrakonLoopPath("a", "f", aLpA, aLpF, 150, 56)
+chk("the return is drawn by the loop rule, not the router",
+    len(aLpP) >= 8)
+
+# ...AND IT RUNS CLEAR OF EVERY BOX. The lane is what keeps the
+# no-crossing promise, and it only exists because the paper was asked
+# to hold it -- the rule found no room on its own and gave up in
+# silence, which is this plane's oldest failure wearing a new hat.
+nLpLane = aLpP[5]
+nLpMinL = 1000000
+for iLp = 1 to len(aLpR)
+	if aLpR[iLp][1] < nLpMinL  nLpMinL = aLpR[iLp][1]  ok
+next
+? "   lane at x " + nLpLane + ", leftmost box at x " + nLpMinL
+chk("the loop lane runs left of every box", nLpLane < nLpMinL - 2)
+
+# NEGATIVE: a picture with no loop asks for no lane, so the reserve is
+# not a margin every DRAKON diagram quietly pays for.
+oLp2 = new stzDiagram("noloop73n")
+oLp2.SetNotation(StzDrakonNotation())
+oLp2.AddNodeXTT("t","Start",[ :type = "title" ])
+oLp2.AddNodeXTT("a","Do it",[ :type = "action" ])
+oLp2.AddNodeXTT("e","Done",[ :type = "end" ])
+oLp2.AddEdge("t","a")  oLp2.AddEdge("a","e")
+oLp2.ToCanvasXT([ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56,
+                  :FontSize = 20 ])
+chkeq("NEGATIVE: a straight algorithm reserves no lane",
+    oLp2._LoopLaneReserve(), 0)
+
+# THE LOOP ICON HOLDS ITS OWN NAME. It was told to and then given a
+# box the name did not fit in, because the sizing rule granted that
+# to one shape by name -- "diamond" -- while the profile granted it
+# by KIND. Two rules disagreeing, and the picture obeys the sizer:
+# the name went outside, onto the loop's own return wires.
+nLpFw = 0
+for iLp = 1 to len(aLpR)
+	if StzLower("" + aLpR[iLp][5]) = "f"  nLpFw = aLpR[iLp][3]  ok
+next
+nLpTw = EFONT.WidthOf("for each line", 20)
+? "   loop icon " + nLpFw + "px wide for " + nLpTw + "px of type"
+chk("the loop icon is sized to the name it holds", nLpFw > nLpTw)
+sec("-- 73p. AN ALTERNATIVE STAYS IN ITS OWN COLUMN -------")
+
+# A question whose second exit lands further down the SAME vertical
+# has nowhere to go but sideways and back, and the generic router
+# picked its lane from the whole picture. In the silhouette the "no"
+# left branch one, ran out across branch two into branch three, and
+# came back -- every DRAKON law at once.
+#
+# It crossed nothing, which is why the no-crossing guard passed it for
+# as long as it existed: the line was not ON anything, it was simply
+# somewhere it had no business being. A guard that asks only whether
+# two segments touch cannot see a line in the wrong ROOM.
+oSj = new stzDiagram("sidejoin73p")
+oSj.SetNotation(StzDrakonNotation())
+oSj.AddNodeXTT("b1","Take the order",[ :type = "branch" ])
+oSj.AddNodeXTT("q1","Basket empty?",[ :type = "question" ])
+oSj.AddNodeXTT("warn","Say so",[ :type = "action" ])
+oSj.AddNodeXTT("a1","Charge",[ :type = "address" ])
+oSj.AddNodeXTT("b2","Charge",[ :type = "branch" ])
+oSj.AddNodeXTT("auth","Authorise card",[ :type = "action" ])
+oSj.AddNodeXTT("a2","End",[ :type = "address" ])
+oSj.AddEdge("b1","q1")
+oSj.AddEdgeXT("q1","a1","no")  oSj.AddEdgeXT("q1","warn","yes")
+oSj.AddEdge("warn","a1")  oSj.AddEdge("a1","b2")
+oSj.AddEdge("b2","auth")  oSj.AddEdge("auth","a2")
+oSj.ToCanvasXT([ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56,
+                 :FontSize = 20, :LayoutMode = :Silhouette ])
+
+# where the second branch begins -- the room the excursion may not
+# enter, measured from the picture rather than assumed
+nSjB2 = 1000000
+aSjR = oSj.RenderNodeRects()
+for iSj = 1 to len(aSjR)
+	cSjI = StzLower("" + aSjR[iSj][5])
+	if cSjI = "b2" or cSjI = "auth" or cSjI = "a2"
+		if aSjR[iSj][1] < nSjB2  nSjB2 = aSjR[iSj][1]  ok
+	ok
+next
+
+nSjMax = 0
+bSjFound = 0
+aSjP = oSj.RenderEdgePaths()
+for iSj = 1 to len(aSjP)
+	if StzLower("" + aSjP[iSj][1]) != "q1>a1"  loop  ok
+	bSjFound = 1
+	for jSj = 1 to len(aSjP[iSj][2]) step 2
+		if aSjP[iSj][2][jSj] > nSjMax  nSjMax = aSjP[iSj][2][jSj]  ok
+	next
+next
+chkeq("the refused exit is drawn at all", bSjFound, 1)
+? "   the no reaches x " + nSjMax + ", branch two begins at x " + nSjB2
+chk("...and never leaves its own branch", nSjMax < nSjB2)
+
+# ...AND IT ARRIVES AT THE SIDE, not at the top. The skewer already
+# comes down into that icon; a second arrow into the same port is two
+# claims drawn as one, which is what this notation exists to refuse.
+nSjTop = 0  nSjEndY = 0
+for iSj = 1 to len(aSjR)
+	if StzLower("" + aSjR[iSj][5]) = "a1"  nSjTop = aSjR[iSj][2]  ok
+next
+for iSj = 1 to len(aSjP)
+	if StzLower("" + aSjP[iSj][1]) != "q1>a1"  loop  ok
+	nSjEndY = aSjP[iSj][2][ len(aSjP[iSj][2]) ]
+next
+? "   it arrives at y " + nSjEndY + ", the icon's top is y " + nSjTop
+chk("the refused exit joins at the side, below the top edge",
+    nSjEndY > nSjTop + 6)
+
+# NEGATIVE: with nothing standing between them the straight drop is
+# the honest drawing, and the rule must not invent a detour around
+# empty paper.
+oSj2 = new stzDiagram("nodetour73p")
+oSj2.SetNotation(StzDrakonNotation())
+oSj2.AddNodeXTT("t","Start",[ :type = "title" ])
+oSj2.AddNodeXTT("q","Ready?",[ :type = "question" ])
+oSj2.AddNodeXTT("e","Done",[ :type = "end" ])
+oSj2.AddEdgeXTT("t","q","", [ :exit = :down ])
+oSj2.AddEdgeXT("q","e","no")
+oSj2.ToCanvasXT([ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56,
+                  :FontSize = 20 ])
+aSjN = []
+for iSj = 1 to len(oSj2.RenderNodeRects())
+	aSjN + oSj2.RenderNodeRects()[iSj]
+next
+aSjQ = []  aSjE = []
+for iSj = 1 to len(aSjN)
+	if StzLower("" + aSjN[iSj][5]) = "q"
+		aSjQ = [ aSjN[iSj][1] + aSjN[iSj][3] / 2,
+		         aSjN[iSj][2] + aSjN[iSj][4] / 2 ]
+	ok
+	if StzLower("" + aSjN[iSj][5]) = "e"
+		aSjE = [ aSjN[iSj][1] + aSjN[iSj][3] / 2,
+		         aSjN[iSj][2] + aSjN[iSj][4] / 2 ]
+	ok
+next
+chkeq("NEGATIVE: nothing in the way, so no excursion",
+    len(oSj2._DrakonSideJoin("q", "e", aSjQ, aSjE, 150, 56)), 0)
 
 sec("-- 73g. A GROUND IS MET AT ITS LEAD, NOT ITS BARS ------")
 
