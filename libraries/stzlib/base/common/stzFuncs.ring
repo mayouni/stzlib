@@ -51,7 +51,7 @@ $_aRingTypesXT = [
 		[ "object", "objects" ]
 	]
 
-@ = 0
+$@ = 0
 
 # Temporary Truth Statement and Negation (read X as Truth)
 $bXStatement = 1
