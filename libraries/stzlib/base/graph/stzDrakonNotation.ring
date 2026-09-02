@@ -121,7 +121,15 @@ func StzDrakonNotation()
 	# a small mark; DRAKON sizes it to the question, so it holds it.
 	_o_.SetNameInside("question")
 	_o_.SetNameInside("select")
-	_o_.AddKindXT("case", "box", "white")
+	# A CASE IS NOT AN ACTION, and drawn as one it claims to be.
+	#
+	# Both were rounded boxes, so a picture of a three-way choice read
+	# as a step followed by a step: the icon that NAMES an alternative
+	# and the icon that DOES something were the same glyph, and only the
+	# wires said which was which. DRAKON draws the case with its lower
+	# corners cut, so it reads as one of several openings beneath the
+	# selector -- narrower at the foot, where the one path out leaves.
+	_o_.AddKindXT("case", "invtrapezium", "#fff7e6")
 	# an insertion is a call to another algorithm: the component glyph
 	# is the table's nearest reading, a body with something attached
 	_o_.AddKindXT("insertion", "component", "white")

@@ -218,3 +218,72 @@ o6.ToCanvasXT(OPT)
 o6.LastCanvas().ToPNG("drakon_6_loop.png")
 ? "  the loop           " + o6.LastCanvas().Width() + "x" +
   o6.LastCanvas().Height()
+
+#-- 7. SELECT AND CASE -- DN6e -----------------------------------------------
+#   A three-way choice, which the language has and this plane could not
+#   draw at all: two of the three cases came out at the SAME coordinates,
+#   so "national" and "abroad" printed on top of each other as
+#   "natiobroadl" and neither word existed on the paper.
+#
+#   The cause was one word doing two jobs. A branch's column was "one
+#   plus the number of branches nested inside it", which orders
+#   alternatives that CONTAIN one another and says nothing about peers:
+#   a select's cases leave the same icon at the same moment and rejoin at
+#   the same place, so every one of them counted zero and every one of
+#   them claimed the first column. The comment above that code said its
+#   intent was to COLOUR the intervals; a count is not a colouring.
+#
+#   The second half was the same word again: a branch is a CHAIN, not a
+#   node. Every fixture until now had a single icon standing beside the
+#   line, so "branch" and "node" agreed everywhere -- and the moment a
+#   case had a body under it, the case went in one column and the step it
+#   selects went in another.
+o7 = new stzDiagram("route")
+o7.SetNotation(StzDrakonNotation())
+o7.AddNodeXTT("t", "Route the parcel", [ :type = "title" ])
+o7.AddNodeXTT("s", "Destination?",     [ :type = "select" ])
+o7.AddNodeXTT("c1","local",            [ :type = "case" ])
+o7.AddNodeXTT("c2","national",         [ :type = "case" ])
+o7.AddNodeXTT("c3","abroad",           [ :type = "case" ])
+o7.AddNodeXTT("a1","Bike courier",     [ :type = "action" ])
+o7.AddNodeXTT("a2","Post",             [ :type = "action" ])
+o7.AddNodeXTT("a3","Air freight",      [ :type = "action" ])
+o7.AddNodeXTT("e", "Done",             [ :type = "end" ])
+o7.AddEdge("t","s")
+o7.AddEdge("s","c1")   o7.AddEdge("s","c2")   o7.AddEdge("s","c3")
+o7.AddEdge("c1","a1")  o7.AddEdge("c2","a2")  o7.AddEdge("c3","a3")
+o7.AddEdge("a1","e")   o7.AddEdge("a2","e")   o7.AddEdge("a3","e")
+o7.ToCanvasXT(OPT)
+o7.LastCanvas().ToPNG("drakon_7_select.png")
+? "  select and case    " + o7.LastCanvas().Width() + "x" +
+  o7.LastCanvas().Height()
+
+#-- 8. THE BRANCHES ARE ORDERED BY branchId -- DN6f --------------------------
+#   DRAKON carries a branchId on every branch: the columns run in
+#   ascending order of it, and the FIRST icon of the silhouette is the
+#   lowest -- which is how a reader knows where the algorithm begins.
+#
+#   This library read the order the branch nodes happened to be WRITTEN
+#   in, which gives the right picture until somebody inserts a phase, and
+#   gives no way at all to say "this one is the entry" except by moving
+#   lines of source. Here the branches are declared backwards on purpose:
+#   Ship, then Charge, then Take the order. The ids put them right.
+o8 = new stzDiagram("ordered")
+o8.SetNotation(StzDrakonNotation())
+o8.AddNodeXTT("b3","Ship",           [ :type = "branch", :branchId = 3 ])
+o8.AddNodeXTT("pack","Pack",         [ :type = "action" ])
+o8.AddNodeXTT("a3","End",            [ :type = "address" ])
+o8.AddNodeXTT("b2","Charge",         [ :type = "branch", :branchId = 2 ])
+o8.AddNodeXTT("auth","Authorise card",[ :type = "action" ])
+o8.AddNodeXTT("a2","Ship",           [ :type = "address" ])
+o8.AddNodeXTT("b1","Take the order", [ :type = "branch", :branchId = 1 ])
+o8.AddNodeXTT("read","Read basket",  [ :type = "input" ])
+o8.AddNodeXTT("a1","Charge",         [ :type = "address" ])
+o8.AddEdge("b1","read")  o8.AddEdge("read","a1")  o8.AddEdge("a1","b2")
+o8.AddEdge("b2","auth")  o8.AddEdge("auth","a2")  o8.AddEdge("a2","b3")
+o8.AddEdge("b3","pack")  o8.AddEdge("pack","a3")
+o8.ToCanvasXT([ :Font = FONT, :NodeWidth = 150, :NodeHeight = 56,
+                :FontSize = 20, :LayoutMode = :Silhouette ])
+o8.LastCanvas().ToPNG("drakon_8_branchid.png")
+? "  branchId ordering  " + o8.LastCanvas().Width() + "x" +
+  o8.LastCanvas().Height()

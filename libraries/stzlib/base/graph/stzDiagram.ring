@@ -6664,6 +6664,75 @@ class stzDiagram from stzGraph
 					_srS1_ + _srY1_
 				next
 
+				# A BRANCH IS A CHAIN, NOT A NODE.
+				#
+				# "A branch occupies the vertical stretch from where it
+				# leaves the skewer to where it rejoins" is what the
+				# paragraph above says, and the code allocated a column
+				# per off-skewer NODE. One node per branch is the shape
+				# every fixture happened to have -- a single "Report
+				# refusal" standing beside the line -- so the two readings
+				# agreed everywhere until a case had a body under it, and
+				# then the case went in one column and the step it selects
+				# went in another, joined by a wire crossing the gap.
+				#
+				# A chain is a run where each link has one way in and the
+				# one before it has one way out. Anything else is a fan,
+				# and a fan's members are peers that need columns of their
+				# own.
+				_srLead_ = []
+				for _srI_ = 1 to len(_srOut_)  _srLead_ + _srI_  next
+				_aSrCe_ = This.Edges()
+				_nSrCe_ = len(_aSrCe_)
+				for _iSrCe_ = 1 to _nSrCe_
+					_srCf_ = StzLower("" + _aSrCe_[_iSrCe_][:from])
+					_srCt_ = StzLower("" + _aSrCe_[_iSrCe_][:to])
+					if _srCf_ = _srCt_  loop  ok
+					# one way out of the source, one way into the target
+					_srCo_ = 0   _srCi_ = 0
+					for _iSrC2_ = 1 to _nSrCe_
+						_srC2f_ = StzLower("" + _aSrCe_[_iSrC2_][:from])
+						_srC2t_ = StzLower("" + _aSrCe_[_iSrC2_][:to])
+						if _srC2f_ = _srC2t_  loop  ok
+						if _srC2f_ = _srCf_  _srCo_++  ok
+						if _srC2t_ = _srCt_  _srCi_++  ok
+					next
+					if _srCo_ != 1 or _srCi_ != 1  loop  ok
+					_srCa_ = 0   _srCb_ = 0
+					for _iSrC3_ = 1 to len(_srOut_)
+						if _srOn_[_iSrC3_]  loop  ok
+						if StzLower("" + _srOut_[_iSrC3_][1]) = _srCf_
+							_srCa_ = _iSrC3_
+						ok
+						if StzLower("" + _srOut_[_iSrC3_][1]) = _srCt_
+							_srCb_ = _iSrC3_
+						ok
+					next
+					if _srCa_ = 0 or _srCb_ = 0  loop  ok
+					_srLead_[_srCb_] = _srCa_
+				next
+				# a chain longer than two links resolves to its head
+				for _srPass2_ = 1 to 8
+					for _srI_ = 1 to len(_srLead_)
+						_srLead_[_srI_] = _srLead_[ _srLead_[_srI_] ]
+					next
+				next
+				# ...AND THE CHAIN'S SPAN IS THE WHOLE RUN, or the head
+				# is coloured against a stretch it does not occupy
+				for _srZ_ = 1 to len(_srOrd_)
+					_srI_ = _srOrd_[_srZ_]
+					if _srLead_[_srI_] = _srI_  loop  ok
+					for _srZ3_ = 1 to len(_srOrd_)
+						if _srOrd_[_srZ3_] != _srLead_[_srI_]  loop  ok
+						if _srS0_[_srZ_] < _srS0_[_srZ3_]
+							_srS0_[_srZ3_] = _srS0_[_srZ_]
+						ok
+						if _srS1_[_srZ_] > _srS1_[_srZ3_]
+							_srS1_[_srZ3_] = _srS1_[_srZ_]
+						ok
+					next
+				next
+
 				# THE OUTER BRANCH STANDS FURTHER OUT, which is the
 				# nesting read as distance.
 				#
@@ -6683,9 +6752,13 @@ class stzDiagram from stzGraph
 				# empty column.
 				for _srZ_ = 1 to len(_srOrd_)
 					_srI_ = _srOrd_[_srZ_]
+					if _srLead_[_srI_] != _srI_  loop  ok
 					_srIn_ = 0
 					for _srZ2_ = 1 to len(_srOrd_)
 						if _srZ2_ = _srZ_  loop  ok
+						if _srLead_[ _srOrd_[_srZ2_] ] != _srOrd_[_srZ2_]
+							loop
+						ok
 						# overlapping, and starting later: nested
 						if _srS0_[_srZ2_] <= _srS0_[_srZ_]  loop  ok
 						if _srS0_[_srZ2_] > _srS1_[_srZ_]  loop  ok
@@ -6694,6 +6767,53 @@ class stzDiagram from stzGraph
 					_srCol_ = _srIn_ + 1
 					if _srCol_ > 8  _srCol_ = 8  ok
 					_srIdx_[_srI_] = _srCol_
+				next
+
+				# ...AND PEERS ARE NOT NESTED IN EACH OTHER, WHICH IS
+				# WHERE THE COUNT RUNS OUT.
+				#
+				# Nesting orders alternatives that CONTAIN one another. A
+				# SELECT's cases contain nothing: they leave the same icon
+				# at the same moment and rejoin at the same place, so
+				# every one of them counts zero branches inside itself and
+				# every one of them claims the first column. Three cases
+				# came out as two icons, because the third was drawn
+				# exactly on top of the second -- "national" and "abroad"
+				# printed as "natiobroadl" and neither word existed.
+				#
+				# The paragraph above says the intent was to COLOUR the
+				# intervals, and colouring is what makes no-crossing a
+				# construction rather than a hope. A count is not a
+				# colouring: it separates branches that differ in depth
+				# and says nothing about branches that do not. So the
+				# count stands, and any two branches that overlap and
+				# still share a column are pushed apart -- the later one
+				# outward, which keeps the nesting reading intact.
+				for _srPass_ = 1 to 8
+					_bSrMv_ = 0
+					for _srZ_ = 1 to len(_srOrd_)
+						for _srZ2_ = _srZ_ + 1 to len(_srOrd_)
+							_srA2_ = _srOrd_[_srZ_]
+							_srB2_ = _srOrd_[_srZ2_]
+							if _srLead_[_srA2_] != _srA2_  loop  ok
+							if _srLead_[_srB2_] != _srB2_  loop  ok
+							if _srIdx_[_srA2_] != _srIdx_[_srB2_]  loop  ok
+							# disjoint spans may share a column: that is
+							# the whole point of colouring them
+							if _srS1_[_srZ_] < _srS0_[_srZ2_]  loop  ok
+							if _srS1_[_srZ2_] < _srS0_[_srZ_]  loop  ok
+							if _srIdx_[_srB2_] < 8
+								_srIdx_[_srB2_] = _srIdx_[_srB2_] + 1
+								_bSrMv_ = 1
+							ok
+						next
+					next
+					if NOT _bSrMv_  exit  ok
+				next
+				# every link of a chain stands in its head's column
+				for _srI_ = 1 to len(_srLead_)
+					if _srLead_[_srI_] = _srI_  loop  ok
+					_srIdx_[_srI_] = _srIdx_[ _srLead_[_srI_] ]
 				next
 				loop
 			ok
@@ -7222,6 +7342,36 @@ class stzDiagram from stzGraph
 	# The branches are the AUTHOR'S, not the algorithm's: a branch is a
 	# phase with a name a reader recognises, and no decomposition
 	# computed from the graph knows what to call it.
+	# THE ORDINAL AN AUTHOR PUTS ON A BRANCH, or 0 where they put none.
+	#
+	# DRAKON's own name for it is branchId, and this reads that spelling
+	# first. :order is accepted because it is what the rest of this plane
+	# calls the same idea, and a property an author guesses right is
+	# worth more than a property they have to look up.
+	def _BranchOrdinalOf(pcId)
+		_boId_ = StzLower("" + pcId)
+		_aBoN_ = This.Nodes()
+		_nBoN_ = len(_aBoN_)
+		for _iBo_ = 1 to _nBoN_
+			if StzLower("" + _aBoN_[_iBo_][:id]) != _boId_  loop  ok
+			if NOT HasKey(_aBoN_[_iBo_], "properties")  return 0  ok
+			if NOT isList(_aBoN_[_iBo_]["properties"])  return 0  ok
+			_aBoP_ = [ "branchid", "order" ]
+			for _iBoP_ = 1 to len(_aBoP_)
+				if NOT HasKey(_aBoN_[_iBo_]["properties"], _aBoP_[_iBoP_])
+					loop
+				ok
+				_boV_ = _aBoN_[_iBo_]["properties"][ _aBoP_[_iBoP_] ]
+				if isNumber(_boV_)  return _boV_  ok
+				if isString(_boV_) and
+				   StzIsNumberOrNumberInString("" + _boV_)
+					return 0 + ("" + _boV_)
+				ok
+			next
+			return 0
+		next
+		return 0
+
 	def _ApplySilhouette(paXY, nBoxW, nBoxH, nSep)
 		_aSlN_ = This.Nodes()
 		_nSlN_ = len(_aSlN_)
@@ -7232,6 +7382,42 @@ class stzDiagram from stzGraph
 			ok
 		next
 		if len(_aSlH_) < 2  return paXY  ok
+
+		# THE ORDER OF THE BRANCHES IS DECLARED, NOT TYPED.
+		#
+		# DRAKON carries a branchId on every branch: the columns run in
+		# ascending order of it and the FIRST icon of the silhouette is
+		# the lowest, which is how a reader knows where the algorithm
+		# begins. This library read the order the branch nodes happened
+		# to be written in -- which gives the right picture as long as
+		# nobody ever inserts a phase, and gives no way at all to say
+		# "this one is the entry" except by moving lines of source.
+		#
+		# Declaration order remains the answer where nothing is declared,
+		# because it is what every existing picture relies on and because
+		# an author who never mentions branchId has still said something
+		# by the order they wrote. A branch WITH an id sorts by it, ahead
+		# of every branch without one: mixing the two is the author's to
+		# do and the rule has to be sayable in one sentence.
+		_aSlOrd_ = []
+		for _iSlH_ = 1 to len(_aSlH_)
+			_slBid_ = This._BranchOrdinalOf(_aSlH_[_iSlH_])
+			if _slBid_ = 0  _slBid_ = 1000000 + _iSlH_  ok
+			_aSlOrd_ + [ _slBid_, _aSlH_[_iSlH_] ]
+		next
+		for _slP_ = 1 to len(_aSlOrd_) - 1
+			for _slQ_ = 1 to len(_aSlOrd_) - _slP_
+				if _aSlOrd_[_slQ_][1] > _aSlOrd_[_slQ_ + 1][1]
+					_slSw_ = _aSlOrd_[_slQ_]
+					_aSlOrd_[_slQ_] = _aSlOrd_[_slQ_ + 1]
+					_aSlOrd_[_slQ_ + 1] = _slSw_
+				ok
+			next
+		next
+		_aSlH_ = []
+		for _iSlH_ = 1 to len(_aSlOrd_)
+			_aSlH_ + _aSlOrd_[_iSlH_][2]
+		next
 
 		# A SILHOUETTE IS SEVERAL PRIMITIVES SIDE BY SIDE.
 		#
