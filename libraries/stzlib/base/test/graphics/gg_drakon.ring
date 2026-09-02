@@ -189,7 +189,17 @@ o5.LastCanvas().ToPNG("drakon_5_declared.png")
 #   looped, and it took reading the language's own icon list to see that
 #   a whole construct was missing rather than merely unpolished.
 #
-#   Three separate defects stood between the model and this picture, and
+#   AND THE FIRST VERSION OF THIS SCENE WAS A LIE ABOUT ALGORITHMS, not
+#   merely an imperfect drawing. It gave the loop icon a right exit to
+#   "Done", which is an If wearing a loop's name: read literally, the
+#   loop ends on its first pass. DRAKON's For is TWO icons -- Begin For
+#   and End For -- with the repeated work standing between them, the
+#   flow continuing DOWN out of the End For, and the repeat drawn as the
+#   one line in the picture that goes up. The gap was written down in
+#   the profile under a heading that said NAMED AND NOT DONE, and being
+#   named there did not stop the picture claiming otherwise.
+#
+#   Three further defects stood between the model and this picture, and
 #   each hid the next:
 #
 #     the two-node cycle was claimed by the PAIR rule and drawn as two
@@ -209,11 +219,15 @@ o6.SetNotation(StzDrakonNotation())
 o6.AddNodeXTT("t","Total a basket", [ :type = "title" ])
 o6.AddNodeXTT("f","for each line",  [ :type = "foreach" ])
 o6.AddNodeXTT("a","Add its price",  [ :type = "action" ])
+o6.AddNodeXTT("z","end for",        [ :type = "endforeach" ])
 o6.AddNodeXTT("e","Done",           [ :type = "end" ])
 o6.AddEdge("t","f")
-o6.AddEdgeXTT("f","a","", [ :exit = :down ])
-o6.AddEdge("a","f")
-o6.AddEdgeXTT("f","e","", [ :exit = :right ])
+o6.AddEdge("f","a")
+o6.AddEdge("a","z")
+# the repeat, and the only line in this picture that goes up
+o6.AddEdge("z","f")
+# ...and what happens once the collection is exhausted
+o6.AddEdgeXTT("z","e","", [ :exit = :down ])
 o6.ToCanvasXT(OPT)
 o6.LastCanvas().ToPNG("drakon_6_loop.png")
 ? "  the loop           " + o6.LastCanvas().Width() + "x" +

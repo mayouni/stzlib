@@ -330,6 +330,7 @@ class stzDiagram from stzGraph
 	@aStubOf = []
 	@aReturnOf = []
 	@aRenderAdorn = []
+	@aRenderArrows = []
 	@aRenderForks = []
 	@bSequence = 0
 	@bMesh = 0
@@ -4431,6 +4432,13 @@ class stzDiagram from stzGraph
 		# edge was drawn straight through whatever stood in the way.
 		@aDrawXY = _aXY_
 		This._PlanRowLanes(_aXY_, _nBoxW_, _nBoxH_, _cRank_)
+		# THE ARROW TALLY IS CLEARED BEFORE THE PASSES, NOT AFTER THEM.
+		# Emptied alongside the adornments further down, it was emptied
+		# after every head had already been painted -- so the count read
+		# zero on a picture with a visible arrow in it, and the guard
+		# that was written to make this law checkable failed on the one
+		# case it exists for.
+		@aRenderArrows = []
 		_nPassN_ = 1
 		if _cSpl_ = "ortho"  _nPassN_ = 2  ok
 		for _ePass_ = 1 to _nPassN_
@@ -7116,6 +7124,25 @@ class stzDiagram from stzGraph
 		next
 		return 0
 
+	# HOW WIDE A GLYPH ACTUALLY IS AT ITS OWN MIDDLE.
+	#
+	# Every departure and arrival in this plane is measured from the
+	# BOX, which is the same as the border for a rectangle and for the
+	# pointed waist of a hexagon, and is wrong for everything that
+	# slopes. The numbers come from the shape painter itself rather than
+	# from a second guess about it: a trapezium insets 0.22 of its width
+	# on one edge, a parallelogram shears by 0.2, and half of each has
+	# been taken up by the time the outline reaches mid-height.
+	def _ShapeHalfWidthMid(pcShape, nW)
+		_swS_ = StzLower("" + pcShape)
+		if _swS_ = "trapezium" or _swS_ = "invtrapezium"
+			return nW / 2 - nW * 0.11
+		ok
+		if _swS_ = "parallelogram"
+			return nW / 2 - nW * 0.10
+		ok
+		return nW / 2
+
 	# THE RIGHT EXIT LEAVES BY THE RIGHT SIDE.
 	#
 	# The book gives the If icon's two exits in one sentence: "The
@@ -7150,7 +7177,7 @@ class stzDiagram from stzGraph
 		if This._NotationBranchSide() != "right"  return []  ok
 		# only a conditional icon has a side exit to give
 		_seK_ = StzLower("" + This._KindOfId(cFromId))
-		if _seK_ != "question" and _seK_ != "if" and _seK_ != "foreach"
+		if _seK_ != "question" and _seK_ != "if" and _seK_ != "select"
 			return []
 		ok
 		# the target stands out to the right, and below
@@ -7158,7 +7185,14 @@ class stzDiagram from stzGraph
 		_seBxT_ = This._BoxOf(cToId, nBoxW, nBoxH)
 		if paTo[1] <= paFrom[1] + _seBxF_[1] / 2  return []  ok
 		if paTo[2] <= paFrom[2]  return []  ok
-		_seOut_ = paFrom[1] + _seBxF_[1] / 2
+		# ...AND IT LEAVES THE ICON'S BORDER, not the box around it. A
+		# sloped glyph is narrower at its middle than the rectangle it
+		# is measured in, so a line starting at the box edge starts in
+		# mid-air: the Principal marked the gap between a trapezium and
+		# the line said to be leaving it. A wire that does not touch
+		# what it comes from is not attached to anything.
+		_seOut_ = paFrom[1] + This._ShapeHalfWidthMid(
+			This._ShapeOfId(cFromId), _seBxF_[1])
 		_seTop_ = paTo[2] - _seBxT_[2] / 2
 		if _seTop_ <= paFrom[2] + 2  return []  ok
 		# out of the right side, along, and down into the target's top
@@ -7261,6 +7295,23 @@ class stzDiagram from stzGraph
 		if _lpLane_ < 2  return []  ok
 		_lpBxF_ = This._BoxOf(cFromId, nBoxW, nBoxH)
 		_lpBxT_ = This._BoxOf(cToId, nBoxW, nBoxH)
+		# WHERE THE REPEAT LEAVES FROM, and it is not always the foot.
+		# An End For carries the flow ON down after the loop finishes,
+		# so a repeat leaving the same face would put two meanings in
+		# one line of ink. It leaves the LEFT side instead -- which is
+		# also the direction it is going -- and the foot stays free for
+		# the one thing that continues.
+		_bLpDn_ = 0
+		_aLpE_ = This.Edges()
+		for _iLpE_ = 1 to len(_aLpE_)
+			if StzLower("" + _aLpE_[_iLpE_][:from]) != StzLower("" + cFromId)
+				loop
+			ok
+			if StzLower("" + _aLpE_[_iLpE_][:to]) = StzLower("" + cToId)
+				loop
+			ok
+			_bLpDn_ = 1
+		next
 		_lpFoot_ = paFrom[2] + _lpBxF_[2] / 2
 		# THE TURN IS MADE IN THE MARGIN THE PICTURE ALREADY HAS, not
 		# in paper asked for afterwards. A full clearance below the
@@ -7279,6 +7330,18 @@ class stzDiagram from stzGraph
 		# there is one line into the icon, and the loop rejoins it.
 		_lpTop_ = paTo[2] - _lpBxT_[2] / 2 - _lpGap_
 		_lpSide_ = paTo[1]
+		if _bLpDn_
+			# out of the left border, up the lane, and back onto the
+			# line above the loop's first icon
+			_lpLeft_ = paFrom[1] - This._ShapeHalfWidthMid(
+				This._ShapeOfId(cFromId), _lpBxF_[1])
+			if _lpLane_ >= _lpLeft_ - 2  return []  ok
+			if _lpTop_ >= paFrom[2]  return []  ok
+			return [ _lpLeft_, paFrom[2],
+				_lpLane_, paFrom[2],
+				_lpLane_, _lpTop_,
+				_lpSide_, _lpTop_ ]
+		ok
 		if _lpTop_ >= _lpFoot_  return []  ok
 		# down out of the body, left into the lane, up, and back onto
 		# the line that feeds the loop
@@ -8724,6 +8787,16 @@ class stzDiagram from stzGraph
 
 	# What each edge ended in, when it declared a relationship:
 	# [ key, shape, filled, x, y ]. See _DrawRelationEnd.
+	# WHERE AN ARROWHEAD WAS ACTUALLY PAINTED: [ x, y ] of each tip.
+	#
+	# Recorded because "an arrow means a loop" is the law in this
+	# notation most able to break without showing: it is enforced in the
+	# two places that draw a head, and gating one of them alone produced
+	# a picture identical to the one before. A law with two enforcement
+	# points and no way to count the result is a law on trust.
+	def RenderArrows()
+		return @aRenderArrows
+
 	def RenderAdornments()
 		return @aRenderAdorn
 
@@ -11059,6 +11132,7 @@ class stzDiagram from stzGraph
 		if This._NotationBranchSide() = "right" and NOT @bLoopArrow
 			if aTip[2] >= aBase[2] - 0.5  return  ok
 		ok
+		if @nDrawPass = 2  @aRenderArrows + [ aTip[1], aTip[2] ]  ok
 		_hdx_ = aTip[1] - aBase[1]
 		_hdy_ = aTip[2] - aBase[2]
 		_hl_ = sqrt(_hdx_ * _hdx_ + _hdy_ * _hdy_)
@@ -12351,6 +12425,7 @@ class stzDiagram from stzGraph
 		if This._NotationBranchSide() = "right" and NOT @bLoopArrow
 			if aQ[2] >= aP[2] - 0.5  return  ok
 		ok
+		if @nDrawPass = 2  @aRenderArrows + [ aQ[1], aQ[2] ]  ok
 		_bx_ = aP[1]
 		_by_ = aP[2]
 		if cSpline = "ortho"
