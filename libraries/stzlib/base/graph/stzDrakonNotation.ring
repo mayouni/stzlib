@@ -185,12 +185,29 @@ func StzDrakonNotation()
 	# wearing it too -- two icons, one glyph, in the language whose
 	# whole claim is that a reader never has to work out which is which.
 	#
-	# NAMED AND NOT DONE: DRAKON's FOR is genuinely TWO icons, Begin For
-	# and End For, with the repeated work standing between them -- "the
-	# For icon is actually two icons". This profile has one, so it can
-	# say a loop exists and cannot yet say where its body ends. The
-	# trapezium is the icon table's shape for the pair's opening half.
+	# A FOR LOOP IS TWO ICONS, AND MODELLING IT AS ONE MADE IT AN IF.
+	#
+	# "The For icon is actually two icons: Begin For and End For. The
+	# code that runs several times is represented by the icons placed
+	# between the Begin For and End For icons."
+	#
+	# This profile had one icon and gave it a right exit to the thing
+	# that follows the loop -- which is an If wearing a loop's name, and
+	# says the loop ends on its first pass. It was written down here as
+	# a known gap, in a paragraph headed NAMED AND NOT DONE, and naming
+	# it did not stop the picture claiming otherwise. THE FIXTURE WENT
+	# OUT SAYING SOMETHING FALSE ABOUT THE ALGORITHM, and the Principal
+	# read it off the drawing. A gap named in a comment nobody reads
+	# beside the picture is not a gap that has been disclosed.
+	#
+	# So the body lies BETWEEN the two, the flow continues DOWN out of
+	# the End For, and the repeat is the line from the End For back up
+	# to the line above the Begin For. Neither icon has a side exit --
+	# the book allows early exits from a loop, but they come from an If
+	# or a Switch inside the body, never from the loop icons.
 	_o_.AddKindXT("foreach", "trapezium", "#eef2ff")
+	_o_.AddKindXT("endforeach", "invtrapezium", "#eef2ff")
+	_o_.SetNameInside("endforeach")
 	# ...AND IT HOLDS ITS OWN NAME. "for each line" is the loop, not a
 	# caption near it -- written outside it landed on the loop's own
 	# return wires, which is the same defect the question had.

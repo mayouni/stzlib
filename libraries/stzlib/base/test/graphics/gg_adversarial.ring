@@ -9951,52 +9951,108 @@ next
 ? "   down-exit at x " + nDcSk + ", side exit at x " + nDcSide
 chk("the declared side exit stands to the right of the skewer",
     nDcSide > nDcSk + 20)
-sec("-- 73n. DRAKON HAS A LOOP, AND SO DOES THIS PLANE -----")
+sec("-- 73n. DRAKON HAS A LOOP, AND IT IS TWO ICONS --------")
 
-# A LANGUAGE FOR ALGORITHMS WITHOUT A LOOP IS NOT THAT LANGUAGE.
-# foreach is in DRAKON's icon list and this profile had nothing for
-# it -- a gap invisible from the pictures being corrected, because
-# not one of them looped.
+# A LANGUAGE FOR ALGORITHMS WITHOUT A LOOP IS NOT THAT LANGUAGE, and
+# foreach was in DRAKON's icon list with nothing here answering to it.
+#
+# THE FIRST VERSION OF THIS GUARD BLESSED A MODEL THAT WAS FALSE. It
+# gave one loop icon two exits -- down into the body, right to what
+# follows -- which is an If wearing a loop's name: read literally, the
+# loop ends on its first pass. The gap was even written down in the
+# profile under a heading reading NAMED AND NOT DONE, and the fixture
+# went out anyway, saying something untrue about algorithms in a
+# picture. The book: "The For icon is actually two icons: Begin For
+# and End For. The code that runs several times is represented by the
+# icons placed between the Begin For and End For icons."
 oLp = new stzDiagram("loop73n")
 oLp.SetNotation(StzDrakonNotation())
 oLp.AddNodeXTT("t","Total a basket",[ :type = "title" ])
 oLp.AddNodeXTT("f","for each line",[ :type = "foreach" ])
 oLp.AddNodeXTT("a","Add its price",[ :type = "action" ])
+oLp.AddNodeXTT("z","end for",[ :type = "endforeach" ])
 oLp.AddNodeXTT("e","Done",[ :type = "end" ])
-oLp.AddEdge("t","f")
-oLp.AddEdgeXTT("f","a","", [ :exit = :down ])
-oLp.AddEdge("a","f")
-oLp.AddEdgeXTT("f","e","", [ :exit = :right ])
+oLp.AddEdge("t","f")  oLp.AddEdge("f","a")  oLp.AddEdge("a","z")
+oLp.AddEdge("z","f")
+oLp.AddEdgeXTT("z","e","", [ :exit = :down ])
 oLp.ToCanvasXT([ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56,
                  :FontSize = 20 ])
 chkeq("the model holds a loop", oLp._HasLoopReturn(), 1)
 
-# THE RETURN IS NOT A TWIN. Two nodes with an edge each way are
-# normally a pair drawn as two lines side by side; a cycle is one
-# thing happening twice. Twinned, the return came up the skewer's own
-# column -- two arrows in one line of ink pointing opposite ways,
-# inside the notation whose whole claim is that it cannot happen.
+# THE BODY LIES BETWEEN THE TWO ICONS, and the flow continues DOWN out
+# of the End For. Both are asked of the drawing, because the whole
+# defect was a picture disagreeing with a comment.
 aLpR = oLp.RenderNodeRects()
-aLpA = []  aLpF = []
+nLpF = 0  nLpA = 0  nLpZ = 0  nLpE = 0  nLpZw = 0  nLpZx = 0
 for iLp = 1 to len(aLpR)
-	if StzLower("" + aLpR[iLp][5]) = "a"
-		aLpA = [ aLpR[iLp][1] + aLpR[iLp][3] / 2,
-		         aLpR[iLp][2] + aLpR[iLp][4] / 2 ]
-	ok
-	if StzLower("" + aLpR[iLp][5]) = "f"
-		aLpF = [ aLpR[iLp][1] + aLpR[iLp][3] / 2,
-		         aLpR[iLp][2] + aLpR[iLp][4] / 2 ]
+	cLpI = StzLower("" + aLpR[iLp][5])
+	if cLpI = "f"  nLpF = aLpR[iLp][2]  ok
+	if cLpI = "a"  nLpA = aLpR[iLp][2]  ok
+	if cLpI = "e"  nLpE = aLpR[iLp][2]  ok
+	if cLpI = "z"
+		nLpZ = aLpR[iLp][2]
+		nLpZx = aLpR[iLp][1]
+		nLpZw = aLpR[iLp][3]
 	ok
 next
-aLpP = oLp._DrakonLoopPath("a", "f", aLpA, aLpF, 150, 56)
-chk("the return is drawn by the loop rule, not the router",
+chk("the repeated work stands between Begin For and End For",
+    nLpF < nLpA and nLpA < nLpZ)
+chk("...and the flow carries on downward out of the End For",
+    nLpZ < nLpE)
+
+# AN ARROW MEANS A LOOP, AND NOTHING ELSE MEANS IT. "All arrows inside
+# a branch represent loops. All other lines do not have arrow heads
+# because an excessive use of arrows adds unnecessary graphics
+# complexity." This plane drew one on every edge -- which does not
+# merely add noise: it spends the one mark DRAKON reserves for its
+# rarest event on its most ordinary one.
+? "   arrowheads painted: " + len(oLp.RenderArrows())
+chkeq("exactly one arrow in a picture with one loop",
+    len(oLp.RenderArrows()), 1)
+
+# ...AND IT POINTS AT A LINE, NEVER AT AN ICON. "Arrows never point to
+# icons. Arrows point only to lines that go down. This rule guarantees
+# that for each icon, there is only one line that leads to it."
+nLpIn = 0
+aLpAr = oLp.RenderArrows()
+for iLp = 1 to len(aLpAr)
+	for jLp = 1 to len(aLpR)
+		if aLpAr[iLp][1] >= aLpR[jLp][1] and
+		   aLpAr[iLp][1] <= aLpR[jLp][1] + aLpR[jLp][3] and
+		   aLpAr[iLp][2] >= aLpR[jLp][2] and
+		   aLpAr[iLp][2] <= aLpR[jLp][2] + aLpR[jLp][4]
+			nLpIn++
+		ok
+	next
+next
+chkeq("no arrow lands on an icon", nLpIn, 0)
+
+# THE REPEAT LEAVES THE ICON'S BORDER. A sloped glyph is narrower at
+# its middle than the rectangle it is measured in, so a line starting
+# at the box edge starts in mid-air -- the Principal marked the gap
+# between a trapezium and the line said to be leaving it. A wire that
+# does not touch what it comes from is not attached to anything.
+aLpZc = [ nLpZx + nLpZw / 2, nLpZ + 28 ]
+aLpFc = []
+for iLp = 1 to len(aLpR)
+	if StzLower("" + aLpR[iLp][5]) = "f"
+		aLpFc = [ aLpR[iLp][1] + aLpR[iLp][3] / 2,
+		          aLpR[iLp][2] + aLpR[iLp][4] / 2 ]
+	ok
+next
+aLpP = oLp._DrakonLoopPath("z", "f", aLpZc, aLpFc, 150, 56)
+chk("the repeat is drawn by the loop rule, not the router",
     len(aLpP) >= 8)
+nLpGap = fabs(aLpP[1] - nLpZx)
+? "   the repeat leaves x " + aLpP[1] + ", the icon's box edge is " +
+  nLpZx
+chk("...and it starts on the painted border, not the box", nLpGap < 20)
 
 # ...AND IT RUNS CLEAR OF EVERY BOX. The lane is what keeps the
 # no-crossing promise, and it only exists because the paper was asked
 # to hold it -- the rule found no room on its own and gave up in
 # silence, which is this plane's oldest failure wearing a new hat.
-nLpLane = aLpP[5]
+nLpLane = aLpP[3]
 nLpMinL = 1000000
 for iLp = 1 to len(aLpR)
 	if aLpR[iLp][1] < nLpMinL  nLpMinL = aLpR[iLp][1]  ok
@@ -10004,8 +10060,10 @@ next
 ? "   lane at x " + nLpLane + ", leftmost box at x " + nLpMinL
 chk("the loop lane runs left of every box", nLpLane < nLpMinL - 2)
 
-# NEGATIVE: a picture with no loop asks for no lane, so the reserve is
-# not a margin every DRAKON diagram quietly pays for.
+# NEGATIVE: a picture with no loop has no lane AND NO ARROW AT ALL --
+# the second half is what makes the first mean something, because a
+# notation that draws heads everywhere would still pass the count
+# above on a diagram that happens to loop.
 oLp2 = new stzDiagram("noloop73n")
 oLp2.SetNotation(StzDrakonNotation())
 oLp2.AddNodeXTT("t","Start",[ :type = "title" ])
@@ -10016,12 +10074,13 @@ oLp2.ToCanvasXT([ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56,
                   :FontSize = 20 ])
 chkeq("NEGATIVE: a straight algorithm reserves no lane",
     oLp2._LoopLaneReserve(), 0)
+chkeq("NEGATIVE: ...and carries no arrowhead anywhere",
+    len(oLp2.RenderArrows()), 0)
 
 # THE LOOP ICON HOLDS ITS OWN NAME. It was told to and then given a
 # box the name did not fit in, because the sizing rule granted that
 # to one shape by name -- "diamond" -- while the profile granted it
-# by KIND. Two rules disagreeing, and the picture obeys the sizer:
-# the name went outside, onto the loop's own return wires.
+# by KIND. Two rules disagreeing, and the picture obeys the sizer.
 nLpFw = 0
 for iLp = 1 to len(aLpR)
 	if StzLower("" + aLpR[iLp][5]) = "f"  nLpFw = aLpR[iLp][3]  ok
@@ -10029,6 +10088,7 @@ next
 nLpTw = EFONT.WidthOf("for each line", 20)
 ? "   loop icon " + nLpFw + "px wide for " + nLpTw + "px of type"
 chk("the loop icon is sized to the name it holds", nLpFw > nLpTw)
+
 sec("-- 73p. AN ALTERNATIVE STAYS IN ITS OWN COLUMN -------")
 
 # A question whose second exit lands further down the SAME vertical
