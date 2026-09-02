@@ -9758,7 +9758,7 @@ chkeq("...and both place 'no' the same way", nLbSameNo, 1)
 chk("NEGATIVE: the two words are not in the same place as each other",
     fabs(nLbYesDx - nLbNoDx) > 5 or fabs(nLbYesDy - nLbNoDy) > 5)
 
-sec("-- 73l. THE SILHOUETTE: A TRANSFER IS WRITTEN, NOT DRAWN --")
+sec("-- 73l. THE SILHOUETTE: WRITTEN WHERE, DRAWN HOW ----")
 
 # DRAKON'S FORM FOR AN ALGORITHM TOO LARGE FOR ONE SKEWER.
 #
@@ -9860,11 +9860,19 @@ chkeq("NEGATIVE: ...and the lines INSIDE a branch are still drawn",
 # tall for 524px of picture. Paper reserved for a line nobody draws is
 # the same defect as a name reserved in the wrong direction: a
 # measurement describing a layout other than the one on the page.
+# ...AND "THE INK" INCLUDES THE RAILS, which is where this clause
+# went wrong once the runner's path was drawn. Measured from the
+# icons alone it read 64px of dead paper under a picture whose
+# bottom rail was standing in it -- the same mistake as the defect
+# it was written to catch, made from the other side: a measurement
+# describing a layout other than the one on the page.
 nSlLow = 0
 for iSl = 1 to len(oSl.RenderNodeRects())
 	aSlR = oSl.RenderNodeRects()[iSl]
 	if aSlR[2] + aSlR[4] > nSlLow  nSlLow = aSlR[2] + aSlR[4]  ok
 next
+aSlBus = oSl._SilhouetteBusBox(150, 56)
+if len(aSlBus) = 4 and aSlBus[3] > nSlLow  nSlLow = aSlBus[3]  ok
 nSlH = oSl.LastCanvas().Height()
 ? "   lowest ink " + nSlLow + ", sheet " + oSl.LastCanvas().Width() +
   "x" + nSlH + "   slack " + (nSlH - nSlLow) + "px"
@@ -10346,6 +10354,96 @@ next
 chkeq("NEGATIVE: no id declared, so none is invented",
     oBi2._BranchOrdinalOf("z1"), 0)
 chk("...and declaration order still decides", nBiZ1 < nBiZ2)
+sec("-- 73s. A SILHOUETTE RUNS ON RAILS ------------------")
+
+# The book describes the shape as a RUNNER rather than as a drawing,
+# which is why it took the Principal's own sample to see that it is a
+# drawing: "The runner goes down through the leftmost branch. Then it
+# goes to the left edge and climbs up to the left top corner. Then it
+# slides to the right until it finds the branch pointed to by the
+# Address icon of the previous branch."
+#
+# This plane drew the branches as separate columns and nothing else,
+# on the reasoning that an inter-branch transfer is WRITTEN in the
+# Address rather than drawn. That is true of WHERE control goes and
+# says nothing about the path it takes. The name picks the branch; the
+# rails are how a reader sees that the columns are one algorithm and
+# not three diagrams sharing a sheet.
+oRl = new stzDiagram("rails73s")
+oRl.SetNotation(StzDrakonNotation())
+oRl.AddNodeXTT("b1","Take the order",[ :type = "branch" ])
+oRl.AddNodeXTT("read","Read basket",[ :type = "input" ])
+oRl.AddNodeXTT("a1","Charge",[ :type = "address" ])
+oRl.AddNodeXTT("b2","Charge",[ :type = "branch" ])
+oRl.AddNodeXTT("auth","Authorise card",[ :type = "action" ])
+oRl.AddNodeXTT("a2","Ship",[ :type = "address" ])
+oRl.AddNodeXTT("b3","Ship",[ :type = "branch" ])
+oRl.AddNodeXTT("pack","Pack",[ :type = "action" ])
+oRl.AddNodeXTT("fin","End",[ :type = "end" ])
+oRl.AddEdge("b1","read")  oRl.AddEdge("read","a1")  oRl.AddEdge("a1","b2")
+oRl.AddEdge("b2","auth")  oRl.AddEdge("auth","a2")  oRl.AddEdge("a2","b3")
+oRl.AddEdge("b3","pack")  oRl.AddEdge("pack","fin")
+oRl.ToCanvasXT([ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56,
+                 :FontSize = 20, :LayoutMode = :Silhouette ])
+aRlB = oRl._SilhouetteBusBox(150, 56)
+chkeq("a silhouette has rails", len(aRlB), 4)
+
+# THE TOP RAIL STANDS ABOVE EVERY BRANCH ENTRY and the bottom rail
+# below every address -- measured, because a rail threaded through the
+# icons it feeds would be a crossing in the notation that forbids them.
+aRlR = oRl.RenderNodeRects()
+nRlHiTop = 1000000  nRlLoBot = 0  nRlEndX = 0  nRlMaxA = 0
+for iRl = 1 to len(aRlR)
+	cRlI = StzLower("" + aRlR[iRl][5])
+	if cRlI = "b1" or cRlI = "b2" or cRlI = "b3"
+		if aRlR[iRl][2] < nRlHiTop  nRlHiTop = aRlR[iRl][2]  ok
+	ok
+	if cRlI = "a1" or cRlI = "a2"
+		if aRlR[iRl][2] + aRlR[iRl][4] > nRlLoBot
+			nRlLoBot = aRlR[iRl][2] + aRlR[iRl][4]
+		ok
+		if aRlR[iRl][1] + aRlR[iRl][3] / 2 > nRlMaxA
+			nRlMaxA = aRlR[iRl][1] + aRlR[iRl][3] / 2
+		ok
+	ok
+	if cRlI = "fin"  nRlEndX = aRlR[iRl][1]  ok
+next
+? "   top rail y " + aRlB[2] + ", highest branch entry y " + nRlHiTop
+chk("the top rail stands clear above every branch entry",
+    aRlB[2] < nRlHiTop - 2)
+chk("...and the bottom rail clear below every address",
+    aRlB[3] > nRlLoBot + 2)
+chk("...and the climb runs left of every icon", aRlB[1] < nRlEndX)
+
+# THE END DOES NOT REJOIN. "A diagram, however, cannot have many End
+# icons... Rule: there can be only one exit." An Address labelled
+# "End" is a transfer to a branch of that name, and the rails drew it
+# as one the moment they existed: control left the last icon of the
+# algorithm and went round again. The fixture had been written that
+# way since the silhouette shipped, and nothing could see it while
+# the transfers were not drawn at all.
+? "   bottom rail reaches x " + nRlMaxA + ", the End stands at x " +
+  nRlEndX
+chk("the bottom rail stops short of the End icon", nRlMaxA < nRlEndX)
+
+# ONE ARROW: THE CLIMB. Everything else on a silhouette goes down or
+# sideways, and in DRAKON only a line that goes up carries a head.
+? "   arrowheads on the silhouette: " + len(oRl.RenderArrows())
+chkeq("the climb is the only arrow on the sheet",
+    len(oRl.RenderArrows()), 1)
+
+# NEGATIVE: a primitive diagram is one skewer and has no rails at all,
+# so the reserve is not paper every DRAKON picture quietly pays for.
+oRl2 = new stzDiagram("norails73s")
+oRl2.SetNotation(StzDrakonNotation())
+oRl2.AddNodeXTT("t","Start",[ :type = "title" ])
+oRl2.AddNodeXTT("a","Do it",[ :type = "action" ])
+oRl2.AddNodeXTT("e","Done",[ :type = "end" ])
+oRl2.AddEdge("t","a")  oRl2.AddEdge("a","e")
+oRl2.ToCanvasXT([ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56,
+                  :FontSize = 20 ])
+chkeq("NEGATIVE: a primitive diagram has no rails",
+    len(oRl2._SilhouetteBusBox(150, 56)), 0)
 
 sec("-- 73g. A GROUND IS MET AT ITS LEAD, NOT ITS BARS ------")
 

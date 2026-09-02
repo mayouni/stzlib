@@ -4725,6 +4725,72 @@ class stzDiagram from stzGraph
 		#     against the published truth. That is also the difference
 		#     between this and every quantity that went wrong this week:
 		#     it reads what was DRAWN, not what a drawer intended.
+		# THE SILHOUETTE'S RAILS, drawn once after every branch exists.
+		#
+		# One horizontal above the headers feeding each of them, one
+		# below the addresses collecting them, and the left edge joining
+		# the second to the first -- which is the runner's own path in
+		# the book, made visible. The arrow at the top is the one this
+		# picture is allowed: it is a line going up, and in DRAKON that
+		# means come back and go round again.
+		_aBusR_ = This._SilhouetteBusBox(_nBoxW_, _nBoxH_)
+		if len(_aBusR_) = 4
+			_busL_ = _aBusR_[1]   _busT_ = _aBusR_[2]
+			_busB_ = _aBusR_[3]   _busR_ = _aBusR_[4]
+			_busFirst_ = _busR_
+			_aBusX_ = @aDrawXY
+			_nBusX_ = len(_aBusX_)
+			# THE BOTTOM RAIL REACHES THE LAST ADDRESS, NOT THE LAST
+			# BRANCH. The End icon is a terminus -- "there can be only
+			# one exit" -- and a rail drawn out to the widest column
+			# runs past it, so the picture showed control leaving the
+			# End and going round again.
+			_busRA_ = _busL_
+			for _iBus_ = 1 to _nBusX_
+				if StzLower("" + This._KindOfId("" +
+					_aBusX_[_iBus_][1])) != "address"
+					loop
+				ok
+				if _aBusX_[_iBus_][2] > _busRA_
+					_busRA_ = _aBusX_[_iBus_][2]
+				ok
+			next
+			# the stubs: down into every header, up out of every address
+			for _iBus_ = 1 to _nBusX_
+				_busId_ = StzLower("" + _aBusX_[_iBus_][1])
+				_busBx_ = This._BoxOf(_busId_, _nBoxW_, _nBoxH_)
+				_busK_ = StzLower("" + This._KindOfId(_busId_))
+				if _busK_ = "branch"
+					if _aBusX_[_iBus_][2] < _busFirst_
+						_busFirst_ = _aBusX_[_iBus_][2]
+					ok
+					This._EmitOrthoPolyline(_oC_, [
+						_aBusX_[_iBus_][2], _busT_,
+						_aBusX_[_iBus_][2],
+						_aBusX_[_iBus_][3] - _busBx_[2] / 2 ],
+						_cEdge_, _nEdgeW_, "bus>" + _busId_)
+				ok
+				if _busK_ = "address"
+					This._EmitOrthoPolyline(_oC_, [
+						_aBusX_[_iBus_][2],
+						_aBusX_[_iBus_][3] + _busBx_[2] / 2,
+						_aBusX_[_iBus_][2], _busB_ ],
+						_cEdge_, _nEdgeW_, _busId_ + ">bus")
+				ok
+			next
+			# the two rails and the climb between them
+			This._EmitOrthoPolyline(_oC_, [ _busRA_, _busB_,
+				_busL_, _busB_, _busL_, _busT_, _busR_, _busT_ ],
+				_cEdge_, _nEdgeW_, "bus")
+			if @nDrawPass = 2
+				_busAx_ = (_busL_ + _busFirst_) / 2
+				@bLoopArrow = 1
+				This._DrawArrowHead(_oC_, [ _busAx_ - 14, _busT_ ],
+					[ _busAx_, _busT_ ], _cEdge_)
+				@bLoopArrow = 0
+			ok
+		ok
+
 		@aRenderAdorn = []
 		_aAdR80_ = @aEdgePaths
 		_nAdR80_ = len(_aAdR80_)
@@ -7538,6 +7604,57 @@ class stzDiagram from stzGraph
 			return 0
 		next
 		return 0
+
+	# THE RAILS A SILHOUETTE RUNS ON: [ leftX, topY, bottomY, rightX ],
+	# or an empty list where this picture has no silhouette.
+	#
+	# The book describes the shape as a runner rather than as a drawing,
+	# which is why it took the Principal's own sample to see that it IS
+	# a drawing: "The runner goes down through the leftmost branch. Then
+	# it goes to the left edge and climbs up to the left top corner.
+	# Then it slides to the right until it finds the branch pointed to
+	# by the Address icon of the previous branch."
+	#
+	# This plane drew the branches as separate columns and nothing else,
+	# on the reasoning that an inter-branch transfer is WRITTEN in the
+	# Address icon rather than drawn -- which is true of WHERE control
+	# goes, and says nothing about the path it takes to get there. The
+	# name picks the branch; the rails are how a reader sees that the
+	# columns are one algorithm and not three diagrams sharing a sheet.
+	def _SilhouetteBusBox(nBoxW, nBoxH)
+		if NOT @bSilhouette  return []  ok
+		_aSbX_ = @aDrawXY
+		if len(_aSbX_) = 0  return []  ok
+		_nSbH_ = 0   _nSbA_ = 0
+		_sbTop_ = 1000000000   _sbLeft_ = 1000000000
+		_sbBot_ = 0 - 1000000000   _sbRight_ = 0 - 1000000000
+		_nSbX_ = len(_aSbX_)
+		for _iSb_ = 1 to _nSbX_
+			_sbId_ = StzLower("" + _aSbX_[_iSb_][1])
+			_sbB_ = This._BoxOf(_sbId_, nBoxW, nBoxH)
+			_sbL_ = _aSbX_[_iSb_][2] - _sbB_[1] / 2
+			if _sbL_ < _sbLeft_  _sbLeft_ = _sbL_  ok
+			_sbK_ = StzLower("" + This._KindOfId(_sbId_))
+			if _sbK_ = "branch"
+				_nSbH_++
+				if _aSbX_[_iSb_][3] - _sbB_[2] / 2 < _sbTop_
+					_sbTop_ = _aSbX_[_iSb_][3] - _sbB_[2] / 2
+				ok
+				if _aSbX_[_iSb_][2] > _sbRight_
+					_sbRight_ = _aSbX_[_iSb_][2]
+				ok
+			ok
+			if _sbK_ = "address"
+				_nSbA_++
+				if _aSbX_[_iSb_][3] + _sbB_[2] / 2 > _sbBot_
+					_sbBot_ = _aSbX_[_iSb_][3] + _sbB_[2] / 2
+				ok
+			ok
+		next
+		if _nSbH_ < 2 or _nSbA_ < 1  return []  ok
+		_sbGap_ = This._LineClearance() * 2
+		return [ _sbLeft_ - _sbGap_, _sbTop_ - _sbGap_,
+			_sbBot_ + _sbGap_, _sbRight_ ]
 
 	def _ApplySilhouette(paXY, nBoxW, nBoxH, nSep)
 		_aSlN_ = This.Nodes()
@@ -13840,6 +13957,16 @@ class stzDiagram from stzGraph
 		# for here, where the paper is sized, so that by the time the
 		# rule runs the room already exists.
 		_ceX0_ -= This._LoopLaneReserve()
+
+		# THE RAILS ARE CONTENT TOO -- see _SilhouetteBusBox. Reserved
+		# here, where a silhouette's paper is actually measured, rather
+		# than in either of the two other places that size a picture.
+		_aCeSb_ = This._SilhouetteBusBox(nBoxW, nBoxH)
+		if len(_aCeSb_) = 4
+			if _aCeSb_[1] < _ceX0_  _ceX0_ = _aCeSb_[1]  ok
+			if _aCeSb_[2] < _ceY0_  _ceY0_ = _aCeSb_[2]  ok
+			if _aCeSb_[3] > _ceY1_  _ceY1_ = _aCeSb_[3]  ok
+		ok
 
 		# the frames, and their names above them
 		_aCeC18_ = @aClusters
