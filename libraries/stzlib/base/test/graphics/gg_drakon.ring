@@ -134,7 +134,12 @@ o4.AddNodeXTT("a2", "Ship",            [ :type = "address" ])
 o4.AddNodeXTT("b3", "Ship",            [ :type = "branch" ])
 o4.AddNodeXTT("pack", "Pack",          [ :type = "action" ])
 o4.AddNodeXTT("send", "Hand to carrier",[ :type = "action" ])
-o4.AddNodeXTT("a3", "End",             [ :type = "address" ])
+# THE LAST BRANCH ENDS, IT DOES NOT FORWARD. An Address labelled "End"
+# is a transfer to a branch of that name, and once the rails were drawn
+# the picture said so out loud: control left the last icon of the
+# algorithm and went round again. "A diagram, however, cannot have many
+# End icons... Rule: there can be only one exit."
+o4.AddNodeXTT("a3", "End",             [ :type = "end" ])
 
 o4.AddEdge("b1","read")   o4.AddEdge("read","q1")
 o4.AddEdgeXT("q1","a1","no")   o4.AddEdgeXT("q1","warn","yes")
