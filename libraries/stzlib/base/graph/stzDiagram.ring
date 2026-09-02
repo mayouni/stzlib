@@ -7536,7 +7536,17 @@ class stzDiagram from stzGraph
 		_aXa_ = This._XYOf(@aDrawXY, _xF_)
 		if len(_aXa_) != 2  return []  ok
 		_aXb_ = This._BoxOf(_xF_, nBoxW, nBoxH)
-		_xClr_ = This._LineClearance() * 0.55
+		# THE LABEL SITS AGAINST THE ICON IT ANSWERS, not midway to the
+		# next one. At 0.55 of a clearance the word cleared its own
+		# glyph by 29.7px and the box beneath it by 27.3 -- nearer the
+		# icon it says nothing about. The Principal marked the same
+		# ambiguity sideways, between two branches; the guard written
+		# for that found this one vertically the first time it ran.
+		#
+		# A reader decides which glyph a word belongs to by proximity,
+		# so a label equidistant from two icons has not been placed at
+		# all. Half the near gap is what makes the claim.
+		_xClr_ = This._LineClearance() * 0.35
 		_x1_ = paPath[1]   _y1_ = paPath[2]
 		_x2_ = paPath[3]   _y2_ = paPath[4]
 		# the DOWN exit: the word stands to the right of the line, just
@@ -7655,6 +7665,57 @@ class stzDiagram from stzGraph
 		_sbGap_ = This._LineClearance() * 2
 		return [ _sbLeft_ - _sbGap_, _sbTop_ - _sbGap_,
 			_sbBot_ + _sbGap_, _sbRight_ ]
+
+	# HOW FAR A BRANCH'S OWN LINES REACH PAST ITS OWN ICONS.
+	#
+	# A branch is not as wide as its widest icon. A secondary route that
+	# steps aside and rejoins the same skewer runs in a lane one
+	# clearance beyond that icon -- see _DrakonSideJoin -- and that lane
+	# is the branch's ink as surely as any box is.
+	#
+	# The gutter between branches was constant and the picture did not
+	# look it: measured between BOXES the two gaps were 57 and 57;
+	# measured between the ink a reader actually sees they were 33 and
+	# 57, because one branch had a lane and the arithmetic did not know.
+	# The Principal marked both gaps and asked for a rule. There was a
+	# rule the whole time -- it was being applied to the wrong extent,
+	# which is this plane's most repeated fault and the one it keeps
+	# meeting in a new place: a quantity measured from the box when the
+	# question was about the ink.
+	def _LaneReachOf(paXY, paIds, nBoxW, nBoxH)
+		if This._NotationBranchSide() != "right"  return 0  ok
+		_aLrE_ = This.Edges()
+		_nLrE_ = len(_aLrE_)
+		for _iLrE_ = 1 to _nLrE_
+			_lrF_ = StzLower("" + _aLrE_[_iLrE_][:from])
+			_lrT_ = StzLower("" + _aLrE_[_iLrE_][:to])
+			if _lrF_ = _lrT_  loop  ok
+			_bLrF_ = 0   _bLrT_ = 0
+			for _iLrI_ = 1 to len(paIds)
+				if StzLower("" + paIds[_iLrI_]) = _lrF_  _bLrF_ = 1  ok
+				if StzLower("" + paIds[_iLrI_]) = _lrT_  _bLrT_ = 1  ok
+			next
+			if NOT _bLrF_ or NOT _bLrT_  loop  ok
+			_aLrA_ = This._XYOf(paXY, _lrF_)
+			_aLrB_ = This._XYOf(paXY, _lrT_)
+			if len(_aLrA_) != 2 or len(_aLrB_) != 2  loop  ok
+			# the two ends share a vertical, and the target is below
+			if fabs(_aLrA_[1] - _aLrB_[1]) > 2  loop  ok
+			if _aLrB_[2] <= _aLrA_[2]  loop  ok
+			# ...and something stands between them on that vertical, so
+			# the straight drop is taken and this route must step out
+			for _iLrI_ = 1 to len(paIds)
+				_lrW_ = StzLower("" + paIds[_iLrI_])
+				if _lrW_ = _lrF_ or _lrW_ = _lrT_  loop  ok
+				_aLrW_ = This._XYOf(paXY, _lrW_)
+				if len(_aLrW_) != 2  loop  ok
+				if fabs(_aLrW_[1] - _aLrA_[1]) > 2  loop  ok
+				if _aLrW_[2] > _aLrA_[2] and _aLrW_[2] < _aLrB_[2]
+					return This._LineClearance()
+				ok
+			next
+		next
+		return 0
 
 	def _ApplySilhouette(paXY, nBoxW, nBoxH, nSep)
 		_aSlN_ = This.Nodes()
@@ -7870,6 +7931,7 @@ class stzDiagram from stzGraph
 			# let the two questions of neighbouring branches touch.
 			_slL_ = 0
 			_slR_ = 0
+			_aSlMem_ = []
 			for _iSl_ = 1 to _nSlP_
 				_slIdx_ = 0
 				for _kSl_ = 1 to _nSlN_
@@ -7887,7 +7949,11 @@ class stzDiagram from stzGraph
 				if _slRt_ > _slR_  _slR_ = _slRt_  ok
 				_slLf_ = _aSlOut_[_iSl_][2] - _slBw_ / 2
 				if _slLf_ < _slL_  _slL_ = _slLf_  ok
+				_aSlMem_ + ("" + _aSlOut_[_iSl_][1])
 			next
+			# ...AND THE BRANCH IS AS WIDE AS ITS LINES, NOT ITS BOXES.
+			_slR_ = _slR_ + This._LaneReachOf(_aSlOut_, _aSlMem_,
+				nBoxW, nBoxH)
 			_slT2_ = 0
 			if _bSlFirst_
 				_slPen_ = _slL_
@@ -11188,6 +11254,27 @@ class stzDiagram from stzGraph
 		return _eaOut_
 
 	def _ArrowCut(paFlat, nLen)
+		# A LINE IS ONLY SHORTENED FOR A HEAD THAT WILL BE DRAWN.
+		#
+		# This trims the last stretch of a path to leave room for the
+		# arrowhead. Reserving the one mark DRAKON keeps for loops
+		# turned every other head off and left the trim behind, so every
+		# wire in the notation stopped 13px short of the icon it arrives
+		# at -- a whole diagram of lines attached to nothing, which is
+		# what the Principal marked and asked to be true of every cell
+		# form rather than of the one he could see it on.
+		#
+		# One suppression, two consequences, and only the visible one
+		# was thought about: turning a mark off is not the same as
+		# deciding what the space it occupied is now for.
+		if This._NotationBranchSide() = "right" and NOT @bLoopArrow
+			_acN_ = len(paFlat)
+			if _acN_ >= 4
+				if paFlat[_acN_] >= paFlat[_acN_ - 2] - 0.5
+					nLen = 0
+				ok
+			ok
+		ok
 		paFlat = This._EnsureArrival(paFlat, nLen + This._LineClearance())
 		_an_ = len(paFlat)
 		if _an_ < 4  return [ paFlat, [ 0, 0 ], [ 0, 0 ] ]  ok

@@ -10444,6 +10444,195 @@ oRl2.ToCanvasXT([ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56,
                   :FontSize = 20 ])
 chkeq("NEGATIVE: a primitive diagram has no rails",
     len(oRl2._SilhouetteBusBox(150, 56)), 0)
+sec("-- 73t. EVERY LINE TOUCHES WHAT IT ARRIVES AT -------")
+
+# ONE SUPPRESSION, TWO CONSEQUENCES, AND ONLY THE VISIBLE ONE WAS
+# THOUGHT ABOUT.
+#
+# Reserving the arrowhead for loops -- which the book requires --
+# turned off every other head and left behind the TRIM that had been
+# made for it: a path is shortened by 13px so a head can sit at its
+# end, and with no head there the wire simply stops short. A whole
+# notation of lines attached to nothing. Turning a mark off is not the
+# same as deciding what the space it occupied is now for.
+#
+# The Principal marked one gap and asked for it to be true of every
+# cell form, which is the right way to ask: the fault was never about
+# the glyph it was spotted on.
+oAt = new stzDiagram("attach73t")
+oAt.SetNotation(StzDrakonNotation())
+oAt.AddNodeXTT("b1","Take the order",[ :type = "branch" ])
+oAt.AddNodeXTT("read","Read basket",[ :type = "input" ])
+oAt.AddNodeXTT("q1","Basket empty?",[ :type = "question" ])
+oAt.AddNodeXTT("warn","Say so",[ :type = "action" ])
+oAt.AddNodeXTT("a1","Charge",[ :type = "address" ])
+oAt.AddNodeXTT("b2","Charge",[ :type = "branch" ])
+oAt.AddNodeXTT("q2","Authorised?",[ :type = "question" ])
+oAt.AddNodeXTT("decl","Record refusal",[ :type = "action" ])
+oAt.AddNodeXTT("a2","Ship",[ :type = "address" ])
+oAt.AddNodeXTT("b3","Ship",[ :type = "branch" ])
+oAt.AddNodeXTT("pack","Pack",[ :type = "action" ])
+oAt.AddNodeXTT("fin","End",[ :type = "end" ])
+oAt.AddEdge("b1","read")  oAt.AddEdge("read","q1")
+oAt.AddEdgeXT("q1","a1","no")  oAt.AddEdgeXT("q1","warn","yes")
+oAt.AddEdge("warn","a1")  oAt.AddEdge("a1","b2")
+oAt.AddEdge("b2","q2")
+oAt.AddEdgeXT("q2","a2","yes")  oAt.AddEdgeXT("q2","decl","no")
+oAt.AddEdge("decl","a2")  oAt.AddEdge("a2","b3")
+oAt.AddEdge("b3","pack")  oAt.AddEdge("pack","fin")
+oAt.ToCanvasXT([ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56,
+                 :FontSize = 20, :LayoutMode = :Silhouette ])
+
+# EVERY ICON THAT SOMETHING FLOWS INTO IS TOUCHED BY A LINE. Asked of
+# the icons rather than of the paths, because a path may legally stop
+# on the vertical above an icon -- that is the book's joining rule --
+# and what must never happen is an icon nothing reaches.
+aAtR = oAt.RenderNodeRects()
+aAtP = oAt.RenderEdgePaths()
+nAtLoose = 0
+for iAt = 1 to len(aAtR)
+	cAtId = StzLower("" + aAtR[iAt][5])
+	if cAtId = "b1"  loop  ok
+	bAtIn = 0
+	for jAt = 1 to len(aAtR)  next
+	for jAt = 1 to len(aAtP)
+		aAtPt = aAtP[jAt][2]
+		nAtX = aAtPt[len(aAtPt) - 1]
+		nAtY = aAtPt[len(aAtPt)]
+		if nAtX < aAtR[iAt][1] - 2  loop  ok
+		if nAtX > aAtR[iAt][1] + aAtR[iAt][3] + 2  loop  ok
+		if nAtY < aAtR[iAt][2] - 2  loop  ok
+		if nAtY > aAtR[iAt][2] + aAtR[iAt][4] + 2  loop  ok
+		bAtIn = 1
+	next
+	if NOT bAtIn
+		# a branch entry is fed by the rail, not by an edge
+		if StzLower("" + oAt._KindOfId(cAtId)) = "branch"  loop  ok
+		nAtLoose++
+		? "   NOTHING TOUCHES " + cAtId
+	ok
+next
+chkeq("no icon is left with nothing touching it", nAtLoose, 0)
+
+# ...AND THE ARRIVAL IS ON THE BORDER, not somewhere inside the glyph.
+# A line that overshoots into the box is as wrong as one that stops
+# short, and both look the same from a distance.
+nAtDeep = 0
+for jAt = 1 to len(aAtP)
+	aAtPt = aAtP[jAt][2]
+	nAtX = aAtPt[len(aAtPt) - 1]
+	nAtY = aAtPt[len(aAtPt)]
+	for iAt = 1 to len(aAtR)
+		if nAtX < aAtR[iAt][1] + 3  loop  ok
+		if nAtX > aAtR[iAt][1] + aAtR[iAt][3] - 3  loop  ok
+		if nAtY < aAtR[iAt][2] + 3  loop  ok
+		if nAtY > aAtR[iAt][2] + aAtR[iAt][4] - 3  loop  ok
+		nAtDeep++
+		? "   OVERSHOOT into " + aAtR[iAt][5]
+	next
+next
+chkeq("no line ends inside a glyph", nAtDeep, 0)
+
+sec("-- 73u. THE GUTTER IS MEASURED FROM THE INK ----------")
+
+# A BRANCH IS NOT AS WIDE AS ITS WIDEST ICON.
+#
+# A secondary route that steps aside and rejoins the same skewer runs
+# in a lane one clearance beyond that icon, and that lane is the
+# branch's ink as surely as any box is. The gutter between branches
+# was CONSTANT the whole time and the picture did not look it: between
+# boxes the gaps were 57 and 57, between the ink a reader actually
+# sees they were 33 and 57.
+#
+# The Principal marked both gaps and asked for a rule. There was one;
+# it was being applied to the wrong extent -- this plane's most
+# repeated fault, met again in a new place.
+aAtIn = [ [ "b1","read","q1","warn","a1" ],
+          [ "b2","q2","decl","a2" ],
+          [ "b3","pack","fin" ] ]
+aAtGut = []
+nAtPrev = 0
+for iAt = 1 to 3
+	nAtL = 1000000  nAtR2 = 0
+	for jAt = 1 to len(aAtIn[iAt])
+		for kAt = 1 to len(aAtR)
+			if StzLower("" + aAtR[kAt][5]) != aAtIn[iAt][jAt]  loop  ok
+			if aAtR[kAt][1] < nAtL  nAtL = aAtR[kAt][1]  ok
+			if aAtR[kAt][1] + aAtR[kAt][3] > nAtR2
+				nAtR2 = aAtR[kAt][1] + aAtR[kAt][3]
+			ok
+		next
+	next
+	# ...and the lines this branch draws beyond its own boxes
+	for jAt = 1 to len(aAtP)
+		cAtK = StzLower("" + aAtP[jAt][1])
+		bAtMine = 0
+		for kAt = 1 to len(aAtIn[iAt])
+			if StzFindFirst(aAtIn[iAt][kAt] + ">", cAtK) = 1  bAtMine = 1  ok
+		next
+		if NOT bAtMine  loop  ok
+		for kAt = 1 to len(aAtP[jAt][2]) step 2
+			if aAtP[jAt][2][kAt] > nAtR2  nAtR2 = aAtP[jAt][2][kAt]  ok
+		next
+	next
+	if iAt > 1  aAtGut + (nAtL - nAtPrev)  ok
+	nAtPrev = nAtR2
+next
+? "   ink gutters: " + aAtGut[1] + " and " + aAtGut[2]
+chk("the two gutters are the same distance",
+    fabs(aAtGut[1] - aAtGut[2]) < 6)
+
+# NEGATIVE: the gutter is not merely equal, it is a GAP -- a rule that
+# set both to zero would satisfy the clause above and overlap the
+# branches.
+chk("NEGATIVE: ...and both are a real separation", aAtGut[1] > 20)
+
+sec("-- 73v. A LABEL BELONGS TO ONE ICON, VISIBLY ---------")
+
+# "no" stood almost exactly between two questions in adjacent branches
+# -- as far from the icon it answers as from the icon it does not.
+# DRAKON labels the exits of an If so a reader can answer "which way
+# is yes?" by looking at the icon; a word equidistant from two icons
+# makes them look it up instead, which is the one thing this notation
+# exists to spare them.
+aAtL = oAt.RenderLabels()
+nAtAmb = 0
+for iAt = 1 to len(aAtL)
+	cAtKey = StzLower("" + aAtL[iAt][6])
+	nAtSep = StzFindFirst(">", cAtKey)
+	if nAtSep < 1  loop  ok
+	cAtOwn = left(cAtKey, nAtSep - 1)
+	nAtLx = aAtL[iAt][2]  nAtLy = aAtL[iAt][3]
+	nAtOwnD = 1000000  nAtOtherD = 1000000
+	cAtNear = ""
+	for jAt = 1 to len(aAtR)
+		nAtCx = aAtR[jAt][1] + aAtR[jAt][3] / 2
+		nAtCy = aAtR[jAt][2] + aAtR[jAt][4] / 2
+		nAtDx = 0
+		if nAtLx < aAtR[jAt][1]  nAtDx = aAtR[jAt][1] - nAtLx  ok
+		if nAtLx > aAtR[jAt][1] + aAtR[jAt][3]
+			nAtDx = nAtLx - (aAtR[jAt][1] + aAtR[jAt][3])
+		ok
+		nAtDy = 0
+		if nAtLy < aAtR[jAt][2]  nAtDy = aAtR[jAt][2] - nAtLy  ok
+		if nAtLy > aAtR[jAt][2] + aAtR[jAt][4]
+			nAtDy = nAtLy - (aAtR[jAt][2] + aAtR[jAt][4])
+		ok
+		nAtD = sqrt(nAtDx * nAtDx + nAtDy * nAtDy)
+		if StzLower("" + aAtR[jAt][5]) = cAtOwn
+			nAtOwnD = nAtD
+		else
+			if nAtD < nAtOtherD
+				nAtOtherD = nAtD
+				cAtNear = "" + aAtR[jAt][5]
+			ok
+		ok
+	next
+	? "   " + aAtL[iAt][1] + " is " + nAtOwnD + " from " + cAtOwn +
+	  " and " + nAtOtherD + " from " + cAtNear
+	if nAtOwnD >= nAtOtherD  nAtAmb++  ok
+next
+chkeq("every exit label is nearest the icon it answers", nAtAmb, 0)
 
 sec("-- 73g. A GROUND IS MET AT ITS LEAD, NOT ITS BARS ------")
 
