@@ -154,3 +154,67 @@ o4.ToCanvasXT([ :Font = FONT, :NodeWidth = 150, :NodeHeight = 56,
 o4.LastCanvas().ToPNG("drakon_4_silhouette.png")
 ? "  the silhouette     " + o4.LastCanvas().Width() + "x" +
   o4.LastCanvas().Height()
+
+#-- 5. THE EXITS ARE DECLARED, NOT GUESSED -- DN6c ---------------------------
+#   Learned from DRAKON's own engine rather than from its pictures.
+#   DrakonWidget gives every icon exactly two exits and fixes what each
+#   MEANS: `one` is the next item BELOW, `two` the next to the RIGHT. A
+#   question is not two arrows to be sorted out by reading their labels.
+#
+#   THIS SCENE IS BUILT SO THE WORDS MISLEAD. The main path leaves by
+#   "insufficient" and the branch by "ok" -- a reading of the wording puts
+#   the skewer through the branch and is confident about it. The declared
+#   exit puts it right, and that is the difference between a language and
+#   a heuristic.
+o5 = new stzDiagram("declared")
+o5.SetNotation(StzDrakonNotation())
+o5.AddNodeXTT("t",  "Top up",          [ :type = "title" ])
+o5.AddNodeXTT("q",  "Balance?",        [ :type = "question" ])
+o5.AddNodeXTT("add","Add funds",       [ :type = "action" ])
+o5.AddNodeXTT("skip","Nothing to do",  [ :type = "action" ])
+o5.AddNodeXTT("e",  "Done",            [ :type = "end" ])
+o5.AddEdge("t","q")
+o5.AddEdgeXTT("q","add","insufficient", [ :exit = :down ])
+o5.AddEdgeXTT("q","skip","ok",          [ :exit = :right ])
+o5.AddEdge("add","e")
+o5.AddEdge("skip","e")
+o5.ToCanvasXT(OPT)
+o5.LastCanvas().ToPNG("drakon_5_declared.png")
+? "  declared exits     " + o5.LastCanvas().Width() + "x" +
+  o5.LastCanvas().Height()
+
+#-- 6. THE LOOP -- DN6d ------------------------------------------------------
+#   DRAKON has foreach and this library had no loop at all. The gap was
+#   invisible from the pictures being corrected, because not one of them
+#   looped, and it took reading the language's own icon list to see that
+#   a whole construct was missing rather than merely unpolished.
+#
+#   Three separate defects stood between the model and this picture, and
+#   each hid the next:
+#
+#     the two-node cycle was claimed by the PAIR rule and drawn as two
+#     arrows side by side -- right for a call and its reply, and for a
+#     loop it is the same ink pointing both ways
+#
+#     the return then routed generically and left the paper on the right
+#
+#     the loop icon was told to hold its name and given a box the name
+#     did not fit, so the name went outside onto the return wires
+#
+#   What it draws now is DRAKON's own shape: down out of the body, left
+#   into a lane clear of everything, up, and in at the icon's SIDE --
+#   which is how a reader tells a re-entry from the flow coming down.
+o6 = new stzDiagram("total")
+o6.SetNotation(StzDrakonNotation())
+o6.AddNodeXTT("t","Total a basket", [ :type = "title" ])
+o6.AddNodeXTT("f","for each line",  [ :type = "foreach" ])
+o6.AddNodeXTT("a","Add its price",  [ :type = "action" ])
+o6.AddNodeXTT("e","Done",           [ :type = "end" ])
+o6.AddEdge("t","f")
+o6.AddEdgeXTT("f","a","", [ :exit = :down ])
+o6.AddEdge("a","f")
+o6.AddEdgeXTT("f","e","", [ :exit = :right ])
+o6.ToCanvasXT(OPT)
+o6.LastCanvas().ToPNG("drakon_6_loop.png")
+? "  the loop           " + o6.LastCanvas().Width() + "x" +
+  o6.LastCanvas().Height()

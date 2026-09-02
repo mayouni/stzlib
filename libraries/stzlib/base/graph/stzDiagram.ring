@@ -983,14 +983,25 @@ class stzDiagram from stzGraph
 				ok
 				if _kFb_ = ""  loop  ok
 				if NOT _oNfb_.WritesNameInside(_kFb_)  loop  ok
-				if StzLower("" + This._NativeShapeOf(_ndFb_)) != "diamond"
-					loop
-				ok
+				# ...AND IT IS THE SHAPE'S OWN INTERIOR THAT DECIDES, not
+				# a list with "diamond" in it.
+				#
+				# The rule was written for the rhombus and named it, so
+				# DRAKON's loop -- a hexagon, whose interior is narrower
+				# than its box for exactly the same reason -- was told to
+				# hold its name and then given a box the name did not fit
+				# in. The name went outside and landed on the loop's own
+				# return wires. A profile that DECLARES an icon holds its
+				# name and a sizer that grants it to one shape is two
+				# rules disagreeing, and the picture obeys the second.
+				_aFfb_ = This._InscribedFraction(
+					This._NativeShapeOf(_ndFb_))
+				if _aFfb_[1] >= 0.999 and _aFfb_[2] >= 0.999  loop  ok
 				_cLfb_ = StzTrim("" + _ndFb_[:label])
 				if _cLfb_ = ""  loop  ok
 				_wFb_ = @oBoxFont.WidthOf(_cLfb_, @nBoxFsz)
-				_nWfb_ = ceil((_wFb_ + 16) * 2)
-				_nHfb_ = ceil((@nBoxFsz * 1.5 + 12) * 2)
+				_nWfb_ = ceil((_wFb_ + 16) / _aFfb_[1])
+				_nHfb_ = ceil((@nBoxFsz * 1.5 + 12) / _aFfb_[2])
 				if _nWfb_ < nBoxW  _nWfb_ = nBoxW  ok
 				if _nHfb_ < nBoxH  _nHfb_ = nBoxH  ok
 				@aBoxOf + [ StzLower("" + _ndFb_[:id]), _nWfb_, _nHfb_ ]
@@ -3248,6 +3259,35 @@ class stzDiagram from stzGraph
 					_spSep_ = _spBk_[3] + This._LineClearance()
 				ok
 			ok
+			# THE LOOP LANE IS ASKED FOR HERE, WHERE THE PAPER IS
+			# ACTUALLY DECIDED FOR THIS KIND OF PICTURE.
+			#
+			# It was asked for twice before this, in two different extent
+			# computations, and NEITHER OF THEM RUNS for a layered diagram
+			# -- so a real change produced a byte-identical picture, twice,
+			# and the second time the drawing rule looked like the thing at
+			# fault. Three places compute this picture's paper. That is the
+			# finding; the loop lane is only what exposed it.
+			_nLnLp_ = This._LoopLaneReserve()
+			if _nLnLp_ > 0
+				_aLpMv_ = []
+				_nLpMv_ = len(_aXY_)
+				for _iLpMv_ = 1 to _nLpMv_
+					_aLpMv_ + [ _aXY_[_iLpMv_][1],
+						_aXY_[_iLpMv_][2] + _nLnLp_,
+						_aXY_[_iLpMv_][3] ]
+				next
+				_aXY_ = _aLpMv_
+				_nW_ = ceil(_nW_ + _nLnLp_)
+				# THE HEIGHT IS NOT ASKED FOR HERE, and the attempt is
+				# recorded because it looked like it should be. Growing
+				# _nH_ changed nothing: the paper is re-fitted to its
+				# CONTENT further down, so the width above works because
+				# it moves the nodes, and a height added to a variable
+				# that is recomputed is discarded in silence. The return
+				# turns inside the margin the content already has --
+				# see _DrakonLoopPath.
+			ok
 			@nSpineLabelDemand = This._SpineLabelDemand(_oFont_, _nFsz_,
 				_nBoxW_, _cRank_)
 			_aXY_ = This._ApplySpineRows(_aXY_, _nBoxW_, _nBoxH_,
@@ -3487,6 +3527,14 @@ class stzDiagram from stzGraph
 					if _cb_[1] + _cb_[3] > _ex1_  _ex1_ = _cb_[1] + _cb_[3]  ok
 					if _cb_[2] + _cb_[4] > _ey1_  _ey1_ = _cb_[2] + _cb_[4]  ok
 				next
+				# THE LOOP LANE IS CONTENT -- see _LoopLaneReserve, and
+				# see that this is the SECOND place asking. The picture's
+				# extent is computed here for a natively laid diagram and
+				# again in _ContentExtent for the measured modes, which
+				# is why the first reserve written changed nothing: it
+				# was added to the copy this picture does not run.
+				_ex0_ -= This._LoopLaneReserve()
+
 				# ONE BORDER, ON ALL FOUR SIDES. The content is moved so
 				# its own top-left lands on the border, whether it was
 				# hanging off the paper or floating well inside it --
@@ -4326,6 +4374,19 @@ class stzDiagram from stzGraph
 				_cTf_ = StzLower("" + _aE_[_ti_][:from])
 				_cTt_ = StzLower("" + _aE_[_ti_][:to])
 				if _cTf_ = _cTt_  loop  ok
+				# A LOOP RETURN IS NOT A TWIN, and this is where DRAKON's
+				# loop was being erased before any drawing rule could see
+				# it. Two nodes with an edge each way are normally a PAIR
+				# -- a call and its reply, a mutual relation -- and the
+				# plane draws them as two lines side by side, which is
+				# right for a pair and wrong for a cycle. In an algorithm
+				# the second edge is the body going BACK to the loop: one
+				# thing happening twice, not two things happening once
+				# each. Twinned, it came up the skewer's own column as a
+				# second arrow pointing the other way, which is the
+				# shared-ink law broken inside the notation that exists
+				# to forbid it.
+				if This._NotationBranchSide() = "right"  loop  ok
 				for _tj_ = 1 to _nEc_
 					if _tj_ = _ti_  loop  ok
 					if StzLower("" + _aE_[_tj_][:from]) = _cTt_ and
@@ -4525,6 +4586,34 @@ class stzDiagram from stzGraph
 			# AN INTER-BRANCH TRANSFER IS WRITTEN, NOT DRAWN.
 			if This._SilhouetteSuppressed("" + _aE_[_ei_][:from],
 				"" + _aE_[_ei_][:to])
+				loop
+			ok
+			# A DRAKON LOOP RETURN IS A SHAPE OF ITS OWN, and asked
+			# before anything else, because a router cannot produce it.
+			_aSjP_ = This._DrakonSideJoin("" + _aE_[_ei_][:from],
+				"" + _aE_[_ei_][:to], _a_, _b_, _nBoxW_, _nBoxH_)
+			if len(_aSjP_) >= 6
+				_aSjC_ = This._ArrowCut(_aSjP_, 9 + _nEdgeW_ * 2)
+				This._EmitOrthoPolyline(_oC_, _aSjC_[1], _cEdge_,
+					_nEdgeW_, StzLower("" + _aE_[_ei_][:from]) + ">" +
+					StzLower("" + _aE_[_ei_][:to]))
+				if @nDrawPass = 2
+					This._DrawArrowHead(_oC_, _aSjC_[2], _aSjC_[3],
+						_cEdge_)
+				ok
+				loop
+			ok
+			_aLpP_ = This._DrakonLoopPath("" + _aE_[_ei_][:from],
+				"" + _aE_[_ei_][:to], _a_, _b_, _nBoxW_, _nBoxH_)
+			if len(_aLpP_) >= 6
+				_aLpC_ = This._ArrowCut(_aLpP_, 9 + _nEdgeW_ * 2)
+				This._EmitOrthoPolyline(_oC_, _aLpC_[1], _cEdge_,
+					_nEdgeW_, StzLower("" + _aE_[_ei_][:from]) + ">" +
+					StzLower("" + _aE_[_ei_][:to]))
+				if @nDrawPass = 2
+					This._DrawArrowHead(_oC_, _aLpC_[2], _aLpC_[3],
+						_cEdge_)
+				ok
 				loop
 			ok
 			# A DRAKON RETURN IS DRAWN BY ITS OWN RULE -- see
@@ -6061,6 +6150,71 @@ class stzDiagram from stzGraph
 		next
 		return 0
 
+	# THE EXIT AN AUTHOR DECLARED -- DRAKON's own grammar, read from the
+	# model instead of guessed from the wording.
+	#
+	# LEARNED FROM THE LANGUAGE ITSELF rather than from its pictures.
+	# DrakonWidget, the reference engine, gives every icon exactly two
+	# exits and fixes what each one MEANS: `one` is the next item BELOW
+	# and `two` is the next item to the RIGHT. A question is not an icon
+	# with two outgoing arrows to be sorted out by reading their labels
+	# -- it is an icon with a down-exit and a side-exit, and which is
+	# which is part of the diagram, not part of the English.
+	#
+	# This library inferred it from the words: affirmative first, then
+	# neutral, then anything. That works on "yes"/"no" and is a guess
+	# everywhere else -- it cannot know that a down-exit is labelled
+	# "insufficient" on purpose, and it would put the main line through
+	# the wrong branch and be confident about it. A declared exit is
+	# read first and the words are the FALLBACK, for a model that has
+	# not said.
+	def _DeclaredExit(paEdge)
+		if NOT HasKey(paEdge, "properties")  return ""  ok
+		if NOT isList(paEdge["properties"])  return ""  ok
+		if NOT HasKey(paEdge["properties"], "exit")  return ""  ok
+		_deV_ = StzLower("" + paEdge["properties"]["exit"])
+		if _deV_ = "one" or _deV_ = "down"  return "one"  ok
+		if _deV_ = "two" or _deV_ = "right"  return "two"  ok
+		return ""
+
+	# WHERE THE SKEWER GOES FROM HERE, when the model says so.
+	def _DownExitOf(pcId)
+		_dxK_ = StzLower("" + pcId)
+		_aDx_ = This.Edges()
+		_nDx_ = len(_aDx_)
+		for _iDx_ = 1 to _nDx_
+			if StzLower("" + _aDx_[_iDx_][:from]) != _dxK_  loop  ok
+			if StzLower("" + _aDx_[_iDx_][:to]) = _dxK_  loop  ok
+			if This._DeclaredExit(_aDx_[_iDx_]) = "one"
+				return StzLower("" + _aDx_[_iDx_][:to])
+			ok
+		next
+		return ""
+
+	# ...AND WHICH EDGE IS THE SIDE EXIT.
+	def _IsRightExit(pcFrom, pcTo)
+		_rxF_ = StzLower("" + pcFrom)
+		_rxT_ = StzLower("" + pcTo)
+		_aRx_ = This.Edges()
+		_nRx_ = len(_aRx_)
+		for _iRx_ = 1 to _nRx_
+			if StzLower("" + _aRx_[_iRx_][:from]) != _rxF_  loop  ok
+			if StzLower("" + _aRx_[_iRx_][:to]) != _rxT_  loop  ok
+			if This._DeclaredExit(_aRx_[_iRx_]) = "two"  return 1  ok
+		next
+		return 0
+
+	# DOES THIS DIAGRAM DECLARE ITS EXITS AT ALL? Asked so the fallback
+	# can stay silent where a model has spoken, and stay available where
+	# it has not.
+	def _DeclaresExits()
+		_aDe_ = This.Edges()
+		_nDe_ = len(_aDe_)
+		for _iDe_ = 1 to _nDe_
+			if This._DeclaredExit(_aDe_[_iDe_]) != ""  return 1  ok
+		next
+		return 0
+
 	def _HappyPath()
 		_hpIds_ = This.NodesIds()
 		if len(_hpIds_) = 0  return []  ok
@@ -6091,19 +6245,34 @@ class stzDiagram from stzGraph
 		_hpGuard_ = 0
 		while _hpGuard_ < len(_hpIds_) + 2
 			_hpGuard_++
+			# A DECLARED EXIT OUTRANKS EVERY READING OF THE WORDS.
+			# DRAKON's own model says which exit goes down; where the
+			# author has said it, nothing below this line gets a vote.
+			#
+			# IT FALLS THROUGH TO THE SHARED TAIL rather than continuing
+			# the loop itself. The first version did continue -- and
+			# skipped the revisit guard below, which is the only thing
+			# stopping this walk circling a cycle for ever, and appended
+			# to the wrong accumulator on the way. A special case that
+			# jumps over the common ending is a second copy of that
+			# ending waiting to drift.
+			_hpNext_ = This._DownExitOf(_hpAt_)
 			# THE AFFIRMATIVE ANSWER CONTINUES THE FLOW, and only where
 			# no answer says yes does declaration order decide.
-			_hpNext_ = ""
-			_aHpE26_ = This.Edges()
-			_nHpE26_ = len(_aHpE26_)
-			for _iHpE26_ = 1 to _nHpE26_
-				_hpE_ = _aHpE26_[_iHpE26_]
-				if StzLower("" + _hpE_[:from]) != _hpAt_  loop  ok
-				if StzLower("" + _hpE_[:to]) = _hpAt_  loop  ok
-				if NOT This._IsAffirmative("" + _hpE_[:label])  loop  ok
-				_hpNext_ = StzLower("" + _hpE_[:to])
-				exit
-			next
+			if _hpNext_ = ""
+				_aHpE26_ = This.Edges()
+				_nHpE26_ = len(_aHpE26_)
+				for _iHpE26_ = 1 to _nHpE26_
+					_hpE_ = _aHpE26_[_iHpE26_]
+					if StzLower("" + _hpE_[:from]) != _hpAt_  loop  ok
+					if StzLower("" + _hpE_[:to]) = _hpAt_  loop  ok
+					if NOT This._IsAffirmative("" + _hpE_[:label])
+						loop
+					ok
+					_hpNext_ = StzLower("" + _hpE_[:to])
+					exit
+				next
+			ok
 			# ...AND A REFUSAL IS THE LAST THING THE FLOW CONTINUES BY.
 			#
 			# Declaration order used to decide whenever no answer said
@@ -6759,6 +6928,166 @@ class stzDiagram from stzGraph
 	# returns here, so every descent ends ON the line rather than
 	# crossing it: a vertical meeting the line it terminates on is a
 	# junction, which is what a merge looks like.
+	# A LOOP RETURN, WHICH IS NOT AN EDGE THAT HAPPENS TO GO UP.
+	#
+	# DRAKON has a loop -- foreach -- and this library had no concept of
+	# one. The gap was invisible from the pictures being corrected,
+	# because not one of them looped, and a language for algorithms
+	# without a loop is not that language. Drawn by the general router
+	# the back edge came up the skewer's OWN column: two arrows in one
+	# line of ink pointing opposite ways, which is the plane's shared-ink
+	# law broken in the notation that exists to forbid exactly that.
+	#
+	# DRAKON's own shape: the return leaves the BOTTOM of the body, turns
+	# LEFT into a lane clear of everything drawn, runs UP, and enters the
+	# loop icon from its LEFT SIDE. Every part of that is a statement --
+	# left of the skewer is where the not-normal lives, arriving at the
+	# side says this is a re-entry and not the flow coming down, and the
+	# lane being empty is what keeps the no-crossing promise.
+	# HOW MUCH PAPER THE LOOP LANE NEEDS ON THE LEFT, asked by whichever
+	# of the two extent computations this picture happens to run.
+	#
+	# Written as a method rather than as two lines in each, because the
+	# two-line version WAS written twice and the first copy went into the
+	# path this picture does not take -- so a real change looked exactly
+	# like no change at all, twice, and the second time I nearly believed
+	# the drawing rule was at fault.
+	def _LoopLaneReserve()
+		if NOT This._HasLoopReturn()  return 0  ok
+		return This._LineClearance() * 2
+
+	# DOES THIS PICTURE CONTAIN A LOOP AT ALL -- asked of the MODEL, before
+	# any coordinate exists, because the paper is sized before the edges
+	# are placed and the lane has to be in the paper.
+	def _HasLoopReturn()
+		if This._NotationBranchSide() != "right"  return 0  ok
+		_aHl_ = This._HappyPath()
+		if len(_aHl_) < 2  return 0  ok
+		_aHlE_ = This.Edges()
+		_nHlE_ = len(_aHlE_)
+		for _iHlE_ = 1 to _nHlE_
+			_hlF_ = StzLower("" + _aHlE_[_iHlE_][:from])
+			_hlT_ = StzLower("" + _aHlE_[_iHlE_][:to])
+			if _hlF_ = _hlT_  loop  ok
+			# an edge back to something the main path already passed
+			_hlPf_ = 0
+			_hlPt_ = 0
+			for _iHl2_ = 1 to len(_aHl_)
+				if StzLower("" + _aHl_[_iHl2_]) = _hlF_  _hlPf_ = _iHl2_  ok
+				if StzLower("" + _aHl_[_iHl2_]) = _hlT_  _hlPt_ = _iHl2_  ok
+			next
+			if _hlPf_ > 0 and _hlPt_ > 0 and _hlPt_ < _hlPf_  return 1  ok
+		next
+		return 0
+
+	# AN ALTERNATIVE REJOINS ITS OWN SKEWER, INSIDE ITS OWN COLUMN.
+	#
+	# A question whose second exit lands further down the SAME vertical
+	# line has nowhere to go but sideways and back, and the generic
+	# router picked its lane from the whole picture: in the silhouette
+	# fixture the "no" left branch one, ran out to x=840 -- across branch
+	# two and into branch three -- and came back. Every DRAKON law at
+	# once. It is not drawn on top of anything, which is why it survived
+	# a guard that looks for crossings between drawn segments; it is
+	# simply somewhere it has no business being.
+	#
+	# The excursion belongs beside the branch it leaves: one lane clear
+	# of that branch's own widest icon, down, and into the target's SIDE.
+	# The side is the point -- the skewer already arrives at the target's
+	# top, and two arrows into one port is two claims drawn as one, which
+	# is the defect this notation exists to refuse.
+	def _DrakonSideJoin(cFromId, cToId, paFrom, paTo, nBoxW, nBoxH)
+		if This._NotationBranchSide() != "right"  return []  ok
+		# both ends on one vertical, the target below
+		if fabs(paTo[1] - paFrom[1]) > 2  return []  ok
+		if paTo[2] <= paFrom[2]  return []  ok
+		# ...and this is the exit that steps aside, not the one that
+		# continues down. The down exit is drawn straight and is asked
+		# for by name rather than guessed at.
+		if StzLower("" + This._DownExitOf(cFromId)) = StzLower("" + cToId)
+			return []
+		ok
+		# nothing may stand between them on the line, or the straight
+		# drop is the honest drawing and this rule would be inventing a
+		# detour around empty paper
+		_aSjX_ = @aDrawXY
+		if len(_aSjX_) = 0  return []  ok
+		_bSjMid_ = 0
+		_nSjX_ = len(_aSjX_)
+		for _iSj_ = 1 to _nSjX_
+			_sjId_ = StzLower("" + _aSjX_[_iSj_][1])
+			if _sjId_ = StzLower("" + cFromId)  loop  ok
+			if _sjId_ = StzLower("" + cToId)  loop  ok
+			if fabs(_aSjX_[_iSj_][2] - paFrom[1]) > 2  loop  ok
+			if _aSjX_[_iSj_][3] > paFrom[2] and
+			   _aSjX_[_iSj_][3] < paTo[2]
+				_bSjMid_ = 1
+			ok
+		next
+		if NOT _bSjMid_  return []  ok
+		# THE LANE IS BESIDE THIS SKEWER, not beside the picture. In a
+		# silhouette the picture is several branches wide and a lane
+		# measured from all of it lands in the next branch.
+		_sjRight_ = 0
+		for _iSj_ = 1 to _nSjX_
+			if fabs(_aSjX_[_iSj_][2] - paFrom[1]) > nBoxW  loop  ok
+			_sjB_ = This._BoxOf("" + _aSjX_[_iSj_][1], nBoxW, nBoxH)
+			_sjR_ = _aSjX_[_iSj_][2] + _sjB_[1] / 2
+			if _sjR_ > _sjRight_  _sjRight_ = _sjR_  ok
+		next
+		if _sjRight_ = 0  return []  ok
+		_sjGap_ = This._LineClearance()
+		_sjLane_ = _sjRight_ + _sjGap_
+		_sjBxF_ = This._BoxOf(cFromId, nBoxW, nBoxH)
+		_sjBxT_ = This._BoxOf(cToId, nBoxW, nBoxH)
+		_sjOut_ = paFrom[1] + _sjBxF_[1] / 2
+		_sjIn_ = paTo[1] + _sjBxT_[1] / 2
+		if _sjLane_ <= _sjOut_ + 2  return []  ok
+		# out of the icon's side, along, down, and in at the target's
+		return [ _sjOut_, paFrom[2],
+			_sjLane_, paFrom[2],
+			_sjLane_, paTo[2],
+			_sjIn_, paTo[2] ]
+
+	def _DrakonLoopPath(cFromId, cToId, paFrom, paTo, nBoxW, nBoxH)
+		if This._NotationBranchSide() != "right"  return []  ok
+		# A RETURN GOES UP. That is the whole test, and it is a fact about
+		# the drawing rather than a word in a label.
+		if paTo[2] >= paFrom[2] - 2  return []  ok
+		_aLpX_ = @aDrawXY
+		if len(_aLpX_) = 0  return []  ok
+		# THE LANE IS LEFT OF EVERY PAINTED THING, not left of the skewer.
+		# Measured from the boxes: an icon wider than the loop head would
+		# otherwise have the lane running through it.
+		_lpMin_ = 1000000000
+		for _iLp_ = 1 to len(_aLpX_)
+			_lpB_ = This._BoxOf("" + _aLpX_[_iLp_][1], nBoxW, nBoxH)
+			_lpL_ = _aLpX_[_iLp_][2] - _lpB_[1] / 2
+			if _lpL_ < _lpMin_  _lpMin_ = _lpL_  ok
+		next
+		if _lpMin_ > 999999999  return []  ok
+		_lpGap_ = This._LineClearance()
+		_lpLane_ = _lpMin_ - _lpGap_
+		if _lpLane_ < 2  return []  ok
+		_lpBxF_ = This._BoxOf(cFromId, nBoxW, nBoxH)
+		_lpBxT_ = This._BoxOf(cToId, nBoxW, nBoxH)
+		_lpFoot_ = paFrom[2] + _lpBxF_[2] / 2
+		# THE TURN IS MADE IN THE MARGIN THE PICTURE ALREADY HAS, not
+		# in paper asked for afterwards. A full clearance below the
+		# lowest body put the horizontal on the very edge of the sheet,
+		# where it was clipped to nothing -- and a return line that
+		# fades out at the border is worse than none, because it looks
+		# like control leaves the page.
+		_lpDrop_ = _lpFoot_ + _lpGap_ * 0.5
+		_lpSide_ = paTo[1] - _lpBxT_[1] / 2
+		if _lpSide_ <= _lpLane_ + 2  return []  ok
+		# down out of the body, left into the lane, up, and in at the side
+		return [ paFrom[1], _lpFoot_,
+			paFrom[1], _lpDrop_,
+			_lpLane_, _lpDrop_,
+			_lpLane_, paTo[2],
+			_lpSide_, paTo[2] ]
+
 	def _DrakonReturnPath(cFromId, cToId, paFrom, paTo, nBoxW, nBoxH)
 		if This._NotationBranchSide() != "right"  return []  ok
 		_aRpX_ = @aDrawXY
@@ -13097,6 +13426,20 @@ class stzDiagram from stzGraph
 		# the returns, drawn where no node stands
 		_ceRr_ = This._ReturnReach(nBoxW, nBoxH, "")
 		if _ceRr_ > _ceY1_  _ceY1_ = _ceRr_  ok
+
+		# THE LOOP LANE, WHICH IS PART OF THE PICTURE AND NOT A MARGIN.
+		#
+		# A DRAKON loop return runs up a clear lane to the left of
+		# everything drawn. Left to find room in whatever space the boxes
+		# happened to leave, the rule found none -- the leftmost box sits
+		# one clearance from the edge -- and returned nothing at all,
+		# silently, so the generic router drew the return off the right
+		# of the paper instead. That is this plane's oldest failure in a
+		# new place: A RULE THAT CANNOT REACH A LEGAL POSITION IS
+		# INDISTINGUISHABLE FROM A RULE NOBODY WROTE. The lane is asked
+		# for here, where the paper is sized, so that by the time the
+		# rule runs the room already exists.
+		_ceX0_ -= This._LoopLaneReserve()
 
 		# the frames, and their names above them
 		_aCeC18_ = @aClusters
