@@ -12188,7 +12188,7 @@ class stzList from stzObject
 		_nLen_ = len(@aContent)
 
 		if _nLen_ = 1 and isString(@aContent[1]) and
-		   StzFindFirst([ :Default, :DefaultLocale, :System, :SystemLocale, "c", "C", :CLocale ], @aContent[1]) > 0
+		   StzFindFirst([ :$Default, :DefaultLocale, :System, :SystemLocale, "c", "C", :CLocale ], @aContent[1]) > 0
 			return 1
 		ok
 
@@ -12451,14 +12451,14 @@ class stzList from stzObject
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
-				:Default
+				:$Default
 			]) > 0 )
 
 			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
 				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
 		ok
 
-		if pReturn = :Default
+		if pReturn = :$Default
 			pReturn = :WalkedPositions
 		ok
 
@@ -12536,14 +12536,14 @@ class stzList from stzObject
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
-				:Default
+				:$Default
 			]) > 0 )
 
 			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
 				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
 		ok
 
-		if pReturn = :Default
+		if pReturn = :$Default
 			pReturn = :WalkedPositions
 		ok
 
@@ -12621,14 +12621,14 @@ class stzList from stzObject
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
-				:Default
+				:$Default
 			]) > 0 )
 
 			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
 				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
 		ok
 
-		if pReturn = :Default
+		if pReturn = :$Default
 			pReturn = :WalkedPositions
 		ok
 
@@ -12696,14 +12696,14 @@ class stzList from stzObject
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
-				:Default
+				:$Default
 			]) > 0 )
 
 			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
 				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
 		ok
 
-		if pReturn = :Default
+		if pReturn = :$Default
 			pReturn = :WalkedPositions
 		ok
 

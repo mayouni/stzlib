@@ -139,7 +139,7 @@ class stzNodeRegistry from stzObject
 		while StzEngineWatchTimestampMs() < nDeadline
 			aEv = @oReactor.ServerPoll(_aL_[1])
 			if ring_len(aEv) = 3
-				if aEv[1] = :data
+				if aEv[1] = :$data
 					vR = StzEngineStzmUnpack(aEv[3])
 					if StzEngineStzmLastCorrelation() = nWant
 						# a refusal is an OBSERVABLE verdict, not a value

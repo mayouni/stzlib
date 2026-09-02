@@ -53,10 +53,10 @@ class stzTextStream from stzObject
 
 	def SetStatus(pcStatus)
 		switch pcStatus
-		on :Ok			n = 0
-		on :ReadPastEnd		n = 1
-		on :ReadCorruptData	n = 2
-		on :WriteFailed		n = 3
+		on :Ok			$n = 0
+		on :ReadPastEnd		$n = 1
+		on :ReadCorruptData	$n = 2
+		on :WriteFailed		$n = 3
 		other
 			StzRaise(stzTextStreamError(:UnsupportedStatus))
 		off

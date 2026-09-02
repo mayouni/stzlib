@@ -994,14 +994,14 @@ class stzListNamedParams from stzObject
 			:RemoveThisSubStringBefore,:RemoveThisSubStringAfter,
 			:RemoveThisCharBefore,:RemoveThisCharBefore,
 			:RemoveThisBound, :RemoveThisBoundingSubString,
-			:CaseSensitive, :CS ])
+			:$CaseSensitive, :CS ])
 			#NOTE: I've decided to keep CS as a suffix in the function
 			# name and never use it as an internal option...
 			#--> more simple mental model to keep things memprable
 
 			if This.ToStzHashList().
 				KeysQRT(:stzListOfStrings).
-				ContainsBothCS(:CaseSensitive, :CS, 0)
+				ContainsBothCS(:$CaseSensitive, :CS, 0)
 
 				StzRaise("Incorrect format! :CaseSensitive and :CS can not be used both in the same time")
 			ok
@@ -1130,7 +1130,7 @@ class stzListNamedParams from stzObject
 			:TextAdjustedTo,
 			:EachChar,
 
-			:Casesensitive,
+			:$Casesensitive,
 			:CS,
 
 			:Numbered,
@@ -2365,7 +2365,7 @@ class stzListNamedParams from stzObject
 
 	def IsNNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and This.Item(1) = :N)
+		   ( isString(This.Item(1)) and This.Item(1) = :$N)
 
 			return 1
 		else
@@ -2389,7 +2389,7 @@ class stzListNamedParams from stzObject
 			return 0
 		ok
 
-		if NOT ( _aContent_[1] = :CaseSensitive or _aContent_[1] = :CS )
+		if NOT ( _aContent_[1] = :$CaseSensitive or _aContent_[1] = :CS )
 			return 0
 		ok
 
@@ -3803,7 +3803,7 @@ class stzListNamedParams from stzObject
 
 	def IsTableNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and This.Item(1) = :Table )
+		   ( isString(This.Item(1)) and This.Item(1) = :$Table )
 
 			return 1
 
@@ -14753,7 +14753,7 @@ class stzListNamedParams from stzObject
 
 	def IsSayNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and This.Item(1) = :Say )
+		   ( isString(This.Item(1)) and This.Item(1) = :$Say )
 
 			return 1
 		else
@@ -14763,7 +14763,7 @@ class stzListNamedParams from stzObject
 	def IsSayOrReturnNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and
-			(This.Item(1) = :Say or This.Item(1) = :Return) )
+			(This.Item(1) = :$Say or This.Item(1) = :Return) )
 
 			return 1
 		else

@@ -26,7 +26,7 @@ func StzRaiseParamTypeListOf(cParam, cExpected)
 
 func StzRaiseOutOfRange(nIndex, nMax)
 	StzRaise(StzMetaFormatError(:OUT_OF_RANGE, [
-		[:n, "" + nIndex],
+		[:$n, "" + nIndex],
 		[:max, "" + nMax]
 	]))
 

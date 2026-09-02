@@ -166,7 +166,7 @@ class stzWorkerPool from stzObject
 			_v_ = call fWork()
 			@aoProfiles[_i_].Release()
 			@aResults + [ pcTag, _v_ ]
-			return [ :admitted = 1, :result = _v_, :tag = pcTag ]
+			return [ :admitted = 1, :$result = _v_, :tag = pcTag ]
 		ok
 		# over budget -> queue, unless the queue is bounded AND full, in
 		# which case SHED (backpressure) rather than grow unbounded.

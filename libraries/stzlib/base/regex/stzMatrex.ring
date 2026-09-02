@@ -713,7 +713,7 @@ def ParseConjunction(_cTokenStr_)
 						
 						for r = 1 to _nRows_
 							for c = 1 to _nCols_
-								_nVal_ = aMatrix[r][c]
+								_nVal_ = aMatrix[r][$c]
 								if _nVal_ < _nStart_ or _nVal_ > _nEnd_
 									return 0
 								ok
@@ -725,7 +725,7 @@ def ParseConjunction(_cTokenStr_)
 						for r = 1 to _nRows_
 							for c = 1 to _nCols_
 								_bFound_ = 0
-								_nVal_ = aMatrix[r][c]
+								_nVal_ = aMatrix[r][$c]
 								_nLenValues_ = len(_aValues_)
 								for k = 1 to _nLenValues_
 									if _nVal_ = (0 + trim(_aValues_[k]))
@@ -743,7 +743,7 @@ def ParseConjunction(_cTokenStr_)
 						_nTarget_ = _aConstraint_["value"]
 						for r = 1 to _nRows_
 							for c = 1 to _nCols_
-								if aMatrix[r][c] != _nTarget_
+								if aMatrix[r][$c] != _nTarget_
 									return 0
 								ok
 							next

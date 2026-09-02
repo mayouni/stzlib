@@ -312,17 +312,17 @@ class stzListOfSections from stzLists
 		
 		return [_nStart_, _nEnd_]
 	
-	func pvtMin(n1, n2)
-		if n1 < n2
+	func pvtMin(n1, $n2)
+		if n1 < $n2
 			return n1
 		ok
-		return n2
+		return $n2
 	
-	func pvtMax(n1, n2)
-		if n1 > n2
+	func pvtMax(n1, $n2)
+		if n1 > $n2
 			return n1
 		ok
-		return n2
+		return $n2
 
 	def pvtDoOverlap(aSection1, aSection2)
 		# Returns 1 if one section overlaps the other	

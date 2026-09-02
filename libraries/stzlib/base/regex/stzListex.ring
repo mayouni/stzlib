@@ -767,7 +767,7 @@ class stzListex from stzObject
 						# Get case sensitivity setting
 						_bCaseSensitive_ = 1
 						if HasKey(_aToken_, "casesensitive")
-							_bCaseSensitive_ = _aToken_[:casesensitive]
+							_bCaseSensitive_ = _aToken_[:$casesensitive]
 						ok
 
 						_nTokensetvaluesLen_ = len(_aToken_[:setvalues])
@@ -1049,7 +1049,7 @@ class stzListex from stzObject
 				ok
 			ok
 			
-			if HasKey(_aToken_, "casesensitive") and _aToken_[:casesensitive]
+			if HasKey(_aToken_, "$casesensitive") and _aToken_[:$casesensitive]
 				_cInfo_ += " [CS]"
 			ok
 			
@@ -1095,7 +1095,7 @@ class stzListex from stzObject
 				["SetValues", _aToken_[:setvalues]],
 				["Unique", _aToken_[:requireunique]],
 				["Negated", _aToken_[:negated]],
-				["CaseSensitive", iff(HasKey(_aToken_, "casesensitive"), _aToken_[:casesensitive], 1)]
+				["CaseSensitive", iff(HasKey(_aToken_, "$casesensitive"), _aToken_[:$casesensitive], 1)]
 			]
 		next
 		

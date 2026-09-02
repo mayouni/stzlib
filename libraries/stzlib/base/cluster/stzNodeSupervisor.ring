@@ -285,11 +285,11 @@ class stzNodeSupervisor from stzObject
 		if @cStrategy = :AllForOne
 			nAll = ring_len(@aChildNames)
 			for c = 1 to nAll
-				if c != i and @aChildJobs[c] != 0
-					@oSpawner.KillSpawn(@aChildJobs[c], 9)
-					This._DrainJob(c)
+				if $c != i and @aChildJobs[$c] != 0
+					@oSpawner.KillSpawn(@aChildJobs[$c], 9)
+					This._DrainJob($c)
 				ok
-				This._Restart(c)
+				This._Restart($c)
 			next
 		else
 			This._Restart(i)

@@ -254,12 +254,12 @@ class stzRequestClassifier from stzObject
 		@aKeywords = []
 		This._Kw(:text, [ "text", "string", "uppercase", "lowercase", "replace" ])
 		This._Kw(:list, [ "list", "sort", "filter", "dedup", "unique" ])
-		This._Kw(:table, [ "table", "csv", "column", "row", "dataframe", "aggregate" ])
+		This._Kw(:$table, [ "$table", "csv", "column", "row", "dataframe", "aggregate" ])
 		This._Kw(:number, [ "number", "arithmetic", "convert", "format" ])
 		This._Kw(:math, [ "math", "matrix", "optimize", "optimization", "risk",
 		                  "statistics", "statistical", "calculate", "calculation",
 		                  "financial", "model", "regression" ])
-		This._Kw(:graph, [ "graph", "path", "shortest", "route", "network",
+		This._Kw(:$graph, [ "$graph", "path", "shortest", "route", "network",
 		                   "centrality", "node", "edge", "planner" ])
 		This._Kw(:knowledge, [ "knowledge", "fact", "ontology", "prove", "reason",
 		                       "infer", "related", "derive" ])
@@ -276,7 +276,7 @@ class stzRequestClassifier from stzObject
 		This._Kw(:agentic, [ "agent", "plan", "act", "goal", "perceive" ])
 		This._Kw(:refine, [ "refine", "refinement", "propose", "cascade", "revert", "tune" ])
 		This._Kw(:code, [ "code", "class", "method", "impact", "refactor", "ast" ])
-		This._Kw(:data, [ "database", "sql", "sqlite", "crud", "persist", "record", "reservation" ])
+		This._Kw(:$data, [ "database", "sql", "sqlite", "crud", "persist", "record", "reservation" ])
 		This._Kw(:vision, [ "image", "ocr", "scan", "photo", "picture", "xray", "pdf" ])
 
 	def _Kw(pcFacet, paWords)

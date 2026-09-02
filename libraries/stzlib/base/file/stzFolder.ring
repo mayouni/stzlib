@@ -1157,7 +1157,7 @@ class stzFolder from stzObject
 			:Path = This.Path(),
 			:AbsolutePath = This.AbsolutePath(),
 			:Count = This.Count(),
-			:Files = This.CountFiles(),
+			:$Files = This.CountFiles(),
 			:Folders = This.CountFolders(),
 			:IsEmpty = This.IsEmpty(),
 			:IsReadable = This.IsReadable(),

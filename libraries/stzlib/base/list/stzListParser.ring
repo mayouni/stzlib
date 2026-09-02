@@ -146,7 +146,7 @@ class stzListParser from stzParser
 		if isNumber(n) and StzNumberQ(n).ExistsIn( This.ParsedPositions() )
 			@nCurrentPosition = n
 
-		but isString(n) and n = :Default
+		but isString(n) and n = :$Default
 			@nCurrentPosition = This._DefaultOrFirstParsed()
 		ok
 

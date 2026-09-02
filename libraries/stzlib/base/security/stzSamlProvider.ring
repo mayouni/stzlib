@@ -96,7 +96,7 @@ class stzSamlIdentityProvider from stzObject
 			StzRaise("stzSamlIdentityProvider.UseRsaKey: the private key could not be read (PEM expected).")
 		ok
 		@cPem = "" + pcPem
-		@cN = _p_[:n]
+		@cN = _p_[:$n]
 		@cE = _p_[:e]
 		@cAlg = "RS256"
 		@cX = ""
@@ -113,7 +113,7 @@ class stzSamlIdentityProvider from stzObject
 	# the PUBLIC half -- what a service provider needs to verify us.
 	def PublicKey()
 		if @cAlg = "RS256"
-			return [ :kty = "RSA", :n = @cN, :e = @cE ]
+			return [ :kty = "RSA", :$n = @cN, :e = @cE ]
 		ok
 		return [ :kty = "EC", :crv = "P-256", :x = @cX, :y = @cY ]
 

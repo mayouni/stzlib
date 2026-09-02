@@ -122,15 +122,15 @@ class stzFunctionTask from stzReactiveTask
 			ok
 
 		catch
-			@status = TASK_ERROR
+			@status = $TASK_ERROR
 
 			# The real reason, recorded whether or not anyone is listening. It
 			# used to be read only INSIDE the "is a handler registered" branch,
 			# so a task with no Catch_() kept nothing at all -- and there was no
 			# accessor to have asked with.
 			@errorMsg = CatchError()
-			if NOT (isString(@errorMsg) and @errorMsg != EMPTY_ERROR_MSG)
-				@errorMsg = DEFAULT_ERROR_MSG
+			if NOT (isString(@errorMsg) and @errorMsg != $EMPTY_ERROR_MSG)
+				@errorMsg = $DEFAULT_ERROR_MSG
 			ok
 
 			if @onError != ""

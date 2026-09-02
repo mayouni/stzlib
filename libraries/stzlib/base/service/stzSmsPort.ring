@@ -166,21 +166,21 @@ class stzSmsSandbox from stzObject
 		# rejection, because the caller should retry rather than fix the data.
 		if $aStzSmsSandboxes[_i_][3]
 			$aStzSmsSandboxes[_i_][3] = 0
-			return [ :ok = 0, :id = "", :segments = 0, :encoding = :none,
+			return [ :ok = 0, :id = "", :segments = 0, :encoding = :$none,
 			         :status = :refused, :why = "the SMS gateway was unreachable" ]
 		ok
 
 		if NOT StzIsE164(_num_)
-			return [ :ok = 0, :id = "", :segments = 0, :encoding = :none,
+			return [ :ok = 0, :id = "", :segments = 0, :encoding = :$none,
 			         :status = :rejected,
 			         :why = "'" + _num_ + "' is not an E.164 number (+ then 8-15 digits)" ]
 		ok
 		if StzFindFirst(_num_, $aStzSmsSandboxes[_i_][4]) > 0
-			return [ :ok = 0, :id = "", :segments = 0, :encoding = :none,
+			return [ :ok = 0, :id = "", :segments = 0, :encoding = :$none,
 			         :status = :rejected, :why = "the number is unreachable" ]
 		ok
 		if "" + pcText = ""
-			return [ :ok = 0, :id = "", :segments = 0, :encoding = :none,
+			return [ :ok = 0, :id = "", :segments = 0, :encoding = :$none,
 			         :status = :rejected, :why = "an empty message may not be sent" ]
 		ok
 
@@ -251,7 +251,7 @@ class stzSmsSandbox from stzObject
 	def LastEncoding()
 		_m_ = This.Last()
 		if len(_m_) = 0
-			return :none
+			return :$none
 		ok
 		return _m_[5]
 

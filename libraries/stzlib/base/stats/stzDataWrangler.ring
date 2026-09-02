@@ -587,7 +587,7 @@ class stzDataWrangler from stzObject
                 _aResults_ + [
                     :function = _stepp_[:function],
                     :description = _stepp_[:description],
-                    :result = _result_,
+                    :$result = _result_,
                     :status = "success"
                 ]
                 

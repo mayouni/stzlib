@@ -98,7 +98,7 @@ class stzReactiveHttp from stzObject
 		_nCode_ = This._MethodCode(cMethod)
 		if _nCode_ < 0
 			if onError != ""
-				call onError(HTTP_ERROR_UNKNOWN_METHOD + " " + StzUpper("" + cMethod))
+				call onError($HTTP_ERROR_UNKNOWN_METHOD + " " + StzUpper("" + cMethod))
 			ok
 			return -1
 		ok
@@ -110,7 +110,7 @@ class stzReactiveHttp from stzObject
 		_nJob_ = @oReactor.SubmitHttp(_nCode_, "" + url, _cBody_)
 		if _nJob_ < 1
 			if onError != ""
-				call onError(HTTP_ERROR_REQUEST_FAILED)
+				call onError($HTTP_ERROR_REQUEST_FAILED)
 			ok
 			return -1
 		ok
@@ -163,7 +163,7 @@ class stzReactiveHttp from stzObject
 			_fErr_ = _aEntry_[3]
 			if _nState_ = -2
 				if _fErr_ != ""
-					call _fErr_(HTTP_ERROR_REQUEST_FAILED)
+					call _fErr_($HTTP_ERROR_REQUEST_FAILED)
 				ok
 				loop
 			ok
@@ -221,7 +221,7 @@ class stzHttpTask from stzReactiveTask
 	            call @onComplete(@result)
 	        ok
 	    else
-	        @status = TASK_ERROR
+	        @status = $TASK_ERROR
 
 	        # Recorded on the task, not only handed to a handler that may not
 	        # exist. Error() is inherited from stzReactiveTask, and an inherited
@@ -229,7 +229,7 @@ class stzHttpTask from stzReactiveTask
 	        # accessor at all. The status comes through the same helper the
 	        # async drain uses, so both paths word a failure the same way.
 	        @errorMsg = StzHttpFailureText(@lastStatus)
-	        if @onError != HTTP_RESPONSE_NULL
+	        if @onError != $HTTP_RESPONSE_NULL
 	            call @onError(@errorMsg)
 	        ok
 	    ok

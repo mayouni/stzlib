@@ -1625,7 +1625,7 @@ class stzDataSet from stzObject
 
 			if @cDataType != "numeric" or len(@anData) < 2
 				return [ :low = 0, :high = 0, :level = _nConfidence_,
-				         :method = :none, :critical = 0, :n = len(@anData),
+				         :method = :$none, :critical = 0, :$n = len(@anData),
 				         :note = "a confidence interval needs at least two numeric observations" ]
 			ok
 
@@ -1648,7 +1648,7 @@ class stzDataSet from stzObject
 
 			return [ :low = _nMean_ - _nMarginError_, :high = _nMean_ + _nMarginError_,
 			         :level = _nConfidence_, :method = :t, :critical = _nCrit_,
-			         :n = _nLen_, :df = _nDF_, :note = "" ]
+			         :$n = _nLen_, :df = _nDF_, :note = "" ]
 
 
 	#---
@@ -3516,7 +3516,7 @@ class stzDataSet from stzObject
                     :step = _nStepNum_,
                     :function = _aStep_[:function],
                     :description = _aStep_[:description],
-                    :result = _vResult_,
+                    :$result = _vResult_,
                     :status = "success"
                 ]
                 

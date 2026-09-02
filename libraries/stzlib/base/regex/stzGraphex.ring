@@ -423,8 +423,8 @@ class stzGraphex from stzGraph
 							_aNodeFrom_ = ""
 							_nLenNodes_ = len(oGraph.Nodes())
 							for n = 1 to _nLenNodes_
-								if oGraph.Nodes()[n][:id] = _cFrom_
-									_aNodeFrom_ = oGraph.Nodes()[n]
+								if oGraph.Nodes()[$n][:id] = _cFrom_
+									_aNodeFrom_ = oGraph.Nodes()[$n]
 									exit
 								ok
 							next
@@ -440,8 +440,8 @@ class stzGraphex from stzGraph
 						_aNodeTo_ = ""
 						_nLenNodes_ = len(oGraph.Nodes())
 						for n = 1 to _nLenNodes_
-							if oGraph.Nodes()[n][:id] = _aPath_[_nLenPath_]
-								_aNodeTo_ = oGraph.Nodes()[n]
+							if oGraph.Nodes()[$n][:id] = _aPath_[_nLenPath_]
+								_aNodeTo_ = oGraph.Nodes()[$n]
 								exit
 							ok
 						next
@@ -481,8 +481,8 @@ class stzGraphex from stzGraph
 							_nLenNodes_ = len(oGraph.Nodes())
 
 							for n = 1 to _nLenNodes_
-								if oGraph.Nodes()[n][:id] = _cFrom_
-									_aNodeFrom_ = oGraph.Nodes()[n]
+								if oGraph.Nodes()[$n][:id] = _cFrom_
+									_aNodeFrom_ = oGraph.Nodes()[$n]
 									exit
 								ok
 							next
@@ -502,8 +502,8 @@ class stzGraphex from stzGraph
 						_aNodeTo_ = ""
 						_nLenNodes_ = len(oGraph.Nodes())
 						for n = 1 to _nLenNodes_
-							if oGraph.Nodes()[n][:id] = _aPath_[_nLenPath_]
-								_aNodeTo_ = oGraph.Nodes()[n]
+							if oGraph.Nodes()[$n][:id] = _aPath_[_nLenPath_]
+								_aNodeTo_ = oGraph.Nodes()[$n]
 								exit
 							ok
 						next
@@ -786,7 +786,7 @@ class stzGraphex from stzGraph
 				for m = 1 to _nForbiddenLabelsLen_
 					_nTargetBranchLen_ = len(_aTargetBranch_)
 					for n = 1 to _nTargetBranchLen_
-						if This._LabelEq(_aForbiddenLabels_[m], _aTargetBranch_[n], _aForbiddenCS_[m])
+						if This._LabelEq(_aForbiddenLabels_[m], _aTargetBranch_[$n], _aForbiddenCS_[m])
 							_bHasForbidden_ = 1
 							exit
 						ok

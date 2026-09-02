@@ -776,7 +776,7 @@ class stzAppServer from stzObject
 
 	# Returns TRUE when the event was a request that got a response.
 	def _HandleHttpEvent(aEv)
-		if aEv[1] != :data
+		if aEv[1] != :$data
 			return 0   # accept/closed: connection registry only
 		ok
 		_nConn_ = aEv[2]
@@ -1508,7 +1508,7 @@ class stzAppServer from stzObject
 
 	# IoT raw event. aListener = [ nSid, nPort, fHandler ].
 	def _HandleRawEvent(aListener, aEv)
-		if aEv[1] != :data
+		if aEv[1] != :$data
 			return 0
 		ok
 		_fHandler_ = aListener[3]

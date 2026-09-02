@@ -104,7 +104,7 @@ class stzExterCode from stzObject
 	    :ExtraArgs = ""
         ],
 
-        :C = [
+        :$C = [
             :Name = "c",
             :Type = "compiled",
             :Extension = ".c",

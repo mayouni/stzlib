@@ -8097,7 +8097,7 @@ func _NormalizeColLookupKey(pVal)
 	#=========================================================================================#
 
 	def FindNthInRowCS(_n_, pRow, pCellValueOrSubValue, pCaseSensitive)
-		if isList(_n_) and IsOneOfTheseNamedParamsList(_n_,[ :N, :Nth, :Occurrence ])
+		if isList(_n_) and IsOneOfTheseNamedParamsList(_n_,[ :$N, :Nth, :Occurrence ])
 			_n_ = _n_[2]
 		ok
 
@@ -8545,7 +8545,7 @@ func _NormalizeColLookupKey(pVal)
 	#==========================================================================================#
 
 	def FindNthInRowsCS(_n_, panRows, pCellValueOrSubValue, pCaseSensitive)
-		if isList(_n_) and IsOneOfTheseNamedParamsList(_n_,[ :Nth, :N, :Occurrence ])
+		if isList(_n_) and IsOneOfTheseNamedParamsList(_n_,[ :Nth, :$N, :Occurrence ])
 			_n_ = _n_[2]
 		ok
 
@@ -9085,7 +9085,7 @@ func _NormalizeColLookupKey(pVal)
 	#============================================================================================#
 
 	def FindNthInColCS(_n_, pCol, pCellValueOrSubValue, pCaseSensitive)
-		if isList(_n_) and IsOneOfTheseNamedParamsList(_n_,[ :Nth, :N, :Occurrence ])
+		if isList(_n_) and IsOneOfTheseNamedParamsList(_n_,[ :Nth, :$N, :Occurrence ])
 			_n_ = _n_[2]
 		ok
 
@@ -10175,7 +10175,7 @@ func _NormalizeColLookupKey(pVal)
 	#=============================================================================================#
 
 	def FindNthInColsCS(_n_, paCols, pCellValueOrSubValue, pCaseSensitive)
-		if isList(_n_) and IsOneOfTheseNamedParamsList(_n_,[ :Nth, :N, :Occurrence ])
+		if isList(_n_) and IsOneOfTheseNamedParamsList(_n_,[ :Nth, :$N, :Occurrence ])
 			_n_ = _n_[2]
 		ok
 
@@ -11206,7 +11206,7 @@ func _NormalizeColLookupKey(pVal)
 	#=============================================================================================#
 
 	def FindNthInSectionCS(_n_, paSection1, paSection2, pCellValueOrSubValue, pCaseSensitive)
-		if isList(_n_) and IsOneOfTheseNamedParamsList(_n_,[ :N, :Nth, :Occurrence ])
+		if isList(_n_) and IsOneOfTheseNamedParamsList(_n_,[ :$N, :Nth, :Occurrence ])
 			_n_ = _n_[2]
 		ok
 
@@ -14607,7 +14607,7 @@ func _NormalizeColLookupKey(pVal)
 			_aColVals_ = This.Col(_aRefCols_[j])
 			_nCVLen_ = len(_aColVals_)
 			for c = 1 to _nCVLen_
-				if NOT isNumber(_aColVals_[c])
+				if NOT isNumber(_aColVals_[$c])
 					_bNumericRefs_ = 0
 					exit
 				ok

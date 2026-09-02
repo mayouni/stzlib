@@ -104,7 +104,7 @@ func StzRsaKeyPair(nBits)
 	_e_ = StzFindLast("|", _r_)
 	_n_ = StzFindLast("|", StzLeft(_r_, _e_ - 1))
 	return [ :privateKey = StzLeft(_r_, _n_ - 1),
-	         :n = StzMid(_r_, _n_ + 1, _e_ - _n_ - 1),
+	         :$n = StzMid(_r_, _n_ + 1, _e_ - _n_ - 1),
 	         :e = StzMidToEnd(_r_, _e_ + 1) ]
 
 # the PUBLIC parts of a private-key PEM -> [ :n, :e ], so an issuer publishes a
@@ -118,7 +118,7 @@ func StzRsaPublicKey(pcPem)
 	if len(_a_) < 2
 		return []
 	ok
-	return [ :n = _a_[1], :e = _a_[2] ]
+	return [ :$n = _a_[1], :e = _a_[2] ]
 
 # RS256: sign a message with a PEM private key -> the base64url signature.
 func StzRsaSign(pcMessage, pcPem)

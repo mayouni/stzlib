@@ -2724,7 +2724,7 @@ func StzStoppingAt(p)
 			StzRaise("Incorrect param type! p, when it is a string, must be a equal to :First or :Last").
 		ok
 
-	but isList(p)
+	but $isList(p)
 		if len(p) = 2 and Q(p).IsStoppingAtNamedParam()
 			return p[2]
 
@@ -5024,7 +5024,7 @@ func StzEmpty(pcStzType)
 		return new stzGrid([])
 
 	on :stzentity
-		return new stzEnity(:nothing)
+		return new stzEnity(:$nothing)
 
 	on :stzlistofentities
 		return new stzListOfEntities([])

@@ -681,7 +681,7 @@ class stzLocale from stzObject
 				@cAbbreviation = "C"
 				return
 
-			but pLocale = :Default or pLocale = :DefaultLocale
+			but pLocale = :$Default or pLocale = :DefaultLocale
 				@cAbbreviation = _LocaleNormalizeAbbr(DefaultLocaleAbbreviation())
 				return
 
@@ -1146,13 +1146,13 @@ class stzLocale from stzObject
 		stzTime.ToString() method in stzTime class.
 		*/
 		switch cFormat
-		on :Default		cFormat = $cDefaultTimeFormat
+		on :$Default		cFormat = $cDefaultTimeFormat
 		on :Long		cFormat = This.TimeFormat(:Long)
 		on :Short		cFormat = This.TimeFormat(:Short)
 		on :Narrow		cFormat = This.TimeFormat(:Narrow)
 		off
 
-		return This.ToStzTime(cTime).ToString(:Default)
+		return This.ToStzTime(cTime).ToString(:$Default)
 		#       --------v-----------	       ---v---
 		#         stzTime object              "hh:mm:ss"
 

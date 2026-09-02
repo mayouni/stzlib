@@ -160,13 +160,13 @@ Class TableDisplayConfig
         for r = 2 to _nPivotDataLen_4 - 1  # Skip header and total rows
             _nPivotData1Len_4 = len($aPivotData[1])
             for c = len($aRowLabels) + 1 to _nPivotData1Len_4 - 1  # Skip row labels and total column
-                _cHeader_ = $aPivotData[1][c]
+                _cHeader_ = $aPivotData[1][$c]
                 if _cHeader_ = $cTotalLabel  # Skip total columns
                     loop
                 ok
                 
                 # Get the cell value and measure it
-                _cValue_ = "" + $aPivotData[r][c]
+                _cValue_ = "" + $aPivotData[r][$c]
                 _nWidth_ = StzLen(_cValue_)
                 
                 # Store in our map with the header as key
@@ -227,7 +227,7 @@ Class TableDisplayConfig
             for r = 2 to _nPivotDataLen_2
                 _nPivotData1Len_3 = len($aPivotData[1])
                 for c = len($aRowLabels) + 1 to _nPivotData1Len_3
-                    _cHeader_ = $aPivotData[1][c]
+                    _cHeader_ = $aPivotData[1][$c]
                     if _cHeader_ = $cTotalLabel
                         loop
                     ok
@@ -770,8 +770,8 @@ Class TableRenderer
                     _nColIndex_ = 0
                     _nPivotData1Len_2 = len(aPivotData[1])
                     for c = len(oConfig.aRowLabels) + 1 to _nPivotData1Len_2
-                        if aPivotData[1][c] = _cKey_
-                            _nColIndex_ = c
+                        if aPivotData[1][$c] = _cKey_
+                            _nColIndex_ = $c
                             exit
                         ok
                     next
@@ -901,8 +901,8 @@ Class TableRenderer
                     _nColIndex_ = 0
                     _nPivotData1Len_ = len(aPivotData[1])
                     for c = len(oConfig.aRowLabels) + 1 to _nPivotData1Len_
-                        if aPivotData[1][c] = _cKey_
-                            _nColIndex_ = c
+                        if aPivotData[1][$c] = _cKey_
+                            _nColIndex_ = $c
                             exit
                         ok
                     next
@@ -1184,7 +1184,7 @@ Class TableThemeManager
     
     # Predefined themes
     aThemes = [
-        :Default = [
+        :$Default = [
             :MinCellWidth = 5,
             :MaxCellWidth = 20,
             :MaxHeaderWidth = 30,
@@ -1278,7 +1278,7 @@ Class TableThemeManager
     func ApplyTheme(_cThemeName_)
         if !@IsHashList($aThemes[_cThemeName_])
             see "Theme '" + _cThemeName_ + "' not found. Using Default." + nl
-            _cThemeName_ = :Default
+            _cThemeName_ = :$Default
         ok
         
         _aTheme_ = $aThemes[_cThemeName_]

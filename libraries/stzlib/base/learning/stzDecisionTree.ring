@@ -195,7 +195,7 @@ class stzDecisionTree from stzObject
 			_aBr_ + [ @acValues[_aN_[4][_b_][1] + 1], This._NodeFrom(_aN_[4][_b_][2]) ]
 		next
 		return [ :feature = _aN_[2] + 1, :branches = _aBr_,
-			:default = @acLabels[_aN_[3] + 1] ]
+			:$default = @acLabels[_aN_[3] + 1] ]
 
 	def Classify(paFeatures)
 		if @bTrained = 0
@@ -224,10 +224,10 @@ class stzDecisionTree from stzObject
 			if len(_aNext_) = 0
 				# unseen value: fall to the node's majority default
 				@cWhy = _cPath_ + " (unseen value) -> default '" +
-					_aNode_[:default] + "'"
+					_aNode_[:$default] + "'"
 				$cStzLastWhyB = @cWhy
 				$nStzLastCertainty = 1
-				return _aNode_[:default]
+				return _aNode_[:$default]
 			ok
 			_aNode_ = _aNext_
 		end

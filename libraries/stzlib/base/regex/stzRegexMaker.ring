@@ -806,7 +806,7 @@ class stzRegexMaker from stzObject
 			@acFragments + "\b"
 		on :end  
 			@acFragments + "\b"
-		on :none
+		on :$none
 			@acFragments + "\B"
 		off
 	

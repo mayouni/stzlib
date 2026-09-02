@@ -68,7 +68,7 @@ func StzHypothesisResult(paRaw, cTestName, cAlternative)
 			:ran = 0,
 			:why = "the test could not be run on this data -- too few observations, " +
 			       "no variation to test, or mismatched inputs",
-			:statistic = 0, :df = 0, :pvalue = 1, :effect = 0, :n = 0,
+			:statistic = 0, :df = 0, :pvalue = 1, :effect = 0, :$n = 0,
 			:significant = 0, :alpha = $nStzDefaultAlpha,
 			:alternative = cAlternative,
 			:conclusion = "no test was performed"
@@ -96,7 +96,7 @@ func StzHypothesisResult(paRaw, cTestName, cAlternative)
 		:df = paRaw[2],
 		:pvalue = _nP_,
 		:effect = paRaw[4],
-		:n = paRaw[5],
+		:$n = paRaw[5],
 		:significant = _bSig_,
 		:alpha = $nStzDefaultAlpha,
 		:alternative = cAlternative,

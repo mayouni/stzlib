@@ -141,7 +141,7 @@ class stzReactiveObject from stzObject
 		if @fOnError != ""
 			call @fOnError(_cWhere_, _cMsg_)
 
-		but DEFAULT_ERROR_HANDLING != ERROR_IGNORE
+		but $DEFAULT_ERROR_HANDLING != $ERROR_IGNORE
 			? "[stzReactiveObject." + _cWhere_ + "] " + _cMsg_
 		ok
 
@@ -448,7 +448,7 @@ class stzReactiveObject from stzObject
 			_aData_ + ["Attribute", attr]
 			_aData_ + ["oldValue", oldVal]
 			_aData_ + ["newValue", newVal]
-			_aData_ + ["changeType", CHANGE_TYPE_VALUE]
+			_aData_ + ["changeType", $CHANGE_TYPE_VALUE]
 			$_stream_.Emit(_aData_)
 		})
 		

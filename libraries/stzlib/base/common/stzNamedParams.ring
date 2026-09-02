@@ -392,7 +392,7 @@ func StzIsCaseSensitiveNamedParamList(paList)
 	if len(paList) != 2 return 0 ok
 	if NOT isString(paList[1]) return 0 ok
 	if NOT isNumber(paList[2]) return 0 ok
-	if NOT (paList[1] = :CaseSensitive or paList[1] = :CS) return 0 ok
+	if NOT (paList[1] = :$CaseSensitive or paList[1] = :CS) return 0 ok
 	if NOT (paList[2] = 0 or paList[2] = 1) return 0 ok
 	return 1
 
@@ -1160,7 +1160,7 @@ func StzIsSayOrReturnNamedParamList(paList)
 	if NOT isList(paList) return 0 ok
 	if len(paList) != 2 return 0 ok
 	if NOT isString(paList[1]) return 0 ok
-	return paList[1] = :Say or paList[1] = :Return
+	return paList[1] = :$Say or paList[1] = :Return
 
 	func IsSayOrReturnNamedParamList(paList)
 		return StzIsSayOrReturnNamedParamList(paList)
