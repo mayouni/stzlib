@@ -10094,6 +10094,164 @@ for iSj = 1 to len(aSjN)
 next
 chkeq("NEGATIVE: nothing in the way, so no excursion",
     len(oSj2._DrakonSideJoin("q", "e", aSjQ, aSjE, 150, 56)), 0)
+sec("-- 73q. A SELECT IS N COLUMNS, NOT ONE ALTERNATIVE ---")
+
+# DRAKON has a multi-way choice and this plane could not draw one.
+# Two of three cases came out at THE SAME COORDINATES: national and
+# abroad printed on top of each other, and neither word existed.
+#
+# A branch column was one plus the number of branches nested inside
+# it, which orders alternatives that CONTAIN one another and says
+# nothing about peers. The cases of a select leave the same icon at
+# the same moment and rejoin at the same place, so every one of them
+# counted zero and every one claimed the first column. The comment
+# over that code said its intent was to COLOUR the intervals, and a
+# count is not a colouring.
+oSe = new stzDiagram("select73q")
+oSe.SetNotation(StzDrakonNotation())
+oSe.AddNodeXTT("t","Route the parcel",[ :type = "title" ])
+oSe.AddNodeXTT("s","Destination?",[ :type = "select" ])
+oSe.AddNodeXTT("c1","local",[ :type = "case" ])
+oSe.AddNodeXTT("c2","national",[ :type = "case" ])
+oSe.AddNodeXTT("c3","abroad",[ :type = "case" ])
+oSe.AddNodeXTT("a1","Bike courier",[ :type = "action" ])
+oSe.AddNodeXTT("a2","Post",[ :type = "action" ])
+oSe.AddNodeXTT("a3","Air freight",[ :type = "action" ])
+oSe.AddNodeXTT("e","Done",[ :type = "end" ])
+oSe.AddEdge("t","s")
+oSe.AddEdge("s","c1")  oSe.AddEdge("s","c2")  oSe.AddEdge("s","c3")
+oSe.AddEdge("c1","a1") oSe.AddEdge("c2","a2") oSe.AddEdge("c3","a3")
+oSe.AddEdge("a1","e")  oSe.AddEdge("a2","e")  oSe.AddEdge("a3","e")
+oSe.ToCanvasXT([ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56,
+                 :FontSize = 20 ])
+aSeR = oSe.RenderNodeRects()
+
+# NO TWO ICONS STAND IN ONE PLACE. Asked of every pair rather than of
+# the three this scene is about: two boxes at one coordinate is the
+# most visible defect a layout can have and among the easiest to miss,
+# because the picture still looks like a picture.
+nSeOver = 0
+for iSe = 1 to len(aSeR)
+	for jSe = iSe + 1 to len(aSeR)
+		if fabs(aSeR[iSe][1] - aSeR[jSe][1]) < 2 and
+		   fabs(aSeR[iSe][2] - aSeR[jSe][2]) < 2
+			nSeOver++
+			? "   OVERLAP " + aSeR[iSe][5] + " on " + aSeR[jSe][5]
+		ok
+	next
+next
+chkeq("no two icons are drawn at one place", nSeOver, 0)
+
+# EACH CASE HEADS ITS OWN COLUMN, and its body stands under it -- a
+# branch is a CHAIN, not a node. Every fixture until this one had a
+# single icon standing beside the line, so the two readings agreed
+# everywhere, and the moment a case had a body the case went in one
+# column and the step it selects went in another.
+nSeC1 = 0  nSeC2 = 0  nSeA2 = 0  nSeC3 = 0  nSeA3 = 0
+for iSe = 1 to len(aSeR)
+	cSeI = StzLower("" + aSeR[iSe][5])
+	if cSeI = "c1"  nSeC1 = aSeR[iSe][1]  ok
+	if cSeI = "c2"  nSeC2 = aSeR[iSe][1]  ok
+	if cSeI = "a2"  nSeA2 = aSeR[iSe][1]  ok
+	if cSeI = "c3"  nSeC3 = aSeR[iSe][1]  ok
+	if cSeI = "a3"  nSeA3 = aSeR[iSe][1]  ok
+next
+? "   case columns at x " + nSeC1 + ", " + nSeC2 + ", " + nSeC3
+chkeq("the second case and its body share a column", nSeC2, nSeA2)
+chkeq("...and so do the third and its body", nSeC3, nSeA3)
+chk("the cases stand in declared order, left to right",
+    nSeC1 < nSeC2 and nSeC2 < nSeC3)
+
+# NEGATIVE: two alternatives that genuinely NEST still read as nested,
+# the outer one further out. Pushing peers apart must not flatten the
+# reading the nesting count exists to give.
+oSe2 = new stzDiagram("nest73q")
+oSe2.SetNotation(StzDrakonNotation())
+oSe2.AddNodeXTT("t","Sign in",[ :type = "title" ])
+oSe2.AddNodeXTT("q1","Known user?",[ :type = "question" ])
+oSe2.AddNodeXTT("q2","Password ok?",[ :type = "question" ])
+oSe2.AddNodeXTT("ok","Open session",[ :type = "action" ])
+oSe2.AddNodeXTT("n1","Report unknown",[ :type = "action" ])
+oSe2.AddNodeXTT("n2","Report refusal",[ :type = "action" ])
+oSe2.AddNodeXTT("e","Done",[ :type = "end" ])
+oSe2.AddEdge("t","q1")
+oSe2.AddEdgeXT("q1","q2","yes")  oSe2.AddEdgeXT("q1","n1","no")
+oSe2.AddEdgeXT("q2","ok","yes")  oSe2.AddEdgeXT("q2","n2","no")
+oSe2.AddEdge("ok","e")  oSe2.AddEdge("n1","e")  oSe2.AddEdge("n2","e")
+oSe2.ToCanvasXT([ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56,
+                  :FontSize = 20 ])
+nSeN1 = 0  nSeN2 = 0
+for iSe = 1 to len(oSe2.RenderNodeRects())
+	rSe = oSe2.RenderNodeRects()[iSe]
+	if StzLower("" + rSe[5]) = "n1"  nSeN1 = rSe[1]  ok
+	if StzLower("" + rSe[5]) = "n2"  nSeN2 = rSe[1]  ok
+next
+? "   outer refusal at x " + nSeN1 + ", inner at x " + nSeN2
+chk("NEGATIVE: the outer refusal still stands further out",
+    nSeN1 > nSeN2 + 20)
+
+sec("-- 73r. THE BRANCHES ARE ORDERED BY branchId ---------")
+
+# DRAKON carries a branchId on every branch: the columns run ascending
+# and the FIRST icon of the silhouette is the lowest, which is how a
+# reader knows where the algorithm begins. This plane read the order
+# the branch nodes happened to be WRITTEN in -- right until somebody
+# inserts a phase, and no way at all to say which one is the entry
+# except by moving lines of source.
+#
+# Declared backwards on purpose: Ship, Charge, Take the order.
+oBi = new stzDiagram("bid73r")
+oBi.SetNotation(StzDrakonNotation())
+oBi.AddNodeXTT("b3","Ship",[ :type = "branch", :branchId = 3 ])
+oBi.AddNodeXTT("pack","Pack",[ :type = "action" ])
+oBi.AddNodeXTT("a3","End",[ :type = "address" ])
+oBi.AddNodeXTT("b2","Charge",[ :type = "branch", :branchId = 2 ])
+oBi.AddNodeXTT("auth","Authorise card",[ :type = "action" ])
+oBi.AddNodeXTT("a2","Ship",[ :type = "address" ])
+oBi.AddNodeXTT("b1","Take the order",[ :type = "branch", :branchId = 1 ])
+oBi.AddNodeXTT("read","Read basket",[ :type = "input" ])
+oBi.AddNodeXTT("a1","Charge",[ :type = "address" ])
+oBi.AddEdge("b1","read")  oBi.AddEdge("read","a1")  oBi.AddEdge("a1","b2")
+oBi.AddEdge("b2","auth")  oBi.AddEdge("auth","a2")  oBi.AddEdge("a2","b3")
+oBi.AddEdge("b3","pack")  oBi.AddEdge("pack","a3")
+oBi.ToCanvasXT([ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56,
+                 :FontSize = 20, :LayoutMode = :Silhouette ])
+nBi1 = 0  nBi2 = 0  nBi3 = 0
+for iBi = 1 to len(oBi.RenderNodeRects())
+	rBi = oBi.RenderNodeRects()[iBi]
+	if StzLower("" + rBi[5]) = "b1"  nBi1 = rBi[1]  ok
+	if StzLower("" + rBi[5]) = "b2"  nBi2 = rBi[1]  ok
+	if StzLower("" + rBi[5]) = "b3"  nBi3 = rBi[1]  ok
+next
+? "   declared 3,2,1 -- drawn at x " + nBi1 + ", " + nBi2 + ", " + nBi3
+chk("the columns run in branchId order, not declaration order",
+    nBi1 < nBi2 and nBi2 < nBi3)
+chkeq("the entry branch is the lowest id, and it is leftmost",
+    oBi._BranchOrdinalOf("b1"), 1)
+
+# NEGATIVE: with no id declared, the order an author wrote is still
+# the order they meant -- every picture in this plane relies on it.
+oBi2 = new stzDiagram("noid73r")
+oBi2.SetNotation(StzDrakonNotation())
+oBi2.AddNodeXTT("z1","First",[ :type = "branch" ])
+oBi2.AddNodeXTT("s1","Do",[ :type = "action" ])
+oBi2.AddNodeXTT("y1","Second",[ :type = "address" ])
+oBi2.AddNodeXTT("z2","Second",[ :type = "branch" ])
+oBi2.AddNodeXTT("s2","Do more",[ :type = "action" ])
+oBi2.AddNodeXTT("y2","End",[ :type = "address" ])
+oBi2.AddEdge("z1","s1")  oBi2.AddEdge("s1","y1")  oBi2.AddEdge("y1","z2")
+oBi2.AddEdge("z2","s2")  oBi2.AddEdge("s2","y2")
+oBi2.ToCanvasXT([ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56,
+                  :FontSize = 20, :LayoutMode = :Silhouette ])
+nBiZ1 = 0  nBiZ2 = 0
+for iBi = 1 to len(oBi2.RenderNodeRects())
+	rBi = oBi2.RenderNodeRects()[iBi]
+	if StzLower("" + rBi[5]) = "z1"  nBiZ1 = rBi[1]  ok
+	if StzLower("" + rBi[5]) = "z2"  nBiZ2 = rBi[1]  ok
+next
+chkeq("NEGATIVE: no id declared, so none is invented",
+    oBi2._BranchOrdinalOf("z1"), 0)
+chk("...and declaration order still decides", nBiZ1 < nBiZ2)
 
 sec("-- 73g. A GROUND IS MET AT ITS LEAD, NOT ITS BARS ------")
 
