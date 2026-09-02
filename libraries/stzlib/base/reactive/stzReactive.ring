@@ -109,7 +109,7 @@ class stzReactiveSystem from stzObject
 	        # Execute any pending chunked tasks
 	        _nLenTasks_ = len(@tasks)
 	        for i = 1 to _nLenTasks_
-	            if @tasks[i].@status = TASK_PENDING
+	            if @tasks[i].@status = $TASK_PENDING
 	                @tasks[i].Execute()
 	            ok
 	        next
@@ -119,7 +119,7 @@ class stzReactiveSystem from stzObject
 		# can drain its async completions (an attribute copy would
 		# see a dead snapshot -- the Ring aliasing doctrine).
 	        @timerManager.RunLoop(http)
-	        @isRunning = ENGINE_STOPPED
+	        @isRunning = $ENGINE_STOPPED
 	    ok
 
 		#< @FunctionAlternativeForms

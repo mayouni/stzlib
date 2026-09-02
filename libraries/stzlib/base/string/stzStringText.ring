@@ -259,19 +259,19 @@ class stzStringText from stzObject
 		# WF (anonymous function) instead of an eval()'d textual condition --
 		# the function captures pcScript and calls the real stzChar method.
 		_acListOfChars_ = StzListQ(This.ToStzString().ToListOfChars()).ItemsWF(
-			func c { return StzCharQ(c).Script() = pcScript } )
+			func $c { return StzCharQ($c).Script() = pcScript } )
 		_cResult_ = StzListOfStringsQ(_acListOfChars_).ConcatenateQ().SimplifyQ().Content()
 		return _cResult_
 
 	def OnlyArabic()
 		_acListOfChars_ = StzListQ(This.ToStzString().ToListOfChars()).ItemsWF(
-			func c { return StzCharQ(c).IsNeutral() or StzCharQ(c).IsSpace() or StzCharQ(c).IsArabic() } )
+			func $c { return StzCharQ($c).IsNeutral() or StzCharQ($c).IsSpace() or StzCharQ($c).IsArabic() } )
 		_cResult_ = StzListOfStringsQ(_acListOfChars_).ConcatenateQ().SimplifyQ().Content()
 		return _cResult_
 
 	def OnlyLatin()
 		_acListOfChars_ = StzListQ(This.ToStzString().ToListOfChars()).ItemsWF(
-			func c { return StzCharQ(c).IsNeutral() or StzCharQ(c).IsSpace() or StzCharQ(c).IsLatin() } )
+			func $c { return StzCharQ($c).IsNeutral() or StzCharQ($c).IsSpace() or StzCharQ($c).IsLatin() } )
 		_cResult_ = StzListOfStringsQ(_acListOfChars_).ConcatenateQ().SimplifyQ().Content()
 		return _cResult_
 

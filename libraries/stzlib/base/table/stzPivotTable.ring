@@ -630,8 +630,8 @@ class stzPivotTable from stzList
 			# Collect column values
 
 			for r = 2 to _nRowCount_
-				if isNumber(@aPivotData[r][c])
-					_aColValues_ + @aPivotData[r][c]
+				if isNumber(@aPivotData[r][$c])
+					_aColValues_ + @aPivotData[r][$c]
 				ok
 			next
 			
@@ -982,8 +982,8 @@ class stzPivotTable from stzList
 		_nLen1_ = len(@aPivotData[1])
 
 		for c =  _nRowLabels_+ 1 to _nLen1_
-			if @aPivotData[1][c] = _cColLabel_
-				_nColIndex_ = c
+			if @aPivotData[1][$c] = _cColLabel_
+				_nColIndex_ = $c
 				exit
 			ok
 		next
@@ -1052,8 +1052,8 @@ class stzPivotTable from stzList
 		
 		_nPivotData1Len_ = len(@aPivotData[1])
 		for c = len(@aRowLabels) + 1 to _nPivotData1Len_
-			if @aPivotData[1][c] = _cColLabel_
-				_nColIndex_ = c
+			if @aPivotData[1][$c] = _cColLabel_
+				_nColIndex_ = $c
 				exit
 			ok
 		next

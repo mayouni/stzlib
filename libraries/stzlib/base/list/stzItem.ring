@@ -29,7 +29,7 @@ func ItemCSQ(pItem, pCaseSensitive)
 		return ItemCSQ(pItem, pCaseSensitive)
 
 func ItemQ(pItem)
-	return ItemCSQ(pItem, :CaseSensitive)
+	return ItemCSQ(pItem, :$CaseSensitive)
 
 	func Item(pItem)
 		return ItemQ(pItem)
@@ -57,7 +57,7 @@ func TheItemInCSQ( pItem, paList, pCaseSensitive )
 		return TheItemInCSQ( pItem, paList, pCaseSensitive )
 
 func TheItemInQ(pItem, paList)
-	return TheItemInCSQ(pItem, paList, :CaseSensitive)
+	return TheItemInCSQ(pItem, paList, :$CaseSensitive)
 
 	func ItemInQ(pItem, paList)
 		return TheItemInQ(pItem, paList)

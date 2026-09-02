@@ -441,16 +441,16 @@ class stzDateTime from stzObject
 	                    _nDay_ = 0+ pDateTime[:Day]
 	                ok
 
-	                if HasKey(pDateTime, :Hour)
-	                    _nHour_ = 0+ pDateTime[:Hour]
+	                if HasKey(pDateTime, :$Hour)
+	                    _nHour_ = 0+ pDateTime[:$Hour]
 	                ok
 
-	                if HasKey(pDateTime, :Minute)
-	                    _nMinute_ = 0+ pDateTime[:Minute]
+	                if HasKey(pDateTime, :$Minute)
+	                    _nMinute_ = 0+ pDateTime[:$Minute]
 	                ok
 
-	                if HasKey(pDateTime, :Second)
-	                    _nSecond_ = 0+ pDateTime[:Second]
+	                if HasKey(pDateTime, :$Second)
+	                    _nSecond_ = 0+ pDateTime[:$Second]
 	                ok
 
 	                @nYear = _nYear_
@@ -1985,17 +1985,17 @@ class stzDateTime from stzObject
 	        [:days, 86400000],
 	        [:day, 86400000],
 	        [:hours, 3600000],
-	        [:hour, 3600000],
+	        [:$hour, 3600000],
 	        [:minutes, 60000],
-	        [:minute, 60000],
+	        [:$minute, 60000],
 	        [:mins, 60000],
 	        [:min, 60000],
 	        [:seconds, 1000],
-	        [:second, 1000],
+	        [:$second, 1000],
 	        [:secs, 1000],
 	        [:sec, 1000],
 	        [:milliseconds, 1],
-	        [:millisecond, 1],
+	        [:$millisecond, 1],
 	        [:msecs, 1],
 	        [:msec, 1],
 	        [:ms, 1]
@@ -2641,16 +2641,16 @@ class stzDateTime from stzObject
             _nDay_ = 0+ aHash[:Day]
         ok
 
-        if HasKey(aHash, :Hour)
-            _nHour_ = 0+ aHash[:Hour]
+        if HasKey(aHash, :$Hour)
+            _nHour_ = 0+ aHash[:$Hour]
         ok
 
-        if HasKey(aHash, :Minute)
-            _nMinute_ = 0+ aHash[:Minute]
+        if HasKey(aHash, :$Minute)
+            _nMinute_ = 0+ aHash[:$Minute]
         ok
 
-        if HasKey(aHash, :Second)
-            _nSecond_ = 0+ aHash[:Second]
+        if HasKey(aHash, :$Second)
+            _nSecond_ = 0+ aHash[:$Second]
         ok
 
         @nYear = _nYear_

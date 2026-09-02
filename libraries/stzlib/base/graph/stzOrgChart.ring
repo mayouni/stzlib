@@ -37,6 +37,57 @@ func IsStzOrgChart(pObj)
 	ok
 	return 0
 
+# THE ORG CHART'S NOTATION -- DN1, the first real domain profile.
+#
+# The profile lives HERE, beside the model it speaks for, and registers
+# itself the first time an org chart is born (file-top code after a class
+# region never runs, so registration cannot be a load-time side effect).
+#
+# What the domain declares:
+#   VOCABULARY  the levels the Add* constructors already write, every
+#               one a box -- an org chart's differences are colour and
+#               rank, never shape. OPEN, because positions carry :level
+#               rather than :type and a chart may hold plain nodes too.
+#   RULES       the tree grammar as refusals that teach. One supervisor
+#               per position (:SecondParent), reporting lines flow one
+#               way (:Cycle), and nobody reports to themselves
+#               (:SelfLink). These are the STRUCTURAL floor; the
+#               governance rule bases (separation-of-duties, vacancy,
+#               succession) stay where they are -- they judge content,
+#               not shape, and CheckCompliance already owns them.
+#   GRAMMAR     none: top-down rank-is-hierarchy is already the
+#               diagram's default reading.
+#
+# The editor inherits the floor at the gesture: dragging a reporting
+# line onto a position that has a supervisor is refused before the
+# model hears about it, with no editor code knowing what an org is.
+func StzOrgChartNotation()
+	_o_ = StzNotation("orgchart")
+	if _o_.Name_() = "orgchart"  return _o_  ok
+	_o_ = new stzNotation("orgchart")
+	_o_.AddKind("position", "box")
+	_o_.AddKind("executive", "box")
+	_o_.AddKind("management", "box")
+	_o_.AddKind("staff", "box")
+	_o_.Forbid(:SelfLink,
+		"a position cannot report to itself. If the intent is that it " +
+		"reports to nobody, leave it unconnected: roots are how boards " +
+		"are drawn.")
+	_o_.Forbid(:SecondParent,
+		"a position reports to ONE supervisor. For dotted-line or " +
+		"matrix reporting, model the second relation as its own edge " +
+		"kind when DN grows one -- a second solid line states a second " +
+		"boss, and the chart would be asserting it.")
+	_o_.Forbid(:Cycle,
+		"reporting lines flow one way. This link would make a position " +
+		"an indirect supervisor of its own supervisor, and the chart " +
+		"would have no top.")
+	StzRegisterNotation(_o_)
+	return _o_
+
+	func OrgChartNotation()
+		return StzOrgChartNotation()
+
 class stzOrgChart from stzDiagram
 
 	@aPositions = []
@@ -56,6 +107,11 @@ class stzOrgChart from stzDiagram
 
 	        # Auto-apply orgchart preset
 	        This.SetLayoutPreset("orgchart")
+
+		# born under its own notation (DN1): the tree grammar's rules
+		# reach Validate() and the editor's gestures from the first
+		# moment, not after somebody remembers to ask
+		This.SetNotation(StzOrgChartNotation())
 
 	#==========================#
 	#  POSITION MANAGEMENT     #
@@ -206,8 +262,38 @@ class stzOrgChart from stzDiagram
 		end
 		return []
 
-		def Node(pcId)
-			return This.Position(pcId)
+	# THERE IS NO Node() ALIAS HERE, AND THAT IS THE FIX.
+	#
+	# Position() returns the org record -- [ :id, :title, ...attributes ]
+	# with the attributes FLAT. stzGraph.Node() returns the graph record,
+	# which keeps them nested under "properties". Aliasing one to the
+	# other made an org chart answer Node() with a shape that has no
+	# "properties" key at all.
+	#
+	# stzGraph.NodeProperty() reads through Node(), so on an org chart it
+	# returned empty for every property ever set -- including properties
+	# the chart had stored correctly two lines earlier. Two stores, one
+	# name, and the reader and the writer disagreeing about which one
+	# they meant.
+	#
+	# WHAT IT COST, and it is why this is a defect rather than a tidy-up:
+	# three of the five org rules read node properties, so all three could
+	# only ever return "no findings" on a chart built through the org
+	# chart's own API --
+	#
+	#     no-self-report        reads reportsTo
+	#     no-orphan-position    reads level, to spare executives
+	#     separation-of-duties  reads roles
+	#
+	# -- and the last of those describes itself as a SOX exemplar. It has
+	# been reporting every organisation compliant since it was written.
+	#
+	# Found 2026-08-29 by the scope governance on its first run over this
+	# domain, and not by any of the 22 assertions the org suite already
+	# passed: every one of them checks what the rules SAY, and a rule that
+	# governs nothing says nothing. The count of governed subjects is what
+	# made it visible -- no-self-report governs 0 positions in a chart of
+	# four, which no verdict-shaped test can express.
 
 	def Positions()
 		return @aPositions
@@ -377,7 +463,7 @@ class stzOrgChart from stzDiagram
 			:id = pcId,
 			:name = pcName,
 			:position = "",
-			:data = paData
+			:$data = paData
 		]
 		@aPeople + _aPerson_
 
@@ -1296,7 +1382,7 @@ class stzOrgChart from stzDiagram
 	def ViewDepartment(pcDepartmentId)
 
 	    If This.Title() != ""
-		This.SetSubtitle("Department '" + @aDepartments[PpcDepartmentId]  + "'")
+		This.SetSubtitle("Department '" + @aDepartments[$PpcDepartmentId]  + "'")
 	    ok
 
 	    _acDeptNodes_ = []

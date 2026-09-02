@@ -75,7 +75,7 @@ func StzKeepHistoryOFF()
 
 func StzTraceObjectHistory(poStzObj)
 	# CRITICAL: Prevent recursive calls
-	if _bInHistoryUpdate = 1
+	if $_bInHistoryUpdate = 1
 		return
 	ok
 
@@ -87,7 +87,7 @@ func StzTraceObjectHistory(poStzObj)
 	_obj_ = poStzObj
 
 	# Set flag to prevent recursion
-	_bInHistoryUpdate = 1
+	$_bInHistoryUpdate = 1
 
 	try
 		# Basic history tracking happens at the PUBLIC fluent-op
@@ -179,7 +179,7 @@ func StzTraceObjectHistory(poStzObj)
 	done
 
 	# Always reset the flag
-	_bInHistoryUpdate = 0
+	$_bInHistoryUpdate = 0
 
 	func TraceObjectHistory(pStzObj)
 		StzTraceObjectHistory(pStzObj)
@@ -209,7 +209,7 @@ func StzGetHistoryUpdateState()
 		return StzGetHistoryUpdateState()
 
 func StzResetHistoryUpdateState()
-	_bInHistoryUpdate = 0
+	$_bInHistoryUpdate = 0
 
 	func ResetHistoryUpdateState()
 		StzResetHistoryUpdateState()
@@ -221,14 +221,14 @@ func StzSafeTraceObjectHistory(poStzObj)
 		return
 	ok
 
-	if _bInHistoryUpdate = 1
+	if $_bInHistoryUpdate = 1
 		return
 	ok
 
 	try
 		StzTraceObjectHistory(poStzObj)
 	catch
-		_bInHistoryUpdate = 0
+		$_bInHistoryUpdate = 0
 	done
 
 	func SafeTraceObjectHistory(poStzObj)

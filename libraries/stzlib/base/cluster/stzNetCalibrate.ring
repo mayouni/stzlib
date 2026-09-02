@@ -73,7 +73,7 @@ func StzNetCalibrate()
 	_nc_nDl_ = StzEngineWatchTimestampMs() + 30000
 	while _nc_nGot_ < _nc_nTotal_ and StzEngineWatchTimestampMs() < _nc_nDl_
 		_nc_aEv_ = $_nc_oRct.ServerPoll($_nc_nChan)
-		if len(_nc_aEv_) = 3 and _nc_aEv_[1] = :data
+		if len(_nc_aEv_) = 3 and _nc_aEv_[1] = :$data
 			_nc_nGot_++
 			if _nc_nSent_ < _nc_nTotal_
 				$_nc_oRct.ServerWrite($_nc_nChan, $_nc_nConn, _nc_cSmall_, 0)
@@ -191,7 +191,7 @@ func _NcTrip(cFrame, nTimeoutMs)
 	_nc_nDlT_ = StzEngineWatchTimestampMs() + nTimeoutMs
 	while StzEngineWatchTimestampMs() < _nc_nDlT_
 		_nc_aEvT_ = $_nc_oRct.ServerPoll($_nc_nChan)
-		if len(_nc_aEvT_) = 3 and _nc_aEvT_[1] = :data
+		if len(_nc_aEvT_) = 3 and _nc_aEvT_[1] = :$data
 			return _nc_aEvT_[3]
 		ok
 	end
@@ -200,7 +200,7 @@ func _NcTrip(cFrame, nTimeoutMs)
 func _NcTripAwait(cFrame, nTimeoutMs)
 	$_nc_oRct.ServerWrite($_nc_nChan, $_nc_nConn, cFrame, 0)
 	_nc_aEvA_ = $_nc_oRct.ServerAwait($_nc_nChan, nTimeoutMs)
-	if len(_nc_aEvA_) = 3 and _nc_aEvA_[1] = :data
+	if len(_nc_aEvA_) = 3 and _nc_aEvA_[1] = :$data
 		return _nc_aEvA_[3]
 	ok
 	return ""

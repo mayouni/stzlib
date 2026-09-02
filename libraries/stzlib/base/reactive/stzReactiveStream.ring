@@ -442,12 +442,12 @@ class stzReactiveStream from stzObject
 		ok
 	
 		# Get the next item from buffer
-		data = @buffer[1]
+		$data = @buffer[1]
 		del(@buffer, 1)
 		@currentBufferCount--
 	
 		# Apply transforms (existing logic)
-		processedData = [data]
+		processedData = [$data]
 		_nLenTrans_ = len(@transforms)
 
 		for i = 1 to _nLenTrans_

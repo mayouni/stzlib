@@ -147,7 +147,7 @@ class stzNode from stzObject
 		nDeadline = StzEngineWatchTimestampMs() + nTtlMs
 		while StzEngineWatchTimestampMs() < nDeadline and NOT @bStop
 			aEv = @oReactor.ServerAwait(@nSrv, 100)
-			if ring_len(aEv) = 3 and aEv[1] = :data
+			if ring_len(aEv) = 3 and aEv[1] = :$data
 				This._Dispatch(aEv[2], aEv[3])
 			ok
 		end

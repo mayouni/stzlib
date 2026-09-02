@@ -347,7 +347,7 @@ class stzReactor from stzObject
 		if nKind = 1
 			return [ :accept, StzEngineReactorServerLastConn(), "" ]
 		but nKind = 2
-			return [ :data, StzEngineReactorServerLastConn(), StzEngineReactorServerLastData() ]
+			return [ :$data, StzEngineReactorServerLastConn(), StzEngineReactorServerLastData() ]
 		but nKind = 3
 			return [ :closed, StzEngineReactorServerLastConn(), "" ]
 		ok

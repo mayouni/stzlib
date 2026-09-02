@@ -2637,10 +2637,10 @@ $_cMarquerChar = "#"
 		return $_cSalatAlMuhammedAsString
 
 		func SalatAlaMuhammadAsString()
-			_cSalatAlMuhammedAsString
+			$_cSalatAlMuhammedAsString
 
 		func SalatAlaMohammadAsString()
-			_cSalatAlMuhammedAsString
+			$_cSalatAlMuhammedAsString
 
 	func ArabicDhammah()
 		return $_cArabicDhammah

@@ -116,20 +116,20 @@ class stzTime from stzObject
             _nSecond_ = 0
             _nMs_     = 0
 
-            if HasKey(pTime, :Hour)
-                _nHour_ = 0+ pTime[:Hour]
+            if HasKey(pTime, :$Hour)
+                _nHour_ = 0+ pTime[:$Hour]
             ok
 
-            if HasKey(pTime, :Minute)
-                _nMinute_ = 0+ pTime[:Minute]
+            if HasKey(pTime, :$Minute)
+                _nMinute_ = 0+ pTime[:$Minute]
             ok
 
-            if HasKey(pTime, :Second)
-                _nSecond_ = 0+ pTime[:Second]
+            if HasKey(pTime, :$Second)
+                _nSecond_ = 0+ pTime[:$Second]
             ok
 
-            if HasKey(pTime, :Millisecond)
-                _nMs_ = 0+ pTime[:Millisecond]
+            if HasKey(pTime, :$Millisecond)
+                _nMs_ = 0+ pTime[:$Millisecond]
             ok
 
             @nHour = _nHour_
@@ -687,7 +687,7 @@ class stzTime from stzObject
     #--- UTILITY METHODS ---#
 
     def Copy()
-        _oNewTime_ = new stzTime([:Hour = @nHour, :Minute = @nMinute, :Second = @nSecond, :Millisecond = @nMillisecond])
+        _oNewTime_ = new stzTime([:$Hour = @nHour, :$Minute = @nMinute, :$Second = @nSecond, :$Millisecond = @nMillisecond])
         return _oNewTime_
 
     def IsValid()

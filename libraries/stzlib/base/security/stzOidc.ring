@@ -189,7 +189,7 @@ class stzJwt from stzObject
 			           "" + This._JwkField(paJwk, :y)) = 1
 		but _kty_ = "RSA"
 			return StzEngineCryptoVerifyRs256(_in_, _sig_,
-			           "" + This._JwkField(paJwk, :n),
+			           "" + This._JwkField(paJwk, :$n),
 			           "" + This._JwkField(paJwk, :e)) = 1
 		ok
 		return 0

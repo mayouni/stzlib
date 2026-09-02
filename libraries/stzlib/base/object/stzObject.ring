@@ -4140,9 +4140,9 @@ class stzObject
 		if NOT ( isString(pIn) and
 				Q(pIn).IsOneOfTheseCS([
 					:String, :List, :Pair, :ListOfNumbers, :ListOfStrings,
-					:ListOfLists, :ListOfPairs, :Grid, :Table, :StzTable,
+					:ListOfLists, :ListOfPairs, :Grid, :$Table, :StzTable,
 
-					:AString, :AList, :APair, :AListOfNumbers, :AListOfStrings,
+					:AString, :$AList, :APair, :AListOfNumbers, :AListOfStrings,
 					:AListOfLists, :AListOfPairs, :AGrid, :ATable, :AStzTable,
 
 					:InString, :InList, :InPair, :InListOfNumbers, :InListOfStrings,
@@ -4185,7 +4185,7 @@ class stzObject
 			_value_ = This.Content()
 		ok
 
-		if StzFindFirst(pIn, [ :List, :InList, :AList, :InAList ]) > 0
+		if StzFindFirst(pIn, [ :List, :InList, :$AList, :InAList ]) > 0
 	
 			_aResult_ = []
 			for i = 1 to pnSize
@@ -4253,7 +4253,7 @@ class stzObject
 
 			return _aResult_
 
-		but StzFindFirst(pIn, [ :Table, :InTable, :ATable, :InATable ]) > 0
+		but StzFindFirst(pIn, [ :$Table, :InTable, :ATable, :InATable ]) > 0
 
 			_aResult_ = StzTableQ([ pnSize[1], pnSize[2] ]).FillQ(_value_).Content()
 			return _aResult_
@@ -5060,7 +5060,7 @@ class stzObject
 		but pcType1 = :Number or pcType1 = :ANumber
 			_bOfType1_ = This.IsStzNumber()
 
-		but pcType1 = :List or pcType1 = :AList
+		but pcType1 = :List or pcType1 = :$AList
 			_bOfType1_ = This.IsStzList()
 
 		but pcType1 = :Object or pcType1 = :AnObject
@@ -5076,7 +5076,7 @@ class stzObject
 		but pcType2 = :Number or pcType2 = :ANumber
 			_bOfType2_ = This.IsStzNumber()
 
-		but pcType2 = :List or pcType2 = :AList
+		but pcType2 = :List or pcType2 = :$AList
 			_bOfType2_ = This.IsStzList()
 
 		but pcType2 = :Object or pcType2 = :AnObject

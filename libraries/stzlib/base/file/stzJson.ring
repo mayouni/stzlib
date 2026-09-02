@@ -431,5 +431,5 @@ def init(p)
 	# Private Methods
 	private
 
-	def _SetError(cError)
-		@cLastError = cError
+	def _SetError($cError)
+		@cLastError = $cError

@@ -106,14 +106,14 @@ class stzReactiveTask from stzObject
 			ok
 
 		catch
-			@status = TASK_ERROR
+			@status = $TASK_ERROR
 
 			# The REAL reason, not a fixed sentence. CatchError() is Ring's, and
 			# it answers "Error (R1) : Can't divide by zero" where this used to
 			# say "Task execution failed" for every failure there is.
 			@errorMsg = CatchError()
-			if NOT (isString(@errorMsg) and @errorMsg != EMPTY_ERROR_MSG)
-				@errorMsg = DEFAULT_TASK_ERROR_MSG
+			if NOT (isString(@errorMsg) and @errorMsg != $EMPTY_ERROR_MSG)
+				@errorMsg = $DEFAULT_TASK_ERROR_MSG
 			ok
 
 			# ...and every mode reports. The old chain ended at `ok`, so a task
@@ -126,15 +126,15 @@ class stzReactiveTask from stzObject
 			# whole point: a fallback should fail loud.
 			@bReported = 0
 
-			if @errorHandling = ERROR_THROW
+			if @errorHandling = $ERROR_THROW
 				@bReported = 1
 				raise(@errorMsg)
 
-			but @errorHandling = ERROR_CALLBACK and @onError != ""
+			but @errorHandling = $ERROR_CALLBACK and @onError != ""
 				@bReported = 1
 				call @onError(@errorMsg)
 
-			but @errorHandling != ERROR_IGNORE
+			but @errorHandling != $ERROR_IGNORE
 				# ERROR_LOG is the documented default and prints by design.
 				# The message is on the object either way -- see Error() -- so
 				# stdout is no longer the only channel, and ERROR_IGNORE can
@@ -162,7 +162,7 @@ class stzReactiveTask from stzObject
 		return @errorMsg
 
 	def HasFailed()
-		return @status = TASK_ERROR
+		return @status = $TASK_ERROR
 
 	# Did the failure reach anyone -- a raise, a handler, or stdout? Only
 	# ERROR_IGNORE answers FALSE, and it is the one mode that asked to. Without
@@ -172,7 +172,7 @@ class stzReactiveTask from stzObject
 		return @bReported
 
 	def Succeeded()
-		return @status = TASK_COMPLETED
+		return @status = $TASK_COMPLETED
 
 	#-- AN OUTCOME PRODUCED OUTSIDE Execute() -----------------------------------
 	#

@@ -1487,7 +1487,7 @@ func FirstNPrimesW(_n_, pcCondition)
 		@prime = NextPrimeAfter(@prime)
 
 		eval(_cCode_)
-		if bOk
+		if $bOk
 			_anResult_ + @prime
 			if len(_anResult_) = _n_
 				exit

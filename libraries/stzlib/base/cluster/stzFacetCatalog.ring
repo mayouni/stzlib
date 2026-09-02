@@ -44,10 +44,10 @@ class stzFacetCatalog from stzObject
 		@aFacets = [
 			[ :text,      [ :transform, :find, :match, :case, :split, :unicode ], [ "string", "char", "text" ], "" ],
 			[ :list,      [ :sort, :filter, :map, :reduce, :setops, :dedup ], [ "list" ], "" ],
-			[ :table,     [ :query, :aggregate, :join, :pivot, :wrangle ], [ "table", "datawrangler" ], "" ],
+			[ :$table,     [ :query, :aggregate, :join, :pivot, :wrangle ], [ "$table", "datawrangler" ], "" ],
 			[ :number,    [ :arith, :convert, :format, :sequence ], [ "number" ], "" ],
 			[ :math,      [ :matrix, :optimize, :stats, :solve, :ggml ], [ "matrix", "stats", "number" ], "" ],
-			[ :graph,     [ :paths, :centrality, :planner, :rules, :orgchart ], [ "graph" ], "" ],
+			[ :$graph,     [ :paths, :centrality, :planner, :rules, :orgchart ], [ "$graph" ], "" ],
 			[ :knowledge, [ :facts, :derive, :prove, :query, :ontology ], [ "natural", "graph" ], "" ],
 			[ :nlp,       [ :sentiment, :entities, :classify, :summarize, :translate, :pos, :lemmatize ], [ "natural", "neural" ], "" ],
 			[ :neural,    [ :embed, :generate, :zeroshot, :rerank, :dlm ], [ "neural" ], "" ],
@@ -58,7 +58,7 @@ class stzFacetCatalog from stzObject
 			[ :agentic,   [ :perceive, :plan, :act, :govern ], [ "agentic" ], "" ],
 			[ :refine,    [ :propose, :cascade, :revert ], [ "refine" ], "" ],
 			[ :code,      [ :codegraph, :impact, :polyglotgraph ], [ "meta", "reflect" ], "" ],
-			[ :data,      [ :crud, :persist, :sqlite ], [ "data" ], "" ],
+			[ :$data,      [ :crud, :persist, :sqlite ], [ "$data" ], "" ],
 			[ :vision,    [ :ocr, :image ], [], "python" ]    # the ONLY standard polyglot facet
 		]
 

@@ -109,7 +109,7 @@ class stzOidcProvider from stzObject
 		ok
 		This._RetireCurrentKey()
 		@cPem = "" + pcPem
-		@cN = _p_[:n]
+		@cN = _p_[:$n]
 		@cE = _p_[:e]
 		@cAlg = "RS256"
 		@cX = ""
