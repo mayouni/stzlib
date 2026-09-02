@@ -9515,17 +9515,34 @@ for iQi = 1 to len(_aQiL_)
 	   fabs(_aQiL_[iQi][3] - nQiCy) < 3
 		nQiIn++
 	ok
-	# and it FITS the inscribed rectangle, which is half the box
-	if _aQiL_[iQi][4] <= aQiB[3] / 2 and _aQiL_[iQi][5] <= aQiB[4] / 2
+	# and it FITS the room that glyph actually gives a word
+	aQiFr = oDk._InscribedFraction(oDk._ShapeOfId("q"))
+	if _aQiL_[iQi][4] <= aQiB[3] * aQiFr[1] and
+	   _aQiL_[iQi][5] <= aQiB[4] * aQiFr[2]
 		nQiFits++
 	ok
-	? "   rhombus " + aQiB[3] + "x" + aQiB[4] + ", word " +
-	  _aQiL_[iQi][4] + "x" + _aQiL_[iQi][5] + ", inscribed room " +
-	  (aQiB[3] / 2) + "x" + (aQiB[4] / 2)
+	? "   " + oDk._ShapeOfId("q") + " " + aQiB[3] + "x" + aQiB[4] +
+	  ", word " + _aQiL_[iQi][4] + "x" + _aQiL_[iQi][5] +
+	  ", inscribed room " + (aQiB[3] * aQiFr[1]) + "x" +
+	  (aQiB[4] * aQiFr[2])
 next
 chkeq("the question was found", nQiSeen, 1)
-chkeq("...is written INSIDE the rhombus", nQiIn, 1)
-chkeq("...and the rhombus is big enough to hold it", nQiFits, 1)
+chkeq("...is written INSIDE the icon", nQiIn, 1)
+chkeq("...and the icon is big enough to hold it", nQiFits, 1)
+
+# ...AND THE ICON IS A HEXAGON, WHICH THE BOOK STATES OUTRIGHT:
+# "Note that the If icon is a hexagon, not a diamond like its flowchart
+# counterpart. The hexagon shape saves vertical space on the diagram."
+#
+# This clause used to say "rhombus" in three places and PASSED, because
+# it was written to describe what this plane drew. A guard that asks
+# whether the picture matches the implementation always answers yes.
+# The diamond is not a near miss either: it is the glyph DRAKON exists
+# to replace, and the language's own teaching figure sets "an old messy
+# flowchart" full of diamonds beside "a modern DRAKON flowchart" full
+# of hexagons.
+chkeq("the If icon is a hexagon, not a diamond",
+      StzLower("" + oDk._ShapeOfId("q")), "hexagon")
 
 # THE NEGATIVE SIBLING: this is the PROFILE's declaration, not a change
 # to what a diamond is. BPMN's gateway is a diamond too and does NOT
@@ -9651,13 +9668,23 @@ chk("...and BOTH returns run at one height", fabs(nNxYin - nNxYout) < 1.5)
 chk("...and arrive at one point, so the picture shows ONE line",
     fabs(nNxXin - nNxXout) < 1.5)
 
-# ...AND THAT LINE RUNS AT THE TERMINAL'S OWN LEVEL, entering from the
-# side. Held one clearance ABOVE it, the shared line needed a further
-# drop into the top of the icon, and the picture had a horizontal, then
-# a stub, then the icon -- a stub belonging to nothing a reader could
-# name. At the terminal's height the line simply ARRIVES: the skewer
-# comes in at the top, the returns come in at the side, and the two are
-# told apart at a glance.
+# ...AND IT JOINS THE LINE ABOVE THE TERMINAL, NOT THE TERMINAL.
+#
+# THIS CLAUSE USED TO ASSERT THE OPPOSITE, and it passed for as long as
+# it existed. The book gives the rule twice: "Arrows never point to
+# icons. Arrows point only to lines that go down. This rule guarantees
+# that for each icon, there is only one line that leads to it", and
+# "after a horizontal joining the execution flow goes to the left" --
+# left along the horizontal, onto the vertical, and down it.
+#
+# The reasoning I wrote for the old clause was not wrong about what it
+# rejected: a horizontal, then a stub, then the icon IS a bad picture.
+# It was wrong about the repair. Running the line at the icon's own
+# height removes the stub by giving the icon a second face to be
+# entered by, and an icon with two ways in is the thing the rule above
+# exists to forbid. The stub goes away for the right reason when the
+# horizontal joins the skewer and the skewer -- one line -- goes down
+# into the terminal.
 nNxTy = -1  nNxTr = -1  nNxTc = -1
 for iNx = 1 to len(_aNxR_)
 	if StzLower("" + _aNxR_[iNx][5]) != "e"  loop  ok
@@ -9666,15 +9693,20 @@ for iNx = 1 to len(_aNxR_)
 	nNxTc = _aNxR_[iNx][1] + _aNxR_[iNx][3] / 2
 next
 ? "   the terminal sits at y " + nNxTy + ", its right edge at x " + nNxTr
-chk("the return runs at the terminal's own level", fabs(nNxYin - nNxTy) < 2)
+nNxTt = -1
+for iNx = 1 to len(_aNxR_)
+	if StzLower("" + _aNxR_[iNx][5]) != "e"  loop  ok
+	nNxTt = _aNxR_[iNx][2]
+next
+chk("the return joins ABOVE the terminal", nNxYin < nNxTt - 1)
 # ...MEETING ITS SIDE. The arrival stops SHORT of the border by an
 # arrowhead's length -- every arrow in this library does, and requiring
 # the exact edge would have been asserting against the drawing's own
 # convention rather than against the rule. What the rule says is that
-# the line comes in from the right at the terminal's level, so that is
-# what is asked: past its centre, and near its edge.
-chk("...and meets its SIDE, not its top",
-    nNxXin > nNxTc and nNxXin > nNxTr - 24)
+# the horizontal ends ON the vertical the terminal hangs from, so that
+# is what is asked: at the skewer, not out at the icon's flank.
+chk("...and lands on the skewer, so ONE line enters the icon",
+    fabs(nNxXin - nNxTc) < 3)
 
 # A BRANCH LABEL SITS AT ITS QUESTION'S EXIT, THE SAME WAY EVERY TIME.
 #
@@ -10050,9 +10082,11 @@ chkeq("the refused exit is drawn at all", bSjFound, 1)
 ? "   the no reaches x " + nSjMax + ", branch two begins at x " + nSjB2
 chk("...and never leaves its own branch", nSjMax < nSjB2)
 
-# ...AND IT ARRIVES AT THE SIDE, not at the top. The skewer already
-# comes down into that icon; a second arrow into the same port is two
-# claims drawn as one, which is what this notation exists to refuse.
+# ...AND IT ARRIVES ON THE LINE ABOVE THE ICON, never on the icon.
+# "Arrows never point to icons. Arrows point only to lines that go
+# down. This rule guarantees that for each icon, there is only one line
+# that leads to it." This clause asked for the SIDE until the book was
+# read, and passed.
 nSjTop = 0  nSjEndY = 0
 for iSj = 1 to len(aSjR)
 	if StzLower("" + aSjR[iSj][5]) = "a1"  nSjTop = aSjR[iSj][2]  ok
@@ -10062,8 +10096,8 @@ for iSj = 1 to len(aSjP)
 	nSjEndY = aSjP[iSj][2][ len(aSjP[iSj][2]) ]
 next
 ? "   it arrives at y " + nSjEndY + ", the icon's top is y " + nSjTop
-chk("the refused exit joins at the side, below the top edge",
-    nSjEndY > nSjTop + 6)
+chk("the refused exit joins the line above the icon, not the icon",
+    nSjEndY < nSjTop - 1)
 
 # NEGATIVE: with nothing standing between them the straight drop is
 # the honest drawing, and the rule must not invent a detour around

@@ -113,8 +113,23 @@ func StzDrakonNotation()
 	_o_.AddKindXT("title", "ellipse", "#eef2ff")
 	_o_.AddKindXT("end", "ellipse", "#eef2ff")
 	_o_.AddKindXT("action", "box", "white")
-	_o_.AddKindXT("question", "diamond", "#fff7e6")
-	_o_.AddKindXT("select", "diamond", "#fff7e6")
+	# THE QUESTION IS A HEXAGON, AND THE BOOK SAYS SO IN ONE SENTENCE:
+	# "Note that the If icon is a hexagon, not a diamond like its
+	# flowchart counterpart. The hexagon shape saves vertical space on
+	# the diagram."
+	#
+	# This profile drew a rhombus. That is not a near miss -- it is the
+	# glyph DRAKON exists to replace, and the language's own teaching
+	# picture is captioned "an old messy flowchart" beside "a modern
+	# DRAKON flowchart", with the diamonds on the left and the hexagons
+	# on the right. Every DRAKON diagram this plane has published so far
+	# announced itself as the thing being argued against.
+	_o_.AddKindXT("question", "hexagon", "#fff7e6")
+	# ...AND THE SELECT IS NOT THE SAME ICON AS THE QUESTION. A Switch
+	# is "one Select icon that contains a question" and two or more Case
+	# icons; drawing the Select as an If says the reader may answer it
+	# yes or no.
+	_o_.AddKindXT("select", "parallelogram", "#fff7e6")
 	# THE QUESTION IS WRITTEN IN THE RHOMBUS, which is what makes it
 	# read as a decision rather than as a marker with a caption. The
 	# plane writes a name UNDER a diamond because a diamond is usually
@@ -129,7 +144,7 @@ func StzDrakonNotation()
 	# wires said which was which. DRAKON draws the case with its lower
 	# corners cut, so it reads as one of several openings beneath the
 	# selector -- narrower at the foot, where the one path out leaves.
-	_o_.AddKindXT("case", "invtrapezium", "#fff7e6")
+	_o_.AddKindXT("case", "invhouse", "#fff7e6")
 	# an insertion is a call to another algorithm: the component glyph
 	# is the table's nearest reading, a body with something attached
 	_o_.AddKindXT("insertion", "component", "white")
@@ -165,7 +180,17 @@ func StzDrakonNotation()
 	# without a LOOP icon is not that language, and this profile had
 	# none -- a gap invisible from the pictures I had been correcting,
 	# because none of them looped.
-	_o_.AddKindXT("foreach", "hexagon", "#eef2ff")
+	# ...AND NOT AS A HEXAGON, WHICH IS THE IF ICON'S SHAPE. Once the
+	# question became the hexagon the book requires, the loop was
+	# wearing it too -- two icons, one glyph, in the language whose
+	# whole claim is that a reader never has to work out which is which.
+	#
+	# NAMED AND NOT DONE: DRAKON's FOR is genuinely TWO icons, Begin For
+	# and End For, with the repeated work standing between them -- "the
+	# For icon is actually two icons". This profile has one, so it can
+	# say a loop exists and cannot yet say where its body ends. The
+	# trapezium is the icon table's shape for the pair's opening half.
+	_o_.AddKindXT("foreach", "trapezium", "#eef2ff")
 	# ...AND IT HOLDS ITS OWN NAME. "for each line" is the loop, not a
 	# caption near it -- written outside it landed on the loop's own
 	# return wires, which is the same defect the question had.
@@ -212,8 +237,15 @@ func StzDrakonNotation()
 	_o_.SetNameInside("header")
 	_o_.SetNameInside("end")
 
-	_o_.AddKindXT("branch", "tab", "#eef2ff")
-	_o_.AddKindXT("address", "invhouse", "#eef2ff")
+	# THE BRANCH ENTRY AND THE ADDRESS ARE THE TWO ENDS OF A BRANCH, and
+	# the icon table draws them as each other's mirror: the entry carries
+	# a point at the BOTTOM, where the flow leaves it going down into the
+	# branch, and the address carries a point at the TOP, where the flow
+	# arrives before leaving the branch by name. A tab was this plane's
+	# nearest reading of "a header"; it is a folder, and says nothing
+	# about which way anything flows.
+	_o_.AddKindXT("branch", "invhouse", "#eef2ff")
+	_o_.AddKindXT("address", "house", "#eef2ff")
 	_o_.SetNameInside("branch")
 	_o_.SetNameInside("address")
 

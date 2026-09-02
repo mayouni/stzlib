@@ -480,6 +480,7 @@ class stzDiagram from stzGraph
 
 	# Arrow styles: normal, vee, diamond, dot, inv, curve, box, crow, tee, none.
 	@cArrowHead = "normal"
+	@bLoopArrow = 0
 	@cArrowTail = "none"
 
 	@cSplineType = $cDefaultSplineType
@@ -4590,10 +4591,23 @@ class stzDiagram from stzGraph
 			ok
 			# A DRAKON LOOP RETURN IS A SHAPE OF ITS OWN, and asked
 			# before anything else, because a router cannot produce it.
+			_aSeP_ = This._DrakonSideExit("" + _aE_[_ei_][:from],
+				"" + _aE_[_ei_][:to], _a_, _b_, _nBoxW_, _nBoxH_)
+			if len(_aSeP_) >= 6
+				_aSeC_ = This._ArrowCut(_aSeP_, This._HeadRoom(_nEdgeW_))
+				This._EmitOrthoPolyline(_oC_, _aSeC_[1], _cEdge_,
+					_nEdgeW_, StzLower("" + _aE_[_ei_][:from]) + ">" +
+					StzLower("" + _aE_[_ei_][:to]))
+				if @nDrawPass = 2
+					This._DrawArrowHead(_oC_, _aSeC_[2], _aSeC_[3],
+						_cEdge_)
+				ok
+				loop
+			ok
 			_aSjP_ = This._DrakonSideJoin("" + _aE_[_ei_][:from],
 				"" + _aE_[_ei_][:to], _a_, _b_, _nBoxW_, _nBoxH_)
 			if len(_aSjP_) >= 6
-				_aSjC_ = This._ArrowCut(_aSjP_, 9 + _nEdgeW_ * 2)
+				_aSjC_ = This._ArrowCut(_aSjP_, This._HeadRoom(_nEdgeW_))
 				This._EmitOrthoPolyline(_oC_, _aSjC_[1], _cEdge_,
 					_nEdgeW_, StzLower("" + _aE_[_ei_][:from]) + ">" +
 					StzLower("" + _aE_[_ei_][:to]))
@@ -4611,8 +4625,10 @@ class stzDiagram from stzGraph
 					_nEdgeW_, StzLower("" + _aE_[_ei_][:from]) + ">" +
 					StzLower("" + _aE_[_ei_][:to]))
 				if @nDrawPass = 2
+					@bLoopArrow = 1
 					This._DrawArrowHead(_oC_, _aLpC_[2], _aLpC_[3],
 						_cEdge_)
+					@bLoopArrow = 0
 				ok
 				loop
 			ok
@@ -4622,7 +4638,7 @@ class stzDiagram from stzGraph
 			_aRpP_ = This._DrakonReturnPath("" + _aE_[_ei_][:from],
 				"" + _aE_[_ei_][:to], _a_, _b_, _nBoxW_, _nBoxH_)
 			if len(_aRpP_) >= 6
-				_aRpC_ = This._ArrowCut(_aRpP_, 9 + _nEdgeW_ * 2)
+				_aRpC_ = This._ArrowCut(_aRpP_, This._HeadRoom(_nEdgeW_))
 				This._EmitOrthoPolyline(_oC_, _aRpC_[1], _cEdge_,
 					_nEdgeW_, StzLower("" + _aE_[_ei_][:from]) + ">" +
 					StzLower("" + _aE_[_ei_][:to]))
@@ -7100,6 +7116,56 @@ class stzDiagram from stzGraph
 		next
 		return 0
 
+	# THE RIGHT EXIT LEAVES BY THE RIGHT SIDE.
+	#
+	# The book gives the If icon's two exits in one sentence: "The
+	# central exit comes out of the bottom of the icon, the right exit
+	# comes out of its right side. Placing an exit on the left side is
+	# not allowed."
+	#
+	# This plane dropped BOTH exits out of the bottom and turned the
+	# second one right a little below the icon -- so the two answers
+	# left by the same face and separated afterwards, and the reader has
+	# to follow the line down before learning that a choice was made at
+	# all. Leaving by the side says it at the icon: one answer goes on
+	# down, the other steps out. It is also where the label belongs, and
+	# the label had been sitting under the skewer looking like a caption
+	# on the main path.
+	# HOW MUCH LINE TO GIVE BACK SO AN ARROWHEAD CAN STAND IN IT -- and
+	# none at all where no arrowhead will be drawn.
+	#
+	# Every path in this plane is trimmed by a head's length before it
+	# is stroked, which is right while a head is coming. Once DRAKON
+	# reserved the arrow for loops, the trim stayed and the head did
+	# not: each secondary route stopped four pixels short of the line it
+	# joins. The book bans that in the same breath as the crossing --
+	# "line intersections and breaks are not allowed" -- and four pixels
+	# of white is a break. It was measured by a guard asking the join to
+	# land ON the skewer, which is the clause I nearly widened instead.
+	def _HeadRoom(nEdgeW)
+		if This._NotationBranchSide() = "right"  return 0  ok
+		return 9 + nEdgeW * 2
+
+	def _DrakonSideExit(cFromId, cToId, paFrom, paTo, nBoxW, nBoxH)
+		if This._NotationBranchSide() != "right"  return []  ok
+		# only a conditional icon has a side exit to give
+		_seK_ = StzLower("" + This._KindOfId(cFromId))
+		if _seK_ != "question" and _seK_ != "if" and _seK_ != "foreach"
+			return []
+		ok
+		# the target stands out to the right, and below
+		_seBxF_ = This._BoxOf(cFromId, nBoxW, nBoxH)
+		_seBxT_ = This._BoxOf(cToId, nBoxW, nBoxH)
+		if paTo[1] <= paFrom[1] + _seBxF_[1] / 2  return []  ok
+		if paTo[2] <= paFrom[2]  return []  ok
+		_seOut_ = paFrom[1] + _seBxF_[1] / 2
+		_seTop_ = paTo[2] - _seBxT_[2] / 2
+		if _seTop_ <= paFrom[2] + 2  return []  ok
+		# out of the right side, along, and down into the target's top
+		return [ _seOut_, paFrom[2],
+			paTo[1], paFrom[2],
+			paTo[1], _seTop_ ]
+
 	# AN ALTERNATIVE REJOINS ITS OWN SKEWER, INSIDE ITS OWN COLUMN.
 	#
 	# A question whose second exit lands further down the SAME vertical
@@ -7161,13 +7227,17 @@ class stzDiagram from stzGraph
 		_sjBxF_ = This._BoxOf(cFromId, nBoxW, nBoxH)
 		_sjBxT_ = This._BoxOf(cToId, nBoxW, nBoxH)
 		_sjOut_ = paFrom[1] + _sjBxF_[1] / 2
-		_sjIn_ = paTo[1] + _sjBxT_[1] / 2
+		# ...ONTO THE VERTICAL ABOVE THE TARGET -- see _DrakonReturnPath
+		# for the rule and the sentence in the book that gives it.
+		_sjIn_ = paTo[1]
+		_sjY_ = paTo[2] - _sjBxT_[2] / 2 - _sjGap_
+		if _sjY_ <= paFrom[2] + 2  _sjY_ = paTo[2]  ok
 		if _sjLane_ <= _sjOut_ + 2  return []  ok
 		# out of the icon's side, along, down, and in at the target's
 		return [ _sjOut_, paFrom[2],
 			_sjLane_, paFrom[2],
-			_sjLane_, paTo[2],
-			_sjIn_, paTo[2] ]
+			_sjLane_, _sjY_,
+			_sjIn_, _sjY_ ]
 
 	def _DrakonLoopPath(cFromId, cToId, paFrom, paTo, nBoxW, nBoxH)
 		if This._NotationBranchSide() != "right"  return []  ok
@@ -7199,26 +7269,43 @@ class stzDiagram from stzGraph
 		# fades out at the border is worse than none, because it looks
 		# like control leaves the page.
 		_lpDrop_ = _lpFoot_ + _lpGap_ * 0.5
-		_lpSide_ = paTo[1] - _lpBxT_[1] / 2
-		if _lpSide_ <= _lpLane_ + 2  return []  ok
-		# down out of the body, left into the lane, up, and in at the side
+		# AND IT POINTS AT THE LINE ABOVE THE ICON, NEVER AT THE ICON.
+		# "Arrows never point to icons. Arrows point only to lines that
+		# go down. This rule guarantees that for each icon, there is
+		# only one line that leads to it." Aimed at the loop icon's own
+		# left face, the return gave that icon a second way in, and the
+		# reader has to decide which arrival is the flow and which is
+		# the repeat. Aimed at the line above it, the picture answers:
+		# there is one line into the icon, and the loop rejoins it.
+		_lpTop_ = paTo[2] - _lpBxT_[2] / 2 - _lpGap_
+		_lpSide_ = paTo[1]
+		if _lpTop_ >= _lpFoot_  return []  ok
+		# down out of the body, left into the lane, up, and back onto
+		# the line that feeds the loop
 		return [ paFrom[1], _lpFoot_,
 			paFrom[1], _lpDrop_,
 			_lpLane_, _lpDrop_,
-			_lpLane_, paTo[2],
-			_lpSide_, paTo[2] ]
+			_lpLane_, _lpTop_,
+			_lpSide_, _lpTop_ ]
 
 	def _DrakonReturnPath(cFromId, cToId, paFrom, paTo, nBoxW, nBoxH)
 		if This._NotationBranchSide() != "right"  return []  ok
 		_aRpX_ = @aDrawXY
 		if len(_aRpX_) = 0  return []  ok
-		_rpSk_ = 1000000000
-		for _iRp_ = 1 to len(_aRpX_)
-			if _aRpX_[_iRp_][2] < _rpSk_  _rpSk_ = _aRpX_[_iRp_][2]  ok
-		next
-		# a RETURN leaves a column and comes back to the skewer, going down
-		if paFrom[1] <= _rpSk_ + 2  return []  ok
-		if fabs(paTo[1] - _rpSk_) > 2  return []  ok
+		# A RETURN COMES BACK TO ITS OWN SKEWER, and "its own" is the
+		# thing this rule could not say. It took THE skewer to be the
+		# leftmost vertical in the picture -- true of a primitive
+		# diagram, which has one, and false of a silhouette, which is
+		# several primitives side by side and therefore has one per
+		# branch. So branch one's refusal came back correctly and every
+		# other branch's fell through to the generic router, which
+		# brought it in at the icon's flank.
+		#
+		# The relation the rule actually needs is local and needs no
+		# global landmark at all: the target stands to the LEFT of the
+		# source and BELOW it, which is what a secondary route rejoining
+		# its main line looks like from anywhere in any picture.
+		if paTo[1] >= paFrom[1] - 2  return []  ok
 		if paTo[2] <= paFrom[2]  return []  ok
 		_rpGap_ = This._LineClearance()
 		_rpLow_ = 0
@@ -7231,7 +7318,10 @@ class stzDiagram from stzGraph
 			_rpF_ = StzLower("" + _aRpE_[_iRpE_][:from])
 			_rpA_ = This._XYOf(_aRpX_, _rpF_)
 			if len(_rpA_) != 2  loop  ok
-			if _rpA_[1] <= _rpSk_ + 2  loop  ok
+			# ...counted against the TARGET's column, for the same
+			# reason: a source on some other branch's skewer is still
+			# off to the right of this one
+			if _rpA_[1] <= paTo[1] + 2  loop  ok
 			_rpB_ = This._BoxOf(_rpF_, nBoxW, nBoxH)
 			_rpBot_ = _rpA_[2] + _rpB_[2] / 2
 			if _rpBot_ > _rpLow_  _rpLow_ = _rpBot_  ok
@@ -7248,14 +7338,28 @@ class stzDiagram from stzGraph
 		# and the returns come in at the side, which is two statements a
 		# reader can tell apart at a glance instead of one shape with a
 		# tail.
+		# THE JOIN LANDS ON THE LINE, NOT ON THE ICON, and the book is
+		# explicit twice over: "Arrows never point to icons. Arrows
+		# point only to lines that go down", and "after a horizontal
+		# joining the execution flow goes to the left" -- left along the
+		# horizontal, onto the vertical, and DOWN it.
+		#
+		# This plane ran the shared line at the terminal's own height
+		# and entered it from the side, which was an improvement on what
+		# came before (a stub belonging to nothing) and is still not the
+		# language: an icon with two arrows arriving at two different
+		# faces has two ways in, and "for each icon there is only one
+		# line that leads to it" is the guarantee the rule exists to
+		# give. Every sample in the book joins above the End and comes
+		# down the skewer into it.
 		_rpBxT_ = This._BoxOf(cToId, nBoxW, nBoxH)
-		_rpY_ = paTo[2]
+		_rpY_ = paTo[2] - _rpBxT_[2] / 2 - _rpGap_
 		_rpBxF_ = This._BoxOf(cFromId, nBoxW, nBoxH)
 		_rpStart_ = paFrom[2] + _rpBxF_[2] / 2
 		if _rpY_ <= _rpStart_ + 2  return []  ok
 		return [ paFrom[1], _rpStart_,
 			paFrom[1], _rpY_,
-			paTo[1] + _rpBxT_[1] / 2, _rpY_ ]
+			paTo[1], _rpY_ ]
 
 	# WHERE A BRANCH LABEL BELONGS, in DRAKON's own terms.
 	#
@@ -10929,6 +11033,32 @@ class stzDiagram from stzGraph
 	# stretch the cut released, so nothing shows through it.
 	def _DrawArrowHead(oC, aBase, aTip, cColor)
 		if NOT This._EdgesAreDirected()  return  ok
+		# IN DRAKON AN ARROW MEANS A LOOP, AND NOTHING ELSE MEANS IT.
+		#
+		# The book gives the rule and the reason in one paragraph: "a
+		# loop is the only situation when we direct a connecting line
+		# upwards. A line that is pointing up is such a rare exception
+		# that DRAKON ends that line with an arrow. All arrows inside a
+		# branch represent loops. All other lines do not have arrow
+		# heads because an excessive use of arrows adds unnecessary
+		# graphics complexity."
+		#
+		# So an arrowhead is not decoration on a connection, it is a
+		# WORD -- it says "the flow goes back up here". This plane drew
+		# one on every edge, which does not merely add noise: it spends
+		# the one mark DRAKON reserves for its rarest event on the most
+		# ordinary one, and leaves the language nothing to say a loop
+		# with. Direction is carried by the layout instead, which is the
+		# whole reason the layout is worth its rules.
+		# ...AND THE LOOP'S OWN ARROW IS ANNOUNCED, NOT INFERRED FROM
+		# THE LAST SEGMENT. A DRAKON loop return rises and then turns
+		# right onto the line it rejoins, so its final stroke is
+		# HORIZONTAL: read from that stroke alone, the one arrow the
+		# language requires is the one this rule suppressed. The path
+		# that rose is the thing that knows.
+		if This._NotationBranchSide() = "right" and NOT @bLoopArrow
+			if aTip[2] >= aBase[2] - 0.5  return  ok
+		ok
 		_hdx_ = aTip[1] - aBase[1]
 		_hdy_ = aTip[2] - aBase[2]
 		_hl_ = sqrt(_hdx_ * _hdx_ + _hdy_ * _hdy_)
@@ -12212,6 +12342,15 @@ class stzDiagram from stzGraph
 
 	def _DrawArrow(oC, aP, aQ, cColor, nWidth, cSpline, cRank)
 		if NOT This._EdgesAreDirected()  return  ok
+		# IN DRAKON AN ARROW MEANS A LOOP -- the rule, the sentence from
+		# the book and the reasoning are at _DrawArrowHead, which is the
+		# OTHER place that draws one. Gating that one alone changed
+		# nothing visible, because the ordinary edges of a layered
+		# picture come through here: a rule applied to one of two
+		# drawing paths is a rule that has not been applied.
+		if This._NotationBranchSide() = "right" and NOT @bLoopArrow
+			if aQ[2] >= aP[2] - 0.5  return  ok
+		ok
 		_bx_ = aP[1]
 		_by_ = aP[2]
 		if cSpline = "ortho"
