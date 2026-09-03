@@ -1421,23 +1421,94 @@ COLUMN rather than the side — two earlier drafts asked about the side and
 both proved nothing, because the plain layout already sends a lone
 refusal right.
 
+### What was open on 2026-09-01, and is now closed
+
+All three are done; they are kept in the record because the third one
+was closed twice and the first was closed for the wrong reason first.
+
+- **A question writes its text BELOW the rhombus.** ~~Open.~~ Closed —
+  and the rhombus went with it. DRAKON's If **is a hexagon**, which the
+  language's book states in one sentence and its teaching picture
+  captions: diamonds under "an old messy flowchart", hexagons under "a
+  modern DRAKON flowchart". Every diagram this plane had published was
+  drawn in the glyph DRAKON exists to replace.
+- **Two branches returning to the same terminal cross once.** ~~Open.~~
+  Closed. `RenderCrossings()` on the hardest scene in the catalogue is
+  **0**. The note above was right that a router bias is not the fix and
+  wrong about what is: it needed the branch ordering to be decided by
+  **enclosure**, and enclosure to be asked only between branches on ONE
+  skewer, which reachability answers.
+- **The SILHOUETTE.** ~~Open.~~ Shipped, then shipped again. The first
+  version drew branches as separate columns and nothing else, under a
+  heading reading "a transfer is written, not drawn" — half right, and
+  the wrong half left three columns sharing a sheet with nothing saying
+  they were one algorithm. DRAKON draws the runner's route: a rail above
+  the branch entries, a rail below the addresses, the climb up the left
+  edge, and the one arrowhead a silhouette is allowed.
+
+### DN6b–DN6f — what the LANGUAGE'S OWN SOURCES added (2026-09-02/03)
+
+The Principal judged the profile short of the language and supplied its
+book, its icon table and eight real diagrams. Every item below is a
+sentence in those sources that could be quoted against a picture this
+plane had already published — which is the finding: **correcting an
+artefact against a reviewer's eye converges on what the reviewer can
+see, and a specification says things no instance shows.**
+
+- **Exits are DECLARED, not read from labels.** The reference engine
+  gives every icon exactly two exits and fixes what each means — `one`
+  is the item below, `two` the item to the right. This library read the
+  words: affirmative, then neutral, then anything. That works on yes/no
+  and is a guess everywhere else. §73m proves it on a scene whose
+  wording misleads.
+- **An arrow means a LOOP and nothing else means it.** "All arrows
+  inside a branch represent loops. All other lines do not have arrow
+  heads." This plane drew one on every edge, spending the one mark the
+  language reserves for its rarest event on its most ordinary one.
+- **A FOR loop is TWO icons**, Begin For and End For, with the body
+  between them. One icon with a right exit is an If wearing a loop's
+  name: read literally, the fixture said the loop ends on its first
+  pass. The gap had been NAMED in the profile under a heading reading
+  "NAMED AND NOT DONE" and the picture went out claiming otherwise.
+- **Select and Case are a construct, not two glyphs.** Three cases came
+  out at two coordinates — one icon drawn over another — because a
+  branch's column was "one plus the number of branches nested inside
+  it", which orders things that CONTAIN one another and says nothing
+  about peers. A branch is also a CHAIN, not a node.
+- **`branchId` orders the silhouette's branches**, so the entry branch
+  is declared rather than implied by the order somebody typed.
+- **The Shelf needed no glyph**; it is a two-compartment node, which
+  this plane already draws for a UML class. What it needed was the right
+  to NAME its second compartment.
+
+### The law this phase minted, three times over
+
+**A rule whose membership is ENUMERATED stops being applied the moment
+something new arrives.** Three instances in one week, each hand-extended
+at least once before it failed:
+
+| the rule | its list | what it missed |
+|---|---|---|
+| the paper is the content measured | four layout modes | DRAKON is none of them |
+| this kind holds its own name | the shape `diamond` | every other sized glyph |
+| a node's compartments | `attributes`, `operations` | the Shelf's second text |
+
+The first had narrated its own three previous extensions in the comment
+directly above the list. The repair each time is the same: ask a
+PROPERTY, keep the old list as the default, and **assert that default**,
+because a silent redefinition for every other domain is the expensive
+way to find out.
+
 ### Still open, and named rather than left to be discovered
 
-- **A question writes its text BELOW the rhombus**, where DRAKON puts it
-  inside. The diamond is in the plane's writes-name-below family, which
-  is right while a diamond is drawn small and wrong for a notation that
-  sizes it to its question.
-- **Two branches returning to the same terminal cross once at the join.**
-  Measured: 1 crossing at (350.03, 796) on the nested scene. The fix is
-  not a router bias — two attempts at one were reverted, the second
-  after measuring that the edge never reaches that code path and that
-  `@aDrawXY` does not carry post-spine columns. It needs the branches to
-  rejoin the skewer at SUCCESSIVE points, which is a layout change: the
-  terminal has no room under it for a second join.
-- **The SILHOUETTE**, DRAKON's form for a large algorithm — several
-  skewers side by side, each under its own header, control jumping from
-  the foot of one to the head of another. What shipped is the PRIMITIVE,
-  the single-skewer form, which is what every fixture in this plane is.
+- **The icon table's remaining real-time set** — `par`/`parblock` as a
+  genuine construct rather than two glyphs, and the timer variants. They
+  are declared as kinds and draw as sensible shapes; none of them has a
+  LAW yet, which is the difference between a vocabulary and a notation.
+- **The visual logic formulas as a checked law.** The catalogue draws
+  AND on the skewer and OR as stair steps (scenes 12 and 13) because the
+  fixtures are written that way, not because anything enforces it. The
+  book states it as a rule; this plane states it as two pictures.
 
 
 ## DN2b — THE RING: a state machine is not a tree (2026-08-23)
