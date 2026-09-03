@@ -54,6 +54,51 @@ func _PlIsRefusedBranch(poDg, pcId)
 func _PlOneSided(poDg)
 	return poDg._NotationBranchSide() = "right"
 
+# IS THIS EDGE A DETOUR THE NOTATION REQUIRES?
+#
+# Two of DRAKON's own drawings bend an edge whose ends share a column,
+# and both are law rather than accident: a line that goes UP is a loop
+# return and leaves by the side to say so, and a refusal whose target
+# stands further down the same skewer must step aside because something
+# stands between them on that line. The general bend rule reads only
+# the two ends, so it convicted five such edges across the catalogue --
+# every For, while and do-until loop, and every side-join.
+func _PlDetourByLaw(poDg, pcF, pcT)
+	if NOT _PlOneSided(poDg)  return 0  ok
+	_ax_ = _PlCrossAxis(poDg)
+	_ca_ = _PlCentre(poDg, pcF, _ax_)
+	_cb_ = _PlCentre(poDg, pcT, _ax_)
+	_ya_ = _PlCentre(poDg, pcF, 2)
+	_yb_ = _PlCentre(poDg, pcT, 2)
+	if _ca_ < -999999 or _cb_ < -999999  return 0  ok
+	# a return: the target stands above the source
+	if _yb_ < _ya_ - 2  return 1  ok
+	# a side-join: something stands on the shared column between them
+	if fabs(_ca_ - _cb_) >= 2  return 0  ok
+	_a_ = poDg.RenderNodeRects()
+	_n_ = len(_a_)
+	for _i_ = 1 to _n_
+		_id_ = StzLower("" + _a_[_i_][5])
+		if _id_ = StzLower("" + pcF) or _id_ = StzLower("" + pcT)  loop  ok
+		_cx_ = _a_[_i_][1] + _a_[_i_][3] / 2
+		_cy_ = _a_[_i_][2] + _a_[_i_][4] / 2
+		if fabs(_cx_ - _ca_) > 2  loop  ok
+		if _cy_ > _ya_ and _cy_ < _yb_  return 1  ok
+	next
+	return 0
+
+# THE ICON A CELL'S REFUSAL LEADS TO, or "" where it has none.
+func _PlRefusalTarget(poDg, pcId)
+	_a_ = poDg.Edges()
+	_n_ = len(_a_)
+	for _i_ = 1 to _n_
+		if StzLower("" + _a_[_i_][:from]) != StzLower("" + pcId)  loop  ok
+		if poDg._IsNegative("" + _a_[_i_][:label])
+			return StzLower("" + _a_[_i_][:to])
+		ok
+	next
+	return ""
+
 # IS THIS CELL ALREADY OFF THE MAIN LINE?
 #
 # Measured against the leftmost drawn cell, which is where a one-sided
@@ -271,6 +316,11 @@ func StzPlasticRuleSet()
 				if _share_  exit  ok
 			next
 			if _share_  loop  ok
+			# ...AND AN ATTACHMENT STANDS BESIDE ITS ICON ON PURPOSE. A
+			# timer governing one step has one neighbour and no rank
+			# peer, which is this rule's exact profile, and it stands
+			# off that neighbour by law -- see _TimerAttachOf.
+			if oDg._TimerAttachOf(_ids_[_i_]) != ""  loop  ok
 			# ...and the refused branch of a yes/no fork is stepped
 			# aside by the happy-path rule, which outranks this one
 			if _PlIsRefusedBranch(oDg, _ids_[_i_])  loop  ok
@@ -507,13 +557,21 @@ func StzPlasticRuleSet()
 			_cb_ = _PlCentre(oDg, _t_, _ax_)
 			if _ca_ < -999999 or _cb_ < -999999  loop  ok
 			if fabs(_ca_ - _cb_) >= 1  loop  ok
+			# ...UNLESS THE NOTATION REQUIRES THE DETOUR. A loop return
+			# and a side-join both bend by law -- see _PlDetourByLaw.
+			# Found by auditing the governor against the published
+			# catalogue: five edges convicted, every one a DRAKON loop
+			# or skip drawn exactly as the book draws it.
+			if _PlDetourByLaw(oDg, _f_, _t_)  loop  ok
 			_r_ + _PlKeyEdge(_f_, _t_)
 		next
 		return _r_
 	})
 	_o4_.SetCounter(func(oDg) {
 		# edges whose ends do NOT share a column: they must bend, and a
-		# rule that convicted them would be the opposite defect
+		# rule that convicted them would be the opposite defect -- and
+		# the detours a notation requires, which share a column and
+		# bend anyway
 		_r_ = []
 		_ax_ = _PlCrossAxis(oDg)
 		if _ax_ = 0  return _r_  ok
@@ -526,7 +584,9 @@ func StzPlasticRuleSet()
 			_ca_ = _PlCentre(oDg, _f_, _ax_)
 			_cb_ = _PlCentre(oDg, _t_, _ax_)
 			if _ca_ < -999999 or _cb_ < -999999  loop  ok
-			if fabs(_ca_ - _cb_) < 1  loop  ok
+			if fabs(_ca_ - _cb_) < 1 and NOT _PlDetourByLaw(oDg, _f_, _t_)
+				loop
+			ok
 			_r_ + _PlKeyEdge(_f_, _t_)
 		next
 		return _r_
@@ -633,6 +693,37 @@ func StzPlasticRuleSet()
 			if _a_[_i_][1] + _a_[_i_][3] > _x1_  _x1_ = _a_[_i_][1] + _a_[_i_][3]  ok
 			if _a_[_i_][2] + _a_[_i_][4] > _y1_  _y1_ = _a_[_i_][2] + _a_[_i_][4]  ok
 		next
+		# ...AND THE INK IS NOT ONLY THE BOXES. A refusal that steps
+		# aside runs a lane past the widest icon, and its label stands
+		# beside the lane; a loop return runs a lane the other way. Read
+		# from the boxes alone, the paper holding that lane looked like
+		# 113px of dead air against 16 -- and the rule convicted a picture
+		# drawn exactly as the book draws it. The comment above already
+		# knew this ("a self-loop, a lifeline -- all reach past the node
+		# box this reads") and answered it with a tolerance instead of a
+		# measurement. Auditing against the catalogue found the case the
+		# tolerance did not cover.
+		_ap_ = oDg.@aEdgePaths
+		_np_ = len(_ap_)
+		for _i_ = 1 to _np_
+			_f_ = _ap_[_i_][2]
+			for _j_ = 1 to len(_f_) - 1 step 2
+				if _f_[_j_] < _x0_  _x0_ = _f_[_j_]  ok
+				if _f_[_j_] > _x1_  _x1_ = _f_[_j_]  ok
+				if _f_[_j_ + 1] < _y0_  _y0_ = _f_[_j_ + 1]  ok
+				if _f_[_j_ + 1] > _y1_  _y1_ = _f_[_j_ + 1]  ok
+			next
+		next
+		_al_ = oDg.RenderLabels()
+		_nl_ = len(_al_)
+		for _i_ = 1 to _nl_
+			_lx_ = _al_[_i_][2] - _al_[_i_][4] / 2
+			_ly_ = _al_[_i_][3] - _al_[_i_][5] / 2
+			if _lx_ < _x0_  _x0_ = _lx_  ok
+			if _ly_ < _y0_  _y0_ = _ly_  ok
+			if _lx_ + _al_[_i_][4] > _x1_  _x1_ = _lx_ + _al_[_i_][4]  ok
+			if _ly_ + _al_[_i_][5] > _y1_  _y1_ = _ly_ + _al_[_i_][5]  ok
+		next
 		_W_ = oDg.LastCanvas().Width()
 		_H_ = oDg.LastCanvas().Height()
 		# GENEROUS ON PURPOSE. A glyph that writes its name underneath, a
@@ -697,6 +788,13 @@ func StzPlasticRuleSet()
 			next
 			if _y_ = 0 or _no_ = 0  loop  ok
 			if _PlOffTheLine(oDg, _ids_[_i_])  loop  ok
+			# ...AND A REFUSAL THAT DETOURS BY LAW IS NOT SHARING THE
+			# LINE, whatever column its target stands in. This rule read
+			# the target and convicted a skip -- "no" stepping aside and
+			# rejoining below -- and a do-until's return, both of which
+			# leave the main line exactly as the notation says to.
+			_rt_ = _PlRefusalTarget(oDg, _ids_[_i_])
+			if _rt_ != "" and _PlDetourByLaw(oDg, _ids_[_i_], _rt_)  loop  ok
 			_r_ + _PlKeyNode(_ids_[_i_])
 		next
 		return _r_
