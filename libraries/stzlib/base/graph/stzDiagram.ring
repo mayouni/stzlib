@@ -7031,6 +7031,99 @@ class stzDiagram from stzGraph
 					if NOT _bSrSw_  exit  ok
 				next
 
+				# A CASE'S OWN BRANCHES STAND BESIDE THAT CASE.
+				#
+				# Everything off the main line competes for ONE ladder of
+				# columns, so a case and another case's refusal are the
+				# same kind of thing to it and interleave by nesting
+				# count. On advanceStep that put the dropping case's
+				# freezeProjectile() beyond the finished case, where the
+				# language keeps it between the two -- nothing collided
+				# and nothing crossed, so it was legal and unreadable: a
+				# reader tracing one case crossed the whole sheet to
+				# follow its refusal.
+				#
+				# THE LADDER DOES NOT NEED REBUILDING, WHICH IS THE
+				# FINDING. It is anchored to the one spine and I had
+				# written the gap down as needing a ladder PER SKEWER --
+				# a redesign. But a ladder's slots are only an ORDER, and
+				# the order is the whole defect: numbering the branches
+				# depth-first by the case that owns each one puts every
+				# case's routes beside it, using the ladder exactly as
+				# built. The redesign I named was the first shape I saw,
+				# not the smallest that works.
+				_aSrCase_ = []
+				for _srI_ = 1 to len(_srOut_)  _aSrCase_ + 0  next
+				_aSrCl_ = []
+				_aSrN9_ = This.Nodes()
+				for _iSrN9_ = 1 to len(_aSrN9_)
+					if StzLower("" + This._KindOfNode(_aSrN9_[_iSrN9_])) =
+					   "case"
+						_aSrCl_ + StzLower("" + _aSrN9_[_iSrN9_][:id])
+					ok
+				next
+				if len(_aSrCl_) > 1
+					for _srZ_ = 1 to len(_srOrd_)
+						_srI_ = _srOrd_[_srZ_]
+						_srId9_ = StzLower("" + _srOut_[_srI_][1])
+						for _iSrC9_ = 1 to len(_aSrCl_)
+							# A CASE OWNS ITSELF AND THE MATTER IS
+							# CLOSED. `loop` only skipped the rest of
+							# THIS turn, so a later case could still
+							# claim it: through a switch loop, the
+							# default case reaches back above the select
+							# and from there reaches every case, and the
+							# last claim won. The default was drawn
+							# nearer the skewer than the case declared
+							# before it. A barrier that stops the WALK
+							# does not stop the ARRIVAL -- the target
+							# test fires while scanning an edge, before
+							# anything is dequeued.
+							if _aSrCl_[_iSrC9_] = _srId9_
+								_aSrCase_[_srI_] = _iSrC9_ * 2
+								exit
+							ok
+							if This._ReachesWithin(_aSrCl_[_iSrC9_],
+								_srId9_, _aSrCl_)
+								_aSrCase_[_srI_] = _iSrC9_ * 2 + 1
+							ok
+						next
+					next
+					# ...and renumber in that order, so a case's routes
+					# take the columns immediately beyond the case itself
+					_aSrSort_ = []
+					for _srZ_ = 1 to len(_srOrd_)
+						_srI_ = _srOrd_[_srZ_]
+						if _srLead_[_srI_] != _srI_  loop  ok
+						_aSrSort_ + [ _aSrCase_[_srI_], _srIdx_[_srI_],
+							_srI_ ]
+					next
+					for _srP9_ = 1 to len(_aSrSort_) - 1
+						for _srQ9_ = 1 to len(_aSrSort_) - _srP9_
+							_bSrGt_ = 0
+							if _aSrSort_[_srQ9_][1] >
+							   _aSrSort_[_srQ9_ + 1][1]
+								_bSrGt_ = 1
+							ok
+							if _aSrSort_[_srQ9_][1] =
+							   _aSrSort_[_srQ9_ + 1][1] and
+							   _aSrSort_[_srQ9_][2] >
+							   _aSrSort_[_srQ9_ + 1][2]
+								_bSrGt_ = 1
+							ok
+							if _bSrGt_
+								_srSw9_ = _aSrSort_[_srQ9_]
+								_aSrSort_[_srQ9_] = _aSrSort_[_srQ9_ + 1]
+								_aSrSort_[_srQ9_ + 1] = _srSw9_
+							ok
+						next
+					next
+					for _srZ_ = 1 to len(_aSrSort_)
+						if _srZ_ > 8  exit  ok
+						_srIdx_[ _aSrSort_[_srZ_][3] ] = _srZ_
+					next
+				ok
+
 				# every link of a chain stands in its head's column
 				for _srI_ = 1 to len(_srLead_)
 					if _srLead_[_srI_] = _srI_  loop  ok
@@ -7318,6 +7411,49 @@ class stzDiagram from stzGraph
 	#
 	# Written once because three rules now want it: whether an edge
 	# closes a cycle, and whether one branch encloses another.
+	# ...AND THE SAME QUESTION WITH BARRIERS, which is the one ownership
+	# needs.
+	#
+	# Plain reachability said every case reaches every other case, and it
+	# was right: a SWITCH LOOP sends one case's tail back above the
+	# select, so from there the walk reaches all of them. Ownership asked
+	# with that answer put the default case nearer the skewer than the
+	# case declared before it. A cycle makes "can control get there" true
+	# of almost everything, so it is the wrong question for "whose is
+	# this" -- the right one stops at the next case, because a node
+	# beyond another case belongs to that one.
+	def _ReachesWithin(pcFrom, pcTo, paStop)
+		_rwF_ = StzLower("" + pcFrom)
+		_rwT_ = StzLower("" + pcTo)
+		if _rwF_ = _rwT_  return 0  ok
+		_aRwE_ = This.Edges()
+		_nRwE_ = len(_aRwE_)
+		_aRwQ_ = [ _rwF_ ]
+		_rwQi_ = 1
+		while _rwQi_ <= len(_aRwQ_)
+			_rwU_ = _aRwQ_[_rwQi_]
+			_rwQi_++
+			# a barrier is reachable but never walked THROUGH
+			if _rwU_ != _rwF_
+				_bRwB_ = 0
+				for _iRw_ = 1 to len(paStop)
+					if StzLower("" + paStop[_iRw_]) = _rwU_  _bRwB_ = 1  ok
+				next
+				if _bRwB_  loop  ok
+			ok
+			for _iRw_ = 1 to _nRwE_
+				if StzLower("" + _aRwE_[_iRw_][:from]) != _rwU_  loop  ok
+				_rwV_ = StzLower("" + _aRwE_[_iRw_][:to])
+				if _rwV_ = _rwT_  return 1  ok
+				_bRwIn_ = 0
+				for _iRw2_ = 1 to len(_aRwQ_)
+					if _aRwQ_[_iRw2_] = _rwV_  _bRwIn_ = 1  ok
+				next
+				if NOT _bRwIn_  _aRwQ_ + _rwV_  ok
+			next
+		end
+		return 0
+
 	def _ReachesId(pcFrom, pcTo)
 		_rzF_ = StzLower("" + pcFrom)
 		_rzT_ = StzLower("" + pcTo)
