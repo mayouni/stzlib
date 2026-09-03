@@ -69,6 +69,7 @@ func StzNodeShapeNames()
 		:Parallelogram, :House, :InvHouse, :Pentagon, :Hexagon, :Septagon,
 		:Octagon, :TripleOctagon, :Cylinder, :Folder, :Tab, :Note,
 		:Component, :Insertion, :Actor, :Bar,
+		:PauseGlyph, :TimerGlyph, :DurationGlyph, :Parallel,
 		:Resistor, :Capacitor, :Ground, :Source, :Junction
 	]
 
@@ -248,6 +249,55 @@ func StzDrawNodeShape(poCanvas, pcShape, pnX, pnY, pnW, pnH)
 		_f_ = min([_w_, _h_]) * 0.24
 		poCanvas.AddPolygon([ _x_, _y_, _x_ + _w_ - _f_, _y_,
 			_x_ + _w_, _y_ + _f_, _x_ + _w_, _y_ + _h_, _x_, _y_ + _h_ ])
+	# THE WAITING FAMILY, AND THE PARALLEL PROCESS -- DRAKON's real-time
+	# icons, drawn from the language's own icon table.
+	#
+	# The family resemblance is deliberate and is the table's: pause,
+	# start-timer and period are all trapezoids narrowing to the foot,
+	# distinguished by what is drawn INSIDE them. A reader learns the
+	# family once and then reads the mark. This profile had drawn all
+	# three as HEXAGONS, which is the question's glyph -- so three icons
+	# that mean "wait" wore the glyph that means "answer yes or no", and
+	# only the wires said otherwise.
+	on "pauseglyph"
+		_i_ = _w_ * 0.18
+		poCanvas.AddPolygon([ _x_, _y_, _x_ + _w_, _y_,
+			_x_ + _w_ - _i_, _y_ + _h_, _x_ + _i_, _y_ + _h_ ])
+		# LOW, CLEAR OF THE TEXT. The first version ruled the icon across
+		# its middle and struck through the word inside it -- the same
+		# fault as the timer's diagonal, in the glyph written one minute
+		# after it. Fixing one mark and not re-checking the two written
+		# beside it is how a defect survives its own repair.
+		poCanvas.AddLine(_x_ + _i_ * 1.5, _y_ + _h_ * 0.82,
+			_x_ + _w_ - _i_ * 1.5, _y_ + _h_ * 0.82)
+	on "timerglyph"
+		_i_ = _w_ * 0.18
+		poCanvas.AddPolygon([ _x_, _y_, _x_ + _w_, _y_,
+			_x_ + _w_ - _i_, _y_ + _h_, _x_ + _i_, _y_ + _h_ ])
+		# A CORNER MARK, NOT A DIAGONAL ACROSS THE ICON. Drawn corner to
+		# corner it struck straight through the icon's own text -- the
+		# glyph and the word competing for the same pixels, which is the
+		# defect the whole name-inside rule exists to prevent.
+		poCanvas.AddLine(_x_ + _i_, _y_ + _h_,
+			_x_ + _i_ + _w_ * 0.13, _y_ + _h_ * 0.70)
+	on "durationglyph"
+		_i_ = _w_ * 0.18
+		poCanvas.AddPolygon([ _x_, _y_, _x_ + _w_, _y_,
+			_x_ + _w_ - _i_, _y_ + _h_, _x_ + _i_, _y_ + _h_ ])
+		poCanvas.AddLine(_x_, _cy_, _x_ + _i_ * 1.2, _cy_)
+		poCanvas.AddLine(_x_ + _w_ - _i_ * 1.2, _cy_, _x_ + _w_, _cy_)
+
+	# A PARALLEL PROCESS IS THE ICON DOUBLED, not a different shape. The
+	# table draws it as a box with a second box behind it, and the
+	# doubling IS the statement: this is the same kind of step, and
+	# there is more than one of it running. Drawn as a plain box -- which
+	# is what this profile did -- it was an action, and the concurrency
+	# was carried entirely by the author's choice of words.
+	on "parallel"
+		_o_ = _w_ * 0.07
+		poCanvas.AddRect(_x_ + _o_, _y_, _w_ - _o_, _h_ - _o_)
+		poCanvas.AddRect(_x_, _y_ + _o_, _w_ - _o_, _h_ - _o_)
+
 	# AN INSERTION IS A CALL TO ANOTHER DIAGRAM, and DRAKON draws it as
 	# a box ruled once near each end -- the shape every flowchart
 	# notation has used for a sub-routine since before flowcharts were
