@@ -515,5 +515,46 @@ c19.LastCanvas().ToPNG("cat_19_shelf_insertion.png")
 ? "  19 shelf and insertion " + c19.LastCanvas().Width() + "x" +
   c19.LastCanvas().Height()
 
+#-- 20. THE REAL-TIME ICONS, AND THE LAW THAT MAKES THEM A NOTATION ----------
+#   The plan of record named these as the plane's last gap in these
+#   words: they "are declared as kinds and draw as sensible shapes; none
+#   of them has a LAW yet, which is the difference between a vocabulary
+#   and a notation."
+#
+#   THE LAW IS IN THE MACROICON TABLE, thirteen rows of it. Every row of
+#   the form "X by timer" -- action, shelf, fork, switch, input, output,
+#   insertion, parallel process -- draws the timer trapezoid ATTACHED TO
+#   THE LEFT of the icon it governs, on that icon's own row. Not above
+#   it, and not in the flow.
+#
+#   That is the whole difference between having the icon and having the
+#   construct. Drawn in sequence a timer says "wait, then do this",
+#   which is a step. Drawn beside, it says "this step is governed by a
+#   deadline", which is a property of the step. Those are different
+#   algorithms, and the picture has to be able to tell them apart.
+#
+#   Three of these icons had also been drawn as HEXAGONS -- the
+#   question's glyph -- so timer, pause and duration all wore the shape
+#   that means "answer yes or no", and par wore the action's box.
+c20 = new stzDiagram("realtime")
+c20.SetNotation(StzDrakonNotation())
+c20.AddNodeXTT("t",  "Poll the sensor",  [ :type = "title" ])
+c20.AddNodeXTT("rd", "Read the value",   [ :type = "action" ])
+c20.AddNodeXTT("tm", "500 ms",           [ :type = "timer" ])
+c20.AddNodeXTT("pub","Publish the run",  [ :type = "par" ])
+c20.AddNodeXTT("st", "Settle",           [ :type = "pause" ])
+c20.AddNodeXTT("wr", "Write the log",    [ :type = "action" ])
+c20.AddNodeXTT("e",  "Done",             [ :type = "end" ])
+c20.AddEdge("t","rd")   c20.AddEdge("rd","pub")
+c20.AddEdge("pub","wr") c20.AddEdge("wr","e")
+# the two attachments: each governs the icon it points at, and neither
+# is a step in the sequence
+c20.AddEdge("tm","rd")
+c20.AddEdge("st","wr")
+c20.ToCanvasXT(OPT)
+c20.LastCanvas().ToPNG("cat_20_realtime.png")
+? "  20 the real-time set  " + c20.LastCanvas().Width() + "x" +
+  c20.LastCanvas().Height()
+
 ? ""
-? "wrote cat_01 .. cat_19"
+? "wrote cat_01 .. cat_20"

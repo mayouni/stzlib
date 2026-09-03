@@ -3307,6 +3307,11 @@ class stzDiagram from stzGraph
 				_aXY_ = This._ApplySilhouette(_aXY_, _nBoxW_, _nBoxH_,
 					_spSep_)
 			ok
+			# ...AND THE TIMERS COME TO REST BESIDE WHAT THEY TIME.
+			# Hooked at BOTH sites: this call has two, which is the shape
+			# this file keeps producing and the reason a reserve added to
+			# one of them once looked like a no-op.
+			_aXY_ = This._ApplyTimerAttach(_aXY_, _nBoxW_, _nBoxH_)
 			# the long edges' routes ride the SAME transform as the nodes --
 			# one rule, so a route can never land in a different frame from
 			# the boxes it joins
@@ -3731,6 +3736,11 @@ class stzDiagram from stzGraph
 				_aXY_ = This._ApplySilhouette(_aXY_, _nBoxW_, _nBoxH_,
 					_spSep_)
 			ok
+			# ...AND THE TIMERS COME TO REST BESIDE WHAT THEY TIME.
+			# Hooked at BOTH sites: this call has two, which is the shape
+			# this file keeps producing and the reason a reserve added to
+			# one of them once looked like a no-op.
+			_aXY_ = This._ApplyTimerAttach(_aXY_, _nBoxW_, _nBoxH_)
 			# A ROW IS AS TALL AS WHAT STANDS IN IT, AND A GAP IS A GAP.
 			#
 			# This is the entry edge the Principal has now marked four
@@ -4652,6 +4662,11 @@ class stzDiagram from stzGraph
 
 			# AN INTER-BRANCH TRANSFER IS WRITTEN, NOT DRAWN.
 			if This._SilhouetteSuppressed("" + _aE_[_ei_][:from],
+				"" + _aE_[_ei_][:to])
+				loop
+			ok
+			# ...AND AN ATTACHMENT IS NOT A WIRE EITHER.
+			if This._TimerSuppressed("" + _aE_[_ei_][:from],
 				"" + _aE_[_ei_][:to])
 				loop
 			ok
@@ -8095,6 +8110,85 @@ class stzDiagram from stzGraph
 			next
 		next
 		return 0
+
+	# A TIMER ATTACHES, IT DOES NOT SEQUENCE -- the law that turns this
+	# plane's real-time icons from a vocabulary into a notation.
+	#
+	# DRAKON's macroicon table has thirteen rows of the form "X by
+	# timer" -- action by timer, shelf by timer, fork by timer, switch by
+	# timer, input, output, insertion, parallel process -- and every one
+	# draws the timer trapezoid ATTACHED TO THE LEFT of the icon it
+	# governs, on that icon's own row. Not above it, not in the flow.
+	#
+	# That is the whole difference between having the icon and having the
+	# construct. Drawn in sequence a timer says "wait, then do this",
+	# which is a step. Drawn beside, it says "this step is governed by a
+	# deadline", which is a property of the step -- and those are
+	# different algorithms.
+	#
+	# The author writes it as an edge from the timer to what it times;
+	# that edge is the ATTACHMENT and is never a wire, the same way a
+	# silhouette's transfer is written and not drawn.
+	def _TimerAttachOf(cId)
+		_taK_ = StzLower("" + This._KindOfId(cId))
+		if _taK_ != "timer" and _taK_ != "pause" and _taK_ != "duration"
+			return ""
+		ok
+		_aTaE_ = This.Edges()
+		_nTaE_ = len(_aTaE_)
+		_taOut_ = ""
+		_nTaOut_ = 0
+		for _iTa_ = 1 to _nTaE_
+			if StzLower("" + _aTaE_[_iTa_][:from]) != StzLower("" + cId)
+				loop
+			ok
+			_taOut_ = StzLower("" + _aTaE_[_iTa_][:to])
+			_nTaOut_++
+		next
+		# exactly one thing timed, or this is a step after all
+		if _nTaOut_ != 1  return ""  ok
+		# ...AND NOTHING FLOWS INTO IT. An attachment hangs off the icon
+		# it governs and is reached by nothing: the flow passes through
+		# what is timed, not through the timing.
+		#
+		# Without this the rule moved a timer aside while leaving the
+		# wire that arrives at it, so the sequence ran into a node that
+		# was no longer standing there -- a line to nowhere, and the
+		# picture worse than before the law existed. An author who put
+		# the timer IN the chain meant it as a step, and the model says
+		# which they meant.
+		for _iTa_ = 1 to _nTaE_
+			if StzLower("" + _aTaE_[_iTa_][:to]) = StzLower("" + cId)
+				return ""
+			ok
+		next
+		return _taOut_
+
+	# ...AND THE EDGE THAT SAYS SO IS NOT DRAWN.
+	def _TimerSuppressed(cFrom, cTo)
+		if This._NotationBranchSide() != "right"  return 0  ok
+		if This._TimerAttachOf(cFrom) = StzLower("" + cTo)  return 1  ok
+		return 0
+
+	# WHERE THE ATTACHED TIMERS COME TO REST: beside what they time.
+	def _ApplyTimerAttach(paXY, nBoxW, nBoxH)
+		if This._NotationBranchSide() != "right"  return paXY  ok
+		_aTaOut_ = paXY
+		_nTa_ = len(_aTaOut_)
+		for _iTa_ = 1 to _nTa_
+			_taId_ = StzLower("" + _aTaOut_[_iTa_][1])
+			_taTo_ = This._TimerAttachOf(_taId_)
+			if _taTo_ = ""  loop  ok
+			for _jTa_ = 1 to _nTa_
+				if StzLower("" + _aTaOut_[_jTa_][1]) != _taTo_  loop  ok
+				_taBt_ = This._BoxOf(_taTo_, nBoxW, nBoxH)
+				_taBm_ = This._BoxOf(_taId_, nBoxW, nBoxH)
+				_aTaOut_[_iTa_][3] = _aTaOut_[_jTa_][3]
+				_aTaOut_[_iTa_][2] = _aTaOut_[_jTa_][2] -
+					_taBt_[1] / 2 - _taBm_[1] / 2
+			next
+		next
+		return _aTaOut_
 
 	def _ApplySilhouette(paXY, nBoxW, nBoxH, nSep)
 		_aSlN_ = This.Nodes()
@@ -13259,6 +13353,12 @@ class stzDiagram from stzGraph
 			# an INSERTION is ruled near each end, so its text has
 			# the span between the rules and not the whole box
 			[ "insertion", 0.72, 0.90 ],
+			# the waiting family narrows to its foot, so its text has
+			# the span at mid-height and not the width of the box
+			[ "pauseglyph", 0.72, 0.80 ], [ "timerglyph", 0.72, 0.80 ],
+			[ "durationglyph", 0.72, 0.80 ],
+			# a doubled box loses its offset on two sides
+			[ "parallel", 0.86, 0.86 ],
 			[ "pentagon", 0.75, 0.70 ], [ "hexagon", 0.75, 0.90 ],
 			[ "septagon", 0.80, 0.80 ], [ "octagon", 0.80, 0.80 ],
 			[ "tripleoctagon", 0.60, 0.60 ]

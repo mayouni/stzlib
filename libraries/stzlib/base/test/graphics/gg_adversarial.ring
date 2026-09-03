@@ -10964,6 +10964,132 @@ cPnL4 = oPn.ToPNGXT("", 4)
 chk("the default level is doing work", len(cPnL4) <= len(cPnL1))
 chkeq("...and the dial is exposed for a caller who wants the rest",
     len(oPn.ToPNGXT("", 9)) <= len(cPnL4), 1)
+sec("-- 73z. A TIMER ATTACHES, IT DOES NOT SEQUENCE ------")
+
+# The plan of record named the real-time icons as this plane's last gap
+# in these words: they "are declared as kinds and draw as sensible
+# shapes; none of them has a LAW yet, which is the difference between a
+# vocabulary and a notation."
+#
+# THE LAW IS IN THE MACROICON TABLE, thirteen rows of it. Every row of
+# the form "X by timer" -- action, shelf, fork, switch, input, output,
+# insertion, parallel process -- draws the timer trapezoid ATTACHED TO
+# THE LEFT of the icon it governs, on that icon's own row.
+#
+# Drawn in sequence a timer says "wait, then do this", which is a step.
+# Drawn beside, it says "this step is governed by a deadline", which is
+# a property of the step. Those are different algorithms.
+oRt = new stzDiagram("realtime73z")
+oRt.SetNotation(StzDrakonNotation())
+oRt.AddNodeXTT("t","Poll the sensor",[ :type = "title" ])
+oRt.AddNodeXTT("rd","Read the value",[ :type = "action" ])
+oRt.AddNodeXTT("tm","500 ms",[ :type = "timer" ])
+oRt.AddNodeXTT("wr","Write the log",[ :type = "action" ])
+oRt.AddNodeXTT("e","Done",[ :type = "end" ])
+oRt.AddEdge("t","rd")  oRt.AddEdge("rd","wr")  oRt.AddEdge("wr","e")
+oRt.AddEdge("tm","rd")
+oRt.ToCanvasXT([ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56,
+                 :FontSize = 20 ])
+chkeq("the model says which icon the timer governs",
+    StzLower("" + oRt._TimerAttachOf("tm")), "rd")
+
+# IT STANDS ON THAT ICON'S ROW, AND TO ITS LEFT.
+aRtR = oRt.RenderNodeRects()
+nRtTx = 0  nRtTy = 0  nRtRx = 0  nRtRy = 0
+for iRt = 1 to len(aRtR)
+	cRtI = StzLower("" + aRtR[iRt][5])
+	if cRtI = "tm"
+		nRtTx = aRtR[iRt][1] + aRtR[iRt][3] / 2
+		nRtTy = aRtR[iRt][2] + aRtR[iRt][4] / 2
+	ok
+	if cRtI = "rd"
+		nRtRx = aRtR[iRt][1] + aRtR[iRt][3] / 2
+		nRtRy = aRtR[iRt][2] + aRtR[iRt][4] / 2
+	ok
+next
+? "   timer at " + nRtTx + "," + nRtTy + "  the action it times at " +
+  nRtRx + "," + nRtRy
+chk("the timer shares the row of what it times", fabs(nRtTy - nRtRy) < 2)
+chk("...and stands to its left", nRtTx < nRtRx - 20)
+
+# ...AND THE ATTACHMENT IS NOT A WIRE. The edge that says which icon is
+# governed is a declaration, not a step -- drawn as a line it would put
+# the timer back in the flow it was taken out of.
+nRtWire = 0
+for iRt = 1 to len(oRt.RenderEdgePaths())
+	if StzLower("" + oRt.RenderEdgePaths()[iRt][1]) = "tm>rd"  nRtWire++  ok
+next
+chkeq("the attachment is written, not drawn", nRtWire, 0)
+
+# ...AND THE FLOW STILL REACHES THE ICON IT GOVERNS. A suppression that
+# also lost the real edge would satisfy the clause above by drawing
+# less, which is the cheapest way to pass a test about not drawing.
+nRtIn = 0
+for iRt = 1 to len(oRt.RenderEdgePaths())
+	if StzLower("" + oRt.RenderEdgePaths()[iRt][1]) = "t>rd"  nRtIn++  ok
+next
+chkeq("NEGATIVE: the sequence into that icon is still drawn", nRtIn, 1)
+
+# NEGATIVE: A TIMER THAT GOVERNS TWO THINGS IS NOT AN ATTACHMENT. The
+# macroicon pairs ONE timer with ONE icon; a node with two successors
+# is a step in the flow whatever its kind, and the rule must say so
+# rather than attaching it to whichever it met first.
+oRt2 = new stzDiagram("twotimed73z")
+oRt2.SetNotation(StzDrakonNotation())
+oRt2.AddNodeXTT("t","Start",[ :type = "title" ])
+oRt2.AddNodeXTT("tm","500 ms",[ :type = "timer" ])
+oRt2.AddNodeXTT("a","Do this",[ :type = "action" ])
+oRt2.AddNodeXTT("b","Or this",[ :type = "action" ])
+oRt2.AddEdge("t","tm")  oRt2.AddEdge("tm","a")  oRt2.AddEdge("tm","b")
+oRt2.ToCanvasXT([ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56,
+                  :FontSize = 20 ])
+chkeq("NEGATIVE: a timer with two successors stays in the flow",
+    oRt2._TimerAttachOf("tm"), "")
+
+# ...AND NEITHER IS AN ORDINARY ICON. The law reads the KIND, so an
+# action pointing at one thing is a step and must not be swept aside.
+chkeq("NEGATIVE: an action is not an attachment",
+    oRt._TimerAttachOf("rd"), "")
+
+# NEGATIVE: A TIMER SOMETHING FLOWS INTO IS A STEP. An attachment
+# hangs off what it governs and is reached by nothing; an author who
+# put the timer IN the chain meant it as a step, and the model says
+# which they meant. Without this clause the rule moved the timer aside
+# and left the wire arriving at it -- a line to nowhere, and a picture
+# worse than before the law existed.
+oRt3 = new stzDiagram("timedstep73z")
+oRt3.SetNotation(StzDrakonNotation())
+oRt3.AddNodeXTT("t","Start",[ :type = "title" ])
+oRt3.AddNodeXTT("tm","Wait",[ :type = "timer" ])
+oRt3.AddNodeXTT("a","Do it",[ :type = "action" ])
+oRt3.AddEdge("t","tm")  oRt3.AddEdge("tm","a")
+oRt3.ToCanvasXT([ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56,
+                  :FontSize = 20 ])
+chkeq("NEGATIVE: a timer in the chain stays in the chain",
+    oRt3._TimerAttachOf("tm"), "")
+nRt3 = 0
+for iRt = 1 to len(oRt3.RenderEdgePaths())
+	cRt3 = StzLower("" + oRt3.RenderEdgePaths()[iRt][1])
+	if cRt3 = "t>tm" or cRt3 = "tm>a"  nRt3++  ok
+next
+chkeq("NEGATIVE: ...and both its wires are drawn", nRt3, 2)
+
+# THE WAITING FAMILY STOPPED WEARING THE QUESTION'S GLYPH. Three icons
+# meaning "wait" were drawn as HEXAGONS -- the If -- and par as the
+# action's box, so four icons carried two other icons' shapes and only
+# the wires said otherwise.
+aRtK = [ [ "timer", "timerglyph" ], [ "pause", "pauseglyph" ],
+         [ "duration", "durationglyph" ], [ "par", "parallel" ] ]
+nRtBad = 0
+for iRt = 1 to len(aRtK)
+	cRtG = StzLower("" + StzDrakonNotation().GlyphOf(aRtK[iRt][1]))
+	if cRtG != aRtK[iRt][2]  nRtBad++  ok
+	if cRtG = "hexagon" or cRtG = "box"  nRtBad++  ok
+next
+chkeq("each real-time icon has a glyph of its own", nRtBad, 0)
+chkeq("NEGATIVE: ...and the painter knows every one of them",
+    StzIsNodeShape("timerglyph") + StzIsNodeShape("pauseglyph") +
+    StzIsNodeShape("durationglyph") + StzIsNodeShape("parallel"), 4)
 
 sec("-- 73g. A GROUND IS MET AT ITS LEAD, NOT ITS BARS ------")
 
