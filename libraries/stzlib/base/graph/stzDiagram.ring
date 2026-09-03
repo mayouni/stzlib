@@ -3551,6 +3551,55 @@ class stzDiagram from stzGraph
 				# geometrically similar, drawing 5% less cramped at
 				# :Scale = 3 than at 1, because a constant border is a
 				# bigger share of a small sheet.
+				# THE SIDE LANE IS PART OF THE PICTURE, and this is the
+				# place that decides how wide the sheet is.
+				#
+				# A secondary route that steps aside and rejoins the same
+				# skewer runs one clearance beyond the widest icon. On a
+				# silhouette that lane is already paid for -- it sets the
+				# gutter between branches -- and on a PRIMITIVE diagram
+				# nothing paid for it: the book's own If figure came out
+				# with its "no" running off the right edge of the sheet
+				# and its label cut in half.
+				#
+				# THE FIRST ATTEMPT ADDED IT TO _nW_ AFTER THE LAYOUT AND
+				# CHANGED NOTHING -- 431 became 479 and the canvas came
+				# out 205 -- because the sheet is refitted to its extent
+				# here, three lines below. That is the third time this
+				# plane has paid for having more than one place that
+				# sizes a picture, and the second time in this notation.
+				_aExId_ = []
+				for _iExI_ = 1 to len(_aXY_)
+					_aExId_ + ("" + _aXY_[_iExI_][1])
+				next
+				_nExLn_ = This._LaneReachOf(_aXY_, _aExId_, _nBoxW_,
+					_nBoxH_)
+				if _nExLn_ > 0
+					_nExLn_ = _nExLn_ + This._LineClearance()
+				ok
+				# ...AND THE EXIT LABELS ARE INK TOO. A DRAKON question
+				# writes its answer beside the wire leaving its right
+				# side, so on the rightmost question in a picture that
+				# word is the furthest-right thing drawn. The sheet was
+				# measured from the boxes, so "no" came out cut in half
+				# on the outer steps of an OR pattern -- a label the
+				# language requires, removed by the sheet.
+				if isObject(_oFont_)
+					_aExE_ = This.Edges()
+					for _iExE_ = 1 to len(_aExE_)
+						_cExL_ = StzTrim("" + _aExE_[_iExE_][:label])
+						if _cExL_ = ""  loop  ok
+						_aExA_ = This._XYOf(_aXY_,
+							"" + _aExE_[_iExE_][:from])
+						if len(_aExA_) != 2  loop  ok
+						_aExB_ = This._BoxOf("" + _aExE_[_iExE_][:from],
+							_nBoxW_, _nBoxH_)
+						_nExR_ = _aExA_[1] + _aExB_[1] / 2 +
+							This._LineClearance() +
+							_oFont_.WidthOf(_cExL_, _nFsz_)
+						if _nExR_ > _ex1_  _ex1_ = _nExR_  ok
+					next
+				ok
 				_nBor_ = 16 * _nScl_
 				_dx_ = _nBor_ - _ex0_
 				_dy_ = _nBor_ - _ey0_
@@ -3579,7 +3628,7 @@ class stzDiagram from stzGraph
 					next
 					_aRoute_ = _movedR_
 				ok
-				_nW_ = ceil(_ex1_ + _dx_ + _nBor_)
+				_nW_ = ceil(_ex1_ + _dx_ + _nBor_ + _nExLn_)
 				_nH_ = ceil(_ey1_ + _dy_ + _nBor_)
 			ok
 
@@ -4628,7 +4677,17 @@ class stzDiagram from stzGraph
 			_aLpP_ = This._DrakonLoopPath("" + _aE_[_ei_][:from],
 				"" + _aE_[_ei_][:to], _a_, _b_, _nBoxW_, _nBoxH_)
 			if len(_aLpP_) >= 6
+				# THE LOOP KEEPS ITS TRIM, because it keeps its head.
+				# The flag was raised around the head and not around
+				# the CUT, so the one path in the notation that gets an
+				# arrow was measured as though it would not: the room
+				# was never made and the head had nowhere to sit. It
+				# showed on the while loop and not on the For, which is
+				# how a half-applied flag hides -- it is wrong only on
+				# the shape you did not happen to look at.
+				@bLoopArrow = 1
 				_aLpC_ = This._ArrowCut(_aLpP_, 9 + _nEdgeW_ * 2)
+				@bLoopArrow = 0
 				This._EmitOrthoPolyline(_oC_, _aLpC_[1], _cEdge_,
 					_nEdgeW_, StzLower("" + _aE_[_ei_][:from]) + ">" +
 					StzLower("" + _aE_[_ei_][:to]))
@@ -7166,27 +7225,55 @@ class stzDiagram from stzGraph
 		if NOT This._HasLoopReturn()  return 0  ok
 		return This._LineClearance() * 2
 
-	# DOES THIS PICTURE CONTAIN A LOOP AT ALL -- asked of the MODEL, before
-	# any coordinate exists, because the paper is sized before the edges
-	# are placed and the lane has to be in the paper.
+	# DOES THIS PICTURE CONTAIN A LOOP THAT NEEDS THE LEFT LANE --
+	# asked of the MODEL, before any coordinate exists, because the paper
+	# is sized before the edges are placed and the lane has to be in the
+	# paper.
+	#
+	# THE FIRST VERSION ASKED THE HAPPY PATH, and a loop is not obliged
+	# to happen on it. The Switch loop in the book -- where the last Case
+	# goes back above the Select and asks again -- leaves from a body
+	# three columns off the skewer, so the reserve was never made, the
+	# lane rule found no room, and it gave up in silence while the
+	# generic router drew the return wherever it liked. A back edge is a
+	# fact about the GRAPH: an edge whose target can reach its source.
+	#
+	# ...AND NOT EVERY REPEAT WANTS THIS LANE. A repeat that is an
+	# answer to a question is that question's right exit and climbs on
+	# the right -- see _DrakonLoopPath -- so counting it here would
+	# reserve paper on the side it never uses.
 	def _HasLoopReturn()
 		if This._NotationBranchSide() != "right"  return 0  ok
-		_aHl_ = This._HappyPath()
-		if len(_aHl_) < 2  return 0  ok
 		_aHlE_ = This.Edges()
 		_nHlE_ = len(_aHlE_)
 		for _iHlE_ = 1 to _nHlE_
 			_hlF_ = StzLower("" + _aHlE_[_iHlE_][:from])
 			_hlT_ = StzLower("" + _aHlE_[_iHlE_][:to])
 			if _hlF_ = _hlT_  loop  ok
-			# an edge back to something the main path already passed
-			_hlPf_ = 0
-			_hlPt_ = 0
-			for _iHl2_ = 1 to len(_aHl_)
-				if StzLower("" + _aHl_[_iHl2_]) = _hlF_  _hlPf_ = _iHl2_  ok
-				if StzLower("" + _aHl_[_iHl2_]) = _hlT_  _hlPt_ = _iHl2_  ok
-			next
-			if _hlPf_ > 0 and _hlPt_ > 0 and _hlPt_ < _hlPf_  return 1  ok
+			_hlK_ = StzLower("" + This._KindOfId(_hlF_))
+			if _hlK_ = "question" or _hlK_ = "select" or _hlK_ = "if"
+				loop
+			ok
+			# can the target reach the source? then this edge closes a
+			# cycle and is a repeat
+			_aHlQ_ = [ _hlT_ ]
+			_hlQi_ = 1
+			while _hlQi_ <= len(_aHlQ_)
+				_hlU_ = _aHlQ_[_hlQi_]
+				_hlQi_++
+				if _hlU_ = _hlF_  return 1  ok
+				for _iHl2_ = 1 to _nHlE_
+					if StzLower("" + _aHlE_[_iHl2_][:from]) != _hlU_
+						loop
+					ok
+					_hlV_ = StzLower("" + _aHlE_[_iHl2_][:to])
+					_bHlIn_ = 0
+					for _iHl3_ = 1 to len(_aHlQ_)
+						if _aHlQ_[_iHl3_] = _hlV_  _bHlIn_ = 1  ok
+					next
+					if NOT _bHlIn_  _aHlQ_ + _hlV_  ok
+				next
+			end
 		next
 		return 0
 
@@ -7266,22 +7353,6 @@ class stzDiagram from stzGraph
 			paTo[1], paFrom[2],
 			paTo[1], _seTop_ ]
 
-	# AN ALTERNATIVE REJOINS ITS OWN SKEWER, INSIDE ITS OWN COLUMN.
-	#
-	# A question whose second exit lands further down the SAME vertical
-	# line has nowhere to go but sideways and back, and the generic
-	# router picked its lane from the whole picture: in the silhouette
-	# fixture the "no" left branch one, ran out to x=840 -- across branch
-	# two and into branch three -- and came back. Every DRAKON law at
-	# once. It is not drawn on top of anything, which is why it survived
-	# a guard that looks for crossings between drawn segments; it is
-	# simply somewhere it has no business being.
-	#
-	# The excursion belongs beside the branch it leaves: one lane clear
-	# of that branch's own widest icon, down, and into the target's SIDE.
-	# The side is the point -- the skewer already arrives at the target's
-	# top, and two arrows into one port is two claims drawn as one, which
-	# is the defect this notation exists to refuse.
 	def _DrakonSideJoin(cFromId, cToId, paFrom, paTo, nBoxW, nBoxH)
 		if This._NotationBranchSide() != "right"  return []  ok
 		# both ends on one vertical, the target below
@@ -7396,6 +7467,53 @@ class stzDiagram from stzGraph
 		# there is one line into the icon, and the loop rejoins it.
 		_lpTop_ = paTo[2] - _lpBxT_[2] / 2 - _lpGap_
 		_lpSide_ = paTo[1]
+		# A REPEAT THAT IS A QUESTION'S ANSWER LEAVES BY THE RIGHT.
+		#
+		# "The central exit comes out of the bottom of the icon, the
+		# right exit comes out of its right side. Placing an exit on the
+		# left side is not allowed." A do-until loop repeats on the If's
+		# second answer, so that answer is an EXIT of the If and the ban
+		# is about it. Routed into the left lane with every other
+		# repeat, the picture had a line leaving the left face of a
+		# hexagon -- the one placement the book forbids by name.
+		#
+		# A For's repeat is not an answer to anything and keeps the left
+		# lane; so does a plain action's. The side is decided by what
+		# the line MEANS at the icon it leaves, which is the only thing
+		# that could decide it.
+		# ...AND SO DOES A REPEAT THAT IS ALREADY OUT THERE. The Switch
+		# loop returns from the rightmost Case's body, three columns off
+		# the skewer. Brought back through the left lane it ran under
+		# every other column and crossed the stubs dropping from them to
+		# the rejoin rail -- line intersections, in the notation whose
+		# central promise is that there are none. A repeat climbs on the
+		# side it is already on; that is one rule and it covers both.
+		_lpKf_ = StzLower("" + This._KindOfId(cFromId))
+		_bLpR_ = 0
+		if _lpKf_ = "question" or _lpKf_ = "select" or _lpKf_ = "if"
+			_bLpR_ = 1
+		ok
+		if paFrom[1] > paTo[1] + 2  _bLpR_ = 1  ok
+		if _bLpR_
+			_lpRt_ = 0
+			for _iLpR_ = 1 to len(_aLpX_)
+				_lpRb_ = This._BoxOf("" + _aLpX_[_iLpR_][1], nBoxW,
+					nBoxH)
+				_lpRr_ = _aLpX_[_iLpR_][2] + _lpRb_[1] / 2
+				if _lpRr_ > _lpRt_  _lpRt_ = _lpRr_  ok
+			next
+			_lpLnR_ = _lpRt_ + _lpGap_
+			_lpOut_ = paFrom[1] + This._ShapeHalfWidthMid(
+				This._ShapeOfId(cFromId), _lpBxF_[1])
+			if _lpLnR_ <= _lpOut_ + 2  return []  ok
+			if _lpTop_ >= paFrom[2]  return []  ok
+			# out of the right side, up the right lane, and back onto
+			# the line above the icon the loop returns to
+			return [ _lpOut_, paFrom[2],
+				_lpLnR_, paFrom[2],
+				_lpLnR_, _lpTop_,
+				_lpSide_, _lpTop_ ]
+		ok
 		if _bLpDn_
 			# out of the left border, up the lane, and back onto the
 			# line above the loop's first icon
@@ -7701,6 +7819,22 @@ class stzDiagram from stzGraph
 			if len(_aLrA_) != 2 or len(_aLrB_) != 2  loop  ok
 			# the two ends share a vertical, and the target is below
 			if fabs(_aLrA_[1] - _aLrB_[1]) > 2  loop  ok
+			# ...OR A REPEAT LEAVING A CONDITIONAL, which runs in the
+			# same right-hand lane and needs the same paper -- see
+			# _DrakonLoopPath. Counted here because one lane is one
+			# reserve, and two rules asking for it separately is how
+			# the two answers come to disagree.
+			if _aLrB_[2] < _aLrA_[2]
+				_lrK_ = StzLower("" + This._KindOfId(_lrF_))
+				if _lrK_ = "question" or _lrK_ = "select" or _lrK_ = "if"
+					return This._LineClearance()
+				ok
+				# ...or a repeat that already stands to the right and
+				# climbs on that side rather than crossing the picture
+				if _aLrA_[1] > _aLrB_[1] + 2
+					return This._LineClearance()
+				ok
+			ok
 			if _aLrB_[2] <= _aLrA_[2]  loop  ok
 			# ...and something stands between them on that vertical, so
 			# the straight drop is taken and this route must step out
