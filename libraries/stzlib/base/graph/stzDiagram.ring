@@ -6959,6 +6959,78 @@ class stzDiagram from stzGraph
 					next
 					if NOT _bSrMv_  exit  ok
 				next
+				# AN ENCLOSING BRANCH STANDS FURTHER OUT, and enclosure
+				# is decided by where each branch LEAVES the skewer.
+				#
+				# The count above measures a branch from its first icon,
+				# and the two readings agree whenever every alternative
+				# departs one row above that icon. They disagree the
+				# moment two refusals at different depths land on the
+				# SAME icon: the outer question's refusal is a short
+				# span between its landing and the End, the inner one's
+				# is longer, and the count reads the inner as the outer.
+				# On the Principal's advanceStep that inverted the two
+				# lanes and their wires crossed -- a line intersection,
+				# in the notation that forbids them.
+				#
+				# THE OBVIOUS REPAIR WAS WRONG AND IS RECORDED HERE
+				# BECAUSE IT LOOKED RIGHT: starting every span at its
+				# departure row scrambled the whole picture, because the
+				# column ladder is GLOBAL and a case's body then merged
+				# spans with a different case's. Enclosure has to be
+				# asked between two branches that are actually on one
+				# skewer, and reachability is what says so -- if the
+				# icon one branch leaves can reach the icon the other
+				# leaves, they are on the same line and one contains the
+				# other. Two branches in different cases reach neither
+				# way and are left exactly as they were.
+				_aSrDep_ = []
+				for _srI_ = 1 to len(_srOut_)  _aSrDep_ + ""  next
+				for _srZ_ = 1 to len(_srOrd_)
+					_srI_ = _srOrd_[_srZ_]
+					_srId3_ = StzLower("" + _srOut_[_srI_][1])
+					for _iSrE3_ = 1 to _nSrEd_
+						if StzLower("" + _aSrEd_[_iSrE3_][:to]) != _srId3_
+							loop
+						ok
+						_srF3_ = StzLower("" + _aSrEd_[_iSrE3_][:from])
+						for _srJ3_ = 1 to len(_srOut_)
+							if StzLower("" + _srOut_[_srJ3_][1]) != _srF3_
+								loop
+							ok
+							if _srOn_[_srJ3_]  _aSrDep_[_srI_] = _srF3_  ok
+						next
+					next
+				next
+				for _srPass3_ = 1 to 8
+					_bSrSw_ = 0
+					for _srZ_ = 1 to len(_srOrd_)
+						for _srZ2_ = 1 to len(_srOrd_)
+							if _srZ_ = _srZ2_  loop  ok
+							_srA3_ = _srOrd_[_srZ_]
+							_srB3_ = _srOrd_[_srZ2_]
+							if _srLead_[_srA3_] != _srA3_  loop  ok
+							if _srLead_[_srB3_] != _srB3_  loop  ok
+							if _aSrDep_[_srA3_] = ""  loop  ok
+							if _aSrDep_[_srB3_] = ""  loop  ok
+							if _aSrDep_[_srA3_] = _aSrDep_[_srB3_]
+								loop
+							ok
+							# A encloses B: A's departure reaches B's
+							if NOT This._ReachesId(_aSrDep_[_srA3_],
+								_aSrDep_[_srB3_])
+								loop
+							ok
+							if _srIdx_[_srA3_] > _srIdx_[_srB3_]  loop  ok
+							_srSw3_ = _srIdx_[_srA3_]
+							_srIdx_[_srA3_] = _srIdx_[_srB3_]
+							_srIdx_[_srB3_] = _srSw3_
+							_bSrSw_ = 1
+						next
+					next
+					if NOT _bSrSw_  exit  ok
+				next
+
 				# every link of a chain stands in its head's column
 				for _srI_ = 1 to len(_srLead_)
 					if _srLead_[_srI_] = _srI_  loop  ok
@@ -7242,6 +7314,34 @@ class stzDiagram from stzGraph
 	# answer to a question is that question's right exit and climbs on
 	# the right -- see _DrakonLoopPath -- so counting it here would
 	# reserve paper on the side it never uses.
+	# CAN CONTROL GET FROM ONE ICON TO ANOTHER, following the edges.
+	#
+	# Written once because three rules now want it: whether an edge
+	# closes a cycle, and whether one branch encloses another.
+	def _ReachesId(pcFrom, pcTo)
+		_rzF_ = StzLower("" + pcFrom)
+		_rzT_ = StzLower("" + pcTo)
+		if _rzF_ = _rzT_  return 0  ok
+		_aRzE_ = This.Edges()
+		_nRzE_ = len(_aRzE_)
+		_aRzQ_ = [ _rzF_ ]
+		_rzQi_ = 1
+		while _rzQi_ <= len(_aRzQ_)
+			_rzU_ = _aRzQ_[_rzQi_]
+			_rzQi_++
+			for _iRz_ = 1 to _nRzE_
+				if StzLower("" + _aRzE_[_iRz_][:from]) != _rzU_  loop  ok
+				_rzV_ = StzLower("" + _aRzE_[_iRz_][:to])
+				if _rzV_ = _rzT_  return 1  ok
+				_bRzIn_ = 0
+				for _iRz2_ = 1 to len(_aRzQ_)
+					if _aRzQ_[_iRz2_] = _rzV_  _bRzIn_ = 1  ok
+				next
+				if NOT _bRzIn_  _aRzQ_ + _rzV_  ok
+			next
+		end
+		return 0
+
 	def _HasLoopReturn()
 		if This._NotationBranchSide() != "right"  return 0  ok
 		_aHlE_ = This.Edges()
