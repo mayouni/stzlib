@@ -10746,23 +10746,28 @@ next
 chkeq("NEGATIVE: no case body shares a column with another case",
     nEnHit, 0)
 
-# A LIMIT, STATED HERE RATHER THAN LEFT FOR A PICTURE TO REVEAL.
+# ...AND A CASE'S OWN ROUTES STAND BESIDE THAT CASE.
 #
-# The lane a case's refusal uses is drawn from a GLOBAL ladder of
-# columns, so it stands beyond the last case rather than beside the
-# case it belongs to: on this diagram the dropping case's
-# freezeProjectile() sits to the right of the finished case, where
-# the language's own rendering keeps it between the two. Nothing
-# collides and nothing crosses -- the picture is legal and readable
-# -- but a reader tracing the dropping case must cross the width of
-# the sheet to follow its refusal.
+# This clause was a printed KNOWN GAP for one day. Everything off the
+# main line competed for ONE ladder of columns, so a case and another
+# case's refusal were the same kind of thing to it and interleaved by
+# nesting count: the dropping case's freezeProjectile() stood beyond
+# the finished case, where the language keeps it between the two.
+# Nothing collided and nothing crossed, so it was legal and
+# unreadable -- a reader tracing one case crossed the sheet to follow
+# its refusal.
 #
-# Fixing it means a column ladder PER SKEWER instead of one for the
-# picture, which is a redesign and not an adjustment. The number is
-# printed on every run so the gap stays visible rather than becoming
-# something only the next reader notices.
-? "   KNOWN GAP: the dropping refusal sits at x " + nEnD4 +
-  ", past the finished case at x " + nEnK3
+# THE LADDER DID NOT NEED REBUILDING. The gap was written down as
+# needing a ladder PER SKEWER -- a redesign -- and a ladder's slots
+# are only an ORDER: numbering the branches depth-first by the case
+# that owns each one puts every case's routes beside it, using the
+# ladder exactly as built. The redesign named in the disclosure was
+# the first shape seen, not the smallest that works, and writing it
+# down as a redesign is what made it look expensive for a day.
+? "   dropping refusal at x " + nEnD4 + ", between its own case at x " +
+  nEnK2 + " and the next at x " + nEnK3
+chk("a case's refusal stands beside its own case, not past the next",
+    nEnD4 > nEnK2 and nEnD4 < nEnK3)
 
 sec("-- 73g. A GROUND IS MET AT ITS LEAD, NOT ITS BARS ------")
 
