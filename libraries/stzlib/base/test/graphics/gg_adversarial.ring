@@ -1,4 +1,5 @@
 load "../../stzBase.ring"
+load "gg_drakon_scenes.ring"
 
 /*---------------------------------------------------------------------------
 	WHAT THE GUARDS COULD NOT SEE
@@ -11886,8 +11887,51 @@ oG.AddPicture("plain/chain", _GvChain())
 oG.AddPicture("drakon/and", _GvDrakonAnd())
 oG.AddPicture("drakon/or", _GvDrakonOr())
 
+# ...AND THE WHOLE PUBLISHED CATALOGUE, EVERY SCENE OF IT.
+#
+# The corpus above carried its own small copies of a few DRAKON shapes,
+# and a rule tested on a smaller copy passed a picture the published one
+# broke: the OR staircase, two deep here and three deep in the
+# catalogue, inverted in the catalogue for as long as the rule existed.
+# The Principal found it by looking. Auditing the governor against the
+# catalogue then produced ELEVEN findings, and they sorted into four
+# general rules with no stated boundary against a DRAKON law, one rule
+# measuring boxes where the question was about ink, and two real
+# reserves of empty paper -- one of which the air rule had been right
+# about and I nearly bounded away as noise.
+#
+# So the catalogue IS the corpus now. All twenty, not a chosen subset:
+# a subset would rebuild "the corpus is simpler than the artefact" by
+# construction. The scenes are the same functions the catalogue renders
+# -- one place, so the two cannot drift -- asked here at the gate's
+# size. Cost measured at 8.7s for the twenty, against a gate that was
+# already at 74.6s, of which three older render sections (40, 43, 21)
+# are 45s: that is the diet owed, and it is not this section's.
+SILGOV = OPTGOV + [ :LayoutMode = :Silhouette ]
+aGvCat = [
+	[ "01", StzDrakonScene01(OPTGOV) ], [ "02", StzDrakonScene02(OPTGOV) ],
+	[ "03", StzDrakonScene03(OPTGOV) ], [ "04", StzDrakonScene04(OPTGOV) ],
+	[ "05", StzDrakonScene05(OPTGOV) ], [ "06", StzDrakonScene06(OPTGOV) ],
+	[ "07", StzDrakonScene07(OPTGOV) ], [ "08", StzDrakonScene08(OPTGOV) ],
+	[ "09", StzDrakonScene09(OPTGOV) ], [ "10", StzDrakonScene10(OPTGOV) ],
+	[ "11", StzDrakonScene11(OPTGOV) ], [ "12", StzDrakonScene12(OPTGOV) ],
+	[ "13", StzDrakonScene13(OPTGOV) ], [ "14", StzDrakonScene14(SILGOV) ],
+	[ "15", StzDrakonScene15(SILGOV) ], [ "16", StzDrakonScene16(OPTGOV) ],
+	[ "17", StzDrakonScene17(OPTGOV) ], [ "18", StzDrakonScene18(OPTGOV) ],
+	[ "19", StzDrakonScene19(OPTGOV) ], [ "20", StzDrakonScene20(OPTGOV) ] ]
+for iGvC = 1 to len(aGvCat)
+	oG.AddPicture("catalogue/" + aGvCat[iGvC][1], aGvCat[iGvC][2])
+next
+
 # THE SHIPPED PICTURES OBEY THE RULES THEY WERE DRAWN BY.
 aP = oG.CheckPictures()
+# A GOVERNOR THAT FAILS MUST SAY WHAT IT FOUND. A count of two is
+# nothing to act on; the rule, the picture and the message are.
+# Silent when green.
+for iGvF = 1 to len(aP)
+	? "   FINDING " + aP[iGvF][:rule] + " @ " + aP[iGvF][:where]
+	? "           " + aP[iGvF][:message]
+next
 chkeq("every shipped picture passes every plastic rule", len(aP), 0)
 
 # ...AND THE GOVERNOR IS NOT SIMPLY SILENT. A layer that reports nothing

@@ -3338,6 +3338,53 @@ class stzDiagram from stzGraph
 				_aRoute_ + [ StzLower("" + _r_[1]), StzLower("" + _r_[2]), _rp_ ]
 			next
 
+			# THE PAPER IS FITTED TO WHAT WILL BE DRAWN, ON THIS PATH TOO --
+			# AND AFTER EVERY PASS THAT MOVES AN ICON.
+			#
+			# This is the native layout's path, and it sized its paper from
+			# the layered layout's own span -- one slot per column the
+			# layout ALLOCATED -- then ran three post-passes that move
+			# icons (spine rows, silhouette, timers) and a notation that
+			# draws lanes the layout never heard of. Nothing after those
+			# passes re-measured. Governing the published catalogue at a
+			# second size found both consequences: a column allocated for
+			# a refusal the spine pass pulled back onto the skewer stayed
+			# in the width as 168px of empty paper (one slot, exactly:
+			# 130 + 38); and a loop whose source stands RIGHT of the skewer
+			# runs its return up a right-hand lane that was never reserved,
+			# so the return left the sheet and its icon stood 1px past the
+			# edge.
+			#
+			# THE FIRST PLACEMENT OF THIS FIT WAS BEFORE THOSE PASSES and
+			# measured icons where they no longer stood -- the title at
+			# x=172 in a picture whose skewer ends at 79 -- so it changed
+			# the width by its own shift and nothing else. A fit measures
+			# the thing that will be drawn, which is only known once the
+			# last pass has run; the routes, built above in the layered
+			# frame, ride the same shift.
+			#
+			# The other sizing path re-fits to content and had been
+			# quietly correcting this at the catalogue's size, which is
+			# why a fix verified there was unverified here: WHICH PATH
+			# RUNS DEPENDS ON THE SIZE. Measured, and left as the finding.
+			_aFit_ = This._FitPaperToDrawing(_aXY_, _nBoxW_, _nBoxH_,
+				_nW_, _nH_, _nScl_)
+			_aXY_ = _aFit_[1]
+			_nW_ = _aFit_[2]
+			_nH_ = _aFit_[3]
+			if fabs(_aFit_[4]) > 0.001 or fabs(_aFit_[5]) > 0.001
+				_aRtF_ = []
+				for _iRtF_ = 1 to len(_aRoute_)
+					_rpF_ = []
+					for _jRtF_ = 1 to len(_aRoute_[_iRtF_][3])
+						_rpF_ + [ _aRoute_[_iRtF_][3][_jRtF_][1] + _aFit_[4],
+							_aRoute_[_iRtF_][3][_jRtF_][2] + _aFit_[5] ]
+					next
+					_aRtF_ + [ _aRoute_[_iRtF_][1], _aRoute_[_iRtF_][2], _rpF_ ]
+				next
+				_aRoute_ = _aRtF_
+			ok
+
 			# A CLUSTER IS BIGGER THAN ITS MEMBERS. Its box is padded and
 			# carries a label ABOVE the topmost member, and the derived size
 			# was computed from node centres alone -- so the "Data" box ran
@@ -3591,6 +3638,24 @@ class stzDiagram from stzGraph
 				if _nExLn_ > 0
 					_nExLn_ = _nExLn_ + This._LineClearance()
 				ok
+				# THE LANE IS FOLDED INTO THE EXTENT, NOT ADDED TO THE
+				# WIDTH. It was added to the width after the extent was
+				# closed -- so a picture whose label already reached past
+				# the lane paid for the lane a second time: 48px of paper
+				# to the right of ink that was already inside it. The air
+				# rule, once it read ink rather than boxes, was right
+				# about this picture and I nearly bounded it away.
+				if _nExLn_ > 0
+					_nExBxR_ = _ex1_
+					for _iExB_ = 1 to len(_aXY_)
+						_aExBb_ = This._BoxOf("" + _aXY_[_iExB_][1],
+							_nBoxW_, _nBoxH_)
+						_nExR2_ = _aXY_[_iExB_][2] + _aExBb_[1] / 2 + _nExLn_
+						if _nExR2_ > _nExBxR_  _nExBxR_ = _nExR2_  ok
+					next
+					if _nExBxR_ > _ex1_  _ex1_ = _nExBxR_  ok
+					_nExLn_ = 0
+				ok
 				# ...AND THE EXIT LABELS ARE INK TOO. A DRAKON question
 				# writes its answer beside the wire leaving its right
 				# side, so on the rightmost question in a picture that
@@ -3606,6 +3671,22 @@ class stzDiagram from stzGraph
 						_aExA_ = This._XYOf(_aXY_,
 							"" + _aExE_[_iExE_][:from])
 						if len(_aExA_) != 2  loop  ok
+						# ...BUT ONLY FOR A LABEL THAT STANDS AT THE
+						# SHOULDER. This reserved shoulder room for EVERY
+						# labelled edge, and in a one-sided notation the
+						# down exit's word sits below the icon beside the
+						# skewer, inside the width the box already has.
+						# Reserving as if it were a side label left 52px
+						# of empty paper on the right of the icon set --
+						# found by auditing the governor against the
+						# published catalogue, where the air rule was
+						# right and I nearly bounded it away as noise.
+						if This._NotationBranchSide() = "right" and
+						   StzLower("" + This._DownExitOf(
+								"" + _aExE_[_iExE_][:from])) =
+						   StzLower("" + _aExE_[_iExE_][:to])
+							loop
+						ok
 						_aExB_ = This._BoxOf("" + _aExE_[_iExE_][:from],
 							_nBoxW_, _nBoxH_)
 						_nExR_ = _aExA_[1] + _aExB_[1] / 2 +
@@ -7738,7 +7819,16 @@ class stzDiagram from stzGraph
 		if _lpMin_ > 999999999  return []  ok
 		_lpGap_ = This._LineClearance()
 		_lpLane_ = _lpMin_ - _lpGap_
-		if _lpLane_ < 2  return []  ok
+		# THE LEFT LANE IS ONLY REFUSED BY A LOOP THAT WOULD USE IT. This
+		# guard stood before the rule had decided which side the return
+		# runs on, so a loop from a right-hand source -- which never
+		# touches the left lane -- was refused for the left lane's lack of
+		# room, and the generic router drew it: no arrowhead, and joining
+		# the skewer BELOW the icon it loops to, which is a different
+		# algorithm. Found the moment the paper was fitted to its content,
+		# because a fitted sheet has exactly a border on the left and no
+		# accidental room for a lane nobody asked for.
+		_bLpNoLeft_ = (_lpLane_ < 2)
 		_lpBxF_ = This._BoxOf(cFromId, nBoxW, nBoxH)
 		_lpBxT_ = This._BoxOf(cToId, nBoxW, nBoxH)
 		# WHERE THE REPEAT LEAVES FROM, and it is not always the foot.
@@ -7823,6 +7913,7 @@ class stzDiagram from stzGraph
 				_lpLnR_, _lpTop_,
 				_lpSide_, _lpTop_ ]
 		ok
+		if _bLpNoLeft_  return []  ok
 		if _bLpDn_
 			# out of the left border, up the lane, and back onto the
 			# line above the loop's first icon
@@ -8159,6 +8250,95 @@ class stzDiagram from stzGraph
 			next
 		next
 		return 0
+
+	# FIT THE SHEET TO THE ICONS AND THE LANES THE NOTATION WILL DRAW.
+	#
+	# Returns [ positions, width, height ] with the content moved so its
+	# own left and top land on the border. Reads what the drawing will
+	# actually paint -- boxes, the side-join lane, the loop lane on
+	# whichever side the loop source stands, and the shoulder a side
+	# exit's label needs -- rather than the layered layout's slot count.
+	def _FitPaperToDrawing(paXY, nBoxW, nBoxH, nW, nH, pnScl)
+		_nFp_ = len(paXY)
+		if _nFp_ = 0  return [ paXY, nW, nH ]  ok
+		_fpX0_ = 1000000000   _fpX1_ = 0 - 1000000000
+		_fpY0_ = 1000000000   _fpY1_ = 0 - 1000000000
+		_aFpIds_ = []
+		for _iFp_ = 1 to _nFp_
+			_aFpB_ = This._BoxOf("" + paXY[_iFp_][1], nBoxW, nBoxH)
+			_aFpIds_ + ("" + paXY[_iFp_][1])
+			if paXY[_iFp_][2] - _aFpB_[1] / 2 < _fpX0_
+				_fpX0_ = paXY[_iFp_][2] - _aFpB_[1] / 2
+			ok
+			if paXY[_iFp_][2] + _aFpB_[1] / 2 > _fpX1_
+				_fpX1_ = paXY[_iFp_][2] + _aFpB_[1] / 2
+			ok
+			if paXY[_iFp_][3] - _aFpB_[2] / 2 < _fpY0_
+				_fpY0_ = paXY[_iFp_][3] - _aFpB_[2] / 2
+			ok
+			if paXY[_iFp_][3] + _aFpB_[2] / 2 > _fpY1_
+				_fpY1_ = paXY[_iFp_][3] + _aFpB_[2] / 2
+			ok
+		next
+		if This._NotationBranchSide() = "right"
+			_fpGap_ = This._LineClearance()
+			# the side-join lane, one clearance past the widest icon
+			_fpLn_ = This._LaneReachOf(paXY, _aFpIds_, nBoxW, nBoxH)
+			if _fpLn_ > 0  _fpX1_ += _fpLn_ + _fpGap_  ok
+			# the loop lane, on the side the loop's SOURCE stands
+			if This._HasLoopReturn()
+				_fpSk_ = 1000000000
+				for _iFp_ = 1 to _nFp_
+					if paXY[_iFp_][2] < _fpSk_  _fpSk_ = paXY[_iFp_][2]  ok
+				next
+				_bFpR_ = 0
+				_aFpE_ = This.Edges()
+				for _iFpE_ = 1 to len(_aFpE_)
+					_fpF_ = This._XYOf(paXY, "" + _aFpE_[_iFpE_][:from])
+					_fpT_ = This._XYOf(paXY, "" + _aFpE_[_iFpE_][:to])
+					if len(_fpF_) != 2 or len(_fpT_) != 2  loop  ok
+					if _fpT_[2] >= _fpF_[2] - 2  loop  ok
+					if _fpF_[1] > _fpSk_ + 2  _bFpR_ = 1  ok
+				next
+				if _bFpR_
+					_fpX1_ += _fpGap_ * 2
+				else
+					_fpX0_ -= _fpGap_ * 2
+				ok
+				_fpY1_ += _fpGap_
+			ok
+			# the shoulder a side exit's label stands on
+			if isObject(@oBoxFont)
+				for _iFpE_ = 1 to len(This.Edges())
+					_fpE_ = This.Edges()[_iFpE_]
+					_fpL_ = StzTrim("" + _fpE_[:label])
+					if _fpL_ = ""  loop  ok
+					if StzLower("" + This._DownExitOf("" + _fpE_[:from])) =
+					   StzLower("" + _fpE_[:to])
+						loop
+					ok
+					_fpA_ = This._XYOf(paXY, "" + _fpE_[:from])
+					if len(_fpA_) != 2  loop  ok
+					_fpBx_ = This._BoxOf("" + _fpE_[:from], nBoxW, nBoxH)
+					_fpR_ = _fpA_[1] + _fpBx_[1] / 2 + _fpGap_ +
+						@oBoxFont.WidthOf(_fpL_, @nBoxFsz)
+					if _fpR_ > _fpX1_  _fpX1_ = _fpR_  ok
+				next
+			ok
+		ok
+		# THE BORDER IS PAPER, SO IT SCALES -- the plane's own law, and the
+		# first version of this fit wrote 16 and broke two :Scale guards,
+		# which is the same defect the scale-inversion fix closed once.
+		_fpBor_ = 16 * pnScl
+		_fpDx_ = _fpBor_ - _fpX0_
+		_fpDy_ = _fpBor_ - _fpY0_
+		_aFpOut_ = []
+		for _iFp_ = 1 to _nFp_
+			_aFpOut_ + [ paXY[_iFp_][1], paXY[_iFp_][2] + _fpDx_,
+				paXY[_iFp_][3] + _fpDy_ ]
+		next
+		return [ _aFpOut_, ceil(_fpX1_ + _fpDx_ + _fpBor_),
+			ceil(_fpY1_ + _fpDy_ + _fpBor_), _fpDx_, _fpDy_ ]
 
 	# A TIMER ATTACHES, IT DOES NOT SEQUENCE -- the law that turns this
 	# plane's real-time icons from a vocabulary into a notation.
