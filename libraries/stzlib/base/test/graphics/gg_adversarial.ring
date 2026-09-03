@@ -11757,6 +11757,8 @@ oG.AddPicture("uml/communication", _GvComm(0))
 oG.AddPicture("uml/comm-middle", _GvComm(1))
 oG.AddPicture("flow/decision", _GvDecision())
 oG.AddPicture("plain/chain", _GvChain())
+oG.AddPicture("drakon/and", _GvDrakonAnd())
+oG.AddPicture("drakon/or", _GvDrakonOr())
 
 # THE SHIPPED PICTURES OBEY THE RULES THEY WERE DRAWN BY.
 aP = oG.CheckPictures()
@@ -11813,6 +11815,65 @@ next
 chkeq("every rule governs at least one subject in the corpus", nNoScope, 0)
 chkeq("...and every rule's boundary is witnessed, or declared universal",
     nNoBound, 0)
+# ...AND THE TWO LOGIC RULES DISCRIMINATE. A rule that never fires is
+# indistinguishable from one nobody wrote, and these two were written
+# from a book rather than from a marked picture -- so nothing had ever
+# shown them refusing anything.
+#
+# The AND formula is a run of questions on ONE vertical. This moves the
+# second one 60px aside and changes nothing else, which is exactly the
+# staircase the book reserves for OR -- the same picture making the
+# opposite claim about the condition it draws.
+oLg = _GvDrakonAnd()
+aLgR = oLg.@aRenderNodeRects
+for iLg = 1 to len(aLgR)
+	if StzLower("" + aLgR[iLg][5]) = "q2"
+		aLgR[iLg][1] = aLgR[iLg][1] + 60
+	ok
+next
+oLg.@aRenderNodeRects = aLgR
+oG3 = StzPlasticGovernanceOf("logicproof")
+oG3.AddPicture("drakon/and-broken", oLg)
+aLgF = oG3.CheckPictures()
+nLgHit = 0
+for iLg = 1 to len(aLgF)
+	if "" + aLgF[iLg][:rule] = "and_chain_on_one_line"  nLgHit++  ok
+next
+? "   findings on the broken AND chain: " + nLgHit
+chk("NEGATIVE: an ANDed question moved off the line IS caught",
+    nLgHit > 0)
+
+# ...AND THE OR RULE THE SAME WAY, from the other direction: its
+# staircase is flattened onto the skewer, which is the AND pattern
+# drawn over an OR condition.
+oLg2 = _GvDrakonOr()
+aLgR2 = oLg2.@aRenderNodeRects
+nLgQ1 = 0
+for iLg = 1 to len(aLgR2)
+	if StzLower("" + aLgR2[iLg][5]) = "q1"  nLgQ1 = aLgR2[iLg][1]  ok
+next
+# ...MOVED LEFT OF IT, not merely level with it. The first version set
+# the two rects' LEFT EDGES equal and the rule did not fire -- because
+# it reads CENTRES, and the two questions are different widths, so
+# equal left edges still left the second one stepping right. A
+# perturbation has to break the property the rule states, not one
+# that looks like it.
+for iLg = 1 to len(aLgR2)
+	if StzLower("" + aLgR2[iLg][5]) = "q2"
+		aLgR2[iLg][1] = nLgQ1 - 100
+	ok
+next
+oLg2.@aRenderNodeRects = aLgR2
+oG4 = StzPlasticGovernanceOf("logicproof2")
+oG4.AddPicture("drakon/or-flattened", oLg2)
+aLgF2 = oG4.CheckPictures()
+nLgHit2 = 0
+for iLg = 1 to len(aLgF2)
+	if "" + aLgF2[iLg][:rule] = "or_chain_steps_aside"  nLgHit2++  ok
+next
+? "   findings on the flattened OR chain: " + nLgHit2
+chk("NEGATIVE: an ORed question pulled onto the skewer IS caught",
+    nLgHit2 > 0)
 
 
 if nSecClock > 0
@@ -13188,6 +13249,52 @@ func _GvDecision()
 	_o_.AddEdge("start", "d")
 	_o_.AddEdgeXT("d", "yes", "yes")
 	_o_.AddEdgeXT("d", "no", "no")
+	_o_.ToCanvasXT(OPTGOV)
+	return _o_
+
+# THE TWO LOGIC FORMULAS, added to the corpus because the rules about
+# them governed NOTHING without a picture that has one -- which the
+# governor's own meta-guard caught the moment they were written. A
+# rule nobody's diagram exercises is a dead rule, and the plane
+# already asserts that.
+#
+# AND: each affirmative asks the next question, so the run stands on
+# one vertical -- "For AND, put the if icons on the skewer."
+func _GvDrakonAnd()
+	_o_ = new stzDiagram("drakonand")
+	_o_.SetNotation(StzDrakonNotation())
+	_o_.AddNodeXTT("t", "Admit the visitor", [ :type = "title" ])
+	_o_.AddNodeXTT("q1", "Has a badge?", [ :type = "question" ])
+	_o_.AddNodeXTT("q2", "Badge valid?", [ :type = "question" ])
+	_o_.AddNodeXTT("ok", "Open the door", [ :type = "action" ])
+	_o_.AddNodeXTT("no", "Turn them away", [ :type = "action" ])
+	_o_.AddNodeXTT("e", "Done", [ :type = "end" ])
+	_o_.AddEdge("t", "q1")
+	_o_.AddEdgeXTT("q1", "q2", "yes", [ :exit = :down ])
+	_o_.AddEdgeXTT("q1", "no", "no", [ :exit = :right ])
+	_o_.AddEdgeXTT("q2", "ok", "yes", [ :exit = :down ])
+	_o_.AddEdgeXTT("q2", "no", "no", [ :exit = :right ])
+	_o_.AddEdge("ok", "e")  _o_.AddEdge("no", "e")
+	_o_.ToCanvasXT(OPTGOV)
+	return _o_
+
+# OR: each REFUSAL asks the next question, so the run steps out and
+# down -- "for OR, arrange the if icons as stair steps."
+func _GvDrakonOr()
+	_o_ = new stzDiagram("drakonor")
+	_o_.SetNotation(StzDrakonNotation())
+	_o_.AddNodeXTT("t", "Let them in", [ :type = "title" ])
+	_o_.AddNodeXTT("q1", "On the list?", [ :type = "question" ])
+	_o_.AddNodeXTT("q2", "Known to staff?", [ :type = "question" ])
+	_o_.AddNodeXTT("ok", "Open the door", [ :type = "action" ])
+	_o_.AddNodeXTT("no", "Turn them away", [ :type = "action" ])
+	_o_.AddNodeXTT("e", "Done", [ :type = "end" ])
+	_o_.AddEdge("t", "q1")
+	_o_.AddEdgeXTT("q1", "ok", "yes", [ :exit = :down ])
+	_o_.AddEdgeXTT("q1", "q2", "no", [ :exit = :right ])
+	_o_.AddEdgeXTT("q2", "ok", "yes", [ :exit = :down ])
+	_o_.AddEdgeXTT("q2", "no", "no", [ :exit = :right ])
+	_o_.AddEdge("ok", "e")  _o_.AddEdge("no", "e")
 	_o_.ToCanvasXT(OPTGOV)
 	return _o_
 
