@@ -4521,30 +4521,37 @@ class stzDiagram from stzGraph
 		# Same picture, opposite meanings, because the second axis differs:
 		# a statechart's y is structure and a sequence's y is time.
 		if NOT @bSequence
+			# A LOOP RETURN IS NOT A TWIN -- see below -- and the notation
+			# that says so is constant across the loop, so it is asked once
+			# rather than once per edge.
+			_bTwRight_ = (This._NotationBranchSide() = "right")
 			for _ti_ = 1 to _nEc_
 				_cTf_ = StzLower("" + _aE_[_ti_][:from])
 				_cTt_ = StzLower("" + _aE_[_ti_][:to])
 				if _cTf_ = _cTt_  loop  ok
-				# A LOOP RETURN IS NOT A TWIN, and this is where DRAKON's
-				# loop was being erased before any drawing rule could see
-				# it. Two nodes with an edge each way are normally a PAIR
-				# -- a call and its reply, a mutual relation -- and the
-				# plane draws them as two lines side by side, which is
-				# right for a pair and wrong for a cycle. In an algorithm
+				# A twin is normally a PAIR -- a call and its reply, drawn
+				# as two rails side by side -- and wrong for a cycle, where
 				# the second edge is the body going BACK to the loop: one
-				# thing happening twice, not two things happening once
-				# each. Twinned, it came up the skewer's own column as a
-				# second arrow pointing the other way, which is the
-				# shared-ink law broken inside the notation that exists
-				# to forbid it.
-				if This._NotationBranchSide() = "right"  loop  ok
+				# thing happening twice. DRAKON (branch-side right) draws
+				# that as a loop return, not a twin, so it is excluded.
+				if _bTwRight_  loop  ok
+				# THE TWO POSITIONS ARE LOOKED UP ONCE PER EDGE, not once
+				# per PAIR -- _XYOf hoisted out of the inner scan, which
+				# took the twin detection from 4.0s to 1.4s on a 200-node
+				# tree. The scan itself stays O(E): a "from>to" INDEX would
+				# make it O(1), but a Ring hash-list is an association list
+				# whose HasKey is a linear scan (this repo's documented
+				# trap), so a map here is O(E^2) to build and no faster to
+				# read. The real index is an engine-side edge table, owed
+				# as its own task and NOT a diet.
+				_aTa_ = This._XYOf(_aXY_, _cTf_)
+				_aTb_ = []
 				for _tj_ = 1 to _nEc_
 					if _tj_ = _ti_  loop  ok
 					if StzLower("" + _aE_[_tj_][:from]) = _cTt_ and
 					   StzLower("" + _aE_[_tj_][:to]) = _cTf_
 						# the pair found: the rank-forward member is
 						# canonical, the other is its twin
-						_aTa_ = This._XYOf(_aXY_, _cTf_)
 						_aTb_ = This._XYOf(_aXY_, _cTt_)
 						if len(_aTa_) = 2 and len(_aTb_) = 2
 							# ON A RING there is no forward: both members

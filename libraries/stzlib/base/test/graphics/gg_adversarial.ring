@@ -13238,21 +13238,33 @@ func _ScaleDiag nScale
 # A canvas doubled by pixel duplication -- what :Scale must NOT be.
 # Returns [ w, h, pixels ] rather than a canvas, since nothing here needs
 # to draw it.
+# THE TWO PIXEL HELPERS, AND THE 13 SECONDS THEY COST.
+#
+# The first version of these called substr() ONCE PER PIXEL over a
+# 150,000-pixel buffer -- and Ring's substr on a big string is O(buffer),
+# ~0.3ms per call on 1.8MB, the trap this repository's CLAUDE.md records
+# with the measurement that found it (18.4s -> 0.03s on one diff). Section
+# 21 was 13.2s of a 75s gate for two tiny pictures, and none of it was
+# coverage. The rule, applied: slice the ROW once, index inside it.
 func _Upscaled oC
 	_uw_ = oC.Width()
 	_uh_ = oC.Height()
 	_up_ = oC.ToPixels()
 	_uo_ = ""
-	for _uy_ = 0 to _uh_ * 2 - 1
-		for _ux_ = 0 to _uw_ * 2 - 1
-			_ua_ = (floor(_uy_ / 2) * _uw_ + floor(_ux_ / 2)) * 4 + 1
-			_uo_ += substr(_up_, _ua_, 4)
+	_urow_ = _uw_ * 4
+	for _uy_ = 0 to _uh_ - 1
+		# one slice per source row, then every byte by index
+		_usrc_ = substr(_up_, _uy_ * _urow_ + 1, _urow_)
+		_uline_ = ""
+		for _ux_ = 0 to _uw_ - 1
+			_upx_ = _usrc_[_ux_ * 4 + 1] + _usrc_[_ux_ * 4 + 2] +
+				_usrc_[_ux_ * 4 + 3] + _usrc_[_ux_ * 4 + 4]
+			_uline_ += _upx_ + _upx_
 		next
+		_uo_ += _uline_ + _uline_
 	next
 	return [ _uw_ * 2, _uh_ * 2, _uo_ ]
 
-# Percentage of sampled pixels where the two disagree. Takes either a
-# canvas or the [w,h,pixels] an enlargement returns.
 func _DiffFromUpscale oSmall, xBig
 	_da_ = _Upscaled(oSmall)
 	if isList(xBig)
@@ -13261,30 +13273,24 @@ func _DiffFromUpscale oSmall, xBig
 		_dw_ = xBig.Width()  _dh_ = xBig.Height()  _db_ = xBig.ToPixels()
 	ok
 	if _dw_ != _da_[1] or _dh_ != _da_[2]  return 100  ok
-	# COUNTED WHERE THERE IS INK, not over the whole canvas. Sampling
-	# everything put most of a mostly-white picture into the denominator
-	# and reported 1% -- true, and useless: the two renders agree
-	# perfectly about the background, and every difference that matters
-	# lives on a glyph or an edge. A metric diluted by the part nobody
-	# disputes cannot see the part they do.
-	_dn_ = min([ len(_da_[3]), len(_db_) ])
+	_drow_ = _dw_ * 4
 	_dc_ = 0  _dt_ = 0
-	_di_ = 1
-	while _di_ <= _dn_ - 3
-		_dva_ = ascii(substr(_da_[3], _di_, 1))
-		_dvb_ = ascii(substr(_db_, _di_, 1))
-		if _dva_ < 245 or _dvb_ < 245
-			_dt_++
-			if fabs(_dva_ - _dvb_) > 12  _dc_++  ok
-		ok
-		_di_ += 4
-	end
+	for _dy_ = 0 to _dh_ - 1
+		_dra_ = substr(_da_[3], _dy_ * _drow_ + 1, _drow_)
+		_drb_ = substr(_db_, _dy_ * _drow_ + 1, _drow_)
+		if len(_dra_) < _drow_ or len(_drb_) < _drow_  exit  ok
+		for _dx_ = 0 to _dw_ - 1
+			_dva_ = ascii(_dra_[_dx_ * 4 + 1])
+			_dvb_ = ascii(_drb_[_dx_ * 4 + 1])
+			if _dva_ < 245 or _dvb_ < 245
+				_dt_++
+				if fabs(_dva_ - _dvb_) > 12  _dc_++  ok
+			ok
+		next
+	next
 	if _dt_ = 0  return 0  ok
 	return floor(_dc_ * 100 / _dt_)
 
-# Edge polylines whose FIRST step moves AGAINST the rank direction -- in a
-# top-down picture, upward. Aim-angled departures are grammar v3's right;
-# backward ones are a hook at the source in any grammar.
 func _BackwardDepartures cSvg, cStroke
 	_sd_ = 0
 	_slen2_ = StzLen(cSvg)
