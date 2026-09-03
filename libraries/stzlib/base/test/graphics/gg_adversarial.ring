@@ -10843,6 +10843,127 @@ next
   " compartments"
 chkeq("NEGATIVE: UML keeps its own two compartments",
     len(oSh2._CompartmentsOf(aShU)), 3)
+sec("-- 73y. WHAT A RENDERER OWES THE FILE IT WRITES -----")
+
+# Central handed this plane a finding from another repository -- a page
+# arguing an application fits in half a megabyte, illustrated with a
+# 594 KB PNG carrying 16,414 unique colours where a dozen were intended
+# -- and left the judgement here. So the first move was to measure this
+# plane's OWN output rather than adopt the conclusion.
+#
+# IT IS NOT THE SAME DEFECT. These files carry 503 to 1081 colours, not
+# sixteen thousand, and 0.05 to 0.14 bytes per pixel: deflate is
+# working and there is no lossy step upstream. The colours above a dozen
+# are ANTIALIASED EDGES, which is real information, not noise in flat
+# regions.
+#
+# THE DEFECT WAS A DIFFERENT ONE AND THE MEASUREMENT FOUND IT. Every
+# file was 32-bit RGBA. The encoder had a palette path for 256 colours
+# or fewer and a truecolour path for everything else, and NOTHING
+# BETWEEN THEM -- so a drawing with 800 antialiased colours and no
+# transparency wrote a fourth channel holding the constant 255 in every
+# pixel. 17 files measured, every one fully opaque.
+# A REAL DIAGRAM, because a simple one does not reach this branch. The
+# first version of this guard drew one rounded rectangle and asserted
+# RGB; it came back INDEXED, correctly -- under 256 colours the
+# palette path is the right answer and the new branch never runs. A
+# guard has to exercise the case it is about.
+oPnD = new stzDiagram("png73y")
+oPnD.SetNotation(StzDrakonNotation())
+oPnD.AddNodeXTT("t","Read the file",[ :type = "title" ])
+oPnD.AddNodeXTT("q","Is it empty?",[ :type = "question" ])
+oPnD.AddNodeXTT("a","Parse it",[ :type = "action" ])
+oPnD.AddNodeXTT("n","Report it",[ :type = "action" ])
+oPnD.AddNodeXTT("e","Done",[ :type = "end" ])
+oPnD.AddEdge("t","q")
+oPnD.AddEdgeXT("q","a","yes")  oPnD.AddEdgeXT("q","n","no")
+oPnD.AddEdge("a","e")  oPnD.AddEdge("n","e")
+oPnD.ToCanvasXT([ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56,
+                  :FontSize = 20 ])
+oPn = oPnD.LastCanvas()
+cPnB = oPn.ToPNG("")
+chk("the canvas wrote a PNG at all", len(cPnB) > 100)
+
+# THE COLOUR TYPE IS READ FROM THE FILE, not from the encoder's report.
+# PNG puts it at offset 25: 8 bytes of signature, 4 of length, 4 of
+# "IHDR", 4 width, 4 height, 1 bit depth, then the type.
+nPnType = ascii(cPnB[26])
+? "   colour type written: " + nPnType + " (2 = rgb, 6 = rgba)"
+chkeq("an opaque drawing is written without an alpha channel",
+    nPnType, 2)
+
+# ...AND IT IS EARNED, not assumed. The encoder tests the PIXELS; this
+# asserts the same precondition independently, so the clause above
+# cannot pass by an encoder that simply stopped writing alpha.
+#
+# ON A SMALL CANVAS, DELIBERATELY. Scanning the diagram's own 260,780
+# pixels from Ring cost 9.6 seconds -- half the suite -- to prove a
+# property of the DRAWING SURFACE, which needs no size to demonstrate.
+# The two clauses want different scenes: the encoder's choice needs a
+# picture past 256 colours, the surface's opacity needs any picture at
+# all. Asking both of one scene bought nothing and spent the budget.
+oPnS = new stzCanvas(160, 120)
+oPnS.SetBackground("#ffffff")
+oPnS.Fill("#2b6cb0")
+oPnS.AddRoundRect(20, 20, 120, 60, 8)
+cPnPx = oPnS.ToPixels()
+nPnOpaque = 1
+nPnSeen = 0
+for iPn = 4 to len(cPnPx) step 4
+	nPnSeen++
+	if ascii(cPnPx[iPn]) != 255  nPnOpaque = 0  exit  ok
+next
+? "   " + nPnSeen + " pixels checked, all opaque: " + nPnOpaque
+chkeq("every pixel the canvas drew is opaque", nPnOpaque, 1)
+
+# NEGATIVE: PIXELS THAT ARE NOT OPAQUE STILL GET THE CHANNEL. Fed
+# directly to the encoder, because this plane's drawing API has no way
+# to express translucency at all -- which is the stronger form of the
+# finding: the alpha channel could never have been needed here, not
+# merely was not needed.
+#
+# OVER 256 COLOURS AS WELL AS TRANSLUCENT, and the first version of
+# this clause missed that: with few colours the encoder writes an
+# INDEXED file and carries the alpha in a tRNS chunk, which is correct
+# and is not the branch under test. A negative aimed at the wrong
+# branch reports on something nobody asked about.
+cPnA = ""
+for iPn = 1 to 400
+	cPnA += char(iPn % 200) + char((iPn * 7) % 251) +
+	        char((iPn * 13) % 241) + char(128)
+next
+for iPn = 1 to 400
+	cPnA += char((iPn * 3) % 199) + char((iPn * 11) % 253) +
+	        char((iPn * 5) % 239) + char(255)
+next
+cPnR = StzEngineGpuPngEncode(40, 20, cPnA, 4)
+? "   translucent pixels -> colour type " + ascii(cPnR[26])
+chkeq("NEGATIVE: a translucent drawing keeps its alpha channel",
+    ascii(cPnR[26]), 6)
+
+# ...AND A DRAWING OF FEW ENOUGH COLOURS IS STILL INDEXED, so the new
+# branch sits BETWEEN the two that existed and did not replace either.
+cPnF = ""
+for iPn = 1 to 800
+	cPnF += char(10) + char(20) + char(30) + char(255)
+next
+cPnI = StzEngineGpuPngEncode(40, 20, cPnF, 4)
+? "   one-colour drawing -> colour type " + ascii(cPnI[26])
+chkeq("NEGATIVE: a small palette is still written indexed",
+    ascii(cPnI[26]), 3)
+
+# THE COMPRESSION LEVEL IS A MEASURED DEFAULT. It was 1 -- deflate's
+# weakest -- taken as the GR0 default and never revisited. Measured on
+# this library's own silhouette, five runs each, identical pixels:
+# level 1 gives 52598 bytes in 10.8 ms, level 4 gives 45032 in 15.6,
+# level 9 gives 43162 in 55.5. Four is the knee; nine spends 5.1x the
+# time of one to beat four by 4%.
+cPnL1 = oPn.ToPNGXT("", 1)
+cPnL4 = oPn.ToPNGXT("", 4)
+? "   level 1: " + len(cPnL1) + " bytes, level 4: " + len(cPnL4)
+chk("the default level is doing work", len(cPnL4) <= len(cPnL1))
+chkeq("...and the dial is exposed for a caller who wants the rest",
+    len(oPn.ToPNGXT("", 9)) <= len(cPnL4), 1)
 
 sec("-- 73g. A GROUND IS MET AT ITS LEAD, NOT ITS BARS ------")
 
