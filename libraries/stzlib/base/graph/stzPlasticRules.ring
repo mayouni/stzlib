@@ -46,7 +46,55 @@ func _PlIsRefusedBranch(poDg, pcId)
 	next
 	return 0
 
+# DOES THIS PICTURE'S NOTATION PUT EVERY ALTERNATIVE ON ONE SIDE?
+#
+# Three of this plane's general rules are DENIED by such a notation, and
+# denied deliberately -- see each rule's counter for which and why. The
+# question is asked here once so the three answer it the same way.
+func _PlOneSided(poDg)
+	return poDg._NotationBranchSide() = "right"
+
+# IS THIS CELL ALREADY OFF THE MAIN LINE?
+#
+# Measured against the leftmost drawn cell, which is where a one-sided
+# notation puts its skewer. A question standing out here is the second
+# stair of an OR formula: it has no main line beneath it to continue
+# down, so the rule about continuing down one does not reach it.
+func _PlOffTheLine(poDg, pcId)
+	if NOT _PlOneSided(poDg)  return 0  ok
+	_a_ = poDg.RenderNodeRects()
+	_n_ = len(_a_)
+	if _n_ = 0  return 0  ok
+	_min_ = 1000000000
+	_me_ = -1000000000
+	for _i_ = 1 to _n_
+		_c_ = _a_[_i_][1] + _a_[_i_][3] / 2
+		if _c_ < _min_  _min_ = _c_  ok
+		if StzLower("" + _a_[_i_][5]) = StzLower("" + pcId)  _me_ = _c_  ok
+	next
+	if _me_ < -999999999  return 0  ok
+	return _me_ > _min_ + 2
+
 func _PlKeyNode(pcId)   return "node:" + StzLower("" + pcId)
+
+# THE QUESTION A REFUSAL LEADS TO, or "" where it leads anywhere else.
+#
+# An OR formula is a chain of questions joined by their NO exits: any of
+# them being true is enough, so each failure asks the next. The down
+# exit is asked for by name -- see _DownExitOf -- and the refusal is
+# whatever other question this one reaches directly.
+func _PlOrNext(poDg, pcId)
+	_dn_ = StzLower("" + poDg._DownExitOf(pcId))
+	_a_ = poDg.Edges()
+	_n_ = len(_a_)
+	for _i_ = 1 to _n_
+		if StzLower("" + _a_[_i_][:from]) != StzLower("" + pcId)  loop  ok
+		_t_ = StzLower("" + _a_[_i_][:to])
+		if _t_ = _dn_  loop  ok
+		if StzLower("" + poDg._KindOfId(_t_)) != "question"  loop  ok
+		return _t_
+	next
+	return ""
 func _PlKeyEdge(pcF, pcT)
 	return "edge:" + StzLower("" + pcF) + ">" + StzLower("" + pcT)
 
@@ -289,6 +337,12 @@ func StzPlasticRuleSet()
 	_o2_.SetScope(func(oDg) {
 		_r_ = []
 		if _PlCrossAxis(oDg) = 0  return _r_  ok
+		# ...UNLESS THE DOMAIN REFUSES TWO SIDES. This is I7, the plane's
+		# own law, and it is right for PEERS. DRAKON's alternatives are
+		# not peers: one of them is the normal case and the distance of
+		# the others from it is the notation's whole claim, so a
+		# straddle would say the opposite of what the picture means.
+		if _PlOneSided(oDg)  return _r_  ok
 		_ids_ = _PlDrawnIds(oDg)
 		_n_ = len(_ids_)
 		for _i_ = 1 to _n_
@@ -367,6 +421,13 @@ func StzPlasticRuleSet()
 	_o3_.SetScope(func(oDg) {
 		_r_ = []
 		if _PlCrossAxis(oDg) = 0  return _r_  ok
+		# ...UNLESS THE ICON'S EXITS LEAVE BY DIFFERENT FACES. A fan
+		# shares a stem because its members are ONE thing reaching
+		# several places. DRAKON's If is the opposite: "the central exit
+		# comes out of the bottom of the icon, the right exit comes out
+		# of its right side", and the two answers are separate from the
+		# moment they are given. A shared stem would hide the choice.
+		if _PlOneSided(oDg)  return _r_  ok
 		_ids_ = _PlDrawnIds(oDg)
 		_n_ = len(_ids_)
 		for _i_ = 1 to _n_
@@ -617,6 +678,12 @@ func StzPlasticRuleSet()
 		# compliant with it
 		_r_ = []
 		if _PlCrossAxis(oDg) = 0  return _r_  ok
+		# ...AND THE RULE IS ABOUT A CELL ON THE MAIN LINE. A question
+		# already stepped aside -- the second stair of an OR formula --
+		# has no main line under it to continue down; its affirmative
+		# goes BACK to the line, which is the staircase working, not
+		# failing. Stated when adding DRAKON's two logic formulas to the
+		# corpus made this rule report a picture the book draws.
 		_ids_ = _PlDrawnIds(oDg)
 		_n_ = len(_ids_)
 		for _i_ = 1 to _n_
@@ -628,7 +695,9 @@ func StzPlasticRuleSet()
 				if oDg._IsAffirmative("" + _a_[_ia_][:label])  _y_++  ok
 				if oDg._IsNegative("" + _a_[_ia_][:label])  _no_++  ok
 			next
-			if _y_ > 0 and _no_ > 0  _r_ + _PlKeyNode(_ids_[_i_])  ok
+			if _y_ = 0 or _no_ = 0  loop  ok
+			if _PlOffTheLine(oDg, _ids_[_i_])  loop  ok
+			_r_ + _PlKeyNode(_ids_[_i_])
 		next
 		return _r_
 	})
@@ -697,6 +766,129 @@ func StzPlasticRuleSet()
 		return [ 1, "" ]
 	})
 	_ao_ + _o7_
+
+	# --- A LOGIC FORMULA KEEPS ITS OWN SHAPE --------------------
+	#
+	# DRAKON's book states this as a rule and gives the reason: "For AND,
+	# put the if icons on the skewer. For OR, arrange the if icons as
+	# stair steps... These visual formulas form easily recognizable
+	# patterns which are beneficial to use."
+	#
+	# The point is not tidiness. A reader who knows the two patterns
+	# reads a compound condition WITHOUT tracing it -- a straight run of
+	# hexagons is an AND, a staircase is an OR -- and that only works if
+	# every picture obeys. One diagram drawn the other way costs the
+	# reader the shortcut on all of them.
+	#
+	# This plane drew both patterns correctly in its catalogue and
+	# enforced NEITHER: the fixtures were written that way. A picture
+	# right by the authorship of its fixture is right by luck, which is
+	# the same defect as a guard that describes the implementation --
+	# met here in the drawing rather than in the assertion.
+	_o11_ = StzPlasticRule("and_chain_on_one_line")
+	_o11_.SetClaim("questions chained by their affirmative exits stand " +
+		"on one vertical, which is what makes a run of them read as AND")
+	_o11_.SetOrder(70)
+	_o11_.SetReads([ "node.cross" ])
+	_o11_.SetWrites([])
+	_o11_.SetScope(func(oDg) {
+		_r_ = []
+		if oDg._NotationBranchSide() != "right"  return _r_  ok
+		_ids_ = _PlDrawnIds(oDg)
+		_n_ = len(_ids_)
+		for _i_ = 1 to _n_
+			if StzLower("" + oDg._KindOfId(_ids_[_i_])) != "question"
+				loop
+			ok
+			_dn_ = oDg._DownExitOf(_ids_[_i_])
+			if _dn_ = ""  loop  ok
+			if StzLower("" + oDg._KindOfId(_dn_)) != "question"  loop  ok
+			_r_ + _PlKeyNode(_ids_[_i_])
+		next
+		return _r_
+	})
+	_o11_.SetClaimCheck(func(oDg, cSub) {
+		_id_ = StzSubStr(cSub, 6, StzLen(cSub) - 5)
+		_dn_ = oDg._DownExitOf(_id_)
+		if _dn_ = ""  return [ 1, "" ]  ok
+		_ax_ = _PlCrossAxis(oDg)
+		_a_ = _PlCentre(oDg, _id_, _ax_)
+		_b_ = _PlCentre(oDg, _dn_, _ax_)
+		if _a_ < -999999 or _b_ < -999999  return [ 1, "" ]  ok
+		if fabs(_a_ - _b_) < 2  return [ 1, "" ]  ok
+		return [ 0, "it stands " + (fabs(_a_ - _b_)) + "px off " + _dn_ +
+			", so a run of ANDed questions does not read as one line" ]
+	})
+	_o11_.SetCounter(func(oDg) {
+		# a question whose affirmative leads to a STEP is not part of a
+		# formula at all, and this rule says nothing about it
+		_r_ = []
+		if oDg._NotationBranchSide() != "right"  return _r_  ok
+		_ids_ = _PlDrawnIds(oDg)
+		_n_ = len(_ids_)
+		for _i_ = 1 to _n_
+			if StzLower("" + oDg._KindOfId(_ids_[_i_])) != "question"
+				loop
+			ok
+			_dn_ = oDg._DownExitOf(_ids_[_i_])
+			if _dn_ = ""  loop  ok
+			if StzLower("" + oDg._KindOfId(_dn_)) = "question"  loop  ok
+			_r_ + _PlKeyNode(_ids_[_i_])
+		next
+		return _r_
+	})
+	_ao_ + _o11_
+
+	# --- ...AND AN OR CHAIN STEPS OUT AND DOWN ------------------
+	_o12_ = StzPlasticRule("or_chain_steps_aside")
+	_o12_.SetClaim("questions chained by their REFUSALS step to the " +
+		"right and down, which is what makes a staircase read as OR")
+	_o12_.SetOrder(71)
+	_o12_.SetReads([ "node.cross" ])
+	_o12_.SetWrites([])
+	_o12_.SetScope(func(oDg) {
+		_r_ = []
+		if oDg._NotationBranchSide() != "right"  return _r_  ok
+		_ids_ = _PlDrawnIds(oDg)
+		_n_ = len(_ids_)
+		for _i_ = 1 to _n_
+			if StzLower("" + oDg._KindOfId(_ids_[_i_])) != "question"
+				loop
+			ok
+			if _PlOrNext(oDg, _ids_[_i_]) = ""  loop  ok
+			_r_ + _PlKeyNode(_ids_[_i_])
+		next
+		return _r_
+	})
+	_o12_.SetClaimCheck(func(oDg, cSub) {
+		_id_ = StzSubStr(cSub, 6, StzLen(cSub) - 5)
+		_nx_ = _PlOrNext(oDg, _id_)
+		if _nx_ = ""  return [ 1, "" ]  ok
+		_a_ = _PlCentre(oDg, _id_, 1)
+		_b_ = _PlCentre(oDg, _nx_, 1)
+		_ay_ = _PlCentre(oDg, _id_, 2)
+		_by_ = _PlCentre(oDg, _nx_, 2)
+		if _a_ < -999999 or _b_ < -999999  return [ 1, "" ]  ok
+		if _b_ > _a_ + 2 and _by_ > _ay_ + 2  return [ 1, "" ]  ok
+		return [ 0, "it stands at " + _a_ + "," + _ay_ + " and " + _nx_ +
+			" at " + _b_ + "," + _by_ + ", so the two do not step out " +
+			"and down and the run does not read as OR" ]
+	})
+	_o12_.SetCounter(func(oDg) {
+		_r_ = []
+		if oDg._NotationBranchSide() != "right"  return _r_  ok
+		_ids_ = _PlDrawnIds(oDg)
+		_n_ = len(_ids_)
+		for _i_ = 1 to _n_
+			if StzLower("" + oDg._KindOfId(_ids_[_i_])) != "question"
+				loop
+			ok
+			if _PlOrNext(oDg, _ids_[_i_]) != ""  loop  ok
+			_r_ + _PlKeyNode(_ids_[_i_])
+		next
+		return _r_
+	})
+	_ao_ + _o12_
 
 	return _ao_
 
