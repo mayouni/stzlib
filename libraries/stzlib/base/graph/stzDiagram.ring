@@ -7009,7 +7009,11 @@ class stzDiagram from stzGraph
 				# other. Two branches in different cases reach neither
 				# way and are left exactly as they were.
 				_aSrDep_ = []
-				for _srI_ = 1 to len(_srOut_)  _aSrDep_ + ""  next
+				_aSrDepB_ = []
+				for _srI_ = 1 to len(_srOut_)
+					_aSrDep_ + ""
+					_aSrDepB_ + 0
+				next
 				for _srZ_ = 1 to len(_srOrd_)
 					_srI_ = _srOrd_[_srZ_]
 					_srId3_ = StzLower("" + _srOut_[_srI_][1])
@@ -7022,7 +7026,14 @@ class stzDiagram from stzGraph
 							if StzLower("" + _srOut_[_srJ3_][1]) != _srF3_
 								loop
 							ok
-							if _srOn_[_srJ3_]  _aSrDep_[_srI_] = _srF3_  ok
+							if _srOn_[_srJ3_]
+								_aSrDep_[_srI_] = _srF3_
+							else
+								# ...and where it left from ANOTHER
+								# BRANCH, which is a different relation
+								# entirely -- see the succession pass
+								_aSrDepB_[_srI_] = _srJ3_
+							ok
 						next
 					next
 				next
@@ -7147,6 +7158,44 @@ class stzDiagram from stzGraph
 						_srIdx_[ _aSrSort_[_srZ_][3] ] = _srZ_
 					next
 				ok
+
+				# A REFUSAL CHAIN STEPS OUT, IT DOES NOT NEST.
+				#
+				# "For OR, arrange the if icons as stair steps", and each
+				# step is further from the main line because it is a more
+				# unusual case -- every check before it has failed. So a
+				# branch that leaves from ANOTHER BRANCH stands outside
+				# the one it left.
+				#
+				# The nesting count says the opposite, and is not simply
+				# wrong: the first question's refusal genuinely does span
+				# the second's, so by containment the first is the outer.
+				# Containment is the right relation between two
+				# ALTERNATIVES of one question and the wrong one between
+				# two links of a chain -- the same word, "branch", doing
+				# two jobs again, and the third time this file has caught
+				# it doing so.
+				#
+				# The tell that separates them is where each departs
+				# from: an alternative leaves the SKEWER, a link leaves
+				# the previous LINK.
+				for _srPass4_ = 1 to 8
+					_bSrSc_ = 0
+					for _srZ_ = 1 to len(_srOrd_)
+						_srI_ = _srOrd_[_srZ_]
+						if _srLead_[_srI_] != _srI_  loop  ok
+						_srPrev_ = _aSrDepB_[_srI_]
+						if _srPrev_ = 0  loop  ok
+						_srPrev_ = _srLead_[_srPrev_]
+						if _srPrev_ = _srI_  loop  ok
+						if _srIdx_[_srI_] > _srIdx_[_srPrev_]  loop  ok
+						_srSw4_ = _srIdx_[_srI_]
+						_srIdx_[_srI_] = _srIdx_[_srPrev_]
+						_srIdx_[_srPrev_] = _srSw4_
+						_bSrSc_ = 1
+					next
+					if NOT _bSrSc_  exit  ok
+				next
 
 				# every link of a chain stands in its head's column
 				for _srI_ = 1 to len(_srLead_)

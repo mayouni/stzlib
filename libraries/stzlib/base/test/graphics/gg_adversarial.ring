@@ -11975,8 +11975,11 @@ chk("NEGATIVE: an ANDed question moved off the line IS caught",
 oLg2 = _GvDrakonOr()
 aLgR2 = oLg2.@aRenderNodeRects
 nLgQ1 = 0
+# ...AND THE SECOND STEP IS THE ONE BROKEN, because that is the step
+# that was actually wrong in the published catalogue: q1 to q2 read
+# correctly and q2 to q3 went backwards.
 for iLg = 1 to len(aLgR2)
-	if StzLower("" + aLgR2[iLg][5]) = "q1"  nLgQ1 = aLgR2[iLg][1]  ok
+	if StzLower("" + aLgR2[iLg][5]) = "q2"  nLgQ1 = aLgR2[iLg][1]  ok
 next
 # ...MOVED LEFT OF IT, not merely level with it. The first version set
 # the two rects' LEFT EDGES equal and the rule did not fire -- because
@@ -11985,7 +11988,7 @@ next
 # perturbation has to break the property the rule states, not one
 # that looks like it.
 for iLg = 1 to len(aLgR2)
-	if StzLower("" + aLgR2[iLg][5]) = "q2"
+	if StzLower("" + aLgR2[iLg][5]) = "q3"
 		aLgR2[iLg][1] = nLgQ1 - 100
 	ok
 next
@@ -13406,12 +13409,24 @@ func _GvDrakonAnd()
 
 # OR: each REFUSAL asks the next question, so the run steps out and
 # down -- "for OR, arrange the if icons as stair steps."
+#
+# THREE DEEP, BECAUSE TWO WAS NOT ENOUGH AND THAT IS THE FINDING.
+# This corpus picture had TWO questions while the published catalogue
+# draws THREE, and the catalogue's third step was drawn LEFT of its
+# second for as long as the rule existed -- an inverted staircase, in
+# the section written to enforce staircases. The rule never saw it,
+# because a two-link chain has no second step to get wrong.
+#
+# A rule exercised on a simpler shape than the artefact it governs
+# does not govern the artefact. The corpus now carries at least the
+# depth the catalogue publishes.
 func _GvDrakonOr()
 	_o_ = new stzDiagram("drakonor")
 	_o_.SetNotation(StzDrakonNotation())
 	_o_.AddNodeXTT("t", "Let them in", [ :type = "title" ])
 	_o_.AddNodeXTT("q1", "On the list?", [ :type = "question" ])
-	_o_.AddNodeXTT("q2", "Known to staff?", [ :type = "question" ])
+	_o_.AddNodeXTT("q2", "Has a ticket?", [ :type = "question" ])
+	_o_.AddNodeXTT("q3", "Known to staff?", [ :type = "question" ])
 	_o_.AddNodeXTT("ok", "Open the door", [ :type = "action" ])
 	_o_.AddNodeXTT("no", "Turn them away", [ :type = "action" ])
 	_o_.AddNodeXTT("e", "Done", [ :type = "end" ])
@@ -13419,7 +13434,9 @@ func _GvDrakonOr()
 	_o_.AddEdgeXTT("q1", "ok", "yes", [ :exit = :down ])
 	_o_.AddEdgeXTT("q1", "q2", "no", [ :exit = :right ])
 	_o_.AddEdgeXTT("q2", "ok", "yes", [ :exit = :down ])
-	_o_.AddEdgeXTT("q2", "no", "no", [ :exit = :right ])
+	_o_.AddEdgeXTT("q2", "q3", "no", [ :exit = :right ])
+	_o_.AddEdgeXTT("q3", "ok", "yes", [ :exit = :down ])
+	_o_.AddEdgeXTT("q3", "no", "no", [ :exit = :right ])
 	_o_.AddEdge("ok", "e")  _o_.AddEdge("no", "e")
 	_o_.ToCanvasXT(OPTGOV)
 	return _o_
