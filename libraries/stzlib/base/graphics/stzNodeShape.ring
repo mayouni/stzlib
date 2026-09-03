@@ -68,7 +68,7 @@ func StzNodeShapeNames()
 		:Diamond, :Triangle, :InvTriangle, :Trapezium, :InvTrapezium,
 		:Parallelogram, :House, :InvHouse, :Pentagon, :Hexagon, :Septagon,
 		:Octagon, :TripleOctagon, :Cylinder, :Folder, :Tab, :Note,
-		:Component, :Actor, :Bar,
+		:Component, :Insertion, :Actor, :Bar,
 		:Resistor, :Capacitor, :Ground, :Source, :Junction
 	]
 
@@ -248,6 +248,24 @@ func StzDrawNodeShape(poCanvas, pcShape, pnX, pnY, pnW, pnH)
 		_f_ = min([_w_, _h_]) * 0.24
 		poCanvas.AddPolygon([ _x_, _y_, _x_ + _w_ - _f_, _y_,
 			_x_ + _w_, _y_ + _f_, _x_ + _w_, _y_ + _h_, _x_, _y_ + _h_ ])
+	# AN INSERTION IS A CALL TO ANOTHER DIAGRAM, and DRAKON draws it as
+	# a box ruled once near each end -- the shape every flowchart
+	# notation has used for a sub-routine since before flowcharts were
+	# printed. The rules are not decoration: they say the body of this
+	# step is written down somewhere else, which is the whole content of
+	# the icon.
+	#
+	# This profile had reached for UML's COMPONENT, a box with two tabs
+	# on its left, because it was the nearest thing already drawn. It
+	# reads as a deployable part rather than as a call, and the tabs sit
+	# OUTSIDE the body -- so a wire arriving at the left border met a
+	# tab instead of the box.
+	on "insertion"
+		poCanvas.AddRect(_x_, _y_, _w_, _h_)
+		poCanvas.AddLine(_x_ + _w_ * 0.12, _y_,
+			_x_ + _w_ * 0.12, _y_ + _h_)
+		poCanvas.AddLine(_x_ + _w_ * 0.88, _y_,
+			_x_ + _w_ * 0.88, _y_ + _h_)
 	on "component"
 		poCanvas.AddRect(_x_ + _w_ * 0.1, _y_, _w_ * 0.9, _h_)
 		poCanvas.AddRect(_x_, _y_ + _h_ * 0.18, _w_ * 0.22, _h_ * 0.2)

@@ -92,6 +92,7 @@ class stzNotation from stzObject
 	@cSplines = ""
 	@cBranchSide = ""
 	@aNameInside = []
+	@aCompartmentKeys = []
 	@bOneInk = 0
 	@cLayoutMode = ""     # "" = layered; :Ring for a domain with no flow
 	@cRankPolicy = ""     # "" = :Latest -- sinks line up at the last rank
@@ -602,6 +603,30 @@ class stzNotation from stzObject
 			if @aNameInside[_iNi_] = _niK_  return  ok
 		next
 		@aNameInside + _niK_
+
+	# THE PROPERTIES THIS NOTATION READS AS COMPARTMENTS, in the order
+	# they stack under the name.
+	#
+	# The compartment machinery was written for UML and read exactly two
+	# property names, "attributes" and "operations", written into the
+	# reader. A DRAKON Shelf is a box ruled once across the middle --
+	# which is a two-compartment node and nothing else -- and it could
+	# not have one, because the list of what counts as a compartment was
+	# a list.
+	#
+	# Same fault as the four layout modes and the one shape named
+	# "diamond", and this is the third time in a week: a rule whose
+	# membership is enumerated stops being applied the moment something
+	# new arrives. A notation says what its own compartments are; the
+	# default is UML's pair, so nothing that existed before this changes.
+	def AddCompartmentKey(pcKey)
+		if @aCompartmentKeys = NULL  @aCompartmentKeys = []  ok
+		@aCompartmentKeys + StzLower("" + pcKey)
+		return This
+
+	def CompartmentKeys()
+		if @aCompartmentKeys = NULL  return []  ok
+		return @aCompartmentKeys
 
 	def WritesNameInside(pcKind)
 		_niK_ = StzLower("" + pcKind)
