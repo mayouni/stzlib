@@ -10633,6 +10633,136 @@ for iAt = 1 to len(aAtL)
 	if nAtOwnD >= nAtOtherD  nAtAmb++  ok
 next
 chkeq("every exit label is nearest the icon it answers", nAtAmb, 0)
+sec("-- 73w. AN ENCLOSING BRANCH STANDS FURTHER OUT ------")
+
+# "The rule of secondary routes: the further to the right -- the worse
+# it is." A branch that leaves the skewer earlier and is still out
+# when a second one leaves CONTAINS that second one, so it belongs
+# further from the main line.
+#
+# The allocator measured a branch from its first ICON, and the two
+# readings agree whenever every alternative departs one row above that
+# icon -- true of every fixture this plane had. They disagree the
+# moment two refusals at different depths land on the SAME icon: the
+# outer question's refusal is then a short span between its landing
+# and the End, the inner one's is longer, and the count reads the
+# inner as the outer. On the Principal's own advanceStep that inverted
+# the two lanes and their wires crossed.
+#
+# THE OBVIOUS REPAIR WAS WRONG AND IS WORTH RECORDING, because it
+# looked right and shipped nothing: starting every span at its
+# departure row scrambled the picture, since the column ladder is
+# GLOBAL and a case's body then shared spans with a different case's.
+# Enclosure is only meaningful between branches on ONE skewer, and
+# reachability is what says so.
+oEn = new stzDiagram("enclose73w")
+oEn.SetNotation(StzDrakonNotation())
+oEn.AddNodeXTT("t","advanceStep",[ :type = "title" ])
+oEn.AddNodeXTT("s","module.state",[ :type = "select" ])
+oEn.AddNodeXTT("k1","playing",[ :type = "case" ])
+oEn.AddNodeXTT("k2","dropping",[ :type = "case" ])
+oEn.AddNodeXTT("k3","finished",[ :type = "case" ])
+oEn.AddNodeXTT("p1","module.projectile",[ :type = "question" ])
+oEn.AddNodeXTT("p2","canMoveDown()",[ :type = "question" ])
+oEn.AddNodeXTT("p3","moveDown()",[ :type = "action" ])
+oEn.AddNodeXTT("p4","return getStepPeriod()",[ :type = "action" ])
+oEn.AddNodeXTT("p5","freezeProjectile()",[ :type = "action" ])
+oEn.AddNodeXTT("p6","return noProjectile()",[ :type = "action" ])
+oEn.AddNodeXTT("d1","canMoveDown()",[ :type = "question" ])
+oEn.AddNodeXTT("d2","moveDown()",[ :type = "action" ])
+oEn.AddNodeXTT("d3","return DropPeriod",[ :type = "action" ])
+oEn.AddNodeXTT("d4","freezeProjectile()",[ :type = "action" ])
+oEn.AddNodeXTT("d5","return getStepPeriod()",[ :type = "action" ])
+oEn.AddNodeXTT("f1","return undefined",[ :type = "action" ])
+oEn.AddNodeXTT("e","End",[ :type = "end" ])
+oEn.AddEdge("t","s")
+oEn.AddEdge("s","k1")  oEn.AddEdge("s","k2")  oEn.AddEdge("s","k3")
+oEn.AddEdge("k1","p1")
+oEn.AddEdgeXTT("p1","p2","yes", [ :exit = :down ])
+oEn.AddEdgeXTT("p1","p6","no",  [ :exit = :right ])
+oEn.AddEdgeXTT("p2","p3","yes", [ :exit = :down ])
+oEn.AddEdgeXTT("p2","p5","no",  [ :exit = :right ])
+oEn.AddEdge("p3","p4")  oEn.AddEdge("p5","p6")
+oEn.AddEdge("p4","e")   oEn.AddEdge("p6","e")
+oEn.AddEdge("k2","d1")
+oEn.AddEdgeXTT("d1","d2","yes", [ :exit = :down ])
+oEn.AddEdgeXTT("d1","d4","no",  [ :exit = :right ])
+oEn.AddEdge("d2","d3")  oEn.AddEdge("d4","d5")
+oEn.AddEdge("d3","e")   oEn.AddEdge("d5","e")
+oEn.AddEdge("k3","f1")  oEn.AddEdge("f1","e")
+oEn.ToCanvasXT([ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56,
+                 :FontSize = 20 ])
+
+# THE WHOLE CLAIM, ASKED OF THE DRAWING. "Rule: line intersections and
+# breaks are not allowed." Every other clause here explains WHY the
+# picture is right; this one says whether it is.
+? "   crossings on advanceStep: " + oEn.RenderCrossings()
+chkeq("the hardest shape in the set draws no crossing",
+    oEn.RenderCrossings(), 0)
+
+# ...AND THE REASON IT DOES: the outer refusal stands outside the
+# inner one. Without this the clause above could be satisfied by a
+# layout that merely happened to miss.
+aEnR = oEn.RenderNodeRects()
+nEnIn = 0  nEnOut = 0  nEnK1 = 0  nEnK2 = 0  nEnK3 = 0
+for iEn = 1 to len(aEnR)
+	cEnI = StzLower("" + aEnR[iEn][5])
+	if cEnI = "p5"  nEnIn = aEnR[iEn][1]  ok
+	if cEnI = "p6"  nEnOut = aEnR[iEn][1]  ok
+	if cEnI = "k1"  nEnK1 = aEnR[iEn][1]  ok
+	if cEnI = "k2"  nEnK2 = aEnR[iEn][1]  ok
+	if cEnI = "k3"  nEnK3 = aEnR[iEn][1]  ok
+next
+? "   inner refusal at x " + nEnIn + ", outer at x " + nEnOut
+chk("the enclosing refusal stands further from the skewer",
+    nEnOut > nEnIn + 20)
+
+# NEGATIVE: TWO BRANCHES IN DIFFERENT CASES ENCLOSE NOTHING, and must
+# be left exactly as they were. This is the clause the wrong repair
+# would have failed: it reordered branches across cases, because it
+# compared spans that have no skewer in common.
+? "   case columns at x " + nEnK1 + ", " + nEnK2 + ", " + nEnK3
+chk("NEGATIVE: the cases keep their own order, left to right",
+    nEnK1 < nEnK2 and nEnK2 < nEnK3)
+
+# ...AND NO CASE'S BODY LANDS ON ANOTHER CASE'S. A rule that
+# reordered across skewers would pull one case's icons into another's
+# column, which is exactly what the wrong repair did and what no
+# crossing count would have caught.
+nEnD4 = 0
+for iEn = 1 to len(aEnR)
+	if StzLower("" + aEnR[iEn][5]) = "d4"  nEnD4 = aEnR[iEn][1]  ok
+next
+nEnHit = 0
+for iEn = 1 to len(aEnR)
+	cEnI = StzLower("" + aEnR[iEn][5])
+	if cEnI = "d4" or cEnI = "d5"  loop  ok
+	if nEnD4 > aEnR[iEn][1] - 20 and
+	   nEnD4 < aEnR[iEn][1] + aEnR[iEn][3] + 20
+		if StzFindFirst("d", cEnI) = 1  loop  ok
+		nEnHit++
+	ok
+next
+chkeq("NEGATIVE: no case body shares a column with another case",
+    nEnHit, 0)
+
+# A LIMIT, STATED HERE RATHER THAN LEFT FOR A PICTURE TO REVEAL.
+#
+# The lane a case's refusal uses is drawn from a GLOBAL ladder of
+# columns, so it stands beyond the last case rather than beside the
+# case it belongs to: on this diagram the dropping case's
+# freezeProjectile() sits to the right of the finished case, where
+# the language's own rendering keeps it between the two. Nothing
+# collides and nothing crosses -- the picture is legal and readable
+# -- but a reader tracing the dropping case must cross the width of
+# the sheet to follow its refusal.
+#
+# Fixing it means a column ladder PER SKEWER instead of one for the
+# picture, which is a redesign and not an adjustment. The number is
+# printed on every run so the gap stays visible rather than becoming
+# something only the next reader notices.
+? "   KNOWN GAP: the dropping refusal sits at x " + nEnD4 +
+  ", past the finished case at x " + nEnK3
 
 sec("-- 73g. A GROUND IS MET AT ITS LEAD, NOT ITS BARS ------")
 
