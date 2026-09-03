@@ -1167,7 +1167,16 @@ class stzDiagram from stzGraph
 		_cpOut_ = [ [ "" + aNode[:label] ] ]
 		if NOT HasKey(aNode, "properties")  return _cpOut_  ok
 		if NOT isList(aNode["properties"])  return _cpOut_  ok
+		# ...AND WHICH PROPERTIES THOSE ARE IS THE NOTATION'S TO SAY.
+		# UML's pair is the default, so every picture that existed
+		# before this reads exactly as it did.
 		_aCpK18_ = [ "attributes", "operations" ]
+		_oCpN_ = This.NotationO()
+		if isObject(_oCpN_)
+			if len(_oCpN_.CompartmentKeys()) > 0
+				_aCpK18_ = _oCpN_.CompartmentKeys()
+			ok
+		ok
 		_nCpK18_ = len(_aCpK18_)
 		for _iCpK18_ = 1 to _nCpK18_
 			_cpK_ = _aCpK18_[_iCpK18_]
@@ -13247,6 +13256,9 @@ class stzDiagram from stzGraph
 			[ "trapezium", 0.70, 0.90 ], [ "invtrapezium", 0.70, 0.90 ],
 			[ "parallelogram", 0.75, 0.90 ],
 			[ "house", 0.85, 0.70 ], [ "invhouse", 0.85, 0.70 ],
+			# an INSERTION is ruled near each end, so its text has
+			# the span between the rules and not the whole box
+			[ "insertion", 0.72, 0.90 ],
 			[ "pentagon", 0.75, 0.70 ], [ "hexagon", 0.75, 0.90 ],
 			[ "septagon", 0.80, 0.80 ], [ "octagon", 0.80, 0.80 ],
 			[ "tripleoctagon", 0.60, 0.60 ]

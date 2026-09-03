@@ -10768,6 +10768,81 @@ chkeq("NEGATIVE: no case body shares a column with another case",
   nEnK2 + " and the next at x " + nEnK3
 chk("a case's refusal stands beside its own case, not past the next",
     nEnD4 > nEnK2 and nEnD4 < nEnK3)
+sec("-- 73x. THE SHELF AND THE INSERTION ------------------")
+
+# The last two icons of DRAKON's table this profile was approximating.
+#
+# THE INSERTION is a call to another diagram, ruled once near each end
+# -- the shape every notation has used for a sub-routine since before
+# flowcharts were printed. This profile reached for UML's COMPONENT
+# because it was the nearest thing already drawn, and left a comment
+# saying so. A component reads as a deployable part rather than as a
+# call, and its tabs sit OUTSIDE the body, so a wire arriving at the
+# left border met a tab instead of the box.
+#
+# THE SHELF is a box ruled once across the middle holding two texts:
+# what is produced above the rule, how it is produced below. That is a
+# two-compartment node, which this plane already draws for a UML class
+# -- so the shelf needed no glyph, only the right to NAME its second
+# compartment. The compartment reader had UML's two property names
+# written into it: the same enumerated-list fault as the four layout
+# modes and the one shape called "diamond", met a third time in a week.
+oSh = new stzDiagram("shelf73x")
+oSh.SetNotation(StzDrakonNotation())
+oSh.AddNodeXTT("t","Price a basket",[ :type = "title" ])
+oSh.AddNodeXTT("ins","Apply the tariff",[ :type = "insertion" ])
+oSh.AddNodeXTT("s1","total",[ :type = "shelf", :value = "net + tax" ])
+oSh.AddNodeXTT("e","End",[ :type = "end" ])
+oSh.AddEdge("t","ins")  oSh.AddEdge("ins","s1")  oSh.AddEdge("s1","e")
+oSh.ToCanvasXT([ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56,
+                 :FontSize = 20 ])
+
+# THE INSERTION IS ITS OWN GLYPH, not the nearest one already drawn.
+chkeq("an insertion is drawn as an insertion",
+    StzLower("" + oSh._ShapeOfId("ins")), "insertion")
+
+# NEGATIVE: ...and the painter knows the name. The first attempt
+# declared the glyph and mapped the kind to it, and the picture came
+# out a plain box -- the shape vocabulary is a declared list and an
+# unknown name falls back rather than raising, so a glyph can be
+# written, wired, and silently not drawn.
+chkeq("NEGATIVE: the painter carries it in its vocabulary",
+    StzIsNodeShape("insertion"), 1)
+
+# A SHELF CARRIES TWO COMPARTMENTS OR IT IS A BOX. The rule across the
+# middle is the whole icon; one compartment is the shelf with the
+# thing that makes it a shelf missing.
+aShN = []
+for iSh = 1 to len(oSh.Nodes())
+	if StzLower("" + oSh.Nodes()[iSh][:id]) = "s1"
+		aShN = oSh.Nodes()[iSh]
+	ok
+next
+nShC = len(oSh._CompartmentsOf(aShN))
+? "   the shelf holds " + nShC + " compartments"
+chkeq("a shelf is a two-compartment node", nShC, 2)
+
+# ...AND THE SECOND ONE HOLDS WHAT THE AUTHOR WROTE, not an empty band.
+aShB = oSh._CompartmentsOf(aShN)
+chkeq("the lower compartment carries the value",
+    StzLower("" + aShB[2][1]), "net + tax")
+
+# NEGATIVE: A NOTATION THAT DECLARES NO COMPARTMENTS KEEPS UML'S PAIR,
+# so every picture that existed before this reads exactly as it did.
+# Without this the change would be a silent redefinition of what a
+# class compartment is for every other domain in the plane.
+oSh2 = new stzDiagram("uml73x")
+oSh2.SetNotation(StzUmlNotation())
+oSh2.AddNodeXTT("c","Invoice",[ :type = "class",
+    :attributes = [ "net", "tax" ], :operations = [ "total()" ] ])
+aShU = []
+for iSh = 1 to len(oSh2.Nodes())
+	if StzLower("" + oSh2.Nodes()[iSh][:id]) = "c"  aShU = oSh2.Nodes()[iSh]  ok
+next
+? "   a UML class still holds " + len(oSh2._CompartmentsOf(aShU)) +
+  " compartments"
+chkeq("NEGATIVE: UML keeps its own two compartments",
+    len(oSh2._CompartmentsOf(aShU)), 3)
 
 sec("-- 73g. A GROUND IS MET AT ITS LEAD, NOT ITS BARS ------")
 

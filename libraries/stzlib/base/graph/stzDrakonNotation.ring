@@ -145,10 +145,27 @@ func StzDrakonNotation()
 	# corners cut, so it reads as one of several openings beneath the
 	# selector -- narrower at the foot, where the one path out leaves.
 	_o_.AddKindXT("case", "invhouse", "#fff7e6")
-	# an insertion is a call to another algorithm: the component glyph
-	# is the table's nearest reading, a body with something attached
-	_o_.AddKindXT("insertion", "component", "white")
-	_o_.AddKindXT("shelf", "tab", "white")
+	# AN INSERTION IS A CALL TO ANOTHER DIAGRAM, and DRAKON rules the
+	# box once near each end -- the shape every notation has used for a
+	# sub-routine since before flowcharts were printed. The rules say
+	# the body of this step is written down somewhere else, which is the
+	# whole content of the icon.
+	#
+	# This profile reached for UML's COMPONENT because it was the
+	# nearest thing already drawn, and left a comment saying so. A
+	# component reads as a deployable part rather than as a call, and
+	# its tabs sit OUTSIDE the body, so a wire arriving at the left
+	# border met a tab instead of the box.
+	_o_.AddKindXT("insertion", "insertion", "white")
+	# A SHELF IS A BOX RULED ONCE ACROSS THE MIDDLE, holding two texts:
+	# what is produced, above the rule, and how it is produced, below
+	# it. That is a two-compartment node, which this plane already draws
+	# for a UML class -- so the shelf needs no glyph of its own, only
+	# the right to name its second compartment. Reusing the house
+	# contract rather than inventing a parallel one is the perf plane's
+	# ninth law, and it applies to pictures.
+	_o_.AddKindXT("shelf", "box", "white")
+	_o_.AddCompartmentKey("value")
 	_o_.AddKindXT("input", "parallelogram", "white")
 	_o_.AddKindXT("output", "parallelogram", "white")
 	_o_.AddKindXT("timer", "hexagon", "#f3f4f6")

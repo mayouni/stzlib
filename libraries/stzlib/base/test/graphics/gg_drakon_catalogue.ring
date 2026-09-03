@@ -455,7 +455,10 @@ c18.AddNodeXTT("q",  "Question",  [ :type = "question" ])
 c18.AddNodeXTT("sel","Select",    [ :type = "select" ])
 c18.AddNodeXTT("cs", "Case",      [ :type = "case" ])
 c18.AddNodeXTT("ins","Insertion", [ :type = "insertion" ])
-c18.AddNodeXTT("sh", "Shelf",     [ :type = "shelf" ])
+# A SHELF CARRIES TWO TEXTS OR IT IS A BOX. Declared with only a name
+# it drew as one compartment, which is the icon with its own rule
+# missing -- the thing that makes it a shelf.
+c18.AddNodeXTT("sh", "Shelf",     [ :type = "shelf", :value = "what it is" ])
 c18.AddNodeXTT("bf", "Begin For", [ :type = "foreach" ])
 c18.AddNodeXTT("ef", "End For",   [ :type = "endforeach" ])
 c18.AddNodeXTT("tm", "Timer",     [ :type = "timer" ])
@@ -475,5 +478,42 @@ c18.LastCanvas().ToPNG("cat_18_icons.png")
 ? "  18 the icon set        " + c18.LastCanvas().Width() + "x" +
   c18.LastCanvas().Height()
 
+#-- 19. THE SHELF AND THE INSERTION AT WORK ---------------------------------
+#   The last two icons of the table this profile had been approximating.
+#
+#   The INSERTION is a call to another diagram, and DRAKON rules the box
+#   once near each end -- the shape every notation has used for a
+#   sub-routine since before flowcharts were printed. This profile had
+#   reached for UML's COMPONENT because it was the nearest thing already
+#   drawn, and left a comment saying so; a component reads as a
+#   deployable part rather than a call, and its tabs sit OUTSIDE the
+#   body, so a wire arriving at the left border met a tab.
+#
+#   The SHELF is a box ruled once across the middle holding two texts:
+#   what is produced above the rule, and how it is produced below. That
+#   is a two-compartment node and this plane already draws one for a UML
+#   class -- so the shelf needed no glyph of its own, only the right to
+#   NAME its second compartment. The compartment reader had UML's two
+#   property names written into it, which is the same enumerated-list
+#   fault as the four layout modes and the one shape called "diamond",
+#   met a third time in a week.
+c19 = new stzDiagram("shelfwork")
+c19.SetNotation(StzDrakonNotation())
+c19.AddNodeXTT("t",  "Price a basket",   [ :type = "title" ])
+c19.AddNodeXTT("rd", "Read the lines",   [ :type = "input" ])
+c19.AddNodeXTT("ins","Apply the tariff", [ :type = "insertion" ])
+c19.AddNodeXTT("s1", "net",              [ :type = "shelf",
+                                           :value = "sum of the lines" ])
+c19.AddNodeXTT("s2", "total",            [ :type = "shelf",
+                                           :value = "net + tax" ])
+c19.AddNodeXTT("ou", "Show the total",   [ :type = "output" ])
+c19.AddNodeXTT("e",  "End",              [ :type = "end" ])
+c19.AddEdge("t","rd")   c19.AddEdge("rd","ins")  c19.AddEdge("ins","s1")
+c19.AddEdge("s1","s2")  c19.AddEdge("s2","ou")   c19.AddEdge("ou","e")
+c19.ToCanvasXT(OPT)
+c19.LastCanvas().ToPNG("cat_19_shelf_insertion.png")
+? "  19 shelf and insertion " + c19.LastCanvas().Width() + "x" +
+  c19.LastCanvas().Height()
+
 ? ""
-? "wrote cat_01 .. cat_18"
+? "wrote cat_01 .. cat_19"
