@@ -903,6 +903,28 @@ fn ring_SceneSetPickTag(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(scene.sceneSetPickTag(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2)))));
 }
 
+// GpuSceneSetSvgIdent(nId, cName, cClasses) -> 1/0
+//
+// Everything drawn after this is ONE element of the DOCUMENT, named cName
+// and carrying the space-separated classes cClasses. Both empty clears it.
+//
+// A pick tag answers a POINTER -- what is under this pixel. This answers a
+// READER OF THE FILE, which a tag cannot do: a tag is a number chosen at
+// draw time, and a consumer contract needs a name that survives being
+// written out and read back somewhere else. BPMN's L18/L19 is the contract
+// that asked for it.
+//
+// Answers 0 for a name that is not an XML name -- refused rather than
+// escaped, because a mangled identifier is discovered by the consumer and a
+// refused one is discovered here.
+fn ring_SceneSetSvgIdent(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(scene.sceneSetSvgIdent(
+        @intFromFloat(gn(p, 1)),
+        getStr(p, 2),
+        getStr(p, 3),
+    )));
+}
+
 // GpuScenePick(nId, nX, nY, nTol) -> tag under the point, 0 for paper
 fn ring_ScenePick(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(scene.scenePick(@intFromFloat(gn(p, 1)), gn(p, 2), gn(p, 3), gn(p, 4))));
@@ -1642,6 +1664,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginepnglaststat", .func = &ring_PngLastStat },
     .{ .name = "stzenginegpuscenesetview", .func = &ring_SceneSetView },
     .{ .name = "stzenginegpuscenesetpicktag", .func = &ring_SceneSetPickTag },
+    .{ .name = "stzenginegpuscenesetsvgident", .func = &ring_SceneSetSvgIdent },
     .{ .name = "stzenginegpuscenepick", .func = &ring_ScenePick },
     .{ .name = "stzenginegpuscenetopixels", .func = &ring_SceneToPixels },
     .{ .name = "stzenginegpuatlasstats", .func = &ring_AtlasStats },

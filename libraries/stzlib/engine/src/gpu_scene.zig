@@ -174,6 +174,20 @@ const SegKind = enum { shape, text, image };
 // in one scene are two textures and one draw each.
 const Seg = struct { kind: SegKind, first: u32, count: u32, tex: i64 = 0 };
 
+// WHAT A CONSUMER OF THE DOCUMENT BINDS TO.
+//
+// A pick tag answers a POINTER -- what is under this pixel. This answers a
+// DOCUMENT: what is this element called, and what kind of thing is it, to
+// somebody reading the SVG rather than clicking it. They are different
+// questions and a tag cannot serve the second, because a tag is a number
+// chosen by the face at draw time and a consumer contract needs a name that
+// survives being written to a file and read back somewhere else.
+//
+// BPMN's L18/L19 is the contract that asked for this: every drawn element
+// carries a stable identifier and a set of classes, and a consumer binds to
+// those and may rely on nothing else.
+const Ident = struct { name: []u8, cls: []u8 };
+
 const SceneSlot = struct {
     w: u32 = 0,
     h: u32 = 0,
@@ -191,6 +205,17 @@ const SceneSlot = struct {
     // to a reader pointing at it.
     tags: std.ArrayList(i64) = .{},
     cur_tag: i64 = 0,
+
+    // The identity each command belongs to, as a 1-based index into
+    // `idents`. Zero is "no identity", which is what backgrounds and
+    // decorations keep and what every command had before this existed.
+    //
+    // Parallel to `tags` and appended in the same place, for the same
+    // reason: one node is a fill and a stroke and a label, and all three
+    // are the same element to whoever reads the document.
+    idents: std.ArrayList(Ident) = .{},
+    names: std.ArrayList(u32) = .{},
+    cur_name: u32 = 0,
     // THE VIEW: which rectangle of the scene this render covers, and
     // therefore how big the target is. Zero width means "the whole
     // scene", which is every render that existed before tiling.
@@ -284,6 +309,16 @@ fn freeCmdPayloads(s: *SceneSlot) void {
     }
     s.cmds.clearRetainingCapacity();
     s.tags.clearRetainingCapacity();
+    for (s.idents.items) |it| {
+        alloc.free(it.name);
+        alloc.free(it.cls);
+    }
+    s.idents.clearRetainingCapacity();
+    s.names.clearRetainingCapacity();
+    // The identity is per-command state, so it goes when the commands do.
+    // Leaving cur_name pointing into a cleared list would hand the next
+    // command an index to nothing.
+    s.cur_name = 0;
 }
 
 pub fn sceneNew(w: f64, h: f64) i64 {
@@ -314,6 +349,8 @@ pub fn sceneFree(id: i64) i32 {
     const s = &scenes.items[slot];
     freeCmdPayloads(s);
     s.cmds.clearAndFree(alloc);
+    s.idents.clearAndFree(alloc);
+    s.names.clearAndFree(alloc);
     s.shape_verts.clearAndFree(alloc);
     s.text_verts.clearAndFree(alloc);
     s.segs.clearAndFree(alloc);
@@ -333,6 +370,7 @@ fn push(id: i64, cmd: Cmd) i32 {
     const s = &scenes.items[slot];
     s.cmds.append(alloc, cmd) catch return BAD_ARG;
     s.tags.append(alloc, s.cur_tag) catch return BAD_ARG;
+    s.names.append(alloc, s.cur_name) catch return BAD_ARG;
     s.dirty = true;
     return OK;
 }
@@ -343,6 +381,57 @@ fn push(id: i64, cmd: Cmd) i32 {
 pub fn sceneSetPickTag(id: i64, tag: i64) i32 {
     const slot = slotOf(id) orelse return STALE;
     scenes.items[slot].cur_tag = tag;
+    return OK;
+}
+
+fn identCharOk(c: u8, allow_space: bool) bool {
+    return (c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z') or
+        (c >= '0' and c <= '9') or c == '_' or c == '-' or c == '.' or
+        (allow_space and c == ' ');
+}
+
+/// Everything drawn from now on is ONE document element, named `name` and
+/// carrying the space-separated classes `cls`. Both empty clears the
+/// identity, which is what backgrounds and decorations keep.
+///
+/// REFUSED RATHER THAN ESCAPED, and that is a decision worth defending. The
+/// obvious alternative is to accept any bytes and XML-escape them on the way
+/// out. But this channel exists to serve a CONSUMER CONTRACT -- a reader
+/// binds to these names and may rely on nothing else -- and a name that
+/// arrives as `a b"c` and leaves as `a b&quot;c` is a name the consumer
+/// cannot write down, cannot select on, and did not ask for. Silently
+/// mangling an identifier is a worse failure than refusing it, because the
+/// mangling is discovered by the consumer and the refusal is discovered
+/// here.
+///
+/// The first character must be a letter or an underscore, because an SVG id
+/// is an XML name and one starting with a digit is not one.
+pub fn sceneSetSvgIdent(id: i64, name: []const u8, cls: []const u8) i32 {
+    const slot = slotOf(id) orelse return STALE;
+    const s = &scenes.items[slot];
+    if (name.len == 0 and cls.len == 0) {
+        s.cur_name = 0;
+        return OK;
+    }
+    if (name.len > 0) {
+        const c0 = name[0];
+        const alpha = (c0 >= 'a' and c0 <= 'z') or (c0 >= 'A' and c0 <= 'Z');
+        if (!alpha and c0 != '_') return BAD_ARG;
+        for (name) |c| if (!identCharOk(c, false)) return BAD_ARG;
+    }
+    for (cls) |c| if (!identCharOk(c, true)) return BAD_ARG;
+
+    const n = alloc.dupe(u8, name) catch return BAD_ARG;
+    const k = alloc.dupe(u8, cls) catch {
+        alloc.free(n);
+        return BAD_ARG;
+    };
+    s.idents.append(alloc, .{ .name = n, .cls = k }) catch {
+        alloc.free(n);
+        alloc.free(k);
+        return BAD_ARG;
+    };
+    s.cur_name = @intCast(s.idents.items.len);
     return OK;
 }
 
@@ -502,8 +591,17 @@ pub fn sceneResize(id: i64, w: u32, h: u32) i32 {
 pub fn sceneReset(id: i64) i32 {
     const slot = slotOf(id) orelse return STALE;
     const s = &scenes.items[slot];
-    s.cmds.clearRetainingCapacity();
-    s.tags.clearRetainingCapacity();
+    // freeCmdPayloads, not two clearRetainingCapacity calls.
+    // This used to clear the command list WITHOUT freeing what those
+    // commands own -- every stroke's points, every text string, every
+    // image buffer and its GPU texture -- so a face that resets per
+    // frame leaked continuously. sceneFree had always done it right,
+    // and the two paths simply disagreed.
+    //
+    // Adding the identity lists is what forced the issue: they are
+    // indexed BY COMMAND POSITION, so clearing commands without
+    // clearing them is not a leak but a wrong answer.
+    freeCmdPayloads(s);
     s.dirty = true;
     return OK;
 }
@@ -1174,7 +1272,37 @@ pub fn sceneToSvg(id: i64) !?[]u8 {
         try body.appendSlice(alloc, "/>\n");
     }
 
-    for (s.cmds.items) |cmd| {
+    // ONE <g> PER IDENTITY, never an id per element.
+    //
+    // A node is a fill and a stroke and a label -- three commands, one
+    // element to whoever reads the document. Putting the id on each would
+    // emit the same id three times, and duplicate ids make the SVG invalid:
+    // a consumer resolving one gets whichever the parser happened to keep.
+    // A group says "these are one thing" exactly once, and it is also where
+    // a class belongs, since a consumer styling a class means the whole
+    // element and not its outline.
+    var cur_grp: u32 = 0;
+    for (s.cmds.items, 0..) |cmd, ci| {
+        const nm: u32 = if (ci < s.names.items.len) s.names.items[ci] else 0;
+        if (nm != cur_grp) {
+            if (cur_grp != 0) try body.appendSlice(alloc, "</g>\n");
+            cur_grp = nm;
+            if (cur_grp != 0) {
+                const it = s.idents.items[cur_grp - 1];
+                try body.appendSlice(alloc, "<g");
+                if (it.name.len > 0) {
+                    try body.appendSlice(alloc, " id=\"");
+                    try body.appendSlice(alloc, it.name);
+                    try body.appendSlice(alloc, "\"");
+                }
+                if (it.cls.len > 0) {
+                    try body.appendSlice(alloc, " class=\"");
+                    try body.appendSlice(alloc, it.cls);
+                    try body.appendSlice(alloc, "\"");
+                }
+                try body.appendSlice(alloc, ">\n");
+            }
+        }
         switch (cmd) {
             // The SVG tier carries the image as a base64 PNG, so a picture
             // with a spectrogram in it is still ONE self-contained file that
@@ -1329,6 +1457,11 @@ pub fn sceneToSvg(id: i64) !?[]u8 {
             },
         }
     }
+
+    // The last identity closes here. A group left open would produce a
+    // document that is not well-formed, and the error would surface in the
+    // consumer's parser rather than anywhere near this file.
+    if (cur_grp != 0) try body.appendSlice(alloc, "</g>\n");
 
     var out: std.ArrayList(u8) = .{};
     errdefer out.deinit(alloc);
