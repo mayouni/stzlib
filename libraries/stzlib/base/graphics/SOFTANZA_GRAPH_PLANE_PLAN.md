@@ -1501,14 +1501,35 @@ way to find out.
 
 ### Still open, and named rather than left to be discovered
 
-- **The icon table's remaining real-time set** — `par`/`parblock` as a
-  genuine construct rather than two glyphs, and the timer variants. They
-  are declared as kinds and draw as sensible shapes; none of them has a
-  LAW yet, which is the difference between a vocabulary and a notation.
-- **The visual logic formulas as a checked law.** The catalogue draws
-  AND on the skewer and OR as stair steps (scenes 12 and 13) because the
-  fixtures are written that way, not because anything enforces it. The
-  book states it as a rule; this plane states it as two pictures.
+~~The icon table's remaining real-time set~~ — **CLOSED 2026-09-03,
+781b496f2.** The law was in the macroicon table all along: thirteen rows
+of "X by timer", every one drawing the timer ATTACHED to the left of the
+icon it governs. A timer is a property of a step, not a step. §73z.
+
+~~The visual logic formulas as a checked law~~ — **CLOSED 2026-09-03,
+78f28ab24.** Both are plastic rules now, `and_chain_on_one_line` and
+`or_chain_steps_aside`, each proved to discriminate by perturbing a
+correct picture into the other pattern. Adding their pictures to the
+governor's corpus then showed three of this plane's general rules
+contradicting DRAKON laws, each of which now states its boundary.
+
+### Nothing in DN6 is open, and that has been said twice
+
+**This list was corrected on 2026-09-03 for saying three closed things
+were open, and it was stale again within a day** — because both items
+above were closed that same afternoon and the plan was not touched. The
+first correction called a stale record "a false statement in the one
+file another session reads to learn where this plane stands", which was
+right and did not stop it happening again.
+
+The lesson is structural rather than moral: **a plan that must be
+hand-updated after every close will lag, and the lag is invisible from
+inside the session that caused it.** Where an item names its guard
+section and its commit — as the two above now do — a reader can check
+the claim in one grep instead of trusting the prose. That is the cheap
+half of the fix. The expensive half, not done, is having the guard
+sections themselves declare what plan item they discharge, so the plan
+can be generated rather than remembered.
 
 
 ## DN2b — THE RING: a state machine is not a tree (2026-08-23)
