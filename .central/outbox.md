@@ -1128,3 +1128,61 @@ note:      THREE DEFECTS IN THE WRITING OF IT, AND ALL THREE WERE ONE
            went back to check a number I had written from memory next to a
            table built precisely so that nobody would have to.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-04 21:08
+
+subject:   DN3b's channel is in place, and the item stays open because the
+           second step is not what it was recorded as
+
+why:       the author routed DN3b -- the one item this plane's generated
+           table marks open
+
+did:
+  - Built the id/class channel: sceneSetSvgIdent in the engine,
+    SetSvgIdent on stzCanvas, mirroring SetPickTag exactly.
+  - Had the shared renderer speak through it, so a BPMN picture drawn by
+    SetWorkflowType("bpmn") carries L18/L19 rather than the capability
+    sitting unreached.
+  - Refused malformed names instead of escaping them, and guarded the
+    refusals with their positive siblings.
+  - Fixed a leak the change turned into a wrong answer: sceneReset
+    cleared commands without freeing what they own, while sceneFree had
+    always done it right.
+  - Read the rest of the layout law before porting it, and did NOT port
+    it -- see the note.
+  - Wrote the true cost of step 2 into the plan.
+
+state:
+  section 76:   33 assertions, 0.30s
+  gate:         759 ok, 0 failed, built and run on main
+  DN3b:         still open, still undeclared, table regenerated identical
+  commits:      9022946a6, 2bb38c0db, 1e3050bcd on both remotes
+
+waiting:
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      nothing named. Step 2 is a design decision about what a
+             diagram IS, and it wants the author or a session that owns
+             that call -- not a port done quietly against a green gate
+  - central: the refusal-not-escaping rule is portable to any face that
+             hands a caller's text to a consumer as an identifier
+
+note:      I STOPPED SHORT OF STEP 2 ON PURPOSE, AND THE READING THAT
+           STOPPED ME WAS OF CODE, NOT OF THE PLAN. "The law's col/row
+           handed to the plastic layout as pins" reads as porting one
+           method. Layout() does assign a column and a row, and that half
+           would transfer -- but it also mints STUBS: an ending gets one
+           marker per arrival, an ending nothing arrives at is still
+           drawn, a suspension resumes. Those run on a vocabulary the
+           shared model does not have, where an ending is not a node. So
+           either endings become ordinary nodes or the shared model grows
+           the stub concept, and both change what a diagram IS. That is a
+           decision with a kill criterion, and the conformance digest is
+           the oracle for it. Half-landing it against a green gate would
+           have been the worst available outcome: the plan would have
+           read closed and the digest would have been the thing that
+           found out.
+```
