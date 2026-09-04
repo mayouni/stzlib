@@ -141,9 +141,10 @@ func StzMathScene09(poFont)
 	_o_.SetVariation("triangle")
 	return _o_
 
-# A right isosceles triangle: the right angle at A marked, AB and AC
-# ticked equal -- the two-column proof's first two lines, drawn.
-func StzMathScene10(poFont)
+# A right isosceles triangle: the right angle at A, AB and AC equal --
+# the two-column proof's first two lines. ONE substance, and scenes 10, 11
+# and 12 are its three geometries: Penrose's Fig. 1.
+func StzMathRightIsoscelesSubstance()
 	_oS_ = new stzMathSubstance(StzGeometryDomain())
 	_oS_.DeclareAll("Point", [ "A", "B", "C" ])
 	_oS_.Define("AB", "Segment", [ "A", "B" ])
@@ -154,7 +155,24 @@ func StzMathScene10(poFont)
 	_oS_.Assert("EqualLength", [ "AB", "AC" ])
 	_oS_.AutoLabelAll()
 	_oS_.Label("AB", "")  _oS_.Label("AC", "")  _oS_.Label("BC", "")  _oS_.Label("BAC", "")
-	_o_ = new stzMathDiagram(StzGeometryDomain(), _oS_, StzEuclideanStyle())
+	return _oS_
+
+func StzMathScene10(poFont)
+	_o_ = new stzMathDiagram(StzGeometryDomain(), StzMathRightIsoscelesSubstance(), StzEuclideanStyle())
 	_o_.SetFont(poFont, 24)
 	_o_.SetVariation("right-isosceles")
+	return _o_
+
+#-- the same statements, on a sphere and in the hyperbolic plane (DN7c) ----
+
+func StzMathScene11(poFont)
+	_o_ = new stzMathDiagram(StzGeometryDomain(), StzMathRightIsoscelesSubstance(), StzSphericalStyle())
+	_o_.SetFont(poFont, 24)
+	_o_.SetVariation("on-a-sphere")
+	return _o_
+
+func StzMathScene12(poFont)
+	_o_ = new stzMathDiagram(StzGeometryDomain(), StzMathRightIsoscelesSubstance(), StzHyperbolicStyle())
+	_o_.SetFont(poFont, 24)
+	_o_.SetVariation("in-the-disk")
 	return _o_

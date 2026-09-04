@@ -349,6 +349,149 @@ func StzEuclideanStyle()
 		[ :ensure, "equal", [ "dot(s.icon, t.icon) / (len(s.icon) * len(t.icon))", 0 ] ] ])
 	return _o_
 
+# THE SPHERE. The same Substance the Euclidean style reads -- points,
+# segments, triangles, angles, Right, EqualLength -- drawn on a sphere:
+# Penrose's Fig. 1, middle. A point is a unit vector (three unknowns held
+# to the sphere by one constraint), a segment is the great-circle arc, and
+# every claim is a POLYNOMIAL in the coordinates: equal length is equal
+# cosine, a right angle is a zero dot product between the tangents. That is
+# why the tape needed no asin, acos or atan2, which the plan had assumed.
+func StzSphericalStyle()
+	_o_ = new stzMathStyle()
+	_o_.SetCanvas(600, 520)
+	_o_.ForAll("Point p", [
+		[ :unknown, "p.sx", -0.6, 0.6 ], [ :unknown, "p.sy", -0.6, 0.6 ],
+		[ :unknown, "p.sz", 0.5, 1 ],
+		[ :shape, "_.sphere", :circle, [ :cx = 300, :cy = 260, :r = 210,
+		                                 :fill = "#f4f4fa", :stroke = "#c8c8d8", :strokeWidth = 1 ] ],
+		[ :shape, "p.icon", :circle, [ :cx = "300 + 210*p.sx", :cy = "260 - 210*p.sy",
+		                               :r = 4, :fill = "black" ] ],
+		[ :shape, "p.text", :text, [ :fill = "black" ] ],
+		[ :ensure, "equal", [ "100*(p.sx^2 + p.sy^2 + p.sz^2)", 100 ] ],
+		[ :ensure, "greaterThan", [ "100*p.sz", 30 ] ],
+		[ :ensure, "disjoint", [ "p.text", "p.icon", 4 ] ],
+		[ :encourage, "near", [ "p.text", "p.icon", 16 ] ],
+		[ :layer, "p.icon", :above, "_.sphere" ] ])
+	_o_.ForAllWhere("Segment s; Point p; Point q", "s := Segment(p, q)", [
+		[ :field, "s.cosd", "p.sx*q.sx + p.sy*q.sy + p.sz*q.sz" ],
+		[ :shape, "s.icon", :curve, [ :curve = "greatarc",
+		    :x1 = "p.sx", :y1 = "p.sy", :z1 = "p.sz", :x2 = "q.sx", :y2 = "q.sy", :z2 = "q.sz",
+		    :cx = 300, :cy = 260, :r = 210, :stroke = "#333333", :strokeWidth = 2 ] ],
+		[ :ensure, "lessThan", [ "100*s.cosd", 86 ] ],
+		[ :ensure, "greaterThan", [ "100*s.cosd", 35 ] ],
+		[ :layer, "s.icon", :above, "_.sphere" ],
+		[ :layer, "p.icon", :above, "s.icon" ], [ :layer, "q.icon", :above, "s.icon" ] ])
+	_o_.ForAllWhere("Triangle t; Point p; Point q; Point r", "t := Triangle(p, q, r)", [
+		[ :field, "t.cpq", "p.sx*q.sx + p.sy*q.sy + p.sz*q.sz" ],
+		[ :field, "t.cqr", "q.sx*r.sx + q.sy*r.sy + q.sz*r.sz" ],
+		[ :field, "t.cpr", "p.sx*r.sx + p.sy*r.sy + p.sz*r.sz" ],
+		[ :shape, "t.pq", :curve, [ :curve = "greatarc", :x1 = "p.sx", :y1 = "p.sy", :z1 = "p.sz",
+		    :x2 = "q.sx", :y2 = "q.sy", :z2 = "q.sz", :cx = 300, :cy = 260, :r = 210,
+		    :stroke = "#333333", :strokeWidth = 2 ] ],
+		[ :shape, "t.qr", :curve, [ :curve = "greatarc", :x1 = "q.sx", :y1 = "q.sy", :z1 = "q.sz",
+		    :x2 = "r.sx", :y2 = "r.sy", :z2 = "r.sz", :cx = 300, :cy = 260, :r = 210,
+		    :stroke = "#333333", :strokeWidth = 2 ] ],
+		[ :shape, "t.pr", :curve, [ :curve = "greatarc", :x1 = "p.sx", :y1 = "p.sy", :z1 = "p.sz",
+		    :x2 = "r.sx", :y2 = "r.sy", :z2 = "r.sz", :cx = 300, :cy = 260, :r = 210,
+		    :stroke = "#333333", :strokeWidth = 2 ] ],
+		[ :ensure, "lessThan", [ "100*t.cpq", 86 ] ], [ :ensure, "greaterThan", [ "100*t.cpq", 35 ] ],
+		[ :ensure, "lessThan", [ "100*t.cqr", 86 ] ], [ :ensure, "greaterThan", [ "100*t.cqr", 35 ] ],
+		[ :ensure, "lessThan", [ "100*t.cpr", 86 ] ], [ :ensure, "greaterThan", [ "100*t.cpr", 35 ] ],
+		# not a sliver: the triple product is the volume the three points span
+		[ :ensure, "greaterThan", [ "100*abs(p.sx*(q.sy*r.sz - q.sz*r.sy) - p.sy*(q.sx*r.sz - q.sz*r.sx) + p.sz*(q.sx*r.sy - q.sy*r.sx))", 8 ] ],
+		[ :layer, "t.pq", :above, "_.sphere" ], [ :layer, "t.qr", :above, "_.sphere" ],
+		[ :layer, "t.pr", :above, "_.sphere" ],
+		[ :layer, "p.icon", :above, "t.pq" ], [ :layer, "q.icon", :above, "t.qr" ],
+		[ :layer, "r.icon", :above, "t.pr" ] ])
+	_o_.ForAllWhere("Angle a; Point p; Point q; Point r", "a := InteriorAngle(p, q, r)", [
+		# the tangents at the vertex q, along the geodesics to p and to r
+		[ :field, "a.dqp", "q.sx*p.sx + q.sy*p.sy + q.sz*p.sz" ],
+		[ :field, "a.dqr", "q.sx*r.sx + q.sy*r.sy + q.sz*r.sz" ],
+		[ :field, "a.t1x", "p.sx - a.dqp*q.sx" ], [ :field, "a.t1y", "p.sy - a.dqp*q.sy" ],
+		[ :field, "a.t1z", "p.sz - a.dqp*q.sz" ],
+		[ :field, "a.t2x", "r.sx - a.dqr*q.sx" ], [ :field, "a.t2y", "r.sy - a.dqr*q.sy" ],
+		[ :field, "a.t2z", "r.sz - a.dqr*q.sz" ] ])
+	_o_.ForAllWhere("Angle a; Point p; Point q; Point r",
+	                "a := InteriorAngle(p, q, r); Right(a)", [
+		[ :ensure, "equal", [ "100*(a.t1x*a.t2x + a.t1y*a.t2y + a.t1z*a.t2z) / (sqrt(a.t1x^2 + a.t1y^2 + a.t1z^2 + 0.000001) * sqrt(a.t2x^2 + a.t2y^2 + a.t2z^2 + 0.000001))", 0 ] ] ])
+	_o_.ForAllWhere("Segment s; Segment t", "EqualLength(s, t)", [
+		[ :ensure, "equal", [ "100*s.cosd", "100*t.cosd" ] ] ])
+	return _o_
+
+# THE POINCARE DISK. The same Substance again, in hyperbolic geometry:
+# Penrose's Fig. 1, right. A point is a pair inside the unit disk; a
+# segment is the arc of the circle through both points orthogonal to the
+# rim. Hyperbolic length is monotone in delta = |p-q|^2 / ((1-|p|^2)(1-|q|^2)),
+# so equal length is equal delta and no acosh is needed. The model is
+# CONFORMAL, so a hyperbolic angle is the Euclidean angle between the arcs'
+# tangents at the vertex -- and the tangent at q is perpendicular to (q - c)
+# for the arc's centre c. Writing c = N/D and clearing the denominators
+# makes the right-angle test division-free: (D1*q - N1) . (D2*q - N2) = 0,
+# which stays correct when an arc is a diameter and D is zero.
+func StzHyperbolicStyle()
+	_o_ = new stzMathStyle()
+	_o_.SetCanvas(600, 520)
+	_o_.ForAll("Point p", [
+		[ :unknown, "p.hx", -0.55, 0.55 ], [ :unknown, "p.hy", -0.55, 0.55 ],
+		[ :shape, "_.disk", :circle, [ :cx = 300, :cy = 260, :r = 220,
+		                               :fill = "#f4f4fa", :stroke = "#c8c8d8", :strokeWidth = 1 ] ],
+		[ :shape, "p.icon", :circle, [ :cx = "300 + 220*p.hx", :cy = "260 - 220*p.hy",
+		                               :r = 4, :fill = "black" ] ],
+		[ :shape, "p.text", :text, [ :fill = "black" ] ],
+		[ :ensure, "lessThan", [ "100*(p.hx^2 + p.hy^2)", 64 ] ],
+		[ :ensure, "disjoint", [ "p.text", "p.icon", 4 ] ],
+		[ :encourage, "near", [ "p.text", "p.icon", 16 ] ],
+		[ :layer, "p.icon", :above, "_.disk" ] ])
+	_o_.ForAllWhere("Segment s; Point p; Point q", "s := Segment(p, q)", [
+		[ :field, "s.delta", "((p.hx - q.hx)^2 + (p.hy - q.hy)^2) / ((1 - p.hx^2 - p.hy^2) * (1 - q.hx^2 - q.hy^2))" ],
+		[ :shape, "s.icon", :curve, [ :curve = "poincare",
+		    :x1 = "p.hx", :y1 = "p.hy", :z1 = 0, :x2 = "q.hx", :y2 = "q.hy", :z2 = 0,
+		    :cx = 300, :cy = 260, :r = 220, :stroke = "#333333", :strokeWidth = 2 ] ],
+		[ :ensure, "greaterThan", [ "100*s.delta", 12 ] ],
+		[ :ensure, "lessThan", [ "100*s.delta", 220 ] ],
+		[ :layer, "s.icon", :above, "_.disk" ],
+		[ :layer, "p.icon", :above, "s.icon" ], [ :layer, "q.icon", :above, "s.icon" ] ])
+	_o_.ForAllWhere("Triangle t; Point p; Point q; Point r", "t := Triangle(p, q, r)", [
+		[ :field, "t.dpq", "((p.hx - q.hx)^2 + (p.hy - q.hy)^2) / ((1 - p.hx^2 - p.hy^2) * (1 - q.hx^2 - q.hy^2))" ],
+		[ :field, "t.dqr", "((q.hx - r.hx)^2 + (q.hy - r.hy)^2) / ((1 - q.hx^2 - q.hy^2) * (1 - r.hx^2 - r.hy^2))" ],
+		[ :field, "t.dpr", "((p.hx - r.hx)^2 + (p.hy - r.hy)^2) / ((1 - p.hx^2 - p.hy^2) * (1 - r.hx^2 - r.hy^2))" ],
+		[ :shape, "t.pq", :curve, [ :curve = "poincare", :x1 = "p.hx", :y1 = "p.hy", :z1 = 0,
+		    :x2 = "q.hx", :y2 = "q.hy", :z2 = 0, :cx = 300, :cy = 260, :r = 220,
+		    :stroke = "#333333", :strokeWidth = 2 ] ],
+		[ :shape, "t.qr", :curve, [ :curve = "poincare", :x1 = "q.hx", :y1 = "q.hy", :z1 = 0,
+		    :x2 = "r.hx", :y2 = "r.hy", :z2 = 0, :cx = 300, :cy = 260, :r = 220,
+		    :stroke = "#333333", :strokeWidth = 2 ] ],
+		[ :shape, "t.pr", :curve, [ :curve = "poincare", :x1 = "p.hx", :y1 = "p.hy", :z1 = 0,
+		    :x2 = "r.hx", :y2 = "r.hy", :z2 = 0, :cx = 300, :cy = 260, :r = 220,
+		    :stroke = "#333333", :strokeWidth = 2 ] ],
+		[ :ensure, "greaterThan", [ "100*t.dpq", 12 ] ], [ :ensure, "lessThan", [ "100*t.dpq", 220 ] ],
+		[ :ensure, "greaterThan", [ "100*t.dqr", 12 ] ], [ :ensure, "lessThan", [ "100*t.dqr", 220 ] ],
+		[ :ensure, "greaterThan", [ "100*t.dpr", 12 ] ], [ :ensure, "lessThan", [ "100*t.dpr", 220 ] ],
+		# not a sliver, in the disk's own coordinates
+		[ :ensure, "greaterThan", [ "100*abs((q.hx - p.hx)*(r.hy - p.hy) - (q.hy - p.hy)*(r.hx - p.hx))", 4 ] ],
+		[ :layer, "t.pq", :above, "_.disk" ], [ :layer, "t.qr", :above, "_.disk" ],
+		[ :layer, "t.pr", :above, "_.disk" ],
+		[ :layer, "p.icon", :above, "t.pq" ], [ :layer, "q.icon", :above, "t.qr" ],
+		[ :layer, "r.icon", :above, "t.pr" ] ])
+	_o_.ForAllWhere("Angle a; Point p; Point q; Point r", "a := InteriorAngle(p, q, r)", [
+		# the arc through q and p: centre c1 = N1 / D1
+		[ :field, "a.kq", "(1 + q.hx^2 + q.hy^2) / 2" ],
+		[ :field, "a.kp", "(1 + p.hx^2 + p.hy^2) / 2" ],
+		[ :field, "a.kr", "(1 + r.hx^2 + r.hy^2) / 2" ],
+		[ :field, "a.d1", "q.hx*p.hy - q.hy*p.hx" ],
+		[ :field, "a.n1x", "a.kq*p.hy - a.kp*q.hy" ], [ :field, "a.n1y", "q.hx*a.kp - p.hx*a.kq" ],
+		[ :field, "a.d2", "q.hx*r.hy - q.hy*r.hx" ],
+		[ :field, "a.n2x", "a.kq*r.hy - a.kr*q.hy" ], [ :field, "a.n2y", "q.hx*a.kr - r.hx*a.kq" ],
+		# D*q - N: the direction from the centre to q, denominators cleared
+		[ :field, "a.v1x", "a.d1*q.hx - a.n1x" ], [ :field, "a.v1y", "a.d1*q.hy - a.n1y" ],
+		[ :field, "a.v2x", "a.d2*q.hx - a.n2x" ], [ :field, "a.v2y", "a.d2*q.hy - a.n2y" ] ])
+	_o_.ForAllWhere("Angle a; Point p; Point q; Point r",
+	                "a := InteriorAngle(p, q, r); Right(a)", [
+		[ :ensure, "equal", [ "100*(a.v1x*a.v2x + a.v1y*a.v2y) / (sqrt(a.v1x^2 + a.v1y^2 + 0.000001) * sqrt(a.v2x^2 + a.v2y^2 + 0.000001))", 0 ] ] ])
+	_o_.ForAllWhere("Segment s; Segment t", "EqualLength(s, t)", [
+		[ :ensure, "equal", [ "100*s.delta", "100*t.delta" ] ] ])
+	return _o_
+
 # The functions a rule may name, and what each expects. Penrose's names,
 # because the convention exists and a second one would be a second
 # thing to learn.
@@ -868,6 +1011,7 @@ class stzMathStyle from stzObject
 
 	# ForAll("Set x", rows) -- rows are DATA. Each row is one of:
 	#   [ :shape,     "x.icon", :circle | :rect | :text | :line, [ props ] ]
+	#   [ :unknown,   "p.sx", lo, hi ]        a variable the solver owns
 	#   [ :field,     "U.ox", number | "expression" ]
 	#   [ :override,  "u.arrow.x2", number | "expression" ]
 	#   [ :ensure,    "fn", [ args ] ]        a constraint
@@ -908,9 +1052,15 @@ class stzMathStyle from stzObject
 		if _k_ = "shape"
 			_kind_ = "" + paRow[3]
 			if _kind_ != "circle" and _kind_ != "rect" and _kind_ != "text" and
-			   _kind_ != "line"
+			   _kind_ != "line" and _kind_ != "curve"
 				stzraise("stzMathStyle: '" + _kind_ + "' is not a shape DN7 " +
-					"draws -- circle, rect, text or line.")
+					"draws -- circle, rect, text, line or curve.")
+			ok
+		but _k_ = "unknown"
+			if NOT isString(paRow[2]) or NOT isNumber(paRow[3]) or len(paRow) < 4 or
+			   NOT isNumber(paRow[4])
+				stzraise("stzMathStyle: an unknown row is [ :unknown, path, lo, hi ] -- " +
+					"a variable the solver owns, started somewhere in [lo, hi].")
 			ok
 		but _k_ = "field" or _k_ = "override"
 			if NOT isString(paRow[2]) or NOT (isNumber(paRow[3]) or isString(paRow[3]))
@@ -932,7 +1082,7 @@ class stzMathStyle from stzObject
 			ok
 		else
 			stzraise("stzMathStyle: '" + _k_ + "' is not a rule verb -- shape, " +
-				"field, override, ensure, encourage or layer.")
+				"unknown, field, override, ensure, encourage or layer.")
 		ok
 
 	def Rules()
@@ -957,6 +1107,7 @@ class stzMathDiagram from stzObject
 	@aUnknownOf = []    # [ [ cName, nIndex ] ]
 	@aValue = []        # current value per unknown
 	@bLabelVar = []     # 1 when the unknown belongs to a text shape
+	@aInitRange = []    # [ [ cName, nLo, nHi ] ] -- where a :unknown starts
 	@aConst = []        # [ [ cName, nValue ] ]       -- fixed by the style
 	@aDerived = []      # [ [ cName, cExprRaw ] ]     -- computed from others
 	@aConstraints = []  # [ [ cFn, cG, cWhere, bLabelStage ] ]
@@ -1103,6 +1254,11 @@ class stzMathDiagram from stzObject
 			return [ :kind = "line", :x1 = This._V(_cP_ + ".x1"),
 			         :y1 = This._V(_cP_ + ".y1"), :x2 = This._V(_cP_ + ".x2"),
 			         :y2 = This._V(_cP_ + ".y2") ]
+		but _s_[2] = "curve"
+			return [ :kind = "curve", :x1 = This._V(_cP_ + ".x1"),
+			         :y1 = This._V(_cP_ + ".y1"), :z1 = This._V(_cP_ + ".z1"),
+			         :x2 = This._V(_cP_ + ".x2"), :y2 = This._V(_cP_ + ".y2"),
+			         :z2 = This._V(_cP_ + ".z2") ]
 		ok
 		return [ :kind = _s_[2], :cx = This._V(_cP_ + ".cx"),
 		         :cy = This._V(_cP_ + ".cy"), :w = This._V(_cP_ + ".w"),
@@ -1191,6 +1347,13 @@ class stzMathDiagram from stzObject
 			if _cArrow_ = "start" or _cArrow_ = "both"
 				This._DrawHead(poC, _x2_, _y2_, _x1_, _y1_, _cStroke_, _nSw_)
 			ok
+		but _cKind_ = "curve"
+			if _cStroke_ = ""  _cStroke_ = "black"  ok
+			_aPts_ = This._CurvePoints(_cP_, "" + This._Prop(_aProps_, "curve", "greatarc"))
+			if len(_aPts_) >= 4
+				poC.AddPolyline(_aPts_)
+				poC.Stroke(_cStroke_, _nSw_)
+			ok
 		but _cKind_ = "text"
 			if NOT isObject(@oFont)  return  ok
 			_cT_ = This._Prop(_aProps_, "string", "")
@@ -1203,6 +1366,66 @@ class stzMathDiagram from stzObject
 			poC.AddText(_cT_, _x_, _y_)
 			if _cFill_ != ""  poC.Fill(_cFill_)  else  poC.Fill("black")  ok
 		ok
+
+	# A GEODESIC, sampled: on the sphere by slerp between the two unit
+	# vectors, projected orthographically; in the Poincare disk as the arc
+	# of the circle through both points orthogonal to the rim -- a
+	# diameter when the points are collinear with the centre. Drawn here,
+	# at the solved values, because no constraint ever needs the arc's
+	# interior: length, angle and equality are all statements about the
+	# endpoints, and that is what kept acos and atan2 off the tape.
+	def _CurvePoints(pcPath, pcCurve)
+		_x1_ = This._V(pcPath + ".x1")  _y1_ = This._V(pcPath + ".y1")
+		_x2_ = This._V(pcPath + ".x2")  _y2_ = This._V(pcPath + ".y2")
+		_cx_ = This._V(pcPath + ".cx")  _cy_ = This._V(pcPath + ".cy")
+		_R_ = This._V(pcPath + ".r")
+		_a_ = []
+		_N_ = 28
+		if pcCurve = "greatarc"
+			_z1_ = This._V(pcPath + ".z1")  _z2_ = This._V(pcPath + ".z2")
+			_n1_ = sqrt(pow(_x1_, 2) + pow(_y1_, 2) + pow(_z1_, 2))
+			_n2_ = sqrt(pow(_x2_, 2) + pow(_y2_, 2) + pow(_z2_, 2))
+			if _n1_ < 0.000001 or _n2_ < 0.000001  return []  ok
+			_x1_ /= _n1_  _y1_ /= _n1_  _z1_ /= _n1_
+			_x2_ /= _n2_  _y2_ /= _n2_  _z2_ /= _n2_
+			_d_ = _x1_ * _x2_ + _y1_ * _y2_ + _z1_ * _z2_
+			if _d_ > 1  _d_ = 1  ok
+			if _d_ < -1  _d_ = -1  ok
+			_w_ = acos(_d_)
+			if _w_ < 0.000001  return []  ok
+			for _i_ = 0 to _N_
+				_t_ = _i_ / _N_
+				_ka_ = sin((1 - _t_) * _w_) / sin(_w_)
+				_kb_ = sin(_t_ * _w_) / sin(_w_)
+				_a_ + (_cx_ + _R_ * (_ka_ * _x1_ + _kb_ * _x2_))
+				_a_ + (_cy_ - _R_ * (_ka_ * _y1_ + _kb_ * _y2_))
+			next
+			return _a_
+		ok
+		# poincare: the circle through a and b with c.a = (1+|a|^2)/2 and
+		# c.b = (1+|b|^2)/2 -- the orthogonality condition, solved 2 x 2
+		_D_ = _x1_ * _y2_ - _y1_ * _x2_
+		if fabs(_D_) < 0.0001
+			_a_ + (_cx_ + _R_ * _x1_)  _a_ + (_cy_ - _R_ * _y1_)
+			_a_ + (_cx_ + _R_ * _x2_)  _a_ + (_cy_ - _R_ * _y2_)
+			return _a_
+		ok
+		_ka_ = (1 + pow(_x1_, 2) + pow(_y1_, 2)) / 2
+		_kb_ = (1 + pow(_x2_, 2) + pow(_y2_, 2)) / 2
+		_ccx_ = (_ka_ * _y2_ - _kb_ * _y1_) / _D_
+		_ccy_ = (_x1_ * _kb_ - _x2_ * _ka_) / _D_
+		_rho_ = sqrt(pow(_x1_ - _ccx_, 2) + pow(_y1_ - _ccy_, 2))
+		_al_ = atan2(_y1_ - _ccy_, _x1_ - _ccx_)
+		_be_ = atan2(_y2_ - _ccy_, _x2_ - _ccx_)
+		_dl_ = _be_ - _al_
+		while _dl_ > 3.14159265358979  _dl_ -= 6.28318530717959  end
+		while _dl_ < -3.14159265358979  _dl_ += 6.28318530717959  end
+		for _i_ = 0 to _N_
+			_th_ = _al_ + _dl_ * _i_ / _N_
+			_a_ + (_cx_ + _R_ * (_ccx_ + _rho_ * cos(_th_)))
+			_a_ + (_cy_ - _R_ * (_ccy_ + _rho_ * sin(_th_)))
+		next
+		return _a_
 
 	# An arrowhead: a filled triangle whose tip is the line's end, scaled
 	# with the stroke so a thick arrow wears a bigger head.
@@ -1275,7 +1498,7 @@ class stzMathDiagram from stzObject
 
 	def _Compile()
 		@aShapes = []  @acUnknown = []  @aUnknownOf = []  @aValue = []
-		@bLabelVar = []  @aConst = []  @aDerived = []
+		@bLabelVar = []  @aConst = []  @aDerived = []  @aInitRange = []
 		@aConstraints = []  @aObjectives = []  @aLayers = []  @aTextSize = []
 		_aRules_ = @oStyle.Rules()
 		_n_ = len(_aRules_)
@@ -1515,6 +1738,13 @@ class stzMathDiagram from stzObject
 					This._MintShape(This._ResolvePath(_r_[2], paVars, paAsg), "" + _r_[3],
 						This._ResolveProps(_r_[4], paVars, paAsg),
 						This._OwnerOf(_r_[2], paVars, paAsg))
+				but _k_ = "unknown"
+					_cU_ = This._ResolvePath(_r_[2], paVars, paAsg)
+					if This._UnknownIndex(_cU_) = 0 and NOT This._HasConst(_cU_) and
+					   NOT This._HasDerived(_cU_)
+						This._Unknown(_cU_, 0)
+						@aInitRange + [ _cU_, _r_[3], _r_[4] ]
+					ok
 				but _k_ = "field"
 					This._SetField(This._ResolvePath(_r_[2], paVars, paAsg),
 						This._ResolveValue(_r_[3], paVars, paAsg))
@@ -1547,7 +1777,11 @@ class stzMathDiagram from stzObject
 		if len(_ac_) < 2
 			stzraise("stzMathStyle: '" + pcPath + "' is not a path like 'x.icon'.")
 		ok
-		_cObj_ = This._Bound(paVars, paAsg, _ac_[1])
+		# "_.sphere": a GLOBAL path, bound to no selector variable -- the
+		# one sphere every point sits on, minted once however many points
+		# there are, because minting is idempotent by path
+		_cObj_ = "_"
+		if _ac_[1] != "_"  _cObj_ = This._Bound(paVars, paAsg, _ac_[1])  ok
 		_c_ = _cObj_
 		for _i_ = 2 to len(_ac_)
 			_c_ += "." + _ac_[_i_]
@@ -1577,7 +1811,8 @@ class stzMathDiagram from stzObject
 	def _IsGeometric(pcKey)
 		_k_ = StzLower(pcKey)
 		return _k_ = "cx" or _k_ = "cy" or _k_ = "r" or _k_ = "w" or _k_ = "h" or
-		       _k_ = "x1" or _k_ = "y1" or _k_ = "x2" or _k_ = "y2"
+		       _k_ = "x1" or _k_ = "y1" or _k_ = "x2" or _k_ = "y2" or
+		       _k_ = "z1" or _k_ = "z2"
 
 	# Every identifier containing a dot has its head rewritten from the
 	# selector variable to the object it is bound to. Identifiers without
@@ -1610,6 +1845,7 @@ class stzMathDiagram from stzObject
 
 	def _OwnerOf(pcPath, paVars, paAsg)
 		_ac_ = StzSplit("" + pcPath, ".")
+		if _ac_[1] = "_"  return "_"  ok
 		return This._Bound(paVars, paAsg, _ac_[1])
 
 	# A shape is minted ONCE: "forall Set x" fires per object, and a later
@@ -1640,6 +1876,12 @@ class stzMathDiagram from stzObject
 			_acGeo_ = [ "cx", "cy", "w", "h" ]
 		but pcKind = "line"
 			_acGeo_ = [ "x1", "y1", "x2", "y2" ]
+		but pcKind = "curve"
+			# a geodesic: its ends in the model's own coordinates, and the
+			# projection it is drawn through. Nothing here is solved -- a
+			# curve is DERIVED from its points, and constraints speak to
+			# the points, never to the drawn arc.
+			_acGeo_ = [ "x1", "y1", "z1", "x2", "y2", "z2", "cx", "cy", "r" ]
 		but pcKind = "text"
 			_acGeo_ = [ "cx", "cy" ]
 			_aM_ = This._MeasureText(This._Prop(_aP_, "string", ""))
@@ -1987,6 +2229,10 @@ class stzMathDiagram from stzObject
 		if _k_ = ""
 			stzraise("stzMathDiagram: '" + _c_ + "' is not a shape any rule minted.")
 		ok
+		if _k_ = "curve"
+			stzraise("stzMathDiagram: '" + _c_ + "' is a curve -- a geodesic is " +
+				"drawn from its points, and a constraint speaks to the points.")
+		ok
 		if _k_ = "circle"
 			return [ "circle", This._Sym(_c_ + ".cx"), This._Sym(_c_ + ".cy"),
 			         This._Sym(_c_ + ".r") ]
@@ -2220,6 +2466,7 @@ class stzMathDiagram from stzObject
 	def _AddOnCanvas(paShape)
 		_cP_ = paShape[1]
 		_k_ = paShape[2]
+		if _k_ = "curve"  return  ok
 		_g_ = This._Geo(_cP_)
 		_W_ = This._Num(@oStyle.CanvasWidth())
 		_H_ = This._Num(@oStyle.CanvasHeight())
@@ -2305,7 +2552,10 @@ class stzMathDiagram from stzObject
 			for _i_ = 1 to _n_
 				_cN_ = StzLower(@aUnknownOf[_i_][1])
 				_c3_ = StzRight(_cN_, 3)
-				if _c3_ = ".cx" or _c3_ = ".x1" or _c3_ = ".x2"
+				_aR_ = This._InitRangeOf(@aUnknownOf[_i_][1])
+				if len(_aR_) = 2
+					_aX_ + (_aR_[1] + StzRandom01() * (_aR_[2] - _aR_[1]))
+				but _c3_ = ".cx" or _c3_ = ".x1" or _c3_ = ".x2"
 					_aX_ + (0.15 * _W_ + StzRandom01() * 0.7 * _W_)
 				but _c3_ = ".cy" or _c3_ = ".y1" or _c3_ = ".y2"
 					_aX_ + (0.15 * _H_ + StzRandom01() * 0.7 * _H_)
@@ -2327,6 +2577,13 @@ class stzMathDiagram from stzObject
 		next
 		if _p_ != ""  StzEngineGradFree(_p_)  ok
 		@aValue = _aBest_
+
+	def _InitRangeOf(pcName)
+		_n_ = len(@aInitRange)
+		for _i_ = 1 to _n_
+			if @aInitRange[_i_][1] = pcName  return [ @aInitRange[_i_][2], @aInitRange[_i_][3] ]  ok
+		next
+		return []
 
 	def _VarsText()
 		_c_ = ""
