@@ -92,6 +92,9 @@ sections, of which 21 declarations over 17 items.
 | DN5b | closed | - |
 | DN6 | closed | 73k |
 | DN6b | closed | 73m, 73z |
+| DN7 | closed | - |
+| DN7a | closed | 79 |
+| DN7b | open | - |
 | DN2b | closed | 56 |
 | DN2c | closed | - |
 | DN2d | closed | 57 |
@@ -1684,6 +1687,106 @@ Two lessons worth more than the rules, both paid for:
    it counted only bullets and struck-through lines, so a live item written
    as plain prose was skipped. The negative sibling caught it; the positive
    never would have.
+
+
+## DN7 — MATHEMATICAL DIAGRAMS: a picture is SOLVED, not placed (2026-09-04). SHIPPED as DN7a; DN7b named
+
+The Principal named the next domain — mathematical diagrams, taking
+Penrose (Ye, Ni, Krieger, Ma'ayan, Wise, Aldrich, Sunshine, Crane; SIGGRAPH
+2020) as the inspiration. Read from its own sources before a line was
+written: the paper, the language reference, the constraint and objective
+library source, the optimizer source, the staged-layout post, the 2024
+retrospective, and the set-theory, geometry and linear-algebra examples.
+
+**What Penrose is, in the paper's own two principles**: *"(i) to specify
+diagrams via a mapping from mathematical objects to visual icons, and (ii)
+to synthesize diagrams by solving an associated constrained optimization
+problem."* Three languages carry it — a DOMAIN declares a field's
+types, predicates and functions; a SUBSTANCE states one diagram's content
+in that domain, with graphical data *excluded* so the same content can
+wear many representations; a STYLE maps patterns over the domain to
+shapes, with `ensure` for a constraint and `encourage` for a preference.
+The picture is then found by an exterior-point method: minimise objective
++ λ·Σ max(0, g)² with L-BFGS, raise λ tenfold until nothing is violated.
+
+### The kill, measured before a line of code
+
+**KILL: if this library's own autodiff tape and L-BFGS cannot reach
+feasibility on Penrose's seven-set example from random starts, the domain
+needs a solver of its own, and that is a different plane.** Measured by
+hand-composing the penalty energy for `tree.substance` — 21 unknowns,
+44 constraint terms — and handing it to `StzEngineMinimize` as it
+stands:
+
+| | |
+|---|---|
+| random starts | 3 |
+| penalty rounds to feasibility | 1, 1, 1 |
+| evaluations | 1213, 1346, 1236 |
+| maximum violation | 0, 0, 0 |
+
+The kill does not fire. The one engine change was a constant: the tape's
+variable cap, 64 to 256, because a labelled set costs five unknowns and 64
+was a cliff at twelve sets.
+
+- **DN7a — the set-theory domain, end to end. SHIPPED 2026-09-04.**
+  `stzMathDomain`, `stzMathSubstance`, `stzMathStyle`, `stzMathDiagram` in
+  `base/graph/stzMathDiagram.ring`; `StzSetTheoryDomain()` and
+  `StzEulerStyle()` — Penrose's own `setTheory.domain` and `euler.style`,
+  as data. Guard §79; scenes in `gg_math_scenes.ring`, every one of them
+  Penrose's own: `twosets-simple`, `tree` (the README's example),
+  `nested` (the case the paper says "disks must shrink exponentially"
+  for), a three-way Venn, and the contradiction of the paper's Fig. 2.
+
+  | scene | unknowns | constraints | rounds | evaluations | ms |
+  |---|---|---|---|---|---|
+  | two sets | 10 | 22 | 1 | 47 | 10 |
+  | seven-set tree | 35 | 85 | 1 | 238 | 70 |
+  | nested seven deep | 35 | 82 | 3 | 938 | 72 |
+  | three-way Venn | 15 | 39 | 1 | 97 | 19 |
+  | contradiction | 10 | 23 | 14 | 801 | 262, unlawful by 14px, reported |
+
+  **What is Softanza's own.** The solver is the engine this library
+  already had — the energy is ONE expression string over the
+  unknowns, compiled once to a tape; no new Zig. The renderer is the one
+  canvas, so a mathematical diagram gets both tiers and the DN3b id/class
+  channel free: a Set's circle is `<g id="A" class="circle set el_A">`.
+  Rules are DATA, as the plane ruled for notation profiles. A
+  contradiction is a FINDING in the house rule shape, never a crash —
+  the picture of Fig. 2, a dot on the boundary, drawn and explained.
+
+  **The staging pitfall, paid for.** The first solver laid shapes out with
+  labels excluded, then placed labels against frozen shapes — exactly
+  the staging the Penrose blog demonstrates failing. On the seven-deep
+  chain the innermost circles were sized with no room for their text and
+  no label round could mend a radius it was not allowed to move: 4.4px
+  short, unlawful. Stage 0 is a JOINT solve now and stage 1 only polishes
+  labels. Every scene became lawful in one or three rounds.
+
+  **And the plane's oldest defect, again.** The seven-set tree took
+  1,348 ms, and most of it was 85 violation tapes recompiled every round,
+  when they never change between rounds. Compiled once per solve: 70 ms,
+  nineteen times cheaper, the same answer.
+
+  **Five Ring traps in one afternoon, all silent**: every `func` after
+  the first `class` becomes a method; `decimals()` sets and returns
+  nothing; `list + [ :key = v ]` appends a nested hash so the property
+  vanishes (every label drew as nothing); `1e-6` reads as a variable
+  named `1e`; and **`(3-5)^2` is −4** — Ring applies the sign after the
+  power — so a sum of squared differences went negative and `sqrt()`
+  raised. `pow(x, 2)` answers 4. The library is untouched by the last,
+  because its `^` lives inside expression strings the Zig tape
+  evaluates; the guard's own re-verification was not.
+
+- **DN7b — NEXT, named with its cost.** The geometry domain (points,
+  segments, angles, triangles — Byrne's Pythagorean theorem is the
+  paper's own showcase) and the linear-algebra domain (vector spaces,
+  vectors, `u := addV(v, w)`). Both need what DN7a deliberately left out:
+  function applications in where-clauses, lines and polygons as shapes,
+  and `override`/`delete` cascading. The kill for DN7b is Penrose's own
+  Fig. 1: the same geometric statements in Euclidean, spherical and
+  hyperbolic styles — if a Style cannot swap the representation without
+  touching the Substance, the split was not real.
 
 
 ## DN2b — THE RING: a state machine is not a tree (2026-08-23)

@@ -1,5 +1,6 @@
 load "../../stzBase.ring"
 load "gg_drakon_scenes.ring"
+load "gg_math_scenes.ring"
 
 /*---------------------------------------------------------------------------
 	WHAT THE GUARDS COULD NOT SEE
@@ -12485,6 +12486,142 @@ chkeq("NEGATIVE: a single-arrival ending mints NO extra marker",
       oLn77.ExpandEndingsPerArrival(), 0)
 
 
+sec("-- 79. DN7a: A MATHEMATICAL DIAGRAM IS SOLVED, NOT PLACED ---------")
+discharges("DN7a")
+
+# Penrose's three-language split -- Domain, Substance, Style -- over this
+# library's own autodiff tape and L-BFGS, drawn by the one canvas. The kill
+# was measured before the code: could the engine reach feasibility on
+# Penrose's seven-set example at all? Three random starts, one penalty
+# round each, maximum violation zero. It could, with no new Zig.
+#
+# Every scene here is Penrose's own: twosets-simple, tree (the README's
+# example), nested (the case the paper says "disks must shrink
+# exponentially" for), a three-way Venn, and the contradiction of Fig. 2.
+
+oMd1 = StzMathScene01(AUFONT)
+oMd2 = StzMathScene02(AUFONT)
+oMd3 = StzMathScene03(AUFONT)
+oMd4 = StzMathScene04(AUFONT)
+
+chk("two sets, one inside the other, is lawful", oMd1.IsFeasible())
+chk("Penrose's seven-set tree is lawful", oMd2.IsFeasible())
+chk("a chain nested seven deep is lawful", oMd3.IsFeasible())
+chk("a three-way Venn is lawful", oMd4.IsFeasible())
+chkeq("the tree has 35 unknowns -- three per circle, two per label",
+      oMd2.NumberOfUnknowns(), 35)
+chk("and it was solved in well under a second",
+    oMd2.LayoutMs() < 1500)
+
+# pow(), NEVER ^2, on a difference: Ring evaluates (3-5)^2 as -4 -- the
+# sign is applied after the power -- so a sum of squared differences
+# went NEGATIVE and sqrt() raised R51. pow(-2, 2) is 4.
+# TWO READINGS OF ONE TRUTH. The solver reports its own violations from
+# its own tape. This re-derives containment and disjointness from the
+# solved circles with plain arithmetic -- a different computation over the
+# same numbers, which is what a self-check needs to mean anything.
+aMdSub = [ ["B","A"], ["C","A"], ["D","B"], ["E","B"], ["F","C"], ["G","C"] ]
+bMdIn = TRUE
+for iMd = 1 to len(aMdSub)
+	aI = oMd2.ShapeOf(aMdSub[iMd][1] + ".icon")
+	aO = oMd2.ShapeOf(aMdSub[iMd][2] + ".icon")
+	nD = sqrt(pow(aI[:cx] - aO[:cx], 2) + pow(aI[:cy] - aO[:cy], 2))
+	if nD + aI[:r] > aO[:r] + 1  bMdIn = FALSE  ok
+next
+chk("every Subset is a circle geometrically INSIDE its superset", bMdIn)
+aMdDis = [ ["E","D"], ["F","G"], ["B","C"] ]
+bMdOut = TRUE
+for iMd = 1 to len(aMdDis)
+	aP = oMd2.ShapeOf(aMdDis[iMd][1] + ".icon")
+	aQ = oMd2.ShapeOf(aMdDis[iMd][2] + ".icon")
+	nD = sqrt(pow(aP[:cx] - aQ[:cx], 2) + pow(aP[:cy] - aQ[:cy], 2))
+	if nD < aP[:r] + aQ[:r] - 1  bMdOut = FALSE  ok
+next
+chk("and every Disjoint pair is geometrically APART", bMdOut)
+bMdLbl = TRUE
+acMdSets = [ "A", "B", "C", "D", "E", "F", "G" ]
+for iMd = 1 to 7
+	aC = oMd2.ShapeOf(acMdSets[iMd] + ".icon")
+	aT = oMd2.ShapeOf(acMdSets[iMd] + ".text")
+	nD = sqrt(pow(aC[:cx] - aT[:cx], 2) + pow(aC[:cy] - aT[:cy], 2))
+	if nD > aC[:r]  bMdLbl = FALSE  ok
+next
+chk("every label sits inside the circle it names", bMdLbl)
+
+# THE CONTRADICTION IS A FINDING, NOT A CRASH -- Penrose Fig. 2: "a
+# logically inconsistent program fails gracefully, providing visual
+# intuition for why the given statements cannot hold".
+oMd5 = StzMathScene05(AUFONT)
+chk("NEGATIVE: B inside A and apart from A cannot both hold", NOT oMd5.IsFeasible())
+chk("and the diagram says so in the house rule shape",
+    len(oMd5.Violations()) > 0)
+chk("naming the contradictory relations",
+    StzFindFirst("Subset", oMd5.Violations()[1][:where] +
+                 oMd5.Violations()[len(oMd5.Violations())][:where]) > 0 or
+    StzFindFirst("Disjoint", oMd5.Violations()[1][:where] +
+                 oMd5.Violations()[len(oMd5.Violations())][:where]) > 0)
+
+# VARIATION: the same string, the same picture; another string, another.
+oMd2b = StzMathScene02(AUFONT)
+chkeq("the same variation reproduces the same layout",
+      oMd2b.ShapeOf("A.icon")[:cx], oMd2.ShapeOf("A.icon")[:cx])
+oMd2c = StzMathScene02(AUFONT)
+oMd2c.SetVariation("another")
+chk("NEGATIVE: a different variation moves it",
+    oMd2c.ShapeOf("A.icon")[:cx] != oMd2.ShapeOf("A.icon")[:cx])
+
+# The document channel from DN3b, inherited free: a Set is <g id="A">.
+cMdSvg = oMd2.ToSVG()
+chkeq("every circle and every label is a named element -- fourteen",
+      len(StzFindCS('<g id="', cMdSvg, TRUE)), 14)
+chk("a Set's circle carries its own name as id",
+    len(StzFindCS('id="A" class="circle set el_A"', cMdSvg, TRUE)) = 1)
+
+# REFUSALS, each at the line that made the mistake.
+chk("an object of a type the domain lacks is refused",
+    _MdRefuses(1))
+chk("a relation the domain lacks is refused", _MdRefuses(2))
+chk("the wrong number of arguments is refused", _MdRefuses(3))
+chk("an argument of the wrong type is refused", _MdRefuses(4))
+chk("a layout function the catalogue lacks is refused", _MdRefuses(5))
+chk("NEGATIVE: the lawful forms of all five are accepted", NOT _MdRefuses(0))
+
+# Symmetry is the DOMAIN's to declare: Disjoint(A, B) IS Disjoint(B, A).
+oMdS = new stzMathSubstance(StzSetTheoryDomain())
+oMdS.DeclareAll("Set", [ "A", "B" ])
+oMdS.Assert("Disjoint", [ "A", "B" ])
+oMdS.Assert("Subset", [ "B", "A" ])
+chk("a symmetric relation holds in either order",
+    oMdS.Holds("Disjoint", [ "B", "A" ]))
+chk("NEGATIVE: a directed one holds in one order only",
+    oMdS.Holds("Subset", [ "B", "A" ]) and NOT oMdS.Holds("Subset", [ "A", "B" ]))
+
+# and a symmetric where-clause fires a rule ONCE per pair, not per order
+oMdT = new stzMathStyle()
+oMdT.ForAll("Set x", [ [ :shape, "x.icon", :circle, [] ] ])
+oMdT.ForAllWhere("Set x; Set y", "Disjoint(x, y)",
+	[ [ :ensure, "disjoint", [ "x.icon", "y.icon", 0 ] ] ])
+oMdD = new stzMathDiagram(StzSetTheoryDomain(), oMdS, oMdT)
+chkeq("one disjoint pair, one disjoint constraint, plus the paper's edges",
+      oMdD.NumberOfConstraints(), 1 + 2 * 4)
+
+# THE CAP THAT WAS RAISED. The tape allowed 64 variables; a labelled set
+# costs five, so twelve sets was a cliff. 256 now, and this proves the
+# engine that is loaded is the one with the new constant.
+oMdB = new stzMathSubstance(StzSetTheoryDomain())
+for iMd = 1 to 30
+	oMdB.Declare("Set", "S" + iMd)
+next
+oMdBig = new stzMathDiagram(StzSetTheoryDomain(), oMdB, StzEulerStyle())
+chkeq("thirty sets are 150 unknowns -- an unlabelled set still owns its text",
+      oMdBig.NumberOfUnknowns(), 150)
+chk("and the engine accepts more than its old cap of 64", oMdBig.Rounds() >= 1)
+
+
+# SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
+# makes its runtime count fall short of the static parse -- which is
+# exactly what happened when 79 arrived, 23 against 24. New sections go
+# ABOVE this line.
 sec("-- 78. THE TWO READINGS OF THE DECLARATIONS, BOTH FINISHED ------")
 
 # aDischarged is built at RUN time by the discharges() calls as each
@@ -12523,7 +12660,6 @@ for jPc = 1 to nPcS
 next
 chk("NEGATIVE: an item no section declares is ABSENT from the static parse",
     NOT bPcBogus)
-
 
 if nSecClock > 0
 	? "        [section took " +
@@ -14300,6 +14436,31 @@ func _CellOf77 aCells, cId
 		ok
 	next
 	return []
+
+# One refusal each, by number; 0 is the lawful form of every one.
+func _MdRefuses pnWhich
+	_b_ = FALSE
+	try
+		_oD_ = StzSetTheoryDomain()
+		_oD_.AddType("Point")
+		_oS_ = new stzMathSubstance(_oD_)
+		_oS_.DeclareAll("Set", [ "A", "B" ])
+		_oS_.Declare("Point", "p")
+		if pnWhich = 1  _oS_.Declare("Blob", "z")  ok
+		if pnWhich = 2  _oS_.Assert("Touches", [ "A", "B" ])  ok
+		if pnWhich = 3  _oS_.Assert("Subset", [ "A" ])  ok
+		if pnWhich = 4  _oS_.Assert("Subset", [ "p", "A" ])  ok
+		_oT_ = new stzMathStyle()
+		if pnWhich = 5
+			_oT_.ForAll("Set x", [ [ :ensure, "levitate", [ "x.icon" ] ] ])
+		else
+			_oT_.ForAll("Set x", [ [ :ensure, "contains", [ "x.icon", "x.icon" ] ] ])
+		ok
+		_oS_.Assert("Subset", [ "B", "A" ])
+	catch
+		_b_ = TRUE
+	done
+	return _b_
 
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0

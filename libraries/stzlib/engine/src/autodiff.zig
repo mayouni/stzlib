@@ -30,7 +30,12 @@
 const std = @import("std");
 const ascii = @import("ascii.zig");
 
-pub const MAX_VARS = 64;
+// 256, raised from 64 on 2026-09-04 for the mathematical-diagram domain
+// (DN7). A constraint layout spends three unknowns per circle and two per
+// label, so 64 was a cliff at about twelve labelled sets -- Penrose's own
+// seven-set example already uses 21. The bridge's name buffer is a stack
+// array of this size (256 slices, 4 KB), which is why it is not larger.
+pub const MAX_VARS = 256;
 
 pub const OpCode = enum(u8) {
     constant,
