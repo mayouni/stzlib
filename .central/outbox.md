@@ -1242,3 +1242,58 @@ note:      MY OWN CROSS-CHECK WAS WRONG, AND IT HAD BEEN PASSING. Section
            that made the two lists differ, which is the only condition
            under which the check was ever going to be exercised.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-04 23:35
+
+subject:   DN7a -- mathematical diagrams, Penrose's split over this
+           library's own tape and L-BFGS, with the kill measured first
+
+why:       the Principal named the domain and the inspiration
+
+did:
+  - Read Penrose from its sources before writing: paper, reference, the
+    constraint, objective and optimizer code, the staged-layout post,
+    the 2024 retrospective, and the set-theory, geometry and
+    linear-algebra example trios.
+  - Measured the kill: Penrose's seven-set example as a hand-composed
+    penalty energy on the existing engine -- feasible from three random
+    starts in one round each. No solver of its own was needed.
+  - Built DN7a: four Ring classes carrying Domain / Substance / Style /
+    Diagram, rules as data, drawn by the one canvas.
+  - Raised the tape's variable cap 64 to 256, a one-line engine change,
+    and proved the loaded engine carries it.
+  - Found and fixed the staging pitfall Penrose's own blog warns of, and
+    the plane's oldest defect once more (tapes recompiled per round).
+  - Sent the Principal four pictures, every one a Penrose example.
+
+state:
+  section 79:      27 assertions, 2.1s
+  gate:            800 ok, 0 failed, built and run on main
+  seven-set tree:  35 unknowns, 85 constraints, 1 round, 61 ms
+  plan table:      DN7 closed, DN7a closed (79), DN7b open
+  commit:          d21dde612 on origin and codeberg, verified at the sha
+
+waiting:
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      DN7b as named in the plan -- the geometry and linear-algebra
+             domains, with Penrose's Fig. 1 as the kill: one Substance in
+             Euclidean, spherical and hyperbolic Styles
+  - central: one Ring trap for every desk -- (3-5)^2 is -4 in Ring; the
+             sign is applied after the power. pow(x, 2) is safe
+
+note:      THE MEASUREMENT CAME BEFORE THE DESIGN, AND IT DECIDED THE
+           DESIGN. Had the engine failed on Penrose's own hello-world,
+           DN7 would have been a solver plane, months of Zig, and the
+           honest answer would have been to say so. It reached
+           feasibility in one round from random starts, so the domain is
+           four Ring classes over an engine that already existed -- the
+           cheapest possible shape, and the one the plane's law asks for.
+           Five Ring traps cost more time than the design did, and every
+           one was silent; the last, a negative square, sat inside the
+           guard's own re-verification, which is the one place a wrong
+           number is hardest to see.
+```
