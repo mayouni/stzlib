@@ -1186,3 +1186,59 @@ note:      I STOPPED SHORT OF STEP 2 ON PURPOSE, AND THE READING THAT
            read closed and the digest would have been the thing that
            found out.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-04 22:17
+
+subject:   DN3b closed -- and its second step was specified as a port that
+           measurement showed was not one
+
+why:       the author routed step 2, the last open item in this plane
+
+did:
+  - MEASURED before porting: compared the shared render against the
+    conformance digest, cell by cell, over five process shapes. Three
+    agreed on every cell with no pins. No pin was ever added.
+  - Found the single cause of both divergences -- an ending duplicated
+    per arrival -- and wrote ExpandEndingsPerArrival, a model transform.
+    All five shapes then agree.
+  - Read the written law in ringflex rather than reasoning from what
+    BPMN tools do, and it corrected me.
+  - Removed 312 lines of SVG emission from the private writer, and kept
+    the law, because the guard now holds the renderer to its digest.
+  - Watched my own plan check catch this item, then found the flaw the
+    catch exposed in its own cross-check.
+
+state:
+  sections 76-78:  50 assertions
+  gate:            773 ok, 0 failed, run on main
+  DN3b:            closed, discharged by 76 and 77, in a generated table
+  stzBpmnDiagram:  781 -> 469 lines, the oracle rather than a renderer
+  commits:         9022946a6, 2bb38c0db, 8e8689519, 938841304
+
+waiting:
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      nothing named. The plane's generated table now marks no item
+             open, which is the first time it has been able to say that
+  - central: the finding about two collections is portable -- a class
+             that looks uncalled may be reading a vocabulary nothing fills
+
+note:      MY OWN CROSS-CHECK WAS WRONG, AND IT HAD BEEN PASSING. Section
+           75 compared the RUNTIME declaration list against a STATIC parse
+           of the same declarations -- two readings of one truth, which is
+           this estate's rule for a self-check that means anything. It was
+           green all afternoon. But the runtime list is built as each
+           section is reached, so at section 75 it holds only what ran
+           BEFORE section 75; it agreed for exactly as long as no later
+           section declared anything, and broke the moment 76 and 77 did.
+           Twenty-one against twenty-three, taking the table check with
+           it. The rule I had written down was right and the way I applied
+           it was not: a comparison of two readings is only a comparison
+           once BOTH have finished reading. It runs last now. I would not
+           have found it by inspection -- it was found by the first change
+           that made the two lists differ, which is the only condition
+           under which the check was ever going to be exercised.
+```
