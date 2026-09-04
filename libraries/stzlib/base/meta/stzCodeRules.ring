@@ -1782,3 +1782,442 @@ func _StzPlanGuardRefs(pacLines)
 func _StzIsRefChar(pcChar)
 	_n_ = ascii(pcChar)
 	return (_n_ >= 48 and _n_ <= 57) or (_n_ >= 97 and _n_ <= 122)
+
+#---------------------------------------------------------------------------
+# THE OTHER DIRECTION: A GUARD DECLARES WHAT IT DISCHARGES, AND THE PLAN'S
+# STATUS IS GENERATED FROM THAT RATHER THAN REMEMBERED.
+#
+# The rules above check the plan's own claims. They close the cheap half of
+# the staleness defect and they cannot close the rest, for a reason worth
+# stating: A PLAN CITING GUARDS IS AMBIGUOUS BY CONSTRUCTION. This plane's
+# plan carried two references that looked exactly like guard citations and
+# were not -- one to another document's section, one to a section of the
+# plan itself -- and the second RESOLVED BY COINCIDENCE, because a guard
+# with that number happened to exist. A check that passes by coincidence is
+# the thing this whole file exists to refuse.
+#
+# Inverted, the ambiguity disappears. A guard section says, in the suite,
+# which plan item it discharges:
+#
+#     sec("-- 39. GG8: a picture larger than its medium is TILED ---")
+#     discharges("GG8")
+#
+# There is nothing to resolve: the declaration sits inside the section that
+# proves the thing, in the file that runs. From those declarations the
+# plan's status table is GENERATED, and a rule compares the generated table
+# against the one in the file -- so the table cannot drift, because drifting
+# is what it is checked for.
+#
+# What this still does not do is decide whether an item is done. A human
+# writes that, here as anywhere. What it removes is the SECOND place the
+# answer had to be repeated, which is where every one of this plane's four
+# stalenesses actually happened.
+
+# Every [ itemId, sectionKey ] a suite declares.
+func StzSuiteDischargesOf(pacSuitePaths)
+	_aOut_ = []
+	_aSuites_ = pacSuitePaths
+	if isString(_aSuites_)  _aSuites_ = [ _aSuites_ ]  ok
+	_nSu_ = len(_aSuites_)
+	for _s_ = 1 to _nSu_
+		_cSrc_ = ""
+		try
+			_cSrc_ = read("" + _aSuites_[_s_])
+		catch
+			loop
+		done
+		_aOne_ = _StzSuiteDischarges(_cSrc_)
+		_nO_ = len(_aOne_)
+		for _o_ = 1 to _nO_
+			_aOut_ + _aOne_[_o_]
+		next
+	next
+	return _aOut_
+
+# Walks a suite once, carrying the section it is inside.
+func _StzSuiteDischarges(pcSource)
+	_aOut_ = []
+	_acL_ = StzSplit(StzReplace("" + pcSource, char(13), ""), char(10))
+	_n_ = len(_acL_)
+	_cCur_ = ""
+	for _i_ = 1 to _n_
+		_cL_ = StzTrim("" + _acL_[_i_])
+		if StzLeft(_cL_, 6) = 'sec("-'
+			_aK_ = _StzGuardSectionKeys(_cL_)
+			if len(_aK_) > 0  _cCur_ = _aK_[1]  ok
+			loop
+		ok
+		if StzLeft(_cL_, 11) != "discharges("  loop  ok
+		if _cCur_ = ""  loop  ok
+		# discharges("GG8")  ->  GG8
+		_cId_ = ""
+		_nC_ = len(_cL_)
+		_bIn_ = FALSE
+		for _j_ = 12 to _nC_
+			_c_ = _cL_[_j_]
+			if _c_ = '"'
+				if _bIn_  exit  ok
+				_bIn_ = TRUE
+				loop
+			ok
+			if _bIn_  _cId_ += _c_  ok
+		next
+		if _cId_ != ""  _aOut_ + [ _cId_, _cCur_ ]  ok
+	next
+	return _aOut_
+
+# Every item the plan DEFINES, as [ id, status, line ].
+#
+# An item is defined where its id opens a heading or a bullet -- never
+# mid-prose, or a sentence mentioning GG5 would define it a second time.
+# The FIRST definition wins: this plan legitimately re-mentions an id in a
+# later section heading, and that is a reference, not a redefinition.
+func StzPlanItemsOf(pcPlanText)
+	# THE GENERATED BLOCK IS NOT PART OF THE PLAN'S PROSE, and reading it as
+	# if it were makes the table decide the statuses it is supposed to
+	# report. An item's body runs to the next item, so an item standing last
+	# before the table absorbed it -- and the table says "closed" on nearly
+	# every row, so that item read as closed whatever its own words said. It
+	# is a feedback loop with a plausible answer, which is the kind that
+	# survives review: the table looked right, because it had made itself
+	# right.
+	_acL_ = StzSplit(StzReplace(_StzWithoutCoverage("" + pcPlanText),
+	                            char(13), ""), char(10))
+	_nL_ = len(_acL_)
+
+	# pass one: where the definitions are
+	_aSites_ = []
+	for _i_ = 1 to _nL_
+		_cId_ = _StzPlanItemIdAt("" + _acL_[_i_])
+		if _cId_ = ""  loop  ok
+		_aSites_ + [ _i_, _cId_ ]
+	next
+
+	# pass two: each definition's body runs to the next one
+	_aOut_ = []
+	_nS_ = len(_aSites_)
+	for _k_ = 1 to _nS_
+		_cId_ = _aSites_[_k_][2]
+		_bSeen_ = FALSE
+		_nO_ = len(_aOut_)
+		for _q_ = 1 to _nO_
+			if _aOut_[_q_][1] = _cId_
+				_bSeen_ = TRUE
+				exit
+			ok
+		next
+		if _bSeen_  loop  ok
+		_nFrom_ = _aSites_[_k_][1]
+		_nTo_ = _nL_
+		if _k_ < _nS_  _nTo_ = _aSites_[_k_ + 1][1] - 1  ok
+		_cBody_ = ""
+		for _b_ = _nFrom_ to _nTo_
+			_cBody_ += (" " + _acL_[_b_])
+		next
+		_aOut_ + [ _cId_, _StzPlanItemStatus(_cBody_), _nFrom_ ]
+	next
+	return _aOut_
+
+# "closed", "open", "undecided" or "unstated" -- read from the item's own
+# words.
+#
+# UNDECIDED IS NOT A POLITE WORD FOR UNSTATED, and the difference is the
+# point. Writing this rule turned up items whose status the author of the
+# rule was not entitled to settle: GG3 has an implementation in stzScene
+# and gpu_scene3d and no guard section named for it, and whether that is
+# "shipped" is a judgement belonging to whoever owns that tier. A plan of
+# record must say SOMETHING about every item it defines -- but "nobody has
+# adjudicated this" is a legitimate thing to say, and saying it out loud is
+# a different act from leaving the reader to guess. Only silence is
+# reported.
+#
+# Checked before the closed words on purpose: an item explaining WHY it is
+# undecided will often mention work that shipped around it.
+func _StzPlanItemStatus(pcBody)
+	_cU_ = StzUpper("" + pcBody)
+	if StzFindFirst("UNDECIDED", _cU_) > 0  return "undecided"  ok
+	if StzFindFirst("SHIPPED", _cU_) > 0 or
+	   StzFindFirst("DELIVERED", _cU_) > 0 or
+	   StzFindFirst("DONE", _cU_) > 0 or
+	   StzFindFirst("CLOSED", _cU_) > 0
+		return "closed"
+	ok
+	if StzFindFirst("NEXT", _cU_) > 0 or
+	   StzFindFirst("NOT STARTED", _cU_) > 0 or
+	   StzFindFirst("PLANNED", _cU_) > 0
+		return "open"
+	ok
+	return "unstated"
+
+# The id opening a heading or bullet, or "" -- MARKUP STRIPPED FIRST, since
+# the same id arrives as "### GG8 ", "- **DN0 " and "**DN5b ".
+func _StzPlanItemIdAt(pcLine)
+	_cL_ = StzTrim("" + pcLine)
+	if _cL_ = ""  return ""  ok
+	_bOpener_ = FALSE
+	if StzLeft(_cL_, 1) = "#" or StzLeft(_cL_, 1) = "-" or
+	   StzLeft(_cL_, 2) = "**"
+		_bOpener_ = TRUE
+	ok
+	if NOT _bOpener_  return ""  ok
+	_nC_ = len(_cL_)
+	_nAt_ = 0
+	for _i_ = 1 to _nC_
+		_c_ = _cL_[_i_]
+		if _c_ != "#" and _c_ != "-" and _c_ != "*" and _c_ != " "
+			_nAt_ = _i_
+			exit
+		ok
+	next
+	if _nAt_ = 0  return ""  ok
+	# [A-Z][A-Z][0-9] then an optional lowercase letter
+	if _nAt_ + 2 > _nC_  return ""  ok
+	_n1_ = ascii(_cL_[_nAt_])
+	_n2_ = ascii(_cL_[_nAt_ + 1])
+	_n3_ = ascii(_cL_[_nAt_ + 2])
+	if NOT (_n1_ >= 65 and _n1_ <= 90)  return ""  ok
+	if NOT (_n2_ >= 65 and _n2_ <= 90)  return ""  ok
+	if NOT (_n3_ >= 48 and _n3_ <= 57)  return ""  ok
+	_cId_ = _cL_[_nAt_] + _cL_[_nAt_ + 1] + _cL_[_nAt_ + 2]
+	if _nAt_ + 3 <= _nC_
+		_n4_ = ascii(_cL_[_nAt_ + 3])
+		if _n4_ >= 97 and _n4_ <= 122
+			_cId_ += _cL_[_nAt_ + 3]
+		ok
+	ok
+	return _cId_
+
+# The generated status table, as markdown.
+#
+# Plan order, not alphabetical: the table is read next to the prose it
+# summarises, and a reader looking for DN3b wants it where DN3 was.
+func StzPlanCoverageTable(pcPlanText, paDischarges)
+	_aItems_ = StzPlanItemsOf(pcPlanText)
+	_nI_ = len(_aItems_)
+	_nD_ = len(paDischarges)
+	_cT_ = "| item | status | discharged by |" + char(10) +
+	       "| ---- | ------ | ------------- |" + char(10)
+	for _i_ = 1 to _nI_
+		_cId_ = _aItems_[_i_][1]
+		_cWho_ = ""
+		for _d_ = 1 to _nD_
+			if paDischarges[_d_][1] = _cId_
+				if _cWho_ != ""  _cWho_ += ", "  ok
+				_cWho_ += paDischarges[_d_][2]
+			ok
+		next
+		if _cWho_ = ""  _cWho_ = "-"  ok
+		_cT_ += ("| " + _cId_ + " | " + _aItems_[_i_][2] + " | " +
+		         _cWho_ + " |" + char(10))
+	next
+	return _cT_
+
+func StzPlanCoverageBeginMark()
+	return "<!-- COVERAGE:BEGIN generated -- do not edit by hand -->"
+
+func StzPlanCoverageEndMark()
+	return "<!-- COVERAGE:END -->"
+
+# THE RULES THAT MAKE THE DECLARATION WORTH MAKING.
+func StzCheckPlanCoverage(pcPlanText, pcLabel, paDischarges)
+	_aOut_ = []
+	_cLabel_ = "" + pcLabel
+	_cPlan_ = "" + pcPlanText
+	if _cPlan_ = ""  return _aOut_  ok
+
+	_aItems_ = StzPlanItemsOf(_cPlan_)
+	_nI_ = len(_aItems_)
+	_nD_ = len(paDischarges)
+
+	# ---- a declaration naming an item the plan does not have -------------
+	for _d_ = 1 to _nD_
+		_cId_ = paDischarges[_d_][1]
+		_bK_ = FALSE
+		for _i_ = 1 to _nI_
+			if _aItems_[_i_][1] = _cId_
+				_bK_ = TRUE
+				exit
+			ok
+		next
+		if NOT _bK_
+			_aOut_ + [ :rule = :guard_discharges_unknown_item,
+			  :subject = :plan, :where = _cLabel_ + ":0", :severity = :warning,
+			  :message = "guard section " + paDischarges[_d_][2] +
+			    " declares it discharges plan item " + _cId_ + ", which " +
+			    "this plan does not define -- the item was renamed, or the " +
+			    "declaration is a typo that no run would ever notice" ]
+		ok
+	next
+
+	for _i_ = 1 to _nI_
+		_cId_ = _aItems_[_i_][1]
+		_cSt_ = _aItems_[_i_][2]
+
+		_bDis_ = FALSE
+		_cWho_ = ""
+		for _d_ = 1 to _nD_
+			if paDischarges[_d_][1] = _cId_
+				_bDis_ = TRUE
+				if _cWho_ != ""  _cWho_ += ", "  ok
+				_cWho_ += paDischarges[_d_][2]
+			ok
+		next
+
+		# ---- THE DEFECT, now caught at the ITEM and not the heading ------
+		#
+		# NOT-CLOSED, never merely "open". The first version asked only about
+		# items the plan called open, and it missed the larger group: five
+		# items proved by guard sections 40 to 44 whose prose never said they
+		# had shipped at all. A plan that UNDERSTATES proven work is stale in
+		# exactly the same way as one that calls closed work open -- the
+		# reader is misled in the same direction, about the same item, by the
+		# same missing edit.
+		if _cSt_ != "closed" and _bDis_
+			_aOut_ + [ :rule = :plan_item_open_but_discharged,
+			  :subject = :plan,
+			  :where = _cLabel_ + ":" + _aItems_[_i_][3], :severity = :warning,
+			  :message = "the plan does not call item " + _cId_ + " closed " +
+			    "(it reads " + _cSt_ + "), and guard section " + _cWho_ +
+			    " already proves it -- this is the shape this plane's plan " +
+			    "went stale in four times" ]
+		ok
+
+		# ---- an item whose status a reader cannot determine --------------
+		# Only where no guard discharges it, or the item above would be
+		# reported twice for one defect.
+		if _cSt_ = "unstated" and NOT _bDis_
+			_aOut_ + [ :rule = :plan_item_status_unstated, :subject = :plan,
+			  :where = _cLabel_ + ":" + _aItems_[_i_][3], :severity = :warning,
+			  :message = "item " + _cId_ + " states no status a reader can " +
+			    "find -- a plan of record whose items do not say where they " +
+			    "stand is the condition staleness hides in" ]
+		ok
+	next
+
+	# ---- the generated table, against the one in the file ----------------
+	_cWant_ = StzPlanCoverageTable(_cPlan_, paDischarges)
+	_cB_ = StzPlanCoverageBeginMark()
+	_cE_ = StzPlanCoverageEndMark()
+	_nB_ = _StzFindBytes(_cB_, _cPlan_)
+	if _nB_ > 0
+		_nE_ = _StzFindBytes(_cE_, _cPlan_)
+		if _nE_ > _nB_
+			_cGot_ = _StzBetween(_cPlan_, _nB_ + len(_cB_), _nE_ - 1)
+			if StzTrim(StzReplace(_cGot_, char(13), "")) !=
+			   StzTrim(_cWant_)
+				_aOut_ + [ :rule = :plan_coverage_table_is_stale,
+				  :subject = :plan, :where = _cLabel_ + ":0",
+				  :severity = :warning,
+				  :message = "the generated status table in this file no " +
+				    "longer matches what the suite's declarations say -- " +
+				    "regenerate it with StzPlanCoverageTable()" ]
+			ok
+		ok
+	ok
+
+	return _aOut_
+
+# Characters n1..n2 of a string, by BYTE index. The callers here are
+# markdown markers, which are ASCII by construction -- and the index came
+# from StzFindFirst on the same buffer, so the two agree.
+func _StzBetween(pcStr, pnFrom, pnTo)
+	_c_ = ""
+	_s_ = "" + pcStr
+	_nN_ = len(_s_)
+	_a_ = pnFrom
+	_b_ = pnTo
+	if _a_ < 1  _a_ = 1  ok
+	if _b_ > _nN_  _b_ = _nN_  ok
+	for _i_ = _a_ to _b_
+		_c_ += _s_[_i_]
+	next
+	return _c_
+
+# Rewrite the generated table in a plan file, in place.
+#
+# THIS is what makes the word "generated" true rather than aspirational.
+# Regenerating has to be ONE call, or the table is still remembered -- and a
+# thing that is remembered is the defect this whole file exists to close.
+# Returns TRUE when the file changed.
+func StzWritePlanCoverage(pcPlanPath, pacSuitePaths)
+	_cP_ = "" + pcPlanPath
+	_cSrc_ = ""
+	try
+		_cSrc_ = read(_cP_)
+	catch
+		return FALSE
+	done
+	_cB_ = StzPlanCoverageBeginMark()
+	_cE_ = StzPlanCoverageEndMark()
+	_nB_ = _StzFindBytes(_cB_, _cSrc_)
+	if _nB_ < 1  return FALSE  ok
+	_nE_ = _StzFindBytes(_cE_, _cSrc_)
+	if _nE_ <= _nB_  return FALSE  ok
+
+	_aDis_ = StzSuiteDischargesOf(pacSuitePaths)
+	_cTab_ = StzPlanCoverageTable(_cSrc_, _aDis_)
+
+	_cHead_ = _StzBetween(_cSrc_, 1, _nB_ + len(_cB_) - 1)
+	_cTail_ = _StzBetween(_cSrc_, _nE_, len(_cSrc_))
+	_cNew_ = _cHead_ + char(10) + _cTab_ + _cTail_
+	if _cNew_ = _cSrc_  return FALSE  ok
+	write(_cP_, _cNew_)
+	return TRUE
+
+# Position of a needle in a haystack, IN BYTES, or 0.
+#
+# StzFindFirst answers in CODEPOINTS, and `s[i]` and `len(s)` are BYTES.
+# Mixing them is silent on ASCII and wrong on anything else, which is the
+# worst way for it to be wrong: the plan this was written for is full of
+# em-dashes at three bytes each, so a marker found at codepoint 4,100 sat
+# at byte 4,240, and slicing to the codepoint index cut 140 bytes off the
+# head. The generated table was written INTO the middle of its own opening
+# marker, and the only reason it was caught is that the damage was visible
+# in the file. On a pure-ASCII document it would have been correct, and
+# would have stayed correct until the first accented character.
+func _StzFindBytes(pcNeedle, pcHay)
+	_cN_ = "" + pcNeedle
+	_cH_ = "" + pcHay
+	_nN_ = len(_cN_)
+	_nH_ = len(_cH_)
+	if _nN_ < 1 or _nN_ > _nH_  return 0  ok
+	_c1_ = _cN_[1]
+	_nLast_ = _nH_ - _nN_ + 1
+	for _i_ = 1 to _nLast_
+		if _cH_[_i_] != _c1_  loop  ok
+		_bAll_ = TRUE
+		for _j_ = 2 to _nN_
+			if _cH_[_i_ + _j_ - 1] != _cN_[_j_]
+				_bAll_ = FALSE
+				exit
+			ok
+		next
+		if _bAll_  return _i_  ok
+	next
+	return 0
+
+# The plan with its generated block blanked out, LINE STRUCTURE INTACT so a
+# finding's line number still points where a reader would look. The same
+# discipline the block-comment stripper above uses, and for the same reason.
+func _StzWithoutCoverage(pcText)
+	_cT_ = "" + pcText
+	_cB_ = StzPlanCoverageBeginMark()
+	_cE_ = StzPlanCoverageEndMark()
+	_nB_ = _StzFindBytes(_cB_, _cT_)
+	if _nB_ < 1  return _cT_  ok
+	_nE_ = _StzFindBytes(_cE_, _cT_)
+	if _nE_ <= _nB_  return _cT_  ok
+	_cOut_ = _StzBetween(_cT_, 1, _nB_ + len(_cB_) - 1)
+	_nFrom_ = _nB_ + len(_cB_)
+	_nTo_ = _nE_ - 1
+	for _i_ = _nFrom_ to _nTo_
+		if _cT_[_i_] = char(10)
+			_cOut_ += char(10)
+		but _cT_[_i_] = char(13)
+			_cOut_ += char(13)
+		else
+			_cOut_ += " "
+		ok
+	next
+	_cOut_ += _StzBetween(_cT_, _nE_, len(_cT_))
+	return _cOut_

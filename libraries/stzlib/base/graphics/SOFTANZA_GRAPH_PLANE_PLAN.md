@@ -40,7 +40,66 @@ features.
   GPU-writable transforms, materials, tree layout, `dot.exe` retained for
   true graph layout only.
 
+## STATUS OF EVERY ITEM, GENERATED FROM THE SUITE
+
+**Do not hand-edit the table below.** It is produced by
+`StzWritePlanCoverage()` from two things: the item definitions in this
+file, and the `discharges("...")` declarations inside the guard sections
+of `gg_adversarial.ring`. Section 75 fails if what is written here has
+drifted from what those two sources say, so the table cannot go stale --
+drifting is precisely what it is checked for.
+
+A dash in the last column means no guard section declares that it proves
+the item. That is a real gap and it is shown rather than hidden. **No count
+is written here on purpose**: the first draft of this paragraph said "10 of
+31 items are undeclared", the true figure was 14, and it was wrong before
+the table below it had been generated once. A hand-counted number standing
+over a generated table is the whole defect this section exists to close,
+reproduced in the sentence introducing the cure. Count the dashes.
+
+The honest reading is that this table reports what the suite CLAIMS, which
+is a smaller number than what the suite covers: 726 assertions across 99
+sections, of which 21 declarations over 17 items.
+
+<!-- COVERAGE:BEGIN generated -- do not edit by hand -->
+| item | status | discharged by |
+| ---- | ------ | ------------- |
+| GG0 | closed | - |
+| GG1 | closed | - |
+| GG2 | closed | - |
+| GG3 | undecided | - |
+| GG4 | closed | - |
+| GG5 | closed | - |
+| GG6 | closed | 6, 7, 8, 9 |
+| GG7 | closed | - |
+| GG7a | closed | 40 |
+| GG7b | closed | 41 |
+| GG7c | closed | 42 |
+| GG7d | closed | 43 |
+| GG7e | closed | 44 |
+| GG8 | closed | 39 |
+| DN0 | closed | 51 |
+| DN1 | closed | 52 |
+| DN2 | closed | 53 |
+| DN3 | closed | - |
+| DN3a | closed | 65 |
+| DN3b | open | - |
+| DN4 | closed | - |
+| DN4a | closed | - |
+| DN4b | closed | 67 |
+| DN5 | closed | 72 |
+| DN5a | closed | - |
+| DN5b | closed | - |
+| DN6 | closed | 73k |
+| DN6b | closed | 73m, 73z |
+| DN2b | closed | 56 |
+| DN2c | closed | - |
+| DN2d | closed | 57 |
+<!-- COVERAGE:END -->
+
 ## 2. Phases
+
+*A heading or bullet that OPENS with an item id defines that item, and its status is read from its own words: shipped, delivered, done, closed; next, planned, not started; or undecided. That is a convention a check depends on, so a heading naming several items must not open with one of their ids -- the section above this list used to read "GG7 / GG8 REFLECTED" and was read as defining GG7, three screens before GG7 was actually defined.*
 
 ### GG0 — the spike. DONE, GO (2026-08-09, 8ec3937d8)
 
@@ -64,7 +123,7 @@ route for anything non-tree. If a seeded layout is not reproducible
 run-to-run, STOP — a non-deterministic layout cannot be guarded, and an
 unguardable renderer is not shippable here.
 
-### GG2 — `stzGraphCanvas`: the declarative face
+### GG2 — `stzGraphCanvas`: the declarative face. SHIPPED
 
 `oG.ToCanvasQ([ :Layout = :Hierarchical, :SizeBy = :Impact, :ColorBy =
 :Depth ])` → an `stzCanvas`, so it inherits BOTH tiers free (SVG with no
@@ -76,7 +135,15 @@ KILL CRITERION: if the face cannot express the supply-chain risk picture
 already produced by hand in the spike, the abstraction is wrong and gets
 redesigned before anything is built on it.
 
-### GG3 — the scene graph: hierarchy as the same primitive
+### GG3 — the scene graph: hierarchy as the same primitive. UNDECIDED
+
+*`SetParent` exists in `stzScene.ring` and `gpu_scene3d.zig`, and no guard
+section is named for this tier. Whether that meets GG3's on-device kill
+criterion is a judgement for whoever owns it, so this item is marked
+undecided rather than guessed at. UNDECIDED is not a politer word for
+unstated: the plan must say something about every item it defines, and
+"nobody has adjudicated this" is a legitimate thing to say. Only silence
+is reported as a defect.*
 
 Parent/child transforms for `stzScene` (today's instance list is flat, so
 articulated models — a robot arm, a solar system — are impossible).
@@ -90,7 +157,7 @@ any frame needs a CPU round trip to resolve parents — it falls back to
 CPU-side composition and the claim shrinks to "scene graphs work",
 without the zero-copy property.
 
-### GG4 — the frame graph: passes and resources as a DAG
+### GG4 — the frame graph: passes and resources as a DAG. SHIPPED
 
 Declare render passes and their resource reads/writes as an `stzGraph`;
 derive execution order topologically, resource lifetimes by liveness,
@@ -187,7 +254,8 @@ runs on one machine, so same-machine reproducibility is what it needs.
 
 ### The plan's "convergence needs a readback" fear does NOT apply here
 
-Recorded in §4 as the sharpest open design question. It belongs to
+Recorded in this plan's own section 4, "Risks, named now", as the sharpest
+open design question. It belongs to
 PROPAGATION (reachability, layer assignment — where the iteration count
 depends on the graph's depth), **not** to force layout. A force layout with
 a cooling schedule has an iteration count fixed by the schedule, so nothing
@@ -610,7 +678,7 @@ emits, §7 measured runs of background that a shallow-angle edge chops
 into fragments, §8 scanned by row and called a deliberately dirty picture
 clean. A check that measures the wrong thing agrees with every input.
 
-## GG7 / GG8 REFLECTED — the live diagram, and the diagram larger than its medium
+## REFLECTION ON GG7 AND GG8 — the live diagram, and the diagram larger than its medium
 *(2026-08-19, reflection before any code; the Principal named both features)*
 
 The two features look unrelated and are the same architectural statement:
@@ -620,29 +688,29 @@ extends this plane's thesis one step: the picture has been *a question
 answered about the graph*; now the question can also be *"which cell is at
 this point"* and *"which part of you fits this page"*.
 
-### GG7 — stzLiveDiagram: the layout becomes a suggestion, the picture becomes an input device
+### GG7 — stzLiveDiagram: the layout becomes a suggestion, the picture becomes an input device. SHIPPED as GG7a-GG7e
 
 **THREE OF FIVE DELIVERED 2026-08-21.** The model half is done and
 guarded; the window half is not started.
 
-- **GG7a, picking** (72308ddc7). `sceneSetPickTag`/`scenePick` in the
+- **GG7a, picking. SHIPPED** (72308ddc7). `sceneSetPickTag`/`scenePick` in the
   engine, `SetPickTag`/`Pick` on stzCanvas, `PickAt` on stzDiagram
   answering `[ :node, id ]` / `[ :edge, from, to ]` / `[]`. Kill
   criterion MET and measured: **0.28 ms a pick on a 500-node diagram**,
   300 of 300 hits, against a 1 ms budget. Section 40.
-- **GG7b, pins** (3cfcf714b). `coordsPinned` in the engine, pins through
+- **GG7b, pins. SHIPPED** (3cfcf714b). `coordsPinned` in the engine, pins through
   stzGraphCanvas, `Pin`/`Unpin`/`IsPinned` on stzDiagram. A pin decides
   ORDER as well as position — without that it decided nothing visible,
   because rank order is settled before coordinates and `_Normalise`
   refits the box afterwards. Section 41.
-- **GG7c, the command log** (edbe91454). `Edit(kind, args)` with
+- **GG7c, the command log. SHIPPED** (edbe91454). `Edit(kind, args)` with
   inverses, `Undo`/`Redo`, over the model's existing mutation API and
   its existing refusals. Section 42, nineteen assertions.
 
-- **GG7d, the interaction** (6de2d40a7). Four states — idle, dragging,
+- **GG7d, the interaction. SHIPPED** (6de2d40a7). Four states — idle, dragging,
   linking, labelling — fed explicit events, so the machine is a function
   of (state, event) and is tested headless. Section 43.
-- **GG7e, the session** (this commit). `Step(window, options)` is one
+- **GG7e, the session. SHIPPED** (this commit). `Step(window, options)` is one
   frame; `RunIn(window)` is the loop. Section 44, against a stub window.
 
 **The second kill criterion, measured and ANSWERED rather than met as
@@ -1089,10 +1157,10 @@ gate it declares.
   drawers clipped to the CALLER's box rather than to the glyph they were
   meeting — 13px vertically, hidden inside an arrowhead, and 66px
   horizontally.
-- **DN4 — UML class diagrams.** Compartments and edge-end adornments —
+- **DN4 — UML class diagrams. SHIPPED as DN4a and DN4b.** Compartments and edge-end adornments —
   the notation half the industry reads daily.
 
-  **DN4a scoped to the CLASS diagram** — classes, interfaces, the five
+  **DN4a scoped to the CLASS diagram. SHIPPED** (`stzUmlNotation.ring`) — classes, interfaces, the five
   relationship kinds. The rest of UML follows as DN4b, and the reason
   that first scoping was wrong is worth keeping: *"sequence and activity
   are separate notations that happen to share a name"* was a JUDGEMENT

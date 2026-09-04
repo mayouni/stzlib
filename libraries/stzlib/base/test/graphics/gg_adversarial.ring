@@ -36,6 +36,11 @@ load "gg_drakon_scenes.ring"
 decimals(2)
 nOk = 0  nBad = 0  nSecClock = 0
 
+# A guard section declares which plan item it discharges, so the plan's
+# status table is GENERATED from the suite rather than remembered beside
+# it. The declaration sits inside the section that proves the thing.
+aDischarged = []  cCurSecKey = ""
+
 # THIS SUITE IS ITS OWN FAST PATH -- 20 seconds for every section, so
 # there is nothing to scope away and no skipping to disclose. It was
 # eight minutes until 2026-08-20, and a `quick` switch existed to dodge
@@ -272,6 +277,7 @@ chk("a NEWLINE is still normalised -- it would break the emitted dot",
 #---------------------------------------------------------------------------
 ? ""
 sec("-- 6. A parent sits OVER its children -----------------------")
+discharges("GG6")
 #
 # Ordering and placement are different questions, and only the first had an
 # answer. The engine's sweep minimised crossings, then the face placed each
@@ -308,6 +314,7 @@ chk("...and the ordinal spread really was worse", nOld > nErr * 2)
 #---------------------------------------------------------------------------
 ? ""
 sec("-- 7. Spacing is the CONTRACT; the size is derived ----------")
+discharges("GG6")
 #
 # The caller names the SEPARATION and the picture takes its size from the
 # content -- dot's model, and the one this tier had inverted. So the
@@ -343,6 +350,7 @@ chk("...and a canvas too small for the contract breaks it", nCr < nSep - 20)
 ? ""
 
 sec("-- 8. A long edge goes AROUND the boxes, not through them ---")
+discharges("GG6")
 #
 # An edge spanning many ranks used to be a straight line from source to
 # target, drawn THROUGH every box between. The property is pixel-true: the
@@ -386,6 +394,7 @@ chk("the crossing check DISCRIMINATES", nX > 0)
 ? ""
 
 sec("-- 9. A cluster box holds its members, and NO STRANGER -------")
+discharges("GG6")
 #
 # A cluster used to be a box drawn around whatever the layout produced.
 # It never constrained anything, so a cluster whose members did not
@@ -3378,6 +3387,7 @@ chk("no chain, no spine -- the fan stays centred",
 #---------------------------------------------------------------------------
 ? ""
 sec("-- 39. GG8: a picture larger than its medium is TILED -------")
+discharges("GG8")
 #
 # "Whole" is exactly what fails. A GPU texture stops at 8192 in either
 # axis -- this library shipped that as a refusal -- and print never had a
@@ -3536,6 +3546,7 @@ chk("a picture too big to render whole still prints", len(aBigPg) >= 8)
 #---------------------------------------------------------------------------
 ? ""
 sec("-- 40. GG7a: the picture can be ASKED --------------------------")
+discharges("GG7a")
 #
 # The batch pipeline is model -> layout -> paint and every stage owns its
 # successor, so the picture was the end of a one-way street: it could be
@@ -3694,6 +3705,7 @@ chkeq("...and every one of them found its node", nHit, nPicks)
 #---------------------------------------------------------------------------
 ? ""
 sec("-- 41. GG7b: a PIN outranks the layout ------------------------")
+discharges("GG7b")
 #
 # The batch pipeline lets the layout own positions. A live diagram
 # inverts the ownership: the author owns positions and the layout only
@@ -3840,6 +3852,7 @@ chk("a pin that agrees with the layout changes no order", nOrderKept = 1)
 #---------------------------------------------------------------------------
 ? ""
 sec("-- 42. GG7c: the editor executes COMMANDS, never mutations ----")
+discharges("GG7c")
 #
 # An editor that mutates its model directly can offer no undo, and an
 # editor without undo is one nobody trusts enough to explore with. So
@@ -3946,6 +3959,7 @@ chkeq("...and leaves no trace in the log", len(oRm.EditLog()), nBefore)
 #---------------------------------------------------------------------------
 ? ""
 sec("-- 43. GG7d: the interaction is a STATE MACHINE ----------------")
+discharges("GG7d")
 #
 # Not event soup. A pointer pressed, moved and released means different
 # things depending on what was under it when it went down, and code that
@@ -4127,6 +4141,7 @@ chk("...and the gesture still ended in one command",
 #---------------------------------------------------------------------------
 ? ""
 sec("-- 44. GG7e: the session is one poll, one frame -----------------")
+discharges("GG7e")
 #
 # The window half of a live diagram is small on purpose, and it is small
 # because everything under it was built to be DRIVEN rather than to
@@ -4873,6 +4888,7 @@ chk("a picture larger than its medium still fits it",
 
 
 sec("-- 51. DN0: a domain is a DECLARATION, and the default moved NOTHING --")
+discharges("DN0")
 #
 # The DN ruling: BPMN, state machines, org charts, UML and electric all
 # land as NOTATION PROFILES over the one foundation -- vocabulary, rules
@@ -4987,6 +5003,7 @@ chkeq("a notation may amend the grammar it is read in",
 
 
 sec("-- 52. DN1: the org chart is the first real DOMAIN ------------")
+discharges("DN1")
 #
 # DN1's claim: a MODEL projects. stzOrgChart -- positions, levels,
 # ReportsTo -- is born under its own notation, drawn by the same plastic
@@ -5075,6 +5092,7 @@ chk("the org root is centred over its two branches -- I6 on a domain",
 
 
 sec("-- 53. DN2: the state machine -- cycles are FIRST-CLASS -------")
+discharges("DN2")
 #
 # The org chart forbade cycles; the state machine IS cycles -- open and
 # close, lock and unlock. Same foundation, near-opposite law, which is
@@ -5407,6 +5425,7 @@ chk("...while still clearing the crossable floor",
 
 
 sec("-- 56. THE RING: a declared layout for graphs of PEERS --------")
+discharges("DN2b")
 #
 # The Principal's deepest correction: "you still consider a state
 # machine diagram as a tree diagram, it isn't. Take the spatial
@@ -5552,6 +5571,7 @@ chk("a diagram that declares no layout mode is still LAYERED",
 
 
 sec("-- 57. MODES: a state machine has no NEXT -------------------")
+discharges("DN2d")
 #
 # Three templates were wrong before this one, and all three in the same
 # way. A tree drew a progression. A ring drew a space with a centre. A
@@ -7495,6 +7515,7 @@ chk("every hop drawn had room to be read as one",
 
 
 sec("-- 65. BPMN IS A PROFILE, AND IT READS LEFT TO RIGHT -------")
+discharges("DN3a")
 #
 # DN3, and it arrived differently from the two domains before it.
 #
@@ -8386,6 +8407,7 @@ chk("...while an initial node stays a mark", rAcI[3] < 120 * 0.5)
 #---------------------------------------------------------------------------
 ? ""
 sec("-- 67. A SEQUENCE IS A MODE, NOT A SECOND RENDERER --------")
+discharges("DN4b")
 
 # The plan attached its sharpest kill criterion to this one diagram:
 # "its y-axis is TIME and its x-axis is participants -- that is not a
@@ -9316,6 +9338,7 @@ ok
 chkeq("NEGATIVE: a one-pixel difference would have shown", nGpFake, 1)
 
 sec("-- 73k. DRAKON: THE SKEWER, AND WHOSE LAW IT IS ---------")
+discharges("DN6")
 
 # THE MAIN PATH IS ONE VERTICAL LINE AND EVERY BRANCH STANDS RIGHT OF
 # IT.
@@ -9883,6 +9906,7 @@ chk("the sheet is the drawing's own height", nSlH - nSlLow < 60)
 # hugged the number would pass the clause above by cropping.
 chk("NEGATIVE: ...and still clears it", nSlH > nSlLow)
 sec("-- 73m. DRAKON DECLARES ITS EXITS, IT DOES NOT GUESS ---")
+discharges("DN6b")
 
 # LEARNED FROM THE LANGUAGE ITSELF rather than from its pictures.
 #
@@ -10966,6 +10990,7 @@ chk("the default level is doing work", len(cPnL4) <= len(cPnL1))
 chkeq("...and the dial is exposed for a caller who wants the rest",
     len(oPn.ToPNGXT("", 9)) <= len(cPnL4), 1)
 sec("-- 73z. A TIMER ATTACHES, IT DOES NOT SEQUENCE ------")
+discharges("DN6b")
 
 # The plan of record named the real-time icons as this plane's last gap
 # in these words: they "are declared as kinds and draw as sensible
@@ -11506,6 +11531,7 @@ chkeq("NEGATIVE: ...and says so plainly when it does not",
 	len(oMs._NeighbourPoints("nosuchnode")), 0)
 
 sec("-- 72. DN5 -- A NET IS A NODE, AND A JUNCTION IS A CLAIM -")
+discharges("DN5")
 
 # The plan's kill: "a net is a HYPEREDGE (one wire, three pins), which
 # the pair-edge model must earn honestly -- junction nodes drawn as
@@ -12130,6 +12156,154 @@ next
 chk("THE PLAN OF RECORD ITSELF is clean", nPorL = 0)
 
 
+sec("-- 75. A GUARD DECLARES WHAT IT DISCHARGES, AND THE STATUS IS GENERATED --")
+
+# Section 74 checks the plan's claims about the suite. It closes the cheap
+# half of the staleness defect and cannot close the rest, for a reason this
+# plane paid to learn: A PLAN CITING GUARDS IS AMBIGUOUS BY CONSTRUCTION.
+# This plan carried two references that looked exactly like guard citations
+# and were not -- one to another document, one to a section of the plan
+# itself -- and the second RESOLVED BY COINCIDENCE, because a guard with
+# that number happened to exist.
+#
+# Inverted, the ambiguity is gone. A section declares its item where it sits,
+# in the file that runs, and the plan's status table is GENERATED from those
+# declarations. Everything below is built, never borrowed.
+
+cPcNl = char(10)
+cPcEm = char(226) + char(128) + char(148)
+cPcSyn = "## Phases" + cPcNl + cPcNl +
+         "### AA1 " + cPcEm + " the first. SHIPPED." + cPcNl + cPcNl +
+         "### AA2 " + cPcEm + " the second. NEXT." + cPcNl + cPcNl +
+         "### AA3 " + cPcEm + " the third, and it says nothing." + cPcNl + cPcNl
+aPcNone = []
+
+aPcIt = StzPlanItemsOf(cPcSyn)
+chk("three items are found", len(aPcIt) = 3)
+chkeq("the SHIPPED one reads closed", aPcIt[1][2], "closed")
+chkeq("the NEXT one reads open", aPcIt[2][2], "open")
+chkeq("the silent one reads unstated", aPcIt[3][2], "unstated")
+
+aPcF = StzCheckPlanCoverage(cPcSyn, "syn", [ [ "AA9", "5" ] ])
+chk("a declaration for an unknown item is caught",
+    _PorHits(aPcF, "guard_discharges_unknown_item") = 1)
+aPcF = StzCheckPlanCoverage(cPcSyn, "syn", [ [ "AA1", "5" ] ])
+chk("NEGATIVE: a declaration for an item that EXISTS passes",
+    _PorHits(aPcF, "guard_discharges_unknown_item") = 0)
+
+# THE DEFECT, at the item rather than the heading.
+aPcF = StzCheckPlanCoverage(cPcSyn, "syn", [ [ "AA2", "5" ] ])
+chk("an OPEN item that a guard already proves is caught",
+    _PorHits(aPcF, "plan_item_open_but_discharged") = 1)
+
+# The wider half, and why the rule does not ask about "open" alone: five
+# items in the real plan were proven by sections 40 to 44 while their prose
+# never said they had shipped at all.
+aPcF = StzCheckPlanCoverage(cPcSyn, "syn", [ [ "AA3", "5" ] ])
+chk("an UNSTATED item that a guard already proves is caught too",
+    _PorHits(aPcF, "plan_item_open_but_discharged") = 1)
+aPcF = StzCheckPlanCoverage(cPcSyn, "syn", [ [ "AA1", "5" ] ])
+chk("NEGATIVE: a CLOSED item that a guard proves is exactly right",
+    _PorHits(aPcF, "plan_item_open_but_discharged") = 0)
+
+aPcF = StzCheckPlanCoverage(cPcSyn, "syn", aPcNone)
+chk("the item that says nothing is reported",
+    _PorHits(aPcF, "plan_item_status_unstated") = 1)
+aPcF = StzCheckPlanCoverage(cPcSyn, "syn", [ [ "AA3", "5" ] ])
+chk("an unstated-AND-discharged item is reported ONCE, not twice",
+    _PorHits(aPcF, "plan_item_status_unstated") = 0 and
+    _PorHits(aPcF, "plan_item_open_but_discharged") = 1)
+
+# UNDECIDED is a statement; silence is not. Only silence is a defect.
+cPcUnd = StzReplace(cPcSyn, "the third, and it says nothing.",
+                            "the third. UNDECIDED, and here is why.")
+aPcIt = StzPlanItemsOf(cPcUnd)
+chkeq("an item saying UNDECIDED reads undecided", aPcIt[3][2], "undecided")
+chk("NEGATIVE: UNDECIDED is not reported -- only silence is",
+    _PorHits(StzCheckPlanCoverage(cPcUnd, "syn", aPcNone),
+             "plan_item_status_unstated") = 0)
+
+# -- the generated table, against the one in the file --------------------
+cPcB = StzPlanCoverageBeginMark()
+cPcE = StzPlanCoverageEndMark()
+aPcDis = [ [ "AA1", "5" ] ]
+cPcGood = cPcSyn + cPcB + cPcNl + StzPlanCoverageTable(cPcSyn, aPcDis) +
+          cPcE + cPcNl
+chk("NEGATIVE: a table matching the declarations passes",
+    _PorHits(StzCheckPlanCoverage(cPcGood, "syn", aPcDis),
+             "plan_coverage_table_is_stale") = 0)
+cPcStale = StzReplace(cPcGood, "| AA1 | closed | 5 |", "| AA1 | closed | 9 |")
+chk("a table that has DRIFTED from the declarations is caught",
+    _PorHits(StzCheckPlanCoverage(cPcStale, "syn", aPcDis),
+             "plan_coverage_table_is_stale") = 1)
+
+# THE FEEDBACK LOOP, pinned. An item's body runs to the next item, so the
+# item standing last before the table absorbed it -- and the table says
+# "closed" on nearly every row, so that item read as closed whatever its own
+# words said. The table had made itself right, which is the kind of wrong
+# that survives review.
+aPcIt = StzPlanItemsOf(cPcGood)
+chkeq("the last item does NOT absorb the generated table",
+      aPcIt[3][2], "unstated")
+
+# -- the byte/codepoint trap this cost, pinned ---------------------------
+# StzFindFirst answers in CODEPOINTS; s[i] and len() are BYTES. Mixing them
+# is silent on ASCII and wrong on anything else -- it wrote the generated
+# table into the middle of its own opening marker.
+cPcEmS = "a" + cPcEm + "bXY"
+chkeq("StzFindFirst answers in codepoints", StzFindFirst("XY", cPcEmS), 4)
+chkeq("_StzFindBytes answers in bytes", _StzFindBytes("XY", cPcEmS), 6)
+chk("and on this string the two DISAGREE -- which is the whole trap",
+    StzFindFirst("XY", cPcEmS) != _StzFindBytes("XY", cPcEmS))
+chkeq("NEGATIVE: on pure ASCII they agree, which is why it stayed hidden",
+      _StzFindBytes("XY", "abXY"), StzFindFirst("XY", "abXY"))
+
+# -- TWO INDEPENDENT READINGS OF THE SAME TRUTH --------------------------
+# aDischarged is built at RUN time by the discharges() calls as each section
+# is reached. StzSuiteDischargesOf reads the same declarations STATICALLY
+# out of the source. They are separate code paths over separate inputs, and
+# a house law says an identity computed from one set of anchors proves
+# nothing -- so the check that means something is these two agreeing. It
+# also catches a declaration attached to a section that never runs.
+aPcStatic = StzSuiteDischargesOf([ "gg_adversarial.ring" ])
+chkeq("runtime and static declaration counts agree",
+      len(aDischarged), len(aPcStatic))
+bPcSame = TRUE
+nPcD = len(aDischarged)
+for iPc = 1 to nPcD
+	bPcFound = FALSE
+	nPcS = len(aPcStatic)
+	for jPc = 1 to nPcS
+		if aPcStatic[jPc][1] = aDischarged[iPc][1] and
+		   aPcStatic[jPc][2] = aDischarged[iPc][2]
+			bPcFound = TRUE
+			exit
+		ok
+	next
+	if NOT bPcFound  bPcSame = FALSE  ok
+next
+chk("and every runtime pair is present in the static parse", bPcSame)
+bPcBogus = FALSE
+nPcS = len(aPcStatic)
+for jPc = 1 to nPcS
+	if aPcStatic[jPc][1] = "ZZ9"  bPcBogus = TRUE  ok
+next
+chk("NEGATIVE: an item no section declares is ABSENT from the static parse",
+    NOT bPcBogus)
+
+# -- and the artefact itself ---------------------------------------------
+cPcPath = "../../graphics/SOFTANZA_GRAPH_PLANE_PLAN.md"
+aPcLive = StzCheckPlanCoverage(read(cPcPath), cPcPath, aDischarged)
+nPcL = len(aPcLive)
+for iPc = 1 to nPcL
+	? "   STALE  " + aPcLive[iPc][:where] + "  " + aPcLive[iPc][:rule]
+	? "          " + aPcLive[iPc][:message]
+next
+chk("THE PLAN'S GENERATED TABLE IS CURRENT", nPcL = 0)
+? "   declarations this suite made: " + len(aDischarged) +
+  " over " + len(StzPlanItemsOf(read(cPcPath))) + " plan items"
+
+
 if nSecClock > 0
 	? "        [section took " +
 	  ((clock() - nSecClock) / clockspersecond()) + "s]"
@@ -12145,6 +12319,8 @@ ok
 # the PRE-COMMIT gate, run once in the background; iteration happens on
 # standalone probes, never by re-running this file.
 func sec cTitle
+	aKk = _StzGuardSectionKeys('sec("' + cTitle + '")')
+	if len(aKk) > 0  cCurSecKey = aKk[1] else cCurSecKey = "" ok
 	if nSecClock > 0
 		? "        [section took " +
 		  ((clock() - nSecClock) / clockspersecond()) + "s]"
@@ -13634,6 +13810,14 @@ func _TurnsIn aFlat
 		ok
 	next
 	return _t_
+
+# Declared by a section, recorded against the section it sits in. The
+# static rules in stzCodeRules.ring read the same lines from the source,
+# so the check works without running this 66-second suite.
+func discharges cItemId
+	if cCurSecKey != ""
+		aDischarged + [ cItemId, cCurSecKey ]
+	ok
 
 # Findings of one rule, counted. Prefixed, because this suite is one Ring
 # namespace and a bare `Hits` would be the whole file's.
