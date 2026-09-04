@@ -12838,14 +12838,23 @@ class stzDiagram from stzGraph
 				# is nothing to share it with. Where the source fans, the
 				# stem IS the cause.
 				if NOT _dvSide_
+					# COUNTED OFF THE MEMBER, NOT OFF A COPY OF IT.
+					# `_a_ = This.Edges()` copies the whole edge list --
+					# Ring assigns lists by value -- and this ran once
+					# per edge drawn, to learn one node's out-degree.
+					# 199 hash-lists copied 398 times for a number that
+					# a loop over @aEdges reads without copying anything.
+					# Measured at 0.7s of a 15.9s render.
 					_dvOut_ = 0
-					_aDvE_ = This.Edges()
-					_nDvE_ = len(_aDvE_)
+					_nDvE_ = len(@aEdges)
+					_cDvF_ = StzLower("" + cFromId)
 					for _iDvE_ = 1 to _nDvE_
-						if StzLower("" + _aDvE_[_iDvE_][:from]) !=
-						   StzLower("" + cFromId)  loop  ok
-						if StzLower("" + _aDvE_[_iDvE_][:to]) =
-						   StzLower("" + cFromId)  loop  ok
+						if StzLower("" + @aEdges[_iDvE_][:from]) != _cDvF_
+							loop
+						ok
+						if StzLower("" + @aEdges[_iDvE_][:to]) = _cDvF_
+							loop
+						ok
 						_dvOut_++
 					next
 					_dvSg2_ = 1
