@@ -1525,3 +1525,260 @@ func _StzCheckConstantWrites(pcSource)
 		next
 	next
 	return _aOut_
+
+#---------------------------------------------------------------------------
+# THE PLAN OF RECORD IS A CLAIM ABOUT THE SUITE, AND A CLAIM GOES STALE.
+#
+# Every plane in this library keeps a plan of record -- a markdown file that
+# says what shipped, what each guard section proves, and what is still open.
+# Nothing checks it. Closing work and updating the plan are two acts and only
+# the first is enforced, so the plan lags by exactly the amount its author
+# forgot, and the lag is INVISIBLE FROM INSIDE THE SESSION THAT CAUSED IT --
+# which is the whole difficulty. The graph plane's plan went stale twice in
+# two days, 2026-09-03 and 2026-09-04, both times because a session closed an
+# item and did not walk back to the paragraph that called it open.
+#
+# Two rules, running in OPPOSITE directions, because the plan can be wrong
+# in two ways and only one of them was ever obvious:
+#
+#   plan_cites_a_missing_guard  -- the plan names a guard section that does
+#       not exist. Fires when a section is renumbered or removed, and when a
+#       plan claims proof it never had.
+#
+#   plan_calls_closed_work_open -- a heading says "still open" and every item
+#       under it is struck through and marked closed. THIS IS THE ONE THE
+#       DEFECT ACTUALLY RAN THROUGH: the citation direction was always fine,
+#       because a session adding a guard cites it correctly in the same
+#       breath. It is the paragraph three screens UP, the one that still says
+#       the work is pending, that nobody goes back to.
+#
+# Findings come out in the unified shape, so this joins the one gate rather
+# than becoming a second one.
+#
+# WHY THE SECTION SIGN IS BUILT FROM ITS BYTES AND NEVER WRITTEN AS A
+# LITERAL: this project's notes forbid non-ASCII in console output, and a
+# source file carrying one is a single bad save away from mojibake. A
+# corrupted marker here does not raise -- it matches NOTHING, and the rule
+# reports a clean plan by reading none of it. A rule that fails silent is
+# worse than no rule, because it is also a green.
+func StzCheckPlanOfRecord(pcPlanPath, pacSuitePaths)
+	_cP_ = "" + pcPlanPath
+	_cTxt_ = ""
+	try
+		_cTxt_ = read(_cP_)
+	catch
+		return []
+	done
+	return StzCheckPlanText(_cTxt_, _cP_, pacSuitePaths)
+
+# The same rules over TEXT the caller already holds, labelled with whatever
+# name should appear in :where.
+#
+# This split exists because of how the guard for these rules kept breaking.
+# Its positive cases were perturbations of the LIVE plan -- strike an item,
+# rename a heading -- and the first repair the rules provoked rewrote those
+# very sentences, so every positive silently became a negative and the guard
+# went green by testing nothing. A guard must not source its positives from
+# the artefact it guards. It builds them.
+func StzCheckPlanText(pcPlanText, pcLabel, pacSuitePaths)
+	return StzCheckPlanTextXT("" + pcPlanText, "" + pcLabel,
+	                          StzGuardSectionsOf(pacSuitePaths))
+
+# Every section key the given suites define, read ONCE.
+#
+# This is separated because the guard for these rules made the exact defect
+# the rules' own plane keeps finding. Seven checks against one suite parsed
+# that suite seven times: 7.07s where a single parse is 0.95s, added to a
+# gate whose whole budget is 66s -- a text pass costing more than two of the
+# large-diagram renders it sits next to. A caller with several plans, or a
+# guard with several cases, extracts once and passes the keys.
+func StzGuardSectionsOf(pacSuitePaths)
+	_acSections_ = []
+	_aSuites_ = pacSuitePaths
+	if isString(_aSuites_)  _aSuites_ = [ _aSuites_ ]  ok
+	_nSu_ = len(_aSuites_)
+	for _s_ = 1 to _nSu_
+		_cSrc_ = ""
+		try
+			_cSrc_ = read("" + _aSuites_[_s_])
+		catch
+			loop
+		done
+		_aKeys_ = _StzGuardSectionKeys(_cSrc_)
+		_nK_ = len(_aKeys_)
+		for _k_ = 1 to _nK_
+			_acSections_ + _aKeys_[_k_]
+		next
+	next
+	return _acSections_
+
+# The rules over plan TEXT and section keys the caller already holds.
+func StzCheckPlanTextXT(pcPlanText, pcLabel, pacSectionKeys)
+	_aOut_ = []
+	_cPlanPath_ = "" + pcLabel
+	_cPlan_ = "" + pcPlanText
+	if _cPlan_ = ""  return _aOut_  ok
+	_acSections_ = pacSectionKeys
+
+	_acLines_ = StzSplit(StzReplace(_cPlan_, char(13), ""), char(10))
+	_nL_ = len(_acLines_)
+	_nSec_ = len(_acSections_)
+
+	# ---- direction one: a cited guard must exist -------------------------
+	_aRefs_ = _StzPlanGuardRefs(_acLines_)
+	_nR_ = len(_aRefs_)
+	for _i_ = 1 to _nR_
+		_cRef_ = _aRefs_[_i_][2]
+		_bFound_ = FALSE
+		for _j_ = 1 to _nSec_
+			if _acSections_[_j_] = _cRef_
+				_bFound_ = TRUE
+				exit
+			ok
+		next
+		if NOT _bFound_
+			_aOut_ + [ :rule = :plan_cites_a_missing_guard, :subject = :plan,
+			  :where = _cPlanPath_ + ":" + _aRefs_[_i_][1],
+			  :severity = :warning,
+			  :message = "the plan cites guard section " + _cRef_ +
+			    ", which no suite defines -- either the section was" +
+			    " renumbered, or the plan claims a proof it never had" ]
+		ok
+	next
+
+	# ---- direction two: a heading calling work open, over closed work ----
+	for _i_ = 1 to _nL_
+		_cH_ = StzTrim("" + _acLines_[_i_])
+		if StzLeft(_cH_, 2) != "##"  loop  ok
+		if StzFindFirst("still open", StzLower(_cH_)) < 1  loop  ok
+
+		# the block runs to the next heading of any depth
+		_nEnd_ = _nL_
+		for _j_ = _i_ + 1 to _nL_
+			if StzLeft(StzTrim("" + _acLines_[_j_]), 2) = "##"
+				_nEnd_ = _j_ - 1
+				exit
+			ok
+		next
+
+		_nItems_ = 0
+		_nClosed_ = 0
+		# AN ITEM IS A PARAGRAPH, and this is the whole correctness of the
+		# rule. The first version counted only bullets and struck-through
+		# lines, so a LIVE item written as plain prose -- which is how an
+		# open item is usually written -- was invisible, and a heading with
+		# one live item and one closed one still read as all-closed. Worse
+		# in the other direction: two headings in this plane's own plan sat
+		# silent under that version and both were silent because their items
+		# could not be SEEN, not because they were open. A rule that passes
+		# for the wrong reason is a green nobody earned.
+		#
+		# So: an item begins at a non-blank line that opens a paragraph (the
+		# line before it is blank) or that opens a list entry, and it runs
+		# until the next such line. Its whole text votes, once.
+		_cItem_ = ""
+		_bPrevBlank_ = TRUE
+		for _j_ = _i_ + 1 to _nEnd_ + 1
+			if _j_ <= _nEnd_
+				_cB_ = StzTrim("" + _acLines_[_j_])
+			else
+				_cB_ = ""          # a sentinel, so the last item is counted
+			ok
+			_bStarts_ = FALSE
+			if _cB_ != "" and (_bPrevBlank_ or StzLeft(_cB_, 2) = "- ")
+				_bStarts_ = TRUE
+			ok
+			if _bStarts_ or _j_ > _nEnd_
+				if _cItem_ != ""
+					_nItems_++
+					# closed == struck through AND saying so
+					if StzFindFirst("~~", _cItem_) > 0 and
+					   StzFindFirst("closed", StzLower(_cItem_)) > 0
+						_nClosed_++
+					ok
+				ok
+				_cItem_ = ""
+			ok
+			if _cB_ != ""  _cItem_ += (" " + _cB_)  ok
+			_bPrevBlank_ = (_cB_ = "")
+		next
+
+		if _nItems_ > 0 and _nClosed_ = _nItems_
+			_aOut_ + [ :rule = :plan_calls_closed_work_open, :subject = :plan,
+			  :where = _cPlanPath_ + ":" + _i_,
+			  :severity = :warning,
+			  :message = "this heading says work is still open and all " +
+			    "" + _nItems_ + " items under it are struck through and " +
+			    "marked closed -- the heading is the stale part, and it " +
+			    "is what a reader of this plan sees first" ]
+		ok
+	next
+
+	return _aOut_
+
+# The keys a guard suite defines: sec("-- 43. TITLE ---") -> "43".
+# Walks BYTES with s[i]. The tokens are ASCII, so byte walking is exact --
+# and it is the cheap form. substr on a large buffer measured ~0.3ms per
+# call in this project, which IS the entire cost of a per-byte scan.
+func _StzGuardSectionKeys(pcSource)
+	_aKeys_ = []
+	_acL_ = StzSplit(StzReplace("" + pcSource, char(13), ""), char(10))
+	_n_ = len(_acL_)
+	for _i_ = 1 to _n_
+		_cL_ = StzTrim("" + _acL_[_i_])
+		if StzLeft(_cL_, 6) != 'sec("-'  loop  ok
+		_cKey_ = ""
+		_bSeen_ = FALSE
+		_nC_ = len(_cL_)
+		for _j_ = 7 to _nC_
+			_c_ = _cL_[_j_]
+			if _c_ = "."  exit  ok
+			if _StzIsRefChar(_c_)
+				_cKey_ += _c_
+				_bSeen_ = TRUE
+			but _c_ != "-" and _c_ != " "
+				exit
+			ok
+		next
+		if _bSeen_  _aKeys_ + _cKey_  ok
+	next
+	return _aKeys_
+
+# Every guard reference in the plan, as [ line, key ].
+func _StzPlanGuardRefs(pacLines)
+	_aRefs_ = []
+	_cB1_ = char(194)
+	_cB2_ = char(167)
+	_n_ = len(pacLines)
+	for _i_ = 1 to _n_
+		_cL_ = "" + pacLines[_i_]
+		_nC_ = len(_cL_)
+		_k_ = 1
+		while _k_ < _nC_
+			if _cL_[_k_] != _cB1_ or _cL_[_k_ + 1] != _cB2_
+				_k_++
+				loop
+			ok
+			_cRef_ = ""
+			_m_ = _k_ + 2
+			while _m_ <= _nC_
+				_c_ = _cL_[_m_]
+				if _StzIsRefChar(_c_)
+					_cRef_ += _c_
+					_m_++
+				else
+					exit
+				ok
+			end
+			if _cRef_ != ""  _aRefs_ + [ _i_, _cRef_ ]  ok
+			_k_ = _m_
+		end
+	next
+	return _aRefs_
+
+# ascii(), never _c_ >= "0". Ring coerces a numeric-looking string inside a
+# comparison, so "-" >= "0" raises R41 rather than answering false. A
+# character class has to be asked in code points.
+func _StzIsRefChar(pcChar)
+	_n_ = ascii(pcChar)
+	return (_n_ >= 48 and _n_ <= 57) or (_n_ >= 97 and _n_ <= 122)

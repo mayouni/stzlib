@@ -81,9 +81,9 @@ redesigned before anything is built on it.
 Parent/child transforms for `stzScene` (today's instance list is flat, so
 articulated models — a robot arm, a solar system — are impossible).
 Propagate world transforms down the hierarchy with GG0's mechanism: a
-DAG, iterated to depth, on device, no readback. §3b door 4 already keeps
-transform state separate from render state, so this is an addition, not
-surgery.
+DAG, iterated to depth, on device, no readback. The graphics plan's
+`SOFTANZA_GRAPHICS_PLAN.md` section 3b, door 4, already keeps transform
+state separate from render state, so this is an addition, not surgery.
 
 KILL CRITERION: if hierarchical propagation cannot stay on-device — if
 any frame needs a CPU round trip to resolve parents — it falls back to
@@ -1499,7 +1499,13 @@ PROPERTY, keep the old list as the default, and **assert that default**,
 because a silent redefinition for every other domain is the expensive
 way to find out.
 
-### Still open, and named rather than left to be discovered
+### The last two open items, both closed 2026-09-03
+
+*This heading said "Still open" until 2026-09-04, over two items that had
+both been closed the day before. It is the third staleness in this file in
+two days, and the first one found by a CHECK rather than by a reader —
+`plan_calls_closed_work_open` in `stzCodeRules.ring`, which reads a heading
+that claims openness against the items under it.*
 
 ~~The icon table's remaining real-time set~~ — **CLOSED 2026-09-03,
 781b496f2.** The law was in the macroicon table all along: thirteen rows
@@ -1530,6 +1536,41 @@ the claim in one grep instead of trusting the prose. That is the cheap
 half of the fix. The expensive half, not done, is having the guard
 sections themselves declare what plan item they discharge, so the plan
 can be generated rather than remembered.
+
+**Half of that expensive half was built on 2026-09-04, after the file went
+stale a THIRD time in two days.** Two rules in `stzCodeRules.ring`, guarded
+by §74, in the unified finding shape so they join the one gate rather than
+starting a second:
+
+- `plan_cites_a_missing_guard` — the plan names a guard section no suite
+  defines. Fires on a renumbering, and on a plan claiming a proof it never
+  had.
+- `plan_calls_closed_work_open` — a heading says work is still open and
+  every item beneath it is struck through and marked closed. **This is the
+  direction the defect actually ran in.** The citation direction was never
+  the problem: a session adding a guard cites it correctly in the same
+  breath. It is the paragraph three screens up, still calling the work
+  pending, that nobody walks back to.
+
+It found one on its first run — the heading at what is now line 1502 — and
+two more repairs came out of building it. **What it does NOT reach is
+written down beside it**, because a check's reach being mistaken for its
+coverage is the next version of this same defect: the DRAKON paragraph in
+DN2a was stale in prose under an honest heading, and no rule that does not
+know what DN6 means can see that.
+
+Two lessons worth more than the rules, both paid for:
+
+1. **The guard's positives must be BUILT, never borrowed from the artefact
+   it guards.** The first version perturbed the live plan — strike an item,
+   rename a heading — and the first repair the rules provoked rewrote those
+   exact sentences. Every positive would have quietly become a negative and
+   the guard would have gone green by testing nothing.
+2. **Silence has to be earned.** Two headings passed the first version
+   because their items were INVISIBLE to it, not because they were open —
+   it counted only bullets and struck-through lines, so a live item written
+   as plain prose was skipped. The negative sibling caught it; the positive
+   never would have.
 
 
 ## DN2b — THE RING: a state machine is not a tree (2026-08-23)
@@ -1665,17 +1706,27 @@ where it ends. So:
 thing at the bottom-right, stages as columns, the picture space-
 optimised, the pair on twin rails, the loop publishing its path.
 
-### Still open, and named
+### What this section left for later, and what answered it
 
 The **ring survives as a declared layout** for graphs of genuine peers
-(§56) — it is right for a network, wrong for a lifecycle. And the
-Principal has named the next inspiration: **DRAKON**, the Russian visual
-programming language whose editor he calls the best visual language for
-designing any diagram, to be embraced as a first-class citizen. Its
-governing ideas — a single vertical "skewer" for the main path, no
-crossing lines by construction, the happy path always leftmost — are a
-much stronger version of the lifecycle rule this section mints, and the
-next deep task in this plane.
+(§56) — it is right for a network, wrong for a lifecycle.
+
+~~And the Principal has named the next inspiration: **DRAKON**~~ —
+**CLOSED as DN6, 2026-09-03.** The Russian visual programming language
+whose editor he calls the best visual language for designing any diagram,
+embraced as a first-class citizen. Its governing ideas — a single vertical
+"skewer" for the main path, no crossing lines by construction, the happy
+path always leftmost — were a much stronger version of the lifecycle rule
+this section mints, and they became DN6: the notation profile, the
+twenty-scene catalogue, and §73k through §73z.
+
+*This paragraph said DRAKON was "the next deep task in this plane" until
+2026-09-04, the day after DN6 shipped it. THE CHECK CANNOT SEE THIS ONE.
+`plan_calls_closed_work_open` reads a heading against the items under it,
+and this heading never claimed openness — the staleness was inside the
+prose, where a rule that does not know what DN6 means cannot go. It is
+recorded here so the check's REACH is written down next to the check, and
+not mistaken for its coverage.*
 
 
 ## DN2d — MODES: the state machine's own model (2026-08-23)
