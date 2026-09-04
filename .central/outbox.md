@@ -1394,3 +1394,36 @@ note:      THE PLAN PRICED THREE TRANSCENDENTAL OPCODES AND THE WORK USED
            about what, and the cheapest first step is to ask whether the
            claims can be rephrased in what already exists.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-05 00:49
+
+subject:   DN7c -- names kept outside their angle on the sphere and in
+           the disk, after the author's mark on the spherical picture
+
+why:       a name across an arc is a picture that reads wrong, and the
+           curved styles had no rule against it
+
+did:
+  - Added to the spherical and hyperbolic styles a rule that a point's
+    name makes more than 104 degrees with every chord leaving the point,
+    two rows per segment and six per triangle.
+  - Phrased it on the chord rather than the arc, so the tape still never
+    holds a curve: a geodesic leaves its endpoint on the chord's side.
+  - Added two assertions to section 81 that re-read the angle from the
+    solved coordinates; both pictures re-rendered and inspected.
+
+state:
+  section 81:   17 assertions, 1.56s
+  gate:         841 ok, 0 failed, run on main
+  commit:       e4331b71b on origin and codeberg, verified at the sha
+
+waiting:
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      DN7d as named -- Byrne's Pythagoras: polygons, delete,
+             Minkowski separation, and marks bent to the geometry
+  - central: nothing owed from this
+```
