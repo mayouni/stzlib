@@ -379,6 +379,13 @@ func StzSphericalStyle()
 		    :cx = 300, :cy = 260, :r = 210, :stroke = "#333333", :strokeWidth = 2 ] ],
 		[ :ensure, "lessThan", [ "100*s.cosd", 86 ] ],
 		[ :ensure, "greaterThan", [ "100*s.cosd", 35 ] ],
+		# A NAME NEVER SITS ON A LINE -- the Principal's mark on the sphere.
+		# disjoint() cannot see an arc's interior, so the rule is the one a
+		# hand would follow: the name sits OUTSIDE the angle, more than 104
+		# degrees from the chord toward the other end, for every arc that
+		# leaves its point.
+		[ :ensure, "lessThan", [ "100*((p.text.cx - p.icon.cx)*(q.icon.cx - p.icon.cx) + (p.text.cy - p.icon.cy)*(q.icon.cy - p.icon.cy)) / (sqrt((p.text.cx - p.icon.cx)^2 + (p.text.cy - p.icon.cy)^2 + 0.001) * sqrt((q.icon.cx - p.icon.cx)^2 + (q.icon.cy - p.icon.cy)^2 + 0.001))", -25 ] ],
+		[ :ensure, "lessThan", [ "100*((q.text.cx - q.icon.cx)*(p.icon.cx - q.icon.cx) + (q.text.cy - q.icon.cy)*(p.icon.cy - q.icon.cy)) / (sqrt((q.text.cx - q.icon.cx)^2 + (q.text.cy - q.icon.cy)^2 + 0.001) * sqrt((p.icon.cx - q.icon.cx)^2 + (p.icon.cy - q.icon.cy)^2 + 0.001))", -25 ] ],
 		[ :layer, "s.icon", :above, "_.sphere" ],
 		[ :layer, "p.icon", :above, "s.icon" ], [ :layer, "q.icon", :above, "s.icon" ] ])
 	_o_.ForAllWhere("Triangle t; Point p; Point q; Point r", "t := Triangle(p, q, r)", [
@@ -399,6 +406,13 @@ func StzSphericalStyle()
 		[ :ensure, "lessThan", [ "100*t.cpr", 86 ] ], [ :ensure, "greaterThan", [ "100*t.cpr", 35 ] ],
 		# not a sliver: the triple product is the volume the three points span
 		[ :ensure, "greaterThan", [ "100*abs(p.sx*(q.sy*r.sz - q.sz*r.sy) - p.sy*(q.sx*r.sz - q.sz*r.sx) + p.sz*(q.sx*r.sy - q.sy*r.sx))", 8 ] ],
+		# every vertex's name outside its angle: away from both chords
+		[ :ensure, "lessThan", [ "100*((p.text.cx - p.icon.cx)*(q.icon.cx - p.icon.cx) + (p.text.cy - p.icon.cy)*(q.icon.cy - p.icon.cy)) / (sqrt((p.text.cx - p.icon.cx)^2 + (p.text.cy - p.icon.cy)^2 + 0.001) * sqrt((q.icon.cx - p.icon.cx)^2 + (q.icon.cy - p.icon.cy)^2 + 0.001))", -25 ] ],
+		[ :ensure, "lessThan", [ "100*((p.text.cx - p.icon.cx)*(r.icon.cx - p.icon.cx) + (p.text.cy - p.icon.cy)*(r.icon.cy - p.icon.cy)) / (sqrt((p.text.cx - p.icon.cx)^2 + (p.text.cy - p.icon.cy)^2 + 0.001) * sqrt((r.icon.cx - p.icon.cx)^2 + (r.icon.cy - p.icon.cy)^2 + 0.001))", -25 ] ],
+		[ :ensure, "lessThan", [ "100*((q.text.cx - q.icon.cx)*(p.icon.cx - q.icon.cx) + (q.text.cy - q.icon.cy)*(p.icon.cy - q.icon.cy)) / (sqrt((q.text.cx - q.icon.cx)^2 + (q.text.cy - q.icon.cy)^2 + 0.001) * sqrt((p.icon.cx - q.icon.cx)^2 + (p.icon.cy - q.icon.cy)^2 + 0.001))", -25 ] ],
+		[ :ensure, "lessThan", [ "100*((q.text.cx - q.icon.cx)*(r.icon.cx - q.icon.cx) + (q.text.cy - q.icon.cy)*(r.icon.cy - q.icon.cy)) / (sqrt((q.text.cx - q.icon.cx)^2 + (q.text.cy - q.icon.cy)^2 + 0.001) * sqrt((r.icon.cx - q.icon.cx)^2 + (r.icon.cy - q.icon.cy)^2 + 0.001))", -25 ] ],
+		[ :ensure, "lessThan", [ "100*((r.text.cx - r.icon.cx)*(p.icon.cx - r.icon.cx) + (r.text.cy - r.icon.cy)*(p.icon.cy - r.icon.cy)) / (sqrt((r.text.cx - r.icon.cx)^2 + (r.text.cy - r.icon.cy)^2 + 0.001) * sqrt((p.icon.cx - r.icon.cx)^2 + (p.icon.cy - r.icon.cy)^2 + 0.001))", -25 ] ],
+		[ :ensure, "lessThan", [ "100*((r.text.cx - r.icon.cx)*(q.icon.cx - r.icon.cx) + (r.text.cy - r.icon.cy)*(q.icon.cy - r.icon.cy)) / (sqrt((r.text.cx - r.icon.cx)^2 + (r.text.cy - r.icon.cy)^2 + 0.001) * sqrt((q.icon.cx - r.icon.cx)^2 + (q.icon.cy - r.icon.cy)^2 + 0.001))", -25 ] ],
 		[ :layer, "t.pq", :above, "_.sphere" ], [ :layer, "t.qr", :above, "_.sphere" ],
 		[ :layer, "t.pr", :above, "_.sphere" ],
 		[ :layer, "p.icon", :above, "t.pq" ], [ :layer, "q.icon", :above, "t.qr" ],
@@ -449,6 +463,9 @@ func StzHyperbolicStyle()
 		    :cx = 300, :cy = 260, :r = 220, :stroke = "#333333", :strokeWidth = 2 ] ],
 		[ :ensure, "greaterThan", [ "100*s.delta", 12 ] ],
 		[ :ensure, "lessThan", [ "100*s.delta", 220 ] ],
+		# the name outside the angle, for every arc that leaves its point
+		[ :ensure, "lessThan", [ "100*((p.text.cx - p.icon.cx)*(q.icon.cx - p.icon.cx) + (p.text.cy - p.icon.cy)*(q.icon.cy - p.icon.cy)) / (sqrt((p.text.cx - p.icon.cx)^2 + (p.text.cy - p.icon.cy)^2 + 0.001) * sqrt((q.icon.cx - p.icon.cx)^2 + (q.icon.cy - p.icon.cy)^2 + 0.001))", -25 ] ],
+		[ :ensure, "lessThan", [ "100*((q.text.cx - q.icon.cx)*(p.icon.cx - q.icon.cx) + (q.text.cy - q.icon.cy)*(p.icon.cy - q.icon.cy)) / (sqrt((q.text.cx - q.icon.cx)^2 + (q.text.cy - q.icon.cy)^2 + 0.001) * sqrt((p.icon.cx - q.icon.cx)^2 + (p.icon.cy - q.icon.cy)^2 + 0.001))", -25 ] ],
 		[ :layer, "s.icon", :above, "_.disk" ],
 		[ :layer, "p.icon", :above, "s.icon" ], [ :layer, "q.icon", :above, "s.icon" ] ])
 	_o_.ForAllWhere("Triangle t; Point p; Point q; Point r", "t := Triangle(p, q, r)", [
@@ -469,6 +486,13 @@ func StzHyperbolicStyle()
 		[ :ensure, "greaterThan", [ "100*t.dpr", 12 ] ], [ :ensure, "lessThan", [ "100*t.dpr", 220 ] ],
 		# not a sliver, in the disk's own coordinates
 		[ :ensure, "greaterThan", [ "100*abs((q.hx - p.hx)*(r.hy - p.hy) - (q.hy - p.hy)*(r.hx - p.hx))", 4 ] ],
+		# every vertex's name outside its angle: away from both chords
+		[ :ensure, "lessThan", [ "100*((p.text.cx - p.icon.cx)*(q.icon.cx - p.icon.cx) + (p.text.cy - p.icon.cy)*(q.icon.cy - p.icon.cy)) / (sqrt((p.text.cx - p.icon.cx)^2 + (p.text.cy - p.icon.cy)^2 + 0.001) * sqrt((q.icon.cx - p.icon.cx)^2 + (q.icon.cy - p.icon.cy)^2 + 0.001))", -25 ] ],
+		[ :ensure, "lessThan", [ "100*((p.text.cx - p.icon.cx)*(r.icon.cx - p.icon.cx) + (p.text.cy - p.icon.cy)*(r.icon.cy - p.icon.cy)) / (sqrt((p.text.cx - p.icon.cx)^2 + (p.text.cy - p.icon.cy)^2 + 0.001) * sqrt((r.icon.cx - p.icon.cx)^2 + (r.icon.cy - p.icon.cy)^2 + 0.001))", -25 ] ],
+		[ :ensure, "lessThan", [ "100*((q.text.cx - q.icon.cx)*(p.icon.cx - q.icon.cx) + (q.text.cy - q.icon.cy)*(p.icon.cy - q.icon.cy)) / (sqrt((q.text.cx - q.icon.cx)^2 + (q.text.cy - q.icon.cy)^2 + 0.001) * sqrt((p.icon.cx - q.icon.cx)^2 + (p.icon.cy - q.icon.cy)^2 + 0.001))", -25 ] ],
+		[ :ensure, "lessThan", [ "100*((q.text.cx - q.icon.cx)*(r.icon.cx - q.icon.cx) + (q.text.cy - q.icon.cy)*(r.icon.cy - q.icon.cy)) / (sqrt((q.text.cx - q.icon.cx)^2 + (q.text.cy - q.icon.cy)^2 + 0.001) * sqrt((r.icon.cx - q.icon.cx)^2 + (r.icon.cy - q.icon.cy)^2 + 0.001))", -25 ] ],
+		[ :ensure, "lessThan", [ "100*((r.text.cx - r.icon.cx)*(p.icon.cx - r.icon.cx) + (r.text.cy - r.icon.cy)*(p.icon.cy - r.icon.cy)) / (sqrt((r.text.cx - r.icon.cx)^2 + (r.text.cy - r.icon.cy)^2 + 0.001) * sqrt((p.icon.cx - r.icon.cx)^2 + (p.icon.cy - r.icon.cy)^2 + 0.001))", -25 ] ],
+		[ :ensure, "lessThan", [ "100*((r.text.cx - r.icon.cx)*(q.icon.cx - r.icon.cx) + (r.text.cy - r.icon.cy)*(q.icon.cy - r.icon.cy)) / (sqrt((r.text.cx - r.icon.cx)^2 + (r.text.cy - r.icon.cy)^2 + 0.001) * sqrt((q.icon.cx - r.icon.cx)^2 + (q.icon.cy - r.icon.cy)^2 + 0.001))", -25 ] ],
 		[ :layer, "t.pq", :above, "_.disk" ], [ :layer, "t.qr", :above, "_.disk" ],
 		[ :layer, "t.pr", :above, "_.disk" ],
 		[ :layer, "p.icon", :above, "t.pq" ], [ :layer, "q.icon", :above, "t.qr" ],

@@ -12757,6 +12757,12 @@ chk("the hyperbolic angle at A is right, to a hundredth",
 chk("and AB equals AC in hyperbolic length, to a hundredth of delta",
     fabs(_McDelta(oMcH, "A", "B") - _McDelta(oMcH, "A", "C")) < 0.01)
 
+# THE PRINCIPAL'S MARK: a name never sits on a line. On the sphere and in
+# the disk that is "outside the angle" -- the name's direction from its
+# point more than 104 degrees from the chord to every other vertex.
+chk("on the sphere, every name sits outside its angle", _McNamesOut(oMcS))
+chk("and in the disk too", _McNamesOut(oMcH))
+
 # REFUSALS with their lawful sibling.
 chk("a constraint over a curve is refused -- constraints speak to points",
     _McRefuses(1))
@@ -14712,6 +14718,26 @@ func _McDiskCos poM, pcQ, pcP, pcR
 	_n_ = sqrt(pow(_v1_[1], 2) + pow(_v1_[2], 2)) * sqrt(pow(_v2_[1], 2) + pow(_v2_[2], 2))
 	if _n_ < 0.000001  return 1  ok
 	return (_v1_[1] * _v2_[1] + _v1_[2] * _v2_[2]) / _n_
+
+# every name's direction from its point more than 104 degrees from the
+# chord to every other vertex -- re-read from the drawn positions
+func _McNamesOut poM
+	_ac_ = [ "A", "B", "C" ]
+	for _i_ = 1 to 3
+		_p_ = poM.ShapeOf(_ac_[_i_] + ".icon")
+		_t_ = poM.ShapeOf(_ac_[_i_] + ".text")
+		_dx_ = _t_[:cx] - _p_[:cx]  _dy_ = _t_[:cy] - _p_[:cy]
+		_nd_ = sqrt(pow(_dx_, 2) + pow(_dy_, 2))
+		for _j_ = 1 to 3
+			if _j_ = _i_  loop  ok
+			_q_ = poM.ShapeOf(_ac_[_j_] + ".icon")
+			_ex_ = _q_[:cx] - _p_[:cx]  _ey_ = _q_[:cy] - _p_[:cy]
+			_ne_ = sqrt(pow(_ex_, 2) + pow(_ey_, 2))
+			if _nd_ * _ne_ < 0.001  return FALSE  ok
+			if (_dx_ * _ex_ + _dy_ * _ey_) / (_nd_ * _ne_) > -0.24  return FALSE  ok
+		next
+	next
+	return TRUE
 
 func _McRefuses pnWhich
 	_b_ = FALSE
