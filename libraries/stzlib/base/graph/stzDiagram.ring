@@ -15196,6 +15196,25 @@ class stzDiagram from stzGraph
 		@aStubOf = []
 		_psAx_ = 1
 		if cRank = "LR" or cRank = "RL"  _psAx_ = 2  ok
+		# THE EDGE ENDS ARE LOWERCASED ONCE, BEFORE THE NODE LOOP.
+		#
+		# The loop below runs over every NODE and, inside it, over every
+		# EDGE -- copying the edge list per node and calling StzLower
+		# twice per edge. On a 400-node render that is 400 list copies
+		# and ~320,000 engine calls, and it is the third method in this
+		# renderer with exactly this shape: a value recomputed inside a
+		# loop that cannot change while the loop runs.
+		#
+		# _PlanLaneStubs was 7.9s of the 9.4s left in _PlanRowLanes once
+		# _DeepestRailAt had been fixed -- and that earlier fix is why
+		# this one had to be re-measured before it was touched, rather
+		# than trusted from a profile taken before it.
+		_aPsLowF_ = []
+		_aPsLowT_ = []
+		for _iPsL_ = 1 to len(@aEdges)
+			_aPsLowF_ + StzLower("" + @aEdges[_iPsL_][:from])
+			_aPsLowT_ + StzLower("" + @aEdges[_iPsL_][:to])
+		next
 		_aPsN6_ = This.Nodes()
 		_nPsN6_ = len(_aPsN6_)
 		for _iPsN6_ = 1 to _nPsN6_
@@ -15224,13 +15243,12 @@ class stzDiagram from stzGraph
 			# is not allocating anything -- an edge it cannot see is an
 			# edge it will collide with.
 			_psTouch_ = []
-			_aPsE5_ = This.Edges()
-			_nPsE5_ = len(_aPsE5_)
+			_nPsE5_ = len(@aEdges)
 			for _iPsE5_ = 1 to _nPsE5_
-				_psE_ = _aPsE5_[_iPsE5_]
-				_psF_ = StzLower("" + _psE_[:from])
-				_psT_ = StzLower("" + _psE_[:to])
+				_psF_ = _aPsLowF_[_iPsE5_]
+				_psT_ = _aPsLowT_[_iPsE5_]
 				if _psF_ = _psT_  loop  ok
+				_psE_ = @aEdges[_iPsE5_]
 				_psOther_ = ""
 				_psEnd_ = 0
 				if _psF_ = _psId_
