@@ -95,7 +95,8 @@ sections, of which 21 declarations over 17 items.
 | DN7 | closed | - |
 | DN7a | closed | 79 |
 | DN7b | closed | 80 |
-| DN7c | open | - |
+| DN7c | closed | 81 |
+| DN7d | open | - |
 | DN2b | closed | 56 |
 | DN2c | closed | - |
 | DN2d | closed | 57 |
@@ -1818,16 +1819,47 @@ was a cliff at twelve sets.
   `Vector u` and `VectorSpace U` were one object; Penrose's names are
   case-sensitive and so is Ring's `=`, and every lookup now is.
 
-- **DN7c — NEXT, named with its cost.** Penrose's Fig. 1 — the same
-  geometric statements in Euclidean, spherical and hyperbolic styles. A
-  spherical Style projects points on a sphere and draws segments as
-  great-circle arcs; a hyperbolic one draws in the Poincaré disk. Both
-  need `asin`, `acos` and `atan2` on the tape, which has `sin`, `cos` and
-  `tan` only — an engine addition of three opcodes and their adjoints,
-  and arcs as a shape the canvas draws. The kill is Fig. 1 itself: if a
-  Style cannot swap the geometry without touching the Substance, the
-  split was not real. Also unbuilt: `delete`, ellipses and polygons,
-  Minkowski distances for exact text-against-shape separation.
+- **DN7c — one triangle, three geometries: Penrose's Fig. 1. SHIPPED
+  2026-09-05.** Guard §81. `StzSphericalStyle()` and
+  `StzHyperbolicStyle()` over the geometry domain, and ONE
+  `stzMathSubstance` instance — the right isosceles triangle — handed to
+  three diagrams: the plane, the sphere, the Poincaré disk. All three
+  lawful, the substance untouched by construction of the test, the
+  right angle and the equal sides re-read from the solved coordinates in
+  each geometry's own terms.
+
+  | scene | unknowns | constraints | rounds | evaluations | ms |
+  |---|---|---|---|---|---|
+  | on a sphere | 15 | 45 | 2 | 904 | 48 |
+  | in the Poincaré disk | 12 | 42 | 2 | 646 | 50 |
+
+  **THE PLAN WAS WRONG ABOUT WHAT THIS COST, in the cheap direction.** It
+  said the styles needed `asin`, `acos` and `atan2` on the tape — an
+  engine addition of three opcodes and their adjoints. They did not. A
+  point on the sphere is a unit vector held there by one constraint; a
+  point in the disk is a pair held inside by one; and every claim the
+  domain makes is a POLYNOMIAL in those coordinates once it is phrased on
+  dot products: equal length is equal cosine on the sphere and equal
+  `delta = |p—q|² / ((1—|p|²)(1—|q|²))` in the disk, both monotone in
+  the true distance; a right angle is a zero dot product between the
+  geodesics' tangents at the vertex. In the disk the tangent at q is
+  perpendicular to q — c for the arc's centre c = N/D, and clearing the
+  denominators makes the test `(D₁q — N₁)·(D₂q — N₂) = 0` — which stays
+  correct when an arc is a diameter and D is zero. The arcs themselves
+  are DRAWN, sampled in Ring at the solved values, because no constraint
+  ever needs an arc's interior. No engine change, no rebuild.
+
+  Added to the language for it: `[ :unknown, path, lo, hi ]`, a variable
+  the solver owns that is not a shape's property; global paths (`_.sphere`,
+  minted once however many points sit on it); and the `:curve` shape,
+  `greatarc` or `poincare`, derived entirely from its endpoints.
+
+- **DN7d — NEXT, named with its cost.** Byrne's Pythagorean theorem as
+  the paper draws it: three squares on the sides, an altitude, two
+  rectangles, coloured. Needs polygons as shapes, Penrose's `delete`, and
+  Minkowski separation for exact text-against-shape distances. The
+  marks the sphere and the disk do not yet draw — a right-angle mark and
+  equal-length ticks bent to the geometry — belong here too.
 
 ## DN2b — THE RING: a state machine is not a tree (2026-08-23)
 

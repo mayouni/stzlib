@@ -5,7 +5,7 @@
 #
 #     ring gg_math_catalogue.ring
 #
-# writes math_01.png .. math_10.png beside it and prints, for each, the
+# writes math_01.png .. math_12.png beside it and prints, for each, the
 # solver's own account -- unknowns, constraints, rounds, evaluations,
 # milliseconds -- and every violated constraint, because the fifth scene
 # is a contradiction on purpose and its report is the point.
@@ -23,9 +23,11 @@ acTitles = [ "two sets, one inside the other  (Penrose twosets-simple)",
              "a unit vector and an orthogonal  (Penrose twoVectorsPerp)",
              "u := addV(v, w)                  (the tutorial's third chapter)",
              "a general triangle               (Penrose general-triangle)",
-             "a right isosceles triangle       (Right(BAC), EqualLength(AB, AC))" ]
+             "a right isosceles triangle       (Right(BAC), EqualLength(AB, AC))",
+             "THE SAME triangle, on a sphere   (Penrose Fig. 1, middle)",
+             "THE SAME triangle, hyperbolic    (Penrose Fig. 1, right -- the Poincare disk)" ]
 
-for i = 1 to 10
+for i = 1 to 12
 	if i = 1   oM = StzMathScene01(oFont)
 	but i = 2  oM = StzMathScene02(oFont)
 	but i = 3  oM = StzMathScene03(oFont)
@@ -35,7 +37,9 @@ for i = 1 to 10
 	but i = 7  oM = StzMathScene07(oFont)
 	but i = 8  oM = StzMathScene08(oFont)
 	but i = 9  oM = StzMathScene09(oFont)
-	else       oM = StzMathScene10(oFont)  ok
+	but i = 10 oM = StzMathScene10(oFont)
+	but i = 11 oM = StzMathScene11(oFont)
+	else       oM = StzMathScene12(oFont)  ok
 	oM.Layout()
 	? "== " + acTitles[i]
 	? "   unknowns " + oM.NumberOfUnknowns() + "   constraints " +

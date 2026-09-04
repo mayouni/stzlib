@@ -12702,6 +12702,68 @@ chk("len() of a circle is refused -- it is not a line", _MbRefuses(3))
 chk("NEGATIVE: the lawful forms are accepted", NOT _MbRefuses(0))
 
 
+sec("-- 81. DN7c: ONE TRIANGLE, THREE GEOMETRIES -- PENROSE'S FIG. 1 --------")
+discharges("DN7c")
+
+# The kill for DN7c is the paper's own Fig. 1: the same geometric statements
+# in Euclidean, spherical and hyperbolic styles, the Substance untouched.
+# One instance, three diagrams. The plan assumed this needed asin, acos and
+# atan2 on the tape; it did not -- every claim below is a polynomial in the
+# model's coordinates once phrased on dot products, and the Poincare right
+# angle is division-free once the geodesic centre's numerator is used.
+oMcSub = StzMathRightIsoscelesSubstance()
+oMcE = new stzMathDiagram(StzGeometryDomain(), oMcSub, StzEuclideanStyle())
+oMcE.SetFont(AUFONT, 24)  oMcE.SetVariation("right-isosceles")
+oMcS = new stzMathDiagram(StzGeometryDomain(), oMcSub, StzSphericalStyle())
+oMcS.SetFont(AUFONT, 24)  oMcS.SetVariation("on-a-sphere")
+oMcH = new stzMathDiagram(StzGeometryDomain(), oMcSub, StzHyperbolicStyle())
+oMcH.SetFont(AUFONT, 24)  oMcH.SetVariation("in-the-disk")
+chk("the right isosceles triangle is lawful in the plane", oMcE.IsFeasible())
+chk("lawful on the SPHERE, from the same substance object", oMcS.IsFeasible())
+chk("and lawful in the HYPERBOLIC plane, from the same object", oMcH.IsFeasible())
+chk("the plane draws no curve; the sphere and the disk draw three each",
+    _McCurves(oMcE) = 0 and
+    _McCurves(oMcS) = 3 and _McCurves(oMcH) = 3)
+chk("the sphere is minted ONCE, however many points sit on it",
+    _McCount(oMcS, "_.sphere") = 1)
+
+# THE SPHERE, re-read with plain arithmetic: every point on it, in front,
+# the tangents at A perpendicular, the two arcs equal.
+bMcUnit = TRUE  bMcFront = TRUE
+for cMc in [ "A", "B", "C" ]
+	nMcN = pow(oMcS.ValueOf(cMc + ".sx"), 2) + pow(oMcS.ValueOf(cMc + ".sy"), 2) +
+	       pow(oMcS.ValueOf(cMc + ".sz"), 2)
+	if fabs(nMcN - 1) > 0.01  bMcUnit = FALSE  ok
+	if oMcS.ValueOf(cMc + ".sz") < 0.29  bMcFront = FALSE  ok
+next
+chk("every point is a unit vector, to a hundredth", bMcUnit)
+chk("and on the hemisphere facing the reader", bMcFront)
+chk("the geodesic tangents at A are perpendicular, to a hundredth",
+    fabs(_McSphereCos(oMcS, "B", "A", "C")) < 0.01)
+chk("and AB equals AC in arc, to a hundredth of a cosine",
+    fabs(_McDot3(oMcS, "A", "B") - _McDot3(oMcS, "A", "C")) < 0.01)
+
+# THE DISK, re-read: every point inside, the arcs' tangents at A
+# perpendicular by the cleared-denominator test, the two arcs equal.
+bMcIn = TRUE
+for cMc in [ "A", "B", "C" ]
+	if pow(oMcH.ValueOf(cMc + ".hx"), 2) + pow(oMcH.ValueOf(cMc + ".hy"), 2) >= 0.65
+		bMcIn = FALSE
+	ok
+next
+chk("every point is inside the disk, away from the rim", bMcIn)
+chk("the hyperbolic angle at A is right, to a hundredth",
+    fabs(_McDiskCos(oMcH, "A", "B", "C")) < 0.01)
+chk("and AB equals AC in hyperbolic length, to a hundredth of delta",
+    fabs(_McDelta(oMcH, "A", "B") - _McDelta(oMcH, "A", "C")) < 0.01)
+
+# REFUSALS with their lawful sibling.
+chk("a constraint over a curve is refused -- constraints speak to points",
+    _McRefuses(1))
+chk("a malformed unknown row is refused", _McRefuses(2))
+chk("NEGATIVE: the lawful forms are accepted", NOT _McRefuses(0))
+
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go
@@ -14584,6 +14646,83 @@ func _MbRefuses pnWhich
 		ok
 		if pnWhich = 3  _oT_.ForAll("Set x", [ [ :ensure, "greaterThan", [ "len(x.icon)", 1 ] ] ])  ok
 		_o_ = new stzMathDiagram(StzSetTheoryDomain(), StzMathTreeSubstance(), _oT_)
+		_o_.Layout()
+	catch
+		_b_ = TRUE
+	done
+	return _b_
+
+func _McCurves poM
+	_n_ = 0
+	_ac_ = poM.Shapes()
+	for _i_ = 1 to len(_ac_)
+		if poM.ShapeOf(_ac_[_i_])[:kind] = "curve"  _n_++  ok
+	next
+	return _n_
+
+func _McCount poM, pcPath
+	_n_ = 0
+	_ac_ = poM.Shapes()
+	for _i_ = 1 to len(_ac_)
+		if _ac_[_i_] = pcPath  _n_++  ok
+	next
+	return _n_
+
+func _McDot3 poM, pcA, pcB
+	return poM.ValueOf(pcA + ".sx") * poM.ValueOf(pcB + ".sx") +
+	       poM.ValueOf(pcA + ".sy") * poM.ValueOf(pcB + ".sy") +
+	       poM.ValueOf(pcA + ".sz") * poM.ValueOf(pcB + ".sz")
+
+# cosine between the geodesic tangents at q, toward p and toward r
+func _McSphereCos poM, pcP, pcQ, pcR
+	_dqp_ = _McDot3(poM, pcQ, pcP)
+	_dqr_ = _McDot3(poM, pcQ, pcR)
+	_t1_ = [ poM.ValueOf(pcP + ".sx") - _dqp_ * poM.ValueOf(pcQ + ".sx"),
+	         poM.ValueOf(pcP + ".sy") - _dqp_ * poM.ValueOf(pcQ + ".sy"),
+	         poM.ValueOf(pcP + ".sz") - _dqp_ * poM.ValueOf(pcQ + ".sz") ]
+	_t2_ = [ poM.ValueOf(pcR + ".sx") - _dqr_ * poM.ValueOf(pcQ + ".sx"),
+	         poM.ValueOf(pcR + ".sy") - _dqr_ * poM.ValueOf(pcQ + ".sy"),
+	         poM.ValueOf(pcR + ".sz") - _dqr_ * poM.ValueOf(pcQ + ".sz") ]
+	_n1_ = sqrt(pow(_t1_[1], 2) + pow(_t1_[2], 2) + pow(_t1_[3], 2))
+	_n2_ = sqrt(pow(_t2_[1], 2) + pow(_t2_[2], 2) + pow(_t2_[3], 2))
+	if _n1_ * _n2_ < 0.000001  return 1  ok
+	return (_t1_[1] * _t2_[1] + _t1_[2] * _t2_[2] + _t1_[3] * _t2_[3]) / (_n1_ * _n2_)
+
+func _McDelta poM, pcA, pcB
+	_ax_ = poM.ValueOf(pcA + ".hx")  _ay_ = poM.ValueOf(pcA + ".hy")
+	_bx_ = poM.ValueOf(pcB + ".hx")  _by_ = poM.ValueOf(pcB + ".hy")
+	return (pow(_ax_ - _bx_, 2) + pow(_ay_ - _by_, 2)) /
+	       ((1 - pow(_ax_, 2) - pow(_ay_, 2)) * (1 - pow(_bx_, 2) - pow(_by_, 2)))
+
+# the direction from the geodesic's centre to q, denominators cleared:
+# D*q - N for the arc through q and p
+func _McDiskDir poM, pcQ, pcP
+	_qx_ = poM.ValueOf(pcQ + ".hx")  _qy_ = poM.ValueOf(pcQ + ".hy")
+	_px_ = poM.ValueOf(pcP + ".hx")  _py_ = poM.ValueOf(pcP + ".hy")
+	_kq_ = (1 + pow(_qx_, 2) + pow(_qy_, 2)) / 2
+	_kp_ = (1 + pow(_px_, 2) + pow(_py_, 2)) / 2
+	_D_ = _qx_ * _py_ - _qy_ * _px_
+	_nx_ = _kq_ * _py_ - _kp_ * _qy_
+	_ny_ = _qx_ * _kp_ - _px_ * _kq_
+	return [ _D_ * _qx_ - _nx_, _D_ * _qy_ - _ny_ ]
+
+func _McDiskCos poM, pcQ, pcP, pcR
+	_v1_ = _McDiskDir(poM, pcQ, pcP)
+	_v2_ = _McDiskDir(poM, pcQ, pcR)
+	_n_ = sqrt(pow(_v1_[1], 2) + pow(_v1_[2], 2)) * sqrt(pow(_v2_[1], 2) + pow(_v2_[2], 2))
+	if _n_ < 0.000001  return 1  ok
+	return (_v1_[1] * _v2_[1] + _v1_[2] * _v2_[2]) / _n_
+
+func _McRefuses pnWhich
+	_b_ = FALSE
+	try
+		_oT_ = StzSphericalStyle()
+		if pnWhich = 1
+			_oT_.ForAllWhere("Segment s; Point p; Point q", "s := Segment(p, q)",
+				[ [ :ensure, "contains", [ "_.sphere", "s.icon" ] ] ])
+		ok
+		if pnWhich = 2  _oT_.ForAll("Point p", [ [ :unknown, "p.w", "low" ] ])  ok
+		_o_ = new stzMathDiagram(StzGeometryDomain(), StzMathRightIsoscelesSubstance(), _oT_)
 		_o_.Layout()
 	catch
 		_b_ = TRUE
