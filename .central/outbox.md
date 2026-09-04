@@ -1068,3 +1068,63 @@ note:      SILENCE HAS TO BE EARNED, AND I NEARLY SHIPPED A RULE THAT HAD
            end the same way -- a green nobody earned -- and neither is
            visible from the passing run.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-04 18:46
+
+subject:   the expensive half -- a guard declares what it discharges, and
+           the plan's status is generated from that
+
+why:       the author routed it, and the morning's rules had closed only
+           the half that could be closed from the document's side
+
+did:
+  - Inverted the direction, after finding WHY the citation direction can
+    never be enough: two references in this plan looked exactly like guard
+    citations and were not, and one of them RESOLVED BY COINCIDENCE
+    because a guard with that number existed. It had been passing.
+  - Added discharges("ITEM") to 21 guard sections, mapped from evidence --
+    the plan's own citations and the sections' own titles -- never from my
+    reading of what a section ought to prove.
+  - Generated the plan's status table from those declarations, with a rule
+    that fails when the written table drifts from them.
+  - Stated a status for the eleven items that had none, checking each
+    against the code rather than guessing, and marked GG3 UNDECIDED
+    because whether it ships is not this desk's call.
+  - Cross-checked the runtime declarations against a static parse of the
+    same lines -- two code paths, two inputs, one truth.
+  - Probed every section standalone before folding it in.
+
+state:
+  declarations:  21, over 17 of 31 plan items
+  rules:         4, each with a negative sibling that discriminates
+  section 75:    26 assertions, 1.23s
+  gate:          726 ok, 0 failed, 100 sections
+  commit:        958afa88a on origin and codeberg, both verified at the sha
+
+waiting:
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      nothing named. The declarations cover 17 of 31 items and the
+             table SHOWS the gap rather than hiding it, which is where I
+             would stop without a reason to go further
+  - central: the inversion is portable. Any repository whose documents
+             cite test sections has the coincidence defect described above
+
+note:      THREE DEFECTS IN THE WRITING OF IT, AND ALL THREE WERE ONE
+           FAMILY: SOMETHING COMPUTED FROM ITSELF. StzFindFirst answers in
+           codepoints where s[i] and len() answer in bytes, so on a
+           document full of em-dashes the generated table was written into
+           the middle of its own opening marker -- correct on ASCII, which
+           is exactly how that class of bug survives. An item's body ran up
+           to the table, and the table says "closed" on nearly every row,
+           so the last item before it read as closed whatever its own words
+           said: the table had made itself right, and looked right. And the
+           paragraph introducing the cure carried a hand-counted "10 of 31"
+           that was already wrong. I caught the first two because the
+           damage was visible in the file, and the third only because I
+           went back to check a number I had written from memory next to a
+           table built precisely so that nobody would have to.
+```
