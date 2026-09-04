@@ -621,9 +621,24 @@ class stzDiagram from stzGraph
 	# part of one node, which an id cannot do once the parts are separated
 	# by paint order.
 	def _SvgClassesFor(paNode, pcBase)
-		return StzTrim("node " +
+		_c_ = StzTrim("node " +
 			StzSvgNameOf(This._NativeShapeOf(paNode), "k_", []) +
 			" el_" + pcBase)
+		# L19: ENDINGS ARE ADDRESSED BY CLASS, NODES BY IDENTIFIER. An
+		# ending reached three times is three markers with three ids, and a
+		# consumer wanting all of them has no identifier to ask for -- so
+		# every marker carries wf-target-<name> and the consumer selects
+		# that. The property is set by ExpandEndingsPerArrival.
+		_t_ = ""
+		try
+			_t_ = "" + This.NodeProperty("" + paNode[:id], "targetof")
+		catch
+			_t_ = ""
+		done
+		if _t_ != ""
+			_c_ += (" wf-target-" + StzSvgNameOf(_t_, "t_", []))
+		ok
+		return _c_
 
 	def _SvgNameFor(pcId)
 		_n_ = len(@aSvgNameOfId)
