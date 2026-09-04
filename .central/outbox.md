@@ -1347,3 +1347,50 @@ note:      A PICTURE CAN BE LAWFUL AND WRONG, AND FEASIBILITY CANNOT SEE
            diagram has none yet, and that is the next thing worth
            building before DN7c.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-05 00:35
+
+subject:   DN7c -- one triangle in three geometries, and the opcodes the
+           plan priced that the work did not need
+
+why:       the author routed DN7c, the plane's one open item
+
+did:
+  - Shipped spherical and hyperbolic styles over the geometry domain,
+    and met the kill: one substance instance, three lawful diagrams.
+  - Phrased every non-Euclidean claim on dot products, so the tape
+    needed no asin, acos or atan2 -- no engine change, no rebuild.
+  - Drew geodesics by sampling at the solved values, since no constraint
+    touches an arc's interior.
+  - Added :unknown rows, global paths and the :curve shape to the Style
+    language.
+  - Caught a wrong guard: the two angle helpers took the vertex in
+    different positions, and the test failed a correct picture.
+
+state:
+  section 81:   15 assertions, 0.32s
+  gate:         839 ok, 0 failed, run on main
+  plan table:   DN7a, DN7b, DN7c closed; DN7d open
+  commit:       804324e67 on origin and codeberg, verified at the sha
+
+waiting:
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      DN7d as named -- Byrne's Pythagoras: polygons, delete,
+             Minkowski separation, and marks bent to the geometry
+  - central: nothing owed from this
+
+note:      THE PLAN PRICED THREE TRANSCENDENTAL OPCODES AND THE WORK USED
+           NONE. Not because the estimate was careless -- an arc length
+           IS an arccosine -- but because a constraint does not need the
+           length, it needs two lengths to be EQUAL, and the arccosine is
+           monotone, so equal cosines suffice. The same move made the
+           hyperbolic right angle division-free. The lesson is the
+           direction of the error: a plan that names a missing primitive
+           is usually right that something is missing and often wrong
+           about what, and the cheapest first step is to ask whether the
+           claims can be rephrased in what already exists.
+```
