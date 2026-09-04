@@ -35,6 +35,7 @@ load "gg_drakon_scenes.ring"
 
 decimals(2)
 nOk = 0  nBad = 0  nSecClock = 0
+nCf77Seq = 0
 
 # A guard section declares which plan item it discharges, so the plan's
 # status table is GENERATED from the suite rather than remembered beside
@@ -12436,6 +12437,69 @@ chkeq("every piece of text is inside an element, never loose on the paper",
       _LooseText76(cBp76), 0)
 
 
+sec("-- 77. DN3b: THE SHARED RENDER AGREES WITH THE LAW, CELL BY CELL ---")
+
+# The plan recorded step 2 as "the law's col/row handed to the plastic
+# layout as pins". MEASURED, THAT PREMISE WAS WRONG, and measuring it is
+# the only reason this section exists rather than a pin pass.
+#
+# Compared cell by cell against stzBpmnDiagram's conformance digest -- the
+# oracle two implementations are held to -- the plastic layout ALREADY
+# places every node where the law says. Three of five process shapes agreed
+# on every cell with no pins at all. The two that diverged did so for one
+# reason each, and it was always the same one: L7/L8, an ending duplicated
+# per arrival. An ending reached twice is ONE node in the shared model and
+# TWO markers in the law, and merging them moves the survivor.
+#
+# So nothing needed pinning. What was missing was a MODEL transform.
+
+chkeq("a linear process agrees with the law on every cell",
+      _Cf77("linear", 1), 0)
+chkeq("a gateway with an exception agrees on every cell",
+      _Cf77("gateway", 1), 0)
+chkeq("a process with a RETURN edge agrees on every cell",
+      _Cf77("return", 1), 0)
+chkeq("an ending reached TWICE agrees on every cell",
+      _Cf77("twoarrivals", 1), 0)
+chkeq("a long branch off a short spine agrees on every cell",
+      _Cf77("longbranch", 1), 0)
+
+# THE NEGATIVE THAT MAKES THE FIVE ABOVE WORTH HAVING. Without the
+# transform the two multi-arrival shapes MUST diverge -- if they pass
+# either way, the transform is not what is carrying them and these
+# assertions agree with the law by coincidence.
+chk("NEGATIVE: without the transform, an ending reached twice DIVERGES",
+    _Cf77("twoarrivals", 0) > 0)
+chk("NEGATIVE: and so does the long branch",
+    _Cf77("longbranch", 0) > 0)
+chkeq("NEGATIVE: while a single-arrival process needs no transform at all",
+      _Cf77("linear", 0), 0)
+
+# L8: identity across duplicates -- canonical first, then __2, __3.
+oTg77 = _Wf77("twoarrivals")
+chkeq("one extra marker is minted for the second arrival",
+      oTg77.ExpandEndingsPerArrival(), 1)
+cTg77 = oTg77.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 132,
+                           :NodeHeight = 52 ]).ToSVG()
+acTg77 = _Ids76(cTg77)
+chk("the FIRST arrival keeps the canonical, unsuffixed name",
+    _Has76(acTg77, "e"))
+chk("and the second is suffixed __2, in arrival order",
+    _Has76(acTg77, "e__2"))
+
+# L19: endings are addressed BY CLASS, nodes by identifier. Two markers of
+# one ending have two ids and no identifier a consumer can ask for.
+chk("every marker of one ending carries wf-target-<name>",
+    len(StzFindCS("wf-target-e", cTg77, TRUE)) >= 2)
+chk("NEGATIVE: a class nobody declared is not in the document",
+    len(StzFindCS("wf-target-zzz", cTg77, TRUE)) = 0)
+
+# The transform must not invent markers where none are owed.
+oLn77 = _Wf77("linear")
+chkeq("NEGATIVE: a single-arrival ending mints NO extra marker",
+      oLn77.ExpandEndingsPerArrival(), 0)
+
+
 if nSecClock > 0
 	? "        [section took " +
 	  ((clock() - nSecClock) / clockspersecond()) + "s]"
@@ -14072,6 +14136,145 @@ func _LooseText76 cSvg
 		if NOT _in_  _loose_++  ok
 	next
 	return _loose_
+
+# One of the five process shapes section 77 compares.
+func _Wf77 cWhich
+	_aS_ = []
+	_aE_ = []
+	switch cWhich
+	on "linear"
+		_aS_ = [ [ "s", "", "entry" ], [ "a", "A", "invoke" ],
+		         [ "b", "B", "invoke" ], [ "e", "End", "terminal" ] ]
+		_aE_ = [ [ "s", "a" ], [ "a", "b" ], [ "b", "e" ] ]
+	on "gateway"
+		_aS_ = [ [ "s", "", "entry" ], [ "recv", "Receive", "invoke" ],
+		         [ "chk", "Check", "gateway" ], [ "pack", "Pack", "human" ],
+		         [ "ok", "Shipped", "terminal" ],
+		         [ "no", "Rejected", "terminal" ] ]
+		_aE_ = [ [ "s", "recv" ], [ "recv", "chk" ], [ "chk", "pack" ],
+		         [ "chk", "no" ], [ "pack", "ok" ] ]
+	on "return"
+		_aS_ = [ [ "s", "", "entry" ], [ "a", "A", "invoke" ],
+		         [ "b", "B", "gateway" ], [ "e", "End", "terminal" ] ]
+		_aE_ = [ [ "s", "a" ], [ "a", "b" ], [ "b", "e" ], [ "b", "a" ] ]
+	on "twoarrivals"
+		_aS_ = [ [ "s", "", "entry" ], [ "a", "A", "gateway" ],
+		         [ "b", "B", "invoke" ], [ "e", "End", "terminal" ] ]
+		_aE_ = [ [ "s", "a" ], [ "a", "b" ], [ "a", "e" ], [ "b", "e" ] ]
+	other
+		_aS_ = [ [ "s", "", "entry" ], [ "g", "G", "gateway" ],
+		         [ "q", "Q", "invoke" ], [ "r", "R", "invoke" ],
+		         [ "t", "T", "invoke" ], [ "e", "End", "terminal" ] ]
+		_aE_ = [ [ "s", "g" ], [ "g", "e" ], [ "g", "q" ], [ "q", "r" ],
+		         [ "r", "t" ], [ "t", "e" ] ]
+	off
+	nCf77Seq++
+	_o_ = new stzWorkflow("cf77" + cWhich + nCf77Seq)
+	_o_.SetWorkflowType("bpmn")
+	_n_ = len(_aS_)
+	for _i_ = 1 to _n_
+		_o_.AddStepXTT(_aS_[_i_][1], _aS_[_i_][2], [ :type = _aS_[_i_][3] ])
+	next
+	_m_ = len(_aE_)
+	for _i_ = 1 to _m_
+		_o_.Connect(_aE_[_i_][1], _aE_[_i_][2])
+	next
+	return _o_
+
+# How many cells the shared render places somewhere the law did not.
+func _Cf77 cWhich, nExpand
+	_oL_ = _Wf77(cWhich)
+	_oB_ = new stzBpmnDiagram(_oL_)
+	_aSt_ = _oL_.Steps()
+	_nS_ = len(_aSt_)
+	for _i_ = 1 to _nS_
+		if StzLower("" + _oL_.NodeProperty("" + _aSt_[_i_][:id], "type")) =
+		   "terminal"
+			_oB_.MarkEnding("" + _aSt_[_i_][:id], "terminal", "")
+		ok
+	next
+	_aLaw_ = _Law77(_oB_.LayoutDigest())
+
+	_oR_ = _Wf77(cWhich)
+	if nExpand = 1  _oR_.ExpandEndingsPerArrival()  ok
+	_oR_.ToCanvasXT([ :Font = AUFONT, :NodeWidth = 132, :NodeHeight = 52 ])
+	_aRen_ = _Cells77(_oR_.RenderNodeRects())
+
+	_nD_ = 0
+	_nL_ = len(_aLaw_)
+	for _i_ = 1 to _nL_
+		_cB_ = StzReplace(StzReplace(_aLaw_[_i_][1], "terminal_", ""),
+		                  "suspended_", "")
+		_a_ = _CellOf77(_aRen_, _cB_)
+		if len(_a_) = 0
+			_nD_++
+			loop
+		ok
+		if _a_[1] != _aLaw_[_i_][2] or _a_[2] != _aLaw_[_i_][3]  _nD_++  ok
+	next
+	return _nD_
+
+func _Law77 cDigest
+	_a_ = []
+	_ac_ = StzSplit(StzReplace(cDigest, char(13), ""), char(10))
+	_n_ = len(_ac_)
+	for _i_ = 1 to _n_
+		_c_ = StzTrim(_ac_[_i_])
+		if StzLeft(_c_, 2) = "N "
+			_p_ = StzSplit(_c_, " ")
+			if len(_p_) >= 5  _a_ + [ _p_[2], 0 + _p_[4], 0 + _p_[5] ]  ok
+		but StzLeft(_c_, 2) = "X "
+			_p_ = StzSplit(_c_, " ")
+			if len(_p_) >= 6  _a_ + [ _p_[2], 0 + _p_[5], 0 + _p_[6] ]  ok
+		ok
+	next
+	return _a_
+
+# The drawn picture as CELLS. Pixels cannot be compared with grid units,
+# but their ORDER can, and order is exactly what the law fixes.
+func _Cells77 aRects
+	_acX_ = []
+	_acY_ = []
+	_n_ = len(aRects)
+	for _i_ = 1 to _n_
+		_cx_ = aRects[_i_][1] + aRects[_i_][3] / 2
+		_cy_ = aRects[_i_][2] + aRects[_i_][4] / 2
+		if NOT _Near77(_acX_, _cx_)  _acX_ + _cx_  ok
+		if NOT _Near77(_acY_, _cy_)  _acY_ + _cy_  ok
+	next
+	_acX_ = sort(_acX_)
+	_acY_ = sort(_acY_)
+	_a_ = []
+	for _i_ = 1 to _n_
+		_cx_ = aRects[_i_][1] + aRects[_i_][3] / 2
+		_cy_ = aRects[_i_][2] + aRects[_i_][4] / 2
+		_a_ + [ aRects[_i_][5], _NearIdx77(_acX_, _cx_),
+		        _NearIdx77(_acY_, _cy_) - 1 ]
+	next
+	return _a_
+
+func _Near77 aList, nV
+	_n_ = len(aList)
+	for _i_ = 1 to _n_
+		if fabs(aList[_i_] - nV) < 2  return TRUE  ok
+	next
+	return FALSE
+
+func _NearIdx77 aList, nV
+	_n_ = len(aList)
+	for _i_ = 1 to _n_
+		if fabs(aList[_i_] - nV) < 2  return _i_  ok
+	next
+	return 0
+
+func _CellOf77 aCells, cId
+	_n_ = len(aCells)
+	for _i_ = 1 to _n_
+		if StzLower(aCells[_i_][1]) = StzLower(cId)
+			return [ aCells[_i_][2], aCells[_i_][3] ]
+		ok
+	next
+	return []
 
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0

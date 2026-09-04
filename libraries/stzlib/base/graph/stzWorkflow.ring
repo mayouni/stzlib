@@ -334,6 +334,67 @@ class stzWorkflow from stzDiagram
 		end
 		return []
 	
+	# L7/L8: AN ENDING IS DUPLICATED PER ARRIVAL.
+	#
+	# The BPMN layout law says every arrow into an ending gets its OWN
+	# event marker, the first arrival carrying the canonical unsuffixed
+	# name and later ones suffixed __2, __3 in arrival order. It is not a
+	# drawing habit: the conformance digest fixes those markers by id, row
+	# and column, and two implementations are held to it.
+	#
+	# THIS IS THE ONLY THING THE SHARED RENDERER WAS MISSING, and that was
+	# measured rather than assumed. Compared cell by cell against the law's
+	# digest over five process shapes, the plastic layout ALREADY places
+	# every node where the law says -- linear, gateway-with-exception and
+	# return-edge agree on every cell with no pins at all. The two that
+	# diverged did so for one reason each, and it was always this: an
+	# ending reached twice is one node in the shared model and two markers
+	# in the law, and merging them moves the survivor.
+	#
+	# So the col/row never needed handing over. What was missing was a
+	# MODEL transform, and this is it.
+	#
+	# Every duplicate carries the ending's name in a `targetof` property,
+	# because L19 says endings are addressed BY CLASS and nodes by
+	# identifier: a consumer selects wf-target-<name> to get all markers of
+	# one ending at once. The renderer turns that property into the class.
+	#
+	# Returns the number of markers it added.
+	def ExpandEndingsPerArrival()
+		_nAdded_ = 0
+		# SNAPSHOT FIRST. This loop adds steps, and re-reading the list
+		# while growing it would expand the duplicates it just made.
+		_aSnap_ = This.Steps()
+		_n_ = len(_aSnap_)
+		for _i_ = 1 to _n_
+			_cId_ = "" + _aSnap_[_i_][:id]
+			_cTy_ = StzLower("" + This.NodeProperty(_cId_, "type"))
+			if _cTy_ != "terminal" and _cTy_ != "end" and
+			   _cTy_ != "suspension"
+				loop
+			ok
+			_acIn_ = This.Incoming(_cId_)
+			_nIn_ = len(_acIn_)
+			# the canonical marker keeps the first arrival, and is named as
+			# the target of itself so a consumer's class selects it too
+			This.SetNodeProperty(_cId_, "targetof", _cId_)
+			if _nIn_ < 2  loop  ok
+			_cLbl_ = "" + This.NodeProperty(_cId_, "label")
+			for _k_ = 2 to _nIn_
+				_cNew_ = _cId_ + "__" + _k_
+				This.AddStepXTT(_cNew_, _cLbl_,
+					[ :type = _cTy_, :targetof = _cId_ ])
+				This.RemoveEdge(_acIn_[_k_], _cId_)
+				This.Connect(_acIn_[_k_], _cNew_)
+				_nAdded_++
+			next
+		next
+		return _nAdded_
+
+		def ExpandEndingsPerArrivalQ()
+			This.ExpandEndingsPerArrival()
+			return This
+
 	def Steps()
 		return @aSteps
 	
