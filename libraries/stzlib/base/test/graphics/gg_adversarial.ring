@@ -12389,6 +12389,53 @@ chk("NEGATIVE: the refusals discriminate -- a valid name still draws",
     len(StzFindCS('id="a.b-c"', _DiOneIdent("a.b-c", "k-1"), TRUE)) = 1)
 
 
+# -- AND THE RENDERER USES IT, which is what makes the contract real ------
+# A channel nobody calls is half a deliverable: the private writer could not
+# be deleted for want of it, and it still cannot be deleted for want of the
+# renderer speaking through it.
+
+cBp76 = _Wf76("bpmn", [])
+cPl76 = _Wf76("", [])
+cOn76 = _Wf76("", [ :SvgIdents = TRUE ])
+cOf76 = _Wf76("bpmn", [ :SvgIdents = FALSE ])
+
+chk("BPMN carries the document's names WITHOUT being asked",
+    len(StzFindCS("<g ", cBp76, TRUE)) > 0)
+chk("NEGATIVE: a plain diagram carries none -- the default is off, so no " +
+    "picture this library already emits changes a byte",
+    len(StzFindCS("<g ", cPl76, TRUE)) = 0)
+chk("the option turns them ON for a notation that does not ask",
+    len(StzFindCS("<g ", cOn76, TRUE)) > 0)
+chk("NEGATIVE: and OFF for the notation whose law does ask",
+    len(StzFindCS("<g ", cOf76, TRUE)) = 0)
+
+chkeq("every group opened is closed", len(StzFindCS("<g ", cBp76, TRUE)),
+      len(StzFindCS("</g>", cBp76, TRUE)))
+
+acId76 = _Ids76(cBp76)
+chk("the picture names several elements", len(acId76) >= 5)
+chkeq("and NO id is repeated -- a repeated id is an invalid document",
+      _Dups76(acId76), 0)
+chk("a node is named by its own id, not by its position",
+    _Has76(acId76, "recv"))
+chk("an edge is named by the two ends it joins",
+    _Has76(acId76, "edge_recv__done"))
+
+# A node's ink is NOT contiguous in paint order: every label is drawn after
+# every box, because a label must sit above the boxes its neighbours drew.
+# So one <g> per element is unavailable without changing what covers what,
+# and repeating the id across the parts would make the document invalid.
+# The parts are separate groups with separate ids, joined by a class.
+chk("a node's label is a SECOND part, with its own id",
+    _Has76(acId76, "recv_2"))
+chk("and both parts carry the element class, so a consumer can collect them",
+    len(StzFindCS("el_recv", cBp76, TRUE)) = 2)
+chk("NEGATIVE: an element drawn once has ONE part, not a spare",
+    NOT _Has76(acId76, "recv_3"))
+chkeq("every piece of text is inside an element, never loose on the paper",
+      _LooseText76(cBp76), 0)
+
+
 if nSecClock > 0
 	? "        [section took " +
 	  ((clock() - nSecClock) / clockspersecond()) + "s]"
@@ -13963,6 +14010,68 @@ func _DiOneIdent pcName, pcCls
 	_o_.Fill("black")
 	_o_.AddRect(5, 5, 20, 20)
 	return _o_.ToSVG()
+
+func _Wf76 cType, aOpts
+	_o_ = new stzWorkflow("w76" + cType + len(aOpts))
+	if cType != ""  _o_.SetWorkflowType(cType)  ok
+	_o_.AddStateXTT("s", "", [ :type = "entry" ])
+	_o_.AddStateXTT("recv", "Receive Order", [ :type = "invoke" ])
+	_o_.AddStateXTT("done", "Shipped", [ :type = "terminal" ])
+	_o_.AddTransition("s", "recv", "")
+	_o_.AddTransition("recv", "done", "ok")
+	_a_ = [ :Font = AUFONT, :NodeWidth = 132, :NodeHeight = 52 ]
+	_n_ = len(aOpts)
+	for _i_ = 1 to _n_
+		_a_ + aOpts[_i_]
+	next
+	return _o_.ToCanvasXT(_a_).ToSVG()
+
+func _Ids76 cSvg
+	_a_ = StzFindCS('<g id="', cSvg, TRUE)
+	_ac_ = []
+	_n_ = len(_a_)
+	for _i_ = 1 to _n_
+		_t_ = StzStringSection(cSvg, _a_[_i_] + 7, _a_[_i_] + 90)
+		_q_ = StzFindFirst('"', _t_)
+		if _q_ > 1  _ac_ + StzStringSection(_t_, 1, _q_ - 1)  ok
+	next
+	return _ac_
+
+func _Dups76 acIds
+	_d_ = 0
+	_n_ = len(acIds)
+	for _i_ = 1 to _n_
+		for _j_ = _i_ + 1 to _n_
+			if acIds[_i_] = acIds[_j_]  _d_++  ok
+		next
+	next
+	return _d_
+
+func _Has76 acIds, cWanted
+	_n_ = len(acIds)
+	for _i_ = 1 to _n_
+		if acIds[_i_] = cWanted  return TRUE  ok
+	next
+	return FALSE
+
+func _LooseText76 cSvg
+	_aG_ = StzFindCS("<g ", cSvg, TRUE)
+	_aC_ = StzFindCS("</g>", cSvg, TRUE)
+	_aP_ = StzFindCS("<path", cSvg, TRUE)
+	_loose_ = 0
+	_nP_ = len(_aP_)
+	_nG_ = len(_aG_)
+	for _i_ = 1 to _nP_
+		_in_ = FALSE
+		for _j_ = 1 to _nG_
+			if _aP_[_i_] > _aG_[_j_] and _aP_[_i_] < _aC_[_j_]
+				_in_ = TRUE
+				exit
+			ok
+		next
+		if NOT _in_  _loose_++  ok
+	next
+	return _loose_
 
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0
