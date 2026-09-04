@@ -83,7 +83,7 @@ sections, of which 21 declarations over 17 items.
 | DN2 | closed | 53 |
 | DN3 | closed | - |
 | DN3a | closed | 65 |
-| DN3b | open | - |
+| DN3b | closed | 76, 77 |
 | DN4 | closed | - |
 | DN4a | closed | - |
 | DN4b | closed | 67 |
@@ -1142,56 +1142,66 @@ gate it declares.
     the profile which glyph a kind takes, so the two faces cannot come
     to disagree. `SetWorkflowType("bpmn")` draws a process through the
     one renderer under the visual contract. Guard §65.
-  - **DN3b — NEXT, named with its cost.** An id/class channel in
-    `stzGraphCanvas`, then the law's col/row handed to the plastic
-    layout as pins, then the private writer is deleted. The markers and
-    the dash discipline are DN4's business (compartments and
-    adornments), which is where they were always going.
+  - **DN3b — SHIPPED 2026-09-04.** Three commits: 9022946a6 the
+    channel, 2bb38c0db the renderer speaking it, 8e8689519 the
+    conformance, and the private writer's 312 lines of SVG emission gone.
+    Guards §76 and §77, 47 assertions between them. The markers and the
+    dash discipline are DN4's business (compartments and adornments),
+    which is where they were always going.
 
-    **The channel is in place, 2026-09-04, 9022946a6 and 2bb38c0db, and
-    the item stays open because the second step is not what it looked
-    like.** `sceneSetSvgIdent` in the engine, `SetSvgIdent` on stzCanvas,
-    and the shared renderer speaking through it: a BPMN picture drawn by
-    `SetWorkflowType("bpmn")` now carries a stable id and a set of classes
-    per element, so L18/L19 no longer depends on the private writer. Guard
-    §76, 33 assertions. Opt-in elsewhere, so no picture this library
-    already emits changes a byte, and BPMN opts in without being asked
-    because a notation whose law requires a thing should not need the
-    caller to remember it.
+    **THE ITEM'S SECOND STEP WAS WRONGLY SPECIFIED, AND MEASURING IT IS
+    THE FINDING.** It read "the law's col/row handed to the plastic layout
+    as pins". Compared cell by cell against `LayoutDigest()` — the oracle
+    this library and ringflex's implementation are both held to — the
+    plastic layout ALREADY places every node where the law says. Three of
+    five process shapes agreed on every cell with no pins at all, and no
+    pin was ever added.
 
-    **THE REMAINING COST IS LARGER THAN THIS ITEM RECORDED, and naming it
-    is the point of this paragraph.** "The law's col/row handed to the
-    plastic layout as pins" reads as a port of one method. It is not.
-    `stzBpmnDiagram.Layout()` does assign a column and a row -- L3 to L6,
-    which would transfer -- but it also mints STUBS: L7/L8 give an ending
-    one marker per arrival, L9 draws an ending nothing arrives at, and L10
-    routes a resume. Those run on a model the shared diagram does not
-    have. `MarkEnding`, `MarkResume`, `EndingId` and the endings list are
-    the private class's own vocabulary, and an ending is not a node in the
-    shared model.
+    The two that diverged did so for one reason each, always the same one:
+    **L7/L8, an ending duplicated per arrival.** An ending reached twice is
+    one node in the shared model and two markers in the law, and merging
+    them moves the survivor. So the missing piece was never a layout pass;
+    it was a MODEL transform, and `ExpandEndingsPerArrival()` is it. With
+    it, all five shapes agree on every cell.
 
-    So the second step is a DESIGN decision before it is a port: either
-    endings become ordinary nodes in the shared model, or the shared model
-    grows the stub concept. Both are real changes to what a diagram IS,
-    which is why this was not attempted alongside the channel. The kill
-    criterion for that decision belongs to whoever takes it, and the
-    conformance digest -- `LayoutDigest()`, which the two implementations
-    are held to -- is the oracle it should be judged against.
+    **The written law settled a question this desk had got backwards.** I
+    had been treating "one marker per arrival" as a drawing habit the
+    shared model could decline, since real BPMN tools draw one end event
+    with several incoming flows. `bpmn-layout-law.md` says otherwise: L7
+    requires the duplication, L8 fixes the identities (canonical first,
+    then `__2`, `__3` in arrival order), the digest checks them by id, row
+    and column, and **L19 addresses endings BY CLASS and nodes by
+    identifier** — every duplicate carrying `wf-target-<name>`. That is
+    the same scheme the channel had arrived at independently for a node's
+    box and its label: separate ids, shared class, because a multi-part
+    element has no single identifier to offer. The law had already named
+    the idiom.
 
-    **And the private writer cannot go until then.** It has no callers
-    already: `new stzBpmnDiagram` appears twice, both inside its own file,
-    once in a doc comment and once in its own factory. What keeps it is
-    not a caller but the law and the digest it carries.
+    **AND THE REASON THE TWO FACES COULD NEVER MEET, which cost the most
+    to find.** `stzWorkflow` carries TWO collections: `@aSteps` for the
+    process vocabulary and `@aStates` for the state-machine one.
+    `stzBpmnDiagram` reads `Steps()`; the BPMN guard builds with
+    `AddStateXTT`. So the law's face was reading a collection the shared
+    path never filled, `EntryStep()` answered empty, and the digest came
+    back with a header and no records. That is why the private writer
+    looked like it had no callers: not that nobody wanted it, but that
+    nothing fed it.
 
-  **AND DRAWING THE FIRST LEFT-TO-RIGHT DOMAIN FOUND THREE DEFECTS**
-  that only a left-to-right picture could have found, every one of them
-  a rule stated on the axis that happened to have been tested:
-  the rank-fit pass read "a rank is the same y" and crushed every box to
-  37%; the paper reserved room BELOW a mark's name and not beside it, so
-  a final event at the right-hand edge ran off the page; and three edge
-  drawers clipped to the CALLER's box rather than to the glyph they were
-  meeting — 13px vertically, hidden inside an arrowhead, and 66px
-  horizontally.
+    **What was deleted, and what deliberately was not.** The SVG emission
+    went — `Svg`, `WriteSvg`, `Palette`, the node/arrow/stub writers, the
+    theme and the verdict colouring, 312 lines with no caller outside the
+    class. The LAW stayed, because §77 compares the shared renderer
+    against its digest: deleting the file outright would have deleted the
+    only thing that can say whether a BPMN picture is lawful. The class is
+    the oracle now, not a rival renderer.
+
+    **The plan-of-record check caught this item itself.** Declaring §76 and
+    §77 against DN3b while the prose still read NEXT made
+    `plan_item_open_but_discharged` fire, naming both sections, and
+    `plan_coverage_table_is_stale` with it. The machinery built the same
+    afternoon caught the defect it was built for, on live work rather than
+    on a fixture.
+
 - **DN4 — UML class diagrams. SHIPPED as DN4a and DN4b.** Compartments and edge-end adornments —
   the notation half the industry reads daily.
 
