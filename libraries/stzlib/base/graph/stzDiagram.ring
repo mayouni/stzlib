@@ -331,6 +331,7 @@ class stzDiagram from stzGraph
 	@aReturnOf = []
 	@aRenderAdorn = []
 	@aRenderArrows = []
+	@aOutDeg1 = []
 	@aRenderForks = []
 	@bSequence = 0
 	@bMesh = 0
@@ -4595,6 +4596,39 @@ class stzDiagram from stzGraph
 		# that was written to make this law checkable failed on the one
 		# case it exists for.
 		@aRenderArrows = []
+		# WHICH NODES HAVE EXACTLY ONE WAY OUT -- ANSWERED ONCE.
+		#
+		# _DrawEdge asks this per edge to decide whether a departure may
+		# take a side route, and it asked by scanning every edge with
+		# two StzLower calls per iteration. Removing the list COPY from
+		# that loop was the previous commit and left the scan: 398 calls
+		# x 199 edges x 2 engine round-trips is ~158,000 of them, which
+		# is most of the 2.27s that was sitting unaccounted inside the
+		# method's own body once every child had been timed.
+		#
+		# It is a property of the MODEL, constant for the whole render,
+		# so it is computed once here in one pass over the edges. The
+		# ids are lowercased when stored, so the lookup compares plain
+		# strings and calls nothing.
+		@aOutDeg1 = []
+		_aOdC_ = []
+		_nOdE_ = len(@aEdges)
+		for _iOdE_ = 1 to _nOdE_
+			_odF_ = StzLower("" + @aEdges[_iOdE_][:from])
+			if StzLower("" + @aEdges[_iOdE_][:to]) = _odF_  loop  ok
+			_bOdS_ = 0
+			for _iOdC_ = 1 to len(_aOdC_)
+				if _aOdC_[_iOdC_][1] = _odF_
+					_aOdC_[_iOdC_][2] = _aOdC_[_iOdC_][2] + 1
+					_bOdS_ = 1
+					exit
+				ok
+			next
+			if NOT _bOdS_  _aOdC_ + [ _odF_, 1 ]  ok
+		next
+		for _iOdC_ = 1 to len(_aOdC_)
+			if _aOdC_[_iOdC_][2] = 1  @aOutDeg1 + _aOdC_[_iOdC_][1]  ok
+		next
 		_nPassN_ = 1
 		if _cSpl_ = "ortho"  _nPassN_ = 2  ok
 		for _ePass_ = 1 to _nPassN_
@@ -12838,24 +12872,15 @@ class stzDiagram from stzGraph
 				# is nothing to share it with. Where the source fans, the
 				# stem IS the cause.
 				if NOT _dvSide_
-					# COUNTED OFF THE MEMBER, NOT OFF A COPY OF IT.
-					# `_a_ = This.Edges()` copies the whole edge list --
-					# Ring assigns lists by value -- and this ran once
-					# per edge drawn, to learn one node's out-degree.
-					# 199 hash-lists copied 398 times for a number that
-					# a loop over @aEdges reads without copying anything.
-					# Measured at 0.7s of a 15.9s render.
+					# ASKED OF THE CACHE -- see @aOutDeg1, built once
+					# per render. This was a scan of every edge with two
+					# StzLower calls per iteration; removing its list
+					# COPY was one commit and left the scan behind, which
+					# was the larger half.
 					_dvOut_ = 0
-					_nDvE_ = len(@aEdges)
 					_cDvF_ = StzLower("" + cFromId)
-					for _iDvE_ = 1 to _nDvE_
-						if StzLower("" + @aEdges[_iDvE_][:from]) != _cDvF_
-							loop
-						ok
-						if StzLower("" + @aEdges[_iDvE_][:to]) = _cDvF_
-							loop
-						ok
-						_dvOut_++
+					for _iDvE_ = 1 to len(@aOutDeg1)
+						if @aOutDeg1[_iDvE_] = _cDvF_  _dvOut_ = 1  exit  ok
 					next
 					_dvSg2_ = 1
 					if aFrom[1] < aTo[1]  _dvSg2_ = -1  ok
@@ -14581,13 +14606,24 @@ class stzDiagram from stzGraph
 		return @aOuterBox
 
 	def _WritesNameBelow(pcId)
+		# READ OFF THE MEMBER, NOT OFF TWO COPIES OF IT.
+		#
+		# This opened with `_a_ = This.Nodes()` and then scanned it
+		# TWICE -- and Ring assigns lists by value, so each call copied
+		# every node WITH its properties list. 598 calls on a 200-node
+		# render, 0.90s, the largest single child of _DrawEdge once the
+		# rest were individually timed.
+		#
+		# The first attempt at this was a MEMO, which was reverted for
+		# measuring as noise. It was also the wrong shape: a cache buys
+		# invalidation surface to avoid work that should not have been
+		# happening at all. Not copying is free and cannot go stale.
 		_wnId_ = StzLower("" + pcId)
 		_wnS_ = ""
-		_aWnN_ = This.Nodes()
-		_nWnN_ = len(_aWnN_)
+		_nWnN_ = len(@aNodes)
 		for _iWnN_ = 1 to _nWnN_
-			if StzLower("" + _aWnN_[_iWnN_][:id]) = _wnId_
-				_wnS_ = StzLower("" + This._NativeShapeOf(_aWnN_[_iWnN_]))
+			if StzLower("" + @aNodes[_iWnN_][:id]) = _wnId_
+				_wnS_ = StzLower("" + This._NativeShapeOf(@aNodes[_iWnN_]))
 				exit
 			ok
 		next
@@ -14601,12 +14637,12 @@ class stzDiagram from stzGraph
 		if isObject(_oWn_)
 			_cWnK_ = ""
 			for _iWnN_ = 1 to _nWnN_
-				if StzLower("" + _aWnN_[_iWnN_][:id]) = _wnId_
-					if HasKey(_aWnN_[_iWnN_], "properties") and
-					   isList(_aWnN_[_iWnN_]["properties"])
-						if HasKey(_aWnN_[_iWnN_]["properties"], "type")
+				if StzLower("" + @aNodes[_iWnN_][:id]) = _wnId_
+					if HasKey(@aNodes[_iWnN_], "properties") and
+					   isList(@aNodes[_iWnN_]["properties"])
+						if HasKey(@aNodes[_iWnN_]["properties"], "type")
 							_cWnK_ = "" +
-								_aWnN_[_iWnN_]["properties"]["type"]
+								@aNodes[_iWnN_]["properties"]["type"]
 						ok
 					ok
 					exit
