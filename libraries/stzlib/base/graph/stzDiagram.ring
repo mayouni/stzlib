@@ -296,6 +296,56 @@ func StzNodeShapeForType(pcType)
 	off
 	return ""
 
+# A node or edge id, as a name a DOCUMENT can carry.
+#
+# The engine refuses a name that is not an XML name, and refuses rather than
+# escapes it -- so a caller's `Web A` or `pay invoice?` cannot be handed
+# straight through. It is slugged: anything outside letters, digits, '_',
+# '-' and '.' becomes '_', and a name not starting with a letter or '_' is
+# prefixed, because an XML name may not begin with a digit.
+#
+# STABLE IS THE WHOLE REQUIREMENT, so a collision may not be left to chance.
+# `Web A` and `Web-A` both slug to `Web_A`, and a consumer resolving that id
+# would get whichever the parser kept. The second and later claimants take a
+# numeric suffix decided by DRAW ORDER, which is a property of the model and
+# not of the run -- so the same model renders the same names every time.
+func StzSvgNameOf(pcRaw, pcPrefix, paUsed)
+	_cR_ = "" + pcRaw
+	_c_ = ""
+	_n_ = len(_cR_)
+	for _i_ = 1 to _n_
+		_k_ = ascii(_cR_[_i_])
+		if (_k_ >= 97 and _k_ <= 122) or (_k_ >= 65 and _k_ <= 90) or
+		   (_k_ >= 48 and _k_ <= 57) or _k_ = 95 or _k_ = 45 or _k_ = 46
+			_c_ += _cR_[_i_]
+		else
+			_c_ += "_"
+		ok
+	next
+	if _c_ = ""  _c_ = "x"  ok
+	_k1_ = ascii(_c_[1])
+	if NOT ((_k1_ >= 97 and _k1_ <= 122) or (_k1_ >= 65 and _k1_ <= 90) or
+	        _k1_ = 95)
+		_c_ = "" + pcPrefix + _c_
+	ok
+	# a suffix only where it is earned
+	_cTry_ = _c_
+	_nSeq_ = 1
+	while TRUE
+		_bTaken_ = FALSE
+		_nU_ = len(paUsed)
+		for _i_ = 1 to _nU_
+			if paUsed[_i_] = _cTry_
+				_bTaken_ = TRUE
+				exit
+			ok
+		next
+		if NOT _bTaken_  exit  ok
+		_nSeq_++
+		_cTry_ = _c_ + "_" + _nSeq_
+	end
+	return _cTry_
+
 class stzDiagram from stzGraph
 
 	@cTheme = $cDefaultColorTheme
@@ -388,6 +438,14 @@ class stzDiagram from stzGraph
 	# CAD does this in two passes too.
 	@aVertSegs = []
 	@nDrawPass = 2
+
+	# THE NAMES THIS RENDER HANDS THE DOCUMENT. Declared HERE, in the
+	# class body, and not only reset inside ToCanvasXT: an attribute a
+	# method creates on the fly is not visible to a DIFFERENT method, so
+	# the box loop could fill this and the label loop still raised R24
+	# reading it.
+	@aSvgNamesUsed = []
+	@aSvgNameOfId = []
 
 	# The drawn geometry of every ortho edge, keyed "from>to" -- captured
 	# on the dry pass so the label placer anchors on the path the edge
@@ -554,6 +612,25 @@ class stzDiagram from stzGraph
 
 		def SetNotationQ(pNotation)
 			return This.SetNotation(pNotation)
+
+	# The document name this render already gave a node id, or "".
+	# Looked up, never minted twice: the box loop allocates the name and
+	# the label loop must land in the group that name opened.
+	# The classes an element's ink carries: what KIND of thing it is, and
+	# WHICH thing it is. The second is what lets a consumer collect every
+	# part of one node, which an id cannot do once the parts are separated
+	# by paint order.
+	def _SvgClassesFor(paNode, pcBase)
+		return StzTrim("node " +
+			StzSvgNameOf(This._NativeShapeOf(paNode), "k_", []) +
+			" el_" + pcBase)
+
+	def _SvgNameFor(pcId)
+		_n_ = len(@aSvgNameOfId)
+		for _i_ = 1 to _n_
+			if @aSvgNameOfId[_i_][1] = pcId  return @aSvgNameOfId[_i_][2]  ok
+		next
+		return ""
 
 	def NotationO()
 		if isObject(@oNotation)  return @oNotation  ok
@@ -4312,6 +4389,30 @@ class stzDiagram from stzGraph
 		@aRenderLabels = []
 		@aRenderNodeLabels = []
 		@aRenderPicks = []
+		# THE NAMES THIS RENDER HANDS THE DOCUMENT, and what they were
+		# taken from. Reset per render, because the disambiguating suffix
+		# is decided by draw ORDER and a stale list would shift every name
+		# after the first collision.
+		@aSvgNamesUsed = []
+		@aSvgNameOfId = []
+
+		# THE DOCUMENT'S NAMES ARE OPT-IN, and BPMN opts in by law.
+		#
+		# Off by default because a <g> per node changes the bytes of every
+		# picture this library has ever emitted, and an id is owed only
+		# where somebody binds to it. On for BPMN without being asked,
+		# because L18/L19 is that notation's own contract: every drawn
+		# element carries a stable identifier and a set of classes. A
+		# notation whose law requires a thing should not need the caller to
+		# remember it.
+		# isNumber, never a comparison against NULL. NULL is "" here and
+		# Ring reads "" = FALSE as TRUE, so asking "was it given?" by
+		# comparing values answered yes for an option nobody passed --
+		# and the whole channel stayed silently off.
+		_bSvgIdents_ = This._DiagOpt(paOptions, "svgidents", "auto")
+		if NOT isNumber(_bSvgIdents_)
+			_bSvgIdents_ = (StzLower("" + This.Notation()) = "bpmn")
+		ok
 		# THE MAP BACK, fitted in the coordinates actually DRAWN. Pins
 		# live in the layout's space and a cursor lives in pixels, so a
 		# drag can only become a pin if the picture reads backwards.
@@ -4664,6 +4765,12 @@ class stzDiagram from stzGraph
 				_oC_.SetPickTag(1000000 + _ei_)
 				@aRenderPicks + [ 1000000 + _ei_, "edge",
 					"" + _aE_[_ei_][:from], "" + _aE_[_ei_][:to] ]
+				if _bSvgIdents_
+					_cSvgE_ = StzSvgNameOf("" + _aE_[_ei_][:from] + "__" +
+						"" + _aE_[_ei_][:to], "e_", @aSvgNamesUsed)
+					@aSvgNamesUsed + _cSvgE_
+					_oC_.SetSvgIdent("edge_" + _cSvgE_, "edge el_edge_" + _cSvgE_)
+				ok
 			ok
 
 			# A MESSAGE IS A MOMENT, DRAWN WHERE THAT MOMENT IS.
@@ -4898,6 +5005,12 @@ class stzDiagram from stzGraph
 				_oC_.SetPickTag(1000000 + _ei_)
 				@aRenderPicks + [ 1000000 + _ei_, "edge",
 					"" + _aE_[_ei_][:from], "" + _aE_[_ei_][:to] ]
+				if _bSvgIdents_
+					_cSvgE_ = StzSvgNameOf("" + _aE_[_ei_][:from] + "__" +
+						"" + _aE_[_ei_][:to], "e_", @aSvgNamesUsed)
+					@aSvgNamesUsed + _cSvgE_
+					_oC_.SetSvgIdent("edge_" + _cSvgE_, "edge el_edge_" + _cSvgE_)
+				ok
 			ok
 			# WHICH LANE -- asked of the ONE allocator, so a return
 			# and a step-aside edge on the same stretch of row cannot
@@ -5484,6 +5597,16 @@ class stzDiagram from stzGraph
 			# pointing at them
 			_oC_.SetPickTag(_i_)
 			@aRenderPicks + [ _i_, "node", _cId_, "" ]
+			# ...and, when the caller asked for it, answers to a READER OF
+			# THE FILE as well. Opt-in on purpose: a <g> per node changes the
+			# bytes of every picture this library has ever emitted, and an
+			# id is only owed where somebody is going to bind to it.
+			if _bSvgIdents_
+				_cSvgN_ = StzSvgNameOf(_cId_, "n_", @aSvgNamesUsed)
+				@aSvgNamesUsed + _cSvgN_
+				@aSvgNameOfId + [ _cId_, _cSvgN_ ]
+				_oC_.SetSvgIdent(_cSvgN_, This._SvgClassesFor(_aNodes_[_i_], _cSvgN_))
+			ok
 			_cShape_ = This._NativeShapeOf(_aNodes_[_i_])
 			_cFill_ = This._NativeFillOf(_aNodes_[_i_])
 			_aBx_ = This._BoxOf(_cId_, _nBoxW_, _nBoxH_)
@@ -5600,6 +5723,32 @@ class stzDiagram from stzGraph
 				# in the diagram reported itself as the final one. The
 				# tag has to follow the ink, not the loop.
 				_oC_.SetPickTag(_i_)
+				# ...and the identity with it. A label drawn outside its node's
+				# group would be a fourth top-level element in the document,
+				# belonging to nothing -- the same defect the tag comment above
+				# describes, one layer out. The name is LOOKED UP rather than
+				# minted: this loop must land in the group the box loop opened,
+				# and minting again would allocate a colliding second name.
+				# A SECOND PART OF THE SAME ELEMENT, and it needs its own id.
+				# A node's ink is NOT contiguous in paint order -- every label
+				# is drawn after every box, because a label must sit above the
+				# boxes its neighbours drew. So one <g> per element is not
+				# available without changing what covers what, and repeating
+				# the id on both parts would make the document invalid.
+				#
+				# The id is uniquified by the same collision rule as everything
+				# else, and the ELEMENT is carried as a class: a consumer
+				# selects .el_recv to get all of a node's ink, and #recv to get
+				# its body. Both are stable, and both are valid.
+				if _bSvgIdents_
+					_cSvgB_ = This._SvgNameFor(_cId_)
+					if _cSvgB_ != ""
+						_cSvgL_ = StzSvgNameOf(_cId_, "n_", @aSvgNamesUsed)
+						@aSvgNamesUsed + _cSvgL_
+						_oC_.SetSvgIdent(_cSvgL_,
+							This._SvgClassesFor(_aNodes_[_i_], _cSvgB_) + " label")
+					ok
+				ok
 				_cLb_ = "" + _aNodes_[_i_][:label]
 				# AN EMPTY LABEL IS A CHOICE, not a missing value. The id
 				# was used as a fallback, which is right for a node
