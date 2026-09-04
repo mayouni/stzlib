@@ -12618,6 +12618,90 @@ chkeq("thirty sets are 150 unknowns -- an unlabelled set still owns its text",
 chk("and the engine accepts more than its old cap of 64", oMdBig.Rounds() >= 1)
 
 
+sec("-- 80. DN7b: ONE SUBSTANCE, TWO REPRESENTATIONS; VECTORS; EUCLID ---")
+discharges("DN7b")
+
+# The kill for DN7b is Penrose's central claim: the SAME content, another
+# representation, with the Substance untouched. The instance is shared --
+# one stzMathSubstance object handed to two diagrams -- so "untouched" is
+# not a promise but a fact about the test.
+oMbSub = StzMathTreeSubstance()
+oMbE = new stzMathDiagram(StzSetTheoryDomain(), oMbSub, StzEulerStyle())
+oMbE.SetFont(AUFONT, 28)  oMbE.SetVariation("PlumvilleCapybara104")
+oMbT = new stzMathDiagram(StzSetTheoryDomain(), oMbSub, StzTreeStyle())
+oMbT.SetFont(AUFONT, 26)  oMbT.SetVariation("tree-as-tree")
+chk("the seven-set tree is lawful as nested disks", oMbE.IsFeasible())
+chk("and lawful as a TREE, from the same substance object", oMbT.IsFeasible())
+chk("the tree style draws no circle at all",
+    len(StzFindCS("<circle", oMbT.ToSVG(), TRUE)) = 0)
+chk("and one arrow per Subset -- six",
+    len(StzFindCS("<polyline", oMbT.ToSVG(), TRUE)) = 6)
+# a second reading: every superset's name sits ABOVE its subset's
+aMbSub = [ ["B","A"], ["C","A"], ["D","B"], ["E","B"], ["F","C"], ["G","C"] ]
+bMbUp = TRUE
+for iMb = 1 to len(aMbSub)
+	if oMbT.ShapeOf(aMbSub[iMb][2] + ".text")[:cy] >= oMbT.ShapeOf(aMbSub[iMb][1] + ".text")[:cy]
+		bMbUp = FALSE
+	ok
+next
+chk("every superset is drawn above its subset", bMbUp)
+chk("the tree solved in well under a second", oMbT.LayoutMs() < 3000)
+
+# LINEAR ALGEBRA. Orthogonality is a constraint the solver met; unit length
+# too -- both re-read from the solved arrows with plain arithmetic.
+oMb7 = StzMathScene07(AUFONT)
+chk("a unit vector and an orthogonal one are lawful", oMb7.IsFeasible())
+chk("the two arrows ARE orthogonal, to a hundredth",
+    fabs(_MbCos(oMb7, "x1.arrow", "x2.arrow")) < 0.01)
+chk("and the unit one is 90px long, to half a pixel",
+    fabs(_MbLen(oMb7, "x1.arrow") - 90) < 0.5)
+
+# u := addV(v, w) ENDS WHERE THE SUM SAYS, BY CONSTRUCTION -- an override,
+# so the solver never owned that end, and the equality is exact.
+oMb8 = StzMathScene08(AUFONT)
+chk("vector addition is lawful", oMb8.IsFeasible())
+chk("u's end is v's end plus w's end minus the origin, EXACTLY",
+    fabs(oMb8.ValueOf("u.arrow.x2") - (oMb8.ValueOf("v.arrow.x2") +
+         oMb8.ValueOf("w.arrow.x2") - oMb8.ValueOf("U.ox"))) < 0.000001 and
+    fabs(oMb8.ValueOf("u.arrow.y2") - (oMb8.ValueOf("v.arrow.y2") +
+         oMb8.ValueOf("w.arrow.y2") - oMb8.ValueOf("U.oy"))) < 0.000001)
+chk("and the solver had nothing left to move: one evaluation",
+    oMb8.Evaluations() <= 3)
+
+# EUCLID. The right angle and the equal lengths, re-read from the points.
+oMb9 = StzMathScene09(AUFONT)
+oMb10 = StzMathScene10(AUFONT)
+chk("a general triangle is lawful", oMb9.IsFeasible())
+chk("a right isosceles triangle is lawful", oMb10.IsFeasible())
+chk("the angle at A IS right, to a hundredth",
+    fabs(_MbCos(oMb10, "AB.icon", "AC.icon")) < 0.01)
+chk("and AB equals AC, to a pixel",
+    fabs(_MbLen(oMb10, "AB.icon") - _MbLen(oMb10, "AC.icon")) < 1)
+chk("a vertex's name is clear of its own sides",
+    _MbTextOff(oMb9, "A.text", "ABC.pq") and _MbTextOff(oMb9, "A.text", "ABC.pr"))
+
+# NAMES ARE CASE-SENSITIVE, as Penrose's are: Vector u and VectorSpace U
+# are two objects, and folding them was what broke scene 8 first.
+oMbS = new stzMathSubstance(StzLinearAlgebraDomain())
+oMbS.Declare("VectorSpace", "U")
+oMbS.Declare("Vector", "u")
+chkeq("U is a VectorSpace", oMbS.TypeOf("U"), "VectorSpace")
+chkeq("and u is a Vector", oMbS.TypeOf("u"), "Vector")
+
+# A LITERAL SELECTOR binds one object by name.
+oMbLit = StzEulerStyle()
+oMbLit.ForAll("Set `B`", [ [ :ensure, "greaterThan", [ "`B`.icon.r", 70 ] ] ])
+oMbL = new stzMathDiagram(StzSetTheoryDomain(), StzMathTreeSubstance(), oMbLit)
+oMbL.SetFont(AUFONT, 28)
+chk("`B` alone is held above 70px", oMbL.ShapeOf("B.icon")[:r] >= 69)
+
+# REFUSALS, each with a lawful sibling.
+chk("an override of a property no rule minted is refused", _MbRefuses(1))
+chk("a where-clause on a function the domain lacks is refused", _MbRefuses(2))
+chk("len() of a circle is refused -- it is not a line", _MbRefuses(3))
+chk("NEGATIVE: the lawful forms are accepted", NOT _MbRefuses(0))
+
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go
@@ -14457,6 +14541,50 @@ func _MdRefuses pnWhich
 			_oT_.ForAll("Set x", [ [ :ensure, "contains", [ "x.icon", "x.icon" ] ] ])
 		ok
 		_oS_.Assert("Subset", [ "B", "A" ])
+	catch
+		_b_ = TRUE
+	done
+	return _b_
+
+# cosine between two solved lines, by plain arithmetic
+func _MbCos poM, pcL1, pcL2
+	_a_ = poM.ShapeOf(pcL1)
+	_b_ = poM.ShapeOf(pcL2)
+	_dx_ = _a_[:x2] - _a_[:x1]  _dy_ = _a_[:y2] - _a_[:y1]
+	_ex_ = _b_[:x2] - _b_[:x1]  _ey_ = _b_[:y2] - _b_[:y1]
+	_n_ = sqrt(pow(_dx_, 2) + pow(_dy_, 2)) * sqrt(pow(_ex_, 2) + pow(_ey_, 2))
+	if _n_ < 0.000001  return 1  ok
+	return (_dx_ * _ex_ + _dy_ * _ey_) / _n_
+
+func _MbLen poM, pcL
+	_a_ = poM.ShapeOf(pcL)
+	return sqrt(pow(_a_[:x2] - _a_[:x1], 2) + pow(_a_[:y2] - _a_[:y1], 2))
+
+# is the text's centre further from the segment than half its diagonal?
+func _MbTextOff poM, pcText, pcLine
+	_t_ = poM.ShapeOf(pcText)
+	_l_ = poM.ShapeOf(pcLine)
+	_dx_ = _l_[:x2] - _l_[:x1]  _dy_ = _l_[:y2] - _l_[:y1]
+	_n_ = pow(_dx_, 2) + pow(_dy_, 2)
+	if _n_ < 0.000001  return TRUE  ok
+	_s_ = ((_t_[:cx] - _l_[:x1]) * _dx_ + (_t_[:cy] - _l_[:y1]) * _dy_) / _n_
+	if _s_ < 0  _s_ = 0  ok
+	if _s_ > 1  _s_ = 1  ok
+	_d_ = sqrt(pow(_l_[:x1] + _s_ * _dx_ - _t_[:cx], 2) + pow(_l_[:y1] + _s_ * _dy_ - _t_[:cy], 2))
+	return _d_ >= sqrt(pow(_t_[:w], 2) + pow(_t_[:h], 2)) / 2
+
+func _MbRefuses pnWhich
+	_b_ = FALSE
+	try
+		_oT_ = StzEulerStyle()
+		if pnWhich = 1  _oT_.ForAll("Set x", [ [ :override, "x.halo.r", 5 ] ])  ok
+		if pnWhich = 2
+			_oT_.ForAllWhere("Set x; Set y; Set z", "x := frob(y, z)",
+				[ [ :ensure, "greaterThan", [ "x.icon.r", 1 ] ] ])
+		ok
+		if pnWhich = 3  _oT_.ForAll("Set x", [ [ :ensure, "greaterThan", [ "len(x.icon)", 1 ] ] ])  ok
+		_o_ = new stzMathDiagram(StzSetTheoryDomain(), StzMathTreeSubstance(), _oT_)
+		_o_.Layout()
 	catch
 		_b_ = TRUE
 	done

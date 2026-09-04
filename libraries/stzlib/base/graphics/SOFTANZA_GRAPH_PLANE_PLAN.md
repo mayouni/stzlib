@@ -94,7 +94,8 @@ sections, of which 21 declarations over 17 items.
 | DN6b | closed | 73m, 73z |
 | DN7 | closed | - |
 | DN7a | closed | 79 |
-| DN7b | open | - |
+| DN7b | closed | 80 |
+| DN7c | open | - |
 | DN2b | closed | 56 |
 | DN2c | closed | - |
 | DN2d | closed | 57 |
@@ -1778,16 +1779,55 @@ was a cliff at twelve sets.
   because its `^` lives inside expression strings the Zig tape
   evaluates; the guard's own re-verification was not.
 
-- **DN7b — NEXT, named with its cost.** The geometry domain (points,
-  segments, angles, triangles — Byrne's Pythagorean theorem is the
-  paper's own showcase) and the linear-algebra domain (vector spaces,
-  vectors, `u := addV(v, w)`). Both need what DN7a deliberately left out:
-  function applications in where-clauses, lines and polygons as shapes,
-  and `override`/`delete` cascading. The kill for DN7b is Penrose's own
-  Fig. 1: the same geometric statements in Euclidean, spherical and
-  hyperbolic styles — if a Style cannot swap the representation without
-  touching the Substance, the split was not real.
+- **DN7b — one substance, two representations; vectors; Euclid. SHIPPED
+  2026-09-04.** Guard §80. What a second and third domain needed, added to
+  the Style language: expressions over paths with a few computations over
+  shapes (`dist`, `len`, `dot`, `cross`, `midx`/`midy`, `ux`/`uy`,
+  `nx`/`ny`); constant and DERIVED properties; `[:field]`; `[:override]`;
+  function applications in where-clauses (`u := addV(v, w)`); literal
+  selectors (Set `A`); arrowheads; hidden shapes; `disjoint(text, line)`
+  as a point-to-segment distance the tape expresses with min and max.
 
+  **The kill, and it is Penrose's central claim.** One `stzMathSubstance`
+  INSTANCE — the seven-set tree — handed to two diagrams: `StzEulerStyle()`
+  draws nested disks, `StzTreeStyle()` (Penrose's own tree.style, as
+  data) draws a name per set and an arrow from each subset to its
+  superset. Both lawful, the substance untouched by construction of the
+  test, every superset drawn above its subset. That is representation
+  swapped without a word of content changing, which is the whole reason
+  for the split.
+
+  | scene | unknowns | constraints | rounds | evaluations | ms |
+  |---|---|---|---|---|---|
+  | the tree, as a tree | 14 | 158 | 2 | 626 | 105 |
+  | unit + orthogonal (twoVectorsPerp) | 4 | 87 | 1 | 59 | 41 |
+  | u := addV(v, w) | 6 | 85 | 1 | **1** | 37 |
+  | a general triangle | 12 | 67 | 2 | 224 | 35 |
+  | right isosceles, marked | 12 | 113 | 2 | 266 | 67 |
+
+  **The one evaluation is the point of `override`.** u's arrow ends at
+  v.end + w.end — origin by construction; the solver never owned that
+  end, so with v and w placed there was nothing left to move, and the
+  guard asserts the equality to a millionth of a pixel.
+
+  **Two defects, both scale.** Penrose's `notTooClose` is weight x 10^7
+  over the squared distance and mine used the bare weight, so the tree
+  style's "align with your parent" won outright and every set collapsed
+  onto one vertical line — a picture that was lawful and wrong, which is
+  the kind the governor exists for. And names folded to lower case, so
+  `Vector u` and `VectorSpace U` were one object; Penrose's names are
+  case-sensitive and so is Ring's `=`, and every lookup now is.
+
+- **DN7c — NEXT, named with its cost.** Penrose's Fig. 1 — the same
+  geometric statements in Euclidean, spherical and hyperbolic styles. A
+  spherical Style projects points on a sphere and draws segments as
+  great-circle arcs; a hyperbolic one draws in the Poincaré disk. Both
+  need `asin`, `acos` and `atan2` on the tape, which has `sin`, `cos` and
+  `tan` only — an engine addition of three opcodes and their adjoints,
+  and arcs as a shape the canvas draws. The kill is Fig. 1 itself: if a
+  Style cannot swap the geometry without touching the Substance, the
+  split was not real. Also unbuilt: `delete`, ellipses and polygons,
+  Minkowski distances for exact text-against-shape separation.
 
 ## DN2b — THE RING: a state machine is not a tree (2026-08-23)
 
