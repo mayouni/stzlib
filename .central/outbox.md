@@ -1297,3 +1297,53 @@ note:      THE MEASUREMENT CAME BEFORE THE DESIGN, AND IT DECIDED THE
            guard's own re-verification, which is the one place a wrong
            number is hardest to see.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-05 00:03
+
+subject:   DN7b -- one substance under two styles, vectors and Euclid,
+           and the kill measured as a fact about the test
+
+why:       the author routed DN7b, the plane's one open item
+
+did:
+  - Added what a second and third domain needed to the Style language:
+    expressions over paths, derived and constant properties, fields,
+    override, function applications in where, literal selectors.
+  - Met the kill with a shared substance INSTANCE under Penrose's
+    euler.style and tree.style, both lawful.
+  - Shipped linear algebra and Euclidean geometry, every scene
+    Penrose's own, with orthogonality, unit length, a right angle and
+    equal sides re-read from the solved geometry as second readings.
+  - Found and fixed two scale defects, one of which made a picture that
+    was lawful and wrong.
+  - Sent the Principal four pictures.
+
+state:
+  section 80:   24 assertions, 0.67s
+  gate:         824 ok, 0 failed, run on main
+  plan table:   DN7b closed by 80, DN7c open
+  commit:       e8e52bbbb on origin and codeberg, verified at the sha
+
+waiting:
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      DN7c as named -- spherical and hyperbolic styles, which is
+             three opcodes on the tape (asin, acos, atan2) with their
+             adjoints, and arcs on the canvas
+  - central: nothing owed from this
+
+note:      A PICTURE CAN BE LAWFUL AND WRONG, AND FEASIBILITY CANNOT SEE
+           IT. The tree style's first rendering satisfied every
+           constraint and put all seven sets on one vertical line,
+           because one objective was a million times weaker than the
+           reference's and the other won. No violation, no finding, a
+           useless picture. It was caught by LOOKING, which is the
+           Principal's method for this plane and the reason the
+           catalogue exists beside the gate. The governor's plastic
+           rules are the mechanised form of looking; a mathematical
+           diagram has none yet, and that is the next thing worth
+           building before DN7c.
+```
