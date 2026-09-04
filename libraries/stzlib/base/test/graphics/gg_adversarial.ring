@@ -12049,6 +12049,87 @@ chk("NEGATIVE: an ORed question pulled onto the skewer IS caught",
     nLgHit2 > 0)
 
 
+sec("-- 74. THE PLAN OF RECORD IS A CLAIM, AND CLAIMS GO STALE ---")
+
+# This plane's plan of record went stale THREE TIMES in two days, and
+# every time the same way: a session closed an item and did not walk back
+# to the paragraph three screens up that still called it open. The lag is
+# invisible from inside the session that caused it, which is why a reader
+# found the first two and neither author did.
+#
+# The positives below are BUILT, never perturbed out of the live plan.
+# The first version of this guard borrowed its positives from the real
+# file, and the first repair these rules provoked rewrote exactly those
+# sentences -- every positive became a silent negative and the guard
+# would have gone green by testing nothing.
+
+acPorSuites = [ "gg_adversarial.ring" ]
+# ONCE. Seven checks each re-parsing this 560 KB suite cost 7.07s
+# against 0.95s for a single parse -- a text pass dearer than two of
+# the large renders it sits beside.
+acPorKeys = StzGuardSectionsOf(acPorSuites)
+
+cPorOpen   = "### Still open" + char(10) + char(10)
+cPorHonest = "### Closed, all of it" + char(10) + char(10)
+cPorDone1  = "~~The first thing~~ -- **CLOSED 2026-09-03, abc123def.** It" +
+             " went in with its guard." + char(10) + char(10)
+cPorDone2  = "~~The second thing~~ -- **CLOSED 2026-09-03, def456abc.** So" +
+             " did this one." + char(10) + char(10)
+cPorLive   = "The third thing is genuinely not done, and nobody has struck" +
+             " it through." + char(10) + char(10)
+cPorTail   = "## A later heading" + char(10) + char(10) + "Body." + char(10)
+
+aPor = StzCheckPlanTextXT(cPorOpen + cPorDone1 + cPorDone2 + cPorTail,
+                        "synthetic", acPorKeys)
+chk("a heading saying OPEN over two CLOSED items is caught",
+    _PorHits(aPor, "plan_calls_closed_work_open") = 1)
+
+aPor = StzCheckPlanTextXT(cPorOpen + cPorDone1 + cPorLive + cPorTail,
+                        "synthetic", acPorKeys)
+chk("NEGATIVE: ONE live item under it makes the heading true again",
+    _PorHits(aPor, "plan_calls_closed_work_open") = 0)
+
+aPor = StzCheckPlanTextXT(cPorHonest + cPorDone1 + cPorDone2 + cPorTail,
+                        "synthetic", acPorKeys)
+chk("NEGATIVE: the same closed items under an HONEST heading pass",
+    _PorHits(aPor, "plan_calls_closed_work_open") = 0)
+
+# The live item is plain prose -- no bullet, no strikethrough. An earlier
+# version of this rule could not SEE such an item, so a heading with one
+# live and one closed item still read as all-closed, and TWO headings in
+# the real plan passed because their items were invisible rather than
+# open. Silence that is not earned is the failure mode this pins.
+aPor = StzCheckPlanTextXT(cPorOpen + cPorLive + cPorTail, "synthetic",
+                        acPorKeys)
+chk("a live item written as PLAIN PROSE is seen, not skipped",
+    _PorHits(aPor, "plan_calls_closed_work_open") = 0)
+
+cPorMark = char(194) + char(167)
+aPor = StzCheckPlanTextXT(cPorHonest + "Guards: " + cPorMark + "999 holds it." +
+                        char(10) + char(10) + cPorTail, "synthetic",
+                        acPorKeys)
+chk("a cited guard section that does not exist is caught",
+    _PorHits(aPor, "plan_cites_a_missing_guard") = 1)
+
+aPor = StzCheckPlanTextXT(cPorHonest + "Guards: " + cPorMark + "71 holds it." +
+                        char(10) + char(10) + cPorTail, "synthetic",
+                        acPorKeys)
+chk("NEGATIVE: a citation the suite DOES define passes",
+    _PorHits(aPor, "plan_cites_a_missing_guard") = 0)
+
+# And the artefact itself. THIS is the assertion that earns the section:
+# everything above proves the instrument works, and this one points it at
+# the file it exists for.
+cPorPath = "../../graphics/SOFTANZA_GRAPH_PLANE_PLAN.md"
+aPorLive = StzCheckPlanTextXT(read(cPorPath), cPorPath, acPorKeys)
+nPorL = len(aPorLive)
+for iPor = 1 to nPorL
+	? "   STALE  " + aPorLive[iPor][:where] + "  " + aPorLive[iPor][:rule]
+	? "          " + aPorLive[iPor][:message]
+next
+chk("THE PLAN OF RECORD ITSELF is clean", nPorL = 0)
+
+
 if nSecClock > 0
 	? "        [section took " +
 	  ((clock() - nSecClock) / clockspersecond()) + "s]"
@@ -13553,6 +13634,16 @@ func _TurnsIn aFlat
 		ok
 	next
 	return _t_
+
+# Findings of one rule, counted. Prefixed, because this suite is one Ring
+# namespace and a bare `Hits` would be the whole file's.
+func _PorHits paFindings, pcRule
+	_n_ = 0
+	_nF_ = len(paFindings)
+	for _i_ = 1 to _nF_
+		if "" + paFindings[_i_][:rule] = pcRule  _n_++  ok
+	next
+	return _n_
 
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0

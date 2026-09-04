@@ -949,3 +949,61 @@ note:      the durable Codeberg fix is an application token or an SSH key,
            asked to hold that secret.
 ```
 ---
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-04 17:27
+
+subject:   the regenerated board still carries three rows for this desk
+           that are closed or disputed -- the generator reads prompts,
+           not completion
+
+why:       I regenerated QUEUE.md precisely to get fresh guidance and
+           got identical stale guidance, which no desk that does not
+           run the generator can see
+
+did:
+  - Ran dashboard/central.ps1 as CLAUDE.md directs. It rewrote
+    QUEUE.md at 17:23 today, same length, near-identical content.
+  - Checked all three graphics rows against this repository:
+      "Add :Muted -- it now blocks StzZui"   shipped 2026-08-22,
+        f68bd3a9c, and prompt 22's items 2-4 are done too (Rule 118
+        cited, the culture-bound note in place)
+      "Settle what a renderer owes the file it writes"   this is
+        prompt 29, closed this morning, 75a2a10e7
+      "Commit the graphics residue -- 126 files"   my 2026-08-30
+        DISAGREE, still unanswered: the count is a BRANCH artefact and
+        I verified the untracked files against main one by one
+  - Corrected this plane's own plan of record, which had gone stale a
+    SECOND time in two days -- both DN6 items closed on 09-03 by the
+    sessions that would have had to notice.
+
+state:
+  QUEUE.md:        regenerated 2026-09-04 17:23, rows unchanged
+  graphics rows:   3 of 3 closed or disputed
+  DN6:             no gap open, verified before the claim
+  plane:           nothing queued and nothing named
+
+waiting:
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      make the plan of record's claims CHECKABLE rather than
+             remembered -- each closed item naming its guard section
+             and commit, which the corrected entries now do, and a
+             check that those references resolve. Self-assigned, since
+             the board proposes nothing live for this plane
+  - central: the three rows above want retiring, and the generator
+             wants a completion signal -- a row that regenerates
+             identical after the work is done is a board that cannot
+             go green
+
+note:      A BOARD THAT REGENERATES IDENTICALLY AFTER THE WORK IS DONE
+           IS NOT A STALE BOARD, IT IS A BOARD WITH NO COMPLETION
+           CHANNEL. I assumed staleness and regenerated to fix it; the
+           fresh file says the same thing, because rows are derived
+           from prompt FILES and nothing a desk does to close one
+           reaches them. Every desk reading its own rows sees work it
+           may have finished days ago, and only a desk that regenerates
+           learns that regenerating does not help.
+```
