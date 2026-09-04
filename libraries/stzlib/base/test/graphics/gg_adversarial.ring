@@ -12304,6 +12304,91 @@ chk("THE PLAN'S GENERATED TABLE IS CURRENT", nPcL = 0)
   " over " + len(StzPlanItemsOf(read(cPcPath))) + " plan items"
 
 
+sec("-- 76. DN3b: THE DOCUMENT HAS NAMES, AND THEY ARE REFUSED NOT MANGLED --")
+
+# A pick tag answers a POINTER -- what is under this pixel. It cannot serve
+# a consumer reading the FILE, because a tag is a number chosen at draw time
+# and a consumer contract needs a name that survives being written out and
+# read back somewhere else. BPMN's L18/L19 is that contract, and until this
+# existed the only thing that could honour it was a private 781-line writer
+# that nothing in this repository called.
+#
+# NOT DECLARED AS DISCHARGING DN3b, deliberately. This is the first of that
+# item's three steps; the law's col/row are not yet handed to the plastic
+# layout and the private writer is still there. Declaring it now would make
+# section 75 report plan_item_open_but_discharged against DN3b -- which is
+# the mechanism working, and the reason to wait rather than to silence it.
+
+oDi = new stzCanvas(200, 100)
+oDi.Fill("white")
+oDi.AddRect(0, 0, 200, 100)
+
+oDi.SetSvgIdent("task_pay", "bpmn-task bpmn-element")
+oDi.Fill("steelblue")
+oDi.AddRect(10, 10, 80, 40)
+oDi.Stroke("black", 2)
+oDi.AddCircle(50, 30, 8)
+
+oDi.SetSvgIdent("gw_check", "bpmn-gateway bpmn-element")
+oDi.Fill("gold")
+oDi.AddCircle(150, 50, 20)
+
+oDi.ClearSvgIdent()
+oDi.Fill("gray")
+oDi.AddRect(0, 95, 200, 5)
+
+cDi = oDi.ToSVG()
+
+chkeq("two identities open two groups",
+      len(StzFindCS("<g ", cDi, TRUE)), 2)
+chkeq("and every one of them is closed -- the file is well formed",
+      len(StzFindCS("</g>", cDi, TRUE)), 2)
+chk("the named element carries its id",
+    len(StzFindCS('id="task_pay"', cDi, TRUE)) > 0)
+chk("and its classes, verbatim",
+    len(StzFindCS('class="bpmn-task bpmn-element"', cDi, TRUE)) > 0)
+
+# ONE GROUP FOR THREE COMMANDS. A node is a fill, a stroke and a label, and
+# they are one element to whoever reads the document. Putting the id on each
+# would emit it three times, and duplicate ids make the SVG invalid.
+chkeq("an id appears ONCE, though its element is three commands",
+      len(StzFindCS('id="task_pay"', cDi, TRUE)), 1)
+chk("all three of its commands sit inside that one group",
+    _DiInGroup(cDi, "task_pay", "<rect") and
+    _DiInGroup(cDi, "task_pay", "<polyline") and
+    _DiInGroup(cDi, "task_pay", "<circle"))
+
+# NEGATIVE: what carries no identity must stay OUT of every group, or the
+# background would be part of the first element a consumer selects.
+chk("NEGATIVE: the background is outside every group",
+    _DiBeforeFirstGroup(cDi, '<rect x="0" y="0"'))
+chk("NEGATIVE: and ClearSvgIdent puts the decoration outside too",
+    _DiAfterLastGroup(cDi, '<rect x="0" y="95"'))
+
+# REFUSED, NEVER ESCAPED. A name arriving as `a b"c` and leaving as
+# `a b&quot;c` is one the consumer cannot write down or select on: the
+# mangling is discovered by them, the refusal is discovered here.
+chk("a plain name is accepted", NOT _DiRefused("task_pay", "bpmn-task"))
+chk("an underscore may start a name", NOT _DiRefused("_x", ""))
+chk("dots and dashes are fine", NOT _DiRefused("a.b-c", "k-1 k-2"))
+chk("classes alone, with no name, are fine", NOT _DiRefused("", "decoration"))
+chk("both empty CLEARS and never refuses", NOT _DiRefused("", ""))
+
+chk("a name starting with a DIGIT is refused -- not an XML name",
+    _DiRefused("1task", ""))
+chk("a space inside a NAME is refused", _DiRefused("task pay", ""))
+chk("a quote is refused rather than escaped", _DiRefused('ta' + char(34) + 'sk', ""))
+chk("an angle bracket is refused", _DiRefused("ta<sk", ""))
+chk("an ampersand is refused", _DiRefused("a&b", ""))
+chk("and a quote in a CLASS is refused too",
+    _DiRefused("ok", 'a' + char(34) + 'b'))
+
+# The refusals must not be the WHOLE story -- a rule that refuses everything
+# also passes every negative above.
+chk("NEGATIVE: the refusals discriminate -- a valid name still draws",
+    len(StzFindCS('id="a.b-c"', _DiOneIdent("a.b-c", "k-1"), TRUE)) = 1)
+
+
 if nSecClock > 0
 	? "        [section took " +
 	  ((clock() - nSecClock) / clockspersecond()) + "s]"
@@ -13828,6 +13913,56 @@ func _PorHits paFindings, pcRule
 		if "" + paFindings[_i_][:rule] = pcRule  _n_++  ok
 	next
 	return _n_
+
+# Is pcTag drawn inside the group named pcId?
+func _DiInGroup pcSvg, pcId, pcTag
+	_a_ = StzFindCS('id="' + pcId + '"', pcSvg, TRUE)
+	if len(_a_) = 0  return FALSE  ok
+	_nFrom_ = _a_[1]
+	_b_ = StzFindCS("</g>", pcSvg, TRUE)
+	_nTo_ = len(pcSvg)
+	_nB_ = len(_b_)
+	for _i_ = 1 to _nB_
+		if _b_[_i_] > _nFrom_
+			_nTo_ = _b_[_i_]
+			exit
+		ok
+	next
+	_c_ = StzFindCS(pcTag, pcSvg, TRUE)
+	_nC_ = len(_c_)
+	for _i_ = 1 to _nC_
+		if _c_[_i_] > _nFrom_ and _c_[_i_] < _nTo_  return TRUE  ok
+	next
+	return FALSE
+
+func _DiBeforeFirstGroup pcSvg, pcTag
+	_a_ = StzFindCS(pcTag, pcSvg, TRUE)
+	_b_ = StzFindCS("<g ", pcSvg, TRUE)
+	if len(_a_) = 0 or len(_b_) = 0  return FALSE  ok
+	return _a_[1] < _b_[1]
+
+func _DiAfterLastGroup pcSvg, pcTag
+	_a_ = StzFindCS(pcTag, pcSvg, TRUE)
+	_b_ = StzFindCS("</g>", pcSvg, TRUE)
+	if len(_a_) = 0 or len(_b_) = 0  return FALSE  ok
+	return _a_[len(_a_)] > _b_[len(_b_)]
+
+func _DiRefused pcName, pcCls
+	_o_ = new stzCanvas(50, 50)
+	_r_ = FALSE
+	try
+		_o_.SetSvgIdent(pcName, pcCls)
+	catch
+		_r_ = TRUE
+	done
+	return _r_
+
+func _DiOneIdent pcName, pcCls
+	_o_ = new stzCanvas(60, 60)
+	_o_.SetSvgIdent(pcName, pcCls)
+	_o_.Fill("black")
+	_o_.AddRect(5, 5, 20, 20)
+	return _o_.ToSVG()
 
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0

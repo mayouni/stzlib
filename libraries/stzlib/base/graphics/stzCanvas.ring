@@ -352,6 +352,52 @@ class stzCanvas from stzObject
 		StzEngineGpuSceneSetPickTag(@nId, pnTag)
 		return This
 
+	# WHAT THE NEXT SHAPES ARE CALLED, to a reader of the FILE.
+	#
+	# SetPickTag answers a POINTER -- what is under this pixel. This
+	# answers a DOCUMENT: what is this element named, and what kind of
+	# thing is it, to a consumer reading the SVG rather than clicking it.
+	# A tag cannot serve the second question, because a tag is a number
+	# chosen at draw time and a consumer contract needs a name that
+	# survives being written to a file and read back somewhere else.
+	#
+	# BPMN's L18/L19 is the contract that asked for it: every drawn
+	# element carries a stable identifier and a set of classes, and a
+	# consumer binds to those and may rely on nothing else.
+	#
+	# Everything added afterwards is ONE element -- emitted as a single
+	# <g id="..." class="..."> around all of it, because a node is a
+	# fill and a stroke and a label and those are one thing to whoever
+	# reads the document. Both empty clears the identity, which is what
+	# backgrounds and decorations keep.
+	#
+	# REFUSES a name that is not an XML name rather than escaping it. A
+	# name that arrives as `a b"c` and leaves as `a b&quot;c` is one the
+	# consumer cannot write down or select on -- the mangling would be
+	# discovered by them and the refusal is discovered here.
+	def SetSvgIdent(pcName, pcClasses)
+		This._Flush()
+		_cN_ = pcName
+		_cC_ = pcClasses
+		if NOT isString(_cN_)  _cN_ = ""  ok
+		if NOT isString(_cC_)  _cC_ = ""  ok
+		# ZERO IS OK HERE, as everywhere in this engine -- see AddImage.
+		# The first version read it the other way and refused every valid
+		# name, which at least fails loudly; the inverse would have
+		# accepted every invalid one in silence.
+		if StzEngineGpuSceneSetSvgIdent(@nId, _cN_, _cC_) != 0
+			StzRaise("stzCanvas.SetSvgIdent: refused -- a name must be an " +
+				"XML name (a letter or underscore, then letters, digits, " +
+				"'_', '-' or '.'), and classes the same with spaces " +
+				"between them. Got name '" + _cN_ + "', classes '" +
+				_cC_ + "'.")
+		ok
+		return This
+
+	# Back to no identity -- the next shapes belong to no element.
+	def ClearSvgIdent()
+		return This.SetSvgIdent("", "")
+
 	# The tag of the TOPMOST tagged shape under a point, or 0 for bare
 	# paper. Read straight from the retained display list: the data is
 	# already engine-side, so a click costs one crossing and no copy.
