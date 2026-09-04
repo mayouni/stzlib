@@ -12259,42 +12259,25 @@ chk("and on this string the two DISAGREE -- which is the whole trap",
 chkeq("NEGATIVE: on pure ASCII they agree, which is why it stayed hidden",
       _StzFindBytes("XY", "abXY"), StzFindFirst("XY", "abXY"))
 
-# -- TWO INDEPENDENT READINGS OF THE SAME TRUTH --------------------------
-# aDischarged is built at RUN time by the discharges() calls as each section
-# is reached. StzSuiteDischargesOf reads the same declarations STATICALLY
-# out of the source. They are separate code paths over separate inputs, and
-# a house law says an identity computed from one set of anchors proves
-# nothing -- so the check that means something is these two agreeing. It
-# also catches a declaration attached to a section that never runs.
+# -- THE STATIC PARSE, WHICH IS COMPLETE WHEREVER THIS SECTION SITS ------
+#
+# It used to compare the static parse against aDischarged here, and that
+# was WRONG IN A WAY THAT ONLY SHOWED WHEN IT MATTERED. aDischarged is
+# built at RUN time as each section is reached, so at this point it holds
+# the declarations of the sections BEFORE this one and no others. The two
+# agreed for as long as no section after 75 declared anything -- and broke
+# the moment sections 76 and 77 declared DN3b, reporting 21 against 23 and
+# taking the table check down with it.
+#
+# A cross-check between two readings is only a cross-check when both have
+# finished reading. The runtime-versus-static comparison now runs at the
+# END of the suite, where that is true; everything here reads the static
+# parse, which is complete whatever order the sections run in.
 aPcStatic = StzSuiteDischargesOf([ "gg_adversarial.ring" ])
-chkeq("runtime and static declaration counts agree",
-      len(aDischarged), len(aPcStatic))
-bPcSame = TRUE
-nPcD = len(aDischarged)
-for iPc = 1 to nPcD
-	bPcFound = FALSE
-	nPcS = len(aPcStatic)
-	for jPc = 1 to nPcS
-		if aPcStatic[jPc][1] = aDischarged[iPc][1] and
-		   aPcStatic[jPc][2] = aDischarged[iPc][2]
-			bPcFound = TRUE
-			exit
-		ok
-	next
-	if NOT bPcFound  bPcSame = FALSE  ok
-next
-chk("and every runtime pair is present in the static parse", bPcSame)
-bPcBogus = FALSE
-nPcS = len(aPcStatic)
-for jPc = 1 to nPcS
-	if aPcStatic[jPc][1] = "ZZ9"  bPcBogus = TRUE  ok
-next
-chk("NEGATIVE: an item no section declares is ABSENT from the static parse",
-    NOT bPcBogus)
 
 # -- and the artefact itself ---------------------------------------------
 cPcPath = "../../graphics/SOFTANZA_GRAPH_PLANE_PLAN.md"
-aPcLive = StzCheckPlanCoverage(read(cPcPath), cPcPath, aDischarged)
+aPcLive = StzCheckPlanCoverage(read(cPcPath), cPcPath, aPcStatic)
 nPcL = len(aPcLive)
 for iPc = 1 to nPcL
 	? "   STALE  " + aPcLive[iPc][:where] + "  " + aPcLive[iPc][:rule]
@@ -12306,6 +12289,7 @@ chk("THE PLAN'S GENERATED TABLE IS CURRENT", nPcL = 0)
 
 
 sec("-- 76. DN3b: THE DOCUMENT HAS NAMES, AND THEY ARE REFUSED NOT MANGLED --")
+discharges("DN3b")
 
 # A pick tag answers a POINTER -- what is under this pixel. It cannot serve
 # a consumer reading the FILE, because a tag is a number chosen at draw time
@@ -12438,6 +12422,7 @@ chkeq("every piece of text is inside an element, never loose on the paper",
 
 
 sec("-- 77. DN3b: THE SHARED RENDER AGREES WITH THE LAW, CELL BY CELL ---")
+discharges("DN3b")
 
 # The plan recorded step 2 as "the law's col/row handed to the plastic
 # layout as pins". MEASURED, THAT PREMISE WAS WRONG, and measuring it is
@@ -12498,6 +12483,46 @@ chk("NEGATIVE: a class nobody declared is not in the document",
 oLn77 = _Wf77("linear")
 chkeq("NEGATIVE: a single-arrival ending mints NO extra marker",
       oLn77.ExpandEndingsPerArrival(), 0)
+
+
+sec("-- 78. THE TWO READINGS OF THE DECLARATIONS, BOTH FINISHED ------")
+
+# aDischarged is built at RUN time by the discharges() calls as each
+# section is reached; StzSuiteDischargesOf reads the same declarations
+# STATICALLY from the source. Separate code paths over separate inputs, so
+# their agreeing means something -- where an identity computed from one set
+# of anchors would mean nothing. It also catches a declaration attached to
+# a section that never runs.
+#
+# LAST, AND THAT IS THE POINT. This lived inside section 75 and passed
+# until sections 76 and 77 declared DN3b after it had already read the
+# runtime list: 21 against 23, and the table check failed with it. A
+# comparison of two readings is only a comparison once both have finished.
+aPcStat2 = StzSuiteDischargesOf([ "gg_adversarial.ring" ])
+chkeq("runtime and static declaration counts agree",
+      len(aDischarged), len(aPcStat2))
+bPcSame = TRUE
+nPcD = len(aDischarged)
+for iPc = 1 to nPcD
+	bPcFound = FALSE
+	nPcS = len(aPcStat2)
+	for jPc = 1 to nPcS
+		if aPcStat2[jPc][1] = aDischarged[iPc][1] and
+		   aPcStat2[jPc][2] = aDischarged[iPc][2]
+			bPcFound = TRUE
+			exit
+		ok
+	next
+	if NOT bPcFound  bPcSame = FALSE  ok
+next
+chk("and every runtime pair is present in the static parse", bPcSame)
+bPcBogus = FALSE
+nPcS = len(aPcStat2)
+for jPc = 1 to nPcS
+	if aPcStat2[jPc][1] = "ZZ9"  bPcBogus = TRUE  ok
+next
+chk("NEGATIVE: an item no section declares is ABSENT from the static parse",
+    NOT bPcBogus)
 
 
 if nSecClock > 0
