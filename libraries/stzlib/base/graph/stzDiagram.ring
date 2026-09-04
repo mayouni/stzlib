@@ -13078,17 +13078,41 @@ class stzDiagram from stzGraph
 		next
 		return 0
 
+	# THE DEEPEST RAIL AT A ROW -- READ OFF THE LANE LIST ITSELF.
+	#
+	# This walked every EDGE and asked _LaneKept for each one's lane,
+	# and _LaneKept scans the lane list. On a 400-node render that is
+	# 1,247 calls x 399 edges = 499,548 lane lookups, each a scan --
+	# the largest single cost in the render, and invisible at the
+	# 200-node size every earlier pass used, where it sat under the
+	# machine's noise floor. Doubling the stress case is what surfaced
+	# it, and comparing the two sizes is what named it quadratic: 4.5x
+	# for a doubling.
+	#
+	# ...AND A TABLE WAS THE WRONG FIX, WHICH THE CALL COUNTS SAID AND
+	# THE CLOCK DID NOT. I first cached this per lane plan, keyed on the
+	# plan's length. It measured +1.76s and looked like a win; counting
+	# the calls showed 499,548 lookups in BOTH arms, unchanged. The
+	# method is called DURING lane assignment, so the key moved on
+	# nearly every call and the table rebuilt each time -- the entire
+	# gain was from dropping the edge-list copy, and the cache was doing
+	# the same work under a different name. A count cannot be fooled by
+	# ambient load or by the profiler's own overhead; a timing can.
+	#
+	# The lane list is the thing being looked up in, and it holds only
+	# the edges that HAVE lanes. Iterating it directly answers the same
+	# question with no lookups at all.
 	def _DeepestRailAt(nRowY, nBoxH)
 		_drBest_ = 0
-		_aDrE18_ = This.Edges()
-		_nDrE18_ = len(_aDrE18_)
-		for _iDrE18_ = 1 to _nDrE18_
-			_drE_ = _aDrE18_[_iDrE18_]
-			_drF_ = StzLower("" + _drE_[:from])
-			_drT_ = StzLower("" + _drE_[:to])
-			if _drF_ = _drT_  loop  ok
-			_drL_ = This._LaneKept(_drF_ + ">" + _drT_)
+		_nDrL_ = len(@aLaneKept)
+		for _iDrL_ = 1 to _nDrL_
+			_drL_ = @aLaneKept[_iDrL_][2]
 			if _drL_ < 1  loop  ok
+			_drKey_ = @aLaneKept[_iDrL_][1]
+			_nDrGt_ = StzFindFirst(">", _drKey_)
+			if _nDrGt_ < 2  loop  ok
+			_drF_ = left(_drKey_, _nDrGt_ - 1)
+			if _drF_ = right(_drKey_, len(_drKey_) - _nDrGt_)  loop  ok
 			_drAt_ = This._XYOf(@aDrawXY, _drF_)
 			if len(_drAt_) != 2  loop  ok
 			if fabs(_drAt_[2] - nRowY) > 2  loop  ok
@@ -13097,20 +13121,6 @@ class stzDiagram from stzGraph
 		next
 		return _drBest_
 
-	# ONE LADDER FOR EVERYTHING THAT RUNS UNDER A ROW.
-	#
-	# Two allocators were handing out horizontal runs under the same row
-	# and neither could see the other's: the lane placer for returns and
-	# the channel placer for edges crossing a rank. In the order they
-	# put "retry" at y=431.55 and "authorised" at y=443.20 -- ELEVEN
-	# pixels apart, two lines a reader has to separate by eye, and the
-	# Principal marked it twice in one picture.
-	#
-	# A row's rails belong to that row. An edge LEAVING the row passes
-	# under all of them, which is the true reading as well as the legible
-	# one -- so a channel that would land in the rails' band is pushed
-	# past the deepest of them, and it keeps a clearance there like
-	# everything else.
 	def _ChannelBelowRails(nChan, nRowY, nBoxH, nPe, nQe, nWidth)
 		_cbRail_ = This._DeepestRailAt(nRowY, nBoxH)
 		if _cbRail_ <= 0  return nChan  ok
