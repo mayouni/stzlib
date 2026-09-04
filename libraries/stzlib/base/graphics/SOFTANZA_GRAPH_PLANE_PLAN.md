@@ -1148,6 +1148,41 @@ gate it declares.
     the dash discipline are DN4's business (compartments and
     adornments), which is where they were always going.
 
+    **The channel is in place, 2026-09-04, 9022946a6 and 2bb38c0db, and
+    the item stays open because the second step is not what it looked
+    like.** `sceneSetSvgIdent` in the engine, `SetSvgIdent` on stzCanvas,
+    and the shared renderer speaking through it: a BPMN picture drawn by
+    `SetWorkflowType("bpmn")` now carries a stable id and a set of classes
+    per element, so L18/L19 no longer depends on the private writer. Guard
+    §76, 33 assertions. Opt-in elsewhere, so no picture this library
+    already emits changes a byte, and BPMN opts in without being asked
+    because a notation whose law requires a thing should not need the
+    caller to remember it.
+
+    **THE REMAINING COST IS LARGER THAN THIS ITEM RECORDED, and naming it
+    is the point of this paragraph.** "The law's col/row handed to the
+    plastic layout as pins" reads as a port of one method. It is not.
+    `stzBpmnDiagram.Layout()` does assign a column and a row -- L3 to L6,
+    which would transfer -- but it also mints STUBS: L7/L8 give an ending
+    one marker per arrival, L9 draws an ending nothing arrives at, and L10
+    routes a resume. Those run on a model the shared diagram does not
+    have. `MarkEnding`, `MarkResume`, `EndingId` and the endings list are
+    the private class's own vocabulary, and an ending is not a node in the
+    shared model.
+
+    So the second step is a DESIGN decision before it is a port: either
+    endings become ordinary nodes in the shared model, or the shared model
+    grows the stub concept. Both are real changes to what a diagram IS,
+    which is why this was not attempted alongside the channel. The kill
+    criterion for that decision belongs to whoever takes it, and the
+    conformance digest -- `LayoutDigest()`, which the two implementations
+    are held to -- is the oracle it should be judged against.
+
+    **And the private writer cannot go until then.** It has no callers
+    already: `new stzBpmnDiagram` appears twice, both inside its own file,
+    once in a doc comment and once in its own factory. What keeps it is
+    not a caller but the law and the digest it carries.
+
   **AND DRAWING THE FIRST LEFT-TO-RIGHT DOMAIN FOUND THREE DEFECTS**
   that only a left-to-right picture could have found, every one of them
   a rule stated on the axis that happened to have been tested:
