@@ -97,6 +97,7 @@ sections, of which 21 declarations over 17 items.
 | DN7b | closed | 80 |
 | DN7c | closed | 81 |
 | DN7d | closed | 82 |
+| DN7e | closed | 83 |
 | DN2b | closed | 56 |
 | DN2c | closed | - |
 | DN2d | closed | 57 |
@@ -1955,6 +1956,56 @@ was a cliff at twelve sets.
   correct all along. **An objective whose minimum sits exactly on a
   non-differentiable point of a constraint is a trap, not a preference** —
   give the pull a ring to settle on rather than a point.
+
+- **DN7e — the engine's range: three more domains. SHIPPED 2026-09-05.**
+  Guard §83. The author asked for more visual examples, and the useful
+  answer was not more set-theory scenes but three domains that stress
+  DIFFERENT halves of the engine. Catalogue now 18 pictures.
+
+  | scene | unknowns | constraints | rounds | evaluations | ms |
+  |---|---|---|---|---|---|
+  | the divisors of 12 (Hasse) | 24 | 156 | 2 | 525 | 98 |
+  | the divisors of 36 (Hasse) | 36 | 277 | 2 | 936 | 259 |
+  | a commuting square | 16 | 122 | 1 | 43 | 97 |
+  | a commuting triangle | 12 | 91 | 1 | 84 | 66 |
+  | Thales | 15 | 115 | 2 | 911 | 59 |
+
+  **ORDER THEORY is the opposite end of the engine from Byrne.** A partial
+  order has no coordinates to be faithful to, so a Hasse diagram is pure
+  LAYOUT — the only forced fact is that x sits above y when x covers y, and
+  every other rule exists to make the picture readable. Where Byrne's
+  figure had six free numbers and everything else derived, this has two per
+  node and nothing derived at all. `StzOrderDomain` makes a covering an
+  OBJECT rather than a predicate, for the reason a Segment is one: a rule
+  mints one shape per match, and an element covers several others, so the
+  edge needs a name to be minted under.
+
+  **CATEGORY THEORY is the case where the layout IS the content.** A
+  commuting square is not an illustration of an equation, it is how the
+  equation is written, so `StzCommutativeStyle` states the grid as
+  constraints (`a` and `b` share a row, `a` and `c` share a column) and
+  lets the solver place it. Arrows stop clear of both names by deriving
+  their ends from the direction, and an arrow's own name is PLACED off the
+  midpoint along the normal — costing the solver nothing, which is the
+  lesson DN7d paid for.
+
+  **THALES IS BYRNE'S KILL AGAIN, in one line of substance.** The content
+  says B and C are on the circle, BC runs through its centre, and A is on
+  the circle. It never says the angle at A is right. Every position the
+  solver may choose for A gives a right angle, so the mark the style draws
+  is a claim about the picture the picture was never asked to satisfy —
+  measured back at **cos = −0.00**, and the guard also asserts the
+  substance contains no `Right` at all, so the reading cannot be a
+  tautology.
+
+  **AND A LAWFUL PICTURE IS NOT A READABLE ONE.** Nothing in the engine
+  forbids two edges from crossing, and it shows: **7 of 10 seeds** draw the
+  divisors of 12 without a crossing, but only **1 of 12** draws the
+  divisors of 36 clean. Choosing the seed is what Penrose's variations are
+  for and it is honest, but the odds fall as the lattice grows — which is
+  an argument for a crossing term, recorded here rather than built now.
+  The guard pins the chosen variation at zero crossings AND asserts that
+  another seed does cross, so the check cannot pass by being vacuous.
 
 ## DN2b — THE RING: a state machine is not a tree (2026-08-23)
 

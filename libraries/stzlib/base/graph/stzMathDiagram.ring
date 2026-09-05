@@ -272,6 +272,10 @@ func StzGeometryDomain()
 	_o_.AddSymmetricPredicate("EqualLength", [ "Segment", "Segment" ])
 	_o_.AddSymmetricPredicate("Parallel", [ "Segment", "Segment" ])
 	_o_.AddSymmetricPredicate("Perpendicular", [ "Segment", "Segment" ])
+	# added for Thales: a circle, points on it, and a chord through its centre
+	_o_.AddType("Circle")
+	_o_.AddPredicate("OnCircle", [ "Point", "Circle" ])
+	_o_.AddPredicate("Diameter", [ "Segment", "Circle" ])
 	return _o_
 
 # ...drawn as Euclid drew: a point is a dot with its name beside it, a
@@ -563,6 +567,187 @@ func StzHyperbolicStyle()
 		    :stroke = "#333333", :strokeWidth = 2 ] ],
 		[ :layer, "s.tick", :above, "_.disk" ],
 		[ :layer, "t.tick", :above, "_.disk" ] ])
+	return _o_
+
+# THALES, and the kill Byrne's figure taught. The substance says three
+# things: B and C are on the circle, BC passes through its centre, and A is
+# on the circle too. IT NEVER SAYS THE ANGLE AT A IS RIGHT. The solver is
+# free to put A anywhere on the arc, and every place it can put A gives a
+# right angle -- so the mark this style draws is a claim about the picture
+# that the picture was never asked to satisfy, and the guard measures it
+# back out of the solved coordinates.
+func StzThalesStyle()
+	_o_ = new stzMathStyle()
+	_o_.SetCanvas(620, 560)
+	_o_.ForAll("Circle k", [
+		[ :shape, "k.icon", :circle, [ :fill = "#f6f6fb", :stroke = "#8a8ab0",
+		                               :strokeWidth = 2 ] ],
+		[ :ensure, "greaterThan", [ "k.icon.r", 160 ] ],
+		[ :ensure, "lessThan", [ "k.icon.r", 210 ] ] ])
+	_o_.ForAll("Point p", [
+		[ :shape, "p.icon", :circle, [ :r = 4, :fill = "#111111" ] ],
+		[ :shape, "p.text", :text, [ :fill = "#111111" ] ],
+		[ :ensure, "disjoint", [ "p.text", "p.icon", 5 ] ],
+		[ :encourage, "near", [ "p.text", "p.icon", 20 ] ] ])
+	_o_.ForAllWhere("Point p; Circle k", "OnCircle(p, k)", [
+		[ :ensure, "equal", [ "dist(p.icon, k.icon)", "k.icon.r" ] ],
+		# the name sits OUTSIDE the rim: disjoint from the disk itself,
+		# which for a point ON the rim can only mean outward
+		[ :ensure, "disjoint", [ "p.text", "k.icon", 7 ] ],
+		[ :layer, "p.icon", :above, "k.icon" ] ])
+	_o_.ForAllWhere("Segment s; Point p; Point q", "s := Segment(p, q)", [
+		[ :shape, "s.icon", :line, [ :x1 = "p.icon.cx", :y1 = "p.icon.cy",
+		                             :x2 = "q.icon.cx", :y2 = "q.icon.cy",
+		                             :stroke = "#333333", :strokeWidth = 2 ] ],
+		[ :ensure, "disjoint", [ "p.text", "s.icon", 3 ] ],
+		[ :ensure, "disjoint", [ "q.text", "s.icon", 3 ] ] ])
+	_o_.ForAllWhere("Segment s; Circle k", "Diameter(s, k)", [
+		[ :ensure, "equal", [ "midx(s.icon)", "k.icon.cx" ] ],
+		[ :ensure, "equal", [ "midy(s.icon)", "k.icon.cy" ] ] ])
+	_o_.ForAllWhere("Triangle t; Point p; Point q; Point r", "t := Triangle(p, q, r)", [
+		[ :shape, "t.face", :poly, [ :n = 3,
+		    :x1 = "p.icon.cx", :y1 = "p.icon.cy", :x2 = "q.icon.cx", :y2 = "q.icon.cy",
+		    :x3 = "r.icon.cx", :y3 = "r.icon.cy",
+		    :fill = "#e8b93b66", :stroke = "#333333", :strokeWidth = 2 ] ],
+		[ :layer, "p.icon", :above, "t.face" ], [ :layer, "q.icon", :above, "t.face" ],
+		[ :layer, "r.icon", :above, "t.face" ] ])
+	# THE MARK the theorem earns: the angle at the apex, drawn because
+	# Thales says it is right, never because a constraint made it so.
+	_o_.ForAllWhere("Angle a; Point p; Point q; Point r", "a := InteriorAngle(p, q, r)", [
+		[ :shape, "a.arm1", :line, [ :x1 = "q.icon.cx", :y1 = "q.icon.cy",
+		                             :x2 = "p.icon.cx", :y2 = "p.icon.cy", :hidden = 1 ] ],
+		[ :shape, "a.arm2", :line, [ :x1 = "q.icon.cx", :y1 = "q.icon.cy",
+		                             :x2 = "r.icon.cx", :y2 = "r.icon.cy", :hidden = 1 ] ],
+		[ :shape, "a.mark1", :line, [
+			:x1 = "q.icon.cx + 15*ux(a.arm1)", :y1 = "q.icon.cy + 15*uy(a.arm1)",
+			:x2 = "q.icon.cx + 15*ux(a.arm1) + 15*ux(a.arm2)",
+			:y2 = "q.icon.cy + 15*uy(a.arm1) + 15*uy(a.arm2)",
+			:stroke = "#333333", :strokeWidth = 1.5 ] ],
+		[ :shape, "a.mark2", :line, [
+			:x1 = "q.icon.cx + 15*ux(a.arm2)", :y1 = "q.icon.cy + 15*uy(a.arm2)",
+			:x2 = "q.icon.cx + 15*ux(a.arm1) + 15*ux(a.arm2)",
+			:y2 = "q.icon.cy + 15*uy(a.arm1) + 15*uy(a.arm2)",
+			:stroke = "#333333", :strokeWidth = 1.5 ] ] ])
+	return _o_
+
+# ORDER THEORY. A partial order is not a picture of anything -- it has no
+# coordinates to be faithful to -- so a Hasse diagram is pure LAYOUT: the
+# only rule is that x sits above y when x covers y, and everything else is
+# there to make it readable. That makes it the opposite end of the engine
+# from Byrne, where every coordinate was forced.
+#
+# A covering is an OBJECT here, not a predicate, for the same reason a
+# Segment is: a rule mints one shape per match, and an element covers
+# several others, so the edge needs a name of its own to be minted under.
+func StzOrderDomain()
+	_o_ = new stzMathDomain("order")
+	_o_.AddType("Element")
+	_o_.AddType("Cover")
+	_o_.AddConstructor("Cover", [ "Element", "Element" ])
+	_o_.AddSymmetricPredicate("SameRank", [ "Element", "Element" ])
+	return _o_
+
+# ...drawn as Hasse drew it: a node per element, a line for each covering,
+# the greater end higher. Same rank shares a row, a child pulls toward the
+# average of its parents, and every pair pushes apart.
+func StzHasseStyle()
+	_o_ = new stzMathStyle()
+	_o_.SetCanvas(700, 620)
+	_o_.ForAll("Element x", [
+		[ :shape, "x.icon", :circle, [ :r = 24, :fill = "#ffffff",
+		                               :stroke = "#33355c", :strokeWidth = 2 ] ],
+		[ :shape, "x.text", :text, [ :fill = "#22223a" ] ],
+		# the name IS the node, so it is placed and not solved
+		[ :override, "x.text.cx", "x.icon.cx" ],
+		[ :override, "x.text.cy", "x.icon.cy" ],
+		[ :ensure, "contains", [ "x.icon", "x.text", 3 ] ],
+		[ :layer, "x.text", :above, "x.icon" ] ])
+	_o_.ForAll("Element x; Element y", [
+		[ :ensure, "disjoint", [ "x.icon", "y.icon", 26 ] ],
+		[ :encourage, "notTooClose", [ "x.icon", "y.icon", 4 ] ] ])
+	# A WEAK PULL TOWARD THE MIDDLE COLUMN, and weak is the whole point: at
+	# the range where two nodes are nearly touching, the repulsion above is
+	# an order of magnitude stronger, so this gathers the drawing without
+	# ever flattening it. Dividing inside the argument is what buys that --
+	# the energy is squared, so a divisor of eight is a weight of a
+	# sixty-fourth.
+	_o_.ForAll("Element x", [
+		[ :encourage, "equal", [ "x.icon.cx / 8", 43.75 ] ] ])
+	_o_.ForAllWhere("Element x; Element y", "SameRank(x, y)", [
+		[ :ensure, "equal", [ "x.icon.cy", "y.icon.cy" ] ] ])
+	_o_.ForAllWhere("Cover c; Element x; Element y", "c := Cover(x, y)", [
+		[ :shape, "c.icon", :line, [ :x1 = "x.icon.cx", :y1 = "x.icon.cy",
+		                             :x2 = "y.icon.cx", :y2 = "y.icon.cy",
+		                             :stroke = "#7777a0", :strokeWidth = 2 ] ],
+		# x covers y, so x is the higher of the two -- by a clear row
+		[ :ensure, "greaterThan", [ "y.icon.cy", "x.icon.cy + 88" ] ],
+		[ :ensure, "lessThan", [ "y.icon.cy", "x.icon.cy + 132" ] ],
+		# and a covering pair leans toward the same column
+		[ :encourage, "equal", [ "x.icon.cx", "y.icon.cx" ] ],
+		[ :layer, "x.icon", :above, "c.icon" ],
+		[ :layer, "y.icon", :above, "c.icon" ] ])
+	return _o_
+
+# CATEGORY THEORY. The diagram IS the mathematics here -- a commuting
+# square is not an illustration of an equation, it is how the equation is
+# written -- so this style is the one place where the LAYOUT carries the
+# content and the coordinates carry none.
+func StzCategoryDomain()
+	_o_ = new stzMathDomain("category")
+	_o_.AddType("Object")
+	_o_.AddType("Arrow")
+	_o_.AddConstructor("Arrow", [ "Object", "Object" ])
+	_o_.AddFunction("compose", [ "Arrow", "Arrow" ], "Arrow")
+	_o_.AddPredicate("CommutingSquare", [ "Object", "Object", "Object", "Object" ])
+	_o_.AddPredicate("CommutingTriangle", [ "Object", "Object", "Object" ])
+	return _o_
+
+# An object is its name; an arrow runs between two names, stopping clear of
+# both, and wears its own name beside its middle. A commuting cell gets the
+# turning mark in the space it encloses.
+func StzCommutativeStyle()
+	_o_ = new stzMathStyle()
+	_o_.SetCanvas(660, 560)
+	_o_.ForAll("Object a", [
+		[ :shape, "a.text", :text, [ :fill = "#111111" ] ],
+		[ :shape, "a.bounds", :circle, [ :cx = "a.text.cx", :cy = "a.text.cy",
+		                                 :r = 26, :hidden = 1 ] ] ])
+	_o_.ForAllWhere("Arrow f; Object a; Object b", "f := Arrow(a, b)", [
+		[ :shape, "f.line", :line, [ :x1 = "a.text.cx", :y1 = "a.text.cy",
+		                             :x2 = "b.text.cx", :y2 = "b.text.cy", :hidden = 1 ] ],
+		[ :shape, "f.icon", :line, [
+		    :x1 = "a.text.cx + 26*ux(f.line)", :y1 = "a.text.cy + 26*uy(f.line)",
+		    :x2 = "b.text.cx - 26*ux(f.line)", :y2 = "b.text.cy - 26*uy(f.line)",
+		    :stroke = "#111111", :strokeWidth = 2, :arrow = "end" ] ],
+		[ :shape, "f.text", :text, [ :fill = "#a03028" ] ],
+		# the arrow's name sits off its middle, on the side the arrow turns
+		# away from -- placed, so it costs the solver nothing
+		[ :override, "f.text.cx", "midx(f.icon) + 15*nx(f.icon)" ],
+		[ :override, "f.text.cy", "midy(f.icon) + 15*ny(f.icon)" ],
+		[ :ensure, "greaterThan", [ "len(f.line)", 150 ] ] ])
+	_o_.ForAllWhere("Object a; Object b; Object c; Object d",
+	                "CommutingSquare(a, b, c, d)", [
+		# a b       the square is read left to right and top to bottom, so
+		# c d       the style says exactly that and the solver does the rest
+		[ :ensure, "equal", [ "a.text.cy", "b.text.cy" ] ],
+		[ :ensure, "equal", [ "c.text.cy", "d.text.cy" ] ],
+		[ :ensure, "equal", [ "a.text.cx", "c.text.cx" ] ],
+		[ :ensure, "equal", [ "b.text.cx", "d.text.cx" ] ],
+		[ :ensure, "greaterThan", [ "b.text.cx", "a.text.cx + 250" ] ],
+		[ :ensure, "greaterThan", [ "c.text.cy", "a.text.cy + 210" ] ],
+		# and the cell sits in the middle of the paper: nothing else in this
+		# style has any opinion about where, so without this the square is
+		# lawful anywhere the margins allow
+		[ :encourage, "equal", [ "(a.text.cx + b.text.cx) / 2", 330 ] ],
+		[ :encourage, "equal", [ "(a.text.cy + c.text.cy) / 2", 280 ] ] ])
+	_o_.ForAllWhere("Object a; Object b; Object c",
+	                "CommutingTriangle(a, b, c)", [
+		[ :ensure, "equal", [ "a.text.cy", "b.text.cy" ] ],
+		[ :ensure, "greaterThan", [ "b.text.cx", "a.text.cx + 250" ] ],
+		[ :ensure, "greaterThan", [ "c.text.cy", "a.text.cy + 200" ] ],
+		[ :ensure, "equal", [ "c.text.cx", "(a.text.cx + b.text.cx) / 2" ] ],
+		[ :encourage, "equal", [ "(a.text.cx + b.text.cx) / 2", 330 ] ],
+		[ :encourage, "equal", [ "(a.text.cy + c.text.cy) / 2", 280 ] ] ])
 	return _o_
 
 # OLIVER BYRNE'S EUCLID I.47 (1847), the plane's version of the most drawn
