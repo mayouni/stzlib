@@ -12828,6 +12828,15 @@ chk("and it is the clearance the style asks for, not merely equal",
     aByG[1] > 8.5 and aByG[1] < 12 and aByG[2] > 8.5 and aByG[3] > 8.5)
 chk("the right-angle mark's corner sits ON the altitude, exactly",
     _ByMarkOff(oBy) < 0.01)
+# and the third mark: a vertex's dot was drawn UNDER the squares standing
+# on it, because layering names a partial order and "above the hypotenuse
+# square" left the dot at the same depth as the rectangles on top of it.
+chk("every vertex's dot is painted after every piece of the figure",
+    _ByEarliestDot(oBy) > _ByLastInk(oBy))
+chk("NEGATIVE: the figure is genuinely ordered, not all one depth -- the " +
+    "triangle goes down before the square on the hypotenuse",
+    oBy.DrawIndexOf("ABC.face") < oBy.DrawIndexOf("ABC.sqbc") and
+    oBy.DrawIndexOf("ABC.sqbc") < oBy.DrawIndexOf("ABC.rect1"))
 chk("NEGATIVE: an equal-armed SQUARE mark would miss it, by more than the " +
     "stroke it is drawn with", _BySquareOff(oBy) > 1.5)
 
@@ -14964,6 +14973,22 @@ func _MdBoxProbe
 	if _mx_ < 0  _sd_ += _mx_  ok
 	_half_ = sqrt(pow(_aT_[:w], 2) + pow(_aT_[:h], 2)) / 2
 	return [ _sd_ - 70, _d_ - 70 - _half_ ]
+
+# the last piece of the figure to be painted, and the first dot after it
+func _ByLastInk poM
+	_n_ = 0
+	for _cP_ in [ "ABC.face", "ABC.sqab", "ABC.sqac", "ABC.sqbc", "ABC.rect1",
+	              "ABC.rect2", "ABC.alt", "ABC.mark1", "ABC.mark2" ]
+		if poM.DrawIndexOf(_cP_) > _n_  _n_ = poM.DrawIndexOf(_cP_)  ok
+	next
+	return _n_
+
+func _ByEarliestDot poM
+	_n_ = 1000000
+	for _cP_ in [ "A.icon", "B.icon", "C.icon" ]
+		if poM.DrawIndexOf(_cP_) < _n_  _n_ = poM.DrawIndexOf(_cP_)  ok
+	next
+	return _n_
 
 # the gap from each name's BOX to the nearest ink anywhere in the figure
 func _ByGaps poM

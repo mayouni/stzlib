@@ -784,8 +784,15 @@ func StzByrneStyle()
 		[ :layer, "t.rect1", :above, "t.sqbc" ], [ :layer, "t.rect2", :above, "t.sqbc" ],
 		[ :layer, "t.alt", :above, "t.rect1" ], [ :layer, "t.alt", :above, "t.rect2" ],
 		[ :layer, "t.mark1", :above, "t.face" ], [ :layer, "t.mark2", :above, "t.face" ],
-		[ :layer, "p.icon", :above, "t.face" ], [ :layer, "q.icon", :above, "t.sqbc" ],
-		[ :layer, "r.icon", :above, "t.sqbc" ] ])
+		# A VERTEX GOES ABOVE THE LAST THING DRAWN, not above one of them.
+		# Layering is a partial order relaxed to a depth per shape, so
+		# naming the hypotenuse square left the dots at the SAME depth as
+		# the two rectangles standing on it -- and a tie is broken by which
+		# shape was minted first, which the points always are. Both dots
+		# came out half-buried. Naming the altitude, which everything else
+		# is already under, puts them on top of all of it.
+		[ :layer, "p.icon", :above, "t.alt" ], [ :layer, "q.icon", :above, "t.alt" ],
+		[ :layer, "r.icon", :above, "t.alt" ] ])
 	return _o_
 
 # The functions a rule may name, and what each expects. Penrose's names,
@@ -1600,6 +1607,22 @@ class stzMathDiagram from stzObject
 	def NumberOfShapes()
 		This.Layout()
 		return len(@aShapes)
+
+	# Where a shape falls in the drawing order: 1 is painted first and so
+	# sits at the back. A shape that must not be buried has to come out
+	# with a HIGHER index than everything that could cover it, and that is
+	# a fact about the picture worth asserting rather than eyeballing --
+	# layering is a partial order, and the depths it relaxes to are not
+	# obvious from reading the rules.
+	def DrawIndexOf(pcPath)
+		This.Layout()
+		_i_ = This._ShapeIndex(pcPath)
+		if _i_ = 0  return 0  ok
+		_aO_ = This._DrawOrder()
+		for _k_ = 1 to len(_aO_)
+			if _aO_[_k_] = _i_  return _k_  ok
+		next
+		return 0
 
 	# A polygon's vertices, in drawing order: [ x1, y1, x2, y2, ... ].
 	def PolygonOf(pcPath)
