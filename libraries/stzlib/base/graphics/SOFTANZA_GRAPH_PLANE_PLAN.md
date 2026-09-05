@@ -98,6 +98,7 @@ sections, of which 21 declarations over 17 items.
 | DN7c | closed | 81 |
 | DN7d | closed | 82 |
 | DN7e | closed | 83 |
+| DN7f | closed | 84 |
 | DN2b | closed | 56 |
 | DN2c | closed | - |
 | DN2d | closed | 57 |
@@ -2006,6 +2007,86 @@ was a cliff at twelve sets.
   an argument for a crossing term, recorded here rather than built now.
   The guard pins the chosen variation at zero crossings AND asserts that
   another seed does cross, so the check cannot pass by being vacuous.
+
+- **DN7f — the Penrose gallery as the yardstick. SHIPPED 2026-09-05.**
+  Guard §84. The author pointed at Penrose's own example gallery — some
+  sixty diagrams — and asked that they be tried, so that the
+  implementation is measured against the thing it was modelled on rather
+  than against its own catalogue. Triage first, then the largest family
+  built, then a limit found and measured.
+
+  **THE TRIAGE, so the next session does not redo it.** Read from the
+  gallery's titles and thumbnails; "runs" means the machinery exists, not
+  that a scene has been written, except where marked rendered.
+
+  | class | examples | what it needs |
+  |---|---|---|
+  | **runs on the engine as it stands** (~27) | Sets as Euler *(rendered)*, SIGGRAPH Euclidean teaser *(rendered)*, Circle example *(rendered, as Thales)*, Box-arrow architecture *(rendered)*, Word cloud *(rendered)*, Network with one-way links *(rendered)*, Hypercube *(rendered, Q3)*, Hamiltonian cycle *(rendered)*, Dodecahedral graph *(rendered — see the limit)*, Continuous map, Hypergraph, Cayley graph, Caffeine / methane molecules, Hexagonal lattice, Lagrange bases, Random sampling, Linear regression, Planets, Persistent homology, Half adder, Cotan formula, Concyclic edge flip, Wedge product, Matrix-matrix multiplication, Sets in 2.5D (flat), Quaternion table (uncoloured) | a substance and a style each; nothing new in the engine |
+  | **one feature away** (~6) | Catmull-Rom interpolation, Blobs, Curved graph with dots, Nephroid envelope → *spline paths*; Ellipse rays → *ellipses*; Fancy text + equations → *TeX*; Quaternion table coloured → *a colour channel from substance data* | one shape or one channel each |
+  | **outside a constraint solver** (~24) | Two 3D triangles, 3D reflections, Walk on spheres, Möbius strip, Viewport, Impossible polygons → *a 3D camera*; Chaos game, Iterated function system, Lyapunov, Brownian motion ×2 → *iteration, not optimisation*; Ray casting, Next-event estimation, Walk on stars ×2, Geometric / closest-point queries → *computed rays and loops in Style*; Insertion sort → *a trace, not a layout* | Penrose does these with loops and a projection in Style; this engine has neither, by design |
+
+  **What was built: the graph family**, the gallery's largest.
+  `StzGraphDomain` (Vertex, Edge, Arc, Highlighted), `StzGraphStyle`
+  (node-link, hard rules), `StzSpringGraphStyle` (the same rules soft),
+  `StzBoxArrowStyle` (the same domain as boxes and arrows), and
+  `StzWordDomain` + `StzWordCloudStyle`. Two engine changes came out of it,
+  both general:
+
+  **THE MATCHER WAS THE COST, NOT THE SOLVER.** On the dodecahedron the
+  first compile was **18.0 seconds against a 0.65-second solve.** A clause
+  `e := Edge(a, b)` was a FILTER over every binding of e, a and b — and
+  with one more variable in the selector, 240,000 candidates each tested
+  against the substance. It is a GENERATOR: the substance holds thirty
+  definitions of Edge, and each binds three variables in one step. The same
+  graph enumerates 600 candidates now; compile **1.8 s**, a tenth.
+
+  **AND THE CROSSING TERM DN7e OWED — built, and found mostly inert.**
+  `notCrossing(a, b, pad, weight)` over two segments: signed distances of
+  each segment's ends from the other's line, crossing exactly when both
+  products are negative, the violation the smaller magnitude plus a
+  margin, zero everywhere the segments are clear. The selector that
+  applies it, `Edge e; Edge f; Vertex a; Vertex b; Vertex c; Vertex d
+  where e := Edge(a, b); f := Edge(c, d)`, reaches exactly the pairs
+  sharing no vertex, because the matcher binds distinct objects to
+  distinct variables — adjacent edges meet at their vertex by right and
+  are never asked. Two measurements, both the kind that change what the
+  next session does:
+
+  *Its first form did not terminate.* Rooting the product back to pixels
+  gave `sqrt(x + ε)`, whose slope at the instant a crossing begins is
+  1/(2√ε) = 500 — a cliff the line search fell off on every round while
+  the penalty weight multiplied it. A seven-vertex network that solved in
+  2 s did not finish in ten minutes. A ramp with a bounded slope solves it
+  in 3.6 s and the picture cannot tell the difference. **A term's shape at
+  its own boundary is part of its cost.**
+
+  *And as a hard rule it is not solvable; as a preference it barely
+  steers.* Ensured, it leaves 25 constraints open on the cube from a
+  random start and 2 on the network. Encouraged, the picture's crossing
+  count is **identical seed by seed at weight 1 and at weight 25**, and at
+  the solution the 84 crossing terms of the cube still hold 10,138 energy
+  units that the solver cannot spend: from a random start every way out of
+  a crossing passes through the separation penalties, so **the seed
+  decides the basin and the weight only its depth.** The network reaches
+  1 crossing on its best seed of six; the cube, which is planar, 7.
+
+  **THE LIMIT, measured and kept.** The dodecahedral graph — twenty
+  vertices, thirty edges, planar — from a random start: the hard style
+  leaves 79 constraints open, worst 32.7 px; the soft style is lawful by
+  construction and settles at **17 crossings on its best seed of eight**
+  (range 17–55). Neither is a picture of a dodecahedron, and the cube
+  above says the same thing at eight vertices. A local optimiser does not
+  find a planar embedding it was not started near, and no term changes
+  the class of that problem — the fix, if one is wanted, is a planar
+  *initialisation* (Tutte's embedding from a face, or a layered start from
+  a spanning tree), not more energy. Scenes 19 and 23 stay in the
+  catalogue as this finding, labelled as such.
+
+  Two small things the yardstick also caught: an object named `000` broke
+  three layers down because the expression rewriter reads a leading digit
+  as a number — `Declare` refuses such a name now, with the rule stated;
+  and `_Initialise` indexed the name map by tape slot, which diverge after
+  a `delete` — found the first time a word cloud re-minted a text larger.
 
 ## DN2b — THE RING: a state machine is not a tree (2026-08-23)
 

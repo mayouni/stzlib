@@ -569,6 +569,195 @@ func StzHyperbolicStyle()
 		[ :layer, "t.tick", :above, "_.disk" ] ])
 	return _o_
 
+# GRAPHS -- the largest family in Penrose's own gallery (Hamiltonian cycle,
+# dodecahedral, hypercube, network with one-way links, hexagonal lattice,
+# hypergraph, Cayley graph). An edge and an arc are OBJECTS for the reason
+# a Segment and a Cover are: a rule mints one shape per match.
+func StzGraphDomain()
+	_o_ = new stzMathDomain("graph")
+	_o_.AddType("Vertex")
+	_o_.AddType("Edge")
+	_o_.AddType("Arc")
+	_o_.AddConstructor("Edge", [ "Vertex", "Vertex" ])
+	_o_.AddConstructor("Arc", [ "Vertex", "Vertex" ])
+	_o_.AddPredicate("Highlighted", [ "Edge" ])
+	return _o_
+
+# ...drawn as a node-link picture, after Penrose's simple-graph style: a
+# dot per vertex, a line per edge, an arrow per arc; every pair of vertices
+# pushes apart; and -- the rule that buys most of the readability -- a
+# vertex is held off every edge IT IS NOT AN END OF. That last selector
+# needs no predicate: the matcher binds distinct objects to distinct
+# variables, so "Vertex v; Edge e; Vertex a; Vertex b where e := Edge(a, b)"
+# already means v is neither a nor b.
+func StzGraphStyle()
+	_o_ = new stzMathStyle()
+	_o_.SetCanvas(720, 640)
+	_o_.ForAll("Vertex v", [
+		[ :shape, "v.icon", :circle, [ :r = 9, :fill = "#33355c",
+		                               :stroke = "#ffffff", :strokeWidth = 1.5 ] ],
+		[ :shape, "v.text", :text, [ :fill = "#33355c" ] ],
+		# a name is SOLVED here, not placed: on a graph the ink around a
+		# vertex is its edges, and which side is free is not known until
+		# the edges are -- so the name is held off its own dot and, below,
+		# off every edge and arc in the picture
+		[ :ensure, "disjoint", [ "v.text", "v.icon", 3 ] ],
+		[ :encourage, "near", [ "v.text", "v.icon", 15 ] ],
+		# a weak pull to the middle -- a sixty-fourth, see the Hasse style
+		[ :encourage, "equal", [ "v.icon.cx / 8", 45 ] ],
+		[ :encourage, "equal", [ "v.icon.cy / 8", 40 ] ] ])
+	_o_.ForAll("Vertex u; Vertex v", [
+		[ :ensure, "disjoint", [ "u.icon", "v.icon", 26 ] ],
+		# a name stays well clear of every OTHER dot -- three pixels from a
+		# stranger's dot reads as that dot's name, and did
+		[ :ensure, "disjoint", [ "u.text", "v.icon", 12 ] ],
+		[ :ensure, "disjoint", [ "u.text", "v.text", 3 ] ],
+		[ :encourage, "notTooClose", [ "u.icon", "v.icon", 2 ] ] ])
+	_o_.ForAll("Vertex v; Edge e", [
+		[ :ensure, "disjoint", [ "v.text", "e.icon", 4 ] ] ])
+	_o_.ForAll("Vertex v; Arc e", [
+		[ :ensure, "disjoint", [ "v.text", "e.icon", 4 ] ] ])
+	# NO TWO EDGES CROSS, where the graph allows it -- AS A PREFERENCE. The
+	# selector binds six DISTINCT objects, so it reaches exactly the pairs
+	# of edges that share no vertex; adjacent edges meet at their vertex by
+	# right and are never asked about. It is encouraged rather than
+	# ensured on measurement: as a hard rule it left 25 constraints open on
+	# the cube from a random start and 2 on a seven-vertex network, because
+	# a local method does not find its way out of a crossing it started in.
+	# As a preference it steers, and the seed does the rest.
+	_o_.ForAllWhere("Edge e; Edge f; Vertex a; Vertex b; Vertex c; Vertex d",
+	                "e := Edge(a, b); f := Edge(c, d)", [
+		[ :encourage, "notCrossing", [ "e.icon", "f.icon", 4, 25 ] ] ])
+	_o_.ForAllWhere("Arc e; Arc f; Vertex a; Vertex b; Vertex c; Vertex d",
+	                "e := Arc(a, b); f := Arc(c, d)", [
+		[ :encourage, "notCrossing", [ "e.icon", "f.icon", 4, 25 ] ] ])
+	_o_.ForAllWhere("Edge e; Vertex a; Vertex b", "e := Edge(a, b)", [
+		[ :shape, "e.icon", :line, [ :x1 = "a.icon.cx", :y1 = "a.icon.cy",
+		                             :x2 = "b.icon.cx", :y2 = "b.icon.cy",
+		                             :stroke = "#9a9ab8", :strokeWidth = 2 ] ],
+		[ :ensure, "inRange", [ "len(e.icon)", 70, 170 ] ],
+		[ :layer, "a.icon", :above, "e.icon" ], [ :layer, "b.icon", :above, "e.icon" ] ])
+	# a highlighted edge is the same edge, re-minted heavier and red -- the
+	# specialisation idiom, so the general rule need not know about it
+	_o_.ForAllWhere("Edge e; Vertex a; Vertex b", "e := Edge(a, b); Highlighted(e)", [
+		[ :delete, "e.icon" ],
+		[ :shape, "e.icon", :line, [ :x1 = "a.icon.cx", :y1 = "a.icon.cy",
+		                             :x2 = "b.icon.cx", :y2 = "b.icon.cy",
+		                             :stroke = "#c8443c", :strokeWidth = 4 ] ] ])
+	_o_.ForAllWhere("Vertex v; Edge e; Vertex a; Vertex b", "e := Edge(a, b)", [
+		[ :ensure, "disjoint", [ "v.icon", "e.icon", 6 ] ] ])
+	_o_.ForAllWhere("Arc e; Vertex a; Vertex b", "e := Arc(a, b)", [
+		[ :shape, "e.line", :line, [ :x1 = "a.icon.cx", :y1 = "a.icon.cy",
+		                             :x2 = "b.icon.cx", :y2 = "b.icon.cy", :hidden = 1 ] ],
+		[ :shape, "e.icon", :line, [
+		    :x1 = "a.icon.cx + 12*ux(e.line)", :y1 = "a.icon.cy + 12*uy(e.line)",
+		    :x2 = "b.icon.cx - 12*ux(e.line)", :y2 = "b.icon.cy - 12*uy(e.line)",
+		    :stroke = "#33355c", :strokeWidth = 2, :arrow = "end" ] ],
+		[ :ensure, "inRange", [ "len(e.line)", 90, 210 ] ] ])
+	_o_.ForAllWhere("Vertex v; Arc e; Vertex a; Vertex b", "e := Arc(a, b)", [
+		[ :ensure, "disjoint", [ "v.icon", "e.icon", 6 ] ] ])
+	return _o_
+
+# THE SAME DOMAIN UNDER SOFT TERMS -- a spring embedder. Every hard rule
+# of the node-link style is a PREFERENCE here: an edge wants one length, a
+# vertex wants off every edge, and nothing can fail. This exists because
+# the hard style stops being satisfiable on a graph of twenty vertices from
+# a random start -- fifty-one constraints open on the dodecahedron -- and
+# a lawful hairball is worth less than an honest best effort.
+func StzSpringGraphStyle()
+	_o_ = new stzMathStyle()
+	_o_.SetCanvas(720, 640)
+	_o_.ForAll("Vertex v", [
+		[ :shape, "v.icon", :circle, [ :r = 8, :fill = "#33355c",
+		                               :stroke = "#ffffff", :strokeWidth = 1.5 ] ],
+		[ :shape, "v.text", :text, [ :fill = "#33355c" ] ],
+		[ :override, "v.text.cx", "v.icon.cx" ], [ :override, "v.text.cy", "v.icon.cy - 18" ],
+		[ :encourage, "equal", [ "v.icon.cx / 8", 45 ] ],
+		[ :encourage, "equal", [ "v.icon.cy / 8", 40 ] ] ])
+	_o_.ForAll("Vertex u; Vertex v", [
+		[ :ensure, "disjoint", [ "u.icon", "v.icon", 10 ] ],
+		[ :encourage, "notTooClose", [ "u.icon", "v.icon", 6 ] ] ])
+	_o_.ForAllWhere("Edge e; Vertex a; Vertex b", "e := Edge(a, b)", [
+		[ :shape, "e.icon", :line, [ :x1 = "a.icon.cx", :y1 = "a.icon.cy",
+		                             :x2 = "b.icon.cx", :y2 = "b.icon.cy",
+		                             :stroke = "#9a9ab8", :strokeWidth = 2 ] ],
+		[ :encourage, "equal", [ "len(e.icon) / 4", 27 ] ],
+		[ :layer, "a.icon", :above, "e.icon" ], [ :layer, "b.icon", :above, "e.icon" ] ])
+	_o_.ForAllWhere("Edge e; Vertex a; Vertex b", "e := Edge(a, b); Highlighted(e)", [
+		[ :delete, "e.icon" ],
+		[ :shape, "e.icon", :line, [ :x1 = "a.icon.cx", :y1 = "a.icon.cy",
+		                             :x2 = "b.icon.cx", :y2 = "b.icon.cy",
+		                             :stroke = "#c8443c", :strokeWidth = 4 ] ] ])
+	_o_.ForAllWhere("Vertex v; Edge e; Vertex a; Vertex b", "e := Edge(a, b)", [
+		[ :encourage, "disjoint", [ "v.icon", "e.icon", 10 ] ] ])
+	_o_.ForAllWhere("Edge e; Edge f; Vertex a; Vertex b; Vertex c; Vertex d",
+	                "e := Edge(a, b); f := Edge(c, d)", [
+		[ :encourage, "notCrossing", [ "e.icon", "f.icon", 4, 25 ] ] ])
+	return _o_
+
+# THE SAME GRAPH AS BOXES AND ARROWS -- Penrose's computer-architecture
+# diagram. A vertex is its name in a box sized to the name; an arc stops
+# at the box's EDGE, which is not a fixed radius: the half-extent of a box
+# along a direction is the smaller of hw/|ux| and hh/|uy|.
+func StzBoxArrowStyle()
+	_o_ = new stzMathStyle()
+	_o_.SetCanvas(760, 520)
+	_o_.ForAll("Vertex v", [
+		[ :shape, "v.text", :text, [ :fill = "#222222" ] ],
+		[ :shape, "v.icon", :rect, [ :cx = "v.text.cx", :cy = "v.text.cy",
+		                             :w = "v.text.w + 30", :h = "v.text.h + 12",
+		                             :fill = "#f4f4fa", :stroke = "#33355c", :strokeWidth = 1.5 ] ],
+		[ :encourage, "equal", [ "v.text.cx / 8", 47.5 ] ],
+		[ :encourage, "equal", [ "v.text.cy / 8", 32.5 ] ],
+		[ :layer, "v.text", :above, "v.icon" ] ])
+	_o_.ForAll("Vertex u; Vertex v", [
+		[ :ensure, "disjoint", [ "u.icon", "v.icon", 34 ] ],
+		[ :encourage, "notTooClose", [ "u.icon", "v.icon", 2 ] ] ])
+	_o_.ForAllWhere("Arc e; Vertex a; Vertex b", "e := Arc(a, b)", [
+		[ :shape, "e.line", :line, [ :x1 = "a.text.cx", :y1 = "a.text.cy",
+		                             :x2 = "b.text.cx", :y2 = "b.text.cy", :hidden = 1 ] ],
+		[ :field, "e.ta", "min((a.icon.w / 2) / (abs(ux(e.line)) + 0.0001), (a.icon.h / 2) / (abs(uy(e.line)) + 0.0001))" ],
+		[ :field, "e.tb", "min((b.icon.w / 2) / (abs(ux(e.line)) + 0.0001), (b.icon.h / 2) / (abs(uy(e.line)) + 0.0001))" ],
+		[ :shape, "e.icon", :line, [
+		    :x1 = "a.text.cx + (e.ta + 3)*ux(e.line)", :y1 = "a.text.cy + (e.ta + 3)*uy(e.line)",
+		    :x2 = "b.text.cx - (e.tb + 3)*ux(e.line)", :y2 = "b.text.cy - (e.tb + 3)*uy(e.line)",
+		    :stroke = "#33355c", :strokeWidth = 2, :arrow = "end" ] ],
+		[ :ensure, "greaterThan", [ "len(e.line)", 140 ] ],
+		# an arc reads left to right when it can
+		[ :encourage, "leftwards", [ "a.icon", "b.icon", 120 ] ] ])
+	_o_.ForAllWhere("Vertex v; Arc e; Vertex a; Vertex b", "e := Arc(a, b)", [
+		[ :ensure, "disjoint", [ "v.icon", "e.icon", 8 ] ] ])
+	return _o_
+
+# A WORD CLOUD is the Minkowski separation of DN7d with nothing else in the
+# picture: every word is a box, every pair of boxes is apart, and every
+# word wants the middle. The sizes come from the substance's own judgement
+# of what matters -- Large and Medium, the rest small.
+func StzWordDomain()
+	_o_ = new stzMathDomain("words")
+	_o_.AddType("Word")
+	_o_.AddPredicate("Large", [ "Word" ])
+	_o_.AddPredicate("Medium", [ "Word" ])
+	return _o_
+
+func StzWordCloudStyle()
+	_o_ = new stzMathStyle()
+	_o_.SetCanvas(720, 480)
+	_o_.ForAll("Word w", [
+		[ :shape, "w.text", :text, [ :size = 17, :fill = "#7a7a9a" ] ] ])
+	_o_.ForAllWhere("Word w", "Medium(w)", [
+		[ :delete, "w.text" ],
+		[ :shape, "w.text", :text, [ :size = 27, :fill = "#33355c" ] ] ])
+	_o_.ForAllWhere("Word w", "Large(w)", [
+		[ :delete, "w.text" ],
+		[ :shape, "w.text", :text, [ :size = 46, :fill = "#c8443c" ] ] ])
+	_o_.ForAll("Word w", [
+		[ :encourage, "equal", [ "w.text.cx / 4", 90 ] ],
+		[ :encourage, "equal", [ "w.text.cy / 4", 60 ] ] ])
+	_o_.ForAll("Word v; Word w", [
+		[ :ensure, "disjoint", [ "v.text", "w.text", 6 ] ] ])
+	return _o_
+
 # THALES, and the kill Byrne's figure taught. The substance says three
 # things: B and C are on the circle, BC passes through its centre, and A is
 # on the circle too. IT NEVER SAYS THE ANGLE AT A IS RIGHT. The solver is
@@ -999,7 +1188,7 @@ func StzByrneStyle()
 # over paths and the computed functions ("len(s.icon)", "dot(u.arrow,
 # v.arrow) / (len(u.arrow) * len(v.arrow))").
 func StzMathLayoutFnList()
-	return "contains, disjoint, overlapping, touching, lessThan, " +
+	return "contains, disjoint, notCrossing, overlapping, touching, lessThan, " +
 	       "greaterThan, equal, inRange, sameCenter, near, minimal, " +
 	       "maximal, notTooClose, above, below, leftwards, rightwards"
 
@@ -1262,6 +1451,26 @@ class stzMathSubstance from stzObject
 		if _n_ = ""
 			stzraise("stzMathSubstance.Declare: an object needs a name.")
 		ok
+		# A NAME IS THE HEAD OF EVERY PATH WRITTEN ABOUT THE OBJECT -- "A.icon.cx"
+		# -- and the Style's expression language reads a leading digit as a
+		# number, so "000.icon.cx" loses its head and fails three layers
+		# down with a message about "icon.cx". Refuse it here, where the
+		# name is, with the rule spelled out.
+		_k_ = ascii(_n_[1])
+		if NOT ((_k_ >= 65 and _k_ <= 90) or (_k_ >= 97 and _k_ <= 122) or _k_ = 95)
+			stzraise("stzMathSubstance.Declare: '" + _n_ + "' cannot be an object's " +
+				"name -- a name starts with a letter or an underscore, because " +
+				"it heads every path a Style writes about the object.")
+		ok
+		for _i_ = 2 to len(_n_)
+			_k_ = ascii(_n_[_i_])
+			if NOT ((_k_ >= 48 and _k_ <= 57) or (_k_ >= 65 and _k_ <= 90) or
+			        (_k_ >= 97 and _k_ <= 122) or _k_ = 95)
+				stzraise("stzMathSubstance.Declare: '" + _n_ + "' cannot be an object's " +
+					"name -- after the first letter, only letters, digits and " +
+					"underscores.")
+			ok
+		next
 		if This.HasObject(_n_)
 			stzraise("stzMathSubstance.Declare: '" + _n_ + "' is declared twice.")
 		ok
@@ -1619,6 +1828,7 @@ class stzMathDiagram from stzObject
 	@aLayers = []       # [ [ cAbove, cBelow ] ]
 	@aTextSize = []     # [ [ cPath, nW, nAsc, nDesc ] ]
 	@nExpandDepth = 0
+	@nMatchCandidates = 0
 
 	# the solve
 	@bLaidOut = 0
@@ -1934,6 +2144,7 @@ class stzMathDiagram from stzObject
 			# the ink height, measured from the font rather than guessed
 			_x_ = This._V(_cP_ + ".cx") - _aM_[1] / 2
 			_y_ = This._V(_cP_ + ".cy") + (_aM_[2] - _aM_[3]) / 2
+			poC.SetFont(@oFont, This._Prop(_aProps_, "size", @nFontSize))
 			poC.AddText(_cT_, _x_, _y_)
 			if _cFill_ != ""  poC.Fill(_cFill_)  else  poC.Fill("black")  ok
 		ok
@@ -2250,6 +2461,7 @@ class stzMathDiagram from stzObject
 	#-- COMPILE: selectors match, rules fire, unknowns and terms accumulate --
 
 	def _Compile()
+		@nMatchCandidates = 0
 		@aShapes = []  @acUnknown = []  @aUnknownOf = []  @aValue = []
 		@bLabelVar = []  @aConst = []  @aDerived = []  @aInitRange = []
 		@aConstraints = []  @aObjectives = []  @aLayers = []  @aTextSize = []
@@ -2389,41 +2601,123 @@ class stzMathDiagram from stzObject
 				_aCands_ + @oSubstance.ObjectsOfType(paVars[_i_][1])
 			ok
 		next
-		_aIdx_ = []
-		for _i_ = 1 to _nV_
-			_aIdx_ + 1
-		next
 		if _nV_ = 0  return _aOut_  ok
 		for _i_ = 1 to _nV_
 			if len(_aCands_[_i_]) = 0  return _aOut_  ok
 		next
-		_nGuard_ = 0
-		while TRUE
-			_nGuard_++
-			if _nGuard_ > 400000  exit  ok
-			_aAsg_ = []
-			_bInj_ = TRUE
-			for _i_ = 1 to _nV_
-				_cO_ = _aCands_[_i_][_aIdx_[_i_]]
-				for _j_ = 1 to len(_aAsg_)
-					if _aAsg_[_j_] = _cO_  _bInj_ = FALSE  ok
-				next
-				_aAsg_ + _cO_
+		# DRIVE THE ENUMERATION FROM THE DEFINITIONS, NOT THE PRODUCT. A
+		# clause "e := Edge(a, b)" used to be a FILTER over every binding of
+		# e, a and b -- 30 x 20 x 20 of them on the dodecahedral graph, and
+		# with one more variable in the selector, 240,000 candidates each
+		# tested against the substance. It is a GENERATOR: the substance
+		# holds thirty definitions of Edge, and each one binds e, a and b in
+		# a single step. The same graph now enumerates 600 candidates, and
+		# the compile that was eighteen seconds is under one.
+		_aParts_ = []
+		_aBlank_ = []
+		for _i_ = 1 to _nV_
+			_aBlank_ + ""
+		next
+		_aParts_ + _aBlank_
+		_aDefs_ = @oSubstance.Definitions()
+		_nD_ = len(_aDefs_)
+		_nW_ = len(paWhere)
+		for _w_ = 1 to _nW_
+			if paWhere[_w_][1] != "def"  loop  ok
+			_nT_ = This._VarIndex(paVars, paWhere[_w_][4])
+			_aAI_ = []
+			for _k_ = 1 to len(paWhere[_w_][3])
+				_aAI_ + This._VarIndex(paVars, paWhere[_w_][3][_k_])
 			next
-			if _bInj_ and This._WhereHolds(paVars, _aAsg_, paWhere) and
+			_cF_ = StzLower(paWhere[_w_][2])
+			_aNew_ = []
+			for _p_ = 1 to len(_aParts_)
+				for _d_ = 1 to _nD_
+					if StzLower(_aDefs_[_d_][2]) != _cF_ or
+					   len(_aDefs_[_d_][3]) != len(_aAI_)
+						loop
+					ok
+					_aQ_ = This._BindVar(_aParts_[_p_], _nT_, _aDefs_[_d_][1], _aCands_)
+					if len(_aQ_) = 0  loop  ok
+					for _k_ = 1 to len(_aAI_)
+						if len(_aQ_) = 0  exit  ok
+						_aQ_ = This._BindVar(_aQ_, _aAI_[_k_], _aDefs_[_d_][3][_k_], _aCands_)
+					next
+					if len(_aQ_) > 0  _aNew_ + _aQ_  ok
+				next
+			next
+			_aParts_ = _aNew_
+			if len(_aParts_) = 0  return _aOut_  ok
+		next
+		# whatever is still free ranges over its candidates
+		for _i_ = 1 to _nV_
+			_aNew_ = []
+			for _p_ = 1 to len(_aParts_)
+				if _aParts_[_p_][_i_] != ""
+					_aNew_ + _aParts_[_p_]
+					loop
+				ok
+				for _c_ = 1 to len(_aCands_[_i_])
+					_aQ_ = This._BindVar(_aParts_[_p_], _i_, _aCands_[_i_][_c_], _aCands_)
+					if len(_aQ_) > 0  _aNew_ + _aQ_  ok
+				next
+			next
+			_aParts_ = _aNew_
+			if len(_aParts_) > 400000
+				stzraise("stzMathStyle: the selector binds more than 400,000 ways -- " +
+					"narrow it with a where-clause.")
+			ok
+		next
+		# then the relations that are not definitions, and the dedup
+		for _p_ = 1 to len(_aParts_)
+			_aAsg_ = _aParts_[_p_]
+			if This._WhereHolds(paVars, _aAsg_, paWhere) and
 			   NOT This._Seen(_aOut_, _aAsg_, paWhere)
 				_aOut_ + _aAsg_
 			ok
-			_k_ = _nV_
-			while _k_ >= 1
-				_aIdx_[_k_]++
-				if _aIdx_[_k_] <= len(_aCands_[_k_])  exit  ok
-				_aIdx_[_k_] = 1
-				_k_--
-			end
-			if _k_ < 1  exit  ok
-		end
+		next
 		return _aOut_
+
+	def _VarIndex(paVars, pcVar)
+		_c_ = ring_trim("" + pcVar)
+		for _i_ = 1 to len(paVars)
+			if paVars[_i_][2] = _c_  return _i_  ok
+		next
+		stzraise("stzMathStyle: '" + pcVar + "' is not a variable of the selector.")
+
+	# bind variable pnI of a partial assignment to pcObj: refused when the
+	# slot already holds another object, when pcObj is not a candidate for
+	# that variable (wrong type, or a literal naming something else), or
+	# when another variable already holds pcObj -- the injectivity the
+	# matcher has always promised. Returns the new partial, or [].
+	def _BindVar(paPart, pnI, pcObj, paCands)
+		if paPart[pnI] != ""
+			if paPart[pnI] = pcObj  return paPart  ok
+			return []
+		ok
+		_bOk_ = FALSE
+		for _c_ = 1 to len(paCands[pnI])
+			if paCands[pnI][_c_] = pcObj  _bOk_ = TRUE  exit  ok
+		next
+		if NOT _bOk_  return []  ok
+		_n_ = len(paPart)
+		for _j_ = 1 to _n_
+			if paPart[_j_] = pcObj  return []  ok
+		next
+		_aQ_ = []
+		for _j_ = 1 to _n_
+			_aQ_ + paPart[_j_]
+		next
+		_aQ_[pnI] = pcObj
+		# every candidate the matcher ever builds is counted, so the cost of
+		# matching is a NUMBER a guard can hold, not a clock
+		@nMatchCandidates++
+		return _aQ_
+
+	# how many candidate bindings the last compile enumerated
+	def MatchCandidates()
+		This.Layout()
+		return @nMatchCandidates
 
 	def _WhereHolds(paVars, paAsg, paWhere)
 		_n_ = len(paWhere)
@@ -2669,7 +2963,10 @@ class stzMathDiagram from stzObject
 			            "cx", "cy", "r" ]
 		but pcKind = "text"
 			_acGeo_ = [ "cx", "cy" ]
-			_aM_ = This._MeasureText(This._Prop(_aP_, "string", ""))
+			# a text may carry its OWN size -- a word cloud is nothing else --
+			# and is measured at that size, not the diagram's
+			_aM_ = This._MeasureTextAt(This._Prop(_aP_, "string", ""),
+				This._Prop(_aP_, "size", @nFontSize))
 			@aTextSize + [ pcPath, _aM_[1], _aM_[2], _aM_[3] ]
 		ok
 		_bLbl_ = 0
@@ -2831,13 +3128,16 @@ class stzMathDiagram from stzObject
 	# [ width, ascent, descent ] in px at the diagram's font. With no font
 	# set, a label is a box of reasonable size, so the layout still runs.
 	def _MeasureText(pcText)
+		return This._MeasureTextAt(pcText, @nFontSize)
+
+	def _MeasureTextAt(pcText, pnSize)
 		if pcText = ""  return [ 0, 0, 0 ]  ok
 		if isObject(@oFont)
-			_w_ = @oFont.WidthOf(pcText, @nFontSize)
-			_m_ = @oFont.MetricsOf(pcText, @nFontSize)
+			_w_ = @oFont.WidthOf(pcText, pnSize)
+			_m_ = @oFont.MetricsOf(pcText, pnSize)
 			return [ _w_, _m_[1], _m_[2] ]
 		ok
-		return [ 0.6 * @nFontSize * len(pcText), 0.75 * @nFontSize, 0.25 * @nFontSize ]
+		return [ 0.6 * pnSize * len(pcText), 0.75 * pnSize, 0.25 * pnSize ]
 
 	def _TextSize(pcPath)
 		_c_ = "" + pcPath
@@ -3252,6 +3552,46 @@ class stzMathDiagram from stzObject
 					_o_[2] + "-" + _r_[2], _o_[3] + "-" + _r_[3])
 			ok
 
+		but pcFn = "notcrossing"
+			# TWO SEGMENTS THAT DO NOT MEET. Every graph picture before this
+			# term was a lawful tangle, because nothing in the catalogue
+			# spoke about two edges at once. Let s1, s2 be the signed
+			# distances of Q's ends from P's line and s3, s4 those of P's
+			# ends from Q's; the segments cross exactly when both products
+			# s1*s2 and s3*s4 are negative. The violation is the smaller
+			# magnitude, plus a margin, over a fixed scale -- zero everywhere
+			# the segments are clear, so it costs nothing until needed.
+			#
+			# NOT A SQUARE ROOT. The first form rooted the product back to
+			# pixels, and sqrt(x + eps) has slope 1/(2 sqrt(eps)) -- five
+			# hundred -- at the instant a crossing begins: a cliff the line
+			# search fell off on every round, and the penalty weight
+			# multiplied it. A seven-vertex network that solved in two
+			# seconds did not finish in ten minutes. A ramp has a bounded
+			# slope; the picture cannot tell the difference.
+			_a_ = This._Geo(This._ShapeArg(paArgs, 1, pcFn))
+			_b_ = This._Geo(This._ShapeArg(paArgs, 2, pcFn))
+			_p_ = This._Sym(This._Arg(paArgs, 3, 4))
+			# and a WEIGHT, for the encourage form: at a typical 100px the
+			# repulsion between two vertices is two thousand energy units
+			# and a deep crossing about thirty, so unweighted it loses
+			_w_ = This._Sym(This._Arg(paArgs, 4, 1))
+			if _a_[1] != "line" or _b_[1] != "line"
+				stzraise("stzMathDiagram: notCrossing(a, b) takes two lines.")
+			ok
+			_dpx_ = "(" + _a_[6] + "-" + _a_[4] + ")"
+			_dpy_ = "(" + _a_[7] + "-" + _a_[5] + ")"
+			_Lp_ = "sqrt(" + _dpx_ + "^2+" + _dpy_ + "^2+0.000001)"
+			_s1_ = "((" + _dpx_ + "*(" + _b_[5] + "-" + _a_[5] + ")-" + _dpy_ + "*(" + _b_[4] + "-" + _a_[4] + "))/" + _Lp_ + ")"
+			_s2_ = "((" + _dpx_ + "*(" + _b_[7] + "-" + _a_[5] + ")-" + _dpy_ + "*(" + _b_[6] + "-" + _a_[4] + "))/" + _Lp_ + ")"
+			_dqx_ = "(" + _b_[6] + "-" + _b_[4] + ")"
+			_dqy_ = "(" + _b_[7] + "-" + _b_[5] + ")"
+			_Lq_ = "sqrt(" + _dqx_ + "^2+" + _dqy_ + "^2+0.000001)"
+			_s3_ = "((" + _dqx_ + "*(" + _a_[5] + "-" + _b_[5] + ")-" + _dqy_ + "*(" + _a_[4] + "-" + _b_[4] + "))/" + _Lq_ + ")"
+			_s4_ = "((" + _dqx_ + "*(" + _a_[7] + "-" + _b_[5] + ")-" + _dqy_ + "*(" + _a_[6] + "-" + _b_[4] + "))/" + _Lq_ + ")"
+			return "(" + _w_ + ")*max(0,(" + _p_ + ")^2+min(0-" + _s1_ + "*" + _s2_ + ",0-" +
+			       _s3_ + "*" + _s4_ + "))/50"
+
 		but pcFn = "overlapping"
 			_a_ = This._Geo(This._ShapeArg(paArgs, 1, pcFn))
 			_b_ = This._Geo(This._ShapeArg(paArgs, 2, pcFn))
@@ -3420,13 +3760,26 @@ class stzMathDiagram from stzObject
 		if _cE_ != ""  _p_ = StzEngineGradCompile(_cE_, This._VarsText())  ok
 		_aBest_ = []
 		_nBest_ = 0
+		# THE NAME OF EACH TAPE SLOT, looked up by slot and not by position:
+		# after a delete the name map is SHORTER than the tape, because a
+		# deleted shape's slots stay allocated and merely lose their names.
+		# Indexing the map by slot walked off its end the first time a word
+		# cloud re-minted a text at a larger size.
+		_acBySlot_ = []
+		for _i_ = 1 to _n_
+			_acBySlot_ + ""
+		next
+		_m_ = len(@aUnknownOf)
+		for _k_ = 1 to _m_
+			_acBySlot_[@aUnknownOf[_k_][2]] = @aUnknownOf[_k_][1]
+		next
 		SeedRandom(@nSeed)
 		for _try_ = 1 to 3
 			_aX_ = []
 			for _i_ = 1 to _n_
-				_cN_ = StzLower(@aUnknownOf[_i_][1])
+				_cN_ = StzLower(_acBySlot_[_i_])
 				_c3_ = StzRight(_cN_, 3)
-				_aR_ = This._InitRangeOf(@aUnknownOf[_i_][1])
+				_aR_ = This._InitRangeOf(_acBySlot_[_i_])
 				if len(_aR_) = 2
 					_aX_ + (_aR_[1] + StzRandom01() * (_aR_[2] - _aR_[1]))
 				but _c3_ = ".cx" or _c3_ = ".x1" or _c3_ = ".x2"

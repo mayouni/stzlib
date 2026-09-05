@@ -314,3 +314,140 @@ func StzMathScene16(poFont)
 	_o_.SetFont(poFont, 24)
 	_o_.SetVariation("thales")
 	return _o_
+
+#-- the graph family, the largest in Penrose's gallery (DN7f) --------------
+
+# the dodecahedral graph: Hamilton's Icosian game of 1857, which is where
+# the word "Hamiltonian" comes from, with one of its cycles marked
+func StzMathDodecahedronSubstance()
+	_oS_ = new stzMathSubstance(StzGraphDomain())
+	_acV_ = []
+	for _i_ = 0 to 9  _acV_ + ("u" + _i_)  next
+	for _i_ = 0 to 9  _acV_ + ("v" + _i_)  next
+	_oS_.DeclareAll("Vertex", _acV_)
+	_n_ = 0
+	for _i_ = 0 to 9
+		_n_++  _oS_.Define("e" + _n_, "Edge", [ "u" + _i_, "u" + ((_i_ + 1) % 10) ])
+		_n_++  _oS_.Define("e" + _n_, "Edge", [ "u" + _i_, "v" + _i_ ])
+		_n_++  _oS_.Define("e" + _n_, "Edge", [ "v" + _i_, "v" + ((_i_ + 2) % 10) ])
+	next
+	_acC_ = [ "u0", "u1", "u2", "u3", "u4", "u5", "u6", "u7", "v7", "v5", "v3",
+	          "v1", "v9", "u9", "u8", "v8", "v6", "v4", "v2", "v0" ]
+	StzMathMarkCycle(_oS_, _acC_, "e", 30)
+	return _oS_
+
+# mark every edge of a cycle Highlighted, whichever way round it was defined
+func StzMathMarkCycle(poS, pacCycle, pcEdgePrefix, pnEdges)
+	_m_ = len(pacCycle)
+	for _k_ = 1 to _m_
+		_cA_ = pacCycle[_k_]
+		_cB_ = pacCycle[(_k_ % _m_) + 1]
+		for _j_ = 1 to pnEdges
+			if poS.IsDefinedAs(pcEdgePrefix + _j_, "Edge", [ _cA_, _cB_ ]) or
+			   poS.IsDefinedAs(pcEdgePrefix + _j_, "Edge", [ _cB_, _cA_ ])
+				poS.Assert("Highlighted", [ pcEdgePrefix + _j_ ])
+			ok
+		next
+	next
+
+# THE LIMIT, kept in the catalogue on purpose. Twenty vertices from a
+# random start: the hard node-link style cannot satisfy its own rules (79
+# open on the crossing term alone), and the soft one settles at 17
+# crossings on its best seed of eight. Neither is a picture of a
+# dodecahedron. A local optimiser does not find a planar embedding it was
+# not started near, and no term changes that.
+func StzMathScene19(poFont)
+	_o_ = new stzMathDiagram(StzGraphDomain(), StzMathDodecahedronSubstance(),
+		StzSpringGraphStyle())
+	_o_.SetFont(poFont, 12)
+	_o_.SetVariation("game")
+	return _o_
+
+# a computer network with one-way links
+func StzMathScene20(poFont)
+	_oS_ = new stzMathSubstance(StzGraphDomain())
+	_oS_.DeclareAll("Vertex", [ "Client", "Gateway", "Firewall", "Switch", "Web", "DB", "Backup" ])
+	_oS_.Define("l1", "Arc", [ "Client", "Gateway" ])
+	_oS_.Define("l2", "Arc", [ "Gateway", "Firewall" ])
+	_oS_.Define("l3", "Arc", [ "Firewall", "Switch" ])
+	_oS_.Define("l4", "Arc", [ "Switch", "Web" ])
+	_oS_.Define("l5", "Arc", [ "Switch", "DB" ])
+	_oS_.Define("l6", "Arc", [ "Web", "DB" ])
+	_oS_.Define("l7", "Arc", [ "DB", "Backup" ])
+	_oS_.Define("l8", "Arc", [ "Web", "Client" ])
+	_oS_.AutoLabelAll()
+	for _i_ = 1 to 8  _oS_.Label("l" + _i_, "")  next
+	_o_ = new stzMathDiagram(StzGraphDomain(), _oS_, StzGraphStyle())
+	_o_.SetFont(poFont, 16)
+	# one crossing on this seed; eight on the first one tried
+	_o_.SetVariation("links")
+	return _o_
+
+# THE SAME DOMAIN as boxes and arrows: a computer architecture
+func StzMathScene21(poFont)
+	_oS_ = new stzMathSubstance(StzGraphDomain())
+	_oS_.DeclareAll("Vertex", [ "CPU", "Cache", "RAM", "Bus", "GPU", "Disk", "Network" ])
+	_oS_.Define("a1", "Arc", [ "CPU", "Cache" ])
+	_oS_.Define("a2", "Arc", [ "Cache", "RAM" ])
+	_oS_.Define("a3", "Arc", [ "CPU", "Bus" ])
+	_oS_.Define("a4", "Arc", [ "Bus", "GPU" ])
+	_oS_.Define("a5", "Arc", [ "Bus", "Disk" ])
+	_oS_.Define("a6", "Arc", [ "Bus", "Network" ])
+	_oS_.Define("a7", "Arc", [ "RAM", "Bus" ])
+	_oS_.AutoLabelAll()
+	for _i_ = 1 to 7  _oS_.Label("a" + _i_, "")  next
+	_o_ = new stzMathDiagram(StzGraphDomain(), _oS_, StzBoxArrowStyle())
+	_o_.SetFont(poFont, 18)
+	_o_.SetVariation("architecture")
+	return _o_
+
+# a word cloud: the Minkowski separation of DN7d with nothing else
+func StzMathScene22(poFont)
+	_oS_ = new stzMathSubstance(StzWordDomain())
+	_oS_.DeclareAll("Word", [ "Softanza", "Ring", "Zig", "diagram", "solver", "constraint",
+		"style", "substance", "domain", "tape", "gradient", "canvas", "engine", "picture",
+		"lawful", "Penrose", "layout", "seed" ])
+	_oS_.Assert("Large", [ "Softanza" ])
+	_oS_.Assert("Large", [ "diagram" ])
+	for _c_ in [ "solver", "constraint", "engine", "Penrose", "style" ]
+		_oS_.Assert("Medium", [ _c_ ])
+	next
+	_oS_.AutoLabelAll()
+	_o_ = new stzMathDiagram(StzWordDomain(), _oS_, StzWordCloudStyle())
+	_o_.SetFont(poFont, 17)
+	_o_.SetVariation("cloud")
+	return _o_
+
+# the cube graph Q3 with a Hamiltonian cycle -- a Gray code
+func StzMathCubeSubstance()
+	_oS_ = new stzMathSubstance(StzGraphDomain())
+	_acQ_ = [ "v000", "v001", "v010", "v011", "v100", "v101", "v110", "v111" ]
+	_oS_.DeclareAll("Vertex", _acQ_)
+	_n_ = 0
+	for _i_ = 1 to 8
+		for _j_ = _i_ + 1 to 8
+			_d_ = 0
+			for _b_ = 2 to 4
+				if _acQ_[_i_][_b_] != _acQ_[_j_][_b_]  _d_++  ok
+			next
+			if _d_ = 1
+				_n_++
+				_oS_.Define("q" + _n_, "Edge", [ _acQ_[_i_], _acQ_[_j_] ])
+			ok
+		next
+	next
+	StzMathMarkCycle(_oS_, [ "v000", "v001", "v011", "v010", "v110", "v111", "v101", "v100" ], "q", _n_)
+	_oS_.AutoLabelAll()
+	for _i_ = 1 to _n_  _oS_.Label("q" + _i_, "")  next
+	return _oS_
+
+func StzMathScene23(poFont)
+	_o_ = new stzMathDiagram(StzGraphDomain(), StzMathCubeSubstance(), StzGraphStyle())
+	_o_.SetFont(poFont, 15)
+	# SEVEN CROSSINGS, the best of six seeds, and the cube is planar. The
+	# crossing preference is in the energy and the solver cannot spend it:
+	# from a random start every way out of a crossing passes through the
+	# separation penalties, so the seed decides the basin and the weight
+	# only its depth. Kept as the graph the engine cannot yet untangle.
+	_o_.SetVariation("gray")
+	return _o_

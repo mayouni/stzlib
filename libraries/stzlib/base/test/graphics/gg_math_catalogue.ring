@@ -31,9 +31,14 @@ acTitles = [ "two sets, one inside the other  (Penrose twosets-simple)",
              "a COMMUTING SQUARE               (the diagram IS the equation)",
              "THALES                           (the right angle nobody asked for)",
              "the divisors of 36               (three by three, and level-planar)",
-             "a commuting TRIANGLE             (g after f equals h)" ]
+             "a commuting TRIANGLE             (g after f equals h)",
+             "THE DODECAHEDRAL GRAPH           (Hamilton's game -- and the engine's limit)",
+             "a network with one-way links     (Penrose: computer network)",
+             "a computer architecture          (the same domain, as boxes and arrows)",
+             "a WORD CLOUD                     (Minkowski separation, and nothing else)",
+             "the cube graph Q3                (with its Hamiltonian cycle, a Gray code)" ]
 
-for i = 1 to 18
+for i = 1 to 23
 	if i = 1   oM = StzMathScene01(oFont)
 	but i = 2  oM = StzMathScene02(oFont)
 	but i = 3  oM = StzMathScene03(oFont)
@@ -51,7 +56,12 @@ for i = 1 to 18
 	but i = 15 oM = StzMathScene15(oFont)
 	but i = 16 oM = StzMathScene16(oFont)
 	but i = 17 oM = StzMathScene17(oFont)
-	else       oM = StzMathScene18(oFont)  ok
+	but i = 18 oM = StzMathScene18(oFont)
+	but i = 19 oM = StzMathScene19(oFont)
+	but i = 20 oM = StzMathScene20(oFont)
+	but i = 21 oM = StzMathScene21(oFont)
+	but i = 22 oM = StzMathScene22(oFont)
+	else       oM = StzMathScene23(oFont)  ok
 	oM.Layout()
 	? "== " + acTitles[i]
 	? "   unknowns " + oM.NumberOfUnknowns() + "   constraints " +
