@@ -12815,6 +12815,22 @@ chk("and the two rectangles exhaust it", fabs(nR1 + nR2 - nBC) / nBC < 0.000001)
 chk("NEGATIVE: the two areas differ -- the equality is not a tautology",
     fabs(nAB - nAC) / nAB > 0.1)
 
+# THE AUTHOR'S TWO MARKS ON THE FIRST PICTURE, both about precision the
+# eye can see. The names sat at an equal radius from their POINTS, which
+# is an UNEQUAL gap from the ink, because the notch at the right angle is
+# a quarter turn where the other two are far wider. And the right-angle
+# mark had equal arms, so its corner sat on the angle's bisector -- which
+# is not the altitude drawn through it unless the legs are equal.
+aByG = _ByGaps(oBy)
+chk("every name is the same distance from the nearest ink, within a pixel",
+    _ByRange(aByG) < 1)
+chk("and it is the clearance the style asks for, not merely equal",
+    aByG[1] > 8.5 and aByG[1] < 12 and aByG[2] > 8.5 and aByG[3] > 8.5)
+chk("the right-angle mark's corner sits ON the altitude, exactly",
+    _ByMarkOff(oBy) < 0.01)
+chk("NEGATIVE: an equal-armed SQUARE mark would miss it, by more than the " +
+    "stroke it is drawn with", _BySquareOff(oBy) > 1.5)
+
 # MARKS BENT TO THE GEOMETRY. A right-angle mark's feet are walked along
 # the arcs themselves, so they land ON the drawn curve; a mark built on the
 # chords between the vertices would miss it.
@@ -14948,6 +14964,80 @@ func _MdBoxProbe
 	if _mx_ < 0  _sd_ += _mx_  ok
 	_half_ = sqrt(pow(_aT_[:w], 2) + pow(_aT_[:h], 2)) / 2
 	return [ _sd_ - 70, _d_ - 70 - _half_ ]
+
+# the gap from each name's BOX to the nearest ink anywhere in the figure
+func _ByGaps poM
+	_aE_ = []
+	for _cP_ in [ "ABC.sqab", "ABC.sqac", "ABC.sqbc", "ABC.rect1", "ABC.rect2", "ABC.face" ]
+		_aP_ = poM.PolygonOf(_cP_)
+		_n_ = floor(len(_aP_) / 2)
+		for _i_ = 1 to _n_
+			_j_ = _i_ + 1
+			if _j_ > _n_  _j_ = 1  ok
+			_aE_ + [ _aP_[2*_i_-1], _aP_[2*_i_], _aP_[2*_j_-1], _aP_[2*_j_] ]
+		next
+	next
+	_aL_ = poM.ShapeOf("ABC.alt")
+	_aE_ + [ _aL_[:x1], _aL_[:y1], _aL_[:x2], _aL_[:y2] ]
+	return [ _ByMinGap(poM, "A.text", _aE_), _ByMinGap(poM, "B.text", _aE_),
+	         _ByMinGap(poM, "C.text", _aE_) ]
+
+func _ByRange paG
+	_lo_ = paG[1]  _hi_ = paG[1]
+	for _i_ = 2 to len(paG)
+		if paG[_i_] < _lo_  _lo_ = paG[_i_]  ok
+		if paG[_i_] > _hi_  _hi_ = paG[_i_]  ok
+	next
+	return _hi_ - _lo_
+
+func _ByMinGap poM, pcText, paE
+	_aT_ = poM.ShapeOf(pcText)
+	_best_ = 1000000
+	for _k_ = 1 to len(paE)
+		_e_ = paE[_k_]
+		_dx_ = _e_[3] - _e_[1]  _dy_ = _e_[4] - _e_[2]
+		_L_ = _dx_*_dx_ + _dy_*_dy_
+		_t_ = 0
+		if _L_ > 0.000001
+			_t_ = ((_aT_[:cx] - _e_[1])*_dx_ + (_aT_[:cy] - _e_[2])*_dy_) / _L_
+			if _t_ < 0  _t_ = 0  ok
+			if _t_ > 1  _t_ = 1  ok
+		ok
+		_qx_ = fabs(_e_[1] + _t_*_dx_ - _aT_[:cx]) - _aT_[:w]/2
+		_qy_ = fabs(_e_[2] + _t_*_dy_ - _aT_[:cy]) - _aT_[:h]/2
+		_mx_ = _qx_  if _qy_ > _mx_  _mx_ = _qy_  ok
+		_ax_ = _qx_  if _ax_ < 0  _ax_ = 0  ok
+		_ay_ = _qy_  if _ay_ < 0  _ay_ = 0  ok
+		_sd_ = sqrt(pow(_ax_, 2) + pow(_ay_, 2))
+		if _mx_ < 0  _sd_ += _mx_  ok
+		if _sd_ < _best_  _best_ = _sd_  ok
+	next
+	return _best_
+
+# how far the mark's corner lies off the altitude drawn from A
+func _ByMarkOff poM
+	_aA_ = poM.ShapeOf("A.icon")
+	return _ByPtSeg(poM.ValueOf("ABC.kx"), poM.ValueOf("ABC.ky"),
+		_aA_[:cx], _aA_[:cy], poM.ValueOf("ABC.gx"), poM.ValueOf("ABC.gy"))
+
+# where an equal-armed mark's corner would have landed instead
+func _BySquareOff poM
+	_aA_ = poM.ShapeOf("A.icon")
+	return _ByPtSeg(
+		_aA_[:cx] + 15*poM.ValueOf("ABC.ubx") + 15*poM.ValueOf("ABC.ucx"),
+		_aA_[:cy] + 15*poM.ValueOf("ABC.uby") + 15*poM.ValueOf("ABC.ucy"),
+		_aA_[:cx], _aA_[:cy], poM.ValueOf("ABC.gx"), poM.ValueOf("ABC.gy"))
+
+func _ByPtSeg pnX, pnY, pax, pay, pbx, pby
+	_dx_ = pbx - pax  _dy_ = pby - pay
+	_L_ = _dx_*_dx_ + _dy_*_dy_
+	_t_ = 0
+	if _L_ > 0.000001
+		_t_ = ((pnX - pax)*_dx_ + (pnY - pay)*_dy_) / _L_
+		if _t_ < 0  _t_ = 0  ok
+		if _t_ > 1  _t_ = 1  ok
+	ok
+	return sqrt(pow(pax + _t_*_dx_ - pnX, 2) + pow(pay + _t_*_dy_ - pnY, 2))
 
 func _ByRefuses pnWhich
 	_b_ = FALSE

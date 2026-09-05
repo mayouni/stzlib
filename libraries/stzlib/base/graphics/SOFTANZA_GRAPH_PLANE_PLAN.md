@@ -1901,6 +1901,52 @@ was a cliff at twelve sets.
   exactly against a disk it may not enter, while its bounding circle
   overlaps that disk by **75px** — a lawful picture the old rule refused.
 
+  **THE AUTHOR MARKED THE FIRST PICTURE TWICE, and both marks were about
+  precision the eye can see before any measurement does.**
+
+  *The names were an equal radius from their points, which is an unequal
+  gap from the ink.* The notch a name sits in is bounded by the two
+  squares meeting at that vertex: a quarter turn at the right angle, and
+  half a turn less the angle at the other two — so one radius buys a third
+  less room at A than at B or C, and A is where the picture is busiest.
+  The fix is closed-form. Write the name's centre as `V + a·e1 + b·e2`
+  over the two wall directions; its distance to each wall is the other
+  coefficient times `sqrt(1-c²)` for `c = e1·e2`; ask each to be the
+  clearance plus the box's reach in THAT wall's normal — the support
+  function `|nx|·w/2 + |ny|·h/2`, exact for an axis-aligned box — and `a`
+  and `b` fall out with no iteration. Measured: the three gaps are
+  **10.10, 9.54, 9.54 px**, equal to within half a pixel, against a spread
+  of two and a half before. A bisector with a single correction cannot do
+  it: the bite differs per WALL, not per notch.
+
+  *The right-angle mark's corner missed the altitude drawn through it.*
+  A mark with two EQUAL arms has its corner on the angle's BISECTOR, and
+  the altitude from a right angle is not its bisector unless the legs are
+  equal — 2.27px out here, wider than the stroke. The corner is now put on
+  the altitude at `A + 21·w`, and the arms are what that costs: the legs
+  are perpendicular, so `(ub, uc)` is orthonormal and `w` decomposes
+  exactly as `(w·ub)ub + (w·uc)uc`. The arms come out 16.4 and 13.2 — equal
+  only when the triangle is isosceles, which is the same fact from the
+  other side.
+
+  **AND THE FIRST ATTEMPT AT THE FIRST OF THOSE COST 202 SECONDS, which is
+  the finding.** Putting the names under `disjoint` constraints against
+  the figure's edges collapsed the triangle: twelve label penalties
+  outweighed the right angle, and the solver found a collinear basin.
+  Writing them as derived positions instead was correct — but the
+  placement divided by a root of a dot product of `w`, and `w` was
+  defined through the altitude's foot, so every expression built on it
+  inherited a division, two subtractions and a square root. Once that
+  expression also became the argument of the `disjoint` and `near` the
+  Point rule adds, the tape grew past what the solver could work with:
+  **243ms to 202 SECONDS**, and it stopped converging. Two changes fixed
+  it, both worth keeping: `w` is now the signed area over `lab·lac·lbc`
+  (the magnitude of `(B-A)×(C-B)` IS `lab·lac` when the angle at A is
+  right, so the quotient is the sign, with no branch), and a name that is
+  PLACED carries no constraint of its own into the energy. **Expression
+  DEPTH is a cost like any other, and it compounds where a derived value
+  becomes an argument.**
+
   **And one trap, which is the transferable half.** The first version of
   that measurement pulled the name to the disk's CENTRE and pinned its
   height. It deadlocked: at dead centre `abs(dx)` has no gradient, so no

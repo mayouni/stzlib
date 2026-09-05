@@ -584,17 +584,31 @@ func StzHyperbolicStyle()
 func StzByrneStyle()
 	_o_ = new stzMathStyle()
 	_o_.SetCanvas(760, 700)
+	# A name here is PLACED, never solved -- so it carries no constraint of
+	# its own into the energy. That is deliberate: the placement below
+	# divides by a root of a dot product, and the moment such an expression
+	# also became the argument of a disjoint() and a near(), the tape grew
+	# past what the solver could work with.
 	_o_.ForAll("Point p", [
 		[ :shape, "p.icon", :circle, [ :r = 3.5, :fill = "#222222" ] ],
-		[ :shape, "p.text", :text, [ :fill = "#222222" ] ],
-		[ :ensure, "disjoint", [ "p.text", "p.icon", 5 ] ],
-		[ :encourage, "near", [ "p.text", "p.icon", 17 ] ] ])
-	# ANY triangle is an outline...
+		[ :shape, "p.text", :text, [ :fill = "#222222" ] ] ])
+	# ANY triangle is an outline, with its names set outward from the middle...
 	_o_.ForAllWhere("Triangle t; Point p; Point q; Point r", "t := Triangle(p, q, r)", [
 		[ :shape, "t.icon", :poly, [ :n = 3,
 		    :x1 = "p.icon.cx", :y1 = "p.icon.cy", :x2 = "q.icon.cx", :y2 = "q.icon.cy",
 		    :x3 = "r.icon.cx", :y3 = "r.icon.cy",
-		    :stroke = "#555555", :strokeWidth = 2 ] ] ])
+		    :stroke = "#555555", :strokeWidth = 2 ] ],
+		[ :field, "t.ox", "(p.icon.cx + q.icon.cx + r.icon.cx) / 3" ],
+		[ :field, "t.oy", "(p.icon.cy + q.icon.cy + r.icon.cy) / 3" ],
+		[ :field, "t.dp", "sqrt((p.icon.cx - t.ox)^2 + (p.icon.cy - t.oy)^2 + 0.000001)" ],
+		[ :field, "t.dq", "sqrt((q.icon.cx - t.ox)^2 + (q.icon.cy - t.oy)^2 + 0.000001)" ],
+		[ :field, "t.dr", "sqrt((r.icon.cx - t.ox)^2 + (r.icon.cy - t.oy)^2 + 0.000001)" ],
+		[ :override, "p.text.cx", "p.icon.cx + 26*(p.icon.cx - t.ox)/t.dp" ],
+		[ :override, "p.text.cy", "p.icon.cy + 26*(p.icon.cy - t.oy)/t.dp" ],
+		[ :override, "q.text.cx", "q.icon.cx + 26*(q.icon.cx - t.ox)/t.dq" ],
+		[ :override, "q.text.cy", "q.icon.cy + 26*(q.icon.cy - t.oy)/t.dq" ],
+		[ :override, "r.text.cx", "r.icon.cx + 26*(r.icon.cx - t.ox)/t.dr" ],
+		[ :override, "r.text.cy", "r.icon.cy + 26*(r.icon.cy - t.oy)/t.dr" ] ])
 	# ...and a RIGHT triangle is Byrne's figure instead. This is Penrose's
 	# specialisation idiom: the general rule drew an icon, and the special
 	# rule DELETES it before drawing its own.
@@ -608,15 +622,30 @@ func StzByrneStyle()
 		[ :field, "t.lac", "sqrt(t.acx^2 + t.acy^2 + 0.000001)" ],
 		[ :field, "t.ubx", "t.abx / t.lab" ], [ :field, "t.uby", "t.aby / t.lab" ],
 		[ :field, "t.ucx", "t.acx / t.lac" ], [ :field, "t.ucy", "t.acy / t.lac" ],
-		# the hypotenuse, the foot of the altitude on it, and the outward
-		# normal -- which is simply the direction from the vertex to the foot
+		# THE HYPOTENUSE AND THE OUTWARD NORMAL. The normal is the one thing
+		# here that needs a SIDE chosen, and the shallow way to choose it is
+		# the signed area: Z = (B-A) x (C-B) is positive on one winding and
+		# negative on the other, and because the angle at A is right its
+		# magnitude is exactly lab*lac -- so Z/(lab*lac) IS the sign, with
+		# no sign function and no branch. Turning BC a quarter turn and
+		# multiplying by it gives a unit normal that always points away
+		# from A.
+		#
+		# Writing it this way rather than as the direction to the altitude's
+		# foot matters for a reason that has nothing to do with elegance:
+		# the foot costs a division, two subtractions and a square root of
+		# its own, and every expression built on it inherits all of that.
+		# When the names below came to divide by a root of a dot product OF
+		# this normal, the tape went from 243ms to 202 SECONDS and the
+		# picture stopped converging.
 		[ :field, "t.bcx", "r.icon.cx - q.icon.cx" ], [ :field, "t.bcy", "r.icon.cy - q.icon.cy" ],
 		[ :field, "t.lbc", "sqrt(t.bcx^2 + t.bcy^2 + 0.000001)" ],
-		[ :field, "t.tt", "((p.icon.cx - q.icon.cx)*t.bcx + (p.icon.cy - q.icon.cy)*t.bcy) / (t.lbc^2)" ],
-		[ :field, "t.fx", "q.icon.cx + t.tt*t.bcx" ], [ :field, "t.fy", "q.icon.cy + t.tt*t.bcy" ],
-		[ :field, "t.hx", "t.fx - p.icon.cx" ], [ :field, "t.hy", "t.fy - p.icon.cy" ],
-		[ :field, "t.lh", "sqrt(t.hx^2 + t.hy^2 + 0.000001)" ],
-		[ :field, "t.wx", "t.hx / t.lh" ], [ :field, "t.wy", "t.hy / t.lh" ],
+		[ :field, "t.zz", "(t.abx*t.bcy - t.aby*t.bcx) / (t.lab*t.lac*t.lbc)" ],
+		[ :field, "t.wx", "t.bcy * t.zz" ], [ :field, "t.wy", "0 - t.bcx * t.zz" ],
+		# the altitude's length is lab*lac/lbc, so its foot needs no
+		# projection either
+		[ :field, "t.lh", "t.lab*t.lac / t.lbc" ],
+		[ :field, "t.fx", "p.icon.cx + t.lh*t.wx" ], [ :field, "t.fy", "p.icon.cy + t.lh*t.wy" ],
 		[ :field, "t.gx", "t.fx + t.lbc*t.wx" ], [ :field, "t.gy", "t.fy + t.lbc*t.wy" ],
 		# THE SQUARE ON THE HYPOTENUSE, and the two rectangles the altitude
 		# cuts it into -- each coloured like the leg square it equals
@@ -655,30 +684,95 @@ func StzByrneStyle()
 		    :fill = "#e8b93b", :stroke = "#222222", :strokeWidth = 1.5 ] ],
 		[ :shape, "t.alt", :line, [ :x1 = "p.icon.cx", :y1 = "p.icon.cy",
 		    :x2 = "t.gx", :y2 = "t.gy", :stroke = "#222222", :strokeWidth = 1.5 ] ],
-		# the right angle, marked
+		# THE RIGHT ANGLE, MARKED WITH ITS CORNER ON THE ALTITUDE. A mark
+		# with two EQUAL arms has its corner on the angle's bisector -- and
+		# the altitude from a right angle is not its bisector unless the
+		# legs are equal, so a square mark would sit a few pixels off the
+		# line drawn through it, which reads as a slip.
+		#
+		# The corner is therefore put ON the altitude, at A + 21*w, and the
+		# arms are what that costs: the legs are perpendicular, so (ub, uc)
+		# is an orthonormal basis and w decomposes exactly as
+		# (w.ub)ub + (w.uc)uc. Each arm is that component -- the two are
+		# equal only when the triangle is isosceles, which is the same fact
+		# stated the other way round.
+		[ :field, "t.k1", "21*(t.wx*t.ubx + t.wy*t.uby)" ],
+		[ :field, "t.k2", "21*(t.wx*t.ucx + t.wy*t.ucy)" ],
+		[ :field, "t.kx", "p.icon.cx + 21*t.wx" ], [ :field, "t.ky", "p.icon.cy + 21*t.wy" ],
 		[ :shape, "t.mark1", :line, [
-		    :x1 = "p.icon.cx + 15*t.ubx", :y1 = "p.icon.cy + 15*t.uby",
-		    :x2 = "p.icon.cx + 15*t.ubx + 15*t.ucx", :y2 = "p.icon.cy + 15*t.uby + 15*t.ucy",
-		    :stroke = "#222222", :strokeWidth = 1.5 ] ],
+		    :x1 = "p.icon.cx + t.k1*t.ubx", :y1 = "p.icon.cy + t.k1*t.uby",
+		    :x2 = "t.kx", :y2 = "t.ky", :stroke = "#222222", :strokeWidth = 1.5 ] ],
 		[ :shape, "t.mark2", :line, [
-		    :x1 = "p.icon.cx + 15*t.ucx", :y1 = "p.icon.cy + 15*t.ucy",
-		    :x2 = "p.icon.cx + 15*t.ubx + 15*t.ucx", :y2 = "p.icon.cy + 15*t.uby + 15*t.ucy",
-		    :stroke = "#222222", :strokeWidth = 1.5 ] ],
-		# EVERY NAME OUTSIDE THE FIGURE. A polygon is derived, so a
-		# constraint cannot speak to it -- but it does not need to: each
-		# vertex's name is placed radially outward from the triangle's
-		# centre, which is the notch between the two squares meeting there.
-		[ :field, "t.gx0", "(p.icon.cx + q.icon.cx + r.icon.cx) / 3" ],
-		[ :field, "t.gy0", "(p.icon.cy + q.icon.cy + r.icon.cy) / 3" ],
-		[ :field, "t.pl", "sqrt((p.icon.cx - t.gx0)^2 + (p.icon.cy - t.gy0)^2 + 0.000001)" ],
-		[ :field, "t.ql", "sqrt((q.icon.cx - t.gx0)^2 + (q.icon.cy - t.gy0)^2 + 0.000001)" ],
-		[ :field, "t.rl", "sqrt((r.icon.cx - t.gx0)^2 + (r.icon.cy - t.gy0)^2 + 0.000001)" ],
-		[ :override, "p.text.cx", "p.icon.cx + 30*(p.icon.cx - t.gx0)/t.pl" ],
-		[ :override, "p.text.cy", "p.icon.cy + 30*(p.icon.cy - t.gy0)/t.pl" ],
-		[ :override, "q.text.cx", "q.icon.cx + 30*(q.icon.cx - t.gx0)/t.ql" ],
-		[ :override, "q.text.cy", "q.icon.cy + 30*(q.icon.cy - t.gy0)/t.ql" ],
-		[ :override, "r.text.cx", "r.icon.cx + 30*(r.icon.cx - t.gx0)/t.rl" ],
-		[ :override, "r.text.cy", "r.icon.cy + 30*(r.icon.cy - t.gy0)/t.rl" ],
+		    :x1 = "p.icon.cx + t.k2*t.ucx", :y1 = "p.icon.cy + t.k2*t.ucy",
+		    :x2 = "t.kx", :y2 = "t.ky", :stroke = "#222222", :strokeWidth = 1.5 ] ],
+		# EVERY NAME THE SAME DISTANCE FROM THE INK. A polygon is derived, so
+		# no constraint can speak to one -- but the EDGES that make the notch
+		# a name sits in are two segments, and a segment can be constrained.
+		# Each vertex gets the two outer sides of the squares meeting there,
+		# hidden, and its name is held off both by the SAME clearance.
+		#
+		# Placing each name a fixed distance from its POINT instead, which is
+		# what this rule did first, gives an equal radius and an UNEQUAL gap:
+		# the notch at the right angle is a quarter turn where the other two
+		# are far wider, so the same radius buries A's name and leaves B's
+		# and C's adrift. The eye reads the gap, never the radius.
+		# Each vertex has ONE free notch, bounded by the outer sides of the
+		# two squares meeting there. The name goes along that notch's
+		# BISECTOR, and how far along is what makes the gaps equal: at a
+		# notch of half-angle t the perpendicular clearance is d*sin(t), so
+		# d carries a 1/sin(t) and a wide notch takes its name less far out
+		# than a narrow one. The right angle's notch is a quarter turn and
+		# the other two are half a turn less their angle, so the three
+		# differ by a third -- which is exactly the error a fixed radius
+		# makes, and it is worst at A, where the picture is busiest.
+		#
+		# AND IT CLOSES. For unit wall directions e1 and e2 with c = e1.e2,
+		# the offset  K * (e1 + e2) / sqrt(1 - c^2)  lands at perpendicular
+		# distance EXACTLY K from both walls, whatever the notch's angle:
+		# |e1 + e2| is sqrt(2 + 2c), the half-angle's sine is
+		# sqrt((1 - c)/2), and their product is sqrt(2)/sqrt(2). One
+		# expression for all three vertices, no trigonometry, no bisector
+		# normalised by hand -- and at the right angle c is zero, so the
+		# name simply goes 22*sqrt(2) up the diagonal.
+		# AND THE BISECTOR IS STILL NOT IT, because the eye measures the
+		# LETTER, not its centre. A box reaches further along its diagonal
+		# than along its sides, so equal centre-clearance leaves unequal
+		# gaps -- and the bite differs per WALL, not per notch, so no single
+		# correction along the bisector can fix both at once.
+		#
+		# Solve both walls instead. Write the name's centre as V + a*e1 +
+		# b*e2 over the two wall directions: its distance to the wall along
+		# e1 is b*sqrt(1-c^2) and to the wall along e2 is a*sqrt(1-c^2),
+		# with c = e1.e2. Ask each of those to be 9 plus the box's reach in
+		# THAT wall's own normal direction -- |nx|*w/2 + |ny|*h/2, the
+		# support function, exact for an axis-aligned box -- and a and b
+		# fall out with no iteration. At the right angle c is zero, the two
+		# normals are the legs themselves, and it collapses to nine pixels
+		# plus a half-width and a half-height.
+		[ :field, "t.cb", "0 - t.ucx*t.wx - t.ucy*t.wy" ],
+		[ :field, "t.cc", "0 - t.ubx*t.wx - t.uby*t.wy" ],
+		[ :field, "t.aa", "9 + (abs(t.ucx)*p.text.w + abs(t.ucy)*p.text.h) / 2" ],
+		[ :field, "t.ab", "9 + (abs(t.ubx)*p.text.w + abs(t.uby)*p.text.h) / 2" ],
+		[ :field, "t.sb", "sqrt(1 - t.cb^2 + 0.000001)" ],
+		[ :field, "t.sc", "sqrt(1 - t.cc^2 + 0.000001)" ],
+		[ :field, "t.n1bx", "(t.wx + t.cb*t.ucx) / t.sb" ],
+		[ :field, "t.n1by", "(t.wy + t.cb*t.ucy) / t.sb" ],
+		[ :field, "t.n2bx", "(0 - t.ucx - t.cb*t.wx) / t.sb" ],
+		[ :field, "t.n2by", "(0 - t.ucy - t.cb*t.wy) / t.sb" ],
+		[ :field, "t.n1cx", "(t.wx + t.cc*t.ubx) / t.sc" ],
+		[ :field, "t.n1cy", "(t.wy + t.cc*t.uby) / t.sc" ],
+		[ :field, "t.n2cx", "(0 - t.ubx - t.cc*t.wx) / t.sc" ],
+		[ :field, "t.n2cy", "(0 - t.uby - t.cc*t.wy) / t.sc" ],
+		[ :field, "t.ba", "(9 + (abs(t.n2bx)*q.text.w + abs(t.n2by)*q.text.h) / 2) / t.sb" ],
+		[ :field, "t.bb", "(9 + (abs(t.n1bx)*q.text.w + abs(t.n1by)*q.text.h) / 2) / t.sb" ],
+		[ :field, "t.ca", "(9 + (abs(t.n2cx)*r.text.w + abs(t.n2cy)*r.text.h) / 2) / t.sc" ],
+		[ :field, "t.cbb", "(9 + (abs(t.n1cx)*r.text.w + abs(t.n1cy)*r.text.h) / 2) / t.sc" ],
+		[ :override, "p.text.cx", "p.icon.cx - t.aa*t.ucx - t.ab*t.ubx" ],
+		[ :override, "p.text.cy", "p.icon.cy - t.aa*t.ucy - t.ab*t.uby" ],
+		[ :override, "q.text.cx", "q.icon.cx - t.ba*t.ucx + t.bb*t.wx" ],
+		[ :override, "q.text.cy", "q.icon.cy - t.ba*t.ucy + t.bb*t.wy" ],
+		[ :override, "r.text.cx", "r.icon.cx - t.ca*t.ubx + t.cbb*t.wx" ],
+		[ :override, "r.text.cy", "r.icon.cy - t.ca*t.uby + t.cbb*t.wy" ],
 		# THE ANGLE IS RIGHT, the legs are a decent size and visibly
 		# unequal, and the hypotenuse lies flat with its square below it
 		[ :ensure, "equal", [ "(t.abx*t.acx + t.aby*t.acy) / (t.lab*t.lac)", 0 ] ],
