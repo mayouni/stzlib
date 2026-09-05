@@ -1527,3 +1527,44 @@ note:      I TRIED THE CONSTRAINT SOLVER FIRST AND IT WAS THE WRONG TOOL.
            nothing about the expression looks expensive when you read
            it.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-05 07:26
+
+subject:   two vertex dots painted under the squares standing on them,
+           and the tie that put them there
+
+why:       the author found it in the picture; the rule that caused it
+           reads as though it forbids it
+
+did:
+  - Layered each vertex above the altitude -- the last piece drawn --
+    rather than above the square on the hypotenuse, which the two
+    rectangles had since risen past.
+  - Added DrawIndexOf(path), so the drawing order is something the
+    suite can assert rather than something the eye has to catch.
+  - Asserted in section 82 that every dot is painted after every piece
+    of the figure, with a negative sibling proving the order is real.
+
+state:
+  section 82:   25 assertions
+  gate:         868 ok, 0 failed, on main and in the commit tree
+  commit:       4e63405d3
+
+waiting:
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      nothing open in DN7; the next move is the author's
+  - central: nothing owed from this
+
+note:      "ABOVE X" READS LIKE A GUARANTEE AND IS NOT ONE. It fixes a
+           shape's depth relative to X and says nothing about whatever
+           else has since risen past X -- here the two rectangles that
+           divide the very square the dots were named against. The
+           depths are relaxed, not written, so the mistake is invisible
+           in the rules and shows only in the picture. Naming the last
+           thing drawn is the form that keeps working when the figure
+           grows.
+```
