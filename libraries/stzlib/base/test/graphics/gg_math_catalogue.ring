@@ -26,9 +26,14 @@ acTitles = [ "two sets, one inside the other  (Penrose twosets-simple)",
              "a right isosceles triangle       (Right(BAC), EqualLength(AB, AC))",
              "THE SAME triangle, on a sphere   (Penrose Fig. 1, middle)",
              "THE SAME triangle, hyperbolic    (Penrose Fig. 1, right -- the Poincare disk)",
-             "BYRNE'S EUCLID I.47              (squares, the altitude, the two rectangles)" ]
+             "BYRNE'S EUCLID I.47              (squares, the altitude, the two rectangles)",
+             "the divisors of 12               (a Hasse diagram -- pure layout, no coordinates)",
+             "a COMMUTING SQUARE               (the diagram IS the equation)",
+             "THALES                           (the right angle nobody asked for)",
+             "the divisors of 36               (three by three, and level-planar)",
+             "a commuting TRIANGLE             (g after f equals h)" ]
 
-for i = 1 to 13
+for i = 1 to 18
 	if i = 1   oM = StzMathScene01(oFont)
 	but i = 2  oM = StzMathScene02(oFont)
 	but i = 3  oM = StzMathScene03(oFont)
@@ -41,7 +46,12 @@ for i = 1 to 13
 	but i = 10 oM = StzMathScene10(oFont)
 	but i = 11 oM = StzMathScene11(oFont)
 	but i = 12 oM = StzMathScene12(oFont)
-	else       oM = StzMathScene13(oFont)  ok
+	but i = 13 oM = StzMathScene13(oFont)
+	but i = 14 oM = StzMathScene14(oFont)
+	but i = 15 oM = StzMathScene15(oFont)
+	but i = 16 oM = StzMathScene16(oFont)
+	but i = 17 oM = StzMathScene17(oFont)
+	else       oM = StzMathScene18(oFont)  ok
 	oM.Layout()
 	? "== " + acTitles[i]
 	? "   unknowns " + oM.NumberOfUnknowns() + "   constraints " +

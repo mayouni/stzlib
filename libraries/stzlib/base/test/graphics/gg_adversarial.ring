@@ -12876,6 +12876,64 @@ chk("a polygon without a whole vertex count is refused", _ByRefuses(3))
 chk("NEGATIVE: the lawful forms are accepted", NOT _ByRefuses(0))
 
 
+sec("-- 83. DN7e: THREE MORE DOMAINS, AND WHAT EACH ONE STRESSES ---------")
+discharges("DN7e")
+
+# ORDER THEORY: the opposite end of the engine from Byrne. A partial order
+# has no coordinates to be faithful to, so a Hasse diagram is pure LAYOUT --
+# two free numbers per node and nothing derived, where Byrne's figure had
+# six free numbers and everything else derived from them.
+oHa = StzMathScene14(AUFONT)
+chk("the divisors of 12 draw as a lawful Hasse diagram", oHa.IsFeasible())
+chk("every covering puts the greater element strictly higher", _OdRises(oHa, 7))
+chk("and elements of the same rank share a row, to a pixel",
+    fabs(oHa.ValueOf("n2.icon.cy") - oHa.ValueOf("n3.icon.cy")) < 1 and
+    fabs(oHa.ValueOf("n4.icon.cy") - oHa.ValueOf("n6.icon.cy")) < 1)
+# A LAWFUL PICTURE IS NOT A READABLE ONE: nothing in the engine forbids two
+# edges from meeting, so the seed is doing work here and the guard says so.
+chk("the chosen variation draws it with no edge crossing at all",
+    _OdCrossings(oHa, 7) = 0)
+chk("NEGATIVE: another seed of the SAME substance and style does cross -- " +
+    "the engine has no crossing term, and this check is not vacuous",
+    _OdCrossings(_OdSeeded("lattice"), 7) > 0)
+
+# CATEGORY THEORY: the case where the LAYOUT is the content. A commuting
+# square is not an illustration of an equation, it is how the equation is
+# written -- so the grid is stated as constraints and solved, not placed.
+oCat = StzMathScene15(AUFONT)
+chk("the commuting square is lawful", oCat.IsFeasible())
+chk("its four objects really do make a rectangle",
+    fabs(oCat.ValueOf("A.text.cy") - oCat.ValueOf("B.text.cy")) < 1 and
+    fabs(oCat.ValueOf("C.text.cy") - oCat.ValueOf("D.text.cy")) < 1 and
+    fabs(oCat.ValueOf("A.text.cx") - oCat.ValueOf("C.text.cx")) < 1 and
+    fabs(oCat.ValueOf("B.text.cx") - oCat.ValueOf("D.text.cx")) < 1)
+chk("every arrow stops clear of the names at both of its ends",
+    _CtClears(oCat, [ "f", "g", "h", "k" ]))
+chk("and every arrow's name sits off the arrow, never on it",
+    _CtLabelsOff(oCat, [ "f", "g", "h", "k" ]) > 8)
+oTri = StzMathScene18(AUFONT)
+chk("the commuting triangle is lawful, and its apex is centred under the top",
+    oTri.IsFeasible() and
+    fabs(oTri.ValueOf("Z.text.cx") -
+         (oTri.ValueOf("X.text.cx") + oTri.ValueOf("Y.text.cx")) / 2) < 1)
+
+# THALES: Byrne's kill again, in one line of substance.
+oTh = StzMathScene16(AUFONT)
+chk("Thales' picture is lawful", oTh.IsFeasible())
+chk("all three points sit on the circle, to a tenth of a pixel",
+    _ThOnCircle(oTh, "A") < 0.1 and _ThOnCircle(oTh, "B") < 0.1 and
+    _ThOnCircle(oTh, "C") < 0.1)
+chk("and BC runs through the centre -- its midpoint IS the centre",
+    fabs((oTh.ValueOf("B.icon.cx") + oTh.ValueOf("C.icon.cx")) / 2 -
+         oTh.ValueOf("K.icon.cx")) < 0.5 and
+    fabs((oTh.ValueOf("B.icon.cy") + oTh.ValueOf("C.icon.cy")) / 2 -
+         oTh.ValueOf("K.icon.cy")) < 0.5)
+chk("SO THE ANGLE AT A IS RIGHT, to a hundredth of a cosine",
+    fabs(_ThCosAtA(oTh)) < 0.01)
+chk("NEGATIVE: and the substance never said so -- there is no Right in it",
+    NOT StzMathThalesSubstance().Holds("Right", [ "BAC" ]))
+
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go
@@ -15086,6 +15144,102 @@ func _ByRefuses pnWhich
 		_b_ = TRUE
 	done
 	return _b_
+
+# does every covering put x above y?
+func _OdRises poM, pnCovers
+	for _i_ = 1 to pnCovers
+		_s_ = poM.ShapeOf("c" + _i_ + ".icon")
+		if _s_[:y1] >= _s_[:y2] - 40  return FALSE  ok
+	next
+	return TRUE
+
+func _OdSeeded pcVar
+	_oS_ = StzMathLatticeSubstance(
+		[ "n1", "n2", "n3", "n4", "n6", "n12" ],
+		[ [ "n2", "n1" ], [ "n3", "n1" ], [ "n4", "n2" ], [ "n6", "n2" ],
+		  [ "n6", "n3" ], [ "n12", "n4" ], [ "n12", "n6" ] ],
+		[ [ "n2", "n3" ], [ "n4", "n6" ] ],
+		[ "1", "2", "3", "4", "6", "12" ])
+	_o_ = new stzMathDiagram(StzOrderDomain(), _oS_, StzHasseStyle())
+	_o_.SetFont(AUFONT, 21)
+	_o_.SetVariation(pcVar)
+	_o_.Layout()
+	return _o_
+
+# pairs of edges that properly cross, counting only pairs with no shared end
+func _OdCrossings poM, pnCovers
+	_a_ = []
+	for _i_ = 1 to pnCovers
+		_s_ = poM.ShapeOf("c" + _i_ + ".icon")
+		_a_ + [ _s_[:x1], _s_[:y1], _s_[:x2], _s_[:y2] ]
+	next
+	_n_ = 0
+	for _i_ = 1 to len(_a_)
+		for _j_ = _i_ + 1 to len(_a_)
+			if _OdShares(_a_[_i_], _a_[_j_])  loop  ok
+			if _OdCrosses(_a_[_i_], _a_[_j_])  _n_++  ok
+		next
+	next
+	return _n_
+
+func _OdShares pa, pb
+	for _i_ = 0 to 1
+		for _j_ = 0 to 1
+			if fabs(pa[1+2*_i_] - pb[1+2*_j_]) < 0.5 and
+			   fabs(pa[2+2*_i_] - pb[2+2*_j_]) < 0.5
+				return TRUE
+			ok
+		next
+	next
+	return FALSE
+
+func _OdSide pax, pay, pbx, pby, pcx, pcy
+	_d_ = (pbx - pax) * (pcy - pay) - (pby - pay) * (pcx - pax)
+	if _d_ > 0.001  return 1  ok
+	if _d_ < -0.001  return -1  ok
+	return 0
+
+func _OdCrosses pa, pb
+	_d1_ = _OdSide(pa[1], pa[2], pa[3], pa[4], pb[1], pb[2])
+	_d2_ = _OdSide(pa[1], pa[2], pa[3], pa[4], pb[3], pb[4])
+	_d3_ = _OdSide(pb[1], pb[2], pb[3], pb[4], pa[1], pa[2])
+	_d4_ = _OdSide(pb[1], pb[2], pb[3], pb[4], pa[3], pa[4])
+	return _d1_ * _d2_ < 0 and _d3_ * _d4_ < 0
+
+# every arrow's drawn ends stand off both object names
+func _CtClears poM, pacArrows
+	for _i_ = 1 to len(pacArrows)
+		_s_ = poM.ShapeOf(pacArrows[_i_] + ".icon")
+		_l_ = poM.ShapeOf(pacArrows[_i_] + ".line")
+		_d1_ = sqrt(pow(_s_[:x1] - _l_[:x1], 2) + pow(_s_[:y1] - _l_[:y1], 2))
+		_d2_ = sqrt(pow(_s_[:x2] - _l_[:x2], 2) + pow(_s_[:y2] - _l_[:y2], 2))
+		if _d1_ < 25 or _d2_ < 25  return FALSE  ok
+	next
+	return TRUE
+
+# the smallest distance from an arrow's own name to the arrow it names
+func _CtLabelsOff poM, pacArrows
+	_best_ = 1000000
+	for _i_ = 1 to len(pacArrows)
+		_s_ = poM.ShapeOf(pacArrows[_i_] + ".icon")
+		_t_ = poM.ShapeOf(pacArrows[_i_] + ".text")
+		_d_ = _ByPtSeg(_t_[:cx], _t_[:cy], _s_[:x1], _s_[:y1], _s_[:x2], _s_[:y2])
+		if _d_ < _best_  _best_ = _d_  ok
+	next
+	return _best_
+
+func _ThOnCircle poM, pcP
+	return fabs(sqrt(pow(poM.ValueOf(pcP + ".icon.cx") - poM.ValueOf("K.icon.cx"), 2) +
+	                 pow(poM.ValueOf(pcP + ".icon.cy") - poM.ValueOf("K.icon.cy"), 2)) -
+	            poM.ValueOf("K.icon.r"))
+
+func _ThCosAtA poM
+	_ux_ = poM.ValueOf("B.icon.cx") - poM.ValueOf("A.icon.cx")
+	_uy_ = poM.ValueOf("B.icon.cy") - poM.ValueOf("A.icon.cy")
+	_vx_ = poM.ValueOf("C.icon.cx") - poM.ValueOf("A.icon.cx")
+	_vy_ = poM.ValueOf("C.icon.cy") - poM.ValueOf("A.icon.cy")
+	return (_ux_*_vx_ + _uy_*_vy_) /
+	       (sqrt(pow(_ux_, 2) + pow(_uy_, 2)) * sqrt(pow(_vx_, 2) + pow(_vy_, 2)))
 
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0

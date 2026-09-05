@@ -196,3 +196,121 @@ func StzMathScene13(poFont)
 	_o_.SetFont(poFont, 24)
 	_o_.SetVariation("byrne")
 	return _o_
+
+#-- three more domains, to show the engine's range (DN7e) ------------------
+
+# A partial order has no coordinates to be faithful to, so a Hasse diagram
+# is pure LAYOUT -- the opposite end of the engine from Byrne, where every
+# coordinate was forced by the construction.
+func StzMathLatticeSubstance(pacElems, paCovers, paSameRank, pacLabels)
+	_oS_ = new stzMathSubstance(StzOrderDomain())
+	_oS_.DeclareAll("Element", pacElems)
+	for _i_ = 1 to len(paCovers)
+		_oS_.Define("c" + _i_, "Cover", paCovers[_i_])
+		_oS_.Label("c" + _i_, "")
+	next
+	for _i_ = 1 to len(paSameRank)
+		_oS_.Assert("SameRank", paSameRank[_i_])
+	next
+	for _i_ = 1 to len(pacElems)
+		_oS_.Label(pacElems[_i_], pacLabels[_i_])
+	next
+	return _oS_
+
+# the divisors of 12, ordered by divisibility
+func StzMathScene14(poFont)
+	_oS_ = StzMathLatticeSubstance(
+		[ "n1", "n2", "n3", "n4", "n6", "n12" ],
+		[ [ "n2", "n1" ], [ "n3", "n1" ], [ "n4", "n2" ], [ "n6", "n2" ],
+		  [ "n6", "n3" ], [ "n12", "n4" ], [ "n12", "n6" ] ],
+		[ [ "n2", "n3" ], [ "n4", "n6" ] ],
+		[ "1", "2", "3", "4", "6", "12" ])
+	_o_ = new stzMathDiagram(StzOrderDomain(), _oS_, StzHasseStyle())
+	_o_.SetFont(poFont, 21)
+	# SEVEN OF TEN VARIATIONS DRAW THIS WITHOUT A CROSSING, and the style
+	# never asked for one: nothing in the engine forbids two edges meeting.
+	# Picking the seed is what Penrose's variations are for.
+	_o_.SetVariation("divides")
+	return _o_
+
+# the divisors of 36 -- a three by three grid, and level-planar, where the
+# powerset of three letters is the cube and cannot be drawn on levels
+# without crossings
+func StzMathScene17(poFont)
+	_oS_ = StzMathLatticeSubstance(
+		[ "m1", "m2", "m3", "m4", "m6", "m9", "m12", "m18", "m36" ],
+		[ [ "m2", "m1" ], [ "m3", "m1" ], [ "m4", "m2" ], [ "m6", "m2" ],
+		  [ "m6", "m3" ], [ "m9", "m3" ], [ "m12", "m4" ], [ "m12", "m6" ],
+		  [ "m18", "m6" ], [ "m18", "m9" ], [ "m36", "m12" ], [ "m36", "m18" ] ],
+		[ [ "m2", "m3" ], [ "m4", "m6" ], [ "m4", "m9" ], [ "m12", "m18" ] ],
+		[ "1", "2", "3", "4", "6", "9", "12", "18", "36" ])
+	_o_ = new stzMathDiagram(StzOrderDomain(), _oS_, StzHasseStyle())
+	_o_.SetFont(poFont, 20)
+	# AND HERE ONLY ONE SEED OF TWELVE DRAWS IT CLEAN, against seven of ten
+	# on the divisors of 12. Nothing in the engine forbids two edges from
+	# meeting, so the odds of a readable picture fall as the lattice grows
+	# -- which is the argument for a crossing term, not a reason to distrust
+	# the pictures.
+	_o_.SetVariation("nine")
+	return _o_
+
+# A commuting square is not an illustration of an equation -- it IS how the
+# equation is written. So here the layout carries the content and the
+# coordinates carry none of it.
+func StzMathScene15(poFont)
+	_oS_ = new stzMathSubstance(StzCategoryDomain())
+	_oS_.DeclareAll("Object", [ "A", "B", "C", "D" ])
+	_oS_.Define("f", "Arrow", [ "A", "B" ])
+	_oS_.Define("g", "Arrow", [ "B", "D" ])
+	_oS_.Define("h", "Arrow", [ "A", "C" ])
+	_oS_.Define("k", "Arrow", [ "C", "D" ])
+	_oS_.Assert("CommutingSquare", [ "A", "B", "C", "D" ])
+	_oS_.AutoLabelAll()
+	_o_ = new stzMathDiagram(StzCategoryDomain(), _oS_, StzCommutativeStyle())
+	_o_.SetFont(poFont, 26)
+	_o_.SetVariation("commuting-square")
+	return _o_
+
+func StzMathScene18(poFont)
+	_oS_ = new stzMathSubstance(StzCategoryDomain())
+	_oS_.DeclareAll("Object", [ "X", "Y", "Z" ])
+	_oS_.Define("f", "Arrow", [ "X", "Y" ])
+	_oS_.Define("g", "Arrow", [ "Y", "Z" ])
+	_oS_.Define("h", "Arrow", [ "X", "Z" ])
+	_oS_.Assert("CommutingTriangle", [ "X", "Y", "Z" ])
+	_oS_.AutoLabelAll()
+	_o_ = new stzMathDiagram(StzCategoryDomain(), _oS_, StzCommutativeStyle())
+	_o_.SetFont(poFont, 26)
+	_o_.SetVariation("commuting-triangle")
+	return _o_
+
+# THALES, and the kill Byrne's figure taught. The substance says three
+# things -- B and C are on the circle, BC runs through its centre, A is on
+# the circle -- and never that the angle at A is right. Every place the
+# solver may put A gives a right angle, so the mark is a claim about the
+# picture that the picture was never asked to satisfy.
+func StzMathThalesSubstance()
+	_oS_ = new stzMathSubstance(StzGeometryDomain())
+	_oS_.Declare("Circle", "K")
+	_oS_.DeclareAll("Point", [ "B", "C", "A" ])
+	_oS_.Define("BC", "Segment", [ "B", "C" ])
+	_oS_.Define("AB", "Segment", [ "A", "B" ])
+	_oS_.Define("AC", "Segment", [ "A", "C" ])
+	_oS_.Define("ABC", "Triangle", [ "A", "B", "C" ])
+	_oS_.Define("BAC", "InteriorAngle", [ "B", "A", "C" ])
+	_oS_.Assert("OnCircle", [ "B", "K" ])
+	_oS_.Assert("OnCircle", [ "C", "K" ])
+	_oS_.Assert("OnCircle", [ "A", "K" ])
+	_oS_.Assert("Diameter", [ "BC", "K" ])
+	_oS_.AutoLabelAll()
+	for _c_ in [ "K", "BC", "AB", "AC", "ABC", "BAC" ]
+		_oS_.Label(_c_, "")
+	next
+	return _oS_
+
+func StzMathScene16(poFont)
+	_o_ = new stzMathDiagram(StzGeometryDomain(), StzMathThalesSubstance(),
+		StzThalesStyle())
+	_o_.SetFont(poFont, 24)
+	_o_.SetVariation("thales")
+	return _o_
