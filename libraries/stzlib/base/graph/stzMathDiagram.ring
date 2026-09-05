@@ -427,9 +427,34 @@ func StzSphericalStyle()
 		[ :field, "a.t2z", "r.sz - a.dqr*q.sz" ] ])
 	_o_.ForAllWhere("Angle a; Point p; Point q; Point r",
 	                "a := InteriorAngle(p, q, r); Right(a)", [
-		[ :ensure, "equal", [ "100*(a.t1x*a.t2x + a.t1y*a.t2y + a.t1z*a.t2z) / (sqrt(a.t1x^2 + a.t1y^2 + a.t1z^2 + 0.000001) * sqrt(a.t2x^2 + a.t2y^2 + a.t2z^2 + 0.000001))", 0 ] ] ])
+		[ :ensure, "equal", [ "100*(a.t1x*a.t2x + a.t1y*a.t2y + a.t1z*a.t2z) / (sqrt(a.t1x^2 + a.t1y^2 + a.t1z^2 + 0.000001) * sqrt(a.t2x^2 + a.t2y^2 + a.t2z^2 + 0.000001))", 0 ] ],
+		# THE MARK, BENT TO THE SPHERE: its feet are walked along the great
+		# circles themselves, so they land on the arcs the picture drew and
+		# not on the chords between the vertices.
+		[ :shape, "a.rmark", :mark, [ :mark = "rightangle", :curve = "greatarc",
+		    :x1 = "q.sx", :y1 = "q.sy", :z1 = "q.sz",
+		    :x2 = "p.sx", :y2 = "p.sy", :z2 = "p.sz",
+		    :x3 = "r.sx", :y3 = "r.sy", :z3 = "r.sz",
+		    :cx = 300, :cy = 260, :r = 210, :size = 17,
+		    :stroke = "#333333", :strokeWidth = 1.5 ] ],
+		[ :layer, "a.rmark", :above, "_.sphere" ] ])
 	_o_.ForAllWhere("Segment s; Segment t", "EqualLength(s, t)", [
-		[ :ensure, "equal", [ "100*s.cosd", "100*t.cosd" ] ] ])
+		[ :ensure, "equal", [ "100*s.cosd", "100*t.cosd" ] ],
+		# and the ticks sit at the middle of the ARC, across it
+		[ :shape, "s.tick", :mark, [ :mark = "tick", :curve = "greatarc",
+		    :x1 = "s.icon.x1", :y1 = "s.icon.y1", :z1 = "s.icon.z1",
+		    :x2 = "s.icon.x2", :y2 = "s.icon.y2", :z2 = "s.icon.z2",
+		    :x3 = 0, :y3 = 0, :z3 = 0,
+		    :cx = 300, :cy = 260, :r = 210, :size = 13, :ticks = 1,
+		    :stroke = "#333333", :strokeWidth = 2 ] ],
+		[ :shape, "t.tick", :mark, [ :mark = "tick", :curve = "greatarc",
+		    :x1 = "t.icon.x1", :y1 = "t.icon.y1", :z1 = "t.icon.z1",
+		    :x2 = "t.icon.x2", :y2 = "t.icon.y2", :z2 = "t.icon.z2",
+		    :x3 = 0, :y3 = 0, :z3 = 0,
+		    :cx = 300, :cy = 260, :r = 210, :size = 13, :ticks = 1,
+		    :stroke = "#333333", :strokeWidth = 2 ] ],
+		[ :layer, "s.tick", :above, "_.sphere" ],
+		[ :layer, "t.tick", :above, "_.sphere" ] ])
 	return _o_
 
 # THE POINCARE DISK. The same Substance again, in hyperbolic geometry:
@@ -511,9 +536,162 @@ func StzHyperbolicStyle()
 		[ :field, "a.v2x", "a.d2*q.hx - a.n2x" ], [ :field, "a.v2y", "a.d2*q.hy - a.n2y" ] ])
 	_o_.ForAllWhere("Angle a; Point p; Point q; Point r",
 	                "a := InteriorAngle(p, q, r); Right(a)", [
-		[ :ensure, "equal", [ "100*(a.v1x*a.v2x + a.v1y*a.v2y) / (sqrt(a.v1x^2 + a.v1y^2 + 0.000001) * sqrt(a.v2x^2 + a.v2y^2 + 0.000001))", 0 ] ] ])
+		[ :ensure, "equal", [ "100*(a.v1x*a.v2x + a.v1y*a.v2y) / (sqrt(a.v1x^2 + a.v1y^2 + 0.000001) * sqrt(a.v2x^2 + a.v2y^2 + 0.000001))", 0 ] ],
+		# THE MARK, BENT TO THE DISK: its feet are rotated about each
+		# geodesic's own centre, so they sit on the arcs. The model is
+		# conformal, so the square it draws IS the hyperbolic right angle.
+		[ :shape, "a.rmark", :mark, [ :mark = "rightangle", :curve = "poincare",
+		    :x1 = "q.hx", :y1 = "q.hy", :z1 = 0,
+		    :x2 = "p.hx", :y2 = "p.hy", :z2 = 0,
+		    :x3 = "r.hx", :y3 = "r.hy", :z3 = 0,
+		    :cx = 300, :cy = 260, :r = 220, :size = 17,
+		    :stroke = "#333333", :strokeWidth = 1.5 ] ],
+		[ :layer, "a.rmark", :above, "_.disk" ] ])
 	_o_.ForAllWhere("Segment s; Segment t", "EqualLength(s, t)", [
-		[ :ensure, "equal", [ "100*s.delta", "100*t.delta" ] ] ])
+		[ :ensure, "equal", [ "100*s.delta", "100*t.delta" ] ],
+		[ :shape, "s.tick", :mark, [ :mark = "tick", :curve = "poincare",
+		    :x1 = "s.icon.x1", :y1 = "s.icon.y1", :z1 = 0,
+		    :x2 = "s.icon.x2", :y2 = "s.icon.y2", :z2 = 0,
+		    :x3 = 0, :y3 = 0, :z3 = 0,
+		    :cx = 300, :cy = 260, :r = 220, :size = 13, :ticks = 1,
+		    :stroke = "#333333", :strokeWidth = 2 ] ],
+		[ :shape, "t.tick", :mark, [ :mark = "tick", :curve = "poincare",
+		    :x1 = "t.icon.x1", :y1 = "t.icon.y1", :z1 = 0,
+		    :x2 = "t.icon.x2", :y2 = "t.icon.y2", :z2 = 0,
+		    :x3 = 0, :y3 = 0, :z3 = 0,
+		    :cx = 300, :cy = 260, :r = 220, :size = 13, :ticks = 1,
+		    :stroke = "#333333", :strokeWidth = 2 ] ],
+		[ :layer, "s.tick", :above, "_.disk" ],
+		[ :layer, "t.tick", :above, "_.disk" ] ])
+	return _o_
+
+# OLIVER BYRNE'S EUCLID I.47 (1847), the plane's version of the most drawn
+# proof there is: three squares on the sides of a right triangle, the
+# altitude from the right angle continued through the square on the
+# hypotenuse, and the two rectangles it cuts there -- each equal in area to
+# the square on the leg beside it, and coloured to say so.
+#
+# EVERY PIECE OF THAT FIGURE IS DERIVED FROM THE THREE POINTS. The solver
+# owns six numbers (three points on the page); the squares, the foot of the
+# altitude and the two rectangles are expressions over them, so the picture
+# cannot come apart -- and Euclid's equality is never asserted anywhere. It
+# is a CONSEQUENCE the guard reads back out of the solved coordinates.
+#
+# The outward normal of the hypotenuse is written as the direction from the
+# right-angle vertex to the foot of its own altitude. That is a unit vector
+# pointing out of the triangle by construction, so the squares stand on the
+# correct side of every edge without a sign test anywhere.
+func StzByrneStyle()
+	_o_ = new stzMathStyle()
+	_o_.SetCanvas(760, 700)
+	_o_.ForAll("Point p", [
+		[ :shape, "p.icon", :circle, [ :r = 3.5, :fill = "#222222" ] ],
+		[ :shape, "p.text", :text, [ :fill = "#222222" ] ],
+		[ :ensure, "disjoint", [ "p.text", "p.icon", 5 ] ],
+		[ :encourage, "near", [ "p.text", "p.icon", 17 ] ] ])
+	# ANY triangle is an outline...
+	_o_.ForAllWhere("Triangle t; Point p; Point q; Point r", "t := Triangle(p, q, r)", [
+		[ :shape, "t.icon", :poly, [ :n = 3,
+		    :x1 = "p.icon.cx", :y1 = "p.icon.cy", :x2 = "q.icon.cx", :y2 = "q.icon.cy",
+		    :x3 = "r.icon.cx", :y3 = "r.icon.cy",
+		    :stroke = "#555555", :strokeWidth = 2 ] ] ])
+	# ...and a RIGHT triangle is Byrne's figure instead. This is Penrose's
+	# specialisation idiom: the general rule drew an icon, and the special
+	# rule DELETES it before drawing its own.
+	_o_.ForAllWhere("Triangle t; Point p; Point q; Point r; Angle a",
+	                "t := Triangle(p, q, r); a := InteriorAngle(q, p, r); Right(a)", [
+		[ :delete, "t.icon" ],
+		# the two legs out of the right angle, and their units
+		[ :field, "t.abx", "q.icon.cx - p.icon.cx" ], [ :field, "t.aby", "q.icon.cy - p.icon.cy" ],
+		[ :field, "t.acx", "r.icon.cx - p.icon.cx" ], [ :field, "t.acy", "r.icon.cy - p.icon.cy" ],
+		[ :field, "t.lab", "sqrt(t.abx^2 + t.aby^2 + 0.000001)" ],
+		[ :field, "t.lac", "sqrt(t.acx^2 + t.acy^2 + 0.000001)" ],
+		[ :field, "t.ubx", "t.abx / t.lab" ], [ :field, "t.uby", "t.aby / t.lab" ],
+		[ :field, "t.ucx", "t.acx / t.lac" ], [ :field, "t.ucy", "t.acy / t.lac" ],
+		# the hypotenuse, the foot of the altitude on it, and the outward
+		# normal -- which is simply the direction from the vertex to the foot
+		[ :field, "t.bcx", "r.icon.cx - q.icon.cx" ], [ :field, "t.bcy", "r.icon.cy - q.icon.cy" ],
+		[ :field, "t.lbc", "sqrt(t.bcx^2 + t.bcy^2 + 0.000001)" ],
+		[ :field, "t.tt", "((p.icon.cx - q.icon.cx)*t.bcx + (p.icon.cy - q.icon.cy)*t.bcy) / (t.lbc^2)" ],
+		[ :field, "t.fx", "q.icon.cx + t.tt*t.bcx" ], [ :field, "t.fy", "q.icon.cy + t.tt*t.bcy" ],
+		[ :field, "t.hx", "t.fx - p.icon.cx" ], [ :field, "t.hy", "t.fy - p.icon.cy" ],
+		[ :field, "t.lh", "sqrt(t.hx^2 + t.hy^2 + 0.000001)" ],
+		[ :field, "t.wx", "t.hx / t.lh" ], [ :field, "t.wy", "t.hy / t.lh" ],
+		[ :field, "t.gx", "t.fx + t.lbc*t.wx" ], [ :field, "t.gy", "t.fy + t.lbc*t.wy" ],
+		# THE SQUARE ON THE HYPOTENUSE, and the two rectangles the altitude
+		# cuts it into -- each coloured like the leg square it equals
+		[ :shape, "t.sqbc", :poly, [ :n = 4,
+		    :x1 = "q.icon.cx", :y1 = "q.icon.cy", :x2 = "r.icon.cx", :y2 = "r.icon.cy",
+		    :x3 = "r.icon.cx + t.lbc*t.wx", :y3 = "r.icon.cy + t.lbc*t.wy",
+		    :x4 = "q.icon.cx + t.lbc*t.wx", :y4 = "q.icon.cy + t.lbc*t.wy",
+		    :fill = "#f2ecdd", :stroke = "#222222", :strokeWidth = 1.5 ] ],
+		[ :shape, "t.rect1", :poly, [ :n = 4,
+		    :x1 = "q.icon.cx", :y1 = "q.icon.cy", :x2 = "t.fx", :y2 = "t.fy",
+		    :x3 = "t.gx", :y3 = "t.gy",
+		    :x4 = "q.icon.cx + t.lbc*t.wx", :y4 = "q.icon.cy + t.lbc*t.wy",
+		    :fill = "#c8443c", :stroke = "#222222", :strokeWidth = 1.5 ] ],
+		[ :shape, "t.rect2", :poly, [ :n = 4,
+		    :x1 = "t.fx", :y1 = "t.fy", :x2 = "r.icon.cx", :y2 = "r.icon.cy",
+		    :x3 = "r.icon.cx + t.lbc*t.wx", :y3 = "r.icon.cy + t.lbc*t.wy",
+		    :x4 = "t.gx", :y4 = "t.gy",
+		    :fill = "#2f5f98", :stroke = "#222222", :strokeWidth = 1.5 ] ],
+		# THE SQUARES ON THE LEGS. Because the angle at p is right, the
+		# square on one leg stands along the OTHER leg's direction, reversed
+		# -- so no normal has to be computed for either of them.
+		[ :shape, "t.sqab", :poly, [ :n = 4,
+		    :x1 = "p.icon.cx", :y1 = "p.icon.cy", :x2 = "q.icon.cx", :y2 = "q.icon.cy",
+		    :x3 = "q.icon.cx - t.lab*t.ucx", :y3 = "q.icon.cy - t.lab*t.ucy",
+		    :x4 = "p.icon.cx - t.lab*t.ucx", :y4 = "p.icon.cy - t.lab*t.ucy",
+		    :fill = "#c8443c", :stroke = "#222222", :strokeWidth = 1.5 ] ],
+		[ :shape, "t.sqac", :poly, [ :n = 4,
+		    :x1 = "p.icon.cx", :y1 = "p.icon.cy", :x2 = "r.icon.cx", :y2 = "r.icon.cy",
+		    :x3 = "r.icon.cx - t.lac*t.ubx", :y3 = "r.icon.cy - t.lac*t.uby",
+		    :x4 = "p.icon.cx - t.lac*t.ubx", :y4 = "p.icon.cy - t.lac*t.uby",
+		    :fill = "#2f5f98", :stroke = "#222222", :strokeWidth = 1.5 ] ],
+		# the triangle itself, and the altitude continued to the far side
+		[ :shape, "t.face", :poly, [ :n = 3,
+		    :x1 = "p.icon.cx", :y1 = "p.icon.cy", :x2 = "q.icon.cx", :y2 = "q.icon.cy",
+		    :x3 = "r.icon.cx", :y3 = "r.icon.cy",
+		    :fill = "#e8b93b", :stroke = "#222222", :strokeWidth = 1.5 ] ],
+		[ :shape, "t.alt", :line, [ :x1 = "p.icon.cx", :y1 = "p.icon.cy",
+		    :x2 = "t.gx", :y2 = "t.gy", :stroke = "#222222", :strokeWidth = 1.5 ] ],
+		# the right angle, marked
+		[ :shape, "t.mark1", :line, [
+		    :x1 = "p.icon.cx + 15*t.ubx", :y1 = "p.icon.cy + 15*t.uby",
+		    :x2 = "p.icon.cx + 15*t.ubx + 15*t.ucx", :y2 = "p.icon.cy + 15*t.uby + 15*t.ucy",
+		    :stroke = "#222222", :strokeWidth = 1.5 ] ],
+		[ :shape, "t.mark2", :line, [
+		    :x1 = "p.icon.cx + 15*t.ucx", :y1 = "p.icon.cy + 15*t.ucy",
+		    :x2 = "p.icon.cx + 15*t.ubx + 15*t.ucx", :y2 = "p.icon.cy + 15*t.uby + 15*t.ucy",
+		    :stroke = "#222222", :strokeWidth = 1.5 ] ],
+		# EVERY NAME OUTSIDE THE FIGURE. A polygon is derived, so a
+		# constraint cannot speak to it -- but it does not need to: each
+		# vertex's name is placed radially outward from the triangle's
+		# centre, which is the notch between the two squares meeting there.
+		[ :field, "t.gx0", "(p.icon.cx + q.icon.cx + r.icon.cx) / 3" ],
+		[ :field, "t.gy0", "(p.icon.cy + q.icon.cy + r.icon.cy) / 3" ],
+		[ :field, "t.pl", "sqrt((p.icon.cx - t.gx0)^2 + (p.icon.cy - t.gy0)^2 + 0.000001)" ],
+		[ :field, "t.ql", "sqrt((q.icon.cx - t.gx0)^2 + (q.icon.cy - t.gy0)^2 + 0.000001)" ],
+		[ :field, "t.rl", "sqrt((r.icon.cx - t.gx0)^2 + (r.icon.cy - t.gy0)^2 + 0.000001)" ],
+		[ :override, "p.text.cx", "p.icon.cx + 30*(p.icon.cx - t.gx0)/t.pl" ],
+		[ :override, "p.text.cy", "p.icon.cy + 30*(p.icon.cy - t.gy0)/t.pl" ],
+		[ :override, "q.text.cx", "q.icon.cx + 30*(q.icon.cx - t.gx0)/t.ql" ],
+		[ :override, "q.text.cy", "q.icon.cy + 30*(q.icon.cy - t.gy0)/t.ql" ],
+		[ :override, "r.text.cx", "r.icon.cx + 30*(r.icon.cx - t.gx0)/t.rl" ],
+		[ :override, "r.text.cy", "r.icon.cy + 30*(r.icon.cy - t.gy0)/t.rl" ],
+		# THE ANGLE IS RIGHT, the legs are a decent size and visibly
+		# unequal, and the hypotenuse lies flat with its square below it
+		[ :ensure, "equal", [ "(t.abx*t.acx + t.aby*t.acy) / (t.lab*t.lac)", 0 ] ],
+		[ :ensure, "greaterThan", [ "t.lab", 105 ] ], [ :ensure, "lessThan", [ "t.lab", 165 ] ],
+		[ :ensure, "greaterThan", [ "t.lac", "t.lab + 35" ] ],
+		[ :ensure, "lessThan", [ "t.lac", 235 ] ],
+		[ :ensure, "greaterThan", [ "t.wy", 0.9994 ] ],
+		[ :layer, "t.sqbc", :above, "t.face" ],
+		[ :layer, "t.rect1", :above, "t.sqbc" ], [ :layer, "t.rect2", :above, "t.sqbc" ],
+		[ :layer, "t.alt", :above, "t.rect1" ], [ :layer, "t.alt", :above, "t.rect2" ],
+		[ :layer, "t.mark1", :above, "t.face" ], [ :layer, "t.mark2", :above, "t.face" ],
+		[ :layer, "p.icon", :above, "t.face" ], [ :layer, "q.icon", :above, "t.sqbc" ],
+		[ :layer, "r.icon", :above, "t.sqbc" ] ])
 	return _o_
 
 # The functions a rule may name, and what each expects. Penrose's names,
@@ -1034,7 +1212,9 @@ class stzMathStyle from stzObject
 		return @nH
 
 	# ForAll("Set x", rows) -- rows are DATA. Each row is one of:
-	#   [ :shape,     "x.icon", :circle | :rect | :text | :line, [ props ] ]
+	#   [ :shape,     "x.icon", :circle | :rect | :text | :line | :curve |
+	#                          :poly | :mark, [ props ] ]
+	#   [ :delete,    "x.icon" ]              unmint a shape an earlier rule made
 	#   [ :unknown,   "p.sx", lo, hi ]        a variable the solver owns
 	#   [ :field,     "U.ox", number | "expression" ]
 	#   [ :override,  "u.arrow.x2", number | "expression" ]
@@ -1069,16 +1249,30 @@ class stzMathStyle from stzObject
 			return This.ForAllWhere(pcSelector, pcWhere, paRows)
 
 	def _CheckRow(paRow, pnAt)
-		if NOT isList(paRow) or len(paRow) < 3
+		if NOT isList(paRow) or len(paRow) < 2
 			stzraise("stzMathStyle: row " + pnAt + " is not a rule row.")
 		ok
 		_k_ = "" + paRow[1]
+		# PENROSE'S DELETE, and the only row that is two long: a rule
+		# specialising an earlier one unmints the general icon before
+		# drawing its own.
+		if _k_ = "delete"
+			if len(paRow) != 2 or NOT isString(paRow[2])
+				stzraise("stzMathStyle: a delete row is [ :delete, path ] -- the " +
+					"shape an earlier rule minted, and nothing else.")
+			ok
+			return
+		ok
+		if len(paRow) < 3
+			stzraise("stzMathStyle: row " + pnAt + " is not a rule row.")
+		ok
 		if _k_ = "shape"
 			_kind_ = "" + paRow[3]
 			if _kind_ != "circle" and _kind_ != "rect" and _kind_ != "text" and
-			   _kind_ != "line" and _kind_ != "curve"
+			   _kind_ != "line" and _kind_ != "curve" and _kind_ != "poly" and
+			   _kind_ != "mark"
 				stzraise("stzMathStyle: '" + _kind_ + "' is not a shape DN7 " +
-					"draws -- circle, rect, text, line or curve.")
+					"draws -- circle, rect, text, line, curve, poly or mark.")
 			ok
 		but _k_ = "unknown"
 			if NOT isString(paRow[2]) or NOT isNumber(paRow[3]) or len(paRow) < 4 or
@@ -1278,6 +1472,12 @@ class stzMathDiagram from stzObject
 			return [ :kind = "line", :x1 = This._V(_cP_ + ".x1"),
 			         :y1 = This._V(_cP_ + ".y1"), :x2 = This._V(_cP_ + ".x2"),
 			         :y2 = This._V(_cP_ + ".y2") ]
+		but _s_[2] = "poly"
+			return [ :kind = "poly", :n = This._Prop(_s_[3], "n", 0),
+			         :points = This.PolygonOf(_cP_) ]
+		but _s_[2] = "mark"
+			return [ :kind = "mark", :mark = "" + This._Prop(_s_[3], "mark", ""),
+			         :strokes = This.MarkStrokesOf(_cP_) ]
 		but _s_[2] = "curve"
 			return [ :kind = "curve", :x1 = This._V(_cP_ + ".x1"),
 			         :y1 = This._V(_cP_ + ".y1"), :z1 = This._V(_cP_ + ".z1"),
@@ -1306,6 +1506,34 @@ class stzMathDiagram from stzObject
 	def NumberOfShapes()
 		This.Layout()
 		return len(@aShapes)
+
+	# A polygon's vertices, in drawing order: [ x1, y1, x2, y2, ... ].
+	def PolygonOf(pcPath)
+		This.Layout()
+		_i_ = This._ShapeIndex(pcPath)
+		if _i_ = 0 or @aShapes[_i_][2] != "poly"  return []  ok
+		_a_ = []
+		_n_ = This._Prop(@aShapes[_i_][3], "n", 0)
+		for _v_ = 1 to _n_
+			_a_ + This._V(pcPath + ".x" + _v_)
+			_a_ + This._V(pcPath + ".y" + _v_)
+		next
+		return _a_
+
+	# The polyline a geodesic is drawn as: [ x1, y1, x2, y2, ... ] in px.
+	def CurvePointsOf(pcPath)
+		This.Layout()
+		_i_ = This._ShapeIndex(pcPath)
+		if _i_ = 0 or @aShapes[_i_][2] != "curve"  return []  ok
+		return This._CurvePoints(pcPath,
+			"" + This._Prop(@aShapes[_i_][3], "curve", "greatarc"))
+
+	# The strokes a mark is drawn as: a list of polylines, each flat in px.
+	def MarkStrokesOf(pcPath)
+		This.Layout()
+		_i_ = This._ShapeIndex(pcPath)
+		if _i_ = 0 or @aShapes[_i_][2] != "mark"  return []  ok
+		return This._MarkStrokes(pcPath, @aShapes[_i_][3])
 
 	#-- drawing ------------------------------------------------------------------
 
@@ -1378,6 +1606,23 @@ class stzMathDiagram from stzObject
 				poC.AddPolyline(_aPts_)
 				poC.Stroke(_cStroke_, _nSw_)
 			ok
+		but _cKind_ = "poly"
+			_aPts_ = This.PolygonOf(_cP_)
+			if len(_aPts_) >= 6
+				if _cFill_ != ""  poC.Fill(_cFill_)  else  poC.Fill("#00000000")  ok
+				poC.AddPolygon(_aPts_)
+				if _cFill_ != ""  poC.Fill(_cFill_)  ok
+				if _cStroke_ != ""  poC.Stroke(_cStroke_, _nSw_)  ok
+			ok
+		but _cKind_ = "mark"
+			if _cStroke_ = ""  _cStroke_ = "#333333"  ok
+			_aSt_ = This._MarkStrokes(_cP_, _aProps_)
+			for _k_ = 1 to len(_aSt_)
+				if len(_aSt_[_k_]) >= 4
+					poC.AddPolyline(_aSt_[_k_])
+					poC.Stroke(_cStroke_, _nSw_)
+				ok
+			next
 		but _cKind_ = "text"
 			if NOT isObject(@oFont)  return  ok
 			_cT_ = This._Prop(_aProps_, "string", "")
@@ -1450,6 +1695,188 @@ class stzMathDiagram from stzObject
 			_a_ + (_cy_ - _R_ * (_ccy_ + _rho_ * sin(_th_)))
 		next
 		return _a_
+
+	# A MARK BENT TO ITS GEOMETRY. A right-angle mark is a small square at
+	# the vertex and a tick is a short stroke across a side -- but WHERE the
+	# square's feet sit and WHICH WAY the tick points are statements about
+	# the geodesics, and on a sphere or in a disk the geodesic leaves the
+	# vertex in a different direction from the chord. So each foot is walked
+	# a fixed screen distance ALONG THE ARC ITSELF -- rotated about the
+	# great circle's pole, or about the orthogonal circle's centre -- and
+	# lands exactly on the drawn curve. A mark built on the chords would
+	# miss the arc by more than its own width, which is what the guard
+	# checks by measuring the feet against the drawn polyline.
+	#
+	# The corner is then P + Q - V in screen coordinates. On the sphere that
+	# is a projection of a true spherical square to within a fraction of a
+	# pixel at this size; in the Poincare disk the model is CONFORMAL, so
+	# the angle it draws is exactly the hyperbolic angle.
+	def _MarkStrokes(pcPath, paProps)
+		_cM_ = StzLower("" + This._Prop(paProps, "mark", "rightangle"))
+		_cG_ = StzLower("" + This._Prop(paProps, "curve", "greatarc"))
+		_nSz_ = This._Prop(paProps, "size", 15)
+		_nTk_ = This._Prop(paProps, "ticks", 1)
+		_ccx_ = This._V(pcPath + ".cx")
+		_ccy_ = This._V(pcPath + ".cy")
+		_R_ = This._V(pcPath + ".r")
+		if _R_ < 0.001  return []  ok
+		_p1_ = [ This._V(pcPath + ".x1"), This._V(pcPath + ".y1"), This._V(pcPath + ".z1") ]
+		_p2_ = [ This._V(pcPath + ".x2"), This._V(pcPath + ".y2"), This._V(pcPath + ".z2") ]
+		_p3_ = [ This._V(pcPath + ".x3"), This._V(pcPath + ".y3"), This._V(pcPath + ".z3") ]
+		if _cG_ = "greatarc"
+			if _cM_ = "tick"
+				_aM_ = This._SphereMid(_p1_, _p2_)
+				if len(_aM_) = 0  return []  ok
+				return This._MarkTicks(_ccx_ + _R_ * _aM_[1], _ccy_ - _R_ * _aM_[2],
+					_aM_[4], 0 - _aM_[5], _nSz_, _nTk_)
+			ok
+			_aP_ = This._SphereFoot(_p1_, _p2_, _nSz_ / _R_)
+			_aQ_ = This._SphereFoot(_p1_, _p3_, _nSz_ / _R_)
+			if len(_aP_) = 0 or len(_aQ_) = 0  return []  ok
+			_aV_ = This._Norm3(_p1_)
+			if len(_aV_) = 0  return []  ok
+			return This._MarkCorner(
+				_ccx_ + _R_ * _aV_[1], _ccy_ - _R_ * _aV_[2],
+				_ccx_ + _R_ * _aP_[1], _ccy_ - _R_ * _aP_[2],
+				_ccx_ + _R_ * _aQ_[1], _ccy_ - _R_ * _aQ_[2])
+		ok
+		if _cM_ = "tick"
+			_aM_ = This._DiskMid(_p1_, _p2_)
+			if len(_aM_) = 0  return []  ok
+			return This._MarkTicks(_ccx_ + _R_ * _aM_[1], _ccy_ - _R_ * _aM_[2],
+				_aM_[3], 0 - _aM_[4], _nSz_, _nTk_)
+		ok
+		_aP_ = This._DiskFoot(_p1_, _p2_, _nSz_ / _R_)
+		_aQ_ = This._DiskFoot(_p1_, _p3_, _nSz_ / _R_)
+		if len(_aP_) = 0 or len(_aQ_) = 0  return []  ok
+		return This._MarkCorner(
+			_ccx_ + _R_ * _p1_[1], _ccy_ - _R_ * _p1_[2],
+			_ccx_ + _R_ * _aP_[1], _ccy_ - _R_ * _aP_[2],
+			_ccx_ + _R_ * _aQ_[1], _ccy_ - _R_ * _aQ_[2])
+
+	# the two arms of a corner, in screen px: P -> (P + Q - V) -> Q
+	def _MarkCorner(pvx, pvy, ppx, ppy, pqx, pqy)
+		_rx_ = ppx + pqx - pvx
+		_ry_ = ppy + pqy - pvy
+		return [ [ ppx, ppy, _rx_, _ry_ ], [ _rx_, _ry_, pqx, pqy ] ]
+
+	# n strokes across the curve at (px, py), the curve running along
+	# (pdx, pdy) -- a unit screen direction. Two ticks say "these two are
+	# equal" without saying it twice.
+	def _MarkTicks(px, py, pdx, pdy, pnSize, pnCount)
+		_L_ = sqrt(pow(pdx, 2) + pow(pdy, 2))
+		if _L_ < 0.000001  return []  ok
+		_ux_ = pdx / _L_
+		_uy_ = pdy / _L_
+		_nx_ = 0 - _uy_
+		_ny_ = _ux_
+		_h_ = pnSize / 2
+		_a_ = []
+		_n_ = pnCount
+		if _n_ < 1  _n_ = 1  ok
+		for _k_ = 1 to _n_
+			_o_ = (_k_ - (_n_ + 1) / 2) * 5
+			_bx_ = px + _o_ * _ux_
+			_by_ = py + _o_ * _uy_
+			_a_ + [ _bx_ - _h_ * _nx_, _by_ - _h_ * _ny_,
+			        _bx_ + _h_ * _nx_, _by_ + _h_ * _ny_ ]
+		next
+		return _a_
+
+	def _Norm3(pa)
+		_n_ = sqrt(pow(pa[1], 2) + pow(pa[2], 2) + pow(pa[3], 2))
+		if _n_ < 0.000001  return []  ok
+		return [ pa[1] / _n_, pa[2] / _n_, pa[3] / _n_ ]
+
+	# the point at arc-distance pnEps from V along the great circle to A:
+	# cos(e)V + sin(e)T for the unit tangent T -- exactly on the drawn arc
+	def _SphereFoot(paV, paA, pnEps)
+		_v_ = This._Norm3(paV)
+		_a_ = This._Norm3(paA)
+		if len(_v_) = 0 or len(_a_) = 0  return []  ok
+		_d_ = _v_[1] * _a_[1] + _v_[2] * _a_[2] + _v_[3] * _a_[3]
+		_t_ = This._Norm3([ _a_[1] - _d_ * _v_[1], _a_[2] - _d_ * _v_[2],
+		                    _a_[3] - _d_ * _v_[3] ])
+		if len(_t_) = 0  return []  ok
+		_c_ = cos(pnEps)
+		_s_ = sin(pnEps)
+		return [ _c_ * _v_[1] + _s_ * _t_[1], _c_ * _v_[2] + _s_ * _t_[2],
+		         _c_ * _v_[3] + _s_ * _t_[3] ]
+
+	# the great circle's midpoint between A and B, and its unit tangent
+	# there: [ mx, my, mz, tx, ty ] -- the tangent's first two components
+	# are what the orthographic projection draws
+	def _SphereMid(paA, paB)
+		_a_ = This._Norm3(paA)
+		_b_ = This._Norm3(paB)
+		if len(_a_) = 0 or len(_b_) = 0  return []  ok
+		_m_ = This._Norm3([ _a_[1] + _b_[1], _a_[2] + _b_[2], _a_[3] + _b_[3] ])
+		if len(_m_) = 0  return []  ok
+		_d_ = _m_[1] * _b_[1] + _m_[2] * _b_[2] + _m_[3] * _b_[3]
+		_t_ = This._Norm3([ _b_[1] - _d_ * _m_[1], _b_[2] - _d_ * _m_[2],
+		                    _b_[3] - _d_ * _m_[3] ])
+		if len(_t_) = 0  return []  ok
+		return [ _m_[1], _m_[2], _m_[3], _t_[1], _t_[2] ]
+
+	# The centre of the geodesic through A and B -- the circle orthogonal to
+	# the rim: [ cx, cy ], or [] when the two are collinear with the origin
+	# and the geodesic is a diameter.
+	def _DiskCentre(paA, paB)
+		_D_ = paA[1] * paB[2] - paA[2] * paB[1]
+		if fabs(_D_) < 0.000001  return []  ok
+		_ka_ = (1 + pow(paA[1], 2) + pow(paA[2], 2)) / 2
+		_kb_ = (1 + pow(paB[1], 2) + pow(paB[2], 2)) / 2
+		return [ (_ka_ * paB[2] - _kb_ * paA[2]) / _D_,
+		         (paA[1] * _kb_ - paB[1] * _ka_) / _D_ ]
+
+	# the point at model-distance pnEps from V along the geodesic toward A,
+	# reached by ROTATING about the geodesic's centre so it lands on the arc
+	def _DiskFoot(paV, paA, pnEps)
+		_c_ = This._DiskCentre(paV, paA)
+		if len(_c_) = 0
+			_dx_ = paA[1] - paV[1]
+			_dy_ = paA[2] - paV[2]
+			_L_ = sqrt(pow(_dx_, 2) + pow(_dy_, 2))
+			if _L_ < 0.000001  return []  ok
+			return [ paV[1] + pnEps * _dx_ / _L_, paV[2] + pnEps * _dy_ / _L_ ]
+		ok
+		_rx_ = paV[1] - _c_[1]
+		_ry_ = paV[2] - _c_[2]
+		_rho_ = sqrt(pow(_rx_, 2) + pow(_ry_, 2))
+		if _rho_ < 0.000001  return []  ok
+		_al_ = atan2(_ry_, _rx_)
+		_be_ = atan2(paA[2] - _c_[2], paA[1] - _c_[1])
+		_dl_ = _be_ - _al_
+		while _dl_ > 3.14159265358979  _dl_ -= 6.28318530717959  end
+		while _dl_ < -3.14159265358979  _dl_ += 6.28318530717959  end
+		_s_ = 1
+		if _dl_ < 0  _s_ = -1  ok
+		_th_ = _al_ + _s_ * pnEps / _rho_
+		return [ _c_[1] + _rho_ * cos(_th_), _c_[2] + _rho_ * sin(_th_) ]
+
+	# the middle of the drawn geodesic between A and B, and its unit
+	# tangent there: [ mx, my, tx, ty ]
+	def _DiskMid(paA, paB)
+		_c_ = This._DiskCentre(paA, paB)
+		if len(_c_) = 0
+			_dx_ = paB[1] - paA[1]
+			_dy_ = paB[2] - paA[2]
+			_L_ = sqrt(pow(_dx_, 2) + pow(_dy_, 2))
+			if _L_ < 0.000001  return []  ok
+			return [ (paA[1] + paB[1]) / 2, (paA[2] + paB[2]) / 2,
+			         _dx_ / _L_, _dy_ / _L_ ]
+		ok
+		_al_ = atan2(paA[2] - _c_[2], paA[1] - _c_[1])
+		_be_ = atan2(paB[2] - _c_[2], paB[1] - _c_[1])
+		_rho_ = sqrt(pow(paA[1] - _c_[1], 2) + pow(paA[2] - _c_[2], 2))
+		_dl_ = _be_ - _al_
+		while _dl_ > 3.14159265358979  _dl_ -= 6.28318530717959  end
+		while _dl_ < -3.14159265358979  _dl_ += 6.28318530717959  end
+		_th_ = _al_ + _dl_ / 2
+		_s_ = 1
+		if _dl_ < 0  _s_ = -1  ok
+		return [ _c_[1] + _rho_ * cos(_th_), _c_[2] + _rho_ * sin(_th_),
+		         0 - _s_ * sin(_th_), _s_ * cos(_th_) ]
 
 	# An arrowhead: a filled triangle whose tip is the line's end, scaled
 	# with the stroke so a thick arrow wears a bigger head.
@@ -1762,6 +2189,8 @@ class stzMathDiagram from stzObject
 					This._MintShape(This._ResolvePath(_r_[2], paVars, paAsg), "" + _r_[3],
 						This._ResolveProps(_r_[4], paVars, paAsg),
 						This._OwnerOf(_r_[2], paVars, paAsg))
+				but _k_ = "delete"
+					This._DeleteShape(This._ResolvePath(_r_[2], paVars, paAsg))
 				but _k_ = "unknown"
 					_cU_ = This._ResolvePath(_r_[2], paVars, paAsg)
 					if This._UnknownIndex(_cU_) = 0 and NOT This._HasConst(_cU_) and
@@ -1832,11 +2261,21 @@ class stzMathDiagram from stzObject
 		next
 		return _a_
 
+	# cx, cy, r, w, h -- and x, y or z followed by a vertex number, so a
+	# polygon's x7 resolves the same way a line's x1 does.
 	def _IsGeometric(pcKey)
 		_k_ = StzLower(pcKey)
-		return _k_ = "cx" or _k_ = "cy" or _k_ = "r" or _k_ = "w" or _k_ = "h" or
-		       _k_ = "x1" or _k_ = "y1" or _k_ = "x2" or _k_ = "y2" or
-		       _k_ = "z1" or _k_ = "z2"
+		if _k_ = "cx" or _k_ = "cy" or _k_ = "r" or _k_ = "w" or _k_ = "h"
+			return TRUE
+		ok
+		_n_ = len(_k_)
+		if _n_ < 2  return FALSE  ok
+		if _k_[1] != "x" and _k_[1] != "y" and _k_[1] != "z"  return FALSE  ok
+		for _i_ = 2 to _n_
+			_a_ = ascii(_k_[_i_])
+			if _a_ < 48 or _a_ > 57  return FALSE  ok
+		next
+		return TRUE
 
 	# Every identifier containing a dot has its head rewritten from the
 	# selector variable to the object it is bound to. Identifiers without
@@ -1906,6 +2345,26 @@ class stzMathDiagram from stzObject
 			# curve is DERIVED from its points, and constraints speak to
 			# the points, never to the drawn arc.
 			_acGeo_ = [ "x1", "y1", "z1", "x2", "y2", "z2", "cx", "cy", "r" ]
+		but pcKind = "poly"
+			# A POLYGON: n vertices, x1..xn and y1..yn. Byrne's squares are
+			# every one of them DERIVED from the triangle's points, so the
+			# solver owns the triangle and the figure follows.
+			_nV_ = This._Prop(_aP_, "n", 0)
+			if NOT isNumber(_nV_) or _nV_ < 3 or _nV_ > 24 or _nV_ != floor(_nV_)
+				stzraise("stzMathDiagram: the polygon '" + pcPath + "' needs a " +
+					"whole :n between 3 and 24 -- how many vertices it has.")
+			ok
+			for _v_ = 1 to _nV_
+				_acGeo_ + ("x" + _v_)
+				_acGeo_ + ("y" + _v_)
+			next
+		but pcKind = "mark"
+			# A MARK BENT TO ITS GEOMETRY: the vertex and its two neighbours
+			# in the MODEL's coordinates (a tick uses the first two as the
+			# arc's ends), plus the projection. Like a curve, nothing here is
+			# solved: a mark is read off the picture, never argued with.
+			_acGeo_ = [ "x1", "y1", "z1", "x2", "y2", "z2", "x3", "y3", "z3",
+			            "cx", "cy", "r" ]
 		but pcKind = "text"
 			_acGeo_ = [ "cx", "cy" ]
 			_aM_ = This._MeasureText(This._Prop(_aP_, "string", ""))
@@ -1925,6 +2384,50 @@ class stzMathDiagram from stzObject
 				This._Unknown(_cName_, _bLbl_)
 			ok
 		next
+
+	# PENROSE'S DELETE. A rule that specialises another unmints the general
+	# icon before drawing its own -- "delete t.icon" then draw the coloured
+	# figure. The shape goes, and so do the names it owned: its constants,
+	# its derived properties, its measured size, and its entries in the
+	# name-to-variable map. The tape SLOTS stay allocated but referenced by
+	# nothing, so they never move -- the same way an override leaves the
+	# unknown it replaced. Layers naming a gone shape are skipped by
+	# _DrawOrder, and a constraint naming one raises in pass 2, which is the
+	# honest answer: the shape is not there to constrain.
+	def _DeleteShape(pcPath)
+		_c_ = "" + pcPath
+		_i_ = This._ShapeIndex(_c_)
+		if _i_ = 0
+			stzraise("stzMathStyle: delete of '" + _c_ + "', which no rule " +
+				"minted -- a delete unmints a shape that exists.")
+		ok
+		_a_ = []
+		for _k_ = 1 to len(@aShapes)
+			if _k_ != _i_  _a_ + @aShapes[_k_]  ok
+		next
+		@aShapes = _a_
+		_cPfx_ = _c_ + "."
+		_nPfx_ = len(_cPfx_)
+		_b_ = []
+		for _k_ = 1 to len(@aConst)
+			if StzLeft(@aConst[_k_][1], _nPfx_) != _cPfx_  _b_ + @aConst[_k_]  ok
+		next
+		@aConst = _b_
+		_d_ = []
+		for _k_ = 1 to len(@aDerived)
+			if StzLeft(@aDerived[_k_][1], _nPfx_) != _cPfx_  _d_ + @aDerived[_k_]  ok
+		next
+		@aDerived = _d_
+		_u_ = []
+		for _k_ = 1 to len(@aUnknownOf)
+			if StzLeft(@aUnknownOf[_k_][1], _nPfx_) != _cPfx_  _u_ + @aUnknownOf[_k_]  ok
+		next
+		@aUnknownOf = _u_
+		_t_ = []
+		for _k_ = 1 to len(@aTextSize)
+			if @aTextSize[_k_][1] != _c_  _t_ + @aTextSize[_k_]  ok
+		next
+		@aTextSize = _t_
 
 	def _SetField(pcName, pValue)
 		if isNumber(pValue)
@@ -2253,8 +2756,8 @@ class stzMathDiagram from stzObject
 		if _k_ = ""
 			stzraise("stzMathDiagram: '" + _c_ + "' is not a shape any rule minted.")
 		ok
-		if _k_ = "curve"
-			stzraise("stzMathDiagram: '" + _c_ + "' is a curve -- a geodesic is " +
+		if _k_ = "curve" or _k_ = "poly" or _k_ = "mark"
+			stzraise("stzMathDiagram: '" + _c_ + "' is a " + _k_ + " -- it is " +
 				"drawn from its points, and a constraint speaks to the points.")
 		ok
 		if _k_ = "circle"
@@ -2275,6 +2778,24 @@ class stzMathDiagram from stzObject
 	# half the diagonal of a rect: its bounding circle
 	def _HalfDiag(pa)
 		return "sqrt((" + pa[4] + ")^2+(" + pa[5] + ")^2)/2"
+
+	# THE SIGNED DISTANCE FROM A POINT TO A BOX, exactly -- positive outside,
+	# negative by the depth inside. This is what replaced the bounding circle
+	# a label used to wear: a wide name like "ABCDE" has a bounding radius
+	# far larger than the name is tall, so the picture pushed it away from
+	# things it never touched, and the shortfall was worst exactly where a
+	# label is widest.
+	#
+	# q = |offset| - halfExtents. Outside, some component of q is positive
+	# and the distance is |max(q, 0)|; inside, every component is negative
+	# and min(0, max(qx, qy)) is the penetration -- which is what keeps a
+	# GRADIENT where the two overlap, so the solver can still push them
+	# apart. Both branches are on the tape already: abs, min, max, sqrt.
+	def _BoxSD(pcHw, pcHh, pcDx, pcDy)
+		_qx_ = "(abs(" + pcDx + ")-" + pcHw + ")"
+		_qy_ = "(abs(" + pcDy + ")-" + pcHh + ")"
+		return "(sqrt(max(0," + _qx_ + ")^2+max(0," + _qy_ + ")^2)+min(0,max(" +
+		       _qx_ + "," + _qy_ + ")))"
 
 	def _IsLabelPath(pcPath)
 		return This._KindOf(pcPath) = "text"
@@ -2394,29 +2915,39 @@ class stzMathDiagram from stzObject
 					_l_ = _b_
 					_s_ = _a_
 				ok
-				_r_ = _s_[4]
-				if _s_[1] = "rect"  _r_ = This._HalfDiag(_s_)  ok
 				_dx_ = "(" + _l_[6] + "-" + _l_[4] + ")"
 				_dy_ = "(" + _l_[7] + "-" + _l_[5] + ")"
 				_t_ = "max(0,min(1,((" + _s_[2] + "-" + _l_[4] + ")*" + _dx_ + "+(" +
 				      _s_[3] + "-" + _l_[5] + ")*" + _dy_ + ")/(" + _dx_ + "^2+" + _dy_ +
 				      "^2+0.000001)))"
-				_nd_ = "sqrt((" + _l_[4] + "+" + _t_ + "*" + _dx_ + "-" + _s_[2] + ")^2+(" +
-				       _l_[5] + "+" + _t_ + "*" + _dy_ + "-" + _s_[3] + ")^2)"
-				return "(" + _r_ + "+" + _p_ + ")-" + _nd_
+				_px_ = "(" + _l_[4] + "+" + _t_ + "*" + _dx_ + ")"
+				_py_ = "(" + _l_[5] + "+" + _t_ + "*" + _dy_ + ")"
+				if _s_[1] = "rect"
+					# THE BOX ITSELF, not a circle around it: the exact distance
+					# from the nearest point of the segment to the label's box.
+					return "(" + _p_ + ")-" + This._BoxSD("(" + _s_[4] + ")/2",
+						"(" + _s_[5] + ")/2", _px_ + "-" + _s_[2], _py_ + "-" + _s_[3])
+				ok
+				_nd_ = "sqrt((" + _px_ + "-" + _s_[2] + ")^2+(" + _py_ + "-" + _s_[3] + ")^2)"
+				return "(" + _s_[4] + "+" + _p_ + ")-" + _nd_
 			ok
 			if _a_[1] = "circle" and _b_[1] = "circle"
 				return "(" + _a_[4] + "+" + _b_[4] + "+" + _p_ + ")-" + This._Dist(_a_, _b_)
 			but _a_[1] = "rect" and _b_[1] = "rect"
-				_ox_ = "((" + _a_[4] + "+" + _b_[4] + ")/2+" + _p_ + ")-abs(" + _a_[2] + "-" + _b_[2] + ")"
-				_oy_ = "((" + _a_[5] + "+" + _b_[5] + ")/2+" + _p_ + ")-abs(" + _a_[3] + "-" + _b_[3] + ")"
-				return "min(" + _ox_ + "," + _oy_ + ")"
+				# MINKOWSKI: two boxes are apart by the distance from one
+				# centre to the OTHER GROWN BY THE FIRST -- half-extents added,
+				# which is what the Minkowski sum of two boxes is.
+				return "(" + _p_ + ")-" + This._BoxSD(
+					"((" + _a_[4] + "+" + _b_[4] + ")/2)", "((" + _a_[5] + "+" + _b_[5] + ")/2)",
+					_b_[2] + "-" + _a_[2], _b_[3] + "-" + _a_[3])
 			else
-				_ra_ = _a_[4]
-				if _a_[1] = "rect"  _ra_ = This._HalfDiag(_a_)  ok
-				_rb_ = _b_[4]
-				if _b_[1] = "rect"  _rb_ = This._HalfDiag(_b_)  ok
-				return "(" + _ra_ + "+" + _rb_ + "+" + _p_ + ")-" + This._Dist(_a_, _b_)
+				# a box and a circle: the circle's centre against the box
+				_r_ = _a_
+				_o_ = _b_
+				if _b_[1] = "rect"  _r_ = _b_  _o_ = _a_  ok
+				return "(" + _o_[4] + "+" + _p_ + ")-" + This._BoxSD(
+					"(" + _r_[4] + ")/2", "(" + _r_[5] + ")/2",
+					_o_[2] + "-" + _r_[2], _o_[3] + "-" + _r_[3])
 			ok
 
 		but pcFn = "overlapping"
@@ -2490,10 +3021,27 @@ class stzMathDiagram from stzObject
 	def _AddOnCanvas(paShape)
 		_cP_ = paShape[1]
 		_k_ = paShape[2]
-		if _k_ = "curve"  return  ok
-		_g_ = This._Geo(_cP_)
+		# A curve and a mark are read off the points that made them, so the
+		# points already carry the paper. A POLYGON does not: Byrne's squares
+		# stand OUTSIDE the triangle, and it is the square's far corners that
+		# run off the page, so every vertex is held on it.
+		if _k_ = "curve" or _k_ = "mark"  return  ok
 		_W_ = This._Num(@oStyle.CanvasWidth())
 		_H_ = This._Num(@oStyle.CanvasHeight())
+		if _k_ = "poly"
+			_cW2_ = "canvas :: onCanvas(" + _cP_ + ")"
+			_nV_ = This._Prop(paShape[3], "n", 3)
+			for _v_ = 1 to _nV_
+				_x_ = This._Sym(_cP_ + ".x" + _v_)
+				_y_ = This._Sym(_cP_ + ".y" + _v_)
+				@aConstraints + [ "onCanvas", "0-" + _x_, _cW2_, FALSE ]
+				@aConstraints + [ "onCanvas", _x_ + "-" + _W_, _cW2_, FALSE ]
+				@aConstraints + [ "onCanvas", "0-" + _y_, _cW2_, FALSE ]
+				@aConstraints + [ "onCanvas", _y_ + "-" + _H_, _cW2_, FALSE ]
+			next
+			return
+		ok
+		_g_ = This._Geo(_cP_)
 		_bLbl_ = FALSE
 		if _k_ = "text"
 			_bLbl_ = (This._UnknownIndex(_cP_ + ".cx") > 0 or This._UnknownIndex(_cP_ + ".cy") > 0)
