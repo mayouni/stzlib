@@ -1615,3 +1615,57 @@ note:      THE MOST USEFUL THING THE NEW EXAMPLES PRODUCED IS A LIMIT.
            silent -- every one of those pictures is LAWFUL. A guard
            that only asked for lawfulness would have passed all twelve.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-05 19:10
+
+subject:   DN7f -- Penrose's gallery as the yardstick: the graph family
+           built, and three limits measured
+
+why:       the author asked that the gallery be tried so the
+           implementation is measured against what it was modelled on
+
+did:
+  - Triaged the gallery's ~57 examples into three classes, in the plan,
+    so no session re-derives it: 27 run as-is, 6 one feature away, 24
+    outside a constraint solver by design.
+  - Built the graph family -- a domain and three styles, plus a word
+    cloud -- and rendered five more pictures; catalogue 23.
+  - Found the matcher, not the solver, was the cost (18.0s against
+    0.65s) and made a definition clause a generator: a tenth of the time.
+  - Built the crossing term DN7e owed, and measured it: a sqrt form
+    that did not terminate, then a ramp; a hard form that is not
+    solvable from a random start; a soft form whose effect is nil seed
+    by seed. The fix is a planar start, recorded and not built.
+  - Held the matcher's cost as a candidate COUNT after a clock assertion
+    failed on this shared machine the same afternoon.
+
+state:
+  catalogue:    23 pictures
+  section 84:   22 assertions
+  gate:         904 ok, 0 failed, on main and in the commit tree
+  plan table:   DN7a through DN7f all closed
+  commit:       cb69d5a7f on origin and codeberg, verified at the sha
+
+waiting:
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      a planar initialisation for graph styles (Tutte from a
+             face, or a layered start from a spanning tree), if the
+             author wants the cube and the dodecahedron drawn as
+             themselves; then splines, the largest of the one-feature
+             gaps
+  - central: nothing owed from this
+
+note:      THE ENERGY WAS NEVER THE PROBLEM AND EVERY INSTINCT SAID IT
+           WAS. Three times this afternoon the picture was wrong and
+           the reflex was to add a term or raise a weight; three times
+           the measurement said otherwise -- the matcher was the cost,
+           the term's boundary was the cost, and the basin was chosen
+           before the first gradient step. A crossing preference in the
+           energy is worth exactly nothing to a solver that starts
+           crossed, and it took 84 compiled terms holding 10,138 units
+           at convergence to make that a number instead of a suspicion.
+```
