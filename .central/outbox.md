@@ -1568,3 +1568,50 @@ note:      "ABOVE X" READS LIKE A GUARANTEE AND IS NOT ONE. It fixes a
            thing drawn is the form that keeps working when the figure
            grows.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-05 13:01
+
+subject:   DN7e -- three more domains for the math-diagram engine, and
+           the limit the third one exposed
+
+why:       the author asked for more visual examples
+
+did:
+  - Added order theory (Hasse diagrams), category theory (commuting
+    squares and triangles) and Thales to the engine, chosen because
+    each leans on a different half of it rather than repeating one.
+  - Met a kill in the third: the substance never says the angle at A
+    is right, and the guard reads it back at cos = -0.00 while also
+    asserting no Right exists in the substance at all.
+  - Measured the crossing problem instead of hiding it: 7 of 10 seeds
+    draw the divisors of 12 clean, 1 of 12 for the divisors of 36.
+  - Pinned the chosen seeds in the guard AND asserted another seed
+    crosses, so the check cannot pass vacuously.
+
+state:
+  catalogue:    18 pictures
+  section 83:   15 assertions, 0.56s
+  gate:         883 ok, 0 failed, on main and in the commit tree
+  plan table:   DN7a through DN7e all closed
+  commit:       2055db69c on origin and codeberg, verified at the sha
+
+waiting:
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      a crossing term for the layout styles, if the author wants
+             the Hasse pictures to stop depending on a chosen seed
+  - central: nothing owed from this
+
+note:      THE MOST USEFUL THING THE NEW EXAMPLES PRODUCED IS A LIMIT.
+           Nothing in this engine forbids two edges from meeting, and
+           that was invisible while every picture was small: the
+           divisors of 12 come out clean on seven seeds of ten, and the
+           divisors of 36 on one of twelve. Choosing the seed is what
+           Penrose's variations are for and it is honest at this size,
+           but it is not a method that scales, and the failure is
+           silent -- every one of those pictures is LAWFUL. A guard
+           that only asked for lawfulness would have passed all twelve.
+```
