@@ -176,3 +176,23 @@ func StzMathScene12(poFont)
 	_o_.SetFont(poFont, 24)
 	_o_.SetVariation("in-the-disk")
 	return _o_
+
+#-- Byrne's Euclid I.47 (DN7d) --------------------------------------------
+
+# The right triangle alone: no equal sides, no segments -- Byrne's figure
+# is built by the STYLE from the three points and the right angle.
+func StzMathByrneSubstance()
+	_oS_ = new stzMathSubstance(StzGeometryDomain())
+	_oS_.DeclareAll("Point", [ "A", "B", "C" ])
+	_oS_.Define("ABC", "Triangle", [ "A", "B", "C" ])
+	_oS_.Define("BAC", "InteriorAngle", [ "B", "A", "C" ])
+	_oS_.Assert("Right", [ "BAC" ])
+	_oS_.AutoLabelAll()
+	_oS_.Label("ABC", "")  _oS_.Label("BAC", "")
+	return _oS_
+
+func StzMathScene13(poFont)
+	_o_ = new stzMathDiagram(StzGeometryDomain(), StzMathByrneSubstance(), StzByrneStyle())
+	_o_.SetFont(poFont, 24)
+	_o_.SetVariation("byrne")
+	return _o_

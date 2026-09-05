@@ -25,9 +25,10 @@ acTitles = [ "two sets, one inside the other  (Penrose twosets-simple)",
              "a general triangle               (Penrose general-triangle)",
              "a right isosceles triangle       (Right(BAC), EqualLength(AB, AC))",
              "THE SAME triangle, on a sphere   (Penrose Fig. 1, middle)",
-             "THE SAME triangle, hyperbolic    (Penrose Fig. 1, right -- the Poincare disk)" ]
+             "THE SAME triangle, hyperbolic    (Penrose Fig. 1, right -- the Poincare disk)",
+             "BYRNE'S EUCLID I.47              (squares, the altitude, the two rectangles)" ]
 
-for i = 1 to 12
+for i = 1 to 13
 	if i = 1   oM = StzMathScene01(oFont)
 	but i = 2  oM = StzMathScene02(oFont)
 	but i = 3  oM = StzMathScene03(oFont)
@@ -39,7 +40,8 @@ for i = 1 to 12
 	but i = 9  oM = StzMathScene09(oFont)
 	but i = 10 oM = StzMathScene10(oFont)
 	but i = 11 oM = StzMathScene11(oFont)
-	else       oM = StzMathScene12(oFont)  ok
+	but i = 12 oM = StzMathScene12(oFont)
+	else       oM = StzMathScene13(oFont)  ok
 	oM.Layout()
 	? "== " + acTitles[i]
 	? "   unknowns " + oM.NumberOfUnknowns() + "   constraints " +

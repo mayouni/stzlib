@@ -12770,6 +12770,87 @@ chk("a malformed unknown row is refused", _McRefuses(2))
 chk("NEGATIVE: the lawful forms are accepted", NOT _McRefuses(0))
 
 
+sec("-- 82. DN7d: BYRNE'S EUCLID I.47, AND MARKS BENT TO THE GEOMETRY -----")
+discharges("DN7d")
+
+# Byrne (1847) draws Euclid I.47 in colour: three squares on the sides, the
+# altitude from the right angle continued through the square on the
+# hypotenuse, and the two rectangles it cuts there -- each equal in area to
+# the square on the leg beside it. Every piece of that is DERIVED from the
+# three points, so the solver owns six numbers and Euclid's equality is
+# never asserted anywhere: it is read back out of the answer.
+oBy = StzMathScene13(AUFONT)
+chk("Byrne's figure is lawful", oBy.IsFeasible())
+
+# PENROSE'S DELETE: the general rule drew a plain outline, and the rule for
+# a RIGHT triangle unminted it before drawing the coloured figure.
+chk("the general triangle's outline is gone -- delete unminted it",
+    _MdHas(oBy, "ABC.icon") = FALSE)
+chk("and the coloured figure stands in its place",
+    _MdHas(oBy, "ABC.face") and _MdHas(oBy, "ABC.sqab") and
+    _MdHas(oBy, "ABC.sqac") and _MdHas(oBy, "ABC.sqbc") and
+    _MdHas(oBy, "ABC.rect1") and _MdHas(oBy, "ABC.rect2"))
+# NEGATIVE: a triangle with no right angle keeps the outline and gets none
+# of it -- the specialisation fires on the predicate, not on the type.
+oPl = _MdPlainTriangle()
+chk("NEGATIVE: a plain triangle keeps its outline and grows no squares",
+    _MdHas(oPl, "PQR.icon") and _MdHas(oPl, "PQR.sqab") = FALSE)
+
+# THE KILL. Euclid I.47, measured on the polygons the picture drew.
+nAB = _MdArea(oBy.PolygonOf("ABC.sqab"))
+nAC = _MdArea(oBy.PolygonOf("ABC.sqac"))
+nBC = _MdArea(oBy.PolygonOf("ABC.sqbc"))
+nR1 = _MdArea(oBy.PolygonOf("ABC.rect1"))
+nR2 = _MdArea(oBy.PolygonOf("ABC.rect2"))
+chk("the squares have area at all", nAB > 10000 and nAC > 10000 and nBC > 10000)
+chk("the rectangle on the B side EQUALS the square on AB, to a millionth",
+    fabs(nAB - nR1) / nAB < 0.000001)
+chk("the rectangle on the C side EQUALS the square on AC, to a millionth",
+    fabs(nAC - nR2) / nAC < 0.000001)
+chk("so the square on the hypotenuse is the sum of the other two",
+    fabs(nBC - nAB - nAC) / nBC < 0.000001)
+chk("and the two rectangles exhaust it", fabs(nR1 + nR2 - nBC) / nBC < 0.000001)
+# NEGATIVE: the two legs are NOT equal, so this is not an identity that
+# would hold whatever the solver did.
+chk("NEGATIVE: the two areas differ -- the equality is not a tautology",
+    fabs(nAB - nAC) / nAB > 0.1)
+
+# MARKS BENT TO THE GEOMETRY. A right-angle mark's feet are walked along
+# the arcs themselves, so they land ON the drawn curve; a mark built on the
+# chords between the vertices would miss it.
+oMk = StzMathScene11(AUFONT)
+oMh = StzMathScene12(AUFONT)
+chk("the sphere and the disk both draw a right-angle mark of two arms",
+    len(oMk.MarkStrokesOf("BAC.rmark")) = 2 and
+    len(oMh.MarkStrokesOf("BAC.rmark")) = 2)
+chk("on the sphere, both feet sit on the arcs they mark, within a tenth of a pixel",
+    _MdFootOff(oMk) < 0.1)
+chk("and in the disk too", _MdFootOff(oMh) < 0.1)
+# NEGATIVE: the chord is a different place, and by more than the stroke.
+chk("NEGATIVE: a foot walked along the CHORD would miss the arc",
+    _MdChordOff(oMk) > 1.5 and _MdChordOff(oMh) > 1.5)
+chk("the equal sides wear ticks, across the middle of the arc",
+    _MdTickOff(oMk, "AB.tick", "AB.icon") < 0.1 and
+    _MdTickOff(oMh, "AB.tick", "AB.icon") < 0.1)
+
+# MINKOWSKI SEPARATION: a label is kept off a shape by the exact distance
+# to its BOX, not to the circle that used to be drawn around it. A wide
+# name's bounding circle is far larger than the name is tall, so the old
+# rule pushed it away from things it never touched.
+aMk = _MdBoxProbe()
+chk("a wide name sits exactly against the disk it may not enter",
+    aMk[1] > -0.5 and aMk[1] < 1.5)
+chk("NEGATIVE: its BOUNDING CIRCLE overlaps by tens of pixels -- the old " +
+    "rule would have refused this lawful picture", aMk[2] < -30)
+
+# REFUSALS, each with its lawful sibling.
+chk("a constraint over a polygon is refused -- constraints speak to points",
+    _ByRefuses(1))
+chk("a delete of a shape no rule minted is refused", _ByRefuses(2))
+chk("a polygon without a whole vertex count is refused", _ByRefuses(3))
+chk("NEGATIVE: the lawful forms are accepted", NOT _ByRefuses(0))
+
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go
@@ -14749,6 +14830,142 @@ func _McRefuses pnWhich
 		ok
 		if pnWhich = 2  _oT_.ForAll("Point p", [ [ :unknown, "p.w", "low" ] ])  ok
 		_o_ = new stzMathDiagram(StzGeometryDomain(), StzMathRightIsoscelesSubstance(), _oT_)
+		_o_.Layout()
+	catch
+		_b_ = TRUE
+	done
+	return _b_
+
+func _MdHas poM, pcPath
+	_ac_ = poM.Shapes()
+	for _i_ = 1 to len(_ac_)
+		if _ac_[_i_] = pcPath  return TRUE  ok
+	next
+	return FALSE
+
+# the shoelace area of a flat [ x1, y1, x2, y2, ... ] polygon
+func _MdArea paP
+	_n_ = floor(len(paP) / 2)
+	if _n_ < 3  return 0  ok
+	_s_ = 0
+	for _i_ = 1 to _n_
+		_j_ = _i_ + 1
+		if _j_ > _n_  _j_ = 1  ok
+		_s_ += paP[2*_i_-1] * paP[2*_j_] - paP[2*_j_-1] * paP[2*_i_]
+	next
+	return fabs(_s_) / 2
+
+# how far (px) a point lies from a drawn polyline
+func _MdNearPoly paPts, pnX, pnY
+	_best_ = 1000000
+	_n_ = floor(len(paPts) / 2)
+	for _i_ = 1 to _n_ - 1
+		_ax_ = paPts[2*_i_-1]  _ay_ = paPts[2*_i_]
+		_dx_ = paPts[2*_i_+1] - _ax_  _dy_ = paPts[2*_i_+2] - _ay_
+		_L_ = _dx_*_dx_ + _dy_*_dy_
+		_t_ = 0
+		if _L_ > 0.000001
+			_t_ = ((pnX - _ax_)*_dx_ + (pnY - _ay_)*_dy_) / _L_
+			if _t_ < 0  _t_ = 0  ok
+			if _t_ > 1  _t_ = 1  ok
+		ok
+		_d_ = sqrt(pow(_ax_ + _t_*_dx_ - pnX, 2) + pow(_ay_ + _t_*_dy_ - pnY, 2))
+		if _d_ < _best_  _best_ = _d_  ok
+	next
+	return _best_
+
+# the worse of the two feet's distances from the arc each one marks
+func _MdFootOff poM
+	_aM_ = poM.MarkStrokesOf("BAC.rmark")
+	if len(_aM_) != 2  return 1000  ok
+	_d1_ = _MdNearPoly(poM.CurvePointsOf("AB.icon"), _aM_[1][1], _aM_[1][2])
+	_d2_ = _MdNearPoly(poM.CurvePointsOf("AC.icon"), _aM_[2][3], _aM_[2][4])
+	if _d2_ > _d1_  return _d2_  ok
+	return _d1_
+
+# where a foot walked along the CHORD would have landed, against the arc
+func _MdChordOff poM
+	_aA_ = poM.ShapeOf("A.icon")
+	_aB_ = poM.ShapeOf("B.icon")
+	_dx_ = _aB_[:cx] - _aA_[:cx]
+	_dy_ = _aB_[:cy] - _aA_[:cy]
+	_L_ = sqrt(pow(_dx_, 2) + pow(_dy_, 2))
+	if _L_ < 0.001  return 0  ok
+	return _MdNearPoly(poM.CurvePointsOf("AB.icon"),
+		_aA_[:cx] + 17*_dx_/_L_, _aA_[:cy] + 17*_dy_/_L_)
+
+func _MdTickOff poM, pcTick, pcArc
+	_aT_ = poM.MarkStrokesOf(pcTick)
+	if len(_aT_) < 1  return 1000  ok
+	return _MdNearPoly(poM.CurvePointsOf(pcArc),
+		(_aT_[1][1] + _aT_[1][3]) / 2, (_aT_[1][2] + _aT_[1][4]) / 2)
+
+# a triangle with no right angle: the general rule keeps its outline
+func _MdPlainTriangle
+	_oS_ = new stzMathSubstance(StzGeometryDomain())
+	_oS_.DeclareAll("Point", [ "P", "Q", "R" ])
+	_oS_.Define("PQR", "Triangle", [ "P", "Q", "R" ])
+	_oS_.AutoLabelAll()
+	_oS_.Label("PQR", "")
+	_o_ = new stzMathDiagram(StzGeometryDomain(), _oS_, StzByrneStyle())
+	_o_.SetFont(AUFONT, 24)
+	_o_.SetVariation("plain")
+	_o_.Layout()
+	return _o_
+
+# A WIDE NAME AGAINST A DISK IT MAY NOT ENTER, pulled as close as the
+# constraint allows. Returns [ exact box gap, bounding-circle gap ]: the
+# first is what disjoint() now measures, the second is what the old
+# bounding-circle rule measured, and they disagree by the width of the name.
+func _MdBoxProbe
+	_oS_ = new stzMathSubstance(StzSetTheoryDomain())
+	_oS_.Declare("Set", "W")
+	_oS_.Label("W", "WWWWWWWW")
+	_oSt_ = new stzMathStyle()
+	_oSt_.SetCanvas(600, 400)
+	_oSt_.ForAll("Set x", [
+		[ :shape, "x.icon", :circle, [ :cx = 300, :cy = 200, :r = 70,
+		                               :fill = "#eeeef6", :stroke = "#8888aa" ] ],
+		[ :shape, "x.text", :text, [ :fill = "black" ] ],
+		[ :ensure, "disjoint", [ "x.text", "x.icon", 0 ] ],
+		# the pull has its minimum on a RING, not at the centre: a name
+		# pulled exactly onto the centre sits where abs() has no gradient,
+		# and no push can move it sideways again
+		[ :encourage, "near", [ "x.text", "x.icon", 130 ] ] ])
+	_o_ = new stzMathDiagram(StzSetTheoryDomain(), _oS_, _oSt_)
+	_o_.SetFont(AUFONT, 24)
+	_o_.SetVariation("minkowski")
+	_o_.Layout()
+	_aT_ = _o_.ShapeOf("W.text")
+	_d_ = sqrt(pow(_aT_[:cx] - 300, 2) + pow(_aT_[:cy] - 200, 2))
+	# the exact distance from the circle's centre to the name's BOX
+	_qx_ = fabs(_aT_[:cx] - 300) - _aT_[:w] / 2
+	_qy_ = fabs(_aT_[:cy] - 200) - _aT_[:h] / 2
+	_mx_ = _qx_  if _qy_ > _mx_  _mx_ = _qy_  ok
+	_ax_ = _qx_  if _ax_ < 0  _ax_ = 0  ok
+	_ay_ = _qy_  if _ay_ < 0  _ay_ = 0  ok
+	_sd_ = sqrt(pow(_ax_, 2) + pow(_ay_, 2))
+	if _mx_ < 0  _sd_ += _mx_  ok
+	_half_ = sqrt(pow(_aT_[:w], 2) + pow(_aT_[:h], 2)) / 2
+	return [ _sd_ - 70, _d_ - 70 - _half_ ]
+
+func _ByRefuses pnWhich
+	_b_ = FALSE
+	try
+		_oT_ = StzByrneStyle()
+		if pnWhich = 1
+			_oT_.ForAllWhere("Triangle t; Point p; Point q; Point r",
+				"t := Triangle(p, q, r)",
+				[ [ :ensure, "disjoint", [ "t.icon", "p.icon", 2 ] ] ])
+		ok
+		if pnWhich = 2
+			_oT_.ForAll("Point p", [ [ :delete, "p.nothing" ] ])
+		ok
+		if pnWhich = 3
+			_oT_.ForAll("Point p", [ [ :shape, "p.bad", :poly, [ :n = 2.5 ] ] ])
+		ok
+		_o_ = new stzMathDiagram(StzGeometryDomain(), StzMathByrneSubstance(), _oT_)
+		_o_.SetFont(AUFONT, 24)
 		_o_.Layout()
 	catch
 		_b_ = TRUE

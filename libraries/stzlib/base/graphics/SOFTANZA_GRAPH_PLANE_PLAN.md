@@ -96,7 +96,7 @@ sections, of which 21 declarations over 17 items.
 | DN7a | closed | 79 |
 | DN7b | closed | 80 |
 | DN7c | closed | 81 |
-| DN7d | open | - |
+| DN7d | closed | 82 |
 | DN2b | closed | 56 |
 | DN2c | closed | - |
 | DN2d | closed | 57 |
@@ -1854,12 +1854,61 @@ was a cliff at twelve sets.
   minted once however many points sit on it); and the `:curve` shape,
   `greatarc` or `poincare`, derived entirely from its endpoints.
 
-- **DN7d — NEXT, named with its cost.** Byrne's Pythagorean theorem as
-  the paper draws it: three squares on the sides, an altitude, two
-  rectangles, coloured. Needs polygons as shapes, Penrose's `delete`, and
-  Minkowski separation for exact text-against-shape distances. The
-  marks the sphere and the disk do not yet draw — a right-angle mark and
-  equal-length ticks bent to the geometry — belong here too.
+- **DN7d — Byrne's Euclid I.47, and marks bent to the geometry. SHIPPED
+  2026-09-05.** Guard §82. All four pieces the plan named: polygons as
+  shapes, Penrose's `delete`, Minkowski separation, and the marks the
+  sphere and the disk did not draw.
+
+  | scene | unknowns | constraints | rounds | evaluations | ms |
+  |---|---|---|---|---|---|
+  | Byrne's Euclid I.47 | 12 | 149 | 1 | 658 | 243 |
+
+  **THE KILL IS A THEOREM THE STYLE NEVER STATES.** Byrne (1847) colours
+  each rectangle of the hypotenuse square like the leg square it equals.
+  Here the whole figure — three squares, the foot of the altitude, the two
+  rectangles — is DERIVED from the three points, so the solver owns six
+  numbers and nothing anywhere asserts Euclid's equality. The guard reads
+  it back off the drawn polygons: each rectangle equals its leg square, and
+  the hypotenuse square is their sum, **to one part in a million**, with
+  the two legs deliberately unequal so the identity cannot hold by
+  symmetry.
+
+  **The outward normal is written as a direction, not a sign.** A square
+  stands on the far side of its edge, which normally needs a sign test the
+  tape cannot express well. It is not needed: the outward normal of the
+  hypotenuse is the direction from the right-angle vertex to the foot of
+  its OWN altitude, and each leg's square stands along the other leg
+  reversed, because the angle between them is right. Three sign tests
+  dissolved into three directions the figure already contains — the same
+  move as DN7c's dot products.
+
+  **A mark is bent by walking the arc, not by drawing on the chord.** Each
+  foot of a right-angle mark is rotated about its geodesic's own centre —
+  the great circle's pole, or the orthogonal circle's centre — so it lands
+  ON the drawn curve. Measured: the feet sit within **0.01px** of the arc,
+  where a foot walked along the chord lands **2.1 to 2.25px** off it, which
+  is wider than the stroke. Ticks sit at the middle of the arc, across it.
+
+  **Minkowski replaced a bounding circle that was worst where it mattered
+  most.** A label used to be kept off a shape by the circle drawn around
+  its box, whose radius is the box's half-diagonal — so a WIDE name was
+  pushed away by nearly its own half-width in every direction, including
+  the vertical, where it is only as tall as a letter. `disjoint` now
+  measures the exact signed distance to the box, `|max(q,0)| + min(0,
+  max(qx,qy))` for `q = |offset| - halfExtents`; the second term keeps a
+  live gradient where the two overlap, which is what lets the solver push
+  them apart at all. Measured on a name eight letters wide: its box sits
+  exactly against a disk it may not enter, while its bounding circle
+  overlaps that disk by **75px** — a lawful picture the old rule refused.
+
+  **And one trap, which is the transferable half.** The first version of
+  that measurement pulled the name to the disk's CENTRE and pinned its
+  height. It deadlocked: at dead centre `abs(dx)` has no gradient, so no
+  push could move the name sideways, and the only escape had been pinned
+  shut. The picture was reported unlawful by 43px and the constraint was
+  correct all along. **An objective whose minimum sits exactly on a
+  non-differentiable point of a constraint is a trap, not a preference** —
+  give the pull a ring to settle on rather than a point.
 
 ## DN2b — THE RING: a state machine is not a tree (2026-08-23)
 
