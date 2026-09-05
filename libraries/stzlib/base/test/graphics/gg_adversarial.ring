@@ -12934,6 +12934,73 @@ chk("NEGATIVE: and the substance never said so -- there is no Right in it",
     NOT StzMathThalesSubstance().Holds("Right", [ "BAC" ]))
 
 
+sec("-- 84. DN7f: THE PENROSE GALLERY AS THE YARDSTICK ---------------------")
+discharges("DN7f")
+
+# THE GRAPH FAMILY, the gallery's largest. A network with one-way links
+# under the node-link style, and the same domain as boxes and arrows.
+oGn = StzMathScene20(AUFONT)
+chk("the network with one-way links is lawful", oGn.IsFeasible())
+chk("every arrow stops clear of the dot at both of its ends",
+    _GrArrowsClear(oGn, "l", 8, 11))
+chk("no name sits within twelve pixels of a STRANGER's dot",
+    _GrNamesOffStrangers(oGn, [ "Client", "Gateway", "Firewall", "Switch", "Web", "DB", "Backup" ]) >= 11.5)
+chk("and the chosen seed leaves one crossing", _GrCrossings(oGn, "l", 8) = 1)
+chk("NEGATIVE: the first seed tried leaves eight -- the count is real",
+    _GrCrossings(_GrSeeded(20, "network"), "l", 8) > 1)
+oGb = StzMathScene21(AUFONT)
+chk("the same domain draws as boxes and arrows, lawfully", oGb.IsFeasible())
+chk("and each box is sized to the name inside it",
+    _GrBoxFits(oGb, [ "CPU", "Cache", "RAM", "Bus", "GPU", "Disk", "Network" ]))
+
+# THE CUBE, with Hamilton's cycle marked: a Gray code, eight edges red.
+oGc = StzMathScene23(AUFONT)
+chk("the cube graph is lawful", oGc.IsFeasible())
+chk("exactly eight of its twelve edges are highlighted -- the cycle",
+    _GrHighlighted(oGc, "q", 12) = 8)
+# and the finding: the crossing preference is in the energy and cannot be
+# spent from a random start, so the picture keeps seven crossings
+chk("the crossing preference is compiled -- 84 terms, one per ordered pair " +
+    "of edges sharing no vertex", _GrCrossingTerms(oGc) = 84)
+chk("and it stays UNSPENT: the picture keeps crossings the term forbids",
+    _GrCrossings(oGc, "q", 12) >= 5)
+
+# THE MATCHER WAS THE COST. The dodecahedron's compile was 18 seconds
+# when a definition clause was a FILTER over the product of every
+# variable's candidates; it is a GENERATOR now. Measured as a COUNT, not a
+# clock: this machine is shared and a clock assertion fails on a busy
+# afternoon, but the number of candidates the matcher builds does not
+# move with the load.
+oGd = new stzMathDiagram(StzGraphDomain(), StzMathDodecahedronSubstance(), StzGraphStyle())
+oGd._Compile()
+chk("the dodecahedron's whole compile enumerates under ten thousand candidate bindings",
+    oGd.@nMatchCandidates < 10000)
+chk("NEGATIVE: the product form would have built 144,000,000 for the six-variable " +
+    "rule alone -- 30 x 30 x 20 x 20 x 20 x 20",
+    30 * 30 * 20 * 20 * 20 * 20 = 144000000 and oGd.@nMatchCandidates < 144000000 / 1000)
+chk("and the vertex-off-edge selector binds every edge with exactly its " +
+    "eighteen non-endpoints", _GrCountWhere(oGd, "disjoint", ".icon, e") = 540)
+
+# THE WORD CLOUD: Minkowski separation, and delete re-minting a text
+# larger -- the case that found _Initialise indexing the name map by slot.
+oGw = StzMathScene22(AUFONT)
+chk("the word cloud is lawful", oGw.IsFeasible())
+chk("eighteen words, eighteen text shapes: a re-minted word is one shape",
+    oGw.NumberOfShapes() = 18)
+chk("and the tape keeps the slots the deleted texts left -- more slots than names",
+    oGw.NumberOfUnknowns() > 36)
+chk("every pair of word boxes is apart by the six pixels asked",
+    _GrMinBoxGap(oGw) >= 5.9)
+chk("a Large word measures wider than a small one of more letters",
+    oGw.ShapeOf("diagram.text")[:w] > oGw.ShapeOf("substance.text")[:w])
+
+# THE NAME RULE the yardstick caught: a leading digit heads no path.
+chk("a name starting with a digit is refused at Declare, with the rule",
+    _GrRefusesName("000"))
+chk("NEGATIVE: the same name with a letter in front is accepted",
+    NOT _GrRefusesName("v000"))
+
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go
@@ -15240,6 +15307,124 @@ func _ThCosAtA poM
 	_vy_ = poM.ValueOf("C.icon.cy") - poM.ValueOf("A.icon.cy")
 	return (_ux_*_vx_ + _uy_*_vy_) /
 	       (sqrt(pow(_ux_, 2) + pow(_uy_, 2)) * sqrt(pow(_vx_, 2) + pow(_vy_, 2)))
+
+func _GrSeeded pnScene, pcVar
+	if pnScene = 20  _o_ = StzMathScene20(AUFONT)  else  _o_ = StzMathScene23(AUFONT)  ok
+	_o_.SetVariation(pcVar)
+	_o_.Layout()
+	return _o_
+
+func _GrCrossings poM, pcPfx, pnEdges
+	_a_ = []
+	for _i_ = 1 to pnEdges
+		_s_ = poM.ShapeOf(pcPfx + _i_ + ".icon")
+		_a_ + [ _s_[:x1], _s_[:y1], _s_[:x2], _s_[:y2] ]
+	next
+	_n_ = 0
+	for _i_ = 1 to len(_a_)
+		for _j_ = _i_ + 1 to len(_a_)
+			if _OdCrosses(_a_[_i_], _a_[_j_])  _n_++  ok
+		next
+	next
+	return _n_
+
+# every arrow's drawn ends stand off the dots they join by at least pnMin
+func _GrArrowsClear poM, pcPfx, pnArcs, pnMin
+	for _i_ = 1 to pnArcs
+		_s_ = poM.ShapeOf(pcPfx + _i_ + ".icon")
+		_l_ = poM.ShapeOf(pcPfx + _i_ + ".line")
+		if sqrt(pow(_s_[:x1] - _l_[:x1], 2) + pow(_s_[:y1] - _l_[:y1], 2)) < pnMin  return FALSE  ok
+		if sqrt(pow(_s_[:x2] - _l_[:x2], 2) + pow(_s_[:y2] - _l_[:y2], 2)) < pnMin  return FALSE  ok
+	next
+	return TRUE
+
+# the smallest gap from any name's box to any OTHER vertex's dot
+func _GrNamesOffStrangers poM, pacV
+	_best_ = 1000000
+	for _i_ = 1 to len(pacV)
+		_t_ = poM.ShapeOf(pacV[_i_] + ".text")
+		for _j_ = 1 to len(pacV)
+			if _j_ = _i_  loop  ok
+			_d_ = poM.ShapeOf(pacV[_j_] + ".icon")
+			_qx_ = fabs(_d_[:cx] - _t_[:cx]) - _t_[:w] / 2
+			_qy_ = fabs(_d_[:cy] - _t_[:cy]) - _t_[:h] / 2
+			_mx_ = _qx_  if _qy_ > _mx_  _mx_ = _qy_  ok
+			_ax_ = _qx_  if _ax_ < 0  _ax_ = 0  ok
+			_ay_ = _qy_  if _ay_ < 0  _ay_ = 0  ok
+			_sd_ = sqrt(pow(_ax_, 2) + pow(_ay_, 2))
+			if _mx_ < 0  _sd_ += _mx_  ok
+			_sd_ -= _d_[:r]
+			if _sd_ < _best_  _best_ = _sd_  ok
+		next
+	next
+	return _best_
+
+func _GrBoxFits poM, pacV
+	for _i_ = 1 to len(pacV)
+		_b_ = poM.ShapeOf(pacV[_i_] + ".icon")
+		_t_ = poM.ShapeOf(pacV[_i_] + ".text")
+		if _b_[:w] < _t_[:w] + 20 or _b_[:h] < _t_[:h] + 6  return FALSE  ok
+		if fabs(_b_[:cx] - _t_[:cx]) > 0.01 or fabs(_b_[:cy] - _t_[:cy]) > 0.01  return FALSE  ok
+	next
+	return TRUE
+
+func _GrHighlighted poM, pcPfx, pnEdges
+	_n_ = 0
+	for _i_ = 1 to pnEdges
+		_k_ = poM._ShapeIndex(pcPfx + _i_ + ".icon")
+		if _k_ = 0  loop  ok
+		if "" + poM._Prop(poM.@aShapes[_k_][3], "stroke", "") = "#c8443c"  _n_++  ok
+	next
+	return _n_
+
+func _GrCrossingTerms poM
+	poM.Layout()
+	_n_ = 0
+	for _i_ = 1 to len(poM.@aObjectives)
+		if StzLower(poM.@aObjectives[_i_][1]) = "notcrossing"  _n_++  ok
+	next
+	return _n_
+
+# how many constraints of a kind name a given text fragment in their where
+func _GrCountWhere poM, pcFn, pcFrag
+	_n_ = 0
+	for _i_ = 1 to len(poM.@aConstraints)
+		if StzLower(poM.@aConstraints[_i_][1]) = StzLower(pcFn) and
+		   StzFindFirst(pcFrag, poM.@aConstraints[_i_][3]) > 0
+			_n_++
+		ok
+	next
+	return _n_
+
+# the smallest Minkowski gap between any two word boxes
+func _GrMinBoxGap poM
+	_ac_ = poM.Shapes()
+	_best_ = 1000000
+	for _i_ = 1 to len(_ac_)
+		_a_ = poM.ShapeOf(_ac_[_i_])
+		for _j_ = _i_ + 1 to len(_ac_)
+			_b_ = poM.ShapeOf(_ac_[_j_])
+			_qx_ = fabs(_a_[:cx] - _b_[:cx]) - (_a_[:w] + _b_[:w]) / 2
+			_qy_ = fabs(_a_[:cy] - _b_[:cy]) - (_a_[:h] + _b_[:h]) / 2
+			_mx_ = _qx_  if _qy_ > _mx_  _mx_ = _qy_  ok
+			_ax_ = _qx_  if _ax_ < 0  _ax_ = 0  ok
+			_ay_ = _qy_  if _ay_ < 0  _ay_ = 0  ok
+			_sd_ = sqrt(pow(_ax_, 2) + pow(_ay_, 2))
+			if _mx_ < 0  _sd_ += _mx_  ok
+			if _sd_ < _best_  _best_ = _sd_  ok
+		next
+	next
+	return _best_
+
+func _GrRefusesName pcName
+	_b_ = FALSE
+	try
+		_oS_ = new stzMathSubstance(StzGraphDomain())
+		_oS_.Declare("Vertex", pcName)
+	catch
+		_b_ = TRUE
+	done
+	return _b_
 
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0
