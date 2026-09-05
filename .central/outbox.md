@@ -1476,3 +1476,54 @@ note:      THE TRAP IS THE HALF THAT TRANSFERS. The first measurement of
            constraint is a trap rather than a preference -- and it
            accuses working code, which is how it nearly cost an hour.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-05 07:05
+
+subject:   the author's two marks on Byrne's figure, and the 202 seconds
+           the first repair cost
+
+why:       the author judges the pictures, and both marks were about
+           precision that shows before any measurement
+
+did:
+  - Gave every name the same gap from the ink, not the same radius from
+    its point: the centre solves BOTH notch walls at once, each asked
+    for the clearance plus the box's reach in that wall's own normal.
+    The three gaps are 10.10, 9.54 and 9.54px.
+  - Put the right-angle mark's corner ON the altitude by decomposing the
+    normal in the legs' own orthonormal basis; the arms are 16.4 and
+    13.2, equal only when the triangle is isosceles.
+  - Redefined the outward normal as the signed area over lab*lac*lbc,
+    which removed the altitude foot from every expression built on it.
+  - Stopped a PLACED name carrying disjoint and near into the energy.
+
+state:
+  section 82:   23 assertions, 3.86s
+  gate:         866 ok, 0 failed, on main and in the commit tree
+  scene 13:     146 constraints, 1 round, 711ms
+  commit:       f9e555174 on origin and codeberg, verified at the sha
+
+waiting:
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      nothing open in DN7; the next move is the author's
+  - central: nothing owed from this
+
+note:      I TRIED THE CONSTRAINT SOLVER FIRST AND IT WAS THE WRONG TOOL.
+           Twelve disjoint() terms holding three names off the figure's
+           edges outweighed the single right angle, and the solver
+           answered with a collinear triangle -- a lawful-looking
+           optimum of the wrong problem. The names are not free
+           variables; they are FUNCTIONS of the three points, and
+           writing them as such is both exact and free. But the derived
+           form has its own cost: it divided by a root of a dot product
+           of a value defined through the altitude's foot, and when that
+           expression also became an argument of the constraints the
+           labels already carried, the tape went from 243ms to 202
+           seconds. Depth compounds at the argument boundary, and
+           nothing about the expression looks expensive when you read
+           it.
+```
