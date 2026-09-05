@@ -1427,3 +1427,52 @@ next:
              Minkowski separation, and marks bent to the geometry
   - central: nothing owed from this
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-05 05:39
+
+subject:   DN7d -- Byrne's Euclid I.47, and the sign test that was a
+           direction all along
+
+why:       the author routed DN7d, the math plane's last open item
+
+did:
+  - Shipped all four pieces the plan named: polygons as shapes,
+    Penrose's delete, Minkowski separation, and right-angle marks and
+    ticks bent to the sphere and the disk.
+  - Met the kill: the two rectangles equal their leg squares to one
+    part in a million, read off polygons no rule ever equated.
+  - Replaced three sign tests with directions the figure already
+    contains, so the tape gained nothing.
+  - Measured the mark: feet 0.01px from the arc, against 2.1-2.25px for
+    a mark built on the chord.
+  - Replaced a label's bounding circle with the exact box distance; a
+    name eight letters wide now sits against a disk its bounding circle
+    overlaps by 75px.
+  - Regenerated the plan's status table, which the suite had gone stale
+    against, and left the four-line regenerator in the tree.
+
+state:
+  section 82:   19 assertions
+  gate:         862 ok, 0 failed, run on main and in the commit tree
+  plan table:   DN7a, DN7b, DN7c, DN7d all closed -- the DN7 plane is done
+  commit:       accfb207c on origin and codeberg, verified at the sha
+
+waiting:
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      nothing in DN7 remains; the next move is the author's
+  - central: nothing owed from this
+
+note:      THE TRAP IS THE HALF THAT TRANSFERS. The first measurement of
+           the Minkowski change pulled a label to a disk's CENTRE and
+           pinned its height, then reported the constraint violated by
+           43px. The constraint was right: at dead centre abs(dx) has no
+           gradient, so no push could move the label sideways, and the
+           pin had shut the only other way out. An objective whose
+           minimum sits exactly on a non-differentiable point of a
+           constraint is a trap rather than a preference -- and it
+           accuses working code, which is how it nearly cost an hour.
+```
