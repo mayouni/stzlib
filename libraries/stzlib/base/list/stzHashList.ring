@@ -705,11 +705,15 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#< @FunctionFluentForms
 
-		def KeysForValueQ()
-			return This.KeysForValueQRT(:stzList)
+		# The fluent forms have to carry the value: KeysForValue() is not
+		# a no-argument method, and these two dropped it -- R19 on every
+		# call. The alternative forms below always passed it, which is
+		# where the intended signature comes from.
+		def KeysForValueQ(pValue)
+			return This.KeysForValueQRT(pValue, :stzList)
 
 		# The keys holding the value, in the requested return type.
-		def KeysForValueQRT(pcReturnType)
+		def KeysForValueQRT(pValue, pcReturnType)
 			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -721,10 +725,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 			switch pcReturnType
 
 			on :stzList
-				return new stzList( This.KeysForValue() )
+				return new stzList( This.KeysForValue(pValue) )
 
 			on :stzListOfStrings
-				return new stzListOfStrings( This.KeysForValue() )
+				return new stzListOfStrings( This.KeysForValue(pValue) )
 
 			other
 				StzRaise("Unsupported return type!")
@@ -741,7 +745,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 				return This.KeysForValueQ(pValue)
 
 			def KeysForThisValueQRT(pValue, pcReturnType)
-				return This.KeysForValueQ(pValue, pcReturnType)
+				return This.KeysForValueQRT(pValue, pcReturnType)
 
 		#>
 
@@ -3427,12 +3431,21 @@ class stzHashList from stzList # Also called stzAssociativeList
 	# Group the pairs into classes by value.
 	def Classify()
 
+		# A CLASS IS A LABEL AND A LABEL IS A STRING: Classes() returns
+		# Stringified() forms of UniqueValues(), element for element.
+		# KeysForValue() compares RAW values, strictly -- 5 and "5" are
+		# not the same value, on purpose. Feeding the label back into it
+		# therefore matched nothing and every class came out with an
+		# empty key list: no error, just a wrong answer. So the label is
+		# used for the label and the raw value for the lookup.
+
 		_aCfResult_ = []
-		_acCfClasses_ = This.Classes()
-		_nCfLen_ = len(_acCfClasses_)
+		_aCfUnique_ = This.UniqueValues()
+		_nCfLen_ = len(_aCfUnique_)
 
 		for _iCf_ = 1 to _nCfLen_
-			@AddItem(_aCfResult_, [ _acCfClasses_[_iCf_], This.KeysForValue(_acCfClasses_[_iCf_]) ])
+			@AddItem(_aCfResult_, [ Q(_aCfUnique_[_iCf_]).Stringified(),
+						This.KeysForValue(_aCfUnique_[_iCf_]) ])
 		next
 
 		return _aCfResult_
@@ -3614,25 +3627,45 @@ class stzHashList from stzList # Also called stzAssociativeList
 		# --> To avoid any confusion, use Klass with K instead,
 		# or if you prefer, use Category.
 
-		_aKlResult_ = This.KeysForValue(pcClass)
-		return _aKlResult_
+		# pcClass is a LABEL -- what Classes() hands out, a Stringified()
+		# form. KeysForValue() compares raw values strictly, so the label
+		# has to be resolved back to the value it names before the lookup;
+		# passing it straight through matched nothing and returned an
+		# empty list for every class that ever existed.
+
+		_aKlUnique_ = This.UniqueValues()
+		_nKlLen_ = len(_aKlUnique_)
+
+		for _iKl_ = 1 to _nKlLen_
+			if Q(_aKlUnique_[_iKl_]).Stringified() = pcClass
+				return This.KeysForValue(_aKlUnique_[_iKl_])
+			ok
+		next
+
+		return []
 
 		#< @FunctionFluentForms
 
 		def KlassQ(pcClass)
-			return This.KlassQRT($pClass, :stzList)
+			return This.KlassQRT(pcClass, :stzList)
 
+		# Klass() returns the KEYS in the class, a list -- so the return
+		# types are the list ones, the same two KeysForValueQRT offers.
+		# This asked for :stzString and :stzText, wrapped a list of keys
+		# in them, and called Klass() with no argument at all; and KlassQ
+		# above asked it for a :stzList the switch did not even carry, so
+		# every route through here ended in "Unsupported return type!"
 		def KlassQRT(pcClass, pcReturnType)
 			if isList(pcReturnType) and StzListIsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
 			switch pcReturnType
-			on :stzString	
-				return new stzString( This.Klass() )
+			on :stzList
+				return new stzList( This.Klass(pcClass) )
 
-			on :stzText
-				return new stzText( This.Klass() )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.Klass(pcClass) )
 
 			other
 				StzRaise("Unsupported return type!")

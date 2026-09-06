@@ -3897,6 +3897,35 @@ class stzNumber from stzObject
 
 	#=====
 
+	  #------------------------------------------------#
+	 #  STRICT EQUALITY (same value + same Ring type)  #
+	#------------------------------------------------#
+
+	# Strict equality: same value AND same Ring type (number). When the
+	# other side is a string or a list, returns 0 -- so "5" is NOT
+	# strictly equal to 5, though IsEqualTo() above says it is, and says
+	# so on purpose.
+	#
+	# This completes the surface stzHashList.KeysForValue compares values
+	# on. Q(v).IsStrictlyEqualTo(x) already worked for strings and lists
+	# -- stzString:6192 says in its own comment that it exists for that
+	# caller -- and raised R14 here, which is why KeysForValue, and with
+	# it Classify, TopNClasses, BottomNClasses and every alternative form
+	# built on them, could not run on a hashlist whose values are numbers.
+	#
+	# The comparison goes through NumericValue() rather than Content(),
+	# because @cContent is a STRING: Q(5).Content() returns 5 but
+	# isNumber() on it is 0.
+
+	def IsStrictlyEqualTo(pOther)
+		if NOT isNumber(pOther)
+			return 0
+		ok
+
+		return This.NumericValue() = pOther
+
+	#=====
+
 	# TRUE if the number equals NEITHER of the two given numbers.
 	def IsNeither(_n1_, _n2_)
 		if CheckingParams()
