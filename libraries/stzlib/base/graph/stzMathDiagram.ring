@@ -6174,6 +6174,7 @@ class stzMathDiagram from stzObject
 			This._SolveStage(0)
 			if _bAnyLabel_ and (@oStyle.LabelsAfter() or This._StageViolation(1) > 0.01)
 				This._SolveStage(1)
+				This._RetryLabels()
 			ok
 			This._ReadViolations()
 		else
@@ -6185,6 +6186,7 @@ class stzMathDiagram from stzObject
 				This._SolveStage(0)
 				if _bAnyLabel_ and (@oStyle.LabelsAfter() or This._StageViolation(1) > 0.01)
 					This._SolveStage(1)
+					This._RetryLabels()
 				ok
 				This._ReadViolations()
 				if This._MaxViolation() <= 0.01  exit  ok
@@ -6206,6 +6208,53 @@ class stzMathDiagram from stzObject
 				"by " + _v_ + "px after " + @nRounds + " round(s) -- the substance " +
 				"may be contradictory, which is a finding rather than a failure"
 		ok
+
+	# A NAME GETS MORE THAN ONE WEDGE, AND A GOOD SHAPE SOLVE IS NOT THROWN
+	# AWAY TO GIVE IT ONE. A name cannot cross an edge once the label stage
+	# runs, so the direction it starts in decides whether it can reach its
+	# room -- and the three initial draws choose between whole starts by
+	# INITIAL ENERGY, which barely moves when a name rotates about its own
+	# vertex. So the wedge was, in effect, unchosen: measured on the curved
+	# cube, four seeds of six were lawful and two were not, on one name.
+	#
+	# When the shapes are lawful and only the names are not, the shapes are
+	# KEPT and the names are redrawn into fresh wedges, and the label stage
+	# -- the cheap one, over frozen shapes -- runs again. Only then is the
+	# whole start abandoned. This is why a picture keeps its planar start
+	# instead of falling back to random over one name's bad draw.
+	def _RetryLabels()
+		for _t_ = 1 to 3
+			if This._StageViolation(1) <= 0.01  return  ok
+			# a shape stage that is itself unlawful is not a start worth
+			# keeping, and redrawing names would be answering the wrong
+			# question
+			if This._StageViolation(0) > 0.01  return  ok
+			This._RedrawLabels()
+			This._SolveStage(1)
+		next
+
+	# every free name back onto its owner's icon at the standard radius, in
+	# a fresh random direction; a name whose owner has no icon is jittered
+	# where it stands
+	def _RedrawLabels()
+		_n_ = len(@aShapes)
+		for _i_ = 1 to _n_
+			if @aShapes[_i_][2] != "text"  loop  ok
+			_cP_ = @aShapes[_i_][1]
+			_ix_ = This._UnknownIndex(_cP_ + ".cx")
+			_iy_ = This._UnknownIndex(_cP_ + ".cy")
+			if _ix_ = 0 or _iy_ = 0  loop  ok
+			_th_ = StzRandom01() * 6.28318530717959
+			_aC_ = This._CentreOf("" + @aShapes[_i_][4] + ".icon")
+			if len(_aC_) = 2
+				@aValue[_ix_] = _aC_[1] + 24 * cos(_th_)
+				@aValue[_iy_] = _aC_[2] + 24 * sin(_th_)
+			else
+				@aValue[_ix_] += 12 * cos(_th_)
+				@aValue[_iy_] += 12 * sin(_th_)
+			ok
+		next
+		@aVCache = []
 
 	# Uniform over the canvas, as Penrose samples; radii and sizes from a
 	# band that gives the solver room. Three draws, the one with the least

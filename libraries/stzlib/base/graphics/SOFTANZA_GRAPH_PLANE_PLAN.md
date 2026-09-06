@@ -111,6 +111,7 @@ sections, of which 21 declarations over 17 items.
 | DN8e | closed | 93 |
 | DN8f | closed | 94 |
 | DN8g | closed | 95 |
+| DN8h | closed | 96 |
 | DN2b | closed | 56 |
 | DN2c | closed | - |
 | DN2d | closed | 57 |
@@ -2571,6 +2572,64 @@ path); no "framework" layer above both. Adapters and starts, measured.
   is bound once because it is evaluated once.
 
   *Guard:* §95, DN8g.
+
+- **DN8h — The tape binds a subexpression once.** **SHIPPED** 2026-09-06.
+  The engine item DN8e named and DN8g paid only half of, on the Ring side.
+  `autodiff.zig` hash-conses at emit: a node is looked up by its identity —
+  opcode, constant bits, operand indices — and an identical one already on
+  the tape is returned instead of a second copy. Zero caller change, and
+  every consumer of the tape gets it: the math plane, `stzMathFunction`,
+  `stzObjective`, `stzOptimExpr`. `StzEngineGradNodes(handle)` reports how
+  big a tape is, because a generator cannot see that from the text it
+  wrote.
+
+  | | before | after |
+  |---|---|---|
+  | Byrne's longest term, 90,397 chars | 28,945 nodes | **208 nodes**, 139x |
+  | Byrne's whole energy, 273,710 chars | 87,345 nodes | **1,320 nodes**, 66x |
+  | one evaluation of the longest term | 0.060 ms | **0.0014 ms** |
+  | dodecahedron, minimise | 784 ms | **130 ms** |
+  | cube graph, minimise | 195 ms | **58 ms** |
+  | word cloud, minimise | 76 ms | **48 ms** |
+  | Byrne, minimise | 17 ms | **1 ms** |
+
+  *The measurement that redirected the item.* The plan had assumed the cure
+  was a `let` binding in the grammar, so the generated TEXT would shrink.
+  Measured first: the engine parses those 90,397 characters in 0.66 ms and
+  all 174 of Byrne's violation tapes in 2.5 ms. Text size was never the
+  engine's cost. What cost was that every evaluation walked a tape carrying
+  hundreds of copies of one subtree — twenty-nine thousand nodes where two
+  hundred say the same thing — so the fix belonged at emit, not in the
+  grammar, and needed no caller to change a line.
+
+  *What sharing does change, stated rather than hidden.* The value is
+  bit-exact: a shared node performs the same operation on the same
+  operands. **The gradient is not, and cannot be.** Where a subexpression
+  is used n times, sharing sums its n adjoint contributions first and
+  pushes the total through the subtree once; separate copies push each
+  through and sum at the variable. Same arithmetic, different order,
+  measured at one to two ULP. Fewer roundings is if anything the more
+  accurate, but it is not identical, and the tape's own test says so with
+  a switch that compiles both ways. Identity is exact and structural:
+  `a+b` and `b+a` stay two nodes, because normalising them would move
+  which argument `min` and `max` hand the gradient to at a tie, and this
+  file promises that tie goes to the argument written first.
+
+  *And what that ULP exposed, which is the real finding.* One ULP flipped
+  the curved cube from lawful to unlawful. It was not a regression in the
+  tape: the picture was lawful by one name's random start wedge. Measured
+  across six seeds on the OLD engine: four lawful, and only two keeping
+  the planar start. A name cannot cross an edge once the label stage runs,
+  so its wedge decides — and the three initial draws choose between whole
+  starts by INITIAL energy, which barely moves when a name rotates about
+  its own vertex. The wedge was, in effect, unchosen. So when the shapes
+  are lawful and only the names are not, the shapes are now KEPT and the
+  names redrawn into fresh wedges, and the cheap label stage runs again
+  before the whole start is abandoned. The same six seeds: **six lawful,
+  five keeping the planar start.** A start is no longer thrown away over
+  one name's bad draw.
+
+  *Guard:* §96, DN8h.
 
 ### What this leaves
 

@@ -71,6 +71,12 @@ pub const Program = struct {
     nodes: std.ArrayList(Node),
     n_vars: usize,
     allocator: std.mem.Allocator,
+    /// WHICH NODE IS THE ANSWER. It used to be "the last one", which was true
+    /// only because every operation was emitted fresh. With subexpressions
+    /// shared (below) an outer node can BE an inner one, so the root is
+    /// recorded rather than assumed -- an invariant that is written down
+    /// cannot be quietly broken by the next grammar.
+    root: u32 = 0,
 
     pub fn deinit(self: *Program) void {
         self.nodes.deinit(self.allocator);
@@ -92,12 +98,28 @@ pub const ParseError = error{
 
 // ─── parser ──────────────────────────────────────────────────────────────────
 
+/// A node's whole identity: its opcode, its constant, and its operands. Two
+/// nodes with the same key compute the same number from the same inputs, so
+/// one of them is enough.
+const NodeKey = struct {
+    op: u8,
+    /// the constant's BITS, so two constants are the same key only when they
+    /// are the same f64 -- and no float comparison happens in a hash
+    k: u64,
+    a: u32,
+    b: u32,
+};
+
 const Parser = struct {
     src: []const u8,
     pos: usize,
     names: []const []const u8,
     prog: *Program,
     alloc: std.mem.Allocator,
+    /// what has already been emitted, by identity
+    seen: std.AutoHashMapUnmanaged(NodeKey, u32) = .{},
+    /// off only for the test that proves sharing changes no answer
+    share: bool = true,
 
     fn skipSpace(self: *Parser) void {
         while (self.pos < self.src.len and (self.src[self.pos] == ' ' or
@@ -111,9 +133,41 @@ const Parser = struct {
         return self.src[self.pos];
     }
 
+    /// A SUBEXPRESSION IS BOUND ONCE (hash-consing). An expression written by
+    /// a generator says the same thing over and over: a derived point
+    /// re-expands at every mention, so one `contains(polygon, text)` term
+    /// arrives as ninety thousand characters naming the same four corners
+    /// hundreds of times. Parsed naively that is a tape with hundreds of
+    /// copies of one subtree, and EVERY evaluation walks all of them.
+    ///
+    /// Before appending, the node is looked up by its identity; an identical
+    /// one already on the tape is returned instead. This is safe because a
+    /// node is a pure function of its operands, and it keeps the tape's one
+    /// structural invariant -- an operand's index is always smaller than its
+    /// consumer's -- because the index returned already exists. That
+    /// invariant is what makes the reverse pass correct with sharing: every
+    /// consumer of a node has a HIGHER index, so by the time the backward
+    /// walk reaches the node, every adjoint that flows into it has arrived.
+    ///
+    /// Identity is STRUCTURAL AND EXACT: `a+b` and `b+a` are two nodes, on
+    /// purpose. Normalising commutative operands would merge more, and would
+    /// also change which argument `min` and `max` hand the gradient to at a
+    /// tie -- and this file promises that tie goes to the argument written
+    /// first. A smaller tape is not worth a moved gradient.
     fn emit(self: *Parser, n: Node) ParseError!u32 {
+        const key = NodeKey{
+            .op = @intFromEnum(n.op),
+            .k = @bitCast(n.k),
+            .a = n.a,
+            .b = n.b,
+        };
+        if (self.share) {
+            if (self.seen.get(key)) |idx| return idx;
+        }
         try self.prog.nodes.append(self.alloc, n);
-        return @intCast(self.prog.nodes.items.len - 1);
+        const idx: u32 = @intCast(self.prog.nodes.items.len - 1);
+        try self.seen.put(self.alloc, key, idx);
+        return idx;
     }
 
     /// expression := term (('+' | '-') term)*
@@ -299,6 +353,17 @@ pub fn compile(
     src: []const u8,
     names: []const []const u8,
 ) ParseError!*Program {
+    return compileShared(alloc, src, names, true);
+}
+
+/// The same compile with sharing switchable, so a test can hold the shared
+/// tape to the unshared one's answer. Nothing but that test passes false.
+pub fn compileShared(
+    alloc: std.mem.Allocator,
+    src: []const u8,
+    names: []const []const u8,
+    share: bool,
+) ParseError!*Program {
     if (names.len > MAX_VARS) return ParseError.TooManyVars;
     const prog = try alloc.create(Program);
     errdefer alloc.destroy(prog);
@@ -309,11 +374,13 @@ pub fn compile(
     };
     errdefer prog.nodes.deinit(alloc);
 
-    var p = Parser{ .src = src, .pos = 0, .names = names, .prog = prog, .alloc = alloc };
-    _ = try p.parseExpr();
+    var p = Parser{ .src = src, .pos = 0, .names = names, .prog = prog, .alloc = alloc, .share = share };
+    defer p.seen.deinit(alloc);
+    const root = try p.parseExpr();
     p.skipSpace();
     if (p.pos != src.len) return ParseError.UnexpectedCharacter;
     if (prog.nodes.items.len == 0) return ParseError.Empty;
+    prog.root = root;
     return prog;
 }
 
@@ -361,7 +428,7 @@ pub fn valueAndGradient(
     // reverse
     @memset(adj[0..nodes.len], 0);
     @memset(grad[0..prog.n_vars], 0);
-    adj[nodes.len - 1] = 1;
+    adj[prog.root] = 1;
 
     var i: usize = nodes.len;
     while (i > 0) {
@@ -421,7 +488,7 @@ pub fn valueAndGradient(
             },
         }
     }
-    return val[nodes.len - 1];
+    return val[prog.root];
 }
 
 /// Value only -- no tape walk. Used by line searches, which evaluate far more
@@ -450,7 +517,7 @@ pub fn value(prog: *const Program, x: []const f64, val: []f64) f64 {
             .max => @max(val[nd.a], val[nd.b]),
         };
     }
-    return val[nodes.len - 1];
+    return val[prog.root];
 }
 
 // ─── tests ───────────────────────────────────────────────────────────────────
@@ -562,6 +629,151 @@ test "an unknown name is refused rather than guessed" {
     // a dangling operator runs out of input rather than meeting a bad character
     try testing.expectError(ParseError.UnexpectedEnd, compile(alloc, "x + ", &.{"x"}));
     try testing.expectError(ParseError.UnexpectedCharacter, compile(alloc, "x $ 2", &.{"x"}));
+}
+
+test "a subexpression is on the tape ONCE, however often it is written" {
+    const alloc = testing.allocator;
+    // the shape a generator produces: one inner expression, named again and
+    // again because the thing that wrote it had no way to say "the same one"
+    const inner = "(x*y + sqrt(x*x + y*y))";
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(alloc);
+    try buf.appendSlice(alloc, inner);
+    for (0..40) |_| {
+        try buf.appendSlice(alloc, " + ");
+        try buf.appendSlice(alloc, inner);
+    }
+    const prog = try compile(alloc, buf.items, &.{ "x", "y" });
+    defer prog.deinit();
+    // the inner expression is eight nodes -- two variables, three products,
+    // a sum, a root, a sum -- and the forty further mentions add only the
+    // forty additions that join them, never a second copy of the subtree
+    try testing.expectEqual(@as(usize, 48), prog.nodes.items.len);
+
+    // and it still answers exactly what forty-one copies would
+    const val = try alloc.alloc(f64, prog.nodes.items.len);
+    defer alloc.free(val);
+    const adj = try alloc.alloc(f64, prog.nodes.items.len);
+    defer alloc.free(adj);
+    var g: [2]f64 = undefined;
+    const x = [_]f64{ 3.0, 4.0 };
+    const v = valueAndGradient(prog, &x, val, adj, &g);
+    // 41 * (12 + 5)
+    try testing.expectApproxEqAbs(@as(f64, 697), v, 1e-9);
+    // d/dx = 41 * (y + x/sqrt(x^2+y^2)) = 41 * (4 + 0.6)
+    try testing.expectApproxEqAbs(@as(f64, 41 * 4.6), g[0], 1e-9);
+    try testing.expectApproxEqAbs(@as(f64, 41 * 3.8), g[1], 1e-9);
+}
+
+test "sharing does not move a gradient: finite differences agree" {
+    const alloc = testing.allocator;
+    // every term repeats, and min/max repeat with them, so a wrong merge
+    // would show up as a moved gradient rather than a wrong value
+    const src = "max(0, x-y)^2 + max(0, x-y)^2 + min(x*x, y*y) - min(x*x, y*y)*0.5 + abs(x-y)";
+    const prog = try compile(alloc, src, &.{ "x", "y" });
+    defer prog.deinit();
+    const val = try alloc.alloc(f64, prog.nodes.items.len);
+    defer alloc.free(val);
+    const adj = try alloc.alloc(f64, prog.nodes.items.len);
+    defer alloc.free(adj);
+    var g: [2]f64 = undefined;
+    var x = [_]f64{ 1.7, 0.9 };
+    _ = valueAndGradient(prog, &x, val, adj, &g);
+    const h = 1e-6;
+    for (0..2) |k| {
+        var xp = x;
+        var xm = x;
+        xp[k] += h;
+        xm[k] -= h;
+        const num = (value(prog, &xp, val) - value(prog, &xm, val)) / (2 * h);
+        try testing.expectApproxEqAbs(num, g[k], 1e-5);
+    }
+}
+
+test "a commutative pair is NOT merged, so a tie's gradient stays put" {
+    const alloc = testing.allocator;
+    const prog = try compile(alloc, "min(x,y) + min(y,x)", &.{ "x", "y" });
+    defer prog.deinit();
+    const val = try alloc.alloc(f64, prog.nodes.items.len);
+    defer alloc.free(val);
+    const adj = try alloc.alloc(f64, prog.nodes.items.len);
+    defer alloc.free(adj);
+    var g: [2]f64 = undefined;
+    const x = [_]f64{ 2.0, 2.0 };
+    _ = valueAndGradient(prog, &x, val, adj, &g);
+    // at a tie each min gives its gradient to ITS OWN first argument, so the
+    // two halves send one each way; merging them would send both to x
+    try testing.expectApproxEqAbs(@as(f64, 1), g[0], 1e-12);
+    try testing.expectApproxEqAbs(@as(f64, 1), g[1], 1e-12);
+}
+
+test "the root is the answer even when it is not the last node" {
+    const alloc = testing.allocator;
+    // the whole expression is a sum whose two halves are one node; nothing
+    // is emitted after the root, but the root is READ rather than assumed
+    const prog = try compile(alloc, "x*x + x*x", &.{"x"});
+    defer prog.deinit();
+    try testing.expectEqual(@as(u32, @intCast(prog.nodes.items.len - 1)), prog.root);
+    const val = try alloc.alloc(f64, prog.nodes.items.len);
+    defer alloc.free(val);
+    // x*x is ONE node now, plus the variable and the add: three, not five
+    try testing.expectEqual(@as(usize, 3), prog.nodes.items.len);
+    try testing.expectApproxEqAbs(@as(f64, 18), value(prog, &.{3.0}, val), 1e-12);
+}
+
+test "SHARING CHANGES THE ANSWER BY AT MOST A ROUNDING" {
+    const alloc = testing.allocator;
+    // the shapes this library actually generates: repeated subexpressions
+    // under max/min penalties, roots, and a division -- and a case where the
+    // repeated part carries different weights, which is where a reassociated
+    // sum would drift if sharing reassociated anything
+    const srcs = [_][]const u8{
+        "max(0, sqrt((x-y)^2 + (x*y)^2) - 3)^2 + max(0, sqrt((x-y)^2 + (x*y)^2) - 3)^2",
+        "3*(x*y + sqrt(x*x+y*y)) + 0.5*(x*y + sqrt(x*x+y*y)) - 7.25*(x*y + sqrt(x*x+y*y))",
+        "min(x*x, y*y) + max(x*x, y*y) + abs(x*x - y*y) / (1 + x*x)",
+        "exp(-(x*x+y*y)) * sin(3*x) + exp(-(x*x+y*y)) * cos(3*y)",
+    };
+    const pts = [_][2]f64{ .{ 1.7, 0.9 }, .{ -2.25, 3.5 }, .{ 0.0, 0.0 }, .{ 6.125, -6.125 } };
+    for (srcs) |src| {
+        const shared = try compileShared(alloc, src, &.{ "x", "y" }, true);
+        defer shared.deinit();
+        const plain = try compileShared(alloc, src, &.{ "x", "y" }, false);
+        defer plain.deinit();
+        try testing.expect(shared.nodes.items.len < plain.nodes.items.len);
+
+        const vs = try alloc.alloc(f64, shared.nodes.items.len);
+        defer alloc.free(vs);
+        const as = try alloc.alloc(f64, shared.nodes.items.len);
+        defer alloc.free(as);
+        const vp = try alloc.alloc(f64, plain.nodes.items.len);
+        defer alloc.free(vp);
+        const ap = try alloc.alloc(f64, plain.nodes.items.len);
+        defer alloc.free(ap);
+        for (pts) |x| {
+            var g1: [2]f64 = undefined;
+            var g2: [2]f64 = undefined;
+            const v1 = valueAndGradient(shared, &x, vs, as, &g1);
+            const v2 = valueAndGradient(plain, &x, vp, ap, &g2);
+            // THE VALUE IS BIT-EXACT. A shared node performs the same
+            // operation on the same operands, so the forward pass computes
+            // the identical number; nothing is reordered.
+            try testing.expectEqual(v2, v1);
+            // THE GRADIENT IS NOT, AND CANNOT BE. Where a subexpression is
+            // used n times, sharing sums its n adjoint contributions FIRST
+            // and pushes the total through the subtree once, while separate
+            // copies push each contribution through and sum at the variable.
+            // Same arithmetic, different order, so the last bit may differ:
+            // measured at one to two ULP on these. Fewer roundings is if
+            // anything the more accurate of the two, but "more accurate" is
+            // not "identical", and a caller whose result turns on the last
+            // bit was never resting on solid ground.
+            for (0..2) |k| {
+                if (!std.math.isFinite(g1[k]) or !std.math.isFinite(g2[k])) continue;
+                const scale = @max(@abs(g2[k]), 1.0);
+                try testing.expectApproxEqAbs(g2[k], g1[k], scale * 1e-13);
+            }
+        }
+    }
 }
 
 test "min and max send the gradient to the argument that won" {
