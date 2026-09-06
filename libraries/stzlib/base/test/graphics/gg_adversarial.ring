@@ -13502,6 +13502,17 @@ chk("and each by at least the ten pixels asked -- the nearest edge is that far f
     _PgCornerMargin(oPgB, "ABC.la", "ABC.sqab") >= 9.9 and _PgCornerMargin(oPgB, "ABC.lb", "ABC.sqac") >= 9.9 and
     _PgCornerMargin(oPgB, "ABC.lc", "ABC.sqbc") >= 9.9)
 chk("c2 keeps off the altitude that divides its square", _ByPtSegBox(oPgB, "ABC.lc", "ABC.alt") >= 7.9)
+# THE AUTHOR'S MARK: c2 must be white like a2 and b2. Its colour is the
+# best on whatever is UNDER it -- the rectangle painted over the square's
+# pale base -- and not on the base the rule first named.
+chk("a2, b2 and c2 are all white: each measured on the coloured fill the reader sees under it",
+    oPgB.FillOf("ABC.la") = "white" and oPgB.FillOf("ABC.lb") = "white" and
+    oPgB.FillOf("ABC.lc") = "white")
+chk("and what is under c2 is a rectangle's red or blue, not the square's pale base",
+    oPgB._UnderOf("ABC.lc") != oPgB.FillOf("ABC.sqbc") and
+    StzContrastOf("white", oPgB._UnderOf("ABC.lc")) >= 3)
+chk("NEGATIVE: measured on the base alone, the answer would have been black",
+    StzBestTextOn(oPgB.FillOf("ABC.sqbc"))[1] = "black")
 chk("NEGATIVE: the square on AB's bounding box holds a point the square does NOT -- a corner of " +
     "the box that a rotated square leaves on the paper",
     _PgBoxNotSquare(oPgB, "ABC.sqab"))

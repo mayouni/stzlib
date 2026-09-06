@@ -2177,9 +2177,12 @@ func StzByrneStyle()
 		# while calling it inside; the polygon's own edges hold each name
 		# by its four corners, and the hypotenuse's label keeps off the
 		# altitude that divides its square.
-		[ :shape, "t.la", :text, [ :string = "a2", :fill = [ :on, "t.sqab" ] ] ],
-		[ :shape, "t.lb", :text, [ :string = "b2", :fill = [ :on, "t.sqac" ] ] ],
-		[ :shape, "t.lc", :text, [ :string = "c2", :fill = [ :on, "t.sqbc" ] ] ],
+		# each area's colour is the best on whatever is UNDER it: c2 sits on
+		# the hypotenuse's square, whose base is painted over by the two
+		# rectangles, and the reader sees the rectangle, not the base
+		[ :shape, "t.la", :text, [ :string = "a2", :fill = [ :on, "under" ] ] ],
+		[ :shape, "t.lb", :text, [ :string = "b2", :fill = [ :on, "under" ] ] ],
+		[ :shape, "t.lc", :text, [ :string = "c2", :fill = [ :on, "under" ] ] ],
 		[ :ensure, "contains", [ "t.sqab", "t.la", 10 ] ],
 		[ :ensure, "contains", [ "t.sqac", "t.lb", 10 ] ],
 		[ :ensure, "contains", [ "t.sqbc", "t.lc", 10 ] ],
@@ -3555,8 +3558,8 @@ class stzMathDiagram from stzObject
 			StzTrim(_cKind_ + " " + StzSvgNameOf(
 				StzLower(@oSubstance.TypeOf(_cOwner_)), "t_", []) +
 				" el_" + StzSvgNameOf(_cOwner_, "o_", [])))
-		_cFill_ = This._Colour(This._Prop(_aProps_, "fill", ""))
-		_cStroke_ = This._Colour(This._Prop(_aProps_, "stroke", ""))
+		_cFill_ = This._ColourFor(_cP_, This._Prop(_aProps_, "fill", ""))
+		_cStroke_ = This._ColourFor(_cP_, This._Prop(_aProps_, "stroke", ""))
 		_nSw_ = This._Prop(_aProps_, "strokeWidth", 1)
 		if _cKind_ = "circle"
 			if _cFill_ != ""  poC.Fill(_cFill_)  else  poC.Fill("#00000000")  ok
@@ -3912,13 +3915,52 @@ class stzMathDiagram from stzObject
 		This.Layout()
 		_i_ = This._ShapeIndex(pcPath)
 		if _i_ = 0  return ""  ok
-		return This._Colour(This._Prop(@aShapes[_i_][3], "fill", ""))
+		return This._ColourFor(pcPath, This._Prop(@aShapes[_i_][3], "fill", ""))
 
 	def StrokeOf(pcPath)
 		This.Layout()
 		_i_ = This._ShapeIndex(pcPath)
 		if _i_ = 0  return ""  ok
-		return This._Colour(This._Prop(@aShapes[_i_][3], "stroke", ""))
+		return This._ColourFor(pcPath, This._Prop(@aShapes[_i_][3], "stroke", ""))
+
+	# A COLOUR FOR A GIVEN SHAPE: the one rule that needs to know WHICH
+	# shape is asking is [ :on, "under" ] -- the best of black and white on
+	# whatever is painted beneath this shape's centre, the TOPMOST filled
+	# region that contains it, composited over the paper. Byrne's c2 sits on
+	# the square of the hypotenuse, and the square's pale base is painted
+	# over by two coloured rectangles; "on the square" measured against the
+	# base and answered black, on a red the reader saw. Under is the fill
+	# the reader sees, whichever shape put it there.
+	def _ColourFor(pcPath, pSpec)
+		if isList(pSpec) and len(pSpec) >= 2 and StzLower("" + pSpec[1]) = "on" and
+		   StzLower("" + pSpec[2]) = "under"
+			return StzBestTextOn(This._UnderOf(pcPath))[1]
+		ok
+		return This._Colour(pSpec)
+
+	# what is painted beneath a shape's centre: the topmost filled region
+	# holding it, over the paper; the paper when none does
+	def _UnderOf(pcPath)
+		_s_ = This.ShapeOf(pcPath)
+		if len(_s_) = 0 or NOT HasKey(_s_, "cx")  return This.Background()  ok
+		_cBg_ = This.Background()
+		_nTop_ = -1
+		_ac_ = This.Shapes()
+		for _i_ = 1 to len(_ac_)
+			_cQ_ = _ac_[_i_]
+			if _cQ_ = pcPath or This.IsHidden(_cQ_)  loop  ok
+			_k_ = This._KindOf(_cQ_)
+			if _k_ = "text" or _k_ = "line" or _k_ = "curve" or _k_ = "mark"  loop  ok
+			_cF_ = This.FillOf(_cQ_)
+			if _cF_ = ""  loop  ok
+			_aR_ = _MrRegion(This, _cQ_)
+			if len(_aR_) < 6  loop  ok
+			if _MrPointIn(_s_[:cx], _s_[:cy], _aR_) and This.DrawIndexOf(_cQ_) > _nTop_
+				_nTop_ = This.DrawIndexOf(_cQ_)
+				_cBg_ = This._Opaque(_cF_, This.Background())
+			ok
+		next
+		return _cBg_
 
 	# A COLOUR FROM A NUMBER. A string is a colour already. A ramp maps an
 	# expression's value from [lo, hi] onto the straight line between two
