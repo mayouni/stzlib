@@ -2282,3 +2282,53 @@ note:      A LATENCY BUDGET IS A PROFILER THAT CANNOT BE ARGUED WITH.
            of them had been making every cold solve four times slower
            than it needed to be, since the label stage was born.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-06 20:40
+
+subject:   DN8h -- the tape binds a subexpression once, and the margin
+           it exposed
+
+why:       the author chose it off the open list; the engine had owed it
+           since DN8e
+
+did:
+  - Measured before writing Zig, and the measurement redirected the
+    item: the engine parses a 90,397-character term in 0.66 ms, so the
+    planned `let` in the grammar would have cured nothing.
+  - Hash-consed the autodiff tape at emit: 28,945 nodes become 208 on
+    that term, 87,345 become 1,320 on Byrne's whole energy, and
+    minimise on the dodecahedron falls from 784 ms to 130 ms.
+  - Added StzEngineGradNodes so a guard can assert a COUNT, and four
+    tape tests including one that compiles with sharing off and holds
+    the shared answer to the unshared one.
+  - Reported rather than hid what sharing changes: the value is
+    bit-exact, the gradient differs by one to two ULP.
+  - Repaired what that ULP exposed: a picture lawful by one name's
+    random start wedge. A lawful shape solve is no longer discarded
+    over a bad label draw; six seeds of six are lawful now, five
+    keeping the planar start, against four and two before.
+
+state:
+  section 96:   7 assertions, all on counts
+  autodiff:     17 tape tests, 4 of them new
+  gate:         1077 ok, 0 failed, on main and in the commit tree
+  plan table:   DN8a through DN8h closed
+  commit:       9a4733060 on origin and codeberg, verified at the sha
+
+waiting:
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the author's word; TeX in labels is the last cell of the
+             gallery triage that is one feature away
+  - central: nothing owed from this
+
+note:      A CHANGE THAT BREAKS SOMETHING MARGINAL HAS FOUND THE MARGIN,
+           NOT CAUSED IT. One ULP flipped a picture, and the honest
+           reading was not "put the ULP back" but "why was a published
+           picture one rounding from unlawful" -- four seeds of six on
+           the engine that shipped it. The tape change is the smaller
+           half of this commit.
+```
