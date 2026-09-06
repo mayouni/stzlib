@@ -43,9 +43,10 @@ acTitles = [ "two sets, one inside the other  (Penrose twosets-simple)",
              "THE SAME TREE IN 2.5D            (Penrose: sets in 2.5D -- disks, flattened)",
              "ELLIPSE RAYS                     (Penrose: focus to focus -- the law never asserted)",
              "THE QUATERNION TABLE             (Penrose: a colour per element, from the data)",
-             "A . B = C as a HEAT MAP          (Penrose: matrix product, a ramp on the value)" ]
+             "A . B = C as a HEAT MAP          (Penrose: matrix product, a ramp on the value)",
+             "AN ORG CHART AS A SUBSTANCE      (lawful from a random start -- DN8b's witness)" ]
 
-for i = 1 to 30
+for i = 1 to 31
 	if i = 1   oM = StzMathScene01(oFont)
 	but i = 2  oM = StzMathScene02(oFont)
 	but i = 3  oM = StzMathScene03(oFont)
@@ -75,7 +76,8 @@ for i = 1 to 30
 	but i = 27 oM = StzMathScene27(oFont)
 	but i = 28 oM = StzMathScene28(oFont)
 	but i = 29 oM = StzMathScene29(oFont)
-	else       oM = StzMathScene30(oFont)  ok
+	but i = 30 oM = StzMathScene30(oFont)
+	else       oM = StzMathScene31(oFont)  ok
 	oM.Layout()
 	? "== " + acTitles[i]
 	? "   unknowns " + oM.NumberOfUnknowns() + "   constraints " +

@@ -609,3 +609,30 @@ func StzMathScene30(poFont)
 	_o_.SetFont(poFont, 19)
 	_o_.SetVariation("heat")
 	return _o_
+
+#-- a graph is a substance (DN8a) -------------------------------------------
+
+# the graph plane's own org chart, never a substance, made one and drawn
+# by a Style: every position a Vertex, every reporting line an Arc
+func StzMathOrgChart()
+	_o_ = new stzOrgChart("acme")
+	_o_.AddPositionXT("ceo", "Chief Executive")
+	_o_.AddPositionXT("cto", "Technology")
+	_o_.AddPositionXT("cfo", "Finance")
+	_o_.AddPositionXT("eng", "Engineering")
+	_o_.AddPositionXT("ops", "Operations")
+	_o_.AddPositionXT("acc", "Accounting")
+	_o_.ReportsTo("cto", "ceo")
+	_o_.ReportsTo("cfo", "ceo")
+	_o_.ReportsTo("eng", "cto")
+	_o_.ReportsTo("ops", "cto")
+	_o_.ReportsTo("acc", "cfo")
+	return _o_
+
+func StzMathScene31(poFont)
+	_oS_ = StzSubstanceFromGraph(StzMathOrgChart(), StzGraphDomain(),
+		[ :nodeType = "Vertex", :edgeConstructor = "Arc" ])
+	_o_ = new stzMathDiagram(StzGraphDomain(), _oS_, StzBoxArrowStyle())
+	_o_.SetFont(poFont, 17)
+	_o_.SetVariation("acme")
+	return _o_
