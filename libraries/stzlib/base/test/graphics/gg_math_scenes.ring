@@ -662,3 +662,107 @@ func StzMathScene33(poFont)
 	_o_.SetFont(poFont, 15)
 	_o_.SetVariation("icon")
 	return _o_
+
+
+#-- content generators, and the scale they expose (DN8f) -------------------
+
+# THE CHAOS GAME. Five thousand points, each halfway from the last to a
+# vertex of a triangle chosen at random -- Sierpinski's triangle, made by
+# iteration in Ring and held as five thousand Dots with data. Nothing is
+# solved: the content is the picture.
+func StzMathSierpinskiSubstance(pnCount)
+	_aV_ = [ [ 320, 40 ], [ 40, 560 ], [ 600, 560 ] ]
+	SeedRandom(7)
+	_aX_ = []  _aY_ = []
+	_x_ = 320  _y_ = 300
+	for _i_ = 1 to pnCount
+		_k_ = floor(StzRandom01() * 3) + 1
+		if _k_ > 3  _k_ = 3  ok
+		_x_ = (_x_ + _aV_[_k_][1]) / 2
+		_y_ = (_y_ + _aV_[_k_][2]) / 2
+		_aX_ + _x_  _aY_ + _y_
+	next
+	_o_ = new stzMathSubstance(StzDotDomain())
+	_o_.DeclareMany("Dot", "d", pnCount)
+	_o_.SetDataFrom("d", "x", _aX_)
+	_o_.SetDataFrom("d", "y", _aY_)
+	return _o_
+
+func StzMathScene34(poFont)
+	_o_ = new stzMathDiagram(StzDotDomain(), StzMathSierpinskiSubstance(5000), StzDotStyle())
+	_o_.SetFont(poFont, 12)
+	_o_.SetVariation("chaos")
+	return _o_
+
+# THE NEPHROID AS AN ENVELOPE. A hundred and eighty circles, each centred
+# on a base circle and each tangent to one diameter of it: no curve is
+# drawn, and the nephroid -- two cusps, where the diameter meets the base
+# circle -- appears where the circles crowd. (Through one POINT of the
+# base circle instead, the same construction gives a cardioid.)
+func StzMathNephroidSubstance(pnCount)
+	_R_ = 130
+	_cx_ = 320  _cy_ = 300
+	_aX_ = []  _aY_ = []  _aR_ = []
+	for _i_ = 1 to pnCount
+		_t_ = 2 * 3.14159265358979 * (_i_ - 1) / pnCount
+		_x_ = _cx_ + _R_ * cos(_t_)
+		_y_ = _cy_ + _R_ * sin(_t_)
+		_aX_ + _x_  _aY_ + _y_
+		_aR_ + fabs(_y_ - _cy_)
+	next
+	_o_ = new stzMathSubstance(StzDotDomain())
+	_o_.DeclareMany("Ring", "c", pnCount)
+	_o_.SetDataFrom("c", "x", _aX_)
+	_o_.SetDataFrom("c", "y", _aY_)
+	_o_.SetDataFrom("c", "r", _aR_)
+	# the base circle's centre, as a dot -- the diameter is the horizontal
+	# through it
+	_o_.Declare("Dot", "p")
+	_o_.SetData("p", "x", _cx_)  _o_.SetData("p", "y", _cy_)
+	return _o_
+
+func StzMathScene35(poFont)
+	_o_ = new stzMathDiagram(StzDotDomain(), StzMathNephroidSubstance(180), StzDotStyle())
+	_o_.SetFont(poFont, 12)
+	_o_.SetVariation("nephroid")
+	return _o_
+
+# BROWNIAN PATHS. Three walks of a thousand steps each, Gaussian steps by
+# Box-Muller, kept on the paper by reflection; every step a definition
+# Step(a, b) the matcher enumerates once, and its colour is which walk it
+# is on, read off the step's own datum.
+func StzMathBrownianSubstance(pnWalks, pnSteps)
+	SeedRandom(11)
+	_o_ = new stzMathSubstance(StzDotDomain())
+	_acP_ = [ "a", "b", "c", "e", "f", "g" ]
+	for _w_ = 1 to pnWalks
+		_cP_ = _acP_[_w_]
+		_aX_ = []  _aY_ = []
+		_x_ = 320  _y_ = 300
+		for _i_ = 1 to pnSteps + 1
+			_aX_ + _x_  _aY_ + _y_
+			_u1_ = StzRandom01()  _u2_ = StzRandom01()
+			if _u1_ < 0.000001  _u1_ = 0.000001  ok
+			_m_ = 7 * sqrt(-2 * log(_u1_))
+			_x_ += _m_ * cos(2 * 3.14159265358979 * _u2_)
+			_y_ += _m_ * sin(2 * 3.14159265358979 * _u2_)
+			if _x_ < 30  _x_ = 60 - _x_  ok
+			if _x_ > 610  _x_ = 1220 - _x_  ok
+			if _y_ < 30  _y_ = 60 - _y_  ok
+			if _y_ > 570  _y_ = 1140 - _y_  ok
+		next
+		_o_.DeclareMany("Dot", _cP_, pnSteps + 1)
+		_o_.SetDataFrom(_cP_, "x", _aX_)
+		_o_.SetDataFrom(_cP_, "y", _aY_)
+		for _i_ = 1 to pnSteps
+			_o_.Define("s" + _cP_ + _i_, "Step", [ _cP_ + _i_, _cP_ + (_i_ + 1) ])
+			_o_.SetData("s" + _cP_ + _i_, "w", _w_)
+		next
+	next
+	return _o_
+
+func StzMathScene36(poFont)
+	_o_ = new stzMathDiagram(StzDotDomain(), StzMathBrownianSubstance(3, 1000), StzDotStyle())
+	_o_.SetFont(poFont, 12)
+	_o_.SetVariation("brown")
+	return _o_

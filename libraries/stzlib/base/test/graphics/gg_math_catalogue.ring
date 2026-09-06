@@ -47,9 +47,12 @@ acTitles = [ "two sets, one inside the other  (Penrose twosets-simple)",
              "A . B = C as a HEAT MAP          (Penrose: matrix product, a ramp on the value)",
              "AN ORG CHART AS A SUBSTANCE      (lawful from a random start -- DN8b's witness)",
              "A DRAKON ICON HOLDS A FORMULA    (the notation's rectangles as polygons)",
-             "BYRNE'S AREAS IN THEIR SQUARES   (a2, b2, c2 solved inside rotated squares)" ]
+             "BYRNE'S AREAS IN THEIR SQUARES   (a2, b2, c2 solved inside rotated squares)",
+             "THE CHAOS GAME                   (Sierpinski by iteration: 5,000 dots, nothing to solve)",
+             "THE NEPHROID AS AN ENVELOPE      (180 circles on a circle, tangent to its diameter)",
+             "BROWNIAN PATHS                   (3,000 steps, each a definition the matcher binds once)" ]
 
-for i = 1 to 33
+for i = 1 to 36
 	if i = 1   oM = StzMathScene01(oFont)
 	but i = 2  oM = StzMathScene02(oFont)
 	but i = 3  oM = StzMathScene03(oFont)
@@ -82,7 +85,10 @@ for i = 1 to 33
 	but i = 30 oM = StzMathScene30(oFont)
 	but i = 31 oM = StzMathScene31(oFont)
 	but i = 32 oM = StzMathScene33(oFont)
-	else       oM = StzMathScene13(oFont)  ok
+	but i = 33 oM = StzMathScene13(oFont)
+	but i = 34 oM = StzMathScene34(oFont)
+	but i = 35 oM = StzMathScene35(oFont)
+	else       oM = StzMathScene36(oFont)  ok
 	oM.Layout()
 	? "== " + acTitles[i]
 	? "   unknowns " + oM.NumberOfUnknowns() + "   constraints " +
