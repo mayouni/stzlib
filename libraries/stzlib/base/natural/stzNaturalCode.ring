@@ -26,11 +26,14 @@ func QRT(p, pcType)
 	ok
 
 	if Q(pcType).IsStzClassName()
+		# eval() assigns in THIS scope, so the generated code creates a
+		# local `oResult` -- reading `$oResult` was reading a global that
+		# nothing ever writes, and QRT() raised R24 on every call.
 		_cCode_ = "oResult = new " + pcType + '(' + @@(p) + ')'
 
 		eval(_cCode_)
 
-		return $oResult
+		return oResult
 	else
 		StzRaise("Unsupported Softanza type!")
 	ok
@@ -39,5 +42,8 @@ func LastValue()
 	return $_LastValue
 
 func SetLastValue(value)
-	_LastValue = value
+	# $_LastValue, declared on line 21 and read by LastValue() above. The
+	# unprefixed name made this a local, so SetLastValue() was a no-op and
+	# the *B() comparisons named in this file's header never saw a value.
+	$_LastValue = value
 	$cStzExpectMode = :Exactly

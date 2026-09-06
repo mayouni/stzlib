@@ -3571,7 +3571,7 @@ class stzNumber from stzObject
 		def IsFardi() # Added because I have a confusion between odd() and even()
 			return This.IsOdd()
 
-		ded IsNotMultipleOf2()
+		def IsNotMultipleOf2()
 			return This.IsOdd()
 
 		#>
@@ -3594,7 +3594,7 @@ class stzNumber from stzObject
 		def IsZawji() # Added because I have a confusion between odd() and even()
 			return This.IsEven()
 
-		ded IsMultipleOf2()
+		def IsMultipleOf2()
 			return This.IsEven()
 
 		#>
