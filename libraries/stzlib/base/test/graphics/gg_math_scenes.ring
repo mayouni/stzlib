@@ -503,3 +503,109 @@ func StzMathScene28(poFont)
 	_o_.SetFont(poFont, 18)
 	_o_.SetVariation("rays")
 	return _o_
+
+#-- a colour channel from substance data (DN7j) ----------------------------
+
+# the quaternion group: 1 i j k -1 -i -j -k as 1..8; a product is computed
+# on (sign, unit) with the unit table i.j = k, j.k = i, k.i = j
+func StzMathQuaternionProduct(pnA, pnB)
+	_sa_ = 1  _ua_ = pnA
+	if pnA > 4  _sa_ = -1  _ua_ = pnA - 4  ok
+	_sb_ = 1  _ub_ = pnB
+	if pnB > 4  _sb_ = -1  _ub_ = pnB - 4  ok
+	# unit products: [ [sign, unit] ] indexed [ua][ub], units 1=1 2=i 3=j 4=k
+	_aT_ = [ [ [1,1], [1,2], [1,3], [1,4] ],
+	         [ [1,2], [-1,1], [1,4], [-1,3] ],
+	         [ [1,3], [-1,4], [-1,1], [1,2] ],
+	         [ [1,4], [1,3], [-1,2], [-1,1] ] ]
+	_r_ = _aT_[_ua_][_ub_]
+	_s_ = _sa_ * _sb_ * _r_[1]
+	if _s_ > 0  return _r_[2]  ok
+	return _r_[2] + 4
+
+func StzMathQuaternionSubstance()
+	_acQ_ = [ "1", "i", "j", "k", "-1", "-i", "-j", "-k" ]
+	_oS_ = new stzMathSubstance(StzTableDomain())
+	for _r_ = 1 to 8
+		_oS_.Declare("Head", "rh" + _r_)
+		_oS_.SetData("rh" + _r_, "row", _r_)  _oS_.SetData("rh" + _r_, "col", 0)
+		_oS_.Label("rh" + _r_, _acQ_[_r_])
+		_oS_.Declare("Head", "ch" + _r_)
+		_oS_.SetData("ch" + _r_, "row", 0)  _oS_.SetData("ch" + _r_, "col", _r_)
+		_oS_.Label("ch" + _r_, _acQ_[_r_])
+		for _c_ = 1 to 8
+			_n_ = "c" + _r_ + "_" + _c_
+			_p_ = StzMathQuaternionProduct(_r_, _c_)
+			_oS_.Declare("Cell", _n_)
+			_oS_.SetData(_n_, "row", _r_)  _oS_.SetData(_n_, "col", _c_)
+			_oS_.SetData(_n_, "p", _p_)
+			_oS_.Label(_n_, _acQ_[_p_])
+		next
+	next
+	return _oS_
+
+func StzMathScene29(poFont)
+	_o_ = new stzMathDiagram(StzTableDomain(), StzMathQuaternionSubstance(),
+		StzQuaternionTableStyle())
+	_o_.SetFont(poFont, 22)
+	_o_.SetVariation("quaternions")
+	return _o_
+
+# A . B = C, each cell coloured by its value on the matrix's own range
+func StzMathMatrixSubstance()
+	_aA_ = [ [ 2, 7, 1, 8 ], [ 2, 8, 1, 8 ], [ 2, 8, 4, 5 ] ]
+	_aB_ = [ [ 9, 0, 4 ], [ 5, 2, 3 ], [ 5, 3, 6 ], [ 0, 2, 8 ] ]
+	_aC_ = []
+	for _i_ = 1 to 3
+		_row_ = []
+		for _j_ = 1 to 3
+			_s_ = 0
+			for _k_ = 1 to 4
+				_s_ += _aA_[_i_][_k_] * _aB_[_k_][_j_]
+			next
+			_row_ + _s_
+		next
+		_aC_ + _row_
+	next
+	_oS_ = new stzMathSubstance(StzTableDomain())
+	StzMathGrid(_oS_, "a", _aA_, 40, 110)
+	StzMathGrid(_oS_, "b", _aB_, 330, 83)
+	StzMathGrid(_oS_, "c", _aC_, 590, 110)
+	_oS_.Declare("Glyph", "times")  _oS_.SetData("times", "x", 290)  _oS_.SetData("times", "y", 191)
+	_oS_.Label("times", "x")
+	_oS_.Declare("Glyph", "equals")  _oS_.SetData("equals", "x", 550)  _oS_.SetData("equals", "y", 191)
+	_oS_.Label("equals", "=")
+	_oS_.Declare("Head", "ha")  _oS_.SetData("ha", "x", 148)  _oS_.SetData("ha", "y", 60)  _oS_.Label("ha", "A  (3 x 4)")
+	_oS_.Declare("Head", "hb")  _oS_.SetData("hb", "x", 411)  _oS_.SetData("hb", "y", 60)  _oS_.Label("hb", "B  (4 x 3)")
+	_oS_.Declare("Head", "hc")  _oS_.SetData("hc", "x", 671)  _oS_.SetData("hc", "y", 60)  _oS_.Label("hc", "A . B  (3 x 3)")
+	return _oS_
+
+# a grid of cells named <prefix><row>_<col>, each with its row, column,
+# origin, value and the value scaled to the grid's own range
+func StzMathGrid(poS, pcPfx, paM, pnX0, pnY0)
+	_lo_ = paM[1][1]  _hi_ = paM[1][1]
+	for _i_ = 1 to len(paM)
+		for _j_ = 1 to len(paM[_i_])
+			if paM[_i_][_j_] < _lo_  _lo_ = paM[_i_][_j_]  ok
+			if paM[_i_][_j_] > _hi_  _hi_ = paM[_i_][_j_]  ok
+		next
+	next
+	for _i_ = 1 to len(paM)
+		for _j_ = 1 to len(paM[_i_])
+			_n_ = pcPfx + _i_ + "_" + _j_
+			poS.Declare("Cell", _n_)
+			poS.SetData(_n_, "row", _i_)  poS.SetData(_n_, "col", _j_)
+			poS.SetData(_n_, "x0", pnX0)  poS.SetData(_n_, "y0", pnY0)
+			poS.SetData(_n_, "v", paM[_i_][_j_])
+			_t_ = 0
+			if _hi_ > _lo_  _t_ = (paM[_i_][_j_] - _lo_) / (_hi_ - _lo_)  ok
+			poS.SetData(_n_, "t", _t_)
+			poS.Label(_n_, "" + paM[_i_][_j_])
+		next
+	next
+
+func StzMathScene30(poFont)
+	_o_ = new stzMathDiagram(StzTableDomain(), StzMathMatrixSubstance(), StzHeatmapStyle())
+	_o_.SetFont(poFont, 19)
+	_o_.SetVariation("heat")
+	return _o_

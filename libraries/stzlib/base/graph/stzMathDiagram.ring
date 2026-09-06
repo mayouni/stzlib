@@ -720,6 +720,65 @@ func StzEllipseRaysStyle()
 		[ :encourage, "notTooClose", [ "r.hit", "s.hit", 4 ] ] ])
 	return _o_
 
+# TABLES -- Penrose's quaternion table and its matrix product. A cell IS
+# its row, its column and its value, and those are NUMBERS on the object;
+# the diagram has nothing to solve, and its colour is a rule over the
+# number. The domain has no predicate: the data is the content.
+func StzTableDomain()
+	_o_ = new stzMathDomain("table")
+	_o_.AddType("Cell")
+	_o_.AddType("Head")
+	_o_.AddType("Glyph")
+	return _o_
+
+# The multiplication table of the quaternion group: eight elements, each
+# cell filled by WHICH element its product is, from a palette indexed by
+# the cell's datum.
+func StzQuaternionTableStyle()
+	_o_ = new stzMathStyle()
+	_o_.SetCanvas(620, 620)
+	_o_.ForAll("Cell c", [
+		[ :shape, "c.icon", :rect, [ :cx = "90 + (c.col - 0.5)*62", :cy = "90 + (c.row - 0.5)*62",
+		    :w = 60, :h = 60,
+		    :fill = [ :palette, "c.p", [ "#ececf2", "#e07b72", "#7fc48a", "#7d9ce0",
+		                                  "#8a8a99", "#a8342b", "#2f7a3c", "#2a4fa8" ] ],
+		    :stroke = "#ffffff", :strokeWidth = 2 ] ],
+		[ :shape, "c.text", :text, [ :fill = [ :palette, "c.p", [ "#222233", "#3a1410", "#0f2a14",
+		                                                            "#0f1a40", "#ffffff", "#ffffff",
+		                                                            "#ffffff", "#ffffff" ] ] ] ],
+		[ :override, "c.text.cx", "c.icon.cx" ], [ :override, "c.text.cy", "c.icon.cy" ],
+		[ :layer, "c.text", :above, "c.icon" ] ])
+	_o_.ForAll("Head h", [
+		[ :shape, "h.text", :text, [ :fill = "#33355c" ] ],
+		[ :override, "h.text.cx", "90 + (h.col - 0.5)*62" ],
+		[ :override, "h.text.cy", "90 + (h.row - 0.5)*62" ] ])
+	return _o_
+
+# A heat map: each cell's fill on a ramp from cool to hot by its datum,
+# already scaled to [0, 1] by the substance that knows the range.
+func StzHeatmapStyle()
+	_o_ = new stzMathStyle()
+	_o_.SetCanvas(880, 380)
+	_o_.ForAll("Cell c", [
+		[ :shape, "c.icon", :rect, [ :cx = "c.x0 + (c.col - 0.5)*54", :cy = "c.y0 + (c.row - 0.5)*54",
+		    :w = 52, :h = 52,
+		    :fill = [ :ramp, "c.t", 0, 1, "#f4f4fb", "#c8443c" ],
+		    :stroke = "#ffffff", :strokeWidth = 2 ] ],
+		# the digits SWITCH from dark to white past two thirds of the ramp
+		# rather than fading with it -- a fade left the middle of the range
+		# pale on pink
+		[ :shape, "c.text", :text, [ :fill = [ :palette, "c.t*2.2 + 0.9",
+		                                       [ "#33355c", "#33355c", "#ffffff" ] ] ] ],
+		[ :override, "c.text.cx", "c.icon.cx" ], [ :override, "c.text.cy", "c.icon.cy" ],
+		[ :layer, "c.text", :above, "c.icon" ] ])
+	_o_.ForAll("Glyph g", [
+		[ :shape, "g.text", :text, [ :fill = "#33355c", :size = 30 ] ],
+		[ :override, "g.text.cx", "g.x" ], [ :override, "g.text.cy", "g.y" ] ])
+	_o_.ForAll("Head h", [
+		[ :shape, "h.text", :text, [ :fill = "#8a8aa0", :size = 16 ] ],
+		[ :override, "h.text.cx", "h.x" ], [ :override, "h.text.cy", "h.y" ] ])
+	return _o_
+
 # A PATH THROUGH POINTS -- Penrose's Catmull-Rom example. Six points in an
 # order the constructor fixes, and the spline that interpolates them.
 func StzPathDomain()
@@ -1717,6 +1776,7 @@ class stzMathSubstance from stzObject
 	@aRelations = []    # [ [ cPredicate, acArgs ] ]
 	@aDefinitions = []  # [ [ cName, cFunction, acArgs ] ]
 	@aLabels = []       # [ [ cName, cLabel ] ]
+	@aData = []         # [ [ cName, cKey, nValue ] ]
 	@bAutoLabel = 0
 
 	def init(poDomain)
@@ -1919,6 +1979,70 @@ class stzMathSubstance from stzObject
 
 	def Definitions()
 		return @aDefinitions
+
+	#-- data ------------------------------------------------------------------
+
+	# A NUMBER ON AN OBJECT. Penrose's Substance carries no numbers, and for
+	# a set or a point that is right: the content is the relation, not the
+	# coordinate. A table is different -- a cell IS its row, its column and
+	# its value -- and a heatmap is nothing but numbers. SetData puts one
+	# on an object under a key; any Style expression reads it as "x.key",
+	# to drive a position or, through a colour rule, a fill.
+	def SetData(pcName, pcKey, pnValue)
+		_c_ = This._DeclaredName(pcName)
+		_k_ = ring_trim("" + pcKey)
+		if _k_ = "" or NOT This._IsIdentifier(_k_)
+			stzraise("stzMathSubstance.SetData: '" + _k_ + "' is not a key -- a " +
+				"letter or underscore, then letters, digits and underscores.")
+		ok
+		if NOT isNumber(pnValue)
+			stzraise("stzMathSubstance.SetData: the value under '" + _k_ + "' on '" +
+				_c_ + "' must be a number.")
+		ok
+		_n_ = len(@aData)
+		for _i_ = 1 to _n_
+			if @aData[_i_][1] = _c_ and @aData[_i_][2] = _k_
+				@aData[_i_][3] = pnValue
+				return This
+			ok
+		next
+		@aData + [ _c_, _k_, pnValue ]
+		return This
+
+		def SetDataQ(pcName, pcKey, pnValue)
+			return This.SetData(pcName, pcKey, pnValue)
+
+	def HasData(pcName, pcKey)
+		_c_ = ring_trim("" + pcName)
+		_k_ = ring_trim("" + pcKey)
+		_n_ = len(@aData)
+		for _i_ = 1 to _n_
+			if @aData[_i_][1] = _c_ and @aData[_i_][2] = _k_  return TRUE  ok
+		next
+		return FALSE
+
+	def DataOf(pcName, pcKey)
+		_c_ = ring_trim("" + pcName)
+		_k_ = ring_trim("" + pcKey)
+		_n_ = len(@aData)
+		for _i_ = 1 to _n_
+			if @aData[_i_][1] = _c_ and @aData[_i_][2] = _k_  return @aData[_i_][3]  ok
+		next
+		stzraise("stzMathSubstance.DataOf: '" + _c_ + "' carries no '" + _k_ + "'.")
+
+	def _IsIdentifier(pc)
+		_k_ = ascii(pc[1])
+		if NOT ((_k_ >= 65 and _k_ <= 90) or (_k_ >= 97 and _k_ <= 122) or _k_ = 95)
+			return FALSE
+		ok
+		for _i_ = 2 to len(pc)
+			_k_ = ascii(pc[_i_])
+			if NOT ((_k_ >= 48 and _k_ <= 57) or (_k_ >= 65 and _k_ <= 90) or
+			        (_k_ >= 97 and _k_ <= 122) or _k_ = 95)
+				return FALSE
+			ok
+		next
+		return TRUE
 
 	# Is pcName defined as pcFunction over exactly these objects, in order?
 	def IsDefinedAs(pcName, pcFunction, pacArgs)
@@ -2517,8 +2641,8 @@ class stzMathDiagram from stzObject
 			StzTrim(_cKind_ + " " + StzSvgNameOf(
 				StzLower(@oSubstance.TypeOf(_cOwner_)), "t_", []) +
 				" el_" + StzSvgNameOf(_cOwner_, "o_", [])))
-		_cFill_ = This._Prop(_aProps_, "fill", "")
-		_cStroke_ = This._Prop(_aProps_, "stroke", "")
+		_cFill_ = This._Colour(This._Prop(_aProps_, "fill", ""))
+		_cStroke_ = This._Colour(This._Prop(_aProps_, "stroke", ""))
 		_nSw_ = This._Prop(_aProps_, "strokeWidth", 1)
 		if _cKind_ = "circle"
 			if _cFill_ != ""  poC.Fill(_cFill_)  else  poC.Fill("#00000000")  ok
@@ -2865,6 +2989,78 @@ class stzMathDiagram from stzObject
 			_bx_ - _nHalf_ * _uy_, _by_ + _nHalf_ * _ux_,
 			_bx_ + _nHalf_ * _uy_, _by_ - _nHalf_ * _ux_ ])
 		poC.Fill(pcColor)
+
+	# The colour a shape is drawn with, after its rule is resolved: what the
+	# guard reads, and what a consumer of the SVG gets.
+	def FillOf(pcPath)
+		This.Layout()
+		_i_ = This._ShapeIndex(pcPath)
+		if _i_ = 0  return ""  ok
+		return This._Colour(This._Prop(@aShapes[_i_][3], "fill", ""))
+
+	def StrokeOf(pcPath)
+		This.Layout()
+		_i_ = This._ShapeIndex(pcPath)
+		if _i_ = 0  return ""  ok
+		return This._Colour(This._Prop(@aShapes[_i_][3], "stroke", ""))
+
+	# A COLOUR FROM A NUMBER. A string is a colour already. A ramp maps an
+	# expression's value from [lo, hi] onto the straight line between two
+	# colours, clamped at both ends; a palette rounds it to an index into a
+	# list, clamped likewise. The value is read at the solved point through
+	# the same tape a position is, so a fill can follow a coordinate as
+	# easily as a datum.
+	def _Colour(pSpec)
+		if NOT isList(pSpec)  return pSpec  ok
+		if len(pSpec) < 2  return ""  ok
+		_k_ = StzLower("" + pSpec[1])
+		_v_ = This._EvalExpr(This._Sym(pSpec[2]))
+		if NOT isNumber(_v_)  _v_ = 0  ok
+		if _k_ = "ramp"
+			if len(pSpec) < 6
+				stzraise("stzMathDiagram: a ramp is [ :ramp, expr, lo, hi, colourA, colourB ].")
+			ok
+			_lo_ = pSpec[3]  _hi_ = pSpec[4]
+			_t_ = 0
+			if _hi_ != _lo_  _t_ = (_v_ - _lo_) / (_hi_ - _lo_)  ok
+			if _t_ < 0  _t_ = 0  ok
+			if _t_ > 1  _t_ = 1  ok
+			return This._LerpHex("" + pSpec[5], "" + pSpec[6], _t_)
+		but _k_ = "palette"
+			if len(pSpec) < 3 or NOT isList(pSpec[3]) or len(pSpec[3]) = 0
+				stzraise("stzMathDiagram: a palette is [ :palette, expr, [ colours ] ].")
+			ok
+			_n_ = len(pSpec[3])
+			_i_ = floor(_v_ + 0.5)
+			if _i_ < 1  _i_ = 1  ok
+			if _i_ > _n_  _i_ = _n_  ok
+			return "" + pSpec[3][_i_]
+		ok
+		stzraise("stzMathDiagram: '" + pSpec[1] + "' is not a colour rule -- ramp or palette.")
+
+	# "#rrggbb" to "#rrggbb", t of the way from A to B, per channel
+	def _LerpHex(pcA, pcB, pt)
+		_a_ = This._HexRGB(pcA)
+		_b_ = This._HexRGB(pcB)
+		_c_ = "#"
+		for _i_ = 1 to 3
+			_v_ = floor(_a_[_i_] + (_b_[_i_] - _a_[_i_]) * pt + 0.5)
+			if _v_ < 0  _v_ = 0  ok
+			if _v_ > 255  _v_ = 255  ok
+			_h_ = hex(_v_)
+			if len(_h_) < 2  _h_ = "0" + _h_  ok
+			_c_ += _h_
+		next
+		return _c_
+
+	def _HexRGB(pc)
+		_c_ = "" + pc
+		if StzLeft(_c_, 1) = "#"  _c_ = StzStringSection(_c_, 2, len(_c_))  ok
+		if len(_c_) < 6
+			stzraise("stzMathDiagram: '" + pc + "' is not a #rrggbb colour.")
+		ok
+		return [ dec(StzStringSection(_c_, 1, 2)), dec(StzStringSection(_c_, 3, 4)),
+		         dec(StzStringSection(_c_, 5, 6)) ]
 
 	def _SvgIdOf(pcPath)
 		# "A.icon" -> "A" for the shape called icon, "A_text" otherwise
@@ -3307,6 +3503,18 @@ class stzMathDiagram from stzObject
 			_p_ = paProps[_i_]
 			if isList(_p_) and len(_p_) = 2 and This._IsGeometric("" + _p_[1])
 				_a_ + [ "" + _p_[1], This._ResolveValue(_p_[2], paVars, paAsg) ]
+			but isList(_p_) and len(_p_) = 2 and isList(_p_[2]) and len(_p_[2]) >= 2
+				# A COLOUR RULE: [ :ramp, expr, lo, hi, cA, cB ] or
+				# [ :palette, expr, [ colours ] ]. Its expression has the
+				# selector's variables as heads like any other, and is
+				# rewritten here; the rest rides through untouched.
+				_spec_ = []
+				_spec_ + ("" + _p_[2][1])
+				_spec_ + This._ResolveValue(_p_[2][2], paVars, paAsg)
+				for _k_ = 3 to len(_p_[2])
+					_spec_ + _p_[2][_k_]
+				next
+				_a_ + [ "" + _p_[1], _spec_ ]
 			else
 				_a_ + _p_
 			ok
@@ -3658,6 +3866,10 @@ class stzMathDiagram from stzObject
 				if _ac_[3] = "w"  return This._Num(_aM_[1])  ok
 				if _ac_[3] = "h"  return This._Num(_aM_[2] + _aM_[3])  ok
 			ok
+		ok
+		# a number the substance put on the object: "c.row", "c.v"
+		if len(_ac_) = 2 and @oSubstance.HasData(_ac_[1], _ac_[2])
+			return This._Num(@oSubstance.DataOf(_ac_[1], _ac_[2]))
 		ok
 		# a bare number written as text
 		if This._LooksNumeric(_c_)  return _c_  ok

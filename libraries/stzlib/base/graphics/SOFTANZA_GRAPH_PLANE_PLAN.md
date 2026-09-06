@@ -102,6 +102,7 @@ sections, of which 21 declarations over 17 items.
 | DN7g | closed | 85 |
 | DN7h | closed | 86 |
 | DN7i | closed | 87 |
+| DN7j | closed | 88 |
 | DN2b | closed | 56 |
 | DN2c | closed | - |
 | DN2d | closed | 57 |
@@ -2240,6 +2241,38 @@ was a cliff at twelve sets.
   the curve and the foci are where the foci are. And each ray's parameter
   is bounded in the energy, not only at its start — DN7h's lesson, applied
   the same day.
+
+- **DN7j — a colour channel from substance data. SHIPPED 2026-09-06.**
+  Guard §88. The last of the gallery's one-feature gaps. Two additions,
+  both small: a substance may put a NUMBER on an object —
+  `SetData(object, key, value)` — and any Style expression reads it as
+  `x.key`; and a fill or stroke may be a RULE over such an expression,
+  `[:ramp, expr, lo, hi, colourA, colourB]` or `[:palette, expr,
+  [colours]]`, resolved at draw time through the same tape a position is.
+  `FillOf(path)` reads the resolved colour back. Catalogue 30.
+
+  | scene | shapes | unknowns | evaluations | ms |
+  |---|---|---|---|---|
+  | the quaternion table, 8×8 | 144 | 160, none referenced | **1** | 512 |
+  | A·B = C as a heat map | 71 | 76, none referenced | **1** | 186 |
+
+  **A table is a diagram with nothing to solve, and the engine says so.**
+  A cell IS its row, its column and its value; those are data, the cell's
+  position is an expression over them, and its colour is a rule over
+  them. Both scenes are lawful in a single evaluation. Penrose's
+  Substance carries no numbers, and for a set or a point that is right —
+  the content is the relation, not the coordinate. A table is the case
+  where the number *is* the content.
+
+  **The quaternion table is read back as mathematics, not as pixels.**
+  The guard checks every row is a permutation of the eight elements — a
+  Latin square, the group's cancellation law — and recomputes all 64
+  products by an independent method (quaternions as 4-vectors) against
+  the cell data; i·j = k and j·i = −k wear different colours because they
+  are different elements. The heat map's C is recomputed from A's and
+  B's cell data; its hottest cell wears the ramp's hot end, found from
+  the data rather than named by hand — the first guess at which cell
+  that was, was wrong, which is the argument for computing it.
 
 ## DN2b — THE RING: a state machine is not a tree (2026-08-23)
 
