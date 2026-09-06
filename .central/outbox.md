@@ -1935,3 +1935,48 @@ note:      THE JOIN TAUGHT MORE THAN IT COST. The adapter is small; the
            was visible until an object crossed from one side to the
            other. A join is also an audit of both sides.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-06 12:50
+
+subject:   DN8b -- layouts as starts, and the end of seed-picking
+
+why:       the author said go ahead; the lattices and the org chart
+           were the pictures it owed
+
+did:
+  - Made the graph plane's layouts the solver's starts, tried in
+    order, first lawful wins, a start the graph cannot give skipped.
+  - Met the kill: both lattices clean on any seed from a hierarchical
+    start, against 7 of 10 and 1 of 12 by seed; the org chart fixed.
+  - Measured the hard-style dodecahedron and kept the number, not the
+    picture: 31 separations and 4 lengths open after 16 rounds.
+  - Made a picture lawful from a random start report the crossing
+    rules it left as unmet advice.
+  - Repaired two negatives DN8b falsified by design.
+
+state:
+  section 90:   13 assertions
+  gate:         989 ok, 0 failed, on main and in the commit tree
+  plan table:   DN8a and DN8b closed; DN8c through DN8g open
+  catalogue:    31 pictures
+  commit:       8eb6d4a6c on origin and codeberg, verified at the sha
+
+waiting:
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      DN8c on the author's word -- one gate over both catalogues
+  - central: nothing owed from this
+
+note:      I REDISCOVERED MY OWN DECISION AS A BUG. The first probe
+           showed the dodecahedron lawful with fifteen crossings under
+           a hard crossing rule, and I spent a probe finding that the
+           rule is advisory when the start is not planar -- a decision
+           of DN7g, written in the code, that I had not carried. The
+           repair is not to the decision but to what it hides: a rule
+           demoted to advice is now counted, so the picture says what
+           it left unmet. A verdict that hides its exceptions is the
+           condition a false "lawful" hides in.
+```
