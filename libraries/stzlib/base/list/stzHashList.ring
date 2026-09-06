@@ -976,7 +976,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	# The last [key, value] pair.
 	def LastPair()
-		return This.LastPair($_n_)
+		return This.NthPair(This.NumberOfPairs())
 
 		def LastPairQ()
 			return This.NthPairQ(This.NumberOfPairs())
@@ -1497,11 +1497,32 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #     INSERTING    #
 	#------------------#
 
+	# Insert paPair AFTER index _nAfter_ (0 inserts at the head).
+	#
+	# The obvious line here -- insert(This.HashList(), _nAfter_, paPair) --
+	# was wrong twice over, and neither half announced itself:
+	#
+	#   1. stzList, the parent, defines Insert(pItem, pWhere). Inside a
+	#      class an unqualified call finds a method -- inherited ones
+	#      included -- before the builtin, so insert(list, n, pair) bound
+	#      to that two-argument method and raised R20, an error naming
+	#      neither the method found nor the builtin meant. Reaching the
+	#      builtin needs a plain function, which nothing shadows:
+	#      StzInsertInList() in stzListFunc.ring.
+	#   2. HashList() returns Content(), which hands back @aContent BY
+	#      VALUE. Inserting into the result mutates a copy, so even with
+	#      the arity right the method would silently do nothing. The
+	#      attribute itself is passed here, and a list passes by reference.
+	def _InsertPairAfter(_nAfter_, paPair)
+		if _nAfter_ < 0 or _nAfter_ > len(@aContent) return ok
+
+		StzInsertInList(@aContent, _nAfter_, paPair)
+		This._InvalidateEngineMap()
+
 	# Insert the given pair BEFORE position n (mutating).
 	def InsertBefore(_n_, paPair)
 		if _n_ > 1 and _n_ <= This.NumberOfPairs()
-			insert( This.HashList, _n_-1, paPair)
-			This._InvalidateEngineMap()
+			This._InsertPairAfter(_n_ - 1, paPair)
 		ok
 
 		def InsertBeforeQ(_n_, paPair)
@@ -1510,8 +1531,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	# Insert the given pair AFTER position n (mutating).
 	def InsertAfter(_n_, paPair)
-		insert( This.HashList, _n_, paPair)
-		This._InvalidateEngineMap()
+		This._InsertPairAfter(_n_, paPair)
 
 		def InsertAfterQ(_n_, paPair)
 			This.InsertAfter(_n_, paPair)

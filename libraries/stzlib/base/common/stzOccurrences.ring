@@ -17,8 +17,8 @@ class stzOccurrences from stzObject
 		ok
 
 		@anOccurrences = panOccurr
-		@pcSubStr = pcSubStr
-		@pcStr = pcStr
+		@cSubStr = pcSubStr
+		@cStr = pcStr
 
 	def Occurrences()
 		return @anOccurrences
@@ -46,7 +46,7 @@ class stzOccurrences from stzObject
 	def RemovedCS(pCaseSensitive)
 		_cResult_ = This.StringQ().
 				RemoveSubStringAtPositionsCSQ(
-					This.Occurrences, This.SubString(), pCaseSensitive).
+					This.Occurrences(), This.SubString(), pCaseSensitive).
 				Content()
 
 		return _cResult_
