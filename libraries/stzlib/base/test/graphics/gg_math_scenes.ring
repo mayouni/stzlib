@@ -479,3 +479,27 @@ func StzMathScene26(poFont)
 	_o_.SetFont(poFont, 18)
 	_o_.SetVariation("catmull")
 	return _o_
+
+#-- ellipses (DN7i): sets in 2.5D, and the rays of an ellipse ----------------
+
+# THE SAME seven-set tree a fourth time: solved as disks, drawn flattened
+func StzMathScene27(poFont)
+	_o_ = new stzMathDiagram(StzSetTheoryDomain(), StzMathTreeSubstance(), StzEuler25DStyle())
+	_o_.SetFont(poFont, 24)
+	_o_.SetVariation("two-and-a-half")
+	return _o_
+
+# an ellipse, its foci, and six rays from one focus to the other
+func StzMathRaysSubstance()
+	_oS_ = new stzMathSubstance(StzConicDomain())
+	_oS_.Declare("Ellipse", "E")
+	for _i_ = 1 to 6
+		_oS_.Define("r" + _i_, "RayOf", [ "E" ])
+	next
+	return _oS_
+
+func StzMathScene28(poFont)
+	_o_ = new stzMathDiagram(StzConicDomain(), StzMathRaysSubstance(), StzEllipseRaysStyle())
+	_o_.SetFont(poFont, 18)
+	_o_.SetVariation("rays")
+	return _o_

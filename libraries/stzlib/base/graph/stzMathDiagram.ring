@@ -624,6 +624,102 @@ func StzBlobStyle()
 		[ :ensure, "disjoint", [ "x.text", "y.icon", "0.12*y.icon.r" ] ] ])
 	return _o_
 
+# SETS IN 2.5D -- Penrose's, and the seven-set tree's FOURTH reading after
+# disks, a tree and blobs. The diagram is SOLVED as disks, exactly as the
+# Euler style solves it, and DRAWN as their image under one affine map:
+# y flattened to 0.55 about a horizontal axis. An affine map preserves
+# containment and disjointness, so every relation the disks satisfied the
+# ellipses satisfy too, with no ellipse ever entering a constraint. A
+# shadow under each disk carries the depth.
+func StzEuler25DStyle()
+	_o_ = new stzMathStyle()
+	_o_.SetCanvas(800, 700)
+	_o_.ForAll("Set x", [
+		[ :shape, "x.icon", :circle, [ :hidden = 1 ] ],
+		[ :shape, "x.text", :text, [ :fill = "#222233" ] ],
+		[ :shape, "x.shadow", :ellipse, [
+		    :cx = "x.icon.cx + 6", :cy = "350 + 0.55*(x.icon.cy - 350) + 9",
+		    :rx = "x.icon.r", :ry = "0.55*x.icon.r", :fill = "#00000026" ] ],
+		[ :shape, "x.disk", :ellipse, [
+		    :cx = "x.icon.cx", :cy = "350 + 0.55*(x.icon.cy - 350)",
+		    :rx = "x.icon.r", :ry = "0.55*x.icon.r",
+		    :fill = "#1a1ae63a", :stroke = "#33355c", :strokeWidth = 1.5 ] ],
+		# the name at the flattened centre; the disk large enough that the
+		# name, which is NOT flattened, still fits the ellipse's short axis
+		[ :override, "x.text.cx", "x.icon.cx" ],
+		[ :override, "x.text.cy", "350 + 0.55*(x.icon.cy - 350)" ],
+		# a box the name would need in disk space, for the rules to hold
+		# other disks off it
+		[ :shape, "x.lbox", :rect, [ :cx = "x.icon.cx", :cy = "x.icon.cy",
+		    :w = "x.text.w + 10", :h = "x.text.h / 0.55 + 10", :hidden = 1 ] ],
+		[ :ensure, "greaterThan", [ "x.icon.r", "x.text.h + 16" ] ],
+		[ :ensure, "greaterThan", [ "x.icon.r", 30 ] ],
+		[ :layer, "x.disk", :above, "x.shadow" ], [ :layer, "x.text", :above, "x.disk" ] ])
+	_o_.ForAllWhere("Set x; Set y", "Subset(x, y)", [
+		[ :ensure, "contains", [ "y.icon", "x.icon", 8 ] ],
+		[ :ensure, "disjoint", [ "y.lbox", "x.icon", 4 ] ],
+		[ :layer, "x.shadow", :above, "y.disk" ], [ :layer, "x.disk", :above, "y.disk" ] ])
+	_o_.ForAllWhere("Set x; Set y", "Disjoint(x, y)", [
+		[ :ensure, "disjoint", [ "x.icon", "y.icon", 6 ] ] ])
+	_o_.ForAllWhere("Set x; Set y", "Intersecting(x, y)", [
+		[ :ensure, "overlapping", [ "x.icon", "y.icon", 20 ] ],
+		[ :ensure, "disjoint", [ "y.lbox", "x.icon", 0 ] ],
+		[ :ensure, "disjoint", [ "x.lbox", "y.icon", 0 ] ] ])
+	return _o_
+
+# ELLIPSE RAYS -- Penrose's, and Byrne's kill for a conic. An ellipse and
+# its two foci; each ray leaves one focus, meets the curve at a point the
+# solver chooses, and continues to the other focus. The substance says
+# none of the optics. The reflection law -- the ray in and the ray out make
+# the same angle with the tangent -- and the string property -- the two
+# legs sum to the major axis -- are read back from the solved picture.
+func StzConicDomain()
+	_o_ = new stzMathDomain("conic")
+	_o_.AddType("Ellipse")
+	_o_.AddType("Ray")
+	_o_.AddFunction("RayOf", [ "Ellipse" ], "Ray")
+	return _o_
+
+func StzEllipseRaysStyle()
+	_o_ = new stzMathStyle()
+	_o_.SetCanvas(720, 520)
+	_o_.ForAll("Ellipse e", [
+		[ :shape, "e.icon", :ellipse, [ :cx = 360, :cy = 255, :rx = 250, :ry = 150,
+		                                :fill = "#f4f4fa", :stroke = "#33355c", :strokeWidth = 2 ] ],
+		# the foci: c = sqrt(rx^2 - ry^2) either side of the centre
+		[ :field, "e.c", "sqrt(e.icon.rx^2 - e.icon.ry^2)" ],
+		[ :shape, "e.f1", :circle, [ :cx = "e.icon.cx - e.c", :cy = "e.icon.cy", :r = 5, :fill = "#c8443c" ] ],
+		[ :shape, "e.f2", :circle, [ :cx = "e.icon.cx + e.c", :cy = "e.icon.cy", :r = 5, :fill = "#c8443c" ] ],
+		[ :layer, "e.f1", :above, "e.icon" ], [ :layer, "e.f2", :above, "e.icon" ] ])
+	_o_.ForAllWhere("Ray r; Ellipse e", "r := RayOf(e)", [
+		# where the ray meets the curve is the solver's: one parameter,
+		# bounded in the energy and not only at its start
+		[ :unknown, "r.t", 0.2, 6.1 ],
+		[ :ensure, "inRange", [ "r.t", 0.05, 6.25 ] ],
+		[ :shape, "r.hit", :circle, [ :cx = "e.icon.cx + e.icon.rx*cos(r.t)",
+		                              :cy = "e.icon.cy + e.icon.ry*sin(r.t)",
+		                              :r = 3.5, :fill = "#33355c" ] ],
+		# the hit stays off the major vertices, where a ray's two legs would
+		# lie along the axis and over each other
+		[ :ensure, "greaterThan", [ "abs(sin(r.t))", 0.3 ] ],
+		# the full legs, hidden, and the drawn legs stopping short of both
+		# foci: six heads on one focus made a blot
+		[ :shape, "r.l1", :line, [ :x1 = "e.f1.cx", :y1 = "e.f1.cy", :x2 = "r.hit.cx", :y2 = "r.hit.cy", :hidden = 1 ] ],
+		[ :shape, "r.l2", :line, [ :x1 = "r.hit.cx", :y1 = "r.hit.cy", :x2 = "e.f2.cx", :y2 = "e.f2.cy", :hidden = 1 ] ],
+		[ :shape, "r.leg1", :line, [ :x1 = "e.f1.cx + 9*ux(r.l1)", :y1 = "e.f1.cy + 9*uy(r.l1)",
+		                             :x2 = "r.hit.cx", :y2 = "r.hit.cy",
+		                             :stroke = "#c8443c", :strokeWidth = 1.5, :arrow = "end" ] ],
+		[ :shape, "r.leg2", :line, [ :x1 = "r.hit.cx", :y1 = "r.hit.cy",
+		                             :x2 = "e.f2.cx - 14*ux(r.l2)", :y2 = "e.f2.cy - 14*uy(r.l2)",
+		                             :stroke = "#33355c", :strokeWidth = 1.5, :arrow = "end" ] ],
+		[ :layer, "r.leg1", :above, "e.icon" ], [ :layer, "r.leg2", :above, "e.icon" ],
+		[ :layer, "r.hit", :above, "r.leg1" ], [ :layer, "r.hit", :above, "r.leg2" ],
+		[ :layer, "e.f1", :above, "r.leg1" ], [ :layer, "e.f2", :above, "r.leg2" ] ])
+	# the rays spread around the curve rather than bunching
+	_o_.ForAll("Ray r; Ray s", [
+		[ :encourage, "notTooClose", [ "r.hit", "s.hit", 4 ] ] ])
+	return _o_
+
 # A PATH THROUGH POINTS -- Penrose's Catmull-Rom example. Six points in an
 # order the constructor fixes, and the spline that interpolates them.
 func StzPathDomain()
@@ -1962,9 +2058,9 @@ class stzMathStyle from stzObject
 			_kind_ = "" + paRow[3]
 			if _kind_ != "circle" and _kind_ != "rect" and _kind_ != "text" and
 			   _kind_ != "line" and _kind_ != "curve" and _kind_ != "poly" and
-			   _kind_ != "mark" and _kind_ != "spline"
+			   _kind_ != "mark" and _kind_ != "spline" and _kind_ != "ellipse"
 				stzraise("stzMathStyle: '" + _kind_ + "' is not a shape DN7 " +
-					"draws -- circle, rect, text, line, curve, poly, mark or spline.")
+					"draws -- circle, rect, text, line, curve, poly, mark, spline or ellipse.")
 			ok
 		but _k_ = "unknown"
 			if NOT isString(paRow[2]) or NOT isNumber(paRow[3]) or len(paRow) < 4 or
@@ -2218,6 +2314,10 @@ class stzMathDiagram from stzObject
 		if _s_[2] = "circle"
 			return [ :kind = "circle", :cx = This._V(_cP_ + ".cx"),
 			         :cy = This._V(_cP_ + ".cy"), :r = This._V(_cP_ + ".r") ]
+		but _s_[2] = "ellipse"
+			return [ :kind = "ellipse", :cx = This._V(_cP_ + ".cx"),
+			         :cy = This._V(_cP_ + ".cy"), :rx = This._V(_cP_ + ".rx"),
+			         :ry = This._V(_cP_ + ".ry") ]
 		but _s_[2] = "line"
 			return [ :kind = "line", :x1 = This._V(_cP_ + ".x1"),
 			         :y1 = This._V(_cP_ + ".y1"), :x2 = This._V(_cP_ + ".x2"),
@@ -2432,6 +2532,12 @@ class stzMathDiagram from stzObject
 			if _cFill_ != ""  poC.Fill(_cFill_)  else  poC.Fill("#00000000")  ok
 			poC.AddRect(This._V(_cP_ + ".cx") - _w_ / 2,
 				This._V(_cP_ + ".cy") - _h_ / 2, _w_, _h_)
+			if _cFill_ != ""  poC.Fill(_cFill_)  ok
+			if _cStroke_ != ""  poC.Stroke(_cStroke_, _nSw_)  ok
+		but _cKind_ = "ellipse"
+			if _cFill_ != ""  poC.Fill(_cFill_)  else  poC.Fill("#00000000")  ok
+			poC.AddEllipse(This._V(_cP_ + ".cx"), This._V(_cP_ + ".cy"),
+				This._V(_cP_ + ".rx"), This._V(_cP_ + ".ry"))
 			if _cFill_ != ""  poC.Fill(_cFill_)  ok
 			if _cStroke_ != ""  poC.Stroke(_cStroke_, _nSw_)  ok
 		but _cKind_ = "line"
@@ -3211,7 +3317,8 @@ class stzMathDiagram from stzObject
 	# polygon's x7 resolves the same way a line's x1 does.
 	def _IsGeometric(pcKey)
 		_k_ = StzLower(pcKey)
-		if _k_ = "cx" or _k_ = "cy" or _k_ = "r" or _k_ = "w" or _k_ = "h"
+		if _k_ = "cx" or _k_ = "cy" or _k_ = "r" or _k_ = "w" or _k_ = "h" or
+		   _k_ = "rx" or _k_ = "ry"
 			return TRUE
 		ok
 		_n_ = len(_k_)
@@ -3283,6 +3390,12 @@ class stzMathDiagram from stzObject
 			_acGeo_ = [ "cx", "cy", "r" ]
 		but pcKind = "rect"
 			_acGeo_ = [ "cx", "cy", "w", "h" ]
+		but pcKind = "ellipse"
+			# axis-aligned: a centre and two radii. To a constraint it is its
+			# bounding box -- exact for a label inside it, conservative for
+			# everything else -- and the styles that use it keep their
+			# reasoning on circles and DERIVE the ellipse
+			_acGeo_ = [ "cx", "cy", "rx", "ry" ]
 		but pcKind = "line"
 			_acGeo_ = [ "x1", "y1", "x2", "y2" ]
 		but pcKind = "curve"
@@ -3730,6 +3843,10 @@ class stzMathDiagram from stzObject
 		if _k_ = "circle"
 			return [ "circle", This._Sym(_c_ + ".cx"), This._Sym(_c_ + ".cy"),
 			         This._Sym(_c_ + ".r") ]
+		but _k_ = "ellipse"
+			# its bounding box: twice each radius
+			return [ "rect", This._Sym(_c_ + ".cx"), This._Sym(_c_ + ".cy"),
+			         "(2*" + This._Sym(_c_ + ".rx") + ")", "(2*" + This._Sym(_c_ + ".ry") + ")" ]
 		but _k_ = "line"
 			_x1_ = This._Sym(_c_ + ".x1")  _y1_ = This._Sym(_c_ + ".y1")
 			_x2_ = This._Sym(_c_ + ".x2")  _y2_ = This._Sym(_c_ + ".y2")

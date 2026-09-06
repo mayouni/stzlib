@@ -13104,6 +13104,44 @@ chk("and the arcs' ends are the vertices themselves, exactly",
     _SpArcEndsOnDots(oSpG, "q", 12))
 
 
+sec("-- 87. DN7i: ELLIPSES -- SETS IN 2.5D, AND THE RAYS OF AN ELLIPSE -----")
+discharges("DN7i")
+
+# SETS IN 2.5D: the seven-set tree a fourth time, solved as disks and drawn
+# as their image under one affine map. The guard checks the DRAWN ellipses:
+# every child's boundary inside its parent's, every disjoint pair apart,
+# and every ellipse flattened by the same factor -- which is what makes
+# the first two follow from the disks at all.
+oEl = StzMathScene27(AUFONT)
+chk("the tree in 2.5D is lawful", oEl.IsFeasible())
+chk("every ellipse is flattened by the one factor, 0.55, exactly",
+    _ElSameAspect(oEl, [ "A", "B", "C", "D", "E", "F", "G" ], 0.55))
+chk("every subset's DRAWN ellipse lies inside its superset's",
+    _ElInside(oEl, "B", "A") and _ElInside(oEl, "C", "A") and _ElInside(oEl, "D", "B") and
+    _ElInside(oEl, "E", "B") and _ElInside(oEl, "F", "C") and _ElInside(oEl, "G", "C"))
+chk("and every disjoint pair's drawn ellipses are apart",
+    _ElApart(oEl, "D", "E") and _ElApart(oEl, "F", "G") and _ElApart(oEl, "B", "C"))
+chk("every name sits inside its own drawn ellipse, box and all",
+    _ElNamesFit(oEl, [ "A", "B", "C", "D", "E", "F", "G" ]))
+chk("NEGATIVE: an ellipse is its bounding box to a constraint -- the shape " +
+    "reads as a rect there, and the styles keep their reasoning on circles",
+    oEl._Geo("A.disk")[1] = "rect")
+
+# ELLIPSE RAYS: Byrne's kill for a conic. Nothing in the substance or the
+# style states the optics; the solver chooses where six rays meet the
+# curve, and the two theorems are read back.
+oRy = StzMathScene28(AUFONT)
+chk("the ellipse and its six rays are lawful", oRy.IsFeasible())
+chk("THE STRING PROPERTY: for every hit, |F1P| + |PF2| equals the major axis, " +
+    "to a hundredth of a pixel", _RyWorstString(oRy, 6) < 0.01)
+chk("THE REFLECTION LAW: at every hit the ray in and the ray out make the same " +
+    "angle with the tangent, to a thousandth of a cosine", _RyWorstLaw(oRy, 6) < 0.001)
+chk("and the hits are spread -- the parameters did work, not one place six times",
+    _RyMinSpread(oRy, 6) > 60)
+chk("NEGATIVE: neither law is a rule -- no constraint in the picture names a focus",
+    _RyRulesNamingFoci(oRy) = 0)
+
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go
@@ -15742,6 +15780,120 @@ func _SpArcEndsOnDots poM, pcPfx, pnEdges
 		if fabs(_spS_[_spN_-1] - _spL_[:x2]) > 0.01 or fabs(_spS_[_spN_] - _spL_[:y2]) > 0.01  return FALSE  ok
 	next
 	return TRUE
+
+func _ElSameAspect poM, pacSets, pnK
+	for _i_ = 1 to len(pacSets)
+		_e_ = poM.ShapeOf(pacSets[_i_] + ".disk")
+		if fabs(_e_[:ry] / _e_[:rx] - pnK) > 0.0001  return FALSE  ok
+	next
+	return TRUE
+
+# 36 points on an ellipse's boundary
+func _ElRim poM, pcSet
+	_e_ = poM.ShapeOf(pcSet + ".disk")
+	_a_ = []
+	for _k_ = 0 to 35
+		_t_ = 6.28318530717959 * _k_ / 36
+		_a_ + [ _e_[:cx] + _e_[:rx] * cos(_t_), _e_[:cy] + _e_[:ry] * sin(_t_) ]
+	next
+	return _a_
+
+func _ElHas poM, pcSet, pnX, pnY
+	_e_ = poM.ShapeOf(pcSet + ".disk")
+	return pow((pnX - _e_[:cx]) / _e_[:rx], 2) + pow((pnY - _e_[:cy]) / _e_[:ry], 2) <= 1.0001
+
+func _ElInside poM, pcInner, pcOuter
+	_a_ = _ElRim(poM, pcInner)
+	for _i_ = 1 to len(_a_)
+		if NOT _ElHas(poM, pcOuter, _a_[_i_][1], _a_[_i_][2])  return FALSE  ok
+	next
+	return TRUE
+
+func _ElApart poM, pcA, pcB
+	_a_ = _ElRim(poM, pcA)
+	for _i_ = 1 to len(_a_)
+		if _ElHas(poM, pcB, _a_[_i_][1], _a_[_i_][2])  return FALSE  ok
+	next
+	_b_ = _ElRim(poM, pcB)
+	for _i_ = 1 to len(_b_)
+		if _ElHas(poM, pcA, _b_[_i_][1], _b_[_i_][2])  return FALSE  ok
+	next
+	return TRUE
+
+# the four corners of every name's box inside its own drawn ellipse
+func _ElNamesFit poM, pacSets
+	for _i_ = 1 to len(pacSets)
+		_t_ = poM.ShapeOf(pacSets[_i_] + ".text")
+		for _sx_ = -1 to 1 step 2
+			for _sy_ = -1 to 1 step 2
+				if NOT _ElHas(poM, pacSets[_i_], _t_[:cx] + _sx_ * _t_[:w] / 2,
+				              _t_[:cy] + _sy_ * _t_[:h] / 2)
+					return FALSE
+				ok
+			next
+		next
+	next
+	return TRUE
+
+func _RyWorstString poM, pnRays
+	_e_ = poM.ShapeOf("E.icon")
+	_f1_ = poM.ValueOf("E.f1.cx")  _f2_ = poM.ValueOf("E.f2.cx")  _fy_ = poM.ValueOf("E.f1.cy")
+	_w_ = 0
+	for _i_ = 1 to pnRays
+		_px_ = poM.ValueOf("r" + _i_ + ".hit.cx")  _py_ = poM.ValueOf("r" + _i_ + ".hit.cy")
+		_d_ = fabs(sqrt(pow(_px_ - _f1_, 2) + pow(_py_ - _fy_, 2)) +
+		           sqrt(pow(_px_ - _f2_, 2) + pow(_py_ - _fy_, 2)) - 2 * _e_[:rx])
+		if _d_ > _w_  _w_ = _d_  ok
+	next
+	return _w_
+
+func _RyWorstLaw poM, pnRays
+	_e_ = poM.ShapeOf("E.icon")
+	_f1_ = poM.ValueOf("E.f1.cx")  _f2_ = poM.ValueOf("E.f2.cx")  _fy_ = poM.ValueOf("E.f1.cy")
+	_w_ = 0
+	for _i_ = 1 to pnRays
+		_px_ = poM.ValueOf("r" + _i_ + ".hit.cx")  _py_ = poM.ValueOf("r" + _i_ + ".hit.cy")
+		_t_ = poM.ValueOf("r" + _i_ + ".t")
+		_tx_ = 0 - _e_[:rx] * sin(_t_)  _ty_ = _e_[:ry] * cos(_t_)
+		_tl_ = sqrt(_tx_ * _tx_ + _ty_ * _ty_)
+		_d1_ = sqrt(pow(_f1_ - _px_, 2) + pow(_fy_ - _py_, 2))
+		_d2_ = sqrt(pow(_f2_ - _px_, 2) + pow(_fy_ - _py_, 2))
+		_c1_ = fabs((_f1_ - _px_) * _tx_ + (_fy_ - _py_) * _ty_) / (_d1_ * _tl_)
+		_c2_ = fabs((_f2_ - _px_) * _tx_ + (_fy_ - _py_) * _ty_) / (_d2_ * _tl_)
+		if fabs(_c1_ - _c2_) > _w_  _w_ = fabs(_c1_ - _c2_)  ok
+	next
+	return _w_
+
+func _RyMinSpread poM, pnRays
+	_m_ = 1000000
+	for _i_ = 1 to pnRays
+		for _j_ = _i_ + 1 to pnRays
+			_d_ = sqrt(pow(poM.ValueOf("r" + _i_ + ".hit.cx") - poM.ValueOf("r" + _j_ + ".hit.cx"), 2) +
+			           pow(poM.ValueOf("r" + _i_ + ".hit.cy") - poM.ValueOf("r" + _j_ + ".hit.cy"), 2))
+			if _d_ < _m_  _m_ = _d_  ok
+		next
+	next
+	return _m_
+
+# how many constraints or objectives mention a focus by name -- the
+# on-canvas rule on the focus DOTS excepted, which keeps a dot on the
+# paper and says nothing about optics
+func _RyRulesNamingFoci poM
+	_n_ = 0
+	for _i_ = 1 to len(poM.@aConstraints)
+		if StzLower(poM.@aConstraints[_i_][1]) = "oncanvas"  loop  ok
+		if StzFindFirst("f1", StzLower(poM.@aConstraints[_i_][3])) > 0 or
+		   StzFindFirst("f2", StzLower(poM.@aConstraints[_i_][3])) > 0
+			_n_++
+		ok
+	next
+	for _i_ = 1 to len(poM.@aObjectives)
+		if StzFindFirst("f1", StzLower(poM.@aObjectives[_i_][3])) > 0 or
+		   StzFindFirst("f2", StzLower(poM.@aObjectives[_i_][3])) > 0
+			_n_++
+		ok
+	next
+	return _n_
 
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0

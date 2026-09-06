@@ -101,6 +101,7 @@ sections, of which 21 declarations over 17 items.
 | DN7f | closed | 84 |
 | DN7g | closed | 85 |
 | DN7h | closed | 86 |
+| DN7i | closed | 87 |
 | DN2b | closed | 56 |
 | DN2c | closed | - |
 | DN2d | closed | 57 |
@@ -2204,6 +2205,41 @@ was a cliff at twelve sets.
   since the graph plane. Thousands of slices across a megabyte is minutes:
   the curved cube did not finish in ten. The digits are gathered as the
   walk passes them now. The network's smaller energy had hidden it.
+
+- **DN7i — ellipses: sets in 2.5D, and the rays of an ellipse. SHIPPED
+  2026-09-06.** Guard §87. The `:ellipse` shape — a centre and two radii,
+  axis-aligned. **To a constraint it is its bounding box**: exact for a
+  label inside it, conservative for everything else, and the two styles
+  that use it never put an ellipse in a constraint at all. Catalogue 28.
+
+  | scene | unknowns | constraints | rounds | ms |
+  |---|---|---|---|---|
+  | the seven-set tree in 2.5D | 35 | 169 | 1 | 96 |
+  | an ellipse and six rays | 6 | 138 | 2 | 113 |
+
+  **2.5D is the tree's FOURTH reading, and it costs no ellipse
+  reasoning.** Disks, a tree, blobs, and now flattened disks with a shadow
+  under each: the diagram is solved as disks exactly as the Euler style
+  solves it, and drawn as their image under one affine map — y flattened
+  to 0.55 about a horizontal axis. An affine map preserves containment
+  and disjointness, so every relation the disks satisfied the ellipses
+  satisfy too; the guard checks it on the drawn rims and asserts the one
+  fact that makes the argument valid, that every ellipse is flattened by
+  the same factor. The one thing the map does not flatten is the NAME, so
+  the disk is held large enough that the name still fits the short axis,
+  and other disks are held off a box the name would need in disk space.
+
+  **The rays are Byrne's kill for a conic.** An ellipse, its two foci at
+  ±√(rx²−ry²), and six rays that leave one focus, meet the curve at a
+  parameter the solver owns, and go on to the other focus. The substance
+  states none of the optics and the guard asserts that no rule names a
+  focus. Read back from the solved picture: **|F1P| + |PF2| = 2a to
+  0.00 px on every hit, and the ray in and the ray out make the same
+  angle with the tangent to 0.00** — the string property and the
+  reflection law, neither asserted, both true because the point is on
+  the curve and the foci are where the foci are. And each ray's parameter
+  is bounded in the energy, not only at its start — DN7h's lesson, applied
+  the same day.
 
 ## DN2b — THE RING: a state machine is not a tree (2026-08-23)
 
