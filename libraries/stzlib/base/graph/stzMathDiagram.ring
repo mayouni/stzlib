@@ -135,9 +135,9 @@ func StzEulerStyle()
 	_o_ = new stzMathStyle()
 	_o_.SetCanvas(800, 700)
 	_o_.ForAll("Set x", [
-		[ :shape, "x.icon", :circle, [ :fill = "#1a1ae633", :stroke = "black",
+		[ :shape, "x.icon", :circle, [ :fill = [ :alpha, "primary", 0.2 ], :stroke = "neutral",
 		                               :strokeWidth = 1 ] ],
-		[ :shape, "x.text", :text, [ :fill = "black" ] ],
+		[ :shape, "x.text", :text, [ :fill = [ :on, "paper" ] ] ],
 		[ :ensure, "greaterThan", [ "x.icon.r", 25 ] ],
 		[ :ensure, "contains", [ "x.icon", "x.text", 4 ] ],
 		[ :encourage, "sameCenter", [ "x.text", "x.icon" ] ],
@@ -163,7 +163,7 @@ func StzTreeStyle()
 	_o_ = new stzMathStyle()
 	_o_.SetCanvas(800, 700)
 	_o_.ForAll("Set x", [
-		[ :shape, "x.text", :text, [ :fill = "black" ] ],
+		[ :shape, "x.text", :text, [ :fill = [ :on, "paper" ] ] ],
 		[ :shape, "x.bounds", :circle, [ :cx = "x.text.cx", :cy = "x.text.cy",
 		                                 :r = 18, :hidden = 1 ] ] ])
 	_o_.ForAll("Set x; Set y", [
@@ -174,7 +174,7 @@ func StzTreeStyle()
 		[ :shape, "x.arrow", :line, [
 			:x1 = "x.text.cx + 22*ux(x.link)", :y1 = "x.text.cy + 22*uy(x.link)",
 			:x2 = "y.text.cx - 22*ux(x.link)", :y2 = "y.text.cy - 22*uy(x.link)",
-			:stroke = "black", :strokeWidth = 3, :arrow = "end" ] ],
+			:stroke = "neutral", :strokeWidth = 3, :arrow = "end" ] ],
 		[ :ensure, "greaterThan", [ "len(x.link)", 70 ] ],
 		[ :encourage, "above", [ "y.bounds", "x.bounds", 100 ] ],
 		[ :encourage, "equal", [ "x.bounds.cx", "y.bounds.cx" ] ] ])
@@ -206,23 +206,23 @@ func StzVectorStyle()
 	_o_.ForAll("VectorSpace U", [
 		[ :field, "U.ox", 260 ], [ :field, "U.oy", 260 ], [ :field, "U.axis", 170 ],
 		[ :shape, "U.box", :rect, [ :cx = "U.ox", :cy = "U.oy", :w = 400, :h = 400,
-		                            :fill = "#f4f4fa", :stroke = "#c8c8d8", :strokeWidth = 1 ] ],
+		                            :fill = [ :alpha, "primary", 0.08 ], :stroke = "muted", :strokeWidth = 1 ] ],
 		[ :shape, "U.xaxis", :line, [ :x1 = "U.ox - U.axis", :y1 = "U.oy",
 		                              :x2 = "U.ox + U.axis", :y2 = "U.oy",
-		                              :stroke = "#8a8a9a", :strokeWidth = 1.5, :arrow = "end" ] ],
+		                              :stroke = "muted", :strokeWidth = 1.5, :arrow = "end" ] ],
 		[ :shape, "U.yaxis", :line, [ :x1 = "U.ox", :y1 = "U.oy + U.axis",
 		                              :x2 = "U.ox", :y2 = "U.oy - U.axis",
-		                              :stroke = "#8a8a9a", :strokeWidth = 1.5, :arrow = "end" ] ],
+		                              :stroke = "muted", :strokeWidth = 1.5, :arrow = "end" ] ],
 		[ :shape, "U.text", :text, [ :cx = "U.ox - U.axis + 12", :cy = "U.oy - U.axis + 12",
-		                             :fill = "#8a8a9a" ] ],
+		                             :fill = "neutral" ] ],
 		[ :layer, "U.xaxis", :above, "U.box" ], [ :layer, "U.yaxis", :above, "U.box" ] ])
 	_o_.ForAllWhere("Vector v; VectorSpace U", "In(v, U)", [
 		[ :shape, "v.arrow", :line, [ :x1 = "U.ox", :y1 = "U.oy",
-		                              :stroke = "#1f4fbf", :strokeWidth = 3, :arrow = "end" ] ],
+		                              :stroke = "primary", :strokeWidth = 3, :arrow = "end" ] ],
 		# the name is SOLVED near the tip rather than placed beyond it: placed
 		# at 1.16 of the arrow it landed on the space's axes whenever the
 		# arrow ran near one, which the one gate found on both vectors
-		[ :shape, "v.text", :text, [ :fill = "#1f4fbf" ] ],
+		[ :shape, "v.text", :text, [ :fill = [ :on, "paper" ] ] ],
 		[ :shape, "v.tip", :circle, [ :cx = "v.arrow.x2", :cy = "v.arrow.y2", :r = 1, :hidden = 1 ] ],
 		# 24 from the tip and 10 off the arrow: the head is 3.5 + 1.2*sw
 		# wide either side of the line, and the name must clear the head,
@@ -241,11 +241,11 @@ func StzVectorStyle()
 		[ :shape, "u.mark1", :line, [
 			:x1 = "U.ox + 14*ux(u.arrow)", :y1 = "U.oy + 14*uy(u.arrow)",
 			:x2 = "U.ox + 14*ux(u.arrow) + 14*ux(v.arrow)",
-			:y2 = "U.oy + 14*uy(u.arrow) + 14*uy(v.arrow)", :stroke = "black", :strokeWidth = 1.5 ] ],
+			:y2 = "U.oy + 14*uy(u.arrow) + 14*uy(v.arrow)", :stroke = "neutral", :strokeWidth = 1.5 ] ],
 		[ :shape, "u.mark2", :line, [
 			:x1 = "U.ox + 14*ux(v.arrow)", :y1 = "U.oy + 14*uy(v.arrow)",
 			:x2 = "U.ox + 14*ux(u.arrow) + 14*ux(v.arrow)",
-			:y2 = "U.oy + 14*uy(u.arrow) + 14*uy(v.arrow)", :stroke = "black", :strokeWidth = 1.5 ] ] ])
+			:y2 = "U.oy + 14*uy(u.arrow) + 14*uy(v.arrow)", :stroke = "neutral", :strokeWidth = 1.5 ] ] ])
 	_o_.ForAllWhere("Vector v; VectorSpace U", "Unit(v); In(v, U)", [
 		[ :ensure, "equal", [ "len(v.arrow)", 90 ] ] ])
 	_o_.ForAllWhere("Vector u; Vector v; VectorSpace U",
@@ -257,10 +257,10 @@ func StzVectorStyle()
 		[ :override, "u.arrow.y2", "v.arrow.y2 + w.arrow.y2 - U.oy" ],
 		[ :shape, "u.slider1", :line, [ :x1 = "v.arrow.x2", :y1 = "v.arrow.y2",
 		                                :x2 = "u.arrow.x2", :y2 = "u.arrow.y2",
-		                                :stroke = "#9fb4e0", :strokeWidth = 1.5 ] ],
+		                                :stroke = "muted", :strokeWidth = 1.5 ] ],
 		[ :shape, "u.slider2", :line, [ :x1 = "w.arrow.x2", :y1 = "w.arrow.y2",
 		                                :x2 = "u.arrow.x2", :y2 = "u.arrow.y2",
-		                                :stroke = "#9fb4e0", :strokeWidth = 1.5 ] ],
+		                                :stroke = "muted", :strokeWidth = 1.5 ] ],
 		[ :ensure, "greaterThan", [ "abs(cross(v.arrow, w.arrow)) / (len(v.arrow) * len(w.arrow))", 0.5 ] ],
 		[ :layer, "u.slider1", :below, "u.arrow" ], [ :layer, "u.slider2", :below, "u.arrow" ] ])
 	return _o_
@@ -295,14 +295,14 @@ func StzEuclideanStyle()
 	_o_ = new stzMathStyle()
 	_o_.SetCanvas(600, 520)
 	_o_.ForAll("Point p", [
-		[ :shape, "p.icon", :circle, [ :r = 4, :fill = "black" ] ],
-		[ :shape, "p.text", :text, [ :fill = "black" ] ],
+		[ :shape, "p.icon", :circle, [ :r = 4, :fill = "neutral" ] ],
+		[ :shape, "p.text", :text, [ :fill = [ :on, "paper" ] ] ],
 		[ :ensure, "disjoint", [ "p.text", "p.icon", 4 ] ],
 		[ :encourage, "near", [ "p.text", "p.icon", 16 ] ] ])
 	_o_.ForAllWhere("Segment s; Point p; Point q", "s := Segment(p, q)", [
 		[ :shape, "s.icon", :line, [ :x1 = "p.icon.cx", :y1 = "p.icon.cy",
 		                             :x2 = "q.icon.cx", :y2 = "q.icon.cy",
-		                             :stroke = "#333333", :strokeWidth = 2 ] ],
+		                             :stroke = "neutral", :strokeWidth = 2 ] ],
 		[ :ensure, "greaterThan", [ "len(s.icon)", 110 ] ],
 		[ :ensure, "lessThan", [ "len(s.icon)", 380 ] ],
 		# a name never sits on a line -- the plane's rule from the electric
@@ -312,11 +312,11 @@ func StzEuclideanStyle()
 		[ :layer, "p.icon", :above, "s.icon" ], [ :layer, "q.icon", :above, "s.icon" ] ])
 	_o_.ForAllWhere("Triangle t; Point p; Point q; Point r", "t := Triangle(p, q, r)", [
 		[ :shape, "t.pq", :line, [ :x1 = "p.icon.cx", :y1 = "p.icon.cy",
-		                           :x2 = "q.icon.cx", :y2 = "q.icon.cy", :stroke = "#333333", :strokeWidth = 2 ] ],
+		                           :x2 = "q.icon.cx", :y2 = "q.icon.cy", :stroke = "neutral", :strokeWidth = 2 ] ],
 		[ :shape, "t.qr", :line, [ :x1 = "q.icon.cx", :y1 = "q.icon.cy",
-		                           :x2 = "r.icon.cx", :y2 = "r.icon.cy", :stroke = "#333333", :strokeWidth = 2 ] ],
+		                           :x2 = "r.icon.cx", :y2 = "r.icon.cy", :stroke = "neutral", :strokeWidth = 2 ] ],
 		[ :shape, "t.pr", :line, [ :x1 = "p.icon.cx", :y1 = "p.icon.cy",
-		                           :x2 = "r.icon.cx", :y2 = "r.icon.cy", :stroke = "#333333", :strokeWidth = 2 ] ],
+		                           :x2 = "r.icon.cx", :y2 = "r.icon.cy", :stroke = "neutral", :strokeWidth = 2 ] ],
 		[ :ensure, "greaterThan", [ "len(t.pq)", 110 ] ],
 		[ :ensure, "greaterThan", [ "len(t.qr)", 110 ] ],
 		[ :ensure, "greaterThan", [ "len(t.pr)", 110 ] ],
@@ -347,19 +347,19 @@ func StzEuclideanStyle()
 		[ :shape, "a.mark1", :line, [
 			:x1 = "q.icon.cx + 16*ux(a.arm1)", :y1 = "q.icon.cy + 16*uy(a.arm1)",
 			:x2 = "q.icon.cx + 16*ux(a.arm1) + 16*ux(a.arm2)",
-			:y2 = "q.icon.cy + 16*uy(a.arm1) + 16*uy(a.arm2)", :stroke = "#333333", :strokeWidth = 1.5 ] ],
+			:y2 = "q.icon.cy + 16*uy(a.arm1) + 16*uy(a.arm2)", :stroke = "neutral", :strokeWidth = 1.5 ] ],
 		[ :shape, "a.mark2", :line, [
 			:x1 = "q.icon.cx + 16*ux(a.arm2)", :y1 = "q.icon.cy + 16*uy(a.arm2)",
 			:x2 = "q.icon.cx + 16*ux(a.arm1) + 16*ux(a.arm2)",
-			:y2 = "q.icon.cy + 16*uy(a.arm1) + 16*uy(a.arm2)", :stroke = "#333333", :strokeWidth = 1.5 ] ] ])
+			:y2 = "q.icon.cy + 16*uy(a.arm1) + 16*uy(a.arm2)", :stroke = "neutral", :strokeWidth = 1.5 ] ] ])
 	_o_.ForAllWhere("Segment s; Segment t", "EqualLength(s, t)", [
 		[ :ensure, "equal", [ "len(s.icon)", "len(t.icon)" ] ],
 		[ :shape, "s.tick", :line, [ :x1 = "midx(s.icon) - 7*nx(s.icon)", :y1 = "midy(s.icon) - 7*ny(s.icon)",
 		                             :x2 = "midx(s.icon) + 7*nx(s.icon)", :y2 = "midy(s.icon) + 7*ny(s.icon)",
-		                             :stroke = "#333333", :strokeWidth = 2 ] ],
+		                             :stroke = "neutral", :strokeWidth = 2 ] ],
 		[ :shape, "t.tick", :line, [ :x1 = "midx(t.icon) - 7*nx(t.icon)", :y1 = "midy(t.icon) - 7*ny(t.icon)",
 		                             :x2 = "midx(t.icon) + 7*nx(t.icon)", :y2 = "midy(t.icon) + 7*ny(t.icon)",
-		                             :stroke = "#333333", :strokeWidth = 2 ] ] ])
+		                             :stroke = "neutral", :strokeWidth = 2 ] ] ])
 	_o_.ForAllWhere("Segment s; Segment t", "Parallel(s, t)", [
 		[ :ensure, "equal", [ "cross(s.icon, t.icon) / (len(s.icon) * len(t.icon))", 0 ] ] ])
 	_o_.ForAllWhere("Segment s; Segment t", "Perpendicular(s, t)", [
@@ -380,10 +380,10 @@ func StzSphericalStyle()
 		[ :unknown, "p.sx", -0.6, 0.6 ], [ :unknown, "p.sy", -0.6, 0.6 ],
 		[ :unknown, "p.sz", 0.5, 1 ],
 		[ :shape, "_.sphere", :circle, [ :cx = 300, :cy = 260, :r = 210,
-		                                 :fill = "#f4f4fa", :stroke = "#c8c8d8", :strokeWidth = 1 ] ],
+		                                 :fill = [ :alpha, "primary", 0.08 ], :stroke = "muted", :strokeWidth = 1 ] ],
 		[ :shape, "p.icon", :circle, [ :cx = "300 + 210*p.sx", :cy = "260 - 210*p.sy",
-		                               :r = 4, :fill = "black" ] ],
-		[ :shape, "p.text", :text, [ :fill = "black" ] ],
+		                               :r = 4, :fill = "neutral" ] ],
+		[ :shape, "p.text", :text, [ :fill = [ :on, "paper" ] ] ],
 		[ :ensure, "equal", [ "100*(p.sx^2 + p.sy^2 + p.sz^2)", 100 ] ],
 		[ :ensure, "greaterThan", [ "100*p.sz", 30 ] ],
 		[ :ensure, "disjoint", [ "p.text", "p.icon", 4 ] ],
@@ -393,7 +393,7 @@ func StzSphericalStyle()
 		[ :field, "s.cosd", "p.sx*q.sx + p.sy*q.sy + p.sz*q.sz" ],
 		[ :shape, "s.icon", :curve, [ :curve = "greatarc",
 		    :x1 = "p.sx", :y1 = "p.sy", :z1 = "p.sz", :x2 = "q.sx", :y2 = "q.sy", :z2 = "q.sz",
-		    :cx = 300, :cy = 260, :r = 210, :stroke = "#333333", :strokeWidth = 2 ] ],
+		    :cx = 300, :cy = 260, :r = 210, :stroke = "neutral", :strokeWidth = 2 ] ],
 		[ :ensure, "lessThan", [ "100*s.cosd", 86 ] ],
 		[ :ensure, "greaterThan", [ "100*s.cosd", 35 ] ],
 		# A NAME NEVER SITS ON A LINE -- the Principal's mark on the sphere.
@@ -411,13 +411,13 @@ func StzSphericalStyle()
 		[ :field, "t.cpr", "p.sx*r.sx + p.sy*r.sy + p.sz*r.sz" ],
 		[ :shape, "t.pq", :curve, [ :curve = "greatarc", :x1 = "p.sx", :y1 = "p.sy", :z1 = "p.sz",
 		    :x2 = "q.sx", :y2 = "q.sy", :z2 = "q.sz", :cx = 300, :cy = 260, :r = 210,
-		    :stroke = "#333333", :strokeWidth = 2 ] ],
+		    :stroke = "neutral", :strokeWidth = 2 ] ],
 		[ :shape, "t.qr", :curve, [ :curve = "greatarc", :x1 = "q.sx", :y1 = "q.sy", :z1 = "q.sz",
 		    :x2 = "r.sx", :y2 = "r.sy", :z2 = "r.sz", :cx = 300, :cy = 260, :r = 210,
-		    :stroke = "#333333", :strokeWidth = 2 ] ],
+		    :stroke = "neutral", :strokeWidth = 2 ] ],
 		[ :shape, "t.pr", :curve, [ :curve = "greatarc", :x1 = "p.sx", :y1 = "p.sy", :z1 = "p.sz",
 		    :x2 = "r.sx", :y2 = "r.sy", :z2 = "r.sz", :cx = 300, :cy = 260, :r = 210,
-		    :stroke = "#333333", :strokeWidth = 2 ] ],
+		    :stroke = "neutral", :strokeWidth = 2 ] ],
 		[ :ensure, "lessThan", [ "100*t.cpq", 86 ] ], [ :ensure, "greaterThan", [ "100*t.cpq", 35 ] ],
 		[ :ensure, "lessThan", [ "100*t.cqr", 86 ] ], [ :ensure, "greaterThan", [ "100*t.cqr", 35 ] ],
 		[ :ensure, "lessThan", [ "100*t.cpr", 86 ] ], [ :ensure, "greaterThan", [ "100*t.cpr", 35 ] ],
@@ -453,7 +453,7 @@ func StzSphericalStyle()
 		    :x2 = "p.sx", :y2 = "p.sy", :z2 = "p.sz",
 		    :x3 = "r.sx", :y3 = "r.sy", :z3 = "r.sz",
 		    :cx = 300, :cy = 260, :r = 210, :size = 17,
-		    :stroke = "#333333", :strokeWidth = 1.5 ] ],
+		    :stroke = "neutral", :strokeWidth = 1.5 ] ],
 		[ :layer, "a.rmark", :above, "_.sphere" ] ])
 	_o_.ForAllWhere("Segment s; Segment t", "EqualLength(s, t)", [
 		[ :ensure, "equal", [ "100*s.cosd", "100*t.cosd" ] ],
@@ -463,13 +463,13 @@ func StzSphericalStyle()
 		    :x2 = "s.icon.x2", :y2 = "s.icon.y2", :z2 = "s.icon.z2",
 		    :x3 = 0, :y3 = 0, :z3 = 0,
 		    :cx = 300, :cy = 260, :r = 210, :size = 13, :ticks = 1,
-		    :stroke = "#333333", :strokeWidth = 2 ] ],
+		    :stroke = "neutral", :strokeWidth = 2 ] ],
 		[ :shape, "t.tick", :mark, [ :mark = "tick", :curve = "greatarc",
 		    :x1 = "t.icon.x1", :y1 = "t.icon.y1", :z1 = "t.icon.z1",
 		    :x2 = "t.icon.x2", :y2 = "t.icon.y2", :z2 = "t.icon.z2",
 		    :x3 = 0, :y3 = 0, :z3 = 0,
 		    :cx = 300, :cy = 260, :r = 210, :size = 13, :ticks = 1,
-		    :stroke = "#333333", :strokeWidth = 2 ] ],
+		    :stroke = "neutral", :strokeWidth = 2 ] ],
 		[ :layer, "s.tick", :above, "_.sphere" ],
 		[ :layer, "t.tick", :above, "_.sphere" ] ])
 	return _o_
@@ -490,10 +490,10 @@ func StzHyperbolicStyle()
 	_o_.ForAll("Point p", [
 		[ :unknown, "p.hx", -0.55, 0.55 ], [ :unknown, "p.hy", -0.55, 0.55 ],
 		[ :shape, "_.disk", :circle, [ :cx = 300, :cy = 260, :r = 220,
-		                               :fill = "#f4f4fa", :stroke = "#c8c8d8", :strokeWidth = 1 ] ],
+		                               :fill = [ :alpha, "primary", 0.08 ], :stroke = "muted", :strokeWidth = 1 ] ],
 		[ :shape, "p.icon", :circle, [ :cx = "300 + 220*p.hx", :cy = "260 - 220*p.hy",
-		                               :r = 4, :fill = "black" ] ],
-		[ :shape, "p.text", :text, [ :fill = "black" ] ],
+		                               :r = 4, :fill = "neutral" ] ],
+		[ :shape, "p.text", :text, [ :fill = [ :on, "paper" ] ] ],
 		[ :ensure, "lessThan", [ "100*(p.hx^2 + p.hy^2)", 64 ] ],
 		[ :ensure, "disjoint", [ "p.text", "p.icon", 4 ] ],
 		[ :encourage, "near", [ "p.text", "p.icon", 16 ] ],
@@ -502,7 +502,7 @@ func StzHyperbolicStyle()
 		[ :field, "s.delta", "((p.hx - q.hx)^2 + (p.hy - q.hy)^2) / ((1 - p.hx^2 - p.hy^2) * (1 - q.hx^2 - q.hy^2))" ],
 		[ :shape, "s.icon", :curve, [ :curve = "poincare",
 		    :x1 = "p.hx", :y1 = "p.hy", :z1 = 0, :x2 = "q.hx", :y2 = "q.hy", :z2 = 0,
-		    :cx = 300, :cy = 260, :r = 220, :stroke = "#333333", :strokeWidth = 2 ] ],
+		    :cx = 300, :cy = 260, :r = 220, :stroke = "neutral", :strokeWidth = 2 ] ],
 		[ :ensure, "greaterThan", [ "100*s.delta", 12 ] ],
 		[ :ensure, "lessThan", [ "100*s.delta", 220 ] ],
 		# the name outside the angle, for every arc that leaves its point
@@ -516,13 +516,13 @@ func StzHyperbolicStyle()
 		[ :field, "t.dpr", "((p.hx - r.hx)^2 + (p.hy - r.hy)^2) / ((1 - p.hx^2 - p.hy^2) * (1 - r.hx^2 - r.hy^2))" ],
 		[ :shape, "t.pq", :curve, [ :curve = "poincare", :x1 = "p.hx", :y1 = "p.hy", :z1 = 0,
 		    :x2 = "q.hx", :y2 = "q.hy", :z2 = 0, :cx = 300, :cy = 260, :r = 220,
-		    :stroke = "#333333", :strokeWidth = 2 ] ],
+		    :stroke = "neutral", :strokeWidth = 2 ] ],
 		[ :shape, "t.qr", :curve, [ :curve = "poincare", :x1 = "q.hx", :y1 = "q.hy", :z1 = 0,
 		    :x2 = "r.hx", :y2 = "r.hy", :z2 = 0, :cx = 300, :cy = 260, :r = 220,
-		    :stroke = "#333333", :strokeWidth = 2 ] ],
+		    :stroke = "neutral", :strokeWidth = 2 ] ],
 		[ :shape, "t.pr", :curve, [ :curve = "poincare", :x1 = "p.hx", :y1 = "p.hy", :z1 = 0,
 		    :x2 = "r.hx", :y2 = "r.hy", :z2 = 0, :cx = 300, :cy = 260, :r = 220,
-		    :stroke = "#333333", :strokeWidth = 2 ] ],
+		    :stroke = "neutral", :strokeWidth = 2 ] ],
 		[ :ensure, "greaterThan", [ "100*t.dpq", 12 ] ], [ :ensure, "lessThan", [ "100*t.dpq", 220 ] ],
 		[ :ensure, "greaterThan", [ "100*t.dqr", 12 ] ], [ :ensure, "lessThan", [ "100*t.dqr", 220 ] ],
 		[ :ensure, "greaterThan", [ "100*t.dpr", 12 ] ], [ :ensure, "lessThan", [ "100*t.dpr", 220 ] ],
@@ -562,7 +562,7 @@ func StzHyperbolicStyle()
 		    :x2 = "p.hx", :y2 = "p.hy", :z2 = 0,
 		    :x3 = "r.hx", :y3 = "r.hy", :z3 = 0,
 		    :cx = 300, :cy = 260, :r = 220, :size = 17,
-		    :stroke = "#333333", :strokeWidth = 1.5 ] ],
+		    :stroke = "neutral", :strokeWidth = 1.5 ] ],
 		[ :layer, "a.rmark", :above, "_.disk" ] ])
 	_o_.ForAllWhere("Segment s; Segment t", "EqualLength(s, t)", [
 		[ :ensure, "equal", [ "100*s.delta", "100*t.delta" ] ],
@@ -571,13 +571,13 @@ func StzHyperbolicStyle()
 		    :x2 = "s.icon.x2", :y2 = "s.icon.y2", :z2 = 0,
 		    :x3 = 0, :y3 = 0, :z3 = 0,
 		    :cx = 300, :cy = 260, :r = 220, :size = 13, :ticks = 1,
-		    :stroke = "#333333", :strokeWidth = 2 ] ],
+		    :stroke = "neutral", :strokeWidth = 2 ] ],
 		[ :shape, "t.tick", :mark, [ :mark = "tick", :curve = "poincare",
 		    :x1 = "t.icon.x1", :y1 = "t.icon.y1", :z1 = 0,
 		    :x2 = "t.icon.x2", :y2 = "t.icon.y2", :z2 = 0,
 		    :x3 = 0, :y3 = 0, :z3 = 0,
 		    :cx = 300, :cy = 260, :r = 220, :size = 13, :ticks = 1,
-		    :stroke = "#333333", :strokeWidth = 2 ] ],
+		    :stroke = "neutral", :strokeWidth = 2 ] ],
 		[ :layer, "s.tick", :above, "_.disk" ],
 		[ :layer, "t.tick", :above, "_.disk" ] ])
 	return _o_
@@ -594,7 +594,7 @@ func StzBlobStyle()
 	_o_.SetCanvas(800, 700)
 	_o_.ForAll("Set x", [
 		[ :shape, "x.icon", :circle, [ :hidden = 1 ] ],
-		[ :shape, "x.text", :text, [ :fill = "#222233" ] ],
+		[ :shape, "x.text", :text, [ :fill = [ :on, "x.blob" ] ] ],
 		[ :unknown, "x.w1", -0.12, 0.12 ], [ :unknown, "x.w2", -0.12, 0.12 ],
 		[ :unknown, "x.w3", -0.12, 0.12 ], [ :unknown, "x.w4", -0.12, 0.12 ],
 		[ :unknown, "x.w5", -0.12, 0.12 ], [ :unknown, "x.w6", -0.12, 0.12 ],
@@ -609,7 +609,7 @@ func StzBlobStyle()
 		    :x6 = "x.icon.cx - 0.70711*x.icon.r*(1 + x.w6)", :y6 = "x.icon.cy + 0.70711*x.icon.r*(1 + x.w6)",
 		    :x7 = "x.icon.cx", :y7 = "x.icon.cy + x.icon.r*(1 + x.w7)",
 		    :x8 = "x.icon.cx + 0.70711*x.icon.r*(1 + x.w8)", :y8 = "x.icon.cy + 0.70711*x.icon.r*(1 + x.w8)",
-		    :fill = "#1a1ae633", :stroke = "#33355c", :strokeWidth = 1.5 ] ],
+		    :fill = [ :alpha, "primary", 0.2 ], :stroke = "neutral", :strokeWidth = 1.5 ] ],
 		# A RANGE ON AN UNKNOWN IS WHERE IT STARTS, NOT WHERE IT MAY GO. The
 		# spline's points are derived from the wobbles, the on-canvas rule
 		# reaches those points, and so the solver moved the wobbles with
@@ -649,14 +649,14 @@ func StzEuler25DStyle()
 	_o_.SetCanvas(800, 700)
 	_o_.ForAll("Set x", [
 		[ :shape, "x.icon", :circle, [ :hidden = 1 ] ],
-		[ :shape, "x.text", :text, [ :fill = "#222233" ] ],
+		[ :shape, "x.text", :text, [ :fill = [ :on, "x.disk" ] ] ],
 		[ :shape, "x.shadow", :ellipse, [
 		    :cx = "x.icon.cx + 6", :cy = "350 + 0.55*(x.icon.cy - 350) + 9",
-		    :rx = "x.icon.r", :ry = "0.55*x.icon.r", :fill = "#00000026" ] ],
+		    :rx = "x.icon.r", :ry = "0.55*x.icon.r", :fill = [ :alpha, "neutral", 0.15 ] ] ],
 		[ :shape, "x.disk", :ellipse, [
 		    :cx = "x.icon.cx", :cy = "350 + 0.55*(x.icon.cy - 350)",
 		    :rx = "x.icon.r", :ry = "0.55*x.icon.r",
-		    :fill = "#1a1ae63a", :stroke = "#33355c", :strokeWidth = 1.5 ] ],
+		    :fill = [ :alpha, "primary", 0.23 ], :stroke = "neutral", :strokeWidth = 1.5 ] ],
 		# the name at the flattened centre; the disk large enough that the
 		# name, which is NOT flattened, still fits the ellipse's short axis
 		[ :override, "x.text.cx", "x.icon.cx" ],
@@ -698,11 +698,11 @@ func StzEllipseRaysStyle()
 	_o_.SetCanvas(720, 520)
 	_o_.ForAll("Ellipse e", [
 		[ :shape, "e.icon", :ellipse, [ :cx = 360, :cy = 255, :rx = 250, :ry = 150,
-		                                :fill = "#f4f4fa", :stroke = "#33355c", :strokeWidth = 2 ] ],
+		                                :fill = [ :alpha, "primary", 0.08 ], :stroke = "neutral", :strokeWidth = 2 ] ],
 		# the foci: c = sqrt(rx^2 - ry^2) either side of the centre
 		[ :field, "e.c", "sqrt(e.icon.rx^2 - e.icon.ry^2)" ],
-		[ :shape, "e.f1", :circle, [ :cx = "e.icon.cx - e.c", :cy = "e.icon.cy", :r = 5, :fill = "#c8443c" ] ],
-		[ :shape, "e.f2", :circle, [ :cx = "e.icon.cx + e.c", :cy = "e.icon.cy", :r = 5, :fill = "#c8443c" ] ],
+		[ :shape, "e.f1", :circle, [ :cx = "e.icon.cx - e.c", :cy = "e.icon.cy", :r = 5, :fill = "primary" ] ],
+		[ :shape, "e.f2", :circle, [ :cx = "e.icon.cx + e.c", :cy = "e.icon.cy", :r = 5, :fill = "primary" ] ],
 		[ :layer, "e.f1", :above, "e.icon" ], [ :layer, "e.f2", :above, "e.icon" ] ])
 	_o_.ForAllWhere("Ray r; Ellipse e", "r := RayOf(e)", [
 		# where the ray meets the curve is the solver's: one parameter,
@@ -711,7 +711,7 @@ func StzEllipseRaysStyle()
 		[ :ensure, "inRange", [ "r.t", 0.05, 6.25 ] ],
 		[ :shape, "r.hit", :circle, [ :cx = "e.icon.cx + e.icon.rx*cos(r.t)",
 		                              :cy = "e.icon.cy + e.icon.ry*sin(r.t)",
-		                              :r = 3.5, :fill = "#33355c" ] ],
+		                              :r = 3.5, :fill = "neutral" ] ],
 		# the hit stays off the major vertices, where a ray's two legs would
 		# lie along the axis and over each other
 		[ :ensure, "greaterThan", [ "abs(sin(r.t))", 0.3 ] ],
@@ -721,10 +721,10 @@ func StzEllipseRaysStyle()
 		[ :shape, "r.l2", :line, [ :x1 = "r.hit.cx", :y1 = "r.hit.cy", :x2 = "e.f2.cx", :y2 = "e.f2.cy", :hidden = 1 ] ],
 		[ :shape, "r.leg1", :line, [ :x1 = "e.f1.cx + 9*ux(r.l1)", :y1 = "e.f1.cy + 9*uy(r.l1)",
 		                             :x2 = "r.hit.cx", :y2 = "r.hit.cy",
-		                             :stroke = "#c8443c", :strokeWidth = 1.5, :arrow = "end" ] ],
+		                             :stroke = "primary", :strokeWidth = 1.5, :arrow = "end" ] ],
 		[ :shape, "r.leg2", :line, [ :x1 = "r.hit.cx", :y1 = "r.hit.cy",
 		                             :x2 = "e.f2.cx - 14*ux(r.l2)", :y2 = "e.f2.cy - 14*uy(r.l2)",
-		                             :stroke = "#33355c", :strokeWidth = 1.5, :arrow = "end" ] ],
+		                             :stroke = "neutral", :strokeWidth = 1.5, :arrow = "end" ] ],
 		[ :layer, "r.leg1", :above, "e.icon" ], [ :layer, "r.leg2", :above, "e.icon" ],
 		[ :layer, "r.hit", :above, "r.leg1" ], [ :layer, "r.hit", :above, "r.leg2" ],
 		[ :layer, "e.f1", :above, "r.leg1" ], [ :layer, "e.f2", :above, "r.leg2" ] ])
@@ -886,7 +886,8 @@ func _MrPointIn(pnX, pnY, paPoly)
 func _MrRegion(poDg, pcPath)
 	_s_ = poDg.ShapeOf(pcPath)
 	_k_ = _s_[:kind]
-	if "" + poDg.PropOf(pcPath, "fill", "") = ""  return []  ok
+	# the RESOLVED fill: a fill may be a rule, and a rule is a list
+	if "" + poDg.FillOf(pcPath) = ""  return []  ok
 	if _k_ = "poly"  return _s_[:points]  ok
 	if _k_ = "spline" and _s_[:closed] = 1  return _s_[:points]  ok
 	if _k_ = "circle"  return _MrRim(_s_[:cx], _s_[:cy], _s_[:r], _s_[:r])  ok
@@ -1364,14 +1365,12 @@ func StzQuaternionTableStyle()
 		    :w = 60, :h = 60,
 		    :fill = [ :palette, "c.p", [ "#ececf2", "#e07b72", "#7fc48a", "#7d9ce0",
 		                                  "#8a8a99", "#a8342b", "#2f7a3c", "#2a4fa8" ] ],
-		    :stroke = "#ffffff", :strokeWidth = 2 ] ],
-		[ :shape, "c.text", :text, [ :fill = [ :palette, "c.p", [ "#222233", "#3a1410", "#0f2a14",
-		                                                            "#0f1a40", "#ffffff", "#ffffff",
-		                                                            "#ffffff", "#ffffff" ] ] ] ],
+		    :stroke = "background", :strokeWidth = 2 ] ],
+		[ :shape, "c.text", :text, [ :fill = [ :on, "c.icon" ] ] ],
 		[ :override, "c.text.cx", "c.icon.cx" ], [ :override, "c.text.cy", "c.icon.cy" ],
 		[ :layer, "c.text", :above, "c.icon" ] ])
 	_o_.ForAll("Head h", [
-		[ :shape, "h.text", :text, [ :fill = "#33355c" ] ],
+		[ :shape, "h.text", :text, [ :fill = [ :on, "paper" ] ] ],
 		[ :override, "h.text.cx", "90 + (h.col - 0.5)*62" ],
 		[ :override, "h.text.cy", "90 + (h.row - 0.5)*62" ] ])
 	return _o_
@@ -1384,20 +1383,19 @@ func StzHeatmapStyle()
 	_o_.ForAll("Cell c", [
 		[ :shape, "c.icon", :rect, [ :cx = "c.x0 + (c.col - 0.5)*54", :cy = "c.y0 + (c.row - 0.5)*54",
 		    :w = 52, :h = 52,
-		    :fill = [ :ramp, "c.t", 0, 1, "#f4f4fb", "#c8443c" ],
-		    :stroke = "#ffffff", :strokeWidth = 2 ] ],
+		    :fill = [ :ramp, "c.t", 0, 1, "background", "primary" ],
+		    :stroke = "background", :strokeWidth = 2 ] ],
 		# the digits SWITCH from dark to white past two thirds of the ramp
 		# rather than fading with it -- a fade left the middle of the range
 		# pale on pink
-		[ :shape, "c.text", :text, [ :fill = [ :palette, "c.t*2.2 + 0.9",
-		                                       [ "#33355c", "#33355c", "#ffffff" ] ] ] ],
+		[ :shape, "c.text", :text, [ :fill = [ :on, "c.icon" ] ] ],
 		[ :override, "c.text.cx", "c.icon.cx" ], [ :override, "c.text.cy", "c.icon.cy" ],
 		[ :layer, "c.text", :above, "c.icon" ] ])
 	_o_.ForAll("Glyph g", [
-		[ :shape, "g.text", :text, [ :fill = "#33355c", :size = 30 ] ],
+		[ :shape, "g.text", :text, [ :fill = [ :on, "paper" ], :size = 30 ] ],
 		[ :override, "g.text.cx", "g.x" ], [ :override, "g.text.cy", "g.y" ] ])
 	_o_.ForAll("Head h", [
-		[ :shape, "h.text", :text, [ :fill = "#8a8aa0", :size = 16 ] ],
+		[ :shape, "h.text", :text, [ :fill = "neutral", :size = 16 ] ],
 		[ :override, "h.text.cx", "h.x" ], [ :override, "h.text.cy", "h.y" ] ])
 	return _o_
 
@@ -1419,8 +1417,8 @@ func StzCatmullStyle()
 	_o_.SetCanvas(720, 480)
 	_o_.SetMargin(30)
 	_o_.ForAll("Point p", [
-		[ :shape, "p.icon", :circle, [ :r = 5, :fill = "#c8443c" ] ],
-		[ :shape, "p.text", :text, [ :fill = "#33355c" ] ],
+		[ :shape, "p.icon", :circle, [ :r = 5, :fill = "primary" ] ],
+		[ :shape, "p.text", :text, [ :fill = [ :on, "paper" ] ] ],
 		[ :ensure, "disjoint", [ "p.text", "p.icon", 4 ] ],
 		[ :ensure, "lessThan", [ "dist(p.text, p.icon)", "24 + p.text.w / 2" ] ],
 		[ :encourage, "near", [ "p.text", "p.icon", 16 ] ] ])
@@ -1450,7 +1448,7 @@ func StzCatmullStyle()
 		    :x1 = "a.icon.cx", :y1 = "a.icon.cy", :x2 = "b.icon.cx", :y2 = "b.icon.cy",
 		    :x3 = "c.icon.cx", :y3 = "c.icon.cy", :x4 = "d.icon.cx", :y4 = "d.icon.cy",
 		    :x5 = "e.icon.cx", :y5 = "e.icon.cy", :x6 = "f.icon.cx", :y6 = "f.icon.cy",
-		    :stroke = "#33355c", :strokeWidth = 2.5 ] ],
+		    :stroke = "neutral", :strokeWidth = 2.5 ] ],
 		[ :layer, "a.icon", :above, "s.icon" ], [ :layer, "b.icon", :above, "s.icon" ],
 		[ :layer, "c.icon", :above, "s.icon" ], [ :layer, "d.icon", :above, "s.icon" ],
 		[ :layer, "e.icon", :above, "s.icon" ], [ :layer, "f.icon", :above, "s.icon" ] ])
@@ -1496,9 +1494,9 @@ func StzGraphStyle()
 	_o_.StartTrying([ :planar, :hierarchical, :force, :random ], "Vertex", "icon", [ "Edge", "Arc" ])
 	_o_.SolveLabelsAfter()
 	_o_.ForAll("Vertex v", [
-		[ :shape, "v.icon", :circle, [ :r = 9, :fill = "#33355c",
-		                               :stroke = "#ffffff", :strokeWidth = 1.5 ] ],
-		[ :shape, "v.text", :text, [ :fill = "#33355c" ] ],
+		[ :shape, "v.icon", :circle, [ :r = 9, :fill = "neutral",
+		                               :stroke = "background", :strokeWidth = 1.5 ] ],
+		[ :shape, "v.text", :text, [ :fill = [ :on, "paper" ] ] ],
 		# a name is SOLVED here, not placed: on a graph the ink around a
 		# vertex is its edges, and which side is free is not known until
 		# the edges are -- so the name is held off its own dot and, below,
@@ -1543,7 +1541,7 @@ func StzGraphStyle()
 	_o_.ForAllWhere("Edge e; Vertex a; Vertex b", "e := Edge(a, b)", [
 		[ :shape, "e.icon", :line, [ :x1 = "a.icon.cx", :y1 = "a.icon.cy",
 		                             :x2 = "b.icon.cx", :y2 = "b.icon.cy",
-		                             :stroke = "#9a9ab8", :strokeWidth = 2, :hidden = _cHid_ ] ],
+		                             :stroke = "muted", :strokeWidth = 2, :hidden = _cHid_ ] ],
 		[ :ensure, "inRange", [ "len(e.icon)", 90, 190 ] ],
 		[ :layer, "a.icon", :above, "e.icon" ], [ :layer, "b.icon", :above, "e.icon" ] ])
 	# a highlighted edge is the same edge, re-minted heavier and red -- the
@@ -1552,7 +1550,7 @@ func StzGraphStyle()
 		[ :delete, "e.icon" ],
 		[ :shape, "e.icon", :line, [ :x1 = "a.icon.cx", :y1 = "a.icon.cy",
 		                             :x2 = "b.icon.cx", :y2 = "b.icon.cy",
-		                             :stroke = "#c8443c", :strokeWidth = 4, :hidden = _cHid_ ] ] ])
+		                             :stroke = "primary", :strokeWidth = 4, :hidden = _cHid_ ] ] ])
 	_o_.ForAllWhere("Vertex v; Edge e; Vertex a; Vertex b", "e := Edge(a, b)", [
 		[ :ensure, "disjoint", [ "v.icon", "e.icon", 6 ] ] ])
 	_o_.ForAllWhere("Arc e; Vertex a; Vertex b", "e := Arc(a, b)", [
@@ -1561,7 +1559,7 @@ func StzGraphStyle()
 		[ :shape, "e.icon", :line, [
 		    :x1 = "a.icon.cx + 12*ux(e.line)", :y1 = "a.icon.cy + 12*uy(e.line)",
 		    :x2 = "b.icon.cx - 12*ux(e.line)", :y2 = "b.icon.cy - 12*uy(e.line)",
-		    :stroke = "#33355c", :strokeWidth = 2, :arrow = "end" ] ],
+		    :stroke = "neutral", :strokeWidth = 2, :arrow = "end" ] ],
 		[ :ensure, "inRange", [ "len(e.line)", 90, 210 ] ] ])
 	_o_.ForAllWhere("Vertex v; Arc e; Vertex a; Vertex b", "e := Arc(a, b)", [
 		[ :ensure, "disjoint", [ "v.icon", "e.icon", 6 ] ] ])
@@ -1594,9 +1592,9 @@ func _StzSpringStyleBuild(pbCurved)
 	# pull on a vertex, and they may not sit on an edge
 	_o_.SolveLabelsAfter()
 	_o_.ForAll("Vertex v", [
-		[ :shape, "v.icon", :circle, [ :r = 8, :fill = "#33355c",
-		                               :stroke = "#ffffff", :strokeWidth = 1.5 ] ],
-		[ :shape, "v.text", :text, [ :fill = "#33355c" ] ],
+		[ :shape, "v.icon", :circle, [ :r = 8, :fill = "neutral",
+		                               :stroke = "background", :strokeWidth = 1.5 ] ],
+		[ :shape, "v.text", :text, [ :fill = [ :on, "paper" ] ] ],
 		[ :ensure, "disjoint", [ "v.text", "v.icon", 3 ] ],
 		[ :ensure, "lessThan", [ "dist(v.text, v.icon)", "28 + v.text.w / 2" ] ],
 		[ :encourage, "near", [ "v.text", "v.icon", 15 ] ],
@@ -1619,7 +1617,7 @@ func _StzSpringStyleBuild(pbCurved)
 	_o_.ForAllWhere("Edge e; Vertex a; Vertex b", "e := Edge(a, b)", [
 		[ :shape, "e.icon", :line, [ :x1 = "a.icon.cx", :y1 = "a.icon.cy",
 		                             :x2 = "b.icon.cx", :y2 = "b.icon.cy",
-		                             :stroke = "#9a9ab8", :strokeWidth = 2, :hidden = _cHid_ ] ],
+		                             :stroke = "muted", :strokeWidth = 2, :hidden = _cHid_ ] ],
 		# 140px: the target sets the INTERIOR, and a cube's inner square at
 		# 108 had no room for four names with their clearances
 		[ :encourage, "equal", [ "len(e.icon) / 4", 35 ] ],
@@ -1628,7 +1626,7 @@ func _StzSpringStyleBuild(pbCurved)
 		[ :delete, "e.icon" ],
 		[ :shape, "e.icon", :line, [ :x1 = "a.icon.cx", :y1 = "a.icon.cy",
 		                             :x2 = "b.icon.cx", :y2 = "b.icon.cy",
-		                             :stroke = "#c8443c", :strokeWidth = 4, :hidden = _cHid_ ] ] ])
+		                             :stroke = "primary", :strokeWidth = 4, :hidden = _cHid_ ] ] ])
 	if pbCurved
 		# the straight edge stays, hidden, as the segment the rules speak to;
 		# a spline through its ends and a point bulged off its middle is drawn
@@ -1638,7 +1636,7 @@ func _StzSpringStyleBuild(pbCurved)
 			[ :shape, "e.arc", :spline, [ :n = 3,
 			    :x1 = "a.icon.cx", :y1 = "a.icon.cy", :x2 = "e.bx", :y2 = "e.by",
 			    :x3 = "b.icon.cx", :y3 = "b.icon.cy",
-			    :stroke = "#9a9ab8", :strokeWidth = 2 ] ],
+			    :stroke = "muted", :strokeWidth = 2 ] ],
 			# the arc's own two half-chords, hidden: a rule cannot see a
 			# spline, but it can see the polygon the spline was drawn through,
 			# and a name held off both halves is held off the arc
@@ -1655,7 +1653,7 @@ func _StzSpringStyleBuild(pbCurved)
 			[ :shape, "e.arc", :spline, [ :n = 3,
 			    :x1 = "a.icon.cx", :y1 = "a.icon.cy", :x2 = "e.bx", :y2 = "e.by",
 			    :x3 = "b.icon.cx", :y3 = "b.icon.cy",
-			    :stroke = "#c8443c", :strokeWidth = 4 ] ] ])
+			    :stroke = "primary", :strokeWidth = 4 ] ] ])
 	ok
 	_o_.ForAllWhere("Vertex v; Edge e; Vertex a; Vertex b", "e := Edge(a, b)", [
 		# thirty, not ten: a vertex close to an edge leaves its NAME no room,
@@ -1676,10 +1674,10 @@ func StzBoxArrowStyle()
 	_o_.SetMargin(24)
 	_o_.StartTrying([ :hierarchical, :planar, :random ], "Vertex", "text", [ "Arc" ])
 	_o_.ForAll("Vertex v", [
-		[ :shape, "v.text", :text, [ :fill = "#222222" ] ],
+		[ :shape, "v.text", :text, [ :fill = [ :on, "v.icon" ] ] ],
 		[ :shape, "v.icon", :rect, [ :cx = "v.text.cx", :cy = "v.text.cy",
 		                             :w = "v.text.w + 30", :h = "v.text.h + 12",
-		                             :fill = "#f4f4fa", :stroke = "#33355c", :strokeWidth = 1.5 ] ],
+		                             :fill = [ :alpha, "primary", 0.08 ], :stroke = "neutral", :strokeWidth = 1.5 ] ],
 		[ :encourage, "equal", [ "v.text.cx / 8", 47.5 ] ],
 		[ :encourage, "equal", [ "v.text.cy / 8", 32.5 ] ],
 		[ :layer, "v.text", :above, "v.icon" ] ])
@@ -1694,7 +1692,7 @@ func StzBoxArrowStyle()
 		[ :shape, "e.icon", :line, [
 		    :x1 = "a.text.cx + (e.ta + 3)*ux(e.line)", :y1 = "a.text.cy + (e.ta + 3)*uy(e.line)",
 		    :x2 = "b.text.cx - (e.tb + 3)*ux(e.line)", :y2 = "b.text.cy - (e.tb + 3)*uy(e.line)",
-		    :stroke = "#33355c", :strokeWidth = 2, :arrow = "end" ] ],
+		    :stroke = "neutral", :strokeWidth = 2, :arrow = "end" ] ],
 		[ :ensure, "greaterThan", [ "len(e.line)", 140 ] ],
 		# an arc reads left to right when it can
 		[ :encourage, "leftwards", [ "a.icon", "b.icon", 120 ] ] ])
@@ -1717,13 +1715,13 @@ func StzWordCloudStyle()
 	_o_ = new stzMathStyle()
 	_o_.SetCanvas(720, 480)
 	_o_.ForAll("Word w", [
-		[ :shape, "w.text", :text, [ :size = 17, :fill = "#7a7a9a" ] ] ])
+		[ :shape, "w.text", :text, [ :size = 17, :fill = "neutral" ] ] ])
 	_o_.ForAllWhere("Word w", "Medium(w)", [
 		[ :delete, "w.text" ],
-		[ :shape, "w.text", :text, [ :size = 27, :fill = "#33355c" ] ] ])
+		[ :shape, "w.text", :text, [ :size = 27, :fill = [ :on, "paper" ] ] ] ])
 	_o_.ForAllWhere("Word w", "Large(w)", [
 		[ :delete, "w.text" ],
-		[ :shape, "w.text", :text, [ :size = 46, :fill = "#c8443c" ] ] ])
+		[ :shape, "w.text", :text, [ :size = 46, :fill = "primary" ] ] ])
 	_o_.ForAll("Word w", [
 		[ :encourage, "equal", [ "w.text.cx / 4", 90 ] ],
 		[ :encourage, "equal", [ "w.text.cy / 4", 60 ] ] ])
@@ -1742,13 +1740,13 @@ func StzThalesStyle()
 	_o_ = new stzMathStyle()
 	_o_.SetCanvas(620, 560)
 	_o_.ForAll("Circle k", [
-		[ :shape, "k.icon", :circle, [ :fill = "#f6f6fb", :stroke = "#8a8ab0",
+		[ :shape, "k.icon", :circle, [ :fill = [ :alpha, "primary", 0.08 ], :stroke = "muted",
 		                               :strokeWidth = 2 ] ],
 		[ :ensure, "greaterThan", [ "k.icon.r", 160 ] ],
 		[ :ensure, "lessThan", [ "k.icon.r", 210 ] ] ])
 	_o_.ForAll("Point p", [
-		[ :shape, "p.icon", :circle, [ :r = 4, :fill = "#111111" ] ],
-		[ :shape, "p.text", :text, [ :fill = "#111111" ] ],
+		[ :shape, "p.icon", :circle, [ :r = 4, :fill = "neutral" ] ],
+		[ :shape, "p.text", :text, [ :fill = [ :on, "paper" ] ] ],
 		[ :ensure, "disjoint", [ "p.text", "p.icon", 5 ] ],
 		[ :encourage, "near", [ "p.text", "p.icon", 20 ] ] ])
 	_o_.ForAllWhere("Point p; Circle k", "OnCircle(p, k)", [
@@ -1760,7 +1758,7 @@ func StzThalesStyle()
 	_o_.ForAllWhere("Segment s; Point p; Point q", "s := Segment(p, q)", [
 		[ :shape, "s.icon", :line, [ :x1 = "p.icon.cx", :y1 = "p.icon.cy",
 		                             :x2 = "q.icon.cx", :y2 = "q.icon.cy",
-		                             :stroke = "#333333", :strokeWidth = 2 ] ],
+		                             :stroke = "neutral", :strokeWidth = 2 ] ],
 		[ :ensure, "disjoint", [ "p.text", "s.icon", 3 ] ],
 		[ :ensure, "disjoint", [ "q.text", "s.icon", 3 ] ] ])
 	_o_.ForAllWhere("Segment s; Circle k", "Diameter(s, k)", [
@@ -1770,7 +1768,7 @@ func StzThalesStyle()
 		[ :shape, "t.face", :poly, [ :n = 3,
 		    :x1 = "p.icon.cx", :y1 = "p.icon.cy", :x2 = "q.icon.cx", :y2 = "q.icon.cy",
 		    :x3 = "r.icon.cx", :y3 = "r.icon.cy",
-		    :fill = "#e8b93b66", :stroke = "#333333", :strokeWidth = 2 ] ],
+		    :fill = [ :alpha, "primary", 0.25 ], :stroke = "neutral", :strokeWidth = 2 ] ],
 		[ :layer, "p.icon", :above, "t.face" ], [ :layer, "q.icon", :above, "t.face" ],
 		[ :layer, "r.icon", :above, "t.face" ] ])
 	# THE MARK the theorem earns: the angle at the apex, drawn because
@@ -1784,12 +1782,12 @@ func StzThalesStyle()
 			:x1 = "q.icon.cx + 15*ux(a.arm1)", :y1 = "q.icon.cy + 15*uy(a.arm1)",
 			:x2 = "q.icon.cx + 15*ux(a.arm1) + 15*ux(a.arm2)",
 			:y2 = "q.icon.cy + 15*uy(a.arm1) + 15*uy(a.arm2)",
-			:stroke = "#333333", :strokeWidth = 1.5 ] ],
+			:stroke = "neutral", :strokeWidth = 1.5 ] ],
 		[ :shape, "a.mark2", :line, [
 			:x1 = "q.icon.cx + 15*ux(a.arm2)", :y1 = "q.icon.cy + 15*uy(a.arm2)",
 			:x2 = "q.icon.cx + 15*ux(a.arm1) + 15*ux(a.arm2)",
 			:y2 = "q.icon.cy + 15*uy(a.arm1) + 15*uy(a.arm2)",
-			:stroke = "#333333", :strokeWidth = 1.5 ] ] ])
+			:stroke = "neutral", :strokeWidth = 1.5 ] ] ])
 	return _o_
 
 # ORDER THEORY. A partial order is not a picture of anything -- it has no
@@ -1821,9 +1819,9 @@ func StzHasseStyle()
 	# no seed chosen
 	_o_.StartTrying([ :hierarchical, :planar, :random ], "Element", "icon", [ "Cover" ])
 	_o_.ForAll("Element x", [
-		[ :shape, "x.icon", :circle, [ :r = 24, :fill = "#ffffff",
-		                               :stroke = "#33355c", :strokeWidth = 2 ] ],
-		[ :shape, "x.text", :text, [ :fill = "#22223a" ] ],
+		[ :shape, "x.icon", :circle, [ :r = 24, :fill = "background",
+		                               :stroke = "neutral", :strokeWidth = 2 ] ],
+		[ :shape, "x.text", :text, [ :fill = [ :on, "x.icon" ] ] ],
 		# the name IS the node, so it is placed and not solved
 		[ :override, "x.text.cx", "x.icon.cx" ],
 		[ :override, "x.text.cy", "x.icon.cy" ],
@@ -1851,7 +1849,7 @@ func StzHasseStyle()
 		[ :shape, "c.icon", :line, [
 		    :x1 = "x.icon.cx + 24*ux(c.line)", :y1 = "x.icon.cy + 24*uy(c.line)",
 		    :x2 = "y.icon.cx - 24*ux(c.line)", :y2 = "y.icon.cy - 24*uy(c.line)",
-		    :stroke = "#7777a0", :strokeWidth = 2 ] ],
+		    :stroke = "muted", :strokeWidth = 2 ] ],
 		# x covers y, so x is the higher of the two -- by a clear row
 		[ :ensure, "greaterThan", [ "y.icon.cy", "x.icon.cy + 88" ] ],
 		[ :ensure, "lessThan", [ "y.icon.cy", "x.icon.cy + 132" ] ],
@@ -1882,7 +1880,7 @@ func StzCommutativeStyle()
 	_o_ = new stzMathStyle()
 	_o_.SetCanvas(660, 560)
 	_o_.ForAll("Object a", [
-		[ :shape, "a.text", :text, [ :fill = "#111111" ] ],
+		[ :shape, "a.text", :text, [ :fill = [ :on, "paper" ] ] ],
 		[ :shape, "a.bounds", :circle, [ :cx = "a.text.cx", :cy = "a.text.cy",
 		                                 :r = 26, :hidden = 1 ] ] ])
 	_o_.ForAllWhere("Arrow f; Object a; Object b", "f := Arrow(a, b)", [
@@ -1891,8 +1889,8 @@ func StzCommutativeStyle()
 		[ :shape, "f.icon", :line, [
 		    :x1 = "a.text.cx + 26*ux(f.line)", :y1 = "a.text.cy + 26*uy(f.line)",
 		    :x2 = "b.text.cx - 26*ux(f.line)", :y2 = "b.text.cy - 26*uy(f.line)",
-		    :stroke = "#111111", :strokeWidth = 2, :arrow = "end" ] ],
-		[ :shape, "f.text", :text, [ :fill = "#a03028" ] ],
+		    :stroke = "neutral", :strokeWidth = 2, :arrow = "end" ] ],
+		[ :shape, "f.text", :text, [ :fill = "primary" ] ],
 		# the arrow's name sits off its middle, on the side the arrow turns
 		# away from -- placed, so it costs the solver nothing
 		[ :override, "f.text.cx", "midx(f.icon) + 15*nx(f.icon)" ],
@@ -1948,14 +1946,14 @@ func StzByrneStyle()
 	# also became the argument of a disjoint() and a near(), the tape grew
 	# past what the solver could work with.
 	_o_.ForAll("Point p", [
-		[ :shape, "p.icon", :circle, [ :r = 3.5, :fill = "#222222" ] ],
-		[ :shape, "p.text", :text, [ :fill = "#222222" ] ] ])
+		[ :shape, "p.icon", :circle, [ :r = 3.5, :fill = "neutral" ] ],
+		[ :shape, "p.text", :text, [ :fill = [ :on, "paper" ] ] ] ])
 	# ANY triangle is an outline, with its names set outward from the middle...
 	_o_.ForAllWhere("Triangle t; Point p; Point q; Point r", "t := Triangle(p, q, r)", [
 		[ :shape, "t.icon", :poly, [ :n = 3,
 		    :x1 = "p.icon.cx", :y1 = "p.icon.cy", :x2 = "q.icon.cx", :y2 = "q.icon.cy",
 		    :x3 = "r.icon.cx", :y3 = "r.icon.cy",
-		    :stroke = "#555555", :strokeWidth = 2 ] ],
+		    :stroke = "neutral", :strokeWidth = 2 ] ],
 		[ :field, "t.ox", "(p.icon.cx + q.icon.cx + r.icon.cx) / 3" ],
 		[ :field, "t.oy", "(p.icon.cy + q.icon.cy + r.icon.cy) / 3" ],
 		[ :field, "t.dp", "sqrt((p.icon.cx - t.ox)^2 + (p.icon.cy - t.oy)^2 + 0.000001)" ],
@@ -2011,17 +2009,17 @@ func StzByrneStyle()
 		    :x1 = "q.icon.cx", :y1 = "q.icon.cy", :x2 = "r.icon.cx", :y2 = "r.icon.cy",
 		    :x3 = "r.icon.cx + t.lbc*t.wx", :y3 = "r.icon.cy + t.lbc*t.wy",
 		    :x4 = "q.icon.cx + t.lbc*t.wx", :y4 = "q.icon.cy + t.lbc*t.wy",
-		    :fill = "#f2ecdd", :stroke = "#222222", :strokeWidth = 1.5 ] ],
+		    :fill = "#f2ecdd", :stroke = "neutral", :strokeWidth = 1.5 ] ],
 		[ :shape, "t.rect1", :poly, [ :n = 4,
 		    :x1 = "q.icon.cx", :y1 = "q.icon.cy", :x2 = "t.fx", :y2 = "t.fy",
 		    :x3 = "t.gx", :y3 = "t.gy",
 		    :x4 = "q.icon.cx + t.lbc*t.wx", :y4 = "q.icon.cy + t.lbc*t.wy",
-		    :fill = "#c8443c", :stroke = "#222222", :strokeWidth = 1.5 ] ],
+		    :fill = "#c8443c", :stroke = "neutral", :strokeWidth = 1.5 ] ],
 		[ :shape, "t.rect2", :poly, [ :n = 4,
 		    :x1 = "t.fx", :y1 = "t.fy", :x2 = "r.icon.cx", :y2 = "r.icon.cy",
 		    :x3 = "r.icon.cx + t.lbc*t.wx", :y3 = "r.icon.cy + t.lbc*t.wy",
 		    :x4 = "t.gx", :y4 = "t.gy",
-		    :fill = "#2f5f98", :stroke = "#222222", :strokeWidth = 1.5 ] ],
+		    :fill = "#2f5f98", :stroke = "neutral", :strokeWidth = 1.5 ] ],
 		# THE SQUARES ON THE LEGS. Because the angle at p is right, the
 		# square on one leg stands along the OTHER leg's direction, reversed
 		# -- so no normal has to be computed for either of them.
@@ -2029,19 +2027,19 @@ func StzByrneStyle()
 		    :x1 = "p.icon.cx", :y1 = "p.icon.cy", :x2 = "q.icon.cx", :y2 = "q.icon.cy",
 		    :x3 = "q.icon.cx - t.lab*t.ucx", :y3 = "q.icon.cy - t.lab*t.ucy",
 		    :x4 = "p.icon.cx - t.lab*t.ucx", :y4 = "p.icon.cy - t.lab*t.ucy",
-		    :fill = "#c8443c", :stroke = "#222222", :strokeWidth = 1.5 ] ],
+		    :fill = "#c8443c", :stroke = "neutral", :strokeWidth = 1.5 ] ],
 		[ :shape, "t.sqac", :poly, [ :n = 4,
 		    :x1 = "p.icon.cx", :y1 = "p.icon.cy", :x2 = "r.icon.cx", :y2 = "r.icon.cy",
 		    :x3 = "r.icon.cx - t.lac*t.ubx", :y3 = "r.icon.cy - t.lac*t.uby",
 		    :x4 = "p.icon.cx - t.lac*t.ubx", :y4 = "p.icon.cy - t.lac*t.uby",
-		    :fill = "#2f5f98", :stroke = "#222222", :strokeWidth = 1.5 ] ],
+		    :fill = "#2f5f98", :stroke = "neutral", :strokeWidth = 1.5 ] ],
 		# the triangle itself, and the altitude continued to the far side
 		[ :shape, "t.face", :poly, [ :n = 3,
 		    :x1 = "p.icon.cx", :y1 = "p.icon.cy", :x2 = "q.icon.cx", :y2 = "q.icon.cy",
 		    :x3 = "r.icon.cx", :y3 = "r.icon.cy",
-		    :fill = "#e8b93b", :stroke = "#222222", :strokeWidth = 1.5 ] ],
+		    :fill = "#e8b93b", :stroke = "neutral", :strokeWidth = 1.5 ] ],
 		[ :shape, "t.alt", :line, [ :x1 = "p.icon.cx", :y1 = "p.icon.cy",
-		    :x2 = "t.gx", :y2 = "t.gy", :stroke = "#222222", :strokeWidth = 1.5 ] ],
+		    :x2 = "t.gx", :y2 = "t.gy", :stroke = "neutral", :strokeWidth = 1.5 ] ],
 		# THE RIGHT ANGLE, MARKED WITH ITS CORNER ON THE ALTITUDE. A mark
 		# with two EQUAL arms has its corner on the angle's bisector -- and
 		# the altitude from a right angle is not its bisector unless the
@@ -2059,10 +2057,10 @@ func StzByrneStyle()
 		[ :field, "t.kx", "p.icon.cx + 21*t.wx" ], [ :field, "t.ky", "p.icon.cy + 21*t.wy" ],
 		[ :shape, "t.mark1", :line, [
 		    :x1 = "p.icon.cx + t.k1*t.ubx", :y1 = "p.icon.cy + t.k1*t.uby",
-		    :x2 = "t.kx", :y2 = "t.ky", :stroke = "#222222", :strokeWidth = 1.5 ] ],
+		    :x2 = "t.kx", :y2 = "t.ky", :stroke = "neutral", :strokeWidth = 1.5 ] ],
 		[ :shape, "t.mark2", :line, [
 		    :x1 = "p.icon.cx + t.k2*t.ucx", :y1 = "p.icon.cy + t.k2*t.ucy",
-		    :x2 = "t.kx", :y2 = "t.ky", :stroke = "#222222", :strokeWidth = 1.5 ] ],
+		    :x2 = "t.kx", :y2 = "t.ky", :stroke = "neutral", :strokeWidth = 1.5 ] ],
 		# EVERY NAME THE SAME DISTANCE FROM THE INK. A polygon is derived, so
 		# no constraint can speak to one -- but the EDGES that make the notch
 		# a name sits in are two segments, and a segment can be constrained.
@@ -2890,6 +2888,7 @@ class stzMathStyle from stzObject
 	@aStarts = []       # the start modes, in the order tried
 	@nMargin = 0
 	@bLabelsAfter = FALSE
+	@cTheme = ""        # the theme a role resolves in; "" is the light one
 
 	def init()
 
@@ -3068,6 +3067,24 @@ class stzMathStyle from stzObject
 
 	def Margin()
 		return @nMargin
+
+	# COLOUR AS MEANING (DN8d). A style writes ROLES -- :primary for the one
+	# accent, :neutral for ink, :muted for secondary ink, :background for
+	# the paper -- and the theme decides what each is. A theme is named
+	# here; the diagram resolves every role through it at draw time, and
+	# a text with no colour of its own takes the best of black and white
+	# on what it sits on, measured. Content colours -- Byrne's plate, the
+	# quaternion table's eight -- stay the style's own data.
+	def SetTheme(pcName)
+		@cTheme = StzLower(ring_trim("" + pcName))
+		return This
+
+		def SetThemeQ(pcName)
+			return This.SetTheme(pcName)
+
+	def Theme()
+		if @cTheme = ""  return "light"  ok
+		return @cTheme
 
 	# LABELS AFTER SHAPES. The joint first stage lets a name's constraints
 	# move the shapes -- which an Euler diagram needs, since a set must be
@@ -3454,7 +3471,7 @@ class stzMathDiagram from stzObject
 	def ToCanvas()
 		This.Layout()
 		_oC_ = new stzCanvas(@oStyle.CanvasWidth(), @oStyle.CanvasHeight())
-		_oC_.SetBackground("white")
+		_oC_.SetBackground(This.Background())
 		if isObject(@oFont)  _oC_.SetFont(@oFont, @nFontSize)  ok
 		_aOrder_ = This._DrawOrder()
 		_n_ = len(_aOrder_)
@@ -3568,7 +3585,9 @@ class stzMathDiagram from stzObject
 			_y_ = This._V(_cP_ + ".cy") + (_aM_[2] - _aM_[3]) / 2
 			poC.SetFont(@oFont, This._Prop(_aProps_, "size", @nFontSize))
 			poC.AddText(_cT_, _x_, _y_)
-			if _cFill_ != ""  poC.Fill(_cFill_)  else  poC.Fill("black")  ok
+			# a name given no colour takes the best of black and white on
+			# the paper, measured -- never a literal black
+			if _cFill_ != ""  poC.Fill(_cFill_)  else  poC.Fill(StzBestTextOn(This.Background())[1])  ok
 		ok
 
 	# A GEODESIC, sampled: on the sphere by slerp between the two unit
@@ -3853,9 +3872,28 @@ class stzMathDiagram from stzObject
 	# the same tape a position is, so a fill can follow a coordinate as
 	# easily as a datum.
 	def _Colour(pSpec)
-		if NOT isList(pSpec)  return pSpec  ok
+		if NOT isList(pSpec)  return This._RoleColour(pSpec)  ok
 		if len(pSpec) < 2  return ""  ok
 		_k_ = StzLower("" + pSpec[1])
+		# [ :alpha, colour, a ]: any colour, role or hex, at an opacity --
+		# a surface is the accent at a fifth over whatever the paper is,
+		# which is what keeps a fill right under a dark theme
+		if _k_ = "alpha"
+			if len(pSpec) < 3
+				stzraise("stzMathDiagram: an alpha colour is [ :alpha, colour, opacity ].")
+			ok
+			return This._WithAlpha(This._Colour(pSpec[2]), pSpec[3])
+		ok
+		# [ :on, path ]: the best of black and white on that shape's fill,
+		# measured; [ :on, "paper" ]: on the theme's background
+		if _k_ = "on"
+			_cBg_ = This.Background()
+			if StzLower("" + pSpec[2]) != "paper"
+				_cF_ = This.FillOf("" + pSpec[2])
+				if _cF_ != ""  _cBg_ = This._Opaque(_cF_, _cBg_)  ok
+			ok
+			return StzBestTextOn(_cBg_)[1]
+		ok
 		_v_ = This._EvalExpr(This._Sym(pSpec[2]))
 		if NOT isNumber(_v_)  _v_ = 0  ok
 		if _k_ = "ramp"
@@ -3867,7 +3905,7 @@ class stzMathDiagram from stzObject
 			if _hi_ != _lo_  _t_ = (_v_ - _lo_) / (_hi_ - _lo_)  ok
 			if _t_ < 0  _t_ = 0  ok
 			if _t_ > 1  _t_ = 1  ok
-			return This._LerpHex("" + pSpec[5], "" + pSpec[6], _t_)
+			return This._LerpHex(This._RoleColour("" + pSpec[5]), This._RoleColour("" + pSpec[6]), _t_)
 		but _k_ = "palette"
 			if len(pSpec) < 3 or NOT isList(pSpec[3]) or len(pSpec[3]) = 0
 				stzraise("stzMathDiagram: a palette is [ :palette, expr, [ colours ] ].")
@@ -3876,24 +3914,74 @@ class stzMathDiagram from stzObject
 			_i_ = floor(_v_ + 0.5)
 			if _i_ < 1  _i_ = 1  ok
 			if _i_ > _n_  _i_ = _n_  ok
-			return "" + pSpec[3][_i_]
+			return This._RoleColour("" + pSpec[3][_i_])
 		ok
-		stzraise("stzMathDiagram: '" + pSpec[1] + "' is not a colour rule -- ramp or palette.")
+		stzraise("stzMathDiagram: '" + pSpec[1] + "' is not a colour rule -- ramp, palette, alpha or on.")
+
+	# a role -- primary, success, warning, danger, info, muted, neutral,
+	# background -- resolves through the style's theme; anything else is
+	# handed on as it is, and the canvas resolves names and hex
+	def _RoleColour(pc)
+		if NOT isString(pc)  return pc  ok
+		_c_ = StzLower(ring_trim(pc))
+		if _c_ = ""  return ""  ok
+		_ac_ = StzThemeRoles()
+		for _i_ = 1 to len(_ac_)
+			if StzLower("" + _ac_[_i_]) = _c_
+				_e_ = StzThemeColor(@oStyle.Theme(), _c_)
+				if _e_ = ""  return pc  ok
+				return StzResolveColor(_e_)
+			ok
+		next
+		return pc
+
+	# the paper's colour: the theme's background
+	def Background()
+		return This._RoleColour("background")
+
+	def _WithAlpha(pcColour, pnA)
+		_c_ = "" + pcColour
+		if StzLeft(_c_, 1) != "#"  _c_ = StzResolveColor(_c_)  ok
+		if len(_c_) >= 9  _c_ = StzLeft(_c_, 7)  ok
+		_a_ = floor(pnA * 255 + 0.5)
+		if _a_ < 0  _a_ = 0  ok
+		if _a_ > 255  _a_ = 255  ok
+		_h_ = hex(_a_)
+		if len(_h_) < 2  _h_ = "0" + _h_  ok
+		return StzUpper(_c_ + _h_)
+
+	# a translucent fill composited over the paper, so contrast is measured
+	# against what is actually seen
+	def _Opaque(pcFill, pcBg)
+		_c_ = "" + pcFill
+		if StzLeft(_c_, 1) != "#"  _c_ = StzResolveColor(_c_)  ok
+		if len(_c_) < 9  return _c_  ok
+		_a_ = dec(StzStringSection(_c_, 8, 9)) / 255
+		return This._LerpHex(pcBg, StzLeft(_c_, 7), _a_)
 
 	# "#rrggbb" to "#rrggbb", t of the way from A to B, per channel
+	# IN OKLAB, IN THE ENGINE. The first ramp interpolated in sRGB, and equal
+	# steps in sRGB are not equal perceived steps: the colour plan measured
+	# a ramp that zigzags in lightness. The engine's mix walks a straight
+	# line in Oklab and clamps to gamut, so the ramp is even by
+	# construction; this is the same conversion C1 built for the shades.
 	def _LerpHex(pcA, pcB, pt)
 		_a_ = This._HexRGB(pcA)
 		_b_ = This._HexRGB(pcB)
+		_t_ = pt
+		if _t_ < 0  _t_ = 0  ok
+		if _t_ > 1  _t_ = 1  ok
+		_n_ = StzEngineColorMixOklab(_a_[1] * 65536 + _a_[2] * 256 + _a_[3],
+		                             _b_[1] * 65536 + _b_[2] * 256 + _b_[3], _t_)
+		# in the palette's case, upper, so a mixed colour and a resolved
+		# role compare equal as strings when they are one colour
 		_c_ = "#"
-		for _i_ = 1 to 3
-			_v_ = floor(_a_[_i_] + (_b_[_i_] - _a_[_i_]) * pt + 0.5)
-			if _v_ < 0  _v_ = 0  ok
-			if _v_ > 255  _v_ = 255  ok
+		for _v_ in [ floor(_n_ / 65536) % 256, floor(_n_ / 256) % 256, _n_ % 256 ]
 			_h_ = hex(_v_)
 			if len(_h_) < 2  _h_ = "0" + _h_  ok
 			_c_ += _h_
 		next
-		return _c_
+		return StzUpper(_c_)
 
 	def _HexRGB(pc)
 		_c_ = "" + pc
