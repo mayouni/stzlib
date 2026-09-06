@@ -13142,6 +13142,60 @@ chk("NEGATIVE: neither law is a rule -- no constraint in the picture names a foc
     _RyRulesNamingFoci(oRy) = 0)
 
 
+sec("-- 88. DN7j: A COLOUR CHANNEL FROM SUBSTANCE DATA ------------------------")
+discharges("DN7j")
+
+# THE DATA ITSELF: a number on an object, read back, refused when it is
+# not a number or its key is not a name.
+oCdS = new stzMathSubstance(StzTableDomain())
+oCdS.Declare("Cell", "x")
+oCdS.SetData("x", "v", 7.5)
+chk("a number set on an object is read back", oCdS.DataOf("x", "v") = 7.5 and oCdS.HasData("x", "v"))
+chk("and set again, it is replaced, not doubled",
+    oCdS.SetData("x", "v", 2).DataOf("x", "v") = 2 and len(oCdS.@aData) = 1)
+chk("a key that is not a name is refused", _CdRefuses(oCdS, "9v", 1))
+chk("NEGATIVE: a value that is not a number is refused, and a good one accepted",
+    _CdRefuses(oCdS, "w", "seven") and NOT _CdRefuses(oCdS, "w", 7))
+
+# THE QUATERNION TABLE: a diagram with nothing to solve. Its 64 cells sit
+# where their data says; each is filled from a palette by WHICH element
+# its product is. The guard reads the group back out of the picture.
+oCq = StzMathScene29(AUFONT)
+chk("the table is lawful in a single evaluation -- there was nothing to solve",
+    oCq.IsFeasible() and oCq.Evaluations() = 1)
+chk("every cell sits at the place its row and column data name",
+    _CqCellsPlaced(oCq))
+chk("i.j is k and j.i is -k, and their fills are k's and -k's colours",
+    oCq.FillOf("c2_3.icon") = "#7d9ce0" and oCq.FillOf("c3_2.icon") = "#2a4fa8" and
+    oCq.FillOf("c2_3.icon") != oCq.FillOf("c3_2.icon"))
+chk("every row of the table is a permutation of the eight elements -- a Latin square",
+    _CqLatin(oCq))
+chk("and every product agrees with an independent multiplication, all 64",
+    _CqProductsAgree(oCq))
+
+# THE HEAT MAP: A . B = C, each cell on a ramp by its value over its own
+# matrix's range. The guard multiplies A and B itself from the cell data.
+oCh = StzMathScene30(AUFONT)
+chk("the heat map is lawful, in one evaluation", oCh.IsFeasible() and oCh.Evaluations() = 1)
+chk("C's cells hold A . B, recomputed here from A's and B's cell data",
+    _ChProductAgrees(oCh))
+chk("the hottest cell of C wears the ramp's hot end, and the coolest its cool end",
+    oCh.FillOf(_ChExtreme(oCh, "c", 3, 3, TRUE) + ".icon") = "#c8443c" and
+    oCh.FillOf(_ChExtreme(oCh, "c", 3, 3, FALSE) + ".icon") = "#f4f4fb")
+chk("a cell halfway up the ramp wears the midpoint colour, channel by channel",
+    oCh._LerpHex("#f4f4fb", "#c8443c", 0.5) = "#de9c9c" and
+    oCh._Colour([ :ramp, "0.5", 0, 1, "#f4f4fb", "#c8443c" ]) = "#de9c9c")
+chk("a ramp clamps: below lo is the cool colour, above hi the hot one",
+    oCh._Colour([ :ramp, "0-3", 0, 1, "#f4f4fb", "#c8443c" ]) = "#f4f4fb" and
+    oCh._Colour([ :ramp, "9", 0, 1, "#f4f4fb", "#c8443c" ]) = "#c8443c")
+chk("NEGATIVE: a ramp whose lo equals hi does not divide by zero -- it is its cool colour",
+    oCh._Colour([ :ramp, "5", 5, 5, "#f4f4fb", "#c8443c" ]) = "#f4f4fb")
+chk("a palette rounds to the nearest entry and clamps at both ends",
+    oCh._Colour([ :palette, "2.4", [ "#a", "#b", "#c" ] ]) = "#b" and
+    oCh._Colour([ :palette, "0", [ "#a", "#b", "#c" ] ]) = "#a" and
+    oCh._Colour([ :palette, "40", [ "#a", "#b", "#c" ] ]) = "#c")
+
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go
@@ -15894,6 +15948,94 @@ func _RyRulesNamingFoci poM
 		ok
 	next
 	return _n_
+
+func _CdRefuses poS, pcKey, pValue
+	_b_ = FALSE
+	try
+		poS.SetData("x", pcKey, pValue)
+	catch
+		_b_ = TRUE
+	done
+	return _b_
+
+func _CqCellsPlaced poM
+	for _r_ = 1 to 8
+		for _c_ = 1 to 8
+			_n_ = "c" + _r_ + "_" + _c_
+			if fabs(poM.ValueOf(_n_ + ".icon.cx") - (90 + (_c_ - 0.5) * 62)) > 0.01 or
+			   fabs(poM.ValueOf(_n_ + ".icon.cy") - (90 + (_r_ - 0.5) * 62)) > 0.01
+				return FALSE
+			ok
+		next
+	next
+	return TRUE
+
+func _CqLatin poM
+	_oS_ = StzMathQuaternionSubstance()
+	for _r_ = 1 to 8
+		_aSeen_ = [ 0, 0, 0, 0, 0, 0, 0, 0 ]
+		for _c_ = 1 to 8
+			_p_ = _oS_.DataOf("c" + _r_ + "_" + _c_, "p")
+			if _p_ < 1 or _p_ > 8 or _aSeen_[_p_] = 1  return FALSE  ok
+			_aSeen_[_p_] = 1
+		next
+	next
+	return TRUE
+
+# an independent multiplication: quaternions as 4-vectors
+func _CqMul paA, paB
+	return [ paA[1]*paB[1] - paA[2]*paB[2] - paA[3]*paB[3] - paA[4]*paB[4],
+	         paA[1]*paB[2] + paA[2]*paB[1] + paA[3]*paB[4] - paA[4]*paB[3],
+	         paA[1]*paB[3] - paA[2]*paB[4] + paA[3]*paB[1] + paA[4]*paB[2],
+	         paA[1]*paB[4] + paA[2]*paB[3] - paA[3]*paB[2] + paA[4]*paB[1] ]
+
+func _CqVec pnE
+	_aU_ = [ [1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,0,1] ]
+	_u_ = pnE  _s_ = 1
+	if pnE > 4  _u_ = pnE - 4  _s_ = -1  ok
+	_v_ = _aU_[_u_]
+	return [ _s_*_v_[1], _s_*_v_[2], _s_*_v_[3], _s_*_v_[4] ]
+
+func _CqProductsAgree poM
+	_oS_ = StzMathQuaternionSubstance()
+	for _r_ = 1 to 8
+		for _c_ = 1 to 8
+			_want_ = _CqMul(_CqVec(_r_), _CqVec(_c_))
+			_got_ = _CqVec(_oS_.DataOf("c" + _r_ + "_" + _c_, "p"))
+			for _k_ = 1 to 4
+				if _want_[_k_] != _got_[_k_]  return FALSE  ok
+			next
+		next
+	next
+	return TRUE
+
+func _ChProductAgrees poM
+	_oS_ = StzMathMatrixSubstance()
+	for _i_ = 1 to 3
+		for _j_ = 1 to 3
+			_s_ = 0
+			for _k_ = 1 to 4
+				_s_ += _oS_.DataOf("a" + _i_ + "_" + _k_, "v") * _oS_.DataOf("b" + _k_ + "_" + _j_, "v")
+			next
+			if _s_ != _oS_.DataOf("c" + _i_ + "_" + _j_, "v")  return FALSE  ok
+		next
+	next
+	return TRUE
+
+# the name of the cell with the largest (or smallest) value in a grid
+func _ChExtreme poM, pcPfx, pnRows, pnCols, pbMax
+	_oS_ = StzMathMatrixSubstance()
+	_best_ = ""  _bv_ = 0
+	for _i_ = 1 to pnRows
+		for _j_ = 1 to pnCols
+			_n_ = pcPfx + _i_ + "_" + _j_
+			_v_ = _oS_.DataOf(_n_, "v")
+			if _best_ = "" or (pbMax and _v_ > _bv_) or (NOT pbMax and _v_ < _bv_)
+				_best_ = _n_  _bv_ = _v_
+			ok
+		next
+	next
+	return _best_
 
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0
