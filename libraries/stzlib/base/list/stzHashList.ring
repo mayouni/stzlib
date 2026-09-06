@@ -964,7 +964,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	
 	# The first [key, value] pair.
 	def FirstPair()
-		return This.NthPair($_n_)
+		return This.NthPair(1)
 
 		def FirstPairQ()
 			return This.NthPairQ(1)
@@ -3440,7 +3440,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#< @FunctionFluentForm
 
 		def ClassifyQ()
-			return This.ClassifyQRT($pcReturnType)
+			return This.ClassifyQRT(:stzList)
 
 		# The classification, in the requested return type (QRT).
 		def ClassifyQRT(pcReturnType)
