@@ -1851,3 +1851,44 @@ note:      THE ENGINE ANSWERED "NOTHING TO SOLVE" AND THAT IS THE RIGHT
            machinery made for relations took it without a change of
            kind.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-06 11:41
+
+subject:   DN8 planned -- one content, one reading, one gate
+
+why:       the author asked how to unify the two content-to-reading
+           systems and strengthen the engine at the same time
+
+did:
+  - Filed DN8 in the plan of record: seven items in leverage order,
+    each a join that is also a repair, each with a kill and a risk.
+  - Refused before the first item: no rewrite of either system, no
+    DSL, no 3D, no loops in a Style, no framework above both.
+  - Found the plan parser reading a status word out of prose, and
+    made every item say only what it means.
+
+state:
+  plan table:   DN8 and DN8a-g open, not started
+  gate:         958 ok, 0 failed
+  commit:       c7eba6c88 on origin and codeberg, verified at the sha
+
+waiting:
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      DN8a on the author's word -- the adapter both ways is
+             cheap and everything else stands on it
+  - central: DN8d waits on the colour plan's perceptual ramp; if that
+             plan has a session, it should know a consumer is queued
+
+note:      THE JOIN IS THE REPAIR. The four algorithmic gaps the
+           assessment named -- polygon distances, planarity beyond
+           Tutte, a local optimiser, no iteration in a Style -- are
+           each met by something the OTHER plane already holds or by
+           recognising the gap was mislabelled: layouts are starts,
+           iteration is content. A plane that unified for tidiness
+           would be a refactor; this one unifies because the shortest
+           path to strength runs through the other side.
+```
