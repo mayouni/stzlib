@@ -1067,7 +1067,7 @@ func StzGraphStyle()
 	_o_ = new stzMathStyle()
 	_o_.SetCanvas(720, 640)
 	_o_.SetMargin(36)
-	_o_.StartPlanar("Vertex", "icon", [ "Edge", "Arc" ])
+	_o_.StartTrying([ :planar, :hierarchical, :force, :random ], "Vertex", "icon", [ "Edge", "Arc" ])
 	_o_.SolveLabelsAfter()
 	_o_.ForAll("Vertex v", [
 		[ :shape, "v.icon", :circle, [ :r = 9, :fill = "#33355c",
@@ -1161,7 +1161,7 @@ func _StzSpringStyleBuild(pbCurved)
 	_o_ = new stzMathStyle()
 	_o_.SetCanvas(720, 640)
 	_o_.SetMargin(36)
-	_o_.StartPlanar("Vertex", "icon", [ "Edge", "Arc" ])
+	_o_.StartTrying([ :planar, :hierarchical, :force, :random ], "Vertex", "icon", [ "Edge", "Arc" ])
 	# names are solved AFTER the shapes, against them frozen: they may not
 	# pull on a vertex, and they may not sit on an edge
 	_o_.SolveLabelsAfter()
@@ -1246,7 +1246,7 @@ func StzBoxArrowStyle()
 	_o_ = new stzMathStyle()
 	_o_.SetCanvas(760, 520)
 	_o_.SetMargin(24)
-	_o_.StartPlanar("Vertex", "text", [ "Arc" ])
+	_o_.StartTrying([ :hierarchical, :planar, :random ], "Vertex", "text", [ "Arc" ])
 	_o_.ForAll("Vertex v", [
 		[ :shape, "v.text", :text, [ :fill = "#222222" ] ],
 		[ :shape, "v.icon", :rect, [ :cx = "v.text.cx", :cy = "v.text.cy",
@@ -1387,6 +1387,11 @@ func StzOrderDomain()
 func StzHasseStyle()
 	_o_ = new stzMathStyle()
 	_o_.SetCanvas(700, 620)
+	_o_.SetMargin(40)
+	# a Hasse diagram is a hierarchical layout: greater above lesser, rows
+	# by rank, crossings minimised by the graph plane's own sweep -- and
+	# no seed chosen
+	_o_.StartTrying([ :hierarchical, :planar, :random ], "Element", "icon", [ "Cover" ])
 	_o_.ForAll("Element x", [
 		[ :shape, "x.icon", :circle, [ :r = 24, :fill = "#ffffff",
 		                               :stroke = "#33355c", :strokeWidth = 2 ] ],
@@ -2448,6 +2453,7 @@ class stzMathStyle from stzObject
 	@nH = 700
 	@aRules = []        # [ [ cSelector, cWhere, aRows ] ]
 	@aPlanarStart = []  # [ cType, cShape, [ cCtor, ... ] ] when asked for
+	@aStarts = []       # the start modes, in the order tried
 	@nMargin = 0
 	@bLabelsAfter = FALSE
 
@@ -2571,16 +2577,45 @@ class stzMathStyle from stzObject
 	# embedding rather than at random. Everything else in the picture still
 	# starts where it always did.
 	def StartPlanar(pcType, pcShape, pacCtors)
+		return This.StartTrying([ :planar ], pcType, pcShape, pacCtors)
+
+	# LAYOUTS AS STARTS (DN8b). The graph plane's own engines -- hierarchical,
+	# ring, force, mesh, sequence -- computed on the graph the substance's
+	# vertices and edges make, and overlaid as the solver's start. The planar
+	# start is one of them. StartTrying names SEVERAL: the solver takes them
+	# in order, and the first that ends lawful is the picture -- so the seed
+	# is no longer what decides whether a lattice crosses.
+	def StartLayout(pcMode, pcType, pcShape, pacCtors)
+		return This.StartTrying([ pcMode ], pcType, pcShape, pacCtors)
+
+	def StartTrying(pacModes, pcType, pcShape, pacCtors)
 		_ac_ = []
 		if isString(pacCtors)  _ac_ + pacCtors  else  _ac_ = pacCtors  ok
 		@aPlanarStart = [ ring_trim("" + pcType), ring_trim("" + pcShape), _ac_ ]
+		@aStarts = []
+		_am_ = pacModes
+		if NOT isList(_am_)  _am_ = [ _am_ ]  ok
+		for _i_ = 1 to len(_am_)
+			_m_ = StzLower("" + _am_[_i_])
+			if _m_ != "planar" and _m_ != "hierarchical" and _m_ != "ring" and
+			   _m_ != "force" and _m_ != "mesh" and _m_ != "sequence" and _m_ != "random"
+				stzraise("stzMathStyle: '" + _am_[_i_] + "' is not a start -- planar, " +
+					"hierarchical, ring, force, mesh, sequence or random.")
+			ok
+			@aStarts + _m_
+		next
 		return This
+
+	# the starts to try, in order; empty means one random start
+	def Starts()
+		return @aStarts
 
 		def StartPlanarQ(pcType, pcShape, pacCtors)
 			return This.StartPlanar(pcType, pcShape, pacCtors)
 
 	def ClearPlanarStart()
 		@aPlanarStart = []
+		@aStarts = []
 		return This
 
 	def PlanarStart()
@@ -2647,6 +2682,9 @@ class stzMathDiagram from stzObject
 	@nMatchCandidates = 0
 	@bPlanarStarted = FALSE
 	@acOuterFace = []
+	@nStartsTried = 0
+	@cStartUsed = "random"
+	@nAdvisoryUnmet = 0
 
 	# the solve
 	@bLaidOut = 0
@@ -4804,22 +4842,47 @@ class stzMathDiagram from stzObject
 			This._FreeViolationTapes()
 			return
 		ok
-		This._Initialise()
 		_bAnyLabel_ = FALSE
 		for _i_ = 1 to _n_
 			if @bLabelVar[_i_] = 1  _bAnyLabel_ = TRUE  ok
 		next
 		This._CompileViolationTapes()
-		This._SolveStage(0)
-		if _bAnyLabel_ and (@oStyle.LabelsAfter() or This._StageViolation(1) > 0.01)
-			This._SolveStage(1)
-		ok
-		This._ReadViolations()
+		# THE STARTS, IN ORDER, FIRST LAWFUL WINS. A style that names none
+		# gets one random start, as before. The tapes are compiled once and
+		# every start re-solves from its own overlay; how many were needed
+		# is a reported figure, because a picture that took three starts
+		# is a picture whose first two starts were wrong.
+		_aStarts_ = @oStyle.Starts()
+		if len(_aStarts_) = 0  _aStarts_ = [ "random" ]  ok
+		# a named start the graph cannot give -- planar on a tree -- is
+		# SKIPPED, not replaced by random, so the next named start is
+		# offered; random is the last resort whether named or not
+		_bRandom_ = FALSE
+		for _s_ = 1 to len(_aStarts_)
+			if _aStarts_[_s_] = "random"  _bRandom_ = TRUE  ok
+		next
+		if NOT _bRandom_  _aStarts_ + "random"  ok
+		@nStartsTried = 0
+		for _s_ = 1 to len(_aStarts_)
+			This._Initialise(_aStarts_[_s_])
+			if _aStarts_[_s_] != "random" and @cStartUsed = "random"  loop  ok
+			@nStartsTried++
+			This._SolveStage(0)
+			if _bAnyLabel_ and (@oStyle.LabelsAfter() or This._StageViolation(1) > 0.01)
+				This._SolveStage(1)
+			ok
+			This._ReadViolations()
+			if This._MaxViolation() <= 0.01  exit  ok
+		next
 		This._FreeViolationTapes()
 		_v_ = This._MaxViolation()
 		if _v_ <= 0.01
 			@cWhy = "every constraint is satisfied after " + @nRounds +
 				" penalty round(s) and " + @nEvaluations + " evaluations"
+			if @nAdvisoryUnmet > 0
+				@cWhy += " -- from a " + @cStartUsed + " start, so the crossing rule was " +
+					"advice, and " + @nAdvisoryUnmet + " crossing rule(s) are unmet"
+			ok
 		else
 			@cWhy = "the picture is NOT lawful: the worst constraint is violated " +
 				"by " + _v_ + "px after " + @nRounds + " round(s) -- the substance " +
@@ -4829,7 +4892,25 @@ class stzMathDiagram from stzObject
 	# Uniform over the canvas, as Penrose samples; radii and sizes from a
 	# band that gives the solver room. Three draws, the one with the least
 	# initial energy kept -- Penrose 4.2.1.
-	def _Initialise()
+	# How many starts the last layout needed, and which one it kept. A
+	# start the graph could not give -- a planar one on a tree, a layout
+	# on a substance with no graph -- falls back to random and says so.
+	def StartsTried()
+		This.Layout()
+		return @nStartsTried
+
+	# Crossing rules left unmet when the start was not planar and the rule
+	# was therefore advice: zero for a planar start, and for any picture
+	# that has no crossing rule.
+	def AdvisoryUnmet()
+		This.Layout()
+		return @nAdvisoryUnmet
+
+	def StartUsed()
+		This.Layout()
+		return @cStartUsed
+
+	def _Initialise(pcMode)
 		_n_ = len(@acUnknown)
 		_W_ = @oStyle.CanvasWidth()
 		_H_ = @oStyle.CanvasHeight()
@@ -4856,10 +4937,17 @@ class stzMathDiagram from stzObject
 		# graph gives them: [ [ object, x, y ], ... ] or []
 		_aPl_ = []
 		_aDecl_ = @oStyle.PlanarStart()
-		if len(_aDecl_) = 3
-			_aPl_ = This._PlanarPositions(_aDecl_[1], _aDecl_[3])
+		_cMode_ = StzLower("" + pcMode)
+		if len(_aDecl_) = 3 and _cMode_ != "random"
+			if _cMode_ = "planar"
+				_aPl_ = This._PlanarPositions(_aDecl_[1], _aDecl_[3])
+			else
+				_aPl_ = This._LayoutPositions(_cMode_, _aDecl_[1], _aDecl_[3])
+			ok
 		ok
-		@bPlanarStarted = (len(_aPl_) > 0)
+		@bPlanarStarted = (_cMode_ = "planar" and len(_aPl_) > 0)
+		@cStartUsed = "random"
+		if len(_aPl_) > 0  @cStartUsed = _cMode_  ok
 		for _try_ = 1 to 3
 			_aX_ = []
 			for _i_ = 1 to _n_
@@ -4924,6 +5012,61 @@ class stzMathDiagram from stzObject
 	def OuterFace()
 		This.Layout()
 		return @acOuterFace
+
+	#-- A LAYOUT AS A START: the graph plane's engines on the substance --
+
+	# The vertices of the named type and the edges its constructors define,
+	# as a stzGraph the graph plane's canvas lays out in the mode asked
+	# for; the positions come back in the canvas's frame, inside the
+	# margin. Built directly from the substance rather than through
+	# ToGraph, because a reified relation -- a SameRank between two
+	# elements, say -- would otherwise become a node and a rank the layout
+	# would honour, and a Hasse diagram's rows would bend to it. A drawing
+	# that collapses two vertices within four pixels is refused, and the
+	# next start stands.
+	def _LayoutPositions(pcMode, pcType, pacCtors)
+		_acV_ = @oSubstance.ObjectsOfType(pcType)
+		_n_ = len(_acV_)
+		if _n_ < 2  return []  ok
+		_oG_ = new stzGraph("start")
+		for _i_ = 1 to _n_
+			_oG_.AddNodeXTT(_acV_[_i_], "", [ :name = _acV_[_i_] ])
+		next
+		_aDefs_ = @oSubstance.Definitions()
+		_nE_ = 0
+		for _d_ = 1 to len(_aDefs_)
+			_bC_ = FALSE
+			for _c_ = 1 to len(pacCtors)
+				if StzLower("" + pacCtors[_c_]) = StzLower(_aDefs_[_d_][2])  _bC_ = TRUE  ok
+			next
+			if NOT _bC_ or len(_aDefs_[_d_][3]) != 2  loop  ok
+			_a_ = _aDefs_[_d_][3][1]
+			_b_ = _aDefs_[_d_][3][2]
+			if StzLower(_a_) = StzLower(_b_)  loop  ok
+			if NOT _oG_.NodeExists(_a_) or NOT _oG_.NodeExists(_b_)  loop  ok
+			if _oG_.EdgeExists(_a_, _b_) or _oG_.EdgeExists(_b_, _a_)  loop  ok
+			_oG_.AddEdge(_a_, _b_)
+			_nE_++
+		next
+		if _nE_ = 0  return []  ok
+		_nM_ = @oStyle.Margin()
+		_W_ = @oStyle.CanvasWidth() - 2 * _nM_
+		_H_ = @oStyle.CanvasHeight() - 2 * _nM_
+		_oC_ = new stzGraphCanvas(_oG_, [ :Layout = pcMode, :Width = _W_, :Height = _H_ ])
+		_aP_ = _oC_.Positions()
+		_a_ = []
+		for _i_ = 1 to len(_aP_)
+			_cN_ = "" + _oG_.Node(_aP_[_i_][1])[:properties][:name]
+			_a_ + [ _cN_, _nM_ + _aP_[_i_][2], _nM_ + _aP_[_i_][3] ]
+		next
+		for _i_ = 1 to len(_a_)
+			for _j_ = _i_ + 1 to len(_a_)
+				if pow(_a_[_i_][2] - _a_[_j_][2], 2) + pow(_a_[_i_][3] - _a_[_j_][3], 2) < 16
+					return []
+				ok
+			next
+		next
+		return _a_
 
 	#-- THE PLANAR START: Tutte's embedding from a face found by its shape --
 
@@ -5413,6 +5556,7 @@ class stzMathDiagram from stzObject
 	def _ReadViolations()
 		if len(@aViolTapes) != len(@aConstraints)  This._CompileViolationTapes()  ok
 		@aViolations = []
+		@nAdvisoryUnmet = 0
 		_n_ = len(@aConstraints)
 		for _i_ = 1 to _n_
 			_v_ = 0
@@ -5421,8 +5565,13 @@ class stzMathDiagram from stzObject
 				if isNumber(_r_)  _v_ = _r_  ok
 			ok
 			if _v_ < 0  _v_ = 0  ok
-			# advice is not a violation
-			if This._IsAdvisory(_i_)  _v_ = 0  ok
+			# advice is not a violation -- but advice left unmet is COUNTED,
+			# so a picture lawful from a random start still says how many
+			# crossings it carries
+			if This._IsAdvisory(_i_)
+				if _v_ > 0.01  @nAdvisoryUnmet++  ok
+				_v_ = 0
+			ok
 			@aViolations + [ @aConstraints[_i_][1], @aConstraints[_i_][3], _v_,
 			                 @aConstraints[_i_][4] ]
 		next
