@@ -14,11 +14,13 @@ class stzListProvidedAsString from stzObject
 		_cListAsString_ = pcListAsString
 		_oStzString_ = new stzString(_cListAsString_)
 
-		// Extracting list items
-		_cTempString_ = _oStzString_.RemoveTheseBounds("[","]")
-		_oTempString_ = new stzString(_cTempString_)
-		_cTempString_ = _oTempString_.RemoveSpaces()
-		_oTempString_ = new stzString(_cTempString_)
+		// Extracting list items. RemoveTheseBounds() and RemoveSpaces()
+		// MUTATE and return nothing -- the returning sisters are
+		// BoundsRemoved() and SpacesRemoved() -- so the result has to be
+		// read back from the object, not from the call.
+		_oTempString_ = new stzString(_cListAsString_)
+		_oTempString_.RemoveTheseBounds("[","]")
+		_oTempString_.RemoveSpaces()
 		_aItems_ = _oTempString_.Split( :Using = ",")
 
 	  #------------------------------------#
@@ -46,7 +48,7 @@ class stzListProvidedAsString from stzObject
 	*/
 
 	def Items()
-		return $_aItems_
+		return _aItems_
 
 	def IsListOfValues()
 		return ContainsOnlyValues()

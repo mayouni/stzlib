@@ -72,7 +72,7 @@ class stzProfiler from stzObject
 		bReady = 1
 
 	def _Ensure()
-		if $bReady = 0
+		if bReady = 0
 			pHandle = StzEngineProfCreate(@nMaxPaths)
 			bReady = 1
 		ok
@@ -81,17 +81,17 @@ class stzProfiler from stzObject
 
 	def Enter(pcFrameName)
 		This._Ensure()
-		StzEngineProfEnter($pHandle, "" + pcFrameName)
+		StzEngineProfEnter(pHandle, "" + pcFrameName)
 		return This
 
 	def Leave()
 		This._Ensure()
-		StzEngineProfLeave($pHandle)
+		StzEngineProfLeave(pHandle)
 		return This
 
 	def Depth()
 		This._Ensure()
-		return StzEngineProfDepth($pHandle)
+		return StzEngineProfDepth(pHandle)
 
 	# -- Sampling -------------------------------------------------
 
@@ -103,42 +103,42 @@ class stzProfiler from stzObject
 	# same statistics).
 	def StartSampling(pnIntervalMs)
 		This._Ensure()
-		StzEngineProfSampleStart($pHandle, pnIntervalMs)
+		StzEngineProfSampleStart(pHandle, pnIntervalMs)
 		return This
 
 	def StopSampling()
 		This._Ensure()
-		StzEngineProfSampleStop($pHandle)
+		StzEngineProfSampleStop(pHandle)
 		return This
 
 	def IsSampling()
 		This._Ensure()
-		return StzEngineProfIsSampling($pHandle) = 1
+		return StzEngineProfIsSampling(pHandle) = 1
 
 	# Sampler wakeups (in-frame or idle) -- SampleCount/Ticks tell
 	# the coverage story together.
 	def Ticks()
 		This._Ensure()
-		return StzEngineProfTicks($pHandle)
+		return StzEngineProfTicks(pHandle)
 
 	# -- The accumulated tree -------------------------------------
 
 	def PathCount()
 		This._Ensure()
-		return StzEngineProfPathCount($pHandle)
+		return StzEngineProfPathCount(pHandle)
 
 	# All paths: [ [ :path, :calls, :totalMs, :selfMs, :samples ], ... ]
 	def Paths()
 		This._Ensure()
 		_aOut_ = []
-		_nN_ = StzEngineProfPathCount($pHandle)
+		_nN_ = StzEngineProfPathCount(pHandle)
 		for _i_ = 1 to _nN_
 			_aOut_ + [
-				:path = StzEngineProfPathAt($pHandle, _i_),
-				:calls = StzEngineProfCallsAt($pHandle, _i_),
-				:totalMs = StzEngineProfTotalNsAt($pHandle, _i_) / 1000000,
-				:selfMs = StzEngineProfSelfNsAt($pHandle, _i_) / 1000000,
-				:samples = StzEngineProfSamplesAt($pHandle, _i_)
+				:path = StzEngineProfPathAt(pHandle, _i_),
+				:calls = StzEngineProfCallsAt(pHandle, _i_),
+				:totalMs = StzEngineProfTotalNsAt(pHandle, _i_) / 1000000,
+				:selfMs = StzEngineProfSelfNsAt(pHandle, _i_) / 1000000,
+				:samples = StzEngineProfSamplesAt(pHandle, _i_)
 			]
 		next
 		return _aOut_
@@ -237,12 +237,12 @@ class stzProfiler from stzObject
 
 	def Reset()
 		This._Ensure()
-		StzEngineProfReset($pHandle)
+		StzEngineProfReset(pHandle)
 		return This
 
 	def Destroy()
-		if $bReady
-			StzEngineProfDestroy($pHandle)
+		if bReady
+			StzEngineProfDestroy(pHandle)
 			pHandle = ""
 			bReady = 0
 		ok

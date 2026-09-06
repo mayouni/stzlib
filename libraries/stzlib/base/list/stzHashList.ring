@@ -4311,14 +4311,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#< @FunctionAlternativeForms
 
-		def 3StrongestKlasses(_n_)
-			return This.Top3Classes(_n_)
+		def 3StrongestKlasses()
+			return This.Top3Classes()
 
 		def Strongest3Classes()
-			return This.Top3Classes($_n_)
+			return This.Top3Classes()
 
-		def Strongest3Klasses(_n_)
-			return This.Top3Classes(_n_)
+		def Strongest3Klasses()
+			return This.Top3Classes()
 
 		#>
 
@@ -4327,28 +4327,28 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#< @FunctionAlternativeForms
 
-		def 3StrongestKlassesXT(_n_)
-			return This.Top3ClassesXT(_n_)
+		def 3StrongestKlassesXT()
+			return This.Top3ClassesXT()
 
 		def Strongest3ClassesXT()
-			return This.Top3ClassesXT($_n_)
+			return This.Top3ClassesXT()
 
-		def Strongest3KlassesXT(_n_)
-			return This.Top3ClassesXT(_n_)
+		def Strongest3KlassesXT()
+			return This.Top3ClassesXT()
 
 		#--
 
-		def Top3ClassesAndTheirFrequencies(_n_)
-			return This.Top3ClassesXT(_n_)
+		def Top3ClassesAndTheirFrequencies()
+			return This.Top3ClassesXT()
 
-		def 3StrongestKlassesAndTheirFrequencies(_n_)
-			return This.Top3ClassesXT(_n_)
+		def 3StrongestKlassesAndTheirFrequencies()
+			return This.Top3ClassesXT()
 
 		def Strongest3ClassesAndTheirFrequencies()
-			return This.Top3ClassesXT($_n_)
+			return This.Top3ClassesXT()
 
-		def Strongest3KlassesAndTheirFrequencies(_n_)
-			return This.Top3ClassesXT(_n_)
+		def Strongest3KlassesAndTheirFrequencies()
+			return This.Top3ClassesXT()
 
 		#>
 
@@ -4493,14 +4493,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#< @FunctionAlternativeForms
 
-		def 3WeakestKlasses(_n_)
-			return This.Bottom3Classes(_n_)
+		def 3WeakestKlasses()
+			return This.Bottom3Classes()
 
 		def Weakest3Classes()
-			return This.Bottom3Classes($_n_)
+			return This.Bottom3Classes()
 
-		def Weakest3Klasses(_n_)
-			return This.Bottom3Classes(_n_)
+		def Weakest3Klasses()
+			return This.Bottom3Classes()
 		#>
 
 	def Bottom3ClassesXT()
@@ -4508,25 +4508,25 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#< @FunctionAlternativeForms
 
-		def 3WeakestKlassesXT(_n_)
-			return This.Bottom3ClassesXT(_n_)
+		def 3WeakestKlassesXT()
+			return This.Bottom3ClassesXT()
 
 		def Weakest3ClassesXT()
-			return This.Bottom3ClassesXT($_n_)
+			return This.Bottom3ClassesXT()
 
-		def Weakest3KlassesXT(_n_)
-			return This.Bottom3ClassesXT(_n_)
+		def Weakest3KlassesXT()
+			return This.Bottom3ClassesXT()
 
 		#--
 
-		def 3WeakestKlassesAndTheirFrequencies(_n_)
-			return This.Bottom3ClassesXT(_n_)
+		def 3WeakestKlassesAndTheirFrequencies()
+			return This.Bottom3ClassesXT()
 
 		def Weakest3ClassesAndTheirFrequencies()
-			return This.Bottom3ClassesXT($_n_)
+			return This.Bottom3ClassesXT()
 
-		def Weakest3KlassesAndTheirFrequencies(_n_)
-			return This.Bottom3ClassesXT(_n_)
+		def Weakest3KlassesAndTheirFrequencies()
+			return This.Bottom3ClassesXT()
 
 		#>
 

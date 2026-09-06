@@ -478,7 +478,7 @@ func StzRemoveVar(_cVarName_)
 	_oHash_ = new stzHashList($_aVars)
 	_n_ = _oHash_.FindKey(_cVarName_)
 	if _n_ > 0
-		del(_aVars, _n_)
+		del($_aVars, _n_)
 	ok
 
 	func RemoveVar(_cVarName_)
