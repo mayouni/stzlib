@@ -110,7 +110,7 @@ sections, of which 21 declarations over 17 items.
 | DN8d | closed | 92 |
 | DN8e | closed | 93 |
 | DN8f | closed | 94 |
-| DN8g | open | - |
+| DN8g | closed | 95 |
 | DN2b | closed | 56 |
 | DN2c | closed | - |
 | DN2d | closed | 57 |
@@ -2539,12 +2539,38 @@ path); no "framework" layer above both. Adapters and starts, measured.
 
   *Guard:* §94, DN8f.
 
-- **DN8g — The live figure.** *Not started.* The plastic layout's editor over a math
-  diagram: drag a point, and the solver re-solves from the DRAGGED values
-  as its start. Warm start is the whole mechanism — `_Initialise` from
-  current values rather than from ranges — and it is Penrose's drag
-  interaction. **Kill:** a re-solve of the Byrne figure from a warm start
-  under 100 ms, and the right angle still right after the drag.
+- **DN8g — The live figure.** **SHIPPED** 2026-09-06. `DragTo(path, x, y)`
+  puts a shape's free centre where the author released it, holds it there
+  while the figure re-solves around it, and lets it go; `Pin` / `Unpin` /
+  `UnpinAll` / `IsPinned` / `Pins` hold any free property through any
+  solve; `Relayout()` re-solves warm from the current values with no
+  start drawn; `PickAt`, `Draggable`, and the plastic editor's three verbs
+  `OnPress` / `OnMove` / `OnRelease` with `DragPreview()` — a move previews
+  and re-solves nothing, the release is the one drag. `SolveProfile()`
+  says where a solve's time went. `StartUsed()` answers "warm".
+
+  *The kill, measured:* Byrne's figure with A dragged sixty pixels
+  re-solves in 27 ms (296 ms on the first warm solve), two rounds, the
+  angle at A reading cos 0.00 and every area name back inside its square.
+
+  *What the 100 ms budget exposed, none of it a new algorithm:*
+
+  | cost | before | after |
+  |---|---|---|
+  | label-stage energy text | 586,494 chars, values substituted by a walk (~1.3 s) | 42,784 chars: a frozen unknown is its value and a settled derived name its NUMBER at generation (`_Sym` under the fold) |
+  | text per round | regenerated every round | built once per frozen set; only λ, a prefix, moves |
+  | on-canvas rows under the fold | each row rebuilt its shape's whole list | one list per shape per set |
+  | shape stage under labels-after | judged by every violation, climbed all 7 rungs, cold and warm | judged by its own terms: 2 rounds |
+  | a pin in the shape stage | regenerated the stage, materialising every derived vertex (47 ms) | substituted into the stored text by eight exact engine replaces, one per byte that can follow a symbol (under 1 ms) |
+  | warm opening weight | λ = 1,000 | λ = 100,000, the planar start's rule: a good start deserves a strict solver |
+  | a derived expression | walked character by character at every expansion, two method calls a character | tokenised once per compile, assembled from tokens |
+  | the case-marked key | a character walk on every name lookup, 7 of its 8 µs | memoised by the name, exact spelling checked on the hit |
+
+  The cold Byrne solve went 1,536 ms → 382 ms from the same changes. The
+  fold is the engine item DN8e owed, paid on the Ring side: a subexpression
+  is bound once because it is evaluated once.
+
+  *Guard:* §95, DN8g.
 
 ### What this leaves
 
