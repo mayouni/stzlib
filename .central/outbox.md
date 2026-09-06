@@ -2114,3 +2114,49 @@ note:      A GUARD THAT PINS A HEX BREAKS THE DAY THE HEX BECOMES A
            in lightness. Pin the role and resolve it, or pin the
            property the hex was standing in for.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-06 16:22
+
+subject:   DN8e -- polygon distances, a name inside a rotated square,
+           and a formula inside a notation's icon
+
+why:       the author said go ahead; the item joins the two planes at
+           the icon
+
+did:
+  - Put convex polygon distances on the tape: contains by the corners'
+    signed line distances, disjoint by the edge gaps with the centre
+    held outside; refused the two forms that are not on the tape.
+  - Solved Byrne's three areas inside their rotated squares, and a
+    formula inside a DRAKON icon read back from a rendered scene.
+  - Started a contained NAME at its container's centre -- and only a
+    name, after the first version started shapes there and broke
+    five pictures.
+  - Measured one polygon term at 41,509 characters and recorded the
+    cure as the next engine item: a tape that binds a subexpression.
+
+state:
+  section 93:   13 assertions
+  gate:         1025 ok, 0 failed, on main and in the commit tree
+  plan table:   DN8a through DN8e closed; DN8f and DN8g open
+  catalogue:    33 pictures, each with a dark twin
+  commit:       9b0e96c43 on origin and codeberg, verified at the sha
+
+waiting:
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      DN8f on the author's word -- content generators and the
+             scale they expose
+  - engine:  a tape that binds a subexpression once; 41,509 characters
+             per polygon term and 550 KB energies are the numbers
+
+note:      THE START DECIDES THE BASIN, AND A START RULE HAS A SCOPE.
+           "A contained thing starts at its container's centre" is
+           right for a name and wrong for a shape, and the difference
+           is not visible in the sentence -- it showed as seven sets
+           on one point. Every rule this plane adds to the start now
+           says what it is for.
+```
