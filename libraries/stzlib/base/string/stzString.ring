@@ -13945,6 +13945,86 @@ class stzString from stzObject
 			This.ReplaceSubStringAtPositions(anPos, pcOld, pcNew)
 			return This
 
+	  #-----------------------------------------------------#
+	 #   REMOVING A SUBSTRING AT SOME GIVEN POSITIONS      #
+	#-----------------------------------------------------#
+
+	# Restored from base/string/archive/stzString_monolithic.ring:58263.
+	# The family was dropped when stzString was split into modules, and
+	# stzOccurrences.RemovedCS() has been calling it ever since -- R14 on
+	# every call. Removing is not routed through ReplaceSubStringAtPosition()
+	# because that form is case-sensitive only.
+
+	# Remove pcSubStr where it starts at codepoint n (mutating).
+	def RemoveSubStringAtPositionCS(n, pcSubStr, pCaseSensitive)
+		if NOT isString(pcSubStr) return ok
+
+		_cRsapTxt_ = This.Content()
+		_nRsapSubLen_ = This._EngineCount(pcSubStr)
+		_nRsapTxtLen_ = This._EngineCount(_cRsapTxt_)
+		if _nRsapSubLen_ = 0 return ok
+		if n < 1 or n + _nRsapSubLen_ - 1 > _nRsapTxtLen_ return ok
+
+		# Verify pcSubStr actually starts at codepoint n before cutting.
+		_cRsapAtN_ = This._EngineSlice(_cRsapTxt_, n, _nRsapSubLen_)
+		if pCaseSensitive
+			if _cRsapAtN_ != pcSubStr return ok
+		else
+			if StzLower(_cRsapAtN_) != StzLower(pcSubStr) return ok
+		ok
+
+		_cRsapBefore_ = ""
+		if n > 1
+			_cRsapBefore_ = This._EngineSlice(_cRsapTxt_, 1, n - 1)
+		ok
+		_cRsapAfter_ = This._EngineSliceFrom(_cRsapTxt_, n + _nRsapSubLen_)
+		This.Update(_cRsapBefore_ + _cRsapAfter_)
+
+		def RemoveSubStringAtPositionCSQ(n, pcSubStr, pCaseSensitive)
+			This.RemoveSubStringAtPositionCS(n, pcSubStr, pCaseSensitive)
+			return This
+
+	def RemoveSubStringAtPosition(n, pcSubStr)
+		This.RemoveSubStringAtPositionCS(n, pcSubStr, 1)
+
+		def RemoveSubStringAtPositionQ(n, pcSubStr)
+			This.RemoveSubStringAtPosition(n, pcSubStr)
+			return This
+
+	# Remove pcSubStr at each of the given positions (mutating).
+	def RemoveSubStringAtPositionsCS(panPos, pcSubStr, pCaseSensitive)
+		if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
+			StzRaise("Incorrect param! panPos must be a list of numbers.")
+		ok
+
+		# Descending, so removing at one position cannot shift the next.
+		_anRsapSorted_ = _ListCopy(panPos)
+		_nRsapL_ = len(_anRsapSorted_)
+		for _iRsap_ = 2 to _nRsapL_
+			_vRsap_ = _anRsapSorted_[_iRsap_]
+			_jRsap_ = _iRsap_ - 1
+			while _jRsap_ >= 1 and _anRsapSorted_[_jRsap_] < _vRsap_
+				_anRsapSorted_[_jRsap_ + 1] = _anRsapSorted_[_jRsap_]
+				_jRsap_--
+			end
+			_anRsapSorted_[_jRsap_ + 1] = _vRsap_
+		next
+
+		for _iRsap_ = 1 to _nRsapL_
+			This.RemoveSubStringAtPositionCS(_anRsapSorted_[_iRsap_], pcSubStr, pCaseSensitive)
+		next
+
+		def RemoveSubStringAtPositionsCSQ(panPos, pcSubStr, pCaseSensitive)
+			This.RemoveSubStringAtPositionsCS(panPos, pcSubStr, pCaseSensitive)
+			return This
+
+	def RemoveSubStringAtPositions(panPos, pcSubStr)
+		This.RemoveSubStringAtPositionsCS(panPos, pcSubStr, 1)
+
+		def RemoveSubStringAtPositionsQ(panPos, pcSubStr)
+			This.RemoveSubStringAtPositions(panPos, pcSubStr)
+			return This
+
 	# SortMarquersInDescending(): list of marker positions sorted desc.
 	# _MarquersSortedStrings(bAscending): the marquer strings sorted by
 	# their numeric value.

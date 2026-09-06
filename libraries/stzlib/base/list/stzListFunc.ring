@@ -18,6 +18,34 @@
 /////////////////
 
 	  #============================================#
+	 #  REACHING A BUILTIN A METHOD IS HIDING     #
+	#============================================#
+
+	# Ring's insert(), reachable from inside a class.
+	#
+	# Inside a class body an unqualified call resolves to a METHOD before
+	# the builtin, inherited methods included. stzList defines
+	# Insert(pItem, pWhere), so every class under it -- stzHashList among
+	# them -- gets R20 "extra number of parameters" for the three-argument
+	# builtin, an error naming neither the method found nor the builtin
+	# meant. A plain function is not a method, so nothing shadows this one.
+	#
+	# The list is passed by reference, so the insert is visible to the
+	# caller. Rebuilding the list around the insertion point instead --
+	# the only way to insert without reaching the builtin -- measured
+	# 213 ms for 200 inserts into 2,000 pairs, against below the 1 ms
+	# timer floor here. Minima of 3 on Ring 1.27.
+	#
+	# WHERE THIS COSTS: one Ring->function crossing per insert, which is
+	# 0.17 us measured the same way. Two hundred of them is 0.03 ms, well
+	# under the timer floor, and it takes about 6,000 inserts before the
+	# crossings alone are worth a millisecond. The splice they replace
+	# costs about 1.1 ms EACH at this size, because it copies the list.
+
+	func StzInsertInList(paList, nAfter, pItem)
+		insert(paList, nAfter, pItem)
+
+	  #============================================#
 	 #  ENGINE MARSHALING (Ring list -> Engine)   #
 	#============================================#
 
