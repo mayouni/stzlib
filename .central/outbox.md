@@ -1892,3 +1892,46 @@ note:      THE JOIN IS THE REPAIR. The four algorithmic gaps the
            would be a refactor; this one unifies because the shortest
            path to strength runs through the other side.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-06 12:18
+
+subject:   DN8a -- a substance is a graph, and a graph is a substance
+
+why:       the author said go ahead; everything else in DN8 stands on it
+
+did:
+  - Added ToGraph, ToGraphXT with constructor projection, and
+    StzSubstanceFromGraph; round trips lose nothing.
+  - Reified any relation a simple graph cannot hold as an edge --
+    a second on one pair, or three or more arguments -- as a node
+    with positioned argument edges, as stzGraph's refusal advises.
+  - Turned the graph plane's own org chart into a substance and drew
+    it under a Style; kept the poor picture as DN8b's witness.
+  - Found and recorded two collisions of convention: lower-cased ids
+    against case-sensitive names, and a foreign :type that is the
+    drawing's word and not a domain's.
+
+state:
+  section 89:   17 assertions
+  gate:         976 ok, 0 failed, on main and in the commit tree
+  plan table:   DN8a closed at 89; DN8b through DN8g open
+  catalogue:    31 pictures
+  commit:       b777b1684 on origin and codeberg, verified at the sha
+
+waiting:
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      DN8b on the author's word -- layouts as starts; the org
+             chart is the first picture it must fix
+  - central: nothing owed from this
+
+note:      THE JOIN TAUGHT MORE THAN IT COST. The adapter is small; the
+           two collisions it exposed are the kind that hide in a
+           library for years -- one system's id is another's name,
+           one system's type is another's drawing word -- and neither
+           was visible until an object crossed from one side to the
+           other. A join is also an audit of both sides.
+```
