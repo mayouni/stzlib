@@ -1669,3 +1669,50 @@ note:      THE ENERGY WAS NEVER THE PROBLEM AND EVERY INSTINCT SAID IT
            crossed, and it took 84 compiled terms holding 10,138 units
            at convergence to make that a number instead of a suspicion.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-06 07:32
+
+subject:   DN7g -- the planar start, and the three mechanisms that threw
+           it away before it could be seen
+
+why:       the author asked for the cube and the dodecahedron drawn as
+           themselves; DN7f had measured that only the start could do it
+
+did:
+  - Added StartPlanar to the style and Tutte's embedding to the diagram,
+    the face found as the shortest chordless non-separating cycle.
+    Cube 7 -> 0 crossings, dodecahedron 17 -> 0, both lawful.
+  - Found and closed three mechanisms that destroyed the start: the
+    opening penalty weight (now 1e5 for a planar start), names pulling
+    on edges (names solve after shapes in the graph styles, and the
+    guard asserts the Euler style must not), and a quadratic freeze
+    (706 seconds -> one pass).
+  - Made the crossing term a rule when the start is planar and advice
+    when it is not -- the same term, a different class.
+  - Replaced two clock assertions with counts after both failed on this
+    shared machine the same afternoon.
+
+state:
+  section 85:   12 assertions
+  gate:         917 ok, 0 failed, on main and in the commit tree
+  plan table:   DN7a through DN7g all closed
+  commit:       0bdd931d1 on origin and codeberg, verified at the sha
+
+waiting:
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      splines, the largest of the one-feature gaps in the gallery
+             triage, if the author wants the yardstick pushed further
+  - central: nothing owed from this
+
+note:      THE START WAS RIGHT ON THE FIRST TRY AND THE PICTURE WAS WRONG
+           FOUR TIMES AFTER IT. Every one of the four was a different
+           part of the machine quietly undoing a good beginning: the
+           penalty schedule, the label coupling, a string append, a
+           name's own first position. None showed in the start and all
+           showed in the picture. A planar start is not a feature; it
+           is a claim the rest of the solver has to be made to keep.
+```
