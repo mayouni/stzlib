@@ -451,3 +451,31 @@ func StzMathScene23(poFont)
 	# only its depth. Kept as the graph the engine cannot yet untangle.
 	_o_.SetVariation("gray")
 	return _o_
+
+#-- splines (DN7h): blobs, a curved graph, Catmull-Rom -----------------------
+
+# THE SAME seven-set tree as scenes 02 and 06, each set a blob
+func StzMathScene24(poFont)
+	_o_ = new stzMathDiagram(StzSetTheoryDomain(), StzMathTreeSubstance(), StzBlobStyle())
+	_o_.SetFont(poFont, 26)
+	_o_.SetVariation("blobs")
+	return _o_
+
+# the cube again, its edges curved
+func StzMathScene25(poFont)
+	_o_ = new stzMathDiagram(StzGraphDomain(), StzMathCubeSubstance(), StzCurvedGraphStyle())
+	_o_.SetFont(poFont, 15)
+	_o_.SetVariation("curved")
+	return _o_
+
+# six points and the Catmull-Rom curve through them
+func StzMathScene26(poFont)
+	_oS_ = new stzMathSubstance(StzPathDomain())
+	_oS_.DeclareAll("Point", [ "P1", "P2", "P3", "P4", "P5", "P6" ])
+	_oS_.Define("S", "Through", [ "P1", "P2", "P3", "P4", "P5", "P6" ])
+	_oS_.AutoLabelAll()
+	_oS_.Label("S", "")
+	_o_ = new stzMathDiagram(StzPathDomain(), _oS_, StzCatmullStyle())
+	_o_.SetFont(poFont, 18)
+	_o_.SetVariation("catmull")
+	return _o_
