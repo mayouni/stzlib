@@ -2029,3 +2029,40 @@ note:      NINE HUNDRED ASSERTIONS HAD PASSED THE PICTURES THE GATE
            everything that came before it. Twenty-two style rows
            later, the pictures are what the assertions said they were.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-06 14:57
+
+subject:   an arrowhead is ink -- the vector names, and what the one
+           gate had not seen
+
+why:       the author marked the vector picture: names on the axes, a
+           name on its own arrowhead
+
+did:
+  - Held the vector names 24px from the tip and 10px off each axis.
+  - Made the arrowhead ink for the gate's rule: the same triangle the
+    painter lays, at both ends of a line that carries one.
+  - Found two more names on heads in the network that way, and
+    widened the graph style's clearance for an arc, which carries a
+    head, above an edge's, which does not.
+
+state:
+  gate:         997 ok, 0 failed, on main and in the commit tree
+  one gate:     52 pictures in 45 s, findings: the contradiction's five
+  commit:       a4820dd3f on origin and codeberg, verified at the sha
+
+waiting:
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      DN8d on the author's word
+  - central: nothing owed from this
+
+note:      THE HEAD WAS NEVER A SHAPE, SO NO RULE COULD SEE IT. Whatever
+           a renderer adds at draw time -- a head, a tick, a shadow --
+           is a place where the rules and the picture disagree, and
+           the rules must be told to read what the painter draws, not
+           what the model holds.
+```
