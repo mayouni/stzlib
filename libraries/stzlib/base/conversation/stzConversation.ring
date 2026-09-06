@@ -71,7 +71,7 @@ class stzConversation from stzObject
 	@oGoal = ""        # THE one goal this conversation is accountable for
 	@cGoalState = "none" # none | pursuing | fulfilled | revoked
 	@cGoalWhy = ""       # why it ended that way
-	@oNarration = ""
+	@oTranscript = ""
 	@aPending = []       # [ subject, relation ] awaiting an answer
 	@acOptions = []      # the values offered with the pending question
 	@cForce = ""         # the pending question's illocutionary force
@@ -82,7 +82,7 @@ class stzConversation from stzObject
 
 	def init(pcTopic)
 		@cTopic = "" + pcTopic
-		@oNarration = new stzNarration()
+		@oTranscript = new stzTranscript()
 
 	def Topic()
 		return @cTopic
@@ -105,7 +105,7 @@ class stzConversation from stzObject
 		@oGoal = poGoal
 		@cGoalState = "pursuing"
 		@cGoalWhy = ""
-		@oNarration.System("Goal adopted -- this conversation is now accountable for it.")
+		@oTranscript.System("Goal adopted -- this conversation is now accountable for it.")
 		return This
 
 	def GoalQ()
@@ -143,7 +143,7 @@ class stzConversation from stzObject
 		@aPending = []
 		@acOptions = []
 		@cForce = ""
-		@oNarration.System("Goal revoked: " + @cGoalWhy)
+		@oTranscript.System("Goal revoked: " + @cGoalWhy)
 		return This
 
 	# THE MONITORING: re-read the goal against the space; the moment no gap
@@ -158,7 +158,7 @@ class stzConversation from stzObject
 			@aPending = []
 			@acOptions = []
 			@cForce = ""
-			@oNarration.System("Goal fulfilled: " + @cGoalWhy)
+			@oTranscript.System("Goal fulfilled: " + @cGoalWhy)
 		ok
 		return @cGoalState
 
@@ -167,11 +167,16 @@ class stzConversation from stzObject
 			stzraise("This conversation has no goal -- SetGoal(oGoal) first (the wise-coding loop is goal-driven).")
 		ok
 
-	def NarrationQ()
-		return @oNarration
+	def TranscriptQ()
+		return @oTranscript
+
+		# the name this accessor had until 2026-09-06, kept one version so a
+		# caller written against it still runs; TranscriptQ() is the name
+		def NarrationQ()
+			return This.TranscriptQ()
 
 	def History()
-		return @oNarration.Lines()
+		return @oTranscript.Lines()
 
 	def NumberOfTurns()
 		return @nTurns
@@ -216,7 +221,7 @@ class stzConversation from stzObject
 		ok
 
 		_cQ_ = This._Phrase(This._FrameText(_cSubj_, _cRel_, _cWhy_))
-		@oNarration.System(_cQ_)
+		@oTranscript.System(_cQ_)
 		@nTurns++
 		return [ :question = _cQ_, :force = @cForce, :subject = _cSubj_,
 			:relation = _cRel_, :options = @acOptions, :why = _cWhy_ ]
@@ -307,16 +312,16 @@ class stzConversation from stzObject
 					ok
 				next
 			ok
-			@oNarration.User(@@(pAnswer))
+			@oTranscript.User(@@(pAnswer))
 		but isString(pAnswer)
 			_acVals_ = This._ValuesFromPhrase(pAnswer)
-			@oNarration.User(pAnswer)
+			@oTranscript.User(pAnswer)
 		else
 			# a bare number: pick that option
 			_aPick_ = This._OptionsByIndices([ pAnswer ])
 			_acVals_ = _aPick_[:values]
 			_aBadIdx_ = _aPick_[:bad]
-			@oNarration.User("" + pAnswer)
+			@oTranscript.User("" + pAnswer)
 		ok
 
 		# an out-of-range pick REFUSES, narrated + checkpointed (LAW 3)
@@ -324,7 +329,7 @@ class stzConversation from stzObject
 		for _i_ = 1 to _nB_
 			_cWhyB_ = "no option (" + _aBadIdx_[_i_] + ") was offered -- " +
 				len(@acOptions) + " option(s) on the table"
-			@oNarration.Verdict(_cWhyB_, 1)
+			@oTranscript.Verdict(_cWhyB_, 1)
 			@aCheckpoints + [ :subject = _cSubj_, :relation = _cRel_,
 				:attempted = "(" + _aBadIdx_[_i_] + ")", :why = _cWhyB_,
 				:turn = @nTurns ]
@@ -345,7 +350,7 @@ class stzConversation from stzObject
 			@cWhy = _aAd_[:why]
 			$cStzLastWhyB = @cWhy       # the house 'last why' convention
 			$nStzLastCertainty = 1
-			@oNarration.Verdict(@cWhy, 1)
+			@oTranscript.Verdict(@cWhy, 1)
 			if _aAd_[:admitted] = 1
 				_acAdmitted_ + _acVals_[_i_]
 			else
@@ -416,7 +421,7 @@ class stzConversation from stzObject
 			stzraise("Can't conclude: " + len(_aGaps_) + " gap(s) remain -- the wise-coding loop is not done. Ask the next question.")
 		ok
 		poSpace.WriteToKnowFile(pcKnowFile)   # THE SPACE this session grew
-		@oNarration.System("Concluded: the knowledgebase is written (" + pcKnowFile + ").")
+		@oTranscript.System("Concluded: the knowledgebase is written (" + pcKnowFile + ").")
 		return 1
 
 	#-- persistence (*.zcnv) ---------------------------------------------
@@ -426,7 +431,7 @@ class stzConversation from stzObject
 			pcFile += ".zcnv"
 		ok
 		_c_ = 'conversation "' + @cTopic + '"' + char(10) + "history" + char(10)
-		_aL_ = @oNarration.Lines()
+		_aL_ = @oTranscript.Lines()
 		_n_ = len(_aL_)
 		for _i_ = 1 to _n_
 			_c_ += "    " + _aL_[_i_][1] + " | " + _aL_[_i_][2] + char(10)
@@ -435,7 +440,7 @@ class stzConversation from stzObject
 		return pcFile
 
 	def Transcript()
-		return @oNarration.Text()
+		return @oTranscript.Text()
 
 	#-- helpers -------------------------------------------------------------
 

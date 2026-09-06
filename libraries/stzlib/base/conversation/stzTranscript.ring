@@ -1,15 +1,21 @@
-# R3b -- stzNarration: THE SYSTEM'S SIDE OF THE DIALOGUE
+# R3b -- stzTranscript: THE SYSTEM'S SIDE OF THE DIALOGUE, AS A RECORD
 # The narration culture (Why-chains, evidentiality, prose) promoted
 # from a habit into a construct: an ordered, speaker-tagged transcript
 # the conversation writes as it thinks.
 #
-#   oN = new stzNarration()
+# RENAMED from stzNarration on 2026-09-06 (reference design v1.2, the
+# sibling's obligation O1): this class is a TRANSCRIPT, precisely -- lines
+# with a speaker and a certainty -- and was never a document. The name
+# stzNarration is the document class of the Narrations layer, and a
+# visual narration (DN9) is told through stzStoryboard.
+#
+#   oN = new stzTranscript()
 #   oN.System("What does 'margherita' contain?")
 #   oN.User("tomato-sauce")
 #   oN.Verdict("yes: 'margherita' contains 'tomato-sauce'", 1)
 #   ? oN.Text()
 
-class stzNarration from stzObject
+class stzTranscript from stzObject
 
 	@aLines = []    # [ [ speaker, text, certainty ] ... ]
 

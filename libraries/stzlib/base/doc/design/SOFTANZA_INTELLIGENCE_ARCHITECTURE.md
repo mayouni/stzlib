@@ -98,7 +98,7 @@ vibe coding does:
   the target shape -- so it measures the GAP between that shape and what
   it has heard so far, and turns each gap into the next well-structured
   question (stzGoal drives the elicitation, stzQuestion asks,
-  stzNarration explains why it is asking). The conversation ASSISTS THE
+  stzTranscript explains why it is asking). The conversation ASSISTS THE
   DESIGN of the solution, step by governed step -- and it ends with real
   artifacts: the .zknw knowledgebase WRITTEN, data in place, an
   OPERATIONAL intelligent system standing (the 0.1 north star).
@@ -278,7 +278,7 @@ base/
                                     frames -- shared with natural/
                   stzGoal           what the conversation is FOR (ties to
                                     stzGraphGoal + the planner, R5)
-                  stzNarration      the system's side of the dialogue:
+                  stzTranscript      the system's side of the dialogue:
                                     Why-chains, evidentiality, prose
                                     explanations (the narration culture,
                                     promoted to a construct)
@@ -478,7 +478,7 @@ and every green verdict names a guard that was RUN, not a file that was seen.
 | stzLinearSolver's simplex -- DISHONEST STUB | **CLOSED at the floor, OPEN at the DSL.** A real simplex lives in `engine/src/simplex.zig`, guarded by `test/number/numeric_simplex_narrated.ring`, and the comparison test is un-retired (`test/linearsolver/13_same_problem_different_solvers.ring`). What did NOT arrive is R4 step 5's modelling DSL -- see the R4 row in 3.1.2 |
 | reactive/ vs intelligence modules | **CLOSED.** The event bus is wired (`stzEventBus` + `stzAgentHost.SuperviseOnEvent`), and since 2026-08-20 the SCHEDULING itself can be handed to Zig (`agentloop.zig`, `UseEngineLoop()`), guarded by `test/agentic/agentloop_engine_narrated.ring` (54/54) |
 | Reaxis narration claims "built on libuv" | **CLOSED in S0** |
-| Conversation constructs scattered | **CLOSED.** `base/conversation/` holds stzConversation, stzGoal, stzNarration; wise coding runs (`test/conversation/wisecoding_narrated.ring` 13/13, `wisecoding_rich_narrated.ring` 52/52) |
+| Conversation constructs scattered | **CLOSED.** `base/conversation/` holds stzConversation, stzGoal, stzTranscript; wise coding runs (`test/conversation/wisecoding_narrated.ring` 13/13, `wisecoding_rich_narrated.ring` 52/52) |
 | The house rules live in docs + folklore | **CLOSED.** They are runnable: `meta/stzCodeRule(s)` + `graph/stzRuleReport` -- ONE CI gate over six rule domains, and since 2026-08-22 the structured-output verdict enters that same gate |
 
 #### 3.1.2 THE ONE ROADMAP, rung by rung (measured 2026-08-22)
@@ -1736,7 +1736,7 @@ becomes the DOMAIN (map entry above):
 - stzConversation ENTRY OBJECT: multi-turn state (topic, goals, grounding,
   history), persisted as *.zcnv;
 - stzQuestion supplies the interrogative frames (exists); stzGoal gives
-  the conversation its purpose (ties to stzGraphGoal, R5); stzNarration
+  the conversation its purpose (ties to stzGraphGoal, R5); stzTranscript
   promotes the narration culture (Why-chains, evidentiality, prose) into
   the system's side of the dialogue;
 - GROUNDED in the knowledge graph (R1): the conversation reads AND writes

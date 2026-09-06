@@ -705,7 +705,8 @@ class stzDelivery from stzObject
 # The rehearsed placement & scope plan -- the delivery planner's readable output. Per part:
 # every capability, its delivery vector, and the reason; plus the derived on-device
 # engine subset. Plain-data backed; Explain() is the legible signature (named
-# Explain, not Narration, to avoid confusion with stzNarration).
+# Explain rather than Narration: a narration is the Narrations layer's document,
+# and the conversation's own record is stzTranscript).
 class stzBuildPlan from stzObject
 
 	@cName = ""
