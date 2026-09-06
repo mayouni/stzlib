@@ -442,7 +442,7 @@ func StzMathCubeSubstance()
 	return _oS_
 
 func StzMathScene23(poFont)
-	_o_ = new stzMathDiagram(StzGraphDomain(), StzMathCubeSubstance(), StzGraphStyle())
+	_o_ = new stzMathDiagram(StzGraphDomain(), StzMathCubeSubstance(), StzSpringGraphStyle())
 	_o_.SetFont(poFont, 15)
 	# SEVEN CROSSINGS, the best of six seeds, and the cube is planar. The
 	# crossing preference is in the energy and the solver cannot spend it:
