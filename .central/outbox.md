@@ -2237,3 +2237,48 @@ note:      NOT ONE ALGORITHM WAS WRONG. Ten tables scanned by name, a
            and each was the whole cost at thousands. The scale did not
            find a design flaw; it found what nobody had counted.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-06 19:48
+
+subject:   DN8g -- the live figure; DN8 closed a through g
+
+why:       the author said go ahead; the item closes the DN8 plan
+
+did:
+  - Added DragTo, Pin/Unpin/UnpinAll/IsPinned/Pins, Relayout, PickAt,
+    Draggable and the plastic editor's OnPress/OnMove/OnRelease with
+    DragPreview to the math diagram; SolveProfile reports a solve.
+  - Met the kill: Byrne's figure re-solves from a drag in 27 ms, two
+    rounds, the right angle right, the area names in their squares.
+  - Paid the engine item DN8e owed on the Ring side: a settled derived
+    name folds to its number at generation, and the label stage's text
+    went from 586,494 to 42,784 characters.
+  - Found and fixed a stage exit test that read violations it did not
+    solve and climbed the whole ladder on every solve; the cold Byrne
+    solve went 1,536 to 382 ms.
+  - Kept the over-constrained case as a reported finding: B and C held,
+    A dragged, the drag is unlawful at the right angle and says so.
+
+state:
+  section 95:   24 assertions
+  gate:         1070 ok, 0 failed, on main and in the commit tree
+  plan table:   DN8a through DN8g closed
+  catalogue:    37 pictures, each with a dark twin
+  commit:       5d955b9f4 on origin and codeberg, verified at the sha
+
+waiting:
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the author's next word; DN8 is closed and the plan's
+             "what this leaves" section is the open list
+  - central: nothing owed from this
+
+note:      A LATENCY BUDGET IS A PROFILER THAT CANNOT BE ARGUED WITH.
+           Seven costs hid behind one cold number, and the 100 ms
+           budget named every one; not one was an algorithm, and one
+           of them had been making every cold solve four times slower
+           than it needed to be, since the label stage was born.
+```
