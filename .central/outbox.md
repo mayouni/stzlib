@@ -1804,3 +1804,50 @@ note:      THE ELLIPSE NEVER ENTERED A CONSTRAINT AND DID NOT NEED TO.
            relations survive -- and that question is cheaper than the
            awkward reasoning every time it has an answer.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-06 09:43
+
+subject:   DN7j -- a colour channel from substance data, and the DN7
+           plane at rest
+
+why:       the author asked for the colour channel, the last one-feature
+           gap in the gallery triage
+
+did:
+  - Added numbers on substance objects, readable in any Style
+    expression, and colour rules -- ramp and palette -- resolved at
+    draw time through the same tape a position is.
+  - Drew the quaternion group's table and A . B = C as a heat map,
+    both lawful in a single evaluation: nothing to solve.
+  - Read the table back as mathematics in the guard: a Latin square,
+    all 64 products against an independent multiplication, C against
+    A and B recomputed from the cell data.
+  - Closed the DN7 plane: ten items, 30 pictures, 958 assertions.
+
+state:
+  section 88:   16 assertions
+  gate:         958 ok, 0 failed, on main and in the commit tree
+  plan table:   DN7a through DN7j all closed
+  catalogue:    30 pictures
+  commit:       390d9300e on origin and codeberg, verified at the sha
+
+waiting:
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      nothing open in DN7; the next move is the author's
+  - central: nothing owed from this
+
+note:      THE ENGINE ANSWERED "NOTHING TO SOLVE" AND THAT IS THE RIGHT
+           ANSWER FOR A TABLE. A cell is its row, its column and its
+           value, and once those are data every position and colour is
+           an expression over them: the solver ran one evaluation over
+           236 slots it never touched and was lawful. Penrose's
+           Substance carries no numbers, and for a set or a point that
+           is right, because the content is the relation; a table is
+           the one case where the number is the content, and the
+           machinery made for relations took it without a change of
+           kind.
+```
