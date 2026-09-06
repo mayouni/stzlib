@@ -224,10 +224,14 @@ func StzVectorStyle()
 		# arrow ran near one, which the one gate found on both vectors
 		[ :shape, "v.text", :text, [ :fill = "#1f4fbf" ] ],
 		[ :shape, "v.tip", :circle, [ :cx = "v.arrow.x2", :cy = "v.arrow.y2", :r = 1, :hidden = 1 ] ],
-		[ :encourage, "near", [ "v.text", "v.tip", 16 ] ],
-		[ :ensure, "disjoint", [ "v.text", "v.arrow", 3 ] ],
-		[ :ensure, "disjoint", [ "v.text", "U.xaxis", 3 ] ],
-		[ :ensure, "disjoint", [ "v.text", "U.yaxis", 3 ] ],
+		# 24 from the tip and 10 off the arrow: the head is 3.5 + 1.2*sw
+		# wide either side of the line, and the name must clear the head,
+		# not the line; 10 off each axis, since the tip of an axis-aligned
+		# vector sits ON the axis and the name was hugging it
+		[ :encourage, "near", [ "v.text", "v.tip", 24 ] ],
+		[ :ensure, "disjoint", [ "v.text", "v.arrow", 10 ] ],
+		[ :ensure, "disjoint", [ "v.text", "U.xaxis", 10 ] ],
+		[ :ensure, "disjoint", [ "v.text", "U.yaxis", 10 ] ],
 		[ :ensure, "greaterThan", [ "len(v.arrow)", 70 ] ],
 		[ :ensure, "lessThan", [ "len(v.arrow)", "U.axis - 10" ] ],
 		[ :layer, "v.arrow", :above, "U.xaxis" ], [ :layer, "v.arrow", :above, "U.yaxis" ] ])
@@ -758,6 +762,19 @@ func _MrInk(poDg)
 		_k_ = _s_[:kind]
 		if _k_ = "line"
 			_a_ + [ _s_[:x1], _s_[:y1], _s_[:x2], _s_[:y2], _cO_, _cP_ ]
+			# AN ARROWHEAD IS INK. It is painted at draw time from the line's
+			# end, as a filled triangle the width of the stroke -- so it was
+			# never a shape, and a name sitting on it passed every rule
+			# until the author marked it. The same triangle the painter
+			# draws is what the rule reads.
+			_cAr_ = "" + poDg.PropOf(_cP_, "arrow", "")
+			_nSw_ = poDg.PropOf(_cP_, "strokeWidth", 1)
+			if _cAr_ = "end" or _cAr_ = "both"
+				_MrAddPolyline(_a_, _MrHead(_s_[:x1], _s_[:y1], _s_[:x2], _s_[:y2], _nSw_), TRUE, _cO_, _cP_)
+			ok
+			if _cAr_ = "start" or _cAr_ = "both"
+				_MrAddPolyline(_a_, _MrHead(_s_[:x2], _s_[:y2], _s_[:x1], _s_[:y1], _nSw_), TRUE, _cO_, _cP_)
+			ok
 		but _k_ = "curve"
 			_MrAddPolyline(_a_, poDg.CurvePointsOf(_cP_), FALSE, _cO_, _cP_)
 		but _k_ = "spline"
@@ -790,6 +807,19 @@ func _MrAddPolyline(paInk, paP, pbClosed, pcOwner, pcPath)
 		if _j_ > _n_  _j_ = 1  ok
 		paInk + [ paP[2*_i_-1], paP[2*_i_], paP[2*_j_-1], paP[2*_j_], pcOwner, pcPath ]
 	next
+
+# the head's triangle, exactly as _DrawHead lays it: tip at the end,
+# length 8 + 2.5 sw, half-width 3.5 + 1.2 sw
+func _MrHead(px1, py1, px2, py2, pnSw)
+	_dx_ = px2 - px1  _dy_ = py2 - py1
+	_L_ = sqrt(_dx_ * _dx_ + _dy_ * _dy_)
+	if _L_ < 0.001  return []  ok
+	_ux_ = _dx_ / _L_  _uy_ = _dy_ / _L_
+	_nLen_ = 8 + 2.5 * pnSw
+	_nHalf_ = 3.5 + 1.2 * pnSw
+	_bx_ = px2 - _nLen_ * _ux_  _by_ = py2 - _nLen_ * _uy_
+	return [ px2, py2, _bx_ - _nHalf_ * _uy_, _by_ + _nHalf_ * _ux_,
+	         _bx_ + _nHalf_ * _uy_, _by_ - _nHalf_ * _ux_ ]
 
 func _MrRim(pnCx, pnCy, pnRx, pnRy)
 	_a_ = []
@@ -1492,8 +1522,10 @@ func StzGraphStyle()
 		[ :encourage, "notTooClose", [ "u.icon", "v.icon", 2 ] ] ])
 	_o_.ForAll("Vertex v; Edge e", [
 		[ :ensure, "disjoint", [ "v.text", "e.icon", 4 ] ] ])
+	# an arc carries a HEAD, 3.5 + 1.2*sw either side of its line and
+	# 8 + 2.5*sw long: a name clears the head, not the line
 	_o_.ForAll("Vertex v; Arc e", [
-		[ :ensure, "disjoint", [ "v.text", "e.icon", 4 ] ] ])
+		[ :ensure, "disjoint", [ "v.text", "e.icon", 10 ] ] ])
 	# NO TWO EDGES CROSS, where the graph allows it -- AS A PREFERENCE. The
 	# selector binds six DISTINCT objects, so it reaches exactly the pairs
 	# of edges that share no vertex; adjacent edges meet at their vertex by
