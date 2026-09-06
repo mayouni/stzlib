@@ -2193,3 +2193,47 @@ note:      THE RULE NAMED A SHAPE AND THE READER SAW ANOTHER. Painting
            nomination of a shape. The gate had the right question all
            along; the drawing now asks the same one.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-06 18:11
+
+subject:   DN8f -- content generators, and the scale they exposed
+
+why:       the author said go ahead; the item's second half is the
+           finding
+
+did:
+  - Added DeclareMany and SetDataFrom to the substance, a dot domain
+    with a Step constructor, and three iteration-made gallery pictures
+    as substances of thousands of objects with nothing to solve.
+  - Measured 5,000 dots before touching anything: 22 s build, 238 s
+    compile with 20,000 constraints, draw unfinished at 10 minutes.
+  - Indexed every name-keyed table with a Ring hash list, case-marked;
+    kept an on-canvas term only when it can move and checked the rest
+    in Ring, still reported; read a datum coordinate as the datum.
+  - Measured after: 0.65 s, 4 s with 0 constraints, 6 s of which the
+    raster is 2.5 s. Named uncured: the minter at 0.36 ms a shape.
+  - Re-anchored two table assertions from "one evaluation" to "nothing
+    evaluated", which is where the fact now lives.
+
+state:
+  section 94:   24 assertions
+  gate:         1049 ok, 0 failed, on main and in the commit tree
+  plan table:   DN8a through DN8f closed; DN8g open
+  catalogue:    36 pictures, each with a dark twin
+  commit:       18f923ae1 on origin and codeberg, verified at the sha
+
+waiting:
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      DN8g on the author's word -- the live figure by warm start
+  - engine:  a tape that binds a subexpression once, still owed
+
+note:      NOT ONE ALGORITHM WAS WRONG. Ten tables scanned by name, a
+           rule that held constants to the paper on a tape, a draw that
+           compiled a tape to read a number: each was right for dozens
+           and each was the whole cost at thousands. The scale did not
+           find a design flaw; it found what nobody had counted.
+```
