@@ -1980,3 +1980,52 @@ note:      I REDISCOVERED MY OWN DECISION AS A BUG. The first probe
            it left unmet. A verdict that hides its exceptions is the
            condition a false "lawful" hides in.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-06 13:51
+
+subject:   DN8c -- one gate over both catalogues, and the 22 things it
+           found on pictures that had passed
+
+why:       the author said go ahead; the unification's gate is where
+           the two planes first judge each other's pictures
+
+did:
+  - Added StzCheckPictures over both catalogues, dispatching by class,
+    ingesting every math diagram's own violations, reporting the
+    count of pictures judged.
+  - Wrote the visual contract for solved pictures as four scoped
+    rules with subjects and counter-subjects.
+  - Fixed the 22 real findings of the first run, each a style row;
+    kept the contradiction's five as the proof the gate reports.
+  - Witnessed the pair rule's boundary in the corpus rather than
+    weakening the rule.
+  - Remembered values and ink between solves: 101 s to 45 s.
+
+state:
+  section 91:   9 assertions
+  gate:         997 ok, 0 failed, on main and in the commit tree
+  plan table:   DN8a, DN8b, DN8c closed; DN8d through DN8g open
+  one gate:     52 pictures, 45 s, findings: the contradiction's five
+  commit:       799ddf3a9 on origin and codeberg, verified at the sha
+
+waiting:
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      DN8d on the author's word -- colour as meaning; it waits
+             on the colour plan's perceptual ramp, and I will say so
+             again when I reach it
+  - central: if the colour plan has a session, it should know DN8d is
+             queued behind its ramp
+
+note:      NINE HUNDRED ASSERTIONS HAD PASSED THE PICTURES THE GATE
+           FAULTED. Not one of them was wrong; each asserted what its
+           own section could see, and none asked the picture's whole
+           ink. A rule that reads render facts over the whole corpus
+           is a different instrument from a section that checks its
+           own scene, and the first run of such a rule is an audit of
+           everything that came before it. Twenty-two style rows
+           later, the pictures are what the assertions said they were.
+```
