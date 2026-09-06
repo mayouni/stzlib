@@ -2160,3 +2160,36 @@ note:      THE START DECIDES THE BASIN, AND A START RULE HAS A SCOPE.
            on one point. Every rule this plane adds to the start now
            says what it is for.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-06 16:41
+
+subject:   c2 in white -- a name's colour measured on what is under it
+
+why:       the author marked Byrne's c2 black beside a2 and b2 in white
+
+did:
+  - Added [ :on, "under" ]: a name's colour is the best of black and
+    white on the topmost filled region painted beneath it, which is
+    what the one gate's contrast measurement already computed.
+  - Applied it to Byrne's three areas; all three are white, and the
+    guard says why c2 was not.
+
+state:
+  gate:         1028 ok, 0 failed, on main and in the commit tree
+  commit:       707778230 on origin and codeberg, verified at the sha
+
+waiting:
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      DN8f on the author's word
+  - central: nothing owed from this
+
+note:      THE RULE NAMED A SHAPE AND THE READER SAW ANOTHER. Painting
+           order is a fact about the picture, and a rule about what a
+           reader sees must read the painted result, not the model's
+           nomination of a shape. The gate had the right question all
+           along; the drawing now asks the same one.
+```
