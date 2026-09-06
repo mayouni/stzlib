@@ -2066,3 +2066,51 @@ note:      THE HEAD WAS NEVER A SHAPE, SO NO RULE COULD SEE IT. Whatever
            the rules must be told to read what the painter draws, not
            what the model holds.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-06 15:55
+
+subject:   DN8d -- colour as meaning: roles, themes, measured text, and
+           a perceptual ramp from the engine
+
+why:       the author said go ahead; the colour plan's C1 had landed, so
+           the ramp DN7j owed could be paid
+
+did:
+  - Made every structural colour in nineteen styles a role the theme
+    resolves; kept Byrne's plate and the quaternion table's eight as
+    content, fourteen literals by name.
+  - Added the alpha and on-fill colour rules; a name's colour is
+    measured on what holds it, never written.
+  - Exported an Oklab mix from the engine and put the ramp through it;
+    the sRGB midpoint is the negative sibling.
+  - Rendered every picture under light and dark, 276 names measured
+    under each, none under 3:1; found sixteen muted names on white
+    and made secondary text neutral.
+  - Re-anchored five older assertions that had pinned a hex.
+
+state:
+  section 92:   15 assertions
+  gate:         1012 ok, 0 failed, on main and in the commit tree
+  plan table:   DN8a through DN8d closed; DN8e through DN8g open
+  catalogue:    31 pictures, each with a dark twin
+  engine:       stz_color_mix_oklab exported; stz_gpu rebuilt
+  commit:       2ea73e09e on origin and codeberg, verified at the sha
+
+waiting:
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      DN8e on the author's word -- polygon distances
+  - colour:  StzColorMix in stzColor.ring is still the sRGB mix; the
+             engine's Oklab mix is beside it now, and that plan owns
+             the swap and the pictures it would change
+
+note:      A GUARD THAT PINS A HEX BREAKS THE DAY THE HEX BECOMES A
+           WORD. Five did today, and each was right about the property
+           and wrong about the spelling: the highlight IS the accent,
+           the hottest cell IS the accent, the midpoint IS halfway --
+           in lightness. Pin the role and resolve it, or pin the
+           property the hex was standing in for.
+```
