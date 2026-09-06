@@ -103,6 +103,14 @@ sections, of which 21 declarations over 17 items.
 | DN7h | closed | 86 |
 | DN7i | closed | 87 |
 | DN7j | closed | 88 |
+| DN8 | open | - |
+| DN8a | open | - |
+| DN8b | open | - |
+| DN8c | open | - |
+| DN8d | open | - |
+| DN8e | open | - |
+| DN8f | open | - |
+| DN8g | open | - |
 | DN2b | closed | 56 |
 | DN2c | closed | - |
 | DN2d | closed | 57 |
@@ -2273,6 +2281,115 @@ was a cliff at twelve sets.
   B's cell data; its hottest cell wears the ramp's hot end, found from
   the data rather than named by hand — the first guess at which cell
   that was, was wrong, which is the argument for computing it.
+
+## DN8 — ONE CONTENT, ONE READING, ONE GATE: unify the two planes by making each strengthen the other (2026-09-06, planned)
+
+The Principal asked, after DN7j was met, whether the foundational
+mathematical-diagram models were covered and what the library's own
+design adds. The assessment (memo of 2026-09-06) found the Penrose model
+whole, the construction model whole under the name DERIVED, graph layout
+in part, and four algorithmic gaps: polygon distances, planarity beyond
+Tutte, a local optimiser only, and no iteration in a Style. And it found
+the added value largest where it is not yet built: **the library holds two
+content-to-reading systems side by side** — `stzGraph` + notation profile
++ five layouts + governor + rule gate on one side, Substance + Style +
+solver on the other — and a colour doctrine with the right three laws
+that no math style yet speaks.
+
+**The thesis of this plane: every unifying step must also be a
+strengthening step, or it is not taken.** The graph plane's layouts are
+what the solver lacks — a good basin chosen by structure, not by seed. The
+solver's constraints are what the graph plane lacks — exact clearances,
+names off ink, marks bent to geometry. The colour system is what both
+lack. So the join is not a refactor; it is the shortest path to closing
+the four gaps.
+
+**Refused, before the first item:** no rewrite of either system; no DSL;
+no 3D; no loops in a Style — iteration is CONTENT, and a substance may
+carry five thousand objects already (the quaternion table proved the
+path); no "framework" layer above both. Adapters and starts, measured.
+
+### The items, in the order of leverage
+
+- **DN8a — A substance is a graph, and a graph is a substance.** *Not started.*
+  `stzMathSubstance.ToGraph()`: objects become nodes carrying their type
+  and data, predicates become typed edges (a hyperedge for arity above
+  two), definitions become edges from result to argument, labels ride as
+  attributes. `StzSubstanceFromGraph(oGraph, oDomain)` the other way, with
+  the domain doing the typechecking a substance always did. **Kill:** the
+  seven-set tree round-trips with nothing missing — counts, relations, data —
+  and the graph plane's own org-chart fixture, turned into a substance,
+  draws under a Style. Cheap, and everything below stands on it.
+
+- **DN8b — Layouts as starts, and the end of seed-picking.** *Not started.* The planar
+  start generalised: `StartLayout(:Hierarchical | :Ring | :Force |
+  :Mesh)` on a Style, computed by the graph plane's own engines on the
+  substance's graph and overlaid as the solver's start. Multi-start
+  becomes the SET of layouts plus random, first lawful wins, and the
+  number of starts tried is a reported figure. **Kill, against the numbers
+  on record:** the divisors of 12 and of 36 lawful with zero crossings from
+  a hierarchical start with no seed chosen — against 7 of 10 and 1 of 12
+  by seed — and the dodecahedron from the planar start under the HARD
+  style, which the label stage now permits. This is the "local optimiser
+  only" gap met by structure rather than by annealing. **Risk, named:**
+  a start can fight the constraints it is handed to, as the labels fought
+  the cube; the answer is per-style measurement and the labels-after
+  knob, not a weight.
+
+- **DN8c — One gate.** *Not started.* `Violations()` already speaks the rule shape;
+  route it into `stzRuleReport` beside the graph plane's three engines,
+  and run the governor's visual contract — names off ink, clearances,
+  dots above the figure, nothing off the paper — over the math catalogue
+  as it runs over the notation catalogue. **Kill:** one `StzCheckPictures()`
+  over both catalogues, printing pictures judged and findings found, and
+  the plan-of-record check extended to the graph plane's own items.
+
+- **DN8d — Colour as meaning.** *Not started.* Every math style speaks roles —
+  `:fill = :Accent`, `:stroke = :Line` — and never a hex; labels take
+  `StzContrastingText` so the picture decides what can be read; the ramp
+  and palette rules route through the colour system's PERCEPTUAL ramp,
+  which retires the sRGB interpolation DN7j introduced — the very defect
+  the colour plan measured (a ramp that zigzags in luminance). **Kill:** all
+  30 pictures rendered under two themes with every label's contrast
+  passing the governor, and the count of raw hex literals in the math
+  styles at zero. Waits on the colour plan's own perceptual ramp landing;
+  costs one afternoon after it.
+
+- **DN8e — Polygon distances.** *Not started.* The signed distance from a point to a
+  convex polygon on the tape — the max over edges of the signed edge
+  distance — and, for a spline or a non-convex outline, the distance to
+  its convex hull or a convex decomposition. Then `contains(text, poly)`
+  and `disjoint(poly, poly)` exist, Byrne's names are held off the SQUARES
+  and not off hidden walls, and — the unifying half — a notation's icon
+  (a DRAKON shape, an org box) becomes something a math rule can hold a
+  label off. **Kill:** the Byrne figure with its walls deleted and the
+  same clearances; a DRAKON icon holding a formula's label. **Risk:** tape
+  size — DN7d's 202 seconds are the standing warning; the expression per
+  polygon edge is measured before the second polygon is added.
+
+- **DN8f — Content generators, and the scale they expose.** *Not started.*
+  `DeclareMany`, `SetDataFrom`, and a Ring-side generator idiom, so the
+  gallery's iteration-made pictures — the chaos game's Sierpinski
+  triangle, the nephroid as an envelope of circles, Brownian paths — are
+  substances of thousands of objects with nothing to solve. **Kill:** five
+  thousand points drawn and timed; the matcher and the minter measured
+  at that count, since both were written for dozens. This moves a whole
+  column of the gallery triage from "outside the engine" to "runs", by
+  recognising that iteration was never a Style's job.
+
+- **DN8g — The live figure.** *Not started.* The plastic layout's editor over a math
+  diagram: drag a point, and the solver re-solves from the DRAGGED values
+  as its start. Warm start is the whole mechanism — `_Initialise` from
+  current values rather than from ranges — and it is Penrose's drag
+  interaction. **Kill:** a re-solve of the Byrne figure from a warm start
+  under 100 ms, and the right angle still right after the drag.
+
+### What this leaves
+
+Planarity testing proper (Boyer–Myrvold) and annealing stay refused until
+DN8b's numbers say the layouts-as-starts are not enough — the expectation
+is that they are, for every planar graph the gallery draws. Rotated
+shapes and text along a path stay unplanned. 3D stays outside.
 
 ## DN2b — THE RING: a state machine is not a tree (2026-08-23)
 
