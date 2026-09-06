@@ -12958,12 +12958,13 @@ oGc = StzMathScene23(AUFONT)
 chk("the cube graph is lawful", oGc.IsFeasible())
 chk("exactly eight of its twelve edges are highlighted -- the cycle",
     _GrHighlighted(oGc, "q", 12) = 8)
-# and the finding: the crossing preference is in the energy and cannot be
-# spent from a random start, so the picture keeps seven crossings
-chk("the crossing preference is compiled -- 84 terms, one per ordered pair " +
-    "of edges sharing no vertex", _GrCrossingTerms(oGc) = 84)
-chk("and it stays UNSPENT: the picture keeps crossings the term forbids",
-    _GrCrossings(oGc, "q", 12) >= 5)
+chk("the crossing rule is compiled -- 84 terms, one per ordered pair of " +
+    "edges sharing no vertex", _GrCrossingRules(oGc) = 84)
+# the finding DN7f measured, kept as its negative: from a RANDOM start the
+# rule is advice the solver cannot follow, and the picture keeps crossings
+nGrRx = _GrCrossings(_GrRandomStart(StzMathCubeSubstance(), StzSpringGraphStyle(), 15, "gray"), "q", 12)
+chk("NEGATIVE: from a random start the same style is NOT planar -- " + nGrRx +
+    " crossing(s) the rule, as advice, could not undo", nGrRx > 0)
 
 # THE MATCHER WAS THE COST. The dodecahedron's compile was 18 seconds
 # when a definition clause was a FILTER over the product of every
@@ -12999,6 +13000,57 @@ chk("a name starting with a digit is refused at Declare, with the rule",
     _GrRefusesName("000"))
 chk("NEGATIVE: the same name with a letter in front is accepted",
     NOT _GrRefusesName("v000"))
+
+
+sec("-- 85. DN7g: THE PLANAR START -- TUTTE FROM A FACE FOUND BY ITS SHAPE ---")
+discharges("DN7g")
+
+# DN7f measured that the basin is chosen before the first gradient step.
+# So the start is chosen: a face of the graph on a convex polygon, every
+# other vertex at the barycentre of its neighbours -- Tutte, 1963 -- and
+# the face found with no planarity test, as the shortest cycle that is
+# chordless and non-separating.
+oPc = StzMathScene23(AUFONT)
+chk("the cube begins planar", oPc.StartedPlanar())
+chk("on a face of FOUR vertices -- a square of the cube",
+    len(oPc.OuterFace()) = 4)
+chk("and every consecutive pair on that face is an edge of the graph",
+    _PlFaceIsCycle(StzMathCubeSubstance(), oPc.OuterFace(), "q", 12))
+chk("it ends planar: zero crossings, and lawful",
+    _GrCrossings(oPc, "q", 12) = 0 and oPc.IsFeasible())
+oPd = StzMathScene19(AUFONT)
+chk("the dodecahedron begins planar, on a PENTAGON", oPd.StartedPlanar() and
+    len(oPd.OuterFace()) = 5)
+chk("and ends planar too: twenty vertices, thirty edges, zero crossings, lawful",
+    _GrCrossings(oPd, "e", 30) = 0 and oPd.IsFeasible())
+chk("NEGATIVE: the same style with the start cleared leaves the dodecahedron crossed",
+    _GrCrossings(_GrRandomStart(StzMathDodecahedronSubstance(), StzSpringGraphStyle(),
+                 12, "game"), "e", 30) > 5)
+
+# THE FALLBACK. A graph Tutte collapses -- one with a cut vertex, a tree --
+# keeps the random start it always had, and says so.
+oPn = StzMathScene20(AUFONT)
+chk("the network is not 3-connected: no planar start, and the diagram says so",
+    NOT oPn.StartedPlanar() and len(oPn.OuterFace()) = 0)
+chk("and it is still lawful -- the crossing rule became advice there", oPn.IsFeasible())
+
+# THE TWO REPAIRS THE START FORCED. A name held off an edge pulls on the
+# edge's ends, and at a strict weight eight names threw a planar cube away;
+# and freezing the shapes for the label stage rewrote a half-megabyte
+# energy once per variable, a character at a time -- 706 seconds.
+chk("the node-link style solves its names AFTER its shapes",
+    StzGraphStyle().LabelsAfter())
+chk("NEGATIVE: the Euler style does not -- a set must be large enough for its name",
+    NOT StzEulerStyle().LabelsAfter())
+# checked for what it DOES, not how fast -- a clock assertion on this
+# shared machine fails on a busy afternoon, and did, twice today
+cPfRaw = oPn._EnergyText(0, 1000, TRUE)
+cPfFrozen = oPn._Frozen(cPfRaw, 0)
+chk("freezing for the label stage leaves NO shape variable in the energy",
+    _PlSymbolsOf(oPn, cPfFrozen, 0) = 0)
+chk("and every label variable still stands where it stood",
+    _PlSymbolsOf(oPn, cPfFrozen, 1) = _PlSymbolsOf(oPn, cPfRaw, 1) and
+    _PlSymbolsOf(oPn, cPfRaw, 1) > 0)
 
 
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
@@ -15425,6 +15477,65 @@ func _GrRefusesName pcName
 		_b_ = TRUE
 	done
 	return _b_
+
+func _GrCrossingRules poM
+	poM.Layout()
+	_n_ = 0
+	for _i_ = 1 to len(poM.@aConstraints)
+		if StzLower(poM.@aConstraints[_i_][1]) = "notcrossing"  _n_++  ok
+	next
+	return _n_
+
+# the same substance and style, with the planar start cleared
+func _GrRandomStart poS, poSt, pnFont, pcVar
+	poSt.ClearPlanarStart()
+	_o_ = new stzMathDiagram(StzGraphDomain(), poS, poSt)
+	_o_.SetFont(AUFONT, pnFont)
+	_o_.SetVariation(pcVar)
+	_o_.Layout()
+	return _o_
+
+# is every consecutive pair of the face an edge of the substance?
+# how many occurrences of the stage's tape symbols a text contains, whole
+# symbols only: u1 is not part of u12
+func _PlSymbolsOf poM, pcText, pnStage
+	_n_ = 0
+	_m_ = len(pcText)
+	_i_ = 1
+	while _i_ <= _m_
+		if pcText[_i_] = "u" and _i_ < _m_ and ascii(pcText[_i_ + 1]) >= 48 and
+		   ascii(pcText[_i_ + 1]) <= 57 and (_i_ = 1 or NOT poM._IsIdent(pcText[_i_ - 1]))
+			_j_ = _i_ + 1
+			while _j_ <= _m_ and ascii(pcText[_j_]) >= 48 and ascii(pcText[_j_]) <= 57
+				_j_++
+			end
+			_k_ = 0 + StzStringSection(pcText, _i_ + 1, _j_ - 1)
+			if _k_ >= 1 and _k_ <= len(poM.@bLabelVar) and poM.@bLabelVar[_k_] = pnStage
+				_n_++
+			ok
+			_i_ = _j_
+		else
+			_i_++
+		ok
+	end
+	return _n_
+
+func _PlFaceIsCycle poS, pacFace, pcPfx, pnEdges
+	_m_ = len(pacFace)
+	if _m_ < 3  return FALSE  ok
+	for _k_ = 1 to _m_
+		_a_ = pacFace[_k_]
+		_b_ = pacFace[(_k_ % _m_) + 1]
+		_bE_ = FALSE
+		for _j_ = 1 to pnEdges
+			if poS.IsDefinedAs(pcPfx + _j_, "Edge", [ _a_, _b_ ]) or
+			   poS.IsDefinedAs(pcPfx + _j_, "Edge", [ _b_, _a_ ])
+				_bE_ = TRUE
+			ok
+		next
+		if NOT _bE_  return FALSE  ok
+	next
+	return TRUE
 
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0

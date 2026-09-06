@@ -593,6 +593,9 @@ func StzGraphDomain()
 func StzGraphStyle()
 	_o_ = new stzMathStyle()
 	_o_.SetCanvas(720, 640)
+	_o_.SetMargin(36)
+	_o_.StartPlanar("Vertex", "icon", [ "Edge", "Arc" ])
+	_o_.SolveLabelsAfter()
 	_o_.ForAll("Vertex v", [
 		[ :shape, "v.icon", :circle, [ :r = 9, :fill = "#33355c",
 		                               :stroke = "#ffffff", :strokeWidth = 1.5 ] ],
@@ -602,6 +605,11 @@ func StzGraphStyle()
 		# the edges are -- so the name is held off its own dot and, below,
 		# off every edge and arc in the picture
 		[ :ensure, "disjoint", [ "v.text", "v.icon", 3 ] ],
+		# A LEASH. A name that finds no room by its own dot must be a
+		# VIOLATION and never a relocation: without this the cube's inner
+		# names were placed beside the outer dots, lawfully, and read as
+		# the wrong labels.
+		[ :ensure, "lessThan", [ "dist(v.text, v.icon)", "28 + v.text.w / 2" ] ],
 		[ :encourage, "near", [ "v.text", "v.icon", 15 ] ],
 		# a weak pull to the middle -- a sixty-fourth, see the Hasse style
 		[ :encourage, "equal", [ "v.icon.cx / 8", 45 ] ],
@@ -627,15 +635,15 @@ func StzGraphStyle()
 	# As a preference it steers, and the seed does the rest.
 	_o_.ForAllWhere("Edge e; Edge f; Vertex a; Vertex b; Vertex c; Vertex d",
 	                "e := Edge(a, b); f := Edge(c, d)", [
-		[ :encourage, "notCrossing", [ "e.icon", "f.icon", 4, 25 ] ] ])
+		[ :ensure, "notCrossing", [ "e.icon", "f.icon", 4 ] ] ])
 	_o_.ForAllWhere("Arc e; Arc f; Vertex a; Vertex b; Vertex c; Vertex d",
 	                "e := Arc(a, b); f := Arc(c, d)", [
-		[ :encourage, "notCrossing", [ "e.icon", "f.icon", 4, 25 ] ] ])
+		[ :ensure, "notCrossing", [ "e.icon", "f.icon", 4 ] ] ])
 	_o_.ForAllWhere("Edge e; Vertex a; Vertex b", "e := Edge(a, b)", [
 		[ :shape, "e.icon", :line, [ :x1 = "a.icon.cx", :y1 = "a.icon.cy",
 		                             :x2 = "b.icon.cx", :y2 = "b.icon.cy",
 		                             :stroke = "#9a9ab8", :strokeWidth = 2 ] ],
-		[ :ensure, "inRange", [ "len(e.icon)", 70, 170 ] ],
+		[ :ensure, "inRange", [ "len(e.icon)", 90, 190 ] ],
 		[ :layer, "a.icon", :above, "e.icon" ], [ :layer, "b.icon", :above, "e.icon" ] ])
 	# a highlighted edge is the same edge, re-minted heavier and red -- the
 	# specialisation idiom, so the general rule need not know about it
@@ -667,21 +675,37 @@ func StzGraphStyle()
 func StzSpringGraphStyle()
 	_o_ = new stzMathStyle()
 	_o_.SetCanvas(720, 640)
+	_o_.SetMargin(36)
+	_o_.StartPlanar("Vertex", "icon", [ "Edge", "Arc" ])
+	# names are solved AFTER the shapes, against them frozen: they may not
+	# pull on a vertex, and they may not sit on an edge
+	_o_.SolveLabelsAfter()
 	_o_.ForAll("Vertex v", [
 		[ :shape, "v.icon", :circle, [ :r = 8, :fill = "#33355c",
 		                               :stroke = "#ffffff", :strokeWidth = 1.5 ] ],
 		[ :shape, "v.text", :text, [ :fill = "#33355c" ] ],
-		[ :override, "v.text.cx", "v.icon.cx" ], [ :override, "v.text.cy", "v.icon.cy - 18" ],
+		[ :ensure, "disjoint", [ "v.text", "v.icon", 3 ] ],
+		[ :ensure, "lessThan", [ "dist(v.text, v.icon)", "28 + v.text.w / 2" ] ],
+		[ :encourage, "near", [ "v.text", "v.icon", 15 ] ],
 		[ :encourage, "equal", [ "v.icon.cx / 8", 45 ] ],
 		[ :encourage, "equal", [ "v.icon.cy / 8", 40 ] ] ])
 	_o_.ForAll("Vertex u; Vertex v", [
 		[ :ensure, "disjoint", [ "u.icon", "v.icon", 10 ] ],
-		[ :encourage, "notTooClose", [ "u.icon", "v.icon", 6 ] ] ])
+		[ :ensure, "disjoint", [ "u.text", "v.icon", 12 ] ],
+		[ :ensure, "disjoint", [ "u.text", "v.text", 3 ] ],
+		# gentler than the hard style's: the crossing rule holds the picture
+		# planar now, so the repulsion no longer has to, and a strong one
+		# only flattened the outer face onto the margin
+		[ :encourage, "notTooClose", [ "u.icon", "v.icon", 3 ] ] ])
+	_o_.ForAll("Vertex v; Edge e", [
+		[ :ensure, "disjoint", [ "v.text", "e.icon", 4 ] ] ])
 	_o_.ForAllWhere("Edge e; Vertex a; Vertex b", "e := Edge(a, b)", [
 		[ :shape, "e.icon", :line, [ :x1 = "a.icon.cx", :y1 = "a.icon.cy",
 		                             :x2 = "b.icon.cx", :y2 = "b.icon.cy",
 		                             :stroke = "#9a9ab8", :strokeWidth = 2 ] ],
-		[ :encourage, "equal", [ "len(e.icon) / 4", 27 ] ],
+		# 140px: the target sets the INTERIOR, and a cube's inner square at
+		# 108 had no room for four names with their clearances
+		[ :encourage, "equal", [ "len(e.icon) / 4", 35 ] ],
 		[ :layer, "a.icon", :above, "e.icon" ], [ :layer, "b.icon", :above, "e.icon" ] ])
 	_o_.ForAllWhere("Edge e; Vertex a; Vertex b", "e := Edge(a, b); Highlighted(e)", [
 		[ :delete, "e.icon" ],
@@ -689,10 +713,12 @@ func StzSpringGraphStyle()
 		                             :x2 = "b.icon.cx", :y2 = "b.icon.cy",
 		                             :stroke = "#c8443c", :strokeWidth = 4 ] ] ])
 	_o_.ForAllWhere("Vertex v; Edge e; Vertex a; Vertex b", "e := Edge(a, b)", [
-		[ :encourage, "disjoint", [ "v.icon", "e.icon", 10 ] ] ])
+		# thirty, not ten: a vertex close to an edge leaves its NAME no room,
+		# and the name stage cannot move the vertex
+		[ :encourage, "disjoint", [ "v.icon", "e.icon", 30 ] ] ])
 	_o_.ForAllWhere("Edge e; Edge f; Vertex a; Vertex b; Vertex c; Vertex d",
 	                "e := Edge(a, b); f := Edge(c, d)", [
-		[ :encourage, "notCrossing", [ "e.icon", "f.icon", 4, 25 ] ] ])
+		[ :ensure, "notCrossing", [ "e.icon", "f.icon", 4 ] ] ])
 	return _o_
 
 # THE SAME GRAPH AS BOXES AND ARROWS -- Penrose's computer-architecture
@@ -702,6 +728,8 @@ func StzSpringGraphStyle()
 func StzBoxArrowStyle()
 	_o_ = new stzMathStyle()
 	_o_.SetCanvas(760, 520)
+	_o_.SetMargin(24)
+	_o_.StartPlanar("Vertex", "text", [ "Arc" ])
 	_o_.ForAll("Vertex v", [
 		[ :shape, "v.text", :text, [ :fill = "#222222" ] ],
 		[ :shape, "v.icon", :rect, [ :cx = "v.text.cx", :cy = "v.text.cy",
@@ -1689,6 +1717,9 @@ class stzMathStyle from stzObject
 	@nW = 800
 	@nH = 700
 	@aRules = []        # [ [ cSelector, cWhere, aRows ] ]
+	@aPlanarStart = []  # [ cType, cShape, [ cCtor, ... ] ] when asked for
+	@nMargin = 0
+	@bLabelsAfter = FALSE
 
 	def init()
 
@@ -1801,6 +1832,61 @@ class stzMathStyle from stzObject
 	def Rules()
 		return @aRules
 
+	# A PLANAR START. The solver never leaves the basin it starts in -- DN7f
+	# measured 84 crossing terms holding 10,138 energy units at convergence
+	# that no weight could spend -- so the start is where planarity is
+	# decided. A style that draws a graph declares which objects are its
+	# vertices, which shape's centre carries them, and which constructors
+	# are its edges; the diagram then seeds those centres by Tutte's
+	# embedding rather than at random. Everything else in the picture still
+	# starts where it always did.
+	def StartPlanar(pcType, pcShape, pacCtors)
+		_ac_ = []
+		if isString(pacCtors)  _ac_ + pacCtors  else  _ac_ = pacCtors  ok
+		@aPlanarStart = [ ring_trim("" + pcType), ring_trim("" + pcShape), _ac_ ]
+		return This
+
+		def StartPlanarQ(pcType, pcShape, pacCtors)
+			return This.StartPlanar(pcType, pcShape, pacCtors)
+
+	def ClearPlanarStart()
+		@aPlanarStart = []
+		return This
+
+	def PlanarStart()
+		return @aPlanarStart
+
+	# A MARGIN inside the paper. The on-canvas rule holds every shape inside
+	# the canvas exactly, and a style whose vertices repel one another
+	# pushes them onto that line: the dodecahedron came out with its outer
+	# face touching all four edges. A margin moves the line in.
+	def SetMargin(pnPx)
+		@nMargin = pnPx
+		return This
+
+		def SetMarginQ(pnPx)
+			return This.SetMargin(pnPx)
+
+	def Margin()
+		return @nMargin
+
+	# LABELS AFTER SHAPES. The joint first stage lets a name's constraints
+	# move the shapes -- which an Euler diagram needs, since a set must be
+	# large enough for its name, and which a graph must NOT have: a name
+	# held off an edge pulls on the edge's endpoints, and at a high penalty
+	# weight eight names threw a planar cube away to make room for
+	# themselves. Under this, the first stage sees no label term at all,
+	# and the names find their room against frozen shapes.
+	def SolveLabelsAfter()
+		@bLabelsAfter = TRUE
+		return This
+
+		def SolveLabelsAfterQ()
+			return This.SolveLabelsAfter()
+
+	def LabelsAfter()
+		return @bLabelsAfter
+
 #---------------------------------------------------------------------#
 #  THE DIAGRAM -- compile, solve, draw                                  #
 #---------------------------------------------------------------------#
@@ -1829,6 +1915,8 @@ class stzMathDiagram from stzObject
 	@aTextSize = []     # [ [ cPath, nW, nAsc, nDesc ] ]
 	@nExpandDepth = 0
 	@nMatchCandidates = 0
+	@bPlanarStarted = FALSE
+	@acOuterFace = []
 
 	# the solve
 	@bLaidOut = 0
@@ -3430,11 +3518,43 @@ class stzMathDiagram from stzObject
 		end
 		return FALSE
 
+	# Does this argument refer to a text shape whose string is empty?
+	def _MentionsEmptyText(pArg)
+		if isNumber(pArg)  return FALSE  ok
+		_c_ = "" + pArg
+		_n_ = len(_c_)
+		_i_ = 1
+		while _i_ <= _n_
+			if This._IsIdentStart(_c_[_i_])
+				_j_ = _i_
+				while _j_ <= _n_ and This._IsPathChar(_c_[_j_])
+					_j_++
+				end
+				_ac_ = StzSplit(StzStringSection(_c_, _i_, _j_ - 1), ".")
+				if len(_ac_) >= 2
+					_cS_ = _ac_[1] + "." + _ac_[2]
+					if This._KindOf(_cS_) = "text" and This._TextSize(_cS_)[1] = 0
+						return TRUE
+					ok
+				ok
+				_i_ = _j_
+			else
+				_i_++
+			ok
+		end
+		return FALSE
+
 	def _AddTerm(pcVerb, pcFn, paArgs, pcWhere)
 		_f_ = StzLower(pcFn)
 		_bLbl_ = FALSE
 		for _i_ = 1 to len(paArgs)
 			if This._MentionsLabel(paArgs[_i_])  _bLbl_ = TRUE  ok
+			# AN EMPTY NAME CONSTRAINS NOTHING. An unlabelled object still owns
+			# a text shape, so a rule naming x.text is well-formed -- but a
+			# box of no size held off six hundred edges is six hundred tapes
+			# and a label stage for nothing: the dodecahedron, whose vertices
+			# have no names, spent 33 of its 38 seconds placing them.
+			if This._MentionsEmptyText(paArgs[_i_])  return  ok
 		next
 		_cE_ = This._Energy(_f_, paArgs, pcVerb)
 		_cW_ = pcWhere + " :: " + pcFn + "(" + This._ArgsText(paArgs) + ")"
@@ -3668,17 +3788,20 @@ class stzMathDiagram from stzObject
 		# stand OUTSIDE the triangle, and it is the square's far corners that
 		# run off the page, so every vertex is held on it.
 		if _k_ = "curve" or _k_ = "mark"  return  ok
-		_W_ = This._Num(@oStyle.CanvasWidth())
-		_H_ = This._Num(@oStyle.CanvasHeight())
+		# the paper, less the style's margin on every side
+		_nM_ = @oStyle.Margin()
+		_M_ = This._Num(_nM_)
+		_W_ = This._Num(@oStyle.CanvasWidth() - _nM_)
+		_H_ = This._Num(@oStyle.CanvasHeight() - _nM_)
 		if _k_ = "poly"
 			_cW2_ = "canvas :: onCanvas(" + _cP_ + ")"
 			_nV_ = This._Prop(paShape[3], "n", 3)
 			for _v_ = 1 to _nV_
 				_x_ = This._Sym(_cP_ + ".x" + _v_)
 				_y_ = This._Sym(_cP_ + ".y" + _v_)
-				@aConstraints + [ "onCanvas", "0-" + _x_, _cW2_, FALSE ]
+				@aConstraints + [ "onCanvas", _M_ + "-" + _x_, _cW2_, FALSE ]
 				@aConstraints + [ "onCanvas", _x_ + "-" + _W_, _cW2_, FALSE ]
-				@aConstraints + [ "onCanvas", "0-" + _y_, _cW2_, FALSE ]
+				@aConstraints + [ "onCanvas", _M_ + "-" + _y_, _cW2_, FALSE ]
 				@aConstraints + [ "onCanvas", _y_ + "-" + _H_, _cW2_, FALSE ]
 			next
 			return
@@ -3691,13 +3814,13 @@ class stzMathDiagram from stzObject
 		_cW_ = "canvas :: onCanvas(" + _cP_ + ")"
 		if _k_ = "line"
 			# both ends on the paper
-			@aConstraints + [ "onCanvas", "0-" + _g_[4], _cW_, _bLbl_ ]
+			@aConstraints + [ "onCanvas", _M_ + "-" + _g_[4], _cW_, _bLbl_ ]
 			@aConstraints + [ "onCanvas", _g_[4] + "-" + _W_, _cW_, _bLbl_ ]
-			@aConstraints + [ "onCanvas", "0-" + _g_[5], _cW_, _bLbl_ ]
+			@aConstraints + [ "onCanvas", _M_ + "-" + _g_[5], _cW_, _bLbl_ ]
 			@aConstraints + [ "onCanvas", _g_[5] + "-" + _H_, _cW_, _bLbl_ ]
-			@aConstraints + [ "onCanvas", "0-" + _g_[6], _cW_, _bLbl_ ]
+			@aConstraints + [ "onCanvas", _M_ + "-" + _g_[6], _cW_, _bLbl_ ]
 			@aConstraints + [ "onCanvas", _g_[6] + "-" + _W_, _cW_, _bLbl_ ]
-			@aConstraints + [ "onCanvas", "0-" + _g_[7], _cW_, _bLbl_ ]
+			@aConstraints + [ "onCanvas", _M_ + "-" + _g_[7], _cW_, _bLbl_ ]
 			@aConstraints + [ "onCanvas", _g_[7] + "-" + _H_, _cW_, _bLbl_ ]
 			return
 		ok
@@ -3708,9 +3831,9 @@ class stzMathDiagram from stzObject
 			_hx_ = "(" + _g_[4] + ")/2"
 			_hy_ = "(" + _g_[5] + ")/2"
 		ok
-		@aConstraints + [ "onCanvas", _hx_ + "-" + _g_[2], _cW_, _bLbl_ ]
+		@aConstraints + [ "onCanvas", _M_ + "+" + _hx_ + "-" + _g_[2], _cW_, _bLbl_ ]
 		@aConstraints + [ "onCanvas", _g_[2] + "+" + _hx_ + "-" + _W_, _cW_, _bLbl_ ]
-		@aConstraints + [ "onCanvas", _hy_ + "-" + _g_[3], _cW_, _bLbl_ ]
+		@aConstraints + [ "onCanvas", _M_ + "+" + _hy_ + "-" + _g_[3], _cW_, _bLbl_ ]
 		@aConstraints + [ "onCanvas", _g_[3] + "+" + _hy_ + "-" + _H_, _cW_, _bLbl_ ]
 
 	#-- SOLVE: exterior point over the engine's L-BFGS, joint then labels --
@@ -3735,7 +3858,9 @@ class stzMathDiagram from stzObject
 		next
 		This._CompileViolationTapes()
 		This._SolveStage(0)
-		if _bAnyLabel_ and This._StageViolation(1) > 0.01  This._SolveStage(1)  ok
+		if _bAnyLabel_ and (@oStyle.LabelsAfter() or This._StageViolation(1) > 0.01)
+			This._SolveStage(1)
+		ok
 		This._ReadViolations()
 		This._FreeViolationTapes()
 		_v_ = This._MaxViolation()
@@ -3774,6 +3899,14 @@ class stzMathDiagram from stzObject
 			_acBySlot_[@aUnknownOf[_k_][2]] = @aUnknownOf[_k_][1]
 		next
 		SeedRandom(@nSeed)
+		# the planar positions, once, if the style asked for them and the
+		# graph gives them: [ [ object, x, y ], ... ] or []
+		_aPl_ = []
+		_aDecl_ = @oStyle.PlanarStart()
+		if len(_aDecl_) = 3
+			_aPl_ = This._PlanarPositions(_aDecl_[1], _aDecl_[3])
+		ok
+		@bPlanarStarted = (len(_aPl_) > 0)
 		for _try_ = 1 to 3
 			_aX_ = []
 			for _i_ = 1 to _n_
@@ -3792,6 +3925,27 @@ class stzMathDiagram from stzObject
 					_aX_ + (40 + StzRandom01() * 120)
 				ok
 			next
+			# overlay the planar start on the vertex centres -- and put each
+			# vertex's name beside it, so the names begin where they belong
+			_m_ = len(_aPl_)
+			for _k_ = 1 to _m_
+				_cO_ = _aPl_[_k_][1]
+				_ix_ = This._UnknownIndex(_cO_ + "." + _aDecl_[2] + ".cx")
+				_iy_ = This._UnknownIndex(_cO_ + "." + _aDecl_[2] + ".cy")
+				if _ix_ > 0  _aX_[_ix_] = _aPl_[_k_][2]  ok
+				if _iy_ > 0  _aX_[_iy_] = _aPl_[_k_][3]  ok
+				if _aDecl_[2] != "text"
+					# in a RANDOM direction: a name cannot cross an edge once
+					# the stage runs, so which wedge it starts in is decided
+					# here -- and the three tries above, which keep the lowest
+					# initial energy, become a multi-start for the names
+					_ix_ = This._UnknownIndex(_cO_ + ".text.cx")
+					_iy_ = This._UnknownIndex(_cO_ + ".text.cy")
+					_th_ = StzRandom01() * 6.28318530717959
+					if _ix_ > 0  _aX_[_ix_] = _aPl_[_k_][2] + 24 * cos(_th_)  ok
+					if _iy_ > 0  _aX_[_iy_] = _aPl_[_k_][3] + 24 * sin(_th_)  ok
+				ok
+			next
 			_v_ = 0
 			if _p_ != ""
 				_r_ = StzEngineGradValueAt(_p_, _aX_)
@@ -3804,6 +3958,242 @@ class stzMathDiagram from stzObject
 		next
 		if _p_ != ""  StzEngineGradFree(_p_)  ok
 		@aValue = _aBest_
+
+	# Did the last layout begin from a planar embedding? False when the
+	# style asked for none, and false when it asked and the graph could not
+	# give one -- a tree, a path, anything Tutte collapses.
+	def StartedPlanar()
+		This.Layout()
+		return @bPlanarStarted
+
+	# The face the planar start was built on, as object names in cycle
+	# order; empty when there was no planar start.
+	def OuterFace()
+		This.Layout()
+		return @acOuterFace
+
+	#-- THE PLANAR START: Tutte's embedding from a face found by its shape --
+
+	# TUTTE, 1963: fix the vertices of one face on a convex polygon and put
+	# every other vertex at the barycentre of its neighbours, and for a
+	# 3-connected planar graph the result is a planar drawing. The face is
+	# found without a planarity test, from the property that characterises
+	# it in such a graph: a cycle that is CHORDLESS and NON-SEPARATING. The
+	# shortest such cycle through any edge is taken. The barycentres are
+	# reached by relaxation -- four hundred sweeps of Gauss-Seidel on the
+	# Laplacian with the face as its boundary -- which is exact enough for
+	# a start and needs no linear algebra. A drawing that collapses (two
+	# vertices closer than four pixels: a tree, a graph with a cut vertex)
+	# is refused, and the random start stands.
+	def _PlanarPositions(pcType, pacCtors)
+		@acOuterFace = []
+		_acV_ = @oSubstance.ObjectsOfType(pcType)
+		_n_ = len(_acV_)
+		if _n_ < 3  return []  ok
+		_aAdj_ = []
+		for _i_ = 1 to _n_
+			_aAdj_ + []
+		next
+		_aDefs_ = @oSubstance.Definitions()
+		for _d_ = 1 to len(_aDefs_)
+			_bC_ = FALSE
+			for _c_ = 1 to len(pacCtors)
+				if StzLower("" + pacCtors[_c_]) = StzLower(_aDefs_[_d_][2])  _bC_ = TRUE  ok
+			next
+			if NOT _bC_ or len(_aDefs_[_d_][3]) != 2  loop  ok
+			_u_ = This._IndexIn(_acV_, _aDefs_[_d_][3][1])
+			_v_ = This._IndexIn(_acV_, _aDefs_[_d_][3][2])
+			if _u_ = 0 or _v_ = 0 or _u_ = _v_  loop  ok
+			if This._IndexIn(_aAdj_[_u_], _v_) = 0  _aAdj_[_u_] + _v_  ok
+			if This._IndexIn(_aAdj_[_v_], _u_) = 0  _aAdj_[_v_] + _u_  ok
+		next
+		_aFace_ = This._OuterFace(_n_, _aAdj_)
+		if len(_aFace_) < 3  return []  ok
+		_W_ = @oStyle.CanvasWidth()
+		_H_ = @oStyle.CanvasHeight()
+		# the face at 36% of the paper's smaller side: room to breathe before
+		# the margin, or the repulsion flattens the face onto it
+		_R_ = 0.36 * _W_
+		if _H_ < _W_  _R_ = 0.36 * _H_  ok
+		_ax_ = []  _ay_ = []  _bFix_ = []
+		for _i_ = 1 to _n_
+			_ax_ + 0  _ay_ + 0  _bFix_ + FALSE
+		next
+		_m_ = len(_aFace_)
+		for _k_ = 1 to _m_
+			_th_ = 6.28318530717959 * (_k_ - 1) / _m_ - 1.5707963267949
+			_ax_[_aFace_[_k_]] = _W_ / 2 + _R_ * cos(_th_)
+			_ay_[_aFace_[_k_]] = _H_ / 2 + _R_ * sin(_th_)
+			_bFix_[_aFace_[_k_]] = TRUE
+		next
+		# a vertex with no path to the face would relax to nothing: it is
+		# placed at random and held there
+		_aSeen_ = This._Reach(_n_, _aAdj_, _aFace_)
+		for _i_ = 1 to _n_
+			if NOT _aSeen_[_i_] and NOT _bFix_[_i_]
+				_ax_[_i_] = 0.15 * _W_ + StzRandom01() * 0.7 * _W_
+				_ay_[_i_] = 0.15 * _H_ + StzRandom01() * 0.7 * _H_
+				_bFix_[_i_] = TRUE
+			ok
+		next
+		for _i_ = 1 to _n_
+			if NOT _bFix_[_i_]
+				_ax_[_i_] = _W_ / 2
+				_ay_[_i_] = _H_ / 2
+			ok
+		next
+		for _sweep_ = 1 to 400
+			for _i_ = 1 to _n_
+				if _bFix_[_i_] or len(_aAdj_[_i_]) = 0  loop  ok
+				_sx_ = 0  _sy_ = 0
+				_d_ = len(_aAdj_[_i_])
+				for _j_ = 1 to _d_
+					_sx_ += _ax_[_aAdj_[_i_][_j_]]
+					_sy_ += _ay_[_aAdj_[_i_][_j_]]
+				next
+				_ax_[_i_] = _sx_ / _d_
+				_ay_[_i_] = _sy_ / _d_
+			next
+		next
+		for _i_ = 1 to _n_
+			for _j_ = _i_ + 1 to _n_
+				if pow(_ax_[_i_] - _ax_[_j_], 2) + pow(_ay_[_i_] - _ay_[_j_], 2) < 16
+					return []
+				ok
+			next
+		next
+		for _k_ = 1 to _m_
+			@acOuterFace + _acV_[_aFace_[_k_]]
+		next
+		_a_ = []
+		for _i_ = 1 to _n_
+			_a_ + [ _acV_[_i_], _ax_[_i_], _ay_[_i_] ]
+		next
+		return _a_
+
+	# The shortest cycle that is chordless and non-separating, as vertex
+	# indices in order: through each edge (u, v), the shortest u-v path that
+	# avoids the edge closes a cycle; the shortest of those that passes both
+	# tests is the face.
+	def _OuterFace(pnN, paAdj)
+		_best_ = []
+		for _u_ = 1 to pnN
+			for _q_ = 1 to len(paAdj[_u_])
+				_v_ = paAdj[_u_][_q_]
+				if _v_ < _u_  loop  ok
+				_aP_ = This._ShortestAvoiding(pnN, paAdj, _u_, _v_)
+				if len(_aP_) < 3  loop  ok
+				if len(_best_) > 0 and len(_aP_) >= len(_best_)  loop  ok
+				if This._Chordless(_aP_, paAdj) and This._NonSeparating(pnN, paAdj, _aP_)
+					_best_ = _aP_
+				ok
+			next
+		next
+		return _best_
+
+	# breadth-first from u to v, never crossing the edge u-v directly
+	def _ShortestAvoiding(pnN, paAdj, pnU, pnV)
+		_aPrev_ = []
+		for _i_ = 1 to pnN
+			_aPrev_ + 0
+		next
+		_aPrev_[pnU] = -1
+		_aQ_ = [ pnU ]
+		_h_ = 1
+		while _h_ <= len(_aQ_)
+			_x_ = _aQ_[_h_]
+			_h_++
+			for _k_ = 1 to len(paAdj[_x_])
+				_y_ = paAdj[_x_][_k_]
+				if _x_ = pnU and _y_ = pnV  loop  ok
+				if _aPrev_[_y_] != 0  loop  ok
+				_aPrev_[_y_] = _x_
+				if _y_ = pnV
+					_aP_ = []
+					_z_ = pnV
+					while _z_ != -1
+						_aP_ + _z_
+						_z_ = _aPrev_[_z_]
+					end
+					return _aP_
+				ok
+				_aQ_ + _y_
+			next
+		end
+		return []
+
+	def _Chordless(paCyc, paAdj)
+		_m_ = len(paCyc)
+		for _i_ = 1 to _m_
+			for _j_ = _i_ + 2 to _m_
+				if _i_ = 1 and _j_ = _m_  loop  ok
+				if This._IndexIn(paAdj[paCyc[_i_]], paCyc[_j_]) > 0  return FALSE  ok
+			next
+		next
+		return TRUE
+
+	# does the graph stay connected with the cycle's vertices removed?
+	def _NonSeparating(pnN, paAdj, paCyc)
+		_aOut_ = []
+		for _i_ = 1 to pnN
+			_aOut_ + (This._IndexIn(paCyc, _i_) > 0)
+		next
+		_s_ = 0
+		for _i_ = 1 to pnN
+			if NOT _aOut_[_i_]  _s_ = _i_  exit  ok
+		next
+		if _s_ = 0  return TRUE  ok
+		_aSeen_ = []
+		for _i_ = 1 to pnN
+			_aSeen_ + FALSE
+		next
+		_aSeen_[_s_] = TRUE
+		_aQ_ = [ _s_ ]
+		_h_ = 1
+		while _h_ <= len(_aQ_)
+			_x_ = _aQ_[_h_]
+			_h_++
+			for _k_ = 1 to len(paAdj[_x_])
+				_y_ = paAdj[_x_][_k_]
+				if _aOut_[_y_] or _aSeen_[_y_]  loop  ok
+				_aSeen_[_y_] = TRUE
+				_aQ_ + _y_
+			next
+		end
+		for _i_ = 1 to pnN
+			if NOT _aOut_[_i_] and NOT _aSeen_[_i_]  return FALSE  ok
+		next
+		return TRUE
+
+	# every vertex reachable from the face, the face included
+	def _Reach(pnN, paAdj, paFace)
+		_aSeen_ = []
+		for _i_ = 1 to pnN
+			_aSeen_ + FALSE
+		next
+		_aQ_ = []
+		for _k_ = 1 to len(paFace)
+			_aSeen_[paFace[_k_]] = TRUE
+			_aQ_ + paFace[_k_]
+		next
+		_h_ = 1
+		while _h_ <= len(_aQ_)
+			_x_ = _aQ_[_h_]
+			_h_++
+			for _k_ = 1 to len(paAdj[_x_])
+				_y_ = paAdj[_x_][_k_]
+				if _aSeen_[_y_]  loop  ok
+				_aSeen_[_y_] = TRUE
+				_aQ_ + _y_
+			next
+		end
+		return _aSeen_
+
+	def _IndexIn(pa, pV)
+		for _i_ = 1 to len(pa)
+			if pa[_i_] = pV  return _i_  ok
+		next
+		return 0
 
 	def _InitRangeOf(pcName)
 		_n_ = len(@aInitRange)
@@ -3837,6 +4227,17 @@ class stzMathDiagram from stzObject
 		_m_ = len(@aConstraints)
 		for _i_ = 1 to _m_
 			if pbAll or (@aConstraints[_i_][4] = (pnStage = 1))
+				# A CROSSING RULE IS A BARRIER, AND A BARRIER NEEDS YOU INSIDE
+				# IT. From a planar start it forbids leaving and is never
+				# violated; from a random start it is violated everywhere and
+				# a local method cannot satisfy it (25 open on the cube). So
+				# it is enforced when the picture began planar, and folded
+				# into the objectives as advice when it did not.
+				if This._IsAdvisory(_i_)
+					if _c_ != ""  _c_ += "+"  ok
+					_c_ += "(" + @aConstraints[_i_][2] + ")"
+					loop
+				ok
 				if _cP_ != ""  _cP_ += "+"  ok
 				_cP_ += "max(0," + @aConstraints[_i_][2] + ")^2"
 			ok
@@ -3849,16 +4250,64 @@ class stzMathDiagram from stzObject
 		if pnStage = 1  _c_ = This._Frozen(_c_, 0)  ok
 		return _c_
 
-	# Replace every unknown of the OTHER stage by its current value.
+	# Replace every unknown of the OTHER stage by its current value -- IN
+	# ONE PASS, with the output gathered in chunks. The first version
+	# rewrote the whole energy text once per frozen variable, building each
+	# rewrite a character at a time; Ring reallocates a string on every
+	# append, so that was quadratic in the text and linear in the variables
+	# on top. On a graph with a half-megabyte energy and sixteen frozen
+	# variables the label stage took 706 seconds. This walks the text once,
+	# recognises a tape symbol where it stands, and appends to a chunk that
+	# is flushed to a list every four thousand characters.
 	def _Frozen(pcExpr, pnWhich)
-		_c_ = pcExpr
 		_n_ = len(@acUnknown)
-		for _i_ = _n_ to 1 step -1
+		_acVal_ = []
+		for _i_ = 1 to _n_
 			if @bLabelVar[_i_] = pnWhich
-				_c_ = This._ReplaceSym(_c_, @acUnknown[_i_], This._Num(@aValue[_i_]))
+				_acVal_ + This._Num(@aValue[_i_])
+			else
+				_acVal_ + ""
 			ok
 		next
-		return _c_
+		_c_ = pcExpr
+		_m_ = len(_c_)
+		_aOut_ = []
+		_chunk_ = ""
+		_i_ = 1
+		while _i_ <= _m_
+			_ch_ = _c_[_i_]
+			if _ch_ = "u" and _i_ < _m_ and This._IsDigit(_c_[_i_ + 1]) and
+			   (_i_ = 1 or NOT This._IsIdent(_c_[_i_ - 1]))
+				_j_ = _i_ + 1
+				while _j_ <= _m_ and This._IsDigit(_c_[_j_])
+					_j_++
+				end
+				_k_ = 0 + StzStringSection(_c_, _i_ + 1, _j_ - 1)
+				if _k_ >= 1 and _k_ <= _n_ and _acVal_[_k_] != ""
+					_chunk_ += _acVal_[_k_]
+				else
+					_chunk_ += StzStringSection(_c_, _i_, _j_ - 1)
+				ok
+				_i_ = _j_
+			else
+				_chunk_ += _ch_
+				_i_++
+			ok
+			if len(_chunk_) > 4000
+				_aOut_ + _chunk_
+				_chunk_ = ""
+			ok
+		end
+		if _chunk_ != ""  _aOut_ + _chunk_  ok
+		_r_ = ""
+		for _q_ = 1 to len(_aOut_)
+			_r_ += _aOut_[_q_]
+		next
+		return _r_
+
+	def _IsDigit(pc)
+		_n_ = ascii(pc)
+		return _n_ >= 48 and _n_ <= 57
 
 	# Whole-symbol replace: u1 but not u12 -- a symbol ends where a
 	# non-alphanumeric byte begins.
@@ -3892,9 +4341,22 @@ class stzMathDiagram from stzObject
 	# stage 1 only POLISHES the labels against frozen shapes.
 	def _SolveStage(pnStage)
 		_nLam_ = 1000
+		# A PLANAR START DESERVES A STRICT SOLVER FROM ROUND ONE. At the
+		# usual opening weight the objectives outrank the rules, and the
+		# repulsion between Tutte's cramped inner vertices pushed them
+		# through edges before the vertex-off-edge rule could hold; later
+		# rounds then enforced every rule inside the crossed basin they
+		# inherited. Nine crossings on a cube that began with none.
+		if @bPlanarStarted  _nLam_ = 100000  ok
 		_bJoint_ = (pnStage = 0)
+		_bAllTerms_ = _bJoint_
 		_acNames_ = []
-		if _bJoint_
+		if _bJoint_ and @oStyle.LabelsAfter()
+			# the shapes alone, over the terms that name no label: a graph's
+			# names must not pull on its vertices
+			_bAllTerms_ = FALSE
+			_acNames_ = This._StageVars(0)
+		but _bJoint_
 			for _i_ = 1 to len(@acUnknown)
 				_acNames_ + _i_
 			next
@@ -3909,7 +4371,7 @@ class stzMathDiagram from stzObject
 		next
 		for _round_ = 1 to 7
 			@nRounds++
-			_cE_ = This._EnergyText(pnStage, _nLam_, _bJoint_)
+			_cE_ = This._EnergyText(pnStage, _nLam_, _bAllTerms_)
 			if _cE_ = ""  return  ok
 			_p_ = StzEngineGradCompile(_cE_, _cNames_)
 			if _p_ = ""
@@ -3999,9 +4461,17 @@ class stzMathDiagram from stzObject
 				if isNumber(_r_)  _v_ = _r_  ok
 			ok
 			if _v_ < 0  _v_ = 0  ok
+			# advice is not a violation
+			if This._IsAdvisory(_i_)  _v_ = 0  ok
 			@aViolations + [ @aConstraints[_i_][1], @aConstraints[_i_][3], _v_,
 			                 @aConstraints[_i_][4] ]
 		next
+
+	# A crossing rule counts only when the picture began planar; from a
+	# random start it is advice the solver follows as far as it can.
+	def _IsAdvisory(pnI)
+		if @bPlanarStarted  return FALSE  ok
+		return StzLower(@aConstraints[pnI][1]) = "notcrossing"
 
 	# The value of a name: a derived one is EVALUATED through the tape at
 	# the solved values, so drawing reads exactly what the solver solved.

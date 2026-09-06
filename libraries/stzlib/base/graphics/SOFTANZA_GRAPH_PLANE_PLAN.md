@@ -99,6 +99,7 @@ sections, of which 21 declarations over 17 items.
 | DN7d | closed | 82 |
 | DN7e | closed | 83 |
 | DN7f | closed | 84 |
+| DN7g | closed | 85 |
 | DN2b | closed | 56 |
 | DN2c | closed | - |
 | DN2d | closed | 57 |
@@ -2087,6 +2088,72 @@ was a cliff at twelve sets.
   as a number — `Declare` refuses such a name now, with the rule stated;
   and `_Initialise` indexed the name map by tape slot, which diverge after
   a `delete` — found the first time a word cloud re-minted a text larger.
+
+- **DN7g — the planar start: Tutte from a face found by its shape. SHIPPED
+  2026-09-06.** Guard §85. DN7f measured that the basin is chosen before
+  the first gradient step; so the start is chosen. A style declares
+  `StartPlanar("Vertex", "icon", ["Edge", "Arc"])` — which objects are
+  vertices, which shape's centre carries them, which constructors are
+  edges — and the diagram seeds those centres by Tutte's embedding: one
+  face on a convex polygon, every other vertex at the barycentre of its
+  neighbours (four hundred Gauss–Seidel sweeps; no linear algebra). The
+  face needs no planarity test: in a 3-connected planar graph a face
+  boundary is exactly a cycle that is **chordless and non-separating**,
+  and the shortest such cycle through any edge is taken. A drawing that
+  collapses — two vertices within four pixels: a tree, a cut vertex — is
+  refused and the random start stands; `StartedPlanar()` and `OuterFace()`
+  say which happened.
+
+  | scene | start | crossings before | crossings after | ms |
+  |---|---|---|---|---|
+  | the cube Q3 | face of 4 | 7 (best of 6 seeds) | **0** | 611 |
+  | the dodecahedron | face of 5 | 17 (best of 8) | **0** | 4,687 |
+  | the network (not 3-connected) | fell back | 1 | 1 | — |
+
+  **The start alone was not enough, and what it took to keep it is the
+  finding.** Three things threw a planar start away before the picture was
+  drawn, each measured, each repaired:
+
+  *At the usual opening weight the objectives outrank the rules.* Round
+  one at λ = 10³ let the repulsion between Tutte's cramped inner vertices
+  push them through edges while the vertex-off-edge rule was still weak;
+  later rounds enforced every rule inside the crossed basin they inherited
+  — nine crossings on a cube that began with none. A planar start now opens
+  at λ = 10⁵. **A good start deserves a strict solver from round one.**
+
+  *A name held off an edge pulls on the edge's ends.* `disjoint(text,
+  edge)` has a gradient on the edge's endpoints, and at a strict weight
+  eight names threw the cube away to make room for themselves — 22 label
+  violations at the start, every shape violation under half a pixel. The
+  node-link style now declares `SolveLabelsAfter()`: the first stage sees
+  no label term and no label variable, and the names find their room
+  against frozen shapes. The Euler style must NOT declare it — a set has
+  to be large enough for its name — and the guard asserts both.
+
+  *And freezing the shapes for that label stage was quadratic.* `_Frozen`
+  rewrote the whole energy text once per frozen variable, building each
+  rewrite a character at a time, and Ring reallocates on every append: a
+  half-megabyte energy with sixteen frozen variables took **706 seconds**.
+  One tokenising pass with chunked output does it in under a second.
+
+  **And the crossing term changed class.** DN7f found it inert from a
+  random start — a barrier is useless to a solver outside it. From a planar
+  start it is exactly a barrier: never violated at the start, forbidding
+  every move that would cross. So `notCrossing` is a *rule* again in the
+  graph styles, and the diagram folds it into the objectives as advice when
+  the start was not planar — a rule you cannot begin inside is not a rule.
+  With soft separation and this one hard barrier, the spring style holds
+  twenty vertices planar; the hard node-link style, whose separation rules
+  shove a cramped interior at 10⁵, does not (10 crossings, 37 s) and keeps
+  the small labelled graphs.
+
+  Two smaller repairs the pictures forced: a name that finds no room by
+  its own dot must be a **violation, never a relocation** — the cube's
+  inner names had been placed beside the *outer* dots, lawfully, and read
+  as the wrong labels; a leash of `22 + w/2` from the dot now refuses that.
+  And the paper gained a **margin** (`SetMargin`): a style whose vertices
+  repel pushed the dodecahedron's outer face onto all four edges of the
+  canvas, since the on-canvas rule sat at zero.
 
 ## DN2b — THE RING: a state machine is not a tree (2026-08-23)
 
