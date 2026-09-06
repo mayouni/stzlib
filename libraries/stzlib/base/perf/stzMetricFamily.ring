@@ -128,7 +128,7 @@ class stzMetricFamily from stzObject
 			_aVals_ + StzReplace("" + paValues[_i_], "|", "_")
 		next
 		_cKey_ = This._JoinKey(_aVals_)
-		if StzEnginePerfFamilyCanAdd($pFamily, _cKey_) = 0
+		if StzEnginePerfFamilyCanAdd(pFamily, _cKey_) = 0
 			# full + new: the overflow child (every label "_overflow")
 			_aVals_ = []
 			for _i_ = 1 to ring_len(@aLabelNames)
@@ -140,14 +140,14 @@ class stzMetricFamily from stzObject
 
 	# How many distinct children exist (engine truth, all faces agree).
 	def ChildCount()
-		return StzEnginePerfFamilySize($pFamily)
+		return StzEnginePerfFamilySize(pFamily)
 
 	# The children's keys, creation order (values joined with '|').
 	def Keys()
 		_aOut_ = []
-		_nN_ = StzEnginePerfFamilySize($pFamily)
+		_nN_ = StzEnginePerfFamilySize(pFamily)
 		for _i_ = 1 to _nN_
-			_aOut_ + StzEnginePerfFamilyKeyAt($pFamily, _i_)
+			_aOut_ + StzEnginePerfFamilyKeyAt(pFamily, _i_)
 		next
 		return _aOut_
 
@@ -245,8 +245,8 @@ class stzMetricFamily from stzObject
 		next
 
 	def Destroy()
-		if $bReady
-			StzEnginePerfFamilyDestroy($pFamily)
+		if bReady
+			StzEnginePerfFamilyDestroy(pFamily)
 			pFamily = ""
 			bReady = 0
 		ok
@@ -295,10 +295,10 @@ class stzMetricFamily from stzObject
 				return @aChildCache[_i_][2]
 			ok
 		next
-		_pS_ = StzEnginePerfFamilyChildSeries($pFamily, pcKey)
+		_pS_ = StzEnginePerfFamilyChildSeries(pFamily, pcKey)
 		_pH_ = ""
 		if @cKind = "timer"
-			_pH_ = StzEnginePerfFamilyChildHist($pFamily, pcKey)
+			_pH_ = StzEnginePerfFamilyChildHist(pFamily, pcKey)
 		ok
 		_aPairs_ = []
 		_nN_ = ring_len(@aLabelNames)

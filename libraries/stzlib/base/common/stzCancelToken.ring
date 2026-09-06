@@ -34,7 +34,7 @@ class stzCancelToken from stzObject
 		This._Ensure()
 
 	def _Ensure()
-		if $bReady = 0
+		if bReady = 0
 			pHandle = StzEngineCancelCreate()
 			bReady = 1
 		ok
@@ -42,28 +42,28 @@ class stzCancelToken from stzObject
 	# The opaque engine handle, to hand to StzEnginePoolSubmitWithCancel.
 	def Handle()
 		This._Ensure()
-		return $pHandle
+		return pHandle
 
 	# Ask any operation carrying this token to stop.
 	def Cancel()
 		This._Ensure()
-		StzEngineCancelSignal($pHandle)
+		StzEngineCancelSignal(pHandle)
 		return This
 
 	# Alias for Cancel() -- matches the engine verb name.
 	def Signal()
 		This._Ensure()
-		StzEngineCancelSignal($pHandle)
+		StzEngineCancelSignal(pHandle)
 		return This
 
 	def IsCancelled()
 		This._Ensure()
-		return StzEngineCancelIsCancelled($pHandle) = 1
+		return StzEngineCancelIsCancelled(pHandle) = 1
 
 	# Free the engine handle. The token must not be used afterwards.
 	def Destroy()
-		if $bReady = 1
-			StzEngineCancelDestroy($pHandle)
+		if bReady = 1
+			StzEngineCancelDestroy(pHandle)
 			pHandle = ""
 			bReady = 0
 		ok

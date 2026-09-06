@@ -50,7 +50,7 @@ class stzPerfSeries from stzObject
 	# Lazy handle creation -- robust whether or not init() ran
 	# (paren-less `new` skips init in Ring).
 	def _Ensure()
-		if $bReady = 0
+		if bReady = 0
 			if @nCapacity < 1
 				@nCapacity = 1024
 			ok
@@ -60,7 +60,7 @@ class stzPerfSeries from stzObject
 
 	def Handle()
 		This._Ensure()
-		return $pHandle
+		return pHandle
 
 	# Adopt an engine series OWNED ELSEWHERE (a metric family's child,
 	# perf P8): frees any self-created handle, then reads/writes the
@@ -83,52 +83,52 @@ class stzPerfSeries from stzObject
 	# (ms since module load) -- the right default for rate/slope math.
 	def Record(nValue)
 		This._Ensure()
-		StzEnginePerfSeriesRecord($pHandle, StzEngineWatchTimestampMs(), nValue)
+		StzEnginePerfSeriesRecord(pHandle, StzEngineWatchTimestampMs(), nValue)
 		return This
 
 	# Record against a caller-supplied clock (ms). The scope is named
 	# at the call site: you brought the clock, you own its semantics.
 	def RecordAt(nTimeMs, nValue)
 		This._Ensure()
-		StzEnginePerfSeriesRecord($pHandle, nTimeMs, nValue)
+		StzEnginePerfSeriesRecord(pHandle, nTimeMs, nValue)
 		return This
 
 	# Samples ever recorded (keeps counting past capacity).
 	def Count()
 		This._Ensure()
-		return StzEnginePerfSeriesCount($pHandle)
+		return StzEnginePerfSeriesCount(pHandle)
 
 	# Samples retained in the window (never exceeds Capacity()).
 	def Size()
 		This._Ensure()
-		return StzEnginePerfSeriesSize($pHandle)
+		return StzEnginePerfSeriesSize(pHandle)
 
 	def Last()
 		This._Ensure()
-		return StzEnginePerfSeriesLast($pHandle)
+		return StzEnginePerfSeriesLast(pHandle)
 
 	def Min()
 		This._Ensure()
-		return StzEnginePerfSeriesMin($pHandle)
+		return StzEnginePerfSeriesMin(pHandle)
 
 	def Max()
 		This._Ensure()
-		return StzEnginePerfSeriesMax($pHandle)
+		return StzEnginePerfSeriesMax(pHandle)
 
 	def Mean()
 		This._Ensure()
-		return StzEnginePerfSeriesMean($pHandle)
+		return StzEnginePerfSeriesMean(pHandle)
 
 	# Least-squares slope of value over time, per ms of the series'
 	# clock: ~0 = stable, positive = growing (the leak detector).
 	def SlopePerMs()
 		This._Ensure()
-		return StzEnginePerfSeriesSlopePerMs($pHandle)
+		return StzEnginePerfSeriesSlopePerMs(pHandle)
 
 	# Exact nearest-rank percentile over the retained window.
 	def Percentile(nP)
 		This._Ensure()
-		return StzEnginePerfSeriesPercentile($pHandle, nP)
+		return StzEnginePerfSeriesPercentile(pHandle, nP)
 
 	def P50()
 		return This.Percentile(50)
@@ -142,11 +142,11 @@ class stzPerfSeries from stzObject
 	# 1-based, oldest first, over the retained window.
 	def TimeAt(n)
 		This._Ensure()
-		return StzEnginePerfSeriesTimeAt($pHandle, n)
+		return StzEnginePerfSeriesTimeAt(pHandle, n)
 
 	def ValueAt(n)
 		This._Ensure()
-		return StzEnginePerfSeriesValueAt($pHandle, n)
+		return StzEnginePerfSeriesValueAt(pHandle, n)
 
 	# The retained window as Ring lists (crosses the bridge per item --
 	# for display and small windows, not hot paths).
@@ -155,7 +155,7 @@ class stzPerfSeries from stzObject
 		_aRes_ = []
 		_nLen_ = This.Size()
 		for _i_ = 1 to _nLen_
-			_aRes_ + StzEnginePerfSeriesValueAt($pHandle, _i_)
+			_aRes_ + StzEnginePerfSeriesValueAt(pHandle, _i_)
 		next
 		return _aRes_
 
@@ -164,19 +164,19 @@ class stzPerfSeries from stzObject
 		_aRes_ = []
 		_nLen_ = This.Size()
 		for _i_ = 1 to _nLen_
-			_aRes_ + StzEnginePerfSeriesTimeAt($pHandle, _i_)
+			_aRes_ + StzEnginePerfSeriesTimeAt(pHandle, _i_)
 		next
 		return _aRes_
 
 	def Reset()
 		This._Ensure()
-		StzEnginePerfSeriesReset($pHandle)
+		StzEnginePerfSeriesReset(pHandle)
 		return This
 
 	def Destroy()
-		if $bReady = 1
-			if NOT $bAdopted
-				StzEnginePerfSeriesDestroy($pHandle)
+		if bReady = 1
+			if NOT bAdopted
+				StzEnginePerfSeriesDestroy(pHandle)
 			ok
 			pHandle = ""
 			bReady = 0

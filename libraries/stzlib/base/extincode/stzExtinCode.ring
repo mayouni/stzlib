@@ -60,7 +60,10 @@ func iif(pCondition, pTrue, pFalse)
 
 	eval(_cCode_)
 
-	if $_bOk_
+	# eval() assigns in THIS scope, so the generated code writes a LOCAL
+	# _bOk_. Reading $_bOk_ read a global nothing ever fills, and iif()
+	# raised R24 on every call -- the same shape as QRT() in stzNaturalCode.
+	if _bOk_
 		return pTrue
 	else
 		return pFalse
