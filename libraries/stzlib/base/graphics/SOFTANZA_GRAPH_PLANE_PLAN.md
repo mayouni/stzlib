@@ -108,7 +108,7 @@ sections, of which 21 declarations over 17 items.
 | DN8b | closed | 90 |
 | DN8c | closed | 91 |
 | DN8d | closed | 92 |
-| DN8e | open | - |
+| DN8e | closed | 93 |
 | DN8f | open | - |
 | DN8g | open | - |
 | DN2b | closed | 56 |
@@ -2457,7 +2457,38 @@ path); no "framework" layer above both. Adapters and starts, measured.
   styles at zero. Waits on the colour plan's own perceptual ramp landing;
   costs one afternoon after it.
 
-- **DN8e — Polygon distances.** *Not started.* The signed distance from a point to a
+- **DN8e — Polygon distances. SHIPPED 2026-09-06.** Guard §93. A convex
+  polygon is its vertices to a constraint now. `contains(poly, text |
+  circle)` is the largest signed distance from the four corners — or the
+  centre plus r — to the edges' lines, turned by the polygon's own winding
+  read off its area, which is exact for a convex outline; `disjoint(text |
+  circle, poly)` is the smallest gap to any edge as a segment, with the
+  centre held outside so a name that fell in cannot read as clear of every
+  edge. Two polygons against each other, and `contains(thing, poly)`, are
+  refused with the reason. **The picture the bounding box could not
+  draw**: Byrne's plate with a², b², c² solved inside its three rotated
+  squares, twelve corners inside by an independent test, and a corner of
+  the square's bounding box lying on the paper where the square is not.
+  **And the join the item was named for**: the graph plane's simplest
+  DRAKON scene rendered, its icons read back as rectangles and carried as
+  data, and a formula the substance says is `Inside` the action icon
+  solved there by the polygon's edges, off the icon's own name — scene 32.
+  **Two costs, one paid and one measured.** The labels dragged the
+  triangle collinear at first, DN7d's failure again — `contains` has a
+  gradient on the square's vertices, which are the triangle's points — and
+  Byrne now solves its labels after its shapes, against frozen squares.
+  And the formula stopped straddling the icon's top edge, a stalemate
+  between "inside" and "off the name" with the room below reachable only
+  through the name's penalty hill: **a contained name now starts at its
+  container's centre** — DN8b's principle, for a label. **Measured and not
+  cured**: one `contains(poly, text)` term over derived vertices is
+  **41,509 characters**, because a derived vertex re-expands at every
+  mention and the winding sign at every edge. The cure is a tape that can
+  bind a subexpression once, and it is the engine item DN8 owes next —
+  the same cause as DN7d's 202 seconds, and every energy string this
+  plane compiles. Original text follows.
+
+  *It said:* Polygon distances. The signed distance from a point to a
   convex polygon on the tape — the max over edges of the signed edge
   distance — and, for a spline or a non-convex outline, the distance to
   its convex hull or a convex decomposition. Then `contains(text, poly)`

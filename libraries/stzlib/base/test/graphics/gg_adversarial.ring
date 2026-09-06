@@ -13485,6 +13485,59 @@ chk("NEGATIVE: a dark-grey name on the dark paper is found unreadable",
     StzContrastOf("#444444", "#333333") < 3)
 
 
+sec("-- 93. DN8e: POLYGON DISTANCES -- A NAME INSIDE A ROTATED SQUARE ---------")
+discharges("DN8e")
+
+# BYRNE'S AREAS, SOLVED INSIDE THEIR SQUARES. A square here is rotated,
+# and a bounding box would call a name inside it while a corner hung out
+# over the paper; the polygon's own edges hold each name by its four
+# corners, re-read here by an independent point-in-polygon test.
+oPgB = StzMathScene13(AUFONT)
+chk("Byrne with its three area labels is lawful", oPgB.IsFeasible())
+chk("every corner of a2 lies inside the square on AB, of b2 inside the square on AC, of c2 " +
+    "inside the square on BC -- twelve corners, by an independent test",
+    _PgCornersIn(oPgB, "ABC.la", "ABC.sqab") = 4 and _PgCornersIn(oPgB, "ABC.lb", "ABC.sqac") = 4 and
+    _PgCornersIn(oPgB, "ABC.lc", "ABC.sqbc") = 4)
+chk("and each by at least the ten pixels asked -- the nearest edge is that far from every corner",
+    _PgCornerMargin(oPgB, "ABC.la", "ABC.sqab") >= 9.9 and _PgCornerMargin(oPgB, "ABC.lb", "ABC.sqac") >= 9.9 and
+    _PgCornerMargin(oPgB, "ABC.lc", "ABC.sqbc") >= 9.9)
+chk("c2 keeps off the altitude that divides its square", _ByPtSegBox(oPgB, "ABC.lc", "ABC.alt") >= 7.9)
+chk("NEGATIVE: the square on AB's bounding box holds a point the square does NOT -- a corner of " +
+    "the box that a rotated square leaves on the paper",
+    _PgBoxNotSquare(oPgB, "ABC.sqab"))
+chk("and the triangle was not moved by its labels: the right angle is still right",
+    fabs(oPgB.ValueOf("ABC.abx") * oPgB.ValueOf("ABC.acx") +
+         oPgB.ValueOf("ABC.aby") * oPgB.ValueOf("ABC.acy")) /
+    (oPgB.ValueOf("ABC.lab") * oPgB.ValueOf("ABC.lac")) < 0.001)
+
+# THE COST, PRINTED: one contains(poly, text) term over derived vertices.
+nPgLen = 0
+for iPg = 1 to len(oPgB.@aConstraints)
+	if StzLower(oPgB.@aConstraints[iPg][1]) = "contains" and StzFindFirst("sqab", oPgB.@aConstraints[iPg][3]) > 0
+		nPgLen = len(oPgB.@aConstraints[iPg][2])
+	ok
+next
+? "   [one contains(poly, text) term: " + nPgLen + " characters]"
+chk("the term is long, and known to be: a derived vertex re-expands at every mention",
+    nPgLen > 10000)
+
+# A NOTATION'S ICON HOLDS A FORMULA. The graph plane's DRAKON scene,
+# rendered; its rectangles carried as data; a glyph the substance says is
+# Inside the action icon, solved there by the polygon's edges.
+oPgI = StzMathScene33(AUFONT)
+chk("the formula inside the DRAKON action icon is lawful", oPgI.IsFeasible())
+chk("all four of its corners are inside the icon, and off the icon's own name",
+    _PgCornersIn(oPgI, "f.text", "icon_a.icon") = 4 and
+    _PgBoxesApart(oPgI, "f.text", "icon_a.text") >= 3.9)
+chk("and it began at the icon's centre, not at random: lawful in one start, no round of thrashing",
+    oPgI.StartsTried() = 1 and oPgI.Rounds() <= 3)
+
+# REFUSALS with their lawful siblings.
+chk("contains(thing, poly) is refused -- a polygon holds, it is not held", _PgRefuses(1))
+chk("disjoint(poly, poly) is refused -- separation of two polygons is not on the tape", _PgRefuses(2))
+chk("NEGATIVE: contains(poly, circle) and disjoint(circle, poly) are accepted", NOT _PgRefuses(0))
+
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go
@@ -16597,6 +16650,97 @@ func _CmIsHex pc
 		if NOT ((_k_ >= 48 and _k_ <= 57) or (_k_ >= 97 and _k_ <= 102))  return FALSE  ok
 	next
 	return len(pc) = 7 or len(pc) = 9
+
+func _PgCornersIn poM, pcText, pcPoly
+	_t_ = poM.ShapeOf(pcText)
+	_p_ = poM.PolygonOf(pcPoly)
+	_n_ = 0
+	for _sx_ = -1 to 1 step 2
+		for _sy_ = -1 to 1 step 2
+			if _MrPointIn(_t_[:cx] + _sx_ * _t_[:w] / 2, _t_[:cy] + _sy_ * _t_[:h] / 2, _p_)  _n_++  ok
+		next
+	next
+	return _n_
+
+# the least distance from any corner of a text to any edge of a polygon
+func _PgCornerMargin poM, pcText, pcPoly
+	_t_ = poM.ShapeOf(pcText)
+	_p_ = poM.PolygonOf(pcPoly)
+	_m_ = len(_p_) / 2
+	_best_ = 1000000
+	for _sx_ = -1 to 1 step 2
+		for _sy_ = -1 to 1 step 2
+			_x_ = _t_[:cx] + _sx_ * _t_[:w] / 2
+			_y_ = _t_[:cy] + _sy_ * _t_[:h] / 2
+			for _i_ = 1 to _m_
+				_j_ = (_i_ % _m_) + 1
+				_d_ = _ByPtSeg(_x_, _y_, _p_[2*_i_-1], _p_[2*_i_], _p_[2*_j_-1], _p_[2*_j_])
+				if _d_ < _best_  _best_ = _d_  ok
+			next
+		next
+	next
+	return _best_
+
+func _ByPtSegBox poM, pcText, pcLine
+	_l_ = poM.ShapeOf(pcLine)
+	_aI_ = [ [ _l_[:x1], _l_[:y1], _l_[:x2], _l_[:y2] ] ]
+	return _ByMinGap(poM, pcText, _aI_)
+
+# a point of the polygon's bounding box that the polygon itself does not
+# hold -- true whenever the polygon is rotated off the axes
+func _PgBoxNotSquare poM, pcPoly
+	_p_ = poM.PolygonOf(pcPoly)
+	_x0_ = _p_[1]  _y0_ = _p_[2]  _x1_ = _p_[1]  _y1_ = _p_[2]
+	for _i_ = 1 to len(_p_) / 2
+		if _p_[2*_i_-1] < _x0_  _x0_ = _p_[2*_i_-1]  ok
+		if _p_[2*_i_-1] > _x1_  _x1_ = _p_[2*_i_-1]  ok
+		if _p_[2*_i_] < _y0_  _y0_ = _p_[2*_i_]  ok
+		if _p_[2*_i_] > _y1_  _y1_ = _p_[2*_i_]  ok
+	next
+	for _c_ in [ [ _x0_ + 2, _y0_ + 2 ], [ _x1_ - 2, _y0_ + 2 ], [ _x0_ + 2, _y1_ - 2 ], [ _x1_ - 2, _y1_ - 2 ] ]
+		if NOT _MrPointIn(_c_[1], _c_[2], _p_)  return TRUE  ok
+	next
+	return FALSE
+
+func _PgBoxesApart poM, pcA, pcB
+	_a_ = poM.ShapeOf(pcA)
+	_b_ = poM.ShapeOf(pcB)
+	_qx_ = fabs(_a_[:cx] - _b_[:cx]) - (_a_[:w] + _b_[:w]) / 2
+	_qy_ = fabs(_a_[:cy] - _b_[:cy]) - (_a_[:h] + _b_[:h]) / 2
+	_mx_ = _qx_  if _qy_ > _mx_  _mx_ = _qy_  ok
+	_ax_ = _qx_  if _ax_ < 0  _ax_ = 0  ok
+	_ay_ = _qy_  if _ay_ < 0  _ay_ = 0  ok
+	_sd_ = sqrt(_ax_ * _ax_ + _ay_ * _ay_)
+	if _mx_ < 0  _sd_ += _mx_  ok
+	return _sd_
+
+func _PgRefuses pnWhich
+	_b_ = FALSE
+	try
+		_oSt_ = new stzMathStyle()
+		_oSt_.SetCanvas(400, 400)
+		_oSt_.ForAll("Point p", [
+			[ :shape, "p.icon", :circle, [ :r = 4 ] ],
+			[ :shape, "p.box", :poly, [ :n = 4, :x1 = 100, :y1 = 100, :x2 = 300, :y2 = 100,
+			                            :x3 = 300, :y3 = 300, :x4 = 100, :y4 = 300 ] ],
+			[ :shape, "p.box2", :poly, [ :n = 4, :x1 = 120, :y1 = 120, :x2 = 200, :y2 = 120,
+			                             :x3 = 200, :y3 = 200, :x4 = 120, :y4 = 200 ] ] ])
+		if pnWhich = 1
+			_oSt_.ForAll("Point p", [ [ :ensure, "contains", [ "p.icon", "p.box", 2 ] ] ])
+		but pnWhich = 2
+			_oSt_.ForAll("Point p", [ [ :ensure, "disjoint", [ "p.box", "p.box2", 2 ] ] ])
+		else
+			_oSt_.ForAll("Point p", [ [ :ensure, "contains", [ "p.box", "p.icon", 2 ] ],
+			                           [ :ensure, "disjoint", [ "p.icon", "p.box2", 2 ] ] ])
+		ok
+		_oS_ = new stzMathSubstance(StzGeometryDomain())
+		_oS_.Declare("Point", "P")
+		_o_ = new stzMathDiagram(StzGeometryDomain(), _oS_, _oSt_)
+		_o_.Layout()
+	catch
+		_b_ = TRUE
+	done
+	return _b_
 
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0

@@ -11,6 +11,7 @@
 # is a contradiction on purpose and its report is the point.
 
 load "../../stzBase.ring"
+load "gg_drakon_scenes.ring"
 load "gg_math_scenes.ring"
 
 oFont = new stzFont("C:/Windows/Fonts/segoeui.ttf")
@@ -44,9 +45,11 @@ acTitles = [ "two sets, one inside the other  (Penrose twosets-simple)",
              "ELLIPSE RAYS                     (Penrose: focus to focus -- the law never asserted)",
              "THE QUATERNION TABLE             (Penrose: a colour per element, from the data)",
              "A . B = C as a HEAT MAP          (Penrose: matrix product, a ramp on the value)",
-             "AN ORG CHART AS A SUBSTANCE      (lawful from a random start -- DN8b's witness)" ]
+             "AN ORG CHART AS A SUBSTANCE      (lawful from a random start -- DN8b's witness)",
+             "A DRAKON ICON HOLDS A FORMULA    (the notation's rectangles as polygons)",
+             "BYRNE'S AREAS IN THEIR SQUARES   (a2, b2, c2 solved inside rotated squares)" ]
 
-for i = 1 to 31
+for i = 1 to 33
 	if i = 1   oM = StzMathScene01(oFont)
 	but i = 2  oM = StzMathScene02(oFont)
 	but i = 3  oM = StzMathScene03(oFont)
@@ -77,7 +80,9 @@ for i = 1 to 31
 	but i = 28 oM = StzMathScene28(oFont)
 	but i = 29 oM = StzMathScene29(oFont)
 	but i = 30 oM = StzMathScene30(oFont)
-	else       oM = StzMathScene31(oFont)  ok
+	but i = 31 oM = StzMathScene31(oFont)
+	but i = 32 oM = StzMathScene33(oFont)
+	else       oM = StzMathScene13(oFont)  ok
 	oM.Layout()
 	? "== " + acTitles[i]
 	? "   unknowns " + oM.NumberOfUnknowns() + "   constraints " +
