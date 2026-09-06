@@ -720,6 +720,202 @@ func StzEllipseRaysStyle()
 		[ :encourage, "notTooClose", [ "r.hit", "s.hit", 4 ] ] ])
 	return _o_
 
+# A GRAPH IS A SUBSTANCE (DN8a) -- the way back, and the way IN for a graph
+# that was never a substance. A node made by ToGraph carries its type,
+# its true name, its data and its unary predicates, and an edge carries
+# its kind; the domain re-checks every declaration, assertion and
+# definition as it always did. A FOREIGN graph -- an org chart, a plain
+# stzGraph -- has none of those marks, so the caller says what its nodes
+# and edges are: [ :nodeType = "Vertex", :edgeConstructor = "Arc" ] makes
+# every node a Vertex and every edge an Arc object, and
+# [ :edgePredicate = "Covers" ] makes every edge an assertion instead.
+# Node labels become the substance's labels, so an org chart's titles are
+# what a Style draws.
+func StzSubstanceFromGraph(poGraph, poDomain, paOpts)
+	if NOT isObject(poGraph) or NOT isObject(poDomain)
+		stzraise("StzSubstanceFromGraph: give a graph and a domain.")
+	ok
+	_cNodeType_ = ""  _cEdgePred_ = ""  _cEdgeCtor_ = ""  _cPfx_ = "e"
+	if isList(paOpts)
+		if HasKey(paOpts, "nodeType")  _cNodeType_ = "" + paOpts[:nodeType]  ok
+		if HasKey(paOpts, "edgePredicate")  _cEdgePred_ = "" + paOpts[:edgePredicate]  ok
+		if HasKey(paOpts, "edgeConstructor")  _cEdgeCtor_ = "" + paOpts[:edgeConstructor]  ok
+		if HasKey(paOpts, "edgePrefix")  _cPfx_ = "" + paOpts[:edgePrefix]  ok
+	ok
+	_oS_ = new stzMathSubstance(poDomain)
+	_aN_ = poGraph.Nodes()
+	_aE_ = poGraph.Edges()
+	# the true name of every node id
+	_aName_ = []
+	for _i_ = 1 to len(_aN_)
+		_aP_ = _aN_[_i_][:properties]
+		_cN_ = _aN_[_i_][:id]
+		if isList(_aP_) and HasKey(_aP_, "name")  _cN_ = "" + _aP_[:name]  ok
+		_aName_ + [ _aN_[_i_][:id], _cN_ ]
+	next
+	# nodes that a definition edge makes: declared by Define, not here
+	_acDefined_ = []
+	for _i_ = 1 to len(_aE_)
+		_aP_ = _aE_[_i_][:properties]
+		if isList(_aP_) and HasKey(_aP_, "kind") and "" + _aP_[:kind] = "definition"
+			_acDefined_ + _aE_[_i_][:from]
+		ok
+	next
+	# 1. plain objects
+	for _i_ = 1 to len(_aN_)
+		_aP_ = _aN_[_i_][:properties]
+		_cId_ = _aN_[_i_][:id]
+		_cKind_ = ""
+		if isList(_aP_) and HasKey(_aP_, "kind")  _cKind_ = "" + _aP_[:kind]  ok
+		if _cKind_ = "relation"  loop  ok
+		if _StzInList(_acDefined_, _cId_)  loop  ok
+		# a node's own :type wins when the DOMAIN knows it; a foreign graph's
+		# :type -- an org chart's "box" -- is the drawing's word, not a
+		# domain's, and yields to the caller's :nodeType
+		_cT_ = _cNodeType_
+		if isList(_aP_) and HasKey(_aP_, "type") and poDomain.HasType("" + _aP_[:type])
+			_cT_ = "" + _aP_[:type]
+		ok
+		if _cT_ = ""
+			stzraise("StzSubstanceFromGraph: node '" + _cId_ + "' names no type the '" +
+				poDomain.Name_() + "' domain has, and no :nodeType was given.")
+		ok
+		_cN_ = _StzNameOf(_aName_, _cId_)
+		_oS_.Declare(_cT_, _cN_)
+		_StzNodeIntoSubstance(_oS_, _cN_, _aN_[_i_])
+	next
+	# 2. definitions, in an order where every argument exists
+	_aDefs_ = []
+	for _i_ = 1 to len(_aE_)
+		_aP_ = _aE_[_i_][:properties]
+		if isList(_aP_) and HasKey(_aP_, "kind") and "" + _aP_[:kind] = "definition"
+			_aDefs_ + [ _aE_[_i_][:from], "" + _aP_[:function], _aP_[:position], _aE_[_i_][:to] ]
+		ok
+	next
+	_acDone_ = []
+	_nGuard_ = 0
+	while len(_acDone_) < len(_acDefined_)
+		_nGuard_++
+		if _nGuard_ > 64
+			stzraise("StzSubstanceFromGraph: a definition's arguments never all exist -- " +
+				"the definitions form a cycle.")
+		ok
+		for _k_ = 1 to len(_acDefined_)
+			_cU_ = _acDefined_[_k_]
+			if _StzInList(_acDone_, _cU_)  loop  ok
+			_cF_ = ""  _aArgs_ = []  _n_ = 0
+			for _i_ = 1 to len(_aDefs_)
+				if _aDefs_[_i_][1] = _cU_
+					_cF_ = _aDefs_[_i_][2]
+					if _aDefs_[_i_][3] > _n_  _n_ = _aDefs_[_i_][3]  ok
+				ok
+			next
+			for _p_ = 1 to _n_
+				_aArgs_ + ""
+			next
+			for _i_ = 1 to len(_aDefs_)
+				if _aDefs_[_i_][1] = _cU_
+					_aArgs_[_aDefs_[_i_][3]] = _StzNameOf(_aName_, _aDefs_[_i_][4])
+				ok
+			next
+			_bReady_ = TRUE
+			for _p_ = 1 to _n_
+				if _aArgs_[_p_] = "" or NOT _oS_.HasObject(_aArgs_[_p_])  _bReady_ = FALSE  ok
+			next
+			if NOT _bReady_  loop  ok
+			_cN_ = _StzNameOf(_aName_, _cU_)
+			_oS_.Define(_cN_, _cF_, _aArgs_)
+			_StzNodeIntoSubstance(_oS_, _cN_, poGraph.Node(_cU_))
+			_acDone_ + _cU_
+		next
+	end
+	# 3. the edges that are relations, constructors, or foreign
+	_nE_ = 0
+	for _i_ = 1 to len(_aE_)
+		_aP_ = _aE_[_i_][:properties]
+		_cKind_ = ""
+		if isList(_aP_) and HasKey(_aP_, "kind")  _cKind_ = "" + _aP_[:kind]  ok
+		_cA_ = _StzNameOf(_aName_, _aE_[_i_][:from])
+		_cB_ = _StzNameOf(_aName_, _aE_[_i_][:to])
+		if _cKind_ = "predicate"
+			_oS_.Assert("" + _aP_[:predicate], [ _cA_, _cB_ ])
+		but _cKind_ = "constructor"
+			_cU_ = "" + _aP_[:object]
+			_oS_.Define(_cU_, "" + _aP_[:constructor], [ _cA_, _cB_ ])
+			if _aE_[_i_][:label] != ""  _oS_.Label(_cU_, _aE_[_i_][:label])  ok
+			_StzPropsIntoSubstance(_oS_, _cU_, _aP_)
+		but _cKind_ = "definition" or _cKind_ = "argument"
+			# handled in 2 and 4
+		else
+			if _cEdgePred_ != ""
+				_oS_.Assert(_cEdgePred_, [ _cA_, _cB_ ])
+			but _cEdgeCtor_ != ""
+				_nE_++
+				_cU_ = _cPfx_ + _nE_
+				_oS_.Define(_cU_, _cEdgeCtor_, [ _cA_, _cB_ ])
+				_oS_.Label(_cU_, "" + _aE_[_i_][:label])
+			else
+				stzraise("StzSubstanceFromGraph: the edge '" + _cA_ + "' -> '" + _cB_ +
+					"' says what it is to no one -- give :edgePredicate or :edgeConstructor.")
+			ok
+		ok
+	next
+	# 4. reified relations: a node whose argument edges carry positions
+	for _i_ = 1 to len(_aN_)
+		_aP_ = _aN_[_i_][:properties]
+		if NOT (isList(_aP_) and HasKey(_aP_, "kind") and "" + _aP_[:kind] = "relation")  loop  ok
+		_cR_ = _aN_[_i_][:id]
+		_n_ = 0
+		for _k_ = 1 to len(_aE_)
+			if _aE_[_k_][:from] = _cR_ and _aE_[_k_][:properties][:position] > _n_
+				_n_ = _aE_[_k_][:properties][:position]
+			ok
+		next
+		_aArgs_ = []
+		for _p_ = 1 to _n_
+			_aArgs_ + ""
+		next
+		for _k_ = 1 to len(_aE_)
+			if _aE_[_k_][:from] = _cR_
+				_aArgs_[_aE_[_k_][:properties][:position]] = _StzNameOf(_aName_, _aE_[_k_][:to])
+			ok
+		next
+		_oS_.Assert("" + _aP_[:predicate], _aArgs_)
+	next
+	return _oS_
+
+func _StzNameOf(paMap, pcId)
+	for _i_ = 1 to len(paMap)
+		if paMap[_i_][1] = pcId  return paMap[_i_][2]  ok
+	next
+	return pcId
+
+func _StzInList(pac, pc)
+	for _i_ = 1 to len(pac)
+		if "" + pac[_i_] = "" + pc  return TRUE  ok
+	next
+	return FALSE
+
+# a node's label, data and unary predicates onto a substance object
+func _StzNodeIntoSubstance(poS, pcName, paNode)
+	if paNode[:label] != ""  poS.Label(pcName, paNode[:label])  ok
+	_StzPropsIntoSubstance(poS, pcName, paNode[:properties])
+
+func _StzPropsIntoSubstance(poS, pcName, paProps)
+	if NOT isList(paProps)  return  ok
+	if HasKey(paProps, "data") and isList(paProps[:data])
+		_aD_ = paProps[:data]
+		for _i_ = 1 to len(_aD_)
+			poS.SetData(pcName, _aD_[_i_][1], _aD_[_i_][2])
+		next
+	ok
+	if HasKey(paProps, "unary") and isList(paProps[:unary])
+		_aU_ = paProps[:unary]
+		for _i_ = 1 to len(_aU_)
+			poS.Assert("" + _aU_[_i_], [ pcName ])
+		next
+	ok
+
 # TABLES -- Penrose's quaternion table and its matrix product. A cell IS
 # its row, its column and its value, and those are NUMBERS on the object;
 # the diagram has nothing to solve, and its colour is a rule over the
@@ -2029,6 +2225,154 @@ class stzMathSubstance from stzObject
 			if @aData[_i_][1] = _c_ and @aData[_i_][2] = _k_  return @aData[_i_][3]  ok
 		next
 		stzraise("stzMathSubstance.DataOf: '" + _c_ + "' carries no '" + _k_ + "'.")
+
+	#-- a substance is a graph (DN8a) ------------------------------------------
+
+	# EVERY OBJECT A NODE, EVERY RELATION AN EDGE -- and where an edge will
+	# not do, a node. stzGraph is a SIMPLE graph: no parallel edges, one
+	# self-loop at most, and its refusal names the remedy, "model the second
+	# relation as its own node". So a binary relation becomes a direct edge
+	# when the pair is free, and is REIFIED as a relation node with one
+	# edge per argument whenever a direct edge would be parallel -- exactly
+	# as a relation of three or more arguments must be anyway. A definition
+	# u := f(a, b) is edges from u to each argument, carrying the function
+	# and the position, unless f is among the constructors the caller asks
+	# to PROJECT, in which case the object u is not a node at all but the
+	# edge a -> b itself: that is how a graph-domain substance becomes the
+	# plain graph the layouts want. Nothing is lost either way: a graph made
+	# here goes back through StzSubstanceFromGraph to the same substance.
+	#
+	# stzGraph folds node ids to lower case, and a substance's names are
+	# case-sensitive (DN7b). The true name rides as a node property, and two
+	# names that differ only by case are refused here, with the reason.
+	def ToGraph()
+		return This.ToGraphXT([])
+
+	def ToGraphXT(paOpts)
+		_acProj_ = []
+		if isList(paOpts) and HasKey(paOpts, "projectConstructors")
+			if isString(paOpts[:projectConstructors])
+				_acProj_ + paOpts[:projectConstructors]
+			else
+				_acProj_ = paOpts[:projectConstructors]
+			ok
+		ok
+		_nO_ = len(@aObjects)
+		for _i_ = 1 to _nO_
+			for _j_ = _i_ + 1 to _nO_
+				if @aObjects[_i_][1] != @aObjects[_j_][1] and
+				   StzLower(@aObjects[_i_][1]) = StzLower(@aObjects[_j_][1])
+					stzraise("stzMathSubstance.ToGraph: '" + @aObjects[_i_][1] + "' and '" +
+						@aObjects[_j_][1] + "' differ only by case, and stzGraph folds " +
+						"node ids to lower case -- they would be one node.")
+				ok
+			next
+		next
+		# the objects a projected constructor defines are edges, not nodes
+		_acAsEdge_ = []
+		_nD_ = len(@aDefinitions)
+		for _d_ = 1 to _nD_
+			if This._InList(_acProj_, @aDefinitions[_d_][2]) and len(@aDefinitions[_d_][3]) = 2
+				_acAsEdge_ + @aDefinitions[_d_][1]
+			ok
+		next
+		_oG_ = new stzGraph("substance")
+		for _i_ = 1 to _nO_
+			_cN_ = @aObjects[_i_][1]
+			if This._InList(_acAsEdge_, _cN_)  loop  ok
+			_oG_.AddNodeXTT(_cN_, This.LabelOf(_cN_), This._NodeProps(_cN_, @aObjects[_i_][2]))
+		next
+		# relations: an edge when the pair is free, a node otherwise
+		_nR_ = len(@aRelations)
+		_nRel_ = 0
+		for _r_ = 1 to _nR_
+			_cP_ = @aRelations[_r_][1]
+			_ac_ = @aRelations[_r_][2]
+			if len(_ac_) = 1  loop  ok
+			_bDirect_ = (len(_ac_) = 2 and NOT This._InList(_acAsEdge_, _ac_[1]) and
+			             NOT This._InList(_acAsEdge_, _ac_[2]) and
+			             NOT _oG_.EdgeExists(_ac_[1], _ac_[2]))
+			if _bDirect_ and @oDomain.IsSymmetric(_cP_) and _oG_.EdgeExists(_ac_[2], _ac_[1])
+				_bDirect_ = FALSE
+			ok
+			if _bDirect_
+				_oG_.AddEdgeXTT(_ac_[1], _ac_[2], _cP_, [ :kind = "predicate", :predicate = _cP_ ])
+			else
+				_nRel_++
+				_cR_ = "rel_" + StzLower(_cP_) + "_" + _nRel_
+				_oG_.AddNodeXTT(_cR_, "", [ :kind = "relation", :type = "_relation", :predicate = _cP_ ])
+				for _k_ = 1 to len(_ac_)
+					if This._InList(_acAsEdge_, _ac_[_k_]) or _oG_.EdgeExists(_cR_, _ac_[_k_])
+						stzraise("stzMathSubstance.ToGraph: " + _cP_ + "(" + This._Join(_ac_) +
+							") cannot be drawn as a graph -- an argument repeats, or is " +
+							"an object projected to an edge.")
+					ok
+					_oG_.AddEdgeXTT(_cR_, _ac_[_k_], _cP_, [ :kind = "argument", :position = _k_ ])
+				next
+			ok
+		next
+		# definitions: projected to an edge, or edges to each argument
+		for _d_ = 1 to _nD_
+			_cU_ = @aDefinitions[_d_][1]
+			_cF_ = @aDefinitions[_d_][2]
+			_ac_ = @aDefinitions[_d_][3]
+			if This._InList(_acAsEdge_, _cU_)
+				if _oG_.EdgeExists(_ac_[1], _ac_[2])
+					stzraise("stzMathSubstance.ToGraph: '" + _cU_ + "' := " + _cF_ + "(" +
+						This._Join(_ac_) + ") cannot be projected -- an edge from '" +
+						_ac_[1] + "' to '" + _ac_[2] + "' is already taken.")
+				ok
+				_aP_ = This._NodeProps(_cU_, This.TypeOf(_cU_))
+				_aP_ + [ "kind", "constructor" ]
+				_aP_ + [ "constructor", _cF_ ]
+				_aP_ + [ "object", _cU_ ]
+				_oG_.AddEdgeXTT(_ac_[1], _ac_[2], This.LabelOf(_cU_), _aP_)
+				loop
+			ok
+			for _k_ = 1 to len(_ac_)
+				if This._InList(_acAsEdge_, _ac_[_k_]) or _oG_.EdgeExists(_cU_, _ac_[_k_])
+					stzraise("stzMathSubstance.ToGraph: '" + _cU_ + "' := " + _cF_ + "(" +
+						This._Join(_ac_) + ") cannot be drawn as a graph -- an argument " +
+						"repeats, or is an object projected to an edge.")
+				ok
+				_oG_.AddEdgeXTT(_cU_, _ac_[_k_], _cF_,
+					[ :kind = "definition", :function = _cF_, :position = _k_ ])
+			next
+		next
+		return _oG_
+
+	# the type, the true name, the data and the unary predicates of an object
+	def _NodeProps(pcName, pcType)
+		_a_ = []
+		_a_ + [ "type", pcType ]
+		_a_ + [ "name", pcName ]
+		_aD_ = []
+		for _i_ = 1 to len(@aData)
+			if @aData[_i_][1] = pcName  _aD_ + [ @aData[_i_][2], @aData[_i_][3] ]  ok
+		next
+		_a_ + [ "data", _aD_ ]
+		_aU_ = []
+		for _i_ = 1 to len(@aRelations)
+			if len(@aRelations[_i_][2]) = 1 and @aRelations[_i_][2][1] = pcName
+				_aU_ + @aRelations[_i_][1]
+			ok
+		next
+		_a_ + [ "unary", _aU_ ]
+		return _a_
+
+	def _InList(pac, pc)
+		for _i_ = 1 to len(pac)
+			if "" + pac[_i_] = "" + pc  return TRUE  ok
+		next
+		return FALSE
+
+	def _Join(pac)
+		_c_ = ""
+		for _i_ = 1 to len(pac)
+			if _i_ > 1  _c_ += ", "  ok
+			_c_ += "" + pac[_i_]
+		next
+		return _c_
 
 	def _IsIdentifier(pc)
 		_k_ = ascii(pc[1])

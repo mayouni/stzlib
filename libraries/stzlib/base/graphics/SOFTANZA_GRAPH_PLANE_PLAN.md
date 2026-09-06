@@ -104,7 +104,7 @@ sections, of which 21 declarations over 17 items.
 | DN7i | closed | 87 |
 | DN7j | closed | 88 |
 | DN8 | open | - |
-| DN8a | open | - |
+| DN8a | closed | 89 |
 | DN8b | open | - |
 | DN8c | open | - |
 | DN8d | open | - |
@@ -2311,7 +2311,31 @@ path); no "framework" layer above both. Adapters and starts, measured.
 
 ### The items, in the order of leverage
 
-- **DN8a — A substance is a graph, and a graph is a substance.** *Not started.*
+- **DN8a — A substance is a graph, and a graph is a substance. SHIPPED
+  2026-09-06.** Guard §89, 17 assertions. `ToGraph()` and
+  `ToGraphXT([:projectConstructors = ...])` on the substance;
+  `StzSubstanceFromGraph(graph, domain, opts)` the other way. **Where an
+  edge will not do, a node**: stzGraph is a SIMPLE graph and its own
+  refusal names the remedy, so a second relation on one pair and any
+  relation of three or more arguments are reified as a relation node with
+  one positioned edge per argument — the contradiction of scene 5 is
+  three nodes and three edges and holds both ways back. **Projection** is
+  what the layouts will want: a graph-domain substance's Edge objects
+  become plain edges (the cube: 8 nodes, 12 edges, and the same 12
+  definitions with all 8 Highlighted marks on the way back), where without
+  it the cube is twenty nodes. **A foreign graph** says what its nodes and
+  edges are through the caller — `[:nodeType, :edgeConstructor |
+  :edgePredicate]` — and the graph plane's own org chart, never a
+  substance, is scene 31: six Vertex objects, five Arc objects, the titles
+  as labels, drawn by the box-and-arrow style. Two things the join taught:
+  stzGraph folds node ids to lower case where a substance's names are
+  case-sensitive (DN7b), so the true name rides as a property and two
+  names differing only by case are refused with the reason; and a foreign
+  node's own `:type` — an org chart's "box" — is the drawing's word, not a
+  domain's, and yields to the caller's when the domain does not know it.
+  The original text of the item follows.
+
+  *It said:* A substance is a graph, and a graph is a substance.
   `stzMathSubstance.ToGraph()`: objects become nodes carrying their type
   and data, predicates become typed edges (a hyperedge for arity above
   two), definitions become edges from result to argument, labels ride as

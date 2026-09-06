@@ -13196,6 +13196,77 @@ chk("a palette rounds to the nearest entry and clamps at both ends",
     oCh._Colour([ :palette, "40", [ "#a", "#b", "#c" ] ]) = "#c")
 
 
+sec("-- 89. DN8a: A SUBSTANCE IS A GRAPH, AND A GRAPH IS A SUBSTANCE ---------")
+discharges("DN8a")
+
+# THERE AND BACK, with nothing missing: objects, types, labels, data,
+# every relation, and the SAME graph again from the copy.
+oGsT = StzMathTreeSubstance()
+oGsT.SetData("A", "weight", 3.5)
+oGsG = oGsT.ToGraph()
+oGsT2 = StzSubstanceFromGraph(oGsG, StzSetTheoryDomain(), [])
+chk("the seven-set tree becomes seven nodes and nine edges",
+    oGsG.NodesCount() = 7 and oGsG.EdgesCount() = 9)
+chk("and comes back with every object, type and label",
+    _GsSameObjects(oGsT, oGsT2))
+chk("with every relation holding in the copy", _GsRelationsHold(oGsT, oGsT2))
+chk("with its data", oGsT2.DataOf("A", "weight") = 3.5)
+chk("and the copy's graph is the first graph again -- same counts, same edges",
+    _GsSameGraph(oGsG, oGsT2.ToGraph()))
+
+# WHERE AN EDGE WILL NOT DO, A NODE. stzGraph is simple -- no parallel
+# edges -- so a second relation on one pair is reified, and so is any
+# relation of three or more arguments. Both come back whole.
+oGsC = new stzMathSubstance(StzSetTheoryDomain())
+oGsC.DeclareAll("Set", [ "A", "B" ])
+oGsC.Assert("Subset", [ "B", "A" ])
+oGsC.Assert("Disjoint", [ "A", "B" ])
+oGsCG = oGsC.ToGraph()
+oGsC2 = StzSubstanceFromGraph(oGsCG, StzSetTheoryDomain(), [])
+chk("two relations on one pair: the second becomes a relation node with two argument edges",
+    oGsCG.NodesCount() = 3 and oGsCG.EdgesCount() = 3)
+chk("and both relations hold on the way back",
+    oGsC2.Holds("Subset", [ "B", "A" ]) and oGsC2.Holds("Disjoint", [ "A", "B" ]))
+oGsQ = new stzMathSubstance(StzCategoryDomain())
+oGsQ.DeclareAll("Object", [ "A", "B", "C", "D" ])
+oGsQ.Assert("CommutingSquare", [ "A", "B", "C", "D" ])
+oGsQ2 = StzSubstanceFromGraph(oGsQ.ToGraph(), StzCategoryDomain(), [])
+chk("a four-place relation is a node with four positioned edges, and comes back in order",
+    oGsQ.ToGraph().EdgesCount() = 4 and oGsQ2.Holds("CommutingSquare", [ "A", "B", "C", "D" ]) and
+    NOT oGsQ2.Holds("CommutingSquare", [ "B", "A", "C", "D" ]))
+
+# PROJECTION: a graph-domain substance's Edge objects become the plain
+# edges a layout wants, and come back as the same definitions.
+oGsK = StzMathCubeSubstance()
+oGsKG = oGsK.ToGraphXT([ :projectConstructors = "Edge" ])
+oGsK2 = StzSubstanceFromGraph(oGsKG, StzGraphDomain(), [])
+chk("the cube with Edge projected is eight nodes and twelve edges, no edge objects among the nodes",
+    oGsKG.NodesCount() = 8 and oGsKG.EdgesCount() = 12)
+chk("every Edge definition comes back, with its Highlighted marks -- eight of twelve",
+    _GsDefinitionsBack(oGsK, oGsK2, 12) and _GsHighlighted(oGsK2, 12) = 8)
+chk("NEGATIVE: without projection the same substance is twenty nodes -- the edges are objects",
+    oGsK.ToGraph().NodesCount() = 20)
+
+# A FOREIGN GRAPH: the graph plane's own org chart, never a substance,
+# made one under the caller's word for its nodes and edges, and drawn.
+oGsO = StzMathScene31(AUFONT)
+oGsOS = StzSubstanceFromGraph(StzMathOrgChart(), StzGraphDomain(),
+	[ :nodeType = "Vertex", :edgeConstructor = "Arc" ])
+chk("six positions become six Vertex objects and five reporting lines five Arcs",
+    len(oGsOS.ObjectsOfType("Vertex")) = 6 and len(oGsOS.ObjectsOfType("Arc")) = 5)
+chk("the positions' titles are the substance's labels",
+    oGsOS.LabelOf("cto") = "Technology" and oGsOS.LabelOf("ceo") = "Chief Executive")
+chk("an org chart's own :type, box, yields to the caller's Vertex -- the domain does not know box",
+    oGsOS.TypeOf("ceo") = "Vertex")
+chk("and the chart draws, lawful, under the box-and-arrow style", oGsO.IsFeasible())
+
+# REFUSALS with their reasons, and their lawful siblings.
+chk("two names that differ only by case are refused -- stzGraph folds ids to lower case",
+    _GsRefusesCase())
+chk("a foreign graph with no word for its edges is refused", _GsRefusesForeign(1))
+chk("NEGATIVE: with the word given, the same graph is accepted", NOT _GsRefusesForeign(0))
+
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go
@@ -16036,6 +16107,73 @@ func _ChExtreme poM, pcPfx, pnRows, pnCols, pbMax
 		next
 	next
 	return _best_
+
+func _GsSameObjects poA, poB
+	_aO_ = poA.Objects()
+	if len(_aO_) != len(poB.Objects())  return FALSE  ok
+	for _i_ = 1 to len(_aO_)
+		if NOT poB.HasObject(_aO_[_i_][1])  return FALSE  ok
+		if poB.TypeOf(_aO_[_i_][1]) != _aO_[_i_][2]  return FALSE  ok
+		if poB.LabelOf(_aO_[_i_][1]) != poA.LabelOf(_aO_[_i_][1])  return FALSE  ok
+	next
+	return TRUE
+
+func _GsRelationsHold poA, poB
+	_aR_ = poA.Relations()
+	if len(_aR_) != len(poB.Relations())  return FALSE  ok
+	for _i_ = 1 to len(_aR_)
+		if NOT poB.Holds(_aR_[_i_][1], _aR_[_i_][2])  return FALSE  ok
+	next
+	return TRUE
+
+func _GsSameGraph poG, poH
+	if poG.NodesCount() != poH.NodesCount() or poG.EdgesCount() != poH.EdgesCount()  return FALSE  ok
+	_aE_ = poG.Edges()
+	for _i_ = 1 to len(_aE_)
+		if NOT poH.EdgeExists(_aE_[_i_][:from], _aE_[_i_][:to])  return FALSE  ok
+	next
+	return TRUE
+
+func _GsDefinitionsBack poA, poB, pnN
+	_aD_ = poA.Definitions()
+	for _i_ = 1 to len(_aD_)
+		if NOT poB.IsDefinedAs(_aD_[_i_][1], _aD_[_i_][2], _aD_[_i_][3])  return FALSE  ok
+	next
+	return len(_aD_) = pnN
+
+func _GsHighlighted poS, pnN
+	_n_ = 0
+	for _i_ = 1 to pnN
+		if poS.Holds("Highlighted", [ "q" + _i_ ])  _n_++  ok
+	next
+	return _n_
+
+func _GsRefusesCase
+	_b_ = FALSE
+	try
+		_o_ = new stzMathSubstance(StzLinearAlgebraDomain())
+		_o_.Declare("Vector", "u")
+		_o_.Declare("VectorSpace", "U")
+		_o_.ToGraph()
+	catch
+		_b_ = TRUE
+	done
+	return _b_
+
+func _GsRefusesForeign pnBare
+	_b_ = FALSE
+	try
+		_g_ = new stzGraph("f")
+		_g_.AddNode("a")  _g_.AddNode("b")  _g_.AddEdge("a", "b")
+		if pnBare = 1
+			StzSubstanceFromGraph(_g_, StzGraphDomain(), [ :nodeType = "Vertex" ])
+		else
+			StzSubstanceFromGraph(_g_, StzGraphDomain(), [ :nodeType = "Vertex", :edgeConstructor = "Edge" ])
+		ok
+	catch
+		_b_ = TRUE
+	done
+	return _b_
 
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0
