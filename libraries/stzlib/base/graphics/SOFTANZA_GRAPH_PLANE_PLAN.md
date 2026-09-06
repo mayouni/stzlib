@@ -112,6 +112,14 @@ sections, of which 21 declarations over 17 items.
 | DN8f | closed | 94 |
 | DN8g | closed | 95 |
 | DN8h | closed | 96 |
+| DN9 | open | - |
+| DN9a | open | - |
+| DN9b | open | - |
+| DN9c | open | - |
+| DN9d | open | - |
+| DN9e | open | - |
+| DN9f | open | - |
+| DN9g | open | - |
 | DN2b | closed | 56 |
 | DN2c | closed | - |
 | DN2d | closed | 57 |
@@ -2637,6 +2645,166 @@ Planarity testing proper (Boyer–Myrvold) and annealing stay refused until
 DN8b's numbers say the layouts-as-starts are not enough — the expectation
 is that they are, for every planar graph the gallery draws. Rotated
 shapes and text along a path stay unplanned. 3D stays outside.
+
+## DN9 — THE TOLD PICTURE: a narration is facts made visible, in an order (2026-09-06, planned)
+
+The Principal, after DN8h was explained to him with three diagrams drawn
+by hand from the engine's own numbers, asked whether the library was now
+"a mathematical computational visual thinking engine" for explaining and
+teaching. The honest answer given was *half*: every mark in those diagrams
+was a function of a fact the engine already held — a distance, a verdict,
+a count, a position — and nothing in them was invented; but the engine had
+no way to be *asked* to draw what it knew. So the gap is a vocabulary, not
+mathematics, and this plane is that vocabulary. It is written at one level
+above mathematics on purpose: a fact is anything a picture can answer,
+including a notation's governance finding, so an org chart with a person
+reporting to two heads is narrated with exactly the same five marks as
+Byrne's plate.
+
+**Three facts from outside this plane that shape it, read before the first
+item, none of them this plane's to reopen:**
+
+1. **The document is the sibling's.** `stznarrations` (design only, no
+   code) owns the `.narration` format: a header, `PROSE` and `CELL`, three
+   kinds with "a fourth a substance change to the grammar", and one law —
+   *the document is plain text and outputs are never stored in it.* So a
+   frame is not a document kind. A frame is **what a cell yields**, and a
+   caption's numbers are **computed by a cell at run time**, never typed
+   into prose. This plane emits that format; it does not extend it.
+2. **The name `stzNarration` is spoken for.** The reference design v1.2
+   ruled (obligation O1 in the sibling's ALIGNMENT.md, author-decided) that
+   the existing `base/conversation/stzNarration.ring` — a speaker-tagged
+   transcript — is renamed `stzTranscript`, freeing the name for the
+   document class. This repository has not paid that obligation. The
+   sequence object here is therefore **`stzStoryboard`**, the professional
+   word for ordered frames with captions, and paying O1 is item DN9a, so
+   that this plane is not the second thing to squat on the name.
+3. **C7, the Display Contract, is stzlib's and unwritten.** Its first
+   consumer's ask is on record: a *returning* display method — `Show()`
+   prints at 196 sites and no notebook can capture a print — whose value
+   declares its own kind (text, table, graph, vector, image, markup...).
+   This plane makes the two picture classes answer in that shape and
+   routes the result to Central as **evidence toward C7, not as C7.**
+
+### The abstraction, in five words
+
+**fact · mark · frame · storyboard · judged**
+
+- A **fact** is anything a picture can answer, in one shape across both
+  planes: `[ :kind, :subject, :value, :unit, :where, :message ]`. A
+  measurement (`:distance` between two things), a verdict (a rule
+  satisfied or violated, by how much — which is the rule report DN8c
+  already produces, in the house shape `[ :rule, :subject, :where,
+  :severity, :message ]`), a count (nodes, crossings, starts), a datum a
+  substance carries, a position. **Facts are queried, never typed.**
+- A **mark** makes a fact visible. Five kinds, and no sixth without a
+  substance change to this plane, the way the grammar guards its three:
+  | mark | shows | how it is drawn |
+  |---|---|---|
+  | `show` | a rule's boundary as a shape — the leash as a dashed circle, a clearance as a ribbon, a container as itself | derived geometry from the constraint's own arguments, in the picture's renderer |
+  | `measure` | a dimension between two things, with its number | a line with ticks and a solved label |
+  | `callout` | a sentence attached to a thing by a leader | a label whose owner is any shape — **solved exactly as a name is**, off ink and off other names |
+  | `emphasis` | focus, dim, or ring | colour roles the theme already has (danger, success, muted), a ring at a point |
+  | `region` | an area — the lawful set, a forbidden ribbon | a tinted or hatched shape derived from a rule |
+- A **frame** is a picture, its marks, a **window** (the whole paper, or a
+  zoom onto a region, marks following), and a **caption**: a sentence with
+  holes, each hole bound to a fact, filled at render time.
+- A **storyboard** is ordered frames. One content may appear under several
+  readings (the catalogue's dark twins already do this), or changed by an
+  action between frames — a drag (DN8g), a datum set (DN7j), a step of a
+  generator (DN8f). It renders to a folio of PNGs, to one HTML page, and it
+  **emits a `.narration`**: the captions as `PROSE`, the pictures and the
+  filled holes as `CELL`s that recompute on arrival, so the sibling's law
+  holds by construction.
+- **Judged**: every frame passes the one gate (`StzCheckPictures`), and
+  every number in every caption is asserted equal to the fact it was
+  filled from. That is the claim no textbook can make: a lesson whose every
+  picture is lawful and every number true, checked.
+
+**What stays with the author, and should**: which fact to show first, what
+to leave out, when to zoom. That is the teaching. The engine guarantees the
+pictures and the numbers; it does not know what a learner needs to see.
+
+**Refused, before the first item**: no animation or timeline (a frame is a
+still; the live figure is the interaction, not the narration); no document
+format of this plane's own (the sibling owns it); no slide framework; no
+natural-language generation beyond sentences with holes; no pedagogy in
+the engine; no sixth mark; no writing of C7 here. And **no hand-drawn
+SVG**: the whole plane's kill is that the three diagrams drawn by hand on
+2026-09-06 are regenerated by the engine with no picture code written by a
+person.
+
+### The items, in the order of leverage
+
+- **DN9a — O1 paid: `stzNarration` becomes `stzTranscript`.** *Not started.*
+  Nine sites, enumerated by the sibling on 2026-08-11 and to be **verified
+  before acting**: the file, the class line, the header comment, the two
+  `stzBase.ring` lines, `stzConversation`'s member and its fifteen uses, a
+  comment in `stzDelivery`, and the one judgement call — `NarrationQ()` is
+  public, so it stays as an alias for one version beside `TranscriptQ()`.
+  **Kill:** the gate green with no reference to the old class outside the
+  alias; the name free; one line to Central so the sibling can stop
+  designing against a held name.
+
+- **DN9b — Facts, one surface on both planes.** *Not started.* `Fact(kind,
+  args)` on `stzMathDiagram` and `stzDiagram` returning the one shape;
+  verdicts drawn from the rule report rather than recomputed; distances,
+  counts, positions, data. **Kill:** every number in the three captions of
+  2026-09-06 — 47, 44, 22, 28,945, 208, 48 — produced by a `Fact` call and
+  none typed; and the NEGATIVE, a fact asked of a thing the picture does
+  not hold is refused with the reason.
+
+- **DN9c — The five marks.** *Not started.* Style rows `[ :show, rule ]`,
+  `[ :measure, a, b ]`, `[ :callout, target, text ]`, `[ :emphasis, target,
+  :focus | :dim | :ring ]`, `[ :region, rule ]`, and the same as diagram
+  methods for a frame that adds marks after the solve. A callout is a
+  label: it goes through the label stage, off ink and off names, which is
+  why it needs no new solver. **Kill:** the "what a name must satisfy"
+  diagram regenerated from the engine — the leash as a `show` of the
+  `lessThan(dist)` rule, the ribbon as a `region` of the `disjoint` rule,
+  the callouts solved — and the one gate passes it.
+
+- **DN9d — The window.** *Not started.* A frame may be a zoom onto a
+  region: the renderer clips and scales, marks and captions follow, the
+  gate judges what is visible. **Kill:** the v111 before-and-after pair
+  from the engine, the same content, two frames, one zoomed window each.
+
+- **DN9e — The engine draws its own thinking.** *Not started.*
+  `StzTapeGraph(handle)`: the compiled tape as a `stzGraph`, one node per
+  step labelled with its operation, drawn by the graph plane's
+  hierarchical layout. **Kill:** the tree-versus-shared diagram of DN8h
+  from the *real* compiled tape, both ways (`compileShared` exists for
+  this), node counts read off the picture equal to `StzEngineGradNodes`.
+
+- **DN9f — The storyboard.** *Not started.* `stzStoryboard`: frames in
+  order, captions with holes, actions between frames; renders a folio, an
+  HTML page, and emits a `.narration` in the sibling's v0 grammar (PROSE
+  and CELL only — routed to Central for the sibling's confirmation before
+  the emitter is written). Judged: every frame through the one gate, every
+  hole asserted equal to its fact. **Kill, the plane's:** the whole
+  explanation of 2026-09-06 as ONE storyboard rendered by one command with
+  no hand-drawn SVG; and a second storyboard about an org chart with a
+  governance finding — the person with two managers emphasised, the
+  finding's message as the callout, the repaired chart as the last frame —
+  with no mathematics anywhere.
+
+- **DN9g — C7 evidence.** *Not started.* Both picture classes answer a
+  returning, self-describing display value in the consumer's asked shape
+  (`vector` for the drawn geometry, `image` for the raster, `graph` for a
+  tape or a substance), and a script that knows no class renders a frame
+  through it. **Kill:** that script; the finding routed to Central as
+  evidence for the contract stzlib owes.
+
+After this plane, TeX in labels is one more thing a `callout` can carry,
+and not a feature of its own.
+
+**Risks, named now.** The mark vocabulary wants to grow — five is the
+number, and the sixth is a substance change, argued in this file. Callouts
+multiply labels and labels are the solver's cost — measured cheap since
+DN8h, and measured again at the first storyboard. The temptation to draw
+one thing by hand "just for this one" is the plane's whole failure mode,
+and the kill forbids it. And the sibling's grammar may refuse the emitter's
+shape; that is why DN9f routes before it writes.
 
 ## DN2b — THE RING: a state machine is not a tree (2026-08-23)
 
