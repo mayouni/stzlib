@@ -252,6 +252,26 @@ fn unpack(rgb: u32) Rgb {
     };
 }
 
+/// 0xRRGGBB a, 0xRRGGBB b, t in 0..1: the colour t of the way from a to b
+/// in OKLAB -- perceptually straight, so a ramp between two colours is even
+/// in lightness by construction. The endpoint is gamut-clamped through the
+/// same path as a ramp step. This is the mix a two-colour ramp on a picture
+/// must use: interpolated in sRGB the lightness zigzags, which is the
+/// defect the colour plan measured and the math plane's DN7j ramp shipped
+/// with anyway.
+pub fn stz_color_mix_oklab(a: u32, b: u32, t: f64) callconv(.c) u32 {
+    const tt = @min(1.0, @max(0.0, t));
+    const la = rgbToOklab(unpack(a));
+    const lb = rgbToOklab(unpack(b));
+    const m = Lab{
+        .l = la.l + (lb.l - la.l) * tt,
+        .a = la.a + (lb.a - la.a) * tt,
+        .b = la.b + (lb.b - la.b) * tt,
+    };
+    const out = gamutClamp(labToLch(m));
+    return (@as(u32, u8f(out.r)) << 16) | (@as(u32, u8f(out.g)) << 8) | u8f(out.b);
+}
+
 /// WCAG 2.x contrast ratio, 1.0 .. 21.0.
 pub fn stz_color_contrast_wcag(a: u32, b: u32) callconv(.c) f64 {
     const la = relLum(unpack(a));

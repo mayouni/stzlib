@@ -91,5 +91,10 @@ for i = 1 to 31
 	cN = "" + i
 	if i < 10  cN = "0" + i  ok
 	oM.ToPNG("math_" + cN + ".png")
+	# and the same picture under the dark theme: no second solve, a theme
+	# changes no geometry -- only what every role resolves to
+	oM.@oStyle.SetTheme("dark")
+	oM.Touch()
+	oM.ToPNG("dark_" + cN + ".png")
 	? "   -> math_" + cN + ".png"
 next

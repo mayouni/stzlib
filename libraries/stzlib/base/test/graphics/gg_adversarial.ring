@@ -13184,17 +13184,29 @@ oCh = StzMathScene30(AUFONT)
 chk("the heat map is lawful, in one evaluation", oCh.IsFeasible() and oCh.Evaluations() = 1)
 chk("C's cells hold A . B, recomputed here from A's and B's cell data",
     _ChProductAgrees(oCh))
-chk("the hottest cell of C wears the ramp's hot end, and the coolest its cool end",
-    oCh.FillOf(_ChExtreme(oCh, "c", 3, 3, TRUE) + ".icon") = "#c8443c" and
-    oCh.FillOf(_ChExtreme(oCh, "c", 3, 3, FALSE) + ".icon") = "#f4f4fb")
-chk("a cell halfway up the ramp wears the midpoint colour, channel by channel",
-    oCh._LerpHex("#f4f4fb", "#c8443c", 0.5) = "#de9c9c" and
-    oCh._Colour([ :ramp, "0.5", 0, 1, "#f4f4fb", "#c8443c" ]) = "#de9c9c")
+# the ramp runs from the PAPER to the ACCENT since DN8d, so its ends are
+# the theme's, read back through the roles rather than pinned as hex
+chk("the hottest cell of C wears the theme's accent, and the coolest its paper",
+    oCh.FillOf(_ChExtreme(oCh, "c", 3, 3, TRUE) + ".icon") = oCh._RoleColour("primary") and
+    oCh.FillOf(_ChExtreme(oCh, "c", 3, 3, FALSE) + ".icon") = oCh.Background())
+# the ramp is PERCEPTUAL since DN8d: the midpoint's lightness is the mean
+# of the endpoints' on the Oklab scale -- which the sRGB midpoint this
+# assertion used to pin (#de9c9c) is not, and that was the colour plan's
+# measured defect shipping here
+chk("a cell halfway up the ramp sits halfway in LIGHTNESS between the ends, to a hundredth",
+    fabs(StzEngineColorLightness(_CdRgb(oCh._LerpHex("#f4f4fb", "#c8443c", 0.5))) -
+         (StzEngineColorLightness(_CdRgb("#f4f4fb")) + StzEngineColorLightness(_CdRgb("#c8443c"))) / 2) < 0.01 and
+    oCh._Colour([ :ramp, "0.5", 0, 1, "#f4f4fb", "#c8443c" ]) = oCh._LerpHex("#f4f4fb", "#c8443c", 0.5))
+chk("NEGATIVE: the sRGB midpoint, #de9c9c, is NOT halfway in lightness -- the ramp that zigzagged",
+    fabs(StzEngineColorLightness(_CdRgb("#de9c9c")) -
+         (StzEngineColorLightness(_CdRgb("#f4f4fb")) + StzEngineColorLightness(_CdRgb("#c8443c"))) / 2) > 0.01)
+# a colour rule answers in the palette's case, upper; the guard's literals
+# are compared as colours, not as strings
 chk("a ramp clamps: below lo is the cool colour, above hi the hot one",
-    oCh._Colour([ :ramp, "0-3", 0, 1, "#f4f4fb", "#c8443c" ]) = "#f4f4fb" and
-    oCh._Colour([ :ramp, "9", 0, 1, "#f4f4fb", "#c8443c" ]) = "#c8443c")
+    StzLower(oCh._Colour([ :ramp, "0-3", 0, 1, "#f4f4fb", "#c8443c" ])) = "#f4f4fb" and
+    StzLower(oCh._Colour([ :ramp, "9", 0, 1, "#f4f4fb", "#c8443c" ])) = "#c8443c")
 chk("NEGATIVE: a ramp whose lo equals hi does not divide by zero -- it is its cool colour",
-    oCh._Colour([ :ramp, "5", 5, 5, "#f4f4fb", "#c8443c" ]) = "#f4f4fb")
+    StzLower(oCh._Colour([ :ramp, "5", 5, 5, "#f4f4fb", "#c8443c" ])) = "#f4f4fb")
 chk("a palette rounds to the nearest entry and clamps at both ends",
     oCh._Colour([ :palette, "2.4", [ "#a", "#b", "#c" ] ]) = "#b" and
     oCh._Colour([ :palette, "0", [ "#a", "#b", "#c" ] ]) = "#a" and
@@ -13392,6 +13404,85 @@ chk("NEGATIVE: a name moved onto an edge IS caught, by name_off_ink and by name"
     len(aOgB) > 0 and aOgB[1][:rule] = "name_off_ink")
 chk("and the lawful network before the move was clean under the same rules",
     len(_OgJudge(StzMathScene20(AUFONT))) = 0)
+
+
+sec("-- 92. DN8d: COLOUR AS MEANING -- ROLES, THEMES, AND MEASURED TEXT -----")
+discharges("DN8d")
+
+# A ROLE RESOLVES THROUGH THE THEME. The same style under light and dark
+# gives a different colour for the same word, and the paper follows.
+oCmS = StzEulerStyle()
+oCm = new stzMathDiagram(StzSetTheoryDomain(), StzMathTreeSubstance(), oCmS)
+oCm.SetFont(AUFONT, 28)  oCm.SetVariation("PlumvilleCapybara104")
+cCmPl = oCm._RoleColour("primary")
+cCmBl = oCm.Background()
+# the DIAGRAM'S copy of the style, not the guard's: a Ring object is
+# copied on assignment, and a theme set on the original reaches nothing
+oCm.@oStyle.SetTheme("dark")  oCm.Touch()
+chk("the accent is one colour under light and another under dark, from one word",
+    cCmPl = "#4D4DC9" and oCm._RoleColour("primary") = "#E0E0FF")
+chk("and the paper is white under light and dark grey under dark",
+    cCmBl = "#FFFFFF" and oCm.Background() = "#333333")
+chk("a word that is not a role passes through untouched -- the canvas resolves it",
+    oCm._RoleColour("#c8443c") = "#c8443c" and oCm._RoleColour("gold") = "gold")
+chk("an alpha rule composes: the accent at a fifth is the accent with an alpha byte",
+    oCm._Colour([ :alpha, "primary", 0.2 ]) = "#E0E0FF33")
+chk("an on-fill rule answers black or white by MEASURED contrast, and flips with the paper",
+    oCm._Colour([ :on, "paper" ]) = "white" and _CmOnLight() = "black")
+
+# THE MIX IS PERCEPTUAL, IN THE ENGINE. Straight in Oklab: the ends are
+# the ends, the middle is the middle in lightness, and it is not the sRGB
+# middle -- which is the defect the colour plan measured.
+chk("the engine's mix returns its ends at t = 0 and t = 1",
+    StzEngineColorMixOklab(16711680, 255, 0) = 16711680 and
+    StzEngineColorMixOklab(16711680, 255, 1) = 255)
+chk("and clamps t outside [0, 1]",
+    StzEngineColorMixOklab(16711680, 255, -3) = 16711680 and
+    StzEngineColorMixOklab(16711680, 255, 9) = 255)
+chk("red to blue at the half is a purple whose lightness is the mean of the two, to a hundredth",
+    fabs(StzEngineColorLightness(StzEngineColorMixOklab(16711680, 255, 0.5)) -
+         (StzEngineColorLightness(16711680) + StzEngineColorLightness(255)) / 2) < 0.01)
+
+# EVERY PICTURE UNDER BOTH THEMES: every name at least 3:1 against what
+# holds it -- the fill it sits in, composited over the paper, or the
+# paper itself -- measured, not assumed. The pictures are the one gate's,
+# already solved; a theme changes no geometry, so no second solve.
+nCmBadL = 0  nCmBadD = 0  nCmNames = 0
+for iCm = 21 to len(aOgP)
+	oCmP = aOgP[iCm][2]
+	oCmP.@oStyle.SetTheme("light")  oCmP.Touch()
+	nCmBadL += _CmUnreadable(oCmP, 3)
+	nCmNames += _CmNames(oCmP)
+	oCmP.@oStyle.SetTheme("dark")  oCmP.Touch()
+	nCmBadD += _CmUnreadable(oCmP, 3)
+	oCmP.@oStyle.SetTheme("light")  oCmP.Touch()
+next
+? "   [" + nCmNames + " names measured under each theme]"
+chkeq("under the light theme every name clears 3:1 against what holds it", nCmBadL, 0)
+chkeq("and under the dark theme too -- the same styles, re-resolved", nCmBadD, 0)
+chk("and there were names to measure -- hundreds, not none", nCmNames > 200)
+
+# NO STRUCTURAL HEX REMAINS. Every style's rules are scanned for a hex
+# literal; the only ones left are content -- Byrne's plate and the
+# quaternion table's eight -- and they are counted by name.
+nCmHex = 0  nCmContent = 0
+for oCmSt in [ StzEulerStyle(), StzTreeStyle(), StzVectorStyle(), StzEuclideanStyle(),
+               StzSphericalStyle(), StzHyperbolicStyle(), StzHasseStyle(), StzCommutativeStyle(),
+               StzThalesStyle(), StzGraphStyle(), StzSpringGraphStyle(), StzCurvedGraphStyle(),
+               StzBoxArrowStyle(), StzWordCloudStyle(), StzBlobStyle(), StzCatmullStyle(),
+               StzEuler25DStyle(), StzEllipseRaysStyle(), StzHeatmapStyle() ]
+	nCmHex += _CmHexIn(oCmSt)
+next
+for oCmSt in [ StzByrneStyle(), StzQuaternionTableStyle() ]
+	nCmContent += _CmHexIn(oCmSt)
+next
+chkeq("nineteen structural styles carry no hex literal at all", nCmHex, 0)
+chkeq("and the two content styles carry exactly their plate and their eight: fourteen", nCmContent, 14)
+
+# NEGATIVE: a name given a hex that fails on the dark paper IS caught by
+# the same measurement -- the instrument is not merely agreeable.
+chk("NEGATIVE: a dark-grey name on the dark paper is found unreadable",
+    StzContrastOf("#444444", "#333333") < 3)
 
 
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
@@ -15774,7 +15865,8 @@ func _GrHighlighted poM, pcPfx, pnEdges
 	for _i_ = 1 to pnEdges
 		_k_ = poM._ShapeIndex(pcPfx + _i_ + ".icon")
 		if _k_ = 0  loop  ok
-		if "" + poM._Prop(poM.@aShapes[_k_][3], "stroke", "") = "#c8443c"  _n_++  ok
+		# a highlight is the ACCENT, resolved through the theme -- not a hex
+		if poM.StrokeOf(pcPfx + _i_ + ".icon") = poM._RoleColour("primary")  _n_++  ok
 	next
 	return _n_
 
@@ -16155,6 +16247,11 @@ func _RyRulesNamingFoci poM
 	next
 	return _n_
 
+func _CdRgb pcHex
+	_c_ = StzStringSection(pcHex, 2, 7)
+	return dec(StzStringSection(_c_, 1, 2)) * 65536 + dec(StzStringSection(_c_, 3, 4)) * 256 +
+	       dec(StzStringSection(_c_, 5, 6))
+
 func _CdRefuses poS, pcKey, pValue
 	_b_ = FALSE
 	try
@@ -16432,6 +16529,74 @@ func _OgMoveNameOntoEdge poM, pcVertex, pcArc
 	poM.@aValue[_ix_] = (_l_[:x1] + _l_[:x2]) / 2
 	poM.@aValue[_iy_] = (_l_[:y1] + _l_[:y2]) / 2
 	poM.Touch()
+
+func _CmOnLight
+	_oSt_ = StzEulerStyle()
+	_o_ = new stzMathDiagram(StzSetTheoryDomain(), StzMathTreeSubstance(), _oSt_)
+	_o_.SetFont(AUFONT, 28)
+	return _o_._Colour([ :on, "paper" ])
+
+# the names of a picture that fall under a contrast ratio against what
+# holds them -- the topmost filled region containing the name's centre,
+# composited over the paper, or the paper
+func _CmUnreadable poM, pnMin
+	_n_ = 0
+	_ac_ = poM.Shapes()
+	for _i_ = 1 to len(_ac_)
+		_cP_ = _ac_[_i_]
+		if poM.ShapeOf(_cP_)[:kind] != "text" or poM.IsHidden(_cP_)  loop  ok
+		if "" + poM.PropOf(_cP_, "string", "") = ""  loop  ok
+		_cT_ = poM.FillOf(_cP_)
+		_cBg_ = poM.Background()
+		_aT_ = poM.ShapeOf(_cP_)
+		_nTop_ = -1
+		for _j_ = 1 to len(_ac_)
+			_cQ_ = _ac_[_j_]
+			if _cQ_ = _cP_ or poM.IsHidden(_cQ_) or poM.FillOf(_cQ_) = ""  loop  ok
+			_aR_ = _MrRegion(poM, _cQ_)
+			if len(_aR_) < 6  loop  ok
+			if _MrPointIn(_aT_[:cx], _aT_[:cy], _aR_) and poM.DrawIndexOf(_cQ_) > _nTop_
+				_nTop_ = poM.DrawIndexOf(_cQ_)
+				_cBg_ = poM._Opaque(poM.FillOf(_cQ_), poM.Background())
+			ok
+		next
+		if StzContrastOf(_cT_, _cBg_) < pnMin  _n_++  ok
+	next
+	return _n_
+
+func _CmNames poM
+	_n_ = 0
+	_ac_ = poM.Shapes()
+	for _i_ = 1 to len(_ac_)
+		if poM.ShapeOf(_ac_[_i_])[:kind] = "text" and NOT poM.IsHidden(_ac_[_i_]) and
+		   "" + poM.PropOf(_ac_[_i_], "string", "") != ""
+			_n_++
+		ok
+	next
+	return _n_
+
+# hex literals among a style's rule rows, however deep
+func _CmHexIn poSt
+	return _CmHexInList(poSt.Rules())
+
+func _CmHexInList pa
+	_n_ = 0
+	for _i_ = 1 to len(pa)
+		if isList(pa[_i_])
+			_n_ += _CmHexInList(pa[_i_])
+		but isString(pa[_i_]) and len(pa[_i_]) >= 7 and StzLeft(pa[_i_], 1) = "#" and
+		    _CmIsHex(pa[_i_])
+			_n_++
+		ok
+	next
+	return _n_
+
+func _CmIsHex pc
+	for _i_ = 2 to len(pc)
+		_k_ = ascii(StzLower(pc[_i_]))
+		if NOT ((_k_ >= 48 and _k_ <= 57) or (_k_ >= 97 and _k_ <= 102))  return FALSE  ok
+	next
+	return len(pc) = 7 or len(pc) = 9
 
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0

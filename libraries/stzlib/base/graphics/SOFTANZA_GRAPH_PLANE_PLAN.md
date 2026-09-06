@@ -107,7 +107,7 @@ sections, of which 21 declarations over 17 items.
 | DN8a | closed | 89 |
 | DN8b | closed | 90 |
 | DN8c | closed | 91 |
-| DN8d | open | - |
+| DN8d | closed | 92 |
 | DN8e | open | - |
 | DN8f | open | - |
 | DN8g | open | - |
@@ -2423,7 +2423,30 @@ path); no "framework" layer above both. Adapters and starts, measured.
   over both catalogues, printing pictures judged and findings found, and
   the plan-of-record check extended to the graph plane's own items.
 
-- **DN8d — Colour as meaning.** *Not started.* Every math style speaks roles —
+- **DN8d — Colour as meaning. SHIPPED 2026-09-06.** Guard §92. A style
+  names a theme (`SetTheme`) and writes ROLES — `:primary` for the one
+  accent, `:neutral` for ink, `:muted` for secondary ink, `:background`
+  for the paper — and the theme decides what each is; two new colour
+  rules carry the rest: `[:alpha, colour, a]` for a surface (the accent at
+  a fifth over whatever the paper is, which is what keeps a fill right
+  under dark), and `[:on, path | "paper"]` for a name's colour — the best
+  of black and white on what it sits in, MEASURED, never a literal. A
+  name given no colour takes the best on the paper. **The ramp is
+  perceptual now**: the engine exports `stz_color_mix_oklab`, a straight
+  line in Oklab clamped to gamut, and the DN7j ramp interpolates through
+  it — the sRGB midpoint it used to pin is the negative sibling. **Nineteen
+  structural styles carry no hex literal**; the two content styles carry
+  exactly Byrne's plate and the quaternion table's eight, fourteen, kept
+  as the content they are — a theme governs surface, ink and accent, not
+  what a picture is about. **Every picture under both themes, every name
+  measured**: under light and dark alike, no name falls under 3:1 against
+  the fill that holds it, composited over the paper — 31 pictures, some
+  hundreds of names, no second solve since a theme changes no geometry.
+  The catalogue renders a dark twin of every picture. One library bug the
+  roles exposed: a region test string-added a fill *prop*, and a fill that
+  is a rule is a list. The original text of the item follows.
+
+  *It said:* Colour as meaning. Every math style speaks roles —
   `:fill = :Accent`, `:stroke = :Line` — and never a hex; labels take
   `StzContrastingText` so the picture decides what can be read; the ramp
   and palette rules route through the colour system's PERCEPTUAL ramp,
