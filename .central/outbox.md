@@ -1760,3 +1760,47 @@ note:      THE BLOBS WERE LAWFUL WITH TENDRILS TWICE THE CANVAS. Every
            is not told about. Wherever a variable is given a range for
            its start, ask what holds it after.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-06 09:23
+
+subject:   DN7i -- ellipses: sets in 2.5D, and the rays of an ellipse
+
+why:       the author asked for ellipses, one of the two remaining
+           one-feature gaps in the gallery triage
+
+did:
+  - Added the ellipse shape; to a constraint it is its bounding box,
+    and neither style that uses it constrains an ellipse at all.
+  - Drew the seven-set tree in 2.5D -- its fourth reading -- solved as
+    disks and drawn as their affine image, so every relation survives.
+  - Drew an ellipse with six rays focus to focus and read back the
+    string property and the reflection law, both to 0.00, neither
+    asserted; the guard proves no rule names a focus.
+  - Bounded each ray's parameter in the energy, DN7h's lesson applied
+    the same day.
+
+state:
+  section 87:   11 assertions
+  gate:         942 ok, 0 failed, on main and in the commit tree
+  plan table:   DN7a through DN7i all closed
+  catalogue:    28 pictures
+  commit:       fc92d850d on origin and codeberg, verified at the sha
+
+waiting:
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      a colour channel from substance data, the last one-feature
+             gap, if the author wants it; else the plane is at rest
+  - central: nothing owed from this
+
+note:      THE ELLIPSE NEVER ENTERED A CONSTRAINT AND DID NOT NEED TO.
+           The 2.5D picture is the disks' picture under one affine
+           map, and an affine map keeps what the disks had. When a
+           shape is awkward to reason about, the question is whether
+           there is a map under which it is a simple one and the
+           relations survive -- and that question is cheaper than the
+           awkward reasoning every time it has an answer.
+```
