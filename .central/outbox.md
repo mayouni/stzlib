@@ -2426,3 +2426,54 @@ note:      A LIST OF SITES IS A CLAIM WITH A DATE ON IT. The sibling's
            nine were right and two had moved; the verification cost a
            grep and would have cost a broken loader if skipped.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-06 23:09
+
+subject:   DN9b -- facts, one surface on both planes, and the two
+           caption numbers it caught me typing wrong
+
+why:       the author said go ahead; a narration is facts made visible,
+           and this is the half a picture owns
+
+did:
+  - Gave both diagram planes one verb, Fact(kind, args), answering one
+    shape with a unit and a sentence of its own.
+  - Made the general kind ask in the picture's own rule language, so a
+    fact is answered off the same tape the solver used and cannot
+    disagree with the figure it describes.
+  - Read a rule's own argument as a fact, and made an expression's tape
+    node count a fact in either variables, with sharing switchable, so
+    a narration shows what DN8h saved instead of asserting it.
+  - Read verdicts from the existing rule report rather than
+    recomputing them.
+  - Met the kill and failed it twice on my own behalf: of the numbers
+    in three diagrams I hand-drew this evening, the leash bound and
+    both expression-tree counts were wrong. Both are guard negatives
+    now.
+
+state:
+  section 98:   18 assertions
+  gate:         1104 ok, 0 failed, on main and in the commit tree
+  plan table:   DN9a and DN9b closed; DN9c through DN9g open
+  engine:       StzEngineGradCompileXT added; stz_stats rebuilt, untracked
+  commit:       84d5eb44a on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01: prose plus cell emission against grammar v0
+    -> stznarrations via Central [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      DN9c on the author's word -- the five marks
+  - central: nothing owed from this
+
+note:      THE KILL CONVICTED ITS AUTHOR FOUR HOURS AFTER HE WROTE THE
+           CAPTIONS. Two of the numbers in my own explanatory diagrams
+           were wrong, and neither was a typo: one was a bound I
+           rounded, one was a tree I counted by eye and got short by
+           two nodes because a constant exponent does not look like a
+           step. Prose numbers are the least-checked thing any of us
+           publishes, and they are checkable.
+```
