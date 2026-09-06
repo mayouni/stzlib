@@ -2382,3 +2382,47 @@ note:      THE OBVIOUS NAME WAS ALREADY SPOKEN FOR BY ANOTHER
            collide on stzNarration, and the sibling's charter already
            records the first.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-06 22:27
+
+subject:   DN9a -- stzNarration is stzTranscript; the sibling's O1 paid
+
+why:       the author said go ahead; the name was held by the wrong
+           thing and the Narrations layer designs against it
+
+did:
+  - Verified the sibling's nine sites of 2026-08-11 before touching
+    any: the same nine, two shifted thirty lines, none in a test.
+  - Renamed the file, the class, the loader, the conversation's member
+    and constructor, the delivery comment, and the one design document
+    that lists the construct; kept NarrationQ() one version as an
+    alias of TranscriptQ().
+  - Ran the two conversation suites before and after: 13 of 13 and 52
+    of 52, identical.
+  - Added section 97: the class under the new name and not the old, the
+    loader naming the new file, the alias handing back the one object,
+    and a sweep of every code file under base/ for the old name.
+
+state:
+  section 97:   6 assertions
+  gate:         1083 ok, 0 failed, on main and in the commit tree
+  plan table:   DN9a closed; DN9b through DN9g open
+  commit:       f750f62d6 on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01: PROSE plus CELL emission against grammar v0
+    -> stznarrations via Central [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      DN9b on the author's word -- facts as one surface on both
+             planes
+  - central: tell stznarrations the name is free; the alias note is
+             information, not a question
+
+note:      A LIST OF SITES IS A CLAIM WITH A DATE ON IT. The sibling's
+           nine were right and two had moved; the verification cost a
+           grep and would have cost a broken loader if skipped.
+```
