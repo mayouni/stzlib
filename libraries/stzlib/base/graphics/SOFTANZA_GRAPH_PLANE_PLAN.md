@@ -105,7 +105,7 @@ sections, of which 21 declarations over 17 items.
 | DN7j | closed | 88 |
 | DN8 | open | - |
 | DN8a | closed | 89 |
-| DN8b | open | - |
+| DN8b | closed | 90 |
 | DN8c | open | - |
 | DN8d | open | - |
 | DN8e | open | - |
@@ -2345,7 +2345,35 @@ path); no "framework" layer above both. Adapters and starts, measured.
   and the graph plane's own org-chart fixture, turned into a substance,
   draws under a Style. Cheap, and everything below stands on it.
 
-- **DN8b — Layouts as starts, and the end of seed-picking.** *Not started.* The planar
+- **DN8b — Layouts as starts, and the end of seed-picking. SHIPPED
+  2026-09-06.** Guard §90, 13 assertions. `StartLayout(mode, type, shape,
+  ctors)` and `StartTrying([modes...], ...)` on a Style; the modes are the
+  graph plane's own — hierarchical, ring, force, mesh, sequence — plus
+  planar and random. The solver compiles its tapes once and takes the
+  starts in order; the first that ends lawful is the picture; a start the
+  graph cannot give (planar on a tree) is skipped, not replaced; random is
+  the last resort whether named or not. `StartsTried()` and `StartUsed()`
+  report the figures. **The kill, against the numbers on record:** the
+  divisors of 12 and of 36 from a hierarchical start — first try, lawful,
+  zero crossings, on any seed (four tried for the 36-lattice, where one of
+  twelve managed it before), and the same style with its starts cleared
+  still crosses on the seed that crossed. The org chart, DN8a's witness, is
+  fixed the same way: hierarchical, one try, no crossing, every report
+  below its superior. **What measured false:** the plan expected the
+  dodecahedron lawful under the HARD style from the planar start now that
+  the label stage is separate. It is not: Tutte's inner faces are too tight
+  for 26 px separations and 90 px edges, and after 16 rounds 31 separations
+  and 4 lengths stay open while planarity is lost. The soft style keeps it —
+  planar start, lawful, zero crossings — and the hard-style result is
+  recorded, not kept. **And one honesty the multi-start forced:** when a
+  random start wins, the crossing rule was advice (DN7g's decision), so a
+  picture reported lawful now also reports how many crossing rules it left
+  unmet, in `Why()` and in `AdvisoryUnmet()`. The layout graph is built
+  from the substance directly and not through ToGraph, because a reified
+  relation — a SameRank — would become a node and a rank the layout would
+  honour. The original text of the item follows.
+
+  *It said:* Layouts as starts, and the end of seed-picking. The planar
   start generalised: `StartLayout(:Hierarchical | :Ring | :Force |
   :Mesh)` on a Style, computed by the graph plane's own engines on the
   substance's graph and overlaid as the solver's start. Multi-start

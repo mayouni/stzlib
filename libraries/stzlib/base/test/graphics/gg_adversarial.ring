@@ -13267,6 +13267,63 @@ chk("a foreign graph with no word for its edges is refused", _GsRefusesForeign(1
 chk("NEGATIVE: with the word given, the same graph is accepted", NOT _GsRefusesForeign(0))
 
 
+sec("-- 90. DN8b: LAYOUTS AS STARTS, AND THE END OF SEED-PICKING ------------")
+discharges("DN8b")
+
+# THE LATTICES WITH NO SEED CHOSEN. On record: seven seeds of ten drew the
+# divisors of 12 without a crossing, and one of twelve the divisors of 36.
+# From the graph plane's hierarchical layout as the start, any seed does.
+oLsA = _LsLattice12("no-seed")
+oLsB = _LsLattice36("no-seed")
+chk("the divisors of 12 start from the hierarchical layout, first try, lawful, no crossing",
+    oLsA.StartUsed() = "hierarchical" and oLsA.StartsTried() = 1 and oLsA.IsFeasible() and
+    _OdCrossings(oLsA, 7) = 0)
+chk("and the divisors of 36 likewise -- where one seed of twelve managed it before",
+    oLsB.StartUsed() = "hierarchical" and oLsB.StartsTried() = 1 and oLsB.IsFeasible() and
+    _OdCrossings(oLsB, 12) = 0)
+chk("three more seeds of the 36-lattice all come out clean: the seed no longer decides",
+    _OdCrossings(_LsLattice36("thirtysix"), 12) = 0 and
+    _OdCrossings(_LsLattice36("grid"), 12) = 0 and
+    _OdCrossings(_LsLattice36("three"), 12) = 0)
+chk("NEGATIVE: the same style with its starts cleared, on the seed that crossed, still crosses",
+    _OdCrossings(_LsLatticeNoStart("thirtysix"), 12) > 0)
+
+# THE ORG CHART, DN8a's witness, fixed by the item it witnessed for.
+oLsO = StzMathScene31(AUFONT)
+chk("the org chart starts hierarchical, first try, lawful, with no crossing",
+    oLsO.StartUsed() = "hierarchical" and oLsO.StartsTried() = 1 and oLsO.IsFeasible() and
+    _OdCrossingsOf(oLsO, "e", 5) = 0)
+# the box style reads an arc LEFT TO RIGHT -- its own rule, written for a
+# data flow -- so the hierarchy runs across, not down: a report sits to
+# the RIGHT of the position it reports to
+chk("and every report sits to the right of the position it reports to",
+    _LsRightOf(oLsO, "cto", "ceo") and _LsRightOf(oLsO, "cfo", "ceo") and
+    _LsRightOf(oLsO, "eng", "cto") and _LsRightOf(oLsO, "ops", "cto") and _LsRightOf(oLsO, "acc", "cfo"))
+
+# THE STARTS ARE TRIED IN ORDER, A START THE GRAPH CANNOT GIVE IS SKIPPED,
+# AND THE FIGURES ARE REPORTED.
+oLsN = StzMathScene20(AUFONT)
+chk("a tree's planar start cannot be computed and is skipped, not counted as tried",
+    oLsN.StartUsed() != "planar")
+chk("a style that names no start reports one random start",
+    _LsNoStart().StartUsed() = "random" and _LsNoStart().StartsTried() = 1)
+chk("a start that is not a start is refused", _LsRefusesStart())
+
+# THE DODECAHEDRON: the planar start under the SOFT style, kept; and under
+# the HARD style, measured and NOT kept -- Tutte's inner faces are too
+# tight for 26px separations and 90px edges, and the solver does not
+# recover planarity while opening them.
+oLsD = StzMathScene19(AUFONT)
+chk("the dodecahedron keeps its planar start under the spring style: lawful, no crossing",
+    oLsD.StartUsed() = "planar" and oLsD.IsFeasible() and _OdCrossingsOf(oLsD, "e", 30) = 0)
+chk("its picture reports no crossing rule left as unmet advice", oLsD.AdvisoryUnmet() = 0)
+oLsH = _LsDodecaHard()
+chk("under the hard style the planar start ends UNLAWFUL -- the recorded limit, not a picture",
+    NOT _LsHardPlanarLawful())
+chk("and when the random start then wins, the picture SAYS how many crossing rules were advice unmet",
+    oLsH.AdvisoryUnmet() > 0 and StzFindFirst("advice", oLsH.Why()) > 0)
+
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go
@@ -15493,7 +15550,12 @@ func _OdSeeded pcVar
 		  [ "n6", "n3" ], [ "n12", "n4" ], [ "n12", "n6" ] ],
 		[ [ "n2", "n3" ], [ "n4", "n6" ] ],
 		[ "1", "2", "3", "4", "6", "12" ])
-	_o_ = new stzMathDiagram(StzOrderDomain(), _oS_, StzHasseStyle())
+	# the starts CLEARED: this helper exists to show a seed can cross when
+	# nothing but the seed decides, and since DN8b the style's own start
+	# decides first
+	_oSt_ = StzHasseStyle()
+	_oSt_.ClearPlanarStart()
+	_o_ = new stzMathDiagram(StzOrderDomain(), _oS_, _oSt_)
 	_o_.SetFont(AUFONT, 21)
 	_o_.SetVariation(pcVar)
 	_o_.Layout()
@@ -15574,8 +15636,11 @@ func _ThCosAtA poM
 	return (_ux_*_vx_ + _uy_*_vy_) /
 	       (sqrt(pow(_ux_, 2) + pow(_uy_, 2)) * sqrt(pow(_vx_, 2) + pow(_vy_, 2)))
 
+# with the style's starts CLEARED: this helper shows what a seed alone
+# does, and since DN8b the style's own layout start decides first
 func _GrSeeded pnScene, pcVar
 	if pnScene = 20  _o_ = StzMathScene20(AUFONT)  else  _o_ = StzMathScene23(AUFONT)  ok
+	_o_.@oStyle.ClearPlanarStart()
 	_o_.SetVariation(pcVar)
 	_o_.Layout()
 	return _o_
@@ -16174,6 +16239,95 @@ func _GsRefusesForeign pnBare
 		_b_ = TRUE
 	done
 	return _b_
+
+func _LsLattice12 pcVar
+	_o_ = new stzMathDiagram(StzOrderDomain(), StzMathLatticeSubstance(
+		[ "n1", "n2", "n3", "n4", "n6", "n12" ],
+		[ [ "n2", "n1" ], [ "n3", "n1" ], [ "n4", "n2" ], [ "n6", "n2" ],
+		  [ "n6", "n3" ], [ "n12", "n4" ], [ "n12", "n6" ] ],
+		[ [ "n2", "n3" ], [ "n4", "n6" ] ],
+		[ "1", "2", "3", "4", "6", "12" ]), StzHasseStyle())
+	_o_.SetFont(AUFONT, 21)
+	_o_.SetVariation(pcVar)
+	_o_.Layout()
+	return _o_
+
+func _LsSub36
+	return StzMathLatticeSubstance(
+		[ "m1", "m2", "m3", "m4", "m6", "m9", "m12", "m18", "m36" ],
+		[ [ "m2", "m1" ], [ "m3", "m1" ], [ "m4", "m2" ], [ "m6", "m2" ],
+		  [ "m6", "m3" ], [ "m9", "m3" ], [ "m12", "m4" ], [ "m12", "m6" ],
+		  [ "m18", "m6" ], [ "m18", "m9" ], [ "m36", "m12" ], [ "m36", "m18" ] ],
+		[ [ "m2", "m3" ], [ "m4", "m6" ], [ "m4", "m9" ], [ "m12", "m18" ] ],
+		[ "1", "2", "3", "4", "6", "9", "12", "18", "36" ])
+
+func _LsLattice36 pcVar
+	_o_ = new stzMathDiagram(StzOrderDomain(), _LsSub36(), StzHasseStyle())
+	_o_.SetFont(AUFONT, 20)
+	_o_.SetVariation(pcVar)
+	_o_.Layout()
+	return _o_
+
+func _LsLatticeNoStart pcVar
+	_oSt_ = StzHasseStyle()
+	_oSt_.ClearPlanarStart()
+	_o_ = new stzMathDiagram(StzOrderDomain(), _LsSub36(), _oSt_)
+	_o_.SetFont(AUFONT, 20)
+	_o_.SetVariation(pcVar)
+	_o_.Layout()
+	return _o_
+
+func _OdCrossingsOf poM, pcPfx, pnEdges
+	_a_ = []
+	for _i_ = 1 to pnEdges
+		_s_ = poM.ShapeOf(pcPfx + _i_ + ".icon")
+		_a_ + [ _s_[:x1], _s_[:y1], _s_[:x2], _s_[:y2] ]
+	next
+	_n_ = 0
+	for _i_ = 1 to len(_a_)
+		for _j_ = _i_ + 1 to len(_a_)
+			if _OdShares(_a_[_i_], _a_[_j_])  loop  ok
+			if _OdCrosses(_a_[_i_], _a_[_j_])  _n_++  ok
+		next
+	next
+	return _n_
+
+func _LsRightOf poM, pcLow, pcHigh
+	return poM.ValueOf(pcLow + ".text.cx") > poM.ValueOf(pcHigh + ".text.cx") + 60
+
+func _LsNoStart
+	_oSt_ = StzEuclideanStyle()
+	_o_ = new stzMathDiagram(StzGeometryDomain(), StzMathRightIsoscelesSubstance(), _oSt_)
+	_o_.SetFont(AUFONT, 24)
+	_o_.SetVariation("right-isosceles")
+	_o_.Layout()
+	return _o_
+
+func _LsRefusesStart
+	_b_ = FALSE
+	try
+		_oSt_ = new stzMathStyle()
+		_oSt_.StartTrying([ :sideways ], "Vertex", "icon", [ "Edge" ])
+	catch
+		_b_ = TRUE
+	done
+	return _b_
+
+func _LsDodecaHard
+	_o_ = new stzMathDiagram(StzGraphDomain(), StzMathDodecahedronSubstance(), StzGraphStyle())
+	_o_.SetFont(AUFONT, 12)
+	_o_.SetVariation("game")
+	_o_.Layout()
+	return _o_
+
+func _LsHardPlanarLawful
+	_oSt_ = StzGraphStyle()
+	_oSt_.StartTrying([ :planar ], "Vertex", "icon", [ "Edge", "Arc" ])
+	_o_ = new stzMathDiagram(StzGraphDomain(), StzMathDodecahedronSubstance(), _oSt_)
+	_o_.SetFont(AUFONT, 12)
+	_o_.SetVariation("game")
+	_o_.Layout()
+	return _o_.IsFeasible()
 
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0
