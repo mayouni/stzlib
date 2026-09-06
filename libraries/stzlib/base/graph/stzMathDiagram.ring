@@ -172,8 +172,8 @@ func StzTreeStyle()
 		[ :shape, "x.link", :line, [ :x1 = "x.text.cx", :y1 = "x.text.cy",
 		                             :x2 = "y.text.cx", :y2 = "y.text.cy", :hidden = 1 ] ],
 		[ :shape, "x.arrow", :line, [
-			:x1 = "x.text.cx + 18*ux(x.link)", :y1 = "x.text.cy + 18*uy(x.link)",
-			:x2 = "y.text.cx - 18*ux(x.link)", :y2 = "y.text.cy - 18*uy(x.link)",
+			:x1 = "x.text.cx + 22*ux(x.link)", :y1 = "x.text.cy + 22*uy(x.link)",
+			:x2 = "y.text.cx - 22*ux(x.link)", :y2 = "y.text.cy - 22*uy(x.link)",
 			:stroke = "black", :strokeWidth = 3, :arrow = "end" ] ],
 		[ :ensure, "greaterThan", [ "len(x.link)", 70 ] ],
 		[ :encourage, "above", [ "y.bounds", "x.bounds", 100 ] ],
@@ -219,9 +219,15 @@ func StzVectorStyle()
 	_o_.ForAllWhere("Vector v; VectorSpace U", "In(v, U)", [
 		[ :shape, "v.arrow", :line, [ :x1 = "U.ox", :y1 = "U.oy",
 		                              :stroke = "#1f4fbf", :strokeWidth = 3, :arrow = "end" ] ],
-		[ :shape, "v.text", :text, [ :cx = "U.ox + 1.16*(v.arrow.x2 - U.ox)",
-		                             :cy = "U.oy + 1.16*(v.arrow.y2 - U.oy)",
-		                             :fill = "#1f4fbf" ] ],
+		# the name is SOLVED near the tip rather than placed beyond it: placed
+		# at 1.16 of the arrow it landed on the space's axes whenever the
+		# arrow ran near one, which the one gate found on both vectors
+		[ :shape, "v.text", :text, [ :fill = "#1f4fbf" ] ],
+		[ :shape, "v.tip", :circle, [ :cx = "v.arrow.x2", :cy = "v.arrow.y2", :r = 1, :hidden = 1 ] ],
+		[ :encourage, "near", [ "v.text", "v.tip", 16 ] ],
+		[ :ensure, "disjoint", [ "v.text", "v.arrow", 3 ] ],
+		[ :ensure, "disjoint", [ "v.text", "U.xaxis", 3 ] ],
+		[ :ensure, "disjoint", [ "v.text", "U.yaxis", 3 ] ],
 		[ :ensure, "greaterThan", [ "len(v.arrow)", 70 ] ],
 		[ :ensure, "lessThan", [ "len(v.arrow)", "U.axis - 10" ] ],
 		[ :layer, "v.arrow", :above, "U.xaxis" ], [ :layer, "v.arrow", :above, "U.yaxis" ] ])
@@ -331,6 +337,9 @@ func StzEuclideanStyle()
 	_o_.ForAllWhere("Angle a; Point p; Point q; Point r",
 	                "a := InteriorAngle(p, q, r); Right(a)", [
 		[ :ensure, "equal", [ "dot(a.arm1, a.arm2) / (len(a.arm1) * len(a.arm2))", 0 ] ],
+		# the vertex's name off the mark's arms, which are ink too
+		[ :ensure, "disjoint", [ "q.text", "a.mark1", 2 ] ],
+		[ :ensure, "disjoint", [ "q.text", "a.mark2", 2 ] ],
 		[ :shape, "a.mark1", :line, [
 			:x1 = "q.icon.cx + 16*ux(a.arm1)", :y1 = "q.icon.cy + 16*uy(a.arm1)",
 			:x2 = "q.icon.cx + 16*ux(a.arm1) + 16*ux(a.arm2)",
@@ -720,6 +729,393 @@ func StzEllipseRaysStyle()
 		[ :encourage, "notTooClose", [ "r.hit", "s.hit", 4 ] ] ])
 	return _o_
 
+#---------------------------------------------------------------------#
+#  ONE GATE (DN8c): the visual contract over a MATH picture, as rules   #
+#---------------------------------------------------------------------#
+#
+# The graph plane judges its pictures by scoped rules -- each states the
+# subjects it governs, separately from what it asserts -- run by one
+# governance over a corpus, and the notation catalogue is that corpus.
+# These are the same contract's rules for a picture the SOLVER made:
+# names off ink, names off names, a point's dot above the figure, nothing
+# off the paper. The diagram's own constraints are not restated here: a
+# math diagram already speaks the finding shape through Violations(),
+# and the one gate ingests those beside these.
+#
+# The subject keys are spelled as the plastic rules spell theirs --
+# "text:A.text", "pair:A.text|B.text", "dot:B.icon", "shape:q1.arc" --
+# so the governance can tell two rules reaching for one subject.
+
+# every drawn shape's ink as segments: [ x1, y1, x2, y2, cOwner, cPath ]
+func _MrInk(poDg)
+	_a_ = []
+	_ac_ = poDg.Shapes()
+	for _i_ = 1 to len(_ac_)
+		_cP_ = _ac_[_i_]
+		if poDg.IsHidden(_cP_)  loop  ok
+		_s_ = poDg.ShapeOf(_cP_)
+		_cO_ = poDg.ShapeOwnerOf(_cP_)
+		_k_ = _s_[:kind]
+		if _k_ = "line"
+			_a_ + [ _s_[:x1], _s_[:y1], _s_[:x2], _s_[:y2], _cO_, _cP_ ]
+		but _k_ = "curve"
+			_MrAddPolyline(_a_, poDg.CurvePointsOf(_cP_), FALSE, _cO_, _cP_)
+		but _k_ = "spline"
+			_MrAddPolyline(_a_, poDg.SplinePointsOf(_cP_), _s_[:closed] = 1, _cO_, _cP_)
+		but _k_ = "poly"
+			_MrAddPolyline(_a_, _s_[:points], TRUE, _cO_, _cP_)
+		but _k_ = "circle"
+			# a dot is a point, not ink a name must avoid; a disk's rim is
+			if _s_[:r] > 6
+				_MrAddPolyline(_a_, _MrRim(_s_[:cx], _s_[:cy], _s_[:r], _s_[:r]), TRUE, _cO_, _cP_)
+			ok
+		but _k_ = "ellipse"
+			_MrAddPolyline(_a_, _MrRim(_s_[:cx], _s_[:cy], _s_[:rx], _s_[:ry]), TRUE, _cO_, _cP_)
+		but _k_ = "rect"
+			_hw_ = _s_[:w] / 2  _hh_ = _s_[:h] / 2
+			_MrAddPolyline(_a_, [ _s_[:cx] - _hw_, _s_[:cy] - _hh_, _s_[:cx] + _hw_, _s_[:cy] - _hh_,
+			                       _s_[:cx] + _hw_, _s_[:cy] + _hh_, _s_[:cx] - _hw_, _s_[:cy] + _hh_ ],
+			                TRUE, _cO_, _cP_)
+		ok
+	next
+	return _a_
+
+func _MrAddPolyline(paInk, paP, pbClosed, pcOwner, pcPath)
+	_n_ = len(paP) / 2
+	if _n_ < 2  return  ok
+	_m_ = _n_ - 1
+	if pbClosed  _m_ = _n_  ok
+	for _i_ = 1 to _m_
+		_j_ = _i_ + 1
+		if _j_ > _n_  _j_ = 1  ok
+		paInk + [ paP[2*_i_-1], paP[2*_i_], paP[2*_j_-1], paP[2*_j_], pcOwner, pcPath ]
+	next
+
+func _MrRim(pnCx, pnCy, pnRx, pnRy)
+	_a_ = []
+	for _k_ = 0 to 23
+		_t_ = 6.28318530717959 * _k_ / 24
+		_a_ + (pnCx + pnRx * cos(_t_))
+		_a_ + (pnCy + pnRy * sin(_t_))
+	next
+	return _a_
+
+# the signed distance from a text's box to a segment, exact for the box:
+# positive is clear, negative is overlap
+func _MrBoxGap(paBox, paSeg)
+	_dx_ = paSeg[3] - paSeg[1]  _dy_ = paSeg[4] - paSeg[2]
+	_L_ = _dx_ * _dx_ + _dy_ * _dy_
+	_t_ = 0
+	if _L_ > 0.000001
+		_t_ = ((paBox[1] - paSeg[1]) * _dx_ + (paBox[2] - paSeg[2]) * _dy_) / _L_
+		if _t_ < 0  _t_ = 0  ok
+		if _t_ > 1  _t_ = 1  ok
+	ok
+	_qx_ = fabs(paSeg[1] + _t_ * _dx_ - paBox[1]) - paBox[3] / 2
+	_qy_ = fabs(paSeg[2] + _t_ * _dy_ - paBox[2]) - paBox[4] / 2
+	_mx_ = _qx_  if _qy_ > _mx_  _mx_ = _qy_  ok
+	_ax_ = _qx_  if _ax_ < 0  _ax_ = 0  ok
+	_ay_ = _qy_  if _ay_ < 0  _ay_ = 0  ok
+	_sd_ = sqrt(_ax_ * _ax_ + _ay_ * _ay_)
+	if _mx_ < 0  _sd_ += _mx_  ok
+	return _sd_
+
+# the names that are drawn: non-empty, not hidden
+func _MrTexts(poDg)
+	_a_ = []
+	_ac_ = poDg.Shapes()
+	for _i_ = 1 to len(_ac_)
+		if poDg.ShapeOf(_ac_[_i_])[:kind] != "text"  loop  ok
+		if poDg.IsHidden(_ac_[_i_])  loop  ok
+		if "" + poDg.PropOf(_ac_[_i_], "string", "") = ""  loop  ok
+		_a_ + _ac_[_i_]
+	next
+	return _a_
+
+func _MrBoxOf(poDg, pcText)
+	_s_ = poDg.ShapeOf(pcText)
+	return [ _s_[:cx], _s_[:cy], _s_[:w], _s_[:h] ]
+
+# is (x, y) inside a closed polygon? ray casting, even-odd
+func _MrPointIn(pnX, pnY, paPoly)
+	_n_ = len(paPoly) / 2
+	_bIn_ = FALSE
+	_j_ = _n_
+	for _i_ = 1 to _n_
+		_xi_ = paPoly[2*_i_-1]  _yi_ = paPoly[2*_i_]
+		_xj_ = paPoly[2*_j_-1]  _yj_ = paPoly[2*_j_]
+		if ((_yi_ > pnY) != (_yj_ > pnY)) and
+		   (pnX < (_xj_ - _xi_) * (pnY - _yi_) / (_yj_ - _yi_ + 0.000001) + _xi_)
+			_bIn_ = NOT _bIn_
+		ok
+		_j_ = _i_
+	next
+	return _bIn_
+
+# the filled region of a shape as a polygon, or [] for one that has none
+func _MrRegion(poDg, pcPath)
+	_s_ = poDg.ShapeOf(pcPath)
+	_k_ = _s_[:kind]
+	if "" + poDg.PropOf(pcPath, "fill", "") = ""  return []  ok
+	if _k_ = "poly"  return _s_[:points]  ok
+	if _k_ = "spline" and _s_[:closed] = 1  return _s_[:points]  ok
+	if _k_ = "circle"  return _MrRim(_s_[:cx], _s_[:cy], _s_[:r], _s_[:r])  ok
+	if _k_ = "ellipse"  return _MrRim(_s_[:cx], _s_[:cy], _s_[:rx], _s_[:ry])  ok
+	if _k_ = "rect"
+		_hw_ = _s_[:w] / 2  _hh_ = _s_[:h] / 2
+		return [ _s_[:cx] - _hw_, _s_[:cy] - _hh_, _s_[:cx] + _hw_, _s_[:cy] - _hh_,
+		         _s_[:cx] + _hw_, _s_[:cy] + _hh_, _s_[:cx] - _hw_, _s_[:cy] + _hh_ ]
+	ok
+	return []
+
+# the extent of a drawn shape: [ xmin, ymin, xmax, ymax ]
+func _MrExtent(poDg, pcPath)
+	_s_ = poDg.ShapeOf(pcPath)
+	_k_ = _s_[:kind]
+	_aP_ = []
+	if _k_ = "line"
+		_aP_ = [ _s_[:x1], _s_[:y1], _s_[:x2], _s_[:y2] ]
+	but _k_ = "curve"
+		_aP_ = poDg.CurvePointsOf(pcPath)
+	but _k_ = "spline"
+		_aP_ = _s_[:points]
+	but _k_ = "poly"
+		_aP_ = _s_[:points]
+	but _k_ = "circle"
+		_aP_ = [ _s_[:cx] - _s_[:r], _s_[:cy] - _s_[:r], _s_[:cx] + _s_[:r], _s_[:cy] + _s_[:r] ]
+	but _k_ = "ellipse"
+		_aP_ = [ _s_[:cx] - _s_[:rx], _s_[:cy] - _s_[:ry], _s_[:cx] + _s_[:rx], _s_[:cy] + _s_[:ry] ]
+	but _k_ = "rect" or _k_ = "text"
+		_aP_ = [ _s_[:cx] - _s_[:w] / 2, _s_[:cy] - _s_[:h] / 2, _s_[:cx] + _s_[:w] / 2, _s_[:cy] + _s_[:h] / 2 ]
+	else
+		return []
+	ok
+	if len(_aP_) < 2  return []  ok
+	_e_ = [ _aP_[1], _aP_[2], _aP_[1], _aP_[2] ]
+	for _i_ = 1 to len(_aP_) / 2
+		if _aP_[2*_i_-1] < _e_[1]  _e_[1] = _aP_[2*_i_-1]  ok
+		if _aP_[2*_i_] < _e_[2]  _e_[2] = _aP_[2*_i_]  ok
+		if _aP_[2*_i_-1] > _e_[3]  _e_[3] = _aP_[2*_i_-1]  ok
+		if _aP_[2*_i_] > _e_[4]  _e_[4] = _aP_[2*_i_]  ok
+	next
+	return _e_
+
+# THE RULES, each with the subjects it governs and the subjects it must not.
+func StzMathRuleSet()
+	_ao_ = []
+
+	_o1_ = StzPlasticRule("name_off_ink")
+	_o1_.SetClaim("a name's box clears every stroke that is not its own object's")
+	_o1_.SetOrder(10)
+	_o1_.SetReads([ "text.box", "ink" ])
+	_o1_.SetScope(func(oDg) {
+		_r_ = []
+		_ac_ = _MrTexts(oDg)
+		for _i_ = 1 to len(_ac_)  _r_ + ("text:" + _ac_[_i_])  next
+		return _r_
+	})
+	_o1_.SetCounter(func(oDg) {
+		# an empty name, or a hidden one, is not a name a reader sees
+		_r_ = []
+		_ac_ = oDg.Shapes()
+		for _i_ = 1 to len(_ac_)
+			if oDg.ShapeOf(_ac_[_i_])[:kind] != "text"  loop  ok
+			if oDg.IsHidden(_ac_[_i_]) or "" + oDg.PropOf(_ac_[_i_], "string", "") = ""
+				_r_ + ("text:" + _ac_[_i_])
+			ok
+		next
+		return _r_
+	})
+	_o1_.SetClaimCheck(func(oDg, cSub) {
+		_cT_ = StzStringSection(cSub, 6, len(cSub))
+		_aB_ = _MrBoxOf(oDg, _cT_)
+		_cO_ = oDg.ShapeOwnerOf(_cT_)
+		_aI_ = oDg.Ink()
+		for _i_ = 1 to len(_aI_)
+			if _aI_[_i_][5] = _cO_  loop  ok
+			_g_ = _MrBoxGap(_aB_, _aI_[_i_])
+			if _g_ < 0.5
+				return [ FALSE, "'" + _cT_ + "' is " + _g_ + "px from the ink of '" +
+					_aI_[_i_][6] + "'" ]
+			ok
+		next
+		return [ TRUE, "" ]
+	})
+	_ao_ + _o1_
+
+	_o2_ = StzPlasticRule("name_off_name")
+	_o2_.SetClaim("no two names overlap")
+	_o2_.SetOrder(11)
+	_o2_.SetReads([ "text.box" ])
+	_o2_.SetScope(func(oDg) {
+		_r_ = []
+		_ac_ = _MrTexts(oDg)
+		for _i_ = 1 to len(_ac_)
+			for _j_ = _i_ + 1 to len(_ac_)
+				_r_ + ("pair:" + _ac_[_i_] + "|" + _ac_[_j_])
+			next
+		next
+		return _r_
+	})
+	_o2_.SetCounter(func(oDg) {
+		# a pair with an empty or hidden name is no pair a reader sees
+		_r_ = []
+		_ac_ = oDg.Shapes()
+		_acT_ = _MrTexts(oDg)
+		for _i_ = 1 to len(_ac_)
+			if oDg.ShapeOf(_ac_[_i_])[:kind] != "text"  loop  ok
+			if oDg.IsHidden(_ac_[_i_]) or "" + oDg.PropOf(_ac_[_i_], "string", "") = ""
+				for _j_ = 1 to len(_acT_)
+					_r_ + ("pair:" + _ac_[_i_] + "|" + _acT_[_j_])
+				next
+			ok
+		next
+		return _r_
+	})
+	_o2_.SetClaimCheck(func(oDg, cSub) {
+		_c_ = StzStringSection(cSub, 6, len(cSub))
+		_ac_ = StzSplit(_c_, "|")
+		_a_ = _MrBoxOf(oDg, _ac_[1])
+		_b_ = _MrBoxOf(oDg, _ac_[2])
+		_ox_ = (_a_[3] + _b_[3]) / 2 - fabs(_a_[1] - _b_[1])
+		_oy_ = (_a_[4] + _b_[4]) / 2 - fabs(_a_[2] - _b_[2])
+		if _ox_ > 0 and _oy_ > 0
+			return [ FALSE, "'" + _ac_[1] + "' and '" + _ac_[2] + "' overlap by " +
+				_ox_ + " x " + _oy_ + "px" ]
+		ok
+		return [ TRUE, "" ]
+	})
+	_ao_ + _o2_
+
+	_o3_ = StzPlasticRule("dot_above_figure")
+	_o3_.SetClaim("a point's dot is painted after every filled region that covers it")
+	_o3_.SetOrder(20)
+	_o3_.SetReads([ "draw.order", "region" ])
+	_o3_.SetScope(func(oDg) {
+		_r_ = []
+		_ac_ = oDg.Shapes()
+		for _i_ = 1 to len(_ac_)
+			_s_ = oDg.ShapeOf(_ac_[_i_])
+			if _s_[:kind] = "circle" and _s_[:r] <= 6 and NOT oDg.IsHidden(_ac_[_i_])
+				_r_ + ("dot:" + _ac_[_i_])
+			ok
+		next
+		return _r_
+	})
+	_o3_.SetCounter(func(oDg) {
+		_r_ = []
+		_ac_ = oDg.Shapes()
+		for _i_ = 1 to len(_ac_)
+			_s_ = oDg.ShapeOf(_ac_[_i_])
+			if _s_[:kind] = "circle" and _s_[:r] > 6  _r_ + ("dot:" + _ac_[_i_])  ok
+		next
+		return _r_
+	})
+	_o3_.SetClaimCheck(func(oDg, cSub) {
+		_cD_ = StzStringSection(cSub, 5, len(cSub))
+		_s_ = oDg.ShapeOf(_cD_)
+		_nD_ = oDg.DrawIndexOf(_cD_)
+		_ac_ = oDg.Shapes()
+		for _i_ = 1 to len(_ac_)
+			if _ac_[_i_] = _cD_ or oDg.IsHidden(_ac_[_i_])  loop  ok
+			if oDg.DrawIndexOf(_ac_[_i_]) < _nD_  loop  ok
+			_aR_ = _MrRegion(oDg, _ac_[_i_])
+			if len(_aR_) < 6  loop  ok
+			if _MrPointIn(_s_[:cx], _s_[:cy], _aR_)
+				return [ FALSE, "'" + _cD_ + "' is painted under '" + _ac_[_i_] + "'" ]
+			ok
+		next
+		return [ TRUE, "" ]
+	})
+	_ao_ + _o3_
+
+	_o4_ = StzPlasticRule("on_paper")
+	_o4_.SetClaim("every drawn shape lies inside the paper")
+	_o4_.SetOrder(30)
+	_o4_.SetReads([ "extent" ])
+	_o4_.SetScope(func(oDg) {
+		_r_ = []
+		_ac_ = oDg.Shapes()
+		for _i_ = 1 to len(_ac_)
+			if oDg.IsHidden(_ac_[_i_])  loop  ok
+			if len(_MrExtent(oDg, _ac_[_i_])) = 4  _r_ + ("shape:" + _ac_[_i_])  ok
+		next
+		return _r_
+	})
+	_o4_.SetCounter(func(oDg) {
+		_r_ = []
+		_ac_ = oDg.Shapes()
+		for _i_ = 1 to len(_ac_)
+			if oDg.IsHidden(_ac_[_i_])  _r_ + ("shape:" + _ac_[_i_])  ok
+		next
+		return _r_
+	})
+	_o4_.SetClaimCheck(func(oDg, cSub) {
+		_cP_ = StzStringSection(cSub, 7, len(cSub))
+		_e_ = _MrExtent(oDg, _cP_)
+		if _e_[1] < -0.5 or _e_[2] < -0.5 or _e_[3] > oDg.CanvasWidth() + 0.5 or
+		   _e_[4] > oDg.CanvasHeight() + 0.5
+			return [ FALSE, "'" + _cP_ + "' spans " + floor(_e_[1]) + "," + floor(_e_[2]) +
+				" to " + floor(_e_[3]) + "," + floor(_e_[4]) + " on a paper of " +
+				oDg.CanvasWidth() + " x " + oDg.CanvasHeight() ]
+		ok
+		return [ TRUE, "" ]
+	})
+	_ao_ + _o4_
+
+	return _ao_
+
+func StzMathGovernanceOf(pcName)
+	_o_ = StzRuleGovernance(pcName)
+	_ao_ = StzMathRuleSet()
+	for _i_ = 1 to len(_ao_)
+		_o_.AddRule(_ao_[_i_])
+	next
+	return _o_
+
+# ONE GATE OVER EVERY PICTURE. Each picture goes to the governance its
+# class belongs to -- a notation picture to the plastic rules, a math
+# picture to the rules above -- and a math picture's own constraints,
+# which it already reports in the finding shape, are ingested beside.
+# One report, grouped by subject, errors first; and one line saying how
+# many pictures were judged, because a gate that reports zero findings
+# over zero pictures is the condition a silent gate hides in.
+func StzCheckPictures(paPictures)
+	_oRep_ = new stzRuleReport("pictures")
+	_oPl_ = StzPlasticGovernanceOf("notation")
+	_oMa_ = StzMathGovernanceOf("math")
+	_nN_ = 0  _nM_ = 0
+	for _i_ = 1 to len(paPictures)
+		_cN_ = "" + paPictures[_i_][1]
+		_o_ = paPictures[_i_][2]
+		if NOT isObject(_o_)  loop  ok
+		_cC_ = StzLower(classname(_o_))
+		if _cC_ = "stzmathdiagram"
+			_oMa_.AddPicture(_cN_, _o_)
+			_oRep_.Ingest(_MrTagged(_o_.Violations(), _cN_))
+			_nM_++
+		else
+			_oPl_.AddPicture(_cN_, _o_)
+			_nN_++
+		ok
+	next
+	if _nN_ > 0  _oRep_.Ingest(_oPl_.CheckPictures())  ok
+	if _nM_ > 0  _oRep_.Ingest(_oMa_.CheckPictures())  ok
+	? "pictures judged: " + (_nN_ + _nM_) + " (" + _nN_ + " notation, " + _nM_ +
+	  " mathematical) -- findings: " + _oRep_.NumberOfFindings()
+	return _oRep_
+
+# a diagram's violations, with the picture's name in front of the where
+func _MrTagged(paF, pcName)
+	_a_ = []
+	for _i_ = 1 to len(paF)
+		_f_ = paF[_i_]
+		_a_ + [ :rule = _f_[:rule], :subject = _f_[:subject],
+		        :where = pcName + " / " + _f_[:where], :severity = _f_[:severity],
+		        :message = _f_[:message] ]
+	next
+	return _a_
+
 # A GRAPH IS A SUBSTANCE (DN8a) -- the way back, and the way IN for a graph
 # that was never a substance. A node made by ToGraph carries its type,
 # its true name, its data and its unary predicates, and an edge carries
@@ -1034,7 +1430,7 @@ func StzCatmullStyle()
 	_aRows_ = []
 	for _cP_ in [ "a", "b", "c", "d", "e", "f" ]
 		for _k_ = 1 to 5
-			_aRows_ + [ :ensure, "disjoint", [ _cP_ + ".text", "s.c" + _k_, 4 ] ]
+			_aRows_ + [ :ensure, "disjoint", [ _cP_ + ".text", "s.c" + _k_, 9 ] ]
 		next
 	next
 	_o_.ForAllWhere("Spline s; Point a; Point b; Point c; Point d; Point e; Point f",
@@ -1415,9 +1811,15 @@ func StzHasseStyle()
 	_o_.ForAllWhere("Element x; Element y", "SameRank(x, y)", [
 		[ :ensure, "equal", [ "x.icon.cy", "y.icon.cy" ] ] ])
 	_o_.ForAllWhere("Cover c; Element x; Element y", "c := Cover(x, y)", [
-		[ :shape, "c.icon", :line, [ :x1 = "x.icon.cx", :y1 = "x.icon.cy",
-		                             :x2 = "y.icon.cx", :y2 = "y.icon.cy",
-		                             :stroke = "#7777a0", :strokeWidth = 2 ] ],
+		# the centre line, hidden, and the drawn edge stopping at both rims:
+		# an edge run to the centre hides under the node by painting order
+		# alone, and the one gate found its ink under every name
+		[ :shape, "c.line", :line, [ :x1 = "x.icon.cx", :y1 = "x.icon.cy",
+		                             :x2 = "y.icon.cx", :y2 = "y.icon.cy", :hidden = 1 ] ],
+		[ :shape, "c.icon", :line, [
+		    :x1 = "x.icon.cx + 24*ux(c.line)", :y1 = "x.icon.cy + 24*uy(c.line)",
+		    :x2 = "y.icon.cx - 24*ux(c.line)", :y2 = "y.icon.cy - 24*uy(c.line)",
+		    :stroke = "#7777a0", :strokeWidth = 2 ] ],
 		# x covers y, so x is the higher of the two -- by a clear row
 		[ :ensure, "greaterThan", [ "y.icon.cy", "x.icon.cy + 88" ] ],
 		[ :ensure, "lessThan", [ "y.icon.cy", "x.icon.cy + 132" ] ],
@@ -2685,6 +3087,9 @@ class stzMathDiagram from stzObject
 	@nStartsTried = 0
 	@cStartUsed = "random"
 	@nAdvisoryUnmet = 0
+	@aVCache = []       # [ [ cName, nValue ] ] -- what _V last answered
+	@aInkCache = []     # the drawn ink as segments, once per solve
+	@bInkCached = FALSE
 
 	# the solve
 	@bLaidOut = 0
@@ -2807,6 +3212,29 @@ class stzMathDiagram from stzObject
 	def Why()
 		This.Layout()
 		return @cWhy
+
+	# the paper, and what a shape is beyond its geometry -- for the rules
+	# that judge a picture rather than solve it (DN8c)
+	def CanvasWidth()   return @oStyle.CanvasWidth()
+	def CanvasHeight()  return @oStyle.CanvasHeight()
+
+	def ShapeOwnerOf(pcPath)
+		This.Layout()
+		_i_ = This._ShapeIndex(pcPath)
+		if _i_ = 0  return ""  ok
+		return @aShapes[_i_][4]
+
+	def IsHidden(pcPath)
+		This.Layout()
+		_i_ = This._ShapeIndex(pcPath)
+		if _i_ = 0  return TRUE  ok
+		return This._Prop(@aShapes[_i_][3], "hidden", 0) = 1
+
+	def PropOf(pcPath, pcKey, pDefault)
+		This.Layout()
+		_i_ = This._ShapeIndex(pcPath)
+		if _i_ = 0  return pDefault  ok
+		return This._Prop(@aShapes[_i_][3], pcKey, pDefault)
 
 	# The solved geometry of one shape: [ :kind, :cx, :cy, :r ] for a circle,
 	# [ :kind, :cx, :cy, :w, :h ] for a rect or text, [ :kind, :x1, :y1,
@@ -4830,6 +5258,7 @@ class stzMathDiagram from stzObject
 	#-- SOLVE: exterior point over the engine's L-BFGS, joint then labels --
 
 	def _Solve()
+		@aVCache = []
 		@nRounds = 0
 		@nEvaluations = 0
 		@nEnergy = 0
@@ -4875,6 +5304,8 @@ class stzMathDiagram from stzObject
 			if This._MaxViolation() <= 0.01  exit  ok
 		next
 		This._FreeViolationTapes()
+		@aVCache = []
+		@bInkCached = FALSE
 		_v_ = This._MaxViolation()
 		if _v_ <= 0.01
 			@cWhy = "every constraint is satisfied after " + @nRounds +
@@ -5584,7 +6015,37 @@ class stzMathDiagram from stzObject
 
 	# The value of a name: a derived one is EVALUATED through the tape at
 	# the solved values, so drawing reads exactly what the solver solved.
+	# A VALUE IS REMEMBERED UNTIL THE SOLVER RUNS AGAIN. Every read of a
+	# derived name compiled a tape; the one gate, asking every name of
+	# every shape of every picture, spent 101 seconds on 31 pictures --
+	# 46,000 compiles on the quaternion table alone. Nothing here changes
+	# between two solves, so the answer is kept; a solve forgets it, and
+	# so does Touch(), for a guard that moves a value by hand.
 	def _V(pcName)
+		_n_ = len(@aVCache)
+		for _i_ = 1 to _n_
+			if @aVCache[_i_][1] = pcName  return @aVCache[_i_][2]  ok
+		next
+		_v_ = This._VUncached(pcName)
+		@aVCache + [ "" + pcName, _v_ ]
+		return _v_
+
+	def Touch()
+		@aVCache = []
+		@bInkCached = FALSE
+		return This
+
+	# Every drawn stroke as a segment, [ x1, y1, x2, y2, cOwner, cPath ] --
+	# what a rule that judges the picture reads, once per solve
+	def Ink()
+		This.Layout()
+		if NOT @bInkCached
+			@aInkCache = _MrInk(This)
+			@bInkCached = TRUE
+		ok
+		return @aInkCache
+
+	def _VUncached(pcName)
 		_c_ = "" + pcName
 		if This._HasDerived(_c_)
 			return This._EvalExpr(This._Sym(_c_))

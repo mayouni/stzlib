@@ -106,7 +106,7 @@ sections, of which 21 declarations over 17 items.
 | DN8 | open | - |
 | DN8a | closed | 89 |
 | DN8b | closed | 90 |
-| DN8c | open | - |
+| DN8c | closed | 91 |
 | DN8d | open | - |
 | DN8e | open | - |
 | DN8f | open | - |
@@ -2388,7 +2388,34 @@ path); no "framework" layer above both. Adapters and starts, measured.
   the cube; the answer is per-style measurement and the labels-after
   knob, not a weight.
 
-- **DN8c — One gate.** *Not started.* `Violations()` already speaks the rule shape;
+- **DN8c — One gate. SHIPPED 2026-09-06.** Guard §91. `StzCheckPictures(pictures)`
+  takes every picture of both catalogues, sends each to the governance its
+  class is drawn by — a notation picture to the plastic rules, a
+  mathematical one to `StzMathRuleSet()` — ingests every math diagram's
+  own `Violations()` beside, and returns one `stzRuleReport`, printing
+  how many pictures it judged, because zero findings over zero pictures
+  is the condition a silent gate hides in. **The math rules are the
+  visual contract for a picture the solver made**, as scoped rules with
+  subjects and counter-subjects: `name_off_ink`, `name_off_name`,
+  `dot_above_figure`, `on_paper`. **The first run found 27 things**, and
+  22 were real: fifteen Hasse names sat on edges run centre-to-centre and
+  hidden only by painting order; two vector names sat on the space's
+  axes because they were placed at 1.16 of the arrow; a name touched a
+  right-angle mark; three names touched a spline whose chords alone were
+  fenced; an arrow tip stood 0.15 px from a letter. Each was a style row
+  and each is fixed; the five that remain are the contradiction's, kept —
+  the gate is not sound *because* scene 5 is a finding. **The pair rule's
+  boundary was unwitnessed** — no picture held an empty name beside a
+  real one — and the corpus now carries a witness rather than the rule a
+  weaker counter. **And the gate cost 101 seconds on the first run**
+  because every read of a shape's value compiled a tape and the ink rule
+  read every shape per name — 46,000 compiles on the quaternion table
+  alone; values and ink are remembered per solve now, `Touch()` forgets
+  them for a guard that moves a value by hand. The plan-of-record check
+  already covered the graph plane's items, since the plan is one file. The
+  original text of the item follows.
+
+  *It said:* One gate. `Violations()` already speaks the rule shape;
   route it into `stzRuleReport` beside the graph plane's three engines,
   and run the governor's visual contract — names off ink, clearances,
   dots above the figure, nothing off the paper — over the math catalogue

@@ -12665,8 +12665,13 @@ chk("u's end is v's end plus w's end minus the origin, EXACTLY",
          oMb8.ValueOf("w.arrow.x2") - oMb8.ValueOf("U.ox"))) < 0.000001 and
     fabs(oMb8.ValueOf("u.arrow.y2") - (oMb8.ValueOf("v.arrow.y2") +
          oMb8.ValueOf("w.arrow.y2") - oMb8.ValueOf("U.oy"))) < 0.000001)
-chk("and the solver had nothing left to move: one evaluation",
-    oMb8.Evaluations() <= 3)
+# the count that stood here -- "one evaluation" -- measured the whole
+# solve, and since DN8c the vector names are solved rather than placed,
+# so the label stage spends evaluations the arrow never did. The claim is
+# about the ARROW, and is asserted on the mechanism: its end is derived,
+# a name the solver never owned
+chk("and the solver never owned u's end: it is DERIVED from v's and w's, not an unknown",
+    oMb8._HasDerived("u.arrow.x2") and oMb8._HasDerived("u.arrow.y2"))
 
 # EUCLID. The right angle and the equal lengths, re-read from the points.
 oMb9 = StzMathScene09(AUFONT)
@@ -13322,6 +13327,71 @@ chk("under the hard style the planar start ends UNLAWFUL -- the recorded limit, 
     NOT _LsHardPlanarLawful())
 chk("and when the random start then wins, the picture SAYS how many crossing rules were advice unmet",
     oLsH.AdvisoryUnmet() > 0 and StzFindFirst("advice", oLsH.Why()) > 0)
+
+
+sec("-- 91. DN8c: ONE GATE OVER BOTH CATALOGUES -----------------------------")
+discharges("DN8c")
+
+# THE ONE GATE: every notation picture and every mathematical one, each
+# judged by the rules its class is drawn by, and every math picture's own
+# constraints ingested beside -- one report, one count of pictures judged.
+aOgP = []
+for iOg = 1 to len(aGvCat)
+	aOgP + [ "catalogue/" + aGvCat[iOg][1], aGvCat[iOg][2] ]
+next
+for iOg = 1 to 31
+	cOgF = "StzMathScene" + iOg
+	if iOg < 10  cOgF = "StzMathScene0" + iOg  ok
+	aOgP + [ "math/" + iOg, call cOgF(AUFONT) ]
+next
+# and one picture that stands on a rule's boundary: a graph with one
+# vertex unnamed among named ones, so the pair rule has a subject it
+# must NOT govern in the corpus -- the governance asked for it
+aOgP + [ "math/witness", _OgWitness() ]
+nOgT0 = StzEngineWatchTimestampMs()
+oOgRep = StzCheckPictures(aOgP)
+nOgMs = StzEngineWatchTimestampMs() - nOgT0
+chk("fifty-two pictures are judged by one call -- twenty notation, thirty-two mathematical",
+    len(aOgP) = 52)
+chk("and the report's findings are exactly the contradiction's: four constraints and the " +
+    "name its collapse put on a rim, nothing else on fifty-one pictures",
+    oOgRep.NumberOfFindings() = 5 and _OgAllFrom(oOgRep, "math/5"))
+chk("the contradiction's own constraints arrive as :diagram findings and the rim as :plastic",
+    len(oOgRep.FindingsOfSubject(:diagram)) = 4 and len(oOgRep.FindingsOfSubject(:plastic)) = 1)
+chk("and the gate is NOT sound, because a contradiction is a finding and not a pass",
+    NOT oOgRep.IsSound())
+# a wall time is decoration on this machine, so the bound is set where it
+# catches the 101 seconds the first run cost and not ambient drift; the
+# figure itself is printed for the profile
+? "   [one gate: " + floor(nOgMs) + "ms for " + len(aOgP) + " pictures]"
+chk("the whole gate runs inside a bound that would have caught its first run -- under 80 s",
+    nOgMs < 80000)
+
+# THE RULES JUDGED BY THE FIVE QUESTIONS, over the math corpus: none
+# empty, none vacuous, every boundary witnessed.
+oOgG = StzMathGovernanceOf("math")
+for iOg = 21 to len(aOgP)
+	oOgG.AddPicture(aOgP[iOg][1], aOgP[iOg][2])
+next
+aOgR = oOgG.CheckRules()
+for iOg = 1 to len(aOgR)
+	? "   RULE FINDING " + aOgR[iOg][:rule] + " @ " + aOgR[iOg][:where] + " -- " + aOgR[iOg][:message]
+next
+chkeq("the four math rules pass the five questions -- none empty, vacuous, or unwitnessed",
+      len(aOgR), 0)
+
+# THE INSTRUMENT DISCRIMINATES. A name moved by hand onto an edge is
+# caught by the rule that reads render facts, and by nothing else.
+oOgBad = StzMathScene20(AUFONT)
+oOgBad.Layout()
+_OgMoveNameOntoEdge(oOgBad, "Client", "l1")
+oOgG2 = StzMathGovernanceOf("proof")
+oOgG2.AddPicture("network/name-on-edge", oOgBad)
+aOgB = oOgG2.CheckPictures()
+chk("NEGATIVE: a name moved onto an edge IS caught, by name_off_ink and by name",
+    len(aOgB) > 0 and aOgB[1][:rule] = "name_off_ink")
+chk("and the lawful network before the move was clean under the same rules",
+    len(_OgJudge(StzMathScene20(AUFONT))) = 0)
 
 
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
@@ -16328,6 +16398,40 @@ func _LsHardPlanarLawful
 	_o_.SetVariation("game")
 	_o_.Layout()
 	return _o_.IsFeasible()
+
+func _OgWitness
+	_oS_ = new stzMathSubstance(StzGraphDomain())
+	_oS_.DeclareAll("Vertex", [ "Left", "Mid", "Right" ])
+	_oS_.Define("w1", "Arc", [ "Left", "Mid" ])
+	_oS_.Define("w2", "Arc", [ "Mid", "Right" ])
+	_oS_.Label("Left", "Left")  _oS_.Label("Right", "Right")
+	_oS_.Label("w1", "")  _oS_.Label("w2", "")
+	_o_ = new stzMathDiagram(StzGraphDomain(), _oS_, StzGraphStyle())
+	_o_.SetFont(AUFONT, 16)
+	_o_.SetVariation("witness")
+	return _o_
+
+func _OgAllFrom poRep, pcPrefix
+	_aF_ = poRep.Findings()
+	for _i_ = 1 to len(_aF_)
+		if StzLeft(_aF_[_i_][:where], len(pcPrefix) + 1) != pcPrefix + " "  return FALSE  ok
+	next
+	return TRUE
+
+func _OgJudge poM
+	_oG_ = StzMathGovernanceOf("one")
+	_oG_.AddPicture("one", poM)
+	return _oG_.CheckPictures()
+
+# move a vertex's name onto the middle of an arc, by hand, and tell the
+# diagram its values changed under it
+func _OgMoveNameOntoEdge poM, pcVertex, pcArc
+	_l_ = poM.ShapeOf(pcArc + ".icon")
+	_ix_ = poM._UnknownIndex(pcVertex + ".text.cx")
+	_iy_ = poM._UnknownIndex(pcVertex + ".text.cy")
+	poM.@aValue[_ix_] = (_l_[:x1] + _l_[:x2]) / 2
+	poM.@aValue[_iy_] = (_l_[:y1] + _l_[:y2]) / 2
+	poM.Touch()
 
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0
