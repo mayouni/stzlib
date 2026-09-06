@@ -13724,6 +13724,52 @@ chk("what a gesture can take hold of: the three points, their names and the thre
     NOT _LvHas(oLvB.Draggable(), "ABC.alt") and _LvHas(oLvB.Draggable(), "A.icon"))
 
 
+sec("-- 96. DN8h: THE TAPE BINDS A SUBEXPRESSION ONCE -------------------------")
+discharges("DN8h")
+
+# A COUNT, NEVER A CLOCK. How big a tape is cannot be read from the text
+# that made it -- the same subexpression written a hundred times is one
+# node -- and a count is immune to the ambient load three sessions put on
+# this machine.
+nTpN = StzEngineGradNodes(_TpProg("(x*y + sqrt(x*x + y*y))", 40))
+? "   [one subexpression written 41 times: " + nTpN + " nodes]"
+chk("forty-one mentions of one subexpression are 8 nodes and the 40 additions joining them",
+    nTpN = 48)
+chk("NEGATIVE: forty-one DIFFERENT subexpressions do not collapse -- sharing is identity, not luck",
+    StzEngineGradNodes(_TpProgVaried(40)) > 300)
+
+# BYRNE'S OWN TERMS, the shape that named this item: a polygon's vertices
+# re-expanding at every mention.
+oTpB = StzMathScene13(AUFONT)
+oTpB.Layout()
+cTpBig = ""
+for iTp = 1 to len(oTpB.@aConstraints)
+	if len(oTpB.@aConstraints[iTp][2]) > len(cTpBig)  cTpBig = oTpB.@aConstraints[iTp][2]  ok
+next
+pTpB = StzEngineGradCompile(cTpBig, oTpB._VarsText())
+nTpB = StzEngineGradNodes(pTpB)
+? "   [Byrne's longest term: " + len(cTpBig) + " characters, " + nTpB + " nodes]"
+chk("a ninety-thousand character term is a few hundred nodes, not a few thousand",
+    len(cTpBig) > 80000 and nTpB < 400)
+chk("and it still answers: the tape's value equals the violation the picture reports",
+    _TpAgrees(oTpB, pTpB, cTpBig))
+StzEngineGradFree(pTpB)
+
+# SHARING CHANGES NO VALUE. The same expression written once and written
+# four times over must evaluate identically -- the property that lets the
+# tape share at all.
+chk("one mention and four mentions of a term agree to the last bit, times four",
+    _TpFourfold())
+
+# A NAME'S WEDGE IS CHOSEN NOW, NOT DRAWN. The curved cube kept its planar
+# start on one seed of six before the names were given a second wedge.
+oTpC = StzMathScene25(AUFONT)
+chk("the curved cube is lawful FROM ITS PLANAR START, in one start",
+    oTpC.IsFeasible() and oTpC.StartedPlanar() and oTpC.StartsTried() = 1)
+chk("and so is it under another seed, where the same picture used to fall back to random",
+    _TpSeedKeepsPlanar("bulge2"))
+
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go
@@ -17069,6 +17115,55 @@ func _LvRefuses poM, pnWhich
 		_b_ = TRUE
 	done
 	return _b_
+
+# one subexpression, written pnRepeat further times
+func _TpProg pcInner, pnRepeat
+	_c_ = pcInner
+	for _i_ = 1 to pnRepeat
+		_c_ += " + " + pcInner
+	next
+	return StzEngineGradCompile(_c_, "x,y")
+
+# pnCount DIFFERENT subexpressions, so nothing may be shared between them
+func _TpProgVaried pnCount
+	_c_ = "(x*y + sqrt(x*x + y*y))"
+	for _i_ = 1 to pnCount
+		_c_ += " + (x*" + (_i_ + 1) + "*y + sqrt(x*x + " + (_i_ + 2) + "*y*y))"
+	next
+	return StzEngineGradCompile(_c_, "x,y")
+
+# the tape's own value at the solved point, against what the picture reports
+func _TpAgrees poM, pProg, pcTerm
+	_v_ = StzEngineGradValueAt(pProg, poM.@aValue)
+	if NOT isNumber(_v_)  return FALSE  ok
+	for _i_ = 1 to len(poM.@aConstraints)
+		if poM.@aConstraints[_i_][2] != pcTerm  loop  ok
+		_r_ = poM.@aViolations[_i_][3]
+		# the picture clamps a satisfied constraint to zero; the tape does not
+		if _r_ <= 0.01  return _v_ <= 0.01  ok
+		return fabs(_r_ - _v_) < 0.0001
+	next
+	return FALSE
+
+func _TpFourfold
+	_one_ = StzEngineGradCompile("(x*y + sqrt(x*x + y*y))", "x,y")
+	_four_ = _TpProg("(x*y + sqrt(x*x + y*y))", 3)
+	_b_ = TRUE
+	for _k_ = 1 to 5
+		_aX_ = [ _k_ * 1.5, 7 - _k_ ]
+		_a_ = StzEngineGradValueAt(_one_, _aX_)
+		_c_ = StzEngineGradValueAt(_four_, _aX_)
+		if _a_ * 4 != _c_  _b_ = FALSE  ok
+	next
+	StzEngineGradFree(_one_)
+	StzEngineGradFree(_four_)
+	return _b_
+
+func _TpSeedKeepsPlanar pcSeed
+	_o_ = new stzMathDiagram(StzGraphDomain(), StzMathCubeSubstance(), StzCurvedGraphStyle())
+	_o_.SetFont(AUFONT, 15)
+	_o_.SetVariation(pcSeed)
+	return _o_.IsFeasible() and _o_.StartedPlanar()
 
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0

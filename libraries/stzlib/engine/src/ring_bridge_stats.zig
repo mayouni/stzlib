@@ -1147,6 +1147,7 @@ fn ring_BayesStats(p: *anyopaque) callconv(.c) void {
 //   StzEngineGradWhy()  -> why the last compile failed, in words
 //   StzEngineGradAt(handle, anValues)      -> [ value, d/dv1, d/dv2, ... ]
 //   StzEngineGradValueAt(handle, anValues) -> value only
+//   StzEngineGradNodes(handle) -> how many nodes the tape holds
 //   StzEngineGradFree(handle)
 //
 // Names arrive as one comma-separated string rather than a Ring list because the
@@ -1205,6 +1206,18 @@ fn ring_GradWhy(p: *anyopaque) callconv(.c) void {
 fn getGrad(p: *anyopaque, n: c_int) ?*autodiff.Program {
     const raw = gcp(p, n, GH) orelse return null;
     return @ptrCast(@alignCast(raw));
+}
+
+// HOW BIG THE TAPE IS, which is what every evaluation walks. A caller that
+// generates expressions cannot see this from the text it wrote -- the same
+// subexpression written a hundred times is one node -- and a guard that wants
+// to hold the sharing to account needs a COUNT rather than a clock.
+fn ring_GradNodes(p: *anyopaque) callconv(.c) void {
+    const prog = getGrad(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    rn(p, @floatFromInt(prog.nodes.items.len));
 }
 
 fn ring_GradFree(p: *anyopaque) callconv(.c) void {
@@ -3298,6 +3311,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginepcainverse", .func = &ring_PcaInverse },
     .{ .name = "stzenginegradwhy", .func = &ring_GradWhy },
     .{ .name = "stzenginegradfree", .func = &ring_GradFree },
+    .{ .name = "stzenginegradnodes", .func = &ring_GradNodes },
     .{ .name = "stzenginegradat", .func = &ring_GradAt },
     .{ .name = "stzenginegradvalueat", .func = &ring_GradValueAt },
     .{ .name = "stzenginebayesnew", .func = &ring_BayesNew },
