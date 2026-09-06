@@ -13053,6 +13053,57 @@ chk("and every label variable still stands where it stood",
     _PlSymbolsOf(oPn, cPfRaw, 1) > 0)
 
 
+sec("-- 86. DN7h: SPLINES -- BLOBS, A CURVED GRAPH, CATMULL-ROM ------------")
+discharges("DN7h")
+
+# THE CURVE INTERPOLATES. Centripetal Catmull-Rom passes THROUGH every
+# control point -- the property that separates it from a Bezier, which
+# only approaches its inner ones -- and never cusps between two points.
+oSpC = StzMathScene26(AUFONT)
+chk("six points and the path through them are lawful", oSpC.IsFeasible())
+chk("the curve passes through every control point, to a hundredth of a pixel",
+    _SpWorstMiss(oSpC, "S.icon") < 0.01)
+chk("and it BENDS: some span's middle leaves its chord by more than a pixel",
+    _SpMaxBulge(oSpC, "S.icon") > 1)
+chk("smoothly -- no turn between consecutive samples sharper than thirty degrees",
+    _SpMaxTurn(oSpC, "S.icon") < 30)
+chk("NEGATIVE: the chords' own polyline turns far more sharply than the curve",
+    _SpMaxTurn(oSpC, "S.c1") = 0 and _SpPolylineMaxTurn(oSpC.PolygonOf("S.icon")) > 30)
+
+# BLOBS: the same seven-set tree as scenes 02 and 06, each set a wobbly
+# closed spline. The containment is solved on hidden circles padded by the
+# wobble; the guard checks it on what is DRAWN -- every sample of a child's
+# curve inside its parent's polygon, no sample of a disjoint pair inside
+# the other, no two curves crossing.
+oSpB = StzMathScene24(AUFONT)
+chk("the tree as blobs is lawful", oSpB.IsFeasible())
+chk("every subset's DRAWN curve lies inside its superset's drawn curve",
+    _SpInside(oSpB, "B.blob", "A.blob") and _SpInside(oSpB, "C.blob", "A.blob") and
+    _SpInside(oSpB, "D.blob", "B.blob") and _SpInside(oSpB, "E.blob", "B.blob") and
+    _SpInside(oSpB, "F.blob", "C.blob") and _SpInside(oSpB, "G.blob", "C.blob"))
+chk("and every disjoint pair's drawn curves are apart -- no crossing, no sample inside",
+    _SpApart(oSpB, "D.blob", "E.blob") and _SpApart(oSpB, "F.blob", "G.blob") and
+    _SpApart(oSpB, "B.blob", "C.blob"))
+chk("the wobble is real: some blob's radius varies by more than five percent",
+    _SpWobble(oSpB, "A.blob") > 0.05 or _SpWobble(oSpB, "B.blob") > 0.05 or
+    _SpWobble(oSpB, "C.blob") > 0.05)
+chk("and BOUNDED: no control point strays past twelve percent of its radius",
+    _SpWobble(oSpB, "A.blob") <= 0.125 and _SpWobble(oSpB, "B.blob") <= 0.125 and
+    _SpWobble(oSpB, "C.blob") <= 0.125 and _SpWobble(oSpB, "D.blob") <= 0.125)
+chk("NEGATIVE: another seed wobbles differently -- the wobble is the seed's, not the rule's",
+    _SpWobbleDiffers(oSpB, "A.blob"))
+
+# THE CURVED GRAPH: the cube again, edges bulged into arcs, the rules still
+# speaking to the straight chord and to the arc's two half-chords.
+oSpG = StzMathScene25(AUFONT)
+chk("the cube with curved edges is lawful, from a planar start",
+    oSpG.IsFeasible() and oSpG.StartedPlanar())
+chk("every arc's middle sample leaves its chord by close to the declared bulge",
+    _SpArcBulges(oSpG, "q", 12, 0.08))
+chk("and the arcs' ends are the vertices themselves, exactly",
+    _SpArcEndsOnDots(oSpG, "q", 12))
+
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go
@@ -15506,10 +15557,12 @@ func _PlSymbolsOf poM, pcText, pnStage
 		if pcText[_i_] = "u" and _i_ < _m_ and ascii(pcText[_i_ + 1]) >= 48 and
 		   ascii(pcText[_i_ + 1]) <= 57 and (_i_ = 1 or NOT poM._IsIdent(pcText[_i_ - 1]))
 			_j_ = _i_ + 1
+			_cNum_ = ""
 			while _j_ <= _m_ and ascii(pcText[_j_]) >= 48 and ascii(pcText[_j_]) <= 57
+				_cNum_ += pcText[_j_]
 				_j_++
 			end
-			_k_ = 0 + StzStringSection(pcText, _i_ + 1, _j_ - 1)
+			_k_ = 0 + _cNum_
 			if _k_ >= 1 and _k_ <= len(poM.@bLabelVar) and poM.@bLabelVar[_k_] = pnStage
 				_n_++
 			ok
@@ -15534,6 +15587,159 @@ func _PlFaceIsCycle poS, pacFace, pcPfx, pnEdges
 			ok
 		next
 		if NOT _bE_  return FALSE  ok
+	next
+	return TRUE
+
+# the worst distance from a control point to the sampled curve
+func _SpWorstMiss poM, pcPath
+	_aS_ = poM.SplinePointsOf(pcPath)
+	_aC_ = poM.PolygonOf(pcPath)
+	_worst_ = 0
+	for _k_ = 1 to len(_aC_) / 2
+		_best_ = 1000000
+		for _i_ = 1 to len(_aS_) / 2
+			_d_ = sqrt(pow(_aS_[2*_i_-1] - _aC_[2*_k_-1], 2) + pow(_aS_[2*_i_] - _aC_[2*_k_], 2))
+			if _d_ < _best_  _best_ = _d_  ok
+		next
+		if _best_ > _worst_  _worst_ = _best_  ok
+	next
+	return _worst_
+
+# the largest distance from a span's middle sample to that span's chord
+func _SpMaxBulge poM, pcPath
+	_aC_ = poM.PolygonOf(pcPath)
+	_aS_ = poM.SplinePointsOf(pcPath)
+	_n_ = len(_aC_) / 2
+	_max_ = 0
+	for _k_ = 1 to _n_ - 1
+		_i_ = (_k_ - 1) * 12 + 7
+		_d_ = _ByPtSeg(_aS_[2*_i_-1], _aS_[2*_i_], _aC_[2*_k_-1], _aC_[2*_k_],
+		               _aC_[2*_k_+1], _aC_[2*_k_+2])
+		if _d_ > _max_  _max_ = _d_  ok
+	next
+	return _max_
+
+func _SpMaxTurn poM, pcPath
+	if poM.ShapeOf(pcPath)[:kind] != "spline"  return 0  ok
+	return _SpPolylineMaxTurn(poM.SplinePointsOf(pcPath))
+
+# the sharpest turn along a polyline, in degrees
+func _SpPolylineMaxTurn paP
+	_n_ = len(paP) / 2
+	_max_ = 0
+	for _i_ = 2 to _n_ - 1
+		_ax_ = paP[2*_i_-1] - paP[2*_i_-3]  _ay_ = paP[2*_i_] - paP[2*_i_-2]
+		_bx_ = paP[2*_i_+1] - paP[2*_i_-1]  _by_ = paP[2*_i_+2] - paP[2*_i_]
+		_la_ = sqrt(_ax_*_ax_ + _ay_*_ay_)  _lb_ = sqrt(_bx_*_bx_ + _by_*_by_)
+		if _la_ < 0.001 or _lb_ < 0.001  loop  ok
+		_c_ = (_ax_*_bx_ + _ay_*_by_) / (_la_ * _lb_)
+		if _c_ > 1  _c_ = 1  ok
+		if _c_ < -1  _c_ = -1  ok
+		_deg_ = acos(_c_) * 180 / 3.14159265358979
+		if _deg_ > _max_  _max_ = _deg_  ok
+	next
+	return _max_
+
+# is a point inside a closed polygon? ray casting, even-odd
+func _SpPointIn pnX, pnY, paPoly
+	_n_ = len(paPoly) / 2
+	_bIn_ = FALSE
+	_j_ = _n_
+	for _i_ = 1 to _n_
+		_xi_ = paPoly[2*_i_-1]  _yi_ = paPoly[2*_i_]
+		_xj_ = paPoly[2*_j_-1]  _yj_ = paPoly[2*_j_]
+		if ((_yi_ > pnY) != (_yj_ > pnY)) and
+		   (pnX < (_xj_ - _xi_) * (pnY - _yi_) / (_yj_ - _yi_ + 0.000001) + _xi_)
+			_bIn_ = NOT _bIn_
+		ok
+		_j_ = _i_
+	next
+	return _bIn_
+
+# every sample of the inner drawn curve inside the outer drawn curve
+func _SpInside poM, pcInner, pcOuter
+	_aI_ = poM.SplinePointsOf(pcInner)
+	_aO_ = poM.SplinePointsOf(pcOuter)
+	for _i_ = 1 to len(_aI_) / 2
+		if NOT _SpPointIn(_aI_[2*_i_-1], _aI_[2*_i_], _aO_)  return FALSE  ok
+	next
+	return TRUE
+
+# two closed drawn curves apart: no sample of either inside the other,
+# and no two of their segments crossing
+func _SpApart poM, pcA, pcB
+	_aA_ = poM.SplinePointsOf(pcA)
+	_aB_ = poM.SplinePointsOf(pcB)
+	for _i_ = 1 to len(_aA_) / 2
+		if _SpPointIn(_aA_[2*_i_-1], _aA_[2*_i_], _aB_)  return FALSE  ok
+	next
+	for _i_ = 1 to len(_aB_) / 2
+		if _SpPointIn(_aB_[2*_i_-1], _aB_[2*_i_], _aA_)  return FALSE  ok
+	next
+	_nA_ = len(_aA_) / 2  _nB_ = len(_aB_) / 2
+	for _i_ = 1 to _nA_
+		_i2_ = (_i_ % _nA_) + 1
+		for _j_ = 1 to _nB_
+			_j2_ = (_j_ % _nB_) + 1
+			if _OdCrosses([ _aA_[2*_i_-1], _aA_[2*_i_], _aA_[2*_i2_-1], _aA_[2*_i2_] ],
+			              [ _aB_[2*_j_-1], _aB_[2*_j_], _aB_[2*_j2_-1], _aB_[2*_j2_] ])
+				return FALSE
+			ok
+		next
+	next
+	return TRUE
+
+# how far a blob's control radii spread about their mean, as a fraction
+func _SpWobble poM, pcPath
+	_aC_ = poM.PolygonOf(pcPath)
+	_n_ = len(_aC_) / 2
+	_cx_ = 0  _cy_ = 0
+	for _i_ = 1 to _n_
+		_cx_ += _aC_[2*_i_-1]  _cy_ += _aC_[2*_i_]
+	next
+	_cx_ /= _n_  _cy_ /= _n_
+	_aR_ = []  _mean_ = 0
+	for _i_ = 1 to _n_
+		_r_ = sqrt(pow(_aC_[2*_i_-1] - _cx_, 2) + pow(_aC_[2*_i_] - _cy_, 2))
+		_aR_ + _r_
+		_mean_ += _r_
+	next
+	_mean_ /= _n_
+	_max_ = 0
+	for _i_ = 1 to _n_
+		_d_ = fabs(_aR_[_i_] - _mean_) / _mean_
+		if _d_ > _max_  _max_ = _d_  ok
+	next
+	return _max_
+
+func _SpWobbleDiffers poM, pcPath
+	_o2_ = new stzMathDiagram(StzSetTheoryDomain(), StzMathTreeSubstance(), StzBlobStyle())
+	_o2_.SetFont(AUFONT, 26)
+	_o2_.SetVariation("another-seed")
+	_o2_.Layout()
+	return fabs(_SpWobble(poM, pcPath) - _SpWobble(_o2_, pcPath)) > 0.005
+
+# each arc's middle sample stands off its chord by about the bulge
+# locals named so no top-level variable of this long file can be one of
+# them: a Ring function writes to a GLOBAL of the same name rather than
+# making a local, and this file's top level is long
+func _SpArcBulges poM, pcPfx, pnEdges, pnBulge
+	for _spI_ = 1 to pnEdges
+		_spS_ = poM.SplinePointsOf(pcPfx + _spI_ + ".arc")
+		_spL_ = poM.ShapeOf(pcPfx + _spI_ + ".icon")
+		_spLen_ = sqrt(pow(_spL_[:x2] - _spL_[:x1], 2) + pow(_spL_[:y2] - _spL_[:y1], 2))
+		_spD_ = _ByPtSeg(_spS_[25], _spS_[26], _spL_[:x1], _spL_[:y1], _spL_[:x2], _spL_[:y2])
+		if _spD_ < 0.6 * pnBulge * _spLen_ or _spD_ > 1.4 * pnBulge * _spLen_  return FALSE  ok
+	next
+	return TRUE
+
+func _SpArcEndsOnDots poM, pcPfx, pnEdges
+	for _spI_ = 1 to pnEdges
+		_spS_ = poM.SplinePointsOf(pcPfx + _spI_ + ".arc")
+		_spL_ = poM.ShapeOf(pcPfx + _spI_ + ".icon")
+		_spN_ = len(_spS_)
+		if fabs(_spS_[1] - _spL_[:x1]) > 0.01 or fabs(_spS_[2] - _spL_[:y1]) > 0.01  return FALSE  ok
+		if fabs(_spS_[_spN_-1] - _spL_[:x2]) > 0.01 or fabs(_spS_[_spN_] - _spL_[:y2]) > 0.01  return FALSE  ok
 	next
 	return TRUE
 

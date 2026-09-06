@@ -100,6 +100,7 @@ sections, of which 21 declarations over 17 items.
 | DN7e | closed | 83 |
 | DN7f | closed | 84 |
 | DN7g | closed | 85 |
+| DN7h | closed | 86 |
 | DN2b | closed | 56 |
 | DN2c | closed | - |
 | DN2d | closed | 57 |
@@ -2154,6 +2155,55 @@ was a cliff at twelve sets.
   And the paper gained a **margin** (`SetMargin`): a style whose vertices
   repel pushed the dodecahedron's outer face onto all four edges of the
   canvas, since the on-canvas rule sat at zero.
+
+- **DN7h — splines: blobs, a curved graph, Catmull-Rom. SHIPPED
+  2026-09-06.** Guard §86. The largest of the gallery's one-feature gaps,
+  closed with one shape: `:spline`, n control points open or closed,
+  drawn by **centripetal Catmull-Rom** sampling at the solved values —
+  the parametrisation that interpolates every control point and never
+  cusps between two of them however they are spaced. The same law as
+  `curve` and `poly`: a constraint speaks to the points, never to the
+  drawn curve. Catalogue 26.
+
+  | scene | unknowns | constraints | rounds | ms |
+  |---|---|---|---|---|
+  | the seven-set tree as blobs | 91 | 365 | 2 | 206 |
+  | the cube, edges curved | 32 | 956 | 8 | 7,033 |
+  | Catmull-Rom through six points | 24 | 254 | 3 | 245 |
+
+  **Blobs are the third reading of one substance.** Scenes 02, 06 and 24
+  are the same seven sets: disks, a tree, and now wobbly closed splines.
+  Each blob is eight control points at its own radius, the eight wobbles
+  being UNKNOWNS in a narrow range that the solver leaves where the seed
+  put them — so every seed is a different blob. Containment and
+  separation are solved on a hidden circle padded by the wobble it must
+  cover, and the guard checks them on what is **drawn**: every sample of a
+  child's curve inside its parent's polygon, no sample of a disjoint pair
+  inside the other, no two curves crossing.
+
+  **A range on an unknown is where it STARTS, not where it may go.** The
+  first blobs grew tendrils twice the canvas. The wobbles had `[-0.12,
+  0.12]` at initialisation only; the spline's points are derived from
+  them, the on-canvas rule reaches those points, and so the solver moved
+  the wobbles with nothing in the energy holding them. `[:unknown, path,
+  lo, hi]` says where a variable begins; a bound is a constraint, and is
+  written as one.
+
+  **A name avoids what is DRAWN.** In the curved graph the straight chord
+  stays, hidden, as the segment the rules speak to; the arc through its
+  ends and a point bulged off its middle is what is drawn. A rule cannot
+  see a spline, but it can see the polygon the spline was drawn through —
+  the arc's two half-chords, hidden — and a name held off both halves is
+  held off the arc. Holding it off the *invisible* chord as well was what
+  left two names 3.8 px short: three forbidden lines per edge at a
+  degree-three vertex leaves no wedge.
+
+  **And the freeze had a second quadratic.** DN7g made `_Frozen` one pass;
+  it still read each symbol's digits with a slice of the whole energy
+  text, and a slice is O(position) — the engine's own trap, on record
+  since the graph plane. Thousands of slices across a megabyte is minutes:
+  the curved cube did not finish in ten. The digits are gathered as the
+  walk passes them now. The network's smaller energy had hidden it.
 
 ## DN2b — THE RING: a state machine is not a tree (2026-08-23)
 

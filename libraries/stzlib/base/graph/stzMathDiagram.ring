@@ -569,6 +569,127 @@ func StzHyperbolicStyle()
 		[ :layer, "t.tick", :above, "_.disk" ] ])
 	return _o_
 
+# BLOBS -- Penrose's own, and the gallery's first use of a spline: the SAME
+# set-theory substance the Euler style reads, each set a wobbly closed curve
+# instead of a disk. The wobble is eight unknowns per set in a narrow range
+# that NO term references, so the solver leaves them where the seed put
+# them and every seed gives a different blob. The containment and
+# separation are solved on a hidden circle, padded by the wobble it must
+# cover, and the drawn curve follows.
+func StzBlobStyle()
+	_o_ = new stzMathStyle()
+	_o_.SetCanvas(800, 700)
+	_o_.ForAll("Set x", [
+		[ :shape, "x.icon", :circle, [ :hidden = 1 ] ],
+		[ :shape, "x.text", :text, [ :fill = "#222233" ] ],
+		[ :unknown, "x.w1", -0.12, 0.12 ], [ :unknown, "x.w2", -0.12, 0.12 ],
+		[ :unknown, "x.w3", -0.12, 0.12 ], [ :unknown, "x.w4", -0.12, 0.12 ],
+		[ :unknown, "x.w5", -0.12, 0.12 ], [ :unknown, "x.w6", -0.12, 0.12 ],
+		[ :unknown, "x.w7", -0.12, 0.12 ], [ :unknown, "x.w8", -0.12, 0.12 ],
+		# eight points around the hidden circle, each at its own radius
+		[ :shape, "x.blob", :spline, [ :n = 8, :closed = 1,
+		    :x1 = "x.icon.cx + x.icon.r*(1 + x.w1)", :y1 = "x.icon.cy",
+		    :x2 = "x.icon.cx + 0.70711*x.icon.r*(1 + x.w2)", :y2 = "x.icon.cy - 0.70711*x.icon.r*(1 + x.w2)",
+		    :x3 = "x.icon.cx", :y3 = "x.icon.cy - x.icon.r*(1 + x.w3)",
+		    :x4 = "x.icon.cx - 0.70711*x.icon.r*(1 + x.w4)", :y4 = "x.icon.cy - 0.70711*x.icon.r*(1 + x.w4)",
+		    :x5 = "x.icon.cx - x.icon.r*(1 + x.w5)", :y5 = "x.icon.cy",
+		    :x6 = "x.icon.cx - 0.70711*x.icon.r*(1 + x.w6)", :y6 = "x.icon.cy + 0.70711*x.icon.r*(1 + x.w6)",
+		    :x7 = "x.icon.cx", :y7 = "x.icon.cy + x.icon.r*(1 + x.w7)",
+		    :x8 = "x.icon.cx + 0.70711*x.icon.r*(1 + x.w8)", :y8 = "x.icon.cy + 0.70711*x.icon.r*(1 + x.w8)",
+		    :fill = "#1a1ae633", :stroke = "#33355c", :strokeWidth = 1.5 ] ],
+		# A RANGE ON AN UNKNOWN IS WHERE IT STARTS, NOT WHERE IT MAY GO. The
+		# spline's points are derived from the wobbles, the on-canvas rule
+		# reaches those points, and so the solver moved the wobbles with
+		# nothing holding them: the first blobs grew tendrils twice the
+		# canvas. A wobble is BOUNDED in the energy here, as every other
+		# quantity with a range must be.
+		[ :ensure, "inRange", [ "x.w1", -0.12, 0.12 ] ], [ :ensure, "inRange", [ "x.w2", -0.12, 0.12 ] ],
+		[ :ensure, "inRange", [ "x.w3", -0.12, 0.12 ] ], [ :ensure, "inRange", [ "x.w4", -0.12, 0.12 ] ],
+		[ :ensure, "inRange", [ "x.w5", -0.12, 0.12 ] ], [ :ensure, "inRange", [ "x.w6", -0.12, 0.12 ] ],
+		[ :ensure, "inRange", [ "x.w7", -0.12, 0.12 ] ], [ :ensure, "inRange", [ "x.w8", -0.12, 0.12 ] ],
+		[ :ensure, "greaterThan", [ "x.icon.r", 30 ] ],
+		[ :ensure, "contains", [ "x.icon", "x.text", "0.12*x.icon.r + 4" ] ],
+		[ :encourage, "sameCenter", [ "x.text", "x.icon" ] ],
+		[ :layer, "x.text", :above, "x.blob" ] ])
+	_o_.ForAllWhere("Set x; Set y", "Subset(x, y)", [
+		# padded by the most either wobble can reach toward the other
+		[ :ensure, "contains", [ "y.icon", "x.icon", "0.12*(x.icon.r + y.icon.r) + 6" ] ],
+		[ :ensure, "disjoint", [ "y.text", "x.icon", "0.12*x.icon.r + 8" ] ],
+		[ :layer, "x.blob", :above, "y.blob" ] ])
+	_o_.ForAllWhere("Set x; Set y", "Disjoint(x, y)", [
+		[ :ensure, "disjoint", [ "x.icon", "y.icon", "0.12*(x.icon.r + y.icon.r) + 4" ] ] ])
+	_o_.ForAllWhere("Set x; Set y", "Intersecting(x, y)", [
+		[ :ensure, "overlapping", [ "x.icon", "y.icon", "0.12*(x.icon.r + y.icon.r) + 10" ] ],
+		[ :ensure, "disjoint", [ "y.text", "x.icon", "0.12*x.icon.r" ] ],
+		[ :ensure, "disjoint", [ "x.text", "y.icon", "0.12*y.icon.r" ] ] ])
+	return _o_
+
+# A PATH THROUGH POINTS -- Penrose's Catmull-Rom example. Six points in an
+# order the constructor fixes, and the spline that interpolates them.
+func StzPathDomain()
+	_o_ = new stzMathDomain("path")
+	_o_.AddType("Point")
+	_o_.AddType("Spline")
+	# a FUNCTION, not a constructor: a constructor returns the type of its
+	# own name, and Through returns a Spline
+	_o_.AddFunction("Through", [ "Point", "Point", "Point", "Point", "Point", "Point" ], "Spline")
+	return _o_
+
+# ...each point a dot with its name, consecutive points a comfortable
+# stride apart and never turning too sharply, and the curve through them.
+func StzCatmullStyle()
+	_o_ = new stzMathStyle()
+	_o_.SetCanvas(720, 480)
+	_o_.SetMargin(30)
+	_o_.ForAll("Point p", [
+		[ :shape, "p.icon", :circle, [ :r = 5, :fill = "#c8443c" ] ],
+		[ :shape, "p.text", :text, [ :fill = "#33355c" ] ],
+		[ :ensure, "disjoint", [ "p.text", "p.icon", 4 ] ],
+		[ :ensure, "lessThan", [ "dist(p.text, p.icon)", "24 + p.text.w / 2" ] ],
+		[ :encourage, "near", [ "p.text", "p.icon", 16 ] ] ])
+	_o_.ForAll("Point p; Point q", [
+		[ :ensure, "disjoint", [ "p.icon", "q.icon", 50 ] ],
+		[ :ensure, "disjoint", [ "p.text", "q.icon", 8 ] ],
+		[ :ensure, "disjoint", [ "p.text", "q.text", 4 ] ] ])
+	_o_.ForAllWhere("Spline s; Point a; Point b; Point c; Point d; Point e; Point f",
+	                "s := Through(a, b, c, d, e, f)", [
+		# the chords, hidden, so the stride and the turning can be spoken of
+		[ :shape, "s.c1", :line, [ :x1 = "a.icon.cx", :y1 = "a.icon.cy", :x2 = "b.icon.cx", :y2 = "b.icon.cy", :hidden = 1 ] ],
+		[ :shape, "s.c2", :line, [ :x1 = "b.icon.cx", :y1 = "b.icon.cy", :x2 = "c.icon.cx", :y2 = "c.icon.cy", :hidden = 1 ] ],
+		[ :shape, "s.c3", :line, [ :x1 = "c.icon.cx", :y1 = "c.icon.cy", :x2 = "d.icon.cx", :y2 = "d.icon.cy", :hidden = 1 ] ],
+		[ :shape, "s.c4", :line, [ :x1 = "d.icon.cx", :y1 = "d.icon.cy", :x2 = "e.icon.cx", :y2 = "e.icon.cy", :hidden = 1 ] ],
+		[ :shape, "s.c5", :line, [ :x1 = "e.icon.cx", :y1 = "e.icon.cy", :x2 = "f.icon.cx", :y2 = "f.icon.cy", :hidden = 1 ] ],
+		[ :ensure, "inRange", [ "len(s.c1)", 90, 150 ] ], [ :ensure, "inRange", [ "len(s.c2)", 90, 150 ] ],
+		[ :ensure, "inRange", [ "len(s.c3)", 90, 150 ] ], [ :ensure, "inRange", [ "len(s.c4)", 90, 150 ] ],
+		[ :ensure, "inRange", [ "len(s.c5)", 90, 150 ] ],
+		# no turn sharper than about seventy degrees between chords
+		[ :ensure, "greaterThan", [ "dot(s.c1, s.c2) / (len(s.c1) * len(s.c2))", 0.35 ] ],
+		[ :ensure, "greaterThan", [ "dot(s.c2, s.c3) / (len(s.c2) * len(s.c3))", 0.35 ] ],
+		[ :ensure, "greaterThan", [ "dot(s.c3, s.c4) / (len(s.c3) * len(s.c4))", 0.35 ] ],
+		[ :ensure, "greaterThan", [ "dot(s.c4, s.c5) / (len(s.c4) * len(s.c5))", 0.35 ] ],
+		# and it reads left to right
+		[ :ensure, "greaterThan", [ "f.icon.cx", "a.icon.cx + 300" ] ],
+		[ :shape, "s.icon", :spline, [ :n = 6,
+		    :x1 = "a.icon.cx", :y1 = "a.icon.cy", :x2 = "b.icon.cx", :y2 = "b.icon.cy",
+		    :x3 = "c.icon.cx", :y3 = "c.icon.cy", :x4 = "d.icon.cx", :y4 = "d.icon.cy",
+		    :x5 = "e.icon.cx", :y5 = "e.icon.cy", :x6 = "f.icon.cx", :y6 = "f.icon.cy",
+		    :stroke = "#33355c", :strokeWidth = 2.5 ] ],
+		[ :layer, "a.icon", :above, "s.icon" ], [ :layer, "b.icon", :above, "s.icon" ],
+		[ :layer, "c.icon", :above, "s.icon" ], [ :layer, "d.icon", :above, "s.icon" ],
+		[ :layer, "e.icon", :above, "s.icon" ], [ :layer, "f.icon", :above, "s.icon" ] ])
+	# and every name off every chord -- thirty rows, built rather than
+	# written, because a selector cannot bind "any point" alongside the six
+	# the spline already binds: the matcher keeps its variables distinct
+	_aRows_ = []
+	for _cP_ in [ "a", "b", "c", "d", "e", "f" ]
+		for _k_ = 1 to 5
+			_aRows_ + [ :ensure, "disjoint", [ _cP_ + ".text", "s.c" + _k_, 4 ] ]
+		next
+	next
+	_o_.ForAllWhere("Spline s; Point a; Point b; Point c; Point d; Point e; Point f",
+	                "s := Through(a, b, c, d, e, f)", _aRows_)
+	return _o_
+
 # GRAPHS -- the largest family in Penrose's own gallery (Hamiltonian cycle,
 # dodecahedral, hypercube, network with one-way links, hexagonal lattice,
 # hypergraph, Cayley graph). An edge and an arc are OBJECTS for the reason
@@ -591,6 +712,7 @@ func StzGraphDomain()
 # variables, so "Vertex v; Edge e; Vertex a; Vertex b where e := Edge(a, b)"
 # already means v is neither a nor b.
 func StzGraphStyle()
+	_cHid_ = 0
 	_o_ = new stzMathStyle()
 	_o_.SetCanvas(720, 640)
 	_o_.SetMargin(36)
@@ -642,7 +764,7 @@ func StzGraphStyle()
 	_o_.ForAllWhere("Edge e; Vertex a; Vertex b", "e := Edge(a, b)", [
 		[ :shape, "e.icon", :line, [ :x1 = "a.icon.cx", :y1 = "a.icon.cy",
 		                             :x2 = "b.icon.cx", :y2 = "b.icon.cy",
-		                             :stroke = "#9a9ab8", :strokeWidth = 2 ] ],
+		                             :stroke = "#9a9ab8", :strokeWidth = 2, :hidden = _cHid_ ] ],
 		[ :ensure, "inRange", [ "len(e.icon)", 90, 190 ] ],
 		[ :layer, "a.icon", :above, "e.icon" ], [ :layer, "b.icon", :above, "e.icon" ] ])
 	# a highlighted edge is the same edge, re-minted heavier and red -- the
@@ -651,7 +773,7 @@ func StzGraphStyle()
 		[ :delete, "e.icon" ],
 		[ :shape, "e.icon", :line, [ :x1 = "a.icon.cx", :y1 = "a.icon.cy",
 		                             :x2 = "b.icon.cx", :y2 = "b.icon.cy",
-		                             :stroke = "#c8443c", :strokeWidth = 4 ] ] ])
+		                             :stroke = "#c8443c", :strokeWidth = 4, :hidden = _cHid_ ] ] ])
 	_o_.ForAllWhere("Vertex v; Edge e; Vertex a; Vertex b", "e := Edge(a, b)", [
 		[ :ensure, "disjoint", [ "v.icon", "e.icon", 6 ] ] ])
 	_o_.ForAllWhere("Arc e; Vertex a; Vertex b", "e := Arc(a, b)", [
@@ -666,6 +788,13 @@ func StzGraphStyle()
 		[ :ensure, "disjoint", [ "v.icon", "e.icon", 6 ] ] ])
 	return _o_
 
+# THE SAME STYLE WITH CURVED EDGES -- Penrose's curved graph. Every rule is
+# the spring style's, built by the same function so the two cannot drift:
+# the straight edge stays, hidden, as the segment the rules speak to, and a
+# spline through its ends and a point bulged off its middle is drawn.
+func StzCurvedGraphStyle()
+	return _StzSpringStyleBuild(TRUE)
+
 # THE SAME DOMAIN UNDER SOFT TERMS -- a spring embedder. Every hard rule
 # of the node-link style is a PREFERENCE here: an edge wants one length, a
 # vertex wants off every edge, and nothing can fail. This exists because
@@ -673,6 +802,11 @@ func StzGraphStyle()
 # a random start -- fifty-one constraints open on the dodecahedron -- and
 # a lawful hairball is worth less than an honest best effort.
 func StzSpringGraphStyle()
+	return _StzSpringStyleBuild(FALSE)
+
+func _StzSpringStyleBuild(pbCurved)
+	_cHid_ = 0
+	if pbCurved  _cHid_ = 1  ok
 	_o_ = new stzMathStyle()
 	_o_.SetCanvas(720, 640)
 	_o_.SetMargin(36)
@@ -697,12 +831,16 @@ func StzSpringGraphStyle()
 		# planar now, so the repulsion no longer has to, and a strong one
 		# only flattened the outer face onto the margin
 		[ :encourage, "notTooClose", [ "u.icon", "v.icon", 3 ] ] ])
-	_o_.ForAll("Vertex v; Edge e", [
-		[ :ensure, "disjoint", [ "v.text", "e.icon", 4 ] ] ])
+	# a name avoids what is DRAWN: the straight edge when it is drawn, and
+	# the arc's two half-chords when the arc is
+	if NOT pbCurved
+		_o_.ForAll("Vertex v; Edge e", [
+			[ :ensure, "disjoint", [ "v.text", "e.icon", 4 ] ] ])
+	ok
 	_o_.ForAllWhere("Edge e; Vertex a; Vertex b", "e := Edge(a, b)", [
 		[ :shape, "e.icon", :line, [ :x1 = "a.icon.cx", :y1 = "a.icon.cy",
 		                             :x2 = "b.icon.cx", :y2 = "b.icon.cy",
-		                             :stroke = "#9a9ab8", :strokeWidth = 2 ] ],
+		                             :stroke = "#9a9ab8", :strokeWidth = 2, :hidden = _cHid_ ] ],
 		# 140px: the target sets the INTERIOR, and a cube's inner square at
 		# 108 had no room for four names with their clearances
 		[ :encourage, "equal", [ "len(e.icon) / 4", 35 ] ],
@@ -711,7 +849,35 @@ func StzSpringGraphStyle()
 		[ :delete, "e.icon" ],
 		[ :shape, "e.icon", :line, [ :x1 = "a.icon.cx", :y1 = "a.icon.cy",
 		                             :x2 = "b.icon.cx", :y2 = "b.icon.cy",
-		                             :stroke = "#c8443c", :strokeWidth = 4 ] ] ])
+		                             :stroke = "#c8443c", :strokeWidth = 4, :hidden = _cHid_ ] ] ])
+	if pbCurved
+		# the straight edge stays, hidden, as the segment the rules speak to;
+		# a spline through its ends and a point bulged off its middle is drawn
+		_o_.ForAllWhere("Edge e; Vertex a; Vertex b", "e := Edge(a, b)", [
+			[ :field, "e.bx", "midx(e.icon) + 0.08*len(e.icon)*nx(e.icon)" ],
+			[ :field, "e.by", "midy(e.icon) + 0.08*len(e.icon)*ny(e.icon)" ],
+			[ :shape, "e.arc", :spline, [ :n = 3,
+			    :x1 = "a.icon.cx", :y1 = "a.icon.cy", :x2 = "e.bx", :y2 = "e.by",
+			    :x3 = "b.icon.cx", :y3 = "b.icon.cy",
+			    :stroke = "#9a9ab8", :strokeWidth = 2 ] ],
+			# the arc's own two half-chords, hidden: a rule cannot see a
+			# spline, but it can see the polygon the spline was drawn through,
+			# and a name held off both halves is held off the arc
+			[ :shape, "e.h1", :line, [ :x1 = "a.icon.cx", :y1 = "a.icon.cy",
+			                           :x2 = "e.bx", :y2 = "e.by", :hidden = 1 ] ],
+			[ :shape, "e.h2", :line, [ :x1 = "e.bx", :y1 = "e.by",
+			                           :x2 = "b.icon.cx", :y2 = "b.icon.cy", :hidden = 1 ] ],
+			[ :layer, "a.icon", :above, "e.arc" ], [ :layer, "b.icon", :above, "e.arc" ] ])
+		_o_.ForAll("Vertex v; Edge e", [
+			[ :ensure, "disjoint", [ "v.text", "e.h1", 4 ] ],
+			[ :ensure, "disjoint", [ "v.text", "e.h2", 4 ] ] ])
+		_o_.ForAllWhere("Edge e; Vertex a; Vertex b", "e := Edge(a, b); Highlighted(e)", [
+			[ :delete, "e.arc" ],
+			[ :shape, "e.arc", :spline, [ :n = 3,
+			    :x1 = "a.icon.cx", :y1 = "a.icon.cy", :x2 = "e.bx", :y2 = "e.by",
+			    :x3 = "b.icon.cx", :y3 = "b.icon.cy",
+			    :stroke = "#c8443c", :strokeWidth = 4 ] ] ])
+	ok
 	_o_.ForAllWhere("Vertex v; Edge e; Vertex a; Vertex b", "e := Edge(a, b)", [
 		# thirty, not ten: a vertex close to an edge leaves its NAME no room,
 		# and the name stage cannot move the vertex
@@ -1796,9 +1962,9 @@ class stzMathStyle from stzObject
 			_kind_ = "" + paRow[3]
 			if _kind_ != "circle" and _kind_ != "rect" and _kind_ != "text" and
 			   _kind_ != "line" and _kind_ != "curve" and _kind_ != "poly" and
-			   _kind_ != "mark"
+			   _kind_ != "mark" and _kind_ != "spline"
 				stzraise("stzMathStyle: '" + _kind_ + "' is not a shape DN7 " +
-					"draws -- circle, rect, text, line, curve, poly or mark.")
+					"draws -- circle, rect, text, line, curve, poly, mark or spline.")
 			ok
 		but _k_ = "unknown"
 			if NOT isString(paRow[2]) or NOT isNumber(paRow[3]) or len(paRow) < 4 or
@@ -2059,6 +2225,10 @@ class stzMathDiagram from stzObject
 		but _s_[2] = "poly"
 			return [ :kind = "poly", :n = This._Prop(_s_[3], "n", 0),
 			         :points = This.PolygonOf(_cP_) ]
+		but _s_[2] = "spline"
+			return [ :kind = "spline", :n = This._Prop(_s_[3], "n", 0),
+			         :closed = This._Prop(_s_[3], "closed", 0),
+			         :controls = This.PolygonOf(_cP_), :points = This.SplinePointsOf(_cP_) ]
 		but _s_[2] = "mark"
 			return [ :kind = "mark", :mark = "" + This._Prop(_s_[3], "mark", ""),
 			         :strokes = This.MarkStrokesOf(_cP_) ]
@@ -2107,11 +2277,14 @@ class stzMathDiagram from stzObject
 		next
 		return 0
 
-	# A polygon's vertices, in drawing order: [ x1, y1, x2, y2, ... ].
+	# A polygon's vertices, or a spline's control points, in order:
+	# [ x1, y1, x2, y2, ... ].
 	def PolygonOf(pcPath)
 		This.Layout()
 		_i_ = This._ShapeIndex(pcPath)
-		if _i_ = 0 or @aShapes[_i_][2] != "poly"  return []  ok
+		if _i_ = 0 or (@aShapes[_i_][2] != "poly" and @aShapes[_i_][2] != "spline")
+			return []
+		ok
 		_a_ = []
 		_n_ = This._Prop(@aShapes[_i_][3], "n", 0)
 		for _v_ = 1 to _n_
@@ -2119,6 +2292,81 @@ class stzMathDiagram from stzObject
 			_a_ + This._V(pcPath + ".y" + _v_)
 		next
 		return _a_
+
+	# The polyline a spline is drawn as, in px -- the control points are in
+	# PolygonOf. CATMULL-ROM, CENTRIPETAL: for each span P1-P2 the four
+	# points P0..P3 are blended with knots spaced by the square root of the
+	# chord, which is the parametrisation that never cusps or loops between
+	# two points however they are spaced (Yuksel, Schaefer, Keyser 2011). An
+	# open spline doubles its end points so the curve reaches them; a closed
+	# one wraps. Twelve samples per span.
+	def SplinePointsOf(pcPath)
+		This.Layout()
+		_i_ = This._ShapeIndex(pcPath)
+		if _i_ = 0 or @aShapes[_i_][2] != "spline"  return []  ok
+		_aP_ = This._SplineControls(pcPath, @aShapes[_i_][3])
+		_bClosed_ = (This._Prop(@aShapes[_i_][3], "closed", 0) = 1)
+		_nS_ = This._Prop(@aShapes[_i_][3], "samples", 12)
+		return This._CatmullRom(_aP_, _bClosed_, _nS_)
+
+	def _SplineControls(pcPath, paProps)
+		_a_ = []
+		_n_ = This._Prop(paProps, "n", 0)
+		for _v_ = 1 to _n_
+			_a_ + [ This._V(pcPath + ".x" + _v_), This._V(pcPath + ".y" + _v_) ]
+		next
+		return _a_
+
+	def _CatmullRom(paP, pbClosed, pnSamples)
+		_n_ = len(paP)
+		if _n_ < 2  return []  ok
+		_out_ = []
+		_nSpans_ = _n_ - 1
+		if pbClosed  _nSpans_ = _n_  ok
+		for _s_ = 1 to _nSpans_
+			_p0_ = This._SplineAt(paP, _s_ - 1, pbClosed)
+			_p1_ = This._SplineAt(paP, _s_, pbClosed)
+			_p2_ = This._SplineAt(paP, _s_ + 1, pbClosed)
+			_p3_ = This._SplineAt(paP, _s_ + 2, pbClosed)
+			_t0_ = 0
+			_t1_ = _t0_ + sqrt(This._Chord(_p0_, _p1_)) + 0.000001
+			_t2_ = _t1_ + sqrt(This._Chord(_p1_, _p2_)) + 0.000001
+			_t3_ = _t2_ + sqrt(This._Chord(_p2_, _p3_)) + 0.000001
+			_nLast_ = pnSamples - 1
+			if _s_ = _nSpans_  _nLast_ = pnSamples  ok
+			for _k_ = 0 to _nLast_
+				_t_ = _t1_ + (_t2_ - _t1_) * _k_ / pnSamples
+				_a1_ = This._Lerp(_p0_, _p1_, (_t_ - _t0_) / (_t1_ - _t0_))
+				_a2_ = This._Lerp(_p1_, _p2_, (_t_ - _t1_) / (_t2_ - _t1_))
+				_a3_ = This._Lerp(_p2_, _p3_, (_t_ - _t2_) / (_t3_ - _t2_))
+				_b1_ = This._Lerp(_a1_, _a2_, (_t_ - _t0_) / (_t2_ - _t0_))
+				_b2_ = This._Lerp(_a2_, _a3_, (_t_ - _t1_) / (_t3_ - _t1_))
+				_c_ = This._Lerp(_b1_, _b2_, (_t_ - _t1_) / (_t2_ - _t1_))
+				_out_ + _c_[1]
+				_out_ + _c_[2]
+			next
+		next
+		return _out_
+
+	# the control point at index i, wrapping when closed and clamping to
+	# the ends when open
+	def _SplineAt(paP, pnI, pbClosed)
+		_n_ = len(paP)
+		_i_ = pnI
+		if pbClosed
+			while _i_ < 1  _i_ += _n_  end
+			while _i_ > _n_  _i_ -= _n_  end
+		else
+			if _i_ < 1  _i_ = 1  ok
+			if _i_ > _n_  _i_ = _n_  ok
+		ok
+		return paP[_i_]
+
+	def _Chord(pa, pb)
+		return sqrt(pow(pa[1] - pb[1], 2) + pow(pa[2] - pb[2], 2))
+
+	def _Lerp(pa, pb, pt)
+		return [ pa[1] + (pb[1] - pa[1]) * pt, pa[2] + (pb[2] - pa[2]) * pt ]
 
 	# The polyline a geodesic is drawn as: [ x1, y1, x2, y2, ... ] in px.
 	def CurvePointsOf(pcPath)
@@ -2213,6 +2461,20 @@ class stzMathDiagram from stzObject
 				poC.AddPolygon(_aPts_)
 				if _cFill_ != ""  poC.Fill(_cFill_)  ok
 				if _cStroke_ != ""  poC.Stroke(_cStroke_, _nSw_)  ok
+			ok
+		but _cKind_ = "spline"
+			_aPts_ = This.SplinePointsOf(_cP_)
+			if len(_aPts_) >= 4
+				if This._Prop(_aProps_, "closed", 0) = 1
+					if _cFill_ != ""  poC.Fill(_cFill_)  else  poC.Fill("#00000000")  ok
+					poC.AddPolygon(_aPts_)
+					if _cFill_ != ""  poC.Fill(_cFill_)  ok
+					if _cStroke_ != ""  poC.Stroke(_cStroke_, _nSw_)  ok
+				else
+					if _cStroke_ = ""  _cStroke_ = "black"  ok
+					poC.AddPolyline(_aPts_)
+					poC.Stroke(_cStroke_, _nSw_)
+				ok
 			ok
 		but _cKind_ = "mark"
 			if _cStroke_ = ""  _cStroke_ = "#333333"  ok
@@ -3042,6 +3304,21 @@ class stzMathDiagram from stzObject
 				_acGeo_ + ("x" + _v_)
 				_acGeo_ + ("y" + _v_)
 			next
+		but pcKind = "spline"
+			# A SPLINE through n control points, x1..xn and y1..yn, open or
+			# closed, drawn by centripetal Catmull-Rom sampling at the solved
+			# values. As with a curve and a polygon, nothing here is the
+			# curve itself: a constraint speaks to the points, and a blob's
+			# wobble is eight unknowns the solver owns.
+			_nV_ = This._Prop(_aP_, "n", 0)
+			if NOT isNumber(_nV_) or _nV_ < 2 or _nV_ > 64 or _nV_ != floor(_nV_)
+				stzraise("stzMathDiagram: the spline '" + pcPath + "' needs a " +
+					"whole :n between 2 and 64 -- how many control points it has.")
+			ok
+			for _v_ = 1 to _nV_
+				_acGeo_ + ("x" + _v_)
+				_acGeo_ + ("y" + _v_)
+			next
 		but pcKind = "mark"
 			# A MARK BENT TO ITS GEOMETRY: the vertex and its two neighbours
 			# in the MODEL's coordinates (a tick uses the first two as the
@@ -3446,7 +3723,7 @@ class stzMathDiagram from stzObject
 		if _k_ = ""
 			stzraise("stzMathDiagram: '" + _c_ + "' is not a shape any rule minted.")
 		ok
-		if _k_ = "curve" or _k_ = "poly" or _k_ = "mark"
+		if _k_ = "curve" or _k_ = "poly" or _k_ = "mark" or _k_ = "spline"
 			stzraise("stzMathDiagram: '" + _c_ + "' is a " + _k_ + " -- it is " +
 				"drawn from its points, and a constraint speaks to the points.")
 		ok
@@ -3793,7 +4070,10 @@ class stzMathDiagram from stzObject
 		_M_ = This._Num(_nM_)
 		_W_ = This._Num(@oStyle.CanvasWidth() - _nM_)
 		_H_ = This._Num(@oStyle.CanvasHeight() - _nM_)
-		if _k_ = "poly"
+		# a polygon and a spline are held by their control points -- a
+		# spline may still overshoot a little between two of them, which the
+		# margin absorbs
+		if _k_ = "poly" or _k_ = "spline"
 			_cW2_ = "canvas :: onCanvas(" + _cP_ + ")"
 			_nV_ = This._Prop(paShape[3], "n", 3)
 			for _v_ = 1 to _nV_
@@ -4278,15 +4558,22 @@ class stzMathDiagram from stzObject
 			_ch_ = _c_[_i_]
 			if _ch_ = "u" and _i_ < _m_ and This._IsDigit(_c_[_i_ + 1]) and
 			   (_i_ = 1 or NOT This._IsIdent(_c_[_i_ - 1]))
+				# the digits are gathered AS THE WALK PASSES THEM. A slice of
+				# the energy text is O(position) -- the engine's own trap,
+				# on record since the graph plane -- and thousands of slices
+				# across a megabyte is minutes, which is how the first pass
+				# form still hung on the curved cube
 				_j_ = _i_ + 1
+				_cNum_ = ""
 				while _j_ <= _m_ and This._IsDigit(_c_[_j_])
+					_cNum_ += _c_[_j_]
 					_j_++
 				end
-				_k_ = 0 + StzStringSection(_c_, _i_ + 1, _j_ - 1)
+				_k_ = 0 + _cNum_
 				if _k_ >= 1 and _k_ <= _n_ and _acVal_[_k_] != ""
 					_chunk_ += _acVal_[_k_]
 				else
-					_chunk_ += StzStringSection(_c_, _i_, _j_ - 1)
+					_chunk_ += "u" + _cNum_
 				ok
 				_i_ = _j_
 			else

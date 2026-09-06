@@ -36,9 +36,12 @@ acTitles = [ "two sets, one inside the other  (Penrose twosets-simple)",
              "a network with one-way links     (Penrose: computer network)",
              "a computer architecture          (the same domain, as boxes and arrows)",
              "a WORD CLOUD                     (Minkowski separation, and nothing else)",
-             "the cube graph Q3                (with its Hamiltonian cycle, a Gray code)" ]
+             "the cube graph Q3                (with its Hamiltonian cycle, a Gray code)",
+             "THE SAME TREE AS BLOBS           (Penrose: blobs -- a spline per set)",
+             "the cube, edges curved           (Penrose: curved graph)",
+             "CATMULL-ROM through six points   (Penrose: interpolation)" ]
 
-for i = 1 to 23
+for i = 1 to 26
 	if i = 1   oM = StzMathScene01(oFont)
 	but i = 2  oM = StzMathScene02(oFont)
 	but i = 3  oM = StzMathScene03(oFont)
@@ -61,7 +64,10 @@ for i = 1 to 23
 	but i = 20 oM = StzMathScene20(oFont)
 	but i = 21 oM = StzMathScene21(oFont)
 	but i = 22 oM = StzMathScene22(oFont)
-	else       oM = StzMathScene23(oFont)  ok
+	but i = 23 oM = StzMathScene23(oFont)
+	but i = 24 oM = StzMathScene24(oFont)
+	but i = 25 oM = StzMathScene25(oFont)
+	else       oM = StzMathScene26(oFont)  ok
 	oM.Layout()
 	? "== " + acTitles[i]
 	? "   unknowns " + oM.NumberOfUnknowns() + "   constraints " +
