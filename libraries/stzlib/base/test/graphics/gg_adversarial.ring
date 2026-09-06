@@ -13798,6 +13798,91 @@ chk("NEGATIVE: no code in the library names the old class, outside the transcrip
     _TrOldNameSites() = 0)
 
 
+sec("-- 98. DN9b: FACTS -- ONE SURFACE ON BOTH PLANES ------------------------")
+discharges("DN9b")
+
+# THE SHAPE, AND THAT IT IS ONE SHAPE. A mark that shows a fact and a
+# caption that quotes one must never learn which plane it came from.
+oFcM = StzMathScene16(AUFONT)
+oFcM.Layout()
+oFcG = StzDrakonScene01([ :Font = AUFONT, :NodeWidth = 150, :NodeHeight = 56, :FontSize = 14 ])
+chk("a math fact and a notation fact carry the same six keys, in the same shape",
+    _FcShaped(oFcM.Fact(:distance, [ "A.icon", "B.icon" ])) and
+    _FcShaped(oFcG.Fact(:count, [ "nodes" ])))
+chk("a fact carries its unit, because 46.9 is not a fact and 46.9 px is",
+    oFcM.Fact(:distance, [ "A.icon", "B.icon" ])[:unit] = "px" and
+    oFcM.Fact(:angle, [ "B.icon", "A.icon", "C.icon" ])[:unit] = "deg")
+chk("and its own sentence, with its own number inside it",
+    StzFindFirst("90", oFcM.Fact(:angle, [ "B.icon", "A.icon", "C.icon" ])[:message]) > 0)
+
+# ASKED IN THE PICTURE'S OWN LANGUAGE, so a fact cannot disagree with the
+# figure: the general kind and its named shortcut give one answer.
+chk("expr and distance agree to the last bit -- the shortcut is the general kind",
+    oFcM.Fact(:expr, [ "dist(A.icon, K.icon)" ])[:value] =
+    oFcM.Fact(:distance, [ "A.icon", "K.icon" ])[:value])
+chk("and both equal the radius the picture solved: A is ON the circle",
+    fabs(oFcM.Fact(:distance, [ "A.icon", "K.icon" ])[:value] -
+         oFcM.Fact(:value, [ "K.icon.r" ])[:value]) < 0.01)
+
+# THE CAPTIONS OF 2026-09-06, EVERY NUMBER FROM A FACT. The third
+# diagram's two distances, from the two solves of the same picture.
+oFcB = _FcOneWedge()
+nFcBad = oFcB.Fact(:distance, [ "v111.icon", "v111.text" ])[:value]
+nFcLeash = oFcB.Fact(:arg, [ "lessthan v111", 2 ])[:value]
+oFcOk = StzMathScene25(AUFONT)
+nFcGood = oFcOk.Fact(:distance, [ "v111.icon", "v111.text" ])[:value]
+? "   [caption numbers, from facts: " + StzFactNumText(nFcBad) + " px, limit " +
+  StzFactNumText(nFcLeash) + " px, then " + StzFactNumText(nFcGood) + " px]"
+chk("the name that failed is past its leash, and the name that was retried is not",
+    nFcBad > nFcLeash and nFcGood < nFcLeash)
+chk("A RULE'S OWN ARGUMENT IS A FACT: the clearance the disjoint rule keeps is read " +
+    "from the rule in force, not retyped from the Style",
+    oFcB.Fact(:arg, [ "disjoint v111.text q6", 3 ])[:value] = 4)
+chk("NEGATIVE, and it caught its author: the hand-drawn caption said the leash allows 44, " +
+    "and the rule allows 43.73 -- a number a person types is a number nobody checks",
+    fabs(nFcLeash - 43.73) < 0.01 and nFcLeash != 44)
+
+# The first diagram's numbers: how long an arithmetic is written out, and
+# how many nodes it becomes -- which are not the same thing (DN8h).
+oFcT = StzMathScene13(AUFONT)
+oFcT.Layout()
+cFcBig = oFcT.ConstraintText("contains sqab")
+chk("a term is written out in tens of thousands of characters",
+    oFcT.Fact(:term, [ "contains sqab" ])[:value] > 40000)
+chk("and becomes a couple of hundred nodes shared, thirteen thousand unshared -- " +
+    "the count is what an evaluation walks, and the character count is not",
+    oFcT.Fact(:tapenodes, [ cFcBig ])[:value] = 194 and
+    oFcT.Fact(:tapenodes, [ cFcBig, :unshared ])[:value] = 13153)
+chk("an expression in ITS OWN variables is counted too -- no figure need contain it",
+    oFcT.Fact(:tapenodes, [ "(x-y)^2 + (x-y)^2", :shared, "x,y" ])[:value] = 6 and
+    oFcT.Fact(:tapenodes, [ "(x-y)^2 + (x-y)^2", :unshared, "x,y" ])[:value] = 11)
+chk("NEGATIVE, and it caught its author again: the hand-drawn tree showed 9 steps and 5, " +
+    "and the real counts are 11 and 6 -- the exponent in x^2 is itself a node",
+    oFcT.Fact(:tapenodes, [ "(x-y)^2 + (x-y)^2", :unshared, "x,y" ])[:value] != 9)
+
+# A VERDICT IS READ, NEVER RECOMPUTED, so a narration cannot contradict
+# the gate that judges the same picture.
+chk("a lawful picture reports nothing found against it, with value zero",
+    oFcM.Fact(:verdict, [ "" ])[:value] = 0)
+chk("an unlawful one hands back the finding's OWN message, word for word",
+    _FcVerdictIsTheFinding(oFcB))
+
+# THE NOTATION PLANE ANSWERS THE SAME VERB over what it holds.
+chk("a notation picture counts its nodes, its edges and its crossings",
+    oFcG.Fact(:count, [ "nodes" ])[:value] = 3 and oFcG.Fact(:count, [ "edges" ])[:value] = 2 and
+    oFcG.Fact(:count, [ "crossings" ])[:value] = 0)
+chk("and answers where a node is, from the renderer's own rectangle",
+    _FcNear(oFcG.Fact(:position, [ "t" ])[:value][1], 108) and
+    _FcNear(oFcG.Fact(:position, [ "t" ])[:value][2], 44))
+
+# REFUSED BY NAME, never answered with a zero.
+chk("a fact asked of a shape the picture never minted is refused", _FcRefuses(1))
+chk("a count the picture does not keep is refused", _FcRefuses(2))
+chk("a kind neither plane answers is refused", _FcRefuses(3))
+chk("a rule no line of this picture describes is refused", _FcRefuses(4))
+chk("NEGATIVE: the lawful siblings of all four are accepted", NOT _FcRefuses(0))
+
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go
@@ -17229,6 +17314,63 @@ func _TrRingFiles pcDir
 		ok
 	next
 	return _a_
+
+func _FcShaped paFact
+	for _c_ in [ :kind, :subject, :value, :unit, :where, :message ]
+		if NOT HasKey(paFact, _c_)  return FALSE  ok
+	next
+	return len(paFact) = 6
+
+func _FcNear pn, pnWant
+	return fabs(pn - pnWant) < 1.5
+
+# the curved cube solved with ONE label wedge, as it was before DN8h's
+# repair: the picture whose caption the three diagrams described
+func _FcOneWedge
+	_o_ = new stzMathDiagram(StzGraphDomain(), StzMathCubeSubstance(), StzCurvedGraphStyle())
+	_o_.SetFont(AUFONT, 15)
+	_o_.SetVariation("curved")
+	_o_._Compile()
+	_o_._CompileViolationTapes()
+	_o_._Initialise("planar")
+	_o_._SolveStage(0)
+	_o_._SolveStage(1)
+	_o_._ReadViolations()
+	_o_._FreeViolationTapes()
+	_o_.@bLaidOut = 1
+	_o_.@aVCache = []
+	return _o_
+
+func _FcVerdictIsTheFinding poM
+	_aV_ = poM.Violations()
+	if len(_aV_) = 0  return FALSE  ok
+	_f_ = poM.Fact(:verdict, [ "" ])
+	return _f_[:message] = _aV_[1][:message] and _f_[:where] = _aV_[1][:where]
+
+func _FcRefuses pnWhich
+	_b_ = FALSE
+	_o_ = StzMathScene16(AUFONT)
+	_o_.Layout()
+	_g_ = StzDrakonScene01([ :Font = AUFONT, :NodeWidth = 150, :NodeHeight = 56, :FontSize = 14 ])
+	try
+		if pnWhich = 1
+			_o_.Fact(:distance, [ "A.icon", "ZZZ.icon" ])
+		but pnWhich = 2
+			_g_.Fact(:count, [ "bananas" ])
+		but pnWhich = 3
+			_g_.Fact(:wobble, [ "t" ])
+		but pnWhich = 4
+			_o_.Fact(:arg, [ "no such rule anywhere", 2 ])
+		else
+			_o_.Fact(:distance, [ "A.icon", "B.icon" ])
+			_g_.Fact(:count, [ "nodes" ])
+			_g_.Fact(:position, [ "t" ])
+			_o_.Fact(:arg, [ "disjoint", 3 ])
+		ok
+	catch
+		_b_ = TRUE
+	done
+	return _b_
 
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0

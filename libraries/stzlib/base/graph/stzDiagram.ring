@@ -346,6 +346,54 @@ func StzSvgNameOf(pcRaw, pcPrefix, paUsed)
 	end
 	return _cTry_
 
+#---------------------------------------------------------------------#
+#  A FACT: WHAT A PICTURE CAN ANSWER, IN ONE SHAPE (DN9b)              #
+#---------------------------------------------------------------------#
+
+# A narration is facts made visible, in an order -- and the first half of
+# that sentence is this file's business. A FACT is anything a picture can
+# answer about itself: a distance, an angle, a count, a verdict, a datum
+# it was given, a position it solved. Both planes answer in ONE shape, so
+# a mark that shows a fact, and a caption that quotes one, never learn
+# which plane they came from.
+#
+#   [ :kind, :subject, :value, :unit, :where, :message ]
+#
+# WHY A MESSAGE RIDES ALONG. A caption wants a sentence, and the sentence
+# that describes a fact is a property of the fact, not of the author. One
+# place composes it, so "the distance from A to B is 46.9 px" reads the
+# same wherever it appears -- and the number in it is the number in
+# :value, which is the whole point of the plane.
+#
+# WHY A UNIT RIDES ALONG. 46.9 is not a fact. 46.9 px is.
+func StzFact(pcKind, pcSubject, pValue, pcUnit, pcWhere, pcMessage)
+	return [ :kind = StzLower("" + pcKind), :subject = "" + pcSubject,
+	         :value = pValue, :unit = StzLower("" + pcUnit),
+	         :where = "" + pcWhere, :message = "" + pcMessage ]
+
+# A number as a reader wants to see it: whole numbers bare, everything
+# else to two decimals. Ring's decimals() is global, so the setting is
+# read from a known quotient and put back -- the same move _Num makes.
+func StzFactNumText(pn)
+	if NOT isNumber(pn)  return "" + pn  ok
+	if pn = floor(pn)  return "" + floor(pn)  ok
+	_cP_ = "" + (1 / 3)
+	_nDot_ = StzFindFirst(".", _cP_)
+	_nD_ = 0
+	if _nDot_ > 0  _nD_ = len(_cP_) - _nDot_  ok
+	decimals(2)
+	_c_ = "" + pn
+	decimals(_nD_)
+	return _c_
+
+# the unit as it reads inside a sentence
+func StzFactUnitText(pcUnit)
+	_u_ = StzLower("" + pcUnit)
+	if _u_ = "none" or _u_ = ""  return ""  ok
+	if _u_ = "deg"  return " degrees"  ok
+	return " " + _u_
+
+
 class stzDiagram from stzGraph
 
 	@cTheme = $cDefaultColorTheme
@@ -9873,6 +9921,95 @@ class stzDiagram from stzGraph
 	# where the edge must BE, not where it must turn a corner, and a curve
 	# reading smoothly past a box is what distinguishes a routed edge from
 	# a dog-leg. Ortho keeps its corners -- that is the point of ortho.
+	#-- WHAT THIS PICTURE CAN ANSWER (DN9b) --------------------------------
+
+	# The same verb the math plane answers, over the things a notation
+	# picture holds: its nodes, its edges, where the renderer put them, and
+	# the verdicts its own governance reaches. A kind this plane cannot
+	# answer is refused by name rather than answered with a zero.
+	def Fact(pcKind, paArgs)
+		_k_ = StzLower(ring_trim("" + pcKind))
+		_a_ = paArgs
+		if NOT isList(_a_)  _a_ = [ _a_ ]  ok
+
+		if _k_ = "count"
+			return This._FactCount(_a_)
+		but _k_ = "position"
+			_r_ = This._FactRect(This._FactArg(_a_, 1, "position"))
+			return StzFact(:position, _r_[5], [ _r_[1] + _r_[3] / 2, _r_[2] + _r_[4] / 2 ],
+				:px, "diagram :: " + _r_[5],
+				"'" + _r_[5] + "' sits at " + StzFactNumText(_r_[1] + _r_[3] / 2) + ", " +
+				StzFactNumText(_r_[2] + _r_[4] / 2))
+		but _k_ = "distance"
+			_p_ = This._FactRect(This._FactArg(_a_, 1, "distance"))
+			_q_ = This._FactRect(This._FactArg(_a_, 2, "distance"))
+			_dx_ = (_p_[1] + _p_[3] / 2) - (_q_[1] + _q_[3] / 2)
+			_dy_ = (_p_[2] + _p_[4] / 2) - (_q_[2] + _q_[4] / 2)
+			_d_ = sqrt(_dx_ * _dx_ + _dy_ * _dy_)
+			return StzFact(:distance, _p_[5] + " to " + _q_[5], _d_, :px,
+				"diagram :: " + _p_[5] + ", " + _q_[5],
+				"'" + _p_[5] + "' and '" + _q_[5] + "' are " + StzFactNumText(_d_) + " px apart")
+		but _k_ = "verdict"
+			return This._FactVerdict(This._FactArg(_a_, 1, "verdict"))
+		ok
+		stzraise("stzDiagram.Fact: '" + _k_ + "' is not a fact a notation picture " +
+			"answers -- count, position, distance or verdict.")
+
+	def _FactArg(paArgs, pnI, pcKind)
+		if len(paArgs) < pnI
+			stzraise("stzDiagram.Fact: " + pcKind + " needs argument " + pnI + ".")
+		ok
+		return "" + paArgs[pnI]
+
+	# the renderer's own rectangle for a node: [ x, y, w, h, id ]
+	def _FactRect(pcNode)
+		_c_ = StzLower(ring_trim(pcNode))
+		_a_ = This.RenderNodeRects()
+		for _i_ = 1 to len(_a_)
+			if StzLower("" + _a_[_i_][5]) = _c_  return _a_[_i_]  ok
+		next
+		if len(_a_) = 0
+			stzraise("stzDiagram.Fact: this picture has not been rendered yet, so it " +
+				"knows where nothing is -- render it before asking where '" + pcNode + "' is.")
+		ok
+		stzraise("stzDiagram.Fact: '" + pcNode + "' is not a node this picture drew.")
+
+	def _FactCount(paArgs)
+		_w_ = StzLower(ring_trim(This._FactArg(paArgs, 1, "count")))
+		if _w_ = "nodes"
+			return StzFact(:count, :nodes, This.NumberOfNodes(), :none, "diagram",
+				"the picture holds " + This.NumberOfNodes() + " nodes")
+		but _w_ = "edges"
+			return StzFact(:count, :edges, This.NumberOfEdges(), :none, "diagram",
+				"the picture holds " + This.NumberOfEdges() + " edges")
+		but _w_ = "crossings"
+			return StzFact(:count, :crossings, This.RenderCrossings(), :none, "diagram",
+				"the drawn picture has " + This.RenderCrossings() + " edge crossings")
+		ok
+		stzraise("stzDiagram.Fact: '" + _w_ + "' is not a count this picture keeps -- " +
+			"nodes, edges or crossings.")
+
+	# THE VERDICT IS READ, NEVER RECOMPUTED. The plastic rules already
+	# judge this picture and say why in the house finding shape; asking
+	# them again here would be a second opinion that could disagree with
+	# the gate, which is the one thing a narration may never do.
+	def _FactVerdict(pcSubject)
+		_c_ = StzLower(ring_trim(pcSubject))
+		_g_ = StzPlasticGovernanceOf("fact")
+		_g_.AddPicture("picture", This)
+		_aF_ = _g_.Findings()
+		for _i_ = 1 to len(_aF_)
+			if _c_ != "" and StzFindFirst(_c_, StzLower("" + _aF_[_i_][:subject] +
+			   " " + _aF_[_i_][:where] + " " + _aF_[_i_][:rule])) = 0
+				loop
+			ok
+			return StzFact(:verdict, "" + _aF_[_i_][:rule], 1, :none,
+				"" + _aF_[_i_][:where], "" + _aF_[_i_][:message])
+		next
+		return StzFact(:verdict, pcSubject, 0, :none, "diagram",
+			"nothing is found against " + pcSubject)
+
+
 	def RenderClusterRects()
 		return @aRenderClusRects
 
