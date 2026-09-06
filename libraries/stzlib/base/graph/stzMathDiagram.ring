@@ -109,6 +109,9 @@
 #  CONSTRUCTORS AND THE BUILT-IN DOMAINS AND STYLES                    #
 #---------------------------------------------------------------------#
 
+# the memo behind _MdKey, one per process (DN8g)
+$aMdKeyMemo = []
+
 func StzMathDomainQ(pcName)
 	return new stzMathDomain(pcName)
 
@@ -760,12 +763,20 @@ func StzEllipseRaysStyle()
 # a copy never shares a stale table with its original.
 func _MdKey(pc)
 	_c_ = "" + pc
+	# MEMOISED BY THE NAME ITSELF, with the exact spelling kept beside the
+	# key: the lookup folds case, so a hit is trusted only when the stored
+	# spelling is this one, and two names differing in case simply never
+	# memoise. The character walk below was 7 of the 8 microseconds every
+	# name lookup cost, and a folded name costs several (DN8g).
+	_h_ = $aMdKeyMemo[_c_]
+	if isList(_h_) and _h_[1] = _c_  return _h_[2]  ok
 	_m_ = "|"
 	_n_ = len(_c_)
 	for _i_ = 1 to _n_
 		_a_ = ascii(_c_[_i_])
 		if _a_ >= 65 and _a_ <= 90  _m_ += ("" + _i_ + ",")  ok
 	next
+	$aMdKeyMemo[_c_] = [ _c_, _c_ + _m_ ]
 	return _c_ + _m_
 
 func _MrInk(poDg)
@@ -3269,6 +3280,22 @@ class stzMathDiagram from stzObject
 	@bDrawOrdered = FALSE
 	@aRoleCache = []    # theme|role -> resolved hex, cleared by Touch
 	@aStaticViolations = []  # on-canvas checked in Ring on geometry no tape moves
+	# THE LIVE FIGURE (DN8g): pins, the fold, and the gesture
+	@aPinned = []       # per tape slot: 1 when the author holds it where it is
+	@bWarmNext = FALSE  # the next _Solve starts from the current values
+	@bFold = FALSE      # _Sym folds frozen unknowns and settled names to numbers
+	@aFoldNow = []      # per tape slot: 1 when frozen for the text being built
+	@aFoldCache = []    # _MdKey(derived name) -> its folded text, per frozen set
+	@cFoldSig = ""      # which frozen set the cache belongs to
+	@aOnCanvasCache = [] # _MdKey(path) -> the shape's on-canvas texts, per frozen set
+	@aTokCache = []     # _MdKey(expression) -> its tokens, per compile
+	@cTextSig = ""      # which build the two cached text halves belong to
+	@cTextObj = ""      # the objectives half of the last folded text
+	@cTextPen = ""      # the penalty half of the last folded text
+	@aProfile = [ :text = 0, :compile = 0, :minimise = 0, :read = 0, :fold = 0, :rounds = 0, :rounds0 = 0, :rounds1 = 0, :worst1 = 0 ]
+	@cUiState = :Idle   # :Idle | :Dragging
+	@cUiSubject = ""    # the shape under the gesture
+	@aUiAt = []         # where the pointer is, [ x, y ]
 	@nNumDecimals = -1  # Ring's decimals() setting, read once
 
 	# the solve
@@ -3321,6 +3348,204 @@ class stzMathDiagram from stzObject
 
 		def SetVariationQ(pVariation)
 			return This.SetVariation(pVariation)
+
+	#-- the live figure (DN8g) --------------------------------------------------
+
+	# A RE-SOLVE FROM WHERE THE FIGURE STANDS. Nothing is recompiled and no
+	# start is drawn: the current values are the start, and the solver
+	# settles the picture nearby. LayoutMs() then reports this solve.
+	# where the last solve spent its time, in ms: building the energy text,
+	# compiling it, minimising, reading the violations, and folding derived
+	# names to numbers (counted inside :text) -- plus the rounds
+	def SolveProfile()
+		This.Layout()
+		return @aProfile
+
+	def Relayout()
+		This.Layout()
+		_nT0_ = StzEngineWatchTimestampMs()
+		@bWarmNext = TRUE
+		This._Solve()
+		@bWarmNext = FALSE
+		@nLayoutMs = StzEngineWatchTimestampMs() - _nT0_
+		@bLaidOut = 1
+		return This
+
+		def RelayoutQ()
+			return This.Relayout()
+
+	# THE DRAG. The shape's centre is put where the author released it,
+	# held there while the rest of the figure re-solves around it, and let
+	# go again unless it was pinned before. A shape whose centre no rule
+	# left free -- a placed name, a square derived from its triangle -- is
+	# refused: there is nothing there to drag.
+	def DragTo(pcPath, pnX, pnY)
+		This.Layout()
+		_c_ = ring_trim("" + pcPath)
+		_ix_ = This._UnknownIndex(_c_ + ".cx")
+		_iy_ = This._UnknownIndex(_c_ + ".cy")
+		if _ix_ = 0 or _iy_ = 0
+			stzraise("stzMathDiagram.DragTo: '" + _c_ + "' has no free centre -- " +
+				"a drag moves a shape whose position a rule left to the solver.")
+		ok
+		@aValue[_ix_] = pnX
+		@aValue[_iy_] = pnY
+		_bWas_ = This.IsPinned(_c_)
+		This.Pin(_c_)
+		This.Relayout()
+		if NOT _bWas_  This.Unpin(_c_)  ok
+		return This
+
+		def DragToQ(pcPath, pnX, pnY)
+			return This.DragTo(pcPath, pnX, pnY)
+
+	# A PIN holds every free property of a shape at its current value
+	# through any re-solve, cold or warm -- the plastic editor's pin, for
+	# a figure whose coordinates are solved rather than laid out.
+	def Pin(pcPath)
+		This.Layout()
+		_c_ = ring_trim("" + pcPath)
+		_i_ = This._ShapeIndex(_c_)
+		if _i_ = 0
+			stzraise("stzMathDiagram.Pin: '" + _c_ + "' is not a shape any rule minted.")
+		ok
+		_acG_ = This._GeoNames(@aShapes[_i_])
+		_n_ = 0
+		for _k_ = 1 to len(_acG_)
+			_u_ = This._UnknownIndex(_c_ + "." + _acG_[_k_])
+			if _u_ > 0
+				@aPinned[_u_] = 1
+				_n_++
+			ok
+		next
+		if _n_ = 0
+			stzraise("stzMathDiagram.Pin: '" + _c_ + "' has nothing a rule left free -- " +
+				"a pin holds an unknown where it is.")
+		ok
+		return This
+
+		def PinQ(pcPath)
+			return This.Pin(pcPath)
+
+	def Unpin(pcPath)
+		_c_ = ring_trim("" + pcPath)
+		_i_ = This._ShapeIndex(_c_)
+		if _i_ = 0  return This  ok
+		_acG_ = This._GeoNames(@aShapes[_i_])
+		for _k_ = 1 to len(_acG_)
+			_u_ = This._UnknownIndex(_c_ + "." + _acG_[_k_])
+			if _u_ > 0  @aPinned[_u_] = 0  ok
+		next
+		return This
+
+		def UnpinQ(pcPath)
+			return This.Unpin(pcPath)
+
+	def UnpinAll()
+		for _i_ = 1 to len(@aPinned)
+			@aPinned[_i_] = 0
+		next
+		return This
+
+	def IsPinned(pcPath)
+		_c_ = ring_trim("" + pcPath)
+		_i_ = This._ShapeIndex(_c_)
+		if _i_ = 0  return FALSE  ok
+		_acG_ = This._GeoNames(@aShapes[_i_])
+		for _k_ = 1 to len(_acG_)
+			_u_ = This._UnknownIndex(_c_ + "." + _acG_[_k_])
+			if _u_ > 0 and @aPinned[_u_] = 1  return TRUE  ok
+		next
+		return FALSE
+
+	# the shapes pinned, by path
+	def Pins()
+		This.Layout()
+		_a_ = []
+		for _i_ = 1 to len(@aShapes)
+			if This.IsPinned(@aShapes[_i_][1])  _a_ + @aShapes[_i_][1]  ok
+		next
+		return _a_
+
+	# the shapes a gesture can take hold of: a free centre, and a body
+	def Draggable()
+		This.Layout()
+		_a_ = []
+		for _i_ = 1 to len(@aShapes)
+			_c_ = @aShapes[_i_][1]
+			_k_ = @aShapes[_i_][2]
+			if _k_ != "circle" and _k_ != "rect" and _k_ != "text" and _k_ != "ellipse"  loop  ok
+			if This._Prop(@aShapes[_i_][3], "hidden", 0) = 1  loop  ok
+			if This._UnknownIndex(_c_ + ".cx") > 0 and This._UnknownIndex(_c_ + ".cy") > 0
+				_a_ + _c_
+			ok
+		next
+		return _a_
+
+	# WHAT IS UNDER THE POINTER: the nearest draggable shape whose body --
+	# or a ten-pixel reach around its centre -- holds the point; "" when
+	# the pointer is on the paper.
+	def PickAt(pnX, pnY)
+		_ac_ = This.Draggable()
+		_cBest_ = ""
+		_nBest_ = 0
+		for _i_ = 1 to len(_ac_)
+			_s_ = This.ShapeOf(_ac_[_i_])
+			_hx_ = 10  _hy_ = 10
+			if HasKey(_s_, "r")
+				if _s_[:r] > _hx_  _hx_ = _s_[:r]  _hy_ = _s_[:r]  ok
+			but HasKey(_s_, "rx")
+				if _s_[:rx] > _hx_  _hx_ = _s_[:rx]  ok
+				if _s_[:ry] > _hy_  _hy_ = _s_[:ry]  ok
+			but HasKey(_s_, "w")
+				if _s_[:w] / 2 > _hx_  _hx_ = _s_[:w] / 2  ok
+				if _s_[:h] / 2 > _hy_  _hy_ = _s_[:h] / 2  ok
+			ok
+			if fabs(pnX - _s_[:cx]) > _hx_ or fabs(pnY - _s_[:cy]) > _hy_  loop  ok
+			_d_ = (pnX - _s_[:cx]) * (pnX - _s_[:cx]) + (pnY - _s_[:cy]) * (pnY - _s_[:cy])
+			if _cBest_ = "" or _d_ < _nBest_
+				_cBest_ = _ac_[_i_]
+				_nBest_ = _d_
+			ok
+		next
+		return _cBest_
+
+	# THE GESTURE, in the plastic editor's three verbs. A press takes hold
+	# of what is under the pointer; a move previews and re-solves NOTHING
+	# -- the window paints the dragged shape where DragPreview() says --
+	# and the release is the one drag, from where the author let go.
+	def OnPress(pnX, pnY)
+		@cUiState = :Idle
+		@cUiSubject = ""
+		@aUiAt = []
+		_c_ = This.PickAt(pnX, pnY)
+		if _c_ = ""  return This  ok
+		@cUiState = :Dragging
+		@cUiSubject = _c_
+		@aUiAt = [ pnX, pnY ]
+		return This
+
+	def OnMove(pnX, pnY)
+		if @cUiState = :Idle  return This  ok
+		@aUiAt = [ pnX, pnY ]
+		return This
+
+	def DragPreview()
+		if @cUiState = :Idle or @cUiSubject = ""  return []  ok
+		if len(@aUiAt) != 2  return []  ok
+		return [ @cUiSubject, @aUiAt[1], @aUiAt[2] ]
+
+	def OnRelease(pnX, pnY)
+		if @cUiState = :Dragging
+			This.DragTo(@cUiSubject, pnX, pnY)
+		ok
+		@cUiState = :Idle
+		@cUiSubject = ""
+		@aUiAt = []
+		return This
+
+	def UiState()
+		return @cUiState
 
 	#-- the answer -------------------------------------------------------------
 
@@ -4231,13 +4456,14 @@ class stzMathDiagram from stzObject
 
 	def _Compile()
 		@nMatchCandidates = 0
-		@aShapes = []  @acUnknown = []  @aUnknownOf = []  @aValue = []
+		@aShapes = []  @acUnknown = []  @aUnknownOf = []  @aValue = []  @aPinned = []
 		@bLabelVar = []  @aConst = []  @aDerived = []  @aInitRange = []
 		@aConstraints = []  @aObjectives = []  @aLayers = []  @aTextSize = []
 		This._Reindex()
 		@bDrawOrdered = FALSE
 		@aRoleCache = []
 		@aStaticViolations = []
+		@aTokCache = []
 		_aRules_ = @oStyle.Rules()
 		_n_ = len(_aRules_)
 		# TWO PASSES: shapes, fields and overrides first, then the terms.
@@ -4933,6 +5159,7 @@ class stzMathDiagram from stzObject
 		@aUnknownOf + [ pcName, _i_ ]
 		@aUnknownIdx[_MdKey(pcName)] = _i_
 		@aValue + 0
+		@aPinned + 0
 		@bLabelVar + pbLabel
 
 	def _UnknownIndex(pcName)
@@ -4992,6 +5219,19 @@ class stzMathDiagram from stzObject
 		if isNumber(pArg)  return This._Num(pArg)  ok
 		_c_ = ring_trim("" + pArg)
 		if This._HasDerived(_c_)
+			# THE FOLD (DN8g). While a text is built with some unknowns
+			# frozen, a derived name whose expansion mentions no free unknown
+			# is a NUMBER, read once and remembered for the frozen set. This
+			# is what replaced substituting values into a finished text: a
+			# derived vertex re-expands at every mention, so Byrne's label
+			# stage was 586,494 characters and a substitution walk over it
+			# cost more than a second. Folded, it is a few thousand.
+			_k_ = ""
+			if @bFold
+				_k_ = _MdKey(_c_)
+				_t_ = @aFoldCache[_k_]
+				if isString(_t_) and _t_ != ""  return _t_  ok
+			ok
 			@nExpandDepth++
 			if @nExpandDepth > 24
 				@nExpandDepth = 0
@@ -5000,11 +5240,22 @@ class stzMathDiagram from stzObject
 			ok
 			_e_ = "(" + This._Expand(This._DerivedOf(_c_)) + ")"
 			@nExpandDepth--
+			if @bFold
+				if NOT This._MentionsUnknown(_e_)
+					_tf_ = StzEngineWatchTimestampMs()
+					_e_ = This._NumText(This._EvalExpr(_e_))
+					@aProfile[:fold] += (StzEngineWatchTimestampMs() - _tf_)
+				ok
+				@aFoldCache[_k_] = _e_
+			ok
 			return _e_
 		ok
 		if This._HasConst(_c_)  return This._Num(This._ConstOf(_c_))  ok
 		_i_ = This._UnknownIndex(_c_)
-		if _i_ > 0  return @acUnknown[_i_]  ok
+		if _i_ > 0
+			if @bFold and @aFoldNow[_i_] = 1  return This._NumText(@aValue[_i_])  ok
+			return @acUnknown[_i_]
+		ok
 		_ac_ = StzSplit(_c_, ".")
 		if len(_ac_) = 3
 			_cShape_ = _ac_[1] + "." + _ac_[2]
@@ -5044,8 +5295,40 @@ class stzMathDiagram from stzObject
 	# _Sym); an identifier followed by "(" is a computed function when it
 	# is one of ours, and passes through when it is the tape's own.
 	def _Expand(pcExpr)
+		# TOKENISED ONCE, ASSEMBLED EVERY TIME. Walking an expression a
+		# character at a time costs two method calls per character, and the
+		# fold re-expands every derived expression once per frozen set: at
+		# a hundred and eighteen of them that walk was most of a drag. The
+		# tokens are kept per expression text for the life of the compile.
 		_c_ = "" + pcExpr
+		_k_ = _MdKey(_c_)
+		_aT_ = @aTokCache[_k_]
+		if NOT isList(_aT_)
+			_aT_ = This._Tokenise(_c_)
+			@aTokCache[_k_] = _aT_
+		ok
 		_out_ = ""
+		_n_ = len(_aT_)
+		for _i_ = 1 to _n_
+			_t_ = _aT_[_i_]
+			if _t_[1] = "n"
+				_out_ += This._Sym(_t_[2])
+			but _t_[1] = "c"
+				_out_ += This._Computed(_t_[2], _t_[3])
+			else
+				_out_ += _t_[2]
+			ok
+		next
+		return _out_
+
+	# [ [ "n", name ] | [ "c", fn, args ] | [ "r", text ] ... ]: a dotted
+	# identifier is a name for _Sym, an identifier before "(" that is one of
+	# ours is a computed call, everything else -- operators, numbers, the
+	# tape's own functions -- rides through as runs of raw text
+	def _Tokenise(pcExpr)
+		_c_ = "" + pcExpr
+		_a_ = []
+		_raw_ = ""
 		_n_ = len(_c_)
 		_i_ = 1
 		while _i_ <= _n_
@@ -5056,29 +5339,31 @@ class stzMathDiagram from stzObject
 					_j_++
 				end
 				_tok_ = StzStringSection(_c_, _i_, _j_ - 1)
-				# a call?
 				_k_ = _j_
 				while _k_ <= _n_ and _c_[_k_] = " "
 					_k_++
 				end
 				if _k_ <= _n_ and _c_[_k_] = "(" and This._IsComputed(_tok_)
 					_aArgs_ = This._CallArgs(_c_, _k_)
-					_out_ += This._Computed(_tok_, _aArgs_[1])
+					if _raw_ != ""  _a_ + [ "r", _raw_ ]  _raw_ = ""  ok
+					_a_ + [ "c", _tok_, _aArgs_[1] ]
 					_i_ = _aArgs_[2]
 					loop
 				ok
 				if StzFindFirst(".", _tok_) > 0
-					_out_ += This._Sym(_tok_)
+					if _raw_ != ""  _a_ + [ "r", _raw_ ]  _raw_ = ""  ok
+					_a_ + [ "n", _tok_ ]
 				else
-					_out_ += _tok_
+					_raw_ += _tok_
 				ok
 				_i_ = _j_
 			else
-				_out_ += _ch_
+				_raw_ += _ch_
 				_i_++
 			ok
 		end
-		return _out_
+		if _raw_ != ""  _a_ + [ "r", _raw_ ]  ok
+		return _a_
 
 	# The arguments of a call whose "(" is at pnOpen: [ [ arg, ... ], nAfter ]
 	def _CallArgs(pcExpr, pnOpen)
@@ -5177,6 +5462,12 @@ class stzMathDiagram from stzObject
 	# SETS and returns nothing, and Ring has no getter, so the current
 	# setting is read back by formatting a probe and counting its fraction
 	# digits, then restored after the write.
+	# a number as tape text that may follow a minus sign: a negative one is
+	# parenthesised, so "a-" + it never reads as "a--3"
+	def _NumText(pn)
+		if pn < 0  return "(" + This._Num(pn) + ")"  ok
+		return This._Num(pn)
+
 	def _Num(pn)
 		if @nNumDecimals < 0
 			_cP_ = "" + (1 / 3)
@@ -5674,6 +5965,25 @@ class stzMathDiagram from stzObject
 			This._StaticOnCanvas(paShape)
 			return
 		ok
+		_aT_ = This._OnCanvasTexts(paShape)
+		_cW_ = "canvas :: onCanvas(" + _cP_ + ")"
+		_nKept_ = 0
+		for _t_ = 1 to len(_aT_)
+			if NOT This._MentionsUnknown(_aT_[_t_][1])  loop  ok
+			# the shape and the term's place in its list ride along, so the
+			# fold can build the term again under a frozen set (DN8g)
+			@aConstraints + [ "onCanvas", _aT_[_t_][1], _cW_, _aT_[_t_][2], [ _cP_, _t_ ] ]
+			_nKept_++
+		next
+		if _nKept_ = 0  This._StaticOnCanvas(paShape)  ok
+
+	# every on-canvas term of a shape, [ [ text, bLabelStage ], ... ], in a
+	# fixed order -- built through _Sym, so under the fold a frozen
+	# coordinate is already its number
+	def _OnCanvasTexts(paShape)
+		_cP_ = paShape[1]
+		_k_ = paShape[2]
+		_a_ = []
 		# the paper, less the style's margin on every side
 		_nM_ = @oStyle.Margin()
 		_M_ = This._Num(_nM_)
@@ -5683,45 +5993,31 @@ class stzMathDiagram from stzObject
 		# spline may still overshoot a little between two of them, which the
 		# margin absorbs
 		if _k_ = "poly" or _k_ = "spline"
-			_cW2_ = "canvas :: onCanvas(" + _cP_ + ")"
 			_nV_ = This._Prop(paShape[3], "n", 3)
-			_nKept_ = 0
 			for _v_ = 1 to _nV_
 				_x_ = This._Sym(_cP_ + ".x" + _v_)
 				_y_ = This._Sym(_cP_ + ".y" + _v_)
-				if This._MentionsUnknown(_x_)
-					@aConstraints + [ "onCanvas", _M_ + "-" + _x_, _cW2_, FALSE ]
-					@aConstraints + [ "onCanvas", _x_ + "-" + _W_, _cW2_, FALSE ]
-					_nKept_++
-				ok
-				if This._MentionsUnknown(_y_)
-					@aConstraints + [ "onCanvas", _M_ + "-" + _y_, _cW2_, FALSE ]
-					@aConstraints + [ "onCanvas", _y_ + "-" + _H_, _cW2_, FALSE ]
-					_nKept_++
-				ok
+				_a_ + [ _M_ + "-" + _x_, FALSE ]
+				_a_ + [ _x_ + "-" + _W_, FALSE ]
+				_a_ + [ _M_ + "-" + _y_, FALSE ]
+				_a_ + [ _y_ + "-" + _H_, FALSE ]
 			next
-			if _nKept_ = 0  This._StaticOnCanvas(paShape)  ok
-			return
+			return _a_
 		ok
 		_g_ = This._Geo(_cP_)
 		_bLbl_ = FALSE
 		if _k_ = "text"
 			_bLbl_ = (This._UnknownIndex(_cP_ + ".cx") > 0 or This._UnknownIndex(_cP_ + ".cy") > 0)
 		ok
-		_cW_ = "canvas :: onCanvas(" + _cP_ + ")"
 		if _k_ = "line"
 			# both ends on the paper
-			_nKept_ = 0
 			for _e_ = 4 to 7
-				if NOT This._MentionsUnknown(_g_[_e_])  loop  ok
 				_lim_ = _W_
 				if _e_ = 5 or _e_ = 7  _lim_ = _H_  ok
-				@aConstraints + [ "onCanvas", _M_ + "-" + _g_[_e_], _cW_, _bLbl_ ]
-				@aConstraints + [ "onCanvas", _g_[_e_] + "-" + _lim_, _cW_, _bLbl_ ]
-				_nKept_++
+				_a_ + [ _M_ + "-" + _g_[_e_], _bLbl_ ]
+				_a_ + [ _g_[_e_] + "-" + _lim_, _bLbl_ ]
 			next
-			if _nKept_ = 0  This._StaticOnCanvas(paShape)  ok
-			return
+			return _a_
 		ok
 		if _k_ = "circle"
 			_hx_ = _g_[4]
@@ -5730,18 +6026,11 @@ class stzMathDiagram from stzObject
 			_hx_ = "(" + _g_[4] + ")/2"
 			_hy_ = "(" + _g_[5] + ")/2"
 		ok
-		_nKept_ = 0
-		if This._MentionsUnknown(_g_[2]) or This._MentionsUnknown(_hx_)
-			@aConstraints + [ "onCanvas", _M_ + "+" + _hx_ + "-" + _g_[2], _cW_, _bLbl_ ]
-			@aConstraints + [ "onCanvas", _g_[2] + "+" + _hx_ + "-" + _W_, _cW_, _bLbl_ ]
-			_nKept_++
-		ok
-		if This._MentionsUnknown(_g_[3]) or This._MentionsUnknown(_hy_)
-			@aConstraints + [ "onCanvas", _M_ + "+" + _hy_ + "-" + _g_[3], _cW_, _bLbl_ ]
-			@aConstraints + [ "onCanvas", _g_[3] + "+" + _hy_ + "-" + _H_, _cW_, _bLbl_ ]
-			_nKept_++
-		ok
-		if _nKept_ = 0  This._StaticOnCanvas(paShape)  ok
+		_a_ + [ _M_ + "+" + _hx_ + "-" + _g_[2], _bLbl_ ]
+		_a_ + [ _g_[2] + "+" + _hx_ + "-" + _W_, _bLbl_ ]
+		_a_ + [ _M_ + "+" + _hy_ + "-" + _g_[3], _bLbl_ ]
+		_a_ + [ _g_[3] + "+" + _hy_ + "-" + _H_, _bLbl_ ]
+		return _a_
 
 	# THE ON-CANVAS CHECK FOR GEOMETRY NO TAPE MOVES: the shape's extent
 	# is read as numbers and held to the paper less the margin; how far it
@@ -5842,6 +6131,7 @@ class stzMathDiagram from stzObject
 		# with nothing to solve nothing moved, and what the compile already
 		# read of the constants stays read
 		if len(@acUnknown) > 0  @aVCache = []  ok
+		@aProfile = [ :text = 0, :compile = 0, :minimise = 0, :read = 0, :fold = 0, :rounds = 0, :rounds0 = 0, :rounds1 = 0, :worst1 = 0 ]
 		@nRounds = 0
 		@nEvaluations = 0
 		@nEnergy = 0
@@ -5874,18 +6164,32 @@ class stzMathDiagram from stzObject
 			if _aStarts_[_s_] = "random"  _bRandom_ = TRUE  ok
 		next
 		if NOT _bRandom_  _aStarts_ + "random"  ok
-		@nStartsTried = 0
-		for _s_ = 1 to len(_aStarts_)
-			This._Initialise(_aStarts_[_s_])
-			if _aStarts_[_s_] != "random" and @cStartUsed = "random"  loop  ok
-			@nStartsTried++
+		if @bWarmNext
+			# THE WARM START (DN8g): the current values ARE the start -- the
+			# ones the author dragged to, or the last solution -- and there
+			# is one start, not a list. This is Penrose's drag: the figure
+			# re-solves from where it stands and settles nearby.
+			@nStartsTried = 1
+			@cStartUsed = "warm"
 			This._SolveStage(0)
 			if _bAnyLabel_ and (@oStyle.LabelsAfter() or This._StageViolation(1) > 0.01)
 				This._SolveStage(1)
 			ok
 			This._ReadViolations()
-			if This._MaxViolation() <= 0.01  exit  ok
-		next
+		else
+			@nStartsTried = 0
+			for _s_ = 1 to len(_aStarts_)
+				This._Initialise(_aStarts_[_s_])
+				if _aStarts_[_s_] != "random" and @cStartUsed = "random"  loop  ok
+				@nStartsTried++
+				This._SolveStage(0)
+				if _bAnyLabel_ and (@oStyle.LabelsAfter() or This._StageViolation(1) > 0.01)
+					This._SolveStage(1)
+				ok
+				This._ReadViolations()
+				if This._MaxViolation() <= 0.01  exit  ok
+			next
+		ok
 		This._FreeViolationTapes()
 		@aVCache = []
 		@bInkCached = FALSE
@@ -5968,7 +6272,9 @@ class stzMathDiagram from stzObject
 				_cN_ = StzLower(_acBySlot_[_i_])
 				_c3_ = StzRight(_cN_, 3)
 				_aR_ = This._InitRangeOf(_acBySlot_[_i_])
-				if len(_aR_) = 2
+				if @aPinned[_i_] = 1
+					_aX_ + @aValue[_i_]
+				but len(_aR_) = 2
 					_aX_ + (_aR_[1] + StzRandom01() * (_aR_[2] - _aR_[1]))
 				but _c3_ = ".cx" or _c3_ = ".x1" or _c3_ = ".x2"
 					_aX_ + (0.15 * _W_ + StzRandom01() * 0.7 * _W_)
@@ -6372,18 +6678,42 @@ class stzMathDiagram from stzObject
 	# In the label stage every shape unknown is FROZEN: substituted by its
 	# value, so the tape differentiates only what may still move.
 	def _EnergyText(pnStage, pnLambda, pbAll)
+		# a text with frozen unknowns is REGENERATED term by term with the
+		# fold on -- a frozen unknown is its value, a settled name its
+		# number -- never a finished text walked for symbols (DN8g)
+		# the label stage folds; a pin in the shape stage is SUBSTITUTED into
+		# the stored text instead -- regenerating that stage with one point
+		# pinned and the others free materialises every derived vertex in
+		# full, and was 47 ms of a 53 ms drag
+		_bFold_ = (pnStage = 1)
+		if _bFold_
+			This._BeginFold(pnStage)
+			# THE TEXT IS BUILT ONCE PER FROZEN SET. Across the rounds of a
+			# stage only lambda moves, and lambda is a prefix: the two halves
+			# are kept, and a round that finds them costs nothing to build --
+			# regenerating them was 281 of a drag's 309 ms.
+			_cSig_ = @cFoldSig + "|" + pnStage + "|" + pbAll
+			if _cSig_ = @cTextSig
+				@bFold = FALSE
+				return This._JoinEnergy(@cTextObj, @cTextPen, pnLambda)
+			ok
+		ok
 		_c_ = ""
 		_n_ = len(@aObjectives)
 		for _i_ = 1 to _n_
 			if pbAll or (@aObjectives[_i_][4] = (pnStage = 1))
 				if _c_ != ""  _c_ += "+"  ok
-				_c_ += "(" + @aObjectives[_i_][2] + ")"
+				_cT_ = @aObjectives[_i_][2]
+				if _bFold_  _cT_ = This._TermAgain(@aObjectives[_i_], "encourage")  ok
+				_c_ += "(" + _cT_ + ")"
 			ok
 		next
 		_cP_ = ""
 		_m_ = len(@aConstraints)
 		for _i_ = 1 to _m_
 			if pbAll or (@aConstraints[_i_][4] = (pnStage = 1))
+				_cT_ = @aConstraints[_i_][2]
+				if _bFold_  _cT_ = This._TermAgain(@aConstraints[_i_], "ensure")  ok
 				# A CROSSING RULE IS A BARRIER, AND A BARRIER NEEDS YOU INSIDE
 				# IT. From a planar start it forbids leaving and is never
 				# violated; from a random start it is violated everywhere and
@@ -6392,20 +6722,106 @@ class stzMathDiagram from stzObject
 				# into the objectives as advice when it did not.
 				if This._IsAdvisory(_i_)
 					if _c_ != ""  _c_ += "+"  ok
-					_c_ += "(" + @aConstraints[_i_][2] + ")"
+					_c_ += "(" + _cT_ + ")"
 					loop
 				ok
 				if _cP_ != ""  _cP_ += "+"  ok
-				_cP_ += "max(0," + @aConstraints[_i_][2] + ")^2"
+				_cP_ += "max(0," + _cT_ + ")^2"
 			ok
 		next
-		if _cP_ != ""
-			if _c_ != ""  _c_ += "+"  ok
-			_c_ += This._Num(pnLambda) + "*(" + _cP_ + ")"
+		if _bFold_
+			@bFold = FALSE
+			@cTextSig = _cSig_
+			@cTextObj = _c_
+			@cTextPen = _cP_
+		but This._AnyPinned()
+			_c_ = This._WithPins(_c_)
+			_cP_ = This._WithPins(_cP_)
 		ok
-		if _c_ = ""  return ""  ok
-		if pnStage = 1  _c_ = This._Frozen(_c_, 0)  ok
+		return This._JoinEnergy(_c_, _cP_, pnLambda)
+
+	# every pinned slot's symbol replaced by its value, whole symbols only
+	# -- u1 and not the u1 in u12 -- with the occurrences found by the
+	# engine and the text rebuilt from a few slices, never walked
+	def _WithPins(pcText)
+		_c_ = pcText
+		_n_ = len(@aPinned)
+		# A SYMBOL IS ALWAYS FOLLOWED BY ONE OF EIGHT BYTES in a text this
+		# plane writes -- an operator, a bracket, a comma, a blank kept from
+		# the style's own spacing -- or ends it; so eight exact engine
+		# replaces of "u1)" "u1+" ... touch every u1 and
+		# never the u1 inside u12. Locating occurrences and splicing slices
+		# was 24 ms of a drag; this is under one.
+		_acEnd_ = [ ")", "+", "-", "*", "/", "^", ",", " " ]
+		for _k_ = 1 to _n_
+			if @aPinned[_k_] = 0  loop  ok
+			_cSym_ = @acUnknown[_k_]
+			_cV_ = This._NumText(@aValue[_k_])
+			for _e_ = 1 to len(_acEnd_)
+				_c_ = StzReplaceCS(_c_, _cSym_ + _acEnd_[_e_], _cV_ + _acEnd_[_e_], TRUE)
+			next
+			_m_ = len(_cSym_)
+			if len(_c_) >= _m_ and StzRight(_c_, _m_) = _cSym_ and
+			   (len(_c_) = _m_ or NOT This._IsIdent(_c_[len(_c_) - _m_]))
+				_c_ = StzLeft(_c_, len(_c_) - _m_) + _cV_
+			ok
+		next
 		return _c_
+
+	def _JoinEnergy(pcObj, pcPen, pnLambda)
+		_c_ = pcObj
+		if pcPen != ""
+			if _c_ != ""  _c_ += "+"  ok
+			_c_ += This._Num(pnLambda) + "*(" + pcPen + ")"
+		ok
+		return _c_
+
+	# one stored term, built again under the fold: an energy from its raw
+	# arguments, an on-canvas row from its shape's list
+	def _TermAgain(paRow, pcVerb)
+		if len(paRow) < 5  return paRow[2]  ok
+		if StzLower(paRow[1]) = "oncanvas"
+			_i_ = This._ShapeIndex(paRow[5][1])
+			if _i_ = 0  return paRow[2]  ok
+			# a shape's list is built once per frozen set: twenty-four rows
+			# each rebuilding a square's whole list was two thirds of a build
+			_k_ = _MdKey(paRow[5][1])
+			_aT_ = @aOnCanvasCache[_k_]
+			if NOT isList(_aT_)
+				_aT_ = This._OnCanvasTexts(@aShapes[_i_])
+				@aOnCanvasCache[_k_] = _aT_
+			ok
+			return _aT_[paRow[5][2]][1]
+		ok
+		return This._Energy(StzLower(paRow[1]), paRow[5], pcVerb)
+
+	# the frozen set for the text about to be built: the shape unknowns in
+	# the label stage, and every pinned slot in any stage; the fold cache
+	# is kept while the set -- and so every frozen value -- is the same
+	def _BeginFold(pnStage)
+		_n_ = len(@acUnknown)
+		@aFoldNow = []
+		_cSig_ = "" + pnStage + ":"
+		for _i_ = 1 to _n_
+			_b_ = 0
+			if pnStage = 1 and @bLabelVar[_i_] = 0  _b_ = 1  ok
+			if @aPinned[_i_] = 1  _b_ = 1  ok
+			@aFoldNow + _b_
+			if _b_ = 1  _cSig_ += ("" + _i_ + "=" + This._Num(@aValue[_i_]) + ";")  ok
+		next
+		if _cSig_ != @cFoldSig
+			@aFoldCache = []
+			@aOnCanvasCache = []
+			@cFoldSig = _cSig_
+		ok
+		@bFold = TRUE
+
+	def _AnyPinned()
+		_n_ = len(@aPinned)
+		for _i_ = 1 to _n_
+			if @aPinned[_i_] = 1  return TRUE  ok
+		next
+		return FALSE
 
 	# Replace every unknown of the OTHER stage by its current value -- IN
 	# ONE PASS, with the output gathered in chunks. The first version
@@ -6512,6 +6928,10 @@ class stzMathDiagram from stzObject
 		# rounds then enforced every rule inside the crossed basin they
 		# inherited. Nine crossings on a cube that began with none.
 		if @bPlanarStarted  _nLam_ = 100000  ok
+		# A WARM START IS A GOOD START, and gets the same strict opening: the
+		# figure stands near a lawful one, so the ladder's first rungs would
+		# only re-solve what is already solved (DN8g)
+		if @bWarmNext  _nLam_ = 100000  ok
 		_bJoint_ = (pnStage = 0)
 		_bAllTerms_ = _bJoint_
 		_acNames_ = []
@@ -6527,6 +6947,12 @@ class stzMathDiagram from stzObject
 		else
 			_acNames_ = This._StageVars(1)
 		ok
+		# a pinned slot is frozen into the text and is not the optimiser's
+		_acFree_ = []
+		for _i_ = 1 to len(_acNames_)
+			if @aPinned[_acNames_[_i_]] = 0  _acFree_ + _acNames_[_i_]  ok
+		next
+		_acNames_ = _acFree_
 		if len(_acNames_) = 0  return  ok
 		_cNames_ = ""
 		for _i_ = 1 to len(_acNames_)
@@ -6535,8 +6961,12 @@ class stzMathDiagram from stzObject
 		next
 		for _round_ = 1 to 7
 			@nRounds++
+			@aProfile[:rounds]++
+			if pnStage = 0  @aProfile[:rounds0]++  else  @aProfile[:rounds1]++  ok
+			_t0_ = StzEngineWatchTimestampMs()
 			_cE_ = This._EnergyText(pnStage, _nLam_, _bAllTerms_)
 			if _cE_ = ""  return  ok
+			_t1_ = StzEngineWatchTimestampMs()
 			_p_ = StzEngineGradCompile(_cE_, _cNames_)
 			if _p_ = ""
 				stzraise("stzMathDiagram: the engine refused the energy -- " +
@@ -6546,8 +6976,10 @@ class stzMathDiagram from stzObject
 			for _i_ = 1 to len(_acNames_)
 				_aX_ + @aValue[_acNames_[_i_]]
 			next
+			_t2_ = StzEngineWatchTimestampMs()
 			_a_ = StzEngineMinimize(_p_, _aX_, 400, 0.000001)
 			StzEngineGradFree(_p_)
+			_t3_ = StzEngineWatchTimestampMs()
 			if NOT isList(_a_) or len(_a_) < 5
 				stzraise("stzMathDiagram: the engine refused the minimisation.")
 			ok
@@ -6557,11 +6989,24 @@ class stzMathDiagram from stzObject
 			@nEvaluations += _a_[4]
 			@nEnergy = _a_[2]
 			This._ReadViolations()
+			_t4_ = StzEngineWatchTimestampMs()
+			@aProfile[:text] += (_t1_ - _t0_)
+			@aProfile[:compile] += (_t2_ - _t1_)
+			@aProfile[:minimise] += (_t3_ - _t2_)
+			@aProfile[:read] += (_t4_ - _t3_)
 			_v_ = 0
-			if _bJoint_
+			if _bJoint_ and _bAllTerms_
 				_v_ = This._MaxViolation()
+			but _bJoint_
+				# THE SHAPE STAGE ANSWERS FOR ITS OWN TERMS. Under labels-after
+				# it solves the shapes over the shape terms alone, and judged
+				# by every violation -- the label terms it does not touch --
+				# it climbed all seven rungs of the ladder for nothing, cold
+				# and warm alike (DN8g: 7 of a drag's 8 rounds).
+				_v_ = This._StageViolation(0)
 			else
 				_v_ = This._StageViolation(1)
+				@aProfile[:worst1] = _v_
 			ok
 			if _v_ <= 0.01  return  ok
 			_nLam_ *= 10

@@ -13631,6 +13631,99 @@ oGnK.SetData("a", "x", 2)
 chk("A and a are two objects with two data, through the index", oGnK.DataOf("A", "x") = 1 and oGnK.DataOf("a", "x") = 2)
 
 
+sec("-- 95. DN8g: THE LIVE FIGURE -- A DRAG RE-SOLVES FROM WHERE IT STANDS ------")
+discharges("DN8g")
+
+# BYRNE, DRAGGED. The plate solved cold; A taken sixty pixels right and
+# thirty up; the figure re-solved warm around the held point.
+oLvB = StzMathScene13(AUFONT)
+oLvB.Layout()
+nLvAx = oLvB.ValueOf("A.icon.cx")  nLvAy = oLvB.ValueOf("A.icon.cy")
+nLvBx = oLvB.ValueOf("B.icon.cx")  nLvBy = oLvB.ValueOf("B.icon.cy")
+nLvCold = oLvB.LayoutMs()
+oLvB.DragTo("A.icon", nLvAx + 60, nLvAy - 30)
+nLvWarm = oLvB.LayoutMs()
+aLvP = oLvB.SolveProfile()
+? "   [cold " + floor(nLvCold) + " ms; the drag re-solved in " + floor(nLvWarm) + " ms: " +
+  aLvP[:rounds] + " rounds, text " + floor(aLvP[:text]) + " compile " + floor(aLvP[:compile]) +
+  " minimise " + floor(aLvP[:minimise]) + " read " + floor(aLvP[:read]) + "]"
+chk("A is exactly where it was dragged to -- held there through the re-solve",
+    oLvB.ValueOf("A.icon.cx") = nLvAx + 60 and oLvB.ValueOf("A.icon.cy") = nLvAy - 30)
+chk("and the figure followed: B moved, the picture is lawful",
+    (fabs(oLvB.ValueOf("B.icon.cx") - nLvBx) > 1 or fabs(oLvB.ValueOf("B.icon.cy") - nLvBy) > 1) and oLvB.IsFeasible())
+chk("THE KILL: the angle at A is still right after the drag, read off the solved legs",
+    fabs(oLvB.ValueOf("ABC.abx") * oLvB.ValueOf("ABC.acx") + oLvB.ValueOf("ABC.aby") * oLvB.ValueOf("ABC.acy")) /
+    (oLvB.ValueOf("ABC.lab") * oLvB.ValueOf("ABC.lac")) < 0.001)
+chk("and the three area names are back inside their squares, twelve corners",
+    _PgCornersIn(oLvB, "ABC.la", "ABC.sqab") = 4 and _PgCornersIn(oLvB, "ABC.lb", "ABC.sqac") = 4 and
+    _PgCornersIn(oLvB, "ABC.lc", "ABC.sqbc") = 4)
+chk("it was a WARM start: one start, and the solver says so", oLvB.StartUsed() = "warm" and oLvB.StartsTried() = 1)
+chk("THE KILL: the re-solve took under 100 ms, in two rounds -- the round count is the structural half",
+    nLvWarm < 100 and aLvP[:rounds] <= 3)
+chk("and the drag left nothing pinned behind it", NOT oLvB.IsPinned("A.icon") and len(oLvB.Pins()) = 0)
+
+# THE FOLD: the label stage's text, once 586,494 characters, is a few
+# tens of thousands -- a settled name is its number, not its expansion
+nLvT1 = len(oLvB._EnergyText(1, 1000, FALSE))
+? "   [label-stage energy text: " + nLvT1 + " characters]"
+chk("the label stage's energy text is under a tenth of what it was", nLvT1 < 58000 and nLvT1 > 1000)
+chk("and the cold solve takes two rounds now, not eight: the shape stage answers for its own terms",
+    oLvB.Rounds() <= 3)
+
+# PINS. B held; a warm re-solve leaves it; unpinned, the reader says so.
+oLvB.Pin("B.icon")
+nLvBx = oLvB.ValueOf("B.icon.cx")  nLvBy = oLvB.ValueOf("B.icon.cy")
+chk("a pinned shape reads as pinned, and is listed", oLvB.IsPinned("B.icon") and len(oLvB.Pins()) = 1 and oLvB.Pins()[1] = "B.icon")
+oLvB.DragTo("A.icon", oLvB.ValueOf("A.icon.cx") - 30, oLvB.ValueOf("A.icon.cy") + 10)
+chk("dragging A with B pinned: B did not move, C did, and the angle at A is still right",
+    oLvB.ValueOf("B.icon.cx") = nLvBx and oLvB.ValueOf("B.icon.cy") = nLvBy and oLvB.IsFeasible() and
+    fabs(oLvB.ValueOf("ABC.abx") * oLvB.ValueOf("ABC.acx") + oLvB.ValueOf("ABC.aby") * oLvB.ValueOf("ABC.acy")) /
+    (oLvB.ValueOf("ABC.lab") * oLvB.ValueOf("ABC.lac")) < 0.001)
+# NEGATIVE: hold B AND C and drag A, and only A is free -- two numbers
+# against the right angle and the squares' paper: no lawful figure, and
+# the solver says so rather than inventing one
+oLvB.Pin("C.icon")
+nLvCx = oLvB.ValueOf("C.icon.cx")
+oLvB.DragTo("A.icon", oLvB.ValueOf("A.icon.cx") + 25, oLvB.ValueOf("A.icon.cy") - 40)
+chk("NEGATIVE: with B and C both held, a drag of A is reported unlawful, C unmoved, the angle named",
+    NOT oLvB.IsFeasible() and oLvB.ValueOf("C.icon.cx") = nLvCx and len(oLvB.Violations()) >= 1 and
+    StzFindFirst("Right", oLvB.Violations()[1][:message]) > 0)
+oLvB.UnpinAll()
+oLvB.Relayout()
+chk("unpinned, nothing is pinned, and the figure re-solves lawful again",
+    NOT oLvB.IsPinned("B.icon") and len(oLvB.Pins()) = 0 and oLvB.IsFeasible())
+chk("NEGATIVE: a square derived from its triangle cannot be pinned or dragged -- nothing there is free",
+    _LvRefuses(oLvB, 1) and _LvRefuses(oLvB, 2))
+chk("NEGATIVE: a shape no rule minted cannot be pinned", _LvRefuses(oLvB, 3))
+
+# A RE-SOLVE WITH NOTHING MOVED LEAVES THE FIGURE WHERE IT IS
+nLvAx = oLvB.ValueOf("A.icon.cx")  nLvAy = oLvB.ValueOf("A.icon.cy")
+oLvB.Relayout()
+chk("Relayout from a lawful figure moves no point by more than half a pixel",
+    fabs(oLvB.ValueOf("A.icon.cx") - nLvAx) < 0.5 and fabs(oLvB.ValueOf("A.icon.cy") - nLvAy) < 0.5)
+
+# THE GESTURE, in the plastic editor's verbs: press on A, move, release.
+nLvAx = oLvB.ValueOf("A.icon.cx")  nLvAy = oLvB.ValueOf("A.icon.cy")
+oLvB.OnPress(nLvAx + 3, nLvAy - 2)
+chk("a press on A's dot takes hold of A.icon", oLvB.UiState() = :Dragging and oLvB.DragPreview()[1] = "A.icon")
+oLvB.OnMove(nLvAx - 20, nLvAy + 15)
+aLvPv = oLvB.DragPreview()
+chk("a move previews where the pointer is and re-solves nothing: A has not moved yet",
+    aLvPv[2] = nLvAx - 20 and aLvPv[3] = nLvAy + 15 and oLvB.ValueOf("A.icon.cx") = nLvAx)
+oLvB.OnRelease(nLvAx - 20, nLvAy + 15)
+chk("the release is the one drag: A is there, the figure lawful, the gesture idle",
+    oLvB.ValueOf("A.icon.cx") = nLvAx - 20 and oLvB.ValueOf("A.icon.cy") = nLvAy + 15 and oLvB.IsFeasible() and
+    oLvB.UiState() = :Idle and len(oLvB.DragPreview()) = 0)
+nLvAx = oLvB.ValueOf("A.icon.cx")
+oLvB.OnPress(5, 5)
+oLvB.OnRelease(300, 300)
+chk("NEGATIVE: a press on the paper takes hold of nothing, and its release moves nothing",
+    oLvB.UiState() = :Idle and oLvB.ValueOf("A.icon.cx") = nLvAx)
+chk("what a gesture can take hold of: the three points, their names and the three areas, nine shapes -- " +
+    "never a square, a mark or a placed line", len(oLvB.Draggable()) = 9 and NOT _LvHas(oLvB.Draggable(), "ABC.sqab") and
+    NOT _LvHas(oLvB.Draggable(), "ABC.alt") and _LvHas(oLvB.Draggable(), "A.icon"))
+
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go
@@ -16955,6 +17048,27 @@ func _GnMixedPinned
 	_o_.SetFont(AUFONT, 14)
 	_o_.Layout()
 	return _o_
+
+func _LvHas paList, pcItem
+	for _i_ = 1 to len(paList)
+		if paList[_i_] = pcItem  return TRUE  ok
+	next
+	return FALSE
+
+func _LvRefuses poM, pnWhich
+	_b_ = FALSE
+	try
+		if pnWhich = 1
+			poM.Pin("ABC.sqab")
+		but pnWhich = 2
+			poM.DragTo("ABC.sqab", 100, 100)
+		else
+			poM.Pin("nobody.icon")
+		ok
+	catch
+		_b_ = TRUE
+	done
+	return _b_
 
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0

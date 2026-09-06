@@ -766,3 +766,16 @@ func StzMathScene36(poFont)
 	_o_.SetFont(poFont, 12)
 	_o_.SetVariation("brown")
 	return _o_
+
+
+#-- the live figure (DN8g) --------------------------------------------------
+
+# BYRNE'S FIGURE, DRAGGED. The plate is solved cold, then its right-angle
+# vertex A is taken sixty pixels right and thirty up, and the figure
+# re-solves from where it stands: the squares follow their triangle, the
+# areas find their squares again, and the angle at A is still right.
+func StzMathScene37(poFont)
+	_o_ = StzMathScene13(poFont)
+	_o_.Layout()
+	_o_.DragTo("A.icon", _o_.ValueOf("A.icon.cx") + 60, _o_.ValueOf("A.icon.cy") - 30)
+	return _o_

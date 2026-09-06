@@ -50,9 +50,10 @@ acTitles = [ "two sets, one inside the other  (Penrose twosets-simple)",
              "BYRNE'S AREAS IN THEIR SQUARES   (a2, b2, c2 solved inside rotated squares)",
              "THE CHAOS GAME                   (Sierpinski by iteration: 5,000 dots, nothing to solve)",
              "THE NEPHROID AS AN ENVELOPE      (180 circles on a circle, tangent to its diameter)",
-             "BROWNIAN PATHS                   (3,000 steps, each a definition the matcher binds once)" ]
+             "BROWNIAN PATHS                   (3,000 steps, each a definition the matcher binds once)",
+             "BYRNE, A DRAGGED                 (the figure re-solves from where it stands -- a warm start)" ]
 
-for i = 1 to 36
+for i = 1 to 37
 	if i = 1   oM = StzMathScene01(oFont)
 	but i = 2  oM = StzMathScene02(oFont)
 	but i = 3  oM = StzMathScene03(oFont)
@@ -88,7 +89,8 @@ for i = 1 to 36
 	but i = 33 oM = StzMathScene13(oFont)
 	but i = 34 oM = StzMathScene34(oFont)
 	but i = 35 oM = StzMathScene35(oFont)
-	else       oM = StzMathScene36(oFont)  ok
+	but i = 36 oM = StzMathScene36(oFont)
+	else       oM = StzMathScene37(oFont)  ok
 	oM.Layout()
 	? "== " + acTitles[i]
 	? "   unknowns " + oM.NumberOfUnknowns() + "   constraints " +
