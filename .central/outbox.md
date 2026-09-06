@@ -1716,3 +1716,47 @@ note:      THE START WAS RIGHT ON THE FIRST TRY AND THE PICTURE WAS WRONG
            showed in the picture. A planar start is not a feature; it
            is a claim the rest of the solver has to be made to keep.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-06 08:59
+
+subject:   DN7h -- splines: blobs, a curved graph, Catmull-Rom, and the
+           bound that a range is not
+
+why:       the author asked for splines, the largest one-feature gap in
+           the gallery triage
+
+did:
+  - Added the spline shape, drawn by centripetal Catmull-Rom at the
+    solved values, under the same law as curves and polygons.
+  - Drew the seven-set tree as blobs -- its third reading -- with
+    containment checked on the drawn curves, not the hidden circles.
+  - Drew the cube with curved edges and a Catmull-Rom path through six
+    points; catalogue 26.
+  - Found that a range on an unknown holds nothing after the start,
+    and bounded the wobbles in the energy.
+  - Found a second O(position) slice in the label-stage freeze and
+    removed it.
+
+state:
+  section 86:   15 assertions
+  gate:         931 ok, 0 failed, on main and in the commit tree
+  plan table:   DN7a through DN7h all closed
+  commit:       5001a5340 on origin and codeberg, verified at the sha
+
+waiting:
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      ellipses or a colour channel from substance data, the two
+             remaining one-feature gaps, if the author wants them
+  - central: nothing owed from this
+
+note:      THE BLOBS WERE LAWFUL WITH TENDRILS TWICE THE CANVAS. Every
+           rule was satisfied; the wobbles simply had no rule. A range
+           written on an unknown reads like a bound and is only a
+           start, and the solver will use every degree of freedom it
+           is not told about. Wherever a variable is given a range for
+           its start, ask what holds it after.
+```
