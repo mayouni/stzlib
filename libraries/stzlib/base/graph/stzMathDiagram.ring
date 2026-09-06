@@ -751,6 +751,23 @@ func StzEllipseRaysStyle()
 # so the governance can tell two rules reaching for one subject.
 
 # every drawn shape's ink as segments: [ x1, y1, x2, y2, cOwner, cPath ]
+# A NAME AS A HASH-LIST KEY (DN8f). Ring's hash list looks a string key up
+# in constant time -- measured: thirty thousand keys, twelve milliseconds
+# for thirty thousand lookups -- and it FOLDS CASE, so "A.icon" and
+# "a.icon" would be one key. The positions of the capitals are appended
+# and the two names stay apart. Every index this plane keeps is a plain
+# list member, copied with its object the way Ring copies everything, so
+# a copy never shares a stale table with its original.
+func _MdKey(pc)
+	_c_ = "" + pc
+	_m_ = "|"
+	_n_ = len(_c_)
+	for _i_ = 1 to _n_
+		_a_ = ascii(_c_[_i_])
+		if _a_ >= 65 and _a_ <= 90  _m_ += ("" + _i_ + ",")  ok
+	next
+	return _c_ + _m_
+
 func _MrInk(poDg)
 	_a_ = []
 	_ac_ = poDg.Shapes()
@@ -1425,6 +1442,35 @@ func StzHeatmapStyle()
 	_o_.ForAll("Head h", [
 		[ :shape, "h.text", :text, [ :fill = "neutral", :size = 16 ] ],
 		[ :override, "h.text.cx", "h.x" ], [ :override, "h.text.cy", "h.y" ] ])
+	return _o_
+
+# A CLOUD OF DOTS -- the gallery's chaos game, its Brownian walks, its
+# envelopes: content made by iteration in Ring, held as objects with data,
+# drawn with nothing to solve.
+func StzDotDomain()
+	_o_ = new stzMathDomain("dots")
+	_o_.AddType("Dot")
+	_o_.AddType("Ring")
+	# a Step joins two dots -- a random walk is its steps, each a
+	# definition the matcher enumerates once
+	_o_.AddType("Step")
+	_o_.AddConstructor("Step", [ "Dot", "Dot" ])
+	return _o_
+
+func StzDotStyle()
+	_o_ = new stzMathStyle()
+	_o_.SetCanvas(640, 600)
+	_o_.ForAll("Dot d", [
+		[ :shape, "d.icon", :circle, [ :cx = "d.x", :cy = "d.y", :r = 1.4, :fill = "primary" ] ] ])
+	_o_.ForAll("Ring c", [
+		[ :shape, "c.icon", :circle, [ :cx = "c.x", :cy = "c.y", :r = "c.r",
+		                               :stroke = [ :alpha, "primary", 0.35 ], :strokeWidth = 1 ] ] ])
+	# a step is a line from dot to dot, coloured by which walk it is on --
+	# a palette read off the step's datum
+	_o_.ForAllWhere("Step s; Dot a; Dot b", "s := Step(a, b)", [
+		[ :shape, "s.icon", :line, [ :x1 = "a.x", :y1 = "a.y", :x2 = "b.x", :y2 = "b.y",
+		                             :stroke = [ :palette, "s.w", [ "primary", "#C8443C", "#2B8A5E" ] ],
+		                             :strokeWidth = 1.2 ] ] ])
 	return _o_
 
 # A PATH THROUGH POINTS -- Penrose's Catmull-Rom example. Six points in an
@@ -2469,6 +2515,11 @@ class stzMathSubstance from stzObject
 	@aLabels = []       # [ [ cName, cLabel ] ]
 	@aData = []         # [ [ cName, cKey, nValue ] ]
 	@bAutoLabel = 0
+	# INDEXES (DN8f): name -> position, so five thousand objects cost five
+	# thousand lookups and not twelve million comparisons
+	@aObjIdx = []       # _MdKey(cName) -> index in @aObjects
+	@aDataIdx = []      # _MdKey(cName | cKey) -> index in @aData
+	@aDefIdx = []       # _MdKey(cName) -> index in @aDefinitions
 
 	def init(poDomain)
 		if NOT isObject(poDomain)
@@ -2516,6 +2567,7 @@ class stzMathSubstance from stzObject
 			stzraise("stzMathSubstance.Declare: '" + _n_ + "' is declared twice.")
 		ok
 		@aObjects + [ _n_, _t_ ]
+		@aObjIdx[_MdKey(_n_)] = len(@aObjects)
 		return This
 
 		def DeclareQ(pcType, pcName)
@@ -2536,11 +2588,8 @@ class stzMathSubstance from stzObject
 		return This.TypeOf(pcName) != ""
 
 	def TypeOf(pcName)
-		_c_ = ring_trim("" + pcName)
-		_n_ = len(@aObjects)
-		for _i_ = 1 to _n_
-			if @aObjects[_i_][1] = _c_  return @aObjects[_i_][2]  ok
-		next
+		_i_ = @aObjIdx[_MdKey(ring_trim("" + pcName))]
+		if isNumber(_i_)  return @aObjects[_i_][2]  ok
 		return ""
 
 	def Objects()
@@ -2663,6 +2712,7 @@ class stzMathSubstance from stzObject
 		next
 		This.Declare(@oDomain.FunctionOutputType(_f_), pcName)
 		@aDefinitions + [ ring_trim("" + pcName), _f_, _ac_ ]
+		@aDefIdx[_MdKey(ring_trim("" + pcName))] = len(@aDefinitions)
 		return This
 
 		def DefineQ(pcName, pcFunction, pacArgs)
@@ -2690,35 +2740,52 @@ class stzMathSubstance from stzObject
 			stzraise("stzMathSubstance.SetData: the value under '" + _k_ + "' on '" +
 				_c_ + "' must be a number.")
 		ok
-		_n_ = len(@aData)
-		for _i_ = 1 to _n_
-			if @aData[_i_][1] = _c_ and @aData[_i_][2] = _k_
-				@aData[_i_][3] = pnValue
-				return This
-			ok
-		next
+		_i_ = @aDataIdx[_MdKey(_c_ + "|" + _k_)]
+		if isNumber(_i_)
+			@aData[_i_][3] = pnValue
+			return This
+		ok
 		@aData + [ _c_, _k_, pnValue ]
+		@aDataIdx[_MdKey(_c_ + "|" + _k_)] = len(@aData)
 		return This
 
 		def SetDataQ(pcName, pcKey, pnValue)
 			return This.SetData(pcName, pcKey, pnValue)
 
+	# CONTENT GENERATORS (DN8f). Iteration was never a Style's job: a chaos
+	# game, an envelope of circles, a random walk are thousands of OBJECTS
+	# with data, and a substance may hold them. DeclareMany makes n named
+	# objects at once; SetDataFrom puts a list of numbers on them, one
+	# each, under a key.
+	def DeclareMany(pcType, pcPrefix, pnCount)
+		for _i_ = 1 to pnCount
+			This.Declare(pcType, "" + pcPrefix + _i_)
+		next
+		return This
+
+		def DeclareManyQ(pcType, pcPrefix, pnCount)
+			return This.DeclareMany(pcType, pcPrefix, pnCount)
+
+	def SetDataFrom(pcPrefix, pcKey, paValues)
+		_n_ = len(paValues)
+		for _i_ = 1 to _n_
+			This.SetData("" + pcPrefix + _i_, pcKey, paValues[_i_])
+		next
+		return This
+
+		def SetDataFromQ(pcPrefix, pcKey, paValues)
+			return This.SetDataFrom(pcPrefix, pcKey, paValues)
+
 	def HasData(pcName, pcKey)
 		_c_ = ring_trim("" + pcName)
 		_k_ = ring_trim("" + pcKey)
-		_n_ = len(@aData)
-		for _i_ = 1 to _n_
-			if @aData[_i_][1] = _c_ and @aData[_i_][2] = _k_  return TRUE  ok
-		next
-		return FALSE
+		return isNumber(@aDataIdx[_MdKey(_c_ + "|" + _k_)])
 
 	def DataOf(pcName, pcKey)
 		_c_ = ring_trim("" + pcName)
 		_k_ = ring_trim("" + pcKey)
-		_n_ = len(@aData)
-		for _i_ = 1 to _n_
-			if @aData[_i_][1] = _c_ and @aData[_i_][2] = _k_  return @aData[_i_][3]  ok
-		next
+		_i_ = @aDataIdx[_MdKey(_c_ + "|" + _k_)]
+		if isNumber(_i_)  return @aData[_i_][3]  ok
 		stzraise("stzMathSubstance.DataOf: '" + _c_ + "' carries no '" + _k_ + "'.")
 
 	#-- a substance is a graph (DN8a) ------------------------------------------
@@ -2887,15 +2954,12 @@ class stzMathSubstance from stzObject
 	def IsDefinedAs(pcName, pcFunction, pacArgs)
 		_c_ = ring_trim("" + pcName)
 		_f_ = StzLower(ring_trim("" + pcFunction))
-		_n_ = len(@aDefinitions)
-		for _i_ = 1 to _n_
-			if @aDefinitions[_i_][1] = _c_ and
-			   StzLower(@aDefinitions[_i_][2]) = _f_ and
-			   This._SameArgs(@aDefinitions[_i_][3], pacArgs)
-				return TRUE
-			ok
-		next
-		return FALSE
+		# a name is defined once -- Define declares it, and a second
+		# declaration is refused -- so its definition is one indexed entry
+		_i_ = @aDefIdx[_MdKey(_c_)]
+		if NOT isNumber(_i_)  return FALSE  ok
+		return StzLower(@aDefinitions[_i_][2]) = _f_ and
+		       This._SameArgs(@aDefinitions[_i_][3], pacArgs)
 
 	#-- labels -----------------------------------------------------------------
 
@@ -2926,11 +2990,8 @@ class stzMathSubstance from stzObject
 		return ""
 
 	def _DeclaredName(pcName)
-		_c_ = ring_trim("" + pcName)
-		_n_ = len(@aObjects)
-		for _i_ = 1 to _n_
-			if @aObjects[_i_][1] = _c_  return @aObjects[_i_][1]  ok
-		next
+		_i_ = @aObjIdx[_MdKey(ring_trim("" + pcName))]
+		if isNumber(_i_)  return @aObjects[_i_][1]  ok
 		return ""
 
 #---------------------------------------------------------------------#
@@ -3194,9 +3255,21 @@ class stzMathDiagram from stzObject
 	@nStartsTried = 0
 	@cStartUsed = "random"
 	@nAdvisoryUnmet = 0
-	@aVCache = []       # [ [ cName, nValue ] ] -- what _V last answered
+	@aVCache = []       # _MdKey(cName) -> nValue -- what _V last answered
 	@aInkCache = []     # the drawn ink as segments, once per solve
 	@bInkCached = FALSE
+	# INDEXES (DN8f): every name-keyed table above has a hash list beside
+	# it, rebuilt by _Reindex when a table is replaced wholesale
+	@aShapeIdx = []     # _MdKey(cPath) -> index in @aShapes
+	@aConstIdx = []     # _MdKey(cName) -> index in @aConst
+	@aDerivedIdx = []   # _MdKey(cName) -> index in @aDerived
+	@aUnknownIdx = []   # _MdKey(cName) -> tape index
+	@aTextIdx = []      # _MdKey(cPath) -> index in @aTextSize
+	@aDrawOrder = []    # the relaxed drawing order, once per compile
+	@bDrawOrdered = FALSE
+	@aRoleCache = []    # theme|role -> resolved hex, cleared by Touch
+	@aStaticViolations = []  # on-canvas checked in Ring on geometry no tape moves
+	@nNumDecimals = -1  # Ring's decimals() setting, read once
 
 	# the solve
 	@bLaidOut = 0
@@ -3412,7 +3485,7 @@ class stzMathDiagram from stzObject
 		This.Layout()
 		_i_ = This._ShapeIndex(pcPath)
 		if _i_ = 0  return 0  ok
-		_aO_ = This._DrawOrder()
+		_aO_ = This._DrawOrderOnce()
 		for _k_ = 1 to len(_aO_)
 			if _aO_[_k_] = _i_  return _k_  ok
 		next
@@ -3531,7 +3604,7 @@ class stzMathDiagram from stzObject
 		_oC_ = new stzCanvas(@oStyle.CanvasWidth(), @oStyle.CanvasHeight())
 		_oC_.SetBackground(This.Background())
 		if isObject(@oFont)  _oC_.SetFont(@oFont, @nFontSize)  ok
-		_aOrder_ = This._DrawOrder()
+		_aOrder_ = This._DrawOrderOnce()
 		_n_ = len(_aOrder_)
 		for _k_ = 1 to _n_
 			_s_ = @aShapes[_aOrder_[_k_]]
@@ -4022,12 +4095,20 @@ class stzMathDiagram from stzObject
 		if NOT isString(pc)  return pc  ok
 		_c_ = StzLower(ring_trim(pc))
 		if _c_ = ""  return ""  ok
+		# a role is asked once per shape per draw -- five thousand times a
+		# picture -- and answers the same hex until the theme changes, which
+		# Touch() announces (DN8f)
+		_k_ = _MdKey(@oStyle.Theme() + "|" + _c_)
+		_h_ = @aRoleCache[_k_]
+		if isString(_h_) and _h_ != ""  return _h_  ok
 		_ac_ = StzThemeRoles()
 		for _i_ = 1 to len(_ac_)
 			if StzLower("" + _ac_[_i_]) = _c_
 				_e_ = StzThemeColor(@oStyle.Theme(), _c_)
 				if _e_ = ""  return pc  ok
-				return StzResolveColor(_e_)
+				_h_ = StzResolveColor(_e_)
+				@aRoleCache[_k_] = _h_
+				return _h_
 			ok
 		next
 		return pc
@@ -4099,6 +4180,15 @@ class stzMathDiagram from stzObject
 	# Layering as Penrose does it: "x.text above x.icon" is a partial order,
 	# resolved to a z per shape by relaxation. Ties keep creation order,
 	# and text rides above everything unlayered, as a reader expects.
+	# the order is a fact of the compile; asked once per shape by the
+	# under rule, it is relaxed once and kept
+	def _DrawOrderOnce()
+		if NOT @bDrawOrdered
+			@aDrawOrder = This._DrawOrder()
+			@bDrawOrdered = TRUE
+		ok
+		return @aDrawOrder
+
 	def _DrawOrder()
 		_n_ = len(@aShapes)
 		_aZ_ = []
@@ -4144,6 +4234,10 @@ class stzMathDiagram from stzObject
 		@aShapes = []  @acUnknown = []  @aUnknownOf = []  @aValue = []
 		@bLabelVar = []  @aConst = []  @aDerived = []  @aInitRange = []
 		@aConstraints = []  @aObjectives = []  @aLayers = []  @aTextSize = []
+		This._Reindex()
+		@bDrawOrdered = FALSE
+		@aRoleCache = []
+		@aStaticViolations = []
 		_aRules_ = @oStyle.Rules()
 		_n_ = len(_aRules_)
 		# TWO PASSES: shapes, fields and overrides first, then the terms.
@@ -4284,6 +4378,18 @@ class stzMathDiagram from stzObject
 		for _i_ = 1 to _nV_
 			if len(_aCands_[_i_]) = 0  return _aOut_  ok
 		next
+		# membership of a candidate list is asked once per binding, and a
+		# binding is made once per definition per variable: at two
+		# thousand steps that was twelve million comparisons, and is now
+		# a hash-list lookup each (DN8f)
+		_aCandIdx_ = []
+		for _i_ = 1 to _nV_
+			_aK_ = []
+			for _c_ = 1 to len(_aCands_[_i_])
+				_aK_[_MdKey(_aCands_[_i_][_c_])] = 1
+			next
+			_aCandIdx_ + _aK_
+		next
 		# DRIVE THE ENUMERATION FROM THE DEFINITIONS, NOT THE PRODUCT. A
 		# clause "e := Edge(a, b)" used to be a FILTER over every binding of
 		# e, a and b -- 30 x 20 x 20 of them on the dodecahedral graph, and
@@ -4316,11 +4422,11 @@ class stzMathDiagram from stzObject
 					   len(_aDefs_[_d_][3]) != len(_aAI_)
 						loop
 					ok
-					_aQ_ = This._BindVar(_aParts_[_p_], _nT_, _aDefs_[_d_][1], _aCands_)
+					_aQ_ = This._BindVar(_aParts_[_p_], _nT_, _aDefs_[_d_][1], _aCandIdx_)
 					if len(_aQ_) = 0  loop  ok
 					for _k_ = 1 to len(_aAI_)
 						if len(_aQ_) = 0  exit  ok
-						_aQ_ = This._BindVar(_aQ_, _aAI_[_k_], _aDefs_[_d_][3][_k_], _aCands_)
+						_aQ_ = This._BindVar(_aQ_, _aAI_[_k_], _aDefs_[_d_][3][_k_], _aCandIdx_)
 					next
 					if len(_aQ_) > 0  _aNew_ + _aQ_  ok
 				next
@@ -4337,7 +4443,7 @@ class stzMathDiagram from stzObject
 					loop
 				ok
 				for _c_ = 1 to len(_aCands_[_i_])
-					_aQ_ = This._BindVar(_aParts_[_p_], _i_, _aCands_[_i_][_c_], _aCands_)
+					_aQ_ = This._BindVar(_aParts_[_p_], _i_, _aCands_[_i_][_c_], _aCandIdx_)
 					if len(_aQ_) > 0  _aNew_ + _aQ_  ok
 				next
 			next
@@ -4369,16 +4475,12 @@ class stzMathDiagram from stzObject
 	# that variable (wrong type, or a literal naming something else), or
 	# when another variable already holds pcObj -- the injectivity the
 	# matcher has always promised. Returns the new partial, or [].
-	def _BindVar(paPart, pnI, pcObj, paCands)
+	def _BindVar(paPart, pnI, pcObj, paCandIdx)
 		if paPart[pnI] != ""
 			if paPart[pnI] = pcObj  return paPart  ok
 			return []
 		ok
-		_bOk_ = FALSE
-		for _c_ = 1 to len(paCands[pnI])
-			if paCands[pnI][_c_] = pcObj  _bOk_ = TRUE  exit  ok
-		next
-		if NOT _bOk_  return []  ok
+		if NOT isNumber(paCandIdx[pnI][_MdKey(pcObj)])  return []  ok
 		_n_ = len(paPart)
 		for _j_ = 1 to _n_
 			if paPart[_j_] = pcObj  return []  ok
@@ -4620,6 +4722,7 @@ class stzMathDiagram from stzObject
 			_aP_ = _aP2_
 		ok
 		@aShapes + [ pcPath, pcKind, _aP_, pcOwner ]
+		@aShapeIdx[_MdKey(pcPath)] = len(@aShapes)
 		_acGeo_ = []
 		if pcKind = "circle"
 			_acGeo_ = [ "cx", "cy", "r" ]
@@ -4681,6 +4784,7 @@ class stzMathDiagram from stzObject
 			_aM_ = This._MeasureTextAt(This._Prop(_aP_, "string", ""),
 				This._Prop(_aP_, "size", @nFontSize))
 			@aTextSize + [ pcPath, _aM_[1], _aM_[2], _aM_[3] ]
+			@aTextIdx[_MdKey(pcPath)] = len(@aTextSize)
 		ok
 		_bLbl_ = 0
 		if pcKind = "text"  _bLbl_ = 1  ok
@@ -4690,8 +4794,10 @@ class stzMathDiagram from stzObject
 			_v_ = This._Prop(_aP_, _acGeo_[_i_], "")
 			if isNumber(_v_)
 				@aConst + [ _cName_, _v_ ]
+				@aConstIdx[_MdKey(_cName_)] = len(@aConst)
 			but isString(_v_) and ring_trim(_v_) != ""
 				@aDerived + [ _cName_, _v_ ]
+				@aDerivedIdx[_MdKey(_cName_)] = len(@aDerived)
 			else
 				This._Unknown(_cName_, _bLbl_)
 			ok
@@ -4740,14 +4846,17 @@ class stzMathDiagram from stzObject
 			if @aTextSize[_k_][1] != _c_  _t_ + @aTextSize[_k_]  ok
 		next
 		@aTextSize = _t_
+		This._Reindex()
 
 	def _SetField(pcName, pValue)
 		if isNumber(pValue)
 			This._DropName(pcName)
 			@aConst + [ pcName, pValue ]
+			@aConstIdx[_MdKey(pcName)] = len(@aConst)
 		else
 			This._DropName(pcName)
 			@aDerived + [ pcName, "" + pValue ]
+			@aDerivedIdx[_MdKey(pcName)] = len(@aDerived)
 		ok
 
 	# An override rewrites what a name MEANS. On an unknown it leaves the
@@ -4774,52 +4883,66 @@ class stzMathDiagram from stzObject
 			if @aDerived[_i_][1] != _c_  _b_ + @aDerived[_i_]  ok
 		next
 		@aDerived = _b_
+		This._Reindex()
+
+	# THE INDEXES, REBUILT FROM THE TABLES. Called whenever a table was
+	# replaced rather than appended to -- a delete, a drop, the compile's
+	# reset -- and cheap enough (one pass over each) to be the only rule
+	# about them a reader has to hold.
+	def _Reindex()
+		@aShapeIdx = []
+		for _i_ = 1 to len(@aShapes)
+			@aShapeIdx[_MdKey(@aShapes[_i_][1])] = _i_
+		next
+		@aConstIdx = []
+		for _i_ = 1 to len(@aConst)
+			@aConstIdx[_MdKey(@aConst[_i_][1])] = _i_
+		next
+		@aDerivedIdx = []
+		for _i_ = 1 to len(@aDerived)
+			@aDerivedIdx[_MdKey(@aDerived[_i_][1])] = _i_
+		next
+		@aUnknownIdx = []
+		for _i_ = 1 to len(@aUnknownOf)
+			@aUnknownIdx[_MdKey(@aUnknownOf[_i_][1])] = @aUnknownOf[_i_][2]
+		next
+		@aTextIdx = []
+		for _i_ = 1 to len(@aTextSize)
+			@aTextIdx[_MdKey(@aTextSize[_i_][1])] = _i_
+		next
 
 	def _HasConst(pcName)
-		_c_ = "" + pcName
-		for _i_ = 1 to len(@aConst)
-			if @aConst[_i_][1] = _c_  return TRUE  ok
-		next
-		return FALSE
+		return isNumber(@aConstIdx[_MdKey(pcName)])
 
 	def _ConstOf(pcName)
-		_c_ = "" + pcName
-		for _i_ = 1 to len(@aConst)
-			if @aConst[_i_][1] = _c_  return @aConst[_i_][2]  ok
-		next
+		_i_ = @aConstIdx[_MdKey(pcName)]
+		if isNumber(_i_)  return @aConst[_i_][2]  ok
 		return 0
 
 	def _HasDerived(pcName)
-		return This._DerivedOf(pcName) != ""
+		return isNumber(@aDerivedIdx[_MdKey(pcName)])
 
 	def _DerivedOf(pcName)
-		_c_ = "" + pcName
-		for _i_ = 1 to len(@aDerived)
-			if @aDerived[_i_][1] = _c_  return @aDerived[_i_][2]  ok
-		next
+		_i_ = @aDerivedIdx[_MdKey(pcName)]
+		if isNumber(_i_)  return @aDerived[_i_][2]  ok
 		return ""
 
 	def _Unknown(pcName, pbLabel)
 		_i_ = len(@acUnknown) + 1
 		@acUnknown + ("u" + _i_)
 		@aUnknownOf + [ pcName, _i_ ]
+		@aUnknownIdx[_MdKey(pcName)] = _i_
 		@aValue + 0
 		@bLabelVar + pbLabel
 
 	def _UnknownIndex(pcName)
-		_c_ = "" + pcName
-		_n_ = len(@aUnknownOf)
-		for _i_ = 1 to _n_
-			if @aUnknownOf[_i_][1] = _c_  return @aUnknownOf[_i_][2]  ok
-		next
+		_i_ = @aUnknownIdx[_MdKey(pcName)]
+		if isNumber(_i_)  return _i_  ok
 		return 0
 
 	def _ShapeIndex(pcPath)
-		_c_ = "" + pcPath
-		_n_ = len(@aShapes)
-		for _i_ = 1 to _n_
-			if @aShapes[_i_][1] = _c_  return _i_  ok
-		next
+		_i_ = @aShapeIdx[_MdKey(pcPath)]
+		if isNumber(_i_)  return _i_  ok
 		return 0
 
 	def _KindOf(pcPath)
@@ -4853,13 +4976,10 @@ class stzMathDiagram from stzObject
 		return [ 0.6 * pnSize * len(pcText), 0.75 * pnSize, 0.25 * pnSize ]
 
 	def _TextSize(pcPath)
-		_c_ = "" + pcPath
-		_n_ = len(@aTextSize)
-		for _i_ = 1 to _n_
-			if @aTextSize[_i_][1] = _c_
-				return [ @aTextSize[_i_][2], @aTextSize[_i_][3], @aTextSize[_i_][4] ]
-			ok
-		next
+		_i_ = @aTextIdx[_MdKey(pcPath)]
+		if isNumber(_i_)
+			return [ @aTextSize[_i_][2], @aTextSize[_i_][3], @aTextSize[_i_][4] ]
+		ok
 		return [ 0, 0, 0 ]
 
 	#-- SYMBOLS AND EXPRESSIONS: a name becomes tape text -----------------
@@ -5058,13 +5178,15 @@ class stzMathDiagram from stzObject
 	# setting is read back by formatting a probe and counting its fraction
 	# digits, then restored after the write.
 	def _Num(pn)
-		_cP_ = "" + (1 / 3)
-		_nDot_ = StzFindFirst(".", _cP_)
-		_nD_ = 0
-		if _nDot_ > 0  _nD_ = len(_cP_) - _nDot_  ok
+		if @nNumDecimals < 0
+			_cP_ = "" + (1 / 3)
+			_nDot_ = StzFindFirst(".", _cP_)
+			@nNumDecimals = 0
+			if _nDot_ > 0  @nNumDecimals = len(_cP_) - _nDot_  ok
+		ok
 		decimals(12)
 		_c_ = "" + pn
-		decimals(_nD_)
+		decimals(@nNumDecimals)
 		return _c_
 
 	# circle: [ "circle", cx, cy, r ]   rect/text: [ "rect", cx, cy, w, h ]
@@ -5540,6 +5662,18 @@ class stzMathDiagram from stzObject
 		# stand OUTSIDE the triangle, and it is the square's far corners that
 		# run off the page, so every vertex is held on it.
 		if _k_ = "curve" or _k_ = "mark"  return  ok
+		# A SHAPE WHOSE EVERY COORDINATE IS A CONSTANT IS NOT THE SOLVER'S
+		# TO HOLD ON THE PAPER, and a constraint on it would be a tape that
+		# evaluates to a number -- five thousand dots minted twenty thousand
+		# of them (DN8f). Each term below is kept only if it mentions an
+		# unknown; a shape that keeps none is checked here, in Ring, once,
+		# and a datum that put it off the paper is reported like any other
+		# violation, because the content can be wrong where the solver
+		# cannot help.
+		if len(@acUnknown) = 0 or This._AllConst(paShape)
+			This._StaticOnCanvas(paShape)
+			return
+		ok
 		# the paper, less the style's margin on every side
 		_nM_ = @oStyle.Margin()
 		_M_ = This._Num(_nM_)
@@ -5551,14 +5685,22 @@ class stzMathDiagram from stzObject
 		if _k_ = "poly" or _k_ = "spline"
 			_cW2_ = "canvas :: onCanvas(" + _cP_ + ")"
 			_nV_ = This._Prop(paShape[3], "n", 3)
+			_nKept_ = 0
 			for _v_ = 1 to _nV_
 				_x_ = This._Sym(_cP_ + ".x" + _v_)
 				_y_ = This._Sym(_cP_ + ".y" + _v_)
-				@aConstraints + [ "onCanvas", _M_ + "-" + _x_, _cW2_, FALSE ]
-				@aConstraints + [ "onCanvas", _x_ + "-" + _W_, _cW2_, FALSE ]
-				@aConstraints + [ "onCanvas", _M_ + "-" + _y_, _cW2_, FALSE ]
-				@aConstraints + [ "onCanvas", _y_ + "-" + _H_, _cW2_, FALSE ]
+				if This._MentionsUnknown(_x_)
+					@aConstraints + [ "onCanvas", _M_ + "-" + _x_, _cW2_, FALSE ]
+					@aConstraints + [ "onCanvas", _x_ + "-" + _W_, _cW2_, FALSE ]
+					_nKept_++
+				ok
+				if This._MentionsUnknown(_y_)
+					@aConstraints + [ "onCanvas", _M_ + "-" + _y_, _cW2_, FALSE ]
+					@aConstraints + [ "onCanvas", _y_ + "-" + _H_, _cW2_, FALSE ]
+					_nKept_++
+				ok
 			next
+			if _nKept_ = 0  This._StaticOnCanvas(paShape)  ok
 			return
 		ok
 		_g_ = This._Geo(_cP_)
@@ -5569,14 +5711,16 @@ class stzMathDiagram from stzObject
 		_cW_ = "canvas :: onCanvas(" + _cP_ + ")"
 		if _k_ = "line"
 			# both ends on the paper
-			@aConstraints + [ "onCanvas", _M_ + "-" + _g_[4], _cW_, _bLbl_ ]
-			@aConstraints + [ "onCanvas", _g_[4] + "-" + _W_, _cW_, _bLbl_ ]
-			@aConstraints + [ "onCanvas", _M_ + "-" + _g_[5], _cW_, _bLbl_ ]
-			@aConstraints + [ "onCanvas", _g_[5] + "-" + _H_, _cW_, _bLbl_ ]
-			@aConstraints + [ "onCanvas", _M_ + "-" + _g_[6], _cW_, _bLbl_ ]
-			@aConstraints + [ "onCanvas", _g_[6] + "-" + _W_, _cW_, _bLbl_ ]
-			@aConstraints + [ "onCanvas", _M_ + "-" + _g_[7], _cW_, _bLbl_ ]
-			@aConstraints + [ "onCanvas", _g_[7] + "-" + _H_, _cW_, _bLbl_ ]
+			_nKept_ = 0
+			for _e_ = 4 to 7
+				if NOT This._MentionsUnknown(_g_[_e_])  loop  ok
+				_lim_ = _W_
+				if _e_ = 5 or _e_ = 7  _lim_ = _H_  ok
+				@aConstraints + [ "onCanvas", _M_ + "-" + _g_[_e_], _cW_, _bLbl_ ]
+				@aConstraints + [ "onCanvas", _g_[_e_] + "-" + _lim_, _cW_, _bLbl_ ]
+				_nKept_++
+			next
+			if _nKept_ = 0  This._StaticOnCanvas(paShape)  ok
 			return
 		ok
 		if _k_ = "circle"
@@ -5586,15 +5730,118 @@ class stzMathDiagram from stzObject
 			_hx_ = "(" + _g_[4] + ")/2"
 			_hy_ = "(" + _g_[5] + ")/2"
 		ok
-		@aConstraints + [ "onCanvas", _M_ + "+" + _hx_ + "-" + _g_[2], _cW_, _bLbl_ ]
-		@aConstraints + [ "onCanvas", _g_[2] + "+" + _hx_ + "-" + _W_, _cW_, _bLbl_ ]
-		@aConstraints + [ "onCanvas", _M_ + "+" + _hy_ + "-" + _g_[3], _cW_, _bLbl_ ]
-		@aConstraints + [ "onCanvas", _g_[3] + "+" + _hy_ + "-" + _H_, _cW_, _bLbl_ ]
+		_nKept_ = 0
+		if This._MentionsUnknown(_g_[2]) or This._MentionsUnknown(_hx_)
+			@aConstraints + [ "onCanvas", _M_ + "+" + _hx_ + "-" + _g_[2], _cW_, _bLbl_ ]
+			@aConstraints + [ "onCanvas", _g_[2] + "+" + _hx_ + "-" + _W_, _cW_, _bLbl_ ]
+			_nKept_++
+		ok
+		if This._MentionsUnknown(_g_[3]) or This._MentionsUnknown(_hy_)
+			@aConstraints + [ "onCanvas", _M_ + "+" + _hy_ + "-" + _g_[3], _cW_, _bLbl_ ]
+			@aConstraints + [ "onCanvas", _g_[3] + "+" + _hy_ + "-" + _H_, _cW_, _bLbl_ ]
+			_nKept_++
+		ok
+		if _nKept_ = 0  This._StaticOnCanvas(paShape)  ok
+
+	# THE ON-CANVAS CHECK FOR GEOMETRY NO TAPE MOVES: the shape's extent
+	# is read as numbers and held to the paper less the margin; how far it
+	# is out is recorded as a violation the readers report with the rest.
+	# Only a breach is recorded -- five thousand satisfied entries would be
+	# a list every reader walks for nothing.
+	def _StaticOnCanvas(paShape)
+		_cP_ = paShape[1]
+		_k_ = paShape[2]
+		_nM_ = @oStyle.Margin()
+		_W_ = @oStyle.CanvasWidth() - _nM_
+		_H_ = @oStyle.CanvasHeight() - _nM_
+		_aX_ = []  _aY_ = []
+		if _k_ = "poly" or _k_ = "spline"
+			_nV_ = This._Prop(paShape[3], "n", 0)
+			for _v_ = 1 to _nV_
+				_aX_ + This._V(_cP_ + ".x" + _v_)
+				_aY_ + This._V(_cP_ + ".y" + _v_)
+			next
+		but _k_ = "line"
+			_aX_ + This._V(_cP_ + ".x1")  _aX_ + This._V(_cP_ + ".x2")
+			_aY_ + This._V(_cP_ + ".y1")  _aY_ + This._V(_cP_ + ".y2")
+		else
+			_cx_ = This._V(_cP_ + ".cx")
+			_cy_ = This._V(_cP_ + ".cy")
+			if _k_ = "circle"
+				_hx_ = This._V(_cP_ + ".r")
+				_hy_ = _hx_
+			but _k_ = "ellipse"
+				_hx_ = This._V(_cP_ + ".rx")
+				_hy_ = This._V(_cP_ + ".ry")
+			but _k_ = "text"
+				_aM_ = This._TextSize(_cP_)
+				_hx_ = _aM_[1] / 2
+				_hy_ = (_aM_[2] + _aM_[3]) / 2
+			else
+				_hx_ = This._V(_cP_ + ".w") / 2
+				_hy_ = This._V(_cP_ + ".h") / 2
+			ok
+			_aX_ + (_cx_ - _hx_)  _aX_ + (_cx_ + _hx_)
+			_aY_ + (_cy_ - _hy_)  _aY_ + (_cy_ + _hy_)
+		ok
+		_v_ = 0
+		for _i_ = 1 to len(_aX_)
+			if _nM_ - _aX_[_i_] > _v_  _v_ = _nM_ - _aX_[_i_]  ok
+			if _aX_[_i_] - _W_ > _v_  _v_ = _aX_[_i_] - _W_  ok
+		next
+		for _i_ = 1 to len(_aY_)
+			if _nM_ - _aY_[_i_] > _v_  _v_ = _nM_ - _aY_[_i_]  ok
+			if _aY_[_i_] - _H_ > _v_  _v_ = _aY_[_i_] - _H_  ok
+		next
+		if _v_ > 0.01
+			@aStaticViolations + [ "onCanvas", "canvas :: onCanvas(" + _cP_ + ")", _v_, FALSE ]
+		ok
+
+	# every geometric name of a shape is a constant -- nothing the solver
+	# owns, nothing derived that could reach an unknown
+	def _AllConst(paShape)
+		_cP_ = paShape[1]
+		_acG_ = This._GeoNames(paShape)
+		for _i_ = 1 to len(_acG_)
+			if NOT This._HasConst(_cP_ + "." + _acG_[_i_])  return FALSE  ok
+		next
+		return TRUE
+
+	# the geometric property names a shape of this kind owns
+	def _GeoNames(paShape)
+		_k_ = paShape[2]
+		if _k_ = "circle"  return [ "cx", "cy", "r" ]  ok
+		if _k_ = "rect"  return [ "cx", "cy", "w", "h" ]  ok
+		if _k_ = "ellipse"  return [ "cx", "cy", "rx", "ry" ]  ok
+		if _k_ = "line"  return [ "x1", "y1", "x2", "y2" ]  ok
+		if _k_ = "text"  return [ "cx", "cy" ]  ok
+		if _k_ = "poly" or _k_ = "spline"
+			_ac_ = []
+			_nV_ = This._Prop(paShape[3], "n", 0)
+			for _v_ = 1 to _nV_
+				_ac_ + ("x" + _v_)
+				_ac_ + ("y" + _v_)
+			next
+			return _ac_
+		ok
+		return []
+
+	# does tape text mention a tape variable? A variable is u followed by
+	# a digit, and no function on the tape has a u in its name -- sqrt,
+	# abs, min, max, sin, cos, exp, log -- so the first u decides.
+	def _MentionsUnknown(pcTape)
+		_c_ = "" + pcTape
+		_p_ = StzFindFirst("u", _c_)
+		if _p_ = 0 or _p_ >= len(_c_)  return FALSE  ok
+		_a_ = ascii(_c_[_p_ + 1])
+		return _a_ >= 48 and _a_ <= 57
 
 	#-- SOLVE: exterior point over the engine's L-BFGS, joint then labels --
 
 	def _Solve()
-		@aVCache = []
+		# with nothing to solve nothing moved, and what the compile already
+		# read of the constants stays read
+		if len(@acUnknown) > 0  @aVCache = []  ok
 		@nRounds = 0
 		@nEvaluations = 0
 		@nEnergy = 0
@@ -6389,6 +6636,10 @@ class stzMathDiagram from stzObject
 			@aViolations + [ @aConstraints[_i_][1], @aConstraints[_i_][3], _v_,
 			                 @aConstraints[_i_][4] ]
 		next
+		# what the compile checked in Ring on geometry no tape moves
+		for _i_ = 1 to len(@aStaticViolations)
+			@aViolations + @aStaticViolations[_i_]
+		next
 
 	# A crossing rule counts only when the picture began planar; from a
 	# random start it is advice the solver follows as far as it can.
@@ -6405,17 +6656,18 @@ class stzMathDiagram from stzObject
 	# between two solves, so the answer is kept; a solve forgets it, and
 	# so does Touch(), for a guard that moves a value by hand.
 	def _V(pcName)
-		_n_ = len(@aVCache)
-		for _i_ = 1 to _n_
-			if @aVCache[_i_][1] = pcName  return @aVCache[_i_][2]  ok
-		next
+		_k_ = _MdKey(pcName)
+		_v_ = @aVCache[_k_]
+		if isNumber(_v_)  return _v_  ok
 		_v_ = This._VUncached(pcName)
-		@aVCache + [ "" + pcName, _v_ ]
+		@aVCache[_k_] = _v_
 		return _v_
 
 	def Touch()
 		@aVCache = []
+		@aRoleCache = []
 		@bInkCached = FALSE
+		@bDrawOrdered = FALSE
 		return This
 
 	# Every drawn stroke as a segment, [ x1, y1, x2, y2, cOwner, cPath ] --
@@ -6430,8 +6682,26 @@ class stzMathDiagram from stzObject
 
 	def _VUncached(pcName)
 		_c_ = "" + pcName
-		if This._HasDerived(_c_)
-			return This._EvalExpr(This._Sym(_c_))
+		_e_ = This._DerivedOf(_c_)
+		if _e_ != ""
+			# a coordinate that IS a datum -- ":cx = d.x" -- is read as the
+			# datum, without expanding an expression to find a number in it
+			_e_ = ring_trim(_e_)
+			_ae_ = StzSplit(_e_, ".")
+			if len(_ae_) = 2 and This._IsIdentifierText(_ae_[1]) and This._IsIdentifierText(_ae_[2]) and
+			   @oSubstance.HasData(_ae_[1], _ae_[2])
+				return @oSubstance.DataOf(_ae_[1], _ae_[2])
+			ok
+			_t_ = This._Sym(_c_)
+			# a derived name that expands to a bare number -- a coordinate
+			# read straight off the substance's data -- needs no tape: five
+			# thousand engine compiles were the draw's whole cost (DN8f)
+			_b_ = _t_
+			while StzLeft(_b_, 1) = "(" and StzRight(_b_, 1) = ")"
+				_b_ = StzStringSection(_b_, 2, len(_b_) - 1)
+			end
+			if This._LooksNumeric(_b_)  return 0 + _b_  ok
+			return This._EvalExpr(_t_)
 		ok
 		if This._HasConst(_c_)  return This._ConstOf(_c_)  ok
 		_i_ = This._UnknownIndex(_c_)
@@ -6443,6 +6713,18 @@ class stzMathDiagram from stzObject
 			if _ac_[3] = "h"  return _aM_[2] + _aM_[3]  ok
 		ok
 		return 0
+
+	# letters, digits and underscores, starting with a letter or underscore
+	def _IsIdentifierText(pc)
+		_n_ = len(pc)
+		if _n_ = 0  return FALSE  ok
+		for _i_ = 1 to _n_
+			_a_ = ascii(pc[_i_])
+			_bL_ = (_a_ >= 65 and _a_ <= 90) or (_a_ >= 97 and _a_ <= 122) or _a_ = 95
+			if _i_ = 1 and NOT _bL_  return FALSE  ok
+			if NOT (_bL_ or (_a_ >= 48 and _a_ <= 57))  return FALSE  ok
+		next
+		return TRUE
 
 	def _EvalExpr(pcTape)
 		if len(@acUnknown) = 0

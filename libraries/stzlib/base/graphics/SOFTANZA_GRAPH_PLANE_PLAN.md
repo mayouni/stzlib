@@ -109,7 +109,7 @@ sections, of which 21 declarations over 17 items.
 | DN8c | closed | 91 |
 | DN8d | closed | 92 |
 | DN8e | closed | 93 |
-| DN8f | open | - |
+| DN8f | closed | 94 |
 | DN8g | open | - |
 | DN2b | closed | 56 |
 | DN2c | closed | - |
@@ -2500,15 +2500,44 @@ path); no "framework" layer above both. Adapters and starts, measured.
   size — DN7d's 202 seconds are the standing warning; the expression per
   polygon edge is measured before the second polygon is added.
 
-- **DN8f — Content generators, and the scale they expose.** *Not started.*
-  `DeclareMany`, `SetDataFrom`, and a Ring-side generator idiom, so the
-  gallery's iteration-made pictures — the chaos game's Sierpinski
-  triangle, the nephroid as an envelope of circles, Brownian paths — are
-  substances of thousands of objects with nothing to solve. **Kill:** five
-  thousand points drawn and timed; the matcher and the minter measured
-  at that count, since both were written for dozens. This moves a whole
-  column of the gallery triage from "outside the engine" to "runs", by
-  recognising that iteration was never a Style's job.
+- **DN8f — Content generators, and the scale they expose.** **SHIPPED**
+  2026-09-06. `DeclareMany(type, prefix, n)` and `SetDataFrom(prefix, key,
+  list)` on the substance; a dot domain (Dot, Ring, Step := Step(Dot,
+  Dot)) and its style; three gallery pictures that were "outside the
+  engine" and are content: the chaos game's Sierpinski triangle (5,000
+  dots), the nephroid as an envelope (180 circles tangent to a diameter),
+  three Brownian walks (3,000 steps, each a definition). Nothing is solved
+  in any of them, and the picture is the substance drawn.
+
+  *What the scale exposed, measured before and after on the 5,000 dots:*
+
+  | stage | before | after |
+  |---|---|---|
+  | substance build | 22.4 s | 0.65 s |
+  | compile (5,000 shapes) | 237.7 s, 20,000 constraints | 2.3 s, 0 constraints |
+  | solve | 0.15 s | 0 |
+  | draw | not finished at 10 min | 9.2 s, of which 2.5 s is the PNG raster |
+
+  Every table keyed by a name — objects, data, definitions, shapes,
+  constants, derived names, unknowns, text sizes, the value cache, the
+  matcher's candidate lists — was a linear scan, squared at five thousand.
+  Each has a Ring hash list beside it now (measured: 30,000 keys, 12 ms for
+  30,000 lookups; case-marked keys, since Ring's hash list folds case), a
+  plain member that copies with its object. The 20,000 constraints were
+  `onCanvas` on shapes whose every coordinate is a constant: a tape that
+  evaluates to a number, kept only when a term mentions an unknown now.
+  A shape that keeps none is checked in Ring at compile, once, and a datum
+  that puts it off the paper is reported as a violation like any other,
+  because the content can be wrong where the solver cannot help; the
+  guard puts a dot 300 px past the edge and reads the report. The draw's whole cost was an
+  engine tape compile per derived coordinate to read a number back; a
+  coordinate that is a datum is read as the datum. Roles resolve once per
+  theme per draw, not once per shape. **Kill met:** 5,000 points drawn and
+  timed; matcher and minter at that count. *Not cured, named:* the minter
+  is 0.36 ms a shape — property scans and head rewriting — and the PNG
+  raster is the canvas's.
+
+  *Guard:* §94, DN8f.
 
 - **DN8g — The live figure.** *Not started.* The plastic layout's editor over a math
   diagram: drag a point, and the solver re-solves from the DRAGGED values

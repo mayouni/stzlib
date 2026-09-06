@@ -13166,8 +13166,9 @@ chk("NEGATIVE: a value that is not a number is refused, and a good one accepted"
 # where their data says; each is filled from a palette by WHICH element
 # its product is. The guard reads the group back out of the picture.
 oCq = StzMathScene29(AUFONT)
-chk("the table is lawful in a single evaluation -- there was nothing to solve",
-    oCq.IsFeasible() and oCq.Evaluations() = 1)
+chk("the table is lawful with nothing evaluated -- every name is data, and the on-canvas " +
+    "terms it used to carry were constants, checked in Ring and not on a tape",
+    oCq.IsFeasible() and oCq.Evaluations() = 0 and oCq.NumberOfConstraints() = 0)
 chk("every cell sits at the place its row and column data name",
     _CqCellsPlaced(oCq))
 chk("i.j is k and j.i is -k, and their fills are k's and -k's colours",
@@ -13181,7 +13182,7 @@ chk("and every product agrees with an independent multiplication, all 64",
 # THE HEAT MAP: A . B = C, each cell on a ramp by its value over its own
 # matrix's range. The guard multiplies A and B itself from the cell data.
 oCh = StzMathScene30(AUFONT)
-chk("the heat map is lawful, in one evaluation", oCh.IsFeasible() and oCh.Evaluations() = 1)
+chk("the heat map is lawful with nothing evaluated", oCh.IsFeasible() and oCh.Evaluations() = 0)
 chk("C's cells hold A . B, recomputed here from A's and B's cell data",
     _ChProductAgrees(oCh))
 # the ramp runs from the PAPER to the ACCENT since DN8d, so its ends are
@@ -13547,6 +13548,87 @@ chk("and it began at the icon's centre, not at random: lawful in one start, no r
 chk("contains(thing, poly) is refused -- a polygon holds, it is not held", _PgRefuses(1))
 chk("disjoint(poly, poly) is refused -- separation of two polygons is not on the tape", _PgRefuses(2))
 chk("NEGATIVE: contains(poly, circle) and disjoint(circle, poly) are accepted", NOT _PgRefuses(0))
+
+
+sec("-- 94. DN8f: CONTENT GENERATORS, AND THE SCALE THEY EXPOSE ---------------")
+discharges("DN8f")
+
+# THE GENERATORS. DeclareMany names n objects; SetDataFrom puts a list on
+# them one each. What a scene's loop builds, the substance reads back.
+oGnS = new stzMathSubstance(StzDotDomain())
+oGnS.DeclareMany("Dot", "q", 5)
+oGnS.SetDataFrom("q", "x", [ 10, 20, 30, 40, 50 ])
+oGnS.SetDataFrom("q", "y", [ 1, 2, 3 ])
+chk("DeclareMany makes q1..q5, each a Dot", oGnS.HasObject("q1") and oGnS.HasObject("q5") and
+    NOT oGnS.HasObject("q6") and oGnS.TypeOf("q3") = "Dot")
+chk("SetDataFrom puts the list on them in order", oGnS.DataOf("q1", "x") = 10 and oGnS.DataOf("q5", "x") = 50)
+chk("and a shorter list reaches only as far as it goes", oGnS.HasData("q3", "y") and NOT oGnS.HasData("q4", "y"))
+chk("NEGATIVE: DeclareMany over names already taken is refused like any second declaration",
+    _GnRefused(oGnS))
+chk("a substance of 5,000 objects and 10,000 data is built in under two seconds (was 22)",
+    _GnBuildMs(5000) < 2000)
+
+# THE CHAOS GAME: five thousand dots, nothing to solve. Two independent
+# facts of Sierpinski's triangle: every point is inside the outer
+# triangle, and the central inverted triangle -- the hole -- holds none.
+nGnT0 = StzEngineWatchTimestampMs()
+oGnC = StzMathScene34(AUFONT)
+oGnC.Layout()
+nGnT1 = StzEngineWatchTimestampMs()
+chk("5,000 dots compile to 5,000 shapes, no unknown, no constraint -- nothing to solve",
+    oGnC.NumberOfShapes() = 5000 and oGnC.NumberOfUnknowns() = 0 and oGnC.NumberOfConstraints() = 0)
+aGnIn = _GnSierpinskiCounts(oGnC, 5000)
+chk("every one of the 5,000 is inside the outer triangle, by an independent point-in-triangle test",
+    aGnIn[1] = 5000)
+chk("and NOT ONE lies in the central hole -- the fractal's own signature, not a property of any dot",
+    aGnIn[2] = 0)
+chk("a dot's coordinate is read straight off the datum", oGnC.ValueOf("d7.icon.cx") = oGnC.@oSubstance.DataOf("d7", "x"))
+oGnC.ToPNG("gn_chaos.png")
+nGnT2 = StzEngineWatchTimestampMs()
+? "   [5,000 dots: compile " + floor(nGnT1 - nGnT0) + " ms, draw " + floor(nGnT2 - nGnT1) + " ms]"
+chk("compile under 15 s and draw under 30 s at five thousand (were 238 s and unfinished at 600 s)",
+    (nGnT1 - nGnT0) < 15000 and (nGnT2 - nGnT1) < 30000)
+
+# THE NEPHROID: every circle passes through the cusp, read off the
+# solved geometry with an independent distance.
+oGnN = StzMathScene35(AUFONT)
+chk("180 rings and the base centre compile with nothing to solve", oGnN.NumberOfShapes() = 181 and oGnN.NumberOfUnknowns() = 0)
+chk("every ring is tangent to the diameter through p: |cy - p.y| = r for all 180", _GnTangent(oGnN, 180) = 180)
+chk("NEGATIVE: exactly the two rings tangent to the diameter at its midpoint reach the base centre -- " +
+    "2 of 180, where a cardioid's construction would send all 180 through one point",
+    _GnThroughCusp(oGnN, 180) = 2)
+
+# BROWNIAN PATHS: three thousand steps, each a definition bound once.
+oGnB = StzMathScene36(AUFONT)
+chk("3,000 steps become 3,000 lines beside 3,003 dots -- 6,003 shapes, nothing to solve",
+    oGnB.NumberOfShapes() = 6003 and oGnB.NumberOfUnknowns() = 0)
+chk("the matcher enumerated exactly three bindings per definition and one per dot -- " +
+    "12,003, linear in the content, counted not timed", oGnB.MatchCandidates() = 12003)
+chk("each walk is continuous: step k ends where step k+1 begins, for all 999 joins of walk a",
+    _GnContinuous(oGnB, "sa", 1000))
+chk("the three walks wear three colours, from the palette on the step's datum",
+    StzUpper(oGnB.StrokeOf("sa1.icon")) != StzUpper(oGnB.StrokeOf("sb1.icon")) and
+    StzUpper(oGnB.StrokeOf("sb1.icon")) != StzUpper(oGnB.StrokeOf("sc1.icon")) and
+    StzUpper(oGnB.StrokeOf("sc1.icon")) = "#2B8A5E")
+
+# THE ON-CANVAS RULE STILL HOLDS WHAT CAN MOVE. Fifty constant dots and
+# one free name: the name's four terms, and not the dots' two hundred.
+oGnM = _GnMixed()
+chk("a free label among constant dots gets its four on-canvas terms and the dots get none",
+    oGnM.NumberOfUnknowns() = 2 and oGnM.NumberOfConstraints() = 4)
+chk("NEGATIVE: the same fifty dots with the label pinned mint no constraint at all",
+    _GnMixedPinned().NumberOfConstraints() = 0)
+chk("and a datum that puts a dot off the paper is STILL reported -- checked in Ring, not on a tape: " +
+    "one violation, naming the dot, by the pixels it is out",
+    _GnOffPaper())
+
+# THE INDEX KEEPS CASE APART, where Ring's own hash list would not.
+oGnK = new stzMathSubstance(StzDotDomain())
+oGnK.Declare("Dot", "A")
+oGnK.Declare("Dot", "a")
+oGnK.SetData("A", "x", 1)
+oGnK.SetData("a", "x", 2)
+chk("A and a are two objects with two data, through the index", oGnK.DataOf("A", "x") = 1 and oGnK.DataOf("a", "x") = 2)
 
 
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
@@ -16752,6 +16834,127 @@ func _PgRefuses pnWhich
 		_b_ = TRUE
 	done
 	return _b_
+
+func _GnRefused poS
+	_b_ = FALSE
+	try
+		poS.DeclareMany("Dot", "q", 3)
+	catch
+		_b_ = TRUE
+	done
+	return _b_
+
+func _GnBuildMs pnN
+	_aX_ = []
+	for _i_ = 1 to pnN  _aX_ + _i_  next
+	_t0_ = StzEngineWatchTimestampMs()
+	_o_ = new stzMathSubstance(StzDotDomain())
+	_o_.DeclareMany("Dot", "z", pnN)
+	_o_.SetDataFrom("z", "x", _aX_)
+	_o_.SetDataFrom("z", "y", _aX_)
+	return StzEngineWatchTimestampMs() - _t0_
+
+# [ how many dots inside the outer triangle, how many inside the central hole ]
+func _GnSierpinskiCounts poM, pnN
+	_aT_ = [ 320, 40, 40, 560, 600, 560 ]
+	_aH_ = [ (320 + 40) / 2, (40 + 560) / 2, (320 + 600) / 2, (40 + 560) / 2, (40 + 600) / 2, 560 ]
+	_nIn_ = 0  _nHole_ = 0
+	for _i_ = 1 to pnN
+		_x_ = poM.ValueOf("d" + _i_ + ".icon.cx")
+		_y_ = poM.ValueOf("d" + _i_ + ".icon.cy")
+		if _MrPointIn(_x_, _y_, _aT_)  _nIn_++  ok
+		if _GnStrictlyIn(_x_, _y_, _aH_)  _nHole_++  ok
+	next
+	return [ _nIn_, _nHole_ ]
+
+# strictly inside a triangle: all three cross products of one sign, none zero
+func _GnStrictlyIn px, py, paT
+	_s_ = []
+	for _i_ = 1 to 3
+		_j_ = (_i_ % 3) + 1
+		_c_ = (paT[2*_j_-1] - paT[2*_i_-1]) * (py - paT[2*_i_]) - (paT[2*_j_] - paT[2*_i_]) * (px - paT[2*_i_-1])
+		_s_ + _c_
+	next
+	return (_s_[1] > 0.5 and _s_[2] > 0.5 and _s_[3] > 0.5) or (_s_[1] < -0.5 and _s_[2] < -0.5 and _s_[3] < -0.5)
+
+func _GnThroughCusp poM, pnN
+	_px_ = poM.ValueOf("p.icon.cx")
+	_py_ = poM.ValueOf("p.icon.cy")
+	_n_ = 0
+	for _i_ = 1 to pnN
+		_s_ = poM.ShapeOf("c" + _i_ + ".icon")
+		_d_ = sqrt((_s_[:cx] - _px_) * (_s_[:cx] - _px_) + (_s_[:cy] - _py_) * (_s_[:cy] - _py_))
+		if fabs(_d_ - _s_[:r]) < 0.000001  _n_++  ok
+	next
+	return _n_
+
+func _GnTangent poM, pnN
+	_py_ = poM.ValueOf("p.icon.cy")
+	_n_ = 0
+	for _i_ = 1 to pnN
+		_s_ = poM.ShapeOf("c" + _i_ + ".icon")
+		if fabs(fabs(_s_[:cy] - _py_) - _s_[:r]) < 0.000001  _n_++  ok
+	next
+	return _n_
+
+func _GnContinuous poM, pcPfx, pnSteps
+	for _i_ = 1 to pnSteps - 1
+		_a_ = poM.ShapeOf(pcPfx + _i_ + ".icon")
+		_b_ = poM.ShapeOf(pcPfx + (_i_ + 1) + ".icon")
+		if _a_[:x2] != _b_[:x1] or _a_[:y2] != _b_[:y1]  return FALSE  ok
+	next
+	return TRUE
+
+func _GnMixed
+	_oS_ = new stzMathSubstance(StzDotDomain())
+	_oS_.DeclareMany("Dot", "m", 50)
+	_aX_ = []
+	for _i_ = 1 to 50  _aX_ + (100 + _i_ * 8)  next
+	_oS_.SetDataFrom("m", "x", _aX_)
+	_oS_.SetDataFrom("m", "y", _aX_)
+	_oS_.Declare("Ring", "lbl")
+	_oS_.Label("lbl", "walk")
+	_oSt_ = new stzMathStyle()
+	_oSt_.SetCanvas(640, 600)
+	_oSt_.ForAll("Dot d", [ [ :shape, "d.icon", :circle, [ :cx = "d.x", :cy = "d.y", :r = 2 ] ] ])
+	_oSt_.ForAll("Ring c", [ [ :shape, "c.text", :text, [] ] ])
+	_o_ = new stzMathDiagram(StzDotDomain(), _oS_, _oSt_)
+	_o_.SetFont(AUFONT, 14)
+	_o_.Layout()
+	return _o_
+
+# three dots, one of them 300 px past the right edge by its own datum
+func _GnOffPaper
+	_oS_ = new stzMathSubstance(StzDotDomain())
+	_oS_.DeclareMany("Dot", "o", 3)
+	_oS_.SetDataFrom("o", "x", [ 100, 200, 940 ])
+	_oS_.SetDataFrom("o", "y", [ 100, 100, 100 ])
+	_oSt_ = new stzMathStyle()
+	_oSt_.SetCanvas(640, 600)
+	_oSt_.ForAll("Dot d", [ [ :shape, "d.icon", :circle, [ :cx = "d.x", :cy = "d.y", :r = 2 ] ] ])
+	_o_ = new stzMathDiagram(StzDotDomain(), _oS_, _oSt_)
+	_aV_ = _o_.Violations()
+	if _o_.IsFeasible() or len(_aV_) != 1  return FALSE  ok
+	return StzFindFirst("o3.icon", _aV_[1][:where]) > 0 and
+	       _o_.Violation() > 300 and _o_.Violation() < 320
+
+func _GnMixedPinned
+	_oS_ = new stzMathSubstance(StzDotDomain())
+	_oS_.DeclareMany("Dot", "m", 50)
+	_aX_ = []
+	for _i_ = 1 to 50  _aX_ + (100 + _i_ * 8)  next
+	_oS_.SetDataFrom("m", "x", _aX_)
+	_oS_.SetDataFrom("m", "y", _aX_)
+	_oS_.Declare("Ring", "lbl")
+	_oS_.Label("lbl", "walk")
+	_oSt_ = new stzMathStyle()
+	_oSt_.SetCanvas(640, 600)
+	_oSt_.ForAll("Dot d", [ [ :shape, "d.icon", :circle, [ :cx = "d.x", :cy = "d.y", :r = 2 ] ] ])
+	_oSt_.ForAll("Ring c", [ [ :shape, "c.text", :text, [ :cx = 300, :cy = 40 ] ] ])
+	_o_ = new stzMathDiagram(StzDotDomain(), _oS_, _oSt_)
+	_o_.SetFont(AUFONT, 14)
+	_o_.Layout()
+	return _o_
 
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0
