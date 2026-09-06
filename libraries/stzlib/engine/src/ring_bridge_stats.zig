@@ -1148,6 +1148,9 @@ fn ring_BayesStats(p: *anyopaque) callconv(.c) void {
 //   StzEngineGradAt(handle, anValues)      -> [ value, d/dv1, d/dv2, ... ]
 //   StzEngineGradValueAt(handle, anValues) -> value only
 //   StzEngineGradNodes(handle) -> how many nodes the tape holds
+//   StzEngineGradCompileXT(cExpr, cNames, nShare) -> handle, sharing off
+//     when nShare is 0. Only an instrument asks for that: it is how a
+//     caller measures what sharing SAVED, by building the tape both ways.
 //   StzEngineGradFree(handle)
 //
 // Names arrive as one comma-separated string rather than a Ring list because the
@@ -1162,6 +1165,14 @@ const GH: [*:0]const u8 = "StzGradHandle";
 var grad_last_error: []const u8 = "";
 
 fn ring_GradCompile(p: *anyopaque) callconv(.c) void {
+    gradCompileInto(p, true);
+}
+
+fn ring_GradCompileXT(p: *anyopaque) callconv(.c) void {
+    gradCompileInto(p, g(p, 3) != 0);
+}
+
+fn gradCompileInto(p: *anyopaque, share: bool) void {
     const src = strParam(p, 1);
     const names_raw = strParam(p, 2);
 
@@ -1180,7 +1191,7 @@ fn ring_GradCompile(p: *anyopaque) callconv(.c) void {
         n += 1;
     }
 
-    const prog = autodiff.compile(allocator, src, names[0..n]) catch |e| {
+    const prog = autodiff.compileShared(allocator, src, names[0..n], share) catch |e| {
         grad_last_error = switch (e) {
             error.UnknownName => "there is a name in the expression that is not one of the variables",
             error.UnknownFunction => "there is a function call the engine does not know",
@@ -3312,6 +3323,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegradwhy", .func = &ring_GradWhy },
     .{ .name = "stzenginegradfree", .func = &ring_GradFree },
     .{ .name = "stzenginegradnodes", .func = &ring_GradNodes },
+    .{ .name = "stzenginegradcompilext", .func = &ring_GradCompileXT },
     .{ .name = "stzenginegradat", .func = &ring_GradAt },
     .{ .name = "stzenginegradvalueat", .func = &ring_GradValueAt },
     .{ .name = "stzenginebayesnew", .func = &ring_BayesNew },

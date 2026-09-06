@@ -114,7 +114,7 @@ sections, of which 21 declarations over 17 items.
 | DN8h | closed | 96 |
 | DN9 | open | - |
 | DN9a | closed | 97 |
-| DN9b | open | - |
+| DN9b | closed | 98 |
 | DN9c | open | - |
 | DN9d | open | - |
 | DN9e | open | - |
@@ -2753,13 +2753,53 @@ person.
   is seen through the name. *Guard:* §97, DN9a. One line to Central: the
   name is free, and the sibling may stop designing against a held one.
 
-- **DN9b — Facts, one surface on both planes.** *Not started.* `Fact(kind,
-  args)` on `stzMathDiagram` and `stzDiagram` returning the one shape;
-  verdicts drawn from the rule report rather than recomputed; distances,
-  counts, positions, data. **Kill:** every number in the three captions of
-  2026-09-06 — 47, 44, 22, 28,945, 208, 48 — produced by a `Fact` call and
-  none typed; and the NEGATIVE, a fact asked of a thing the picture does
-  not hold is refused with the reason.
+- **DN9b — Facts, one surface on both planes.** **SHIPPED** 2026-09-06.
+  `Fact(kind, args)` on `stzMathDiagram` and on `stzDiagram`, both
+  answering the one shape `[ :kind, :subject, :value, :unit, :where,
+  :message ]` built by `StzFact()`. A unit rides along because 46.9 is not
+  a fact and 46.9 px is; a sentence rides along because the sentence that
+  describes a fact belongs to the fact, not to whoever quotes it.
+
+  | plane | kinds |
+  |---|---|
+  | math | `expr` (the general one, asked in the picture's own rule language and answered off the same tape the solver used), `value`, `distance`, `angle`, `datum`, `position`, `count`, `term`, `tapenodes`, `arg`, `verdict` |
+  | notation | `count`, `position`, `distance`, `verdict` |
+
+  Two kinds are worth their own line. **`arg` reads a rule's own
+  argument** — the clearance a name must keep, the bound a leash allows —
+  from the term actually in force, addressed by words from its own line;
+  those numbers were previously retyped into prose from the Style.
+  **`tapenodes` compiles an expression and counts its nodes**, in the
+  picture's variables or in its own, and with sharing off on request,
+  which is how a narration *shows* what DN8h saved instead of asserting
+  it; the engine's compiler gained `StzEngineGradCompileXT(expr, names,
+  share)` for that, an instrument's door and nothing else's.
+
+  **Verdicts are read, never recomputed.** The math plane answers from
+  `Violations()`, the notation plane from its plastic governance's
+  `Findings()`. A fact that recomputed a rule could disagree with the one
+  gate, and a narration that disagrees with the gate is worse than no
+  narration.
+
+  **Kill met, and it convicted its own author.** Every number in the three
+  diagrams hand-drawn on 2026-09-06 now comes from a `Fact` call — and two
+  of them were wrong:
+
+  | caption said | the fact says | why |
+  |---|---|---|
+  | the leash allows **44** | **43.73** px | I rounded a bound I had retyped |
+  | **9** steps, then **5** | **11**, then **6** | I forgot that the exponent in `x^2` is itself a node |
+  | 47 px from its dot | 46.89 px | — |
+  | 22 px after the retry | 21.53 px | — |
+  | 28,945 nodes, then 208 | exact | — |
+
+  That is the plane's whole argument, arriving early and at my expense: a
+  number a person types into a caption is a number nobody checks. The
+  NEGATIVE is met too — a fact asked of a shape the picture never minted,
+  a count it does not keep, or a kind neither plane answers is refused by
+  name with the reason.
+
+  *Guard:* §98, DN9b.
 
 - **DN9c — The five marks.** *Not started.* Style rows `[ :show, rule ]`,
   `[ :measure, a, b ]`, `[ :callout, target, text ]`, `[ :emphasis, target,

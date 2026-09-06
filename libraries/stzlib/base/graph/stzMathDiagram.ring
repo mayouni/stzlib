@@ -3845,6 +3845,267 @@ class stzMathDiagram from stzObject
 	def ToPNG(pcPath)
 		return This.ToCanvas().ToPNG(pcPath)
 
+	#-- WHAT THIS PICTURE CAN ANSWER (DN9b) --------------------------------
+
+	# A narration is facts made visible, in an order. This is the half a
+	# picture owns: everything it can be asked, in the one shape both
+	# planes answer in (StzFact, in stzDiagram.ring). A caption never
+	# carries a typed number -- it carries a hole, and a hole is filled
+	# from here.
+	#
+	# THE GENERAL KIND IS :expr, and the others are its named shortcuts.
+	# A picture already has a language for talking about itself -- the one
+	# a Style writes its rules in -- so a fact asks a question in that
+	# language and the answer comes off the same tape the solver used.
+	# That is what makes a caption's number the picture's number rather
+	# than a second calculation that could drift from it.
+	def Fact(pcKind, paArgs)
+		This.Layout()
+		_k_ = StzLower(ring_trim("" + pcKind))
+		_a_ = paArgs
+		if NOT isList(_a_)  _a_ = [ _a_ ]  ok
+
+		if _k_ = "expr"
+			_e_ = This._FactArg(_a_, 1, "expr")
+			_v_ = This._FactEval(_e_)
+			return StzFact(:expr, _e_, _v_, This._FactArg2(_a_, 2, "px"),
+				"picture :: " + _e_,
+				_e_ + " is " + StzFactNumText(_v_) + StzFactUnitText(This._FactArg2(_a_, 2, "px")))
+
+		but _k_ = "value"
+			_n_ = This._FactArg(_a_, 1, "value")
+			This._FactHasName(_n_)
+			_v_ = This.ValueOf(_n_)
+			return StzFact(:value, _n_, _v_, :px, "picture :: " + _n_,
+				_n_ + " is " + StzFactNumText(_v_) + " px")
+
+		but _k_ = "distance"
+			_p_ = This._FactShape(This._FactArg(_a_, 1, "distance"))
+			_q_ = This._FactShape(This._FactArg(_a_, 2, "distance"))
+			_v_ = This._FactEval("dist(" + _p_ + ", " + _q_ + ")")
+			return StzFact(:distance, _p_ + " to " + _q_, _v_, :px,
+				"picture :: dist(" + _p_ + ", " + _q_ + ")",
+				"the distance from " + _p_ + " to " + _q_ + " is " + StzFactNumText(_v_) + " px")
+
+		but _k_ = "angle"
+			# the angle at the SECOND point, which is the vertex -- the same
+			# order the substance writes InteriorAngle(B, A, C) in, and the
+			# order a guard once got wrong and measured the wrong corner
+			_p_ = This._FactShape(This._FactArg(_a_, 1, "angle"))
+			_q_ = This._FactShape(This._FactArg(_a_, 2, "angle"))
+			_r_ = This._FactShape(This._FactArg(_a_, 3, "angle"))
+			_c_ = This._FactEval("(" +
+				"(" + _p_ + ".cx-" + _q_ + ".cx)*(" + _r_ + ".cx-" + _q_ + ".cx)+" +
+				"(" + _p_ + ".cy-" + _q_ + ".cy)*(" + _r_ + ".cy-" + _q_ + ".cy)" +
+				")/(dist(" + _p_ + ", " + _q_ + ")*dist(" + _r_ + ", " + _q_ + "))")
+			if _c_ > 1  _c_ = 1  ok
+			if _c_ < -1  _c_ = -1  ok
+			_v_ = acos(_c_) * 180 / 3.14159265358979
+			return StzFact(:angle, _q_, _v_, :deg,
+				"picture :: angle at " + _q_,
+				"the angle at " + _q_ + " is " + StzFactNumText(_v_) + " degrees")
+
+		but _k_ = "datum"
+			_o_ = This._FactArg(_a_, 1, "datum")
+			_key_ = This._FactArg(_a_, 2, "datum")
+			if NOT @oSubstance.HasData(_o_, _key_)
+				stzraise("stzMathDiagram.Fact: '" + _o_ + "' carries no '" + _key_ +
+					"' -- a datum is a number the SUBSTANCE was given.")
+			ok
+			_v_ = @oSubstance.DataOf(_o_, _key_)
+			return StzFact(:datum, _o_ + "." + _key_, _v_, :none,
+				"substance :: " + _o_,
+				_o_ + " carries " + _key_ + " = " + StzFactNumText(_v_))
+
+		but _k_ = "position"
+			_p_ = This._FactShape(This._FactArg(_a_, 1, "position"))
+			_x_ = This.ValueOf(_p_ + ".cx")
+			_y_ = This.ValueOf(_p_ + ".cy")
+			return StzFact(:position, _p_, [ _x_, _y_ ], :px, "picture :: " + _p_,
+				_p_ + " sits at " + StzFactNumText(_x_) + ", " + StzFactNumText(_y_))
+
+		but _k_ = "count"
+			return This._FactCount(_a_)
+
+		but _k_ = "tapenodes"
+			return This._FactTape(_a_)
+
+		but _k_ = "arg"
+			return This._FactRuleArg(_a_)
+
+		but _k_ = "term"
+			return This._FactTerm(_a_)
+
+		but _k_ = "verdict"
+			return This._FactVerdict(This._FactArg2(_a_, 1, ""))
+		ok
+		stzraise("stzMathDiagram.Fact: '" + _k_ + "' is not a fact a picture " +
+			"answers -- expr, value, distance, angle, datum, position, count, " +
+			"tapenodes, arg, term or verdict.")
+
+	def _FactArg(paArgs, pnI, pcKind)
+		if len(paArgs) < pnI
+			stzraise("stzMathDiagram.Fact: " + pcKind + " needs argument " + pnI + ".")
+		ok
+		return "" + paArgs[pnI]
+
+	def _FactArg2(paArgs, pnI, pDefault)
+		if len(paArgs) < pnI  return pDefault  ok
+		return "" + paArgs[pnI]
+
+	# a shape this picture actually minted, refused by name when it is not
+	def _FactShape(pcPath)
+		_c_ = ring_trim("" + pcPath)
+		if This._ShapeIndex(_c_) = 0
+			stzraise("stzMathDiagram.Fact: '" + _c_ + "' is not a shape this picture " +
+				"holds -- a fact is asked of something the picture drew.")
+		ok
+		return _c_
+
+	def _FactHasName(pcName)
+		_c_ = ring_trim("" + pcName)
+		if This._UnknownIndex(_c_) > 0 or This._HasConst(_c_) or This._HasDerived(_c_)
+			return TRUE
+		ok
+		stzraise("stzMathDiagram.Fact: '" + _c_ + "' is not a name this picture " +
+			"solved or was given.")
+
+	# THROUGH THE PICTURE'S OWN LANGUAGE, and so off the same tape the
+	# solver used: a fact cannot disagree with the figure it describes.
+	def _FactEval(pcExpr)
+		_e_ = ring_trim("" + pcExpr)
+		if _e_ = ""
+			stzraise("stzMathDiagram.Fact: an expression fact needs an expression.")
+		ok
+		return This._EvalExpr(This._Expand(_e_))
+
+	def _FactCount(paArgs)
+		_w_ = StzLower(ring_trim(This._FactArg(paArgs, 1, "count")))
+		_n_ = -1
+		_cWhat_ = _w_
+		if _w_ = "shapes"  _n_ = len(@aShapes)
+		but _w_ = "unknowns"  _n_ = len(@acUnknown)
+		but _w_ = "constraints"  _n_ = len(@aConstraints)
+		but _w_ = "objectives"  _n_ = len(@aObjectives)
+		but _w_ = "rounds"  _n_ = @nRounds
+		but _w_ = "evaluations"  _n_ = @nEvaluations
+		but _w_ = "starts"  _n_ = @nStartsTried
+		but _w_ = "candidates"  _n_ = @nMatchCandidates
+		but _w_ = "violations"  _n_ = len(This.Violations())
+		but _w_ = "advisory"  _n_ = @nAdvisoryUnmet
+		ok
+		if _n_ < 0
+			stzraise("stzMathDiagram.Fact: '" + _w_ + "' is not a count this picture " +
+				"keeps -- shapes, unknowns, constraints, objectives, rounds, " +
+				"evaluations, starts, candidates, violations or advisory.")
+		ok
+		return StzFact(:count, _cWhat_, _n_, :none, "picture",
+			"the picture reports " + _n_ + " " + _cWhat_)
+
+	# HOW BIG THE ARITHMETIC IS. An expression's cost is its tape's node
+	# count, which a caller cannot see from the text it wrote -- the same
+	# subexpression written a hundred times is one node (DN8h). Asked with
+	# :unshared it reports what the tape WOULD hold without that sharing,
+	# which is how a narration shows what sharing saved rather than
+	# asserting it.
+	def _FactTape(paArgs)
+		_e_ = This._FactArg(paArgs, 1, "tapenodes")
+		_bShare_ = 1
+		_cWhich_ = "shared"
+		if len(paArgs) >= 2 and StzLower("" + paArgs[2]) = "unshared"
+			_bShare_ = 0
+			_cWhich_ = "unshared"
+		ok
+		# an expression in ITS OWN variables rather than this picture's --
+		# how a narration shows the shape of an arithmetic without needing
+		# a figure that happens to contain it
+		_cNames_ = This._VarsText()
+		if len(paArgs) >= 3  _cNames_ = "" + paArgs[3]  ok
+		if _cNames_ = ""  _cNames_ = "u0"  ok
+		_p_ = StzEngineGradCompileXT(_e_, _cNames_, _bShare_)
+		if _p_ = ""
+			stzraise("stzMathDiagram.Fact: the engine refused that expression -- " +
+				StzEngineGradWhy())
+		ok
+		_n_ = StzEngineGradNodes(_p_)
+		StzEngineGradFree(_p_)
+		return StzFact(:tapenodes, _cWhich_, _n_, :nodes, "tape",
+			"the expression is " + _n_ + " nodes on the tape" +
+			iif(_bShare_ = 0, ", with its subexpressions written out", ""))
+
+	# A RULE'S OWN ARGUMENT IS A FACT ABOUT THE PICTURE. The clearance a
+	# name must keep, the bound a leash allows: these are written in the
+	# Style and then argued about in captions, and until now a narration
+	# had to retype them. The raw arguments ride on every term (_AddTerm
+	# keeps them as element 5), so the argument is read from the rule that
+	# is actually in force and evaluated in the picture's own language.
+	def _FactRuleArg(paArgs)
+		_m_ = This._FactArg(paArgs, 1, "arg")
+		_n_ = 2
+		if len(paArgs) >= 2  _n_ = 0 + paArgs[2]  ok
+		_i_ = This._FactTermIndex(_m_)
+		_aA_ = @aConstraints[_i_][5]
+		if NOT isList(_aA_) or len(_aA_) < _n_
+			stzraise("stzMathDiagram.Fact: the rule at '" + @aConstraints[_i_][3] +
+				"' has no argument " + _n_ + ".")
+		ok
+		_v_ = _aA_[_n_]
+		if NOT isNumber(_v_)  _v_ = This._FactEval("" + _v_)  ok
+		return StzFact(:arg, "" + @aConstraints[_i_][1], _v_, :px,
+			"" + @aConstraints[_i_][3],
+			"the rule " + @aConstraints[_i_][1] + " allows " + StzFactNumText(_v_) + " px")
+
+	# HOW LONG THE ARITHMETIC IS WRITTEN OUT, in characters, which is the
+	# number a reader is shown beside a tape's node count so the two can
+	# be compared -- and they are not the same thing, which is the whole
+	# finding of DN8h.
+	def _FactTerm(paArgs)
+		_m_ = This._FactArg(paArgs, 1, "term")
+		_i_ = This._FactTermIndex(_m_)
+		_n_ = len(@aConstraints[_i_][2])
+		return StzFact(:term, "" + @aConstraints[_i_][1], _n_, :chars,
+			"" + @aConstraints[_i_][3],
+			"the rule " + @aConstraints[_i_][1] + " is written out in " + _n_ + " characters")
+
+	# the first constraint whose where-line contains every word given, so a
+	# rule is addressed the way a reader would name it rather than by an
+	# index that moves when the Style changes
+	def _FactTermIndex(pcMatch)
+		_ac_ = StzSplit(StzLower(ring_trim("" + pcMatch)), " ")
+		for _i_ = 1 to len(@aConstraints)
+			_w_ = StzLower("" + @aConstraints[_i_][1] + " " + @aConstraints[_i_][3])
+			_b_ = TRUE
+			for _k_ = 1 to len(_ac_)
+				if ring_trim(_ac_[_k_]) = ""  loop  ok
+				if StzFindFirst(_ac_[_k_], _w_) = 0  _b_ = FALSE  exit  ok
+			next
+			if _b_  return _i_  ok
+		next
+		stzraise("stzMathDiagram.Fact: no rule of this picture is described by '" +
+			pcMatch + "' -- a rule is addressed by words from its own line.")
+
+	# the energy text of a rule, so a narration can show what the engine
+	# was handed and how big it became
+	def ConstraintText(pcMatch)
+		This.Layout()
+		return @aConstraints[This._FactTermIndex(pcMatch)][2]
+
+	# THE VERDICT IS READ, NEVER RECOMPUTED. Violations() is already the
+	# house finding shape and is what the one gate ingests; a fact that
+	# recomputed a rule could disagree with the gate, and a narration that
+	# disagrees with the gate is worse than no narration.
+	def _FactVerdict(pcSubject)
+		_c_ = StzLower(ring_trim("" + pcSubject))
+		_aV_ = This.Violations()
+		for _i_ = 1 to len(_aV_)
+			if _c_ != "" and StzFindFirst(_c_, StzLower("" + _aV_[_i_][:where])) = 0  loop  ok
+			return StzFact(:verdict, "" + _aV_[_i_][:rule], This.Violation(), :px,
+				"" + _aV_[_i_][:where], "" + _aV_[_i_][:message])
+		next
+		return StzFact(:verdict, pcSubject, 0, :px, "picture",
+			"every constraint is satisfied, so nothing is found against " +
+			iif(pcSubject = "", "this picture", pcSubject))
+
 	def _DrawShape(poC, paShape)
 		_cP_ = paShape[1]
 		_cKind_ = paShape[2]
