@@ -636,3 +636,29 @@ func StzMathScene31(poFont)
 	_o_.SetFont(poFont, 17)
 	_o_.SetVariation("acme")
 	return _o_
+
+#-- a notation's icons hold a formula (DN8e) ---------------------------------
+
+# the graph plane's simplest DRAKON scene, rendered, its icons read back
+# as rectangles and carried as data; a formula is a Glyph the substance
+# says is Inside the action icon, and the polygon's edges hold it there.
+# The caller loads gg_drakon_scenes.ring; this file does not, since the
+# gate holds it already and a file loaded twice redefines its functions.
+func StzMathScene33(poFont)
+	_oD_ = StzDrakonScene01([ :Font = poFont, :NodeWidth = 150, :NodeHeight = 56, :FontSize = 14 ])
+	_aR_ = _oD_.@aRenderNodeRects
+	_oS_ = new stzMathSubstance(StzTableDomain())
+	for _i_ = 1 to len(_aR_)
+		_cN_ = "icon_" + _aR_[_i_][5]
+		_oS_.Declare("Cell", _cN_)
+		_oS_.SetData(_cN_, "x", 160 + _aR_[_i_][1])  _oS_.SetData(_cN_, "y", 20 + _aR_[_i_][2])
+		_oS_.SetData(_cN_, "w", _aR_[_i_][3])         _oS_.SetData(_cN_, "h", _aR_[_i_][4] + 40)
+		_oS_.Label(_cN_, "" + _oD_.Node(_aR_[_i_][5])[:label])
+	next
+	_oS_.Declare("Glyph", "f")
+	_oS_.Label("f", "c = a + b")
+	_oS_.Assert("Inside", [ "f", "icon_a" ])
+	_o_ = new stzMathDiagram(StzTableDomain(), _oS_, StzIconLabelStyle())
+	_o_.SetFont(poFont, 15)
+	_o_.SetVariation("icon")
+	return _o_

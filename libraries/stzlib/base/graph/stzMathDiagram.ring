@@ -1352,6 +1352,34 @@ func StzTableDomain()
 	_o_.AddType("Cell")
 	_o_.AddType("Head")
 	_o_.AddType("Glyph")
+	# a glyph held inside a cell -- a formula inside a notation's icon
+	_o_.AddPredicate("Inside", [ "Glyph", "Cell" ])
+	return _o_
+
+# A NOTATION'S ICONS AS POLYGONS, AND A FORMULA HELD INSIDE ONE (DN8e). A
+# cell is an icon's rectangle, read from a rendered diagram of the graph
+# plane and carried as data; its name sits at its centre; a glyph that a
+# substance says is Inside a cell is SOLVED into it by the polygon's own
+# edges, and off the icon's name. This is the join the plan named: a
+# DRAKON icon becomes something a math rule can hold a label in.
+func StzIconLabelStyle()
+	_o_ = new stzMathStyle()
+	_o_.SetCanvas(520, 760)
+	_o_.ForAll("Cell c", [
+		[ :shape, "c.icon", :poly, [ :n = 4,
+		    :x1 = "c.x", :y1 = "c.y", :x2 = "c.x + c.w", :y2 = "c.y",
+		    :x3 = "c.x + c.w", :y3 = "c.y + c.h", :x4 = "c.x", :y4 = "c.y + c.h",
+		    :fill = [ :alpha, "primary", 0.08 ], :stroke = "neutral", :strokeWidth = 1.5 ] ],
+		[ :shape, "c.text", :text, [ :size = 15, :fill = [ :on, "c.icon" ] ] ],
+		[ :override, "c.text.cx", "c.x + c.w / 2" ],
+		[ :override, "c.text.cy", "c.y + 14" ],
+		[ :layer, "c.text", :above, "c.icon" ] ])
+	_o_.ForAll("Glyph g", [
+		[ :shape, "g.text", :text, [ :size = 19, :fill = "primary" ] ] ])
+	_o_.ForAllWhere("Glyph g; Cell c", "Inside(g, c)", [
+		[ :ensure, "contains", [ "c.icon", "g.text", 6 ] ],
+		[ :ensure, "disjoint", [ "g.text", "c.text", 4 ] ],
+		[ :layer, "g.text", :above, "c.icon" ] ])
 	return _o_
 
 # The multiplication table of the quaternion group: eight elements, each
@@ -1940,6 +1968,11 @@ func StzCommutativeStyle()
 func StzByrneStyle()
 	_o_ = new stzMathStyle()
 	_o_.SetCanvas(760, 700)
+	# the areas are labels, and a label held inside a square must not move
+	# the triangle the square stands on: the shapes solve first, the labels
+	# after, against frozen squares -- where a polygon's long expressions are
+	# arithmetic on numbers
+	_o_.SolveLabelsAfter()
 	# A name here is PLACED, never solved -- so it carries no constraint of
 	# its own into the energy. That is deliberate: the placement below
 	# divides by a root of a dot product, and the moment such an expression
@@ -2139,6 +2172,28 @@ func StzByrneStyle()
 		[ :layer, "t.sqbc", :above, "t.face" ],
 		[ :layer, "t.rect1", :above, "t.sqbc" ], [ :layer, "t.rect2", :above, "t.sqbc" ],
 		[ :layer, "t.alt", :above, "t.rect1" ], [ :layer, "t.alt", :above, "t.rect2" ],
+		# THE AREAS, SOLVED INSIDE THEIR SQUARES (DN8e). A square here is
+		# rotated, so its bounding box would put a name outside the square
+		# while calling it inside; the polygon's own edges hold each name
+		# by its four corners, and the hypotenuse's label keeps off the
+		# altitude that divides its square.
+		[ :shape, "t.la", :text, [ :string = "a2", :fill = [ :on, "t.sqab" ] ] ],
+		[ :shape, "t.lb", :text, [ :string = "b2", :fill = [ :on, "t.sqac" ] ] ],
+		[ :shape, "t.lc", :text, [ :string = "c2", :fill = [ :on, "t.sqbc" ] ] ],
+		[ :ensure, "contains", [ "t.sqab", "t.la", 10 ] ],
+		[ :ensure, "contains", [ "t.sqac", "t.lb", 10 ] ],
+		[ :ensure, "contains", [ "t.sqbc", "t.lc", 10 ] ],
+		[ :ensure, "disjoint", [ "t.lc", "t.alt", 8 ] ],
+		# and each area's label wants its square's middle -- a hidden dot at
+		# the mean of two opposite corners, which is a polygon's centre
+		[ :shape, "t.ca", :circle, [ :cx = "(t.sqab.x1 + t.sqab.x3) / 2", :cy = "(t.sqab.y1 + t.sqab.y3) / 2", :r = 1, :hidden = 1 ] ],
+		[ :shape, "t.cb", :circle, [ :cx = "(t.sqac.x1 + t.sqac.x3) / 2", :cy = "(t.sqac.y1 + t.sqac.y3) / 2", :r = 1, :hidden = 1 ] ],
+		[ :shape, "t.cc", :circle, [ :cx = "(t.sqbc.x1 + t.sqbc.x3) / 2", :cy = "(t.sqbc.y1 + t.sqbc.y3) / 2", :r = 1, :hidden = 1 ] ],
+		[ :encourage, "near", [ "t.la", "t.ca", 0 ] ],
+		[ :encourage, "near", [ "t.lb", "t.cb", 0 ] ],
+		[ :encourage, "near", [ "t.lc", "t.cc", 0 ] ],
+		[ :layer, "t.la", :above, "t.sqab" ], [ :layer, "t.lb", :above, "t.sqac" ],
+		[ :layer, "t.lc", :above, "t.sqbc" ],
 		[ :layer, "t.mark1", :above, "t.face" ], [ :layer, "t.mark2", :above, "t.face" ],
 		# A VERTEX GOES ABOVE THE LAST THING DRAWN, not above one of them.
 		# Layering is a partial order relaxed to a depth per shape, so
@@ -4978,9 +5033,22 @@ class stzMathDiagram from stzObject
 		if _k_ = ""
 			stzraise("stzMathDiagram: '" + _c_ + "' is not a shape any rule minted.")
 		ok
-		if _k_ = "curve" or _k_ = "poly" or _k_ = "mark" or _k_ = "spline"
+		if _k_ = "curve" or _k_ = "mark" or _k_ = "spline"
 			stzraise("stzMathDiagram: '" + _c_ + "' is a " + _k_ + " -- it is " +
 				"drawn from its points, and a constraint speaks to the points.")
+		ok
+		if _k_ = "poly"
+			# A CONVEX POLYGON, as its vertices (DN8e). contains() and
+			# disjoint() speak to it through the signed distance to its
+			# edges' lines -- exact for a convex outline -- and its winding
+			# is read off its own area, so either order of vertices works.
+			_nV_ = This._Prop(@aShapes[This._ShapeIndex(_c_)][3], "n", 0)
+			_aV_ = []
+			for _v_ = 1 to _nV_
+				_aV_ + This._Sym(_c_ + ".x" + _v_)
+				_aV_ + This._Sym(_c_ + ".y" + _v_)
+			next
+			return [ "poly", _nV_, _aV_ ]
 		ok
 		if _k_ = "circle"
 			return [ "circle", This._Sym(_c_ + ".cx"), This._Sym(_c_ + ".cy"),
@@ -5017,6 +5085,70 @@ class stzMathDiagram from stzObject
 	# and min(0, max(qx, qy)) is the penetration -- which is what keeps a
 	# GRADIENT where the two overlap, so the solver can still push them
 	# apart. Both branches are on the tape already: abs, min, max, sqrt.
+	# THE SIGNED DISTANCE FROM A POINT TO A CONVEX POLYGON'S EDGES, inside
+	# negative, as tape text: for each edge the signed distance to its
+	# LINE, all turned by the polygon's own winding -- the sign of its
+	# area over its magnitude, so a clockwise and an anticlockwise
+	# polygon read the same -- and the largest of them. Inside a convex
+	# polygon every edge is on one side, so the largest is the nearest
+	# edge's distance, negative; outside, it is positive and at least the
+	# distance to the nearest line. That is exact for containment, which
+	# is what needs it, and a lower bound for separation, which the
+	# segment gaps below make exact.
+	def _PolySigned(paPoly, pcX, pcY)
+		_n_ = paPoly[2]
+		_aV_ = paPoly[3]
+		_cA_ = ""
+		for _i_ = 1 to _n_
+			_j_ = _i_ + 1
+			if _j_ > _n_  _j_ = 1  ok
+			if _i_ > 1  _cA_ += "+"  ok
+			_cA_ += "(" + _aV_[2*_i_-1] + "*" + _aV_[2*_j_] + "-" + _aV_[2*_j_-1] + "*" + _aV_[2*_i_] + ")"
+		next
+		_cSgn_ = "((" + _cA_ + ")/(abs(" + _cA_ + ")+0.001))"
+		_cS_ = ""
+		for _i_ = 1 to _n_
+			_j_ = _i_ + 1
+			if _j_ > _n_  _j_ = 1  ok
+			_dx_ = "(" + _aV_[2*_j_-1] + "-" + _aV_[2*_i_-1] + ")"
+			_dy_ = "(" + _aV_[2*_j_] + "-" + _aV_[2*_i_] + ")"
+			_cross_ = "(" + _dx_ + "*(" + pcY + "-" + _aV_[2*_i_] + ")-" + _dy_ + "*(" + pcX + "-" + _aV_[2*_i_-1] + "))"
+			_len_ = "sqrt(" + _dx_ + "^2+" + _dy_ + "^2+0.000001)"
+			_d_ = "(0-" + _cSgn_ + "*" + _cross_ + "/" + _len_ + ")"
+			if _i_ = 1
+				_cS_ = _d_
+			else
+				_cS_ = "max(" + _cS_ + "," + _d_ + ")"
+			ok
+		next
+		return _cS_
+
+	# the smallest gap from a box to any edge of a polygon, each edge as a
+	# segment through the same clamped projection a label-off-a-segment
+	# uses -- exact for the box against the nearest point of the segment
+	def _PolyBoxGap(paPoly, pcCx, pcCy, pcHw, pcHh)
+		_n_ = paPoly[2]
+		_aV_ = paPoly[3]
+		_cG_ = ""
+		for _i_ = 1 to _n_
+			_j_ = _i_ + 1
+			if _j_ > _n_  _j_ = 1  ok
+			_x1_ = _aV_[2*_i_-1]  _y1_ = _aV_[2*_i_]
+			_dx_ = "(" + _aV_[2*_j_-1] + "-" + _x1_ + ")"
+			_dy_ = "(" + _aV_[2*_j_] + "-" + _y1_ + ")"
+			_t_ = "max(0,min(1,((" + pcCx + "-" + _x1_ + ")*" + _dx_ + "+(" + pcCy + "-" + _y1_ + ")*" + _dy_ +
+			      ")/(" + _dx_ + "^2+" + _dy_ + "^2+0.000001)))"
+			_px_ = "(" + _x1_ + "+" + _t_ + "*" + _dx_ + ")"
+			_py_ = "(" + _y1_ + "+" + _t_ + "*" + _dy_ + ")"
+			_g_ = This._BoxSD(pcHw, pcHh, _px_ + "-" + pcCx, _py_ + "-" + pcCy)
+			if _i_ = 1
+				_cG_ = _g_
+			else
+				_cG_ = "min(" + _cG_ + "," + _g_ + ")"
+			ok
+		next
+		return _cG_
+
 	def _BoxSD(pcHw, pcHh, pcDx, pcDy)
 		_qx_ = "(abs(" + pcDx + ")-" + pcHw + ")"
 		_qy_ = "(abs(" + pcDy + ")-" + pcHh + ")"
@@ -5094,10 +5226,11 @@ class stzMathDiagram from stzObject
 		next
 		_cE_ = This._Energy(_f_, paArgs, pcVerb)
 		_cW_ = pcWhere + " :: " + pcFn + "(" + This._ArgsText(paArgs) + ")"
+		# the arguments ride along, so a start can read what a term is about
 		if pcVerb = "ensure"
-			@aConstraints + [ pcFn, _cE_, _cW_, _bLbl_ ]
+			@aConstraints + [ pcFn, _cE_, _cW_, _bLbl_, paArgs ]
 		else
-			@aObjectives + [ pcFn, _cE_, _cW_, _bLbl_ ]
+			@aObjectives + [ pcFn, _cE_, _cW_, _bLbl_, paArgs ]
 		ok
 
 	def _ArgsText(paArgs)
@@ -5128,6 +5261,24 @@ class stzMathDiagram from stzObject
 			_p_ = This._Sym(This._Arg(paArgs, 3, 0))
 			if _a_[1] = "line" or _b_[1] = "line"
 				stzraise("stzMathDiagram: contains() over a line is not defined.")
+			ok
+			if _b_[1] = "poly"
+				stzraise("stzMathDiagram: contains(a, poly) is not defined -- a polygon " +
+					"holds things; ask contains(poly, thing).")
+			ok
+			if _a_[1] = "poly"
+				# a box is inside a convex polygon by pad when each of its four
+				# corners is; a circle when its centre is, by pad plus r
+				if _b_[1] = "circle"
+					return "(" + This._PolySigned(_a_, _b_[2], _b_[3]) + ")+" + _b_[4] + "+" + _p_
+				ok
+				_hw_ = "(" + _b_[4] + ")/2"
+				_hh_ = "(" + _b_[5] + ")/2"
+				_c1_ = This._PolySigned(_a_, "(" + _b_[2] + "-" + _hw_ + ")", "(" + _b_[3] + "-" + _hh_ + ")")
+				_c2_ = This._PolySigned(_a_, "(" + _b_[2] + "+" + _hw_ + ")", "(" + _b_[3] + "-" + _hh_ + ")")
+				_c3_ = This._PolySigned(_a_, "(" + _b_[2] + "-" + _hw_ + ")", "(" + _b_[3] + "+" + _hh_ + ")")
+				_c4_ = This._PolySigned(_a_, "(" + _b_[2] + "+" + _hw_ + ")", "(" + _b_[3] + "+" + _hh_ + ")")
+				return "max(max(" + _c1_ + "," + _c2_ + "),max(" + _c3_ + "," + _c4_ + "))+" + _p_
 			ok
 			if _a_[1] = "circle" and _b_[1] = "circle"
 				return This._Dist(_a_, _b_) + "-(" + _a_[4] + "-" + _b_[4] + "-" + _p_ + ")"
@@ -5160,6 +5311,29 @@ class stzMathDiagram from stzObject
 			_p_ = This._Sym(This._Arg(paArgs, 3, 0))
 			if _a_[1] = "line" and _b_[1] = "line"
 				stzraise("stzMathDiagram: disjoint() between two lines is not defined.")
+			ok
+			if _a_[1] = "poly" and _b_[1] = "poly"
+				stzraise("stzMathDiagram: disjoint() between two polygons is not defined -- " +
+					"hold a point, a circle or a name off a polygon.")
+			ok
+			if _a_[1] = "poly" or _b_[1] = "poly"
+				# A THING OFF A CONVEX POLYGON: its gap to the nearest edge is
+				# at least pad, AND its centre is outside -- the second term is
+				# what keeps a name that fell inside from reading as clear of
+				# every edge
+				_g_ = _a_
+				_o_ = _b_
+				if _b_[1] = "poly"  _g_ = _b_  _o_ = _a_  ok
+				if _o_[1] = "line"
+					stzraise("stzMathDiagram: disjoint(line, poly) is not defined.")
+				ok
+				_cIn_ = This._PolySigned(_g_, _o_[2], _o_[3])
+				if _o_[1] = "circle"
+					_cGap_ = This._PolyBoxGap(_g_, _o_[2], _o_[3], _o_[4], _o_[4])
+				else
+					_cGap_ = This._PolyBoxGap(_g_, _o_[2], _o_[3], "(" + _o_[4] + ")/2", "(" + _o_[5] + ")/2")
+				ok
+				return "max((" + _p_ + ")-" + _cGap_ + ",0-" + _cIn_ + ")"
 			ok
 			if _a_[1] = "line" or _b_[1] = "line"
 				# A LABEL OFF A SEGMENT -- Penrose's disjoint(text, line). The
@@ -5517,6 +5691,34 @@ class stzMathDiagram from stzObject
 					_aX_ + (40 + StzRandom01() * 120)
 				ok
 			next
+			# A CONTAINED NAME STARTS AT ITS CONTAINER'S CENTRE. Started at
+			# random, a formula that had to sit inside an icon and off the
+			# icon's name stopped straddling the icon's edge: the only path to
+			# the room below ran through the name's penalty, and a local
+			# optimiser does not cross a hill. The same principle as the
+			# planar start, for a label: choose the basin by structure.
+			@aValue = _aX_
+			@aVCache = []
+			for _c_ = 1 to len(@aConstraints)
+				if StzLower(@aConstraints[_c_][1]) != "contains" or len(@aConstraints[_c_]) < 5  loop  ok
+				_aA_ = @aConstraints[_c_][5]
+				if len(_aA_) < 2  loop  ok
+				_cThing_ = "" + _aA_[2]
+				# a NAME, and only a name: a shape started on its container's
+				# centre is a subset drawn concentric with its superset, and
+				# seven sets that begin on one point have no direction to
+				# separate in -- the whole Euler family fell over on it
+				if This._KindOf(_cThing_) != "text"  loop  ok
+				_ix_ = This._UnknownIndex(_cThing_ + ".cx")
+				_iy_ = This._UnknownIndex(_cThing_ + ".cy")
+				if _ix_ = 0 or _iy_ = 0  loop  ok
+				_aC_ = This._CentreOf("" + _aA_[1])
+				if len(_aC_) = 2
+					_aX_[_ix_] = _aC_[1]
+					_aX_[_iy_] = _aC_[2]
+				ok
+			next
+			@aVCache = []
 			# overlay the planar start on the vertex centres -- and put each
 			# vertex's name beside it, so the names begin where they belong
 			_m_ = len(_aPl_)
@@ -5841,6 +6043,25 @@ class stzMathDiagram from stzObject
 			if pa[_i_] = pV  return _i_  ok
 		next
 		return 0
+
+	# the centre of a shape at the current values: a polygon's vertex mean,
+	# or a circle's, rect's or ellipse's own centre; [] for a shape with none
+	def _CentreOf(pcPath)
+		_k_ = This._KindOf(pcPath)
+		if _k_ = "poly"
+			_n_ = This._Prop(@aShapes[This._ShapeIndex(pcPath)][3], "n", 0)
+			if _n_ < 1  return []  ok
+			_sx_ = 0  _sy_ = 0
+			for _v_ = 1 to _n_
+				_sx_ += This._V(pcPath + ".x" + _v_)
+				_sy_ += This._V(pcPath + ".y" + _v_)
+			next
+			return [ _sx_ / _n_, _sy_ / _n_ ]
+		ok
+		if _k_ = "circle" or _k_ = "rect" or _k_ = "ellipse"
+			return [ This._V(pcPath + ".cx"), This._V(pcPath + ".cy") ]
+		ok
+		return []
 
 	def _InitRangeOf(pcName)
 		_n_ = len(@aInitRange)
