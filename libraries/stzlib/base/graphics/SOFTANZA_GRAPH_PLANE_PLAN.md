@@ -113,7 +113,7 @@ sections, of which 21 declarations over 17 items.
 | DN8g | closed | 95 |
 | DN8h | closed | 96 |
 | DN9 | open | - |
-| DN9a | open | - |
+| DN9a | closed | 97 |
 | DN9b | open | - |
 | DN9c | open | - |
 | DN9d | open | - |
@@ -2736,15 +2736,22 @@ person.
 
 ### The items, in the order of leverage
 
-- **DN9a — O1 paid: `stzNarration` becomes `stzTranscript`.** *Not started.*
-  Nine sites, enumerated by the sibling on 2026-08-11 and to be **verified
-  before acting**: the file, the class line, the header comment, the two
-  `stzBase.ring` lines, `stzConversation`'s member and its fifteen uses, a
-  comment in `stzDelivery`, and the one judgement call — `NarrationQ()` is
-  public, so it stays as an alias for one version beside `TranscriptQ()`.
-  **Kill:** the gate green with no reference to the old class outside the
-  alias; the name free; one line to Central so the sibling can stop
-  designing against a held name.
+- **DN9a — O1 paid: `stzNarration` becomes `stzTranscript`.** **SHIPPED**
+  2026-09-06. The sibling's nine sites of 2026-08-11, verified today
+  before touching any: the same nine, two of them thirty lines further
+  down the loader than listed, and none in a test. Renamed the file, the
+  class, the loader line and its comment, the conversation's member at
+  its sixteen uses and its constructor, and the delivery comment whose
+  reasoning the rename changed; the one design document that lists the
+  construct by name updated at its four mentions. The judgement call the
+  sibling left to this repository: `TranscriptQ()` is the accessor, and
+  `NarrationQ()` stays one version as an alias that returns it. The
+  transcript's header records where the name went and why. **Kill met:**
+  no code names the old class; `classes()` holds the new name and not the
+  old; the two conversation suites that exercise the class are 13 of 13
+  and 52 of 52, identical before and after; a line added through the alias
+  is seen through the name. *Guard:* §97, DN9a. One line to Central: the
+  name is free, and the sibling may stop designing against a held one.
 
 - **DN9b — Facts, one surface on both planes.** *Not started.* `Fact(kind,
   args)` on `stzMathDiagram` and `stzDiagram` returning the one shape;

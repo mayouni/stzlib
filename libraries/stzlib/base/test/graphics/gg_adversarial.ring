@@ -13770,6 +13770,34 @@ chk("and so is it under another seed, where the same picture used to fall back t
     _TpSeedKeepsPlanar("bulge2"))
 
 
+sec("-- 97. DN9a: THE NAME IS FREE -- stzNarration IS stzTranscript ---------------")
+discharges("DN9a")
+
+# THE CLASS UNDER ITS RIGHT NAME. A speaker-tagged sequence of lines with a
+# certainty is a transcript, precisely; it was never a document, and the
+# document class of the Narrations layer needed the name it held.
+oTrA = new stzTranscript()
+oTrA.System("What does 'margherita' contain?")
+oTrA.User("tomato-sauce")
+oTrA.Verdict("yes", 1)
+chk("a transcript records its three lines, speaker-tagged", oTrA.NumberOfLines() = 3 and oTrA.Lines()[3][1] = "verdict")
+chk("the class exists under the new name and NOT under the old -- the name is free",
+    _TrHasClass("stztranscript") and NOT _TrHasClass("stznarration"))
+chk("the loader names the new file, and not the old",
+    StzFindFirst('load "conversation/stzTranscript.ring"', _TrBase()) > 0 and
+    StzFindFirst('load "conversation/stzNarration.ring"', _TrBase()) = 0)
+
+# THE CONVERSATION STILL SPEAKS, and the old accessor still answers -- the
+# same object, so a caller written against it runs one version more.
+oTrC = new stzConversation("pizza")
+chk("a conversation's TranscriptQ() is a transcript", classname(oTrC.TranscriptQ()) = "stztranscript")
+oTrC.NarrationQ().System("through the old name")
+chk("a line added through NarrationQ() is seen through TranscriptQ(): one object, two names",
+    oTrC.TranscriptQ().NumberOfLines() = 1 and oTrC.TranscriptQ().Lines()[1][2] = "through the old name")
+chk("NEGATIVE: no code in the library names the old class, outside the transcript's own history note",
+    _TrOldNameSites() = 0)
+
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go
@@ -17164,6 +17192,43 @@ func _TpSeedKeepsPlanar pcSeed
 	_o_.SetFont(AUFONT, 15)
 	_o_.SetVariation(pcSeed)
 	return _o_.IsFeasible() and _o_.StartedPlanar()
+
+func _TrHasClass pcName
+	_a_ = classes()
+	for _i_ = 1 to len(_a_)
+		if lower(_a_[_i_]) = lower(pcName)  return TRUE  ok
+	next
+	return FALSE
+
+func _TrBase
+	return read("../../stzBase.ring")
+
+# code files under base/ that still say stzNarration, the transcript's own
+# header excluded, since it records where the name went
+func _TrOldNameSites
+	_n_ = 0
+	_ac_ = _TrRingFiles("../../")
+	for _i_ = 1 to len(_ac_)
+		if StzFindFirst("stzTranscript.ring", _ac_[_i_]) > 0  loop  ok
+		if StzFindFirst("stzNarration", read(_ac_[_i_])) > 0  _n_++  ok
+	next
+	return _n_
+
+func _TrRingFiles pcDir
+	_a_ = []
+	_aD_ = dir(pcDir)
+	for _i_ = 1 to len(_aD_)
+		_c_ = _aD_[_i_][1]
+		if _c_ = "." or _c_ = ".."  loop  ok
+		if _aD_[_i_][2] = 1
+			if _c_ = "test" or _c_ = "doc"  loop  ok
+			_b_ = _TrRingFiles(pcDir + _c_ + "/")
+			for _k_ = 1 to len(_b_)  _a_ + _b_[_k_]  next
+		but StzRight(_c_, 5) = ".ring"
+			_a_ + (pcDir + _c_)
+		ok
+	next
+	return _a_
 
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0
