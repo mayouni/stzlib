@@ -214,7 +214,7 @@ class stzHttpTask from stzReactiveTask
 	    ok
 	    
 	    # Check if we got a valid result
-	    if $_result_ != $HTTP_RESPONSE_NULL and _result_ != $HTTP_RESPONSE_EMPTY
+	    if _result_ != $HTTP_RESPONSE_NULL and _result_ != $HTTP_RESPONSE_EMPTY
 	        @result = _result_
 	        @status = $TASK_COMPLETED
 	        if @onComplete != $HTTP_RESPONSE_NULL

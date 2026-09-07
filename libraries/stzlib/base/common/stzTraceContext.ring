@@ -38,20 +38,20 @@ class stzTraceContext from stzObject
 		return This
 
 	def TraceParent()
-		return $cTP
+		return cTP
 
 	def IsValid()
 		return StzEngineTraceIsValid(cTP) = 1
 
 	def TraceId()
-		return StzEngineTraceId($cTP)
+		return StzEngineTraceId(cTP)
 
 	def SpanId()
-		return StzEngineTraceSpanId($cTP)
+		return StzEngineTraceSpanId(cTP)
 
 	def IsSampled()
 		return StzEngineTraceSampled(cTP) = 1
 
 	# A child header for an outbound call: same trace-id, new span-id.
 	def ChildHeader()
-		return StzEngineTraceChild($cTP)
+		return StzEngineTraceChild(cTP)

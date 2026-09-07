@@ -3753,9 +3753,9 @@ class stzListOfNumbers from stzList
 
 	def Absolute()
 		_anContent_ = This.Content()*
-		$_nLen_ = len(_anContent_)
+		_nLen_ = len(_anContent_)
 
-		for i = 1 to $_nLen_
+		for i = 1 to _nLen_
 			if _anContent_[i] < 0
 				_anContent_[i] = -_anContent_[i]
 			ok
@@ -3941,7 +3941,12 @@ class stzListOfNumbers from stzList
 		next
 
 		def ClipQ(nMin, nMax)
-			return This.ClipQRT(nMin, nMax, $pcReturnType)
+			# The fluent form has no return type to forward, so it names
+			# one -- as NumbersQ, ReplaceSectionWithQ and CumulateQ all do
+			# in this same file. It forwarded pcReturnType, which is not a
+			# parameter of ClipQ and not bound anywhere in it: R24 on every
+			# call, whether the name carried a $ or not.
+			return This.ClipQRT(nMin, nMax, :stzList)
 
 		def ClipQRT(nMin, nMax, pcReturnType)
 			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])

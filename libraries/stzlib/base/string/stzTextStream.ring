@@ -22,19 +22,19 @@ class stzTextStream from stzObject
 	# Sets the string from a QFile or QSocket or QProcess
 	def SetFromFile(pcFile)
 		_oFile_ = new stzFile(pcFile, :WriteToEnd)
-		$_oQTextStream_.setDevice(_oFile_.Pointer())
+		_oQTextStream_.setDevice(_oFile_.Pointer())
 
 		This.SetSourceOfStreamTo(:File)
 
 	def SetFromScocket(poQSocket)
 		// TODO: check this is really a socket
-		$_oQTextStream_.setDevice(poQSocket)
+		_oQTextStream_.setDevice(poQSocket)
 
 		This.SetSourceOfStreamTo(:Socket)
 
 	def SetFromProcess(poQProcess)
 		// TODO: check this is really a process
-		$_oQTextStream_.setDevice(poQProcess)
+		_oQTextStream_.setDevice(poQProcess)
 
 		This.SetSourceOfStreamTo(:Process)
 
@@ -43,13 +43,13 @@ class stzTextStream from stzObject
 	#--------------#
 
 	def SetBOM(bTrueOrFalse)
-		return $_oQTextStream_.setGenerateByteOrderMark(bTrueOrFalse)
+		return _oQTextStream_.setGenerateByteOrderMark(bTrueOrFalse)
 
 	def SetAutoDetectUnicode(bTrueOrFalse)
-		return $_oQTextStream_.setAutodetectUnicode(bTrueOrFalse)
+		return _oQTextStream_.setAutodetectUnicode(bTrueOrFalse)
 
 	def SetEncoding(pcEncodingName)
-		return $_oQTextStream_.setCodec(pcEncodingName)
+		return _oQTextStream_.setCodec(pcEncodingName)
 
 	def SetStatus(pcStatus)
 		switch pcStatus
@@ -64,44 +64,44 @@ class stzTextStream from stzObject
 		return 1
 
 	def SetLocale(pcLocale)
-		return $_oQTextStream_.setLocale(pcLocale)
+		return _oQTextStream_.setLocale(pcLocale)
 
 	  #----------#
 	 #   INFO   #
 	#----------#
 
 	def Pointer()
-		return $_oQTextStream_.ObjectPointer()
+		return _oQTextStream_.ObjectPointer()
 
 	def SourceOfStream()
-		return $_cSourceOfStream_
+		return _cSourceOfStream_
 
 	def IsSetFromFile()
-		return $_bIsSetFromFile_
+		return _bIsSetFromFile_
 
 	def IsSetFromSocket()
-		return $_bIsSetFromSocket_
+		return _bIsSetFromSocket_
 
 	def IsSetFromProcess()
 		reurn _bIsSetFromProcess_
 
 	def IsUnicodeAutoDetected()
-		return $_oQTextStream_.autoDetectUnicode()
+		return _oQTextStream_.autoDetectUnicode()
 
 	def TextEncoding()
-		return $_oQTextStream_.codec()
+		return _oQTextStream_.codec()
 
 	def FilePointer()
-		return $_oQTextStream_.device()
+		return _oQTextStream_.device()
 
 	def SocketPointer()
-		return $_oQTextStream_.device()
+		return _oQTextStream_.device()
 
 	def ProcessPointer()
-		return $_oQTextStream_.device()
+		return _oQTextStream_.device()
 
 	def Status()
-		switch $_oQTextStream_.status()
+		switch _oQTextStream_.status()
 		on 0	return :Ok
 		on 1	return :ReadPastEnd
 		on 2	return :ReadCorruptData
@@ -109,14 +109,14 @@ class stzTextStream from stzObject
 		off
 
 	def Locale()
-		return $_oQTextStream_.locale()
+		return _oQTextStream_.locale()
 
 	  #----------#
 	 #   READ   #
 	#----------#
 
 	def ReadAll()
-		return $_oQTextStream_.readAll()
+		return _oQTextStream_.readAll()
 
 	def Lines()
 		_oStzStr_ = new stzString(This.ReadAll())
@@ -131,17 +131,17 @@ class stzTextStream from stzObject
 	#-------------#
 
 	def Delete()
-		$_oQTextStream_.delete()
+		_oQTextStream_.delete()
 
 
 	def Flush()
-		return $_oQTextStream_.flash()
+		return _oQTextStream_.flash()
 
 	def Reset()
-		return $_oQTextStream_.reset()
+		return _oQTextStream_.reset()
 
 	def ResetStatus()
-		return $_oQTextStream_.resetStatus()
+		return _oQTextStream_.resetStatus()
 
 	  #---------------------#
 	 #   PRIVATE KITCHEN   #

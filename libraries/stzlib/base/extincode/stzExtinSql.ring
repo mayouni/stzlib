@@ -281,15 +281,15 @@ class WITH
 				StzRaise("Incorrect param type! paParams must be a list of 1 to 3 items.")
 			ok
 		ok
-		_n_ = StzHashListQ($_aVars).FindKey($_cSQL_)
+		_n_ = StzHashListQ($_aVars).FindKey(_cSQL_)
 		if _n_ = 0
-			$_aVars + [ $_cSQL_, $_oIntermediateTable.rows() ]
-			$_aVars + [ $_cSQL_ + 'Data', $_oIntermediateTable.rows() ]
-			$_aVars + [ $_cSQL_ + 'Table', $_oIntermediateTable ]
-			$_aVars + [ $_cSQL_ + 'Object', $_oIntermediateTable ]
+			$_aVars + [ _cSQL_, $_oIntermediateTable.rows() ]
+			$_aVars + [ _cSQL_ + 'Data', $_oIntermediateTable.rows() ]
+			$_aVars + [ _cSQL_ + 'Table', $_oIntermediateTable ]
+			$_aVars + [ _cSQL_ + 'Object', $_oIntermediateTable ]
 		else
-			$_aVars[_n_] = [ $_cSQL_, $_oIntermediateTable.rows() ]
-			$_aVars[_n_] = [ $_cSQL_ + 'Data', $_oIntermediateTable.rows() ]
-			$_aVars[_n_] = [ $_cSQL_ + 'Table', $_oIntermediateTable ]
-			$_aVars[_n_] = [ $_cSQL_ + 'Object', $_oIntermediateTable ]
+			$_aVars[_n_] = [ _cSQL_, $_oIntermediateTable.rows() ]
+			$_aVars[_n_] = [ _cSQL_ + 'Data', $_oIntermediateTable.rows() ]
+			$_aVars[_n_] = [ _cSQL_ + 'Table', $_oIntermediateTable ]
+			$_aVars[_n_] = [ _cSQL_ + 'Object', $_oIntermediateTable ]
 		ok

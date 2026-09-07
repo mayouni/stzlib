@@ -231,7 +231,7 @@ class stzSecurityDrill from stzObject
 		next
 
 	def Destroy()
-		if $bSpawned and @nJob > 0
+		if bSpawned and @nJob > 0
 			@oReactor.KillSpawnHard(@nJob)
 			@nJob = 0
 			bSpawned = 0
@@ -254,7 +254,7 @@ class stzSecurityDrill from stzObject
 		return @oReactor.AwaitTcp(_nJ_, 5000)
 
 	def _RingExecutable()
-		_a_ = $sysargv
+		_a_ = sysargv
 		_n_ = ring_len(_a_)
 		for _i_ = 1 to _n_
 			_c_ = StzLower("" + _a_[_i_])

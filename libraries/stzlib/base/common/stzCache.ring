@@ -92,7 +92,7 @@ class stzCache from stzObject
 		_oCacheStorage_ = new stzCacheStorage("cache", pcCacheName, pcStorageType)
 
 	def StorageType()
-		return $_oCacheStorage_.StorageType()
+		return _oCacheStorage_.StorageType()
 
 	def Activate()
 		bActivated = 1
@@ -101,7 +101,7 @@ class stzCache from stzObject
 		bActivated = 0
 
 	def IsActivated()
-		return $bActivated
+		return bActivated
 
 	func CacheOpen()
 		switch StorageType()
@@ -113,7 +113,7 @@ class stzCache from stzObject
 		
 	
 	def CacheFileHandler()
-		return $_oCacheStorage_.FileHandler()
+		return _oCacheStorage_.FileHandler()
 
 	func CacheFileColse()
 		return TextFileColse($_CacheFileHandler)
@@ -200,13 +200,13 @@ class stzCacheStorage from stzObject
 		_oStorage_ = new stzStorage(pcStoragePath, pcCacheName, pcStorageType)
 
 	def FileHandler()
-		return $_oStorage_.FileHandler()
+		return _oStorage_.FileHandler()
 
 	def FileName()
-		return $_oStorage_.FileName()
+		return _oStorage_.FileName()
 
 	def CompleteFileName()
-		return $_oStorage_.CompleteFileName()
+		return _oStorage_.CompleteFileName()
 
 	def StorageType()
-		return $_oStorage_.StorageType()
+		return _oStorage_.StorageType()
