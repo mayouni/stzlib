@@ -52,8 +52,8 @@ class stzMetricFamily from stzObject
 	@aLabelNames = []
 	@nWindow = 1024
 	@nMaxChildren = 64
-	pFamily = ""
-	bReady = 0
+	@pFamily = ""
+	@bReady = 0
 	@aChildCache = []	# per-face [ key, oMetric ] -- derived, rebuilt on miss
 
 	def init(pcName, pcKind, paLabelNames, pnWindow, pnMaxChildren)
@@ -81,8 +81,8 @@ class stzMetricFamily from stzObject
 		but @cKind = "timer"
 			_nKindCode_ = 2
 		ok
-		pFamily = StzEnginePerfFamilyCreate(_nKindCode_, @nWindow, @nMaxChildren)
-		bReady = 1
+		@pFamily = StzEnginePerfFamilyCreate(_nKindCode_, @nWindow, @nMaxChildren)
+		@bReady = 1
 		# RESERVE the overflow child now (eager, before any copy): a
 		# full family must still have somewhere to route new label
 		# sets -- an overflow created on demand would find no room.
@@ -128,7 +128,7 @@ class stzMetricFamily from stzObject
 			_aVals_ + StzReplace("" + paValues[_i_], "|", "_")
 		next
 		_cKey_ = This._JoinKey(_aVals_)
-		if StzEnginePerfFamilyCanAdd(pFamily, _cKey_) = 0
+		if StzEnginePerfFamilyCanAdd(@pFamily, _cKey_) = 0
 			# full + new: the overflow child (every label "_overflow")
 			_aVals_ = []
 			for _i_ = 1 to ring_len(@aLabelNames)
@@ -140,14 +140,14 @@ class stzMetricFamily from stzObject
 
 	# How many distinct children exist (engine truth, all faces agree).
 	def ChildCount()
-		return StzEnginePerfFamilySize(pFamily)
+		return StzEnginePerfFamilySize(@pFamily)
 
 	# The children's keys, creation order (values joined with '|').
 	def Keys()
 		_aOut_ = []
-		_nN_ = StzEnginePerfFamilySize(pFamily)
+		_nN_ = StzEnginePerfFamilySize(@pFamily)
 		for _i_ = 1 to _nN_
-			_aOut_ + StzEnginePerfFamilyKeyAt(pFamily, _i_)
+			_aOut_ + StzEnginePerfFamilyKeyAt(@pFamily, _i_)
 		next
 		return _aOut_
 
@@ -245,10 +245,10 @@ class stzMetricFamily from stzObject
 		next
 
 	def Destroy()
-		if bReady
-			StzEnginePerfFamilyDestroy(pFamily)
-			pFamily = ""
-			bReady = 0
+		if @bReady
+			StzEnginePerfFamilyDestroy(@pFamily)
+			@pFamily = ""
+			@bReady = 0
 		ok
 		# cached children hold ADOPTED handles -- their Destroy() is a
 		# no-op on engine state; dropping the cache is enough
@@ -295,10 +295,10 @@ class stzMetricFamily from stzObject
 				return @aChildCache[_i_][2]
 			ok
 		next
-		_pS_ = StzEnginePerfFamilyChildSeries(pFamily, pcKey)
+		_pS_ = StzEnginePerfFamilyChildSeries(@pFamily, pcKey)
 		_pH_ = ""
 		if @cKind = "timer"
-			_pH_ = StzEnginePerfFamilyChildHist(pFamily, pcKey)
+			_pH_ = StzEnginePerfFamilyChildHist(@pFamily, pcKey)
 		ok
 		_aPairs_ = []
 		_nN_ = ring_len(@aLabelNames)

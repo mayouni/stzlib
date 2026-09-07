@@ -23,48 +23,48 @@ func StzCancelToken()
 
 class stzCancelToken from stzObject
 
-	pHandle = ""
+	@pHandle = ""
 	# Plain boolean guard -- reliable, unlike comparing a cpointer to
 	# NULL (Ring's typed null trips `= NULL` / isPointer). Paren-less
 	# `new stzCancelToken` does NOT run init(), so every method lazily
 	# ensures the handle exists before using it.
-	bReady = 0
+	@bReady = 0
 
 	def init()
 		This._Ensure()
 
 	def _Ensure()
-		if bReady = 0
-			pHandle = StzEngineCancelCreate()
-			bReady = 1
+		if @bReady = 0
+			@pHandle = StzEngineCancelCreate()
+			@bReady = 1
 		ok
 
 	# The opaque engine handle, to hand to StzEnginePoolSubmitWithCancel.
 	def Handle()
 		This._Ensure()
-		return pHandle
+		return @pHandle
 
 	# Ask any operation carrying this token to stop.
 	def Cancel()
 		This._Ensure()
-		StzEngineCancelSignal(pHandle)
+		StzEngineCancelSignal(@pHandle)
 		return This
 
 	# Alias for Cancel() -- matches the engine verb name.
 	def Signal()
 		This._Ensure()
-		StzEngineCancelSignal(pHandle)
+		StzEngineCancelSignal(@pHandle)
 		return This
 
 	def IsCancelled()
 		This._Ensure()
-		return StzEngineCancelIsCancelled(pHandle) = 1
+		return StzEngineCancelIsCancelled(@pHandle) = 1
 
 	# Free the engine handle. The token must not be used afterwards.
 	def Destroy()
-		if bReady = 1
-			StzEngineCancelDestroy(pHandle)
-			pHandle = ""
-			bReady = 0
+		if @bReady = 1
+			StzEngineCancelDestroy(@pHandle)
+			@pHandle = ""
+			@bReady = 0
 		ok
 		return This
