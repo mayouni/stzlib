@@ -779,3 +779,93 @@ func StzMathScene37(poFont)
 	_o_.Layout()
 	_o_.DragTo("A.icon", _o_.ValueOf("A.icon.cx") + 60, _o_.ValueOf("A.icon.cy") - 30)
 	return _o_
+
+
+#-- two storyboards: the plane's own kill (DN9f) ---------------------------
+
+# THE EXPLANATION OF 2026-09-06, AS ONE STORYBOARD. Four frames over two
+# solves of one content, every number in every caption bound to a fact,
+# and the frames that show the flawed picture saying so.
+func StzStoryOneWedge(poFont, pcFolio)
+	_oBad_ = new stzMathDiagram(StzGraphDomain(), StzMathCubeSubstance(), StzCurvedGraphStyle())
+	_oBad_.SetFont(poFont, 15)
+	_oBad_.SetVariation("curved")
+	_oBad_._Compile()
+	_oBad_._CompileViolationTapes()
+	_oBad_._Initialise("planar")
+	_oBad_._SolveStage(0)
+	_oBad_._SolveStage(1)
+	_oBad_._ReadViolations()
+	_oBad_._FreeViolationTapes()
+	_oBad_.@bLaidOut = 1
+	_oBad_.@aVCache = []
+
+	_o_ = new stzStoryboard("one-wedge", _oBad_, pcFolio)
+	_o_.Frame("A graph drawn planar: every vertex carries its name, and every name has rules to obey.")
+	_o_.ExpectFindings()
+	_o_.Frame("A name must stay within {leash} px of its dot. That circle is a rule, not a drawing.")
+	_o_.ExpectFindings()
+	_o_.Bind("leash", :arg, [ "lessthan v111", 2 ])
+	_o_.Show("lessthan v111")
+	_o_.Emphasis("v111.icon", :ring)
+	_o_.Frame("This one is {far} px away, so it is outside. Look closely.")
+	_o_.ExpectFindings()
+	_o_.Bind("far", :distance, [ "v111.icon", "v111.text" ])
+	_o_.WindowOn("v111.icon", 105)
+	_o_.FrameOf(StzMathScene25(poFont),
+		"Given a second starting direction, the same name settles {near} px out, inside the leash.")
+	_o_.Bind("near", :distance, [ "v111.icon", "v111.text" ])
+	_o_.Show("lessthan v111")
+	_o_.Emphasis("v111.icon", :ring)
+	_o_.WindowOn("v111.icon", 105)
+	return _o_
+
+# AND THE SAME FIVE MARKS WITH NO MATHEMATICS ANYWHERE: an org chart, a
+# governance finding from the org plane quoted in a caption about a
+# drawing of it, and the repaired chart as the last frame.
+func StzStoryChartOf(pbFixed)
+	_o_ = new stzOrgChart("acme")
+	_o_.AddPositionXT("ceo", "Chief Executive")
+	_o_.AddPositionXT("cto", "Technology")
+	_o_.AddPositionXT("cfo", "Finance")
+	_o_.AddPositionXT("eng", "Engineering")
+	_o_.AddPositionXT("ops", "Operations")
+	_o_.ReportsTo("cto", "ceo")
+	_o_.ReportsTo("cfo", "ceo")
+	_o_.ReportsTo("eng", "cto")
+	if pbFixed  _o_.ReportsTo("ops", "cto")  ok
+	return _o_
+
+func StzStoryChartPicture(poFont, pbFixed)
+	_oS_ = StzSubstanceFromGraph(StzStoryChartOf(pbFixed), StzGraphDomain(),
+		[ :nodeType = "Vertex", :edgeConstructor = "Arc" ])
+	_o_ = new stzMathDiagram(StzGraphDomain(), _oS_, StzBoxArrowStyle())
+	_o_.SetFont(poFont, 16)
+	_o_.SetVariation("acme")
+	return _o_
+
+# A FINDING FROM THE ORG PLANE, IN THE ONE FACT SHAPE, so a caption about
+# a drawing can quote a verdict the drawing never reached itself
+func StzStoryFindingAbout(poChart, pcWho)
+	_aF_ = poChart.GovernanceFindings()
+	for _i_ = 1 to len(_aF_)
+		if StzLower("" + _aF_[_i_][:where]) = StzLower(pcWho)
+			return StzFact(:verdict, "" + _aF_[_i_][:rule], 1, :none,
+				"" + _aF_[_i_][:where], "" + _aF_[_i_][:message])
+		ok
+	next
+	return StzFact(:verdict, pcWho, 0, :none, "orgchart",
+		"nothing is found against " + pcWho)
+
+func StzStoryOrgChart(poFont, pcFolio)
+	_o_ = new stzStoryboard("acme", StzStoryChartPicture(poFont, 0), pcFolio)
+	_o_.Frame("Five positions, and the lines that say who answers to whom.")
+	_o_.Frame("The org rules read the chart and find one thing: {gap.message}")
+	_o_.BindFact("gap", StzStoryFindingAbout(StzStoryChartOf(0), "ops"))
+	_o_.Emphasis("ops.icon", :ring)
+	_o_.Callout("ops.icon", "no supervisor", [])
+	_o_.FrameOf(StzStoryChartPicture(poFont, 1),
+		"One line added, and the same rules find nothing about it: {fixed.message}")
+	_o_.BindFact("fixed", StzStoryFindingAbout(StzStoryChartOf(1), "ops"))
+	_o_.Emphasis("ops.icon", :focus)
+	return _o_

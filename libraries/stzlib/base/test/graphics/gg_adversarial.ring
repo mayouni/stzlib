@@ -14074,6 +14074,58 @@ chk("NEGATIVE: the same big tape ANSWERS its size as a fact, which is what was w
     _TgBigCounts() > 20000)
 
 
+sec("-- 102. DN9f: THE STORYBOARD -- A CAPTION THAT CANNOT LIE ----------------")
+discharges("DN9f")
+
+# THE EXPLANATION OF 2026-09-06, AS ONE STORYBOARD: four frames over two
+# solves of one content, every number bound to a fact.
+oSbW = StzStoryOneWedge(AUFONT, "folio")
+? "   [one-wedge: " + oSbW.NumberOfFrames() + " frames, " + oSbW.NumberOfHoles() +
+  " numbers, none typed]"
+chk("four frames, three numbers, and the telling is clean",
+    oSbW.NumberOfFrames() = 4 and oSbW.NumberOfHoles() = 3 and oSbW.IsClean())
+chk("every number a caption shows is the number its own fact reported",
+    _SbNumbersAreFacts(oSbW))
+chk("and the story is told by them: past the leash in one frame, inside it in the next",
+    _SbHole(oSbW, 3, "far") > _SbHole(oSbW, 2, "leash") and
+    _SbHole(oSbW, 4, "near") < _SbHole(oSbW, 2, "leash"))
+chk("each frame was drawn to its own file", _SbFilesDiffer(oSbW))
+
+# A FRAME MAY BE ABOUT A FLAW. The first three show a picture the gate
+# faults, and say so; the fourth does not and is clean.
+chk("the frames about the flawed picture declare it, and the repaired one does not",
+    oSbW.ExpectsFindings(1) and oSbW.ExpectsFindings(3) and NOT oSbW.ExpectsFindings(4))
+chk("the gate DOES fault the picture those frames are about, and does not fault the last",
+    len(oSbW.FindingsOf(3)) > 0 and len(oSbW.FindingsOf(4)) = 0)
+chk("NEGATIVE: a frame that expects a finding and gets none is reported", _SbFalseExpect())
+
+# AND THE SAME FIVE MARKS WITH NO MATHEMATICS ANYWHERE.
+oSbO = StzStoryOrgChart(AUFONT, "folio")
+chk("an org chart tells three frames and is clean", oSbO.NumberOfFrames() = 3 and oSbO.IsClean())
+chk("its caption quotes the ORG plane's own finding, word for word, about a drawing " +
+    "that never reached that verdict itself",
+    StzFindFirst("has no supervisor", oSbO.Caption(2)) > 0)
+chk("and the last frame says the same rules now find nothing about it",
+    StzFindFirst("nothing is found against ops", oSbO.Caption(3)) > 0)
+chk("with no geometry anywhere in it: no distance, angle or radius is bound",
+    _SbNoMaths(oSbO))
+
+# THE THINGS A STORYBOARD REFUSES TO LET AN AUTHOR GET AWAY WITH.
+chk("a hole nothing was bound to survives into the caption and IS reported", _SbOpenHole())
+chk("a fact bound and never quoted is reported", _SbUnquoted())
+chk("a mark before any frame is opened is refused", _SbMarkBeforeFrame())
+
+# THE DOCUMENT: the sibling's three kinds, and its one law.
+cSbN = oSbW.ToNarration("folio/one-wedge.narration")
+cSbT = read(cSbN)
+chk("the emitted document declares only the three kinds the grammar has",
+    _SbKindsOnly(cSbT))
+chk("A CAPTION GOES OUT WITH ITS HOLES STILL OPEN -- no number is stored in the prose",
+    StzFindFirst("{leash}", cSbT) > 0 and StzFindFirst("43.73", cSbT) = 0)
+chk("and every hole has a CELL that recomputes it on arrival",
+    _SbCellPerHole(cSbT, oSbW))
+
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go
@@ -17846,6 +17898,102 @@ func _TgRefusesJunk
 		_b_ = TRUE
 	done
 	return _b_
+
+func _SbHole poS, pnFrame, pcHole
+	_a_ = poS.HolesOf(pnFrame)
+	for _i_ = 1 to len(_a_)
+		if _a_[_i_][1] = pcHole  return _a_[_i_][2][:value]  ok
+	next
+	return -1
+
+# every number shown is the number its fact reported -- read again here
+# rather than trusted from the storyboard's own judgement
+func _SbNumbersAreFacts poS
+	for _i_ = 1 to poS.NumberOfFrames()
+		_a_ = poS.HolesOf(_i_)
+		for _k_ = 1 to len(_a_)
+			if StzFindFirst(StzFactNumText(_a_[_k_][2][:value]), poS.Caption(_i_)) = 0 and
+			   StzFindFirst("" + _a_[_k_][2][:message], poS.Caption(_i_)) = 0
+				return FALSE
+			ok
+		next
+	next
+	return TRUE
+
+func _SbFilesDiffer poS
+	for _i_ = 1 to poS.NumberOfFrames()
+		for _k_ = _i_ + 1 to poS.NumberOfFrames()
+			if poS.FileOf(_i_) = poS.FileOf(_k_)  return FALSE  ok
+		next
+	next
+	return TRUE
+
+func _SbNoMaths poS
+	for _i_ = 1 to poS.NumberOfFrames()
+		_a_ = poS.HolesOf(_i_)
+		for _k_ = 1 to len(_a_)
+			_c_ = StzLower("" + _a_[_k_][2][:kind])
+			if _c_ = "distance" or _c_ = "angle" or _c_ = "expr"  return FALSE  ok
+		next
+	next
+	return TRUE
+
+# a frame that claims to show a flaw, over a picture that has none
+func _SbFalseExpect
+	_o_ = new stzStoryboard("false-expect", StzMathScene16(AUFONT), "folio")
+	_o_.Frame("nothing is wrong with this picture, and I say something is")
+	_o_.ExpectFindings()
+	for _f_ in _o_.Judge()
+		if "" + _f_[:rule] = "expected_a_finding_and_got_none"  return TRUE  ok
+	next
+	return FALSE
+
+func _SbOpenHole
+	_o_ = new stzStoryboard("open-hole", StzMathScene16(AUFONT), "folio")
+	_o_.Frame("the radius is {r} px, and nobody said which fact that is")
+	for _f_ in _o_.Judge()
+		if "" + _f_[:rule] = "hole_left_open"  return TRUE  ok
+	next
+	return FALSE
+
+func _SbUnquoted
+	_o_ = new stzStoryboard("unquoted", StzMathScene16(AUFONT), "folio")
+	_o_.Frame("a sentence that quotes nothing at all")
+	_o_.Bind("r", :value, [ "K.icon.r" ])
+	for _f_ in _o_.Judge()
+		if "" + _f_[:rule] = "fact_bound_but_never_shown"  return TRUE  ok
+	next
+	return FALSE
+
+func _SbMarkBeforeFrame
+	_b_ = FALSE
+	try
+		_o_ = new stzStoryboard("no-frame", StzMathScene16(AUFONT), "folio")
+		_o_.Emphasis("A.icon", :ring)
+	catch
+		_b_ = TRUE
+	done
+	return _b_
+
+# the grammar has three kinds and no fourth
+func _SbKindsOnly pcText
+	_a_ = StzSplit(pcText, char(10))
+	for _i_ = 1 to len(_a_)
+		_c_ = ring_trim(_a_[_i_])
+		if StzLeft(_c_, 7) != "DEFINE "  loop  ok
+		_k_ = StzSplit(_c_, " ")[2]
+		if _k_ != "NARRATION" and _k_ != "PROSE" and _k_ != "CELL"  return FALSE  ok
+	next
+	return TRUE
+
+func _SbCellPerHole pcText, poS
+	_n_ = 0
+	_a_ = StzSplit(pcText, char(10))
+	for _i_ = 1 to len(_a_)
+		if StzLeft(ring_trim(_a_[_i_]), 12) = "DEFINE CELL "  _n_++  ok
+	next
+	# one picture cell per frame, plus one cell per hole
+	return _n_ = poS.NumberOfFrames() + poS.NumberOfHoles()
 
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0
