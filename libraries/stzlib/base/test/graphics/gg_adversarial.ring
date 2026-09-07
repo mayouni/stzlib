@@ -14018,6 +14018,62 @@ chk("NEGATIVE: a mark left outside the part a frame shows IS reported, by name",
 chk("a name's measured box is the same at 3x as at 1x", _WnTextUnscaled())
 
 
+sec("-- 101. DN9e: THE ENGINE DRAWS ITS OWN THINKING -------------------------")
+discharges("DN9e")
+
+# THE EXPRESSION OF DN8h, COMPILED BOTH WAYS, AND DRAWN FROM THE TAPE
+# ITSELF -- not from the text that made it, which is the whole point: the
+# text is identical and the two tapes are not.
+pTgS = StzEngineGradCompileXT("(x-y)^2 + (x-y)^2", "x,y", 1)
+pTgP = StzEngineGradCompileXT("(x-y)^2 + (x-y)^2", "x,y", 0)
+oTgS = StzTapeGraphXT(pTgS, [ :names = "x,y" ])
+oTgP = StzTapeGraphXT(pTgP, [ :names = "x,y" ])
+? "   [one text, two tapes: " + oTgS.NumberOfNodes() + " steps shared, " +
+  oTgP.NumberOfNodes() + " written out]"
+chk("the drawn graph holds exactly the steps the engine counts, both ways",
+    oTgS.NumberOfNodes() = StzEngineGradNodes(pTgS) and
+    oTgP.NumberOfNodes() = StzEngineGradNodes(pTgP))
+chk("and the two differ although the text does not -- six steps against eleven",
+    oTgS.NumberOfNodes() = 6 and oTgP.NumberOfNodes() = 11)
+
+# THE TAPE'S ONE STRUCTURAL LAW, read off the drawing: an operand is
+# always an earlier step than the step that consumes it. That is what
+# makes the reverse pass correct with sharing, and it is checkable here.
+chk("every edge runs from a later step to an earlier one, in both tapes",
+    _TgOperandsPrecede(oTgS) and _TgOperandsPrecede(oTgP))
+chk("the variables are leaves and the answer is the only step nothing consumes",
+    _TgLeavesAndRoot(oTgS) and _TgLeavesAndRoot(oTgP))
+
+# A STEP CONSUMED TWICE SAYS SO. A simple graph draws one arrow, so the
+# multiplicity is recorded rather than lost.
+chk("the shared root reads its one operand twice, and says so on its own label",
+    _TgRootLabel(pTgS, "x,y") = "+ (x2)")
+chk("NEGATIVE: written out, the root has two different operands and no such note",
+    _TgRootLabel(pTgP, "x,y") = "+")
+chk("which is why the shared tape has one edge fewer than it has steps minus leaves",
+    oTgS.NumberOfEdges() = 5 and oTgP.NumberOfEdges() = 10)
+
+StzEngineGradFree(pTgS)
+StzEngineGradFree(pTgP)
+
+# AND IT IS A PICTURE, drawn by the two planes that draw everything else.
+oTgD = new stzMathDiagram(StzGraphDomain(), StzTapePicture("(x-y)^2 + (x-y)^2", "x,y", 1),
+	StzBoxArrowStyle())
+oTgD.SetFont(AUFONT, 17)
+oTgD.SetVariation("tape")
+chk("the shared tape draws as a lawful picture, from a hierarchical start",
+    oTgD.IsFeasible() and oTgD.StartUsed() = "hierarchical")
+chk("and the one gate finds nothing in it",
+    len(StzCheckPictures([ [ "the tape itself", oTgD ] ]).Findings()) = 0)
+
+# REFUSED WHERE A DRAWING WOULD BE A MEASUREMENT.
+chk("a tape of tens of thousands of steps is refused, and names the fact to ask instead",
+    _TgRefusesBig())
+chk("a handle that is not a compiled expression is refused", _TgRefusesJunk())
+chk("NEGATIVE: the same big tape ANSWERS its size as a fact, which is what was wanted",
+    _TgBigCounts() > 20000)
+
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go
@@ -17720,6 +17776,76 @@ func _WnTextUnscaled
 	_o_.WindowOn("A.icon", 90)
 	_b_ = _o_.ShapeOf("A.text")
 	return _a_[:w] = _b_[:w] and _a_[:h] = _b_[:h]
+
+# every arrow goes from a step to an earlier step: the tape invariant
+func _TgOperandsPrecede poG
+	_ac_ = poG.NodesIds()
+	for _i_ = 1 to len(_ac_)
+		_aT_ = poG.Neighbors(_ac_[_i_])
+		for _k_ = 1 to len(_aT_)
+			if _TgIndexOf(_ac_[_i_]) <= _TgIndexOf(_aT_[_k_])  return FALSE  ok
+		next
+	next
+	return TRUE
+
+func _TgIndexOf pcId
+	return 0 + StzStringSection("" + pcId, 2, len("" + pcId))
+
+func _TgLeavesAndRoot poG
+	_ac_ = poG.NodesIds()
+	_nRoots_ = 0
+	for _i_ = 1 to len(_ac_)
+		_cOp_ = "" + poG.NodeProperty(_ac_[_i_], :op)
+		if _cOp_ = "variable" or _cOp_ = "constant"
+			if len(poG.Neighbors(_ac_[_i_])) != 0  return FALSE  ok
+		ok
+		if len(poG.Incoming(_ac_[_i_])) = 0  _nRoots_++  ok
+	next
+	return _nRoots_ = 1
+
+func _TgRootLabel pHandle, pcNames
+	_oG_ = StzTapeGraphXT(pHandle, [ :names = pcNames ])
+	_ac_ = _oG_.NodesIds()
+	for _i_ = 1 to len(_ac_)
+		if len(_oG_.Incoming(_ac_[_i_])) = 0
+			return "" + _oG_.NodeProperty(_ac_[_i_], :label)
+		ok
+	next
+	return ""
+
+func _TgBigTape
+	_o_ = StzMathScene13(AUFONT)
+	_o_.Layout()
+	_c_ = ""
+	for _i_ = 1 to len(_o_.@aConstraints)
+		if len(_o_.@aConstraints[_i_][2]) > len(_c_)  _c_ = _o_.@aConstraints[_i_][2]  ok
+	next
+	return [ _o_, _c_ ]
+
+func _TgRefusesBig
+	_a_ = _TgBigTape()
+	_b_ = FALSE
+	try
+		_p_ = StzEngineGradCompileXT(_a_[2], _a_[1]._VarsText(), 0)
+		StzTapeGraph(_p_)
+		StzEngineGradFree(_p_)
+	catch
+		_b_ = TRUE
+	done
+	return _b_
+
+func _TgBigCounts
+	_a_ = _TgBigTape()
+	return _a_[1].Fact(:tapenodes, [ _a_[2], :unshared ])[:value]
+
+func _TgRefusesJunk
+	_b_ = FALSE
+	try
+		StzTapeGraph("not a handle")
+	catch
+		_b_ = TRUE
+	done
+	return _b_
 
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0

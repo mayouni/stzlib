@@ -117,7 +117,7 @@ sections, of which 21 declarations over 17 items.
 | DN9b | closed | 98 |
 | DN9c | closed | 99 |
 | DN9d | closed | 100 |
-| DN9e | open | - |
+| DN9e | closed | 101 |
 | DN9f | open | - |
 | DN9g | open | - |
 | DN2b | closed | 56 |
@@ -2881,12 +2881,47 @@ person.
 
   *Guard:* §100, DN9d.
 
-- **DN9e — The engine draws its own thinking.** *Not started.*
-  `StzTapeGraph(handle)`: the compiled tape as a `stzGraph`, one node per
-  step labelled with its operation, drawn by the graph plane's
-  hierarchical layout. **Kill:** the tree-versus-shared diagram of DN8h
-  from the *real* compiled tape, both ways (`compileShared` exists for
-  this), node counts read off the picture equal to `StzEngineGradNodes`.
+- **DN9e — The engine draws its own thinking.** **SHIPPED** 2026-09-07.
+  `StzEngineGradDump(handle)` gives the tape itself as text — a root line
+  then one line per step, `op|k|a|b` — and `StzTapeGraph(handle)` turns
+  that into an `stzGraph`, one node per step labelled with its own sign,
+  an edge from each step to what it consumes. `StzTapePicture(expr, names,
+  shared)` compiles both ways and hands back a substance, so the arithmetic
+  is drawn by the same two planes that draw everything else, with no
+  picture code of its own.
+
+  **Why this is worth a function rather than a diagram somebody draws.** A
+  tape's shape cannot be read from the text that made it: the same
+  subexpression written a hundred times is one node, and the count alone
+  does not say which one. A drawing made by hand from the text shows the
+  text's shape, not the tape's — which is exactly the error that put nine
+  and five in a caption where the truth was eleven and six.
+
+  **Kill met**, on the DN8h expression `(x-y)^2 + (x-y)^2`:
+
+  | | engine says | the graph holds | edges |
+  |---|---|---|---|
+  | shared | 6 nodes | 6 nodes | 5 |
+  | written out | 11 nodes | 11 nodes | 10 |
+
+  **A step consumed twice is recorded, not dropped.** `stzGraph` is simple
+  and holds one edge per pair, and a shared root reads its operand twice —
+  which is not a degenerate case here but what sharing looks like from
+  above. The multiplicity goes on the consuming step, so the drawn root
+  reads `+ (x2)` and a reader is told rather than shown one arrow and
+  misled.
+
+  **Refused above two hundred steps**, deliberately: a drawing of Byrne's
+  twenty-nine thousand is a measurement and not a picture, and the refusal
+  names `Fact(:tapenodes)` as the thing actually being asked for.
+
+  *Named and not done:* the pictures come out through the graph plane's
+  own box-and-arrow style, which is a data-flow layout rather than a tree
+  layout, so the drawn tape sprawls where a hand-drawn tree would nest. The
+  structure is exact and the reading is worse; a tree style for expression
+  DAGs is a separate item nobody has asked for yet.
+
+  *Guard:* §101, DN9e.
 
 - **DN9f — The storyboard.** *Not started.* `stzStoryboard`: frames in
   order, captions with holes, actions between frames; renders a folio, an
