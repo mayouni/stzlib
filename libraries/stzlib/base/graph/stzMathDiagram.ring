@@ -960,6 +960,156 @@ func _MrExtent(poDg, pcPath)
 	return _e_
 
 # THE RULES, each with the subjects it governs and the subjects it must not.
+#---------------------------------------------------------------------#
+#  THE ENGINE DRAWS ITS OWN THINKING (DN9e)                            #
+#---------------------------------------------------------------------#
+
+# A PICTURE IS SOLVED BY AN ARITHMETIC, AND THE ARITHMETIC IS A GRAPH.
+# Every rule this plane compiles becomes a list of one-step operations,
+# each naming the steps it takes its inputs from -- a tape. That is
+# already a graph, and the graph plane already draws graphs, so the
+# engine can be asked to show what it is doing in the same picture
+# language as everything else it draws.
+#
+# WHY THIS IS WORTH A FUNCTION rather than a diagram somebody draws. A
+# tape's SHAPE cannot be read from the text that made it: the same
+# subexpression written a hundred times is one node (DN8h), and the
+# count alone does not say which node. A drawing made by hand from the
+# text would show the text's shape and not the tape's, which is exactly
+# the error this plane exists to remove.
+#
+# The graph runs from the ROOT DOWN: an edge goes from a step to each
+# step it consumes, so the answer is the source and the variables are
+# the leaves -- which is how a reader walks an expression, and what the
+# hierarchical layout puts at the top.
+func StzTapeGraph(pHandle)
+	return StzTapeGraphXT(pHandle, [])
+
+func StzTapeGraphXT(pHandle, paOpts)
+	_cDump_ = StzEngineGradDump(pHandle)
+	if ring_trim("" + _cDump_) = ""
+		stzraise("StzTapeGraph: that is not a compiled expression -- give the " +
+			"handle StzEngineGradCompile() answered with.")
+	ok
+	_acNames_ = []
+	if isList(paOpts) and HasKey(paOpts, "names")
+		_ac_ = StzSplit("" + paOpts[:names], ",")
+		for _i_ = 1 to len(_ac_)
+			if ring_trim(_ac_[_i_]) != ""  _acNames_ + ring_trim(_ac_[_i_])  ok
+		next
+	ok
+	_nMax_ = 200
+	if isList(paOpts) and HasKey(paOpts, "limit")  _nMax_ = 0 + paOpts[:limit]  ok
+
+	_aL_ = StzSplit(_cDump_, char(10))
+	_aNodes_ = []
+	for _i_ = 1 to len(_aL_)
+		_c_ = ring_trim(_aL_[_i_])
+		if _c_ = ""  loop  ok
+		_af_ = StzSplit(_c_, "|")
+		if len(_af_) < 2  loop  ok
+		if _af_[1] = "root"  loop  ok
+		if len(_af_) < 4  loop  ok
+		_aNodes_ + [ _af_[1], 0 + _af_[2], 0 + _af_[3], 0 + _af_[4] ]
+	next
+	if len(_aNodes_) > _nMax_
+		stzraise("StzTapeGraph: this tape holds " + len(_aNodes_) + " steps, and a " +
+			"drawing of it would be a measurement rather than a picture -- ask " +
+			"Fact(:tapenodes) for the size, or raise :limit deliberately.")
+	ok
+
+	_oG_ = new stzGraph("tape")
+	_n_ = len(_aNodes_)
+	for _i_ = 1 to _n_
+		_oG_.AddNodeXTT("n" + _i_, "", [ :name = "n" + _i_,
+			:label = StzTapeStepLabel(_aNodes_[_i_], _acNames_),
+			:op = _aNodes_[_i_][1] ])
+	next
+	# an edge per operand, from the step to what it consumes
+	for _i_ = 1 to _n_
+		_cOp_ = _aNodes_[_i_][1]
+		if _cOp_ = "constant" or _cOp_ = "variable"  loop  ok
+		_oG_.AddEdge("n" + _i_, "n" + (_aNodes_[_i_][3] + 1))
+		if StzTapeStepArity(_cOp_) = 2
+			# BOTH OPERANDS MAY BE THE SAME STEP, and that is not a
+			# degenerate case here -- it is what sharing looks like from
+			# above: x*x, or a subexpression added to itself. A stzGraph is
+			# SIMPLE and holds one edge per pair, so the multiplicity is
+			# recorded on the step that consumes it rather than lost, and a
+			# reader is told the step is reached twice.
+			if _aNodes_[_i_][4] = _aNodes_[_i_][3]
+				_oG_.SetNodeProperty("n" + _i_, :twice, 1)
+			else
+				_oG_.AddEdge("n" + _i_, "n" + (_aNodes_[_i_][4] + 1))
+			ok
+		ok
+	next
+	# THE NOTE BELONGS ON THE GRAPH, because the graph is what is drawn.
+	# Putting it on later, when a substance is built, would leave anyone
+	# who draws the graph directly looking at one arrow and believing the
+	# step is used once.
+	for _i_ = 1 to _n_
+		if _oG_.NodeProperty("n" + _i_, :twice) = 1
+			_oG_.SetNodeProperty("n" + _i_, :label,
+				"" + _oG_.NodeProperty("n" + _i_, :label) + " (x2)")
+		ok
+	next
+	return _oG_
+
+# what one step is called, as a reader would say it: an operation by its
+# sign, a variable by its name, a constant by its value
+func StzTapeStepLabel(paNode, pacNames)
+	_o_ = "" + paNode[1]
+	if _o_ = "constant"  return StzFactNumText(paNode[2])  ok
+	if _o_ = "variable"
+		_i_ = paNode[3] + 1
+		if _i_ >= 1 and _i_ <= len(pacNames)  return "" + pacNames[_i_]  ok
+		return "u" + _i_
+	ok
+	if _o_ = "add"  return "+"  ok
+	if _o_ = "sub"  return "-"  ok
+	if _o_ = "mul"  return "*"  ok
+	if _o_ = "div"  return "/"  ok
+	if _o_ = "pow"  return "^"  ok
+	if _o_ = "neg"  return "-1x"  ok
+	return _o_
+
+func StzTapeStepArity(pcOp)
+	_o_ = StzLower("" + pcOp)
+	if _o_ = "add" or _o_ = "sub" or _o_ = "mul" or _o_ = "div" or
+	   _o_ = "pow" or _o_ = "min" or _o_ = "max"
+		return 2
+	ok
+	return 1
+
+# THE TAPE AS A PICTURE, both ways. The same expression compiled with its
+# subexpressions shared and written out, so a reader sees what sharing
+# does rather than being told: two graphs, one content.
+func StzTapePicture(pcExpr, pcNames, pbShared)
+	_nShare_ = 1
+	if NOT pbShared  _nShare_ = 0  ok
+	_p_ = StzEngineGradCompileXT(pcExpr, pcNames, _nShare_)
+	if _p_ = ""
+		stzraise("StzTapePicture: the engine refused that expression -- " +
+			StzEngineGradWhy())
+	ok
+	_oG_ = StzTapeGraphXT(_p_, [ :names = pcNames ])
+	StzEngineGradFree(_p_)
+	_oS_ = StzSubstanceFromGraph(_oG_, StzGraphDomain(),
+		[ :nodeType = "Vertex", :edgeConstructor = "Arc" ])
+	# THE STEP'S OWN SIGN IS ITS NAME TO A READER. The adapter carries a
+	# node's identity across, not its caption, so the label is put on here
+	# from the graph the tape produced -- and a step reached twice says so,
+	# since a simple graph could only draw one arrow to it.
+	_ac_ = _oG_.NodesIds()
+	for _i_ = 1 to len(_ac_)
+		_cId_ = "" + _ac_[_i_]
+		if _oS_.HasObject(_cId_)
+			_oS_.Label(_cId_, "" + _oG_.NodeProperty(_cId_, :label))
+		ok
+	next
+	return _oS_
+
 func StzMathRuleSet()
 	_ao_ = []
 

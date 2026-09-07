@@ -1148,6 +1148,10 @@ fn ring_BayesStats(p: *anyopaque) callconv(.c) void {
 //   StzEngineGradAt(handle, anValues)      -> [ value, d/dv1, d/dv2, ... ]
 //   StzEngineGradValueAt(handle, anValues) -> value only
 //   StzEngineGradNodes(handle) -> how many nodes the tape holds
+//   StzEngineGradDump(handle) -> the tape itself, one node per line
+//     "root|<i>" then "op|k|a|b" per node, indices 0-based. This is how a
+//     caller DRAWS the arithmetic it built: the node count alone says how
+//     big the tape is, and the dump says what shape it has.
 //   StzEngineGradCompileXT(cExpr, cNames, nShare) -> handle, sharing off
 //     when nShare is 0. Only an instrument asks for that: it is how a
 //     caller measures what sharing SAVED, by building the tape both ways.
@@ -1229,6 +1233,54 @@ fn ring_GradNodes(p: *anyopaque) callconv(.c) void {
         return;
     };
     rn(p, @floatFromInt(prog.nodes.items.len));
+}
+
+fn opName(o: autodiff.OpCode) []const u8 {
+    return switch (o) {
+        .constant => "constant",
+        .variable => "variable",
+        .add => "add",
+        .sub => "sub",
+        .mul => "mul",
+        .div => "div",
+        .neg => "neg",
+        .pow => "pow",
+        .exp => "exp",
+        .log => "log",
+        .sqrt => "sqrt",
+        .sin => "sin",
+        .cos => "cos",
+        .tan => "tan",
+        .tanh => "tanh",
+        .abs => "abs",
+        .min => "min",
+        .max => "max",
+    };
+}
+
+// THE TAPE, AS TEXT. A count says how much arithmetic there is; this says
+// what shape it has, which is what a picture of it needs. Nodes come out
+// in tape order, so an operand's line always precedes its consumer's --
+// the same invariant the reverse pass depends on.
+fn ring_GradDump(p: *anyopaque) callconv(.c) void {
+    const prog = getGrad(p, 1) orelse {
+        R.ring_vm_api_retstring2(p, "", 0);
+        return;
+    };
+    var buf = std.ArrayList(u8){};
+    defer buf.deinit(allocator);
+    var w = buf.writer(allocator);
+    w.print("root|{d}\n", .{prog.root}) catch {
+        R.ring_vm_api_retstring2(p, "", 0);
+        return;
+    };
+    for (prog.nodes.items) |nd| {
+        w.print("{s}|{d}|{d}|{d}\n", .{ opName(nd.op), nd.k, nd.a, nd.b }) catch {
+            R.ring_vm_api_retstring2(p, "", 0);
+            return;
+        };
+    }
+    R.ring_vm_api_retstring2(p, buf.items.ptr, @intCast(buf.items.len));
 }
 
 fn ring_GradFree(p: *anyopaque) callconv(.c) void {
@@ -3324,6 +3376,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegradfree", .func = &ring_GradFree },
     .{ .name = "stzenginegradnodes", .func = &ring_GradNodes },
     .{ .name = "stzenginegradcompilext", .func = &ring_GradCompileXT },
+    .{ .name = "stzenginegraddump", .func = &ring_GradDump },
     .{ .name = "stzenginegradat", .func = &ring_GradAt },
     .{ .name = "stzenginegradvalueat", .func = &ring_GradValueAt },
     .{ .name = "stzenginebayesnew", .func = &ring_BayesNew },
