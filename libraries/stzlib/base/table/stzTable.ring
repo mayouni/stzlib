@@ -65,13 +65,6 @@ Class stzTable from stzList
 	# Define border characters (initialized in init())
 	@aBorder = []
 
-	# Column totals for the GRAND-TOTAL row. buildDataRows() fills this on
-	# its first pass and buildGrandTotal() prints it -- two separate
-	# methods, so it has to outlive the first. It used to be a LOCAL there
-	# and was read as $_aGrandTotals_ here, a global nothing writes, so
-	# buildGrandTotal() raised R24 on the first column that reached the
-	# totals branch.
-	@aGrandTotals = []
 
 	# Attributes used by the Transpose() method
 
@@ -1320,8 +1313,21 @@ Class stzTable from stzList
 	# ShowXT(opts) -- forwarder to Show(). The option list controls
 	# row numbers, intersection chars, totals etc; until those are
 	# fully ported, fall back to plain Show so callers don't R14.
-	def ShowXT(pOpts)
-		This.Show()
+	# Show the table with a GRAND-TOTAL row summing every summable column.
+	# stzPivotTable.ShowXT(pbSubTotal, pbGrandTotal) is the sibling of this;
+	# a flat table has no grouping column, so it offers no subtotals.
+	#
+	# This used to take pOpts and ignore it, calling Show() -- so there was
+	# no way to ask for a total at all, and the code that would have built
+	# one was unreachable.
+	def ShowXT(pbGrandTotal)
+		? This._displayFullTableXT(pbGrandTotal)
+
+		def ShowWithGrandTotal()
+			This.ShowXT(TRUE)
+
+		def ToStringXT(pbGrandTotal)
+			return This._displayFullTableXT(pbGrandTotal)
 
 	# Fill(pValue) -- replace every cell in the table with pValue.
 	def Fill(pValue)
@@ -16170,6 +16176,9 @@ func _NormalizeColLookupKey(pVal)
     # Internal method to display full table
 
     def _displayFullTable()
+        return This._displayFullTableXT(FALSE)
+
+    def _displayFullTableXT(pbGrandTotal)
         # Get column names and content
         _acColNames_ = This.ColNames()
         _aContent_ = @aContent
@@ -16177,6 +16186,55 @@ func _NormalizeColLookupKey(pVal)
         # Calculate column widths
         _aColWidths_ = []
         _nCols_ = len(_acColNames_)
+
+        # Column sums, computed first because a total can be WIDER than
+        # anything above it: 1000 under a column headed Units.
+        _aGtTotals_ = []
+        _abGtSummable_ = []
+        _nGtLabelCol_ = 0
+
+        if pbGrandTotal
+            for i = 1 to _nCols_
+                _nGtSum_ = 0
+                _bGtAny_ = FALSE
+                _bGtAll_ = TRUE
+                _aGtCol_ = _aContent_[i][2]
+                _nGtLen_ = len(_aGtCol_)
+
+                for j = 1 to _nGtLen_
+                    _vGt_ = _aGtCol_[j]
+
+                    if isNumber(_vGt_)
+                        _nGtSum_ += _vGt_
+                        _bGtAny_ = TRUE
+
+                    but isString(_vGt_) and _vGt_ != "" and @IsNumberInString(_vGt_)
+                        _nGtSum_ += (0 + _vGt_)
+                        _bGtAny_ = TRUE
+
+                    but isString(_vGt_) and _vGt_ = ""
+                        # an empty cell neither adds nor disqualifies
+                        _nGtSum_ += 0
+
+                    else
+                        _bGtAll_ = FALSE
+                    ok
+                next
+
+                _aGtTotals_ + _nGtSum_
+                _abGtSummable_ + (_bGtAny_ and _bGtAll_)
+            next
+
+            # The label needs a cell of its own, so it takes the first
+            # column that carries no total. If every column is summable it
+            # stays at 0 and the separator alone marks the row.
+            for i = 1 to _nCols_
+                if NOT _abGtSummable_[i]
+                    _nGtLabelCol_ = i
+                    exit
+                ok
+            next
+        ok
 
         # First pass: calculate max width for each column header
         for i = 1 to _nCols_
@@ -16200,6 +16258,18 @@ func _NormalizeColLookupKey(pVal)
                 ok
 
             next
+
+            if pbGrandTotal
+                if _abGtSummable_[i]
+                    _nGtW_ = stzlen("" + _aGtTotals_[i])
+                    if _nGtW_ > _nMaxWidth_
+                        _nMaxWidth_ = _nGtW_
+                    ok
+                ok
+                if i = _nGtLabelCol_ and _nMaxWidth_ < 11
+                    _nMaxWidth_ = 11    # len("GRAND-TOTAL")
+                ok
+            ok
 
             _aColWidths_ + (_nMaxWidth_ + 2)  # Add padding
 
@@ -16286,6 +16356,33 @@ func _NormalizeColLookupKey(pVal)
 
         next
 
+        # Grand total
+
+        if pbGrandTotal
+            _cLine_ = @aBorder[:TeeRight]
+            for i = 1 to _nCols_
+                _cLine_ += StrFill(_aColWidths_[i], @aBorder[:Horizontal])
+                if i < _nCols_
+                    _cLine_ += @aBorder[:Cross]
+                else
+                    _cLine_ += @aBorder[:TeeLeft]
+                ok
+            next
+            _cOutput_ += _cLine_ + char(10)
+
+            _cLine_ = @aBorder[:Vertical]
+            for i = 1 to _nCols_
+                if i = _nGtLabelCol_
+                    _cLine_ += " " + PadRight("GRAND-TOTAL", _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
+                but _abGtSummable_[i]
+                    _cLine_ += " " + PadLeft("" + _aGtTotals_[i], _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
+                else
+                    _cLine_ += " " + PadRight("", _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
+                ok
+            next
+            _cOutput_ += _cLine_ + char(10)
+        ok
+
         # Bottom border
 
         _cLine_ = @aBorder[:BottomLeft]
@@ -16317,328 +16414,6 @@ func _NormalizeColLookupKey(pVal)
         # Use the full table display method on the filtered table
 
         return _oFilteredTable_.Display("")
-
-	  #----------------------------------------#
-	 #  DISPLAYING THE TABLE - EXTENDED FORM  #
-	#----------------------------------------#
-
-	# Master method orchestrating the submethods
-	def processParameters(pParams, _bRowNumber_, _bSubTotal_, _bGrandTotal_, bCleanDesign)
-		if pParams = ""
-			# Use defaults
-		else
-			if isList(pParams)
-				if len(pParams) = 0
-					# Use defaults
-				else
-					_nLenP_ = len(pParams)
-					for i = 1 to _nLenP_
-						if isList(pParams[i])
-							_cParamName_ = StzLower(string(pParams[i][1]))
-							if len(pParams[i]) >= 2
-								if StzLower(_cParamName_) = "rownumber"
-									_bRowNumber_ = pParams[i][2]
-								but StzLower(_cParamName_) = "subtotal"
-									_bSubTotal_ = pParams[i][2]
-								but StzLower(_cParamName_) = "grandtotal"
-									_bGrandTotal_ = pParams[i][2]
-
-								ok
-							ok
-						but isString(pParams[i])
-							_cParam_ = pParams[i]
-							if @StzMid(_cParam_, 1, 9) = "rownumber"
-								_bRowNumber_ = 1
-							but @StzMid(_cParam_, 1, 8) = "subtotal"
-								_bSubTotal_ = 1
-							but @StzMid(_cParam_, 1, 10) = "grandtotal"
-								_bGrandTotal_ = 1
-							ok
-						ok
-					next
-				ok
-
-			but IsHashList(pParams)
-				if HasKey(pParams, :RowNumber)
-					_bRowNumber_ = pParams[:RowNumber]
-				ok
-
-				if HasKey(pParams, :SubTotal)
-					_bSubTotal_ = pParams[:SubTotal]
-				ok
-
-				if HasKey(pParams, :GrandTotal)
-					_bGrandTotal_ = pParams[:GrandTotal]
-				ok
-			ok
-		ok
-
-		# Ensure boolean values
-		_bRowNumber_ = @if(IsBoolean(_bRowNumber_), _bRowNumber_, 0)
-		_bSubTotal_ = @if(IsBoolean(_bSubTotal_), _bSubTotal_, 0)
-		_bGrandTotal_ = @if(IsBoolean(_bGrandTotal_), _bGrandTotal_, 0)
-
-	# Submethod to calculate column widths
-	def calculateColumnWidths(_acColNames_, _aContent_, _bRowNumber_, _bGrandTotal_)
-		_aColWidths_ = []
-		_nCols_ = len(_acColNames_)
-
-		for i = 1 to _nCols_
-			_nMaxWidth_ = len(_acColNames_[i])
-			_aColData_ = _aContent_[i][2]
-			_nLenCol_ = len(_aColData_)
-
-			for j = 1 to _nLenCol_
-				if isString(_aColData_[j]) or isNumber(_aColData_[j])
-					_cellValue_ = "" + _aColData_[j]
-				else
-					_cellValue_ = @@(_aColData_[j])
-				ok
-				_nLenCell_ = stzlen(_cellValue_)
-				if _nLenCell_ > _nMaxWidth_
-					_nMaxWidth_ = _nLenCell_
-				ok
-			next
-
-			_nLenTemp_ = len("Product X Total")
-			if i = 1
-				if _nMaxWidth_ < _nLenTemp_
-					_nMaxWidth_ = _nLenTemp_
-				ok
-			ok
-
-			_nLenTemp_ = len("GRAND-TOTAL")
-			if i = 1 and _bGrandTotal_
-				if _nMaxWidth_ < _nLenTemp_
-					_nMaxWidth_ = _nLenTemp_
-				ok
-			ok
-
-			_aColWidths_ + (_nMaxWidth_ + 2)
-		next
-
-		return _aColWidths_
-
-	# Submethod to adjust column widths and names for row numbers
-	def adjustForRowNumbers(_bRowNumber_, _aColWidths_, _acColNames_)
-
-		if _bRowNumber_
-			_nRowNumWidth_ = len("" + This.NumberOfRows()) + 2
-			_aColWidths_ = ring_insert(_aColWidths_, 1, _nRowNumWidth_)
-			_acColNames_ = ring_insert(_acColNames_, 1, "#")
-		ok
-
-	# Submethod to build the output string
-	def buildOutput(_acColNames_, _aContent_, _aColWidths_, _bRowNumber_, _bSubTotal_, _bGrandTotal_)
-		_cOutput_ = ""
-		_nCols_ = len(_acColNames_)
-
-		# Top border
-		_cLine_ = @aBorder[:TopLeft]
-		for i = 1 to _nCols_
-			_cLine_ += StrFill(_aColWidths_[i], @aBorder[:Horizontal])
-			if i < _nCols_
-				_cLine_ += @aBorder[:TeeDown]
-			else
-				_cLine_ += @aBorder[:TopRight]
-			ok
-		next
-		_cOutput_ += _cLine_ + char(10)
-
-		# Header row
-		_cLine_ = @aBorder[:Vertical]
-		for i = 1 to _nCols_
-			_cLine_ += CenterText(@Capitalise(_acColNames_[i]), _aColWidths_[i]) + @aBorder[:Vertical]
-		next
-		_cOutput_ += _cLine_ + char(10)
-
-		# Separator
-		_cLine_ = @aBorder[:TeeRight]
-		for i = 1 to _nCols_
-			_cLine_ += StrFill(_aColWidths_[i], @aBorder[:Horizontal])
-			if i < _nCols_
-				_cLine_ += @aBorder[:Cross]
-			else
-				_cLine_ += @aBorder[:TeeLeft]
-			ok
-		next
-		_cOutput_ += _cLine_ + char(10)
-
-		# Data rows with aggregation
-		_cOutput_ += buildDataRows(_aContent_, _aColWidths_, _bRowNumber_, _bSubTotal_, _bGrandTotal_, _nCols_)
-
-		# Grand total
-		if _bGrandTotal_
-			_cOutput_ += buildGrandTotal(_aColWidths_, _bRowNumber_, _nCols_)
-		ok
-
-		# Bottom border
-		_cLine_ = @aBorder[:BottomLeft]
-		for i = 1 to _nCols_
-			_cLine_ += StrFill(_aColWidths_[i], @aBorder[:Horizontal])
-			if i < _nCols_
-				_cLine_ += @aBorder[:TeeUp]
-			else
-				_cLine_ += @aBorder[:BottomRight]
-			ok
-		next
-		_cOutput_ += _cLine_
-
-		return _cOutput_
-
-	# Submethod to build data rows with subtotals
-	def buildDataRows(_aContent_, _aColWidths_, _bRowNumber_, _bSubTotal_, _bGrandTotal_, _nCols_)
-		_cOutput_ = ""
-		_nRows_ = This.NumberOfRows()
-		_nGroupCol_ = @if(_bRowNumber_, 2, 1)
-		_cCurrentGroup_ = ""
-		_aGroups_ = []
-		_aGroupTotals_ = []
-		@aGrandTotals = []
-
-		for i = 1 to _nCols_
-			@aGrandTotals + 0
-		next
-
-		# First pass: gather groups and calculate totals
-		for r = 1 to _nRows_
-
-			_cGroup_ = "" + _aContent_[_nGroupCol_][2][r]
-
-			if NOT StzFindFirst(_cGroup_, _aGroups_) > 0
-				_aGroups_ + _cGroup_
-				_aGroupTotals_[_cGroup_] = []
-				for i = 1 to _nCols_
-					_aGroupTotals_[_cGroup_] + 0
-				next
-			ok
-
-			for i = 1 to _nCols_
-				if _bRowNumber_ and i = 1
-					loop
-				ok
-				_nDataCol_ = @if(_bRowNumber_, i - 1, i)
-				if _nDataCol_ > 0 and _nDataCol_ <= len(_aContent_)
-					_cellValue_ = _aContent_[_nDataCol_][2][r]
-					if not (isNumber(_cellValue_) or isString(_cellValue_))
-						_cellValue_ = @@(_cellValue_)
-					ok
-					if isNumber(_cellValue_) or (isString(_cellValue_) and _cellValue_ != "" and @IsNumberInString(_cellValue_))
-						_aGroupTotals_[_cGroup_][i] += (0 + _cellValue_)
-						@aGrandTotals[i] += (0 + _cellValue_)
-					ok
-				ok
-			next
-		next
-
-		# Second pass: display data with totals
-		_cCurrentGroup_ = ""
-		for r = 1 to _nRows_
-			_cGroup_ = "" + _aContent_[_nGroupCol_][2][r]
-
-			if _bSubTotal_ and _cCurrentGroup_ != "" and _cGroup_ != _cCurrentGroup_
-				_cOutput_ += buildSubTotalRow(_aColWidths_, _nCols_, _bRowNumber_, _nGroupCol_, _cCurrentGroup_, _aGroupTotals_)
-			ok
-
-			_cCurrentGroup_ = _cGroup_
-			_cLine_ = @aBorder[:Vertical]
-			for i = 1 to _nCols_
-				if _bRowNumber_ and i = 1
-					_cLine_ += " " + PadLeft("" + r, _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
-				else
-					_nDataCol_ = @if(_bRowNumber_, i - 1, i)
-					if _nDataCol_ > 0 and _nDataCol_ <= len(_aContent_)
-						_cellValue_ = _aContent_[_nDataCol_][2][r]
-						if NOT (isNumber(_cellValue_) or isString(_cellValue_))
-							_cellValue_ = @@(_cellValue_)
-						ok
-						if isNumber(_cellValue_) or (isString(_cellValue_) and _cellValue_ != "" and @IsNumberInString(_cellValue_))
-							_cLine_ += " " + PadLeft(_cellValue_, _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
-						else
-							_cLine_ += " " + PadRight(_cellValue_, _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
-						ok
-					else
-						_cLine_ += " " + PadRight("", _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
-					ok
-				ok
-			next
-			_cOutput_ += _cLine_ + char(10)
-
-			if _bSubTotal_ and r = _nRows_
-				_cOutput_ += buildSubTotalRow(_aColWidths_, _nCols_, _bRowNumber_, _nGroupCol_, _cCurrentGroup_, _aGroupTotals_)
-			ok
-		next
-
-		return _cOutput_
-
-	# Submethod to build subtotal row
-	def buildSubTotalRow(_aColWidths_, _nCols_, _bRowNumber_, _nGroupCol_, _cCurrentGroup_, _aGroupTotals_)
-		_cOutput_ = ""
-		_cLine_ = @aBorder[:Vertical]
-		for i = 1 to _nCols_
-			_cLine_ += " " + RepeatChar("-", _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
-		next
-		_cOutput_ += _cLine_ + char(10)
-
-		_cLine_ = @aBorder[:Vertical]
-		for i = 1 to _nCols_
-			if _bRowNumber_ and i = 1
-				_cLine_ += " " + PadLeft("", _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
-			but i = _nGroupCol_
-				_cLine_ += " " + PadLeft(" Sub-total", _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
-			but (i = _nGroupCol_ + 1 and not _bRowNumber_) or (i = _nGroupCol_ + 1 and _bRowNumber_)
-				_cLine_ += " " + PadLeft("", _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
-			else
-				if isNumber(_aGroupTotals_[_cCurrentGroup_][i]) and _aGroupTotals_[_cCurrentGroup_][i] != 0
-					_cLine_ += " " + PadLeft("" + _aGroupTotals_[_cCurrentGroup_][i], _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
-				else
-					_cLine_ += " " + PadLeft("", _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
-				ok
-			ok
-		next
-		_cOutput_ += _cLine_ + char(10)
-
-		_cLine_ = @aBorder[:Vertical]
-		for i = 1 to _nCols_
-			_cLine_ += " " + RepeatChar(" ", _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
-		next
-		_cOutput_ += _cLine_ + char(10)
-
-		return _cOutput_
-
-	# Submethod to build grand total
-	def buildGrandTotal(_aColWidths_, _bRowNumber_, _nCols_)
-		_cOutput_ = ""
-		_cLine_ = @aBorder[:TeeRight]
-		for i = 1 to _nCols_
-			_cLine_ += StrFill(_aColWidths_[i], @aBorder[:Horizontal])
-			if i < _nCols_
-				_cLine_ += @aBorder[:Cross]
-			else
-				_cLine_ += @aBorder[:TeeLeft]
-			ok
-		next
-		_cOutput_ += _cLine_ + char(10)
-
-		_cLine_ = @aBorder[:Vertical]
-		for i = 1 to _nCols_
-			if _bRowNumber_ and i = 1
-				_cLine_ += " " + PadLeft("", _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
-			but i = @if(_bRowNumber_, 2, 1)
-				_cLine_ += PadLeft("GRAND-TOTAL ", _aColWidths_[i]) + @aBorder[:Vertical]
-			but i = @if(_bRowNumber_, 3, 2)
-				_cLine_ += " " + PadLeft("", _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
-			else
-				if isNumber(@aGrandTotals[i]) and @aGrandTotals[i] != 0
-					_cLine_ += " " + PadLeft("" + @aGrandTotals[i], _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
-				else
-					_cLine_ += " " + PadLeft("", _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
-				ok
-			ok
-		next
-		_cOutput_ += _cLine_ + char(10)
-
-		return _cOutput_
 
 	#---------------------------------#
 	#  TRANSPOSINT THE TABLE CONTENT  #
