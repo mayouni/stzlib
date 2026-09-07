@@ -75,7 +75,7 @@ class stzStringCode from stzObject
 	def ExecuteAndReturn()
 		_cCode_ = "_result_ = " + @oString.Content()
 		eval(_cCode_)
-		return $_result_
+		return _result_
 
 	  #===============================#
 	 #     CODE STRUCTURE            #

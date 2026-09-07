@@ -147,10 +147,10 @@ class stzCache from stzObject
 		_cLineStr_ = CacheFileLines()[ pnLineNumber ]
 		_cCode_ = "_aTempList_ = " + _cLineStr_
 		eval(_cCode_)
-		return $_aTempList_[4]
+		return _aTempList_[4]
 	
 	func CacheFileLines()
-		_cCache_ = read($_oCacheStorage_.CompleteFileName())
+		_cCache_ = read(_oCacheStorage_.CompleteFileName())
 		_oStr_ = new stzString(_cCache_)
 		_nLen_ = _oStr_.NumberOfChars()
 

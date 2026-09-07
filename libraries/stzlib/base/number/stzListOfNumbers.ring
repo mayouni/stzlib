@@ -1487,7 +1487,7 @@ func FirstNPrimesW(_n_, pcCondition)
 		@prime = NextPrimeAfter(@prime)
 
 		eval(_cCode_)
-		if $bOk
+		if bOk
 			_anResult_ + @prime
 			if len(_anResult_) = _n_
 				exit
@@ -4647,7 +4647,7 @@ class stzListOfNumbers from stzList
 
 		for @i = _nStart_ to _nEnd_
 			eval(_cCode_)
-			if $bOk
+			if bOk
 				_anResult_ + (_anContent_[@i] + _n_)
 			ok
 		next
@@ -4745,7 +4745,7 @@ class stzListOfNumbers from stzList
 
 		for @i = _nStart_ to _nEnd_
 			eval(_cCode_)
-			if $bOk
+			if bOk
 				_anResult_ + (_anContent_[@i] * _n_)
 			ok
 		next

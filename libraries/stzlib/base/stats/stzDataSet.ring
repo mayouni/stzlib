@@ -3191,9 +3191,9 @@ class stzDataSet from stzObject
                 _cInheritedTemplate_ = _aSection_[2]
                 eval("aInheritedSections = " + _cInheritedTemplate_ + "[:sections]")
            
-                _nInheritedSections1Len_ = len($aInheritedSections)
+                _nInheritedSections1Len_ = len(aInheritedSections)
                 for _iLoopInheritedSections1_ = 1 to _nInheritedSections1Len_
-                	_aInheritedSection_ = $aInheritedSections[_iLoopInheritedSections1_]
+                	_aInheritedSection_ = aInheritedSections[_iLoopInheritedSections1_]
                     _cReport_ += This._ProcessSection(_aInheritedSection_, _cFormat_)
                 next
 
@@ -3253,7 +3253,7 @@ class stzDataSet from stzObject
         try
             _cCode_ = '_bResult_ = (' + cCondition + ')'
             eval(_cCode_)
-            return $_bResult_
+            return _bResult_
         catch
             return 0
         done
@@ -3312,7 +3312,7 @@ class stzDataSet from stzObject
 	        _cMethod_ = _oTempStr_.Section(_nStart_ + 1, _nEnd_ - 1)
 	        _cCode_ = '_value_ = ' + _cMethod_
 			eval(_cCode_)
-	        _cValue_ = This._FormatValue($_value_)
+	        _cValue_ = This._FormatValue(_value_)
 	        _oTempStr_.ReplaceSection(_nStart_, _nEnd_, _cValue_)
 
 	    end
@@ -3828,7 +3828,7 @@ class stzDataSet from stzObject
         _cCode_ += ")"
         
         eval(_cCode_)
-        return $_result_
+        return _result_
 
     # Functions that require a second/paired dataset as an argument.
     def _NeedsPairedDataset(_cFunction_)

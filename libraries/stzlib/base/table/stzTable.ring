@@ -656,7 +656,7 @@ Class stzTable from stzList
 			_bResult_ = 1
 		ok
 */
-		return $_bResult_
+		return _bResult_
 
 		#< @FunctionAlternativeForm
 
@@ -14648,7 +14648,7 @@ func _NormalizeColLookupKey(pVal)
 			_cCode_ = "_value_ = " + _oForumla_.Content()
 			for i = 1 to _nRows_
 				eval(_cCode_)
-				_aColData_ + $_value_
+				_aColData_ + _value_
 			next
 		ok
 
@@ -14718,7 +14718,7 @@ func _NormalizeColLookupKey(pVal)
 		for i = 1 to _nMin_
 			if _acCodes_[i] != ""
 				eval(_acCodes_[i])
-				_aRowData_ + $_value_
+				_aRowData_ + _value_
 			else
 				_aRowData_ + " "
 			ok
@@ -15353,7 +15353,7 @@ func _NormalizeColLookupKey(pVal)
 		for nRow = 1 to _nRows_
 			# Evaluate the condition for the current row
 			eval(_cCode_)
-			if $_bResult_
+			if _bResult_
 				_aRowsToKeep_ + This.Row(nRow)
 			ok
 		next
@@ -15465,7 +15465,7 @@ func _NormalizeColLookupKey(pVal)
 		for nRow = 1 to _nRows_
 			try
 				eval(_cCode_)
-				if $_bOk_
+				if _bOk_
 					_aRowsToKeep_ + This.Row(nRow)
 				ok
 			catch

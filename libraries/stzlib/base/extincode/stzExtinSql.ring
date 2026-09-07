@@ -202,7 +202,7 @@ func WHERE_(pcCondition)
 	_anPos_ = []
 	for i = 1 to _nLen_
 		eval(_cCode_)
-		if NOT $_bOk_
+		if NOT _bOk_
 			_anPos_ + i
 		ok
 	next

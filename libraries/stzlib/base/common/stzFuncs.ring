@@ -697,7 +697,7 @@ func AttributesValues(pObject) # Compliments Ring attributes() function
 	for i = 1 to _nLen_
 		_cCode_ = '_value_ = pObject.' + _acAttributes_[i]
 		eval(_cCode_)
-		_aResult_ + $_value_
+		_aResult_ + _value_
 	next
 
 	return _aResult_
@@ -5060,7 +5060,7 @@ func new_stz(_cType_, p)
 
 	eval(_cCode_)
 
-	return $_oObject_
+	return _oObject_
 
 	func StzTypedQ(_cType_, p)
 		return stz(_cType_, p)

@@ -626,7 +626,7 @@ func Listify(cStrInList)
 	if _oTempStr_.IsListInString()
 		_cCode_ = '_aResult_ = ' + _oTempStr_.Content()
 		eval(_cCode_)
-		return $_aResult_
+		return _aResult_
 	ok
 
 	StzRaise("Can't proceed! cStrInList must be a string containing a well formatted Ring list.")

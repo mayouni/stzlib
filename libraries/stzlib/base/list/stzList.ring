@@ -4017,7 +4017,7 @@ class stzList from stzObject
 		_cAreM_ = "islistof" + _cAreD_
 		if StzFindFirst(_cAreM_, ring_methods(This)) > 0
 			eval("_bAre_ = This." + _cAreM_ + "()")
-			return $_bAre_
+			return _bAre_
 		ok
 
 		# 2-4. otherwise every item answers for itself
@@ -4036,11 +4036,11 @@ class stzList from stzObject
 
 		if StzFindFirst("is" + pcDesc, _aAreM_) > 0
 			eval("_bAreOne_ = _oAreIt_.Is" + pcDesc + "()")
-			return $_bAreOne_
+			return _bAreOne_
 		ok
 		if StzFindFirst("is" + pcSing, _aAreM_) > 0
 			eval("_bAreOne_ = _oAreIt_.Is" + pcSing + "()")
-			return $_bAreOne_
+			return _bAreOne_
 		ok
 
 		# a char-only trait (:Punctuation) read through the char face
@@ -4049,7 +4049,7 @@ class stzList from stzObject
 			_aAreCM_ = ring_methods(_oAreCh_)
 			if StzFindFirst("is" + pcSing, _aAreCM_) > 0
 				eval("_bAreOne_ = _oAreCh_.Is" + pcSing + "()")
-				return $_bAreOne_
+				return _bAreOne_
 			ok
 		ok
 
