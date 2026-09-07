@@ -221,7 +221,7 @@ class stzLoadDriver from stzObject
 		next
 
 	def Destroy()
-		if $bSpawnedTarget and @nTargetJob > 0
+		if bSpawnedTarget and @nTargetJob > 0
 			@oReactor.KillSpawnHard(@nTargetJob)
 			@nTargetJob = 0
 			bSpawnedTarget = 0
@@ -231,7 +231,7 @@ class stzLoadDriver from stzObject
 	# -- internals ------------------------------------------------
 
 	def _RingExecutable()
-		_a_ = $sysargv
+		_a_ = sysargv
 		_n_ = ring_len(_a_)
 		for _i_ = 1 to _n_
 			_c_ = StzLower("" + _a_[_i_])

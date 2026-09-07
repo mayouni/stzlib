@@ -490,7 +490,7 @@ class stzReactiveSystem from stzObject
 		if _errorHandling_ = ""
 			_errorHandling_ = $DEFAULT_ERROR_HANDLING
 		ok
-		return $http.Get_(url, onSuccess, onError) # Get is a reserved keyword by Ring
+		return http.Get_(url, onSuccess, onError) # Get is a reserved keyword by Ring
 
 	#--
 
@@ -502,7 +502,7 @@ class stzReactiveSystem from stzObject
 		if _errorHandling_ = ""
 			_errorHandling_ = $DEFAULT_ERROR_HANDLING
 		ok
-		return $http.Post(url, data, onSuccess, onError)
+		return http.Post(url, data, onSuccess, onError)
 
 	#--------------------#
 	#  BUFFER UTILITIES  #

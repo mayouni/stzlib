@@ -599,7 +599,7 @@ func StzNamesOfDaysIn(pcLangOrCountry)
 		_oLocale_ = StzLocaleQ("C")
 	ok
 
-	_cFirstDayInEnglish_ = $_oLocale_.FirstDayOfWeek()
+	_cFirstDayInEnglish_ = _oLocale_.FirstDayOfWeek()
 
 	_aDaysInEnglish_ = [ :monday, :tuesday, :wednesday, :thursday, :friday, :saturday, :sunday ]
 	_n_ = find( _aDaysInEnglish_, _cFirstDayInEnglish_ )

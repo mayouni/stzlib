@@ -98,16 +98,16 @@ Class TableDisplayConfig
         $aContentDimensions[:TotalCells] = []
         
         # 1.1 Analyze row labels
-        _nRowLabelsLen_2 = len($aRowLabels)
+        _nRowLabelsLen_2 = len(aRowLabels)
         for i = 1 to _nRowLabelsLen_2
-            _cLabel_ = $aRowLabels[i]
+            _cLabel_ = aRowLabels[i]
             _nWidth_ = StzLen(_cLabel_)
             
             # Find max width of actual data in this column
             _nMaxDataWidth_ = _nWidth_
-            _nPivotDataLen_5 = len($aPivotData)
+            _nPivotDataLen_5 = len(aPivotData)
             for r = 2 to _nPivotDataLen_5
-                _nValueWidth_ = StzLen($aPivotData[r][i])
+                _nValueWidth_ = StzLen(aPivotData[r][i])
                 if _nValueWidth_ > _nMaxDataWidth_
                     _nMaxDataWidth_ = _nValueWidth_
                 ok
@@ -128,9 +128,9 @@ Class TableDisplayConfig
         
         # 1.3 Measure column headers
         _aColumnHeaders_ = []
-        _nColLabelsLen_ = len($aColLabels)
+        _nColLabelsLen_ = len(aColLabels)
         for i = 1 to _nColLabelsLen_
-            _cLabel_ = $aColLabels[i]
+            _cLabel_ = aColLabels[i]
             _nWidth_ = StzLen(_cLabel_)
             
             # For each value in this dimension, measure width
@@ -156,17 +156,17 @@ Class TableDisplayConfig
         _aDataWidths_ = []
         
         # Process all data rows
-        _nPivotDataLen_4 = len($aPivotData)
+        _nPivotDataLen_4 = len(aPivotData)
         for r = 2 to _nPivotDataLen_4 - 1  # Skip header and total rows
-            _nPivotData1Len_4 = len($aPivotData[1])
-            for c = len($aRowLabels) + 1 to _nPivotData1Len_4 - 1  # Skip row labels and total column
-                _cHeader_ = $aPivotData[1][$c]
-                if _cHeader_ = $cTotalLabel  # Skip total columns
+            _nPivotData1Len_4 = len(aPivotData[1])
+            for c = len(aRowLabels) + 1 to _nPivotData1Len_4 - 1  # Skip row labels and total column
+                _cHeader_ = aPivotData[1][$c]
+                if _cHeader_ = cTotalLabel  # Skip total columns
                     loop
                 ok
                 
                 # Get the cell value and measure it
-                _cValue_ = "" + $aPivotData[r][$c]
+                _cValue_ = "" + aPivotData[r][$c]
                 _nWidth_ = StzLen(_cValue_)
                 
                 # Store in our map with the header as key
@@ -185,19 +185,19 @@ Class TableDisplayConfig
         $aContentDimensions[:DataCells] = _aDataWidths_
         
         # 1.5 Measure total labels and cells
-        _nTotalLabelWidth_ = StzLen($cTotalLabel)
+        _nTotalLabelWidth_ = StzLen(cTotalLabel)
         $aContentDimensions[:TotalLabels] = [
-            :label = $cTotalLabel,
+            :label = cTotalLabel,
             :width = _nTotalLabelWidth_
         ]
         
         # Measure total cells (rightmost column)
         _nMaxTotalWidth_ = 0
-        if $bShowTotalColumn
-            _nPivotDataLen_3 = len($aPivotData)
+        if bShowTotalColumn
+            _nPivotDataLen_3 = len(aPivotData)
             for r = 2 to _nPivotDataLen_3
-                _nCol_ = len($aPivotData[r])
-                _cValue_ = "" + $aPivotData[r][_nCol_]
+                _nCol_ = len(aPivotData[r])
+                _cValue_ = "" + aPivotData[r][_nCol_]
                 _nWidth_ = StzLen(_cValue_)
                 
                 if _nWidth_ > _nMaxTotalWidth_
@@ -213,7 +213,7 @@ Class TableDisplayConfig
     # Helper: Get unique values for each column dimension
     func GetUniqueColumnDimensionValues()
         _aResult_ = []
-        _nColLabelCount_ = len($aColLabels)
+        _nColLabelCount_ = len(aColLabels)
         
         # Initialize arrays for each dimension
         for i = 1 to _nColLabelCount_
@@ -223,12 +223,12 @@ Class TableDisplayConfig
         # Extract unique values for each column dimension
         for i = 1 to _nColLabelCount_
             _aUnique_ = []
-            _nPivotDataLen_2 = len($aPivotData)
+            _nPivotDataLen_2 = len(aPivotData)
             for r = 2 to _nPivotDataLen_2
-                _nPivotData1Len_3 = len($aPivotData[1])
-                for c = len($aRowLabels) + 1 to _nPivotData1Len_3
-                    _cHeader_ = $aPivotData[1][$c]
-                    if _cHeader_ = $cTotalLabel
+                _nPivotData1Len_3 = len(aPivotData[1])
+                for c = len(aRowLabels) + 1 to _nPivotData1Len_3
+                    _cHeader_ = aPivotData[1][$c]
+                    if _cHeader_ = cTotalLabel
                         loop
                     ok
                     
@@ -268,7 +268,7 @@ Class TableDisplayConfig
             # Add to section width (including separators)
             _nRowLabelSectionWidth_ += _nWidth_
             if i < len($aContentDimensions[:RowLabels])
-                _nRowLabelSectionWidth_ += StzLen($aDecorators[:RowLabelSeparator])
+                _nRowLabelSectionWidth_ += StzLen(aDecorators[:RowLabelSeparator])
             ok
         next
         
@@ -331,7 +331,7 @@ Class TableDisplayConfig
         
         # 2.3 Calculate total column width
         _nTotalColumnWidth_ = 0
-        if $bShowTotalColumn
+        if bShowTotalColumn
             _nWidth_ = max([
                 $aContentDimensions[:TotalLabels][:width],
                 $aContentDimensions[:TotalCells][:width]
@@ -361,7 +361,7 @@ Class TableDisplayConfig
         next
         
         # Add total column if enabled
-        if $bShowTotalColumn
+        if bShowTotalColumn
             _nTableWidth_ += _nTotalColumnWidth_ + 1  # Include separator
         ok
         
@@ -452,7 +452,7 @@ Class TableDisplayConfig
         see "Row Label Widths: " + nl
         _nCalculatedLayoutRowLabelWidthsLen_ = len($aCalculatedLayout[:RowLabelWidths])
         for i = 1 to _nCalculatedLayoutRowLabelWidthsLen_
-            see "  " + $aRowLabels[i] + ": " + $aCalculatedLayout[:RowLabelWidths][i] + nl
+            see "  " + aRowLabels[i] + ": " + $aCalculatedLayout[:RowLabelWidths][i] + nl
         next
         
         see "Data Column Widths: " + nl
@@ -1005,14 +1005,14 @@ Class TableConfigManager
         	_aPair_ = aNewSettings[_iLoopNewSettings1_]
             _cKey_ = _aPair_[1]
             _value_ = _aPair_[2]										
-            $oConfig.SetSetting(_cKey_, _value_)
+            oConfig.SetSetting(_cKey_, _value_)
         next
         
         # Trigger recalculation
-        $oConfig.Recalculate()
+        oConfig.Recalculate()
         
         # Fire callback if set
-        if type($fOnConfigChanged) = "BLOCK"
+        if type(fOnConfigChanged) = "BLOCK"
             call fOnConfigChanged()
         ok
         
@@ -1127,10 +1127,10 @@ Class TableConfigManager
         ok
         
         # Trigger recalculation
-        $oConfig.Recalculate()
+        oConfig.Recalculate()
         
         # Fire callback if set
-        if type($fOnConfigChanged) = "BLOCK"
+        if type(fOnConfigChanged) = "BLOCK"
             call fOnConfigChanged()
         ok
         
@@ -1158,15 +1158,15 @@ Class TableConfigManager
             	_aPair_ = _aConfigSettings1_[_iLoopConfigSettings1_]
                 _cKey_ = _aPair_[1]
                 _value_ = _aPair_[2]
-                $oConfig.SetSetting(_cKey_, _value_)
+                oConfig.SetSetting(_cKey_, _value_)
             next
         ok
         
         # Recalculate everything
-        $oConfig.Recalculate()
+        oConfig.Recalculate()
         
         # Fire callback if set
-        if type($fOnConfigChanged) = "BLOCK"
+        if type(fOnConfigChanged) = "BLOCK"
             call fOnConfigChanged()
         ok
         
@@ -1305,7 +1305,7 @@ Class TableThemeManager
         next
         
         # Recalculate layout
-        $oConfig.Recalculate()
+        oConfig.Recalculate()
         
         return self
     

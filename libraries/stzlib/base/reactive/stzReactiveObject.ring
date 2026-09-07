@@ -449,7 +449,7 @@ class stzReactiveObject from stzObject
 			_aData_ + ["oldValue", oldVal]
 			_aData_ + ["newValue", newVal]
 			_aData_ + ["changeType", $CHANGE_TYPE_VALUE]
-			$_stream_.Emit(_aData_)
+			_stream_.Emit(_aData_)
 		})
 		
 		return _stream_

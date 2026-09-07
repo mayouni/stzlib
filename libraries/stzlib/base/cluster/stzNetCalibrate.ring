@@ -210,7 +210,7 @@ func _NcMedian(aNums)
 	return _nc_aS_[ceil(len(_nc_aS_) / 2)]
 
 func _NcRingExe()
-	_nc_aA_ = $sysargv
+	_nc_aA_ = sysargv
 	_nc_nLen_ = len(_nc_aA_)
 	for _nc_iR_ = 1 to _nc_nLen_
 		_nc_cR_ = StzLower("" + _nc_aA_[_nc_iR_])

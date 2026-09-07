@@ -308,7 +308,7 @@ class stzNodeSupervisor from stzObject
 		ok
 
 	def _RingExecutable()
-		_aA_ = $sysargv
+		_aA_ = sysargv
 		_nLen_ = ring_len(_aA_)
 		for _i_ = 1 to _nLen_
 			_c_ = StzLower("" + _aA_[_i_])
