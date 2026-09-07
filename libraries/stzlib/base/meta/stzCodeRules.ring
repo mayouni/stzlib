@@ -1979,10 +1979,24 @@ func _StzPlanItemIdAt(pcLine)
 	if NOT (_n2_ >= 65 and _n2_ <= 90)  return ""  ok
 	if NOT (_n3_ >= 48 and _n3_ <= 57)  return ""  ok
 	_cId_ = _cL_[_nAt_] + _cL_[_nAt_ + 1] + _cL_[_nAt_ + 2]
-	if _nAt_ + 3 <= _nC_
-		_n4_ = ascii(_cL_[_nAt_ + 3])
-		if _n4_ >= 97 and _n4_ <= 122
-			_cId_ += _cL_[_nAt_ + 3]
+	_nNx_ = _nAt_ + 3
+	# A SERIES MAY REACH TEN. The pattern was two capitals, one digit and
+	# an optional lowercase letter, so DN10 read as DN1 -- a second
+	# definition of an item that already existed, and a plan whose tenth
+	# item cannot be named is a plan that quietly miscounts. A second digit
+	# is admitted here, and only immediately after the first: a line
+	# reading "GG1 2026-08-09" still names GG1, because a space ends it.
+	if _nNx_ <= _nC_
+		_n4_ = ascii(_cL_[_nNx_])
+		if _n4_ >= 48 and _n4_ <= 57
+			_cId_ += _cL_[_nNx_]
+			_nNx_++
+		ok
+	ok
+	if _nNx_ <= _nC_
+		_n5_ = ascii(_cL_[_nNx_])
+		if _n5_ >= 97 and _n5_ <= 122
+			_cId_ += _cL_[_nNx_]
 		ok
 	ok
 	return _cId_
