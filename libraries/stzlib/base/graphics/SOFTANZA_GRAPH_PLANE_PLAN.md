@@ -116,7 +116,7 @@ sections, of which 21 declarations over 17 items.
 | DN9a | closed | 97 |
 | DN9b | closed | 98 |
 | DN9c | closed | 99 |
-| DN9d | open | - |
+| DN9d | closed | 100 |
 | DN9e | open | - |
 | DN9f | open | - |
 | DN9g | open | - |
@@ -2846,10 +2846,40 @@ person.
 
   *Guard:* §99, DN9c.
 
-- **DN9d — The window.** *Not started.* A frame may be a zoom onto a
-  region: the renderer clips and scales, marks and captions follow, the
-  gate judges what is visible. **Kill:** the v111 before-and-after pair
-  from the engine, the same content, two frames, one zoomed window each.
+- **DN9d — The window.** **SHIPPED** 2026-09-07. `SetWindow(cx, cy, w, h)`
+  and `WindowOn(path, reach)`, with `ClearWindow`, `Window`, `HasWindow`,
+  `WindowScale`, `IsInWindow` and `VisibleShapes`. The drawing maps the
+  window onto the paper at a uniform scale, so a frame may show a part.
+
+  **The window is a property of the view, not of the figure.** Nothing the
+  solver owns moves, and every reader keeps answering in the picture's own
+  coordinates: the guard asserts a distance read at 3.05x equals the same
+  distance read unzoomed, bit for bit. That is the only way a narration can
+  say "the same figure, closer" and be believed. **What does not scale is
+  the type** — a name keeps the size it was measured at and only travels,
+  because a close frame is for reading rather than for enlargement; stroke
+  widths do scale, since a hairline blown up three times and still one
+  pixel wide reads as a different picture.
+
+  **The gate judges what is visible**, as a fifth math rule:
+  `mark_inside_the_window` reports a mark left outside the part being
+  shown, which is the one defect a zoom introduces that a full view never
+  had. With no window every mark is out of scope, counted and reported as
+  such rather than passed over.
+
+  One thing measured and fixed: `IsInWindow` first read every shape as a
+  centre and a reach, which is right for a dot and wrong for an arc, and
+  it hid **60 of 65** shapes on the first ask. A shape's box is now built
+  from what it actually covers — a curve's sampled points, a polygon's
+  vertices, a mark's strokes — and the same view reports 7 of 65, which is
+  what the picture shows.
+
+  **Kill met:** the v111 pair of 2026-09-06, both solves, one zoomed window
+  each, rendered by the engine. In the first the name sits past the leash
+  circle's edge; in the second it sits well inside it. Same content, same
+  marks, two frames.
+
+  *Guard:* §100, DN9d.
 
 - **DN9e — The engine draws its own thinking.** *Not started.*
   `StzTapeGraph(handle)`: the compiled tape as a `stzGraph`, one node per
