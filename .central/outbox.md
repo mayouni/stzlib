@@ -2528,3 +2528,48 @@ note:      EVERY ONE OF THE THREE FAILURES WAS A LAW THIS PLANE HAD
            again in an afternoon, which is the argument for keeping the
            laws written down where the next thing can read them.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-07 18:28
+
+subject:   DN9d -- the window, and the sixty shapes a radius hid
+
+why:       the author said go ahead; showing a part is the commonest
+           move a narration makes
+
+did:
+  - Gave a picture a window, mapped onto the paper at a uniform scale
+    by the drawing alone, so nothing the solver owns moves.
+  - Kept every reader answering in the picture's own coordinates; the
+    guard holds a distance at 3.05x equal to the same distance
+    unzoomed, bit for bit.
+  - Left the type unscaled and scaled the strokes, so a close frame is
+    more legible rather than merely bigger.
+  - Added a fifth math rule so the gate judges what is visible, with
+    three corpus witnesses covering both sides of its boundary.
+  - Found and fixed a centre-and-reach in-view test that hid 60 of 65
+    shapes, by giving each kind a real bounding box.
+
+state:
+  section 100:  11 assertions
+  corpus:       55 pictures, three of them new window witnesses
+  gate:         1131 ok, 0 failed, on main and in the commit tree
+  plan table:   DN9a through DN9d closed; DN9e, DN9f, DN9g open
+  commit:       85635c755 on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01: prose plus cell emission against grammar v0
+    -> stznarrations via Central [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      DN9e on the author's word -- the engine drawing its own
+             tape, which is the last piece before the storyboard
+  - central: nothing owed from this
+
+note:      A BOUNDING BOX IS NOT A RADIUS. Reading every shape as a
+           centre and a reach is exactly right for a dot and exactly
+           wrong for an arc, and the error is silent: the count simply
+           comes back small and plausible. Sixty of sixty-five.
+```
