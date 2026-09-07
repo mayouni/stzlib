@@ -2573,3 +2573,52 @@ note:      A BOUNDING BOX IS NOT A RADIUS. Reading every shape as a
            wrong for an arc, and the error is silent: the count simply
            comes back small and plausible. Sixty of sixty-five.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-07 20:41
+
+subject:   DN9e -- the engine draws its own thinking, from the tape and
+           not from the text
+
+why:       the author said go ahead; it is the last piece before the
+           storyboard
+
+did:
+  - Made the tape describe itself, and turned that description into a
+    graph the existing planes draw: one node per step, an edge to each
+    step it consumes, the answer at the top.
+  - Met the kill on the expression that caught me out yesterday: six
+    steps shared, eleven written out, and the drawn graph holds
+    exactly those, from one identical piece of text.
+  - Recorded a step consumed twice on the graph itself, because a
+    simple graph draws one arrow and a reader would otherwise believe
+    the step is used once.
+  - Refused a drawing above two hundred steps, naming the fact that
+    was actually being asked for instead.
+
+state:
+  section 101:  12 assertions
+  gate:         1143 ok, 0 failed, on main and in the commit tree
+  plan table:   DN9a through DN9e closed; DN9f and DN9g open
+  engine:       StzEngineGradDump added; stz_stats rebuilt, untracked
+  commit:       1ea261c31 on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01: prose plus cell emission against grammar v0
+    -> stznarrations via Central [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      DN9f on the author's word -- the storyboard, which is the
+             plane's own kill; the emitter half still waits on the
+             sibling's answer
+  - central: the emitter question is now the only thing blocking a
+             whole item rather than a paragraph
+
+note:      A DRAWING MADE FROM THE SOURCE SHOWS THE SOURCE'S SHAPE. The
+           text of that expression is one string and the two tapes it
+           compiles to differ by five steps, which no reading of the
+           text reveals. That is why the picture had to come from the
+           machine, and it is the same reason the captions had to.
+```
