@@ -2776,3 +2776,51 @@ note:      A LATENT ORDERING DEFECT IN A STATE-BASED DRAWING API IS
            font one item late changed nothing anyone could see. The
            first label that needed two sizes showed it in one render.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-08 00:17
+
+subject:   retraction -- the word cloud was never wrong, and the
+           catalogue regenerated
+
+why:       the author asked to see the word cloud before and after, and
+           the pair I rendered did not survive the check
+
+did:
+  - Retracted the DN10 claim that the canvas's pending-style rule had
+    been a four-week-old defect in the picture renderer. SetSvgIdent
+    flushes, the renderer calls it at the top of every shape, and both
+    orders are correct there. The committed word cloud is
+    byte-identical to a correct re-render.
+  - Found that my own "before" picture had omitted the SetSvgIdent
+    call, so it reproduced a bug that never existed.
+  - Kept what is true, with a third assertion: the hazard is real
+    where one shape emits several texts and nothing flushes between
+    them, which is what a notation label does and where it was
+    actually found.
+  - Regenerated the whole catalogue, 37 scenes and their dark twins.
+
+state:
+  gate:         1195 ok, 0 failed, on main and in the commit tree
+  catalogue:    74 pictures, 42 differing from what was committed --
+                cumulative since 2026-09-06, not from the ordering
+  commit:       1f7228298 on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the author's word
+  - central: the retraction supersedes yesterday's DN10 line; both are
+             left standing, because a claim that quietly disappears
+             teaches nothing
+
+note:      A REAL EXPERIMENT ON A COMPONENT, GENERALISED TO A CALLER I
+           HAD NOT READ. The canvas hazard is genuine and the guard
+           keeps it. The claim that it had been biting the renderer for
+           four weeks was plausible, dramatic and false, and one grep
+           for _Flush would have stopped it before it reached a commit
+           message, a memo and a conclusions line.
+```
