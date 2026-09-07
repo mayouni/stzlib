@@ -21,9 +21,9 @@ func StzLatencyHistogram()
 
 class stzLatencyHistogram from stzObject
 
-	pHandle = ""
-	bReady  = 0
-	bAdopted = 0	# handle owned elsewhere (a perf family child)
+	@pHandle = ""
+	@bReady  = 0
+	@bAdopted = 0	# handle owned elsewhere (a perf family child)
 
 	def init()
 		This._Ensure()
@@ -31,37 +31,37 @@ class stzLatencyHistogram from stzObject
 	# Lazy handle creation -- robust whether or not init() ran (paren-less
 	# `new` skips init in Ring); guarded by a plain boolean.
 	def _Ensure()
-		if bReady = 0
-			pHandle = StzEngineHistogramCreate()
-			bReady = 1
+		if @bReady = 0
+			@pHandle = StzEngineHistogramCreate()
+			@bReady = 1
 		ok
 
 	def Handle()
 		This._Ensure()
-		return pHandle
+		return @pHandle
 
 	# Adopt an engine histogram OWNED ELSEWHERE (a perf metric family's
 	# child): frees any self-created handle; Destroy() will not free an
 	# adopted one -- the owner does.
 	def AdoptHandle(pEngineHandle)
-		if bReady and NOT bAdopted
-			StzEngineHistogramDestroy(pHandle)
+		if @bReady and NOT @bAdopted
+			StzEngineHistogramDestroy(@pHandle)
 		ok
-		pHandle = pEngineHandle
-		bReady = 1
-		bAdopted = 1
+		@pHandle = pEngineHandle
+		@bReady = 1
+		@bAdopted = 1
 		return This
 
 	# Tally one latency sample, in milliseconds.
 	def Record(nMs)
 		This._Ensure()
-		StzEngineHistogramRecord(pHandle, nMs)
+		StzEngineHistogramRecord(@pHandle, nMs)
 		return This
 
 	# Upper bound (ms) of the bucket holding percentile nP (0..100).
 	def Percentile(nP)
 		This._Ensure()
-		return StzEngineHistogramPercentile(pHandle, nP)
+		return StzEngineHistogramPercentile(@pHandle, nP)
 
 	def P50()
 		return This.Percentile(50)
@@ -74,26 +74,26 @@ class stzLatencyHistogram from stzObject
 
 	def Count()
 		This._Ensure()
-		return StzEngineHistogramCount(pHandle)
+		return StzEngineHistogramCount(@pHandle)
 
 	# Exact running sum of every recorded value (the buckets quantize,
 	# the sum does not) -- lifetime mean = Sum()/Count().
 	def Sum()
 		This._Ensure()
-		return StzEngineHistogramSum(pHandle)
+		return StzEngineHistogramSum(@pHandle)
 
 	def Reset()
 		This._Ensure()
-		StzEngineHistogramReset(pHandle)
+		StzEngineHistogramReset(@pHandle)
 		return This
 
 	def Destroy()
-		if bReady = 1
-			if NOT bAdopted
-				StzEngineHistogramDestroy(pHandle)
+		if @bReady = 1
+			if NOT @bAdopted
+				StzEngineHistogramDestroy(@pHandle)
 			ok
-			pHandle = ""
-			bReady = 0
-			bAdopted = 0
+			@pHandle = ""
+			@bReady = 0
+			@bAdopted = 0
 		ok
 		return This

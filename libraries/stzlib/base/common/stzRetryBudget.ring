@@ -25,72 +25,72 @@
 	so a `Try` method raises a C27 syntax error.
 */
 
-func StzRetryBudget(nBudget, nWindowSeconds)
-	return new stzRetryBudget(nBudget, nWindowSeconds)
+func StzRetryBudget(@nBudget, nWindowSeconds)
+	return new stzRetryBudget(@nBudget, nWindowSeconds)
 
 class stzRetryBudget from stzObject
 
-	pHandle = ""
-	bReady  = 0
-	nBudget = 0
-	nWindow = 1
-	nRefill = 1
+	@pHandle = ""
+	@bReady  = 0
+	@nBudget = 0
+	@nWindow = 1
+	@nRefill = 1
 
 	def init(pnBudget, pnWindowSeconds)
-		nBudget = pnBudget
+		@nBudget = pnBudget
 		if pnWindowSeconds < 1
-			nWindow = 1
+			@nWindow = 1
 		else
-			nWindow = pnWindowSeconds
+			@nWindow = pnWindowSeconds
 		ok
 		This._Ensure()
 
 	# Lazy handle creation -- robust whether or not init() ran (paren-less
 	# `new` skips init in Ring); guarded by a plain boolean.
 	def _Ensure()
-		if bReady = 0
-			nRefill = nBudget / nWindow
-			if nRefill < 1
-				nRefill = 1
+		if @bReady = 0
+			@nRefill = @nBudget / @nWindow
+			if @nRefill < 1
+				@nRefill = 1
 			ok
-			pHandle = StzEngineRateCreate(nBudget, nRefill)
-			bReady = 1
+			@pHandle = StzEngineRateCreate(@nBudget, @nRefill)
+			@bReady = 1
 		ok
 
 	# Spend one retry. Returns TRUE if the budget allowed it.
 	# (Named Allow, not Try -- `try` is a Ring keyword.)
 	def Allow()
 		This._Ensure()
-		return StzEngineRateTryTake(pHandle, 1) = 1
+		return StzEngineRateTryTake(@pHandle, 1) = 1
 
 	# Alias for Allow().
 	def Spend()
 		This._Ensure()
-		return StzEngineRateTryTake(pHandle, 1) = 1
+		return StzEngineRateTryTake(@pHandle, 1) = 1
 
 	# Spend n retries at once (all-or-nothing). Returns TRUE if granted.
 	def AllowN(n)
 		This._Ensure()
-		return StzEngineRateTryTake(pHandle, n) = 1
+		return StzEngineRateTryTake(@pHandle, n) = 1
 
 	# Tokens (retries) currently available -- a float, refills continuously.
 	def Available()
 		This._Ensure()
-		return StzEngineRateAvailable(pHandle)
+		return StzEngineRateAvailable(@pHandle)
 
 	def Budget()
-		return nBudget
+		return @nBudget
 
 	def Window()
-		return nWindow
+		return @nWindow
 
 	def RefillPerSecond()
-		return nRefill
+		return @nRefill
 
 	def Destroy()
-		if bReady = 1
-			StzEngineRateDestroy(pHandle)
-			pHandle = ""
-			bReady = 0
+		if @bReady = 1
+			StzEngineRateDestroy(@pHandle)
+			@pHandle = ""
+			@bReady = 0
 		ok
 		return This
