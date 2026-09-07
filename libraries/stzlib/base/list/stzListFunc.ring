@@ -2390,6 +2390,51 @@ func IsListOfListsOfHashLists(paList)
 
 	#>
 
+# A GRID is a list of lists whose inner lists all hold the same number of
+# items -- which is exactly what stzListOfLists.IsGrid() means: it returns
+# This.ListsHaveSameNumberOfItems().
+#
+# It existed only as that METHOD. IsListOfGrids() below calls IsGrid() as a
+# FUNCTION on each element, so it raised R3 -- and stzListOfGrids could
+# never be constructed, because its init() guard goes through here.
+#
+# TOTAL BY CONSTRUCTION, and that is the whole point of writing it out
+# rather than delegating. The two globals that look like they would do:
+#   IsList2D()                    RAISES when the argument is not a list of
+#                                 lists, instead of answering 0
+#   ListsHaveSameNumberOfItems()  RAISES on an empty list, and answers 1 for
+#                                 [1, 2, 3], which holds no lists at all
+# A guard called on every element of an arbitrary list must never raise and
+# must never call a flat list a grid.
+
+func IsGrid(paList)
+	if NOT isList(paList)
+		return 0
+	ok
+
+	if len(paList) = 0
+		return 0
+	ok
+
+	if NOT IsListOfLists(paList)
+		return 0
+	ok
+
+	return ListsHaveSameNumberOfItems(paList)
+
+	#< @FunctionAlternativeForms
+
+	func @IsGrid(paList)
+		return IsGrid(paList)
+
+	func IsAGrid(paList)
+		return IsGrid(paList)
+
+	func @IsAGrid(paList)
+		return IsGrid(paList)
+
+	#>
+
 func IsListOfGrids(paList)
 	if NOT isList(paList)
 		return 0
