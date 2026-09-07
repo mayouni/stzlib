@@ -1122,6 +1122,40 @@ func StzMathRuleSet()
 	})
 	_ao_ + _o4_
 
+	# WHAT A FRAME SHOWS MUST CONTAIN WHAT IT MARKS (DN9d). A window is
+	# how a narration says "closer", and a mark left outside it is a
+	# sentence about something the reader cannot see -- the one defect a
+	# zoom introduces that a full view never had. Out of scope entirely
+	# when there is no window, which is the honest report rather than a
+	# pass over nothing.
+	_o5_ = StzPlasticRule("mark_inside_the_window")
+	_o5_.SetClaim("every mark a frame carries is inside the part of the picture it shows")
+	_o5_.SetOrder(13)
+	_o5_.SetReads([ "window", "mark.box" ])
+	_o5_.SetScope(func(oDg) {
+		_r_ = []
+		if NOT oDg.HasWindow()  return _r_  ok
+		_am_ = oDg.Marks()
+		for _i_ = 1 to len(_am_)  _r_ + ("mark:" + _am_[_i_][1])  next
+		return _r_
+	})
+	_o5_.SetCounter(func(oDg) {
+		# with no window every mark is out of scope: nothing is hidden by a
+		# view that shows the whole picture
+		_r_ = []
+		if oDg.HasWindow()  return _r_  ok
+		_am_ = oDg.Marks()
+		for _i_ = 1 to len(_am_)  _r_ + ("mark:" + _am_[_i_][1])  next
+		return _r_
+	})
+	_o5_.SetClaimCheck(func(oDg, cSub) {
+		_cM_ = StzStringSection(cSub, 6, len(cSub))
+		if oDg.IsInWindow(_cM_)  return [ TRUE, "" ]  ok
+		return [ FALSE, "the mark '" + _cM_ + "' is outside the part of the picture " +
+			"this frame shows, so a reader never sees what it points at" ]
+	})
+	_ao_ + _o5_
+
 	return _ao_
 
 func StzMathGovernanceOf(pcName)
@@ -3293,6 +3327,7 @@ class stzMathDiagram from stzObject
 	@cTextObj = ""      # the objectives half of the last folded text
 	@cTextPen = ""      # the penalty half of the last folded text
 	@aProfile = [ :text = 0, :compile = 0, :minimise = 0, :read = 0, :fold = 0, :rounds = 0, :rounds0 = 0, :rounds1 = 0, :worst1 = 0 ]
+	@aWindow = []       # [ cx, cy, w, h ] -- what part of the picture is shown
 	@nMarkSeq = 0       # how many marks this picture carries (DN9c)
 	@acMarks = []       # [ [ cPath, cKind ] ] -- what a mark minted
 	@cUiState = :Idle   # :Idle | :Dragging
@@ -4108,6 +4143,173 @@ class stzMathDiagram from stzObject
 			"every constraint is satisfied, so nothing is found against " +
 			iif(pcSubject = "", "this picture", pcSubject))
 
+	#-- THE WINDOW (DN9d) ----------------------------------------------------
+
+	# A FRAME MAY SHOW A PART. The same content, looked at closely, is the
+	# commonest move a narration makes: here is the figure, and now here is
+	# the one corner the sentence is about. So a picture carries a window,
+	# and the drawing maps that window onto the paper.
+	#
+	# THE WINDOW IS A PROPERTY OF THE VIEW, NOT OF THE FIGURE. Nothing the
+	# solver owns moves when a window is set, and every reader keeps
+	# answering in the picture's own coordinates -- a distance is the
+	# distance in the figure, whatever a frame happens to be showing. Two
+	# frames of the same picture at different zooms therefore report the
+	# same facts, which is the only way a narration can say "the same
+	# figure, closer" and be believed.
+	#
+	# WHAT DOES NOT SCALE IS THE TYPE. A zoom here is for reading, not a
+	# photographic enlargement: the names keep their size and only their
+	# positions move, so a close view is more legible rather than merely
+	# bigger. Stroke widths do scale, because a hairline blown up eight
+	# times and still one pixel wide reads as a different picture.
+	def SetWindow(pnCx, pnCy, pnW, pnH)
+		if pnW <= 0 or pnH <= 0
+			stzraise("stzMathDiagram.SetWindow: a window needs a positive width and height.")
+		ok
+		@aWindow = [ pnCx, pnCy, pnW, pnH ]
+		@bDrawOrdered = FALSE
+		return This
+
+		def SetWindowQ(pnCx, pnCy, pnW, pnH)
+			return This.SetWindow(pnCx, pnCy, pnW, pnH)
+
+	# centred on what a frame is about, with a reach around it -- the form
+	# an author actually writes
+	def WindowOn(pcPath, pnReach)
+		This.Layout()
+		_e_ = This._MarkExtent(This._MarkShape(pcPath))
+		_r_ = pnReach
+		if _r_ <= 0  _r_ = _e_[3] * 3 + 40  ok
+		return This.SetWindow(_e_[1], _e_[2], 2 * _r_, 2 * _r_)
+
+		def WindowOnQ(pcPath, pnReach)
+			return This.WindowOn(pcPath, pnReach)
+
+	def ClearWindow()
+		@aWindow = []
+		@bDrawOrdered = FALSE
+		return This
+
+	def HasWindow()
+		return len(@aWindow) = 4
+
+	def Window()
+		return @aWindow
+
+	# how much bigger the view is than the figure; 1 with no window
+	def WindowScale()
+		if NOT This.HasWindow()  return 1  ok
+		_sx_ = @oStyle.CanvasWidth() / @aWindow[3]
+		_sy_ = @oStyle.CanvasHeight() / @aWindow[4]
+		if _sy_ < _sx_  return _sy_  ok
+		return _sx_
+
+	# IS THIS THING IN VIEW? What a frame shows decides whether a mark is
+	# any use, and a mark pointing at something outside the window is a
+	# narration defect the one gate reports.
+	def IsInWindow(pcPath)
+		if NOT This.HasWindow()  return TRUE  ok
+		_b_ = This._WBox(This._MarkShape(pcPath))
+		if len(_b_) != 4  return TRUE  ok
+		return _b_[1] <= @aWindow[1] + @aWindow[3] / 2 and
+		       _b_[3] >= @aWindow[1] - @aWindow[3] / 2 and
+		       _b_[2] <= @aWindow[2] + @aWindow[4] / 2 and
+		       _b_[4] >= @aWindow[2] - @aWindow[4] / 2
+
+	# WHAT A SHAPE ACTUALLY COVERS, [ x0, y0, x1, y1 ]. An extent measured
+	# from a centre and a reach is right for a dot and wrong for an arc:
+	# a long edge whose middle is elsewhere still crosses the view, and
+	# reading a curve as a point at the origin hid sixty of sixty-five
+	# shapes the first time this was asked.
+	def _WBox(pcPath)
+		_c_ = "" + pcPath
+		_k_ = This._KindOf(_c_)
+		_a_ = []
+		if _k_ = "curve"
+			_a_ = This.CurvePointsOf(_c_)
+		but _k_ = "poly" or _k_ = "spline"
+			_a_ = This.PolygonOf(_c_)
+			if _k_ = "spline"  _a_ = This.SplinePointsOf(_c_)  ok
+		but _k_ = "mark"
+			_aS_ = This.MarkStrokesOf(_c_)
+			for _i_ = 1 to len(_aS_)
+				for _j_ = 1 to len(_aS_[_i_])  _a_ + _aS_[_i_][_j_]  next
+			next
+		but _k_ = "line"
+			_s_ = This.ShapeOf(_c_)
+			_a_ = [ _s_[:x1], _s_[:y1], _s_[:x2], _s_[:y2] ]
+		but _k_ = "text"
+			_s_ = This.ShapeOf(_c_)
+			_a_ = [ _s_[:cx] - _s_[:w] / 2, _s_[:cy] - _s_[:h] / 2,
+			        _s_[:cx] + _s_[:w] / 2, _s_[:cy] + _s_[:h] / 2 ]
+		but _k_ = "circle" or _k_ = "ellipse"
+			_s_ = This.ShapeOf(_c_)
+			_rx_ = _s_[:r]
+			_ry_ = _rx_
+			if _k_ = "ellipse"  _rx_ = _s_[:rx]  _ry_ = _s_[:ry]  ok
+			_a_ = [ _s_[:cx] - _rx_, _s_[:cy] - _ry_, _s_[:cx] + _rx_, _s_[:cy] + _ry_ ]
+		else
+			_s_ = This.ShapeOf(_c_)
+			if len(_s_) = 0 or NOT HasKey(_s_, "cx")  return []  ok
+			_a_ = [ _s_[:cx] - _s_[:w] / 2, _s_[:cy] - _s_[:h] / 2,
+			        _s_[:cx] + _s_[:w] / 2, _s_[:cy] + _s_[:h] / 2 ]
+		ok
+		if len(_a_) < 4  return []  ok
+		_x0_ = _a_[1]  _y0_ = _a_[2]  _x1_ = _a_[1]  _y1_ = _a_[2]
+		_n_ = len(_a_) / 2
+		for _i_ = 1 to _n_
+			if _a_[2 * _i_ - 1] < _x0_  _x0_ = _a_[2 * _i_ - 1]  ok
+			if _a_[2 * _i_ - 1] > _x1_  _x1_ = _a_[2 * _i_ - 1]  ok
+			if _a_[2 * _i_] < _y0_  _y0_ = _a_[2 * _i_]  ok
+			if _a_[2 * _i_] > _y1_  _y1_ = _a_[2 * _i_]  ok
+		next
+		return [ _x0_, _y0_, _x1_, _y1_ ]
+
+	# the shapes a reader can actually see, in draw order
+	def VisibleShapes()
+		This.Layout()
+		_a_ = []
+		for _i_ = 1 to len(@aShapes)
+			if This._Prop(@aShapes[_i_][3], "hidden", 0) = 1  loop  ok
+			if NOT This.IsInWindow(@aShapes[_i_][1])  loop  ok
+			_a_ + @aShapes[_i_][1]
+		next
+		return _a_
+
+	#-- the view's transform, applied only where the picture is drawn -------
+
+	def _Wx(pn)
+		if NOT This.HasWindow()  return pn  ok
+		return (pn - @aWindow[1]) * This.WindowScale() + @oStyle.CanvasWidth() / 2
+
+	def _Wy(pn)
+		if NOT This.HasWindow()  return pn  ok
+		return (pn - @aWindow[2]) * This.WindowScale() + @oStyle.CanvasHeight() / 2
+
+	# a length, not a place
+	def _Ws(pn)
+		if NOT This.HasWindow()  return pn  ok
+		return pn * This.WindowScale()
+
+	# a stroke keeps a visible weight however far the view is pulled back
+	def _Wsw(pn)
+		if NOT This.HasWindow()  return pn  ok
+		_v_ = pn * This.WindowScale()
+		if _v_ < 0.6  return 0.6  ok
+		return _v_
+
+	# a flat list of x, y pairs, moved into the view
+	def _Wpts(paPts)
+		if NOT This.HasWindow()  return paPts  ok
+		_a_ = []
+		_n_ = len(paPts) / 2
+		for _i_ = 1 to _n_
+			_a_ + This._Wx(paPts[2 * _i_ - 1])
+			_a_ + This._Wy(paPts[2 * _i_])
+		next
+		return _a_
+
 	#-- THE FIVE MARKS (DN9c) -----------------------------------------------
 
 	# A mark makes a FACT visible. Five kinds and no sixth: showing a rule's
@@ -4545,30 +4747,30 @@ class stzMathDiagram from stzObject
 				" el_" + StzSvgNameOf(_cOwner_, "o_", [])))
 		_cFill_ = This._ColourFor(_cP_, This._Prop(_aProps_, "fill", ""))
 		_cStroke_ = This._ColourFor(_cP_, This._Prop(_aProps_, "stroke", ""))
-		_nSw_ = This._Prop(_aProps_, "strokeWidth", 1)
+		_nSw_ = This._Wsw(This._Prop(_aProps_, "strokeWidth", 1))
 		if _cKind_ = "circle"
 			if _cFill_ != ""  poC.Fill(_cFill_)  else  poC.Fill("#00000000")  ok
-			poC.AddCircle(This._V(_cP_ + ".cx"), This._V(_cP_ + ".cy"),
-				This._V(_cP_ + ".r"))
+			poC.AddCircle(This._Wx(This._V(_cP_ + ".cx")), This._Wy(This._V(_cP_ + ".cy")),
+				This._Ws(This._V(_cP_ + ".r")))
 			if _cFill_ != ""  poC.Fill(_cFill_)  ok
 			if _cStroke_ != ""  poC.Stroke(_cStroke_, _nSw_)  ok
 		but _cKind_ = "rect"
-			_w_ = This._V(_cP_ + ".w")
-			_h_ = This._V(_cP_ + ".h")
+			_w_ = This._Ws(This._V(_cP_ + ".w"))
+			_h_ = This._Ws(This._V(_cP_ + ".h"))
 			if _cFill_ != ""  poC.Fill(_cFill_)  else  poC.Fill("#00000000")  ok
-			poC.AddRect(This._V(_cP_ + ".cx") - _w_ / 2,
-				This._V(_cP_ + ".cy") - _h_ / 2, _w_, _h_)
+			poC.AddRect(This._Wx(This._V(_cP_ + ".cx")) - _w_ / 2,
+				This._Wy(This._V(_cP_ + ".cy")) - _h_ / 2, _w_, _h_)
 			if _cFill_ != ""  poC.Fill(_cFill_)  ok
 			if _cStroke_ != ""  poC.Stroke(_cStroke_, _nSw_)  ok
 		but _cKind_ = "ellipse"
 			if _cFill_ != ""  poC.Fill(_cFill_)  else  poC.Fill("#00000000")  ok
-			poC.AddEllipse(This._V(_cP_ + ".cx"), This._V(_cP_ + ".cy"),
-				This._V(_cP_ + ".rx"), This._V(_cP_ + ".ry"))
+			poC.AddEllipse(This._Wx(This._V(_cP_ + ".cx")), This._Wy(This._V(_cP_ + ".cy")),
+				This._Ws(This._V(_cP_ + ".rx")), This._Ws(This._V(_cP_ + ".ry")))
 			if _cFill_ != ""  poC.Fill(_cFill_)  ok
 			if _cStroke_ != ""  poC.Stroke(_cStroke_, _nSw_)  ok
 		but _cKind_ = "line"
-			_x1_ = This._V(_cP_ + ".x1")  _y1_ = This._V(_cP_ + ".y1")
-			_x2_ = This._V(_cP_ + ".x2")  _y2_ = This._V(_cP_ + ".y2")
+			_x1_ = This._Wx(This._V(_cP_ + ".x1"))  _y1_ = This._Wy(This._V(_cP_ + ".y1"))
+			_x2_ = This._Wx(This._V(_cP_ + ".x2"))  _y2_ = This._Wy(This._V(_cP_ + ".y2"))
 			if _cStroke_ = ""  _cStroke_ = "black"  ok
 			poC.AddLine(_x1_, _y1_, _x2_, _y2_)
 			poC.Stroke(_cStroke_, _nSw_)
@@ -4581,13 +4783,13 @@ class stzMathDiagram from stzObject
 			ok
 		but _cKind_ = "curve"
 			if _cStroke_ = ""  _cStroke_ = "black"  ok
-			_aPts_ = This._CurvePoints(_cP_, "" + This._Prop(_aProps_, "curve", "greatarc"))
+			_aPts_ = This._Wpts(This._CurvePoints(_cP_, "" + This._Prop(_aProps_, "curve", "greatarc")))
 			if len(_aPts_) >= 4
 				poC.AddPolyline(_aPts_)
 				poC.Stroke(_cStroke_, _nSw_)
 			ok
 		but _cKind_ = "poly"
-			_aPts_ = This.PolygonOf(_cP_)
+			_aPts_ = This._Wpts(This.PolygonOf(_cP_))
 			if len(_aPts_) >= 6
 				if _cFill_ != ""  poC.Fill(_cFill_)  else  poC.Fill("#00000000")  ok
 				poC.AddPolygon(_aPts_)
@@ -4595,7 +4797,7 @@ class stzMathDiagram from stzObject
 				if _cStroke_ != ""  poC.Stroke(_cStroke_, _nSw_)  ok
 			ok
 		but _cKind_ = "spline"
-			_aPts_ = This.SplinePointsOf(_cP_)
+			_aPts_ = This._Wpts(This.SplinePointsOf(_cP_))
 			if len(_aPts_) >= 4
 				if This._Prop(_aProps_, "closed", 0) = 1
 					if _cFill_ != ""  poC.Fill(_cFill_)  else  poC.Fill("#00000000")  ok
@@ -4613,7 +4815,7 @@ class stzMathDiagram from stzObject
 			_aSt_ = This._MarkStrokes(_cP_, _aProps_)
 			for _k_ = 1 to len(_aSt_)
 				if len(_aSt_[_k_]) >= 4
-					poC.AddPolyline(_aSt_[_k_])
+					poC.AddPolyline(This._Wpts(_aSt_[_k_]))
 					poC.Stroke(_cStroke_, _nSw_)
 				ok
 			next
@@ -4624,8 +4826,11 @@ class stzMathDiagram from stzObject
 			_aM_ = This._TextSize(_cP_)
 			# centred on (cx, cy): the baseline sits below the centre by half
 			# the ink height, measured from the font rather than guessed
-			_x_ = This._V(_cP_ + ".cx") - _aM_[1] / 2
-			_y_ = This._V(_cP_ + ".cy") + (_aM_[2] - _aM_[3]) / 2
+			# THE POSITION MOVES INTO THE VIEW, THE TYPE DOES NOT SCALE: a
+			# close frame is for reading, so a name keeps the size it was
+			# measured at and only travels
+			_x_ = This._Wx(This._V(_cP_ + ".cx")) - _aM_[1] / 2
+			_y_ = This._Wy(This._V(_cP_ + ".cy")) + (_aM_[2] - _aM_[3]) / 2
 			poC.SetFont(@oFont, This._Prop(_aProps_, "size", @nFontSize))
 			poC.AddText(_cT_, _x_, _y_)
 			# a name given no colour takes the best of black and white on

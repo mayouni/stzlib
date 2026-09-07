@@ -13361,16 +13361,28 @@ next
 # vertex unnamed among named ones, so the pair rule has a subject it
 # must NOT govern in the corpus -- the governance asked for it
 aOgP + [ "math/witness", _OgWitness() ]
+# AND TWO WITNESSES FOR THE WINDOW RULE (DN9d). A rule whose boundary no
+# picture stands on could be anywhere, so the corpus carries a frame whose
+# mark is inside the part it shows and one whose mark is outside it. The
+# second is a picture the gate is MEANT to find something in, which is why
+# it is named as such.
+aOgP + [ "math/window/marked in view", _OgWindowWitness(TRUE) ]
+aOgP + [ "math/window/marked out of view", _OgWindowWitness(FALSE) ]
+# and the OTHER side of that boundary: a picture carrying marks and no
+# window at all, which the rule must not govern. Without it the rule's
+# edge has never been stood on and could sit anywhere.
+aOgP + [ "math/window/marked, no window", _OgWindowWitness(:none) ]
 nOgT0 = StzEngineWatchTimestampMs()
 oOgRep = StzCheckPictures(aOgP)
 nOgMs = StzEngineWatchTimestampMs() - nOgT0
-chk("fifty-two pictures are judged by one call -- twenty notation, thirty-two mathematical",
-    len(aOgP) = 52)
-chk("and the report's findings are exactly the contradiction's: four constraints and the " +
-    "name its collapse put on a rim, nothing else on fifty-one pictures",
-    oOgRep.NumberOfFindings() = 5 and _OgAllFrom(oOgRep, "math/5"))
-chk("the contradiction's own constraints arrive as :diagram findings and the rim as :plastic",
-    len(oOgRep.FindingsOfSubject(:diagram)) = 4 and len(oOgRep.FindingsOfSubject(:plastic)) = 1)
+chk("fifty-five pictures are judged by one call -- twenty notation, thirty-five mathematical",
+    len(aOgP) = 55)
+chk("and the report's findings are exactly the two things the corpus plants on purpose -- " +
+    "the contradiction, and the frame whose mark is outside the part it shows",
+    oOgRep.NumberOfFindings() = 6 and
+    _OgAllFromEither(oOgRep, "math/5", "math/window/marked out of view"))
+chk("the contradiction's constraints arrive as :diagram, and the rim and the off-window mark as :plastic",
+    len(oOgRep.FindingsOfSubject(:diagram)) = 4 and len(oOgRep.FindingsOfSubject(:plastic)) = 2)
 chk("and the gate is NOT sound, because a contradiction is a finding and not a pass",
     NOT oOgRep.IsSound())
 # a wall time is decoration on this machine, so the bound is set where it
@@ -13390,7 +13402,7 @@ aOgR = oOgG.CheckRules()
 for iOg = 1 to len(aOgR)
 	? "   RULE FINDING " + aOgR[iOg][:rule] + " @ " + aOgR[iOg][:where] + " -- " + aOgR[iOg][:message]
 next
-chkeq("the four math rules pass the five questions -- none empty, vacuous, or unwitnessed",
+chkeq("the five math rules pass the five questions -- none empty, vacuous, or unwitnessed",
       len(aOgR), 0)
 
 # THE INSTRUMENT DISCRIMINATES. A name moved by hand onto an edge is
@@ -13952,6 +13964,58 @@ chk("a region asked of a rule that encloses nothing is refused", _MkRefuses(2))
 chk("an emphasis that is not focus, dim or ring is refused", _MkRefuses(3))
 chk("a mark put on a shape the picture never drew is refused", _MkRefuses(4))
 chk("NEGATIVE: the lawful sibling of each is accepted", NOT _MkRefuses(0))
+
+
+sec("-- 100. DN9d: THE WINDOW -- THE SAME FIGURE, CLOSER ---------------------")
+discharges("DN9d")
+
+# THE PAIR OF 2026-09-06, ZOOMED: the same content under two solves, one
+# window each, and the story is which side of the leash the name is on.
+oWnB = _FcOneWedge()
+nWnD1 = oWnB.Fact(:distance, [ "v111.icon", "v111.text" ])[:value]
+oWnB.Show("lessthan v111")
+oWnB.WindowOn("v111.icon", 105)
+oWnA = StzMathScene25(AUFONT)
+oWnA.Layout()
+oWnA.Show("lessthan v111")
+oWnA.WindowOn("v111.icon", 105)
+? "   [both frames at " + StzFactNumText(oWnA.WindowScale()) + "x, showing " +
+  len(oWnA.VisibleShapes()) + " of " + oWnA.NumberOfShapes() + " shapes]"
+chk("both frames are the same window on the same content, at more than three times",
+    oWnB.WindowScale() > 3 and oWnA.WindowScale() = oWnB.WindowScale())
+chk("and the story survives the zoom: the first name is past its leash, the second is not",
+    nWnD1 > oWnB.Fact(:arg, [ "lessthan v111", 2 ])[:value] and
+    oWnA.Fact(:distance, [ "v111.icon", "v111.text" ])[:value] <
+    oWnA.Fact(:arg, [ "lessthan v111", 2 ])[:value])
+
+# A WINDOW IS A PROPERTY OF THE VIEW, NOT OF THE FIGURE. Every reader
+# still answers in the picture's own coordinates, or two frames of one
+# figure would report two different figures.
+chk("a distance read through a 3x window is the distance read without one, bit for bit",
+    oWnB.Fact(:distance, [ "v111.icon", "v111.text" ])[:value] = nWnD1)
+chk("and the solved values themselves are untouched by setting or clearing a window",
+    _WnValuesSurvive(oWnA))
+
+# WHAT IS IN VIEW, and the arc that crosses it without its middle being
+# anywhere near -- the case that hid sixty shapes of sixty-five.
+chk("the vertex the frame is about is in view, and a far vertex is not",
+    oWnA.IsInWindow("v111.icon") and NOT oWnA.IsInWindow("v000.icon"))
+chk("an edge whose midpoint lies outside the window is still IN VIEW when it crosses it",
+    _WnCrossingCounted(oWnA))
+chk("NEGATIVE: with no window every shape that is drawn is in view",
+    _WnAllVisibleWithout())
+
+# THE GATE JUDGES WHAT IS VISIBLE.
+chk("the repaired frame passes the one gate at 3x", len(StzCheckPictures([
+    [ "after", oWnA ] ]).Findings()) = 0)
+chk("and the first frame is found -- for its leash, which is the story, and not for its window",
+    _WnFoundForItsLeash(oWnB))
+chk("NEGATIVE: a mark left outside the part a frame shows IS reported, by name",
+    _WnOffWindowFound())
+
+# THE TYPE DOES NOT SCALE, so a close frame is more legible and not merely
+# bigger -- a name is measured once and only travels.
+chk("a name's measured box is the same at 3x as at 1x", _WnTextUnscaled())
 
 
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
@@ -16965,6 +17029,23 @@ func _LsHardPlanarLawful
 	_o_.Layout()
 	return _o_.IsFeasible()
 
+# a frame zoomed on one vertex, with a mark either on that vertex or on
+# one the frame does not show
+func _OgWindowWitness pbInside
+	_o_ = StzMathScene25(AUFONT)
+	_o_.Layout()
+	if pbInside = :none
+		_o_.Emphasis("v111.icon", :ring)
+		return _o_
+	ok
+	if pbInside
+		_o_.Emphasis("v111.icon", :ring)
+	else
+		_o_.Emphasis("v000.icon", :ring)
+	ok
+	_o_.WindowOn("v111.icon", 105)
+	return _o_
+
 func _OgWitness
 	_oS_ = new stzMathSubstance(StzGraphDomain())
 	_oS_.DeclareAll("Vertex", [ "Left", "Mid", "Right" ])
@@ -16976,6 +17057,16 @@ func _OgWitness
 	_o_.SetFont(AUFONT, 16)
 	_o_.SetVariation("witness")
 	return _o_
+
+func _OgAllFromEither poRep, pcA, pcB
+	_aF_ = poRep.Findings()
+	for _i_ = 1 to len(_aF_)
+		_w_ = "" + _aF_[_i_][:where]
+		if StzLeft(_w_, len(pcA) + 1) = pcA + " "  loop  ok
+		if StzLeft(_w_, len(pcB) + 1) = pcB + " "  loop  ok
+		return FALSE
+	next
+	return TRUE
 
 func _OgAllFrom poRep, pcPrefix
 	_aF_ = poRep.Findings()
@@ -17554,6 +17645,81 @@ func _MkRefuses pnWhich
 		_b_ = TRUE
 	done
 	return _b_
+
+func _WnValuesSurvive poM
+	_a_ = _MkPositions(poM)
+	poM.ClearWindow()
+	_b_ = _MkPositions(poM)
+	poM.WindowOn("v111.icon", 105)
+	_c_ = _MkPositions(poM)
+	return _MkSame(_a_, _b_) and _MkSame(_b_, _c_)
+
+# an arc reported visible whose own MIDDLE is outside the view -- the case
+# a centre-and-reach test gets wrong, and the reason sixty of sixty-five
+# shapes disappeared the first time this was asked
+func _WnCrossingCounted poM
+	_aW_ = poM.Window()
+	_ac_ = poM.VisibleShapes()
+	for _i_ = 1 to len(_ac_)
+		_b_ = poM._WBox(_ac_[_i_])
+		if len(_b_) != 4  loop  ok
+		_cx_ = (_b_[1] + _b_[3]) / 2
+		_cy_ = (_b_[2] + _b_[4]) / 2
+		# reported visible, yet its own middle lies outside the view: the
+		# case a centre-and-reach test gets wrong
+		if fabs(_cx_ - _aW_[1]) > _aW_[3] / 2 or fabs(_cy_ - _aW_[2]) > _aW_[4] / 2
+			return TRUE
+		ok
+	next
+	return FALSE
+
+# the first frame's finding is its own leash rule, not anything the window
+# introduced
+func _WnFoundForItsLeash poM
+	_aF_ = StzCheckPictures([ [ "before", poM ] ]).Findings()
+	if len(_aF_) = 0  return FALSE  ok
+	for _i_ = 1 to len(_aF_)
+		if StzFindFirst("outside the part of the picture", "" + _aF_[_i_][:message]) > 0
+			return FALSE
+		ok
+	next
+	for _i_ = 1 to len(_aF_)
+		if StzFindFirst("lessthan", StzLower("" + _aF_[_i_][:where])) > 0  return TRUE  ok
+	next
+	return FALSE
+
+func _WnAllVisibleWithout
+	_o_ = StzMathScene16(AUFONT)
+	_o_.Layout()
+	_n_ = 0
+	_ac_ = _o_.Shapes()
+	for _i_ = 1 to len(_ac_)
+		if _o_.IsHidden(_ac_[_i_])  loop  ok
+		_n_++
+	next
+	return len(_o_.VisibleShapes()) = _n_
+
+# a mark on a vertex the window does not show is found by the fifth rule
+func _WnOffWindowFound
+	_o_ = StzMathScene25(AUFONT)
+	_o_.Layout()
+	_o_.Emphasis("v000.icon", :ring)
+	_o_.WindowOn("v111.icon", 105)
+	_aF_ = StzCheckPictures([ [ "off-window", _o_ ] ]).Findings()
+	for _i_ = 1 to len(_aF_)
+		if StzFindFirst("outside the part of the picture", "" + _aF_[_i_][:message]) > 0
+			return TRUE
+		ok
+	next
+	return FALSE
+
+func _WnTextUnscaled
+	_o_ = StzMathScene16(AUFONT)
+	_o_.Layout()
+	_a_ = _o_.ShapeOf("A.text")
+	_o_.WindowOn("A.icon", 90)
+	_b_ = _o_.ShapeOf("A.text")
+	return _a_[:w] = _b_[:w] and _a_[:h] = _b_[:h]
 
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0
