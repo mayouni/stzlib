@@ -118,7 +118,7 @@ sections, of which 21 declarations over 17 items.
 | DN9c | closed | 99 |
 | DN9d | closed | 100 |
 | DN9e | closed | 101 |
-| DN9f | open | - |
+| DN9f | closed | 102 |
 | DN9g | open | - |
 | DN2b | closed | 56 |
 | DN2c | closed | - |
@@ -2923,17 +2923,62 @@ person.
 
   *Guard:* §101, DN9e.
 
-- **DN9f — The storyboard.** *Not started.* `stzStoryboard`: frames in
-  order, captions with holes, actions between frames; renders a folio, an
-  HTML page, and emits a `.narration` in the sibling's v0 grammar (PROSE
-  and CELL only — routed to Central for the sibling's confirmation before
-  the emitter is written). Judged: every frame through the one gate, every
-  hole asserted equal to its fact. **Kill, the plane's:** the whole
-  explanation of 2026-09-06 as ONE storyboard rendered by one command with
-  no hand-drawn SVG; and a second storyboard about an org chart with a
-  governance finding — the person with two managers emphasised, the
-  finding's message as the callout, the repaired chart as the last frame —
-  with no mathematics anywhere.
+- **DN9f — The storyboard.** **SHIPPED** 2026-09-07.
+  `stzStoryboard(name, picture, folio)` in `base/graph/stzStoryboard.ring`:
+  frames in order, each adding marks, moving the view or changing the
+  content, and each carrying one sentence. `Frame`, `FrameOf` (a second
+  picture), `Bind` (a hole to a fact of this picture), `BindFact` (a fact
+  from any plane), `ExpectFindings`, the five marks and the window
+  forwarded, `Act` for a drag or a datum, then `Render` for the page and
+  `ToNarration` for the document.
+
+  **A caption carries holes, never numbers**, and a hole is filled when
+  its frame closes, from the picture as it stands in that frame. **Every
+  frame is judged as it closes** — through the one gate, and every filled
+  hole against the fact it came from.
+
+  Two things the building taught, both now law here:
+
+  - **A frame may be ABOUT a picture the gate faults, and that is not a
+    defect in the telling.** "Here is what goes wrong" is the commonest
+    didactic frame there is. So a frame declares `ExpectFindings()`, its
+    findings become its subject, and — the negative that keeps the flag
+    honest — a frame that expects a finding and gets none is itself
+    reported.
+  - **A hole is held to the form the caption asked for.** A caption may
+    show a fact's number, its sentence or its unit; holding it to the
+    number when it quotes the sentence is the check misreading the
+    caption rather than the caption misreading the fact. A fact bound and
+    never quoted is reported too.
+
+  **The plane's kill, met twice.**
+
+  | | frames | numbers, none typed | judged |
+  |---|---|---|---|
+  | the explanation of 2026-09-06 | 4, over two solves of one content | 3 | clean |
+  | an org chart with a governance finding | 3 | 2 | clean |
+
+  The second has **no mathematics anywhere**: five positions, the org
+  plane's own `no-orphan-position` finding quoted in a caption about a
+  drawing that never reached it, the orphan ringed and called out, and
+  the repaired chart as the last frame. The same five marks, the same
+  holes, the same judge. *One correction to this item's own kill text:*
+  it promised "the person with two managers", and the library has no
+  dual-reporting rule — it has orphan, cycle, span-of-control and
+  separation-of-duties. The story uses a finding the library really
+  produces rather than a rule invented to match the prose.
+
+  **The emitter, written and marked provisional.** `ToNarration()` writes
+  the sibling's `.narration` v0 grammar — NARRATION, PROSE and CELL, three
+  kinds and no fourth — and pins that version in the file. Its one law is
+  honoured by construction: **a caption goes out with its holes still
+  open, and every number is a CELL that recomputes on arrival**, so
+  nothing is stored that could go stale. DN9-EMITTER-01 was routed to
+  `stznarrations` through Central on 2026-09-06 and is unanswered; the
+  harness rule is that silence is never a veto, so this is written against
+  the published sketch, pinned, and a correction costs one function.
+
+  *Guard:* §102, DN9f.
 
 - **DN9g — C7 evidence.** *Not started.* Both picture classes answer a
   returning, self-describing display value in the consumer's asked shape

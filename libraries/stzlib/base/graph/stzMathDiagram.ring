@@ -4293,6 +4293,25 @@ class stzMathDiagram from stzObject
 			"every constraint is satisfied, so nothing is found against " +
 			iif(pcSubject = "", "this picture", pcSubject))
 
+	# WHAT A FRAME MAY CHANGE BETWEEN TWO PICTURES (DN9f). Ring copies an
+	# object on assignment, so a caller holding the substance or the style
+	# is holding a different one from the picture's; these are the doors
+	# through which a narration's action reaches the picture it is about.
+	def SetPictureTheme(pcTheme)
+		@oStyle.SetTheme(pcTheme)
+		This.Touch()
+		return This
+
+	# A DATUM IS CONTENT, so changing one means the picture is compiled
+	# again -- unlike a theme, which changes only what a role resolves to.
+	def SetSubstanceData(pcObject, pcKey, pnValue)
+		@oSubstance.SetData(pcObject, pcKey, pnValue)
+		@bLaidOut = 0
+		@acMarks = []
+		@nMarkSeq = 0
+		This.Touch()
+		return This
+
 	#-- THE WINDOW (DN9d) ----------------------------------------------------
 
 	# A FRAME MAY SHOW A PART. The same content, looked at closely, is the

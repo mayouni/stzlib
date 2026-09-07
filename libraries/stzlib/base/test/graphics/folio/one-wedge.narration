@@ -1,0 +1,73 @@
+-- one-wedge.narration -- one-wedge, told in 4 frames
+
+DEFINE NARRATION one_wedge (
+    TITLE "one-wedge"
+    PINS   [ commons:1.0 ]
+) RATIONALE "Emitted by stzStoryboard against .narration grammar v0; every number in the prose is a cell below, never a stored output."
+
+DEFINE PROSE frame_1 (
+    TEXT <[
+A graph drawn planar: every vertex carries its name, and every name has rules to obey.
+    ]>
+) RATIONALE "Frame 1 of 4."
+
+DEFINE CELL picture_1 (
+    SOURCE <[
+oStory.FileOf(1)
+    ]>
+) RATIONALE "The picture is named here and drawn on arrival, never stored."
+
+DEFINE PROSE frame_2 (
+    TEXT <[
+A name must stay within {leash} px of its dot. That circle is a rule, not a drawing.
+    ]>
+) RATIONALE "Frame 2 of 4."
+
+DEFINE CELL picture_2 (
+    SOURCE <[
+oStory.FileOf(2)
+    ]>
+) RATIONALE "The picture is named here and drawn on arrival, never stored."
+
+DEFINE CELL leash_2 (
+    SOURCE <[
+oStory.HolesOf(2)[1][2][:value]
+    ]>
+) RATIONALE "The number the prose shows for {leash}: computed, and checked against the picture."
+
+DEFINE PROSE frame_3 (
+    TEXT <[
+This one is {far} px away, so it is outside. Look closely.
+    ]>
+) RATIONALE "Frame 3 of 4."
+
+DEFINE CELL picture_3 (
+    SOURCE <[
+oStory.FileOf(3)
+    ]>
+) RATIONALE "The picture is named here and drawn on arrival, never stored."
+
+DEFINE CELL far_3 (
+    SOURCE <[
+oStory.HolesOf(3)[1][2][:value]
+    ]>
+) RATIONALE "The number the prose shows for {far}: computed, and checked against the picture."
+
+DEFINE PROSE frame_4 (
+    TEXT <[
+Given a second starting direction, the same name settles {near} px out, inside the leash.
+    ]>
+) RATIONALE "Frame 4 of 4."
+
+DEFINE CELL picture_4 (
+    SOURCE <[
+oStory.FileOf(4)
+    ]>
+) RATIONALE "The picture is named here and drawn on arrival, never stored."
+
+DEFINE CELL near_4 (
+    SOURCE <[
+oStory.HolesOf(4)[1][2][:value]
+    ]>
+) RATIONALE "The number the prose shows for {near}: computed, and checked against the picture."
+
