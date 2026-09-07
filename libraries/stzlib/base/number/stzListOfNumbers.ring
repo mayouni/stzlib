@@ -3941,28 +3941,14 @@ class stzListOfNumbers from stzList
 		next
 
 		def ClipQ(nMin, nMax)
-			# The fluent form has no return type to forward, so it names
-			# one -- as NumbersQ, ReplaceSectionWithQ and CumulateQ all do
-			# in this same file. It forwarded pcReturnType, which is not a
-			# parameter of ClipQ and not bound anywhere in it: R24 on every
-			# call, whether the name carried a $ or not.
-			return This.ClipQRT(nMin, nMax, :stzList)
-
-		def ClipQRT(nMin, nMax, pcReturnType)
-			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.Clip(nMin, nMax) )
-
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.Clip(nMin, nMax) )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
+			# Clip() MUTATES and returns nothing, so there is no result to
+			# wrap and no type to choose: the fluent form runs it and hands
+			# back This, which is what SortQ, ReverseQ and RemoveDuplicatesQ
+			# do in stzList and what 25 other Q forms do in this file. The
+			# ClipQRT it used to call built `new stzList( This.Clip(...) )`
+			# out of nothing and raised "paList must be a list" every time.
+			This.Clip(nMin, nMax)
+			return This
 
 	  #-----------------------------------------#
 	 #     REPLACING A SECTION OF THE LIST     #
@@ -3979,23 +3965,14 @@ class stzListOfNumbers from stzList
 		#< @FunctionFluentForms
 
 		def ReplaceSectionWithQ(_n1_, _n2_, _n_)
-			return This.ReplaceSectionWithQRT(_n1_, _n2_, _n_, :stzList)
-
-		def ReplaceSectionWithQRT(_n1_, _n2_, _n_, pcReturnType)
-			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.ReplaceSectionWith(_n1_, _n2_, _n_) )
-
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.ReplaceSectionWith(_n1_, _n2_, _n_) )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
+			# ReplaceSectionWith() MUTATES and returns nothing, so there is no result to
+			# wrap and no type to choose: the fluent form runs it and hands
+			# back This, which is what SortQ, ReverseQ and RemoveDuplicatesQ
+			# do in stzList and what 25 other Q forms do in this file. The
+			# QRT it used to call built `new stzList( This.ReplaceSectionWith(...) )`
+			# out of nothing and raised "paList must be a list" every time.
+			This.ReplaceSectionWith(_n1_, _n2_, _n_)
+			return This
 
 		#>
 
@@ -4021,24 +3998,14 @@ class stzListOfNumbers from stzList
 
 
 		def CumulateQ()
-			return This.CumulateQRT()
-
-		# The running sums, in the requested return type (QRT).
-		def CumulateQRT()
-			if isList($pcReturnType) and IsOneOfTheseNamedParamsList($pcReturnType, [ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch $pcReturnType
-			on :stzList
-				return new stzList( This.Cumulate() )
-
-			on :stzListOfNumbers
-				return new stzList( This.Cumulate($_n1_) )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
+			# Cumulate() MUTATES and returns nothing, so there is no result to
+			# wrap and no type to choose: the fluent form runs it and hands
+			# back This, which is what SortQ, ReverseQ and RemoveDuplicatesQ
+			# do in stzList and what 25 other Q forms do in this file. The
+			# CumulateQRT it used to call built `new stzList( This.Cumulate() )`
+			# out of nothing and raised "paList must be a list" every time.
+			This.Cumulate()
+			return This
 
 	# The running sums of the numbers, as a copy; the original is unchanged.
 	def Cumulated()
@@ -4068,7 +4035,11 @@ class stzListOfNumbers from stzList
 		#< @FunctionFluentForm
 
 		def OnlyUnicodesQ()
-			return This.CumulateQRT(:stzList)
+			# Called CumulateQRT -- a copy-paste, and it handed back the
+			# running sums instead of the Unicode numbers. Wrong long
+			# before CumulateQRT was removed; removing it only made the
+			# mistake loud instead of silent.
+			return This.OnlyUnicodesQRT(:stzList)
 
 		def OnlyUnicodesQRT(pcReturnType)
 			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
@@ -4080,8 +4051,10 @@ class stzListOfNumbers from stzList
 				return new stzList( This.OnlyUnicodes() )
 	
 			on :stzListOfNumbers
-				return new stzList( This.OnlyUnicodes() )
-	
+				# built a stzList here too, so asking for the two types
+				# gave the same object
+				return new stzListOfNumbers( This.OnlyUnicodes() )
+
 			other
 				StzRaise("Unsupported return type!")
 			off
