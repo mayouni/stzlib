@@ -10281,7 +10281,7 @@ class stzString from stzObject
 		if ring_left(_kw_, 1) = ":" _kw_ = StzMidToEnd(_kw_, 2) ok
 		try
 			eval("_b_ = This.IsScript" + _kw_ + "()")
-			return $_b_
+			return _b_
 		catch
 			return 0
 		done

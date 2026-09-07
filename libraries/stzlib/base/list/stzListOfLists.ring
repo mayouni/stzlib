@@ -3858,7 +3858,7 @@ class stzListOfLists from stzList
 		for @i = 1 to _nSobLenCol_
 			@item = _aSobCol_[@i]
 			eval(_cSobCode_)
-			ring_insert(_aSobContent_[@i], 1, $_value_)
+			ring_insert(_aSobContent_[@i], 1, _value_)
 		next
 
 		This.UpdateWith( @SortLists(_aSobContent_) )
@@ -4200,7 +4200,7 @@ class stzListOfLists from stzList
 		for @i = 1 to _nCobLenCol_
 			@item = _aCobCol_[@i]
 			eval(_cCobCode_)
-			ring_insert(_aCobContent_[@i], nCol, $_value_)
+			ring_insert(_aCobContent_[@i], nCol, _value_)
 		next
 
 		_aCobResult_ = StzListOfListsQ(_aCobContent_).

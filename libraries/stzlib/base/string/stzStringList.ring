@@ -1057,7 +1057,7 @@ class stzStringList from stzObject
 		for _i_ = 1 to _nLen_
 			@string = _aData_[_i_]
 			eval("_key_ = " + pcExpr)
-			_aKeys_[_i_] = $_key_
+			_aKeys_[_i_] = _key_
 		next
 		for _i_ = 2 to _nLen_
 			_curKey_ = _aKeys_[_i_]

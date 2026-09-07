@@ -233,7 +233,7 @@ class stzCoeffExtractor from stzObject
 
 	    eval(_cEvalExpr_)
 		eval(_cEvalExpr_)
-	    return $_nResult_
+	    return _nResult_
 
 	
 	def roundCoefficient(_nCoeff_)

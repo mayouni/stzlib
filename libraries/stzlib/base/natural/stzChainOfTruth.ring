@@ -447,7 +447,7 @@ class stzChainOfTruth from stzObject
 				eval(_cCode_)
 	
 
-			if $bResult = 1 and $bPass
+			if bResult = 1 and bPass
 				This.SetChainToReturn(1)
 			else
 				This.SetChainToReturn(0)
@@ -728,7 +728,7 @@ class stzChainOfTruth from stzObject
 		_cCode_ = 'bResult = This.' + This.NeightherFunction() + '(p)'
 		eval(_cCode_)
 
-		return $bResult
+		return bResult
 
 	#------------------
 
@@ -783,7 +783,7 @@ class stzChainOfTruth from stzObject
 
 			eval(_cCode_)
 
-			return _( $result )
+			return _( result )
 		ok
 
 	#------------------

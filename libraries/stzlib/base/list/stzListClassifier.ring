@@ -351,7 +351,7 @@ class stzListClassifier from stzObject
 			@item = _aPwContent_[@i]
 			_cPwEval_ = StzReplace(_cPwCode_, "@item", @@(@item))
 			eval("_bPwResult_ = ( " + _cPwEval_ + " )")
-			if $_bPwResult_
+			if _bPwResult_
 				@AddItem(_aPwTrue_, @item)
 			else
 				@AddItem(_aPwFalse_, @item)
