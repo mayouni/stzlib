@@ -2727,3 +2727,52 @@ note:      THREE VERSIONS OF MY OWN INSTRUMENT WERE WRONG BEFORE THIS
            "return" matched that word inside a comment. A number stated
            once and never recounted would have shipped all three.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-07 23:51
+
+subject:   DN10 -- notation in a label, and the four-week-old defect it
+           uncovered on its first render
+
+why:       the author said go ahead; it is the last cell of the gallery
+           triage
+
+did:
+  - Made a label able to carry mathematical notation between dollar
+    signs, laid out as runs the existing renderer draws and the
+    existing measurer measures, so the solver needed nothing.
+  - Refused by name everything outside superscripts, subscripts, Greek
+    and the common operators -- and refused any symbol the chosen font
+    has no glyph for, rather than drawing a hollow box.
+  - Found and fixed a defect older than the feature: the canvas styles
+    the PENDING text, so the renderer had been giving every label the
+    size meant for the one after it. The word cloud has been drawing
+    each word at its neighbour's size since it shipped.
+  - Taught this plan's id grammar to count to ten, after DN10 parsed
+    as DN1 and silently redefined an existing item.
+
+state:
+  section 104:  19 assertions
+  gate:         1194 ok, 0 failed, on main and in the commit tree
+  plan table:   DN10 closed; the gallery triage's last cell is answered
+  commit:       8e8877060 on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01: the .narration emitter is written and pinned; a
+    review request, not a blocker -> stznarrations via Central
+    [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the author's word
+  - central: two things any repository drawing with a state-based API
+             should hear -- the pending-style ordering, and that an id
+             grammar of two capitals and one digit cannot reach ten
+
+note:      A LATENT ORDERING DEFECT IN A STATE-BASED DRAWING API IS
+           UNDETECTABLE UNTIL SOMETHING NEEDS TWO STATES IN ONE OBJECT.
+           Every label in every picture shares one size, so setting the
+           font one item late changed nothing anyone could see. The
+           first label that needed two sizes showed it in one render.
+```
