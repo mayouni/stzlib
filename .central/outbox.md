@@ -2678,3 +2678,52 @@ note:      A CHECKER THAT TREATS EVERY FINDING AS A FAILURE CANNOT SAY
            says so needs its own negative or it becomes a way to
            silence the gate.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-07 23:10
+
+subject:   DN9g -- a value that says what it is, and the name the
+           display contract cannot have
+
+why:       the author said go ahead; it is the plane's last item
+
+did:
+  - Gave four classes a returning value that declares its own kind
+    before its content, and one door a consumer knowing no class uses.
+  - Met the kill: four objects of four classes rendered by a script
+    that reads the kind and never asks the class, and a class the
+    contract has not reached refused by name.
+  - Measured this repository's display surface today, and the guard
+    recounts it so it cannot go stale.
+  - Corrected the consumer's own reading: Display() is not thirteen
+    aliases of Show, it is six methods carrying two incompatible
+    meanings, three printing and three launching an external program,
+    with stzGraph holding one of each and not one returning anything.
+
+state:
+  section 103:  13 assertions
+  gate:         1175 ok, 0 failed, on main and in the commit tree
+  plan table:   DN9a through DN9g ALL CLOSED -- the plane is complete
+  commit:       4065f1788 on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01: the .narration emitter is written against grammar
+    v0 and pinned; this is a review request, not a blocker
+    -> stznarrations via Central [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the author's word. DN9 is complete; TeX in labels is now
+             one more thing a callout can carry
+  - central: two findings for whoever writes C7 -- the name is taken
+             twice over, and the return test is the instrument to reuse
+
+note:      THREE VERSIONS OF MY OWN INSTRUMENT WERE WRONG BEFORE THIS
+           LANDED, and each was caught only because the next one
+           recounted: a grep blind to nested definitions said two where
+           there are six; a fixed window classified a method as neither
+           because its call sat past the window's end; and a test for
+           "return" matched that word inside a comment. A number stated
+           once and never recounted would have shipped all three.
+```
