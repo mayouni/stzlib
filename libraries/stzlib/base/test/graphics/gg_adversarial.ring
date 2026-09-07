@@ -13883,6 +13883,77 @@ chk("a rule no line of this picture describes is refused", _FcRefuses(4))
 chk("NEGATIVE: the lawful siblings of all four are accepted", NOT _FcRefuses(0))
 
 
+sec("-- 99. DN9c: THE FIVE MARKS -- A RULE'S BOUNDARY, DRAWN ------------------")
+discharges("DN9c")
+
+# THE DIAGRAM OF 2026-09-06, REGENERATED. Every mark below is derived from
+# the picture's solved values or from a rule actually in force; not one
+# coordinate is written by a person, which is the whole plane's claim.
+oMkV = StzMathScene25(AUFONT)
+oMkV.Layout()
+aMkWas = _MkPositions(oMkV)
+nMkShapes = oMkV.NumberOfShapes()
+oMkV.Show("lessthan v111")
+oMkV.Region("disjoint v111.text q6.h1")
+oMkV.Emphasis("v111.icon", :ring)
+oMkV.Callout("v111.icon", "leash {value} px", [ [ "fact", :arg ], [ "args", [ "lessthan v111", 2 ] ] ])
+oMkV.Callout("v111.text", "{value} px away", [ [ "fact", :distance ], [ "args", [ "v111.icon", "v111.text" ] ] ])
+chk("the marked picture is still lawful, and the one gate finds nothing in it",
+    oMkV.IsFeasible() and len(StzCheckPictures([ [ "marks", oMkV ] ]).Findings()) = 0)
+
+# A MARK MAY NOT MOVE THE FIGURE IT DESCRIBES. Every unknown is pinned
+# while a mark places itself, so a second frame's figure is the first
+# frame's figure -- without which a narration would be showing a
+# different picture each time it said something about one.
+chk("all eight vertices are where they were before any mark was added, exactly",
+    _MkSame(aMkWas, _MkPositions(oMkV)))
+
+# SHOWN AT THE RULE'S OWN BOUND, not at a radius someone typed.
+nMkLeash = oMkV.Fact(:arg, [ "lessthan v111", 2 ])[:value]
+? "   [the leash drawn at its own bound: " + StzFactNumText(nMkLeash) + " px]"
+chk("the leash circle is centred on the vertex and drawn at the rule's own bound",
+    _MkShownAt(oMkV, "v111.icon", nMkLeash))
+chk("and that bound is the 43.73 the fact reports, not the 44 a person wrote",
+    fabs(nMkLeash - 43.73) < 0.01)
+
+# A REGION IS THE STRIP THE RULE FORBIDS, two pads across the segment.
+chk("the forbidden strip is a four-cornered region, two pads wide across its edge",
+    _MkRibbonWidth(oMkV, "q6.h1") > 7.9 and _MkRibbonWidth(oMkV, "q6.h1") < 8.1)
+
+# A CALLOUT'S NUMBER IS A FACT'S NUMBER, and its sentence is SOLVED.
+chk("a callout carries the fact's own number, filled into the hole",
+    _MkCalloutHas(oMkV, StzFactNumText(oMkV.Fact(:distance, [ "v111.icon", "v111.text" ])[:value])))
+chk("a callout's sentence is off every name already in the picture, by the pad it asks",
+    _MkCalloutClearOfNames(oMkV))
+chk("and its leader runs from its subject to wherever the solver put the sentence",
+    _MkLeaderJoins(oMkV))
+
+# EMPHASIS RINGS OUTSIDE THE INK IT MARKS.
+chk("a ring stands clear of the shape it rings", _MkRingOutside(oMkV, "v111.icon"))
+
+# MARKS COME OFF AGAIN, and what is left is the picture that was there.
+oMkV.ClearMarks()
+chk("clearing the marks gives back the shape count and leaves the figure untouched",
+    oMkV.NumberOfMarks() = 0 and oMkV.NumberOfShapes() = nMkShapes and
+    _MkSame(aMkWas, _MkPositions(oMkV)))
+
+# MEASURE, on the picture where a number is the point.
+oMkT = StzMathScene16(AUFONT)
+oMkT.Layout()
+oMkT.Measure("A.icon", "K.icon", [])
+chk("a measure's number is the distance fact, and A really is a radius from the centre",
+    _MkMeasureShows(oMkT, "A.icon", "K.icon") and
+    fabs(oMkT.Fact(:distance, [ "A.icon", "K.icon" ])[:value] -
+         oMkT.Fact(:value, [ "K.icon.r" ])[:value]) < 0.01)
+
+# REFUSED BY NAME rather than approximated.
+chk("a rule whose boundary is not a shape is refused, and says to ask for a region", _MkRefuses(1))
+chk("a region asked of a rule that encloses nothing is refused", _MkRefuses(2))
+chk("an emphasis that is not focus, dim or ring is refused", _MkRefuses(3))
+chk("a mark put on a shape the picture never drew is refused", _MkRefuses(4))
+chk("NEGATIVE: the lawful sibling of each is accepted", NOT _MkRefuses(0))
+
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go
@@ -17366,6 +17437,118 @@ func _FcRefuses pnWhich
 			_g_.Fact(:count, [ "nodes" ])
 			_g_.Fact(:position, [ "t" ])
 			_o_.Fact(:arg, [ "disjoint", 3 ])
+		ok
+	catch
+		_b_ = TRUE
+	done
+	return _b_
+
+func _MkPositions poM
+	_a_ = []
+	for _c_ in [ "v000", "v001", "v010", "v011", "v100", "v101", "v110", "v111" ]
+		_a_ + [ poM.ValueOf(_c_ + ".icon.cx"), poM.ValueOf(_c_ + ".icon.cy") ]
+	next
+	return _a_
+
+func _MkSame paA, paB
+	if len(paA) != len(paB)  return FALSE  ok
+	for _i_ = 1 to len(paA)
+		if paA[_i_][1] != paB[_i_][1] or paA[_i_][2] != paB[_i_][2]  return FALSE  ok
+	next
+	return TRUE
+
+# a circle mark centred on pcOn at radius pnR, to a hundredth
+func _MkShownAt poM, pcOn, pnR
+	_t_ = poM.ShapeOf(pcOn)
+	for _m_ in poM.Marks()
+		if _m_[2] != "show"  loop  ok
+		_s_ = poM.ShapeOf(_m_[1])
+		if fabs(_s_[:cx] - _t_[:cx]) < 0.01 and fabs(_s_[:cy] - _t_[:cy]) < 0.01 and
+		   fabs(_s_[:r] - pnR) < 0.01
+			return TRUE
+		ok
+	next
+	return FALSE
+
+# the strip's width across its segment: the distance between its two long sides
+func _MkRibbonWidth poM, pcEdge
+	for _m_ in poM.Marks()
+		if _m_[2] != "region"  loop  ok
+		_p_ = poM.PolygonOf(_m_[1])
+		if len(_p_) < 8  loop  ok
+		return sqrt((_p_[1] - _p_[7]) * (_p_[1] - _p_[7]) + (_p_[2] - _p_[8]) * (_p_[2] - _p_[8]))
+	next
+	return 0
+
+func _MkCalloutHas poM, pcNumber
+	for _m_ in poM.Marks()
+		if _m_[2] != "label"  loop  ok
+		if StzFindFirst(pcNumber, "" + poM.PropOf(_m_[1], "string", "")) > 0  return TRUE  ok
+	next
+	return FALSE
+
+func _MkCalloutClearOfNames poM
+	for _m_ in poM.Marks()
+		if _m_[2] != "label"  loop  ok
+		_a_ = poM.ShapeOf(_m_[1])
+		for _c_ in [ "v000", "v001", "v010", "v011", "v100", "v101", "v110", "v111" ]
+			_b_ = poM.ShapeOf(_c_ + ".text")
+			if len(_b_) = 0  loop  ok
+			_qx_ = fabs(_a_[:cx] - _b_[:cx]) - (_a_[:w] + _b_[:w]) / 2
+			_qy_ = fabs(_a_[:cy] - _b_[:cy]) - (_a_[:h] + _b_[:h]) / 2
+			if _qx_ < 3.9 and _qy_ < 3.9  return FALSE  ok
+		next
+	next
+	return TRUE
+
+# a leader's far end sits on the sentence the solver placed
+func _MkLeaderJoins poM
+	for _m_ in poM.Marks()
+		if _m_[2] != "callout"  loop  ok
+		_l_ = poM.ShapeOf(_m_[1])
+		_cT_ = StzReplace(_m_[1], "_lead", "")
+		_t_ = poM.ShapeOf(_cT_)
+		if len(_t_) = 0  loop  ok
+		if fabs(_l_[:x2] - _t_[:cx]) > 0.01 or fabs(_l_[:y2] - _t_[:cy]) > 0.01  return FALSE  ok
+	next
+	return TRUE
+
+func _MkRingOutside poM, pcOn
+	_t_ = poM.ShapeOf(pcOn)
+	for _m_ in poM.Marks()
+		if _m_[2] != "emphasis"  loop  ok
+		_s_ = poM.ShapeOf(_m_[1])
+		return _s_[:r] > _t_[:r] + 4
+	next
+	return FALSE
+
+func _MkMeasureShows poM, pcA, pcB
+	_a_ = poM.ShapeOf(pcA)
+	_b_ = poM.ShapeOf(pcB)
+	for _m_ in poM.Marks()
+		if _m_[2] != "measure"  loop  ok
+		_l_ = poM.ShapeOf(_m_[1])
+		if fabs(_l_[:x1] - _a_[:cx]) < 0.01 and fabs(_l_[:x2] - _b_[:cx]) < 0.01  return TRUE  ok
+	next
+	return FALSE
+
+func _MkRefuses pnWhich
+	_b_ = FALSE
+	_o_ = StzMathScene16(AUFONT)
+	_o_.Layout()
+	try
+		if pnWhich = 1
+			_o_.Show("disjoint A.text AB.icon")
+		but pnWhich = 2
+			_o_.Region("equal")
+		but pnWhich = 3
+			_o_.Emphasis("A.icon", :sparkle)
+		but pnWhich = 4
+			_o_.Emphasis("Z.icon", :ring)
+		else
+			_o_.Emphasis("A.icon", :ring)
+			_o_.Emphasis("B.icon", :focus)
+			_o_.Emphasis("C.icon", :dim)
 		ok
 	catch
 		_b_ = TRUE

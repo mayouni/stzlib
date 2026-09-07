@@ -3293,6 +3293,8 @@ class stzMathDiagram from stzObject
 	@cTextObj = ""      # the objectives half of the last folded text
 	@cTextPen = ""      # the penalty half of the last folded text
 	@aProfile = [ :text = 0, :compile = 0, :minimise = 0, :read = 0, :fold = 0, :rounds = 0, :rounds0 = 0, :rounds1 = 0, :worst1 = 0 ]
+	@nMarkSeq = 0       # how many marks this picture carries (DN9c)
+	@acMarks = []       # [ [ cPath, cKind ] ] -- what a mark minted
 	@cUiState = :Idle   # :Idle | :Dragging
 	@cUiSubject = ""    # the shape under the gesture
 	@aUiAt = []         # where the pointer is, [ x, y ]
@@ -4105,6 +4107,430 @@ class stzMathDiagram from stzObject
 		return StzFact(:verdict, pcSubject, 0, :px, "picture",
 			"every constraint is satisfied, so nothing is found against " +
 			iif(pcSubject = "", "this picture", pcSubject))
+
+	#-- THE FIVE MARKS (DN9c) -----------------------------------------------
+
+	# A mark makes a FACT visible. Five kinds and no sixth: showing a rule's
+	# own boundary, measuring between two things, calling out with a
+	# sentence, emphasising, and tinting a region. A sixth is a substance
+	# change to this plane, argued in the plan, the way the narration
+	# grammar guards its three kinds.
+	#
+	# EVERY MARK IS DERIVED, NEVER PLACED. Its geometry comes from the
+	# picture's solved values or from a rule actually in force -- which is
+	# the whole point of the plane, because a mark a person positions is a
+	# mark nobody checks. Marks are minted AFTER the solve and hold every
+	# existing unknown pinned while they place themselves, so adding one
+	# cannot move the figure it describes: frame two's figure is frame
+	# one's figure, to the last pixel.
+
+	# A RING, A FOCUS OR A DIM. Emphasis changes how a shape already in the
+	# picture reads, so it mints nothing for :focus and :dim -- it rewrites
+	# the shape's own stroke -- and mints one circle for :ring.
+	def Emphasis(pcTarget, pcMode)
+		This.Layout()
+		_c_ = This._MarkShape(pcTarget)
+		_m_ = StzLower(ring_trim("" + pcMode))
+		_i_ = This._ShapeIndex(_c_)
+		if _m_ = "focus"
+			This._MarkSetProp(_i_, "stroke", "primary")
+			This._MarkSetProp(_i_, "strokeWidth", 3)
+		but _m_ = "dim"
+			This._MarkSetProp(_i_, "stroke", [ :alpha, "muted", 0.35 ])
+			if This._Prop(@aShapes[_i_][3], "fill", "") != ""
+				This._MarkSetProp(_i_, "fill", [ :alpha, "muted", 0.12 ])
+			ok
+		but _m_ = "ring"
+			_e_ = This._MarkExtent(_c_)
+			_cP_ = This._MarkPath(_c_, "ring")
+			This._MintShape(_cP_, "circle", [ [ "cx", _e_[1] ], [ "cy", _e_[2] ],
+				[ "r", _e_[3] + 9 ], [ "stroke", "danger" ], [ "strokeWidth", 2.5 ] ],
+				This._MarkOwner(_c_))
+			@acMarks + [ _cP_, "emphasis" ]
+		else
+			stzraise("stzMathDiagram.Emphasis: '" + _m_ + "' is not a way to emphasise " +
+				"-- focus, dim or ring.")
+		ok
+		This._MarkTouch()
+		return This
+
+	# A DIMENSION BETWEEN TWO THINGS, WITH ITS NUMBER. The line runs centre
+	# to centre, the number is the distance FACT -- so the figure and the
+	# caption cannot disagree -- and the number's own label is solved off
+	# the ink like any other name.
+	def Measure(pcA, pcB, paOpts)
+		This.Layout()
+		_a_ = This._MarkShape(pcA)
+		_b_ = This._MarkShape(pcB)
+		_f_ = This.Fact(:distance, [ _a_, _b_ ])
+		_pa_ = This.ShapeOf(_a_)
+		_pb_ = This.ShapeOf(_b_)
+		_cP_ = This._MarkPath(_a_, "measure")
+		This._MintShape(_cP_, "line", [ [ "x1", _pa_[:cx] ], [ "y1", _pa_[:cy] ],
+			[ "x2", _pb_[:cx] ], [ "y2", _pb_[:cy] ],
+			[ "stroke", This._MarkOpt(paOpts, "stroke", "danger") ], [ "strokeWidth", 1.4 ] ],
+			This._MarkOwner(_a_))
+		@acMarks + [ _cP_, "measure" ]
+		_cT_ = StzFactNumText(_f_[:value]) + StzFactUnitText(_f_[:unit])
+		if This._MarkOpt(paOpts, "text", "") != ""
+			_cT_ = This._MarkFill("" + This._MarkOpt(paOpts, "text", ""), _f_)
+		ok
+		This._MarkLabel(_cP_ + "_n", This._MarkOwner(_a_), _cT_,
+			(_pa_[:cx] + _pb_[:cx]) / 2, (_pa_[:cy] + _pb_[:cy]) / 2, 26,
+			This._MarkOpt(paOpts, "size", @nFontSize - 5), _cP_)
+		This._MarkSolve()
+		return This
+
+	# A SENTENCE ATTACHED TO A THING. The sentence may carry a hole, and a
+	# hole is filled from a FACT rather than typed -- which is the rule the
+	# whole plane exists to enforce. The label is solved: off the ink, off
+	# other names, on the paper, exactly as a vertex's name is, which is
+	# why a callout needed no new solver.
+	def Callout(pcTarget, pcText, paOpts)
+		This.Layout()
+		_c_ = This._MarkShape(pcTarget)
+		_e_ = This._MarkExtent(_c_)
+		_cT_ = "" + pcText
+		if This._MarkOpt(paOpts, "fact", "") != ""
+			_cT_ = This._MarkFill(_cT_, This.Fact(This._MarkOpt(paOpts, "fact", ""),
+				This._MarkOpt(paOpts, "args", [])))
+		ok
+		_cP_ = This._MarkPath(_c_, "callout")
+		This._MarkLabel(_cP_, This._MarkOwner(_c_), _cT_, _e_[1], _e_[2],
+			_e_[3] + 34, This._MarkOpt(paOpts, "size", @nFontSize - 5), _c_)
+		# the leader is DERIVED from the label's solved centre, so it
+		# follows wherever the solver puts the sentence
+		_cL_ = _cP_ + "_lead"
+		This._MintShape(_cL_, "line", [ [ "x1", _e_[1] ], [ "y1", _e_[2] ],
+			[ "x2", _cP_ + ".cx" ], [ "y2", _cP_ + ".cy" ],
+			[ "stroke", [ :alpha, "neutral", 0.55 ] ], [ "strokeWidth", 1.1 ] ],
+			This._MarkOwner(_c_))
+		@acMarks + [ _cL_, "callout" ]
+		This._MarkSolve()
+		return This
+
+	# A RULE'S OWN BOUNDARY, AS A SHAPE. The leash a name must stay inside
+	# is a circle nobody ever drew, because it exists only as a term in the
+	# energy; showing it is reading that term's own arguments and turning
+	# them into geometry. Only the forms whose boundary IS a shape are
+	# shown, and the rest are refused by name rather than approximated.
+	def Show(pcRuleMatch)
+		This.Layout()
+		_i_ = This._FactTermIndex(pcRuleMatch)
+		_cFn_ = StzLower("" + @aConstraints[_i_][1])
+		_aA_ = @aConstraints[_i_][5]
+		if (_cFn_ = "lessthan" or _cFn_ = "greaterthan") and len(_aA_) >= 2
+			_ac_ = This._MarkDistArgs("" + _aA_[1])
+			if len(_ac_) = 2
+				_p_ = This.ShapeOf(_ac_[2])
+				_r_ = This.Fact(:arg, [ pcRuleMatch, 2 ])[:value]
+				_cP_ = This._MarkPath(_ac_[2], "show")
+				This._MintShape(_cP_, "circle", [ [ "cx", _p_[:cx] ], [ "cy", _p_[:cy] ],
+					[ "r", _r_ ], [ "stroke", "danger" ], [ "strokeWidth", 1.4 ] ],
+					This._MarkOwner(_ac_[2]))
+				@acMarks + [ _cP_, "show" ]
+				This._MarkTouch()
+				return This
+			ok
+		ok
+		if _cFn_ = "disjoint" and len(_aA_) >= 2
+			_b_ = This._MarkShape("" + _aA_[2])
+			if This._KindOf(_b_) = "circle"
+				_p_ = This.ShapeOf(_b_)
+				_cP_ = This._MarkPath(_b_, "show")
+				This._MintShape(_cP_, "circle", [ [ "cx", _p_[:cx] ], [ "cy", _p_[:cy] ],
+					[ "r", _p_[:r] + This.Fact(:arg, [ pcRuleMatch, 3 ])[:value] ],
+					[ "stroke", "danger" ], [ "strokeWidth", 1.4 ] ], This._MarkOwner(_b_))
+				@acMarks + [ _cP_, "show" ]
+				This._MarkTouch()
+				return This
+			ok
+		ok
+		stzraise("stzMathDiagram.Show: the rule at '" + @aConstraints[_i_][3] +
+			"' has no boundary this plane can draw -- a leash written " +
+			"lessThan(dist(a, b), r), or a clearance around a circle. Ask Region() " +
+			"for an area instead.")
+
+	# AN AREA, TINTED. Where Show draws a boundary, Region fills what the
+	# boundary encloses -- the strip an edge forbids, the disc a clearance
+	# reserves. A strip is the segment's own rectangle, four corners
+	# derived from the segment's direction, so it bends with the picture.
+	def Region(pcRuleMatch)
+		This.Layout()
+		_i_ = This._FactTermIndex(pcRuleMatch)
+		_cFn_ = StzLower("" + @aConstraints[_i_][1])
+		_aA_ = @aConstraints[_i_][5]
+		if _cFn_ != "disjoint" or len(_aA_) < 2
+			stzraise("stzMathDiagram.Region: the rule at '" + @aConstraints[_i_][3] +
+				"' encloses no area -- a region is the strip or the disc a " +
+				"clearance rule forbids.")
+		ok
+		_b_ = This._MarkShape("" + _aA_[2])
+		_pad_ = 4
+		if len(_aA_) >= 3  _pad_ = This.Fact(:arg, [ pcRuleMatch, 3 ])[:value]  ok
+		_k_ = This._KindOf(_b_)
+		_cP_ = This._MarkPath(_b_, "region")
+		if _k_ = "line"
+			_p_ = This.ShapeOf(_b_)
+			_dx_ = _p_[:x2] - _p_[:x1]
+			_dy_ = _p_[:y2] - _p_[:y1]
+			_L_ = sqrt(_dx_ * _dx_ + _dy_ * _dy_)
+			if _L_ < 0.0001  _L_ = 1  ok
+			_nx_ = -_dy_ / _L_ * _pad_
+			_ny_ = _dx_ / _L_ * _pad_
+			This._MintShape(_cP_, "poly", [ [ "n", 4 ],
+				[ "x1", _p_[:x1] + _nx_ ], [ "y1", _p_[:y1] + _ny_ ],
+				[ "x2", _p_[:x2] + _nx_ ], [ "y2", _p_[:y2] + _ny_ ],
+				[ "x3", _p_[:x2] - _nx_ ], [ "y3", _p_[:y2] - _ny_ ],
+				[ "x4", _p_[:x1] - _nx_ ], [ "y4", _p_[:y1] - _ny_ ],
+				[ "fill", [ :alpha, "danger", 0.18 ] ] ], This._MarkOwner(_b_))
+		but _k_ = "circle"
+			_p_ = This.ShapeOf(_b_)
+			This._MintShape(_cP_, "circle", [ [ "cx", _p_[:cx] ], [ "cy", _p_[:cy] ],
+				[ "r", _p_[:r] + _pad_ ], [ "fill", [ :alpha, "danger", 0.18 ] ] ],
+				This._MarkOwner(_b_))
+		else
+			stzraise("stzMathDiagram.Region: '" + _b_ + "' is a " + _k_ + ", and a " +
+				"region is drawn around a line or a circle.")
+		ok
+		@acMarks + [ _cP_, "region" ]
+		This._MarkTouch()
+		return This
+
+	# what this picture carries, as [ path, kind ] -- so a frame can say
+	# what it added and a later frame can take it away again
+	def Marks()
+		return @acMarks
+
+	def NumberOfMarks()
+		return len(@acMarks)
+
+	def ClearMarks()
+		for _i_ = len(@acMarks) to 1 step -1
+			if This._ShapeIndex(@acMarks[_i_][1]) > 0
+				This._DeleteShape(@acMarks[_i_][1])
+			ok
+		next
+		@acMarks = []
+		This._MarkTouch()
+		return This
+
+	#-- what the marks are built from ---------------------------------------
+
+	def _MarkPath(pcNear, pcKind)
+		@nMarkSeq++
+		_ac_ = StzSplit("" + pcNear, ".")
+		return "" + _ac_[1] + "._" + pcKind + @nMarkSeq
+
+	def _MarkOwner(pcPath)
+		_i_ = This._ShapeIndex(pcPath)
+		if _i_ = 0  return "_"  ok
+		return @aShapes[_i_][4]
+
+	def _MarkShape(pcPath)
+		_c_ = ring_trim("" + pcPath)
+		if This._ShapeIndex(_c_) = 0
+			stzraise("stzMathDiagram: '" + _c_ + "' is not a shape this picture holds " +
+				"-- a mark is put on something the picture drew.")
+		ok
+		return _c_
+
+	def _MarkOpt(paOpts, pcKey, pDefault)
+		if NOT isList(paOpts)  return pDefault  ok
+		for _i_ = 1 to len(paOpts)
+			if isList(paOpts[_i_]) and len(paOpts[_i_]) = 2 and
+			   StzLower("" + paOpts[_i_][1]) = StzLower(pcKey)
+				return paOpts[_i_][2]
+			ok
+		next
+		return pDefault
+
+	# [ cx, cy, reach ] of a shape, where reach is how far its ink goes
+	# from that centre -- what a ring or a callout keeps clear of
+	def _MarkExtent(pcPath)
+		_s_ = This.ShapeOf(pcPath)
+		if len(_s_) = 0  return [ 0, 0, 0 ]  ok
+		if _s_[:kind] = "circle"  return [ _s_[:cx], _s_[:cy], _s_[:r] ]  ok
+		if _s_[:kind] = "ellipse"
+			_r_ = _s_[:rx]
+			if _s_[:ry] > _r_  _r_ = _s_[:ry]  ok
+			return [ _s_[:cx], _s_[:cy], _r_ ]
+		ok
+		if _s_[:kind] = "line"
+			return [ (_s_[:x1] + _s_[:x2]) / 2, (_s_[:y1] + _s_[:y2]) / 2,
+			         sqrt((_s_[:x2] - _s_[:x1]) * (_s_[:x2] - _s_[:x1]) +
+			              (_s_[:y2] - _s_[:y1]) * (_s_[:y2] - _s_[:y1])) / 2 ]
+		ok
+		if HasKey(_s_, "w")
+			return [ _s_[:cx], _s_[:cy], sqrt(_s_[:w] * _s_[:w] + _s_[:h] * _s_[:h]) / 2 ]
+		ok
+		if HasKey(_s_, "cx")  return [ _s_[:cx], _s_[:cy], 8 ]  ok
+		return [ 0, 0, 8 ]
+
+	def _MarkSetProp(pnI, pcKey, pValue)
+		_a_ = []
+		for _k_ = 1 to len(@aShapes[pnI][3])
+			if isList(@aShapes[pnI][3][_k_]) and len(@aShapes[pnI][3][_k_]) = 2 and
+			   StzLower("" + @aShapes[pnI][3][_k_][1]) = StzLower(pcKey)
+				loop
+			ok
+			_a_ + @aShapes[pnI][3][_k_]
+		next
+		_b_ = [ [ "" + pcKey, pValue ] ]
+		for _k_ = 1 to len(_a_)  _b_ + _a_[_k_]  next
+		@aShapes[pnI][3] = _b_
+
+	# a hole in a sentence, filled from a fact: "{value}" and "{message}"
+	def _MarkFill(pcText, paFact)
+		_c_ = "" + pcText
+		_c_ = StzReplace(_c_, "{value}", StzFactNumText(paFact[:value]))
+		_c_ = StzReplace(_c_, "{unit}", "" + paFact[:unit])
+		_c_ = StzReplace(_c_, "{message}", "" + paFact[:message])
+		_c_ = StzReplace(_c_, "{subject}", "" + paFact[:subject])
+		return _c_
+
+	# "dist(a, b)" -> [ a, b ]; anything else -> []
+	def _MarkDistArgs(pcExpr)
+		_c_ = ring_trim("" + pcExpr)
+		if StzLower(StzLeft(_c_, 5)) != "dist("  return []  ok
+		if StzRight(_c_, 1) != ")"  return []  ok
+		_in_ = StzStringSection(_c_, 6, len(_c_) - 1)
+		_ac_ = StzSplit(_in_, ",")
+		if len(_ac_) != 2  return []  ok
+		_a_ = ring_trim(_ac_[1])
+		_b_ = ring_trim(_ac_[2])
+		if This._ShapeIndex(_a_) = 0 or This._ShapeIndex(_b_) = 0  return []  ok
+		return [ _a_, _b_ ]
+
+	# A MARK'S OWN LABEL: a text shape with a free centre, held near what
+	# it is about and off everything drawn -- the same terms a vertex's
+	# name carries, which is why the label stage places it with no new
+	# machinery.
+	def _MarkLabel(pcPath, pcOwner, pcText, pnX, pnY, pnReach, pnSize, pcSubject)
+		This._MintShape(pcPath, "text", [ [ "string", "" + pcText ],
+			[ "size", pnSize ], [ "fill", [ :on, "under" ] ] ], pcOwner)
+		_ix_ = This._UnknownIndex(pcPath + ".cx")
+		_iy_ = This._UnknownIndex(pcPath + ".cy")
+		if _ix_ = 0 or _iy_ = 0  return  ok
+		@bLabelVar[_ix_] = 1
+		@bLabelVar[_iy_] = 1
+		# it starts beside its subject, in a direction the picture picks
+		SeedRandom(@nSeed + @nMarkSeq)
+		_th_ = StzRandom01() * 6.28318530717959
+		@aValue[_ix_] = pnX + pnReach * cos(_th_)
+		@aValue[_iy_] = pnY + pnReach * sin(_th_)
+		# held near the thing it is about, by an expression over its OWN
+		# coordinates and a fixed anchor -- dist() wants two shapes, and the
+		# anchor is a place rather than a shape
+		# THE LEASH MUST KNOW HOW WIDE THE SENTENCE IS. A callout is a whole
+		# clause, not a letter: held within a letter's radius of its subject
+		# it cannot clear anything, and the picture reports a violation the
+		# author cannot act on. Half the measured width is added, so a long
+		# sentence is allowed to stand off and the leader line carries the
+		# association instead.
+		_aM_ = This._TextSize(pcPath)
+		# PULLED TOWARD A RING, NOT HELD INSIDE A DISC. A callout is a whole
+		# clause: a hard leash round its subject leaves a two-hundred-pixel
+		# sentence nowhere to stand in a picture that already has a figure
+		# in it, and the report is a violation the author cannot act on. The
+		# LEADER carries the association, so nearness is a preference and
+		# the sentence may cross the paper to find room. The pull is to a
+		# ring rather than to a point, because an objective whose minimum
+		# sits where a distance is not differentiable is the trap DN7d paid
+		# for.
+		This._AddTerm("encourage", "equal", [
+			"sqrt((" + pcPath + ".cx-" + This._Num(pnX) + ")^2+(" +
+			pcPath + ".cy-" + This._Num(pnY) + ")^2)",
+			pnReach + 30 + _aM_[1] / 2 ], "mark :: near its subject")
+		# AND OFF EVERY NAME ALREADY IN THE PICTURE, and off the thing it is
+		# about. A mark that lands on a vertex's own name has made the
+		# picture worse than it found it, which is the one thing a mark may
+		# not do -- and the terms are the same disjoints a Style writes for
+		# a vertex name, so the label stage needs nothing new to honour them.
+		for _s_ = 1 to len(@aShapes)
+			if @aShapes[_s_][2] != "text"  loop  ok
+			if @aShapes[_s_][1] = pcPath  loop  ok
+			if This._TextSize(@aShapes[_s_][1])[1] = 0  loop  ok
+			This._AddTerm("ensure", "disjoint", [ pcPath, @aShapes[_s_][1], 4 ],
+				"mark :: off the names already there")
+		next
+		if pcSubject != "" and This._ShapeIndex(pcSubject) > 0 and
+		   This._KindOf(pcSubject) != "poly" and This._KindOf(pcSubject) != "spline" and
+		   This._KindOf(pcSubject) != "curve" and This._KindOf(pcSubject) != "mark"
+			This._AddTerm("ensure", "disjoint", [ pcPath, pcSubject, 6 ],
+				"mark :: off the thing it is about")
+		ok
+		# AND OFF THE LINES THE PICTURE DRAWS, which is how the Styles hold
+		# their own names clear -- off the line SHAPES rather than off
+		# sampled ink, so the terms are bounded by the picture rather than
+		# by its resolution. A picture with more drawn lines than this is
+		# not one a reader is being walked through, and the mark says so
+		# instead of quietly skipping the rule.
+		_nL_ = 0
+		for _s_ = 1 to len(@aShapes)
+			if @aShapes[_s_][2] != "line"  loop  ok
+			if @aShapes[_s_][1] = pcSubject  loop  ok
+			if This._Prop(@aShapes[_s_][3], "hidden", 0) = 1  loop  ok
+			_nL_++
+		next
+		if _nL_ > 60
+			stzraise("stzMathDiagram: this picture draws " + _nL_ + " lines, and a mark's " +
+				"sentence would have to clear every one of them -- mark a picture a " +
+				"reader is being walked through, not a whole corpus.")
+		ok
+		for _s_ = 1 to len(@aShapes)
+			if @aShapes[_s_][2] != "line"  loop  ok
+			if @aShapes[_s_][1] = pcSubject  loop  ok
+			if This._Prop(@aShapes[_s_][3], "hidden", 0) = 1  loop  ok
+			This._AddTerm("ensure", "disjoint", [ pcPath, @aShapes[_s_][1], 3 ],
+				"mark :: off the lines the picture draws")
+		next
+		This._AddOnCanvas(@aShapes[This._ShapeIndex(pcPath)])
+		@acMarks + [ pcPath, "label" ]
+
+	# EVERY EXISTING UNKNOWN IS PINNED WHILE A MARK PLACES ITSELF, so a
+	# mark can never move the figure it describes. The pinning mechanism
+	# is DN8g's, and the fold makes the frozen text small, so this costs
+	# milliseconds rather than a re-solve.
+	def _MarkSolve()
+		_aWas_ = []
+		for _i_ = 1 to len(@aPinned)
+			_aWas_ + @aPinned[_i_]
+		next
+		for _i_ = 1 to len(@aPinned)
+			if @bLabelVar[_i_] = 1 and This._MarkIsNew(_i_)  loop  ok
+			@aPinned[_i_] = 1
+		next
+		This._CompileViolationTapes()
+		This._SolveStage(1)
+		# A MARK'S LABEL GETS MORE THAN ONE WEDGE, for the reason every name
+		# does (DN8h): its start direction decides which side of the ink it
+		# is stuck on, and one draw in six is a bad one. Only the mark's own
+		# label is free here, so the retry redraws nothing else.
+		This._RetryLabels()
+		This._ReadViolations()
+		This._FreeViolationTapes()
+		for _i_ = 1 to len(_aWas_)
+			@aPinned[_i_] = _aWas_[_i_]
+		next
+		This._MarkTouch()
+
+	# a slot belonging to a mark's own label, which is the only thing a
+	# mark's solve is allowed to move
+	def _MarkIsNew(pnSlot)
+		for _i_ = 1 to len(@acMarks)
+			if @acMarks[_i_][2] != "label"  loop  ok
+			if This._UnknownIndex(@acMarks[_i_][1] + ".cx") = pnSlot or
+			   This._UnknownIndex(@acMarks[_i_][1] + ".cy") = pnSlot
+				return TRUE
+			ok
+		next
+		return FALSE
+
+	def _MarkTouch()
+		@aVCache = []
+		@bInkCached = FALSE
+		@bDrawOrdered = FALSE
 
 	def _DrawShape(poC, paShape)
 		_cP_ = paShape[1]
@@ -6505,6 +6931,11 @@ class stzMathDiagram from stzObject
 			_ix_ = This._UnknownIndex(_cP_ + ".cx")
 			_iy_ = This._UnknownIndex(_cP_ + ".cy")
 			if _ix_ = 0 or _iy_ = 0  loop  ok
+			# A PINNED LABEL IS NOT REDRAWN. The author holds it where it is,
+			# and a redraw writes @aValue directly, which would walk straight
+			# past the pin the optimiser respects (DN9c, when a mark's own
+			# label needed fresh wedges and every other name had to stay).
+			if @aPinned[_ix_] = 1 or @aPinned[_iy_] = 1  loop  ok
 			_th_ = StzRandom01() * 6.28318530717959
 			_aC_ = This._CentreOf("" + @aShapes[_i_][4] + ".icon")
 			if len(_aC_) = 2
