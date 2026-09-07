@@ -1110,6 +1110,84 @@ func StzTapePicture(pcExpr, pcNames, pbShared)
 	next
 	return _oS_
 
+#---------------------------------------------------------------------#
+#  A RENDITION: A VALUE THAT SAYS WHAT IT IS (DN9g)                    #
+#---------------------------------------------------------------------#
+
+# EVIDENCE FOR C7, NOT C7. The Display Contract is stzlib's to write and
+# is unwritten; its first consumer asked for one method, implemented
+# across the library, that RETURNS a renderable representation which
+# declares its own kind before its content. This is that method on the
+# four classes a narration needs, so the contract can be written against
+# something that runs rather than against a proposal.
+#
+# TWO MEASUREMENTS THIS REPOSITORY OWES THAT CONSUMER, taken 2026-09-07:
+#
+#   Show() is defined 113 times and 85 of those PRINT on their next
+#   line. That confirms what the consumer found: the family's most
+#   attested display verb cannot be captured by anything.
+#
+#   AND THE NAME THEY RECOMMENDED IS NOT FREE -- WORSE, IT IS AMBIGUOUS.
+#   The ask reads "Display() exists at 13 sites and is, in every one
+#   read, an alias of Show()". In this repository today there are SIX,
+#   and they already mean two incompatible things: three are aliases of
+#   Show() and PRINT (stzString, stzOperatingSystem, stzGraph's table
+#   face), and three LAUNCH AN EXTERNAL PROGRAM (stzDiagram and stzGraph
+#   build Graphviz and call RunAndView, stzDotCode opens a file through
+#   the shell). stzGraph carries one of each. Not one returns a value.
+#   So C7 cannot take this name without first deciding which of its two
+#   existing meanings to break. The name here is therefore Rendition(),
+#   and the contract may still choose otherwise as long as it chooses
+#   knowing that.
+#
+# WHAT A RENDITION IS: [ :kind, :mime, :content, :locator, :title ]
+#
+#   :kind     what sort of thing this is, so a consumer picks a surface
+#             without knowing the class -- vector, image, graph, markup,
+#             text
+#   :mime     what the content is, when that is a settled thing
+#   :content  the thing itself, when it can be carried
+#   :locator  where the thing is, when it cannot -- a raster is a file
+#   :title    what to call it
+#
+# A CONSUMER READS :kind FIRST AND NEVER ASKS THE CLASS. That is the
+# whole property being demonstrated, and the script that proves it is
+# held by the guard.
+func StzRendition(pcKind, pcMime, pContent, pcLocator, pcTitle)
+	return [ :kind = StzLower("" + pcKind), :mime = "" + pcMime,
+	         :content = pContent, :locator = "" + pcLocator,
+	         :title = "" + pcTitle ]
+
+# THE ONE DOOR A CLASS-BLIND CONSUMER USES. It asks the object and
+# refuses by name when the object cannot answer -- which is the honest
+# report, and the measure of how far C7 has spread.
+func StzRenditionOf(pObject)
+	if NOT isObject(pObject)
+		stzraise("StzRenditionOf: that is not an object, so it has nothing to show.")
+	ok
+	if NOT StzCanRender(pObject)
+		stzraise("StzRenditionOf: a " + classname(pObject) + " does not answer " +
+			"Rendition() yet -- the display contract has not reached it.")
+	ok
+	return pObject.Rendition()
+
+func StzCanRender(pObject)
+	if NOT isObject(pObject)  return FALSE  ok
+	_c_ = StzLower(classname(pObject))
+	for _n_ in [ "stzmathdiagram", "stzdiagram", "stzgraph", "stzstoryboard" ]
+		if _c_ = _n_  return TRUE  ok
+	next
+	return FALSE
+
+# what a rendition is worth writing to, chosen from its KIND alone
+func StzRenditionExtension(paRendition)
+	_k_ = StzLower("" + paRendition[:kind])
+	if _k_ = "vector"  return ".svg"  ok
+	if _k_ = "markup"  return ".html"  ok
+	if _k_ = "image"  return ".png"  ok
+	if _k_ = "graph"  return ".dot"  ok
+	return ".txt"
+
 func StzMathRuleSet()
 	_ao_ = []
 
@@ -4028,6 +4106,44 @@ class stzMathDiagram from stzObject
 
 	def ToSVG()
 		return This.ToCanvas().ToSVG()
+
+	#-- A VALUE THAT SAYS WHAT IT IS (DN9g) ---------------------------------
+
+	# A picture's natural rendition is its drawn geometry, which travels as
+	# text and needs no file. The raster and the substance's graph are the
+	# same picture seen the other two ways a consumer asked for.
+	def Rendition()
+		return This.RenditionAs(:vector)
+
+	def RenditionKinds()
+		return [ :vector, :image, :graph, :text ]
+
+	def RenditionAs(pcKind)
+		This.Layout()
+		_k_ = StzLower(ring_trim("" + pcKind))
+		if _k_ = "vector"
+			return StzRendition(:vector, "image/svg+xml", This.ToSVG(), "",
+				"a solved picture of " + len(@oSubstance.Objects()) + " objects")
+		but _k_ = "image"
+			# A RASTER CANNOT BE CARRIED IN A VALUE, so it is located rather
+			# than contained, and the consumer is told which of the two it got.
+			_f_ = "rendition_" + StzLower(@oDomain.Name_()) + ".png"
+			This.ToPNG(_f_)
+			return StzRendition(:image, "image/png", "", _f_,
+				"a drawn picture of " + len(@oSubstance.Objects()) + " objects")
+		but _k_ = "graph"
+			# nodes and edges as data, so the CONSUMER lays it out -- which is
+			# what the contract's first consumer asked a graph to hand over
+			return StzRendition(:graph, "text/vnd.graphviz", This.Substance().ToGraph().Dot(),
+				"", "the content behind the picture")
+		but _k_ = "text"
+			return StzRendition(:text, "text/plain", This.Why(), "", "why this picture is as it is")
+		ok
+		stzraise("stzMathDiagram.RenditionAs: '" + _k_ + "' is not a way this picture " +
+			"can show itself -- vector, image, graph or text.")
+
+	def Substance()
+		return @oSubstance
 
 	def ToPNG(pcPath)
 		return This.ToCanvas().ToPNG(pcPath)

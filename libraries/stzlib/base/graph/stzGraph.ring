@@ -981,7 +981,7 @@ class stzGraph from stzObject
 		ok
 	
 		if isList(pcToNodeId)
-			This.AddEdgesXTT(pcFromNodeId, paToNodesIdsAndLabelsAndProps)
+			This.AddEdgesXTT(pcFromNodeId, $paToNodesIdsAndLabelsAndProps)
 			return
 		ok
 
@@ -4073,6 +4073,31 @@ class stzGraph from stzObject
 	# Using it as a verb for "open a window" made one word mean two things
 	# in one namespace. Both older spellings are kept as alternative forms,
 	# since stzOrgChart and stzWorkflow call View() internally.
+	#-- A VALUE THAT SAYS WHAT IT IS (DN9g) ---------------------------------
+
+	# A GRAPH HANDS OVER ITS NODES AND EDGES AND LETS THE CONSUMER LAY THEM
+	# OUT, which is exactly what the display contract's first consumer
+	# asked a graph to do. Note that Display(), just below, does something
+	# else entirely: it opens an external viewer and returns nothing.
+	def Rendition()
+		return This.RenditionAs(:graph)
+
+	def RenditionKinds()
+		return [ :graph, :text ]
+
+	def RenditionAs(pcKind)
+		_k_ = StzLower(ring_trim("" + pcKind))
+		if _k_ = "graph"
+			return StzRendition(:graph, "text/vnd.graphviz", This.Dot(), "",
+				"" + This.NumberOfNodes() + " nodes and " + This.NumberOfEdges() + " edges")
+		but _k_ = "text"
+			return StzRendition(:text, "text/plain",
+				"" + This.NumberOfNodes() + " nodes, " + This.NumberOfEdges() + " edges",
+				"", "what this graph holds")
+		ok
+		stzraise("stzGraph.RenditionAs: '" + _k_ + "' is not a way a graph shows " +
+			"itself -- graph or text.")
+
 	def Display()
 		_oDot_ = new stzDotCode()
 		_oDot_.SetCode(This.Dot())
@@ -4184,7 +4209,7 @@ class stzGraph from stzObject
 		# Metrics section
 		_nDensity_ = This.NodeDensity()
 		if _nDensity_ = 0
-			aoExplanation[:metrics] + "Density: 0% (no connections)"
+			$aoExplanation[:metrics] + "Density: 0% (no connections)"
 		but _nDensity_ < 25
 			_aExplanation_[:metrics] + ("Density: " + _nDensity_ + "% (sparse)")
 		but _nDensity_ < 50

@@ -10010,6 +10010,43 @@ class stzDiagram from stzGraph
 			"nothing is found against " + pcSubject)
 
 
+	#-- A VALUE THAT SAYS WHAT IT IS (DN9g) ---------------------------------
+
+	# NOTE THE NAME. This class already has a Display(), and it does not
+	# return anything: it writes Graphviz source and opens a viewer. Six
+	# such methods exist under base/, and they already mean two
+	# incompatible things -- three print, three launch. That is why the
+	# returning verb is called Rendition() here, and why the display
+	# contract cannot take the name Display() without first deciding which
+	# of its two existing meanings to break.
+	def Rendition()
+		return This.RenditionAs(:vector)
+
+	def RenditionKinds()
+		return [ :vector, :image, :graph, :text ]
+
+	def RenditionAs(pcKind)
+		_k_ = StzLower(ring_trim("" + pcKind))
+		if _k_ = "vector"
+			return StzRendition(:vector, "image/svg+xml", This.ToSVG(), "",
+				"a notation picture of " + This.NumberOfNodes() + " nodes")
+		but _k_ = "image"
+			_f_ = "rendition_notation.png"
+			This.ToPNG(_f_)
+			return StzRendition(:image, "image/png", "", _f_,
+				"a notation picture of " + This.NumberOfNodes() + " nodes")
+		but _k_ = "graph"
+			return StzRendition(:graph, "text/vnd.graphviz", This.Dot(), "",
+				"the graph behind the notation")
+		but _k_ = "text"
+			return StzRendition(:text, "text/plain",
+				"" + This.NumberOfNodes() + " nodes, " + This.NumberOfEdges() +
+				" edges, " + This.RenderCrossings() + " crossings", "",
+				"what this picture holds")
+		ok
+		stzraise("stzDiagram.RenditionAs: '" + _k_ + "' is not a way this picture " +
+			"can show itself -- vector, image, graph or text.")
+
 	def RenderClusterRects()
 		return @aRenderClusRects
 

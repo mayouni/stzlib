@@ -448,6 +448,35 @@ class stzStoryboard from stzObject
 		if _o_ = ""  _o_ = "narration"  ok
 		return _o_
 
+	#-- A VALUE THAT SAYS WHAT IT IS (DN9g) ---------------------------------
+
+	# A STORYBOARD IS NOT A PICTURE, and its rendition says so by its kind:
+	# markup, the page that puts its frames in order. A consumer choosing a
+	# surface from the kind alone therefore opens it as a document rather
+	# than trying to draw it, without knowing what class it came from.
+	def Rendition()
+		return This.RenditionAs(:markup)
+
+	def RenditionKinds()
+		return [ :markup, :text ]
+
+	def RenditionAs(pcKind)
+		This._CloseOpen()
+		_k_ = StzLower(ring_trim("" + pcKind))
+		if _k_ = "markup"
+			return StzRendition(:markup, "text/html", read(This.Render()), "",
+				@cName + ", told in " + len(@aFrames) + " frames")
+		but _k_ = "text"
+			_c_ = ""
+			for _i_ = 1 to len(@aFrames)
+				_c_ += "" + _i_ + ". " + @aFrames[_i_][2] + char(10)
+			next
+			return StzRendition(:text, "text/plain", _c_, "",
+				@cName + ", told in " + len(@aFrames) + " frames")
+		ok
+		stzraise("stzStoryboard.RenditionAs: '" + _k_ + "' is not a way a storyboard " +
+			"shows itself -- markup or text.")
+
 	#-- reading the picture, without being able to mutate it by accident ----
 
 	def Fact(pcKind, paArgs)

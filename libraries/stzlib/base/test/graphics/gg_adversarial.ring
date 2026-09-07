@@ -14126,6 +14126,64 @@ chk("and every hole has a CELL that recomputes it on arrival",
     _SbCellPerHole(cSbT, oSbW))
 
 
+sec("-- 103. DN9g: A VALUE THAT SAYS WHAT IT IS ------------------------------")
+discharges("DN9g")
+
+# FOUR OBJECTS OF FOUR CLASSES, RENDERED BY A CONSUMER THAT NEVER ASKS
+# WHAT ANY OF THEM IS. This is the whole property the display contract
+# was asked for, standing up.
+pRnT = StzEngineGradCompileXT("(x-y)^2 + (x-y)^2", "x,y", 1)
+aRnThings = [
+	StzMathScene16(AUFONT),
+	StzDrakonScene01([ :Font = AUFONT, :NodeWidth = 150, :NodeHeight = 56, :FontSize = 14 ]),
+	StzTapeGraphXT(pRnT, [ :names = "x,y" ]),
+	StzStoryOrgChart(AUFONT, "folio") ]
+StzEngineGradFree(pRnT)
+aRnKinds = []
+for iRn = 1 to len(aRnThings)
+	aRnKinds + ("" + StzRenditionOf(aRnThings[iRn])[:kind])
+next
+? "   [four classes, chosen by kind alone: " + _RnJoin(aRnKinds) + "]"
+chk("every one of the four answers a rendition carrying the five keys",
+    _RnAllShaped(aRnThings))
+chk("and a consumer picks the file type from the KIND alone, never from the class",
+    _RnExtensions(aRnThings) = ".svg .svg .dot .html")
+chk("a picture and a notation picture agree on their kind although they share no class",
+    aRnKinds[1] = "vector" and aRnKinds[2] = "vector")
+chk("a tape hands over nodes and edges as DATA, for the consumer to lay out",
+    aRnKinds[3] = "graph" and StzFindFirst("digraph", StzLower(StzRenditionOf(aRnThings[3])[:content])) > 0)
+chk("and a storyboard says it is a document rather than a picture", aRnKinds[4] = "markup")
+
+# IT RETURNS. That is the whole complaint about the verb the family has,
+# and the one thing the new verb must not repeat.
+chk("every rendition comes back with something in it -- carried, or located",
+    _RnAllFull(aRnThings))
+chk("a raster is LOCATED and not carried, and the file it names is really there",
+    _RnRasterLocated(aRnThings[1]))
+chk("NEGATIVE: a class the contract has not reached is refused BY NAME, not answered with nothing",
+    _RnRefusesUnreached())
+chk("and a kind a class cannot show itself as is refused too", _RnRefusesKind())
+
+# THE EVIDENCE, RECOUNTED HERE SO IT CANNOT GO STALE.
+nRnShow = _RnCount("def Show(")
+nRnDisp = _RnCount("def Display(")
+nRnRend = _RnCount("def Rendition(")
+? "   [across base/: Show() " + nRnShow + ", Display() " + nRnDisp + ", Rendition() " + nRnRend + "]"
+chk("the family's display verb is attested past a hundred times, and it prints",
+    nRnShow > 100)
+chk("THE RECOMMENDED NAME IS NOT FREE: Display() exists, and not at the count the ask reports",
+    nRnDisp = 6 and nRnDisp != 13)
+chk("AND NOT ONE OF THE SIX RETURNS ANYTHING -- the test that needs no list of verbs: " +
+    "no Display() body in this library contains a return at all",
+    _RnDisplayReturns() = 0)
+chk("they already mean two incompatible things: three print, three open an external program",
+    _RnDisplayMeanings() = "3 print, 3 launch")
+chk("stzGraph holds ONE OF EACH, which is the sharpest form of the finding",
+    _RnGraphHasBoth())
+chk("four classes answer the returning verb, and it is a different method from Display()",
+    nRnRend = 4)
+
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go
@@ -17994,6 +18052,187 @@ func _SbCellPerHole pcText, poS
 	next
 	# one picture cell per frame, plus one cell per hole
 	return _n_ = poS.NumberOfFrames() + poS.NumberOfHoles()
+
+func _RnJoin paList
+	_c_ = ""
+	for _i_ = 1 to len(paList)
+		if _i_ > 1  _c_ += ", "  ok
+		_c_ += "" + paList[_i_]
+	next
+	return _c_
+
+func _RnAllShaped paThings
+	for _i_ = 1 to len(paThings)
+		_r_ = StzRenditionOf(paThings[_i_])
+		for _c_ in [ :kind, :mime, :content, :locator, :title ]
+			if NOT HasKey(_r_, _c_)  return FALSE  ok
+		next
+		if len(_r_) != 5  return FALSE  ok
+	next
+	return TRUE
+
+func _RnExtensions paThings
+	_c_ = ""
+	for _i_ = 1 to len(paThings)
+		if _i_ > 1  _c_ += " "  ok
+		_c_ += StzRenditionExtension(StzRenditionOf(paThings[_i_]))
+	next
+	return _c_
+
+func _RnAllFull paThings
+	for _i_ = 1 to len(paThings)
+		_r_ = StzRenditionOf(paThings[_i_])
+		if len("" + _r_[:content]) = 0 and "" + _r_[:locator] = ""  return FALSE  ok
+		if "" + _r_[:title] = ""  return FALSE  ok
+	next
+	return TRUE
+
+func _RnRasterLocated poPic
+	_r_ = poPic.RenditionAs(:image)
+	if "" + _r_[:locator] = ""  return FALSE  ok
+	if len("" + _r_[:content]) != 0  return FALSE  ok
+	return fexists(_r_[:locator])
+
+func _RnRefusesUnreached
+	_b_ = FALSE
+	try
+		StzRenditionOf(new stzList([ 1, 2, 3 ]))
+	catch
+		_b_ = TRUE
+	done
+	return _b_ and NOT StzCanRender(new stzList([ 1, 2, 3 ]))
+
+func _RnRefusesKind
+	_b_ = FALSE
+	try
+		_o_ = StzMathScene16(AUFONT)
+		_o_.RenditionAs(:sculpture)
+	catch
+		_b_ = TRUE
+	done
+	return _b_
+
+# WHAT Display() ALREADY MEANS IN THIS LIBRARY, read from every site: an
+# alias of a printer, or a launcher of an external program. Not one of
+# them hands a value back, and the two meanings are incompatible -- which
+# is a stronger objection to the name than its being merely taken.
+func _RnDisplayMeanings
+	_nP_ = 0
+	_nL_ = 0
+	_ac_ = _TrRingFiles("../../")
+	for _i_ = 1 to len(_ac_)
+		_c_ = read(_ac_[_i_])
+		_p_ = 1
+		while TRUE
+			_k_ = _FindFrom(_c_, "	def Display(", _p_)
+			if _k_ = 0  exit  ok
+			# THE BODY, NOT A FIXED WINDOW. A 420-character window reached
+			# past the end of one method into the next, and stopped short of
+			# another's actual call, so the classification is taken from the
+			# method's own text and from whichever verb appears FIRST in it.
+			_w_ = _RnBodyAt(_c_, _k_)
+			# THREE DIFFERENT LAUNCHER VERBS APPEAR HERE -- View(),
+			# RunAndView() and ExecuteAndView() -- so the test is not a list
+			# of them but the word they share, against the one verb that
+			# prints. Whichever comes first in the body decides.
+			_nVw_ = StzFindFirst("View", _w_)
+			_nSh_ = StzFindFirst("This.Show()", _w_)
+			if _nVw_ = 0  _nVw_ = 999999  ok
+			if _nSh_ = 0  _nSh_ = 999999  ok
+			if _nVw_ < _nSh_
+				_nL_++
+			but _nSh_ < 999999
+				_nP_++
+			ok
+			_p_ = _k_ + 1
+		end
+	next
+	return "" + _nP_ + " print, " + _nL_ + " launch"
+
+# one class carrying both meanings of the same verb
+# HOW MANY Display() METHODS HAND A VALUE BACK. This is the property the
+# display contract actually asks for, and testing it needs no knowledge of
+# what any of them does instead: a method with no return in its body
+# cannot be the one a consumer calls.
+func _RnDisplayReturns
+	_n_ = 0
+	_ac_ = _TrRingFiles("../../")
+	for _i_ = 1 to len(_ac_)
+		_c_ = read(_ac_[_i_])
+		_p_ = 1
+		while TRUE
+			_k_ = _FindFrom(_c_, "	def Display(", _p_)
+			if _k_ = 0  exit  ok
+			if StzFindFirst("return", _RnCodeAt(_c_, _k_)) > 0  _n_++  ok
+			_p_ = _k_ + 1
+		end
+	next
+	return _n_
+
+# A METHOD'S OWN TEXT: from its def line to the NEXT DEFINITION AT ANY
+# DEPTH. Ending only at a top-level def swallowed the alternative-form
+# methods that follow a nested one, and with them a comment containing
+# the word "returns" -- which read as a return and made one of the six
+# look like it hands a value back.
+func _RnBodyAt pcText, pnAt
+	_e1_ = _FindFrom(pcText, char(10) + "	def ", pnAt + 12)
+	_e2_ = _FindFrom(pcText, char(10) + "		def ", pnAt + 12)
+	_e_ = _e1_
+	if _e_ = 0 or (_e2_ > 0 and _e2_ < _e_)  _e_ = _e2_  ok
+	if _e_ = 0 or _e_ - pnAt > 1400  _e_ = pnAt + 1400  ok
+	if _e_ > len(pcText)  _e_ = len(pcText)  ok
+	return StzStringSection(pcText, pnAt, _e_)
+
+# the same, with the comments taken out: a word in prose is not code, and
+# "Split() that returns a stzList" is not a return statement
+func _RnCodeAt pcText, pnAt
+	_ac_ = StzSplit(_RnBodyAt(pcText, pnAt), char(10))
+	_o_ = ""
+	for _i_ = 1 to len(_ac_)
+		_l_ = _ac_[_i_]
+		_h_ = StzFindFirst("#", _l_)
+		if _h_ > 0  _l_ = StzLeft(_l_, _h_ - 1)  ok
+		_o_ += _l_ + char(10)
+	next
+	return _o_
+
+func _RnGraphHasBoth
+	_c_ = read("../../graph/stzGraph.ring")
+	_bL_ = FALSE
+	_bP_ = FALSE
+	_p_ = 1
+	while TRUE
+		_k_ = _FindFrom(_c_, "	def Display(", _p_)
+		if _k_ = 0  exit  ok
+		_w_ = _RnBodyAt(_c_, _k_)
+		if StzFindFirst("RunAndView", _w_) > 0  _bL_ = TRUE  ok
+		if StzFindFirst("This.Show()", _w_) > 0  _bP_ = TRUE  ok
+		_p_ = _k_ + 1
+	end
+	return _bL_ and _bP_
+
+# how many times a verb is defined anywhere under base/, excluding the
+# suites and the prose
+func _RnCount pcWhat
+	_n_ = 0
+	_ac_ = _TrRingFiles("../../")
+	for _i_ = 1 to len(_ac_)
+		_c_ = read(_ac_[_i_])
+		_p_ = 1
+		while TRUE
+			_k_ = _FindFrom(_c_, "	" + pcWhat, _p_)
+			if _k_ = 0  exit  ok
+			_n_++
+			_p_ = _k_ + 1
+		end
+	next
+	return _n_
+
+func _FindFrom pcHay, pcNeedle, pnFrom
+	if pnFrom > len(pcHay)  return 0  ok
+	_r_ = StzFindFirst(pcNeedle, StzStringSection(pcHay, pnFrom, len(pcHay)))
+	if _r_ = 0  return 0  ok
+	return _r_ + pnFrom - 1
 
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0
