@@ -5362,11 +5362,22 @@ class stzMathDiagram from stzObject
 			_y_ = This._Wy(This._V(_cP_ + ".cy")) + (_aM_[2] - _aM_[3]) / 2
 			# THE CANVAS STYLES THE TEXT THAT IS PENDING, NOT THE NEXT ONE.
 			# SetFont with a text pending retro-styles THAT text; AddText
-			# captures the canvas default. So the size must be set AFTER the
-			# text it belongs to, and setting it before -- which this code
-			# did until 2026-09-08 -- gave each label the size meant for the
-			# one after it. Invisible wherever every label shares one size,
-			# which is everywhere except the word cloud and, now, notation.
+			# captures the canvas default.
+			#
+			# THIS NEVER BIT THE ONE-TEXT-PER-SHAPE PATH, and a first reading
+			# of it on 2026-09-08 claimed it had: SetSvgIdent at the top of
+			# this method calls _Flush(), so nothing is pending when SetFont
+			# runs, SetFont sets the canvas default, and AddText captures it.
+			# Both orders are correct there, and the word cloud was never
+			# drawn wrong. The claim was retracted the same day.
+			#
+			# IT BITES THE MOMENT ONE SHAPE EMITS SEVERAL TEXTS, which is
+			# what notation does: between two runs there is no SetSvgIdent
+			# and so no flush, the second run's SetFont retro-styles the
+			# first, and a base and its superscript come out with their
+			# sizes exchanged -- which is exactly what the first notation
+			# render showed. Hence the order below, which is right in both
+			# cases.
 			_nSz_ = This._Prop(_aProps_, "size", @nFontSize)
 			if StzHasNotation(_cT_)
 				# each run is its own piece of drawn text, at its own size and
