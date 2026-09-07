@@ -65,6 +65,14 @@ Class stzTable from stzList
 	# Define border characters (initialized in init())
 	@aBorder = []
 
+	# Column totals for the GRAND-TOTAL row. buildDataRows() fills this on
+	# its first pass and buildGrandTotal() prints it -- two separate
+	# methods, so it has to outlive the first. It used to be a LOCAL there
+	# and was read as $_aGrandTotals_ here, a global nothing writes, so
+	# buildGrandTotal() raised R24 on the first column that reached the
+	# totals branch.
+	@aGrandTotals = []
+
 	# Attributes used by the Transpose() method
 
 	@bTransposedWithHeaders = 0 # tracks when headers were preserved during transpose
@@ -16486,10 +16494,10 @@ func _NormalizeColLookupKey(pVal)
 		_cCurrentGroup_ = ""
 		_aGroups_ = []
 		_aGroupTotals_ = []
-		_aGrandTotals_ = []
+		@aGrandTotals = []
 
 		for i = 1 to _nCols_
-			_aGrandTotals_ + 0
+			@aGrandTotals + 0
 		next
 
 		# First pass: gather groups and calculate totals
@@ -16517,7 +16525,7 @@ func _NormalizeColLookupKey(pVal)
 					ok
 					if isNumber(_cellValue_) or (isString(_cellValue_) and _cellValue_ != "" and @IsNumberInString(_cellValue_))
 						_aGroupTotals_[_cGroup_][i] += (0 + _cellValue_)
-						_aGrandTotals_[i] += (0 + _cellValue_)
+						@aGrandTotals[i] += (0 + _cellValue_)
 					ok
 				ok
 			next
@@ -16621,8 +16629,8 @@ func _NormalizeColLookupKey(pVal)
 			but i = @if(_bRowNumber_, 3, 2)
 				_cLine_ += " " + PadLeft("", _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
 			else
-				if isNumber($_aGrandTotals_[i]) and $_aGrandTotals_[i] != 0
-					_cLine_ += " " + PadLeft("" + $_aGrandTotals_[i], _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
+				if isNumber(@aGrandTotals[i]) and @aGrandTotals[i] != 0
+					_cLine_ += " " + PadLeft("" + @aGrandTotals[i], _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
 				else
 					_cLine_ += " " + PadLeft("", _aColWidths_[i] - 2) + " " + @aBorder[:Vertical]
 				ok
