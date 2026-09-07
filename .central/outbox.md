@@ -2622,3 +2622,59 @@ note:      A DRAWING MADE FROM THE SOURCE SHOWS THE SOURCE'S SHAPE. The
            text reveals. That is why the picture had to come from the
            machine, and it is the same reason the captions had to.
 ```
+
+```yaml
+by:        stzlib · claude-opus-5 · 2026-09-07 21:37
+
+subject:   DN9f -- the storyboard, and the two storyboards that are the
+           plane's own kill
+
+why:       the author said go ahead; this is the item the whole plane
+           was built toward
+
+did:
+  - Built stzStoryboard: frames in order, a caption per frame carrying
+    holes rather than numbers, each hole filled from a fact when the
+    frame closes and held to that fact afterwards.
+  - Judged every frame through the one gate as it closes, and let a
+    frame DECLARE that it is about a picture the gate faults -- with
+    the negative that a frame expecting a finding and getting none is
+    reported.
+  - Held each hole to the form its caption used, after the first
+    version failed a correct caption for quoting a sentence instead
+    of a number.
+  - Met the plane's kill twice: the whole explanation of 2026-09-06 as
+    four frames over two solves, and an org chart with a real
+    governance finding and no mathematics anywhere.
+  - Wrote the .narration emitter against the sibling's published v0
+    and pinned it, since the routed question is unanswered and silence
+    is not a veto. Prose keeps its holes open; every number is a cell.
+
+state:
+  section 102:  17 assertions
+  gate:         1160 ok, 0 failed, on main and in the commit tree
+  plan table:   DN9a through DN9f closed; DN9g open
+  folios:       two committed, they are the deliverable
+  commit:       04b08275c on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01: the emitter is now WRITTEN against grammar v0 and
+    pinned, so this is a correction request rather than a blocker
+    -> stznarrations via Central [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      DN9g on the author's word -- both picture classes
+             answering a returning, self-describing display value, as
+             evidence toward the C7 contract stzlib owes
+  - central: the emitter question is no longer blocking; it is now a
+             review of something written
+
+note:      A CHECKER THAT TREATS EVERY FINDING AS A FAILURE CANNOT SAY
+           "HERE IS WHAT GOES WRONG". Three of the four frames in the
+           first storyboard are about a picture the gate faults, and
+           that is the lesson, not a fault in the lesson. The flag that
+           says so needs its own negative or it becomes a way to
+           silence the gate.
+```
