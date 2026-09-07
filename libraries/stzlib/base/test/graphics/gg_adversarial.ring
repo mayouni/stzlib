@@ -14235,13 +14235,20 @@ chk("and that is a real number, not a hypothetical one -- this font lacks severa
     _TxMissingCount() >= 5)
 chk("NEGATIVE: the lawful sibling of each is accepted", NOT _TxRefuses(0))
 
-# THE DEFECT THIS FOUND. The canvas styles the text that is PENDING, so a
-# size set BEFORE a text lands on the previous one -- which is how every
-# label had been drawn until this feature needed two sizes in one label.
+# THE HAZARD THIS FEATURE MET. The canvas styles the text that is
+# PENDING, so a size set BEFORE a text lands on the previous one. The
+# picture renderer never met it, because SetSvgIdent flushes at the top of
+# every shape -- a first reading claimed otherwise and was wrong, and the
+# word cloud was never drawn wrong. It bites where ONE shape emits several
+# texts and nothing flushes between them, which is what notation runs do.
 chk("a font set AFTER a text styles that text: the first is drawn big and the second small",
     _TxDrawnHeight(1) > _TxDrawnHeight(2) * 1.8)
-chk("NEGATIVE: set BEFORE the text, the sizes land on the wrong ones and the order inverts",
+chk("NEGATIVE: with nothing flushing between them, setting the font BEFORE each text " +
+    "inverts the sizes -- the hazard a multi-run label walks into",
     _TxDrawnHeightWrong(1) < _TxDrawnHeightWrong(2))
+chk("and the renderer never walked into it, because a shape flushes before it draws: " +
+    "the same two texts with a flush between them come out right EITHER WAY",
+    _TxFlushedBothWays())
 
 
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
@@ -18366,6 +18373,21 @@ func _TxCanvasRight
 	_c_.AddText("sml", 150, 50)
 	_c_.SetFont(AUFONT, 12)
 	return _c_.ToSVG()
+
+# WITH A FLUSH BETWEEN THEM -- which SetSvgIdent does at the top of every
+# shape -- the font-before-text order is correct too, which is why the
+# one-text-per-shape renderer was never wrong
+func _TxFlushedBothWays
+	_c_ = new stzCanvas(300, 80)
+	_c_.SetBackground("#FFFFFF")
+	_c_.SetSvgIdent("a", "")
+	_c_.SetFont(AUFONT, 30)
+	_c_.AddText("BIG", 20, 50)
+	_c_.SetSvgIdent("b", "")
+	_c_.SetFont(AUFONT, 12)
+	_c_.AddText("sml", 150, 50)
+	_c_.ClearSvgIdent()
+	return _TxHeightOf(_c_.ToSVG(), 1) > _TxHeightOf(_c_.ToSVG(), 2) * 1.8
 
 func _TxCanvasWrong
 	_c_ = new stzCanvas(300, 80)

@@ -2679,21 +2679,36 @@ Segoe UI carries the Greek and the common relations, and lacks **seven**
 of the table's symbols, `\angle` and `\perp` among them. All seven are
 refused by name against that font.
 
-### The defect this found, which was older and larger than the feature
+### The hazard this met, and a claim retracted the same day
 
 **The canvas styles the text that is PENDING, not the next one.** `SetFont`
-with a text pending retro-styles *that* text; `AddText` captures the
-canvas default. The picture renderer had been calling `SetFont` *before*
-`AddText` since it was written, so **every label was drawn at the size
-meant for the label after it**.
+with a text pending retro-styles *that* text; `AddText` captures the canvas
+default. So in a run of `SetFont`, `AddText`, `SetFont`, `AddText` the sizes
+land one item late.
 
-It was invisible because almost every picture uses one size for all its
-labels, and the shift is then unobservable. It was visible in exactly two
-places: the word cloud, whose sizes are its whole content and which had
-been drawing each word at its neighbour's size, and — the day it was
-found — a notation label, whose base text and superscripts came out with
-their sizes exchanged. **A feature that needed per-item sizes found a
-four-week-old defect in the thing it was built on.**
+**I first read this as a four-week-old defect in the picture renderer, and
+said so in a commit, a memo and a conclusions line. It was wrong.**
+`SetSvgIdent` calls `_Flush()`, and the renderer calls `SetSvgIdent` at the
+top of every shape, so nothing is ever pending when `SetFont` runs there:
+`SetFont` sets the canvas default and `AddText` captures it. Both orders are
+correct in that path, and **the word cloud was never drawn wrong** — the
+committed `math_22.png` is byte-identical to a correct re-render. The
+"before" picture I produced to demonstrate the bug had omitted the
+`SetSvgIdent` call, so it reproduced a bug that never existed.
+
+**What is true** is narrower and still worth the guard: the hazard bites the
+moment **one shape emits several texts with no flush between them**, which
+is exactly what a notation label does. The first notation render came out
+with each base and its superscript exchanged, which is how the whole
+question arose. The order used now is correct in both cases, and the guard
+holds all three facts: the pending-style rule, the inversion without a
+flush, and the correctness either way with one.
+
+*The lesson is the retraction, not the rule.* A canvas experiment showed a
+real API hazard; I generalised it to a caller I had not read, and the
+generalisation was plausible, dramatic and false. The check that settled it
+took one grep for `_Flush` and one hash comparison against a committed
+picture.
 
 *Guard:* §104, DN10.
 
