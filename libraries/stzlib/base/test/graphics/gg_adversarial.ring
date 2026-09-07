@@ -14184,6 +14184,66 @@ chk("four classes answer the returning verb, and it is a different method from D
     nRnRend = 4)
 
 
+sec("-- 104. DN10: NOTATION IN A LABEL ----------------------------------------")
+discharges("DN10")
+
+# PROSE IS LEFT ALONE. A label with no dollar sign takes the path it has
+# always taken, which is what makes this safe to add to a library full
+# of labels.
+chk("a plain label carries no notation and comes back as one run",
+    NOT StzHasNotation("Chief Executive") and
+    len(StzNotationRuns("Chief Executive", 24, AUFONT)[1]) = 1)
+chk("and prose around the dollars is kept as prose",
+    _TxRunText(StzNotationRuns("the area is $a^2$", 24, AUFONT), 1) = "the area is ")
+
+# A SCRIPT IS SMALLER AND OFF THE BASELINE, and the box knows it.
+aTxS = StzNotationRuns("$a^2$", 24, AUFONT)
+chk("a superscript is drawn smaller than its base and above the baseline",
+    _TxRunSize(aTxS, 2) < _TxRunSize(aTxS, 1) and _TxRunDy(aTxS, 2) < 0)
+chk("a subscript is smaller too, and below it",
+    _TxRunDy(StzNotationRuns("$x_1$", 24, AUFONT), 2) > 0)
+chk("A SUPERSCRIPT MAKES THE BOX TALLER, which is what keeps the clearances honest",
+    StzNotationRuns("$a^2$", 24, AUFONT)[3] > StzNotationRuns("$a$", 24, AUFONT)[3])
+chk("and a subscript makes it deeper",
+    StzNotationRuns("$x_1$", 24, AUFONT)[4] > StzNotationRuns("$x$", 24, AUFONT)[4])
+
+# THE SYMBOLS, BY THEIR TeX NAMES.
+chk("Greek letters and the common relations map to their own characters",
+    StzNotationSymbol("alpha") != "" and StzNotationSymbol("le") != "" and
+    StzNotationSymbol("Omega") != "" and StzNotationSymbol("deg") != "")
+chk("NEGATIVE: a name the table does not hold maps to nothing at all",
+    StzNotationSymbol("frac") = "" and StzNotationSymbol("wobble") = "")
+
+# IT DRAWS, AND THE ONE GATE JUDGES THE PICTURE THAT CARRIES IT.
+oTxP = StzMathScene16(AUFONT)
+oTxP.Layout()
+oTxP.Callout("K.icon", "$r^2 = x^2 + y^2$", [])
+chk("a picture whose callout carries notation is lawful and the gate finds nothing",
+    oTxP.IsFeasible() and len(StzCheckPictures([ [ "notation", oTxP ] ]).Findings()) = 0)
+chk("and the label the solver placed is the size the RUNS measure, not the raw source",
+    _TxBoxMatchesRuns(oTxP))
+
+# REFUSED BY NAME, EVERY TIME.
+chk("a command the reader does not know is refused, and named", _TxRefuses(1))
+chk("a dollar sign that opens notation and never closes it is refused", _TxRefuses(2))
+chk("a brace that opens a group and never closes it is refused", _TxRefuses(3))
+chk("a script with nothing after it is refused", _TxRefuses(4))
+chk("A SYMBOL THIS FONT CANNOT DRAW is refused rather than drawn as a hollow box",
+    _TxRefuses(5))
+? "   [of the table's symbols, Segoe UI cannot draw " + _TxMissingCount() + "]"
+chk("and that is a real number, not a hypothetical one -- this font lacks several",
+    _TxMissingCount() >= 5)
+chk("NEGATIVE: the lawful sibling of each is accepted", NOT _TxRefuses(0))
+
+# THE DEFECT THIS FOUND. The canvas styles the text that is PENDING, so a
+# size set BEFORE a text lands on the previous one -- which is how every
+# label had been drawn until this feature needed two sizes in one label.
+chk("a font set AFTER a text styles that text: the first is drawn big and the second small",
+    _TxDrawnHeight(1) > _TxDrawnHeight(2) * 1.8)
+chk("NEGATIVE: set BEFORE the text, the sizes land on the wrong ones and the order inverts",
+    _TxDrawnHeightWrong(1) < _TxDrawnHeightWrong(2))
+
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go
@@ -18233,6 +18293,136 @@ func _FindFrom pcHay, pcNeedle, pnFrom
 	_r_ = StzFindFirst(pcNeedle, StzStringSection(pcHay, pnFrom, len(pcHay)))
 	if _r_ = 0  return 0  ok
 	return _r_ + pnFrom - 1
+
+func _TxRunText paRuns, pnI
+	return "" + paRuns[1][pnI][1]
+
+func _TxRunSize paRuns, pnI
+	return paRuns[1][pnI][4]
+
+func _TxRunDy paRuns, pnI
+	return paRuns[1][pnI][3]
+
+# the label's measured box is the union of its runs, not the raw text's
+func _TxBoxMatchesRuns poM
+	for _m_ in poM.Marks()
+		if _m_[2] != "label"  loop  ok
+		_c_ = "" + poM.PropOf(_m_[1], "string", "")
+		if NOT StzHasNotation(_c_)  loop  ok
+		_r_ = StzNotationRuns(_c_, poM.PropOf(_m_[1], "size", 24), AUFONT)
+		_s_ = poM.ShapeOf(_m_[1])
+		return fabs(_s_[:w] - _r_[2]) < 0.01 and fabs(_s_[:h] - (_r_[3] + _r_[4])) < 0.01
+	next
+	return FALSE
+
+func _TxRefuses pnWhich
+	_b_ = FALSE
+	try
+		if pnWhich = 1
+			StzNotationRuns("$" + char(92) + "frac{a}{b}$", 24, AUFONT)
+		but pnWhich = 2
+			StzNotationRuns("unclosed $a^2", 24, AUFONT)
+		but pnWhich = 3
+			StzNotationRuns("$x^{y$", 24, AUFONT)
+		but pnWhich = 4
+			StzNotationRuns("$a^$", 24, AUFONT)
+		but pnWhich = 5
+			StzNotationRuns("$" + char(92) + "angle$", 24, AUFONT)
+		else
+			StzNotationRuns("$a^2 + b_1$", 24, AUFONT)
+			StzNotationRuns("$" + char(92) + "alpha " + char(92) + "le " + char(92) + "beta$", 24, AUFONT)
+		ok
+	catch
+		_b_ = TRUE
+	done
+	return _b_
+
+# how many of the table's symbols this font has no glyph for
+func _TxMissingCount
+	_n_ = 0
+	for _c_ in [ "angle", "perp", "parallel", "mapsto", "mp", "cong", "propto",
+	             "alpha", "le", "ge", "pi", "infty", "deg", "sqrt", "times" ]
+		try
+			StzNotationRuns("$" + char(92) + _c_ + "$", 24, AUFONT)
+		catch
+			_n_++
+		done
+	next
+	return _n_
+
+# the drawn height of the nth text on a canvas, read off the paths the
+# canvas rasterises text into -- the only place the size actually lands
+func _TxDrawnHeight pnI
+	return _TxHeightOf(_TxCanvasRight(), pnI)
+
+func _TxDrawnHeightWrong pnI
+	return _TxHeightOf(_TxCanvasWrong(), pnI)
+
+func _TxCanvasRight
+	_c_ = new stzCanvas(300, 80)
+	_c_.SetBackground("#FFFFFF")
+	_c_.AddText("BIG", 20, 50)
+	_c_.SetFont(AUFONT, 30)
+	_c_.AddText("sml", 150, 50)
+	_c_.SetFont(AUFONT, 12)
+	return _c_.ToSVG()
+
+func _TxCanvasWrong
+	_c_ = new stzCanvas(300, 80)
+	_c_.SetBackground("#FFFFFF")
+	_c_.SetFont(AUFONT, 30)
+	_c_.AddText("BIG", 20, 50)
+	_c_.SetFont(AUFONT, 12)
+	_c_.AddText("sml", 150, 50)
+	return _c_.ToSVG()
+
+# the vertical extent of the nth path in an svg: every second number in
+# the path data is a y, whatever the command
+func _TxHeightOf pcSvg, pnI
+	_p_ = 1
+	for _k_ = 1 to pnI
+		_p_ = _TxFind(pcSvg, "<path d=", _p_)
+		if _p_ = 0  return 0  ok
+		_p_++
+	next
+	_e_ = _TxFind(pcSvg, char(34), _p_ + 9)
+	if _e_ = 0  return 0  ok
+	_d_ = StzStringSection(pcSvg, _p_ + 8, _e_)
+	_aN_ = []
+	_cur_ = ""
+	for _i_ = 1 to len(_d_)
+		_ch_ = _d_[_i_]
+		_a_ = ascii(_ch_)
+		if (_a_ >= 48 and _a_ <= 57) or _ch_ = "." or (_ch_ = "-" and _cur_ = "")
+			_cur_ += _ch_
+		else
+			if _cur_ != "" and _cur_ != "-" and _cur_ != "."  _aN_ + (0 + _cur_)  ok
+			_cur_ = ""
+		ok
+	next
+	if _cur_ != "" and _cur_ != "-" and _cur_ != "."  _aN_ + (0 + _cur_)  ok
+	_lo_ = 0  _hi_ = 0  _bF_ = FALSE
+	_m_ = floor(len(_aN_) / 2)
+	for _i_ = 1 to _m_
+		_y_ = _aN_[2 * _i_]
+		if NOT _bF_  _lo_ = _y_  _hi_ = _y_  _bF_ = TRUE  ok
+		if _y_ < _lo_  _lo_ = _y_  ok
+		if _y_ > _hi_  _hi_ = _y_  ok
+	next
+	return _hi_ - _lo_
+
+func _TxFind pcHay, pcNeedle, pnFrom
+	_n_ = len(pcHay)
+	_m_ = len(pcNeedle)
+	if _m_ = 0 or pnFrom > _n_  return 0  ok
+	for _i_ = pnFrom to _n_ - _m_ + 1
+		_b_ = TRUE
+		for _k_ = 1 to _m_
+			if pcHay[_i_ + _k_ - 1] != pcNeedle[_k_]  _b_ = FALSE  exit  ok
+		next
+		if _b_  return _i_  ok
+	next
+	return 0
 
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0

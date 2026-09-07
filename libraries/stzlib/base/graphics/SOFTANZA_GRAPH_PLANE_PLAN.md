@@ -112,6 +112,7 @@ sections, of which 21 declarations over 17 items.
 | DN8f | closed | 94 |
 | DN8g | closed | 95 |
 | DN8h | closed | 96 |
+| DN10 | closed | 104 |
 | DN9 | open | - |
 | DN9a | closed | 97 |
 | DN9b | closed | 98 |
@@ -2638,6 +2639,63 @@ path); no "framework" layer above both. Adapters and starts, measured.
   one name's bad draw.
 
   *Guard:* §96, DN8h.
+
+## DN10 — NOTATION IN A LABEL: the last cell of the gallery triage (2026-09-08)
+
+**SHIPPED** 2026-09-08.
+
+DN7f's triage left one thing in the "one feature away" column after
+splines, ellipses and the colour channel had landed: *fancy text and
+equations*. DN9 predicted this would arrive as "one more thing a callout
+can carry", and it did.
+
+**A label may carry mathematical notation, written between dollar signs**
+as TeX has written it for forty years: `"the area is $a^2$"`,
+`"$\alpha \le \beta$"`. Text outside the dollars is prose and is left
+exactly alone, so nothing that exists changes.
+
+**What this is not.** It is not TeX, and calling it TeX would be the kind
+of overclaim this project refuses. TeX is a typesetting system; this is a
+reader for the notation the pictures in this library actually need —
+superscripts, subscripts, Greek letters and the common operators — laid
+out with the font that is already measuring every other label. Everything
+outside that is **refused by name**: an author who writes `\frac` is told
+it is not here, rather than shown a label with a stray word in it.
+
+**Why it needed nothing from the solver.** A label reaches the solver as a
+box, and always has. Notation changes what is inside the box and how tall
+it is — a superscript raises the ascent, a subscript lowers the descent —
+and the constraint machinery goes on holding a rectangle off the ink
+exactly as before. A label becomes RUNS, `[ text, dx, dy, size ]`, and the
+renderer draws each while the measurer takes their union: one list, two
+consumers, no second description of the same thing.
+
+**A glyph the font cannot draw is refused too.** The table maps a name to
+a character and is the same everywhere; whether that character can be
+drawn belongs to the font. A shaper answers glyph id 0 for a character it
+has no glyph for, and drawing that puts a hollow box in the picture —
+which is worse than a refusal, because it looks like a decision. Measured:
+Segoe UI carries the Greek and the common relations, and lacks **seven**
+of the table's symbols, `\angle` and `\perp` among them. All seven are
+refused by name against that font.
+
+### The defect this found, which was older and larger than the feature
+
+**The canvas styles the text that is PENDING, not the next one.** `SetFont`
+with a text pending retro-styles *that* text; `AddText` captures the
+canvas default. The picture renderer had been calling `SetFont` *before*
+`AddText` since it was written, so **every label was drawn at the size
+meant for the label after it**.
+
+It was invisible because almost every picture uses one size for all its
+labels, and the shift is then unobservable. It was visible in exactly two
+places: the word cloud, whose sizes are its whole content and which had
+been drawing each word at its neighbour's size, and — the day it was
+found — a notation label, whose base text and superscripts came out with
+their sizes exchanged. **A feature that needed per-item sizes found a
+four-week-old defect in the thing it was built on.**
+
+*Guard:* §104, DN10.
 
 ### What this leaves
 
