@@ -936,30 +936,35 @@ class stzNaturalEngine from stzObject
 			return [ "", 0, "" ]
 		ok
 
+		# The five reads inside this loop were $n -- a global nothing writes.
+		# The loop variable is n, so every one of them raised R24 the moment
+		# a narration reached phrase resolution, which is why
+		# naturalcode/13_areboth and common/hostile_globals_narrated both
+		# died here rather than in anything they were testing.
 		for n = _nW_ to 2 step -1
 			_cJoin_ = ""
 			_cShown_ = ""
-			for _k_ = 1 to $n
+			for _k_ = 1 to n
 				_cJoin_ += _aWords_[_k_]
 				_cShown_ += _aWords_[_k_]
-				if _k_ < $n
+				if _k_ < n
 					_cShown_ += " "
 				ok
 			next
 			_cId_ = StzSemanticExactIdInLang(@cLangCode, _cJoin_)
 			if _cId_ != ""
-				return [ _cId_, _aEnds_[$n] + 1, _cShown_ ]
+				return [ _cId_, _aEnds_[n] + 1, _cShown_ ]
 			ok
 			# en number morphology on the join: each position may need
 			# its -s toggled ("removes its duplicate" ->
 			# "removeduplicates"). Verified: only an exact hit counts.
 			if @cLangCode = "en"
-				_aAltJ_ = _StzSemEnJoinVariants(_aWords_, $n)
+				_aAltJ_ = _StzSemEnJoinVariants(_aWords_, n)
 				_nAltJ_ = len(_aAltJ_)
 				for _kJ_ = 1 to _nAltJ_
 					_cId_ = StzSemanticExactIdInLang("en", _aAltJ_[_kJ_][1])
 					if _cId_ != ""
-						return [ _cId_, _aEnds_[$n] + 1, _aAltJ_[_kJ_][2] ]
+						return [ _cId_, _aEnds_[n] + 1, _aAltJ_[_kJ_][2] ]
 					ok
 				next
 			ok
