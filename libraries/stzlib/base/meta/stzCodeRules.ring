@@ -2180,6 +2180,56 @@ func StzCheckPlanCoverage(pcPlanText, pcLabel, paDischarges)
 			    "stand is the condition staleness hides in" ]
 		ok
 
+		# ---- a parent whose children have all shipped --------------------
+		#
+		# An item is delivered AS its sub-items more often than not here, and
+		# when the last one closes nobody goes back to the parent's own
+		# heading. It keeps saying "planned" over eight closed children.
+		#
+		# Same family as plan_item_open_but_discharged directly above -- a
+		# plan understating proven work -- but that rule cannot see this
+		# case, because a parent has no guard section of its own to
+		# discharge it. Its children have them.
+		#
+		# THE CHILD TEST IS EXACT, NOT A PREFIX MATCH. The id grammar is
+		# capitals, then one or two digits, then an OPTIONAL LOWERCASE
+		# LETTER, so the only real parent-child pair is an id and that id
+		# plus one lowercase letter. A plain prefix test would read DN10 as
+		# a child of DN1 -- they are siblings -- and a plan reaching its
+		# tenth item would start reporting nonsense about its first. Same
+		# two-digit trap that made DN10 redefine DN1 when this grammar was
+		# written.
+		#
+		# UNDECIDED IS LEFT ALONE, deliberately. It is an explicit statement
+		# that nobody has adjudicated the item, which the closed children do
+		# not settle -- a parent may hold a question its parts do not answer.
+		# Only "open" and "unstated" are understatements.
+		if _cSt_ = "open" or _cSt_ = "unstated"
+			_nKids_ = 0
+			_nShut_ = 0
+			_nIdLen_ = len(_cId_)
+			for _k_ = 1 to _nI_
+				if _k_ = _i_  loop  ok
+				_cK_ = _aItems_[_k_][1]
+				if len(_cK_) != _nIdLen_ + 1  loop  ok
+				if StzLeft(_cK_, _nIdLen_) != _cId_  loop  ok
+				_nLast_ = ascii(_cK_[_nIdLen_ + 1])
+				if NOT (_nLast_ >= 97 and _nLast_ <= 122)  loop  ok
+				_nKids_++
+				if _aItems_[_k_][2] = "closed"  _nShut_++  ok
+			next
+			if _nKids_ > 0 and _nKids_ = _nShut_
+				_aOut_ + [ :rule = :plan_parent_understates_its_children,
+				  :subject = :plan,
+				  :where = _cLabel_ + ":" + _aItems_[_i_][3],
+				  :severity = :warning,
+				  :message = "item " + _cId_ + " reads " + _cSt_ + " while " +
+				    "all " + _nKids_ + " of its sub-items are closed -- the " +
+				    "work landed as the parts and nobody went back to the " +
+				    "whole, which is how a plan understates itself" ]
+			ok
+		ok
+
 		# ---- a plan that contradicts itself about one item ---------------
 		#
 		# Two definitions of one id, each stating a status, and the two

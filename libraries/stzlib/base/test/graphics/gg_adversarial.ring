@@ -12306,6 +12306,67 @@ chk("NEGATIVE: the roadmap shape is not one either",
     _PorHits(StzCheckPlanCoverage(cPcRoad, "syn", aPcNone),
              "plan_item_defined_verbatim_twice") = 0)
 
+# -- A PARENT WHOSE CHILDREN HAVE ALL SHIPPED ---------------------------
+#
+# An item is delivered AS its sub-items more often than not, and when the
+# last one closes nobody goes back to the parent's own heading. Measured
+# 2026-09-08 over the 26 plans here: 5 of the 32 not-closed items were
+# parents every one of whose children was closed -- DN8 over eight, DN9
+# over seven, GR6 over three, GR2 and GR4 over two each. All five said
+# "planned", or said nothing, above work that had shipped.
+#
+# plan_item_open_but_discharged directly above cannot see this: a parent
+# has no guard section of its own to discharge it. Its children have them.
+cPcPar = "## AA1 " + cPcEm + " the whole. PLANNED." + cPcNl + cPcNl +
+         "### AA1a " + cPcEm + " the first part. SHIPPED." + cPcNl + cPcNl +
+         "### AA1b " + cPcEm + " the second part. SHIPPED." + cPcNl + cPcNl
+chk("a parent reading open over closed children is caught",
+    _PorHits(StzCheckPlanCoverage(cPcPar, "syn", aPcNone),
+             "plan_parent_understates_its_children") = 1)
+chk("...and so is one that says nothing at all",
+    _PorHits(StzCheckPlanCoverage(
+      StzReplace(cPcPar, "the whole. PLANNED.", "the whole."), "syn", aPcNone),
+             "plan_parent_understates_its_children") = 1)
+chk("NEGATIVE: one child still open, so the parent understates nothing",
+    _PorHits(StzCheckPlanCoverage(
+      StzReplace(cPcPar, "the second part. SHIPPED.", "the second part. NEXT."),
+      "syn", aPcNone), "plan_parent_understates_its_children") = 0)
+chk("NEGATIVE: a parent that already says shipped is not reported",
+    _PorHits(StzCheckPlanCoverage(
+      StzReplace(cPcPar, "the whole. PLANNED.", "the whole. SHIPPED."),
+      "syn", aPcNone), "plan_parent_understates_its_children") = 0)
+
+# UNDECIDED is an explicit statement that nobody has adjudicated the item,
+# and closed parts do not settle it -- a parent may hold a question its
+# pieces do not answer. Same distinction the unstated rule above draws.
+chk("NEGATIVE: UNDECIDED is left alone -- the parts do not answer it",
+    _PorHits(StzCheckPlanCoverage(
+      StzReplace(cPcPar, "the whole. PLANNED.",
+                         "the whole. UNDECIDED, and here is why."),
+      "syn", aPcNone), "plan_parent_understates_its_children") = 0)
+chk("NEGATIVE: an item with no sub-items is never a parent",
+    _PorHits(StzCheckPlanCoverage(cPcSyn, "syn", aPcNone),
+             "plan_parent_understates_its_children") = 0)
+
+# THE TWO-DIGIT TRAP, and it is why the child test is exact rather than a
+# prefix match: AA1 and AA10 are SIBLINGS. A prefix test calls AA10 a child
+# of AA1, so a plan reaching its tenth item starts reporting nonsense about
+# its first -- the same two-digit trap that made DN10 redefine DN1 when
+# this grammar was written. A child is the id plus ONE LOWERCASE LETTER.
+cPcSib = "## AA1 " + cPcEm + " the first. PLANNED." + cPcNl + cPcNl +
+         "## AA10 " + cPcEm + " the tenth. SHIPPED." + cPcNl + cPcNl
+aPcIt = StzPlanItemsOf(cPcSib)
+chkeq("AA1 and AA10 are two items", len(aPcIt), 2)
+chkeq("...and the second is AA10, not AA1", aPcIt[2][1], "AA10")
+chk("NEGATIVE: AA10 is not a child of AA1 -- a prefix test would say it is",
+    _PorHits(StzCheckPlanCoverage(cPcSib, "syn", aPcNone),
+             "plan_parent_understates_its_children") = 0)
+cPcTen = "## AA10 " + cPcEm + " the tenth. PLANNED." + cPcNl + cPcNl +
+         "### AA10a " + cPcEm + " its part. SHIPPED." + cPcNl + cPcNl
+chk("...while a real two-digit parent with a closed child IS caught",
+    _PorHits(StzCheckPlanCoverage(cPcTen, "syn", aPcNone),
+             "plan_parent_understates_its_children") = 1)
+
 # -- the generated table, against the one in the file --------------------
 cPcB = StzPlanCoverageBeginMark()
 cPcE = StzPlanCoverageEndMark()
