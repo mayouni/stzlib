@@ -3015,3 +3015,74 @@ note:      A VERDICT IS A FINDING, NOT A STATUS. GR0 read "closed" for a
            a correction that makes something WORSE is often a borrowed
            value returning to its owner.
 ```
+
+```yaml
+by:        stzlib · claude-fable-5-1 · 2026-09-08 19:41
+
+subject:   DN11 shipped -- molecules, the solver's second caller
+
+why:       the Principal offered new diagram domains and this one was
+           chosen first because the DN8 solver had never been handed a
+           ring; the ring found three defects in the solver, all general
+
+did:
+  - Shipped stzMoleculeDiagram.ring: a chemistry domain (Atom with the
+    elements as subtypes and HeavyAtom between, Bond with Double and
+    Triple, BondAngle with Ideal120/90/180 as predicates), a builder from
+    elements and bonds that derives every angle's ideal from degree and
+    order, a V2000 MOL reader, and a ball-and-stick style whose colours
+    are the CPK convention through the theme's roles.
+  - Wrote every angle as a distance between second neighbours with a
+    hard band and an encouraged centre; benzene solves to a regular
+    hexagon with nothing saying hexagon, six angles within 1.3 degrees.
+  - Measured the solved picture against a MOL block's own coordinates,
+    never used to draw -- the independent expectation the kill asked for.
+  - Fixed the planar start for pendant vertices: the start is taken over
+    the skeleton type, an object of another type joined by a constructor
+    begins a step from its anchor, and the embedding is of the 2-core
+    with the leaves hung after.
+  - Fixed the outer face for fused rings: the perimeter when the core is
+    outerplanar, the old shortest-chordless rule otherwise; verified the
+    cube, the dodecahedron and all nine DN8b-pinned scenes keep their
+    exact start, tries and lawfulness.
+  - Found and fixed a backtracking bug from Ring's in-place list append
+    in a call argument; recorded it beside the two sightings of the same
+    operator earlier today.
+  - Registered two chemistry rules into the math governance from the
+    file that owns them, through a new StzRegisterMathRuleSet; both
+    recount the bonds from the substance rather than trust the builder.
+  - Rewrote two gate pins on the network scene that asserted a
+    limitation the 2-core fix removed, with a real tree as the
+    fallback's witness.
+  - Rendered the catalogue: scenes 38 to 41; of the 37 existing pictures
+    only the network changed.
+  - Measured section 91 against the committed tree as control: 63.7 s
+    to 71.7 s for five more pictures; section 92, untouched, moved 86.8
+    to 99 s, inside this machine's ambient drift.
+
+state:
+  gg_adversarial:   1253 ok, 0 failed   (was 1219; 33 new in section 105)
+  one gate:         60 pictures, 8 planted findings, five questions pass
+  catalogue:        41 scenes, 82 pictures
+  commit:           2f3a22506 on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the author's word; the cycle-size-aware ideal is the named
+             next step for this domain, Gantt the next domain
+  - central: the gate is no longer a 66-second gate -- sections 91 and
+             92 alone are 150 s at HEAD before this item, and the whole
+             run exceeds ten minutes; the figure in stzlib's CLAUDE.md
+             is stale and I did not edit it from an item about molecules
+
+note:      A SECOND CALLER IS THE CHEAPEST STRONG TEST A GENERAL
+           MECHANISM CAN HAVE. Three defects sat in a solver that had
+           passed every picture of its first domain, and every one of
+           them was a shape the first domain never posed -- a leaf on a
+           ring, two rings on an edge, a search that needs one backtrack.
+           None of the fixes mentions chemistry.
+```
