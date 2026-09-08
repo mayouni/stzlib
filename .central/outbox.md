@@ -2892,3 +2892,71 @@ note:      A STALE ASSERTION IS WORSE THAN A MISSING ONE. It reports a
            against it. Worth asking of any guard whose subject has moved
            since it was written.
 ```
+
+```yaml
+by:        stzlib · claude-fable-5-1 · 2026-09-08 03:05
+
+subject:   a plan that contradicted itself, and the checker that could
+           not say so
+
+why:       the defect was mine, committed and pushed for a day, and the
+           rule that hid it was hiding a larger one from every desk that
+           keeps a plan of record
+
+did:
+  - Found 342 duplicated lines in the graph plane's plan, introduced by
+    my own DN9g commit as an insert where a replace was meant: seven
+    items defined twice, and DN9g reading SHIPPED at one line and "Not
+    started" at another.
+  - Established why nothing reported it: StzPlanItemsOf kept the FIRST
+    definition of an id and dropped the rest silently, so the second
+    DN9g did not exist as far as any check was concerned and the
+    generated table was correct only by luck.
+  - Measured the larger defect the same rule was causing: across the 26
+    plans in this library, 15 items of 125 report a status their plan
+    does not hold, 14 of them shipped work reading "unstated", because a
+    roadmap bullet that states nothing outranks the section that
+    defines the item.
+  - Named what that broke: plan_item_open_but_discharged exists to catch
+    a plan understating proven work, so a shadowed item made the checker
+    accuse the plan of the very staleness it did not have.
+  - Folded statuses across every definition of an id, and added two
+    rules for what the fold can now see -- different explicit statuses,
+    and a definition repeated word for word.
+  - Measured both rules for noise before adding them: zero findings
+    across all 26 plans today, one and seven against yesterday's file.
+  - Removed the duplicate, regenerated the coverage table, and confirmed
+    the table needed no change.
+  - Corrected my own instrument mid-measurement: its first version used
+    a looser id grammar than the checker and reported 24 duplicates of
+    which the checker could see 9.
+
+state:
+  gg_adversarial:      1209 ok, 0 failed   (was 1195; 14 new in §75)
+  plans measured:      26
+  items shadowed:      15 of 125, now reading their sections
+  new rules firing:    0 today, 8 on yesterday's file
+  commit:              e1c95dd85 on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the author's word
+  - stzlib-gui: SOFTANZA_GUI_PLAN.md defines ZERO items under the real
+             id grammar -- its ids are G0 to G5, one capital, where the
+             checker needs two capitals and a digit. That plan is
+             entirely unchecked and does not know it. Not touched from
+             here; it is your document and the fix is a choice between
+             renaming the ids and widening the grammar.
+
+note:      A MEASUREMENT ABOUT A CHECKER HAS TO USE THE CHECKER'S OWN
+           DEFINITIONS. My instrument's first version admitted `G4` and
+           the checker does not, so it reported 24 duplicates where the
+           checker could see 9 -- and I nearly filed a rule sized to the
+           wrong number. The same correction is what found the GUI plan
+           reading as empty, which the loose grammar had concealed by
+           answering plausibly.
+```
