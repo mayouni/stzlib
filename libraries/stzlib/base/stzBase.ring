@@ -362,6 +362,9 @@ ok
     load "graph/stzMathDiagram.ring"
     # a narration is facts made visible, in an order (DN9f)
     load "graph/stzStoryboard.ring"
+    # a molecule is a constraint problem over atoms (DN11); registers its
+    # own rules into the math governance at load
+    load "graph/stzMoleculeDiagram.ring"
     load "graph/stzOrgChart.ring"
     # org-governance rules over the org chart's graph projection (phase 2b):
     # the compliance bases carry these -- loaded after stzOrgChart (its bases
