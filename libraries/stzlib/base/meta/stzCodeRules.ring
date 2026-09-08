@@ -1893,20 +1893,47 @@ func StzPlanItemsOf(pcPlanText)
 		_aSites_ + [ _i_, _cId_ ]
 	next
 
-	# pass two: each definition's body runs to the next one
-	_aOut_ = []
+	# pass two: EVERY definition of an id contributes to its status.
+	#
+	# THIS USED TO KEEP THE FIRST DEFINITION AND SILENTLY DROP THE REST, and
+	# that one word -- first -- was wrong in both directions.
+	#
+	# It under-reported, which is what it cost every day. These plans open
+	# with a ROADMAP: a list of one-line bullets, each opening with an item
+	# id and naming no status, hundreds of lines above the section that
+	# actually defines the item. The bullet is a definition by this file's
+	# own convention, it comes first, and so it WON. Measured 2026-09-08
+	# across the 26 plans in this library: 15 items of 125 reported a status
+	# their plan does not hold, 14 of them shipped work reported "unstated"
+	# -- GR0, GR1, GR3, GR5, SN1 to SN5, SS1, SS3, VC4, VC5, VC6. Worse
+	# than useless: `plan_item_open_but_discharged` exists to catch a plan
+	# understating proven work, so a shadowed item made the checker accuse
+	# the plan of the very staleness it did not have.
+	#
+	# And it hid a contradiction, which is how it was found. A plan may
+	# define one id twice with OPPOSITE statuses -- this file's own plan
+	# did, DN9g reading SHIPPED at line 3056 and "Not started" at 3454,
+	# both committed -- and first-wins answered "shipped" and reported
+	# nothing. A checker that resolves a disagreement by ignoring one side
+	# is not reading the document; it is voting on it.
+	#
+	# So the body of an id is EVERY body it has, and what the fold can now
+	# see is returned beside it: how many definitions, whether two of them
+	# state different explicit statuses, and whether one is a verbatim copy
+	# of another. The first line stays the one reported, because that is
+	# where a reader starts looking.
+	# FLAT AND PARALLEL, not a list of lists: Ring's `+` appends a list
+	# operand as ONE ELEMENT, so `_a_ + [ [ body ] ]` nests a level deeper
+	# than it reads and `_acB_[j]` comes back a list where a string was
+	# meant -- R21, several frames from the line that caused it. Each site
+	# records the id it belongs to and its own body; the fold walks the
+	# sites owned by an id. Same house trap as the option-list one.
+	_aIds_ = []
+	_anOwner_ = []
+	_acBody_ = []
 	_nS_ = len(_aSites_)
 	for _k_ = 1 to _nS_
 		_cId_ = _aSites_[_k_][2]
-		_bSeen_ = FALSE
-		_nO_ = len(_aOut_)
-		for _q_ = 1 to _nO_
-			if _aOut_[_q_][1] = _cId_
-				_bSeen_ = TRUE
-				exit
-			ok
-		next
-		if _bSeen_  loop  ok
 		_nFrom_ = _aSites_[_k_][1]
 		_nTo_ = _nL_
 		if _k_ < _nS_  _nTo_ = _aSites_[_k_ + 1][1] - 1  ok
@@ -1914,7 +1941,53 @@ func StzPlanItemsOf(pcPlanText)
 		for _b_ = _nFrom_ to _nTo_
 			_cBody_ += (" " + _acL_[_b_])
 		next
-		_aOut_ + [ _cId_, _StzPlanItemStatus(_cBody_), _nFrom_ ]
+		_nAt_ = 0
+		_nO_ = len(_aIds_)
+		for _q_ = 1 to _nO_
+			if _aIds_[_q_][1] = _cId_
+				_nAt_ = _q_
+				exit
+			ok
+		next
+		if _nAt_ = 0
+			_aIds_ + [ _cId_, _nFrom_ ]
+			_nAt_ = len(_aIds_)
+		ok
+		_anOwner_ + _nAt_
+		_acBody_ + _cBody_
+	next
+
+	_aOut_ = []
+	_nI_ = len(_aIds_)
+	_nSites_ = len(_anOwner_)
+	for _i_ = 1 to _nI_
+		_anMine_ = []
+		for _s_ = 1 to _nSites_
+			if _anOwner_[_s_] = _i_  _anMine_ + _s_  ok
+		next
+		_nB_ = len(_anMine_)
+		_cFold_ = ""
+		_acSt_ = []
+		for _j_ = 1 to _nB_
+			_cFold_ += (" " + _acBody_[_anMine_[_j_]])
+			_acSt_ + _StzPlanItemStatus(_acBody_[_anMine_[_j_]])
+		next
+		_cContra_ = ""
+		_bVerb_ = FALSE
+		for _j_ = 1 to _nB_
+			for _m_ = _j_ + 1 to _nB_
+				if _acSt_[_j_] != "unstated" and _acSt_[_m_] != "unstated" and
+				   _acSt_[_j_] != _acSt_[_m_] and _cContra_ = ""
+					_cContra_ = _acSt_[_j_] + " and " + _acSt_[_m_]
+				ok
+				if StzTrim(_acBody_[_anMine_[_j_]]) =
+				   StzTrim(_acBody_[_anMine_[_m_]])
+					_bVerb_ = TRUE
+				ok
+			next
+		next
+		_aOut_ + [ _aIds_[_i_][1], _StzPlanItemStatus(_cFold_),
+		           _aIds_[_i_][2], _nB_, _cContra_, _bVerb_ ]
 	next
 	return _aOut_
 
@@ -2105,6 +2178,50 @@ func StzCheckPlanCoverage(pcPlanText, pcLabel, paDischarges)
 			  :message = "item " + _cId_ + " states no status a reader can " +
 			    "find -- a plan of record whose items do not say where they " +
 			    "stand is the condition staleness hides in" ]
+		ok
+
+		# ---- a plan that contradicts itself about one item ---------------
+		#
+		# Two definitions of one id, each stating a status, and the two
+		# disagree. Until the fold above, this was UNREPORTABLE: the reader
+		# of the file saw both, and the checker saw only the first.
+		#
+		# THE RULE IS NARROW ON PURPOSE, and the width was measured rather
+		# than guessed. An id defined more than once is ordinary here -- 29
+		# of 125 items are, because a roadmap bullet names the item before
+		# its section defines it -- so reporting every repeat would file 29
+		# findings about a convention the plans use deliberately. Silence is
+		# not disagreement either: a bullet that states nothing contradicts
+		# nothing. Two EXPLICIT and different statuses is the case that can
+		# only be an error, and across the same 26 plans it fires zero times
+		# today and once on the defect that prompted it.
+		if _aItems_[_i_][5] != ""
+			_aOut_ + [ :rule = :plan_item_status_contradicts,
+			  :subject = :plan,
+			  :where = _cLabel_ + ":" + _aItems_[_i_][3], :severity = :error,
+			  :message = "item " + _cId_ + " is defined " +
+			    _aItems_[_i_][4] + " times and its definitions disagree: " +
+			    _aItems_[_i_][5] + " -- a reader takes whichever they " +
+			    "reach first, and so did this checker until the statuses " +
+			    "were folded" ]
+		ok
+
+		# ---- the same item defined twice, word for word ------------------
+		#
+		# Never intentional, and the way an editing accident looks from the
+		# outside: an insert that was meant to replace. It is how this rule
+		# came to exist -- the DN9g commit left 342 duplicated lines in the
+		# graph plane's plan, carrying a stale copy of seven items and one
+		# contradiction, and every check in this file passed over it.
+		if _aItems_[_i_][6]
+			_aOut_ + [ :rule = :plan_item_defined_verbatim_twice,
+			  :subject = :plan,
+			  :where = _cLabel_ + ":" + _aItems_[_i_][3], :severity = :error,
+			  :message = "item " + _cId_ + " is defined " +
+			    _aItems_[_i_][4] + " times and two of those definitions are " +
+			    "the same text -- an edit that inserted where it meant to " +
+			    "replace, which leaves the older copy standing behind the " +
+			    "newer one" ]
 		ok
 	next
 

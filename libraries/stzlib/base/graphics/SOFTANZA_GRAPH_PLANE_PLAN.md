@@ -64,6 +64,7 @@ sections, of which 21 declarations over 17 items.
 <!-- COVERAGE:BEGIN generated -- do not edit by hand -->
 | item | status | discharged by |
 | ---- | ------ | ------------- |
+| DN9g | closed | 103 |
 | GG0 | closed | - |
 | GG1 | closed | - |
 | GG2 | closed | - |
@@ -120,7 +121,6 @@ sections, of which 21 declarations over 17 items.
 | DN9d | closed | 100 |
 | DN9e | closed | 101 |
 | DN9f | closed | 102 |
-| DN9g | closed | 103 |
 | DN2b | closed | 56 |
 | DN2c | closed | - |
 | DN2d | closed | 57 |
@@ -129,6 +129,51 @@ sections, of which 21 declarations over 17 items.
 ## 2. Phases
 
 *A heading or bullet that OPENS with an item id defines that item, and its status is read from its own words: shipped, delivered, done, closed; next, planned, not started; or undecided. That is a convention a check depends on, so a heading naming several items must not open with one of their ids -- the section above this list used to read "GG7 / GG8 REFLECTED" and was read as defining GG7, three screens before GG7 was actually defined.*
+
+*An item may be defined in SEVERAL places, and every one of them counts. That sentence used to be false: the checker kept the first definition and dropped the rest silently, which meant the roadmap bullet naming an item -- stating no status, hundreds of lines above the section that defines it -- WON. Measured 2026-09-08 across the 26 plans in this library: **15 items of 125 reported a status their plan does not hold**, 14 of them shipped work reading "unstated", including GR0, GR1, GR3 and GR5 in the graphics plan next door. The rule it broke is the one written to catch a plan understating proven work, so a shadowed item made the checker accuse the plan of exactly the staleness it did not have. Statuses are folded across every definition now, and two things the fold can see are reported: definitions that state DIFFERENT statuses, and a definition repeated word for word. Guard: §75.*
+
+## The plan that contradicted itself, and the checker that could not say so (2026-09-08)
+
+**This file carried 342 duplicated lines from 2026-09-07 to 2026-09-08,
+committed and pushed, and nothing reported it.** The DN9g commit
+(`4065f1788`) inserted where it meant to replace, leaving a stale copy of the
+whole DN9 section standing behind the new one — seven items defined twice, and
+**DN9g defined as SHIPPED at one line and "Not started" at another**.
+
+**A duplicate was invisible by construction.** `StzPlanItemsOf` skipped an id
+it had already seen, so the second DN9g never existed as far as any rule was
+concerned; the table read "closed" and was right by luck, because the surviving
+copy happened to be the newer one. A checker that settles a disagreement by
+ignoring one side is not reading the document, it is voting on it.
+
+**The larger defect was underneath, and it was costing something every day.**
+The same first-wins rule is what let a silent roadmap bullet outrank an item's
+own section — 15 items of 125, measured above. Removing the duplicate was a
+minute's work; the fold is the repair.
+
+**What is now reported, and how narrow it is on purpose.** An id defined more
+than once is ORDINARY here — 29 of 125 items are, by the roadmap convention —
+so a rule firing on every repeat would file 29 findings about something the
+plans do deliberately, and would be switched off within a week. Two cases
+cannot be anything but an error, and across all 26 plans they fire **zero times
+today** and both fire on the state this file was in yesterday:
+
+| rule | fires when | today | on yesterday's file |
+|---|---|---:|---:|
+| `plan_item_status_contradicts` | two definitions state different statuses | 0 | 1 (DN9g) |
+| `plan_item_defined_verbatim_twice` | one definition repeats another word for word | 0 | 7 |
+
+*The transferable part is not the rule.* The instrument that found this was
+written to answer a different question, and the first version of it used a
+looser id grammar than the checker it was about to inform — it reported 24
+duplicates across 7 plans, of which the checker could see 9, because the real
+grammar needs two capitals and a digit and mine admitted `G4`. **A measurement
+about a checker has to use the checker's own definitions**, or it is a
+measurement of something else. The corrected instrument is what produced every
+number above, and it also found that `SOFTANZA_GUI_PLAN.md` defines **no items
+at all** under that grammar — its ids are `G0` to `G5`, one capital — so that
+plane's plan is unchecked and does not know it. Routed to the GUI desk rather
+than fixed here.
 
 ### GG0 — the spike. DONE, GO (2026-08-09, 8ec3937d8)
 
@@ -3109,365 +3154,6 @@ person.
   not.
 
   *Guard:* §103, DN9g.
-
-### What this leaves
-
-Planarity testing proper (Boyer–Myrvold) and annealing stay refused until
-DN8b's numbers say the layouts-as-starts are not enough — the expectation
-is that they are, for every planar graph the gallery draws. Rotated
-shapes and text along a path stay unplanned. 3D stays outside.
-
-## DN9 — THE TOLD PICTURE: a narration is facts made visible, in an order (2026-09-06, planned)
-
-The Principal, after DN8h was explained to him with three diagrams drawn
-by hand from the engine's own numbers, asked whether the library was now
-"a mathematical computational visual thinking engine" for explaining and
-teaching. The honest answer given was *half*: every mark in those diagrams
-was a function of a fact the engine already held — a distance, a verdict,
-a count, a position — and nothing in them was invented; but the engine had
-no way to be *asked* to draw what it knew. So the gap is a vocabulary, not
-mathematics, and this plane is that vocabulary. It is written at one level
-above mathematics on purpose: a fact is anything a picture can answer,
-including a notation's governance finding, so an org chart with a person
-reporting to two heads is narrated with exactly the same five marks as
-Byrne's plate.
-
-**Three facts from outside this plane that shape it, read before the first
-item, none of them this plane's to reopen:**
-
-1. **The document is the sibling's.** `stznarrations` (design only, no
-   code) owns the `.narration` format: a header, `PROSE` and `CELL`, three
-   kinds with "a fourth a substance change to the grammar", and one law —
-   *the document is plain text and outputs are never stored in it.* So a
-   frame is not a document kind. A frame is **what a cell yields**, and a
-   caption's numbers are **computed by a cell at run time**, never typed
-   into prose. This plane emits that format; it does not extend it.
-2. **The name `stzNarration` is spoken for.** The reference design v1.2
-   ruled (obligation O1 in the sibling's ALIGNMENT.md, author-decided) that
-   the existing `base/conversation/stzNarration.ring` — a speaker-tagged
-   transcript — is renamed `stzTranscript`, freeing the name for the
-   document class. This repository has not paid that obligation. The
-   sequence object here is therefore **`stzStoryboard`**, the professional
-   word for ordered frames with captions, and paying O1 is item DN9a, so
-   that this plane is not the second thing to squat on the name.
-3. **C7, the Display Contract, is stzlib's and unwritten.** Its first
-   consumer's ask is on record: a *returning* display method — `Show()`
-   prints at 196 sites and no notebook can capture a print — whose value
-   declares its own kind (text, table, graph, vector, image, markup...).
-   This plane makes the two picture classes answer in that shape and
-   routes the result to Central as **evidence toward C7, not as C7.**
-
-### The abstraction, in five words
-
-**fact · mark · frame · storyboard · judged**
-
-- A **fact** is anything a picture can answer, in one shape across both
-  planes: `[ :kind, :subject, :value, :unit, :where, :message ]`. A
-  measurement (`:distance` between two things), a verdict (a rule
-  satisfied or violated, by how much — which is the rule report DN8c
-  already produces, in the house shape `[ :rule, :subject, :where,
-  :severity, :message ]`), a count (nodes, crossings, starts), a datum a
-  substance carries, a position. **Facts are queried, never typed.**
-- A **mark** makes a fact visible. Five kinds, and no sixth without a
-  substance change to this plane, the way the grammar guards its three:
-  | mark | shows | how it is drawn |
-  |---|---|---|
-  | `show` | a rule's boundary as a shape — the leash as a dashed circle, a clearance as a ribbon, a container as itself | derived geometry from the constraint's own arguments, in the picture's renderer |
-  | `measure` | a dimension between two things, with its number | a line with ticks and a solved label |
-  | `callout` | a sentence attached to a thing by a leader | a label whose owner is any shape — **solved exactly as a name is**, off ink and off other names |
-  | `emphasis` | focus, dim, or ring | colour roles the theme already has (danger, success, muted), a ring at a point |
-  | `region` | an area — the lawful set, a forbidden ribbon | a tinted or hatched shape derived from a rule |
-- A **frame** is a picture, its marks, a **window** (the whole paper, or a
-  zoom onto a region, marks following), and a **caption**: a sentence with
-  holes, each hole bound to a fact, filled at render time.
-- A **storyboard** is ordered frames. One content may appear under several
-  readings (the catalogue's dark twins already do this), or changed by an
-  action between frames — a drag (DN8g), a datum set (DN7j), a step of a
-  generator (DN8f). It renders to a folio of PNGs, to one HTML page, and it
-  **emits a `.narration`**: the captions as `PROSE`, the pictures and the
-  filled holes as `CELL`s that recompute on arrival, so the sibling's law
-  holds by construction.
-- **Judged**: every frame passes the one gate (`StzCheckPictures`), and
-  every number in every caption is asserted equal to the fact it was
-  filled from. That is the claim no textbook can make: a lesson whose every
-  picture is lawful and every number true, checked.
-
-**What stays with the author, and should**: which fact to show first, what
-to leave out, when to zoom. That is the teaching. The engine guarantees the
-pictures and the numbers; it does not know what a learner needs to see.
-
-**Refused, before the first item**: no animation or timeline (a frame is a
-still; the live figure is the interaction, not the narration); no document
-format of this plane's own (the sibling owns it); no slide framework; no
-natural-language generation beyond sentences with holes; no pedagogy in
-the engine; no sixth mark; no writing of C7 here. And **no hand-drawn
-SVG**: the whole plane's kill is that the three diagrams drawn by hand on
-2026-09-06 are regenerated by the engine with no picture code written by a
-person.
-
-### The items, in the order of leverage
-
-- **DN9a — O1 paid: `stzNarration` becomes `stzTranscript`.** **SHIPPED**
-  2026-09-06. The sibling's nine sites of 2026-08-11, verified today
-  before touching any: the same nine, two of them thirty lines further
-  down the loader than listed, and none in a test. Renamed the file, the
-  class, the loader line and its comment, the conversation's member at
-  its sixteen uses and its constructor, and the delivery comment whose
-  reasoning the rename changed; the one design document that lists the
-  construct by name updated at its four mentions. The judgement call the
-  sibling left to this repository: `TranscriptQ()` is the accessor, and
-  `NarrationQ()` stays one version as an alias that returns it. The
-  transcript's header records where the name went and why. **Kill met:**
-  no code names the old class; `classes()` holds the new name and not the
-  old; the two conversation suites that exercise the class are 13 of 13
-  and 52 of 52, identical before and after; a line added through the alias
-  is seen through the name. *Guard:* §97, DN9a. One line to Central: the
-  name is free, and the sibling may stop designing against a held one.
-
-- **DN9b — Facts, one surface on both planes.** **SHIPPED** 2026-09-06.
-  `Fact(kind, args)` on `stzMathDiagram` and on `stzDiagram`, both
-  answering the one shape `[ :kind, :subject, :value, :unit, :where,
-  :message ]` built by `StzFact()`. A unit rides along because 46.9 is not
-  a fact and 46.9 px is; a sentence rides along because the sentence that
-  describes a fact belongs to the fact, not to whoever quotes it.
-
-  | plane | kinds |
-  |---|---|
-  | math | `expr` (the general one, asked in the picture's own rule language and answered off the same tape the solver used), `value`, `distance`, `angle`, `datum`, `position`, `count`, `term`, `tapenodes`, `arg`, `verdict` |
-  | notation | `count`, `position`, `distance`, `verdict` |
-
-  Two kinds are worth their own line. **`arg` reads a rule's own
-  argument** — the clearance a name must keep, the bound a leash allows —
-  from the term actually in force, addressed by words from its own line;
-  those numbers were previously retyped into prose from the Style.
-  **`tapenodes` compiles an expression and counts its nodes**, in the
-  picture's variables or in its own, and with sharing off on request,
-  which is how a narration *shows* what DN8h saved instead of asserting
-  it; the engine's compiler gained `StzEngineGradCompileXT(expr, names,
-  share)` for that, an instrument's door and nothing else's.
-
-  **Verdicts are read, never recomputed.** The math plane answers from
-  `Violations()`, the notation plane from its plastic governance's
-  `Findings()`. A fact that recomputed a rule could disagree with the one
-  gate, and a narration that disagrees with the gate is worse than no
-  narration.
-
-  **Kill met, and it convicted its own author.** Every number in the three
-  diagrams hand-drawn on 2026-09-06 now comes from a `Fact` call — and two
-  of them were wrong:
-
-  | caption said | the fact says | why |
-  |---|---|---|
-  | the leash allows **44** | **43.73** px | I rounded a bound I had retyped |
-  | **9** steps, then **5** | **11**, then **6** | I forgot that the exponent in `x^2` is itself a node |
-  | 47 px from its dot | 46.89 px | — |
-  | 22 px after the retry | 21.53 px | — |
-  | 28,945 nodes, then 208 | exact | — |
-
-  That is the plane's whole argument, arriving early and at my expense: a
-  number a person types into a caption is a number nobody checks. The
-  NEGATIVE is met too — a fact asked of a shape the picture never minted,
-  a count it does not keep, or a kind neither plane answers is refused by
-  name with the reason.
-
-  *Guard:* §98, DN9b.
-
-- **DN9c — The five marks.** **SHIPPED** 2026-09-07. `Show`, `Measure`,
-  `Callout`, `Emphasis` and `Region` on `stzMathDiagram`, as methods a
-  frame calls after the solve. No sixth without a substance change to this
-  plane, argued here, the way the narration grammar guards its three kinds.
-
-  | mark | what it makes visible | where its geometry comes from |
-  |---|---|---|
-  | `Show(rule)` | a rule's own boundary | the term in force: `lessThan(dist(a,b), r)` becomes a circle at `b` of radius `r`, read as a fact |
-  | `Region(rule)` | the area a rule forbids | a `disjoint` against a line becomes the strip two pads wide, its corners derived from the segment's own direction |
-  | `Measure(a, b)` | a distance, with its number | the line runs centre to centre and the number IS the distance fact |
-  | `Callout(target, text)` | a sentence, tied by a leader | the sentence may carry `{value}`, filled from a fact; the leader is derived from the label's solved centre |
-  | `Emphasis(target, mode)` | focus, dim or ring | the shape's own stroke, or a circle at its measured extent |
-
-  **A mark cannot move the figure it describes.** Every existing unknown is
-  pinned while a mark places itself, using DN8g's own pinning, so frame
-  two's figure is frame one's figure to the last pixel — the guard asserts
-  all eight vertices unmoved. And **a mark's sentence is solved, not
-  placed**: it is a label, held off every name already in the picture, off
-  the thing it is about, and off every drawn line, by the same `disjoint`
-  terms a Style writes for a vertex's name. That is why a callout needed no
-  new solver.
-
-  Three things the first draft got wrong, each fixed by a law already on
-  the books. The sentence landed on top of the vertex's own name, because
-  I had described it as held off other names without adding those terms.
-  It then got one random start direction and no second chance, which is
-  exactly DN8h's defect, so `_RetryLabels` now serves marks too — and
-  `_RedrawLabels` learned to skip a **pinned** label, since it writes
-  values directly and would otherwise walk straight past a pin the
-  optimiser respects. Last, a hard leash round its subject left a
-  two-hundred-pixel sentence nowhere to stand and reported a violation the
-  author could not act on: nearness is an **encouragement toward a ring**
-  now, DN7d's law about objectives that minimise onto a non-differentiable
-  point, and the leader carries the association instead.
-
-  **Kill met.** The "what a name must satisfy" diagram of 2026-09-06,
-  drawn by hand, is regenerated by the engine with no picture code written
-  by a person: the leash is a `Show` of the `lessThan(dist)` rule at its
-  own bound of 43.73 px, the forbidden strip is a `Region` of the
-  `disjoint` rule at its own pad, the vertex is ringed, and two sentences
-  carry numbers filled from facts. The one gate judges it and returns zero
-  findings.
-
-  *Guard:* §99, DN9c.
-
-- **DN9d — The window.** **SHIPPED** 2026-09-07. `SetWindow(cx, cy, w, h)`
-  and `WindowOn(path, reach)`, with `ClearWindow`, `Window`, `HasWindow`,
-  `WindowScale`, `IsInWindow` and `VisibleShapes`. The drawing maps the
-  window onto the paper at a uniform scale, so a frame may show a part.
-
-  **The window is a property of the view, not of the figure.** Nothing the
-  solver owns moves, and every reader keeps answering in the picture's own
-  coordinates: the guard asserts a distance read at 3.05x equals the same
-  distance read unzoomed, bit for bit. That is the only way a narration can
-  say "the same figure, closer" and be believed. **What does not scale is
-  the type** — a name keeps the size it was measured at and only travels,
-  because a close frame is for reading rather than for enlargement; stroke
-  widths do scale, since a hairline blown up three times and still one
-  pixel wide reads as a different picture.
-
-  **The gate judges what is visible**, as a fifth math rule:
-  `mark_inside_the_window` reports a mark left outside the part being
-  shown, which is the one defect a zoom introduces that a full view never
-  had. With no window every mark is out of scope, counted and reported as
-  such rather than passed over.
-
-  One thing measured and fixed: `IsInWindow` first read every shape as a
-  centre and a reach, which is right for a dot and wrong for an arc, and
-  it hid **60 of 65** shapes on the first ask. A shape's box is now built
-  from what it actually covers — a curve's sampled points, a polygon's
-  vertices, a mark's strokes — and the same view reports 7 of 65, which is
-  what the picture shows.
-
-  **Kill met:** the v111 pair of 2026-09-06, both solves, one zoomed window
-  each, rendered by the engine. In the first the name sits past the leash
-  circle's edge; in the second it sits well inside it. Same content, same
-  marks, two frames.
-
-  *Guard:* §100, DN9d.
-
-- **DN9e — The engine draws its own thinking.** **SHIPPED** 2026-09-07.
-  `StzEngineGradDump(handle)` gives the tape itself as text — a root line
-  then one line per step, `op|k|a|b` — and `StzTapeGraph(handle)` turns
-  that into an `stzGraph`, one node per step labelled with its own sign,
-  an edge from each step to what it consumes. `StzTapePicture(expr, names,
-  shared)` compiles both ways and hands back a substance, so the arithmetic
-  is drawn by the same two planes that draw everything else, with no
-  picture code of its own.
-
-  **Why this is worth a function rather than a diagram somebody draws.** A
-  tape's shape cannot be read from the text that made it: the same
-  subexpression written a hundred times is one node, and the count alone
-  does not say which one. A drawing made by hand from the text shows the
-  text's shape, not the tape's — which is exactly the error that put nine
-  and five in a caption where the truth was eleven and six.
-
-  **Kill met**, on the DN8h expression `(x-y)^2 + (x-y)^2`:
-
-  | | engine says | the graph holds | edges |
-  |---|---|---|---|
-  | shared | 6 nodes | 6 nodes | 5 |
-  | written out | 11 nodes | 11 nodes | 10 |
-
-  **A step consumed twice is recorded, not dropped.** `stzGraph` is simple
-  and holds one edge per pair, and a shared root reads its operand twice —
-  which is not a degenerate case here but what sharing looks like from
-  above. The multiplicity goes on the consuming step, so the drawn root
-  reads `+ (x2)` and a reader is told rather than shown one arrow and
-  misled.
-
-  **Refused above two hundred steps**, deliberately: a drawing of Byrne's
-  twenty-nine thousand is a measurement and not a picture, and the refusal
-  names `Fact(:tapenodes)` as the thing actually being asked for.
-
-  *Named and not done:* the pictures come out through the graph plane's
-  own box-and-arrow style, which is a data-flow layout rather than a tree
-  layout, so the drawn tape sprawls where a hand-drawn tree would nest. The
-  structure is exact and the reading is worse; a tree style for expression
-  DAGs is a separate item nobody has asked for yet.
-
-  *Guard:* §101, DN9e.
-
-- **DN9f — The storyboard.** **SHIPPED** 2026-09-07.
-  `stzStoryboard(name, picture, folio)` in `base/graph/stzStoryboard.ring`:
-  frames in order, each adding marks, moving the view or changing the
-  content, and each carrying one sentence. `Frame`, `FrameOf` (a second
-  picture), `Bind` (a hole to a fact of this picture), `BindFact` (a fact
-  from any plane), `ExpectFindings`, the five marks and the window
-  forwarded, `Act` for a drag or a datum, then `Render` for the page and
-  `ToNarration` for the document.
-
-  **A caption carries holes, never numbers**, and a hole is filled when
-  its frame closes, from the picture as it stands in that frame. **Every
-  frame is judged as it closes** — through the one gate, and every filled
-  hole against the fact it came from.
-
-  Two things the building taught, both now law here:
-
-  - **A frame may be ABOUT a picture the gate faults, and that is not a
-    defect in the telling.** "Here is what goes wrong" is the commonest
-    didactic frame there is. So a frame declares `ExpectFindings()`, its
-    findings become its subject, and — the negative that keeps the flag
-    honest — a frame that expects a finding and gets none is itself
-    reported.
-  - **A hole is held to the form the caption asked for.** A caption may
-    show a fact's number, its sentence or its unit; holding it to the
-    number when it quotes the sentence is the check misreading the
-    caption rather than the caption misreading the fact. A fact bound and
-    never quoted is reported too.
-
-  **The plane's kill, met twice.**
-
-  | | frames | numbers, none typed | judged |
-  |---|---|---|---|
-  | the explanation of 2026-09-06 | 4, over two solves of one content | 3 | clean |
-  | an org chart with a governance finding | 3 | 2 | clean |
-
-  The second has **no mathematics anywhere**: five positions, the org
-  plane's own `no-orphan-position` finding quoted in a caption about a
-  drawing that never reached it, the orphan ringed and called out, and
-  the repaired chart as the last frame. The same five marks, the same
-  holes, the same judge. *One correction to this item's own kill text:*
-  it promised "the person with two managers", and the library has no
-  dual-reporting rule — it has orphan, cycle, span-of-control and
-  separation-of-duties. The story uses a finding the library really
-  produces rather than a rule invented to match the prose.
-
-  **The emitter, written and marked provisional.** `ToNarration()` writes
-  the sibling's `.narration` v0 grammar — NARRATION, PROSE and CELL, three
-  kinds and no fourth — and pins that version in the file. Its one law is
-  honoured by construction: **a caption goes out with its holes still
-  open, and every number is a CELL that recomputes on arrival**, so
-  nothing is stored that could go stale. DN9-EMITTER-01 was routed to
-  `stznarrations` through Central on 2026-09-06 and is unanswered; the
-  harness rule is that silence is never a veto, so this is written against
-  the published sketch, pinned, and a correction costs one function.
-
-  *Guard:* §102, DN9f.
-
-- **DN9g — C7 evidence.** *Not started.* Both picture classes answer a
-  returning, self-describing display value in the consumer's asked shape
-  (`vector` for the drawn geometry, `image` for the raster, `graph` for a
-  tape or a substance), and a script that knows no class renders a frame
-  through it. **Kill:** that script; the finding routed to Central as
-  evidence for the contract stzlib owes.
-
-After this plane, TeX in labels is one more thing a `callout` can carry,
-and not a feature of its own.
-
-**Risks, named now.** The mark vocabulary wants to grow — five is the
-number, and the sixth is a substance change, argued in this file. Callouts
-multiply labels and labels are the solver's cost — measured cheap since
-DN8h, and measured again at the first storyboard. The temptation to draw
-one thing by hand "just for this one" is the plane's whole failure mode,
-and the kill forbids it. And the sibling's grammar may refuse the emitter's
-shape; that is why DN9f routes before it writes.
 
 ## DN2b — THE RING: a state machine is not a tree (2026-08-23)
 
