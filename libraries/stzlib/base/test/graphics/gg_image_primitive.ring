@@ -280,7 +280,33 @@ aAA = StzEnginePngLastStat()
 ? "   many-coloured 600x400 : " + len(cAA) + " bytes, " + aAA[1] +
   " colours, type " + aAA[2]
 chkeq("a picture past 256 colours reports so", aAA[1], 257)
-chkeq("...and is NOT forced into a palette", aAA[2], 6)
+chk("...and is NOT forced into a palette", aAA[2] != 3)
+
+# THIS ASSERTION USED TO READ `= 6`, AND IT WAS RED ON MAIN, committed and
+# pushed. What it means is the line above -- a picture past a palette's reach
+# is not crushed into one -- and 6 was how that looked on the day it was
+# written, before the encoder learned to drop an alpha channel carrying
+# nothing. The scene here composites onto an OPAQUE background, so every
+# pixel really is opaque and colour type 2 is the correct, lossless answer;
+# the guard was asserting the encoder's old answer rather than its promise.
+#
+# A stale assertion of this shape is worse than a missing one, because it
+# reports a regression in code that got BETTER, and the fix looks like
+# lowering a standard. So the decision is pinned properly instead: the two
+# branches are named, and each is asserted on a scene that reaches it.
+chkeq("an opaque picture drops the channel nothing used", aAA[2], 2)
+
+oTr = new stzCanvas(600, 400)
+oTr.AddImage(100, 50, 400, 300, 40, 40, _Ramp(40, 40))
+oTr.Flush()
+cTr = oTr.ToPNG("")
+aTr = StzEnginePngLastStat()
+? "   same ramp, no background : " + len(cTr) + " bytes, " + aTr[1] +
+  " colours, type " + aTr[2]
+chkeq("...and a picture that CARRIES alpha keeps it -- the negative sibling",
+      aTr[2], 6)
+chk("...which costs bytes, and is why the drop is worth making",
+    len(cTr) > len(cAA))
 
 aBackAA = StzEngineGpuImageDecode(cAA)
 cSrcAA = oAA.ToPixels()
@@ -312,6 +338,46 @@ chk("...and more than one filter wins somewhere in the picture",
   " avg=" + aAA[7] + " paeth=" + aAA[8]
 chkeq("the RGBA path spends ONE pass, not five", aAA[8], aAA[4] + aAA[5] +
       aAA[6] + aAA[7] + aAA[8])
+
+# AND THE PROFILE HAS TO ACCOUNT FOR EVERY ROW, which nothing above checks.
+# Each assertion so far reads the profile for a SHAPE -- some row chose, one
+# filter won everywhere -- and a stat that silently counted half the picture
+# satisfies every one of them. The sum is the only reading that cannot: PNG
+# writes exactly one filter byte per row, so the five counters must total the
+# HEIGHT and nothing else.
+#
+# The third canvas is not padding. Both pictures above are 400 tall, so an
+# accounting bug that answered a constant 400 would pass twice and look
+# confirmed; 250 is what makes the assertion about rows instead of about a
+# number that happens to be right.
+oSh = new stzCanvas(600, 250)
+oSh.SetBackgroundQ("#FFFFFF")
+oSh.FillQ("#CC2255").AddRect(10, 10, 100, 60)
+oSh.Flush()
+cSh = oSh.ToPNG("")
+aSh = StzEnginePngLastStat()
+? "   rows accounted for : " + (aFlat[4] + aFlat[5] + aFlat[6] + aFlat[7] + aFlat[8]) +
+  " / " + (aAA[4] + aAA[5] + aAA[6] + aAA[7] + aAA[8]) +
+  " / " + (aSh[4] + aSh[5] + aSh[6] + aSh[7] + aSh[8]) + " of 400 / 400 / 250"
+chkeq("the indexed profile accounts for every row it wrote",
+      aFlat[4] + aFlat[5] + aFlat[6] + aFlat[7] + aFlat[8], 400)
+chkeq("the RGBA profile accounts for every row it wrote",
+      aAA[4] + aAA[5] + aAA[6] + aAA[7] + aAA[8], 400)
+chkeq("...and it is the HEIGHT, not the constant those two share",
+      aSh[4] + aSh[5] + aSh[6] + aSh[7] + aSh[8], 250)
+
+# WHAT THIS PLANE REFUSES, PRICED. The encoder never quantises: it is handed
+# the exact pixels the renderer drew, so building a palette from the dominant
+# colours would INVENT loss to fix an upstream this plane does not have.
+# Measured 2026-09-08 on the math catalogue, that refusal costs about 1.6x on
+# the third of the corpus antialiasing carries past 256 colours -- the word
+# cloud is 2.13x -- at a fidelity nothing here would have noticed: not one
+# pixel in five re-encoded pictures moved by more than 32/255, against a worst
+# single pixel of 101/255 in the noisy source Central measured. The number is
+# in SOFTANZA_GRAPHICS_PLAN.md so that the refusal is an informed trade and
+# not an assumption. What holds it in place is the line below: a caller is
+# promised the pixels it drew, and that promise is worth more than the bytes.
+chkeq("the promise the price buys : every pixel, both paths", nDiff + nDiffAA, 0)
 
 ? "=============================================================="
 ? " " + nOk + " ok, " + nBad + " failed"

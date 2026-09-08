@@ -1882,6 +1882,94 @@ that is wrong is usually wrong in a way that still opens in a viewer, so
   If a future caller hands this plane pixels it did not draw — a decoded photo,
   a screenshot — the argument above stops applying and Central's method becomes
   the right one. That caller does not exist yet.
+
+  **THE REFUSAL NOW CARRIES A PRICE, measured 2026-09-08 on this library's own
+  output rather than reasoned about.** The refusal was right and it was also
+  untested: nobody knew what it cost. The math catalogue is 74 pictures and
+  1,227,020 bytes, of which the encoder indexes 40 exactly and leaves 34 as
+  truecolour because antialiasing carries them past 256 colours. Five of those
+  34 were re-encoded against a palette of their own top 256 colours by area —
+  Central's rule 1 — and decoded back and diffed, which is its rule 3:
+
+  | picture | bytes | quantised | smaller by | pixels moved |
+  |---|---:|---:|---:|---|
+  | `math_01` a Venn of two sets | 9,959 | 5,776 | 1.72x | **2**, both by ≤2/255 |
+  | `math_25` the curved cube | 21,407 | 13,062 | 1.64x | **1**, by ≤2/255 |
+  | `math_02` the seven-set tree | 23,141 | 14,610 | 1.58x | 255, worst 6 within 32 |
+  | `math_03` nested seven deep | 23,402 | 14,891 | 1.57x | 310, worst 9 within 32 |
+  | `math_22` the word cloud | 36,960 | 17,346 | **2.13x** | 2,059, worst 13 within 32 |
+
+  **Not one pixel in any of the five moved by more than 32/255**, against a
+  worst single pixel of 101/255 in Central's own re-encode above — because the
+  noise that made its palette lossy is exactly what this plane does not have.
+  Two of the five are lossless to within a single step on one or two pixels out
+  of a whole picture. So the cost of the refusal is roughly
+  **1.6x on a third of this plane's output**, and its benefit is a guarantee
+  that costs nothing to state and that a caller can rely on without reading a
+  distribution.
+
+  **The refusal stands, and the reason is unchanged**: this plane is handed the
+  exact pixels it drew, and inventing loss to fix somebody else's lossy upstream
+  would be the library damaging its own output. What has changed is that the
+  trade is now a number instead of an assumption, and if the caller the paragraph
+  above imagines ever arrives, the price of serving them is known before the work
+  starts. **The instrument is 90 lines of Python over `zlib` alone** — no
+  dependency, as Central found — and is the one thing this finding could not
+  contribute in Ring, because the plane has no palette-quantising encoder to
+  measure with.
+
+  *One thing the measurement changes about the catalogue rather than the
+  encoder:* those 74 pictures are committed, and regenerating them rewrites
+  most of a megabyte of binary into history each time. That is a question about
+  what a repository stores, not about what an encoder owes, and it is filed here
+  because the number came out of the same pass.
+
+## The guard that was red on main, and what it was really asserting
+
+**Found 2026-09-08, while running §7 to check something else: `gg_image_primitive`
+was 23 ok and 1 FAILED on `main`, committed and pushed.** The assertion read
+`chkeq("...and is NOT forced into a palette", aAA[2], 6)`, and the encoder was
+answering 2.
+
+**The encoder was right and the guard was stale.** `6` was how *not forced into
+a palette* looked on the day it was written, before the alpha-drop above taught
+the encoder to write RGB when nothing in the picture uses the fourth channel.
+The scene composites onto an opaque white background, so every pixel really is
+opaque, and colour type 2 is the correct and lossless answer. The assertion had
+pinned the encoder's **answer of the day** rather than its **promise**.
+
+**A stale assertion of this shape is worse than a missing one.** It reports a
+regression in code that got better, and the repair looks from outside like
+lowering a standard — so the honest reading takes longer than the red suggests,
+and the cheap reading is to weaken the assertion until it passes. The repair
+here does the opposite: the promise is asserted as `!= 3`, and the alpha
+decision is then pinned on **both** of its branches, each on a scene that
+actually reaches it.
+
+| scene | colours | type | why |
+|---|---:|---:|---|
+| flat art, opaque background | 2–256 | **3** | palette, every pixel its own colour |
+| one rect, no background | 2 | **3** | palette plus `tRNS` |
+| ramp, opaque background | 257 | **2** | the channel carried nothing |
+| the same ramp, no background | 257 | **6** | it carries alpha, so alpha is kept |
+
+The last row is the negative sibling the guard had never had, and it is the one
+that makes row three mean something: without a scene that keeps the channel,
+"drops the channel" is satisfied by an encoder that has simply lost it. The
+transparent ramp is also 2,735 bytes against 2,373, which is the drop's own
+justification measured rather than argued.
+
+**And one hole was found by the same pass**: the filter profile was asserted for
+its *shape* — some row chose, one filter won everywhere — and never for its
+total, so a stat counting half the picture satisfied every assertion in the
+section. The five counters must sum to the height, and a third canvas at 250
+rows is what keeps that from agreeing by coincidence with the 400 the other two
+share. `gg_image_primitive` is **31 ok, 0 failed**.
+
+*Both defects are in the SAME section, and neither is in the encoder.* The
+encoder was measured, argued and correct throughout. What went unchecked was the
+instrument pointed at it, which had been written before the last change to the
+thing it measures and never re-run against it.
 - **The antialiased case was nearly asserted by coincidence.** The first version
   of the guard drew a filled circle, called it antialiased, and got **five
   colours** back; the assertion passed for the wrong reason. It uses a 1,600
