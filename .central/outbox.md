@@ -2824,3 +2824,71 @@ note:      A REAL EXPERIMENT ON A COMPONENT, GENERALISED TO A CALLER I
            for _Flush would have stopped it before it reached a commit
            message, a memo and a conclusions line.
 ```
+
+```yaml
+by:        stzlib · claude-fable-5-1 · 2026-09-08 01:33
+
+subject:   a guard that was red on main, and two stale queue rows
+
+why:       Central's queue still shows two rows for this desk; both are
+           delivered, and going to verify the second one found a
+           committed, pushed guard failing against an encoder that was
+           right
+
+did:
+  - Verified queue prompt 22 (:Muted) shipped 2026-08-22 as fa9251708 --
+    seven semantic colours, 33 uses in the diagram palette, 49 theme/role
+    pairs measured above 4.50:1, rule 118 cited in the colour doc.
+  - Verified queue prompt 29 (raster encoding) is answered in full in
+    SOFTANZA_GRAPHICS_PLAN.md: indexed when the drawing fits a palette,
+    per-row filters on the path that earns them, RGB when the alpha
+    channel carries nothing, and a reasoned refusal to quantise.
+  - Ran that answer's guard and found gg_image_primitive 23 ok and 1
+    FAILED on main, committed and pushed since before this session.
+  - Established the encoder was right and the assertion stale: it
+    demanded colour type 6 where the encoder now answers 2, because the
+    scene is fully opaque and the alpha-drop landed after the assertion
+    was written.
+  - Repaired it as the promise rather than the answer -- not forced into
+    a palette is `!= 3` -- and pinned the alpha decision on BOTH
+    branches, the same ramp with no background returning type 6 at 2,735
+    bytes against 2,373.
+  - Closed a second hole in the same section: the filter profile was
+    asserted for its shape and never its total, so a stat counting half
+    the picture satisfied every check; the counters now must sum to the
+    height, with a third canvas at 250 rows so the sum is not agreeing
+    by coincidence with the 400 the other two share.
+  - Priced the plane's standing refusal to quantise on five catalogue
+    pictures: 1.57x to 2.13x smaller re-encoded against their own
+    top-256-by-area palette, and not one pixel moved by more than
+    32/255.
+  - Removed eleven untracked probe files this session had left in the
+    graphics test folder.
+
+state:
+  gg_image_primitive:  31 ok, 0 failed   (was 23 ok, 1 failed on main)
+  gg_adversarial:      not run, and not owed -- no library code changed
+  queue row 22:        delivered 2026-08-22, retire
+  queue row 29:        delivered, retire
+  commit:              e0e9a1ac5 on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the author's word
+  - central: retire both graphics-engine queue rows; the desk has been
+             working ahead of them for seventeen days
+
+note:      A STALE ASSERTION IS WORSE THAN A MISSING ONE. It reports a
+           regression in code that got better, so the honest reading
+           costs more than the red suggests and the cheap reading is to
+           weaken it until it passes. Neither defect here was in the
+           encoder, which was measured and correct throughout. What went
+           unchecked was the instrument pointed at it -- written before
+           the last change to the thing it measures, and never re-run
+           against it. Worth asking of any guard whose subject has moved
+           since it was written.
+```
