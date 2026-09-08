@@ -296,7 +296,8 @@ catching a portability break at the phase it enters, not at GR5.
 Guards: create/free churn, eviction under pressure, fallback counting
 — the G1 suite's shape, for render objects.
 
-**GR2 — the 2D layer, WITH the text pipeline.** Shape batching (rect/
+**GR2 — the 2D layer, WITH the text pipeline. SHIPPED**, as GR2a and GR2b,
+both closed below. Shape batching (rect/
 circle/line/polyline/path) into vertex buffers; ONE 2D pipeline with
 per-vertex color + texture; gradients. TEXT: vendor HarfBuzz
 (amalgamation) + SheenBidi here; engine `text_layout` (bidi → shape →
@@ -320,7 +321,8 @@ materials; instancing (the batched-pass machinery applied to draws).
 Scope honesty: NO shadows, NO PBR, NO skeletal animation in this
 phase — each is a later, workload-justified increment (G6's lesson).
 
-**GR4 — the declarative faces.** stzCanvas / stzScene / stzMesh /
+**GR4 — the declarative faces. SHIPPED**, as GR4a and GR4b, both closed
+below. stzCanvas / stzScene / stzMesh /
 stzMaterialMaker in base/graphics/, on the conventions ledger (Q
 convention, maker pattern, Show/Content, W-string → WGSL fragment via
 the EXISTING transpiler, extended with fragment-stage builtins). The
@@ -373,7 +375,8 @@ the G5 edge machinery pointed at pixels) remains the fourth tier and
 is OS-independent by nature. Deployment gate: gpu-required/optional
 already exists and applies unchanged.
 
-**GR6 — the convergence dividend.** The three islands join the plane:
+**GR6 — the convergence dividend. SHIPPED**, as GR6a, GR6b and GR6c, all
+three closed below. The three islands join the plane:
 plots gain :SVG and :PNG backends beside the terminal canvas (same
 plot model, new renderers — the "finished picture" doctrine kept);
 the diagram family gains PNG output; dataviz charts ride stzCanvas.
@@ -471,7 +474,16 @@ here; they are simply not designed AGAINST.
 
 ---
 
-## GR0 RESULTS — measured 2026-08-08. VERDICT: GO, and the render surface needs no lifecycle surgery
+## GR0 RESULTS — DELIVERED 2026-08-08, the spike measured. VERDICT: GO, and the render surface needs no lifecycle surgery
+
+*The word DELIVERED was added 2026-09-08 and it is a repair, not a
+formality. GR0 read "closed" to the checker for a month while its own words
+said only "VERDICT: GO" — a verdict is a finding, not a status. What was
+answering for it was the heading "GR0–GR6 are complete" further down, which
+opened with GR0's id and so was read as a definition OF GR0. Renaming that
+heading to stop it speaking for five items it merely mentioned took GR0's
+status away with it, which is how a borrowed status shows itself: nothing
+about GR0 changed, and it stopped being closed.*
 
 Environment: the SAME pinned wgpu-native v29.0.1.1, Zig 0.15.2,
 ReleaseSafe. Spike: `engine/tools/gr0_render_spike.zig` (build line in
@@ -1512,7 +1524,13 @@ showcase_window.ring 180` runs a fixed budget on autopilot and saves the
 last frame, because a demo that needs a human to check it is a demo nobody
 checks.
 
-### GR0–GR6 are complete
+### Every item of this plan, GR0 through GR6, is complete
+
+*This heading used to read "GR0–GR6 are complete", and it OPENED with an item
+id, so the checker read it as a definition of GR0 and of nothing else — a range
+is not a list it can expand. Six items were covered by a sentence only a human
+could parse. Renamed 2026-09-08 under the convention that a heading naming
+several items must not open with one of their ids.*
 
 Next: the graph plane, `SOFTANZA_GRAPH_PLANE_PLAN.md` (GG0–GG5). GG0 is
 already done (the spike returned GO); GG1 is the next phase. Note that

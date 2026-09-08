@@ -104,7 +104,7 @@ sections, of which 21 declarations over 17 items.
 | DN7h | closed | 86 |
 | DN7i | closed | 87 |
 | DN7j | closed | 88 |
-| DN8 | open | - |
+| DN8 | closed | - |
 | DN8a | closed | 89 |
 | DN8b | closed | 90 |
 | DN8c | closed | 91 |
@@ -114,7 +114,7 @@ sections, of which 21 declarations over 17 items.
 | DN8g | closed | 95 |
 | DN8h | closed | 96 |
 | DN10 | closed | 104 |
-| DN9 | open | - |
+| DN9 | closed | - |
 | DN9a | closed | 97 |
 | DN9b | closed | 98 |
 | DN9c | closed | 99 |
@@ -162,6 +162,28 @@ today** and both fire on the state this file was in yesterday:
 |---|---|---:|---:|
 | `plan_item_status_contradicts` | two definitions state different statuses | 0 | 1 (DN9g) |
 | `plan_item_defined_verbatim_twice` | one definition repeats another word for word | 0 | 7 |
+
+**And the fold immediately found the next one, which is the same disease one
+level up.** With statuses read from every definition, three items in this plan
+and two next door were **parents reading "planned", or saying nothing, over
+children that had all shipped** — DN8 over eight closed sub-items, DN9 over
+seven, GR6 over three, GR2 and GR4 over two each. Five of the 32 not-closed
+items in the whole library. Work here lands AS its parts, and when the last
+part closes nobody goes back to the whole; `plan_item_open_but_discharged`
+cannot see it, because a parent has no guard section of its own to discharge
+it — its children have them. `plan_parent_understates_its_children` reports it,
+all five are corrected, and the count is now **zero of 27**.
+
+**One of those five corrections took a status away, and that is the finding
+inside the finding.** The graphics plan carried a heading reading
+`### GR0–GR6 are complete` — a RANGE, opening with an item id, so the checker
+read it as a definition of GR0 and of nothing else. Six items were covered by a
+sentence only a human could parse, and GR0 had been reading "closed" for a month
+on the strength of a heading that was not about GR0 in particular. Renaming it
+under the convention above **took GR0's status with it**, because GR0's own
+words said only *"VERDICT: GO"* — and a verdict is a finding, not a status.
+Nothing about GR0 changed and it stopped being closed, which is exactly how a
+borrowed status shows itself. It says `DELIVERED` now, in its own section.
 
 *The transferable part is not the rule.* The instrument that found this was
 written to answer a different question, and the first version of it used a
@@ -2337,7 +2359,7 @@ was a cliff at twelve sets.
   the data rather than named by hand — the first guess at which cell
   that was, was wrong, which is the argument for computing it.
 
-## DN8 — ONE CONTENT, ONE READING, ONE GATE: unify the two planes by making each strengthen the other (2026-09-06, planned)
+## DN8 — ONE CONTENT, ONE READING, ONE GATE: unify the two planes by making each strengthen the other (planned 2026-09-06, SHIPPED 2026-09-07 as DN8a through DN8h, all eight closed)
 
 The Principal asked, after DN7j was met, whether the foundational
 mathematical-diagram models were covered and what the library's own
@@ -2764,7 +2786,7 @@ DN8b's numbers say the layouts-as-starts are not enough — the expectation
 is that they are, for every planar graph the gallery draws. Rotated
 shapes and text along a path stay unplanned. 3D stays outside.
 
-## DN9 — THE TOLD PICTURE: a narration is facts made visible, in an order (2026-09-06, planned)
+## DN9 — THE TOLD PICTURE: a narration is facts made visible, in an order (planned 2026-09-06, SHIPPED 2026-09-07 as DN9a through DN9g, all seven closed)
 
 The Principal, after DN8h was explained to him with three diagrams drawn
 by hand from the engine's own numbers, asked whether the library was now
