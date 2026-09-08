@@ -379,7 +379,9 @@ func StzMathScene20(poFont)
 	for _i_ = 1 to 8  _oS_.Label("l" + _i_, "")  next
 	_o_ = new stzMathDiagram(StzGraphDomain(), _oS_, StzGraphStyle())
 	_o_.SetFont(poFont, 16)
-	# one crossing on this seed; eight on the first one tried
+	# one crossing on this seed, eight on the first tried -- until DN11,
+	# when the planar start learned to embed the 2-core and hang the leaf
+	# (Backup) off it: planar now, and no crossing
 	_o_.SetVariation("links")
 	return _o_
 
@@ -869,3 +871,105 @@ func StzStoryOrgChart(poFont, pcFolio)
 	_o_.BindFact("fixed", StzStoryFindingAbout(StzStoryChartOf(1), "ops"))
 	_o_.Emphasis("ops.icon", :focus)
 	return _o_
+
+#-- molecules (DN11): the second caller of the solver -------------------------
+
+# WATER: the smallest molecule with an angle. Three atoms, two bonds, one
+# BondAngle whose ideal is 120 -- a 2D depiction's angle, said plainly in
+# the domain file; the real one is 104.5.
+func StzMathWaterSubstance()
+	return StzMoleculeFromBonds([ "O", "H", "H" ], [ [ 1, 2, 1 ], [ 1, 3, 1 ] ])
+
+func StzMathScene38(poFont)
+	_o_ = new stzMathDiagram(StzChemistryDomain(), StzMathWaterSubstance(), StzBallAndStickStyle())
+	_o_.SetFont(poFont, 11)
+	_o_.SetVariation("water")
+	return _o_
+
+# BENZENE, every hydrogen drawn: a six-ring of carbons with alternating
+# double bonds, a hydrogen on each. Twelve atoms, twelve bonds, and the
+# ring is a REGULAR HEXAGON by consequence -- equal bonds and 120-degree
+# ideals at every carbon, and nothing that says "hexagon".
+func StzMathBenzeneSubstance()
+	_acE_ = [ "C", "C", "C", "C", "C", "C", "H", "H", "H", "H", "H", "H" ]
+	_aB_ = [ [ 1, 2, 2 ], [ 2, 3, 1 ], [ 3, 4, 2 ], [ 4, 5, 1 ], [ 5, 6, 2 ], [ 6, 1, 1 ],
+	         [ 1, 7, 1 ], [ 2, 8, 1 ], [ 3, 9, 1 ], [ 4, 10, 1 ], [ 5, 11, 1 ], [ 6, 12, 1 ] ]
+	return StzMoleculeFromBonds(_acE_, _aB_)
+
+func StzMathScene39(poFont)
+	_o_ = new stzMathDiagram(StzChemistryDomain(), StzMathBenzeneSubstance(), StzBallAndStickStyle())
+	_o_.SetFont(poFont, 11)
+	_o_.SetVariation("benzene")
+	return _o_
+
+# CAFFEINE, skeletal: fourteen heavy atoms, fifteen bonds, a six-ring
+# FUSED to a five-ring on a shared edge, two carbonyls, three methyls.
+# The five-ring cannot have its 120s and settles near 108; the six-ring
+# keeps its; and the fusion is what a chain of triangles never posed.
+func StzMathCaffeineSubstance()
+	#  1 N1  2 C2  3 N3  4 C4  5 C5  6 C6  7 N7  8 C8  9 N9
+	# 10 O   11 O  12 C(N1-Me)  13 C(N3-Me)  14 C(N7-Me)
+	_acE_ = [ "N", "C", "N", "C", "C", "C", "N", "C", "N", "O", "O", "C", "C", "C" ]
+	_aB_ = [ [ 1, 2, 1 ], [ 2, 3, 1 ], [ 3, 4, 1 ], [ 4, 5, 2 ], [ 5, 6, 1 ], [ 6, 1, 1 ],
+	         [ 4, 9, 1 ], [ 9, 8, 2 ], [ 8, 7, 1 ], [ 7, 5, 1 ],
+	         [ 2, 10, 2 ], [ 6, 11, 2 ],
+	         [ 1, 12, 1 ], [ 3, 13, 1 ], [ 7, 14, 1 ] ]
+	return StzMoleculeFromBonds(_acE_, _aB_)
+
+func StzMathScene40(poFont)
+	_o_ = new stzMathDiagram(StzChemistryDomain(), StzMathCaffeineSubstance(), StzBallAndStickStyle())
+	_o_.SetFont(poFont, 11)
+	_o_.SetVariation("caffeine")
+	return _o_
+
+# PHENOL IN WATER: one molecule and six that are not bonded to it -- seven
+# components in one substance, which the solver has never been handed.
+# Every hydrogen drawn, as the Principal's picture had them.
+func StzMathSolvatedSubstance(pnWaters)
+	# phenol: ring carbons 1-6, ring hydrogens 7-11 on carbons 2-6, O 12, its H 13
+	_acE_ = [ "C", "C", "C", "C", "C", "C", "H", "H", "H", "H", "H", "O", "H" ]
+	_aB_ = [ [ 1, 2, 2 ], [ 2, 3, 1 ], [ 3, 4, 2 ], [ 4, 5, 1 ], [ 5, 6, 2 ], [ 6, 1, 1 ],
+	         [ 2, 7, 1 ], [ 3, 8, 1 ], [ 4, 9, 1 ], [ 5, 10, 1 ], [ 6, 11, 1 ],
+	         [ 1, 12, 1 ], [ 12, 13, 1 ] ]
+	_n_ = 13
+	for _w_ = 1 to pnWaters
+		_acE_ + "O"  _acE_ + "H"  _acE_ + "H"
+		_aB_ + [ _n_ + 1, _n_ + 2, 1 ]
+		_aB_ + [ _n_ + 1, _n_ + 3, 1 ]
+		_n_ += 3
+	next
+	return StzMoleculeFromBonds(_acE_, _aB_)
+
+func StzMathScene41(poFont)
+	_o_ = new stzMathDiagram(StzChemistryDomain(), StzMathSolvatedSubstance(6), StzBallAndStickStyle())
+	_o_.@oStyle.SetCanvas(720, 640)
+	_o_.SetFont(poFont, 11)
+	_o_.SetVariation("phenol in water")
+	return _o_
+
+# A V2000 MOL BLOCK OF BENZENE, its ring drawn as a regular hexagon of
+# bond 1.40 A in the file -- the INDEPENDENT geometry the guard measures
+# the solved picture against. Fixed columns, as the format is.
+func StzMathBenzeneMol()
+	_c_ = "benzene" + char(10) + "  hand-written V2000" + char(10) + char(10) +
+	      " 12 12  0  0  0  0  0  0  0  0999 V2000" + char(10) +
+	      "    1.4000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0" + char(10) +
+	      "    0.7000    1.2124    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0" + char(10) +
+	      "   -0.7000    1.2124    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0" + char(10) +
+	      "   -1.4000    0.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0" + char(10) +
+	      "   -0.7000   -1.2124    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0" + char(10) +
+	      "    0.7000   -1.2124    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0" + char(10) +
+	      "    2.4900    0.0000    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0" + char(10) +
+	      "    1.2450    2.1564    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0" + char(10) +
+	      "   -1.2450    2.1564    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0" + char(10) +
+	      "   -2.4900    0.0000    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0" + char(10) +
+	      "   -1.2450   -2.1564    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0" + char(10) +
+	      "    1.2450   -2.1564    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0" + char(10) +
+	      "  1  2  2  0  0  0  0" + char(10) + "  2  3  1  0  0  0  0" + char(10) +
+	      "  3  4  2  0  0  0  0" + char(10) + "  4  5  1  0  0  0  0" + char(10) +
+	      "  5  6  2  0  0  0  0" + char(10) + "  6  1  1  0  0  0  0" + char(10) +
+	      "  1  7  1  0  0  0  0" + char(10) + "  2  8  1  0  0  0  0" + char(10) +
+	      "  3  9  1  0  0  0  0" + char(10) + "  4 10  1  0  0  0  0" + char(10) +
+	      "  5 11  1  0  0  0  0" + char(10) + "  6 12  1  0  0  0  0" + char(10) +
+	      "M  END" + char(10)
+	return _c_

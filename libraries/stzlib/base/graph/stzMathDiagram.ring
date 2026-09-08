@@ -112,6 +112,30 @@
 # the memo behind _MdKey, one per process (DN8g)
 $aMdKeyMemo = []
 
+# RULE SETS A DOMAIN FILE REGISTERS FOR ITSELF (DN11). The visual contract
+# in StzMathRuleSet() is every picture's; a domain's own semantics -- a
+# carbon with five bonds -- belong to the file that knows the domain, and
+# that file loads AFTER this one. So it registers its rules here by name,
+# and StzMathGovernanceOf folds every registered set beside the visual
+# ones. Same shape as the notation registry, for the same reason.
+$aStzMathRuleSets = []
+
+func StzRegisterMathRuleSet(pcName, paRules)
+	_c_ = StzLower(ring_trim("" + pcName))
+	if _c_ = "" or NOT isList(paRules)  return FALSE  ok
+	_n_ = len($aStzMathRuleSets)
+	for _i_ = 1 to _n_
+		if $aStzMathRuleSets[_i_][1] = _c_
+			$aStzMathRuleSets[_i_][2] = paRules
+			return TRUE
+		ok
+	next
+	$aStzMathRuleSets + [ _c_, paRules ]
+	return TRUE
+
+func StzMathRegisteredRuleSets()
+	return $aStzMathRuleSets
+
 func StzMathDomainQ(pcName)
 	return new stzMathDomain(pcName)
 
@@ -1635,6 +1659,14 @@ func StzMathGovernanceOf(pcName)
 	_ao_ = StzMathRuleSet()
 	for _i_ = 1 to len(_ao_)
 		_o_.AddRule(_ao_[_i_])
+	next
+	# and every domain's own rules, registered by the file that owns them
+	_aS_ = StzMathRegisteredRuleSets()
+	for _s_ = 1 to len(_aS_)
+		_ar_ = _aS_[_s_][2]
+		for _i_ = 1 to len(_ar_)
+			_o_.AddRule(_ar_[_i_])
+		next
 	next
 	return _o_
 
@@ -3769,6 +3801,7 @@ class stzMathDiagram from stzObject
 	@nMatchCandidates = 0
 	@bPlanarStarted = FALSE
 	@acOuterFace = []
+	@nHamBudget = 0     # the step budget of the perimeter search (DN11)
 	@nStartsTried = 0
 	@cStartUsed = "random"
 	@nAdvisoryUnmet = 0
@@ -7848,6 +7881,32 @@ class stzMathDiagram from stzObject
 					if _iy_ > 0  _aX_[_iy_] = _aPl_[_k_][3] + 24 * sin(_th_)  ok
 				ok
 			next
+			# A PENDANT VERTEX STARTS BESIDE THE VERTEX IT HANGS FROM (DN11).
+			# A start is computed over ONE type -- a molecule's skeleton, a
+			# lattice's elements -- and an object joined to that type by a
+			# constructor but not of it (a hydrogen on a carbon, a leaf on a
+			# ring) got a random position anywhere on the paper, from which
+			# the only path to its neighbour ran through every separation
+			# and crossing penalty between. It begins a short step from the
+			# object it is defined against, in a random direction, and the
+			# solver takes it the rest of the way. Same principle as the
+			# names above: choose the basin by structure, not by luck.
+			if _m_ > 0
+				_aPd_ = This._PendantStarts(_aDecl_[1], _aDecl_[3], _aPl_)
+				_nPd_ = len(_aPd_)
+				for _k_ = 1 to _nPd_
+					_cO_ = _aPd_[_k_][1]
+					_ix_ = This._UnknownIndex(_cO_ + "." + _aDecl_[2] + ".cx")
+					_iy_ = This._UnknownIndex(_cO_ + "." + _aDecl_[2] + ".cy")
+					_th_ = StzRandom01() * 6.28318530717959
+					if _ix_ > 0  _aX_[_ix_] = _aPd_[_k_][2] + 40 * cos(_th_)  ok
+					if _iy_ > 0  _aX_[_iy_] = _aPd_[_k_][3] + 40 * sin(_th_)  ok
+					_ix_ = This._UnknownIndex(_cO_ + ".text.cx")
+					_iy_ = This._UnknownIndex(_cO_ + ".text.cy")
+					if _ix_ > 0  _aX_[_ix_] = _aPd_[_k_][2] + 40 * cos(_th_)  ok
+					if _iy_ > 0  _aX_[_iy_] = _aPd_[_k_][3] + 40 * sin(_th_)  ok
+				next
+			ok
 			_v_ = 0
 			if _p_ != ""
 				_r_ = StzEngineGradValueAt(_p_, _aX_)
@@ -7860,6 +7919,57 @@ class stzMathDiagram from stzObject
 		next
 		if _p_ != ""  StzEngineGradFree(_p_)  ok
 		@aValue = _aBest_
+
+	# The objects a start did NOT place that a constructor joins to one it
+	# did: [ [ object, anchorX, anchorY ], ... ]. An object of the start's
+	# own type is never pendant here -- it was placed, or the start was
+	# refused as a whole -- so this reaches exactly the leaves of another
+	# type hung on the started graph.
+	def _PendantStarts(pcType, pacCtors, paPlaced)
+		_r_ = []
+		_nP_ = len(paPlaced)
+		if _nP_ = 0  return _r_  ok
+		_aD_ = @oSubstance.Definitions()
+		_nD_ = len(_aD_)
+		_nC_ = len(pacCtors)
+		for _i_ = 1 to _nD_
+			_bCtor_ = FALSE
+			for _c_ = 1 to _nC_
+				if StzLower("" + _aD_[_i_][2]) = StzLower("" + pacCtors[_c_])
+					_bCtor_ = TRUE
+					exit
+				ok
+			next
+			if NOT _bCtor_  loop  ok
+			_ac_ = _aD_[_i_][3]
+			if len(_ac_) != 2  loop  ok
+			_cA_ = "" + _ac_[1]
+			_cB_ = "" + _ac_[2]
+			_kA_ = This._PlacedIndex(_cA_, paPlaced)
+			_kB_ = This._PlacedIndex(_cB_, paPlaced)
+			if _kA_ > 0 and _kB_ = 0 and NOT This._IsPendantListed(_cB_, _r_)
+				_r_ + [ _cB_, paPlaced[_kA_][2], paPlaced[_kA_][3] ]
+			but _kB_ > 0 and _kA_ = 0 and NOT This._IsPendantListed(_cA_, _r_)
+				_r_ + [ _cA_, paPlaced[_kB_][2], paPlaced[_kB_][3] ]
+			ok
+		next
+		return _r_
+
+	def _PlacedIndex(pcObj, paPlaced)
+		_c_ = StzLower(pcObj)
+		_n_ = len(paPlaced)
+		for _k_ = 1 to _n_
+			if StzLower("" + paPlaced[_k_][1]) = _c_  return _k_  ok
+		next
+		return 0
+
+	def _IsPendantListed(pcObj, paList)
+		_c_ = StzLower(pcObj)
+		_n_ = len(paList)
+		for _k_ = 1 to _n_
+			if StzLower("" + paList[_k_][1]) = _c_  return TRUE  ok
+		next
+		return FALSE
 
 	# Did the last layout begin from a planar embedding? False when the
 	# style asked for none, and false when it asked and the graph could not
@@ -7964,7 +8074,55 @@ class stzMathDiagram from stzObject
 			if This._IndexIn(_aAdj_[_u_], _v_) = 0  _aAdj_[_u_] + _v_  ok
 			if This._IndexIn(_aAdj_[_v_], _u_) = 0  _aAdj_[_v_] + _u_  ok
 		next
-		_aFace_ = This._OuterFace(_n_, _aAdj_)
+		# THE EMBEDDING IS OF THE 2-CORE, AND THE LEAVES HANG OFF IT (DN11).
+		# Tutte relaxes every free vertex to the barycentre of its neighbours,
+		# so a vertex with ONE neighbour relaxes onto it exactly, and the
+		# collapse check below then refused the whole start -- for a graph
+		# that was planar and easy. Any ring with anything hanging from it
+		# is that graph: a carbonyl oxygen, a methyl carbon, a label-vertex
+		# on a lattice. So pendant vertices are stripped, iteratively, each
+		# remembering what it hung from; the face and the relaxation run on
+		# what remains; and the stripped vertices are put back in reverse
+		# order, each a step out from its anchor AWAY from the anchor's other
+		# neighbours -- which is the direction a substituent points. Two on
+		# one anchor fan out. A tree strips to nothing and is refused as
+		# before: it has no face to give.
+		_abIn_ = []
+		for _i_ = 1 to _n_
+			_abIn_ + TRUE
+		next
+		_anStripV_ = []
+		_anStripA_ = []
+		_bMore_ = TRUE
+		while _bMore_
+			_bMore_ = FALSE
+			for _i_ = 1 to _n_
+				if NOT _abIn_[_i_]  loop  ok
+				_nDeg_ = 0
+				_nLast_ = 0
+				for _j_ = 1 to len(_aAdj_[_i_])
+					if _abIn_[_aAdj_[_i_][_j_]]
+						_nDeg_++
+						_nLast_ = _aAdj_[_i_][_j_]
+					ok
+				next
+				if _nDeg_ = 1
+					_abIn_[_i_] = FALSE
+					_anStripV_ + _i_
+					_anStripA_ + _nLast_
+					_bMore_ = TRUE
+				ok
+			next
+		end
+		_aAdjC_ = []
+		for _i_ = 1 to _n_
+			_aAdjC_ + []
+			if NOT _abIn_[_i_]  loop  ok
+			for _j_ = 1 to len(_aAdj_[_i_])
+				if _abIn_[_aAdj_[_i_][_j_]]  _aAdjC_[_i_] + _aAdj_[_i_][_j_]  ok
+			next
+		next
+		_aFace_ = This._OuterFace(_n_, _aAdjC_)
 		if len(_aFace_) < 3  return []  ok
 		_W_ = @oStyle.CanvasWidth()
 		_H_ = @oStyle.CanvasHeight()
@@ -7983,34 +8141,72 @@ class stzMathDiagram from stzObject
 			_ay_[_aFace_[_k_]] = _H_ / 2 + _R_ * sin(_th_)
 			_bFix_[_aFace_[_k_]] = TRUE
 		next
-		# a vertex with no path to the face would relax to nothing: it is
-		# placed at random and held there
-		_aSeen_ = This._Reach(_n_, _aAdj_, _aFace_)
+		# a core vertex with no path to the face would relax to nothing: it
+		# is placed at random and held there
+		_aSeen_ = This._Reach(_n_, _aAdjC_, _aFace_)
 		for _i_ = 1 to _n_
-			if NOT _aSeen_[_i_] and NOT _bFix_[_i_]
+			if _abIn_[_i_] and NOT _aSeen_[_i_] and NOT _bFix_[_i_]
 				_ax_[_i_] = 0.15 * _W_ + StzRandom01() * 0.7 * _W_
 				_ay_[_i_] = 0.15 * _H_ + StzRandom01() * 0.7 * _H_
 				_bFix_[_i_] = TRUE
 			ok
 		next
 		for _i_ = 1 to _n_
-			if NOT _bFix_[_i_]
+			if _abIn_[_i_] and NOT _bFix_[_i_]
 				_ax_[_i_] = _W_ / 2
 				_ay_[_i_] = _H_ / 2
 			ok
 		next
 		for _sweep_ = 1 to 400
 			for _i_ = 1 to _n_
-				if _bFix_[_i_] or len(_aAdj_[_i_]) = 0  loop  ok
+				if NOT _abIn_[_i_] or _bFix_[_i_] or len(_aAdjC_[_i_]) = 0  loop  ok
 				_sx_ = 0  _sy_ = 0
-				_d_ = len(_aAdj_[_i_])
+				_d_ = len(_aAdjC_[_i_])
 				for _j_ = 1 to _d_
-					_sx_ += _ax_[_aAdj_[_i_][_j_]]
-					_sy_ += _ay_[_aAdj_[_i_][_j_]]
+					_sx_ += _ax_[_aAdjC_[_i_][_j_]]
+					_sy_ += _ay_[_aAdjC_[_i_][_j_]]
 				next
 				_ax_[_i_] = _sx_ / _d_
 				_ay_[_i_] = _sy_ / _d_
 			next
+		next
+		# HANG THE LEAVES, last stripped first, so a leaf on a leaf finds its
+		# anchor already placed. The step is a third of the face's radius --
+		# a bond's length, near enough, on the papers this plane draws.
+		_abPlaced_ = []
+		_anHung_ = []
+		for _i_ = 1 to _n_
+			_abPlaced_ + _abIn_[_i_]
+			_anHung_ + 0
+		next
+		_nStep_ = _R_ * 0.33
+		for _k_ = len(_anStripV_) to 1 step -1
+			_v_ = _anStripV_[_k_]
+			_a_ = _anStripA_[_k_]
+			_cx_ = 0  _cy_ = 0  _nc_ = 0
+			for _j_ = 1 to len(_aAdj_[_a_])
+				_w_ = _aAdj_[_a_][_j_]
+				if _w_ = _v_ or NOT _abPlaced_[_w_]  loop  ok
+				_cx_ += _ax_[_w_]  _cy_ += _ay_[_w_]  _nc_++
+			next
+			_th_ = StzRandom01() * 6.28318530717959
+			if _nc_ > 0
+				_dx_ = _ax_[_a_] - _cx_ / _nc_
+				_dy_ = _ay_[_a_] - _cy_ / _nc_
+				if _dx_ * _dx_ + _dy_ * _dy_ > 0.000001  _th_ = atan2(_dy_, _dx_)  ok
+			ok
+			# the k-th leaf on one anchor fans out: 0, +75, -75, +150, -150
+			_nk_ = _anHung_[_a_]
+			_nFan_ = 0
+			if _nk_ > 0
+				_nFan_ = 1.3089969 * ceil(_nk_ / 2)
+				if _nk_ % 2 = 0  _nFan_ = -_nFan_  ok
+			ok
+			_th_ += _nFan_
+			_ax_[_v_] = _ax_[_a_] + _nStep_ * cos(_th_)
+			_ay_[_v_] = _ay_[_a_] + _nStep_ * sin(_th_)
+			_abPlaced_[_v_] = TRUE
+			_anHung_[_a_] = _nk_ + 1
 		next
 		for _i_ = 1 to _n_
 			for _j_ = _i_ + 1 to _n_
@@ -8033,6 +8229,24 @@ class stzMathDiagram from stzObject
 	# avoids the edge closes a cycle; the shortest of those that passes both
 	# tests is the face.
 	def _OuterFace(pnN, paAdj)
+		# THE PERIMETER FIRST (DN11). A fused ring system -- two rings on a
+		# shared edge, which is every bicyclic molecule and most lattices
+		# with a diagonal -- has as its shortest chordless cycle ONE of its
+		# rings, and Tutte with that ring as the outer face relaxes the
+		# other ring's remaining vertices into an arc squashed against the
+		# shared edge: a planar drawing, and a start no local method opens
+		# without crossing. Measured on caffeine: the six-ring's four free
+		# atoms landed within a few pixels of one another, and the solve
+		# ended 26px unlawful from the only start that could have been
+		# right. What a chemist draws is the PERIMETER, with the shared
+		# edges as straight chords across it. So when the core has a cycle
+		# through every vertex whose chords do not cross in cyclic order --
+		# the core is outerplanar -- that cycle is the outer boundary and
+		# every vertex is fixed on it; there is nothing left to relax. A
+		# core with no such cycle, or with crossing chords, falls to the
+		# rule below, which is what the cube and the dodecahedron use.
+		_aHam_ = This._OuterplanarCycle(pnN, paAdj)
+		if len(_aHam_) >= 3  return _aHam_  ok
 		_best_ = []
 		for _u_ = 1 to pnN
 			for _q_ = 1 to len(paAdj[_u_])
@@ -8047,6 +8261,97 @@ class stzMathDiagram from stzObject
 			next
 		next
 		return _best_
+
+	# A cycle through every vertex that has edges, whose chords do not
+	# cross in cyclic order -- or [] when there is none, or when the search
+	# is not worth finishing. Depth-first with a step budget: the cores
+	# this plane draws are tens of vertices, and a budget of a hundred
+	# thousand steps answers every one of them in milliseconds while a
+	# core built to defeat the search is refused rather than waited for.
+	def _OuterplanarCycle(pnN, paAdj)
+		_acLive_ = []
+		for _i_ = 1 to pnN
+			if len(paAdj[_i_]) > 0  _acLive_ + _i_  ok
+		next
+		_nL_ = len(_acLive_)
+		if _nL_ < 3  return []  ok
+		_abOn_ = []
+		for _i_ = 1 to pnN
+			_abOn_ + FALSE
+		next
+		_aPath_ = [ _acLive_[1] ]
+		_abOn_[_acLive_[1]] = TRUE
+		@nHamBudget = 100000
+		_aC_ = This._HamExtend(pnN, paAdj, _aPath_, _abOn_, _nL_)
+		if len(_aC_) < 3  return []  ok
+		# THE CHORDS MUST NOT CROSS: two chords (a, b) and (c, d), as
+		# positions on the cycle, cross when exactly one of c and d lies
+		# between a and b. A crossing pair would need a vertex inside.
+		_anPos_ = []
+		for _i_ = 1 to pnN
+			_anPos_ + 0
+		next
+		for _k_ = 1 to len(_aC_)
+			_anPos_[_aC_[_k_]] = _k_
+		next
+		_aCh_ = []
+		for _k_ = 1 to len(_aC_)
+			_u_ = _aC_[_k_]
+			for _q_ = 1 to len(paAdj[_u_])
+				_v_ = paAdj[_u_][_q_]
+				if _v_ <= _u_  loop  ok
+				_pu_ = _anPos_[_u_]  _pv_ = _anPos_[_v_]
+				if _pv_ = _pu_ + 1 or _pu_ = _pv_ + 1  loop  ok
+				if (_pu_ = 1 and _pv_ = len(_aC_)) or (_pv_ = 1 and _pu_ = len(_aC_))  loop  ok
+				_aCh_ + [ _pu_, _pv_ ]
+			next
+		next
+		for _i_ = 1 to len(_aCh_)
+			_a_ = _aCh_[_i_][1]  _b_ = _aCh_[_i_][2]
+			if _a_ > _b_  _t_ = _a_  _a_ = _b_  _b_ = _t_  ok
+			for _j_ = _i_ + 1 to len(_aCh_)
+				_c_ = _aCh_[_j_][1]  _d_ = _aCh_[_j_][2]
+				_bIn1_ = (_c_ > _a_ and _c_ < _b_)
+				_bIn2_ = (_d_ > _a_ and _d_ < _b_)
+				if _bIn1_ != _bIn2_ and _c_ != _a_ and _c_ != _b_ and _d_ != _a_ and _d_ != _b_
+					return []
+				ok
+			next
+		next
+		return _aC_
+
+	def _HamExtend(pnN, paAdj, paPath, pabOn, pnWant)
+		@nHamBudget--
+		if @nHamBudget < 0  return []  ok
+		_nP_ = len(paPath)
+		_u_ = paPath[_nP_]
+		if _nP_ = pnWant
+			# closes back to the start?
+			if This._IndexIn(paAdj[_u_], paPath[1]) > 0  return paPath  ok
+			return []
+		ok
+		for _q_ = 1 to len(paAdj[_u_])
+			_v_ = paAdj[_u_][_q_]
+			if pabOn[_v_]  loop  ok
+			pabOn[_v_] = TRUE
+			# A FRESH LIST FOR THE LONGER PATH. `paPath + _v_` written as
+			# the argument APPENDS IN PLACE and hands the same list down, so
+			# after a failed branch the path had grown by one and the next
+			# branch extended the wrong path: every graph that needed a
+			# single backtrack was refused, and the two that needed none
+			# passed -- which is how a bug on the fused rings hid behind a
+			# green six-ring.
+			_aNext_ = []
+			for _w_ = 1 to _nP_
+				_aNext_ + paPath[_w_]
+			next
+			_aNext_ + _v_
+			_aR_ = This._HamExtend(pnN, paAdj, _aNext_, pabOn, pnWant)
+			pabOn[_v_] = FALSE
+			if len(_aR_) > 0  return _aR_  ok
+			if @nHamBudget < 0  return []  ok
+		next
+		return []
 
 	# breadth-first from u to v, never crossing the edge u-v directly
 	def _ShortestAvoiding(pnN, paAdj, pnU, pnV)

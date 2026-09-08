@@ -5,7 +5,7 @@
 #
 #     ring gg_math_catalogue.ring
 #
-# writes math_01.png .. math_12.png beside it and prints, for each, the
+# writes math_01.png .. math_41.png beside it and prints, for each, the
 # solver's own account -- unknowns, constraints, rounds, evaluations,
 # milliseconds -- and every violated constraint, because the fifth scene
 # is a contradiction on purpose and its report is the point.
@@ -51,9 +51,13 @@ acTitles = [ "two sets, one inside the other  (Penrose twosets-simple)",
              "THE CHAOS GAME                   (Sierpinski by iteration: 5,000 dots, nothing to solve)",
              "THE NEPHROID AS AN ENVELOPE      (180 circles on a circle, tangent to its diameter)",
              "BROWNIAN PATHS                   (3,000 steps, each a definition the matcher binds once)",
-             "BYRNE, A DRAGGED                 (the figure re-solves from where it stands -- a warm start)" ]
+             "BYRNE, A DRAGGED                 (the figure re-solves from where it stands -- a warm start)",
+             "WATER                            (DN11: the smallest molecule with an angle -- solved, not placed)",
+             "BENZENE, EVERY HYDROGEN DRAWN    (a regular hexagon by consequence: equal bonds, 120 at each carbon)",
+             "CAFFEINE, SKELETAL               (fused rings -- the perimeter is the outer face, the shared edge a chord)",
+             "PHENOL IN WATER                  (seven components in one substance, every hydrogen drawn)" ]
 
-for i = 1 to 37
+for i = 1 to 41
 	if i = 1   oM = StzMathScene01(oFont)
 	but i = 2  oM = StzMathScene02(oFont)
 	but i = 3  oM = StzMathScene03(oFont)
@@ -90,7 +94,11 @@ for i = 1 to 37
 	but i = 34 oM = StzMathScene34(oFont)
 	but i = 35 oM = StzMathScene35(oFont)
 	but i = 36 oM = StzMathScene36(oFont)
-	else       oM = StzMathScene37(oFont)  ok
+	but i = 37 oM = StzMathScene37(oFont)
+	but i = 38 oM = StzMathScene38(oFont)
+	but i = 39 oM = StzMathScene39(oFont)
+	but i = 40 oM = StzMathScene40(oFont)
+	else       oM = StzMathScene41(oFont)  ok
 	oM.Layout()
 	? "== " + acTitles[i]
 	? "   unknowns " + oM.NumberOfUnknowns() + "   constraints " +

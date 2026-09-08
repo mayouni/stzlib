@@ -13092,7 +13092,14 @@ chk("every arrow stops clear of the dot at both of its ends",
     _GrArrowsClear(oGn, "l", 8, 11))
 chk("no name sits within twelve pixels of a STRANGER's dot",
     _GrNamesOffStrangers(oGn, [ "Client", "Gateway", "Firewall", "Switch", "Web", "DB", "Backup" ]) >= 11.5)
-chk("and the chosen seed leaves one crossing", _GrCrossings(oGn, "l", 8) = 1)
+# THE NETWORK STARTS PLANAR NOW (DN11). It is not 3-connected -- leaves
+# hang off its ring -- and the planar start was refused for exactly that
+# until the start learned to embed the 2-core and hang the leaves after.
+# The line that stood here read "the chosen seed leaves one crossing": a
+# pin on a limitation, and the crossing is gone with the limitation.
+chk("the network starts planar: its 2-core embeds and its leaves hang off it",
+    oGn.StartedPlanar())
+chk("and the crossing the chosen seed used to leave is gone", _GrCrossings(oGn, "l", 8) = 0)
 chk("NEGATIVE: the first seed tried leaves eight -- the count is real",
     _GrCrossings(_GrSeeded(20, "network"), "l", 8) > 1)
 oGb = StzMathScene21(AUFONT)
@@ -13174,12 +13181,14 @@ chk("NEGATIVE: the same style with the start cleared leaves the dodecahedron cro
     _GrCrossings(_GrRandomStart(StzMathDodecahedronSubstance(), StzSpringGraphStyle(),
                  12, "game"), "e", 30) > 5)
 
-# THE FALLBACK. A graph Tutte collapses -- one with a cut vertex, a tree --
-# keeps the random start it always had, and says so.
-oPn = StzMathScene20(AUFONT)
-chk("the network is not 3-connected: no planar start, and the diagram says so",
+# THE FALLBACK. A graph Tutte collapses -- a TREE, whose 2-core is empty --
+# keeps the start it can have, and says so. The network stood here until
+# DN11 as "not 3-connected, so no planar start"; it is not 3-connected,
+# but it is not a tree either, and a cut vertex is no longer a refusal.
+oPn = _GrTree()
+chk("a tree has no planar start, and the diagram says so",
     NOT oPn.StartedPlanar() and len(oPn.OuterFace()) = 0)
-chk("and it is still lawful -- the crossing rule became advice there", oPn.IsFeasible())
+chk("and it is still lawful", oPn.IsFeasible())
 
 # THE TWO REPAIRS THE START FORCED. A name held off an edge pulls on the
 # edge's ends, and at a strict weight eight names threw a planar cube away;
@@ -13462,9 +13471,11 @@ chk("and every report sits to the right of the position it reports to",
 
 # THE STARTS ARE TRIED IN ORDER, A START THE GRAPH CANNOT GIVE IS SKIPPED,
 # AND THE FIGURES ARE REPORTED.
-oLsN = StzMathScene20(AUFONT)
+# a real tree, since DN11: the network used to stand here, and it starts
+# planar now -- its 2-core is a ring
+oLsN = _GrTree()
 chk("a tree's planar start cannot be computed and is skipped, not counted as tried",
-    oLsN.StartUsed() != "planar")
+    oLsN.StartUsed() != "planar" and NOT oLsN.StartedPlanar())
 chk("a style that names no start reports one random start",
     _LsNoStart().StartUsed() = "random" and _LsNoStart().StartsTried() = 1)
 chk("a start that is not a start is refused", _LsRefusesStart())
@@ -13514,17 +13525,31 @@ aOgP + [ "math/window/marked out of view", _OgWindowWitness(FALSE) ]
 # window at all, which the rule must not govern. Without it the rule's
 # edge has never been stood on and could sit anywhere.
 aOgP + [ "math/window/marked, no window", _OgWindowWitness(:none) ]
+# AND THE MOLECULES (DN11): three lawful ones, and two witnesses for the
+# chemistry rules -- an oxygen with three bonds, and an atom bonded to
+# nothing. The chemistry rules register themselves into the math
+# governance from the file that owns them, so with no molecule in this
+# corpus they would read as DEAD to the five questions below; with these
+# they are judged, and every lattice is the boundary they must not cross.
+aOgP + [ "chem/water", StzMathScene38(AUFONT) ]
+aOgP + [ "chem/benzene", StzMathScene39(AUFONT) ]
+aOgP + [ "chem/caffeine", StzMathScene40(AUFONT) ]
+aOgP + [ "chem/witness/three-bonded oxygen", _OgValenceWitness() ]
+aOgP + [ "chem/witness/stray hydrogen", _OgStrayWitness() ]
 nOgT0 = StzEngineWatchTimestampMs()
 oOgRep = StzCheckPictures(aOgP)
 nOgMs = StzEngineWatchTimestampMs() - nOgT0
-chk("fifty-five pictures are judged by one call -- twenty notation, thirty-five mathematical",
-    len(aOgP) = 55)
-chk("and the report's findings are exactly the two things the corpus plants on purpose -- " +
-    "the contradiction, and the frame whose mark is outside the part it shows",
-    oOgRep.NumberOfFindings() = 6 and
-    _OgAllFromEither(oOgRep, "math/5", "math/window/marked out of view"))
-chk("the contradiction's constraints arrive as :diagram, and the rim and the off-window mark as :plastic",
-    len(oOgRep.FindingsOfSubject(:diagram)) = 4 and len(oOgRep.FindingsOfSubject(:plastic)) = 2)
+chk("sixty pictures are judged by one call -- twenty notation, forty mathematical",
+    len(aOgP) = 60)
+chk("and the report's findings are exactly the four things the corpus plants on purpose -- " +
+    "the contradiction, the frame whose mark is outside the part it shows, " +
+    "the three-bonded oxygen and the stray hydrogen",
+    oOgRep.NumberOfFindings() = 8 and
+    _OgAllFromAny(oOgRep, [ "math/5", "math/window/marked out of view",
+        "chem/witness/three-bonded oxygen", "chem/witness/stray hydrogen" ]))
+chk("the contradiction's constraints arrive as :diagram; the rim, the off-window mark " +
+    "and the two chemistry findings as :plastic",
+    len(oOgRep.FindingsOfSubject(:diagram)) = 4 and len(oOgRep.FindingsOfSubject(:plastic)) = 4)
 chk("and the gate is NOT sound, because a contradiction is a finding and not a pass",
     NOT oOgRep.IsSound())
 # a wall time is decoration on this machine, so the bound is set where it
@@ -13544,7 +13569,8 @@ aOgR = oOgG.CheckRules()
 for iOg = 1 to len(aOgR)
 	? "   RULE FINDING " + aOgR[iOg][:rule] + " @ " + aOgR[iOg][:where] + " -- " + aOgR[iOg][:message]
 next
-chkeq("the five math rules pass the five questions -- none empty, vacuous, or unwitnessed",
+chkeq("the five math rules and the two chemistry rules pass the five questions -- " +
+      "none empty, vacuous, or unwitnessed",
       len(aOgR), 0)
 
 # THE INSTRUMENT DISCRIMINATES. A name moved by hand onto an edge is
@@ -14391,6 +14417,150 @@ chk("NEGATIVE: with nothing flushing between them, setting the font BEFORE each 
 chk("and the renderer never walked into it, because a shape flushes before it draws: " +
     "the same two texts with a flush between them come out right EITHER WAY",
     _TxFlushedBothWays())
+
+
+sec("-- 105. DN11: A MOLECULE IS A CONSTRAINT PROBLEM OVER ATOMS -----------")
+discharges("DN11")
+
+# THE SECOND CALLER OF THE SOLVER. Atoms are typed nodes with the elements
+# as subtypes, bonds are a constructor with Double and Triple as
+# predicates, and every bond angle is a BondAngle whose ideal is a
+# predicate -- hybridisation said in the plane's words. The picture is
+# SOLVED from connectivity; no scene below carries a coordinate.
+oChD = StzChemistryDomain()
+chk("an element is an Atom, and a heavy one is a HeavyAtom",
+    oChD.TypeMatches("Carbon", "Atom") and oChD.TypeMatches("Carbon", "HeavyAtom") and
+    oChD.TypeMatches("Oxygen", "HeavyAtom"))
+chk("NEGATIVE: hydrogen is an Atom and NOT a heavy one -- the skeleton is a type",
+    oChD.TypeMatches("Hydrogen", "Atom") and NOT oChD.TypeMatches("Hydrogen", "HeavyAtom"))
+chkeq("a bond joins two atoms", oChD.FunctionArity("Bond"), 2)
+chk("an element the domain does not know is refused by name", _ChRefusesElement())
+
+# THE BUILDER DERIVES EVERY ANGLE AND ITS IDEAL from degree and bond
+# order. Water: three atoms, two bonds, one angle.
+oChW = StzMathWaterSubstance()
+chk("water is three atoms, two bonds and one angle",
+    len(oChW.ObjectsOfType("Atom")) = 3 and len(oChW.ObjectsOfType("Bond")) = 2 and
+    len(oChW.ObjectsOfType("Angle")) = 1)
+chk("...and the angle is trigonal, as a 2D depiction draws it",
+    oChW.Holds("Ideal120", [ "g1" ]))
+chkeq("the oxygen's valence is recounted from the bonds: two", StzChemistryValenceOf(oChW, "a1"), 2)
+chk("a triple bond makes its carbon LINEAR: acetylene's angles are 180",
+    _ChIdealOf(StzMoleculeFromBonds([ "C", "C", "H", "H" ], [ [1,2,3],[1,3,1],[2,4,1] ]), "g1") = "Ideal180")
+chk("four neighbours make a cross: methane's six angles are 90",
+    _ChAllIdeal(StzMoleculeFromBonds([ "C", "H", "H", "H", "H" ],
+        [ [1,2,1],[1,3,1],[1,4,1],[1,5,1] ]), "Ideal90") = 6)
+chk("NEGATIVE: a double bond's carbon stays trigonal -- ethylene is 120 throughout",
+    _ChAllIdeal(StzMoleculeFromBonds([ "C", "C", "H", "H", "H", "H" ],
+        [ [1,2,2],[1,3,1],[1,4,1],[2,5,1],[2,6,1] ]), "Ideal120") = 6)
+
+# BENZENE IS A REGULAR HEXAGON BY CONSEQUENCE. Nothing says "hexagon":
+# equal bonds and a 120-degree ideal at each carbon, and the ring comes
+# out regular -- from the PLANAR start, first try, one round.
+oChB = StzMathScene39(AUFONT)
+oChB.Layout()
+? "   benzene : " + oChB.NumberOfUnknowns() + " unknowns, " + oChB.NumberOfConstraints() +
+  " constraints, " + oChB.Rounds() + " round(s), " + floor(oChB.LayoutMs()) + " ms, start " + oChB.StartUsed()
+chk("benzene is lawful from the planar start, first try", oChB.IsFeasible() and
+    oChB.StartUsed() = "planar" and oChB.StartsTried() = 1)
+aChRb = [ _ChD(oChB,"a1","a2"), _ChD(oChB,"a2","a3"), _ChD(oChB,"a3","a4"),
+          _ChD(oChB,"a4","a5"), _ChD(oChB,"a5","a6"), _ChD(oChB,"a6","a1") ]
+aChRa = [ _ChA(oChB,"a6","a1","a2"), _ChA(oChB,"a1","a2","a3"), _ChA(oChB,"a2","a3","a4"),
+          _ChA(oChB,"a3","a4","a5"), _ChA(oChB,"a4","a5","a6"), _ChA(oChB,"a5","a6","a1") ]
+? "   ring bonds " + _ChJoin(aChRb) + "   ring angles " + _ChJoin(aChRa)
+chk("its six ring bonds are equal to within five percent", _ChSpread(aChRb) < 1.05)
+chk("and its six ring angles are within two degrees of 120", _ChMaxDev(aChRa, 120) < 2)
+chk("every hydrogen points OUTWARD -- farther from the ring's centre than its carbon",
+    _ChOutward(oChB))
+chk("a double bond is drawn as two lines and no stick, a single as a stick and no lines",
+    len(oChB.ShapeOf("b1.l1")) > 0 and len(oChB.ShapeOf("b1.l2")) > 0 and len(oChB.ShapeOf("b1.stick")) = 0 and
+    len(oChB.ShapeOf("b2.stick")) > 0 and len(oChB.ShapeOf("b2.l1")) = 0)
+chk("the drawn stick stops at the rim: shorter than the centre-to-centre segment it rides",
+    _ChLen(oChB, "b2.stick") < _ChLen(oChB, "b2.icon") - 20)
+
+# THE MOL BLOCK IS THE INDEPENDENT EXPECTATION. Its coordinates are
+# never used to draw; they are what the solved picture is measured
+# against -- a hexagon of 1.40 A written by hand, and its angles read
+# back from the file by a different function than the one that solved.
+aChM = StzMolParse(StzMathBenzeneMol())
+chk("the block parses to twelve atoms and twelve bonds, first a double",
+    len(aChM[:elements]) = 12 and len(aChM[:bonds]) = 12 and aChM[:bonds][1][3] = 2 and
+    aChM[:elements][1] = "C" and aChM[:elements][12] = "H")
+oChF = new stzMathDiagram(StzChemistryDomain(), StzMoleculeFromMol(StzMathBenzeneMol()), StzBallAndStickStyle())
+oChF.SetFont(AUFONT, 11)
+oChF.Layout()
+nChFile = _ChFileAngle(aChM[:coordinates], 6, 1, 2)
+? "   the file's ring angle at C1 is " + nChFile + "; the solved one is " + _ChA(oChF, "a6", "a1", "a2")
+# within four degrees, from measurement: the ideal is ENCOURAGED inside a
+# hard band, so a ring settles near 120 and not on it -- 1.3 off in scene
+# 39, 2.5 off here from a different hydrogen start. The band would admit
+# 102 to 137; four is a fifth of that room, and it is the solver's own
+# number rather than a hope.
+chk("the molecule read from the block solves to the angle the block's own coordinates hold",
+    oChF.IsFeasible() and fabs(_ChA(oChF, "a6", "a1", "a2") - nChFile) < 4)
+chk("NEGATIVE: a block whose counts line promises more atoms than it holds is refused",
+    _ChRefusesShortMol())
+
+# CAFFEINE: FUSED RINGS, and the start that finds them. A six-ring and a
+# five-ring on a shared edge. The planar start used to take the SHORTEST
+# chordless cycle as the outer face -- one ring -- and relax the other
+# ring's free atoms into an arc squashed against the shared edge, and
+# from there the solve ended 26px unlawful. The PERIMETER is the outer
+# face now, with the shared edge a straight chord across it.
+oChC = StzMathScene40(AUFONT)
+oChC.Layout()
+? "   caffeine : " + oChC.NumberOfUnknowns() + " unknowns, " + oChC.NumberOfConstraints() +
+  " constraints, " + oChC.Rounds() + " round(s), " + floor(oChC.LayoutMs()) + " ms, start " + oChC.StartUsed()
+chk("caffeine is lawful from the planar start, first try", oChC.IsFeasible() and
+    oChC.StartUsed() = "planar" and oChC.StartsTried() = 1)
+chkeq("...and its outer face is the PERIMETER of the fused system: nine atoms", len(oChC.OuterFace()), 9)
+chk("the two rings lie on OPPOSITE sides of the edge they share",
+    _ChSide(oChC, "a4", "a5", "a1") * _ChSide(oChC, "a4", "a5", "a8") < 0)
+chk("no two bonds cross", _ChCrossings(oChC, 15) = 0)
+chk("its two carbonyls are double and drawn so", len(oChC.ShapeOf("b11.l1")) > 0 and len(oChC.ShapeOf("b12.l2")) > 0)
+
+# AND THE STARTS THE PLANE ALREADY PINNED DID NOT MOVE. The perimeter
+# rule is taken only when the core is outerplanar; the cube and the
+# dodecahedron are not, and keep the faces DN8b measured them on.
+oChQ = StzMathScene23(AUFONT)
+oChQ.Layout()
+chkeq("NEGATIVE: the cube still starts on a four-face -- it is not outerplanar", len(oChQ.OuterFace()), 4)
+chk("NEGATIVE: a chain with no ring cannot start planar and says so",
+    NOT _ChTree().StartedPlanar())
+
+# THE SKELETON IS THE START, THE HYDROGENS FOLLOW. A pendant vertex broke
+# the planar start -- Tutte relaxed it onto its one neighbour and the
+# collapse check refused the embedding -- so the start is asked over
+# HeavyAtom, leaves are stripped and hung after, and an object of another
+# type joined to the started graph begins a step from its anchor. Phenol
+# in water is that, seven times over: seven components in one substance.
+oChP = StzMathScene41(AUFONT)
+oChP.Layout()
+? "   phenol in water : " + oChP.NumberOfUnknowns() + " unknowns, " + oChP.NumberOfConstraints() +
+  " constraints, " + oChP.Rounds() + " round(s), " + floor(oChP.LayoutMs()) + " ms, start " + oChP.StartUsed()
+chk("seven components solve as one picture, lawful from the planar start",
+    oChP.IsFeasible() and oChP.StartUsed() = "planar" and oChP.StartsTried() = 1)
+chkeq("...with every atom of every water and of phenol an unknown pair", oChP.NumberOfUnknowns(), 174)
+
+# THE RULES, THROUGH THE ONE GATE. Both read the substance and recount.
+chk("a lawful molecule raises nothing in the gate",
+    len(StzCheckPictures([ [ "benzene", oChB ] ]).Findings()) = 0)
+aChV = StzCheckPictures([ [ "witness", _OgValenceWitness() ] ]).Findings()
+chk("an oxygen with three bonds is caught, by name, with the count and the allowance",
+    len(aChV) = 1 and aChV[1][:rule] = "valence_respected" and
+    StzFindFirst("'a1' is O and carries 3", aChV[1][:message]) > 0 and
+    StzFindFirst("allows 2", aChV[1][:message]) > 0)
+aChS = StzCheckPictures([ [ "witness", _OgStrayWitness() ] ]).Findings()
+chk("an atom bonded to nothing is caught, by name",
+    len(aChS) = 1 and aChS[1][:rule] = "atom_bonded" and
+    StzFindFirst("'a4'", aChS[1][:message]) > 0)
+oChRule = StzChemistryRuleSet()[1]
+chk("the valence rule governs every atom of a molecule and NOT ONE object of a lattice -- " +
+    "the boundary is stood on",
+    len(oChRule.SubjectsIn(oChB)) = 12 and len(oChRule.SubjectsIn(oChQ)) = 0 and
+    len(oChRule.CounterSubjectsIn(oChQ)) > 0 and len(oChRule.CounterSubjectsIn(oChB)) = 0)
+chk("a molecule answers Rendition() as a vector like every other picture",
+    oChB.Rendition()[:kind] = "vector")
 
 
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
@@ -17432,6 +17602,184 @@ func _OgWitness
 	_o_.SetFont(AUFONT, 16)
 	_o_.SetVariation("witness")
 	return _o_
+
+#-- DN11: the molecule section's helpers ------------------------------------
+
+# A STAR OF FIVE, in the graph domain under the spring style: a tree, whose
+# 2-core is empty, so the planar start is refused and the next named start
+# stands. The witness for "a graph Tutte collapses" now that a cut vertex
+# alone no longer collapses anything.
+func _GrTree
+	_oS_ = new stzMathSubstance(StzGraphDomain())
+	_oS_.DeclareAll("Vertex", [ "r", "a", "b", "c", "d" ])
+	_oS_.Define("e1", "Edge", [ "r", "a" ])
+	_oS_.Define("e2", "Edge", [ "r", "b" ])
+	_oS_.Define("e3", "Edge", [ "r", "c" ])
+	_oS_.Define("e4", "Edge", [ "r", "d" ])
+	_oS_.AutoLabelAll()
+	for _i_ = 1 to 4  _oS_.Label("e" + _i_, "")  next
+	_o_ = new stzMathDiagram(StzGraphDomain(), _oS_, StzSpringGraphStyle())
+	_o_.SetFont(AUFONT, 15)
+	_o_.Layout()
+	return _o_
+
+func _ChD poDg, pcA, pcB
+	_a_ = poDg.ShapeOf(pcA + ".icon")  _b_ = poDg.ShapeOf(pcB + ".icon")
+	return sqrt((_a_[:cx]-_b_[:cx])*(_a_[:cx]-_b_[:cx]) + (_a_[:cy]-_b_[:cy])*(_a_[:cy]-_b_[:cy]))
+
+func _ChA poDg, pcP, pcQ, pcR
+	_p_ = poDg.ShapeOf(pcP + ".icon")  _q_ = poDg.ShapeOf(pcQ + ".icon")  _r_ = poDg.ShapeOf(pcR + ".icon")
+	_ux_ = _p_[:cx] - _q_[:cx]  _uy_ = _p_[:cy] - _q_[:cy]
+	_vx_ = _r_[:cx] - _q_[:cx]  _vy_ = _r_[:cy] - _q_[:cy]
+	_c_ = (_ux_*_vx_ + _uy_*_vy_) / (sqrt(_ux_*_ux_+_uy_*_uy_) * sqrt(_vx_*_vx_+_vy_*_vy_))
+	if _c_ > 1  _c_ = 1  ok
+	if _c_ < -1  _c_ = -1  ok
+	return acos(_c_) * 180 / 3.14159265358979
+
+func _ChFileAngle paXY, p, q, r
+	_ux_ = paXY[p][1] - paXY[q][1]  _uy_ = paXY[p][2] - paXY[q][2]
+	_vx_ = paXY[r][1] - paXY[q][1]  _vy_ = paXY[r][2] - paXY[q][2]
+	_c_ = (_ux_*_vx_ + _uy_*_vy_) / (sqrt(_ux_*_ux_+_uy_*_uy_) * sqrt(_vx_*_vx_+_vy_*_vy_))
+	return acos(_c_) * 180 / 3.14159265358979
+
+func _ChLen poDg, pcPath
+	_s_ = poDg.ShapeOf(pcPath)
+	if len(_s_) = 0  return 0  ok
+	return sqrt((_s_[:x2]-_s_[:x1])*(_s_[:x2]-_s_[:x1]) + (_s_[:y2]-_s_[:y1])*(_s_[:y2]-_s_[:y1]))
+
+func _ChSpread paV
+	_mn_ = paV[1]  _mx_ = paV[1]
+	for _i_ = 2 to len(paV)
+		if paV[_i_] < _mn_  _mn_ = paV[_i_]  ok
+		if paV[_i_] > _mx_  _mx_ = paV[_i_]  ok
+	next
+	return _mx_ / _mn_
+
+func _ChMaxDev paV, pnT
+	_d_ = 0
+	for _i_ = 1 to len(paV)
+		if fabs(paV[_i_] - pnT) > _d_  _d_ = fabs(paV[_i_] - pnT)  ok
+	next
+	return _d_
+
+func _ChJoin paV
+	_c_ = ""
+	for _i_ = 1 to len(paV)
+		if _c_ != ""  _c_ += " "  ok
+		_c_ += ("" + floor(paV[_i_] * 10 + 0.5) / 10)
+	next
+	return _c_
+
+# every hydrogen a7..a12 of benzene farther from the ring's centre than
+# the carbon a1..a6 it hangs from
+func _ChOutward poDg
+	_cx_ = 0  _cy_ = 0
+	for _i_ = 1 to 6
+		_s_ = poDg.ShapeOf("a" + _i_ + ".icon")
+		_cx_ += _s_[:cx] / 6  _cy_ += _s_[:cy] / 6
+	next
+	for _i_ = 1 to 6
+		_c_ = poDg.ShapeOf("a" + _i_ + ".icon")
+		_h_ = poDg.ShapeOf("a" + (_i_ + 6) + ".icon")
+		_dc_ = (_c_[:cx]-_cx_)*(_c_[:cx]-_cx_) + (_c_[:cy]-_cy_)*(_c_[:cy]-_cy_)
+		_dh_ = (_h_[:cx]-_cx_)*(_h_[:cx]-_cx_) + (_h_[:cy]-_cy_)*(_h_[:cy]-_cy_)
+		if _dh_ <= _dc_  return FALSE  ok
+	next
+	return TRUE
+
+# the sign of p relative to the directed line a -> b
+func _ChSide poDg, pcA, pcB, pcP
+	_a_ = poDg.ShapeOf(pcA + ".icon")  _b_ = poDg.ShapeOf(pcB + ".icon")  _p_ = poDg.ShapeOf(pcP + ".icon")
+	return (_b_[:cx]-_a_[:cx]) * (_p_[:cy]-_a_[:cy]) - (_b_[:cy]-_a_[:cy]) * (_p_[:cx]-_a_[:cx])
+
+# crossings among the hidden centre-to-centre bond segments b1..bN
+func _ChCrossings poDg, pnBonds
+	_n_ = 0
+	for _i_ = 1 to pnBonds
+		_p_ = poDg.ShapeOf("b" + _i_ + ".icon")
+		for _j_ = _i_ + 1 to pnBonds
+			_q_ = poDg.ShapeOf("b" + _j_ + ".icon")
+			if _ChSegCross(_p_, _q_)  _n_++  ok
+		next
+	next
+	return _n_
+
+func _ChSegCross pa, pb
+	# proper crossing only: shared endpoints (adjacent bonds) do not count
+	_d1_ = _ChOrient(pa[:x1], pa[:y1], pa[:x2], pa[:y2], pb[:x1], pb[:y1])
+	_d2_ = _ChOrient(pa[:x1], pa[:y1], pa[:x2], pa[:y2], pb[:x2], pb[:y2])
+	_d3_ = _ChOrient(pb[:x1], pb[:y1], pb[:x2], pb[:y2], pa[:x1], pa[:y1])
+	_d4_ = _ChOrient(pb[:x1], pb[:y1], pb[:x2], pb[:y2], pa[:x2], pa[:y2])
+	if fabs(_d1_) < 0.001 or fabs(_d2_) < 0.001 or fabs(_d3_) < 0.001 or fabs(_d4_) < 0.001  return FALSE  ok
+	return (_d1_ * _d2_ < 0) and (_d3_ * _d4_ < 0)
+
+func _ChOrient ax, ay, bx, by, px, py
+	return (bx - ax) * (py - ay) - (by - ay) * (px - ax)
+
+func _ChIdealOf poS, pcG
+	if poS.Holds("Ideal180", [ pcG ])  return "Ideal180"  ok
+	if poS.Holds("Ideal90", [ pcG ])  return "Ideal90"  ok
+	if poS.Holds("Ideal120", [ pcG ])  return "Ideal120"  ok
+	return ""
+
+func _ChAllIdeal poS, pcIdeal
+	_ac_ = poS.ObjectsOfType("Angle")
+	_n_ = 0
+	for _i_ = 1 to len(_ac_)
+		if poS.Holds(pcIdeal, [ _ac_[_i_] ])  _n_++  ok
+	next
+	return _n_
+
+func _ChRefusesElement
+	try
+		StzMoleculeFromBonds([ "Xx", "H" ], [ [ 1, 2, 1 ] ])
+	catch
+		return StzFindFirst("Xx", cCatchError) > 0
+	done
+	return FALSE
+
+func _ChRefusesShortMol
+	try
+		StzMolParse("x" + char(10) + "y" + char(10) + char(10) + "  9  9  0" + char(10) +
+			"    0.0000    0.0000    0.0000 C   0" + char(10))
+	catch
+		return StzFindFirst("counts line", cCatchError) > 0
+	done
+	return FALSE
+
+func _ChTree
+	_o_ = new stzMathDiagram(StzChemistryDomain(),
+		StzMoleculeFromBonds([ "C", "C", "C" ], [ [1,2,1],[2,3,1] ]), StzBallAndStickStyle())
+	_o_.SetFont(AUFONT, 11)
+	_o_.Layout()
+	return _o_
+
+# an oxygen with three single bonds -- geometrically perfect, chemically
+# wrong, so the ONLY thing the gate finds is the valence
+func _OgValenceWitness
+	_o_ = new stzMathDiagram(StzChemistryDomain(),
+		StzMoleculeFromBonds([ "O", "H", "H", "H" ], [ [1,2,1],[1,3,1],[1,4,1] ]), StzBallAndStickStyle())
+	_o_.SetFont(AUFONT, 11)
+	return _o_
+
+# water and a hydrogen bonded to nothing
+func _OgStrayWitness
+	_o_ = new stzMathDiagram(StzChemistryDomain(),
+		StzMoleculeFromBonds([ "O", "H", "H", "H" ], [ [1,2,1],[1,3,1] ]), StzBallAndStickStyle())
+	_o_.SetFont(AUFONT, 11)
+	return _o_
+
+func _OgAllFromAny poRep, pacNames
+	_aF_ = poRep.Findings()
+	for _i_ = 1 to len(_aF_)
+		_w_ = "" + _aF_[_i_][:where]
+		_bOk_ = FALSE
+		for _k_ = 1 to len(pacNames)
+			if StzLeft(_w_, len(pacNames[_k_]) + 1) = pacNames[_k_] + " "  _bOk_ = TRUE  ok
+		next
+		if NOT _bOk_  return FALSE  ok
+	next
+	return TRUE
 
 func _OgAllFromEither poRep, pcA, pcB
 	_aF_ = poRep.Findings()

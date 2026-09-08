@@ -114,6 +114,7 @@ sections, of which 21 declarations over 17 items.
 | DN8g | closed | 95 |
 | DN8h | closed | 96 |
 | DN10 | closed | 104 |
+| DN11 | closed | 105 |
 | DN9 | closed | - |
 | DN9a | closed | 97 |
 | DN9b | closed | 98 |
@@ -2785,6 +2786,126 @@ Planarity testing proper (Boyer–Myrvold) and annealing stay refused until
 DN8b's numbers say the layouts-as-starts are not enough — the expectation
 is that they are, for every planar graph the gallery draws. Rotated
 shapes and text along a path stay unplanned. 3D stays outside.
+
+## DN11 — A MOLECULE IS A CONSTRAINT PROBLEM OVER ATOMS: the solver's second caller (2026-09-08, SHIPPED)
+
+The Principal asked for new domains and offered molecular visualisation
+among them; this plane chose it first, and for one reason: DN8's solver had
+laid out sets, triangles, lattices and graphs and had never been handed a
+**ring**. A molecule is rings and chains, and it arrives with no
+coordinates — so the picture is *solved*, as the seven-set tree is. What it
+would find in DN8, a fourth math scene never would. It found three things.
+
+**What a molecule is here**, in the plane's three programs.
+`StzChemistryDomain()`: `Atom` with the elements as subtypes — and
+`HeavyAtom` as a subtype between, so that *the skeleton is a type*;
+`Bond(Atom, Atom)` with `Double` and `Triple` as predicates, the
+specialisation idiom the graph domain's `Highlighted` edge uses; and
+`BondAngle(p, q, r)` with its ideal as a predicate, `Ideal120`, `Ideal90`,
+`Ideal180` — hybridisation said in the plane's words. `StzMoleculeFromBonds`
+builds the substance from a list of elements and a list of bonds and derives
+every angle and its ideal from degree and bond order; `StzMoleculeFromMol`
+reads a V2000 MOL block. `StzBallAndStickStyle()` is a disc per atom
+coloured by the CPK convention *through the theme's roles* (carbon neutral,
+oxygen danger, nitrogen info, hydrogen the paper with a muted rim), a bond
+as a hidden centre-to-centre segment the rules speak to and a drawn stick
+that stops at each rim, a double bond as two lines off the normal, a triple
+as three.
+
+**Every angle is a distance.** The tape has no `acos` and does not need
+one: two bonds of length L at 120° put their far atoms √3·L apart, at 90°
+√2·L, at 180° 2L. An ideal is a hard band around that distance and an
+encouraged centre inside it — polynomial throughout, the trick the spherical
+style used for a right angle. A six-ring under equal bonds and 120° ideals
+**is a regular hexagon, and nothing says "hexagon"**: benzene solves to six
+angles within 1.3° of 120 and six bonds within 4% of one another, from the
+planar start, first try, one round.
+
+**The MOL block is the independent expectation, not the input.** Its
+coordinates are never used to draw. A hand-written benzene block holds a
+hexagon of 1.40 Å; the molecule read from it solves to the angle the block's
+own coordinates hold, read back by a different function than the one that
+solved. That is the stress-test doctrine — an expectation the system did not
+produce — and it is the kill this item was aimed at.
+
+**What the second caller found in the solver, in the order it found them.**
+
+1. **A pendant vertex breaks the planar start.** Tutte relaxes every free
+   vertex to the barycentre of its neighbours, so a vertex with one
+   neighbour relaxes *onto* it, and the collapse check then refused the
+   whole embedding — for a graph that was planar and easy. Measured: the
+   bare six-ring is lawful from the planar start in one round at 120° each;
+   the same ring with six hydrogens fell to a random start and folded, its
+   angles 72°, 156°, 97°. Two repairs, both general. The start is asked
+   over the skeleton, and *an object of another type joined to the started
+   graph by a constructor begins a step from its anchor* — in `_Initialise`,
+   beside the rule that starts a contained name at its container's centre,
+   and for the same reason: choose the basin by structure. And the planar
+   start itself now embeds the **2-core** and hangs the stripped leaves off
+   it afterwards, each a step out from its anchor away from the anchor's
+   other neighbours, which is the direction a substituent points. A tree
+   still strips to nothing and is refused, as before. **And a picture that
+   was never a molecule improved by it**: the network of scene 20 is a ring
+   with a leaf hanging off it, not 3-connected, and DN7g recorded it as "no
+   planar start, one crossing on the chosen seed". It starts planar now and
+   the crossing is gone. Two pins in the gate said it could not, and were
+   asserting the limitation rather than the promise — they are rewritten,
+   and a real tree stands as the fallback's witness in their place.
+
+2. **The shortest chordless cycle is the wrong outer face for fused rings.**
+   Caffeine is a six-ring and a five-ring on a shared edge. The planar start
+   took the five-ring as the outer face and relaxed the six-ring's four free
+   atoms into an arc squashed against the shared edge — a planar drawing,
+   and a start no local method opens without crossing; the solve ended 26px
+   unlawful from the only start that could have been right. What a chemist
+   draws is the **perimeter**, with the shared edge a straight chord across
+   it. So when the core has a cycle through every vertex whose chords do not
+   cross in cyclic order — the core is outerplanar — that cycle is the outer
+   boundary and every vertex is fixed on it. Caffeine: lawful from the
+   planar start, first try, two rounds, outer face of nine. **And the
+   pictures DN8b pinned did not move**: the cube is not outerplanar and keeps
+   its four-face, the dodecahedron its five, the network its six; all nine
+   pinned scenes keep their start, their tries and their lawfulness.
+
+3. **`paPath + v` as a call argument appends in place.** The perimeter
+   search is a depth-first walk, and its first version passed the extended
+   path as `paPath + _v_`; Ring appends to the caller's list and hands the
+   same list down, so after a failed branch the path had grown by one and
+   the next branch extended the wrong path. Every graph needing a single
+   backtrack was refused — and the six-ring and the five-ring passed, because
+   neither needs one. A bug on the fused rings hid behind a green hexagon.
+   Sibling of the option-list trap and the nested-append trap, same family,
+   and the third time this item paid for Ring's `+` on a list.
+
+**What the domain owes the gate: valence.** A carbon with five bonds is not a
+drawing defect. `valence_respected` and `atom_bonded` read the substance and
+*recount* the bonds — a rule that read a valence the builder stored would be
+checking the builder against itself — and register themselves into the math
+governance from the file that owns them, through `StzRegisterMathRuleSet`.
+The corpus carries an oxygen with three bonds, geometrically perfect and
+chemically wrong, so the only thing the gate finds in it is the valence; and
+water with a stray hydrogen. Every lattice in the corpus is the boundary the
+rules must not cross, so the five questions pass with the rules judged
+rather than dead: sixty pictures, eight planted findings.
+
+**Phenol in water, seven components in one substance**, every hydrogen drawn
+as the Principal's picture had them: 174 unknowns, 2,958 constraints, lawful
+from the planar start in two rounds. The solver had never been handed a
+disconnected substance.
+
+**Said plainly, and left out.** A 2D depiction draws every sp² and chain
+angle at 120° and water's oxygen among them; the real angle is 104.5°, and
+this is how it is drawn on paper. A five-ring cannot have its 120° and
+settles near 108°, the compromise a chemist draws too; a fused system's
+shared atoms compromise further, and caffeine's six-ring reads 102° at the
+fusion and 129° elsewhere. A *cycle-size-aware ideal* — a ring's own angle
+rather than the atom's — would fix that, and is the next step, not this
+item. Three- and four-rings are outside the band and say so as a violation.
+Stereo wedges, charges, aromatic circles and implicit hydrogens are not
+here; a hydrogen is drawn when it is declared.
+
+*Guard:* §105, 33 assertions; §91 grew by five pictures. Catalogue: scenes
+38–41.
 
 ## DN9 — THE TOLD PICTURE: a narration is facts made visible, in an order (planned 2026-09-06, SHIPPED 2026-09-07 as DN9a through DN9g, all seven closed)
 
