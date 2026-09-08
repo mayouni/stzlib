@@ -12225,6 +12225,87 @@ chk("NEGATIVE: UNDECIDED is not reported -- only silence is",
     _PorHits(StzCheckPlanCoverage(cPcUnd, "syn", aPcNone),
              "plan_item_status_unstated") = 0)
 
+# -- AN ITEM IS EVERY PLACE IT IS DEFINED, not the first one ------------
+#
+# These plans open with a ROADMAP: one-line bullets, each opening with an
+# item id and stating no status, hundreds of lines above the section that
+# defines the item. By this file's own convention the bullet IS a
+# definition, it comes first, and until 2026-09-08 it WON -- so the item's
+# own section was never read.
+#
+# Measured across the 26 plans in this library: 15 items of 125 reported a
+# status their plan does not hold, 14 of them shipped work reading
+# "unstated". In this plane's own graphics plan that is GR0, GR1, GR3 and
+# GR5, all four closed in their sections and all four reported silent.
+#
+# The rule it broke is the one directly above: plan_item_open_but_discharged
+# exists to catch a plan UNDERSTATING proven work, so a shadowed item made
+# the checker accuse the plan of exactly the staleness it did not have.
+cPcRoad = "## Roadmap" + cPcNl + cPcNl +
+          "- AA4 " + cPcEm + " the fourth" + cPcNl +
+          "- AA5 " + cPcEm + " the fifth" + cPcNl + cPcNl +
+          "## Phases" + cPcNl + cPcNl +
+          "### AA4 " + cPcEm + " the fourth. SHIPPED." + cPcNl + cPcNl
+aPcIt = StzPlanItemsOf(cPcRoad)
+chkeq("a roadmap bullet and a section are ONE item", len(aPcIt), 2)
+chkeq("...and it is defined twice", aPcIt[1][4], 2)
+chkeq("the section's status wins over the bullet's silence",
+      aPcIt[1][2], "closed")
+chkeq("...and the line reported is still where a reader starts",
+      aPcIt[1][3], 3)
+chk("NEGATIVE: an item with only a silent bullet is still unstated",
+    aPcIt[2][2] = "unstated" and aPcIt[2][4] = 1)
+chk("...so the discharged-but-open rule stops firing on it",
+    _PorHits(StzCheckPlanCoverage(cPcRoad, "syn", [ [ "AA4", "5" ] ]),
+             "plan_item_open_but_discharged") = 0)
+
+# -- A PLAN THAT CONTRADICTS ITSELF ABOUT ONE ITEM ----------------------
+#
+# Two definitions, each stating a status, disagreeing. Unreportable before
+# the fold: the reader of the file saw both, the checker saw the first.
+# This is not hypothetical -- the graph plane's own plan carried it,
+# committed and pushed, DN9g reading SHIPPED at one line and "Not started"
+# at another, because an edit inserted where it meant to replace.
+cPcCon = "### AA6 " + cPcEm + " the sixth. SHIPPED." + cPcNl + cPcNl +
+         "### AA6 " + cPcEm + " the sixth. NOT STARTED." + cPcNl + cPcNl
+chkeq("the two statuses are both seen", StzPlanItemsOf(cPcCon)[1][4], 2)
+chk("a plan that contradicts itself about an item is caught",
+    _PorHits(StzCheckPlanCoverage(cPcCon, "syn", aPcNone),
+             "plan_item_status_contradicts") = 1)
+
+# NEGATIVE, and it is the whole reason the rule is written this narrowly.
+# An id defined more than once is ORDINARY here -- 29 of 125 items are,
+# by the roadmap convention above -- so a rule reporting every repeat
+# would file 29 findings about a convention the plans use on purpose.
+# Silence is not disagreement.
+chk("NEGATIVE: a silent bullet beside a stated section is NOT a conflict",
+    _PorHits(StzCheckPlanCoverage(cPcRoad, "syn", aPcNone),
+             "plan_item_status_contradicts") = 0)
+chk("...and neither is one definition on its own",
+    _PorHits(StzCheckPlanCoverage(cPcSyn, "syn", aPcNone),
+             "plan_item_status_contradicts") = 0)
+
+# -- THE SAME ITEM, WORD FOR WORD, TWICE --------------------------------
+#
+# Never intentional: it is what an edit that INSERTED where it meant to
+# REPLACE looks like from outside. The DN9g commit left 342 duplicated
+# lines carrying a stale copy of seven items, and every check in this file
+# passed over them -- the statuses agreed, so nothing disagreed.
+cPcDup = "### AA7 " + cPcEm + " the seventh. SHIPPED." + cPcNl + cPcNl +
+         "### AA7 " + cPcEm + " the seventh. SHIPPED." + cPcNl + cPcNl
+chk("an item defined twice in the same words is caught",
+    _PorHits(StzCheckPlanCoverage(cPcDup, "syn", aPcNone),
+             "plan_item_defined_verbatim_twice") = 1)
+chk("...and it is NOT reported as a contradiction, which it is not",
+    _PorHits(StzCheckPlanCoverage(cPcDup, "syn", aPcNone),
+             "plan_item_status_contradicts") = 0)
+chk("NEGATIVE: two definitions that differ are not a verbatim copy",
+    _PorHits(StzCheckPlanCoverage(cPcCon, "syn", aPcNone),
+             "plan_item_defined_verbatim_twice") = 0)
+chk("NEGATIVE: the roadmap shape is not one either",
+    _PorHits(StzCheckPlanCoverage(cPcRoad, "syn", aPcNone),
+             "plan_item_defined_verbatim_twice") = 0)
+
 # -- the generated table, against the one in the file --------------------
 cPcB = StzPlanCoverageBeginMark()
 cPcE = StzPlanCoverageEndMark()
