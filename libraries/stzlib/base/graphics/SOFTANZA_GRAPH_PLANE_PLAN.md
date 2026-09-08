@@ -2893,6 +2893,32 @@ as the Principal's picture had them: 174 unknowns, 2,958 constraints, lawful
 from the planar start in two rounds. The solver had never been handed a
 disconnected substance.
 
+**The Principal's correction, same day: the letters were not centred in the
+discs.** Measured before believing it. The solver had placed a carbon's `C`
+0.86 px left and 1.92 px below its disc: the symbol was a free text held by
+`contains` — satisfied anywhere inside the disc — and an *encouraged*
+`sameCenter`, which anything hard outvotes. A symbol has nothing to dodge
+inside its own disc, so it is not solved at all now: its centre is an
+expression of the disc's, as a bond's end is an atom's centre, exact by
+construction, and the unknowns halve (benzene 60 → 36, phenol in water
+174 → 112). The set style still solves its name, because a set's name does
+have things to dodge.
+
+*What the pixels showed besides, and is not this item's:* the renderer
+centres a text on its **em box** — baseline at `cy + (ascent − descent)/2`
+from the font's metrics — so a capital letter, which has no descender, sits
+low by half the empty descender space: measured **+0.6 px at 11 px and
++1.6 px at 28 px** on scene 1's `B`, proportional to size, in every math
+picture. Sub-pixel at label sizes, visible on a large centred name. Fixing it
+moves every label in 82 pictures and the box the gate's clearance rules read,
+so it is recorded here as a number and left for its own item. And one
+instrument lesson from getting there: my first ink-centroid measurement said
+the `C` was 3.2 px right and 4.6 px low, which contradicted both the solver
+and the primitive — the disc's antialiased rim had been counted as ink. The
+primitive measurement (one glyph on a blank canvas against a known anchor)
+was the one to trust, and a weighted centroid inside a radius the rim cannot
+reach agreed with it.
+
 **Said plainly, and left out.** A 2D depiction draws every sp² and chain
 angle at 120° and water's oxygen among them; the real angle is 104.5°, and
 this is how it is drawn on paper. A five-ring cannot have its 120° and
