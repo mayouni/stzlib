@@ -115,6 +115,7 @@ sections, of which 21 declarations over 17 items.
 | DN8h | closed | 96 |
 | DN10 | closed | 104 |
 | DN11 | closed | 105 |
+| DN12 | closed | 106 |
 | DN9 | closed | - |
 | DN9a | closed | 97 |
 | DN9b | closed | 98 |
@@ -2911,8 +2912,8 @@ low by half the empty descender space: measured **+0.6 px at 11 px and
 +1.6 px at 28 px** on scene 1's `B`, proportional to size, in every math
 picture. Sub-pixel at label sizes, visible on a large centred name. Fixing it
 moves every label in 82 pictures and the box the gate's clearance rules read,
-so it is recorded here as a number and left for its own item. And one
-instrument lesson from getting there: my first ink-centroid measurement said
+so it is recorded here as a number and left for its own item — **DN12, the
+same day.** And one instrument lesson from getting there: my first ink-centroid measurement said
 the `C` was 3.2 px right and 4.6 px low, which contradicted both the solver
 and the primitive — the disc's antialiased rim had been counted as ink. The
 primitive measurement (one glyph on a blank canvas against a known anchor)
@@ -2932,6 +2933,69 @@ here; a hydrogen is drawn when it is declared.
 
 *Guard:* §105, 33 assertions; §91 grew by five pictures. Catalogue: scenes
 38–41.
+
+## DN12 — A LABEL IS CENTRED ON ITS CAP HEIGHT, NOT ITS EM BOX (2026-09-08, SHIPPED)
+
+**The finding inside DN11's correction, taken as its own item.** The renderer
+centred every text on its em box — baseline at `cy + (ascender − descender)/2`
+from the font's metrics — and a capital letter has no descender, so it sat
+low by half the descender space it never used. Measured on the pixels:
+**+0.7 px at 11 px, +1.8 px at 28 px**, proportional to size, in every math
+picture since the plane was written. Invisible on an atom symbol, visible on
+a set name.
+
+**The metric came from the engine first.** The text layout carries two more
+numbers now, appended after the seven it had: the **ink extents** of the
+shaped string — how far the glyphs reach above and below the baseline, from
+HarfBuzz's glyph extents on the same scaled font the positions came from.
+`stzFont.InkOf(text, size)` answers them and `CapHeightOf(size)` is the ink
+top of an `H`: read from the font, not guessed at 0.7 em. An `H` has ink
+above and none below; a `g` hangs 6.6 px below at 28 px; the em box is the
+same for both and the ink is not, which is the whole point.
+
+**The drawing moved by one term.** The baseline sits `cap/2` below `cy`, so
+a capital's ink is centred on `cy`. Scene 1's `B` is 0.01 px off its centre
+where it was 1.6 px low; benzene's `C` is 0.02 px off.
+
+**The box moved with the ink, and stayed one number.** The em box around the
+new baseline is off-centre — `asc − cap/2` above `cy`, `cap/2 + desc` below.
+Rather than teach every box consumer an asymmetric rectangle, the modelled
+height is the smallest *symmetric* box about `cy` that holds that em box:
+`2·max(asc − cap/2, cap/2 + desc)`. Every rule, the tape, the on-paper check
+and the marks read `w` and `h` as before; the box is a tenth taller than the
+em box at 11 px, and no clearance is closer to the ink than the em-box
+clearance was. DN10's box-matches-runs check computes the same number from
+the runs' union and still holds.
+
+**What it costs and what it changes.** Every label in every math picture
+moves up by the bias and its box grows a little, so all 82 catalogue pictures
+change. The gate holds — clearances were held against a box that contains the
+old one — but a tenth of a box moved two things worth naming. **The one-wedge
+story lost its failure**: on the catalogue's seed, `v111`'s name given a
+single wedge now finds room first time (23 px inside a 44 px leash), so the
+storyboard, the fact captions and the window pair had nothing to narrate.
+Measured over twelve seeds, the story holds on five; the fixture tells it on
+`one-wedge` — stranded at 47 px, retried inside, planar start kept, and the
+retried picture clean under the one gate in the frame and at 3× — while the
+catalogue picture stays on `curved`; the seed is the fixture's, not the
+plane's. *Two story-holding seeds were refused for a reason worth writing
+down:* their retried pictures were lawful and still carried a `name_off_ink`
+finding, a name lawfully clear of a curved edge's two hidden half-chords and
+sitting on the spline that bulges 8% off them. The curved style guards names
+against the chords, not the curve; the gate reads the curve. That gap is the
+style's, predates this item, and is left recorded here rather than widened
+into it. **And one seed lost its planar start**: `bulge2`, which DN8h had
+pinned as keeping it, now ends its planar solve with that name past its leash
+and the next start wins, lawfully. The pin is a count now — four of six seeds
+keep the planar start, against one of six before the second wedge — and every
+seed ends lawful whatever start it took. A pin on one seed's outcome was the
+"answer of the day" shape this session met twice already; the count is the
+promise.
+
+*Guard:* §106, 10 assertions, with the ink centre measured on the rendered
+pixels inside a circle the disc's rim cannot reach — the first measurement
+of this defect counted a rim as ink and was three times too large in the
+wrong direction, which is why the instrument's shape is written down here.
 
 ## DN9 — THE TOLD PICTURE: a narration is facts made visible, in an order (planned 2026-09-06, SHIPPED 2026-09-07 as DN9a through DN9g, all seven closed)
 

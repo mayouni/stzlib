@@ -13946,8 +13946,20 @@ chk("one mention and four mentions of a term agree to the last bit, times four",
 oTpC = StzMathScene25(AUFONT)
 chk("the curved cube is lawful FROM ITS PLANAR START, in one start",
     oTpC.IsFeasible() and oTpC.StartedPlanar() and oTpC.StartsTried() = 1)
-chk("and so is it under another seed, where the same picture used to fall back to random",
-    _TpSeedKeepsPlanar("bulge2"))
+# A COUNT OVER SEEDS, NOT ONE SEED. This line pinned "bulge2" keeping its
+# planar start, and DN12's taller text box -- a tenth taller at 15px --
+# took that seed's planar start away: v111's name no longer finds room
+# from the planar overlay there and the next start wins, lawfully. Before
+# the second wedge one seed of six kept planar; the claim worth holding is
+# that MOST do, and that every one ends lawful whatever start it took.
+nTpKeep = 0
+for cTpSeed in [ "curved", "bulge2", "gray", "seedA", "seedB", "one-wedge" ]
+	if _TpSeedKeepsPlanar(cTpSeed)  nTpKeep++  ok
+next
+? "   [" + nTpKeep + " of 6 seeds keep the planar start; bulge2 and gray fall to the next, lawfully]"
+chk("most seeds keep the curved cube's planar start -- four of six, where one of six did before the second wedge",
+    nTpKeep >= 4)
+chk("and every seed ends lawful, from whichever start it took", _TpAllSeedsLawful())
 
 
 sec("-- 97. DN9a: THE NAME IS FREE -- stzNarration IS stzTranscript ---------------")
@@ -14009,7 +14021,7 @@ chk("and both equal the radius the picture solved: A is ON the circle",
 oFcB = _FcOneWedge()
 nFcBad = oFcB.Fact(:distance, [ "v111.icon", "v111.text" ])[:value]
 nFcLeash = oFcB.Fact(:arg, [ "lessthan v111", 2 ])[:value]
-oFcOk = StzMathScene25(AUFONT)
+oFcOk = StzMathScene25XT(AUFONT, StzMathOneWedgeStorySeed())
 nFcGood = oFcOk.Fact(:distance, [ "v111.icon", "v111.text" ])[:value]
 ? "   [caption numbers, from facts: " + StzFactNumText(nFcBad) + " px, limit " +
   StzFactNumText(nFcLeash) + " px, then " + StzFactNumText(nFcGood) + " px]"
@@ -14143,7 +14155,7 @@ oWnB = _FcOneWedge()
 nWnD1 = oWnB.Fact(:distance, [ "v111.icon", "v111.text" ])[:value]
 oWnB.Show("lessthan v111")
 oWnB.WindowOn("v111.icon", 105)
-oWnA = StzMathScene25(AUFONT)
+oWnA = StzMathScene25XT(AUFONT, StzMathOneWedgeStorySeed())
 oWnA.Layout()
 oWnA.Show("lessthan v111")
 oWnA.WindowOn("v111.icon", 105)
@@ -14572,6 +14584,63 @@ chk("the valence rule governs every atom of a molecule and NOT ONE object of a l
     len(oChRule.CounterSubjectsIn(oChQ)) > 0 and len(oChRule.CounterSubjectsIn(oChB)) = 0)
 chk("a molecule answers Rendition() as a vector like every other picture",
     oChB.Rendition()[:kind] = "vector")
+
+
+sec("-- 106. DN12: A LABEL IS CENTRED ON ITS CAP HEIGHT, NOT ITS EM BOX ------")
+discharges("DN12")
+
+# THE METRIC, FROM THE FONT. The engine's text layout now carries the ink
+# extents of the shaped string -- how far the glyphs reach above and below
+# the baseline -- beside the em box's ascender and descender. The cap
+# height is the ink top of an H: read, not guessed.
+aEmH = AUFONT.InkOf("H", 28)
+aEmG = AUFONT.InkOf("g", 28)
+aEmM = AUFONT.MetricsOf("H", 28)
+? "   at 28px: ascender " + aEmM[1] + ", descender " + aEmM[2] + ", cap " + AUFONT.CapHeightOf(28) +
+  ", g hangs " + aEmG[2] + " below"
+chk("an H has ink above the baseline and NONE below", aEmH[1] > 0 and aEmH[2] = 0)
+chk("a g has ink below the baseline -- the descender is the string's, not the font's",
+    aEmG[2] > 0 and aEmG[1] < aEmH[1])
+chk("the cap height is the H's ink top, and it sits where a cap height sits: 0.6 to 0.8 of the size",
+    AUFONT.CapHeightOf(28) = aEmH[1] and AUFONT.CapHeightOf(28) > 0.6 * 28 and
+    AUFONT.CapHeightOf(28) < 0.8 * 28)
+chk("NEGATIVE: the em box is the same for H and g; the ink is not",
+    AUFONT.MetricsOf("g", 28)[1] = aEmM[1] and aEmG[1] != aEmH[1])
+
+# THE NUMBER THAT WAS WRONG, reproduced. The old baseline sat (asc - desc)/2
+# below cy; the cap centre sits cap/2 below it. The difference is what every
+# capital was drawn low by -- and it grows with the size, which is why it
+# was invisible on an 11px atom symbol and visible on a 28px set name.
+nEmBias11 = (AUFONT.MetricsOf("H", 11)[1] - AUFONT.MetricsOf("H", 11)[2] - AUFONT.CapHeightOf(11)) / 2
+nEmBias28 = (aEmM[1] - aEmM[2] - AUFONT.CapHeightOf(28)) / 2
+? "   the em-box bias was " + nEmBias11 + "px at 11px and " + nEmBias28 + "px at 28px"
+chk("the bias the old formula carried was over half a pixel at 11px and over a pixel and a half at 28",
+    nEmBias11 > 0.5 and nEmBias28 > 1.5)
+
+# THE INK IS CENTRED NOW, measured on the pixels the renderer wrote, inside
+# a circle the disc's rim cannot reach -- the first measurement of this
+# defect counted a rim as ink and was three times too large.
+oEmS = StzMathScene01(AUFONT)
+oEmS.Layout()
+aEmB = _EmInkOff(oEmS, "B.text", 16)
+? "   scene 1's B, 28px : ink centre off by " + aEmB[1] + "," + aEmB[2] + " px"
+chk("a 28px set name's ink is centred on its cy to within half a pixel", fabs(aEmB[2]) < 0.5)
+oEmC = StzMathScene39(AUFONT)
+oEmC.Layout()
+aEmA = _EmInkOff(oEmC, "a1.text", 7)
+? "   benzene's C, 11px : ink centre off by " + aEmA[1] + "," + aEmA[2] + " px"
+chk("an 11px atom symbol's ink is centred on its cy to within half a pixel", fabs(aEmA[2]) < 0.5)
+
+# THE BOX MOVED WITH THE INK, AND IT HOLDS THE WHOLE EM BOX. The modelled
+# box stays symmetric about cy -- one number, every consumer unchanged --
+# and is the smallest such box containing the em box drawn round the new
+# baseline, so no clearance is closer to the ink than before.
+sEmB = oEmS.ShapeOf("B.text")
+chk("the text's box is at least the em box tall", sEmB[:h] >= aEmM[1] + aEmM[2] - 0.01)
+chk("...and holds the drawn em box: the cap's top and the descender's bottom are both inside",
+    sEmB[:cy] + AUFONT.CapHeightOf(28) / 2 - aEmM[1] >= sEmB[:cy] - sEmB[:h] / 2 - 0.01 and
+    sEmB[:cy] + AUFONT.CapHeightOf(28) / 2 + aEmM[2] <= sEmB[:cy] + sEmB[:h] / 2 + 0.01)
+chk("and both pictures stay lawful under the taller box", oEmS.IsFeasible() and oEmC.IsFeasible())
 
 
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
@@ -17614,6 +17683,38 @@ func _OgWitness
 	_o_.SetVariation("witness")
 	return _o_
 
+#-- DN12: the ink centre of a drawn text against its own (cx, cy) ------------
+#
+# Read from the canvas pixels inside a CIRCLE of radius pnR around the
+# text's centre -- never a box, because a box reaches the rim of the disc
+# an atom symbol sits in, and a rim counted as ink moved the first
+# measurement of this defect by three pixels in the wrong direction. The
+# reference colour is sampled just outside the ink; every pixel differing
+# from it weighs by how much. Returns [ dx, dy ].
+func _EmInkOff poDg, pcT, pnR
+	_s_ = poDg.ShapeOf(pcT)
+	_oC_ = poDg.ToCanvas()
+	_cPx_ = _oC_.ToPixels()
+	_W_ = _oC_.Width()
+	_cx_ = _s_[:cx]  _cy_ = _s_[:cy]
+	_nRef_ = _EmLum(_cPx_, _W_, floor(_cx_ + pnR - 1), floor(_cy_))
+	_sx_ = 0  _sy_ = 0  _n_ = 0
+	for _y_ = floor(_cy_ - pnR) to ceil(_cy_ + pnR)
+		for _x_ = floor(_cx_ - pnR) to ceil(_cx_ + pnR)
+			if (_x_ + 0.5 - _cx_) * (_x_ + 0.5 - _cx_) + (_y_ + 0.5 - _cy_) * (_y_ + 0.5 - _cy_) > pnR * pnR  loop  ok
+			_d_ = fabs(_EmLum(_cPx_, _W_, _x_, _y_) - _nRef_)
+			if _d_ > 40
+				_sx_ += (_x_ + 0.5) * _d_  _sy_ += (_y_ + 0.5) * _d_  _n_ += _d_
+			ok
+		next
+	next
+	if _n_ = 0  return [ 999, 999 ]  ok
+	return [ floor(100 * (_sx_ / _n_ - _cx_)) / 100, floor(100 * (_sy_ / _n_ - _cy_)) / 100 ]
+
+func _EmLum pcPx, pnW, pnX, pnY
+	_i_ = ((pnY * pnW) + pnX) * 4 + 1
+	return 0.299 * ascii(pcPx[_i_]) + 0.587 * ascii(pcPx[_i_ + 1]) + 0.114 * ascii(pcPx[_i_ + 2])
+
 #-- DN11: the molecule section's helpers ------------------------------------
 
 # A STAR OF FIVE, in the graph domain under the spring style: a tree, whose
@@ -18179,6 +18280,15 @@ func _TpSeedKeepsPlanar pcSeed
 	_o_.SetVariation(pcSeed)
 	return _o_.IsFeasible() and _o_.StartedPlanar()
 
+func _TpAllSeedsLawful
+	for _c_ in [ "curved", "bulge2", "gray", "seedA", "seedB", "one-wedge" ]
+		_o_ = new stzMathDiagram(StzGraphDomain(), StzMathCubeSubstance(), StzCurvedGraphStyle())
+		_o_.SetFont(AUFONT, 15)
+		_o_.SetVariation(_c_)
+		if NOT _o_.IsFeasible()  return FALSE  ok
+	next
+	return TRUE
+
 func _TrHasClass pcName
 	_a_ = classes()
 	for _i_ = 1 to len(_a_)
@@ -18227,10 +18337,11 @@ func _FcNear pn, pnWant
 
 # the curved cube solved with ONE label wedge, as it was before DN8h's
 # repair: the picture whose caption the three diagrams described
+# the one-wedge solve of the story's seed -- see StzMathOneWedgeStorySeed
 func _FcOneWedge
 	_o_ = new stzMathDiagram(StzGraphDomain(), StzMathCubeSubstance(), StzCurvedGraphStyle())
 	_o_.SetFont(AUFONT, 15)
-	_o_.SetVariation("curved")
+	_o_.SetVariation(StzMathOneWedgeStorySeed())
 	_o_._Compile()
 	_o_._CompileViolationTapes()
 	_o_._Initialise("planar")
@@ -18822,9 +18933,17 @@ func _TxBoxMatchesRuns poM
 		if _m_[2] != "label"  loop  ok
 		_c_ = "" + poM.PropOf(_m_[1], "string", "")
 		if NOT StzHasNotation(_c_)  loop  ok
-		_r_ = StzNotationRuns(_c_, poM.PropOf(_m_[1], "size", 24), AUFONT)
+		_nSz_ = poM.PropOf(_m_[1], "size", 24)
+		_r_ = StzNotationRuns(_c_, _nSz_, AUFONT)
 		_s_ = poM.ShapeOf(_m_[1])
-		return fabs(_s_[:w] - _r_[2]) < 0.01 and fabs(_s_[:h] - (_r_[3] + _r_[4])) < 0.01
+		# the box is the runs' union, held symmetric about the cap centre
+		# (DN12): the taller of what reaches above it and what hangs below
+		_nCap_ = AUFONT.CapHeightOf(_nSz_)
+		_nUp_ = _r_[3] - _nCap_ / 2
+		_nDn_ = _nCap_ / 2 + _r_[4]
+		_nH_ = 2 * _nUp_
+		if _nDn_ > _nUp_  _nH_ = 2 * _nDn_  ok
+		return fabs(_s_[:w] - _r_[2]) < 0.01 and fabs(_s_[:h] - _nH_) < 0.01
 	next
 	return FALSE
 

@@ -98,6 +98,24 @@ class stzFont from stzObject
 		_a_ = This.MetricsOf(pcText, pnSize)
 		return _a_[1] + _a_[2] + _a_[3]
 
+	# THE INK of this string, px: [ above the baseline, below it ], both
+	# positive -- the union of the shaped glyphs' extents, not the font's
+	# em box. "H" reaches the cap height and 0 below; "g" reaches the
+	# x-height and its descender below. The em box (MetricsOf) is the same
+	# for every string at a size; this is the string's own.
+	def InkOf(pcText, pnSize)
+		_a_ = StzEngineGpuTextLayout(@nId, "" + pcText, pnSize)
+		if len(_a_) < 9
+			return [ 0, 0 ]
+		ok
+		return [ _a_[8], _a_[9] ]
+
+	# The cap height at this size, measured: the ink top of an H. What a
+	# label centred by eye is centred on -- not the em box, whose centre
+	# sits below a capital's by half the descender space nothing uses.
+	def CapHeightOf(pnSize)
+		return This.InkOf("H", pnSize)[1]
+
 	# TRUE when the paragraph's own base direction is right-to-left --
 	# which decides where the caret sits past the last character.
 	def IsRtlParagraph(pcText, pnSize)
