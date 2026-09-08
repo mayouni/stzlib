@@ -2960,3 +2960,58 @@ note:      A MEASUREMENT ABOUT A CHECKER HAS TO USE THE CHECKER'S OWN
            reading as empty, which the loose grammar had concealed by
            answering plausibly.
 ```
+
+```yaml
+by:        stzlib · claude-fable-5-1 · 2026-09-08 08:01
+
+subject:   parents that understate their own children, and a status one
+           of them had been borrowing
+
+why:       the fold shipped three hours ago made a second defect visible
+           at once, and correcting it exposed a third nobody was looking
+           for
+
+did:
+  - Measured, with the checker itself rather than a lookalike: 5 of the
+    32 not-closed items across this library's 26 plans are parents whose
+    every sub-item is closed -- DN8 over eight, DN9 over seven, GR6 over
+    three, GR2 and GR4 over two each.
+  - Established why the existing rule cannot see it: a parent has no
+    guard section of its own to discharge it, and its children have them.
+  - Added plan_parent_understates_its_children, and corrected all five;
+    the count is now zero of 27.
+  - Wrote the child test as an exact one-lowercase-letter extension
+    rather than a prefix match, so AA10 is not read as a child of AA1,
+    and gave that its own negative assertion.
+  - Left UNDECIDED out of the rule: it states that nobody has adjudicated
+    the item, which closed parts do not settle.
+  - Renamed the graphics plan's heading "GR0-GR6 are complete", which
+    opened with an item id and so spoke for six items while defining one.
+  - Found that this removed GR0's status, and gave GR0 its own word:
+    its section had said only "VERDICT: GO".
+
+state:
+  gg_adversarial:      1219 ok, 0 failed   (was 1209; 10 new in §75)
+  stale parents:       0 of 27   (was 5 of 32)
+  plans measured:      26
+  commit:              b3e42d8f8 on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the author's word
+  - any desk with a plan: an item that reads closed while no sentence in
+             its own section says so may be borrowing a status from a
+             neighbouring heading. GR0 borrowed one for a month.
+
+note:      A VERDICT IS A FINDING, NOT A STATUS. GR0 read "closed" for a
+           month while its own words said only "VERDICT: GO" -- the
+           heading answering for it was a RANGE that happened to open
+           with its id. Renaming that heading took the status away, and
+           nothing about GR0 had changed. That is the shape to look for:
+           a correction that makes something WORSE is often a borrowed
+           value returning to its owner.
+```
