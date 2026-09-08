@@ -305,16 +305,24 @@ func StzBallAndStickStyle()
 	# hydrogen begins a step from its carbon and is solved from there.
 	_o_.StartTrying([ :planar, :force, :random ], "HeavyAtom", "icon", [ "Bond" ])
 
-	# AN ATOM IS A DISC WITH ITS SYMBOL INSIDE. The symbol sits on the disc
-	# by containment and a shared centre, and takes black or white against
-	# whatever the disc is painted -- so oxygen's red and hydrogen's paper
+	# AN ATOM IS A DISC WITH ITS SYMBOL INSIDE, AND THE SYMBOL IS NOT SOLVED.
+	# Its centre IS the disc's centre, as an expression -- the way a bond's
+	# end is an atom's centre -- so it cannot drift. The first version
+	# solved it with contains + an encouraged sameCenter, and the Principal
+	# saw what the numbers confirmed: a carbon's C sat 0.9px left and 1.9px
+	# below its disc, because contains was satisfied anywhere inside and an
+	# encouragement is outvoted by anything hard. A symbol has nothing to
+	# dodge inside its own disc; a set's name does, which is why the set
+	# style solves its name and this one does not. Black or white against
+	# whatever the disc is painted, so oxygen's red and hydrogen's paper
 	# both read.
 	_o_.ForAll("Atom a", [
 		[ :shape, "a.icon", :circle, [ :r = 12, :fill = "neutral",
 		                               :stroke = "background", :strokeWidth = 1.5 ] ],
-		[ :shape, "a.text", :text, [ :fill = [ :on, "under" ] ] ],
+		[ :shape, "a.text", :text, [ :cx = "a.icon.cx", :cy = "a.icon.cy",
+		                             :fill = [ :on, "under" ] ] ],
+		# still asserted: the disc must be big enough for its symbol
 		[ :ensure, "contains", [ "a.icon", "a.text", 1 ] ],
-		[ :encourage, "sameCenter", [ "a.text", "a.icon" ] ],
 		[ :layer, "a.text", :above, "a.icon" ],
 		# a weak pull to the middle of the paper, a sixty-fourth
 		[ :encourage, "equal", [ "a.icon.cx / 8", 40 ] ],

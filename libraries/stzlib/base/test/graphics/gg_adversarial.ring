@@ -14540,7 +14540,18 @@ oChP.Layout()
   " constraints, " + oChP.Rounds() + " round(s), " + floor(oChP.LayoutMs()) + " ms, start " + oChP.StartUsed()
 chk("seven components solve as one picture, lawful from the planar start",
     oChP.IsFeasible() and oChP.StartUsed() = "planar" and oChP.StartsTried() = 1)
-chkeq("...with every atom of every water and of phenol an unknown pair", oChP.NumberOfUnknowns(), 174)
+chkeq("...with every atom of every water and of phenol an unknown pair, and nothing else",
+      oChP.NumberOfUnknowns(), 112)
+
+# THE SYMBOL IS NOT SOLVED, IT IS THE DISC'S CENTRE. The Principal saw the
+# letters off-centre and the numbers agreed: contains was satisfied
+# anywhere inside the disc and the encouraged sameCenter was outvoted, so
+# a carbon's C sat 0.9px left and 1.9px below its disc. Its centre is an
+# expression of the disc's now, which is exact and halves the unknowns.
+chk("an atom's symbol centre IS its disc centre -- an expression, not an unknown",
+    _ChD(oChB, "a1", "a1") = 0 and _ChTextOff(oChB, "a1") = 0 and _ChTextOff(oChB, "a7") = 0 and
+    _ChTextOff(oChC, "a10") = 0)
+chkeq("...so benzene solves thirty-six unknowns, not sixty", oChB.NumberOfUnknowns(), 36)
 
 # THE RULES, THROUGH THE ONE GATE. Both read the substance and recount.
 chk("a lawful molecule raises nothing in the gate",
@@ -17641,6 +17652,11 @@ func _ChFileAngle paXY, p, q, r
 	_vx_ = paXY[r][1] - paXY[q][1]  _vy_ = paXY[r][2] - paXY[q][2]
 	_c_ = (_ux_*_vx_ + _uy_*_vy_) / (sqrt(_ux_*_ux_+_uy_*_uy_) * sqrt(_vx_*_vx_+_vy_*_vy_))
 	return acos(_c_) * 180 / 3.14159265358979
+
+# the distance between an atom's symbol centre and its disc centre
+func _ChTextOff poDg, pcA
+	_i_ = poDg.ShapeOf(pcA + ".icon")  _t_ = poDg.ShapeOf(pcA + ".text")
+	return sqrt((_t_[:cx]-_i_[:cx])*(_t_[:cx]-_i_[:cx]) + (_t_[:cy]-_i_[:cy])*(_t_[:cy]-_i_[:cy]))
 
 func _ChLen poDg, pcPath
 	_s_ = poDg.ShapeOf(pcPath)
