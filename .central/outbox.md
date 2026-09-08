@@ -3133,3 +3133,56 @@ note:      MEASURE THE PRIMITIVE BEFORE THE COMPOSITE. A centroid over a
            truth in the wrong direction, and it looked like a finding. One
            glyph on a blank canvas took ten seconds and settled it.
 ```
+
+```yaml
+by:        stzlib · claude-fable-5-1 · 2026-09-08 22:17
+
+subject:   DN12 -- a label centred on its cap height, the metric from the
+           engine
+
+why:       every capital in every math picture was drawn low by half the
+           descender space it never used, and the number was known since
+           this morning
+
+did:
+  - Added the shaped string's ink extents to the engine's text layout,
+    appended after the seven numbers it had, from HarfBuzz's glyph
+    extents on the same scaled font the positions come from.
+  - Gave the font face InkOf(text, size) and CapHeightOf(size), the ink
+    top of an H: an H has ink above the baseline and none below, a g
+    hangs 6.6px below at 28px, and the em box is the same for both.
+  - Moved the renderer's baseline to cap/2 below cy; scene 1's B is
+    0.01px off its centre where it was 1.6px low, benzene's C 0.02px.
+  - Kept the modelled box one symmetric number, the smallest that holds
+    the em box round the new baseline, so every rule and the tape read
+    w and h unchanged and no clearance is closer to the ink than before.
+  - Re-rendered the catalogue: 72 of 82 pictures changed.
+  - Moved the one-wedge story fixture to a seed measured to hold the
+    story AND to be clean under the gate in the frame and at 3x, after
+    the taller box let a single wedge succeed on the catalogue's seed.
+  - Turned DN8h's pin on one seed keeping its planar start into a count
+    over six, after the taller box cost that seed its start.
+  - Rebuilt the engine with -j2, foreground, alone: 21 seconds.
+
+state:
+  gg_adversarial:    1266 ok, 0 failed   (was 1255; 10 new in §106)
+  em-box bias:       0.71px at 11px, 1.80px at 28px -- now 0.01
+  catalogue:         72 of 82 pictures changed
+  commit:            9996b7101 on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the author's word; the curved style's chord-versus-spline
+             gap is recorded and is a candidate for its own item
+  - central: none
+
+note:      WHEN THE DRAWING MOVES, THE BOX THE RULES READ MUST MOVE WITH
+           IT, or the gate judges a picture that is not the one drawn.
+           And a tenth of a box was enough to expose two pins on outcomes
+           rather than promises, which is the third time this session the
+           same shape has appeared.
+```
