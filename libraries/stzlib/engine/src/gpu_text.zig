@@ -183,6 +183,15 @@ pub const Layout = struct {
     descender: f64, // distance BELOW the baseline, positive
     line_gap: f64,
     para_rtl: bool, // the paragraph's own base direction (UAX#9 base level)
+    // --- THE INK, not the em box (DN12). The union of the shaped glyphs'
+    // extents: how far above the baseline the highest ink reaches and how
+    // far below the lowest, both positive, px. A capital's ink_bottom is
+    // 0; the em box's descender is not, and a renderer that centres the
+    // em box sits every capital low by half that gap -- measured at
+    // +0.6px for 11px type and +1.6px at 28px. ink_top of "H" IS the cap
+    // height, read from the font rather than guessed at 0.7em.
+    ink_top: f64,
+    ink_bottom: f64,
 
     pub fn deinit(self: *const Layout) void {
         alloc.free(self.glyphs);
@@ -307,6 +316,23 @@ pub fn textLayout(font_id: i64, utf8: []const u8, size_px: f64) !Layout {
         gap = @as(f64, @floatFromInt(ext.line_gap)) / 64.0;
     }
 
+    // The ink, per glyph, from the same scaled font: y_bearing is the top
+    // of the glyph above its origin and height is NEGATIVE (hb's y grows
+    // up), so the bottom edge is y_bearing + height. Each is offset by the
+    // glyph's own y-offset (a mark riding above a base). Empty extents --
+    // a space -- contribute nothing.
+    var ink_top: f64 = 0;
+    var ink_bottom: f64 = 0;
+    for (glyphs.items) |g| {
+        var ge: c.hb_glyph_extents_t = undefined;
+        if (c.hb_font_get_glyph_extents(s.font, g.gid, &ge) == 0) continue;
+        if (ge.width == 0 and ge.height == 0) continue;
+        const top = g.y + @as(f64, @floatFromInt(ge.y_bearing)) / 64.0;
+        const bottom = g.y + @as(f64, @floatFromInt(ge.y_bearing + ge.height)) / 64.0;
+        if (top > ink_top) ink_top = top;
+        if (-bottom > ink_bottom) ink_bottom = -bottom;
+    }
+
     return .{
         .glyphs = try glyphs.toOwnedSlice(alloc),
         .width = pen_x,
@@ -315,6 +341,8 @@ pub fn textLayout(font_id: i64, utf8: []const u8, size_px: f64) !Layout {
         .descender = desc,
         .line_gap = gap,
         .para_rtl = (c.SBParagraphGetBaseLevel(paragraph) & 1) == 1,
+        .ink_top = ink_top,
+        .ink_bottom = ink_bottom,
     };
 }
 

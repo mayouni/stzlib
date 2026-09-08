@@ -609,12 +609,16 @@ fn ring_FontGlyphCount(p: *anyopaque) callconv(.c) void {
 // TextLayout(hFont, cUtf8, nSizePx) ->
 //   [ nWidth, nRunCount,
 //     [ [gid, x, y, byteCluster, pen, adv, clusterEnd, bidiLevel], ... ],
-//     nAscender, nDescender, nLineGap, bParaRtl ]                or [].
+//     nAscender, nDescender, nLineGap, bParaRtl,
+//     nInkTop, nInkBottom ]                                        or [].
 // Glyphs come in VISUAL left-to-right order (bidi already applied); gids
 // are GLYPH ids (post-shaping), never codepoints. Fields 5..8 of a glyph
 // and items 4..7 of the list are the REVERSIBILITY data (§0): they were
 // appended, never reordered, so index-based readers of the first shape
-// keep working.
+// keep working. Items 8 and 9 are the INK extents (DN12), appended under
+// the same rule: how far the drawn glyphs reach above and below the
+// baseline, both positive -- the em box's ascender and descender are the
+// font's, these are the string's.
 fn ring_TextLayout(p: *anyopaque) callconv(.c) void {
     const font: i64 = @intFromFloat(gn(p, 1));
     const utf8 = getStr(p, 2);
@@ -645,6 +649,8 @@ fn ring_TextLayout(p: *anyopaque) callconv(.c) void {
     R.ring_list_adddouble(out, layout.descender);
     R.ring_list_adddouble(out, layout.line_gap);
     R.ring_list_adddouble(out, if (layout.para_rtl) 1 else 0);
+    R.ring_list_adddouble(out, layout.ink_top);
+    R.ring_list_adddouble(out, layout.ink_bottom);
     R.ring_vm_api_retlist(p, out);
 }
 

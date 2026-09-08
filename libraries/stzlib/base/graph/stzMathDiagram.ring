@@ -5386,13 +5386,17 @@ class stzMathDiagram from stzObject
 			_cT_ = This._Prop(_aProps_, "string", "")
 			if _cT_ = ""  return  ok
 			_aM_ = This._TextSize(_cP_)
-			# centred on (cx, cy): the baseline sits below the centre by half
-			# the ink height, measured from the font rather than guessed
+			# CENTRED ON THE CAP HEIGHT (DN12): the baseline sits below cy by
+			# half the cap height, so a capital's ink is centred on cy. The
+			# line that stood here put the baseline at (asc - desc)/2 below
+			# cy -- the em box's centre -- and every capital sat low by half
+			# the descender space it never used: +0.7px at 11px, +1.8px at
+			# 28px, measured on the pixels after the Principal saw it.
 			# THE POSITION MOVES INTO THE VIEW, THE TYPE DOES NOT SCALE: a
 			# close frame is for reading, so a name keeps the size it was
 			# measured at and only travels
 			_x_ = This._Wx(This._V(_cP_ + ".cx")) - _aM_[1] / 2
-			_y_ = This._Wy(This._V(_cP_ + ".cy")) + (_aM_[2] - _aM_[3]) / 2
+			_y_ = This._Wy(This._V(_cP_ + ".cy")) + _aM_[4] / 2
 			# THE CANVAS STYLES THE TEXT THAT IS PENDING, NOT THE NEXT ONE.
 			# SetFont with a text pending retro-styles THAT text; AddText
 			# captures the canvas default.
@@ -6494,7 +6498,7 @@ class stzMathDiagram from stzObject
 			# and is measured at that size, not the diagram's
 			_aM_ = This._MeasureTextAt(This._Prop(_aP_, "string", ""),
 				This._Prop(_aP_, "size", @nFontSize))
-			@aTextSize + [ pcPath, _aM_[1], _aM_[2], _aM_[3] ]
+			@aTextSize + [ pcPath, _aM_[1], _aM_[2], _aM_[3], _aM_[4] ]
 			@aTextIdx[_MdKey(pcPath)] = len(@aTextSize)
 		ok
 		_bLbl_ = 0
@@ -6678,28 +6682,49 @@ class stzMathDiagram from stzObject
 	def _MeasureText(pcText)
 		return This._MeasureTextAt(pcText, @nFontSize)
 
+	# [ width, ascender, descender, capHeight ] at this size. THE CAP HEIGHT
+	# IS THE FOURTH NUMBER (DN12): what a label is centred on. The em box's
+	# centre sits below a capital's by half the descender space nothing
+	# uses, and a renderer centring the em box drew every capital low --
+	# +0.7px at 11px, +1.8px at 28px, measured on the pixels. It is read
+	# from the font as the ink top of an H, not guessed at 0.7em.
 	def _MeasureTextAt(pcText, pnSize)
-		if pcText = ""  return [ 0, 0, 0 ]  ok
+		if pcText = ""  return [ 0, 0, 0, 0 ]  ok
 		if isObject(@oFont)
 			# A LABEL CARRYING NOTATION IS MEASURED AS THE UNION OF ITS RUNS
 			# (DN10), so a superscript really does make the box taller and
 			# the clearances that hold the label off the ink stay honest.
+			# Its cap height is the base run's: the scripts ride the base.
 			if StzHasNotation(pcText)
 				_r_ = StzNotationRuns(pcText, pnSize, @oFont)
-				return [ _r_[2], _r_[3], _r_[4] ]
+				return [ _r_[2], _r_[3], _r_[4], @oFont.CapHeightOf(pnSize) ]
 			ok
 			_w_ = @oFont.WidthOf(pcText, pnSize)
 			_m_ = @oFont.MetricsOf(pcText, pnSize)
-			return [ _w_, _m_[1], _m_[2] ]
+			return [ _w_, _m_[1], _m_[2], @oFont.CapHeightOf(pnSize) ]
 		ok
-		return [ 0.6 * pnSize * len(pcText), 0.75 * pnSize, 0.25 * pnSize ]
+		return [ 0.6 * pnSize * len(pcText), 0.75 * pnSize, 0.25 * pnSize, 0.7 * pnSize ]
 
 	def _TextSize(pcPath)
 		_i_ = @aTextIdx[_MdKey(pcPath)]
 		if isNumber(_i_)
-			return [ @aTextSize[_i_][2], @aTextSize[_i_][3], @aTextSize[_i_][4] ]
+			return [ @aTextSize[_i_][2], @aTextSize[_i_][3], @aTextSize[_i_][4], @aTextSize[_i_][5] ]
 		ok
-		return [ 0, 0, 0 ]
+		return [ 0, 0, 0, 0 ]
+
+	# THE BOX A TEXT OCCUPIES, as a height centred on cy (DN12). The text is
+	# drawn with its CAP centre at cy, so the em box around it is off-centre:
+	# it reaches (asc - cap/2) above cy and (cap/2 + desc) below. The box the
+	# rules and the tape read stays SYMMETRIC -- one number, every consumer
+	# unchanged -- and is the smallest such box that holds the whole em box,
+	# so a clearance held against it is never closer to the ink than the
+	# em-box clearance was. It is a tenth taller than the em box at 11px,
+	# which is the price of one number instead of two.
+	def _TextH(paM)
+		_up_ = paM[2] - paM[4] / 2
+		_dn_ = paM[4] / 2 + paM[3]
+		if _up_ > _dn_  return 2 * _up_  ok
+		return 2 * _dn_
 
 	#-- SYMBOLS AND EXPRESSIONS: a name becomes tape text -----------------
 
@@ -6754,7 +6779,7 @@ class stzMathDiagram from stzObject
 			if This._KindOf(_cShape_) = "text"
 				_aM_ = This._TextSize(_cShape_)
 				if _ac_[3] = "w"  return This._Num(_aM_[1])  ok
-				if _ac_[3] = "h"  return This._Num(_aM_[2] + _aM_[3])  ok
+				if _ac_[3] = "h"  return This._Num(This._TextH(_aM_))  ok
 			ok
 		ok
 		# a number the substance put on the object: "c.row", "c.v"
@@ -7557,7 +7582,7 @@ class stzMathDiagram from stzObject
 			but _k_ = "text"
 				_aM_ = This._TextSize(_cP_)
 				_hx_ = _aM_[1] / 2
-				_hy_ = (_aM_[2] + _aM_[3]) / 2
+				_hy_ = This._TextH(_aM_) / 2
 			else
 				_hx_ = This._V(_cP_ + ".w") / 2
 				_hy_ = This._V(_cP_ + ".h") / 2
@@ -8973,7 +8998,7 @@ class stzMathDiagram from stzObject
 		if len(_ac_) = 3
 			_aM_ = This._TextSize(_ac_[1] + "." + _ac_[2])
 			if _ac_[3] = "w"  return _aM_[1]  ok
-			if _ac_[3] = "h"  return _aM_[2] + _aM_[3]  ok
+			if _ac_[3] = "h"  return This._TextH(_aM_)  ok
 		ok
 		return 0
 

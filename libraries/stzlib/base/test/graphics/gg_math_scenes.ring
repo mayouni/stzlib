@@ -465,10 +465,28 @@ func StzMathScene24(poFont)
 
 # the cube again, its edges curved
 func StzMathScene25(poFont)
+	return StzMathScene25XT(poFont, "curved")
+
+func StzMathScene25XT(poFont, pcSeed)
 	_o_ = new stzMathDiagram(StzGraphDomain(), StzMathCubeSubstance(), StzCurvedGraphStyle())
 	_o_.SetFont(poFont, 15)
-	_o_.SetVariation("curved")
+	_o_.SetVariation(pcSeed)
 	return _o_
+
+# THE SEED THE ONE-WEDGE STORY IS TOLD ON. The story needs a picture where
+# a name given ONE starting wedge ends past its leash and the retried name
+# ends inside it. That was the catalogue's own seed until DN12 made every
+# text box a tenth taller: on "curved" the single wedge now finds room for
+# v111 first time (23 px, leash 44), so there was no failure to narrate.
+# Measured over twelve seeds: on this one the single wedge strands v111 at
+# 47 px, the retry lands it inside, the planar start is kept, and the
+# retried picture is CLEAN under the one gate in the frame and at 3x --
+# which two other story-holding seeds were not, a lawful solve carrying a
+# name-off-ink finding where a name sat between a curved edge's chord and
+# its spline. The seed is the FIXTURE's, not the plane's -- the catalogue
+# picture stays on "curved".
+func StzMathOneWedgeStorySeed()
+	return "one-wedge"
 
 # six points and the Catmull-Rom curve through them
 func StzMathScene26(poFont)
@@ -791,7 +809,7 @@ func StzMathScene37(poFont)
 func StzStoryOneWedge(poFont, pcFolio)
 	_oBad_ = new stzMathDiagram(StzGraphDomain(), StzMathCubeSubstance(), StzCurvedGraphStyle())
 	_oBad_.SetFont(poFont, 15)
-	_oBad_.SetVariation("curved")
+	_oBad_.SetVariation(StzMathOneWedgeStorySeed())
 	_oBad_._Compile()
 	_oBad_._CompileViolationTapes()
 	_oBad_._Initialise("planar")
@@ -814,7 +832,7 @@ func StzStoryOneWedge(poFont, pcFolio)
 	_o_.ExpectFindings()
 	_o_.Bind("far", :distance, [ "v111.icon", "v111.text" ])
 	_o_.WindowOn("v111.icon", 105)
-	_o_.FrameOf(StzMathScene25(poFont),
+	_o_.FrameOf(StzMathScene25XT(poFont, StzMathOneWedgeStorySeed()),
 		"Given a second starting direction, the same name settles {near} px out, inside the leash.")
 	_o_.Bind("near", :distance, [ "v111.icon", "v111.text" ])
 	_o_.Show("lessthan v111")
