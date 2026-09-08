@@ -3086,3 +3086,50 @@ note:      A SECOND CALLER IS THE CHEAPEST STRONG TEST A GENERAL
            ring, two rings on an edge, a search that needs one backtrack.
            None of the fixes mentions chemistry.
 ```
+
+```yaml
+by:        stzlib · claude-fable-5-1 · 2026-09-08 20:17
+
+subject:   atom symbols centred -- the Principal's correction to DN11
+
+why:       the letters were visibly off their discs an hour after the
+           item shipped, and the cause was a solved position where an
+           expression was owed
+
+did:
+  - Measured before believing it: the solver had a carbon's C 0.86px
+    left and 1.92px below its disc, held by contains and an encouraged
+    sameCenter that hard constraints outvote.
+  - Made the symbol's centre an expression of the disc's, so it cannot
+    drift; unknowns halved, benzene 60 to 36, phenol in water 174 to 112,
+    and the gate pins the offset at zero.
+  - Measured the renderer's own share on the primitive -- one glyph
+    against a known anchor -- and found AddText's anchor is baseline-left
+    as documented, with capitals sitting low by half the descender space
+    the em box reserves: +0.6px at 11px, +1.6px at 28px, in every math
+    picture.
+  - Left that renderer bias as a recorded number and not a change,
+    because it moves every label in 82 pictures and the gate's text box.
+  - Threw away my first pixel measurement, which had counted the disc's
+    antialiased rim as ink and said 3.2px by 4.6px.
+  - Re-rendered scenes 38 to 41; nothing else in the catalogue changed.
+
+state:
+  gg_adversarial:   1255 ok, 0 failed   (was 1253)
+  commit:           853f4c599 on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the author's word; the em-box centring is the next item this
+             plane owes itself, sized at 82 pictures
+  - central: none
+
+note:      MEASURE THE PRIMITIVE BEFORE THE COMPOSITE. A centroid over a
+           disc that included its own rim gave a number three times the
+           truth in the wrong direction, and it looked like a finding. One
+           glyph on a blank canvas took ten seconds and settled it.
+```
