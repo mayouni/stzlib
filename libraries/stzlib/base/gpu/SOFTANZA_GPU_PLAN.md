@@ -1355,3 +1355,68 @@ not a definition to the plan checker; these lines are.
 - **GS6** — the ML tier's per-epoch quadratic kernels as a resident chain, each kernel checked by GK0 before any seam. GPU plane. Not started.
 - **GS7** — k-means assignment on the pairdist kernel with an index-order tie rule and a segmented centroid reduction. GPU plane. Not started.
 - **GS8** — sinc resampling in batch mode, multicore first, GPU only if the batch tier still asks. Sound desk. Not started.
+
+---
+
+## GS4 STATUS — shipped 2026-09-09: the semantic index routes to the GPU under its own line
+
+Guard: `base/test/neural/neural_semantic_gpu_seam_narrated.ring` — **33
+asserts green**, its mechanism scenes running WITHOUT a model. Gate on
+the eight guards the change reaches (semantic search 14, semantic
+pipeline 9, embed seam 16, calibration shaped 40, calibration 10, seams
+17, declarative 20, verify 26): **152 green**. Owned and NOT run: the
+d6 cluster guard over the same face, because `stz_reactor.dll` does not
+build from a clean checkout (the nghttp2 defect already filed).
+
+**What shipped.** `stzSemanticIndex` routes its resident corpus through
+the GPU pairdist + top-k kernels the vector index seam already runs: the
+threshold consulted before any device exists (shaped class, then flat
+line), per-adapter truth after Init, the canonical gate, the upload; a
+refusal anywhere means the CPU resident dataset answers, and it stays
+built as the truth. Two doors the face lacked and real callers need:
+`AddEmbedded` (index a precomputed embedding) and `SearchByVectorXT`
+(search with one); `SearchXT` embeds and delegates, so ONE path decides
+the route. `stzGpu.CalibrateKnnResident()` measures the seam's line the
+house way: both routes through the real face on synthetic unit vectors,
+the query embedding excluded, warm-min, the device woken before every
+GPU timing, the first rung re-measured last as the control, shaped
+classes and the flat line persisted unless the control moved.
+
+**THE FINDING: "already paid for" was true of the kernels and false of
+the line.** The survey scored this seam on the vector index's measured
+crossover (~256k on the 3050). Built, it lost at 800 × 384 by 3.4x. The
+CPU alternative here is not the vector index's scan but the multicore
+tier's SIMD top-k (`cluster.topK`, M4), several times faster — and a
+threshold is a COMPARISON against a specific CPU path, so the key must
+name the seam, not the GPU op. The seam's key is `knn_resident`, with no
+seed: an uncalibrated key routes CPU by the engine's own rule.
+
+**Measured on the RTX 3050 at 384 dims, device awake, through the
+calibration (control: cpu ×1.59, gpu ×0.97 — not confounded):**
+
+| corpus | n·d | CPU top-k | GPU seam | cpu/gpu |
+|---|---|---|---|---|
+| 1,000 | 384k | 0.124 ms | 0.331 ms | 0.37x |
+| 4,000 | 1.5M | 0.643 ms | 0.634 ms | 1.01x |
+| **16,000** | **6.1M** | **5.325 ms** | **2.573 ms** | **2.07x** |
+| 32,000 | 12.3M | 6.523 ms | 6.347 ms | 1.03x |
+
+One class wins. The store is shaped for exactly this: class (16k, 384)
+carries its 2x, the flat line sits beyond the ladder, and a corpus of
+any other measured size stays on the CPU. The window is narrow for a
+measured reason: the pairdist kernel is a 16×16 tile written for m × n,
+and a single query (m = 1) drives one of its sixteen rows — at 16,000 ×
+384 the kernel reads 24 MB in ~2.5 ms where the bus allows ~0.3. **A
+single-query pairdist variant is GK2's first target**, and it would
+widen this seam's window and the vector index's alike.
+
+**Paid for on the way.** `StzNeuralEmbeddingOf` stood after the class,
+so Ring made it a METHOD, reachable only from inside the index though
+its comment called it a free function — the guard found it; it stands
+above the class now. The synthetic tiny BERT maps every text to one
+vector, so a scene on it proves the tie rule and not the seam — hence
+the bring-your-own-embedding doors carry the mechanism scenes. And the
+score is now pinned as a cosine on BOTH routes against an independent
+dot product, which no earlier guard did.
+
+Next: **GK2**, beginning with the m = 1 pairdist variant.
