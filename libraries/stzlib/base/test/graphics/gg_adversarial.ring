@@ -14762,6 +14762,20 @@ chk("two tasks sharing a lane and overlapping are caught on both, with the overl
 chkeq("...and those five are all the gate finds -- the names over shared bars do not collide",
       len(aGtF), 5)
 
+# A FAULT IS DRAWN, AND THE DRAWING'S MARKS ARE HELD TO THE RULES' VERDICTS.
+# The Principal asked what a white seam and a blank lane were: the double
+# booking's only trace, and a reversed task's bar of negative width drawing
+# nothing. The builder marks both for the style; the rules still judge
+# from the days, and here the two must agree.
+oGtWS = oGtW.Substance()
+chk("a task that finishes before it starts is drawn as a bar between its two days, in the colour of a fault",
+    oGtWS.Holds("Reversed", [ "t8" ]) and oGtW.ShapeOf("t8.bar")[:w] > 0 and
+    fabs(oGtW.ShapeOf("t8.bar")[:w] - 2 * nGtK) < 0.01 and oGtW.FillOf("t8.bar") != oGtW.FillOf("t1.bar"))
+chk("the two tasks double-booked on a lane are marked, and the marks are exactly the rule's verdicts",
+    _GtMarkedEquals(oGtW, "Clashing", aGtF, "lane_not_double_booked"))
+chk("NEGATIVE: nothing in the lawful project is marked as a fault",
+    len(_GtMarked(oGtP, "Reversed")) = 0 and len(_GtMarked(oGtP, "Clashing")) = 0)
+
 # THE BOUNDARIES. Touching ends are not an overlap; a schedule that is
 # right raises nothing; and the builder refuses what it cannot draw.
 oGtT = StzGanttDiagram(AUFONT, [ [ "A", 0, 5, 1 ], [ "B", 5, 9, 1 ] ], [])
@@ -17846,6 +17860,36 @@ func _GtHas paFindings, pcText
 		if StzFindFirst(pcText, "" + paFindings[_i_][:message]) > 0  return TRUE  ok
 	next
 	return FALSE
+
+# the tasks a substance marks with a predicate
+func _GtMarked poDg, pcPred
+	_r_ = []
+	_oS_ = poDg.Substance()
+	_ac_ = _oS_.ObjectsOfType("Task")
+	for _i_ = 1 to len(_ac_)
+		if _oS_.Holds(pcPred, [ _ac_[_i_] ])  _r_ + _ac_[_i_]  ok
+	next
+	return _r_
+
+# the marked tasks are exactly the subjects the rule found, no more, no fewer
+func _GtMarkedEquals poDg, pcPred, paFindings, pcRule
+	_aM_ = _GtMarked(poDg, pcPred)
+	_aF_ = []
+	for _i_ = 1 to len(paFindings)
+		if "" + paFindings[_i_][:rule] != pcRule  loop  ok
+		_w_ = "" + paFindings[_i_][:where]
+		_p_ = StzFindFirst("task:", _w_)
+		if _p_ > 0  _aF_ + StzStringSection(_w_, _p_ + 5, len(_w_))  ok
+	next
+	if len(_aM_) != len(_aF_) or len(_aM_) = 0  return FALSE  ok
+	for _i_ = 1 to len(_aM_)
+		_b_ = FALSE
+		for _j_ = 1 to len(_aF_)
+			if ring_trim(_aF_[_j_]) = _aM_[_i_]  _b_ = TRUE  ok
+		next
+		if NOT _b_  return FALSE  ok
+	next
+	return TRUE
 
 # "rule xN, rule xM" -- the findings counted by rule, for the profile line
 func _GtByRule paFindings

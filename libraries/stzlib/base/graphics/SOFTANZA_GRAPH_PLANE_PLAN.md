@@ -3161,6 +3161,18 @@ segment — and the style draws a fixed set of shapes per route kind, the corner
 a three-point spline. The shared-lane name moved from above its bar to inside
 it, since the gap above a bar is where a tight route's run goes.
 
+**A fault is drawn, not hidden.** The Principal asked what a white seam on the
+Build bar and a blank lane were. They were the witness's planted faults drawn
+badly: the double booking's only trace was the later bar's background-coloured
+edge crossing the earlier, and a task finishing before it starts had a bar of
+negative width and drew nothing. A picture used to explain a fault should show
+it: the builder marks a reversed task and every task that overlaps another on
+its lane, and the style draws the first as a bar between its two days in the
+colour of a fault and gives the second a red edge, so the overlap is a red
+seam. The rules still judge from the days, and the gate holds the drawing's
+marks to the rules' verdicts — the marked tasks are exactly the ones the lane
+rule names, and nothing in the lawful project is marked.
+
 **A gridline is a guide, not ink.** A task that is not the first on its lane
 carries its name over its own bar, and a name over a bar must cross a
 gridline — there is no place in the chart free of them. The gate's name rules

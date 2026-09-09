@@ -78,6 +78,14 @@ func StzGanttDomain()
 	_o_.AddPredicate("Straight", [ "Dependency" ])
 	_o_.AddPredicate("Roomy", [ "Dependency" ])
 	_o_.AddPredicate("Tight", [ "Dependency" ])
+	# A FAULT IS DRAWN, NOT HIDDEN. A task that finishes before it starts
+	# had a bar of negative width and drew nothing; two tasks double-booked
+	# on a lane left a one-pixel seam where the later bar's edge crossed the
+	# earlier. The builder marks both so the style can show them -- the
+	# RULES still judge them from the days, and the gate holds the marks to
+	# the verdicts.
+	_o_.AddPredicate("Reversed", [ "Task" ])
+	_o_.AddPredicate("Clashing", [ "Task" ])
 	return _o_
 
 # the paper: a fixed width, a height that follows the lanes
@@ -174,6 +182,19 @@ func StzGanttFromTasks(paTasks, paDeps)
 		if _cT_ = "Milestone"  _nIn_ -= 10  _nOut_ += 10  ok
 		_oS_.SetData("t" + _i_, "xin", _nIn_)
 		_oS_.SetData("t" + _i_, "xout", _nOut_)
+	next
+
+	# THE FAULTS, MARKED FOR THE DRAWING: a task whose finish is before its
+	# start, and every task that overlaps another on its lane
+	for _i_ = 1 to _nT_
+		if paTasks[_i_][3] < paTasks[_i_][2]  _oS_.Assert("Reversed", [ "t" + _i_ ])  ok
+		for _j_ = 1 to _nT_
+			if _j_ = _i_ or _anLane_[_j_] != _anLane_[_i_]  loop  ok
+			if paTasks[_i_][2] < paTasks[_j_][3] and paTasks[_j_][2] < paTasks[_i_][3]
+				_oS_.Assert("Clashing", [ "t" + _i_ ])
+				exit
+			ok
+		next
 	next
 
 	# dependencies, by the names the author used
@@ -382,12 +403,26 @@ func StzGanttStyleXT(pnLanes, pbGuides)
 	# an expression like everything else here.
 	_o_.ForAll("Task t", [
 		[ :shape, "t.bar", :rect, [ :cx = "(t.x0 + t.x1) / 2", :cy = "t.y",
-		                            :w = "t.x1 - t.x0", :h = 18,
+		                            :w = "abs(t.x1 - t.x0)", :h = 18,
 		                            :fill = "primary", :stroke = "background", :strokeWidth = 1 ] ],
 		[ :shape, "t.text", :text, [ :cx = "170 - 12 - t.text.w / 2", :cy = "t.y", :size = 13,
 		                             :fill = [ :on, "paper" ] ] ] ])
 	# (the ticks are minted first, so a bar paints over a tick line without
 	# a layer term -- which could not name the tick from this selector)
+	# A FAULT IS DRAWN. A reversed task is a bar between its two days in the
+	# colour that says "wrong", where it used to draw nothing; a task
+	# double-booked on its lane keeps its bar and takes a red edge, so the
+	# overlap is a red seam rather than a white one.
+	_o_.ForAllWhere("Task t", "Reversed(t)", [
+		[ :delete, "t.bar" ],
+		[ :shape, "t.bar", :rect, [ :cx = "(t.x0 + t.x1) / 2", :cy = "t.y",
+		                            :w = "abs(t.x1 - t.x0)", :h = 18,
+		                            :fill = "danger", :stroke = "background", :strokeWidth = 1 ] ] ])
+	_o_.ForAllWhere("Task t", "Clashing(t)", [
+		[ :delete, "t.bar" ],
+		[ :shape, "t.bar", :rect, [ :cx = "(t.x0 + t.x1) / 2", :cy = "t.y",
+		                            :w = "abs(t.x1 - t.x0)", :h = 18,
+		                            :fill = "primary", :stroke = "danger", :strokeWidth = 2 ] ] ])
 	# A LATER TASK ON A SHARED LANE is named INSIDE its own bar, smaller, in
 	# whichever of black and white reads on the bar. Inside, not above: the
 	# gap above a bar is where a dependency's run between lanes goes, and a
