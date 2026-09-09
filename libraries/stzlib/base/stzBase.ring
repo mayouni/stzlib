@@ -365,6 +365,8 @@ ok
     # a molecule is a constraint problem over atoms (DN11); registers its
     # own rules into the math governance at load
     load "graph/stzMoleculeDiagram.ring"
+    # a Gantt chart is a picture whose every position is a datum (DN14)
+    load "graph/stzGanttDiagram.ring"
     load "graph/stzOrgChart.ring"
     # org-governance rules over the org chart's graph projection (phase 2b):
     # the compliance bases carry these -- loaded after stzOrgChart (its bases

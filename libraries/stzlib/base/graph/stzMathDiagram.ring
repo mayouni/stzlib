@@ -809,6 +809,16 @@ func _MrInk(poDg)
 	for _i_ = 1 to len(_ac_)
 		_cP_ = _ac_[_i_]
 		if poDg.IsHidden(_cP_)  loop  ok
+		# A GUIDE IS FURNITURE, NOT INK (DN14). A gridline behind a Gantt's
+		# bars carries no meaning a name could obscure, and a name over a
+		# bar must cross one -- there is no place in the chart that a
+		# gridline does not reach. The style says so on the shape,
+		# :guide = 1, and the rules read past it; a stroke that means
+		# something is never marked, and the marking is the author's
+		# claim, judged like any other. The graph plane's edges, which
+		# DN8c found names sitting on "hidden only by painting order",
+		# are not guides and are still ink.
+		if poDg.PropOf(_cP_, "guide", 0) = 1  loop  ok
 		_s_ = poDg.ShapeOf(_cP_)
 		_cO_ = poDg.ShapeOwnerOf(_cP_)
 		_k_ = _s_[:kind]
@@ -7574,53 +7584,68 @@ class stzMathDiagram from stzObject
 	# is out is recorded as a violation the readers report with the rest.
 	# Only a breach is recorded -- five thousand satisfied entries would be
 	# a list every reader walks for nothing.
+	# ITS LOCALS ARE NAMED FOR THIS METHOD ALONE (DN14), and the reason is
+	# a defect that lived in the gate and in no probe. This collects
+	# extents in a list, and every _V it calls to fill that list may reach
+	# _EvalExpr, which used a list of the same name for the point it
+	# evaluates at. In every probe those were two variables; in the gate's
+	# process they were one, and the inner call handed the outer an
+	# accumulator of [ 0 ] -- so every shape whose position is an
+	# expression, and none whose position is a bare datum, read as off the
+	# paper by exactly the margin: 43 of a Gantt's 52 shapes, 10 pixels
+	# each. Renaming the inner method's locals ended it and the engine
+	# never once answered a non-number, which is how the mechanism was
+	# confirmed. The rule of Ring's scoping that made one variable of two
+	# was NOT pinned -- a probe calling a top-level helper that assigns the
+	# same name stayed clean -- so the fix is not to depend on it: a
+	# re-entrant chain of methods gives each method its own names.
 	def _StaticOnCanvas(paShape)
-		_cP_ = paShape[1]
-		_k_ = paShape[2]
-		_nM_ = @oStyle.Margin()
-		_W_ = @oStyle.CanvasWidth() - _nM_
-		_H_ = @oStyle.CanvasHeight() - _nM_
-		_aX_ = []  _aY_ = []
-		if _k_ = "poly" or _k_ = "spline"
-			_nV_ = This._Prop(paShape[3], "n", 0)
-			for _v_ = 1 to _nV_
-				_aX_ + This._V(_cP_ + ".x" + _v_)
-				_aY_ + This._V(_cP_ + ".y" + _v_)
+		_cPSt_ = paShape[1]
+		_kSt_ = paShape[2]
+		_nMSt_ = @oStyle.Margin()
+		_WSt_ = @oStyle.CanvasWidth() - _nMSt_
+		_HSt_ = @oStyle.CanvasHeight() - _nMSt_
+		_aXSt_ = []  _aYSt_ = []
+		if _kSt_ = "poly" or _kSt_ = "spline"
+			_nVSt_ = This._Prop(paShape[3], "n", 0)
+			for _vSt_ = 1 to _nVSt_
+				_aXSt_ + This._V(_cPSt_ + ".x" + _vSt_)
+				_aYSt_ + This._V(_cPSt_ + ".y" + _vSt_)
 			next
-		but _k_ = "line"
-			_aX_ + This._V(_cP_ + ".x1")  _aX_ + This._V(_cP_ + ".x2")
-			_aY_ + This._V(_cP_ + ".y1")  _aY_ + This._V(_cP_ + ".y2")
+		but _kSt_ = "line"
+			_aXSt_ + This._V(_cPSt_ + ".x1")  _aXSt_ + This._V(_cPSt_ + ".x2")
+			_aYSt_ + This._V(_cPSt_ + ".y1")  _aYSt_ + This._V(_cPSt_ + ".y2")
 		else
-			_cx_ = This._V(_cP_ + ".cx")
-			_cy_ = This._V(_cP_ + ".cy")
-			if _k_ = "circle"
-				_hx_ = This._V(_cP_ + ".r")
-				_hy_ = _hx_
-			but _k_ = "ellipse"
-				_hx_ = This._V(_cP_ + ".rx")
-				_hy_ = This._V(_cP_ + ".ry")
-			but _k_ = "text"
-				_aM_ = This._TextSize(_cP_)
-				_hx_ = _aM_[1] / 2
-				_hy_ = This._TextH(_aM_) / 2
+			_cxSt_ = This._V(_cPSt_ + ".cx")
+			_cySt_ = This._V(_cPSt_ + ".cy")
+			if _kSt_ = "circle"
+				_hxSt_ = This._V(_cPSt_ + ".r")
+				_hySt_ = _hxSt_
+			but _kSt_ = "ellipse"
+				_hxSt_ = This._V(_cPSt_ + ".rx")
+				_hySt_ = This._V(_cPSt_ + ".ry")
+			but _kSt_ = "text"
+				_aMSt_ = This._TextSize(_cPSt_)
+				_hxSt_ = _aMSt_[1] / 2
+				_hySt_ = This._TextH(_aMSt_) / 2
 			else
-				_hx_ = This._V(_cP_ + ".w") / 2
-				_hy_ = This._V(_cP_ + ".h") / 2
+				_hxSt_ = This._V(_cPSt_ + ".w") / 2
+				_hySt_ = This._V(_cPSt_ + ".h") / 2
 			ok
-			_aX_ + (_cx_ - _hx_)  _aX_ + (_cx_ + _hx_)
-			_aY_ + (_cy_ - _hy_)  _aY_ + (_cy_ + _hy_)
+			_aXSt_ + (_cxSt_ - _hxSt_)  _aXSt_ + (_cxSt_ + _hxSt_)
+			_aYSt_ + (_cySt_ - _hySt_)  _aYSt_ + (_cySt_ + _hySt_)
 		ok
-		_v_ = 0
-		for _i_ = 1 to len(_aX_)
-			if _nM_ - _aX_[_i_] > _v_  _v_ = _nM_ - _aX_[_i_]  ok
-			if _aX_[_i_] - _W_ > _v_  _v_ = _aX_[_i_] - _W_  ok
+		_vSt_ = 0
+		for _iSt_ = 1 to len(_aXSt_)
+			if _nMSt_ - _aXSt_[_iSt_] > _vSt_  _vSt_ = _nMSt_ - _aXSt_[_iSt_]  ok
+			if _aXSt_[_iSt_] - _WSt_ > _vSt_  _vSt_ = _aXSt_[_iSt_] - _WSt_  ok
 		next
-		for _i_ = 1 to len(_aY_)
-			if _nM_ - _aY_[_i_] > _v_  _v_ = _nM_ - _aY_[_i_]  ok
-			if _aY_[_i_] - _H_ > _v_  _v_ = _aY_[_i_] - _H_  ok
+		for _iSt_ = 1 to len(_aYSt_)
+			if _nMSt_ - _aYSt_[_iSt_] > _vSt_  _vSt_ = _nMSt_ - _aYSt_[_iSt_]  ok
+			if _aYSt_[_iSt_] - _HSt_ > _vSt_  _vSt_ = _aYSt_[_iSt_] - _HSt_  ok
 		next
-		if _v_ > 0.01
-			@aStaticViolations + [ "onCanvas", "canvas :: onCanvas(" + _cP_ + ")", _v_, FALSE ]
+		if _vSt_ > 0.01
+			@aStaticViolations + [ "onCanvas", "canvas :: onCanvas(" + _cPSt_ + ")", _vSt_, FALSE ]
 		ok
 
 	# every geometric name of a shape is a constant -- nothing the solver
@@ -9034,19 +9059,28 @@ class stzMathDiagram from stzObject
 		next
 		return TRUE
 
+	# ITS LOCALS ARE NAMED FOR THIS METHOD ALONE (DN14). This is called from
+	# inside _StaticOnCanvas, which was collecting extents in a list it
+	# also called _aX_. Two method locals of one name are two variables --
+	# until a function anywhere in the process has assigned that name at
+	# the top level, after which Ring writes the GLOBAL from both, and the
+	# inner call handed the outer an accumulator of [ 0 ]: every shape whose
+	# position is an expression read as violated by exactly the margin, in
+	# the gate and nowhere else, because the gate's helpers use _aX_ and no
+	# probe did. A re-entrant chain of methods may not share a local name.
 	def _EvalExpr(pcTape)
 		if len(@acUnknown) = 0
-			_p_ = StzEngineGradCompile(pcTape, "u0")
-			_aX_ = [ 0 ]
+			_pEv_ = StzEngineGradCompile(pcTape, "u0")
+			_aXEv_ = [ 0 ]
 		else
-			_p_ = StzEngineGradCompile(pcTape, This._VarsText())
-			_aX_ = @aValue
+			_pEv_ = StzEngineGradCompile(pcTape, This._VarsText())
+			_aXEv_ = @aValue
 		ok
-		if _p_ = ""
+		if _pEv_ = ""
 			stzraise("stzMathDiagram: the engine refused '" + pcTape + "' -- " +
 				StzEngineGradWhy())
 		ok
-		_r_ = StzEngineGradValueAt(_p_, _aX_)
-		StzEngineGradFree(_p_)
+		_r_ = StzEngineGradValueAt(_pEv_, _aXEv_)
+		StzEngineGradFree(_pEv_)
 		if isNumber(_r_)  return _r_  ok
 		return 0

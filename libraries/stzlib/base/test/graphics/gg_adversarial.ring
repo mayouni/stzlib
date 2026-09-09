@@ -13536,20 +13536,25 @@ aOgP + [ "chem/benzene", StzMathScene39(AUFONT) ]
 aOgP + [ "chem/caffeine", StzMathScene40(AUFONT) ]
 aOgP + [ "chem/witness/three-bonded oxygen", _OgValenceWitness() ]
 aOgP + [ "chem/witness/stray hydrogen", _OgStrayWitness() ]
+# AND THE GANTT (DN14): the project, and the witness with one of each
+# mistake about time -- two backwards dependencies, a task ending before
+# it starts, and a double-booked lane reported on both its tasks.
+aOgP + [ "gantt/project", StzMathScene42(AUFONT) ]
+aOgP + [ "gantt/witness", StzMathGanttWitness(AUFONT) ]
 nOgT0 = StzEngineWatchTimestampMs()
 oOgRep = StzCheckPictures(aOgP)
 nOgMs = StzEngineWatchTimestampMs() - nOgT0
-chk("sixty pictures are judged by one call -- twenty notation, forty mathematical",
-    len(aOgP) = 60)
-chk("and the report's findings are exactly the four things the corpus plants on purpose -- " +
+chk("sixty-two pictures are judged by one call -- twenty notation, forty-two mathematical",
+    len(aOgP) = 62)
+chk("and the report's findings are exactly the five things the corpus plants on purpose -- " +
     "the contradiction, the frame whose mark is outside the part it shows, " +
-    "the three-bonded oxygen and the stray hydrogen",
-    oOgRep.NumberOfFindings() = 8 and
+    "the three-bonded oxygen, the stray hydrogen and the schedule with three mistakes",
+    oOgRep.NumberOfFindings() = 13 and
     _OgAllFromAny(oOgRep, [ "math/5", "math/window/marked out of view",
-        "chem/witness/three-bonded oxygen", "chem/witness/stray hydrogen" ]))
-chk("the contradiction's constraints arrive as :diagram; the rim, the off-window mark " +
-    "and the two chemistry findings as :plastic",
-    len(oOgRep.FindingsOfSubject(:diagram)) = 4 and len(oOgRep.FindingsOfSubject(:plastic)) = 4)
+        "chem/witness/three-bonded oxygen", "chem/witness/stray hydrogen", "gantt/witness" ]))
+chk("the contradiction's constraints arrive as :diagram; the rim, the off-window mark, " +
+    "the two chemistry findings and the five schedule findings as :plastic",
+    len(oOgRep.FindingsOfSubject(:diagram)) = 4 and len(oOgRep.FindingsOfSubject(:plastic)) = 9)
 chk("and the gate is NOT sound, because a contradiction is a finding and not a pass",
     NOT oOgRep.IsSound())
 # a wall time is decoration on this machine, so the bound is set where it
@@ -13569,8 +13574,8 @@ aOgR = oOgG.CheckRules()
 for iOg = 1 to len(aOgR)
 	? "   RULE FINDING " + aOgR[iOg][:rule] + " @ " + aOgR[iOg][:where] + " -- " + aOgR[iOg][:message]
 next
-chkeq("the five math rules and the two chemistry rules pass the five questions -- " +
-      "none empty, vacuous, or unwitnessed",
+chkeq("the five math rules, the two chemistry rules and the three gantt rules pass the " +
+      "five questions -- none empty, vacuous, or unwitnessed",
       len(aOgR), 0)
 
 # THE INSTRUMENT DISCRIMINATES. A name moved by hand onto an edge is
@@ -14700,6 +14705,98 @@ _CsMoveNameOntoChord(oCsBad, "v000", aCsG[2] + ".h1")
 aCsF = StzCheckPictures([ [ "name-on-chord", oCsBad ] ]).Findings()
 chk("NEGATIVE: a name set by hand on a hidden chord IS caught against the curve it does not see",
     len(aCsF) > 0 and _PorHits(aCsF, "name_off_ink") > 0)
+
+
+sec("-- 108. DN14: A GANTT CHART -- EVERY POSITION A DATUM, EVERY RULE ABOUT TIME --")
+discharges("DN14")
+
+# NOTHING TO SOLVE. A task is three numbers -- a start day, a finish day,
+# a lane -- and every pixel follows by arithmetic. The builder puts the
+# days on the objects for the rules and the pixels for the style, and the
+# solver reports it minted no unknown at all.
+oGtP = StzMathScene42(AUFONT)
+oGtP.Layout()
+oGtS = oGtP.Substance()
+? "   project : " + oGtP.NumberOfShapes() + " shapes, " + oGtP.NumberOfUnknowns() +
+  " unknowns, " + floor(oGtP.LayoutMs()) + " ms -- " + oGtP.Why()
+chkeq("a Gantt mints no unknown -- there is nothing to lay out", oGtP.NumberOfUnknowns(), 0)
+chk("eight tasks, two of them milestones, six dependencies, and an axis of nine ticks",
+    len(oGtS.ObjectsOfType("Task")) = 8 and len(oGtS.ObjectsOfType("Milestone")) = 2 and
+    len(oGtS.ObjectsOfType("Dependency")) = 6 and len(oGtS.ObjectsOfType("Tick")) = 9)
+chk("a task whose finish is its start is a Milestone, and one with a length is not",
+    oGtS.DomainQ().TypeMatches(oGtS.TypeOf("t4"), "Milestone") and
+    NOT oGtS.DomainQ().TypeMatches(oGtS.TypeOf("t2"), "Milestone"))
+nGtK = (StzGanttWidth() - StzGanttLeftColumn() - 40) / 40
+chk("a bar's width is its days times the day's share of the paper, exactly",
+    fabs(oGtP.ShapeOf("t2.bar")[:w] - 8 * nGtK) < 0.01)
+chk("the axis steps by five days over a forty-day span: ten ticks or fewer",
+    oGtS.DataOf("k2", "t") - oGtS.DataOf("k1", "t") = 5)
+chk("a fact reads durations in DAYS, from the data and not the pixels",
+    oGtP.Fact(:expr, [ "t5.finish - t2.start", :days ])[:value] = 26 and
+    StzFindFirst("26 days", oGtP.Fact(:expr, [ "t5.finish - t2.start", :days ])[:message]) > 0)
+aGtP = StzCheckPictures([ [ "project", oGtP ] ]).Findings()
+for iGt = 1 to len(aGtP)
+	if iGt <= 4  ? "   PROJECT FINDING " + aGtP[iGt][:rule] + " -- " + aGtP[iGt][:message]  ok
+next
+chk("the project is lawful and the one gate finds nothing in it",
+    oGtP.IsFeasible() and len(aGtP) = 0)
+chk("and it answers Rendition() as a vector like every other picture",
+    oGtP.Rendition()[:kind] = "vector")
+
+# THE RULES ARE ABOUT TIME, and they name the tasks by the names the author
+# gave them and say by how many days. The witness has one of each mistake
+# -- and the double booking is reported on BOTH tasks, because each of
+# them is double-booked.
+oGtW = StzMathGanttWitness(AUFONT)
+aGtF = StzCheckPictures([ [ "wrong", oGtW ] ]).Findings()
+? "   witness : " + len(aGtF) + " findings -- " + _GtByRule(aGtF)
+chk("a dependency running backwards in time is caught, twice, and each names its tasks and its days",
+    _PorHits(aGtF, "dependency_forward_in_time") = 2 and
+    _GtHas(aGtF, "'Test' starts on day 26, 12 days before 'Docs' ends on day 38"))
+chk("a task that finishes before it starts is caught, by name and by how much",
+    _PorHits(aGtF, "task_ends_after_it_starts") = 1 and
+    _GtHas(aGtF, "'Backwards' finishes on day 20, 2 days before it starts"))
+chk("two tasks sharing a lane and overlapping are caught on both, with the overlap in days",
+    _PorHits(aGtF, "lane_not_double_booked") = 2 and
+    _GtHas(aGtF, "'Build' and 'Docs' share lane 5 and overlap by 2 days"))
+chkeq("...and those five are all the gate finds -- the names over shared bars do not collide",
+      len(aGtF), 5)
+
+# THE BOUNDARIES. Touching ends are not an overlap; a schedule that is
+# right raises nothing; and the builder refuses what it cannot draw.
+oGtT = StzGanttDiagram(AUFONT, [ [ "A", 0, 5, 1 ], [ "B", 5, 9, 1 ] ], [])
+aGtT = StzCheckPictures([ [ "touching", oGtT ] ]).Findings()
+chk("NEGATIVE: two tasks meeting end to end on one lane are not double-booked",
+    _PorHits(aGtT, "lane_not_double_booked") = 0)
+
+# A GRIDLINE IS A GUIDE, NOT INK. The second task's name sits over its own
+# bar, and a name over a bar must cross a gridline -- there is no place in
+# the chart free of them. The style marks the tick lines :guide = 1 and
+# the name rules read past them; the same chart with its gridlines as
+# ink has a name on one, and the gate says so. Both sides of that
+# boundary stand in the corpus.
+chk("...and the name over its bar crosses a gridline that is a GUIDE, so nothing is found",
+    len(aGtT) = 0)
+oGtI = new stzMathDiagram(StzGanttDomain(), StzGanttFromTasks([ [ "A", 0, 5, 1 ], [ "B", 5, 9, 1 ] ], []),
+                          StzGanttStyleXT(1, FALSE))
+oGtI.SetFont(AUFONT, 13)
+chk("NEGATIVE: the same chart with its gridlines as INK has a name on one, by name",
+    _PorHits(StzCheckPictures([ [ "gridlines as ink", oGtI ] ]).Findings(), "name_off_ink") > 0)
+chk("a dependency naming a task that is not in the list is refused, and named", _GtRefusesUnknown())
+chk("a task depending on itself is refused", _GtRefusesSelf())
+oGtRule = StzGanttRuleSet()[1]
+chk("the gantt rules govern every dependency of a chart and not one object of a molecule -- " +
+    "the boundary is stood on",
+    len(oGtRule.SubjectsIn(oGtP)) = 6 and len(oGtRule.SubjectsIn(oChB)) = 0 and
+    len(oGtRule.CounterSubjectsIn(oChB)) > 0 and len(oGtRule.CounterSubjectsIn(oGtP)) = 0)
+
+# THE RULE CAUGHT ITS AUTHOR. The first project list typed for this scene,
+# as "nothing wrong with it", had Prototype starting four days before
+# Design ended and Test four days before Build ended, both under a
+# dependency. The rule found both on its first run; the list was fixed and
+# the mistake is kept here as the witness's first two rows.
+chk("the list the witness inherited still carries the author's first mistake",
+    _GtHas(aGtF, "'Prototype' starts on day 8, 4 days before 'Design' ends on day 12"))
 
 
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
@@ -17741,6 +17838,48 @@ func _OgWitness
 	_o_.SetFont(AUFONT, 16)
 	_o_.SetVariation("witness")
 	return _o_
+
+#-- DN14: the Gantt section's helpers ----------------------------------------
+
+func _GtHas paFindings, pcText
+	for _i_ = 1 to len(paFindings)
+		if StzFindFirst(pcText, "" + paFindings[_i_][:message]) > 0  return TRUE  ok
+	next
+	return FALSE
+
+# "rule xN, rule xM" -- the findings counted by rule, for the profile line
+func _GtByRule paFindings
+	_a_ = []
+	for _i_ = 1 to len(paFindings)
+		_c_ = "" + paFindings[_i_][:rule]
+		_b_ = FALSE
+		for _j_ = 1 to len(_a_)
+			if _a_[_j_][1] = _c_  _a_[_j_][2]++  _b_ = TRUE  ok
+		next
+		if NOT _b_  _a_ + [ _c_, 1 ]  ok
+	next
+	_s_ = ""
+	for _j_ = 1 to len(_a_)
+		if _s_ != ""  _s_ += ", "  ok
+		_s_ += (_a_[_j_][1] + " x" + _a_[_j_][2])
+	next
+	return _s_
+
+func _GtRefusesUnknown
+	try
+		StzGanttFromTasks([ [ "A", 0, 5 ] ], [ [ "A", "Nobody" ] ])
+	catch
+		return StzFindFirst("Nobody", cCatchError) > 0
+	done
+	return FALSE
+
+func _GtRefusesSelf
+	try
+		StzGanttFromTasks([ [ "A", 0, 5 ] ], [ [ "A", "A" ] ])
+	catch
+		return StzFindFirst("itself", cCatchError) > 0
+	done
+	return FALSE
 
 #-- DN13: how far a curved edge's spline leaves its two hidden chords --------
 #
