@@ -70,7 +70,8 @@ func StzNodeShapeNames()
 		:Octagon, :TripleOctagon, :Cylinder, :Folder, :Tab, :Note,
 		:Component, :Insertion, :Actor, :Bar,
 		:PauseGlyph, :TimerGlyph, :DurationGlyph, :Parallel,
-		:Resistor, :Capacitor, :Ground, :Source, :Junction
+		:Resistor, :Capacitor, :Ground, :Source, :Junction,
+		:AndGate, :OrGate
 	]
 
 func StzIsNodeShape(pcName)
@@ -177,6 +178,44 @@ func StzDrawNodeShape(poCanvas, pcShape, pnX, pnY, pnW, pnH)
 			_k_ = 1 + 0.18 * _sy_
 			_p_ + (_cx_ + (_w_ / 2) * cos(_t_) * _k_)
 			_p_ + (_cy_ + (_h_ / 2) * _sy_)
+		next
+		poCanvas.AddPolygon(_p_)
+	#-- DN17, the fault-tree gates -----------------------------------------
+	#
+	# Read as VALUES like the electric set: an analyst reads AND or OR
+	# off the outline. Both are drawn for a top-down tree -- the event
+	# above, the inputs below -- and both are sampled polygons, because a
+	# gate is not composable from a rectangle and an ellipse without a
+	# seam where they meet.
+	#
+	# AND: a flat bottom, straight sides, a round top.
+	on "andgate"
+		_p_ = []
+		_ay_ = _y_ + _h_ * 0.5
+		_p_ + _x_          _p_ + (_y_ + _h_)
+		_p_ + (_x_ + _w_)  _p_ + (_y_ + _h_)
+		for _i_ = 0 to 24
+			_t_ = 3.141592653589793 * _i_ / 24
+			_p_ + (_cx_ + (_w_ / 2) * cos(_t_))
+			_p_ + (_ay_ - (_h_ * 0.5) * sin(_t_))
+		next
+		poCanvas.AddPolygon(_p_)
+	# OR: a pointed arch, and a bottom that curves up into the shape --
+	# the shield every fault-tree standard draws.
+	on "orgate"
+		_p_ = []
+		_oy_ = _y_ + _h_ * 0.45
+		# the concave bottom, left to right, bowing up
+		for _i_ = 0 to 16
+			_t_ = _i_ / 16
+			_p_ + (_x_ + _w_ * _t_)
+			_p_ + (_y_ + _h_ * 0.82 - _h_ * 0.22 * sin(3.141592653589793 * _t_))
+		next
+		# the right side up, the arch over the top, the left side down
+		for _i_ = 0 to 24
+			_t_ = 3.141592653589793 * _i_ / 24
+			_p_ + (_cx_ + (_w_ / 2) * cos(_t_))
+			_p_ + (_oy_ - (_h_ * 0.45) * sin(_t_) * (1 - 0.35 * sin(_t_)) - _h_ * 0.16 * sin(_t_) * sin(_t_))
 		next
 		poCanvas.AddPolygon(_p_)
 	on "diamond"

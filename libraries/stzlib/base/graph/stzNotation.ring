@@ -93,6 +93,7 @@ class stzNotation from stzObject
 	@cBranchSide = ""
 	@aNameInside = []
 	@aNameOutside = []    # kinds whose inside is spoken for -- a place's tokens
+	@bPeerChildren = 0    # a parent's children are peers: none continues it
 	@aCompartmentKeys = []
 	@bOneInk = 0
 	@cLayoutMode = ""     # "" = layered; :Ring for a domain with no flow
@@ -649,6 +650,18 @@ class stzNotation from stzObject
 			if @aNameOutside[_iNo_] = _noK_  return  ok
 		next
 		@aNameOutside + _noK_
+
+	# A PARENT'S CHILDREN ARE PEERS. The layout gives a parent's column to
+	# the child that carries the longest continuation -- right for a flow,
+	# where the graph itself says "this way onward". A fault tree's gate
+	# has inputs, not a continuation: none of them is the line onward, so
+	# the gate stands at their middle whatever hangs beneath each. Declared
+	# by the notation, read by the layout.
+	def SetPeerChildren()
+		@bPeerChildren = 1
+
+	def PeerChildren()
+		return @bPeerChildren
 
 	def WritesNameOutside(pcKind)
 		_noK_ = StzLower("" + pcKind)

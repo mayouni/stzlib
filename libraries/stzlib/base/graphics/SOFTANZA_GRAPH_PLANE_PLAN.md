@@ -120,6 +120,7 @@ sections, of which 21 declarations over 17 items.
 | DN14 | closed | 108 |
 | DN15 | closed | 109 |
 | DN16 | closed | 110 |
+| DN17 | closed | 111 |
 | DN9 | closed | - |
 | DN9a | closed | 97 |
 | DN9b | closed | 98 |
@@ -3392,6 +3393,70 @@ reachability graph, boundedness, full liveness — are not here.
 *Guard:* §110, 45 assertions; §91 grew by three pictures. Catalogue:
 `gg_petri_catalogue.ring`, petri_01 to petri_03 and petri_01b, the mutex
 after Enter A fired.
+
+## DN17 — A FAULT TREE: a picture that computes (2026-09-09, SHIPPED)
+
+**The first domain on the graph plane whose picture answers a number.** A
+fault tree says how an undesired event, the top, comes about: through AND
+and OR gates down to basic events whose probabilities are known. Read up it
+is a picture of causes; computed up it is the probability of the top and
+the minimal cut sets, which is what an analyst draws the tree to learn. It
+lives in `base/graph/stzFaultTree.ring` under `StzFaultNotation()`: top and
+intermediate events as boxes, basic events as circles with the number
+inside and the name beneath, undeveloped events as diamonds, the two gates
+as the shapes every standard draws — the round-topped AND and the shield OR,
+two new glyphs in `stzNodeShape` — read top-down with no heads.
+
+**What it is.** `AddTop`, `AddEvent`, `AddBasicXT(id, name, p)`, `AddBasic`
+for a leaf whose number is not yet known, `AddUndeveloped`, `AddNote`;
+`AddGate(id, :And | :Or)`, `Under(event, gate)`, `Feed(gate, input)`, and
+`Develop(event, kind, [ inputs ])`, the three in one line. `ProbabilityOf`
+computes up from the leaves — AND multiplies, OR takes one minus the product
+of the complements — and refuses by name at a leaf with no number, an
+undeveloped event, or a cause among its own effects. `MinimalCutSets` expands
+the tree, an OR unioning and an AND crossing, and minimises; and
+`CutSetProbability` sums them by inclusion and exclusion, which is the exact
+number the gate arithmetic cannot give when a basic event is repeated: the
+catalogue's second tree has one sensor under both branches, and the gates say
+0.0494 where the cut sets say 0.044. The probability is drawn inside the leaf
+through the cell hook DN16 opened, a question mark where none was declared,
+and published as `RenderProbabilities()`.
+
+**Five rules.** `one_top_event`, `gate_has_two_inputs` (one input is a
+wire), `basic_event_has_probability`, `event_is_developed` (one gate beneath,
+or declared undeveloped — which is the rule's own boundary), and
+`no_event_causes_itself`. The witness carries one of each, and an undeveloped
+event and a note that every rule must leave alone.
+
+**Four things the first tree with unequal branches found, each in the
+engine or the renderer, none in the domain.** *The gate leaned.* The
+engine's coordinate pass gives a parent's column to the child carrying the
+longest continuation — right for a flow, where the graph says "this way
+onward" — and the plane's own plastic rule I7 convicted the top gate the
+moment one input had a subtree and the other was a leaf. A fault tree's gate
+has inputs, not a continuation, so a notation may now declare its children
+*peers* (`SetPeerChildren`, carried to `graph_layout.zig` as one flag) and the
+parent stands at the middle of all it owns. A plain diagram keeps the flow
+rule, and the gate holds both. *The fan split by five pixels.* Same-source
+channels were joined by the claim and then clamped, each against its own
+target's border, by every hand after it; the dry pass now records where each
+member came to rest and the drawing pass gives the fan its tightest channel.
+*The published path was the rehearsal.* Ortho edges published on the dry
+pass only, so an instrument read where the rehearsal had put a line and not
+where it was drawn; the drawing pass has the last word now. *A gate was
+entered from its side.* The lone-edge L, one bend into the target's side,
+and the side landing for a shallow aim both read as a line arriving from a
+sibling in a tree; a peers notation keeps every edge rank-facing at both
+ends. And two readings of the fan rule were sharpened on the way: a straight
+member has no corner to read, and a stem that continues a clearance past
+the branch before turning is one stem with a second branch, not two.
+
+**Said plainly and left out.** NOT, voting and inhibit gates, transfer
+symbols, common-cause groups, importance measures, and the exact sum above
+twelve cut sets. The gates draw for a top-down tree only.
+
+*Guard:* §111, 37 assertions; §91 grew by three pictures. Catalogue:
+`gg_fault_catalogue.ring`, fault_01 to fault_03.
 
 ## DN9 — THE TOLD PICTURE: a narration is facts made visible, in an order (planned 2026-09-06, SHIPPED 2026-09-07 as DN9a through DN9g, all seven closed)
 

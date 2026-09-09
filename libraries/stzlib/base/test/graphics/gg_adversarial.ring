@@ -3,6 +3,7 @@ load "gg_drakon_scenes.ring"
 load "gg_math_scenes.ring"
 load "gg_er_scenes.ring"
 load "gg_petri_scenes.ring"
+load "gg_fault_scenes.ring"
 
 /*---------------------------------------------------------------------------
 	WHAT THE GUARDS COULD NOT SEE
@@ -8704,6 +8705,7 @@ chk("...and a box is not", oF._IsBranchCell("src") = 0)
 
 OPTGOV = [ :Font = EFONT, :NodeWidth = 130, :NodeHeight = 52, :FontSize = 14 ]
 OPTPN2 = [ :Font = EFONT, :NodeWidth = 64, :NodeHeight = 64, :FontSize = 13 ]
+OPTFT2 = [ :Font = EFONT, :NodeWidth = 120, :NodeHeight = 52, :FontSize = 13 ]
 
 # The meta layer: rules that state what they GOVERN, separately from what
 # they assert, so the SELECTION half can be checked at all. Six defects of
@@ -13525,6 +13527,13 @@ aOgP + [ "er/participation", StzErSceneParticipation(OPTGOV) ]
 aOgP + [ "petri/mutex", StzPetriScene01(OPTPN2) ]
 aOgP + [ "petri/buffer", StzPetriScene02(OPTPN2) ]
 aOgP + [ "petri/witness", StzPetriSceneWitness(OPTPN2) ]
+# AND THE FAULT TREES (DN17): the pump, the repeated sensor, and the
+# witness with one of each mistake -- the pictures that taught the layout
+# to centre a gate over inputs of unequal depth and a fan to share its
+# tightest channel.
+aOgP + [ "fault/pump", StzFaultScene01(OPTFT2) ]
+aOgP + [ "fault/repeated", StzFaultScene02(OPTFT2) ]
+aOgP + [ "fault/witness", StzFaultSceneWitness(OPTFT2) ]
 for iOg = 1 to 31
 	cOgF = "StzMathScene" + iOg
 	if iOg < 10  cOgF = "StzMathScene0" + iOg  ok
@@ -13564,8 +13573,8 @@ aOgP + [ "gantt/witness", StzMathGanttWitness(AUFONT) ]
 nOgT0 = StzEngineWatchTimestampMs()
 oOgRep = StzCheckPictures(aOgP)
 nOgMs = StzEngineWatchTimestampMs() - nOgT0
-chk("sixty-eight pictures are judged by one call -- twenty-six notation, forty-two mathematical",
-    len(aOgP) = 68)
+chk("seventy-one pictures are judged by one call -- twenty-nine notation, forty-two mathematical",
+    len(aOgP) = 71)
 chk("and the report's findings are exactly the five things the corpus plants on purpose -- " +
     "the contradiction, the frame whose mark is outside the part it shows, " +
     "the three-bonded oxygen, the stray hydrogen and the schedule with three mistakes",
@@ -13587,8 +13596,8 @@ chk("the whole gate runs inside a bound that would have caught its first run -- 
 # THE RULES JUDGED BY THE FIVE QUESTIONS, over the math corpus: none
 # empty, none vacuous, every boundary witnessed.
 oOgG = StzMathGovernanceOf("math")
-# from 27: the twenty catalogue pictures, the three schemas and the three nets are notation
-for iOg = 27 to len(aOgP)
+# from 30: the twenty catalogue pictures, three schemas, three nets and three trees are notation
+for iOg = 30 to len(aOgP)
 	oOgG.AddPicture(aOgP[iOg][1], aOgP[iOg][2])
 next
 aOgR = oOgG.CheckRules()
@@ -13655,7 +13664,7 @@ chk("red to blue at the half is a purple whose lightness is the mean of the two,
 # paper itself -- measured, not assumed. The pictures are the one gate's,
 # already solved; a theme changes no geometry, so no second solve.
 nCmBadL = 0  nCmBadD = 0  nCmNames = 0
-for iCm = 27 to len(aOgP)   # the math pictures: after the twenty catalogue, three schema and three net ones
+for iCm = 30 to len(aOgP)   # the math pictures: after the twenty catalogue, three schema, three net and three tree ones
 	oCmP = aOgP[iCm][2]
 	oCmP.@oStyle.SetTheme("light")  oCmP.Touch()
 	nCmBadL += _CmUnreadable(oCmP, 3)
@@ -15072,6 +15081,106 @@ chk("...so the wire passes through the letters, not over them: the cap box strad
 
 # IT ANSWERS THE DISPLAY CONTRACT LIKE EVERY OTHER PICTURE.
 chk("a Petri net answers Rendition() as a vector", oPnM.Rendition()[:kind] = "vector")
+
+
+sec("-- 111. DN17: A FAULT TREE -- A PICTURE THAT COMPUTES ------------------")
+discharges("DN17")
+
+# THE NOTATION: a tree read top-down, no heads, gates read as values,
+# a basic event's inside for its number and its name beneath, and the
+# children of every parent declared peers.
+OPTFT = [ :Font = EFONT, :NodeWidth = 120, :NodeHeight = 52, :FontSize = 13 ]
+oFtP = StzFaultScene01(OPTFT)
+chk("the notation reads top-down and draws no head", oFtP.NotationO().Name_() = "fault" and
+    NOT oFtP.NotationO().EdgesDirected() and len(oFtP.RenderArrows()) = 0)
+chk("a gate's inputs are peers, by declaration, and a basic event's name is written outside",
+    oFtP.NotationO().PeerChildren() and oFtP.NotationO().WritesNameOutside("basic"))
+chk("NEGATIVE: a notation that declares nothing keeps the flow rule", NOT StzUmlNotation().PeerChildren())
+
+# THE NUMBERS. AND multiplies, OR takes one minus the product of the
+# complements; the top of the pump is 1 - (1 - 0.1 x 0.2)(1 - 0.05).
+chk("the AND gate multiplies: no power is 0.1 x 0.2", fabs(oFtP.ProbabilityOf("power") - 0.02) < 0.000001)
+chk("the OR gate takes the complements: the top is 0.069", fabs(oFtP.TopProbability() - 0.069) < 0.000001)
+chk("a gate can be asked directly, and answers the same as its event",
+    fabs(oFtP.ProbabilityOf("top.gate") - oFtP.TopProbability()) < 0.000001)
+aFtC = oFtP.MinimalCutSets()
+chk("the minimal cut sets are { seized } and { mains, battery }, smallest first",
+    len(aFtC) = 2 and len(aFtC[1]) = 1 and aFtC[1][1] = "seized" and
+    len(aFtC[2]) = 2 and _FtSetIs(aFtC[2], [ "mains", "battery" ]))
+chk("the cut sets give the same top as the gates when no event is repeated",
+    fabs(oFtP.CutSetProbability() - oFtP.TopProbability()) < 0.000001)
+
+# A REPEATED EVENT: the gates overstate, the cut sets are exact.
+oFtR = StzFaultScene02(OPTFT)
+chk("with the sensor under both branches the gate arithmetic says 0.0494",
+    fabs(oFtR.TopProbability() - 0.0494) < 0.000001)
+aFtC2 = oFtR.MinimalCutSets()
+chk("...the cut sets are { sensor, valve } and { sensor, relay }",
+    len(aFtC2) = 2 and _FtSetIs(aFtC2[1], [ "sensor", "valve" ]) and _FtSetIs(aFtC2[2], [ "sensor", "relay" ]))
+chk("...and inclusion-exclusion over them gives the exact 0.044, below the gates' number",
+    fabs(oFtR.CutSetProbability() - 0.044) < 0.000001 and oFtR.CutSetProbability() < oFtR.TopProbability())
+chk("NEGATIVE: a superset is dropped from the minimal sets -- an AND over an OR of the same leaf folds",
+    len(_FtFolded().MinimalCutSets()) = 1)
+
+# THE NUMBER IS DRAWN INSIDE THE LEAF, AND PUBLISHED. A leaf with no
+# number shows a question mark and publishes minus one.
+chk("every basic event publishes its probability at its own centre",
+    len(oFtP.RenderProbabilities()) = 3 and _FtDrawn(oFtP, "seized") = 0.05 and _FtProbsCentred(oFtP))
+oFtW = StzFaultSceneWitness(OPTFT)
+chk("a leaf with no number publishes -1 -- the question mark on the paper",
+    _FtDrawn(oFtW, "dust") = -1 and _FtDrawn(oFtW, "wear") = 0.02)
+
+# THE RULES: the two sound trees pass, the witness names one of each mistake.
+chkeq("the pump is sound under every rule", len(oFtP.GovernanceFindings()), 0)
+chkeq("the repeated tree is sound too -- a repeated leaf is not a mistake", len(oFtR.GovernanceFindings()), 0)
+aFtF = oFtW.GovernanceFindings()
+? "   witness : " + len(aFtF) + " findings"
+chk("two top events are caught, and the top under a gate is caught by name",
+    _ErFound(aFtF, "one_top_event", "declares 2 top events") and
+    _ErFound(aFtF, "one_top_event", "'Line stops' is developed under a gate"))
+chk("a gate with one input is caught: a wire, not a gate",
+    _ErFound(aFtF, "gate_has_two_inputs", "under 'Second top' has 1 input(s)"))
+chk("a leaf with no number is caught", _ErFound(aFtF, "basic_event_has_probability", "'Dust' has no probability"))
+chk("an event with no gate beneath it is caught, and told the two ways out",
+    _ErFound(aFtF, "event_is_developed", "'Undeveloped, unsaid' has no gate beneath it -- develop it, or declare it undeveloped"))
+chk("a cause among its own effects is caught on both events of the cycle",
+    _ErFound(aFtF, "no_event_causes_itself", "'Line stops' is among its own causes") and
+    _ErFound(aFtF, "no_event_causes_itself", "'Jam' is among its own causes"))
+chkeq("...and those are all of them: seven", len(aFtF), 7)
+chk("the numbers refuse the witness's top by name -- at the cycle or at the leaf with no number, whichever is met first",
+    _FtRefusesProb(oFtW, "t1", "'Dust' has no probability") or _FtRefusesProb(oFtW, "t1", "among its own causes"))
+chk("NEGATIVE: the witness's second top computes -- its one leaf has a number",
+    fabs(oFtW.ProbabilityOf("t2") - 0.02) < 0.000001)
+chk("...and refuse an undeveloped event, saying so", _FtRefusesProb(oFtW, "operator", "is undeveloped"))
+
+# THE BOUNDARIES, STOOD ON.
+oFtRs = StzFaultRuleSetQ()
+chk("NEGATIVE: the note is excluded by every rule, not merely passed",
+    _ErExcludedEverywhere(oFtRs, oFtW.AsRuleGraph(), "note:n1"))
+chk("NEGATIVE: an undeveloped event owes no number -- outside the probability rule, and outside the development rule",
+    _ErInList("undeveloped:operator", oFtRs.Rules()[3].CounterSubjectsIn(oFtW.AsRuleGraph())) and
+    _ErInList("undeveloped:operator", oFtRs.Rules()[4].CounterSubjectsIn(oFtW.AsRuleGraph())))
+chk("NEGATIVE: a gate is outside every rule about events",
+    _ErInList("or:t1.gate", oFtRs.Rules()[1].CounterSubjectsIn(oFtW.AsRuleGraph())))
+
+# THE BUILDER REFUSES WHAT IT CANNOT MEAN.
+chk("a probability outside 0..1 is refused", _FtRefuses(1))
+chk("a gate that is neither And nor Or is refused, by name", _FtRefuses(2))
+chk("a gate fed by a gate is refused: a gate's input is an event", _FtRefuses(3))
+chk("an input that is not in the tree is refused", _FtRefuses(4))
+
+# THE PICTURE IS A TREE: a gate at the middle of its inputs whatever hangs
+# beneath each, entered from above, its lines leaving on one stem.
+chk("the top gate stands at the middle of its two inputs, though one carries a subtree and the other is a leaf",
+    fabs(_PnCentreX(oFtP, "top.gate") - (_PnCentreX(oFtP, "power") + _PnCentreX(oFtP, "seized")) / 2) < 0.5)
+chk("...so its two lines leave on one stem and part on one channel",
+    fabs(_PlTurnOf(oFtP, "top.gate", "power") - _PlTurnOf(oFtP, "top.gate", "seized")) < 0.5)
+chk("a gate is entered from above by the event it develops, never from its side",
+    fabs(_PnPathEnd(oFtR, "fill", "fill.gate")[2] - _PnRectOf(oFtR, "fill.gate")[2]) < 0.5 and
+    fabs(_PnPathEnd(oFtR, "fill", "fill.gate")[1] - _PnCentreX(oFtR, "fill.gate")) < 0.5)
+chk("NEGATIVE: under the flow rule a parent stands over the deeper child -- the tree needed the declaration",
+    _FtFlowLeans())
+chk("a fault tree answers Rendition() as a vector", oFtP.Rendition()[:kind] = "vector")
 
 
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
@@ -18113,6 +18222,91 @@ func _OgWitness
 	_o_.SetFont(AUFONT, 16)
 	_o_.SetVariation("witness")
 	return _o_
+
+#-- DN17: the fault tree section's helpers -----------------------------------
+
+func _FtSetIs paSet, pacWant
+	if len(paSet) != len(pacWant)  return FALSE  ok
+	for _i_ = 1 to len(pacWant)
+		_bIn_ = FALSE
+		for _j_ = 1 to len(paSet)
+			if StzLower("" + paSet[_j_]) = StzLower("" + pacWant[_i_])  _bIn_ = TRUE  ok
+		next
+		if NOT _bIn_  return FALSE  ok
+	next
+	return TRUE
+
+func _FtDrawn poD, pcId
+	_a_ = poD.RenderProbabilities()
+	for _i_ = 1 to len(_a_)
+		if _a_[_i_][1] = StzLower("" + pcId)  return _a_[_i_][2]  ok
+	next
+	return -1000000
+
+func _FtProbsCentred poD
+	_aT_ = poD.RenderProbabilities()
+	_aR_ = poD.RenderNodeRects()
+	if len(_aT_) = 0  return FALSE  ok
+	for _i_ = 1 to len(_aT_)
+		_bOk_ = FALSE
+		for _k_ = 1 to len(_aR_)
+			if StzLower("" + _aR_[_k_][5]) != _aT_[_i_][1]  loop  ok
+			if fabs(_aR_[_k_][1] + _aR_[_k_][3] / 2 - _aT_[_i_][3]) < 1 and
+			   fabs(_aR_[_k_][2] + _aR_[_k_][4] / 2 - _aT_[_i_][4]) < 1  _bOk_ = TRUE  ok
+		next
+		if NOT _bOk_  return FALSE  ok
+	next
+	return TRUE
+
+# top = AND(a, OR(a, b)): the cut sets { a } and { a, b } fold to { a }
+func _FtFolded
+	_o_ = new stzFaultTree("fold")
+	_o_.AddTop("t", "T")
+	_o_.AddEvent("e", "E")
+	_o_.AddBasicXT("a", "A", 0.1)
+	_o_.AddBasicXT("b", "B", 0.2)
+	_o_.Develop("t", :And, [ "a", "e" ])
+	_o_.Develop("e", :Or, [ "a", "b" ])
+	return _o_
+
+func _FtRefusesProb poD, pcId, pcText
+	try
+		poD.ProbabilityOf(pcId)
+	catch
+		return StzFindFirst(pcText, cCatchError) > 0
+	done
+	return FALSE
+
+func _FtRefuses pnCase
+	try
+		_o_ = new stzFaultTree("x")
+		_o_.AddTop("t", "T")
+		_o_.AddBasicXT("a", "A", 0.1)
+		_o_.AddGate("g", :Or)
+		if pnCase = 1  _o_.AddBasicXT("b", "B", 1.5)  ok
+		if pnCase = 2  _o_.AddGate("h", :Maybe)  ok
+		if pnCase = 3  _o_.AddGate("h", :And)  _o_.Feed("g", "h")  ok
+		if pnCase = 4  _o_.Feed("g", "nobody")  ok
+	catch
+		if pnCase = 1  return StzFindFirst("between 0 and 1", cCatchError) > 0  ok
+		if pnCase = 2  return StzFindFirst("maybe", StzLower(cCatchError)) > 0  ok
+		if pnCase = 3  return StzFindFirst("is a gate", cCatchError) > 0  ok
+		return StzFindFirst("nobody", cCatchError) > 0
+	done
+	return FALSE
+
+# the same shape under a plain diagram -- no peer declaration -- keeps
+# the flow rule: the parent stands over the child that continues
+func _FtFlowLeans
+	_o_ = new stzDiagram("flow")
+	_o_.AddNodeXTT("a", "A", [ :type = "box" ])
+	_o_.AddNodeXTT("b", "B", [ :type = "box" ])
+	_o_.AddNodeXTT("c", "C", [ :type = "box" ])
+	_o_.AddNodeXTT("d", "D", [ :type = "box" ])
+	_o_.AddEdge("a", "b")  _o_.AddEdge("a", "c")  _o_.AddEdge("b", "d")
+	_o_.SetSplines("ortho")
+	_o_.ToCanvasXT(OPTFT)
+	return fabs(_PnCentreX(_o_, "a") - _PnCentreX(_o_, "b")) < 0.5
 
 #-- DN16: the Petri section's helpers ----------------------------------------
 

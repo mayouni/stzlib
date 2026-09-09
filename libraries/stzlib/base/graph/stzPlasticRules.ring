@@ -362,8 +362,28 @@ func _PlTurnOf(poDg, pcF, pcT)
 		if StzLower("" + _a_[_i_][1]) != _k_  loop  ok
 		_f_ = _a_[_i_][2]
 		if len(_f_) < 6  return -1000000  ok
-		if _PlCrossAxis(poDg) = 2  return _f_[3]  ok
-		return _f_[4]
+		# THE FIRST GENUINE CORNER, not the second point. A straight
+		# path is published with a midpoint, and reading that as a
+		# corner gave every aligned line a "turn column" of its own --
+		# so a fan of one straight line and one jog was convicted of
+		# two stems 3.6px apart, when the jog leaves on the straight
+		# line's own column and there is one stem by construction.
+		# Found by the fault tree (DN17), whose gates hang one child
+		# straight below them.
+		_pAx_ = 1
+		if _PlCrossAxis(poDg) = 2  _pAx_ = 1  else  _pAx_ = 2  ok
+		for _j_ = 1 to len(_f_) - 5 step 2
+			_dx1_ = _f_[_j_ + 2] - _f_[_j_]
+			_dy1_ = _f_[_j_ + 3] - _f_[_j_ + 1]
+			_dx2_ = _f_[_j_ + 4] - _f_[_j_ + 2]
+			_dy2_ = _f_[_j_ + 5] - _f_[_j_ + 3]
+			if fabs(_dx1_) + fabs(_dy1_) < 0.5  loop  ok
+			if fabs(_dx2_) + fabs(_dy2_) < 0.5  loop  ok
+			_h1_ = fabs(_dx1_) > fabs(_dy1_)
+			_h2_ = fabs(_dx2_) > fabs(_dy2_)
+			if _h1_ != _h2_  return _f_[_j_ + 1 + _pAx_]  ok
+		next
+		return -1000000
 	next
 	return -1000000
 
@@ -657,6 +677,14 @@ func StzPlasticRuleSet()
 			if _t_[_it_] > _hi_  _hi_ = _t_[_it_]  ok
 		next
 		if _hi_ - _lo_ < 1  return [ 1, "" ]  ok
+		# A STEM THAT CONTINUES A CLEARANCE PAST THE BRANCH IS A STEM
+		# WITH A SECOND BRANCH, not two stems. A line that must turn into
+		# its target's side descends the fan's own column past the row
+		# where its siblings part, and turns further down -- caused, and
+		# read as one stem. Closer than a clearance it is the near-miss
+		# band this library forbids everywhere, which is what the Cart
+		# picture showed at 22px.
+		if _hi_ - _lo_ >= oDg._LineClearance()  return [ 1, "" ]  ok
 		return [ 0, "its " + _nt_ + " lines turn across " + (_hi_ - _lo_) +
 			"px of columns -- one origin drawn as several" ]
 	})

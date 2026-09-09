@@ -1877,9 +1877,18 @@ class stzGraphCanvas from stzObject
 			for _pi_ = 1 to _n_
 				if _apin_[_pi_] > (0 - 100000000)  _bAnyPin_ = 1  exit  ok
 			next
+			# PEER CHILDREN, carried to the engine as it was declared. The
+			# notation says whether a parent's children are peers (no
+			# child continues it, so it stands at their middle) or a flow
+			# (the deeper branch takes its column). The engine decides
+			# both; this tier only carries the word, as it carries
+			# :NodeExtra and :ClusterAir.
+			_aPeers_ = []
+			if This._Opt(:PeerChildren, 0) = 1  _aPeers_ = [ 1 ]  ok
 			if _bAnyPin_
 				_aFree_ = StzEngineGraphLayoutCoords(_csr_[1], _csr_[2],
-					_outc_[1], _outc_[2], _order_, _starts_, 1.0, 8, _xtra_, [])
+					_outc_[1], _outc_[2], _order_, _starts_, 1.0, 8, _xtra_, [],
+					_aPeers_)
 				if len(_aFree_) = _n_
 					for _L2_ = 1 to _max_ + 1
 						_aKey_ = []
@@ -1901,7 +1910,7 @@ class stzGraphCanvas from stzObject
 
 			_aXe_ = StzEngineGraphLayoutCoords(_csr_[1], _csr_[2],
 				_outc_[1], _outc_[2], _order_, _starts_, 1.0, 8, _xtra_,
-				_apin_)
+				_apin_, _aPeers_)
 		ok
 
 		# y from the layer; x from the engine when it answered
@@ -2064,7 +2073,7 @@ class stzGraphCanvas from stzObject
 					for _i_ = 1 to _n_  _aXs_ + @aX[_i_]  next
 					_aXs_ = StzEngineGraphLayoutSnapAlign(_csr_[1], _csr_[2],
 						_outc_[1], _outc_[2], _order_, _starts_, 1.0,
-						_xtra_, _aXs_)
+						_xtra_, _aXs_, _aPeers_)
 					if len(_aXs_) = _n_
 						for _i_ = 1 to _n_  @aX[_i_] = _aXs_[_i_]  next
 					ok

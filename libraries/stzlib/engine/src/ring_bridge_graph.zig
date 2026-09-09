@@ -665,6 +665,17 @@ fn ring_ConnectedComponents(p: *anyopaque) callconv(.c) void {
 // of a 10,000-node layout in interpreted Ring; they are ordinary tight loops
 // and belong here.
 
+// An optional flag carried as a one-element list -- [ 1 ] -- because an
+// absent LIST argument reads as null where an absent number would not be
+// distinguishable from zero. Absent, empty or zero means false.
+fn readFlag(p: *anyopaque, argn: c_int) bool {
+    const lst = R.gl(p, argn) orelse return false;
+    const n: usize = @intCast(R.ringListSize(lst));
+    if (n == 0) return false;
+    const item = R.ring_list_getitem_gc(null, lst, 1) orelse return false;
+    return R.ring_item_getnumber(item) != 0;
+}
+
 fn readU32List(p: *anyopaque, argn: c_int) ?[]u32 {
     const lst = R.gl(p, argn) orelse return null;
     const n: usize = @intCast(R.ringListSize(lst));
@@ -782,6 +793,10 @@ fn ring_LayoutCoords(p: *anyopaque) callconv(.c) void {
     // the rank order before this is called, never a position override.
     // The override version honoured the author exactly and broke every
     // law the placement carries -- see graph_layout.coords.
+    // OPTIONAL 11th: [ 1 ] when the notation declares a parent's children
+    // PEERS -- no continuation, a parent centred over all it owns. Absent
+    // means the flow rule, which every caller before the fault tree got.
+    const peers = readFlag(p, 11);
 
     const x = gpa.alloc(f64, order.len) catch return;
     defer gpa.free(x);
@@ -791,7 +806,7 @@ fn ring_LayoutCoords(p: *anyopaque) callconv(.c) void {
     // here mean the caller built a malformed CSR, and the honest fallback is
     // the placement the face used before this function existed -- a worse
     // picture, never a blank one.
-    if (glayout.coords(in_off, in_src, out_off, out_dst, order, starts, sep, iters, extra, x) != glayout.OK) {
+    if (glayout.coords(in_off, in_src, out_off, out_dst, order, starts, sep, iters, extra, peers, x) != glayout.OK) {
         for (0..starts.len -| 1) |L| {
             if (starts[L + 1] > order.len or starts[L] > starts[L + 1]) break;
             var k: usize = 0;
@@ -835,8 +850,10 @@ fn ring_LayoutSnapAlign(p: *anyopaque) callconv(.c) void {
     const extra: []const f64 = if (extra_opt) |e| e else &[_]f64{};
     const x = readF64List(p, 9) orelse return;
     defer gpa.free(x);
+    // OPTIONAL 10th: [ 1 ] for peer children -- see ring_LayoutCoords
+    const peers = readFlag(p, 10);
     if (x.len == order.len) {
-        glayout.snapAlign(in_off, in_src, out_off, out_dst, order, starts, sep, extra, x);
+        glayout.snapAlign(in_off, in_src, out_off, out_dst, order, starts, sep, extra, peers, x);
     }
     const out = R.ring_vm_api_newlist(p) orelse return;
     for (x) |v| R.ring_list_adddouble(out, v);
