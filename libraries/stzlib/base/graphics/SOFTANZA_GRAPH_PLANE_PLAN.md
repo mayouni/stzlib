@@ -3278,11 +3278,26 @@ claim, a relation no key backs belongs to the third rule, and a mark at the
 catalogue's third schema carries two right and two wrong, and the shop's own
 marks agree with its columns.
 
+**Two marks from the Principal on the shop, and both were the renderer's,
+not the schema's.** A blank between a crow's foot and OrderLine: the routed
+form of an ortho edge cut its last 13 px for an arrowhead, and an undirected
+notation never draws one — `_DrawArrowHead` returned at once and the trim
+stayed behind, exactly the DRAKON defect of an earlier item under another
+notation. A line is shortened only for a head that will be drawn, now under
+every notation, and the gate holds every relation to touching both its
+entities. And the junction's two crow's feet met at their tips: arrivals were
+spread over a third of the *picture's cell*, 12 px on a node twice as tall,
+which is one foot's width. The share is of the node's own border now, with a
+floor of a mark's width and a gap — and the floor stops at the rounded
+corners, because a port pushed into a corner is pulled diagonally toward the
+centre and the pair's midpoint left the centre by 0.8 px in the old service
+picture, which section 29 caught.
+
 **Said plainly and left out.** Attribute types, unique constraints, composite
 keys beyond the junction's pair, weak entities and Chen's diamond notation
 are not here; the crow's foot is the one notation drawn.
 
-*Guard:* §109, 28 assertions; §91 grew by three pictures. Catalogue:
+*Guard:* §109, 33 assertions; §91 grew by three pictures. Catalogue:
 `gg_er_catalogue.ring`, er_01 to er_03.
 
 ## DN9 — THE TOLD PICTURE: a narration is facts made visible, in an order (planned 2026-09-06, SHIPPED 2026-09-07 as DN9a through DN9g, all seven closed)

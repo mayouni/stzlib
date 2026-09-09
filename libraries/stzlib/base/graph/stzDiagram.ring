@@ -7970,6 +7970,13 @@ class stzDiagram from stzGraph
 		if This._NotationBranchSide() = "right"  return 0  ok
 		return 9 + nEdgeW * 2
 
+	# the least distance between two ports on one border: the width of
+	# the widest end mark drawn -- a head's wings or a crow's foot, twelve
+	# across -- and a six-pixel gap, so two marks arriving side by side
+	# are read as two
+	def _PortFloor()
+		return 18
+
 	def _DrakonSideExit(cFromId, cToId, paFrom, paTo, nBoxW, nBoxH)
 		if This._NotationBranchSide() != "right"  return []  ok
 		# only a conditional icon has a side exit to give
@@ -9119,8 +9126,30 @@ class stzDiagram from stzGraph
 						ok
 					next
 				ok
-				_epSpread_ = (_epBox_ - 16) *
+				# THE BORDER SHARED IS THIS NODE'S OWN, not the picture's
+				# cell. An entity twice the cell's height still spread its
+				# two arrivals over a third of the CELL -- 12px, the width
+				# of one crow's foot -- so the two feet met at their tips
+				# and the Principal asked for a distance between them.
+				# ...AND NO CLOSER THAN THE MARKS ARE WIDE. A third of a
+				# short border is less than a head or a foot, so the share
+				# has a floor: one mark's width and a gap per step, up to
+				# what the border affords.
+				_epBoxN_ = This._BoxOf(_epKeys_[_epK_][1], nBoxW, nBoxH)[ iif(_bV_, 2, 1) ]
+				_epSpread_ = (_epBoxN_ - 16) *
 					min([ 1, (_epGn_ - 1) / 3 ])
+				# ...AND THE FLOOR STOPS AT THE CORNERS. The box is round,
+				# and a port pushed into the rounded corner is pulled toward
+				# the centre by _AttachPoint -- diagonally, so its HEIGHT
+				# moves too, and a pair meant to sit symmetric about the
+				# centre sat 0.8px off it (the service picture of section
+				# 29, on a 36px box whose flat border is 16px). The floor
+				# may claim only the flat part of the border; the marks
+				# come closer there than a mark's width, which is what a
+				# short border affords and the corner would only have hidden.
+				_epFloor_ = min([ This._PortFloor() * (_epGn_ - 1), _epBoxN_ - 16,
+					_epBoxN_ - 2 * This._EdgeCorner() - 2 ])
+				if _epSpread_ < _epFloor_  _epSpread_ = _epFloor_  ok
 				if _epSpread_ < 0  _epSpread_ = 0  ok
 				_epStep_ = _epSpread_ / (_epGn_ - 1)
 				for _epJ_ = 1 to _epGn_
@@ -12369,6 +12398,15 @@ class stzDiagram from stzGraph
 				ok
 			ok
 		ok
+		# ...AND THE SAME SUPPRESSION, THE SAME FORGOTTEN TRIM, in every
+		# undirected notation. _DrawArrowHead returns at once when the
+		# edges are undirected, and the routed form still cut its last
+		# 13px for the head that never came: on the shop schema the one
+		# relation that had to go round an obstacle stopped short of
+		# OrderLine while its straight siblings touched. The Principal
+		# marked the blank. A relation under a schema, a wire under a
+		# circuit: no head, no room for one.
+		if NOT This._EdgesAreDirected()  nLen = 0  ok
 		paFlat = This._EnsureArrival(paFlat, nLen + This._LineClearance())
 		_an_ = len(paFlat)
 		if _an_ < 4  return [ paFlat, [ 0, 0 ], [ 0, 0 ] ]  ok
