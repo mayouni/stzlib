@@ -3283,3 +3283,40 @@ note:      A DEFECT THAT APPEARS ONLY IN THE GATE IS STILL A DEFECT IN THE
            ended it. Two methods that can re-enter each other may not
            share a local name, whatever the scoping rule turns out to be.
 ```
+
+```yaml
+by:        stzlib · claude-fable-5-1 · 2026-09-09 08:54
+
+subject:   the Gantt's arrows, corrected on the Principal's word
+
+why:       the last arrows pointed backwards and grey lay on blue, and
+           both were one elbow drawn for the roomy case
+
+did:
+  - Routed every dependency as a staircase that enters from the left,
+    through the boundary between lanes on the successor's side, with the
+    side computed as a sign on the tape and no branch.
+  - Entered and left milestones at their diamond's tips, with xin and
+    xout put on every task by the builder.
+  - Moved a shared-lane task's name from above its bar to inside it,
+    since the boundary run passes where the name sat.
+  - Re-rendered scene 42; the witness's backwards dependencies now show
+    as boundary runs going left.
+
+state:
+  gg_adversarial:   1292 ok, 0 failed
+  commit:           464311639 on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the author's word
+  - central: none
+
+note:      TEST THE ROUTE ON THE ZERO-GAP CASE FIRST. In a schedule a task
+           that starts the day its predecessor ends is the normal case,
+           and the first route was drawn for the one with room.
+```
