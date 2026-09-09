@@ -601,6 +601,79 @@ class stzGpu from stzObject
 		next
 		return _nBest_
 
+	# ---- GK2: the foundry -- op variants by enumeration ------------------
+	# The op library carries VARIANTS of pairdist (a straight row kernel, a
+	# vec4 one, one with the query staged in workgroup memory) beside the
+	# generic 16x16 tile. This pass lets the ENGINE enumerate them under
+	# GK0's checker: each is verified against the generic on the same device
+	# buffers at the visible shape AND a hidden one (different size, different
+	# data), timed on the GPU clock with the device awake, and the winner --
+	# if it beats the generic by 1.3x -- is recorded for the SHAPE CLASS in
+	# the variant table the op consults at dispatch, and persisted. A variant
+	# the checker refuses cannot win, whatever it timed. Scope: m <= 16, the
+	# single-query family the seams dispatch.
+	#
+	# Report: [ :m, :n, :d, :hiddenn, :clocks, :refgpums, :refwallms,
+	#           :variants = [ [name, verified, gpums, wallms, ratio, ratiowall], ... ],
+	#           :winner = name, :ratio = generic/winner on the GPU clock, :stored = bool ]
+	def FoundryPairdist(m, n, d)
+		return This.FoundryPairdistWith(m, n, d, 7)
+
+	def FoundryPairdistWith(m, n, d, nReps)
+		This._RequireDevice()
+		_nSt_ = StzEngineGpuFoundryPairdist(m, n, d, nReps, 0)
+		if _nSt_ != 0
+			StzRaise("FoundryPairdist: the foundry refused to run (status " + _nSt_ +
+				": " + StzEngineGpuLastError() + "). m must be 1..16.")
+		ok
+		return This._FoundryReport(m, n, d, TRUE)
+
+	def _FoundryReport(m, n, d, bStore)
+		_nCount_ = StzEngineGpuFoundryResult(0)
+		_aV_ = []
+		for _v_ = 1 to _nCount_
+			_nB_ = 8 + _v_ * 5
+			_aV_ + [ StzEngineGpuVariantName(_v_), StzEngineGpuFoundryResult(_nB_),
+			         StzEngineGpuFoundryResult(_nB_ + 1), StzEngineGpuFoundryResult(_nB_ + 2),
+			         StzEngineGpuFoundryResult(_nB_ + 3), StzEngineGpuFoundryResult(_nB_ + 4) ]
+		next
+		_nW_ = StzEngineGpuFoundryResult(3)
+		_bStored_ = FALSE
+		if bStore and _nW_ > 0
+			_bStored_ = StzGpuVariantSet("pairdist", m, n, d, _nW_)
+			StzGpuSaveCalibration(["pairdist"])
+		ok
+		return [
+			:m = m, :n = n, :d = d,
+			:hiddenn = StzEngineGpuFoundryResult(6),
+			:clocks = StzEngineGpuFoundryResult(5),
+			:refgpums = StzEngineGpuFoundryResult(1),
+			:refwallms = StzEngineGpuFoundryResult(2),
+			:variants = _aV_,
+			:winner = StzEngineGpuVariantName(_nW_),
+			:ratio = StzEngineGpuFoundryResult(4),
+			:stored = _bStored_
+		]
+
+	# The kill line, per adapter: a grid of single-query shapes; TRUE if any
+	# class found a variant worth the margin.
+	def FoundryPairdistGrid(paCounts, paDims)
+		This._RequireDevice()
+		_aCells_ = []
+		_bAny_ = FALSE
+		_nC_ = ring_len(paCounts)
+		_nD_ = ring_len(paDims)
+		for _i_ = 1 to _nC_
+			for _j_ = 1 to _nD_
+				_aR_ = This.FoundryPairdist(1, paCounts[_i_], paDims[_j_])
+				_aCells_ + _aR_
+				if _aR_[:ratio] >= 1.3
+					_bAny_ = TRUE
+				ok
+			next
+		next
+		return [ :cells = _aCells_, :anywin = _bAny_, :adapter = This.DeviceName() ]
+
 	# ---- GK1: the SHAPED calibration --------------------------------------
 	# The flat pass above walks one dimension (d = 64) and stores one number.
 	# GK1's probe (gk1_shape_probe.ring, 2026-09-09) measured that the number

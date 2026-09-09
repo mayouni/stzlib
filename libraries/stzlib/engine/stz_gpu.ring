@@ -330,6 +330,31 @@ $bStzGpuCalibAdapterLoaded_ = FALSE
 # measured or loaded.
 $aStzGpuCalibShaped_ = []     # rows [ op, n, d, ratio ]
 $aStzGpuCalibLadder_ = []     # rows [ op, n, d, cpuMs, gpuMs ]
+$aStzGpuVariants_ = []        # rows [ op, m, n, d, variant ]  (GK2: a decision per shape class)
+
+# GK2: record which VARIANT of an op serves a shape class -- the foundry's
+# verdict, persisted as `variant<TAB>op<TAB>m<TAB>n<TAB>d<TAB>v`
+func StzGpuVariantSet pcOp, pnM, pnN, pnD, pnV
+	if StzEngineGpuVariantSet(pcOp, pnM, pnN, pnD, pnV) != 0
+		return FALSE
+	ok
+	_nCm_ = StzEngineGpuShapeClass(pnM)
+	_nCn_ = StzEngineGpuShapeClass(pnN)
+	_nCd_ = StzEngineGpuShapeClass(pnD)
+	_nL_ = len($aStzGpuVariants_)
+	for _i_ = 1 to _nL_
+		_r_ = $aStzGpuVariants_[_i_]
+		if _r_[1] = pcOp and StzEngineGpuShapeClass(_r_[2]) = _nCm_ and
+		   StzEngineGpuShapeClass(_r_[3]) = _nCn_ and StzEngineGpuShapeClass(_r_[4]) = _nCd_
+			$aStzGpuVariants_[_i_] = [ pcOp, pnM, pnN, pnD, pnV ]
+			return TRUE
+		ok
+	next
+	$aStzGpuVariants_ + [ pcOp, pnM, pnN, pnD, pnV ]
+	return TRUE
+
+func StzGpuVariants
+	return $aStzGpuVariants_
 
 func StzGpuCalibSetShaped pcOp, pnN, pnD, pnRatio
 	StzEngineGpuCalibSetShaped(pcOp, pnN, pnD, pnRatio)
@@ -419,6 +444,10 @@ func _StzGpuCalibFillFromFile pcPath
 			_StzGpuCalibRecordShaped(_aParts_[2], 0 + _aParts_[3], 0 + _aParts_[4], 0 + _aParts_[5])
 		but len(_aParts_) = 6 and _aParts_[1] = "ladder"
 			StzGpuCalibAddLadderRow(_aParts_[2], 0 + _aParts_[3], 0 + _aParts_[4], 0 + _aParts_[5], 0 + _aParts_[6])
+		but len(_aParts_) = 6 and _aParts_[1] = "variant"
+			if StzEngineGpuVariantGet(_aParts_[2], 0 + _aParts_[3], 0 + _aParts_[4], 0 + _aParts_[5]) = 0
+				StzGpuVariantSet(_aParts_[2], 0 + _aParts_[3], 0 + _aParts_[4], 0 + _aParts_[5], 0 + _aParts_[6])
+			ok
 		ok
 	next
 
@@ -438,6 +467,8 @@ func _StzGpuCalibLoadFile pcPath
 			StzGpuCalibSetShaped(_aParts_[2], 0 + _aParts_[3], 0 + _aParts_[4], 0 + _aParts_[5])
 		but len(_aParts_) = 6 and _aParts_[1] = "ladder"
 			StzGpuCalibAddLadderRow(_aParts_[2], 0 + _aParts_[3], 0 + _aParts_[4], 0 + _aParts_[5], 0 + _aParts_[6])
+		but len(_aParts_) = 6 and _aParts_[1] = "variant"
+			StzGpuVariantSet(_aParts_[2], 0 + _aParts_[3], 0 + _aParts_[4], 0 + _aParts_[5], 0 + _aParts_[6])
 		ok
 	next
 
@@ -467,6 +498,13 @@ func StzGpuSaveCalibration paOps
 		_r_ = $aStzGpuCalibLadder_[_i_]
 		if find(paOps, _r_[1]) > 0
 			_cOut_ += "ladder" + char(9) + _r_[1] + char(9) + _r_[2] + char(9) + _r_[3] + char(9) + _r_[4] + char(9) + _r_[5] + char(10)
+		ok
+	next
+	_nS_ = len($aStzGpuVariants_)
+	for _i_ = 1 to _nS_
+		_r_ = $aStzGpuVariants_[_i_]
+		if find(paOps, _r_[1]) > 0 and _r_[5] > 0
+			_cOut_ += "variant" + char(9) + _r_[1] + char(9) + _r_[2] + char(9) + _r_[3] + char(9) + _r_[4] + char(9) + _r_[5] + char(10)
 		ok
 	next
 	write(StzGpuCalibFileDefault(), _cOut_)
