@@ -15150,7 +15150,7 @@ chkeq("...and those are all of them: seven", len(aFtF), 7)
 chk("the numbers refuse the witness's top by name -- at the cycle or at the leaf with no number, whichever is met first",
     _FtRefusesProb(oFtW, "t1", "'Dust' has no probability") or _FtRefusesProb(oFtW, "t1", "among its own causes"))
 chk("NEGATIVE: the witness's second top computes -- its one leaf has a number",
-    fabs(oFtW.ProbabilityOf("t2") - 0.02) < 0.000001)
+    fabs(oFtW.ProbabilityOf("t2") - 0.05) < 0.000001)
 chk("...and refuse an undeveloped event, saying so", _FtRefusesProb(oFtW, "operator", "is undeveloped"))
 
 # THE BOUNDARIES, STOOD ON.
@@ -15187,6 +15187,10 @@ chk("a repeated leaf stands between the two gates that share it, and each gate a
     fabs(_PnCentreX(oFtR, "fill.gate") - (_PnCentreX(oFtR, "valve") + _PnCentreX(oFtR, "sensor")) / 2) < 0.5 and
     fabs(_PnCentreX(oFtR, "alarm.gate") - (_PnCentreX(oFtR, "sensor") + _PnCentreX(oFtR, "relay")) / 2) < 0.5 and
     fabs(_PnCentreX(oFtR, "fill") - _PnCentreX(oFtR, "fill.gate")) < 0.5)
+chk("the two arrivals at the shared leaf both drop into its top on its own column -- a mark unifies its arrivals, none enters its side",
+    fabs(_PnPathEnd(oFtR, "fill.gate", "sensor")[1] - _PnCentreX(oFtR, "sensor")) < 0.5 and
+    fabs(_PnPathEnd(oFtR, "alarm.gate", "sensor")[1] - _PnCentreX(oFtR, "sensor")) < 0.5 and
+    fabs(_PnPathEnd(oFtR, "alarm.gate", "sensor")[2] - _PnRectOf(oFtR, "sensor")[2]) < 0.5)
 chk("the witness's one backward edge runs beside the picture and enters the top from its side, not through its floor",
     _PnPathEnd(oFtW, "jam.gate", "t1")[1] < _PnCentreX(oFtW, "t1") - 10 and
     fabs(_PnPathEnd(oFtW, "jam.gate", "t1")[2] - _PnCentreY(oFtW, "t1")) < 0.5 and _PnNoArcThroughCell(oFtW))

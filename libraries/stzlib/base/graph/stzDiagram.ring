@@ -13362,11 +13362,31 @@ class stzDiagram from stzGraph
 				# the far side.
 				_dvK_ = StzLower("" + cFromId) + ">" + StzLower("" + cToId)
 				_dvSide_ = 0
-				if @nDrawPass = 1
-					_dvSide_ = This._DescentBlocked(_qax_, _chan_, _qe_, _dvK_)
-					if _dvSide_  @aSideApproach + [ _dvK_, 1 ]  ok
-				else
-					_dvSide_ = This._SideApproachOf(_dvK_)
+				# ...BUT ARRIVALS AT A MARK UNIFY, and a tree is entered
+				# from above. A mark takes no ports, so its second arrival
+				# always found the column taken and came in from the side
+				# -- the repeated sensor of the fault tree, entered from
+				# the top by one gate and from its right by the other,
+				# which the Principal marked. Two descents into a mark are
+				# one line by the mark's own law -- WHERE NO HEAD IS DRAWN:
+				# under a directed notation two heads on one tip are the
+				# "arrow at each end" the side approach was built against,
+				# and sections 64 and 73 hold that. And under a notation
+				# whose children are peers no line enters a cell's side.
+				_dvBoxT_ = This._BoxOf(cToId, nBoxW, nBoxH)
+				_dvUnify_ = 0
+				if (_dvBoxT_[1] < nBoxW - 0.5 or _dvBoxT_[2] < nBoxH - 0.5) and
+				   NOT This._EdgesAreDirected()
+					_dvUnify_ = 1
+				ok
+				if This._NotationPeerChildren()  _dvUnify_ = 1  ok
+				if NOT _dvUnify_
+					if @nDrawPass = 1
+						_dvSide_ = This._DescentBlocked(_qax_, _chan_, _qe_, _dvK_)
+						if _dvSide_  @aSideApproach + [ _dvK_, 1 ]  ok
+					else
+						_dvSide_ = This._SideApproachOf(_dvK_)
+					ok
 				ok
 				# THE PLAIN L, WHEN THE PICTURE ALLOWS ONE. Same shape as
 				# the side approach below and taken for a different
