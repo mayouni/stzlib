@@ -415,6 +415,7 @@ pub fn coords(
     sep: f64,
     iters: u32,
     extra: []const f64,
+    peers: bool,
     x: []f64,
 ) i32 {
     const n = x.len;
@@ -509,7 +510,7 @@ pub fn coords(
     // EXACTLY on a neighbour's cross-position without violating its rank's
     // separations, put it there. All or nothing -- a partial move would
     // just manufacture a new near-miss, the very thing being killed.
-    snapAlign(in_off, in_src, out_off, out_dst, order, starts, sep, extra, x);
+    snapAlign(in_off, in_src, out_off, out_dst, order, starts, sep, extra, peers, x);
 
     // LAST, and only on a forest. The relaxation produces a good-looking
     // arrangement that can still put a node inside another branch's span;
@@ -566,9 +567,9 @@ pub fn coords(
     // this library forbids elsewhere and had been quietly producing in
     // its own default picture. Neither aligned nor clearly slanted is
     // the one thing a reader cannot parse.
-    snapAlign(in_off, in_src, out_off, out_dst, order, starts, sep, extra, x);
+    snapAlign(in_off, in_src, out_off, out_dst, order, starts, sep, extra, peers, x);
 
-    centerParents(in_off, out_off, out_dst, order, starts, sep, extra, x);
+    centerParents(in_off, out_off, out_dst, order, starts, sep, extra, peers, x);
 
     // ...AND THE STRADDLE IS THE VERY LAST WORD -- I7. Centring says where
     // a parent stands when it is free to move; this says what its children
@@ -637,6 +638,14 @@ fn familyAir(
 /// Moves only when the whole distance is available: a partial slide
 /// manufactures the near-miss that snapAlign exists to kill, and a
 /// half-centred parent states nothing.
+/// ...UNLESS THE NOTATION SAYS THE CHILDREN ARE PEERS. The continuation
+/// rule below is right for a flow, where the graph itself says "this way
+/// onward". A fault tree's gate has INPUTS: none of them continues the
+/// gate, so giving the column to the deeper branch draws a lean that
+/// states a closeness the tree does not contain -- exactly I7's finding,
+/// which the plane's own plastic rule raised on the first fault tree.
+/// With `peers` set, a parent stands at the middle of its owned children
+/// whatever hangs beneath each of them.
 fn centerParents(
     in_off: []const u32,
     out_off: []const u32,
@@ -645,6 +654,7 @@ fn centerParents(
     starts: []const u32,
     sep: f64,
     extra: []const f64,
+    peers: bool,
     x: []f64,
 ) void {
     // how far the graph continues below each node, so a parent can tell
@@ -770,7 +780,7 @@ fn centerParents(
                     ties += 1;
                 }
             }
-            if (ties == 1 and best_h > 0) target = x[best_c];
+            if (ties == 1 and best_h > 0 and !peers) target = x[best_c];
             const mid = target;
             if (@abs(mid - x[v]) < 0.0001) continue;
             if (k > s) {
@@ -820,6 +830,7 @@ pub fn snapAlign(
     starts: []const u32,
     sep: f64,
     extra: []const f64,
+    peers: bool,
     x: []f64,
 ) void {
     const nl = starts.len - 1;
@@ -887,7 +898,7 @@ pub fn snapAlign(
     // worth having if it is the last word. Centring is the same claim for
     // a node that has children, so it has to be the last word in the same
     // places.
-    centerParents(in_off, out_off, out_dst, order, starts, sep, extra, x);
+    centerParents(in_off, out_off, out_dst, order, starts, sep, extra, peers, x);
 
     // ...AND SIBLINGS STAND ON EITHER SIDE OF THEIR PARENT, which is the
     // one thing centring cannot state when the parent is not free to move.

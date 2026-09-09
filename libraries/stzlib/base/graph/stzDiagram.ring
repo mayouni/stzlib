@@ -486,6 +486,12 @@ class stzDiagram from stzGraph
 	# CAD does this in two passes too.
 	@aVertSegs = []
 	@nDrawPass = 2
+	# where each member of a fan came to rest on the dry pass:
+	# [ source, channel, far border ] -- see _FanChannel
+	@aFanFinal = []
+	# the paths as the drawing pass drew them, swapped into @aEdgePaths
+	# once that pass is over -- see _EmitOrthoPolyline
+	@aEdgePathsDrawn = []
 
 	# THE NAMES THIS RENDER HANDS THE DOCUMENT. Declared HERE, in the
 	# class body, and not only reset inside ToCanvasXT: an attribute a
@@ -3199,6 +3205,7 @@ class stzDiagram from stzGraph
 				:Clusters = This._ClusterPairs(),
 				:NodeExtra = _aXtra_,
 				:ClusterAir = _nAir_,
+				:PeerChildren = This._NotationPeerChildren(),
 				:Pins = This._PinVector(),
 				:RankPolicy = This._NotationRankPolicy(),
 				:Sources = This._KindedIds(This.NotationO().SourceKinds()),
@@ -3910,6 +3917,7 @@ class stzDiagram from stzGraph
 				:Width  = max([ _lw_, 60 ]),
 				:Height = max([ _lh_, 60 ]),
 				:Clusters = This._ClusterPairs(),
+				:PeerChildren = This._NotationPeerChildren(),
 				# ...AND THE PINS HERE TOO. This branch draws every
 				# picture given an explicit :Width/:Height -- which is
 				# every LIVE one, since a window has a size -- and it was
@@ -4800,9 +4808,11 @@ class stzDiagram from stzGraph
 		if _cSpl_ = "ortho"
 			@nDrawPass = _ePass_
 			@aChanUsed = []
+			if _ePass_ = 2  @aEdgePathsDrawn = []  ok
 			if _ePass_ = 1
 				@aVertSegs = []
 				@aEdgePaths = []
+				@aFanFinal = []
 		@aOuterBox = []
 				@aRenderHops = []
 				@aSideApproach = []
@@ -5096,6 +5106,18 @@ class stzDiagram from stzGraph
 			This._DrawTwinEdgeXT(_oC_, _ei_, _aTwinOf_[_ei_], _aE_, _aXY_,
 				_nBoxW_, _nBoxH_, _cEdge_, _nEdgeW_, _cRank_, _nTwLane_)
 		next
+		next
+		# WHAT IS PUBLISHED IS WHAT WAS DRAWN. The drawing pass recorded
+		# every path as it drew it; now that no drawer will read the dry
+		# pass's set again, the record replaces it -- see
+		# _EmitOrthoPolyline for why not sooner.
+		for _iPd_ = 1 to len(@aEdgePathsDrawn)
+			for _jPd_ = 1 to len(@aEdgePaths)
+				if StzLower("" + @aEdgePaths[_jPd_][1]) = StzLower("" + @aEdgePathsDrawn[_iPd_][1])
+					@aEdgePaths[_jPd_][2] = @aEdgePathsDrawn[_iPd_][2]
+					exit
+				ok
+			next
 		next
 
 		# 2a. THE RELATIONSHIP ADORNMENTS -- DN4.
@@ -9467,6 +9489,19 @@ class stzDiagram from stzGraph
 				ok
 			next
 		next
+		# A TREE'S EDGES ARE RANK-FACING AT BOTH ENDS. A side landing and
+		# a lateral departure exist for a flow that has to get around
+		# something; under a notation whose children are peers every edge
+		# is "down out of the parent, down into the child", and the first
+		# fault tree drew one input entered from its side and one gate
+		# left by the side of its event -- two lines of one fan turning
+		# on two rows. Vetoed here, where the ports are made.
+		if This._NotationPeerChildren()
+			for _epI_ = 1 to _epN_
+				_epRes_[_epI_][5] = 1
+				_epRes_[_epI_][6] = 0
+			next
+		ok
 		return _epRes_
 
 	# [ [ clusterId, [ nodeIds ] ], ... ] -- the shape stzGraphCanvas asks
@@ -11736,6 +11771,21 @@ class stzDiagram from stzGraph
 			next
 			return
 		ok
+		# THE DRAWN PASS HAS THE LAST WORD ON THE PUBLISHED PATH -- AFTER
+		# IT HAS FINISHED. The dry pass publishes so the label placer has
+		# a path to anchor on, and every drawer in the second pass reads
+		# that complete set to keep its legs clear of the others; the
+		# drawing pass then claims its channels with the dry pass's
+		# knowledge and can put a run where the rehearsal did not -- a
+		# fan's members share their tightest channel only here. An
+		# instrument reading the published path was reading the
+		# rehearsal: on the first fault tree two lines of one fan were
+		# drawn on one channel and published on two. So the drawn paths
+		# are RECORDED here and swapped in once the pass is over --
+		# overwriting as they were drawn handed later drawers a set that
+		# was half rehearsal and half drawing, and section 30's detour
+		# collapsed onto its target's column.
+		@aEdgePathsDrawn + [ cKey, paFlat ]
 
 		_eoR_ = max([ 5, @nEdgeCornerRad * 0.8 ])
 		# A HOP NEEDS ROOM, OR IT IS NOT A HOP.
@@ -12161,6 +12211,8 @@ class stzDiagram from stzGraph
 					_ofx_ = _q_[1]
 					_oc1_ = This._ClaimChannel(_oc1_, _p_[1], _ofx_,
 						cFromId, _p_[2], _ob1_[2], cFromId, cToId, 0)
+					_oc1_ = This._FanChannel(cFromId, _oc1_, _p_[2], _ob1_[2],
+						_p_[1], _ofx_, cToId, 0, nWidth)
 					_flat_ + _p_[1]   _flat_ + _p_[2]
 					_flat_ + _p_[1]   _flat_ + _oc1_
 					_flat_ + _ofx_    _flat_ + _oc1_
@@ -12171,6 +12223,12 @@ class stzDiagram from stzGraph
 						cFromId, cToId, 0, _obl_[2], _q_[2])
 					_oc2_ = This._ClaimChannel(_oc2_, _ofx_, _q_[1],
 						cFromId, _obl_[2], _q_[2], cFromId, cToId, 0)
+					# one gap only: the last channel is the first, and it
+					# belongs to the fan at the source like any other
+					if fabs(_obl_[2] - _ob1_[2]) < 1
+						_oc2_ = This._FanChannel(cFromId, _oc2_, _p_[2], _q_[2],
+							_p_[1], _q_[1], cToId, 0, nWidth)
+					ok
 					_flat_ + _p_[1]   _flat_ + _p_[2]
 					_flat_ + _p_[1]   _flat_ + _oc2_
 					_flat_ + _q_[1]   _flat_ + _oc2_
@@ -12178,6 +12236,8 @@ class stzDiagram from stzGraph
 				else
 					_oc1_ = This._ClaimChannel(_oc1_, _p_[1], _ofx_,
 						cFromId, _p_[2], _ob1_[2], cFromId, cToId, 0)
+					_oc1_ = This._FanChannel(cFromId, _oc1_, _p_[2], _ob1_[2],
+						_p_[1], _ofx_, cToId, 0, nWidth)
 					_oc2_ = This._ChannelBand(_oc2_, _ofx_, _q_[1],
 						cFromId, cToId, 0, _obl_[2], _q_[2])
 					_oc2_ = This._ClaimChannel(_oc2_, _ofx_, _q_[1],
@@ -13265,6 +13325,19 @@ class stzDiagram from stzGraph
 						_chan_ = _chNm_
 					ok
 				ok
+				# A FAN'S MEMBERS SHARE THE TIGHTEST CHANNEL. The claim
+				# above joined same-source channels; every hand after it
+				# then clamped each member against ITS OWN target's border
+				# -- so two lines out of one gate, one to a box and one to
+				# a circle, ran 5px apart: one origin drawn as several,
+				# which the plane's own fan rule raised on the first fault
+				# tree. The dry pass records where each member came to
+				# rest; the drawing pass gives the fan the member nearest
+				# the source, which every member's clamp allows, since a
+				# fan shares its departure border and only the far border
+				# differs.
+				_chan_ = This._FanChannel(cFromId, _chan_, _pe_, _qe_,
+					_pax_, _qax_, cToId, 0, nWidth)
 
 				# A DESCENT THAT WOULD LIE ON ANOTHER COMES IN FROM THE
 				# SIDE INSTEAD.
@@ -13322,7 +13395,12 @@ class stzDiagram from stzGraph
 					_dvSg2_ = 1
 					if aFrom[1] < aTo[1]  _dvSg2_ = -1  ok
 					_dvEd2_ = aTo[1] + _dvSg2_ * _bcB_[1] / 2
+					# ...AND NEVER IN A TREE. A gate is entered from above,
+					# whatever its event stands over; an L into its side
+					# read as a line arriving from a sibling. The notation
+					# that declares its children peers says so.
 					if _dvOut_ = 1 and fabs(aTo[1] - aFrom[1]) > 1 and
+					   NOT This._NotationPeerChildren() and
 					   This._LRouteClear(_pax_, _pe_, aTo[2], _dvEd2_,
 						cFromId, cToId)
 						_dvSide_ = 1
@@ -13556,6 +13634,52 @@ class stzDiagram from stzGraph
 			if _drY_ > _drBest_  _drBest_ = _drY_  ok
 		next
 		return _drBest_
+
+	# THE CHANNEL A FAN SHARES. On the dry pass every member records where
+	# its own hands left it; on the drawing pass a member takes the fan's
+	# channel nearest the departure border, which is legal for every
+	# member because they share that border. An edge going the other way
+	# (a return) is not a member of the fan below.
+	def _FanChannel(cFromId, nChan, nPe, nQe, nSpanA, nSpanB, cToId, bVert, nWidth)
+		_fcS_ = StzLower("" + cFromId)
+		if nQe <= nPe  return nChan  ok
+		# A STRAIGHT LINE HAS NO CHANNEL TO SHARE -- the same clause the
+		# claim registry keeps. An aligned edge's "channel" is a point on
+		# its own vertical; recording it, or moving it onto a sibling's
+		# run, splits the line into a stem and a drop of different
+		# lengths, which is what section 35 measured at 88px.
+		if fabs(nSpanA - nSpanB) < 2  return nChan  ok
+		if @nDrawPass = 1
+			@aFanFinal + [ _fcS_, nChan, nQe ]
+			return nChan
+		ok
+		# ...AND ONLY THE MEMBERS THAT LAND IN THE SAME GAP. A source
+		# with one edge to the next rank and one two ranks down has two
+		# channels in two gaps, and joining them pulled the far one up
+		# into the near gap -- its stem short, its drop long, 88px of
+		# disagreement where section 35 demands none. Members of one
+		# fan arrive at one rank: their far borders differ by a glyph's
+		# height at most, never by a gap.
+		# ...AND ONLY WHERE THE SHARED CHANNEL IS LAWFUL FOR THIS MEMBER:
+		# clear of every cell and frame along this member's own run, and
+		# leaving the room its arrival needs. The rhythm picture's web tier
+		# has one edge into a cluster and one past it; the frame's chrome
+		# puts their channels in different bands, and a share across the
+		# band pushed a stem 88px off its drop.
+		_fcBest_ = nChan
+		_fcTol_ = This._LineClearance() * 1.5
+		_fcHead_ = 9 + nWidth * 2 + This._LineClearance()
+		for _iFc_ = 1 to len(@aFanFinal)
+			if @aFanFinal[_iFc_][1] != _fcS_  loop  ok
+			if fabs(@aFanFinal[_iFc_][3] - nQe) > _fcTol_  loop  ok
+			_fcC_ = @aFanFinal[_iFc_][2]
+			if _fcC_ >= _fcBest_  loop  ok
+			if _fcC_ < nPe + This._LineClearance()  loop  ok
+			if _fcC_ > nQe - _fcHead_  loop  ok
+			if NOT This._LegIsClear(_fcC_, nSpanA, nSpanB, cFromId, cToId, bVert)  loop  ok
+			_fcBest_ = _fcC_
+		next
+		return _fcBest_
 
 	def _ChannelBelowRails(nChan, nRowY, nBoxH, nPe, nQe, nWidth)
 		_cbRail_ = This._DeepestRailAt(nRowY, nBoxH)
@@ -13875,11 +13999,10 @@ class stzDiagram from stzGraph
 
 	def _PublishPath(cFromId, cToId, paFlat)
 		_ppK_ = StzLower("" + cFromId + ">" + cToId)
-		_aPpR27_ = @aEdgePaths
-		_nPpR27_ = len(_aPpR27_)
+		_nPpR27_ = len(@aEdgePaths)
 		for _iPpR27_ = 1 to _nPpR27_
-			_ppR_ = _aPpR27_[_iPpR27_]
-			if StzLower("" + _ppR_[1]) = _ppK_  return  ok
+			if StzLower("" + @aEdgePaths[_iPpR27_][1]) != _ppK_  loop  ok
+			return
 		next
 		@aEdgePaths + [ _ppK_, paFlat ]
 
@@ -13913,6 +14036,13 @@ class stzDiagram from stzGraph
 		_edO_ = This.NotationO()
 		if NOT isObject(_edO_)  return 1  ok
 		return _edO_.EdgesDirected()
+
+	# 1 when the notation declares a parent's children peers -- no child
+	# continues the parent, so the layout centres it over all it owns
+	def _NotationPeerChildren()
+		_pcO_ = This.NotationO()
+		if NOT isObject(_pcO_)  return 0  ok
+		return _pcO_.PeerChildren()
 
 	def _DrawArrow(oC, aP, aQ, cColor, nWidth, cSpline, cRank)
 		if NOT This._EdgesAreDirected()  return  ok

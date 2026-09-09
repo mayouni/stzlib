@@ -376,6 +376,7 @@ ok
     # about keys (DN15)
     load "graph/stzErDiagram.ring"
     load "graph/stzPetriNet.ring"
+    load "graph/stzFaultTree.ring"
 
     load "graph/stzWorkflow.ring"
 
