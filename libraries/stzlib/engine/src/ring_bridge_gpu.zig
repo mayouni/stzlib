@@ -267,6 +267,46 @@ fn ring_ShouldDispatch(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(gpu.stz_gpu_should_dispatch(name.ptr, @floatFromInt(name.len), gn(p, 2))));
 }
 
+// ---------------- GK1 the shaped store
+
+fn ring_CalibFill(p: *anyopaque) callconv(.c) void {
+    const name = getStr(p, 1);
+    gpu.stz_gpu_calib_fill(name.ptr, @floatFromInt(name.len), gn(p, 2));
+    rn(p, 1);
+}
+
+// CalibSetShaped(op, n, d, ratio) / CalibFillShaped(op, n, d, ratio)
+fn ring_CalibSetShaped(p: *anyopaque) callconv(.c) void {
+    const name = getStr(p, 1);
+    gpu.stz_gpu_calib_set_shaped(name.ptr, @floatFromInt(name.len), gn(p, 2), gn(p, 3), gn(p, 4));
+    rn(p, 1);
+}
+
+fn ring_CalibFillShaped(p: *anyopaque) callconv(.c) void {
+    const name = getStr(p, 1);
+    gpu.stz_gpu_calib_fill_shaped(name.ptr, @floatFromInt(name.len), gn(p, 2), gn(p, 3), gn(p, 4));
+    rn(p, 1);
+}
+
+fn ring_CalibGetShaped(p: *anyopaque) callconv(.c) void {
+    const name = getStr(p, 1);
+    rn(p, gpu.stz_gpu_calib_get_shaped(name.ptr, @floatFromInt(name.len), gn(p, 2), gn(p, 3)));
+}
+
+fn ring_CalibRouteShaped(p: *anyopaque) callconv(.c) void {
+    const name = getStr(p, 1);
+    rn(p, @floatFromInt(gpu.stz_gpu_calib_route_shaped(name.ptr, @floatFromInt(name.len), gn(p, 2), gn(p, 3))));
+}
+
+fn ring_ShouldDispatchShaped(p: *anyopaque) callconv(.c) void {
+    const name = getStr(p, 1);
+    rn(p, @floatFromInt(gpu.stz_gpu_should_dispatch_shaped(name.ptr, @floatFromInt(name.len), gn(p, 2), gn(p, 3))));
+}
+
+fn ring_ShapeClass(p: *anyopaque) callconv(.c) void {
+    rn(p, gpu.stz_gpu_shape_class(gn(p, 1)));
+}
+
 // ---------------- G2 op library
 
 fn ring_OpMatmul(p: *anyopaque) callconv(.c) void {
@@ -495,6 +535,11 @@ fn ring_VerifyResult(p: *anyopaque) callconv(.c) void {
 // VerifyJudge(nBytes, nMs) -> verdict code (0 possible, 3 impossible, 5 no device)
 fn ring_VerifyJudge(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(verify.stz_gpu_verify_judge(gn(p, 1), gn(p, 2))));
+}
+
+// Wake(nBudgetMs) -> copies dispatched (0 = no device). See stz_gpu_wake.
+fn ring_Wake(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(verify.stz_gpu_wake(gn(p, 1))));
 }
 
 // TopK(hDistances, n, k) -> [status, idx0, dist0, idx1, dist1, ...]
@@ -1707,6 +1752,14 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpucalibset", .func = &ring_CalibSet },
     .{ .name = "stzenginegpucalibget", .func = &ring_CalibGet },
     .{ .name = "stzenginegpushoulddispatch", .func = &ring_ShouldDispatch },
+    // GK1 the shaped store
+    .{ .name = "stzenginegpucalibfill", .func = &ring_CalibFill },
+    .{ .name = "stzenginegpucalibsetshaped", .func = &ring_CalibSetShaped },
+    .{ .name = "stzenginegpucalibfillshaped", .func = &ring_CalibFillShaped },
+    .{ .name = "stzenginegpucalibgetshaped", .func = &ring_CalibGetShaped },
+    .{ .name = "stzenginegpucalibrouteshaped", .func = &ring_CalibRouteShaped },
+    .{ .name = "stzenginegpushoulddispatchshaped", .func = &ring_ShouldDispatchShaped },
+    .{ .name = "stzenginegpushapeclass", .func = &ring_ShapeClass },
     .{ .name = "stzenginegpuopmatmul", .func = &ring_OpMatmul },
     .{ .name = "stzenginegpuoppairdist", .func = &ring_OpPairDist },
     .{ .name = "stzenginegpuopaxpby", .func = &ring_OpAxpby },
@@ -1723,6 +1776,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuverify", .func = &ring_Verify },
     .{ .name = "stzenginegpuverifyresult", .func = &ring_VerifyResult },
     .{ .name = "stzenginegpuverifyjudge", .func = &ring_VerifyJudge },
+    .{ .name = "stzenginegpuwake", .func = &ring_Wake },
     // GR1 render lifecycle
     .{ .name = "stzenginegputexturenew", .func = &ring_TextureNew },
     .{ .name = "stzenginegputexturefree", .func = &ring_TextureFree },
