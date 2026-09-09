@@ -13956,8 +13956,10 @@ nTpKeep = 0
 for cTpSeed in [ "curved", "bulge2", "gray", "seedA", "seedB", "one-wedge" ]
 	if _TpSeedKeepsPlanar(cTpSeed)  nTpKeep++  ok
 next
-? "   [" + nTpKeep + " of 6 seeds keep the planar start; bulge2 and gray fall to the next, lawfully]"
-chk("most seeds keep the curved cube's planar start -- four of six, where one of six did before the second wedge",
+? "   [" + nTpKeep + " of 6 seeds keep the planar start; the rest fall to the next, lawfully]"
+# five of six at DN13's 160px target, four of six at 140 -- the count is
+# the claim, and it may only go up
+chk("most seeds keep the curved cube's planar start -- five of six, where one of six did before the second wedge",
     nTpKeep >= 4)
 chk("and every seed ends lawful, from whichever start it took", _TpAllSeedsLawful())
 
@@ -14027,9 +14029,16 @@ nFcGood = oFcOk.Fact(:distance, [ "v111.icon", "v111.text" ])[:value]
   StzFactNumText(nFcLeash) + " px, then " + StzFactNumText(nFcGood) + " px]"
 chk("the name that failed is past its leash, and the name that was retried is not",
     nFcBad > nFcLeash and nFcGood < nFcLeash)
+# THE ARGUMENT IS AN EXPRESSION NOW (DN13): 4 + 0.012 times the edge's
+# length, so it differs per edge and the fact EVALUATES it. This line used
+# to assert the number 4 -- the retyped constant it was written against,
+# which is the very thing the assertion says not to do.
+nFcPad = oFcB.Fact(:arg, [ "disjoint v111.text q6", 3 ])[:value]
+? "   [the clearance the rule keeps on q6: " + StzFactNumText(nFcPad) + " px, on an edge of " +
+  StzFactNumText(_ChLen(oFcB, "q6.icon")) + "]"
 chk("A RULE'S OWN ARGUMENT IS A FACT: the clearance the disjoint rule keeps is read " +
-    "from the rule in force, not retyped from the Style",
-    oFcB.Fact(:arg, [ "disjoint v111.text q6", 3 ])[:value] = 4)
+    "from the rule in force, not retyped from the Style -- and it is not the 4 a person would type",
+    fabs(nFcPad - (4 + 0.012 * _ChLen(oFcB, "q6.icon"))) < 0.01 and nFcPad > 4)
 chk("NEGATIVE, and it caught its author: the hand-drawn caption said the leash allows 44, " +
     "and the rule allows 43.73 -- a number a person types is a number nobody checks",
     fabs(nFcLeash - 43.73) < 0.01 and nFcLeash != 44)
@@ -14108,9 +14117,11 @@ chk("the leash circle is centred on the vertex and drawn at the rule's own bound
 chk("and that bound is the 43.73 the fact reports, not the 44 a person wrote",
     fabs(nMkLeash - 43.73) < 0.01)
 
-# A REGION IS THE STRIP THE RULE FORBIDS, two pads across the segment.
+# A REGION IS THE STRIP THE RULE FORBIDS, two pads across the segment --
+# and the pad is the rule's own, read as a fact, not the 4 it used to be.
+nMkPad = oMkV.Fact(:arg, [ "disjoint v111.text q6", 3 ])[:value]
 chk("the forbidden strip is a four-cornered region, two pads wide across its edge",
-    _MkRibbonWidth(oMkV, "q6.h1") > 7.9 and _MkRibbonWidth(oMkV, "q6.h1") < 8.1)
+    _MkRibbonWidth(oMkV, "q6.h1") > 2 * nMkPad - 0.1 and _MkRibbonWidth(oMkV, "q6.h1") < 2 * nMkPad + 0.1)
 
 # A CALLOUT'S NUMBER IS A FACT'S NUMBER, and its sentence is SOLVED.
 chk("a callout carries the fact's own number, filled into the hole",
@@ -14641,6 +14652,54 @@ chk("...and holds the drawn em box: the cap's top and the descender's bottom are
     sEmB[:cy] + AUFONT.CapHeightOf(28) / 2 - aEmM[1] >= sEmB[:cy] - sEmB[:h] / 2 - 0.01 and
     sEmB[:cy] + AUFONT.CapHeightOf(28) / 2 + aEmM[2] <= sEmB[:cy] + sEmB[:h] / 2 + 0.01)
 chk("and both pictures stay lawful under the taller box", oEmS.IsFeasible() and oEmC.IsFeasible())
+
+
+sec("-- 107. DN13: THE CHORDS ARE NOT THE CURVE, AND THE CLEARANCE SAYS BY HOW MUCH --")
+discharges("DN13")
+
+# THE GAP, MEASURED. A curved edge is drawn as a Catmull-Rom through its two
+# ends and a middle bulged 8% off the chord; the rules hold a name off the
+# two hidden half-chords. The curve leaves those chords by a constant
+# fraction of the edge's length -- constant because every edge bulges by
+# the same fraction, so the curve has the same shape at every size.
+oCsC = StzMathScene25(AUFONT)
+oCsC.Layout()
+aCsG = _CsGap(oCsC)
+? "   curved cube : longest edge " + floor(aCsG[3]) + "px, its spline leaves the chords by " +
+  floor(100 * aCsG[1]) / 100 + "px; gap/length " + floor(100000 * aCsG[4]) / 100000 +
+  " to " + floor(100000 * aCsG[5]) / 100000 + " over twelve edges"
+chk("the spline leaves its chords by the same fraction of the edge on every edge -- a constant",
+    aCsG[5] - aCsG[4] < 0.0005)
+chk("...and that fraction is the one the style's clearance carries, with room over it",
+    aCsG[5] < 0.012 and aCsG[5] > 0.011)
+# the catalogue's own edges are 160-ish now and clear four pixels; the
+# claim is about the RULE: an edge of the paper's width would leave its
+# chords by more than the flat four names were held at, and the catalogue
+# picture before this item had a 371px edge leaving them by 4.35
+chk("an edge spanning the paper would leave its chords by more than the flat four pixels " +
+    "names used to be held at",
+    aCsG[5] * 720 > 4)
+
+# THE TWO SEEDS THAT SAID SO. DN12's seed sweep found two seeds whose
+# retried picture was LAWFUL and carried a name-off-ink finding -- a name
+# clear of both chords, on the curve. They are clean now.
+chk("a seed whose lawful picture carried a name on the curve is clean under the gate",
+    _CsClean("second-wedge"))
+chk("...and so is the other", _CsClean("two-wedges"))
+chk("the catalogue's own curved cube stays lawful, planar-started and clean",
+    oCsC.IsFeasible() and oCsC.StartedPlanar() and
+    len(StzCheckPictures([ [ "curved", oCsC ] ]).Findings()) = 0)
+
+# THE INSTRUMENT DISCRIMINATES. A name moved by hand onto a hidden chord's
+# midpoint -- lawful to the OLD rule, since the chord is not ink -- is
+# caught against the spline by name_off_ink, because the gate reads what
+# is drawn.
+oCsBad = StzMathScene25(AUFONT)
+oCsBad.Layout()
+_CsMoveNameOntoChord(oCsBad, "v000", aCsG[2] + ".h1")
+aCsF = StzCheckPictures([ [ "name-on-chord", oCsBad ] ]).Findings()
+chk("NEGATIVE: a name set by hand on a hidden chord IS caught against the curve it does not see",
+    len(aCsF) > 0 and _PorHits(aCsF, "name_off_ink") > 0)
 
 
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
@@ -17682,6 +17741,57 @@ func _OgWitness
 	_o_.SetFont(AUFONT, 16)
 	_o_.SetVariation("witness")
 	return _o_
+
+#-- DN13: how far a curved edge's spline leaves its two hidden chords --------
+#
+# Over the cube's twelve edges q1..q12: [ maxGap, edgeOfMax, lenOfMax,
+# minRatio, maxRatio ], the gap being the largest distance from any sampled
+# spline point to the nearer of the two chords, and the ratio gap/length.
+func _CsGap poDg
+	_nMaxG_ = 0  _cMaxE_ = ""  _nMaxL_ = 0  _nMinR_ = 9  _nMaxR_ = 0
+	for _i_ = 1 to 12
+		_e_ = "q" + _i_
+		_aS_ = poDg.SplinePointsOf(_e_ + ".arc")
+		_h1_ = poDg.ShapeOf(_e_ + ".h1")  _h2_ = poDg.ShapeOf(_e_ + ".h2")
+		_nLen_ = _ChLen(poDg, _e_ + ".icon")
+		_nG_ = 0
+		for _k_ = 1 to len(_aS_) / 2
+			_d_ = _CsDSeg(_aS_[2*_k_-1], _aS_[2*_k_], _h1_)
+			_d2_ = _CsDSeg(_aS_[2*_k_-1], _aS_[2*_k_], _h2_)
+			if _d2_ < _d_  _d_ = _d2_  ok
+			if _d_ > _nG_  _nG_ = _d_  ok
+		next
+		_r_ = _nG_ / _nLen_
+		if _r_ < _nMinR_  _nMinR_ = _r_  ok
+		if _r_ > _nMaxR_  _nMaxR_ = _r_  ok
+		if _nG_ > _nMaxG_  _nMaxG_ = _nG_  _cMaxE_ = _e_  _nMaxL_ = _nLen_  ok
+	next
+	return [ _nMaxG_, _cMaxE_, _nMaxL_, _nMinR_, _nMaxR_ ]
+
+func _CsDSeg px, py, s
+	_dx_ = s[:x2] - s[:x1]  _dy_ = s[:y2] - s[:y1]
+	_t_ = ((px - s[:x1]) * _dx_ + (py - s[:y1]) * _dy_) / (_dx_ * _dx_ + _dy_ * _dy_ + 0.000001)
+	if _t_ < 0  _t_ = 0  ok
+	if _t_ > 1  _t_ = 1  ok
+	_qx_ = s[:x1] + _t_ * _dx_  _qy_ = s[:y1] + _t_ * _dy_
+	return sqrt((px - _qx_) * (px - _qx_) + (py - _qy_) * (py - _qy_))
+
+# a name set by hand on the midpoint of a hidden half-chord -- where the
+# curve passes within a few pixels, not on the straight segment's midpoint,
+# which the bulge holds thirty pixels from the curve
+func _CsMoveNameOntoChord poM, pcVertex, pcChord
+	_l_ = poM.ShapeOf(pcChord)
+	_ix_ = poM._UnknownIndex(pcVertex + ".text.cx")
+	_iy_ = poM._UnknownIndex(pcVertex + ".text.cy")
+	poM.@aValue[_ix_] = (_l_[:x1] + _l_[:x2]) / 2
+	poM.@aValue[_iy_] = (_l_[:y1] + _l_[:y2]) / 2
+	poM.Touch()
+
+# the curved cube on a seed: lawful, and nothing found by the one gate
+func _CsClean pcSeed
+	_o_ = StzMathScene25XT(AUFONT, pcSeed)
+	_o_.Layout()
+	return _o_.IsFeasible() and len(StzCheckPictures([ [ pcSeed, _o_ ] ]).Findings()) = 0
 
 #-- DN12: the ink centre of a drawn text against its own (cx, cy) ------------
 #
