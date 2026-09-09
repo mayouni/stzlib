@@ -3186,3 +3186,50 @@ note:      WHEN THE DRAWING MOVES, THE BOX THE RULES READ MUST MOVE WITH
            rather than promises, which is the third time this session the
            same shape has appeared.
 ```
+
+```yaml
+by:        stzlib · claude-fable-5-1 · 2026-09-09 06:57
+
+subject:   DN13 -- names held off the curve that is drawn, not the
+           chords it was drawn through
+
+why:       a lawful picture could carry a gate finding, which is the
+           gate and the solver disagreeing about one picture
+
+did:
+  - Measured the spline's deviation from its two chords on the cube's
+    twelve edges: 0.0117 of the edge length on every edge, to the fourth
+    decimal, because every edge bulges by the same fraction.
+  - Made the chord clearance an expression carrying that constant, so
+    the rules hold a name off where the ink is on every edge.
+  - Found the extra clearance cost the catalogue cube its planar start
+    at the 140px edge target, with two crossings from the force start;
+    measured three targets over six seeds and set the curved style to
+    160, where five of six keep planar and none cross.
+  - Rewrote two gate pins that had retyped the constant 4 to read the
+    rule's own value, one of them the assertion that says exactly that.
+  - Moved the one-wedge story fixture to a seed measured to hold it;
+    sixteen seeds swept, six hold it, all sixteen clean under the gate.
+  - Refused guarding off the curve's own points: forty terms per point
+    where one constant is exact, with the condition written beside it.
+  - Re-rendered the catalogue and regenerated the plan table.
+
+state:
+  gg_adversarial:   1273 ok, 0 failed   (was 1266; 7 new in section 107)
+  seeds clean:      16 of 16 at the corrected style (was 10 of 12)
+  commit:           44dd26569 on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the author's word
+  - central: none
+
+note:      THE SAME PIN SHAPE FOR THE FOURTH TIME TODAY. A gate assertion
+           that says "read from the rule, never retyped" was comparing
+           against a retyped 4. The words were right and the number was
+           the one the words forbade.
+```
