@@ -3645,3 +3645,50 @@ next:
   - me:      the author's word
   - central: none
 ```
+
+```yaml
+by:        stzlib-graphics · claude-fable-5-1 · 2026-09-09 21:26
+
+subject:   DN17 -- a fault tree, the first picture on the graph plane
+           that answers a number
+
+why:       the Principal chose it from the domain list; it brings
+           probability arithmetic and cut sets to the plane
+
+did:
+  - Built stzFaultTree from stzDiagram: events and gates as typed nodes,
+    two new gate glyphs, ProbabilityOf up from the leaves, MinimalCutSets
+    by expansion and minimisation, CutSetProbability by inclusion and
+    exclusion -- exact where the gate arithmetic overstates a repeated
+    leaf; the number drawn inside the leaf and published.
+  - Wrote five rules with declared boundaries; a pump, a repeated sensor
+    and a witness in the catalogue and in the one gate's corpus (71).
+  - Found four general things in the engine and the renderer, none in
+    the domain: the coordinate pass leaned a gate over its deeper input
+    (a notation now declares its children peers, one flag to the engine,
+    rebuilt); a fan's channel was joined and then clamped apart (the
+    drawing pass shares the tightest lawful channel); ortho paths were
+    published from the dry pass (swapped after the drawing pass, not
+    during it -- section 30 caught the difference); tree edges are
+    rank-facing at both ends.
+
+state:
+  gg_adversarial:   1410 ok, 0 failed   (was 1373)
+  stz_graph.dll:    rebuilt, zig build -j2, one flag added to two bridges
+  commit:           5ece37764 on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the author's word; on the list, timelines, family trees,
+             floor plans and the choropleth remain
+  - central: none
+
+note:      THE SAME SHAPE, FOUR TIMES: a rule written for the flow that
+           was there when it was written, met by the first tree with
+           branches of unequal depth. Each time the rule was right for
+           its case and needed a declaration, not a repeal.
+```
