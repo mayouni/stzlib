@@ -3443,3 +3443,44 @@ next:
 note:      A PLASTIC RULE READS THE DRAWING, NOT THE NOTATION'S NAME: the
            same fact (a mark at the source) governs ER and spares the wire.
 ```
+
+```yaml
+by:        stzlib-graphics · claude-fable-5-1 · 2026-09-09 11:59
+
+subject:   DN15 participation -- a mark on the line held to a column
+
+why:       the Principal said "go ahead with participation"; it was the
+           first thing the ER item said it owed
+
+did:
+  - Added RelateXT(from, to, kind, [ :from = :Mandatory, :to = :Optional ]):
+    per-end participation drawn inside the cardinality -- a second bar for
+    at-least-one, a hollow ring for possibly-none -- and published beside
+    it with its end. An end declaring nothing draws nothing more, so no
+    earlier picture changed.
+  - Added AddForeignKeyXT(entity, column, target, [ :Nullable = 1 ]); the
+    compartment says "(nullable)"; the rule graph carries the flag.
+  - Wrote the fourth ER rule participation_matches_nullability: the mark
+    at a foreign key's TARGET end is held to that column -- optional wants
+    nullable, mandatory wants not -- with a three-part boundary: nothing
+    declared there, no key backing (the third rule's), and a note.
+  - Added the third catalogue schema, two right and two wrong, to the
+    catalogue and the one gate's corpus; section 109 is 28 assertions.
+
+state:
+  gg_adversarial:   1323 ok, 0 failed   (was 1314)
+  commit:           9a52e91f1 on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the author's word
+  - central: none
+
+note:      A MARK AT THE MANY END IS DRAWN ONLY. No column can contradict
+           "a department may have no employee", so the rule names it as
+           its boundary rather than pretending to check it.
+```
