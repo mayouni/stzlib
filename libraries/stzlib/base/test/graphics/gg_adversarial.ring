@@ -14907,6 +14907,28 @@ chk("a relation to an entity that is not in the diagram is refused", _ErRefusesU
 chk("a cardinality that is not one of the four is refused, by name", _ErRefusesKind())
 chk("a participation that is neither Optional nor Mandatory is refused, by name", _ErRefusesPart())
 
+# EVERY RELATION TOUCHES BOTH ITS ENTITIES. The Principal marked a blank
+# between a crow's foot and OrderLine: the routed form cut its last 13px
+# for an arrowhead that an undirected notation never draws, while its
+# straight siblings touched. A line is shortened only for a head that
+# will be drawn -- now true of every form under every notation.
+chk("every relation's path starts on its source's border and ends on its target's -- the routed one too",
+    _ErAllTouch(oErS) and _ErAllTouch(oErP))
+chk("NEGATIVE: the instrument sees a gap when one is put there",
+    NOT _ErOnBorder([ 100, 100, 50, 50, "x" ], 87, 120))
+
+# TWO FEET ON ONE BORDER ARE TWO. The Principal circled the junction's two
+# crow's feet meeting at their tips: the arrivals were spread over a third
+# of the picture's CELL, 12px on a node twice as tall, which is one foot's
+# width. The share is of the node's own border now, with a floor of a
+# mark's width and a gap.
+aErJt = _ErTargetYs(oErS, "producttag")
+chkeq("the junction's two arrivals are read", len(aErJt), 2)
+chk("...and stand at least a foot's width and a gap apart -- 18px",
+    len(aErJt) = 2 and fabs(aErJt[1] - aErJt[2]) >= 18)
+chk("NEGATIVE: a single arrival takes the border's centre, no spread",
+    len(_ErTargetYs(oErS, "order")) = 1 and _ErTargetYs(oErS, "order")[1] = _ErCentreY(oErS, "order"))
+
 # IT ANSWERS THE DISPLAY CONTRACT LIKE EVERY OTHER PICTURE.
 chk("an ER diagram answers Rendition() as a vector", oErS.Rendition()[:kind] = "vector")
 
@@ -18005,6 +18027,61 @@ func _ErExcludedEverywhere poSet, oGraph, pcSubject
 		if NOT _ErInList(pcSubject, _a_[_i_].CounterSubjectsIn(oGraph))  return FALSE  ok
 	next
 	return TRUE
+
+# is (x, y) on the outline of the rect [ x, y, w, h, id ], within 0.6px?
+func _ErOnBorder paR, pnX, pnY
+	_l_ = paR[1]  _t_ = paR[2]  _r_ = paR[1] + paR[3]  _b_ = paR[2] + paR[4]
+	_inX_ = pnX >= _l_ - 0.6 and pnX <= _r_ + 0.6
+	_inY_ = pnY >= _t_ - 0.6 and pnY <= _b_ + 0.6
+	if _inY_ and (fabs(pnX - _l_) < 0.6 or fabs(pnX - _r_) < 0.6)  return TRUE  ok
+	if _inX_ and (fabs(pnY - _t_) < 0.6 or fabs(pnY - _b_) < 0.6)  return TRUE  ok
+	return FALSE
+
+# every drawn path begins on its source's outline and ends on its target's
+func _ErAllTouch poD
+	_aR_ = poD.RenderNodeRects()
+	_aP_ = poD.@aEdgePaths
+	if len(_aP_) = 0  return FALSE  ok
+	for _i_ = 1 to len(_aP_)
+		_cK_ = "" + _aP_[_i_][1]
+		_n_ = StzFindFirst(">", _cK_)
+		_cF_ = StzSubStr(_cK_, 1, _n_ - 1)
+		_cT_ = StzSubStr(_cK_, _n_ + 1, StzLen(_cK_) - _n_)
+		_f_ = _aP_[_i_][2]
+		_m_ = len(_f_)
+		_bF_ = FALSE  _bT_ = FALSE
+		for _k_ = 1 to len(_aR_)
+			if StzLower("" + _aR_[_k_][5]) = _cF_ and _ErOnBorder(_aR_[_k_], _f_[1], _f_[2])  _bF_ = TRUE  ok
+			if StzLower("" + _aR_[_k_][5]) = _cT_ and _ErOnBorder(_aR_[_k_], _f_[_m_ - 1], _f_[_m_])  _bT_ = TRUE  ok
+		next
+		if NOT (_bF_ and _bT_)
+			? "   ! " + _cK_ + " starts " + _f_[1] + "," + _f_[2] + " ends " + _f_[_m_ - 1] + "," + _f_[_m_]
+			return FALSE
+		ok
+	next
+	return TRUE
+
+# the y of every cardinality mark published at the TARGET end on this node
+func _ErTargetYs poD, pcId
+	_r_ = []
+	_a_ = poD.RenderAdornments()
+	_cSuf_ = ">" + StzLower("" + pcId)
+	for _i_ = 1 to len(_a_)
+		if len(_a_[_i_]) < 6 or _a_[_i_][6] != "target"  loop  ok
+		if _a_[_i_][2] != "one" and _a_[_i_][2] != "many"  loop  ok
+		_k_ = "" + _a_[_i_][1]
+		if StzLen(_k_) < StzLen(_cSuf_)  loop  ok
+		if StzSubStr(_k_, StzLen(_k_) - StzLen(_cSuf_) + 1, StzLen(_cSuf_)) != _cSuf_  loop  ok
+		_r_ + _a_[_i_][5]
+	next
+	return _r_
+
+func _ErCentreY poD, pcId
+	_a_ = poD.RenderNodeRects()
+	for _i_ = 1 to len(_a_)
+		if StzLower("" + _a_[_i_][5]) = StzLower("" + pcId)  return _a_[_i_][2] + _a_[_i_][4] / 2  ok
+	next
+	return -1
 
 func _ErInList pcItem, paList
 	for _i_ = 1 to len(paList)
