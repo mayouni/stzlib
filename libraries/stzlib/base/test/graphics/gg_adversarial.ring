@@ -15060,6 +15060,15 @@ chk("a name beside a mark whose wire leaves through that side stands a clearance
     _PnPlateGap(oPnM, "w1") >= 20 and _PnPlateGap(oPnM, "e1") >= 20)
 chk("NEGATIVE: a mark with no wire on that side keeps its name close",
     _PnPlateGap(oPnM, "w2") < 8)
+# ...AND THE NAME IS ON THE LINE, BY ITS CAPITALS. The Principal asked for
+# the text beside a mark to be aligned with the horizontal wire: its cap
+# height straddles the wire's centre, not hangs under it.
+chk("a name beside a mark has its capitals centred on the wire it stands beside",
+    fabs(_PnLabelCapCentreY(oPnM, "w1") - _PnCentreY(oPnM, "w1")) < 0.5 and
+    fabs(_PnLabelCapCentreY(oPnM, "e1") - _PnCentreY(oPnM, "e1")) < 0.5)
+chk("...so the wire passes through the letters, not over them: the cap box straddles the line",
+    _PnLabelCapTop(oPnM, "key") < _PnCentreY(oPnM, "key") and
+    _PnLabelCapTop(oPnM, "key") + EFONT.CapHeightOf(13) > _PnCentreY(oPnM, "key"))
 
 # IT ANSWERS THE DISPLAY CONTRACT LIKE EVERY OTHER PICTURE.
 chk("a Petri net answers Rendition() as a vector", oPnM.Rendition()[:kind] = "vector")
@@ -18229,6 +18238,20 @@ func _PnPlateGap poD, pcId
 		return (_a_[_i_][2] - _a_[_i_][4] / 2) - (_r_[1] + _r_[3])
 	next
 	return -1000000
+
+# where a beside-name's capitals stand: the label record publishes the
+# plate's centre; the text baseline is a third of the type below it, and
+# the cap height rises from there. Section 110 draws at 13pt with EFONT.
+func _PnLabelCapTop poD, pcId
+	_a_ = poD.@aRenderNodeLabels
+	for _i_ = 1 to len(_a_)
+		if StzLower("" + _a_[_i_][1]) != StzLower("" + pcId)  loop  ok
+		return _a_[_i_][3] + 13 / 3 - EFONT.CapHeightOf(13)
+	next
+	return -1000000
+
+func _PnLabelCapCentreY poD, pcId
+	return _PnLabelCapTop(poD, pcId) + EFONT.CapHeightOf(13) / 2
 
 # does an axis-aligned segment [ x1, y1, x2, y2 ] pass through the
 # interior of the rect [ x, y, w, h, id ]?

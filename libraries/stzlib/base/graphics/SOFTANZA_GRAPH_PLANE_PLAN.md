@@ -3380,13 +3380,16 @@ between a place and its name was five pixels long.* A beside-name's plate
 began 5 px past the border and covered the wire leaving through it; where a
 wire leaves or arrives through the side a name sits on, the name now stands a
 line's clearance off the border — the stub the name-below branch already
-left — and keeps close where nothing does.
+left — and keeps close where nothing does. *And the name hung under the wire.*
+A beside-name sat 0.35 of the type below the centre, its letters 4 px under
+the line they stand beside; its capitals now straddle the wire's centre, the
+same centring DN12 gave a name inside a cell.
 
 **Said plainly and left out.** Inhibitor arcs, coloured tokens, timed
 transitions, priorities, and any analysis beyond the structural — the
 reachability graph, boundedness, full liveness — are not here.
 
-*Guard:* §110, 43 assertions; §91 grew by three pictures. Catalogue:
+*Guard:* §110, 45 assertions; §91 grew by three pictures. Catalogue:
 `gg_petri_catalogue.ring`, petri_01 to petri_03 and petri_01b, the mutex
 after Enter A fired.
 
