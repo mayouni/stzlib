@@ -74,7 +74,8 @@ pub const CTR_RPIPE_COMPILE = 10; // real WGSL->render-pipeline compiles
 pub const CTR_RPIPE_HITS = 11; // render-pipeline cache hits
 pub const CTR_DRAW_COUNT = 12; // draw calls encoded
 pub const CTR_TEXTURE_LIVE = 13; // live textures/targets right now
-const N_COUNTERS = 14;
+pub const CTR_VARIANT_DISPATCH = 14; // gpu.variant.count -- dispatches served by a non-generic op VARIANT (GK2)
+const N_COUNTERS = 15;
 
 var counters: [N_COUNTERS]f64 = @splat(0);
 

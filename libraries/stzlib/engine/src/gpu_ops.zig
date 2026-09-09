@@ -235,7 +235,7 @@ pub fn stz_gpu_op_matmul(a: i64, b: i64, cbuf: i64, mf: f64, kf: f64, nf: f64) c
 
 // ---------------------------------------------------------------- pairwise distance
 
-const PdParams = extern struct { m: u32, n: u32, d: u32, pad: u32 };
+pub const PdParams = extern struct { m: u32, n: u32, d: u32, pad: u32 };
 
 // Squared L2 between every row of A (m x d) and every row of B (n x d):
 // D[i][j] = sum_k (A[i][k] - B[j][k])^2. The embedding kernel -- knn/ann
@@ -278,6 +278,227 @@ const WGSL_PAIRDIST = PRELUDE ++
     \\}
 ;
 
+// ---------------------------------------------------------------- pairdist VARIANTS (GK2)
+//
+// The tile kernel above is written for m x n. A SINGLE query (m = 1) -- the
+// shape every seam dispatches -- drives one row of its sixteen, and GS4
+// measured the cost: 24 MB read in 2.5 ms where the bus allows 0.3. These
+// are the variants the foundry (gpu_foundry.zig) enumerates under GK0's
+// checker; the op picks one per SHAPE CLASS from the table below, and a
+// class nobody measured keeps the generic.
+//
+//   row   -- one thread per corpus row, a straight loop over d
+//   row4  -- the same over vec4 (d % 4 == 0)
+//   row4s -- row4 with the query rows staged in workgroup memory
+//            (m * d/4 <= 1024 vec4)
+//   broken -- TEST ONLY: row with a wrong answer, reachable through the
+//            foundry's mask alone, never through the table -- the guard's
+//            proof that the checker gates the table
+
+const WGSL_PAIRDIST_ROW = PRELUDE ++
+    \\struct P { m : u32, n : u32, d : u32, pad : u32 }
+    \\@group(0) @binding(1) var<uniform> p : P;
+    \\@group(0) @binding(2) var<storage, read> a : array<f32>;
+    \\@group(0) @binding(3) var<storage, read> b : array<f32>;
+    \\@group(0) @binding(4) var<storage, read_write> dist : array<f32>;
+    \\@compute @workgroup_size(256)
+    \\fn main(@builtin(global_invocation_id) gid : vec3<u32>) {
+    \\  let j = gid.x + tile.xoff * 256u;
+    \\  if (j >= p.n) { return; }
+    \\  let bo = j * p.d;
+    \\  for (var i = 0u; i < p.m; i = i + 1u) {
+    \\    let ao = i * p.d;
+    \\    var acc = 0.0;
+    \\    for (var k = 0u; k < p.d; k = k + 1u) {
+    \\      let diff = a[ao + k] - b[bo + k];
+    \\      acc = acc + diff * diff;
+    \\    }
+    \\    dist[i * p.n + j] = acc;
+    \\  }
+    \\}
+;
+
+const WGSL_PAIRDIST_ROW4 = PRELUDE ++
+    \\struct P { m : u32, n : u32, d : u32, pad : u32 }
+    \\@group(0) @binding(1) var<uniform> p : P;
+    \\@group(0) @binding(2) var<storage, read> a4 : array<vec4<f32>>;
+    \\@group(0) @binding(3) var<storage, read> b4 : array<vec4<f32>>;
+    \\@group(0) @binding(4) var<storage, read_write> dist : array<f32>;
+    \\@compute @workgroup_size(256)
+    \\fn main(@builtin(global_invocation_id) gid : vec3<u32>) {
+    \\  let j = gid.x + tile.xoff * 256u;
+    \\  if (j >= p.n) { return; }
+    \\  let d4 = p.d / 4u;
+    \\  let bo = j * d4;
+    \\  for (var i = 0u; i < p.m; i = i + 1u) {
+    \\    let ao = i * d4;
+    \\    var acc = 0.0;
+    \\    for (var k = 0u; k < d4; k = k + 1u) {
+    \\      let dv = a4[ao + k] - b4[bo + k];
+    \\      acc = acc + dot(dv, dv);
+    \\    }
+    \\    dist[i * p.n + j] = acc;
+    \\  }
+    \\}
+;
+
+const WGSL_PAIRDIST_ROW4S = PRELUDE ++
+    \\struct P { m : u32, n : u32, d : u32, pad : u32 }
+    \\@group(0) @binding(1) var<uniform> p : P;
+    \\@group(0) @binding(2) var<storage, read> a4 : array<vec4<f32>>;
+    \\@group(0) @binding(3) var<storage, read> b4 : array<vec4<f32>>;
+    \\@group(0) @binding(4) var<storage, read_write> dist : array<f32>;
+    \\var<workgroup> qa : array<vec4<f32>, 1024>;
+    \\@compute @workgroup_size(256)
+    \\fn main(@builtin(global_invocation_id) gid : vec3<u32>,
+    \\        @builtin(local_invocation_id) lid : vec3<u32>) {
+    \\  let d4 = p.d / 4u;
+    \\  let total = p.m * d4;
+    \\  for (var t = lid.x; t < total; t = t + 256u) { qa[t] = a4[t]; }
+    \\  workgroupBarrier();
+    \\  let j = gid.x + tile.xoff * 256u;
+    \\  if (j < p.n) {
+    \\    let bo = j * d4;
+    \\    for (var i = 0u; i < p.m; i = i + 1u) {
+    \\      let ao = i * d4;
+    \\      var acc = 0.0;
+    \\      for (var k = 0u; k < d4; k = k + 1u) {
+    \\        let dv = qa[ao + k] - b4[bo + k];
+    \\        acc = acc + dot(dv, dv);
+    \\      }
+    \\      dist[i * p.n + j] = acc;
+    \\    }
+    \\  }
+    \\}
+;
+
+const WGSL_PAIRDIST_BROKEN = PRELUDE ++
+    \\struct P { m : u32, n : u32, d : u32, pad : u32 }
+    \\@group(0) @binding(1) var<uniform> p : P;
+    \\@group(0) @binding(2) var<storage, read> a : array<f32>;
+    \\@group(0) @binding(3) var<storage, read> b : array<f32>;
+    \\@group(0) @binding(4) var<storage, read_write> dist : array<f32>;
+    \\@compute @workgroup_size(256)
+    \\fn main(@builtin(global_invocation_id) gid : vec3<u32>) {
+    \\  let j = gid.x + tile.xoff * 256u;
+    \\  if (j >= p.n) { return; }
+    \\  let bo = j * p.d;
+    \\  for (var i = 0u; i < p.m; i = i + 1u) {
+    \\    let ao = i * p.d;
+    \\    var acc = 0.0;
+    \\    for (var k = 0u; k < p.d; k = k + 1u) {
+    \\      let diff = a[ao + k] - b[bo + k];
+    \\      acc = acc + diff * diff;
+    \\    }
+    \\    dist[i * p.n + j] = acc * 0.5 + 1.0;
+    \\  }
+    \\}
+;
+
+pub const PD_GENERIC: usize = 0;
+pub const PD_ROW: usize = 1;
+pub const PD_ROW4: usize = 2;
+pub const PD_ROW4S: usize = 3;
+pub const PD_BROKEN: usize = 4; // test only
+pub const PD_REAL: usize = 4; // variants a table may hold: 0..PD_REAL-1
+pub const PD_VARIANTS: usize = 5;
+pub const pd_variant_names = [_][]const u8{ "tile16", "row", "row4", "row4s", "broken" };
+
+pub fn pdVariantEligible(v: usize, m: usize, n: usize, d: usize) bool {
+    _ = n;
+    return switch (v) {
+        PD_GENERIC => true,
+        PD_ROW, PD_BROKEN => m <= 64,
+        PD_ROW4 => m <= 64 and d % 4 == 0,
+        PD_ROW4S => d % 4 == 0 and m * (d / 4) <= 1024,
+        else => false,
+    };
+}
+
+pub fn pdKernelFor(v: usize) i64 {
+    return switch (v) {
+        PD_GENERIC => compile(WGSL_PAIRDIST),
+        PD_ROW => compile(WGSL_PAIRDIST_ROW),
+        PD_ROW4 => compile(WGSL_PAIRDIST_ROW4),
+        PD_ROW4S => compile(WGSL_PAIRDIST_ROW4S),
+        PD_BROKEN => compile(WGSL_PAIRDIST_BROKEN),
+        else => 0,
+    };
+}
+
+pub const Geometry = struct { wx: usize, wy: usize };
+
+pub fn pdGeometry(v: usize, m: usize, n: usize) Geometry {
+    return if (v == PD_GENERIC)
+        .{ .wx = ceilDiv(n, TILE), .wy = ceilDiv(m, TILE) }
+    else
+        .{ .wx = ceilDiv(n, WG), .wy = 1 };
+}
+
+// ---- the variant table: (op, m-class, n-class, d-class) -> variant.
+// Filled by the foundry (or a persisted file), consulted at dispatch. A
+// class with no entry keeps the generic. Never holds the test-only variant.
+const VarEntry = struct { hash: u64, cm: u8, cn: u8, cd: u8, variant: u8 };
+var variants: std.ArrayList(VarEntry) = .{};
+
+fn nameHash(name: [*]const u8, name_len: f64) u64 {
+    const n: usize = @intFromFloat(name_len);
+    return std.hash.Wyhash.hash(0, name[0..n]);
+}
+
+fn findVariant(h: u64, cm: u8, cn: u8, cd: u8) ?*VarEntry {
+    for (variants.items) |*e| {
+        if (e.hash == h and e.cm == cm and e.cn == cn and e.cd == cd) return e;
+    }
+    return null;
+}
+
+pub fn stz_gpu_variant_set(name: [*]const u8, name_len: f64, m: f64, n: f64, d: f64, vf: f64) callconv(.c) i32 {
+    const v: usize = @intFromFloat(@max(vf, 0));
+    if (v >= PD_REAL) return gpu.BAD_ARG; // the table never holds a test variant
+    const h = nameHash(name, name_len);
+    const cm = gpu.shapeClass(m);
+    const cn = gpu.shapeClass(n);
+    const cd = gpu.shapeClass(d);
+    if (findVariant(h, cm, cn, cd)) |e| {
+        e.variant = @intCast(v);
+        return gpu.OK;
+    }
+    variants.append(alloc, .{ .hash = h, .cm = cm, .cn = cn, .cd = cd, .variant = @intCast(v) }) catch return gpu.GPU_ERROR;
+    return gpu.OK;
+}
+
+pub fn stz_gpu_variant_get(name: [*]const u8, name_len: f64, m: f64, n: f64, d: f64) callconv(.c) f64 {
+    if (findVariant(nameHash(name, name_len), gpu.shapeClass(m), gpu.shapeClass(n), gpu.shapeClass(d))) |e| {
+        return @floatFromInt(e.variant);
+    }
+    return 0;
+}
+
+pub fn stz_gpu_variant_clear() callconv(.c) void {
+    variants.clearRetainingCapacity();
+}
+
+pub fn stz_gpu_variant_name(v: f64, out: [*]u8, cap: f64) callconv(.c) i32 {
+    const i: usize = @intFromFloat(@max(v, 0));
+    if (i >= PD_VARIANTS) return 0;
+    const nm = pd_variant_names[i];
+    const c: usize = @intFromFloat(cap);
+    if (nm.len > c) return 0;
+    @memcpy(out[0..nm.len], nm);
+    return @intCast(nm.len);
+}
+
+/// The variant this dispatch will use: the table's choice for the class,
+/// degraded to the nearest eligible one when the actual shape does not fit
+/// (a class spans shapes; d % 4 may differ inside it).
+fn pdVariantFor(m: usize, n: usize, d: usize) usize {
+    const want: usize = @intFromFloat(stz_gpu_variant_get("pairdist", 8, @floatFromInt(m), @floatFromInt(n), @floatFromInt(d)));
+    var v = want;
+    while (v > PD_GENERIC and !pdVariantEligible(v, m, n, d)) v -= 1;
+    return v;
+}
+
 /// D(m x n) = squared L2 distances between rows of A(m x d) and B(n x d).
 pub fn stz_gpu_op_pairdist(a: i64, b: i64, dbuf: i64, mf: f64, nf: f64, df: f64) callconv(.c) i32 {
     const gate = gateAvailable();
@@ -292,10 +513,25 @@ pub fn stz_gpu_op_pairdist(a: i64, b: i64, dbuf: i64, mf: f64, nf: f64, df: f64)
     if (st != gpu.OK) return st;
     st = checkBuf(dbuf, m * n);
     if (st != gpu.OK) return st;
-    const kern = compile(WGSL_PAIRDIST);
+    const v = pdVariantFor(m, n, d);
+    const kern = pdKernelFor(v);
     if (kern == 0) return if (gpu.stz_gpu_is_available() == 0) gpu.FALLBACK else gpu.GPU_ERROR;
+    if (v != PD_GENERIC) gpu.bumpCounter(gpu.CTR_VARIANT_DISPATCH, 1);
     const p = PdParams{ .m = @intCast(m), .n = @intCast(n), .d = @intCast(d), .pad = 0 };
-    return dispatchP(kern, &p, &.{ a, b, dbuf }, ceilDiv(n, TILE), ceilDiv(m, TILE));
+    const g = pdGeometry(v, m, n);
+    return dispatchP(kern, &p, &.{ a, b, dbuf }, g.wx, g.wy);
+}
+
+test "the variant table classes shapes and degrades to an eligible variant" {
+    variants.clearRetainingCapacity();
+    _ = stz_gpu_variant_set("pairdist", 8, 1, 4096, 384, @floatFromInt(PD_ROW4S));
+    try std.testing.expectEqual(@as(usize, PD_ROW4S), pdVariantFor(1, 4096, 384));
+    try std.testing.expectEqual(@as(usize, PD_ROW4S), pdVariantFor(1, 3000, 300)); // same classes
+    try std.testing.expectEqual(@as(usize, PD_ROW), pdVariantFor(1, 3000, 301)); // d % 4 != 0: degrades
+    try std.testing.expectEqual(@as(usize, PD_GENERIC), pdVariantFor(1, 64, 384)); // another class: generic
+    try std.testing.expectEqual(gpu.BAD_ARG, stz_gpu_variant_set("pairdist", 8, 1, 4096, 384, @floatFromInt(PD_BROKEN)));
+    stz_gpu_variant_clear();
+    try std.testing.expectEqual(@as(usize, PD_GENERIC), pdVariantFor(1, 4096, 384));
 }
 
 // ---------------------------------------------------------------- reductions

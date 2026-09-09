@@ -2,6 +2,7 @@ pub const gpu = @import("gpu.zig");
 pub const gpu_ops = @import("gpu_ops.zig");
 pub const gpu_wgsl = @import("gpu_wgsl.zig");
 pub const gpu_verify = @import("gpu_verify.zig");
+pub const gpu_foundry = @import("gpu_foundry.zig");
 pub const gpu_surface = @import("gpu_surface.zig");
 pub const ring_bridge = @import("ring_bridge_gpu.zig");
 
@@ -16,4 +17,6 @@ fn ringlib_init(pState: ?*anyopaque) callconv(.c) void {
 test {
     _ = gpu;
     _ = gpu_verify;
+    _ = gpu_foundry;
+    _ = gpu_ops;
 }

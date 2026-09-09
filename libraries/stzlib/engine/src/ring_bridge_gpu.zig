@@ -18,6 +18,7 @@ const s3d = @import("gpu_scene3d.zig");
 const surf = @import("gpu_surface.zig");
 const gm = @import("gpu_math.zig");
 const verify = @import("gpu_verify.zig");
+const foundry = @import("gpu_foundry.zig");
 const R = @import("ring_api.zig");
 
 const gn = R.ring_vm_api_getnumber;
@@ -540,6 +541,39 @@ fn ring_VerifyJudge(p: *anyopaque) callconv(.c) void {
 // Wake(nBudgetMs) -> copies dispatched (0 = no device). See stz_gpu_wake.
 fn ring_Wake(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(verify.stz_gpu_wake(gn(p, 1))));
+}
+
+// ---------------- GK2 the foundry and the variant table
+
+// FoundryPairdist(m, n, d, reps, mask) -> status; verdicts in FoundryResult(i)
+fn ring_FoundryPairdist(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(foundry.stz_gpu_foundry_pairdist(gn(p, 1), gn(p, 2), gn(p, 3), gn(p, 4), gn(p, 5))));
+}
+
+fn ring_FoundryResult(p: *anyopaque) callconv(.c) void {
+    rn(p, foundry.stz_gpu_foundry_result(@intFromFloat(gn(p, 1))));
+}
+
+// VariantSet(op, m, n, d, v) / VariantGet(op, m, n, d) / VariantClear() / VariantName(v)
+fn ring_VariantSet(p: *anyopaque) callconv(.c) void {
+    const name = getStr(p, 1);
+    rn(p, @floatFromInt(ops.stz_gpu_variant_set(name.ptr, @floatFromInt(name.len), gn(p, 2), gn(p, 3), gn(p, 4), gn(p, 5))));
+}
+
+fn ring_VariantGet(p: *anyopaque) callconv(.c) void {
+    const name = getStr(p, 1);
+    rn(p, ops.stz_gpu_variant_get(name.ptr, @floatFromInt(name.len), gn(p, 2), gn(p, 3), gn(p, 4)));
+}
+
+fn ring_VariantClear(p: *anyopaque) callconv(.c) void {
+    ops.stz_gpu_variant_clear();
+    rn(p, 1);
+}
+
+fn ring_VariantName(p: *anyopaque) callconv(.c) void {
+    var buf: [32]u8 = undefined;
+    const n = ops.stz_gpu_variant_name(gn(p, 1), &buf, buf.len);
+    R.ring_vm_api_retstring2(p, &buf, @intCast(n));
 }
 
 // TopK(hDistances, n, k) -> [status, idx0, dist0, idx1, dist1, ...]
@@ -1777,6 +1811,13 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuverifyresult", .func = &ring_VerifyResult },
     .{ .name = "stzenginegpuverifyjudge", .func = &ring_VerifyJudge },
     .{ .name = "stzenginegpuwake", .func = &ring_Wake },
+    // GK2 the foundry and the variant table
+    .{ .name = "stzenginegpufoundrypairdist", .func = &ring_FoundryPairdist },
+    .{ .name = "stzenginegpufoundryresult", .func = &ring_FoundryResult },
+    .{ .name = "stzenginegpuvariantset", .func = &ring_VariantSet },
+    .{ .name = "stzenginegpuvariantget", .func = &ring_VariantGet },
+    .{ .name = "stzenginegpuvariantclear", .func = &ring_VariantClear },
+    .{ .name = "stzenginegpuvariantname", .func = &ring_VariantName },
     // GR1 render lifecycle
     .{ .name = "stzenginegputexturenew", .func = &ring_TextureNew },
     .{ .name = "stzenginegputexturefree", .func = &ring_TextureFree },

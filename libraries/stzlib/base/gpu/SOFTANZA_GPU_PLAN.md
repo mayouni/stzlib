@@ -1420,3 +1420,76 @@ score is now pinned as a cosine on BOTH routes against an independent
 dot product, which no earlier guard did.
 
 Next: **GK2**, beginning with the m = 1 pairdist variant.
+
+---
+
+## GK2 STATUS — shipped 2026-09-09: op variants by enumeration, and the kill line did not fire
+
+Guard: `base/test/gpu/gpu_foundry_narrated.ring` — **27 asserts green**.
+Gate on the eleven guards the change reaches (every pairdist dispatcher
+and the calibration/verify family): **286 green**. Zig unit tests on the
+variant table's classing and degradation, and on the foundry's margin.
+
+**What shipped.** The op library carries three VARIANTS of pairdist
+beside its generic 16×16 tile — `row` (one thread per corpus row, a
+straight loop over d), `row4` (the same over vec4), `row4s` (row4 with
+the query rows staged in workgroup memory) — and a test-only `broken`
+one that only the foundry's mask can reach. A variant TABLE keyed by
+`(op, m-class, n-class, d-class)` is consulted at dispatch, degrading
+to the nearest eligible variant when the actual shape does not fit the
+class's pick (d % 4, the shared-memory bound), and never holding the
+test variant. `stz_gpu_foundry_pairdist` is Proteus's loop with a
+for-loop as the proposer: each variant verified by GK0's checker
+against the generic on the same device buffers at the visible shape
+AND a hidden one (different size, different data), timed on the GPU
+clock with the device woken, the winner recorded for the class only
+if it clears 1.3x. The table persists as `variant` rows beside the
+calibration. `stzGpu.FoundryPairdist(m, n, d)` and
+`FoundryPairdistGrid` are the faces; `gpu.variant.count` is the
+counter a guard watches. Scope: m ≤ 16, the single-query family the
+seams dispatch — matmul and the elementwise workgroup widths are
+**GK2b**, named and not built.
+
+**The negative sibling that makes the table trustworthy:** the broken
+variant, right in shape and wrong in answer, is REFUSED by the checker
+and cannot win, whatever it timed. And the dispatch witness: with a
+class pointing at a variant the counter moves and the distances equal
+the generic's exactly on quarter-grid data; cleared, the counter stays
+still.
+
+**THE KILL LINE, applied on both adapters — it did not fire.** Single
+query, GPU clock, ratio generic/winner:
+
+| shape | RTX 3050 | Intel iGPU |
+|---|---|---|
+| 1 × 1024 × 128 | 2.67x row4s | 4.42x row4s |
+| 1 × 1024 × 384 | 2.68x row4 | 4.93x row4s |
+| 1 × 4096 × 128 | 5.54x row4 | 7.99x row4 |
+| 1 × 4096 × 384 | 3.36x row4s | 7.70x row4 |
+| 1 × 16000 × 384 | 1.88x row4 | 7.17x row4 |
+| 1 × 32000 × 384 | 1.14x — generic kept | (not measured) |
+
+**The payoff, where GS4 pointed.** With the table populated at 384
+dims, the semantic index's own ladder (its CPU alternative unchanged):
+
+| corpus | before GK2 | after GK2 |
+|---|---|---|
+| 1,000 | 0.37x | 0.65x |
+| 4,000 | 1.01x | **1.90x** |
+| 16,000 | 2.07x | **2.46x** |
+| 32,000 | 1.03x | 0.94x (generic) |
+
+The seam's window went from one class to two, and every number above
+came from the same checker, the same clocks, and the same woken device
+as GK0 and GK1.
+
+**Two things the enumeration taught.** The winner is not one variant:
+`row4s` takes small corpora where the staged query pays, `row4` takes
+the large ones where the workgroup load is overhead — which is exactly
+why the table is per class and not per op. And at 32,000 rows the
+generic tile draws level again on the 3050, so the variant's advantage
+is a property of the shape, not of the kernel — the reason the table
+falls back to the generic rather than assuming the variant.
+
+Next: **GK2b** (matmul tiles, elementwise workgroup widths) when a
+workload asks; **GK3** stays a door.
