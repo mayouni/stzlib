@@ -3728,3 +3728,34 @@ next:
   - me:      the author's word
   - central: none
 ```
+
+```yaml
+by:        stzlib-graphics · claude-fable-5-1 · 2026-09-09 23:21
+
+subject:   arrivals at a mark unify -- the fault tree's repeated leaf
+
+why:       the Principal marked a second arrival entering a leaf from
+           its side, and the return of the witness
+
+did:
+  - Refused the side approach into a mark: it takes no ports, so its
+    second arrival read the column as taken and came in sideways; two
+    descents into a mark are one line by the mark's own law. Refused it
+    too under any notation whose children are peers.
+  - Gave the witness's second top a leaf of its own, so its errors no
+    longer force a leaf shared across two trees; its seven findings
+    stand.
+
+state:
+  gg_adversarial:   1414 ok, 0 failed
+  commit:           e9b37837c on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the author's word
+  - central: none
+```
