@@ -450,24 +450,24 @@ func CommonPath(paPaths)
 	# Try each length from longest to shortest
 	_nLen_ = len(_aShortestPath_)
 	
-	for n = _nLen_ to 1 step -1
+	for _n_ = _nLen_ to 1 step -1
 		_aCandidate_ = []
 		
-		# Build candidate of length n
-		for j = 1 to n
+		# Build candidate of length _n_
+		for j = 1 to _n_
 			_aCandidate_ + _aShortestPath_[j]
 		next
 
 		_bAllMatch_ = 1
 		
-		# Check if all paths match this candidate at length n
+		# Check if all paths match this candidate at length _n_
 		for i = 1 to _nLenPaths_
-			if len(paPaths[i]) < n
+			if len(paPaths[i]) < _n_
 				_bAllMatch_ = 0
 				exit
 			ok
 			
-			for j = 1 to n
+			for j = 1 to _n_
 				if paPaths[i][j] != _aCandidate_[j]
 					_bAllMatch_ = 0
 					exit
