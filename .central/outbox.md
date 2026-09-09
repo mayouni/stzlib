@@ -3233,3 +3233,53 @@ note:      THE SAME PIN SHAPE FOR THE FOURTH TIME TODAY. A gate assertion
            against a retyped 4. The words were right and the number was
            the one the words forbade.
 ```
+
+```yaml
+by:        stzlib · claude-fable-5-1 · 2026-09-09 08:42
+
+subject:   DN14 -- a Gantt chart, and two general things it found
+
+why:       the second new domain, the cheapest, and the one whose value
+           is entirely in its rules
+
+did:
+  - Built the Gantt domain on the math plane: a task is three numbers,
+    every pixel follows by arithmetic, the solver mints no unknown, and
+    the picture still answers facts in days, carries marks, is judged by
+    the one gate and renders like everything else.
+  - Wrote three rules about time that name the tasks by the author's
+    names and say by how many days; the first run caught two backwards
+    dependencies in the project I had typed as correct.
+  - Added :guide = 1 as a shape's declaration that it is furniture the
+    name rules read past, with the corpus standing on both sides of it.
+  - Found and fixed a defect that lived in the gate's process and in no
+    probe: two methods re-entered through each other shared a local
+    name and became one variable, putting 43 of 52 shapes off the paper
+    by exactly the margin. Renamed both methods' locals; the scoping rule
+    that made them one was not pinned and the fix does not depend on it.
+  - Measured muted at 2.85:1 on light paper and moved the axis labels to
+    neutral; filed the number for the colour desk.
+  - Rendered scene 42, regenerated the plan table.
+
+state:
+  gg_adversarial:   1292 ok, 0 failed   (was 1273; 19 new in section 108)
+  corpus:           62 pictures, 13 planted findings
+  commit:           9e5ce9841 on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the author's word
+  - stzlib-graphics (colour): muted 2.85:1 on light paper, against your
+             C3 guard's 4.5:1 -- one of the two instruments is measuring
+             something else
+
+note:      A DEFECT THAT APPEARS ONLY IN THE GATE IS STILL A DEFECT IN THE
+           LIBRARY. Bisecting the gate found it before section 91; a
+           print inside the suspect showed the engine blameless; renaming
+           ended it. Two methods that can re-enter each other may not
+           share a local name, whatever the scoping rule turns out to be.
+```
