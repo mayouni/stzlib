@@ -40,6 +40,23 @@ func _FreeIds(paIds)
 		ok
 	next
 
+# A deterministic, distinct unit vector per index -- the synthetic corpus
+# the knn_resident calibration walks (no model needed). A main-file func,
+# ABOVE the class: in Ring a func after a class becomes its method.
+func _StzUnitVector(pnI, pnD)
+	_v_ = []
+	_ss_ = 0
+	for _j_ = 1 to pnD
+		_x_ = sin(pnI * 0.37 + _j_ * 1.13) + 0.5 * cos(pnI * _j_ * 0.071)
+		_v_ + _x_
+		_ss_ += _x_ * _x_
+	next
+	_n_ = sqrt(_ss_)
+	for _j_ = 1 to pnD
+		_v_[_j_] = _v_[_j_] / _n_
+	next
+	return _v_
+
 func StzGpuQ()
 	return new stzGpu
 
@@ -443,6 +460,146 @@ class stzGpu from stzObject
 	def Wake(nBudgetMs)
 		This._RequireDevice()
 		return StzEngineGpuWake(nBudgetMs)
+
+	# ---- GS4: calibrating the semantic index's seam -------------------------
+	# The semantic index (stzSemanticIndex) routes its resident corpus to the
+	# GPU under the key "knn_resident" -- ITS OWN line, because a line is a
+	# comparison against a CPU alternative and this face's alternative is
+	# the multicore SIMD top-k (cluster.topK), not the vector index's scan
+	# the "pairdist" line was measured against. This pass walks corpus sizes
+	# at one dimension through the REAL face on synthetic unit vectors (no
+	# model needed), both routes, search-by-vector (the query embedding
+	# excluded), warm-min, the device woken before every GPU timing, the
+	# first rung re-measured last as the control. It stores a shaped class
+	# per rung and the flat line from the most conservative crossover, and
+	# persists both -- unless the control moved, in which case nothing is.
+	#
+	# Measured 2026-09-09 on the RTX 3050 laptop at 384 dims: the GPU loses
+	# at 1,000 (0.39x) and 4,000 (0.98x) and wins at 16,000 (1.42x); the
+	# multicore top-k switches on at n*d >= 8M and the window may close
+	# again above it -- which is why the rung above that gate is measured
+	# too, and why the store is SHAPED: a class that wins carries its win,
+	# and the flat line stays beyond the ladder where a class lost.
+	def CalibrateKnnResident()
+		return This.CalibrateKnnResidentWith([1000, 4000, 16000, 32000], 384)
+
+	def CalibrateKnnResidentWith(paCounts, nDim)
+		This._RequireDevice()
+		_cKey_ = "knn_resident"
+		_aCells_ = []
+		_nFlat_ = 0
+		_bBeyond_ = FALSE
+		_nMaxNd_ = 0
+		_nRungs_ = ring_len(paCounts)
+		for _i_ = 1 to _nRungs_
+			_n_ = paCounts[_i_]
+			_aR_ = This._KnnRung(_n_, nDim)
+			_nRatio_ = 0
+			if _aR_[2] > 0
+				_nRatio_ = _aR_[1] / _aR_[2]
+			ok
+			StzGpuCalibSetShaped(_cKey_, _n_, nDim, _nRatio_)
+			StzGpuCalibAddLadderRow(_cKey_, _n_, nDim, _aR_[1], _aR_[2])
+			_aCells_ + [ nDim, _n_, _aR_[1], _aR_[2], _nRatio_ ]
+			if _n_ * nDim > _nMaxNd_
+				_nMaxNd_ = _n_ * nDim
+			ok
+			if _nRatio_ >= 1.3
+				if _nFlat_ = 0
+					_nFlat_ = _n_ * nDim
+				ok
+			else
+				# a rung that LOSES above a rung that won: the window closed,
+				# so the flat line cannot be a simple "from here on" -- the
+				# shaped classes carry the wins; the flat line goes beyond
+				if _nFlat_ > 0
+					_bBeyond_ = TRUE
+				ok
+			ok
+		next
+		_cWhy_ = "crossover"
+		if _nFlat_ = 0 or _bBeyond_
+			_nFlat_ = _nMaxNd_ + 1
+			_cWhy_ = "beyond-ladder"
+		ok
+		# the control: the first rung again, last
+		_bConf_ = FALSE
+		_aCtrl_ = []
+		if ring_len(_aCells_) > 0
+			_c1_ = _aCells_[1]
+			_aAgain_ = This._KnnRung(_c1_[2], _c1_[1])
+			_nG_ = 0
+			if _c1_[4] > 0
+				_nG_ = _aAgain_[2] / _c1_[4]
+			ok
+			_nC_ = 0
+			if _c1_[3] > 0
+				_nC_ = _aAgain_[1] / _c1_[3]
+			ok
+			_aCtrl_ = [ _c1_[1], _c1_[2], _c1_[3], _c1_[4], _aAgain_[1], _aAgain_[2], _nC_, _nG_ ]
+			if _nG_ > 2 or _nG_ < 0.5 or _nC_ > 2 or _nC_ < 0.5
+				_bConf_ = TRUE
+			ok
+		ok
+		if _bConf_
+			_nS_ = ring_len(_aCells_)
+			for _i_ = 1 to _nS_
+				StzEngineGpuCalibSetShaped(_cKey_, _aCells_[_i_][2], _aCells_[_i_][1], 0)
+			next
+			return [ :cells = _aCells_, :flat = 0, :flatwhy = "confounded",
+			         :confounded = TRUE, :control = _aCtrl_, :adapter = This.DeviceName() ]
+		ok
+		StzEngineGpuCalibSet(_cKey_, _nFlat_)
+		StzGpuSaveCalibration([_cKey_])
+		return [ :cells = _aCells_, :flat = _nFlat_, :flatwhy = _cWhy_,
+		         :confounded = FALSE, :control = _aCtrl_, :adapter = This.DeviceName() ]
+
+	# one rung: both routes through the real face, [ cpuMs, gpuMs ]
+	def _KnnRung(pnN, pnDim)
+		_aVecs_ = []
+		for _i_ = 1 to pnN
+			_aVecs_ + _StzUnitVector(_i_, pnDim)
+		next
+		_nOldT_ = StzEngineGpuCalibGet("knn_resident")
+		_nOldR_ = StzEngineGpuCalibGetShaped("knn_resident", pnN, pnDim)
+		StzEngineGpuCalibSet("knn_resident", 999999999999)
+		StzEngineGpuCalibSetShaped("knn_resident", pnN, pnDim, 0.01)
+		_oC_ = new stzSemanticIndex([])
+		for _i_ = 1 to pnN
+			_oC_.AddEmbedded("t" + _i_, _aVecs_[_i_])
+		next
+		_oC_.SearchByVectorXT(_aVecs_[7], 5)
+		_nCpu_ = This._MinVectorSearchMs(_oC_, _aVecs_[7])
+		_oC_.Close()
+		StzEngineGpuCalibSet("knn_resident", 1)
+		StzEngineGpuCalibSetShaped("knn_resident", pnN, pnDim, 1000)
+		_oG_ = new stzSemanticIndex([])
+		for _i_ = 1 to pnN
+			_oG_.AddEmbedded("t" + _i_, _aVecs_[_i_])
+		next
+		_oG_.SearchByVectorXT(_aVecs_[7], 5)
+		StzEngineGpuWake(400)
+		_nGpu_ = This._MinVectorSearchMs(_oG_, _aVecs_[7])
+		_oG_.Close()
+		StzEngineGpuCalibSetShaped("knn_resident", pnN, pnDim, _nOldR_)
+		if _nOldT_ > 0
+			StzEngineGpuCalibSet("knn_resident", _nOldT_)
+		else
+			StzEngineGpuCalibSet("knn_resident", 0)
+		ok
+		return [ _nCpu_, _nGpu_ ]
+
+	def _MinVectorSearchMs(poIdx, paQ)
+		_nBest_ = 999999999
+		for _r_ = 1 to 5
+			_nT0_ = StzEngineWatchTimestampNs()
+			poIdx.SearchByVectorXT(paQ, 5)
+			_nMs_ = (StzEngineWatchTimestampNs() - _nT0_) / 1000000
+			if _nMs_ < _nBest_
+				_nBest_ = _nMs_
+			ok
+		next
+		return _nBest_
 
 	# ---- GK1: the SHAPED calibration --------------------------------------
 	# The flat pass above walks one dimension (d = 64) and stores one number.
