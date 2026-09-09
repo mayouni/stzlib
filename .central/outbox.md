@@ -3320,3 +3320,42 @@ note:      TEST THE ROUTE ON THE ZERO-GAP CASE FIRST. In a schedule a task
            that starts the day its predecessor ends is the normal case,
            and the first route was drawn for the one with room.
 ```
+
+```yaml
+by:        stzlib · claude-fable-5-1 · 2026-09-09 09:11
+
+subject:   the Gantt's links, routed by the builder on the Principal's
+           three corrections
+
+why:       a link ran through a bar, and only the builder can see every
+           bar
+
+did:
+  - Made the builder the router: per dependency it chooses a vertical
+    column pushed right of every bar in its way and one of three routes,
+    each ending rightwards into the successor with a head pointing right.
+  - Stored every route as data, segments shortened to their arcs'
+    tangents and each corner as three points; the style draws a fixed
+    set of shapes per route kind with each corner a small spline.
+  - Kept milestones entered and left at their diamond's tips, and the
+    backwards dependencies visibly running left along the gap.
+  - Re-rendered scene 42.
+
+state:
+  gg_adversarial:   1292 ok, 0 failed
+  commit:           60a27e5ca on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the author's word
+  - central: none
+
+note:      ROUTING IS A WHOLE-PICTURE DECISION. A style rule draws one
+           dependency and cannot know what it crosses; the builder knows
+           every bar. Put the decision where the knowledge is and the
+           drawing stays a drawing.
+```
