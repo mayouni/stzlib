@@ -4,7 +4,7 @@
 #
 #     ring gg_er_catalogue.ring
 #
-# writes er_01.png and er_02.png beside it and prints, for each, what the
+# writes er_01.png, er_02.png and er_03.png beside it and prints, for each, what the
 # rules found -- the second is wrong on purpose and its findings are the
 # point.
 
@@ -15,10 +15,11 @@ oFont = new stzFont("C:/Windows/Fonts/segoeui.ttf")
 aOpt = [ :Font = oFont, :NodeWidth = 150, :NodeHeight = 52, :FontSize = 13 ]
 
 acTitles = [ "A SHOP                 (five entities and a junction, every relation backed by a key)",
-             "THE SAME SHOP, WRONG   (no key, a key to nothing, a relation with no key, a many-to-many with no junction)" ]
+             "THE SAME SHOP, WRONG   (no key, a key to nothing, a relation with no key, a many-to-many with no junction)",
+             "PARTICIPATION          (a ring for possibly-none, a bar for at-least-one, each held to its column)" ]
 
-for i = 1 to 2
-	if i = 1  oD = StzErScene01(aOpt)  else  oD = StzErScene02(aOpt)  ok
+for i = 1 to 3
+	if i = 1  oD = StzErScene01(aOpt)  but i = 2  oD = StzErScene02(aOpt)  else  oD = StzErSceneParticipation(aOpt)  ok
 	? "== " + acTitles[i]
 	aF = oD.GovernanceFindings()
 	? "   " + len(aF) + " finding(s)"

@@ -33,13 +33,46 @@ func StzErScene01(paOpt)
 	_o_.AddJunction("producttag", "ProductTag")
 	_o_.AddKeyReferencing("producttag", "product_id", "product")
 	_o_.AddKeyReferencing("producttag", "tag_id", "tag")
-	_o_.Relate("customer", "order", :OneToMany)
+	# an order always has a customer; a customer may have no order yet
+	_o_.RelateXT("customer", "order", :OneToMany, [ :from = :Mandatory, :to = :Optional ])
 	_o_.Relate("order", "line", :OneToMany)
 	_o_.Relate("product", "line", :OneToMany)
 	# the many-to-many between Product and Tag in its RESOLVED form: two
 	# one-to-many into the junction, which is how a schema draws it
 	_o_.Relate("product", "producttag", :OneToMany)
 	_o_.Relate("tag", "producttag", :OneToMany)
+	_o_.ToCanvasXT(paOpt)
+	return _o_
+
+# PARTICIPATION HELD TO THE COLUMN. Two relations right and two wrong:
+# an employee may have no department and the column allows it; a ticket
+# may have no assignee, says the mark, and the column does not; an
+# invoice always has an account, says the mark, and the column may be
+# empty. And a mark at the MANY end -- a department may have no employee
+# -- which no column can contradict and the rule leaves alone.
+func StzErSceneParticipation(paOpt)
+	_o_ = new stzErDiagram("participation")
+	_o_.AddEntity("dept", "Department")
+	_o_.AddKey("dept", "id")
+	_o_.AddAttribute("dept", "name")
+	_o_.AddEntity("emp", "Employee")
+	_o_.AddKey("emp", "id")
+	_o_.AddAttribute("emp", "name")
+	_o_.AddForeignKeyXT("emp", "dept_id", "dept", [ :Nullable = 1 ])
+	_o_.AddEntity("user", "User")
+	_o_.AddKey("user", "id")
+	_o_.AddEntity("ticket", "Ticket")
+	_o_.AddKey("ticket", "id")
+	_o_.AddAttribute("ticket", "title")
+	_o_.AddForeignKey("ticket", "assignee_id", "user")
+	_o_.AddEntity("account", "Account")
+	_o_.AddKey("account", "id")
+	_o_.AddEntity("invoice", "Invoice")
+	_o_.AddKey("invoice", "id")
+	_o_.AddForeignKeyXT("invoice", "account_id", "account", [ :Nullable = 1 ])
+	_o_.RelateXT("dept", "emp", :OneToMany, [ :from = :Optional, :to = :Optional ])
+	_o_.RelateXT("user", "ticket", :OneToMany, [ :from = :Optional ])
+	_o_.RelateXT("account", "invoice", :OneToMany, [ :from = :Mandatory ])
 	_o_.ToCanvasXT(paOpt)
 	return _o_
 

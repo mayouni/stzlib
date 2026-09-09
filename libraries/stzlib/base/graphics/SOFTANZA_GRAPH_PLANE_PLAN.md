@@ -3256,14 +3256,34 @@ drawn. And `StzFind(item, list) = 0` never held, so `Relate` accepted any word
 as a cardinality; the refusal is a loop now, and the gate holds it to refusing
 *Sometimes* by name.
 
-**Said plainly and left out.** Attribute types, nullability, unique
-constraints, composite keys beyond the junction's pair, and Chen's diamond
-notation are not here; the crow's foot is the one notation drawn.
-Participation (optional versus mandatory, the circle beside the bar) is the
-first thing to add, and it is one more adornment kind.
+**Participation, same day, and it turned out to be a rule and not only a
+mark.** `RelateXT(from, to, kind, [ :from = :Mandatory, :to = :Optional ])`
+says, per end, whether the entity at that end must take part — read at the
+end it names, whatever the kind: *an order always has a customer* is a bar
+at the customer end, *a customer may have no order* a ring at the order end.
+Drawn inside the cardinality as the crow's foot does, a second bar for
+at-least-one and a hollow ring for possibly-none, each published beside the
+cardinality with its end; an end that declares nothing draws nothing more,
+so every earlier picture is unchanged. The substance under the mark is a
+column: `AddForeignKeyXT(entity, column, target, [ :Nullable = 1 ])`, and the
+compartment says `(nullable)`. **"An order always has a customer" is a mark
+on a line and a NOT NULL on a column — one claim made twice**, so the fourth
+rule, `participation_matches_nullability`, holds the declaration at a foreign
+key's *target* end to that key's column: optional wants nullable, mandatory
+wants not, and the finding names both — *the 'User' end is declared optional
+and the key behind it, 'Ticket.assignee_id', is not nullable*. Its boundary
+is stated in three parts: a relation declaring nothing at that end makes no
+claim, a relation no key backs belongs to the third rule, and a mark at the
+*many* end says nothing a column can contradict and is drawn only. The
+catalogue's third schema carries two right and two wrong, and the shop's own
+marks agree with its columns.
 
-*Guard:* §109, 19 assertions; §91 grew by two pictures. Catalogue:
-`gg_er_catalogue.ring`, er_01 and er_02.
+**Said plainly and left out.** Attribute types, unique constraints, composite
+keys beyond the junction's pair, weak entities and Chen's diamond notation
+are not here; the crow's foot is the one notation drawn.
+
+*Guard:* §109, 28 assertions; §91 grew by three pictures. Catalogue:
+`gg_er_catalogue.ring`, er_01 to er_03.
 
 ## DN9 — THE TOLD PICTURE: a narration is facts made visible, in an order (planned 2026-09-06, SHIPPED 2026-09-07 as DN9a through DN9g, all seven closed)
 
