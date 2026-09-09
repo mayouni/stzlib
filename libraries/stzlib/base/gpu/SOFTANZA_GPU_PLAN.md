@@ -1225,3 +1225,119 @@ them.
 Next: **GK2**, op variants by enumeration — on the GPU clock, with the
 device awake, per shape class; the kill line (no variant ≥1.3x over the
 generic anywhere on both adapters) stands.
+
+---
+
+## GS — THE SILENT SEAMS SURVEY: where the GPU should work under the scene (2026-09-09)
+
+The author's question: across the whole library, where should the GPU
+mechanism run beneath an operation so that the caller notices nothing
+but the speed? This section is the answer, library-wide, with every
+candidate scored against laws this plane MEASURED rather than assumed,
+and every refusal named so it is not re-proposed.
+
+### GS.1 — the scoring laws (all measured, all already in this file)
+
+A silent seam pays only when ALL of these hold:
+
+1. **Residency exists or is cheap to build.** G0: a one-shot transfer is
+   92% of the cost; G3: "residency is not an optimization of the seam,
+   it IS the seam." A candidate that takes a bare slice per call must
+   first hold its data in an engine handle across calls.
+2. **f32 is tolerable, with the band written per site** (FACT 2, the
+   compute model's class-2 rule). The f64 solver tier is out by
+   decision, and stays out.
+3. **Compute-dense, not streaming.** The memory wall killed standalone
+   elementwise on BOTH accelerators (G0 and the multicore spike agree).
+   Only chains and O(n²)-class work qualify.
+4. **Work per call clears the awake floors** — 0.087 ms per submit, a
+   seam query ~0.15–0.6 ms with its readback — and the caller's usage
+   pattern is known: a sporadic caller on this laptop also pays the
+   ~2 ms idle penalty GK1 measured (GK1b). Batch and offline work is
+   the natural home; interactive per-call work must clear the floor by
+   the margin every time.
+5. **Correctness is stated:** bit-identical by construction (class 1),
+   or a written band and a tie rule (class 2). "Deterministic by law"
+   is a class-2 obligation the GPU must meet in writing.
+
+And two GK laws for whoever builds one: **wake the device before any
+timing** (GK1), and **compare kernels on the GPU clock, route on the
+wall clock** (GK0).
+
+### GS.2 — the seams worth building, in order
+
+| id | where | what | residency | f32 | mode | evidence | owner |
+|---|---|---|---|---|---|---|---|
+| **GS1** | `sound.zig`/`fft.zig` offline render, `convolveReal` | FFT convolution of a sound with an impulse response | sound `Buf` handles exist | 1.75e-6 measured, inside audio's noise floor | batch | **SN0 kill criterion #3 PASSED and was SIGNED: 19.0–22.7x on the 3050, 12.9x iGPU, 60 s render 62 ms vs 1,400 ms. No GPU code exists in the sound engine.** Approved and unwired. Prerequisite recorded there: twiddles from an uploaded table on the iGPU (per-butterfly `cos/sin` reads −91 dB). | sound desk (the GPU plane provides `stz_gpu` FFT ops) |
+| **GS2** | `soundanalysis.zig` `spectrogram` (feeds `onsets`, `tempo`) | thousands of independent Hann-windowed FFT rows | resident `buffer_id` | class 2: the guard pins 1-thread = 4-thread bit-identical; a GPU path needs a written band (the same 1e-6 class as GS1) | batch | already threaded ad hoc (`threads=4`, ungated); rows are embarrassingly parallel — one batched pass, one readback | sound desk |
+| **GS3** | `graph_layout.zig` `force` ← `stzGraphCanvas._LayoutForce()` | Fruchterman-Reingold: O(n²) repulsion × 160 iterations | slice per call; positions are `f32` ALREADY | native f32 | interactive per picture | **the WGSL kernel exists and is guarded** (`graph_layout_determinism.ring`: index-order repulsion, no atomics, 10k nodes in 121–155 ms for 60 iterations, bit-identical across 4 processes); the shipped face runs the CPU loop. GG1's own kill line (10k nodes < 2 s) is met by the guard's kernel. | graph desk (GG's item) |
+| **GS4** | `cluster.zig` `topKResident` on `cluster.Dataset` (stats bridge) | k-nearest scan on a RESIDENT n×d matrix — the same pairdist+top-k the stzVectorIndex seam already runs on the GPU | **handle exists** (the bridge says marshalling was 34 of 34.3 ms) | f64 in; the seam's measured 1e-7 band applies | interactive per query | the ideal shape (upload once, query many) with the kernel already shipped (G2 pairdist + G3 top-k); the only new work is the route inside the resident face, gated by the SAME calibration store as the index seam. Tie rule "smaller distance, then smaller index" must be reproduced on the GPU path — the index seam's guard proves the pattern. | GPU plane |
+| **GS5** | `base/stats/stzDataSet.ring` `CorrelationWith`/`CovarianceWith` | a p-column correlation MATRIX computed as p² Ring-level crossings into `stats.zig` | none (per-column `StzStats` handles) | class 2 (tolerance-banded stats) | batch | **first a crossing defect, then a GPU shape**: the matrix form does not exist engine-side; once it does (one crossing), it is `XᵀX` on centered columns — a resident matmul at f32 for large n·p. The engine step pays on its own; the GPU step is gated by measurement. | numeric desk |
+| **GS6** | `tsne.zig` (`conditionalP`, `klGradient`), `umap.zig` (`buildGraph`, `knnExact`), `density.zig` (dense targets and gradients) | O(n²) kernels per epoch, dozens to hundreds of epochs | bare slices per call; `ptsne`/`pumap` hold a net + P matrix across epochs = the ML tier's clearest resident chain | tolerance-based objectives (KL, correlation) | batch | the same shape as the resident BERT backbone: build residency once, run the epoch chain on-device, read positions back once. Needs a GK0-checked spike per kernel BEFORE any seam; memory wall bites first on the n×n allocations. | GPU plane, after GS4 |
+| **GS7** | `cluster.zig` `kmeansRun` | assignment n·k·d + centroid update × iterations | points per run | "deterministic by law" ties (first-k-distinct start, comparison-order ties) ⇒ class 2 with a written index-order tie rule | batch | assignment is the pairdist kernel again; centroid update is a segmented reduction — the same batched-pass shape as the backbone's pool. | GPU plane, after GS6's spike |
+| **GS8** | `sound.zig` `resampleSinc` | windowed-sinc polyphase, out_frames × channels × taps | resident `Buf` | f32 samples | batch (never the callback — FACT 5) | SN0 finding 4 named it the first thing worth a resident buffer; 1.17 ms per second of audio is ~20x the mix cost. Multicore first (the sound plan's own order), GPU only if the batch tier still asks. | sound desk |
+
+**What "silent" requires of every one of them, from the seams that
+already work:** the threshold consulted BEFORE the device (a small input
+never pays Init's ~300 ms); a counted refusal and a CPU path that stays
+the truth; the dispatch and transfer counters as the guard's witness
+(the mechanism, not the vibe); per-adapter calibration through
+`CalibrateShaped`'s control; and the GPU path's answer compared against
+the CPU path on a fixture built to expose the tie rule.
+
+### GS.3 — refused, with the law that refuses each
+
+- **The f64 solver tier** — `matrix.zig` f64 paths, `linalg.zig` (LU,
+  QR, Cholesky, SVD), `eigen_general.zig`, `poly.zig`, `optim.zig`:
+  out by FACT 2 and by the compute model. Their speed path is the
+  multicore tier, already shipped and gated.
+- **`matFn` and the ~40 elementwise transcendental wrappers**: f64 AND
+  standalone elementwise — fails two laws at once. Listed so it is not
+  re-proposed; the resident-chain form is GS-numbuf below.
+- **`stzNumBuffer` chains**: the residency keystone and exactly the
+  ApplyQ chain shape G4 proved — but the buffer is the f64 numeric
+  tier, its `sum` routes to the compensated-summation authority, and
+  the tier's promises are bit-exactness. A GPU f32 shadow would break a
+  promise the tier makes in writing. **Door, not seam**: an explicit
+  `stzNumBuffer32` (an f32 buffer that declares its band) could own
+  GPU chains without touching the f64 tier. Not built until asked.
+- **`stats.zig` reductions** (compensated sum, centered SS, variance):
+  the 1e16+1000×1.0 pathological case must come out EXACT; a GPU
+  reduction cannot promise that. Multicore already gives 2–4x under a
+  written justification.
+- **PageRank / betweenness / closeness** (`graph.zig`): refused by the
+  graph plane's own rule — only what a PICTURE needs gets a GPU path;
+  a general graph-compute library is G6's error. Revisit only if a
+  picture asks for a metric above the 20k-node ceiling.
+- **`autodiff.zig` tape**: sequential by data dependence; a scalar tape
+  has no width. Only a BATCHED evaluation over many inputs would — and
+  nothing asks for one.
+- **`apriori.zig`**: hash-map insertion order is part of the asserted
+  answer — hostile to any parallel path.
+- **`crypto_pbkdf2_sha256`**: serial by DESIGN; parallelising a key
+  derivation function defeats it.
+- **Plot renderers** (`plot.zig`): the cost is string emission, not
+  arithmetic. **PNG encode**: deflate is a serial dependency; GR0
+  already took the honest fix (level 1). Only per-row filter choice and
+  CRC are parallel — not worth a kernel.
+- **`list.zig` map/filter/reduce over boxed values**: heterogeneous
+  `StzValue`s are not GPU data.
+- **Hypothesis tests**: inputs too small to clear the submit floor.
+- **`str_edit_cluster`** (all-pairs edit distance): a real O(m²·L²)
+  shape, but an integer DP with data-dependent branching — a poor
+  kernel. Named as a later possibility, not a candidate.
+
+### GS.4 — the picture in one paragraph
+
+Three seams are already paid for and idle: the sound plane's offline
+convolution (measured 19–23x, signed, unwired), the graph plane's force
+layout (kernel written and guarded, face on the CPU), and the resident
+k-NN dataset (handle built, kernel shipped, route missing). They cost a
+route each, not a plane. Behind them the ML tier's per-epoch O(n²)
+kernels are the one genuinely new chain, and they earn a GK0-checked
+spike before anything else. Everything numeric that promises exactness
+stays on the CPU by the doctrine that made it trustworthy, and its speed
+path remains the multicore tier. The silent seam's discipline does not
+change with the op: threshold before device, counted refusal, CPU truth,
+counters as witness, calibration with a control, and the device woken
+before anyone believes a number.
