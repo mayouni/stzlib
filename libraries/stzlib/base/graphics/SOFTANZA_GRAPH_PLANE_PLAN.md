@@ -3136,20 +3136,30 @@ and both methods carry theirs now. Nothing before this item could have hit it
 — the dot domain's positions are bare data, which take the fast path, and
 every other picture has unknowns, which take the tape.
 
-**The Principal's correction, same morning: the last arrows pointed the wrong
-way, and grey lay on blue.** The first elbow turned into the successor's lane
-at once and ran straight to its start; for a task starting the day its
-predecessor ends — the commonest case, four of six dependencies here — that
-run went *left*, so the head pointed backwards and lay on the bar, and the
-grey line crossed the blue. A dependency is a staircase now that always
-enters from the left: out of the predecessor's end by eight, to the boundary
-between lanes on the successor's side (a sign the tape computes without a
-branch), across it to eight short of the successor's start, into its lane,
-and in with a head that points right; a milestone is entered and left at its
-diamond's tips. A backwards dependency takes the same route and its crossing
-along the boundary runs left, visibly. And the shared-lane name moved from
-above its bar to *inside* it: the gap above a bar is where the boundary run
-goes, and a name there sat two pixels from it.
+**The Principal's corrections, same morning, three of them, and the third
+decided where the routing lives.** The first elbow turned into the
+successor's lane at once and ran to its start; for a task starting the day
+its predecessor ends — four of six dependencies here — that run went *left*,
+so the head pointed backwards and lay on the bar. The corners were square.
+And the link into Launch ran straight down through the Docs bar. **A link
+must never cross a bar, and only the builder can promise that**, because only
+the builder sees every bar: so the builder is the router. For each dependency
+it chooses the vertical column — out of the predecessor's end by eight, then
+pushed right of every bar on a lane between the two tasks and on the
+successor's lane that would stand in its way — and one of three routes: a
+single segment along a shared lane; *Roomy*, out, down the column and in, when
+the successor starts at least twenty pixels past the column; *Tight*
+otherwise — touching, overlapping, backwards, or into a milestone — out, down
+the column to the gap between lanes on the successor's side, along the gap to
+twenty short of the successor, down into its lane, and in from the left. Every
+route ends rightwards into the successor with its head pointing right; a
+milestone is entered and left at its diamond's tips; a backwards dependency
+takes the tight route and its run along the gap goes left, visibly. The route
+is stored as data — each segment shortened to its arc's tangents, each corner
+as the two tangents and the arc's midpoint, radius five or half the shorter
+segment — and the style draws a fixed set of shapes per route kind, the corner
+a three-point spline. The shared-lane name moved from above its bar to inside
+it, since the gap above a bar is where a tight route's run goes.
 
 **A gridline is a guide, not ink.** A task that is not the first on its lane
 carries its name over its own bar, and a name over a bar must cross a
