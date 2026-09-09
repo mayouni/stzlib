@@ -15175,6 +15175,21 @@ chk("the top gate stands at the middle of its two inputs, though one carries a s
     fabs(_PnCentreX(oFtP, "top.gate") - (_PnCentreX(oFtP, "power") + _PnCentreX(oFtP, "seized")) / 2) < 0.5)
 chk("...so its two lines leave on one stem and part on one channel",
     fabs(_PlTurnOf(oFtP, "top.gate", "power") - _PlTurnOf(oFtP, "top.gate", "seized")) < 0.5)
+# THE PRINCIPAL MARKED THE SUBTREE: an event stands over the one gate
+# beneath it, and that gate at the middle of its inputs -- a chain
+# follows its child, which the engine's centring had skipped for every
+# node with one edge out.
+chk("an event with one gate beneath it stands on the gate's column, and the gate at the middle of its inputs",
+    fabs(_PnCentreX(oFtP, "power") - _PnCentreX(oFtP, "power.gate")) < 0.5 and
+    fabs(_PnCentreX(oFtP, "power.gate") - (_PnCentreX(oFtP, "mains") + _PnCentreX(oFtP, "battery")) / 2) < 0.5)
+chk("a repeated leaf stands between the two gates that share it, and each gate at the middle of BOTH its inputs",
+    _PnCentreX(oFtR, "valve") < _PnCentreX(oFtR, "sensor") and _PnCentreX(oFtR, "sensor") < _PnCentreX(oFtR, "relay") and
+    fabs(_PnCentreX(oFtR, "fill.gate") - (_PnCentreX(oFtR, "valve") + _PnCentreX(oFtR, "sensor")) / 2) < 0.5 and
+    fabs(_PnCentreX(oFtR, "alarm.gate") - (_PnCentreX(oFtR, "sensor") + _PnCentreX(oFtR, "relay")) / 2) < 0.5 and
+    fabs(_PnCentreX(oFtR, "fill") - _PnCentreX(oFtR, "fill.gate")) < 0.5)
+chk("the witness's one backward edge runs beside the picture and enters the top from its side, not through its floor",
+    _PnPathEnd(oFtW, "jam.gate", "t1")[1] < _PnCentreX(oFtW, "t1") - 10 and
+    fabs(_PnPathEnd(oFtW, "jam.gate", "t1")[2] - _PnCentreY(oFtW, "t1")) < 0.5 and _PnNoArcThroughCell(oFtW))
 chk("a gate is entered from above by the event it develops, never from its side",
     fabs(_PnPathEnd(oFtR, "fill", "fill.gate")[2] - _PnRectOf(oFtR, "fill.gate")[2]) < 0.5 and
     fabs(_PnPathEnd(oFtR, "fill", "fill.gate")[1] - _PnCentreX(oFtR, "fill.gate")) < 0.5)

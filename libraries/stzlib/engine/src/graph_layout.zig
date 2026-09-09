@@ -700,7 +700,14 @@ fn centerParents(
         var k = s;
         while (k < e) : (k += 1) {
             const v = order[k];
-            if (out_off[v + 1] - out_off[v] < 2) continue;
+            // A CHAIN FOLLOWS ITS CHILD. This skipped every node with one
+            // edge out, so a parent whose only child was centred over
+            // grandchildren in this very pass was left where the snap had
+            // put it -- the fault tree's "No power" stood a half-slot off
+            // the gate beneath it, and the Principal marked the whole
+            // subtree. One child is the strongest case there is (see the
+            // owned == 1 comment below); the early skip contradicted it.
+            if (out_off[v + 1] - out_off[v] < 1) continue;
             // OWNED CHILDREN ONLY. A child with more than one parent
             // belongs to no single parent's territory -- the same reason
             // tidyTerritories runs on forests alone -- and counting it
@@ -710,6 +717,12 @@ fn centerParents(
             // the midpoint between them, out of its own cluster's column
             // and off the spine it had with its own parent, to state a
             // centring over a child it does not own.
+            // ...EXCEPT WHERE THE CHILDREN ARE PEERS. A fault tree's
+            // repeated leaf sits under two gates on purpose, and each
+            // gate is drawn at the middle of ALL its inputs, the shared
+            // one included -- that is what puts the shared leaf between
+            // the two branches. The ownership test stays for a flow,
+            // where a shared sink is nobody's to centre over.
             var clo: f64 = 0;
             var chi: f64 = 0;
             var owned: u32 = 0;
@@ -717,7 +730,7 @@ fn centerParents(
             while (j < out_off[v + 1]) : (j += 1) {
                 const c = out_dst[j];
                 if (c == v) continue; // a self-loop is not a child
-                if (in_off[c + 1] - in_off[c] != 1) continue;
+                if (!peers and in_off[c + 1] - in_off[c] != 1) continue;
                 const cx = x[c];
                 if (owned == 0) {
                     clo = cx;
