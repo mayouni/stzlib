@@ -880,3 +880,189 @@ proven edge convergence with measured calibration and the deployment
 admission gate, and a NO-GO where the numbers and the invariants said
 no. 162 guard asserts stand behind it. The f64 solver tier never moved
 off the CPU — by decision, start to finish.
+
+---
+
+## GK — THE KERNEL FOUNDRY. What Proteus teaches this plane, and what it does not (2026-09-09)
+
+Source studied: Databricks, *Achieving Extreme Efficiency through
+Specialized GPU Kernel Generation* (Li, Khudia, Jin, 2026-09-04) — the
+Proteus harness: agents propose kernels, a controlled checker verifies
+them against a reference, only verified candidates are timed, winners
+seed the next round; kernels specialized per runtime SHAPE reached
+1.8–5.2x over vLLM's best on Qwen 3.5 122B / B200.
+
+Read against what this plane already is (G0–G6 + the resident backbone,
+~460 guard asserts), the paper's four findings sort into three bins:
+**things this plane already does and the paper independently confirms**,
+**one thing the paper shows this plane has NOT done**, and **one thing the
+paper does that this plane should refuse.** The ids below use two
+capitals (GK) so the plan checker can see them — it cannot see G0–G6,
+whose one-capital ids fall outside the item grammar (`CONCLUSIONS.md`
+2026-09-08 03:05, found on the GUI plan; TRUE OF THIS PLAN TOO, and left
+for its own item).
+
+### GK.1 — the four findings, mapped
+
+**Finding 1 — "the checker, not the prompt, is where the design time
+goes."** Proteus's list of measurement bugs is this plane's own paid
+history under other names:
+
+| Proteus found | this plane's name for it | where it was paid |
+|---|---|---|
+| a candidate reused compiled code left from an earlier attempt and looked cheaper | the WARM/COLD split — the compile cache is a feature (7–13 ms/pipeline) and a confound | G0's "clock inversion": warm-min AND sustained, never mixed |
+| the two sides were not doing the same work (graph replay vs per-launch) | "a control that moves means confounded" | the house rule since G0; the backbone R1 spike |
+| strong on the visible sizes, weak on the unseen | a pin on an OUTCOME, not a promise | the stale gg_image_primitive pin; the dyadic /256 fixture that measured ZERO error |
+| impossible speedups (>100x) flagged against physical limits | — **ABSENT** — | nothing here refuses a number that beats the bus |
+| time the winners AGAIN before seeding the next round | "5 runs minimum; a re-run is the most expensive wait" | PX law |
+
+So the culture is confirmed rather than imported. What is NOT here is
+the fourth row, and it is cheap: G0 measured this machine's ceilings
+(matmul ≈293 GFLOP/s on the 3050, readback 5–6 GB/s, upload ≈7.6 GB/s,
+submit floor 55–70 µs). A candidate whose measured time implies MORE
+than that is a measurement defect by construction, and the checker
+should say so by name instead of recording it as a win.
+
+**Finding 2 — "the agent must not time its own work."** Proteus keeps
+timing and correctness in the loop, outside the proposer, because a
+proposer that measures itself optimizes the measurement. This plane's
+current arrangement: the seam's calibration ladder times in RING
+(`stzGpu.CalibrateWith`, wall clock via `StzEngineWatchTimestampNs`),
+and the store it writes is consumed by the engine's `should_dispatch`.
+That is the proposer's side of the line holding the stopwatch. The
+engine-is-the-product law says the same thing Proteus does from the
+other direction: **verification and timing belong in `stz_gpu.dll` as
+one primitive, and the Ring face only READS its verdict.** One timer is
+also one fewer than the paper uses to cross-check; wgpu exposes
+timestamp query sets where the adapter supports them, which gives a
+second, GPU-side clock for the same dispatch — two clocks that disagree
+are the tell that the wall clock caught something other than the kernel.
+
+**Finding 3 — "specialize to the shape; a generic kernel for every
+shape is suboptimal."** Here the paper reaches something this plane has
+NOT done, and the code says so plainly:
+
+- every op in `gpu_ops.zig` is ONE kernel: matmul is a fixed 16x16 tile
+  (`TILE = 16`), every elementwise kernel is `@workgroup_size(256)`, the
+  transpiler hard-codes 256; no variant exists for any op;
+- the calibration store is `op name → one threshold` (a wyhash of the
+  name → `f64`), so `should_dispatch("pairdist", n)` knows the problem's
+  SIZE and nothing about its SHAPE — `n·d` = 64k routes the same whether
+  it is 64k×1 or 256×256;
+- the backbone's gate is one dimension (32 tokens) over a shape that is
+  really (n_tok dynamic × n_embd static × n_head static) — the paper's
+  exact "static model parameter × dynamic request factor" case.
+
+The paper's Batch-1 vs Batch-4 result is the argument: the same
+operation wanted DIFFERENT kernels at two shapes, and the win at one
+shape was "not a universal replacement." This plane's law is already
+"gated by MEASURED thresholds"; the paper says the threshold has one
+dimension too few. The honest caveat is scale: Proteus searched
+thousands of Triton/CUDA variants per shape on a B200 fleet where 1.6x
+on one kernel is paid for by the fleet's power bill. Here the op set is
+nine kernels and the knob set is tile edge, workgroup width and
+vectorized loads. Whether specialization PAYS at this scale is exactly
+the kind of claim this plane does not believe until measured, and GK2
+below is that measurement with its kill line written first.
+
+**Finding 4 — "the knowledge layer must be tiny, situation → action,
+and scoped; anything else becomes the cost."** Proteus's Figure 2/3 —
+most tokens spent fetching and routing memory, none of it making the
+next kernel better — is the strongest external confirmation this plane
+has received for a decision it made without knowing it: **the
+calibration file IS a knowledge layer, and it stores exactly one
+sentence per situation** ("on adapter X, op Y, from n=64k, dispatch").
+No prose, no lesson, no advice. The paper's rule — *"if a takeaway
+cannot name the situation and the action, it is not worth putting in
+the prompt"* — is the store's format already. Two refinements follow:
+the situation key gains the shape (finding 3), and the store keeps the
+LADDER that produced the threshold, not just the threshold. A stored
+number with no trace is a pin on an outcome; the paper's Figure 4 says
+the trace — rejected, correct-but-slower, winner-attached-to-shape — is
+the artefact, and this house learned the same thing from a green guard
+that was pinning an encoder's old answer.
+
+### GK.2 — what this plane REFUSES from the paper, and why
+
+**No LLM kernel proposer is built.** Proteus's own conclusion is that
+"generation is the cheap step." The search space here is small enough
+to ENUMERATE — nine ops × a handful of knobs × a shape-class ladder —
+so the proposer is a for-loop in Zig, which is Rung 1 of the Model
+Foundry (no neurons) applied to kernels. That is not a lesser version of
+Proteus; it is the same architecture with the proposer replaced by the
+cheapest thing that fills the role. An agent proposer becomes worth
+building only when a workload asks for a kernel the enumeration cannot
+reach (a fused kernel, a new op) — G6's law, applied to our own
+ambition. When that day comes, the checker built in GK0 is UNCHANGED:
+the proposer's side of the line is the only side that changes, which is
+the paper's closing argument ("give the agent autonomy over how a
+kernel is written; keep the loop as the channel for memory and
+evaluation").
+
+And when it comes, the governance already exists: a proposed kernel is
+work REHEARSED in a workbench, the checker is the COMMITTING ACTOR (the
+safe-world binding, unchanged), a store entry is COMPENSABLE (revert to
+the previous variant — the reversibility contract), and a proposer that
+scores its own candidates is refused at REGISTRATION, not caught at
+commit (the registration gate). None of that is designed here; it is
+simply not designed against.
+
+**No CUDA/Triton.** WGSL through wgpu is the single GPU surface (the
+counted-fallback discipline, G0's decision); the paper's Triton backend
+is not a vendor question this plane reopens.
+
+### GK.3 — the phases, kill criteria written before code
+
+**GK0 — the checker as an engine primitive.** `stz_gpu_verify(ref,
+cand, shape, band)` in `stz_gpu.dll`: runs reference and candidate
+kernels on the SAME device buffers with the SAME inputs, equalizes cache
+state (both warm, or both cold — never one each), compares within a
+band, times both with the wall clock AND the wgpu timestamp query set
+where the adapter has it, warm-min over N reps, and REFUSES by name any
+result faster than the measured roofline (G0's numbers, per adapter,
+re-measured at Init rather than quoted). GUARDS, the negative siblings
+first: a candidate that skips the rows the visible fixture does not read
+is CAUGHT by the hidden-shape check; a candidate that writes the right
+answer but reports an impossible time is REFUSED by the roofline; two
+identical kernels verify equal and time within the measured jitter band
+(the control that must not move). Ring's Calibrate() becomes a READER
+of this primitive. KILL: if the timestamp-query feature is absent on
+both adapters here, the checker ships with ONE clock and says so — not a
+kill, a recorded limit.
+
+**GK1 — the shape-keyed store.** Calibration key becomes
+`(adapter, op, shape-class)` where a shape class is the bucketed
+(rows, cols, inner) — powers-of-two buckets, so the class count stays
+small and the store stays a table, not a database. The LADDER persists
+beside the threshold. `should_dispatch` takes the shape. The seam
+(stzVectorIndex) and the backbone gate (`g_min_tokens`) consult the
+shaped key. Verification at OFF-LADDER shapes is the hidden set — a
+threshold is trusted only if a shape it was not calibrated on agrees
+with it. KILL: if shaped thresholds differ from the flat one by <20% on
+every class measured on both adapters, the shape dimension is NOT
+worth its complexity here, and the store stays flat — recorded.
+
+**GK2 — op variants, by enumeration.** For matmul and pairdist (the
+two tiled ops): tile edge {8, 16, 32} × workgroup width {64, 128, 256}
+× vectorized loads {off, vec4}. For the elementwise family: workgroup
+{64, 128, 256}. A Zig for-loop proposes, GK0 verifies and times, GK1
+records the winner per shape class. KILL, written now: **if no variant
+beats the shipped generic kernel by ≥1.3x on ANY shape class on BOTH
+adapters, the variant table does not ship**, the paper's specialization
+thesis is recorded as "does not pay at this op count on this hardware,"
+and the generic kernels stay — with GK0 and GK1 kept, because a checker
+and a shaped store are worth having even when they only ever confirm
+the default.
+
+**GK3 — the proposer seam (a DOOR, not built).** stzKernelMaker is
+already the proposer's write surface — it refuses malformed kernels by
+name before any device sees them (Proteus's "static checks" stage). GK3
+is the CONTRACT that lets anything else stand on the proposer's side of
+the line: a candidate is a spec + a shape class; the checker's verdict is
+the only score; the store is the only memory. Built when a workload
+asks for a kernel enumeration cannot reach. Not before.
+
+### GK.4 — the sentence to carry
+
+*Generation is the cheap step. The checker and the memory are the
+product — and this plane had already built them, one dimension short.*
