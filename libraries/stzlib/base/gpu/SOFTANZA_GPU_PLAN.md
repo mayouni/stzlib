@@ -1042,19 +1042,19 @@ with it. KILL: if shaped thresholds differ from the flat one by <20% on
 every class measured on both adapters, the shape dimension is NOT
 worth its complexity here, and the store stays flat — recorded.
 
-**GK2 — op variants, by enumeration.** For matmul and pairdist (the
+**GK2 — op variants, by enumeration.** Not started. For matmul and pairdist (the
 two tiled ops): tile edge {8, 16, 32} × workgroup width {64, 128, 256}
 × vectorized loads {off, vec4}. For the elementwise family: workgroup
 {64, 128, 256}. A Zig for-loop proposes, GK0 verifies and times, GK1
 records the winner per shape class. KILL, written now: **if no variant
-beats the shipped generic kernel by ≥1.3x on ANY shape class on BOTH
-adapters, the variant table does not ship**, the paper's specialization
+beats the generic kernel the op library carries by ≥1.3x on ANY shape
+class on BOTH adapters, the variant table is refused**, the paper's specialization
 thesis is recorded as "does not pay at this op count on this hardware,"
 and the generic kernels stay — with GK0 and GK1 kept, because a checker
 and a shaped store are worth having even when they only ever confirm
 the default.
 
-**GK3 — the proposer seam (a DOOR, not built).** stzKernelMaker is
+**GK3 — the proposer seam (a DOOR, not built).** Not started. stzKernelMaker is
 already the proposer's write surface — it refuses malformed kernels by
 name before any device sees them (Proteus's "static checks" stage). GK3
 is the CONTRACT that lets anything else stand on the proposer's side of
@@ -1341,3 +1341,17 @@ path remains the multicore tier. The silent seam's discipline does not
 change with the op: threshold before device, counted refusal, CPU truth,
 counters as witness, calibration with a control, and the device woken
 before anyone believes a number.
+
+### GS.5 — the items, as the plan tooling reads them
+
+Each seam above is an item with an owner and a status. A table row is
+not a definition to the plan checker; these lines are.
+
+- **GS1** — offline FFT convolution in the sound engine over the signed SN0 verdict; twiddles from a table on the iGPU. Sound desk; the GPU plane provides the FFT op. Not started.
+- **GS2** — spectrogram rows as one batched FFT pass with a written band. Sound desk. Not started.
+- **GS3** — the force-layout face routed to the guarded WGSL kernel above a measured node count. Graph desk. Not started.
+- **GS4** — the resident k-NN dataset routed through pairdist and top-k, gated by the shared calibration store, tie rule reproduced. GPU plane. Not started.
+- **GS5** — correlation and covariance matrices engine-side in one crossing, then f32 transposed-product above a measured size. Numeric desk. Not started.
+- **GS6** — the ML tier's per-epoch quadratic kernels as a resident chain, each kernel checked by GK0 before any seam. GPU plane. Not started.
+- **GS7** — k-means assignment on the pairdist kernel with an index-order tie rule and a segmented centroid reduction. GPU plane. Not started.
+- **GS8** — sinc resampling in batch mode, multicore first, GPU only if the batch tier still asks. Sound desk. Not started.
