@@ -993,3 +993,55 @@ func StzMathBenzeneMol()
 	      "  5 11  1  0  0  0  0" + char(10) + "  6 12  1  0  0  0  0" + char(10) +
 	      "M  END" + char(10)
 	return _c_
+
+#-- a Gantt chart (DN14): every position a datum, every rule about time ------
+
+# A SMALL PROJECT: eight tasks over forty days on their own lanes, two of
+# them milestones, six dependencies -- and nothing wrong with it NOW. The
+# first version of this list, typed as "nothing wrong with it", had
+# Prototype starting four days before Design ended and Test starting
+# four days before Build ended, both under a dependency, and the rule
+# found both on its first run. A schedule a person types is a schedule
+# nobody checks -- which is the reason the rule exists.
+func StzMathProjectTasks()
+	return [ [ "Brief",     0,  4 ],
+	         [ "Design",    4, 12 ],
+	         [ "Prototype", 12, 20 ],
+	         [ "Review",   20, 20 ],
+	         [ "Build",    20, 30 ],
+	         [ "Test",     30, 36 ],
+	         [ "Docs",     26, 38 ],
+	         [ "Launch",   40, 40 ] ]
+
+func StzMathProjectDeps()
+	return [ [ "Brief", "Design" ], [ "Design", "Prototype" ], [ "Prototype", "Review" ],
+	         [ "Review", "Build" ], [ "Build", "Test" ], [ "Test", "Launch" ] ]
+
+func StzMathScene42(poFont)
+	_o_ = StzGanttDiagram(poFont, StzMathProjectTasks(), StzMathProjectDeps())
+	_o_.SetVariation("project")
+	return _o_
+
+# THE SAME PROJECT WITH THREE THINGS WRONG, one per rule: Test made to
+# depend on Docs, which starts before Test ends; Docs put on Build's lane,
+# where they overlap by two days; and a task that finishes before it
+# starts. The witness the gate is meant to find things in.
+func StzMathProjectWrongTasks()
+	return [ [ "Brief",     0,  4 ],
+	         [ "Design",    4, 12 ],
+	         [ "Prototype", 8, 18 ],
+	         [ "Review",   18, 18 ],
+	         [ "Build",    18, 30, 5 ],
+	         [ "Test",     26, 36 ],
+	         [ "Docs",     28, 38, 5 ],
+	         [ "Backwards", 22, 20 ],
+	         [ "Launch",   40, 40 ] ]
+
+func StzMathProjectWrongDeps()
+	return [ [ "Brief", "Design" ], [ "Design", "Prototype" ], [ "Prototype", "Review" ],
+	         [ "Review", "Build" ], [ "Docs", "Test" ], [ "Test", "Launch" ] ]
+
+func StzMathGanttWitness(poFont)
+	_o_ = StzGanttDiagram(poFont, StzMathProjectWrongTasks(), StzMathProjectWrongDeps())
+	_o_.SetVariation("wrong")
+	return _o_

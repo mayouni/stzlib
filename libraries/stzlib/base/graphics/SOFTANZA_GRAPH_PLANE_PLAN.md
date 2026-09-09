@@ -117,6 +117,7 @@ sections, of which 21 declarations over 17 items.
 | DN11 | closed | 105 |
 | DN12 | closed | 106 |
 | DN13 | closed | 107 |
+| DN14 | closed | 108 |
 | DN9 | closed | - |
 | DN9a | closed | 97 |
 | DN9b | closed | 98 |
@@ -3066,6 +3067,94 @@ bulge is a fixed fraction; a style that varied the bulge would owe the
 expression instead. That condition is written in the style beside the number.
 
 *Guard:* §107, 7 assertions.
+
+## DN14 — A GANTT CHART: every position a datum, every rule about time (2026-09-09, SHIPPED)
+
+**The cheapest domain the plane can take, chosen after the dearest.** A
+molecule's positions are solved; a Gantt's are computed. A task is three
+numbers — a start day, a finish day, a lane — and every pixel follows by
+arithmetic, so the builder puts the days on each object for the rules and the
+facts and the pixels for the style, and the solver reports **"nothing to lay
+out — no rule minted an unknown"**: 52 shapes, 0 unknowns, 80 ms. It is still a
+mathematical diagram, and that is the reason to build it here: it answers
+`Fact()` in days (`t5.finish − t2.start is 26 days`), carries marks, sits in a
+storyboard, is judged by the one gate and renders through `Rendition()` like
+everything else. The dot domain — Sierpinski, the Brownian walks — is the
+precedent.
+
+**What it is.** `StzGanttDomain()`: `Task` with `Milestone` as a subtype (no
+duration, drawn as a diamond), `Dependency(Task, Task)`, `Tick`, and the
+predicate `OverBar` for a task that is not the first on its lane.
+`StzGanttFromTasks(tasks, deps)` takes `[name, start, finish]` or
+`[name, start, finish, lane]` and dependencies by name, assigns lanes, maps
+days to pixels, and chooses the axis step from the usual ladder so the axis
+has ten ticks or fewer. `StzGanttStyle(lanes)`: a bar in the primary colour,
+the name in the left column right-aligned by its own measured width, a diamond
+per milestone, an elbow arrow per dependency out of the predecessor's end and
+into the successor's start, a faint vertical per tick with its day above.
+`StzGanttDiagram(font, tasks, deps)` is the whole picture in one call.
+
+**What the domain owes the gate is the reason to draw a Gantt at all.** The
+mistakes people make in a schedule are about time, and none of them is visible
+in a drawing that draws what it is given — a backwards dependency is an arrow
+pointing left, which looks like an arrow. Three rules read the substance and
+recount, each naming the tasks by the author's names and saying by how many
+days: `dependency_forward_in_time`, `task_ends_after_it_starts`,
+`lane_not_double_booked`. They register into the math governance from the
+file that owns them, as the chemistry rules do; the corpus carries a project
+and a witness with one of each mistake — the double booking reported on *both*
+its tasks, because each of them is double-booked — and every lattice and
+molecule is the boundary they must not cross.
+
+**The rule caught its author on its first run.** The project list typed for
+the catalogue scene, as "nothing wrong with it", had Prototype starting four
+days before Design ended and Test four days before Build ended, both under a
+dependency. Fixed, and the mistake is kept as the witness's first rows: a
+schedule a person types is a schedule nobody checks, which is what the rule is
+for. And the first shared-lane picture had two names in one column cell,
+found by `name_off_name` — so a task that is not the first on its lane carries
+its name over its own bar.
+
+**And the plane's first all-expression static picture found a defect that lived
+in the gate and in no probe.** In the gate's process, and there only, every
+Gantt shape whose position is an *expression* read as off the paper by exactly
+the margin — 43 of 52 shapes, 10 px each — while every shape positioned by a
+bare datum was fine; standalone, the same picture was clean. Bisected along
+the gate, the poison was already present before section 91, so it was not
+late state. The mechanism: `_StaticOnCanvas` collects a shape's extents in a
+list, and each `_V` it calls to fill that list may reach `_EvalExpr`, which
+evaluated its tape at a point held in a list of the *same name*; in every
+probe those were two method locals, in the gate they were one variable, and
+the inner call handed the outer an accumulator of `[0]`. Renaming the inner
+method's locals ended it, and a report added to `_EvalExpr` for the run showed
+the engine never once answered a non-number — which is how the mechanism was
+confirmed. **What was not pinned:** the rule of Ring's scoping that made one
+variable of two. A probe that called a top-level helper assigning the same
+name, as the gate's helpers do, stayed clean. So the fix does not depend on
+the rule: a re-entrant chain of methods gives each method its own local names,
+and both methods carry theirs now. Nothing before this item could have hit it
+— the dot domain's positions are bare data, which take the fast path, and
+every other picture has unknowns, which take the tape.
+
+**A gridline is a guide, not ink.** A task that is not the first on its lane
+carries its name over its own bar, and a name over a bar must cross a
+gridline — there is no place in the chart free of them. The gate's name rules
+read every drawn stroke as ink regardless of paint order, which DN8c chose on
+purpose for strokes that mean something; a gridline means nothing a name could
+hide. So a shape may declare itself furniture, `:guide = 1`, and `_MrInk`
+reads past it. The claim is the author's and is judged like any other: the
+corpus holds the touching-tasks chart with its gridlines as guides, clean, and
+the same chart with its gridlines as ink, which has a name on one and says so.
+The graph plane's edges are not guides and are still ink.
+
+**Said plainly and left out.** Days are numbers, not dates; day 0 is whatever
+the author says. Percent complete, the critical path, resources beyond a lane,
+and dependency kinds other than finish-to-start are not here. Muted measures
+2.85:1 against light paper — below the 3:1 the gate holds every name to — so the
+axis labels are neutral at a smaller size; that number is filed for the colour
+desk, whose own guard reported every theme/role pair above 4.5:1.
+
+*Guard:* §108, 17 assertions; §91 grew by two pictures. Catalogue: scene 42.
 
 ## DN9 — THE TOLD PICTURE: a narration is facts made visible, in an order (planned 2026-09-06, SHIPPED 2026-09-07 as DN9a through DN9g, all seven closed)
 
