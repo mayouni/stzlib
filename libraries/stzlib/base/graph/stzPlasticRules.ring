@@ -64,6 +64,12 @@ func _PlOneSided(poDg)
 # the two ends, so it convicted five such edges across the catalogue --
 # every For, while and do-until loop, and every side-join.
 func _PlDetourByLaw(poDg, pcF, pcT)
+	# ...AND IN EVERY NOTATION, A CELL ON THE STRAIGHT RUN. Two ends
+	# sharing a column with another cell standing between them on that
+	# column cannot be joined straight without drawing a line through
+	# it; the bend is the cell's doing. Found by the first Petri net
+	# (DN16), whose returns run under a row of cells they must not cross.
+	if _PlCellOnRun(poDg, pcF, pcT)  return 1  ok
 	if NOT _PlOneSided(poDg)  return 0  ok
 	_ax_ = _PlCrossAxis(poDg)
 	_ca_ = _PlCentre(poDg, pcF, _ax_)
@@ -121,6 +127,85 @@ func _PlOffTheLine(poDg, pcId)
 	return _me_ > _min_ + 2
 
 func _PlKeyNode(pcId)   return "node:" + StzLower("" + pcId)
+
+# DOES A CELL STAND ON THE STRAIGHT RUN between two ends that share a
+# column? Read off the drawn rectangles: same cross coordinate as both
+# ends, and wholly inside the stretch between them along the rank axis.
+func _PlCellOnRun(poDg, pcF, pcT)
+	_ax_ = _PlCrossAxis(poDg)
+	if _ax_ = 0  return 0  ok
+	_rk_ = 3 - _ax_
+	_ca_ = _PlCentre(poDg, pcF, _ax_)
+	_cb_ = _PlCentre(poDg, pcT, _ax_)
+	if _ca_ < -999999 or _cb_ < -999999  return 0  ok
+	if fabs(_ca_ - _cb_) >= 2  return 0  ok
+	_ra_ = _PlCentre(poDg, pcF, _rk_)
+	_rb_ = _PlCentre(poDg, pcT, _rk_)
+	_lo_ = min([ _ra_, _rb_ ])
+	_hi_ = max([ _ra_, _rb_ ])
+	_a_ = poDg.RenderNodeRects()
+	_n_ = len(_a_)
+	for _i_ = 1 to _n_
+		_id_ = StzLower("" + _a_[_i_][5])
+		if _id_ = StzLower("" + pcF) or _id_ = StzLower("" + pcT)  loop  ok
+		_cc_ = _a_[_i_][_ax_] + _a_[_i_][_ax_ + 2] / 2
+		if fabs(_cc_ - _ca_) > 2  loop  ok
+		_c0_ = _a_[_i_][_rk_]
+		_c1_ = _a_[_i_][_rk_] + _a_[_i_][_rk_ + 2]
+		if _c0_ > _lo_ and _c1_ < _hi_  return 1  ok
+	next
+	return 0
+
+# THE FACE TWO OR MORE TURNING LINES LEAVE A CELL BY -- the fan's face --
+# or "" when no face has two. The face with the most such lines wins.
+func _PlFanFace(poDg, pcId)
+	_id_ = StzLower("" + pcId)
+	_acF_ = [ "e", "w", "s", "n" ]
+	_anC_ = [ 0, 0, 0, 0 ]
+	_a_ = poDg.Edges()
+	_n_ = len(_a_)
+	for _i_ = 1 to _n_
+		if StzLower("" + _a_[_i_][:from]) != _id_  loop  ok
+		if StzLower("" + _a_[_i_][:to]) = _id_  loop  ok
+		if _PlTurnOf(poDg, _id_, _a_[_i_][:to]) < -999999  loop  ok
+		_f_ = _PlExitFace(poDg, _id_, _a_[_i_][:to])
+		for _k_ = 1 to 4
+			if _acF_[_k_] = _f_  _anC_[_k_]++  ok
+		next
+	next
+	_best_ = 0  _bk_ = 0
+	for _k_ = 1 to 4
+		if _anC_[_k_] > _best_  _best_ = _anC_[_k_]  _bk_ = _k_  ok
+	next
+	if _best_ < 2  return ""  ok
+	return _acF_[_bk_]
+
+# THE FACE A LINE LEAVES ITS CELL BY, read from its first drawn segment:
+# "e" "w" "s" "n", or "" when there is no path to read.
+func _PlExitFace(poDg, pcF, pcT)
+	_k_ = StzLower("" + pcF) + ">" + StzLower("" + pcT)
+	_a_ = poDg.@aEdgePaths
+	_n_ = len(_a_)
+	for _i_ = 1 to _n_
+		if StzLower("" + _a_[_i_][1]) != _k_  loop  ok
+		_f_ = _a_[_i_][2]
+		if len(_f_) < 4  return ""  ok
+		_j_ = 3
+		# past any zero-length first stub
+		while _j_ + 1 <= len(_f_) and fabs(_f_[_j_] - _f_[1]) < 0.01 and fabs(_f_[_j_ + 1] - _f_[2]) < 0.01
+			_j_ += 2
+		end
+		if _j_ + 1 > len(_f_)  return ""  ok
+		_dx_ = _f_[_j_] - _f_[1]
+		_dy_ = _f_[_j_ + 1] - _f_[2]
+		if fabs(_dx_) >= fabs(_dy_)
+			if _dx_ >= 0  return "e"  ok
+			return "w"
+		ok
+		if _dy_ >= 0  return "s"  ok
+		return "n"
+	next
+	return ""
 
 # how many edges leave a node, self-loops aside
 func _PlOutDegreeOf(poDg, pcId)
@@ -523,18 +608,13 @@ func StzPlasticRuleSet()
 			# relations reached different ranks and turned 253px apart,
 			# correctly.
 			if _PlMarkedAtSource(oDg, _ids_[_i_])  loop  ok
-			_k_ = 0
-			_a_ = oDg.Edges()
-			_na_ = len(_a_)
-			for _ia_ = 1 to _na_
-				if StzLower("" + _a_[_ia_][:from]) != _ids_[_i_]  loop  ok
-				if StzLower("" + _a_[_ia_][:to]) = _ids_[_i_]  loop  ok
-				if _PlTurnOf(oDg, _ids_[_i_], _a_[_ia_][:to]) < -999999
-					loop
-				ok
-				_k_++
-			next
-			if _k_ >= 2  _r_ + _PlKeyNode(_ids_[_i_])  ok
+			# ...AND ONLY LINES LEAVING BY THE SAME FACE ARE ONE FAN.
+			# A return that drops out of the bottom of a cell and a
+			# flow that leaves its right side are not one origin
+			# drawn twice; they are two departures, as DRAKON's If
+			# already said of its two exits. Read from the drawing.
+			if _PlFanFace(oDg, _ids_[_i_]) = ""  loop  ok
+			_r_ + _PlKeyNode(_ids_[_i_])
 		next
 		return _r_
 	})
@@ -559,11 +639,13 @@ func StzPlasticRuleSet()
 	_o3_.SetClaimCheck(func(oDg, cSub) {
 		_id_ = StzSubStr(cSub, 6, StzLen(cSub) - 5)
 		_t_ = []
+		_face_ = _PlFanFace(oDg, _id_)
 		_a_ = oDg.Edges()
 		_na_ = len(_a_)
 		for _ia_ = 1 to _na_
 			if StzLower("" + _a_[_ia_][:from]) != _id_  loop  ok
 			if StzLower("" + _a_[_ia_][:to]) = _id_  loop  ok
+			if _PlExitFace(oDg, _id_, _a_[_ia_][:to]) != _face_  loop  ok
 			_v_ = _PlTurnOf(oDg, _id_, _a_[_ia_][:to])
 			if _v_ > -999999  _t_ + _v_  ok
 		next

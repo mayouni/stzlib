@@ -92,6 +92,7 @@ class stzNotation from stzObject
 	@cSplines = ""
 	@cBranchSide = ""
 	@aNameInside = []
+	@aNameOutside = []    # kinds whose inside is spoken for -- a place's tokens
 	@aCompartmentKeys = []
 	@bOneInk = 0
 	@cLayoutMode = ""     # "" = layered; :Ring for a domain with no flow
@@ -633,6 +634,27 @@ class stzNotation from stzObject
 		_nNi_ = len(@aNameInside)
 		for _iNi_ = 1 to _nNi_
 			if @aNameInside[_iNi_] = _niK_  return 1  ok
+		next
+		return 0
+
+	# THE OPPOSITE DECLARATION: a kind whose inside is spoken for. The
+	# renderer writes a name inside any glyph big enough to hold it,
+	# which is right until the glyph holds something else -- a Petri
+	# place holds its tokens, and "Key" written over one dot read as
+	# "K.y". Declared per kind, so a notation says it once.
+	def SetNameOutside(pcKind)
+		_noK_ = StzLower("" + pcKind)
+		_nNo_ = len(@aNameOutside)
+		for _iNo_ = 1 to _nNo_
+			if @aNameOutside[_iNo_] = _noK_  return  ok
+		next
+		@aNameOutside + _noK_
+
+	def WritesNameOutside(pcKind)
+		_noK_ = StzLower("" + pcKind)
+		_nNo_ = len(@aNameOutside)
+		for _iNo_ = 1 to _nNo_
+			if @aNameOutside[_iNo_] = _noK_  return 1  ok
 		next
 		return 0
 

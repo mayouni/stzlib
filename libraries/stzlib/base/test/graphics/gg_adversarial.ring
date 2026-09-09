@@ -2,6 +2,7 @@ load "../../stzBase.ring"
 load "gg_drakon_scenes.ring"
 load "gg_math_scenes.ring"
 load "gg_er_scenes.ring"
+load "gg_petri_scenes.ring"
 
 /*---------------------------------------------------------------------------
 	WHAT THE GUARDS COULD NOT SEE
@@ -8702,6 +8703,7 @@ chk("...and a box is not", oF._IsBranchCell("src") = 0)
 
 
 OPTGOV = [ :Font = EFONT, :NodeWidth = 130, :NodeHeight = 52, :FontSize = 14 ]
+OPTPN2 = [ :Font = EFONT, :NodeWidth = 64, :NodeHeight = 64, :FontSize = 13 ]
 
 # The meta layer: rules that state what they GOVERN, separately from what
 # they assert, so the SELECTION half can be checked at all. Six defects of
@@ -13515,6 +13517,14 @@ next
 aOgP + [ "er/shop", StzErScene01(OPTGOV) ]
 aOgP + [ "er/wrong", StzErScene02(OPTGOV) ]
 aOgP + [ "er/participation", StzErSceneParticipation(OPTGOV) ]
+# AND THE PETRI NETS (DN16): the mutex, whose four returns run under one
+# row; the buffer with its weights; and the witness with one of each
+# mistake. Notation pictures, judged by the plastic rules -- two of
+# which they taught: a cell on a straight run is a detour by law, and
+# only lines leaving by one face are one fan.
+aOgP + [ "petri/mutex", StzPetriScene01(OPTPN2) ]
+aOgP + [ "petri/buffer", StzPetriScene02(OPTPN2) ]
+aOgP + [ "petri/witness", StzPetriSceneWitness(OPTPN2) ]
 for iOg = 1 to 31
 	cOgF = "StzMathScene" + iOg
 	if iOg < 10  cOgF = "StzMathScene0" + iOg  ok
@@ -13554,8 +13564,8 @@ aOgP + [ "gantt/witness", StzMathGanttWitness(AUFONT) ]
 nOgT0 = StzEngineWatchTimestampMs()
 oOgRep = StzCheckPictures(aOgP)
 nOgMs = StzEngineWatchTimestampMs() - nOgT0
-chk("sixty-five pictures are judged by one call -- twenty-three notation, forty-two mathematical",
-    len(aOgP) = 65)
+chk("sixty-eight pictures are judged by one call -- twenty-six notation, forty-two mathematical",
+    len(aOgP) = 68)
 chk("and the report's findings are exactly the five things the corpus plants on purpose -- " +
     "the contradiction, the frame whose mark is outside the part it shows, " +
     "the three-bonded oxygen, the stray hydrogen and the schedule with three mistakes",
@@ -13577,8 +13587,8 @@ chk("the whole gate runs inside a bound that would have caught its first run -- 
 # THE RULES JUDGED BY THE FIVE QUESTIONS, over the math corpus: none
 # empty, none vacuous, every boundary witnessed.
 oOgG = StzMathGovernanceOf("math")
-# from 24: the twenty catalogue pictures and the three schemas are notation
-for iOg = 24 to len(aOgP)
+# from 27: the twenty catalogue pictures, the three schemas and the three nets are notation
+for iOg = 27 to len(aOgP)
 	oOgG.AddPicture(aOgP[iOg][1], aOgP[iOg][2])
 next
 aOgR = oOgG.CheckRules()
@@ -13645,7 +13655,7 @@ chk("red to blue at the half is a purple whose lightness is the mean of the two,
 # paper itself -- measured, not assumed. The pictures are the one gate's,
 # already solved; a theme changes no geometry, so no second solve.
 nCmBadL = 0  nCmBadD = 0  nCmNames = 0
-for iCm = 24 to len(aOgP)   # the math pictures: after the twenty catalogue and three schema ones
+for iCm = 27 to len(aOgP)   # the math pictures: after the twenty catalogue, three schema and three net ones
 	oCmP = aOgP[iCm][2]
 	oCmP.@oStyle.SetTheme("light")  oCmP.Touch()
 	nCmBadL += _CmUnreadable(oCmP, 3)
@@ -14931,6 +14941,108 @@ chk("NEGATIVE: a single arrival takes the border's centre, no spread",
 
 # IT ANSWERS THE DISPLAY CONTRACT LIKE EVERY OTHER PICTURE.
 chk("an ER diagram answers Rendition() as a vector", oErS.Rendition()[:kind] = "vector")
+
+
+sec("-- 110. DN16: A PETRI NET -- THE PICTURE CARRIES ITS STATE -------------")
+discharges("DN16")
+
+# THE NOTATION: places as circles with their names outside, transitions
+# as bars, arcs directed and read left to right. The inside of a place is
+# for its tokens, and the notation says so once, per kind.
+OPTPN = [ :Font = EFONT, :NodeWidth = 64, :NodeHeight = 64, :FontSize = 13 ]
+oPnM = StzPetriScene01(OPTPN)
+chk("the notation is directed and reads left to right",
+    oPnM.NotationO().Name_() = "petri" and oPnM.NotationO().EdgesDirected())
+chk("a place's name is written outside it by declaration -- its inside is for the tokens -- and so is a bar's",
+    oPnM.NotationO().WritesNameOutside("place") and oPnM.NotationO().WritesNameOutside("transition"))
+chk("NEGATIVE: the declaration is per kind -- a note keeps its text inside",
+    NOT oPnM.NotationO().WritesNameOutside("note"))
+
+# THE MARKING IS DRAWN, AND PUBLISHED. An empty place publishes its zero.
+chkeq("five places, five token records -- an empty place says so too", len(oPnM.RenderTokens()), 5)
+chk("the marking drawn is the marking declared: one in each Waiting, one Key, none in either Critical",
+    _PnDrawn(oPnM, "w1") = 1 and _PnDrawn(oPnM, "key") = 1 and _PnDrawn(oPnM, "w2") = 1 and
+    _PnDrawn(oPnM, "c1") = 0 and _PnDrawn(oPnM, "c2") = 0)
+chk("...and each record sits at the centre of its own place", _PnTokensCentred(oPnM))
+
+# THE TOKEN GAME, and it shows the exclusion.
+chkeq("both Enter transitions are enabled at the start", len(oPnM.Enabled()), 2)
+oPnM.Fire("e1")
+chk("Enter A fired: the key is taken and A is inside",
+    oPnM.Tokens("key") = 0 and oPnM.Tokens("c1") = 1 and oPnM.Tokens("w1") = 0)
+chk("...and Enter B is no longer enabled, for a reason that names the place and the count",
+    NOT oPnM.IsEnabled("e2") and StzFindFirst("'Key' holds 0 and the arc wants 1", oPnM.WhyNotEnabled("e2")) > 0)
+chk("NEGATIVE: firing Enter B anyway is refused, by name and by number",
+    _PnRefusesFire(oPnM, "e2", "'Key' holds 0"))
+oPnM.ToCanvasXT(OPTPN)
+chk("the picture drawn after the firing carries the new marking: the dot moved from Waiting A to Critical A",
+    _PnDrawn(oPnM, "w1") = 0 and _PnDrawn(oPnM, "c1") = 1 and _PnDrawn(oPnM, "key") = 0)
+oPnM.Fire("l1")
+chk("Leave A restores the initial marking, and both Enters are enabled again",
+    _PnMarkingIs(oPnM, [ [ "w1", 1 ], [ "key", 1 ], [ "w2", 1 ], [ "c1", 0 ], [ "c2", 0 ] ]) and
+    len(oPnM.Enabled()) = 2)
+
+# WEIGHTS: an arc may carry more than one token, and says so on the line.
+oPnB = StzPetriScene02(OPTPN)
+chk("five tokens are drawn as the number five, and published as five", _PnDrawn(oPnB, "free") = 5)
+chk("a weight above one is written on its arc; a weight of one is not",
+    _PnEdgeLabel(oPnB, "free", "put") = "2" and _PnEdgeLabel(oPnB, "put", "full") = "2" and
+    _PnEdgeLabel(oPnB, "full", "take") = "")
+oPnB.Fire("put")
+chk("an arc of weight two takes two and gives two", oPnB.Tokens("free") = 3 and oPnB.Tokens("full") = 2)
+oPnB.Fire("take")
+chk("Take needs one and finds two: after it the buffer holds one and the slots four",
+    oPnB.Tokens("full") = 1 and oPnB.Tokens("free") = 4)
+
+# THE RULES: the two sound nets pass, the witness names one of each mistake.
+chkeq("the mutex is sound under every rule", len(oPnM.GovernanceFindings()), 0)
+chkeq("the buffer is sound under every rule", len(oPnB.GovernanceFindings()), 0)
+oPnW = StzPetriSceneWitness(OPTPN)
+aPnF = oPnW.GovernanceFindings()
+? "   witness : " + len(aPnF) + " findings"
+chk("an arc from a place to a place is caught, naming both",
+    _ErFound(aPnF, "arc_joins_place_and_transition", "'Mid' -> 'Stray' joins two places"))
+chk("a transition with no input is caught: it fires forever",
+    _ErFound(aPnF, "transition_has_input", "'Source' has no input place"))
+chk("a transition with no output is caught: what it consumes vanishes",
+    _ErFound(aPnF, "transition_has_output", "'Sink' has no output place"))
+chk("a place with no token and nothing feeding it is caught: empty forever",
+    _ErFound(aPnF, "place_can_be_marked", "'Never' holds no token and no transition feeds it"))
+chk("...and the transition it starves is caught by the same fact, naming the place",
+    _ErFound(aPnF, "transition_can_fire", "'Starved' can never fire: its input place 'Never'"))
+chkeq("six findings: the stray place at the end of the bad arc is empty forever too", len(aPnF), 6)
+
+# THE BOUNDARIES, STOOD ON.
+oPnRs = StzPetriRuleSetQ()
+chk("NEGATIVE: the note is excluded by every rule, not merely passed",
+    _ErExcludedEverywhere(oPnRs, oPnW.AsRuleGraph(), "note:n1"))
+chk("NEGATIVE: a transition with no input is outside the firing rule -- it is the input rule's subject",
+    _ErInList("transition:t0", oPnRs.Rules()[5].CounterSubjectsIn(oPnW.AsRuleGraph())) and
+    NOT _ErInList("transition:t0", oPnRs.Rules()[5].SubjectsIn(oPnW.AsRuleGraph())))
+chk("NEGATIVE: a place is outside every rule about transitions",
+    _ErInList("place:p1", oPnRs.Rules()[2].CounterSubjectsIn(oPnW.AsRuleGraph())))
+
+# THE BUILDER REFUSES WHAT IT CANNOT MEAN.
+chk("a marking that is not a whole number of tokens is refused", _PnRefuses(1))
+chk("an arc to a node that is not in the net is refused, by name", _PnRefuses(2))
+chk("an arc of weight zero is refused", _PnRefuses(3))
+chk("a second node under one id is refused", _PnRefuses(4))
+
+# THE RETURNS RUN UNDER THE ROW. The mutex's every cycle lands on one row,
+# and its four backward arcs were first drawn straight along it -- under
+# Critical A, Enter A and the rest, a false link with each. A backward
+# arc with a cell on its straight run takes the return ladder now, in
+# every notation; one with a clear run keeps it.
+chk("no arc of the mutex runs through a cell", _PnNoArcThroughCell(oPnM))
+chk("...and its four returns each turn twice, out of the row and back into it",
+    _PlTurnsOf(oPnM, "l1", "w1") = 2 and _PlTurnsOf(oPnM, "key", "e1") = 2 and
+    _PlTurnsOf(oPnM, "l2", "key") = 2 and _PlTurnsOf(oPnM, "w2", "e2") = 2)
+chk("NEGATIVE: the instrument convicts the old straight run when handed one",
+    _PnSegmentThroughRect([ 460, 48, 60, 48 ], [ 306, 25.6, 44.8, 44.8, "c1" ]))
+chk("a forward arc between neighbours keeps its straight run", _PlTurnsOf(oPnM, "w1", "e1") = 0)
+
+# IT ANSWERS THE DISPLAY CONTRACT LIKE EVERY OTHER PICTURE.
+chk("a Petri net answers Rendition() as a vector", oPnM.Rendition()[:kind] = "vector")
 
 
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
@@ -17972,6 +18084,116 @@ func _OgWitness
 	_o_.SetFont(AUFONT, 16)
 	_o_.SetVariation("witness")
 	return _o_
+
+#-- DN16: the Petri section's helpers ----------------------------------------
+
+# the token count published for one place, or -1 when none was
+func _PnDrawn poD, pcId
+	_a_ = poD.RenderTokens()
+	for _i_ = 1 to len(_a_)
+		if _a_[_i_][1] = StzLower("" + pcId)  return _a_[_i_][2]  ok
+	next
+	return -1
+
+# every token record sits within a pixel of its place's centre
+func _PnTokensCentred poD
+	_aT_ = poD.RenderTokens()
+	_aR_ = poD.RenderNodeRects()
+	if len(_aT_) = 0  return FALSE  ok
+	for _i_ = 1 to len(_aT_)
+		_bOk_ = FALSE
+		for _k_ = 1 to len(_aR_)
+			if StzLower("" + _aR_[_k_][5]) != _aT_[_i_][1]  loop  ok
+			_cx_ = _aR_[_k_][1] + _aR_[_k_][3] / 2
+			_cy_ = _aR_[_k_][2] + _aR_[_k_][4] / 2
+			if fabs(_cx_ - _aT_[_i_][3]) < 1 and fabs(_cy_ - _aT_[_i_][4]) < 1  _bOk_ = TRUE  ok
+		next
+		if NOT _bOk_  return FALSE  ok
+	next
+	return TRUE
+
+func _PnMarkingIs poD, paWant
+	_aM_ = poD.Marking()
+	if len(_aM_) != len(paWant)  return FALSE  ok
+	for _i_ = 1 to len(paWant)
+		_bOk_ = FALSE
+		for _k_ = 1 to len(_aM_)
+			if StzLower("" + _aM_[_k_][1]) = StzLower("" + paWant[_i_][1]) and _aM_[_k_][2] = paWant[_i_][2]
+				_bOk_ = TRUE
+			ok
+		next
+		if NOT _bOk_  return FALSE  ok
+	next
+	return TRUE
+
+func _PnEdgeLabel poD, pcF, pcT
+	_a_ = poD.Edges()
+	for _i_ = 1 to len(_a_)
+		if StzLower("" + _a_[_i_][:from]) = StzLower("" + pcF) and StzLower("" + _a_[_i_][:to]) = StzLower("" + pcT)
+			return "" + _a_[_i_][:label]
+		ok
+	next
+	return "?"
+
+func _PnRefusesFire poD, pcT, pcText
+	try
+		poD.Fire(pcT)
+	catch
+		return StzFindFirst(pcText, cCatchError) > 0
+	done
+	return FALSE
+
+func _PnRefuses pnCase
+	try
+		_o_ = new stzPetriNet("x")
+		_o_.AddPlace("p", "P")
+		_o_.AddTransition("t", "T")
+		if pnCase = 1  _o_.AddPlaceXT("q", "Q", 1.5)  ok
+		if pnCase = 2  _o_.Arc("p", "nobody")  ok
+		if pnCase = 3  _o_.ArcXT("p", "t", 0)  ok
+		if pnCase = 4  _o_.AddTransition("p", "again")  ok
+	catch
+		if pnCase = 1  return StzFindFirst("whole number", cCatchError) > 0  ok
+		if pnCase = 2  return StzFindFirst("nobody", cCatchError) > 0  ok
+		if pnCase = 3  return StzFindFirst("weight", cCatchError) > 0  ok
+		return StzFindFirst("already", cCatchError) > 0
+	done
+	return FALSE
+
+# does an axis-aligned segment [ x1, y1, x2, y2 ] pass through the
+# interior of the rect [ x, y, w, h, id ]?
+func _PnSegmentThroughRect paS, paR
+	_l_ = paR[1] + 1  _t_ = paR[2] + 1
+	_r_ = paR[1] + paR[3] - 1  _b_ = paR[2] + paR[4] - 1
+	_x0_ = min([ paS[1], paS[3] ])  _x1_ = max([ paS[1], paS[3] ])
+	_y0_ = min([ paS[2], paS[4] ])  _y1_ = max([ paS[2], paS[4] ])
+	if _x1_ < _l_ or _x0_ > _r_  return FALSE  ok
+	if _y1_ < _t_ or _y0_ > _b_  return FALSE  ok
+	return TRUE
+
+# no drawn segment of any arc passes through a cell other than its own ends
+func _PnNoArcThroughCell poD
+	_aR_ = poD.RenderNodeRects()
+	_aP_ = poD.@aEdgePaths
+	if len(_aP_) = 0  return FALSE  ok
+	for _i_ = 1 to len(_aP_)
+		_cK_ = "" + _aP_[_i_][1]
+		_n_ = StzFindFirst(">", _cK_)
+		_cF_ = StzSubStr(_cK_, 1, _n_ - 1)
+		_cT_ = StzSubStr(_cK_, _n_ + 1, StzLen(_cK_) - _n_)
+		_f_ = _aP_[_i_][2]
+		for _j_ = 1 to len(_f_) - 3 step 2
+			for _k_ = 1 to len(_aR_)
+				_cId_ = StzLower("" + _aR_[_k_][5])
+				if _cId_ = _cF_ or _cId_ = _cT_  loop  ok
+				if _PnSegmentThroughRect([ _f_[_j_], _f_[_j_ + 1], _f_[_j_ + 2], _f_[_j_ + 3] ], _aR_[_k_])
+					? "   ! " + _cK_ + " runs through " + _cId_
+					return FALSE
+				ok
+			next
+		next
+	next
+	return TRUE
 
 #-- DN15: the ER section's helpers -------------------------------------------
 

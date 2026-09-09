@@ -119,6 +119,7 @@ sections, of which 21 declarations over 17 items.
 | DN13 | closed | 107 |
 | DN14 | closed | 108 |
 | DN15 | closed | 109 |
+| DN16 | closed | 110 |
 | DN9 | closed | - |
 | DN9a | closed | 97 |
 | DN9b | closed | 98 |
@@ -3299,6 +3300,75 @@ are not here; the crow's foot is the one notation drawn.
 
 *Guard:* §109, 33 assertions; §91 grew by three pictures. Catalogue:
 `gg_er_catalogue.ring`, er_01 to er_03.
+
+## DN16 — A PETRI NET: the picture carries its state (2026-09-09, SHIPPED)
+
+**The first domain on this plane whose drawing is not fixed by its author.**
+A place holds tokens, a transition moves them, and the same net read a
+moment apart shows two different facts. Nothing before it had that: an org
+chart, a schema, a circuit are what they are until edited. It lives on the
+graph plane — places and transitions are typed nodes, arcs are directed
+edges, the net is bipartite by definition — in
+`base/graph/stzPetriNet.ring`, under `StzPetriNotation()`: places as circles
+at seven tenths of the cell with their name outside, transitions as bars
+across the flow, arcs left to right with heads.
+
+**What it is.** `AddPlace` / `AddPlaceXT(id, name, tokens)`, `AddTransition`,
+`AddNote`, `Arc` / `ArcXT(from, to, weight)` — a weight above one is written
+on the line. The token game: `Tokens`, `SetTokens`, `Marking`, `InputsOf`,
+`OutputsOf`, `IsEnabled`, `Enabled`, `WhyNotEnabled` and `Fire`, which takes
+each input arc's weight from its place and gives each output arc's weight to
+its place, and refuses otherwise by name and by number — *transition 'Enter
+B' is not enabled: place 'Key' holds 0 and the arc wants 1*. The mutex in the
+catalogue shows the exclusion: Enter A fires, and Enter B is not enabled
+until Leave A fires. **The tokens are drawn by the diagram itself**, after
+the glyph and before any name, through a hook every cell now offers,
+`_DrawNodeMark`: one to four as dots, more as the number, and each published
+in `RenderTokens()` as place, count and position, so the gate reads what was
+drawn and not what was meant. The picture rendered after a firing carries
+the new marking.
+
+**Five rules, and the fifth is liveness in its structural case.**
+`arc_joins_place_and_transition` (error): an arc from a place to a place has
+nothing to move its tokens. `transition_has_input` and
+`transition_has_output` (warnings): a source fires forever, a sink consumes
+into nothing. `place_can_be_marked` (warning): no token now and no
+transition feeding it is empty forever. `transition_can_fire` (error): fed by
+such a place, a transition is dead at birth. Reachability, boundedness and
+liveness in the full sense are not computed, and the file says so. Each rule
+declares its boundary — the note by every rule, a place by every rule about
+transitions, a transition with no input by the firing rule, since it is the
+input rule's — and the witness carries one of each mistake.
+
+**Three things the first cyclic domain found in the plane, each general.**
+*A backward edge ran through cells.* The mutex's every cycle lands on one
+row, and Leave A → Waiting A was drawn straight back along it, under
+Critical A and Enter A, a false link with each. The return ladder existed
+and was gated on the notation declaring a spine, because ungated it had
+disturbed seven assertions in domains whose backward edges had clear runs.
+The gate is right and was too wide: with no spine the ladder is now used for
+exactly the backward edges with a cell standing on their straight run, read
+from the drawn positions (`_CellOnTheRun`), and a clear run still keeps the
+row. *The name was written over the tokens.* A glyph big enough to hold its
+name holds it, which is right until the glyph holds something else — "Key"
+over one dot read as "K.y". A notation now declares, per kind, that a
+glyph's inside is spoken for (`SetNameOutside`), and the renderer writes the
+name outside without asking whether it fits. *Two plastic rules learned from
+the returns.* A return that steps off the row because a cell stands on its
+straight run is a detour by law in every notation, not only DRAKON's — the
+aligned-edge rule now asks the drawing (`_PlCellOnRun`) before convicting a
+bend; and a return dropping out of the bottom of a cell and a flow leaving
+its right side are two departures, not one fan drawn twice — the fan rule
+now reads the face each line leaves by and holds only the lines of one face
+to one stem, which is what DRAKON's If had said of its two exits.
+
+**Said plainly and left out.** Inhibitor arcs, coloured tokens, timed
+transitions, priorities, and any analysis beyond the structural — the
+reachability graph, boundedness, full liveness — are not here.
+
+*Guard:* §110, 36 assertions; §91 grew by three pictures. Catalogue:
+`gg_petri_catalogue.ring`, petri_01 to petri_03 and petri_01b, the mutex
+after Enter A fired.
 
 ## DN9 — THE TOLD PICTURE: a narration is facts made visible, in an order (planned 2026-09-06, SHIPPED 2026-09-07 as DN9a through DN9g, all seven closed)
 
