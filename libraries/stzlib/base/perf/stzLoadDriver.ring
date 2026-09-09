@@ -221,7 +221,7 @@ class stzLoadDriver from stzObject
 		next
 
 	def Destroy()
-		if bSpawnedTarget and @nTargetJob > 0
+		if This.bSpawnedTarget and @nTargetJob > 0
 			@oReactor.KillSpawnHard(@nTargetJob)
 			@nTargetJob = 0
 			bSpawnedTarget = 0

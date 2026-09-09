@@ -22,19 +22,19 @@ class stzTextStream from stzObject
 	# Sets the string from a QFile or QSocket or QProcess
 	def SetFromFile(pcFile)
 		_oFile_ = new stzFile(pcFile, :WriteToEnd)
-		_oQTextStream_.setDevice(_oFile_.Pointer())
+		This._oQTextStream_.setDevice(_oFile_.Pointer())
 
 		This.SetSourceOfStreamTo(:File)
 
 	def SetFromScocket(poQSocket)
 		// TODO: check this is really a socket
-		_oQTextStream_.setDevice(poQSocket)
+		This._oQTextStream_.setDevice(poQSocket)
 
 		This.SetSourceOfStreamTo(:Socket)
 
 	def SetFromProcess(poQProcess)
 		// TODO: check this is really a process
-		_oQTextStream_.setDevice(poQProcess)
+		This._oQTextStream_.setDevice(poQProcess)
 
 		This.SetSourceOfStreamTo(:Process)
 
@@ -83,7 +83,7 @@ class stzTextStream from stzObject
 		return _bIsSetFromSocket_
 
 	def IsSetFromProcess()
-		reurn _bIsSetFromProcess_
+		reurn This._bIsSetFromProcess_
 
 	def IsUnicodeAutoDetected()
 		return _oQTextStream_.autoDetectUnicode()
@@ -101,7 +101,7 @@ class stzTextStream from stzObject
 		return _oQTextStream_.device()
 
 	def Status()
-		switch _oQTextStream_.status()
+		switch This._oQTextStream_.status()
 		on 0	return :Ok
 		on 1	return :ReadPastEnd
 		on 2	return :ReadCorruptData
@@ -131,7 +131,7 @@ class stzTextStream from stzObject
 	#-------------#
 
 	def Delete()
-		_oQTextStream_.delete()
+		This._oQTextStream_.delete()
 
 
 	def Flush()
