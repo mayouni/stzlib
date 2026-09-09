@@ -3359,3 +3359,40 @@ note:      ROUTING IS A WHOLE-PICTURE DECISION. A style rule draws one
            every bar. Put the decision where the knowledge is and the
            drawing stays a drawing.
 ```
+
+```yaml
+by:        stzlib · claude-fable-5-1 · 2026-09-09 10:32
+
+subject:   the Gantt witness draws its faults
+
+why:       the Principal asked what a white seam and a blank lane were,
+           and they were faults the drawing hid
+
+did:
+  - Marked in the builder every task that finishes before it starts and
+    every task overlapping another on its lane.
+  - Drew a reversed task as a bar between its two days in the fault
+    colour, where it drew nothing, and gave a double-booked task a red
+    edge, so the overlap is a red seam and not a white one.
+  - Made every bar's width the absolute distance between its days.
+  - Held the drawing's marks to the rules' verdicts in the gate: the
+    marked tasks are exactly the lane rule's subjects, and nothing in
+    the lawful project is marked.
+  - Re-rendered scene 42.
+
+state:
+  gg_adversarial:   1295 ok, 0 failed   (was 1292)
+  commit:           7185e82ea on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the author's word
+  - central: none
+
+note:      A MARK IS A CLAIM ABOUT A VERDICT, so the gate compares the
+           two sets and refuses a difference either way.
+```
