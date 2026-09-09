@@ -3616,3 +3616,32 @@ note:      ONE ALLOCATOR, TWO BORDERS, ONE BUCKET. The planner was
            leaves and the border a forward edge leaves happen to be the
            same edge of the cell; turned on its side, they are not.
 ```
+
+```yaml
+by:        stzlib-graphics · claude-fable-5-1 · 2026-09-09 19:22
+
+subject:   a name beside a mark, centred on the wire by its capitals
+
+why:       the Principal asked for the text to be aligned with the
+           horizontal line; it hung 4px under it in every picture that
+           writes a name beside a mark
+
+did:
+  - Set the beside-name's baseline from the font's cap height so the
+    capitals straddle the wire's centre, the centring DN12 gave a name
+    inside a cell; held in section 110 against the published label
+    record and the cap height.
+
+state:
+  gg_adversarial:   1373 ok, 0 failed
+  commit:           8616c9f32 on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the author's word
+  - central: none
+```
