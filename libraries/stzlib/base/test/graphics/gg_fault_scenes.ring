@@ -50,11 +50,13 @@ func StzFaultSceneWitness(paOpt)
 	_o_.AddEvent("bare", "Undeveloped, unsaid")
 	_o_.AddBasic("dust", "Dust")
 	_o_.AddBasicXT("wear", "Belt worn", 0.02)
+	_o_.AddBasicXT("spare", "No spare", 0.05)
 	_o_.AddUndeveloped("operator", "Operator absent")
 	_o_.AddNote("n1", "draft of 2026-09-09")
 	_o_.Develop("t1", :Or, [ "jam", "bare", "operator" ])
 	# the jam is caused by the dust, the wear -- and by the line stopping
 	_o_.Develop("jam", :And, [ "dust", "wear", "t1" ])
-	_o_.Develop("t2", :Or, [ "wear" ])
+	# the second top's one input: a gate that is a wire
+	_o_.Develop("t2", :Or, [ "spare" ])
 	_o_.ToCanvasXT(paOpt)
 	return _o_

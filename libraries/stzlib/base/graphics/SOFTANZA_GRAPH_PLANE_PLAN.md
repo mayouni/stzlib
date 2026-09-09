@@ -3463,13 +3463,18 @@ other input alone. Under a peers notation every input counts, which is what
 puts the shared sensor between the two branches and each gate at the middle
 of both its inputs. And a tree's one backward edge, a cause among its own
 effects, takes the return ladder beside the picture rather than climbing
-its own column into the top event's floor.
+its own column into the top event's floor. *And a second arrival entered a
+leaf from its side.* A mark takes no ports, so its second arrival always
+found the column taken and took the side approach; two descents into a
+mark are one line by the mark's own law, and under a peers notation no line
+enters a cell's side — the repeated sensor is now entered from above by
+both gates, on one drop.
 
 **Said plainly and left out.** NOT, voting and inhibit gates, transfer
 symbols, common-cause groups, importance measures, and the exact sum above
 twelve cut sets. The gates draw for a top-down tree only.
 
-*Guard:* §111, 40 assertions; §91 grew by three pictures. Catalogue:
+*Guard:* §111, 41 assertions; §91 grew by three pictures. Catalogue:
 `gg_fault_catalogue.ring`, fault_01 to fault_03.
 
 ## DN9 — THE TOLD PICTURE: a narration is facts made visible, in an order (planned 2026-09-06, SHIPPED 2026-09-07 as DN9a through DN9g, all seven closed)
