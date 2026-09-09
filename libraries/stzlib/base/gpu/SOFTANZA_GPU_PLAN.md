@@ -1553,3 +1553,65 @@ guard says now.
 
 Next for this plane: nothing owed on GS1. GS3 is the graph desk's;
 GS5–GS8 wait for their workloads.
+
+---
+
+## GS6 SPIKE RESULTS — measured 2026-09-10. VERDICT: GO, on both adapters, by a wide margin
+
+Spike: `engine/src/gs6_spike.zig` (in `src/` because it drives the REAL
+`gpu.zig` and `tsne.zig`, and Zig refuses `../` imports from `tools/`;
+build line in its header). Measurement only; no product code.
+
+**Kill criteria, written before the numbers:** GO only if at n = 4000
+the GPU epoch beats `tsne.zig`'s f64 `klGradient` by ≥ 3x AND the
+gradient agrees within 1e-4 of the f64 one relative to its peak.
+
+**The chain measured** — the resident shape the survey asked for: P
+uploaded ONCE as f32, y uploaded per epoch (n × 2 floats), three
+dispatches in one batched pass (a per-row q-sum with a shared-memory
+reduction, a one-workgroup total, a per-row gradient pass that reads
+each P entry once and recomputes q from y), dy and the KL partials read
+back per epoch. Device woken first. Clustered data (8 blobs in 16
+dims), perplexity 30, exaggeration 12.
+
+| n | CPU epoch (f64) | GPU epoch, RTX 3050 | ratio | GPU epoch, Intel iGPU | ratio | gradient err / peak | KL rel. |
+|---|---|---|---|---|---|---|---|
+| 1,000 | 5.15 ms | 0.415 ms | **12.4x** | — | — | 1.2e-7 | 2.4e-8 |
+| 2,000 | 18.0 ms | 0.480 ms | **37.6x** | 2.76 ms | **6.6x** | 8.6e-8 | 3.8e-8 |
+| 4,000 | 82.2 ms | 1.15 ms | **71.4x** | 4.29 ms | **19.7x** | 1.1e-7 | 2.7e-8 |
+
+A 1,000-epoch fit at 4,000 points: **82 s on the CPU, 1.15 s on the
+3050, 4.3 s on the iGPU.** The gradient agrees with f64 to 1e-7 of its
+peak — three orders inside the criterion — because the f32 work is a
+per-row sum of n terms of similar magnitude, not a long accumulation.
+
+**Why the ratio GROWS with n**: the CPU pass is memory-bound over two
+n × n f64 matrices (P and the q numerators, 256 MB at n = 4000); the
+GPU chain never materialises q — it recomputes 1/(1+|yᵢ−yⱼ|²) from the
+n × 2 positions in both passes, so its only n² traffic is one read of P
+as f32. The memory wall that limits the CPU is the thing the chain
+removes.
+
+**The memory wall, measured beside:** P as f32 on the device is 4n²
+bytes — 61 MB at n = 4000, 244 MB at 8,000, ~1 GB at 16,000, which is
+the VRAM budget. The seam's honest range on this machine is n ≤ ~12,000
+dense; beyond it the sparse-P path (UMAP's k-NN graph, GS6's other
+half) is the shape, not a bigger buffer.
+
+**What the seam will then be limited by:** the P build itself
+(`jointP`, a per-row perplexity search of up to 50 entropy evaluations
+over n) — 1.4 s at n = 4000 on the CPU, larger than the whole
+1,000-epoch GPU fit. It is the same n² shape with a per-row binary
+search and belongs in the same chain; the seam must move it too or the
+fit stays CPU-bound at the start.
+
+**So GS6 is a seam to build**, not a survey row: `stz_gpu_op_tsne_epoch`
+over resident buffers (P once, y per epoch), the CPU `run` loop keeping
+momentum, gains and the exaggeration schedule, `stzTSNE.Fit()` routing
+silently by a calibrated n with the CPU path as the truth — and the P
+build as its second kernel. Correctness class 2, with the band written
+from this measurement (1e-6 on the gradient's peak, a hundred times the
+observed error).
+
+Next: **GS6a** — the epoch op and the seam; **GS6b** — the P build on
+the device; then UMAP's sparse form.
