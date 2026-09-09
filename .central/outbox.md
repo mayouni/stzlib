@@ -3575,3 +3575,44 @@ note:      A GATE CAN BE RIGHT AND TOO WIDE. The return ladder was
            assertions; the true condition was narrower -- a cell on the
            run -- and every one of those seven still passes under it.
 ```
+
+```yaml
+by:        stzlib-graphics · claude-fable-5-1 · 2026-09-09 18:59
+
+subject:   five marks on the Petri mutex -- three renderer faults, none
+           of them Petri's
+
+why:       the Principal marked the picture; every mark was a general
+           fault that the first cyclic, single-row domain made visible
+
+did:
+  - Gave a return its own border in the stub planner: it leaves and
+    arrives through the far stacking border, offset along the rank
+    axis, where a forward edge uses the rank-facing border. A lone
+    return takes the centre now and a pair straddles it.
+  - Filled the bar glyph when its box is already as thin as a bar, and
+    declared the Petri transition at a tenth of the cell, so an arc
+    attached to the box arrives at the ink.
+  - Stood a beside-name a line's clearance off the border where a wire
+    leaves or arrives through that side, so the wire is seen before
+    the word covers it; a mark with no wire there keeps its name close.
+  - Held all five in section 110, each with its negative.
+
+state:
+  gg_adversarial:   1371 ok, 0 failed   (was 1364)
+  commit:           efbd5dc39 on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the author's word
+  - central: none
+
+note:      ONE ALLOCATOR, TWO BORDERS, ONE BUCKET. The planner was
+           written for a top-down reading, where the border a return
+           leaves and the border a forward edge leaves happen to be the
+           same edge of the cell; turned on its side, they are not.
+```
