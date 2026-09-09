@@ -3362,11 +3362,31 @@ its right side are two departures, not one fan drawn twice — the fan rule
 now reads the face each line leaves by and holds only the lines of one face
 to one stem, which is what DRAKON's If had said of its two exits.
 
+**Five marks from the Principal on the mutex, and every one was a general
+fault of the renderer.** *A lone return arrived a quarter-cell off the
+centre of its circle, and two stubs under Key sat at centre and
+centre-plus-seven, and a lone return left a bar off its centre.* One
+allocator: the stub planner bucketed a return with the forward departures,
+though a return leaves and arrives through the far *stacking* border while a
+forward edge uses the *rank-facing* one — under a left-to-right reading, the
+bottom against the right — and it measured the return's offset along the
+wrong axis. A return now has its own border and its offset runs along the
+rank axis, so a lone return takes the centre and a pair straddles it. *An
+arrow stopped short of the bar.* The bar glyph inset its ink to 28% of a box
+that was itself a third of the cell, so an arc attached to the box ended 9 px
+from any ink. A box already as thin as a bar is now filled, and the Petri
+transition declares a tenth of the cell — its box is its ink. *The wire
+between a place and its name was five pixels long.* A beside-name's plate
+began 5 px past the border and covered the wire leaving through it; where a
+wire leaves or arrives through the side a name sits on, the name now stands a
+line's clearance off the border — the stub the name-below branch already
+left — and keeps close where nothing does.
+
 **Said plainly and left out.** Inhibitor arcs, coloured tokens, timed
 transitions, priorities, and any analysis beyond the structural — the
 reachability graph, boundedness, full liveness — are not here.
 
-*Guard:* §110, 36 assertions; §91 grew by three pictures. Catalogue:
+*Guard:* §110, 43 assertions; §91 grew by three pictures. Catalogue:
 `gg_petri_catalogue.ring`, petri_01 to petri_03 and petri_01b, the mutex
 after Enter A fired.
 

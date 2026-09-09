@@ -6144,10 +6144,26 @@ class stzDiagram from stzGraph
 					# which is worse than either whole answer.
 					_nLbX_ = _a_[1] - _nTw_ / 2
 					if _bSide2_
+						# A NAME BESIDE A MARK LEAVES THE WIRE VISIBLE. The
+						# plate under a beside-name began 5px past the
+						# border, and where a wire leaves through that same
+						# border those 5px were all of it a reader saw
+						# before the word covered the rest -- the Principal
+						# called the stub "so small", which it was. Where a
+						# wire leaves or arrives through the side the name
+						# sits on, the name stands a line's clearance off
+						# the border, the same stub the name-below branch
+						# already leaves a wire below; where nothing does,
+						# it keeps close.
+						_nSdGap_ = 8
+						if This._LeavesThroughSide(_cId_, _a_, _aBx2_,
+							iif(_cRank_ = "RL", -1, 1))
+							_nSdGap_ = max([ This._LineClearance(), _nFsz_ * 0.6 ])
+						ok
 						if _cRank_ = "LR"
-							_nLbX_ = _a_[1] + _aBx2_[1] / 2 + 8
+							_nLbX_ = _a_[1] + _aBx2_[1] / 2 + _nSdGap_
 						but _cRank_ = "RL"
-							_nLbX_ = _a_[1] - _aBx2_[1] / 2 - 8 - _nTw_
+							_nLbX_ = _a_[1] - _aBx2_[1] / 2 - _nSdGap_ - _nTw_
 						ok
 					ok
 					if _bAside_  _nLbX_ = _nLbX2_  ok
@@ -14934,6 +14950,31 @@ class stzDiagram from stzGraph
 	# and not about what a layout intended. An endpoint within a whisker
 	# of the bottom edge, and inside its span, is a wire leaving there --
 	# and a name written below would stand on it.
+	# ...AND THE SAME QUESTION OF A SIDE BORDER, for a name written beside
+	# its glyph: does a wire leave or arrive through the border the name
+	# sits against? pnSign is +1 for the right border, -1 for the left.
+	def _LeavesThroughSide(pcId, paAt, paBox, pnSign)
+		if len(paAt) != 2 or len(paBox) < 2  return 0  ok
+		_lsX_ = paAt[1] + pnSign * paBox[1] / 2
+		_lsT_ = paAt[2] - paBox[2] / 2
+		_lsB_ = paAt[2] + paBox[2] / 2
+		_aLsP_ = @aEdgePaths
+		_nLsP_ = len(_aLsP_)
+		for _iLsP_ = 1 to _nLsP_
+			_lsF_ = _aLsP_[_iLsP_][2]
+			_nF_ = len(_lsF_)
+			if _nF_ < 4  loop  ok
+			for _lsE_ = 1 to 2
+				_lsPx_ = _lsF_[1]   _lsPy_ = _lsF_[2]
+				if _lsE_ = 2
+					_lsPx_ = _lsF_[_nF_ - 1]   _lsPy_ = _lsF_[_nF_]
+				ok
+				if _lsPy_ < _lsT_ - 2 or _lsPy_ > _lsB_ + 2  loop  ok
+				if fabs(_lsPx_ - _lsX_) <= 4  return 1  ok
+			next
+		next
+		return 0
+
 	def _LeavesThroughBottom(pcId, paAt, paBox)
 		if len(paAt) != 2 or len(paBox) < 2  return 0  ok
 		_lbB_ = paAt[2] + paBox[2] / 2
@@ -15852,13 +15893,32 @@ class stzDiagram from stzGraph
 				# the spine's arrival sat on the upper one. Two borders,
 				# one edge each, so each took the middle it is entitled
 				# to, and the two middles are the same column.
+				# ...AND A RETURN IS ON A THIRD BORDER, WITH ITS OWN AXIS.
+				# A return runs beyond the picture on the STACKING axis,
+				# so it leaves and arrives through the far stacking border
+				# -- the bottom of a left-to-right picture -- and its stub
+				# is an offset along the RANK axis. Everything else uses
+				# the rank-facing borders with an offset along the
+				# stacking axis. Bucketing the return with the departures
+				# put a forward edge that leaves the RIGHT of a place in
+				# the same contest as a return that leaves its BOTTOM: on
+				# the Petri mutex the lone return into Waiting A was pushed
+				# a quarter-cell off the centre it was entitled to, to
+				# make room for a straight edge on another border, and the
+				# two stubs under Key sat centre and centre-plus-seven.
+				# The Principal marked all three.
+				_psRet_ = This._ReturnRowOf(_psF_ + ">" + _psT_) > 0
 				_psSide_ = 1
-				if _psEnd_ = 2 and
-				   This._ReturnRowOf(_psF_ + ">" + _psT_) <= 0
-					_psSide_ = -1
+				if _psEnd_ = 2 and NOT _psRet_  _psSide_ = -1  ok
+				if _psRet_  _psSide_ = 2  ok
+				_psKAx_ = _psAx_
+				if _psRet_  _psKAx_ = 3 - _psAx_  ok
+				if _psRet_
+					_psAli_ = 0
+					if fabs(_psOAt_[_psKAx_] - _psAt_[_psKAx_]) < 1  _psAli_ = 1  ok
 				ok
 				_psTouch_ + [ _psF_ + ">" + _psT_, _psEnd_,
-					_psOAt_[_psAx_], _psSide_, _psAli_ ]
+					_psOAt_[_psKAx_], _psSide_, _psAli_ ]
 			next
 			_psN2_ = len(_psTouch_)
 			if _psN2_ = 0  loop  ok
@@ -15874,8 +15934,8 @@ class stzDiagram from stzGraph
 				next
 			next
 			_psB_ = This._BoxOf(_psId_, nBoxW, nBoxH)
-			_psSpan_ = _psB_[1]
-			if _psAx_ = 2  _psSpan_ = _psB_[2]  ok
+			_psSpanS_ = _psB_[_psAx_]        # along a rank-facing border
+			_psSpanR_ = _psB_[3 - _psAx_]    # along the far stacking border
 			# ...and a SINGLE stub takes the middle. Spreading one edge
 			# off-centre says there is another one to make room for,
 			# and there is not.
@@ -15890,7 +15950,10 @@ class stzDiagram from stzGraph
 			# out its own columns to the edges that actually use it, so
 			# a lone edge on a border keeps the middle however busy the
 			# opposite border is.
-			for _psSd_ = -1 to 1
+			for _psSd_ = -1 to 2
+				if _psSd_ = 0  loop  ok
+				_psSpan_ = _psSpanS_
+				if _psSd_ = 2  _psSpan_ = _psSpanR_  ok
 				_psHere_ = []
 				for _psI_ = 1 to _psN2_
 					if _psTouch_[_psI_][4] != _psSd_  loop  ok

@@ -15041,6 +15041,26 @@ chk("NEGATIVE: the instrument convicts the old straight run when handed one",
     _PnSegmentThroughRect([ 460, 48, 60, 48 ], [ 306, 25.6, 44.8, 44.8, "c1" ]))
 chk("a forward arc between neighbours keeps its straight run", _PlTurnsOf(oPnM, "w1", "e1") = 0)
 
+# FIVE MARKS FROM THE PRINCIPAL ON THE MUTEX, each a general fault. A
+# return meets the far stacking border, not the rank-facing one, so it is
+# allocated its stub on that border alone and along the rank axis; a
+# bar's box is its ink; a name beside a mark leaves the wire visible.
+chk("the lone return into Waiting A arrives at the centre of its circle",
+    fabs(_PnPathEnd(oPnM, "l1", "w1")[1] - _PnCentreX(oPnM, "w1")) < 0.5)
+chk("the lone return out of Leave B leaves at the centre of its bar",
+    fabs(_PnPathStart(oPnM, "l2", "key")[1] - _PnCentreX(oPnM, "l2")) < 0.5)
+chk("the two stubs under Key -- one leaving, one arriving -- stand symmetric about its centre",
+    fabs((_PnPathStart(oPnM, "key", "e1")[1] + _PnPathEnd(oPnM, "l2", "key")[1]) / 2 - _PnCentreX(oPnM, "key")) < 0.5 and
+    fabs(_PnPathStart(oPnM, "key", "e1")[1] - _PnPathEnd(oPnM, "l2", "key")[1]) > 10)
+chk("NEGATIVE: a forward arc still leaves the rank-facing border at the centre, untouched by the return's contest",
+    fabs(_PnPathStart(oPnM, "key", "e2")[2] - _PnCentreY(oPnM, "key")) < 0.5)
+chk("a bar's box is its ink, and an arc arriving at the box arrives at the bar",
+    _PnRectW(oPnM, "e1") <= 8 and fabs(_PnPathEnd(oPnM, "w1", "e1")[1] - _PnRectX(oPnM, "e1")) < 0.5)
+chk("a name beside a mark whose wire leaves through that side stands a clearance off the border -- the stub is seen",
+    _PnPlateGap(oPnM, "w1") >= 20 and _PnPlateGap(oPnM, "e1") >= 20)
+chk("NEGATIVE: a mark with no wire on that side keeps its name close",
+    _PnPlateGap(oPnM, "w2") < 8)
+
 # IT ANSWERS THE DISPLAY CONTRACT LIKE EVERY OTHER PICTURE.
 chk("a Petri net answers Rendition() as a vector", oPnM.Rendition()[:kind] = "vector")
 
@@ -18159,6 +18179,56 @@ func _PnRefuses pnCase
 		return StzFindFirst("already", cCatchError) > 0
 	done
 	return FALSE
+
+func _PnPathOf poD, pcF, pcT
+	_aP_ = poD.@aEdgePaths
+	_k_ = StzLower("" + pcF) + ">" + StzLower("" + pcT)
+	for _i_ = 1 to len(_aP_)
+		if StzLower("" + _aP_[_i_][1]) = _k_  return _aP_[_i_][2]  ok
+	next
+	return []
+
+func _PnPathStart poD, pcF, pcT
+	_f_ = _PnPathOf(poD, pcF, pcT)
+	if len(_f_) < 2  return [ -1000000, -1000000 ]  ok
+	return [ _f_[1], _f_[2] ]
+
+func _PnPathEnd poD, pcF, pcT
+	_f_ = _PnPathOf(poD, pcF, pcT)
+	if len(_f_) < 2  return [ -1000000, -1000000 ]  ok
+	return [ _f_[len(_f_) - 1], _f_[len(_f_)] ]
+
+func _PnRectOf poD, pcId
+	_a_ = poD.RenderNodeRects()
+	for _i_ = 1 to len(_a_)
+		if StzLower("" + _a_[_i_][5]) = StzLower("" + pcId)  return _a_[_i_]  ok
+	next
+	return [ -1000000, -1000000, 0, 0, "" ]
+
+func _PnCentreX poD, pcId
+	_r_ = _PnRectOf(poD, pcId)
+	return _r_[1] + _r_[3] / 2
+
+func _PnCentreY poD, pcId
+	_r_ = _PnRectOf(poD, pcId)
+	return _r_[2] + _r_[4] / 2
+
+func _PnRectX poD, pcId
+	return _PnRectOf(poD, pcId)[1]
+
+func _PnRectW poD, pcId
+	return _PnRectOf(poD, pcId)[3]
+
+# the gap between a node's right border and the left edge of its name's
+# plate, for a name written beside it
+func _PnPlateGap poD, pcId
+	_r_ = _PnRectOf(poD, pcId)
+	_a_ = poD.@aRenderNodeLabels
+	for _i_ = 1 to len(_a_)
+		if StzLower("" + _a_[_i_][1]) != StzLower("" + pcId)  loop  ok
+		return (_a_[_i_][2] - _a_[_i_][4] / 2) - (_r_[1] + _r_[3])
+	next
+	return -1000000
 
 # does an axis-aligned segment [ x1, y1, x2, y2 ] pass through the
 # interior of the rect [ x, y, w, h, id ]?
