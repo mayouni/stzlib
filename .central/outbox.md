@@ -3692,3 +3692,39 @@ note:      THE SAME SHAPE, FOUR TIMES: a rule written for the flow that
            branches of unequal depth. Each time the rule was right for
            its case and needed a declaration, not a repeal.
 ```
+
+```yaml
+by:        stzlib-graphics · claude-fable-5-1 · 2026-09-09 22:38
+
+subject:   the alignment of a subtree -- three faults the fault trees
+           showed, in the engine and the ladder
+
+why:       the Principal marked every subtree and asked for the rules
+           already made to be applied
+
+did:
+  - Removed the engine's skip of one-child nodes in centerParents: a
+    chain follows its child now, which the pass's own comment already
+    promised. Every layered picture with a chain under a fan gains a
+    vertical spine it did not have.
+  - Counted shared children for centring under a peers notation, so a
+    repeated leaf stands between the gates that share it.
+  - Hung the return ladder from the picture's border rather than a
+    centre offset by the source's box, so a cycle's return no longer
+    runs inside a wide cell; a tree's backward edge always takes it.
+  - Held all three in section 111 (40 assertions).
+
+state:
+  gg_adversarial:   1413 ok, 0 failed
+  stz_graph.dll:    rebuilt
+  commit:           259401948 on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the author's word
+  - central: none
+```
