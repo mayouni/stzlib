@@ -160,6 +160,13 @@ func StzGanttFromTasks(paTasks, paDeps)
 		_oS_.SetData("t" + _i_, "x0", _nX0_ + (_a_[2] - _nMin_) * _nK_)
 		_oS_.SetData("t" + _i_, "x1", _nX0_ + (_a_[3] - _nMin_) * _nK_)
 		_oS_.SetData("t" + _i_, "y", StzGanttTop() + (_anLane_[_i_] - 0.5) * StzGanttRowHeight())
+		# WHERE AN ARROW ENTERS AND LEAVES: a bar's two ends; a milestone's
+		# diamond is ten wide either side of its day, so its tips
+		_nIn_ = _nX0_ + (_a_[2] - _nMin_) * _nK_
+		_nOut_ = _nX0_ + (_a_[3] - _nMin_) * _nK_
+		if _cT_ = "Milestone"  _nIn_ -= 10  _nOut_ += 10  ok
+		_oS_.SetData("t" + _i_, "xin", _nIn_)
+		_oS_.SetData("t" + _i_, "xout", _nOut_)
 	next
 
 	# dependencies, by the names the author used
@@ -260,11 +267,15 @@ func StzGanttStyleXT(pnLanes, pbGuides)
 		                             :fill = [ :on, "paper" ] ] ] ])
 	# (the ticks are minted first, so a bar paints over a tick line without
 	# a layer term -- which could not name the tick from this selector)
-	# A LATER TASK ON A SHARED LANE is named over its own bar, smaller
+	# A LATER TASK ON A SHARED LANE is named INSIDE its own bar, smaller, in
+	# whichever of black and white reads on the bar. Inside, not above: the
+	# gap above a bar is where a dependency's run between lanes goes, and a
+	# name there sat two pixels from it.
 	_o_.ForAllWhere("Task t", "OverBar(t)", [
 		[ :delete, "t.text" ],
-		[ :shape, "t.text", :text, [ :cx = "(t.x0 + t.x1) / 2", :cy = "t.y - 15", :size = 11,
-		                             :fill = [ :on, "paper" ] ] ] ])
+		[ :shape, "t.text", :text, [ :cx = "(t.x0 + t.x1) / 2", :cy = "t.y", :size = 11,
+		                             :fill = [ :on, "t.bar" ] ] ],
+		[ :layer, "t.text", :above, "t.bar" ] ])
 	# A MILESTONE has no length to draw: a diamond on its day, in the
 	# colour that says "look here"
 	_o_.ForAll("Milestone m", [
@@ -273,17 +284,32 @@ func StzGanttStyleXT(pnLanes, pbGuides)
 		    :x1 = "m.x0", :y1 = "m.y - 10", :x2 = "m.x0 + 10", :y2 = "m.y",
 		    :x3 = "m.x0", :y3 = "m.y + 10", :x4 = "m.x0 - 10", :y4 = "m.y",
 		    :fill = "danger", :stroke = "background", :strokeWidth = 1 ] ] ])
-	# A DEPENDENCY is an elbow: out of the predecessor's end, down or up to
-	# the successor's lane, and into the successor's start with a head. A
-	# dependency that runs backwards in time is drawn exactly as given --
-	# the arrow points left -- and the rule below says so in words.
+	# A DEPENDENCY IS A STAIRCASE THAT ALWAYS ENTERS FROM THE LEFT: out of
+	# the predecessor's end by eight, along to the boundary between lanes
+	# on the successor's side, across that boundary to eight short of the
+	# successor's start, down or up into its lane, and in with a head that
+	# points right. The first version turned into the successor's lane at
+	# once and ran straight to its start; for a task starting the day its
+	# predecessor ends -- the commonest case -- that run went LEFT, the
+	# head pointed backwards and lay on the bar, and the Principal saw
+	# both. A dependency that runs backwards in time is drawn by the same
+	# route -- its crossing along the boundary runs left, visibly -- and
+	# the rule says so in words. The side of the successor the boundary is
+	# on is a sign the tape computes without a branch.
 	_o_.ForAllWhere("Dependency d; Task a; Task b", "d := Dependency(a, b)", [
-		[ :field, "d.mx", "a.x1 + 10" ],
-		[ :shape, "d.l1", :line, [ :x1 = "a.x1", :y1 = "a.y", :x2 = "d.mx", :y2 = "a.y",
+		[ :field, "d.mx", "a.xout + 8" ],
+		[ :field, "d.sg", "(a.y - b.y) / (abs(a.y - b.y) + 0.001)" ],
+		[ :field, "d.ym", "b.y + 17 * d.sg" ],
+		[ :field, "d.bx", "b.xin - 8" ],
+		[ :shape, "d.l1", :line, [ :x1 = "a.xout", :y1 = "a.y", :x2 = "d.mx", :y2 = "a.y",
 		                           :stroke = "neutral", :strokeWidth = 1.5 ] ],
-		[ :shape, "d.l2", :line, [ :x1 = "d.mx", :y1 = "a.y", :x2 = "d.mx", :y2 = "b.y",
+		[ :shape, "d.l2", :line, [ :x1 = "d.mx", :y1 = "a.y", :x2 = "d.mx", :y2 = "d.ym",
 		                           :stroke = "neutral", :strokeWidth = 1.5 ] ],
-		[ :shape, "d.icon", :line, [ :x1 = "d.mx", :y1 = "b.y", :x2 = "b.x0 - 2", :y2 = "b.y",
+		[ :shape, "d.l3", :line, [ :x1 = "d.mx", :y1 = "d.ym", :x2 = "d.bx", :y2 = "d.ym",
+		                           :stroke = "neutral", :strokeWidth = 1.5 ] ],
+		[ :shape, "d.l4", :line, [ :x1 = "d.bx", :y1 = "d.ym", :x2 = "d.bx", :y2 = "b.y",
+		                           :stroke = "neutral", :strokeWidth = 1.5 ] ],
+		[ :shape, "d.icon", :line, [ :x1 = "d.bx", :y1 = "b.y", :x2 = "b.xin - 1", :y2 = "b.y",
 		                             :stroke = "neutral", :strokeWidth = 1.5, :arrow = "end" ] ],
 		[ :layer, "d.l1", :above, "a.bar" ], [ :layer, "d.icon", :above, "b.bar" ] ])
 	return _o_

@@ -3136,6 +3136,21 @@ and both methods carry theirs now. Nothing before this item could have hit it
 — the dot domain's positions are bare data, which take the fast path, and
 every other picture has unknowns, which take the tape.
 
+**The Principal's correction, same morning: the last arrows pointed the wrong
+way, and grey lay on blue.** The first elbow turned into the successor's lane
+at once and ran straight to its start; for a task starting the day its
+predecessor ends — the commonest case, four of six dependencies here — that
+run went *left*, so the head pointed backwards and lay on the bar, and the
+grey line crossed the blue. A dependency is a staircase now that always
+enters from the left: out of the predecessor's end by eight, to the boundary
+between lanes on the successor's side (a sign the tape computes without a
+branch), across it to eight short of the successor's start, into its lane,
+and in with a head that points right; a milestone is entered and left at its
+diamond's tips. A backwards dependency takes the same route and its crossing
+along the boundary runs left, visibly. And the shared-lane name moved from
+above its bar to *inside* it: the gap above a bar is where the boundary run
+goes, and a name there sat two pixels from it.
+
 **A gridline is a guide, not ink.** A task that is not the first on its lane
 carries its name over its own bar, and a name over a bar must cross a
 gridline — there is no place in the chart free of them. The gate's name rules
