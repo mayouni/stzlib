@@ -122,6 +122,35 @@ func _PlOffTheLine(poDg, pcId)
 
 func _PlKeyNode(pcId)   return "node:" + StzLower("" + pcId)
 
+# how many edges leave a node, self-loops aside
+func _PlOutDegreeOf(poDg, pcId)
+	_id_ = StzLower("" + pcId)
+	_a_ = poDg.Edges()
+	_n_ = len(_a_)
+	_k_ = 0
+	for _i_ = 1 to _n_
+		_f_ = StzLower("" + _a_[_i_][:from])
+		_t_ = StzLower("" + _a_[_i_][:to])
+		if _f_ = _t_  loop  ok
+		if _f_ = _id_  _k_++  ok
+	next
+	return _k_
+
+# does any line leaving this node carry a mark at its SOURCE end? Read
+# from the published adornments: [ key, kind, size, x, y, end ].
+func _PlMarkedAtSource(poDg, pcId)
+	_pre_ = StzLower("" + pcId) + ">"
+	_a_ = poDg.RenderAdornments()
+	_n_ = len(_a_)
+	for _i_ = 1 to _n_
+		if len(_a_[_i_]) < 6  loop  ok
+		if "" + _a_[_i_][6] != "source"  loop  ok
+		_k_ = StzLower("" + _a_[_i_][1])
+		if StzLen(_k_) < StzLen(_pre_)  loop  ok
+		if StzSubStr(_k_, 1, StzLen(_pre_)) = _pre_  return 1  ok
+	next
+	return 0
+
 # THE QUESTION A REFUSAL LEADS TO, or "" where it leads anywhere else.
 #
 # An OR formula is a chain of questions joined by their NO exits: any of
@@ -482,6 +511,18 @@ func StzPlasticRuleSet()
 		_n_ = len(_ids_)
 		for _i_ = 1 to _n_
 			if oDg._IsBranchCell(_ids_[_i_])  loop  ok
+			# ...AND UNLESS EACH LINE IS MARKED WHERE IT LEAVES. An ER
+			# relation carries its cardinality at BOTH ends, so two
+			# relations out of one entity are two things, each owed its
+			# own mark at the entity -- a shared stem would stack two
+			# "one" bars on one point and hide which relation each belongs
+			# to. The same reasoning as the branch cell, read from the
+			# drawing rather than the shape: a line adorned at its source
+			# is its own thing. A wire is not marked and still shares.
+			# Found by the shop schema of DN15, where Product's two
+			# relations reached different ranks and turned 253px apart,
+			# correctly.
+			if _PlMarkedAtSource(oDg, _ids_[_i_])  loop  ok
 			_k_ = 0
 			_a_ = oDg.Edges()
 			_na_ = len(_a_)
@@ -498,13 +539,20 @@ func StzPlasticRuleSet()
 		return _r_
 	})
 	_o3_.SetCounter(func(oDg) {
-		# a BRANCH cell -- whose answers must each quit on their own
+		# a BRANCH cell -- whose answers must each quit on their own --
+		# and a cell whose lines are marked where they leave it: each
+		# keeps its own end there
 		_r_ = []
 		_ids_ = _PlDrawnIds(oDg)
 		_n_ = len(_ids_)
 		for _i_ = 1 to _n_
-			if NOT oDg._IsBranchCell(_ids_[_i_])  loop  ok
-			_r_ + _PlKeyNode(_ids_[_i_])
+			if oDg._IsBranchCell(_ids_[_i_])
+				_r_ + _PlKeyNode(_ids_[_i_])
+				loop
+			ok
+			if _PlMarkedAtSource(oDg, _ids_[_i_]) and _PlOutDegreeOf(oDg, _ids_[_i_]) >= 2
+				_r_ + _PlKeyNode(_ids_[_i_])
+			ok
 		next
 		return _r_
 	})

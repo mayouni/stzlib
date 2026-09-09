@@ -372,6 +372,9 @@ ok
     # the compliance bases carry these -- loaded after stzOrgChart (its bases
     # call the loaders at runtime)
     load "graph/stzOrgRule.ring"
+    # an entity-relationship diagram: a schema with a picture, its rules
+    # about keys (DN15)
+    load "graph/stzErDiagram.ring"
 
     load "graph/stzWorkflow.ring"
 
