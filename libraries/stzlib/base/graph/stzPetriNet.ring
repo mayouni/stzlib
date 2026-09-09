@@ -77,7 +77,9 @@ func StzPetriNotation()
 	# tokens have room and the name goes beneath; a transition is a bar
 	# across the flow at the full box
 	_o_.AddKindXTT("place", "circle", "white", 0.70)
-	_o_.AddKindXTT("transition", "bar", "#333333", 0.36)
+	# a bar's box IS its ink: a tenth of the cell across the flow, so an
+	# arc arriving at the box arrives at the bar
+	_o_.AddKindXTT("transition", "bar", "#333333", 0.10)
 	_o_.AddKindXT("note", "note", "white")
 	# the inside of a place is for its tokens, and a bar has no inside
 	_o_.SetNameOutside("place")

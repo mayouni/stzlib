@@ -349,11 +349,24 @@ func StzDrawNodeShape(poCanvas, pcShape, pnX, pnY, pnW, pnH)
 	# across the flow, so it is wide in a top-down picture and tall in a
 	# left-to-right one -- which the caller expresses by the box it
 	# hands over, exactly as it does for every other glyph.
+	# ...AND A BOX ALREADY AS THIN AS A BAR IS THE BAR. A domain that
+	# declares its transition at a tenth of a cell has drawn the ink it
+	# means; insetting that to 28% again left an arrow stopping at a
+	# border 9px short of any ink, the blank the Principal marked on
+	# the Petri net. A box thinner than a stroke's worth is filled.
 	on "bar"
 		if _w_ >= _h_
-			poCanvas.AddRect(_x_, _y_ + _h_ * 0.36, _w_, _h_ * 0.28)
+			if _h_ <= 8
+				poCanvas.AddRect(_x_, _y_, _w_, _h_)
+			else
+				poCanvas.AddRect(_x_, _y_ + _h_ * 0.36, _w_, _h_ * 0.28)
+			ok
 		else
-			poCanvas.AddRect(_x_ + _w_ * 0.36, _y_, _w_ * 0.28, _h_)
+			if _w_ <= 8
+				poCanvas.AddRect(_x_, _y_, _w_, _h_)
+			else
+				poCanvas.AddRect(_x_ + _w_ * 0.36, _y_, _w_ * 0.28, _h_)
+			ok
 		ok
 
 	#-- DN5, the electric set ------------------------------------------
