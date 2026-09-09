@@ -5964,7 +5964,17 @@ class stzDiagram from stzGraph
 						if _aBx2_[1] < _nBoxW_ - 0.5 or
 						   _aBx2_[2] < _nBoxH_ - 0.5
 							_bSide2_ = 1
-							_nLbY_ = _a_[2] + _nFsz_ * 0.35
+							# ...AND ON THE LINE, BY ITS CAPITALS. The name
+							# sat 0.35 of the type below the centre, its
+							# letters hanging 4px under the wire they stand
+							# beside; the Principal asked for the text to be
+							# aligned with the horizontal line. The baseline
+							# is set so the cap height straddles the centre
+							# -- DN12's centring, applied where a name sits
+							# beside its glyph. The text is drawn at
+							# _nLbY_ + a third of the type, so that third is
+							# taken back here.
+							_nLbY_ = _a_[2] + _oFont_.CapHeightOf(_nFsz_) / 2 - _nFsz_ / 3
 						ok
 					ok
 					# ...AND "THE SIDE THE READING LEAVES FREE" IS ASKED
