@@ -3525,3 +3525,53 @@ note:      TURNING A MARK OFF IS NOT DECIDING WHAT ITS SPACE IS NOW FOR --
            the file already said so about DRAKON, three lines above the
            branch that forgot it for every other undirected notation.
 ```
+
+```yaml
+by:        stzlib-graphics · claude-fable-5-1 · 2026-09-09 18:02
+
+subject:   DN16 -- a Petri net, the first picture on this plane that
+           carries its own state
+
+why:       the Principal said "go ahead with the next item"; Petri nets
+           were next on the domain list after molecules, Gantt and ER
+
+did:
+  - Built stzPetriNet from stzDiagram: AddPlaceXT with a marking,
+    AddTransition, ArcXT with a weight written on the line; the token
+    game -- Tokens, Marking, Enabled, WhyNotEnabled, Fire -- which
+    refuses a disabled firing by name and by number, and the picture
+    rendered after a firing shows the new marking.
+  - Drew tokens inside the place through a new hook every cell offers,
+    _DrawNodeMark, after the glyph and before the name; one to four as
+    dots, more as the number; each published in RenderTokens().
+  - Wrote five rules, the fifth liveness in its structural case, each
+    with a declared boundary; a mutex, a weighted buffer and a witness
+    are in the catalogue and in the one gate's corpus (68 pictures).
+  - Found and fixed three general things the first cyclic domain
+    exposed: a backward edge with a cell on its straight run was drawn
+    THROUGH the cell in every notation without a spine (the return
+    ladder now takes exactly those edges); a name was written over the
+    tokens a glyph held (stzNotation.SetNameOutside, per kind); and two
+    plastic rules convicted lawful drawings -- a cell on the run is a
+    detour by law everywhere, and only lines leaving by one face are a
+    fan.
+
+state:
+  gg_adversarial:   1364 ok, 0 failed   (was 1328)
+  commit:           d4f74b1a2 on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the author's word; on the domain list, fault trees,
+             timelines, family trees and floor plans remain
+  - central: none
+
+note:      A GATE CAN BE RIGHT AND TOO WIDE. The return ladder was
+           gated on a spine because ungated it disturbed seven
+           assertions; the true condition was narrower -- a cell on the
+           run -- and every one of those seven still passes under it.
+```
