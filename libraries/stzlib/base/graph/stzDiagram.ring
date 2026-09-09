@@ -13704,16 +13704,44 @@ class stzDiagram from stzGraph
 		if pcKind = "manytomany"  _ceSrc_ = "many"  _ceDst_ = "many"  ok
 		# the source end: the first point, the line leaving it
 		This._DrawOneCardinality(oC, pcKey, _ceSrc_, "source",
-			paFlat[1], paFlat[2], paFlat[3], paFlat[4], cColor, nWidth)
+			paFlat[1], paFlat[2], paFlat[3], paFlat[4], cColor, nWidth,
+			This._EdgePropOf(pcKey, "frompart"))
 		# the target end: the last point, the line arriving at it
 		This._DrawOneCardinality(oC, pcKey, _ceDst_, "target",
-			paFlat[_ceN_ - 1], paFlat[_ceN_], paFlat[_ceN_ - 3], paFlat[_ceN_ - 2], cColor, nWidth)
+			paFlat[_ceN_ - 1], paFlat[_ceN_], paFlat[_ceN_ - 3], paFlat[_ceN_ - 2], cColor, nWidth,
+			This._EdgePropOf(pcKey, "topart"))
+
+	# one named property of the edge whose key is from>to, lowercased,
+	# or "" -- the reader _EdgeRelation is, for any property
+	def _EdgePropOf(pcKey, pcProp)
+		_epK_ = StzLower("" + pcKey)
+		_epP_ = StzLower("" + pcProp)
+		_aEpE_ = This.Edges()
+		_nEpE_ = len(_aEpE_)
+		for _iEpE_ = 1 to _nEpE_
+			_epE_ = _aEpE_[_iEpE_]
+			if StzLower("" + _epE_[:from]) + ">" + StzLower("" + _epE_[:to]) != _epK_  loop  ok
+			if NOT HasKey(_epE_, "properties")  return ""  ok
+			if NOT isList(_epE_["properties"])  return ""  ok
+			if HasKey(_epE_["properties"], _epP_)
+				return StzLower("" + _epE_["properties"][_epP_])
+			ok
+			return ""
+		next
+		return ""
 
 	# (pnEx, pnEy) is the end on the entity; (pnIx, pnIy) a point inward
 	# along the line. "one": a bar across the line eight in from the end.
 	# "many": three lines from a point twelve in, to the end and to the
 	# end offset six either side across the line.
-	def _DrawOneCardinality(oC, pcKey, pcWhich, pcEnd, pnEx, pnEy, pnIx, pnIy, cColor, nWidth)
+	#
+	# PARTICIPATION, INSIDE THE CARDINALITY. The crow's foot reads two marks
+	# at an end, the outer for how many at most and the inner for how many
+	# at least: a second bar for "at least one" (mandatory), a ring for
+	# "possibly none" (optional). An end that declares nothing draws nothing
+	# more -- the picture says only what it was told, and every mark drawn
+	# is published beside the cardinality with the same key and end.
+	def _DrawOneCardinality(oC, pcKey, pcWhich, pcEnd, pnEx, pnEy, pnIx, pnIy, cColor, nWidth, pcPart)
 		_ocDx_ = pnIx - pnEx
 		_ocDy_ = pnIy - pnEy
 		_ocL_ = sqrt(_ocDx_ * _ocDx_ + _ocDy_ * _ocDy_)
@@ -13734,6 +13762,24 @@ class stzDiagram from stzGraph
 			_ocRy_ = pnEy + _ocDy_ * 12
 			oC.StrokeQ(cColor, nWidth).AddLine(_ocRx_, _ocRy_, pnEx + _ocPx_ * 6, pnEy + _ocPy_ * 6)
 			oC.StrokeQ(cColor, nWidth).AddLine(_ocRx_, _ocRy_, pnEx - _ocPx_ * 6, pnEy - _ocPy_ * 6)
+		ok
+		_ocP_ = StzLower("" + pcPart)
+		if _ocP_ = "mandatory"
+			_ocMx_ = pnEx + _ocDx_ * 16
+			_ocMy_ = pnEy + _ocDy_ * 16
+			@aRenderAdorn + [ StzLower("" + pcKey), "mandatory", 0, _ocMx_, _ocMy_, pcEnd ]
+			oC.Flush()
+			oC.StrokeQ(cColor, nWidth).AddLine(_ocMx_ + _ocPx_ * 6, _ocMy_ + _ocPy_ * 6,
+				_ocMx_ - _ocPx_ * 6, _ocMy_ - _ocPy_ * 6)
+		but _ocP_ = "optional"
+			_ocCx_ = pnEx + _ocDx_ * 19
+			_ocCy_ = pnEy + _ocDy_ * 19
+			@aRenderAdorn + [ StzLower("" + pcKey), "optional", 4, _ocCx_, _ocCy_, pcEnd ]
+			oC.Flush()
+			# the ring is hollow: paper inside, so the line is seen to pass
+			# through it and not under it
+			oC.FillQ(This._SurfaceAt(_ocCx_, _ocCy_, "#FFFFFF")).StrokeQ(cColor, nWidth).
+				AddCircle(_ocCx_, _ocCy_, 4)
 		ok
 
 	def _PublishPath(cFromId, cToId, paFlat)

@@ -13514,6 +13514,7 @@ next
 # they leave it is a counter-subject, not a fan.
 aOgP + [ "er/shop", StzErScene01(OPTGOV) ]
 aOgP + [ "er/wrong", StzErScene02(OPTGOV) ]
+aOgP + [ "er/participation", StzErSceneParticipation(OPTGOV) ]
 for iOg = 1 to 31
 	cOgF = "StzMathScene" + iOg
 	if iOg < 10  cOgF = "StzMathScene0" + iOg  ok
@@ -13553,8 +13554,8 @@ aOgP + [ "gantt/witness", StzMathGanttWitness(AUFONT) ]
 nOgT0 = StzEngineWatchTimestampMs()
 oOgRep = StzCheckPictures(aOgP)
 nOgMs = StzEngineWatchTimestampMs() - nOgT0
-chk("sixty-four pictures are judged by one call -- twenty-two notation, forty-two mathematical",
-    len(aOgP) = 64)
+chk("sixty-five pictures are judged by one call -- twenty-three notation, forty-two mathematical",
+    len(aOgP) = 65)
 chk("and the report's findings are exactly the five things the corpus plants on purpose -- " +
     "the contradiction, the frame whose mark is outside the part it shows, " +
     "the three-bonded oxygen, the stray hydrogen and the schedule with three mistakes",
@@ -13576,8 +13577,8 @@ chk("the whole gate runs inside a bound that would have caught its first run -- 
 # THE RULES JUDGED BY THE FIVE QUESTIONS, over the math corpus: none
 # empty, none vacuous, every boundary witnessed.
 oOgG = StzMathGovernanceOf("math")
-# from 23: the twenty catalogue pictures and the two schemas are notation
-for iOg = 23 to len(aOgP)
+# from 24: the twenty catalogue pictures and the three schemas are notation
+for iOg = 24 to len(aOgP)
 	oOgG.AddPicture(aOgP[iOg][1], aOgP[iOg][2])
 next
 aOgR = oOgG.CheckRules()
@@ -13644,7 +13645,7 @@ chk("red to blue at the half is a purple whose lightness is the mean of the two,
 # paper itself -- measured, not assumed. The pictures are the one gate's,
 # already solved; a theme changes no geometry, so no second solve.
 nCmBadL = 0  nCmBadD = 0  nCmNames = 0
-for iCm = 23 to len(aOgP)   # the math pictures: after the twenty catalogue and two schema ones
+for iCm = 24 to len(aOgP)   # the math pictures: after the twenty catalogue and three schema ones
 	oCmP = aOgP[iCm][2]
 	oCmP.@oStyle.SetTheme("light")  oCmP.Touch()
 	nCmBadL += _CmUnreadable(oCmP, 3)
@@ -14842,7 +14843,8 @@ chk("a junction's columns are keys AND references, and read so",
 # side of the relation.
 chk("a one-to-many carries a bar at its source and a crow's foot at its target",
     _ErEnd(oErS, "customer>order", "source") = "one" and _ErEnd(oErS, "customer>order", "target") = "many")
-chkeq("five relations, ten adornments -- every end says something", len(oErS.RenderAdornments()), 10)
+chkeq("five relations, ten cardinalities and two participations -- every end says something, two say more",
+      len(oErS.RenderAdornments()), 12)
 oErJ = StzErSceneJunction(OPTGOV)
 chk("a many-to-many carries a crow's foot at both ends",
     _ErEnd(oErJ, "student>course", "source") = "many" and _ErEnd(oErJ, "student>course", "target") = "many")
@@ -14876,9 +14878,34 @@ chk("NEGATIVE: the note is excluded by every rule, not merely passed",
 chk("NEGATIVE: an entity with no foreign key is outside the resolving rule, not passing it",
     _ErInList("entity:customer", oErRs.Rules()[2].CounterSubjectsIn(oErW.AsRuleGraph())))
 
+# PARTICIPATION, INSIDE THE CARDINALITY: a ring for possibly-none, a
+# second bar for at-least-one, each published with its end -- and an end
+# that declares nothing draws nothing more.
+chk("'an order always has a customer' is a bar at the customer end, 'a customer may have no order' a ring at the order end",
+    _ErPart(oErS, "customer>order", "source") = "mandatory" and _ErPart(oErS, "customer>order", "target") = "optional")
+chk("NEGATIVE: an end that declares nothing publishes no participation",
+    _ErPart(oErS, "order>line", "source") = "" and _ErPart(oErS, "order>line", "target") = "")
+chk("a nullable column reads so in the compartment",
+    _ErAttrsAre(StzErSceneParticipation(OPTGOV), "emp", [ "PK id", "name", "FK dept_id -> dept (nullable)" ]))
+
+# ...AND THE MARK IS HELD TO THE COLUMN. "An order always has a customer"
+# is a bar on a line and a NOT NULL on a column: one claim made twice.
+oErP = StzErSceneParticipation(OPTGOV)
+aErPF = oErP.GovernanceFindings()
+chk("a ring at the key's target end over a column that is not nullable is caught, naming both",
+    _ErFound(aErPF, "participation_matches_nullability", "'User' end is declared optional and the key behind it, 'Ticket.assignee_id', is not nullable"))
+chk("a bar at the key's target end over a nullable column is caught the other way",
+    _ErFound(aErPF, "participation_matches_nullability", "'Account' end is declared mandatory and the key behind it, 'Invoice.account_id', is nullable"))
+chkeq("...and the ring over a nullable column passes: two findings, not three", len(aErPF), 2)
+chk("NEGATIVE: a mark at the MANY end makes no claim a column can contradict -- outside the rule, not passing it",
+    _ErInList("relation:order>line", oErRs.Rules()[4].CounterSubjectsIn(oErS.AsRuleGraph())) and
+    _ErInList("relation:customer>order", oErRs.Rules()[4].SubjectsIn(oErS.AsRuleGraph())))
+chk("NEGATIVE: the shop's own participation agrees with its columns", len(oErS.GovernanceFindings()) = 0)
+
 # THE BUILDER REFUSES WHAT IT CANNOT DRAW.
 chk("a relation to an entity that is not in the diagram is refused", _ErRefusesUnknown())
 chk("a cardinality that is not one of the four is refused, by name", _ErRefusesKind())
+chk("a participation that is neither Optional nor Mandatory is refused, by name", _ErRefusesPart())
 
 # IT ANSWERS THE DISPLAY CONTRACT LIKE EVERY OTHER PICTURE.
 chk("an ER diagram answers Rendition() as a vector", oErS.Rendition()[:kind] = "vector")
@@ -17941,6 +17968,27 @@ func _ErEnd poD, pcKey, pcEnd
 		if len(_a_[_i_]) >= 6 and _a_[_i_][1] = pcKey and _a_[_i_][6] = pcEnd  return _a_[_i_][2]  ok
 	next
 	return ""
+
+# the participation drawn at one end of one relation: "optional",
+# "mandatory" or ""
+func _ErPart poD, pcKey, pcEnd
+	_a_ = poD.RenderAdornments()
+	for _i_ = 1 to len(_a_)
+		if len(_a_[_i_]) < 6 or _a_[_i_][1] != pcKey or _a_[_i_][6] != pcEnd  loop  ok
+		if _a_[_i_][2] = "optional" or _a_[_i_][2] = "mandatory"  return _a_[_i_][2]  ok
+	next
+	return ""
+
+func _ErRefusesPart
+	try
+		_o_ = new stzErDiagram("x")
+		_o_.AddEntity("a", "A")
+		_o_.AddEntity("b", "B")
+		_o_.RelateXT("a", "b", :OneToMany, [ :from = :Usually ])
+	catch
+		return StzFindFirst("usually", StzLower(cCatchError)) > 0
+	done
+	return FALSE
 
 func _ErFound paF, pcRule, pcText
 	for _i_ = 1 to len(paF)
