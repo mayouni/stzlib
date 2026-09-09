@@ -5745,6 +5745,12 @@ class stzDiagram from stzGraph
 				StzDrawNodeShapeXT(_oC_, _cShape_, _x0_, _y0_,
 					_nBw_, _nBh_, _cFill_, _cStroke_, _nStkW_)
 			ok
+			# A DOMAIN MAY MARK THE INSIDE OF ITS CELL -- the tokens of a
+			# Petri place (DN16). Drawn here, after the glyph and before
+			# any label, with the box the glyph was given, so the mark is
+			# a fact of the same cell and not a guess about it.
+			This._DrawNodeMark(_oC_, _cId_, _x0_, _y0_, _nBw_, _nBh_,
+				_cStroke_, _nStkW_, _oFont_, _nFsz_)
 		next
 
 		# 4. LABELS INSIDE the node, in a colour that CONTRASTS with the fill.
@@ -5865,6 +5871,22 @@ class stzDiagram from stzGraph
 						_aBx2_[2], _nTh2_)
 					if _nNw2_ + 4 > _nIn2_  _bOut_ = 1  ok
 					if _nTh2_ > _aBx2_[2] * _aFit2_[2] * 1.6  _bOut_ = 1  ok
+				ok
+				# ...UNLESS THE NOTATION SAYS THE INSIDE IS TAKEN. A glyph
+				# big enough to hold its name holds it -- and a Petri place
+				# big enough to hold "Key" also holds a token, which the
+				# name was written over. The kind declares it, once.
+				_oNo2_ = This.NotationO()
+				if isObject(_oNo2_)
+					_cNoK2_ = ""
+					if HasKey(_aNodes_[_i_], "properties") and
+					   isList(_aNodes_[_i_]["properties"]) and
+					   HasKey(_aNodes_[_i_]["properties"], "type")
+						_cNoK2_ = "" + _aNodes_[_i_]["properties"]["type"]
+					ok
+					if _cNoK2_ != "" and _oNo2_.WritesNameOutside(_cNoK2_)
+						_bOut_ = 1
+					ok
 				ok
 				if _bOut_
 					_cLb_ = This._FitLabel(_cLb_, _oFont_, _nFsz_,
@@ -13659,6 +13681,11 @@ class stzDiagram from stzGraph
 	# declares first everywhere else: a hierarchy is written parent to
 	# child, in the org chart and in every tree it draws. So the general
 	# class, or the whole, is the one you name first.
+	# The inside of a cell, for a domain that has something to put there.
+	# Nothing here: a plain diagram's cells hold their names and no more.
+	def _DrawNodeMark(oC, pcId, pnX, pnY, pnW, pnH, cStroke, nStkW, oFont, nFsz)
+		return
+
 	def _DrawRelationEnd(oC, pcKey, paFlat, cColor, nWidth)
 		_reR_ = This._EdgeRelation(pcKey)
 		if _reR_ = ""  return  ok
@@ -15356,6 +15383,35 @@ class stzDiagram from stzGraph
 		next
 		return [ _ceX0_, _ceY0_, _ceX1_, _ceY1_ ]
 
+	# DOES A CELL STAND ON THE STRAIGHT RUN between two ends that share a
+	# stacking coordinate? _SomethingBetween asks the same of two ends
+	# sharing a RANK; this is its transpose -- the run is along the rank
+	# axis, and what is in the way is whatever else stands on that line.
+	def _CellOnTheRun(paA, paB, nBoxW, nBoxH, cRank, pcFrom, pcTo)
+		_crAx_ = 1  _crSt_ = 2
+		if cRank = "LR" or cRank = "RL"  _crAx_ = 1  _crSt_ = 2  else  _crAx_ = 2  _crSt_ = 1  ok
+		if fabs(paA[_crSt_] - paB[_crSt_]) > 1.5  return 0  ok
+		_crLo_ = min([ paA[_crAx_], paB[_crAx_] ])
+		_crHi_ = max([ paA[_crAx_], paB[_crAx_] ])
+		_crF_ = StzLower("" + pcFrom)
+		_crT_ = StzLower("" + pcTo)
+		_aCrR_ = @aDrawXY
+		_nCrR_ = len(_aCrR_)
+		for _iCrR_ = 1 to _nCrR_
+			_crR_ = _aCrR_[_iCrR_]
+			if len(_crR_) < 3  loop  ok
+			_crId_ = StzLower("" + _crR_[1])
+			if _crId_ = _crF_ or _crId_ = _crT_  loop  ok
+			_crP_ = [ _crR_[2], _crR_[3] ]
+			if fabs(_crP_[_crSt_] - paA[_crSt_]) > 1.5  loop  ok
+			_crB_ = This._BoxOf(_crId_, nBoxW, nBoxH)
+			_crHalf_ = _crB_[_crAx_] / 2
+			if _crP_[_crAx_] - _crHalf_ > _crLo_ and _crP_[_crAx_] + _crHalf_ < _crHi_
+				return 1
+			ok
+		next
+		return 0
+
 	def _SomethingBetween(paA, paB, nBoxW, nBoxH, cRank, pcFrom, pcTo)
 		_sbAx_ = 1  _sbCr_ = 2
 		if cRank = "LR" or cRank = "RL"  _sbAx_ = 2  _sbCr_ = 1  ok
@@ -15573,10 +15629,16 @@ class stzDiagram from stzGraph
 		if isObject(_plSp_)
 			if StzTrim("" + _plSp_.Spine()) != ""  _plHasSp_ = 1  ok
 		ok
-		if NOT _plHasSp_
-			This._PlanLaneStubs(paXY, nBoxW, nBoxH, cRank)
-			return
-		ok
+		# ...EXCEPT THAT A LINE THROUGH A CELL IS WRONG IN EVERY DOMAIN.
+		# Without a spine, a backward edge kept its straight run -- and
+		# the first Petri net (DN16), a mutex whose every cycle lands on
+		# one row, drew "Leave A -> Waiting A" straight back through
+		# Critical A and Enter A, under the cells, a false link with each.
+		# So with no spine the return ladder is still used, for exactly
+		# the backward edges with a cell standing on their straight run;
+		# a backward edge with a clear run keeps it, as before, and the
+		# seven assertions the ungated rule disturbed stay untouched.
+		_plOnlyBlocked_ = NOT _plHasSp_
 		_plLowY_ = 0
 		_plHighY_ = 0
 		_plHave_ = 0
@@ -15632,6 +15694,12 @@ class stzDiagram from stzGraph
 			# the outside of its own picture and back up into a target
 			# one column to its right.
 			if _plB3_[_plCr_] >= _plA3_[_plCr_]  loop  ok
+			if _plOnlyBlocked_
+				if NOT This._CellOnTheRun(_plA3_, _plB3_, nBoxW, nBoxH,
+					cRank, _plF3_, _plT3_)
+					loop
+				ok
+			ok
 			# A RETURN RUNS ON THE SIDE ITS SOURCE IS ON.
 			#
 			# "Underneath" is shorthand for "clear of the flow", and it

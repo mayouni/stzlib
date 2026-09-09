@@ -375,6 +375,7 @@ ok
     # an entity-relationship diagram: a schema with a picture, its rules
     # about keys (DN15)
     load "graph/stzErDiagram.ring"
+    load "graph/stzPetriNet.ring"
 
     load "graph/stzWorkflow.ring"
 
