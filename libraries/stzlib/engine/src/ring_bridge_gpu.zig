@@ -17,6 +17,7 @@ const gmesh = @import("gpu_mesh.zig");
 const s3d = @import("gpu_scene3d.zig");
 const surf = @import("gpu_surface.zig");
 const gm = @import("gpu_math.zig");
+const verify = @import("gpu_verify.zig");
 const R = @import("ring_api.zig");
 
 const gn = R.ring_vm_api_getnumber;
@@ -407,6 +408,93 @@ fn ring_DispatchParams(p: *anyopaque) callconv(.c) void {
         ids[i] = @intFromFloat(R.ring_item_getnumber(item));
     }
     rn(p, @floatFromInt(gpu.stz_gpu_dispatch_params(kernel, &blob, @floatFromInt(blen), &ids, @intCast(nb), gn(p, 5), 1)));
+}
+
+// ---------------- GK0 the checker
+
+// the params uniform of the generated kernels: u32 n, u32 pad, scalars f32
+fn packParams(p: *anyopaque, nelems: u32, scal_arg: c_int, blob: *[64]u8) ?usize {
+    @memset(blob, 0);
+    std.mem.writeInt(u32, blob[0..4], nelems, .little);
+    var blen: usize = 8;
+    if (R.gl(p, scal_arg)) |lst| {
+        const ns: usize = @intCast(R.ringListSize(lst));
+        if (ns > 14) return null;
+        for (0..ns) |i| {
+            const item = R.ring_list_getitem_gc(null, lst, @intCast(i + 1)) orelse continue;
+            const v: f32 = @floatCast(R.ring_item_getnumber(item));
+            std.mem.writeInt(u32, blob[8 + i * 4 ..][0..4], @bitCast(v), .little);
+        }
+        blen = 8 + ns * 4;
+    }
+    return blen;
+}
+
+fn readIds(p: *anyopaque, arg: c_int, ids: *[8]i64) ?usize {
+    const bl = R.gl(p, arg) orelse return null;
+    const nb: usize = @intCast(R.ringListSize(bl));
+    if (nb == 0 or nb > 8) return null;
+    for (0..nb) |i| {
+        const item = R.ring_list_getitem_gc(null, bl, @intCast(i + 1)) orelse return null;
+        ids[i] = @intFromFloat(R.ring_item_getnumber(item));
+    }
+    return nb;
+}
+
+// Verify(kRef, kCand, nA, aScalars, aIdsA, wxRefA, wxCandA,
+//        nB, aIdsB, wxRefB, wxCandB, reps, band) -> status.
+// Shape A is the visible one, B the checker's hidden one; each id list ends
+// with the REFERENCE output buffer (the candidate gets its own, engine-side).
+fn ring_Verify(p: *anyopaque) callconv(.c) void {
+    var blob_a: [64]u8 = undefined;
+    var blob_b: [64]u8 = undefined;
+    const la = packParams(p, @intFromFloat(gn(p, 3)), 4, &blob_a) orelse {
+        rn(p, gpu.BAD_ARG);
+        return;
+    };
+    const lb = packParams(p, @intFromFloat(gn(p, 8)), 4, &blob_b) orelse {
+        rn(p, gpu.BAD_ARG);
+        return;
+    };
+    var ids_a: [8]i64 = undefined;
+    var ids_b: [8]i64 = undefined;
+    const na = readIds(p, 5, &ids_a) orelse {
+        rn(p, gpu.BAD_ARG);
+        return;
+    };
+    const nb = readIds(p, 9, &ids_b) orelse {
+        rn(p, gpu.BAD_ARG);
+        return;
+    };
+    rn(p, @floatFromInt(verify.stz_gpu_verify(
+        @intFromFloat(gn(p, 1)),
+        @intFromFloat(gn(p, 2)),
+        &blob_a,
+        @floatFromInt(la),
+        &ids_a,
+        @intCast(na),
+        gn(p, 3),
+        gn(p, 6),
+        gn(p, 7),
+        &blob_b,
+        @floatFromInt(lb),
+        &ids_b,
+        @intCast(nb),
+        gn(p, 8),
+        gn(p, 10),
+        gn(p, 11),
+        gn(p, 12),
+        gn(p, 13),
+    )));
+}
+
+fn ring_VerifyResult(p: *anyopaque) callconv(.c) void {
+    rn(p, verify.stz_gpu_verify_result(@intFromFloat(gn(p, 1))));
+}
+
+// VerifyJudge(nBytes, nMs) -> verdict code (0 possible, 3 impossible, 5 no device)
+fn ring_VerifyJudge(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(verify.stz_gpu_verify_judge(gn(p, 1), gn(p, 2))));
 }
 
 // TopK(hDistances, n, k) -> [status, idx0, dist0, idx1, dist1, ...]
@@ -1631,6 +1719,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuwgslelementwise", .func = &ring_WgslElementwise },
     .{ .name = "stzenginegpuwgslerror", .func = &ring_WgslError },
     .{ .name = "stzenginegpudispatchparams", .func = &ring_DispatchParams },
+    // GK0 the checker
+    .{ .name = "stzenginegpuverify", .func = &ring_Verify },
+    .{ .name = "stzenginegpuverifyresult", .func = &ring_VerifyResult },
+    .{ .name = "stzenginegpuverifyjudge", .func = &ring_VerifyJudge },
     // GR1 render lifecycle
     .{ .name = "stzenginegputexturenew", .func = &ring_TextureNew },
     .{ .name = "stzenginegputexturefree", .func = &ring_TextureFree },
