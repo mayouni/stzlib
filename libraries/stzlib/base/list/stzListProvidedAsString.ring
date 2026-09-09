@@ -83,11 +83,11 @@ class stzListProvidedAsString from stzObject
 	*/
 
 	def ContainsOnlyValues()
-		_nCovLen_ = len(_aItems_)
+		_nCovLen_ = len(This._aItems_)
 		if _nCovLen_ = 0 return FALSE ok
 
 		for _iCov_ = 1 to _nCovLen_
-			if This._IsVariableName(_aItems_[_iCov_])
+			if This._IsVariableName(This._aItems_[_iCov_])
 				return FALSE
 			ok
 		next
@@ -95,11 +95,11 @@ class stzListProvidedAsString from stzObject
 		return TRUE
 
 	def ContainsOnlyVariables()
-		_nCovLen_ = len(_aItems_)
+		_nCovLen_ = len(This._aItems_)
 		if _nCovLen_ = 0 return FALSE ok
 
 		for _iCov_ = 1 to _nCovLen_
-			if NOT This._IsVariableName(_aItems_[_iCov_])
+			if NOT This._IsVariableName(This._aItems_[_iCov_])
 				return FALSE
 			ok
 		next

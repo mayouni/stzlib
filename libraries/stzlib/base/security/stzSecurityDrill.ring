@@ -231,7 +231,7 @@ class stzSecurityDrill from stzObject
 		next
 
 	def Destroy()
-		if bSpawned and @nJob > 0
+		if This.bSpawned and @nJob > 0
 			@oReactor.KillSpawnHard(@nJob)
 			@nJob = 0
 			bSpawned = 0

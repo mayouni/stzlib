@@ -114,7 +114,7 @@ class stzPerfMonitor from stzObject
 	# to Observe(): the server stores a Ring copy at that moment, and
 	# a copy made earlier does not know tracing was turned on later.
 	def EnableTracing(pnCapacity)
-		if pTraceRing = ""
+		if This.pTraceRing = ""
 			_nCap_ = 128
 			if isNumber(pnCapacity) and pnCapacity >= 1
 				_nCap_ = pnCapacity
@@ -128,34 +128,34 @@ class stzPerfMonitor from stzObject
 		return bTracing
 
 	def RecordTrace(pcTraceId, pcPath, pnStatus, pnDurMs)
-		if NOT bTracing
+		if NOT This.bTracing
 			return This
 		ok
-		StzEnginePerfTraceRecord(pTraceRing, "" + pcTraceId, "" + pcPath,
+		StzEnginePerfTraceRecord(This.pTraceRing, "" + pcTraceId, "" + pcPath,
 			pnStatus, pnDurMs, StzEngineTimeWallMs())
 		return This
 
 	def TraceCount()
-		if NOT bTracing
+		if NOT This.bTracing
 			return 0
 		ok
-		return StzEnginePerfTraceCount(pTraceRing)
+		return StzEnginePerfTraceCount(This.pTraceRing)
 
 	# The last pnHowMany traces, oldest first:
 	# [ [ :traceId, :path, :status, :durMs, :wallMs ], ... ]
 	def RecentTraces(pnHowMany)
 		_aOut_ = []
-		if NOT bTracing
+		if NOT This.bTracing
 			return _aOut_
 		ok
-		_nSize_ = StzEnginePerfTraceSize(pTraceRing)
+		_nSize_ = StzEnginePerfTraceSize(This.pTraceRing)
 		_nFrom_ = _nSize_ - pnHowMany + 1
 		if _nFrom_ < 1
 			_nFrom_ = 1
 		ok
 		for _i_ = _nFrom_ to _nSize_
 			_aOut_ + [
-				:traceId = StzEnginePerfTraceIdAt(pTraceRing, _i_),
+				:traceId = StzEnginePerfTraceIdAt(This.pTraceRing, _i_),
 				:path = StzEnginePerfTracePathAt(pTraceRing, _i_),
 				:status = StzEnginePerfTraceStatusAt(pTraceRing, _i_),
 				:durMs = StzEnginePerfTraceDurAt(pTraceRing, _i_),
@@ -380,7 +380,7 @@ class stzPerfMonitor from stzObject
 			@aMetrics[_i_][2].Destroy()
 		next
 		@aMetrics = []
-		if bTracing
+		if This.bTracing
 			StzEnginePerfTraceDestroy(pTraceRing)
 			pTraceRing = ""
 			bTracing = 0

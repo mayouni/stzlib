@@ -118,7 +118,7 @@ class stzReactiveSystem from stzObject
 		# LIVE http object rides along as a by-ref param so the loop
 		# can drain its async completions (an attribute copy would
 		# see a dead snapshot -- the Ring aliasing doctrine).
-	        @timerManager.RunLoop(http)
+	        @timerManager.RunLoop(This.http)
 	        @isRunning = $ENGINE_STOPPED
 	    ok
 
@@ -490,7 +490,7 @@ class stzReactiveSystem from stzObject
 		if _errorHandling_ = ""
 			_errorHandling_ = $DEFAULT_ERROR_HANDLING
 		ok
-		return http.Get_(url, onSuccess, onError) # Get is a reserved keyword by Ring
+		return This.http.Get_(url, onSuccess, onError) # Get is a reserved keyword by Ring
 
 	#--
 
@@ -502,7 +502,7 @@ class stzReactiveSystem from stzObject
 		if _errorHandling_ = ""
 			_errorHandling_ = $DEFAULT_ERROR_HANDLING
 		ok
-		return http.Post(url, data, onSuccess, onError)
+		return This.http.Post(url, data, onSuccess, onError)
 
 	#--------------------#
 	#  BUFFER UTILITIES  #

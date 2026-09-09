@@ -24,10 +24,10 @@ func FindMin(anNumbers)
 	_nResult_ = 1
 	_nTempNumber_ = anNumbers[1]
 
-	for @i = 2 to _nLen_
-		if anNumbers[@i] < _nTempNumber_
-			_nResult_ = @i
-			_nTempNumber_ = anNumbers[@i]
+	for i = 2 to _nLen_
+		if anNumbers[i] < _nTempNumber_
+			_nResult_ = i
+			_nTempNumber_ = anNumbers[i]
 		ok
 	next
 
@@ -56,10 +56,10 @@ func FindMax(anNumbers)
 	_nResult_ = 1
 	_nTempNumber_ = anNumbers[1]
 
-	for @i = 2 to _nLen_
-		if anNumbers[@i] > _nTempNumber_
-			_nResult_ = @i
-			_nTempNumber_ = anNumbers[@i]
+	for i = 2 to _nLen_
+		if anNumbers[i] > _nTempNumber_
+			_nResult_ = i
+			_nTempNumber_ = anNumbers[i]
 		ok
 	next
 

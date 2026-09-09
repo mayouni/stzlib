@@ -174,11 +174,11 @@ func Pairify(paPairOfLists) # A @SpecializedForm of Association()
 	_nDiff_ = Abs(_nLen1_ - _nLen2_)
 
 	if _nLen1_ < _nLen2_
-		for @i = 1 to _nDiff_
+		for i = 1 to _nDiff_
 			_aList1_ + ""
 		next
 	else
-		for @i = 1 to _nDiff_
+		for i = 1 to _nDiff_
 			_aList2_ + $_NULL
 		next
 	ok
@@ -189,8 +189,8 @@ func Pairify(paPairOfLists) # A @SpecializedForm of Association()
 
 	_aResult_ = []
 
-	for @i = 1 to _nLen_
-		_aResult_ + [ _aList1_[@i], _aList2_[@i] ]
+	for i = 1 to _nLen_
+		_aResult_ + [ _aList1_[i], _aList2_[i] ]
 	next
 
 	return _aResult_

@@ -150,7 +150,7 @@ class stzCache from stzObject
 		return _aTempList_[4]
 	
 	func CacheFileLines()
-		_cCache_ = read(_oCacheStorage_.CompleteFileName())
+		_cCache_ = read(This._oCacheStorage_.CompleteFileName())
 		_oStr_ = new stzString(_cCache_)
 		_nLen_ = _oStr_.NumberOfChars()
 
@@ -200,13 +200,13 @@ class stzCacheStorage from stzObject
 		_oStorage_ = new stzStorage(pcStoragePath, pcCacheName, pcStorageType)
 
 	def FileHandler()
-		return _oStorage_.FileHandler()
+		return This._oStorage_.FileHandler()
 
 	def FileName()
-		return _oStorage_.FileName()
+		return This._oStorage_.FileName()
 
 	def CompleteFileName()
-		return _oStorage_.CompleteFileName()
+		return This._oStorage_.CompleteFileName()
 
 	def StorageType()
-		return _oStorage_.StorageType()
+		return This._oStorage_.StorageType()

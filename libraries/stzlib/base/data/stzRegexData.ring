@@ -4815,9 +4815,9 @@ func RegexPatternName(cPatt)
 
 	_nLen_ = len(_aPatterns_)
 
-	for @i = 1 to _nLen_
-		if _aPatterns_[@i][2] = cPatt
-			_cResult_ = _aPatterns_[@i][1]
+	for i = 1 to _nLen_
+		if _aPatterns_[i][2] = cPatt
+			_cResult_ = _aPatterns_[i][1]
 			exit
 		ok
 	next
