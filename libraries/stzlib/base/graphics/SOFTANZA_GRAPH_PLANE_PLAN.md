@@ -3451,11 +3451,25 @@ ends. And two readings of the fan rule were sharpened on the way: a straight
 member has no corner to read, and a stem that continues a clearance past
 the branch before turning is one stem with a second branch, not two.
 
+**Then the Principal marked the alignment of every subtree, and two more
+were the engine's.** *A chain did not follow its child.* The centring pass
+skipped every node with one edge out, so an event stood where the snap had
+left it while the gate beneath it was centred over the grandchildren in the
+same pass — "No power" half a slot off its own gate. One child is the
+strongest case there is, as the pass's own comment already said three lines
+below the skip; the skip is gone. *A shared leaf was nobody's.* The centring
+counted owned children only, so a gate over a repeated leaf centred over the
+other input alone. Under a peers notation every input counts, which is what
+puts the shared sensor between the two branches and each gate at the middle
+of both its inputs. And a tree's one backward edge, a cause among its own
+effects, takes the return ladder beside the picture rather than climbing
+its own column into the top event's floor.
+
 **Said plainly and left out.** NOT, voting and inhibit gates, transfer
 symbols, common-cause groups, importance measures, and the exact sum above
 twelve cut sets. The gates draw for a top-down tree only.
 
-*Guard:* §111, 37 assertions; §91 grew by three pictures. Catalogue:
+*Guard:* §111, 40 assertions; §91 grew by three pictures. Catalogue:
 `gg_fault_catalogue.ring`, fault_01 to fault_03.
 
 ## DN9 — THE TOLD PICTURE: a narration is facts made visible, in an order (planned 2026-09-06, SHIPPED 2026-09-07 as DN9a through DN9g, all seven closed)

@@ -12929,9 +12929,11 @@ class stzDiagram from stzGraph
 				# the picture still wrong.
 				_rtAx_ = This._StubOf(_rtK_, 2)
 				_rtDx_ = This._StubOf(_rtK_, 1)
+				# the row is the picture's border (see _PlanRowLanes), so
+				# the lane is a pitch from it and no box enters
 				if cRank = "LR" or cRank = "RL"
 					_rtCh_ = _rtRow_ +
-						_rtSd_ * This._LaneOffset(_rtLn_, _rtA_[2])
+						_rtSd_ * This._LaneOffset(_rtLn_, 0)
 					_rtPts_ = [ aFrom[1] + _rtDx_,
 						aFrom[2] + _rtSd_ * _rtA_[2] / 2,
 						aFrom[1] + _rtDx_, _rtCh_,
@@ -12939,7 +12941,7 @@ class stzDiagram from stzGraph
 						aTo[1] + _rtAx_, aTo[2] + _rtSd_ * _rtB_[2] / 2 ]
 				else
 					_rtCh_ = _rtRow_ +
-						_rtSd_ * This._LaneOffset(_rtLn_, _rtA_[1])
+						_rtSd_ * This._LaneOffset(_rtLn_, 0)
 					_rtPts_ = [ aFrom[1] + _rtSd_ * _rtA_[1] / 2,
 						aFrom[2] + _rtDx_,
 						_rtCh_, aFrom[2] + _rtDx_,
@@ -15820,21 +15822,39 @@ class stzDiagram from stzGraph
 		# a backward edge with a clear run keeps it, as before, and the
 		# seven assertions the ungated rule disturbed stay untouched.
 		_plOnlyBlocked_ = NOT _plHasSp_
+		# ...AND IN A TREE EVERY BACKWARD EDGE TAKES THE LADDER. A cause
+		# among its own effects is the one backward edge a tree can
+		# hold, and drawn up its own column it arrived at the top event
+		# through the bottom of the box and out of its side. Beside the
+		# picture is where a reader expects the one line that goes the
+		# wrong way.
+		if This._NotationPeerChildren()  _plOnlyBlocked_ = 0  ok
 		_plLowY_ = 0
 		_plHighY_ = 0
 		_plHave_ = 0
 		_aPlR315_ = paXY
 		_nPlR315_ = len(_aPlR315_)
+		# THE LADDER HANGS FROM THE PICTURE'S BORDER, NOT FROM A CENTRE.
+		# The far row was the extreme cell's CENTRE, and the lane's
+		# offset from it was measured with the SOURCE's own box -- so a
+		# return out of a 27px gate ran its ladder 50px past the centre
+		# of a 145px event, which is 22px inside that event. The fault
+		# tree's witness drew its cycle through "Jam". The row is the
+		# extreme BORDER now, and every offset from it is a lane's pitch
+		# and nothing of any box.
 		for _iPlR315_ = 1 to _nPlR315_
 			_plR3_ = _aPlR315_[_iPlR315_]
+			_plHf3_ = This._BoxOf("" + _plR3_[1], nBoxW, nBoxH)[_plAx_] / 2
+			_plLo3_ = _plR3_[_plAx_ + 1] + _plHf3_
+			_plHi3_ = _plR3_[_plAx_ + 1] - _plHf3_
 			if NOT _plHave_
-				_plLowY_ = _plR3_[_plAx_ + 1]
-				_plHighY_ = _plR3_[_plAx_ + 1]
+				_plLowY_ = _plLo3_
+				_plHighY_ = _plHi3_
 				_plHave_ = 1
 				loop
 			ok
-			if _plR3_[_plAx_ + 1] > _plLowY_   _plLowY_ = _plR3_[_plAx_ + 1]   ok
-			if _plR3_[_plAx_ + 1] < _plHighY_  _plHighY_ = _plR3_[_plAx_ + 1]  ok
+			if _plLo3_ > _plLowY_   _plLowY_ = _plLo3_   ok
+			if _plHi3_ < _plHighY_  _plHighY_ = _plHi3_  ok
 		next
 		# the spine's own line, so "which side is this source on" can be
 		# asked -- see the side rule below
@@ -16154,9 +16174,8 @@ class stzDiagram from stzGraph
 			if _rrR_[3] < 0  loop  ok
 			_rrLn_ = This._LaneKept(_rrR_[1])
 			if _rrLn_ < 1  _rrLn_ = 1  ok
-			_rrSz_ = nBoxH
-			if NOT (cRank = "LR" or cRank = "RL")  _rrSz_ = nBoxW  ok
-			_rrY_ = _rrR_[2] + This._LaneOffset(_rrLn_, _rrSz_)
+			# the row is a border already, so the reach is a pitch from it
+			_rrY_ = _rrR_[2] + This._LaneOffset(_rrLn_, 0)
 			if _rrY_ > _rrBest_  _rrBest_ = _rrY_  ok
 		next
 		return _rrBest_
@@ -16174,9 +16193,7 @@ class stzDiagram from stzGraph
 			if _ruR_[3] > 0  loop  ok
 			_ruLn_ = This._LaneKept(_ruR_[1])
 			if _ruLn_ < 1  _ruLn_ = 1  ok
-			_ruSz_ = nBoxH
-			if NOT (cRank = "LR" or cRank = "RL")  _ruSz_ = nBoxW  ok
-			_ruY_ = _ruR_[2] - This._LaneOffset(_ruLn_, _ruSz_)
+			_ruY_ = _ruR_[2] - This._LaneOffset(_ruLn_, 0)
 			if NOT _ruHave_ or _ruY_ < _ruBest_
 				_ruBest_ = _ruY_
 				_ruHave_ = 1
