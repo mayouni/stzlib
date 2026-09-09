@@ -118,6 +118,7 @@ sections, of which 21 declarations over 17 items.
 | DN12 | closed | 106 |
 | DN13 | closed | 107 |
 | DN14 | closed | 108 |
+| DN15 | closed | 109 |
 | DN9 | closed | - |
 | DN9a | closed | 97 |
 | DN9b | closed | 98 |
@@ -3192,6 +3193,77 @@ axis labels are neutral at a smaller size; that number is filed for the colour
 desk, whose own guard reported every theme/role pair above 4.5:1.
 
 *Guard:* §108, 17 assertions; §91 grew by two pictures. Catalogue: scene 42.
+
+## DN15 — AN ENTITY-RELATIONSHIP DIAGRAM: a schema with a picture, and rules about keys (2026-09-09, SHIPPED)
+
+**The first domain since the org chart to live on the graph plane rather than
+the mathematical one, and the reason is what its rules read.** A schema is
+nodes and edges — entities and relations — with nothing to solve: rank
+layout and ortho routing are its right shape, as they are for every diagram
+drawn by `stzDiagram`. What makes it a domain and not a style is the same
+thing that made the org chart one: the mistakes people make in it are about
+the *substance* — a table nobody can refer to, a reference to a table nobody
+drew, a relation the keys do not back — and none of them is visible in a
+drawing that draws what it is given.
+
+**What it is.** `stzErDiagram from stzDiagram`, under `StzErNotation()`:
+left-to-right, ortho, and **undirected** — a relation carries its meaning at
+its ends, and an arrowhead would claim a direction a schema does not have.
+`AddEntity`, `AddJunction`, `AddNote`; `AddKey`, `AddAttribute`,
+`AddForeignKey(entity, column, target)`, and `AddKeyReferencing` for the
+junction's columns, which are keys *and* references and read as `PK FK
+product_id -> product`. An entity's compartment reads as a schema does: PK
+first, then the columns, a foreign key naming its target. `Relate(a, b,
+kind)` with the four cardinalities, drawn as crow's-foot ends at **both** ends
+of the line — a bar for *one*, a fan for *many* — through the same
+`_DrawRelationEnd` dispatch the org chart's ends use, every end published in
+`RenderAdornments()` with which end it is, so the gate reads the cardinality
+from the drawing and not from the builder.
+
+**Three rules about keys, a rule set like the org chart's.** `entity_has_key`
+(error): a table without a primary key cannot be referred to, and a diagram
+is a set of references. `foreign_key_resolves` (error): every foreign key
+names an entity of this diagram, by the author's names — *'Order.customer_id'
+refers to 'custmer', which is not an entity of this diagram*.
+`relation_backed_by_key` (warning): a one-to-many's many side holds a foreign
+key to its one side; a many-to-many has some entity holding keys to both
+sides, *a junction is owed* otherwise. Each declares its boundary: a note is
+a node and not an entity, owes no key and joins no relation, and every rule
+excludes it by name rather than merely passing it; an entity with no foreign
+key is *outside* the resolving rule, not passing it. The corpus holds the
+shop — five entities and a junction, sound under all three — and the same
+shop with one of each mistake, which the rules name.
+
+**The plastic rule the shop stood on, and what it taught the rule.** Judged
+by the plastic rules like every notation picture, the shop failed one:
+`a_fan_leaves_on_one_stem`, because Product's two relations reach different
+ranks and turn 253 px apart. They are right to. An ER relation carries its
+cardinality where it meets the entity, so two relations out of one entity are
+two things, each owed its own mark there — a shared stem would stack two
+*one* bars on one point and hide which relation each belongs to. This is the
+branch-cell reasoning again, read from the drawing instead of the shape: **a
+line adorned at its source is its own thing.** The rule now skips a cell
+whose lines are marked where they leave it and lists such a cell with two or
+more lines as a counter-subject, so the boundary is witnessed by the corpus.
+It does *not* key on the notation being undirected: an electric wire is
+undirected, unmarked, and still shares its stem at a junction, as a wire
+should. Under the amended rule both schemas are clean.
+
+**Two traps, both paid for in this file.** `@aNotes + "" + pcId` is two
+appends, the first of an empty string — a phantom note with an empty id in
+the rule graph, found because the note's exclusion counted two where one was
+drawn. And `StzFind(item, list) = 0` never held, so `Relate` accepted any word
+as a cardinality; the refusal is a loop now, and the gate holds it to refusing
+*Sometimes* by name.
+
+**Said plainly and left out.** Attribute types, nullability, unique
+constraints, composite keys beyond the junction's pair, and Chen's diamond
+notation are not here; the crow's foot is the one notation drawn.
+Participation (optional versus mandatory, the circle beside the bar) is the
+first thing to add, and it is one more adornment kind.
+
+*Guard:* §109, 19 assertions; §91 grew by two pictures. Catalogue:
+`gg_er_catalogue.ring`, er_01 and er_02.
 
 ## DN9 — THE TOLD PICTURE: a narration is facts made visible, in an order (planned 2026-09-06, SHIPPED 2026-09-07 as DN9a through DN9g, all seven closed)
 

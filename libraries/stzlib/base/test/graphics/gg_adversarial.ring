@@ -1,6 +1,7 @@
 load "../../stzBase.ring"
 load "gg_drakon_scenes.ring"
 load "gg_math_scenes.ring"
+load "gg_er_scenes.ring"
 
 /*---------------------------------------------------------------------------
 	WHAT THE GUARDS COULD NOT SEE
@@ -13505,6 +13506,14 @@ aOgP = []
 for iOg = 1 to len(aGvCat)
 	aOgP + [ "catalogue/" + aGvCat[iOg][1], aGvCat[iOg][2] ]
 next
+# AND THE SCHEMAS (DN15): a shop, and the same shop wrong. They are
+# notation pictures, judged by the plastic rules; their OWN rules -- the
+# ones about keys -- are held in section 109, and the witness's five
+# findings are not the plastic gate's to count. The shop stands on the
+# fan rule's boundary: an entity whose two relations are marked where
+# they leave it is a counter-subject, not a fan.
+aOgP + [ "er/shop", StzErScene01(OPTGOV) ]
+aOgP + [ "er/wrong", StzErScene02(OPTGOV) ]
 for iOg = 1 to 31
 	cOgF = "StzMathScene" + iOg
 	if iOg < 10  cOgF = "StzMathScene0" + iOg  ok
@@ -13544,8 +13553,8 @@ aOgP + [ "gantt/witness", StzMathGanttWitness(AUFONT) ]
 nOgT0 = StzEngineWatchTimestampMs()
 oOgRep = StzCheckPictures(aOgP)
 nOgMs = StzEngineWatchTimestampMs() - nOgT0
-chk("sixty-two pictures are judged by one call -- twenty notation, forty-two mathematical",
-    len(aOgP) = 62)
+chk("sixty-four pictures are judged by one call -- twenty-two notation, forty-two mathematical",
+    len(aOgP) = 64)
 chk("and the report's findings are exactly the five things the corpus plants on purpose -- " +
     "the contradiction, the frame whose mark is outside the part it shows, " +
     "the three-bonded oxygen, the stray hydrogen and the schedule with three mistakes",
@@ -13567,7 +13576,8 @@ chk("the whole gate runs inside a bound that would have caught its first run -- 
 # THE RULES JUDGED BY THE FIVE QUESTIONS, over the math corpus: none
 # empty, none vacuous, every boundary witnessed.
 oOgG = StzMathGovernanceOf("math")
-for iOg = 21 to len(aOgP)
+# from 23: the twenty catalogue pictures and the two schemas are notation
+for iOg = 23 to len(aOgP)
 	oOgG.AddPicture(aOgP[iOg][1], aOgP[iOg][2])
 next
 aOgR = oOgG.CheckRules()
@@ -13634,7 +13644,7 @@ chk("red to blue at the half is a purple whose lightness is the mean of the two,
 # paper itself -- measured, not assumed. The pictures are the one gate's,
 # already solved; a theme changes no geometry, so no second solve.
 nCmBadL = 0  nCmBadD = 0  nCmNames = 0
-for iCm = 21 to len(aOgP)
+for iCm = 23 to len(aOgP)   # the math pictures: after the twenty catalogue and two schema ones
 	oCmP = aOgP[iCm][2]
 	oCmP.@oStyle.SetTheme("light")  oCmP.Touch()
 	nCmBadL += _CmUnreadable(oCmP, 3)
@@ -14811,6 +14821,67 @@ chk("the gantt rules govern every dependency of a chart and not one object of a 
 # the mistake is kept here as the witness's first two rows.
 chk("the list the witness inherited still carries the author's first mistake",
     _GtHas(aGtF, "'Prototype' starts on day 8, 4 days before 'Design' ends on day 12"))
+
+
+sec("-- 109. DN15: AN ENTITY-RELATIONSHIP DIAGRAM -- A SCHEMA WITH A PICTURE ---")
+discharges("DN15")
+
+# THE NOTATION: entities as boxes with attribute compartments, relations
+# as lines with their cardinality at BOTH ends and no arrowhead at all.
+oErS = StzErScene01(OPTGOV)
+chk("declaring the notation puts the picture under it, undirected",
+    oErS.NotationO().Name_() = "er" and NOT oErS.NotationO().EdgesDirected())
+chkeq("...so no arrowhead is drawn on any relation", len(oErS.RenderArrows()), 0)
+chk("an entity's compartment reads as a schema does: PK first, then columns, a foreign key naming its target",
+    _ErAttrsAre(oErS, "order", [ "PK id", "placed_on", "FK customer_id -> customer" ]))
+chk("a junction's columns are keys AND references, and read so",
+    _ErAttrsAre(oErS, "producttag", [ "PK FK product_id -> product", "PK FK tag_id -> tag" ]))
+
+# THE CARDINALITY IS AT THE ENDS, published like every drawn fact: a bar
+# at the "one" end, a crow's foot at the "many" end, read from the FROM
+# side of the relation.
+chk("a one-to-many carries a bar at its source and a crow's foot at its target",
+    _ErEnd(oErS, "customer>order", "source") = "one" and _ErEnd(oErS, "customer>order", "target") = "many")
+chkeq("five relations, ten adornments -- every end says something", len(oErS.RenderAdornments()), 10)
+oErJ = StzErSceneJunction(OPTGOV)
+chk("a many-to-many carries a crow's foot at both ends",
+    _ErEnd(oErJ, "student>course", "source") = "many" and _ErEnd(oErJ, "student>course", "target") = "many")
+
+# THE RULES ARE ABOUT KEYS, and the shop passes them all.
+chkeq("the shop is sound: every entity keyed, every key resolving, every relation backed",
+      len(oErS.GovernanceFindings()), 0)
+chk("a many-to-many backed by a junction holding keys to both sides passes",
+    len(oErJ.GovernanceFindings()) = 0)
+
+# THE WITNESS: one of each mistake, by name.
+oErW = StzErScene02(OPTGOV)
+aErF = oErW.GovernanceFindings()
+? "   witness : " + len(aErF) + " findings"
+chk("an entity with no primary key is caught, by name",
+    _ErFound(aErF, "entity_has_key", "entity 'Order' has no primary key"))
+chk("a foreign key to an entity nobody drew is caught, naming the column and the phantom",
+    _ErFound(aErF, "foreign_key_resolves", "'Order.customer_id' refers to 'custmer'"))
+chk("a one-to-many with no key behind it is caught on the many side",
+    _ErFound(aErF, "relation_backed_by_key", "'Order' is the many side of 'Customer' and holds no foreign key"))
+chk("a many-to-many with no junction is caught, and told what it is owed",
+    _ErFound(aErF, "relation_backed_by_key", "'Product' and 'Tag' are many to many") and
+    _ErFound(aErF, "relation_backed_by_key", "a junction is owed"))
+chkeq("...and those are all of them: five", len(aErF), 5)
+
+# THE BOUNDARY, STOOD ON. A note is a node and not an entity: it owes no
+# key and joins no relation, and every rule says so by excluding it.
+oErRs = StzErRuleSetQ()
+chk("NEGATIVE: the note is excluded by every rule, not merely passed",
+    _ErExcludedEverywhere(oErRs, oErW.AsRuleGraph(), "note:n1"))
+chk("NEGATIVE: an entity with no foreign key is outside the resolving rule, not passing it",
+    _ErInList("entity:customer", oErRs.Rules()[2].CounterSubjectsIn(oErW.AsRuleGraph())))
+
+# THE BUILDER REFUSES WHAT IT CANNOT DRAW.
+chk("a relation to an entity that is not in the diagram is refused", _ErRefusesUnknown())
+chk("a cardinality that is not one of the four is refused, by name", _ErRefusesKind())
+
+# IT ANSWERS THE DISPLAY CONTRACT LIKE EVERY OTHER PICTURE.
+chk("an ER diagram answers Rendition() as a vector", oErS.Rendition()[:kind] = "vector")
 
 
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
@@ -17852,6 +17923,68 @@ func _OgWitness
 	_o_.SetFont(AUFONT, 16)
 	_o_.SetVariation("witness")
 	return _o_
+
+#-- DN15: the ER section's helpers -------------------------------------------
+
+func _ErAttrsAre poD, pcId, pacWant
+	_a_ = poD.NodeProperty(pcId, "attributes")
+	if NOT isList(_a_) or len(_a_) != len(pacWant)  return FALSE  ok
+	for _i_ = 1 to len(_a_)
+		if "" + _a_[_i_] != pacWant[_i_]  return FALSE  ok
+	next
+	return TRUE
+
+# the adornment drawn at one end of one relation: "one", "many" or ""
+func _ErEnd poD, pcKey, pcEnd
+	_a_ = poD.RenderAdornments()
+	for _i_ = 1 to len(_a_)
+		if len(_a_[_i_]) >= 6 and _a_[_i_][1] = pcKey and _a_[_i_][6] = pcEnd  return _a_[_i_][2]  ok
+	next
+	return ""
+
+func _ErFound paF, pcRule, pcText
+	for _i_ = 1 to len(paF)
+		if "" + paF[_i_][:rule] = pcRule and StzFindFirst(pcText, "" + paF[_i_][:message]) > 0
+			return TRUE
+		ok
+	next
+	return FALSE
+
+func _ErExcludedEverywhere poSet, oGraph, pcSubject
+	_a_ = poSet.Rules()
+	if len(_a_) = 0  return FALSE  ok
+	for _i_ = 1 to len(_a_)
+		if NOT _ErInList(pcSubject, _a_[_i_].CounterSubjectsIn(oGraph))  return FALSE  ok
+	next
+	return TRUE
+
+func _ErInList pcItem, paList
+	for _i_ = 1 to len(paList)
+		if "" + paList[_i_] = pcItem  return TRUE  ok
+	next
+	return FALSE
+
+func _ErRefusesUnknown
+	try
+		_o_ = new stzErDiagram("x")
+		_o_.AddEntity("a", "A")
+		_o_.Relate("a", "nobody", :OneToMany)
+	catch
+		return StzFindFirst("nobody", cCatchError) > 0
+	done
+	return FALSE
+
+func _ErRefusesKind
+	try
+		_o_ = new stzErDiagram("x")
+		_o_.AddEntity("a", "A")
+		_o_.AddEntity("b", "B")
+		_o_.Relate("a", "b", :Sometimes)
+	catch
+		# a symbol is a lowercase string in Ring, so the name comes back so
+		return StzFindFirst("sometimes", StzLower(cCatchError)) > 0
+	done
+	return FALSE
 
 #-- DN14: the Gantt section's helpers ----------------------------------------
 

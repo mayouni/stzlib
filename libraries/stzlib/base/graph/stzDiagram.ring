@@ -13624,6 +13624,16 @@ class stzDiagram from stzGraph
 	def _DrawRelationEnd(oC, pcKey, paFlat, cColor, nWidth)
 		_reR_ = This._EdgeRelation(pcKey)
 		if _reR_ = ""  return  ok
+		# A CARDINALITY IS CARRIED AT BOTH ENDS (DN15). UML adorns the
+		# source end only -- the general class, the whole. A schema's
+		# relation says something at each end: "one" is a bar across the
+		# line, "many" is three lines fanning into the entity, and which
+		# is which is the relation's kind read from the FROM side.
+		if _reR_ = "onetomany" or _reR_ = "manytoone" or
+		   _reR_ = "onetoone" or _reR_ = "manytomany"
+			This._DrawCardinalityEnds(oC, pcKey, _reR_, paFlat, cColor, nWidth)
+			return
+		ok
 		_reShape_ = ""
 		_reFill_ = 0
 		if _reR_ = "inheritance" or _reR_ = "generalization" or
@@ -13679,6 +13689,51 @@ class stzDiagram from stzGraph
 					_reMx_ + _rePx_ * _reW_, _reMy_ + _rePy_ * _reW_,
 					_reBx_, _reBy_,
 					_reMx_ - _rePx_ * _reW_, _reMy_ - _rePy_ * _reW_ ])
+		ok
+
+	# THE CROW'S FOOT, at whichever end says "many", and the bar at
+	# whichever says "one". Both are published beside the UML adornments,
+	# with a sixth field naming the end, so an instrument reads what was
+	# drawn rather than the pixels.
+	def _DrawCardinalityEnds(oC, pcKey, pcKind, paFlat, cColor, nWidth)
+		_ceN_ = len(paFlat)
+		if _ceN_ < 4  return  ok
+		_ceSrc_ = "one"  _ceDst_ = "many"
+		if pcKind = "manytoone"   _ceSrc_ = "many"  _ceDst_ = "one"   ok
+		if pcKind = "onetoone"    _ceSrc_ = "one"   _ceDst_ = "one"   ok
+		if pcKind = "manytomany"  _ceSrc_ = "many"  _ceDst_ = "many"  ok
+		# the source end: the first point, the line leaving it
+		This._DrawOneCardinality(oC, pcKey, _ceSrc_, "source",
+			paFlat[1], paFlat[2], paFlat[3], paFlat[4], cColor, nWidth)
+		# the target end: the last point, the line arriving at it
+		This._DrawOneCardinality(oC, pcKey, _ceDst_, "target",
+			paFlat[_ceN_ - 1], paFlat[_ceN_], paFlat[_ceN_ - 3], paFlat[_ceN_ - 2], cColor, nWidth)
+
+	# (pnEx, pnEy) is the end on the entity; (pnIx, pnIy) a point inward
+	# along the line. "one": a bar across the line eight in from the end.
+	# "many": three lines from a point twelve in, to the end and to the
+	# end offset six either side across the line.
+	def _DrawOneCardinality(oC, pcKey, pcWhich, pcEnd, pnEx, pnEy, pnIx, pnIy, cColor, nWidth)
+		_ocDx_ = pnIx - pnEx
+		_ocDy_ = pnIy - pnEy
+		_ocL_ = sqrt(_ocDx_ * _ocDx_ + _ocDy_ * _ocDy_)
+		if _ocL_ < 0.001  return  ok
+		_ocDx_ = _ocDx_ / _ocL_
+		_ocDy_ = _ocDy_ / _ocL_
+		_ocPx_ = 0 - _ocDy_
+		_ocPy_ = _ocDx_
+		@aRenderAdorn + [ StzLower("" + pcKey), pcWhich, 0, pnEx, pnEy, pcEnd ]
+		oC.Flush()
+		if pcWhich = "one"
+			_ocBx_ = pnEx + _ocDx_ * 8
+			_ocBy_ = pnEy + _ocDy_ * 8
+			oC.StrokeQ(cColor, nWidth).AddLine(_ocBx_ + _ocPx_ * 6, _ocBy_ + _ocPy_ * 6,
+				_ocBx_ - _ocPx_ * 6, _ocBy_ - _ocPy_ * 6)
+		else
+			_ocRx_ = pnEx + _ocDx_ * 12
+			_ocRy_ = pnEy + _ocDy_ * 12
+			oC.StrokeQ(cColor, nWidth).AddLine(_ocRx_, _ocRy_, pnEx + _ocPx_ * 6, pnEy + _ocPy_ * 6)
+			oC.StrokeQ(cColor, nWidth).AddLine(_ocRx_, _ocRy_, pnEx - _ocPx_ * 6, pnEy - _ocPy_ * 6)
 		ok
 
 	def _PublishPath(cFromId, cToId, paFlat)
