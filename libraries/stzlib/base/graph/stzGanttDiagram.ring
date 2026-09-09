@@ -71,6 +71,13 @@ func StzGanttDomain()
 	# a task that is not the first on its lane carries its name over its
 	# bar rather than in the column, where the lane's first task's name is
 	_o_.AddPredicate("OverBar", [ "Task" ])
+	# THE THREE ROUTES A LINK CAN TAKE, decided by the builder, which sees
+	# every bar: Straight along one lane; Roomy, out and down and in, when
+	# the successor starts far enough after the vertical column; Tight,
+	# through the gap between lanes and in from the left, when it does not
+	_o_.AddPredicate("Straight", [ "Dependency" ])
+	_o_.AddPredicate("Roomy", [ "Dependency" ])
+	_o_.AddPredicate("Tight", [ "Dependency" ])
 	return _o_
 
 # the paper: a fixed width, a height that follows the lanes
@@ -183,6 +190,7 @@ func StzGanttFromTasks(paTasks, paDeps)
 		ok
 		_oS_.Define("d" + _k_, "Dependency", [ _cA_, _cB_ ])
 		_oS_.Label("d" + _k_, "")
+		_GtRoute(_oS_, "d" + _k_, _cA_, _cB_)
 	next
 
 	# THE AXIS: a step that gives ten ticks or fewer, from the usual
@@ -209,6 +217,119 @@ func StzGanttLanesOf(poSubstance)
 		if poSubstance.DataOf(_ac_[_i_], "lane") > _n_  _n_ = poSubstance.DataOf(_ac_[_i_], "lane")  ok
 	next
 	return _n_
+
+# THE ROUTE OF ONE LINK, AS DATA. The builder sees every bar, so it is the
+# one that can promise a link never crosses one: the vertical column is
+# pushed right of every bar on a lane between the two tasks that would
+# stand in its way, and the successor is entered from the left along its
+# own lane. Three shapes of route, each a polyline the style draws with a
+# small arc at every turn:
+#
+#   Straight  same lane, successor after: one segment
+#   Roomy     the successor starts at least twenty pixels past the
+#             column: out, down the column, and in -- four points
+#   Tight     it does not (touching, overlapping, backwards, or a
+#             milestone): out, down the column to the gap between lanes
+#             on the successor's side, along the gap to twenty short of
+#             the successor, down into its lane, and in -- six points
+#
+# The corner arc's radius is five, or half the shorter segment where a
+# segment is shorter than ten. Segments are stored shortened to the arcs'
+# tangent points; the arc is stored as its two tangents and its midpoint.
+func _GtRoute(poS, pcD, pcA, pcB)
+	_nAx_ = poS.DataOf(pcA, "xout")  _nAy_ = poS.DataOf(pcA, "y")
+	_nBx_ = poS.DataOf(pcB, "xin")   _nBy_ = poS.DataOf(pcB, "y")  _nBo_ = poS.DataOf(pcB, "xout")
+	_nLa_ = poS.DataOf(pcA, "lane")  _nLb_ = poS.DataOf(pcB, "lane")
+	_nDir_ = 1
+	if _nBy_ < _nAy_  _nDir_ = -1  ok
+
+	# the bars the column must not cross: every task on a lane strictly
+	# between the two, and on the successor's lane before the successor
+	_aAvoid_ = []
+	_ac_ = poS.ObjectsOfType("Task")
+	for _i_ = 1 to len(_ac_)
+		_cT_ = _ac_[_i_]
+		if _cT_ = pcA or _cT_ = pcB  loop  ok
+		_nL_ = poS.DataOf(_cT_, "lane")
+		_bBetween_ = (_nL_ > _nLa_ and _nL_ < _nLb_) or (_nL_ < _nLa_ and _nL_ > _nLb_)
+		if _bBetween_ or _nL_ = _nLb_
+			_aAvoid_ + [ poS.DataOf(_cT_, "xin"), poS.DataOf(_cT_, "xout") ]
+		ok
+	next
+	_nVx_ = _nAx_ + 8
+	for _pass_ = 1 to 40
+		_bMoved_ = FALSE
+		for _i_ = 1 to len(_aAvoid_)
+			if _nVx_ >= _aAvoid_[_i_][1] - 6 and _nVx_ <= _aAvoid_[_i_][2] + 6
+				_nVx_ = _aAvoid_[_i_][2] + 8
+				_bMoved_ = TRUE
+			ok
+		next
+		if NOT _bMoved_  exit  ok
+	next
+
+	_aP_ = []
+	if _nLa_ = _nLb_ and _nBx_ > _nAx_ + 14
+		poS.Assert("Straight", [ pcD ])
+		_aP_ = [ [ _nAx_, _nAy_ ], [ _nBx_ - 1, _nBy_ ] ]
+	but _nBx_ >= _nVx_ + 20
+		poS.Assert("Roomy", [ pcD ])
+		_aP_ = [ [ _nAx_, _nAy_ ], [ _nVx_, _nAy_ ], [ _nVx_, _nBy_ ], [ _nBx_ - 1, _nBy_ ] ]
+	else
+		poS.Assert("Tight", [ pcD ])
+		_nYm_ = _nBy_ - _nDir_ * 17
+		if _nLa_ = _nLb_  _nYm_ = _nBy_ - 17  ok
+		_nEx_ = _nBx_ - 20
+		_aP_ = [ [ _nAx_, _nAy_ ], [ _nVx_, _nAy_ ], [ _nVx_, _nYm_ ], [ _nEx_, _nYm_ ],
+		         [ _nEx_, _nBy_ ], [ _nBx_ - 1, _nBy_ ] ]
+	ok
+
+	# segments shortened to the tangent points, and the arcs between
+	_nP_ = len(_aP_)
+	poS.SetData(pcD, "n", _nP_)
+	_anR_ = []
+	for _j_ = 1 to _nP_
+		_anR_ + 0
+	next
+	for _j_ = 2 to _nP_ - 1
+		_nL1_ = _GtLen(_aP_[_j_ - 1], _aP_[_j_])
+		_nL2_ = _GtLen(_aP_[_j_], _aP_[_j_ + 1])
+		_nR_ = 5
+		if _nL1_ / 2 < _nR_  _nR_ = _nL1_ / 2  ok
+		if _nL2_ / 2 < _nR_  _nR_ = _nL2_ / 2  ok
+		_anR_[_j_] = _nR_
+	next
+	for _j_ = 1 to _nP_ - 1
+		_aU_ = _GtUnit(_aP_[_j_], _aP_[_j_ + 1])
+		_nX1_ = _aP_[_j_][1] + _anR_[_j_] * _aU_[1]
+		_nY1_ = _aP_[_j_][2] + _anR_[_j_] * _aU_[2]
+		_nX2_ = _aP_[_j_ + 1][1] - _anR_[_j_ + 1] * _aU_[1]
+		_nY2_ = _aP_[_j_ + 1][2] - _anR_[_j_ + 1] * _aU_[2]
+		poS.SetData(pcD, "s" + _j_ + "x1", _nX1_)  poS.SetData(pcD, "s" + _j_ + "y1", _nY1_)
+		poS.SetData(pcD, "s" + _j_ + "x2", _nX2_)  poS.SetData(pcD, "s" + _j_ + "y2", _nY2_)
+	next
+	for _j_ = 2 to _nP_ - 1
+		_aUa_ = _GtUnit(_aP_[_j_], _aP_[_j_ - 1])
+		_aUb_ = _GtUnit(_aP_[_j_], _aP_[_j_ + 1])
+		_nR_ = _anR_[_j_]
+		_c_ = "c" + (_j_ - 1)
+		poS.SetData(pcD, _c_ + "ax", _aP_[_j_][1] + _nR_ * _aUa_[1])
+		poS.SetData(pcD, _c_ + "ay", _aP_[_j_][2] + _nR_ * _aUa_[2])
+		# the arc's midpoint: where a quarter circle inscribed in the
+		# corner passes, 1 - 1/sqrt(2) of the radius along both tangents
+		poS.SetData(pcD, _c_ + "mx", _aP_[_j_][1] + 0.2929 * _nR_ * (_aUa_[1] + _aUb_[1]))
+		poS.SetData(pcD, _c_ + "my", _aP_[_j_][2] + 0.2929 * _nR_ * (_aUa_[2] + _aUb_[2]))
+		poS.SetData(pcD, _c_ + "bx", _aP_[_j_][1] + _nR_ * _aUb_[1])
+		poS.SetData(pcD, _c_ + "by", _aP_[_j_][2] + _nR_ * _aUb_[2])
+	next
+
+func _GtLen(pa, pb)
+	return sqrt((pb[1] - pa[1]) * (pb[1] - pa[1]) + (pb[2] - pa[2]) * (pb[2] - pa[2]))
+
+func _GtUnit(pa, pb)
+	_n_ = _GtLen(pa, pb)
+	if _n_ < 0.000001  return [ 0, 0 ]  ok
+	return [ (pb[1] - pa[1]) / _n_, (pb[2] - pa[2]) / _n_ ]
 
 func _GtTaskNamed(paTasks, pcName)
 	_c_ = StzLower(ring_trim("" + pcName))
@@ -296,22 +417,44 @@ func StzGanttStyleXT(pnLanes, pbGuides)
 	# route -- its crossing along the boundary runs left, visibly -- and
 	# the rule says so in words. The side of the successor the boundary is
 	# on is a sign the tape computes without a branch.
-	_o_.ForAllWhere("Dependency d; Task a; Task b", "d := Dependency(a, b)", [
-		[ :field, "d.mx", "a.xout + 8" ],
-		[ :field, "d.sg", "(a.y - b.y) / (abs(a.y - b.y) + 0.001)" ],
-		[ :field, "d.ym", "b.y + 17 * d.sg" ],
-		[ :field, "d.bx", "b.xin - 8" ],
-		[ :shape, "d.l1", :line, [ :x1 = "a.xout", :y1 = "a.y", :x2 = "d.mx", :y2 = "a.y",
+	# THE ROUTE IS DATA, THE STYLE DRAWS IT: the builder chose the polyline,
+	# pushed its column clear of every bar, and stored each segment
+	# shortened to the arcs' tangents and each arc as three points. The
+	# head is on the last segment, which always runs rightwards into the
+	# successor. Three route kinds, three fixed sets of shapes.
+	_o_.ForAllWhere("Dependency d; Task a; Task b", "d := Dependency(a, b); Straight(d)", [
+		[ :shape, "d.icon", :line, [ :x1 = "d.s1x1", :y1 = "d.s1y1", :x2 = "d.s1x2", :y2 = "d.s1y2",
+		                             :stroke = "neutral", :strokeWidth = 1.5, :arrow = "end" ] ] ])
+	_o_.ForAllWhere("Dependency d; Task a; Task b", "d := Dependency(a, b); Roomy(d)", [
+		[ :shape, "d.s1", :line, [ :x1 = "d.s1x1", :y1 = "d.s1y1", :x2 = "d.s1x2", :y2 = "d.s1y2",
 		                           :stroke = "neutral", :strokeWidth = 1.5 ] ],
-		[ :shape, "d.l2", :line, [ :x1 = "d.mx", :y1 = "a.y", :x2 = "d.mx", :y2 = "d.ym",
+		[ :shape, "d.s2", :line, [ :x1 = "d.s2x1", :y1 = "d.s2y1", :x2 = "d.s2x2", :y2 = "d.s2y2",
 		                           :stroke = "neutral", :strokeWidth = 1.5 ] ],
-		[ :shape, "d.l3", :line, [ :x1 = "d.mx", :y1 = "d.ym", :x2 = "d.bx", :y2 = "d.ym",
-		                           :stroke = "neutral", :strokeWidth = 1.5 ] ],
-		[ :shape, "d.l4", :line, [ :x1 = "d.bx", :y1 = "d.ym", :x2 = "d.bx", :y2 = "b.y",
-		                           :stroke = "neutral", :strokeWidth = 1.5 ] ],
-		[ :shape, "d.icon", :line, [ :x1 = "d.bx", :y1 = "b.y", :x2 = "b.xin - 1", :y2 = "b.y",
+		[ :shape, "d.icon", :line, [ :x1 = "d.s3x1", :y1 = "d.s3y1", :x2 = "d.s3x2", :y2 = "d.s3y2",
 		                             :stroke = "neutral", :strokeWidth = 1.5, :arrow = "end" ] ],
-		[ :layer, "d.l1", :above, "a.bar" ], [ :layer, "d.icon", :above, "b.bar" ] ])
+		[ :shape, "d.c1", :spline, [ :n = 3, :x1 = "d.c1ax", :y1 = "d.c1ay", :x2 = "d.c1mx", :y2 = "d.c1my",
+		                             :x3 = "d.c1bx", :y3 = "d.c1by", :stroke = "neutral", :strokeWidth = 1.5 ] ],
+		[ :shape, "d.c2", :spline, [ :n = 3, :x1 = "d.c2ax", :y1 = "d.c2ay", :x2 = "d.c2mx", :y2 = "d.c2my",
+		                             :x3 = "d.c2bx", :y3 = "d.c2by", :stroke = "neutral", :strokeWidth = 1.5 ] ] ])
+	_o_.ForAllWhere("Dependency d; Task a; Task b", "d := Dependency(a, b); Tight(d)", [
+		[ :shape, "d.s1", :line, [ :x1 = "d.s1x1", :y1 = "d.s1y1", :x2 = "d.s1x2", :y2 = "d.s1y2",
+		                           :stroke = "neutral", :strokeWidth = 1.5 ] ],
+		[ :shape, "d.s2", :line, [ :x1 = "d.s2x1", :y1 = "d.s2y1", :x2 = "d.s2x2", :y2 = "d.s2y2",
+		                           :stroke = "neutral", :strokeWidth = 1.5 ] ],
+		[ :shape, "d.s3", :line, [ :x1 = "d.s3x1", :y1 = "d.s3y1", :x2 = "d.s3x2", :y2 = "d.s3y2",
+		                           :stroke = "neutral", :strokeWidth = 1.5 ] ],
+		[ :shape, "d.s4", :line, [ :x1 = "d.s4x1", :y1 = "d.s4y1", :x2 = "d.s4x2", :y2 = "d.s4y2",
+		                           :stroke = "neutral", :strokeWidth = 1.5 ] ],
+		[ :shape, "d.icon", :line, [ :x1 = "d.s5x1", :y1 = "d.s5y1", :x2 = "d.s5x2", :y2 = "d.s5y2",
+		                             :stroke = "neutral", :strokeWidth = 1.5, :arrow = "end" ] ],
+		[ :shape, "d.c1", :spline, [ :n = 3, :x1 = "d.c1ax", :y1 = "d.c1ay", :x2 = "d.c1mx", :y2 = "d.c1my",
+		                             :x3 = "d.c1bx", :y3 = "d.c1by", :stroke = "neutral", :strokeWidth = 1.5 ] ],
+		[ :shape, "d.c2", :spline, [ :n = 3, :x1 = "d.c2ax", :y1 = "d.c2ay", :x2 = "d.c2mx", :y2 = "d.c2my",
+		                             :x3 = "d.c2bx", :y3 = "d.c2by", :stroke = "neutral", :strokeWidth = 1.5 ] ],
+		[ :shape, "d.c3", :spline, [ :n = 3, :x1 = "d.c3ax", :y1 = "d.c3ay", :x2 = "d.c3mx", :y2 = "d.c3my",
+		                             :x3 = "d.c3bx", :y3 = "d.c3by", :stroke = "neutral", :strokeWidth = 1.5 ] ],
+		[ :shape, "d.c4", :spline, [ :n = 3, :x1 = "d.c4ax", :y1 = "d.c4ay", :x2 = "d.c4mx", :y2 = "d.c4my",
+		                             :x3 = "d.c4bx", :y3 = "d.c4by", :stroke = "neutral", :strokeWidth = 1.5 ] ] ])
 	return _o_
 
 # the whole picture in one call: substance, a style sized to its lanes,
