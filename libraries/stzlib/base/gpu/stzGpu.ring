@@ -239,6 +239,192 @@ class stzGpu from stzObject
 		StzGpuSaveCalibration(["pairdist"])
 		return [ _nCross_, _aReport_ ]
 
+	# ---- GK0: the checker -----------------------------------------------
+	# Verify a CANDIDATE kernel against a REFERENCE one: same inputs, same
+	# device, plus a HIDDEN second shape over DIFFERENT data the candidate
+	# was never shown; both timed the same way by the ENGINE (never by this
+	# face); and a refusal for any time faster than the measured bus. The
+	# report is DATA -- the verdict is the engine's, this face only reads it.
+	#
+	#   aR = oG.Verify(kRef, kCand, [ :a = aData ])
+	#   ? aR[:verdict]   # "verified" | "mismatch" | "mismatch-hidden" |
+	#                    # "impossible" | "reference-impossible" | "error"
+	#
+	# pCand may be an stzKernelMaker on the SAME declarations, or raw WGSL
+	# on the same binding contract (how a hand-written variant -- or a
+	# cheat -- gets checked). Options: [ :reps = 7, :band = 0.000001 ].
+	def Verify(poRef, pCand, paBindings)
+		return This.VerifyWith(poRef, pCand, paBindings, [])
+
+	def VerifyWith(poRef, pCand, paBindings, paOptions)
+		This._RequireDevice()
+		_nReps_ = _BindingValue(paOptions, "reps")
+		if NOT isNumber(_nReps_) or _nReps_ < 3
+			_nReps_ = 7
+		ok
+		_nBand_ = _BindingValue(paOptions, "band")
+		if NOT isNumber(_nBand_)
+			_nBand_ = 0.000001
+		ok
+		_aNames_ = poRef.InputNames()
+		_nIn_ = ring_len(_aNames_)
+		if _nIn_ = 0
+			StzRaise("Verify: the reference kernel declares no TakesVector input.")
+		ok
+		_aVecs_ = []
+		_nA_ = 0
+		for _i_ = 1 to _nIn_
+			_v_ = _BindingValue(paBindings, _aNames_[_i_])
+			if NOT isList(_v_) or ring_len(_v_) = 0
+				StzRaise("Verify: vector '" + _aNames_[_i_] +
+					"' is missing from the bindings (give [ :" +
+					_aNames_[_i_] + " = aNumbers ]).")
+			ok
+			if _nA_ = 0
+				_nA_ = ring_len(_v_)
+			but ring_len(_v_) != _nA_
+				StzRaise("Verify: vector '" + _aNames_[_i_] + "' has " +
+					ring_len(_v_) + " elements, the first had " + _nA_ + ".")
+			ok
+			_aVecs_ + _v_
+		next
+		_aScal_ = _OrderedScalars(poRef, paBindings)
+
+		# the candidate: a maker on the SAME declarations, or raw WGSL
+		if isString(pCand)
+			_cCand_ = pCand
+		else
+			if ring_len(pCand.InputNames()) != _nIn_ or
+			   ring_len(pCand.ScalarNames()) != ring_len(_aScal_)
+				StzRaise("Verify: the candidate declares a different " +
+					"signature from the reference.")
+			ok
+			_cCand_ = pCand.ToWGSL()
+		ok
+		_nKRef_ = StzEngineGpuKernelCompile(poRef.ToWGSL())
+		if _nKRef_ = 0
+			StzRaise("Verify: the reference refused to compile: " + StzEngineGpuLastError())
+		ok
+		_nKCand_ = StzEngineGpuKernelCompile(_cCand_)
+		if _nKCand_ = 0
+			StzRaise("Verify: the candidate refused to compile: " + StzEngineGpuLastError())
+		ok
+
+		# THE HIDDEN SET, owned by the checker: a tile-uneven ODD size the
+		# candidate was not shown, over DIFFERENT data -- the tail of each
+		# vector, reversed. A permutation, so every value stays inside the
+		# kernel's domain; and a candidate that hard-coded the visible
+		# fixture (out[i] = f(i) instead of f(a[i])) answers wrong here.
+		_nB_ = floor(_nA_ * 5 / 7)
+		if _nB_ < 1
+			_nB_ = 1
+		ok
+		if _nB_ > 1 and _nB_ % 2 = 0
+			_nB_--
+		ok
+		_aIdsA_ = []
+		_aIdsB_ = []
+		for _i_ = 1 to _nIn_
+			_nId_ = StzEngineGpuBufferNew(_nA_ * 4)
+			if _nId_ = 0 or StzEngineGpuBufferUploadList(_nId_, _aVecs_[_i_]) != 0
+				_FreeIds(_aIdsA_)
+				_FreeIds(_aIdsB_)
+				StzRaise("Verify: input upload refused (" + StzEngineGpuLastError() + ")")
+			ok
+			_aIdsA_ + _nId_
+			_aHid_ = []
+			for _j_ = _nA_ to (_nA_ - _nB_ + 1) step -1
+				_aHid_ + _aVecs_[_i_][_j_]
+			next
+			_nId_ = StzEngineGpuBufferNew(_nB_ * 4)
+			if _nId_ = 0 or StzEngineGpuBufferUploadList(_nId_, _aHid_) != 0
+				_FreeIds(_aIdsA_)
+				_FreeIds(_aIdsB_)
+				StzRaise("Verify: hidden-set upload refused (" + StzEngineGpuLastError() + ")")
+			ok
+			_aIdsB_ + _nId_
+		next
+		_nOutA_ = StzEngineGpuBufferNew(_nA_ * 4)
+		_nOutB_ = StzEngineGpuBufferNew(_nB_ * 4)
+		if _nOutA_ = 0 or _nOutB_ = 0
+			_FreeIds(_aIdsA_)
+			_FreeIds(_aIdsB_)
+			StzRaise("Verify: no device buffer for the outputs.")
+		ok
+		_aIdsA_ + _nOutA_
+		_aIdsB_ + _nOutB_
+
+		_nSt_ = StzEngineGpuVerify(_nKRef_, _nKCand_,
+			_nA_, _aScal_, _aIdsA_, ceil(_nA_ / 256.0), ceil(_nA_ / 256.0),
+			_nB_, _aIdsB_, ceil(_nB_ / 256.0), ceil(_nB_ / 256.0),
+			_nReps_, _nBand_)
+		_FreeIds(_aIdsA_)
+		_FreeIds(_aIdsB_)
+		if _nSt_ != 0
+			StzRaise("Verify: the checker refused to run (status " + _nSt_ +
+				": " + StzEngineGpuLastError() + ").")
+		ok
+		_nV_ = StzEngineGpuVerifyResult(0)
+		_nBad_ = StzEngineGpuVerifyResult(3)
+		if _nBad_ >= 0
+			_nBad_++     # engine 0-based -> face 1-based
+		else
+			_nBad_ = 0
+		ok
+		return [
+			:verdict = This._VerdictName(_nV_),
+			:verified = (_nV_ = 0),
+			:maxdiff = StzEngineGpuVerifyResult(1),
+			:maxdiffhidden = StzEngineGpuVerifyResult(2),
+			:firstbad = _nBad_,
+			:refms = StzEngineGpuVerifyResult(4),
+			:candms = StzEngineGpuVerifyResult(5),
+			:refgpums = StzEngineGpuVerifyResult(6),
+			:candgpums = StzEngineGpuVerifyResult(7),
+			:speedup = StzEngineGpuVerifyResult(8),
+			:speedupgpu = StzEngineGpuVerifyResult(9),
+			:floorgbs = StzEngineGpuVerifyResult(10),
+			:submitfloorms = StzEngineGpuVerifyResult(11),
+			:bytes = StzEngineGpuVerifyResult(12),
+			:minms = StzEngineGpuVerifyResult(13),
+			:clocks = StzEngineGpuVerifyResult(14),
+			:reps = StzEngineGpuVerifyResult(15),
+			:jitterms = StzEngineGpuVerifyResult(16),
+			:hiddensize = _nB_
+		]
+
+	# The roofline alone: could a dispatch touching nBytes finish in nMs on
+	# this device? Pure judgement over the MEASURED floors -- exposed so a
+	# guard can hand it an impossible number and watch it refuse.
+	def VerifyJudge(nBytes, nMs)
+		This._RequireDevice()
+		return This._VerdictName(StzEngineGpuVerifyJudge(nBytes, nMs))
+
+	# The measured floors themselves: [ :floorgbs, :submitfloorms ]
+	def VerifyFloors()
+		This._RequireDevice()
+		StzEngineGpuVerifyJudge(1, 1)
+		return [
+			:floorgbs = StzEngineGpuVerifyResult(10),
+			:submitfloorms = StzEngineGpuVerifyResult(11)
+		]
+
+	def _VerdictName(nV)
+		switch nV
+		on 0
+			return "verified"
+		on 1
+			return "mismatch"
+		on 2
+			return "mismatch-hidden"
+		on 3
+			return "impossible"
+		on 4
+			return "reference-impossible"
+		other
+			return "error"
+		off
+
 	def LoadCalibration()
 		StzGpuLoadCalibrationDefault()
 		This._EnsureInit()

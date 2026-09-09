@@ -119,6 +119,13 @@ pub const Fns = struct {
     wgpuComputePassEncoderEnd: *const @TypeOf(c.wgpuComputePassEncoderEnd),
     wgpuComputePassEncoderRelease: *const @TypeOf(c.wgpuComputePassEncoderRelease),
     wgpuCommandBufferRelease: *const @TypeOf(c.wgpuCommandBufferRelease),
+    // GK0 the checker: GPU-side timestamps as the SECOND clock (feature-gated
+    // at device creation; absent = one clock, recorded, never a failure)
+    wgpuAdapterHasFeature: *const @TypeOf(c.wgpuAdapterHasFeature),
+    wgpuDeviceCreateQuerySet: *const @TypeOf(c.wgpuDeviceCreateQuerySet),
+    wgpuQuerySetRelease: *const @TypeOf(c.wgpuQuerySetRelease),
+    wgpuCommandEncoderResolveQuerySet: *const @TypeOf(c.wgpuCommandEncoderResolveQuerySet),
+    wgpuQueueGetTimestampPeriod: *const @TypeOf(c.wgpuQueueGetTimestampPeriod),
     // GR1 render surface (same DLL exports them all; resolved as a unit)
     wgpuDeviceCreateTexture: *const @TypeOf(c.wgpuDeviceCreateTexture),
     wgpuTextureCreateView: *const @TypeOf(c.wgpuTextureCreateView),
@@ -179,6 +186,17 @@ pub const PARAMS_BYTES: usize = 64;
 var params_uniform: c.WGPUBuffer = null; // shared op-params uniform (see dispatch_params)
 var available = false;
 var selected_adapter: i32 = -1;
+
+// GK0: timestamp queries. Requested when the adapter advertises them; a
+// device that refuses the request is re-requested WITHOUT (one clock).
+const ts_feats = [_]c.WGPUFeatureName{c.WGPUFeatureName_TimestampQuery};
+var g_timestamps = false;
+/// Set by the checker around ONE immediate dispatch: the compute pass then
+/// writes begin/end timestamps into this query set. Null = plain pass.
+pub var g_pass_ts: ?*const c.WGPUPassTimestampWrites = null;
+pub fn hasTimestamps() bool {
+    return available and g_timestamps;
+}
 
 var last_error_buf: [512]u8 = @splat(0);
 var last_error_len: usize = 0;
@@ -480,10 +498,24 @@ fn openDeviceOn(idx: usize) i32 {
         .userdata1 = null,
         .userdata2 = null,
     };
+    g_timestamps = fns.wgpuAdapterHasFeature(adapters[idx], c.WGPUFeatureName_TimestampQuery) != 0;
+    if (g_timestamps) {
+        desc.requiredFeatureCount = 1;
+        desc.requiredFeatures = &ts_feats;
+    }
     g_device_ready = false;
     g_requested_device = null;
     _ = fns.wgpuAdapterRequestDevice(adapters[idx], &desc, cbinfo);
     while (!g_device_ready) fns.wgpuInstanceProcessEvents(instance);
+    if (g_requested_device == null and g_timestamps) {
+        // advertised, then refused: the device without the second clock
+        g_timestamps = false;
+        desc.requiredFeatureCount = 0;
+        desc.requiredFeatures = null;
+        g_device_ready = false;
+        _ = fns.wgpuAdapterRequestDevice(adapters[idx], &desc, cbinfo);
+        while (!g_device_ready) fns.wgpuInstanceProcessEvents(instance);
+    }
     device = g_requested_device orelse return 0;
     queue = fns.wgpuDeviceGetQueue(device);
     if (queue == null) return 0;
@@ -1384,7 +1416,10 @@ fn dispatchInternal(kernel: i64, params: ?[]const u8, buf_ids: [*]const i64, nbu
         // nothing -- FrameEnd owns the one submit. Outside one, behave
         // exactly as before: own encoder, own submit.
         const enc = if (g_frame_open) g_frame_enc else fns.wgpuDeviceCreateCommandEncoder(device, null);
-        const pass = fns.wgpuCommandEncoderBeginComputePass(enc, null);
+        // GK0: the checker's timestamp writes ride THIS pass when armed
+        var pdesc = std.mem.zeroes(c.WGPUComputePassDescriptor);
+        pdesc.timestampWrites = g_pass_ts;
+        const pass = fns.wgpuCommandEncoderBeginComputePass(enc, if (g_pass_ts != null) &pdesc else null);
         fns.wgpuComputePassEncoderSetPipeline(pass, k.pipeline);
         fns.wgpuComputePassEncoderSetBindGroup(pass, 0, bg, 0, null);
         fns.wgpuComputePassEncoderDispatchWorkgroups(pass, chunk, y, 1);

@@ -1066,3 +1066,75 @@ asks for a kernel enumeration cannot reach. Not before.
 
 *Generation is the cheap step. The checker and the memory are the
 product — and this plane had already built them, one dimension short.*
+
+---
+
+## GK0 STATUS — shipped 2026-09-09: the checker as an engine primitive
+
+Guard: `base/test/gpu/gpu_verify_narrated.ring` — **26 asserts green,
+2.6 s**, first run. Gate on the guards the change reaches (device
+creation and the immediate dispatch path): lifecycle 62, ops 37,
+declarative 20, batch 13, calibration 10, seams 17, render lifecycle
+74, deploy gate 16, neural backbone 10 — **259 green**. Two Zig unit
+tests on the pure judge and the comparator.
+
+**What shipped.** `engine/src/gpu_verify.zig`, one primitive:
+`stz_gpu_verify(ref, cand, shape A, shape B, reps, band)` runs both
+kernels on the SAME device buffers at a visible shape and a HIDDEN one,
+compares every output element, times both the same way (warm on both
+sides — the correctness pass is the warm-up, alternating A B A B,
+warm-min), on TWO clocks where the adapter has them (wall around
+dispatch+sync; wgpu timestamp queries inside the pass, requested at
+device creation and re-requested without if refused), and refuses by
+name any time under floors it MEASURED on this device. The verdict and
+every measurement are result slots; `stzGpu.Verify()` only reads them.
+The Ring face owns the hidden set — an odd, tile-uneven size over the
+reversed tail of each input (a permutation, so every value stays in the
+kernel's domain) — and accepts a maker or raw WGSL as the candidate,
+which is how a hand-written variant, or a cheat, gets checked.
+
+**The negative siblings, all caught:** a candidate that answers the
+visible fixture without reading its input (`out[i] = 2i` when
+`a[i] = i`) is EXACT at the visible shape and wrong by 8190 at the
+hidden one — `mismatch-hidden`, first element named. A constant offset
+is `mismatch` by exactly 0.5 from element 1, and a mismatch is never
+timed. The judge refuses 1 GB in 0.01 ms and any time under half the
+smallest dispatch, and accepts the reference's own time. The control —
+a kernel against itself — sits at speedup 1.01 inside a 0.23 ms jitter.
+
+**Measured on the 3050, this run:**
+
+| floor | value |
+|---|---|
+| copy bandwidth (16 MB, warm-min) | 89.0 GB/s |
+| smallest dispatch + sync | 0.087 ms |
+| 4096-element kernel, wall clock | 0.088 ms |
+| the same kernel, GPU timestamps | **0.0057 ms** |
+
+**THE FINDING, and it changes GK1/GK2:** below roughly 100 µs of
+work, the wall clock measures the SUBMIT, not the kernel — the
+4096-element dispatch reads as 88 µs on the wall and 5.7 µs on the
+device, a 15x gap that is pure submission floor. Every speedup this
+plane has ever reported for a small kernel was a ratio of two submit
+floors. So: **GK2's variant comparisons must use the GPU clock** (the
+kernel's own cost is what a tile size changes), while **GK1's routing
+decision keeps the wall clock** (a caller pays the submit whether or
+not the kernel is fast). Two clocks were not a refinement; at this
+plane's sizes they measure different things. One clock stays a
+recorded limit for adapters without timestamp queries.
+
+**Paid for on the way:** the roofline needs an allowance — a working
+set that fits in cache legitimately beats DRAM bandwidth, so the bus
+floor carries 8x headroom and the submit floor a 0.5x one, both
+written beside the numbers; a floor that refuses a legitimate result
+is worse than one that lets a marginal one through. And `zig test` on a
+single engine file needs only the wgpu include path — the DLL's
+functions are resolved at runtime, so nothing links.
+
+**Not this plane's, found by building in a fresh worktree:** `stz_http`
+does not build from a clean checkout — `nghttp2ver.h` is gitignored
+(generated from its `.in`) and nothing in `build.zig` generates it.
+Recorded for the HTTP desk.
+
+Next: **GK1**, the shape-keyed store — with the clock split above as
+its first design input.
