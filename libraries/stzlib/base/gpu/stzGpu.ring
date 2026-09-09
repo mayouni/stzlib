@@ -601,6 +601,44 @@ class stzGpu from stzObject
 		next
 		return _nBest_
 
+	# ---- GS1: FFT convolution on the GPU -----------------------------------
+	# The linear convolution of two real signals -- convolution reverb's
+	# arithmetic -- as ONE batched pass on the device: both operands packed
+	# and transformed (Stockham radix-2, twiddles from a table computed in
+	# f64), multiplied pointwise, transformed back, the real part scaled.
+	# SN0 measured it at 19-23x over fft.zig for 60 s of audio on the 3050.
+	#
+	# This is the ONE-SHOT doorway: upload, run, download. A plane holding
+	# its signal on the device uses the buffer form (StzEngineGpuOpConvolveReal
+	# over buffer ids) and pays no marshalling -- the sound desk's route.
+	def ConvolveReal(paA, paB)
+		This._RequireDevice()
+		if NOT isList(paA) or NOT isList(paB) or ring_len(paA) = 0 or ring_len(paB) = 0
+			StzRaise("ConvolveReal: give me two non-empty lists of numbers.")
+		ok
+		_nA_ = ring_len(paA)
+		_nB_ = ring_len(paB)
+		_nOut_ = _nA_ + _nB_ - 1
+		_hA_ = StzEngineGpuBufferNew(_nA_ * 4)
+		_hB_ = StzEngineGpuBufferNew(_nB_ * 4)
+		_hO_ = StzEngineGpuBufferNew(_nOut_ * 4)
+		if _hA_ = 0 or _hB_ = 0 or _hO_ = 0
+			_FreeIds([_hA_, _hB_, _hO_])
+			StzRaise("ConvolveReal: no device buffer (" + StzEngineGpuLastError() + ")")
+		ok
+		if StzEngineGpuBufferUploadList(_hA_, paA) != 0 or StzEngineGpuBufferUploadList(_hB_, paB) != 0
+			_FreeIds([_hA_, _hB_, _hO_])
+			StzRaise("ConvolveReal: upload refused (" + StzEngineGpuLastError() + ")")
+		ok
+		_nSt_ = StzEngineGpuOpConvolveReal(_hA_, _nA_, _hB_, _nB_, _hO_)
+		if _nSt_ != 0
+			_FreeIds([_hA_, _hB_, _hO_])
+			StzRaise("ConvolveReal: the op refused (status " + _nSt_ + ").")
+		ok
+		_aOut_ = StzEngineGpuBufferDownloadList(_hO_, _nOut_)
+		_FreeIds([_hA_, _hB_, _hO_])
+		return _aOut_
+
 	# ---- GK2: the foundry -- op variants by enumeration ------------------
 	# The op library carries VARIANTS of pairdist (a straight row kernel, a
 	# vec4 one, one with the query staged in workgroup memory) beside the

@@ -1493,3 +1493,63 @@ falls back to the generic rather than assuming the variant.
 
 Next: **GK2b** (matmul tiles, elementwise workgroup widths) when a
 workload asks; **GK3** stays a door.
+
+---
+
+## GS1 STATUS — engine half shipped 2026-09-09: FFT convolution is an op of the GPU plane; the sound desk owes one route
+
+Guard: `base/test/gpu/gpu_convolve_narrated.ring` — **19 asserts green**,
+on BOTH adapters. Gate on the guards that share the dispatch path
+(batch, lifecycle, ops, verify, foundry, seams): **182 green**. Zig unit
+test on the transform sizes.
+
+**What shipped.** `engine/src/gpu_fft.zig`: `stz_gpu_op_convolve_real
+(a, na, b, nb, out)` over G1 buffer ids — the linear convolution of two
+real f32 signals as ONE batched pass: pack both operands to complex,
+Stockham radix-2 forward chains (no bit-reversal traffic, ping-pong
+buffers, one dispatch per stage), a pointwise product, the inverse
+chain phase-shifted so the result lands in the same buffer for either
+stage parity (the spike's lesson, kept), the scaled real part. Exactly
+4 + 3·log2(N) dispatches and one submit; the caller's readback or Sync
+establishes completion. Twiddles come from an UPLOADED TABLE computed
+in f64 and cached per transform size (replaced on a size change, never
+accumulated, forgotten with the device) — not from `cos`/`sin` per
+butterfly. `stzGpu.ConvolveReal(aA, aB)` is the one-shot doorway;
+`StzEngineGpuConvolveSize` tells a caller the transform size; a
+test-facing `BufferFillLcg` stages millions of samples without a Ring
+list.
+
+**Measured, this run (SN0's numbers beside):**
+
+| | this op | SN0's spike |
+|---|---|---|
+| max rel. error vs fft.zig f64, RTX 3050 | **2.2e-6** | 1.47e-6 (cos/sin per butterfly) |
+| max rel. error vs fft.zig f64, Intel iGPU | **2.2e-6** | 2.75e-5 (cos/sin per butterfly) |
+| 1 s vs 1 s IR, N = 131072, resident chain + sync | **1.6 ms** | 1.74 ms with transfer |
+| 60 s vs 1 s IR, N = 4,194,304, chain + sync | **54 ms** | 62 ms with transfer; fft.zig 1,390–1,464 ms |
+
+**The iGPU prerequisite SN0 named is discharged by construction**: with
+the table, the iGPU's error equals the 3050's, 12x under its own
+per-butterfly reading and inside a 16-bit noise floor by a wide margin.
+
+**The honest number about the doorway.** Through Ring lists on both
+sides, the GPU beats fft.zig by 1.1x at 1 s — because list marshalling
+dominates BOTH routes (37 ms and 33 ms around a 1.6 ms chain). The
+seam's value exists only for signals that are ALREADY on the device,
+which is precisely the sound desk's situation: its buffers live in
+`stz_sound.dll`, and the route it owes is a transfer from its resident
+sample buffer to a G1 buffer WITHOUT a Ring list in between — an
+engine-to-engine pointer transfer (`stz_gpu_buffer_write` already
+takes a pointer; a bridge that accepts a Ring C-pointer + length from
+the sound DLL's buffer is the one piece missing, and it is not built
+here because nothing yet hands one over to test it against).
+Recorded as **GS1b — the pointer transfer and the sound face's route**,
+the sound desk's.
+
+**Paid for on the way:** a guard that measures "one buffer more" after
+an earlier scene had already built the thing it measures is asserting
+a coincidence; the cache's law is "never grows", and that is what the
+guard says now.
+
+Next for this plane: nothing owed on GS1. GS3 is the graph desk's;
+GS5–GS8 wait for their workloads.

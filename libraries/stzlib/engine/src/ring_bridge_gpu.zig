@@ -19,6 +19,7 @@ const surf = @import("gpu_surface.zig");
 const gm = @import("gpu_math.zig");
 const verify = @import("gpu_verify.zig");
 const foundry = @import("gpu_foundry.zig");
+const gfft = @import("gpu_fft.zig");
 const R = @import("ring_api.zig");
 
 const gn = R.ring_vm_api_getnumber;
@@ -541,6 +542,23 @@ fn ring_VerifyJudge(p: *anyopaque) callconv(.c) void {
 // Wake(nBudgetMs) -> copies dispatched (0 = no device). See stz_gpu_wake.
 fn ring_Wake(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(verify.stz_gpu_wake(gn(p, 1))));
+}
+
+// ---------------- GS1 FFT convolution (the GPU plane's op)
+
+// OpConvolveReal(hA, nA, hB, nB, hOut) -> status; out holds nA+nB-1 f32
+fn ring_OpConvolveReal(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gfft.stz_gpu_op_convolve_real(@intFromFloat(gn(p, 1)), gn(p, 2), @intFromFloat(gn(p, 3)), gn(p, 4), @intFromFloat(gn(p, 5)))));
+}
+
+// ConvolveSize(nA, nB) -> the transform size the op will use
+fn ring_ConvolveSize(p: *anyopaque) callconv(.c) void {
+    rn(p, gfft.stz_gpu_convolve_size(gn(p, 1), gn(p, 2)));
+}
+
+// BufferFillLcg(id, count, seed) -> status (a probe's staging, no Ring list)
+fn ring_BufferFillLcg(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(foundry.stz_gpu_buffer_fill_lcg(@intFromFloat(gn(p, 1)), gn(p, 2), gn(p, 3))));
 }
 
 // ---------------- GK2 the foundry and the variant table
@@ -1812,6 +1830,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuverifyjudge", .func = &ring_VerifyJudge },
     .{ .name = "stzenginegpuwake", .func = &ring_Wake },
     // GK2 the foundry and the variant table
+    // GS1 FFT convolution
+    .{ .name = "stzenginegpuopconvolvereal", .func = &ring_OpConvolveReal },
+    .{ .name = "stzenginegpuconvolvesize", .func = &ring_ConvolveSize },
+    .{ .name = "stzenginegpubufferfilllcg", .func = &ring_BufferFillLcg },
     .{ .name = "stzenginegpufoundrypairdist", .func = &ring_FoundryPairdist },
     .{ .name = "stzenginegpufoundryresult", .func = &ring_FoundryResult },
     .{ .name = "stzenginegpuvariantset", .func = &ring_VariantSet },

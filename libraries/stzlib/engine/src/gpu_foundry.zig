@@ -60,6 +60,15 @@ fn fillBuffer(id: i64, count: usize, seed: u32) bool {
     return gpu.stz_gpu_buffer_write(id, @ptrCast(host.ptr), @floatFromInt(count * 4)) == gpu.OK;
 }
 
+/// Fill a device buffer with the foundry's deterministic pseudo-random f32
+/// in [0, 1): a probe's way to stage millions of samples without a Ring list.
+pub fn stz_gpu_buffer_fill_lcg(id: i64, countf: f64, seedf: f64) callconv(.c) i32 {
+    if (!gpu.isAvail()) return gpu.FALLBACK;
+    const count: usize = @intFromFloat(countf);
+    if (count == 0) return gpu.BAD_ARG;
+    return if (fillBuffer(id, count, @intFromFloat(seedf))) gpu.OK else gpu.GPU_ERROR;
+}
+
 /// Run the enumeration for pairdist at shape (m, n, d). `mask` selects the
 /// variants to try (bit v); 0 = every REAL variant. The test-only broken
 /// variant is reachable only through the mask -- a guard's negative sibling.
