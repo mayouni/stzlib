@@ -3484,3 +3484,44 @@ note:      A MARK AT THE MANY END IS DRAWN ONLY. No column can contradict
            "a department may have no employee", so the rule names it as
            its boundary rather than pretending to check it.
 ```
+
+```yaml
+by:        stzlib-graphics · claude-fable-5-1 · 2026-09-09 14:03
+
+subject:   two renderer defects the ER shop exposed -- a blank before the
+           entity, and two crow's feet touching
+
+why:       the Principal marked both on the picture; both were general
+           faults of the ortho renderer that the new notation made visible
+
+did:
+  - Stopped _ArrowCut trimming the last 13px of a routed edge when the
+    notation is undirected: the head was suppressed and the room for it
+    was not, so the routed relation ended short of OrderLine. Electric
+    wires had the same fault. The gate holds every relation to touching
+    both its entities, with a negative on the instrument.
+  - Made _EdgePorts share the node's OWN border rather than the picture's
+    cell, with a floor of one mark's width and a gap (18px), so the
+    junction's two arrivals stand apart.
+  - Bounded that floor by the flat part of the border: the first gate run
+    failed section 29 because a port pushed into the rounded corner is
+    pulled diagonally toward the centre by _AttachPoint and the pair's
+    midpoint left the centre by 0.8px.
+
+state:
+  gg_adversarial:   1328 ok, 0 failed   (was 1323)
+  commit:           154ea698c on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the author's word
+  - central: none
+
+note:      TURNING A MARK OFF IS NOT DECIDING WHAT ITS SPACE IS NOW FOR --
+           the file already said so about DRAKON, three lines above the
+           branch that forgot it for every other undirected notation.
+```
