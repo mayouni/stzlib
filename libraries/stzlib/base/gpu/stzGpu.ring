@@ -431,6 +431,173 @@ class stzGpu from stzObject
 		StzGpuLoadCalibrationForAdapter()
 
 	# one rung: warm-min per-query ms through the REAL seam, both routes
+	# ---- the device's power state -----------------------------------------
+	# Measured 2026-09-09 on this laptop's RTX 3050: after ~10 s idle, every
+	# submit pays a fixed ~2 ms and the copy floor reads 13 GB/s instead of
+	# 85 -- and hundreds of tiny queries never lift it, while ~150 ms of
+	# heavy work does. Wake() is that work, ADAPTIVE: it copies until a
+	# copy runs at full speed, settles, and stops -- the budget is a cap.
+	# Every timing this face takes calls it first; a caller measuring on
+	# its own should too. Returns the copies it took (an awake device
+	# answers in ~20).
+	def Wake(nBudgetMs)
+		This._RequireDevice()
+		return StzEngineGpuWake(nBudgetMs)
+
+	# ---- GK1: the SHAPED calibration --------------------------------------
+	# The flat pass above walks one dimension (d = 64) and stores one number.
+	# GK1's probe (gk1_shape_probe.ring, 2026-09-09) measured that the number
+	# on disk routed half the grid WRONG, and that on the Intel iGPU the
+	# crossover moves 4x with the dimension. So this pass walks a GRID of
+	# dimensions x corpus sizes through the real seam, both routes forced,
+	# records the measured cpu/gpu RATIO per shape class (powers-of-two
+	# buckets -- the engine's store), keeps the whole LADDER as the trace,
+	# sets the flat line to the most conservative crossover the grid saw
+	# (unmeasured classes fall back to it), and then CHECKS ITSELF at two
+	# shapes that were NOT on the grid: one inside a measured class, one in
+	# an unmeasured class. A threshold is trusted only if a shape it was not
+	# calibrated on agrees with it.
+	#
+	# Report: [ :cells = [[d, n, cpuMs, gpuMs, ratio], ...],
+	#           :flat = the flat line stored, :flatwhy = "crossover" | "beyond-ladder",
+	#           :hidden = [ [d, n, cpuMs, gpuMs, predicted, measured, agree], ... ],
+	#           :adapter = name ]
+	def CalibrateShaped()
+		return This.CalibrateShapedWith([16, 64, 256, 1024], [1000, 4000, 16000])
+
+	def CalibrateShapedWith(paDims, paCounts)
+		This._RequireDevice()
+		_nBudget_ = 4200000
+		_aCells_ = []
+		_nMaxNd_ = 0
+		_nFlat_ = 0
+		_bBeyond_ = FALSE
+		_nDims_ = ring_len(paDims)
+		_nCounts_ = ring_len(paCounts)
+		for _di_ = 1 to _nDims_
+			_d_ = paDims[_di_]
+			_nCrossD_ = 0
+			_nLastNd_ = 0
+			for _ni_ = 1 to _nCounts_
+				_n_ = paCounts[_ni_]
+				if _n_ * _d_ > _nBudget_
+					loop
+				ok
+				_aR_ = This._CalibRung(_n_, _d_)
+				_nRatio_ = 0
+				if _aR_[2] > 0
+					_nRatio_ = _aR_[1] / _aR_[2]
+				ok
+				StzGpuCalibSetShaped("pairdist", _n_, _d_, _nRatio_)
+				StzGpuCalibAddLadderRow("pairdist", _n_, _d_, _aR_[1], _aR_[2])
+				_aCells_ + [ _d_, _n_, _aR_[1], _aR_[2], _nRatio_ ]
+				_nLastNd_ = _n_ * _d_
+				if _nLastNd_ > _nMaxNd_
+					_nMaxNd_ = _nLastNd_
+				ok
+				if _nCrossD_ = 0 and _nRatio_ >= 1.3
+					_nCrossD_ = _n_ * _d_
+				ok
+			next
+			if _nCrossD_ = 0
+				# this dimension never crossed on the ladder: unknown
+				# territory lies BEYOND it, and unknown routes CPU
+				_bBeyond_ = TRUE
+			but _nCrossD_ > _nFlat_
+				_nFlat_ = _nCrossD_
+			ok
+		next
+		_cWhy_ = "crossover"
+		if _bBeyond_ or _nFlat_ = 0
+			_nFlat_ = _nMaxNd_ + 1
+			_cWhy_ = "beyond-ladder"
+		ok
+
+		# THE CONTROL: the first cell, measured again at the END of the grid.
+		# A control that moves means the grid was confounded -- and on this
+		# machine it can be (GK1 found a device state where every query
+		# pays a fixed ~2 ms, appearing mid-run, persisting for the process).
+		# A confounded grid is REPORTED and NOT persisted: a wrong number on
+		# disk routes every later process wrong.
+		_bConf_ = FALSE
+		_aCtrl_ = []
+		if ring_len(_aCells_) > 0
+			_c1_ = _aCells_[1]
+			_aAgain_ = This._CalibRung(_c1_[2], _c1_[1])
+			_nGpuMove_ = 0
+			if _c1_[4] > 0
+				_nGpuMove_ = _aAgain_[2] / _c1_[4]
+			ok
+			_nCpuMove_ = 0
+			if _c1_[3] > 0
+				_nCpuMove_ = _aAgain_[1] / _c1_[3]
+			ok
+			_aCtrl_ = [ _c1_[1], _c1_[2], _c1_[3], _c1_[4], _aAgain_[1], _aAgain_[2], _nCpuMove_, _nGpuMove_ ]
+			if _nGpuMove_ > 2 or _nGpuMove_ < 0.5 or _nCpuMove_ > 2 or _nCpuMove_ < 0.5
+				_bConf_ = TRUE
+			ok
+		ok
+		if _bConf_
+			# leave the store as it was before this pass: nothing measured
+			# under a moving control is trusted
+			_nS_ = ring_len(_aCells_)
+			for _i_ = 1 to _nS_
+				StzEngineGpuCalibSetShaped("pairdist", _aCells_[_i_][2], _aCells_[_i_][1], 0)
+			next
+			return [
+				:cells = _aCells_,
+				:flat = 0,
+				:flatwhy = "confounded",
+				:confounded = TRUE,
+				:control = _aCtrl_,
+				:hidden = [],
+				:adapter = This.DeviceName()
+			]
+		ok
+		StzEngineGpuCalibSet("pairdist", _nFlat_)
+
+		# THE HIDDEN CHECK: shapes the grid did not hold
+		_aHidden_ = []
+		if _nDims_ >= 2 and _nCounts_ >= 2
+			# (a) inside a measured class, off the grid point: 3/4 of a cell
+			_d1_ = paDims[_nDims_ - 1]
+			_n1_ = paCounts[2]
+			_aHidden_ + This._HiddenCheck(floor(_n1_ * 3 / 4), floor(_d1_ * 3 / 4) + 1)
+			# (b) in a class the grid never measured: between two dims
+			_dm_ = floor(sqrt(paDims[1] * paDims[2]))
+			_nm_ = floor(sqrt(paCounts[1] * paCounts[2]))
+			_aHidden_ + This._HiddenCheck(_nm_, _dm_)
+		ok
+
+		StzGpuSaveCalibration(["pairdist"])
+		return [
+			:cells = _aCells_,
+			:flat = _nFlat_,
+			:flatwhy = _cWhy_,
+			:confounded = FALSE,
+			:control = _aCtrl_,
+			:hidden = _aHidden_,
+			:adapter = This.DeviceName()
+		]
+
+	# what the store PREDICTS for (n, d) vs what the seam MEASURES there
+	def _HiddenCheck(pnN, pnD)
+		_nPred_ = StzEngineGpuCalibRouteShaped("pairdist", pnN, pnD)
+		_aR_ = This._CalibRung(pnN, pnD)
+		_nMeas_ = 0
+		_nRatio_ = 0
+		if _aR_[2] > 0
+			_nRatio_ = _aR_[1] / _aR_[2]
+			if _nRatio_ >= 1.3
+				_nMeas_ = 1
+			ok
+		ok
+		# a shape near the line (ratio inside [1, 1.69], the margin either
+		# side) is MARGINAL: its verdict can flip run to run, and it is not
+		# evidence against the store. :decisive says whether it counts.
+		_bDecisive_ = (_nRatio_ < 1 or _nRatio_ >= 1.69)
+		return [ pnD, pnN, _aR_[1], _aR_[2], _nPred_, _nMeas_, (_nPred_ = _nMeas_), _nRatio_, _bDecisive_ ]
+
 	def _CalibRung(pnCount, pnDim)
 		_aVecs_ = []
 		for _i_ = 0 to pnCount-1
@@ -444,14 +611,35 @@ class stzGpu from stzObject
 		for _j_ = 0 to pnDim-1
 			_aQry_ + ((_j_*3 + 11) % 32)
 		next
+		# force each route through BOTH knobs: the flat line, and the
+		# shape class this corpus falls in (a measured class outranks the
+		# flat line -- GK1 -- so a ladder cannot be forced by the line alone)
+		_nOldR_ = StzEngineGpuCalibGetShaped("pairdist", pnCount, pnDim)
+		_nOldT_ = StzEngineGpuCalibGet("pairdist")
 		StzEngineGpuCalibSet("pairdist", 999999999999)
+		StzEngineGpuCalibSetShaped("pairdist", pnCount, pnDim, 0.01)
 		_oCpu_ = new stzVectorIndex(_aVecs_)
 		_oCpu_.SearchExact(_aQry_, 5)
 		_nCpu_ = This._MinQueryMs(_oCpu_, _aQry_)
 		StzEngineGpuCalibSet("pairdist", 1)
+		StzEngineGpuCalibSetShaped("pairdist", pnCount, pnDim, 1000)
+		# the corpus was just built in Ring (seconds, GPU idle): WAKE the
+		# device, or the GPU number measures its power state (see Wake).
+		# 400 ms is a CAP -- the burst stops once copies run at full speed
+		# (measured: an asleep 3050 needs ~250 ms of work to flip; awake,
+		# the burst costs ~10 ms)
+		StzEngineGpuWake(400)
 		_oGpu_ = new stzVectorIndex(_aVecs_)
 		_oGpu_.SearchExact(_aQry_, 5)
 		_nGpu_ = This._MinQueryMs(_oGpu_, _aQry_)
+		_oGpu_._DropGpu()     # the rung must not leak its resident corpus
+		# restore BOTH knobs: a rung that left the flat line at its forcing
+		# value made the next hidden check read a line of 1 -- and agree by
+		# coincidence once before disagreeing (caught 2026-09-09)
+		StzEngineGpuCalibSetShaped("pairdist", pnCount, pnDim, _nOldR_)
+		if _nOldT_ > 0
+			StzEngineGpuCalibSet("pairdist", _nOldT_)
+		ok
 		return [ _nCpu_, _nGpu_ ]
 
 	def _MinQueryMs(poIdx, paQry)

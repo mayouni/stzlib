@@ -113,10 +113,61 @@ fn minPlainDispatchMs(kernel: i64, ids: []const i64, wx: f64, reps: usize) ?f64 
     return best;
 }
 
+/// WAKE the device: bandwidth-bound copies for `budget_ms` of wall time.
+/// Measured 2026-09-09 (GK1) on the RTX 3050 laptop GPU: after ~10 s idle the
+/// device drops into a power state where EVERY submit pays a fixed ~2 ms and
+/// the copy floor reads 13 GB/s instead of 85 -- and 330 tiny queries do not
+/// lift it, while ~150 ms of heavy work does. A measurement taken in that
+/// state is a measurement of the state, not of the kernel. Returns the
+/// number of copies dispatched (0 = no device).
+pub fn stz_gpu_wake(budget_ms: f64) callconv(.c) i32 {
+    if (!gpu.isAvail()) return 0;
+    const kc = gpu.stz_gpu_kernel_compile(COPY_WGSL.ptr, @floatFromInt(COPY_WGSL.len));
+    if (kc == 0) return 0;
+    const nbytes: f64 = @floatFromInt(COPY_N * 4);
+    const src = gpu.stz_gpu_buffer_new(nbytes);
+    if (src == 0) return 0;
+    defer _ = gpu.stz_gpu_buffer_free(src);
+    const dst = gpu.stz_gpu_buffer_new(nbytes);
+    if (dst == 0) return 0;
+    defer _ = gpu.stz_gpu_buffer_free(dst);
+    const ids = [_]i64{ src, dst };
+    const wx: f64 = @floatFromInt(COPY_N / 256);
+    // ADAPTIVE: copy until a copy runs at full speed -- an asleep 3050 takes
+    // ~9 ms per 32 MB copy, awake ~0.4 ms; the flip happens mid-burst after
+    // ~250 ms of sustained work -- then settle for a few more, and stop.
+    // The budget is a CAP, not a duration: an awake device is recognised on
+    // its first copies and the burst costs milliseconds.
+    const awake_ns: u64 = 2_000_000; // 32 MB in under 2 ms = 16 GB/s = awake
+    const settle: i32 = 20;
+    var timer = std.time.Timer.start() catch return 0;
+    var count: i32 = 0;
+    var settled: i32 = 0;
+    const budget_ns: u64 = @intFromFloat(@max(budget_ms, 1) * 1e6);
+    while (timer.read() < budget_ns and count < 100000) : (count += 1) {
+        var one = std.time.Timer.start() catch return count;
+        if (gpu.stz_gpu_dispatch(kc, &ids, 2, wx, 1) != gpu.OK) return count;
+        if (gpu.stz_gpu_sync() != gpu.OK) return count;
+        if (one.read() < awake_ns) {
+            settled += 1;
+            if (settled >= settle) {
+                count += 1;
+                break;
+            }
+        } else {
+            settled = 0;
+        }
+    }
+    return count;
+}
+
 fn ensureFloors() bool {
     if (floors_ready) return true;
     if (!gpu.isAvail()) return false;
     ensureHook();
+    // the floors are AWAKE numbers by construction (see stz_gpu_wake; the
+    // 400 ms is a cap -- the burst stops once copies run at full speed)
+    _ = stz_gpu_wake(400);
 
     // 1. the submit floor: the smallest possible dispatch, warm
     const ks = gpu.stz_gpu_kernel_compile(SUBMIT_WGSL.ptr, @floatFromInt(SUBMIT_WGSL.len));

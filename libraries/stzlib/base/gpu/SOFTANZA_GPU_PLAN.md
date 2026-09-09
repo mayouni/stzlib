@@ -1138,3 +1138,90 @@ Recorded for the HTTP desk.
 
 Next: **GK1**, the shape-keyed store — with the clock split above as
 its first design input.
+
+---
+
+## GK1 STATUS — shipped 2026-09-09: the shape-keyed store, and what measuring it found
+
+Guard: `base/test/gpu/gpu_calibration_shaped_narrated.ring` — **39
+asserts green**. Gate on the guards the change reaches: calibration 10,
+seams 17, verify 26, lifecycle 62, ops 37, declarative 20, batch 13,
+deploy gate 16, render lifecycle 74, neural backbone 10 — **285 green**.
+Zig unit tests on the class function and the route's precedence.
+
+**What shipped.** The engine store gains a shape: `(op, n-class,
+d-class) → measured cpu/gpu ratio`, classes being powers-of-two
+ceilings, ratio 0 = unmeasured. One margin (1.3x) lives in the gate.
+The route: a measured class decides by its ratio; an unmeasured class
+falls back to the flat line on n·d; and G5's authority order — explicit
+> persisted > seed — is carried to shapes with an `explicit` flag, so a
+guard forcing a route through the flat knob keeps working after a file
+has filled the classes. The seam (stzVectorIndex) consults the shaped
+decision device-free before Init and again after. Persistence carries
+three kinds of line — the flat crossover, `shape` rows per class, and
+`ladder` rows with the cpu/gpu milliseconds that produced them (the
+trace, finding 4). `stzGpu.CalibrateShaped()` walks a dimension ×
+corpus grid through the real seam, sets the flat line to the most
+conservative crossover (or "beyond the ladder"), **re-measures its
+first cell at the end as a control and refuses to persist a grid whose
+control moved**, and checks itself at two shapes the grid never held —
+one inside a measured class, one outside — reporting each as decisive
+or marginal.
+
+**THE KILL LINE, applied honestly: the shape dimension does NOT pay for
+pairdist on this hardware.** The grid, both adapters, device awake:
+
+| n·d | ratio at d=64 | d=256 | d=1024 | adapter |
+|---|---|---|---|---|
+| 256k | 0.28 | 0.29 | — | iGPU |
+| 1M | 0.72 | 0.60 | 0.88 | iGPU |
+| 4M | — | 1.94 | 2.16 | iGPU |
+| 256k | 2.08 | 2.29 | — | 3050 |
+| 1M | 0.84 (outlier; 3.05 in a second run) | 4.27 | 4.86 | 3050 |
+| 4M | — | 2.50 | 2.29 | 3050 |
+
+At equal n·d the ratios agree across dimensions within the run-to-run
+noise; the crossover is ~256k on the 3050 and ~4M on the iGPU for every
+dimension the ladder reached. The 4x "spread" the first probe reported
+on the iGPU was a slow-state artefact (below). **So the shaped classes
+reproduce the flat line's decisions and add no routing information for
+this op.** The store stays — built, guarded, and the place GK2's
+per-class variants will live — but the plan records that its first
+tenant did not need it. The flat number on disk was RIGHT for the 3050
+awake (256k) and wrong for the iGPU (which wants 4M); per-adapter files
+carry that.
+
+**THE FINDING THAT COST THE DAY, and it applies to every GPU number
+this plane has ever recorded on this machine: the RTX 3050 (laptop,
+power-gated) enters a slow state after ~10 s idle, in which EVERY
+submit pays a fixed ~2 ms and a 32 MB copy takes 9 ms instead of 0.4
+(13 GB/s instead of 85).** Hundreds of tiny queries do not lift it;
+~250 ms of sustained heavy work does. Ring building a large corpus
+between cells is exactly a 10 s idle, so a calibration grid measured
+half its cells in each state and the "flat rule wrong on 6 of 11"
+verdict was a verdict on the state. Found by a control that moved (the
+same cell at 0.55 and 3.97 ms in one process), isolated by elimination
+— not VRAM (0 evictions), not harness memory (24M live Ring numbers
+changed nothing), not an adapter switch (opened right after the iGPU,
+0.68 ms), not 3 s of idle — and confirmed by 10 and 20 s of idle and by
+the two clocks: in the slow state the GPU clock grew 2.5x and the wall
+4x for the same kernel. **`stz_gpu_wake(cap_ms)` is the answer**:
+adaptive copies until one runs at full speed, then settle, then stop —
+an asleep 3050 costs ~250 ms, an awake one ~10 ms. Every rung wakes
+before its GPU timing; GK0's floors wake before measuring (a floor
+measured asleep reads 6.5x low, which would make the roofline refuse
+honest results). The idle penalty itself is real for sporadic callers
+and is NOT modelled by the routing margin: recorded as **GK1b — idle-
+aware routing** (the engine knows the time since its last submit),
+not built.
+
+**Two more things paid for.** The rung forced the flat line and never
+restored it, so the second hidden check read a line of 1 — and AGREED
+BY COINCIDENCE in the first run (measured 1.63x) before disagreeing in
+the second (1.09x). A hidden check near the line is marginal, and now
+says so. And the rung leaked three device buffers per cell; it frees
+them.
+
+Next: **GK2**, op variants by enumeration — on the GPU clock, with the
+device awake, per shape class; the kill line (no variant ≥1.3x over the
+generic anywhere on both adapters) stands.

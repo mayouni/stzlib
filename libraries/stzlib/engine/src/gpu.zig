@@ -436,8 +436,20 @@ var kernels: std.ArrayList(KernelSlot) = .{};
 // ---------------------------------------------------------------- calibration store
 // Op name -> crossover threshold (problem size n at which the GPU starts
 // winning, warm-min basis). In-memory; the Ring face persists across runs.
-const CalibEntry = struct { hash: u64, threshold: f64 };
+// `explicit`: set in THIS process (a face, a guard, a tuner) rather than
+// filled from a persisted file. The authority order G5 wrote -- explicit >
+// persisted > seed -- needs the flag once shapes exist (GK1 below).
+const CalibEntry = struct { hash: u64, threshold: f64, explicit: bool };
 var calib: std.ArrayList(CalibEntry) = .{};
+
+// ---------------------------------------------------------------- shaped calibration store (GK1)
+// (op, n-class, d-class) -> the MEASURED cpu/gpu ratio for that shape class.
+// Classes are powers-of-two ceilings, so the store stays a small table and a
+// shape off the ladder still lands in a class. The ratio is data; the ONE
+// margin lives in the gate. ratio 0 = unmeasured (setting 0 clears).
+const ShapedEntry = struct { hash: u64, cn: u8, cd: u8, ratio: f64, explicit: bool };
+var calib_shaped: std.ArrayList(ShapedEntry) = .{};
+pub const CALIB_MARGIN: f64 = 1.3; // the GPU must win by this much to be routed to
 
 // ---------------------------------------------------------------- tiling
 var tile_limit: u32 = 32768; // max workgroups per submit. From G0: 16384 wg of
@@ -1452,24 +1464,47 @@ pub fn stz_gpu_sync() callconv(.c) i32 {
 
 // ---------------- calibration
 
-pub fn stz_gpu_calib_set(name: [*]const u8, name_len: f64, threshold: f64) callconv(.c) void {
+fn nameHash(name: [*]const u8, name_len: f64) u64 {
     const n: usize = @intFromFloat(name_len);
-    const h = std.hash.Wyhash.hash(0, name[0..n]);
+    return std.hash.Wyhash.hash(0, name[0..n]);
+}
+
+fn findFlat(h: u64) ?*CalibEntry {
     for (calib.items) |*e| {
-        if (e.hash == h) {
-            e.threshold = threshold;
-            return;
-        }
+        if (e.hash == h) return e;
     }
-    calib.append(alloc, .{ .hash = h, .threshold = threshold }) catch {};
+    return null;
+}
+
+fn setFlat(h: u64, threshold: f64, explicit: bool) void {
+    if (findFlat(h)) |e| {
+        e.threshold = threshold;
+        e.explicit = explicit;
+        return;
+    }
+    calib.append(alloc, .{ .hash = h, .threshold = threshold, .explicit = explicit }) catch {};
+}
+
+/// Set an op's crossover EXPLICITLY (this process outranks any file).
+pub fn stz_gpu_calib_set(name: [*]const u8, name_len: f64, threshold: f64) callconv(.c) void {
+    setFlat(nameHash(name, name_len), threshold, true);
+}
+
+/// FILL an op's crossover from a persisted file: only where nothing is set,
+/// and never outranking an explicit value. The loaders' entry point.
+pub fn stz_gpu_calib_fill(name: [*]const u8, name_len: f64, threshold: f64) callconv(.c) void {
+    const h = nameHash(name, name_len);
+    if (findFlat(h)) |e| {
+        if (e.threshold > 0) return;
+        e.threshold = threshold;
+        e.explicit = false;
+        return;
+    }
+    setFlat(h, threshold, false);
 }
 
 pub fn stz_gpu_calib_get(name: [*]const u8, name_len: f64) callconv(.c) f64 {
-    const n: usize = @intFromFloat(name_len);
-    const h = std.hash.Wyhash.hash(0, name[0..n]);
-    for (calib.items) |e| {
-        if (e.hash == h) return e.threshold;
-    }
+    if (findFlat(nameHash(name, name_len))) |e| return e.threshold;
     return 0; // no calibration recorded
 }
 
@@ -1480,6 +1515,133 @@ pub fn stz_gpu_should_dispatch(name: [*]const u8, name_len: f64, problem_n: f64)
     const t = stz_gpu_calib_get(name, name_len);
     if (t <= 0) return 0;
     return if (problem_n >= t) 1 else 0;
+}
+
+// ---------------- shaped calibration (GK1)
+
+/// ceil(log2(x)) -- the class a size falls in; 0 for x <= 1.
+pub fn shapeClass(x: f64) u8 {
+    if (x <= 1) return 0;
+    var cls: u8 = 0;
+    var v: f64 = 1;
+    while (v < x and cls < 63) : (cls += 1) v *= 2;
+    return cls;
+}
+
+pub fn stz_gpu_shape_class(x: f64) callconv(.c) f64 {
+    return @floatFromInt(shapeClass(x));
+}
+
+fn findShaped(h: u64, cn: u8, cd: u8) ?*ShapedEntry {
+    for (calib_shaped.items) |*e| {
+        if (e.hash == h and e.cn == cn and e.cd == cd) return e;
+    }
+    return null;
+}
+
+fn setShaped(h: u64, cn: u8, cd: u8, ratio: f64, explicit: bool) void {
+    if (findShaped(h, cn, cd)) |e| {
+        e.ratio = ratio;
+        e.explicit = explicit;
+        return;
+    }
+    calib_shaped.append(alloc, .{ .hash = h, .cn = cn, .cd = cd, .ratio = ratio, .explicit = explicit }) catch {};
+}
+
+/// Record the measured cpu/gpu ratio for the class of shape (n, d), EXPLICITLY.
+pub fn stz_gpu_calib_set_shaped(name: [*]const u8, name_len: f64, n: f64, d: f64, ratio: f64) callconv(.c) void {
+    setShaped(nameHash(name, name_len), shapeClass(n), shapeClass(d), ratio, true);
+}
+
+/// The same from a persisted file: only where the class is unmeasured.
+pub fn stz_gpu_calib_fill_shaped(name: [*]const u8, name_len: f64, n: f64, d: f64, ratio: f64) callconv(.c) void {
+    const h = nameHash(name, name_len);
+    const cn = shapeClass(n);
+    const cd = shapeClass(d);
+    if (findShaped(h, cn, cd)) |e| {
+        if (e.ratio > 0) return;
+        e.ratio = ratio;
+        e.explicit = false;
+        return;
+    }
+    setShaped(h, cn, cd, ratio, false);
+}
+
+/// The measured ratio for the class of (n, d); 0 = that class was never measured.
+pub fn stz_gpu_calib_get_shaped(name: [*]const u8, name_len: f64, n: f64, d: f64) callconv(.c) f64 {
+    if (findShaped(nameHash(name, name_len), shapeClass(n), shapeClass(d))) |e| return e.ratio;
+    return 0;
+}
+
+/// The routing DECISION for shape (n, d), device-free (the seam's cheap
+/// precheck, run before any device exists):
+///   - a measured class decides by its ratio against the margin ...
+///   - ... unless the flat line was set EXPLICITLY in this process and the
+///     class came from a file: a guard's or tuner's knob outranks the disk
+///     (G5's authority order, carried to shapes);
+///   - an unmeasured class falls back to the flat line on n*d.
+pub fn stz_gpu_calib_route_shaped(name: [*]const u8, name_len: f64, n: f64, d: f64) callconv(.c) i32 {
+    const h = nameHash(name, name_len);
+    const flat = findFlat(h);
+    if (findShaped(h, shapeClass(n), shapeClass(d))) |s| {
+        if (s.ratio > 0) {
+            const flat_outranks = flat != null and flat.?.explicit and !s.explicit;
+            if (!flat_outranks) return if (s.ratio >= CALIB_MARGIN) 1 else 0;
+        }
+    }
+    const t = if (flat) |f| f.threshold else 0;
+    if (t <= 0) return 0;
+    return if (n * d >= t) 1 else 0;
+}
+
+/// The shaped gate: device present AND the shaped decision says GPU.
+pub fn stz_gpu_should_dispatch_shaped(name: [*]const u8, name_len: f64, n: f64, d: f64) callconv(.c) i32 {
+    if (!available) return 0;
+    return stz_gpu_calib_route_shaped(name, name_len, n, d);
+}
+
+test "shape classes are powers-of-two ceilings" {
+    try std.testing.expectEqual(@as(u8, 0), shapeClass(1));
+    try std.testing.expectEqual(@as(u8, 4), shapeClass(16));
+    try std.testing.expectEqual(@as(u8, 10), shapeClass(1000));
+    try std.testing.expectEqual(@as(u8, 10), shapeClass(1024));
+    try std.testing.expectEqual(@as(u8, 11), shapeClass(1025));
+    try std.testing.expectEqual(@as(u8, 12), shapeClass(4000));
+    try std.testing.expectEqual(@as(u8, 14), shapeClass(16000));
+}
+
+test "the shaped route: measured class decides, explicit flat outranks a filled class, unmeasured falls back" {
+    calib.clearRetainingCapacity();
+    calib_shaped.clearRetainingCapacity();
+    const op = "testop";
+    const L: f64 = @floatFromInt(op.len);
+    // no calibration at all: CPU
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_calib_route_shaped(op, L, 4000, 256));
+    // a flat line filled from disk: n*d decides
+    stz_gpu_calib_fill(op, L, 100000);
+    try std.testing.expectEqual(@as(i32, 1), stz_gpu_calib_route_shaped(op, L, 4000, 256));
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_calib_route_shaped(op, L, 100, 16));
+    // a measured class that LOSES overrides the flat line for its class only
+    stz_gpu_calib_fill_shaped(op, L, 4000, 256, 0.6);
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_calib_route_shaped(op, L, 3000, 200)); // same class
+    try std.testing.expectEqual(@as(i32, 1), stz_gpu_calib_route_shaped(op, L, 4000, 1024)); // other class: flat
+    // a measured class that wins, but under the margin, stays CPU
+    stz_gpu_calib_set_shaped(op, L, 1000, 16, 1.1);
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_calib_route_shaped(op, L, 1000, 16));
+    stz_gpu_calib_set_shaped(op, L, 1000, 16, 2.0);
+    try std.testing.expectEqual(@as(i32, 1), stz_gpu_calib_route_shaped(op, L, 1000, 16));
+    // an EXPLICIT flat line outranks the FILLED losing class (a guard forcing a route)
+    stz_gpu_calib_set(op, L, 1);
+    try std.testing.expectEqual(@as(i32, 1), stz_gpu_calib_route_shaped(op, L, 4000, 256));
+    // ... but not an explicit shaped one (both in-process: the specific wins)
+    stz_gpu_calib_set_shaped(op, L, 4000, 256, 0.6);
+    try std.testing.expectEqual(@as(i32, 0), stz_gpu_calib_route_shaped(op, L, 4000, 256));
+    // setting 0 clears the class: back to the flat line
+    stz_gpu_calib_set_shaped(op, L, 4000, 256, 0);
+    try std.testing.expectEqual(@as(i32, 1), stz_gpu_calib_route_shaped(op, L, 4000, 256));
+    // fill never overrides a set value
+    stz_gpu_calib_fill(op, L, 999);
+    try std.testing.expectEqual(@as(f64, 1), stz_gpu_calib_get(op, L));
 }
 
 test {

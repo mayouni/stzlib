@@ -301,9 +301,12 @@ class stzVectorIndex from stzObject
 		ok
 		if _nThresh_ = 0
 			_nThresh_ = 4000000
-			StzEngineGpuCalibSet("pairdist", _nThresh_)
+			# the seed is a FILL: a measured class must outrank it
+			StzEngineGpuCalibFill("pairdist", _nThresh_)
 		ok
-		if @nCount * @nDim < _nThresh_
+		# GK1: where this corpus's SHAPE CLASS was measured, the class
+		# decides; elsewhere the flat line on n*d does. Device-free.
+		if StzEngineGpuCalibRouteShaped("pairdist", @nCount, @nDim) = 0
 			return
 		ok
 		if StzEngineGpuIsAvailable() = 0
@@ -313,8 +316,9 @@ class stzVectorIndex from stzObject
 			# per-adapter truth may refine the default-file threshold
 			StzGpuLoadCalibrationForAdapter()
 		ok
-		# the canonical gate has the final say (device present + threshold)
-		if StzEngineGpuShouldDispatch("pairdist", @nCount * @nDim) = 0
+		# the canonical gate has the final say (device present + the
+		# shaped decision, per-adapter truth now loaded)
+		if StzEngineGpuShouldDispatchShaped("pairdist", @nCount, @nDim) = 0
 			return
 		ok
 		@nGpuCorpus_ = StzEngineGpuBufferNew(@nCount * @nDim * 4)

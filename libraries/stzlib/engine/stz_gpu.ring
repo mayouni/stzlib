@@ -319,6 +319,46 @@ ok
 
 $bStzGpuCalibDefaultLoaded_ = FALSE
 $bStzGpuCalibAdapterLoaded_ = FALSE
+# ---- GK1: the shaped store's persistence ------------------------------
+# The file carries three kinds of line, tab-separated:
+#   pairdist<TAB>4096000                         the flat crossover (n*d)
+#   shape<TAB>pairdist<TAB>4000<TAB>256<TAB>2.519    a measured class: cpu/gpu
+#   ladder<TAB>pairdist<TAB>4000<TAB>256<TAB>2.306<TAB>3.576   the TRACE (cpu ms, gpu ms)
+# The ladder is what produced the numbers above it: a threshold with no
+# trace is a pin on an outcome (GK.1, finding 4). Routing truth lives in
+# the engine; these lists exist only so Save() can write back what was
+# measured or loaded.
+$aStzGpuCalibShaped_ = []     # rows [ op, n, d, ratio ]
+$aStzGpuCalibLadder_ = []     # rows [ op, n, d, cpuMs, gpuMs ]
+
+func StzGpuCalibSetShaped pcOp, pnN, pnD, pnRatio
+	StzEngineGpuCalibSetShaped(pcOp, pnN, pnD, pnRatio)
+	_StzGpuCalibRecordShaped(pcOp, pnN, pnD, pnRatio)
+
+func StzGpuCalibAddLadderRow pcOp, pnN, pnD, pnCpuMs, pnGpuMs
+	$aStzGpuCalibLadder_ + [ pcOp, pnN, pnD, pnCpuMs, pnGpuMs ]
+
+func StzGpuCalibrationLadder
+	return $aStzGpuCalibLadder_
+
+func StzGpuCalibrationShapes
+	return $aStzGpuCalibShaped_
+
+# one row per (op, class) -- a later measurement of the same class replaces
+func _StzGpuCalibRecordShaped pcOp, pnN, pnD, pnRatio
+	_nCn_ = StzEngineGpuShapeClass(pnN)
+	_nCd_ = StzEngineGpuShapeClass(pnD)
+	_nL_ = len($aStzGpuCalibShaped_)
+	for _i_ = 1 to _nL_
+		_r_ = $aStzGpuCalibShaped_[_i_]
+		if _r_[1] = pcOp and StzEngineGpuShapeClass(_r_[2]) = _nCn_ and
+		   StzEngineGpuShapeClass(_r_[3]) = _nCd_
+			$aStzGpuCalibShaped_[_i_] = [ pcOp, pnN, pnD, pnRatio ]
+			return
+		ok
+	next
+	$aStzGpuCalibShaped_ + [ pcOp, pnN, pnD, pnRatio ]
+
 
 func StzGpuCalibFileDefault()
 	return $cEngineDir + "/data/gpu_calib_default.txt"
@@ -372,9 +412,13 @@ func _StzGpuCalibFillFromFile pcPath
 	for _i_ = 1 to _nL_
 		_aParts_ = split(_aLines_[_i_], char(9))
 		if len(_aParts_) = 2
-			if StzEngineGpuCalibGet(_aParts_[1]) = 0
-				StzEngineGpuCalibSet(_aParts_[1], 0 + _aParts_[2])
-			ok
+			# a FILL: never outranks a value set in this process (engine-side)
+			StzEngineGpuCalibFill(_aParts_[1], 0 + _aParts_[2])
+		but len(_aParts_) = 5 and _aParts_[1] = "shape"
+			StzEngineGpuCalibFillShaped(_aParts_[2], 0 + _aParts_[3], 0 + _aParts_[4], 0 + _aParts_[5])
+			_StzGpuCalibRecordShaped(_aParts_[2], 0 + _aParts_[3], 0 + _aParts_[4], 0 + _aParts_[5])
+		but len(_aParts_) = 6 and _aParts_[1] = "ladder"
+			StzGpuCalibAddLadderRow(_aParts_[2], 0 + _aParts_[3], 0 + _aParts_[4], 0 + _aParts_[5], 0 + _aParts_[6])
 		ok
 	next
 
@@ -390,6 +434,10 @@ func _StzGpuCalibLoadFile pcPath
 		_aParts_ = split(_aLines_[_i_], char(9))
 		if len(_aParts_) = 2
 			StzEngineGpuCalibSet(_aParts_[1], 0 + _aParts_[2])
+		but len(_aParts_) = 5 and _aParts_[1] = "shape"
+			StzGpuCalibSetShaped(_aParts_[2], 0 + _aParts_[3], 0 + _aParts_[4], 0 + _aParts_[5])
+		but len(_aParts_) = 6 and _aParts_[1] = "ladder"
+			StzGpuCalibAddLadderRow(_aParts_[2], 0 + _aParts_[3], 0 + _aParts_[4], 0 + _aParts_[5], 0 + _aParts_[6])
 		ok
 	next
 
@@ -406,6 +454,21 @@ func StzGpuSaveCalibration paOps
 	if _cOut_ = ""
 		return FALSE
 	ok
+	# GK1: the measured classes, then the ladder that produced them
+	_nS_ = len($aStzGpuCalibShaped_)
+	for _i_ = 1 to _nS_
+		_r_ = $aStzGpuCalibShaped_[_i_]
+		if find(paOps, _r_[1]) > 0 and _r_[4] > 0
+			_cOut_ += "shape" + char(9) + _r_[1] + char(9) + _r_[2] + char(9) + _r_[3] + char(9) + _r_[4] + char(10)
+		ok
+	next
+	_nS_ = len($aStzGpuCalibLadder_)
+	for _i_ = 1 to _nS_
+		_r_ = $aStzGpuCalibLadder_[_i_]
+		if find(paOps, _r_[1]) > 0
+			_cOut_ += "ladder" + char(9) + _r_[1] + char(9) + _r_[2] + char(9) + _r_[3] + char(9) + _r_[4] + char(9) + _r_[5] + char(10)
+		ok
+	next
 	write(StzGpuCalibFileDefault(), _cOut_)
 	_cCalF_ = StzGpuCalibFileForAdapter()
 	if _cCalF_ != ""
