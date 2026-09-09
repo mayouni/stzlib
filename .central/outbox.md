@@ -3396,3 +3396,50 @@ next:
 note:      A MARK IS A CLAIM ABOUT A VERDICT, so the gate compares the
            two sets and refuses a difference either way.
 ```
+
+```yaml
+by:        stzlib-graphics · claude-fable-5-1 · 2026-09-09 11:39
+
+subject:   DN15 -- an entity-relationship diagram, shipped
+
+why:       the Principal asked for ER diagrams after Gantt; it is the first
+           new domain on the GRAPH plane since the org chart, and its
+           rules are about keys, not pixels
+
+did:
+  - Built stzErDiagram from stzDiagram: entities with PK/FK compartments,
+    junctions whose columns are keys AND references, notes, and Relate()
+    with four cardinalities drawn as crow's-foot ends at both ends of an
+    undirected line, every end published as an adornment.
+  - Wrote three rules -- entity_has_key, foreign_key_resolves,
+    relation_backed_by_key -- each declaring its boundary; the note is
+    excluded by name by every rule, an entity with no foreign key is
+    outside the resolving rule.
+  - Amended a_fan_leaves_on_one_stem: a cell whose lines are MARKED where
+    they leave it is a counter-subject, read from RenderAdornments(), so
+    Product's two relations turning 253px apart is right. Not keyed on
+    the notation being undirected, because a wire is unmarked and shares.
+  - Found and closed two traps in the new file: `@aNotes + "" + pcId`
+    appended a phantom empty note; `StzFind(item, list) = 0` never held,
+    so Relate accepted any word as a cardinality.
+  - Wrote gate section 109 (19 assertions), put the two schemas in the
+    one gate's corpus (64 pictures), wrote the DN15 plan section,
+    regenerated the coverage table, rendered er_01 and er_02.
+
+state:
+  gg_adversarial:   1314 ok, 0 failed   (was 1295)
+  commit:           e8f8be3af on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the author's word -- participation (optional/mandatory) is
+             the first thing ER still owes, one more adornment kind
+  - central: none
+
+note:      A PLASTIC RULE READS THE DRAWING, NOT THE NOTATION'S NAME: the
+           same fact (a mark at the source) governs ER and spares the wire.
+```
