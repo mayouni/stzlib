@@ -2206,7 +2206,8 @@ func StzSpringGraphStyle()
 
 func _StzSpringStyleBuild(pbCurved)
 	_cHid_ = 0
-	if pbCurved  _cHid_ = 1  ok
+	_nT_ = 35
+	if pbCurved  _cHid_ = 1  _nT_ = 40  ok
 	_o_ = new stzMathStyle()
 	_o_.SetCanvas(720, 640)
 	_o_.SetMargin(36)
@@ -2242,8 +2243,15 @@ func _StzSpringStyleBuild(pbCurved)
 		                             :x2 = "b.icon.cx", :y2 = "b.icon.cy",
 		                             :stroke = "muted", :strokeWidth = 2, :hidden = _cHid_ ] ],
 		# 140px: the target sets the INTERIOR, and a cube's inner square at
-		# 108 had no room for four names with their clearances
-		[ :encourage, "equal", [ "len(e.icon) / 4", 35 ] ],
+		# 108 had no room for four names with their clearances. 160px FOR
+		# THE CURVED STYLE (DN13), for the same reason once more: its names
+		# are held off the chords by 4 + 0.012*len, up to three pixels
+		# farther than the straight style's, and at 140 the catalogue's cube
+		# lost its planar start to that -- force won, with two crossings.
+		# Measured over six seeds: 140 keeps planar on 4, 150 on 4, 160 on
+		# 5, the survivors crossing nowhere. The straight style keeps 140;
+		# its names sit on ink-exact chords and need no more room.
+		[ :encourage, "equal", [ "len(e.icon) / 4", _nT_ ] ],
 		[ :layer, "a.icon", :above, "e.icon" ], [ :layer, "b.icon", :above, "e.icon" ] ])
 	_o_.ForAllWhere("Edge e; Vertex a; Vertex b", "e := Edge(a, b); Highlighted(e)", [
 		[ :delete, "e.icon" ],
@@ -2268,9 +2276,21 @@ func _StzSpringStyleBuild(pbCurved)
 			[ :shape, "e.h2", :line, [ :x1 = "e.bx", :y1 = "e.by",
 			                           :x2 = "b.icon.cx", :y2 = "b.icon.cy", :hidden = 1 ] ],
 			[ :layer, "a.icon", :above, "e.arc" ], [ :layer, "b.icon", :above, "e.arc" ] ])
+		# THE CHORDS ARE NOT THE CURVE, AND THE CLEARANCE SAYS BY HOW MUCH
+		# (DN13). The drawn spline is a centripetal Catmull-Rom through the
+		# two ends and the bulged middle, and it leaves its two chords by at
+		# most 0.0117 of the edge's length -- a constant, because every edge
+		# here bulges by the same 0.08 of its length, so the curve's shape is
+		# the same at every size. Measured on the cube: 4.35px on a 371px
+		# edge, 2.05px on a 175px one, 14.6% of the bulge. Held at a flat 4
+		# from the chords, a name could stand lawfully with the spline's ink
+		# inside its box on a long edge, and on two of twelve seeds the gate
+		# said so about a picture the solver called lawful. The clearance
+		# grows with the edge now, so what the rules hold a name off is
+		# where the ink actually is.
 		_o_.ForAll("Vertex v; Edge e", [
-			[ :ensure, "disjoint", [ "v.text", "e.h1", 4 ] ],
-			[ :ensure, "disjoint", [ "v.text", "e.h2", 4 ] ] ])
+			[ :ensure, "disjoint", [ "v.text", "e.h1", "4 + 0.012*len(e.icon)" ] ],
+			[ :ensure, "disjoint", [ "v.text", "e.h2", "4 + 0.012*len(e.icon)" ] ] ])
 		_o_.ForAllWhere("Edge e; Vertex a; Vertex b", "e := Edge(a, b); Highlighted(e)", [
 			[ :delete, "e.arc" ],
 			[ :shape, "e.arc", :spline, [ :n = 3,

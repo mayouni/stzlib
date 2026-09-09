@@ -478,15 +478,17 @@ func StzMathScene25XT(poFont, pcSeed)
 # ends inside it. That was the catalogue's own seed until DN12 made every
 # text box a tenth taller: on "curved" the single wedge now finds room for
 # v111 first time (23 px, leash 44), so there was no failure to narrate.
-# Measured over twelve seeds: on this one the single wedge strands v111 at
-# 47 px, the retry lands it inside, the planar start is kept, and the
-# retried picture is CLEAN under the one gate in the frame and at 3x --
-# which two other story-holding seeds were not, a lawful solve carrying a
-# name-off-ink finding where a name sat between a curved edge's chord and
-# its spline. The seed is the FIXTURE's, not the plane's -- the catalogue
-# picture stays on "curved".
+# The seed moved twice in one day, and both moves are measurements: DN12's
+# taller box let "curved" succeed first time, and DN13's corrected chord
+# clearance with its 160px edge target let "one-wedge" succeed too. At the
+# corrected style, sixteen seeds were swept: six strand v111 on one wedge
+# (50 px against a 44 px leash) and land it inside on the retry, all six
+# from a planar start -- and all SIXTEEN are clean under the one gate on
+# the full solve and at 3x, where before DN13 two of twelve lawful
+# pictures carried a name on the curve. The seed is the FIXTURE's, not the
+# plane's -- the catalogue picture stays on "curved".
 func StzMathOneWedgeStorySeed()
-	return "one-wedge"
+	return "second-wedge"
 
 # six points and the Catmull-Rom curve through them
 func StzMathScene26(poFont)

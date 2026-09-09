@@ -116,6 +116,7 @@ sections, of which 21 declarations over 17 items.
 | DN10 | closed | 104 |
 | DN11 | closed | 105 |
 | DN12 | closed | 106 |
+| DN13 | closed | 107 |
 | DN9 | closed | - |
 | DN9a | closed | 97 |
 | DN9b | closed | 98 |
@@ -2996,6 +2997,75 @@ promise.
 pixels inside a circle the disc's rim cannot reach — the first measurement
 of this defect counted a rim as ink and was three times too large in the
 wrong direction, which is why the instrument's shape is written down here.
+
+## DN13 — THE CHORDS ARE NOT THE CURVE, AND THE CLEARANCE SAYS BY HOW MUCH (2026-09-08, SHIPPED)
+
+**The gap DN12's seed sweep exposed, taken as its own item.** The curved
+graph style (DN7h) draws an edge as a centripetal Catmull-Rom through its two
+ends and a middle bulged 8% of the length off the chord, and — because a rule
+cannot see a spline — holds every name off the two hidden half-chords the
+curve was drawn through, at 4 px. The gate reads what is drawn: the spline's
+sampled polyline. Between the chords and the curve there is room, and on two
+of twelve seeds a name stood in it lawfully with the curve's ink inside its
+box — a **lawful picture carrying a finding**, the same disagreement between
+model and drawing that DN12 closed for text.
+
+**The gap is one constant.** Every edge in this style bulges by the same
+fraction of its length, so the curve has the same shape at every size and
+leaves its chords by the same fraction: measured on the cube's twelve edges,
+**0.0117 of the edge length on every one** — 4.35 px on a 371 px edge, 2.05 px
+on a 175 px one, 14.6% of the bulge — with the twelve ratios agreeing to the
+fourth decimal. Past 342 px the gap alone exceeds the 4 px the names were
+held at.
+
+**The fix is the clearance carrying that constant.** Names are held off each
+half-chord by `4 + 0.012·len(edge)` — the tape already takes an expression
+where a number stood — so what the rules hold a name off is where the ink
+actually is, on every edge, at every length. The two seeds that carried the
+finding are clean; the catalogue's curved cube is lawful, planar-started and
+clean; and a name set by hand on a hidden chord's midpoint *is* caught against
+the curve it cannot see, which is the instrument discriminating.
+
+**What the fix cost, and the knob that paid it.** Held three pixels farther
+off its long edges, the catalogue's curved cube lost its planar start at the
+style's 140 px edge target: the force start won, lawfully, with **two crossed
+edges** — a picture the plane had stopped drawing at DN8b. The knob is the one
+DN8b turned for the same reason, when a 108 px inner square had no room for
+four names with their clearances:
+
+| curved style's edge target | seeds keeping the planar start (of 6) | catalogue seed |
+|---|---:|---|
+| 140 px (as it was) | 4 | force, 2 crossings |
+| 150 px | 4 | planar |
+| **160 px** | **5** | **planar, no crossing** |
+
+The curved style takes 160; the straight style keeps 140, because its names
+sit on ink-exact chords and need no more room. Five of six is better than the
+four of six this item inherited. *And two pins in the gate retyped the constant
+`4` the clearance used to be* — a fact test asserting the rule's argument "is
+read from the rule in force, not retyped from the Style" was itself comparing
+against a retyped 4, and a region mark's width was asserted at 8. Both read the
+rule's own value now, which is what they always claimed to do.
+
+**And the one-wedge story moved a second time, for the second time by
+measurement.** With the corrected clearance and the 160 px target, the seed
+DN12 had chosen lets `v111`'s single wedge succeed first time, as `curved` had
+under DN12. Sixteen seeds swept at the corrected style: six strand the name on
+one wedge (50 px against a 44 px leash) and land it inside on the retry, all
+six from a planar start — and **all sixteen are clean under the one gate**, on
+the full solve and at 3×, where before this item two of twelve lawful pictures
+carried a name on the curve. That last count is the evidence the fix was for.
+The fixture tells the story on `second-wedge`.
+
+**What was refused.** Guarding off the curve itself — more hidden chords
+through points of the spline — needs the spline's points as tape
+expressions, and a centripetal Catmull-Rom parametrises by square roots of
+chord lengths through a Barry–Goldman pyramid: expressible, and forty terms
+per point. The constant does the same work in one term, exactly, *because* the
+bulge is a fixed fraction; a style that varied the bulge would owe the
+expression instead. That condition is written in the style beside the number.
+
+*Guard:* §107, 7 assertions.
 
 ## DN9 — THE TOLD PICTURE: a narration is facts made visible, in an order (planned 2026-09-06, SHIPPED 2026-09-07 as DN9a through DN9g, all seven closed)
 
