@@ -5,7 +5,7 @@
 #
 #     ring gg_math_catalogue.ring
 #
-# writes math_01.png .. math_42.png beside it and prints, for each, the
+# writes math_01.png .. math_44.png beside it and prints, for each, the
 # solver's own account -- unknowns, constraints, rounds, evaluations,
 # milliseconds -- and every violated constraint, because the fifth scene
 # is a contradiction on purpose and its report is the point.
@@ -56,9 +56,11 @@ acTitles = [ "two sets, one inside the other  (Penrose twosets-simple)",
              "BENZENE, EVERY HYDROGEN DRAWN    (a regular hexagon by consequence: equal bonds, 120 at each carbon)",
              "CAFFEINE, SKELETAL               (fused rings -- the perimeter is the outer face, the shared edge a chord)",
              "PHENOL IN WATER                  (seven components in one substance, every hydrogen drawn)",
-             "A GANTT CHART                    (DN14: every position a datum, nothing to solve; the rules are about time)" ]
+             "A GANTT CHART                    (DN14: every position a datum, nothing to solve; the rules are about time)",
+             "A TIMELINE                       (DN19: the axis as a scale -- distance means duration; the names laid above it)",
+             "A TIMELINE, THREE THINGS WRONG   (an era ending before it starts, a band double-booked, an event outside its era)" ]
 
-for i = 1 to 42
+for i = 1 to 44
 	if i = 1   oM = StzMathScene01(oFont)
 	but i = 2  oM = StzMathScene02(oFont)
 	but i = 3  oM = StzMathScene03(oFont)
@@ -100,7 +102,9 @@ for i = 1 to 42
 	but i = 39 oM = StzMathScene39(oFont)
 	but i = 40 oM = StzMathScene40(oFont)
 	but i = 41 oM = StzMathScene41(oFont)
-	else       oM = StzMathScene42(oFont)  ok
+	but i = 42 oM = StzMathScene42(oFont)
+	but i = 43 oM = StzMathScene43(oFont)
+	else       oM = StzMathTimelineWitness(oFont)  ok
 	oM.Layout()
 	? "== " + acTitles[i]
 	? "   unknowns " + oM.NumberOfUnknowns() + "   constraints " +

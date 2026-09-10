@@ -13580,20 +13580,26 @@ aOgP + [ "chem/witness/stray hydrogen", _OgStrayWitness() ]
 # it starts, and a double-booked lane reported on both its tasks.
 aOgP + [ "gantt/project", StzMathScene42(AUFONT) ]
 aOgP + [ "gantt/witness", StzMathGanttWitness(AUFONT) ]
+# AND THE TIMELINE (DN19): the history of computing, and the witness with
+# one of each mistake about time -- an era ending before it starts, a band
+# double-booked and reported on both its eras, an event outside its era.
+aOgP + [ "timeline/history", StzMathScene43(AUFONT) ]
+aOgP + [ "timeline/witness", StzMathTimelineWitness(AUFONT) ]
 nOgT0 = StzEngineWatchTimestampMs()
 oOgRep = StzCheckPictures(aOgP)
 nOgMs = StzEngineWatchTimestampMs() - nOgT0
-chk("seventy-five pictures are judged by one call -- thirty-three notation, forty-two mathematical",
-    len(aOgP) = 75)
+chk("seventy-seven pictures are judged by one call -- thirty-three notation, forty-four mathematical",
+    len(aOgP) = 77)
 chk("and the report's findings are exactly the five things the corpus plants on purpose -- " +
     "the contradiction, the frame whose mark is outside the part it shows, " +
-    "the three-bonded oxygen, the stray hydrogen and the schedule with three mistakes",
-    oOgRep.NumberOfFindings() = 13 and
+    "the three-bonded oxygen, the stray hydrogen, the schedule with three mistakes and the timeline with three",
+    oOgRep.NumberOfFindings() = 17 and
     _OgAllFromAny(oOgRep, [ "math/5", "math/window/marked out of view",
-        "chem/witness/three-bonded oxygen", "chem/witness/stray hydrogen", "gantt/witness" ]))
+        "chem/witness/three-bonded oxygen", "chem/witness/stray hydrogen", "gantt/witness",
+        "timeline/witness" ]))
 chk("the contradiction's constraints arrive as :diagram; the rim, the off-window mark, " +
-    "the two chemistry findings and the five schedule findings as :plastic",
-    len(oOgRep.FindingsOfSubject(:diagram)) = 4 and len(oOgRep.FindingsOfSubject(:plastic)) = 9)
+    "the two chemistry findings, the five schedule findings and the four timeline findings as :plastic",
+    len(oOgRep.FindingsOfSubject(:diagram)) = 4 and len(oOgRep.FindingsOfSubject(:plastic)) = 13)
 chk("and the gate is NOT sound, because a contradiction is a finding and not a pass",
     NOT oOgRep.IsSound())
 # a wall time is decoration on this machine, so the bound is set where it
@@ -13614,7 +13620,7 @@ aOgR = oOgG.CheckRules()
 for iOg = 1 to len(aOgR)
 	? "   RULE FINDING " + aOgR[iOg][:rule] + " @ " + aOgR[iOg][:where] + " -- " + aOgR[iOg][:message]
 next
-chkeq("the five math rules, the two chemistry rules and the three gantt rules pass the " +
+chkeq("the five math rules, the two chemistry rules, the three gantt rules and the three timeline rules pass the " +
       "five questions -- none empty, vacuous, or unwitnessed",
       len(aOgR), 0)
 
@@ -15366,6 +15372,122 @@ chk("NEGATIVE: under a flow notation a parentless node keeps the first rank -- t
     _FmFlowKeepsTop())
 chk("a family tree answers Rendition() as a vector", oFmT.Rendition()[:kind] = "vector")
 
+
+sec("-- 113. DN19: A TIMELINE -- THE AXIS AS A SCALE, EVERY MARK A DATUM ----------")
+discharges("DN19")
+
+# NOTHING TO SOLVE, as the Gantt: an event is a number, an era is two, and
+# every pixel follows by arithmetic. The builder puts the times on the
+# objects for the rules and the facts and the pixels for the style, and
+# the solver reports it minted no unknown at all.
+oTlH = StzMathScene43(AUFONT)
+oTlH.Layout()
+oTlS = oTlH.Substance()
+? "   history : " + oTlH.NumberOfShapes() + " shapes, " + oTlH.NumberOfUnknowns() +
+  " unknowns, " + floor(oTlH.LayoutMs()) + " ms -- " + oTlH.Why()
+chkeq("a timeline mints no unknown -- there is nothing to lay out", oTlH.NumberOfUnknowns(), 0)
+chk("nine events, four eras, seven of the events placed in an era, one axis and eight ticks",
+    len(oTlS.ObjectsOfType("Event")) = 9 and len(oTlS.ObjectsOfType("Era")) = 4 and
+    len(oTlS.ObjectsOfType("Belonging")) = 7 and len(oTlS.ObjectsOfType("Axis")) = 1 and
+    len(oTlS.ObjectsOfType("Tick")) = 8)
+
+# DISTANCE MEANS DURATION. A year is the same width everywhere on the
+# scale -- between the first and last events as between two neighbours --
+# and an era's band is its years times that width, exactly.
+nTlK = (oTlS.DataOf("e9", "x") - oTlS.DataOf("e1", "x")) / (2007 - 1936)
+chk("a year is one width everywhere on the scale: the two ends and two neighbours agree",
+    fabs((oTlS.DataOf("e7", "x") - oTlS.DataOf("e6", "x")) / 10 - nTlK) < 0.001 and
+    fabs((oTlS.DataOf("e4", "x") - oTlS.DataOf("e2", "x")) / 13 - nTlK) < 0.001)
+chk("an era's band is its years times the year's width, exactly",
+    fabs(oTlH.ShapeOf("r1.band")[:w] - 15 * nTlK) < 0.01 and
+    fabs(oTlH.ShapeOf("r3.band")[:w] - 20 * nTlK) < 0.01)
+chk("the axis steps by ten years over a span of seventy-four: ten ticks or fewer, on the decades",
+    oTlS.DataOf("k2", "t") - oTlS.DataOf("k1", "t") = 10 and oTlS.DataOf("k1", "t") = 1940)
+chk("a fact reads a duration in the author's unit, from the data and not the pixels",
+    oTlH.Fact(:expr, [ "e9.t - e1.t", :years ])[:value] = 71 and
+    StzFindFirst("71 years", oTlH.Fact(:expr, [ "e9.t - e1.t", :years ])[:message]) > 0)
+
+# THE NAMES ARE LAID BY THE BUILDER, under two laws: a name covers no
+# other event's column, since that column carries another stem; and two
+# names on one level do not touch. Centred on the stem when it can be,
+# hung beside it when it cannot, a level up otherwise.
+chk("no event's name covers a column whose stem reaches its level, and no two names on a level touch",
+    _TlNamesClearColumns(oTlH) and _TlLevelsClear(oTlH))
+chk("ENIAC, two years before the transistor, takes the second level; the transistor's name hangs right of its stem",
+    oTlS.DataOf("e2", "level") = 2 and oTlS.DataOf("e3", "level") = 1 and
+    oTlS.DataOf("e3", "lx") > oTlS.DataOf("e3", "x") + 10)
+chk("the names take three levels, and the axis stands below the third",
+    StzTimelineLevelsOf(oTlS) = 3 and oTlS.DataOf("e6", "level") = 3 and
+    oTlS.DataOf("ax", "y") > oTlS.DataOf("e6", "ly") + 40)
+chk("the margin holds the first name: it stands on the paper, centred on its dot, half its width in",
+    fabs(oTlS.DataOf("e1", "lx") - oTlS.DataOf("e1", "x")) < 0.01 and
+    fabs(oTlS.DataOf("e1", "x") - (oTlS.DataOf("e1", "lw") / 2 + 14)) < 0.01)
+aTlH = StzCheckPictures([ [ "history", oTlH ] ]).Findings()
+for iTl = 1 to len(aTlH)
+	if iTl <= 4  ? "   HISTORY FINDING " + aTlH[iTl][:rule] + " -- " + aTlH[iTl][:message]  ok
+next
+chk("the history is lawful and the one gate finds nothing in it -- no name on ink, no name on a name",
+    oTlH.IsFeasible() and len(aTlH) = 0)
+chk("and it answers Rendition() as a vector like every other picture",
+    oTlH.Rendition()[:kind] = "vector")
+
+# THE RULES ARE ABOUT TIME, and they name the things by the author's
+# names and say by how much. The witness has one of each mistake -- and
+# the double booking is reported on BOTH eras, because each is booked.
+oTlW = StzMathTimelineWitness(AUFONT)
+aTlF = StzCheckPictures([ [ "wrong", oTlW ] ]).Findings()
+? "   witness : " + len(aTlF) + " findings -- " + _GtByRule(aTlF)
+chk("an era that ends before it starts is caught, by name and by how much",
+    _PorHits(aTlF, "era_ends_after_it_starts") = 1 and
+    _GtHas(aTlF, "'Backwards' ends at 1980, 10 before it starts at 1990"))
+chk("two eras sharing a band and overlapping are caught on both, with the overlap and its span",
+    _PorHits(aTlF, "band_not_double_booked") = 2 and
+    _GtHas(aTlF, "'Mainframes' and 'Minicomputers' share band 2 and overlap by 1, from 1961 to 1962"))
+chk("an event placed in an era it is not dated in is caught, saying by how many years and which way",
+    _PorHits(aTlF, "event_within_its_era") = 1 and
+    _GtHas(aTlF, "'ENIAC' is dated 1945, 10 before 'Transistors' begins at 1955"))
+chkeq("...and those four are all the gate finds -- the names beside the planted faults do not collide",
+      len(aTlF), 4)
+
+# A FAULT IS DRAWN, AND THE DRAWING'S MARKS ARE HELD TO THE RULES' VERDICTS.
+oTlWS = oTlW.Substance()
+chk("the reversed era is drawn between its two times in the colour of a fault",
+    oTlWS.Holds("Reversed", [ "r7" ]) and fabs(oTlW.ShapeOf("r7.band")[:w] - 10 * nTlK) < 0.01 and
+    oTlW.FillOf("r7.band") != oTlW.FillOf("r1.band"))
+chk("the two eras double-booked on a band are marked, and the marks are exactly the rule's verdicts",
+    _TlMarkedEquals(oTlW, "Era", "Clashing", aTlF, "band_not_double_booked", "era:"))
+chk("the event outside its era is marked, and the mark is exactly the rule's verdict",
+    oTlWS.Holds("Outside", [ "e2" ]) and len(_TlMarked(oTlW, "Event", "Outside")) = 1 and
+    oTlW.FillOf("e2.icon") != oTlW.FillOf("e1.icon"))
+chk("NEGATIVE: nothing in the lawful history is marked as a fault",
+    len(_TlMarked(oTlH, "Era", "Reversed")) = 0 and len(_TlMarked(oTlH, "Era", "Clashing")) = 0 and
+    len(_TlMarked(oTlH, "Event", "Outside")) = 0)
+
+# THE BOUNDARIES. Touching eras are not an overlap; an event dated on an
+# era's very end is inside it; an era too short for its name writes the
+# name beside its band; and the builder refuses what it cannot mean.
+oTlT = StzTimelineDiagram(AUFONT, [ [ "A", 5, "X" ] ], [ [ "X", 0, 5 ], [ "Y", 5, 9 ] ])
+aTlT = StzCheckPictures([ [ "touching", oTlT ] ]).Findings()
+chk("NEGATIVE: two eras meeting end to end on one band are not double-booked, and share the band",
+    _PorHits(aTlT, "band_not_double_booked") = 0 and
+    oTlT.Substance().DataOf("r1", "band") = oTlT.Substance().DataOf("r2", "band"))
+chk("NEGATIVE: an event dated on the last year of its era is inside it",
+    _PorHits(aTlT, "event_within_its_era") = 0 and len(aTlT) = 0)
+oTlB = StzTimelineDiagram(AUFONT, [ [ "A", 0 ], [ "B", 100 ] ], [ [ "A name far wider than its band", 40, 42 ] ])
+chk("an era too short for its name writes the name beside its band, clear of it, and the picture is clean",
+    oTlB.Substance().Holds("Beside", [ "r1" ]) and
+    oTlB.ShapeOf("r1.text")[:cx] - oTlB.ShapeOf("r1.text")[:w] / 2 > oTlB.Substance().DataOf("r1", "x1") + 2 and
+    len(StzCheckPictures([ [ "beside", oTlB ] ]).Findings()) = 0)
+chk("NEGATIVE: the history's eras hold their names inside their bands",
+    len(_TlMarked(oTlH, "Era", "Beside")) = 0)
+chk("an event placed in an era that is not in the list is refused, and named", _TlRefusesUnknownEra())
+chk("two events under one name are refused", _TlRefusesDuplicate())
+chk("a timeline of nothing is refused", _TlRefusesEmpty())
+oTlRule = StzTimelineRuleSet()[1]
+chk("the timeline rules govern every era of a timeline and not one object of a schedule -- " +
+    "the boundary is stood on",
+    len(oTlRule.SubjectsIn(oTlH)) = 4 and len(oTlRule.SubjectsIn(oGtP)) = 0 and
+    len(oTlRule.CounterSubjectsIn(oGtP)) > 0 and len(oTlRule.CounterSubjectsIn(oTlH)) = 0)
 
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
@@ -18900,6 +19022,92 @@ func _ErRefusesKind
 	catch
 		# a symbol is a lowercase string in Ring, so the name comes back so
 		return StzFindFirst("sometimes", StzLower(cCatchError)) > 0
+	done
+	return FALSE
+
+#-- DN19: the timeline section's helpers -------------------------------------
+
+# the objects of a type a substance marks with a predicate
+func _TlMarked poDg, pcType, pcPred
+	_r_ = []
+	_oS_ = poDg.Substance()
+	_ac_ = _oS_.ObjectsOfType(pcType)
+	for _i_ = 1 to len(_ac_)
+		if _oS_.Holds(pcPred, [ _ac_[_i_] ])  _r_ + _ac_[_i_]  ok
+	next
+	return _r_
+
+# the marked objects are exactly the subjects the rule found, no more, no fewer
+func _TlMarkedEquals poDg, pcType, pcPred, paFindings, pcRule, pcPrefix
+	_aM_ = _TlMarked(poDg, pcType, pcPred)
+	_aF_ = []
+	for _i_ = 1 to len(paFindings)
+		if "" + paFindings[_i_][:rule] != pcRule  loop  ok
+		_w_ = "" + paFindings[_i_][:where]
+		_p_ = StzFindFirst(pcPrefix, _w_)
+		if _p_ > 0  _aF_ + StzStringSection(_w_, _p_ + len(pcPrefix), len(_w_))  ok
+	next
+	if len(_aM_) != len(_aF_) or len(_aM_) = 0  return FALSE  ok
+	for _i_ = 1 to len(_aM_)
+		_b_ = FALSE
+		for _j_ = 1 to len(_aF_)
+			if ring_trim(_aF_[_j_]) = _aM_[_i_]  _b_ = TRUE  ok
+		next
+		if NOT _b_  return FALSE  ok
+	next
+	return TRUE
+
+# no event's name extends over a column whose stem reaches its level
+func _TlNamesClearColumns poDg
+	_oS_ = poDg.Substance()
+	_ac_ = _oS_.ObjectsOfType("Event")
+	for _i_ = 1 to len(_ac_)
+		_lo_ = _oS_.DataOf(_ac_[_i_], "lx") - _oS_.DataOf(_ac_[_i_], "lw") / 2
+		_hi_ = _oS_.DataOf(_ac_[_i_], "lx") + _oS_.DataOf(_ac_[_i_], "lw") / 2
+		for _j_ = 1 to len(_ac_)
+			if _j_ = _i_  loop  ok
+			_x_ = _oS_.DataOf(_ac_[_j_], "x")
+			if fabs(_x_ - _oS_.DataOf(_ac_[_i_], "x")) < 0.01  loop  ok
+			if _oS_.DataOf(_ac_[_j_], "level") < _oS_.DataOf(_ac_[_i_], "level")  loop  ok
+			if _x_ > _lo_ and _x_ < _hi_  return FALSE  ok
+		next
+	next
+	return TRUE
+
+# two names on one level stand apart
+func _TlLevelsClear poDg
+	_oS_ = poDg.Substance()
+	_ac_ = _oS_.ObjectsOfType("Event")
+	for _i_ = 1 to len(_ac_)
+		for _j_ = _i_ + 1 to len(_ac_)
+			if _oS_.DataOf(_ac_[_i_], "level") != _oS_.DataOf(_ac_[_j_], "level")  loop  ok
+			_d_ = fabs(_oS_.DataOf(_ac_[_i_], "lx") - _oS_.DataOf(_ac_[_j_], "lx"))
+			if _d_ < (_oS_.DataOf(_ac_[_i_], "lw") + _oS_.DataOf(_ac_[_j_], "lw")) / 2 + 4  return FALSE  ok
+		next
+	next
+	return TRUE
+
+func _TlRefusesUnknownEra
+	try
+		StzTimelineFromEvents([ [ "A", 0, "Nowhen" ] ], [ [ "X", 0, 5 ] ])
+	catch
+		return StzFindFirst("Nowhen", cCatchError) > 0
+	done
+	return FALSE
+
+func _TlRefusesDuplicate
+	try
+		StzTimelineFromEvents([ [ "A", 0 ], [ "a", 3 ] ], [])
+	catch
+		return StzFindFirst("two events are named", cCatchError) > 0
+	done
+	return FALSE
+
+func _TlRefusesEmpty
+	try
+		StzTimelineFromEvents([], [])
+	catch
+		return StzFindFirst("at least one", cCatchError) > 0
 	done
 	return FALSE
 
