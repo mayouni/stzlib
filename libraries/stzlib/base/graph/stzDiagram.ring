@@ -3540,6 +3540,44 @@ class stzDiagram from stzGraph
 				next
 				_aRoute_ = _aRtF_
 			ok
+			# ...AND A LONG EDGE STANDS BESIDE WHAT IT SPANS. The layout
+			# places a long edge's waypoints as cells of their own, and it
+			# put the family witness's line from a union to a grandchild at
+			# x=919 and x=1167 on a sheet whose last cell ends at 787: the
+			# packing moved the cells and not the waypoints. The paper is
+			# measured below from the cells, so the line ran 116px off the
+			# sheet. The return ladder already has the law for this -- it
+			# clears what it passes, not the whole picture -- and a bend
+			# beyond every cell it passes takes the same place: one line
+			# clearance past the far border of the ranks between its ends.
+			# A bend inside that extent is the router's to steer around.
+			_rtAx_ = 1  _rtCr_ = 2
+			if _cRank_ = "LR" or _cRank_ = "RL"  _rtAx_ = 2  _rtCr_ = 1  ok
+			_nRtClr_ = This._LineClearance()
+			for _iRtG_ = 1 to len(_aRoute_)
+				_aRtA_ = This._XYOf(_aXY_, "" + _aRoute_[_iRtG_][1])
+				_aRtB_ = This._XYOf(_aXY_, "" + _aRoute_[_iRtG_][2])
+				if len(_aRtA_) != 2 or len(_aRtB_) != 2  loop  ok
+				_rtRa_ = min([ _aRtA_[_rtCr_], _aRtB_[_rtCr_] ]) - 1.5
+				_rtRb_ = max([ _aRtA_[_rtCr_], _aRtB_[_rtCr_] ]) + 1.5
+				_rtLo_ = 0 - 1000000000
+				_rtHi_ = 1000000000
+				for _jRtG_ = 1 to len(_aXY_)
+					if _aXY_[_jRtG_][_rtCr_ + 1] < _rtRa_ or _aXY_[_jRtG_][_rtCr_ + 1] > _rtRb_  loop  ok
+					_rtHf_ = This._BoxOf("" + _aXY_[_jRtG_][1], _nBoxW_, _nBoxH_)[_rtAx_] / 2
+					if _aXY_[_jRtG_][_rtAx_ + 1] + _rtHf_ > _rtLo_  _rtLo_ = _aXY_[_jRtG_][_rtAx_ + 1] + _rtHf_  ok
+					if _aXY_[_jRtG_][_rtAx_ + 1] - _rtHf_ < _rtHi_  _rtHi_ = _aXY_[_jRtG_][_rtAx_ + 1] - _rtHf_  ok
+				next
+				if _rtLo_ < 0 - 999999999  loop  ok
+				for _jRtG_ = 1 to len(_aRoute_[_iRtG_][3])
+					if _aRoute_[_iRtG_][3][_jRtG_][_rtAx_] > _rtLo_ + _nRtClr_
+						_aRoute_[_iRtG_][3][_jRtG_][_rtAx_] = _rtLo_ + _nRtClr_
+					ok
+					if _aRoute_[_iRtG_][3][_jRtG_][_rtAx_] < _rtHi_ - _nRtClr_
+						_aRoute_[_iRtG_][3][_jRtG_][_rtAx_] = _rtHi_ - _nRtClr_
+					ok
+				next
+			next
 
 			# A CLUSTER IS BIGGER THAN ITS MEMBERS. Its box is padded and
 			# carries a label ABOVE the topmost member, and the derived size
@@ -3731,6 +3769,20 @@ class stzDiagram from stzGraph
 					if _rrch_ > _ex1_  _ex1_ = _rrch_  ok
 					if _rrup_ < _ex0_  _ex0_ = _rrup_  ok
 				ok
+				# ...AND A LONG EDGE'S BENDS, which stand beside the ranks
+				# they span (the clamp above) and are ink the cells do not
+				# measure: the family witness lost 116px of its longest
+				# line to a sheet that had read the cells alone.
+				for _iRtE_ = 1 to len(_aRoute_)
+					for _jRtE_ = 1 to len(_aRoute_[_iRtE_][3])
+						_rtEx_ = _aRoute_[_iRtE_][3][_jRtE_][1]
+						_rtEy_ = _aRoute_[_iRtE_][3][_jRtE_][2]
+						if _rtEx_ < _ex0_  _ex0_ = _rtEx_  ok
+						if _rtEx_ > _ex1_  _ex1_ = _rtEx_  ok
+						if _rtEy_ < _ey0_  _ey0_ = _rtEy_  ok
+						if _rtEy_ > _ey1_  _ey1_ = _rtEy_  ok
+					next
+				next
 
 				_aCl93_ = @aClusters
 				_nCl93_ = len(_aCl93_)

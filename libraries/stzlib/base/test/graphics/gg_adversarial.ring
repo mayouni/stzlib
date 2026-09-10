@@ -4,6 +4,7 @@ load "gg_math_scenes.ring"
 load "gg_er_scenes.ring"
 load "gg_petri_scenes.ring"
 load "gg_fault_scenes.ring"
+load "gg_family_scenes.ring"
 
 /*---------------------------------------------------------------------------
 	WHAT THE GUARDS COULD NOT SEE
@@ -8706,6 +8707,7 @@ chk("...and a box is not", oF._IsBranchCell("src") = 0)
 OPTGOV = [ :Font = EFONT, :NodeWidth = 130, :NodeHeight = 52, :FontSize = 14 ]
 OPTPN2 = [ :Font = EFONT, :NodeWidth = 64, :NodeHeight = 64, :FontSize = 13 ]
 OPTFT2 = [ :Font = EFONT, :NodeWidth = 120, :NodeHeight = 52, :FontSize = 13 ]
+OPTFM2 = [ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56, :FontSize = 20 ]
 
 # The meta layer: rules that state what they GOVERN, separately from what
 # they assert, so the SELECTION half can be checked at all. Six defects of
@@ -13534,6 +13536,13 @@ aOgP + [ "petri/witness", StzPetriSceneWitness(OPTPN2) ]
 aOgP + [ "fault/pump", StzFaultScene01(OPTFT2) ]
 aOgP + [ "fault/repeated", StzFaultScene02(OPTFT2) ]
 aOgP + [ "fault/witness", StzFaultSceneWitness(OPTFT2) ]
+# AND THE FAMILY TREES (DN18): three generations with a single parent, the
+# witness, the cycle and the kin joined -- the first pictures whose
+# sources settle onto what they feed.
+aOgP + [ "family/three", StzFamilyScene01(OPTFM2) ]
+aOgP + [ "family/witness", StzFamilySceneWitness(OPTFM2) ]
+aOgP + [ "family/cycle", StzFamilySceneCycle(OPTFM2) ]
+aOgP + [ "family/kin", StzFamilySceneKin(OPTFM2) ]
 for iOg = 1 to 31
 	cOgF = "StzMathScene" + iOg
 	if iOg < 10  cOgF = "StzMathScene0" + iOg  ok
@@ -13573,8 +13582,8 @@ aOgP + [ "gantt/witness", StzMathGanttWitness(AUFONT) ]
 nOgT0 = StzEngineWatchTimestampMs()
 oOgRep = StzCheckPictures(aOgP)
 nOgMs = StzEngineWatchTimestampMs() - nOgT0
-chk("seventy-one pictures are judged by one call -- twenty-nine notation, forty-two mathematical",
-    len(aOgP) = 71)
+chk("seventy-five pictures are judged by one call -- thirty-three notation, forty-two mathematical",
+    len(aOgP) = 75)
 chk("and the report's findings are exactly the five things the corpus plants on purpose -- " +
     "the contradiction, the frame whose mark is outside the part it shows, " +
     "the three-bonded oxygen, the stray hydrogen and the schedule with three mistakes",
@@ -13597,7 +13606,7 @@ chk("the whole gate runs inside a bound that would have caught its first run -- 
 # empty, none vacuous, every boundary witnessed.
 oOgG = StzMathGovernanceOf("math")
 # from 30: the twenty catalogue pictures, three schemas, three nets and three trees are notation
-for iOg = 30 to len(aOgP)
+for iOg = 34 to len(aOgP)
 	oOgG.AddPicture(aOgP[iOg][1], aOgP[iOg][2])
 next
 aOgR = oOgG.CheckRules()
@@ -13664,7 +13673,7 @@ chk("red to blue at the half is a purple whose lightness is the mean of the two,
 # paper itself -- measured, not assumed. The pictures are the one gate's,
 # already solved; a theme changes no geometry, so no second solve.
 nCmBadL = 0  nCmBadD = 0  nCmNames = 0
-for iCm = 30 to len(aOgP)   # the math pictures: after the twenty catalogue, three schema, three net and three tree ones
+for iCm = 34 to len(aOgP)   # the math pictures: after the twenty catalogue, three schema, three net, three tree and four family ones
 	oCmP = aOgP[iCm][2]
 	oCmP.@oStyle.SetTheme("light")  oCmP.Touch()
 	nCmBadL += _CmUnreadable(oCmP, 3)
@@ -15223,6 +15232,94 @@ chk("a gate is entered from above by the event it develops, never from its side"
 chk("NEGATIVE: under the flow rule a parent stands over the deeper child -- the tree needed the declaration",
     _FtFlowLeans())
 chk("a fault tree answers Rendition() as a vector", oFtP.Rendition()[:kind] = "vector")
+
+
+sec("-- 112. DN18: A FAMILY TREE -- A TREE WITH TWO PARENTS -----------------")
+discharges("DN18")
+
+# THE NOTATION: a top-down tree read the other way, no heads, a union
+# as a dot between two people, the years as a band under the name.
+OPTFM = [ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56, :FontSize = 20 ]
+oFmT = StzFamilyScene01(OPTFM)
+chk("the notation reads top-down, draws no head, and declares every parent's children peers",
+    oFmT.NotationO().Name_() = "family" and NOT oFmT.NotationO().EdgesDirected() and
+    oFmT.NotationO().PeerChildren() and len(oFmT.RenderArrows()) = 0)
+chk("a person's years are a band under the name, read as the schema's compartments are",
+    _ErInList("years", oFmT.NotationO().CompartmentKeys()) and
+    _FmYearsAre(oFmT, "ali", "1940 - 2015") and _FmYearsAre(oFmT, "mona", "1944"))
+chk("NEGATIVE: a person with no year known carries no band", NOT isList(StzFamilySceneWitness(OPTFM).NodeProperty("f", "years")))
+
+# KINSHIP, READ OFF THE TREE.
+chk("ancestors are read through the unions: Yara's are her parents and her father's parents",
+    _FmSetIs(oFmT.AncestorsOf("yara"), [ "sami", "nour", "ali", "mona" ]))
+chk("descendants likewise: Mona's are her two children and her three grandchildren",
+    _FmSetIs(oFmT.DescendantsOf("mona"), [ "sami", "leila", "yara", "omar", "lina" ]))
+chk("siblings share a union: Omar's is Yara, and Lina, born of another, is nobody's",
+    _FmSetIs(oFmT.SiblingsOf("omar"), [ "yara" ]) and len(oFmT.SiblingsOf("lina")) = 0)
+chk("generations count from the oldest known ancestor: Ali 1, Sami 2, Yara and Lina 3",
+    oFmT.GenerationOf("ali") = 1 and oFmT.GenerationOf("sami") = 2 and
+    oFmT.GenerationOf("yara") = 3 and oFmT.GenerationOf("lina") = 3)
+chk("a single parent's child has one parent, and a union is answered whichever way it is asked",
+    _FmSetIs(oFmT.ParentsOf("lina"), [ "leila" ]) and _FmSetIs(oFmT.PartnersOf("sami"), [ "nour" ]) and
+    oFmT.UnionOf("nour", "sami") = oFmT.UnionOf("sami", "nour") and oFmT.Marry("sami", "nour") = oFmT.UnionOf("sami", "nour"))
+
+# THE RULES: the sound tree carries one warning it means; the witnesses
+# name one of each mistake.
+aFmF = oFmT.GovernanceFindings()
+chk("the three generations pass, but for the single parent the tree draws on purpose -- a warning naming her",
+    len(aFmF) = 1 and _ErFound(aFmF, "union_has_two_partners", "under 'Leila' has one partner"))
+oFmW = StzFamilySceneWitness(OPTFM)
+aFmW = oFmW.GovernanceFindings()
+? "   witness : " + len(aFmW) + " findings"
+chk("a union of three is caught", _ErFound(aFmW, "union_has_two_partners", "joins 3 people"))
+chk("a person born of two unions is caught", _ErFound(aFmW, "child_of_one_union", "'Gus' is born of 2 unions"))
+chk("a child older than a parent is caught, against each parent, naming the years",
+    _ErFound(aFmW, "parents_are_older", "'Dana' is born in 1948 and their parent 'Adam' in 1950") and
+    _ErFound(aFmW, "parents_are_older", "'Dana' is born in 1948 and their parent 'Bea' in 1952"))
+chkeq("...and those are all of them: four", len(aFmW), 4)
+oFmC = StzFamilySceneCycle(OPTFM)
+chk("a person born of their own grandchild is caught, on both ends of the cycle",
+    _ErFound(oFmC.GovernanceFindings(), "no_one_is_own_ancestor", "'Pia' is among their own ancestors") and
+    _ErFound(oFmC.GovernanceFindings(), "no_one_is_own_ancestor", "'Rae' is among their own ancestors"))
+oFmK = StzFamilySceneKin(OPTFM)
+chk("a father joined to his own daughter is caught, and nothing else is",
+    len(oFmK.GovernanceFindings()) = 1 and
+    _ErFound(oFmK.GovernanceFindings(), "partners_are_not_kin", "'Dana' is joined to their own ancestor 'Adam'"))
+
+# THE BOUNDARIES, STOOD ON.
+oFmRs = StzFamilyRuleSetQ()
+chk("NEGATIVE: the note is excluded by every rule, not merely passed",
+    _ErExcludedEverywhere(oFmRs, oFmW.AsRuleGraph(), "note:n1"))
+chk("NEGATIVE: a union is outside every rule about people, and a person outside every rule about unions",
+    _ErInList("union:u1", oFmRs.Rules()[1].CounterSubjectsIn(oFmW.AsRuleGraph())) and
+    _ErInList("person:c", oFmRs.Rules()[2].CounterSubjectsIn(oFmW.AsRuleGraph())))
+chk("NEGATIVE: a person with no year, or no dated parent, is outside the rule about years -- not passing it",
+    _ErInList("person:f", oFmRs.Rules()[4].CounterSubjectsIn(oFmW.AsRuleGraph())) and
+    _ErInList("person:a", oFmRs.Rules()[4].CounterSubjectsIn(oFmW.AsRuleGraph())) and
+    _ErInList("person:d", oFmRs.Rules()[4].SubjectsIn(oFmW.AsRuleGraph())))
+
+# THE BUILDER REFUSES WHAT IT CANNOT MEAN.
+chk("dying before being born is refused, naming both years", _FmRefuses(1))
+chk("a union with someone not in the tree is refused", _FmRefuses(2))
+chk("a child of something that is not a union is refused", _FmRefuses(3))
+chk("a second person under one id is refused", _FmRefuses(4))
+
+# THE PICTURE: a spouse who married in stands beside their partner, not
+# on the top rank; the union's dot stands between its two partners and
+# its children hang beneath it, centred.
+chk("a married-in spouse stands on the partner's rank -- Nour beside Sami, not three generations up",
+    fabs(_PnCentreY(oFmT, "nour") - _PnCentreY(oFmT, "sami")) < 0.5 and
+    _PnCentreY(oFmT, "nour") > _PnCentreY(oFmT, "ali") + 100)
+chk("the union's dot stands between its partners, on the rank below them",
+    _PnCentreX(oFmT, oFmT.UnionOf("sami", "nour")) > _PnCentreX(oFmT, "sami") and
+    _PnCentreX(oFmT, oFmT.UnionOf("sami", "nour")) < _PnCentreX(oFmT, "nour") and
+    _PnCentreY(oFmT, oFmT.UnionOf("sami", "nour")) > _PnCentreY(oFmT, "sami"))
+chk("...and its children hang beneath it, the union at their middle",
+    fabs(_PnCentreX(oFmT, oFmT.UnionOf("sami", "nour")) - (_PnCentreX(oFmT, "yara") + _PnCentreX(oFmT, "omar")) / 2) < 0.5 and
+    _PnCentreY(oFmT, "yara") > _PnCentreY(oFmT, oFmT.UnionOf("sami", "nour")))
+chk("NEGATIVE: under a flow notation a parentless node keeps the first rank -- the settling is the peers' declaration",
+    _FmFlowKeepsTop())
+chk("a family tree answers Rendition() as a vector", oFmT.Rendition()[:kind] = "vector")
 
 
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
@@ -18264,6 +18361,57 @@ func _OgWitness
 	_o_.SetFont(AUFONT, 16)
 	_o_.SetVariation("witness")
 	return _o_
+
+#-- DN18: the family tree section's helpers ----------------------------------
+
+func _FmSetIs paSet, pacWant
+	if len(paSet) != len(pacWant)  return FALSE  ok
+	for _i_ = 1 to len(pacWant)
+		_bIn_ = FALSE
+		for _j_ = 1 to len(paSet)
+			if StzLower("" + paSet[_j_]) = StzLower("" + pacWant[_i_])  _bIn_ = TRUE  ok
+		next
+		if NOT _bIn_  return FALSE  ok
+	next
+	return TRUE
+
+func _FmYearsAre poD, pcId, pcWant
+	_a_ = poD.NodeProperty(pcId, "years")
+	if isList(_a_)
+		if len(_a_) != 1  return FALSE  ok
+		_a_ = _a_[1]
+	ok
+	return "" + _a_ = pcWant
+
+func _FmRefuses pnCase
+	try
+		_o_ = new stzFamilyTree("x")
+		_o_.AddPersonXT("a", "A", 1950, 0)
+		_o_.AddPerson("b", "B")
+		if pnCase = 1  _o_.AddPersonXT("c", "C", 1980, 1970)  ok
+		if pnCase = 2  _o_.Marry("a", "nobody")  ok
+		if pnCase = 3  _o_.Child("a", "b")  ok
+		if pnCase = 4  _o_.AddPerson("a", "again")  ok
+	catch
+		if pnCase = 1  return StzFindFirst("dies in 1970 before being born in 1980", cCatchError) > 0  ok
+		if pnCase = 2  return StzFindFirst("nobody", cCatchError) > 0  ok
+		if pnCase = 3  return StzFindFirst("not a union", cCatchError) > 0  ok
+		return StzFindFirst("already", cCatchError) > 0
+	done
+	return FALSE
+
+# the same shape under a plain diagram -- a parentless node feeding a
+# node two ranks down -- keeps the first rank: the flow rule
+func _FmFlowKeepsTop
+	_o_ = new stzDiagram("flow2")
+	_o_.AddNodeXTT("a", "A", [ :type = "box" ])
+	_o_.AddNodeXTT("b", "B", [ :type = "box" ])
+	_o_.AddNodeXTT("c", "C", [ :type = "box" ])
+	_o_.AddNodeXTT("s", "S", [ :type = "box" ])
+	_o_.AddEdge("a", "b")  _o_.AddEdge("b", "c")  _o_.AddEdge("s", "c")
+	_o_.SetSplines("ortho")
+	_o_.ToCanvasXT(OPTFM)
+	return fabs(_PnCentreY(_o_, "s") - _PnCentreY(_o_, "a")) < 0.5
 
 #-- DN17: the fault tree section's helpers -----------------------------------
 
