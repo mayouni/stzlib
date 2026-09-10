@@ -3801,3 +3801,32 @@ note:      A CELL-WIDE SLOT IS THE LAYOUT'S UNIT AND A MARK IS NOT A CELL.
            the first thing that gives it back, and it gives it back
            between trees only. Between siblings the slot still rules.
 ```
+
+```yaml
+by:        stzlib-graphics · claude-fable-5-1 · 2026-09-10 07:58
+
+subject:   a ladder clears what its return passes; an OR gate's stem
+
+why:       the Principal marked the column the cycle's ladder took at the
+           picture's edge, and a gap under the OR gate
+
+did:
+  - Took the ladder's far border over the ranks between the return's
+    two ends, so it stands beside what it passes and not beyond a leaf
+    two ranks below.
+  - Drew the OR gate's input stem up into the shield; the gap was not
+    meant.
+
+state:
+  gg_adversarial:   1418 ok, 0 failed
+  commit:           4f8e6fb51 on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the author's word
+  - central: none
+```
