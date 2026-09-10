@@ -794,6 +794,31 @@ fn centerParents(
                 }
             }
             if (ties == 1 and best_h > 0 and !peers) target = x[best_c];
+            // ...AND AMONG PEERS AN ODD COUNT STANDS OVER THE MIDDLE
+            // CHILD. The span's middle is the middle child only when the
+            // children are evenly spaced; with a wide subtree on one
+            // side the gate stood 31px off its middle input -- a jog in
+            // the near-miss band, which the Principal marked. The median
+            // child is a column the reader already sees.
+            if (peers and owned % 2 == 1) {
+                // the median by position: count children left of each
+                var jj = out_off[v];
+                while (jj < out_off[v + 1]) : (jj += 1) {
+                    const c1 = out_dst[jj];
+                    if (c1 == v) continue;
+                    var left: u32 = 0;
+                    var j2 = out_off[v];
+                    while (j2 < out_off[v + 1]) : (j2 += 1) {
+                        const c2 = out_dst[j2];
+                        if (c2 == v or c2 == c1) continue;
+                        if (x[c2] < x[c1]) left += 1;
+                    }
+                    if (left == owned / 2) {
+                        target = x[c1];
+                        break;
+                    }
+                }
+            }
             const mid = target;
             if (@abs(mid - x[v]) < 0.0001) continue;
             if (k > s) {
@@ -1319,6 +1344,20 @@ fn tidyTerritories(
                 gap = sep * 0.40;
             }
             const need = hi[prev] + gap - lo[cur];
+            // ...AND NO TWO MAY STAND APART EITHER. This pushed a subtree
+            // right until it cleared its neighbour and never pulled one
+            // left, so whatever air the relaxation had left between two
+            // families stayed: a second root's chain stood 216px from the
+            // first tree's last leaf, which the Principal marked as "a lot
+            // of space". Reingold-Tilford's contract is that siblings'
+            // territories TOUCH, plus the family air; pulling left is the
+            // same shift the other way, and a rigid shift disturbs nothing
+            // inside the block.
+            // (Pulling LEFT here was tried and reverted the same night: the
+            // rank order does not keep a subtree's descendants contiguous,
+            // so a block moved left landed inside another family's band --
+            // section 6 caught node 39 inside node 20's. Packing is done
+            // on the drawn boxes by the face, for the notations that ask.)
             if (need > 0) {
                 shiftSubtree(out_off, out_dst, cur, need, x, lo, hi, stack);
             }

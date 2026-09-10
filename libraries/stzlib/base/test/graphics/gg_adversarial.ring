@@ -15191,6 +15191,15 @@ chk("the two arrivals at the shared leaf both drop into its top on its own colum
     fabs(_PnPathEnd(oFtR, "fill.gate", "sensor")[1] - _PnCentreX(oFtR, "sensor")) < 0.5 and
     fabs(_PnPathEnd(oFtR, "alarm.gate", "sensor")[1] - _PnCentreX(oFtR, "sensor")) < 0.5 and
     fabs(_PnPathEnd(oFtR, "alarm.gate", "sensor")[2] - _PnRectOf(oFtR, "sensor")[2]) < 0.5)
+# THE PRINCIPAL'S THIRD ROUND: two fans that met end to end read as one
+# rule across the tree; a gate with three inputs stood off its middle
+# one; a second tree stood a cell and a half from the first.
+chk("two fans whose channels would meet end to end at a shared leaf take two rows, a clearance apart",
+    fabs(_PlTurnOf(oFtR, "fill.gate", "sensor") - _PlTurnOf(oFtR, "alarm.gate", "sensor")) >= oFtR._LineClearance() - 0.5)
+chk("a gate with three inputs stands over the middle one, whatever the outer two carry",
+    fabs(_PnCentreX(oFtW, "t1.gate") - _PnCentreX(oFtW, "bare")) < 0.5)
+chk("the forest is packed: the second tree stands one separation from the first on the rank they share",
+    _FtPacked(oFtW))
 chk("the witness's one backward edge runs beside the picture and enters the top from its side, not through its floor",
     _PnPathEnd(oFtW, "jam.gate", "t1")[1] < _PnCentreX(oFtW, "t1") - 10 and
     fabs(_PnPathEnd(oFtW, "jam.gate", "t1")[2] - _PnCentreY(oFtW, "t1")) < 0.5 and _PnNoArcThroughCell(oFtW))
@@ -18313,6 +18322,25 @@ func _FtRefuses pnCase
 		return StzFindFirst("nobody", cCatchError) > 0
 	done
 	return FALSE
+
+# the second tree's leaf stands one separation past the first tree's
+# widest drawn thing on that rank -- the diamond's name, wider than the
+# diamond -- and no wider than a separation and a pixel
+func _FtPacked poD
+	_aR_ = poD.RenderNodeRects()
+	_aL_ = poD.@aRenderNodeLabels
+	_nOpR_ = -1000000
+	for _i_ = 1 to len(_aR_)
+		if StzLower("" + _aR_[_i_][5]) = "operator"  _nOpR_ = _aR_[_i_][1] + _aR_[_i_][3]  ok
+	next
+	for _i_ = 1 to len(_aL_)
+		if StzLower("" + _aL_[_i_][1]) = "operator"
+			if _aL_[_i_][2] + _aL_[_i_][4] / 2 > _nOpR_  _nOpR_ = _aL_[_i_][2] + _aL_[_i_][4] / 2  ok
+		ok
+	next
+	_nGap_ = _PnRectX(poD, "spare") - _nOpR_
+	? "   the second tree stands " + _nGap_ + "px from the first"
+	return _nGap_ > 60 and _nGap_ < 130
 
 # the same shape under a plain diagram -- no peer declaration -- keeps
 # the flow rule: the parent stands over the child that continues
