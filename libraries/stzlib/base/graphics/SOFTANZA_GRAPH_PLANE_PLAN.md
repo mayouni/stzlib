@@ -3300,6 +3300,18 @@ picture, which section 29 caught.
 keys beyond the junction's pair, weak entities and Chen's diamond notation
 are not here; the crow's foot is the one notation drawn.
 
+**At the house type size (2026-09-10).** The catalogue and the gate's
+options moved from 150×52 at 13 pt to 150×56 at 20 pt, the size every
+catalogue draws at. It found one inconsistency general to the plane: the
+layout's demand was measured against the caller's cell and divided by the
+caller's slot, while the engine's unit was then multiplied by the tallest
+drawn box plus a separation — so under a left-to-right schema an entity of
+two rows gave nothing back against a 56px cell and was stacked at a
+144px pitch. The slot base is measured once now, and the demand and the
+scale read the same number. What remains between stacked components is
+the engine's family air, 0.4 of a slot, which is the grouping rule and
+stands.
+
 *Guard:* §109, 33 assertions; §91 grew by three pictures. Catalogue:
 `gg_er_catalogue.ring`, er_01 to er_03.
 
@@ -3390,6 +3402,15 @@ same centring DN12 gave a name inside a cell.
 **Said plainly and left out.** Inhibitor arcs, coloured tokens, timed
 transitions, priorities, and any analysis beyond the structural — the
 reachability graph, boundedness, full liveness — are not here.
+
+**At the house type size (2026-09-10).** The catalogue and the gate's
+options moved from 64×64 at 13 pt to 150×56 at 20 pt. The transition came
+out a 20px block: a bar took its thickness as a scale of the cell's extent
+along the flow, which under a left-to-right net is the cell's width — set
+by the widest name in the picture, and a note had widened every cell to
+198px. A bar's thickness is a mark's now, the scale of the smaller cell
+dimension, whichever way the picture runs; the gate's "a bar's box is its
+ink" assertion is what caught it.
 
 *Guard:* §110, 45 assertions; §91 grew by three pictures. Catalogue:
 `gg_petri_catalogue.ring`, petri_01 to petri_03 and petri_01b, the mutex

@@ -12,7 +12,7 @@ load "../../stzBase.ring"
 load "gg_er_scenes.ring"
 
 oFont = new stzFont("C:/Windows/Fonts/segoeui.ttf")
-aOpt = [ :Font = oFont, :NodeWidth = 150, :NodeHeight = 52, :FontSize = 13 ]
+aOpt = [ :Font = oFont, :NodeWidth = 150, :NodeHeight = 56, :FontSize = 20 ]
 
 acTitles = [ "A SHOP                 (five entities and a junction, every relation backed by a key)",
              "THE SAME SHOP, WRONG   (no key, a key to nothing, a relation with no key, a many-to-many with no junction)",

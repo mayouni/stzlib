@@ -1286,14 +1286,20 @@ class stzDiagram from stzGraph
 				@aBoxOf + [ StzLower("" + _nd_[:id]), 0.01, 0.01 ]
 				loop
 			ok
+			# ...AND ITS THICKNESS IS A MARK'S, NOT A CELL'S. The scale
+			# along the flow was taken of the cell's extent along the
+			# flow, and under a left-to-right net that extent is the
+			# cell's WIDTH -- which the widest name in the picture sets.
+			# At the house type size a note widened every cell to 198px
+			# and the transition came out a 20px block. A bar's thickness
+			# is the mark's own: the scale of the smaller cell dimension,
+			# as every other mark is sized, whichever way the picture runs.
 			if StzLower("" + This._NativeShapeOf(_nd_)) = "bar"
 				if This._NativeRankDir() = "LR" or
 				   This._NativeRankDir() = "RL"
-					@aBoxOf + [ StzLower("" + _nd_[:id]),
-						nBoxW * _sc_, nBoxH ]
+					@aBoxOf + [ StzLower("" + _nd_[:id]), _d_, nBoxH ]
 				else
-					@aBoxOf + [ StzLower("" + _nd_[:id]),
-						nBoxW, nBoxH * _sc_ ]
+					@aBoxOf + [ StzLower("" + _nd_[:id]), nBoxW, _d_ ]
 				ok
 				loop
 			ok
@@ -3185,11 +3191,34 @@ class stzDiagram from stzGraph
 			# ROOM. A node whose incoming edge carries a label wider than
 			# the node itself asks for the difference, and its whole rank
 			# spreads to give it.
-			_slot0_ = _nBoxW_
-			if _bSwap_  _slot0_ = _nBoxH_  ok
-			_slot0_ += _nSepN_
+			# ...AND THE SLOT THE DEMAND IS COUNTED IN IS THE SLOT THE
+			# PICTURE IS SCALED BY. The demand was measured against the
+			# caller's cell and divided by the caller's slot, while the
+			# engine's unit was then multiplied by the TALLEST box plus a
+			# separation -- so under a left-to-right schema whose entities
+			# hold two to four rows, an entity of two rows gave nothing
+			# back against a 56px cell and was stacked at a 144px pitch:
+			# 137px of air between rows. The slot base is measured here,
+			# once, and both the demand and the scale read it.
+			_slotB_ = _nBoxW_
+			_pitchB_ = _nBoxH_
+			if _bSwap_
+				_slotB_ = _nBoxH_
+				_pitchB_ = _nBoxW_
+			ok
+			_aPbN43_ = This.Nodes()
+			_nPbN43_ = len(_aPbN43_)
+			for _iPbN43_ = 1 to _nPbN43_
+				_pbN_ = _aPbN43_[_iPbN43_]
+				_pbB_ = This._BoxOf("" + _pbN_[:id], _nBoxW_, _nBoxH_)
+				_pbW_ = _pbB_[1]  _pbH_ = _pbB_[2]
+				if _bSwap_  _pbW_ = _pbB_[2]  _pbH_ = _pbB_[1]  ok
+				if _pbW_ > _slotB_   _slotB_ = _pbW_   ok
+				if _pbH_ > _pitchB_  _pitchB_ = _pbH_  ok
+			next
+			_slot0_ = _slotB_ + _nSepN_
 			_aXtra_ = This._LabelDemand(_oFont_, _nFsz_, _nBoxW_, _nBoxH_,
-				_slot0_, _bSwap_)
+				_slot0_, _bSwap_, _slotB_)
 			# the air a cluster boundary needs, in SLOT units, from the
 			# pixels this face knows: a frame's own padding plus one line
 			# clearance, over the slot it will be measured in
@@ -3231,22 +3260,8 @@ class stzDiagram from stzGraph
 			# Same family as everything else this week -- one quantity,
 			# two sources -- and the fix is the same one: ask the sizes
 			# that exist rather than the size that was requested.
-			_slotB_ = _nBoxW_
-			_pitchB_ = _nBoxH_
-			if _bSwap_
-				_slotB_ = _nBoxH_
-				_pitchB_ = _nBoxW_
-			ok
-			_aPbN43_ = This.Nodes()
-			_nPbN43_ = len(_aPbN43_)
-			for _iPbN43_ = 1 to _nPbN43_
-				_pbN_ = _aPbN43_[_iPbN43_]
-				_pbB_ = This._BoxOf("" + _pbN_[:id], _nBoxW_, _nBoxH_)
-				_pbW_ = _pbB_[1]  _pbH_ = _pbB_[2]
-				if _bSwap_  _pbW_ = _pbB_[2]  _pbH_ = _pbB_[1]  ok
-				if _pbW_ > _slotB_   _slotB_ = _pbW_   ok
-				if _pbH_ > _pitchB_  _pitchB_ = _pbH_  ok
-			next
+			# (the slot base was measured above, before the demands were
+			# sent -- ONE number for the demand and the scale)
 			_slot_ = _slotB_ + _nSepN_
 			_pitch_ = _pitchB_ + _nSepR_
 			# unit-true x: 1.0 = one minimum separation, so span * slot IS
@@ -9817,7 +9832,7 @@ class stzDiagram from stzGraph
 		ok
 		return _deW_
 
-	def _LabelDemand(oFont, nFsz, nBoxW, nBoxH, nSlot, bSwap)
+	def _LabelDemand(oFont, nFsz, nBoxW, nBoxH, nSlot, bSwap, pnCellA)
 		_ids_ = This.NodesIds()
 		_nn_ = len(_ids_)
 		_dem_ = []
@@ -9836,6 +9851,9 @@ class stzDiagram from stzGraph
 		# slot. The engine's demand() accepts the sign since this commit.
 		_cellA_ = nBoxW
 		if bSwap  _cellA_ = nBoxH  ok
+		# the slot base actually used -- the widest drawn box -- when the
+		# caller measured it; a node narrower than THAT gives room back
+		if isNumber(pnCellA) and pnCellA > _cellA_  _cellA_ = pnCellA  ok
 		for _i_ = 1 to _nn_
 			_dw_ = This._DrawnExtentOf(_ids_[_i_], nBoxW, nBoxH, bSwap,
 				oFont, nFsz)

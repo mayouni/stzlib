@@ -906,8 +906,8 @@ chk("...and it buys its room in the GAP, the cheap axis",
 chkeq("...leaving the scarce axis alone", oWC.Width(), oSC.Width())
 
 SLOT = 70 + floor(oShort.NodeSeparation() * 96)
-aDS = oShort._LabelDemand(SFONT, 14, 70, 40, SLOT, 0)
-aDW = oWide._LabelDemand(SFONT, 14, 70, 40, SLOT, 0)
+aDS = oShort._LabelDemand(SFONT, 14, 70, 40, SLOT, 0, 70)
+aDW = oWide._LabelDemand(SFONT, 14, 70, 40, SLOT, 0, 70)
 ? "   demand, short : " + @@(aDS)
 ? "   demand, wide  : " + @@(aDW)
 chkeq("a short label demands nothing at all", _MaxOf(aDS), 0)
@@ -920,7 +920,7 @@ chkeq("...and neither does a wide one, once it is wrapped",
 # had been implemented as "labels never demand width", this is the line
 # that catches it.
 oUnbr = _Fan("WWWWWWWWWWWWWWWWWWWW")
-aDU = oUnbr._LabelDemand(SFONT, 14, 70, 40, SLOT, 0)
+aDU = oUnbr._LabelDemand(SFONT, 14, 70, 40, SLOT, 0, 70)
 ? "   demand, one unbreakable word : " + @@(aDU)
 chk("a label that CANNOT wrap still demands width", _MaxOf(aDU) > 0.2)
 chkeq("the source of a labelled edge demands nothing", aDU[1], 0)
@@ -8705,7 +8705,8 @@ chk("...and a box is not", oF._IsBranchCell("src") = 0)
 
 
 OPTGOV = [ :Font = EFONT, :NodeWidth = 130, :NodeHeight = 52, :FontSize = 14 ]
-OPTPN2 = [ :Font = EFONT, :NodeWidth = 64, :NodeHeight = 64, :FontSize = 13 ]
+OPTPN2 = [ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56, :FontSize = 20 ]
+OPTER2 = [ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56, :FontSize = 20 ]
 OPTFT2 = [ :Font = EFONT, :NodeWidth = 120, :NodeHeight = 52, :FontSize = 13 ]
 OPTFM2 = [ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56, :FontSize = 20 ]
 
@@ -13518,9 +13519,9 @@ next
 # findings are not the plastic gate's to count. The shop stands on the
 # fan rule's boundary: an entity whose two relations are marked where
 # they leave it is a counter-subject, not a fan.
-aOgP + [ "er/shop", StzErScene01(OPTGOV) ]
-aOgP + [ "er/wrong", StzErScene02(OPTGOV) ]
-aOgP + [ "er/participation", StzErSceneParticipation(OPTGOV) ]
+aOgP + [ "er/shop", StzErScene01(OPTER2) ]
+aOgP + [ "er/wrong", StzErScene02(OPTER2) ]
+aOgP + [ "er/participation", StzErSceneParticipation(OPTER2) ]
 # AND THE PETRI NETS (DN16): the mutex, whose four returns run under one
 # row; the buffer with its weights; and the witness with one of each
 # mistake. Notation pictures, judged by the plastic rules -- two of
@@ -14854,10 +14855,11 @@ chk("the list the witness inherited still carries the author's first mistake",
 
 sec("-- 109. DN15: AN ENTITY-RELATIONSHIP DIAGRAM -- A SCHEMA WITH A PICTURE ---")
 discharges("DN15")
+OPTER = [ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56, :FontSize = 20 ]
 
 # THE NOTATION: entities as boxes with attribute compartments, relations
 # as lines with their cardinality at BOTH ends and no arrowhead at all.
-oErS = StzErScene01(OPTGOV)
+oErS = StzErScene01(OPTER)
 chk("declaring the notation puts the picture under it, undirected",
     oErS.NotationO().Name_() = "er" and NOT oErS.NotationO().EdgesDirected())
 chkeq("...so no arrowhead is drawn on any relation", len(oErS.RenderArrows()), 0)
@@ -14873,7 +14875,7 @@ chk("a one-to-many carries a bar at its source and a crow's foot at its target",
     _ErEnd(oErS, "customer>order", "source") = "one" and _ErEnd(oErS, "customer>order", "target") = "many")
 chkeq("five relations, ten cardinalities and two participations -- every end says something, two say more",
       len(oErS.RenderAdornments()), 12)
-oErJ = StzErSceneJunction(OPTGOV)
+oErJ = StzErSceneJunction(OPTER)
 chk("a many-to-many carries a crow's foot at both ends",
     _ErEnd(oErJ, "student>course", "source") = "many" and _ErEnd(oErJ, "student>course", "target") = "many")
 
@@ -14884,7 +14886,7 @@ chk("a many-to-many backed by a junction holding keys to both sides passes",
     len(oErJ.GovernanceFindings()) = 0)
 
 # THE WITNESS: one of each mistake, by name.
-oErW = StzErScene02(OPTGOV)
+oErW = StzErScene02(OPTER)
 aErF = oErW.GovernanceFindings()
 ? "   witness : " + len(aErF) + " findings"
 chk("an entity with no primary key is caught, by name",
@@ -14914,11 +14916,11 @@ chk("'an order always has a customer' is a bar at the customer end, 'a customer 
 chk("NEGATIVE: an end that declares nothing publishes no participation",
     _ErPart(oErS, "order>line", "source") = "" and _ErPart(oErS, "order>line", "target") = "")
 chk("a nullable column reads so in the compartment",
-    _ErAttrsAre(StzErSceneParticipation(OPTGOV), "emp", [ "PK id", "name", "FK dept_id -> dept (nullable)" ]))
+    _ErAttrsAre(StzErSceneParticipation(OPTER), "emp", [ "PK id", "name", "FK dept_id -> dept (nullable)" ]))
 
 # ...AND THE MARK IS HELD TO THE COLUMN. "An order always has a customer"
 # is a bar on a line and a NOT NULL on a column: one claim made twice.
-oErP = StzErSceneParticipation(OPTGOV)
+oErP = StzErSceneParticipation(OPTER)
 aErPF = oErP.GovernanceFindings()
 chk("a ring at the key's target end over a column that is not nullable is caught, naming both",
     _ErFound(aErPF, "participation_matches_nullability", "'User' end is declared optional and the key behind it, 'Ticket.assignee_id', is not nullable"))
@@ -14967,7 +14969,7 @@ discharges("DN16")
 # THE NOTATION: places as circles with their names outside, transitions
 # as bars, arcs directed and read left to right. The inside of a place is
 # for its tokens, and the notation says so once, per kind.
-OPTPN = [ :Font = EFONT, :NodeWidth = 64, :NodeHeight = 64, :FontSize = 13 ]
+OPTPN = [ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56, :FontSize = 20 ]
 oPnM = StzPetriScene01(OPTPN)
 chk("the notation is directed and reads left to right",
     oPnM.NotationO().Name_() = "petri" and oPnM.NotationO().EdgesDirected())
