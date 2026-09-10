@@ -3190,7 +3190,6 @@ class stzDiagram from stzGraph
 			_slot0_ += _nSepN_
 			_aXtra_ = This._LabelDemand(_oFont_, _nFsz_, _nBoxW_, _slot0_,
 				_bSwap_)
-
 			# the air a cluster boundary needs, in SLOT units, from the
 			# pixels this face knows: a frame's own padding plus one line
 			# clearance, over the slot it will be measured in
@@ -3516,6 +3515,14 @@ class stzDiagram from stzGraph
 			# quietly correcting this at the catalogue's size, which is
 			# why a fix verified there was unverified here: WHICH PATH
 			# RUNS DEPENDS ON THE SIZE. Measured, and left as the finding.
+			# THE TREES OF A FOREST ARE PACKED before the paper is fitted,
+			# for a notation whose children are peers -- see
+			# _PackPeerSubtrees; the routes the engine reserved follow.
+			if This._NotationPeerChildren()
+				_aPk_ = This._PackPeerSubtrees(_aXY_, _nBoxW_, _nBoxH_, _nSepN_)
+				_aXY_ = _aPk_[1]
+				_aRoute_ = This._ShiftRoutes(_aRoute_, _aPk_[2])
+			ok
 			_aFit_ = This._FitPaperToDrawing(_aXY_, _nBoxW_, _nBoxH_,
 				_nW_, _nH_, _nScl_)
 			_aXY_ = _aFit_[1]
@@ -11453,7 +11460,13 @@ class stzDiagram from stzGraph
 			for _iCcU40_ = 1 to _nCcU40_
 				_ccU_ = _aCcU40_[_iCcU40_]
 				if _ccU_[3] = _ccS_  loop  ok
-				if _ccHi_ > _ccU_[1] and _ccLo_ < _ccU_[2] and
+				# ...AND TWO FOREIGN CHANNELS THAT MEET END TO END ARE ONE
+				# LINE TO THE EYE. The overlap test let two fans out of two
+				# gates share a row when their spans only TOUCHED -- at the
+				# leaf both gates feed -- and the picture drew one rule
+				# across the whole tree, two origins read as one. Spans
+				# closer than a clearance contend like overlapping ones.
+				if _ccHi_ > _ccU_[1] - _ccClr_ and _ccLo_ < _ccU_[2] + _ccClr_ and
 				   fabs(_ccCand_ - _ccU_[4]) < _ccClr_ * 0.9
 					_ccBad_ = 1
 					exit
@@ -12212,7 +12225,7 @@ class stzDiagram from stzGraph
 					_oc1_ = This._ClaimChannel(_oc1_, _p_[1], _ofx_,
 						cFromId, _p_[2], _ob1_[2], cFromId, cToId, 0)
 					_oc1_ = This._FanChannel(cFromId, _oc1_, _p_[2], _ob1_[2],
-						_p_[1], _ofx_, cToId, 0, nWidth)
+						_p_[1], _ofx_, cToId, 0, nWidth, 0)
 					_flat_ + _p_[1]   _flat_ + _p_[2]
 					_flat_ + _p_[1]   _flat_ + _oc1_
 					_flat_ + _ofx_    _flat_ + _oc1_
@@ -12227,7 +12240,7 @@ class stzDiagram from stzGraph
 					# belongs to the fan at the source like any other
 					if fabs(_obl_[2] - _ob1_[2]) < 1
 						_oc2_ = This._FanChannel(cFromId, _oc2_, _p_[2], _q_[2],
-							_p_[1], _q_[1], cToId, 0, nWidth)
+							_p_[1], _q_[1], cToId, 0, nWidth, 0)
 					ok
 					_flat_ + _p_[1]   _flat_ + _p_[2]
 					_flat_ + _p_[1]   _flat_ + _oc2_
@@ -12237,7 +12250,7 @@ class stzDiagram from stzGraph
 					_oc1_ = This._ClaimChannel(_oc1_, _p_[1], _ofx_,
 						cFromId, _p_[2], _ob1_[2], cFromId, cToId, 0)
 					_oc1_ = This._FanChannel(cFromId, _oc1_, _p_[2], _ob1_[2],
-						_p_[1], _ofx_, cToId, 0, nWidth)
+						_p_[1], _ofx_, cToId, 0, nWidth, 0)
 					_oc2_ = This._ChannelBand(_oc2_, _ofx_, _q_[1],
 						cFromId, cToId, 0, _obl_[2], _q_[2])
 					_oc2_ = This._ClaimChannel(_oc2_, _ofx_, _q_[1],
@@ -13272,8 +13285,13 @@ class stzDiagram from stzGraph
 				# fiction
 				_chan_ = This._ChannelBand(_chan_, _pax_, _qax_,
 					cFromId, cToId, 0, _pe_, _qe_)
+				_chPre_ = _chan_
 				_chan_ = This._ClaimChannel(_chan_, _pax_, _qax_,
 					cFromId, _pe_, _qe_, cFromId, cToId, 0)
+				# stepped off a row a foreign source holds -- read by the
+				# fan, which follows the member that had to move
+				_chStp_ = 0
+				if fabs(_chan_ - _chPre_) > 0.5  _chStp_ = 1  ok
 				# THE RUNG IT WAS GIVEN, if it was given one -- see
 				# _PlanRowLanes. Falling back to "below the rails" is
 				# what produced the uneven spacing; a rung is a rung.
@@ -13339,7 +13357,7 @@ class stzDiagram from stzGraph
 				# fan shares its departure border and only the far border
 				# differs.
 				_chan_ = This._FanChannel(cFromId, _chan_, _pe_, _qe_,
-					_pax_, _qax_, cToId, 0, nWidth)
+					_pax_, _qax_, cToId, 0, nWidth, _chStp_)
 
 				# A DESCENT THAT WOULD LIE ON ANOTHER COMES IN FROM THE
 				# SIDE INSTEAD.
@@ -13662,7 +13680,7 @@ class stzDiagram from stzGraph
 	# channel nearest the departure border, which is legal for every
 	# member because they share that border. An edge going the other way
 	# (a return) is not a member of the fan below.
-	def _FanChannel(cFromId, nChan, nPe, nQe, nSpanA, nSpanB, cToId, bVert, nWidth)
+	def _FanChannel(cFromId, nChan, nPe, nQe, nSpanA, nSpanB, cToId, bVert, nWidth, bStepped)
 		_fcS_ = StzLower("" + cFromId)
 		if nQe <= nPe  return nChan  ok
 		# A STRAIGHT LINE HAS NO CHANNEL TO SHARE -- the same clause the
@@ -13672,7 +13690,30 @@ class stzDiagram from stzGraph
 		# lengths, which is what section 35 measured at 88px.
 		if fabs(nSpanA - nSpanB) < 2  return nChan  ok
 		if @nDrawPass = 1
-			@aFanFinal + [ _fcS_, nChan, nQe ]
+			@aFanFinal + [ _fcS_, nChan, nQe, bStepped ]
+			return nChan
+		ok
+		# A MEMBER STEPPED CLEAR OF A FOREIGN FAN TAKES ITS FAN WITH IT.
+		# The tightest channel is the fan's unless one member had to step
+		# off a row another source holds; then the fan goes to that
+		# member's row, if the row is lawful for this member -- else this
+		# member keeps its own. Two fans that meet end to end at a shared
+		# leaf take two rows this way, a clearance apart.
+		_fcHead_ = This._LineClearance()
+		if This._EdgesAreDirected()  _fcHead_ += 9 + nWidth * 2  ok
+		_fcTol_ = This._LineClearance() * 1.5
+		_fcStep_ = -1000000
+		for _iFc_ = 1 to len(@aFanFinal)
+			if @aFanFinal[_iFc_][1] != _fcS_  loop  ok
+			if fabs(@aFanFinal[_iFc_][3] - nQe) > _fcTol_  loop  ok
+			if len(@aFanFinal[_iFc_]) < 4 or NOT @aFanFinal[_iFc_][4]  loop  ok
+			if @aFanFinal[_iFc_][2] > _fcStep_  _fcStep_ = @aFanFinal[_iFc_][2]  ok
+		next
+		if _fcStep_ > -999999
+			if _fcStep_ >= nPe + This._LineClearance() and _fcStep_ <= nQe - _fcHead_ and
+			   This._LegIsClear(_fcStep_, nSpanA, nSpanB, cFromId, cToId, bVert)
+				return _fcStep_
+			ok
 			return nChan
 		ok
 		# ...AND ONLY THE MEMBERS THAT LAND IN THE SAME GAP. A source
@@ -13689,8 +13730,6 @@ class stzDiagram from stzGraph
 		# puts their channels in different bands, and a share across the
 		# band pushed a stem 88px off its drop.
 		_fcBest_ = nChan
-		_fcTol_ = This._LineClearance() * 1.5
-		_fcHead_ = 9 + nWidth * 2 + This._LineClearance()
 		for _iFc_ = 1 to len(@aFanFinal)
 			if @aFanFinal[_iFc_][1] != _fcS_  loop  ok
 			if fabs(@aFanFinal[_iFc_][3] - nQe) > _fcTol_  loop  ok
@@ -13711,13 +13750,19 @@ class stzDiagram from stzGraph
 		if nChan > _cbRail_ + _cbClr_  return nChan  ok
 		_cbWant_ = _cbRail_ + _cbClr_
 		# ...but never past the border it is about to arrive at
-		_cbHead_ = 9 + nWidth * 2 + _cbClr_
+		_cbHead_ = _cbClr_
+		if This._EdgesAreDirected()  _cbHead_ += 9 + nWidth * 2  ok
 		if _cbWant_ > nQe - _cbHead_  _cbWant_ = nQe - _cbHead_  ok
 		if _cbWant_ < nChan  return nChan  ok
 		return _cbWant_
 
 	def _ChannelClear(nChan, nPe, nQe, nWidth)
-		_ccHead_ = 9 + nWidth * 2 + This._LineClearance()
+		# the head's length is reserved only where a head is drawn: an
+		# undirected notation kept 13px for a head that never came, and
+		# that was the room a second fan needed to step a clearance
+		# clear of the first
+		_ccHead_ = This._LineClearance()
+		if This._EdgesAreDirected()  _ccHead_ += 9 + nWidth * 2  ok
 		_ccFoot_ = This._LineClearance()
 		_ccLo_ = nPe  _ccHi_ = nQe
 		_ccSg_ = 1
@@ -14058,6 +14103,136 @@ class stzDiagram from stzGraph
 		_edO_ = This.NotationO()
 		if NOT isObject(_edO_)  return 1  ok
 		return _edO_.EdgesDirected()
+
+	# PACK THE TREES OF A FOREST, on their drawn boxes. The layout spaces
+	# every node as a full cell, so two marks a third of the cell wide
+	# stood a cell and a half apart, and a second root's chain 216px from
+	# the first tree's last leaf -- the "lot of space" the Principal
+	# marked. Reingold-Tilford's contract, done here on what will be
+	# drawn: each tree, in order of its leftmost member, is shifted as a
+	# rigid block until on some rank it stands one separation from the
+	# trees before it. A rigid shift disturbs nothing inside the tree, so
+	# every centring and spine the engine settled survives. Names written
+	# beneath a mark count as the mark's width, so a wide name never
+	# lands under its neighbour.
+	#
+	# Returns [ the moved positions, [ [ id, dx ] ... ] ] so the routes
+	# the engine reserved can follow their nodes.
+	def _PackPeerSubtrees(paXY, nBoxW, nBoxH, nSep)
+		_pkN_ = len(paXY)
+		if _pkN_ < 2  return [ paXY, [] ]  ok
+		_aPkId_ = []
+		for _i_ = 1 to _pkN_  _aPkId_ + StzLower("" + paXY[_i_][1])  next
+		# forward edges only: a return goes up the picture and joins no tree
+		_aPkKids_ = []
+		_aPkIn_ = []
+		for _i_ = 1 to _pkN_  _aPkKids_ + []  _aPkIn_ + 0  next
+		_aPkE_ = This.Edges()
+		for _e_ = 1 to len(_aPkE_)
+			_u_ = 0  _v_ = 0
+			_cU_ = StzLower("" + _aPkE_[_e_][:from])
+			_cV_ = StzLower("" + _aPkE_[_e_][:to])
+			for _i_ = 1 to _pkN_
+				if _aPkId_[_i_] = _cU_  _u_ = _i_  ok
+				if _aPkId_[_i_] = _cV_  _v_ = _i_  ok
+			next
+			if _u_ = 0 or _v_ = 0 or _u_ = _v_  loop  ok
+			if paXY[_v_][3] <= paXY[_u_][3] + 1.5  loop  ok
+			_aPkKids_[_u_] + _v_
+			_aPkIn_[_v_]++
+		next
+		# each node belongs to the first root that reaches it
+		_aPkTree_ = []
+		for _i_ = 1 to _pkN_  _aPkTree_ + 0  next
+		_nPkT_ = 0
+		for _r_ = 1 to _pkN_
+			if _aPkIn_[_r_] > 0 or _aPkTree_[_r_] > 0  loop  ok
+			_nPkT_++
+			_aPkStack_ = [ _r_ ]
+			while len(_aPkStack_) > 0
+				_c_ = _aPkStack_[len(_aPkStack_)]
+				del(_aPkStack_, len(_aPkStack_))
+				if _aPkTree_[_c_] > 0  loop  ok
+				_aPkTree_[_c_] = _nPkT_
+				for _k_ = 1 to len(_aPkKids_[_c_])  _aPkStack_ + _aPkKids_[_c_][_k_]  next
+			end
+		next
+		if _nPkT_ < 2  return [ paXY, [] ]  ok
+		# the drawn extent of every node, its name beneath included
+		_aPkL_ = []  _aPkR_ = []
+		for _i_ = 1 to _pkN_
+			_b_ = This._BoxOf(_aPkId_[_i_], nBoxW, nBoxH)
+			_w_ = _b_[1]
+			if This._WritesNameBelow(_aPkId_[_i_]) and isObject(@oBoxFont)
+				_nw_ = @oBoxFont.WidthOf("" + This._LabelTextOf(_aPkId_[_i_]), @nFszNow) + 6
+				if _nw_ > _w_  _w_ = _nw_  ok
+			ok
+			_aPkL_ + (paXY[_i_][2] - _w_ / 2)
+			_aPkR_ + (paXY[_i_][2] + _w_ / 2)
+		next
+		# trees in order of their leftmost member
+		_aPkOrd_ = []
+		for _t_ = 1 to _nPkT_
+			_m_ = 1000000000
+			for _i_ = 1 to _pkN_
+				if _aPkTree_[_i_] = _t_ and _aPkL_[_i_] < _m_  _m_ = _aPkL_[_i_]  ok
+			next
+			_aPkOrd_ + [ _m_, _t_ ]
+		next
+		_aPkOrd_ = sort(_aPkOrd_, 1)
+		_aOut_ = []
+		for _i_ = 1 to _pkN_  _aOut_ + [ paXY[_i_][1], paXY[_i_][2], paXY[_i_][3] ]  next
+		_aPkShift_ = []
+		_aPkDone_ = []
+		for _t_ = 1 to _nPkT_  _aPkDone_ + 0  next
+		_aPkDone_[ _aPkOrd_[1][2] ] = 1
+		for _o_ = 2 to _nPkT_
+			_t_ = _aPkOrd_[_o_][2]
+			_nNeed_ = -1000000000
+			_bAny_ = 0
+			for _i_ = 1 to _pkN_
+				if _aPkTree_[_i_] != _t_  loop  ok
+				# the rightmost placed box on this node's rank
+				_nRt_ = -1000000000
+				for _j_ = 1 to _pkN_
+					if _aPkDone_[ _aPkTree_[_j_] ] != 1  loop  ok
+					if fabs(_aOut_[_j_][3] - _aOut_[_i_][3]) > 1.5  loop  ok
+					if _aPkR_[_j_] > _nRt_  _nRt_ = _aPkR_[_j_]  ok
+				next
+				if _nRt_ < -999999999  loop  ok
+				_bAny_ = 1
+				_d_ = _nRt_ + nSep - _aPkL_[_i_]
+				if _d_ > _nNeed_  _nNeed_ = _d_  ok
+			next
+			if _bAny_ and fabs(_nNeed_) > 0.5
+				for _i_ = 1 to _pkN_
+					if _aPkTree_[_i_] != _t_  loop  ok
+					_aOut_[_i_][2] += _nNeed_
+					_aPkL_[_i_] += _nNeed_
+					_aPkR_[_i_] += _nNeed_
+					_aPkShift_ + [ _aPkId_[_i_], _nNeed_ ]
+				next
+			ok
+			_aPkDone_[_t_] = 1
+		next
+		return [ _aOut_, _aPkShift_ ]
+
+	# the routes' bends follow the nodes their edge joins
+	def _ShiftRoutes(paRoutes, paShift)
+		if len(paShift) = 0  return paRoutes  ok
+		_aOut_ = []
+		for _i_ = 1 to len(paRoutes)
+			_dx_ = 0
+			for _k_ = 1 to len(paShift)
+				if paShift[_k_][1] = StzLower("" + paRoutes[_i_][1])  _dx_ = paShift[_k_][2]  exit  ok
+			next
+			_aB_ = []
+			for _j_ = 1 to len(paRoutes[_i_][3])
+				_aB_ + [ paRoutes[_i_][3][_j_][1] + _dx_, paRoutes[_i_][3][_j_][2] ]
+			next
+			_aOut_ + [ paRoutes[_i_][1], paRoutes[_i_][2], _aB_ ]
+		next
+		return _aOut_
 
 	# 1 when the notation declares a parent's children peers -- no child
 	# continues the parent, so the layout centres it over all it owns

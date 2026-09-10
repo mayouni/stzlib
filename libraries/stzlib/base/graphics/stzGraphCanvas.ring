@@ -1825,6 +1825,17 @@ class stzGraphCanvas from stzObject
 			# points at) computes it; this tier only carries it.
 			_xtra_ = This._Opt(:NodeExtra, [])
 			if NOT isList(_xtra_)  _xtra_ = []  ok
+			# THE DUMMIES DEMAND NOTHING, AND THE REAL NODES KEEP WHAT THEY
+			# ASKED. The face sends one demand per REAL node; this tier
+			# counts nodes WITH the dummies a long edge adds, and on any
+			# length mismatch threw the whole list away -- so every
+			# picture with one edge spanning two ranks lost its label
+			# demands silently. A list the length of the real nodes is
+			# padded with zeros for the dummies; only a list of some other
+			# length is refused.
+			if len(_xtra_) = _nReal_ and _n_ > _nReal_
+				for _i_ = _nReal_ + 1 to _n_  _xtra_ + 0  next
+			ok
 			if len(_xtra_) != _n_
 				_xtra_ = []
 				for _i_ = 1 to _n_  _xtra_ + 0  next

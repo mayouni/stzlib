@@ -3470,11 +3470,31 @@ mark are one line by the mark's own law, and under a peers notation no line
 enters a cell's side — the repeated sensor is now entered from above by
 both gates, on one drop.
 
+**A third round, three more.** *Two fans read as one rule.* Their channels
+met end to end at the shared leaf, and the claim registry let two foreign
+spans share a row when they only touched; spans closer than a clearance now
+contend like overlapping ones, and the second fan takes the next row. *A
+gate stood off its middle input.* The span's middle is the middle child only
+when the children are evenly spaced; among peers an odd count now stands
+over the median child, a column the reader already sees. *A second tree
+stood a cell and a half from the first.* The layout spaces every node as a
+full cell, so two marks a third of the cell wide were a cell and a half
+apart. Two engine remedies were tried and reverted the same night — a
+negative demand shrank the cells and truncated the names, and pulling a
+subtree left in the territory pass landed it inside another family's band,
+which section 6 caught — and the answer is a Ring-side pass on the drawn
+boxes, for peers notations only: each tree of the forest is shifted as a
+rigid block until it stands one separation from the trees before it on some
+rank, names beneath marks counting as the mark's width, and the engine's
+reserved routes follow their nodes. And a length guard in the layout canvas
+threw away the whole label-demand list whenever a long edge added a dummy;
+the real nodes keep what they asked and the dummies demand nothing.
+
 **Said plainly and left out.** NOT, voting and inhibit gates, transfer
 symbols, common-cause groups, importance measures, and the exact sum above
 twelve cut sets. The gates draw for a top-down tree only.
 
-*Guard:* §111, 41 assertions; §91 grew by three pictures. Catalogue:
+*Guard:* §111, 44 assertions; §91 grew by three pictures. Catalogue:
 `gg_fault_catalogue.ring`, fault_01 to fault_03.
 
 ## DN9 — THE TOLD PICTURE: a narration is facts made visible, in an order (planned 2026-09-06, SHIPPED 2026-09-07 as DN9a through DN9g, all seven closed)
