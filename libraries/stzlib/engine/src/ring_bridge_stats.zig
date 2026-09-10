@@ -23,6 +23,7 @@ const pca_mod = @import("pca.zig");
 const tsne_mod = @import("tsne.zig");
 const tsne_gpu = @import("tsne_gpu.zig");
 const umap_gpu = @import("umap_gpu.zig");
+const kmeans_gpu = @import("kmeans_gpu.zig");
 const umap_mod = @import("umap.zig");
 const pumap_mod = @import("pumap.zig");
 const decoder_mod = @import("decoder.zig");
@@ -2838,6 +2839,92 @@ fn ring_UmapKnn(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// GS7: k-means' device seam -- the work gate, counters, and a guard's door past the gate
+fn ring_KMeansGpuSetMinWork(p: *anyopaque) callconv(.c) void {
+    kmeans_gpu.stz_kmeans_gpu_set_min_work(g(p, 1));
+    rn(p, 1);
+}
+fn ring_KMeansGpuMinWork(p: *anyopaque) callconv(.c) void {
+    rn(p, kmeans_gpu.stz_kmeans_gpu_min_work());
+}
+fn ring_KMeansGpuCounter(p: *anyopaque) callconv(.c) void {
+    rn(p, kmeans_gpu.stz_kmeans_gpu_counter(@intFromFloat(g(p, 1))));
+}
+fn ring_KMeansGpuCountersReset(p: *anyopaque) callconv(.c) void {
+    kmeans_gpu.stz_kmeans_gpu_counters_reset();
+    rn(p, 1);
+}
+
+// StzEngineKMeansGpuRun(aFlat, n, d, k, maxIter) -> the same answer shape as
+// StzEngineKMeansRun, the iterations forced onto the device past its gate
+// (the seed scan stays the CPU's); 0 when the device refuses
+fn ring_KMeansGpuRun(p: *anyopaque) callconv(.c) void {
+    const pts = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(pts);
+    const n: usize = @intFromFloat(g(p, 2));
+    const d: usize = @intFromFloat(g(p, 3));
+    const k: usize = @intFromFloat(g(p, 4));
+    const max_iter: usize = @intFromFloat(g(p, 5));
+    if (n == 0 or d == 0 or k == 0 or k > n or pts.len != n * d) {
+        rn(p, 0);
+        return;
+    }
+    const cent = allocator.alloc(f64, k * d) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(cent);
+    const asg = allocator.alloc(i32, n) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(asg);
+    // the CPU's seed: the first k distinct points, in input order
+    var seeded: usize = 0;
+    var i: usize = 0;
+    while (i < n and seeded < k) : (i += 1) {
+        const row = pts[i * d ..][0..d];
+        var dup = false;
+        var c: usize = 0;
+        while (c < seeded) : (c += 1) {
+            var same = true;
+            for (row, cent[c * d ..][0..d]) |a, b| {
+                if (a != b) same = false;
+            }
+            if (same) {
+                dup = true;
+                break;
+            }
+        }
+        if (!dup) {
+            @memcpy(cent[seeded * d ..][0..d], row);
+            seeded += 1;
+        }
+    }
+    if (seeded < k) {
+        rn(p, 0);
+        return;
+    }
+    const cnt = allocator.alloc(usize, k) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(cnt);
+    const iters = kmeans_gpu.run(pts, n, d, k, max_iter, cent, asg, cnt, true) orelse {
+        rn(p, 0);
+        return;
+    };
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_list_adddouble(out, @floatFromInt(iters));
+    R.ring_list_adddouble(out, @floatFromInt(seeded));
+    for (cent) |v| R.ring_list_adddouble(out, v);
+    for (asg) |v| R.ring_list_adddouble(out, @floatFromInt(v));
+    R.ring_vm_api_retlist(p, out);
+}
+
 fn ring_TsneGpuRuntimePath(p: *anyopaque) callconv(.c) void {
     const ptr = R.ring_vm_api_getstring(p, 1);
     const len = R.ring_vm_api_getstringsize(p, 1);
@@ -3519,6 +3606,11 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginepcafit", .func = &ring_PcaFit },
     .{ .name = "stzenginetsne", .func = &ring_Tsne },
     // GS6a: the t-SNE epoch on the GPU
+    .{ .name = "stzenginekmeansgpusetminwork", .func = &ring_KMeansGpuSetMinWork },
+    .{ .name = "stzenginekmeansgpuminwork", .func = &ring_KMeansGpuMinWork },
+    .{ .name = "stzenginekmeansgpucounter", .func = &ring_KMeansGpuCounter },
+    .{ .name = "stzenginekmeansgpucountersreset", .func = &ring_KMeansGpuCountersReset },
+    .{ .name = "stzenginekmeansgpurun", .func = &ring_KMeansGpuRun },
     .{ .name = "stzengineumapgpusetminn", .func = &ring_UmapGpuSetMinN },
     .{ .name = "stzengineumapgpuminn", .func = &ring_UmapGpuMinN },
     .{ .name = "stzengineumapgpusetknnminn", .func = &ring_UmapGpuSetKnnMinN },

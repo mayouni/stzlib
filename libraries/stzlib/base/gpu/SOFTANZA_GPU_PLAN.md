@@ -1815,3 +1815,90 @@ each other's spread while every point's neighbours are still its own;
 counted, each with the CPU as truth. Named, not built: a first-error
 slot in gpu.zig; GK2b/GK3; GS7 (k-means on pairdist) is the GPU
 plane's next item on the author's word.
+
+---
+
+## GS7 STATUS — shipped 2026-09-10: k-means assignment on the device, the CPU's bits kept
+
+Guard: `base/test/learning/learning_kmeans_gpu_narrated.ring` — **21
+asserts green**. Gates: `mlfloor_narrated` (the face's own) **36 green**;
+Zig `cluster.zig` 27 tests, `kmeans_gpu.zig` 7.
+
+**What the plan line asked, and what was found on the way.** "k-means
+assignment on the pairdist kernel with an index-order tie rule and a
+segmented centroid reduction." The first cut did exactly that — a fused
+argmin per point, one workgroup per cluster for the means, eight
+iterations per submit — and it was fast and **wrong on the law**: at
+100k × 64 into 16 with the deterministic seed (the first 16 distinct
+points, all in one blob) it sent whole blobs to a different seed than
+the CPU did. Measured, the runner-up seed sat **1e-6 to 1e-4 relative**
+from the winner — inside f32's rounding over 64 accumulated terms — and
+the CPU itself did not move under a 1e-9 perturbation of the data. Not
+a bug: a near-tie f64 resolves and f32 cannot. And k-means here is
+**deterministic by law**: two runs on the same data agree. A device
+that answered differently the moment a corpus crossed the gate, or a
+machine had a GPU, would break that law on the answer itself.
+
+**What shipped** (`engine/src/kmeans_gpu.zig`, on the stats DLL's
+device):
+
+- **The device assigns and certifies.** One thread per point, the
+  points transposed on upload so a warp reads consecutive words, four
+  centroids per pass through the row, the argmin fused (no n×k matrix
+  is written). The kernel keeps the runner-up and **flags** every
+  point whose two best centroids are within f32's error bound
+  (`d · 2.4e-7 · (best + second)`), an exact tie included, into a
+  compact list by an atomic counter.
+- **The CPU decides and updates in f64.** Every flagged point is
+  re-decided by `cluster.nearestCentroid` — the CPU's own strict `<`
+  in index order — and the update runs through
+  `cluster.updateCentroids`, the CPU loop's own code, refactored out so
+  there is ONE definition. The device only ever sees f32 copies of f64
+  centroids. Labels, iteration count and centroids are therefore the
+  CPU's **bits**, which the guard asserts (max |Δ| = 0 on the
+  centroids).
+- The iteration is one submit and one readback; the CPU is in the
+  loop, so iterations cannot batch, and the gate is on the WORK of one
+  iteration: `n·k·d ≥ 64 M` (`StzEngineKMeansGpuSetMinWork`). Counters:
+  iterations, fallbacks, runs, and **points resolved by the CPU** — a
+  guard can read how much f32 could not certify. `stzKMeans.Run()`
+  unchanged.
+
+**Measured, this run, blobs in contiguous blocks (every seed in blob 0,
+near-ties everywhere in the first iteration), per iteration by the
+difference of a one-iteration call and the full call:**
+
+| n × d into k | terms/iter | CPU ms/it | device ms/it | per iteration | whole call |
+|---|---|---|---|---|---|
+| 50,000 × 16 into 8 | 6.4 M | 2.5 | 1.3 | 2.0x | 1.1x |
+| 200,000 × 16 into 8 | 25.6 M | 9.3 | 5.0 | 1.9x | 1.3x |
+| 100,000 × 32 into 32 | 102 M | 18.5 | 4.5 | 4.1x | 1.8x |
+| 50,000 × 128 into 32 | 205 M | 24.6 | 5.8 | 4.3x | 1.7x |
+| 20,000 × 256 into 64 | 328 M | 48.9 | 8.0 | **6.1x** | **3.1x** |
+
+Labels differed from the CPU's in **0** cases at every size. The whole
+call carries a fixed cost the CPU does not — the transposed f32 upload,
+and on this seed the first iteration's f64 resolution of most points
+(20,550 of 20,000 × 14 iterations were resolved, nearly all in the
+first) — which is why the gate sits at 64 M terms and the seam pays
+from ~100 M: large k·d, the codebook shape. Through `stzKMeans.Run()`
+the 5-million-append Ring flattening dilutes it to 1.3x; that
+flattening is the face's tax, the GS survey's "batch" class, not this
+seam's.
+
+**Where the win is bounded.** The device removes the assignment, k·d
+per point; the CPU keeps the update, d per point, in f64 for the bits.
+So the per-iteration ceiling is about k, and small k stays near the
+CPU whatever the device does. A route that moved the update too would
+be faster and would not be this library's k-means.
+
+**Paid for.** The first kernel's row reads were strided by d across
+neighbouring threads (uncoalesced): at d = 128 the device was slower
+than the CPU. Transposing on upload fixed it. And a Ring guard that
+prints nothing at all has a `func` above its main code — the third
+time this session; it is in the memory now.
+
+GS7 closes the GPU plane's GS list that belongs to this desk (GS1 engine
+half, GS4, GS6a/b/c, GS7); GS1b, GS2, GS3, GS5, GS8 belong to the sound,
+graph and numeric desks. Named, not built: a first-error slot in
+gpu.zig; GK2b; GK3.

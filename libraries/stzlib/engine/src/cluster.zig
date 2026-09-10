@@ -31,6 +31,8 @@ const std = @import("std");
 const calib = @import("calib.zig");
 const similarity = @import("similarity.zig");
 
+const kmeans_gpu = @import("kmeans_gpu.zig");
+
 inline fn dist(a: []const f64, b: []const f64) f64 {
     return similarity.stz_sim_euclidean(a.ptr, b.ptr, @intCast(a.len));
 }
@@ -218,6 +220,13 @@ pub fn kmeansRun(
     }
     if (seeded < k) return .{ .iterations = 0, .seeded = seeded };
 
+    // GS7: the iterations on the device when the work earns it -- the same
+    // seed, the same tie rule, the same convergence test, the same empty-
+    // cluster rule; any refusal runs the loop below, as before, counted.
+    if (kmeans_gpu.run(points, n, d, k, max_iter, centroids, assign, counts, false)) |gpu_iters| {
+        return .{ .iterations = gpu_iters, .seeded = seeded };
+    }
+
     @memset(assign[0..n], 0);
 
     var iters: i32 = 0;
@@ -249,38 +258,63 @@ pub fn kmeansRun(
         }
         if (!changed) break;
 
-        // update: the mean of each cluster. Counting first means the accumulation
-        // can happen IN the centroid array -- the old centroid is not needed once
-        // assignment is done, and an empty cluster is the one case where it is, so
-        // that cluster is skipped and keeps its value. Ring does the same, which is
-        // why a k-means here can report fewer OCCUPIED clusters than k.
-        @memset(counts[0..k], 0);
-        var pc: usize = 0;
-        while (pc < n) : (pc += 1) counts[@intCast(assign[pc] - 1)] += 1;
-
-        var c: usize = 0;
-        while (c < k) : (c += 1) {
-            if (counts[c] > 0) @memset(centroids[c * d ..][0..d], 0);
-        }
-        pc = 0;
-        while (pc < n) : (pc += 1) {
-            const c_of: usize = @intCast(assign[pc] - 1);
-            if (counts[c_of] == 0) continue;
-            const row = points[pc * d ..][0..d];
-            const dst = centroids[c_of * d ..][0..d];
-            var t: usize = 0;
-            while (t < d) : (t += 1) dst[t] += row[t];
-        }
-        c = 0;
-        while (c < k) : (c += 1) {
-            if (counts[c] == 0) continue;
-            const inv = @as(f64, @floatFromInt(counts[c]));
-            const dst = centroids[c * d ..][0..d];
-            var t: usize = 0;
-            while (t < d) : (t += 1) dst[t] /= inv;
-        }
+        updateCentroids(points, n, d, k, assign, counts, centroids);
     }
     return .{ .iterations = iters, .seeded = seeded };
+}
+
+/// The update: the mean of each cluster. Counting first means the accumulation
+/// can happen IN the centroid array -- the old centroid is not needed once
+/// assignment is done, and an empty cluster is the one case where it is, so
+/// that cluster is skipped and keeps its value. Ring does the same, which is
+/// why a k-means here can report fewer OCCUPIED clusters than k.
+///
+/// ONE definition, shared with the device route (kmeans_gpu.zig): the device
+/// assigns, the CPU updates in f64 with this exact code, so the centroids the
+/// two routes report are the same bits.
+pub fn updateCentroids(points: []const f64, n: usize, d: usize, k: usize, assign: []const i32, counts: []usize, centroids: []f64) void {
+    @memset(counts[0..k], 0);
+    var pc: usize = 0;
+    while (pc < n) : (pc += 1) counts[@intCast(assign[pc] - 1)] += 1;
+
+    var c: usize = 0;
+    while (c < k) : (c += 1) {
+        if (counts[c] > 0) @memset(centroids[c * d ..][0..d], 0);
+    }
+    pc = 0;
+    while (pc < n) : (pc += 1) {
+        const c_of: usize = @intCast(assign[pc] - 1);
+        if (counts[c_of] == 0) continue;
+        const row = points[pc * d ..][0..d];
+        const dst = centroids[c_of * d ..][0..d];
+        var t: usize = 0;
+        while (t < d) : (t += 1) dst[t] += row[t];
+    }
+    c = 0;
+    while (c < k) : (c += 1) {
+        if (counts[c] == 0) continue;
+        const inv = @as(f64, @floatFromInt(counts[c]));
+        const dst = centroids[c * d ..][0..d];
+        var t: usize = 0;
+        while (t < d) : (t += 1) dst[t] /= inv;
+    }
+}
+
+/// The CPU's nearest centroid for one point -- the strict `<` in index order --
+/// shared with the device route, which asks it for every point f32 could not
+/// certify.
+pub fn nearestCentroid(p: []const f64, centroids: []const f64, d: usize, k: usize) usize {
+    var best: usize = 0;
+    var bd = dist(p, centroids[0..d]);
+    var c: usize = 1;
+    while (c < k) : (c += 1) {
+        const dd = dist(p, centroids[c * d ..][0..d]);
+        if (dd < bd) {
+            bd = dd;
+            best = c;
+        }
+    }
+    return best;
 }
 
 
