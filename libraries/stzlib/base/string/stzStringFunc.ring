@@ -2786,61 +2786,61 @@ func StzIsLatin(p)
 //////////////////////////////////////////////
 
 func StzStringXTQ(_str_)
-	return new stzStringXT(_str_)
+	return new stzString(_str_)
 
 func StzStringFinderQ(_str_)
 	return new stzStringFinder(_str_)
 
 func StzStringFinderXTQ(_str_)
-	return new stzStringFinderXT(_str_)
+	return new stzStringFinder(_str_)
 
 func StzStringReplacerQ(_str_)
 	return new stzStringReplacer(_str_)
 
 func StzStringReplacerXTQ(_str_)
-	return new stzStringReplacerXT(_str_)
+	return new stzStringReplacer(_str_)
 
 func StzStringSplitterQ(_str_)
 	return new stzStringSplitter(_str_)
 
 func StzStringSplitterXTQ(_str_)
-	return new stzStringSplitterXT(_str_)
+	return new stzStringSplitter(_str_)
 
 func StzStringBounderQ(_str_)
 	return new stzStringBounder(_str_)
 
 func StzStringBounderXTQ(_str_)
-	return new stzStringBounderXT(_str_)
+	return new stzStringBounder(_str_)
 
 func StzStringCheckerQ(_str_)
 	return new stzStringChecker(_str_)
 
 func StzStringCheckerXTQ(_str_)
-	return new stzStringCheckerXT(_str_)
+	return new stzStringChecker(_str_)
 
 func StzStringFormatterQ(_str_)
 	return new stzStringFormatter(_str_)
 
 func StzStringFormatterXTQ(_str_)
-	return new stzStringFormatterXT(_str_)
+	return new stzStringFormatter(_str_)
 
 func StzStringWalkerQ(_str_)
 	return new stzStringWalker(_str_)
 
 func StzStringWalkerXTQ(_str_)
-	return new stzStringWalkerXT(_str_)
+	return new stzStringWalker(_str_)
 
 func StzStringVisualizerQ(_str_)
 	return new stzStringVisualizer(_str_)
 
 func StzStringVisualizerXTQ(_str_)
-	return new stzStringVisualizerXT(_str_)
+	return new stzStringVisualizer(_str_)
 
 func StzStringLinesQ(_str_)
 	return new stzStringLines(_str_)
 
 func StzStringLinesXTQ(_str_)
-	return new stzStringLinesXT(_str_)
+	return new stzStringLines(_str_)
 
 func StzStringWordsQ(_str_)
 	return new stzStringWords(_str_)
@@ -2849,13 +2849,13 @@ func StzStringEncoderQ(_str_)
 	return new stzStringEncoder(_str_)
 
 func StzStringEncoderXTQ(_str_)
-	return new stzStringEncoderXT(_str_)
+	return new stzStringEncoder(_str_)
 
 func StzStringNumbersQ(_str_)
 	return new stzStringNumbers(_str_)
 
 func StzStringNumbersXTQ(_str_)
-	return new stzStringNumbersXT(_str_)
+	return new stzStringNumbers(_str_)
 
 func StzStringDuplicatesQ(_str_)
 	return new stzStringDuplicates(_str_)
@@ -2879,25 +2879,25 @@ func StzStringViewQ(_str_)
 	return new stzStringView(_str_)
 
 func StzStringWordsXTQ(_str_)
-	return new stzStringWordsXT(_str_)
+	return new stzStringWords(_str_)
 
 func StzStringDuplicatesXTQ(_str_)
-	return new stzStringDuplicatesXT(_str_)
+	return new stzStringDuplicates(_str_)
 
 func StzStringCodeXTQ(_str_)
-	return new stzStringCodeXT(_str_)
+	return new stzStringCode(_str_)
 
 func StzStringIOXTQ(_str_)
-	return new stzStringIOXT(_str_)
+	return new stzStringIO(_str_)
 
 func StzStringRandomizerXTQ(_str_)
-	return new stzStringRandomizerXT(_str_)
+	return new stzStringRandomizer(_str_)
 
 func StzStringLocaleXTQ(_str_)
-	return new stzStringLocaleXT(_str_)
+	return new stzStringLocale(_str_)
 
 func StzStringCryptoXTQ(_str_)
-	return new stzStringCryptoXT(_str_)
+	return new stzStringCrypto(_str_)
 
 # Phase 2 Q-constructors (new subclass pairs)
 
@@ -2905,79 +2905,79 @@ func StzStringRemoverQ(_str_)
 	return new stzStringRemover(_str_)
 
 func StzStringRemoverXTQ(_str_)
-	return new stzStringRemoverXT(_str_)
+	return new stzStringRemover(_str_)
 
 func StzStringInserterQ(_str_)
 	return new stzStringInserter(_str_)
 
 func StzStringInserterXTQ(_str_)
-	return new stzStringInserterXT(_str_)
+	return new stzStringInserter(_str_)
 
 func StzStringCounterQ(_str_)
 	return new stzStringCounter(_str_)
 
 func StzStringCounterXTQ(_str_)
-	return new stzStringCounterXT(_str_)
+	return new stzStringCounter(_str_)
 
 func StzStringSectionsQ(_str_)
 	return new stzStringSections(_str_)
 
 func StzStringSectionsXTQ(_str_)
-	return new stzStringSectionsXT(_str_)
+	return new stzStringSections(_str_)
 
 func StzStringGetterQ(_str_)
 	return new stzStringGetter(_str_)
 
 func StzStringGetterXTQ(_str_)
-	return new stzStringGetterXT(_str_)
+	return new stzStringGetter(_str_)
 
 func StzStringExtractorQ(_str_)
 	return new stzStringExtractor(_str_)
 
 func StzStringExtractorXTQ(_str_)
-	return new stzStringExtractorXT(_str_)
+	return new stzStringExtractor(_str_)
 
 func StzStringTrimmerQ(_str_)
 	return new stzStringTrimmer(_str_)
 
 func StzStringTrimmerXTQ(_str_)
-	return new stzStringTrimmerXT(_str_)
+	return new stzStringTrimmer(_str_)
 
 func StzStringComparatorQ(_str_)
 	return new stzStringComparator(_str_)
 
 func StzStringComparatorXTQ(_str_)
-	return new stzStringComparatorXT(_str_)
+	return new stzStringComparator(_str_)
 
 func StzStringLeadTrailQ(_str_)
 	return new stzStringLeadTrail(_str_)
 
 func StzStringLeadTrailXTQ(_str_)
-	return new stzStringLeadTrailXT(_str_)
+	return new stzStringLeadTrail(_str_)
 
 func StzStringPerformerQ(_str_)
 	return new stzStringPerformer(_str_)
 
 func StzStringPerformerXTQ(_str_)
-	return new stzStringPerformerXT(_str_)
+	return new stzStringPerformer(_str_)
 
 func StzStringConcatQ(_str_)
 	return new stzStringConcat(_str_)
 
 func StzStringConcatXTQ(_str_)
-	return new stzStringConcatXT(_str_)
+	return new stzStringConcat(_str_)
 
 func StzStringCaseChangerQ(_str_)
 	return new stzStringCaseChanger(_str_)
 
 func StzStringCaseChangerXTQ(_str_)
-	return new stzStringCaseChangerXT(_str_)
+	return new stzStringCaseChanger(_str_)
 
 func StzStringAlignerQ(_str_)
 	return new stzStringAligner(_str_)
 
 func StzStringAlignerXTQ(_str_)
-	return new stzStringAlignerXT(_str_)
+	return new stzStringAligner(_str_)
 
 
   ///////////////////////////////////
