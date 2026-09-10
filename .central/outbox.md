@@ -4046,3 +4046,38 @@ next:
   - me:      the Principal's word on the next domain
   - central: none
 ```
+
+```yaml
+by:        stzlib-graphics · claude-fable-5-1 · 2026-09-10 23:48
+
+subject:   DN20 fishbone -- an effect and its causes, shipped
+
+why:       the Principal's word: "go ahead with fishbone"
+
+did:
+  - Built stzFishboneDiagram on the math plane: a spine into the head,
+    bones by turns leaning at sixty degrees, a rib per cause with its
+    name at the free end; nothing minted as an unknown.
+  - Spaced the bones by half the widest carry -- reach, rib, widest
+    name -- so two bones on one side never meet in what they carry;
+    long names widen the pitch and the picture stays clean.
+  - Wrote three rules about the analysis -- an empty bone, a cause
+    named under two categories, the effect among its own causes --
+    naming things; faults drawn and the marks held to the verdicts.
+  - Folded section 114 (27 assertions) and two pictures into the one
+    gate; the math catalogue is 46 scenes.
+
+state:
+  gg_adversarial:   1511 ok, 0 failed
+  commit:           74c3d6665 on origin and codeberg, verified at the sha
+  domains left:     network topology, floor plans, seating, maps
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the Principal's word on the next domain
+  - central: none
+```
