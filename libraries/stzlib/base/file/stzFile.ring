@@ -1615,7 +1615,7 @@ class stzFileOverwriter from stzFileReadingMixin
 
 # SPECIAL CASE OF THE OVERWRITE INTENT
 
-class stzFileEaraser from stzObject
+class stzFileEraser from stzObject
     @cFileName
     @cOriginalContent
 
