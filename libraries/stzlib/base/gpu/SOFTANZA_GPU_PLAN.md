@@ -1723,3 +1723,95 @@ rejection, and it took three rebuilds to learn that. Worth a
 
 Next, on the author's word: **UMAP's sparse form** (GS6's dense range
 ends near 12k points); GK2b/GK3 remain named, not built.
+
+---
+
+## GS6c STATUS — shipped 2026-09-10: UMAP's sparse form, on the CPU and on the device
+
+Guard: `base/test/number/numeric_umap_gpu_narrated.ring` — **23 asserts
+green**. Gates: `numeric_embedding_narrated` **240 green**,
+`numeric_tsne_gpu_narrated` 22, `numeric_summation` 16. Zig: `umap.zig`
+78 tests (one new: the sparse union against the dense one, bit for bit),
+`umap_gpu.zig` 7.
+
+**Where a UMAP fit's time sat, and why "sparse form" was two things.**
+Measured on the CPU before this work (d = 8, 200 epochs):
+
+| n | graph build | 200 epochs |
+|---|---|---|
+| 4,000 | 175 ms | 837 ms |
+| 8,192 | 1,642 ms | 400 ms* |
+| 16,384 | 5,278 ms | 790 ms* |
+
+*50 epochs, scaled. Above 8,192 the build WAS the fit, and half of it was
+a **dense n×n f64 matrix the fuzzy union walked** — 2 GB at 16k points,
+almost all of it zero — the memory wall GS6 named for t-SNE, standing in
+UMAP too. So three things shipped:
+
+1. **The fuzzy union is sparse** (`umap.zig`, `fuzzyUnionSparse`): the
+   n×k table merged with its transpose as an in-edge list, every pair
+   once, **bit-identical edges in the identical order** — the dense form
+   is kept as `fuzzyUnionDense` for the test that holds them equal, and
+   the whole CPU fit is unchanged to the bit. Build at 16k: 5.3 s → 2.1 s.
+2. **The exact k-NN on the device** (`umap_gpu.knn`): one thread per row,
+   the point staged in registers, a sorted k-array in registers with the
+   CPU's tie rule. No n×n matrix is materialised, ever. Above the
+   forest's 8,192 threshold this replaces an APPROXIMATE answer with an
+   exact one, faster. At 1,000 points every one of 1,000 rows is
+   identical to the CPU's exact scan, order included.
+3. **The epoch chain on the device** (`umap_gpu.prepare/epochs`), in
+   gather form: one thread per point sums its sampled edges' attraction
+   and its negative samples' repulsion; the sampling schedule is
+   stateless (edge e is sampled at epoch t when ⌊(t+1)/ε⌋ > ⌊t/ε⌋, which
+   is what the CPU's running counter computes), the negatives come from a
+   hash of (seed, epoch, edge, sample), so an epoch is one dispatch and a
+   fit's 200 epochs are a few submits. **Deterministic under its seed**,
+   like the CPU. The density term stays on the CPU and interleaves: on
+   the epochs it is on, the positions come down, it applies, they go up.
+   Any refusal restarts the fit on the CPU from its seed and is counted.
+   Gates: epochs from 1,000 points, k-NN from 1,024; `dims ≤ 4`.
+
+**Measured, this run, four blobs in 8 dims, 200 epochs:**
+
+| n | CPU fit | device fit | | 5-NN purity CPU / device |
+|---|---|---|---|---|
+| 1,000 | 223 ms | 80 ms | 2.8x | 0.992 / 0.998 |
+| 4,000 | 897 ms | 91 ms | **9.8x** | 0.993 / 0.985 |
+| 8,192 | 2,465 ms | 172 ms | **14.3x** | |
+| 16,384 | 5,320 ms | 323 ms | **16.5x** | |
+
+At 16k the device fit is a third of a second where the CPU took ten
+before the union went sparse — and its neighbour table is exact.
+
+**The finding that cost an hour, and the experiment that settled it.**
+The first device route scored 0.944 purity at 4k against the CPU's
+0.993. Not f32, not the sampler: **a synchronous update**. On the CPU
+each sampled edge moves its endpoints and the next edge sees the move;
+in gather form every pull a point receives is computed from positions
+that have not moved yet, so a well-connected point overshoots its
+cluster and the layout rings. `src/gs6c_probe.zig` runs the CPU's own
+loop three ways on the same graph and seed:
+
+| n | sequential (shipped CPU) | synchronous | synchronous, attraction halved |
+|---|---|---|---|
+| 1,000 | 0.997 | 0.979 | 1.000 |
+| 4,000 | 0.982 | 0.951 | 0.972 |
+
+The synchronous column reproduces the device's gap exactly, which is
+what names the cause. The kernel ships the third column: the attraction
+halved per endpoint, so a pair closes by the transform path's one-sided
+step. Device purity went 0.944 → 0.985 at 4k. The tool stays in `src/`
+as the evidence (the GS6 spike's precedent).
+
+**Also paid for.** A `func` placed mid-file in a Ring guard swallows
+every line after it into its body, silently: the guard printed nothing
+at all. And a centroid-separation ratio was the wrong witness for
+blobs that are curves — UMAP unrolls them, so the centroids sit inside
+each other's spread while every point's neighbours are still its own;
+5-NN purity is the witness, as the t-SNE guard already knew.
+
+**GS6 is closed**: t-SNE dense (epochs, P build) and UMAP sparse
+(graph, k-NN, epochs), each a silent seam behind a measured gate, each
+counted, each with the CPU as truth. Named, not built: a first-error
+slot in gpu.zig; GK2b/GK3; GS7 (k-means on pairdist) is the GPU
+plane's next item on the author's word.

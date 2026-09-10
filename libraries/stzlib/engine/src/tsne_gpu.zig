@@ -75,7 +75,8 @@ pub fn stz_tsne_gpu_counters_reset() callconv(.c) void {
     counters = @splat(0);
 }
 
-fn ensureDevice() bool {
+/// The stats DLL's device -- umap_gpu asks here too (one device per DLL, one owner).
+pub fn ensureDevice() bool {
     if (g_state != ST_UNKNOWN) return g_state == ST_OK;
     g_state = ST_FAILED;
     if (g_runtime_path_len > 0) {
