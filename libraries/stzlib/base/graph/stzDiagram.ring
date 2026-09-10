@@ -16106,11 +16106,29 @@ class stzDiagram from stzGraph
 			# and its correction loop went down to the channel below,
 			# straight through Reimburse on the way.
 			_plSide3_ = 1
-			_plRow3_ = _plLowY_
-			if _plA3_[_plAx_] < _plSpn_ - 1.5
-				_plSide3_ = -1
-				_plRow3_ = _plHighY_
-			ok
+			if _plA3_[_plAx_] < _plSpn_ - 1.5  _plSide3_ = -1  ok
+			# THE LADDER CLEARS WHAT THE RETURN PASSES, not the whole
+			# picture. A cycle's return from a gate three ranks down to
+			# the top ran its ladder past the leaves two ranks further
+			# down, in a column of its own at the picture's far edge --
+			# the Principal asked for that space back. The far border is
+			# taken over the ranks between the two ends, so a return whose
+			# span is clear of the widest row stands beside what it spans.
+			_plRa3_ = min([ _plA3_[_plCr_], _plB3_[_plCr_] ]) - 1.5
+			_plRb3_ = max([ _plA3_[_plCr_], _plB3_[_plCr_] ]) + 1.5
+			_plLoE3_ = -1000000000
+			_plHiE3_ = 1000000000
+			for _iPlR316_ = 1 to _nPlR315_
+				_plR4_ = _aPlR315_[_iPlR316_]
+				if _plR4_[_plCr_ + 1] < _plRa3_ or _plR4_[_plCr_ + 1] > _plRb3_  loop  ok
+				_plHf4_ = This._BoxOf("" + _plR4_[1], nBoxW, nBoxH)[_plAx_] / 2
+				if _plR4_[_plAx_ + 1] + _plHf4_ > _plLoE3_  _plLoE3_ = _plR4_[_plAx_ + 1] + _plHf4_  ok
+				if _plR4_[_plAx_ + 1] - _plHf4_ < _plHiE3_  _plHiE3_ = _plR4_[_plAx_ + 1] - _plHf4_  ok
+			next
+			if _plLoE3_ < -999999999  _plLoE3_ = _plLowY_   ok
+			if _plHiE3_ > 999999999   _plHiE3_ = _plHighY_  ok
+			_plRow3_ = _plLoE3_
+			if _plSide3_ = -1  _plRow3_ = _plHiE3_  ok
 			_plKey3_ = ceil(_plRow3_)
 			_plLn3_ = This._SameRowLane(_plKey3_, _plA3_[_plCr_],
 				_plB3_[_plCr_])

@@ -218,6 +218,13 @@ func StzDrawNodeShape(poCanvas, pcShape, pnX, pnY, pnW, pnH)
 			_p_ + (_oy_ - (_h_ * 0.45) * sin(_t_) * (1 - 0.35 * sin(_t_)) - _h_ * 0.16 * sin(_t_) * sin(_t_))
 		next
 		poCanvas.AddPolygon(_p_)
+		# ...AND THE INPUT STEM REACHES THE CURVE. The concave bottom
+		# rises to 0.60 of the box at the centre while a line attaches at
+		# the box's bottom, so 0.40 of the box showed as paper between
+		# the gate and the line leaving it -- the Principal asked whether
+		# the gap was meant. It was not: the standard draws the input
+		# line up into the shield, and so does this.
+		poCanvas.AddLine(_cx_, _y_ + _h_ * 0.60, _cx_, _y_ + _h_)
 	on "diamond"
 		poCanvas.AddPolygon([ _cx_, _y_, _x_ + _w_, _cy_, _cx_, _y_ + _h_, _x_, _cy_ ])
 	on "triangle"
