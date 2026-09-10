@@ -3759,3 +3759,45 @@ next:
   - me:      the author's word
   - central: none
 ```
+
+```yaml
+by:        stzlib-graphics · claude-fable-5-1 · 2026-09-10 07:29
+
+subject:   third round on the fault trees -- two fans, a median, a
+           packed forest
+
+why:       the Principal marked the lines and the space; each mark was a
+           general fault of the renderer or the layout
+
+did:
+  - Made two foreign channels that meet end to end contend for a row,
+    so two fans at a shared leaf take two rows a clearance apart.
+  - Stood an odd fan over its median child among peers (engine).
+  - Packed a forest on its drawn boxes, Ring-side, for peers notations:
+    each tree shifted as a rigid block to one separation from the trees
+    before it, names beneath marks counted. Tried and reverted two
+    engine remedies the same night: a negative demand shrank cells and
+    truncated names; pulling a subtree left in the territory pass put it
+    inside another family's band, which section 6 caught.
+  - Fixed a length guard in stzGraphCanvas that discarded the whole
+    label-demand list whenever a long edge added a dummy.
+
+state:
+  gg_adversarial:   1417 ok, 0 failed
+  stz_graph.dll:    rebuilt
+  commit:           48e92c0fc on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the author's word
+  - central: none
+
+note:      A CELL-WIDE SLOT IS THE LAYOUT'S UNIT AND A MARK IS NOT A CELL.
+           Every notation with marks pays this space; the pack pass is
+           the first thing that gives it back, and it gives it back
+           between trees only. Between siblings the slot still rules.
+```
