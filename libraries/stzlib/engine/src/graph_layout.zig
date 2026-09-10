@@ -663,6 +663,22 @@ fn centerParents(
     const height = alloc.alloc(u32, n) catch return;
     defer alloc.free(height);
     @memset(height, 0);
+    // A CHILD IS BELOW ITS PARENT. The edge list keeps a back edge as
+    // given -- from a gate three ranks down back up to the top event --
+    // and this pass took its target for a child: the gate stood over
+    // the "middle" of two leaves and the top event, which is the right
+    // leaf, and the Principal asked why the rule was not applied. The
+    // rank each node was laid on says which way an edge goes; a target
+    // on the parent's rank or above is not something to centre over.
+    const rank = alloc.alloc(u32, n) catch return;
+    defer alloc.free(rank);
+    {
+        var rl: usize = 0;
+        while (rl + 1 < starts.len) : (rl += 1) {
+            var rk = starts[rl];
+            while (rk < starts[rl + 1]) : (rk += 1) rank[order[rk]] = @intCast(rl);
+        }
+    }
     // ...and the continuation is measured over OWNED descent only. A
     // shared sink is nobody's continuation: a line that ends at a node
     // two parents feed has ended, as far as THIS line's emphasis goes.
@@ -685,6 +701,7 @@ fn centerParents(
             while (hj < out_off[v + 1]) : (hj += 1) {
                 const c = out_dst[hj];
                 if (c == v) continue;
+                if (rank[c] <= rank[v]) continue;
                 if (in_off[c + 1] - in_off[c] != 1) continue;
                 if (height[c] + 1 > best) best = height[c] + 1;
             }
@@ -730,6 +747,7 @@ fn centerParents(
             while (j < out_off[v + 1]) : (j += 1) {
                 const c = out_dst[j];
                 if (c == v) continue; // a self-loop is not a child
+                if (rank[c] <= rank[v]) continue; // a return's target is not a child
                 if (!peers and in_off[c + 1] - in_off[c] != 1) continue;
                 const cx = x[c];
                 if (owned == 0) {
@@ -778,6 +796,7 @@ fn centerParents(
             while (j < out_off[v + 1]) : (j += 1) {
                 const c = out_dst[j];
                 if (c == v) continue;
+                if (rank[c] <= rank[v]) continue;
                 if (in_off[c + 1] - in_off[c] != 1) continue;
                 if (height[c] > best_h or ties == 0) {
                     if (height[c] > best_h) {
@@ -805,12 +824,12 @@ fn centerParents(
                 var jj = out_off[v];
                 while (jj < out_off[v + 1]) : (jj += 1) {
                     const c1 = out_dst[jj];
-                    if (c1 == v) continue;
+                    if (c1 == v or rank[c1] <= rank[v]) continue;
                     var left: u32 = 0;
                     var j2 = out_off[v];
                     while (j2 < out_off[v + 1]) : (j2 += 1) {
                         const c2 = out_dst[j2];
-                        if (c2 == v or c2 == c1) continue;
+                        if (c2 == v or c2 == c1 or rank[c2] <= rank[v]) continue;
                         if (x[c2] < x[c1]) left += 1;
                     }
                     if (left == owned / 2) {

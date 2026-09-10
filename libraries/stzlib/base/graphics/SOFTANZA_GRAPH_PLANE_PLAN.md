@@ -3495,13 +3495,21 @@ picture's far edge, beyond a leaf two ranks below anything it passed; the
 ladder now clears only the ranks between the return's two ends, so it stands
 beside Jam and the paper gives the column back. And the OR gate's concave
 bottom rose 0.40 of the box above the line leaving it; the input stem now
-reaches up into the shield, as the standard draws it.
+reaches up into the shield, as the standard draws it. And a fifth: the gate
+whose third line cycles back to the top stood over the "middle" of two
+leaves and the top event, which is the right leaf — the engine's centring
+took a back edge's target for a child. The rank each node was laid on says
+which way an edge goes, and a target on the parent's rank or above is not
+something to centre over; the gate stands at the middle of its two leaves,
+which is the rule the Principal asked for. And the catalogue is set in the
+house type, 150×56 cells at 20 pt as the DRAKON catalogue is, so its names
+read at the size the plane's other pictures are read at.
 
 **Said plainly and left out.** NOT, voting and inhibit gates, transfer
 symbols, common-cause groups, importance measures, and the exact sum above
 twelve cut sets. The gates draw for a top-down tree only.
 
-*Guard:* §111, 45 assertions; §91 grew by three pictures. Catalogue:
+*Guard:* §111, 46 assertions; §91 grew by three pictures. Catalogue:
 `gg_fault_catalogue.ring`, fault_01 to fault_03.
 
 ## DN9 — THE TOLD PICTURE: a narration is facts made visible, in an order (planned 2026-09-06, SHIPPED 2026-09-07 as DN9a through DN9g, all seven closed)
