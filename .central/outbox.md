@@ -4081,3 +4081,40 @@ next:
   - me:      the Principal's word on the next domain
   - central: none
 ```
+
+```yaml
+by:        stzlib-graphics · claude-fable-5-1 · 2026-09-11 00:32
+
+subject:   DN21 network topology -- devices, links, subnets, shipped
+
+why:       the Principal's word: "go ahead with network topology"
+
+did:
+  - Built stzNetworkDiagram on the graph plane: seven device glyphs on
+    the shape sheet, undirected links, subnets as frames with CIDR
+    ranges, the cloud a source; reach read back by hops.
+  - Wrote five rules with declared boundaries and a witness carrying
+    one of each mistake -- a ring of switches reported on every switch,
+    a loop through a router stood on as a route.
+  - Repaired three things in the plane the domain found: cluster
+    cohesion now spaces members at their own pitch and a sweep keeps
+    every level separated after the boundary air; a name plate inside
+    a frame takes the frame's surface tint; a name beneath any glyph a
+    profile writes outside is reserved by the fit.
+  - Folded section 115 (30 assertions) and three pictures into the one
+    gate; every other catalogue re-renders byte-identical.
+
+state:
+  gg_adversarial:   1541 ok, 0 failed
+  commit:           ba19f3c1f on origin and codeberg, verified at the sha
+  domains left:     floor plans, seating, maps
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the Principal's word on the next domain
+  - central: none
+```
