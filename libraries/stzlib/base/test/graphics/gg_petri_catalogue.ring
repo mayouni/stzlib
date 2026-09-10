@@ -13,7 +13,7 @@ load "../../stzBase.ring"
 load "gg_petri_scenes.ring"
 
 oFont = new stzFont("C:/Windows/Fonts/segoeui.ttf")
-aOpt = [ :Font = oFont, :NodeWidth = 64, :NodeHeight = 64, :FontSize = 13 ]
+aOpt = [ :Font = oFont, :NodeWidth = 150, :NodeHeight = 56, :FontSize = 20 ]
 
 acTitles = [ "A MUTEX                (two processes, one key -- sound)",
              "A BUFFER WITH WEIGHTS  (five free slots, put takes two, take frees one)",
