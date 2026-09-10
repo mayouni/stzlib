@@ -152,6 +152,49 @@ fn ring_BufferUploadList(p: *anyopaque) callconv(.c) void {
         rn(p, gpu.BAD_ARG);
         return;
     }
+    // THE FLATTENING TAX, the gpu doorway: a list of equal-length ROWS is
+    // walked here, row-major -- the rows land in the staging buffer without
+    // the face appending n*d numbers into a flat list first. A flat list
+    // behaves exactly as before; a ragged row is refused.
+    if (R.ring_list_islist_gc(null, lst, 1) != 0) {
+        const first = R.ring_list_getlist_gc(null, lst, 1) orelse {
+            rn(p, gpu.BAD_ARG);
+            return;
+        };
+        const d: usize = @intCast(R.ringListSize(first));
+        if (d == 0) {
+            rn(p, gpu.BAD_ARG);
+            return;
+        }
+        const staging = allocator.alloc(f32, n * d) catch {
+            rn(p, gpu.BAD_ARG);
+            return;
+        };
+        defer allocator.free(staging);
+        for (0..n) |i| {
+            if (R.ring_list_islist_gc(null, lst, @intCast(i + 1)) == 0) {
+                rn(p, gpu.BAD_ARG);
+                return;
+            }
+            const row = R.ring_list_getlist_gc(null, lst, @intCast(i + 1)) orelse {
+                rn(p, gpu.BAD_ARG);
+                return;
+            };
+            if (@as(usize, @intCast(R.ringListSize(row))) != d) {
+                rn(p, gpu.BAD_ARG);
+                return;
+            }
+            for (0..d) |j| {
+                const item = R.ring_list_getitem_gc(null, row, @intCast(j + 1)) orelse {
+                    staging[i * d + j] = 0;
+                    continue;
+                };
+                staging[i * d + j] = @floatCast(R.ring_item_getnumber(item));
+            }
+        }
+        rn(p, @floatFromInt(gpu.stz_gpu_buffer_write(id, @ptrCast(staging.ptr), @floatFromInt(n * d * 4))));
+        return;
+    }
     const staging = allocator.alloc(f32, n) catch {
         rn(p, gpu.BAD_ARG);
         return;

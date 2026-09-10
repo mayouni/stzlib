@@ -258,14 +258,10 @@ class stzSemanticIndex from stzObject
 		if _nN_ = 0 or @nDim = 0
 			return
 		ok
-		_aFlat_ = []
-		for _i_ = 1 to _nN_
-			for _j_ = 1 to @nDim
-				_aFlat_ + @aVecs[_i_][_j_]
-			next
-		next
-		@pDataset = StzEngineClusterDataNew(_aFlat_, _nN_, @nDim)
-		This._EnsureGpu(_aFlat_, _nN_)
+		# THE FLATTENING TAX (2026-09-10): the vectors go to the resident dataset
+		# and to the device upload as rows; both doorways walk them
+		@pDataset = StzEngineClusterDataNew(@aVecs, _nN_, @nDim)
+		This._EnsureGpu(@aVecs, _nN_)
 
 	# ---- GS4: the GPU route -------------------------------------------------
 

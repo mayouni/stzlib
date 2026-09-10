@@ -116,15 +116,10 @@ class stzTrainer from stzObject
 				stzraise("Target " + _i_ + " has " + len(paTargets[_i_]) +
 					" value(s) but the output layer has " + _nOut_ + ".")
 			ok
-			for _d_ = 1 to _nIn_
-				_aX_ + paInputs[_i_][_d_]
-			next
-			for _d_ = 1 to _nOut_
-				_aY_ + paTargets[_i_][_d_]
-			next
 		next
 
-		_aRes_ = StzEngineNNTrain(_aShape_, _aW_, _aX_, _aY_, _nN_, @nLr, nEpochs)
+		# THE FLATTENING TAX (2026-09-10): inputs and targets go as rows
+		_aRes_ = StzEngineNNTrain(_aShape_, _aW_, paInputs, paTargets, _nN_, @nLr, nEpochs)
 		if NOT isList(_aRes_) or len(_aRes_) != nEpochs + len(_aW_)
 			stzraise("The engine refused the training run.")
 		ok

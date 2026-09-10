@@ -96,14 +96,9 @@ class stzNeuralNetwork from stzObject
 			_nU_ = @aLayers[_l_][1]
 			_aW_ = @aLayers[_l_][3]
 			_nP_ = len(_aW_[1])
-			_aFlat_ = []
-			for _u_ = 1 to _nU_
-				for _p_ = 1 to _nP_
-					_aFlat_ + _aW_[_u_][_p_]
-				next
-			next
+			# THE FLATTENING TAX (2026-09-10): the weight matrix goes as rows
 			if StzEngineNeuralGgufAddTensor("blk." + _l_ + ".weight",
-					_nU_, _nP_, _aFlat_) != 1
+					_nU_, _nP_, _aW_) != 1
 				StzEngineNeuralGgufAbort()
 				stzraise("Tensor export failed at layer " + _l_ + " (weight).")
 			ok

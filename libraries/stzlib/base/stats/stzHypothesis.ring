@@ -185,18 +185,16 @@ func StzChiSquareIndependence(paTable)
 	ok
 	_nRows_ = len(paTable)
 	_nCols_ = len(paTable[1])
-	_aFlat_ = []
 	for _iCi_ = 1 to _nRows_
 		if len(paTable[_iCi_]) != _nCols_
 			StzRaise("StzChiSquareIndependence: every row must have the same " +
 			         "number of columns.")
 		ok
-		for _jCi_ = 1 to _nCols_
-			_aFlat_ + paTable[_iCi_][_jCi_]
-		next
 	next
+	# THE FLATTENING TAX (2026-09-10): the table goes as rows; the bridge walks
+	# them (ANOVA's groups are ragged and stay flat)
 	return StzHypothesisResult(
-		StzEngineChi2Independence(_aFlat_, _nRows_, _nCols_),
+		StzEngineChi2Independence(paTable, _nRows_, _nCols_),
 		"chi-square test of independence",
 		"the two factors are related")
 

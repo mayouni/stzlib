@@ -186,18 +186,15 @@ class stzVectorIndex from stzObject
 			StzRaise("RecallAgainstExact: give me a non-empty list of queries.")
 		ok
 		This._Ensure()
-		_aFlat_ = []
 		_nQ_ = len(paQueries)
 		for _i_ = 1 to _nQ_
 			if NOT isList(paQueries[_i_]) or len(paQueries[_i_]) != @nDim
 				StzRaise("RecallAgainstExact: query " + _i_ + " is not " + @nDim +
 					" number(s) wide.")
 			ok
-			for _d_ = 1 to @nDim
-				_aFlat_ + paQueries[_i_][_d_]
-			next
 		next
-		_nR_ = StzEngineAnnRecall(@pIndex, _aFlat_, _nQ_, nK, nBudget)
+		# THE FLATTENING TAX (2026-09-10): the queries go as rows; the bridge walks them
+		_nR_ = StzEngineAnnRecall(@pIndex, paQueries, _nQ_, nK, nBudget)
 		if _nR_ < 0
 			StzRaise("RecallAgainstExact: the engine refused the measurement.")
 		ok
@@ -256,23 +253,17 @@ class stzVectorIndex from stzObject
 		if @pIndex != ""
 			return
 		ok
-		_aFlat_ = []
-		_nR_ = @nCount
-		for _i_ = 1 to _nR_
-			_aRow_ = @aVectors[_i_]
-			for _j_ = 1 to @nDim
-				_aFlat_ + _aRow_[_j_]
-			next
-		next
+		# THE FLATTENING TAX (2026-09-10): the vectors go to the bridge -- and to
+		# the device upload -- as rows; both doorways walk them
 		_bCos_ = 0
 		if @cMetric = :Cosine
 			_bCos_ = 1
 		ok
-		@pIndex = StzEngineAnnBuild(_aFlat_, @nCount, @nDim, @nTrees, _bCos_, @nSeed)
+		@pIndex = StzEngineAnnBuild(@aVectors, @nCount, @nDim, @nTrees, _bCos_, @nSeed)
 		if @pIndex = ""
 			StzRaise("stzVectorIndex: the index could not be built.")
 		ok
-		This._EnsureGpu(_aFlat_)
+		This._EnsureGpu(@aVectors)
 
 	# Decide ONCE per build whether this corpus earns a resident GPU copy.
 	# The decision is the calibration store's (threshold on nCount*nDim,
