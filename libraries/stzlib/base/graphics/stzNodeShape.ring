@@ -71,7 +71,8 @@ func StzNodeShapeNames()
 		:Component, :Insertion, :Actor, :Bar,
 		:PauseGlyph, :TimerGlyph, :DurationGlyph, :Parallel,
 		:Resistor, :Capacitor, :Ground, :Source, :Junction,
-		:AndGate, :OrGate
+		:AndGate, :OrGate,
+		"cloud", "router", "switch", "firewall", "server", "host", "accesspoint"
 	]
 
 func StzIsNodeShape(pcName)
@@ -414,6 +415,107 @@ func StzDrawNodeShape(poCanvas, pcShape, pnX, pnY, pnW, pnH)
 				poCanvas.AddRect(_x_ + _w_ * 0.36, _y_, _w_ * 0.28, _h_)
 			ok
 		ok
+
+	#-- DN21, the network set ------------------------------------------
+	#
+	# The devices of a topology, drawn the way the trade draws them: a
+	# cloud for what is beyond the picture, a puck with four arrows for a
+	# router, a flat box with arrows across it for a switch, a brick wall
+	# for a firewall, a tall box with slots for a server, a screen on a
+	# foot for a host, a small box under two waves for an access point.
+	# Each is drawn to the box it is handed; the box's outline is what a
+	# link arrives at.
+	on "cloud"
+		# a scalloped ellipse: six bumps around the outline, the radius
+		# swelling on each and dipping between
+		_p_ = []
+		for _i_ = 0 to 71
+			_t_ = 6.283185307 * _i_ / 72
+			_s_ = 0.80 + 0.20 * fabs(sin(3 * _t_))
+			_p_ + (_cx_ + (_w_ / 2) * _s_ * cos(_t_))
+			_p_ + (_cy_ + (_h_ / 2) * _s_ * sin(_t_))
+		next
+		poCanvas.AddPolygon(_p_)
+	on "router"
+		_r_ = min([ _w_, _h_ ]) / 2
+		poCanvas.AddCircle(_cx_, _cy_, _r_)
+		# four arrows: two out along one diagonal, two in along the other
+		_d_ = _r_ * 0.62
+		_a_ = _r_ * 0.18
+		poCanvas.AddLine(_cx_ - _d_, _cy_ + _d_ * 0.55, _cx_ + _d_, _cy_ - _d_ * 0.55)
+		poCanvas.AddLine(_cx_ + _d_, _cy_ - _d_ * 0.55, _cx_ + _d_ - _a_ * 1.6, _cy_ - _d_ * 0.55)
+		poCanvas.AddLine(_cx_ + _d_, _cy_ - _d_ * 0.55, _cx_ + _d_ - _a_ * 0.4, _cy_ - _d_ * 0.55 + _a_ * 1.4)
+		poCanvas.AddLine(_cx_ - _d_, _cy_ + _d_ * 0.55, _cx_ - _d_ + _a_ * 1.6, _cy_ + _d_ * 0.55)
+		poCanvas.AddLine(_cx_ - _d_, _cy_ + _d_ * 0.55, _cx_ - _d_ + _a_ * 0.4, _cy_ + _d_ * 0.55 - _a_ * 1.4)
+		poCanvas.AddLine(_cx_ - _d_, _cy_ - _d_ * 0.55, _cx_ + _d_, _cy_ + _d_ * 0.55)
+		poCanvas.AddLine(_cx_ + _d_, _cy_ + _d_ * 0.55, _cx_ + _d_ - _a_ * 1.6, _cy_ + _d_ * 0.55)
+		poCanvas.AddLine(_cx_ + _d_, _cy_ + _d_ * 0.55, _cx_ + _d_ - _a_ * 0.4, _cy_ + _d_ * 0.55 - _a_ * 1.4)
+		poCanvas.AddLine(_cx_ - _d_, _cy_ - _d_ * 0.55, _cx_ - _d_ + _a_ * 1.6, _cy_ - _d_ * 0.55)
+		poCanvas.AddLine(_cx_ - _d_, _cy_ - _d_ * 0.55, _cx_ - _d_ + _a_ * 0.4, _cy_ - _d_ * 0.55 + _a_ * 1.4)
+	on "switch"
+		_bh_ = _h_ * 0.46
+		_by_ = _cy_ - _bh_ / 2
+		poCanvas.AddRect(_x_, _by_, _w_, _bh_)
+		# two arrows to the right above the middle, two to the left below
+		_a_ = _bh_ * 0.22
+		for _k_ = 0 to 1
+			_ly_ = _by_ + _bh_ * (0.3 + 0.4 * _k_)
+			_x1_ = _x_ + _w_ * (0.14 + 0.46 * _k_)
+			_x2_ = _x1_ + _w_ * 0.26
+			if _k_ = 0
+				poCanvas.AddLine(_x1_, _ly_, _x2_, _ly_)
+				poCanvas.AddLine(_x2_, _ly_, _x2_ - _a_, _ly_ - _a_)
+				poCanvas.AddLine(_x2_, _ly_, _x2_ - _a_, _ly_ + _a_)
+			else
+				poCanvas.AddLine(_x1_, _ly_, _x2_, _ly_)
+				poCanvas.AddLine(_x1_, _ly_, _x1_ + _a_, _ly_ - _a_)
+				poCanvas.AddLine(_x1_, _ly_, _x1_ + _a_, _ly_ + _a_)
+			ok
+		next
+	on "firewall"
+		poCanvas.AddRect(_x_, _y_, _w_, _h_)
+		# three courses of bricks, the joints staggered
+		for _k_ = 1 to 2
+			poCanvas.AddLine(_x_, _y_ + _h_ * _k_ / 3, _x_ + _w_, _y_ + _h_ * _k_ / 3)
+		next
+		for _k_ = 0 to 2
+			_off_ = 0
+			if _k_ % 2 = 1  _off_ = _w_ / 6  ok
+			for _j_ = 1 to 2
+				_jx_ = _x_ + _off_ + _w_ * _j_ / 3
+				if _jx_ < _x_ + _w_ - 1
+					poCanvas.AddLine(_jx_, _y_ + _h_ * _k_ / 3, _jx_, _y_ + _h_ * (_k_ + 1) / 3)
+				ok
+			next
+		next
+	on "server"
+		_sw_ = _w_ * 0.62
+		_sx_ = _cx_ - _sw_ / 2
+		poCanvas.AddRect(_sx_, _y_, _sw_, _h_)
+		for _k_ = 1 to 3
+			poCanvas.AddLine(_sx_ + _sw_ * 0.18, _y_ + _h_ * _k_ / 4, _sx_ + _sw_ * 0.82, _y_ + _h_ * _k_ / 4)
+		next
+	on "host"
+		# a screen on a foot
+		poCanvas.AddRect(_x_, _y_, _w_, _h_ * 0.68)
+		poCanvas.AddLine(_cx_, _y_ + _h_ * 0.68, _cx_, _y_ + _h_ * 0.86)
+		poCanvas.AddLine(_cx_ - _w_ * 0.28, _y_ + _h_ * 0.9, _cx_ + _w_ * 0.28, _y_ + _h_ * 0.9)
+	on "accesspoint"
+		_bh_ = _h_ * 0.36
+		poCanvas.AddRect(_x_ + _w_ * 0.1, _y_ + _h_ - _bh_, _w_ * 0.8, _bh_)
+		# two waves above the box
+		for _k_ = 1 to 2
+			_p_ = []
+			_wr_ = _h_ * (0.22 + 0.2 * _k_)
+			for _i_ = 0 to 10
+				_t_ = 3.141592653589793 * (0.2 + 0.6 * _i_ / 10)
+				_p_ + (_cx_ + _wr_ * 1.2 * cos(_t_))
+				_p_ + (_y_ + _h_ * 0.62 - _wr_ * sin(_t_))
+			next
+			for _i_ = 1 to 10
+				poCanvas.AddLine(_p_[_i_ * 2 - 1], _p_[_i_ * 2], _p_[_i_ * 2 + 1], _p_[_i_ * 2 + 2])
+			next
+		next
 
 	#-- DN5, the electric set ------------------------------------------
 	#

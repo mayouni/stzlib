@@ -5,6 +5,7 @@ load "gg_er_scenes.ring"
 load "gg_petri_scenes.ring"
 load "gg_fault_scenes.ring"
 load "gg_family_scenes.ring"
+load "gg_network_scenes.ring"
 
 /*---------------------------------------------------------------------------
 	WHAT THE GUARDS COULD NOT SEE
@@ -8709,6 +8710,7 @@ OPTPN2 = [ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56, :FontSize = 20 ]
 OPTER2 = [ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56, :FontSize = 20 ]
 OPTFT2 = [ :Font = EFONT, :NodeWidth = 120, :NodeHeight = 52, :FontSize = 13 ]
 OPTFM2 = [ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56, :FontSize = 20 ]
+OPTNW2 = [ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56, :FontSize = 20 ]
 
 # The meta layer: rules that state what they GOVERN, separately from what
 # they assert, so the SELECTION half can be checked at all. Six defects of
@@ -13544,6 +13546,11 @@ aOgP + [ "family/three", StzFamilyScene01(OPTFM2) ]
 aOgP + [ "family/witness", StzFamilySceneWitness(OPTFM2) ]
 aOgP + [ "family/cycle", StzFamilySceneCycle(OPTFM2) ]
 aOgP + [ "family/kin", StzFamilySceneKin(OPTFM2) ]
+# AND THE NETWORK TOPOLOGIES (DN21): the office, the floors and the
+# witness -- the first pictures whose frames are subnets.
+aOgP + [ "network/office", StzNetworkScene01(OPTNW2) ]
+aOgP + [ "network/floors", StzNetworkScene02(OPTNW2) ]
+aOgP + [ "network/witness", StzNetworkSceneWitness(OPTNW2) ]
 for iOg = 1 to 31
 	cOgF = "StzMathScene" + iOg
 	if iOg < 10  cOgF = "StzMathScene0" + iOg  ok
@@ -13593,8 +13600,8 @@ aOgP + [ "fishbone/witness", StzMathFishboneWitness(AUFONT) ]
 nOgT0 = StzEngineWatchTimestampMs()
 oOgRep = StzCheckPictures(aOgP)
 nOgMs = StzEngineWatchTimestampMs() - nOgT0
-chk("seventy-nine pictures are judged by one call -- thirty-three notation, forty-six mathematical",
-    len(aOgP) = 79)
+chk("eighty-two pictures are judged by one call -- thirty-six notation, forty-six mathematical",
+    len(aOgP) = 82)
 chk("and the report's findings are exactly the five things the corpus plants on purpose -- " +
     "the contradiction, the frame whose mark is outside the part it shows, " +
     "the three-bonded oxygen, the stray hydrogen, the schedule, the timeline and the cause analysis with three mistakes each",
@@ -13618,7 +13625,7 @@ chk("the whole gate runs inside a bound that would have caught its first run -- 
 # empty, none vacuous, every boundary witnessed.
 oOgG = StzMathGovernanceOf("math")
 # from 30: the twenty catalogue pictures, three schemas, three nets and three trees are notation
-for iOg = 34 to len(aOgP)
+for iOg = 37 to len(aOgP)
 	oOgG.AddPicture(aOgP[iOg][1], aOgP[iOg][2])
 next
 aOgR = oOgG.CheckRules()
@@ -13685,7 +13692,7 @@ chk("red to blue at the half is a purple whose lightness is the mean of the two,
 # paper itself -- measured, not assumed. The pictures are the one gate's,
 # already solved; a theme changes no geometry, so no second solve.
 nCmBadL = 0  nCmBadD = 0  nCmNames = 0
-for iCm = 34 to len(aOgP)   # the math pictures: after the twenty catalogue, three schema, three net, three tree and four family ones
+for iCm = 37 to len(aOgP)   # the math pictures: after the twenty catalogue, three schema, three net, three tree, four family and three network ones
 	oCmP = aOgP[iCm][2]
 	oCmP.@oStyle.SetTheme("light")  oCmP.Touch()
 	nCmBadL += _CmUnreadable(oCmP, 3)
@@ -15609,6 +15616,105 @@ chk("the fishbone rules govern every bone of a fishbone and not one object of a 
     "the boundary is stood on",
     len(oFbRule.SubjectsIn(oFbC)) = 6 and len(oFbRule.SubjectsIn(oTlH)) = 0 and len(oFbRule.SubjectsIn(oGtP)) = 0 and
     len(oFbRule.CounterSubjectsIn(oTlH)) > 0 and len(oFbRule.CounterSubjectsIn(oFbC)) = 0)
+
+sec("-- 115. DN21: A NETWORK TOPOLOGY -- DEVICES, LINKS, SUBNETS, ADDRESSES --------")
+discharges("DN21")
+
+# THE NOTATION: top-down from the cloud, no heads, the devices drawn as
+# the trade draws them with their names beneath, a subnet a frame.
+OPTNW = [ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56, :FontSize = 20 ]
+oNwO = StzNetworkScene01(OPTNW)
+chk("the notation reads top-down, draws no head, and declares a switch's ports peers",
+    oNwO.NotationO().Name_() = "network" and NOT oNwO.NotationO().EdgesDirected() and
+    oNwO.NotationO().PeerChildren() and len(oNwO.RenderArrows()) = 0)
+chk("a device's name is written beneath its glyph; the cloud holds its name inside",
+    oNwO.NotationO().WritesNameOutside("host") and oNwO.NotationO().WritesNameOutside("router") and
+    NOT oNwO.NotationO().WritesNameOutside("cloud"))
+chk("the cloud is where the picture begins: nothing links into it, and it stands above the firewall, the router and the switches",
+    oNwO.NotationO()._KindForbids("cloud", "inbound") != "" and
+    _PnCentreY(oNwO, "net") < _PnCentreY(oNwO, "fw") and _PnCentreY(oNwO, "fw") < _PnCentreY(oNwO, "rt") and
+    _PnCentreY(oNwO, "rt") < _PnCentreY(oNwO, "sw1"))
+chk("the seven device glyphs are on the shape sheet",
+    StzIsNodeShape("cloud") and StzIsNodeShape("router") and StzIsNodeShape("switch") and StzIsNodeShape("firewall") and
+    StzIsNodeShape("server") and StzIsNodeShape("host") and StzIsNodeShape("accesspoint"))
+
+# ADDRESSES ARE NUMBERS, and a subnet is a range of them.
+chk("an IPv4 address is read as a number, dotted quad by dotted quad",
+    StzIpToNumber("10.0.1.5") = 167772421 and StzIpToNumber("0.0.0.0") = 0 and StzIpToNumber("255.255.255.255") = 4294967295)
+chk("NEGATIVE: an octet past 255, a missing octet or a word is not an address",
+    NOT StzIsIpAddress("256.1.1.1") and NOT StzIsIpAddress("10.0.1") and NOT StzIsIpAddress("ten.0.0.1"))
+chk("a CIDR is its first and last address, and an address is inside it or not",
+    StzCidrRange("10.0.1.0/24")[1] = 167772416 and StzCidrRange("10.0.1.0/24")[2] = 167772671 and
+    StzIpInCidr("10.0.1.255", "10.0.1.0/24") and NOT StzIpInCidr("10.0.2.0", "10.0.1.0/24") and
+    StzIpInCidr("192.168.5.7", "192.168.0.0/16"))
+chk("NEGATIVE: a prefix past 32, or no prefix at all, is not a subnet",
+    NOT StzIsCidr("10.0.1.0/33") and NOT StzIsCidr("10.0.1.0") and StzIsCidr("10.0.0.0/8"))
+
+# REACH, READ OFF THE TOPOLOGY.
+chk("a router's neighbours are the firewall and its two switches",
+    _FmSetIs(oNwO.NeighboursOf("rt"), [ "fw", "sw1", "sw2" ]))
+chk("Alice is four links from the internet, and four from the web server through the router",
+    oNwO.HopsBetween("pc1", "net") = 4 and oNwO.HopsBetween("web", "pc1") = 4 and oNwO.HopsBetween("rt", "rt") = 0)
+chk("a subnet answers its members and a member its subnet; a device answers its address",
+    oNwO.SubnetOf("web") = "servers" and len(oNwO.DevicesIn("people")) = 4 and
+    oNwO.AddressOf("db") = "10.0.1.11" and oNwO.CidrOf("people") = "10.0.2.0/24" and oNwO.KindOf("ap") = "accesspoint")
+
+# THE RULES: the office passes; the witness names one of each mistake,
+# the address collision on both hosts and the ring on all three switches.
+chk("the office is lawful -- the rules find nothing", len(oNwO.GovernanceFindings()) = 0)
+oNwW = StzNetworkSceneWitness(OPTNW)
+aNwW = oNwW.GovernanceFindings()
+? "   witness : " + len(aNwW) + " findings"
+chk("a device wired to nothing is caught", _PorHits(aNwW, "every_device_is_linked") = 1 and
+    _ErFound(aNwW, "every_device_is_linked", "'Printer' is linked to nothing"))
+chk("one address on two hosts is caught on both, naming the other and the address",
+    _PorHits(aNwW, "addresses_are_unique") = 2 and
+    _ErFound(aNwW, "addresses_are_unique", "'Alice' and 'Bob' both carry 10.0.2.21"))
+chk("a host in a subnet with an address outside its range is caught, naming the subnet and the range",
+    _PorHits(aNwW, "address_in_its_subnet") = 1 and
+    _ErFound(aNwW, "address_in_its_subnet", "'Carol' carries 10.0.2.23 inside 'Servers', which is 10.0.1.0/24"))
+chk("a ring of switches is caught on every switch of the ring",
+    _PorHits(aNwW, "switches_form_no_loop") = 3 and
+    _ErFound(aNwW, "switches_form_no_loop", "'Switch 2' is on a ring of switches"))
+chk("the internet linked around the firewall is caught, naming what it links into",
+    _PorHits(aNwW, "the_edge_is_guarded") = 1 and
+    _ErFound(aNwW, "the_edge_is_guarded", "'Internet' links straight into 'Switch 2', a switch"))
+chkeq("...and those are all of them: eight", len(aNwW), 8)
+
+# THE BOUNDARIES, STOOD ON.
+oNwRs = StzNetworkRuleSetQ()
+oNwG = oNwW.AsRuleGraph()
+chk("NEGATIVE: the note is excluded by every rule, not merely passed",
+    _ErExcludedEverywhere(oNwRs, oNwG, "note:n1"))
+chk("NEGATIVE: a device with no address is outside the rule about addresses, and one in no subnet outside the rule about subnets",
+    _ErInList("host:prn", oNwRs.Rules()[2].CounterSubjectsIn(oNwG)) and
+    _ErInList("host:pc1", oNwRs.Rules()[3].CounterSubjectsIn(oNwG)) and
+    _ErInList("host:pc3", oNwRs.Rules()[3].SubjectsIn(oNwG)))
+chk("NEGATIVE: the ring rule is about switches -- a router is outside it, a switch inside",
+    _ErInList("router:rt", oNwRs.Rules()[4].CounterSubjectsIn(oNwG)) and
+    _ErInList("switch:s1", oNwRs.Rules()[4].SubjectsIn(oNwG)))
+oNwF = StzNetworkScene02(OPTNW)
+chk("NEGATIVE: two switches joined through a router are a route, not a ring -- the floors are lawful",
+    _PorHits(oNwF.GovernanceFindings(), "switches_form_no_loop") = 0 and len(oNwF.GovernanceFindings()) = 0)
+
+# THE BUILDER REFUSES WHAT IT CANNOT MEAN.
+chk("a link to a device that is not on the network is refused, and named", _NwRefuses(1))
+chk("a device linked to itself is refused", _NwRefuses(2))
+chk("an address that is not one, and a subnet that is not one, are refused", _NwRefuses(3) and _NwRefuses(4))
+chk("a kind that is not a device, and a second device under one id, are refused", _NwRefuses(5) and _NwRefuses(6))
+
+# THE PICTURE: the two subnets are two frames that do not overlap, each
+# member inside its own, and the last of one a pitch from the first of
+# the next -- the cohesion pass used to stand marks a cell apart and push
+# the two frames into each other.
+aNwCl = oNwO.RenderClusterRects()
+chk("two subnets, two frames, and the frames do not overlap",
+    len(aNwCl) = 2 and (aNwCl[1][1] + aNwCl[1][3] < aNwCl[2][1] or aNwCl[2][1] + aNwCl[2][3] < aNwCl[1][1]))
+chk("a subnet's members stand inside its frame",
+    _NwInsideFrame(oNwO, "web", aNwCl, "servers") and _NwInsideFrame(oNwO, "ap", aNwCl, "people"))
+chk("the last server and the first person stand more than a mark and a name apart, not 61px",
+    _PnCentreX(oNwO, "pc1") - _PnCentreX(oNwO, "db") > 150)
+chk("a topology answers Rendition() as a vector", oNwO.Rendition()[:kind] = "vector")
 
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
@@ -19144,6 +19250,47 @@ func _ErRefusesKind
 		# a symbol is a lowercase string in Ring, so the name comes back so
 		return StzFindFirst("sometimes", StzLower(cCatchError)) > 0
 	done
+	return FALSE
+
+#-- DN21: the network section's helpers --------------------------------------
+
+func _NwRefuses pnCase
+	try
+		_o_ = new stzNetworkDiagram("x")
+		_o_.AddDeviceXT("a", "A", "host", "10.0.0.1")
+		_o_.AddDevice("b", "B", "switch")
+		if pnCase = 1  _o_.Link("a", "nobody")  ok
+		if pnCase = 2  _o_.Link("a", "a")  ok
+		if pnCase = 3  _o_.AddDeviceXT("c", "C", "host", "10.0.0.256")  ok
+		if pnCase = 4  _o_.AddSubnet("s", "S", "10.0.0.0/40", [ "a" ])  ok
+		if pnCase = 5  _o_.AddDevice("t", "T", "toaster")  ok
+		if pnCase = 6  _o_.AddDevice("a", "again", "host")  ok
+	catch
+		if pnCase = 1  return StzFindFirst("nobody", cCatchError) > 0  ok
+		if pnCase = 2  return StzFindFirst("itself", cCatchError) > 0  ok
+		if pnCase = 3  return StzFindFirst("not an IPv4 address", cCatchError) > 0  ok
+		if pnCase = 4  return StzFindFirst("not a subnet", cCatchError) > 0  ok
+		if pnCase = 5  return StzFindFirst("not a device kind", cCatchError) > 0  ok
+		return StzFindFirst("already", cCatchError) > 0
+	done
+	return FALSE
+
+# the node's drawn box lies inside the frame that carries the subnet's members
+func _NwInsideFrame poD, pcId, paFrames, pcSubnet
+	_aR_ = _PnRectOf(poD, pcId)
+	if len(_aR_) < 4  return FALSE  ok
+	_aM_ = poD.DevicesIn(pcSubnet)
+	for _i_ = 1 to len(paFrames)
+		_f_ = paFrames[_i_]
+		if len(_f_[5]) != len(_aM_)  loop  ok
+		_bIn_ = FALSE
+		for _j_ = 1 to len(_f_[5])
+			if _f_[5][_j_] = StzLower("" + pcId)  _bIn_ = TRUE  ok
+		next
+		if NOT _bIn_  loop  ok
+		return _aR_[1] >= _f_[1] and _aR_[1] + _aR_[3] <= _f_[1] + _f_[3] and
+		       _aR_[2] >= _f_[2] and _aR_[2] + _aR_[4] <= _f_[2] + _f_[4]
+	next
 	return FALSE
 
 #-- DN20: the fishbone section's helpers -------------------------------------

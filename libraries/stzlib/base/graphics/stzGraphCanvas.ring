@@ -263,6 +263,12 @@ class stzGraphCanvas from stzObject
 	def RawSpanX()    return @nRawSpanX
 	def RawSpanY()    return @nRawSpanY
 	def LayerCount()  return @nLayerCount
+	# a node's signed demand in slot units, zero where none was sent
+	def _DemandOf(paXtra, nId)
+		if NOT isList(paXtra) or nId < 1 or nId > len(paXtra)  return 0  ok
+		if NOT isNumber(paXtra[nId])  return 0  ok
+		return paXtra[nId]
+
 	def IsUnitX()     return @bUnitX
 	def LayoutCrossings()  return @nLayoutCrossings
 
@@ -2046,9 +2052,24 @@ class stzGraphCanvas from stzObject
 							_sum_ += @aX[_m_]
 						next
 						_mid_ = _sum_ / _mn_
+						# AT THE MEMBERS' OWN PITCH, not a flat slot. This
+						# stood the members one slot apart whatever they
+						# had asked for, so two marks that had given room
+						# back were spread to a cell's width -- and the
+						# spreading pushed the last member of one subnet
+						# onto the first of the next: two names 61px apart
+						# under two frames that overlapped. A neighbour's
+						# pitch is one slot plus what each of the two
+						# demands, signed, which is the engine's own law.
+						_aOffs_ = [ 0 ]
+						for _mi_ = 2 to _mn_
+							_aOffs_ + (_aOffs_[_mi_ - 1] + 1 +
+								This._DemandOf(_xtra_, _mem_[_mi_ - 1]) +
+								This._DemandOf(_xtra_, _mem_[_mi_]))
+						next
+						_nSpan_ = _aOffs_[_mn_]
 						for _mi_ = 1 to _mn_
-							@aX[ _mem_[_mi_] ] = _mid_ +
-								(_mi_ - (_mn_ + 1) / 2)
+							@aX[ _mem_[_mi_] ] = _mid_ - _nSpan_ / 2 + _aOffs_[_mi_]
 						next
 					next
 				next
@@ -2102,6 +2123,25 @@ class stzGraphCanvas from stzObject
 						ok
 						@aX[_id_] += _sh_
 						_prevD_ = _curD_
+					next
+				next
+				# ...AND NOTHING STANDS CLOSER THAN ITS PITCH. Cohesion
+				# recentres each cluster's members on their mean, so the
+				# last of one cluster can be carried onto the first of
+				# the next; the engine's separation ran before both
+				# passes and does not run again. One sweep along each
+				# level, left to right, pushes a node out to one slot
+				# plus the two demands from the one before it.
+				for _L_ = 1 to _max_ + 1
+					_prv_ = 0
+					for _k_ = _starts_[_L_] + 1 to _starts_[_L_ + 1]
+						_id_ = _order_[_k_] + 1
+						if _prv_ > 0
+							_nMin_ = @aX[_prv_] + 1 + This._DemandOf(_xtra_, _prv_) +
+								This._DemandOf(_xtra_, _id_)
+							if @aX[_id_] < _nMin_  @aX[_id_] = _nMin_  ok
+						ok
+						_prv_ = _id_
 					next
 				next
 

@@ -978,7 +978,15 @@ class stzDiagram from stzGraph
 			for _cfI_ = 1 to len(_cfB_)
 				if _cfB_[_cfI_] != aRect[5][_cfI_]  _bSame_ = 0  exit  ok
 			next
-			if _bSame_  return "" + _cfC_[:color]  ok
+			# THE SURFACE, NOT THE HUE. The frame is painted at its hue's
+			# surface step (see the cluster pass in the render); this
+			# answered the hue as declared, so every name plate inside a
+			# subnet came out a dark slate card on a pale blue field --
+			# the very card the Principal marked. One quantity, one source.
+			if _bSame_
+				if "" + _cfC_[:color] = ""  return ""  ok
+				return StzColorAtLightness("" + _cfC_[:color], StzRoleStepL(:Surface))
+			ok
 		next
 		return ""
 
@@ -3748,7 +3756,9 @@ class stzDiagram from stzGraph
 						ok
 						_at0_ = This._XYOf(_aXY_, "" + _n0_[:id])
 						if len(_at0_) != 2  loop  ok
-						if _at0_[2] + _nBoxH_ / 2 + _nFsz_ * 2 > _ey1_
+						# below the mark under a top-down rank; a left-to-right
+						# picture writes the name beside, as _ContentExtent says
+						if NOT _bSwap_ and _at0_[2] + _nBoxH_ / 2 + _nFsz_ * 2 > _ey1_
 							_ey1_ = _at0_[2] + _nBoxH_ / 2 + _nFsz_ * 2
 						ok
 						# ...AND IT IS WIDER THAN THE MARK IT NAMES.
@@ -15786,6 +15796,15 @@ class stzDiagram from stzGraph
 			next
 			if _cWnK_ != "" and _oWn_.WritesNameInside(_cWnK_)
 				return 0
+			ok
+			# ...AND A KIND THE PROFILE WRITES OUTSIDE WRITES IT BELOW,
+			# whatever its glyph. The list beneath names the shapes that
+			# always do; a network's router, switch and host are drawn by
+			# glyphs it never heard of, so their names were drawn beneath
+			# and reserved nowhere -- the witness's last rank had "Alice"
+			# cut by the paper's edge.
+			if _cWnK_ != "" and _oWn_.WritesNameOutside(_cWnK_)
+				return 1
 			ok
 		ok
 		_aWn_ = [ "circle", "doublecircle", "dot", "diamond",
