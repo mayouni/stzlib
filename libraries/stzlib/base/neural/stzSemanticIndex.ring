@@ -44,6 +44,7 @@
 # becomes a METHOD of that class -- this one was, and was reachable only
 # from inside the index (found by the GS4 guard, 2026-09-09).
 func StzNeuralEmbeddingOf(pcText)
+	StzNeuralVariantsSync()
 	_nDim_ = StzEngineNeuralEmbed(pcText)
 	if _nDim_ = 0 return [] ok
 	_aVec_ = []

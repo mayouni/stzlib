@@ -108,6 +108,10 @@ func StzUmapKnnVariantsSync()
 		return
 	ok
 	$bStzUmapKnnVariantsSynced_ = 1
+	# the persisted rows are read from the default calibration file first: it
+	# loads without a device, fill-only, and a process that never opened the
+	# stzGpu face has not replayed it yet
+	StzGpuLoadCalibrationDefault()
 	_aRows_ = StzGpuVariants()
 	_n_ = len(_aRows_)
 	for _i_ = 1 to _n_

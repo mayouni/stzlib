@@ -19,6 +19,8 @@
 # assigned, so a caller who asks StzLastGrammarRun() before any grammar
 # has been used deserves zeros rather than an error.
 $aStzLastGrammarRun = [ :judged = 0, :masked = 0, :steps = 0, :stalled = 0, :complete = 0 ]
+# GK2b: the matmul verdicts are pushed into the neural DLL once -- see StzNeuralVariantsSync()
+$bStzNeuralVariantsSynced_ = 0
 
 # StzNeuralModelQ(cPath) -- construct a model object and load the GGUF at
 # cPath. ONE creation function, named for its class + Q (the house rule).
@@ -390,12 +392,38 @@ func StzSemanticSimilarity(pcA, pcB)
 # Run one forward pass and copy the embedding out of the engine's single g_emb
 # buffer into a fresh Ring list (so a second embed doesn't clobber the first).
 func _StzEmbedInto(pcText)
+	StzNeuralVariantsSync()
 	_nDim_ = StzEngineNeuralEmbed(pcText)
 	_aVec_ = []
 	for i = 0 to _nDim_ - 1
 		_aVec_ + StzEngineNeuralEmbedAt(i)
 	next
 	return _aVec_
+
+# THE PERSISTED MATMUL VERDICTS reach the neural DLL here (GK2b). The foundry
+# records a winner per (m, n, k) class under the op name "matmul" in the GPU
+# calibration file (stz_gpu.ring replays it into stz_gpu.dll's table at load);
+# the neural DLL owns its own device and its own table, so the rows are pushed
+# across once, before the first embedding -- order-proof, whichever loader ran
+# first. The backbone then compiles the winner with its bias fused.
+func StzNeuralVariantsSync()
+	if $bStzNeuralVariantsSynced_
+		return
+	ok
+	$bStzNeuralVariantsSynced_ = 1
+	# the persisted rows are read from the default calibration file first: it
+	# loads without a device, fill-only, and a process that never opened the
+	# stzGpu face has not replayed it yet
+	StzGpuLoadCalibrationDefault()
+	_aRows_ = StzGpuVariants()
+	_n_ = len(_aRows_)
+	for _i_ = 1 to _n_
+		_r_ = _aRows_[_i_]
+		if _r_[1] = "matmul"
+			# rows are [ op, m, n, d(=k), variant ]
+			StzEngineNeuralVariantSet("matmul", _r_[2], _r_[3], _r_[4], _r_[5])
+		ok
+	next
 
 class stzNeuralModel from stzNeural
 
@@ -491,6 +519,7 @@ class stzNeuralModel from stzNeural
 		# sentence-embedding vector as a list of EmbeddingDim() floats (DATA).
 		def EmbeddingOf(pcText)
 			if NOT isString(pcText) return [] ok
+			StzNeuralVariantsSync()
 			_nDim_ = StzEngineNeuralEmbed(pcText)
 			if _nDim_ = 0 return [] ok
 			_aVec_ = []

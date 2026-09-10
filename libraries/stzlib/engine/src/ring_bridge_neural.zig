@@ -5,6 +5,7 @@ const gen = @import("neural_gen.zig");
 const gex = @import("gguf_export.zig");
 const ngpu = @import("neural_gpu.zig");
 const nbb = @import("neural_backbone.zig");
+const gops = @import("gpu_ops.zig"); // this DLL's own variant table (per-DLL device law)
 const gbnf = @import("schema_gbnf.zig");
 const gmach = @import("gbnf_machine.zig");
 const R = @import("ring_api.zig");
@@ -237,6 +238,23 @@ fn ring_GpuCountersReset(p: *anyopaque) callconv(.c) void {
 // backbone did not run: no device, unsupported model shape, any refusal).
 // Tokenizes through the SAME tokenizer the CPU path uses, so only the
 // numeric core differs between the two routes.
+// GK2b: the persisted matmul verdicts reach THIS DLL's variant table here --
+// stz_gpu.dll's table is not ours (one device, one gpu_ops copy per DLL)
+fn ring_NeuralVariantSet(p: *anyopaque) callconv(.c) void {
+    const op = R.ring_vm_api_getstring(p, 1);
+    const len = R.ring_vm_api_getstringsize(p, 1);
+    rn(p, @floatFromInt(gops.stz_gpu_variant_set(op, @floatFromInt(len), R.ring_vm_api_getnumber(p, 2), R.ring_vm_api_getnumber(p, 3), R.ring_vm_api_getnumber(p, 4), R.ring_vm_api_getnumber(p, 5))));
+}
+fn ring_NeuralVariantGet(p: *anyopaque) callconv(.c) void {
+    const op = R.ring_vm_api_getstring(p, 1);
+    const len = R.ring_vm_api_getstringsize(p, 1);
+    rn(p, gops.stz_gpu_variant_get(op, @floatFromInt(len), R.ring_vm_api_getnumber(p, 2), R.ring_vm_api_getnumber(p, 3), R.ring_vm_api_getnumber(p, 4)));
+}
+fn ring_NeuralVariantClear(p: *anyopaque) callconv(.c) void {
+    gops.stz_gpu_variant_clear();
+    rn(p, 1);
+}
+
 fn ring_BackboneEmbed(p: *anyopaque) callconv(.c) void {
     const ptr = gs(p, 1);
     const len: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
@@ -456,6 +474,9 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralbackbonemintokens", .func = &ring_BackboneMinTokens },
     .{ .name = "stzengineneuralbackboneroutecount", .func = &ring_BackboneRouteCount },
     .{ .name = "stzengineneuralbackboneroutereset", .func = &ring_BackboneRouteReset },
+    .{ .name = "stzengineneuralvariantset", .func = &ring_NeuralVariantSet },
+    .{ .name = "stzengineneuralvariantget", .func = &ring_NeuralVariantGet },
+    .{ .name = "stzengineneuralvariantclear", .func = &ring_NeuralVariantClear },
     .{ .name = "stzengineneuralgpuruntimepath", .func = &ring_GpuRuntimePath },
     .{ .name = "stzengineneuralgpusetthreshold", .func = &ring_GpuSetThreshold },
     .{ .name = "stzengineneuralgputhreshold", .func = &ring_GpuThreshold },

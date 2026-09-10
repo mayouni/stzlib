@@ -2137,3 +2137,74 @@ of the answer is what makes a wrong neighbour visible.
 Next on this plane from the paper: trustworthiness as the guard's
 witness, computed with this kernel. Named, not built: GK2b (matmul
 tiles), GK3.
+
+---
+
+## GK2b STATUS — matmul leg shipped 2026-09-10: the backbone's spine at 3x, by a variant the checker chose
+
+Guard: `base/test/gpu/gpu_foundry_matmul_narrated.ring` — **21 asserts
+green**. Gates: `gpu_ops_narrated` 37, `gpu_foundry_narrated` 27,
+`neural_backbone_narrated` 14, `neural_gpu_routing_narrated` 17,
+`numeric_umap_resident` 18, `numeric_umap_gpu` 23; Zig `gpu_ops.zig` 6.
+
+**Why now, and only this half.** GK2b named two legs: matmul tiles and
+the elementwise workgroup widths. The elementwise half has no caller
+that dispatches from a face, so a winner there would sit unused; it
+stays named. The matmul half has one: the neural backbone's 6-layer
+spine runs the op library's 16×16 tile kernel resident at a measured
+1.5x over the CPU, and the semantic tier's per-layer route dispatches
+the same op. That is a workload asking.
+
+**What shipped.** Four kernels on one contract in `gpu_ops.zig` —
+C(m×n) = A(m×k)·B(k×n), every one on a LINEAR workgroup grid so GK0's
+checker, which dispatches (wx, 1), can judge them all at any shape:
+**tile16** (the G0 spike kernel, the generic), **tile8**, **reg2**
+(16×16 threads each computing a 2×2 block: a 32×32 tile), **reg4**
+(4×4 per thread: a 64×64 tile, sixteen accumulators). A **broken**
+sibling (reg2 with one element wrong) exists for the checker to refuse.
+`mmSource(v, bias)` generates each kernel's text with or without a
+fused bias, so the backbone compiles the SAME winner the table names
+for its shape in its own (bias) form. `stz_gpu_foundry_matmul(m, k, n,
+reps, mask)` runs the enumeration; the winner per (m, n, k) class lands
+in the variant table under `matmul`, is persisted beside pairdist's
+rows, and reaches the neural DLL's own table (its own device, its own
+gpu_ops copy) through `StzNeuralVariantsSync()` before the first
+embedding. Face: `stzGpu.FoundryMatmul(m, k, n)`.
+
+**The kill line, measured on the RTX 3050 on the backbone's shapes,
+GPU clock, every cell VERIFIED at its visible and hidden shape:**
+
+| m × k × n | generic | tile8 | reg2 | reg4 | verdict |
+|---|---|---|---|---|---|
+| 64 × 384 × 384 | 0.11 ms | 0.82x | **1.47x** | 1.21x | reg2 |
+| 256 × 384 × 384 | 0.39 ms | 0.87x | 2.28x | **2.59x** | reg4 |
+| 256 × 384 × 1536 | 1.53 ms | 0.79x | 2.37x | **4.28x** | reg4 |
+| 256 × 1536 × 384 | 1.60 ms | 0.86x | 2.43x | **2.52x** | reg4 |
+| 512 × 384 × 1536 | 1.89 ms | 0.82x | 2.25x | **4.35x** | reg4 |
+
+Smaller tiles never pay; register blocking pays everywhere, more the
+wider the output. **And through the real backbone** (MiniLM, 130
+tokens, the winners synced, bias fused): the forward went **23.9 ms →
+8.0 ms, 3.0x** in the measuring probe and 14.3 → 7.5 ms (1.9x) in the
+guard's own run — the "before" moves with the device's power state,
+the "after" sits at 7.5–8 ms either way — the embedding unchanged
+within f32. Against a CPU full forward of 36.6 ms, the spine that was
+1.5x is now 4.6x.
+
+**The finding that cost an hour.** The first register-blocked kernels
+measured 0.18x and 0.04x — slower than the generic by 5x and 25x — and
+were VERIFIED correct. The cause was not the arithmetic: their
+accumulators were private arrays indexed by loop variables, which the
+compiler places in local memory, not registers. Fully unrolled at
+comptime (every accumulator, staged value and store a named scalar) the
+same kernels measure 2.3x and 4.3x. The checker is what made this
+visible as a number rather than a hunch; without it the first draft
+would have read as "register blocking does not pay on this GPU".
+
+**Also paid for:** a Zig `@max` of two comptime constants narrows to a
+three-bit type and overflows when multiplied; kernel-text generators
+that concatenate must be called under `comptime`; and a Zig multiline
+literal written through a shell heredoc loses one backslash of every
+`\\` — write kernel edits through a file, never a heredoc.
+
+GK2b's elementwise half and GK3 stay named, not built.

@@ -707,6 +707,47 @@ class stzGpu from stzObject
 			:stored = _bStored_
 		]
 
+	# THE MATMUL FOUNDRY (GK2b's matmul leg). C(m x n) = A(m x k) B(k x n):
+	# tile16 (the generic), tile8, reg2, reg4 under the checker at the asked
+	# shape and a hidden one; the winner recorded for the (m, n, k) class under
+	# the op name "matmul" and persisted. The backbone compiles the table's
+	# winner for its own shapes with the bias fused.
+	def FoundryMatmul(m, k, n)
+		return This.FoundryMatmulWith(m, k, n, 7)
+
+	def FoundryMatmulWith(m, k, n, nReps)
+		This._RequireDevice()
+		_nSt_ = StzEngineGpuFoundryMatmul(m, k, n, nReps, 0)
+		if _nSt_ != 0
+			StzRaise("FoundryMatmul: the foundry refused to run (status " + _nSt_ +
+				": " + StzEngineGpuFirstError() + ").")
+		ok
+		_nCount_ = StzEngineGpuFoundryResult(0)
+		_aV_ = []
+		for _v_ = 1 to _nCount_
+			_nB_ = 8 + _v_ * 5
+			_aV_ + [ StzEngineGpuMmVariantName(_v_), StzEngineGpuFoundryResult(_nB_),
+			         StzEngineGpuFoundryResult(_nB_ + 1), StzEngineGpuFoundryResult(_nB_ + 2),
+			         StzEngineGpuFoundryResult(_nB_ + 3), StzEngineGpuFoundryResult(_nB_ + 4) ]
+		next
+		_nW_ = StzEngineGpuFoundryResult(3)
+		_bStored_ = FALSE
+		if _nW_ > 0
+			_bStored_ = StzGpuVariantSet("matmul", m, n, k, _nW_)
+			StzGpuSaveCalibration(This._AllCalibOps())
+		ok
+		return [
+			:m = m, :k = k, :n = n,
+			:hiddenn = StzEngineGpuFoundryResult(6),
+			:clocks = StzEngineGpuFoundryResult(5),
+			:refgpums = StzEngineGpuFoundryResult(1),
+			:refwallms = StzEngineGpuFoundryResult(2),
+			:variants = _aV_,
+			:winner = StzEngineGpuMmVariantName(_nW_),
+			:ratio = StzEngineGpuFoundryResult(4),
+			:stored = _bStored_
+		]
+
 	# THE k-NN FOUNDRY (GS6e). The UMAP k-NN kernel lives in the stats DLL on
 	# its own device, so its enumeration runs there; the verdict is recorded in
 	# that DLL's variant table AND persisted here under the op name "umap_knn",

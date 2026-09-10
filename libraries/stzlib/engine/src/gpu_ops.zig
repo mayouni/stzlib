@@ -176,44 +176,235 @@ pub fn stz_gpu_op_scale_inplace(v: i64, alpha: f64, nf: f64) callconv(.c) i32 {
 
 // ---------------------------------------------------------------- matmul
 
-const MmParams = extern struct { m: u32, k: u32, n: u32, pad: u32 };
+pub const MmParams = extern struct { m: u32, k: u32, n: u32, pad: u32 };
 
-// The G0 spike kernel, moved onto the ops binding contract and made
-// x-tileable (col offset by tile.xoff workgroups). 16x16 workgroup tiles;
-// deliberately the FLOOR, not a tuned ceiling -- G0's decision stands
-// either way.
-const WGSL_MATMUL = PRELUDE ++
-    \\struct P { m : u32, k : u32, n : u32, pad : u32 }
-    \\@group(0) @binding(1) var<uniform> p : P;
-    \\@group(0) @binding(2) var<storage, read> a : array<f32>;
-    \\@group(0) @binding(3) var<storage, read> b : array<f32>;
-    \\@group(0) @binding(4) var<storage, read_write> cc : array<f32>;
-    \\var<workgroup> ta : array<f32, 256>;
-    \\var<workgroup> tb : array<f32, 256>;
-    \\@compute @workgroup_size(16, 16)
-    \\fn main(@builtin(global_invocation_id) gid : vec3<u32>,
-    \\        @builtin(local_invocation_id) lid : vec3<u32>) {
-    \\  let row = gid.y;
-    \\  let col = gid.x + tile.xoff * 16u;
-    \\  var acc = 0.0;
-    \\  let tiles = (p.k + 15u) / 16u;
-    \\  for (var t = 0u; t < tiles; t = t + 1u) {
-    \\    let k0 = t * 16u;
-    \\    let acol = k0 + lid.x;
-    \\    let brow = k0 + lid.y;
-    \\    ta[lid.y * 16u + lid.x] = select(0.0, a[row * p.k + acol], row < p.m && acol < p.k);
-    \\    tb[lid.y * 16u + lid.x] = select(0.0, b[brow * p.n + col], brow < p.k && col < p.n);
-    \\    workgroupBarrier();
-    \\    for (var kk = 0u; kk < 16u; kk = kk + 1u) {
-    \\      acc = acc + ta[lid.y * 16u + kk] * tb[kk * 16u + lid.x];
-    \\    }
-    \\    workgroupBarrier();
-    \\  }
-    \\  if (row < p.m && col < p.n) { cc[row * p.n + col] = acc; }
-    \\}
-;
+// ---- the matmul variants (GK2b's matmul leg, under GK0's checker) ----
+//
+// C(m x n) = A(m x k) * B(k x n), row-major f32. Every variant maps ONE
+// LINEAR workgroup index to an output tile (tile row = id / tiles_x, tile
+// col = id % tiles_x), so the checker -- which dispatches (wx, 1) -- can
+// judge every one of them at every shape, and the op dispatches them the
+// same way. The generic is the G0 spike kernel (16x16 threads, one output
+// each, 16-wide K steps through workgroup memory). The variants:
+//
+//   TILE8   8x8 threads, one output each -- more, smaller workgroups for
+//           the backbone's short token counts
+//   REG2    16x16 threads, each a 2x2 block: a 32x32 output tile, every
+//           staged value used twice as often
+//   REG4    16x16 threads, each a 4x4 block: a 64x64 tile, sixteen
+//           accumulators per thread -- the classic register-blocked form
+//   BROKEN  REG2 with one element wrong: the checker's negative sibling,
+//           reachable only through the foundry's mask
+//
+// `mmSource(v, bias)` generates the text, with or without a fused bias
+// (the backbone's projections carry one), so the backbone can compile the
+// SAME winner the table names for its shape and the foundry judged.
 
-/// C(m x n) = A(m x k) * B(k x n), all row-major f32.
+pub const MM_GENERIC: usize = 0;
+pub const MM_TILE8: usize = 1;
+pub const MM_REG2: usize = 2;
+pub const MM_REG4: usize = 3;
+pub const MM_BROKEN: usize = 4; // test only
+pub const MM_REAL: usize = 4;
+pub const MM_VARIANTS: usize = 5;
+pub const mm_variant_names = [_][]const u8{ "tile16", "tile8", "reg2", "reg4", "broken" };
+
+fn mmHead(comptime bias: bool) []const u8 {
+    return PRELUDE ++
+        \\struct P { m : u32, k : u32, n : u32, has_bias : u32 }
+        \\@group(0) @binding(1) var<uniform> p : P;
+        \\@group(0) @binding(2) var<storage, read> a : array<f32>;
+        \\@group(0) @binding(3) var<storage, read> b : array<f32>;
+        \\
+    ++ (if (bias)
+        \\@group(0) @binding(4) var<storage, read> bias : array<f32>;
+        \\@group(0) @binding(5) var<storage, read_write> cc : array<f32>;
+        \\
+    else
+        \\@group(0) @binding(4) var<storage, read_write> cc : array<f32>;
+        \\
+    );
+}
+
+fn mmStore(comptime bias: bool) []const u8 {
+    // the store of one output: (r, c, v) already in scope
+    return if (bias)
+        \\      if (p.has_bias == 1u) { v = v + bias[c]; }
+        \\      cc[r * p.n + c] = v;
+        \\
+    else
+        \\      cc[r * p.n + c] = v;
+        \\
+    ;
+}
+
+/// One-output-per-thread tile of edge E (16 = the generic, 8 = TILE8).
+fn mmTileSource(comptime edge: u32, comptime bias: bool) []const u8 {
+    const es = std.fmt.comptimePrint("{d}", .{edge});
+    const es2 = std.fmt.comptimePrint("{d}", .{edge * edge});
+    return mmHead(bias) ++
+        "var<workgroup> ta : array<f32, " ++ es2 ++ ">;\n" ++
+        "var<workgroup> tb : array<f32, " ++ es2 ++ ">;\n" ++
+        "@compute @workgroup_size(" ++ es ++ ", " ++ es ++ ")\n" ++
+        \\fn main(@builtin(workgroup_id) wid : vec3<u32>, @builtin(local_invocation_id) lid : vec3<u32>) {
+        \\  let E =
+    ++ es ++ "u;\n" ++
+        \\  let id = wid.x + tile.xoff;
+        \\  let tiles_x = (p.n + E - 1u) / E;
+        \\  let row = (id / tiles_x) * E + lid.y;
+        \\  let col = (id % tiles_x) * E + lid.x;
+        \\  var acc = 0.0;
+        \\  let steps = (p.k + E - 1u) / E;
+        \\  for (var t = 0u; t < steps; t = t + 1u) {
+        \\    let k0 = t * E;
+        \\    let acol = k0 + lid.x;
+        \\    let brow = k0 + lid.y;
+        \\    ta[lid.y * E + lid.x] = select(0.0, a[row * p.k + acol], row < p.m && acol < p.k);
+        \\    tb[lid.y * E + lid.x] = select(0.0, b[brow * p.n + col], brow < p.k && col < p.n);
+        \\    workgroupBarrier();
+        \\    for (var kk = 0u; kk < E; kk = kk + 1u) {
+        \\      acc = acc + ta[lid.y * E + kk] * tb[kk * E + lid.x];
+        \\    }
+        \\    workgroupBarrier();
+        \\  }
+        \\  if (row < p.m && col < p.n) {
+        \\    let r = row; let c = col; var v = acc;
+        \\
+    ++ mmStore(bias) ++
+        \\  }
+        \\}
+    ;
+}
+
+/// Register-blocked: 16x16 threads, each an RxR block of outputs (R = 2 or
+/// 4), a (16R)x(16R) tile, 16-wide K steps. FULLY UNROLLED at comptime: a
+/// private array indexed by a loop variable lands in local memory, not
+/// registers, and the first draft of this kernel measured 0.1x for exactly
+/// that reason. Every accumulator, staged value and store is a named scalar.
+fn mmRegSource(comptime R: u32, comptime bias: bool, comptime broken: bool) []const u8 {
+    const ts = std.fmt.comptimePrint("{d}", .{16 * R});
+    const shs = std.fmt.comptimePrint("{d}", .{16 * R * 16});
+    comptime var decl: []const u8 = "";
+    comptime var stage: []const u8 = "";
+    comptime var loads: []const u8 = "";
+    comptime var fma: []const u8 = "";
+    comptime var store: []const u8 = "";
+    inline for (0..R) |i| {
+        inline for (0..R) |j| {
+            decl = decl ++ std.fmt.comptimePrint("  var acc{d}{d} = 0.0;\n", .{ i, j });
+            fma = fma ++ std.fmt.comptimePrint("      acc{d}{d} = acc{d}{d} + av{d} * bv{d};\n", .{ i, j, i, j, i, j });
+            store = store ++ std.fmt.comptimePrint(
+                \\  {{
+                \\    let r = row0 + lid.y * {d}u + {d}u;
+                \\    let c = col0 + lid.x * {d}u + {d}u;
+                \\    var v = acc{d}{d};
+                \\
+            , .{ R, i, R, j, i, j }) ++
+                (if (broken and i == 1 and j == 1)
+                \\    if (r == 1u && c == 1u) { v = v + 1.0; }
+                \\
+            else
+                "") ++
+                "    if (r < p.m && c < p.n) {\n" ++ mmStore(bias) ++ "    }\n  }\n";
+        }
+        stage = stage ++ std.fmt.comptimePrint(
+            \\    {{
+            \\      let ar = row0 + lid.y * {d}u + {d}u;
+            \\      let ac = k0 + lid.x;
+            \\      ta[(lid.y * {d}u + {d}u) * 16u + lid.x] = select(0.0, a[ar * p.k + ac], ar < p.m && ac < p.k);
+            \\      let br = k0 + lid.y;
+            \\      let bc = col0 + lid.x * {d}u + {d}u;
+            \\      tb[lid.y * {d}u + lid.x * {d}u + {d}u] = select(0.0, b[br * p.n + bc], br < p.k && bc < p.n);
+            \\    }}
+            \\
+        , .{ R, i, R, i, R, i, 16 * R, R, i });
+        loads = loads ++ std.fmt.comptimePrint("      let av{d} = ta[(lid.y * {d}u + {d}u) * 16u + kk];\n      let bv{d} = tb[kk * {d}u + lid.x * {d}u + {d}u];\n", .{ i, R, i, i, 16 * R, R, i });
+    }
+    return mmHead(bias) ++
+        "var<workgroup> ta : array<f32, " ++ shs ++ ">;\n" ++
+        "var<workgroup> tb : array<f32, " ++ shs ++ ">;\n" ++
+        \\@compute @workgroup_size(16, 16)
+        \\fn main(@builtin(workgroup_id) wid : vec3<u32>, @builtin(local_invocation_id) lid : vec3<u32>) {
+        \\  let T =
+    ++ ts ++ "u;\n" ++
+        \\  let id = wid.x + tile.xoff;
+        \\  let tiles_x = (p.n + T - 1u) / T;
+        \\  let row0 = (id / tiles_x) * T;
+        \\  let col0 = (id % tiles_x) * T;
+        \\
+    ++ decl ++
+        \\  let steps = (p.k + 15u) / 16u;
+        \\  for (var t = 0u; t < steps; t = t + 1u) {
+        \\    let k0 = t * 16u;
+        \\
+    ++ stage ++
+        \\    workgroupBarrier();
+        \\    for (var kk = 0u; kk < 16u; kk = kk + 1u) {
+        \\
+    ++ loads ++ fma ++
+        \\    }
+        \\    workgroupBarrier();
+        \\  }
+        \\
+    ++ store ++
+        \\}
+    ;
+}
+
+/// The kernel text of variant v, with or without a fused bias. Public so the
+/// backbone compiles the table's winner in its own (bias) shape.
+pub fn mmSource(v: usize, comptime bias: bool) []const u8 {
+    return switch (v) {
+        MM_TILE8 => comptime mmTileSource(8, bias),
+        MM_REG2 => comptime mmRegSource(2, bias, false),
+        MM_REG4 => comptime mmRegSource(4, bias, false),
+        MM_BROKEN => comptime mmRegSource(2, bias, true),
+        else => comptime mmTileSource(16, bias),
+    };
+}
+
+pub fn mmVariantEligible(v: usize, m: usize, k: usize, n: usize) bool {
+    _ = m;
+    _ = k;
+    _ = n;
+    return v < MM_VARIANTS; // every variant bounds-checks; any shape
+}
+
+pub fn mmKernelFor(v: usize) i64 {
+    return compile(mmSource(v, false));
+}
+
+/// Tiles on the linear grid every matmul variant reads: wy is always 1.
+pub fn mmGeometry(v: usize, m: usize, n: usize) Geometry {
+    const edge: usize = switch (v) {
+        MM_TILE8 => 8,
+        MM_REG2, MM_BROKEN => 32,
+        MM_REG4 => 64,
+        else => 16,
+    };
+    return .{ .wx = ceilDiv(n, edge) * ceilDiv(m, edge), .wy = 1 };
+}
+
+/// The table's choice for (m, n, k), degraded to an eligible variant.
+pub fn mmVariantFor(m: usize, k: usize, n: usize) usize {
+    const want: usize = @intFromFloat(stz_gpu_variant_get("matmul", 6, @floatFromInt(m), @floatFromInt(n), @floatFromInt(k)));
+    var v = if (want < MM_REAL) want else MM_GENERIC;
+    while (v > MM_GENERIC and !mmVariantEligible(v, m, k, n)) v -= 1;
+    return v;
+}
+
+pub fn stz_gpu_mm_variant_name(v: f64, out: [*]u8, cap: f64) callconv(.c) i32 {
+    const i: usize = @intFromFloat(@max(v, 0));
+    if (i >= MM_VARIANTS) return 0;
+    const nm = mm_variant_names[i];
+    const c: usize = @intFromFloat(cap);
+    if (nm.len > c) return 0;
+    @memcpy(out[0..nm.len], nm);
+    return @intCast(nm.len);
+}
+
+/// C(m x n) = A(m x k) * B(k x n), all row-major f32 -- by the variant the
+/// table names for the shape class (the generic when it names none).
 pub fn stz_gpu_op_matmul(a: i64, b: i64, cbuf: i64, mf: f64, kf: f64, nf: f64) callconv(.c) i32 {
     const gate = gateAvailable();
     if (gate != gpu.OK) return gate;
@@ -227,10 +418,13 @@ pub fn stz_gpu_op_matmul(a: i64, b: i64, cbuf: i64, mf: f64, kf: f64, nf: f64) c
     if (st != gpu.OK) return st;
     st = checkBuf(cbuf, m * n);
     if (st != gpu.OK) return st;
-    const kern = compile(WGSL_MATMUL);
+    const v = mmVariantFor(m, k, n);
+    const kern = mmKernelFor(v);
     if (kern == 0) return if (gpu.stz_gpu_is_available() == 0) gpu.FALLBACK else gpu.GPU_ERROR;
+    if (v != MM_GENERIC) gpu.bumpCounter(gpu.CTR_VARIANT_DISPATCH, 1);
     const p = MmParams{ .m = @intCast(m), .k = @intCast(k), .n = @intCast(n), .pad = 0 };
-    return dispatchP(kern, &p, &.{ a, b, cbuf }, ceilDiv(n, TILE), ceilDiv(m, TILE));
+    const g = mmGeometry(v, m, n);
+    return dispatchP(kern, &p, &.{ a, b, cbuf }, g.wx, g.wy);
 }
 
 // ---------------------------------------------------------------- pairwise distance
@@ -802,4 +996,17 @@ pub fn stz_gpu_op_topk(dbuf: i64, nf: f64, kf: f64, out_idx: [*]f64, out_dist: [
 
 test {
     _ = gpu;
+}
+
+test "the matmul table classes shapes and never holds the broken sibling" {
+    variants.clearRetainingCapacity();
+    _ = stz_gpu_variant_set("matmul", 6, 256, 1536, 384, @floatFromInt(MM_REG4));
+    try std.testing.expectEqual(@as(usize, MM_REG4), mmVariantFor(256, 384, 1536));
+    try std.testing.expectEqual(@as(usize, MM_REG4), mmVariantFor(200, 300, 1100)); // same classes
+    try std.testing.expectEqual(@as(usize, MM_GENERIC), mmVariantFor(256, 384, 384)); // another n-class
+    try std.testing.expectEqual(gpu.BAD_ARG, stz_gpu_variant_set("matmul", 6, 256, 1536, 384, @floatFromInt(MM_BROKEN)));
+    const g = mmGeometry(MM_REG4, 256, 1536);
+    try std.testing.expectEqual(@as(usize, 24 * 4), g.wx); // 64x64 tiles on a linear grid
+    try std.testing.expectEqual(@as(usize, 1), g.wy);
+    stz_gpu_variant_clear();
 }
