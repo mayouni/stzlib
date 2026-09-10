@@ -42,6 +42,7 @@ const calibstore = @import("calib.zig");
 const ann = @import("ann.zig");
 const lbfgs = @import("lbfgs.zig");
 const density = @import("density.zig");
+const umap_gpu = @import("umap_gpu.zig");
 
 pub const Options = struct {
     /// the local/global dial; the reference implementation defaults to 15
@@ -354,6 +355,10 @@ fn knn(
     idx_out: []u32,
     dist_out: []f64,
 ) !void {
+    // GS6c: the device's exact scan first, when the corpus reaches its gate and
+    // a device answers -- above ANN_MIN_N that is an EXACT answer where the
+    // forest gave an approximate one. Any refusal: the CPU, as before, counted.
+    if (umap_gpu.knn(x, n, d, k, idx_out, dist_out, false)) return;
     if (n >= ANN_MIN_N) return knnApprox(alloc, x, n, d, k, idx_out, dist_out);
     return knnExact(alloc, x, n, d, k, idx_out, dist_out);
 }
@@ -406,7 +411,7 @@ fn knnExactRow(x: []const f64, n: usize, d: usize, k: usize, i: usize, cand: []f
     }
 }
 
-fn knnExact(
+pub fn knnExact(
     alloc: std.mem.Allocator,
     x: []const f64,
     n: usize,
@@ -614,6 +619,142 @@ pub const Graph = struct {
     }
 };
 
+/// The fuzzy union of the directed neighbour weights, sparse: for every point
+/// i, its out-neighbours (sorted by index) merged with the points that list i
+/// (the in-edges, an n-bucket transpose, sorted by construction), every pair
+/// j > i once, u = a + b - a*b with a = w(i->j) and b = w(j->i). Same values,
+/// same order as the dense form -- see fuzzyUnionDense, kept for the test.
+fn fuzzyUnionSparse(
+    alloc: std.mem.Allocator,
+    idx: []const u32,
+    wd: []const f64,
+    n: usize,
+    k: usize,
+    edges: *std.ArrayList(Edge),
+    wmax: *f64,
+) !void {
+    // in-edges: for each j, the i that list it, ascending in i
+    const off = try alloc.alloc(u32, n + 1);
+    defer alloc.free(off);
+    @memset(off, 0);
+    for (0..n) |i| {
+        for (0..k) |s| {
+            const j = idx[i * k + s];
+            if (j != i) off[@as(usize, j) + 1] += 1;
+        }
+    }
+    for (0..n) |j| off[j + 1] += off[j];
+    const src = try alloc.alloc(u32, off[n]);
+    defer alloc.free(src);
+    const srcw = try alloc.alloc(f64, off[n]);
+    defer alloc.free(srcw);
+    const cur = try alloc.alloc(u32, n);
+    defer alloc.free(cur);
+    @memcpy(cur, off[0..n]);
+    for (0..n) |i| {
+        for (0..k) |s| {
+            const j = idx[i * k + s];
+            if (j == i) continue;
+            src[cur[j]] = @intCast(i);
+            srcw[cur[j]] = wd[i * k + s];
+            cur[j] += 1;
+        }
+    }
+    // out-row of i sorted by j (k is small; insertion). A repeated j in a row
+    // keeps the LAST weight, which is what the dense store did.
+    const oj = try alloc.alloc(u32, k);
+    defer alloc.free(oj);
+    const ow = try alloc.alloc(f64, k);
+    defer alloc.free(ow);
+    const NONE: u32 = std.math.maxInt(u32);
+    for (0..n) |i| {
+        var cnt: usize = 0;
+        for (0..k) |s| {
+            const j = idx[i * k + s];
+            if (j == i) continue;
+            var pos: usize = 0;
+            while (pos < cnt and oj[pos] < j) pos += 1;
+            if (pos < cnt and oj[pos] == j) {
+                ow[pos] = wd[i * k + s];
+                continue;
+            }
+            var q = cnt;
+            while (q > pos) : (q -= 1) {
+                oj[q] = oj[q - 1];
+                ow[q] = ow[q - 1];
+            }
+            oj[pos] = j;
+            ow[pos] = wd[i * k + s];
+            cnt += 1;
+        }
+        var po: usize = 0;
+        var pi: usize = off[i];
+        const pe: usize = off[i + 1];
+        while (po < cnt or pi < pe) {
+            const jo: u32 = if (po < cnt) oj[po] else NONE;
+            const ji: u32 = if (pi < pe) src[pi] else NONE;
+            var j: u32 = undefined;
+            var a: f64 = 0;
+            var b: f64 = 0;
+            if (jo < ji) {
+                j = jo;
+                a = ow[po];
+                po += 1;
+            } else if (ji < jo) {
+                j = ji;
+                b = srcw[pi];
+                pi += 1;
+            } else {
+                j = jo;
+                a = ow[po];
+                b = srcw[pi];
+                po += 1;
+                pi += 1;
+            }
+            if (j <= i) continue;
+            const u = a + b - a * b;
+            if (u > 1e-12) {
+                try edges.append(alloc, .{ .i = @intCast(i), .j = j, .w = u });
+                if (u > wmax.*) wmax.* = u;
+            }
+        }
+    }
+}
+
+/// The dense form the sparse one replaced -- the reference the test holds it
+/// against, never called by the library.
+fn fuzzyUnionDense(
+    alloc: std.mem.Allocator,
+    idx: []const u32,
+    wd: []const f64,
+    n: usize,
+    k: usize,
+    edges: *std.ArrayList(Edge),
+    wmax: *f64,
+) !void {
+    const w = try alloc.alloc(f64, n * n);
+    defer alloc.free(w);
+    @memset(w, 0);
+    for (0..n) |i| {
+        for (0..k) |s| {
+            const j = idx[i * k + s];
+            if (j == i) continue;
+            w[i * n + j] = wd[i * k + s];
+        }
+    }
+    for (0..n) |i| {
+        for (i + 1..n) |j| {
+            const a = w[i * n + j];
+            const b = w[j * n + i];
+            const u = a + b - a * b;
+            if (u > 1e-12) {
+                try edges.append(alloc, .{ .i = @intCast(i), .j = @intCast(j), .w = u });
+                if (u > wmax.*) wmax.* = u;
+            }
+        }
+    }
+}
+
 pub fn buildGraph(
     alloc: std.mem.Allocator,
     x: []const f64,
@@ -638,33 +779,27 @@ pub fn buildGraph(
     defer alloc.free(sigma);
     localMetric(dist, n, k, rho, sigma);
 
-    // directed weights, then the FUZZY UNION w + w' - w*w'
-    const w = try alloc.alloc(f64, n * n);
-    defer alloc.free(w);
-    @memset(w, 0);
+    // directed weights per neighbour slot, then the FUZZY UNION w + w' - w*w'
+    // in SPARSE form (GS6c): the union of an n x k table with its transpose
+    // needs the transpose as an in-edge list, not an n x n matrix -- that
+    // matrix was 2 GB of f64 at 16k points, most of it zero, all of it walked.
+    // The edge list is BIT-IDENTICAL to the dense construction's, in the same
+    // order (each i ascending, each j > i ascending) -- the test below holds
+    // the dense form against it.
+    const wd = try alloc.alloc(f64, n * k);
+    defer alloc.free(wd);
     for (0..n) |i| {
         for (0..k) |s| {
             const j = idx[i * k + s];
-            if (j == i) continue;
             const dd = dist[i * k + s] - rho[i];
-            w[i * n + j] = if (dd > 0) @exp(-dd / sigma[i]) else 1.0;
+            wd[i * k + s] = if (j == i) 0 else if (dd > 0) @exp(-dd / sigma[i]) else 1.0;
         }
     }
 
     var edges = try std.ArrayList(Edge).initCapacity(alloc, n * k);
     errdefer edges.deinit(alloc);
     var wmax: f64 = 0;
-    for (0..n) |i| {
-        for (i + 1..n) |j| {
-            const a = w[i * n + j];
-            const b = w[j * n + i];
-            const u = a + b - a * b;
-            if (u > 1e-12) {
-                try edges.append(alloc, .{ .i = @intCast(i), .j = @intCast(j), .w = u });
-                if (u > wmax) wmax = u;
-            }
-        }
-    }
+    try fuzzyUnionSparse(alloc, idx, wd, n, k, &edges, &wmax);
     if (edges.items.len == 0) return Error.TooFewPoints;
 
     // ── SUPERVISION: let the labels reshape the graph ──
@@ -758,7 +893,50 @@ pub fn runSupervised(
         dens_start = opts.epochs -| @as(usize, @intFromFloat(on_for));
     }
 
-    var epoch: usize = 0;
+    // ── GS6c: the epochs on the device, when the fit earned it ──
+    //
+    // The chain runs in batches of epochs up to the point where the density
+    // term switches on, then one epoch at a time with the positions coming
+    // down for the term and going back up. Any refusal anywhere restarts the
+    // fit on the CPU from its seed -- the same fit, counted -- because the
+    // positions mid-chain are not recoverable and a deterministic fit does
+    // not need them to be.
+    var on_device = false;
+    var gs_opt = umap_gpu.prepare(edges.items, eps, y, n, dims, a, b, opts.negative_samples, opts.repulsion, opts.seed, opts.epochs);
+    if (gs_opt) |*gs| {
+        defer umap_gpu.release(gs);
+        var ok = true;
+        var e: usize = 0;
+        while (ok and e < opts.epochs) {
+            const upto = if (want_density and e >= dens_start) e + 1 else @max(e + 1, if (want_density) @min(dens_start, opts.epochs) else opts.epochs);
+            ok = umap_gpu.epochs(gs, e, upto, opts.learning_rate);
+            if (!ok) break;
+            e = upto;
+            if (want_density and e > dens_start) {
+                ok = umap_gpu.download(gs, y);
+                if (ok) {
+                    const de: []const density.Edge = @ptrCast(dens_edges);
+                    const alpha_e = opts.learning_rate * (1.0 - @as(f64, @floatFromInt(e - 1)) / @as(f64, @floatFromInt(opts.epochs)));
+                    dens_corr = density.applyGradient(&dens_target.?, &dens_ws.?, de, y, n, dims, opts.density_lambda, alpha_e, clipFn);
+                    ok = umap_gpu.upload(gs, y);
+                }
+            }
+        }
+        if (ok) ok = umap_gpu.download(gs, y);
+        if (ok) {
+            umap_gpu.served(gs);
+            on_device = true;
+        } else {
+            // the CPU fit, from the start: the same initial positions, the
+            // same schedule, the same negatives it would have drawn
+            rng = Rng.init(opts.seed);
+            for (y) |*v| v.* = (rng.uniform() * 20) - 10;
+            for (eps, 0..) |v, i| next_sample[i] = v;
+            dens_corr = std.math.nan(f64);
+        }
+    }
+
+    var epoch: usize = if (on_device) opts.epochs else 0;
     while (epoch < opts.epochs) : (epoch += 1) {
         // the step size decays to zero, which is what makes the layout settle
         const alpha = opts.learning_rate *
@@ -1380,6 +1558,51 @@ test "the kNN really are the nearest" {
     try testing.expectEqual(@as(u32, 2), idx[1]);
     // distances ascend within each row
     for (0..n) |i| try testing.expect(dist[i * k] <= dist[i * k + 1]);
+}
+
+test "the sparse fuzzy union is the dense one, edge for edge, bit for bit" {
+    const alloc = testing.allocator;
+    const n = 300;
+    const d = 5;
+    const k = 12;
+    const x = try alloc.alloc(f64, n * d);
+    defer alloc.free(x);
+    var rng = Rng.init(99);
+    for (x) |*v| v.* = rng.uniform() * 10;
+    const idx = try alloc.alloc(u32, n * k);
+    defer alloc.free(idx);
+    const dist = try alloc.alloc(f64, n * k);
+    defer alloc.free(dist);
+    try knnExact(alloc, x, n, d, k, idx, dist);
+    const rho = try alloc.alloc(f64, n);
+    defer alloc.free(rho);
+    const sigma = try alloc.alloc(f64, n);
+    defer alloc.free(sigma);
+    localMetric(dist, n, k, rho, sigma);
+    const wd = try alloc.alloc(f64, n * k);
+    defer alloc.free(wd);
+    for (0..n) |i| {
+        for (0..k) |s| {
+            const dd = dist[i * k + s] - rho[i];
+            wd[i * k + s] = if (dd > 0) @exp(-dd / sigma[i]) else 1.0;
+        }
+    }
+    var es = try std.ArrayList(Edge).initCapacity(alloc, n * k);
+    defer es.deinit(alloc);
+    var ed = try std.ArrayList(Edge).initCapacity(alloc, n * k);
+    defer ed.deinit(alloc);
+    var ws: f64 = 0;
+    var wdn: f64 = 0;
+    try fuzzyUnionSparse(alloc, idx, wd, n, k, &es, &ws);
+    try fuzzyUnionDense(alloc, idx, wd, n, k, &ed, &wdn);
+    try testing.expectEqual(ed.items.len, es.items.len);
+    try testing.expect(es.items.len >= n * k / 2 and es.items.len <= n * k); // between one direction deduplicated and both
+    for (es.items, ed.items) |a, b| {
+        try testing.expectEqual(b.i, a.i);
+        try testing.expectEqual(b.j, a.j);
+        try testing.expectEqual(b.w, a.w); // bit-equal, not merely close
+    }
+    try testing.expectEqual(wdn, ws);
 }
 
 test "well-separated clusters stay separated" {

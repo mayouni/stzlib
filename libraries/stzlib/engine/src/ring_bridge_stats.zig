@@ -22,6 +22,7 @@ const plot_mod = @import("plot.zig");
 const pca_mod = @import("pca.zig");
 const tsne_mod = @import("tsne.zig");
 const tsne_gpu = @import("tsne_gpu.zig");
+const umap_gpu = @import("umap_gpu.zig");
 const umap_mod = @import("umap.zig");
 const pumap_mod = @import("pumap.zig");
 const decoder_mod = @import("decoder.zig");
@@ -2772,6 +2773,71 @@ fn ring_TsneGpuJointP(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// GS6c: UMAP's device seam -- gates, counters, and a guard's door to both k-NN builders
+fn ring_UmapGpuSetMinN(p: *anyopaque) callconv(.c) void {
+    umap_gpu.stz_umap_gpu_set_min_n(g(p, 1));
+    rn(p, 1);
+}
+fn ring_UmapGpuMinN(p: *anyopaque) callconv(.c) void {
+    rn(p, umap_gpu.stz_umap_gpu_min_n());
+}
+fn ring_UmapGpuSetKnnMinN(p: *anyopaque) callconv(.c) void {
+    umap_gpu.stz_umap_gpu_set_knn_min_n(g(p, 1));
+    rn(p, 1);
+}
+fn ring_UmapGpuKnnMinN(p: *anyopaque) callconv(.c) void {
+    rn(p, umap_gpu.stz_umap_gpu_knn_min_n());
+}
+fn ring_UmapGpuCounter(p: *anyopaque) callconv(.c) void {
+    rn(p, umap_gpu.stz_umap_gpu_counter(@intFromFloat(g(p, 1))));
+}
+fn ring_UmapGpuCountersReset(p: *anyopaque) callconv(.c) void {
+    umap_gpu.stz_umap_gpu_counters_reset();
+    rn(p, 1);
+}
+
+// StzEngineUmapKnn(aXFlat, n, d, k, bDevice) -> n*k neighbour indices (0-based),
+// nearest first; bDevice = 1 asks the GPU past its gate, 0 the CPU's exact scan
+fn ring_UmapKnn(p: *anyopaque) callconv(.c) void {
+    const x = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(x);
+    const n: usize = @intFromFloat(g(p, 2));
+    const d: usize = @intFromFloat(g(p, 3));
+    const k: usize = @intFromFloat(g(p, 4));
+    const on_device = g(p, 5) != 0;
+    if (n < 3 or d == 0 or k == 0 or k >= n or x.len != n * d) {
+        rn(p, 0);
+        return;
+    }
+    const idx = allocator.alloc(u32, n * k) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(idx);
+    const dist = allocator.alloc(f64, n * k) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(dist);
+    if (on_device) {
+        if (!umap_gpu.knn(x, n, d, k, idx, dist, true)) {
+            rn(p, 0);
+            return;
+        }
+    } else {
+        umap_mod.knnExact(allocator, x, n, d, k, idx, dist) catch {
+            rn(p, 0);
+            return;
+        };
+    }
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (idx) |v| R.ring_list_adddouble(out, @floatFromInt(v));
+    R.ring_vm_api_retlist(p, out);
+}
+
 fn ring_TsneGpuRuntimePath(p: *anyopaque) callconv(.c) void {
     const ptr = R.ring_vm_api_getstring(p, 1);
     const len = R.ring_vm_api_getstringsize(p, 1);
@@ -3453,6 +3519,13 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginepcafit", .func = &ring_PcaFit },
     .{ .name = "stzenginetsne", .func = &ring_Tsne },
     // GS6a: the t-SNE epoch on the GPU
+    .{ .name = "stzengineumapgpusetminn", .func = &ring_UmapGpuSetMinN },
+    .{ .name = "stzengineumapgpuminn", .func = &ring_UmapGpuMinN },
+    .{ .name = "stzengineumapgpusetknnminn", .func = &ring_UmapGpuSetKnnMinN },
+    .{ .name = "stzengineumapgpuknnminn", .func = &ring_UmapGpuKnnMinN },
+    .{ .name = "stzengineumapgpucounter", .func = &ring_UmapGpuCounter },
+    .{ .name = "stzengineumapgpucountersreset", .func = &ring_UmapGpuCountersReset },
+    .{ .name = "stzengineumapknn", .func = &ring_UmapKnn },
     .{ .name = "stzenginetsnejointp", .func = &ring_TsneJointP },
     .{ .name = "stzenginetsnegpujointp", .func = &ring_TsneGpuJointP },
     .{ .name = "stzenginetsnegpuruntimepath", .func = &ring_TsneGpuRuntimePath },
