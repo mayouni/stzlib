@@ -13585,21 +13585,26 @@ aOgP + [ "gantt/witness", StzMathGanttWitness(AUFONT) ]
 # double-booked and reported on both its eras, an event outside its era.
 aOgP + [ "timeline/history", StzMathScene43(AUFONT) ]
 aOgP + [ "timeline/witness", StzMathTimelineWitness(AUFONT) ]
+# AND THE FISHBONE (DN20): the coffee, and the witness with one of each
+# mistake about the analysis -- an empty bone, a cause listed twice and
+# reported on both listings, the effect among its own causes.
+aOgP + [ "fishbone/coffee", StzMathScene45(AUFONT) ]
+aOgP + [ "fishbone/witness", StzMathFishboneWitness(AUFONT) ]
 nOgT0 = StzEngineWatchTimestampMs()
 oOgRep = StzCheckPictures(aOgP)
 nOgMs = StzEngineWatchTimestampMs() - nOgT0
-chk("seventy-seven pictures are judged by one call -- thirty-three notation, forty-four mathematical",
-    len(aOgP) = 77)
+chk("seventy-nine pictures are judged by one call -- thirty-three notation, forty-six mathematical",
+    len(aOgP) = 79)
 chk("and the report's findings are exactly the five things the corpus plants on purpose -- " +
     "the contradiction, the frame whose mark is outside the part it shows, " +
-    "the three-bonded oxygen, the stray hydrogen, the schedule with three mistakes and the timeline with three",
-    oOgRep.NumberOfFindings() = 17 and
+    "the three-bonded oxygen, the stray hydrogen, the schedule, the timeline and the cause analysis with three mistakes each",
+    oOgRep.NumberOfFindings() = 21 and
     _OgAllFromAny(oOgRep, [ "math/5", "math/window/marked out of view",
         "chem/witness/three-bonded oxygen", "chem/witness/stray hydrogen", "gantt/witness",
-        "timeline/witness" ]))
+        "timeline/witness", "fishbone/witness" ]))
 chk("the contradiction's constraints arrive as :diagram; the rim, the off-window mark, " +
-    "the two chemistry findings, the five schedule findings and the four timeline findings as :plastic",
-    len(oOgRep.FindingsOfSubject(:diagram)) = 4 and len(oOgRep.FindingsOfSubject(:plastic)) = 13)
+    "the two chemistry findings, the five schedule, the four timeline and the four fishbone findings as :plastic",
+    len(oOgRep.FindingsOfSubject(:diagram)) = 4 and len(oOgRep.FindingsOfSubject(:plastic)) = 17)
 chk("and the gate is NOT sound, because a contradiction is a finding and not a pass",
     NOT oOgRep.IsSound())
 # a wall time is decoration on this machine, so the bound is set where it
@@ -13620,7 +13625,7 @@ aOgR = oOgG.CheckRules()
 for iOg = 1 to len(aOgR)
 	? "   RULE FINDING " + aOgR[iOg][:rule] + " @ " + aOgR[iOg][:where] + " -- " + aOgR[iOg][:message]
 next
-chkeq("the five math rules, the two chemistry rules, the three gantt rules and the three timeline rules pass the " +
+chkeq("the five math rules, the two chemistry rules, the three gantt, three timeline and three fishbone rules pass the " +
       "five questions -- none empty, vacuous, or unwitnessed",
       len(aOgR), 0)
 
@@ -15488,6 +15493,122 @@ chk("the timeline rules govern every era of a timeline and not one object of a s
     "the boundary is stood on",
     len(oTlRule.SubjectsIn(oTlH)) = 4 and len(oTlRule.SubjectsIn(oGtP)) = 0 and
     len(oTlRule.CounterSubjectsIn(oGtP)) > 0 and len(oTlRule.CounterSubjectsIn(oTlH)) = 0)
+
+sec("-- 114. DN20: A FISHBONE -- AN EFFECT, ITS CATEGORIES OF CAUSE, THE CAUSES ON THEM --")
+discharges("DN20")
+
+# NOTHING TO SOLVE: a bone's length follows from how many causes it
+# carries, its place on the spine from how wide its neighbours are, and
+# every pixel from those by arithmetic.
+oFbC = StzMathScene45(AUFONT)
+oFbC.Layout()
+oFbS = oFbC.Substance()
+? "   coffee : " + oFbC.NumberOfShapes() + " shapes, " + oFbC.NumberOfUnknowns() +
+  " unknowns, " + floor(oFbC.LayoutMs()) + " ms -- " + oFbC.Why()
+chkeq("a fishbone mints no unknown -- there is nothing to lay out", oFbC.NumberOfUnknowns(), 0)
+chk("one effect, one spine, six categories and nine causes",
+    len(oFbS.ObjectsOfType("Effect")) = 1 and len(oFbS.ObjectsOfType("Spine")) = 1 and
+    len(oFbS.ObjectsOfType("Category")) = 6 and len(oFbS.ObjectsOfType("Cause")) = 9)
+
+# THE GEOMETRY IS ISHIKAWA'S: bones by turns above and below, leaning
+# toward the head at sixty degrees, the ribs evenly along each bone with
+# the first cause outermost, the head at the right where the spine ends.
+chk("the bones lean from above and below by turns",
+    oFbS.Holds("Up", [ "c1" ]) and NOT oFbS.Holds("Up", [ "c2" ]) and oFbS.Holds("Up", [ "c3" ]) and
+    oFbS.DataOf("c1", "ey") < oFbS.DataOf("c1", "sy") and oFbS.DataOf("c2", "ey") > oFbS.DataOf("c2", "sy"))
+chk("a bone leans at sixty degrees toward the head, exactly",
+    fabs(fabs(oFbS.DataOf("c1", "ey") - oFbS.DataOf("c1", "sy")) /
+         (oFbS.DataOf("c1", "sx") - oFbS.DataOf("c1", "ex")) - tan(60 * 3.14159265 / 180)) < 0.001 and
+    oFbS.DataOf("c1", "ex") < oFbS.DataOf("c1", "sx"))
+chk("the ribs stand evenly along the bone, the first cause outermost",
+    fabs(fabs(oFbS.DataOf("u1", "py") - oFbS.DataOf("c1", "sy")) - oFbS.DataOf("c1", "len") * sin(60 * 3.14159265 / 180) * 2 / 3) < 0.01 and
+    fabs(fabs(oFbS.DataOf("u2", "py") - oFbS.DataOf("c1", "sy")) - oFbS.DataOf("c1", "len") * sin(60 * 3.14159265 / 180) / 3) < 0.01 and
+    oFbS.DataOf("u1", "rank") = 1 and oFbS.LabelOf("u1") = "Grinder set too fine")
+chk("a rib is a level line off its bone toward the tail, and its cause's name stands clear at its free end",
+    fabs(oFbS.DataOf("u1", "px") - oFbS.DataOf("u1", "qx") - StzFishboneRibLength()) < 0.01 and
+    oFbS.DataOf("u1", "nx") + oFbS.DataOf("u1", "nw") / 2 < oFbS.DataOf("u1", "qx") - 3)
+chk("a category's name stands past its bone's end -- above an upper bone, below a lower one",
+    oFbS.DataOf("c1", "ny") < oFbS.DataOf("c1", "ey") - 8 and oFbS.DataOf("c2", "ny") > oFbS.DataOf("c2", "ey") + 8)
+chk("the head stands at the right of the last bone, the spine runs into its box, and the paper follows",
+    oFbS.DataOf("h", "x0") > oFbS.DataOf("c6", "sx") and
+    fabs(oFbS.DataOf("s", "x1") - (oFbS.DataOf("h", "x0") - 1)) < 0.01 and
+    fabs(oFbS.DataOf("s", "paperw") - (oFbS.DataOf("h", "x0") + oFbS.DataOf("h", "w") + 20)) < 0.01)
+oFbL = StzFishboneDiagram(AUFONT, "E", [ [ "Many", [ "a", "b", "c", "d", "e", "f" ] ], [ "One", [ "x" ] ] ])
+chk("a bone grows with its causes: six ribs a row apart make a bone longer than the floor, one rib takes the floor",
+    oFbL.Substance().DataOf("c1", "len") > 96 and
+    fabs(oFbL.Substance().DataOf("c1", "len") - 7 * (StzFishboneCauseSize() * 1.35 + 8) / sin(60 * 3.14159265 / 180)) < 0.01 and
+    fabs(oFbL.Substance().DataOf("c2", "len") - 96) < 0.01)
+chk("a fact reads a bone's count of causes from the data",
+    oFbC.Fact(:datum, [ "c1", "causes" ])[:value] = 2)
+
+# TWO BONES ON ONE SIDE NEVER MEET IN WHAT THEY CARRY. The pitch is half
+# the widest carry and air; long names widen the carry and the pitch
+# follows, and the gate's name rules find nothing in either picture.
+aFbC = StzCheckPictures([ [ "coffee", oFbC ] ]).Findings()
+for iFb = 1 to len(aFbC)
+	if iFb <= 4  ? "   COFFEE FINDING " + aFbC[iFb][:rule] + " -- " + aFbC[iFb][:message]  ok
+next
+chk("the analysis is lawful and the one gate finds nothing in it -- no name on a bone, no name on a name",
+    oFbC.IsFeasible() and len(aFbC) = 0)
+oFbW2 = StzFishboneDiagram(AUFONT, "E", [
+	[ "A", [ "a very long cause name indeed", "another very long cause name" ] ],
+	[ "B", [ "x" ] ],
+	[ "C", [ "a third very long cause name here" ] ] ])
+chk("long names push the bones apart: the third bone stands its neighbour's whole carry past the first, and nothing collides",
+    oFbW2.Substance().DataOf("c3", "sx") - oFbW2.Substance().DataOf("c1", "sx") >
+      oFbW2.Substance().DataOf("c3", "len") * cos(60 * 3.14159265 / 180) + StzFishboneRibLength() + 100 and
+    len(StzCheckPictures([ [ "long", oFbW2 ] ]).Findings()) = 0)
+chk("and it answers Rendition() as a vector like every other picture",
+    oFbC.Rendition()[:kind] = "vector")
+
+# THE RULES ARE ABOUT THE ANALYSIS, and they name things by the author's
+# names. The witness has one of each mistake -- and the cause listed
+# twice is reported on BOTH listings, because each is a listing.
+oFbW = StzMathFishboneWitness(AUFONT)
+aFbF = StzCheckPictures([ [ "wrong", oFbW ] ]).Findings()
+? "   witness : " + len(aFbF) + " findings -- " + _GtByRule(aFbF)
+chk("a category with nothing under it is caught, by name",
+    _PorHits(aFbF, "every_bone_carries_a_cause") = 1 and
+    _GtHas(aFbF, "'Measurement' carries no cause"))
+chk("a cause listed under two categories is caught on both listings, naming both categories",
+    _PorHits(aFbF, "a_cause_is_named_once") = 2 and
+    _GtHas(aFbF, "'Stale beans' is listed under 'Method' and again under 'Material'"))
+chk("the effect written among its causes is caught, naming the bone it hides on",
+    _PorHits(aFbF, "the_effect_is_not_its_own_cause") = 1 and
+    _GtHas(aFbF, "'Bitter coffee' under 'People' is the effect itself"))
+chkeq("...and those four are all the gate finds", len(aFbF), 4)
+
+# A FAULT IS DRAWN, AND THE MARKS ARE HELD TO THE VERDICTS.
+oFbWS = oFbW.Substance()
+chk("the empty bone is marked and drawn in the colour of a fault, and the mark is exactly the rule's verdict",
+    _TlMarkedEquals(oFbW, "Category", "Empty", aFbF, "every_bone_carries_a_cause", "bone:") and
+    oFbW.StrokeOf("c5.icon") != oFbW.StrokeOf("c1.icon"))
+chk("the cause listed twice is marked on both listings, named on a plate of the fault's colour, exactly as the rule says",
+    _TlMarkedEquals(oFbW, "Cause", "Twice", aFbF, "a_cause_is_named_once", "cause:") and
+    oFbW.ShapeOf("u4.plate")[:kind] = "rect" and oFbW.FillOf("u4.plate") != oFbW.FillOf("h.box"))
+chk("the effect among the causes is marked, and the mark is exactly the rule's verdict",
+    _TlMarkedEquals(oFbW, "Cause", "Circular", aFbF, "the_effect_is_not_its_own_cause", "cause:"))
+chk("NEGATIVE: nothing in the lawful analysis is marked as a fault",
+    len(_TlMarked(oFbC, "Category", "Empty")) = 0 and len(_TlMarked(oFbC, "Cause", "Twice")) = 0 and
+    len(_TlMarked(oFbC, "Cause", "Circular")) = 0)
+
+# THE BOUNDARIES. The same cause twice under ONE bone is a repeat, not
+# a cause named under two categories; the effect's name is matched
+# whatever its case; and the builder refuses what it cannot mean.
+oFbR = StzFishboneDiagram(AUFONT, "Late trains", [ [ "Track", [ "Ice", "Ice" ] ], [ "Crew", [ "late TRAINS" ] ] ])
+aFbR = StzCheckPictures([ [ "repeat", oFbR ] ]).Findings()
+chk("NEGATIVE: one cause written twice under one bone is not a cause under two categories",
+    _PorHits(aFbR, "a_cause_is_named_once") = 0 and len(_TlMarked(oFbR, "Cause", "Twice")) = 0)
+chk("the effect is recognised among the causes whatever its case",
+    _PorHits(aFbR, "the_effect_is_not_its_own_cause") = 1 and oFbR.Substance().Holds("Circular", [ "u3" ]))
+chk("a fishbone with no effect is refused", _FbRefusesNoEffect())
+chk("a fishbone with no category is refused", _FbRefusesNoCategory())
+chk("a category with no name is refused", _FbRefusesUnnamed())
+oFbRule = StzFishboneRuleSet()[1]
+chk("the fishbone rules govern every bone of a fishbone and not one object of a timeline or a schedule -- " +
+    "the boundary is stood on",
+    len(oFbRule.SubjectsIn(oFbC)) = 6 and len(oFbRule.SubjectsIn(oTlH)) = 0 and len(oFbRule.SubjectsIn(oGtP)) = 0 and
+    len(oFbRule.CounterSubjectsIn(oTlH)) > 0 and len(oFbRule.CounterSubjectsIn(oFbC)) = 0)
 
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
@@ -19022,6 +19143,32 @@ func _ErRefusesKind
 	catch
 		# a symbol is a lowercase string in Ring, so the name comes back so
 		return StzFindFirst("sometimes", StzLower(cCatchError)) > 0
+	done
+	return FALSE
+
+#-- DN20: the fishbone section's helpers -------------------------------------
+
+func _FbRefusesNoEffect
+	try
+		StzFishboneFromCauses("  ", [ [ "A", [ "x" ] ] ])
+	catch
+		return StzFindFirst("effect to explain", cCatchError) > 0
+	done
+	return FALSE
+
+func _FbRefusesNoCategory
+	try
+		StzFishboneFromCauses("E", [])
+	catch
+		return StzFindFirst("at least one category", cCatchError) > 0
+	done
+	return FALSE
+
+func _FbRefusesUnnamed
+	try
+		StzFishboneFromCauses("E", [ [ "", [ "x" ] ] ])
+	catch
+		return StzFindFirst("needs a name", cCatchError) > 0
 	done
 	return FALSE
 
