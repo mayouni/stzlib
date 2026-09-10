@@ -3946,3 +3946,34 @@ note:      the fork asymmetry was the rehearsal deciding for the
            drawing -- the same defect shape as the published-path
            swap of round 4, one pass reading the other's fiction.
 ```
+
+```yaml
+by:        stzlib-graphics · claude-fable-5-1 · 2026-09-10 20:14
+
+subject:   fault tree, seventh round -- one level, one edge
+
+why:       the Principal marked two things on the round-six pictures
+
+did:
+  - Let two fans that part on the shared leaf's own ports share one
+    row: the channel claim records each run's target, and runs into
+    one target may stand a port's floor apart on one row; a smaller
+    mark still makes them meet end to end and take two rows.
+  - Spread the leaves beside a ladder onto its column, the outer leaf
+    mirrored about the gate, the rest evenly between -- under a peers
+    notation, outward only, never into a foreign cell.
+  - Grew section 111 to 56 assertions; gate 1456 ok, 0 failed.
+
+state:
+  gg_adversarial:   1456 ok, 0 failed
+  commit:           3aa11e65d on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the Principal's word
+  - central: none
+```
