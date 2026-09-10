@@ -199,17 +199,48 @@ pub fn hasTimestamps() bool {
     return available and g_timestamps;
 }
 
-var last_error_buf: [512]u8 = @splat(0);
+// TWO ERROR SLOTS, NOT ONE (2026-09-10). A shader that fails validation
+// raises TWO uncaptured errors in a row: the parser's ("name `target` is a
+// reserved keyword", with the line) and then the pipeline's ("ShaderModule
+// with 'stz_kernel' label is invalid"). One slot kept the second -- the
+// symptom -- and hid the first -- the cause -- and GS6b lost three rebuilds
+// reading it. The FIRST error since the last clear is kept beside the last;
+// a kernel compile clears both before it starts, so after a refusal the
+// first slot names the line. The buffers are sized for a naga message.
+var last_error_buf: [2048]u8 = @splat(0);
 var last_error_len: usize = 0;
+var first_error_buf: [2048]u8 = @splat(0);
+var first_error_len: usize = 0;
 
 fn setLastError(msg: []const u8) void {
     const n = @min(msg.len, last_error_buf.len);
     @memcpy(last_error_buf[0..n], msg[0..n]);
     last_error_len = n;
+    if (first_error_len == 0 and n > 0) {
+        @memcpy(first_error_buf[0..n], msg[0..n]);
+        first_error_len = n;
+    }
+}
+
+/// Forget both slots -- the start of anything whose first error is the
+/// one worth reading.
+pub fn clearErrors() void {
+    last_error_len = 0;
+    first_error_len = 0;
 }
 
 pub fn lastError() []const u8 {
     return last_error_buf[0..last_error_len];
+}
+
+/// The first error since the last clear: the CAUSE where lastError() is
+/// the symptom that followed it.
+pub fn firstError() []const u8 {
+    return first_error_buf[0..first_error_len];
+}
+
+pub fn stz_gpu_error_clear() callconv(.c) void {
+    clearErrors();
 }
 
 fn sv(s: []const u8) c.WGPUStringView {
@@ -461,7 +492,7 @@ var tile_limit: u32 = 32768; // max workgroups per submit. From G0: 16384 wg of
 
 pub fn stz_gpu_init(path: [*:0]const u8) callconv(.c) i32 {
     if (available) return 1;
-    setLastError("");
+    clearErrors();
     if (!loadWgpu(std.mem.span(path))) {
         setLastError("wgpu runtime not loadable");
         return 0;
@@ -1126,6 +1157,8 @@ pub fn stz_gpu_kernel_compile(text: [*]const u8, len: f64) callconv(.c) i64 {
         }
     }
     const errs_before = counters[CTR_GPU_ERRORS];
+    // a fresh compile owns both slots: its first error is the parser's line
+    clearErrors();
 
     var src = std.mem.zeroes(c.WGPUShaderSourceWGSL);
     src.chain.sType = c.WGPUSType_ShaderSourceWGSL;

@@ -24,6 +24,7 @@ const tsne_mod = @import("tsne.zig");
 const tsne_gpu = @import("tsne_gpu.zig");
 const umap_gpu = @import("umap_gpu.zig");
 const kmeans_gpu = @import("kmeans_gpu.zig");
+const gpu_dev = @import("gpu.zig"); // the stats DLL's own device (its own gpu.zig, its own error slots)
 const umap_mod = @import("umap.zig");
 const pumap_mod = @import("pumap.zig");
 const decoder_mod = @import("decoder.zig");
@@ -2968,6 +2969,18 @@ fn ring_KMeansGpuRun(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// the stats DLL's device speaks through its own gpu.zig: these read ITS slots,
+// which the t-SNE, UMAP and k-means kernels write -- StzEngineGpuFirstError
+// reads stz_gpu.dll's and would say nothing about a stats kernel
+fn ring_StatsGpuFirstError(p: *anyopaque) callconv(.c) void {
+    const e = gpu_dev.firstError();
+    R.ring_vm_api_retstring2(p, e.ptr, @intCast(e.len));
+}
+fn ring_StatsGpuLastError(p: *anyopaque) callconv(.c) void {
+    const e = gpu_dev.lastError();
+    R.ring_vm_api_retstring2(p, e.ptr, @intCast(e.len));
+}
+
 fn ring_TsneGpuRuntimePath(p: *anyopaque) callconv(.c) void {
     const ptr = R.ring_vm_api_getstring(p, 1);
     const len = R.ring_vm_api_getstringsize(p, 1);
@@ -3649,6 +3662,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginepcafit", .func = &ring_PcaFit },
     .{ .name = "stzenginetsne", .func = &ring_Tsne },
     // GS6a: the t-SNE epoch on the GPU
+    .{ .name = "stzenginestatsgpufirsterror", .func = &ring_StatsGpuFirstError },
+    .{ .name = "stzenginestatsgpulasterror", .func = &ring_StatsGpuLastError },
     .{ .name = "stzenginekmeansgpusetminwork", .func = &ring_KMeansGpuSetMinWork },
     .{ .name = "stzenginekmeansgpuminwork", .func = &ring_KMeansGpuMinWork },
     .{ .name = "stzenginekmeansgpucounter", .func = &ring_KMeansGpuCounter },
