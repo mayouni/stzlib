@@ -124,6 +124,7 @@ sections, of which 21 declarations over 17 items.
 | DN18 | closed | 112 |
 | DN19 | closed | 113 |
 | DN20 | closed | 114 |
+| DN21 | closed | 115 |
 | DN9 | closed | - |
 | DN9a | closed | 97 |
 | DN9b | closed | 98 |
@@ -3749,6 +3750,61 @@ domain's. Weights, votes and the five whys are not here.
 
 *Guard:* §114, 27 assertions; §91 grew by two pictures. Catalogue:
 `gg_math_catalogue.ring`, scenes 45 and 46.
+
+## DN21 — A NETWORK TOPOLOGY: devices, links, subnets, addresses (2026-09-11, SHIPPED)
+
+**The sixth domain on the graph plane, and the first whose frames are
+subnets.** A topology says what is wired to what: the internet beyond the
+picture, a firewall guarding the way in, routers between subnets, switches
+fanning out to servers, hosts and access points. The devices are typed
+nodes drawn as the trade draws them — seven glyphs added to the shape
+sheet: a cloud, a puck with four arrows for a router, a flat box with
+arrows across it for a switch, a brick wall, a tall box with slots, a
+screen on a foot, a small box under two waves — the links are undirected
+edges, a subnet is a cluster with an address range, and the picture reads
+top-down from the cloud, which the notation makes a source. It lives in
+`base/graph/stzNetworkDiagram.ring`.
+
+**What it is.** `AddDevice(id, name, kind)`, `AddDeviceXT(id, name, kind,
+address)`, `AddNote`; `AddSubnet(id, name, cidr, [members])`; `Link(a, b)`,
+`LinkXT(a, b, label)`. Read back: `NeighboursOf`, `HopsBetween`,
+`IsReachable`, `AddressOf`, `SubnetOf`, `CidrOf`, `DevicesIn`, `KindOf`.
+Addresses are IPv4 read as numbers and a subnet is a CIDR read as a range
+(`StzIpToNumber`, `StzCidrRange`, `StzIpInCidr`); the address is checked
+and not drawn, since a mark's name is one line.
+
+**Five rules.** `every_device_is_linked`, `addresses_are_unique` (reported
+on both devices; a device with no address is outside the rule),
+`address_in_its_subnet` (a device in no subnet is outside it),
+`switches_form_no_loop` (a ring of switches alone, on every switch of the
+ring; a loop through a router is a route and stays outside — the floors
+stand on that), `the_edge_is_guarded` (the cloud links only into a
+firewall). The corpus carries the office and the floors, lawful, and a
+witness with one of each mistake.
+
+**Three things the domain found in the plane, none of them about
+networks.** The cluster cohesion pass stood a cluster's members exactly
+one slot apart whatever they had asked for, so two marks that had given
+room back were spread to a cell's width and the last member of one subnet
+was carried onto the first of the next: two names 61px apart under two
+frames that overlapped. Cohesion now spaces members at their own pitch —
+one slot plus the two signed demands, the engine's own law — and a sweep
+along each level after the boundary air pushes any node out to its pitch
+from the one before it. Second, a name plate inside a frame was painted in
+the cluster's declared hue while the frame itself is painted at that hue's
+surface step, so every name under a mark in a subnet sat on a dark slate
+card — the very card the Principal once marked; the surface helper answers
+the surface step now, one quantity from one source. Third, a name written
+beneath a glyph the plane had never heard of was drawn beneath and reserved
+nowhere — the witness's last rank had "Alice" cut by the paper's edge; a
+kind the profile writes outside writes below whatever its glyph, and the
+reservation stays out of the left-to-right pictures, whose names go beside.
+
+**Said plainly and left out.** VLANs, routes, link speeds beyond a label,
+redundancy protocols and wireless reach are not here; addresses are IPv4.
+
+*Guard:* §115, 30 assertions; §91 grew by three pictures. Catalogue:
+`gg_network_catalogue.ring`, network_01 to network_03.
 
 ## DN9 — THE TOLD PICTURE: a narration is facts made visible, in an order (planned 2026-09-06, SHIPPED 2026-09-07 as DN9a through DN9g, all seven closed)
 

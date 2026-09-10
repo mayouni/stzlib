@@ -382,6 +382,8 @@ ok
     load "graph/stzPetriNet.ring"
     load "graph/stzFaultTree.ring"
     load "graph/stzFamilyTree.ring"
+    # a network topology is devices, links, subnets and addresses (DN21)
+    load "graph/stzNetworkDiagram.ring"
 
     load "graph/stzWorkflow.ring"
 
