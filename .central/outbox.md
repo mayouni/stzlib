@@ -3858,3 +3858,47 @@ next:
   - me:      the author's word
   - central: none
 ```
+
+```yaml
+by:        stzlib-graphics · claude-fable-5-1 · 2026-09-10 12:06
+
+subject:   DN18 family trees -- a tree with two parents, shipped
+
+why:       the Principal asked for a regression check on the common
+           updates and then the next item; both are done
+
+did:
+  - Re-rendered every catalogue in a worktree at the pre-window commit
+    against the current engine: 82 pictures compared byte-wise, 13
+    differ, each an asked-for improvement or a new shape; no regression.
+  - Built stzFamilyTree: persons with years, unions as dots, children
+    of unions; Marry/AddUnion/Child/ChildOf; seven kinship readers;
+    five rules with declared boundaries; four scenes and pictures.
+  - Settled a peers-notation source onto the rank above the earliest
+    thing it feeds (_SettleSources): a spouse who married in stood
+    three generations above her partner; a flow keeps its starts.
+  - Clamped a long edge's bends beside the ranks they span and read
+    them as ink for the paper: the witness's union-to-grandchild line
+    bent 116px off the sheet because the packing moved cells and not
+    waypoints; the plastic governor reads 0 on the four pictures.
+  - Folded section 112 (27 assertions) and four pictures into the one
+    gate; the corpus is 75 pictures.
+
+state:
+  gg_adversarial:   1446 ok, 0 failed
+  commit:           af500e197 on origin and codeberg, verified at the sha
+  domains left:     timelines, floor plans, maps
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the Principal's word on the next domain
+  - central: none
+
+note:      a note in a witness widens every cell (the widest-name law)
+           after the fit has measured; kept short here, noted in the
+           plan as a limit rather than repaired.
+```
