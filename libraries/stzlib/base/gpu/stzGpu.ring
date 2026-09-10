@@ -707,6 +707,71 @@ class stzGpu from stzObject
 			:stored = _bStored_
 		]
 
+	# THE k-NN FOUNDRY (GS6e). The UMAP k-NN kernel lives in the stats DLL on
+	# its own device, so its enumeration runs there; the verdict is recorded in
+	# that DLL's variant table AND persisted here under the op name "umap_knn",
+	# beside pairdist's rows, so the next session finds it. The stats DLL reads
+	# the persisted rows back through StzUmapKnnVariantsSync() at its first fit.
+	def FoundryUmapKnn(n, d, k)
+		return This.FoundryUmapKnnWith(n, d, k, 7)
+
+	def FoundryUmapKnnWith(n, d, k, nReps)
+		This._RequireDevice()
+		_nSt_ = StzEngineUmapKnnFoundry(n, d, k, nReps, 0)
+		if _nSt_ != 0
+			StzRaise("FoundryUmapKnn: the foundry refused to run (status " + _nSt_ +
+				": " + StzEngineStatsGpuFirstError() + "). k must be 1..64 and below n.")
+		ok
+		_nCount_ = StzEngineUmapKnnFoundryResult(0)
+		_aV_ = []
+		for _v_ = 1 to _nCount_
+			_nB_ = 8 + _v_ * 5
+			_aV_ + [ StzEngineUmapKnnVariantName(_v_), StzEngineUmapKnnFoundryResult(_nB_),
+			         StzEngineUmapKnnFoundryResult(_nB_ + 1), StzEngineUmapKnnFoundryResult(_nB_ + 2),
+			         StzEngineUmapKnnFoundryResult(_nB_ + 3), StzEngineUmapKnnFoundryResult(_nB_ + 4) ]
+		next
+		_nW_ = StzEngineUmapKnnFoundryResult(3)
+		_bStored_ = FALSE
+		if _nW_ > 0
+			StzEngineUmapKnnVariantSet(n, d, k, _nW_)
+			_bStored_ = StzGpuVariantSet("umap_knn", k, n, d, _nW_)
+			StzGpuSaveCalibration(This._AllCalibOps())
+		ok
+		return [
+			:n = n, :d = d, :k = k,
+			:hiddenn = StzEngineUmapKnnFoundryResult(6),
+			:clocks = StzEngineUmapKnnFoundryResult(5),
+			:refgpums = StzEngineUmapKnnFoundryResult(1),
+			:refwallms = StzEngineUmapKnnFoundryResult(2),
+			:variants = _aV_,
+			:winner = StzEngineUmapKnnVariantName(_nW_),
+			:ratio = StzEngineUmapKnnFoundryResult(4),
+			:stored = _bStored_
+		]
+
+	# every op the calibration file currently knows, so a save from one foundry
+	# never drops another's rows (the writer keeps only the ops it is given)
+	def _AllCalibOps()
+		_aOps_ = [ "pairdist" ]
+		_aAll_ = StzGpuVariants()
+		_n_ = len(_aAll_)
+		for _i_ = 1 to _n_
+			if find(_aOps_, _aAll_[_i_][1]) = 0
+				_aOps_ + _aAll_[_i_][1]
+			ok
+		next
+		_aAll_ = StzGpuCalibrationLadder()
+		_n_ = len(_aAll_)
+		for _i_ = 1 to _n_
+			if find(_aOps_, _aAll_[_i_][1]) = 0
+				_aOps_ + _aAll_[_i_][1]
+			ok
+		next
+		if find(_aOps_, "knn_resident") = 0
+			_aOps_ + "knn_resident"
+		ok
+		return _aOps_
+
 	# The kill line, per adapter: a grid of single-query shapes; TRUE if any
 	# class found a variant worth the margin.
 	def FoundryPairdistGrid(paCounts, paDims)
