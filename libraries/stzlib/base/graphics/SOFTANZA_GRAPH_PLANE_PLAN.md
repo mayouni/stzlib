@@ -3510,7 +3510,41 @@ read at the size the plane's other pictures are read at.
 symbols, common-cause groups, importance measures, and the exact sum above
 twelve cut sets. The gates draw for a top-down tree only.
 
-*Guard:* §111, 46 assertions; §91 grew by three pictures. Catalogue:
+**Round 6 (2026-09-10), five marks on the catalogue.** On the repeated
+tree: the two lines into the shared leaf merged above it into one stem
+(*"why not separating the two lines completely like in other diagrams?"*),
+and the alarm gate's fork was rounded on one arm and square on the other.
+On the witness: a very large distance between Jam and the cell beside it;
+the return's ladder a few pixels off the leaf column below; and the text
+unreadable. Five causes, four of them laws general to the plane:
+
+- **A mark gives room back** (engine, `demand()` signed). Every node held a
+  whole slot whatever it drew; a 40px circle with a name beneath, in a
+  150px cell, spread two leaves a cell apart. The face now sends a negative
+  half-width for a node narrower than its slot, bounded at −0.45 of it;
+  `_DrawnExtentOf` is the one answer to "how wide is this node" for the
+  demand, the peers packing and the rank fitter.
+- **A return's target is not a child** — in `tidyTerritories` too. The
+  centring learned it in round 5; the territory pass had not, so the gate's
+  territory ran up its own return to the top event and the next cell stood
+  a slot from Jam over nothing.
+- **The rank fitter measures what is drawn.** It judged every pair against
+  the caller's box, read two rightly packed marks as a collision and scaled
+  the whole witness — cells, marks, words — by a fifth. That was the small
+  text. It reads each pair's drawn extents now.
+- **A mark that holds two ports keeps them**, under a peers notation: a
+  quarter of the mark to each side, and a drop into a circle lands on its
+  arc, the landing only — the channel arithmetic keeps the flat border, or
+  a member whose border moved a pixel refuses the row its sibling stepped
+  to. The 17px end event's rule (every arrival at the centre) stands for
+  any mark smaller than two ports' floors.
+- **The stem's corner is a fork whenever the source fans**, read off the
+  model, not off the rehearsal: the dry pass's paths no longer decide which
+  arm is squared. And a ladder within a pitch of a column outside its span
+  stands on that column, outward only (`_PlanRowLanes`) — moot on the
+  witness once the leaves packed, kept as the law the Principal drew.
+
+*Guard:* §111, 53 assertions; §91 grew by three pictures. Catalogue:
 `gg_fault_catalogue.ring`, fault_01 to fault_03.
 
 ## DN18 — A FAMILY TREE: a tree with two parents (2026-09-10, SHIPPED)

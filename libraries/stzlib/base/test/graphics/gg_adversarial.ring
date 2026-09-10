@@ -906,8 +906,8 @@ chk("...and it buys its room in the GAP, the cheap axis",
 chkeq("...leaving the scarce axis alone", oWC.Width(), oSC.Width())
 
 SLOT = 70 + floor(oShort.NodeSeparation() * 96)
-aDS = oShort._LabelDemand(SFONT, 14, 70, SLOT, 0)
-aDW = oWide._LabelDemand(SFONT, 14, 70, SLOT, 0)
+aDS = oShort._LabelDemand(SFONT, 14, 70, 40, SLOT, 0)
+aDW = oWide._LabelDemand(SFONT, 14, 70, 40, SLOT, 0)
 ? "   demand, short : " + @@(aDS)
 ? "   demand, wide  : " + @@(aDW)
 chkeq("a short label demands nothing at all", _MaxOf(aDS), 0)
@@ -920,7 +920,7 @@ chkeq("...and neither does a wide one, once it is wrapped",
 # had been implemented as "labels never demand width", this is the line
 # that catches it.
 oUnbr = _Fan("WWWWWWWWWWWWWWWWWWWW")
-aDU = oUnbr._LabelDemand(SFONT, 14, 70, SLOT, 0)
+aDU = oUnbr._LabelDemand(SFONT, 14, 70, 40, SLOT, 0)
 ? "   demand, one unbreakable word : " + @@(aDU)
 chk("a label that CANNOT wrap still demands width", _MaxOf(aDU) > 0.2)
 chkeq("the source of a labelled edge demands nothing", aDU[1], 0)
@@ -15196,10 +15196,25 @@ chk("a repeated leaf stands between the two gates that share it, and each gate a
     fabs(_PnCentreX(oFtR, "fill.gate") - (_PnCentreX(oFtR, "valve") + _PnCentreX(oFtR, "sensor")) / 2) < 0.5 and
     fabs(_PnCentreX(oFtR, "alarm.gate") - (_PnCentreX(oFtR, "sensor") + _PnCentreX(oFtR, "relay")) / 2) < 0.5 and
     fabs(_PnCentreX(oFtR, "fill") - _PnCentreX(oFtR, "fill.gate")) < 0.5)
-chk("the two arrivals at the shared leaf both drop into its top on its own column -- a mark unifies its arrivals, none enters its side",
-    fabs(_PnPathEnd(oFtR, "fill.gate", "sensor")[1] - _PnCentreX(oFtR, "sensor")) < 0.5 and
-    fabs(_PnPathEnd(oFtR, "alarm.gate", "sensor")[1] - _PnCentreX(oFtR, "sensor")) < 0.5 and
-    fabs(_PnPathEnd(oFtR, "alarm.gate", "sensor")[2] - _PnRectOf(oFtR, "sensor")[2]) < 0.5)
+# THE PRINCIPAL'S SIXTH ROUND. The two lines into the shared leaf merged
+# above it into one stem; he asked for them "separated completely, like
+# in other diagrams". A mark whose border holds two ports keeps them, a
+# quarter of the mark to each side, and a drop into a circle lands on
+# its arc, not on the flat top a box would offer.
+chk("the two arrivals at the shared leaf stand apart on its top, a port's floor between them, neither in its side",
+    fabs(_PnPathEnd(oFtR, "fill.gate", "sensor")[1] - _PnPathEnd(oFtR, "alarm.gate", "sensor")[1]) >= oFtR._PortFloor() - 0.5 and
+    fabs(_PnPathEnd(oFtR, "fill.gate", "sensor")[1] - _PnCentreX(oFtR, "sensor")) < _PnRectW(oFtR, "sensor") / 2 and
+    fabs(_PnPathEnd(oFtR, "alarm.gate", "sensor")[1] - _PnCentreX(oFtR, "sensor")) < _PnRectW(oFtR, "sensor") / 2 and
+    _PnPathEnd(oFtR, "alarm.gate", "sensor")[2] < _PnCentreY(oFtR, "sensor"))
+chk("...and each lands ON the circle: below the flat top by the port's chord, on the arc to within a pixel",
+    _FtOnArc(oFtR, "fill.gate", "sensor") and _FtOnArc(oFtR, "alarm.gate", "sensor"))
+chk("NEGATIVE: a mark too small to hold two ports keeps every arrival at its centre -- the end event's rule stands",
+    _FtSmallCentred())
+chk("a fan's two arms part from the stem as one fork, squared on BOTH sides -- the alarm's as the fill's",
+    _FtForkOf(oFtR, "alarm.gate", "sensor") and _FtForkOf(oFtR, "alarm.gate", "relay") and
+    _FtForkOf(oFtR, "fill.gate", "sensor") and _FtForkOf(oFtR, "fill.gate", "valve"))
+chk("...and the fan still shares one channel: both arms turn on one row",
+    fabs(_PlTurnOf(oFtR, "alarm.gate", "sensor") - _PlTurnOf(oFtR, "alarm.gate", "relay")) < 0.5)
 # THE PRINCIPAL'S THIRD ROUND: two fans that met end to end read as one
 # rule across the tree; a gate with three inputs stood off its middle
 # one; a second tree stood a cell and a half from the first.
@@ -15219,10 +15234,21 @@ chk("a gate with a backward edge among its lines still stands at the middle of t
 # THE LADDER CLEARS WHAT THE RETURN PASSES, NOT THE WHOLE PICTURE. The
 # cycle's return spans the top three ranks; the leaves two ranks below
 # are not in its way, so its ladder stands beside Jam, not beyond Dust.
-chk("the return's ladder stands one pitch left of the widest cell it passes, and right of the leaf it does not",
+chk("the return's ladder stands one pitch left of the widest cell it passes, and left of the packed leaves beneath",
     _PnPathOf(oFtW, "jam.gate", "t1")[3] < _PnRectX(oFtW, "jam") and
     _PnPathOf(oFtW, "jam.gate", "t1")[3] > _PnRectX(oFtW, "jam") - 40 and
-    _PnPathOf(oFtW, "jam.gate", "t1")[3] > _PnCentreX(oFtW, "dust"))
+    _PnPathOf(oFtW, "jam.gate", "t1")[3] < _PnRectX(oFtW, "dust"))
+# A MARK GIVES ROOM BACK, AND A RETURN'S TARGET IS NOT A CHILD -- the
+# sixth round's two layout laws, both in the engine. Two leaves held a
+# cell each and the gate's territory ran up its own return to the top
+# event, so the next cell stood a slot from Jam over nothing and the
+# fitter shrank the whole picture to a fifth less than asked.
+chk("two marks under one gate stand a mark's width apart, not a cell's",
+    _PnCentreX(oFtW, "wear") - _PnCentreX(oFtW, "dust") < OPTFT[:NodeWidth])
+chk("the cell beside Jam stands one separation from it, not a slot over nothing",
+    _PnRectX(oFtW, "bare") - (_PnRectX(oFtW, "jam") + _PnRectW(oFtW, "jam")) < 80)
+chk("...and the witness is drawn at the size it was asked -- 56px cells and 40px marks, nothing scaled away",
+    fabs(_PnRectOf(oFtW, "t1")[4] - OPTFT[:NodeHeight]) < 0.5 and _PnRectW(oFtW, "dust") > 39)
 chk("the witness's one backward edge runs beside the picture and enters the top from its side, not through its floor",
     _PnPathEnd(oFtW, "jam.gate", "t1")[1] < _PnCentreX(oFtW, "t1") - 10 and
     fabs(_PnPathEnd(oFtW, "jam.gate", "t1")[2] - _PnCentreY(oFtW, "t1")) < 0.5 and _PnNoArcThroughCell(oFtW))
@@ -18412,6 +18438,32 @@ func _FmFlowKeepsTop
 	_o_.SetSplines("ortho")
 	_o_.ToCanvasXT(OPTFM)
 	return fabs(_PnCentreY(_o_, "s") - _PnCentreY(_o_, "a")) < 0.5
+
+#-- DN17: the sixth round's helpers ------------------------------------------
+
+# does the path's end lie on the target circle's arc, below its flat top
+func _FtOnArc poD, pcF, pcT
+	_e_ = _PnPathEnd(poD, pcF, pcT)
+	_r_ = _PnRectW(poD, pcT) / 2
+	_cx_ = _PnCentreX(poD, pcT)
+	_cy_ = _PnCentreY(poD, pcT)
+	_d_ = sqrt((_e_[1] - _cx_) * (_e_[1] - _cx_) + (_e_[2] - _cy_) * (_e_[2] - _cy_))
+	return fabs(_d_ - _r_) < 1 and _e_[2] > _PnRectOf(poD, pcT)[2] + 0.5
+
+# was this edge's stem corner published as a fork (drawn square)
+func _FtForkOf poD, pcF, pcT
+	_k_ = StzLower("" + pcF + ">" + pcT)
+	_a_ = poD.@aRenderForks
+	for _i_ = 1 to len(_a_)
+		if StzLower("" + _a_[_i_][3]) = _k_  return TRUE  ok
+	next
+	return FALSE
+
+# the repeated tree drawn small: a 29px mark cannot hold two ports
+func _FtSmallCentred
+	_o_ = StzFaultScene02([ :Font = EFONT, :NodeWidth = 120, :NodeHeight = 40, :FontSize = 12 ])
+	return fabs(_PnPathEnd(_o_, "fill.gate", "sensor")[1] - _PnCentreX(_o_, "sensor")) < 0.5 and
+	       fabs(_PnPathEnd(_o_, "alarm.gate", "sensor")[1] - _PnCentreX(_o_, "sensor")) < 0.5
 
 #-- DN17: the fault tree section's helpers -----------------------------------
 

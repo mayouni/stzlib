@@ -3188,8 +3188,8 @@ class stzDiagram from stzGraph
 			_slot0_ = _nBoxW_
 			if _bSwap_  _slot0_ = _nBoxH_  ok
 			_slot0_ += _nSepN_
-			_aXtra_ = This._LabelDemand(_oFont_, _nFsz_, _nBoxW_, _slot0_,
-				_bSwap_)
+			_aXtra_ = This._LabelDemand(_oFont_, _nFsz_, _nBoxW_, _nBoxH_,
+				_slot0_, _bSwap_)
 			# the air a cluster boundary needs, in SLOT units, from the
 			# pixels this face knows: a frame's own padding plus one line
 			# clearance, over the slot it will be measured in
@@ -4720,10 +4720,25 @@ class stzDiagram from stzGraph
 				if _aPort_[_pcI_][1] > _pcLa_   _aPort_[_pcI_][1] = _pcLa_   ok
 				if _aPort_[_pcI_][1] < 0 - _pcLa_  _aPort_[_pcI_][1] = 0 - _pcLa_  ok
 			ok
-			if _pcB_[1] < _nBoxW_ - 0.5 or _pcB_[2] < _nBoxH_ - 0.5
+			# ...EXCEPT A MARK THAT HOLDS TWO. The centre rule was ruled
+			# on a 17px end event, where two arrivals have no distinct
+			# places to be. A repeated basic event is a 40px circle fed
+			# by two gates, and drawn as one stem the two fans' lines
+			# merged above it into a shape the Principal asked to see
+			# separated, "like in other diagrams". So under a notation
+			# whose children are peers a mark whose border holds two
+			# ports' floors keeps them, a quarter of the mark to each
+			# side; the smaller marks keep the centre.
+			_pcSb_ = min([ _pcB_[1], _pcB_[2] ])
+			if (_pcB_[1] < _nBoxW_ - 0.5 or _pcB_[2] < _nBoxH_ - 0.5) and
+			   NOT (This._NotationPeerChildren() and
+			        _pcSb_ >= 2 * This._PortFloor())
 				_aPort_[_pcI_][2] = 0
 			else
 				_pcLb_ = max([ _pcB_[1], _pcB_[2] ]) * 0.34
+				if _pcB_[1] < _nBoxW_ - 0.5 or _pcB_[2] < _nBoxH_ - 0.5
+					_pcLb_ = _pcSb_ * 0.25
+				ok
 				if _aPort_[_pcI_][2] > _pcLb_   _aPort_[_pcI_][2] = _pcLb_   ok
 				if _aPort_[_pcI_][2] < 0 - _pcLb_  _aPort_[_pcI_][2] = 0 - _pcLb_  ok
 			ok
@@ -6584,18 +6599,35 @@ class stzDiagram from stzGraph
 		for _rfI_ = 1 to _rfN_
 			_rfB_ = floor(paXY[_rfI_][_rfR_] / 4)
 			_rfA_ + [ _rfB_ * 1000000 + paXY[_rfI_][_rfW_], _rfB_,
-			          paXY[_rfI_][_rfW_], paXY[_rfI_][_rfR_] ]
+			          paXY[_rfI_][_rfW_], paXY[_rfI_][_rfR_],
+			          "" + paXY[_rfI_][1] ]
 		next
 		_rfA_ = sort(_rfA_, 1)
 
+		# ALONG A RANK, TWO NEIGHBOURS NEED WHAT THEY DRAW, not two cells.
+		# This judged every pair against the caller's box, so two marks
+		# the layout had rightly placed a mark's width apart read as a
+		# collision and the whole picture -- every cell, every word --
+		# was scaled down by a fifth. The fault tree's witness came out
+		# with its 20pt names at 16 and the Principal could not read
+		# them. The ratio is taken per pair, against the pair's own
+		# drawn extents, so a rank of marks packs and a rank of cells is
+		# judged exactly as before.
 		_rfMinX_ = -1
 		_rfMinY_ = -1
+		_rfSw_ = 0
+		if cRank = "LR" or cRank = "RL"  _rfSw_ = 1  ok
 		for _rfI_ = 2 to _rfN_
 			if _rfA_[_rfI_][2] = _rfA_[_rfI_ - 1][2]
 				# same rank -> a horizontal neighbour
 				_rfD_ = _rfA_[_rfI_][3] - _rfA_[_rfI_ - 1][3]
-				if _rfD_ > 0 and (_rfMinX_ < 0 or _rfD_ < _rfMinX_)
-					_rfMinX_ = _rfD_
+				_rfNd_ = (This._DrawnExtentOf(_rfA_[_rfI_][5], pnBoxW, pnBoxH,
+						_rfSw_, @oBoxFont, @nFszNow) +
+					This._DrawnExtentOf(_rfA_[_rfI_ - 1][5], pnBoxW, pnBoxH,
+						_rfSw_, @oBoxFont, @nFszNow)) / 2 + 6
+				if _rfD_ > 0 and _rfNd_ > 0
+					_rfQ_ = _rfD_ / _rfNd_
+					if _rfMinX_ < 0 or _rfQ_ < _rfMinX_  _rfMinX_ = _rfQ_  ok
 				ok
 			else
 				# a new rank -> the gap between two ranks
@@ -6609,8 +6641,8 @@ class stzDiagram from stzGraph
 
 		# 6px of air, so adjacent boxes read as two boxes and not as one wall
 		_rfS_ = 1
-		if _rfMinX_ > 0 and _rfBoxA_ > 0
-			_rfS_ = min([ _rfS_, _rfMinX_ / (_rfBoxA_ + 6) ])
+		if _rfMinX_ > 0
+			_rfS_ = min([ _rfS_, _rfMinX_ ])
 		ok
 		if _rfMinY_ > 0 and _rfBoxB_ > 0
 			_rfS_ = min([ _rfS_, _rfMinY_ / (_rfBoxB_ + 6) ])
@@ -9758,13 +9790,50 @@ class stzDiagram from stzGraph
 		next
 		return [ _lbL_, _lbW_ + 8, len(_lbL_) * (nFsz * 1.35) + 6 ]
 
-	def _LabelDemand(oFont, nFsz, nBoxW, nSlot, bSwap)
+	# WHAT A NODE ACTUALLY OCCUPIES ALONG THE SLOT AXIS: its own drawn
+	# box, and the name written beneath it where a mark writes one. Asked
+	# by everything that spaces nodes -- the layout's demand, the peers
+	# packing and the rank fitter -- so the three cannot disagree about
+	# how wide a mark is, which is how the fitter came to shrink a whole
+	# picture for two marks the layout had placed correctly.
+	def _DrawnExtentOf(pcId, nBoxW, nBoxH, bAlongY, oFont, nFsz)
+		_deB_ = This._BoxOf(pcId, nBoxW, nBoxH)
+		if bAlongY  return _deB_[2]  ok
+		_deW_ = _deB_[1]
+		if isObject(oFont) and nFsz > 0 and This._WritesNameBelow(pcId)
+			_deN_ = oFont.WidthOf("" + This._LabelTextOf(pcId), nFsz) + 6
+			if _deN_ > _deW_  _deW_ = _deN_  ok
+		ok
+		return _deW_
+
+	def _LabelDemand(oFont, nFsz, nBoxW, nBoxH, nSlot, bSwap)
 		_ids_ = This.NodesIds()
 		_nn_ = len(_ids_)
 		_dem_ = []
 		for _i_ = 1 to _nn_  _dem_ + 0  next
-		if NOT isObject(oFont)  return _dem_  ok
 		if nSlot <= 0  return _dem_  ok
+		# ...AND A MARK GIVES ROOM BACK. The demand was only ever asked
+		# upward -- a wide label buys its rank more air -- and every node
+		# held a whole slot whatever it drew. A basic event is a 40px
+		# circle with a name beneath, in a 150px cell: the fault tree's
+		# witness spread two of them a full cell apart, the parent above
+		# them took the whole span as its territory, and the next cell
+		# stood 315px from Jam over nothing. The Principal marked the
+		# space. A node narrower than its slot now asks for LESS -- the
+		# same half-width contract with the sign the other way -- and
+		# bounded so a pair's separation stays a positive share of the
+		# slot. The engine's demand() accepts the sign since this commit.
+		_cellA_ = nBoxW
+		if bSwap  _cellA_ = nBoxH  ok
+		for _i_ = 1 to _nn_
+			_dw_ = This._DrawnExtentOf(_ids_[_i_], nBoxW, nBoxH, bSwap,
+				oFont, nFsz)
+			if _dw_ >= _cellA_ - 0.5  loop  ok
+			_d_ = (_dw_ - _cellA_) / 2 / nSlot
+			if _d_ < 0 - 0.45  _d_ = 0 - 0.45  ok
+			_dem_[_i_] = _d_
+		next
+		if NOT isObject(oFont)  return _dem_  ok
 
 		_pos_ = []
 		for _i_ = 1 to _nn_  _pos_ + [ StzLower("" + _ids_[_i_]), _i_ ]  next
@@ -11759,6 +11828,34 @@ class stzDiagram from stzGraph
 	# corners is a shape rather than a junction.
 	def _VertexIsFork(nX, nY, pcKey)
 		_vfK_ = StzLower("" + pcKey)
+		# THE STEM'S OWN CORNER IS A FORK WHEN THE SOURCE FANS -- read off
+		# the model, not off the rehearsal. This asked the dry pass's
+		# paths whether another edge turned here, and the drawing pass
+		# moves a fan's members onto one channel the rehearsal did not
+		# have: on the tank overflow the alarm gate's two lines left one
+		# vertex with the left arm rounded and the right arm square, and
+		# the Principal marked the asymmetry. A corner on the source's
+		# own column, where the source has more than one edge out, IS the
+		# point the fan parts at, whatever the rehearsal drew.
+		_vfP_ = StzFindFirst(">", _vfK_)
+		if _vfP_ > 1
+			_vfF_ = substr(_vfK_, 1, _vfP_ - 1)
+			_vfOne_ = 0
+			for _iVfO_ = 1 to len(@aOutDeg1)
+				if @aOutDeg1[_iVfO_] = _vfF_  _vfOne_ = 1  exit  ok
+			next
+			if NOT _vfOne_
+				_vfAt_ = This._XYOf(@aDrawXY, _vfF_)
+				if len(_vfAt_) = 2
+					_vfAx_ = 1  _vfC_ = nX
+					if StzLower("" + This.Layout()) = "lr" or
+					   StzLower("" + This.Layout()) = "rl"
+						_vfAx_ = 2  _vfC_ = nY
+					ok
+					if fabs(_vfAt_[_vfAx_] - _vfC_) < 1.5  return 1  ok
+				ok
+			ok
+		ok
 		_aVfR37_ = @aEdgePaths
 		_nVfR37_ = len(_aVfR37_)
 		for _iVfR37_ = 1 to _nVfR37_
@@ -13310,6 +13407,15 @@ class stzDiagram from stzGraph
 				if aTo[1] < aFrom[1]  _sgn_ = -1  ok
 				_pe_ = aFrom[1] + _sgn_ * _bcA_[1] / 2
 				_qe_ = aTo[1] - _sgn_ * _bcB_[1] / 2
+				# the same arc landing as the top-down form below, and
+				# the landing only
+				_qeL_ = _qe_
+				if nPortB != 0 and This._ShapeOfId(cToId) = "circle"
+					_qr_ = _bcB_[1] / 2
+					if fabs(nPortB) < _qr_
+						_qeL_ = aTo[1] - _sgn_ * sqrt(_qr_ * _qr_ - nPortB * nPortB)
+					ok
+				ok
 				_chan_ = _pe_ + (_qe_ - _pe_) * iif(_dgFr_ > 0, _dgFr_, nLane)
 				# the span is the run's own axis: a VERTICAL channel in a
 				# left-to-right picture runs across Y
@@ -13319,10 +13425,10 @@ class stzDiagram from stzGraph
 					cFromId, _pe_, _qe_, cFromId, cToId, 1)
 				_chan_ = This._ChannelClear(_chan_, _pe_, _qe_, nWidth)
 				This._EmitOrthoPolyline(oC, [ _pe_, _pay_, _chan_,
-					_pay_, _chan_, _qay_, _qe_, _qay_ ],
+					_pay_, _chan_, _qay_, _qeL_, _qay_ ],
 					cColor, nWidth, cFromId + ">" + cToId)
 				_p_ = [ _chan_, _qay_ ]
-				_q_ = [ _qe_, _qay_ ]
+				_q_ = [ _qeL_, _qay_ ]
 			else
 				_pax_ = aFrom[1] + _ptA_
 				_qax_ = aTo[1] + nPortB
@@ -13330,6 +13436,23 @@ class stzDiagram from stzGraph
 				if aTo[2] < aFrom[2]  _sgn_ = -1  ok
 				_pe_ = aFrom[2] + _sgn_ * _bcA_[2] / 2
 				_qe_ = aTo[2] - _sgn_ * _bcB_[2] / 2
+				# A PORTED DROP INTO A ROUND MARK LANDS ON THE ARC. The
+				# border a box offers is flat; a circle's is lower by the
+				# port's chord, and a drop cut at the flat height stood
+				# 2px above the ink -- the blank the Principal has marked
+				# before, on a schema. THE LANDING ONLY: the channel
+				# arithmetic keeps the flat border, because a fan shares
+				# its channel by that border, and a member whose border
+				# moved a pixel refused the row its sibling had stepped
+				# to -- one origin drawn on two rows, the first fault
+				# tree's fault back again.
+				_qeL_ = _qe_
+				if nPortB != 0 and This._ShapeOfId(cToId) = "circle"
+					_qr_ = _bcB_[2] / 2
+					if fabs(nPortB) < _qr_
+						_qeL_ = aTo[2] - _sgn_ * sqrt(_qr_ * _qr_ - nPortB * nPortB)
+					ok
+				ok
 				_chan_ = _pe_ + (_qe_ - _pe_) * iif(_dgFr_ > 0, _dgFr_, nLane)
 				# a HORIZONTAL channel spans X -- the first call here
 				# passed the Y pair, so every obstacle test ran against a
@@ -13528,10 +13651,10 @@ class stzDiagram from stzGraph
 					_q_ = [ _dvEdge_, aTo[2] ]
 				else
 					This._EmitOrthoPolyline(oC, [ _pax_, _pe_, _pax_,
-						_chan_, _qax_, _chan_, _qax_, _qe_ ],
+						_chan_, _qax_, _chan_, _qax_, _qeL_ ],
 						cColor, nWidth, cFromId + ">" + cToId)
 					_p_ = [ _qax_, _chan_ ]
-					_q_ = [ _qax_, _qe_ ]
+					_q_ = [ _qax_, _qeL_ ]
 				ok
 			ok
 		on "line"
@@ -14213,12 +14336,8 @@ class stzDiagram from stzGraph
 		# the drawn extent of every node, its name beneath included
 		_aPkL_ = []  _aPkR_ = []
 		for _i_ = 1 to _pkN_
-			_b_ = This._BoxOf(_aPkId_[_i_], nBoxW, nBoxH)
-			_w_ = _b_[1]
-			if This._WritesNameBelow(_aPkId_[_i_]) and isObject(@oBoxFont)
-				_nw_ = @oBoxFont.WidthOf("" + This._LabelTextOf(_aPkId_[_i_]), @nFszNow) + 6
-				if _nw_ > _w_  _w_ = _nw_  ok
-			ok
+			_w_ = This._DrawnExtentOf(_aPkId_[_i_], nBoxW, nBoxH, 0,
+				@oBoxFont, @nFszNow)
 			_aPkL_ + (paXY[_i_][2] - _w_ / 2)
 			_aPkR_ + (paXY[_i_][2] + _w_ / 2)
 		next
@@ -16184,6 +16303,37 @@ class stzDiagram from stzGraph
 			_plKey3_ = ceil(_plRow3_)
 			_plLn3_ = This._SameRowLane(_plKey3_, _plA3_[_plCr_],
 				_plB3_[_plCr_])
+			# A LADDER WITHIN A PITCH OF A COLUMN STANDS ON THE COLUMN.
+			# The far border is taken over the ranks the return passes,
+			# so a leaf further down can stand just beyond the ladder --
+			# the witness's Dust, its centre 16px outside a ladder 33px
+			# from Jam's border. Two verticals a few pixels apart read as
+			# a mistake; on one line they read as the picture's edge, and
+			# the Principal drew that line through both. Outward only: a
+			# column between the ladder and the border is inside the
+			# clearance the ladder was given, and never a candidate.
+			_plOff3_ = This._LaneOffset(_plLn3_, 0)
+			if _plOff3_ > 0
+				_plLx3_ = _plRow3_ + _plSide3_ * _plOff3_
+				_plSnap_ = 0
+				_plSnD_ = _plOff3_ + 0.5
+				for _iPlR317_ = 1 to _nPlR315_
+					_plR5_ = _aPlR315_[_iPlR317_]
+					if _plR5_[_plCr_ + 1] >= _plRa3_ and
+					   _plR5_[_plCr_ + 1] <= _plRb3_  loop  ok
+					_plD5_ = (_plR5_[_plAx_ + 1] - _plLx3_) * _plSide3_
+					if _plD5_ < 0.5  loop  ok
+					if _plD5_ < _plSnD_
+						_plSnD_ = _plD5_
+						_plSnap_ = _iPlR317_
+					ok
+				next
+				if _plSnap_ > 0
+					_plRow3_ = _aPlR315_[_plSnap_][_plAx_ + 1] -
+						_plSide3_ * _plOff3_
+					@aSameRowLanes[len(@aSameRowLanes)][1] = ceil(_plRow3_)
+				ok
+			ok
 			@aLaneKept + [ StzLower(_plF3_) + ">" + StzLower(_plT3_),
 				_plLn3_ ]
 			@aReturnOf + [ StzLower(_plF3_) + ">" + StzLower(_plT3_),
