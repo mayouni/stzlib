@@ -3544,7 +3544,22 @@ unreadable. Five causes, four of them laws general to the plane:
   stands on that column, outward only (`_PlanRowLanes`) — moot on the
   witness once the leaves packed, kept as the law the Principal drew.
 
-*Guard:* §111, 53 assertions; §91 grew by three pictures. Catalogue:
+**Round 7 (2026-09-10), two marks.** *"Let the two horizontal lines be at
+the same level, because they represent logically the same level"*: two
+fans that part on the shared leaf's own ports end at two different places
+and are two lines by construction, so they share the row — the channel
+claim records each run's target and lets runs into one target stand a
+port's floor apart on one row; where a smaller mark makes the arrivals
+coincide, the third round's two-row rule stands, and a negative holds it.
+*"The left side must be aligned (principle of spatial equilibrium)"*: the
+leaves beside a ladder stand on its column — the outer leaf on the
+ladder's side takes the ladder's column, the outer leaf on the other side
+stands as far from the gate the other way, the rest spread evenly between
+(`_SpreadLeavesToLadder`, peers only, outward only, and only where the
+mirrored leaf meets no foreign cell on its rank). The ladder continues
+down onto Dust; the gate keeps its middle.
+
+*Guard:* §111, 56 assertions; §91 grew by three pictures. Catalogue:
 `gg_fault_catalogue.ring`, fault_01 to fault_03.
 
 ## DN18 — A FAMILY TREE: a tree with two parents (2026-09-10, SHIPPED)

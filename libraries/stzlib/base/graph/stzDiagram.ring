@@ -3592,6 +3592,17 @@ class stzDiagram from stzGraph
 			# EMPTY plan and came out shorter than the rails they hold.
 			@aDrawXY = _aXY_
 			This._PlanRowLanes(_aXY_, _nBoxW_, _nBoxH_, _cRank_)
+			# THE LEAVES BESIDE A LADDER STAND ON ITS COLUMN -- the
+			# Principal's spatial equilibrium, drawn twice on the witness:
+			# the ladder's vertical continued down onto the left leaf, and
+			# the right leaf as far the other way. The planning above
+			# knows where each ladder stands; the leaves are spread to it
+			# here, before the sheet is measured, so the paper follows.
+			if This._NotationPeerChildren()
+				_aXY_ = This._SpreadLeavesToLadder(_aXY_, _nBoxW_, _nBoxH_,
+					_cRank_)
+				@aDrawXY = _aXY_
+			ok
 			# ...AND A NODE THAT IS NOT THE CALLER'S SIZE IS CHROME TOO.
 			#
 			# The natural size is computed from the caller's cell size
@@ -11503,6 +11514,7 @@ class stzDiagram from stzGraph
 		if _ccHi_ - _ccLo_ < 2  return nY  ok
 
 		_ccS_ = StzLower("" + cSrc)
+		_ccT2_ = StzLower("" + cTo2)
 
 		# ONE STEM, OR CLEARLY TWO. Channels from the SAME source are
 		# allowed to share a line -- that is the bus a fan draws, one
@@ -11539,7 +11551,7 @@ class stzDiagram from stzGraph
 				loop
 			ok
 			@aChanUsed + [ min([ nSpanA, nSpanB ]), max([ nSpanA, nSpanB ]),
-				_ccS_, _ccJ_[4] ]
+				_ccS_, _ccJ_[4], _ccT2_ ]
 			return _ccJ_[4]
 		next
 		_ccClr_ = This._LineClearance()
@@ -11587,6 +11599,19 @@ class stzDiagram from stzGraph
 				# leaf both gates feed -- and the picture drew one rule
 				# across the whole tree, two origins read as one. Spans
 				# closer than a clearance contend like overlapping ones.
+				# ...UNLESS THE TWO PART ON THE LEAF'S OWN PORTS. A mark
+				# that holds two ports gives each fan its own landing, a
+				# port's floor apart: the two runs then END at two
+				# different places and are two lines by construction. The
+				# Principal asked for them on one row -- "they represent
+				# the same logical level" -- and the two-row rule stands
+				# where the arrivals coincide, which a smaller mark still
+				# makes them do.
+				_ccGap_ = max([ _ccU_[1] - _ccHi_, _ccLo_ - _ccU_[2] ])
+				if len(_ccU_) >= 5 and _ccU_[5] = _ccT2_ and
+				   _ccGap_ >= This._PortFloor() - 1
+					loop
+				ok
 				if _ccHi_ > _ccU_[1] - _ccClr_ and _ccLo_ < _ccU_[2] + _ccClr_ and
 				   fabs(_ccCand_ - _ccU_[4]) < _ccClr_ * 0.9
 					_ccBad_ = 1
@@ -11594,11 +11619,11 @@ class stzDiagram from stzGraph
 				ok
 			next
 			if _ccBad_ = 0
-				@aChanUsed + [ _ccLo_, _ccHi_, _ccS_, _ccCand_ ]
+				@aChanUsed + [ _ccLo_, _ccHi_, _ccS_, _ccCand_, _ccT2_ ]
 				return _ccCand_
 			ok
 		next
-		@aChanUsed + [ _ccLo_, _ccHi_, _ccS_, nY ]
+		@aChanUsed + [ _ccLo_, _ccHi_, _ccS_, nY, _ccT2_ ]
 		return nY
 
 	# Emit an ortho polyline -- or, on the dry pass, only LEARN from it.
@@ -15960,6 +15985,93 @@ class stzDiagram from stzGraph
 			ok
 		next
 		return 0
+
+	# THE LEAVES BESIDE A LADDER STAND ON ITS COLUMN. A return runs its
+	# ladder one pitch outside the cells it passes, and the source gate's
+	# own leaves, packed to a mark's width, stood a few dozen pixels
+	# inside that line -- two verticals near each other reading as a
+	# near-miss. The outer leaf on the ladder's side takes the ladder's
+	# column, the outer leaf on the other side stands as far from the
+	# gate the other way, and the rest spread evenly between: the gate
+	# keeps its middle, the picture's edge is one line. Only outward, and
+	# only where the mirrored leaf meets no foreign cell on its rank.
+	def _SpreadLeavesToLadder(paXY, nBoxW, nBoxH, cRank)
+		_slAx_ = 1  _slCr_ = 2
+		if cRank = "LR" or cRank = "RL"  _slAx_ = 2  _slCr_ = 1  ok
+		_aSlOut_ = []
+		for _iSl_ = 1 to len(paXY)
+			_aSlOut_ + [ paXY[_iSl_][1], paXY[_iSl_][2], paXY[_iSl_][3] ]
+		next
+		_aSlE_ = This.Edges()
+		for _iSl_ = 1 to len(@aReturnOf)
+			_slR_ = @aReturnOf[_iSl_]
+			_slK_ = "" + _slR_[1]
+			_slP_ = StzFindFirst(">", _slK_)
+			if _slP_ < 2  loop  ok
+			_slSrc_ = substr(_slK_, 1, _slP_ - 1)
+			_slLn_ = This._LaneKept(_slK_)
+			if _slLn_ < 1  _slLn_ = 1  ok
+			_slLx_ = _slR_[2] + _slR_[3] * This._LaneOffset(_slLn_, 0)
+			_slAt_ = This._XYOf(_aSlOut_, _slSrc_)
+			if len(_slAt_) != 2  loop  ok
+			# the source's forward children -- a return's target is not one
+			_aSlK_ = []
+			for _iSlE_ = 1 to len(_aSlE_)
+				if StzLower("" + _aSlE_[_iSlE_][:from]) != _slSrc_  loop  ok
+				_slT_ = StzLower("" + _aSlE_[_iSlE_][:to])
+				for _jSl_ = 1 to len(_aSlOut_)
+					if StzLower("" + _aSlOut_[_jSl_][1]) != _slT_  loop  ok
+					if _aSlOut_[_jSl_][_slCr_ + 1] <= _slAt_[_slCr_] + 1.5  loop  ok
+					_aSlK_ + _jSl_
+				next
+			next
+			if len(_aSlK_) < 2  loop  ok
+			# the outer leaf on the ladder's side; the ladder must stand beyond it
+			_slExt_ = _aSlOut_[_aSlK_[1]][_slAx_ + 1]
+			_slWide_ = 0
+			for _jSl_ = 1 to len(_aSlK_)
+				_slX_ = _aSlOut_[_aSlK_[_jSl_]][_slAx_ + 1]
+				if (_slX_ - _slExt_) * _slR_[3] > 0  _slExt_ = _slX_  ok
+				_slW_ = This._DrawnExtentOf("" + _aSlOut_[_aSlK_[_jSl_]][1],
+					nBoxW, nBoxH, _slAx_ = 2, @oBoxFont, @nFszNow)
+				if _slW_ > _slWide_  _slWide_ = _slW_  ok
+			next
+			if (_slLx_ - _slExt_) * _slR_[3] < 0.5  loop  ok
+			_slMir_ = 2 * _slAt_[_slAx_] - _slLx_
+			# the mirrored leaf must meet no foreign cell on its rank
+			_slRk_ = _aSlOut_[_aSlK_[1]][_slCr_ + 1]
+			_slBad_ = 0
+			for _jSl_ = 1 to len(_aSlOut_)
+				if fabs(_aSlOut_[_jSl_][_slCr_ + 1] - _slRk_) > 1.5  loop  ok
+				_bSlMine_ = 0
+				for _kSl_ = 1 to len(_aSlK_)
+					if _aSlK_[_kSl_] = _jSl_  _bSlMine_ = 1  exit  ok
+				next
+				if _bSlMine_  loop  ok
+				_slDw_ = This._DrawnExtentOf("" + _aSlOut_[_jSl_][1], nBoxW,
+					nBoxH, _slAx_ = 2, @oBoxFont, @nFszNow)
+				if fabs(_aSlOut_[_jSl_][_slAx_ + 1] - _slMir_) <
+				   (_slDw_ + _slWide_) / 2 + This._LineClearance()
+					_slBad_ = 1
+					exit
+				ok
+			next
+			if _slBad_  loop  ok
+			# spread evenly between the ladder's column and its mirror, in order
+			_aSlOrd_ = []
+			for _jSl_ = 1 to len(_aSlK_)
+				_aSlOrd_ + [ _aSlOut_[_aSlK_[_jSl_]][_slAx_ + 1], _aSlK_[_jSl_] ]
+			next
+			_aSlOrd_ = sort(_aSlOrd_, 1)
+			_slLo_ = min([ _slLx_, _slMir_ ])
+			_slHi_ = max([ _slLx_, _slMir_ ])
+			_nSlK_ = len(_aSlOrd_)
+			for _jSl_ = 1 to _nSlK_
+				_aSlOut_[ _aSlOrd_[_jSl_][2] ][_slAx_ + 1] =
+					_slLo_ + (_slHi_ - _slLo_) * (_jSl_ - 1) / (_nSlK_ - 1)
+			next
+		next
+		return _aSlOut_
 
 	def _SomethingBetween(paA, paB, nBoxW, nBoxH, cRank, pcFrom, pcTo)
 		_sbAx_ = 1  _sbCr_ = 2
