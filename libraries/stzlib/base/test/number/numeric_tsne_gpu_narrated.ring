@@ -112,6 +112,11 @@ else
 	? "  nearest-neighbour blob purity (5-NN): CPU " + nPurCpu + "   GPU " + nPurGpu
 	chk("the CPU embedding keeps the blobs together (purity >= 0.95)", nPurCpu >= 0.95)
 	chk("the GPU embedding keeps the blobs together too (purity >= 0.95)", nPurGpu >= 0.95)
+	nTrC = oCpu.Trustworthiness()
+	nTrG = oGpu.Trustworthiness()
+	? "  trustworthiness T(5) -- the field's witness (Venna & Kaski): CPU " + nTrC + "   GPU " + nTrG
+	chk("both fits keep their neighbours by the field's witness (T(5) >= 0.98)", nTrC >= 0.98 and nTrG >= 0.98)
+	chk("...and the device route is within 0.01 of the CPU's", fabs(nTrC - nTrG) < 0.01)
 
 	? ""
 	? "-- Scene 4: the spike's margin, both fits timed the same way --"

@@ -2208,3 +2208,68 @@ literal written through a shell heredoc loses one backslash of every
 `\\` — write kernel edits through a file, never a heredoc.
 
 GK2b's elementwise half and GK3 stay named, not built.
+
+---
+
+## GS6f STATUS — shipped 2026-09-10: trustworthiness, the field's witness, exact on the CPU and the same number on the device
+
+Guard: `base/test/number/numeric_trustworthiness_narrated.ring` —
+**18 asserts green**. The two device guards now carry it beside purity:
+`numeric_umap_gpu` 26, `numeric_tsne_gpu` 24. Gates: `numeric_embedding`
+240, `numeric_umap_resident` 18; Zig `trustworthiness.zig` 3.
+
+**What it is.** Venna & Kaski's trustworthiness, as scikit-learn computes
+it and as cuML's paper reports it beside every timing:
+
+    T(k) = 1 − 2 / (n k (2n − 3k − 1)) · Σ_i Σ_{j ∈ U_i^k} (r(i, j) − k)
+
+U_i^k is the set of points among i's k nearest in the EMBEDDING that are
+not among its k nearest in the INPUT; r(i, j) is j's rank in i's input
+ordering. A neighbour the layout invented is charged by how far down the
+input ordering it really sat; 1.0 means nothing was invented. It needs
+only the data the fit saw and the embedding — no labels, no blob
+generator — and it is the number the field compares on, so this
+library's tables can sit beside the paper's.
+
+**What shipped.** `engine/src/trustworthiness.zig`: the exact CPU form
+(O(n²(d + dims)), the k-NN kernel's tie rule — equal distance, the lower
+index is nearer — on both sides, so the two routes
+differ only where f32 makes a tie that f64 does not), with a hand-computed case pinned by a test: five points
+on a line, the last folded back beside the first, T(1) = 0.4 exactly.
+`umap_gpu.trustworthiness`: the device route — two passes of the k-NN
+kernel (the input, the embedding) and one RANK pass, one thread per
+(point, embedding-neighbour slot), the n·k penalties summed in f64 —
+from a gate of 1,024 points, where the CPU and the device cost the
+same. `StzEngineEmbeddingTrustworthiness(x, n, d, y, dims, k, mode)`
+is the door (rows or flat lists; mode 0 the engine decides, 1 the CPU,
+2 the device); `stzUMAP.Trustworthiness()` and
+`stzTSNE.Trustworthiness()` (k = 5; `TrustworthinessAt(k)`) answer it
+on the data the fit saw.
+
+**Measured, four blobs in 8 dims, T(5):**
+
+| fit | CPU route | device route |
+|---|---|---|
+| UMAP 1,000 | 0.9951 | 0.9982 |
+| UMAP 4,000 | 0.9926 | 0.9891 |
+| t-SNE 1,000 | 0.9952 | 0.9959 |
+
+The device witness agrees with the CPU's within ONE RANK UNIT —
+2/(n·k·(2n−3k−1)), 5e-8 at 2,000 points — on every fit measured (gaps
+of 0 to 5e-8): where f64 separates two input distances that f32
+cannot, the tie rule decides them differently, and that is the whole
+of the gap. The guard bounds it at four units. At 4,000 points the
+device witness is 5–8x faster (22–26 ms against 122–224). The device
+UMAP route's 0.004 gap at 4k is the same synchronous-update cost GS6c
+measured by purity, now in the field's units.
+
+**Held by the guard:** the hand case exactly 0.4 on both routes; an
+embedding that keeps every neighbour exactly 1; shapes outside the
+definition answer 0; both routes within four rank units at k = 5 and
+k = 15 on 2,000 real points, and the witness moves with k; the gate on both sides with the
+counter; the faces on a fitted UMAP and t-SNE; the device faster at 4k.
+
+The paper's list for this plane is now complete on this desk: the data
+resident, the graph resident, the k-NN through the foundry, the matmul
+through the foundry, the witness. Named, not built: GK2b's elementwise
+half, GK3.

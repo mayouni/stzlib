@@ -68,7 +68,8 @@ pub const C_FALLBACK = 1; // eligible work the device could not serve
 pub const C_FITS_GPU = 2; // fits whose every epoch ran on the device
 pub const C_KNN_GPU = 3; // neighbour tables built on the device
 pub const C_KNN_VARIANT = 4; // tables built by a foundry-chosen variant, not the generic
-var counters: [5]f64 = @splat(0);
+pub const C_TRUST_GPU = 5; // trustworthiness scores computed on the device (GS6f)
+var counters: [6]f64 = @splat(0);
 
 pub fn stz_umap_gpu_set_min_n(nf: f64) callconv(.c) void {
     g_min_n = @intFromFloat(@max(nf, 1));
@@ -610,6 +611,126 @@ pub fn stz_umap_knn_foundry(nf: f64, df: f64, kf: f64, reps: f64, maskf: f64) ca
 fn refuse() bool {
     counters[C_FALLBACK] += 1;
     return false;
+}
+
+// ---------------------------------------------------------------- the trustworthiness witness on the device
+//
+// Two passes of the k-NN kernel (the input, the embedding) and one RANK pass:
+// one thread per (point, embedding-neighbour slot). A neighbour also in the
+// input's k set costs nothing; otherwise its input rank is one more than the
+// count of points nearer under the kernel's tie rule (equal distance: the
+// lower index is nearer), and the penalty is rank - k. The n*k penalties come
+// back and are summed here in f64. See trustworthiness.zig for the formula.
+
+const WGSL_TRUST_RANK = PRELUDE ++
+    \\struct P { n : u32, d : u32, k : u32, pad : u32 }
+    \\@group(0) @binding(1) var<uniform> p : P;
+    \\@group(0) @binding(2) var<storage, read> x : array<f32>;
+    \\@group(0) @binding(3) var<storage, read> kin : array<f32>;
+    \\@group(0) @binding(4) var<storage, read> kem : array<f32>;
+    \\@group(0) @binding(5) var<storage, read_write> pen : array<f32>;
+    \\@compute @workgroup_size(256)
+    \\fn main(@builtin(workgroup_id) wid : vec3<u32>, @builtin(local_invocation_id) lid : vec3<u32>) {
+    \\  let t = (wid.x + tile.xoff) * 256u + lid.x;
+    \\  let n = p.n;
+    \\  let d = p.d;
+    \\  let k = p.k;
+    \\  if (t >= n * k) { return; }
+    \\  let i = t / k;
+    \\  let j = u32(kem[n * k + t]);
+    \\  for (var s = 0u; s < k; s = s + 1u) {
+    \\    if (u32(kin[n * k + i * k + s]) == j) { pen[t] = 0.0; return; }
+    \\  }
+    \\  var dj = 0.0;
+    \\  for (var q = 0u; q < d; q = q + 1u) { let df = x[i * d + q] - x[j * d + q]; dj = dj + df * df; }
+    \\  var count = 0u;
+    \\  for (var l = 0u; l < n; l = l + 1u) {
+    \\    if (l == i || l == j) { continue; }
+    \\    var dl = 0.0;
+    \\    for (var q = 0u; q < d; q = q + 1u) { let df = x[i * d + q] - x[l * d + q]; dl = dl + df * df; }
+    \\    if (dl < dj || (dl == dj && l < j)) { count = count + 1u; }
+    \\  }
+    \\  pen[t] = f32(count + 1u) - f32(k);
+    \\}
+;
+
+var k_trust: i64 = 0;
+var g_trust_min_n: usize = 1024;
+
+pub fn stz_umap_gpu_set_trust_min_n(nf: f64) callconv(.c) void {
+    g_trust_min_n = @intFromFloat(@max(nf, 1));
+}
+pub fn stz_umap_gpu_trust_min_n() callconv(.c) f64 {
+    return @floatFromInt(g_trust_min_n);
+}
+
+/// One k-NN pass on the device into `b_out` (2*n*k f32: [d2 | index]).
+fn knnInto(b_x: i64, n: usize, d: usize, k: usize, b_out: i64) bool {
+    const kern = kernelKnn(KNN_GENERIC);
+    if (kern == 0) return false;
+    const params = KnnParams{ .n = @intCast(n), .d = @intCast(d), .k = @intCast(k), .pad = 0 };
+    return dispatch(kern, std.mem.asBytes(&params), &.{ b_x, b_out }, groups(n)) == gpu.OK;
+}
+
+/// The witness on the device; null = the CPU computes it (under the gate,
+/// no device, a shape the kernels do not take, or a refusal -- counted).
+pub fn trustworthiness(x: []const f64, n: usize, d: usize, y: []const f64, dims: usize, k: usize, force: bool) ?f64 {
+    if (n < 2 or d == 0 or d > 1024 or dims == 0 or dims > 1024 or k == 0 or k > KNN_MAX_K or k >= n) return null;
+    if (2 * n < 3 * k + 1) return null;
+    if (!force and n < g_trust_min_n) return null;
+    if (!tsne_gpu.ensureDevice()) {
+        counters[C_FALLBACK] += 1;
+        return null;
+    }
+    const xf = alloc.alloc(f32, n * d) catch return refuseT();
+    defer alloc.free(xf);
+    for (x[0 .. n * d], 0..) |v, i| xf[i] = @floatCast(v);
+    const yf = alloc.alloc(f32, n * dims) catch return refuseT();
+    defer alloc.free(yf);
+    for (y[0 .. n * dims], 0..) |v, i| yf[i] = @floatCast(v);
+    const b_x = gpu.stz_gpu_buffer_new(@floatFromInt(n * d * 4));
+    defer freeBuf(b_x);
+    const b_y = gpu.stz_gpu_buffer_new(@floatFromInt(n * dims * 4));
+    defer freeBuf(b_y);
+    const b_kin = gpu.stz_gpu_buffer_new(@floatFromInt(2 * n * k * 4));
+    defer freeBuf(b_kin);
+    const b_kem = gpu.stz_gpu_buffer_new(@floatFromInt(2 * n * k * 4));
+    defer freeBuf(b_kem);
+    const b_pen = gpu.stz_gpu_buffer_new(@floatFromInt(n * k * 4));
+    defer freeBuf(b_pen);
+    if (b_x == 0 or b_y == 0 or b_kin == 0 or b_kem == 0 or b_pen == 0) return refuseT();
+    if (gpu.stz_gpu_buffer_write(b_x, @ptrCast(xf.ptr), @floatFromInt(n * d * 4)) != gpu.OK) return refuseT();
+    if (gpu.stz_gpu_buffer_write(b_y, @ptrCast(yf.ptr), @floatFromInt(n * dims * 4)) != gpu.OK) return refuseT();
+    if (k_trust == 0) k_trust = gpu.stz_gpu_kernel_compile(WGSL_TRUST_RANK.ptr, @floatFromInt(WGSL_TRUST_RANK.len));
+    if (k_trust == 0) return refuseT();
+    _ = verify.stz_gpu_wake(400);
+    _ = gpu.stz_gpu_batch_begin();
+    var ok = knnInto(b_x, n, d, k, b_kin);
+    if (ok) ok = knnInto(b_y, n, dims, k, b_kem);
+    if (ok) {
+        const params = KnnParams{ .n = @intCast(n), .d = @intCast(d), .k = @intCast(k), .pad = 0 };
+        ok = dispatch(k_trust, std.mem.asBytes(&params), &.{ b_x, b_kin, b_kem, b_pen }, groups(n * k)) == gpu.OK;
+    }
+    _ = gpu.stz_gpu_batch_end();
+    if (!ok) {
+        forgetKernels();
+        k_trust = 0;
+        return refuseT();
+    }
+    const pen = alloc.alloc(f32, n * k) catch return refuseT();
+    defer alloc.free(pen);
+    if (gpu.stz_gpu_buffer_read(b_pen, @ptrCast(pen.ptr), @floatFromInt(n * k * 4)) != gpu.OK) return refuseT();
+    var penalty: f64 = 0;
+    for (pen) |v| penalty += @as(f64, v);
+    const nf: f64 = @floatFromInt(n);
+    const kf: f64 = @floatFromInt(k);
+    counters[C_TRUST_GPU] += 1;
+    return 1.0 - 2.0 / (nf * kf * (2.0 * nf - 3.0 * kf - 1.0)) * penalty;
+}
+
+fn refuseT() ?f64 {
+    counters[C_FALLBACK] += 1;
+    return null;
 }
 
 // ---------------------------------------------------------------- the epoch chain

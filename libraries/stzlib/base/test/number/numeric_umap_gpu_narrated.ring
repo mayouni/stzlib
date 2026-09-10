@@ -133,6 +133,11 @@ else
 	nPurGpu = purity(oGpu.Embedding(), 4, 5, 1)
 	? "  5-NN blob purity: CPU " + nPurCpu + "   GPU " + nPurGpu
 	chk("the GPU embedding keeps the blobs together too (purity >= 0.95)", nPurGpu >= 0.95)
+	nTrC = oCpu.Trustworthiness()
+	nTrG = oGpu.Trustworthiness()
+	? "  trustworthiness T(5) -- the field's witness (Venna & Kaski): CPU " + nTrC + "   GPU " + nTrG
+	chk("both fits keep their neighbours by the field's witness (T(5) >= 0.98)", nTrC >= 0.98 and nTrG >= 0.98)
+	chk("...and the device route is within 0.01 of the CPU's", fabs(nTrC - nTrG) < 0.01)
 	bFinite = TRUE
 	for i = 1 to nN
 		if fabs(oGpu.Embedding()[i][1]) > 1000000 or fabs(oGpu.Embedding()[i][2]) > 1000000 bFinite = FALSE ok
@@ -199,6 +204,10 @@ else
 	nP4g = purity(oG4.Embedding(), 4, 5, 10)
 	? "  5-NN blob purity (every 10th point as a query): CPU " + nP4c + "   GPU " + nP4g
 	chk("both 4,000-point embeddings keep the blobs together (purity >= 0.95)", nP4c >= 0.95 and nP4g >= 0.95)
+	nT4c = oC4.Trustworthiness()
+	nT4g = oG4.Trustworthiness()
+	? "  trustworthiness T(5) at 4,000: CPU " + nT4c + "   GPU " + nT4g
+	chk("both 4,000-point fits keep their neighbours by the witness (T(5) >= 0.98)", nT4c >= 0.98 and nT4g >= 0.98)
 
 	? ""
 	? "-- Scene 6: the gates restored; a small fit stays CPU --"
