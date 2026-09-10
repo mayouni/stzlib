@@ -3830,3 +3830,31 @@ next:
   - me:      the author's word
   - central: none
 ```
+
+```yaml
+by:        stzlib-graphics · claude-fable-5-1 · 2026-09-10 10:06
+
+subject:   a return's target is not a child -- the engine's centring
+
+why:       the Principal asked why the equal-distance rule was not
+           applied to a gate with two leaves; its third line was a cycle
+
+did:
+  - Read the laid rank in centerParents and skipped every child on the
+    parent's rank or above, in the span, the continuation and the
+    median alike; the gate stands at the middle of its two leaves.
+
+state:
+  gg_adversarial:   1419 ok, 0 failed
+  stz_graph.dll:    rebuilt
+  commit:           b09f3163c on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the author's word
+  - central: none
+```
