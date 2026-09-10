@@ -121,6 +121,7 @@ sections, of which 21 declarations over 17 items.
 | DN15 | closed | 109 |
 | DN16 | closed | 110 |
 | DN17 | closed | 111 |
+| DN18 | closed | 112 |
 | DN9 | closed | - |
 | DN9a | closed | 97 |
 | DN9b | closed | 98 |
@@ -3511,6 +3512,64 @@ twelve cut sets. The gates draw for a top-down tree only.
 
 *Guard:* §111, 46 assertions; §91 grew by three pictures. Catalogue:
 `gg_fault_catalogue.ring`, fault_01 to fault_03.
+
+## DN18 — A FAMILY TREE: a tree with two parents (2026-09-10, SHIPPED)
+
+**The cheapest domain after the fault tree, and the one that reads the tree
+the other way.** A person is a box with the name and, in a second band, the
+years; a *union* is a dot between two partners; every child hangs from a
+union. Two parents per child is what makes it a family tree and not an org
+chart, and the union is what makes two parents drawable — the child has one
+line up, to the dot, and the dot one line to each partner. It lives in
+`base/graph/stzFamilyTree.ring` under `StzFamilyNotation()`: top-down, no
+heads (kinship has no arrow), every parent's children peers, the years as a
+compartment the way DRAKON's shelf is.
+
+**What it is.** `AddPerson`, `AddPersonXT(id, name, born, died)` with 0 for
+unknown, `AddNote`; `Marry(a, b)` answering the union's id and answering the
+same union asked again either way round; `AddUnion(id, [ partners ])` for a
+single parent or whatever the author insists on; `Child(union, person)` and
+`ChildOf(a, b, child)`, which marries them if they are not yet. Kinship read
+off the tree: `PartnersOf`, `ChildrenOf`, `ParentsOf`, `SiblingsOf`,
+`AncestorsOf`, `DescendantsOf`, `GenerationOf`.
+
+**Five rules.** `no_one_is_own_ancestor`, `union_has_two_partners` (one is a
+single parent and the rule says so as a warning; three is not a union),
+`child_of_one_union`, `parents_are_older` where the years are given — its
+boundary is every person without a year or without a dated parent, stated —
+and `partners_are_not_kin`. The witness carries the union of three, the
+child of two unions and the child older than both parents; the cycle and the
+father joined to his daughter each have a scene of their own, because a
+cycle makes everyone everyone's ancestor and every rule then speaks at once.
+
+**One layout law the domain needed, and it is general to peers.** A spouse
+who married in has no parents drawn, so the longest-path ranking lifted her
+to the top rank, three generations above the partner she stands beside.
+Among peers a source now settles onto the rank just above the earliest thing
+it feeds (`_SettleSources` in the layout canvas), which is where its partner
+already stands; a flow notation keeps its starts on the first rank, and the
+gate holds both. And a lesson for every witness: a wide note widens every
+cell of the picture — the widest-name law counts it — and at 20 pt that
+overflowed the paper the fit had measured before the widening; the note is
+short now, and the widening after the fit is noted here as a limit.
+
+**And a second, general to every long edge.** The layout places a long
+edge's waypoints as cells of their own, and the peers packing moved the
+cells and not the waypoints: the witness's line from a union to a grandchild
+bent at x=919 and x=1167 on a sheet whose last cell ends at 787, and the
+paper — measured from the cells — cut it 116px short. The return ladder's
+law already answered this (*a ladder clears what it passes, not the whole
+picture*), so a bend beyond every cell it passes now stands one line
+clearance past the far border of the ranks between its ends, and the fit
+reads the bends as ink beside the cells and the returns. The witness
+draws its long line beside Fay with the same 16px margin on both sides;
+the plastic governor reads 0 on the four family pictures.
+
+**Said plainly and left out.** Adoption, step-relations, the ordering of
+siblings by birth, and dates finer than a year.
+
+*Guard:* §112, 27 assertions; §91 grew by four pictures. Catalogue:
+`gg_family_catalogue.ring`, family_01 to family_04.
 
 ## DN9 — THE TOLD PICTURE: a narration is facts made visible, in an order (planned 2026-09-06, SHIPPED 2026-09-07 as DN9a through DN9g, all seven closed)
 

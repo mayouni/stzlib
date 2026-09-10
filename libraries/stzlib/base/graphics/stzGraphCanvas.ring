@@ -1575,7 +1575,43 @@ class stzGraphCanvas from stzObject
 		next
 		return paOrder
 
+	# A SOURCE SETTLES ONTO WHAT IT FEEDS, among peers. Longest-path
+	# ranking puts every node with no parent on the first rank, which is
+	# right for a flow -- a start is a start -- and wrong for a family
+	# tree, where a spouse who married in has no parents drawn and was
+	# lifted to the top rank, three generations above the partner they
+	# stand beside (Nour, in the first tree). Among peers a source takes
+	# the rank just above the earliest thing it feeds, which is where its
+	# partner already stands. Nodes only move DOWN, so no forward edge
+	# turns backward.
+	def _SettleSources(paLay)
+		if This._Opt(:PeerChildren, 0) != 1  return paLay  ok
+		_n_ = len(@aIds)
+		_aIn_ = []
+		for _i_ = 1 to _n_  _aIn_ + 0  next
+		_aE_ = @oGraph.Edges()
+		_aUV_ = []
+		for _ei_ = 1 to len(_aE_)
+			_u_ = This._IndexOf(_aE_[_ei_][:from])
+			_v_ = This._IndexOf(_aE_[_ei_][:to])
+			if _u_ < 1 or _v_ < 1 or _u_ = _v_  loop  ok
+			if paLay[_v_] <= paLay[_u_]  loop  ok      # a back edge ranks nothing
+			_aIn_[_v_]++
+			_aUV_ + [ _u_, _v_ ]
+		next
+		for _i_ = 1 to _n_
+			if _aIn_[_i_] > 0  loop  ok
+			_min_ = -1
+			for _k_ = 1 to len(_aUV_)
+				if _aUV_[_k_][1] != _i_  loop  ok
+				if _min_ < 0 or paLay[_aUV_[_k_][2]] < _min_  _min_ = paLay[_aUV_[_k_][2]]  ok
+			next
+			if _min_ > 0 and _min_ - 1 > paLay[_i_]  paLay[_i_] = _min_ - 1  ok
+		next
+		return paLay
+
 	def _SinkRanks(paLay)
+		paLay = This._SettleSources(paLay)
 		# SINKS SINK ONLY WHERE SINKING MEANS SOMETHING. This list is
 		# INFERRED from the profile's own rules -- a kind that may not
 		# release anything is a sink -- which is right for a lifecycle,

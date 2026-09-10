@@ -377,6 +377,7 @@ ok
     load "graph/stzErDiagram.ring"
     load "graph/stzPetriNet.ring"
     load "graph/stzFaultTree.ring"
+    load "graph/stzFamilyTree.ring"
 
     load "graph/stzWorkflow.ring"
 
