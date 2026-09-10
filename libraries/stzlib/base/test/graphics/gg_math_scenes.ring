@@ -1099,3 +1099,35 @@ func StzMathTimelineWitness(poFont)
 	_o_ = StzTimelineDiagram(poFont, StzMathHistoryWrongEvents(), StzMathHistoryWrongEras())
 	_o_.SetVariation("wrong")
 	return _o_
+
+# A FISHBONE (DN20): why the coffee is bitter -- six categories, nine
+# causes, the bones leaning toward the head by turns.
+func StzMathCoffeeCategories()
+	return [ [ "Machine",     [ "Grinder set too fine", "Water too hot" ] ],
+	         [ "Method",      [ "Brewed too long", "Ratio off" ] ],
+	         [ "Material",    [ "Beans over-roasted", "Stale beans" ] ],
+	         [ "People",      [ "Untrained barista" ] ],
+	         [ "Measurement", [ "No thermometer" ] ],
+	         [ "Environment", [ "Humid storage" ] ] ]
+
+func StzMathScene45(poFont)
+	_o_ = StzFishboneDiagram(poFont, "Bitter coffee", StzMathCoffeeCategories())
+	_o_.SetVariation("coffee")
+	return _o_
+
+# THE SAME ANALYSIS WITH THREE THINGS WRONG, one per rule: a category with
+# nothing under it, a cause listed under two categories, and the effect
+# written among its own causes. The witness the gate is meant to find
+# things in.
+func StzMathCoffeeWrongCategories()
+	return [ [ "Machine",     [ "Grinder set too fine", "Water too hot" ] ],
+	         [ "Method",      [ "Brewed too long", "Stale beans" ] ],
+	         [ "Material",    [ "Beans over-roasted", "Stale beans" ] ],
+	         [ "People",      [ "Bitter coffee" ] ],
+	         [ "Measurement", [ ] ],
+	         [ "Environment", [ "Humid storage" ] ] ]
+
+func StzMathFishboneWitness(poFont)
+	_o_ = StzFishboneDiagram(poFont, "Bitter coffee", StzMathCoffeeWrongCategories())
+	_o_.SetVariation("wrong")
+	return _o_

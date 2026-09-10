@@ -123,6 +123,7 @@ sections, of which 21 declarations over 17 items.
 | DN17 | closed | 111 |
 | DN18 | closed | 112 |
 | DN19 | closed | 113 |
+| DN20 | closed | 114 |
 | DN9 | closed | - |
 | DN9a | closed | 97 |
 | DN9b | closed | 98 |
@@ -3698,6 +3699,56 @@ uncertainty, and links between events are not here.
 
 *Guard:* §113, 28 assertions; §91 grew by two pictures. Catalogue:
 `gg_math_catalogue.ring`, scenes 43 and 44.
+
+## DN20 — A FISHBONE: an effect, its categories of cause, the causes on them (2026-09-10, SHIPPED)
+
+**Ishikawa's diagram, and nothing in it is solved.** One effect at the
+head, a spine running into it, a bone for each category of cause leaning
+toward the head from above and below by turns, and on each bone a rib for
+every cause with its name at the rib's free end. A bone's length follows
+from how many causes it carries, its place on the spine from how wide its
+neighbours are, and every pixel from those numbers by arithmetic — so it is
+the Gantt's and the timeline's kind of picture, on the math plane, with the
+solver reporting *nothing to lay out*. It lives in
+`base/graph/stzFishboneDiagram.ring`.
+
+**What it is.** `StzFishboneDomain()`: `Effect`, `Spine`, `Category`,
+`Cause`, and `Up(Category)` for the side a bone leans from.
+`StzFishboneFromCauses(effect, categories)` takes the effect's name and
+`[name, [cause, …]]` per category in spine order; it gives every bone a
+length that seats its ribs a name's height apart (a floor of 96 px), leans
+it at sixty degrees toward the head, places the ribs evenly along it with
+the first cause outermost, and puts the head where the last bone ends.
+`StzFishboneStyle(w, h)` draws the spine with a head into the effect's box,
+each bone with a head at the spine, each rib as a level line toward the
+tail with its name at the free end, each category's name past its bone's
+end. `StzFishboneDiagram(font, effect, categories)` is the whole picture.
+
+**The law it mints is the spacing of the bones.** Bones alternate sides, so
+a bone's neighbour on its own side is two places along; every bone is
+measured first — its reach along the spine, a rib, and the widest name at a
+rib's end, or half its category's name past its end — and the pitch
+between consecutive bones is half the widest carry and some air, so two
+bones on one side never meet in what they carry. Long names widen the
+carry and the pitch follows; the gate stands on it with a picture of long
+names that stays clean under the name rules.
+
+**Three rules, every one about the analysis.** `every_bone_carries_a_cause`
+(a category with nothing under it is where the analysis stopped),
+`a_cause_is_named_once` (one cause under two categories, reported on both
+listings; the same name twice under one bone is a repeat, not this),
+`the_effect_is_not_its_own_cause` (the effect among the causes, matched
+whatever its case, explains nothing). A fault is drawn — the empty bone in
+the colour of a fault, the offending names in it — and the gate holds the
+marks to the verdicts. The corpus carries the bitter coffee, lawful, and a
+witness with one of each mistake.
+
+**Said plainly and left out.** A rib carries a name and nothing hangs off a
+rib — no sub-causes. The six Ms are the author's convention, not the
+domain's. Weights, votes and the five whys are not here.
+
+*Guard:* §114, 27 assertions; §91 grew by two pictures. Catalogue:
+`gg_math_catalogue.ring`, scenes 45 and 46.
 
 ## DN9 — THE TOLD PICTURE: a narration is facts made visible, in an order (planned 2026-09-06, SHIPPED 2026-09-07 as DN9a through DN9g, all seven closed)
 
