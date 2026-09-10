@@ -17,6 +17,7 @@ class stzKMeans from stzObject
 	@aCentroids = []
 	@aAssign = []
 	@nIterations = 0
+	@nInertia = 0
 	@cWhy = ""
 
 	def init(paVectors)
@@ -64,19 +65,19 @@ class stzKMeans from stzObject
 		#
 		# Measured, 10000 points x 16 dimensions into 5 clusters: 0.985 s -> 0.031 s.
 		_nDim_ = len(@aVecs[1])
-		_aFlat_ = []
 		for _i_ = 1 to _nV_
 			if len(@aVecs[_i_]) != _nDim_
 				stzraise("Vector " + _i_ + " has " + len(@aVecs[_i_]) +
 					" dimension(s) but the set is " + _nDim_ + " wide.")
 			ok
-			for _d_ = 1 to _nDim_
-				_aFlat_ + @aVecs[_i_][_d_]
-			next
 		next
 
-		_aRes_ = StzEngineKMeansRun(_aFlat_, _nV_, _nDim_, @nK, nMaxIter)
-		if NOT isList(_aRes_) or len(_aRes_) < 2
+		# THE FLATTENING TAX (2026-09-10). The rows used to be appended one number
+		# at a time into a flat list before the call -- 5,120,000 appends at
+		# 20,000 x 256, 1.2 s of a 1.4 s call whose engine part was 0.23 s. The
+		# bridge walks the rows itself now; the vectors go as they are.
+		_aRes_ = StzEngineKMeansRun(@aVecs, _nV_, _nDim_, @nK, nMaxIter)
+		if NOT isList(_aRes_) or len(_aRes_) < 3
 			stzraise("The engine refused the run (" + _nV_ + " x " + _nDim_ + ").")
 		ok
 
@@ -85,10 +86,13 @@ class stzKMeans from stzObject
 		if _nSeeded_ < @nK
 			stzraise("Not enough DISTINCT points to seed " + @nK + " clusters.")
 		ok
+		# the inertia comes back with the run: it used to be one bridge crossing
+		# per point (StzEngineSimEuclidean), 20,000 of them at 20,000 points
+		@nInertia = _aRes_[3]
 
-		# [ iters, seeded, centroids (K x dim), assignments (N) ]
+		# [ iters, seeded, inertia, centroids (K x dim), assignments (N) ]
 		@aCentroids = []
-		_nAt_ = 2
+		_nAt_ = 3
 		for _c_ = 1 to @nK
 			_aC_ = []
 			for _d_ = 1 to _nDim_
@@ -109,17 +113,19 @@ class stzKMeans from stzObject
 		$nStzLastCertainty = 1
 		return This
 
+	# one pass over the assignments, not one per cluster: k scans of n were
+	# 1.28 M steps at 20,000 points into 64 (256 ms); one scan is 20,000
 	def Clusters()
 		_aOut_ = []
 		for _c_ = 1 to @nK
-			_aG_ = []
-			_n_ = len(@aAssign)
-			for _i_ = 1 to _n_
-				if @aAssign[_i_] = _c_
-					_aG_ + _i_
-				ok
-			next
-			_aOut_ + _aG_
+			_aOut_ + []
+		next
+		_n_ = len(@aAssign)
+		for _i_ = 1 to _n_
+			_c_ = @aAssign[_i_]
+			if _c_ > 0
+				_aOut_[_c_] + _i_
+			ok
 		next
 		return _aOut_
 
@@ -141,17 +147,10 @@ class stzKMeans from stzObject
 		next
 		return _nBest_
 
-	# total within-cluster squared distance -- the quality number
+	# total within-cluster squared distance -- the quality number, computed by
+	# the engine at the end of the run over the same distance (cluster.zig)
 	def Inertia()
-		_nS_ = 0
-		_n_ = len(@aVecs)
-		for _i_ = 1 to _n_
-			if @aAssign[_i_] > 0
-				_nD_ = This._Dist(@aVecs[_i_], @aCentroids[@aAssign[_i_]])
-				_nS_ += _nD_ * _nD_
-			ok
-		next
-		return _nS_
+		return @nInertia
 
 	def Iterations()
 		return @nIterations

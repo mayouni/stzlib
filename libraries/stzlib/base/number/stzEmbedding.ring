@@ -117,18 +117,23 @@ func StzEmbeddingCheckData(paData)
 # ONE definition of the PCA pre-step, shared by both classes -- the shape this
 # numeric work keeps finding is two copies of one rule drifting apart.
 #
-# Returns [ flattened data, dimension ]. When no reduction is asked for, or when the
-# data already has fewer features than components requested, the data passes through
-# unchanged rather than being padded to a size it does not have.
+# Returns [ the data as ROWS, dimension ]. When no reduction is asked for, or when
+# the data already has fewer features than components requested, the data passes
+# through unchanged rather than being padded to a size it does not have.
+#
+# THE FLATTENING TAX (2026-09-10). This used to append every number into a flat
+# list before the engine call -- n*d appends in Ring, which at 16,384 x 8 or
+# 20,000 x 256 outweighed the fit itself once the fit ran on the device. The
+# bridge walks rows itself now, so the rows go as they are; what this returns is
+# consumed only by engine calls, which take either shape.
+# AND IT RETURNS A REFERENCE, NOT A COPY. Ring copies a list on every assignment
+# -- measured 2026-09-10: one copy of 16,384 x 8 rows is 20-200 ms, of 20,000 x
+# 256 rows 700 ms -- and there were three between Fit() and the engine call
+# (the wrap, the unwrap, the member). ref() makes each of them free; the rows
+# stay alive by reference counting, verified across a function return.
 func StzEmbeddingPrepare(poOwner, paData, nRows, nCols, nPcaDims)
 	if nPcaDims <= 0 or nPcaDims >= nCols
-		_aFlat_ = []
-		for _i_ = 1 to nRows
-			for _j_ = 1 to nCols
-				_aFlat_ + paData[_i_][_j_]
-			next
-		next
-		return [ _aFlat_, nCols ]
+		return [ ref(paData), nCols ]
 	ok
 
 	_oP_ = new stzPCA(paData)
@@ -153,13 +158,19 @@ func StzEmbeddingPrepare(poOwner, paData, nRows, nCols, nPcaDims)
 		_nK_ = len(_aS_[1])
 	ok
 
-	_aFlat_ = []
+	if _nK_ = len(_aS_[1])
+		return [ ref(_aS_), _nK_ ]
+	ok
+	# fewer components than the scores carry: the rows are cut to width, as rows
+	_aCut_ = []
 	for _i_ = 1 to nRows
+		_aRow_ = []
 		for _j_ = 1 to _nK_
-			_aFlat_ + _aS_[_i_][_j_]
+			_aRow_ + _aS_[_i_][_j_]
 		next
+		_aCut_ + _aRow_
 	next
-	return [ _aFlat_, _nK_ ]
+	return [ ref(_aCut_), _nK_ ]
 
 
 class stzTSNE from stzObject
@@ -675,13 +686,8 @@ class stzTSNE from stzObject
 				_aY_ + @aEmbedding[_i_][_j_]
 			next
 		next
-		_aX_ = []
-		for _i_ = 1 to @nRows
-			for _j_ = 1 to @nPreparedDim
-				_aX_ + @aPreparedX[(_i_ - 1) * @nPreparedDim + _j_]
-			next
-		next
-		_aR_ = StzEngineEmbeddingDecoder(_aY_, _aX_, @nRows, @nDims, @nPreparedDim,
+		# the prepared data is rows; the bridge walks them
+		_aR_ = StzEngineEmbeddingDecoder(_aY_, @aPreparedX, @nRows, @nDims, @nPreparedDim,
 			@anDecHidden, @nDecRate, @nDecEpochs, @nSeed)
 		if NOT isList(_aR_) or len(_aR_) < 3
 			stzraise("The engine refused to train the inverse.")
@@ -770,12 +776,12 @@ class stzTSNE from stzObject
 
 	def Fit()
 		_a_ = This._PreparedData()
-		_aX_ = _a_[1]
+		_aX_ = ref(_a_[1])
 		_nD_ = _a_[2]
 		# kept because Transform() must feed the network the SAME width the fit
-		# trained on -- see the note there
+		# trained on -- see the note there; by reference, not by copy
 		@nPreparedDim = _nD_
-		@aPreparedX = _aX_
+		@aPreparedX = ref(_a_[1])
 
 		if @bParametric
 			# The refusal that used to stand here is gone, and deservedly: the density
@@ -1433,13 +1439,8 @@ class stzUMAP from stzObject
 				_aY_ + @aEmbedding[_i_][_j_]
 			next
 		next
-		_aX_ = []
-		for _i_ = 1 to @nRows
-			for _j_ = 1 to @nPreparedDim
-				_aX_ + @aPrepared[(_i_ - 1) * @nPreparedDim + _j_]
-			next
-		next
-		_aR_ = StzEngineEmbeddingDecoder(_aY_, _aX_, @nRows, @nDims, @nPreparedDim,
+		# the prepared data is rows; the bridge walks them
+		_aR_ = StzEngineEmbeddingDecoder(_aY_, @aPrepared, @nRows, @nDims, @nPreparedDim,
 			@anDecHidden, @nDecRate, @nDecEpochs, @nSeed)
 		if NOT isList(_aR_) or len(_aR_) < 3
 			stzraise("The engine refused to train the inverse.")
@@ -1537,11 +1538,12 @@ class stzUMAP from stzObject
 
 	def Fit()
 		_a_ = This._PreparedData()
-		_aX_ = _a_[1]
+		_aX_ = ref(_a_[1])
 		_nD_ = _a_[2]
 		# kept because Transform() must measure a new point against THE SAME data the
-		# fit saw -- which is the PCA scores when reducing, not the raw features
-		@aPrepared = _aX_
+		# fit saw -- which is the PCA scores when reducing, not the raw features;
+		# by reference, not by copy
+		@aPrepared = ref(_a_[1])
 		@nPreparedDim = _nD_
 
 		if @bParametric

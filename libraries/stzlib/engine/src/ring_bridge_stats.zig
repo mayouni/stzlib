@@ -56,10 +56,49 @@ fn getH(p: *anyopaque, n: c_int) ?*const stats.StzStats {
     return null;
 }
 
+/// A numeric list as f64 -- FLAT, or a list of equal-length ROWS, which is
+/// walked here row-major and lands in the same slice.
+///
+/// THE FLATTENING TAX (2026-09-10). Every matrix face -- k-means, UMAP,
+/// t-SNE, the decoder -- used to append n*d numbers into a flat Ring list
+/// before calling the engine, and at 20,000 x 256 that loop was 1.2 s of a
+/// 1.4 s call whose engine part was 0.23 s: the seams had become faster
+/// than their doorways. The walk over the rows costs the engine one pointer
+/// per row and nothing in Ring. A ragged row is refused (null), as the
+/// faces' own checks refuse it earlier. Flat lists behave exactly as before.
 fn listToF64(p: *anyopaque, param: c_int) ?[]f64 {
     const lst = gl(p, param) orelse return null;
     const n: usize = @intCast(R.ringListSize(lst));
     if (n == 0) return null;
+    if (R.ring_list_islist_gc(null, lst, 1) != 0) {
+        // rows: the first row's width is the width
+        const first = R.ring_list_getlist_gc(null, lst, 1) orelse return null;
+        const d: usize = @intCast(R.ringListSize(first));
+        if (d == 0) return null;
+        const arr = allocator.alloc(f64, n * d) catch return null;
+        for (0..n) |i| {
+            if (R.ring_list_islist_gc(null, lst, @intCast(i + 1)) == 0) {
+                allocator.free(arr);
+                return null;
+            }
+            const row = R.ring_list_getlist_gc(null, lst, @intCast(i + 1)) orelse {
+                allocator.free(arr);
+                return null;
+            };
+            if (@as(usize, @intCast(R.ringListSize(row))) != d) {
+                allocator.free(arr);
+                return null;
+            }
+            for (0..d) |j| {
+                const item = R.ring_list_getitem_gc(null, row, @intCast(j + 1)) orelse {
+                    arr[i * d + j] = 0;
+                    continue;
+                };
+                arr[i * d + j] = R.ring_item_getnumber(item);
+            }
+        }
+        return arr;
+    }
     const arr = allocator.alloc(f64, n) catch return null;
     for (0..n) |i| {
         const item = R.ring_list_getitem_gc(null, lst, @intCast(i + 1)) orelse {
@@ -818,9 +857,11 @@ fn ring_KMeansRun(p: *anyopaque) callconv(.c) void {
 
     const res = cluster.kmeansRun(pts, n, d, k, max_iter, cent, asg, cnt);
 
+    // [ iters, seeded, inertia, centroids (k x d), assignments (n) ]
     const out = R.ring_vm_api_newlist(p) orelse return;
     R.ring_list_adddouble(out, @floatFromInt(res.iterations));
     R.ring_list_adddouble(out, @floatFromInt(res.seeded));
+    R.ring_list_adddouble(out, if (res.seeded == k) cluster.kmeansInertia(pts, n, d, cent, asg) else 0);
     // on a refusal (too few distinct points) only the header is sent, so the
     // caller can raise with the real reason instead of clustering into fewer groups
     if (res.seeded == k) {
@@ -2917,9 +2958,11 @@ fn ring_KMeansGpuRun(p: *anyopaque) callconv(.c) void {
         rn(p, 0);
         return;
     };
+    // the same shape as StzEngineKMeansRun: [ iters, seeded, inertia, centroids, assignments ]
     const out = R.ring_vm_api_newlist(p) orelse return;
     R.ring_list_adddouble(out, @floatFromInt(iters));
     R.ring_list_adddouble(out, @floatFromInt(seeded));
+    R.ring_list_adddouble(out, cluster.kmeansInertia(pts, n, d, cent, asg));
     for (cent) |v| R.ring_list_adddouble(out, v);
     for (asg) |v| R.ring_list_adddouble(out, @floatFromInt(v));
     R.ring_vm_api_retlist(p, out);

@@ -1902,3 +1902,63 @@ GS7 closes the GPU plane's GS list that belongs to this desk (GS1 engine
 half, GS4, GS6a/b/c, GS7); GS1b, GS2, GS3, GS5, GS8 belong to the sound,
 graph and numeric desks. Named, not built: a first-error slot in
 gpu.zig; GK2b; GK3.
+
+---
+
+## THE FLATTENING TAX — shipped 2026-09-10: the seams had become faster than their doorways
+
+Gates: `numeric_embedding_narrated` **240 green**, `mlfloor_narrated` 36,
+`numeric_knn_selection_narrated` 24, `learning_multilingual_stress` 37,
+`learning_kmeans_gpu_narrated` 22, `numeric_umap_gpu_narrated` 23,
+`numeric_tsne_gpu_narrated` 22; Zig `cluster.zig` 27.
+
+**What was found.** After GS7 the k-means engine call at 20,000 × 256
+into 64 took 195 ms and `stzKMeans.Run()` took 1,535 ms. The face spent
+the difference appending 5,120,000 numbers one at a time into a flat
+Ring list before the engine saw them, then crossing the bridge 20,000
+more times to compute the inertia, one `StzEngineSimEuclidean` per
+point. The GS survey had named this class ("batch": marshalling is the
+cost) and GS7's own comment named it again; the fit had simply moved
+enough that the doorway was now the fit.
+
+**What shipped.**
+
+- **The bridge walks rows.** `listToF64` in `ring_bridge_stats.zig`
+  accepts a list of equal-length rows and flattens it engine-side, one
+  pointer per row, a ragged row refused; flat lists behave exactly as
+  before. Every stats entry that takes a matrix gets this for free.
+- **The faces stop flattening.** `stzKMeans.Run()` passes its vectors
+  as they are; `StzEmbeddingPrepare` (t-SNE and UMAP) returns the rows,
+  and the two inverse-decoder paths pass the prepared rows instead of
+  re-flattening them.
+- **The copies go too.** Ring copies a list on every assignment —
+  measured: one copy of 16,384 × 8 rows is 20–200 ms, of 20,000 × 256
+  rows 700 ms — and there were three between `Fit()` and the engine
+  call (the wrap, the unwrap, the member). `ref()` makes each free; a
+  reference made inside a function survives its return, its wrap, and
+  a member, verified before use.
+- **The inertia comes back with the run** (`cluster.kmeansInertia`,
+  the same distance squared and summed; slot 3 of the engine's answer),
+  and `Clusters()` is one pass over the assignments instead of one per
+  cluster (k scans of n were 1.28 M steps, 256 ms, at 20,000 into 64).
+
+**Measured, the face against its own engine call:**
+
+| | before | after | engine call |
+|---|---|---|---|
+| `stzKMeans.Run()` 20,000 × 256 into 64 | 1,535 ms | **339 ms** (4.5x) | 245 ms |
+| `stzUMAP.Fit()` 16,384 × 8 | 363 ms | 319–363 ms | 229 ms |
+| `stzTSNE.Fit()` 4,000 × 8 | 323 ms | 302–311 ms | 284 ms |
+
+The UMAP and t-SNE faces were never far from their engine calls at
+these shapes; their remaining gap is Ring's copy of the answer into
+`Embedding()` and moves run to run. The k-means face's remaining
+94 ms is the bridge's own row walk (69 ms for 5 M numbers) and the
+answer's unpacking.
+
+**What is left of the class, for whoever owns those faces.** The same
+`_aFlat_ +` loop stands in `stzPCA` (3), `stzKnn` (2),
+`stzVectorIndex` (2), `stzSemanticIndex` (1), `stzNeuralNetwork` (1),
+and the stats plots; the bridge reader that cures it is the stats
+DLL's, and each of those needs the same one-line change at its call
+plus a look at what reads the flat copy afterwards.

@@ -83,24 +83,26 @@ else
 	aRc = StzEngineKMeansRun(aFlat, 2000, nD, nK, 100)
 	StzEngineKMeansGpuCountersReset()
 	aRg = StzEngineKMeansGpuRun(aFlat, 2000, nD, nK, 100)
-	chk("both answer the same shape (iterations, seeded, 8 x 16 centroids, 2000 labels)", isList(aRg) and len(aRg) = len(aRc) and len(aRg) = 2 + nK * nD + 2000)
+	chk("both answer the same shape (iterations, seeded, inertia, 8 x 16 centroids, 2000 labels)", isList(aRg) and len(aRg) = len(aRc) and len(aRg) = 3 + nK * nD + 2000)
 	? "  iterations: CPU " + aRc[1] + "   device " + aRg[1] + "   (device iterations counted: " + StzEngineKMeansGpuCounter(C_ITERS) + ")"
 	chk("the same iteration count (convergence checked before the update, on both)", aRg[1] = aRc[1])
 	chk("...and the device counted exactly that many", StzEngineKMeansGpuCounter(C_ITERS) = aRg[1])
 	nDiffLabels = 0
 	for i = 1 to 2000
-		if aRg[2 + nK * nD + i] != aRc[2 + nK * nD + i] nDiffLabels++ ok
+		if aRg[3 + nK * nD + i] != aRc[3 + nK * nD + i] nDiffLabels++ ok
 	next
 	chk("EVERY label is the CPU's (0 of 2000 differ)", nDiffLabels = 0)
 	nMaxRel = 0
 	for j = 1 to nK * nD
-		_c_ = aRc[2 + j]
-		_g_ = aRg[2 + j]
+		_c_ = aRc[3 + j]
+		_g_ = aRg[3 + j]
 		_r_ = fabs(_g_ - _c_) / (fabs(_c_) + 1)
 		if _r_ > nMaxRel nMaxRel = _r_ ok
 	next
 	? "  centroids: max |device - cpu| = " + nMaxRel + "   points f32 could not certify, decided by the CPU: " + StzEngineKMeansGpuCounter(C_RESOLVED)
 	chk("the centroids are the SAME BITS (the update is the CPU's own f64 code on the same labels)", nMaxRel = 0)
+	? "  inertia: CPU " + aRc[3] + "   device " + aRg[3]
+	chk("...and so is the inertia the engine now returns with the run", aRg[3] = aRc[3])
 
 	? ""
 	? "-- Scene 3: the tie rule -- a point exactly between two centroids goes LOWER --"
@@ -108,9 +110,9 @@ else
 	aTie = [ 0, 0, 10, 0, 5, 0, 9, 0 ]
 	aRt = StzEngineKMeansGpuRun(aTie, 4, 2, 2, 1)
 	chk("the device answers the tiny run (forced past the gate)", isList(aRt))
-	? "  labels on the device: " + aRt[2 + 2 * 2 + 1] + " " + aRt[2 + 2 * 2 + 2] + " " + aRt[2 + 2 * 2 + 3] + " " + aRt[2 + 2 * 2 + 4]
-	chk("the equidistant point took cluster 1, the lower-numbered (flagged by the device, decided by the CPU's strict <)", aRt[2 + 2 * 2 + 3] = 1)
-	chk("...the point near 10 took cluster 2", aRt[2 + 2 * 2 + 4] = 2)
+	? "  labels on the device: " + aRt[3 + 2 * 2 + 1] + " " + aRt[3 + 2 * 2 + 2] + " " + aRt[3 + 2 * 2 + 3] + " " + aRt[3 + 2 * 2 + 4]
+	chk("the equidistant point took cluster 1, the lower-numbered (flagged by the device, decided by the CPU's strict <)", aRt[3 + 2 * 2 + 3] = 1)
+	chk("...the point near 10 took cluster 2", aRt[3 + 2 * 2 + 4] = 2)
 
 	? ""
 	? "-- Scene 4: OVER the gate, served end to end and faster -- on data that makes Lloyd's WORK --"
@@ -147,7 +149,7 @@ else
 	chk("the same iteration count as the CPU", aRg[1] = aRc[1])
 	nDiffBig = 0
 	for i = 1 to nBig
-		if aRg[2 + nKb * nDb + i] != aRc[2 + nKb * nDb + i] nDiffBig++ ok
+		if aRg[3 + nKb * nDb + i] != aRc[3 + nKb * nDb + i] nDiffBig++ ok
 	next
 	? "  labels differing: " + nDiffBig + " of " + nBig
 	chk("EVERY label is the CPU's after the migration (0 of 20000 differ)", nDiffBig = 0)
@@ -165,8 +167,8 @@ else
 	nT0 = StzEngineWatchTimestampNs()
 	oGb.Run(100)
 	nGpuFace = (StzEngineWatchTimestampNs() - nT0) / 1000000
-	? "  through stzKMeans.Run(), the face's 5,120,000-append flattening included: CPU " + nCpuFace + " ms   device " + nGpuFace + " ms   = " + (nCpuFace / nGpuFace) + "x"
-	chk("the face is faster too, its own flattening included", nGpuFace < nCpuFace)
+	? "  through stzKMeans.Run() (the rows go to the bridge as they are since the flattening tax went): CPU " + nCpuFace + " ms   device " + nGpuFace + " ms   = " + (nCpuFace / nGpuFace) + "x"
+	chk("the face is faster too", nGpuFace < nCpuFace)
 
 	? ""
 	? "-- Scene 5: the gate restored; a small run stays CPU --"
