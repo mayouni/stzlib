@@ -3902,3 +3902,47 @@ note:      a note in a witness widens every cell (the widest-name law)
            after the fit has measured; kept short here, noted in the
            plan as a limit rather than repaired.
 ```
+
+```yaml
+by:        stzlib-graphics · claude-fable-5-1 · 2026-09-10 19:31
+
+subject:   fault tree, sixth round -- a mark gives room back
+
+why:       the Principal marked five things on two catalogue pictures;
+           four of the five causes were laws general to the plane
+
+did:
+  - Made the engine's demand() signed: a node narrower than its slot
+    sends a negative half-width, bounded at -0.45 of the slot; one
+    helper answers a node's drawn width to the demand, the peers
+    packing and the rank fitter.
+  - Made tidyTerritories skip a return's target, as centerParents
+    already did; the witness's next cell stands one separation from
+    Jam instead of a slot over nothing.
+  - Made the rank fitter judge each pair's drawn extents; it had
+    scaled the witness by a fifth for two rightly packed marks, which
+    was the unreadable text.
+  - Gave a mark that holds two ports its ports under a peers notation,
+    landing each drop on the circle's arc, the landing only.
+  - Read a fork off the model: the stem's corner squares on both arms
+    whenever the source fans.
+  - Grew section 111 to 53 assertions; gate 1453 ok, 0 failed.
+
+state:
+  gg_adversarial:   1453 ok, 0 failed
+  stz_graph.dll:    rebuilt
+  commit:           7fde6418b on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the Principal's word
+  - central: none
+
+note:      the fork asymmetry was the rehearsal deciding for the
+           drawing -- the same defect shape as the published-path
+           swap of round 4, one pass reading the other's fiction.
+```
