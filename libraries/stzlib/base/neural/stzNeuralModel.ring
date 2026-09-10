@@ -419,9 +419,10 @@ func StzNeuralVariantsSync()
 	_n_ = len(_aRows_)
 	for _i_ = 1 to _n_
 		_r_ = _aRows_[_i_]
-		if _r_[1] = "matmul"
-			# rows are [ op, m, n, d(=k), variant ]
-			StzEngineNeuralVariantSet("matmul", _r_[2], _r_[3], _r_[4], _r_[5])
+		if _r_[1] = "matmul" or _r_[1] = "attention"
+			# rows are [ op, m, n, d, variant ] -- (m, n, k) for matmul,
+			# (tokens, width, head_dim) for attention
+			StzEngineNeuralVariantSet(_r_[1], _r_[2], _r_[3], _r_[4], _r_[5])
 		ok
 	next
 

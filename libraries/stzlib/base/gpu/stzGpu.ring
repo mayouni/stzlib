@@ -707,6 +707,49 @@ class stzGpu from stzObject
 			:stored = _bStored_
 		]
 
+	# THE ATTENTION FOUNDRY (GK2c). The backbone's fused attention -- one
+	# workgroup per (head, query row) -- against three reduction-form variants
+	# at workgroup widths 64, 128 and 256, under the checker on the neural
+	# DLL's device; the winner recorded for the (tokens, width, head_dim) class
+	# under the op name "attention", persisted, and pushed into the neural
+	# DLL's table so the next forward dispatches it.
+	def FoundryAttention(nTok, nEmbd, nHeads)
+		return This.FoundryAttentionWith(nTok, nEmbd, nHeads, 7)
+
+	def FoundryAttentionWith(nTok, nEmbd, nHeads, nReps)
+		_nSt_ = StzEngineNeuralAttentionFoundry(nTok, nEmbd, nHeads, nReps, 0)
+		if _nSt_ != 0
+			StzRaise("FoundryAttention: the foundry refused to run (status " + _nSt_ +
+				"). Tokens must be 2..256 and the width a multiple of the head count.")
+		ok
+		_nCount_ = StzEngineNeuralAttentionFoundryResult(0)
+		_aV_ = []
+		for _v_ = 1 to _nCount_
+			_nB_ = 8 + _v_ * 5
+			_aV_ + [ StzEngineNeuralAttentionVariantName(_v_), StzEngineNeuralAttentionFoundryResult(_nB_),
+			         StzEngineNeuralAttentionFoundryResult(_nB_ + 1), StzEngineNeuralAttentionFoundryResult(_nB_ + 2),
+			         StzEngineNeuralAttentionFoundryResult(_nB_ + 3), StzEngineNeuralAttentionFoundryResult(_nB_ + 4) ]
+		next
+		_nW_ = StzEngineNeuralAttentionFoundryResult(3)
+		_nHd_ = floor(nEmbd / nHeads)
+		_bStored_ = FALSE
+		if _nW_ > 0
+			StzEngineNeuralVariantSet("attention", nTok, nEmbd, _nHd_, _nW_)
+			_bStored_ = StzGpuVariantSet("attention", nTok, nEmbd, _nHd_, _nW_)
+			StzGpuSaveCalibration(This._AllCalibOps())
+		ok
+		return [
+			:tokens = nTok, :width = nEmbd, :heads = nHeads,
+			:hiddenn = StzEngineNeuralAttentionFoundryResult(6),
+			:clocks = StzEngineNeuralAttentionFoundryResult(5),
+			:refgpums = StzEngineNeuralAttentionFoundryResult(1),
+			:refwallms = StzEngineNeuralAttentionFoundryResult(2),
+			:variants = _aV_,
+			:winner = StzEngineNeuralAttentionVariantName(_nW_),
+			:ratio = StzEngineNeuralAttentionFoundryResult(4),
+			:stored = _bStored_
+		]
+
 	# THE MATMUL FOUNDRY (GK2b's matmul leg). C(m x n) = A(m x k) B(k x n):
 	# tile16 (the generic), tile8, reg2, reg4 under the checker at the asked
 	# shape and a hidden one; the winner recorded for the (m, n, k) class under

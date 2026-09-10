@@ -36,6 +36,7 @@ const gpu = @import("gpu.zig");
 const embed = @import("neural_embed.zig");
 const ngpu = @import("neural_gpu.zig");
 const ops = @import("gpu_ops.zig"); // GK2b: the matmul variants and their table
+const verify = @import("gpu_verify.zig"); // GK2c: the checker, for the attention foundry
 
 const c = @cImport({
     @cInclude("ggml.h");
@@ -60,10 +61,32 @@ const PRELUDE =
 // names one per (m, n, k) class, and mmBias compiles THAT one for each of the
 // backbone's three shapes -- the generic when the table names none. The
 // generic text is the 16x16 tile this file carried until 2026-09-10.
-// FUSED multi-head attention. One workgroup per (head, query row):
-// scores -> softmax -> context, Q/K/V kept WHOLE (token-major, head h at
-// dims [h*hd, (h+1)*hd)). Scores live in workgroup memory (seq <= 256).
-const WGSL_ATTENTION = PRELUDE ++
+// ---- FUSED multi-head attention, and its variants (GK2c, under the checker) ----
+//
+// One workgroup per (head, query row) on a LINEAR grid (head = id % n_head,
+// row = id / n_head) so the checker, which dispatches (wx, 1), judges every
+// kernel here at every shape: scores -> softmax -> context, Q/K/V kept WHOLE
+// (token-major, head h at dims [h*hd, (h+1)*hd)), scores in workgroup memory
+// (n_tok <= 256). The generic is the kernel this file carried until
+// 2026-09-10, whose softmax had EVERY thread scan max and sum over n_tok
+// serially -- 64 threads doing the same n_tok exps -- and whose context
+// phase used head_dim threads of the 64. The RED variants reduce max and sum
+// through workgroup memory and split the context's token range across the
+// threads a head does not need (parts = W / head_dim), at W = 64, 128, 256.
+// A BROKEN sibling (RED64 with one output nudged) exists for the checker to
+// refuse. Eligibility: n_tok <= 256 for all; head_dim <= W and W % head_dim
+// == 0 for the RED family.
+
+pub const ATT_GENERIC: usize = 0;
+pub const ATT_RED64: usize = 1;
+pub const ATT_RED128: usize = 2;
+pub const ATT_RED256: usize = 3;
+pub const ATT_BROKEN: usize = 4;
+pub const ATT_REAL: usize = 4;
+pub const ATT_VARIANTS: usize = 5;
+pub const att_variant_names = [_][]const u8{ "scan64", "red64", "red128", "red256", "broken" };
+
+const ATT_HEAD =
     \\struct P { n_tok : u32, n_embd : u32, n_head : u32, head_dim : u32, scale : f32, pad0 : u32, pad1 : u32, pad2 : u32 }
     \\@group(0) @binding(1) var<uniform> p : P;
     \\@group(0) @binding(2) var<storage, read> q : array<f32>;
@@ -71,12 +94,16 @@ const WGSL_ATTENTION = PRELUDE ++
     \\@group(0) @binding(4) var<storage, read> v : array<f32>;
     \\@group(0) @binding(5) var<storage, read_write> outv : array<f32>;
     \\var<workgroup> sc : array<f32, 256>;
+    \\
+;
+
+const WGSL_ATTENTION = PRELUDE ++ ATT_HEAD ++
     \\@compute @workgroup_size(64)
     \\fn main(@builtin(workgroup_id) wid : vec3<u32>,
     \\        @builtin(local_invocation_id) lid : vec3<u32>) {
-    \\  let head = wid.x + tile.xoff;
-    \\  let row  = wid.y;
-    \\  if (head >= p.n_head || row >= p.n_tok) { return; }
+    \\  let id = wid.x + tile.xoff;
+    \\  let head = id % p.n_head;
+    \\  let row  = min(id / p.n_head, p.n_tok - 1u);
     \\  let base = head * p.head_dim;
     \\  let qoff = row * p.n_embd + base;
     \\  // 1. scores for this (head,row), split across the workgroup
@@ -119,6 +146,268 @@ const WGSL_ATTENTION = PRELUDE ++
     \\  }
     \\}
 ;
+
+/// The RED family at workgroup width W: tree reductions for max and sum, the
+/// context's token range split W / head_dim ways.
+fn attRedSource(comptime W: u32, comptime broken: bool) []const u8 {
+    const ws = std.fmt.comptimePrint("{d}", .{W});
+    return PRELUDE ++ ATT_HEAD ++
+        "var<workgroup> red : array<f32, " ++ ws ++ ">;\n" ++
+        "var<workgroup> pc : array<f32, " ++ ws ++ ">;\n" ++
+        "@compute @workgroup_size(" ++ ws ++ ")\n" ++
+        \\fn main(@builtin(workgroup_id) wid : vec3<u32>,
+        \\        @builtin(local_invocation_id) lid : vec3<u32>) {
+        \\  let W =
+    ++ ws ++ "u;\n" ++
+        \\  let id = wid.x + tile.xoff;
+        \\  let head = id % p.n_head;
+        \\  let row  = min(id / p.n_head, p.n_tok - 1u);
+        \\  let base = head * p.head_dim;
+        \\  let qoff = row * p.n_embd + base;
+        \\  // 1. scores, and this thread's running max
+        \\  var lmax = -3.4028235e38;
+        \\  var j = lid.x;
+        \\  loop {
+        \\    if (j >= p.n_tok) { break; }
+        \\    var dot = 0.0;
+        \\    let koff = j * p.n_embd + base;
+        \\    for (var d = 0u; d < p.head_dim; d = d + 1u) { dot = dot + q[qoff + d] * k[koff + d]; }
+        \\    let sv = dot * p.scale;
+        \\    sc[j] = sv;
+        \\    lmax = max(lmax, sv);
+        \\    j = j + W;
+        \\  }
+        \\  red[lid.x] = lmax;
+        \\  workgroupBarrier();
+        \\  for (var s = W / 2u; s > 0u; s = s >> 1u) {
+        \\    if (lid.x < s) { red[lid.x] = max(red[lid.x], red[lid.x + s]); }
+        \\    workgroupBarrier();
+        \\  }
+        \\  let mx = red[0];
+        \\  workgroupBarrier();
+        \\  // 2. exponentiate in place, and this thread's running sum
+        \\  var lsum = 0.0;
+        \\  j = lid.x;
+        \\  loop {
+        \\    if (j >= p.n_tok) { break; }
+        \\    let e = exp(sc[j] - mx);
+        \\    sc[j] = e;
+        \\    lsum = lsum + e;
+        \\    j = j + W;
+        \\  }
+        \\  red[lid.x] = lsum;
+        \\  workgroupBarrier();
+        \\  for (var s = W / 2u; s > 0u; s = s >> 1u) {
+        \\    if (lid.x < s) { red[lid.x] = red[lid.x] + red[lid.x + s]; }
+        \\    workgroupBarrier();
+        \\  }
+        \\  let sum = red[0];
+        \\  workgroupBarrier();
+        \\  // 3. context: the token range split parts ways per output dim
+        \\  let parts = W / p.head_dim;
+        \\  let dim = lid.x % p.head_dim;
+        \\  let part = lid.x / p.head_dim;
+        \\  var acc = 0.0;
+        \\  if (part < parts) {
+        \\    for (var t = part; t < p.n_tok; t = t + parts) { acc = acc + sc[t] * v[t * p.n_embd + base + dim]; }
+        \\  }
+        \\  pc[lid.x] = acc;
+        \\  workgroupBarrier();
+        \\  if (part == 0u) {
+        \\    var tot = 0.0;
+        \\    for (var qq = 0u; qq < parts; qq = qq + 1u) { tot = tot + pc[qq * p.head_dim + dim]; }
+        \\
+    ++ (if (broken)
+        \\    if (row == 1u && dim == 1u) { tot = tot + 0.001 * sum; }
+        \\
+    else
+        \\
+    ) ++
+        \\    outv[row * p.n_embd + base + dim] = tot / sum;
+        \\  }
+        \\}
+    ;
+}
+
+fn attSource(v: usize) []const u8 {
+    return switch (v) {
+        ATT_RED64 => comptime attRedSource(64, false),
+        ATT_RED128 => comptime attRedSource(128, false),
+        ATT_RED256 => comptime attRedSource(256, false),
+        ATT_BROKEN => comptime attRedSource(64, true),
+        else => WGSL_ATTENTION,
+    };
+}
+
+pub fn attVariantEligible(v: usize, n_tok: usize, head_dim: usize) bool {
+    if (n_tok == 0 or n_tok > 256 or head_dim == 0) return false;
+    const w: usize = switch (v) {
+        ATT_GENERIC => return true,
+        ATT_RED64, ATT_BROKEN => 64,
+        ATT_RED128 => 128,
+        ATT_RED256 => 256,
+        else => return false,
+    };
+    return head_dim <= w and w % head_dim == 0;
+}
+
+var k_att: [ATT_VARIANTS]i64 = @splat(0);
+
+fn attKernelFor(v: usize) i64 {
+    if (k_att[v] == 0) {
+        const src = attSource(v);
+        k_att[v] = gpu.stz_gpu_kernel_compile(src.ptr, @floatFromInt(src.len));
+    }
+    return k_att[v];
+}
+
+/// The table's choice for (n_tok, n_embd, head_dim), degraded to an eligible one.
+fn attVariantFor(n_tok: usize, n_embd: usize, head_dim: usize) usize {
+    const want: usize = @intFromFloat(ops.stz_gpu_variant_get("attention", 9, @floatFromInt(n_tok), @floatFromInt(n_embd), @floatFromInt(head_dim)));
+    var v = if (want < ATT_REAL) want else ATT_GENERIC;
+    while (v > ATT_GENERIC and !attVariantEligible(v, n_tok, head_dim)) v -= 1;
+    return v;
+}
+
+/// the variant the last forward dispatched for its attention -- a guard's witness
+var g_att_variant_used: usize = 0;
+
+pub export fn neural_attention_variant_used() callconv(.c) c_int {
+    return @intCast(g_att_variant_used);
+}
+
+pub export fn neural_attention_variant_name(vf: f64, out: [*]u8, cap: f64) callconv(.c) c_int {
+    const i: usize = @intFromFloat(@max(vf, 0));
+    if (i >= ATT_VARIANTS) return 0;
+    const nm = att_variant_names[i];
+    const room: usize = @intFromFloat(cap);
+    if (nm.len > room) return 0;
+    @memcpy(out[0..nm.len], nm);
+    return @intCast(nm.len);
+}
+
+// ---- the attention foundry: the enumeration under the checker ----
+
+pub const AF_COUNT = 0;
+pub const AF_REF_GPU_MS = 1;
+pub const AF_REF_WALL_MS = 2;
+pub const AF_WINNER = 3;
+pub const AF_WINNER_RATIO = 4;
+pub const AF_CLOCKS = 5;
+pub const AF_HIDDEN_N = 6;
+pub const AF_BASE = 8; // per variant v: AF_BASE + v*5 + {verified, gpu_ms, wall_ms, ratio_gpu, ratio_wall}
+pub const AF_STRIDE = 5;
+pub const AF_SLOTS = AF_BASE + ATT_VARIANTS * AF_STRIDE;
+var af_result: [AF_SLOTS]f64 = @splat(0);
+pub const AF_MARGIN: f64 = 1.3;
+
+pub export fn neural_attention_foundry_result(idx: c_int) callconv(.c) f64 {
+    if (idx < 0 or idx >= AF_SLOTS) return 0;
+    return af_result[@intCast(idx)];
+}
+
+fn fillLcg(id: i64, count: usize, seed: u32) bool {
+    const host = std.heap.c_allocator.alloc(f32, count) catch return false;
+    defer std.heap.c_allocator.free(host);
+    var r: u32 = seed;
+    for (host) |*x| {
+        r = r *% 1664525 +% 1013904223;
+        x.* = @as(f32, @floatFromInt(r >> 8)) / 16777216.0 - 0.5;
+    }
+    return gpu.stz_gpu_buffer_write(id, @ptrCast(host.ptr), @floatFromInt(count * 4)) == gpu.OK;
+}
+
+/// Run the enumeration at (n_tok, n_embd, n_head): each variant against the
+/// generic on the same Q/K/V at this shape and a hidden odd token count,
+/// GPU clock, device awake; the winner past 1.3x into AF_WINNER -- the
+/// caller records it. `mask` selects variants (bit v); 0 = every real one.
+pub export fn neural_attention_foundry(ntf: f64, nef: f64, nhf: f64, reps: f64, maskf: f64) callconv(.c) c_int {
+    af_result = @splat(0);
+    if (!ngpu.ensureDevicePub()) return gpu.FALLBACK;
+    const n_tok: usize = @intFromFloat(ntf);
+    const n_embd: usize = @intFromFloat(nef);
+    const n_head: usize = @intFromFloat(nhf);
+    if (n_tok < 2 or n_tok > 256 or n_embd == 0 or n_head == 0 or n_embd % n_head != 0) return gpu.BAD_ARG;
+    const head_dim = n_embd / n_head;
+    var mask: u32 = @intFromFloat(maskf);
+    if (mask == 0) mask = (@as(u32, 1) << ATT_REAL) - 2;
+    const n_tok2: usize = @max(3, ((n_tok * 5) / 7) | 1);
+    af_result[AF_COUNT] = @floatFromInt(ATT_REAL - 1);
+    af_result[AF_HIDDEN_N] = @floatFromInt(n_tok2);
+    _ = verify.stz_gpu_wake(400);
+    const act = n_tok * n_embd * 4;
+    const act2 = n_tok2 * n_embd * 4;
+    const ids = [_]i64{
+        gpu.stz_gpu_buffer_new(@floatFromInt(act)),  gpu.stz_gpu_buffer_new(@floatFromInt(act)),  gpu.stz_gpu_buffer_new(@floatFromInt(act)),  gpu.stz_gpu_buffer_new(@floatFromInt(act)),
+        gpu.stz_gpu_buffer_new(@floatFromInt(act2)), gpu.stz_gpu_buffer_new(@floatFromInt(act2)), gpu.stz_gpu_buffer_new(@floatFromInt(act2)), gpu.stz_gpu_buffer_new(@floatFromInt(act2)),
+    };
+    defer {
+        for (ids) |id| {
+            if (id != 0) _ = gpu.stz_gpu_buffer_free(id);
+        }
+    }
+    for (ids) |id| if (id == 0) return gpu.GPU_ERROR;
+    if (!fillLcg(ids[0], n_tok * n_embd, 101)) return gpu.GPU_ERROR;
+    if (!fillLcg(ids[1], n_tok * n_embd, 202)) return gpu.GPU_ERROR;
+    if (!fillLcg(ids[2], n_tok * n_embd, 303)) return gpu.GPU_ERROR;
+    if (!fillLcg(ids[4], n_tok2 * n_embd, 404)) return gpu.GPU_ERROR;
+    if (!fillLcg(ids[5], n_tok2 * n_embd, 505)) return gpu.GPU_ERROR;
+    if (!fillLcg(ids[6], n_tok2 * n_embd, 606)) return gpu.GPU_ERROR;
+    const kref = attKernelFor(ATT_GENERIC);
+    if (kref == 0) return gpu.GPU_ERROR;
+    const scale: f32 = 1.0 / @sqrt(@as(f32, @floatFromInt(head_dim)));
+    const pa = AttParams{ .n_tok = @intCast(n_tok), .n_embd = @intCast(n_embd), .n_head = @intCast(n_head), .head_dim = @intCast(head_dim), .scale = scale };
+    const pb = AttParams{ .n_tok = @intCast(n_tok2), .n_embd = @intCast(n_embd), .n_head = @intCast(n_head), .head_dim = @intCast(head_dim), .scale = scale };
+    const ba = std.mem.asBytes(&pa);
+    const bb = std.mem.asBytes(&pb);
+    const ids_a = [_]i64{ ids[0], ids[1], ids[2], ids[3] };
+    const ids_b = [_]i64{ ids[4], ids[5], ids[6], ids[7] };
+    const wx_a = n_head * n_tok;
+    const wx_b = n_head * n_tok2;
+    // softmax weights in [0, 1] over a context of values in [-0.5, 0.5]: the
+    // summation orders differ (serial against a tree); the band is f32's
+    const band: f64 = 1e-4;
+    var best_v: usize = 0;
+    var best_ratio: f64 = 1.0;
+    var v: usize = 1;
+    while (v < ATT_VARIANTS) : (v += 1) {
+        const base = AF_BASE + v * AF_STRIDE;
+        if ((mask & (@as(u32, 1) << @intCast(v))) == 0) {
+            af_result[base] = -2;
+            continue;
+        }
+        if (!attVariantEligible(v, n_tok, head_dim)) {
+            af_result[base] = -1;
+            continue;
+        }
+        const kv = attKernelFor(v);
+        if (kv == 0) return gpu.GPU_ERROR;
+        const st = verify.stz_gpu_verify(kref, kv, ba.ptr, @floatFromInt(ba.len), &ids_a, 4, @floatFromInt(n_tok * n_embd), @floatFromInt(wx_a), @floatFromInt(wx_a), bb.ptr, @floatFromInt(bb.len), &ids_b, 4, @floatFromInt(n_tok2 * n_embd), @floatFromInt(wx_b), @floatFromInt(wx_b), reps, band);
+        if (st != gpu.OK) return st;
+        const verdict: i32 = @intFromFloat(verify.stz_gpu_verify_result(verify.R_VERDICT));
+        const clocks = verify.stz_gpu_verify_result(verify.R_CLOCKS);
+        af_result[AF_CLOCKS] = clocks;
+        af_result[AF_REF_WALL_MS] = verify.stz_gpu_verify_result(verify.R_REF_MS);
+        af_result[AF_REF_GPU_MS] = verify.stz_gpu_verify_result(verify.R_REF_GPU_MS);
+        if (verdict != verify.V_VERIFIED) {
+            af_result[base] = 0;
+            continue;
+        }
+        af_result[base] = 1;
+        af_result[base + 1] = verify.stz_gpu_verify_result(verify.R_CAND_GPU_MS);
+        af_result[base + 2] = verify.stz_gpu_verify_result(verify.R_CAND_MS);
+        af_result[base + 3] = verify.stz_gpu_verify_result(verify.R_SPEEDUP_GPU);
+        af_result[base + 4] = verify.stz_gpu_verify_result(verify.R_SPEEDUP);
+        const ratio = if (clocks >= 2) af_result[base + 3] else af_result[base + 4];
+        if (v < ATT_REAL and ratio > best_ratio) {
+            best_ratio = ratio;
+            best_v = v;
+        }
+    }
+    af_result[AF_WINNER] = if (best_v != 0 and best_ratio >= AF_MARGIN) @floatFromInt(best_v) else 0;
+    af_result[AF_WINNER_RATIO] = best_ratio;
+    return gpu.OK;
+}
 
 // out = LayerNorm(x + residual) * w + b, one workgroup per token row.
 // use_res == 0 skips the residual (the embedding LN).
@@ -546,7 +835,16 @@ pub export fn neural_backbone_forward(ids_ptr: [*c]const i32, n_tok_in: c_int, o
         ok = ok and mmBias(K_MM, by, tensorId(ctx, "blk.{d}.attn_v.weight", .{L}, true), tensorId(ctx, "blk.{d}.attn_v.bias", .{L}, false), bv, n_tok, n_embd, n_embd);
         // fused attention -> bx
         const ap = AttParams{ .n_tok = @intCast(n_tok), .n_embd = @intCast(n_embd), .n_head = @intCast(n_head), .head_dim = @intCast(head_dim), .scale = scale };
-        ok = ok and dispatchP(K_ATT, &ap, &.{ bq, bk, bv, bx }, n_head, n_tok);
+        // GK2c: the table's attention variant for this shape, on the linear grid
+        const v_att = attVariantFor(n_tok, n_embd, head_dim);
+        var k_use = K_ATT;
+        if (v_att != ATT_GENERIC) {
+            k_use = attKernelFor(v_att);
+            if (k_use == 0) k_use = K_ATT;
+        }
+        g_att_variant_used = if (k_use == K_ATT) ATT_GENERIC else v_att;
+        if (k_use != K_ATT) gpu.bumpCounter(gpu.CTR_VARIANT_DISPATCH, 1);
+        ok = ok and dispatchP(k_use, &ap, &.{ bq, bk, bv, bx }, n_head * n_tok, 1);
         // attn_output projection -> bq (reused), then LN(bq + by) -> by
         ok = ok and mmBias(K_MM, bx, tensorId(ctx, "blk.{d}.attn_output.weight", .{L}, true), tensorId(ctx, "blk.{d}.attn_output.bias", .{L}, false), bq, n_tok, n_embd, n_embd);
         ok = ok and lnStep(K_LN, bq, by, tensorId(ctx, "blk.{d}.attn_output_norm.weight", .{L}, false), tensorId(ctx, "blk.{d}.attn_output_norm.bias", .{L}, false), bx, n_tok, n_embd, eps, 1);

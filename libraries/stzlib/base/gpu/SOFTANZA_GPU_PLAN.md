@@ -2328,3 +2328,61 @@ unnotified.
 **Paid for, again:** a `func` placed at the TOP of a probe swallows the
 whole probe — the first two measurements printed nothing; put helper
 functions at the end of a script.
+
+---
+
+## GK2c STATUS — shipped 2026-09-10: the backbone's attention through the foundry; the kernel 1.5x, the forward 7%
+
+Guard: `base/test/gpu/gpu_foundry_attention_narrated.ring` — **12 asserts
+green**. Gates: `neural_backbone` 14, `neural_gpu_routing` 17,
+`neural_semantic_gpu_seam` 33, `semantic_search` 14,
+`gpu_foundry_matmul` 21.
+
+**Why this kernel.** After GK2b the forward was 7.5 ms and the fused
+attention was the largest kernel left in it that had never been
+measured against an alternative. The generic — one workgroup of 64 per
+(head, query row) — had EVERY thread scan max and sum over the tokens
+serially (64 threads doing the same n_tok exponentials) and used
+head_dim threads of the 64 for the context.
+
+**What shipped.** In `neural_backbone.zig`: the attention family on a
+LINEAR grid (head = id mod n_head, row = id div n_head) so the checker
+judges every kernel at every shape — **scan64** (the generic),
+**red64 / red128 / red256** (max and sum reduced through workgroup
+memory; the context's token range split W / head_dim ways across the
+threads a head does not need) and a **broken** sibling (one output
+nudged) for the checker to refuse. `neural_attention_foundry(n_tok,
+n_embd, n_head, reps, mask)` runs the enumeration on the neural DLL's
+device at the asked token count and a hidden odd one; the winner past
+1.3x lands in the neural DLL's variant table under `attention`
+(tokens, width, head_dim), is persisted beside the matmul rows through
+the face `stzGpu.FoundryAttention`, and reaches the DLL through the
+same sync before the first embedding. The forward dispatches the
+table's variant and **reports which** (`StzEngineNeuralAttentionVariantUsed`),
+which is the guard's witness.
+
+**Measured, RTX 3050, 384 wide, 12 heads, every cell VERIFIED:**
+
+| tokens | generic | red64 | red128 | red256 | verdict |
+|---|---|---|---|---|---|
+| 64 | 0.19 ms | 1.35x | **1.37x** | 1.27x | red128 |
+| 130 | 0.73 ms | 1.49x | **1.51x** | 1.47x | red64 / red128 (a coin toss between runs) |
+| 256 | 1.39 ms | 1.29x | 1.25x | 1.24x | generic stays (under the margin) |
+
+**And through the real forward** (MiniLM, 130 tokens, warm-min of 7):
+all generic **14.43 ms**; the matmul winners **7.46 ms**; the matmul
+and attention winners **6.94 ms** — the attention's own 1.5x is worth
+7% of the forward, because after GK2b the attention is a smaller share
+than the spike's per-head decomposition had suggested. The embedding
+is unchanged within f32. The whole foundry series on the backbone:
+14.4 → 6.9 ms, **2.08x**, against a CPU full forward of 36.6 ms —
+**5.3x**.
+
+**The honest reading.** The kill line held on one cell (256 tokens),
+and the win at the forward is modest: the reductions were the right
+fix for the generic's redundant scan, and there is no larger one in
+this kernel's shape — the remaining time is the matmuls at their
+register-blocked speed, the layer norms and the GELU, each a fraction.
+The backbone is at the point where the next factor is not a kernel.
+
+GK2b's elementwise half and GK3 stay named, not built.
