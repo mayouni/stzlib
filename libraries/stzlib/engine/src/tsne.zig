@@ -36,6 +36,7 @@
 
 const std = @import("std");
 const density = @import("density.zig");
+const tsne_gpu = @import("tsne_gpu.zig");
 
 pub const Options = struct {
     /// roughly "how many neighbours should count". The original paper suggests 5..50
@@ -364,10 +365,29 @@ pub fn run(
     }
 
     var it: usize = 0;
+    // GS6a: the two n^2 passes below run on the GPU when the corpus earned it
+    // (tsne_gpu.zig -- P resident once, the positions per epoch, the gradient
+    // and KL back). The optimiser that follows is untouched either way, and a
+    // refusal at any epoch drops to the CPU block for the rest of the fit.
+    var gs = tsne_gpu.prepare(p, n, dims);
+    defer if (gs) |*s| tsne_gpu.release(s);
+
     while (it < opts.iterations) : (it += 1) {
         const exaggerating = it < opts.exaggeration_iters;
         const scale: f64 = if (exaggerating) opts.exaggeration else 1;
 
+        var kl_now: f64 = 0;
+        var served = false;
+        if (gs) |*s| {
+            if (tsne_gpu.epoch(s, y, scale, dy)) |k| {
+                kl_now = k;
+                served = true;
+            } else {
+                tsne_gpu.release(s);
+                gs = null;
+            }
+        }
+        if (!served) {
         // Q, with the Student-t kernel: num_ij = 1 / (1 + ||y_i - y_j||^2)
         var qsum: f64 = 0;
         {
@@ -387,7 +407,6 @@ pub fn run(
 
         // the gradient, and the KL divergence for the record
         @memset(dy, 0);
-        var kl_now: f64 = 0;
         {
             var i: usize = 0;
             while (i < n) : (i += 1) {
@@ -405,6 +424,7 @@ pub fn run(
                 }
             }
         }
+        } // !served
         kl[it] = kl_now;
 
         // The density contribution goes into `dy` rather than straight into `y`, so it

@@ -21,6 +21,7 @@ const frame_mod = @import("frame.zig");
 const plot_mod = @import("plot.zig");
 const pca_mod = @import("pca.zig");
 const tsne_mod = @import("tsne.zig");
+const tsne_gpu = @import("tsne_gpu.zig");
 const umap_mod = @import("umap.zig");
 const pumap_mod = @import("pumap.zig");
 const decoder_mod = @import("decoder.zig");
@@ -2711,6 +2712,40 @@ fn ring_PcaTransform(p: *anyopaque) callconv(.c) void {
 // The KL history comes back in full rather than as a final number: an embedding is
 // stochastic and its objective is the only evidence that the optimisation actually
 // went anywhere, so a caller should be able to look.
+// ---------------- GS6a: the t-SNE epoch on the GPU (tsne_gpu.zig)
+//   StzEngineTsneGpuRuntimePath(cPath)    where wgpu_native lives (the loader calls it)
+//   StzEngineTsneGpuSetMinN(n) / MinN()   the gate a corpus must reach
+//   StzEngineTsneGpuCounter(i)            0 epochs on the device, 1 fallbacks, 2 fits served
+//   StzEngineTsneGpuCountersReset() / State()   0 untried, 1 live, 2 failed
+fn ring_TsneGpuRuntimePath(p: *anyopaque) callconv(.c) void {
+    const ptr = R.ring_vm_api_getstring(p, 1);
+    const len = R.ring_vm_api_getstringsize(p, 1);
+    tsne_gpu.stz_tsne_gpu_runtime_path(ptr, @floatFromInt(len));
+    rn(p, 1);
+}
+
+fn ring_TsneGpuSetMinN(p: *anyopaque) callconv(.c) void {
+    tsne_gpu.stz_tsne_gpu_set_min_n(g(p, 1));
+    rn(p, 1);
+}
+
+fn ring_TsneGpuMinN(p: *anyopaque) callconv(.c) void {
+    rn(p, tsne_gpu.stz_tsne_gpu_min_n());
+}
+
+fn ring_TsneGpuCounter(p: *anyopaque) callconv(.c) void {
+    rn(p, tsne_gpu.stz_tsne_gpu_counter(@intFromFloat(g(p, 1))));
+}
+
+fn ring_TsneGpuCountersReset(p: *anyopaque) callconv(.c) void {
+    tsne_gpu.stz_tsne_gpu_counters_reset();
+    rn(p, 1);
+}
+
+fn ring_TsneGpuState(p: *anyopaque) callconv(.c) void {
+    rn(p, tsne_gpu.stz_tsne_gpu_state());
+}
+
 fn ring_Tsne(p: *anyopaque) callconv(.c) void {
     const x = listToF64(p, 1) orelse {
         rn(p, 0);
@@ -3362,6 +3397,13 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineeigensystem", .func = &ring_EigenSystem },
     .{ .name = "stzenginepcafit", .func = &ring_PcaFit },
     .{ .name = "stzenginetsne", .func = &ring_Tsne },
+    // GS6a: the t-SNE epoch on the GPU
+    .{ .name = "stzenginetsnegpuruntimepath", .func = &ring_TsneGpuRuntimePath },
+    .{ .name = "stzenginetsnegpusetminn", .func = &ring_TsneGpuSetMinN },
+    .{ .name = "stzenginetsnegpuminn", .func = &ring_TsneGpuMinN },
+    .{ .name = "stzenginetsnegpucounter", .func = &ring_TsneGpuCounter },
+    .{ .name = "stzenginetsnegpucountersreset", .func = &ring_TsneGpuCountersReset },
+    .{ .name = "stzenginetsnegpustate", .func = &ring_TsneGpuState },
     .{ .name = "stzengineptsne", .func = &ring_Ptsne },
     .{ .name = "stzengineptsnetransform", .func = &ring_PtsneTransform },
     .{ .name = "stzengineumap", .func = &ring_Umap },

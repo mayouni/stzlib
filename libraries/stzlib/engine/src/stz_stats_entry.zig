@@ -15,6 +15,7 @@ pub const complex = @import("complex.zig");
 pub const eigen_general = @import("eigen_general.zig");
 pub const pca = @import("pca.zig");
 pub const tsne = @import("tsne.zig");
+pub const tsne_gpu = @import("tsne_gpu.zig");
 pub const umap = @import("umap.zig");
 pub const ptsne = @import("ptsne.zig");
 pub const ring_bridge = @import("ring_bridge_stats.zig");
