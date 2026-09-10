@@ -12,7 +12,7 @@ load "../../stzBase.ring"
 load "gg_fault_scenes.ring"
 
 oFont = new stzFont("C:/Windows/Fonts/segoeui.ttf")
-aOpt = [ :Font = oFont, :NodeWidth = 120, :NodeHeight = 52, :FontSize = 13 ]
+aOpt = [ :Font = oFont, :NodeWidth = 150, :NodeHeight = 56, :FontSize = 20 ]
 
 acTitles = [ "A PUMP THAT FAILS TO START  (seized, or mains out AND battery flat)",
              "A REPEATED EVENT            (the sensor under both branches; an undeveloped event beside)",

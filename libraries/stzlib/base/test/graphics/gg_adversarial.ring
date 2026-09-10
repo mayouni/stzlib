@@ -15089,7 +15089,7 @@ discharges("DN17")
 # THE NOTATION: a tree read top-down, no heads, gates read as values,
 # a basic event's inside for its number and its name beneath, and the
 # children of every parent declared peers.
-OPTFT = [ :Font = EFONT, :NodeWidth = 120, :NodeHeight = 52, :FontSize = 13 ]
+OPTFT = [ :Font = EFONT, :NodeWidth = 150, :NodeHeight = 56, :FontSize = 20 ]
 oFtP = StzFaultScene01(OPTFT)
 chk("the notation reads top-down and draws no head", oFtP.NotationO().Name_() = "fault" and
     NOT oFtP.NotationO().EdgesDirected() and len(oFtP.RenderArrows()) = 0)
@@ -15200,6 +15200,13 @@ chk("a gate with three inputs stands over the middle one, whatever the outer two
     fabs(_PnCentreX(oFtW, "t1.gate") - _PnCentreX(oFtW, "bare")) < 0.5)
 chk("the forest is packed: the second tree stands one separation from the first on the rank they share",
     _FtPacked(oFtW))
+# A RETURN'S TARGET IS NOT A CHILD. The gate whose third "input" is the
+# top event it cycles back to stood over the middle of two leaves and
+# that top -- the right leaf. The rank each node was laid on says which
+# way an edge goes, and the centring reads it.
+chk("a gate with a backward edge among its lines still stands at the middle of the two leaves beneath it",
+    fabs(_PnCentreX(oFtW, "jam.gate") - (_PnCentreX(oFtW, "dust") + _PnCentreX(oFtW, "wear")) / 2) < 0.5 and
+    fabs(_PnCentreX(oFtW, "jam") - _PnCentreX(oFtW, "jam.gate")) < 0.5)
 # THE LADDER CLEARS WHAT THE RETURN PASSES, NOT THE WHOLE PICTURE. The
 # cycle's return spans the top three ranks; the leaves two ranks below
 # are not in its way, so its ladder stands beside Jam, not beyond Dust.
