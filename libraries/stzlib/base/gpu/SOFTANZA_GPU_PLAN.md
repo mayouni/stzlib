@@ -2386,3 +2386,77 @@ register-blocked speed, the layer norms and the GELU, each a fraction.
 The backbone is at the point where the next factor is not a kernel.
 
 GK2b's elementwise half and GK3 stay named, not built.
+
+---
+
+## GX — MORE THAN ONE ADAPTER (named 2026-09-11, on the author's question)
+
+The author asked whether the parallel programming system covers more
+than one GPU. It does not, by design, and this section records what
+the plane has, what it lacks, and the one item that would close the
+gap, with its kill line written before any code.
+
+### GX.1 — what the plane does with several adapters today
+
+- **Enumeration and a name for each** (`gpu.zig` at init, first
+  discrete by default, adapter 0 otherwise; `stzGpu.AdapterCount()`,
+  `DeviceName()`).
+- **Explicit selection of ONE** (`StzEngineGpuSelectAdapter`): the
+  current device is closed first and every buffer and kernel handle
+  goes stale on purpose. One device per DLL at any time. The GK1 and
+  GS1 guards measure the RTX 3050 and the Intel iGPU one after the
+  other, never together.
+- **Calibration per adapter**: thresholds, shaped classes and foundry
+  variant tables persist under the adapter's name, so a machine that
+  switches adapters gets the right verdicts.
+
+That is selection, not parallelism.
+
+### GX.2 — what it lacks
+
+- **Two devices at once.** The device, queue, buffer table, kernel
+  table, batch state and counters are module globals; every op, seam
+  and foundry keys off them. Two devices in one DLL means that state
+  becomes a context instance — a refactor of the plane, not a feature
+  on it.
+- **A partition and a merge.** Nothing splits rows across devices or
+  gathers results; wgpu has no device-to-device transfer, so a split
+  always round-trips through the host.
+- **A substrate.** The concurrent plan settles on three substrates —
+  engine threads, reactor processes, cluster workers — "one router, no
+  fourth", and names the GPU once, as a witness of the boundary law.
+  The per-DLL device law means the neural, stats and gpu DLLs could
+  land on different adapters by accident, never by a face's choice.
+
+### GX.3 — the physics on this machine
+
+The second adapter here is the iGPU: 3–4x slower per kernel than the
+3050 (GS6's spike: 71x against 19.7x on the same chain) and sharing
+system memory. A workload split across both gains at most about a
+quarter while doubling the doorway crossings, and every seam this
+plane shipped in September turned out to be doorway-bound (the
+flattening tax, twice). Multi-GPU pays only with two or more DISCRETE
+adapters and a row-partitionable, resident workload.
+
+### GX.4 — the item
+
+- **GX0** — the adapter pool: the device state as a context instance
+  in `gpu.zig`; a pool that opens one context per adapter; row
+  partition on the host with each shard routed by its adapter's own
+  calibration; a host merge; the counters per context. Workloads that
+  partition by rows and stay resident per shard: batch embeddings
+  (the backbone per shard), k-NN over a large corpus (GS6e's kernel
+  per shard, the merge a k-way top-k), an epoch chain per shard where
+  the objective allows it (k-means yes, t-SNE and UMAP no — their
+  epochs read every row). Not started.
+
+**Gate to build, written now:** a machine with at least two discrete
+adapters AND one of those workloads asking. Neither exists on this
+desk; the item waits for both.
+
+**Kill line, written now:** on the first such machine, a two-adapter
+pool must beat the faster single adapter by ≥1.5x on the workload's
+own guard at its real size, both adapters awake, the doorway included
+in both timings. Below that, the pool is refused and the plan records
+that partition cost ate the second adapter — the boundary law's fifth
+witness — and the plane stays one device per DLL.
