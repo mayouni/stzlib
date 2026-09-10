@@ -15218,8 +15218,16 @@ chk("...and the fan still shares one channel: both arms turn on one row",
 # THE PRINCIPAL'S THIRD ROUND: two fans that met end to end read as one
 # rule across the tree; a gate with three inputs stood off its middle
 # one; a second tree stood a cell and a half from the first.
-chk("two fans whose channels would meet end to end at a shared leaf take two rows, a clearance apart",
-    fabs(_PlTurnOf(oFtR, "fill.gate", "sensor") - _PlTurnOf(oFtR, "alarm.gate", "sensor")) >= oFtR._LineClearance() - 0.5)
+# THE SEVENTH ROUND: "let the two horizontal lines be at the same level,
+# because they represent logically the same level". Two fans that part
+# on the shared leaf's own ports end at two different places and are two
+# lines by construction, so they share the row; where a smaller mark
+# makes the arrivals coincide, the two-row rule of the third round stands.
+chk("two fans whose runs part on the shared leaf's ports share one row -- the same logical level",
+    fabs(_PlTurnOf(oFtR, "fill.gate", "sensor") - _PlTurnOf(oFtR, "alarm.gate", "sensor")) < 0.5 and
+    fabs(_PlTurnOf(oFtR, "fill.gate", "valve") - _PlTurnOf(oFtR, "alarm.gate", "relay")) < 0.5)
+chk("NEGATIVE: where the mark keeps its arrivals at the centre, two fans meeting end to end still take two rows",
+    fabs(_PlTurnOf(_FtSmall(), "fill.gate", "sensor") - _PlTurnOf(_FtSmall(), "alarm.gate", "sensor")) > _FtSmall()._LineClearance() / 2)
 chk("a gate with three inputs stands over the middle one, whatever the outer two carry",
     fabs(_PnCentreX(oFtW, "t1.gate") - _PnCentreX(oFtW, "bare")) < 0.5)
 chk("the forest is packed: the second tree stands one separation from the first on the rank they share",
@@ -15234,17 +15242,26 @@ chk("a gate with a backward edge among its lines still stands at the middle of t
 # THE LADDER CLEARS WHAT THE RETURN PASSES, NOT THE WHOLE PICTURE. The
 # cycle's return spans the top three ranks; the leaves two ranks below
 # are not in its way, so its ladder stands beside Jam, not beyond Dust.
-chk("the return's ladder stands one pitch left of the widest cell it passes, and left of the packed leaves beneath",
+chk("the return's ladder stands one pitch left of the widest cell it passes",
     _PnPathOf(oFtW, "jam.gate", "t1")[3] < _PnRectX(oFtW, "jam") and
-    _PnPathOf(oFtW, "jam.gate", "t1")[3] > _PnRectX(oFtW, "jam") - 40 and
-    _PnPathOf(oFtW, "jam.gate", "t1")[3] < _PnRectX(oFtW, "dust"))
+    _PnPathOf(oFtW, "jam.gate", "t1")[3] > _PnRectX(oFtW, "jam") - 40)
+# ...AND THE LEAVES BESIDE IT STAND ON ITS COLUMN -- the Principal's
+# spatial equilibrium: the ladder continues down onto the left leaf, the
+# right leaf stands as far the other way, the gate keeps its middle.
+chk("the gate's left leaf stands on the ladder's column, and its right leaf as far the other way",
+    fabs(_PnCentreX(oFtW, "dust") - _PnPathOf(oFtW, "jam.gate", "t1")[3]) < 0.5 and
+    fabs(_PnCentreX(oFtW, "jam.gate") - (_PnCentreX(oFtW, "dust") + _PnCentreX(oFtW, "wear")) / 2) < 0.5)
+chk("NEGATIVE: a gate with no ladder beside it keeps its leaves what they draw apart -- half of each name and one separation",
+    fabs((_PnCentreX(oFtP, "battery") - _PnCentreX(oFtP, "mains")) -
+         ((oFtP._DrawnExtentOf("mains", 150, 56, 0, EFONT, 20) + oFtP._DrawnExtentOf("battery", 150, 56, 0, EFONT, 20)) / 2 +
+          oFtP.NodeSeparation() * 96)) < 2)
 # A MARK GIVES ROOM BACK, AND A RETURN'S TARGET IS NOT A CHILD -- the
 # sixth round's two layout laws, both in the engine. Two leaves held a
 # cell each and the gate's territory ran up its own return to the top
 # event, so the next cell stood a slot from Jam over nothing and the
 # fitter shrank the whole picture to a fifth less than asked.
-chk("two marks under one gate stand a mark's width apart, not a cell's",
-    _PnCentreX(oFtW, "wear") - _PnCentreX(oFtW, "dust") < OPTFT[:NodeWidth])
+chk("two marks under one gate stand a mark's width apart, not a cell's -- the ladder's column apart here",
+    _PnCentreX(oFtW, "wear") - _PnCentreX(oFtW, "dust") < 2 * OPTFT[:NodeWidth])
 chk("the cell beside Jam stands one separation from it, not a slot over nothing",
     _PnRectX(oFtW, "bare") - (_PnRectX(oFtW, "jam") + _PnRectW(oFtW, "jam")) < 80)
 chk("...and the witness is drawn at the size it was asked -- 56px cells and 40px marks, nothing scaled away",
@@ -18460,8 +18477,11 @@ func _FtForkOf poD, pcF, pcT
 	return FALSE
 
 # the repeated tree drawn small: a 29px mark cannot hold two ports
+func _FtSmall
+	return StzFaultScene02([ :Font = EFONT, :NodeWidth = 120, :NodeHeight = 40, :FontSize = 12 ])
+
 func _FtSmallCentred
-	_o_ = StzFaultScene02([ :Font = EFONT, :NodeWidth = 120, :NodeHeight = 40, :FontSize = 12 ])
+	_o_ = _FtSmall()
 	return fabs(_PnPathEnd(_o_, "fill.gate", "sensor")[1] - _PnCentreX(_o_, "sensor")) < 0.5 and
 	       fabs(_PnPathEnd(_o_, "alarm.gate", "sensor")[1] - _PnCentreX(_o_, "sensor")) < 0.5
 
