@@ -882,6 +882,19 @@ class stzTSNE from stzObject
 		This._MustBeFitted()
 		return @aEmbedding
 
+	# THE WITNESS (Venna & Kaski 2006, as scikit-learn computes it): 1.0 when the
+	# embedding invented no neighbour; every neighbour a point gained in the map
+	# that was not among its k nearest in the input is charged by how far down
+	# the input ordering it really sat. Needs only the data the fit saw and the
+	# embedding -- no labels, no generator -- and it is the number the field
+	# compares on. Computed by the engine, on the device past its gate.
+	def Trustworthiness()
+		return This.TrustworthinessAt(5)
+
+	def TrustworthinessAt(nK)
+		This._MustBeFitted()
+		return StzEngineEmbeddingTrustworthiness(@aPreparedX, @nRows, @nPreparedDim, @aEmbedding, @nDims, nK, 0)
+
 	# The objective, per iteration. Worth looking at: an embedding is stochastic, and
 	# this is the only evidence the optimisation went anywhere.
 	def KLHistory()
@@ -1673,6 +1686,15 @@ class stzUMAP from stzObject
 	def Embedding()
 		This._MustBeFitted()
 		return @aEmbedding
+
+	# THE WITNESS -- see stzTSNE.Trustworthiness(); the same engine call on the
+	# data the fit saw (the PCA scores when reducing) and the embedding
+	def Trustworthiness()
+		return This.TrustworthinessAt(5)
+
+	def TrustworthinessAt(nK)
+		This._MustBeFitted()
+		return StzEngineEmbeddingTrustworthiness(@aPrepared, @nRows, @nPreparedDim, @aEmbedding, @nDims, nK, 0)
 
 	# The fitted similarity curve 1/(1 + a*d^(2b)). Reported because a and b are
 	# DERIVED from min_dist and spread by a least-squares fit rather than given, and

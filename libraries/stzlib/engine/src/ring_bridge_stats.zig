@@ -24,6 +24,7 @@ const tsne_mod = @import("tsne.zig");
 const tsne_gpu = @import("tsne_gpu.zig");
 const umap_gpu = @import("umap_gpu.zig");
 const kmeans_gpu = @import("kmeans_gpu.zig");
+const trust = @import("trustworthiness.zig");
 const gpu_dev = @import("gpu.zig"); // the stats DLL's own device (its own gpu.zig, its own error slots)
 const umap_mod = @import("umap.zig");
 const pumap_mod = @import("pumap.zig");
@@ -3111,6 +3112,43 @@ fn ring_UmapKnnVariantName(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retstring2(p, sl.ptr, @intCast(sl.len));
 }
 
+// StzEngineEmbeddingTrustworthiness(aX, n, d, aY, dims, k, mode) -> T in [.., 1]
+// (mode 0 = the engine decides the route, 1 = the CPU, 2 = the device past its
+// gate); 0 answers a shape outside the definition. Lists flat or as rows.
+fn ring_EmbeddingTrustworthiness(p: *anyopaque) callconv(.c) void {
+    const x = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(x);
+    const n: usize = @intFromFloat(g(p, 2));
+    const d: usize = @intFromFloat(g(p, 3));
+    const y = listToF64(p, 4) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(y);
+    const dims: usize = @intFromFloat(g(p, 5));
+    const k: usize = @intFromFloat(g(p, 6));
+    const mode: u8 = @intFromFloat(@min(@max(g(p, 7), 0), 2));
+    if (x.len != n * d or y.len != n * dims) {
+        rn(p, 0);
+        return;
+    }
+    const t = trust.run(allocator, x, n, d, y, dims, k, mode) catch {
+        rn(p, 0);
+        return;
+    };
+    rn(p, t);
+}
+fn ring_UmapGpuSetTrustMinN(p: *anyopaque) callconv(.c) void {
+    umap_gpu.stz_umap_gpu_set_trust_min_n(g(p, 1));
+    rn(p, 1);
+}
+fn ring_UmapGpuTrustMinN(p: *anyopaque) callconv(.c) void {
+    rn(p, umap_gpu.stz_umap_gpu_trust_min_n());
+}
+
 fn ring_TsneGpuRuntimePath(p: *anyopaque) callconv(.c) void {
     const ptr = R.ring_vm_api_getstring(p, 1);
     const len = R.ring_vm_api_getstringsize(p, 1);
@@ -3798,6 +3836,9 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginepcafit", .func = &ring_PcaFit },
     .{ .name = "stzenginetsne", .func = &ring_Tsne },
     // GS6a: the t-SNE epoch on the GPU
+    .{ .name = "stzengineembeddingtrustworthiness", .func = &ring_EmbeddingTrustworthiness },
+    .{ .name = "stzengineumapgpusettrustminn", .func = &ring_UmapGpuSetTrustMinN },
+    .{ .name = "stzengineumapgputrustminn", .func = &ring_UmapGpuTrustMinN },
     .{ .name = "stzengineumapknnfoundry", .func = &ring_UmapKnnFoundry },
     .{ .name = "stzengineumapknnfoundryresult", .func = &ring_UmapKnnFoundryResult },
     .{ .name = "stzengineumapknnvariantset", .func = &ring_UmapKnnVariantSet },
