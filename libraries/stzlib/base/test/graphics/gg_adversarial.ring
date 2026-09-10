@@ -15200,6 +15200,13 @@ chk("a gate with three inputs stands over the middle one, whatever the outer two
     fabs(_PnCentreX(oFtW, "t1.gate") - _PnCentreX(oFtW, "bare")) < 0.5)
 chk("the forest is packed: the second tree stands one separation from the first on the rank they share",
     _FtPacked(oFtW))
+# THE LADDER CLEARS WHAT THE RETURN PASSES, NOT THE WHOLE PICTURE. The
+# cycle's return spans the top three ranks; the leaves two ranks below
+# are not in its way, so its ladder stands beside Jam, not beyond Dust.
+chk("the return's ladder stands one pitch left of the widest cell it passes, and right of the leaf it does not",
+    _PnPathOf(oFtW, "jam.gate", "t1")[3] < _PnRectX(oFtW, "jam") and
+    _PnPathOf(oFtW, "jam.gate", "t1")[3] > _PnRectX(oFtW, "jam") - 40 and
+    _PnPathOf(oFtW, "jam.gate", "t1")[3] > _PnCentreX(oFtW, "dust"))
 chk("the witness's one backward edge runs beside the picture and enters the top from its side, not through its floor",
     _PnPathEnd(oFtW, "jam.gate", "t1")[1] < _PnCentreX(oFtW, "t1") - 10 and
     fabs(_PnPathEnd(oFtW, "jam.gate", "t1")[2] - _PnCentreY(oFtW, "t1")) < 0.5 and _PnNoArcThroughCell(oFtW))
