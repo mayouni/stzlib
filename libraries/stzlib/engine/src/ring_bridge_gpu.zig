@@ -115,6 +115,17 @@ fn ring_LastError(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retstring2(p, e.ptr, @intCast(e.len));
 }
 
+// the first error since the last clear -- the cause, where LastError is the symptom
+fn ring_FirstError(p: *anyopaque) callconv(.c) void {
+    const e = gpu.firstError();
+    R.ring_vm_api_retstring2(p, e.ptr, @intCast(e.len));
+}
+
+fn ring_ErrorClear(p: *anyopaque) callconv(.c) void {
+    gpu.stz_gpu_error_clear();
+    rn(p, 1);
+}
+
 // ---------------- buffers
 
 fn ring_BufferNew(p: *anyopaque) callconv(.c) void {
@@ -1789,6 +1800,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpucounter", .func = &ring_Counter },
     .{ .name = "stzenginegpucountersreset", .func = &ring_CountersReset },
     .{ .name = "stzenginegpulasterror", .func = &ring_LastError },
+    .{ .name = "stzenginegpufirsterror", .func = &ring_FirstError },
+    .{ .name = "stzenginegpuerrorclear", .func = &ring_ErrorClear },
     .{ .name = "stzenginegpubuffernew", .func = &ring_BufferNew },
     .{ .name = "stzenginegpubufferfree", .func = &ring_BufferFree },
     .{ .name = "stzenginegpubuffersize", .func = &ring_BufferSize },

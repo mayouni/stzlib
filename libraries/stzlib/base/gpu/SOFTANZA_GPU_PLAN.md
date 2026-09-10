@@ -1962,3 +1962,41 @@ answer's unpacking.
 and the stats plots; the bridge reader that cures it is the stats
 DLL's, and each of those needs the same one-line change at its call
 plus a look at what reads the flat copy afterwards.
+
+---
+
+## THE FIRST-ERROR SLOT — shipped 2026-09-10: a refused kernel names its cause, not its symptom
+
+Guard: `base/test/gpu/gpu_errors_narrated.ring` — **14 asserts green**.
+Gates: `gpu_verify_narrated` 26, `gpu_lifecycle_narrated` 62,
+`learning_kmeans_gpu_narrated` 22, `mlfloor_narrated` 36; Zig `gpu.zig` 3.
+
+**What was wrong.** A shader that fails validation raises two errors
+in a row: the parser's — "name `target` is a reserved keyword",
+with the line — and then the pipeline's — "ShaderModule with
+'stz_kernel' label is invalid". `gpu.zig` kept one slot, so the second
+overwrote the first: every refusal read as "invalid" and the cause was
+gone. GS6b paid three rebuilds and a patched error callback to see one
+parser line.
+
+**What shipped.** Two slots in `gpu.zig`, sized for a naga message
+(2 KB): `setLastError` fills the last as before and the FIRST only
+while it is empty; `clearErrors()` empties both, and a kernel compile
+clears both before it starts, so after a refusal the first slot is the
+parser's line and after a good compile both are empty — a stale cause
+never survives. Readers: `StzEngineGpuFirstError()` /
+`StzEngineGpuErrorClear()` beside the existing `LastError`, and
+`stzGpu.FirstError() / LastError() / ClearErrors()` on the face,
+whose compile refusals now quote the first slot. The stats DLL has its
+own device and therefore its own slots (its own `gpu.zig`):
+`StzEngineStatsGpuFirstError()` / `LastError()` read those, which the
+t-SNE, UMAP and k-means kernels write — `StzEngineGpuFirstError`
+reads `stz_gpu.dll`'s and would say nothing about a stats kernel. The
+guard holds the two devices apart.
+
+**Paid for on the way, in the guard itself:** `oK` is Ring's `ok`
+(case folded) — a syntax error on the line that declared it; and
+`StzFind(needle, hay) > 0` raised on type in this guard, so it
+searches the driver's ASCII with a byte search.
+
+Named, not built, on the GPU plane: GK2b, GK3.

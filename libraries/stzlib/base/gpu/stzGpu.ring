@@ -142,7 +142,7 @@ class stzGpu from stzObject
 		_cW_ = poKernel.ToWGSL()
 		_nK_ = StzEngineGpuKernelCompile(_cW_)
 		if _nK_ = 0
-			StzRaise("RunQ: the kernel refused to compile: " + StzEngineGpuLastError())
+			StzRaise("RunQ: the kernel refused to compile: " + StzEngineGpuFirstError())
 		ok
 
 		# upload inputs (temporaries), make the resident output
@@ -206,7 +206,7 @@ class stzGpu from stzObject
 		_cW_ = poKernel.ToWGSL()
 		_nK_ = StzEngineGpuKernelCompile(_cW_)
 		if _nK_ = 0
-			StzRaise("ApplyOnQ: the kernel refused to compile: " + StzEngineGpuLastError())
+			StzRaise("ApplyOnQ: the kernel refused to compile: " + StzEngineGpuFirstError())
 		ok
 		_nOut_ = StzEngineGpuBufferNew(_nElems_ * 4)
 		if _nOut_ = 0
@@ -457,6 +457,20 @@ class stzGpu from stzObject
 	# Every timing this face takes calls it first; a caller measuring on
 	# its own should too. Returns the copies it took (an awake device
 	# answers in ~20).
+	# THE CAUSE AND THE SYMPTOM. A shader that fails validation raises two
+	# errors: the parser's, with the offending name and line, and then the
+	# pipeline's, which only says the module is invalid. FirstError() is the
+	# parser's; LastError() is whatever came last. A compile clears both first.
+	def FirstError()
+		return StzEngineGpuFirstError()
+
+	def LastError()
+		return StzEngineGpuLastError()
+
+	def ClearErrors()
+		StzEngineGpuErrorClear()
+		return This
+
 	def Wake(nBudgetMs)
 		This._RequireDevice()
 		return StzEngineGpuWake(nBudgetMs)
