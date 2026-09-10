@@ -2000,3 +2000,63 @@ guard holds the two devices apart.
 searches the driver's ASCII with a byte search.
 
 Named, not built, on the GPU plane: GK2b, GK3.
+
+---
+
+## GS6d STATUS — shipped 2026-09-10: the UMAP graph outlives the fit
+
+Guard: `base/test/number/numeric_umap_resident_narrated.ring` — **18
+asserts green**. Gates: `numeric_embedding_narrated` **240 green**,
+`numeric_umap_gpu_narrated` 23, `learning_multilingual_stress` 37; Zig
+`umap.zig` 78.
+
+**The lesson taken from cuML** (Nolet et al., *Bringing UMAP Closer to
+the Speed of Light with GPU Acceleration*, 2021): of 9.5 minutes at 3M
+points, everything that was not the k-NN graph took 9.3 seconds, so
+they let a caller keep the graph and tune the layout in seconds. Their
+kernels were modest; their speed came from refusing to move or rebuild
+what they already had. The flattening tax was the first half of that
+sentence on this plane; this is the second.
+
+**What shipped.**
+- `umap.zig`: `runSupervised` is now `buildGraph` + `runOnGraph`, and
+  `runOnGraph` takes ANY graph — the one a plain fit builds and throws
+  away, or one a `ResidentGraph` keeps (the data copied in, the graph
+  built once, `residentCreate / runResident / residentFree`). The
+  curve (a, b) is fitted from THIS run's min_dist and spread, never
+  read from the graph, so one graph serves every setting of them; the
+  plain path computes the same values it always did, unchanged to the
+  bit (the fresh-object scene holds a plain fit against a resident one
+  bit for bit). `g_graph_builds` counts every build, the witness that a
+  refit built none.
+- The bridge: `StzEngineUmapGraphBuild(rows, n, d, k, labels, w)` → a
+  handle; `StzEngineUmapRunOnGraph(h, dims, minDist, spread, epochs,
+  seed, λ, frac)` → the same answer as `StzEngineUmap`;
+  `GraphFree / GraphInfo / GraphBuilds`.
+- The face: `stzUMAP` keeps the handle from its first `Fit()`; every
+  later `Fit()` is the layout. The six setters that reshape the graph
+  — neighbours, PCA width (both forms), labels (learn and ignore), the
+  target weight — drop it; `ReleaseGraph()` drops it by hand;
+  `HasGraph()` and `GraphInfo()` say what is held. The device seams
+  (GS6c) ride unchanged inside `runOnGraph`.
+
+**Measured, four blobs in 8 dims, 200 epochs, device route on:**
+
+| 16,384 points | first `Fit()` (graph + layout) | refit with a new min_dist | |
+|---|---|---|---|
+| wall | 412 ms | **112 ms** | 3.7x |
+
+The refit is the epoch chain plus the answer's crossing. And a refit
+with the first settings answers the first embedding bit for bit; the
+density term composes (its target is built from the resident graph, no
+rebuild); the seed alone never rebuilds.
+
+**Not taken from the paper, and why:** per-edge atomics for the
+layout (WGSL has no f32 atomicAdd, and their reproducible mode is our
+gather form already); spectral initialisation (a quality item the CPU
+lacks too); a fit straight from another DLL's resident dataset (the
+per-DLL device law forbids the pointer; the doorway would be GS1b's
+pointer transfer, the sound desk's route). Next on the paper's list
+for this plane: the k-NN kernel through GK2's foundry under GK0's
+checker (it is the ceiling at scale — 98% of their 3M-point run), and
+trustworthiness as the guard's witness, computed with that kernel.

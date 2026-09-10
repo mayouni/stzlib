@@ -2981,6 +2981,113 @@ fn ring_StatsGpuLastError(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retstring2(p, e.ptr, @intCast(e.len));
 }
 
+// GS6d: the graph outlives the fit.
+// StzEngineUmapGraphBuild(aRows, n, d, k, aLabels, targetWeight) -> a handle
+// StzEngineUmapRunOnGraph(h, dims, minDist, spread, epochs, seed, densLambda, densFrac) -> the UMAP answer
+// StzEngineUmapGraphFree(h); StzEngineUmapGraphInfo(h) -> [n, d, k, edges]; StzEngineUmapGraphBuilds() -> count
+fn ring_UmapGraphBuild(p: *anyopaque) callconv(.c) void {
+    const x = listToF64(p, 1) orelse {
+        rcp(p, null, H);
+        return;
+    };
+    defer allocator.free(x);
+    const n: usize = @intFromFloat(g(p, 2));
+    const d: usize = @intFromFloat(g(p, 3));
+    const nb: usize = @intFromFloat(g(p, 4));
+    if (n == 0 or d == 0 or x.len != n * d) {
+        rcp(p, null, H);
+        return;
+    }
+    const lv = listToF64(p, 5);
+    defer if (lv) |l| allocator.free(l);
+    const target_weight = g(p, 6);
+    var labels: ?[]i32 = null;
+    var labels_buf: ?[]i32 = null;
+    defer if (labels_buf) |lb| allocator.free(lb);
+    if (lv) |l| {
+        if (l.len != n) {
+            rcp(p, null, H);
+            return;
+        }
+        const lb = allocator.alloc(i32, n) catch {
+            rcp(p, null, H);
+            return;
+        };
+        for (l, 0..) |v, i| lb[i] = @intFromFloat(v);
+        labels_buf = lb;
+        labels = lb;
+    }
+    const rg = umap_mod.residentCreate(allocator, x, n, d, labels, .{
+        .n_neighbors = nb,
+        .target_weight = if (target_weight < 0) 0.5 else target_weight,
+    }) catch {
+        rcp(p, null, H);
+        return;
+    };
+    rcp(p, @ptrCast(rg), H);
+}
+
+fn ring_UmapGraphFree(p: *anyopaque) callconv(.c) void {
+    const raw = R.releaseHandle(p, 1);
+    if (raw) |ptr| {
+        const rg: *umap_mod.ResidentGraph = @ptrCast(@alignCast(ptr));
+        umap_mod.residentFree(rg);
+    }
+    rn(p, 1);
+}
+
+fn ring_UmapGraphInfo(p: *anyopaque) callconv(.c) void {
+    const raw = gcp(p, 1, H) orelse {
+        rn(p, 0);
+        return;
+    };
+    const rg: *umap_mod.ResidentGraph = @ptrCast(@alignCast(raw));
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_list_adddouble(out, @floatFromInt(rg.n));
+    R.ring_list_adddouble(out, @floatFromInt(rg.d));
+    R.ring_list_adddouble(out, @floatFromInt(rg.k));
+    R.ring_list_adddouble(out, @floatFromInt(rg.graph.edges.items.len));
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn ring_UmapGraphBuilds(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(umap_mod.g_graph_builds));
+}
+
+fn ring_UmapRunOnGraph(p: *anyopaque) callconv(.c) void {
+    const raw = gcp(p, 1, H) orelse {
+        rn(p, 0);
+        return;
+    };
+    const rg: *umap_mod.ResidentGraph = @ptrCast(@alignCast(raw));
+    const dims: usize = @intFromFloat(g(p, 2));
+    const min_dist = g(p, 3);
+    const spread = g(p, 4);
+    const epochs: usize = @intFromFloat(g(p, 5));
+    const seed: u64 = @intFromFloat(g(p, 6));
+    const dens_lambda = g(p, 7);
+    const dens_frac = g(p, 8);
+    if (dims == 0) {
+        rn(p, 0);
+        return;
+    }
+    var r = umap_mod.runResident(allocator, rg, .{
+        .n_neighbors = rg.k,
+        .dims = dims,
+        .min_dist = min_dist,
+        .spread = if (spread <= 0) 1.0 else spread,
+        .epochs = if (epochs == 0) 200 else epochs,
+        .seed = seed,
+        .density_lambda = if (dens_lambda < 0) 0 else dens_lambda,
+        .density_frac = if (dens_frac <= 0 or dens_frac > 1) 0.3 else dens_frac,
+    }) catch {
+        rn(p, 0);
+        return;
+    };
+    defer r.deinit();
+    umapAnswer(p, r);
+}
+
 fn ring_TsneGpuRuntimePath(p: *anyopaque) callconv(.c) void {
     const ptr = R.ring_vm_api_getstring(p, 1);
     const len = R.ring_vm_api_getstringsize(p, 1);
@@ -3063,6 +3170,28 @@ fn ring_Tsne(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// the UMAP answer, one shape for the plain fit and the resident one:
+// [ dims, a, b, embedding (n x dims) ] + the density block when it was asked for
+fn umapAnswer(p: *anyopaque, r: *umap_mod.Result) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    R.ring_list_adddouble(out, @floatFromInt(r.dims));
+    R.ring_list_adddouble(out, r.a);
+    R.ring_list_adddouble(out, r.b);
+    for (r.embedding) |v| R.ring_list_adddouble(out, v);
+    // APPENDED, so a caller that slices the first 3 + n*dims entries is unaffected.
+    // The correlation is NaN when density was never asked for, and NaN does not
+    // survive the bridge meaningfully -- 0 with an empty radius list is the signal.
+    if (r.local_radii.len > 0) {
+        R.ring_list_adddouble(out, r.density_correlation);
+        for (r.local_radii) |v| R.ring_list_adddouble(out, v);
+        // the fit's density LINE, so Transform() can place new points under the same
+        // contract instead of wherever their neighbours happen to sit
+        R.ring_list_adddouble(out, r.density_slope);
+        R.ring_list_adddouble(out, r.density_intercept);
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
 fn ring_Umap(p: *anyopaque) callconv(.c) void {
     const x = listToF64(p, 1) orelse {
         rn(p, 0);
@@ -3127,23 +3256,7 @@ fn ring_Umap(p: *anyopaque) callconv(.c) void {
     };
     defer r.deinit();
 
-    const out = R.ring_vm_api_newlist(p) orelse return;
-    R.ring_list_adddouble(out, @floatFromInt(r.dims));
-    R.ring_list_adddouble(out, r.a);
-    R.ring_list_adddouble(out, r.b);
-    for (r.embedding) |v| R.ring_list_adddouble(out, v);
-    // APPENDED, so a caller that slices the first 3 + n*dims entries is unaffected.
-    // The correlation is NaN when density was never asked for, and NaN does not
-    // survive the bridge meaningfully -- 0 with an empty radius list is the signal.
-    if (r.local_radii.len > 0) {
-        R.ring_list_adddouble(out, r.density_correlation);
-        for (r.local_radii) |v| R.ring_list_adddouble(out, v);
-        // the fit's density LINE, so Transform() can place new points under the same
-        // contract instead of wherever their neighbours happen to sit
-        R.ring_list_adddouble(out, r.density_slope);
-        R.ring_list_adddouble(out, r.density_intercept);
-    }
-    R.ring_vm_api_retlist(p, out);
+    umapAnswer(p, r);
 }
 
 //   StzEngineUmapTransform(aTrainX, n, d, aTrainY, dims, aNewX, m, k, a, b,
@@ -3662,6 +3775,11 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginepcafit", .func = &ring_PcaFit },
     .{ .name = "stzenginetsne", .func = &ring_Tsne },
     // GS6a: the t-SNE epoch on the GPU
+    .{ .name = "stzengineumapgraphbuild", .func = &ring_UmapGraphBuild },
+    .{ .name = "stzengineumapgraphfree", .func = &ring_UmapGraphFree },
+    .{ .name = "stzengineumapgraphinfo", .func = &ring_UmapGraphInfo },
+    .{ .name = "stzengineumapgraphbuilds", .func = &ring_UmapGraphBuilds },
+    .{ .name = "stzengineumaprunongraph", .func = &ring_UmapRunOnGraph },
     .{ .name = "stzenginestatsgpufirsterror", .func = &ring_StatsGpuFirstError },
     .{ .name = "stzenginestatsgpulasterror", .func = &ring_StatsGpuLastError },
     .{ .name = "stzenginekmeansgpusetminwork", .func = &ring_KMeansGpuSetMinWork },

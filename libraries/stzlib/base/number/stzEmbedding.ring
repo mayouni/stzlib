@@ -1009,6 +1009,14 @@ class stzUMAP from stzObject
 	# measures a new row against THE SAME data the map was built from, so a raw row
 	# would be the wrong space as well as possibly the wrong width.
 	@aPreparedX = []
+	# THE GRAPH OUTLIVES THE FIT (GS6d). The neighbour graph -- the k-NN, the local
+	# metric, the fuzzy union, supervision -- is the expensive, data-shaped half of
+	# a fit; the layout is the cheap half and is what min_dist, spread, epochs and
+	# the seed change. The graph lives in the engine under this handle from the
+	# first Fit() on, and a second Fit() with a new min_dist is the layout alone.
+	# Anything that changes the graph -- the neighbour count, the labels, the
+	# target weight, the PCA width -- drops it; the next Fit() rebuilds.
+	@hGraph_ = ""
 
 	def init(paData)
 		_a_ = StzEmbeddingCheckData(paData)
@@ -1022,10 +1030,35 @@ class stzUMAP from stzObject
 	def NumberOfFeatures()
 		return @nCols
 
+	def HasGraph()
+		return @hGraph_ != ""
+
+	# [ points, width, neighbours, edges ] of the resident graph, or [] before a fit
+	def GraphInfo()
+		if @hGraph_ = ""
+			return []
+		ok
+		return StzEngineUmapGraphInfo(@hGraph_)
+
+	# Give the engine's graph back. The next Fit() builds it again.
+	def ReleaseGraph()
+		This._DropGraph()
+
+		def ReleaseGraphQ()
+			This._DropGraph()
+			return This
+
+	def _DropGraph()
+		if @hGraph_ != ""
+			StzEngineUmapGraphFree(@hGraph_)
+			@hGraph_ = ""
+		ok
+
 	# THE LOCAL/GLOBAL DIAL. Small values see fine structure and fragment; large
 	# values see the broad shape and smear detail. The reference implementation
 	# defaults to 15.
 	def SetNeighbors(n)
+		This._DropGraph()
 		if n >= 2
 			@nNeighbors = n
 		ok
@@ -1083,6 +1116,7 @@ class stzUMAP from stzObject
 			return This
 
 	def ReduceWithPCA(n)
+		This._DropGraph()
 		if n >= 1
 			@nPcaDims = n
 		ok
@@ -1092,6 +1126,7 @@ class stzUMAP from stzObject
 			return This
 
 	def SkipPCA()
+		This._DropGraph()
 		@nPcaDims = 0
 
 		def SkipPCAQ()
@@ -1124,6 +1159,7 @@ class stzUMAP from stzObject
 	# trust, and laying out data whose grouping is not in question so that something
 	# else can be looked at.
 	def LearnFromLabels(paLabels)
+		This._DropGraph()
 		if NOT isList(paLabels) or len(paLabels) != @nRows
 			stzraise("Give me one label per sample -- " + @nRows + " of them, " +
 				"got " + len(paLabels) + ". Use -1 where the label is unknown.")
@@ -1135,6 +1171,7 @@ class stzUMAP from stzObject
 			return This
 
 	def IgnoreLabels()
+		This._DropGraph()
 		@anLabels = []
 
 		def IgnoreLabelsQ()
@@ -1156,6 +1193,7 @@ class stzUMAP from stzObject
 	# graph -- points lose most of their neighbours and the classes come apart into
 	# pieces instead of two groups. More supervision is not more separation.
 	def SetTargetWeight(n)
+		This._DropGraph()
 		if n >= 0 and n <= 1
 			@nTargetWeight = n
 		ok
@@ -1551,13 +1589,19 @@ class stzUMAP from stzObject
 			return
 		ok
 
-		_aRes_ = StzEngineUmap(_aX_, @nRows, _nD_, @nNeighbors, @nDims,
-			@nMinDist, @nSpread, @nEpochs, @nSeed, @anLabels, @nTargetWeight,
-			@nDensityLambda, @nDensityFrac)
+		# the graph once, the layout per fit -- see @hGraph_
+		if @hGraph_ = ""
+			@hGraph_ = StzEngineUmapGraphBuild(_aX_, @nRows, _nD_, @nNeighbors, @anLabels, @nTargetWeight)
+			if @hGraph_ = ""
+				stzraise("UMAP refused this run. It needs at least 3 points and a " +
+					"neighbour count between 2 and " + (@nRows - 1) + " (asked for " +
+					@nNeighbors + ", with " + @nRows + " points).")
+			ok
+		ok
+		_aRes_ = StzEngineUmapRunOnGraph(@hGraph_, @nDims, @nMinDist, @nSpread,
+			@nEpochs, @nSeed, @nDensityLambda, @nDensityFrac)
 		if NOT isList(_aRes_) or len(_aRes_) < 3
-			stzraise("UMAP refused this run. It needs at least 3 points and a " +
-				"neighbour count between 2 and " + (@nRows - 1) + " (asked for " +
-				@nNeighbors + ", with " + @nRows + " points).")
+			stzraise("UMAP refused this layout (" + @nRows + " points, " + @nDims + " dims).")
 		ok
 
 		@nDims = _aRes_[1]

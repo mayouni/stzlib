@@ -755,6 +755,9 @@ fn fuzzyUnionDense(
     }
 }
 
+/// every graph built, resident or not -- the witness that a refit built none
+pub var g_graph_builds: u64 = 0;
+
 pub fn buildGraph(
     alloc: std.mem.Allocator,
     x: []const f64,
@@ -764,6 +767,7 @@ pub fn buildGraph(
     opts: Options,
 ) !Graph {
     if (n < 3) return Error.TooFewPoints;
+    g_graph_builds += 1;
     if (opts.n_neighbors < 2 or opts.n_neighbors > n - 1) return Error.BadNeighbors;
     const k = opts.n_neighbors;
 
@@ -841,13 +845,71 @@ pub fn runSupervised(
 ) !*Result {
     var graph = try buildGraph(alloc, x, n, d, labels, opts);
     defer graph.deinit();
-    const k = opts.n_neighbors;
+    return runOnGraph(alloc, x, n, d, &graph, opts);
+}
+
+// ─── GS6d: THE GRAPH OUTLIVES THE FIT ────────────────────────────────────────
+//
+// cuML's finding (Nolet et al. 2021): of 9.5 minutes at 3M points, everything
+// that was not the k-NN graph took 9.3 seconds -- so they let a caller keep the
+// graph and tune min_dist, spread and epochs in seconds. The same split here:
+// buildGraph is the expensive, data-shaped half (k-NN, the local metric, the
+// union, supervision); runOnGraph is the layout, and takes ANY graph -- the one
+// a plain fit builds and throws away, or one a ResidentGraph keeps across fits.
+// The curve (a, b) is fitted from THIS run's min_dist and spread, never read
+// from the graph, so a resident graph serves every setting of them.
+
+pub const ResidentGraph = struct {
+    x: []f64,
+    n: usize,
+    d: usize,
+    k: usize,
+    graph: Graph,
+    allocator: std.mem.Allocator,
+};
+
+/// Build a graph that lives on: the data is COPIED in (the engine owns what it
+/// keeps), the graph built once. Free with residentFree.
+pub fn residentCreate(alloc: std.mem.Allocator, x: []const f64, n: usize, d: usize, labels: ?[]const i32, opts: Options) !*ResidentGraph {
+    const rg = try alloc.create(ResidentGraph);
+    errdefer alloc.destroy(rg);
+    const xc = try alloc.alloc(f64, n * d);
+    errdefer alloc.free(xc);
+    @memcpy(xc, x[0 .. n * d]);
+    rg.* = .{ .x = xc, .n = n, .d = d, .k = opts.n_neighbors, .graph = try buildGraph(alloc, xc, n, d, labels, opts), .allocator = alloc };
+    return rg;
+}
+
+pub fn residentFree(rg: *ResidentGraph) void {
+    rg.graph.deinit();
+    rg.allocator.free(rg.x);
+    rg.allocator.destroy(rg);
+}
+
+/// A fit on a resident graph: the layout only. opts.n_neighbors is ignored (the
+/// graph decided it); min_dist, spread, dims, epochs, seed and density are live.
+pub fn runResident(alloc: std.mem.Allocator, rg: *ResidentGraph, opts: Options) !*Result {
+    return runOnGraph(alloc, rg.x, rg.n, rg.d, &rg.graph, opts);
+}
+
+/// The layout over a graph that already exists. Everything after the graph in
+/// the original fit, unchanged: initialisation, the sampling schedule, the
+/// device route, the density term.
+pub fn runOnGraph(
+    alloc: std.mem.Allocator,
+    x: []const f64,
+    n: usize,
+    d: usize,
+    graph: *Graph,
+    opts: Options,
+) !*Result {
     const dims = opts.dims;
     const edges = graph.edges;
     var wmax = graph.wmax;
     _ = &wmax;
-    const ab = .{ .a = graph.a, .b = graph.b };
-    _ = k;
+    // the curve from THIS run's settings -- the same values a plain fit computed
+    // into the graph, so the plain path is unchanged to the bit
+    const ab = try fitAB(alloc, opts.min_dist, opts.spread);
 
     const y = try alloc.alloc(f64, n * dims);
     errdefer alloc.free(y);
