@@ -16,6 +16,10 @@ ok
 
 if fexists($cStzStatsLib)
     $pStzStatsHandle = LoadLib($cStzStatsLib)
+    # GS6a: t-SNE epochs can run on the GPU -- record WHERE the wgpu runtime
+    # lives; the device is opened lazily at the first eligible fit, and a
+    # machine without a GPU (or the runtime) stays silently on the CPU
+    StzEngineTsneGpuRuntimePath($cEngineDir + "/zig-out/bin/wgpu_native.dll")
 else
     ? "WARNING: stz_stats not found at: " + $cStzStatsLib
     $pStzStatsHandle = NULL

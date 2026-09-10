@@ -1615,3 +1615,58 @@ observed error).
 
 Next: **GS6a** — the epoch op and the seam; **GS6b** — the P build on
 the device; then UMAP's sparse form.
+
+---
+
+## GS6a STATUS — shipped 2026-09-10: the t-SNE epoch on the GPU, a silent seam inside `tsne.run`
+
+Guard: `base/test/number/numeric_tsne_gpu_narrated.ring` — **16 asserts
+green**. Gate: `numeric_embedding_narrated` (the face's own guard, t-SNE
+and UMAP) **240 green** and `numeric_summation` 16 — the stats DLL
+loads and answers as before. Zig unit test on the gate's refusals.
+
+**What shipped.** `engine/src/tsne_gpu.zig`, compiled into
+`stz_stats.dll`, which now owns its own wgpu device (the per-DLL handle
+law; the neural tier's precedent; `build.zig` gives it `needs_wgpu`
+and the Ring loader hands over the runtime's path, as `stz_neural.ring`
+does). `tsne.run` asks it once per fit (`prepare`: eligibility, the
+device, P resident as f32, the buffers, one wake) and once per epoch
+(`epoch`: the positions up, three dispatches in one batched pass, the
+gradient and KL back); the optimiser — momentum, adaptive gains, the
+exaggeration schedule, recentering, the density term — is untouched
+and runs on the gradient the device returns. Any refusal at any epoch
+drops to the CPU block for the rest of the fit and is COUNTED. The
+gate is `n ≥ 500` (measured GO at 1,000; set by
+`StzEngineTsneGpuSetMinN`); `dims ≠ 2` stays CPU without a refusal
+(the kernels cover the picture, not the general case). `stzTSNE.Fit()`
+did not change by a character.
+
+**Measured, this run, 1,000 points × 150 epochs, four blobs in 8 dims:**
+
+| | CPU fit | GPU fit |
+|---|---|---|
+| epochs served by the device | 0 | **150 of 150** |
+| first-epoch KL (same P, same y₀) | 71.878826 | 71.878824 |
+| final KL | 50.012 | 50.058 |
+| 5-NN blob purity of the embedding | 1.00 | 1.00 |
+| wall, P build included | 1,339 ms | **257 ms (5.2x)** |
+
+The first epoch's KL agrees to 3e-8 relative — the same P, the same
+initial positions, before f32 and f64 trajectories diverge — and after
+150 epochs the two embeddings keep every blob together; a stochastic
+method is compared on what it promises, not on bits.
+
+**Where the fit's time now sits.** At 1,000 points the P build
+(`jointP`, 100 ms) is ~40% of the GPU fit; at 4,000 it is 1.4 s
+against a 1.15 s thousand-epoch chain. **GS6b — the P build on the
+device** — is the next kernel, and it is the same shape (a per-row
+perplexity search over n distances). The spike's chain is the epoch;
+the fit will be bound by its start until GS6b lands.
+
+**Paid for on the way:** an epoch counter that equals the iteration
+count is the only witness that the seam served the WHOLE fit — a guard
+on "it was faster" would have passed a route that served the first ten
+epochs and fell back. And a `defer` on an optional session that the
+loop may set to null releases exactly what is still held.
+
+Next: **GS6b**, the P build on the device; then UMAP's sparse form.
