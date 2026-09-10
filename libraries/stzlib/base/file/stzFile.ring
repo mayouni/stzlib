@@ -591,7 +591,7 @@ func StzFileBackup(cFileName)
 		StzRaise("Cannot backup a non-existent file: " + cFileName)
 	ok
 
-    _ofileManager_ = new stz FileManager(cFileName)
+    _ofileManager_ = new stzFileManager(cFileName)
 	_ofileManager_.Backup()
 	return 1
 
