@@ -35,6 +35,7 @@ const std = @import("std");
 const gpu = @import("gpu.zig");
 const embed = @import("neural_embed.zig");
 const ngpu = @import("neural_gpu.zig");
+const ops = @import("gpu_ops.zig"); // GK2b: the matmul variants and their table
 
 const c = @cImport({
     @cInclude("ggml.h");
@@ -54,41 +55,11 @@ const PRELUDE =
 ;
 
 // C[m,n] = A[m,k] * B[k,n] + bias[n]   (bias skipped when has_bias == 0)
-const WGSL_MATMUL_BIAS = PRELUDE ++
-    \\struct P { m : u32, k : u32, n : u32, has_bias : u32 }
-    \\@group(0) @binding(1) var<uniform> p : P;
-    \\@group(0) @binding(2) var<storage, read> a : array<f32>;
-    \\@group(0) @binding(3) var<storage, read> b : array<f32>;
-    \\@group(0) @binding(4) var<storage, read> bias : array<f32>;
-    \\@group(0) @binding(5) var<storage, read_write> outv : array<f32>;
-    \\var<workgroup> ta : array<f32, 256>;
-    \\var<workgroup> tb : array<f32, 256>;
-    \\@compute @workgroup_size(16, 16)
-    \\fn main(@builtin(global_invocation_id) gid : vec3<u32>,
-    \\        @builtin(local_invocation_id) lid : vec3<u32>) {
-    \\  let row = gid.y;
-    \\  let col = gid.x + tile.xoff * 16u;
-    \\  var acc = 0.0;
-    \\  let tiles = (p.k + 15u) / 16u;
-    \\  for (var t = 0u; t < tiles; t = t + 1u) {
-    \\    let k0 = t * 16u;
-    \\    let acol = k0 + lid.x;
-    \\    let brow = k0 + lid.y;
-    \\    ta[lid.y * 16u + lid.x] = select(0.0, a[row * p.k + acol], row < p.m && acol < p.k);
-    \\    tb[lid.y * 16u + lid.x] = select(0.0, b[brow * p.n + col], brow < p.k && col < p.n);
-    \\    workgroupBarrier();
-    \\    for (var kk = 0u; kk < 16u; kk = kk + 1u) {
-    \\      acc = acc + ta[lid.y * 16u + kk] * tb[kk * 16u + lid.x];
-    \\    }
-    \\    workgroupBarrier();
-    \\  }
-    \\  if (row < p.m && col < p.n) {
-    \\    if (p.has_bias == 1u) { acc = acc + bias[col]; }
-    \\    outv[row * p.n + col] = acc;
-    \\  }
-    \\}
-;
-
+// The matmul-with-bias kernel is the op library's (gpu_ops.mmSource with the
+// bias fused): GK2b's foundry judges the variants there, the variant table
+// names one per (m, n, k) class, and mmBias compiles THAT one for each of the
+// backbone's three shapes -- the generic when the table names none. The
+// generic text is the 16x16 tile this file carried until 2026-09-10.
 // FUSED multi-head attention. One workgroup per (head, query row):
 // scores -> softmax -> context, Q/K/V kept WHOLE (token-major, head h at
 // dims [h*hd, (h+1)*hd)). Scores live in workgroup memory (seq <= 256).
@@ -482,7 +453,7 @@ pub export fn neural_embed_routed(text: [*c]const u8, len: usize) callconv(.c) c
 var g_kernels: [5]i64 = @splat(0);
 
 fn kernels() bool {
-    const srcs = [_][]const u8{ WGSL_MATMUL_BIAS, WGSL_ATTENTION, WGSL_ADD_LN, WGSL_GELU, WGSL_POOL_L2 };
+    const srcs = [_][]const u8{ ops.mmSource(ops.MM_GENERIC, true), WGSL_ATTENTION, WGSL_ADD_LN, WGSL_GELU, WGSL_POOL_L2 };
     for (&g_kernels, srcs) |*kid, src| {
         kid.* = gpu.stz_gpu_kernel_compile(src.ptr, @floatFromInt(src.len));
         if (kid.* == 0) return false;
@@ -599,12 +570,24 @@ pub export fn neural_backbone_forward(ids_ptr: [*c]const i32, n_tok_in: c_int, o
     return 1;
 }
 
-fn mmBias(kern: i64, a: i64, b: i64, bias: i64, out: i64, m: usize, k: usize, n: usize) bool {
+fn mmBias(kern_generic: i64, a: i64, b: i64, bias: i64, out: i64, m: usize, k: usize, n: usize) bool {
     if (b == 0 or out == 0) return false;
+    // the table's variant for this shape class, compiled with the bias fused
+    // (the compile cache answers by hash after the first time); the generic
+    // handle the pass compiled stands in when the table names the generic
+    const v = ops.mmVariantFor(m, k, n);
+    var kern = kern_generic;
+    if (v != ops.MM_GENERIC) {
+        const src = ops.mmSource(v, true);
+        kern = gpu.stz_gpu_kernel_compile(src.ptr, @floatFromInt(src.len));
+        if (kern == 0) kern = kern_generic;
+        if (kern != kern_generic) gpu.bumpCounter(gpu.CTR_VARIANT_DISPATCH, 1);
+    }
     const has_bias: u32 = if (bias != 0) 1 else 0;
     const p = MmParams{ .m = @intCast(m), .k = @intCast(k), .n = @intCast(n), .has_bias = has_bias };
     const bb = if (bias != 0) bias else b; // a bound buffer is required either way
-    return dispatchP(kern, &p, &.{ a, b, bb, out }, ceilDiv(n, 16), ceilDiv(m, 16));
+    const g = ops.mmGeometry(if (kern == kern_generic) ops.MM_GENERIC else v, m, n);
+    return dispatchP(kern, &p, &.{ a, b, bb, out }, g.wx, g.wy);
 }
 
 fn lnStep(kern: i64, x: i64, res: i64, w: i64, b: i64, out: i64, n_tok: usize, n_embd: usize, eps: f32, use_res: u32) bool {

@@ -579,6 +579,17 @@ fn ring_FoundryPairdist(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(foundry.stz_gpu_foundry_pairdist(gn(p, 1), gn(p, 2), gn(p, 3), gn(p, 4), gn(p, 5))));
 }
 
+// FoundryMatmul(m, k, n, reps, mask) -> status; verdicts in FoundryResult(i)
+fn ring_FoundryMatmul(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(foundry.stz_gpu_foundry_matmul(gn(p, 1), gn(p, 2), gn(p, 3), gn(p, 4), gn(p, 5))));
+}
+
+fn ring_MmVariantName(p: *anyopaque) callconv(.c) void {
+    var buf: [32]u8 = undefined;
+    const n = ops.stz_gpu_mm_variant_name(gn(p, 1), &buf, buf.len);
+    R.ring_vm_api_retstring2(p, &buf, @intCast(n));
+}
+
 fn ring_FoundryResult(p: *anyopaque) callconv(.c) void {
     rn(p, foundry.stz_gpu_foundry_result(@intFromFloat(gn(p, 1))));
 }
@@ -1848,6 +1859,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuconvolvesize", .func = &ring_ConvolveSize },
     .{ .name = "stzenginegpubufferfilllcg", .func = &ring_BufferFillLcg },
     .{ .name = "stzenginegpufoundrypairdist", .func = &ring_FoundryPairdist },
+    .{ .name = "stzenginegpufoundrymatmul", .func = &ring_FoundryMatmul },
+    .{ .name = "stzenginegpummvariantname", .func = &ring_MmVariantName },
     .{ .name = "stzenginegpufoundryresult", .func = &ring_FoundryResult },
     .{ .name = "stzenginegpuvariantset", .func = &ring_VariantSet },
     .{ .name = "stzenginegpuvariantget", .func = &ring_VariantGet },

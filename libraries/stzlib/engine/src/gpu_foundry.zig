@@ -31,7 +31,7 @@ pub const F_CLOCKS = 5;
 pub const F_HIDDEN_N = 6;
 pub const F_BASE = 8; // per variant v: F_BASE + v*5 + {0 verified, 1 gpu_ms, 2 wall_ms, 3 ratio_gpu, 4 ratio_wall}
 pub const F_STRIDE = 5;
-pub const F_SLOTS = F_BASE + ops.PD_VARIANTS * F_STRIDE;
+pub const F_SLOTS = F_BASE + (if (ops.PD_VARIANTS > ops.MM_VARIANTS) ops.PD_VARIANTS else ops.MM_VARIANTS) * F_STRIDE;
 var result: [F_SLOTS]f64 = @splat(0);
 
 pub fn stz_gpu_foundry_result(idx: i32) callconv(.c) f64 {
@@ -192,6 +192,105 @@ pub fn stz_gpu_foundry_pairdist(mf: f64, nf: f64, df: f64, reps: f64, maskf: f64
         result[F_WINNER] = 0;
         result[F_WINNER_RATIO] = best_ratio;
     }
+    return gpu.OK;
+}
+
+/// GK2b's matmul leg: the enumeration for C(m x n) = A(m x k) B(k x n).
+/// The hidden shape moves m AND n (odd, tile-uneven, smaller) and keeps k --
+/// the backbone's k is the model's width and a variant right only at a
+/// k-multiple of its step would be caught by the visible shape's tail.
+pub fn stz_gpu_foundry_matmul(mf: f64, kf: f64, nf: f64, reps: f64, maskf: f64) callconv(.c) i32 {
+    result = @splat(0);
+    if (!gpu.isAvail()) {
+        gpu.countFallback();
+        return gpu.FALLBACK;
+    }
+    const m: usize = @intFromFloat(mf);
+    const k: usize = @intFromFloat(kf);
+    const n: usize = @intFromFloat(nf);
+    if (m == 0 or k == 0 or n == 0) return gpu.BAD_ARG;
+    var mask: u32 = @intFromFloat(maskf);
+    if (mask == 0) mask = (@as(u32, 1) << ops.MM_REAL) - 2;
+    const m2: usize = @max(1, ((m * 5) / 7) | 1);
+    const n2: usize = @max(1, ((n * 5) / 7) | 1);
+    result[F_COUNT] = @floatFromInt(ops.MM_REAL - 1);
+    result[F_HIDDEN_N] = @floatFromInt(n2);
+    _ = verify.stz_gpu_wake(400);
+
+    const ids = [_]i64{
+        gpu.stz_gpu_buffer_new(@floatFromInt(m * k * 4)),
+        gpu.stz_gpu_buffer_new(@floatFromInt(k * n * 4)),
+        gpu.stz_gpu_buffer_new(@floatFromInt(m * n * 4)),
+        gpu.stz_gpu_buffer_new(@floatFromInt(m2 * k * 4)),
+        gpu.stz_gpu_buffer_new(@floatFromInt(k * n2 * 4)),
+        gpu.stz_gpu_buffer_new(@floatFromInt(m2 * n2 * 4)),
+    };
+    defer {
+        for (ids) |id| {
+            if (id != 0) _ = gpu.stz_gpu_buffer_free(id);
+        }
+    }
+    for (ids) |id| if (id == 0) return gpu.GPU_ERROR;
+    if (!fillBuffer(ids[0], m * k, 31337)) return gpu.GPU_ERROR;
+    if (!fillBuffer(ids[1], k * n, 4242)) return gpu.GPU_ERROR;
+    if (!fillBuffer(ids[3], m2 * k, 8675309)) return gpu.GPU_ERROR;
+    if (!fillBuffer(ids[4], k * n2, 271828)) return gpu.GPU_ERROR;
+
+    const kref = ops.mmKernelFor(ops.MM_GENERIC);
+    if (kref == 0) return gpu.GPU_ERROR;
+    const pa = ops.MmParams{ .m = @intCast(m), .k = @intCast(k), .n = @intCast(n), .pad = 0 };
+    const pb = ops.MmParams{ .m = @intCast(m2), .k = @intCast(k), .n = @intCast(n2), .pad = 0 };
+    const ba = std.mem.asBytes(&pa);
+    const bb = std.mem.asBytes(&pb);
+    const ids_a = [_]i64{ ids[0], ids[1], ids[2] };
+    const ids_b = [_]i64{ ids[3], ids[4], ids[5] };
+    const gref_a = ops.mmGeometry(ops.MM_GENERIC, m, n);
+    const gref_b = ops.mmGeometry(ops.MM_GENERIC, m2, n2);
+    // f32 sums of k products in [0, 1): the order is the same in every variant
+    // (k ascending) but fused multiply-adds may differ; the band scales with k
+    const band: f64 = 2e-5 * @as(f64, @floatFromInt(k));
+
+    var best_v: usize = 0;
+    var best_ratio: f64 = 1.0;
+    var v: usize = 1;
+    while (v < ops.MM_VARIANTS) : (v += 1) {
+        const base = F_BASE + v * F_STRIDE;
+        if ((mask & (@as(u32, 1) << @intCast(v))) == 0) {
+            result[base] = -2;
+            continue;
+        }
+        if (!ops.mmVariantEligible(v, m, k, n)) {
+            result[base] = -1;
+            continue;
+        }
+        const kv = ops.mmKernelFor(v);
+        if (kv == 0) return gpu.GPU_ERROR;
+        const gv_a = ops.mmGeometry(v, m, n);
+        const gv_b = ops.mmGeometry(v, m2, n2);
+        const st = verify.stz_gpu_verify(kref, kv, ba.ptr, @floatFromInt(ba.len), &ids_a, 3, @floatFromInt(m * n), @floatFromInt(gref_a.wx), @floatFromInt(gv_a.wx), bb.ptr, @floatFromInt(bb.len), &ids_b, 3, @floatFromInt(m2 * n2), @floatFromInt(gref_b.wx), @floatFromInt(gv_b.wx), reps, band);
+        if (st != gpu.OK) return st;
+        const verdict: i32 = @intFromFloat(verify.stz_gpu_verify_result(verify.R_VERDICT));
+        const clocks = verify.stz_gpu_verify_result(verify.R_CLOCKS);
+        result[F_CLOCKS] = clocks;
+        result[F_REF_WALL_MS] = verify.stz_gpu_verify_result(verify.R_REF_MS);
+        result[F_REF_GPU_MS] = verify.stz_gpu_verify_result(verify.R_REF_GPU_MS);
+        if (verdict != verify.V_VERIFIED) {
+            result[base] = 0;
+            continue;
+        }
+        result[base] = 1;
+        result[base + 1] = verify.stz_gpu_verify_result(verify.R_CAND_GPU_MS);
+        result[base + 2] = verify.stz_gpu_verify_result(verify.R_CAND_MS);
+        result[base + 3] = verify.stz_gpu_verify_result(verify.R_SPEEDUP_GPU);
+        result[base + 4] = verify.stz_gpu_verify_result(verify.R_SPEEDUP);
+        const ratio = if (clocks >= 2) result[base + 3] else result[base + 4];
+        if (v < ops.MM_REAL and ratio > best_ratio) {
+            best_ratio = ratio;
+            best_v = v;
+        }
+    }
+    result[F_WINNER] = if (best_v != 0 and best_ratio >= MARGIN) @floatFromInt(best_v) else 0;
+    result[F_WINNER_RATIO] = best_ratio;
     return gpu.OK;
 }
 
