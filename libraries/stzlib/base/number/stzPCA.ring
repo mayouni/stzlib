@@ -219,13 +219,8 @@ class stzPCA from stzObject
 				"to decompose.")
 		ok
 
-		_aFlat_ = []
-		for _i_ = 1 to @nRows
-			for _j_ = 1 to @nCols
-				_aFlat_ + @aData[_i_][_j_]
-			next
-		next
-
+		# THE FLATTENING TAX (2026-09-10): the rows go to the bridge as they
+		# are; it walks them (5,120,000 appends at 20,000 x 256 used to stand here)
 		_nStd_ = 0
 		if @bStandardize
 			_nStd_ = 1
@@ -235,7 +230,7 @@ class stzPCA from stzObject
 			_nSmp_ = 1
 		ok
 
-		_aRes_ = StzEnginePcaFit(_aFlat_, @nRows, @nCols, _nStd_, _nSmp_)
+		_aRes_ = StzEnginePcaFit(@aData, @nRows, @nCols, _nStd_, _nSmp_)
 		if NOT isList(_aRes_) or len(_aRes_) < 2
 			stzraise("The engine refused the fit (" + @nRows + " x " + @nCols + ").")
 		ok
@@ -417,27 +412,30 @@ class stzPCA from stzObject
 				@nK + " component(s). Fewer is allowed -- reconstructing from the " +
 				"leading components is the usual question -- but more is not.")
 		ok
-		_aFlat_ = []
 		for _i_ = 1 to _nM_
 			if NOT isList(paScores[_i_]) or len(paScores[_i_]) != _nK_
 				stzraise("Score row " + _i_ + " has " + len(paScores[_i_]) +
 					" value(s); row 1 had " + _nK_ + ".")
 			ok
-			for _j_ = 1 to _nK_
-				_aFlat_ + paScores[_i_][_j_]
-			next
 		next
 
-		# the loadings, truncated to the components the caller actually supplied
-		_aLoadFlat_ = []
-		for _i_ = 1 to @nCols
-			for _j_ = 1 to _nK_
-				_aLoadFlat_ + @aLoadings[_i_][_j_]
+		# the loadings, truncated to the components the caller actually
+		# supplied -- cut as rows only when a cut is needed; the scores and the
+		# loadings go to the bridge as rows (THE FLATTENING TAX, 2026-09-10)
+		_aLoad_ = @aLoadings
+		if _nK_ < @nK
+			_aLoad_ = []
+			for _i_ = 1 to @nCols
+				_aRow_ = []
+				for _j_ = 1 to _nK_
+					_aRow_ + @aLoadings[_i_][_j_]
+				next
+				_aLoad_ + _aRow_
 			next
-		next
+		ok
 
-		_aOut_ = StzEnginePcaInverse(_aFlat_, _nM_, @nCols, _nK_,
-			@anMeans, @anScales, _aLoadFlat_)
+		_aOut_ = StzEnginePcaInverse(paScores, _nM_, @nCols, _nK_,
+			@anMeans, @anScales, _aLoad_)
 		if NOT isList(_aOut_) or len(_aOut_) != _nM_ * @nCols
 			stzraise("The engine refused the reconstruction.")
 		ok
@@ -467,26 +465,17 @@ class stzPCA from stzObject
 			stzraise("Give me a list of rows to project.")
 		ok
 		_nM_ = len(paRows)
-		_aFlat_ = []
 		for _i_ = 1 to _nM_
 			if NOT isList(paRows[_i_]) or len(paRows[_i_]) != @nCols
 				stzraise("Row " + _i_ + " has " + len(paRows[_i_]) +
 					" value(s); this analysis was fitted on " + @nCols + ".")
 			ok
-			for _j_ = 1 to @nCols
-				_aFlat_ + paRows[_i_][_j_]
-			next
 		next
 
-		_aLoadFlat_ = []
-		for _i_ = 1 to @nCols
-			for _j_ = 1 to @nK
-				_aLoadFlat_ + @aLoadings[_i_][_j_]
-			next
-		next
-
-		_aOut_ = StzEnginePcaTransform(_aFlat_, _nM_, @nCols, @nK,
-			@anMeans, @anScales, _aLoadFlat_)
+		# THE FLATTENING TAX (2026-09-10): the rows and the loadings go to the
+		# bridge as they are; it walks them
+		_aOut_ = StzEnginePcaTransform(paRows, _nM_, @nCols, @nK,
+			@anMeans, @anScales, @aLoadings)
 		if NOT isList(_aOut_) or len(_aOut_) != _nM_ * @nK
 			stzraise("The engine refused the projection.")
 		ok

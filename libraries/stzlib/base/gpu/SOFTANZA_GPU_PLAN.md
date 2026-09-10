@@ -2273,3 +2273,58 @@ The paper's list for this plane is now complete on this desk: the data
 resident, the graph resident, the k-NN through the foundry, the matmul
 through the foundry, the witness. Named, not built: GK2b's elementwise
 half, GK3.
+
+---
+
+## THE FLATTENING TAX, THE REMAINDER — shipped 2026-09-10: every matrix face sends rows
+
+Gates, all green: `numeric_pca` 69, `numeric_vector_index` 28,
+`numeric_logistic` 38, `numeric_hypothesis` 69, `numeric_knn_selection`
+24, `numeric_embedding` 240, `numeric_backprop` 30, `numeric_autodiff` 48,
+`knn_approximate` 27, `mlfloor` 36, `learning_multilingual_stress` 37,
+`semantic_search` 14, `neural_semantic_gpu_seam` 33, `gpu_ops` 37.
+
+**What shipped.** The class the first tax pass named is closed. Two
+more doorways walk rows engine-side — the GPU bridge's buffer upload
+(`StzEngineGpuBufferUploadList`) and the neural bridge's GGUF tensor
+export — beside the stats bridge that already did; a flat list behaves
+exactly as before and a ragged row is refused. Then every face that
+appended a matrix one number at a time sends its rows as they are:
+stzPCA (fit, transform, inverse — the loadings too, cut to width only
+when the caller supplied fewer components), stzKnn (the resident model,
+the agreement queries), stzVectorIndex (the index build, the device
+upload, the recall queries), stzSemanticIndex (the resident dataset
+and the device upload), stzLogisticRegression (train, predict),
+stzTrainer (inputs and targets), stzNeuralNetwork (the weight tensors
+on export), the chi-square table, and the four sites left in
+stzEmbedding (both `LocalRadiiOf` paths, both inverse decoders). ANOVA's
+groups are ragged by nature and stay flat; the bar plot pads its series
+and stays flat.
+
+**Measured, the face timed at its doorway, old face against new face
+on the same new bridges:**
+
+| face | before | after |
+|---|---|---|
+| stzVectorIndex build, 20,000 × 128 | 1,644 ms | **260 ms** (6.3x) |
+| stzSemanticIndex first search, 5,000 × 384 | 967 ms | **38 ms** (26x) |
+| chi-square, 300 × 300 | 23 ms | 3 ms |
+| stzLogisticRegression train, 20,000 × 64 | 887 ms | 738 ms |
+| stzKnn resident + agreement, 20,000 × 64 | 1,210 ms | 1,149 ms |
+| stzPCA fit, 5,000 × 64 | 1,797 ms | 1,668 ms |
+
+Where the engine's own work is small the doorway was most of the call
+and the win is an order of magnitude; where the engine works (a
+logistic epoch, an exact agreement, a PCA fit) the doorway was a tenth
+and the win is a tenth.
+
+**A finding for the numeric desk, not fixed here:** `stzPCA.Fit()`
+took 1.7 s at 5,000 × 64 and 268–435 s at 20,000 × 256 in two runs.
+That is the engine's decomposition, not the face, and it is far off the
+cost of the arithmetic (a 256 × 256 covariance and its eigenvectors
+are milliseconds). Routed in CONCLUSIONS; `base/number/` is not touched
+unnotified.
+
+**Paid for, again:** a `func` placed at the TOP of a probe swallows the
+whole probe — the first two measurements printed nothing; put helper
+functions at the end of a script.

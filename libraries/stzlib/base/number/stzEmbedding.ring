@@ -622,15 +622,12 @@ class stzTSNE from stzObject
 			stzraise("Give me a list of rows.")
 		ok
 		_nM_ = len(paRows)
-		_aFlat_ = []
+		_aFlat_ = ref(paRows)
 		for _i_ = 1 to _nM_
 			if NOT isList(paRows[_i_]) or len(paRows[_i_]) != @nCols
 				stzraise("Row " + _i_ + " has " + len(paRows[_i_]) +
 					" value(s); this model was fitted on " + @nCols + ".")
 			ok
-			for _j_ = 1 to @nCols
-				_aFlat_ + paRows[_i_][_j_]
-			next
 		next
 		# THE SAME SPACE THE FIT SAW, which is not the space the caller passes.
 		#
@@ -648,12 +645,19 @@ class stzTSNE from stzObject
 		_nW_ = @nCols
 		if @nPcaDims > 0 and @oPca != ""
 			_aS_ = @oPca.Transform(paRows)
-			_aFlat_ = []
-			for _i_ = 1 to _nM_
-				for _j_ = 1 to @nPreparedDim
-					_aFlat_ + _aS_[_i_][_j_]
+			# THE FLATTENING TAX (2026-09-10): the scores go as rows, cut to the
+			# fitted width only when the PCA carries more components than the fit used
+			_aFlat_ = ref(_aS_)
+			if @nPreparedDim < len(_aS_[1])
+				_aFlat_ = []
+				for _i_ = 1 to _nM_
+					_aRow_ = []
+					for _j_ = 1 to @nPreparedDim
+						_aRow_ + _aS_[_i_][_j_]
+					next
+					_aFlat_ + _aRow_
 				next
-			next
+			ok
 			_nW_ = @nPreparedDim
 		ok
 		_nK_ = 15
@@ -706,12 +710,8 @@ class stzTSNE from stzObject
 	# invents the rest: a plausible row for a location, never a recovered one.
 	def LearnInverse()
 		This._MustBeFitted()
-		_aY_ = []
-		for _i_ = 1 to @nRows
-			for _j_ = 1 to @nDims
-				_aY_ + @aEmbedding[_i_][_j_]
-			next
-		next
+		# THE FLATTENING TAX (2026-09-10): the embedding goes as rows
+		_aY_ = ref(@aEmbedding)
 		# the prepared data is rows; the bridge walks them
 		_aR_ = StzEngineEmbeddingDecoder(_aY_, @aPreparedX, @nRows, @nDims, @nPreparedDim,
 			@anDecHidden, @nDecRate, @nDecEpochs, @nSeed)
@@ -1510,12 +1510,8 @@ class stzUMAP from stzObject
 		# inverts the encoder. It is a separate model regressed on (position, row)
 		# pairs, and a free-form fit has both halves exactly as a parametric one does.
 		# How the positions were arrived at is not its business.
-		_aY_ = []
-		for _i_ = 1 to @nRows
-			for _j_ = 1 to @nDims
-				_aY_ + @aEmbedding[_i_][_j_]
-			next
-		next
+		# THE FLATTENING TAX (2026-09-10): the embedding goes as rows
+		_aY_ = ref(@aEmbedding)
 		# the prepared data is rows; the bridge walks them
 		_aR_ = StzEngineEmbeddingDecoder(_aY_, @aPrepared, @nRows, @nDims, @nPreparedDim,
 			@anDecHidden, @nDecRate, @nDecEpochs, @nSeed)
@@ -1846,15 +1842,12 @@ class stzUMAP from stzObject
 			stzraise("Give me a list of rows.")
 		ok
 		_nM2_ = len(paRows)
-		_aF2_ = []
+		_aF2_ = ref(paRows)
 		for _i_ = 1 to _nM2_
 			if NOT isList(paRows[_i_]) or len(paRows[_i_]) != @nCols
 				stzraise("Row " + _i_ + " has " + len(paRows[_i_]) +
 					" value(s); this model was fitted on " + @nCols + ".")
 			ok
-			for _j_ = 1 to @nCols
-				_aF2_ + paRows[_i_][_j_]
-			next
 		next
 		# THE SAME SPACE THE FIT SAW, which is not the space the caller passes.
 		#
@@ -1872,12 +1865,18 @@ class stzUMAP from stzObject
 		_nW2_ = @nCols
 		if @nPcaDims > 0 and @oPca != ""
 			_aS2_ = @oPca.Transform(paRows)
-			_aF2_ = []
-			for _i_ = 1 to _nM2_
-				for _j_ = 1 to @nPreparedDim
-					_aF2_ + _aS2_[_i_][_j_]
+			# THE FLATTENING TAX (2026-09-10): the scores go as rows, cut only when needed
+			_aF2_ = ref(_aS2_)
+			if @nPreparedDim < len(_aS2_[1])
+				_aF2_ = []
+				for _i_ = 1 to _nM2_
+					_aRow_ = []
+					for _j_ = 1 to @nPreparedDim
+						_aRow_ + _aS2_[_i_][_j_]
+					next
+					_aF2_ + _aRow_
 				next
-			next
+			ok
 			_nW2_ = @nPreparedDim
 		ok
 		_nK2_ = @nNeighbors

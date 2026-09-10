@@ -142,18 +142,15 @@ class stzKnn from stzObject
 		ok
 		This._Ensure()
 		_nDim_ = @oDs.NumberOfFeatures()
-		_aFlat_ = []
 		_nQ_ = len(paQueries)
 		for _i_ = 1 to _nQ_
 			if NOT isList(paQueries[_i_]) or len(paQueries[_i_]) != _nDim_
 				stzraise("AgreementWithExact: query " + _i_ + " is not " + _nDim_ +
 					" feature(s) wide.")
 			ok
-			for _d_ = 1 to _nDim_
-				_aFlat_ + paQueries[_i_][_d_]
-			next
 		next
-		_nR_ = StzEngineKnnModelAgreement(@pModel_, _aFlat_, _nQ_, @nK, @nAnnBudget_)
+		# THE FLATTENING TAX (2026-09-10): the queries go as rows; the bridge walks them
+		_nR_ = StzEngineKnnModelAgreement(@pModel_, paQueries, _nQ_, @nK, @nAnnBudget_)
 		if _nR_ < 0
 			stzraise("AgreementWithExact: the engine refused the comparison.")
 		ok
@@ -305,7 +302,10 @@ class stzKnn from stzObject
 
 		# the ONE place the full set is read
 		_aEx_ = @oDs.Examples()
-		_aFlat_ = []
+		# THE FLATTENING TAX (2026-09-10): the examples' feature rows are gathered
+		# as ROWS (one append per example, not one per number) and the bridge
+		# walks them
+		_aRows_ = []
 		_anCodes_ = []
 		_acAlpha_ = []
 		for _i_ = 1 to _nEx_
@@ -314,9 +314,7 @@ class stzKnn from stzObject
 				stzraise("Example " + _i_ + " has " + len(_aRow_) +
 					" feature(s) but the dataset is " + _nDim_ + " wide.")
 			ok
-			for _d_ = 1 to _nDim_
-				_aFlat_ + _aRow_[_d_]
-			next
+			_aRows_ + _aRow_
 			_cL_ = "" + _aEx_[_i_][2]
 			_nCode_ = -1
 			_nA_ = len(_acAlpha_)
@@ -337,7 +335,7 @@ class stzKnn from stzObject
 		if @bApprox_
 			_bA_ = 1
 		ok
-		@pModel_ = StzEngineKnnModelNew(_aFlat_, _nEx_, _nDim_, _anCodes_,
+		@pModel_ = StzEngineKnnModelNew(_aRows_, _nEx_, _nDim_, _anCodes_,
 			len(_acAlpha_), _bA_, @nAnnTrees_, 42)
 		if @pModel_ = ""
 			stzraise("The engine refused the dataset (" + _nEx_ + " x " + _nDim_ + ").")

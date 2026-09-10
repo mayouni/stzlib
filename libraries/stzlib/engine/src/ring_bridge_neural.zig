@@ -34,18 +34,45 @@ fn ring_GgufAddTensor(p: *anyopaque) callconv(.c) void {
         return;
     };
     defer std.heap.c_allocator.free(buf);
-    var i: usize = 0;
-    while (i < want) : (i += 1) {
-        const idx: c_uint = @intCast(i + 1);
-        if (R.ring_list_isnumber_gc(null, pList, idx) == 0) {
+    // THE FLATTENING TAX: a tensor arrives as rows (nRows lists of nCols) or
+    // flat (nRows*nCols numbers); the rows are walked here, not in Ring
+    if (want > 0 and R.ring_list_islist_gc(null, pList, 1) != 0) {
+        const r_count: usize = @intCast(R.ringListSize(pList));
+        if (r_count != @as(usize, @intCast(nRows))) {
             rn(p, 0);
             return;
         }
-        const pItem = R.ring_list_getitem_gc(null, pList, idx) orelse {
-            rn(p, 0);
-            return;
-        };
-        buf[i] = R.ring_item_getnumber(pItem);
+        for (0..r_count) |r| {
+            const row = R.ring_list_getlist_gc(null, pList, @intCast(r + 1)) orelse {
+                rn(p, 0);
+                return;
+            };
+            if (@as(usize, @intCast(R.ringListSize(row))) != @as(usize, @intCast(nCols))) {
+                rn(p, 0);
+                return;
+            }
+            for (0..@as(usize, @intCast(nCols))) |cidx| {
+                const pItem = R.ring_list_getitem_gc(null, row, @intCast(cidx + 1)) orelse {
+                    rn(p, 0);
+                    return;
+                };
+                buf[r * @as(usize, @intCast(nCols)) + cidx] = R.ring_item_getnumber(pItem);
+            }
+        }
+    } else {
+        var i: usize = 0;
+        while (i < want) : (i += 1) {
+            const idx: c_uint = @intCast(i + 1);
+            if (R.ring_list_isnumber_gc(null, pList, idx) == 0) {
+                rn(p, 0);
+                return;
+            }
+            const pItem = R.ring_list_getitem_gc(null, pList, idx) orelse {
+                rn(p, 0);
+                return;
+            };
+            buf[i] = R.ring_item_getnumber(pItem);
+        }
     }
     rn(p, @floatFromInt(gex.stz_gguf_export_add_tensor(gs(p, 1), nRows, nCols, buf.ptr, @intCast(want))));
 }

@@ -97,9 +97,8 @@ class stzLogisticRegression from stzObject
 					" feature(s) but the set is " + _nF_ + " wide. " +
 					"Every example must have the same features.")
 			ok
-			for _f_ = 1 to _nF_
-				_aX_ + _aRow_[_f_]
-			next
+			# THE FLATTENING TAX (2026-09-10): one append per example row
+			_aX_ + _aRow_
 			if _aEx_[_i_][2] = @acLabels[2]
 				_aY_ + 1
 			else
@@ -165,12 +164,10 @@ class stzLogisticRegression from stzObject
 				stzraise("Row " + _i_ + " has " + len(paRows[_i_]) +
 					" feature(s); this model was fitted on " + _nD_ + ".")
 			ok
-			for _f_ = 1 to _nD_
-				_aFlat_ + paRows[_i_][_f_]
-			next
 		next
 
-		_aP_ = StzEngineLogisticPredict(_aFlat_, _nM_, _nD_, @aW, @nB)
+		# THE FLATTENING TAX (2026-09-10): the rows go as they are
+		_aP_ = StzEngineLogisticPredict(paRows, _nM_, _nD_, @aW, @nB)
 		if NOT isList(_aP_) or len(_aP_) != _nM_
 			stzraise("The engine refused the prediction.")
 		ok
