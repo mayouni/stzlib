@@ -96,6 +96,28 @@
 # ── shared helpers, so the two classes cannot drift apart on the things they agree
 #    about: what valid data looks like, and how the PCA pre-step runs ──
 
+# THE PERSISTED k-NN VARIANT ROWS reach the stats DLL here (GS6e). The foundry
+# records its verdict under the op name "umap_knn" in the GPU calibration file
+# (stz_gpu.ring replays that file into its own tables at load); the stats DLL
+# has its own device and its own table, so the rows are pushed across once, at
+# the first fit -- order-proof, whichever loader ran first.
+$bStzUmapKnnVariantsSynced_ = 0
+
+func StzUmapKnnVariantsSync()
+	if $bStzUmapKnnVariantsSynced_
+		return
+	ok
+	$bStzUmapKnnVariantsSynced_ = 1
+	_aRows_ = StzGpuVariants()
+	_n_ = len(_aRows_)
+	for _i_ = 1 to _n_
+		_r_ = _aRows_[_i_]
+		if _r_[1] = "umap_knn"
+			# rows are [ op, k, n, d, variant ]
+			StzEngineUmapKnnVariantSet(_r_[3], _r_[4], _r_[2], _r_[5])
+		ok
+	next
+
 func StzEmbeddingCheckData(paData)
 	if NOT isList(paData) or len(paData) = 0
 		stzraise("Give me a list of samples, each a list of feature values.")
@@ -1591,6 +1613,7 @@ class stzUMAP from stzObject
 
 		# the graph once, the layout per fit -- see @hGraph_
 		if @hGraph_ = ""
+			StzUmapKnnVariantsSync()
 			@hGraph_ = StzEngineUmapGraphBuild(_aX_, @nRows, _nD_, @nNeighbors, @anLabels, @nTargetWeight)
 			if @hGraph_ = ""
 				stzraise("UMAP refused this run. It needs at least 3 points and a " +

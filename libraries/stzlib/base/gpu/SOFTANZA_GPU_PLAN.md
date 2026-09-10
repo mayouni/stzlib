@@ -2060,3 +2060,80 @@ pointer transfer, the sound desk's route). Next on the paper's list
 for this plane: the k-NN kernel through GK2's foundry under GK0's
 checker (it is the ceiling at scale — 98% of their 3M-point run), and
 trustworthiness as the guard's witness, computed with that kernel.
+
+---
+
+## GS6e STATUS — shipped 2026-09-10: the UMAP k-NN kernel through the foundry, under the checker
+
+Guard: `base/test/gpu/gpu_umap_knn_foundry_narrated.ring` — **21 asserts
+green**. Gates: `numeric_umap_gpu_narrated` 23, `numeric_umap_resident`
+18, `numeric_embedding` 240, `gpu_foundry_narrated` 27; Zig
+`umap_gpu.zig` 8.
+
+**Why this kernel.** cuML's paper puts the k-NN at 98% of a 3M-point
+UMAP run: it is the ceiling at scale, and ours was the naive scan. So
+it went through GK2's foundry exactly as pairdist did — a for-loop
+proposes, GK0's checker decides — but on the stats DLL's own device,
+where the kernel lives.
+
+**What shipped.** Four kernels answer one contract (one thread per
+row, the k nearest by squared distance, ties to the lower index, ONE
+f32 output buffer `[d2 | index as f32]`): **generic** (every thread
+walks every row from global memory, its own point in registers),
+**tile** (a workgroup stages candidate rows in workgroup memory with
+coalesced loads), **tile4** (tile with four candidates in flight),
+**chunk** (32 candidates × 64 dimensions per tile, distances
+accumulated across dimension chunks — any d ≤ 1024, the only variant
+that can stage a wide row). The insertion is one shared function so
+the tie rule cannot drift. A **broken** sibling (tile with one index
+off) exists for the checker to refuse and the table to reject. The
+single output buffer is what lets the checker judge a whole answer in
+one band: an index that differs by one differs by 1.0.
+
+`stz_umap_knn_foundry(n, d, k, reps, mask)` runs the enumeration:
+each variant against the generic on the same buffers at the asked
+shape and at a hidden one (a different, odd n; different data), both
+on the GPU clock, the device awake; the winner — if it clears 1.3x —
+lands in the stats DLL's variant table (n-class, d-class, k-class) and
+is persisted under the op name `umap_knn` beside pairdist's rows. The
+stats DLL, having its own device and table, reads the persisted rows
+back once at its first fit (`StzUmapKnnVariantsSync`). Face:
+`stzGpu.FoundryUmapKnn(n, d, k)`. Counter: `umap.knn.variant`
+dispatches (slot 4).
+
+**The kill line, measured on the RTX 3050, k = 15, ratios on the GPU
+clock against the generic — every cell VERIFIED at its visible and
+hidden shape:**
+
+| shape | generic | tile | tile4 | chunk | verdict |
+|---|---|---|---|---|---|
+| 4,096 × 8 | 3.6 ms | 0.59x | 0.82x | 0.65x | generic stays |
+| 16,384 × 8 | 29.7 ms | 0.82x | 1.22x | 0.37x | generic stays |
+| 8,192 × 32 | 30.5 ms | 0.53x | 1.23x | 0.55x | generic stays |
+| 8,192 × 64 | 85.3 ms | 0.52x | **1.52x** | 0.83x | **tile4** |
+| 4,096 × 128 | — | — | — | **1.61x** | **chunk** |
+| 4,096 × 256 | 234 ms | — | — | **2.26x** | **chunk** |
+
+The line is the row's WIDTH, not the count: below 64 features the
+generic's warp-broadcast reads out of L1 already beat a staged tile
+and its barriers, and the foundry says so; from 64 up a variant earns
+its place, and past the register-staging limit only chunk can answer
+at all, at 2.3x by 256 features. That is the paper's regime ("a few
+hundred features") and the one the seams that feed UMAP produce
+(embeddings, PCA scores).
+
+**Held by the guard:** every eligible variant verified in every grid
+cell; the broken sibling refused through the mask and rejected by the
+table; a set variant dispatches (counter) and answers the generic's
+rows exactly for all three; cleared, the counter stays still; a
+persisted `umap_knn` row reaches the stats DLL through the sync, for
+its class only; the calibration files restored byte for byte.
+
+**Paid for:** the table refusing a row a variant cannot honour (a tile
+row at d = 128 degrades to the generic, never dispatches an ineligible
+kernel); and the checker's band is a distance band, so the index half
+of the answer is what makes a wrong neighbour visible.
+
+Next on this plane from the paper: trustworthiness as the guard's
+witness, computed with this kernel. Named, not built: GK2b (matmul
+tiles), GK3.

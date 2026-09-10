@@ -3088,6 +3088,29 @@ fn ring_UmapRunOnGraph(p: *anyopaque) callconv(.c) void {
     umapAnswer(p, r);
 }
 
+// the k-NN foundry (GK2's enumeration under GK0's checker, for the stats DLL's device)
+fn ring_UmapKnnFoundry(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(umap_gpu.stz_umap_knn_foundry(g(p, 1), g(p, 2), g(p, 3), g(p, 4), g(p, 5))));
+}
+fn ring_UmapKnnFoundryResult(p: *anyopaque) callconv(.c) void {
+    rn(p, umap_gpu.stz_umap_knn_foundry_result(@intFromFloat(g(p, 1))));
+}
+fn ring_UmapKnnVariantSet(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(umap_gpu.stz_umap_knn_variant_set(g(p, 1), g(p, 2), g(p, 3), g(p, 4))));
+}
+fn ring_UmapKnnVariantGet(p: *anyopaque) callconv(.c) void {
+    rn(p, umap_gpu.stz_umap_knn_variant_get(g(p, 1), g(p, 2), g(p, 3)));
+}
+fn ring_UmapKnnVariantClear(p: *anyopaque) callconv(.c) void {
+    umap_gpu.stz_umap_knn_variant_clear();
+    rn(p, 1);
+}
+fn ring_UmapKnnVariantName(p: *anyopaque) callconv(.c) void {
+    const name = umap_gpu.stz_umap_knn_variant_name(g(p, 1));
+    const sl = std.mem.span(name);
+    R.ring_vm_api_retstring2(p, sl.ptr, @intCast(sl.len));
+}
+
 fn ring_TsneGpuRuntimePath(p: *anyopaque) callconv(.c) void {
     const ptr = R.ring_vm_api_getstring(p, 1);
     const len = R.ring_vm_api_getstringsize(p, 1);
@@ -3775,6 +3798,12 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginepcafit", .func = &ring_PcaFit },
     .{ .name = "stzenginetsne", .func = &ring_Tsne },
     // GS6a: the t-SNE epoch on the GPU
+    .{ .name = "stzengineumapknnfoundry", .func = &ring_UmapKnnFoundry },
+    .{ .name = "stzengineumapknnfoundryresult", .func = &ring_UmapKnnFoundryResult },
+    .{ .name = "stzengineumapknnvariantset", .func = &ring_UmapKnnVariantSet },
+    .{ .name = "stzengineumapknnvariantget", .func = &ring_UmapKnnVariantGet },
+    .{ .name = "stzengineumapknnvariantclear", .func = &ring_UmapKnnVariantClear },
+    .{ .name = "stzengineumapknnvariantname", .func = &ring_UmapKnnVariantName },
     .{ .name = "stzengineumapgraphbuild", .func = &ring_UmapGraphBuild },
     .{ .name = "stzengineumapgraphfree", .func = &ring_UmapGraphFree },
     .{ .name = "stzengineumapgraphinfo", .func = &ring_UmapGraphInfo },

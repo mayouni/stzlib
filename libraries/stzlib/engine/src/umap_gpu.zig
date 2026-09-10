@@ -67,7 +67,8 @@ pub const C_EPOCHS_GPU = 0; // epochs served by the device
 pub const C_FALLBACK = 1; // eligible work the device could not serve
 pub const C_FITS_GPU = 2; // fits whose every epoch ran on the device
 pub const C_KNN_GPU = 3; // neighbour tables built on the device
-var counters: [4]f64 = @splat(0);
+pub const C_KNN_VARIANT = 4; // tables built by a foundry-chosen variant, not the generic
+var counters: [5]f64 = @splat(0);
 
 pub fn stz_umap_gpu_set_min_n(nf: f64) callconv(.c) void {
     g_min_n = @intFromFloat(@max(nf, 1));
@@ -100,45 +101,258 @@ const PRELUDE =
 const KNN_MAX_K = 64;
 const KNN_STAGE_D = 64;
 
-const WGSL_KNN = PRELUDE ++
+// ---------------------------------------------------------------- the k-NN variants (GK2's foundry, here)
+//
+// cuML's UMAP paper puts the k-NN at 98% of a 3M-point run: it is the ceiling
+// at scale, and ours was the naive scan. Four kernels answer the same
+// contract -- one thread per row, the k nearest by squared distance, ties to
+// the lower index, one f32 output buffer [d2 (n*k) | index as f32 (n*k)] --
+// and only GK0's checker decides which one a shape class dispatches:
+//
+//   GENERIC  every thread walks every row from global memory (the row's own
+//            point in registers when d <= 64)
+//   TILE     a workgroup stages a tile of candidate rows in workgroup memory
+//            with coalesced loads, every thread scans the tile (d <= 64)
+//   TILE4    TILE with four candidates in flight per step (d <= 64)
+//   CHUNK    32 candidates x 64 dimensions per tile, the distances
+//            accumulated across dimension chunks -- any d up to 1024
+//   BROKEN   TILE with one index off by one: the checker's negative sibling,
+//            reachable only through the foundry's mask, never dispatchable
+//
+// The insertion is ONE function shared by every kernel, so the tie rule
+// cannot drift between them. The output as one buffer is what lets the
+// checker compare a whole answer in one band: an index that differs by one
+// differs by 1.0, far outside any distance band.
+
+pub const KNN_GENERIC: usize = 0;
+pub const KNN_TILE: usize = 1;
+pub const KNN_TILE4: usize = 2;
+pub const KNN_CHUNK: usize = 3;
+pub const KNN_BROKEN: usize = 4;
+pub const KNN_REAL: usize = 4; // variants a table may hold: 0..KNN_REAL-1
+pub const KNN_VARIANTS: usize = 5;
+
+const KNN_HEAD =
     \\struct P { n : u32, d : u32, k : u32, pad : u32 }
     \\@group(0) @binding(1) var<uniform> p : P;
     \\@group(0) @binding(2) var<storage, read> x : array<f32>;
-    \\@group(0) @binding(3) var<storage, read_write> oidx : array<u32>;
-    \\@group(0) @binding(4) var<storage, read_write> od2 : array<f32>;
+    \\@group(0) @binding(3) var<storage, read_write> outb : array<f32>;
+    \\fn ins(bd : ptr<function, array<f32, 64>>, bi : ptr<function, array<u32, 64>>, k : u32, acc : f32, j : u32) {
+    \\  var pos = k - 1u;
+    \\  while (pos > 0u && (*bd)[pos - 1u] > acc) { (*bd)[pos] = (*bd)[pos - 1u]; (*bi)[pos] = (*bi)[pos - 1u]; pos = pos - 1u; }
+    \\  (*bd)[pos] = acc;
+    \\  (*bi)[pos] = j;
+    \\}
+    \\
+;
+
+const KNN_TAIL =
+    \\  if (i < n) {
+    \\    for (var s = 0u; s < k; s = s + 1u) { outb[i * k + s] = bd[s]; outb[n * k + i * k + s] = f32(bi[s]); }
+    \\  }
+    \\}
+;
+
+const WGSL_KNN_GENERIC = PRELUDE ++ KNN_HEAD ++
     \\@compute @workgroup_size(256)
     \\fn main(@builtin(workgroup_id) wid : vec3<u32>, @builtin(local_invocation_id) lid : vec3<u32>) {
     \\  let i = (wid.x + tile.xoff) * 256u + lid.x;
     \\  let n = p.n;
     \\  let d = p.d;
     \\  let k = p.k;
-    \\  if (i >= n) { return; }
     \\  var xi : array<f32, 64>;
     \\  var bd : array<f32, 64>;
     \\  var bi : array<u32, 64>;
     \\  let staged = d <= 64u;
-    \\  if (staged) { for (var t = 0u; t < d; t = t + 1u) { xi[t] = x[i * d + t]; } }
+    \\  if (i < n && staged) { for (var t = 0u; t < d; t = t + 1u) { xi[t] = x[i * d + t]; } }
     \\  for (var s = 0u; s < k; s = s + 1u) { bd[s] = 3.0e38; bi[s] = 0u; }
     \\  var worst = 3.0e38;
-    \\  for (var j = 0u; j < n; j = j + 1u) {
-    \\    if (j == i) { continue; }
-    \\    var acc = 0.0;
-    \\    if (staged) {
-    \\      for (var t = 0u; t < d; t = t + 1u) { let df = xi[t] - x[j * d + t]; acc = acc + df * df; }
-    \\    } else {
-    \\      for (var t = 0u; t < d; t = t + 1u) { let df = x[i * d + t] - x[j * d + t]; acc = acc + df * df; }
-    \\    }
-    \\    if (acc < worst) {
-    \\      var pos = k - 1u;
-    \\      while (pos > 0u && bd[pos - 1u] > acc) { bd[pos] = bd[pos - 1u]; bi[pos] = bi[pos - 1u]; pos = pos - 1u; }
-    \\      bd[pos] = acc;
-    \\      bi[pos] = j;
-    \\      worst = bd[k - 1u];
+    \\  if (i < n) {
+    \\    for (var j = 0u; j < n; j = j + 1u) {
+    \\      if (j == i) { continue; }
+    \\      var acc = 0.0;
+    \\      if (staged) {
+    \\        for (var t = 0u; t < d; t = t + 1u) { let df = xi[t] - x[j * d + t]; acc = acc + df * df; }
+    \\      } else {
+    \\        for (var t = 0u; t < d; t = t + 1u) { let df = x[i * d + t] - x[j * d + t]; acc = acc + df * df; }
+    \\      }
+    \\      if (acc < worst) { ins(&bd, &bi, k, acc, j); worst = bd[k - 1u]; }
     \\    }
     \\  }
-    \\  for (var s = 0u; s < k; s = s + 1u) { oidx[i * k + s] = bi[s]; od2[i * k + s] = bd[s]; }
-    \\}
-;
+++ KNN_TAIL;
+
+// TILE and TILE4 share a body; the broken sibling is TILE with one index off
+fn tileBody(comptime four: bool, comptime broken: bool) []const u8 {
+    return PRELUDE ++ KNN_HEAD ++
+        \\var<workgroup> tl : array<f32, 4096>;
+        \\@compute @workgroup_size(256)
+        \\fn main(@builtin(workgroup_id) wid : vec3<u32>, @builtin(local_invocation_id) lid : vec3<u32>) {
+        \\  let i = (wid.x + tile.xoff) * 256u + lid.x;
+        \\  let n = p.n;
+        \\  let d = p.d;
+        \\  let k = p.k;
+        \\  var xi : array<f32, 64>;
+        \\  var bd : array<f32, 64>;
+        \\  var bi : array<u32, 64>;
+        \\  if (i < n) { for (var t = 0u; t < d; t = t + 1u) { xi[t] = x[i * d + t]; } }
+        \\  for (var s = 0u; s < k; s = s + 1u) { bd[s] = 3.0e38; bi[s] = 0u; }
+        \\  var worst = 3.0e38;
+        \\  let rows_per = 4096u / d;
+        \\  for (var b = 0u; b < n; b = b + rows_per) {
+        \\    let rows = min(rows_per, n - b);
+        \\    workgroupBarrier();
+        \\    for (var e = lid.x; e < rows * d; e = e + 256u) { tl[e] = x[b * d + e]; }
+        \\    workgroupBarrier();
+        \\    if (i < n) {
+    ++ (if (four)
+        \\      var jj = 0u;
+        \\      for (; jj + 4u <= rows; jj = jj + 4u) {
+        \\        var a0 = 0.0; var a1 = 0.0; var a2 = 0.0; var a3 = 0.0;
+        \\        for (var t = 0u; t < d; t = t + 1u) {
+        \\          let xv = xi[t];
+        \\          let d0 = xv - tl[jj * d + t]; a0 = a0 + d0 * d0;
+        \\          let d1 = xv - tl[(jj + 1u) * d + t]; a1 = a1 + d1 * d1;
+        \\          let d2 = xv - tl[(jj + 2u) * d + t]; a2 = a2 + d2 * d2;
+        \\          let d3 = xv - tl[(jj + 3u) * d + t]; a3 = a3 + d3 * d3;
+        \\        }
+        \\        if (b + jj != i && a0 < worst) { ins(&bd, &bi, k, a0, b + jj); worst = bd[k - 1u]; }
+        \\        if (b + jj + 1u != i && a1 < worst) { ins(&bd, &bi, k, a1, b + jj + 1u); worst = bd[k - 1u]; }
+        \\        if (b + jj + 2u != i && a2 < worst) { ins(&bd, &bi, k, a2, b + jj + 2u); worst = bd[k - 1u]; }
+        \\        if (b + jj + 3u != i && a3 < worst) { ins(&bd, &bi, k, a3, b + jj + 3u); worst = bd[k - 1u]; }
+        \\      }
+        \\      for (; jj < rows; jj = jj + 1u) {
+    else
+        \\      for (var jj = 0u; jj < rows; jj = jj + 1u) {
+    ) ++
+        \\        let j = b + jj;
+        \\        if (j == i) { continue; }
+        \\        var acc = 0.0;
+        \\        for (var t = 0u; t < d; t = t + 1u) { let df = xi[t] - tl[jj * d + t]; acc = acc + df * df; }
+        \\        if (acc < worst) { ins(&bd, &bi, k, acc, j); worst = bd[k - 1u]; }
+        \\      }
+        \\    }
+        \\  }
+    ++ (if (broken)
+        \\  if (i == 0u) { bi[k - 1u] = bi[k - 1u] + 1u; }
+        \\
+    else
+        \\
+    ) ++ KNN_TAIL;
+}
+
+const WGSL_KNN_TILE = tileBody(false, false);
+const WGSL_KNN_TILE4 = tileBody(true, false);
+const WGSL_KNN_BROKEN = tileBody(false, true);
+
+const WGSL_KNN_CHUNK = PRELUDE ++ KNN_HEAD ++
+    \\var<workgroup> tl : array<f32, 2048>;
+    \\@compute @workgroup_size(256)
+    \\fn main(@builtin(workgroup_id) wid : vec3<u32>, @builtin(local_invocation_id) lid : vec3<u32>) {
+    \\  let i = (wid.x + tile.xoff) * 256u + lid.x;
+    \\  let n = p.n;
+    \\  let d = p.d;
+    \\  let k = p.k;
+    \\  var bd : array<f32, 64>;
+    \\  var bi : array<u32, 64>;
+    \\  for (var s = 0u; s < k; s = s + 1u) { bd[s] = 3.0e38; bi[s] = 0u; }
+    \\  var worst = 3.0e38;
+    \\  let irow = min(i, n - 1u) * d;
+    \\  for (var b = 0u; b < n; b = b + 32u) {
+    \\    let rows = min(32u, n - b);
+    \\    var acc : array<f32, 32>;
+    \\    for (var r = 0u; r < 32u; r = r + 1u) { acc[r] = 0.0; }
+    \\    for (var c0 = 0u; c0 < d; c0 = c0 + 64u) {
+    \\      let cl = min(64u, d - c0);
+    \\      workgroupBarrier();
+    \\      for (var e = lid.x; e < rows * cl; e = e + 256u) { let r = e / cl; let t = e - r * cl; tl[r * 64u + t] = x[(b + r) * d + c0 + t]; }
+    \\      workgroupBarrier();
+    \\      for (var t = 0u; t < cl; t = t + 1u) {
+    \\        let xv = x[irow + c0 + t];
+    \\        for (var r = 0u; r < 32u; r = r + 1u) { let df = xv - tl[r * 64u + t]; acc[r] = acc[r] + df * df; }
+    \\      }
+    \\    }
+    \\    if (i < n) {
+    \\      for (var r = 0u; r < 32u; r = r + 1u) {
+    \\        let j = b + r;
+    \\        if (r < rows && j != i && acc[r] < worst) { ins(&bd, &bi, k, acc[r], j); worst = bd[k - 1u]; }
+    \\      }
+    \\    }
+    \\  }
+++ KNN_TAIL;
+
+const KNN_NAMES = [KNN_VARIANTS][*:0]const u8{ "generic", "tile", "tile4", "chunk", "broken" };
+
+fn knnSource(v: usize) []const u8 {
+    return switch (v) {
+        KNN_TILE => WGSL_KNN_TILE,
+        KNN_TILE4 => WGSL_KNN_TILE4,
+        KNN_CHUNK => WGSL_KNN_CHUNK,
+        KNN_BROKEN => WGSL_KNN_BROKEN,
+        else => WGSL_KNN_GENERIC,
+    };
+}
+
+/// Can variant v answer shape (n, d, k) at all? The generic always can.
+pub fn knnVariantEligible(v: usize, n: usize, d: usize, k: usize) bool {
+    if (n < 2 or d == 0 or k == 0 or k > KNN_MAX_K or k >= n) return false;
+    return switch (v) {
+        KNN_GENERIC => true,
+        KNN_TILE, KNN_TILE4, KNN_BROKEN => d <= KNN_STAGE_D,
+        KNN_CHUNK => d <= 1024,
+        else => false,
+    };
+}
+
+// the variant table: a decision per shape class (n-class, d-class, k-class),
+// written only by the foundry's verdict or an explicit set; the broken
+// variant can never enter it
+const KnnVariantEntry = struct { cn: u8, cd: u8, ck: u8, v: u8 };
+var knn_variants: std.ArrayListUnmanaged(KnnVariantEntry) = .{};
+
+fn findKnnVariant(cn: u8, cd: u8, ck: u8) ?*KnnVariantEntry {
+    for (knn_variants.items) |*e| {
+        if (e.cn == cn and e.cd == cd and e.ck == ck) return e;
+    }
+    return null;
+}
+
+pub fn stz_umap_knn_variant_set(nf: f64, df: f64, kf: f64, vf: f64) callconv(.c) i32 {
+    const v: usize = @intFromFloat(@max(vf, 0));
+    if (v >= KNN_REAL) return gpu.BAD_ARG;
+    const cn = gpu.shapeClass(nf);
+    const cd = gpu.shapeClass(df);
+    const ck = gpu.shapeClass(kf);
+    if (findKnnVariant(cn, cd, ck)) |e| {
+        e.v = @intCast(v);
+        return gpu.OK;
+    }
+    knn_variants.append(alloc, .{ .cn = cn, .cd = cd, .ck = ck, .v = @intCast(v) }) catch return gpu.GPU_ERROR;
+    return gpu.OK;
+}
+
+pub fn stz_umap_knn_variant_get(nf: f64, df: f64, kf: f64) callconv(.c) f64 {
+    if (findKnnVariant(gpu.shapeClass(nf), gpu.shapeClass(df), gpu.shapeClass(kf))) |e| return @floatFromInt(e.v);
+    return 0;
+}
+
+pub fn stz_umap_knn_variant_clear() callconv(.c) void {
+    knn_variants.clearRetainingCapacity();
+}
+
+pub fn stz_umap_knn_variant_name(vf: f64) callconv(.c) [*:0]const u8 {
+    const v: usize = @intFromFloat(@max(vf, 0));
+    if (v >= KNN_VARIANTS) return "";
+    return KNN_NAMES[v];
+}
+
+/// The variant the table names for this shape, degraded to the generic when
+/// it cannot answer the shape (a table row from another k, say).
+fn knnVariantFor(n: usize, d: usize, k: usize) usize {
+    const e = findKnnVariant(gpu.shapeClass(@floatFromInt(n)), gpu.shapeClass(@floatFromInt(d)), gpu.shapeClass(@floatFromInt(k))) orelse return KNN_GENERIC;
+    const v: usize = e.v;
+    if (v < KNN_REAL and knnVariantEligible(v, n, d, k)) return v;
+    return KNN_GENERIC;
+}
 
 const WGSL_STEP = PRELUDE ++
     \\struct P { n : u32, dims : u32, epoch : u32, neg : u32, alpha : f32, a : f32, b : f32, rep : f32, seed : u32, p0 : u32, p1 : u32, p2 : u32 }
@@ -205,19 +419,22 @@ const StepParams = extern struct { n: u32, dims: u32, epoch: u32, neg: u32, alph
 
 // compiled once per device life; a failed dispatch forgets them so the next
 // caller recompiles (the kernel table is reset by a Shutdown)
-var k_knn: i64 = 0;
+var k_knn: [KNN_VARIANTS]i64 = @splat(0);
 var k_step: i64 = 0;
 
-fn kernelKnn() i64 {
-    if (k_knn == 0) k_knn = gpu.stz_gpu_kernel_compile(WGSL_KNN.ptr, @floatFromInt(WGSL_KNN.len));
-    return k_knn;
+fn kernelKnn(v: usize) i64 {
+    if (k_knn[v] == 0) {
+        const src = knnSource(v);
+        k_knn[v] = gpu.stz_gpu_kernel_compile(src.ptr, @floatFromInt(src.len));
+    }
+    return k_knn[v];
 }
 fn kernelStep() i64 {
     if (k_step == 0) k_step = gpu.stz_gpu_kernel_compile(WGSL_STEP.ptr, @floatFromInt(WGSL_STEP.len));
     return k_step;
 }
 fn forgetKernels() void {
-    k_knn = 0;
+    k_knn = @splat(0);
     k_step = 0;
 }
 
@@ -248,27 +465,146 @@ pub fn knn(x: []const f64, n: usize, d: usize, k: usize, idx_out: []u32, dist_ou
     for (x, 0..) |v, i| xf[i] = @floatCast(v);
     const b_x = gpu.stz_gpu_buffer_new(@floatFromInt(n * d * 4));
     defer freeBuf(b_x);
-    const b_i = gpu.stz_gpu_buffer_new(@floatFromInt(n * k * 4));
-    defer freeBuf(b_i);
-    const b_d = gpu.stz_gpu_buffer_new(@floatFromInt(n * k * 4));
-    defer freeBuf(b_d);
-    if (b_x == 0 or b_i == 0 or b_d == 0) return refuse();
+    const b_o = gpu.stz_gpu_buffer_new(@floatFromInt(2 * n * k * 4));
+    defer freeBuf(b_o);
+    if (b_x == 0 or b_o == 0) return refuse();
     if (gpu.stz_gpu_buffer_write(b_x, @ptrCast(xf.ptr), @floatFromInt(n * d * 4)) != gpu.OK) return refuse();
-    const kern = kernelKnn();
+    const v = knnVariantFor(n, d, k);
+    const kern = kernelKnn(v);
     if (kern == 0) return refuse();
     _ = verify.stz_gpu_wake(400);
     const params = KnnParams{ .n = @intCast(n), .d = @intCast(d), .k = @intCast(k), .pad = 0 };
-    if (dispatch(kern, std.mem.asBytes(&params), &.{ b_x, b_i, b_d }, groups(n)) != gpu.OK) {
+    if (dispatch(kern, std.mem.asBytes(&params), &.{ b_x, b_o }, groups(n)) != gpu.OK) {
         forgetKernels();
         return refuse();
     }
-    const d2 = alloc.alloc(f32, n * k) catch return refuse();
-    defer alloc.free(d2);
-    if (gpu.stz_gpu_buffer_read(b_i, @ptrCast(idx_out.ptr), @floatFromInt(n * k * 4)) != gpu.OK) return refuse();
-    if (gpu.stz_gpu_buffer_read(b_d, @ptrCast(d2.ptr), @floatFromInt(n * k * 4)) != gpu.OK) return refuse();
-    for (d2, 0..) |v, i| dist_out[i] = @sqrt(@as(f64, v));
+    const outf = alloc.alloc(f32, 2 * n * k) catch return refuse();
+    defer alloc.free(outf);
+    if (gpu.stz_gpu_buffer_read(b_o, @ptrCast(outf.ptr), @floatFromInt(2 * n * k * 4)) != gpu.OK) return refuse();
+    for (0..n * k) |i| {
+        dist_out[i] = @sqrt(@as(f64, outf[i]));
+        idx_out[i] = @intFromFloat(outf[n * k + i]);
+    }
     counters[C_KNN_GPU] += 1;
+    if (v != KNN_GENERIC) counters[C_KNN_VARIANT] += 1;
     return true;
+}
+
+// ---------------------------------------------------------------- the foundry for the k-NN
+
+pub const F_COUNT = 0; // real variants beyond the generic
+pub const F_REF_GPU_MS = 1;
+pub const F_REF_WALL_MS = 2;
+pub const F_WINNER = 3; // 0 = the generic stays
+pub const F_WINNER_RATIO = 4;
+pub const F_CLOCKS = 5;
+pub const F_HIDDEN_N = 6;
+pub const F_BASE = 8; // per variant v: F_BASE + v*5 + {0 verified (-2 not asked, -1 not eligible, 0 refused, 1), 1 gpu_ms, 2 wall_ms, 3 ratio_gpu, 4 ratio_wall}
+pub const F_STRIDE = 5;
+pub const F_SLOTS = F_BASE + KNN_VARIANTS * F_STRIDE;
+var foundry_result: [F_SLOTS]f64 = @splat(0);
+pub const MARGIN: f64 = 1.3;
+
+pub fn stz_umap_knn_foundry_result(idx: i32) callconv(.c) f64 {
+    if (idx < 0 or idx >= F_SLOTS) return 0;
+    return foundry_result[@intCast(idx)];
+}
+
+fn fillLcg(id: i64, count: usize, seed: u32) bool {
+    const host = alloc.alloc(f32, count) catch return false;
+    defer alloc.free(host);
+    var r: u32 = seed;
+    for (host) |*v| {
+        r = r *% 1664525 +% 1013904223;
+        v.* = @as(f32, @floatFromInt(r >> 8)) / 16777216.0;
+    }
+    return gpu.stz_gpu_buffer_write(id, @ptrCast(host.ptr), @floatFromInt(count * 4)) == gpu.OK;
+}
+
+/// Enumerate the k-NN variants at shape (n, d, k) under GK0's checker: each
+/// against the GENERIC on the same device buffers at this shape and at a
+/// hidden one (a different, odd, tile-uneven n with different data), timed
+/// on the GPU clock with the device awake; the winner, if it clears the
+/// margin, lands in F_WINNER -- the caller records it. `mask` selects
+/// variants (bit v); 0 = every real one. The broken variant is reachable
+/// only through the mask. The verdicts are slots.
+pub fn stz_umap_knn_foundry(nf: f64, df: f64, kf: f64, reps: f64, maskf: f64) callconv(.c) i32 {
+    foundry_result = @splat(0);
+    if (!tsne_gpu.ensureDevice()) return gpu.FALLBACK;
+    const n: usize = @intFromFloat(nf);
+    const d: usize = @intFromFloat(df);
+    const k: usize = @intFromFloat(kf);
+    if (!knnVariantEligible(KNN_GENERIC, n, d, k)) return gpu.BAD_ARG;
+    var mask: u32 = @intFromFloat(maskf);
+    if (mask == 0) mask = (@as(u32, 1) << KNN_REAL) - 2; // bits 1..KNN_REAL-1
+    const n2: usize = @max(k + 1, ((n * 5) / 7) | 1);
+    foundry_result[F_COUNT] = @floatFromInt(KNN_REAL - 1);
+    foundry_result[F_HIDDEN_N] = @floatFromInt(n2);
+    _ = verify.stz_gpu_wake(400);
+
+    const ids = [_]i64{
+        gpu.stz_gpu_buffer_new(@floatFromInt(n * d * 4)),
+        gpu.stz_gpu_buffer_new(@floatFromInt(2 * n * k * 4)),
+        gpu.stz_gpu_buffer_new(@floatFromInt(n2 * d * 4)),
+        gpu.stz_gpu_buffer_new(@floatFromInt(2 * n2 * k * 4)),
+    };
+    defer {
+        for (ids) |id| freeBuf(id);
+    }
+    for (ids) |id| if (id == 0) return gpu.GPU_ERROR;
+    if (!fillLcg(ids[0], n * d, 777)) return gpu.GPU_ERROR;
+    if (!fillLcg(ids[2], n2 * d, 99991)) return gpu.GPU_ERROR;
+    const kref = kernelKnn(KNN_GENERIC);
+    if (kref == 0) return gpu.GPU_ERROR;
+    const pa = KnnParams{ .n = @intCast(n), .d = @intCast(d), .k = @intCast(k), .pad = 0 };
+    const pb = KnnParams{ .n = @intCast(n2), .d = @intCast(d), .k = @intCast(k), .pad = 0 };
+    const ba = std.mem.asBytes(&pa);
+    const bb = std.mem.asBytes(&pb);
+    const ids_a = [_]i64{ ids[0], ids[1] };
+    const ids_b = [_]i64{ ids[2], ids[3] };
+    // the band: an index that differs is off by >= 1.0; distances differ by
+    // f32 accumulation only, and scale with d
+    const band: f64 = 1e-4 * @as(f64, @floatFromInt(d));
+    var best_v: usize = 0;
+    var best_ratio: f64 = 1.0;
+    var v: usize = 1;
+    while (v < KNN_VARIANTS) : (v += 1) {
+        const base = F_BASE + v * F_STRIDE;
+        if ((mask & (@as(u32, 1) << @intCast(v))) == 0) {
+            foundry_result[base] = -2;
+            continue;
+        }
+        if (!knnVariantEligible(v, n, d, k)) {
+            foundry_result[base] = -1;
+            continue;
+        }
+        const kv = kernelKnn(v);
+        if (kv == 0) return gpu.GPU_ERROR;
+        const st = verify.stz_gpu_verify(kref, kv, ba.ptr, @floatFromInt(ba.len), &ids_a, 2, @floatFromInt(2 * n * k), @floatFromInt(groups(n)), @floatFromInt(groups(n)), bb.ptr, @floatFromInt(bb.len), &ids_b, 2, @floatFromInt(2 * n2 * k), @floatFromInt(groups(n2)), @floatFromInt(groups(n2)), reps, band);
+        if (st != gpu.OK) return st;
+        const verdict: i32 = @intFromFloat(verify.stz_gpu_verify_result(verify.R_VERDICT));
+        const clocks = verify.stz_gpu_verify_result(verify.R_CLOCKS);
+        foundry_result[F_CLOCKS] = clocks;
+        foundry_result[F_REF_WALL_MS] = verify.stz_gpu_verify_result(verify.R_REF_MS);
+        foundry_result[F_REF_GPU_MS] = verify.stz_gpu_verify_result(verify.R_REF_GPU_MS);
+        if (verdict != verify.V_VERIFIED) {
+            foundry_result[base] = 0; // refused: never a winner
+            continue;
+        }
+        foundry_result[base] = 1;
+        foundry_result[base + 1] = verify.stz_gpu_verify_result(verify.R_CAND_GPU_MS);
+        foundry_result[base + 2] = verify.stz_gpu_verify_result(verify.R_CAND_MS);
+        foundry_result[base + 3] = verify.stz_gpu_verify_result(verify.R_SPEEDUP_GPU);
+        foundry_result[base + 4] = verify.stz_gpu_verify_result(verify.R_SPEEDUP);
+        const ratio = if (clocks >= 2) foundry_result[base + 3] else foundry_result[base + 4];
+        if (v < KNN_REAL and ratio > best_ratio) {
+            best_ratio = ratio;
+            best_v = v;
+        }
+    }
+    foundry_result[F_WINNER] = if (best_v != 0 and best_ratio >= MARGIN) @floatFromInt(best_v) else 0;
+    foundry_result[F_WINNER_RATIO] = best_ratio;
+    return gpu.OK;
 }
 
 fn refuse() bool {
@@ -476,4 +812,19 @@ test "the gates refuse without asking the device, and count nothing" {
     try std.testing.expect(!knn(x[0..], 3, 2, 2, idx[0..], dist[0..], false)); // under the gate
     try std.testing.expect(!knn(x[0..], 3, 2, 3, idx[0..], dist[0..], true)); // k >= n: not a shape the kernel takes
     try std.testing.expectEqual(@as(f64, 0), counters[C_FALLBACK]);
+}
+
+test "the k-NN variant table never holds the broken sibling, and eligibility names the shapes" {
+    stz_umap_knn_variant_clear();
+    try std.testing.expect(stz_umap_knn_variant_set(4096, 8, 15, KNN_BROKEN) == gpu.BAD_ARG);
+    try std.testing.expect(stz_umap_knn_variant_set(4096, 8, 15, KNN_TILE4) == gpu.OK);
+    try std.testing.expectEqual(@as(f64, KNN_TILE4), stz_umap_knn_variant_get(4096, 8, 15));
+    try std.testing.expectEqual(@as(f64, 0), stz_umap_knn_variant_get(4096, 128, 15)); // another d-class
+    try std.testing.expect(!knnVariantEligible(KNN_TILE, 4096, 128, 15)); // tiles stage the point: d <= 64
+    try std.testing.expect(knnVariantEligible(KNN_CHUNK, 4096, 128, 15));
+    try std.testing.expect(!knnVariantEligible(KNN_CHUNK, 4096, 2048, 15));
+    try std.testing.expectEqual(KNN_GENERIC, knnVariantFor(4096, 128, 15)); // no row: the generic
+    _ = stz_umap_knn_variant_set(4096, 128, 15, KNN_TILE); // a row a tile cannot honour at d = 128
+    try std.testing.expectEqual(KNN_GENERIC, knnVariantFor(4096, 128, 15)); // degrades, never dispatches an ineligible kernel
+    stz_umap_knn_variant_clear();
 }
