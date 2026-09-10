@@ -300,6 +300,23 @@ pub fn updateCentroids(points: []const f64, n: usize, d: usize, k: usize, assign
     }
 }
 
+/// Total within-cluster squared distance -- the quality number the face used
+/// to compute with one bridge crossing per point (20,000 crossings at 20,000
+/// points, most of what was left of Run() once the flattening went). The
+/// same definition: the CPU's own distance, squared, summed over the points
+/// that have a cluster.
+pub fn kmeansInertia(points: []const f64, n: usize, d: usize, centroids: []const f64, assign: []const i32) f64 {
+    var sum: f64 = 0;
+    var i: usize = 0;
+    while (i < n) : (i += 1) {
+        if (assign[i] <= 0) continue;
+        const c: usize = @intCast(assign[i] - 1);
+        const dd = dist(points[i * d ..][0..d], centroids[c * d ..][0..d]);
+        sum += dd * dd;
+    }
+    return sum;
+}
+
 /// The CPU's nearest centroid for one point -- the strict `<` in index order --
 /// shared with the device route, which asks it for every point f32 could not
 /// certify.
