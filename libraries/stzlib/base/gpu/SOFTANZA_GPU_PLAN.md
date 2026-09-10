@@ -1670,3 +1670,56 @@ epochs and fell back. And a `defer` on an optional session that the
 loop may set to null releases exactly what is still held.
 
 Next: **GS6b**, the P build on the device; then UMAP's sparse form.
+
+---
+
+## GS6b STATUS — shipped 2026-09-10: the P build on the device; the fit is now GPU from its first byte to its last epoch
+
+Guard: `base/test/number/numeric_tsne_gpu_narrated.ring` — **22 asserts
+green** (was 16). Gate: `numeric_embedding_narrated` **240 green**.
+
+**What shipped.** Two kernels in `engine/src/tsne_gpu.zig` and one
+function, `buildP`. The first kernel is one workgroup per row: the
+row's squared distances (the point staged in workgroup memory, `d ≤
+1024`), then the CPU's bandwidth search reproduced exactly — up to 50
+tries, lo/hi bisection with doubling while unbounded, the same 1e-5
+tolerance on the entropy, the row written at the LAST evaluated beta,
+an underflowed row made uniform — with the search's control flow made
+workgroup-uniform through `workgroupUniformLoad` so every lane takes
+the same branch. The second symmetrises: each unordered pair belongs
+to the row with the smaller index, so no element is written twice.
+The matrix is left RESIDENT and `prepare()` adopts it instead of
+re-uploading; it is also downloaded once as f64 because the CPU parts
+of the fit and the fallback read it. `tsne.run` asks `buildP` first
+and falls to `conditionalP` + symmetrisation exactly as before when
+it refuses (counted). Eligibility is the epoch seam's: `n ≥ 500`,
+`dims = 2`. `stzTSNE.Fit()` unchanged.
+
+**Measured, this run, 1,000 points × 150 epochs, four blobs in 8 dims:**
+
+| | GS6a (epochs only) | GS6b (P build too) |
+|---|---|---|
+| P built on the device | no | **yes, counted once** |
+| epochs served | 150 of 150 | 150 of 150 |
+| first-epoch KL vs CPU | 3e-8 | 1e-8 |
+| 5-NN blob purity | 1.00 | 1.00 |
+| whole fit vs CPU | 5.2x | **7.9x** (1,519 → 193 ms) |
+
+The device's P against the CPU's, entry by entry at 300 points:
+max |Δ| below 1e-6 on entries up to 2.1e-4, both sum to 1, zero
+diagonal, symmetric. The build alone through Ring lists both ways at
+1,000 points is 2.1x — the lists carry a million doubles each way; the
+in-engine seam pays none of that, which is where the fit's 5.2x → 7.9x
+comes from.
+
+**Paid for on the way.** `target` is a reserved word in WGSL. The
+driver reports it only through the uncaptured-error callback, whose
+message the pipeline's own "shader module is invalid" then
+overwrites — the stored last error names the symptom and never the
+cause. The engine keeps the last error only; a probe that prints every
+uncaptured error as it arrives is the way to read a shader's
+rejection, and it took three rebuilds to learn that. Worth a
+`stz_gpu_first_error` slot on a later pass.
+
+Next, on the author's word: **UMAP's sparse form** (GS6's dense range
+ends near 12k points); GK2b/GK3 remain named, not built.

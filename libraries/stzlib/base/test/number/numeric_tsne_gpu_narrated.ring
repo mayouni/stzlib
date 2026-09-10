@@ -1,4 +1,4 @@
-# GS6a -- the t-SNE epoch on the GPU, a silent seam inside tsne.run
+# GS6a + GS6b -- the t-SNE epoch AND its P build on the GPU, a silent seam inside tsne.run
 # (SOFTANZA_GPU_PLAN.md GS6; the spike src/gs6_spike.zig measured it first).
 #
 # stzTSNE.Fit() is unchanged. Inside the engine, when the corpus reaches the
@@ -20,6 +20,9 @@
 #   - the GPU fit is faster than the CPU fit by the spike's margin at
 #     n = 1000 (>= 3x), both timed the same way
 #   - without a device the seam refuses silently and counts (CI coverage)
+#   - GS6b: the fit's P is BUILT on the device too (counted once), and the
+#     device's P matches the CPU's entry by entry (< 1e-6), sums to 1, has a
+#     zero diagonal and is symmetric; the build alone is faster at 1,000 points
 
 load "../../stzBase.ring"
 
@@ -29,6 +32,7 @@ nFail = 0
 C_EPOCHS = 0
 C_FALLBACK = 1
 C_FITS = 2
+C_PBUILD = 3
 
 pr()
 
@@ -93,6 +97,7 @@ else
 	? "  epochs on the device: " + StzEngineTsneGpuCounter(C_EPOCHS) + "   fallbacks: " + StzEngineTsneGpuCounter(C_FALLBACK) + "   fits served: " + StzEngineTsneGpuCounter(C_FITS)
 	chk("EVERY epoch was served by the device (150 of 150)", StzEngineTsneGpuCounter(C_EPOCHS) = 150)
 	chk("one fit served, zero fallbacks", StzEngineTsneGpuCounter(C_FITS) = 1 and StzEngineTsneGpuCounter(C_FALLBACK) = 0)
+	chk("GS6b: the fit's P was BUILT on the device too (the P-build counter moved once)", StzEngineTsneGpuCounter(C_PBUILD) = 1)
 	chk("the device is live", StzEngineTsneGpuState() = 1)
 
 	? ""
@@ -112,6 +117,58 @@ else
 	? "-- Scene 4: the spike's margin, both fits timed the same way --"
 	? "  CPU fit " + nCpuMs + " ms   GPU fit " + nGpuMs + " ms   = " + (nCpuMs / nGpuMs) + "x  (150 epochs at 1000 points, P build included in both)"
 	chk("the GPU fit is at least 3x faster (the spike measured 12x per epoch at this size)", nCpuMs / nGpuMs >= 3)
+
+	? ""
+	? "-- Scene 4b: the P build on the device, against the CPU's, entry by entry --"
+	nP = 300
+	aX = []
+	for i = 1 to nP
+		for k = 1 to nD
+			aX + aData[i][k]
+		next
+	next
+	aPc = StzEngineTsneJointP(aX, nP, nD, 30)
+	aPg = StzEngineTsneGpuJointP(aX, nP, nD, 30)
+	chk("both builders answer n*n entries", len(aPc) = nP * nP and len(aPg) = nP * nP)
+	nMaxP = 0
+	nMaxDiff = 0
+	nSumC = 0
+	nSumG = 0
+	bDiagZero = TRUE
+	bSym = TRUE
+	for i = 1 to nP
+		for j = 1 to nP
+			_v_ = aPc[(i - 1) * nP + j]
+			_w_ = aPg[(i - 1) * nP + j]
+			nSumC += _v_
+			nSumG += _w_
+			if _v_ > nMaxP nMaxP = _v_ ok
+			_d_ = fabs(_v_ - _w_)
+			if _d_ > nMaxDiff nMaxDiff = _d_ ok
+		next
+		if aPg[(i - 1) * nP + i] != 0 bDiagZero = FALSE ok
+		if fabs(aPg[(i - 1) * nP + 17] - aPg[16 * nP + i]) > 0.0000000001 bSym = FALSE ok
+	next
+	? "  P: largest entry " + nMaxP + "   max |gpu - cpu| " + nMaxDiff + "   sums: CPU " + nSumC + "  GPU " + nSumG
+	chk("the device's P matches the CPU's within 1e-6 absolute (entries up to ~" + nMaxP + ")", nMaxDiff < 0.000001)
+	chk("...both sum to 1 within 1e-5 (a joint distribution)", fabs(nSumC - 1) < 0.00001 and fabs(nSumG - 1) < 0.00001)
+	chk("...the device's P has a zero diagonal and is symmetric", bDiagZero and bSym)
+	# the P build alone, timed both ways at 1,000 points (the seam's next bound)
+	aX1 = []
+	for i = 1 to nN
+		for k = 1 to nD
+			aX1 + aData[i][k]
+		next
+	next
+	nT0 = StzEngineWatchTimestampNs()
+	StzEngineTsneJointP(aX1, nN, nD, 30)
+	nPc = (StzEngineWatchTimestampNs() - nT0) / 1000000
+	StzEngineTsneGpuJointP(aX1, nN, nD, 30)
+	nT0 = StzEngineWatchTimestampNs()
+	StzEngineTsneGpuJointP(aX1, nN, nD, 30)
+	nPg = (StzEngineWatchTimestampNs() - nT0) / 1000000
+	? "  P build at 1000 x 8 (through Ring lists both ways): CPU " + nPc + " ms   GPU " + nPg + " ms   = " + (nPc / nPg) + "x"
+	chk("the device builds P faster than the CPU at 1,000 points (>= 2x, lists included)", nPc / nPg >= 2)
 
 	? ""
 	? "-- Scene 5: the gate restored; a second fit under it stays CPU --"

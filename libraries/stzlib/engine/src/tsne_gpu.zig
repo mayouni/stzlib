@@ -43,6 +43,7 @@ var g_min_n: usize = 500;
 pub const C_EPOCHS_GPU = 0; // epochs served by the device
 pub const C_FALLBACK = 1; // eligible fits (or epochs) the device could not serve
 pub const C_FITS_GPU = 2; // fits that ran at least one epoch on the device
+pub const C_PBUILD_GPU = 3; // P matrices built on the device (GS6b)
 var counters: [4]f64 = @splat(0);
 
 pub fn stz_tsne_gpu_runtime_path(path: [*]const u8, lenf: f64) callconv(.c) void {
@@ -210,6 +211,197 @@ fn dispatch(kernel: i64, params: *const Params, bufs: []const i64, wx: usize) i3
     return gpu.stz_gpu_dispatch_params(kernel, bytes.ptr, @floatFromInt(bytes.len), bufs.ptr, @intCast(bufs.len), @floatFromInt(wx), 1);
 }
 
+// ---------------------------------------------------------------- GS6b: the P build
+//
+// One workgroup per row i, three passes inside it: the squared distances of
+// the row (x_i staged in workgroup memory), the bandwidth search -- up to 50
+// tries, the CPU's rule, on the identity H = log S + beta * sum(d2 e) / S --
+// and the row at the LAST EVALUATED beta normalised, with the CPU's underflow
+// fallback (an all-zero row becomes uniform). A second dispatch symmetrises:
+// each unordered pair is owned by the row with the smaller index, so no two
+// threads touch one element. The matrix stays resident for the epochs.
+
+const WGSL_PROWS = PRELUDE ++
+    \\struct P { n : u32, d : u32, tgt : f32, pad : f32 }
+    \\@group(0) @binding(1) var<uniform> p : P;
+    \\@group(0) @binding(2) var<storage, read> x : array<f32>;
+    \\@group(0) @binding(3) var<storage, read_write> pm : array<f32>;
+    \\var<workgroup> xi : array<f32, 1024>;
+    \\var<workgroup> s0 : array<f32, 256>;
+    \\var<workgroup> s1 : array<f32, 256>;
+    \\var<workgroup> wbeta : f32;
+    \\var<workgroup> wlo : f32;
+    \\var<workgroup> whi : f32;
+    \\var<workgroup> wdone : u32;
+    \\var<workgroup> wsum : f32;
+    \\var<workgroup> wlast : f32;
+    \\@compute @workgroup_size(256)
+    \\fn main(@builtin(workgroup_id) wid : vec3<u32>, @builtin(local_invocation_id) lid : vec3<u32>) {
+    \\  let i = wid.x + tile.xoff;
+    \\  let n = p.n;
+    \\  let d = p.d;
+    \\  if (i < n) {
+    \\    let row = i * n;
+    \\    for (var k = lid.x; k < d; k = k + 256u) { xi[k] = x[i * d + k]; }
+    \\    if (lid.x == 0u) { wbeta = 1.0; wlo = 0.0; whi = 1e30; wdone = 0u; wsum = 0.0; wlast = 1.0; }
+    \\    workgroupBarrier();
+    \\    for (var j = lid.x; j < n; j = j + 256u) {
+    \\      var acc = 0.0;
+    \\      for (var k = 0u; k < d; k = k + 1u) { let df = xi[k] - x[j * d + k]; acc = acc + df * df; }
+    \\      pm[row + j] = acc;
+    \\    }
+    \\    workgroupBarrier();
+    \\    for (var t = 0u; t < 50u; t = t + 1u) {
+    \\      let done = workgroupUniformLoad(&wdone);
+    \\      if (done == 1u) { break; }
+    \\      let beta = workgroupUniformLoad(&wbeta);
+    \\      var sp = 0.0;
+    \\      var spd = 0.0;
+    \\      for (var j = lid.x; j < n; j = j + 256u) {
+    \\        if (j != i) { let dd = pm[row + j]; let e = exp(-dd * beta); sp = sp + e; spd = spd + dd * e; }
+    \\      }
+    \\      s0[lid.x] = sp;
+    \\      s1[lid.x] = spd;
+    \\      workgroupBarrier();
+    \\      for (var s = 128u; s > 0u; s = s >> 1u) {
+    \\        if (lid.x < s) { s0[lid.x] = s0[lid.x] + s0[lid.x + s]; s1[lid.x] = s1[lid.x] + s1[lid.x + s]; }
+    \\        workgroupBarrier();
+    \\      }
+    \\      if (lid.x == 0u) {
+    \\        let sum = s0[0];
+    \\        wlast = beta;
+    \\        wsum = sum;
+    \\        if (sum <= 0.0) {
+    \\          wdone = 1u;
+    \\        } else {
+    \\          let h = log(sum) + beta * s1[0] / sum;
+    \\          let diff = h - p.tgt;
+    \\          if (abs(diff) < 1e-5) {
+    \\            wdone = 1u;
+    \\          } else if (diff > 0.0) {
+    \\            wlo = beta;
+    \\            if (whi >= 1e30) { wbeta = beta * 2.0; } else { wbeta = (beta + whi) * 0.5; }
+    \\          } else {
+    \\            whi = beta;
+    \\            wbeta = (beta + wlo) * 0.5;
+    \\          }
+    \\        }
+    \\      }
+    \\      workgroupBarrier();
+    \\    }
+    \\    let beta = workgroupUniformLoad(&wlast);
+    \\    let sum = workgroupUniformLoad(&wsum);
+    \\    for (var j = lid.x; j < n; j = j + 256u) {
+    \\      if (j == i) { pm[row + j] = 0.0; }
+    \\      else if (sum <= 0.0) { pm[row + j] = 1.0 / f32(n - 1u); }
+    \\      else { pm[row + j] = exp(-pm[row + j] * beta) / sum; }
+    \\    }
+    \\  }
+    \\}
+;
+
+const WGSL_PSYM = PRELUDE ++
+    \\struct P { n : u32, d : u32, tgt : f32, pad : f32 }
+    \\@group(0) @binding(1) var<uniform> p : P;
+    \\@group(0) @binding(2) var<storage, read_write> pm : array<f32>;
+    \\@compute @workgroup_size(256)
+    \\fn main(@builtin(workgroup_id) wid : vec3<u32>, @builtin(local_invocation_id) lid : vec3<u32>) {
+    \\  let i = wid.x + tile.xoff;
+    \\  let n = p.n;
+    \\  if (i >= n) { return; }
+    \\  let row = i * n;
+    \\  let scale = 1.0 / (2.0 * f32(n));
+    \\  for (var j = i + 1u + lid.x; j < n; j = j + 256u) {
+    \\    let v = (pm[row + j] + pm[j * n + i]) * scale;
+    \\    pm[row + j] = v;
+    \\    pm[j * n + i] = v;
+    \\  }
+    \\  if (lid.x == 0u) { pm[row + i] = 0.0; }
+    \\}
+;
+
+const PParams = extern struct { n: u32, d: u32, target: f32, pad: f32 };
+
+fn dispatchP(kernel: i64, params: *const PParams, bufs: []const i64, wx: usize) i32 {
+    const bytes = std.mem.asBytes(params);
+    return gpu.stz_gpu_dispatch_params(kernel, bytes.ptr, @floatFromInt(bytes.len), bufs.ptr, @intCast(bufs.len), @floatFromInt(wx), 1);
+}
+
+// the P a fit just built stays on the device for its epochs
+var g_p_resident: i64 = 0;
+var g_p_n: usize = 0;
+
+pub fn dropResidentP() void {
+    if (g_p_resident != 0) _ = gpu.stz_gpu_buffer_free(g_p_resident);
+    g_p_resident = 0;
+    g_p_n = 0;
+}
+
+/// Build the joint P on the device: returns true with p_out filled (f64, for
+/// the CPU parts of the fit and for the fallback) and the matrix resident for
+/// prepare() to adopt. `force` bypasses the gate (a guard's door). false =
+/// the CPU builds it, exactly as before; a refusal after eligibility counts.
+pub fn buildP(x: []const f64, n: usize, d: usize, perplexity: f64, p_out: []f64, force: bool) bool {
+    if (n < 4 or d == 0 or d > 1024) return false;
+    if (!force and n < g_min_n) return false;
+    if (!ensureDevice()) {
+        counters[C_FALLBACK] += 1;
+        return false;
+    }
+    dropResidentP();
+    const xf = alloc.alloc(f32, n * d) catch return refuseP();
+    defer alloc.free(xf);
+    for (x, 0..) |v, i| xf[i] = @floatCast(v);
+    const b_x = gpu.stz_gpu_buffer_new(@floatFromInt(n * d * 4));
+    defer if (b_x != 0) {
+        _ = gpu.stz_gpu_buffer_free(b_x);
+    };
+    const b_p = gpu.stz_gpu_buffer_new(@floatFromInt(n * n * 4));
+    if (b_x == 0 or b_p == 0) {
+        if (b_p != 0) _ = gpu.stz_gpu_buffer_free(b_p);
+        return refuseP();
+    }
+    if (gpu.stz_gpu_buffer_write(b_x, @ptrCast(xf.ptr), @floatFromInt(n * d * 4)) != gpu.OK) {
+        _ = gpu.stz_gpu_buffer_free(b_p);
+        return refuseP();
+    }
+    const k_rows = compile(WGSL_PROWS);
+    const k_sym = compile(WGSL_PSYM);
+    if (k_rows == 0 or k_sym == 0) {
+        _ = gpu.stz_gpu_buffer_free(b_p);
+        return refuseP();
+    }
+    _ = verify.stz_gpu_wake(400);
+    const params = PParams{ .n = @intCast(n), .d = @intCast(d), .target = @floatCast(@log(perplexity)), .pad = 0 };
+    _ = gpu.stz_gpu_batch_begin();
+    var st = dispatchP(k_rows, &params, &.{ b_x, b_p }, n);
+    if (st == gpu.OK) st = dispatchP(k_sym, &params, &.{b_p}, n);
+    _ = gpu.stz_gpu_batch_end();
+    if (st != gpu.OK) {
+        _ = gpu.stz_gpu_buffer_free(b_p);
+        return refuseP();
+    }
+    const pf = alloc.alloc(f32, n * n) catch {
+        _ = gpu.stz_gpu_buffer_free(b_p);
+        return refuseP();
+    };
+    defer alloc.free(pf);
+    if (gpu.stz_gpu_buffer_read(b_p, @ptrCast(pf.ptr), @floatFromInt(n * n * 4)) != gpu.OK) {
+        _ = gpu.stz_gpu_buffer_free(b_p);
+        return refuseP();
+    }
+    for (pf, 0..) |v, i| p_out[i] = @as(f64, v);
+    g_p_resident = b_p;
+    g_p_n = n;
+    counters[C_PBUILD_GPU] += 1;
+    return true;
+}
+
+fn refuseP() bool {
+    counters[C_FALLBACK] += 1;
+    return false;
+}
+
 // ---------------------------------------------------------------- a fit's session
 
 pub const Session = struct {
@@ -241,16 +433,25 @@ pub fn prepare(p: []const f64, n: usize, dims: usize) ?Session {
         counters[C_FALLBACK] += 1;
         return null;
     }
-    const pf = alloc.alloc(f32, n * n) catch {
+    // the P the device just built for this fit is adopted, not re-uploaded
+    var adopted: i64 = 0;
+    if (g_p_n == n and g_p_resident != 0 and gpu.stz_gpu_buffer_size(g_p_resident) >= 0) {
+        adopted = g_p_resident;
+        g_p_resident = 0;
+        g_p_n = 0;
+    }
+    const pf = alloc.alloc(f32, if (adopted != 0) 1 else n * n) catch {
         counters[C_FALLBACK] += 1;
         return null;
     };
     defer alloc.free(pf);
-    for (p, 0..) |v, i| pf[i] = @floatCast(v);
+    if (adopted == 0) {
+        for (p, 0..) |v, i| pf[i] = @floatCast(v);
+    }
 
     var s = Session{
         .n = n,
-        .b_p = gpu.stz_gpu_buffer_new(@floatFromInt(n * n * 4)),
+        .b_p = if (adopted != 0) adopted else gpu.stz_gpu_buffer_new(@floatFromInt(n * n * 4)),
         .b_y = gpu.stz_gpu_buffer_new(@floatFromInt(n * 2 * 4)),
         .b_qp = gpu.stz_gpu_buffer_new(@floatFromInt(n * 4)),
         .b_qs = gpu.stz_gpu_buffer_new(16),
@@ -266,7 +467,7 @@ pub fn prepare(p: []const f64, n: usize, dims: usize) ?Session {
     };
     const ok = s.b_p != 0 and s.b_y != 0 and s.b_qp != 0 and s.b_qs != 0 and s.b_dy != 0 and s.b_kl != 0 and
         s.k_q != 0 and s.k_r != 0 and s.k_g != 0 and
-        gpu.stz_gpu_buffer_write(s.b_p, @ptrCast(pf.ptr), @floatFromInt(n * n * 4)) == gpu.OK;
+        (adopted != 0 or gpu.stz_gpu_buffer_write(s.b_p, @ptrCast(pf.ptr), @floatFromInt(n * n * 4)) == gpu.OK);
     if (!ok) {
         release(&s);
         counters[C_FALLBACK] += 1;
