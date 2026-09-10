@@ -4009,3 +4009,40 @@ next:
   - me:      DN19, timelines -- the rank axis as time, with a scale
   - central: none
 ```
+
+```yaml
+by:        stzlib-graphics · claude-fable-5-1 · 2026-09-10 22:58
+
+subject:   DN19 timelines -- the axis as a scale, shipped
+
+why:       the next domain in the order the Principal accepted
+
+did:
+  - Built stzTimelineDiagram on the math plane: events as dots on one
+    ruled line where distance means duration, eras as bands beneath,
+    ticks from the usual ladder; nothing minted as an unknown.
+  - Laid the names in the builder: a name covers no column whose stem
+    reaches its level and two names on a level do not touch -- centred,
+    hung beside the stem, or a level up; the margins hold the first
+    and last names.
+  - Wrote three rules about time -- an era ends after it starts, a band
+    is not double-booked, an event placed in an era is dated inside it
+    -- each naming things and saying by how much; faults are drawn and
+    the marks held to the verdicts.
+  - Folded section 113 (28 assertions) and two pictures into the one
+    gate; the math catalogue is 44 scenes.
+
+state:
+  gg_adversarial:   1483 ok, 1 failed -- the plan table's freshness, regenerated; its section re-run standalone 45 ok
+  commit:           1bd8f62b4 on origin and codeberg, verified at the sha
+  domains left:     fishbone, network topology, floor plans, seating, maps
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the Principal's word on the next domain
+  - central: none
+```
