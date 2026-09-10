@@ -1280,6 +1280,19 @@ fn tidyTerritories(
         lo[v] = x[v] - h;
         hi[v] = x[v] + h;
     }
+    // A RETURN'S TARGET IS NOT A CHILD -- the same law centerParents keeps,
+    // and this pass had not heard of it. A cause among its own effects
+    // gives a gate one edge that points UP the picture, at the top event;
+    // read as a child here, the gate's territory ran from its leaves to
+    // the top event's column, and the next cell in the top's fan stood a
+    // whole slot from Jam over nothing: the fault tree's witness, marked
+    // by the Principal as "a very large distance". A child is below.
+    const rank = alloc.alloc(u32, n) catch return BAD_ARG;
+    defer alloc.free(rank);
+    for (0..nl) |rl| {
+        var rk = starts[rl];
+        while (rk < starts[rl + 1]) : (rk += 1) rank[order[rk]] = @intCast(rl);
+    }
 
     var L: usize = nl;
     while (L > 0) {
@@ -1292,6 +1305,12 @@ fn tidyTerritories(
         while (k < e) : (k += 1) {
             const v = order[k];
             if (out_off[v + 1] == out_off[v]) continue;
+            var fwd: u32 = 0;
+            var jf = out_off[v];
+            while (jf < out_off[v + 1]) : (jf += 1) {
+                if (rank[out_dst[jf]] > rank[v]) fwd += 1;
+            }
+            if (fwd == 0) continue;
             // CLAMPED INTO ITS CHILDREN'S SPAN, not pinned to their mean.
             //
             // Both extremes were tried and both were wrong. PINNING the
@@ -1314,6 +1333,7 @@ fn tidyTerritories(
             var first = true;
             var j = out_off[v];
             while (j < out_off[v + 1]) : (j += 1) {
+                if (rank[out_dst[j]] <= rank[v]) continue;
                 const cx = x[out_dst[j]];
                 if (first) {
                     clo = cx;
@@ -1333,6 +1353,7 @@ fn tidyTerritories(
             j = out_off[v];
             while (j < out_off[v + 1]) : (j += 1) {
                 const c = out_dst[j];
+                if (rank[c] <= rank[v]) continue;
                 if (lo[c] < lo[v]) lo[v] = lo[c];
                 if (hi[c] > hi[v]) hi[v] = hi[c];
             }
@@ -1524,11 +1545,21 @@ fn relaxLayer(
 }
 
 /// A node's extra half-width demand, or zero when none was supplied.
+///
+/// SIGNED. A positive demand is a node asking for more than its slot -- an
+/// edge label wider than the node it points at. A NEGATIVE one is a node
+/// that draws narrower than its slot giving the room back: a 40px mark in
+/// a 150px cell held the whole cell, two of them under one parent gave the
+/// parent a territory a cell wider than anything it drew, and the next
+/// cell stood 315px from it over nothing (the fault tree's witness, marked
+/// by the Principal). The face bounds a negative demand above -0.45 of a
+/// slot, so any pair's separation `sep + d[a] + d[b]` stays a positive
+/// share of `sep`; only a value that is not a number is refused here.
 fn demand(extra: []const f64, v: u32) f64 {
     if (extra.len == 0) return 0;
     const i: usize = @intCast(v);
     if (i >= extra.len) return 0;
     const d = extra[i];
-    if (!(d > 0)) return 0;
+    if (d != d) return 0;
     return d;
 }
