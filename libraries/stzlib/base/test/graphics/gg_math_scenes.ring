@@ -1045,3 +1045,57 @@ func StzMathGanttWitness(poFont)
 	_o_ = StzGanttDiagram(poFont, StzMathProjectWrongTasks(), StzMathProjectWrongDeps())
 	_o_.SetVariation("wrong")
 	return _o_
+
+# A TIMELINE (DN19): the history of computing in years -- nine events on
+# one scale, four eras beneath it, and the names laid so that none covers
+# another event's column.
+func StzMathHistoryEvents()
+	return [ [ "Turing's machine",        1936 ],
+	         [ "ENIAC",                   1945, "Vacuum tubes" ],
+	         [ "The transistor",          1947 ],
+	         [ "The integrated circuit",  1958, "Transistors" ],
+	         [ "ARPANET",                 1969, "Transistors" ],
+	         [ "The microprocessor",      1971, "Microprocessors" ],
+	         [ "The IBM PC",              1981, "Microprocessors" ],
+	         [ "The Web",                 1991, "The Web" ],
+	         [ "The iPhone",              2007, "The Web" ] ]
+
+func StzMathHistoryEras()
+	return [ [ "Vacuum tubes",    1940, 1955 ],
+	         [ "Transistors",     1955, 1971 ],
+	         [ "Microprocessors", 1971, 1991 ],
+	         [ "The Web",         1991, 2010 ] ]
+
+func StzMathScene43(poFont)
+	_o_ = StzTimelineDiagram(poFont, StzMathHistoryEvents(), StzMathHistoryEras())
+	_o_.SetVariation("history")
+	return _o_
+
+# THE SAME HISTORY WITH THREE THINGS WRONG, one per rule: an era that ends
+# before it starts; two eras put on one band where they overlap by a year;
+# and ENIAC placed in the transistors' era, ten years before it begins.
+# The witness the gate is meant to find things in.
+func StzMathHistoryWrongEvents()
+	return [ [ "Turing's machine",        1936 ],
+	         [ "ENIAC",                   1945, "Transistors" ],
+	         [ "The transistor",          1947 ],
+	         [ "The integrated circuit",  1958, "Transistors" ],
+	         [ "ARPANET",                 1969, "Transistors" ],
+	         [ "The microprocessor",      1971, "Microprocessors" ],
+	         [ "The IBM PC",              1981, "Microprocessors" ],
+	         [ "The Web",                 1991, "The Web" ],
+	         [ "The iPhone",              2007, "The Web" ] ]
+
+func StzMathHistoryWrongEras()
+	return [ [ "Vacuum tubes",    1940, 1955 ],
+	         [ "Transistors",     1955, 1971 ],
+	         [ "Microprocessors", 1971, 1991 ],
+	         [ "The Web",         1991, 2010 ],
+	         [ "Mainframes",      1948, 1962, 2 ],
+	         [ "Minicomputers",   1961, 1975, 2 ],
+	         [ "Backwards",       1990, 1980 ] ]
+
+func StzMathTimelineWitness(poFont)
+	_o_ = StzTimelineDiagram(poFont, StzMathHistoryWrongEvents(), StzMathHistoryWrongEras())
+	_o_.SetVariation("wrong")
+	return _o_

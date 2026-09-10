@@ -122,6 +122,7 @@ sections, of which 21 declarations over 17 items.
 | DN16 | closed | 110 |
 | DN17 | closed | 111 |
 | DN18 | closed | 112 |
+| DN19 | closed | 113 |
 | DN9 | closed | - |
 | DN9a | closed | 97 |
 | DN9b | closed | 98 |
@@ -3640,6 +3641,63 @@ siblings by birth, and dates finer than a year.
 
 *Guard:* §112, 27 assertions; §91 grew by four pictures. Catalogue:
 `gg_family_catalogue.ring`, family_01 to family_04.
+
+## DN19 — A TIMELINE: the axis as a scale, every mark on it a datum (2026-09-10, SHIPPED)
+
+**The rank axis as time.** The Gantt drew time as bars on lanes and the
+family tree drew generations as ranks; a timeline is the axis itself — one
+ruled line where *distance means duration*, events as dots on it named
+above, eras as bands beneath it. It is the Gantt's kind of picture: every
+position computed from a number the author gave, nothing minted as an
+unknown, the solver reporting *nothing to lay out*, and still a
+mathematical diagram — it answers `Fact()` in the author's unit
+(`e9.t − e1.t is 71 years`), sits in a storyboard, is judged by the one
+gate and renders through `Rendition()`. It lives in
+`base/graph/stzTimelineDiagram.ring`.
+
+**What it is.** `StzTimelineDomain()`: `Event`, `Era`, `Tick`, `Axis`, and
+`Belonging(Event, Era)` — an event the author places in an era, the one
+claim a timeline makes that its own drawing cannot show to be false.
+`StzTimelineFromEvents(events, eras)` takes `[name, t]` or `[name, t, era]`
+and `[name, from, to]` or `[name, from, to, band]`; it maps time to pixels,
+chooses the axis step from the usual ladder so the axis has ten ticks or
+fewer, assigns each era the first band it does not overlap on, and lays the
+names. `StzTimelineStyle(levels, bands)`: the axis as one line, a tick as a
+cross-mark with its time beneath, an event as a dot with a stem up to its
+name, an era as a band in the primary colour with its name inside — or
+beside the band when the band is too short for it. `StzTimelineDiagram(font,
+events, eras)` is the whole picture in one call.
+
+**The law it mints is the laying of the names, and it is the builder's.** A
+name over another event's column would put that event's stem through it,
+and two names on one level would run together; so the builder lays each
+name, in the order the events happen, at the lowest level where it covers
+no other event's column and touches no name on that level — centred on
+its stem when it can be, hung to the right of it when it cannot, to the
+left when it still cannot, and a level up otherwise. The axis stands below
+the levels the names took. And the margins hold the first and the last
+name: the earliest event's name, centred on its dot, ran seven pixels off
+the paper's left edge, and hanging it inward would have covered the next
+column; a margin is at least half the name that stands over it.
+
+**Three rules, every one about time.** `era_ends_after_it_starts`,
+`band_not_double_booked` (reported on both eras, since each is booked;
+touching ends are not an overlap), `event_within_its_era` (inclusive at
+both ends, saying by how many years and which way). A fault is drawn: a
+reversed era as a band between its two times in the colour of a fault, a
+double-booked era with a red edge, an event outside its era with a red
+dot — and the gate holds the marks to the rules' verdicts. The corpus
+carries the history of computing, lawful, and a witness with one of each
+mistake.
+
+**Said plainly and left out.** Time is a number in the author's unit and
+the axis writes the number; a calendar is a labelling this item does not
+do. Names are laid above the axis only — a timeline dense enough to need
+both sides is a timeline that wants two pictures. Durations of events,
+uncertainty, and links between events are not here.
+
+*Guard:* §113, 28 assertions; §91 grew by two pictures. Catalogue:
+`gg_math_catalogue.ring`, scenes 43 and 44.
 
 ## DN9 — THE TOLD PICTURE: a narration is facts made visible, in an order (planned 2026-09-06, SHIPPED 2026-09-07 as DN9a through DN9g, all seven closed)
 
