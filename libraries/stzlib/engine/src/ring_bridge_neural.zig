@@ -282,6 +282,22 @@ fn ring_NeuralVariantClear(p: *anyopaque) callconv(.c) void {
     rn(p, 1);
 }
 
+// GK2c: the attention foundry -- FoundryAttention(n_tok, n_embd, n_head, reps, mask)
+fn ring_AttentionFoundry(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(nbb.neural_attention_foundry(R.ring_vm_api_getnumber(p, 1), R.ring_vm_api_getnumber(p, 2), R.ring_vm_api_getnumber(p, 3), R.ring_vm_api_getnumber(p, 4), R.ring_vm_api_getnumber(p, 5))));
+}
+fn ring_AttentionFoundryResult(p: *anyopaque) callconv(.c) void {
+    rn(p, nbb.neural_attention_foundry_result(@intFromFloat(R.ring_vm_api_getnumber(p, 1))));
+}
+fn ring_AttentionVariantName(p: *anyopaque) callconv(.c) void {
+    var buf: [32]u8 = undefined;
+    const n = nbb.neural_attention_variant_name(R.ring_vm_api_getnumber(p, 1), &buf, buf.len);
+    R.ring_vm_api_retstring2(p, &buf, @intCast(n));
+}
+fn ring_AttentionVariantUsed(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(nbb.neural_attention_variant_used()));
+}
+
 fn ring_BackboneEmbed(p: *anyopaque) callconv(.c) void {
     const ptr = gs(p, 1);
     const len: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
@@ -501,6 +517,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineneuralbackbonemintokens", .func = &ring_BackboneMinTokens },
     .{ .name = "stzengineneuralbackboneroutecount", .func = &ring_BackboneRouteCount },
     .{ .name = "stzengineneuralbackboneroutereset", .func = &ring_BackboneRouteReset },
+    .{ .name = "stzengineneuralattentionfoundry", .func = &ring_AttentionFoundry },
+    .{ .name = "stzengineneuralattentionfoundryresult", .func = &ring_AttentionFoundryResult },
+    .{ .name = "stzengineneuralattentionvariantname", .func = &ring_AttentionVariantName },
+    .{ .name = "stzengineneuralattentionvariantused", .func = &ring_AttentionVariantUsed },
     .{ .name = "stzengineneuralvariantset", .func = &ring_NeuralVariantSet },
     .{ .name = "stzengineneuralvariantget", .func = &ring_NeuralVariantGet },
     .{ .name = "stzengineneuralvariantclear", .func = &ring_NeuralVariantClear },
