@@ -305,6 +305,12 @@ pub fn run(
 
     const p = try alloc.alloc(f64, n * n);
     defer alloc.free(p);
+    // GS6b: the joint P is built on the device when the corpus earned it -- the
+    // per-row bandwidth search and the symmetrisation, the matrix left resident
+    // for the epochs -- and the CPU builds it exactly as before otherwise.
+    defer tsne_gpu.dropResidentP();
+    const p_on_device = opts.dims == 2 and tsne_gpu.buildP(x, n, d, opts.perplexity, p, false);
+    if (!p_on_device) {
     try conditionalP(alloc, x, n, d, opts.perplexity, p);
 
     // SYMMETRISE: P_ij = (P_j|i + P_i|j) / 2n. The conditional matrix is not
@@ -323,6 +329,7 @@ pub fn run(
             p[i * n + i] = 0;
         }
     }
+    } // !p_on_device
 
     const y = try alloc.alloc(f64, n * dims);
     errdefer alloc.free(y);

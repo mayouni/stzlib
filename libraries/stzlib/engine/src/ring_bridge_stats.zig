@@ -2717,6 +2717,61 @@ fn ring_PcaTransform(p: *anyopaque) callconv(.c) void {
 //   StzEngineTsneGpuSetMinN(n) / MinN()   the gate a corpus must reach
 //   StzEngineTsneGpuCounter(i)            0 epochs on the device, 1 fallbacks, 2 fits served
 //   StzEngineTsneGpuCountersReset() / State()   0 untried, 1 live, 2 failed
+// StzEngineTsneJointP(aXFlat, n, d, perplexity) -> the joint P, flat n*n (CPU)
+// StzEngineTsneGpuJointP(...)                    -> the same, built on the device (bypasses the gate)
+fn ring_TsneJointP(p: *anyopaque) callconv(.c) void {
+    const x = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(x);
+    const n: usize = @intFromFloat(g(p, 2));
+    const d: usize = @intFromFloat(g(p, 3));
+    if (n < 4 or d == 0 or x.len != n * d) {
+        rn(p, 0);
+        return;
+    }
+    const pm = allocator.alloc(f64, n * n) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(pm);
+    tsne_mod.jointP(allocator, x, n, d, g(p, 4), pm) catch {
+        rn(p, 0);
+        return;
+    };
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (pm) |v| R.ring_list_adddouble(out, v);
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn ring_TsneGpuJointP(p: *anyopaque) callconv(.c) void {
+    const x = listToF64(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(x);
+    const n: usize = @intFromFloat(g(p, 2));
+    const d: usize = @intFromFloat(g(p, 3));
+    if (n < 4 or d == 0 or x.len != n * d) {
+        rn(p, 0);
+        return;
+    }
+    const pm = allocator.alloc(f64, n * n) catch {
+        rn(p, 0);
+        return;
+    };
+    defer allocator.free(pm);
+    if (!tsne_gpu.buildP(x, n, d, g(p, 4), pm, true)) {
+        rn(p, 0);
+        return;
+    }
+    tsne_gpu.dropResidentP();
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (pm) |v| R.ring_list_adddouble(out, v);
+    R.ring_vm_api_retlist(p, out);
+}
+
 fn ring_TsneGpuRuntimePath(p: *anyopaque) callconv(.c) void {
     const ptr = R.ring_vm_api_getstring(p, 1);
     const len = R.ring_vm_api_getstringsize(p, 1);
@@ -3398,6 +3453,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginepcafit", .func = &ring_PcaFit },
     .{ .name = "stzenginetsne", .func = &ring_Tsne },
     // GS6a: the t-SNE epoch on the GPU
+    .{ .name = "stzenginetsnejointp", .func = &ring_TsneJointP },
+    .{ .name = "stzenginetsnegpujointp", .func = &ring_TsneGpuJointP },
     .{ .name = "stzenginetsnegpuruntimepath", .func = &ring_TsneGpuRuntimePath },
     .{ .name = "stzenginetsnegpusetminn", .func = &ring_TsneGpuSetMinN },
     .{ .name = "stzenginetsnegpuminn", .func = &ring_TsneGpuMinN },
