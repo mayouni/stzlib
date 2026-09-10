@@ -3977,3 +3977,35 @@ next:
   - me:      the Principal's word
   - central: none
 ```
+
+```yaml
+by:        stzlib-graphics · claude-fable-5-1 · 2026-09-10 22:13
+
+subject:   the Petri and ER catalogues at the house type size
+
+why:       the Principal's rule -- every catalogue at 150x56 cells, 20pt --
+           had two catalogues still at 13pt
+
+did:
+  - Moved both catalogues and the gate's options to the house size.
+  - Measured the slot base once, before the demands are sent, so the
+    demand and the scale read one number: an entity of two rows under
+    a left-to-right schema was stacked at the tallest entity's pitch.
+  - Sized a bar's thickness as a mark's, the scale of the smaller cell
+    dimension: under a left-to-right net it had scaled with the widest
+    name, and a note made every transition a 20px block.
+  - Re-rendered the top-down catalogues: byte-identical.
+
+state:
+  gg_adversarial:   1456 ok, 0 failed
+  commit:           5670ecf9f on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      DN19, timelines -- the rank axis as time, with a scale
+  - central: none
+```
