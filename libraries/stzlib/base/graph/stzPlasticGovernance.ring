@@ -60,10 +60,21 @@ func StzPlasticGovernanceQ(pcName)
 func StzPlasticGovernance(pcName)
 	return new stzRuleGovernance(pcName)
 
+# a math picture solved in place, so that a copy of it carries the solution
+# (a function, because classname() inside a method is the object's own)
+func _PgSolvePicture(poDg)
+	if isObject(poDg) and StzLower(classname(poDg)) = "stzmathdiagram"
+		poDg.Layout()
+	ok
+
 class stzRuleGovernance from stzObject
 
 	@cName = ""
 	@aoRules = []
+	# the scopes and counters of every rule over every picture, built by
+	# CheckRules once and read by every question it asks
+	@aScopeTable = []
+	@aCounterTable = []
 	@aoCorpus = []      # [ [ cName, oDiagram ], ... ] -- already rendered
 	@aFindings = []
 	@aPrecedence = []   # [ [ cRuleA, cRuleB, cWhy ], ... ] -- A wins over B
@@ -96,7 +107,16 @@ class stzRuleGovernance from stzObject
 		@aoCorpus + [ "" + pcName, poSubject ]
 		return This
 
+	# A PICTURE IS SOLVED BEFORE IT IS COPIED. Ring copies an object into
+	# a list, and a copy of an unsolved picture solves itself again the
+	# first time a scope asks it anything -- so a corpus of 52 unsolved
+	# pictures paid 52 layouts at its first question, 26 seconds of the
+	# gate's governor, and the caller's own picture paid the same again
+	# when it was asked. Solved here, in the caller's hand (a parameter is
+	# a reference), the copy carries the solution and every later copy of
+	# the caller's picture does too.
 	def AddPicture(pcName, poDg)
+		_PgSolvePicture(poDg)
 		return This.AddCase(pcName, poDg)
 
 	# A DECLARED PRECEDENCE between two rules that reach for one subject.
@@ -140,6 +160,25 @@ class stzRuleGovernance from stzObject
 		_aF_ = []
 		_nR_ = len(@aoRules)
 		_nC_ = len(@aoCorpus)
+		# THE SCOPES, ONCE. Every question below asks what a rule governs
+		# in a picture, and the contested-subject question asked it for
+		# every PAIR of rules -- 39,000 scope calls over a corpus of 88
+		# where 2,900 answer the same thing. The plane's own law (a value
+		# recomputed inside a loop that cannot change while the loop runs)
+		# read back at itself: the table is built here, and every
+		# question reads it. Same answers, a thirtieth of the calls.
+		@aScopeTable = []
+		@aCounterTable = []
+		for _iR_ = 1 to _nR_
+			_aS1_ = []
+			_aC1_ = []
+			for _iC_ = 1 to _nC_
+				_aS1_ + @aoRules[_iR_].SubjectsIn(@aoCorpus[_iC_][2])
+				_aC1_ + @aoRules[_iR_].CounterSubjectsIn(@aoCorpus[_iC_][2])
+			next
+			@aScopeTable + _aS1_
+			@aCounterTable + _aC1_
+		next
 
 		# how many subjects each rule governs, and how many it COULD, so
 		# "vacuous" is a ratio rather than a feeling
@@ -148,8 +187,8 @@ class stzRuleGovernance from stzObject
 			_nGov_ = 0
 			_nCnt_ = 0
 			for _iC_ = 1 to _nC_
-				_nGov_ += len(_oR_.SubjectsIn(@aoCorpus[_iC_][2]))
-				_nCnt_ += len(_oR_.CounterSubjectsIn(@aoCorpus[_iC_][2]))
+				_nGov_ += len(@aScopeTable[_iR_][_iC_])
+				_nCnt_ += len(@aCounterTable[_iR_][_iC_])
 			next
 
 			# EMPTY -- governs nothing in the whole corpus
@@ -168,7 +207,7 @@ class stzRuleGovernance from stzObject
 			   NOT _oR_.IsUniversal()
 				_bAll_ = 1
 				for _iC_ = 1 to _nC_
-					if len(_oR_.SubjectsIn(@aoCorpus[_iC_][2])) = 0
+					if len(@aScopeTable[_iR_][_iC_]) = 0
 						_bAll_ = 0  exit
 					ok
 				next
@@ -209,8 +248,8 @@ class stzRuleGovernance from stzObject
 				_cShared_ = ""
 				_cPic_ = ""
 				for _iC_ = 1 to _nC_
-					_aSa_ = _oA_.SubjectsIn(@aoCorpus[_iC_][2])
-					_aSb_ = _oB_.SubjectsIn(@aoCorpus[_iC_][2])
+					_aSa_ = @aScopeTable[_iA_][_iC_]
+					_aSb_ = @aScopeTable[_iB_][_iC_]
 					_nSa_ = len(_aSa_)
 					for _iSa_ = 1 to _nSa_
 						_nSb_ = len(_aSb_)
@@ -312,9 +351,22 @@ class stzRuleGovernance from stzObject
 	# Do two rules govern any subject in common, anywhere in the corpus?
 	def _SubjectsOverlap(poA, poB)
 		_nC_ = len(@aoCorpus)
+		# from the table CheckRules built, where it did; asked directly
+		# otherwise, which is what a caller outside CheckRules gets
+		_nIa_ = 0  _nIb_ = 0
+		for _iR_ = 1 to len(@aoRules)
+			if @aoRules[_iR_].Name_() = poA.Name_()  _nIa_ = _iR_  ok
+			if @aoRules[_iR_].Name_() = poB.Name_()  _nIb_ = _iR_  ok
+		next
+		_bTab_ = _nIa_ > 0 and _nIb_ > 0 and len(@aScopeTable) = len(@aoRules)
 		for _iC_ = 1 to _nC_
-			_aA_ = poA.SubjectsIn(@aoCorpus[_iC_][2])
-			_aB_ = poB.SubjectsIn(@aoCorpus[_iC_][2])
+			if _bTab_
+				_aA_ = @aScopeTable[_nIa_][_iC_]
+				_aB_ = @aScopeTable[_nIb_][_iC_]
+			else
+				_aA_ = poA.SubjectsIn(@aoCorpus[_iC_][2])
+				_aB_ = poB.SubjectsIn(@aoCorpus[_iC_][2])
+			ok
 			_nA_ = len(_aA_)
 			for _iA_ = 1 to _nA_
 				_nB_ = len(_aB_)

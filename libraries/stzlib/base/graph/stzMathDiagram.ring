@@ -914,15 +914,8 @@ func _MrBoxGap(paBox, paSeg)
 
 # the names that are drawn: non-empty, not hidden
 func _MrTexts(poDg)
-	_a_ = []
-	_ac_ = poDg.Shapes()
-	for _i_ = 1 to len(_ac_)
-		if poDg.ShapeOf(_ac_[_i_])[:kind] != "text"  loop  ok
-		if poDg.IsHidden(_ac_[_i_])  loop  ok
-		if "" + poDg.PropOf(_ac_[_i_], "string", "") = ""  loop  ok
-		_a_ + _ac_[_i_]
-	next
-	return _a_
+	# asked of the picture, which keeps the answer until it is touched
+	return poDg.Texts()
 
 func _MrBoxOf(poDg, pcText)
 	_s_ = poDg.ShapeOf(pcText)
@@ -1694,15 +1687,21 @@ func StzCheckPictures(paPictures)
 	_nN_ = 0  _nM_ = 0
 	for _i_ = 1 to len(paPictures)
 		_cN_ = "" + paPictures[_i_][1]
-		_o_ = paPictures[_i_][2]
-		if NOT isObject(_o_)  loop  ok
-		_cC_ = StzLower(classname(_o_))
+		if NOT isObject(paPictures[_i_][2])  loop  ok
+		_cC_ = StzLower(classname(paPictures[_i_][2]))
 		if _cC_ = "stzmathdiagram"
-			_oMa_.AddPicture(_cN_, _o_)
-			_oRep_.Ingest(_MrTagged(_o_.Violations(), _cN_))
+			# SOLVED IN THE CALLER'S LIST, ONCE. Every read below is a copy
+			# (Ring copies an object it assigns or stores), and a copy of an
+			# unsolved picture solves itself again when first asked: the
+			# corpus copy paid one layout and the local copy another, 88
+			# pictures twice over. The list is a reference, so the picture
+			# solved here stays solved for the caller's next governance too.
+			paPictures[_i_][2].Layout()
+			_oMa_.AddPicture(_cN_, paPictures[_i_][2])
+			_oRep_.Ingest(_MrTagged(paPictures[_i_][2].Violations(), _cN_))
 			_nM_++
 		else
-			_oPl_.AddPicture(_cN_, _o_)
+			_oPl_.AddPicture(_cN_, paPictures[_i_][2])
 			_nN_++
 		ok
 	next
@@ -3838,6 +3837,8 @@ class stzMathDiagram from stzObject
 	@aVCache = []       # _MdKey(cName) -> nValue -- what _V last answered
 	@aInkCache = []     # the drawn ink as segments, once per solve
 	@bInkCached = FALSE
+	@aTextsCache = []   # the drawn names, once per solve -- the same law
+	@bTextsCached = FALSE
 	# INDEXES (DN8f): every name-keyed table above has a hash list beside
 	# it, rebuilt by _Reindex when a table is replaced wholesale
 	@aShapeIdx = []     # _MdKey(cPath) -> index in @aShapes
@@ -9012,6 +9013,7 @@ class stzMathDiagram from stzObject
 		@aVCache = []
 		@aRoleCache = []
 		@bInkCached = FALSE
+		@bTextsCached = FALSE
 		@bDrawOrdered = FALSE
 		return This
 
@@ -9024,6 +9026,28 @@ class stzMathDiagram from stzObject
 			@bInkCached = TRUE
 		ok
 		return @aInkCache
+
+	# EVERY DRAWN NAME -- the text shapes that are visible and say
+	# something -- once per solve, like the ink. Every name rule's scope
+	# listed them by resolving every shape of the picture, and the
+	# governance asks a scope thousands of times: on the five-thousand-dot
+	# picture that was five thousand resolutions per ask.
+	def Texts()
+		This.Layout()
+		if NOT @bTextsCached
+			_a_ = []
+			_n_ = len(@aShapes)
+			for _i_ = 1 to _n_
+				_c_ = @aShapes[_i_][1]
+				if @aShapes[_i_][2] != "text"  loop  ok
+				if This.IsHidden(_c_)  loop  ok
+				if "" + This.PropOf(_c_, "string", "") = ""  loop  ok
+				_a_ + _c_
+			next
+			@aTextsCache = _a_
+			@bTextsCached = TRUE
+		ok
+		return @aTextsCache
 
 	def _VUncached(pcName)
 		_c_ = "" + pcName
