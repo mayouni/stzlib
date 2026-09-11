@@ -150,6 +150,35 @@ func StzSeatingFromTablesXT(poFont, paTables, paGuests, paApart)
 	# metres to pixels: the hall fills the paper's width less its margins
 	_nM_ = StzSeatingMargin()
 	_nK_ = (StzSeatingWidth() - 2 * _nM_) / (_nX1_ - _nX0_)
+
+	# THE TABLES ARE SPREAD SO THAT EVERY NAME CLEARS EVERY OTHER TABLE ON
+	# ALL SIDES. The host writes where a table stands; the layout owns the
+	# geometry, and a name is geometry the host never typed. Each table's
+	# extent -- disc, seats and the names hung beyond them -- is measured,
+	# and two extents that meet are pushed apart along the axis of least
+	# overlap, half each, until none meet; a table placed left of another
+	# stays left of it. The Principal asked for it in these words: tables
+	# spaced so that chairs and labels are clearly separated on all sides.
+	# Twice, because the names are measured in pixels and the scale
+	# follows the spread.
+	_aPos_ = []
+	for _i_ = 1 to _nT_  _aPos_ + [ paTables[_i_][4], paTables[_i_][5] ]  next
+	for _pass_ = 1 to 2
+		_aExt_ = []
+		for _i_ = 1 to _nT_
+			_aExt_ + _StExtentOf(poFont, paTables[_i_], paGuests, _nK_)
+		next
+		_aPos_ = _StSpread(_aPos_, _aExt_)
+		_nX0_ = _aPos_[1][1] - _aExt_[1][1]  _nX1_ = _aPos_[1][1] + _aExt_[1][1]
+		_nY0_ = _aPos_[1][2] - _aExt_[1][2]  _nY1_ = _aPos_[1][2] + _aExt_[1][2]
+		for _i_ = 2 to _nT_
+			if _aPos_[_i_][1] - _aExt_[_i_][1] < _nX0_  _nX0_ = _aPos_[_i_][1] - _aExt_[_i_][1]  ok
+			if _aPos_[_i_][1] + _aExt_[_i_][1] > _nX1_  _nX1_ = _aPos_[_i_][1] + _aExt_[_i_][1]  ok
+			if _aPos_[_i_][2] - _aExt_[_i_][2] < _nY0_  _nY0_ = _aPos_[_i_][2] - _aExt_[_i_][2]  ok
+			if _aPos_[_i_][2] + _aExt_[_i_][2] > _nY1_  _nY1_ = _aPos_[_i_][2] + _aExt_[_i_][2]  ok
+		next
+		_nK_ = (StzSeatingWidth() - 2 * _nM_) / (_nX1_ - _nX0_)
+	next
 	_nH_ = ceil((_nY1_ - _nY0_) * _nK_ + 2 * _nM_)
 
 	# THE TABLES AND THEIR SEATS
@@ -164,15 +193,21 @@ func StzSeatingFromTablesXT(poFont, paTables, paGuests, paApart)
 		_oS_.SetData(_cT_, "given", 0)
 		_oS_.SetData(_cT_, "mx", _a_[4])
 		_oS_.SetData(_cT_, "my", _a_[5])
-		_nCx_ = _nM_ + (_a_[4] - _nX0_) * _nK_
-		_nCy_ = _nM_ + (_a_[5] - _nY0_) * _nK_
+		# where it stands once spread, in metres, and its extent
+		_oS_.SetData(_cT_, "sx", _aPos_[_i_][1])
+		_oS_.SetData(_cT_, "sy", _aPos_[_i_][2])
+		_oS_.SetData(_cT_, "rx", _aExt_[_i_][1])
+		_oS_.SetData(_cT_, "ry", _aExt_[_i_][2])
+		_nCx_ = _nM_ + (_aPos_[_i_][1] - _nX0_) * _nK_
+		_nCy_ = _nM_ + (_aPos_[_i_][2] - _nY0_) * _nK_
 		_oS_.SetData(_cT_, "cx", _nCx_)
 		_oS_.SetData(_cT_, "cy", _nCy_)
 		if _cK_ = "round"
 			_oS_.Assert("Round", [ _cT_ ])
 			_nR_ = StzSeatingRadiusFor(_nS_)
 			_oS_.SetData(_cT_, "r", _nR_ * _nK_)
-			_oS_.SetData(_cT_, "reach", _nR_ + StzSeatingSeatGap() + StzSeatingSeatRadius())
+			_oS_.SetData(_cT_, "reachx", _StSeatReachXY(_a_)[1])
+			_oS_.SetData(_cT_, "reachy", _StSeatReachXY(_a_)[2])
 			for _k_ = 1 to _nS_
 				_nA_ = 0 - 1.5707963 + 6.2831853 * (_k_ - 1) / _nS_
 				_nSd_ = _nR_ + StzSeatingSeatGap()
@@ -184,20 +219,23 @@ func StzSeatingFromTablesXT(poFont, paTables, paGuests, paApart)
 			_oS_.Assert("Long", [ _cT_ ])
 			_nUp_ = ceil(_nS_ / 2)
 			_nDn_ = _nS_ - _nUp_
-			_nLen_ = 0.6 * _nUp_ + 0.3
+			_nPt_ = _aExt_[_i_][3]
+			_nLen_ = _nPt_ * _nUp_ + 0.3
 			_oS_.SetData(_cT_, "w", _nLen_ * _nK_)
 			_oS_.SetData(_cT_, "h", 0.9 * _nK_)
-			_oS_.SetData(_cT_, "reach", _nLen_ / 2)
+			_oS_.SetData(_cT_, "pitch", _nPt_)
+			_oS_.SetData(_cT_, "reachx", _StSeatReachXY(_a_)[1])
+			_oS_.SetData(_cT_, "reachy", _StSeatReachXY(_a_)[2])
 			_k_ = 0
 			for _j_ = 1 to _nUp_
 				_k_++
-				_nSx_ = _nCx_ + (0.6 * (_j_ - 0.5) - _nLen_ / 2 + 0.15) * _nK_
+				_nSx_ = _nCx_ + (_nPt_ * (_j_ - 0.5) - _nLen_ / 2 + 0.15) * _nK_
 				_StSeat(_oS_, _cT_, _k_, _nSx_, _nCy_ - (0.45 + StzSeatingSeatGap()) * _nK_,
 					_nSx_, _nCy_ - (0.45 + StzSeatingNameGap()) * _nK_, 0, _nK_)
 			next
 			for _j_ = 1 to _nDn_
 				_k_++
-				_nSx_ = _nCx_ + (0.6 * (_j_ - 0.5) - _nLen_ / 2 + 0.15) * _nK_
+				_nSx_ = _nCx_ + (_nPt_ * (_j_ - 0.5) - _nLen_ / 2 + 0.15) * _nK_
 				_StSeat(_oS_, _cT_, _k_, _nSx_, _nCy_ + (0.45 + StzSeatingSeatGap()) * _nK_,
 					_nSx_, _nCy_ + (0.45 + StzSeatingNameGap()) * _nK_, 0, _nK_)
 			next
@@ -305,6 +343,65 @@ func StzSeatingFromTablesXT(poFont, paTables, paGuests, paApart)
 	_oS_.SetData("t1", "paperh", _nH_)
 	return _oS_
 
+# HOW FAR A TABLE REACHES from its centre once its names are hung: [ x, y ]
+# in metres, names measured in pixels at the scale given. A round table
+# reaches its name gap plus the widest name it seats on either side; a
+# long one half its slab plus half a name at each end.
+func _StExtentOf(poFont, paT, paGuests, pnK)
+	_nWide_ = 0
+	for _g_ = 1 to len(paGuests)
+		if StzLower(ring_trim("" + paGuests[_g_][2])) != StzLower(ring_trim("" + paT[1]))  loop  ok
+		_nW_ = _StNameWidth(poFont, "" + paGuests[_g_][1]) / pnK
+		if _nW_ > _nWide_  _nWide_ = _nW_  ok
+	next
+	_nTall_ = 16 / pnK
+	_cK_ = StzLower(ring_trim("" + paT[2]))
+	if _cK_ = "round"
+		_nR_ = StzSeatingRadiusFor(paT[3]) + StzSeatingNameGap()
+		return [ _nR_ + _nWide_ + 0.1, _nR_ + _nTall_ / 2 + 0.1, 0 ]
+	ok
+	# A LONG TABLE'S SEATS ARE A NAME APART: the pitch is six tenths of a
+	# metre, or the widest name it seats and some air where the scale
+	# makes that more
+	_nUp_ = ceil(paT[3] / 2)
+	_nPitch_ = 0.6
+	if _nWide_ + 8 / pnK > _nPitch_  _nPitch_ = _nWide_ + 8 / pnK  ok
+	return [ (_nPitch_ * _nUp_ + 0.3) / 2 + _nWide_ / 2 + 0.1, 0.45 + StzSeatingNameGap() + _nTall_ / 2 + 0.1, _nPitch_ ]
+
+# THE SPREAD. Two tables whose extents meet, with a clearance between,
+# are pushed apart along the axis of least overlap, half each; the
+# passes repeat until no pair meets. Deterministic: pairs in order, the
+# same arithmetic every time.
+func _StSpread(paPos, paExt)
+	_nGap_ = 0.3
+	_aP_ = []
+	for _i_ = 1 to len(paPos)  _aP_ + [ paPos[_i_][1], paPos[_i_][2] ]  next
+	for _pass_ = 1 to 60
+		_bMoved_ = FALSE
+		for _i_ = 1 to len(_aP_)
+			for _j_ = _i_ + 1 to len(_aP_)
+				_nOx_ = paExt[_i_][1] + paExt[_j_][1] + _nGap_ - fabs(_aP_[_i_][1] - _aP_[_j_][1])
+				_nOy_ = paExt[_i_][2] + paExt[_j_][2] + _nGap_ - fabs(_aP_[_i_][2] - _aP_[_j_][2])
+				if _nOx_ <= 0 or _nOy_ <= 0  loop  ok
+				_bMoved_ = TRUE
+				if _nOx_ <= _nOy_
+					_nS_ = 1
+					if _aP_[_i_][1] > _aP_[_j_][1]  _nS_ = -1  ok
+					if fabs(_aP_[_i_][1] - _aP_[_j_][1]) < 0.000001 and _i_ > _j_  _nS_ = -1  ok
+					_aP_[_i_][1] -= _nS_ * _nOx_ / 2
+					_aP_[_j_][1] += _nS_ * _nOx_ / 2
+				else
+					_nS_ = 1
+					if _aP_[_i_][2] > _aP_[_j_][2]  _nS_ = -1  ok
+					_aP_[_i_][2] -= _nS_ * _nOy_ / 2
+					_aP_[_j_][2] += _nS_ * _nOy_ / 2
+				ok
+			next
+		next
+		if NOT _bMoved_  exit  ok
+	next
+	return _aP_
+
 # how far a table reaches from its centre, names included: [ x, y ] in metres
 func _StReachOf(paT)
 	_cK_ = StzLower(ring_trim("" + paT[2]))
@@ -315,21 +412,24 @@ func _StReachOf(paT)
 	_nUp_ = ceil(paT[3] / 2)
 	return [ (0.6 * _nUp_ + 0.3) / 2 + 0.5, 0.45 + StzSeatingNameGap() + 0.25 ]
 
-# do two tables' seats meet? Their seat reaches, added, against the
-# distance between their centres
+# DO TWO TABLES' SEATS MEET? Each table's seats reach a distance across
+# the hall and a distance down it -- the same for a round table, half the
+# slab and less than a metre for a long one -- and the two meet when
+# they are closer than the reaches added on BOTH axes. Read radially, a
+# long table's slab was measured against a table standing below it.
 func _StCollide(paA, paB, paRa, paRb)
-	_nDx_ = paA[4] - paB[4]
-	_nDy_ = paA[5] - paB[5]
-	_nD_ = sqrt(_nDx_ * _nDx_ + _nDy_ * _nDy_)
-	return _nD_ < _StSeatReach(paA) + _StSeatReach(paB)
+	_aA_ = _StSeatReachXY(paA)
+	_aB_ = _StSeatReachXY(paB)
+	return fabs(paA[4] - paB[4]) < _aA_[1] + _aB_[1] and fabs(paA[5] - paB[5]) < _aA_[2] + _aB_[2]
 
-func _StSeatReach(paT)
+func _StSeatReachXY(paT)
 	_cK_ = StzLower(ring_trim("" + paT[2]))
 	if _cK_ = "round"
-		return StzSeatingRadiusFor(paT[3]) + StzSeatingSeatGap() + StzSeatingSeatRadius()
+		_nR_ = StzSeatingRadiusFor(paT[3]) + StzSeatingSeatGap() + StzSeatingSeatRadius()
+		return [ _nR_, _nR_ ]
 	ok
 	_nUp_ = ceil(paT[3] / 2)
-	return (0.6 * _nUp_ + 0.3) / 2
+	return [ (0.6 * _nUp_ + 0.3) / 2, 0.45 + StzSeatingSeatGap() + StzSeatingSeatRadius() ]
 
 func _StSeat(poS, pcT, pnK, pnX, pnY, pnNx, pnNy, pnSide, pnK2)
 	_c_ = pcT + "s" + pnK
@@ -555,11 +655,14 @@ func StzSeatingRuleSet()
 		for _i_ = 1 to len(_at_)
 			_cO_ = _at_[_i_]
 			if _cO_ = _cT_  loop  ok
-			_nDx_ = _oS_.DataOf(_cT_, "mx") - _oS_.DataOf(_cO_, "mx")
-			_nDy_ = _oS_.DataOf(_cT_, "my") - _oS_.DataOf(_cO_, "my")
-			_nD_ = sqrt(_nDx_ * _nDx_ + _nDy_ * _nDy_)
-			_nNeed_ = _oS_.DataOf(_cT_, "reach") + _oS_.DataOf(_cO_, "reach")
-			if _nD_ < _nNeed_
+			_nDx_ = fabs(_oS_.DataOf(_cT_, "mx") - _oS_.DataOf(_cO_, "mx"))
+			_nDy_ = fabs(_oS_.DataOf(_cT_, "my") - _oS_.DataOf(_cO_, "my"))
+			_nNx_ = _oS_.DataOf(_cT_, "reachx") + _oS_.DataOf(_cO_, "reachx")
+			_nNy_ = _oS_.DataOf(_cT_, "reachy") + _oS_.DataOf(_cO_, "reachy")
+			if _nDx_ < _nNx_ and _nDy_ < _nNy_
+				# said along the axis they most nearly clear on
+				_nD_ = _nDx_  _nNeed_ = _nNx_
+				if _nNy_ - _nDy_ < _nNx_ - _nDx_  _nD_ = _nDy_  _nNeed_ = _nNy_  ok
 				decimals(1)
 				_cMsg_ = "'" + _StName(_oS_, _cT_) + "' and '" + _StName(_oS_, _cO_) + "' stand " + _nD_ +
 					" m apart and their seats need " + _nNeed_ + " m"

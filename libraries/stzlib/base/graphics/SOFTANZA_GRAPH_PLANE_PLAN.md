@@ -3877,11 +3877,28 @@ lawful wedding stands clean under them). Faults are drawn — a rimmed
 table, a name on a plate, the seatless named beneath the hall — and the
 marks are held to the verdicts.
 
+**The tables are spread so that every name clears every other table on
+all sides** — the Principal's words on the first picture: *tables should
+be spaced so that chairs and labels are clearly separated from all sides*.
+The host writes where a table stands; the layout owns the geometry, and a
+name is geometry the host never typed. Each table's extent — disc, seats
+and the names hung beyond them, measured in the font — is taken, and two
+extents that meet are pushed apart along the axis of least overlap, half
+each, until none meet with a clearance between; twice, since the scale
+follows the spread and the names are measured in pixels. What stood left
+stays left, what stood above stays above, and tables that already clear
+each other keep the distance the host gave them. Two laws came with it: a
+long table's seats stand a name apart, its pitch growing past six tenths
+of a metre where the widest name at the scale drawn asks for more; and two
+tables meet when they are closer than their seats' reaches on *both* axes
+— a long table's slab was being measured radially against a table below
+it, and read as a collision at 3.6 m.
+
 **Said plainly and left out.** Seats are taken in order, not chosen; the
 hall is the paper and has no walls; couples, dietary marks and who faces
 the stage are not here.
 
-*Guard:* §117, 28 assertions; §91 grew by two pictures. Catalogue:
+*Guard:* §117, 31 assertions; §91 grew by two pictures. Catalogue:
 `gg_math_catalogue.ring`, scenes 49 and 50.
 
 ## DN9 — THE TOLD PICTURE: a narration is facts made visible, in an order (planned 2026-09-06, SHIPPED 2026-09-07 as DN9a through DN9g, all seven closed)
