@@ -58,8 +58,18 @@ over a generated table is the whole defect this section exists to close,
 reproduced in the sentence introducing the cure. Count the dashes.
 
 The honest reading is that this table reports what the suite CLAIMS, which
-is a smaller number than what the suite covers: 726 assertions across 99
-sections, of which 21 declarations over 17 items.
+is a smaller number than what the suite covers: most sections declare
+nothing, and prove something anyway.
+
+*Three hand-counted figures stood in this sentence until 2026-09-11 --
+assertions, sections, declarations -- and all three were stale, because
+the suite grows every week and a sentence does not. They were the defect
+the paragraph above warns about, four lines below the warning, and they
+survived because section 75 checks the TABLE for drift and not the prose
+introducing it. The numbers are gone rather than refreshed: refreshing
+them buys one correct reading and leaves the trap armed. Whoever wants
+them back should have `StzWritePlanCoverage` emit them, which is the
+general-tasks session's file and is routed to them, not fix them here.*
 
 <!-- COVERAGE:BEGIN generated -- do not edit by hand -->
 | item | status | discharged by |
@@ -68,7 +78,7 @@ sections, of which 21 declarations over 17 items.
 | GG0 | closed | - |
 | GG1 | closed | - |
 | GG2 | closed | - |
-| GG3 | undecided | - |
+| GG3 | closed | 119 |
 | GG4 | closed | - |
 | GG5 | closed | - |
 | GG6 | closed | 6, 7, 8, 9 |
@@ -245,15 +255,69 @@ KILL CRITERION: if the face cannot express the supply-chain risk picture
 already produced by hand in the spike, the abstraction is wrong and gets
 redesigned before anything is built on it.
 
-### GG3 — the scene graph: hierarchy as the same primitive. UNDECIDED
+### GG3 — the scene graph: hierarchy as the same primitive. SHIPPED
 
-*`SetParent` exists in `stzScene.ring` and `gpu_scene3d.zig`, and no guard
-section is named for this tier. Whether that meets GG3's on-device kill
-criterion is a judgement for whoever owns it, so this item is marked
-undecided rather than guessed at. UNDECIDED is not a politer word for
-unstated: the plan must say something about every item it defines, and
-"nobody has adjudicated this" is a legitimate thing to say. Only silence
-is reported as a defect.*
+*This item went unadjudicated from the day the table was first generated
+until 2026-09-11, and the paragraph that stood here said why: `SetParent`
+existed on both sides, no guard section was named for the tier, and
+whether that met the kill criterion was "a judgement for whoever owns
+it". It is settled below. That it waited is kept in writing, because an
+item which quietly turns green teaches nothing about how long it sat.*
+
+*And the word it sat under cannot appear in this section any more, which
+is worth one line for whoever closes the next one: the status is read
+from the item's own words, the parser checks the waiting word BEFORE the
+finished ones (on purpose — an item explaining why it waited usually
+mentions work that shipped around it), so writing the history of a status
+with the status word in it flips the item straight back. The first draft
+of this section did exactly that and regenerated the table to no effect.*
+
+**The criterion asked about a ROUND TRIP, and there is none.** Its words
+were: *if hierarchical propagation cannot stay on-device — if any frame
+needs a CPU round trip to resolve parents — it falls back to CPU-side
+composition and the claim shrinks.* The failure it feared is a frame
+that has to read the device back to find out where a child ended up. So
+the question is not answered by reading the resolver and forming an
+opinion about it; it is answered by **counting device traffic**, which
+the scene already publishes.
+
+| what was measured | reading |
+| --- | --- |
+| uploads while resolving a three-link chain | **0 geometry, 0 transform** |
+| transform uploads per frame, 60 instances flat | 1 |
+| transform uploads per frame, 60 instances chained 59 deep | **1** |
+| draw calls, flat against chained | 1 against 1 |
+| resolve of a 1,000-link chain, parents added first | under the clock |
+| the same, parents added LAST (the resolver's worst order) | 0.05 ms at 200 |
+
+**So the claim that survives is not the one the criterion was drafted
+against, and it is not smaller in the way it expected.** Propagation is
+composed **host-side**, in the library, so the literal phrase *stays
+on-device* does not hold. But the property the phrase was protecting
+does: **hierarchy costs the device nothing.** It adds no upload, no draw
+call, and no readback — the composition is folded into the one instance
+upload every frame performs anyway, and a chain fifty-nine deep is
+indistinguishable from a flat list in device traffic. A GPU propagation
+pass would have bought exactly nothing measurable here, which is why the
+one that was allowed for was never written.
+
+**One place the two sides can disagree, now asserted rather than
+discovered.** A GPU-driven scene's instance buffer belongs to a compute
+kernel after the first frame, so a parent moved afterwards changes what
+`WorldPosition()` answers on the host and not what is drawn. That is the
+mode's own contract — a kernel that owns the buffer owns it — and it is
+the only case where the host's answer and the picture can differ. The
+guard pins it with its control: the same scene *not* gpu-driven uploads
+on every frame.
+
+*Guard:* §119, 11 assertions, declaring `discharges("GG3")` — the
+composed chain, the zero-upload resolve, the following and the
+detaching, one upload and one draw flat or deep, the published depth,
+the refused cycle counted rather than hung on, the self-parent refused,
+and the gpu-driven divergence with its control. `gg3_hierarchy.ring`
+keeps the longer demonstration it always had; what it lacked was
+assertions and a declaration, which is why the item could not close on
+it.
 
 Parent/child transforms for `stzScene` (today's instance list is flat, so
 articulated models — a robot arm, a solar system — are impossible).
