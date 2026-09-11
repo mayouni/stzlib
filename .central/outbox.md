@@ -4187,3 +4187,34 @@ next:
   - me:      the Principal's word
   - central: none
 ```
+
+```yaml
+by:        stzlib-graphics · claude-fable-5-1 · 2026-09-11 01:48
+
+subject:   seating, second round -- the tables spread for their names
+
+why:       the Principal: tables should be spaced so that chairs and
+           labels are clearly separated from all sides
+
+did:
+  - Spread the tables in the builder: each extent measured with the
+    names in the font, pairs that meet pushed apart along the axis of
+    least overlap until none meet with air between; the arrangement
+    kept, tables already clear untouched.
+  - Let a long table's seat pitch grow to its widest name, and judged a
+    collision on both axes so a slab is not measured radially.
+  - Grew section 117 to 31 assertions; gate 1598 ok, 0 failed.
+
+state:
+  gg_adversarial:   1598 ok, 0 failed
+  commit:           7dce660ec on origin and codeberg, verified at the sha
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the Principal's word
+  - central: none
+```
