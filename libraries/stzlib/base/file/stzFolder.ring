@@ -3550,9 +3550,9 @@ class stzFolder from stzObject
 						_nLenL_ = len(_acLines_)
 						_acLineNumbers_ = []
 
-						for i = 1 to _nLenL_
-							if StzFindFirst(StzLower(cContent), StzLower(_acLines_[i])) > 0
-								_acLineNumbers_ + i
+						for j = 1 to _nLenL_
+							if StzFindFirst(StzLower(cContent), StzLower(_acLines_[j])) > 0
+								_acLineNumbers_ + j
 							ok
 						next
 
@@ -3718,9 +3718,9 @@ class stzFolder from stzObject
 							_nLenL_ = len(_acLines_)
 							_acLineNumbers_ = []
 
-							for i = 1 to _nLenL_
-								if StzFindFirst(StzLower(cContent), StzLower(_acLines_[i])) > 0
-									_acLineNumbers_ + i
+							for k = 1 to _nLenL_
+								if StzFindFirst(StzLower(cContent), StzLower(_acLines_[k])) > 0
+									_acLineNumbers_ + k
 								ok
 							next
 
