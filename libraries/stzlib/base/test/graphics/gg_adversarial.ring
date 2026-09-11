@@ -20256,25 +20256,36 @@ func _CmOnLight
 # the names of a picture that fall under a contrast ratio against what
 # holds them -- the topmost filled region containing the name's centre,
 # composited over the paper, or the paper
+# EACH FILLED SHAPE IS RESOLVED ONCE PER PICTURE, not once per name. The
+# first form resolved every shape of the picture again for every name it
+# measured -- on the five-thousand-dot picture, five thousand resolutions
+# per name -- and the section took 84 seconds for 52 pictures. The filled
+# regions are read once into a list; every name is then tested against
+# the list, which is arithmetic.
 func _CmUnreadable poM, pnMin
 	_n_ = 0
+	_acT_ = poM.Texts()
+	if len(_acT_) = 0  return 0  ok
 	_ac_ = poM.Shapes()
-	for _i_ = 1 to len(_ac_)
-		_cP_ = _ac_[_i_]
-		if poM.ShapeOf(_cP_)[:kind] != "text" or poM.IsHidden(_cP_)  loop  ok
-		if "" + poM.PropOf(_cP_, "string", "") = ""  loop  ok
+	_aFilled_ = []
+	for _j_ = 1 to len(_ac_)
+		_cQ_ = _ac_[_j_]
+		if poM.IsHidden(_cQ_) or poM.FillOf(_cQ_) = ""  loop  ok
+		_aR_ = _MrRegion(poM, _cQ_)
+		if len(_aR_) < 6  loop  ok
+		_aFilled_ + [ _cQ_, _aR_, poM.DrawIndexOf(_cQ_), poM._Opaque(poM.FillOf(_cQ_), poM.Background()) ]
+	next
+	for _i_ = 1 to len(_acT_)
+		_cP_ = _acT_[_i_]
 		_cT_ = poM.FillOf(_cP_)
 		_cBg_ = poM.Background()
 		_aT_ = poM.ShapeOf(_cP_)
 		_nTop_ = -1
-		for _j_ = 1 to len(_ac_)
-			_cQ_ = _ac_[_j_]
-			if _cQ_ = _cP_ or poM.IsHidden(_cQ_) or poM.FillOf(_cQ_) = ""  loop  ok
-			_aR_ = _MrRegion(poM, _cQ_)
-			if len(_aR_) < 6  loop  ok
-			if _MrPointIn(_aT_[:cx], _aT_[:cy], _aR_) and poM.DrawIndexOf(_cQ_) > _nTop_
-				_nTop_ = poM.DrawIndexOf(_cQ_)
-				_cBg_ = poM._Opaque(poM.FillOf(_cQ_), poM.Background())
+		for _j_ = 1 to len(_aFilled_)
+			if _aFilled_[_j_][1] = _cP_  loop  ok
+			if _aFilled_[_j_][3] > _nTop_ and _MrPointIn(_aT_[:cx], _aT_[:cy], _aFilled_[_j_][2])
+				_nTop_ = _aFilled_[_j_][3]
+				_cBg_ = _aFilled_[_j_][4]
 			ok
 		next
 		if StzContrastOf(_cT_, _cBg_) < pnMin  _n_++  ok
@@ -20282,15 +20293,7 @@ func _CmUnreadable poM, pnMin
 	return _n_
 
 func _CmNames poM
-	_n_ = 0
-	_ac_ = poM.Shapes()
-	for _i_ = 1 to len(_ac_)
-		if poM.ShapeOf(_ac_[_i_])[:kind] = "text" and NOT poM.IsHidden(_ac_[_i_]) and
-		   "" + poM.PropOf(_ac_[_i_], "string", "") != ""
-			_n_++
-		ok
-	next
-	return _n_
+	return len(poM.Texts())
 
 # hex literals among a style's rule rows, however deep
 func _CmHexIn poSt

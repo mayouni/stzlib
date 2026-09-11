@@ -402,14 +402,17 @@ The author stopped a session for re-running it per edit. The rule:
 3. The suite prints per-section wall times (`sec()` banners): every
    gate run is also the profile that says which section earns a diet.
 
-**FAST PATH: `ring gg_adversarial.ring` is 66 seconds for 695
-assertions** (median, 2026-09-04). It was 8 minutes for 146 until
-2026-08-20 and none of that was coverage; it was 20 seconds for 146
-after that day's diet; it is 66 seconds now because the suite carries
-4.8x the assertions, including the whole published DRAKON catalogue and
-three deliberately large stress renders. Per assertion it is 0.095s
-against 0.137s after that August diet -- 30% cheaper -- and against
-3.29s before it, which is a thirty-fourth.
+**FAST PATH: `ring gg_adversarial.ring` is 267 seconds of sections for
+1,628 assertions** (2026-09-11, after the gate's diet). It was 8 minutes
+for 146 until 2026-08-20 and none of that was coverage; 20 seconds for
+146 after that day's diet; 66 seconds for 695 on 2026-09-04; and 388
+seconds for 1,628 after DN24 closed the domain list, of which 121 s were
+three costs found the same day and none an algorithm: a governance
+asking every scope once per PAIR of rules (39,000 calls where 2,900
+differ), a picture SOLVED THREE TIMES because a copy of an unsolved
+picture solves itself again (Ring copies an object it stores -- solve it
+before you copy it), and an instrument resolving every shape once per
+name. Per assertion it is 0.16 s, against 3.29 s before the first diet.
 
 **HOW TO MEASURE IT, because a single wall time here is not a
 measurement.** This machine runs several sessions at once and its
@@ -429,10 +432,11 @@ of one build spread 20 seconds on 2026-09-04. So:
   which is how a cache that measured +1.76s was found to have changed
   nothing at all (2026-09-04, `_DeepestRailAt`).
 
-**Where the 66 seconds sits**: 38.5s of it is four sections -- two
-large-N interaction renders, the tiling test, and the governor, which
-now checks every catalogue picture. That is coverage bought on purpose,
-not waste; a diet that removed it would be removing the stress cases.
+**Where the 267 seconds sits**: 117 s of it is four sections -- the
+governor over both catalogues (88 pictures, 37 s), the tape (36 s), the
+content generators at scale (25 s) and the layouts-as-starts section
+(19 s). That is coverage bought on purpose, not waste; a diet that
+removed it would be removing the stress cases.
 
 What the earlier profile found, and the rules it minted for any code
 that reads a picture:

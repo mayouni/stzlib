@@ -3955,6 +3955,46 @@ no scale bar, no coastline beyond the regions.
 *Guard:* §118, 30 assertions; §91 grew by two pictures. Catalogue:
 `gg_math_catalogue.ring`, scenes 51 and 52.
 
+## PX — THE GATE'S DIET: the same 1,628 assertions in two thirds of the time (2026-09-11, SHIPPED)
+
+**The one gate had grown to ten minutes** — 388 s of sections for 1,628
+assertions after DN24 — and CENTRAL-PXLATENCY-01 says a section over
+budget owes a diet or a split. The section clocks put half of it in two
+sections, §91 (the governor over both catalogues, 115 s) and §92 (colour
+as meaning, 84 s), and the probes found three costs, none of them an
+algorithm:
+
+- **The governance asked every scope for every PAIR of rules.** The
+  contested-subject question called each rule's scope over each picture
+  once per pair — 39,000 scope calls over 88 pictures where 2,900 answer
+  the same thing. `CheckRules` tabulates every scope and counter once
+  (`@aScopeTable`, `@aCounterTable`) and every question reads the table;
+  `_SubjectsOverlap` reads it by rule index when it exists. Same answers.
+- **A picture was solved three times.** Ring copies an object it stores in
+  a list, and a copy of an *unsolved* picture solves itself again the
+  first time a scope asks it anything: the corpus copy paid one layout,
+  the gate's local copy another, and the gate's own governance a third —
+  26 s of §91's governor was 52 layouts of pictures already solved
+  elsewhere. `StzCheckPictures` now solves the picture in the CALLER's
+  list before any copy, and `AddPicture` solves what it is given (a
+  parameter is a reference), so every copy carries the solution.
+- **The colour section resolved every shape once per name.** Its
+  readability instrument resolved every filled region of a picture again
+  for every name it measured — five thousand resolutions per name on the
+  five-thousand-dot picture. The filled regions are read once per picture;
+  every name is tested against the list. And a math diagram now lists its
+  drawn names once per solve (`Texts()`, under the ink cache's law), which
+  every name rule's scope reads.
+
+**Measured on the section clocks, same run for both arms:** §91 115 s →
+37 s, §92 84 s → 9 s, sections total 388 s → 267 s; assertions 1,628 →
+1,628, findings unchanged. What remains is coverage bought on purpose —
+§96 (the tape, 36 s), §94 (the content generators at scale, 25 s), §90
+(layouts as starts, 19 s) — and the one law this minted for any code
+that hands a picture to a list: **solve it before you copy it.** A copy
+that solves itself is the plane's own copy-to-read defect wearing a
+different name, and it hides because nothing in the source looks slow.
+
 ## DN9 — THE TOLD PICTURE: a narration is facts made visible, in an order (planned 2026-09-06, SHIPPED 2026-09-07 as DN9a through DN9g, all seven closed)
 
 The Principal, after DN8h was explained to him with three diagrams drawn
