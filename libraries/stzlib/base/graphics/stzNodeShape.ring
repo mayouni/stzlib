@@ -3,7 +3,7 @@
 #---------------------------------------------------------------------------#
 #
 #     StzDrawNodeShape(oCanvas, :Hexagon, 100, 80, 120, 60)
-#     ? StzNodeShapeNames()        # the 24 this speaks
+#     ? StzNodeShapeNames()        # the 46 this speaks
 #
 # WHY THIS EXISTS. `stzDiagram` can only be SEEN by shelling out to
 # dot.exe, which is why SOFTANZA_GRAPH_PLANE_PLAN.md section 3 refused to
@@ -16,6 +16,11 @@
 # egg, cylinder, doublecircle -- all needed ONE missing primitive, and so
 # stzCanvas gained AddEllipse (engine-tessellated, both tiers agreeing by
 # construction because the engine builds it as a polygon).
+#
+# GROWN SINCE: the UML actor and bar, BPMN's four event glyphs, the seven
+# electric symbols, and the seven network glyphs (cloud, router, switch,
+# firewall, server, host, access point) -- forty-six names, listed by
+# StzNodeShapeNames() and drawn on one sheet by gg_nodeshapes.ring.
 #
 # So this file is a VOCABULARY, not a renderer. Every shape below is
 # composed from primitives that already existed or from that single
