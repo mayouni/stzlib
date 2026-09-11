@@ -116,7 +116,9 @@ wgpu plane we already own, extended from compute to render. The 2D
 vector rasterizer is written IN ZIG (scanline path filling — the SIMD
 loops and multicore tier apply to exactly this shape of work), with
 the honest fallback that early phases can ship on the GPU raster + SVG
-before the CPU rasterizer is complete.
+before the CPU rasterizer is complete. *That fallback became the
+permanent state: the rasterizer was never started. See THE RASTERIZER
+THAT WAS NEVER WRITTEN.*
 
 **The vendored additions, revised for requirement 3 (this is where the
 Unicode requirement changed the plan — the original said "stb only,
@@ -190,7 +192,11 @@ the vendor table above.
      family's precedent generalized. Every 2D drawing can always
      become SVG (CI-safe floor).
   2. **PNG bytes** — GPU offscreen render + readback, encoded pure-Zig
-     over vendored zlib; CPU rasterizer as the counted fallback.
+     over vendored zlib. *This line read "CPU rasterizer as the counted
+     fallback" until 2026-09-11, and there is no CPU rasterizer — see
+     THE RASTERIZER THAT WAS NEVER WRITTEN, below. What is counted is
+     the REFUSAL: with no device `ToPNG()` answers "", `countFallback()`
+     records it, and the caller falls to tier 1.*
   3. **A native window** — GLFW on Windows/Linux/macOS as peers; wgpu
      makes its surface from the native handle GLFW exposes. (RingQt
      interop = hand it PNG frames; noted, not depended on.)
@@ -446,8 +452,10 @@ here; they are simply not designed AGAINST.
 - **Scope gravity.** Graphics engines die of feature accretion. The
   defense is the phase gates: shadows/PBR/animation/shaping are OUT
   until a workload asks, in writing.
-- **The CPU rasterizer** is the one genuinely new engine component;
-  its kill-to-PlutoVG line is written into GR2.
+- **The CPU rasterizer** was named as the one genuinely new engine
+  component, with a kill-to-PlutoVG line written into GR2. *It was never
+  started, and the risk that materialised was not the one written here —
+  see below.*
 - **Windowing on non-Windows** is deferred (Windows-first, like the
   reactor's curl story); the SVG/PNG/browser tiers are cross-platform
   from day one.
@@ -471,6 +479,48 @@ here; they are simply not designed AGAINST.
 - **CI has no GPU**: every guard passes through the SVG tier and the
   counted-refusal paths; GPU assertions gate on availability, exactly
   as the 162-assert G-plane suite already demonstrates.
+
+## THE RASTERIZER THAT WAS NEVER WRITTEN (recorded 2026-09-11)
+
+**This plan named a CPU rasterizer in ten places, and it was never
+built.** Found by the GPU desk while auditing the engine on the device,
+routed here the same morning, and confirmed at the source before
+anything was edited: there is no rasterizing function in `engine/src`.
+The three files that match the word are shader and glyph work, and the
+one comment that says "rasterizer" points back at this plan's own line.
+`stb_truetype` does rasterize — GLYPHS, into an atlas the GPU samples —
+which is not the scanline path filler this section promised and must not
+be counted as one.
+
+**What the tiers actually are, and they are honest in the code.**
+`ToSVG()` needs no device and always answers. `ToPNG()` renders on the
+device, reads back once and encodes; with no device it answers `""` and
+`countFallback()` records the refusal, readable from Ring through
+`StzEngineGpuCounter`. So the ladder has two rungs where it promised
+three, **the vector tier is the floor**, and a caller on a machine
+without a device gets an empty string and a counted reason rather than
+a picture drawn some other way. The canvas has said exactly this in its
+own comments since the tier shipped. The plan is what drifted.
+
+**What this changes about the claims around it.** The PlutoVG line
+*"still standing unspent"* is right, and it is unspent because the work
+it was a kill line FOR never began — not because the work was done
+cheaply. The GR0 measurement that concluded *"GR2's CPU rasterizer is
+not a fallback afterthought — at 10k-primitive stills it is co-equal"*
+stands as a measurement and its consequence was never acted on. GR2b's
+list of what remains already says the PlutoVG kill line is remaining
+work, which is the one place this plan told the truth about it.
+
+**Why it could drift here and cannot drift in the sibling plan.** The
+graph plane's plan carries a table GENERATED from its suite, and a guard
+section fails when the file and the suite disagree — so a claim there
+cannot outlive the thing it describes. This file has no such mechanism:
+every word in it is hand-written and nothing reads it back. The same
+coverage machinery could be pointed here once
+`StzSuiteDischargesOf` records which FILE a declaration came from
+(routed 2026-09-11 to the session that owns `base/meta`), and until
+then **a reader should treat this file as a record of intent and the
+guards as the record of fact.**
 
 ---
 
@@ -547,7 +597,9 @@ at higher counts (CPU fill scales linearly with covered pixels; the
 draw is far from saturated) and in the window tier where readback
 vanishes; (b) GR2's CPU rasterizer is not a fallback afterthought —
 at 10k-primitive stills it is co-equal; (c) calibration stores
-warm-min, exactly as the G-plane law says.
+warm-min, exactly as the G-plane law says. *Consequence (b) was never
+acted on: the measurement stands, the rasterizer was never written, and
+the reading of it is in THE RASTERIZER THAT WAS NEVER WRITTEN.*
 
 ### KILL CRITERION 2 (render must not demand lifecycle surgery): **PASSES, witnessed**
 
