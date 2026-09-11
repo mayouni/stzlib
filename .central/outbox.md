@@ -4118,3 +4118,38 @@ next:
   - me:      the Principal's word on the next domain
   - central: none
 ```
+
+```yaml
+by:        stzlib-graphics · claude-fable-5-1 · 2026-09-11 01:05
+
+subject:   DN22 floor plans -- rooms to scale, shipped
+
+why:       the Principal's word: "go ahead with floor plans"
+
+did:
+  - Built stzFloorPlanDiagram on the math plane: rooms in metres to one
+    scale, doors as gaps with a leaf and a swing, windows as bands, the
+    area under each name, a bar of one metre; nothing minted as an
+    unknown.
+  - Read in the builder what every opening faces -- a room across the
+    wall or the outside -- and counted a door for both rooms it joins.
+  - Wrote four rules about the building -- no overlap, a door per room,
+    every room reachable from outside, windows facing outside -- each
+    naming rooms; faults drawn and the marks held to the verdicts.
+  - Folded section 116 (26 assertions) and two pictures into the one
+    gate; the math catalogue is 48 scenes.
+
+state:
+  gg_adversarial:   1567 ok, 0 failed
+  commit:           ce0a2064c on origin and codeberg, verified at the sha
+  domains left:     seating, choropleth maps
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the Principal's word on the next domain
+  - central: none
+```
