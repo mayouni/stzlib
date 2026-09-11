@@ -4454,3 +4454,51 @@ note:      the defect was written six times by six people who each knew
            said -- which is the shape the library's own law about parallel
            contracts was written for
 ```
+
+```yaml
+by:        stzlib-graphics · claude-opus-5 · 2026-09-11 15:35
+
+subject:   the graphics residue, measured -- 65 stale pictures, and zero now
+
+why:       the queue row has stood since August, I disputed its count and
+           was never answered, and it needed a number rather than an argument
+
+did:
+  - Measured every path git status reports under the graphics folders
+    against main with git's own normalisation: 396 reported, 331 already
+    on main byte for byte, 65 on neither the branch nor main.
+  - Established that all 65 are rendered pictures the library outgrew --
+    26 changed size, 30 changed pixels, 7 changed bytes only, 2 were
+    never committed -- and that every gal_* on main predates the
+    encoder's alpha-drop and is still 32-bit RGBA.
+  - Re-ran all ten owning catalogues before staging, so the committed
+    bytes are a clean render, and read two changes side by side against
+    main's copies.
+  - Committed the 65 by explicit path: 27.8% fewer bytes for pictures
+    that are the same or better; residue under my folders now zero.
+  - Recorded in my mailbox that my own August measurement was half
+    wrong: a raw byte comparison calls a file different when only its
+    line endings differ, and I had checked only that day's untracked
+    files.
+
+state:
+  residue:          0 against main, measured the same way twice
+  commit:           ba7089898 on origin and codeberg, verified by ls-remote
+  the row:          answerable now; still printing in QUEUE.md
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - retire the two stale graphics rows [routed twice | unanswered]
+  - GRAPHICS-RESIDUE-04, the generator's counting method [routed
+    2026-08-30 | unanswered, now answerable from this measurement]
+
+next:
+  - me:      the Principal's word. One named item waits on it:
+             RenditionAs(:image) writes a PNG to a name the caller
+             cannot choose, which is how one of the two uncommitted
+             files got into the tree
+  - central: retire the row
+
+note:      the three graphics rows of the queue are now all answered --
+           two were stale before today and this one is discharged
+```
