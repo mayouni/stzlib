@@ -4007,6 +4007,37 @@ that hands a picture to a list: **solve it before you copy it.** A copy
 that solves itself is the plane's own copy-to-read defect wearing a
 different name, and it hides because nothing in the source looks slow.
 
+## THE NARRATED GUIDES: eleven domains, each walked through by a file that runs (2026-09-11, SHIPPED)
+
+**A guide is a guard that reads as prose.** Eleven files in
+`base/test/graphics`, one per domain from DN14 to DN24 — `gantt_`,
+`er_`, `petri_`, `faulttree_`, `familytree_`, `timeline_`, `fishbone_`,
+`network_`, `floorplan_`, `seating_`, `choropleth_narrated.ring` — each
+in the house's narrated form: a scene that builds the domain's catalogue
+picture from the same data the catalogue uses, prints what the picture
+says about itself and asserts it; a scene that asks the domain's rules
+of a sound picture; a scene that asks them of the witness and prints
+every finding by rule and message; and a scene that writes the two
+pictures as `guide_<domain>.png` and `guide_<domain>_witness.png`. A
+math-plane guide reads its numbers back through `Substance()` (a task's
+days, a year's width in pixels, a room's area, a region's class) and
+asks the rules through `StzCheckPictures`; a graph-plane guide asks the
+domain's own verbs (a net fired, a top's probability from its gates and
+from its cut sets, a family walked for ancestors, a network walked for
+hops) and its own `GovernanceFindings()`. 115 assertions, all green;
+the pictures need a device, the numbers do not.
+
+**What writing them found.** The family tree's `GovernanceIsSound()`
+answers *no findings at all*, where the house report's `IsSound()`
+answers *no errors*: a single parent draws a WARNING that says "if that
+is meant", and by the tree's own word that makes the three generations
+unsound. The guide narrates the warning as what it is; the two verbs
+disagreeing is recorded here and not repaired unasked, since five domain
+classes and their gates share the shape. Three Ring traps paid again:
+`1e-9` is not a number literal Ring reads (spell the decimal); a render
+puts the global `decimals()` back to two, so set it after the picture
+and not before; and `oR` is `or`.
+
 ## DN9 — THE TOLD PICTURE: a narration is facts made visible, in an order (planned 2026-09-06, SHIPPED 2026-09-07 as DN9a through DN9g, all seven closed)
 
 The Principal, after DN8h was explained to him with three diagrams drawn
