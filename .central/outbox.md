@@ -4330,3 +4330,37 @@ next:
 note:      none of the three costs looked slow in the source; the
            section clocks found them, which is what the clocks are for
 ```
+
+```yaml
+by:        stzlib-graphics · claude-fable-5-1 · 2026-09-11 12:56
+
+subject:   the shape sheet -- forty-six named glyphs, the guard reads its count
+
+why:       the Principal asked for the sheet with the seven network glyphs;
+           the guard still said twenty-four and failed on two electric symbols
+
+did:
+  - Made gg_nodeshapes.ring read the vocabulary's count from the
+    library and name every glyph beneath it on the contact sheet, six
+    to a row, stroked in a light ink the dark ground shows.
+  - Replaced the pixel-tier check's one-byte-in-sixty-one sample with a
+    count of every pixel; the capacitor and the ground had read as
+    blank to it since the electric symbols arrived.
+  - Posted each name before the next cell sets its fill: a fill set
+    while a canvas shape is pending colours that shape, and the first
+    regeneration came out one colour with rainbow names.
+  - Regenerated the PNG and SVG fixtures; guard 13 ok, 0 failed.
+
+state:
+  gg_nodeshapes:    13 ok, 0 failed, 46 shapes
+  commit:           91dc3fb3d on origin and codeberg, verified by ls-remote
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      narrated guides for the nine new domains, on the Principal's word
+  - central: none
+```
