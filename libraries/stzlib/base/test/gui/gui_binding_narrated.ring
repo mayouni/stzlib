@@ -40,8 +40,8 @@ load "../../stzBase.ring"
 ? " G5: A DECLARED VALUE CHANGES, AND THE SCREEN FOLLOWS"
 ? "=========================================================="
 
-nOK = 0
-nBad = 0
+$nOK = 0
+$nBad = 0
 
 if NOT StzGuiAvailable()
 	? "No layout engine on this machine -- nothing to bind."
@@ -264,7 +264,7 @@ oP.Free()
 #---------------------------------------------------------------------
 ? ""
 ? "=========================================================="
-? " " + nOK + " assertions green, " + nBad + " failed"
+? " " + $nOK + " assertions green, " + $nBad + " failed"
 ? "=========================================================="
 ? ""
 
@@ -272,9 +272,9 @@ oP.Free()
 
 func Chk(cWhat, bCond)
 	if bCond
-		nOK++
+		$nOK++
 	else
-		nBad++
+		$nBad++
 		? "  FAIL: " + cWhat
 	ok
 

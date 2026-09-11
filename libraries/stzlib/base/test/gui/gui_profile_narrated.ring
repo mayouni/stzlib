@@ -43,8 +43,8 @@ load "../../stzBase.ring"
 ? " §3: THE PROFILE AS A CONTRACT, AND ITS SECOND ENGINE"
 ? "=========================================================="
 
-nOK = 0
-nBad = 0
+$nOK = 0
+$nBad = 0
 
 if NOT StzGuiAvailable()
 	? "No layout engine on this machine -- nothing to project."
@@ -253,7 +253,7 @@ Chk("this guard does not claim to have run a browser", TRUE)
 #---------------------------------------------------------------------
 ? ""
 ? "=========================================================="
-? " " + nOK + " assertions green, " + nBad + " failed"
+? " " + $nOK + " assertions green, " + $nBad + " failed"
 ? "=========================================================="
 ? ""
 
@@ -261,9 +261,9 @@ Chk("this guard does not claim to have run a browser", TRUE)
 
 func Chk(cWhat, bCond)
 	if bCond
-		nOK++
+		$nOK++
 	else
-		nBad++
+		$nBad++
 		? "  FAIL: " + cWhat
 	ok
 

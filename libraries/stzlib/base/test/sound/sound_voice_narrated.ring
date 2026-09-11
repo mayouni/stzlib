@@ -21,8 +21,8 @@
 
 load "../../stzBase.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 bVoice = FALSE
 
 pr()
@@ -45,7 +45,7 @@ if NOT StzVoiceEngineLoaded()
 	? "   stz_voice.dll is not present. Every voice scene is SKIPPED, and that"
 	? "   is a pass: the library works without a voice."
 	? ""
-	? "" + nPass + " passed, " + nFail + " failed  (voice absent, scenes skipped)"
+	? "" + $nPass + " passed, " + $nFail + " failed  (voice absent, scenes skipped)"
 	bye
 ok
 
@@ -54,7 +54,7 @@ bVoice = StzEngineVoiceIsAvailable()
 if NOT bVoice
 	? "   no voice tier on this machine -- the remaining scenes are skipped."
 	? ""
-	? "" + nPass + " passed, " + nFail + " failed  (no voice tier)"
+	? "" + $nPass + " passed, " + $nFail + " failed  (no voice tier)"
 	bye
 ok
 
@@ -263,8 +263,8 @@ StzEngineVoiceFree(nV2)
 
 # ---------------------------------------------------------------------------
 ? ""
-? "" + nPass + " passed, " + nFail + " failed"
-if nFail > 0
+? "" + $nPass + " passed, " + $nFail + " failed"
+if $nFail > 0
 	? "GUARD FAILED"
 ok
 
@@ -272,9 +272,9 @@ ok
 
 func Chk cLabel, bCond
 	if bCond
-		nPass++
+		$nPass++
 		? "  [ok]   " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok

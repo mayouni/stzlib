@@ -22,7 +22,7 @@ load "../../stzBase.ring"
 ---------------------------------------------------------------------------*/
 
 decimals(3)
-nOk = 0  nBad = 0
+$nOk = 0  nBad = 0
 aRoles = [ :Primary, :Success, :Warning, :Danger, :Info ]
 aSteps = StzRoleStepNames()
 
@@ -242,7 +242,7 @@ ok
 ? "=============================================================="
 ? " VERDICT : " + iif(nBad = 0, "C2 PASSES -- the steps earn their names",
                      "C2 FAILS -- keep the solid and the pair only")
-? " " + nOk + " ok, " + nBad + " failed"
+? " " + $nOk + " ok, " + nBad + " failed"
 ? "=============================================================="
 
 #---------------------------------------------------------------------------
@@ -250,7 +250,7 @@ ok
 func chk cWhat, bCond
 	if bCond
 		? "   ok   " + cWhat
-		nOk++
+		$nOk++
 	else
 		? "  FAIL  " + cWhat
 		nBad++

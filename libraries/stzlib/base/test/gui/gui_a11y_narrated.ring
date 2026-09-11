@@ -31,8 +31,8 @@ load "../../stzBase.ring"
 ? " G4b: THE TREE, HANDED TO THE PLATFORM"
 ? "=========================================================="
 
-nOK = 0
-nBad = 0
+$nOK = 0
+$nBad = 0
 
 #---------------------------------------------------------------------
 ? ""
@@ -56,7 +56,7 @@ if NOT bReady
 	? "  vacuously -- a suite that reports green without exercising"
 	? "  anything is the failure mode this house calls a dead guard."
 	? ""
-	? " " + nOK + " assertions green, " + nBad + " failed (runtime absent)"
+	? " " + $nOK + " assertions green, " + $nBad + " failed (runtime absent)"
 	return
 ok
 
@@ -109,7 +109,7 @@ Chk("...and depth survives too, because it is what makes the flat list " +
 if NOT StzWindowingAvailable()
 	? "  (no windowing on this machine -- the attach path is not exercised)"
 	? ""
-	? " " + nOK + " assertions green, " + nBad + " failed (no windowing)"
+	? " " + $nOK + " assertions green, " + $nBad + " failed (no windowing)"
 	return
 ok
 
@@ -229,7 +229,7 @@ Chk("this guard does not claim to have heard a screen reader", TRUE)
 #---------------------------------------------------------------------
 ? ""
 ? "=========================================================="
-? " " + nOK + " assertions green, " + nBad + " failed"
+? " " + $nOK + " assertions green, " + $nBad + " failed"
 ? "=========================================================="
 ? ""
 
@@ -237,9 +237,9 @@ Chk("this guard does not claim to have heard a screen reader", TRUE)
 
 func Chk(cWhat, bCond)
 	if bCond
-		nOK++
+		$nOK++
 	else
-		nBad++
+		$nBad++
 		? "  FAIL: " + cWhat
 	ok
 

@@ -12,8 +12,8 @@
 
 load "../../stzBase.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 cModel = "../../../models/all-MiniLM-L6-v2.Q8_0.gguf"
 
 pr()
@@ -37,7 +37,7 @@ if NOT fexists(cModel)
 	? "MODEL FILE NOT PRESENT (" + cModel + ")"
 	? "The semantic scenes need it; refusal contract verified above."
 	? "=========================================="
-	? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail (semantic scenes SKIPPED: no model)"
+	? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail (semantic scenes SKIPPED: no model)"
 	? "=========================================="
 	pf()
 	bye
@@ -108,16 +108,16 @@ chk("...and searching an empty index returns [] not an error",
 
 ? ""
 ? "=========================================="
-? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
+? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
 pf()
 
 func chk cLabel, bCond
 	if bCond
-		nPass++
+		$nPass++
 		? "  [OK] " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok

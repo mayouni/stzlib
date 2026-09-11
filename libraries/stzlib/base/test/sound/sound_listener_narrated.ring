@@ -24,8 +24,8 @@
 
 load "../../stzBase.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 pr()
 decimals(3)
@@ -43,7 +43,7 @@ if NOT oL.IsUsable()
 	? "   No recognizer here. Every listening scene is SKIPPED, and that is a"
 	? "   pass: the library works without one."
 	? ""
-	? "" + nPass + " passed, " + nFail + " failed  (no recognizer, scenes skipped)"
+	? "" + $nPass + " passed, " + $nFail + " failed  (no recognizer, scenes skipped)"
 	bye
 ok
 
@@ -190,8 +190,8 @@ if oV.IsUsable()  oV.Release() ok
 
 # ---------------------------------------------------------------------------
 ? ""
-? "" + nPass + " passed, " + nFail + " failed"
-if nFail > 0
+? "" + $nPass + " passed, " + $nFail + " failed"
+if $nFail > 0
 	? "GUARD FAILED"
 ok
 
@@ -199,10 +199,10 @@ ok
 
 func Chk cLabel, bCond
 	if bCond
-		nPass++
+		$nPass++
 		? "  [ok]   " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok
 

@@ -9,9 +9,9 @@ load "../../stzBase.ring"
 
 pr()
 
-nPsd = 0
-nFld = 0
-nTtl = 0
+$nPsd = 0
+$nFld = 0
+$nTtl = 0
 
 ? "=== stzAppServer family integration regression ==="
 
@@ -61,10 +61,10 @@ chk("Missing route returns false", oRouter.HasRoute("GET", "/missing") = 0 or oR
 # ------------------------------------------------------------
 ? ""
 ? "=========================="
-? "Total:  " + nTtl
-? "Passed: " + nPsd
-? "Failed: " + nFld
-if nFld = 0
+? "Total:  " + $nTtl
+? "Passed: " + $nPsd
+? "Failed: " + $nFld
+if $nFld = 0
 	? "ALL appserver CHECKS PASSED!"
 else
 	? "SOME appserver CHECKS FAILED!"
@@ -74,10 +74,10 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.26
 
 func chk(cLabel, bCond)
-	nTtl++
+	$nTtl++
 	if bCond
-		nPsd++
+		$nPsd++
 	else
-		nFld++
+		$nFld++
 		? "  FAIL: " + cLabel
 	ok

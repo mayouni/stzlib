@@ -21,8 +21,8 @@
 
 load "../../stzBase.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 pr()
 
@@ -45,8 +45,8 @@ chk("the cipher is text-safe (base64), so NULs cannot truncate it",
 chk("...and it is not just the plaintext back", cX != "Secret")
 
 oW = new stzStringCrypto("Secret")
-cW = oW.XorEncrypt("key")
-oWb = new stzStringCrypto(cW)
+$cW = oW.XorEncrypt("key")
+oWb = new stzStringCrypto($cW)
 chk("a WRONG key does not decrypt", oWb.XorDecrypt("KEY") != "Secret")
 
 ? ""
@@ -137,17 +137,17 @@ chk("Atbash is its own inverse", oA1b.Atbashed() = "attack")
 
 ? ""
 ? "=========================================="
-? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
+? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
 pf()
 
 func chk cLabel, bCond
 	if bCond
-		nPass++
+		$nPass++
 		? "  [OK] " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok
 
@@ -165,9 +165,9 @@ func EncCp c
 	ok
 
 func MkW aCp
-	cW = ""
+	$cW = ""
 	_nCount_ = len(aCp)
 	for _k_ = 1 to _nCount_
-		cW += EncCp(aCp[_k_])
+		$cW += EncCp(aCp[_k_])
 	next
-	return cW
+	return $cW

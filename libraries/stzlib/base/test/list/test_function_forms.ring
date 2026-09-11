@@ -13,9 +13,9 @@ load "../../stzBase.ring"
 
 pr()
 
-nPsd = 0
-nFld = 0
-nTtl = 0
+$nPsd = 0
+$nFld = 0
+$nTtl = 0
 
 ? "=== Function-form sweep ==="
 
@@ -150,10 +150,10 @@ chk("HashList post-mutation ValueIntByKey", oH.ValueIntByKey("d") = 4)
 # ----------------------------------------------------------------
 ? ""
 ? "=========================="
-? "Total:  " + nTtl
-? "Passed: " + nPsd
-? "Failed: " + nFld
-if nFld = 0
+? "Total:  " + $nTtl
+? "Passed: " + $nPsd
+? "Failed: " + $nFld
+if $nFld = 0
 	? "ALL FORM-CONTRACT CHECKS PASSED!"
 else
 	? "SOME FORM-CONTRACT CHECKS FAILED!"
@@ -162,10 +162,10 @@ ok
 pf()
 
 func chk(cLabel, bCond)
-	nTtl++
+	$nTtl++
 	if bCond
-		nPsd++
+		$nPsd++
 	else
-		nFld++
+		$nFld++
 		? "  FAIL: " + cLabel
 	ok

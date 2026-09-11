@@ -22,9 +22,9 @@
 
 load "../../stzBase.ring"
 
-nPsd = 0
-nFld = 0
-nTtl = 0
+$nPsd = 0
+$nFld = 0
+$nTtl = 0
 
 ? "=== HasCyclicDependencies: engine and pure-Ring fallback ==="
 
@@ -100,10 +100,10 @@ $pStzGraphHandle = pSaved
 # ------------------------------------------------------------
 ? ""
 ? "=========================="
-? "Total:  " + nTtl
-? "Passed: " + nPsd
-? "Failed: " + nFld
-if nFld = 0
+? "Total:  " + $nTtl
+? "Passed: " + $nPsd
+? "Failed: " + $nFld
+if $nFld = 0
 	? "ALL CYCLE-DETECTION CHECKS PASSED!"
 else
 	? "SOME CYCLE-DETECTION CHECKS FAILED!"
@@ -136,10 +136,10 @@ func PopIt(paList)
 	ring_del(paList, len(paList))
 
 func chk(cLabel, bCond)
-	nTtl++
+	$nTtl++
 	if bCond
-		nPsd++
+		$nPsd++
 	else
-		nFld++
+		$nFld++
 		? "  FAIL: " + cLabel
 	ok

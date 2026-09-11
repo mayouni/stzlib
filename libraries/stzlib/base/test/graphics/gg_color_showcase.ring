@@ -19,7 +19,7 @@ load "../../stzBase.ring"
 ---------------------------------------------------------------------------*/
 
 decimals(2)
-nOk = 0  nBad = 0
+$nOk = 0  nBad = 0
 FONT = "C:/Windows/Fonts/segoeui.ttf"
 
 ? "=============================================================="
@@ -219,7 +219,7 @@ if StzGraphicsDevice()  oBoard.ToPNG("showcase_board.png")  ok
 
 ? ""
 ? "=============================================================="
-? " " + nOk + " ok, " + nBad + " failed"
+? " " + $nOk + " ok, " + nBad + " failed"
 ? "=============================================================="
 
 #---------------------------------------------------------------------------
@@ -227,7 +227,7 @@ if StzGraphicsDevice()  oBoard.ToPNG("showcase_board.png")  ok
 func chk cWhat, bCond
 	if bCond
 		? "   ok   " + cWhat
-		nOk++
+		$nOk++
 	else
 		? "  FAIL  " + cWhat
 		nBad++

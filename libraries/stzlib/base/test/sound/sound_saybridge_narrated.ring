@@ -20,8 +20,8 @@
 
 load "../../stzBase.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 pr()
 decimals(3)
@@ -54,7 +54,7 @@ if NOT oE.CanSpeak()
 	? "   No voice on this machine, so the composition scenes are SKIPPED."
 	? "   That is a pass: the earcon half of the bridge still works."
 	? ""
-	? "" + nPass + " passed, " + nFail + " failed  (no voice, scenes skipped)"
+	? "" + $nPass + " passed, " + $nFail + " failed  (no voice, scenes skipped)"
 	bye
 ok
 
@@ -260,8 +260,8 @@ ok
 
 # ---------------------------------------------------------------------------
 ? ""
-? "" + nPass + " passed, " + nFail + " failed"
-if nFail > 0
+? "" + $nPass + " passed, " + $nFail + " failed"
+if $nFail > 0
 	? "GUARD FAILED"
 ok
 
@@ -269,9 +269,9 @@ ok
 
 func Chk cLabel, bCond
 	if bCond
-		nPass++
+		$nPass++
 		? "  [ok]   " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok

@@ -23,8 +23,8 @@
 
 load "../../stzBase.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 cFixture = StzReplace(WorkingDirectory(), "\", "/") + "/_roster-fixture"
 cEstate = cFixture + "/estate"
@@ -202,7 +202,7 @@ StzFileDelete(cCentral + "/journal/" + cBlocked)
 
 ? ""
 ? "=========================================="
-? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
+? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
 StzDirDeleteAll(cFixture)
@@ -211,9 +211,9 @@ pf()
 
 func chk(cWhat, bCond)
 	if bCond = 1
-		nPass++
+		$nPass++
 		? "  [OK] " + cWhat
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cWhat
 	ok

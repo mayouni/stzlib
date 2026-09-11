@@ -26,9 +26,9 @@
 
 load "../../stzBase.ring"
 
-nPass = 0
-nFail = 0
-nSkip = 0
+$nPass = 0
+$nFail = 0
+$nSkip = 0
 
 pr()
 decimals(3)
@@ -76,7 +76,7 @@ Chk("and SN5's onsets find events in it", nOnsets > 0)
 oL = new stzListener()
 if NOT oL.IsUsable()
 	? "   (no recognizer on this machine -- Scenes 2 to 4 SKIP)"
-	nSkip++
+	$nSkip++
 else
 	nR0 = oL.Refusals()
 	Chk("an empty declaration is refused", oL.AcceptMeanings([]) = FALSE)
@@ -122,7 +122,7 @@ else
 		? "   No language can be both spoken and heard here, so the loop"
 		? "   cannot close on this machine -- and that is a fact about the"
 		? "   machine, not a failure of the architecture."
-		nSkip++
+		$nSkip++
 	else
 		oV.UseLanguage(cBoth)
 
@@ -321,8 +321,8 @@ Chk("one measurement, two renderings, no second measurement",
 
 # ---------------------------------------------------------------------------
 ? ""
-? "" + nPass + " passed, " + nFail + " failed, " + nSkip + " skipped"
-if nFail > 0
+? "" + $nPass + " passed, " + $nFail + " failed, " + $nSkip + " skipped"
+if $nFail > 0
 	? "GUARD FAILED"
 ok
 
@@ -330,15 +330,15 @@ ok
 
 func Chk cLabel, bCond
 	if bCond
-		nPass++
+		$nPass++
 		? "  [ok]   " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok
 
 func Skip cLabel
-	nSkip++
+	$nSkip++
 	? "  [skip] " + cLabel
 
 func This_IsFrench pcTag

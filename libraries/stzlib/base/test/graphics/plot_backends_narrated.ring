@@ -21,8 +21,8 @@
 
 load "../../stzBase.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 aData = [ :Jan = 34, :Feb = 58, :Mar = 47, :Apr = 72, :May = 65, :Jun = 88, :Jul = 61 ]
 oF = new stzFont("../gpu/fixtures/amiri_arabic_subset.ttf")
 
@@ -100,15 +100,15 @@ chk("and no text was attempted", substr(cNoFont, "<path") = 0)
 
 ? ""
 ? "=========================================="
-? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
+? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
 func chk cLabel, bCond
 	if bCond
-		nPass++
+		$nPass++
 		? "  [OK] " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok
 

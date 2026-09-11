@@ -23,8 +23,8 @@
 
 load "../../stzBase.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 # A panel's root does NOT fill its context on its own -- found in G1 and
 # recorded in the plan's divergence table. `width: 100%` is what makes a
@@ -75,7 +75,7 @@ if bGui = 0
 	? "   Every scene below needs it, so they are skipped, not failed."
 	? ""
 	? "=============================================================="
-	? " " + nPass + " ok, " + nFail + " failed"
+	? " " + $nPass + " ok, " + $nFail + " failed"
 	? "=============================================================="
 	return
 ok
@@ -305,7 +305,7 @@ oP.Free()
 
 ? ""
 ? "=============================================================="
-? " " + nPass + " ok, " + nFail + " failed"
+? " " + $nPass + " ok, " + $nFail + " failed"
 ? "=============================================================="
 
 #-- helpers ---------------------------------------------------------------
@@ -361,9 +361,9 @@ func _SharpnessAt oMat, hTex, nElevDeg
 
 func chk cLabel, bCond
 	if bCond
-		nPass++
+		$nPass++
 		? "  [OK] " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok

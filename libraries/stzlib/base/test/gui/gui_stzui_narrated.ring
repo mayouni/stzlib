@@ -19,8 +19,8 @@
 
 load "../../stzBase.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 cQ = char(34)
 
@@ -140,7 +140,7 @@ if NOT StzGuiAvailable()
 	? ""
 	? "No layout engine on this machine -- the living-panel scenes are skipped."
 	? "=============================================================="
-	? " " + nPass + " ok, " + nFail + " failed"
+	? " " + $nPass + " ok, " + $nFail + " failed"
 	? "=============================================================="
 	return
 ok
@@ -308,7 +308,7 @@ DEFINE BOX b ( HEIGHT 5 ) RATIONALE "y"
 
 ? ""
 ? "=============================================================="
-? " " + nPass + " ok, " + nFail + " failed"
+? " " + $nPass + " ok, " + $nFail + " failed"
 ? "=============================================================="
 
 #-- helpers ---------------------------------------------------------------
@@ -334,10 +334,10 @@ func _HasCode cText, cCode
 
 func chk cLabel, bCond
 	if bCond
-		nPass++
+		$nPass++
 		? "  [OK] " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok
 

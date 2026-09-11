@@ -17,7 +17,7 @@ load "../../stzBase.ring"
 ---------------------------------------------------------------------------*/
 
 decimals(2)
-nOk = 0  nBad = 0
+$nOk = 0  nBad = 0
 
 ? "=============================================================="
 ? " C5 -- theme export"
@@ -205,7 +205,7 @@ write("theme_pro.ring", cRing)
 ? "=============================================================="
 ? " VERDICT : " + iif(nBad = 0, "C5 PASSES -- the export is not decorative",
                      "C5 FAILS -- see above")
-? " " + nOk + " ok, " + nBad + " failed"
+? " " + $nOk + " ok, " + nBad + " failed"
 ? "=============================================================="
 
 #---------------------------------------------------------------------------
@@ -213,7 +213,7 @@ write("theme_pro.ring", cRing)
 func chk cWhat, bCond
 	if bCond
 		? "   ok   " + cWhat
-		nOk++
+		$nOk++
 	else
 		? "  FAIL  " + cWhat
 		nBad++
