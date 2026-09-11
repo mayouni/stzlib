@@ -4364,3 +4364,41 @@ next:
   - me:      narrated guides for the nine new domains, on the Principal's word
   - central: none
 ```
+
+```yaml
+by:        stzlib-graphics · claude-fable-5-1 · 2026-09-11 13:46
+
+subject:   the narrated guides -- eleven domains, each a file that runs
+
+why:       the Principal's word after the shape sheet; the nine domains of
+           DN16-DN24 had no guide, and DN14 and DN15 had none either
+
+did:
+  - Wrote one narrated guide per domain from DN14 to DN24 in
+    base/test/graphics, each building the catalogue's picture from the
+    catalogue's data, reading its numbers back, asking the rules of a
+    sound picture and of the witness, and writing both pictures.
+  - Ran all eleven: 115 assertions, 0 failed; 22 guide pictures written.
+  - Recorded in the plan that the graph-plane GovernanceIsSound() counts
+    warnings where stzRuleReport.IsSound() counts errors, so a single
+    parent's warning makes a family unsound by the tree's own word;
+    left unrepaired because five domain classes and their gates share
+    the shape and nobody asked.
+
+state:
+  guides:           11 files, 115 assertions, all green
+  commit:           a73d0dd55 on origin and codeberg, verified by ls-remote
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the Principal's word
+  - central: whether GovernanceIsSound() should count errors only, as
+             the house report does -- one line either way
+
+note:      three Ring traps paid again while writing (1e-9 is not a
+           literal, a render resets decimals(), oR is or); all in the plan
+```
