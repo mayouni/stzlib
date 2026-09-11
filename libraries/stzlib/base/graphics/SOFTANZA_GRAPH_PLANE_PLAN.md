@@ -50,7 +50,38 @@ drifted from what those two sources say, so the table cannot go stale --
 drifting is precisely what it is checked for.
 
 A dash in the last column means no guard section declares that it proves
-the item. That is a real gap and it is shown rather than hidden. **No count
+the item. That is a real gap and it is shown rather than hidden.
+
+**AND A DASH MEANT THREE DIFFERENT THINGS, which is a worse report than
+a number (2026-09-11).** Fifteen items carried one, and reading them one
+by one rather than counting them found three separate situations wearing
+one mark:
+
+- **Four were declarations the gate had EARNED AND NEVER WRITTEN.** §57
+  holds DN2c (this file says so in DN2c's own words), §66 is DN4a's class
+  diagram down to its compartment criterion, §72 is DN5a's guard by this
+  file's own sentence, and **§73 is titled `DN5b — A CIRCUIT IS READ AS A
+  LOOP` and did not declare DN5b.** A section named for an item and
+  silent about it is the sharpest form of the gap. All four declare now.
+- **Six are UMBRELLAS whose every child is declared** — GG7 over
+  GG7a–GG7e, DN3 over DN3a and DN3b, DN4 over DN4a and DN4b, DN7 over
+  DN7a–DN7j, DN8 over DN8a–DN8h, DN9 over DN9a–DN9g. Nothing is unproven
+  there and no single section proves the whole, so writing one in would
+  be a false precision. They keep their dash and this paragraph is what
+  the dash means.
+- **Five are proven in a suite the convention cannot read** — GG0, GG1,
+  GG2, GG4 and GG5 live in `graph_plane_narrated.ring`,
+  `gg2_graphcanvas.ring`, `gg4_framegraph.ring` and
+  `gg5_materialgraph.ring`. The generator takes a LIST of suites and has
+  only ever been given one, and it cannot yet be given more honestly:
+  `StzSuiteDischargesOf` returns `[ item, section ]` with no record of
+  WHICH FILE a declaration came from, so a table built from five suites
+  could not tell one §36 from another. That is `base/meta`, which belongs
+  to another session, so it is **routed and not done here**.
+
+So the honest count is not fifteen. It is **five items whose proof this
+table cannot see**, six whose proof it can see through their children,
+and four that were simply never written down. **No count
 is written here on purpose**: the first draft of this paragraph said "10 of
 31 items are undeclared", the true figure was 14, and it was wrong before
 the table below it had been generated once. A hand-counted number standing
@@ -96,11 +127,11 @@ general-tasks session's file and is routed to them, not fix them here.*
 | DN3a | closed | 65 |
 | DN3b | closed | 76, 77 |
 | DN4 | closed | - |
-| DN4a | closed | - |
+| DN4a | closed | 66 |
 | DN4b | closed | 67 |
 | DN5 | closed | 72 |
-| DN5a | closed | - |
-| DN5b | closed | - |
+| DN5a | closed | 72 |
+| DN5b | closed | 73 |
 | DN6 | closed | 73k |
 | DN6b | closed | 73m, 73z |
 | DN7 | closed | - |
@@ -146,7 +177,7 @@ general-tasks session's file and is routed to them, not fix them here.*
 | DN9e | closed | 101 |
 | DN9f | closed | 102 |
 | DN2b | closed | 56 |
-| DN2c | closed | - |
+| DN2c | closed | 57 |
 | DN2d | closed | 57 |
 <!-- COVERAGE:END -->
 

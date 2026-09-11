@@ -5579,6 +5579,12 @@ chk("a diagram that declares no layout mode is still LAYERED",
 
 sec("-- 57. MODES: a state machine has no NEXT -------------------")
 discharges("DN2d")
+# ...AND DN2c, WHICH THIS SECTION HAS ALWAYS PROVEN. The plan says so in
+# the item's own words -- "§57 holds the template: first thing at the
+# start of the reading, last thing at the bottom-right, stages as
+# columns" -- and the declaration was simply never written, so the table
+# printed a dash against an item this section holds.
+discharges("DN2c")
 #
 # Three templates were wrong before this one, and all three in the same
 # way. A tree drew a progression. A ring drew a space with a centre. A
@@ -8043,6 +8049,10 @@ chkeq("a summit route turns exactly once", nSvT, 1)
 
 
 sec("-- 66. UML: THE DOMAIN THAT IS ONLY A NOTATION ------------")
+# DN4a is the CLASS diagram -- classes, interfaces, the five relationship
+# kinds -- which is what this section tests, down to the compartment kill
+# criterion the plan set for it. DN4b (the rest of UML) is section 67.
+discharges("DN4a")
 #
 # DN4, and the strongest test DN0's claim has had.
 #
@@ -11455,6 +11465,9 @@ chkeq("NEGATIVE: ...and no name is written across its own glyph",
 	nNmOn, 0)
 
 sec("-- 73. DN5b -- A CIRCUIT IS READ AS A LOOP --------------")
+# The section is NAMED for the item and never declared it, which is the
+# sharpest form of the gap the dashes were pointing at.
+discharges("DN5b")
 
 # A layered layout answers "what flows into what" and orients cycles
 # AWAY. A circuit is nothing but cycles: current leaves a source and must
@@ -11544,6 +11557,9 @@ chkeq("NEGATIVE: ...and says so plainly when it does not",
 
 sec("-- 72. DN5 -- A NET IS A NODE, AND A JUNCTION IS A CLAIM -")
 discharges("DN5")
+# DN5a IS THIS SECTION TOO, on the plan's own word: "Guards:
+# gg_adversarial.ring §72, each positive with its negative sibling."
+discharges("DN5a")
 
 # The plan's kill: "a net is a HYPEREDGE (one wire, three pins), which
 # the pair-edge model must earn honestly -- junction nodes drawn as
