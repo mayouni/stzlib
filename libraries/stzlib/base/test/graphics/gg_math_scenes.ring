@@ -1181,3 +1181,55 @@ func StzMathFloorPlanWitness(poFont)
 	_o_ = StzFloorPlanDiagram(poFont, StzMathFlatWrongRooms(), StzMathFlatWrongDoors(), StzMathFlatWrongWindows())
 	_o_.SetVariation("wrong")
 	return _o_
+
+# A SEATING PLAN (DN23): a wedding of five tables -- a long top table
+# and four round ones -- and thirty guests seated in order.
+func StzMathWeddingTables()
+	return [ [ "Top table", "long",  8, 5.0, 1.0 ],
+	         [ "Table 1",   "round", 6, 1.4, 4.4 ],
+	         [ "Table 2",   "round", 8, 5.0, 4.6 ],
+	         [ "Table 3",   "round", 6, 8.6, 4.4 ],
+	         [ "Table 4",   "round", 8, 5.0, 8.9 ] ]
+
+func StzMathWeddingGuests()
+	return [ [ "Nour", "Top table" ], [ "Sami", "Top table" ], [ "Mona", "Top table" ], [ "Ali", "Top table" ],
+	         [ "Leila", "Top table" ], [ "Omar", "Top table" ], [ "Yara", "Top table" ], [ "Karim", "Top table" ],
+	         [ "Ann", "Table 1" ], [ "Bob", "Table 1" ], [ "Cal", "Table 1" ], [ "Dana", "Table 1" ], [ "Eli", "Table 1" ],
+	         [ "Fay", "Table 2" ], [ "Gus", "Table 2" ], [ "Hana", "Table 2" ], [ "Ivan", "Table 2" ],
+	         [ "Jo", "Table 2" ], [ "Kim", "Table 2" ], [ "Lee", "Table 2" ],
+	         [ "Max", "Table 3" ], [ "Nina", "Table 3" ], [ "Otto", "Table 3" ], [ "Pia", "Table 3" ], [ "Quinn", "Table 3" ],
+	         [ "Rae", "Table 4" ], [ "Sol", "Table 4" ], [ "Tam", "Table 4" ], [ "Uma", "Table 4" ], [ "Vic", "Table 4" ] ]
+
+func StzMathWeddingApart()
+	return [ [ "Ann", "Fay" ], [ "Max", "Rae" ] ]
+
+func StzMathScene49(poFont)
+	_o_ = StzSeatingDiagram(poFont, StzMathWeddingTables(), StzMathWeddingGuests(), StzMathWeddingApart())
+	_o_.SetVariation("wedding")
+	return _o_
+
+# THE SAME WEDDING WITH ONE OF EACH MISTAKE: a table given seven guests
+# for six seats; a guest seated at two tables; a pair kept apart and
+# seated together; two tables stood so their seats meet. The witness
+# the gate is meant to find things in.
+func StzMathWeddingWrongTables()
+	return [ [ "Top table", "long",  8, 5.0, 1.0 ],
+	         [ "Table 1",   "round", 6, 1.4, 4.4 ],
+	         [ "Table 2",   "round", 8, 5.0, 4.6 ],
+	         [ "Table 3",   "round", 6, 7.9, 4.4 ],
+	         [ "Table 4",   "round", 8, 5.0, 8.9 ] ]
+
+func StzMathWeddingWrongGuests()
+	return [ [ "Nour", "Top table" ], [ "Sami", "Top table" ], [ "Mona", "Top table" ], [ "Ali", "Top table" ],
+	         [ "Leila", "Top table" ], [ "Omar", "Top table" ], [ "Yara", "Top table" ], [ "Karim", "Top table" ],
+	         [ "Ann", "Table 1" ], [ "Bob", "Table 1" ], [ "Cal", "Table 1" ], [ "Dana", "Table 1" ],
+	         [ "Eli", "Table 1" ], [ "Fay", "Table 1" ], [ "Zed", "Table 1" ],
+	         [ "Gus", "Table 2" ], [ "Hana", "Table 2" ], [ "Ivan", "Table 2" ],
+	         [ "Jo", "Table 2" ], [ "Kim", "Table 2" ], [ "Lee", "Table 2" ], [ "Ann", "Table 2" ],
+	         [ "Max", "Table 3" ], [ "Nina", "Table 3" ], [ "Otto", "Table 3" ], [ "Pia", "Table 3" ], [ "Quinn", "Table 3" ],
+	         [ "Rae", "Table 4" ], [ "Sol", "Table 4" ], [ "Tam", "Table 4" ], [ "Uma", "Table 4" ], [ "Vic", "Table 4" ] ]
+
+func StzMathSeatingWitness(poFont)
+	_o_ = StzSeatingDiagram(poFont, StzMathWeddingWrongTables(), StzMathWeddingWrongGuests(), StzMathWeddingApart())
+	_o_.SetVariation("wrong")
+	return _o_
