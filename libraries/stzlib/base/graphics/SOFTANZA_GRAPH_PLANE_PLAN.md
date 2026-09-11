@@ -4038,6 +4038,54 @@ classes and their gates share the shape. Three Ring traps paid again:
 puts the global `decimals()` back to two, so set it after the picture
 and not before; and `oR` is `or`.
 
+## SOUND IS NO ERROR, NOT NO FINDING — one answer where there were ten (2026-09-11, SHIPPED)
+
+**A severity is a dial every rule sets deliberately, and six places were
+throwing it away.** Of the twenty-three rules the five picture domains
+declare, **nine are warnings** — `union_has_two_partners` says *a single
+parent, if that is meant*; `switches_form_no_loop` and `the_edge_is_guarded`
+advise about a network's shape; `gate_has_two_inputs` says a gate with one
+input is a wire. A warning means the picture may stand.
+
+Ten places in this library answered *is it sound*. **Four read the severity**
+— `stzRuleReport.IsSound`, `stzGraphRuleSet.IsSound`,
+`stzPlasticGovernance.IsSound`, and `stzOrgChart.GovernanceIsSound`, which
+asks its rule set rather than counting. **Six counted findings** —
+`stzGraph.RulesAreSound` and the `GovernanceIsSound` of all five picture
+domains. So one family tree, asked twice about one findings list, answered
+**NOT SOUND from itself and SOUND from its own rule set**, and a report over
+the same list agreed with the rule set.
+
+`StzFindingsAreSound(paFindings)` in `stzGraphRule.ring` — where the unified
+finding shape already lives — is the one answer now, and all ten call it or
+delegate to something that does. This is the library's own law read back at
+it: *reuse the house contracts, don't invent parallel ones*. The parallel one
+was not written once and copied; it was written six times, each time by
+someone who knew what sound meant and never asked what the house already
+said.
+
+**Found by writing a narrated guide, which is the transferable part.** The
+guide prints what a picture says about itself before asserting it, so the
+three generations printing `sound 0` beside one warning was visible in a way
+it had not been in any gate — and the gate's own prose had said *"the three
+generations pass"* since the day that section was written, four lines above
+the verb that denied it. **A file that narrates what it checks catches a
+disagreement between a sentence and a verb; a file that only checks cannot.**
+
+*Guard:* §112 grew by three — the positive (tree, rule set, report and house
+answering SOUND together), its negative sibling (an error, and not one of the
+four calls it sound), and a check that the dial is real on both sides, so
+neither can pass on a list whose severities are all the same. The narrated
+family guide carries the pair too, where it was found. Gate 1631 ok, 0
+failed; the four suites that assert these verbs — `graphruleset_narrated`,
+`graphrule_object_narrated`, `orgrule_narrated`, `coderule_narrated` — all
+green, 158 assertions between them. **No section time is claimed:** §91 read
+15 s slower than its last run while the three control sections moved 1–4%,
+and rather than wear that number either way, the section was checked for
+calls — it makes **none** to any of the six changed verbs, and the one
+`IsSound` it calls is the report's, untouched. A call count settles what a
+clock on this machine cannot.
+
 ## DN9 — THE TOLD PICTURE: a narration is facts made visible, in an order (planned 2026-09-06, SHIPPED 2026-09-07 as DN9a through DN9g, all seven closed)
 
 The Principal, after DN8h was explained to him with three diagrams drawn

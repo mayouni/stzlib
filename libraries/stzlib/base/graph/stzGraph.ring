@@ -4475,8 +4475,13 @@ class stzGraph from stzObject
 		ok
 		return @oOwnRuleSet.Check(This)
 
+	# SOUND IS NO ERROR, not no finding -- StzFindingsAreSound is the house's
+	# one answer, and this line counted findings until 2026-09-11. A code
+	# graph carrying only warning-severity findings (thirteen of stzCodeRules'
+	# rules are warnings) read as not sound, which is the opposite of what
+	# setting a rule to warning means.
 	def RulesAreSound()
-		return len(This.CheckRules()) = 0
+		return StzFindingsAreSound(This.CheckRules())
 
 	def AttachedRules()
 		return This._OwnRuleSet().Rules()

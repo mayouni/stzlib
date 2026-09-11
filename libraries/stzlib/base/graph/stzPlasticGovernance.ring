@@ -404,11 +404,7 @@ class stzRuleGovernance from stzObject
 		return _aF_
 
 	def IsSound()
-		_nF_ = len(@aFindings)
-		for _iF_ = 1 to _nF_
-			if @aFindings[_iF_][:severity] = :error  return 0  ok
-		next
-		return 1
+		return StzFindingsAreSound(@aFindings)
 
 	# How much of the corpus each rule actually governs -- the number that
 	# turns "is this scope right" from an opinion into a reading.

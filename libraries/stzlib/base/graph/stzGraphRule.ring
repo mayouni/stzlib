@@ -512,6 +512,30 @@ attributes capture same-named user globals in Ring 1.27, and this file defines
 the globals $aGraphRules / $acStzRulfLoaded right above.
 */
 
+# IS A FINDINGS LIST SOUND? The ONE answer, because six places had written
+# their own and they did not agree with the four that already existed.
+#
+# A severity is a DIAL EVERY RULE SETS DELIBERATELY -- of the twenty-three
+# rules the five picture domains declare, nine are warnings, and a rule that
+# says "a single parent, if that is meant" means the picture may stand. So
+# sound is NO ERROR, never NO FINDING: counting findings throws away the dial
+# and makes a rule that was written to advise behave like one written to
+# refuse. stzRuleReport, stzGraphRuleSet, stzPlasticGovernance and the org
+# chart all read it that way already; stzGraph and the five domain classes
+# each counted findings instead, so the same family tree read SOUND from its
+# own rule set and NOT SOUND from itself, on one findings list.
+#
+# Found 2026-09-11 while writing the narrated guides -- a guide that prints
+# what a picture says about itself is where two verbs disagreeing becomes
+# visible, which is an argument for narrating a thing you believe you know.
+func StzFindingsAreSound(paFindings)
+	if NOT isList(paFindings)  return 1  ok
+	_n_ = len(paFindings)
+	for _i_ = 1 to _n_
+		if paFindings[_i_][:severity] = :error  return 0  ok
+	next
+	return 1
+
 # The ONE source of truth for "what does this rule find on this graph". BOTH the
 # object Check() and the registered closure call it, so they cannot diverge.
 # paSpec = [ :name, :subject, :clauses, :violation, :severity, :checker ].
@@ -1179,14 +1203,7 @@ class stzGraphRuleSet from stzObject
 	# TRUE when no ERROR-severity finding fired (warnings/info advise, like
 	# stzSecurityPosture.IsSound and stzGovernanceChecks).
 	def IsSound(oGraph)
-		_aF_ = This.Check(oGraph)
-		_n_ = len(_aF_)
-		for _i_ = 1 to _n_
-			if _aF_[_i_][:severity] = "error"
-				return 0
-			ok
-		next
-		return 1
+		return StzFindingsAreSound(This.Check(oGraph))
 
 	# Compile every rule down into the shared $aGraphRules registry.
 	def RegisterAll()
