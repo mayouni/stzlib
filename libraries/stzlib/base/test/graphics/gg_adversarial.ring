@@ -16115,6 +16115,127 @@ chk("the choropleth rules govern every region of a map and not one object of a s
     len(oChRule.SubjectsIn(oChM)) = 6 and len(oChRule.SubjectsIn(oStW)) = 0 and len(oChRule.SubjectsIn(oFbC)) = 0 and
     len(oChRule.CounterSubjectsIn(oStW)) > 0 and len(oChRule.CounterSubjectsIn(oChM)) = 0)
 
+sec("-- 119. GG3: A SCENE GRAPH -- AND WHAT ITS KILL CRITERION ACTUALLY ASKED ----")
+discharges("GG3")
+
+# GG3 STOOD UNDECIDED IN THE PLAN'S OWN TABLE for as long as the table has
+# existed, and the plan said why: SetParent shipped on both sides, no gate
+# section was named for it, and "whether that meets GG3's on-device kill
+# criterion is a judgement for whoever owns it". This section is that
+# judgement, made the way this desk makes them -- by measuring the thing
+# the criterion asked about instead of reading the code and forming an
+# opinion.
+#
+# WHAT THE CRITERION ASKED: "if hierarchical propagation cannot stay
+# on-device -- IF ANY FRAME NEEDS A CPU ROUND TRIP TO RESOLVE PARENTS --
+# it falls back to CPU-side composition and the claim shrinks."
+#
+# The failure it feared is a ROUND TRIP: a frame that has to read the
+# device to find out where a child ended up. The instrument for that is
+# not a clock, it is a COUNT -- the scene already publishes its geometry
+# and transform uploads, so a resolve that touches the device cannot hide.
+if StzGraphicsDevice()
+	oG3Ball = new stzMesh([ :Sphere, 0.5 ])
+
+	# A SOLAR SYSTEM: the moon's drawn place is the sun's, times the
+	# earth's, times its own -- which is the whole point of the class.
+	oG3 = new stzScene(320, 240)
+	oG3.SetCamera(0, 3, 8, 0, 0, 0)
+	oG3.AddMesh(oG3Ball, 0, 0, 0)    nG3Sun = oG3.LastIndex()
+	oG3.AddMesh(oG3Ball, 4, 0, 0)    nG3Earth = oG3.LastIndex()
+	oG3.AddMesh(oG3Ball, 1.4, 0, 0)  nG3Moon = oG3.LastIndex()
+	oG3.SetParent(nG3Earth, nG3Sun)
+	oG3.SetParent(nG3Moon, nG3Earth)
+	aG3Before = oG3.Stats()
+	aG3Moon = oG3.WorldPosition(nG3Moon)
+	aG3After = oG3.Stats()
+	chk("a child's world place is its chain composed -- the moon at 4 + 1.4 with the sun at the origin",
+	    fabs(aG3Moon[1] - 5.4) < 0.001 and oG3.HierarchyDepth() = 2)
+	# THE CRITERION, ANSWERED BY COUNTING. Resolving the whole hierarchy
+	# moves neither upload counter, so nothing was sent and nothing was
+	# read back: the resolve never reaches the device at all.
+	chkeq("resolving the hierarchy touches the device ZERO times -- no upload, and so no round trip to read back",
+	      "" + (aG3After[4] - aG3Before[4]) + "/" + (aG3After[5] - aG3Before[5]), "0/0")
+	oG3.MoveTo(nG3Sun, 10, 0, 0)
+	chk("move the sun and the chain follows, with nothing else touched",
+	    fabs(oG3.WorldPosition(nG3Earth)[1] - 14) < 0.001 and
+	    fabs(oG3.WorldPosition(nG3Moon)[1] - 15.4) < 0.001)
+	oG3.ClearParent(nG3Moon)
+	chk("NEGATIVE: a detached child stops following -- back to its own 1.4, which proves the following was the PARENT'S doing",
+	    fabs(oG3.WorldPosition(nG3Moon)[1] - 1.4) < 0.001)
+
+	# AND WHAT A FRAME COSTS, flat against deep. If hierarchy needed the
+	# device, a deep scene would pay something a flat one does not. Same
+	# instance count, same mesh, one chain against none.
+	oG3F = new stzScene(320, 240)
+	oG3F.SetCamera(0, 3, 30, 0, 0, 0)
+	for iG3 = 1 to 60
+		oG3F.AddMesh(oG3Ball, iG3 * 0.1, 0, 0)
+	next
+	oG3F.ToPNG("_gg3_flat.png")
+	aG3F1 = oG3F.Stats()
+	oG3F.ToPNG("_gg3_flat.png")
+	aG3F2 = oG3F.Stats()
+
+	oG3D = new stzScene(320, 240)
+	oG3D.SetCamera(0, 3, 30, 0, 0, 0)
+	nG3Prev = 0
+	for iG3 = 1 to 60
+		oG3D.AddMesh(oG3Ball, 0.1, 0, 0)
+		nG3Id = oG3D.LastIndex()
+		if nG3Prev > 0  oG3D.SetParent(nG3Id, nG3Prev)  ok
+		nG3Prev = nG3Id
+	next
+	oG3D.ToPNG("_gg3_deep.png")
+	aG3D1 = oG3D.Stats()
+	oG3D.ToPNG("_gg3_deep.png")
+	aG3D2 = oG3D.Stats()
+	? "   [60 instances: flat depth " + oG3F.HierarchyDepth() + ", chained depth " + oG3D.HierarchyDepth() + "]"
+	chkeq("a frame costs ONE transform upload whether the scene is flat or fifty-nine links deep -- " +
+	      "hierarchy adds no device traffic, which is what the criterion was protecting",
+	      "" + (aG3F2[5] - aG3F1[5]) + "/" + (aG3D2[5] - aG3D1[5]), "1/1")
+	chkeq("...and one draw call either way -- the chain does not split the batch",
+	      "" + aG3F2[3] + "/" + aG3D2[3], "1/1")
+	chk("the depth is PUBLISHED, so a guard can prove a chain is a chain rather than trusting the word",
+	    oG3F.HierarchyDepth() = 0 and oG3D.HierarchyDepth() = 59)
+
+	# A CYCLE CANNOT RESOLVE, so it is refused and COUNTED rather than hung
+	# on -- the house rule about a refusal naming itself.
+	oG3C = new stzScene(200, 150)
+	oG3C.AddMesh(oG3Ball, 0, 0, 0)  nG3A = oG3C.LastIndex()
+	oG3C.AddMesh(oG3Ball, 1, 0, 0)  nG3B = oG3C.LastIndex()
+	oG3C.SetParent(nG3A, nG3B)
+	oG3C.SetParent(nG3B, nG3A)
+	chk("a parent cycle still ANSWERS, and says how many it refused -- never a hang",
+	    len(oG3C.WorldPosition(nG3A)) = 3 and oG3C.CyclesRefused() > 0)
+	chk("NEGATIVE: an instance parented to ITSELF is refused at the door", oG3C.SetParent(nG3A, nG3A) = FALSE)
+
+	# THE ONE PLACE THE TWO SIDES CAN DISAGREE, asserted so it is known
+	# rather than discovered. A GPU-driven scene's instance buffer belongs
+	# to a compute kernel after the first frame, so a parent change made
+	# afterwards reaches the HOST's answer and not the device's. That is the
+	# mode's own contract, and it is the only case where WorldPosition() and
+	# what is drawn can differ.
+	oG3G = new stzScene(320, 240)
+	oG3G.SetCamera(0, 3, 8, 0, 0, 0)
+	oG3G.AddMesh(oG3Ball, 0, 0, 0)  nG3P = oG3G.LastIndex()
+	oG3G.AddMesh(oG3Ball, 2, 0, 0)  nG3K = oG3G.LastIndex()
+	oG3G.SetParent(nG3K, nG3P)
+	oG3G.SetGpuDriven(TRUE)
+	oG3G.ToPNG("_gg3_driven.png")
+	aG3G1 = oG3G.Stats()
+	oG3G.MoveTo(nG3P, 5, 0, 0)
+	oG3G.ToPNG("_gg3_driven.png")
+	aG3G2 = oG3G.Stats()
+	chk("a GPU-DRIVEN scene keeps the kernel's buffer: the second frame uploads nothing, " +
+	    "so a parent moved afterwards changes the host's answer and not the drawn one",
+	    (aG3G2[5] - aG3G1[5]) = 0 and fabs(oG3G.WorldPosition(nG3K)[1] - 7) < 0.001)
+	chk("NEGATIVE: the same scene NOT gpu-driven uploads on every frame, which is what makes the line above a property and not a coincidence",
+	    _Gg3UploadsWhenNotDriven(oG3Ball))
+else
+	? "   (no device -- GG3 is a property of the scene tier, so it is UNJUDGED here rather than passed)"
+ok
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go
@@ -19158,6 +19279,24 @@ func _OgWitness
 #-- DN18: the family tree section's helpers ----------------------------------
 
 # the same findings put through the house report, which reads severity
+# the control for the gpu-driven assertion: the same scene, same two
+# frames, without the mode -- if this did not upload, the line above would
+# be measuring something else entirely
+func _Gg3UploadsWhenNotDriven poMesh
+	_o_ = new stzScene(320, 240)
+	_o_.SetCamera(0, 3, 8, 0, 0, 0)
+	_o_.AddMesh(poMesh, 0, 0, 0)
+	_p_ = _o_.LastIndex()
+	_o_.AddMesh(poMesh, 2, 0, 0)
+	_k_ = _o_.LastIndex()
+	_o_.SetParent(_k_, _p_)
+	_o_.ToPNG("_gg3_control.png")
+	_a1_ = _o_.Stats()
+	_o_.MoveTo(_p_, 5, 0, 0)
+	_o_.ToPNG("_gg3_control.png")
+	_a2_ = _o_.Stats()
+	return (_a2_[5] - _a1_[5]) = 1
+
 func _FmRepSound paF
 	_o_ = new stzRuleReport("soundness")
 	_o_.Ingest(paF)
