@@ -59,10 +59,14 @@ chk("garbage bytes refuse (id 0)", StzEngineGpuFontLoad("not a font at all") = 0
 ? ""
 ? "-- Scene 2: Latin -- one glyph per char, x strictly advancing --"
 aLat = StzEngineGpuTextLayout(hF, "Softanza", 32)
-# 7 items since the reversibility fields landed (§0 of the GUI plane):
-# width, runs, glyphs, ascender, descender, lineGap, paraRtl. They were
-# APPENDED, never reordered -- items 1..3 mean what they always meant.
-chk("layout answers width, runs, glyphs and metrics", len(aLat) = 7)
+# 9 items: 7 since the reversibility fields landed (§0 of the GUI plane):
+# width, runs, glyphs, ascender, descender, lineGap, paraRtl -- and DN12
+# appended inkTop and inkBottom (a label centres on its CAP height). Every
+# field was APPENDED, never reordered -- items 1..3 mean what they always
+# meant. (The guard said 7 from DN12 until 2026-09-11: a drift, not a fault.)
+chk("layout answers width, runs, glyphs and metrics", len(aLat) = 9)
+# both ink distances are POSITIVE, measured away from the baseline like the metrics
+chk("the ink band lies inside the em box: inkTop <= ascender, inkBottom <= descender", aLat[8] <= aLat[4] and aLat[9] <= aLat[5])
 aG = aLat[3]
 chk("8 chars -> 8 glyphs", len(aG) = 8)
 chk("one visual run", aLat[2] = 1)

@@ -78,8 +78,12 @@ aSt = StzEngineGpuSceneStats(hS)
 # GR5 widened this to 6: `builds` counts TESSELLATIONS, and a frame loop
 # needed to know about UPLOADS as well -- a still scene that re-tessellates
 # once can still re-upload its whole vertex set 60 times a second, which is
-# exactly what the window found it doing.
-chk("stats answer [cmds, shapeV, textV, segs, builds, uploads]", len(aSt) = 6)
+# exactly what the window found it doing. DN3b widened it to 10: what a build
+# COULD NOT DRAW -- text dropped, glyphs dropped, shape and text draws refused
+# -- so an invisible failure is a number a guard can fail on. This guard read
+# six for a month after that and was red (found 2026-09-11 auditing the plane).
+chk("stats answer [cmds, shapeV, textV, segs, builds, uploads, textDropped, glyphsDropped, shapeRefused, textRefused]", len(aSt) = 10)
+chk("a healthy scene dropped and refused nothing (the four DN3b slots are 0)", aSt[7] = 0 and aSt[8] = 0 and aSt[9] = 0 and aSt[10] = 0)
 chk("3 commands", aSt[1] = 3)
 # rect 6 verts + circle 3*N + line (quad 6 + 2 discs of 3*M)
 nSegC = StzEngineGpuCircleSegments(25)

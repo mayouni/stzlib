@@ -183,16 +183,23 @@ class stzSoundGrid
 		return oC
 
 	def ToSVG(pnWidth, pnHeight)
-		return This.ToCanvas(pnWidth, pnHeight).ToSVG()
+		_oCv_ = This.ToCanvas(pnWidth, pnHeight)
+		_c_ = _oCv_.ToSVG()
+		_oCv_.Free()   # the transient canvas's engine scene goes with it (2026-09-11)
+		return _c_
 
 	# Write the picture. SVG always works -- it needs no device at all, which
 	# is what lets a CI machine draw a spectrogram.
 	def ToSVGFile(pcPath, pnWidth, pnHeight)
-		write(pcPath, This.ToCanvas(pnWidth, pnHeight).ToSVG())
+		_oCv_ = This.ToCanvas(pnWidth, pnHeight)
+		write(pcPath, _oCv_.ToSVG())
+		_oCv_.Free()
 
 	# PNG goes through the GPU tier, so it needs a device. SVG does not.
 	def ToPNG(pcPath, pnWidth, pnHeight)
-		This.ToCanvas(pnWidth, pnHeight).ToPNG(pcPath)
+		_oCv_ = This.ToCanvas(pnWidth, pnHeight)
+		_oCv_.ToPNG(pcPath)
+		_oCv_.Free()
 
 	#-- private -------------------------------------------------------------
 

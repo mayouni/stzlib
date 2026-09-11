@@ -490,6 +490,16 @@ var tile_limit: u32 = 32768; // max workgroups per submit. From G0: 16384 wg of
 
 // ---------------------------------------------------------------- public API
 
+/// An instance restricted to `backends` (a WGPUInstanceBackend mask; All = 0).
+fn createInstance(backends: c.WGPUInstanceBackend) c.WGPUInstance {
+    var extras = std.mem.zeroes(c.WGPUInstanceExtras);
+    extras.chain.sType = c.WGPUSType_InstanceExtras;
+    extras.backends = backends;
+    var idesc = std.mem.zeroes(c.WGPUInstanceDescriptor);
+    idesc.nextInChain = @ptrCast(&extras.chain);
+    return fns.wgpuCreateInstance(&idesc);
+}
+
 pub fn stz_gpu_init(path: [*:0]const u8) callconv(.c) i32 {
     if (available) return 1;
     clearErrors();
@@ -497,15 +507,32 @@ pub fn stz_gpu_init(path: [*:0]const u8) callconv(.c) i32 {
         setLastError("wgpu runtime not loadable");
         return 0;
     }
+    // THE INSTANCE ASKS VULKAN FIRST (2026-09-11). An instance over ALL backends
+    // enumerates D3D12 and GL as well, and on this machine that enumeration
+    // cost 450 ms warm and 2.3 s cold while every adapter it ever picked came
+    // from Vulkan (both the RTX 3050 and the Intel iGPU). A Vulkan-only
+    // instance enumerates in 3 ms and Init lands at ~240 ms instead of 0.65-2.5 s
+    // -- the first picture, the first seam, the first Wake all paid it. A
+    // machine whose Vulkan lists nothing (a driver without it) falls back to
+    // the all-backends instance, exactly the behaviour this replaced.
     if (instance == null) {
-        instance = fns.wgpuCreateInstance(null);
+        instance = createInstance(c.WGPUInstanceBackend_Vulkan);
         if (instance == null) {
             setLastError("wgpuCreateInstance failed");
             return 0;
         }
     }
     if (adapters.len == 0) {
-        const count = fns.wgpuInstanceEnumerateAdapters(instance, null, null);
+        var count = fns.wgpuInstanceEnumerateAdapters(instance, null, null);
+        if (count == 0) {
+            fns.wgpuInstanceRelease(instance);
+            instance = createInstance(c.WGPUInstanceBackend_All);
+            if (instance == null) {
+                setLastError("wgpuCreateInstance failed");
+                return 0;
+            }
+            count = fns.wgpuInstanceEnumerateAdapters(instance, null, null);
+        }
         if (count == 0) {
             setLastError("no adapters");
             return 0;

@@ -368,7 +368,9 @@ class stzGraphCanvas from stzObject
 
 	def ToPNG(pcPath)
 		_o_ = This.ToCanvas()
-		return _o_.ToPNG(pcPath)
+		_c_ = _o_.ToPNG(pcPath)
+		_o_.Free()   # the transient canvas's scene, and its GPU target, go with it
+		return _c_
 
 	#-- internals ----------------------------------------------------------
 
