@@ -89,10 +89,22 @@ class stzHistogram from stzObject
 		return StzPlotCanvasQ(:Histogram, @aBinCounts, @aBinLabels, paOptions)
 
 	def ToSVG(paOptions)
-		return This.ToCanvasQ(paOptions).ToSVG()
+		# the canvas is TRANSIENT: its engine scene (a target texture on the GPU
+		# tier, vertex buffers, the command list) is freed once the answer is taken --
+		# a picture per call used to leave a texture live per call (found 2026-09-11)
+		_oCv_ = This.ToCanvasQ(paOptions)
+		_cOut_ = _oCv_.ToSVG()
+		_oCv_.Free()
+		return _cOut_
 
 	def ToPNG(pcPath, paOptions)
-		return This.ToCanvasQ(paOptions).ToPNG(pcPath)
+		# the canvas is TRANSIENT: its engine scene (a target texture on the GPU
+		# tier, vertex buffers, the command list) is freed once the answer is taken --
+		# a picture per call used to leave a texture live per call (found 2026-09-11)
+		_oCv_ = This.ToCanvasQ(paOptions)
+		_cOut_ = _oCv_.ToPNG(pcPath)
+		_oCv_.Free()
+		return _cOut_
 
 	# Whatever this returns is what is measured AND what is drawn, so the two
 	# cannot drift apart again.

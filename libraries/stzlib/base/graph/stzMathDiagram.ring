@@ -4412,7 +4412,13 @@ class stzMathDiagram from stzObject
 		return _oC_
 
 	def ToSVG()
-		return This.ToCanvas().ToSVG()
+		# the canvas is TRANSIENT: its engine scene (a target texture on the GPU
+		# tier, vertex buffers, the command list) is freed once the answer is taken --
+		# a picture per call used to leave a texture live per call (found 2026-09-11)
+		_oCv_ = This.ToCanvas()
+		_cOut_ = _oCv_.ToSVG()
+		_oCv_.Free()
+		return _cOut_
 
 	#-- A VALUE THAT SAYS WHAT IT IS (DN9g) ---------------------------------
 
@@ -4453,7 +4459,13 @@ class stzMathDiagram from stzObject
 		return @oSubstance
 
 	def ToPNG(pcPath)
-		return This.ToCanvas().ToPNG(pcPath)
+		# the canvas is TRANSIENT: its engine scene (a target texture on the GPU
+		# tier, vertex buffers, the command list) is freed once the answer is taken --
+		# a picture per call used to leave a texture live per call (found 2026-09-11)
+		_oCv_ = This.ToCanvas()
+		_cOut_ = _oCv_.ToPNG(pcPath)
+		_oCv_.Free()
+		return _cOut_
 
 	#-- WHAT THIS PICTURE CAN ANSWER (DN9b) --------------------------------
 
