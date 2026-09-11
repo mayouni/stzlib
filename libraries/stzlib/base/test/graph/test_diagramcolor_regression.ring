@@ -6,9 +6,9 @@
 
 load "../../stzBase.ring"
 
-nPsd = 0
-nFld = 0
-nTtl = 0
+$nPsd = 0
+$nFld = 0
+$nTtl = 0
 
 ? "=== stzDiagramColor integration regression ==="
 
@@ -77,20 +77,20 @@ chk("Palette alias works",                aP2 != NULL)
 # ------------------------------------------------------------
 ? ""
 ? "=========================="
-? "Total:  " + nTtl
-? "Passed: " + nPsd
-? "Failed: " + nFld
-if nFld = 0
+? "Total:  " + $nTtl
+? "Passed: " + $nPsd
+? "Failed: " + $nFld
+if $nFld = 0
 	? "ALL stzDiagramColor CHECKS PASSED!"
 else
 	? "SOME stzDiagramColor CHECKS FAILED!"
 ok
 
 func chk(cLabel, bCond)
-	nTtl++
+	$nTtl++
 	if bCond
-		nPsd++
+		$nPsd++
 	else
-		nFld++
+		$nFld++
 		? "  FAIL: " + cLabel
 	ok

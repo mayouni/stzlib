@@ -23,7 +23,7 @@ load "../../stzBase.ring"
 ---------------------------------------------------------------------------*/
 
 decimals(2)
-nOk = 0  nBad = 0
+$nOk = 0  nBad = 0
 
 ? "=============================================================="
 ? " C3 -- contrast as a number"
@@ -191,7 +191,7 @@ chk("the two metrics reach different verdicts somewhere", nDiffer > 0)
 ? "=============================================================="
 ? " VERDICT : " + iif(nBad = 0, "C3 PASSES -- the themes clear the stated minimum",
                      "C3 FAILS -- see the failures above; they are the finding")
-? " " + nOk + " ok, " + nBad + " failed"
+? " " + $nOk + " ok, " + nBad + " failed"
 ? "=============================================================="
 
 #---------------------------------------------------------------------------
@@ -199,7 +199,7 @@ chk("the two metrics reach different verdicts somewhere", nDiffer > 0)
 func chk cWhat, bCond
 	if bCond
 		? "   ok   " + cWhat
-		nOk++
+		$nOk++
 	else
 		? "  FAIL  " + cWhat
 		nBad++

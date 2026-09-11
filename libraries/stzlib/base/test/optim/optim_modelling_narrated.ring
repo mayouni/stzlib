@@ -25,8 +25,8 @@
 
 load "../../stzBase.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 nT0 = clock()
 nSec = clock()
 
@@ -374,7 +374,7 @@ sec("scene 7")
 
 ? ""
 ? "=========================================="
-? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
+? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "WALL:  " + ((clock() - nT0) / clockspersecond()) + "s"
 ? "=========================================="
 
@@ -384,10 +384,10 @@ pf()
 
 func chk(cWhat, bCond)
 	if bCond = 1
-		nPass++
+		$nPass++
 		? "  [OK] " + cWhat
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cWhat
 	ok
 

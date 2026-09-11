@@ -79,12 +79,12 @@ REF_CY = (REF_H - REF_BAR) / 2
 # The live layout, recomputed EVERY FRAME from the window (Layout() below).
 # Computing it once at startup is what made the first gallery drift off
 # centre the moment anybody dragged an edge.
-nW = REF_W
-nH = REF_H
-nBar = REF_BAR
-nDrawH = nH - nBar
-nCX = nW / 2
-nCY = nDrawH / 2           # centre of what the eye reads as the picture,
+$nW = REF_W
+$nH = REF_H
+$nBar = REF_BAR
+$nDrawH = $nH - $nBar
+nCX = $nW / 2
+nCY = $nDrawH / 2           # centre of what the eye reads as the picture,
                            # NOT of the canvas -- otherwise every scene sits
                            # low and the biggest ones run under the caption
 nScale = 1                 # uniform, from whichever axis is tighter
@@ -110,14 +110,14 @@ next
 
 #-- the window -------------------------------------------------------------
 
-oWin = new stzWindow(nW, nH, "Softanza Graphics -- the gallery")
+oWin = new stzWindow($nW, $nH, "Softanza Graphics -- the gallery")
 if NOT oWin.CanDraw()
 	? "A window opened but there is no GPU device to draw with."
 	oWin.Free()
 	return
 ok
 
-oCanvas = new stzCanvas(nW, nH)
+oCanvas = new stzCanvas($nW, $nH)
 
 # Shaped text, through the GR2 pipeline (bidi -> HarfBuzz -> stb). Optional:
 # the gallery draws fine without it, it just loses its captions.
@@ -171,8 +171,8 @@ nClock = 0           # the one animation clock, in seconds
 nParticles = 620
 aPx = []  aPy = []  aPh = []  aPl = []
 for i = 1 to nParticles
-	aPx + (random(1000) / 1000 * nW)
-	aPy + (random(1000) / 1000 * nH)
+	aPx + (random(1000) / 1000 * $nW)
+	aPy + (random(1000) / 1000 * $nH)
 	aPh + (random(359))
 	aPl + (30 + random(150))        # staggered, so they do not all die at once
 next
@@ -297,23 +297,23 @@ oWin.Free()
 # at one consistent size -- reading the window twice in a frame is how a
 # resize produces one torn picture.
 func Layout
-	_pw_ = nW
-	_ph_ = nH
-	nW = oWin.Width()
-	nH = oWin.Height()
-	if nW < 1  nW = 1  ok
-	if nH < 1  nH = 1  ok
+	_pw_ = $nW
+	_ph_ = $nH
+	$nW = oWin.Width()
+	$nH = oWin.Height()
+	if $nW < 1  $nW = 1  ok
+	if $nH < 1  $nH = 1  ok
 
 	# Chrome shrinks with the window but has a floor: a 62 px bar on a
 	# 200 px window is not a caption, it is the window.
-	nBar = nH * 0.094
-	if nBar > REF_BAR  nBar = REF_BAR  ok
-	if nBar < 34       nBar = 34       ok
-	if nBar > nH * 0.5  nBar = nH * 0.5  ok
+	$nBar = $nH * 0.094
+	if $nBar > REF_BAR  $nBar = REF_BAR  ok
+	if $nBar < 34       $nBar = 34       ok
+	if $nBar > $nH * 0.5  $nBar = $nH * 0.5  ok
 
-	nDrawH = nH - nBar
-	nCX = nW / 2
-	nCY = nDrawH / 2
+	$nDrawH = $nH - $nBar
+	nCX = $nW / 2
+	nCY = $nDrawH / 2
 
 	# ONE uniform scale, so circles stay circles -- scaling x and y
 	# independently would stretch every scene into an ellipse the moment the
@@ -331,8 +331,8 @@ func Layout
 	nScale = nScale / REF_CY
 	if nScale < 0.12  nScale = 0.12  ok
 
-	nBarFont = 26 * nBar / REF_BAR
-	nBarSub = 15 * nBar / REF_BAR
+	nBarFont = 26 * $nBar / REF_BAR
+	nBarSub = 15 * $nBar / REF_BAR
 	if nBarFont < 11  nBarFont = 11  ok
 	if nBarSub < 9    nBarSub = 9    ok
 
@@ -341,7 +341,7 @@ func Layout
 	# the frame as arcs that belong to a window that no longer exists --
 	# clearly visible as streaks flying off the edge. Particles self-heal
 	# because they wrap; trails have no such mechanism, so they are dropped.
-	if nW != _pw_ or nH != _ph_
+	if $nW != _pw_ or $nH != _ph_
 		Reflow()
 	ok
 
@@ -354,9 +354,9 @@ func Reflow
 	# pull any particle that is now far outside back into view, so a shrink
 	# does not leave most of the field parked off-screen waiting to expire
 	for i = 1 to nParticles
-		if aPx[i] < -20 or aPx[i] > nW + 20 or aPy[i] < -20 or aPy[i] > nH + 20
-			aPx[i] = random(1000) / 1000 * nW
-			aPy[i] = random(1000) / 1000 * nH
+		if aPx[i] < -20 or aPx[i] > $nW + 20 or aPy[i] < -20 or aPy[i] > $nH + 20
+			aPx[i] = random(1000) / 1000 * $nW
+			aPy[i] = random(1000) / 1000 * $nH
 		ok
 	next
 
@@ -381,14 +381,14 @@ func StepFlow dt
 		aPh[i] = floor((nA / TWO_PI * 360) % 360)
 		if aPh[i] < 0  aPh[i] += 360  ok
 		# wrap, with a margin so nothing pops at the edge
-		if aPx[i] < -20      aPx[i] = nW + 20  ok
-		if aPx[i] > nW + 20  aPx[i] = -20      ok
-		if aPy[i] < -20      aPy[i] = nH + 20  ok
-		if aPy[i] > nH + 20  aPy[i] = -20      ok
+		if aPx[i] < -20      aPx[i] = $nW + 20  ok
+		if aPx[i] > $nW + 20  aPx[i] = -20      ok
+		if aPy[i] < -20      aPy[i] = $nH + 20  ok
+		if aPy[i] > $nH + 20  aPy[i] = -20      ok
 		aPl[i]--
 		if aPl[i] <= 0
-			aPx[i] = random(1000) / 1000 * nW
-			aPy[i] = random(1000) / 1000 * nH
+			aPx[i] = random(1000) / 1000 * $nW
+			aPy[i] = random(1000) / 1000 * $nH
 			aPl[i] = 30 + random(150)
 		ok
 	next
@@ -426,7 +426,7 @@ func DrawScene
 	cKind = aScenes[nScene][1]
 
 	# every scene sits on the same deep vertical wash
-	oCanvas.AddGradientRect(0, 0, nW, nH, "#070A14", "#141C33", TRUE)
+	oCanvas.AddGradientRect(0, 0, $nW, $nH, "#070A14", "#141C33", TRUE)
 	if bGrid
 		DrawGrid()
 	ok
@@ -584,21 +584,21 @@ func Glow x, y, r, hue
 func DrawGrid
 	nStep = 55 * nScale
 	if nStep < 18  nStep = 18  ok
-	for x = 0 to nW step nStep
-		oCanvas.AddLineQ(x, 0, x, nDrawH).Stroke("#FFFFFF12", Wid(1))
+	for x = 0 to $nW step nStep
+		oCanvas.AddLineQ(x, 0, x, $nDrawH).Stroke("#FFFFFF12", Wid(1))
 	next
-	for y = 0 to nDrawH step nStep
-		oCanvas.AddLineQ(0, y, nW, y).Stroke("#FFFFFF12", Wid(1))
+	for y = 0 to $nDrawH step nStep
+		oCanvas.AddLineQ(0, y, $nW, y).Stroke("#FFFFFF12", Wid(1))
 	next
 
 # The caption bar. Text goes through the same shaping pipeline that draws
 # Arabic correctly -- a title is just its easiest case.
 func DrawFrame
-	oCanvas.AddRectQ(0, nDrawH, nW, nBar).Fill("#05070Fdd")
-	oCanvas.AddLineQ(0, nDrawH, nW, nDrawH).Stroke("#2A3358", Wid(1))
+	oCanvas.AddRectQ(0, $nDrawH, $nW, $nBar).Fill("#05070Fdd")
+	oCanvas.AddLineQ(0, $nDrawH, $nW, $nDrawH).Stroke("#2A3358", Wid(1))
 
-	nPad = nBar * 0.42
-	nDot = nBar / REF_BAR
+	nPad = $nBar * 0.42
+	nDot = $nBar / REF_BAR
 	if nDot < 0.55  nDot = 0.55  ok
 
 	# Scene ticks, RIGHT-aligned. They used to sit under the title at the
@@ -607,8 +607,8 @@ func DrawFrame
 	# size they landed on the text. Opposite ends cannot collide.
 	nS = len(aScenes)
 	nGap = 20 * nDot
-	nTickY = nDrawH + nBar * 0.5
-	nTickR = nW - nPad
+	nTickY = $nDrawH + $nBar * 0.5
+	nTickR = $nW - nPad
 	for i = 1 to nS
 		nBx = nTickR - (nS - i) * nGap
 		if i = nScene
@@ -625,7 +625,7 @@ func DrawFrame
 	# subtitle 25. Naming the size in each chain is unambiguous, and it is
 	# the form the class documents.
 	if isObject(oFont)
-		_nTy_ = nDrawH + nBar * 0.66
+		_nTy_ = $nDrawH + $nBar * 0.66
 		_cTitle_ = aScenes[nScene][2]
 		_nTw_ = oFont.WidthOf(_cTitle_, nBarFont)
 		oCanvas.AddTextQ(_cTitle_, nPad, _nTy_).
@@ -635,7 +635,7 @@ func DrawFrame
 		# shaped advance -- not an estimate from character count -- is what
 		# lets it disappear exactly when it would have overflowed, instead
 		# of a guess that either clips or drops it too early.
-		_nSx_ = nPad + _nTw_ + nBar * 0.42
+		_nSx_ = nPad + _nTw_ + $nBar * 0.42
 		_nSw_ = oFont.WidthOf(aScenes[nScene][3], nBarSub)
 		if _nSx_ + _nSw_ < nTicksLeft - nPad
 			oCanvas.AddTextQ(aScenes[nScene][3], _nSx_, _nTy_).

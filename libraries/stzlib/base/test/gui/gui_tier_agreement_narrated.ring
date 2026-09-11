@@ -28,8 +28,8 @@
 
 load "../../stzBase.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 if NOT StzGuiAvailable()
 	? "No layout engine on this machine -- nothing to compare."
@@ -107,7 +107,7 @@ if NOT oC.CanDrawPixels()
 	? "No GPU on this machine -- the raster half is skipped, and the"
 	? "comparison stays UNPROVEN rather than being assumed."
 	? "=============================================================="
-	? " " + nPass + " ok, " + nFail + " failed"
+	? " " + $nPass + " ok, " + $nFail + " failed"
 	? "=============================================================="
 	return
 ok
@@ -158,7 +158,7 @@ oP.Free()
 
 ? ""
 ? "=============================================================="
-? " " + nPass + " ok, " + nFail + " failed"
+? " " + $nPass + " ok, " + $nFail + " failed"
 ? "=============================================================="
 
 #-- helpers ---------------------------------------------------------------
@@ -288,9 +288,9 @@ func _InkIn cPix, nW, nH, aBox
 
 func chk cLabel, bCond
 	if bCond
-		nPass++
+		$nPass++
 		? "  [OK] " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok

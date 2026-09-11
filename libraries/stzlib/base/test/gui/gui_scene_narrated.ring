@@ -33,8 +33,8 @@ load "../../stzBase.ring"
 ? " THE IN-SCENE PANEL: a click through a camera"
 ? "=========================================================="
 
-nOK = 0
-nBad = 0
+$nOK = 0
+$nBad = 0
 
 if NOT StzGuiAvailable()
 	? "No layout engine on this machine -- nothing to hang in a world."
@@ -467,7 +467,7 @@ ok
 #---------------------------------------------------------------------
 ? ""
 ? "=========================================================="
-? " " + nOK + " assertions green, " + nBad + " failed"
+? " " + $nOK + " assertions green, " + $nBad + " failed"
 ? "=========================================================="
 ? ""
 
@@ -475,9 +475,9 @@ ok
 
 func Chk(cWhat, bCond)
 	if bCond
-		nOK++
+		$nOK++
 	else
-		nBad++
+		$nBad++
 		? "  FAIL: " + cWhat
 	ok
 

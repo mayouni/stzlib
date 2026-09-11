@@ -23,8 +23,8 @@
 
 load "../../stzBase.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 pr()
 decimals(2)
@@ -42,7 +42,7 @@ if NOT oV.IsUsable()
 	? "   No voice here. Every speaking scene is SKIPPED, and that is a pass:"
 	? "   the library works without one."
 	? ""
-	? "" + nPass + " passed, " + nFail + " failed  (no voice, scenes skipped)"
+	? "" + $nPass + " passed, " + $nFail + " failed  (no voice, scenes skipped)"
 	bye
 ok
 
@@ -254,8 +254,8 @@ Chk("the refusal was counted", oV.Refusals() > nBefore)
 
 # ---------------------------------------------------------------------------
 ? ""
-? "" + nPass + " passed, " + nFail + " failed"
-if nFail > 0
+? "" + $nPass + " passed, " + $nFail + " failed"
+if $nFail > 0
 	? "GUARD FAILED"
 ok
 
@@ -263,9 +263,9 @@ ok
 
 func Chk cLabel, bCond
 	if bCond
-		nPass++
+		$nPass++
 		? "  [ok]   " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok

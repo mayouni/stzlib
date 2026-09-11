@@ -6,9 +6,9 @@
 
 load "../../stzBase.ring"
 
-nPsd = 0
-nFld = 0
-nTtl = 0
+$nPsd = 0
+$nFld = 0
+$nTtl = 0
 
 ? "=== stzDataSet integration regression ==="
 
@@ -99,20 +99,20 @@ chk("Non-list ctor raises",          bRaised = 1)
 # ------------------------------------------------------------
 ? ""
 ? "=========================="
-? "Total:  " + nTtl
-? "Passed: " + nPsd
-? "Failed: " + nFld
-if nFld = 0
+? "Total:  " + $nTtl
+? "Passed: " + $nPsd
+? "Failed: " + $nFld
+if $nFld = 0
 	? "ALL stzDataSet CHECKS PASSED!"
 else
 	? "SOME stzDataSet CHECKS FAILED!"
 ok
 
 func chk(cLabel, bCond)
-	nTtl++
+	$nTtl++
 	if bCond
-		nPsd++
+		$nPsd++
 	else
-		nFld++
+		$nFld++
 		? "  FAIL: " + cLabel
 	ok

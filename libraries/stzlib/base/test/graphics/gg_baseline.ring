@@ -26,7 +26,7 @@ load "../../stzBase.ring"
 ---------------------------------------------------------------------------*/
 
 decimals(2)
-nOk = 0  nBad = 0
+$nOk = 0  nBad = 0
 
 ? "=============================================================="
 ? " THE CPU BASELINE -- how much of the speedup is the seam?"
@@ -267,7 +267,7 @@ chk("the algorithm's share grows with n (it is asymptotic, as designed)",
 
 ? ""
 ? "=============================================================="
-? " " + nOk + " ok, " + nBad + " failed"
+? " " + $nOk + " ok, " + nBad + " failed"
 ? "=============================================================="
 
 #---------------------------------------------------------------------------
@@ -275,7 +275,7 @@ chk("the algorithm's share grows with n (it is asymptotic, as designed)",
 func chk cWhat, bCond
 	if bCond
 		? "   ok   " + cWhat
-		nOk++
+		$nOk++
 	else
 		? "  FAIL  " + cWhat
 		nBad++

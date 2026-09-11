@@ -18,7 +18,7 @@ load "../../stzBase.ring"
 ---------------------------------------------------------------------------*/
 
 decimals(4)
-nOk = 0  nBad = 0
+$nOk = 0  nBad = 0
 
 ? "=============================================================="
 ? " GR5 -- windows, input, and presentation"
@@ -394,7 +394,7 @@ chk("an unknown key name is REFUSED, not read as key 0", bRaised2)
 #---------------------------------------------------------------------------
 ? ""
 ? "=============================================================="
-? " " + nOk + " ok, " + nBad + " failed"
+? " " + $nOk + " ok, " + nBad + " failed"
 ? "=============================================================="
 
 #---------------------------------------------------------------------------
@@ -405,7 +405,7 @@ chk("an unknown key name is REFUSED, not read as key 0", bRaised2)
 func chk cWhat, bCond
 	if bCond
 		? "   ok   " + cWhat
-		nOk++
+		$nOk++
 	else
 		? "  FAIL  " + cWhat
 		nBad++

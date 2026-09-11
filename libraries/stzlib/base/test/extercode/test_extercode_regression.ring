@@ -7,9 +7,9 @@
 
 load "../../stzBase.ring"
 
-nPsd = 0
-nFld = 0
-nTtl = 0
+$nPsd = 0
+$nFld = 0
+$nTtl = 0
 
 ? "=== stzExterCode integration regression ==="
 
@@ -73,20 +73,20 @@ chk("Language switch works",         isObject(oM))
 # ------------------------------------------------------------
 ? ""
 ? "=========================="
-? "Total:  " + nTtl
-? "Passed: " + nPsd
-? "Failed: " + nFld
-if nFld = 0
+? "Total:  " + $nTtl
+? "Passed: " + $nPsd
+? "Failed: " + $nFld
+if $nFld = 0
 	? "ALL stzExterCode CHECKS PASSED!"
 else
 	? "SOME stzExterCode CHECKS FAILED!"
 ok
 
 func chk(cLabel, bCond)
-	nTtl++
+	$nTtl++
 	if bCond
-		nPsd++
+		$nPsd++
 	else
-		nFld++
+		$nFld++
 		? "  FAIL: " + cLabel
 	ok

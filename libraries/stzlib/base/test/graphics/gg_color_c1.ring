@@ -23,7 +23,7 @@ load "../../stzBase.ring"
 ---------------------------------------------------------------------------*/
 
 decimals(3)
-nOk = 0  nBad = 0
+$nOk = 0  nBad = 0
 
 ? "=============================================================="
 ? " C1 -- the OKLCH ramp against its kill criterion"
@@ -216,7 +216,7 @@ ok
 ? ""
 ? "=============================================================="
 ? " VERDICT : " + iif(nBad = 0, "C1 PASSES its kill criterion", "C1 FAILS -- keep sRGB")
-? " " + nOk + " ok, " + nBad + " failed"
+? " " + $nOk + " ok, " + nBad + " failed"
 ? "=============================================================="
 
 #---------------------------------------------------------------------------
@@ -224,7 +224,7 @@ ok
 func chk cWhat, bCond
 	if bCond
 		? "   ok   " + cWhat
-		nOk++
+		$nOk++
 	else
 		? "  FAIL  " + cWhat
 		nBad++

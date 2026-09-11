@@ -29,8 +29,8 @@
 
 load "../../stzBase.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 cHere = StzReplace(WorkingDirectory(), "\", "/")
 cFx = cHere + "/_safeworld-fixture"
@@ -376,7 +376,7 @@ chk("...and carries the pointer where the next reader will see it",
 
 ? ""
 ? "=========================================="
-? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
+? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
 StzDirDeleteAll(cFx)
@@ -385,10 +385,10 @@ pf()
 
 func chk(cWhat, bCond)
 	if bCond = 1
-		nPass++
+		$nPass++
 		? "  [OK] " + cWhat
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cWhat
 	ok
 

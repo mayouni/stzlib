@@ -24,7 +24,7 @@ load "../../stzBase.ring"
 ---------------------------------------------------------------------------*/
 
 decimals(2)
-nOk = 0  nBad = 0
+$nOk = 0  nBad = 0
 
 ? "=============================================================="
 ? " C4 -- shading in linear space"
@@ -156,7 +156,7 @@ chk("the falloff is a gradient, not a cliff", len(aSeen) > 40)
 ? " VERDICT : " + iif(nBad = 0,
 	"C4 PASSES -- shading is linear, and nothing else moved",
 	"C4 FAILS -- see above")
-? " " + nOk + " ok, " + nBad + " failed"
+? " " + $nOk + " ok, " + nBad + " failed"
 ? "=============================================================="
 
 #---------------------------------------------------------------------------
@@ -164,7 +164,7 @@ chk("the falloff is a gradient, not a cliff", len(aSeen) > 40)
 func chk cWhat, bCond
 	if bCond
 		? "   ok   " + cWhat
-		nOk++
+		$nOk++
 	else
 		? "  FAIL  " + cWhat
 		nBad++

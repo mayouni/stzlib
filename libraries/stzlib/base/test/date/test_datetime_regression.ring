@@ -9,9 +9,9 @@
 
 load "../../stzBase.ring"
 
-nPsd = 0
-nFld = 0
-nTtl = 0
+$nPsd = 0
+$nFld = 0
+$nTtl = 0
 
 ? "=== stzDateTime integration regression ==="
 
@@ -145,20 +145,20 @@ chk("Year 9999-12-31 accepted",     oFut.Year() = 9999 and oFut.DayN() = 31)
 # ------------------------------------------------------------
 ? ""
 ? "=========================="
-? "Total:  " + nTtl
-? "Passed: " + nPsd
-? "Failed: " + nFld
-if nFld = 0
+? "Total:  " + $nTtl
+? "Passed: " + $nPsd
+? "Failed: " + $nFld
+if $nFld = 0
 	? "ALL stzDateTime CHECKS PASSED!"
 else
 	? "SOME stzDateTime CHECKS FAILED!"
 ok
 
 func chk(cLabel, bCond)
-	nTtl++
+	$nTtl++
 	if bCond
-		nPsd++
+		$nPsd++
 	else
-		nFld++
+		$nFld++
 		? "  FAIL: " + cLabel
 	ok

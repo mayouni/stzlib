@@ -29,8 +29,8 @@ load "stdlib.ring"
 $cEngineDir = "../../../engine"
 load "../../../engine/stz_gpu.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 # Arabic codepoints, UTF-8 bytes composed explicitly (no source-encoding
 # dependence): seen (0633), waw (0648), fa (0641), ta (062A), alef (0627),
@@ -223,14 +223,14 @@ StzEngineGpuFontFree(hF)
 
 ? ""
 ? "=========================================="
-? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
+? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
 func chk cLabel, bCond
 	if bCond
-		nPass++
+		$nPass++
 		? "  [OK] " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok

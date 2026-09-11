@@ -27,7 +27,7 @@ load "../../stzBase.ring"
 ---------------------------------------------------------------------------*/
 
 decimals(2)
-nOk = 0  nBad = 0
+$nOk = 0  nBad = 0
 
 ? "=============================================================="
 ? " CONVERGENCE -- what happens when a graph cannot settle"
@@ -215,7 +215,7 @@ chkeq("  ...and reachability round a cycle is 1 each", aI[1], 1)
 
 ? ""
 ? "=============================================================="
-? " " + nOk + " ok, " + nBad + " failed"
+? " " + $nOk + " ok, " + nBad + " failed"
 ? "=============================================================="
 
 #---------------------------------------------------------------------------
@@ -223,7 +223,7 @@ chkeq("  ...and reachability round a cycle is 1 each", aI[1], 1)
 func chk cWhat, bCond
 	if bCond
 		? "   ok   " + cWhat
-		nOk++
+		$nOk++
 	else
 		? "  FAIL  " + cWhat
 		nBad++

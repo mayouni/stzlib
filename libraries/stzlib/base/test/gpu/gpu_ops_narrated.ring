@@ -28,8 +28,8 @@ load "../../../engine/stz_gpu.ring"
 
 decimals(12)  # the measured-error printouts are the point; 2 decimals hides them
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 S_OK = 0
 S_FALLBACK = 1
@@ -461,15 +461,15 @@ ok
 
 ? ""
 ? "=========================================="
-? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
+? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
 func chk cLabel, bCond
 	if bCond
-		nPass++
+		$nPass++
 		? "  [OK] " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok
 

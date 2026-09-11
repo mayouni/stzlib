@@ -33,7 +33,7 @@ load "../../stzBase.ring"
 ---------------------------------------------------------------------------*/
 
 decimals(2)
-nOk = 0  nBad = 0  nSecClock = 0
+$nOk = 0  nBad = 0  nSecClock = 0
 
 # THIS SUITE IS ITS OWN FAST PATH -- 20 seconds for every section, so
 # there is nothing to scope away and no skipping to disclose. It was
@@ -4209,7 +4209,7 @@ if nSecClock > 0
 	  ((clock() - nSecClock) / clockspersecond()) + "s]"
 ok
 ? "=============================================================="
-? " " + nOk + " ok, " + nBad + " failed"
+? " " + $nOk + " ok, " + nBad + " failed"
 ? "=============================================================="
 
 #---------------------------------------------------------------------------
@@ -4229,7 +4229,7 @@ func sec cTitle
 func chk cWhat, bCond
 	if bCond
 		? "   ok   " + cWhat
-		nOk++
+		$nOk++
 	else
 		? "  FAIL  " + cWhat
 		nBad++

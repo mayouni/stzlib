@@ -21,8 +21,8 @@
 
 load "../../stzBase.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 nSkip = 0
 
 C_REFUSALS = 0
@@ -49,7 +49,7 @@ if NOT StzAudioDevEngineLoaded()
 	? "         That is a legitimate configuration. The whole sample tier"
 	? "         still works -- run sound_samples_narrated.ring to see it."
 	? ""
-	? "" + nPass + " passed, " + nFail + " failed, 1 skipped (no device DLL)"
+	? "" + $nPass + " passed, " + $nFail + " failed, 1 skipped (no device DLL)"
 	bye
 ok
 Chk("the loader reports the DLL present", StzAudioDevEngineLoaded())
@@ -73,8 +73,8 @@ if nAvail = 0
 	Chk("backend name is 'none'", StzEngineAudioDevBackendName() = "none")
 	Chk("LastError explains the refusal", len(StzEngineAudioDevLastError()) > 0)
 	? ""
-	? "" + nPass + " passed, " + nFail + " failed"
-	if nFail > 0
+	? "" + $nPass + " passed, " + $nFail + " failed"
+	if $nFail > 0
 		? "GUARD FAILED"
 	ok
 	bye
@@ -174,8 +174,8 @@ StzEngineSoundFree(nTmpId)
 
 # ---------------------------------------------------------------------------
 ? ""
-? "" + nPass + " passed, " + nFail + " failed, " + nSkip + " skipped"
-if nFail > 0
+? "" + $nPass + " passed, " + $nFail + " failed, " + nSkip + " skipped"
+if $nFail > 0
 	? "GUARD FAILED"
 ok
 
@@ -183,9 +183,9 @@ ok
 
 func Chk cLabel, bCond
 	if bCond
-		nPass++
+		$nPass++
 		? "  [ok]   " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok
