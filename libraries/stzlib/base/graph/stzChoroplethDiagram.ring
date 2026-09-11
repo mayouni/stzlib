@@ -80,6 +80,8 @@ func StzChoroplethDomain()
 	next
 	_o_.AddPredicate("NoData", [ "Region" ])
 	_o_.AddPredicate("NoDataSwatch", [ "Swatch" ])
+	# the legend's entry for what lies beyond the classes
+	_o_.AddPredicate("OutsideSwatch", [ "Swatch" ])
 	# A FAULT IS DRAWN, NOT HIDDEN: a value outside the classes, a class
 	# with no region, a swatch lighter than the one before it
 	_o_.AddPredicate("Outside", [ "Region" ])
@@ -176,8 +178,6 @@ func StzChoroplethFromRegionsXT(pcQuantity, paRegions, paEdges, paPalette)
 	_nMapW_ = StzChoroplethWidth() - StzChoroplethLegendWidth() - 2 * _nM_
 	_nK_ = _nMapW_ / (_nX1_ - _nX0_)
 	_nH_ = ceil((_nY1_ - _nY0_) * _nK_ + 2 * _nM_)
-	_nLegH_ = 40 + (_nC_ + 2) * 26
-	if _nLegH_ > _nH_  _nH_ = _nLegH_  ok
 
 	# THE REGIONS: each in its class, its centroid found, its points in pixels
 	_anCount_ = []
@@ -223,22 +223,35 @@ func StzChoroplethFromRegionsXT(pcQuantity, paRegions, paEdges, paPalette)
 		ok
 	next
 
-	# THE LEGEND: its title, a swatch per class with its range, and a
-	# swatch for no data where the map has a hole
+	# THE LEGEND: its title, a swatch per class with its range, then an
+	# entry for whatever lies beyond the classes, then a swatch for no
+	# data where the map has a hole. THE LEGEND SAYS WHY. The Principal
+	# read the witness cold: "the centre is 450 and it is not in the
+	# legend; and some entries of the legend are not on the map". Both
+	# were the planted faults, rimmed in the fault's colour -- and a rim
+	# says something is wrong without saying what. So a class that
+	# colours nothing says so after its range, a shade out of order says
+	# so, and a value beyond the classes gets an entry of its own in the
+	# fault's colour, so that every region on the map is in the legend.
 	_nLx_ = StzChoroplethWidth() - StzChoroplethLegendWidth() + 10
 	_oS_.Declare("Legend", "lg")
 	_oS_.Label("lg", "" + pcQuantity)
 	_oS_.SetData("lg", "x", _nLx_)
 	_oS_.SetData("lg", "y", _nM_ + 6)
 	_oS_.SetData("lg", "classes", _nC_)
-	_oS_.SetData("lg", "paperw", StzChoroplethWidth())
-	_oS_.SetData("lg", "paperh", _nH_)
+	_nRow_ = 0
 	for _c_ = 1 to _nC_
 		_cL_ = "l" + _c_
+		_nRow_++
 		_oS_.Declare("Swatch", _cL_)
-		_oS_.Label(_cL_, StzFactNumText(paEdges[_c_]) + " - " + StzFactNumText(paEdges[_c_ + 1]))
+		_cRange_ = StzFactNumText(paEdges[_c_]) + " - " + StzFactNumText(paEdges[_c_ + 1])
+		_cSay_ = _cRange_
+		if _anCount_[_c_] = 0  _cSay_ += "  (no region)"  ok
+		_bMis_ = _c_ > 1 and StzColorLuminance(_aPal_[_c_]) >= StzColorLuminance(_aPal_[_c_ - 1])
+		if _bMis_  _cSay_ += "  (out of order)"  ok
+		_oS_.Label(_cL_, _cSay_)
 		_oS_.SetData(_cL_, "x", _nLx_ + 11)
-		_oS_.SetData(_cL_, "y", _nM_ + 24 + _c_ * 26)
+		_oS_.SetData(_cL_, "y", _nM_ + 24 + _nRow_ * 26)
 		_oS_.SetData(_cL_, "lo", paEdges[_c_])
 		_oS_.SetData(_cL_, "hi", paEdges[_c_ + 1])
 		_oS_.SetData(_cL_, "index", _c_)
@@ -246,23 +259,54 @@ func StzChoroplethFromRegionsXT(pcQuantity, paRegions, paEdges, paPalette)
 		_oS_.SetData(_cL_, "lum", StzColorLuminance(_aPal_[_c_]))
 		_oS_.Assert("K" + _c_, [ _cL_ ])
 		if _anCount_[_c_] = 0  _oS_.Assert("Empty", [ _cL_ ])  ok
-		if _c_ > 1 and StzColorLuminance(_aPal_[_c_]) >= StzColorLuminance(_aPal_[_c_ - 1])
-			_oS_.Assert("Misordered", [ _cL_ ])
-		ok
+		if _bMis_  _oS_.Assert("Misordered", [ _cL_ ])  ok
 	next
+	# what lies beyond the classes, above and below, in the fault's colour
+	_nAbove_ = 0  _nBelow_ = 0
+	for _i_ = 1 to _nR_
+		if NOT _oS_.Holds("Outside", [ "r" + _i_ ])  loop  ok
+		if _oS_.DataOf("r" + _i_, "value") > paEdges[_nE_]  _nAbove_++  else  _nBelow_++  ok
+	next
+	if _nAbove_ > 0
+		_nRow_++
+		_oS_.Declare("Swatch", "labove")
+		_oS_.Label("labove", "above " + StzFactNumText(paEdges[_nE_]) + "  (no class)")
+		_ChExtraSwatch(_oS_, "labove", _nLx_ + 11, _nM_ + 24 + _nRow_ * 26, _nAbove_)
+		_oS_.Assert("OutsideSwatch", [ "labove" ])
+	ok
+	if _nBelow_ > 0
+		_nRow_++
+		_oS_.Declare("Swatch", "lbelow")
+		_oS_.Label("lbelow", "below " + StzFactNumText(paEdges[1]) + "  (no class)")
+		_ChExtraSwatch(_oS_, "lbelow", _nLx_ + 11, _nM_ + 24 + _nRow_ * 26, _nBelow_)
+		_oS_.Assert("OutsideSwatch", [ "lbelow" ])
+	ok
 	if _bNoData_
+		_nRow_++
 		_oS_.Declare("Swatch", "lnd")
 		_oS_.Label("lnd", "no data")
-		_oS_.SetData("lnd", "x", _nLx_ + 11)
-		_oS_.SetData("lnd", "y", _nM_ + 24 + (_nC_ + 1) * 26)
-		_oS_.SetData("lnd", "index", 0)
-		_oS_.SetData("lnd", "regions", 0)
-		_oS_.SetData("lnd", "lum", 0)
-		_oS_.SetData("lnd", "lo", 0)
-		_oS_.SetData("lnd", "hi", 0)
+		_ChExtraSwatch(_oS_, "lnd", _nLx_ + 11, _nM_ + 24 + _nRow_ * 26, 0)
 		_oS_.Assert("NoDataSwatch", [ "lnd" ])
 	ok
+	_nLegH_ = _nM_ + 24 + (_nRow_ + 1) * 26 + 10
+	if _nLegH_ > _nH_  _nH_ = _nLegH_  ok
+	_oS_.SetData("lg", "paperw", StzChoroplethWidth())
+	_oS_.SetData("lg", "paperh", _nH_)
 	return _oS_
+
+# a legend entry that is no class: no index, no range
+func _ChExtraSwatch(poS, pcL, pnX, pnY, pnRegions)
+	poS.SetData(pcL, "x", pnX)
+	poS.SetData(pcL, "y", pnY)
+	poS.SetData(pcL, "index", 0)
+	poS.SetData(pcL, "regions", pnRegions)
+	poS.SetData(pcL, "lum", 0)
+	poS.SetData(pcL, "lo", 0)
+	poS.SetData(pcL, "hi", 0)
+
+# a class's range, said as the legend says it, without the reason
+func _ChRange(poS, pcL)
+	return StzFactNumText(poS.DataOf(pcL, "lo")) + " - " + StzFactNumText(poS.DataOf(pcL, "hi"))
 
 # the class a value falls in: the classes are [ e_i, e_i+1 ), the last
 # closed at its top; 0 where the value is outside them all
@@ -348,6 +392,10 @@ func StzChoroplethStyle(pnW, pnH, paPalette, paCounts)
 			[ :shape, "r.text", :text, [ :cx = "r.cx", :cy = "r.cy - 9", :size = 12, :fill = [ :on, "paper" ] ] ],
 			[ :layer, "r.text", :above, "r.icon" ] ])
 	next
+	_o_.ForAllWhere("Swatch s", "OutsideSwatch(s)", [
+		[ :shape, "s.icon", :rect, [ :cx = "s.x", :cy = "s.y", :w = 22, :h = 14,
+		                             :fill = [ :alpha, "danger", 0.35 ], :stroke = "danger", :strokeWidth = 2 ] ],
+		[ :shape, "s.text", :text, [ :cx = "s.x + 18 + s.text.w / 2", :cy = "s.y", :size = 11, :fill = [ :on, "paper" ] ] ] ])
 	_o_.ForAllWhere("Swatch s", "NoDataSwatch(s)", [
 		[ :shape, "s.icon", :rect, [ :cx = "s.x", :cy = "s.y", :w = 22, :h = 14,
 		                             :fill = [ :alpha, "neutral", 0.18 ], :stroke = "neutral", :strokeWidth = 1 ] ],
@@ -550,8 +598,8 @@ func StzChoroplethRuleSet()
 		_oS_ = oDg.Substance()
 		if _oS_.Holds("Misordered", [ _cL_ ])
 			_n_ = _oS_.DataOf(_cL_, "index")
-			return [ FALSE, "class " + _n_ + " (" + _ChName(_oS_, _cL_) + ") is lighter than class " + (_n_ - 1) +
-				" (" + _ChName(_oS_, "l" + (_n_ - 1)) + ") -- a darker colour means more" ]
+			return [ FALSE, "class " + _n_ + " (" + _ChRange(_oS_, _cL_) + ") is lighter than class " + (_n_ - 1) +
+				" (" + _ChRange(_oS_, "l" + (_n_ - 1)) + ") -- a darker colour means more" ]
 		ok
 		return [ TRUE, "" ]
 	})
@@ -585,7 +633,7 @@ func StzChoroplethRuleSet()
 		_cL_ = StzStringSection(cSub, 7, len(cSub))
 		_oS_ = oDg.Substance()
 		if _oS_.DataOf(_cL_, "regions") = 0
-			return [ FALSE, "class " + _oS_.DataOf(_cL_, "index") + " (" + _ChName(_oS_, _cL_) +
+			return [ FALSE, "class " + _oS_.DataOf(_cL_, "index") + " (" + _ChRange(_oS_, _cL_) +
 				") colours no region -- the legend promises a shade the map never shows" ]
 		ok
 		return [ TRUE, "" ]

@@ -3934,12 +3934,25 @@ legend promises for nothing; the no-data swatch is no class). Faults are
 drawn — the region beyond the classes in the colour of a fault, the
 offending swatches rimmed — and the marks are held to the verdicts.
 
+**The legend says why (2026-09-11, the Principal's reading).** Shown the
+witness cold, the Principal read what a reader would: *the centre is 450
+and it is not represented in the legend; and some entries of the legend
+do not exist as values on the map.* Both were the planted faults, and the
+rules reported both — but the picture rimmed two swatches in the fault's
+colour and said nothing more, and a rim says something is wrong without
+saying what. So the legend explains itself now: a class that colours
+nothing says *(no region)* after its range, a shade out of order says
+*(out of order)*, and a value beyond the classes gets an entry of its own
+in the fault's colour — *above 400 (no class)* — so that every region on
+the map is in the legend. The rules' messages read the range, never the
+label, so the reason written in the legend does not leak into a finding.
+
 **Said plainly and left out.** Regions are simple polygons the author
 gives, not fetched from an atlas; a projection is the author's business;
 classes are the author's edges, not computed quantiles; no north arrow,
 no scale bar, no coastline beyond the regions.
 
-*Guard:* §118, 28 assertions; §91 grew by two pictures. Catalogue:
+*Guard:* §118, 30 assertions; §91 grew by two pictures. Catalogue:
 `gg_math_catalogue.ring`, scenes 51 and 52.
 
 ## DN9 — THE TOLD PICTURE: a narration is facts made visible, in an order (planned 2026-09-06, SHIPPED 2026-09-07 as DN9a through DN9g, all seven closed)
