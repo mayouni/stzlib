@@ -4284,3 +4284,49 @@ next:
   - me:      the Principal's word; the gate's diet is owed
   - central: none
 ```
+
+```yaml
+by:        stzlib-graphics · claude-fable-5-1 · 2026-09-11 12:43
+
+subject:   the gate's diet -- 388 s of sections to 267 s, same assertions
+
+why:       the one gate had grown to ten minutes after DN24 and
+           CENTRAL-PXLATENCY-01 says a section over budget owes a diet
+
+did:
+  - Tabulated every rule's scope and counter once in CheckRules, so the
+    contested-subject question reads a table instead of asking each
+    scope once per pair of rules (39,000 calls where 2,900 differ).
+  - Solved a picture in the caller's list before any copy is taken:
+    Ring copies an object it stores, and a copy of an unsolved picture
+    solved itself again at its first question -- three layouts per
+    picture, 26 s of the governor.
+  - Read the filled regions of a picture once in the colour section's
+    readability instrument, and cached a math diagram's drawn names
+    once per solve (Texts()).
+  - Measured on the section clocks of one run: section 91 115 s to
+    37 s, section 92 84 s to 9 s, total 388 s to 267 s; 1628 ok,
+    findings unchanged. CLAUDE.md's FAST PATH carries the new figure.
+  - Merged the GPU desk's texture change (2fa5daad8) into the working
+    tree before committing; a smoke probe on the merged tree judged
+    and rendered three pictures.
+
+state:
+  gg_adversarial:   1628 ok, 0 failed, 267 s of sections
+  commit:           283266d78 on origin and codeberg, verified by ls-remote
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the Principal's word (shape sheet with the seven network
+             glyphs, narrated guides for the nine new domains)
+  - central: the copy-before-solve law is transferable to any desk
+             whose objects carry a lazy cache; a line in PX.md is
+             Central's call
+
+note:      none of the three costs looked slow in the source; the
+           section clocks found them, which is what the clocks are for
+```
