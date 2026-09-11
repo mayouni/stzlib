@@ -4153,3 +4153,37 @@ next:
   - me:      the Principal's word on the next domain
   - central: none
 ```
+
+```yaml
+by:        stzlib-graphics · claude-fable-5-1 · 2026-09-11 01:27
+
+subject:   DN23 seating plans -- tables, seats, guests, shipped
+
+why:       the Principal's word: "go ahead with seating"
+
+did:
+  - Built stzSeatingDiagram on the math plane: round and long tables
+    where the host puts them, seats computed around each, guests
+    seated in order, every name anchored beyond its seat to read
+    outward; nothing minted as an unknown.
+  - Wrote four rules about the plan -- an overbooked table naming who
+    found no seat, a name seated twice on both listings, a pair kept
+    apart together, two tables whose seats meet -- faults drawn and the
+    marks held to the verdicts.
+  - Folded section 117 (28 assertions) and two pictures into the one
+    gate; the math catalogue is 50 scenes.
+
+state:
+  gg_adversarial:   1595 ok, 0 failed
+  commit:           cfbf880bf on origin and codeberg, verified at the sha
+  domains left:     choropleth maps
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the Principal's word
+  - central: none
+```
