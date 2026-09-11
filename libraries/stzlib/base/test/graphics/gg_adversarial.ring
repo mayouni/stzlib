@@ -13597,21 +13597,26 @@ aOgP + [ "timeline/witness", StzMathTimelineWitness(AUFONT) ]
 # reported on both listings, the effect among its own causes.
 aOgP + [ "fishbone/coffee", StzMathScene45(AUFONT) ]
 aOgP + [ "fishbone/witness", StzMathFishboneWitness(AUFONT) ]
+# AND THE FLOOR PLAN (DN22): the flat, and the witness with one of each
+# mistake about the building -- an overlap on both rooms, a room with no
+# door, two rooms nobody can reach, a window onto a room.
+aOgP + [ "floorplan/flat", StzMathScene47(AUFONT) ]
+aOgP + [ "floorplan/witness", StzMathFloorPlanWitness(AUFONT) ]
 nOgT0 = StzEngineWatchTimestampMs()
 oOgRep = StzCheckPictures(aOgP)
 nOgMs = StzEngineWatchTimestampMs() - nOgT0
-chk("eighty-two pictures are judged by one call -- thirty-six notation, forty-six mathematical",
-    len(aOgP) = 82)
+chk("eighty-four pictures are judged by one call -- thirty-six notation, forty-eight mathematical",
+    len(aOgP) = 84)
 chk("and the report's findings are exactly the five things the corpus plants on purpose -- " +
     "the contradiction, the frame whose mark is outside the part it shows, " +
-    "the three-bonded oxygen, the stray hydrogen, the schedule, the timeline and the cause analysis with three mistakes each",
-    oOgRep.NumberOfFindings() = 21 and
+    "the three-bonded oxygen, the stray hydrogen, the schedule, the timeline and the cause analysis with three mistakes each, and the plan with four",
+    oOgRep.NumberOfFindings() = 27 and
     _OgAllFromAny(oOgRep, [ "math/5", "math/window/marked out of view",
         "chem/witness/three-bonded oxygen", "chem/witness/stray hydrogen", "gantt/witness",
-        "timeline/witness", "fishbone/witness" ]))
+        "timeline/witness", "fishbone/witness", "floorplan/witness" ]))
 chk("the contradiction's constraints arrive as :diagram; the rim, the off-window mark, " +
-    "the two chemistry findings, the five schedule, the four timeline and the four fishbone findings as :plastic",
-    len(oOgRep.FindingsOfSubject(:diagram)) = 4 and len(oOgRep.FindingsOfSubject(:plastic)) = 17)
+    "the two chemistry findings, the five schedule, the four timeline, the four fishbone and the six plan findings as :plastic",
+    len(oOgRep.FindingsOfSubject(:diagram)) = 4 and len(oOgRep.FindingsOfSubject(:plastic)) = 23)
 chk("and the gate is NOT sound, because a contradiction is a finding and not a pass",
     NOT oOgRep.IsSound())
 # a wall time is decoration on this machine, so the bound is set where it
@@ -13632,7 +13637,7 @@ aOgR = oOgG.CheckRules()
 for iOg = 1 to len(aOgR)
 	? "   RULE FINDING " + aOgR[iOg][:rule] + " @ " + aOgR[iOg][:where] + " -- " + aOgR[iOg][:message]
 next
-chkeq("the five math rules, the two chemistry rules, the three gantt, three timeline and three fishbone rules pass the " +
+chkeq("the five math rules, the two chemistry rules, the three gantt, three timeline, three fishbone and four floor-plan rules pass the " +
       "five questions -- none empty, vacuous, or unwitnessed",
       len(aOgR), 0)
 
@@ -15715,6 +15720,105 @@ chk("a subnet's members stand inside its frame",
 chk("the last server and the first person stand more than a mark and a name apart, not 61px",
     _PnCentreX(oNwO, "pc1") - _PnCentreX(oNwO, "db") > 150)
 chk("a topology answers Rendition() as a vector", oNwO.Rendition()[:kind] = "vector")
+
+sec("-- 116. DN22: A FLOOR PLAN -- ROOMS TO SCALE, THE RULES OF A BUILDING --------")
+discharges("DN22")
+
+# NOTHING TO SOLVE: a room is four numbers in metres, an opening a place
+# on a wall and a width, and every pixel follows by one scale.
+oFpF = StzMathScene47(AUFONT)
+oFpF.Layout()
+oFpS = oFpF.Substance()
+? "   flat : " + oFpF.NumberOfShapes() + " shapes, " + oFpF.NumberOfUnknowns() +
+  " unknowns, " + floor(oFpF.LayoutMs()) + " ms -- " + oFpF.Why()
+chkeq("a floor plan mints no unknown -- there is nothing to lay out", oFpF.NumberOfUnknowns(), 0)
+chk("six rooms, six doors, six windows, an area for every room and one scale bar",
+    len(oFpS.ObjectsOfType("Room")) = 6 and len(oFpS.ObjectsOfType("Door")) = 6 and
+    len(oFpS.ObjectsOfType("Window")) = 6 and len(oFpS.ObjectsOfType("Area")) = 6 and
+    len(oFpS.ObjectsOfType("Scale")) = 1)
+
+# DISTANCE MEANS LENGTH: one scale for both axes, the plan filling the
+# paper's width less its margins, and the scale bar one metre long.
+nFpK = (StzFloorPlanWidth() - 2 * StzFloorPlanMargin()) / 11
+chk("a metre is one width everywhere: the living room's five and the hall's six metres, on both axes",
+    fabs(oFpS.DataOf("r2", "w") - 5 * nFpK) < 0.01 and fabs(oFpS.DataOf("r1", "h") - 6 * nFpK) < 0.01 and
+    fabs(oFpS.DataOf("sc", "x1") - oFpS.DataOf("sc", "x0") - nFpK) < 0.01)
+chk("a room's area is its metres multiplied, as a fact and as the text under its name",
+    oFpF.Fact(:datum, [ "r2", "area" ])[:value] = 20 and oFpS.LabelOf("a2") = "20 m2" and
+    StzFloorPlanAreaText(4.5) = "4.5 m2" and StzFloorPlanAreaText(6) = "6 m2")
+
+# A DOOR FACES WHAT LIES ACROSS ITS WALL, and serves both rooms; a
+# window on an outside wall says so.
+chk("the hall's west door faces the outside; its east doors face the living room and the kitchen",
+    oFpS.Holds("Exterior", [ "d1" ]) and oFpS.DataOf("d1", "faces") = 0 and
+    oFpS.DataOf("d2", "faces") = 2 and oFpS.DataOf("d3", "faces") = 3)
+chk("the bedroom's south door faces the study, and counts for the study too: one door, two rooms",
+    oFpS.DataOf("d6", "room") = 5 and oFpS.DataOf("d6", "faces") = 6 and
+    oFpS.DataOf("r6", "doors") = 1 and oFpS.DataOf("r1", "doors") = 3)
+chk("every window of the flat looks outward, and says so",
+    len(_TlMarked(oFpF, "Window", "Outward")) = 6 and len(_TlMarked(oFpF, "Window", "Inward")) = 0)
+chk("a door's leaf is as long as the door is wide, and its swing a quarter circle of that radius",
+    fabs(_FpDist(oFpS, "d2", "x1", "y1", "lx", "ly") - 0.9 * nFpK) < 0.01 and
+    fabs(_FpDist(oFpS, "d2", "x1", "y1", "ax", "ay") - 0.9 * nFpK) < 0.01 and
+    fabs(_FpDist(oFpS, "d2", "x1", "y1", "x2", "y2") - 0.9 * nFpK) < 0.01)
+aFpF = StzCheckPictures([ [ "flat", oFpF ] ]).Findings()
+for iFp = 1 to len(aFpF)
+	if iFp <= 4  ? "   FLAT FINDING " + aFpF[iFp][:rule] + " -- " + aFpF[iFp][:message]  ok
+next
+chk("the flat is lawful and the one gate finds nothing in it -- no name on a wall or a swing",
+    oFpF.IsFeasible() and len(aFpF) = 0)
+chk("and it answers Rendition() as a vector like every other picture",
+    oFpF.Rendition()[:kind] = "vector")
+
+# THE RULES ARE ABOUT THE BUILDING. The witness has one of each mistake
+# -- the overlap reported on both rooms, the unreachable pair on both.
+oFpW = StzMathFloorPlanWitness(AUFONT)
+aFpW = StzCheckPictures([ [ "wrong", oFpW ] ]).Findings()
+? "   witness : " + len(aFpW) + " findings -- " + _GtByRule(aFpW)
+chk("two rooms sharing floor are caught on both, with the floor they share",
+    _PorHits(aFpW, "rooms_do_not_overlap") = 2 and
+    _GtHas(aFpW, "'Living' and 'Pantry' share 2 m2 of floor"))
+chk("a room with no door is caught, by name",
+    _PorHits(aFpW, "every_room_has_a_door") = 1 and _GtHas(aFpW, "'Bath' has no door"))
+chk("a bedroom and a study whose only door is between them are both caught -- nobody can reach either",
+    _PorHits(aFpW, "every_room_is_reachable") = 2 and
+    _GtHas(aFpW, "'Bedroom' cannot be reached from outside") and _GtHas(aFpW, "'Study' cannot be reached from outside"))
+chk("a window from one room into another is caught, naming the wall and both rooms",
+    _PorHits(aFpW, "windows_face_outside") = 1 and
+    _GtHas(aFpW, "the window on the east wall of 'Living' looks into 'Bedroom'"))
+chkeq("...and those six are all the gate finds", len(aFpW), 6)
+
+# A FAULT IS DRAWN, AND THE MARKS ARE HELD TO THE VERDICTS.
+chk("the overlapping rooms are marked, exactly as the rule says",
+    _TlMarkedEquals(oFpW, "Room", "Overlapping", aFpW, "rooms_do_not_overlap", "room:"))
+chk("the doorless room and the unreachable rooms are marked, exactly as the rules say",
+    _TlMarkedEquals(oFpW, "Room", "Doorless", aFpW, "every_room_has_a_door", "room:") and
+    _TlMarkedEquals(oFpW, "Room", "Unreachable", aFpW, "every_room_is_reachable", "room:"))
+chk("the inward window is marked, exactly as the rule says, and drawn in the colour of a fault",
+    _TlMarkedEquals(oFpW, "Window", "Inward", aFpW, "windows_face_outside", "window:") and
+    oFpW.StrokeOf("w2.icon") != oFpW.StrokeOf("w1.icon"))
+chk("NEGATIVE: nothing in the lawful flat is marked as a fault",
+    len(_TlMarked(oFpF, "Room", "Overlapping")) = 0 and len(_TlMarked(oFpF, "Room", "Doorless")) = 0 and
+    len(_TlMarked(oFpF, "Room", "Unreachable")) = 0)
+
+# THE BOUNDARIES. Rooms that touch along a wall do not overlap; a room
+# with no door is the second rule's and outside the third; and the
+# builder refuses what it cannot mean.
+oFpRule3 = StzFloorPlanRuleSet()[3]
+chk("NEGATIVE: the bath, with no door, is outside the rule about reach and inside the rule about doors",
+    _ErInList("room:r4", oFpRule3.CounterSubjectsIn(oFpW)) and NOT _ErInList("room:r4", oFpRule3.SubjectsIn(oFpW)) and
+    _ErInList("room:r4", StzFloorPlanRuleSet()[2].SubjectsIn(oFpW)))
+chk("NEGATIVE: the living room and the kitchen share a wall, not floor",
+    _PorHits(aFpF, "rooms_do_not_overlap") = 0)
+chk("a door past the corner of its wall is refused, with the numbers", _FpRefuses(1))
+chk("a side that is not n, e, s or w is refused", _FpRefuses(2))
+chk("a door on a room that is not in the plan, and a room named twice, are refused", _FpRefuses(3) and _FpRefuses(4))
+chk("a room of no width, and a plan of no rooms, are refused", _FpRefuses(5) and _FpRefuses(6))
+oFpRule = StzFloorPlanRuleSet()[1]
+chk("the floor-plan rules govern every room of a plan and not one object of a fishbone or a timeline -- " +
+    "the boundary is stood on",
+    len(oFpRule.SubjectsIn(oFpF)) = 6 and len(oFpRule.SubjectsIn(oFbC)) = 0 and len(oFpRule.SubjectsIn(oTlH)) = 0 and
+    len(oFpRule.CounterSubjectsIn(oFbC)) > 0 and len(oFpRule.CounterSubjectsIn(oFpF)) = 0)
 
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
@@ -19249,6 +19353,31 @@ func _ErRefusesKind
 	catch
 		# a symbol is a lowercase string in Ring, so the name comes back so
 		return StzFindFirst("sometimes", StzLower(cCatchError)) > 0
+	done
+	return FALSE
+
+#-- DN22: the floor plan section's helpers -----------------------------------
+
+func _FpDist poS, pcObj, pcXa, pcYa, pcXb, pcYb
+	_dx_ = poS.DataOf(pcObj, pcXb) - poS.DataOf(pcObj, pcXa)
+	_dy_ = poS.DataOf(pcObj, pcYb) - poS.DataOf(pcObj, pcYa)
+	return sqrt(_dx_ * _dx_ + _dy_ * _dy_)
+
+func _FpRefuses pnCase
+	try
+		if pnCase = 1  StzFloorPlanFromRooms([ [ "A", 0, 0, 3, 3 ] ], [ [ "A", "n", 2.5, 1 ] ], [])  ok
+		if pnCase = 2  StzFloorPlanFromRooms([ [ "A", 0, 0, 3, 3 ] ], [ [ "A", "up", 1, 1 ] ], [])  ok
+		if pnCase = 3  StzFloorPlanFromRooms([ [ "A", 0, 0, 3, 3 ] ], [ [ "Nowhere", "n", 1, 1 ] ], [])  ok
+		if pnCase = 4  StzFloorPlanFromRooms([ [ "A", 0, 0, 3, 3 ], [ "a", 3, 0, 3, 3 ] ], [], [])  ok
+		if pnCase = 5  StzFloorPlanFromRooms([ [ "A", 0, 0, 0, 3 ] ], [], [])  ok
+		if pnCase = 6  StzFloorPlanFromRooms([], [], [])  ok
+	catch
+		if pnCase = 1  return StzFindFirst("runs from 2.50 to 3.50 m on a wall 3 m long", cCatchError) > 0  ok
+		if pnCase = 2  return StzFindFirst("a side is n, e, s or w", cCatchError) > 0  ok
+		if pnCase = 3  return StzFindFirst("Nowhere", cCatchError) > 0  ok
+		if pnCase = 4  return StzFindFirst("two rooms are named", cCatchError) > 0  ok
+		if pnCase = 5  return StzFindFirst("positive width", cCatchError) > 0  ok
+		return StzFindFirst("at least one room", cCatchError) > 0
 	done
 	return FALSE
 

@@ -371,6 +371,8 @@ ok
     load "graph/stzTimelineDiagram.ring"
     # a fishbone is an effect, its categories of cause, and the causes on them (DN20)
     load "graph/stzFishboneDiagram.ring"
+    # a floor plan is rooms to scale, doors and windows on their walls (DN22)
+    load "graph/stzFloorPlanDiagram.ring"
     load "graph/stzOrgChart.ring"
     # org-governance rules over the org chart's graph projection (phase 2b):
     # the compliance bases carry these -- loaded after stzOrgChart (its bases

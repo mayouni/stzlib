@@ -125,6 +125,7 @@ sections, of which 21 declarations over 17 items.
 | DN19 | closed | 113 |
 | DN20 | closed | 114 |
 | DN21 | closed | 115 |
+| DN22 | closed | 116 |
 | DN9 | closed | - |
 | DN9a | closed | 97 |
 | DN9b | closed | 98 |
@@ -3805,6 +3806,45 @@ redundancy protocols and wireless reach are not here; addresses are IPv4.
 
 *Guard:* §115, 30 assertions; §91 grew by three pictures. Catalogue:
 `gg_network_catalogue.ring`, network_01 to network_03.
+
+## DN22 — A FLOOR PLAN: rooms to scale, the rules of a building (2026-09-11, SHIPPED)
+
+**Distance means length.** The timeline's law turned into two dimensions: a
+room is four numbers in metres, a door and a window are a place on a wall
+and a width, and every pixel follows from those by one scale, the plan
+filling the paper's width and a bar of one metre saying so. Nothing is
+solved; it is the Gantt's kind of picture on the math plane, answering
+`Fact()` in square metres. It lives in `base/graph/stzFloorPlanDiagram.ring`.
+
+**What it is.** `StzFloorPlanDomain()`: `Room`, `Door`, `Window`, `Area`
+(a text shape draws its owner's label, so a room's area is an object of
+its own), `Scale`; the facing predicates `Exterior` and `Outward`.
+`StzFloorPlanFromRooms(rooms, doors, windows)` takes `[name, x, y, w, h]`
+and `[room, side, offset, width]` with side n, e, s or w; it reads which
+rooms abut which along which wall and says for every opening what it
+faces — another room or the outside — and a door counts for both rooms
+it stands between. A door is drawn as a gap in the wall with its leaf on
+one jamb and its swing a quarter circle into the room; a window as a light
+band across the wall; a room as its walls with its name and area inside.
+`StzFloorPlanDiagram(font, rooms, doors, windows)` is the whole picture.
+
+**Four rules, every one about the building.** `rooms_do_not_overlap`
+(reported on both, with the floor they share; rooms that touch along a
+wall do not overlap), `every_room_has_a_door`, `every_room_is_reachable`
+(from outside, through doors — a bedroom and a study whose only door is
+between them are both caught; a room with no door is the second rule's
+and outside this one), `windows_face_outside` (naming the wall and both
+rooms). A fault is drawn in the colour of a fault and the marks are held to
+the verdicts. The corpus carries the flat, lawful, and a witness with one
+of each mistake.
+
+**Said plainly and left out.** Rooms are rectangles and walls are
+straight; wall thickness is drawn, not measured; stairs, furniture,
+fixtures, levels and the north arrow are not here. A door on a wall that
+abuts no room is an exterior door, which is how the plan is entered.
+
+*Guard:* §116, 26 assertions; §91 grew by two pictures. Catalogue:
+`gg_math_catalogue.ring`, scenes 47 and 48.
 
 ## DN9 — THE TOLD PICTURE: a narration is facts made visible, in an order (planned 2026-09-06, SHIPPED 2026-09-07 as DN9a through DN9g, all seven closed)
 
