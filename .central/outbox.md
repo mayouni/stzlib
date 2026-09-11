@@ -4254,3 +4254,33 @@ next:
   - me:      the Principal's word
   - central: none
 ```
+
+```yaml
+by:        stzlib-graphics · claude-fable-5-1 · 2026-09-11 11:14
+
+subject:   choropleth, second round -- the legend says why
+
+why:       the Principal read the witness cold: a value not in the
+           legend, legend entries not on the map; the rim alone did not
+           say what was wrong
+
+did:
+  - Wrote the reason after an empty class and a shade out of order in
+    the legend, and gave a value beyond the classes an entry of its own
+    in the fault's colour, so every region on the map is in the legend.
+  - Kept the rules' messages on the range, never the label.
+  - Grew section 118 to 30 assertions; gate 1628 ok, 0 failed.
+
+state:
+  gg_adversarial:   1628 ok, 0 failed
+  commit:           eb7933d67 on origin; codeberg pending on their 504
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the Principal's word; the gate's diet is owed
+  - central: none
+```
