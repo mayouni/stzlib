@@ -4611,3 +4611,59 @@ note:      THE STATUS WORD IS RESERVED, and it cost a regeneration cycle
            word in it flips the item straight back. Worth knowing before
            anyone else closes an item that waited.
 ```
+
+```yaml
+by:        stzlib-graphics · claude-opus-5 · 2026-09-11 21:37
+
+subject:   a dash meant three different things -- four earned declarations
+           written, six umbrellas named, five routed
+
+why:       the plane's own table showed fifteen items nothing declared, and
+           it called them one gap
+
+did:
+  - Read the fifteen one at a time instead of counting them, and found
+    three situations wearing one mark.
+  - Wrote the four declarations the gate had earned and never made:
+    section 57 holds DN2c, section 66 is DN4a's class diagram, section 72
+    is DN5a's guard, and section 73 is TITLED for DN5b and did not
+    declare it. Three of the four are named as guards in this plan's own
+    sentences, so the evidence was already written down.
+  - Left six umbrellas undeclared on purpose -- GG7, DN3, DN4, DN7, DN8,
+    DN9 -- because every child is declared and no single section proves
+    the whole, so writing one in would be a false precision. The plan now
+    says that is what their dash means.
+  - Established why five cannot report: the coverage generator takes a
+    LIST of suites and has only been given one, and giving it more would
+    be dishonest today because StzSuiteDischargesOf returns
+    [ item, section ] with no record of which FILE a declaration came
+    from. Five suites would collide on section numbers.
+  - Regenerated the table, probed section 75 standalone, ran the gate
+    once: 1647 ok, 0 failed, declarations 21 -> 25 over 74 items.
+
+state:
+  dashes:           15 -> 11, and the 11 are now explained rather than counted
+  declarations:     25 over 74 items
+  gate:             1647 ok, 0 failed
+  commit:           54d6729ca on origin and codeberg, verified by ls-remote
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - retire the three graphics queue rows [routed | unanswered]
+  - PLANCOVERAGE-FIGURES: have StzWritePlanCoverage emit the counts in
+    the sentence above its table -> general-tasks session [routed here]
+  - PLANCOVERAGE-FILECOLUMN: have StzSuiteDischargesOf record WHICH FILE
+    each declaration came from, so the table can span more than one
+    suite -> general-tasks session (base/meta is theirs) [routed here]
+
+next:
+  - me:      the Principal's word
+  - central: relay the two base/meta items to the general-tasks session;
+             they are small and they unblock five items reporting their
+             real coverage
+
+note:      A SINGLE MARK COVERING THREE SITUATIONS READS AS ONE PROBLEM
+           AND IS THREE, and counting the marks is exactly what hides
+           that. The plan had said "count the dashes"; counting them was
+           the one thing that could not tell them apart.
+```
