@@ -17,17 +17,25 @@ load "../../stzBase.ring"
 	agree about it, because a diagram that renders differently in SVG and
 	PNG is worse than one that needs dot.
 
+	THE VOCABULARY HAS GROWN SINCE, and this file reads its count from the
+	library rather than remembering it: graphviz's twenty-four, then the
+	UML actor and bar, BPMN's four event glyphs, the seven electric
+	symbols, and the seven network glyphs of 2026-09-11 -- forty-six. The
+	contact sheet at the end names every glyph beneath it, on a ground
+	the stroke can be seen against: two of the electric symbols are
+	stroke only, and a dark stroke on a dark ground read as blank.
+
 	Run:  ring gg_nodeshapes.ring
 ---------------------------------------------------------------------------*/
 
 decimals(2)
 nOk = 0  nBad = 0
 
+aShapes = StzNodeShapeNames()
 ? "=============================================================="
-? " THE NODE VOCABULARY -- 24 shapes, no external binary"
+? " THE NODE VOCABULARY -- " + len(aShapes) + " shapes, no external binary"
 ? "=============================================================="
 
-aShapes = StzNodeShapeNames()
 ? ""
 ? "   the vocabulary : " + len(aShapes) + " shapes"
 
@@ -226,12 +234,16 @@ else
 		oC = new stzCanvas(160, 120)
 		oC.SetBackgroundQ("#FFFFFF").FillQ("#204060")
 		StzDrawNodeShape(oC, cS, 24, 16, 112, 88)
+		# EVERY PIXEL'S RED CHANNEL, not one byte in sixty-one: the ground
+		# and the capacitor are stroke only, a few hundred inked pixels,
+		# and a sample that strides past them called them blank
 		cPx = oC.ToPixels()
 		nInk = 0
-		for i = 1 to len(cPx) step 61
-			if ascii(substr(cPx, i, 1)) < 200  nInk++  ok
+		nPx = len(cPx)
+		for i = 1 to nPx step 4
+			if ascii(cPx[i]) < 200  nInk++  ok
 		next
-		if nInk < 20  nBlank++  ok
+		if nInk < 100  nBlank++  ok
 	next
 	? "   shapes that render blank on the GPU tier : " + nBlank
 	chkeq("every shape reaches the pixel tier too", nBlank, 0)
@@ -242,10 +254,14 @@ ok
 ? "-- 5. The contact sheet -------------------------------------"
 #---------------------------------------------------------------------------
 
-COLS = 5
-CW = 150  CH = 110
+# EVERY GLYPH NAMED, and the stroke visible: the sheet is what a reader
+# picks a shape FROM, so a glyph without its name is a picture of nothing,
+# and a stroke-only glyph drawn in the ground's own colour is not there.
+COLS = 6
+CW = 150  CH = 124
 oSheet = new stzCanvas(COLS * CW, ceil(len(aShapes) / COLS) * CH)
 oSheet.SetBackgroundQ("#0D1220")
+oSheetFont = new stzFont("C:/Windows/Fonts/segoeui.ttf")
 k = 0
 _aCS107_ = aShapes
 _nCS107_ = len(_aCS107_)
@@ -253,8 +269,13 @@ for _iCS107_ = 1 to _nCS107_
 	cS = _aCS107_[_iCS107_]
 	cx = (k % COLS) * CW
 	cy = floor(k / COLS) * CH
-	oSheet.FillQ(StzColorFromHSL(20 + k * 14, 52, 58)).StrokeQ("#08101C", 2)
-	StzDrawNodeShape(oSheet, cS, cx + 26, cy + 16, 98, 66)
+	oSheet.FillQ(StzColorFromHSL(20 + k * 9, 52, 58)).StrokeQ("#DCE3F0", 2)
+	StzDrawNodeShape(oSheet, cS, cx + 26, cy + 14, 98, 66)
+	cName = StzLower("" + cS)
+	# the name is posted before the next cell sets its fill: a fill set
+	# while a shape is pending colours THAT shape, and the sheet came out
+	# one colour with rainbow names the first time
+	oSheet.AddTextQ(cName, cx + 75 - len(cName) * 3.4, cy + 104).FillQ("#C8D0DE").SetFontQ(oSheetFont, 13).FlushQ()
 	k++
 next
 write("gg_nodeshapes.svg", oSheet.ToSVG())

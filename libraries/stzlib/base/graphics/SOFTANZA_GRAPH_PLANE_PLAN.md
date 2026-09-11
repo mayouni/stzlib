@@ -3809,6 +3809,18 @@ redundancy protocols and wireless reach are not here; addresses are IPv4.
 *Guard:* §115, 30 assertions; §91 grew by three pictures. Catalogue:
 `gg_network_catalogue.ring`, network_01 to network_03.
 
+**The shape sheet, regenerated (2026-09-11).** `gg_nodeshapes.ring` still
+said twenty-four shapes while the vocabulary had grown to forty-six; it
+reads the count from the library now. Two things the old sheet hid: it
+named no glyph, so a reader could not pick one from it, and it drew the
+stroke in the ground's own colour, so the two stroke-only electric
+symbols were invisible there and read as blank to the pixel-tier check,
+whose sample strode past their few hundred pixels. The sheet names every
+glyph beneath it, strokes in a light ink, and the check counts every
+pixel. Found while looking: a fill set while a canvas shape is pending
+colours THAT shape — the first regeneration came out one colour with
+rainbow names — so each name is posted before the next cell's fill.
+
 ## DN22 — A FLOOR PLAN: rooms to scale, the rules of a building (2026-09-11, SHIPPED)
 
 **Distance means length.** The timeline's law turned into two dimensions: a
