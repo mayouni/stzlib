@@ -13615,13 +13615,13 @@ chk("eighty-six pictures are judged by one call -- thirty-six notation, fifty ma
 chk("and the report's findings are exactly the five things the corpus plants on purpose -- " +
     "the contradiction, the frame whose mark is outside the part it shows, " +
     "the three-bonded oxygen, the stray hydrogen, the schedule, the timeline and the cause analysis with three mistakes each, the plan and the seating with four",
-    oOgRep.NumberOfFindings() = 35 and
+    oOgRep.NumberOfFindings() = 33 and
     _OgAllFromAny(oOgRep, [ "math/5", "math/window/marked out of view",
         "chem/witness/three-bonded oxygen", "chem/witness/stray hydrogen", "gantt/witness",
         "timeline/witness", "fishbone/witness", "floorplan/witness", "seating/witness" ]))
 chk("the contradiction's constraints arrive as :diagram; the rim, the off-window mark, " +
-    "the two chemistry findings, the five schedule, the four timeline, the four fishbone, the six plan and the eight seating findings as :plastic",
-    len(oOgRep.FindingsOfSubject(:diagram)) = 4 and len(oOgRep.FindingsOfSubject(:plastic)) = 31)
+    "the two chemistry findings, the five schedule, the four timeline, the four fishbone, the six plan and the six seating findings as :plastic",
+    len(oOgRep.FindingsOfSubject(:diagram)) = 4 and len(oOgRep.FindingsOfSubject(:plastic)) = 29)
 chk("and the gate is NOT sound, because a contradiction is a finding and not a pass",
     NOT oOgRep.IsSound())
 # a wall time is decoration on this machine, so the bound is set where it
@@ -15863,6 +15863,22 @@ chk("a seat nobody took stays empty: Table 1 has six seats and five guests",
 
 # A NAME READS OUTWARD: beyond its seat, hung to the right on the east
 # of the ring, to the left on the west, centred above and below.
+# THE TABLES ARE SPREAD SO THAT EVERY NAME CLEARS EVERY OTHER TABLE ON
+# ALL SIDES -- the Principal's words. The host's arrangement is kept:
+# what stood left stays left, what stood above stays above; tables that
+# already clear each other keep their distance; and a long table's seats
+# stand a name apart.
+chk("no two tables' extents -- disc, seats and the names hung beyond them -- meet, on either axis, with air between",
+    _StAllClear(oStS, 0.3))
+chk("the host's arrangement is kept: Table 1 left of Table 2 left of Table 3, the top table above them and Table 4 below",
+    oStS.DataOf("t2", "sx") < oStS.DataOf("t3", "sx") and oStS.DataOf("t3", "sx") < oStS.DataOf("t4", "sx") and
+    oStS.DataOf("t1", "sy") < oStS.DataOf("t3", "sy") and oStS.DataOf("t3", "sy") < oStS.DataOf("t5", "sy"))
+oStFar = StzSeatingDiagram(AUFONT, [ [ "A", "round", 4, 0, 0 ], [ "B", "round", 4, 10, 0 ] ], [ [ "x", "A" ], [ "y", "B" ] ], [])
+chk("NEGATIVE: two tables that already clear each other keep the distance the host gave them",
+    fabs(oStFar.Substance().DataOf("t2", "sx") - oStFar.Substance().DataOf("t1", "sx") - 10) < 0.001)
+chk("a long table's seats stand a name apart: the pitch holds its widest name at the scale drawn",
+    oStS.DataOf("t1", "pitch") >= 0.6 and
+    (oStS.DataOf("t1s2", "x") - oStS.DataOf("t1s1", "x")) > _StWidest(oStS, 1))
 chk("a name on the east of a ring hangs to the right of its seat, on the west to the left, at the top it is centred",
     oStS.DataOf("g16", "nx") - oStS.DataOf("g16", "nw") / 2 > oStS.DataOf("t3s3", "x") and
     oStS.DataOf("g20", "nx") + oStS.DataOf("g20", "nw") / 2 < oStS.DataOf("t3s7", "x") and
@@ -15896,9 +15912,8 @@ chk("a pair the host keeps apart and seated together is caught, naming the table
 chk("two tables whose seats meet are caught on both, with the distance and the distance needed",
     _PorHits(aStB, "tables_stand_clear") = 2 and
     _GtHas(aStB, "'Table 2' and 'Table 3' stand 2.9 m apart and their seats need 3.1 m"))
-chk("...and the collision is visible to the plane's own name rules too: a name of each table lies on the other's disc",
-    _PorHits(aStB, "name_off_ink") = 2 and _GtHas(aStB, "'g18.text' is") and _GtHas(aStB, "'g27.text' is"))
-chkeq("...and those eight are all the gate finds", len(aStB), 8)
+chkeq("...and those six are all the gate finds -- the drawing spreads the tables, so no name lies on the other's disc",
+      len(aStB), 6)
 
 # A FAULT IS DRAWN, AND THE MARKS ARE HELD TO THE VERDICTS.
 oStBS = oStB.Substance()
@@ -19484,6 +19499,29 @@ func _StAngle poS, pcSeat, pcTable
 	_dx_ = poS.DataOf(pcSeat, "x") - poS.DataOf(pcTable, "cx")
 	_dy_ = poS.DataOf(pcSeat, "y") - poS.DataOf(pcTable, "cy")
 	return atan2(_dy_, _dx_) * 180 / 3.14159265
+
+# every pair of tables clear on one axis at least, by the air given
+func _StAllClear poS, pnGap
+	_at_ = poS.ObjectsOfType("Table")
+	for _i_ = 1 to len(_at_)
+		for _j_ = _i_ + 1 to len(_at_)
+			_bX_ = fabs(poS.DataOf(_at_[_i_], "sx") - poS.DataOf(_at_[_j_], "sx")) >=
+				poS.DataOf(_at_[_i_], "rx") + poS.DataOf(_at_[_j_], "rx") + pnGap - 0.001
+			_bY_ = fabs(poS.DataOf(_at_[_i_], "sy") - poS.DataOf(_at_[_j_], "sy")) >=
+				poS.DataOf(_at_[_i_], "ry") + poS.DataOf(_at_[_j_], "ry") + pnGap - 0.001
+			if NOT (_bX_ or _bY_)  return FALSE  ok
+		next
+	next
+	return TRUE
+
+# the widest name at a table, in pixels
+func _StWidest poS, pnTable
+	_n_ = 0
+	_ag_ = poS.ObjectsOfType("Guest")
+	for _i_ = 1 to len(_ag_)
+		if poS.DataOf(_ag_[_i_], "table") = pnTable and poS.DataOf(_ag_[_i_], "nw") > _n_  _n_ = poS.DataOf(_ag_[_i_], "nw")  ok
+	next
+	return _n_
 
 func _StRefuses pnCase
 	try
