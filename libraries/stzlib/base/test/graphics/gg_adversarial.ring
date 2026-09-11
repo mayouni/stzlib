@@ -14430,6 +14430,23 @@ chk("every rendition comes back with something in it -- carried, or located",
     _RnAllFull(aRnThings))
 chk("a raster is LOCATED and not carried, and the file it names is really there",
     _RnRasterLocated(aRnThings[1]))
+# WHERE IT PUTS IT IS THE CALLER'S SAY (2026-09-11). A located kind writes a
+# file, and the verb chose the name -- so a caller could not put it anywhere,
+# could not write two pictures of one domain without the second landing on the
+# first, and could not keep it out of a tree they had to keep clean. This
+# repository's own residue count is where that last one showed up.
+chk("which kinds are LOCATED is answered from the kind alone, and only the raster is",
+    StzRenditionIsLocated(:image) and NOT StzRenditionIsLocated(:vector) and
+    NOT StzRenditionIsLocated(:graph) and NOT StzRenditionIsLocated(:text) and
+    NOT StzRenditionIsLocated(:markup))
+chk("a caller says where the raster goes, and it goes there",
+    _RnTwoPlaces(aRnThings[1]))
+chk("NEGATIVE: a path handed to a CARRIED kind is refused by name, and nothing is written",
+    _RnRefusesPathOnCarried(aRnThings[1]))
+chk("and a caller who says nothing still gets the name the class would have chosen",
+    _RnDefaultStands(aRnThings[1]))
+chk("the notation plane answers the same verb the same way",
+    _RnTwoPlaces(aRnThings[2]) and _RnRefusesPathOnCarried(aRnThings[2]))
 chk("NEGATIVE: a class the contract has not reached is refused BY NAME, not answered with nothing",
     _RnRefusesUnreached())
 chk("and a kind a class cannot show itself as is refused too", _RnRefusesKind())
@@ -21123,11 +21140,46 @@ func _RnAllFull paThings
 	next
 	return TRUE
 
+# A GUARD THAT WRITES A FILE MUST SAY WHERE, and this one could not until
+# the verb learned to take a path -- so it wrote rendition_geometry.png into
+# this folder on every run, and that file turned up in the repository's own
+# residue count on 2026-09-11. It writes a scratch name now (the folder's
+# ignore rule is the leading underscore).
 func _RnRasterLocated poPic
-	_r_ = poPic.RenditionAs(:image)
+	_r_ = poPic.RenditionAsXT(:image, "_rendition_probe.png")
 	if "" + _r_[:locator] = ""  return FALSE  ok
 	if len("" + _r_[:content]) != 0  return FALSE  ok
+	if _r_[:locator] != "_rendition_probe.png"  return FALSE  ok
 	return fexists(_r_[:locator])
+
+# the same picture asked twice, to two names: two files, neither overwriting
+# the other, which is the thing one chosen name could never do
+func _RnTwoPlaces poPic
+	_a_ = poPic.RenditionAsXT(:image, "_rendition_a.png")
+	_b_ = poPic.RenditionAsXT(:image, "_rendition_b.png")
+	return _a_[:locator] != _b_[:locator] and
+	       fexists(_a_[:locator]) and fexists(_b_[:locator])
+
+# a path handed to a kind that is CARRIED: refused by name, and nothing written
+func _RnRefusesPathOnCarried poPic
+	_b_ = FALSE
+	try
+		poPic.RenditionAsXT(:vector, "_rendition_never.svg")
+	catch
+		_b_ = StzFindFirst("CARRIED", cCatchError) > 0
+	done
+	return _b_ and NOT fexists("_rendition_never.svg")
+
+# the default is still the default: no path, and the name the class chooses.
+# AND THIS GUARD CLEANS UP AFTER ITSELF, because the only way to prove the
+# default is to let it write -- and a guard that proves a file was written
+# and then leaves it is the very defect this block is about. It was leaving
+# it on the first run of this assertion, which is how the clean-up got here.
+func _RnDefaultStands poPic
+	_r_ = poPic.RenditionAs(:image)
+	_ok_ = StzFindFirst("rendition_", "" + _r_[:locator]) > 0 and fexists(_r_[:locator])
+	if _ok_  remove(_r_[:locator])  ok
+	return _ok_ and NOT fexists(_r_[:locator])
 
 func _RnRefusesUnreached
 	_b_ = FALSE

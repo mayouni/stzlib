@@ -4038,6 +4038,49 @@ classes and their gates share the shape. Three Ring traps paid again:
 puts the global `decimals()` back to two, so set it after the picture
 and not before; and `oR` is `or`.
 
+## A VERB THAT WRITES A FILE OWES THE CALLER A SAY IN WHERE (2026-09-11, SHIPPED)
+
+**`RenditionAs(:image)` wrote a PNG to a name the caller could not
+choose.** The display contract divides a rendition into two:
+one that is **carried** (an SVG, a dot file, a line of text — its bytes
+come back in the value) and one that is **located** (a raster, because it
+cannot travel in a value, so a path comes back instead). A located kind
+therefore *writes a file* — and both classes that answer one, the
+mathematical picture and the notation picture, chose the name themselves:
+`rendition_<domain>.png` and `rendition_notation.png`, in whatever
+directory the caller happened to be standing in.
+
+Three things a caller could not do. **Put it anywhere** — a consumer
+writing into its own output folder could not. **Ask twice** — two
+pictures of one domain, and the second landed on the first. **Keep a
+tree clean** — which is how this was found: one of those files turned up
+in this repository's own residue count on 2026-09-11, left by a guard
+that had no way to ask for it anywhere else.
+
+`RenditionAsXT(pcKind, pcPath)` on both classes, with `RenditionAtQ` as
+its chainable spelling. **An empty path means the name the class would
+have chosen**, so every caller written before today means what it meant.
+**A path handed to a carried kind is refused by name**, not ignored: a
+caller asking for an SVG at a path holds a wrong belief about the
+contract, and being told costs less than being humoured.
+`StzRenditionIsLocated(pcKind)` sits beside `StzRenditionExtension` and
+answers which kinds write a file at all, from the kind alone — the one
+place the two planes agree about it.
+
+**And the guard that found it now cleans up after itself.** Proving the
+default still works means letting it write, so the assertion writes,
+checks, and removes — because a guard that proves a file was written and
+then leaves it behind is the exact defect this section is about. It left
+one on its own first run, which is how the clean-up got written.
+
+*Guard:* §103 grew by five — which kinds are located, a caller naming two
+places for one picture, the refusal on a carried kind with nothing
+written, the default still standing, and the notation plane answering the
+same verb the same way. The gate now leaves only `_`-prefixed scratch,
+which the folder's ignore rule already covers, and the orphaned
+`rendition_geometry.png` is removed from the repository. Gate 1636 ok, 0
+failed.
+
 ## SOUND IS NO ERROR, NOT NO FINDING — one answer where there were ten (2026-09-11, SHIPPED)
 
 **A severity is a dial every rule sets deliberately, and six places were

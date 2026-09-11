@@ -1206,6 +1206,18 @@ func StzCanRender(pObject)
 	next
 	return FALSE
 
+# A RENDITION IS EITHER CARRIED OR LOCATED, and this says which from the
+# kind alone -- the same way the extension is chosen. A carried rendition
+# hands back its bytes; a located one hands back a PATH, because a raster
+# cannot travel in a value.
+#
+# THE DIFFERENCE IS NOT COSMETIC: a located kind WRITES A FILE, so the
+# caller of a located kind is owed a say in where it goes. That is what
+# RenditionAsXT is for, and this is the question a caller asks before
+# needing to care.
+func StzRenditionIsLocated(pcKind)
+	return StzLower(ring_trim("" + pcKind)) = "image"
+
 # what a rendition is worth writing to, chosen from its KIND alone
 func StzRenditionExtension(paRendition)
 	_k_ = StzLower("" + paRendition[:kind])
@@ -4433,15 +4445,43 @@ class stzMathDiagram from stzObject
 		return [ :vector, :image, :graph, :text ]
 
 	def RenditionAs(pcKind)
+		return This.RenditionAsXT(pcKind, "")
+
+	# ...AND WHERE TO PUT IT, WHEN IT IS A KIND THAT NEEDS A PLACE.
+	#
+	# A located kind WRITES A FILE, and until 2026-09-11 it wrote it to a
+	# name this class chose -- rendition_<domain>.png, in whatever directory
+	# the caller happened to be standing in. A caller could not say where,
+	# could not write two pictures of one domain without the second
+	# overwriting the first, and could not keep the file out of a working
+	# tree they had to keep clean. It was found the way such things are:
+	# one of those files turned up in this repository's own residue, left
+	# by a guard that had no way to ask for it anywhere else.
+	#
+	# An empty path means the name this class would have chosen, so every
+	# caller written before today means exactly what it meant. A path given
+	# for a CARRIED kind is refused by name rather than ignored: a caller
+	# who asks for an SVG at a path is not asking for nothing, they are
+	# holding a wrong belief about the contract, and being told is the
+	# cheaper outcome.
+	def RenditionAsXT(pcKind, pcPath)
 		This.Layout()
 		_k_ = StzLower(ring_trim("" + pcKind))
+		_p_ = ""
+		if isString(pcPath)  _p_ = ring_trim(pcPath)  ok
+		if _p_ != "" and NOT StzRenditionIsLocated(_k_)
+			stzraise("stzMathDiagram.RenditionAsXT: a '" + _k_ + "' rendition is " +
+				"CARRIED, not located, so there is nothing to put anywhere -- " +
+				"only 'image' takes a path.")
+		ok
 		if _k_ = "vector"
 			return StzRendition(:vector, "image/svg+xml", This.ToSVG(), "",
 				"a solved picture of " + len(@oSubstance.Objects()) + " objects")
 		but _k_ = "image"
 			# A RASTER CANNOT BE CARRIED IN A VALUE, so it is located rather
 			# than contained, and the consumer is told which of the two it got.
-			_f_ = "rendition_" + StzLower(@oDomain.Name_()) + ".png"
+			_f_ = _p_
+			if _f_ = ""  _f_ = "rendition_" + StzLower(@oDomain.Name_()) + ".png"  ok
 			This.ToPNG(_f_)
 			return StzRendition(:image, "image/png", "", _f_,
 				"a drawn picture of " + len(@oSubstance.Objects()) + " objects")
@@ -4453,8 +4493,11 @@ class stzMathDiagram from stzObject
 		but _k_ = "text"
 			return StzRendition(:text, "text/plain", This.Why(), "", "why this picture is as it is")
 		ok
-		stzraise("stzMathDiagram.RenditionAs: '" + _k_ + "' is not a way this picture " +
+		stzraise("stzMathDiagram.RenditionAsXT: '" + _k_ + "' is not a way this picture " +
 			"can show itself -- vector, image, graph or text.")
+
+		def RenditionAtQ(pcKind, pcPath)
+			return This.RenditionAsXT(pcKind, pcPath)
 
 	def Substance()
 		return @oSubstance
