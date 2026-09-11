@@ -4667,3 +4667,59 @@ note:      A SINGLE MARK COVERING THREE SITUATIONS READS AS ONE PROBLEM
            that. The plan had said "count the dashes"; counting them was
            the one thing that could not tell them apart.
 ```
+
+```yaml
+by:        stzlib-graphics · claude-opus-5 · 2026-09-11 21:57
+
+subject:   the rasterizer that was never written -- a plan of record
+           corrected on another desk's finding
+
+why:       stzlib-gpu-design audited the engine on the device this morning,
+           found the plan's CPU rasterizer fallback does not exist, and
+           routed it here by name
+
+did:
+  - Confirmed it at the source before editing anything: no rasterizing
+    function in engine/src, the three files matching the word are shader
+    and glyph work, and the one comment saying "rasterizer" points back
+    at this plan's own line. Named the near-miss so nobody re-finds it:
+    stb_truetype DOES rasterize glyphs into an atlas, which is not the
+    scanline path filler the plan promised.
+  - Corrected the false present-tense claims and left every stale
+    sentence its own words: the tier ladder said "CPU rasterizer as the
+    counted fallback" and now says what is actually counted; the risks
+    bullet called it the one genuinely new engine component and now
+    records that it was never started; the GR0 measurement keeps its
+    number and gains the note that its consequence was never acted on.
+  - Stated the tiers as they are: ToSVG needs no device, ToPNG answers
+    "" with countFallback() recording the refusal, readable from Ring
+    through StzEngineGpuCounter. Two rungs, vector is the floor -- which
+    the canvas has said in its own comments since the tier shipped.
+  - Recorded why this file could drift and the sibling plan cannot: the
+    graph plane's table is GENERATED from its suite and a guard fails on
+    disagreement; this one is hand-written and nothing reads it back.
+
+state:
+  the claim:        corrected in ten places, none deleted
+  the code:         unchanged and already honest
+  gate:             not owed and not run -- no library code changed, no
+                    guard reads this file, and the tier is guarded in five
+                    suites under base/test/gpu
+  commit:           cfe52255e on origin and codeberg, verified by ls-remote
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - retire the three graphics queue rows [routed | unanswered]
+  - PLANCOVERAGE-FIGURES and PLANCOVERAGE-FILECOLUMN -> general-tasks
+    session, base/meta is theirs [routed here | unanswered]
+
+next:
+  - me:      the Principal's word
+  - central: relay the two base/meta items; the file column is what would
+             let this plan be checked the way the sibling one is
+
+note:      THE FINDING CAME FROM ANOTHER DESK READING MY PLANE'S ENGINE,
+           which is the argument for the conclusions log being read rather
+           than only appended to. I confirmed it myself before acting --
+           another desk's word is evidence, not proof, and it is my file.
+```
