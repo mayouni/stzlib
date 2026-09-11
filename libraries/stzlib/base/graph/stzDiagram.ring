@@ -10329,12 +10329,28 @@ class stzDiagram from stzGraph
 		return [ :vector, :image, :graph, :text ]
 
 	def RenditionAs(pcKind)
+		return This.RenditionAsXT(pcKind, "")
+
+	# ...AND WHERE TO PUT IT. The same contract the math plane carries, in
+	# the same words: an empty path means the name this class would have
+	# chosen, and a path given for a carried kind is refused by name. See
+	# StzRenditionIsLocated, which is where the two planes agree about
+	# which kinds write a file at all.
+	def RenditionAsXT(pcKind, pcPath)
 		_k_ = StzLower(ring_trim("" + pcKind))
+		_p_ = ""
+		if isString(pcPath)  _p_ = ring_trim(pcPath)  ok
+		if _p_ != "" and NOT StzRenditionIsLocated(_k_)
+			stzraise("stzDiagram.RenditionAsXT: a '" + _k_ + "' rendition is " +
+				"CARRIED, not located, so there is nothing to put anywhere -- " +
+				"only 'image' takes a path.")
+		ok
 		if _k_ = "vector"
 			return StzRendition(:vector, "image/svg+xml", This.ToSVG(), "",
 				"a notation picture of " + This.NumberOfNodes() + " nodes")
 		but _k_ = "image"
-			_f_ = "rendition_notation.png"
+			_f_ = _p_
+			if _f_ = ""  _f_ = "rendition_notation.png"  ok
 			This.ToPNG(_f_)
 			return StzRendition(:image, "image/png", "", _f_,
 				"a notation picture of " + This.NumberOfNodes() + " nodes")
@@ -10347,8 +10363,11 @@ class stzDiagram from stzGraph
 				" edges, " + This.RenderCrossings() + " crossings", "",
 				"what this picture holds")
 		ok
-		stzraise("stzDiagram.RenditionAs: '" + _k_ + "' is not a way this picture " +
+		stzraise("stzDiagram.RenditionAsXT: '" + _k_ + "' is not a way this picture " +
 			"can show itself -- vector, image, graph or text.")
+
+		def RenditionAtQ(pcKind, pcPath)
+			return This.RenditionAsXT(pcKind, pcPath)
 
 	def RenderClusterRects()
 		return @aRenderClusRects
