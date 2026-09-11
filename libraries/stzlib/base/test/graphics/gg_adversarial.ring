@@ -13602,21 +13602,26 @@ aOgP + [ "fishbone/witness", StzMathFishboneWitness(AUFONT) ]
 # door, two rooms nobody can reach, a window onto a room.
 aOgP + [ "floorplan/flat", StzMathScene47(AUFONT) ]
 aOgP + [ "floorplan/witness", StzMathFloorPlanWitness(AUFONT) ]
+# AND THE SEATING PLAN (DN23): the wedding, and the witness with one of
+# each mistake a host makes -- an overbooked table, a guest seated twice
+# on both listings, a pair kept apart together, two tables that meet.
+aOgP + [ "seating/wedding", StzMathScene49(AUFONT) ]
+aOgP + [ "seating/witness", StzMathSeatingWitness(AUFONT) ]
 nOgT0 = StzEngineWatchTimestampMs()
 oOgRep = StzCheckPictures(aOgP)
 nOgMs = StzEngineWatchTimestampMs() - nOgT0
-chk("eighty-four pictures are judged by one call -- thirty-six notation, forty-eight mathematical",
-    len(aOgP) = 84)
+chk("eighty-six pictures are judged by one call -- thirty-six notation, fifty mathematical",
+    len(aOgP) = 86)
 chk("and the report's findings are exactly the five things the corpus plants on purpose -- " +
     "the contradiction, the frame whose mark is outside the part it shows, " +
-    "the three-bonded oxygen, the stray hydrogen, the schedule, the timeline and the cause analysis with three mistakes each, and the plan with four",
-    oOgRep.NumberOfFindings() = 27 and
+    "the three-bonded oxygen, the stray hydrogen, the schedule, the timeline and the cause analysis with three mistakes each, the plan and the seating with four",
+    oOgRep.NumberOfFindings() = 35 and
     _OgAllFromAny(oOgRep, [ "math/5", "math/window/marked out of view",
         "chem/witness/three-bonded oxygen", "chem/witness/stray hydrogen", "gantt/witness",
-        "timeline/witness", "fishbone/witness", "floorplan/witness" ]))
+        "timeline/witness", "fishbone/witness", "floorplan/witness", "seating/witness" ]))
 chk("the contradiction's constraints arrive as :diagram; the rim, the off-window mark, " +
-    "the two chemistry findings, the five schedule, the four timeline, the four fishbone and the six plan findings as :plastic",
-    len(oOgRep.FindingsOfSubject(:diagram)) = 4 and len(oOgRep.FindingsOfSubject(:plastic)) = 23)
+    "the two chemistry findings, the five schedule, the four timeline, the four fishbone, the six plan and the eight seating findings as :plastic",
+    len(oOgRep.FindingsOfSubject(:diagram)) = 4 and len(oOgRep.FindingsOfSubject(:plastic)) = 31)
 chk("and the gate is NOT sound, because a contradiction is a finding and not a pass",
     NOT oOgRep.IsSound())
 # a wall time is decoration on this machine, so the bound is set where it
@@ -13637,7 +13642,7 @@ aOgR = oOgG.CheckRules()
 for iOg = 1 to len(aOgR)
 	? "   RULE FINDING " + aOgR[iOg][:rule] + " @ " + aOgR[iOg][:where] + " -- " + aOgR[iOg][:message]
 next
-chkeq("the five math rules, the two chemistry rules, the three gantt, three timeline, three fishbone and four floor-plan rules pass the " +
+chkeq("the five math rules, the two chemistry rules, the three gantt, three timeline, three fishbone, four floor-plan and four seating rules pass the " +
       "five questions -- none empty, vacuous, or unwitnessed",
       len(aOgR), 0)
 
@@ -15819,6 +15824,117 @@ chk("the floor-plan rules govern every room of a plan and not one object of a fi
     "the boundary is stood on",
     len(oFpRule.SubjectsIn(oFpF)) = 6 and len(oFpRule.SubjectsIn(oFbC)) = 0 and len(oFpRule.SubjectsIn(oTlH)) = 0 and
     len(oFpRule.CounterSubjectsIn(oFbC)) > 0 and len(oFpRule.CounterSubjectsIn(oFpF)) = 0)
+
+sec("-- 117. DN23: A SEATING PLAN -- TABLES, SEATS AROUND THEM, GUESTS IN THEM ----")
+discharges("DN23")
+
+# NOTHING TO SOLVE: a table is a place and a number of seats, the seats
+# follow around it, the guests take them in order.
+oStW = StzMathScene49(AUFONT)
+oStW.Layout()
+oStS = oStW.Substance()
+? "   wedding : " + oStW.NumberOfShapes() + " shapes, " + oStW.NumberOfUnknowns() +
+  " unknowns, " + floor(oStW.LayoutMs()) + " ms -- " + oStW.Why()
+chkeq("a seating plan mints no unknown -- there is nothing to lay out", oStW.NumberOfUnknowns(), 0)
+chk("five tables, thirty-six seats, thirty guests, two pairs kept apart, nobody unseated",
+    len(oStS.ObjectsOfType("Table")) = 5 and len(oStS.ObjectsOfType("Seat")) = 36 and
+    len(oStS.ObjectsOfType("Guest")) = 30 and len(oStS.ObjectsOfType("Apart")) = 2 and
+    len(oStS.ObjectsOfType("Unseated")) = 0)
+
+# THE SEATS FOLLOW THE TABLE: evenly on a ring for a round one, the
+# first at the top; along both long sides for a long one.
+chk("a round table's seats stand evenly on a ring, the first at the top, all at one distance from the centre",
+    fabs(_StDistTo(oStS, "t3s1", "t3") - _StDistTo(oStS, "t3s5", "t3")) < 0.01 and
+    fabs(oStS.DataOf("t3s1", "x") - oStS.DataOf("t3", "cx")) < 0.01 and oStS.DataOf("t3s1", "y") < oStS.DataOf("t3", "cy") and
+    fabs(_StAngle(oStS, "t3s2", "t3") - _StAngle(oStS, "t3s1", "t3") - 45) < 0.01)
+chk("a round table's radius grows with its seats: eight seats are a bigger disc than six",
+    oStS.DataOf("t3", "r") > oStS.DataOf("t2", "r") and
+    fabs(oStS.DataOf("t3", "r") / oStS.DataOf("t2", "r") - StzSeatingRadiusFor(8) / StzSeatingRadiusFor(6)) < 0.001)
+chk("a long table seats four above and four below, the rows level and the slab between them",
+    oStS.Holds("Long", [ "t1" ]) and
+    fabs(oStS.DataOf("t1s1", "y") - oStS.DataOf("t1s4", "y")) < 0.01 and
+    fabs(oStS.DataOf("t1s5", "y") - oStS.DataOf("t1s8", "y")) < 0.01 and
+    oStS.DataOf("t1s1", "y") < oStS.DataOf("t1", "cy") and oStS.DataOf("t1s5", "y") > oStS.DataOf("t1", "cy"))
+chk("guests take the seats in the order given: Nour in the top table's first seat, Ann in Table 1's first",
+    oStS.DataOf("g1", "table") = 1 and oStS.DataOf("g1", "seat") = 1 and
+    oStS.DataOf("g9", "table") = 2 and oStS.DataOf("g9", "seat") = 1 and oStS.Holds("Taken", [ "t2s1" ]))
+chk("a seat nobody took stays empty: Table 1 has six seats and five guests",
+    NOT oStS.Holds("Taken", [ "t2s6" ]) and len(_TlMarked(oStW, "Seat", "Taken")) = 30)
+
+# A NAME READS OUTWARD: beyond its seat, hung to the right on the east
+# of the ring, to the left on the west, centred above and below.
+chk("a name on the east of a ring hangs to the right of its seat, on the west to the left, at the top it is centred",
+    oStS.DataOf("g16", "nx") - oStS.DataOf("g16", "nw") / 2 > oStS.DataOf("t3s3", "x") and
+    oStS.DataOf("g20", "nx") + oStS.DataOf("g20", "nw") / 2 < oStS.DataOf("t3s7", "x") and
+    fabs(oStS.DataOf("g14", "nx") - oStS.DataOf("t3s1", "x")) < 0.01)
+aStF = StzCheckPictures([ [ "wedding", oStW ] ]).Findings()
+for iSt = 1 to len(aStF)
+	if iSt <= 4  ? "   WEDDING FINDING " + aStF[iSt][:rule] + " -- " + aStF[iSt][:message]  ok
+next
+chk("the wedding is lawful and the one gate finds nothing in it -- no name on a seat, no name on a name",
+    oStW.IsFeasible() and len(aStF) = 0)
+chk("a fact reads a table's seats and its guests from the data",
+    oStW.Fact(:datum, [ "t3", "seats" ])[:value] = 8 and oStW.Fact(:datum, [ "t2", "given" ])[:value] = 5)
+chk("and it answers Rendition() as a vector like every other picture",
+    oStW.Rendition()[:kind] = "vector")
+
+# THE RULES ARE ABOUT THE PLAN, and they name tables and guests by the
+# host's names. The witness has one of each mistake -- the double seat
+# on both listings, the colliding tables on both.
+oStB = StzMathSeatingWitness(AUFONT)
+aStB = StzCheckPictures([ [ "wrong", oStB ] ]).Findings()
+? "   witness : " + len(aStB) + " findings -- " + _GtByRule(aStB)
+chk("a table given more guests than seats is caught, naming who found no seat",
+    _PorHits(aStB, "table_not_overbooked") = 1 and
+    _GtHas(aStB, "'Table 1' seats 6 and was given 7 -- 'Zed' found no seat"))
+chk("a name seated at two tables is caught on both listings",
+    _PorHits(aStB, "a_guest_sits_once") = 2 and
+    _GtHas(aStB, "'Ann' is seated at 'Table 1' and again at 'Table 2'"))
+chk("a pair the host keeps apart and seated together is caught, naming the table",
+    _PorHits(aStB, "kept_apart_are_apart") = 1 and
+    _GtHas(aStB, "'Ann' and 'Fay' are to be kept apart and sit together at 'Table 1'"))
+chk("two tables whose seats meet are caught on both, with the distance and the distance needed",
+    _PorHits(aStB, "tables_stand_clear") = 2 and
+    _GtHas(aStB, "'Table 2' and 'Table 3' stand 2.9 m apart and their seats need 3.1 m"))
+chk("...and the collision is visible to the plane's own name rules too: a name of each table lies on the other's disc",
+    _PorHits(aStB, "name_off_ink") = 2 and _GtHas(aStB, "'g18.text' is") and _GtHas(aStB, "'g27.text' is"))
+chkeq("...and those eight are all the gate finds", len(aStB), 8)
+
+# A FAULT IS DRAWN, AND THE MARKS ARE HELD TO THE VERDICTS.
+oStBS = oStB.Substance()
+chk("the overbooked table and the colliding tables are marked, exactly as the rules say",
+    _TlMarkedEquals(oStB, "Table", "Overbooked", aStB, "table_not_overbooked", "table:") and
+    _TlMarkedEquals(oStB, "Table", "Colliding", aStB, "tables_stand_clear", "table:"))
+chk("the guest seated twice is marked on both listings, on a plate of the fault's colour",
+    _TlMarkedEquals(oStB, "Guest", "Doubled", aStB, "a_guest_sits_once", "guest:") and
+    oStB.ShapeOf("g9.plate")[:kind] = "rect")
+chk("the pair together are both marked, and the guest with no seat is named beneath the hall",
+    oStBS.Holds("Clashing", [ "g9" ]) and oStBS.Holds("Clashing", [ "g14" ]) and
+    oStBS.Holds("Seatless", [ "g15" ]) and len(oStBS.ObjectsOfType("Unseated")) = 1 and
+    StzFindFirst("Zed", oStBS.LabelOf("un")) > 0)
+chk("NEGATIVE: nothing in the lawful wedding is marked as a fault",
+    len(_TlMarked(oStW, "Table", "Overbooked")) = 0 and len(_TlMarked(oStW, "Table", "Colliding")) = 0 and
+    len(_TlMarked(oStW, "Guest", "Doubled")) = 0 and len(_TlMarked(oStW, "Guest", "Clashing")) = 0 and
+    len(_TlMarked(oStW, "Guest", "Seatless")) = 0)
+
+# THE BOUNDARIES. Two tables whose seats just clear are clear; the
+# pairs' rule is about pairs and outside every table; and the builder
+# refuses what it cannot mean.
+oStT = StzSeatingDiagram(AUFONT, [ [ "A", "round", 6, 0, 0 ], [ "B", "round", 6, 3.2, 0 ] ], [ [ "x", "A" ] ], [])
+chk("NEGATIVE: two six-seat tables 3.2 m apart clear each other -- their seats need 2.94 m",
+    _PorHits(StzCheckPictures([ [ "clear", oStT ] ]).Findings(), "tables_stand_clear") = 0)
+chk("NEGATIVE: the pairs' rule governs pairs, and a table is outside it",
+    _ErInList("table:t1", StzSeatingRuleSet()[3].CounterSubjectsIn(oStW)) = 0 and
+    _ErInList("apart:p1", StzSeatingRuleSet()[3].SubjectsIn(oStW)))
+chk("a guest at a table that is not in the plan is refused, and named", _StRefuses(1))
+chk("a table that is neither round nor long, and a table with no seats, are refused", _StRefuses(2) and _StRefuses(3))
+chk("a pair naming someone not invited, and a pair of one, are refused", _StRefuses(4) and _StRefuses(5))
+chk("two tables under one name are refused", _StRefuses(6))
+oStRule = StzSeatingRuleSet()[1]
+chk("the seating rules govern every table of a plan and not one object of a floor plan or a fishbone -- " +
+    "the boundary is stood on",
+    len(oStRule.SubjectsIn(oStW)) = 5 and len(oStRule.SubjectsIn(oFpF)) = 0 and len(oStRule.SubjectsIn(oFbC)) = 0 and
+    len(oStRule.CounterSubjectsIn(oFpF)) > 0 and len(oStRule.CounterSubjectsIn(oStW)) = 0)
 
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
@@ -19353,6 +19469,37 @@ func _ErRefusesKind
 	catch
 		# a symbol is a lowercase string in Ring, so the name comes back so
 		return StzFindFirst("sometimes", StzLower(cCatchError)) > 0
+	done
+	return FALSE
+
+#-- DN23: the seating section's helpers --------------------------------------
+
+func _StDistTo poS, pcSeat, pcTable
+	_dx_ = poS.DataOf(pcSeat, "x") - poS.DataOf(pcTable, "cx")
+	_dy_ = poS.DataOf(pcSeat, "y") - poS.DataOf(pcTable, "cy")
+	return sqrt(_dx_ * _dx_ + _dy_ * _dy_)
+
+# the seat's bearing from the table's centre, in degrees, y down
+func _StAngle poS, pcSeat, pcTable
+	_dx_ = poS.DataOf(pcSeat, "x") - poS.DataOf(pcTable, "cx")
+	_dy_ = poS.DataOf(pcSeat, "y") - poS.DataOf(pcTable, "cy")
+	return atan2(_dy_, _dx_) * 180 / 3.14159265
+
+func _StRefuses pnCase
+	try
+		if pnCase = 1  StzSeatingFromTables([ [ "A", "round", 4, 0, 0 ] ], [ [ "x", "Nowhere" ] ], [])  ok
+		if pnCase = 2  StzSeatingFromTables([ [ "A", "square", 4, 0, 0 ] ], [], [])  ok
+		if pnCase = 3  StzSeatingFromTables([ [ "A", "round", 0, 0, 0 ] ], [], [])  ok
+		if pnCase = 4  StzSeatingFromTables([ [ "A", "round", 4, 0, 0 ] ], [ [ "x", "A" ] ], [ [ "x", "Nobody" ] ])  ok
+		if pnCase = 5  StzSeatingFromTables([ [ "A", "round", 4, 0, 0 ] ], [ [ "x", "A" ] ], [ [ "x", "x" ] ])  ok
+		if pnCase = 6  StzSeatingFromTables([ [ "A", "round", 4, 0, 0 ], [ "a", "round", 4, 5, 0 ] ], [], [])  ok
+	catch
+		if pnCase = 1  return StzFindFirst("Nowhere", cCatchError) > 0  ok
+		if pnCase = 2  return StzFindFirst("round or long", cCatchError) > 0  ok
+		if pnCase = 3  return StzFindFirst("whole number of seats", cCatchError) > 0  ok
+		if pnCase = 4  return StzFindFirst("Nobody", cCatchError) > 0  ok
+		if pnCase = 5  return StzFindFirst("themself", cCatchError) > 0  ok
+		return StzFindFirst("two tables are named", cCatchError) > 0
 	done
 	return FALSE
 

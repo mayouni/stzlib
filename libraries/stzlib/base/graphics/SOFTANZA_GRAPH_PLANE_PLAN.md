@@ -126,6 +126,7 @@ sections, of which 21 declarations over 17 items.
 | DN20 | closed | 114 |
 | DN21 | closed | 115 |
 | DN22 | closed | 116 |
+| DN23 | closed | 117 |
 | DN9 | closed | - |
 | DN9a | closed | 97 |
 | DN9b | closed | 98 |
@@ -3845,6 +3846,43 @@ abuts no room is an exterior door, which is how the plan is entered.
 
 *Guard:* §116, 26 assertions; §91 grew by two pictures. Catalogue:
 `gg_math_catalogue.ring`, scenes 47 and 48.
+
+## DN23 — A SEATING PLAN: tables where they stand, seats around them, guests in them (2026-09-11, SHIPPED)
+
+**The floor plan's kind of picture with people in it.** A table is a name,
+a kind, a number of seats and a place in the hall in metres; its seats are
+computed around it — evenly on a ring for a round table, the first at the
+top, along both long sides for a long one — and a round table's disc grows
+with its seats. The guests take the seats in the order they are given, and
+each name is written beyond its seat, anchored by where the seat stands on
+the ring so that it reads outward: hung to the right on the east, to the
+left on the west, centred above and below. Nothing is solved; it is on the
+math plane and lives in `base/graph/stzSeatingDiagram.ring`.
+
+**What it is.** `StzSeatingDomain()`: `Table` (`Round` or `Long`), `Seat`
+(`Taken`), `Guest`, `Apart(Guest, Guest)` — two people the host keeps
+apart, the one claim a plan makes that the drawing cannot show to be
+broken — and `Unseated`, the one line naming everyone who found no seat.
+`StzSeatingFromTables(tables, guests, apart)` takes `[name, kind, seats, x,
+y]`, `[name, table]` in seating order and `[name, name]`;
+`StzSeatingDiagram(font, …)` is the whole picture, the font measuring the
+names so the anchoring is exact.
+
+**Four rules, every one about the plan.** `table_not_overbooked` (naming
+who found no seat), `a_guest_sits_once` (on both listings),
+`kept_apart_are_apart` (naming the table), `tables_stand_clear` (seat
+reach against seat reach, on both tables, with the distance and the
+distance needed; names are the plane's own name rules' business, and the
+lawful wedding stands clean under them). Faults are drawn — a rimmed
+table, a name on a plate, the seatless named beneath the hall — and the
+marks are held to the verdicts.
+
+**Said plainly and left out.** Seats are taken in order, not chosen; the
+hall is the paper and has no walls; couples, dietary marks and who faces
+the stage are not here.
+
+*Guard:* §117, 28 assertions; §91 grew by two pictures. Catalogue:
+`gg_math_catalogue.ring`, scenes 49 and 50.
 
 ## DN9 — THE TOLD PICTURE: a narration is facts made visible, in an order (planned 2026-09-06, SHIPPED 2026-09-07 as DN9a through DN9g, all seven closed)
 
