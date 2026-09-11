@@ -16021,6 +16021,20 @@ chk("and it answers Rendition() as a vector like every other picture",
 oChW = StzMathChoroplethWitness(AUFONT)
 aChW = StzCheckPictures([ [ "wrong", oChW ] ]).Findings()
 ? "   witness : " + len(aChW) + " findings -- " + _GtByRule(aChW)
+# THE LEGEND SAYS WHY -- the Principal read the witness cold: the centre
+# at 450 was not in the legend, and an entry of the legend was not on the
+# map. A rim says something is wrong without saying what; now the empty
+# class and the shade out of order say so after their range, and what
+# lies beyond the classes has an entry of its own, so every region on
+# the map is in the legend.
+chk("the legend names the class that colours nothing, the shade out of order, and gives the value beyond the classes an entry of its own",
+    oChW.Substance().LabelOf("l1") = "0 - 50  (no region)" and
+    oChW.Substance().LabelOf("l3") = "100 - 200  (out of order)" and
+    _ChHas(oChW.Substance(), "labove") and oChW.Substance().LabelOf("labove") = "above 400  (no class)" and
+    oChW.Substance().Holds("OutsideSwatch", [ "labove" ]) and oChW.Substance().DataOf("labove", "regions") = 1)
+chk("NEGATIVE: the lawful map's legend carries the ranges alone, and no entry beyond the classes",
+    oChS.LabelOf("l1") = "0 - 50" and oChS.LabelOf("l4") = "200 - 400" and
+    NOT _ChHas(oChS, "labove") and NOT _ChHas(oChS, "lbelow"))
 chk("a region with no value is caught, and drawn as no data with a swatch saying so",
     _PorHits(aChW, "every_region_has_a_value") = 1 and _GtHas(aChW, "'South-west' has no value") and
     oChW.Substance().Holds("NoData", [ "r4" ]) and _ChHas(oChW.Substance(), "lnd") and
