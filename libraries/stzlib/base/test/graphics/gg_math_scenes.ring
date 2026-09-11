@@ -1131,3 +1131,53 @@ func StzMathFishboneWitness(poFont)
 	_o_ = StzFishboneDiagram(poFont, "Bitter coffee", StzMathCoffeeWrongCategories())
 	_o_.SetVariation("wrong")
 	return _o_
+
+# A FLOOR PLAN (DN22): a flat of six rooms in metres, entered from the
+# hall, every room walked into through a door, every window on an
+# outside wall.
+func StzMathFlatRooms()
+	return [ [ "Hall",    0, 0, 2, 6 ],
+	         [ "Living",  2, 0, 5, 4 ],
+	         [ "Kitchen", 2, 4, 3, 2 ],
+	         [ "Bath",    5, 4, 2, 2 ],
+	         [ "Bedroom", 7, 0, 4, 4 ],
+	         [ "Study",   7, 4, 4, 2 ] ]
+
+func StzMathFlatDoors()
+	return [ [ "Hall", "w", 0.5, 1.0 ], [ "Hall", "e", 1, 0.9 ], [ "Hall", "e", 4.5, 0.9 ],
+	         [ "Living", "e", 1.5, 0.9 ], [ "Kitchen", "e", 0.5, 0.8 ], [ "Bedroom", "s", 1.5, 0.9 ] ]
+
+func StzMathFlatWindows()
+	return [ [ "Living", "n", 1, 2 ], [ "Bedroom", "n", 1, 2 ], [ "Bedroom", "e", 1, 1.5 ],
+	         [ "Kitchen", "s", 0.5, 1.5 ], [ "Study", "s", 1, 2 ], [ "Bath", "s", 0.5, 1 ] ]
+
+func StzMathScene47(poFont)
+	_o_ = StzFloorPlanDiagram(poFont, StzMathFlatRooms(), StzMathFlatDoors(), StzMathFlatWindows())
+	_o_.SetVariation("flat")
+	return _o_
+
+# THE SAME FLAT WITH ONE OF EACH MISTAKE: a pantry drawn over the living
+# room; a bathroom with no door; a bedroom and a study whose only door is
+# between the two of them; a window from the living room into the
+# bedroom. The witness the gate is meant to find things in.
+func StzMathFlatWrongRooms()
+	return [ [ "Hall",    0, 0, 2, 6 ],
+	         [ "Living",  2, 0, 5, 4 ],
+	         [ "Kitchen", 2, 4, 3, 2 ],
+	         [ "Bath",    5, 4, 2, 2 ],
+	         [ "Bedroom", 7, 0, 4, 4 ],
+	         [ "Study",   7, 4, 4, 2 ],
+	         [ "Pantry",  2, 3, 2, 1 ] ]
+
+func StzMathFlatWrongDoors()
+	return [ [ "Hall", "w", 0.5, 1.0 ], [ "Hall", "e", 1, 0.9 ], [ "Hall", "e", 4.5, 0.9 ],
+	         [ "Bedroom", "s", 1.5, 0.9 ], [ "Pantry", "w", 0.15, 0.7 ] ]
+
+func StzMathFlatWrongWindows()
+	return [ [ "Living", "n", 1, 2 ], [ "Living", "e", 1, 1 ], [ "Kitchen", "s", 0.5, 1.5 ],
+	         [ "Bedroom", "n", 1, 2 ], [ "Study", "s", 1, 2 ] ]
+
+func StzMathFloorPlanWitness(poFont)
+	_o_ = StzFloorPlanDiagram(poFont, StzMathFlatWrongRooms(), StzMathFlatWrongDoors(), StzMathFlatWrongWindows())
+	_o_.SetVariation("wrong")
+	return _o_

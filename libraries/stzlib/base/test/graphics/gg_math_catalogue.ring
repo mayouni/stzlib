@@ -5,7 +5,7 @@
 #
 #     ring gg_math_catalogue.ring
 #
-# writes math_01.png .. math_46.png beside it and prints, for each, the
+# writes math_01.png .. math_48.png beside it and prints, for each, the
 # solver's own account -- unknowns, constraints, rounds, evaluations,
 # milliseconds -- and every violated constraint, because the fifth scene
 # is a contradiction on purpose and its report is the point.
@@ -60,9 +60,11 @@ acTitles = [ "two sets, one inside the other  (Penrose twosets-simple)",
              "A TIMELINE                       (DN19: the axis as a scale -- distance means duration; the names laid above it)",
              "A TIMELINE, THREE THINGS WRONG   (an era ending before it starts, a band double-booked, an event outside its era)",
              "A FISHBONE                       (DN20: an effect, its categories of cause, the causes on them; bones by turns)",
-             "A FISHBONE, THREE THINGS WRONG   (an empty bone, a cause listed twice, the effect among its own causes)" ]
+             "A FISHBONE, THREE THINGS WRONG   (an empty bone, a cause listed twice, the effect among its own causes)",
+             "A FLOOR PLAN                     (DN22: rooms to scale, doors and windows on their walls; distance means length)",
+             "A FLOOR PLAN, FOUR THINGS WRONG  (rooms overlapping, a room with no door, rooms nobody can reach, a window onto a room)" ]
 
-for i = 1 to 46
+for i = 1 to 48
 	if i = 1   oM = StzMathScene01(oFont)
 	but i = 2  oM = StzMathScene02(oFont)
 	but i = 3  oM = StzMathScene03(oFont)
@@ -108,7 +110,9 @@ for i = 1 to 46
 	but i = 43 oM = StzMathScene43(oFont)
 	but i = 44 oM = StzMathTimelineWitness(oFont)
 	but i = 45 oM = StzMathScene45(oFont)
-	else       oM = StzMathFishboneWitness(oFont)  ok
+	but i = 46 oM = StzMathFishboneWitness(oFont)
+	but i = 47 oM = StzMathScene47(oFont)
+	else       oM = StzMathFloorPlanWitness(oFont)  ok
 	oM.Layout()
 	? "== " + acTitles[i]
 	? "   unknowns " + oM.NumberOfUnknowns() + "   constraints " +
