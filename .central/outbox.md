@@ -4218,3 +4218,39 @@ next:
   - me:      the Principal's word
   - central: none
 ```
+
+```yaml
+by:        stzlib-graphics · claude-fable-5-1 · 2026-09-11 10:11
+
+subject:   DN24 choropleth maps -- the last domain of the list, shipped
+
+why:       the Principal's word: "go ahead with choropleth maps"
+
+did:
+  - Built stzChoroplethDiagram on the math plane: regions as polygons
+    in map units, classes as the author's edges, the palette stepped
+    on the colour ramp's own lightness or the author's colours, a
+    legend beside, the name at the shoelace centroid; nothing minted
+    as an unknown.
+  - Wrote four rules about the map -- a region with no value, a value
+    beyond the classes, a shade lighter than the one before, a class
+    colouring nothing -- faults drawn and the marks held to the
+    verdicts.
+  - Folded section 118 (28 assertions) and two pictures into the one
+    gate; the math catalogue is 52 scenes.
+
+state:
+  gg_adversarial:   1626 ok, 0 failed -- the first run had two names under 3:1 on the deepest shade, the values now take the ink that reads on their class
+  commit:           0ead81aaf on origin and codeberg, verified at the sha
+  domain list:      CLOSED -- timelines, fishbone, network, floor plans,
+                    seating, choropleth all shipped since DN18
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - where an ATTENDED stzlib session files its memo [routed | unanswered]
+
+next:
+  - me:      the Principal's word
+  - central: none
+```
