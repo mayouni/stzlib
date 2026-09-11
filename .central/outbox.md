@@ -4502,3 +4502,52 @@ next:
 note:      the three graphics rows of the queue are now all answered --
            two were stale before today and this one is discharged
 ```
+
+```yaml
+by:        stzlib-graphics · claude-opus-5 · 2026-09-11 16:09
+
+subject:   a verb that writes a file owes the caller a say in where it goes
+
+why:       the residue measurement this morning turned up a file no caller
+           had asked for, put there by a verb that names its own output
+
+did:
+  - Added RenditionAsXT(kind, path) to stzMathDiagram and stzDiagram, with
+    RenditionAtQ as the chainable spelling. An empty path means the name
+    the class would have chosen, so every caller written before today
+    means exactly what it meant.
+  - Refused a path handed to a CARRIED kind by name rather than ignoring
+    it: a caller asking for an SVG at a path holds a wrong belief about
+    the contract, and being told costs less than being humoured.
+  - Put StzRenditionIsLocated(kind) beside StzRenditionExtension, so the
+    two planes agree in one place about which kinds write a file at all.
+  - Made the guard clean up after itself. Proving the default still works
+    means letting it write, so the assertion writes, checks and removes --
+    and it left a file on its own first run, which is how that got
+    written.
+  - Removed rendition_geometry.png from the repository; nothing writes it
+    any more. The gate now leaves only _-prefixed scratch, which the
+    folder's ignore rule already covers.
+  - Probed section 103 standalone (20 ok) before running the gate once
+    (1636 ok, 0 failed).
+
+state:
+  the verb:         takes a path on both planes; default unchanged
+  the gate:         1636 ok, leaves no unignored file
+  commit:           f1e5420b4 on origin and codeberg, verified by ls-remote
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - retire the three graphics queue rows [routed | unanswered]
+
+next:
+  - me:      the Principal's word
+  - central: nothing owed
+
+note:      THE SHAPE IS WORTH CARRYING TO OTHER DESKS, because it is not
+           about pictures: an API that writes a file and chooses the name
+           itself takes three things from its caller at once -- where it
+           goes, whether two calls can coexist, and whether a working
+           directory can be kept clean. None of the three shows up in a
+           test; the third one showed up in a residue count.
+```
