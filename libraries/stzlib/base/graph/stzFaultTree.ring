@@ -719,8 +719,12 @@ class stzFaultTree from stzDiagram
 	def GovernanceFindings()
 		return StzFaultRuleSetQ().Check(This.AsRuleGraph())
 
+	# SOUND IS NO ERROR, not no finding: this tree's rules set their
+	# severity deliberately, and a warning says the picture may stand.
+	# StzFindingsAreSound is the house's one answer; GovernanceFindings()
+	# is still every finding, warnings included, for a caller who wants them.
 	def GovernanceIsSound()
-		return len(This.GovernanceFindings()) = 0
+		return StzFindingsAreSound(This.GovernanceFindings())
 
 	def CheckRules()
 		return This.GovernanceFindings()

@@ -15356,6 +15356,22 @@ chk("a child older than a parent is caught, against each parent, naming the year
     _ErFound(aFmW, "parents_are_older", "'Dana' is born in 1948 and their parent 'Adam' in 1950") and
     _ErFound(aFmW, "parents_are_older", "'Dana' is born in 1948 and their parent 'Bea' in 1952"))
 chkeq("...and those are all of them: four", len(aFmW), 4)
+# A WARNING IS NOT AN ERROR, AND EVERY PARTY ASKED MUST SAY SO. Until
+# 2026-09-11 the tree answered NOT SOUND for the picture two lines above --
+# whose only finding is the single parent it draws on purpose -- while its own
+# rule set and a report over the same findings both answered SOUND. Six places
+# counted findings where four read severity; StzFindingsAreSound is the one
+# answer now. The line above this block had said "the three generations pass"
+# since the day it was written, so the gate's prose and the gate's verb had
+# disagreed in the same file.
+chk("a warning is not an error: the tree, its rule set, a report and the house answer SOUND together",
+    oFmT.GovernanceIsSound() and StzFamilyRuleSetQ().IsSound(oFmT.AsRuleGraph()) and
+    _FmRepSound(aFmF) and StzFindingsAreSound(aFmF))
+chk("NEGATIVE: the witness carries an error, so not one of the four calls it sound",
+    NOT oFmW.GovernanceIsSound() and NOT StzFamilyRuleSetQ().IsSound(oFmW.AsRuleGraph()) and
+    NOT _FmRepSound(aFmW) and NOT StzFindingsAreSound(aFmW))
+chk("and the dial is real on both sides: the sound tree's one finding is a warning, the witness carries an error",
+    _FmSeverities(aFmF) = "warning" and StzFindFirst("error", _FmSeverities(aFmW)) > 0)
 oFmC = StzFamilySceneCycle(OPTFM)
 chk("a person born of their own grandchild is caught, on both ends of the cycle",
     _ErFound(oFmC.GovernanceFindings(), "no_one_is_own_ancestor", "'Pia' is among their own ancestors") and
@@ -19123,6 +19139,22 @@ func _OgWitness
 	return _o_
 
 #-- DN18: the family tree section's helpers ----------------------------------
+
+# the same findings put through the house report, which reads severity
+func _FmRepSound paF
+	_o_ = new stzRuleReport("soundness")
+	_o_.Ingest(paF)
+	return _o_.IsSound()
+
+# every severity in a findings list, joined -- so a guard asserting "a
+# warning" cannot pass on a list that holds no warning at all
+func _FmSeverities paF
+	_c_ = ""
+	for _i_ = 1 to len(paF)
+		if _i_ > 1  _c_ += " "  ok
+		_c_ += "" + paF[_i_][:severity]
+	next
+	return _c_
 
 func _FmSetIs paSet, pacWant
 	if len(paSet) != len(pacWant)  return FALSE  ok

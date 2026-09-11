@@ -53,6 +53,10 @@ aF1 = oF.GovernanceFindings()
 say(aF1)
 chk("the three generations draw one WARNING and no error: the union with one partner is a single parent, if that is meant",
     len(aF1) = 1 and "" + aF1[1][:rule] = "union_has_two_partners" and "" + aF1[1][:severity] = "warning")
+? "   sound? the tree says " + oF.GovernanceIsSound() + ", its rule set says " +
+  StzFamilyRuleSetQ().IsSound(oF.AsRuleGraph()) + " -- a warning is not an error"
+chk("so the family is SOUND, and the tree and its rule set agree -- writing this guide is what found them disagreeing",
+    oF.GovernanceIsSound() and StzFamilyRuleSetQ().IsSound(oF.AsRuleGraph()))
 
 ? ""
 ? "-- Scene 3: the witness -- a union of three, a child of two unions, a child older than a parent --"
@@ -63,6 +67,8 @@ chk("the union of three is caught", hits(aW, "union_has_two_partners") = 1)
 chk("the child born of two unions is named", hits(aW, "child_of_one_union") = 1 and has(aW, "Gus"))
 chk("the child older than a parent is named with the years", hits(aW, "parents_are_older") >= 1 and has(aW, "Dana"))
 chk("the note is left alone", NOT has(aW, "draft"))
+chk("NEGATIVE: the witness carries an error, so nothing calls it sound",
+    NOT oW.GovernanceIsSound() and NOT StzFamilyRuleSetQ().IsSound(oW.AsRuleGraph()))
 
 ? ""
 ? "-- Scene 4: kin joined, and a person born of their own grandchild -- each on its own --"
