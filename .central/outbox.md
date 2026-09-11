@@ -4551,3 +4551,63 @@ note:      THE SHAPE IS WORTH CARRYING TO OTHER DESKS, because it is not
            directory can be kept clean. None of the three shows up in a
            test; the third one showed up in a residue count.
 ```
+
+```yaml
+by:        stzlib-graphics · claude-opus-5 · 2026-09-11 20:54
+
+subject:   GG3 settled -- the criterion asked about a round trip, and the
+           count says there is none
+
+why:       it was the only item the graph plane's own generated table did
+           not call closed, and the plan said the judgement was owed by
+           whoever owns the tier
+
+did:
+  - Answered the kill criterion by COUNTING device traffic rather than
+    reading the resolver and forming an opinion: resolving a three-link
+    chain moves neither upload counter, and a frame costs one transform
+    upload and one draw call whether sixty instances are flat or chained
+    fifty-nine deep.
+  - Concluded, and wrote into the plan, that propagation is composed
+    host-side -- so "stays on-device" does not hold literally -- while
+    the property that phrase was protecting does hold: hierarchy costs
+    the device nothing. The GPU propagation pass the plan allowed for
+    would have bought nothing measurable.
+  - Pinned the one place the two sides can disagree: a GPU-driven scene
+    keeps the kernel's buffer, so a parent moved after the first frame
+    changes the host's answer and not the drawn one. Asserted with its
+    control, the same scene not gpu-driven, which uploads every frame.
+  - Added section 119, 11 assertions, declaring discharges("GG3"), and
+    regenerated the plan's coverage table. Gate 1647 ok, 0 failed, run on
+    the exact tree committed. The section costs 0.11 s.
+  - Removed three stale hand-counted figures from the plan that sat four
+    lines below its own warning against hand-counted figures.
+
+state:
+  GG3:              closed, discharged by section 119
+  the plan table:   every item it defines now reads closed
+  gate:             1647 ok, 0 failed
+  commit:           c266c9194 on origin and codeberg, verified by ls-remote
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - retire the three graphics queue rows [routed | unanswered]
+  - PLANCOVERAGE-FIGURES: have StzWritePlanCoverage emit the assertion,
+    section and declaration counts, so the sentence introducing the
+    generated table stops being hand-written -> general-tasks session
+    (base/meta is theirs) [routed here | not routed to them directly]
+
+next:
+  - me:      the Principal's word. Fifteen items read closed with no
+             section declaring them -- mostly the early phases, which
+             predate the declaration convention. That is the next
+             measurable thing in this plane if he wants it
+  - central: retire the rows; relay the PLANCOVERAGE-FIGURES item
+
+note:      THE STATUS WORD IS RESERVED, and it cost a regeneration cycle
+           to learn. The parser reads an item's status from its own words
+           and checks the waiting word before the finished ones, on
+           purpose -- so writing the HISTORY of a status with the status
+           word in it flips the item straight back. Worth knowing before
+           anyone else closes an item that waited.
+```
