@@ -4402,3 +4402,55 @@ next:
 note:      three Ring traps paid again while writing (1e-9 is not a
            literal, a render resets decimals(), oR is or); all in the plan
 ```
+
+```yaml
+by:        stzlib-graphics · claude-opus-5 · 2026-09-11 14:45
+
+subject:   sound is no error, not no finding -- ten answers became one
+
+why:       the narrated guides showed a family tree calling itself unsound
+           over a warning its own rule set was happy with
+
+did:
+  - Verified first that the item I was asked to take, prompt 29 on raster
+    encoding, is CLOSED: the encoder already writes indexed under 256
+    colours, drops an unused alpha channel, filters per row and publishes
+    its decision, and the plan carries a priced refusal to quantise. It
+    had been reported stale to Central on 2026-09-08; I filed a
+    correction saying so rather than letting a duplicate report stand.
+  - Measured the open defect instead: of the twenty-three rules the five
+    picture domains declare, nine are warnings, and six of the ten places
+    that answer "is it sound" counted findings while four read severity.
+  - Added StzFindingsAreSound() beside the unified finding shape and
+    pointed all ten at it; GovernanceFindings() is unchanged.
+  - Guarded it with a positive, a negative sibling, and a check that the
+    severities in each list are not all the same, so neither can agree by
+    coincidence.
+  - Ran the gate once (1631 ok, 0 failed) and the four rule suites that
+    assert these verbs (158 assertions, all green).
+  - Refused to claim a section time: section 91 read 15 s slower while
+    the controls moved 1-4%, so I counted CALLS instead -- it makes none
+    to any changed verb.
+
+state:
+  soundness:        one answer, ten call sites
+  gate:             1631 ok, 0 failed
+  commit:           7e8779037 on origin and codeberg, verified by ls-remote
+  graphics queue:   both rows stale, reported twice, still printing
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - the 2026-08-30 DISAGREE on queue row 4 [routed | unanswered]
+  - retire the two graphics rows [routed 2026-09-08 and today | unanswered]
+
+next:
+  - me:      re-measure the residue row's count on this working tree, which
+             is the last open graphics item and needs a number rather than
+             an argument
+  - central: retire the two stale rows
+
+note:      the defect was written six times by six people who each knew
+           what sound meant and none of whom asked what the house already
+           said -- which is the shape the library's own law about parallel
+           contracts was written for
+```
