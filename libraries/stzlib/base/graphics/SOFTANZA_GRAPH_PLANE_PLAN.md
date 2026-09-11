@@ -127,6 +127,7 @@ sections, of which 21 declarations over 17 items.
 | DN21 | closed | 115 |
 | DN22 | closed | 116 |
 | DN23 | closed | 117 |
+| DN24 | closed | 118 |
 | DN9 | closed | - |
 | DN9a | closed | 97 |
 | DN9b | closed | 98 |
@@ -3900,6 +3901,46 @@ the stage are not here.
 
 *Guard:* §117, 31 assertions; §91 grew by two pictures. Catalogue:
 `gg_math_catalogue.ring`, scenes 49 and 50.
+
+## DN24 — A CHOROPLETH MAP: regions coloured by a value, a legend beside (2026-09-11, SHIPPED)
+
+**The last domain of the list, and the first whose colour is the datum.**
+A choropleth paints each region by where its value falls among a few
+classes, darker meaning more, and a legend beside the map says what each
+shade stands for. The regions are polygons the author gives in map units,
+the classes are the edges the author gives, and every pixel and every fill
+follows by arithmetic. Nothing is solved; it is on the math plane and
+lives in `base/graph/stzChoroplethDiagram.ring`.
+
+**What it is.** `Region`, `Swatch`, `Legend`, `Value`; a class predicate
+per class on regions and on swatches, and a vertex-count predicate per
+region — a polygon's count is a literal of the style, so the style paints
+each class and each count present by its own rule.
+`StzChoroplethFromRegions(quantity, regions, edges)` takes
+`[name, value, [x1, y1, …]]` with `""` for no value and the class edges
+ascending, `n + 1` for `n` classes; a palette of `n` colours may be given,
+or the primary hue is stepped from a pale tint to a deep shade on the
+colour ramp's own lightness scale. The lower edge belongs to a class and
+the upper does not, the last closed at its top; a region's name stands at
+its shoelace centroid with the value beneath; the map fits beside a legend
+column.
+
+**Four rules, every one about the map.** `every_region_has_a_value` (a
+hole, drawn as no data with a swatch saying so),
+`values_fall_in_the_classes` (saying by which edge; a region with no value
+is outside it), `darker_means_more` (class by class, the first having
+nothing to be darker than), `every_class_has_a_region` (a colour the
+legend promises for nothing; the no-data swatch is no class). Faults are
+drawn — the region beyond the classes in the colour of a fault, the
+offending swatches rimmed — and the marks are held to the verdicts.
+
+**Said plainly and left out.** Regions are simple polygons the author
+gives, not fetched from an atlas; a projection is the author's business;
+classes are the author's edges, not computed quantiles; no north arrow,
+no scale bar, no coastline beyond the regions.
+
+*Guard:* §118, 28 assertions; §91 grew by two pictures. Catalogue:
+`gg_math_catalogue.ring`, scenes 51 and 52.
 
 ## DN9 — THE TOLD PICTURE: a narration is facts made visible, in an order (planned 2026-09-06, SHIPPED 2026-09-07 as DN9a through DN9g, all seven closed)
 
