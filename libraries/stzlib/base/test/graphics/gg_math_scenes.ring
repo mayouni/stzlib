@@ -1233,3 +1233,41 @@ func StzMathSeatingWitness(poFont)
 	_o_ = StzSeatingDiagram(poFont, StzMathWeddingWrongTables(), StzMathWeddingWrongGuests(), StzMathWeddingApart())
 	_o_.SetVariation("wrong")
 	return _o_
+
+# A CHOROPLETH MAP (DN24): six provinces of a made-up country, coloured
+# by their density in four classes, darker meaning more.
+func StzMathProvinces()
+	return [ [ "North",       35, [ 0, 0,  7, 0,  6, 3,  0, 2 ] ],
+	         [ "East",       120, [ 7, 0,  12, 0,  12, 4,  8, 3.5,  6, 3 ] ],
+	         [ "Centre",     310, [ 0, 2,  6, 3,  8, 3.5,  7, 6,  3, 5.5,  0, 5 ] ],
+	         [ "South-west",  60, [ 0, 5,  3, 5.5,  4, 8,  0, 8 ] ],
+	         [ "South",      180, [ 3, 5.5,  7, 6,  8, 8,  4, 8 ] ],
+	         [ "South-east",  95, [ 7, 6,  8, 3.5,  12, 4,  12, 8,  8, 8 ] ] ]
+
+func StzMathProvinceEdges()
+	return [ 0, 50, 100, 200, 400 ]
+
+func StzMathScene51(poFont)
+	_o_ = StzChoroplethDiagram(poFont, "People per km2", StzMathProvinces(), StzMathProvinceEdges())
+	_o_.SetVariation("provinces")
+	return _o_
+
+# THE SAME MAP WITH ONE OF EACH MISTAKE: the centre above the last class;
+# the south-west with no value; the north lifted out of the first class
+# so that class colours nothing; and a palette whose third shade is
+# lighter than its second. The witness the gate is meant to find things in.
+func StzMathWrongProvinces()
+	return [ [ "North",       60, [ 0, 0,  7, 0,  6, 3,  0, 2 ] ],
+	         [ "East",       120, [ 7, 0,  12, 0,  12, 4,  8, 3.5,  6, 3 ] ],
+	         [ "Centre",     450, [ 0, 2,  6, 3,  8, 3.5,  7, 6,  3, 5.5,  0, 5 ] ],
+	         [ "South-west",  "", [ 0, 5,  3, 5.5,  4, 8,  0, 8 ] ],
+	         [ "South",      320, [ 3, 5.5,  7, 6,  8, 8,  4, 8 ] ],
+	         [ "South-east",  95, [ 7, 6,  8, 3.5,  12, 4,  12, 8,  8, 8 ] ] ]
+
+func StzMathWrongPalette()
+	return [ "#DCDCF5", "#8C8CE0", "#B4B4EA", "#3C3CB0" ]
+
+func StzMathChoroplethWitness(poFont)
+	_o_ = StzChoroplethDiagramXT(poFont, "People per km2", StzMathWrongProvinces(), StzMathProvinceEdges(), StzMathWrongPalette())
+	_o_.SetVariation("wrong")
+	return _o_

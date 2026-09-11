@@ -13607,21 +13607,27 @@ aOgP + [ "floorplan/witness", StzMathFloorPlanWitness(AUFONT) ]
 # on both listings, a pair kept apart together, two tables that meet.
 aOgP + [ "seating/wedding", StzMathScene49(AUFONT) ]
 aOgP + [ "seating/witness", StzMathSeatingWitness(AUFONT) ]
+# AND THE CHOROPLETH (DN24): the provinces, and the witness with one of
+# each mistake a map makes -- a hole, a value beyond the classes, a shade
+# out of order, a class colouring nothing.
+aOgP + [ "choropleth/provinces", StzMathScene51(AUFONT) ]
+aOgP + [ "choropleth/witness", StzMathChoroplethWitness(AUFONT) ]
 nOgT0 = StzEngineWatchTimestampMs()
 oOgRep = StzCheckPictures(aOgP)
 nOgMs = StzEngineWatchTimestampMs() - nOgT0
-chk("eighty-six pictures are judged by one call -- thirty-six notation, fifty mathematical",
-    len(aOgP) = 86)
+chk("eighty-eight pictures are judged by one call -- thirty-six notation, fifty-two mathematical",
+    len(aOgP) = 88)
 chk("and the report's findings are exactly the five things the corpus plants on purpose -- " +
     "the contradiction, the frame whose mark is outside the part it shows, " +
-    "the three-bonded oxygen, the stray hydrogen, the schedule, the timeline and the cause analysis with three mistakes each, the plan and the seating with four",
-    oOgRep.NumberOfFindings() = 33 and
+    "the three-bonded oxygen, the stray hydrogen, the schedule, the timeline and the cause analysis with three mistakes each, the plan, the seating and the map with four",
+    oOgRep.NumberOfFindings() = 37 and
     _OgAllFromAny(oOgRep, [ "math/5", "math/window/marked out of view",
         "chem/witness/three-bonded oxygen", "chem/witness/stray hydrogen", "gantt/witness",
-        "timeline/witness", "fishbone/witness", "floorplan/witness", "seating/witness" ]))
+        "timeline/witness", "fishbone/witness", "floorplan/witness", "seating/witness",
+        "choropleth/witness" ]))
 chk("the contradiction's constraints arrive as :diagram; the rim, the off-window mark, " +
-    "the two chemistry findings, the five schedule, the four timeline, the four fishbone, the six plan and the six seating findings as :plastic",
-    len(oOgRep.FindingsOfSubject(:diagram)) = 4 and len(oOgRep.FindingsOfSubject(:plastic)) = 29)
+    "the two chemistry findings, the five schedule, the four timeline, the four fishbone, the six plan, the six seating and the four map findings as :plastic",
+    len(oOgRep.FindingsOfSubject(:diagram)) = 4 and len(oOgRep.FindingsOfSubject(:plastic)) = 33)
 chk("and the gate is NOT sound, because a contradiction is a finding and not a pass",
     NOT oOgRep.IsSound())
 # a wall time is decoration on this machine, so the bound is set where it
@@ -13642,7 +13648,7 @@ aOgR = oOgG.CheckRules()
 for iOg = 1 to len(aOgR)
 	? "   RULE FINDING " + aOgR[iOg][:rule] + " @ " + aOgR[iOg][:where] + " -- " + aOgR[iOg][:message]
 next
-chkeq("the five math rules, the two chemistry rules, the three gantt, three timeline, three fishbone, four floor-plan and four seating rules pass the " +
+chkeq("the five math rules, the two chemistry rules, the three gantt, three timeline, three fishbone, four floor-plan, four seating and four choropleth rules pass the " +
       "five questions -- none empty, vacuous, or unwitnessed",
       len(aOgR), 0)
 
@@ -15950,6 +15956,117 @@ chk("the seating rules govern every table of a plan and not one object of a floo
     "the boundary is stood on",
     len(oStRule.SubjectsIn(oStW)) = 5 and len(oStRule.SubjectsIn(oFpF)) = 0 and len(oStRule.SubjectsIn(oFbC)) = 0 and
     len(oStRule.CounterSubjectsIn(oFpF)) > 0 and len(oStRule.CounterSubjectsIn(oStW)) = 0)
+
+sec("-- 118. DN24: A CHOROPLETH MAP -- REGIONS COLOURED BY A VALUE, A LEGEND BESIDE --")
+discharges("DN24")
+
+# NOTHING TO SOLVE: a region is a polygon and a value, a class two
+# edges, and every pixel and every fill follows by arithmetic.
+oChM = StzMathScene51(AUFONT)
+oChM.Layout()
+oChS = oChM.Substance()
+? "   provinces : " + oChM.NumberOfShapes() + " shapes, " + oChM.NumberOfUnknowns() +
+  " unknowns, " + floor(oChM.LayoutMs()) + " ms -- " + oChM.Why()
+chkeq("a choropleth mints no unknown -- there is nothing to lay out", oChM.NumberOfUnknowns(), 0)
+chk("six regions with their values, four classes in the legend under its title, and no swatch for no data",
+    len(oChS.ObjectsOfType("Region")) = 6 and len(oChS.ObjectsOfType("Value")) = 6 and
+    len(oChS.ObjectsOfType("Swatch")) = 4 and oChS.LabelOf("lg") = "People per km2" and
+    NOT _ChHas(oChS, "lnd"))
+
+# THE CLASSES ARE THE AUTHOR'S EDGES, and a value falls in one of them:
+# the lower edge in, the upper out, the last closed at its top.
+chk("each region falls in the class its value says: North 35 in the first, Centre 310 in the fourth",
+    oChS.DataOf("r1", "class") = 1 and oChS.Holds("C1", [ "r1" ]) and
+    oChS.DataOf("r3", "class") = 4 and oChS.Holds("C4", [ "r3" ]) and
+    oChS.DataOf("r2", "class") = 3 and oChS.DataOf("r4", "class") = 2)
+chk("an edge belongs to the class above it, and the last edge to the last class",
+    _ChClassOf(50, [ 0, 50, 100, 200, 400 ]) = 2 and _ChClassOf(400, [ 0, 50, 100, 200, 400 ]) = 4 and
+    _ChClassOf(401, [ 0, 50, 100, 200, 400 ]) = 0 and _ChClassOf(-1, [ 0, 50, 100, 200, 400 ]) = 0)
+chk("a swatch carries its range and counts its regions: the second class holds the two at 60 and 95",
+    oChS.LabelOf("l2") = "50 - 100" and oChS.DataOf("l2", "regions") = 2 and oChS.DataOf("l1", "regions") = 1)
+
+# DARKER MEANS MORE: the default palette is the primary hue stepped from
+# a pale tint to a deep shade, one hue, falling luminance.
+aChP = StzChoroplethPaletteFor(4)
+chk("the default palette darkens class by class, from a pale tint to a deep shade",
+    StzColorLuminance(aChP[1]) > StzColorLuminance(aChP[2]) and StzColorLuminance(aChP[2]) > StzColorLuminance(aChP[3]) and
+    StzColorLuminance(aChP[3]) > StzColorLuminance(aChP[4]) and StzColorLuminance(aChP[1]) > 200 and StzColorLuminance(aChP[4]) < 110)
+chk("a region's fill is its class's colour, and the swatch of that class the same colour",
+    oChM.FillOf("r3.icon") = aChP[4] and oChM.FillOf("l4.icon") = aChP[4] and oChM.FillOf("r1.icon") = aChP[1])
+
+# THE GEOMETRY: the map fits beside the legend, the polygon's points are
+# the author's scaled, the name at the centroid with the value beneath.
+nChK = (StzChoroplethWidth() - StzChoroplethLegendWidth() - 2 * StzChoroplethMargin()) / 12
+chk("a map unit is one width everywhere: the east's twelve units end where the map's width does",
+    fabs(oChS.DataOf("r2", "x3") - (StzChoroplethMargin() + 12 * nChK)) < 0.01 and
+    fabs(oChS.DataOf("r1", "x2") - oChS.DataOf("r1", "x1") - 7 * nChK) < 0.01)
+chk("a region's name stands at its centroid, the value beneath it -- the shoelace centroid, not the mean of the corners",
+    fabs(oChS.DataOf("r1", "cx") - (StzChoroplethMargin() + _ChCentroid([ 0, 0, 7, 0, 6, 3, 0, 2 ])[1] * nChK)) < 0.01 and
+    oChS.DataOf("v1", "cy") > oChS.DataOf("r1", "cy") and oChS.LabelOf("v1") = "35")
+chk("the legend stands to the right of the map, its swatches one under the other",
+    oChS.DataOf("l1", "x") > StzChoroplethMargin() + 12 * nChK and
+    oChS.DataOf("l2", "y") - oChS.DataOf("l1", "y") = oChS.DataOf("l3", "y") - oChS.DataOf("l2", "y"))
+aChF = StzCheckPictures([ [ "provinces", oChM ] ]).Findings()
+for iCh = 1 to len(aChF)
+	if iCh <= 4  ? "   PROVINCES FINDING " + aChF[iCh][:rule] + " -- " + aChF[iCh][:message]  ok
+next
+chk("the map is lawful and the one gate finds nothing in it -- every name inside its region and clear of its value",
+    oChM.IsFeasible() and len(aChF) = 0)
+chk("a fact reads a region's value from the data",
+    oChM.Fact(:datum, [ "r3", "value" ])[:value] = 310)
+chk("and it answers Rendition() as a vector like every other picture",
+    oChM.Rendition()[:kind] = "vector")
+
+# THE RULES ARE ABOUT THE MAP. The witness has one of each mistake.
+oChW = StzMathChoroplethWitness(AUFONT)
+aChW = StzCheckPictures([ [ "wrong", oChW ] ]).Findings()
+? "   witness : " + len(aChW) + " findings -- " + _GtByRule(aChW)
+chk("a region with no value is caught, and drawn as no data with a swatch saying so",
+    _PorHits(aChW, "every_region_has_a_value") = 1 and _GtHas(aChW, "'South-west' has no value") and
+    oChW.Substance().Holds("NoData", [ "r4" ]) and _ChHas(oChW.Substance(), "lnd") and
+    oChW.Substance().LabelOf("v4") = "no data")
+chk("a value beyond the last class is caught, saying by which edge",
+    _PorHits(aChW, "values_fall_in_the_classes") = 1 and
+    _GtHas(aChW, "'Centre' is 450, above the last class, which ends at 400"))
+chk("a shade lighter than the one before it is caught, naming both classes",
+    _PorHits(aChW, "darker_means_more") = 1 and
+    _GtHas(aChW, "class 3 (100 - 200) is lighter than class 2 (50 - 100)"))
+chk("a class no region falls in is caught, by its range",
+    _PorHits(aChW, "every_class_has_a_region") = 1 and _GtHas(aChW, "class 1 (0 - 50) colours no region"))
+chkeq("...and those four are all the gate finds", len(aChW), 4)
+
+# A FAULT IS DRAWN, AND THE MARKS ARE HELD TO THE VERDICTS.
+oChWS = oChW.Substance()
+chk("the region beyond the classes is marked and painted in the colour of a fault, exactly as the rule says",
+    _TlMarkedEquals(oChW, "Region", "Outside", aChW, "values_fall_in_the_classes", "region:") and
+    oChW.FillOf("r3.icon") != oChW.FillOf("r2.icon"))
+chk("the empty class and the misordered shade are marked on their swatches, exactly as the rules say",
+    _TlMarkedEquals(oChW, "Swatch", "Empty", aChW, "every_class_has_a_region", "class:") and
+    _TlMarkedEquals(oChW, "Swatch", "Misordered", aChW, "darker_means_more", "class:"))
+chk("NEGATIVE: nothing in the lawful map is marked as a fault",
+    len(_TlMarked(oChM, "Region", "Outside")) = 0 and len(_TlMarked(oChM, "Region", "NoData")) = 0 and
+    len(_TlMarked(oChM, "Swatch", "Empty")) = 0 and len(_TlMarked(oChM, "Swatch", "Misordered")) = 0)
+
+# THE BOUNDARIES. A region with no value is outside the rule about
+# classes; the first class is outside the rule about darkness; the
+# no-data swatch is outside the rule about empty classes; and the
+# builder refuses what it cannot mean.
+chk("NEGATIVE: the region with no value is outside the rule about classes, and inside the rule about values",
+    _ErInList("region:r4", StzChoroplethRuleSet()[2].CounterSubjectsIn(oChW)) and
+    NOT _ErInList("region:r4", StzChoroplethRuleSet()[2].SubjectsIn(oChW)) and
+    _ErInList("region:r4", StzChoroplethRuleSet()[1].SubjectsIn(oChW)))
+chk("NEGATIVE: the first class has nothing to be darker than, and the no-data swatch is no class",
+    _ErInList("class:l1", StzChoroplethRuleSet()[3].CounterSubjectsIn(oChM)) and
+    _ErInList("class:lnd", StzChoroplethRuleSet()[4].CounterSubjectsIn(oChW)))
+chk("edges that do not rise are refused, with the pair", _ChRefuses(1))
+chk("a palette of the wrong count is refused", _ChRefuses(2))
+chk("a region of two points, and two regions under one name, are refused", _ChRefuses(3) and _ChRefuses(4))
+chk("a map of no regions, and a single edge, are refused", _ChRefuses(5) and _ChRefuses(6))
+oChRule = StzChoroplethRuleSet()[1]
+chk("the choropleth rules govern every region of a map and not one object of a seating plan or a fishbone -- " +
+    "the boundary is stood on",
+    len(oChRule.SubjectsIn(oChM)) = 6 and len(oChRule.SubjectsIn(oStW)) = 0 and len(oChRule.SubjectsIn(oFbC)) = 0 and
+    len(oChRule.CounterSubjectsIn(oStW)) > 0 and len(oChRule.CounterSubjectsIn(oChM)) = 0)
 
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
@@ -19484,6 +19601,33 @@ func _ErRefusesKind
 	catch
 		# a symbol is a lowercase string in Ring, so the name comes back so
 		return StzFindFirst("sometimes", StzLower(cCatchError)) > 0
+	done
+	return FALSE
+
+#-- DN24: the choropleth section's helpers -----------------------------------
+
+func _ChHas poS, pcObj
+	_ac_ = poS.ObjectNames()
+	for _i_ = 1 to len(_ac_)
+		if _ac_[_i_] = pcObj  return TRUE  ok
+	next
+	return FALSE
+
+func _ChRefuses pnCase
+	try
+		if pnCase = 1  StzChoroplethFromRegions("q", [ [ "A", 1, [ 0, 0, 1, 0, 1, 1 ] ] ], [ 0, 10, 5 ])  ok
+		if pnCase = 2  StzChoroplethFromRegionsXT("q", [ [ "A", 1, [ 0, 0, 1, 0, 1, 1 ] ] ], [ 0, 10, 20 ], [ "red" ])  ok
+		if pnCase = 3  StzChoroplethFromRegions("q", [ [ "A", 1, [ 0, 0, 1, 0 ] ] ], [ 0, 10 ])  ok
+		if pnCase = 4  StzChoroplethFromRegions("q", [ [ "A", 1, [ 0, 0, 1, 0, 1, 1 ] ], [ "a", 2, [ 2, 0, 3, 0, 3, 1 ] ] ], [ 0, 10 ])  ok
+		if pnCase = 5  StzChoroplethFromRegions("q", [], [ 0, 10 ])  ok
+		if pnCase = 6  StzChoroplethFromRegions("q", [ [ "A", 1, [ 0, 0, 1, 0, 1, 1 ] ] ], [ 0 ])  ok
+	catch
+		if pnCase = 1  return StzFindFirst("10 is followed by 5", cCatchError) > 0  ok
+		if pnCase = 2  return StzFindFirst("2 classes need 2 colours -- 1 given", cCatchError) > 0  ok
+		if pnCase = 3  return StzFindFirst("at least three points", cCatchError) > 0  ok
+		if pnCase = 4  return StzFindFirst("two regions are named", cCatchError) > 0  ok
+		if pnCase = 5  return StzFindFirst("at least one region", cCatchError) > 0  ok
+		return StzFindFirst("two to ten edges", cCatchError) > 0
 	done
 	return FALSE
 
