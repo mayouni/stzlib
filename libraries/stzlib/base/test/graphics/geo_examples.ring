@@ -333,6 +333,66 @@ else
 	? "-> geo_symbols.png"
 ok
 
+# ---- 8. GE3 and GE5: what the gate says, and what is under a pixel ------
+# The same data on two projections. On Mercator a choropleth argues against
+# its own legend -- the high latitudes are swollen and the colour says they
+# are large -- and the gate says so BY NAME. On Equal Earth, with its source
+# stated, the same map reports nothing. Then five pixels are INVERTED back
+# to places and asked of the features: nothing is looked up.
+
+if NOT fexists("atlas/countries-110m.json")
+	? "SKIPPED, by name: atlas/countries-110m.json is not present."
+else
+	oRw = StzGeoFeaturesFromTopoJson(read("atlas/countries-110m.json"), "countries")
+	aRA = StzGeoMap(new stzGeoProjection(:EqualEarth), oRw).ValuesFromArea()
+	aREdges = [ 0, 100000, 500000, 2000000, 20000000 ]
+
+	oCR = new stzCanvas(1180, 720)
+	oCR.SetBackground("#FFFFFF")
+	oCR.SetFontQ(oFont, 22).AddTextQ("GE3: the same data, two projections, and what the gate says about each", 24, 40).Fill("#111111")
+
+	oMer = StzGeoMap(new stzGeoProjection(:Mercator), oRw)
+	oMer.Projection().FitSphereIn(20, 66, 570, 430, 6)
+	oMer.SetValuesQ(aRA).SetClasses(aREdges)
+	oMer.DrawOn(oCR)
+	aF = oMer.Findings()
+	oCR.SetFontQ(oFont, 16).AddTextQ("Mercator -- " + len(aF) + " findings", 24, 458).Fill("#111111")
+	nY = 482
+	for i = 1 to len(aF)
+		cI = "#B03030"
+		if aF[i][:severity] != "error"  cI = "#A06000"  ok
+		oCR.SetFontQ(oFont, 14).AddTextQ("[" + aF[i][:severity] + "] " + aF[i][:rule], 24, nY).Fill(cI)
+		nY += 20
+		oCR.SetFontQ(oFont, 13).AddTextQ(_Wrap(aF[i][:message], 78), 36, nY).Fill("#555555")
+		nY += 22
+	next
+
+	oEqe = StzGeoMap(new stzGeoProjection(:EqualEarth), oRw)
+	oEqe.Projection().FitSphereIn(610, 66, 1160, 430, 6)
+	oEqe.SetValuesQ(aRA).SetClasses(aREdges)
+	oEqe.SetSource("Natural Earth 1:110m, public domain")
+	oEqe.DrawOn(oCR)
+	oCR.SetFontQ(oFont, 16).AddTextQ("Equal Earth, with its source named -- " + len(oEqe.Findings()) +
+		" findings, and the gate calls it sound", 614, 458).Fill("#111111")
+	oCR.SetFontQ(oFont, 13).AddTextQ(oEqe.Caption(), 614, 482).Fill("#555555")
+
+	# GE5: what is under a pixel. Every label below was found by INVERTING the
+	# pixel and asking the features, not by looking a place up.
+	oCR.SetFontQ(oFont, 16).AddTextQ("GE5: what is under a pixel -- inverted, then asked of the features", 614, 530).Fill("#111111")
+	aSpots = [ [ 2.35, 48.85 ], [ 139.69, 35.69 ], [ -58.38, -34.6 ], [ 10.18, 36.8 ], [ 0, 0 ] ]
+	nY = 558
+	for i = 1 to len(aSpots)
+		q = oEqe.Projection().Project(aSpots[i][1], aSpots[i][2])
+		cN = oEqe.NameAt(q[1], q[2])
+		if cN = ""  cN = "(nobody -- the open sea)"  ok
+		oCR.AddCircleQ(q[1], q[2], 4).FillQ("#C0392B").Stroke("#FFFFFF", 1)
+		oCR.SetFontQ(oFont, 14).AddTextQ("pixel " + q[1] + "," + q[2] + "  ->  " + cN, 614, nY).Fill("#333333")
+		nY += 22
+	next
+	oCR.ToPNG("geo_rules.png")
+	? "-> geo_rules.png   Mercator findings " + len(aF) + "   Equal Earth findings " + len(oEqe.Findings())
+ok
+
 # Ring runs top-level code only up to the first func, so the helpers
 # stand at the end of the file
 func CityDot(oC, oP, aCity, oFont, cInk)
@@ -376,3 +436,7 @@ func _Box pnL0, pnF0, pnL1, pnF1
 		_a_ + _l_  _a_ + pnF1
 	next
 	return _a_
+
+func _Wrap pcT, pnN
+	if len(pcT) <= pnN  return pcT  ok
+	return StzStringSection(pcT, 1, pnN - 3) + "..."

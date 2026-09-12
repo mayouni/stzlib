@@ -16504,6 +16504,54 @@ chk("...and with one, the caption carries the projection AND the source",
 chk("a feature's area takes its HOLES OUT -- the lake is not land",
     oGmM.ValuesFromArea()[1] > 0 and oGmM.ValuesFromArea()[2] > 0)
 
+sec("-- 124. GE3: WHAT THE GATE OWES A MAP ---------------------------------------")
+discharges("GE3")
+
+# geo_map_narrated.ring carries these with their negatives. A map reports
+# ITSELF, in the house's unified finding shape, so it joins the ONE report
+# instead of growing a second gate.
+
+oG3F = StzGeoFeaturesFromJson(read("fixtures/two_countries.geojson"))
+oG3Bad = StzGeoMap(new stzGeoProjection(:Mercator), oG3F)
+oG3Bad.SetValuesQ([ 4200, 99999 ]).SetClasses([ 0, 5000, 20000, 30000 ])
+chk("A CHOROPLETH ON A PROJECTION THAT DISTORTS AREA IS AN ERROR -- the picture " +
+    "would argue against its own legend",
+    _G3Rule(oG3Bad.Findings(), "choropleth_needs_an_equal_area_projection", "error"))
+chk("a value outside the classes is an error, and a class colouring nothing warns",
+    _G3Rule(oG3Bad.Findings(), "values_fall_in_the_classes", "error") and
+    _G3Rule(oG3Bad.Findings(), "every_class_colours_a_region", "warning"))
+oG3Good = StzGeoMap(new stzGeoProjection(:EqualEarth), oG3F)
+oG3Good.SetValuesQ([ 4200, 9100 ]).SetClasses([ 0, 5000, 20000 ])
+oG3Good.SetSource("Invented, for a gate")
+chk("NEGATIVE: the same data on an equal-area projection with its source named " +
+    "reports NOTHING -- the rules do not fire on everything",
+    len(oG3Good.Findings()) = 0 and oG3Good.IsSound())
+chk("several maps join the ONE report, each finding carrying the map it came from",
+    NOT StzCheckGeoMaps([ [ "bad", oG3Bad ], [ "good", oG3Good ] ]).IsSound())
+
+sec("-- 125. GE5: WHAT IS UNDER A PIXEL ------------------------------------------")
+discharges("GE5")
+
+# The projection is inverted to a place on the sphere and the place is asked
+# of the features -- the same invert section 121 asserts round-trips on all
+# sixteen projections, so a globe and a cut map need no special case.
+
+oG5 = StzGeoMap(new stzGeoProjection(:EqualEarth), oG3F)
+oG5.Projection().FitToFeatures(oG3F, 500, 400, 20)
+oG5.SetValuesQ([ 4200, 9100 ]).SetClasses([ 0, 5000, 20000 ])
+aG5A = oG5.Projection().Project(1, 1)
+aG5L = oG5.Projection().Project(2.5, 4.5)
+aG5S = oG5.Projection().Project(14.2, 5)
+chk("a pixel over a country answers that country, and its value with it",
+    oG5.NameAt(aG5A[1], aG5A[2]) = "Arda" and oG5.ValueAt(aG5A[1], aG5A[2]) = 4200)
+chk("NEGATIVE: a pixel over the LAKE answers nobody -- the hole is respected all " +
+    "the way from the file to the click",
+    oG5.FeatureAt(aG5L[1], aG5L[2]) = 0)
+chk("a pixel over the ISLAND answers the country it belongs to",
+    oG5.NameAt(aG5S[1], aG5S[2]) = "Berea")
+chk("NEGATIVE: a pixel off the map answers nothing, not the nearest thing",
+    oG5.FeatureAt(-500, -500) = 0)
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go
@@ -19586,6 +19634,14 @@ func _ChRejoin paL
 func _ChTwoRegions
 	return [ [ "Nord", 35, [ 0, 0, 40, 0, 38, 20, 0, 18 ] ],
 	         [ "Sud", 120, [ 0, 18, 38, 20, 40, 42, 0, 40 ] ] ]
+
+func _G3Rule paFindings, pcRule, pcSeverity
+	for _i_ = 1 to len(paFindings)
+		if paFindings[_i_][:rule] = pcRule and paFindings[_i_][:severity] = pcSeverity
+			return TRUE
+		ok
+	next
+	return FALSE
 
 func _GeoBox pnLon0, pnLat0, pnLon1, pnLat1
 	return [ [ pnLon0, pnLat0 ], [ pnLon1, pnLat0 ], [ pnLon1, pnLat1 ], [ pnLon0, pnLat1 ] ]

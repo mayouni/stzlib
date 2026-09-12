@@ -170,6 +170,8 @@ general-tasks session's file and is routed to them, not fix them here.*
 | DN23 | closed | 117 |
 | DN24 | closed | 118 |
 | DN24b | closed | 120 |
+| GE3 | closed | 124 |
+| GE5 | closed | 125 |
 | GE2 | closed | 123 |
 | GE1 | closed | 122 |
 | GE0 | closed | 121 |
@@ -4414,6 +4416,25 @@ that too.
 **State**: ten assertions folded into §118, green standalone first; gate
 **1670 ok, 0 failed**. No catalogue fixture moves — the witness title is
 short, so it is still one line and every swatch is where it was.
+
+## GE3 — WHAT THE GATE OWES A MAP (2026-09-12, SHIPPED)
+
+**§124 discharges GE3.** A map is not judged the way a diagram is: it has no
+substance the math governance can read, so it reports ITSELF in the house's
+unified finding shape and `stzRuleReport` ingests it — one gate, not two.
+Seven rules, error where the picture argues against itself and warning where
+it merely advises: a choropleth needs an equal-area projection; north is up
+unless said otherwise; the map names its source; every value falls in the
+classes; every class colours a region; every region has a value; the data
+fits the paper. `StzCheckGeoMaps()` judges several at once.
+
+## GE5 — WHAT IS UNDER A PIXEL (2026-09-12, SHIPPED)
+
+**§125 discharges GE5.** `PlaceAt`, `FeatureAt`, `NameAt`, `ValueAt`: the
+projection is inverted to a place on the sphere and the place is asked of the
+features. Nothing is special-cased — it is the same invert §121 asserts
+round-trips on all sixteen projections — so a globe, a rotated sphere and a
+cut map all answer correctly, and a hole answers *nobody*.
 
 ## GE2 — A MAP MADE OF LAYERS (2026-09-12, SHIPPED)
 
