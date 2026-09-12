@@ -277,7 +277,26 @@ class stzCanvas from stzObject
 	# (pnX, pnY) is the BASELINE origin -- where the text sits, not its box.
 	def AddText(pcText, pnX, pnY)
 		This._Flush()
-		@aPending = [ :text, pcText, pnX, pnY, @nFill, @oFont, @nFontSize ]
+		@aPending = [ :text, pcText, pnX, pnY, @nFill, @oFont, @nFontSize, 0 ]
+
+	# ...AND DOWN A COLUMN (GR2d). Vertical is the writing mode of Japanese
+	# and Chinese, not a rotated line: the shaper picks the font's vertical
+	# metrics and its vertical FORMS, so a comma sits in the corner a
+	# vertical reader expects and a bracket takes its upright shape. The
+	# same call serves both tiers.
+	#
+	#     oC.AddVerticalText("日本語の縦書き", 40, 40)
+	#
+	# A Latin word inside a column stands upright here, one letter under
+	# the next, where a reader would expect it lying on its side. That is
+	# named as a limit in SOFTANZA_GRAPHICS_PLAN.md rather than implied.
+	def AddVerticalText(pcText, pnX, pnY)
+		This._Flush()
+		@aPending = [ :text, pcText, pnX, pnY, @nFill, @oFont, @nFontSize, 1 ]
+
+		def AddVerticalTextQ(pcText, pnX, pnY)
+			This.AddVerticalText(pcText, pnX, pnY)
+			return This
 
 	def AddTextQ(pcText, pnX, pnY)
 		This.AddText(pcText, pnX, pnY)
@@ -654,8 +673,12 @@ class stzCanvas from stzObject
 				StzRaise("stzCanvas: AddText needs a font -- call " +
 					"SetFont(oFont, nSize) first, or SetFontQ() in the chain.")
 			ok
-			StzEngineGpuSceneText(@nId, _a_[6].Id_(), _a_[2], _a_[3], _a_[4],
-				_a_[7], _a_[5])
+			# the 8th slot is the writing mode; an older pending shape
+			# without it reads as horizontal, which is what it was
+			_v_ = 0
+			if len(_a_) >= 8  _v_ = _a_[8]  ok
+			StzEngineGpuSceneTextXT(@nId, _a_[6].Id_(), _a_[2], _a_[3], _a_[4],
+				_a_[7], _a_[5], _v_)
 		off
 
 	# Close a point ring and stroke it, so an outline meets its own start.

@@ -145,7 +145,11 @@ const Cmd = union(enum) {
     circle: struct { cx: f32, cy: f32, r: f32, col: u32 },
     stroke: struct { pts: []f32, width: f32, col: u32 }, // line == 2-point stroke
     polygon: struct { pts: []f32, col: u32 },
-    text: struct { font: i64, str: []u8, x: f32, y: f32, size: f32, col: u32 },
+    // `vertical` is the WRITING MODE, not a rotation: the shaper picks the
+    // font's vertical metrics and vertical forms from it. Both tiers read
+    // it the same way, so a column drawn to pixels and a column emitted as
+    // vector are the same column.
+    text: struct { font: i64, str: []u8, x: f32, y: f32, size: f32, col: u32, vertical: bool = false },
     // A grid of samples drawn in ONE operation. Owed to the sound plane
     // since SN5: a spectrogram was 1,574 rects, 88 ms and ~104 KB of SVG
     // for one 760x260 picture, because the canvas had no way to say
@@ -794,6 +798,14 @@ pub fn sceneMesh(id: i64, verts: []const f32, idx: []const u32) i32 {
 }
 
 pub fn sceneText(id: i64, font: i64, str: []const u8, x: f64, y: f64, size: f64, col: u32) i32 {
+    return sceneTextXT(id, font, str, x, y, size, col, false);
+}
+
+/// ...AND WHICH WAY IT FLOWS (GR2d). Vertical is Japanese and Chinese down
+/// a column, not a rotated line: the shaper selects the font's vertical
+/// metrics and its vertical forms, and each glyph carries a y that walks
+/// the column down -- which is why no renderer here needed changing.
+pub fn sceneTextXT(id: i64, font: i64, str: []const u8, x: f64, y: f64, size: f64, col: u32, vertical: bool) i32 {
     if (str.len == 0 or size <= 0) return BAD_ARG;
     const copy = alloc.dupe(u8, str) catch return BAD_ARG;
     return push(id, .{ .text = .{
@@ -803,6 +815,7 @@ pub fn sceneText(id: i64, font: i64, str: []const u8, x: f64, y: f64, size: f64,
         .y = @floatCast(y),
         .size = @floatCast(size),
         .col = col,
+        .vertical = vertical,
     } });
 }
 
@@ -1149,7 +1162,7 @@ fn buildOnce(s: *SceneSlot) !void {
                 // "a record that drops COUNTS what it dropped" -- and it
                 // was found the only way it could be, by a person looking
                 // at a window and asking why the labels had gone.
-                const layout = gtext.textLayout(k.font, k.str, k.size) catch {
+                const layout = gtext.textLayoutXT(k.font, k.str, k.size, k.vertical) catch {
                     s.text_dropped += 1;
                     continue;
                 };
@@ -1433,7 +1446,7 @@ pub fn sceneToSvg(id: i64) !?[]u8 {
                 // "a record that drops COUNTS what it dropped" -- and it
                 // was found the only way it could be, by a person looking
                 // at a window and asking why the labels had gone.
-                const layout = gtext.textLayout(k.font, k.str, k.size) catch {
+                const layout = gtext.textLayoutXT(k.font, k.str, k.size, k.vertical) catch {
                     s.text_dropped += 1;
                     continue;
                 };

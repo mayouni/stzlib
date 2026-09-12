@@ -241,6 +241,11 @@ pub const Layout = struct {
     // em box sits every capital low by half that gap -- measured at
     // +0.6px for 11px type and +1.6px at 28px. ink_top of "H" IS the cap
     // height, read from the font rather than guessed at 0.7em.
+    // THE COLUMN'S EXTENT when the flow is vertical: the distance the pen
+    // travelled DOWN, as `width` is the distance it travelled right. Zero
+    // for horizontal text, so a caller reading it can tell which it got.
+    height: f64 = 0,
+    vertical: bool = false,
     // WHAT THE CHAIN DID, so a caller is never guessing. fallback_glyphs is
     // how many glyphs came from a font other than the one asked; notdef is
     // how many the WHOLE chain could not answer and which will draw as a
@@ -337,7 +342,7 @@ const Seg = struct { start: usize, len: usize, slot: usize };
 /// other, so laying them left to right puts the first-written piece on the
 /// left -- which is exactly backwards for Arabic or Hebrew. Reversing the
 /// piece order restores it. A mixed-script RTL line is where this shows.
-fn shapeRunChained(prim_slot: usize, utf8: []const u8, offset: usize, length: usize, level: u8, size_px: f64, pen_x: *f64, out: *std.ArrayList(Glyph)) !void {
+fn shapeRunChained(prim_slot: usize, utf8: []const u8, offset: usize, length: usize, level: u8, size_px: f64, pen_x: *f64, out: *std.ArrayList(Glyph), vertical: bool) !void {
     var segs: [64]Seg = undefined;
     var n_seg: usize = 0;
     const end = offset + length;
@@ -376,12 +381,14 @@ fn shapeRunChained(prim_slot: usize, utf8: []const u8, offset: usize, length: us
     const rtl = (level & 1) == 1;
     var k: usize = 0;
     while (k < n_seg) : (k += 1) {
-        const sg = segs[if (rtl) n_seg - 1 - k else k];
-        try shapeRun(sg.slot, utf8, sg.start, sg.len, level, size_px, pen_x, out);
+        // a vertical run reads top to bottom whatever its bidi level, so
+        // the piece order is logical there and reversed only for RTL
+        const sg = segs[if (rtl and !vertical) n_seg - 1 - k else k];
+        try shapeRun(sg.slot, utf8, sg.start, sg.len, level, size_px, pen_x, out, vertical);
     }
 }
 
-fn shapeRun(slot: usize, utf8: []const u8, offset: usize, length: usize, level: u8, size_px: f64, pen_x: *f64, out: *std.ArrayList(Glyph)) !void {
+fn shapeRun(slot: usize, utf8: []const u8, offset: usize, length: usize, level: u8, size_px: f64, pen_x: *f64, out: *std.ArrayList(Glyph), vertical: bool) !void {
     const rtl = (level & 1) == 1;
     const first = out.items.len;
     const fs = &fonts.items[slot];
@@ -398,7 +405,13 @@ fn shapeRun(slot: usize, utf8: []const u8, offset: usize, length: usize, level: 
     // full text in, item window = this run: joining context crosses run edges
     c.hb_buffer_add_utf8(buf, utf8.ptr, @intCast(utf8.len), @intCast(offset), @intCast(length));
     c.hb_buffer_guess_segment_properties(buf); // script + language from content
-    c.hb_buffer_set_direction(buf, if (rtl) c.HB_DIRECTION_RTL else c.HB_DIRECTION_LTR);
+    // THE FLOW AXIS. Top-to-bottom is not a rotation of left-to-right: it
+    // selects the font's VERTICAL metrics (vmtx) and its vertical features
+    // (vert/vrt2), so a comma sits in the corner a vertical reader expects
+    // and brackets take their upright forms. HarfBuzz does all of that
+    // from this one call -- which is why the plan could say CJK vertical
+    // was an opportunity bought with the shaper and no new vendor.
+    c.hb_buffer_set_direction(buf, if (vertical) c.HB_DIRECTION_TTB else if (rtl) c.HB_DIRECTION_RTL else c.HB_DIRECTION_LTR);
     c.hb_shape(font, buf, null, 0);
 
     var n: c_uint = 0;
@@ -407,6 +420,31 @@ fn shapeRun(slot: usize, utf8: []const u8, offset: usize, length: usize, level: 
     for (0..n) |i| {
         const info = infos[i];
         const pos = poss[i];
+        if (vertical) {
+            // HarfBuzz reports a vertical advance as NEGATIVE (its y grows
+            // up); the pen travels DOWN, so the advance is negated once,
+            // here, and every consumer downstream sees a positive distance.
+            //
+            // The glyph's y is written NEGATIVE because the renderer draws
+            // at `k.y - g.y` -- the convention a horizontal layout's
+            // y-offset already uses. So a column needs no renderer change
+            // at all: the same subtraction that lifts a mark above a
+            // baseline walks a column down the page.
+            const vadv = -@as(f64, @floatFromInt(pos.y_advance)) / 64.0;
+            try out.append(alloc, .{
+                .gid = info.codepoint,
+                .font = fid,
+                .x = @as(f64, @floatFromInt(pos.x_offset)) / 64.0,
+                .y = -(pen_x.*) + @as(f64, @floatFromInt(pos.y_offset)) / 64.0,
+                .cluster = info.cluster,
+                .pen = pen_x.*,
+                .adv = vadv,
+                .cl_end = 0,
+                .level = level,
+            });
+            pen_x.* += vadv;
+            continue;
+        }
         const adv = @as(f64, @floatFromInt(pos.x_advance)) / 64.0;
         try out.append(alloc, .{
             .gid = info.codepoint, // post-shaping: a GLYPH id, not a codepoint
@@ -428,6 +466,20 @@ fn shapeRun(slot: usize, utf8: []const u8, offset: usize, length: usize, level: 
 /// ids in VISUAL order (SheenBidi's runs left to right, each run shaped by
 /// HarfBuzz). Caller owns the returned Layout (deinit frees).
 pub fn textLayout(font_id: i64, utf8: []const u8, size_px: f64) !Layout {
+    return textLayoutXT(font_id, utf8, size_px, false);
+}
+
+/// ...AND WHICH WAY IT FLOWS. Vertical is the writing mode of Japanese and
+/// Chinese down a column, not a rotated line: HarfBuzz selects the font's
+/// vertical metrics and vertical features from the direction alone.
+///
+/// WHAT IS NOT HERE, and is named rather than implied: a Latin word inside
+/// a vertical column should lie on its side (UAX#50 calls it a rotated
+/// orientation) and here it stands upright, one letter under the next.
+/// That is a legitimate typographic style and it is not the default a
+/// reader expects, so it is a LIMIT and not a feature. Rotation needs the
+/// renderer to turn a glyph, which the atlas cannot express today.
+pub fn textLayoutXT(font_id: i64, utf8: []const u8, size_px: f64, vertical: bool) !Layout {
     const slot = slotOf(font_id) orelse return error.StaleFont;
     if (size_px <= 0 or utf8.len == 0) return error.BadArg;
     const s = &fonts.items[slot];
@@ -457,11 +509,24 @@ pub fn textLayout(font_id: i64, utf8: []const u8, size_px: f64) !Layout {
 
     const n_runs = c.SBLineGetRunCount(line);
     const runs = c.SBLineGetRunsPtr(line);
-    for (0..n_runs) |i| {
+    if (vertical) {
+        // ONE COLUMN, ONE FLOW. UAX#9 reorders a horizontal line; a column
+        // is read top to bottom whatever the scripts in it, so the runs are
+        // walked in LOGICAL order and the visual reordering is not applied.
+        // Mixed RTL inside a vertical column is a real typographic question
+        // and it is not answered here -- it is named in the limits.
+        run_count = n_runs;
+        var vi: usize = 0;
+        while (vi < n_runs) : (vi += 1) {
+            const r = runs[vi];
+            if (r.length == 0) continue;
+            try shapeRunChained(slot, utf8, @intCast(r.offset), @intCast(r.length), @intCast(r.level), size_px, &pen_x, &glyphs, true);
+        }
+    } else for (0..n_runs) |i| {
         const run = runs[i];
         if (run.length == 0) continue;
         run_count += 1;
-        try shapeRunChained(slot, utf8, @intCast(run.offset), @intCast(run.length), @intCast(run.level), size_px, &pen_x, &glyphs);
+        try shapeRunChained(slot, utf8, @intCast(run.offset), @intCast(run.length), @intCast(run.level), size_px, &pen_x, &glyphs, false);
     }
 
     // what the chain did, counted from the glyphs themselves
@@ -508,7 +573,9 @@ pub fn textLayout(font_id: i64, utf8: []const u8, size_px: f64) !Layout {
 
     return .{
         .glyphs = try glyphs.toOwnedSlice(alloc),
-        .width = pen_x,
+        .width = if (vertical) 0 else pen_x,
+        .height = if (vertical) pen_x else 0,
+        .vertical = vertical,
         .run_count = run_count,
         .fallback_glyphs = n_fb,
         .notdef_glyphs = n_nd,

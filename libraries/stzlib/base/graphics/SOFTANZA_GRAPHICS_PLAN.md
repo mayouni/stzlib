@@ -463,10 +463,9 @@ here; they are simply not designed AGAINST.
   are VENDORED (HarfBuzz, SheenBidi), not reinvented. The scope line
   moves from "which scripts work" (HarfBuzz makes that general) to
   "which scripts are GUARDED": Arabic + Latin + mixed-bidi initially,
-  the corpus growing by demand. Vertical CJK layout and justification
-  (kashida) are named as later increments. **Font fallback chains were
-  named here as the one most likely to be asked for next, and they
-  shipped 2026-09-12 as GR2c — see below.**
+  the corpus growing by demand. Justification (kashida) remains a later
+  increment. **Font fallback chains shipped 2026-09-12 as GR2c, and
+  vertical CJK writing the same day as GR2d — both below.**
 - **HarfBuzz is the largest C++ vendored after ggml** — the same
   compile-under-zig road, and the same ctor-caution: the neural
   tier's static-initializer lessons (NOTICE'd patches) are the
@@ -479,6 +478,54 @@ here; they are simply not designed AGAINST.
 - **CI has no GPU**: every guard passes through the SVG tier and the
   counted-refusal paths; GPU assertions gate on availability, exactly
   as the 162-assert G-plane suite already demonstrates.
+
+## GR2d -- VERTICAL WRITING: the flow can be a column (2026-09-12, SHIPPED)
+
+**The plan called vertical text "absent, unattempted" and predicted it
+would cost no new vendor.** Both were true. Japanese and Chinese down a
+column is not a rotated line: it selects the font's VERTICAL metrics and
+its vertical FORMS, and HarfBuzz does all of that from the direction
+alone.
+
+**The evidence it is typography and not a rotation.** Shaping
+`「あ、あ` horizontally and vertically through the same font gives four
+glyphs each way, and **two of them are different glyph ids**: the bracket
+and the comma take their vertical forms, and the kana between them does
+not. That substitution is what puts a comma in the corner a vertical
+reader expects rather than under the character.
+
+| measured on a 32 px column | reading |
+| --- | --- |
+| horizontal `日本語の縦書き` | width 213.20, height 0 |
+| the same text vertical | width 0, height 227.67 |
+| each glyph's advance | positive, 34 px, walking down |
+| glyphs the vertical forms replaced | 2 of 4 |
+| vector tier, horizontal vs vertical | a row 187×26, columns 27×205 and 26×97 |
+
+**No renderer needed changing, and that was the design rather than luck.**
+A renderer draws a glyph at `y - glyph.y`, the subtraction that lifts a
+mark above its baseline. A column is written as a DESCENDING y, so the
+same subtraction walks it down the page. Both tiers therefore gained
+vertical text from the shaper alone, which is the pipeline's whole point:
+they cannot disagree about a column any more than about a line.
+
+**What is NOT here, named rather than implied.** A Latin word inside a
+column should lie on its side — UAX#50 calls that a rotated orientation —
+and here it stands upright, one letter under the next. That is a real
+typographic style and it is not the default a reader expects, so it is a
+LIMIT. Rotation needs the renderer to turn a glyph, which the atlas
+cannot express today. Mixed right-to-left inside a column is likewise
+unanswered: a column is walked in logical order and the bidi reordering
+that governs a horizontal line is not applied to it.
+
+*Guard:* `gpu_text_narrated.ring` scene 11, 13 assertions. The flow half
+runs anywhere with no device on the committed fixture — the two axes, the
+descending pen, the positive advances, the column height being exactly
+where the pen arrived, and the negative sibling that the same text
+horizontally walks right along one baseline. The vertical FORMS need a
+CJK font this repository does not commit, so that half **names what it
+skipped**. Text guards 70 and 41, scene 70, render lifecycle 74, GUI font
+30, graphics gate 1647 ok — all on main's own sources.
 
 ## GR2c -- THE FALLBACK CHAIN: one font rarely covers all scripts (2026-09-12, SHIPPED)
 

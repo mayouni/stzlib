@@ -63,7 +63,7 @@ aL = StzEngineGpuTextLayout(hF, "Softanza", 32)
 # The SECOND is honest and is updated here, in the commit that caused it:
 # a glyph now carries a NINTH number, the font that drew it, because a
 # gid means nothing without the face it came from.
-chk("layout answers 11 items (glyphs, metrics, and what the chain did)", len(aL) = 11)
+chk("layout answers 13 items (glyphs, metrics, the chain, and the flow)", len(aL) = 13)
 chk("every glyph carries 9 numbers -- the ninth is the font that drew it", len(aL[3][1]) = 9)
 chk("ascender is a positive distance", aL[4] > 0)
 chk("descender is a positive distance", aL[5] > 0)
