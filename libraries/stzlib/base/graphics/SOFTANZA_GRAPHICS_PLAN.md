@@ -463,9 +463,12 @@ here; they are simply not designed AGAINST.
   are VENDORED (HarfBuzz, SheenBidi), not reinvented. The scope line
   moves from "which scripts work" (HarfBuzz makes that general) to
   "which scripts are GUARDED": Arabic + Latin + mixed-bidi initially,
-  the corpus growing by demand. Justification (kashida) remains a later
-  increment. **Font fallback chains shipped 2026-09-12 as GR2c, and
-  vertical CJK writing the same day as GR2d — both below.**
+  the corpus growing by demand. **Font fallback chains shipped 2026-09-12
+  as GR2c, vertical CJK writing the same day as GR2d, and kashida
+  justification the same day as GR2e — all three below. Justification was
+  the one that the shaper could not simply be asked for, and the text
+  increments this file still names are line breaking and the classical
+  kashida priority rules.**
 - **HarfBuzz is the largest C++ vendored after ggml** — the same
   compile-under-zig road, and the same ctor-caution: the neural
   tier's static-initializer lessons (NOTICE'd patches) are the
@@ -478,6 +481,90 @@ here; they are simply not designed AGAINST.
 - **CI has no GPU**: every guard passes through the SVG tier and the
   counted-refusal paths; GPU assertions gate on availability, exactly
   as the 162-assert G-plane suite already demonstrates.
+
+## GR2e -- KASHIDA JUSTIFICATION: a line that fills a width (2026-09-12, SHIPPED)
+
+**The plan named justification "a later increment" on its first page and
+left it there through GR0 to GR2d.** It is the last text increment this
+desk had named, and the one where the shaper alone was not enough — every
+earlier one (bidi, joining, ligatures, fallback, vertical forms) was
+bought by asking HarfBuzz the right question. This one had to be built.
+
+**LATIN JUSTIFIES BETWEEN THE WORDS; ARABIC JUSTIFIES INSIDE THEM**, by
+elongating the stroke that joins two letters — the kashida. A page of
+Arabic stretched on its spaces alone has rivers of white running down it
+and reads as a page set by somebody who did not know the script. So the
+engine elongates first and spends the remainder on the spaces:
+
+    natural              204.00 px, 21 glyphs
+    justified to 264     264.00 px, 27 glyphs
+    how                  6 kashidas, then 1.61 px on each space
+
+The **picture** is the evidence, not those numbers: the drawn line carries
+long horizontal strokes inside the words, which is what an Arabic reader
+means by a justified line.
+
+### Three things arithmetic would have got wrong
+
+**1. WHERE a kashida may go is a property of the FONT, not of a table.**
+Two letters join only if the face has the joined forms. So the question is
+asked of the **shaper**: a letter joins forward exactly when putting a
+join-causing character after it changes the glyph the face chooses.
+Tatweel is join-causing by definition and a space is not, so the two
+shapings differ exactly where a join exists. No joining-type table is
+carried — and a face missing its medial forms reports honestly instead of
+being assumed to have them.
+
+**2. WHAT a kashida is worth is NOT CONSTANT.** Measured on Amiri at 32px:
+the first tatweel inside one word bought **10.96px** and the second
+**5.96px**, because the first also changed its neighbours' forms. Any
+formula dividing a deficit by a per-kashida width is wrong on its first
+step. The engine inserts and RE-SHAPES, one shape per tatweel, capped.
+
+**3. THE CLUSTERS WOULD HAVE INDEXED A STRING THE CALLER NEVER SAW.** The
+engine shapes a text with tatweels inserted, so every cluster comes back
+indexing *that* text. Left unmapped, `rectsForRange` and the hit test
+answer confidently about the wrong character — **the failure looks exactly
+like success**, which is the shape of defect this plane exists to refuse.
+Clusters and cluster ends are mapped back to the caller's own bytes, and
+the guard asserts every one lands inside the caller's string.
+
+### What is NOT here, named rather than implied
+
+- **The classical PRIORITY of kashida positions** — after a kaf, before a
+  word's final letter, not in a line's first word, and the rest of the
+  tradition — is not implemented. Elongation is spread evenly over every
+  join the font allows. That is a **legible** line and not yet a
+  **beautiful** one, and the difference is a rule table somebody must
+  write with a typographer, not a thing to guess at here.
+- **Compression is refused outright.** A target no wider than the text
+  returns the text and says `justified = 0`, rather than squeezing and
+  looking normal.
+- **Still one line.** Justification fills a width that is given; choosing
+  where to break a paragraph into lines is still the later increment
+  GR2a named, and this does not touch it.
+
+### Reachable from the library, not only from the engine
+
+`stzCanvas` gains `AddJustifiedText(text, x, y, width)`, and both render
+tiers read the target from the same scene command — so a justified line
+drawn to pixels and one emitted as vector are the same line, which is the
+pipeline's whole point.
+
+**And the bridge's three text faces now share ONE emitter.** Two of them
+carried two copies of the code that builds the layout list, which is how a
+field gets appended to one and forgotten in the other. That is the same
+class this desk found twice in the diagram domains the same week: *a thing
+written in two places is invisible until one of them moves.*
+
+*Guard:* `gpu_text_narrated.ring` scene 12, ten assertions — the exact
+landing on the target, that it is kashida and not merely wider spaces
+(the line grew GLYPHS), that the clusters survive, that the advances still
+sum to the width, Latin justified on spaces alone as the negative sibling,
+and the two refusals. Three shape pins widened in the commit that widens
+them: the layout answers 16 items now. Text guards **80** and **41**,
+scene 70, render lifecycle 74, GUI font 30, graphics gate **1670 ok, 0
+failed** — built and run in the build tree, on main's own sources.
 
 ## GR2d -- VERTICAL WRITING: the flow can be a column (2026-09-12, SHIPPED)
 
