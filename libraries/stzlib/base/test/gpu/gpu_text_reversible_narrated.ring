@@ -29,8 +29,8 @@ load "stdlib.ring"
 $cEngineDir = "../../../engine"
 load "../../../engine/stz_gpu.ring"
 
-nPass = 0
-nFail = 0
+$nPass = 0
+$nFail = 0
 
 # Arabic codepoints as explicit UTF-8 bytes (no source-encoding
 # dependence), the same alphabet gpu_text_narrated.ring uses.
@@ -51,8 +51,20 @@ chk("fixture font loads (no device needed)", hF > 0)
 ? ""
 ? "-- Scene 1: the layout now CARRIES what a caret needs --"
 aL = StzEngineGpuTextLayout(hF, "Softanza", 32)
-chk("layout answers 7 items (glyphs + metrics)", len(aL) = 7)
-chk("every glyph carries 8 numbers", len(aL[3][1]) = 8)
+# TWO PINS ON A DOORWAY THAT GREW, and they are not the same defect.
+#
+# The FIRST was already red before the fallback chain was written: the
+# layout gained ink_top and ink_bottom with DN12 and this line went on
+# demanding seven, so it reported a regression in code that had got
+# better. Its sibling in gpu_text_narrated was repaired on 2026-09-11
+# and this copy was missed -- which is what a drifted pin does, it hides
+# in the file nobody re-read.
+#
+# The SECOND is honest and is updated here, in the commit that caused it:
+# a glyph now carries a NINTH number, the font that drew it, because a
+# gid means nothing without the face it came from.
+chk("layout answers 11 items (glyphs, metrics, and what the chain did)", len(aL) = 11)
+chk("every glyph carries 9 numbers -- the ninth is the font that drew it", len(aL[3][1]) = 9)
 chk("ascender is a positive distance", aL[4] > 0)
 chk("descender is a positive distance", aL[5] > 0)
 chk("line height exceeds the em at 32px", aL[4] + aL[5] + aL[6] > 32)
@@ -212,14 +224,14 @@ StzEngineGpuFontFree(hF)
 
 ? ""
 ? "=========================================="
-? "TOTAL: " + (nPass + nFail) + " assertions, " + nPass + " pass, " + nFail + " fail"
+? "TOTAL: " + ($nPass + $nFail) + " assertions, " + $nPass + " pass, " + $nFail + " fail"
 ? "=========================================="
 
 func chk cLabel, bCond
 	if bCond
-		nPass++
+		$nPass++
 		? "  [OK] " + cLabel
 	else
-		nFail++
+		$nFail++
 		? "  [FAIL] " + cLabel
 	ok

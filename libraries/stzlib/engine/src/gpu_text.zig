@@ -58,7 +58,22 @@ const FontSlot = struct {
     upem: u32 = 0,
     gen: u32 = 1,
     live: bool = false,
+
+    // THE FALLBACK CHAIN (GR2c). One font rarely covers all scripts: Segoe
+    // UI carries Latin, Greek, Cyrillic and Arabic and has NO Korean, so
+    // five codepoints of "안녕하세요" shape to .notdef and draw as five
+    // hollow boxes -- silently, since nothing counted them. A font may
+    // name fonts to ask when it cannot answer; the chain is ordered and
+    // the primary is always asked first.
+    //
+    // Fixed-size on purpose: a chain is 2-4 fonts in every real use (text,
+    // a CJK face, an emoji face), and a fixed array keeps a FontSlot
+    // copyable and frees no memory on a Free path that already exists.
+    fallbacks: [MAX_FALLBACK]i64 = @splat(0),
+    n_fallbacks: u8 = 0,
 };
+
+pub const MAX_FALLBACK: usize = 8;
 
 var fonts: std.ArrayList(FontSlot) = .{};
 
@@ -73,6 +88,37 @@ fn slotOf(id: i64) ?usize {
     const gen: u32 = @intCast((id >> 32) & 0xffff_ffff);
     if (!fonts.items[slot].live or fonts.items[slot].gen != gen) return null;
     return slot;
+}
+
+/// NAME A FONT TO ASK when this one cannot answer. Ordered: the first
+/// fallback that covers a codepoint wins. Refused, by returning BAD_ARG,
+/// for an unknown or stale id, for a font naming ITSELF (which would make
+/// coverage a loop), and for a chain already at its limit -- a refusal
+/// that says which, rather than a chain that silently did not grow.
+pub fn fontAddFallback(font_id: i64, fb_id: i64) i32 {
+    const slot = slotOf(font_id) orelse return STALE;
+    if (slotOf(fb_id) == null) return BAD_ARG;
+    if (fb_id == font_id) return BAD_ARG;
+    const s = &fonts.items[slot];
+    if (s.n_fallbacks >= MAX_FALLBACK) return BAD_ARG;
+    var i: usize = 0;
+    while (i < s.n_fallbacks) : (i += 1) {
+        if (s.fallbacks[i] == fb_id) return OK; // already there: idempotent
+    }
+    s.fallbacks[s.n_fallbacks] = fb_id;
+    s.n_fallbacks += 1;
+    return OK;
+}
+
+pub fn fontFallbackCount(font_id: i64) i32 {
+    const slot = slotOf(font_id) orelse return -1;
+    return @intCast(fonts.items[slot].n_fallbacks);
+}
+
+pub fn fontClearFallbacks(font_id: i64) i32 {
+    const slot = slotOf(font_id) orelse return STALE;
+    fonts.items[slot].n_fallbacks = 0;
+    return OK;
 }
 
 /// Load a font from memory (TTF/OTF bytes). Both stages must accept it:
@@ -162,6 +208,11 @@ pub fn stbttInfoOf(id: i64) ?*const anyopaque {
 
 pub const Glyph = struct {
     gid: u32,
+    // WHICH FONT ANSWERED. The gid is meaningless without it -- gid 47 is a
+    // different letter in every face -- and the atlas is keyed by (font,
+    // gid, size), so a fallback glyph rasterizes from ITS font or from the
+    // wrong one. Equal to the layout's own font unless the chain was used.
+    font: i64 = 0,
     x: f64, // pen position + x-offset, px, visual left-to-right -- the DRAW x
     y: f64, // y-offset from baseline, px (positive up, HarfBuzz convention)
     cluster: u32, // BYTE index into the utf8 input: the cluster's FIRST byte
@@ -190,6 +241,12 @@ pub const Layout = struct {
     // em box sits every capital low by half that gap -- measured at
     // +0.6px for 11px type and +1.6px at 28px. ink_top of "H" IS the cap
     // height, read from the font rather than guessed at 0.7em.
+    // WHAT THE CHAIN DID, so a caller is never guessing. fallback_glyphs is
+    // how many glyphs came from a font other than the one asked; notdef is
+    // how many the WHOLE chain could not answer and which will draw as a
+    // box. A record that drops counts what it dropped.
+    fallback_glyphs: u32 = 0,
+    notdef_glyphs: u32 = 0,
     ink_top: f64,
     ink_bottom: f64,
 
@@ -230,9 +287,111 @@ fn fillClusterEnds(slice: []Glyph, rtl: bool, run_end: u32) void {
     }
 }
 
-fn shapeRun(font: *c.hb_font_t, utf8: []const u8, offset: usize, length: usize, level: u8, pen_x: *f64, out: *std.ArrayList(Glyph)) !void {
+/// Does this face have a glyph for this codepoint? Asked of HarfBuzz, which
+/// reads the cmap -- the same table the shaper will read a moment later, so
+/// coverage and shaping cannot disagree.
+fn coversCp(slot: usize, cp: u32) bool {
+    var gid: c.hb_codepoint_t = 0;
+    if (c.hb_font_get_nominal_glyph(fonts.items[slot].font, cp, &gid) == 0) return false;
+    return gid != 0;
+}
+
+/// A MARK STAYS WITH ITS BASE, whatever the chain thinks of it on its own.
+/// A combining mark or a format character (ZWJ, a variation selector) is
+/// not a thing to be shaped alone: splitting "é" written as e + U+0301, or
+/// an emoji ZWJ sequence, between two fonts produces two wrong glyphs
+/// instead of one right one. So these inherit the segment they arrive in.
+fn isAttaching(cp: u32) bool {
+    const funcs = c.hb_unicode_funcs_get_default();
+    const cat = c.hb_unicode_general_category(funcs, cp);
+    return cat == c.HB_UNICODE_GENERAL_CATEGORY_NON_SPACING_MARK or
+        cat == c.HB_UNICODE_GENERAL_CATEGORY_SPACING_MARK or
+        cat == c.HB_UNICODE_GENERAL_CATEGORY_ENCLOSING_MARK or
+        cat == c.HB_UNICODE_GENERAL_CATEGORY_FORMAT;
+}
+
+/// The first font in the chain that can answer, the primary first. When
+/// nobody can, the PRIMARY keeps it: one .notdef in the font the author
+/// chose is a better picture than one in a font they never named, and it
+/// keeps the glyph's metrics consistent with its neighbours.
+fn fontForCp(prim_slot: usize, cp: u32) usize {
+    if (coversCp(prim_slot, cp)) return prim_slot;
+    const s = &fonts.items[prim_slot];
+    var i: usize = 0;
+    while (i < s.n_fallbacks) : (i += 1) {
+        const fb = slotOf(s.fallbacks[i]) orelse continue;
+        if (coversCp(fb, cp)) return fb;
+    }
+    return prim_slot;
+}
+
+const Seg = struct { start: usize, len: usize, slot: usize };
+
+/// ONE BIDI RUN, SPLIT BY WHAT EACH FONT CAN DRAW, then shaped piece by
+/// piece. The split is inside the run and never across it, so UAX#9 still
+/// owns the visual order of the runs themselves.
+///
+/// AND THE PIECES OF AN RTL RUN ARE EMITTED BACKWARDS. HarfBuzz returns one
+/// RTL run already in visual order; two RTL pieces shaped separately come
+/// back each in visual order but in LOGICAL order with respect to each
+/// other, so laying them left to right puts the first-written piece on the
+/// left -- which is exactly backwards for Arabic or Hebrew. Reversing the
+/// piece order restores it. A mixed-script RTL line is where this shows.
+fn shapeRunChained(prim_slot: usize, utf8: []const u8, offset: usize, length: usize, level: u8, size_px: f64, pen_x: *f64, out: *std.ArrayList(Glyph)) !void {
+    var segs: [64]Seg = undefined;
+    var n_seg: usize = 0;
+    const end = offset + length;
+
+    var seg_start = offset;
+    var seg_slot: usize = prim_slot;
+    var open = false;
+    var i = offset;
+    while (i < end) {
+        const n = std.unicode.utf8ByteSequenceLength(utf8[i]) catch 1;
+        if (i + n > end) break;
+        const cp: u32 = std.unicode.utf8Decode(utf8[i .. i + n]) catch {
+            i += n;
+            continue;
+        };
+        const want = if (open and isAttaching(cp)) seg_slot else fontForCp(prim_slot, cp);
+        if (!open) {
+            seg_slot = want;
+            open = true;
+        } else if (want != seg_slot) {
+            if (n_seg < segs.len) {
+                segs[n_seg] = .{ .start = seg_start, .len = i - seg_start, .slot = seg_slot };
+                n_seg += 1;
+            }
+            seg_start = i;
+            seg_slot = want;
+        }
+        i += n;
+    }
+    if (open and end > seg_start and n_seg < segs.len) {
+        segs[n_seg] = .{ .start = seg_start, .len = end - seg_start, .slot = seg_slot };
+        n_seg += 1;
+    }
+    if (n_seg == 0) return;
+
+    const rtl = (level & 1) == 1;
+    var k: usize = 0;
+    while (k < n_seg) : (k += 1) {
+        const sg = segs[if (rtl) n_seg - 1 - k else k];
+        try shapeRun(sg.slot, utf8, sg.start, sg.len, level, size_px, pen_x, out);
+    }
+}
+
+fn shapeRun(slot: usize, utf8: []const u8, offset: usize, length: usize, level: u8, size_px: f64, pen_x: *f64, out: *std.ArrayList(Glyph)) !void {
     const rtl = (level & 1) == 1;
     const first = out.items.len;
+    const fs = &fonts.items[slot];
+    const font = fs.font.?;
+    const fid = makeId(slot, fs.gen);
+    // the scale contract holds for EVERY font in the chain, not only the
+    // one the caller named -- a fallback shaped at another scale would sit
+    // at the right x and the wrong size
+    const seg_scale: c_int = @intFromFloat(@round(size_px * 64.0));
+    c.hb_font_set_scale(font, seg_scale, seg_scale);
     if (shape_buf == null) shape_buf = c.hb_buffer_create();
     const buf = shape_buf.?;
     c.hb_buffer_reset(buf);
@@ -251,6 +410,7 @@ fn shapeRun(font: *c.hb_font_t, utf8: []const u8, offset: usize, length: usize, 
         const adv = @as(f64, @floatFromInt(pos.x_advance)) / 64.0;
         try out.append(alloc, .{
             .gid = info.codepoint, // post-shaping: a GLYPH id, not a codepoint
+            .font = fid,
             .x = pen_x.* + @as(f64, @floatFromInt(pos.x_offset)) / 64.0,
             .y = @as(f64, @floatFromInt(pos.y_offset)) / 64.0,
             .cluster = info.cluster,
@@ -301,7 +461,16 @@ pub fn textLayout(font_id: i64, utf8: []const u8, size_px: f64) !Layout {
         const run = runs[i];
         if (run.length == 0) continue;
         run_count += 1;
-        try shapeRun(s.font.?, utf8, @intCast(run.offset), @intCast(run.length), @intCast(run.level), &pen_x, &glyphs);
+        try shapeRunChained(slot, utf8, @intCast(run.offset), @intCast(run.length), @intCast(run.level), size_px, &pen_x, &glyphs);
+    }
+
+    // what the chain did, counted from the glyphs themselves
+    var n_fb: u32 = 0;
+    var n_nd: u32 = 0;
+    const prim_id = makeId(slot, s.gen);
+    for (glyphs.items) |g| {
+        if (g.font != prim_id) n_fb += 1;
+        if (g.gid == 0) n_nd += 1;
     }
 
     // Vertical metrics from the SAME scaled font the positions came from,
@@ -325,7 +494,11 @@ pub fn textLayout(font_id: i64, utf8: []const u8, size_px: f64) !Layout {
     var ink_bottom: f64 = 0;
     for (glyphs.items) |g| {
         var ge: c.hb_glyph_extents_t = undefined;
-        if (c.hb_font_get_glyph_extents(s.font, g.gid, &ge) == 0) continue;
+        // the glyph's OWN font: a fallback glyph's extents are in the face
+        // that drew it, and asking the primary would measure a different
+        // letter with the same number
+        const gslot = slotOf(g.font) orelse slot;
+        if (c.hb_font_get_glyph_extents(fonts.items[gslot].font, g.gid, &ge) == 0) continue;
         if (ge.width == 0 and ge.height == 0) continue;
         const top = g.y + @as(f64, @floatFromInt(ge.y_bearing)) / 64.0;
         const bottom = g.y + @as(f64, @floatFromInt(ge.y_bearing + ge.height)) / 64.0;
@@ -337,6 +510,8 @@ pub fn textLayout(font_id: i64, utf8: []const u8, size_px: f64) !Layout {
         .glyphs = try glyphs.toOwnedSlice(alloc),
         .width = pen_x,
         .run_count = run_count,
+        .fallback_glyphs = n_fb,
+        .notdef_glyphs = n_nd,
         .ascender = asc,
         .descender = desc,
         .line_gap = gap,

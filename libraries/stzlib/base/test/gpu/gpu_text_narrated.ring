@@ -64,7 +64,11 @@ aLat = StzEngineGpuTextLayout(hF, "Softanza", 32)
 # appended inkTop and inkBottom (a label centres on its CAP height). Every
 # field was APPENDED, never reordered -- items 1..3 mean what they always
 # meant. (The guard said 7 from DN12 until 2026-09-11: a drift, not a fault.)
-chk("layout answers width, runs, glyphs and metrics", len(aLat) = 9)
+# 11 since the fallback chain landed (GR2c): the two coverage counters were
+# APPENDED, like every slot before them. A doorway that grows owes its guard
+# a line in the SAME commit -- this one drifted a month the last time it was
+# widened, and reported a regression in code that had got better.
+chk("layout answers width, runs, glyphs, metrics and what the chain did", len(aLat) = 11)
 # both ink distances are POSITIVE, measured away from the baseline like the metrics
 chk("the ink band lies inside the em box: inkTop <= ascender, inkBottom <= descender", aLat[8] <= aLat[4] and aLat[9] <= aLat[5])
 aG = aLat[3]
@@ -234,6 +238,73 @@ if bSame
     next
 ok
 chk("layout is deterministic (ids and positions)", bSame)
+
+? ""
+? "-- Scene 10: the FALLBACK CHAIN -- one font rarely covers all scripts --"
+#
+# Measured before the chain existed: this subset carries Arabic and Latin
+# and has NO Hangul, Cyrillic, Greek, Hebrew or CJK -- so those shape to
+# .notdef, which DRAWS, as one hollow box per character, and nothing
+# counted them. A font may now name fonts to ask when it cannot answer.
+
+# what the fixture cannot draw, stated rather than assumed
+cHangul = char(0xEC) + char(0x95) + char(0x88) + char(0xEB) + char(0x85) + char(0x95)
+aBare = StzEngineGpuTextLayout(hF, cHangul, 24)
+chk("the fixture has no Hangul: two codepoints, two .notdef",
+    len(aBare[3]) = 2 and aBare[11] = 2)
+chk("...and it DOES carry Arabic and Latin, so the gap is the script and not the font",
+    StzEngineGpuTextLayout(hF, cSoftanza, 24)[11] = 0 and
+    StzEngineGpuTextLayout(hF, "Softanza", 24)[11] = 0)
+
+# the chain's own verbs, which need no second font
+chk("a font begins with no chain", StzEngineGpuFontFallbackCount(hF) = 0)
+chk("NEGATIVE: a font cannot fall back to ITSELF -- that would make coverage a loop",
+    StzEngineGpuFontAddFallback(hF, hF) != 0)
+chk("NEGATIVE: nor to a font that was never loaded", StzEngineGpuFontAddFallback(hF, 999999) != 0)
+chk("...and neither refusal grew the chain", StzEngineGpuFontFallbackCount(hF) = 0)
+
+# THE COVERAGE SWITCH needs a second font carrying what the first lacks, and
+# this repository commits ONE fixture. The scene names what it skipped rather
+# than passing quietly, which is the house rule for a gate that cannot run.
+cKo = "C:/Windows/Fonts/malgun.ttf"
+if NOT fexists(cKo)
+    ? "   (SKIPPED, by name: the coverage switch needs a Hangul font and this"
+    ? "    machine has no " + cKo + ". The chain's verbs above were judged; the"
+    ? "    switch itself was NOT, and is unjudged here rather than passed.)"
+else
+    hKo = StzEngineGpuFontLoad(read(cKo))
+    chk("the second font loads", hKo > 0)
+    chk("naming it is accepted", StzEngineGpuFontAddFallback(hF, hKo) = 0)
+    chk("...and the chain says so", StzEngineGpuFontFallbackCount(hF) = 1)
+    chk("naming it TWICE changes nothing -- the chain is a set, not a list of repeats",
+        StzEngineGpuFontAddFallback(hF, hKo) = 0 and StzEngineGpuFontFallbackCount(hF) = 1)
+
+    aNow = StzEngineGpuTextLayout(hF, cHangul, 24)
+    chk("the same two codepoints now draw: no .notdef, and both came from the FALLBACK",
+        aNow[11] = 0 and aNow[10] = 2)
+    chk("each glyph says which font drew it, and it is not the one that was asked",
+        aNow[3][1][9] = hKo and aNow[3][2][9] = hKo)
+    chk("the width is a real width now, not two boxes wide",
+        aNow[1] > 0 and fabs(aNow[1] - aBare[1]) > 0.5)
+
+    # THE PRIMARY IS ALWAYS ASKED FIRST: a fallback must never take a glyph
+    # the author's own font could have drawn.
+    aMix = StzEngineGpuTextLayout(hF, "ab" + cHangul, 24)
+    chk("a mixed string splits by coverage: the Latin stays with the font that was asked",
+        aMix[10] = 2 and aMix[11] = 0 and
+        aMix[3][1][9] = hF and aMix[3][2][9] = hF and aMix[3][3][9] = hKo)
+    chk("NEGATIVE: with the chain cleared, the same string is two boxes again",
+        StzEngineGpuFontClearFallbacks(hF) = 0 and
+        StzEngineGpuTextLayout(hF, cHangul, 24)[11] = 2)
+
+    # AND THE ARABIC STILL SHAPES. A chain that quietly changed the joining
+    # of the script the font DOES carry would be a bad trade for coverage.
+    StzEngineGpuFontAddFallback(hF, hKo)
+    aAr = StzEngineGpuTextLayout(hF, cSoftanza, 24)
+    chk("with a chain in place, the Arabic word shapes exactly as it did without one",
+        aAr[11] = 0 and aAr[10] = 0 and len(aAr[3]) = len(StzEngineGpuTextLayout(hF, cSoftanza, 24)[3]))
+    StzEngineGpuFontFree(hKo)
+ok
 
 StzEngineGpuFontFree(hF)
 

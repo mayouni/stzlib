@@ -1157,7 +1157,9 @@ fn buildOnce(s: *SceneSlot) !void {
                 const aw: f32 = @floatCast(atlas.atlasWidth());
                 const ah: f32 = @floatCast(atlas.atlasHeight());
                 for (layout.glyphs) |g| {
-                    const e = atlas.glyphEntry(k.font, g.gid, k.size) catch {
+                    // g.font, never k.font: a fallback glyph rasterizes from
+                    // the face that shaped it (GR2c)
+                    const e = atlas.glyphEntry(g.font, g.gid, k.size) catch {
                         s.glyphs_dropped += 1;
                         continue;
                     };
@@ -1440,7 +1442,7 @@ pub fn sceneToSvg(id: i64) !?[]u8 {
                 defer path.deinit(alloc);
                 for (layout.glyphs) |g| {
                     _ = gtext.glyphOutlineSvg(
-                        k.font,
+                        g.font, // the face that shaped it, so the two tiers agree
                         g.gid,
                         k.size,
                         @as(f64, k.x) + g.x,

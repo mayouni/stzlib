@@ -55,6 +55,59 @@ class stzFont from stzObject
 	def GlyphCount()
 		return StzEngineGpuFontGlyphCount(@nId)
 
+	#-- THE FALLBACK CHAIN (GR2c) -------------------------------------------
+	#
+	# ONE FONT RARELY COVERS ALL SCRIPTS, and a font asked for a script it
+	# does not carry answers .notdef -- which DRAWS, as a hollow box, one
+	# per character. Measured on this machine before the chain existed:
+	# Segoe UI carries Latin, Greek, Cyrillic and Arabic and has no Hangul,
+	# so "안녕하세요" came back as five boxes and nothing counted them.
+	#
+	#     oUi = new stzFont("segoeui.ttf")
+	#     oUi.AddFallback(new stzFont("malgun.ttf"))   # Korean behind it
+	#     oUi.WidthOf("Korean 안녕하세요", 24)          # now a real width
+	#
+	# The chain is ORDERED and the font itself is always asked first, so a
+	# fallback never takes a glyph the author's own font could have drawn.
+	# Adding the same font twice does nothing; a font cannot fall back to
+	# itself, and neither refusal is silent.
+	def AddFallback(poFont)
+		if NOT isObject(poFont)
+			StzRaise("stzFont.AddFallback: give an stzFont to fall back to.")
+		ok
+		_n_ = StzEngineGpuFontAddFallback(@nId, poFont.Id_())
+		if _n_ != 0
+			StzRaise("stzFont.AddFallback: '" + poFont.Source() + "' was refused -- " +
+				"a font cannot fall back to itself, to a freed font, or beyond " +
+				"the eighth link of a chain.")
+		ok
+		return This
+
+		def AddFallbackQ(poFont)
+			return This.AddFallback(poFont)
+
+	def FallbackCount()
+		return StzEngineGpuFontFallbackCount(@nId)
+
+	def HasFallbacks()
+		return This.FallbackCount() > 0
+
+	def ClearFallbacks()
+		StzEngineGpuFontClearFallbacks(@nId)
+		return This
+
+	# WHAT THE CHAIN DID to a given string: [ fallback, notdef ] -- how many
+	# glyphs came from a font other than this one, and how many the whole
+	# chain could not draw and which will appear as a box. A caller who
+	# knows can add a font; a caller who knows nothing cannot.
+	def CoverageOf(pcText, pnSize)
+		_a_ = StzEngineGpuTextLayout(@nId, "" + pcText, pnSize)
+		if len(_a_) < 11  return [ 0, 0 ]  ok
+		return [ _a_[10], _a_[11] ]
+
+	def DrawsEveryGlyphOf(pcText, pnSize)
+		return This.CoverageOf(pcText, pnSize)[2] = 0
+
 	# The shaped advance width in pixels -- the number to centre or align by.
 	def WidthOf(pcText, pnSize)
 		_a_ = StzEngineGpuTextLayout(@nId, "" + pcText, pnSize)
