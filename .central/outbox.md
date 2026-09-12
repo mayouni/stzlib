@@ -4884,3 +4884,57 @@ note:      A COMMENT NAMING A CONTRACT IS NOT THE CONTRACT. Both files
            the negative sibling rule pointed at a doorway rather than a
            value.
 ```
+
+```yaml
+by:        stzlib-graphics · claude-opus-5 · 2026-09-12 02:48
+
+subject:   GR2d, vertical writing -- the flow can be a column
+
+why:       the Principal asked for it, and the graphics plan had named it
+           absent and unattempted since the text pipeline landed
+
+did:
+  - Measured before designing: a column is not a rotated line. Shaping a
+    bracket, a kana, a comma and a kana both ways gives four glyphs each
+    and TWO DIFFERENT GLYPH IDS -- the bracket and the comma take their
+    vertical forms and the kana does not. That substitution is the whole
+    difference between typography and rotation, and HarfBuzz does it
+    from the direction alone.
+  - Added the flow axis to the layout, the scene command and the canvas
+    (AddVerticalText), with the older spellings delegating so every
+    existing caller means what it meant.
+  - Wrote the column as a DESCENDING y, so the subtraction a renderer
+    already performs to lift a mark above a baseline walks a column down
+    the page. NO RENDERER CHANGED -- both tiers gained vertical text
+    from the shaper, which is what the one pipeline is for.
+  - Guarded it with 13 assertions: the two axes, the descending pen, the
+    positive advances, the column height being exactly where the pen
+    arrived, a negative sibling that the same text horizontally walks
+    right along one baseline, and the forms firing. The forms half needs
+    a CJK font this repository does not commit, so it NAMES WHAT IT
+    SKIPPED rather than passing quietly.
+  - Named two limits rather than implying them: Latin in a column stands
+    upright where UAX#50 says it should lie on its side, and mixed
+    right-to-left inside a column is unanswered.
+  - Rebased the bridge onto main AGAIN -- this working tree is 216 lines
+    behind on that file -- and verified on main's own sources.
+
+state:
+  vertical:        shipped, both tiers, guarded
+  guards:          text 70 and 41, scene 70, lifecycle 74, font 30
+  graphics gate:   1647 ok, 0 failed
+  commit:          5dd87f9cc on origin and codeberg, verified by ls-remote
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - retire the three graphics queue rows [routed | unanswered]
+
+next:
+  - me:      a third cost row at the close, and justification (kashida)
+             is the last text increment the plan names
+  - central: nothing owed
+
+note:      the codeberg push took six attempts through 504s tonight; the
+           remotes are level and were verified with ls-remote, not with
+           the push output
+```
