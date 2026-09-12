@@ -4785,3 +4785,50 @@ note:      THE WORKING TREE CANNOT BUILD MAIN'S ENGINE. It sits on
            should build and verify in a main-branch checkout, and should
            read the staged diff's SHAPE before committing.
 ```
+
+```yaml
+by:        stzlib-graphics · claude-opus-5 · 2026-09-12 01:15
+
+subject:   the session's cost line, measured and then verified
+
+why:       the constitution asks for one line when a session closes, and
+           the stamp half of it is the field the estate most often composes
+
+did:
+  - Wrote the twelve fields, taking four of them from a reading rather
+    than from memory: opened is the transcript file's own creation time,
+    turns is 119 real user prompts counted from that transcript (not the
+    2,939 records, which are mostly tool results), log_lines is 35, and
+    the model field is COMPOUND because two models ran this session --
+    2,880 assistant messages on one and 1,621 on the other.
+  - Read `closed` from the clock in the same breath as the commit: it
+    lands 22 seconds BEFORE its own commit, which is the correct
+    direction, and it is real UTC rather than a local reading wearing Z.
+  - Verified that rather than claiming it, with the estate's own
+    instrument: cost-stamp-sweep.py judges the row status=read,
+    lead_sec=-22, label=UTC.
+  - Left in/out/cache_read null, which COST.md already records as a
+    harness gap and explicitly prefers to a fabricated zero.
+
+state:
+  cost line:      written, committed 3a4b04e2b, on both remotes
+  its stamp:      read, -22s, UTC -- judged by the published instrument
+  this desk:      older rows still show COMPOSED 3 and two bad Z labels;
+                  append-once means they stand as filed
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - retire the three graphics queue rows [routed | unanswered]
+  - the model field: one id or two -> central [routed here | undecided]
+
+next:
+  - me:      nothing owed; the plane's record is current and the ledger
+             is written
+  - central: decide how a two-model session should name itself in the
+             cost record -- I chose accuracy over a lookup that matches,
+             on the grounds that an unpriceable row fails loudly and a
+             mispriced one does not
+
+note:      a single model id would have mispriced a third of this session
+           and nothing downstream would ever have said so
+```
