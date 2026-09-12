@@ -414,8 +414,38 @@ chk("A JUSTIFIED LINE LANDS ON ITS TARGET, not near it -- the kashidas take it "
 chk("IT IS KASHIDA AND NOT WIDER SPACES: tatweels were inserted, so the line grew " +
     "GLYPHS the natural line does not have",
     aJ1[15] > 0 and len(aJ1[3]) > len(aJ0[3]))
-chk("...and the elongation is spread, not piled in one word -- more than one join took it",
-    aJ1[15] >= 2)
+# WHERE THE KASHIDA GOES IS A CALLIGRAPHIC RULE, NOT "EVERYWHERE IT FITS".
+# The first version of this engine elongated every join the font allowed,
+# and the Principal marked the render up in red: in Arabic a kashida does
+# not apply to all letters, only to the one before the last. So a word
+# takes ONE elongation, at the join before its final letter, and a longer
+# kashida is that one join drawn longer.
+#
+# THE WORD THAT SETTLES IT is one whose last two letters do NOT join while
+# an earlier pair does. In برد the reh refuses to join forward, so the
+# join before the last letter does not exist -- and the FIRST join, beh to
+# reh, does. Under the old rule that word was stretched; under the rule it
+# has now it takes nothing, and the difference is exactly the finding.
+chk("a word takes its elongation at the join before its LAST letter",
+    _KashidasOf("بحر", aJ0[1]) > 0 and _KashidasOf("الحمد", aJ0[1]) > 0)
+chk("NEGATIVE: a word whose last two letters do not join takes NO kashida, even " +
+    "though an earlier join in the same word would have taken one",
+    _KashidasOf("برد", aJ0[1]) = 0 and _KashidasOf("رب", aJ0[1]) = 0)
+
+# AND AN ELONGATION MAY ADD INK, NEVER LOSE ANY. The same render lost the
+# SHADDA over the name of God: this face writes lam-lam-heh with a
+# contextual glyph that CARRIES the mark, and a tatweel between the letters
+# stopped the rule matching. A diacritic is a letter and its absence
+# changes the word, so the word refuses the elongation instead.
+aJSh = StzEngineGpuTextLayout(hF, "لله", 32)
+aJSj = StzEngineGpuTextLayoutJustified(hF, "لله", 32, aJSh[1] + 30)
+? "   the name of God reaches " + aJSh[8] + "px above the baseline, and after " +
+  "justification " + aJSj[8] + "px"
+chk("NEGATIVE: the word whose mark an elongation would destroy REFUSES to be " +
+    "elongated, and keeps every bit of its ink",
+    aJSj[15] = 0 and aJSj[8] = aJSh[8] and aJSj[9] = aJSh[9])
+chk("...and the whole justified line loses no ink either, above the baseline or below",
+    aJ1[8] >= aJ0[8] - 0.01 and aJ1[9] >= aJ0[9] - 0.01)
 
 # THE CLUSTERS STILL INDEX THE CALLER'S STRING. The engine justifies by
 # shaping a text with tatweels inserted, so every cluster it gets back
@@ -480,3 +510,8 @@ func chk cLabel, bCond
 		nFail++
 		? "  [FAIL] " + cLabel
 	ok
+
+func _KashidasOf pcWord, pnUnused
+	_a_ = StzEngineGpuTextLayout(hF, pcWord, 32)
+	_j_ = StzEngineGpuTextLayoutJustified(hF, pcWord, 32, _a_[1] + 30)
+	return _j_[15]
