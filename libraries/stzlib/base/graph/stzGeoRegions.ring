@@ -64,10 +64,17 @@ func StzGeoProject(pnLon, pnLat, pcKind, pnLat0)
 	_r_ = 3.141592653589793 / 180
 	_cs_ = cos(pnLat0 * _r_)
 	if _cs_ = 0  _cs_ = 0.000001  ok
+	# AND NORTH IS UP, which cost a second picture to learn. Latitude grows
+	# northward and a screen's y grows DOWNWARD, so a projection that hands
+	# back a rising y draws every map upside down -- the first render of a
+	# six-province country put Nord along the bottom edge and Sud across
+	# the top, correct in every area and unreadable as a map. The builder
+	# takes its points in the drawing's own axis, as the catalogue's
+	# hand-written map always did, so the flip belongs HERE and once.
 	if _k_ = "equirectangular"
-		return [ pnLon * _r_ * _cs_, pnLat * _r_ ]
+		return [ pnLon * _r_ * _cs_, -pnLat * _r_ ]
 	but _k_ = "equalarea"
-		return [ pnLon * _r_ * _cs_, sin(pnLat * _r_) / _cs_ ]
+		return [ pnLon * _r_ * _cs_, -sin(pnLat * _r_) / _cs_ ]
 	ok
 	stzraise("StzGeoProject: '" + _k_ + "' is not a projection this file " +
 		"knows -- equalarea or equirectangular.")
