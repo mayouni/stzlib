@@ -22,7 +22,7 @@ load "../../stzBase.ring"
 ---------------------------------------------------------------------------*/
 
 decimals(2)
-nOk = 0  nBad = 0
+$nOk = 0  nBad = 0
 
 ? "=============================================================="
 ? " GG4 -- passes and resources as a graph"
@@ -112,14 +112,27 @@ oC.AddPass(:A, [ :Reads = [ :fromB ], :Writes = [ :fromA ] ])
 oC.AddPass(:B, [ :Reads = [ :fromA ], :Writes = [ :fromB ] ])
 oC.Compile()
 chk("a CYCLE is detected", NOT oC.IsSound())
-? "   cycle finding : " + oC.Findings()[1][5]
+? "   cycle finding : " + oC.Findings()[1][:message]
+
+# AND THE HOUSE REPORT MUST AGREE WITH THE CLASS, which is the assertion
+# nobody had written and which was silently FALSE until 2026-09-12. The
+# findings were built as positional lists under a comment calling them the
+# house shape; stzRuleReport reads :severity BY NAME; a plain list answers
+# a name with nothing rather than raising. So this very cycle -- an error
+# by the class's own reckoning -- crossed into the report with no severity,
+# and the report called it SOUND with zero errors. A domain that claims to
+# join the one gate owes an assertion that the gate can SEE it.
+chk("the house report sees the same error the class does -- not sound, and one error",
+    NOT oC.Report().IsSound() and len(oC.Report().Errors()) = 1)
+chk("...and the finding arrives NAMED, so the gate can read its severity",
+    "" + oC.Findings()[1][:severity] = "error" and "" + oC.Findings()[1][:rule] != "")
 
 # READ-BEFORE-WRITE: a pass reads something nobody writes
 oHole = new stzFrameGraph(256, 256)
 oHole.AddPass(:Only, [ :Reads = [ :ghost ], :Writes = [ :screen ] ])
 oHole.Compile()
 chk("reading an unwritten resource is an ERROR", NOT oHole.IsSound())
-? "   hole finding  : " + oHole.Findings()[1][5]
+? "   hole finding  : " + oHole.Findings()[1][:message]
 
 # DEAD WORK: written, never read
 oW = new stzFrameGraph(256, 256)
@@ -128,7 +141,7 @@ oW.AddPass(:Use,   [ :Reads = [ :used ], :Writes = [ :screen ] ])
 oW.Compile()
 chk("dead work is reported (as a warning, not an error)", oW.IsSound())
 chk("  ...and it is actually reported", len(oW.Findings()) = 1)
-? "   dead finding  : " + oW.Findings()[1][5]
+? "   dead finding  : " + oW.Findings()[1][:message]
 
 # it reaches the SHARED gate
 oRep = oC.Report()
@@ -220,7 +233,7 @@ ok
 
 ? ""
 ? "=============================================================="
-? " " + nOk + " ok, " + nBad + " failed"
+? " " + $nOk + " ok, " + nBad + " failed"
 ? "=============================================================="
 
 #---------------------------------------------------------------------------
@@ -228,7 +241,7 @@ ok
 func chk cWhat, bCond
 	if bCond
 		? "   ok   " + cWhat
-		nOk++
+		$nOk++
 	else
 		? "  FAIL  " + cWhat
 		nBad++

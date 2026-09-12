@@ -235,15 +235,13 @@ class stzFrameGraph from stzObject
 		This._RequireCompiled()
 		return @aFindings
 
+	# SOUND IS NO ERROR, and StzFindingsAreSound is the house's one answer to
+	# it -- the same one stzRuleReport, stzGraphRuleSet, stzPlasticGovernance
+	# and the picture domains give. This wrote its own loop over position 4
+	# until 2026-09-12.
 	def IsSound()
 		This._RequireCompiled()
-		_aF9_ = @aFindings
-		_nF9_ = len(_aF9_)
-		for _iF9_ = 1 to _nF9_
-			_f_ = _aF9_[_iF9_]
-			if _f_[4] = :error  return 0  ok
-		next
-		return 1
+		return StzFindingsAreSound(@aFindings)
 
 	def Report()
 		This._RequireCompiled()
@@ -475,6 +473,15 @@ class stzFrameGraph from stzObject
 		next
 		@nPhysical = len(_slotEnd_)
 
+	# THE HOUSE FINDING SHAPE, AND IT IS NAMED. This said "the house finding
+	# shape" above a POSITIONAL list until 2026-09-12, and the difference was
+	# not cosmetic: stzRuleReport reads :severity BY NAME, a plain list
+	# answers a name with nothing rather than raising, and so every finding
+	# crossed into the report with no severity at all. A frame graph with a
+	# CYCLE -- an error by its own reckoning -- answered Report().IsSound()
+	# as SOUND and Report().Errors() as none. The class was right and the
+	# gate it claimed to join could not see it.
 	def _Finding(cRule, cSeverity, cMessage)
-		@aFindings + [ cRule, :framegraph, "" + @nW + "x" + @nH,
-		               cSeverity, cMessage ]
+		@aFindings + [ :rule = cRule, :subject = :framegraph,
+		               :where = "" + @nW + "x" + @nH,
+		               :severity = "" + cSeverity, :message = cMessage ]

@@ -331,15 +331,12 @@ class stzMaterialGraph from stzObject
 		This._RequireCompiled()
 		return @aFindings
 
+	# SOUND IS NO ERROR -- the house's one answer, as in stzFrameGraph, and
+	# for the same reason: the findings are NAMED now, so the report that
+	# ingests them can read a severity at all.
 	def IsSound()
 		This._RequireCompiled()
-		_aF3_ = @aFindings
-		_nF3_ = len(_aF3_)
-		for _iF3_ = 1 to _nF3_
-			_f_ = _aF3_[_iF3_]
-			if _f_[4] = :error  return 0  ok
-		next
-		return 1
+		return StzFindingsAreSound(@aFindings)
 
 	def Report()
 		This._RequireCompiled()
@@ -529,4 +526,6 @@ class stzMaterialGraph from stzObject
 		return ""
 
 	def _Finding(cRule, cSev, cMsg)
-		@aFindings + [ cRule, :materialgraph, "material", cSev, cMsg ]
+		@aFindings + [ :rule = cRule, :subject = :materialgraph,
+		               :where = "material", :severity = "" + cSev,
+		               :message = cMsg ]
