@@ -4366,6 +4366,52 @@ same defect one layer down.
 **State**: all six domains render with 0 rule findings; the eleven `math_*.png`
 catalogue fixtures re-rendered at the new scale; gate **1660 ok, 0 failed**.
 
+## A LEGEND TITLE LONGER THAN ITS COLUMN (2026-09-12, SHIPPED)
+
+The last thing the type raise left standing, and the picture had already
+reported it: at 20 points a quantity said in French — *"Habitants par
+kilometre carre au dernier recensement"* — runs off the right edge of the
+paper, and `onCanvas` said so, **"violated by 10.13px"**. The domain was
+working. What it could not do was fit.
+
+**It wraps now**, into the column the legend was already given
+(`StzChoroplethTitleRoom()`, the legend width less its air). Greedy fill:
+a column's width is fixed and its height is free. That is deliberately
+**not** the balancing wrap `stzDiagram._WrapLabel` does for a NODE's
+label, where width is the scarce axis and the lines want to come out even.
+Two objectives, two loops, and a comment in the source saying the
+duplication was weighed rather than missed.
+
+**A LINE IS AN OBJECT, not a newline inside a string.** The style draws
+objects and the rules judge them, so a title on two lines is two things on
+the paper and each can be asked whether it is on it. The overlap below was
+found exactly that way.
+
+**THE PITCH IS DERIVED, after the first draft wrote it as a number.** That
+number was 26 — the row pitch of the old 12-point legend — and the two
+lines of a wrapped title **overlapped by 3.16px**, which the rules
+reported by name. It is `ceil(StzChoroplethTitleSize() * 1.6)` now, so
+raising the type again cannot bring the overlap back. **The same shape as
+the drift finding it came out of, one layer down, on the same day** — a
+constant measured against a dimension that has since moved.
+
+**A WORD WIDER THAN THE COLUMN IS NOT CUT.** This file does not know the
+language's hyphens, so there is no honest break for it to make: the title
+stays whole and the picture reports the overflow. A title silently trimmed
+would be the picture asserting something it cannot check, which is the one
+thing this plane refuses. The guard asserts the refusal.
+
+**The builder still takes no font** — a map's geometry comes from its
+regions and never from a measurement, which makes it the one domain
+builder without one — so the wrap happens in `StzChoroplethDiagramXT`,
+where a font exists, and reaches the builder as a title that already
+carries its breaks. A fontless caller is unaffected, and the guard asserts
+that too.
+
+**State**: ten assertions folded into §118, green standalone first; gate
+**1670 ok, 0 failed**. No catalogue fixture moves — the witness title is
+short, so it is still one line and every swatch is where it was.
+
 ## DN9 — THE TOLD PICTURE: a narration is facts made visible, in an order (planned 2026-09-06, SHIPPED 2026-09-07 as DN9a through DN9g, all seven closed)
 
 The Principal, after DN8h was explained to him with three diagrams drawn
