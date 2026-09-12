@@ -869,15 +869,12 @@ fn ring_FontGlyphCount(p: *anyopaque) callconv(.c) void {
 // the same rule: how far the drawn glyphs reach above and below the
 // baseline, both positive -- the em box's ascender and descender are the
 // font's, these are the string's.
-fn ring_TextLayout(p: *anyopaque) callconv(.c) void {
-    const font: i64 = @intFromFloat(gn(p, 1));
-    const utf8 = getStr(p, 2);
-    const out = R.ring_vm_api_newlist(p) orelse return;
-    const layout = gtext.textLayout(font, utf8, gn(p, 3)) catch {
-        R.ring_vm_api_retlist(p, out);
-        return;
-    };
-    defer layout.deinit();
+// ONE EMITTER, THREE CALLERS. The plain, the XT and the justified faces
+// answer the SAME list, and until 2026-09-12 two of them said so by
+// carrying two copies of the code that builds it -- which is how a field
+// gets appended to one and forgotten in the other. The shape is written
+// once here now, so the three cannot disagree about it.
+fn emitLayout(p: *anyopaque, out: *anyopaque, layout: anytype) void {
     R.ring_list_adddouble(out, layout.width);
     R.ring_list_adddouble(out, @floatFromInt(layout.run_count));
     const gl = R.ring_list_newlist(out) orelse {
@@ -906,7 +903,23 @@ fn ring_TextLayout(p: *anyopaque) callconv(.c) void {
     R.ring_list_adddouble(out, @floatFromInt(layout.notdef_glyphs));
     R.ring_list_adddouble(out, layout.height);
     R.ring_list_adddouble(out, if (layout.vertical) 1 else 0);
+    // --- what justification did (GR2e): items 14, 15, 16 ---------------
+    R.ring_list_adddouble(out, if (layout.justified) 1 else 0);
+    R.ring_list_adddouble(out, @floatFromInt(layout.kashidas));
+    R.ring_list_adddouble(out, layout.space_stretch);
     R.ring_vm_api_retlist(p, out);
+}
+
+fn ring_TextLayout(p: *anyopaque) callconv(.c) void {
+    const font: i64 = @intFromFloat(gn(p, 1));
+    const utf8 = getStr(p, 2);
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const layout = gtext.textLayout(font, utf8, gn(p, 3)) catch {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    defer layout.deinit();
+    emitLayout(p, out, layout);
 }
 
 // TextLayoutXT(hFont, cUtf8, nSizePx, bVertical) -> the same list, shaped
@@ -920,35 +933,23 @@ fn ring_TextLayoutXT(p: *anyopaque) callconv(.c) void {
         return;
     };
     defer layout.deinit();
-    R.ring_list_adddouble(out, layout.width);
-    R.ring_list_adddouble(out, @floatFromInt(layout.run_count));
-    const gl = R.ring_list_newlist(out) orelse {
+    emitLayout(p, out, layout);
+}
+
+// TextLayoutJustified(hFont, cUtf8, nSizePx, nTargetPx) -> the same list,
+// stretched to fill nTargetPx: kashida inside the Arabic words first, then
+// the remainder on the spaces. Items 14..16 say what was done. A target no
+// wider than the text returns the text -- this never compresses.
+fn ring_TextLayoutJustified(p: *anyopaque) callconv(.c) void {
+    const font: i64 = @intFromFloat(gn(p, 1));
+    const utf8 = getStr(p, 2);
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const layout = gtext.textLayoutJustified(font, utf8, gn(p, 3), gn(p, 4)) catch {
         R.ring_vm_api_retlist(p, out);
         return;
     };
-    for (layout.glyphs) |g| {
-        const item = R.ring_list_newlist(gl) orelse continue;
-        R.ring_list_adddouble(item, @floatFromInt(g.gid));
-        R.ring_list_adddouble(item, g.x);
-        R.ring_list_adddouble(item, g.y);
-        R.ring_list_adddouble(item, @floatFromInt(g.cluster));
-        R.ring_list_adddouble(item, g.pen);
-        R.ring_list_adddouble(item, g.adv);
-        R.ring_list_adddouble(item, @floatFromInt(g.cl_end));
-        R.ring_list_adddouble(item, @floatFromInt(g.level));
-        R.ring_list_adddouble(item, @floatFromInt(g.font));
-    }
-    R.ring_list_adddouble(out, layout.ascender);
-    R.ring_list_adddouble(out, layout.descender);
-    R.ring_list_adddouble(out, layout.line_gap);
-    R.ring_list_adddouble(out, if (layout.para_rtl) 1 else 0);
-    R.ring_list_adddouble(out, layout.ink_top);
-    R.ring_list_adddouble(out, layout.ink_bottom);
-    R.ring_list_adddouble(out, @floatFromInt(layout.fallback_glyphs));
-    R.ring_list_adddouble(out, @floatFromInt(layout.notdef_glyphs));
-    R.ring_list_adddouble(out, layout.height);
-    R.ring_list_adddouble(out, if (layout.vertical) 1 else 0);
-    R.ring_vm_api_retlist(p, out);
+    defer layout.deinit();
+    emitLayout(p, out, layout);
 }
 
 // FontAddFallback(hFont, hFallback) -> 0 on success, refusing an unknown id,
@@ -1192,6 +1193,25 @@ fn ring_SceneTextXT(p: *anyopaque) callconv(.c) void {
         gn(p, 6),
         packedColor(p, 7),
         gn(p, 8) != 0,
+    )));
+}
+
+// SceneTextJustified(nId, hFont, cStr, nX, nY, nSize, colour, nWidth) --
+// the same text, STRETCHED to fill nWidth: kashida inside the Arabic
+// words first, the remainder shared over the spaces. A width of zero, or
+// one narrower than the text, leaves the line at its natural width.
+fn ring_SceneTextJustified(p: *anyopaque) callconv(.c) void {
+    const str = getStr(p, 3);
+    rn(p, @floatFromInt(scene.sceneTextJust(
+        @intFromFloat(gn(p, 1)),
+        @intFromFloat(gn(p, 2)),
+        str,
+        gn(p, 4),
+        gn(p, 5),
+        gn(p, 6),
+        packedColor(p, 7),
+        false,
+        gn(p, 8),
     )));
 }
 
@@ -2015,6 +2035,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpufontglyphcount", .func = &ring_FontGlyphCount },
     .{ .name = "stzenginegputextlayout", .func = &ring_TextLayout },
     .{ .name = "stzenginegputextlayoutxt", .func = &ring_TextLayoutXT },
+    .{ .name = "stzenginegputextlayoutjustified", .func = &ring_TextLayoutJustified },
     .{ .name = "stzenginegputextrects", .func = &ring_TextRects },
     .{ .name = "stzenginegputextcaretrect", .func = &ring_TextCaretRect },
     .{ .name = "stzenginegputextindexat", .func = &ring_TextIndexAt },
@@ -2032,6 +2053,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuscenemesh", .func = &ring_SceneMesh },
     .{ .name = "stzenginegpuscenetext", .func = &ring_SceneText },
     .{ .name = "stzenginegpuscenetextxt", .func = &ring_SceneTextXT },
+    .{ .name = "stzenginegpuscenetextjustified", .func = &ring_SceneTextJustified },
     .{ .name = "stzenginegpuscenecommandcount", .func = &ring_SceneCommandCount },
     .{ .name = "stzenginegpuscenestats", .func = &ring_SceneStats },
     .{ .name = "stzenginegpuscenetosvg", .func = &ring_SceneToSvg },

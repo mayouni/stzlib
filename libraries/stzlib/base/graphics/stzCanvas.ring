@@ -298,6 +298,27 @@ class stzCanvas from stzObject
 			This.AddVerticalText(pcText, pnX, pnY)
 			return This
 
+	# A LINE THAT FILLS A WIDTH, and in Arabic that is not a line with wider
+	# spaces in it. Latin justifies BETWEEN the words; Arabic justifies
+	# INSIDE them, by elongating the stroke that joins two letters -- the
+	# kashida. A column of Arabic stretched on its spaces alone has rivers
+	# of white running down it and reads as a page set by somebody who did
+	# not know the script.
+	#
+	#     oC.SetFontQ(oArabic, 28).AddJustifiedText(cLine, 40, 60, 420)
+	#
+	# The engine elongates first and shares whatever is left over the
+	# spaces, so the line lands on the width exactly. A width no greater
+	# than the text's own leaves the text alone: this stretches, and it
+	# never compresses.
+	def AddJustifiedText(pcText, pnX, pnY, pnWidth)
+		This._Flush()
+		@aPending = [ :text, pcText, pnX, pnY, @nFill, @oFont, @nFontSize, 0, pnWidth ]
+
+		def AddJustifiedTextQ(pcText, pnX, pnY, pnWidth)
+			This.AddJustifiedText(pcText, pnX, pnY, pnWidth)
+			return This
+
 	def AddTextQ(pcText, pnX, pnY)
 		This.AddText(pcText, pnX, pnY)
 		return This
@@ -673,12 +694,21 @@ class stzCanvas from stzObject
 				StzRaise("stzCanvas: AddText needs a font -- call " +
 					"SetFont(oFont, nSize) first, or SetFontQ() in the chain.")
 			ok
-			# the 8th slot is the writing mode; an older pending shape
-			# without it reads as horizontal, which is what it was
+			# the 8th slot is the writing mode and the 9th the width a
+			# justified line must fill; a pending shape written before
+			# either existed reads as horizontal and unjustified, which
+			# is what it was
 			_v_ = 0
 			if len(_a_) >= 8  _v_ = _a_[8]  ok
-			StzEngineGpuSceneTextXT(@nId, _a_[6].Id_(), _a_[2], _a_[3], _a_[4],
-				_a_[7], _a_[5], _v_)
+			_jw_ = 0
+			if len(_a_) >= 9  _jw_ = _a_[9]  ok
+			if _jw_ > 0
+				StzEngineGpuSceneTextJustified(@nId, _a_[6].Id_(), _a_[2], _a_[3], _a_[4],
+					_a_[7], _a_[5], _jw_)
+			else
+				StzEngineGpuSceneTextXT(@nId, _a_[6].Id_(), _a_[2], _a_[3], _a_[4],
+					_a_[7], _a_[5], _v_)
+			ok
 		off
 
 	# Close a point ring and stroke it, so an outline meets its own start.

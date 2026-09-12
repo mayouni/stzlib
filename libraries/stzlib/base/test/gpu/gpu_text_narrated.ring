@@ -68,7 +68,7 @@ aLat = StzEngineGpuTextLayout(hF, "Softanza", 32)
 # APPENDED, like every slot before them. A doorway that grows owes its guard
 # a line in the SAME commit -- this one drifted a month the last time it was
 # widened, and reported a regression in code that had got better.
-chk("layout answers width, runs, glyphs, metrics, the chain and the flow", len(aLat) = 13)
+chk("layout answers width, runs, glyphs, metrics, the chain, the flow and the fit", len(aLat) = 16)
 # both ink distances are POSITIVE, measured away from the baseline like the metrics
 chk("the ink band lies inside the em box: inkTop <= ascender, inkBottom <= descender", aLat[8] <= aLat[4] and aLat[9] <= aLat[5])
 aG = aLat[3]
@@ -317,8 +317,8 @@ ok
 
 aHz = StzEngineGpuTextLayout(hF, "Softanza", 32)
 aVt = StzEngineGpuTextLayoutXT(hF, "Softanza", 32, 1)
-chk("both answer 13 items now: the flow's own extent and which axis it is",
-    len(aHz) = 13 and len(aVt) = 13)
+chk("both answer 16 items now: the flow's own extent, which axis it is, and the fit",
+    len(aHz) = 16 and len(aVt) = 16)
 chk("a horizontal layout fills the WIDTH and says it is not vertical",
     aHz[1] > 0 and aHz[12] = 0 and aHz[13] = 0)
 chk("a vertical layout fills the HEIGHT instead, and says which it is",
@@ -390,6 +390,80 @@ else
 	    aPh[3][2][1] = aPv[3][2][1] and aPh[3][4][1] = aPv[3][4][1])
 	StzEngineGpuFontFree(hCjk)
 ok
+
+? ""
+? "-- Scene 12: a line that FILLS a width -- kashida justification (GR2e) --"
+#
+# Latin justifies BETWEEN the words; Arabic justifies INSIDE them, by
+# elongating the stroke that joins two letters. A page of Arabic stretched
+# on its spaces alone has rivers of white down it and reads as a page set
+# by somebody who did not know the script. So the engine elongates first
+# and spends the remainder on the spaces, which is why a justified line
+# lands on its target EXACTLY while kashidas are discrete.
+
+cJAr = "الحمد لله رب العالمين"
+aJ0 = StzEngineGpuTextLayout(hF, cJAr, 32)
+aJ1 = StzEngineGpuTextLayoutJustified(hF, cJAr, 32, aJ0[1] + 60)
+? "   natural " + aJ0[1] + "px -> justified " + aJ1[1] + "px, " + aJ1[15] +
+  " kashidas and " + aJ1[16] + "px on each space"
+chk("the layout answers 16 items now: the three that say what justification did",
+    len(aJ0) = 16 and len(aJ1) = 16)
+chk("A JUSTIFIED LINE LANDS ON ITS TARGET, not near it -- the kashidas take it " +
+    "most of the way and the spaces close the rest",
+    fabs(aJ1[1] - (aJ0[1] + 60)) < 0.01 and aJ1[14] = 1)
+chk("IT IS KASHIDA AND NOT WIDER SPACES: tatweels were inserted, so the line grew " +
+    "GLYPHS the natural line does not have",
+    aJ1[15] > 0 and len(aJ1[3]) > len(aJ0[3]))
+chk("...and the elongation is spread, not piled in one word -- more than one join took it",
+    aJ1[15] >= 2)
+
+# THE CLUSTERS STILL INDEX THE CALLER'S STRING. The engine justifies by
+# shaping a text with tatweels inserted, so every cluster it gets back
+# indexes a string the caller never saw. Left unmapped, a caret rect and a
+# hit test would answer confidently about the wrong character.
+nJMax = 0
+bJIn = TRUE
+for iJ = 1 to len(aJ1[3])
+	if aJ1[3][iJ][4] > nJMax  nJMax = aJ1[3][iJ][4]  ok
+	if aJ1[3][iJ][4] > len(cJAr) or aJ1[3][iJ][7] > len(cJAr)  bJIn = FALSE  ok
+next
+chk("every cluster still indexes the CALLER'S string, not the elongated one the " +
+    "engine shaped -- reversibility survives justification", bJIn and nJMax < len(cJAr))
+
+# THE GEOMETRY STILL ADDS UP. The spaces were widened after shaping, so
+# the pens had to be shifted with them; if the shift were dropped the
+# glyphs would overlap and nothing else here would notice.
+nJSum = 0
+bJMono = TRUE
+for iJ = 1 to len(aJ1[3])
+	nJSum += aJ1[3][iJ][6]
+	if iJ > 1 and aJ1[3][iJ][5] < aJ1[3][iJ - 1][5]  bJMono = FALSE  ok
+next
+chk("the advances still sum to the width and the pen still runs left to right, " +
+    "so the widened spaces carried their neighbours with them",
+    fabs(nJSum - aJ1[1]) < 0.05 and bJMono)
+
+# LATIN GETS THE OTHER HALF, and the negative sibling is what makes the
+# Arabic assertion mean something: the same call on Latin inserts NO
+# kashida, because the face joins nothing there.
+cJLat = "the quick brown fox jumps"
+aL0 = StzEngineGpuTextLayout(hF, cJLat, 32)
+aL1 = StzEngineGpuTextLayoutJustified(hF, cJLat, 32, aL0[1] + 40)
+chk("NEGATIVE: Latin is justified on its SPACES ALONE -- no kashida, because the " +
+    "face joins nothing there",
+    aL1[15] = 0 and aL1[16] > 0 and fabs(aL1[1] - (aL0[1] + 40)) < 0.01)
+chk("...and the space stretch is the deficit shared out, not a guess",
+    fabs(aL1[16] * 4 - 40) < 0.01)
+
+# TWO REFUSALS, both saying so in the answer rather than by looking normal.
+aJN = StzEngineGpuTextLayoutJustified(hF, cJAr, 32, aJ0[1] - 20)
+chk("NEGATIVE: a target NARROWER than the text returns the text -- this stretches " +
+    "and never compresses, and it says justified=0",
+    fabs(aJN[1] - aJ0[1]) < 0.01 and aJN[14] = 0 and aJN[15] = 0)
+aJW = StzEngineGpuTextLayoutJustified(hF, "Unbreakable", 32, 400)
+chk("NEGATIVE: one Latin word has no join and no space, so nothing is stretched " +
+    "and the layout says so rather than inventing room",
+    aJW[14] = 0 and aJW[15] = 0 and aJW[16] = 0)
 
 StzEngineGpuFontFree(hF)
 

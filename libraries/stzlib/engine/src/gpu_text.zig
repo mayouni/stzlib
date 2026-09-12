@@ -254,6 +254,16 @@ pub const Layout = struct {
     notdef_glyphs: u32 = 0,
     ink_top: f64,
     ink_bottom: f64,
+    // --- WHAT JUSTIFICATION DID (GR2e), so a caller never has to guess
+    // whether a line was stretched or merely fitted. justified is true only
+    // when a target was given AND reached; kashidas is how many tatweels
+    // were inserted to reach it; space_stretch is the px added to EACH
+    // inter-word space to close what the tatweels could not. A line that
+    // was already wide enough comes back justified=false with both at zero,
+    // which is the honest answer: nothing was done to it.
+    justified: bool = false,
+    kashidas: u32 = 0,
+    space_stretch: f64 = 0,
 
     pub fn deinit(self: *const Layout) void {
         alloc.free(self.glyphs);
@@ -586,6 +596,273 @@ pub fn textLayoutXT(font_id: i64, utf8: []const u8, size_px: f64, vertical: bool
         .ink_top = ink_top,
         .ink_bottom = ink_bottom,
     };
+}
+
+// ------------------------------------------------ justification (GR2e)
+//
+// A JUSTIFIED LINE FILLS A GIVEN WIDTH, and Arabic does not fill it the
+// way Latin does. Latin stretches the spaces BETWEEN words; Arabic
+// stretches the words THEMSELVES, by elongating the stroke that joins two
+// letters -- the kashida. A page of Arabic justified by spaces alone has
+// rivers of white running down it and reads as a page set by somebody who
+// did not know the script; a page justified by kashida reads as a page.
+//
+// SO THIS IS TYPOGRAPHY, NOT ARITHMETIC, and the file is careful about
+// three things that arithmetic would get wrong:
+//
+//   1. WHERE a kashida may go is a property of the FONT, not of a table
+//      this file could carry. Two letters join only if the face has the
+//      joined forms, so the question is asked of the shaper (below) and
+//      the answer is true for the face in hand.
+//   2. WHAT a kashida is worth is not constant. Measured on Amiri at 32px:
+//      the first tatweel inside one word bought 10.96px and the second
+//      bought 5.96px, because the first ALSO changed the neighbouring
+//      letters' forms. Any formula dividing a deficit by a per-kashida
+//      width is wrong on its first step, so this inserts and RE-SHAPES.
+//   3. A LINE MUST FILL ITS WIDTH EXACTLY, and kashidas are discrete. The
+//      remainder is closed on the spaces, which are continuous -- so the
+//      bulk is Arabic and the last fraction of a pixel is arithmetic.
+//
+// WHAT IS NOT HERE, named rather than implied: the classical PRIORITY of
+// kashida positions (after a kaf, before the final letter of a word, not
+// in the first word of a line) is not implemented -- elongation is spread
+// evenly over every position the font allows. That is a legible line and
+// not yet a beautiful one, and the difference is a rule table somebody
+// must write with a typographer. Compression is refused outright: a target
+// narrower than the text returns the text.
+
+const TATWEEL = "\xd9\x80"; // U+0640 ARABIC TATWEEL, 2 bytes in UTF-8
+const TATWEEL_CP: u32 = 0x0640;
+const MAX_JUST_ROUNDS: usize = 400;
+
+/// Shape a short string and answer the glyph id whose cluster is the byte
+/// asked for. Zero when nothing claims that byte.
+fn gidOfCluster(slot: usize, utf8: []const u8, want: u32) u32 {
+    const fs = &fonts.items[slot];
+    const font = fs.font orelse return 0;
+    if (shape_buf == null) shape_buf = c.hb_buffer_create();
+    const buf = shape_buf.?;
+    c.hb_buffer_reset(buf);
+    c.hb_buffer_add_utf8(buf, utf8.ptr, @intCast(utf8.len), 0, @intCast(utf8.len));
+    c.hb_buffer_guess_segment_properties(buf);
+    c.hb_shape(font, buf, null, 0);
+    var n: c_uint = 0;
+    const infos = c.hb_buffer_get_glyph_infos(buf, &n);
+    for (0..n) |i| if (infos[i].cluster == want) return infos[i].codepoint;
+    return 0;
+}
+
+/// The glyph a face gives `cp` when the NEXT character is `next`.
+fn gidBefore(slot: usize, cp: u32, next: u32) u32 {
+    var buf: [8]u8 = undefined;
+    const n1 = std.unicode.utf8Encode(@intCast(cp), buf[0..]) catch return 0;
+    const n2 = std.unicode.utf8Encode(@intCast(next), buf[n1..]) catch return 0;
+    return gidOfCluster(slot, buf[0 .. n1 + n2], 0);
+}
+
+/// ...and the glyph it gives `cp` when the PREVIOUS character is `prev`.
+fn gidAfter(slot: usize, cp: u32, prev: u32) u32 {
+    var buf: [8]u8 = undefined;
+    const n1 = std.unicode.utf8Encode(@intCast(prev), buf[0..]) catch return 0;
+    const n2 = std.unicode.utf8Encode(@intCast(cp), buf[n1..]) catch return 0;
+    return gidOfCluster(slot, buf[0 .. n1 + n2], @intCast(n1));
+}
+
+/// DOES THIS LETTER JOIN TO THE ONE AFTER IT? Asked of the shaper rather
+/// than of a joining-type table, because a table answers for Unicode and
+/// the question is about THIS FACE: a letter joins forward exactly when
+/// putting a join-causing character after it changes the glyph the face
+/// chooses. Tatweel is join-causing by definition and a space is not, so
+/// the two shapings differ exactly where a join exists. A face missing its
+/// medial forms then reports honestly instead of being assumed.
+fn joinsForward(slot: usize, cp: u32) bool {
+    const with_join = gidBefore(slot, cp, TATWEEL_CP);
+    const alone = gidBefore(slot, cp, ' ');
+    return with_join != 0 and with_join != alone;
+}
+
+fn joinsBackward(slot: usize, cp: u32) bool {
+    const with_join = gidAfter(slot, cp, TATWEEL_CP);
+    const alone = gidAfter(slot, cp, ' ');
+    return with_join != 0 and with_join != alone;
+}
+
+/// Four shapings per distinct codepoint, asked once. A line repeats its
+/// letters; the probe should not repeat with them.
+const JoinCache = struct {
+    cps: [64]u32 = [_]u32{0} ** 64,
+    fwd: [64]bool = [_]bool{false} ** 64,
+    bwd: [64]bool = [_]bool{false} ** 64,
+    n: usize = 0,
+
+    fn get(self: *JoinCache, slot: usize, cp: u32) struct { f: bool, b: bool } {
+        for (0..self.n) |i| if (self.cps[i] == cp) return .{ .f = self.fwd[i], .b = self.bwd[i] };
+        const f = joinsForward(slot, cp);
+        const b = joinsBackward(slot, cp);
+        if (self.n < self.cps.len) {
+            self.cps[self.n] = cp;
+            self.fwd[self.n] = f;
+            self.bwd[self.n] = b;
+            self.n += 1;
+        }
+        return .{ .f = f, .b = b };
+    }
+};
+
+/// Every byte offset at which a tatweel may be inserted: the boundary
+/// between two characters this face actually joins. A line of Latin has
+/// none, and that is an answer, not a failure.
+fn kashidaPoints(slot: usize, utf8: []const u8, out: *std.ArrayList(usize)) !void {
+    var cache = JoinCache{};
+    var it = std.unicode.Utf8Iterator{ .bytes = utf8, .i = 0 };
+    var prev_cp: u32 = 0;
+    var have_prev = false;
+    while (true) {
+        const at = it.i;
+        const cp_opt = it.nextCodepoint();
+        if (cp_opt == null) break;
+        const cp: u32 = cp_opt.?;
+        if (have_prev) {
+            const a = cache.get(slot, prev_cp);
+            const b = cache.get(slot, cp);
+            if (a.f and b.b) try out.append(alloc, at);
+        }
+        prev_cp = cp;
+        have_prev = true;
+    }
+}
+
+/// The text with `counts[i]` tatweels inserted before `points[i]`.
+fn elongated(utf8: []const u8, points: []const usize, counts: []const u32) ![]u8 {
+    var total: usize = utf8.len;
+    for (counts) |k| total += @as(usize, k) * TATWEEL.len;
+    const buf = try alloc.alloc(u8, total);
+    var w: usize = 0;
+    var r: usize = 0;
+    for (points, 0..) |pt, i| {
+        @memcpy(buf[w .. w + (pt - r)], utf8[r..pt]);
+        w += pt - r;
+        r = pt;
+        var k: u32 = 0;
+        while (k < counts[i]) : (k += 1) {
+            @memcpy(buf[w .. w + TATWEEL.len], TATWEEL);
+            w += TATWEEL.len;
+        }
+    }
+    @memcpy(buf[w .. w + (utf8.len - r)], utf8[r..]);
+    return buf;
+}
+
+/// A byte offset in the ELONGATED text, back in the CALLER'S text. Without
+/// this a justified layout's clusters index a string the caller never saw,
+/// and every reversibility query -- the caret rect, the index at a point --
+/// answers about the wrong character while looking perfectly well. A byte
+/// inside an inserted run maps to the join it was inserted at.
+fn originalByte(b: u32, points: []const usize, counts: []const u32, orig_len: usize) u32 {
+    var inserted: usize = 0;
+    for (points, 0..) |pt, i| {
+        const at = pt + inserted; // where this run of tatweels begins
+        const run = @as(usize, counts[i]) * TATWEEL.len;
+        if (b <= at) break;
+        if (b < at + run) return @intCast(pt);
+        inserted += run;
+    }
+    const o = @as(usize, b) -| inserted;
+    return @intCast(if (o > orig_len) orig_len else o);
+}
+
+fn remapClusters(l: *Layout, points: []const usize, counts: []const u32, orig_len: usize) void {
+    for (l.glyphs) |*g| {
+        g.cluster = originalByte(g.cluster, points, counts, orig_len);
+        g.cl_end = originalByte(g.cl_end, points, counts, orig_len);
+    }
+}
+
+/// THE REMAINDER, ON THE SPACES. Kashidas are discrete and a target is not,
+/// so what the last whole tatweel could not buy is shared over the
+/// inter-word spaces, which stretch continuously. The glyphs are in visual
+/// order with the pen ascending, so one walk carries the shift forward.
+/// Answers what each space grew by; zero when there was no space to grow.
+fn stretchSpaces(l: *Layout, utf8: []const u8, deficit: f64) f64 {
+    if (deficit <= 0) return 0;
+    var n_sp: usize = 0;
+    for (l.glyphs) |g| {
+        if (g.cluster < utf8.len and utf8[g.cluster] == ' ') n_sp += 1;
+    }
+    if (n_sp == 0) return 0;
+    const each = deficit / @as(f64, @floatFromInt(n_sp));
+    var shift: f64 = 0;
+    for (l.glyphs) |*g| {
+        g.pen += shift;
+        g.x += shift;
+        if (g.cluster < utf8.len and utf8[g.cluster] == ' ') {
+            g.adv += each;
+            shift += each;
+        }
+    }
+    l.width += shift;
+    return each;
+}
+
+/// A LINE, STRETCHED TO FILL A WIDTH: kashida first, spaces last. The
+/// natural line comes back untouched, justified=false, when the target is
+/// no wider than the text or when the line offers nothing to stretch.
+///
+/// THE COST IS RE-SHAPING, and it is bounded rather than argued: one shape
+/// per tatweel added, capped at MAX_JUST_ROUNDS, plus four two-glyph
+/// shapings per DISTINCT codepoint for the joining probe. Justification is
+/// something a layout does once per line, never once per frame.
+pub fn textLayoutJustified(font_id: i64, utf8: []const u8, size_px: f64, target_px: f64) !Layout {
+    const slot = slotOf(font_id) orelse return error.StaleFont;
+    const natural = try textLayoutXT(font_id, utf8, size_px, false);
+    if (!(target_px > natural.width)) return natural; // never compress
+
+    var points: std.ArrayList(usize) = .{};
+    defer points.deinit(alloc);
+    try kashidaPoints(slot, utf8, &points);
+
+    var best = natural;
+    var counts: []u32 = &.{};
+    defer if (counts.len > 0) alloc.free(counts);
+    var n_kashida: u32 = 0;
+
+    if (points.items.len > 0) {
+        counts = try alloc.alloc(u32, points.items.len);
+        @memset(counts, 0);
+        var idx: usize = 0;
+        var round: usize = 0;
+        while (round < MAX_JUST_ROUNDS) : (round += 1) {
+            counts[idx] += 1;
+            const txt = elongated(utf8, points.items, counts) catch {
+                counts[idx] -= 1;
+                break;
+            };
+            defer alloc.free(txt);
+            const cand = textLayoutXT(font_id, txt, size_px, false) catch {
+                counts[idx] -= 1;
+                break;
+            };
+            if (cand.width > target_px) {
+                // ONE TOO MANY, given back. A line that OVERFLOWS its column
+                // is worse than one a fraction short, and the spaces close
+                // the difference a moment later.
+                cand.deinit();
+                counts[idx] -= 1;
+                break;
+            }
+            best.deinit();
+            best = cand;
+            n_kashida += 1;
+            idx = (idx + 1) % points.items.len;
+        }
+        if (n_kashida > 0) remapClusters(&best, points.items, counts, utf8.len);
+    }
+
+    const each = stretchSpaces(&best, utf8, target_px - best.width);
+    best.kashidas = n_kashida;
+    best.space_stretch = each;
+    best.justified = (n_kashida > 0 or each > 0);
+    return best;
 }
 
 // ------------------------------------------------- reversibility (§0, GUI)
