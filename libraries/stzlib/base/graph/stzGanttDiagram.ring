@@ -89,14 +89,20 @@ func StzGanttDomain()
 	return _o_
 
 # the paper: a fixed width, a height that follows the lanes
+# THE HOUSE TYPE SIZE. This drew its labels at 11 to 13 points, which the
+# Principal has called unreadable once per domain: "as usual, text is very
+# small". The type is raised to the catalogue's own scale and every paired
+# dimension -- the paper, the margins, the pitches -- is raised with it,
+# because raising type on a sheet sized for smaller type only moves the
+# problem into the collisions the rules then report.
 func StzGanttWidth()
-	return 720
+	return 1120
 
 func StzGanttLeftColumn()
-	return 170
+	return 265
 
 func StzGanttRowHeight()
-	return 34
+	return 52
 
 func StzGanttTop()
 	return 64
@@ -395,7 +401,7 @@ func StzGanttStyleXT(pnLanes, pbGuides)
 		[ :shape, "k.icon", :line, [ :x1 = "k.x", :y1 = "k.y0", :x2 = "k.x", :y2 = "k.y1",
 		                             :stroke = [ :alpha, "muted", 0.35 ], :strokeWidth = 1,
 		                             :guide = _nG_ ] ],
-		[ :shape, "k.text", :text, [ :cx = "k.x", :cy = "k.y0 - 10", :size = 11,
+		[ :shape, "k.text", :text, [ :cx = "k.x", :cy = "k.y0 - 10", :size = 17,
 		                             :fill = "neutral" ] ] ])
 	# A TASK is a bar from its start to its finish on its lane, and its
 	# name in the column to the left, right-aligned against the column's
@@ -405,7 +411,7 @@ func StzGanttStyleXT(pnLanes, pbGuides)
 		[ :shape, "t.bar", :rect, [ :cx = "(t.x0 + t.x1) / 2", :cy = "t.y",
 		                            :w = "abs(t.x1 - t.x0)", :h = 18,
 		                            :fill = "primary", :stroke = "background", :strokeWidth = 1 ] ],
-		[ :shape, "t.text", :text, [ :cx = "170 - 12 - t.text.w / 2", :cy = "t.y", :size = 13,
+		[ :shape, "t.text", :text, [ :cx = "170 - 12 - t.text.w / 2", :cy = "t.y", :size = 20,
 		                             :fill = [ :on, "paper" ] ] ] ])
 	# (the ticks are minted first, so a bar paints over a tick line without
 	# a layer term -- which could not name the tick from this selector)
@@ -429,7 +435,7 @@ func StzGanttStyleXT(pnLanes, pbGuides)
 	# name there sat two pixels from it.
 	_o_.ForAllWhere("Task t", "OverBar(t)", [
 		[ :delete, "t.text" ],
-		[ :shape, "t.text", :text, [ :cx = "(t.x0 + t.x1) / 2", :cy = "t.y", :size = 11,
+		[ :shape, "t.text", :text, [ :cx = "(t.x0 + t.x1) / 2", :cy = "t.y", :size = 17,
 		                             :fill = [ :on, "t.bar" ] ] ],
 		[ :layer, "t.text", :above, "t.bar" ] ])
 	# A MILESTONE has no length to draw: a diamond on its day, in the

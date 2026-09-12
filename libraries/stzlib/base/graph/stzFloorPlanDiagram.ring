@@ -77,11 +77,17 @@ func StzFloorPlanDomain()
 	_o_.AddPredicate("Inward", [ "Window" ])
 	return _o_
 
+# THE HOUSE TYPE SIZE. This drew its labels at 11 to 13 points, which the
+# Principal has called unreadable once per domain: "as usual, text is very
+# small". The type is raised to the catalogue's own scale and every paired
+# dimension -- the paper, the margins, the pitches -- is raised with it,
+# because raising type on a sheet sized for smaller type only moves the
+# problem into the collisions the rules then report.
 func StzFloorPlanWidth()
-	return 760
+	return 1180
 
 func StzFloorPlanMargin()
-	return 40
+	return 62
 
 func StzFloorPlanWall()
 	return 4
@@ -150,7 +156,7 @@ func StzFloorPlanFromRooms(paRooms, paDoors, paWindows)
 		_oS_.Declare("Area", "a" + _i_)
 		_oS_.Label("a" + _i_, StzFloorPlanAreaText(_a_[4] * _a_[5]))
 		_oS_.SetData("a" + _i_, "cx", _oS_.DataOf("r" + _i_, "cx"))
-		_oS_.SetData("a" + _i_, "cy", _oS_.DataOf("r" + _i_, "cy") + 10)
+		_oS_.SetData("a" + _i_, "cy", _oS_.DataOf("r" + _i_, "cy") + 16)
 	next
 	# overlapping rooms, marked on both
 	for _i_ = 1 to _nR_
@@ -218,7 +224,7 @@ func StzFloorPlanFromRooms(paRooms, paDoors, paWindows)
 	_oS_.Label("sc", "1 m")
 	_oS_.SetData("sc", "x0", _nM_)
 	_oS_.SetData("sc", "x1", _nM_ + _nK_)
-	_oS_.SetData("sc", "y", _nH_ - 22)
+	_oS_.SetData("sc", "y", _nH_ - 32)
 	_oS_.SetData("sc", "paperw", StzFloorPlanWidth())
 	_oS_.SetData("sc", "paperh", _nH_)
 	return _oS_
@@ -355,10 +361,10 @@ func StzFloorPlanStyle(pnW, pnH)
 	_o_.ForAll("Room r", [
 		[ :shape, "r.wall", :rect, [ :cx = "r.cx", :cy = "r.cy", :w = "r.w", :h = "r.h",
 		                             :fill = "background", :stroke = "neutral", :strokeWidth = 4 ] ],
-		[ :shape, "r.text", :text, [ :cx = "r.cx", :cy = "r.cy - 8", :size = 13,
+		[ :shape, "r.text", :text, [ :cx = "r.cx", :cy = "r.cy - 13", :size = 20,
 		                             :fill = [ :on, "paper" ] ] ] ])
 	_o_.ForAll("Area a", [
-		[ :shape, "a.text", :text, [ :cx = "a.cx", :cy = "a.cy", :size = 11, :fill = "neutral" ] ] ])
+		[ :shape, "a.text", :text, [ :cx = "a.cx", :cy = "a.cy", :size = 17, :fill = "neutral" ] ] ])
 	# A DOOR is a gap in the wall, the leaf standing on one jamb and the
 	# swing drawn into the room -- the gap painted in the paper's colour
 	# over the wall, the leaf and the swing in the neutral
@@ -384,7 +390,7 @@ func StzFloorPlanStyle(pnW, pnH)
 		                              :stroke = "neutral", :strokeWidth = 2 ] ],
 		[ :shape, "s.tick1", :line, [ :x1 = "s.x1", :y1 = "s.y - 5", :x2 = "s.x1", :y2 = "s.y + 5",
 		                              :stroke = "neutral", :strokeWidth = 2 ] ],
-		[ :shape, "s.text", :text, [ :cx = "s.x1 + 22", :cy = "s.y", :size = 11, :fill = "neutral" ] ] ])
+		[ :shape, "s.text", :text, [ :cx = "s.x1 + 22", :cy = "s.y", :size = 17, :fill = "neutral" ] ] ])
 	# A FAULT IS DRAWN: a room overlapping another, a room with no door,
 	# a room no door reaches -- each in the colour of a fault; a window
 	# onto another room in that colour too

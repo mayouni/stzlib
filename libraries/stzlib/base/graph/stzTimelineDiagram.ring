@@ -86,20 +86,39 @@ func StzTimelineDomain()
 	return _o_
 
 # the paper: a fixed width, a height that follows the levels and bands
+# THE HOUSE TYPE SIZE. This drew its labels at 11 to 13 points, which the
+# Principal has called unreadable once per domain: "as usual, text is very
+# small". The type is raised to the catalogue's own scale and every paired
+# dimension -- the paper, the margins, the pitches -- is raised with it,
+# because raising type on a sheet sized for smaller type only moves the
+# problem into the collisions the rules then report.
+# THE ONE PLACE THE TYPE SIZE IS WRITTEN. The builder MEASURES a label to
+# space the picture and the style DRAWS it, and until 2026-09-12 each
+# carried its own number. Raising the type found them instantly: the
+# builder went on spacing names as if they were 11 points while the style
+# drew them at 17, so every name overlapped its neighbour by the
+# difference. Both read these now, and a size can no longer drift from the
+# thing it measures.
+func StzTimelineNameSize()
+	return 17
+
+func StzTimelineEraSize()
+	return 17
+
 func StzTimelineWidth()
-	return 760
+	return 1180
 
 func StzTimelineLeft()
-	return 48
+	return 75
 
 func StzTimelineTop()
 	return 26
 
 func StzTimelineLevelPitch()
-	return 26
+	return 40
 
 func StzTimelineBandPitch()
-	return 26
+	return 40
 
 func StzTimelineAxisYFor(pnLevels)
 	return StzTimelineTop() + pnLevels * StzTimelineLevelPitch() + 12
@@ -253,7 +272,7 @@ func StzTimelineFromEventsXT(poFont, paEvents, paEras)
 		# across its neighbours' bands; beside the band it names it as a
 		# mark's name beside the mark does.
 		if isObject(poFont)
-			_nLw_ = poFont.WidthOf("" + _a_[1], 11) + 8
+			_nLw_ = poFont.WidthOf("" + _a_[1], StzTimelineNameSize()) + 8
 		else
 			_nLw_ = StzLen("" + _a_[1]) * 6.5 + 8
 		ok
@@ -338,7 +357,7 @@ func _TlEraNamed(paEras, pcName)
 
 # an event's name, as wide as it will be drawn, and a little air
 func _TlNameWidth(poFont, pcName)
-	if isObject(poFont)  return poFont.WidthOf(pcName, 12) + 8  ok
+	if isObject(poFont)  return poFont.WidthOf(pcName, StzTimelineNameSize()) + 8  ok
 	return StzLen(pcName) * 7 + 8
 
 func _TlStepFor(pnSpan)
@@ -464,7 +483,7 @@ func StzTimelineStyle(pnLevels, pnBands)
 	_o_.ForAll("Tick k", [
 		[ :shape, "k.icon", :line, [ :x1 = "k.x", :y1 = "k.y - 4", :x2 = "k.x", :y2 = "k.y + 4",
 		                             :stroke = "neutral", :strokeWidth = 1 ] ],
-		[ :shape, "k.text", :text, [ :cx = "k.x", :cy = "k.y + 16", :size = 11,
+		[ :shape, "k.text", :text, [ :cx = "k.x", :cy = "k.y + 16", :size = StzTimelineNameSize(),
 		                             :fill = "neutral" ] ] ])
 	# AN EVENT is a dot on the axis, a stem up to its name, and the name
 	# at the level and the place the builder laid it
@@ -473,7 +492,7 @@ func StzTimelineStyle(pnLevels, pnBands)
 		                             :stroke = [ :alpha, "neutral", 0.6 ], :strokeWidth = 1 ] ],
 		[ :shape, "e.icon", :circle, [ :cx = "e.x", :cy = "e.y", :r = 4.5,
 		                               :fill = "primary", :stroke = "background", :strokeWidth = 1 ] ],
-		[ :shape, "e.text", :text, [ :cx = "e.lx", :cy = "e.ly", :size = 12,
+		[ :shape, "e.text", :text, [ :cx = "e.lx", :cy = "e.ly", :size = StzTimelineEraSize(),
 		                             :fill = [ :on, "paper" ] ] ] ])
 	# an event dated outside the era it was placed in: its dot says so
 	_o_.ForAllWhere("Event e", "Outside(e)", [
@@ -486,12 +505,12 @@ func StzTimelineStyle(pnLevels, pnBands)
 		[ :shape, "r.band", :rect, [ :cx = "(r.x0 + r.x1) / 2", :cy = "r.y",
 		                             :w = "abs(r.x1 - r.x0)", :h = 20,
 		                             :fill = "primary", :stroke = "background", :strokeWidth = 1 ] ],
-		[ :shape, "r.text", :text, [ :cx = "(r.x0 + r.x1) / 2", :cy = "r.y", :size = 11,
+		[ :shape, "r.text", :text, [ :cx = "(r.x0 + r.x1) / 2", :cy = "r.y", :size = StzTimelineNameSize(),
 		                             :fill = [ :on, "r.band" ] ] ],
 		[ :layer, "r.text", :above, "r.band" ] ])
 	_o_.ForAllWhere("Era r", "Beside(r)", [
 		[ :delete, "r.text" ],
-		[ :shape, "r.text", :text, [ :cx = "max(r.x0, r.x1) + 6 + r.lw / 2", :cy = "r.y", :size = 11,
+		[ :shape, "r.text", :text, [ :cx = "max(r.x0, r.x1) + 6 + r.lw / 2", :cy = "r.y", :size = StzTimelineNameSize(),
 		                             :fill = [ :on, "paper" ] ] ] ])
 	# A FAULT IS DRAWN: an era ending before it starts is a band between
 	# its two times in the colour of a fault; an era double-booked on its

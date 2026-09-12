@@ -77,11 +77,27 @@ func StzSeatingDomain()
 	_o_.AddPredicate("Seatless", [ "Guest" ])
 	return _o_
 
+# THE HOUSE TYPE SIZE. This drew its labels at 11 to 13 points, which the
+# Principal has called unreadable once per domain: "as usual, text is very
+# small". The type is raised to the catalogue's own scale and every paired
+# dimension -- the paper, the margins, the pitches -- is raised with it,
+# because raising type on a sheet sized for smaller type only moves the
+# problem into the collisions the rules then report.
+# THE ONE PLACE THE TYPE SIZE IS WRITTEN. The builder MEASURES a label to
+# space the picture and the style DRAWS it, and until 2026-09-12 each
+# carried its own number. Raising the type found them instantly: the
+# builder went on spacing names as if they were 11 points while the style
+# drew them at 17, so every name overlapped its neighbour by the
+# difference. Both read these now, and a size can no longer drift from the
+# thing it measures.
+func StzSeatingNameSize()
+	return 17
+
 func StzSeatingWidth()
-	return 760
+	return 1180
 
 func StzSeatingMargin()
-	return 30
+	return 46
 
 # the geometry of a table, in metres: a round table's radius grows with
 # its seats; a seat is a small ring a little off the table's edge; a
@@ -459,7 +475,7 @@ func _StGuestNamed(poS, paGuests, pcName)
 	return ""
 
 func _StNameWidth(poFont, pcText)
-	if isObject(poFont)  return poFont.WidthOf(pcText, 11) + 6  ok
+	if isObject(poFont)  return poFont.WidthOf(pcText, StzSeatingNameSize()) + 6  ok
 	return StzLen(pcText) * 6.2 + 6
 
 func StzSeatingPaperOf(poSubstance)
@@ -478,12 +494,12 @@ func StzSeatingStyle(pnW, pnH)
 	_o_.ForAllWhere("Table t", "Round(t)", [
 		[ :shape, "t.top", :circle, [ :cx = "t.cx", :cy = "t.cy", :r = "t.r",
 		                              :fill = [ :alpha, "primary", 0.15 ], :stroke = "primary", :strokeWidth = 1.5 ] ],
-		[ :shape, "t.text", :text, [ :cx = "t.cx", :cy = "t.cy", :size = 13, :fill = [ :on, "paper" ] ] ],
+		[ :shape, "t.text", :text, [ :cx = "t.cx", :cy = "t.cy", :size = 20, :fill = [ :on, "paper" ] ] ],
 		[ :layer, "t.text", :above, "t.top" ] ])
 	_o_.ForAllWhere("Table t", "Long(t)", [
 		[ :shape, "t.top", :rect, [ :cx = "t.cx", :cy = "t.cy", :w = "t.w", :h = "t.h",
 		                            :fill = [ :alpha, "primary", 0.15 ], :stroke = "primary", :strokeWidth = 1.5 ] ],
-		[ :shape, "t.text", :text, [ :cx = "t.cx", :cy = "t.cy", :size = 13, :fill = [ :on, "paper" ] ] ],
+		[ :shape, "t.text", :text, [ :cx = "t.cx", :cy = "t.cy", :size = 20, :fill = [ :on, "paper" ] ] ],
 		[ :layer, "t.text", :above, "t.top" ] ])
 	# A SEAT: a small ring, filled when somebody sits in it
 	_o_.ForAll("Seat s", [
@@ -495,7 +511,7 @@ func StzSeatingStyle(pnW, pnH)
 		                               :fill = "primary", :stroke = "primary", :strokeWidth = 1.2 ] ] ])
 	# A GUEST: the name beyond the seat
 	_o_.ForAll("Guest g", [
-		[ :shape, "g.text", :text, [ :cx = "g.nx", :cy = "g.ny", :size = 11, :fill = [ :on, "paper" ] ] ] ])
+		[ :shape, "g.text", :text, [ :cx = "g.nx", :cy = "g.ny", :size = StzSeatingNameSize(), :fill = [ :on, "paper" ] ] ] ])
 	# A FAULT IS DRAWN: a name seated twice, or one of a pair kept apart
 	# and together, on a plate of the fault's colour; a table overbooked
 	# or standing into another, rimmed in it; the seatless named beneath
@@ -503,13 +519,13 @@ func StzSeatingStyle(pnW, pnH)
 		[ :delete, "g.text" ],
 		[ :shape, "g.plate", :rect, [ :cx = "g.nx", :cy = "g.ny", :w = "g.nw", :h = 16,
 		                              :fill = "danger", :stroke = "danger", :strokeWidth = 1 ] ],
-		[ :shape, "g.text", :text, [ :cx = "g.nx", :cy = "g.ny", :size = 11, :fill = [ :on, "g.plate" ] ] ],
+		[ :shape, "g.text", :text, [ :cx = "g.nx", :cy = "g.ny", :size = StzSeatingNameSize(), :fill = [ :on, "g.plate" ] ] ],
 		[ :layer, "g.text", :above, "g.plate" ] ])
 	_o_.ForAllWhere("Guest g", "Clashing(g)", [
 		[ :delete, "g.text" ],
 		[ :shape, "g.plate", :rect, [ :cx = "g.nx", :cy = "g.ny", :w = "g.nw", :h = 16,
 		                              :fill = "danger", :stroke = "danger", :strokeWidth = 1 ] ],
-		[ :shape, "g.text", :text, [ :cx = "g.nx", :cy = "g.ny", :size = 11, :fill = [ :on, "g.plate" ] ] ],
+		[ :shape, "g.text", :text, [ :cx = "g.nx", :cy = "g.ny", :size = StzSeatingNameSize(), :fill = [ :on, "g.plate" ] ] ],
 		[ :layer, "g.text", :above, "g.plate" ] ])
 	_o_.ForAllWhere("Guest g", "Seatless(g)", [
 		[ :delete, "g.text" ] ])
@@ -524,7 +540,7 @@ func StzSeatingStyle(pnW, pnH)
 	_o_.ForAll("Unseated u", [
 		[ :shape, "u.plate", :rect, [ :cx = "u.x", :cy = "u.y", :w = "u.w", :h = 18,
 		                              :fill = "danger", :stroke = "danger", :strokeWidth = 1 ] ],
-		[ :shape, "u.text", :text, [ :cx = "u.x", :cy = "u.y", :size = 11, :fill = [ :on, "u.plate" ] ] ],
+		[ :shape, "u.text", :text, [ :cx = "u.x", :cy = "u.y", :size = StzSeatingNameSize(), :fill = [ :on, "u.plate" ] ] ],
 		[ :layer, "u.text", :above, "u.plate" ] ])
 	return _o_
 
@@ -533,7 +549,7 @@ func StzSeatingDiagram(poFont, paTables, paGuests, paApart)
 	_oS_ = StzSeatingFromTablesXT(poFont, paTables, paGuests, paApart)
 	_aP_ = StzSeatingPaperOf(_oS_)
 	_o_ = new stzMathDiagram(StzSeatingDomain(), _oS_, StzSeatingStyle(_aP_[1], _aP_[2]))
-	if isObject(poFont)  _o_.SetFont(poFont, 11)  ok
+	if isObject(poFont)  _o_.SetFont(poFont, StzSeatingNameSize())  ok
 	return _o_
 
 #---------------------------------------------------------------------#

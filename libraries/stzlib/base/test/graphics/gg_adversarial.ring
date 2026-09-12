@@ -15493,9 +15493,20 @@ chk("no event's name covers a column whose stem reaches its level, and no two na
 chk("ENIAC, two years before the transistor, takes the second level; the transistor's name hangs right of its stem",
     oTlS.DataOf("e2", "level") = 2 and oTlS.DataOf("e3", "level") = 1 and
     oTlS.DataOf("e3", "lx") > oTlS.DataOf("e3", "x") + 10)
-chk("the names take three levels, and the axis stands below the third",
-    StzTimelineLevelsOf(oTlS) = 3 and oTlS.DataOf("e6", "level") = 3 and
-    oTlS.DataOf("ax", "y") > oTlS.DataOf("e6", "ly") + 40)
+# A COUNT THAT WAS REALLY A PROPERTY. This demanded exactly three levels
+# and named the event on the third. Raising the type to the house size
+# widened the sheet with it, so the same nine names now need only two --
+# the picture got BETTER and the assertion reported a regression, which is
+# this desk's most-repeated finding pinned in its own file. What it was
+# testing is that the count is the deepest level actually used and that
+# the axis clears every name; that is asserted now, and a wider or
+# narrower sheet cannot make it wrong again. The clearance is taken from
+# the level pitch rather than written as a number: the first draft of this
+# line kept the old assertion's 40, which had been measured against the
+# old pitch of 26, and failed on a picture that was correct.
+chk("the level count is the deepest level actually used, and the axis stands below every name",
+    StzTimelineLevelsOf(oTlS) = _TlMaxLevel(oTlS) and _TlMaxLevel(oTlS) >= 2 and
+    _TlAxisClearsNames(oTlS, StzTimelineLevelPitch() / 2))
 chk("the margin holds the first name: it stands on the paper, centred on its dot, half its width in",
     fabs(oTlS.DataOf("e1", "lx") - oTlS.DataOf("e1", "x")) < 0.01 and
     fabs(oTlS.DataOf("e1", "x") - (oTlS.DataOf("e1", "lw") / 2 + 14)) < 0.01)
@@ -19454,6 +19465,25 @@ func _GeoPictureIsShaped poM
 		if _y_ > _hi_  _hi_ = _y_  ok
 	next
 	return (_hi_ - _lo_) > 100
+
+# the deepest level any event's name was lifted to
+func _TlMaxLevel poS
+	_n_ = 0
+	_a_ = poS.ObjectsOfType("Event")
+	for _i_ = 1 to len(_a_)
+		_L_ = poS.DataOf(_a_[_i_], "level")
+		if _L_ > _n_  _n_ = _L_  ok
+	next
+	return _n_
+
+# the axis stands at least pnGap below EVERY name, not merely below one
+func _TlAxisClearsNames poS, pnGap
+	_y_ = poS.DataOf("ax", "y")
+	_a_ = poS.ObjectsOfType("Event")
+	for _i_ = 1 to len(_a_)
+		if NOT (_y_ > poS.DataOf(_a_[_i_], "ly") + pnGap)  return FALSE  ok
+	next
+	return TRUE
 
 func _FmRepSound paF
 	_o_ = new stzRuleReport("soundness")
