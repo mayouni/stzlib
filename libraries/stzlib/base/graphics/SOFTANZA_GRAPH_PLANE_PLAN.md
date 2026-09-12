@@ -4318,6 +4318,54 @@ calls — it makes **none** to any of the six changed verbs, and the one
 `IsSound` it calls is the report's, untouched. A call count settles what a
 clock on this machine cannot.
 
+## THE HOUSE TYPE SIZE, AND THE DRIFT THAT RAISING IT FOUND (2026-09-12, SHIPPED)
+
+*"As usual: text is very small and unreadable!!!"* — the Principal, on the
+first maps this desk drew from the GeoJSON reader. The complaint is pinned in
+this desk's own memory as RECURRING, and the record shows why: it had been
+answered **once per catalogue** — the DRAKON sheet, then the math catalogue,
+then each new domain — rather than once. Six domains were still drawing at 10
+to 13 points.
+
+**What was raised.** Names to 17, causes to 18, categories and titles to 20,
+across timeline, fishbone, floor plan, seating, Gantt and choropleth. And
+every *paired* dimension with them: papers 760 → 1180 (Gantt 720 → 1120),
+margins, level and band pitches, swatches 22×14 → 34×22, row pitch 26 → 40,
+every label offset. Raising type alone on a sheet sized for smaller type does
+not fix a readability complaint; it converts it into a collision complaint,
+which the rules then report and the reader still cannot read.
+
+**THE FINDING IS NOT THE SIZE. IT IS WHERE THE SIZE WAS WRITTEN.** A builder
+MEASURES a label to decide how much room the picture must leave for it; a
+style DRAWS that label. Until today each carried **its own number**, written
+at different times and agreeing only by habit. Raising the type made them
+disagree out loud — the timeline builder went on spacing names as if they
+were 11 points while the style drew them at 17; seating measured at 12 and
+drew at 17 — and `StzCheckPictures` returned **eleven findings** across four
+domains: name over name, a fishbone head touching its own spine, a floor-plan
+name over its own area figure, a scale bar off the canvas.
+
+The repair is one function per domain that BOTH sides read —
+`StzTimelineNameSize()`, `StzTimelineEraSize()`, `StzSeatingNameSize()`,
+`StzFishboneCauseSize()`, `StzFishboneCategorySize()` — so a drawn size can no
+longer drift from the measured one. **The class is invisible while every
+number happens to match**, which is the whole reason it survived eleven
+domains: nothing is wrong until something moves.
+
+**A COUNT THAT WAS REALLY A PROPERTY**, found by the same change and worth
+more than the type. The gate demanded the timeline take *exactly three* levels
+and named the event on the third. A wider sheet fits the same nine names in
+**two** — the picture got BETTER and the assertion reported a regression. It
+asserts the property now: the level count is the deepest level actually used,
+and the axis clears EVERY name, with the clearance derived from
+`StzTimelineLevelPitch() / 2` rather than written as a number. The first draft
+of the replacement kept the old assertion's `40`, which had been measured
+against the old pitch of 26, and failed on a picture that was correct — the
+same defect one layer down.
+
+**State**: all six domains render with 0 rule findings; the eleven `math_*.png`
+catalogue fixtures re-rendered at the new scale; gate **1660 ok, 0 failed**.
+
 ## DN9 — THE TOLD PICTURE: a narration is facts made visible, in an order (planned 2026-09-06, SHIPPED 2026-09-07 as DN9a through DN9g, all seven closed)
 
 The Principal, after DN8h was explained to him with three diagrams drawn
