@@ -4832,3 +4832,55 @@ next:
 note:      a single model id would have mispriced a third of this session
            and nothing downstream would ever have said so
 ```
+
+```yaml
+by:        stzlib-graphics · claude-opus-5 · 2026-09-12 01:48
+
+subject:   a finding that called itself the house shape and was a
+           positional list -- the gate could not see two domains
+
+why:       these were the last two places writing their own soundness
+           loop, and the loop turned out to be the smaller half
+
+did:
+  - Found, by probing rather than reading, that stzFrameGraph and
+    stzMaterialGraph built findings as PLAIN positional lists under a
+    comment calling them the house finding shape.
+  - Measured what that cost: stzRuleReport reads :severity by NAME, a
+    plain Ring list answers a name with nothing rather than raising, so
+    a frame graph with a CYCLE answered Report().IsSound() as SOUND
+    with zero errors while its own IsSound() said not sound.
+  - Gave both the unified named shape and pointed both IsSound() at
+    StzFindingsAreSound, which finishes the unification begun
+    2026-09-11: ten places answered the question, and these were the
+    last two writing their own loop.
+  - Added to each guard the assertion nobody had written -- that the
+    house report sees the same error the class does, and that the
+    finding arrives named so the gate can read its severity.
+  - Ran gg4 (20 ok, was 18), gg5 (38 ok, was 36), the two other
+    consumers, and the graphics gate (1647 ok, 0 failed).
+
+state:
+  the one answer:  every soundness verb in this library now delegates
+  the one gate:    two domains that claimed it are now visible to it
+  commit:          cd3dcbc41 on origin and codeberg, verified by ls-remote
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - retire the three graphics queue rows [routed | unanswered]
+  - the cost record's model field for a two-model session [routed]
+
+next:
+  - me:      a SECOND cost row for this stretch of work, keyed -02,
+             since the first was filed when the session closed and
+             append-once means it cannot be corrected
+  - central: nothing owed
+
+note:      A COMMENT NAMING A CONTRACT IS NOT THE CONTRACT. Both files
+           said "the house finding shape, so this is judged by the SAME
+           gate" directly above the code that made it unjudgeable. If a
+           shape claims to be readable by a consumer, the guard owes an
+           assertion that the consumer can actually READ it -- which is
+           the negative sibling rule pointed at a doorway rather than a
+           value.
+```
