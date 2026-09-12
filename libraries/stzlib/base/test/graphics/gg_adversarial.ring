@@ -16142,6 +16142,73 @@ chk("the choropleth rules govern every region of a map and not one object of a s
     len(oChRule.SubjectsIn(oChM)) = 6 and len(oChRule.SubjectsIn(oStW)) = 0 and len(oChRule.SubjectsIn(oFbC)) = 0 and
     len(oChRule.CounterSubjectsIn(oStW)) > 0 and len(oChRule.CounterSubjectsIn(oChM)) = 0)
 
+# A LEGEND TITLE LONGER THAN ITS COLUMN. The Principal asked for six
+# domains at the house type size, and the type that grew fastest was the
+# legend's title: at 20 points a quantity said in French runs off the
+# right edge of the paper. The picture SAID so -- onCanvas, violated by
+# 10.13px -- which is the domain working; what it could not do was fit.
+# It wraps now, into the column the legend was already given.
+
+cChT2 = "Habitants par kilometre carre au dernier recensement"
+aChT2 = StzChoroplethTitleLines(EFONT, cChT2)
+chk("a title too long for the column comes back as the LINES it will be drawn on",
+    len(aChT2) = 2 and _ChLinesFit(aChT2))
+chk("NEGATIVE: a title that already fits is ONE line and is not touched",
+    len(StzChoroplethTitleLines(EFONT, "People per km2")) = 1 and
+    StzChoroplethTitleLines(EFONT, "People per km2")[1] = "People per km2")
+chk("no word is lost or invented in the wrapping -- the lines rejoin into the title",
+    _ChRejoin(aChT2) = cChT2)
+
+# THE LINES ARE OBJECTS, and the swatches stand under the LAST of them.
+# A title is not a string with newlines in it: the style draws objects and
+# the rules judge them, so a title on two lines is two things on the paper
+# and each can be asked whether it is on it.
+oChT2 = StzChoroplethDiagram(EFONT, cChT2, _ChTwoRegions(), [ 0, 50, 150 ])
+oChT2.Layout()
+oChT2S = oChT2.Substance()
+chk("one Legend object per line, and the count is recorded where a rule can read it",
+    len(oChT2S.ObjectsOfType("Legend")) = 2 and oChT2S.DataOf("lg", "titlelines") = 2 and
+    oChT2S.LabelOf("lg") = aChT2[1] and oChT2S.LabelOf("lg2") = aChT2[2])
+chk("the second line stands below the first, by the title's own pitch",
+    oChT2S.DataOf("lg2", "y") - oChT2S.DataOf("lg", "y") = StzChoroplethTitlePitch())
+chk("...and the first swatch stands below the LAST line, not below the first",
+    oChT2S.DataOf("l1", "y") > oChT2S.DataOf("lg2", "y") + StzChoroplethTitlePitch() / 2)
+chk("THE WRAPPED TITLE IS A PICTURE THE RULES PASS -- the lines do not overlap " +
+    "each other and none of them leaves the paper",
+    len(StzCheckPictures([ [ "choropleth/long-title", oChT2 ] ]).Findings()) = 0)
+
+# A THIRD LINE MOVES EVERYTHING AGAIN, so the offset is arithmetic and not
+# a special case for two.
+oChT3 = StzChoroplethDiagram(EFONT,
+    "Densite de population par kilometre carre au recensement general de la population",
+    _ChTwoRegions(), [ 0, 50, 150 ])
+oChT3.Layout()
+chk("a three-line title pushes the swatches a third pitch further down, and still passes",
+    oChT3.Substance().DataOf("lg", "titlelines") = 3 and
+    oChT3.Substance().DataOf("l1", "y") - oChT2S.DataOf("l1", "y") = StzChoroplethTitlePitch() and
+    len(StzCheckPictures([ [ "choropleth/three-line-title", oChT3 ] ]).Findings()) = 0)
+
+# NEGATIVE: A WORD WIDER THAN THE COLUMN IS NOT CUT. There is no honest
+# break inside a word this file could make -- it does not know the
+# language's hyphens -- so the title stays whole and the picture REPORTS
+# the overflow. A title silently trimmed would be the picture asserting
+# something it cannot check, which is the one thing this plane refuses.
+oChT1 = StzChoroplethDiagram(EFONT, "Bevoelkerungsdichtemessungsergebnisse2026",
+    _ChTwoRegions(), [ 0, 50, 150 ])
+oChT1.Layout()
+chk("NEGATIVE: one unbreakable word stays one line, and the picture SAYS it does not fit " +
+    "rather than cutting it",
+    len(StzChoroplethTitleLines(EFONT, "Bevoelkerungsdichtemessungsergebnisse2026")) = 1 and
+    _GtHas(StzCheckPictures([ [ "choropleth/one-word", oChT1 ] ]).Findings(), "lg.text"))
+
+# AND THE FONTLESS BUILDER IS UNTOUCHED. It is the one domain builder that
+# takes no font -- a map's geometry comes from its regions and never from
+# a measurement -- so the wrap happens where a font exists and arrives as
+# a title that already carries its breaks.
+chk("NEGATIVE: the builder with no font draws the title on one line, whole",
+    len(StzChoroplethFromRegions("People per km2", _ChTwoRegions(), [ 0, 50, 150 ]).ObjectsOfType("Legend")) = 1 and
+    StzChoroplethFromRegions("People per km2", _ChTwoRegions(), [ 0, 50, 150 ]).LabelOf("lg") = "People per km2")
+
 sec("-- 119. GG3: A SCENE GRAPH -- AND WHAT ITS KILL CRITERION ACTUALLY ASKED ----")
 discharges("GG3")
 
@@ -19416,6 +19483,27 @@ func _Gg3UploadsWhenNotDriven poMesh
 	return (_a2_[5] - _a1_[5]) = 1
 
 # a closed box in lon/lat, as GeoJSON writes a ring
+# every line of a wrapped title fits the column it was wrapped into
+func _ChLinesFit paL
+	for _i_ = 1 to len(paL)
+		if EFONT.WidthOf(paL[_i_], StzChoroplethTitleSize()) > StzChoroplethTitleRoom()  return FALSE  ok
+	next
+	return TRUE
+
+# the lines put back together, to prove the wrap moved words and lost none
+func _ChRejoin paL
+	_c_ = ""
+	for _i_ = 1 to len(paL)
+		if _i_ > 1  _c_ += " "  ok
+		_c_ += paL[_i_]
+	next
+	return _c_
+
+# two regions, one per class -- the smallest map that leaves no class empty
+func _ChTwoRegions
+	return [ [ "Nord", 35, [ 0, 0, 40, 0, 38, 20, 0, 18 ] ],
+	         [ "Sud", 120, [ 0, 18, 38, 20, 40, 42, 0, 40 ] ] ]
+
 func _GeoBox pnLon0, pnLat0, pnLon1, pnLat1
 	return [ [ pnLon0, pnLat0 ], [ pnLon1, pnLat0 ], [ pnLon1, pnLat1 ], [ pnLon0, pnLat1 ] ]
 

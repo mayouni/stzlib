@@ -108,6 +108,84 @@ func StzChoroplethLegendWidth()
 func StzChoroplethMargin()
 	return 30
 
+# THE LEGEND'S TITLE, AND THE COLUMN IT HAS TO FIT IN. One place again:
+# the wrap MEASURES the title at this size and the style DRAWS it at this
+# size, and a title that was measured at one size and drawn at another is
+# the defect the whole domain list was swept for on 2026-09-12.
+func StzChoroplethTitleSize()
+	return 20
+
+# A TITLE LINE'S OWN HEIGHT, DERIVED FROM THE SIZE AND NOT WRITTEN BESIDE
+# IT. The first draft wrote 26, which had been the row pitch of the old
+# 12-point legend, and the two lines of a wrapped title OVERLAPPED BY
+# 3.16px -- the rules said so by name. A drawn line of type is taller than
+# its point size; 1.6 times is the ratio this domain's own render measures,
+# and expressing it as a ratio means raising the type again cannot
+# reintroduce the overlap.
+func StzChoroplethTitlePitch()
+	return ceil(StzChoroplethTitleSize() * 1.6)
+
+# THE TITLE WRAPS INTO THE COLUMN, and the column is what the legend was
+# given -- the swatches' own width plus the air on both sides. A title
+# wider than this used to run off the right edge of the paper: the picture
+# said so, in the onCanvas rule's own words, "violated by 10.13px", but
+# only for the caller who read the findings.
+func StzChoroplethTitleRoom()
+	return StzChoroplethLegendWidth() - 20
+
+# THE TITLE AS THE LINES IT WILL BE DRAWN ON. Greedy: fill a line, then
+# start the next. That is the right shape for a COLUMN, where the width is
+# given and the height is free -- and it is deliberately NOT the balancing
+# wrap that stzDiagram's _WrapLabel does for a node's label, which has the
+# opposite problem: a label's width is the scarce axis and its lines want
+# to come out even. Two different objectives, so two different loops; this
+# comment is here so the next reader knows the duplication was weighed.
+#
+# A WORD WIDER THAN THE COLUMN IS LEFT ALONE, and the picture then reports
+# the overflow rather than hiding it. There is no honest break inside a
+# word this file could make -- it does not know the language's hyphens --
+# and a title silently cut is worse than a title the rules refuse.
+func StzChoroplethTitleLines(poFont, pcTitle)
+	_cT_ = ring_trim("" + pcTitle)
+	if _cT_ = "" or NOT isObject(poFont)  return [ _cT_ ]  ok
+	_nMax_ = StzChoroplethTitleRoom()
+	_nSz_ = StzChoroplethTitleSize()
+	if poFont.WidthOf(_cT_, _nSz_) <= _nMax_  return [ _cT_ ]  ok
+	_aW_ = StzSplit(_cT_, " ")
+	if len(_aW_) < 2  return [ _cT_ ]  ok
+	_aOut_ = []
+	_cCur_ = ""
+	for _i_ = 1 to len(_aW_)
+		if _cCur_ = ""
+			_cCur_ = _aW_[_i_]
+			loop
+		ok
+		_cTry_ = _cCur_ + " " + _aW_[_i_]
+		if poFont.WidthOf(_cTry_, _nSz_) > _nMax_
+			_aOut_ + _cCur_
+			_cCur_ = _aW_[_i_]
+		else
+			_cCur_ = _cTry_
+		ok
+	next
+	if _cCur_ != ""  _aOut_ + _cCur_  ok
+	return _aOut_
+
+# the same lines, joined the way the builder reads them. THE BUILDER TAKES
+# NO FONT -- it is the one domain builder that does not, because a map's
+# geometry comes from the regions and never from a measurement -- so the
+# wrap happens where a font exists, and arrives as a title that already
+# carries its own breaks. A caller with their own idea of where a title
+# should break writes the breaks themselves and this changes nothing.
+func StzChoroplethWrapTitle(poFont, pcTitle)
+	_a_ = StzChoroplethTitleLines(poFont, pcTitle)
+	_c_ = ""
+	for _i_ = 1 to len(_a_)
+		if _i_ > 1  _c_ += char(10)  ok
+		_c_ += _a_[_i_]
+	next
+	return _c_
+
 #---------------------------------------------------------------------#
 #  THE SUBSTANCE, FROM REGIONS, EDGES AND A PALETTE                    #
 #---------------------------------------------------------------------#
@@ -241,11 +319,27 @@ func StzChoroplethFromRegionsXT(pcQuantity, paRegions, paEdges, paPalette)
 	# so, and a value beyond the classes gets an entry of its own in the
 	# fault's colour, so that every region on the map is in the legend.
 	_nLx_ = StzChoroplethWidth() - StzChoroplethLegendWidth() + 10
-	_oS_.Declare("Legend", "lg")
-	_oS_.Label("lg", "" + pcQuantity)
-	_oS_.SetData("lg", "x", _nLx_)
-	_oS_.SetData("lg", "y", _nM_ + 6)
+	# THE TITLE ARRIVES WITH ITS BREAKS IN IT, one Legend object per line.
+	# A line is a first-class object rather than a string with newlines in
+	# it because the style draws objects and the rules judge them: a title
+	# on two lines is two things on the paper, and a picture that says so
+	# can be asked whether both of them are on it.
+	_aTL_ = StzSplit("" + pcQuantity, char(10))
+	if len(_aTL_) = 0  _aTL_ = [ "" + pcQuantity ]  ok
+	_nTL_ = len(_aTL_)
+	for _t_ = 1 to _nTL_
+		_cG_ = "lg"
+		if _t_ > 1  _cG_ = "lg" + _t_  ok
+		_oS_.Declare("Legend", _cG_)
+		_oS_.Label(_cG_, ring_trim("" + _aTL_[_t_]))
+		_oS_.SetData(_cG_, "x", _nLx_)
+		_oS_.SetData(_cG_, "y", _nM_ + 6 + (_t_ - 1) * StzChoroplethTitlePitch())
+		_oS_.SetData(_cG_, "line", _t_)
+	next
 	_oS_.SetData("lg", "classes", _nC_)
+	_oS_.SetData("lg", "titlelines", _nTL_)
+	# the swatches begin under the LAST title line, not under the first
+	_nTop_ = _nM_ + 30 + (_nTL_ - 1) * StzChoroplethTitlePitch()
 	_nRow_ = 0
 	for _c_ = 1 to _nC_
 		_cL_ = "l" + _c_
@@ -258,7 +352,7 @@ func StzChoroplethFromRegionsXT(pcQuantity, paRegions, paEdges, paPalette)
 		if _bMis_  _cSay_ += "  (out of order)"  ok
 		_oS_.Label(_cL_, _cSay_)
 		_oS_.SetData(_cL_, "x", _nLx_ + 11)
-		_oS_.SetData(_cL_, "y", _nM_ + 30 + _nRow_ * 40)
+		_oS_.SetData(_cL_, "y", _nTop_ + _nRow_ * 40)
 		_oS_.SetData(_cL_, "lo", paEdges[_c_])
 		_oS_.SetData(_cL_, "hi", paEdges[_c_ + 1])
 		_oS_.SetData(_cL_, "index", _c_)
@@ -278,24 +372,24 @@ func StzChoroplethFromRegionsXT(pcQuantity, paRegions, paEdges, paPalette)
 		_nRow_++
 		_oS_.Declare("Swatch", "labove")
 		_oS_.Label("labove", "above " + StzFactNumText(paEdges[_nE_]) + "  (no class)")
-		_ChExtraSwatch(_oS_, "labove", _nLx_ + 11, _nM_ + 30 + _nRow_ * 40, _nAbove_)
+		_ChExtraSwatch(_oS_, "labove", _nLx_ + 11, _nTop_ + _nRow_ * 40, _nAbove_)
 		_oS_.Assert("OutsideSwatch", [ "labove" ])
 	ok
 	if _nBelow_ > 0
 		_nRow_++
 		_oS_.Declare("Swatch", "lbelow")
 		_oS_.Label("lbelow", "below " + StzFactNumText(paEdges[1]) + "  (no class)")
-		_ChExtraSwatch(_oS_, "lbelow", _nLx_ + 11, _nM_ + 30 + _nRow_ * 40, _nBelow_)
+		_ChExtraSwatch(_oS_, "lbelow", _nLx_ + 11, _nTop_ + _nRow_ * 40, _nBelow_)
 		_oS_.Assert("OutsideSwatch", [ "lbelow" ])
 	ok
 	if _bNoData_
 		_nRow_++
 		_oS_.Declare("Swatch", "lnd")
 		_oS_.Label("lnd", "no data")
-		_ChExtraSwatch(_oS_, "lnd", _nLx_ + 11, _nM_ + 30 + _nRow_ * 40, 0)
+		_ChExtraSwatch(_oS_, "lnd", _nLx_ + 11, _nTop_ + _nRow_ * 40, 0)
 		_oS_.Assert("NoDataSwatch", [ "lnd" ])
 	ok
-	_nLegH_ = _nM_ + 30 + (_nRow_ + 1) * 40 + 10
+	_nLegH_ = _nTop_ + (_nRow_ + 1) * 40 + 10
 	if _nLegH_ > _nH_  _nH_ = _nLegH_  ok
 	_oS_.SetData("lg", "paperw", StzChoroplethWidth())
 	_oS_.SetData("lg", "paperh", _nH_)
@@ -423,7 +517,8 @@ func StzChoroplethStyle(pnW, pnH, paPalette, paCounts)
 	next
 	# the legend's title
 	_o_.ForAll("Legend g", [
-		[ :shape, "g.text", :text, [ :cx = "g.x + g.text.w / 2", :cy = "g.y + 12", :size = 20, :fill = [ :on, "paper" ] ] ] ])
+		[ :shape, "g.text", :text, [ :cx = "g.x + g.text.w / 2", :cy = "g.y + 12",
+		                             :size = StzChoroplethTitleSize(), :fill = [ :on, "paper" ] ] ] ])
 	# A FAULT IS DRAWN: a region beyond the classes in the colour of a
 	# fault; a class no region falls in, and a swatch lighter than the
 	# one before it, rimmed in that colour
@@ -461,7 +556,10 @@ func StzChoroplethDiagram(poFont, pcQuantity, paRegions, paEdges)
 	return StzChoroplethDiagramXT(poFont, pcQuantity, paRegions, paEdges, [])
 
 func StzChoroplethDiagramXT(poFont, pcQuantity, paRegions, paEdges, paPalette)
-	_oS_ = StzChoroplethFromRegionsXT(pcQuantity, paRegions, paEdges, paPalette)
+	# THE ONE PLACE A FONT EXISTS is the one place the title can be wrapped,
+	# so it is wrapped here and reaches the builder already broken.
+	_oS_ = StzChoroplethFromRegionsXT(StzChoroplethWrapTitle(poFont, pcQuantity),
+		paRegions, paEdges, paPalette)
 	_aPal_ = []
 	_nC_ = len(paEdges) - 1
 	if isList(paPalette) and len(paPalette) = _nC_
