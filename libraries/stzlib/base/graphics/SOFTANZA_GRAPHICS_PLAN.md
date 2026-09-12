@@ -463,10 +463,10 @@ here; they are simply not designed AGAINST.
   are VENDORED (HarfBuzz, SheenBidi), not reinvented. The scope line
   moves from "which scripts work" (HarfBuzz makes that general) to
   "which scripts are GUARDED": Arabic + Latin + mixed-bidi initially,
-  the corpus growing by demand. Vertical CJK layout, justification
-  (kashida), and font FALLBACK CHAINS (one font rarely covers all
-  scripts) are named as later increments — fallback chains being the
-  one most likely to be asked for next.
+  the corpus growing by demand. Vertical CJK layout and justification
+  (kashida) are named as later increments. **Font fallback chains were
+  named here as the one most likely to be asked for next, and they
+  shipped 2026-09-12 as GR2c — see below.**
 - **HarfBuzz is the largest C++ vendored after ggml** — the same
   compile-under-zig road, and the same ctor-caution: the neural
   tier's static-initializer lessons (NOTICE'd patches) are the
@@ -479,6 +479,77 @@ here; they are simply not designed AGAINST.
 - **CI has no GPU**: every guard passes through the SVG tier and the
   counted-refusal paths; GPU assertions gate on availability, exactly
   as the 162-assert G-plane suite already demonstrates.
+
+## GR2c -- THE FALLBACK CHAIN: one font rarely covers all scripts (2026-09-12, SHIPPED)
+
+**A font asked for a script it does not carry answers .notdef, and .notdef
+DRAWS.** Measured on this machine before anything was written: Segoe UI
+carries Latin, Greek, Cyrillic and Arabic and has no Hangul, so the five
+codepoints of a Korean greeting came back as five hollow boxes. The
+committed Amiri subset carries Arabic and Latin and has no Hangul, CJK,
+Cyrillic, Greek or Hebrew. Nothing counted any of it: the picture simply
+had boxes in it, which is the quiet kind of wrong.
+
+**A font may now name fonts to ask when it cannot answer.**
+
+```ring
+oUi = new stzFont("segoeui.ttf")
+oUi.AddFallback(new stzFont("malgun.ttf"))    # Korean behind it
+oUi.WidthOf("Korean 안녕하세요", 24)           # a real width, not boxes
+oUi.CoverageOf("안녕하세요", 24)               # [ 5 from the chain, 0 undrawable ]
+```
+
+**Where it happens, and why there.** The split is made INSIDE one bidi run,
+never across one, so UAX#9 still owns the visual order of the runs
+themselves. Within a run the text is walked codepoint by codepoint, each
+asks the chain who can draw it -- the primary always first, so a fallback
+can never take a glyph the author's own font could have drawn -- and
+contiguous stretches with the same answer are shaped as one piece by
+HarfBuzz with full-paragraph context, exactly as a whole run was before.
+
+**Three things that are easy to get wrong and are handled:**
+
+- **A mark stays with its base.** A combining mark or a format character
+  (ZWJ, a variation selector) is not a thing to shape alone: splitting `e`
+  + U+0301, or an emoji ZWJ sequence, between two fonts makes two wrong
+  glyphs instead of one right one. They inherit the segment they arrive in.
+- **The pieces of an RTL run are emitted BACKWARDS.** HarfBuzz returns one
+  RTL run already in visual order; two RTL pieces shaped separately each
+  come back in visual order but in LOGICAL order with respect to each
+  other, so laying them left to right is exactly backwards for Arabic.
+  Reversing the piece order restores it.
+- **A glyph carries the font that drew it.** A gid means nothing without
+  its face -- gid 47 is a different letter in every font -- so `Glyph`
+  gained a `font` field, and both tiers read it: the atlas (already keyed
+  by font, gid and size) rasterizes from the right face, and the SVG
+  emitter pulls the outline from it. The vector tier gained fallback for
+  free, which is the pipeline's whole point: the two backends cannot
+  disagree about what they drew.
+
+**It counts what it did.** A layout answers `fallback_glyphs` and
+`notdef_glyphs` -- how many glyphs came from another font, and how many the
+whole chain still could not draw. A caller who knows can add a font; a
+caller who knows nothing cannot. `DrawsEveryGlyphOf(text, size)` is the
+one-line form.
+
+**Refused by name:** a font falling back to itself (which would make
+coverage a loop), to a font that was never loaded or has been freed, and a
+chain past its eighth link. Naming the same font twice is accepted and
+changes nothing -- the chain is a set, not a list of repeats.
+
+*Guard:* `gpu_text_narrated.ring` scene 10, 18 assertions. The half that
+needs only the committed fixture -- the gap itself, the chain's verbs, both
+refusals, and that neither refusal grew the chain -- runs anywhere with no
+device. The coverage switch needs a second font carrying what the first
+lacks and this repository commits one fixture, so that half **names what it
+skipped** when the system font is absent rather than passing quietly. Two
+stale pins were repaired in the same commit, and they are not the same
+defect: `gpu_text_reversible_narrated` demanded seven layout items and was
+already red before this work (the ink fields made it nine with DN12, and
+its sibling was repaired on 2026-09-11 while this copy was missed), while
+the glyph's ninth number is this commit's own growth and is updated here,
+in the commit that caused it. Graphics gate 1647 ok, 0 failed; the text
+guards 58 and 41, the GUI font guard 30, the scene guard 70.
 
 ## THE RASTERIZER THAT WAS NEVER WRITTEN (recorded 2026-09-11)
 

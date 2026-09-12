@@ -894,6 +894,7 @@ fn ring_TextLayout(p: *anyopaque) callconv(.c) void {
         R.ring_list_adddouble(item, g.adv);
         R.ring_list_adddouble(item, @floatFromInt(g.cl_end));
         R.ring_list_adddouble(item, @floatFromInt(g.level));
+        R.ring_list_adddouble(item, @floatFromInt(g.font)); // which font drew it
     }
     R.ring_list_adddouble(out, layout.ascender);
     R.ring_list_adddouble(out, layout.descender);
@@ -901,7 +902,27 @@ fn ring_TextLayout(p: *anyopaque) callconv(.c) void {
     R.ring_list_adddouble(out, if (layout.para_rtl) 1 else 0);
     R.ring_list_adddouble(out, layout.ink_top);
     R.ring_list_adddouble(out, layout.ink_bottom);
+    R.ring_list_adddouble(out, @floatFromInt(layout.fallback_glyphs));
+    R.ring_list_adddouble(out, @floatFromInt(layout.notdef_glyphs));
     R.ring_vm_api_retlist(p, out);
+}
+
+// FontAddFallback(hFont, hFallback) -> 0 on success, refusing an unknown id,
+// a font naming itself, or a chain at its limit. FontFallbackCount(hFont)
+// answers how many are named; FontClearFallbacks(hFont) empties it.
+fn ring_FontAddFallback(p: *anyopaque) callconv(.c) void {
+    R.ring_vm_api_retnumber(p, @floatFromInt(gtext.fontAddFallback(
+        @intFromFloat(gn(p, 1)),
+        @intFromFloat(gn(p, 2)),
+    )));
+}
+
+fn ring_FontFallbackCount(p: *anyopaque) callconv(.c) void {
+    R.ring_vm_api_retnumber(p, @floatFromInt(gtext.fontFallbackCount(@intFromFloat(gn(p, 1)))));
+}
+
+fn ring_FontClearFallbacks(p: *anyopaque) callconv(.c) void {
+    R.ring_vm_api_retnumber(p, @floatFromInt(gtext.fontClearFallbacks(@intFromFloat(gn(p, 1)))));
 }
 
 fn addRect(parent: *anyopaque, r: gtext.Rect) void {
@@ -1927,6 +1948,9 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuimagegrid", .func = &ring_ImageGrid },
     // GR2 text pipeline
     .{ .name = "stzenginegpufontload", .func = &ring_FontLoad },
+    .{ .name = "stzenginegpufontaddfallback", .func = &ring_FontAddFallback },
+    .{ .name = "stzenginegpufontfallbackcount", .func = &ring_FontFallbackCount },
+    .{ .name = "stzenginegpufontclearfallbacks", .func = &ring_FontClearFallbacks },
     .{ .name = "stzenginegpufontfree", .func = &ring_FontFree },
     .{ .name = "stzenginegpufontglyphcount", .func = &ring_FontGlyphCount },
     .{ .name = "stzenginegputextlayout", .func = &ring_TextLayout },
