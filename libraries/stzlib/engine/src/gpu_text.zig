@@ -623,17 +623,41 @@ pub fn textLayoutXT(font_id: i64, utf8: []const u8, size_px: f64, vertical: bool
 //      remainder is closed on the spaces, which are continuous -- so the
 //      bulk is Arabic and the last fraction of a pixel is arithmetic.
 //
-// WHAT IS NOT HERE, named rather than implied: the classical PRIORITY of
-// kashida positions (after a kaf, before the final letter of a word, not
-// in the first word of a line) is not implemented -- elongation is spread
-// evenly over every position the font allows. That is a legible line and
-// not yet a beautiful one, and the difference is a rule table somebody
-// must write with a typographer. Compression is refused outright: a target
-// narrower than the text returns the text.
+// WHERE THE KASHIDA GOES IS NOT "EVERYWHERE IT FITS", and the first
+// version of this file thought it was. It elongated every join the font
+// allowed, and the Principal -- who reads this script -- marked the render
+// up in red and said it plainly: in Arabic calligraphy a kashida does not
+// apply to all letters, only to the one before the last. A word takes ONE
+// elongation, at the join before its final letter, and a longer kashida is
+// that one join drawn longer, never five joins drawn a little longer. What
+// the first version produced was not an elongated word; it was a word
+// pulled apart at every seam.
+//
+// AND AN ELONGATION MUST CHANGE NOTHING BUT THE JOIN IT SITS IN. The same
+// render lost the SHADDA over the name of God: Amiri writes lam-lam-heh
+// with a contextual glyph that CARRIES that mark, a tatweel dropped
+// between the letters stopped the rule matching, and the mark simply went
+// away. A diacritic is a letter here and its absence changes the word, so
+// no picture may lose one to fit a column. The test is exact and asks the
+// font rather than a table: insert the tatweel, re-shape, and REFUSE the
+// position unless every original character still has the same glyph it had.
+// That catches a broken ligature, a lost mark and a contextual form alike,
+// without this file knowing which of the three it was.
+//
+// WHAT IS STILL NOT HERE, named rather than implied: the rest of the
+// tradition's priority order -- which of several eligible words should be
+// stretched first, and by how much relative to one another -- is not
+// modelled; eligible words take the elongation in turn. Compression is
+// refused outright: a target narrower than the text returns the text.
 
 const TATWEEL = "\xd9\x80"; // U+0640 ARABIC TATWEEL, 2 bytes in UTF-8
 const TATWEEL_CP: u32 = 0x0640;
 const MAX_JUST_ROUNDS: usize = 400;
+// AND A KASHIDA HAS A LENGTH BEYOND WHICH IT IS NOT A KASHIDA. Ten
+// tatweels is about two ems on the face measured here; past that a
+// typesetter stops stretching the word and lets the spaces take the rest,
+// because a stroke longer than the word it joins stops reading as writing.
+const MAX_TATWEEL_PER_POINT: u32 = 10;
 
 /// Shape a short string and answer the glyph id whose cluster is the byte
 /// asked for. Zero when nothing claims that byte.
@@ -709,27 +733,104 @@ const JoinCache = struct {
     }
 };
 
-/// Every byte offset at which a tatweel may be inserted: the boundary
-/// between two characters this face actually joins. A line of Latin has
-/// none, and that is an answer, not a failure.
-fn kashidaPoints(slot: usize, utf8: []const u8, out: *std.ArrayList(usize)) !void {
+fn isSpaceCp(cp: u32) bool {
+    return cp == ' ' or cp == '\t' or cp == '\n' or cp == '\r' or cp == 0x00A0;
+}
+
+/// ONE POSITION PER WORD: the join before the word's LAST letter, and only
+/// where this face actually joins those two characters. Not every join --
+/// that is the calligraphic rule, and the reason is in the header.
+///
+/// A word whose last two characters do not join takes nothing. So does a
+/// word of one character. Both are answers, not failures: a line of Latin,
+/// or a line of words ending in reh or dal-after-alef, offers no
+/// elongation at all and the spaces carry the whole stretch.
+fn kashidaPoints(slot: usize, font_id: i64, utf8: []const u8, size_px: f64, out: *std.ArrayList(usize)) !void {
     var cache = JoinCache{};
     var it = std.unicode.Utf8Iterator{ .bytes = utf8, .i = 0 };
-    var prev_cp: u32 = 0;
-    var have_prev = false;
+    // the last two characters SEEN IN THE CURRENT WORD, and where it began
+    var w_start: usize = 0;
+    var p_cp: u32 = 0;
+    var l_off: usize = 0;
+    var l_cp: u32 = 0;
+    var n_in_word: usize = 0;
+
     while (true) {
         const at = it.i;
         const cp_opt = it.nextCodepoint();
-        if (cp_opt == null) break;
-        const cp: u32 = cp_opt.?;
-        if (have_prev) {
-            const a = cache.get(slot, prev_cp);
-            const b = cache.get(slot, cp);
-            if (a.f and b.b) try out.append(alloc, at);
+        const ended = (cp_opt == null) or isSpaceCp(cp_opt.?);
+        if (ended) {
+            if (n_in_word >= 2) {
+                const a = cache.get(slot, p_cp);
+                const b = cache.get(slot, l_cp);
+                if (a.f and b.b and
+                    wordKeepsItsInk(font_id, utf8[w_start..at], l_off - w_start, size_px))
+                {
+                    try out.append(alloc, l_off);
+                }
+            }
+            n_in_word = 0;
+            if (cp_opt == null) break;
+            w_start = it.i;
+            continue;
         }
-        prev_cp = cp;
-        have_prev = true;
+        if (n_in_word == 0) w_start = at;
+        p_cp = l_cp;
+        l_off = at;
+        l_cp = cp_opt.?;
+        n_in_word += 1;
     }
+}
+
+/// AN ELONGATION MAY ADD INK. IT MAY NEVER LOSE ANY.
+///
+/// This is the Principal's second finding, and it took three tries to say
+/// correctly. The first render lost the SHADDA over the name of God: Amiri
+/// writes lam-lam-heh with a contextual glyph that CARRIES that mark, a
+/// tatweel dropped between the letters stopped the rule matching, and the
+/// mark simply went away. A diacritic is a letter here -- its absence
+/// changes the word -- so no picture may lose one to fit a column.
+///
+/// WHAT DOES NOT WORK, both learnt at the cost of a rebuild:
+///
+///   asking WHICH GLYPH IS THE TATWEEL. Its own cmap glyph is 65 on the
+///   face measured here and the shaper draws 1190, because an elongation
+///   stroke takes a contextual form like any other letter.
+///
+///   demanding that every original GLYPH survive. It does not, and it
+///   should not: with a tatweel before it, this face draws the last two
+///   letters of العالمين as 405 and 407 where it drew 836 and 844 --
+///   legitimate contextual alternates, the same letters better fitted to
+///   a longer join. A test that forbids them forbids justification.
+///
+/// WHAT DOES WORK IS THE INK. A variant form is the same letter drawn
+/// differently and reaches about as far; a LOST MARK is ink that is no
+/// longer on the page. Measured on the word that found this, at 32px: the
+/// natural form reaches 35.13px above the baseline and the broken one
+/// 21.17px. So a candidate is refused when it reaches LESS FAR than the
+/// text it replaces, above the baseline or below it. The font answers the
+/// question; no table of ligatures is consulted, and a face whose marks
+/// live somewhere else entirely is judged by the same rule.
+fn keepsItsInk(nat: *const Layout, cand: *const Layout, size_px: f64) bool {
+    const eps = 0.02 * size_px; // a variant form may differ by a hair
+    return cand.ink_top >= nat.ink_top - eps and cand.ink_bottom >= nat.ink_bottom - eps;
+}
+
+/// The word with one tatweel inserted at `at`, shaped -- and whether that
+/// cost it any ink. Asked of the WORD and not of the line, because a line's
+/// ink is a maximum over all of it: another word reaching higher would hide
+/// exactly the loss this is looking for.
+fn wordKeepsItsInk(font_id: i64, word: []const u8, at: usize, size_px: f64) bool {
+    const nat = textLayoutXT(font_id, word, size_px, false) catch return false;
+    defer nat.deinit();
+    const buf = alloc.alloc(u8, word.len + TATWEEL.len) catch return false;
+    defer alloc.free(buf);
+    @memcpy(buf[0..at], word[0..at]);
+    @memcpy(buf[at .. at + TATWEEL.len], TATWEEL);
+    @memcpy(buf[at + TATWEEL.len ..], word[at..]);
+    const cand = textLayoutXT(font_id, buf, size_px, false) catch return false;
+    defer cand.deinit();
+    return keepsItsInk(&nat, &cand, size_px);
 }
 
 /// The text with `counts[i]` tatweels inserted before `points[i]`.
@@ -819,7 +920,7 @@ pub fn textLayoutJustified(font_id: i64, utf8: []const u8, size_px: f64, target_
 
     var points: std.ArrayList(usize) = .{};
     defer points.deinit(alloc);
-    try kashidaPoints(slot, utf8, &points);
+    try kashidaPoints(slot, font_id, utf8, size_px, &points);
 
     var best = natural;
     var counts: []u32 = &.{};
@@ -829,9 +930,23 @@ pub fn textLayoutJustified(font_id: i64, utf8: []const u8, size_px: f64, target_
     if (points.items.len > 0) {
         counts = try alloc.alloc(u32, points.items.len);
         @memset(counts, 0);
+        // the natural line's ink, kept to judge every candidate against
+        var nat_keep = natural;
+        nat_keep.glyphs = &.{};
+
+        const retired = try alloc.alloc(bool, points.items.len);
+        defer alloc.free(retired);
+        @memset(retired, false);
+
         var idx: usize = 0;
         var round: usize = 0;
-        while (round < MAX_JUST_ROUNDS) : (round += 1) {
+        var stalled: usize = 0; // consecutive points that could take no more
+        while (round < MAX_JUST_ROUNDS and stalled < points.items.len) : (round += 1) {
+            if (retired[idx] or counts[idx] >= MAX_TATWEEL_PER_POINT) {
+                stalled += 1;
+                idx = (idx + 1) % points.items.len;
+                continue;
+            }
             counts[idx] += 1;
             const txt = elongated(utf8, points.items, counts) catch {
                 counts[idx] -= 1;
@@ -850,9 +965,22 @@ pub fn textLayoutJustified(font_id: i64, utf8: []const u8, size_px: f64, target_
                 counts[idx] -= 1;
                 break;
             }
+            if (!keepsItsInk(&nat_keep, &cand, size_px)) {
+                // A SAFETY NET BEHIND THE PER-WORD TEST, not a substitute
+                // for it: each point was already judged on its own word,
+                // and this catches anything a longer run does to the line
+                // as a whole. The point is retired rather than retried.
+                cand.deinit();
+                counts[idx] -= 1;
+                retired[idx] = true;
+                stalled += 1;
+                idx = (idx + 1) % points.items.len;
+                continue;
+            }
             best.deinit();
             best = cand;
             n_kashida += 1;
+            stalled = 0;
             idx = (idx + 1) % points.items.len;
         }
         if (n_kashida > 0) remapClusters(&best, points.items, counts, utf8.len);
