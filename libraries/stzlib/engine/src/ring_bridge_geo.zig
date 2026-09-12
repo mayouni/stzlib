@@ -181,6 +181,35 @@ fn ring_GeoHolesDropped(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(gp.holesDropped()));
 }
 
+// GeoHexBin(aXY, nRadius) -> [ [cx, cy, count], ... ]. Counts PAPER
+// coordinates into hexagonal cells; the caller projects first, and the
+// map's rules say what that costs on a projection that distorts area.
+fn ring_GeoHexBin(p: *anyopaque) callconv(.c) void {
+    const pts = readPoints(p, 1) orelse return retEmpty(p);
+    defer alloc.free(pts);
+    var bins = std.ArrayList(gp.Bin){};
+    defer bins.deinit(alloc);
+    gp.hexbin(pts, gn(p, 2), &bins) catch return retEmpty(p);
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (bins.items) |b| {
+        const row = R.ring_list_newlist(out) orelse continue;
+        R.ring_list_adddouble(row, b.cx);
+        R.ring_list_adddouble(row, b.cy);
+        R.ring_list_adddouble(row, @floatFromInt(b.n));
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
+// GeoHexagon(nCx, nCy, nRadius) -> the six corners, flat
+fn ring_GeoHexagon(p: *anyopaque) callconv(.c) void {
+    var ring = std.ArrayList(f64){};
+    defer ring.deinit(alloc);
+    gp.hexagon(gn(p, 1), gn(p, 2), gn(p, 3), &ring) catch return retEmpty(p);
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (ring.items) |v| R.ring_list_adddouble(out, v);
+    R.ring_vm_api_retlist(p, out);
+}
+
 // GeoGraticule(aProj, nStepDeg) -> pieces
 fn ring_GeoGraticule(p: *anyopaque) callconv(.c) void {
     const pr = readProjection(p, 1) orelse return retEmpty(p);
@@ -365,6 +394,8 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginegeograticule", .func = ring_GeoGraticule },
     .{ .name = "stzenginegeooutline", .func = ring_GeoOutline },
     .{ .name = "stzenginegeocircle", .func = ring_GeoCircle },
+    .{ .name = "stzenginegeohexbin", .func = ring_GeoHexBin },
+    .{ .name = "stzenginegeohexagon", .func = ring_GeoHexagon },
     .{ .name = "stzenginegeofitpoints", .func = ring_GeoFitPoints },
     .{ .name = "stzenginegeofitsphere", .func = ring_GeoFitSphere },
     .{ .name = "stzenginegeointerpolate", .func = ring_GeoInterpolate },

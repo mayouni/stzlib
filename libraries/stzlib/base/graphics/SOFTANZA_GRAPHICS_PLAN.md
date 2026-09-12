@@ -512,9 +512,9 @@ which exists.
 |---|---|---|---|
 | GE0 | the sphere: projections, rotation, resampling, cutting at the seam and the horizon, fit, invert, the measures | engine, `geo_projection.zig` in `stz_geo.dll`; face `stzGeoProjection.ring` | **GE0a and GE0c SHIPPED** below |
 | GE1 | data: GeoJSON complete (holes and islands KEPT — DN24b drops both) and a TopoJSON reader, features as first-class objects | Ring, `stzGeoFeatures.ring` | **SHIPPED** below |
-| GE2 | pictures: base layers, choropleth, SYMBOL map, FLOW map, legend, caption | Ring, `stzGeoMap.ring` | **SHIPPED** below; hex-bin open |
+| GE2 | pictures: base layers, choropleth, SYMBOL map, FLOW map, HEX-BIN, legend, caption | Ring, `stzGeoMap.ring` | **SHIPPED** below |
 | GE3 | rules the gate owes, seven of them, reported in the house's unified finding shape | Ring, `stzGeoMap.Findings()` + `StzCheckGeoMaps` | **SHIPPED** below |
-| GE4 | names to shapes WITHOUT vendoring shapes: an ATLAS CONTRACT (`ShapeOf`, `PointOf`), ISO 3166 and name normalisation from the tables `stzLanguage` already holds. **The loader is done — GE1 reads world-atlas TopoJSON directly** and `atlas/README.md` carries the two commands. The kill line stands | Ring | open |
+| GE4 | names to shapes WITHOUT vendoring shapes: `ShapeOf`, `PointOf`, `ValuesFor`, `Unresolved`, an alias table that is entirely facts about language | Ring, `stzGeoAtlas.ring` | **SHIPPED** below |
 | GE5 | hands: `PlaceAt` / `FeatureAt` / `NameAt` / `ValueAt` — invert, then contain on the sphere | Ring, `stzGeoMap` | **SHIPPED** below |
 
 **Order and value.** GE0 first, because every picture above it is only as
@@ -522,6 +522,83 @@ honest as the sphere underneath and its properties are the most assertable
 things in the plane. GE1 is small. GE2 pays DN24 back immediately. GE4 is
 where "mimics ThoughtSpot" is decided, and it is data hygiene once GE0–2
 stand.
+
+## HEX-BIN -- how many here, not where exactly (2026-09-13, SHIPPED)
+
+**Ten thousand dots on a map are a stain, not a picture:** they overplot,
+the densest places look exactly like the merely busy ones, and the eye reads
+the outline of the paint rather than the quantity. Binning answers the
+question the dots were asked.
+
+**And the cell is a HEXAGON because a square grid lies twice:** its cells
+touch their diagonal neighbours at a point and their orthogonal ones along
+an edge, so "next to" means two different distances — and its rows line up
+into stripes the eye invents structure out of. A hexagon has six neighbours
+all the same distance away, and its rows stagger.
+
+Binning is in the engine, on the PAPER, which is d3-hexbin's choice too and
+is worth saying out loud: **bins of equal size on the paper stand for equal
+areas on the ground only when the projection is equal-area.** A bin near the
+pole would otherwise cover less ground than one at the equator and draw the
+same size — the choropleth's lie, told with hexagons. So GE3 grew an eighth
+rule, `bins_need_an_equal_area_projection`, and the map says it by name.
+
+*The rounding is not the answer, only a candidate* — a point can be nearer
+the staggered row above or below than the one its own rounding named. d3
+settles it by comparing the two and so does this; without it the bins
+interlock wrongly along every row boundary and the counts are quietly off.
+
+*Witness:* `geo_hexbin.png` — every coastline vertex in the atlas, 10,587 of
+them, counted into 713 cells in 0.1 s, the world's outline emerging from
+nothing but a count. *Guard:* the counts sum to the points given; a bigger
+cell means fewer of them; six corners at the radius asked for; no points, no
+bins; and the equal-area rule with its negative.
+
+## GE4 -- NAMES TO SHAPES, WITHOUT VENDORING SHAPES (2026-09-13, SHIPPED)
+
+**The convenience a business tool gives is made of two things** — a table of
+NAMES and a set of SHAPES. `stzGeoAtlas` carries the first and refuses the
+second, which is the kill line DN24b drew, unchanged.
+
+It binds to a feature set the CALLER loaded and resolves what people
+actually type: folded case and accents, a leading "the" dropped, the file's
+own ids (ISO numeric, in the world atlas), an alias table where **every
+entry is a fact about language** — Burma and Myanmar are one country, Ivory
+Coast is how English writes Côte d'Ivoire — and two- or three-letter codes
+through `stzCountry`, the library's own authority for codes, so a second
+table is not kept here. `ValuesFor(rows)` turns a caller's table into one
+value per feature, which is the shape `stzGeoMap.SetValues` takes.
+
+**NO FUZZY MATCHING, and that is the design and not a gap.** A near miss is
+reported through `Unresolved()`; `Uncovered()` answers what the table said
+nothing about. *A map that quietly colours Niger for Nigeria is worse than
+one with a hole in it*, and the guard asserts both names stay distinct.
+
+### And under all of it, a second half of the JSON defect
+
+GE2 reported that Ring's `JsonToList` **loses its place on a raw multibyte
+character**, and repaired it by escaping the document. That repair was half
+of one, and the comment written with it made a claim that was not checked:
+*"a parser that already reads `\uXXXX` — which Ring's does".*
+
+**IT DOES NOT.** Measured the same hour: given a name written with that
+escape in a file, Ring answers the digits with the backslash dropped, at any
+size. So the escape fixed a document's structure and left every accented
+string mangled — which is how "Ivory Coast" stopped finding "Côte d'Ivoire"
+and how the second defect was found at all.
+
+**The whole repair is `StzJsonToList`**, which parses with `std.json` in the
+engine — already linked into that module — and hands back the same shape
+`JsonToList` promises, so it is a drop-in. `StzJsonAsciiSafe` stays as the
+one-line rescue for a caller who only needs a document's shape, with its own
+limits written on it. *A claim made without checking, in the same hour as a
+defect found by checking, is worth leaving in the record.*
+
+*Witness:* `geo_table.png` — twenty-one rows typed as a person would type
+them (USA, FR, 250, Burma, Ivory Coast, The Gambia, Holland, Swaziland),
+eighteen bound, two reported unresolved in red beside the map. *Guard:* the
+GE4 and hex-bin sections bring `geo_map_narrated.ring` to **53 assertions**;
+gate §126.
 
 ## GE3 -- WHAT THE GATE OWES A MAP (2026-09-12, SHIPPED)
 

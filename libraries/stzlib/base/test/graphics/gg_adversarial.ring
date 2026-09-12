@@ -16552,6 +16552,40 @@ chk("a pixel over the ISLAND answers the country it belongs to",
 chk("NEGATIVE: a pixel off the map answers nothing, not the nearest thing",
     oG5.FeatureAt(-500, -500) = 0)
 
+sec("-- 126. GE4: NAMES TO SHAPES, WITHOUT VENDORING SHAPES ----------------------")
+discharges("GE4")
+
+# The convenience a business tool gives is a table of NAMES and a set of
+# SHAPES. This library carries the first and refuses the second: the shapes
+# are always the caller's, from a file they chose and can account for.
+# geo_map_narrated.ring carries these with their negatives.
+
+oG4F = StzGeoFeaturesFromJson(read("fixtures/two_countries.geojson"))
+oG4A = StzGeoAtlas(oG4F)
+chk("a name, a folded name and an id all bind to the same feature",
+    oG4A.IndexOf("Arda") = 1 and oG4A.IndexOf(" ARDA ") = 1 and oG4A.IndexOf("A") = 1)
+chk("NEGATIVE: a name nothing answers to binds to NOTHING and is reported -- a " +
+    "map that colours Niger for Nigeria is worse than one with a hole",
+    oG4A.IndexOf("Ardania") = 0 and
+    len(oG4A.Unresolved([ [ "Arda", 1 ], [ "Atlantis", 2 ] ])) = 1)
+chk("the normaliser folds accents, case, punctuation and a leading 'the'",
+    StzGeoNormalizeName("Cote d'Ivoire") = "cotedivoire" and
+    StzGeoNormalizeName("The Gambia") = "gambia")
+chk("a table of rows becomes ONE VALUE PER FEATURE, which is what the map takes",
+    len(oG4A.ValuesFor([ [ "berea", 20 ] ])) = 2 and
+    oG4A.ValuesFor([ [ "berea", 20 ] ])[2] = 20)
+
+# AND THE READER UNDER ALL OF IT. Ring's own JsonToList loses its place on a
+# raw multibyte character AND does not read the \uXXXX escape at all, both
+# silently. The house reads JSON in the engine.
+cG4Raw = char(195) + char(180)
+chk("THE HOUSE'S JSON READER KEEPS WHAT RING'S LOSES: a raw multibyte name " +
+    "survives, and an escaped one is decoded to the same bytes",
+    StzJsonToList('{"n":"C' + cG4Raw + 'te"}')[:n] = "C" + cG4Raw + "te" and
+    StzJsonToList('{"n":"C\u00f4te"}')[:n] = "C" + cG4Raw + "te")
+chk("NEGATIVE: a document it cannot parse comes back EMPTY, not half-read",
+    len(StzJsonToList("{not json at all")) = 0)
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go

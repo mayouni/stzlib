@@ -31,26 +31,11 @@
 # it was saved with), no reprojection of the source data (coordinates are
 # longitude and latitude, as both formats require), no writing.
 
-# EVERY BOUNDARY FILE GOES THROUGH THIS FIRST, and the reason is measured.
-# Ring's own JsonToList LOSES ITS PLACE on a document holding a raw
-# multibyte character: the world atlas at 1:110m has exactly two non-ASCII
-# bytes in 107,760 -- the circumflex in one country's name -- and with them
-# the reader answered NINE top-level arcs where the file holds 595, having
-# picked up a value from inside a nested object. Replacing that ONE
-# character with an ASCII letter and changing nothing else made the same
-# call answer 595.
-#
-# The failure is silent: a well-formed list, wrong. So the text is made
-# ASCII first -- every non-ASCII character written as the escape the format
-# already defines, which is safe anywhere because JSON outside a string
-# literal is ASCII by definition.
-#
-# THIS IS A REPAIR HERE AND A DEFECT ELSEWHERE: every caller of JsonToList
-# in this library reads real-world JSON through the same hole. Reported as
-# a finding rather than swept, and the escape is a public function so the
-# others can use it the day they are looked at.
-func StzJsonAsciiSafe(pcJson)
-	return StzEngineJsonEscapeNonAscii("" + pcJson)
+# EVERY BOUNDARY FILE IS READ BY THE HOUSE'S OWN JSON READER, not Ring's.
+# StzJsonToList parses in the engine; the measurements are on that function
+# in base/file/stzJsonFuncs.ring. In short: Ring's JsonToList loses its
+# place on a raw multibyte character AND does not read the \uXXXX escape at
+# all, and both failures are silent -- a well-formed list, wrong.
 
 func StzGeoFeaturesFromJson(pcJson)
 	_o_ = new stzGeoFeatures
@@ -88,7 +73,7 @@ class stzGeoFeatures from stzObject
 		if NOT (isString(pcJson) and len(ring_trim(pcJson)) > 0)
 			stzraise("stzGeoFeatures: give the GeoJSON text to read.")
 		ok
-		_aJ_ = JsonToList(StzJsonAsciiSafe(pcJson))
+		_aJ_ = StzJsonToList(pcJson)
 		if NOT isList(_aJ_)
 			stzraise("stzGeoFeatures: that is not JSON this reader could parse.")
 		ok
@@ -210,7 +195,7 @@ class stzGeoFeatures from stzObject
 		if NOT (isString(pcJson) and len(ring_trim(pcJson)) > 0)
 			stzraise("stzGeoFeatures: give the TopoJSON text to read.")
 		ok
-		_aJ_ = JsonToList(StzJsonAsciiSafe(pcJson))
+		_aJ_ = StzJsonToList(pcJson)
 		if NOT (isList(_aJ_) and HasKey(_aJ_, :arcs) and HasKey(_aJ_, :objects))
 			stzraise("stzGeoFeatures: that is not a TopoJSON topology -- it needs " +
 				"'arcs' and 'objects'.")

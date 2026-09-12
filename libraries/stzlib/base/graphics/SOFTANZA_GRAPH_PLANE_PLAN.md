@@ -171,6 +171,7 @@ general-tasks session's file and is routed to them, not fix them here.*
 | DN24 | closed | 118 |
 | DN24b | closed | 120 |
 | GE3 | closed | 124 |
+| GE4 | closed | 126 |
 | GE5 | closed | 125 |
 | GE2 | closed | 123 |
 | GE1 | closed | 122 |
@@ -4427,6 +4428,18 @@ it merely advises: a choropleth needs an equal-area projection; north is up
 unless said otherwise; the map names its source; every value falls in the
 classes; every class colours a region; every region has a value; the data
 fits the paper. `StzCheckGeoMaps()` judges several at once.
+
+## GE4 — NAMES TO SHAPES, WITHOUT VENDORING SHAPES (2026-09-13, SHIPPED)
+
+**§126 discharges GE4.** `stzGeoAtlas` binds a caller's feature set to the
+names people actually type: folded case and accents, a leading "the"
+dropped, the file's own ids, an alias table that is entirely facts about
+LANGUAGE, and two- or three-letter codes through the library's own country
+table. `ValuesFor(rows)` turns a table into one value per feature — the
+shape the map takes — and `Unresolved` / `Uncovered` answer what did not
+bind rather than swallowing it. **No fuzzy matching:** a near miss is
+reported, because a map that quietly colours Niger for Nigeria is worse
+than one with a hole in it.
 
 ## GE5 — WHAT IS UNDER A PIXEL (2026-09-12, SHIPPED)
 

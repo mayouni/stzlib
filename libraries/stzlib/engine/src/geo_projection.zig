@@ -1448,6 +1448,98 @@ pub fn outline(p: *const Projection, out: *Pieces) !void {
     }
 }
 
+// ------------------------------------------------------- GE2: hexagonal bins
+//
+// TEN THOUSAND DOTS ON A MAP ARE A STAIN, not a picture: they overplot,
+// the densest places look exactly like the merely busy ones, and the eye
+// reads the outline of the paint rather than the quantity. Binning answers
+// the question the dots were asked -- HOW MANY HERE -- by counting them
+// into cells and colouring the cells.
+//
+// AND THE CELL IS A HEXAGON because a square grid lies twice: its cells
+// touch their diagonal neighbours at a point and their orthogonal ones
+// along an edge, so "next to" means two different distances, and its rows
+// line up into stripes the eye invents structure out of. A hexagon has six
+// neighbours all the same distance away, and its rows stagger.
+//
+// THIS COUNTS ON THE PAPER, NOT ON THE SPHERE, which is d3-hexbin's choice
+// too and is worth saying out loud: bins of equal size on the paper stand
+// for equal areas on the ground only when the projection is equal-area.
+// On any other, a bin near the pole covers less ground than one at the
+// equator while drawing the same size -- so the picture would argue
+// against itself exactly as a choropleth on Mercator does. The map's own
+// rules say so BY NAME rather than leaving it to be noticed.
+
+pub const Bin = struct { cx: f64, cy: f64, n: u32 };
+
+/// The hexagon's own geometry, flat-top rows staggered by a half: with
+/// radius r the horizontal pitch is r*sqrt(3) and the vertical is r*1.5.
+pub fn hexbin(xy: []const f64, radius: f64, out: *std.ArrayList(Bin)) !void {
+    if (radius <= 0) return;
+    const n = xy.len / 2;
+    if (n == 0) return;
+    const dx = radius * @sqrt(3.0);
+    const dy = radius * 1.5;
+
+    // cell (i, j) -> its place in `out`, through a hash. A list searched
+    // linearly would make this quadratic in the number of CELLS, which is
+    // the one thing a binner must not be.
+    var table = std.AutoHashMap(i64, usize).init(alloc);
+    defer table.deinit();
+
+    for (0..n) |k| {
+        const x = xy[k * 2];
+        const y = xy[k * 2 + 1];
+        const py = y / dy;
+        var pj = @round(py);
+        var px = x / dx - @mod(pj, 2.0) / 2.0;
+        var pi = @round(px);
+        // THE ROUNDING IS NOT THE ANSWER, only a candidate: a point can be
+        // nearer the staggered row above or below than the one its own
+        // rounding named. d3 settles it by comparing the two, and so does
+        // this -- without it the bins interlock wrongly along every row
+        // boundary and the counts are quietly off.
+        const py1 = py - pj;
+        if (@abs(py1) * 3 > 1) {
+            const px1 = px - pi;
+            const pi2 = pi + (if (px < pi) @as(f64, -1) else @as(f64, 1)) / 2.0;
+            const pj2 = pj + (if (py < pj) @as(f64, -1) else @as(f64, 1));
+            const px2 = px - pi2;
+            const py2 = py - pj2;
+            if (px1 * px1 + py1 * py1 > px2 * px2 + py2 * py2) {
+                pi = pi2 + (if (@mod(pj, 2.0) != 0) @as(f64, 1) else @as(f64, -1)) / 2.0;
+                pj = pj2;
+                px = pi;
+            }
+        }
+        const ii: i64 = @intFromFloat(@round(pi));
+        const jj: i64 = @intFromFloat(pj);
+        const key = ii * 1000003 + jj;
+        const got = try table.getOrPut(key);
+        if (got.found_existing) {
+            out.items[got.value_ptr.*].n += 1;
+        } else {
+            got.value_ptr.* = out.items.len;
+            try out.append(alloc, .{
+                .cx = (@as(f64, @floatFromInt(ii)) + @mod(@as(f64, @floatFromInt(jj)), 2.0) / 2.0) * dx,
+                .cy = @as(f64, @floatFromInt(jj)) * dy,
+                .n = 1,
+            });
+        }
+    }
+}
+
+/// One hexagon's six corners, flat as [x1, y1, ...], point-up to match the
+/// stagger above.
+pub fn hexagon(cx: f64, cy: f64, radius: f64, out: *std.ArrayList(f64)) !void {
+    var i: usize = 0;
+    while (i < 6) : (i += 1) {
+        const a = (PI / 3.0) * @as(f64, @floatFromInt(i)) + PI / 6.0;
+        try out.append(alloc, cx + radius * @cos(a));
+        try out.append(alloc, cy + radius * @sin(a));
+    }
+}
+
 // ------------------------------------------------------------------ fit
 
 /// Scale and translate so that the projected bounds of `lonlat` fill the
