@@ -170,6 +170,7 @@ general-tasks session's file and is routed to them, not fix them here.*
 | DN23 | closed | 117 |
 | DN24 | closed | 118 |
 | DN24b | closed | 120 |
+| GE0 | closed | 121 |
 | DN9 | closed | - |
 | DN9a | closed | 97 |
 | DN9b | closed | 98 |
@@ -4411,6 +4412,19 @@ that too.
 **State**: ten assertions folded into §118, green standalone first; gate
 **1670 ok, 0 failed**. No catalogue fixture moves — the witness title is
 short, so it is still one line and every swatch is where it was.
+
+## GE0 — THE SPHERE: the geo plane's foundation (2026-09-12, SHIPPED as GE0a)
+
+The geo plane is planned and recorded in `SOFTANZA_GRAPHICS_PLAN.md` ("THE
+GEO PLANE", GE0–GE5), because its substance is an engine module —
+`geo_projection.zig` in `stz_geo.dll` — and its pictures will be math-plane
+domains from GE2 on. This entry exists so the gate's coverage table can
+carry the item: **§121 discharges GE0**, and the narrated guard
+`geo_sphere_narrated.ring` holds its twenty-nine assertions. What shipped:
+sixteen projections with inverses, d3's three-angle rotation, resampling
+along the great circle, cutting at the seam and the horizon, outline,
+graticule, Tissot's circle, fit, and the spherical measures. What is open
+under the same item: GE0c, polygon fill across a seam or a horizon.
 
 ## DN9 — THE TOLD PICTURE: a narration is facts made visible, in an order (planned 2026-09-06, SHIPPED 2026-09-07 as DN9a through DN9g, all seven closed)
 

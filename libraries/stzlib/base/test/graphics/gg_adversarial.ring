@@ -16421,6 +16421,33 @@ if StzGraphicsDevice()
 	    _GeoPictureIsShaped(oGeoM))
 ok
 
+sec("-- 121. GE0: THE SPHERE -- every map stands on it -------------------------")
+discharges("GE0")
+
+# The narrated guard geo_sphere_narrated.ring carries the twenty-nine
+# assertions with their negatives; this section is the gate's own witness
+# that the sphere is there and answers, in the four properties a picture
+# cannot do without. Nothing here reads an atlas or needs a device.
+
+chk("the engine knows sixteen projections by name", len(StzGeoProjectionKinds()) = 16)
+oGeS = new stzGeoProjection(:Mollweide)
+oGeS.FitToSphere(800, 400, 0)
+aGeQ = oGeS.Project(12.5, 41.9)
+aGeG = oGeS.Invert(aGeQ[1], aGeQ[2])
+chk("a place goes to a pixel and the pixel comes back as the place -- what is under the cursor",
+    len(aGeQ) = 2 and fabs(aGeG[1] - 12.5) < 0.0001 and fabs(aGeG[2] - 41.9) < 0.0001)
+chk("north is up: a northern point draws above a southern one",
+    oGeS.Project(0, 45)[2] < oGeS.Project(0, -45)[2])
+oGeO = new stzGeoProjection(:Orthographic)
+oGeO.FitToSphere(400, 400, 0)
+chk("NEGATIVE: the far side of a globe is not drawn -- the point answers [] and not a wrong pixel",
+    len(oGeO.Project(170, 0)) = 0 and len(oGeO.Project(10, 0)) = 2)
+chk("a line across the seam of a flat map comes back in two pieces, cut at the edge",
+    len(oGeS.Line([ 170, 10, -170, 10 ])) = 2 and len(oGeS.Line([ -10, 10, 10, 10 ])) = 1)
+chk("EQUAL AREA IS A PROPERTY OF THE PROJECTION, and the projection says which it is",
+    oGeS.IsEqualArea() and NOT (new stzGeoProjection(:Mercator)).IsEqualArea() and
+    (new stzGeoProjection(:Mercator)).IsConformal())
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go

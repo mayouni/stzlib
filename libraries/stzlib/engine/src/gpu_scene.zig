@@ -895,7 +895,23 @@ fn earClip(pts: []const f32, out: *std.ArrayList(u32)) !void {
             const by = pts[ib * 2 + 1];
             const cx = pts[ic * 2];
             const cy = pts[ic * 2 + 1];
-            if (cross3(ax, ay, bx, by, cx, cy) <= 0) continue; // reflex or degenerate
+            const cr = cross3(ax, ay, bx, by, cx, cy);
+            // A COLLINEAR OR DUPLICATE VERTEX IS NOT A CORNER. It contributes
+            // no area, and left in the ring it blocks every ear beside it --
+            // a point on a triangle's edge counts as inside it -- until the
+            // clipper "runs out of ears" on a perfectly simple shape. Found
+            // by the first world outline, 1,084 points with 361 of them on
+            // one straight polar edge: the Mercator square drew unfilled.
+            // Such a vertex is dropped, which changes nothing about the
+            // polygon it was on.
+            if (@abs(cr) < 1e-9) {
+                var k = i;
+                while (k + 1 < m) : (k += 1) idx[k] = idx[k + 1];
+                m -= 1;
+                clipped = true;
+                break;
+            }
+            if (cr < 0) continue; // reflex
             var is_ear = true;
             for (0..m) |k| {
                 const ip = idx[k];
