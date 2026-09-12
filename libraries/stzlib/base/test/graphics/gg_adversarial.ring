@@ -16253,6 +16253,7 @@ else
 ok
 
 sec("-- 120. REAL BOUNDARIES, WITHOUT AN ATLAS: the geo reader ------------------")
+discharges("DN24b")
 
 # DN24 draws a choropleth from polygons the AUTHOR gives and refuses to
 # fetch anything from an atlas. That refusal stands and nothing here
@@ -16313,6 +16314,20 @@ chk("a box two degrees each way projects to something square-ish, not a hairline
 # a country at fifty degrees north is area-true and three times too wide.
 chk("the reader takes its standard parallel from the data's own middle latitude",
     StzGeoStandardParallel() > 48 and StzGeoStandardParallel() < 53)
+
+# NORTH IS UP, and this assertion exists because its absence SHIPPED. The
+# first render of a six-province country put Nord along the bottom edge
+# and Sud across the top: every area right, every border meeting, and the
+# map upside down. Latitude grows north and a screen's y grows DOWN, so a
+# projection handing back a rising y draws every map inverted. The areas
+# and the aspect were both asserted and both passed; nothing asked which
+# way was up, which is the whole reason a PICTURE is looked at.
+aGeoNS = StzGeoProjectRing(_GeoBox(0, 40, 1, 60), :EqualArea, 50)
+chk("NORTH IS UP: a point at 60 degrees north draws ABOVE one at 40 -- a smaller y",
+    aGeoNS[8] < aGeoNS[2])
+aGeoNS2 = StzGeoProjectRing(_GeoBox(0, 40, 1, 60), :Equirectangular, 50)
+chk("...and the plain projection agrees, so the flip is the reader's and not one kind's",
+    aGeoNS2[8] < aGeoNS2[2])
 chk("NEGATIVE: a caller who names one gets theirs instead",
     _GeoLat0Given() = 12)
 chk("a projection this file does not know is refused BY NAME", _GeoRefusesKind())

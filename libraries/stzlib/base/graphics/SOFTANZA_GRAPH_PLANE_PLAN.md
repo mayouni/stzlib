@@ -169,6 +169,7 @@ general-tasks session's file and is routed to them, not fix them here.*
 | DN22 | closed | 116 |
 | DN23 | closed | 117 |
 | DN24 | closed | 118 |
+| DN24b | closed | 120 |
 | DN9 | closed | - |
 | DN9a | closed | 97 |
 | DN9b | closed | 98 |
@@ -4100,6 +4101,24 @@ file, so one nameless feature near the equator, which the reader skips and
 draws nothing for, pulled a country at fifty north down to a parallel of
 twenty-six. The guard now holds both.
 
+**AND NORTH IS UP, which the Principal's own review caught.** Asked for
+maps to assess, the first render of a six-province country put Nord along
+the bottom edge and Sud across the top: every area right, every border
+meeting its neighbour, the legend in order, and the map upside down.
+Latitude grows north and a screen's y grows DOWN, so a projection handing
+back a rising y inverts every map made from it. The guard had asserted the
+areas and the aspect ratio, and both passed — **nothing had asked which way
+was up**, which is precisely what a picture is looked at for. §120 asks it
+now, in both projections.
+
+**A quantity name longer than the legend column runs off the paper**, and
+this is a DN24 defect the geo work only exposed. The column leaves 160 px
+and the title is written at 13 px with no fitting: *"People per square
+kilometre"* measures 161 px and clips, which makes it a routine case and
+not an edge one. Named here, unfixed, because the repair belongs in the
+choropleth's own layout — wrapping needs a second text object, the DN22
+lesson — and is the Principal's to call rather than mine to slip in.
+
 **Said plainly and left out.** A Polygon contributes its outer ring and a
 MultiPolygon the outer ring of its largest part: holes are dropped, and so
 are the smaller islands, because the domain draws one simple polygon per
@@ -4130,7 +4149,7 @@ this plane vendors boundary data only if a caller demonstrates a workload
 that cannot supply its own** — and the reader shipped here is what makes
 that demonstration unlikely, because supplying your own is now three lines.
 
-*Guard:* §120, 11 assertions — the FeatureCollection read, the skipped
+*Guard:* §120, 13 assertions, declaring `discharges("DN24b")` — the FeatureCollection read, the skipped
 feature counted, the MultiPolygon's largest part, equal area proved equal
 with the plain projection as its negative sibling, the two axes sharing a
 unit, the standard parallel from the data and from the caller, the refusal
