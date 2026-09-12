@@ -16252,6 +16252,82 @@ else
 	? "   (no device -- GG3 is a property of the scene tier, so it is UNJUDGED here rather than passed)"
 ok
 
+sec("-- 120. REAL BOUNDARIES, WITHOUT AN ATLAS: the geo reader ------------------")
+
+# DN24 draws a choropleth from polygons the AUTHOR gives and refuses to
+# fetch anything from an atlas. That refusal stands and nothing here
+# vendors a boundary: what this adds is the conversion an author with
+# their OWN data had to write by hand for every map.
+
+cGeoJson = '{"type":"FeatureCollection","features":[' +
+ '{"type":"Feature","properties":{"nom":"Nord","dens":35},"geometry":{"type":"Polygon",' +
+ '"coordinates":[[[0,50],[7,50],[6,52],[0,51.5]]]}},' +
+ '{"type":"Feature","properties":{"nom":"Est","dens":120},"geometry":{"type":"MultiPolygon",' +
+ '"coordinates":[[[[11,49],[11.5,49],[11.2,49.4]]],[[[7,50],[12,50],[12,52.5],[8,52],[6,52]]]]}},' +
+ '{"type":"Feature","properties":{"dens":9},"geometry":{"type":"Polygon",' +
+ '"coordinates":[[[0,0],[1,0],[1,1]]]}}]}'
+
+aGeoR = StzGeoRegionsFromJson(cGeoJson, "nom", "dens")
+chk("a FeatureCollection becomes the regions the choropleth already takes",
+    len(aGeoR) = 2 and aGeoR[1][1] = "Nord" and aGeoR[1][2] = 35 and aGeoR[2][2] = 120)
+chk("NEGATIVE: the feature with no name is SKIPPED and COUNTED, never guessed at",
+    StzGeoSkippedCount() = 1)
+chk("a MultiPolygon contributes its LARGEST part -- the mainland, not the island",
+    (len(aGeoR[2][3]) / 2) = 5)
+
+# THE PROPERTY A CHOROPLETH ACTUALLY NEEDS. It encodes a quantity as the
+# colour of an AREA, so a projection that distorts area makes the picture
+# argue against its own legend. Two boxes of EQUAL TRUE AREA at different
+# latitudes -- same span of longitude, same span of SINE of latitude --
+# must draw with equal area.
+aGeoLow = _GeoBox(0, 0, 10, 10)            # lat 0 to 10
+aGeoHigh = _GeoBox(0, 50, 10, 70)          # lat 50 to 70: the same sine span
+nGeoA1 = _GeoArea(StzGeoProjectRing(aGeoLow, :EqualArea, 35))
+nGeoA2 = _GeoArea(StzGeoProjectRing(aGeoHigh, :EqualArea, 35))
+? "   [equal-area: two boxes of equal true area draw " + StzFactNumText(nGeoA1) +
+  " and " + StzFactNumText(nGeoA2) + "]"
+chk("EQUAL AREA MEANS EQUAL AREA: two regions of the same true area draw the same " +
+    "size however far apart in latitude -- the one property a choropleth cannot do without",
+    fabs(nGeoA1 - nGeoA2) / nGeoA1 < 0.001)
+nGeoE1 = _GeoArea(StzGeoProjectRing(aGeoLow, :Equirectangular, 35))
+nGeoE2 = _GeoArea(StzGeoProjectRing(aGeoHigh, :Equirectangular, 35))
+chk("NEGATIVE: the plain projection draws the same two boxes at different sizes, " +
+    "which is why it is offered and not the default",
+    fabs(nGeoE1 - nGeoE2) / nGeoE1 > 0.5)
+
+# THE TWO AXES SHARE A UNIT, and this is here because a PICTURE found it
+# missing: the first version wrote x in degrees and y as a sine, so a
+# country twelve degrees wide and six tall drew 184 times wider than it
+# was tall -- every polygon a two-pixel hairline, every name colliding.
+# The numbers alone said nothing; the render said everything.
+aGeoSq = StzGeoProjectRing(_GeoBox(0, 49.5, 2, 51.5), :EqualArea, 50)
+nGeoW = aGeoSq[3] - aGeoSq[1]
+nGeoH = aGeoSq[6] - aGeoSq[4]
+? "   [a 2-degree box at 50N projects " + StzFactNumText(nGeoW) + " by " + StzFactNumText(nGeoH) + "]"
+chk("a box two degrees each way projects to something square-ish, not a hairline -- " +
+    "both axes are in ONE unit",
+    fabs(nGeoW) > 0 and fabs(nGeoH) > 0 and (fabs(nGeoW) / fabs(nGeoH)) > 0.4 and
+    (fabs(nGeoW) / fabs(nGeoH)) < 2.5)
+
+# THE STANDARD PARALLEL COMES FROM THE DATA. Left at the equator, a map of
+# a country at fifty degrees north is area-true and three times too wide.
+chk("the reader takes its standard parallel from the data's own middle latitude",
+    StzGeoStandardParallel() > 48 and StzGeoStandardParallel() < 53)
+chk("NEGATIVE: a caller who names one gets theirs instead",
+    _GeoLat0Given() = 12)
+chk("a projection this file does not know is refused BY NAME", _GeoRefusesKind())
+
+# AND THE MAP IT PRODUCES IS A MAP THE RULES PASS -- the reader is not a
+# side door around the domain's own judgement.
+if StzGraphicsDevice()
+	oGeoM = StzChoroplethDiagram(EFONT, "Habitants par km2", _GeoProvinces(), [ 0, 50, 100, 200, 400 ])
+	oGeoM.Layout()
+	chk("a choropleth built from GeoJSON passes every rule the domain has",
+	    len(StzCheckPictures([ [ "geo/provinces", oGeoM ] ]).Findings()) = 0)
+	chk("...and it is a real map, not a hairline: the drawn regions are tall as well as wide",
+	    _GeoPictureIsShaped(oGeoM))
+ok
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go
@@ -19312,6 +19388,57 @@ func _Gg3UploadsWhenNotDriven poMesh
 	_o_.ToPNG("_gg3_control.png")
 	_a2_ = _o_.Stats()
 	return (_a2_[5] - _a1_[5]) = 1
+
+# a closed box in lon/lat, as GeoJSON writes a ring
+func _GeoBox pnLon0, pnLat0, pnLon1, pnLat1
+	return [ [ pnLon0, pnLat0 ], [ pnLon1, pnLat0 ], [ pnLon1, pnLat1 ], [ pnLon0, pnLat1 ] ]
+
+# the shoelace area of a flat [x1,y1,x2,y2,...] ring, always positive
+func _GeoArea paXY
+	_n_ = len(paXY) / 2
+	_s_ = 0
+	for _i_ = 1 to _n_
+		_j_ = _i_ % _n_ + 1
+		_s_ += paXY[_i_ * 2 - 1] * paXY[_j_ * 2] - paXY[_j_ * 2 - 1] * paXY[_i_ * 2]
+	next
+	return fabs(_s_) / 2
+
+func _GeoLat0Given
+	StzGeoRegionsFromJsonXT('{"type":"FeatureCollection","features":[' +
+	 '{"type":"Feature","properties":{"nom":"A","dens":1},"geometry":{"type":"Polygon",' +
+	 '"coordinates":[[[0,50],[1,50],[1,51]]]}}]}', "nom", "dens", :EqualArea, 12)
+	return StzGeoStandardParallel()
+
+func _GeoRefusesKind
+	_b_ = FALSE
+	try
+		StzGeoProject(0, 0, :Mercator, 0)
+	catch
+		_b_ = TRUE
+	done
+	return _b_
+
+func _GeoProvinces
+	return StzGeoRegionsFromJson('{"type":"FeatureCollection","features":[' +
+	 '{"type":"Feature","properties":{"nom":"Nord","dens":35},"geometry":{"type":"Polygon","coordinates":[[[0,50],[7,50],[6,52],[0,51.5]]]}},' +
+	 '{"type":"Feature","properties":{"nom":"Est","dens":120},"geometry":{"type":"Polygon","coordinates":[[[7,50],[12,50],[12,52.5],[8,52],[6,52]]]}},' +
+	 '{"type":"Feature","properties":{"nom":"Centre","dens":310},"geometry":{"type":"Polygon","coordinates":[[[0,51.5],[6,52],[8,52],[7,54],[3,53.7],[0,53.5]]]}},' +
+	 '{"type":"Feature","properties":{"nom":"Sud-ouest","dens":60},"geometry":{"type":"Polygon","coordinates":[[[0,53.5],[3,53.7],[4,55],[0,55]]]}},' +
+	 '{"type":"Feature","properties":{"nom":"Sud","dens":180},"geometry":{"type":"Polygon","coordinates":[[[3,53.7],[7,54],[8,55],[4,55]]]}},' +
+	 '{"type":"Feature","properties":{"nom":"Sud-est","dens":95},"geometry":{"type":"Polygon","coordinates":[[[7,54],[8,52],[12,52.5],[12,55],[8,55]]]}}]}',
+	 "nom", "dens")
+
+# the drawn map has real height, which the first projection did not give it
+func _GeoPictureIsShaped poM
+	_s_ = poM.Substance()
+	_a_ = _s_.ObjectsOfType("Region")
+	_lo_ = 100000  _hi_ = -100000
+	for _i_ = 1 to len(_a_)
+		_y_ = _s_.DataOf(_a_[_i_], "cy")
+		if _y_ < _lo_  _lo_ = _y_  ok
+		if _y_ > _hi_  _hi_ = _y_  ok
+	next
+	return (_hi_ - _lo_) > 100
 
 func _FmRepSound paF
 	_o_ = new stzRuleReport("soundness")
