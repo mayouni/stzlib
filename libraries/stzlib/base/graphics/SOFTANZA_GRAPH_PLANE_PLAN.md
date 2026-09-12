@@ -170,6 +170,7 @@ general-tasks session's file and is routed to them, not fix them here.*
 | DN23 | closed | 117 |
 | DN24 | closed | 118 |
 | DN24b | closed | 120 |
+| GE2 | closed | 123 |
 | GE1 | closed | 122 |
 | GE0 | closed | 121 |
 | DN9 | closed | - |
@@ -4413,6 +4414,16 @@ that too.
 **State**: ten assertions folded into §118, green standalone first; gate
 **1670 ok, 0 failed**. No catalogue fixture moves — the witness title is
 short, so it is still one line and every swatch is where it was.
+
+## GE2 — A MAP MADE OF LAYERS (2026-09-12, SHIPPED)
+
+Recorded here so the coverage table can carry the item; the substance is in
+`SOFTANZA_GRAPHICS_PLAN.md`. **§123 discharges GE2**, and
+`geo_map_narrated.ring` holds its twenty assertions. `stzGeoMap` composes a
+projection and a feature set into a picture: sphere, graticule, every
+feature in the colour its value earns, symbols whose AREA carries the value,
+flows that are great circles, a legend that owns up to a class colouring
+nothing, and a caption naming the projection and the source.
 
 ## GE1 — BOUNDARY DATA, WHOLE: GeoJSON and TopoJSON (2026-09-12, SHIPPED)
 

@@ -236,7 +236,7 @@ oP = new stzGeoProjection(:Equirectangular)
 oP.FitToFeatures(oGjs, 560, 420, 40)
 oP.Translate([ oP.TranslateOf()[1] + 10, oP.TranslateOf()[2] + 70 ])
 for i = 1 to oGjs.Count()
-	oP.DrawFeatureOn(oC, oGjs, i, aInk[i], aEdg[i], 1.5)
+	oP.DrawFeatureOn(oCG, oGjs, i, aInk[i], aEdg[i], 1.5)
 next
 oCG.SetFontQ(oFont, 16).AddTextQ("from GeoJSON -- 633 bytes", 40, 520).Fill("#555555")
 
@@ -244,7 +244,7 @@ oQ = new stzGeoProjection(:Equirectangular)
 oQ.FitToFeatures(oTjs, 560, 420, 40)
 oQ.Translate([ oQ.TranslateOf()[1] + 600, oQ.TranslateOf()[2] + 70 ])
 for i = 1 to oTjs.Count()
-	oQ.DrawFeatureOn(oC, oTjs, i, aInk[i], aEdg[i], 1.5)
+	oQ.DrawFeatureOn(oCG, oTjs, i, aInk[i], aEdg[i], 1.5)
 next
 oCG.SetFontQ(oFont, 16).AddTextQ("from TopoJSON -- the shared border written ONCE, as arc 0", 620, 520).Fill("#555555")
 
@@ -255,6 +255,83 @@ for i = 1 to oGjs.Count()
 next
 oCG.ToPNG("geo_formats.png")
 ? "-> geo_formats.png"
+
+# ---- 7. GE2: THE REAL WORLD, IN LAYERS ----------------------------------
+# A map made of layers: the sphere, the graticule, every country in the
+# colour its value earns, a legend that owns up to a class colouring
+# nothing, and a caption saying HOW the map was made and on whose word its
+# borders are where they are. The value is each country's own true area,
+# measured on the sphere from its rings -- a number that needs no second
+# file and that an equal-area projection can be checked against.
+#
+# THE ATLAS IS NOT COMMITTED. The geo plane vendors no boundary data;
+# atlas/README.md says why and carries the two commands that fetch it.
+# Without it this section says what it skipped.
+
+if NOT fexists("atlas/countries-110m.json")
+	? "SKIPPED, by name: atlas/countries-110m.json is not present --"
+	? "  see atlas/README.md. The six sections above need no atlas at all."
+else
+	oW = StzGeoFeaturesFromTopoJson(read("atlas/countries-110m.json"), "countries")
+	oP = new stzGeoProjection(:EqualEarth)
+	oP.FitSphereIn(20, 66, 880, 520, 8)
+	oM = StzGeoMap(oP, oW)
+	aArea = oM.ValuesFromArea()
+	oM.SetValuesQ(aArea).SetClassesQ([ 0, 100000, 500000, 2000000, 20000000 ])
+	oM.SetSource("Natural Earth 1:110m, public domain, world-atlas 2.0.2, fetched 2026-09-12")
+
+	oC = new stzCanvas(1180, 640)
+	oC.SetBackground("#FFFFFF")
+	oC.SetFontQ(oFont, 22).AddTextQ("Every country by its own true area, measured on the sphere", 24, 42).Fill("#111111")
+	oM.DrawOn(oC)
+	oM.DrawLegendOn(oC, oFont, 930, 120, "square kilometres")
+	oM.DrawCaptionOn(oC, oFont, 24, 622)
+	oC.ToPNG("geo_world.png")
+
+	nTot = 0
+	for i = 1 to len(aArea)  nTot += aArea[i]  next
+	? "land measured from the rings: " + nTot + " km2   (the real figure is about 148,900,000)"
+	nR = oW.IndexOfName("Russia")
+	? "Russia " + aArea[nR] + " km2 (about 17,100,000)   France " +
+	  aArea[oW.IndexOfName("France")] + " km2 (about 551,000 for the mainland)"
+	? "-> geo_world.png"
+
+	# ---- symbols and flows, on a globe ----
+	oG = new stzGeoProjection(:Orthographic)
+	oG.CenterOnQ(10, 25).FitSphereIn(30, 80, 590, 620, 8)
+	oM2 = StzGeoMap(oG, oW)
+	oM2.SetValuesQ(aArea).SetClassesQ([ 0, 100000, 500000, 2000000, 20000000 ])
+	oM2.SetSource("Natural Earth 1:110m, public domain")
+
+	oC2 = new stzCanvas(1180, 700)
+	oC2.SetBackground("#FFFFFF")
+	oC2.SetFontQ(oFont, 22).AddTextQ("Symbols by AREA, not radius -- and flows that are great circles", 24, 42).Fill("#111111")
+	oM2.DrawSphereOn(oC2, "#F2F6FC", "#8FA8C8", 1)
+	oM2.DrawGraticuleOn(oC2, 30, "#DCE4EE", 1)
+	oM2.DrawRegionsOn(oC2, "#FFFFFF", 0.6)
+	oM2.DrawSymbolsOn(oC2, aArea, 22, "#D9822B99", "#8A4B12")
+	oG.DrawOutlineOn(oC2, "#3B5B8C", 1.5)
+	oM2.DrawCaptionOn(oC2, oFont, 34, 648)
+
+	oH = new stzGeoProjection(:NaturalEarth)
+	oH.FitSphereIn(610, 80, 1160, 620, 8)
+	oM3 = StzGeoMap(oH, oW)
+	oM3.SetValuesQ(aArea).SetClassesQ([ 0, 100000, 500000, 2000000, 20000000 ])
+	oM3.SetSource("Natural Earth 1:110m, public domain")
+	oM3.DrawSphereOn(oC2, "#F2F6FC", "#8FA8C8", 1)
+	oM3.DrawGraticuleOn(oC2, 30, "#DCE4EE", 1)
+	oM3.DrawRegionsOn(oC2, "#FFFFFF", 0.6)
+	aRoutes = [
+		[ 10.18, 36.80, 139.69, 35.69, 2 ], [ 10.18, 36.80, -74.01, 40.71, 2 ],
+		[ 10.18, 36.80, 151.21, -33.87, 2 ], [ 10.18, 36.80, -46.63, -23.55, 2 ],
+		[ -74.01, 40.71, 139.69, 35.69, 1.4 ], [ 2.35, 48.85, -118.24, 34.05, 1.4 ],
+		[ 103.82, 1.35, 4.90, 52.37, 1.4 ] ]
+	oM3.DrawFlowsOn(oC2, aRoutes, "#C0392B", 2)
+	oH.DrawOutlineOn(oC2, "#3B5B8C", 1.5)
+	oM3.DrawCaptionOn(oC2, oFont, 614, 648)
+	oC2.ToPNG("geo_symbols.png")
+	? "-> geo_symbols.png"
+ok
 
 # Ring runs top-level code only up to the first func, so the helpers
 # stand at the end of the file

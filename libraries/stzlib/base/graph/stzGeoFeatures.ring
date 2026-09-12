@@ -31,6 +31,27 @@
 # it was saved with), no reprojection of the source data (coordinates are
 # longitude and latitude, as both formats require), no writing.
 
+# EVERY BOUNDARY FILE GOES THROUGH THIS FIRST, and the reason is measured.
+# Ring's own JsonToList LOSES ITS PLACE on a document holding a raw
+# multibyte character: the world atlas at 1:110m has exactly two non-ASCII
+# bytes in 107,760 -- the circumflex in one country's name -- and with them
+# the reader answered NINE top-level arcs where the file holds 595, having
+# picked up a value from inside a nested object. Replacing that ONE
+# character with an ASCII letter and changing nothing else made the same
+# call answer 595.
+#
+# The failure is silent: a well-formed list, wrong. So the text is made
+# ASCII first -- every non-ASCII character written as the escape the format
+# already defines, which is safe anywhere because JSON outside a string
+# literal is ASCII by definition.
+#
+# THIS IS A REPAIR HERE AND A DEFECT ELSEWHERE: every caller of JsonToList
+# in this library reads real-world JSON through the same hole. Reported as
+# a finding rather than swept, and the escape is a public function so the
+# others can use it the day they are looked at.
+func StzJsonAsciiSafe(pcJson)
+	return StzEngineJsonEscapeNonAscii("" + pcJson)
+
 func StzGeoFeaturesFromJson(pcJson)
 	_o_ = new stzGeoFeatures
 	_o_.ReadGeoJson(pcJson)
@@ -51,6 +72,15 @@ func StzGeoNameKeys()
 class stzGeoFeatures from stzObject
 	@aFeat = []      # each: [ cKind, cId, aProps, aParts ]
 	@nSkipped = 0
+	# THE ARCS, FLAT, AND NOT A PARAMETER. Ring assigns and passes lists BY
+	# VALUE, so handing the decoded arcs down through the reader copied ten
+	# thousand points once per country: the world atlas took 52 SECONDS to
+	# read, and 0.6 after this. They live on the object now, as one flat
+	# list of numbers with an offset and a length per arc, so every read is
+	# of a NUMBER and nothing is ever copied.
+	@aArcXY = []
+	@aArcOff = []
+	@aArcLen = []
 
 	#-- reading ------------------------------------------------------------
 
@@ -58,7 +88,7 @@ class stzGeoFeatures from stzObject
 		if NOT (isString(pcJson) and len(ring_trim(pcJson)) > 0)
 			stzraise("stzGeoFeatures: give the GeoJSON text to read.")
 		ok
-		_aJ_ = JsonToList(pcJson)
+		_aJ_ = JsonToList(StzJsonAsciiSafe(pcJson))
 		if NOT isList(_aJ_)
 			stzraise("stzGeoFeatures: that is not JSON this reader could parse.")
 		ok
@@ -180,7 +210,7 @@ class stzGeoFeatures from stzObject
 		if NOT (isString(pcJson) and len(ring_trim(pcJson)) > 0)
 			stzraise("stzGeoFeatures: give the TopoJSON text to read.")
 		ok
-		_aJ_ = JsonToList(pcJson)
+		_aJ_ = JsonToList(StzJsonAsciiSafe(pcJson))
 		if NOT (isList(_aJ_) and HasKey(_aJ_, :arcs) and HasKey(_aJ_, :objects))
 			stzraise("stzGeoFeatures: that is not a TopoJSON topology -- it needs " +
 				"'arcs' and 'objects'.")
@@ -191,27 +221,33 @@ class stzGeoFeatures from stzObject
 			if HasKey(_tr_, :scale)  _sx_ = _tr_[:scale][1]  _sy_ = _tr_[:scale][2]  ok
 			if HasKey(_tr_, :translate)  _tx_ = _tr_[:translate][1]  _ty_ = _tr_[:translate][2]  ok
 		ok
-		# every arc, decoded once
-		_aArcs_ = []
+		# every arc, decoded once, into ONE flat list
+		@aArcXY = []
+		@aArcOff = []
+		@aArcLen = []
 		_raw_ = _aJ_[:arcs]
+		_bT_ = HasKey(_aJ_, :transform)
 		for _i_ = 1 to len(_raw_)
 			_a_ = _raw_[_i_]
-			_f_ = []
 			_x_ = 0  _y_ = 0
+			_n0_ = len(@aArcXY)
+			_cnt_ = 0
 			for _j_ = 1 to len(_a_)
 				_p_ = _a_[_j_]
 				if NOT (isList(_p_) and len(_p_) >= 2)  loop  ok
-				if HasKey(_aJ_, :transform)
+				if _bT_
 					_x_ += _p_[1]
 					_y_ += _p_[2]
-					_f_ + (_x_ * _sx_ + _tx_)
-					_f_ + (_y_ * _sy_ + _ty_)
+					@aArcXY + (_x_ * _sx_ + _tx_)
+					@aArcXY + (_y_ * _sy_ + _ty_)
 				else
-					_f_ + _p_[1]
-					_f_ + _p_[2]
+					@aArcXY + _p_[1]
+					@aArcXY + _p_[2]
 				ok
+				_cnt_++
 			next
-			_aArcs_ + _f_
+			@aArcOff + _n0_
+			@aArcLen + _cnt_
 		next
 
 		_objs_ = _aJ_[:objects]
@@ -232,9 +268,9 @@ class stzGeoFeatures from stzObject
 
 		@aFeat = []
 		@nSkipped = 0
-		This._TakeTopoGeometry(_ob_, _aArcs_, "", [])
+		This._TakeTopoGeometry(_ob_, "", [])
 
-	def _TakeTopoGeometry(paG, paArcs, pcId, paProps)
+	def _TakeTopoGeometry(paG, pcId, paProps)
 		if NOT (isList(paG) and HasKey(paG, :type))  @nSkipped++  return  ok
 		_t_ = StzLower("" + paG[:type])
 		_id_ = pcId
@@ -245,7 +281,7 @@ class stzGeoFeatures from stzObject
 			if NOT HasKey(paG, :geometries)  @nSkipped++  return  ok
 			_ag_ = paG[:geometries]
 			for _i_ = 1 to len(_ag_)
-				This._TakeTopoGeometry(_ag_[_i_], paArcs, _id_, _pr_)
+				This._TakeTopoGeometry(_ag_[_i_], _id_, _pr_)
 			next
 			return
 		ok
@@ -255,20 +291,20 @@ class stzGeoFeatures from stzObject
 		_kind_ = ""
 		if _t_ = "polygon"
 			_kind_ = "polygon"
-			_aParts_ + This._TopoRings(_c_, paArcs)
+			_aParts_ + This._TopoRings(_c_)
 		but _t_ = "multipolygon"
 			_kind_ = "polygon"
 			for _i_ = 1 to len(_c_)
-				_r_ = This._TopoRings(_c_[_i_], paArcs)
+				_r_ = This._TopoRings(_c_[_i_])
 				if len(_r_) > 0  _aParts_ + _r_  ok
 			next
 		but _t_ = "linestring"
 			_kind_ = "line"
-			_aParts_ + [ This._TopoRing(_c_, paArcs) ]
+			_aParts_ + [ This._TopoRing(_c_) ]
 		but _t_ = "multilinestring"
 			_kind_ = "line"
 			for _i_ = 1 to len(_c_)
-				_aParts_ + [ This._TopoRing(_c_[_i_], paArcs) ]
+				_aParts_ + [ This._TopoRing(_c_[_i_]) ]
 			next
 		else
 			@nSkipped++
@@ -277,16 +313,17 @@ class stzGeoFeatures from stzObject
 		if len(_aParts_) = 0  @nSkipped++  return  ok
 		@aFeat + [ _kind_, _id_, _pr_, _aParts_ ]
 
-	def _TopoRings(paRings, paArcs)
+	def _TopoRings(paRings)
 		_a_ = []
 		for _i_ = 1 to len(paRings)
-			_f_ = _GeoCloseRing(This._TopoRing(paRings[_i_], paArcs))
+			_f_ = _GeoCloseRing(This._TopoRing(paRings[_i_]))
 			if len(_f_) >= 6  _a_ + _f_  ok
 		next
 		return _a_
 
-	# one ring, stitched out of the arcs it names
-	def _TopoRing(paIdx, paArcs)
+	# one ring, stitched out of the arcs it names. Every read below is of a
+	# NUMBER out of the flat table -- no arc is ever copied.
+	def _TopoRing(paIdx)
 		_out_ = []
 		if NOT isList(paIdx)  return _out_  ok
 		for _i_ = 1 to len(paIdx)
@@ -298,17 +335,17 @@ class stzGeoFeatures from stzObject
 				_rev_ = TRUE
 				_n_ = -_n_ - 1
 			ok
-			if _n_ < 0 or _n_ >= len(paArcs)  loop  ok
-			_arc_ = paArcs[_n_ + 1]
-			_np_ = len(_arc_) / 2
+			if _n_ < 0 or _n_ >= len(@aArcOff)  loop  ok
+			_off_ = @aArcOff[_n_ + 1]
+			_np_ = @aArcLen[_n_ + 1]
 			# the join point is written in both arcs; drop the repeat
 			_from_ = 1
 			if len(_out_) > 0  _from_ = 2  ok
 			for _j_ = _from_ to _np_
 				_at_ = _j_
 				if _rev_  _at_ = _np_ - _j_ + 1  ok
-				_out_ + _arc_[_at_ * 2 - 1]
-				_out_ + _arc_[_at_ * 2]
+				_out_ + @aArcXY[_off_ + _at_ * 2 - 1]
+				_out_ + @aArcXY[_off_ + _at_ * 2]
 			next
 		next
 		return _out_

@@ -48,3 +48,9 @@ _wasmsub_tmp/
 # sound studio: the exe is built into zig-out/ with the engine; temp/ holds
 # renders the guards and the console studio write
 libraries/stzlib/base/test/sound/temp/
+
+# The geo plane vendors NO boundary data: see
+# libraries/stzlib/base/test/graphics/atlas/README.md for why, and for the
+# two commands that fetch it. The README itself IS committed.
+libraries/stzlib/base/test/graphics/atlas/*
+!libraries/stzlib/base/test/graphics/atlas/README.md

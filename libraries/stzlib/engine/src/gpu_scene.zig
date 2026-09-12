@@ -879,11 +879,20 @@ fn strictlyInTri(px: f32, py: f32, ax: f32, ay: f32, bx: f32, by: f32, cx: f32, 
     return (d1 > 0 and d2 > 0 and d3 > 0) or (d1 < 0 and d2 < 0 and d3 < 0);
 }
 
+/// How many corners the last triangulation had to force. Zero for every
+/// ordinary polygon; a caller that cares can ask.
+var forced_ears: u32 = 0;
+
+pub fn forcedEars() u32 {
+    return forced_ears;
+}
+
 /// Ear clipping for a SIMPLE polygon. A self-intersecting outline runs out
 /// of ears and stops -- an honest partial fill rather than a garbage one
 /// (that case is the PlutoVG kill line, recorded in the plan).
 fn earClip(pts: []const f32, out: *std.ArrayList(u32)) !void {
     const n = pts.len / 2;
+    forced_ears = 0;
     if (n < 3) return;
     const idx = try alloc.alloc(u32, n);
     defer alloc.free(idx);
@@ -947,7 +956,44 @@ fn earClip(pts: []const f32, out: *std.ArrayList(u32)) !void {
             clipped = true;
             break;
         }
-        if (!clipped) break; // no ear found: stop honestly
+        if (!clipped) {
+            // NO EAR ANYWHERE, and stopping here leaves a HOLE. Sudan at
+            // 1:110m showed it: a long thin spike reduces the remaining
+            // ring to a sliver in which every candidate corner has some
+            // other vertex numerically inside it, and the fill came out
+            // with a triangular wedge of white through the middle of the
+            // country while the outline around it was perfect.
+            //
+            // So the most convex corner is taken ANYWAY. The polygon is
+            // then always covered -- n - 2 triangles, every time -- and
+            // the price is paid where the price is nothing: a corner that
+            // no test would accept is one whose triangle has almost no
+            // area, so a forced one is invisible. A truly self-crossing
+            // outline can still be drawn wrong, and that remains the
+            // PlutoVG kill line's case, but it is no longer drawn SHORT.
+            var best: usize = 0;
+            var best_cr: f32 = -std.math.inf(f32);
+            for (0..m) |k| {
+                const ia = idx[(k + m - 1) % m];
+                const ib = idx[k];
+                const ic = idx[(k + 1) % m];
+                const cr = cross3(pts[ia * 2], pts[ia * 2 + 1], pts[ib * 2], pts[ib * 2 + 1], pts[ic * 2], pts[ic * 2 + 1]);
+                if (cr > best_cr) {
+                    best_cr = cr;
+                    best = k;
+                }
+            }
+            const ia = idx[(best + m - 1) % m];
+            const ib = idx[best];
+            const ic = idx[(best + 1) % m];
+            try out.append(alloc, ia);
+            try out.append(alloc, ib);
+            try out.append(alloc, ic);
+            var k2 = best;
+            while (k2 + 1 < m) : (k2 += 1) idx[k2] = idx[k2 + 1];
+            m -= 1;
+            forced_ears += 1;
+        }
     }
     if (m == 3) {
         try out.append(alloc, idx[0]);

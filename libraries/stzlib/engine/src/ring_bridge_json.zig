@@ -87,8 +87,31 @@ fn ring_Error(p: *anyopaque) callconv(.c) void {
     if (n > 0) rs2(p, &buf, @intCast(n)) else rs(p, "");
 }
 
-pub const regs = [_]R.Reg{
+pub // JsonEscapeNonAscii(cJson) -> the same JSON with every non-ASCII
+// character written as \uXXXX. Ring's own JsonToList loses its place on a
+// raw multibyte character and answers a well-formed WRONG list; this is
+// what a caller runs the text through first. The reason, with the
+// measurement, is on the engine function.
+fn ring_EscapeNonAscii(p: *anyopaque) callconv(.c) void {
+    const n: usize = @intCast(gss(p, 1));
+    if (n == 0) {
+        rs(p, "");
+        return;
+    }
+    const src = gs(p, 1);
+    var out_len: usize = 0;
+    const out = j.stz_json_escape_nonascii(src, n, &out_len);
+    if (out == null) {
+        rs(p, "");
+        return;
+    }
+    defer j.stz_json_escape_free(out, out_len);
+    rs2(p, out, @intCast(out_len));
+}
+
+const regs = [_]R.Reg{
     .{ .name = "stzenginejsonparse", .func = &ring_Parse },
+    .{ .name = "stzenginejsonescapenonascii", .func = &ring_EscapeNonAscii },
     .{ .name = "stzenginejsonfree", .func = &ring_Free },
     .{ .name = "stzenginejsonisvalid", .func = &ring_IsValid },
     .{ .name = "stzenginejsonisarray", .func = &ring_IsArray },
