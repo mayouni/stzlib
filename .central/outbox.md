@@ -4938,3 +4938,62 @@ note:      the codeberg push took six attempts through 504s tonight; the
            remotes are level and were verified with ls-remote, not with
            the push output
 ```
+
+```yaml
+by:        stzlib-graphics · claude-opus-5 · 2026-09-12 08:39
+
+subject:   real boundaries without an atlas, and the vendoring question
+           answered rather than deferred
+
+why:       the Principal asked whether the choropleth needs a vendored
+           boundary asset of a few hundred kilobytes
+
+did:
+  - Answered the asset question NO and wrote the reasons into the plan,
+    where the weight is the least of them: a boundary dataset carries a
+    POSITION on every disputed border, restated in every picture drawn
+    from it; a VINTAGE, right the day it lands and silently wrong after;
+    and a LICENCE the consumer would owe. None of that applies to a font
+    subset, which is why one is committed and this is not.
+  - Wrote the kill line now rather than after the argument: this plane
+    vendors boundary data only if a caller demonstrates a workload that
+    cannot supply its own.
+  - Closed what WAS true underneath the question -- the library had
+    pushed the whole cost of getting real boundaries onto its caller --
+    with a reader that turns a GeoJSON FeatureCollection into the
+    regions the builder already takes.
+  - Put a projection there deliberately: a choropleth encodes a quantity
+    as an AREA's colour, so the default is Lambert cylindrical
+    equal-area, and the guard asserts the property rather than the
+    formula -- two regions of equal true area twenty degrees of latitude
+    apart draw the same size, with the plain projection as the negative
+    sibling at more than fifty per cent apart.
+  - Kept the projection in Ring by MEASUREMENT, not reflex: 100,000
+    points cost 73 ms, and a whole world at usable scale is 10,000 to
+    25,000 points.
+  - Fixed two defects a PICTURE found and no test of numbers would have:
+    x in degrees against y as a sine (a 184:1 hairline, six rule
+    findings, nothing recognisable), and a standard parallel averaged
+    over features the reader SKIPS (one nameless feature at the equator
+    pulled a country at fifty north down to a parallel of twenty-six).
+
+state:
+  the asset:       refused, with the kill line written
+  the reader:      shipped, vendoring nothing
+  guard:           section 120, 11 assertions; gate 1658 ok, 0 failed
+  commit:          ba6066c28 on origin and codeberg, verified by ls-remote
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - retire the three graphics queue rows [routed | unanswered]
+
+next:
+  - me:      the cost row for this stretch
+  - central: nothing owed
+
+note:      MY SECTION WAS APPLIED TO MAIN'S COPY OF THE GATE, not to this
+           working tree's. Another session's in-flight sigil migration is
+           in that file here, and staging my copy would have committed
+           their unfinished work. The staged diff is +127 -0, which is
+           how I checked rather than how I hoped.
+```
