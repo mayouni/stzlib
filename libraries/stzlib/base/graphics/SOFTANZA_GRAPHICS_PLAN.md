@@ -482,6 +482,127 @@ here; they are simply not designed AGAINST.
   counted-refusal paths; GPU assertions gate on availability, exactly
   as the 162-assert G-plane suite already demonstrates.
 
+## THE GEO PLANE -- real-world maps on this system (planned 2026-09-12)
+
+*Asked by the Principal as a question — how would nivo's geomap, d3-geo, the
+Observable d3-geo collection and ThoughtSpot's geo charts be modelled here —
+and answered as a plan, then started the same day.*
+
+**What those four tools are, underneath.** d3-geo is the substance: a
+projection is a STREAM TRANSFORM over GeoJSON — rotate → clip on the sphere
+→ project → resample → clip to the paper → path — plus the spherical
+measures (area, centroid, bounds, distance, length, contains, interpolate,
+graticule, fit, invert) and about twenty projections in five families.
+Observable is that library shown as pictures. nivo is a thin React skin
+over it: features + a projection by name + rotate/scale/translate + a colour
+scale joined by id + legend + tooltip — nothing there this plane does not
+already model as substance/style/rules. ThoughtSpot is the BI face: a TABLE
+with a geo-typed column (country, state, county, zip, lat/long), the names
+RESOLVED to shapes from built-in data, and four charts — area (choropleth),
+bubble, heatmap, earth (an orthographic with rotation, not a separate chart).
+
+**The thing worth copying is the stream, not the list of projections:** one
+pipeline every map passes through, so clipping and resampling are written
+once and no picture can skip them. That is the shape of this engine's text
+pipeline (bidi, shape, rasterise — one entry, two tiers) and it is why nivo
+can be thin. *Our* nivo is the math plane's substance/style/rule split,
+which exists.
+
+| step | what | where | status |
+|---|---|---|---|
+| GE0 | the sphere: projections, rotation, resampling, cutting at the seam and the horizon, fit, invert, the measures | engine, `geo_projection.zig` in `stz_geo.dll`; face `stzGeoProjection.ring` | **GE0a SHIPPED** below; GE0c (polygon fill across a cut) open |
+| GE1 | data: GeoJSON complete (holes and islands KEPT — DN24b drops both) and a TopoJSON reader, features as first-class objects | Ring, `stzGeoRegions.ring` rebuilt | open |
+| GE2 | pictures: DN24 choropleth rebuilt as a consumer of GE0/GE1 with base layers under it; then SYMBOL map, FLOW map, HEAT/hex-bin. The globe is a projection choice, not a domain | math plane domains | open |
+| GE3 | rules the gate owes: a choropleth on a projection that distorts area is a FINDING; symbols scale by AREA never radius; every map PRINTS its projection, parameters, source and vintage; north-up unless declared; a label sits in its region or is leadered | `stzPlasticRule` sets | open |
+| GE4 | names to shapes WITHOUT vendoring shapes: an ATLAS CONTRACT (`ShapeOf`, `PointOf`), a loader for the Natural Earth / world-atlas layout the caller downloads, ISO 3166 and name normalisation from the tables `stzLanguage` already holds. The kill line stands: boundary data carries a position on every disputed border, a vintage and a licence | Ring | open |
+| GE5 | hands: `RegionAt(x, y)` — invert, then contain on the sphere — for the GUI plane's tooltip and click | engine + GUI | open |
+
+**Order and value.** GE0 first, because every picture above it is only as
+honest as the sphere underneath and its properties are the most assertable
+things in the plane. GE1 is small. GE2 pays DN24 back immediately. GE4 is
+where "mimics ThoughtSpot" is decided, and it is data hygiene once GE0–2
+stand.
+
+## GE0a -- THE SPHERE: sixteen projections, the stream, and what a ruler can check (2026-09-12, SHIPPED)
+
+**Built in the engine, in `stz_geo.dll`**, which already held the haversine
+and the bearing: sixteen projections with their inverses (equirectangular,
+Mercator, transverse Mercator, cylindrical equal-area, Natural Earth, Equal
+Earth, Mollweide, sinusoidal, three conics, five azimuthals), d3's
+three-angle rotation, adaptive resampling along the great circle, cutting
+at the seam of a flat map and the horizon of a globe by bisection to the
+exact edge, the outline of the world on every projection, the graticule,
+Tissot's circle, fit-to-sphere and fit-to-points, and the measures:
+great-circle interpolation, distance, the signed area of a ring in
+steradians. Sixteen maps with graticule and Tissot lay out in **240 ms**.
+
+**The projection crosses the bridge as eleven numbers, not a handle**, so
+the Ring object that owns them is the single source of truth and nothing
+engine-side can go stale. `stzGeoProjection` is that object: `Rotate`,
+`CenterOn`, `Parallels`, `Scale`, `Translate`, `ClipAngle`, `Precision`,
+`FitToSphere`, `FitToPoints`, `Project`, `Invert`, `Line`, `Ring`,
+`Graticule`, `Outline`, `Arc`, and the `Draw*On(canvas)` verbs for the base
+map. A map that does not say how it was flattened asserts what it cannot
+check, so `Caption()` says it — name, parallels, rotation — and the examples
+print it under every map.
+
+**Five defects the pictures found, none of which any number would have:**
+
+1. **Transverse Mercator drew as a sheet of vertical stripes.** The closed
+   form (Snyder 8-5, 8-6) has an `atan2` whose branch cut runs through the
+   map. It is the Mercator of a sphere rolled ninety degrees now, the roll
+   composed into the ROTATION so the seam and the poles are the rolled ones
+   too — which is how d3 writes it, and the only form without a seam of its
+   own.
+2. **The conformal conic fitted to a pole at infinity** and shrank the whole
+   map to a sliver to make room for a point that does not exist. Its outline
+   stops at 80°, where the graticule stops, and says so.
+3. **The two full-sphere azimuthals painted their whole disc orange.** A
+   Tissot circle around the antipode of the centre is inside-out on the
+   paper: its inside is everything. Skipped for now, within its own radius
+   of the horizon; GE0c clips it.
+4. **The Mercator square drew unfilled at full size** and Natural Earth had
+   two pale bands. Not the projection: the ear-clipper in `gpu_scene.zig`
+   stopped on the outline's 361 collinear points along one polar edge — a
+   point on a triangle's edge counts as inside it, so no ear was ever found.
+   A collinear or duplicate vertex is dropped now instead of blocking; the
+   scene guard is unchanged at 70.
+5. **A ring around Tunis wide enough to pass near the pole drew a chord
+   across the top of Mercator.** Its points above 85°N have no image; the
+   first version skipped them and kept the piece open. "Visible" now means
+   *on the near side AND somewhere the projection can put it*, and the line
+   is cut at the edge by the same bisection that cuts it at a horizon.
+
+**And the guard's own wrong expectation, kept in its comment:** it asserted
+that a parallel given as two points stays two points on Equirectangular. It
+does not, and should not — two points make a GREAT CIRCLE, which rises north
+of both; only the equator is straight there. The section asserts that now,
+with the equator as its negative.
+
+**Named, not done:** the ellipsoid (every projection is spherical — every
+atlas, no survey); polygon FILL across a seam or a horizon (a ring is
+projected as the line it is, every visible edge lands where it belongs, a
+fill straddling a cut is wrong until GE0c); Albers-USA; Robinson; and the
+spherical `contains` (GE5). The area of a ring is answered for rings smaller
+than a hemisphere, which is every region a map colours, and the limit is
+written on the function.
+
+*Witness:* `base/test/graphics/geo_examples.ring` draws `geo_sheet.png` (the
+sixteen, with Tissot), `geo_routes.png` (nine great circles on a globe and on
+Natural Earth, the routes to Tokyo cut at the seam), `geo_rings.png` (rings
+of 2,000 km around Tunis, true on the azimuthal equidistant centred there
+and bent on Mercator) and `geo_europe.png` (a conformal conic fitted to
+eighteen capitals). *Guard:* `geo_sphere_narrated.ring`, **29 assertions** —
+every projection inverts its own forward on all sixteen and on a sphere
+turned three ways; north is up; the far side of a globe is not drawn and a
+line stops exactly on the horizon; the seam cuts a line in two at the edge;
+a two-point line bends into its great circle and the equator does not;
+equal-area draws equal true areas equal and Mercator does not; a small
+circle stays round on a conformal projection and flattens on a cylindrical
+equal-area; London–Paris is 344 km; the octant is an eighth of the sphere;
+a fit is tight and padded; the caption names the projection. Six Zig tests
+in the module itself. Gate section 121 discharges GE0.
+
 ## GR2e -- KASHIDA JUSTIFICATION: a line that fills a width (2026-09-12, SHIPPED)
 
 **The plan named justification "a later increment" on its first page and

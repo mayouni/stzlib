@@ -378,6 +378,7 @@ ok
     # a choropleth map is regions coloured by a value, with a legend (DN24)
     load "graph/stzChoroplethDiagram.ring"
     load "graph/stzGeoRegions.ring"
+    load "graph/stzGeoProjection.ring"
     load "graph/stzOrgChart.ring"
     # org-governance rules over the org chart's graph projection (phase 2b):
     # the compliance bases carry these -- loaded after stzOrgChart (its bases
