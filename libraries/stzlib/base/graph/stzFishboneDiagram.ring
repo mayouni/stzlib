@@ -82,11 +82,18 @@ func StzFishboneAngle()
 func StzFishboneRibLength()
 	return 26
 
+# THE ONE PLACE THE TYPE SIZE IS WRITTEN. The builder MEASURES a label to
+# space the picture and the style DRAWS it, and until 2026-09-12 each
+# carried its own number. Raising the type found them instantly: the
+# builder went on spacing names as if they were 11 points while the style
+# drew them at 17, so every name overlapped its neighbour by the
+# difference. Both read these now, and a size can no longer drift from the
+# thing it measures.
 func StzFishboneCauseSize()
-	return 12
+	return 18
 
 func StzFishboneCategorySize()
-	return 13
+	return 20
 
 #---------------------------------------------------------------------#
 #  THE SUBSTANCE, FROM THE EFFECT AND ITS CATEGORIES                   #
@@ -176,7 +183,7 @@ func StzFishboneFromCausesXT(poFont, pcEffect, paCategories)
 	_oS_.SetData("h", "x", _nHx0_ + _nHw_ / 2)
 	_oS_.SetData("h", "y", _nMid_)
 	_oS_.SetData("h", "w", _nHw_)
-	_oS_.SetData("h", "hh", 40)
+	_oS_.SetData("h", "hh", 60)
 	_oS_.SetData("h", "x0", _nHx0_)
 	_oS_.Declare("Spine", "s")
 	_oS_.Label("s", "")
@@ -274,7 +281,7 @@ func StzFishboneStyle(pnW, pnH)
 	_o_.ForAll("Effect h", [
 		[ :shape, "h.box", :rect, [ :cx = "h.x", :cy = "h.y", :w = "h.w", :h = "h.hh",
 		                            :fill = "primary", :stroke = "background", :strokeWidth = 1 ] ],
-		[ :shape, "h.text", :text, [ :cx = "h.x", :cy = "h.y", :size = 13,
+		[ :shape, "h.text", :text, [ :cx = "h.x", :cy = "h.y", :size = StzFishboneCategorySize(),
 		                             :fill = [ :on, "h.box" ] ] ],
 		[ :layer, "h.text", :above, "h.box" ] ])
 	# a bone leans from its end to the spine, with a head at the spine;
@@ -282,14 +289,14 @@ func StzFishboneStyle(pnW, pnH)
 	_o_.ForAll("Category c", [
 		[ :shape, "c.icon", :line, [ :x1 = "c.ex", :y1 = "c.ey", :x2 = "c.sx", :y2 = "c.sy",
 		                             :stroke = "neutral", :strokeWidth = 1.5, :arrow = "end" ] ],
-		[ :shape, "c.text", :text, [ :cx = "c.nx", :cy = "c.ny", :size = 13,
+		[ :shape, "c.text", :text, [ :cx = "c.nx", :cy = "c.ny", :size = StzFishboneCauseSize(),
 		                             :fill = [ :on, "paper" ] ] ] ])
 	# a rib is a level line off its bone toward the tail, and its cause's
 	# name stands at its free end
 	_o_.ForAll("Cause u", [
 		[ :shape, "u.icon", :line, [ :x1 = "u.qx", :y1 = "u.py", :x2 = "u.px", :y2 = "u.py",
 		                             :stroke = "neutral", :strokeWidth = 1 ] ],
-		[ :shape, "u.text", :text, [ :cx = "u.nx", :cy = "u.py", :size = 12,
+		[ :shape, "u.text", :text, [ :cx = "u.nx", :cy = "u.py", :size = 18,
 		                             :fill = [ :on, "paper" ] ] ] ])
 	# A FAULT IS DRAWN: an empty bone in the colour of a fault; a cause
 	# listed twice, and the effect among its own causes, named on it
@@ -305,13 +312,13 @@ func StzFishboneStyle(pnW, pnH)
 		[ :delete, "u.text" ],
 		[ :shape, "u.plate", :rect, [ :cx = "u.nx", :cy = "u.py", :w = "u.nw", :h = 18,
 		                              :fill = "danger", :stroke = "danger", :strokeWidth = 1 ] ],
-		[ :shape, "u.text", :text, [ :cx = "u.nx", :cy = "u.py", :size = 12, :fill = [ :on, "u.plate" ] ] ],
+		[ :shape, "u.text", :text, [ :cx = "u.nx", :cy = "u.py", :size = 18, :fill = [ :on, "u.plate" ] ] ],
 		[ :layer, "u.text", :above, "u.plate" ] ])
 	_o_.ForAllWhere("Cause u", "Circular(u)", [
 		[ :delete, "u.text" ],
 		[ :shape, "u.plate", :rect, [ :cx = "u.nx", :cy = "u.py", :w = "u.nw", :h = 18,
 		                              :fill = "danger", :stroke = "danger", :strokeWidth = 1 ] ],
-		[ :shape, "u.text", :text, [ :cx = "u.nx", :cy = "u.py", :size = 12, :fill = [ :on, "u.plate" ] ] ],
+		[ :shape, "u.text", :text, [ :cx = "u.nx", :cy = "u.py", :size = 18, :fill = [ :on, "u.plate" ] ] ],
 		[ :layer, "u.text", :above, "u.plate" ] ])
 	return _o_
 

@@ -92,11 +92,18 @@ func StzChoroplethDomain()
 func StzChoroplethMaxClasses()
 	return 9
 
+# THE HOUSE TYPE SIZE, and the paper that carries it. This drew names at
+# 12 points and values at 10 on a 760-wide sheet, which the Principal has
+# now called unreadable on three domains: "as usual, text is very small".
+# A catalogue picture is read at the DRAKON catalogue's scale, so the type
+# is raised to it and the paper and the legend column are widened to carry
+# it -- raising type on a sheet sized for smaller type only moves the
+# problem into the collisions the rules then report.
 func StzChoroplethWidth()
-	return 760
+	return 1180
 
 func StzChoroplethLegendWidth()
-	return 170
+	return 300
 
 func StzChoroplethMargin()
 	return 30
@@ -202,7 +209,7 @@ func StzChoroplethFromRegionsXT(pcQuantity, paRegions, paEdges, paPalette)
 		_oS_.SetData(_cR_, "class", 0)
 		_oS_.Declare("Value", "v" + _i_)
 		_oS_.SetData("v" + _i_, "cx", _oS_.DataOf(_cR_, "cx"))
-		_oS_.SetData("v" + _i_, "cy", _oS_.DataOf(_cR_, "cy") + 13)
+		_oS_.SetData("v" + _i_, "cy", _oS_.DataOf(_cR_, "cy") + 18)
 		if NOT isNumber(_a_[2])
 			_oS_.SetData(_cR_, "value", 0)
 			_oS_.Assert("NoData", [ _cR_ ])
@@ -251,7 +258,7 @@ func StzChoroplethFromRegionsXT(pcQuantity, paRegions, paEdges, paPalette)
 		if _bMis_  _cSay_ += "  (out of order)"  ok
 		_oS_.Label(_cL_, _cSay_)
 		_oS_.SetData(_cL_, "x", _nLx_ + 11)
-		_oS_.SetData(_cL_, "y", _nM_ + 24 + _nRow_ * 26)
+		_oS_.SetData(_cL_, "y", _nM_ + 30 + _nRow_ * 40)
 		_oS_.SetData(_cL_, "lo", paEdges[_c_])
 		_oS_.SetData(_cL_, "hi", paEdges[_c_ + 1])
 		_oS_.SetData(_cL_, "index", _c_)
@@ -271,24 +278,24 @@ func StzChoroplethFromRegionsXT(pcQuantity, paRegions, paEdges, paPalette)
 		_nRow_++
 		_oS_.Declare("Swatch", "labove")
 		_oS_.Label("labove", "above " + StzFactNumText(paEdges[_nE_]) + "  (no class)")
-		_ChExtraSwatch(_oS_, "labove", _nLx_ + 11, _nM_ + 24 + _nRow_ * 26, _nAbove_)
+		_ChExtraSwatch(_oS_, "labove", _nLx_ + 11, _nM_ + 30 + _nRow_ * 40, _nAbove_)
 		_oS_.Assert("OutsideSwatch", [ "labove" ])
 	ok
 	if _nBelow_ > 0
 		_nRow_++
 		_oS_.Declare("Swatch", "lbelow")
 		_oS_.Label("lbelow", "below " + StzFactNumText(paEdges[1]) + "  (no class)")
-		_ChExtraSwatch(_oS_, "lbelow", _nLx_ + 11, _nM_ + 24 + _nRow_ * 26, _nBelow_)
+		_ChExtraSwatch(_oS_, "lbelow", _nLx_ + 11, _nM_ + 30 + _nRow_ * 40, _nBelow_)
 		_oS_.Assert("OutsideSwatch", [ "lbelow" ])
 	ok
 	if _bNoData_
 		_nRow_++
 		_oS_.Declare("Swatch", "lnd")
 		_oS_.Label("lnd", "no data")
-		_ChExtraSwatch(_oS_, "lnd", _nLx_ + 11, _nM_ + 24 + _nRow_ * 26, 0)
+		_ChExtraSwatch(_oS_, "lnd", _nLx_ + 11, _nM_ + 30 + _nRow_ * 40, 0)
 		_oS_.Assert("NoDataSwatch", [ "lnd" ])
 	ok
-	_nLegH_ = _nM_ + 24 + (_nRow_ + 1) * 26 + 10
+	_nLegH_ = _nM_ + 30 + (_nRow_ + 1) * 40 + 10
 	if _nLegH_ > _nH_  _nH_ = _nLegH_  ok
 	_oS_.SetData("lg", "paperw", StzChoroplethWidth())
 	_oS_.SetData("lg", "paperh", _nH_)
@@ -377,62 +384,62 @@ func StzChoroplethStyle(pnW, pnH, paPalette, paCounts)
 		for _k_ = 1 to len(paCounts)
 			_o_.ForAllWhere("Region r", "C" + _c_ + "(r); N" + paCounts[_k_] + "(r)", [
 				[ :shape, "r.icon", :poly, _ChPolyProps(paCounts[_k_], paPalette[_c_], "background", 1.5) ],
-				[ :shape, "r.text", :text, [ :cx = "r.cx", :cy = "r.cy - 9", :size = 12, :fill = [ :on, "r.icon" ] ] ],
+				[ :shape, "r.text", :text, [ :cx = "r.cx", :cy = "r.cy - 15", :size = 20, :fill = [ :on, "r.icon" ] ] ],
 				[ :layer, "r.text", :above, "r.icon" ] ])
 		next
 		_o_.ForAllWhere("Swatch s", "K" + _c_ + "(s)", [
-			[ :shape, "s.icon", :rect, [ :cx = "s.x", :cy = "s.y", :w = 22, :h = 14,
+			[ :shape, "s.icon", :rect, [ :cx = "s.x", :cy = "s.y", :w = 34, :h = 22,
 			                             :fill = paPalette[_c_], :stroke = "neutral", :strokeWidth = 1 ] ],
-			[ :shape, "s.text", :text, [ :cx = "s.x + 18 + s.text.w / 2", :cy = "s.y", :size = 11, :fill = [ :on, "paper" ] ] ] ])
+			[ :shape, "s.text", :text, [ :cx = "s.x + 28 + s.text.w / 2", :cy = "s.y", :size = 17, :fill = [ :on, "paper" ] ] ] ])
 	next
 	# a region with no value is a pale grey hole, named as such
 	for _k_ = 1 to len(paCounts)
 		_o_.ForAllWhere("Region r", "NoData(r); N" + paCounts[_k_] + "(r)", [
 			[ :shape, "r.icon", :poly, _ChPolyProps(paCounts[_k_], [ :alpha, "neutral", 0.18 ], "background", 1.5) ],
-			[ :shape, "r.text", :text, [ :cx = "r.cx", :cy = "r.cy - 9", :size = 12, :fill = [ :on, "paper" ] ] ],
+			[ :shape, "r.text", :text, [ :cx = "r.cx", :cy = "r.cy - 15", :size = 20, :fill = [ :on, "paper" ] ] ],
 			[ :layer, "r.text", :above, "r.icon" ] ])
 	next
 	_o_.ForAllWhere("Swatch s", "OutsideSwatch(s)", [
-		[ :shape, "s.icon", :rect, [ :cx = "s.x", :cy = "s.y", :w = 22, :h = 14,
+		[ :shape, "s.icon", :rect, [ :cx = "s.x", :cy = "s.y", :w = 34, :h = 22,
 		                             :fill = [ :alpha, "danger", 0.35 ], :stroke = "danger", :strokeWidth = 2 ] ],
-		[ :shape, "s.text", :text, [ :cx = "s.x + 18 + s.text.w / 2", :cy = "s.y", :size = 11, :fill = [ :on, "paper" ] ] ] ])
+		[ :shape, "s.text", :text, [ :cx = "s.x + 28 + s.text.w / 2", :cy = "s.y", :size = 17, :fill = [ :on, "paper" ] ] ] ])
 	_o_.ForAllWhere("Swatch s", "NoDataSwatch(s)", [
-		[ :shape, "s.icon", :rect, [ :cx = "s.x", :cy = "s.y", :w = 22, :h = 14,
+		[ :shape, "s.icon", :rect, [ :cx = "s.x", :cy = "s.y", :w = 34, :h = 22,
 		                             :fill = [ :alpha, "neutral", 0.18 ], :stroke = "neutral", :strokeWidth = 1 ] ],
-		[ :shape, "s.text", :text, [ :cx = "s.x + 18 + s.text.w / 2", :cy = "s.y", :size = 11, :fill = [ :on, "paper" ] ] ] ])
+		[ :shape, "s.text", :text, [ :cx = "s.x + 28 + s.text.w / 2", :cy = "s.y", :size = 17, :fill = [ :on, "paper" ] ] ] ])
 	# THE VALUE UNDER THE NAME, IN WHICHEVER OF BLACK AND WHITE READS ON ITS
 	# CLASS'S FILL. The value is its own object and cannot name the
 	# region's polygon, so it was painted for the paper -- and the gate
 	# read "310" in black on the deepest shade, under 3:1 in both themes.
 	# The class's colour is a literal here, so the choice is made here.
 	_o_.ForAll("Value v", [
-		[ :shape, "v.text", :text, [ :cx = "v.cx", :cy = "v.cy", :size = 10, :fill = [ :on, "paper" ] ] ] ])
+		[ :shape, "v.text", :text, [ :cx = "v.cx", :cy = "v.cy", :size = 16, :fill = [ :on, "paper" ] ] ] ])
 	for _c_ = 1 to _nC_
 		_cInk_ = "#000000"
 		if StzIsDarkColor(paPalette[_c_])  _cInk_ = "#FFFFFF"  ok
 		_o_.ForAllWhere("Value v", "V" + _c_ + "(v)", [
 			[ :delete, "v.text" ],
-			[ :shape, "v.text", :text, [ :cx = "v.cx", :cy = "v.cy", :size = 10, :fill = _cInk_ ] ] ])
+			[ :shape, "v.text", :text, [ :cx = "v.cx", :cy = "v.cy", :size = 16, :fill = _cInk_ ] ] ])
 	next
 	# the legend's title
 	_o_.ForAll("Legend g", [
-		[ :shape, "g.text", :text, [ :cx = "g.x + g.text.w / 2", :cy = "g.y + 8", :size = 12, :fill = [ :on, "paper" ] ] ] ])
+		[ :shape, "g.text", :text, [ :cx = "g.x + g.text.w / 2", :cy = "g.y + 12", :size = 20, :fill = [ :on, "paper" ] ] ] ])
 	# A FAULT IS DRAWN: a region beyond the classes in the colour of a
 	# fault; a class no region falls in, and a swatch lighter than the
 	# one before it, rimmed in that colour
 	for _k_ = 1 to len(paCounts)
 		_o_.ForAllWhere("Region r", "Outside(r); N" + paCounts[_k_] + "(r)", [
 			[ :shape, "r.icon", :poly, _ChPolyProps(paCounts[_k_], [ :alpha, "danger", 0.35 ], "danger", 2) ],
-			[ :shape, "r.text", :text, [ :cx = "r.cx", :cy = "r.cy - 9", :size = 12, :fill = [ :on, "paper" ] ] ],
+			[ :shape, "r.text", :text, [ :cx = "r.cx", :cy = "r.cy - 15", :size = 20, :fill = [ :on, "paper" ] ] ],
 			[ :layer, "r.text", :above, "r.icon" ] ])
 	next
 	_o_.ForAllWhere("Swatch s", "Empty(s)", [
 		[ :delete, "s.icon" ],
-		[ :shape, "s.icon", :rect, [ :cx = "s.x", :cy = "s.y", :w = 22, :h = 14,
+		[ :shape, "s.icon", :rect, [ :cx = "s.x", :cy = "s.y", :w = 34, :h = 22,
 		                             :fill = "background", :stroke = "danger", :strokeWidth = 2 ] ] ])
 	_o_.ForAllWhere("Swatch s", "Misordered(s)", [
 		[ :delete, "s.icon" ],
-		[ :shape, "s.icon", :rect, [ :cx = "s.x", :cy = "s.y", :w = 22, :h = 14,
+		[ :shape, "s.icon", :rect, [ :cx = "s.x", :cy = "s.y", :w = 34, :h = 22,
 		                             :fill = "background", :stroke = "danger", :strokeWidth = 2 ] ] ])
 	return _o_
 
