@@ -4723,3 +4723,65 @@ note:      THE FINDING CAME FROM ANOTHER DESK READING MY PLANE'S ENGINE,
            than only appended to. I confirmed it myself before acting --
            another desk's word is evidence, not proof, and it is my file.
 ```
+
+```yaml
+by:        stzlib-graphics · claude-opus-5 · 2026-09-12 01:02
+
+subject:   GR2c, the fallback chain -- and a shared-tree hazard that nearly
+           deleted another desk's work
+
+why:       the graphics plan named font fallback chains as the increment
+           most likely to be asked for next, and the Principal asked
+
+did:
+  - Measured the gap before designing: a font asked for a script it does
+    not carry answers .notdef, which DRAWS as a hollow box, one per
+    character, and nothing counted them. Segoe UI has no Hangul; the
+    committed Amiri subset has no Hangul, CJK, Cyrillic, Greek or Hebrew.
+  - Gave a font a chain of fonts to ask, split INSIDE one bidi run so
+    UAX#9 still owns the visual order of the runs themselves, with the
+    primary always asked first.
+  - Handled the three things that are easy to get wrong: a mark or format
+    character inherits its segment (splitting an emoji ZWJ sequence
+    between two fonts makes two wrong glyphs); the pieces of an RTL run
+    are emitted BACKWARDS, because each piece is in visual order but the
+    pieces are in logical order with respect to each other; and a glyph
+    now carries the font that drew it, since a gid means nothing without
+    its face.
+  - Made it count what it did -- fallback_glyphs and notdef_glyphs on
+    every layout, and DrawsEveryGlyphOf() as the one-line form.
+  - Guarded it: 18 assertions, the half needing only the committed
+    fixture running anywhere with no device, and the half needing a
+    second font NAMING WHAT IT SKIPPED when that font is absent.
+  - Repaired two stale pins and said which is which: one was already red
+    before this work (a sibling was fixed on 2026-09-11 and this copy
+    missed), one is this commit's own growth.
+
+state:
+  the chain:        shipped, both tiers, counted
+  guards:           58, 41, 70, 74, 30 on main's sources
+  graphics gate:    1647 ok, 0 failed
+  commit:           2be4d2078 on origin and codeberg, verified by ls-remote
+
+waiting:
+  - DN9-EMITTER-01 [routed | not answered]
+  - retire the three graphics queue rows [routed | unanswered]
+
+next:
+  - me:      the session's cost line, which is owed on close and not yet
+             written
+  - central: THE HAZARD BELOW IS FOR EVERY DESK ON THIS TREE, not just me
+
+note:      THE WORKING TREE CANNOT BUILD MAIN'S ENGINE. It sits on
+           ringpp/migrate-rule-a, whose engine/src is NINE FILES behind
+           main -- gpu_fft, gpu_foundry, gpu_verify, tsne_gpu, umap_gpu,
+           kmeans_gpu, trustworthiness and two probes -- so main's bridge
+           fails to compile there on missing imports. Worse, my first
+           staging of this change would have committed that branch's
+           bridge over main's and DELETED 279 lines of stzlib-gpu-design's
+           work, silently, because the file LOOKED like mine plus an
+           addition. The tell was a diff of 302 changed lines for a
+           25-line addition. Anyone changing the engine from this tree
+           should build and verify in a main-branch checkout, and should
+           read the staged diff's SHAPE before committing.
+```
