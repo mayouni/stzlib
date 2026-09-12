@@ -4062,6 +4062,81 @@ no scale bar, no coastline beyond the regions.
 *Guard:* §118, 30 assertions; §91 grew by two pictures. Catalogue:
 `gg_math_catalogue.ring`, scenes 51 and 52.
 
+## DN24b — REAL BOUNDARIES, WITHOUT AN ATLAS (2026-09-12, SHIPPED)
+
+**The Principal asked whether the choropleth needs a vendored boundary
+asset of a few hundred kilobytes.** The geometry is indeed cheap — a
+shoelace centroid, a class lookup, one scale factor — and the answer to
+the asset is **no, and the refusal stands**. What was true underneath the
+question is that the library had pushed the whole cost of getting real
+boundaries onto its caller, and that is what this closes.
+
+**What shipped.** `stzGeoRegions.ring`: a GeoJSON FeatureCollection
+becomes the `[ name, value, [x1, y1, …] ]` regions the builder already
+takes, with the name and value read from each feature's own properties by
+keys the caller names, because no two datasets agree on what to call
+either. It vendors no boundary, names no country, and carries no opinion
+about where a border lies.
+
+**A projection lives here after all, and the reason is not convenience.**
+A choropleth encodes a quantity as the colour of an AREA, so a projection
+that distorts area makes the picture argue against its own legend — on
+Mercator, Greenland reads as large as Africa while carrying a fourteenth
+of its people. The default is therefore **Lambert cylindrical equal-area**,
+and the guard asserts the property that matters: two regions of equal true
+area at latitudes twenty degrees apart draw the **same size**, while the
+plain projection draws them at sizes differing by more than half. The
+standard parallel is taken from the data's own middle latitude, since a
+map left at the equator is area-true and three times too wide at fifty
+north.
+
+**Two defects a PICTURE found, and no test of numbers would have.** The
+first projection wrote x in degrees and y as a sine — two axes in
+different units — so a country twelve degrees wide and six tall drew 184
+times wider than it was tall: every polygon a two-pixel hairline, every
+name colliding, six rule findings and nothing recognisable. The second was
+subtler: the standard parallel was averaged over EVERY feature in the
+file, so one nameless feature near the equator, which the reader skips and
+draws nothing for, pulled a country at fifty north down to a parallel of
+twenty-six. The guard now holds both.
+
+**Said plainly and left out.** A Polygon contributes its outer ring and a
+MultiPolygon the outer ring of its largest part: holes are dropped, and so
+are the smaller islands, because the domain draws one simple polygon per
+region and a reader is better served by a mainland than by a shape that
+closes through its own holes. Skipped features are counted and the count
+is readable, so a short map is known before it is looked at.
+
+### The vendoring question, answered rather than deferred
+
+**No asset is vendored, and the weight is the least of the reasons.** A
+world outline at the coarsest usable scale is a few hundred kilobytes, as
+the Principal said, and that alone would be arguable either way. The costs
+that decide it are the ones a file's size does not show:
+
+- **A boundary dataset carries a position.** Ship one and the library has
+  an opinion on every disputed border in it, restated in every picture
+  drawn from it, in a plane whose whole doctrine is that a picture must
+  not assert what it cannot check.
+- **It carries a vintage.** Borders and names change; a vendored file is
+  right on the day it lands and silently wrong afterwards, with nothing in
+  the plane able to say which.
+- **It carries a licence and an attribution duty** that the consumer, not
+  this library, would have to honour in whatever they publish.
+
+None of those apply to a font subset, which is why one is committed and
+this is not. **The kill line, written now rather than after the argument:
+this plane vendors boundary data only if a caller demonstrates a workload
+that cannot supply its own** — and the reader shipped here is what makes
+that demonstration unlikely, because supplying your own is now three lines.
+
+*Guard:* §120, 11 assertions — the FeatureCollection read, the skipped
+feature counted, the MultiPolygon's largest part, equal area proved equal
+with the plain projection as its negative sibling, the two axes sharing a
+unit, the standard parallel from the data and from the caller, the refusal
+by name, and a map built from GeoJSON passing every rule the domain has.
+Gate 1658 ok, 0 failed.
+
 ## PX — THE GATE'S DIET: the same 1,628 assertions in two thirds of the time (2026-09-11, SHIPPED)
 
 **The one gate had grown to ten minutes** — 388 s of sections for 1,628
