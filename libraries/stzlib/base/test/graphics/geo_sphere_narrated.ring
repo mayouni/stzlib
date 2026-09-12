@@ -161,6 +161,85 @@ next
 chk("fitted to four places, all four land inside the box", bIn)
 
 ? ""
+? "-- 10. A RING THE MAP CUT STILL CLOSES, so it can be filled (GE0c) --"
+# Until GE0c a ring across the antimeridian, or half behind a globe, came
+# back as loose pieces and could only be stroked. The pieces are rejoined
+# along the map's own edge now -- and the edge is the same object in both
+# cases, the horizon of a globe or the outline of a flat map, so one walk
+# serves both.
+oCut = new stzGeoProjection(:NaturalEarth)
+oCut.FitToSphere(800, 400, 0)
+aSeamRing = _LonBox(150, -30, -150, 20)
+aOpen = oCut.Ring(aSeamRing)
+aShut = oCut.FilledRing(aSeamRing)
+chk("a ring across the seam comes back as TWO POLYGONS when it is filled",
+    len(aShut) = 2)
+chk("NEGATIVE: as a LINE the same ring is three open pieces and none of them " +
+    "closes -- a line has ends, which is exactly what the fill had to repair",
+    len(aOpen) = 3 and NOT _Closes(aOpen[1]))
+chk("...and each polygon CLOSES: its last point is back at its first",
+    _Closes(aShut[1]) and _Closes(aShut[2]))
+chk("...each against one seam, so together they hold the ring's whole width",
+    _TouchesLeft(aShut, oCut) and _TouchesRight(aShut, oCut))
+
+# THE ANTARCTIC CASE, which is the one that makes this hard: a ring around
+# a pole leaves on one seam and returns on the other, and the walk between
+# them must go along the BOTTOM of the map rather than straight across it.
+aCapRing = _LatCap(-60, 48)
+aCapShut = oCut.FilledRing(aCapRing)
+chk("a ring around the south pole comes back as ONE polygon that runs along " +
+    "the bottom of the map -- the walk goes round the pole, not across the middle",
+    len(aCapShut) = 1 and _ReachesBottom(aCapShut[1], oCut))
+
+# ON A GLOBE the same ring is cut by the horizon instead, and the rejoin
+# walks the horizon arc.
+oGl = new stzGeoProjection(:Orthographic)
+oGl.CenterOnQ(150, 0).FitToSphere(400, 400, 0)
+chk("on a globe centred on it, the same seam ring is ONE closed polygon",
+    len(oGl.FilledRing(aSeamRing)) = 1 and _Closes(oGl.FilledRing(aSeamRing)[1]))
+oNorth = new stzGeoProjection(:Orthographic)
+oNorth.CenterOnQ(0, 90).FitToSphere(400, 400, 0)
+chk("NEGATIVE: seen from the north pole the southern cap is wholly behind the " +
+    "globe and NOTHING is drawn -- not the whole disc",
+    len(oNorth.FilledRing(aCapRing)) = 0)
+oSouth = new stzGeoProjection(:Orthographic)
+oSouth.CenterOnQ(0, -90).FitToSphere(400, 400, 0)
+chk("...while from the south pole the same cap is one polygon covering a QUARTER " +
+    "of the globe's disc, which is what a 30-degree cap is on an orthographic",
+    len(oSouth.FilledRing(aCapRing)) = 1 and
+    fabs(_PolyArea(oSouth.FilledRing(aCapRing)[1]) / (3.14159 * 200 * 200) - 0.25) < 0.02)
+
+# AND THE RING THAT SWALLOWS THE WHOLE VIEW. A globe inside a ring drawn
+# round everything it faces has no crossings at all, and the answer is the
+# whole disc rather than nothing.
+# INSIDE IS THE SMALLER OF THE TWO REGIONS A RING BOUNDS -- parity, not
+# winding. The first draft of this section asked for the opposite case, a
+# ring beyond the horizon that swallows the whole visible world, and the
+# engine carried a branch for it. Under parity that case cannot arise: a
+# ring wholly on the far side bounds its small region over there too. The
+# branch was unreachable and is gone; what follows is the rule that
+# replaced it, asserted both ways.
+aFar = StzGeoCircle(0, 0, 120, 72)
+chk("a circle of 120 degrees about a place is the SAME CURVE as one of 60 " +
+    "degrees about its antipode, and the small side is the one that is inside",
+    NOT StzGeoRingContains(aFar, 0, 0) and StzGeoRingContains(aFar, 180, 0))
+chk("NEGATIVE: seen from the place it encircles, that ring draws nothing -- it " +
+    "is wholly beyond the horizon and holds nothing this globe can show",
+    len(oWideView().FilledRing(aFar)) = 0)
+chk("...and seen from the antipode it is one polygon, because there the small " +
+    "side is what faces us",
+    len(oFarView().FilledRing(aFar)) = 1)
+
+# The containment this rests on is its own answer, and GE5 will ask it of
+# a click.
+chk("a place inside a ring is inside it, and one outside is not",
+    StzGeoRingContains(aCapRing, 0, -85) and NOT StzGeoRingContains(aCapRing, 0, 85) and
+    NOT StzGeoRingContains(aCapRing, 0, 0))
+chk("NEGATIVE: a ring that wraps the antimeridian does not swallow the far " +
+    "side -- the trap that filled a whole globe blue",
+    NOT StzGeoRingContains(aCapRing, 137, 42))
+
+? ""
 ? "-- 10. A map names its projection -- it asserts nothing it cannot say --"
 chk("the caption carries the name, the parallels and the rotation",
     StzFindFirst("ConicConformal", oCC.Caption()) > 0 and StzFindFirst("40N", oCC.Caption()) > 0 and
@@ -256,3 +335,62 @@ func _Roundness paXY
 	if _w_ = 0 or _h_ = 0  return 0  ok
 	if _h_ > _w_  return _w_ / _h_  ok
 	return _h_ / _w_
+
+# a box in lon/lat that may run the long way round, densified
+func _LonBox pnL0, pnF0, pnL1, pnF1
+	_w_ = pnL1 - pnL0
+	if _w_ < 0  _w_ += 360  ok
+	_a_ = []
+	for _i_ = 0 to 24
+		_l_ = pnL0 + _w_ * _i_ / 24
+		if _l_ > 180  _l_ -= 360  ok
+		_a_ + _l_  _a_ + pnF0
+	next
+	for _i_ = 0 to 24
+		_l_ = pnL1 - _w_ * _i_ / 24
+		if _l_ < -180  _l_ += 360  ok
+		_a_ + _l_  _a_ + pnF1
+	next
+	return _a_
+
+# everything on one side of a parallel, as a closed ring
+func _LatCap pnLat, pnSteps
+	_a_ = []
+	for _i_ = 0 to pnSteps - 1
+		_a_ + (-180 + 360 * _i_ / pnSteps)
+		_a_ + pnLat
+	next
+	return _a_
+
+func _Closes paXY
+	_n_ = len(paXY)
+	return sqrt(pow(paXY[1] - paXY[_n_ - 1], 2) + pow(paXY[2] - paXY[_n_], 2)) < 2.5
+
+func _TouchesLeft paPolys, poP
+	_b_ = _Bounds(poP.Outline()[1])
+	for _i_ = 1 to len(paPolys)
+		if _Bounds(paPolys[_i_])[1] - _b_[1] < 3  return TRUE  ok
+	next
+	return FALSE
+
+func _TouchesRight paPolys, poP
+	_b_ = _Bounds(poP.Outline()[1])
+	for _i_ = 1 to len(paPolys)
+		if _b_[3] - _Bounds(paPolys[_i_])[3] < 3  return TRUE  ok
+	next
+	return FALSE
+
+func _ReachesBottom paXY, poP
+	return _Bounds(poP.Outline()[1])[4] - _Bounds(paXY)[4] < 3
+
+func oWideView
+	_o_ = new stzGeoProjection(:Orthographic)
+	_o_.CenterOn(0, 0)
+	_o_.FitToSphere(400, 400, 0)
+	return _o_
+
+func oFarView
+	_o_ = new stzGeoProjection(:Orthographic)
+	_o_.CenterOn(180, 0)
+	_o_.FitToSphere(400, 400, 0)
+	return _o_

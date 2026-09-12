@@ -863,6 +863,22 @@ fn pointInTri(px: f32, py: f32, ax: f32, ay: f32, bx: f32, by: f32, cx: f32, cy:
     return !(has_neg and has_pos);
 }
 
+/// STRICTLY inside, boundary excluded -- which is what an ear test needs
+/// once a polygon is allowed to touch itself.
+///
+/// A RING WITH A HOLE BRIDGED INTO IT touches itself on purpose: the
+/// channel cut from the hole to the outer edge is walked once each way, so
+/// two vertices of the ring sit exactly on top of two others. With the
+/// inclusive test those duplicates read as lying inside every ear beside
+/// them, no ear is ever found, and a country with a lake in it fills as two
+/// stray triangles -- which is what the first GE1 picture drew.
+fn strictlyInTri(px: f32, py: f32, ax: f32, ay: f32, bx: f32, by: f32, cx: f32, cy: f32) bool {
+    const d1 = cross3(ax, ay, bx, by, px, py);
+    const d2 = cross3(bx, by, cx, cy, px, py);
+    const d3 = cross3(cx, cy, ax, ay, px, py);
+    return (d1 > 0 and d2 > 0 and d3 > 0) or (d1 < 0 and d2 < 0 and d3 < 0);
+}
+
 /// Ear clipping for a SIMPLE polygon. A self-intersecting outline runs out
 /// of ears and stops -- an honest partial fill rather than a garbage one
 /// (that case is the PlutoVG kill line, recorded in the plan).
@@ -916,7 +932,7 @@ fn earClip(pts: []const f32, out: *std.ArrayList(u32)) !void {
             for (0..m) |k| {
                 const ip = idx[k];
                 if (ip == ia or ip == ib or ip == ic) continue;
-                if (pointInTri(pts[ip * 2], pts[ip * 2 + 1], ax, ay, bx, by, cx, cy)) {
+                if (strictlyInTri(pts[ip * 2], pts[ip * 2 + 1], ax, ay, bx, by, cx, cy)) {
                     is_ear = false;
                     break;
                 }

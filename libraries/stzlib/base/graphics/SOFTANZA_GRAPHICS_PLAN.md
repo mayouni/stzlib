@@ -510,8 +510,8 @@ which exists.
 
 | step | what | where | status |
 |---|---|---|---|
-| GE0 | the sphere: projections, rotation, resampling, cutting at the seam and the horizon, fit, invert, the measures | engine, `geo_projection.zig` in `stz_geo.dll`; face `stzGeoProjection.ring` | **GE0a SHIPPED** below; GE0c (polygon fill across a cut) open |
-| GE1 | data: GeoJSON complete (holes and islands KEPT — DN24b drops both) and a TopoJSON reader, features as first-class objects | Ring, `stzGeoRegions.ring` rebuilt | open |
+| GE0 | the sphere: projections, rotation, resampling, cutting at the seam and the horizon, fit, invert, the measures | engine, `geo_projection.zig` in `stz_geo.dll`; face `stzGeoProjection.ring` | **GE0a and GE0c SHIPPED** below |
+| GE1 | data: GeoJSON complete (holes and islands KEPT — DN24b drops both) and a TopoJSON reader, features as first-class objects | Ring, `stzGeoFeatures.ring` | **SHIPPED** below |
 | GE2 | pictures: DN24 choropleth rebuilt as a consumer of GE0/GE1 with base layers under it; then SYMBOL map, FLOW map, HEAT/hex-bin. The globe is a projection choice, not a domain | math plane domains | open |
 | GE3 | rules the gate owes: a choropleth on a projection that distorts area is a FINDING; symbols scale by AREA never radius; every map PRINTS its projection, parameters, source and vintage; north-up unless declared; a label sits in its region or is leadered | `stzPlasticRule` sets | open |
 | GE4 | names to shapes WITHOUT vendoring shapes: an ATLAS CONTRACT (`ShapeOf`, `PointOf`), a loader for the Natural Earth / world-atlas layout the caller downloads, ISO 3166 and name normalisation from the tables `stzLanguage` already holds. The kill line stands: boundary data carries a position on every disputed border, a vintage and a licence | Ring | open |
@@ -522,6 +522,119 @@ honest as the sphere underneath and its properties are the most assertable
 things in the plane. GE1 is small. GE2 pays DN24 back immediately. GE4 is
 where "mimics ThoughtSpot" is decided, and it is data hygiene once GE0–2
 stand.
+
+## GE0c -- A RING THE MAP CUT STILL CLOSES (2026-09-12, SHIPPED)
+
+GE0a left this named: a region across the antimeridian, or half behind a
+globe, came back as loose pieces and could only be STROKED. The pieces are
+rejoined now, along the edge they were cut on — out of the map at one
+latitude and back in at another, with the map's own border walked between.
+
+**The edge is the same object in both cases**, which is what lets one walk
+serve both: for a globe it is the horizon circle, for a flat map it is the
+outline — two seams and two pole edges. Each is parameterised by one number
+in [0, 1) with the drawable side on the LEFT, so the rejoin does not know
+or care which it has.
+
+**And this is where Antarctica lives.** A ring around the south pole crosses
+the seam, leaves on one side and returns on the other, and the fill is only
+right if the walk between them goes along the BOTTOM of the map instead of
+straight across it. It does, because the pole edges are part of the
+parameterisation — so the continent fills to the bottom corners the way an
+atlas draws it.
+
+**THE RULE IS PARITY, AND A BRANCH DIED OF IT.** "Inside" here is the
+smaller of the two regions a ring bounds, counted by crossings of the
+meridian through the place. The first version also carried a branch for a
+ring lying entirely beyond the horizon that nevertheless swallows the whole
+visible world — and under parity that cannot happen: a ring wholly on the
+far side bounds its small region over there too. The branch was unreachable
+and is gone. *The limit that follows is named rather than hidden:* a region
+LARGER than a hemisphere cannot be written as one ring here. GeoJSON's own
+rule would express it by winding — interior on the left — and real boundary
+files disagree about winding so often that this normalises it away before
+doing anything else.
+
+**Two defects the pictures found**, and one of them was in the test that was
+meant to catch the other:
+
+1. The containment test wrapped each vertex's longitude into (−π, π] and
+   asked whether consecutive ones straddled zero — which says an edge
+   running the short way ACROSS the antimeridian crosses the place's
+   meridian, because both ends wrap to opposite signs. A globe seen from the
+   north pole then reported the Antarctic cap as containing the pole and
+   **filled the whole world blue.** The edge decides now: the place's
+   longitude must lie along the step the edge actually takes, and the
+   crossing latitude is the great circle's, not a straight line in
+   longitude.
+2. Its interval was strict, so a vertex sitting exactly on the meridian was
+   counted twice or never. A cap round a pole has a vertex on every round
+   longitude, so the crossing was missed entirely and **the pole read as
+   outside its own cap.** Half-open now.
+
+*Guard:* `geo_sphere_narrated.ring` §10, thirteen more assertions — a seam
+ring is two polygons that close and touch both seams while the same ring as
+a LINE is three open pieces; the polar cap is one polygon reaching the
+bottom of the map; on a globe centred on it the seam ring is one polygon;
+from the north pole the southern cap draws NOTHING, and from the south pole
+it is a quarter of the disc, which is what a 30-degree cap is on an
+orthographic. Guard 42 ok.
+
+## GE1 -- BOUNDARY DATA, WHOLE: GeoJSON and TopoJSON (2026-09-12, SHIPPED)
+
+DN24b's reader takes a feature's largest ring and drops the rest: a country
+becomes its mainland, its islands vanish, and a lake inside it is filled in
+as land. That was the right first step and it is not a data layer.
+
+**`stzGeoFeatures` reads the whole geometry** — every part, every hole,
+properties, ids — from a GeoJSON FeatureCollection, Feature or bare
+geometry, and from a **TopoJSON topology**, which is what every public atlas
+actually ships. TopoJSON stores each shared border ONCE, as an ARC, and
+writes a country as the list of arcs that bound it, a negative index meaning
+the arc walked backwards; coordinates are delta-encoded on a quantised grid.
+A world at screen scale is about a fifth the size of the same GeoJSON, and
+neighbours' borders cannot drift apart because there is only one copy.
+
+**The property worth having of two readers is that they cannot disagree**,
+and the fixtures are built to hold them to it: the same two invented
+countries written both ways, compared ring by ring, point by point. Both
+readers CLOSE every ring, because GeoJSON repeats the first point at the end
+and TopoJSON does not — a reader that passed each through untouched would
+answer two different lists for one border.
+
+**A HOLE IS BRIDGED, NOT PAINTED OVER.** `FilledPolygon` cuts a zero-width
+channel from each hole to the outer ring, so the two become one simple ring
+the filler already handles, its inside still inside and the hole still out.
+Where the map cut either ring the hole is dropped and **counted**
+(`HolesDropped()`), because a bridge across a piece that ends at the map's
+edge would run outside the picture — that case is a lake on the
+antimeridian, and it is named rather than guessed at.
+
+**Two defects, both in the filler and both found by looking:**
+
+1. A country with a lake filled as **two stray triangles**. The bridge
+   channel is walked once each way, so two vertices of the ring sit exactly
+   on top of two others — and the ear test counted a point ON a triangle's
+   boundary as inside it, so no ear was ever found. The test is strict now.
+   *This is the second time this month the ear clipper has stalled on a
+   degenerate vertex rather than on a hard polygon.*
+2. The bridge channel then **showed as a white scratch** from the lake to
+   the coast, because the outline followed the bridged ring. The fill is the
+   bridged polygon and the stroke is the rings, each on its own.
+
+*Guard:* `geo_features_narrated.ring`, **20 assertions** — both formats give
+the same two features and skip nothing; the island and the hole are kept; a
+place in the lake belongs to nobody while the land around it belongs to
+Arda; every ring is identical from both files to the sixth decimal; the
+topology holds five arcs for two countries, a hole and an island; the holed
+polygon comes back as one ring, longer than its outer edge and enclosing
+less; a part with no hole is not lengthened; and a file read here becomes
+the regions DN24's own builder takes. Gate §122 discharges GE1.
+
+*Fixtures:* `base/test/graphics/fixtures/two_countries.{geojson,topojson}`,
+generated, with a README saying plainly that nothing in them is a real place
+— **the kill line on vendored boundary data stands, and a guard is not a
+way round it.**
 
 ## GE0a -- THE SPHERE: sixteen projections, the stream, and what a ruler can check (2026-09-12, SHIPPED)
 

@@ -119,6 +119,68 @@ fn ring_GeoProjectRing(p: *anyopaque) callconv(.c) void {
     retPieces(p, &pieces);
 }
 
+// GeoProjectRingFilled(aProj, aLonLat) -> CLOSED polygons: where the map
+// cut the ring, its pieces are rejoined along the map's own edge, so each
+// answer can be filled (GE0c)
+fn ring_GeoProjectRingFilled(p: *anyopaque) callconv(.c) void {
+    const pr = readProjection(p, 1) orelse return retEmpty(p);
+    const pts = readPoints(p, 2) orelse return retEmpty(p);
+    defer alloc.free(pts);
+    var pieces = gp.Pieces{};
+    defer pieces.deinit();
+    gp.projectRingFilled(&pr, pts, &pieces) catch return retEmpty(p);
+    retPieces(p, &pieces);
+}
+
+// GeoRingContains(aLonLat, nLon, nLat) -> 1 when the place is inside the
+// ring on the SPHERE
+fn ring_GeoRingContains(p: *anyopaque) callconv(.c) void {
+    const pts = readPoints(p, 1) orelse return rn(p, 0);
+    defer alloc.free(pts);
+    rn(p, if (gp.ringContains(pts, gn(p, 2), gn(p, 3))) 1 else 0);
+}
+
+// GeoProjectPolygonFilled(aProj, aRings) -> CLOSED polygons. aRings is a
+// list of flat [lon,lat,...] rings: the first is the outer edge and every
+// one after it is a HOLE, bridged into it (GE1). GeoHolesDropped() says
+// how many holes the last call could not give -- a cut ring cannot carry
+// a bridge, and that is counted rather than hidden.
+fn ring_GeoProjectPolygonFilled(p: *anyopaque) callconv(.c) void {
+    const pr = readProjection(p, 1) orelse return retEmpty(p);
+    if (R.il(p, 2) == 0) return retEmpty(p);
+    const lst = R.gl(p, 2) orelse return retEmpty(p);
+    const n: usize = @intCast(R.ringListSize(lst));
+    if (n == 0) return retEmpty(p);
+
+    var rings = alloc.alloc([]f64, n) catch return retEmpty(p);
+    var made: usize = 0;
+    defer {
+        for (0..made) |i| alloc.free(rings[i]);
+        alloc.free(rings);
+    }
+    for (0..n) |i| {
+        const item = R.ring_list_getlist_gc(null, lst, @intCast(i + 1)) orelse {
+            rings[i] = alloc.alloc(f64, 0) catch return retEmpty(p);
+            made += 1;
+            continue;
+        };
+        rings[i] = readF64s(item) orelse (alloc.alloc(f64, 0) catch return retEmpty(p));
+        made += 1;
+    }
+    const view = alloc.alloc([]const f64, n) catch return retEmpty(p);
+    defer alloc.free(view);
+    for (0..n) |i| view[i] = rings[i];
+
+    var pieces = gp.Pieces{};
+    defer pieces.deinit();
+    gp.projectPolygonFilled(&pr, view, &pieces) catch return retEmpty(p);
+    retPieces(p, &pieces);
+}
+
+fn ring_GeoHolesDropped(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gp.holesDropped()));
+}
+
 // GeoGraticule(aProj, nStepDeg) -> pieces
 fn ring_GeoGraticule(p: *anyopaque) callconv(.c) void {
     const pr = readProjection(p, 1) orelse return retEmpty(p);
@@ -296,6 +358,10 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginegeoinvert", .func = ring_GeoInvert },
     .{ .name = "stzenginegeoprojectline", .func = ring_GeoProjectLine },
     .{ .name = "stzenginegeoprojectring", .func = ring_GeoProjectRing },
+    .{ .name = "stzenginegeoprojectringfilled", .func = ring_GeoProjectRingFilled },
+    .{ .name = "stzenginegeoprojectpolygonfilled", .func = ring_GeoProjectPolygonFilled },
+    .{ .name = "stzenginegeoholesdropped", .func = ring_GeoHolesDropped },
+    .{ .name = "stzenginegeoringcontains", .func = ring_GeoRingContains },
     .{ .name = "stzenginegeograticule", .func = ring_GeoGraticule },
     .{ .name = "stzenginegeooutline", .func = ring_GeoOutline },
     .{ .name = "stzenginegeocircle", .func = ring_GeoCircle },

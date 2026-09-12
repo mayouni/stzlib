@@ -170,6 +170,7 @@ general-tasks session's file and is routed to them, not fix them here.*
 | DN23 | closed | 117 |
 | DN24 | closed | 118 |
 | DN24b | closed | 120 |
+| GE1 | closed | 122 |
 | GE0 | closed | 121 |
 | DN9 | closed | - |
 | DN9a | closed | 97 |
@@ -4412,6 +4413,16 @@ that too.
 **State**: ten assertions folded into §118, green standalone first; gate
 **1670 ok, 0 failed**. No catalogue fixture moves — the witness title is
 short, so it is still one line and every swatch is where it was.
+
+## GE1 — BOUNDARY DATA, WHOLE: GeoJSON and TopoJSON (2026-09-12, SHIPPED)
+
+Recorded here so the coverage table can carry the item; the substance is in
+`SOFTANZA_GRAPHICS_PLAN.md` under the geo plane. **§122 discharges GE1**,
+and `geo_features_narrated.ring` holds its twenty assertions. What shipped:
+`stzGeoFeatures` reads a GeoJSON FeatureCollection, Feature or bare geometry
+and a TopoJSON topology — every part, every hole, properties, ids — and the
+projection gained `FilledPolygon`, which bridges a hole into its outer ring
+so a lake inside a country is not filled in as land.
 
 ## GE0 — THE SPHERE: the geo plane's foundation (2026-09-12, SHIPPED as GE0a)
 
