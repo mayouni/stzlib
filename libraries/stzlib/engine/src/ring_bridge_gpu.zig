@@ -904,6 +904,50 @@ fn ring_TextLayout(p: *anyopaque) callconv(.c) void {
     R.ring_list_adddouble(out, layout.ink_bottom);
     R.ring_list_adddouble(out, @floatFromInt(layout.fallback_glyphs));
     R.ring_list_adddouble(out, @floatFromInt(layout.notdef_glyphs));
+    R.ring_list_adddouble(out, layout.height);
+    R.ring_list_adddouble(out, if (layout.vertical) 1 else 0);
+    R.ring_vm_api_retlist(p, out);
+}
+
+// TextLayoutXT(hFont, cUtf8, nSizePx, bVertical) -> the same list, shaped
+// down a column when the last argument is 1.
+fn ring_TextLayoutXT(p: *anyopaque) callconv(.c) void {
+    const font: i64 = @intFromFloat(gn(p, 1));
+    const utf8 = getStr(p, 2);
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const layout = gtext.textLayoutXT(font, utf8, gn(p, 3), gn(p, 4) != 0) catch {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    defer layout.deinit();
+    R.ring_list_adddouble(out, layout.width);
+    R.ring_list_adddouble(out, @floatFromInt(layout.run_count));
+    const gl = R.ring_list_newlist(out) orelse {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    for (layout.glyphs) |g| {
+        const item = R.ring_list_newlist(gl) orelse continue;
+        R.ring_list_adddouble(item, @floatFromInt(g.gid));
+        R.ring_list_adddouble(item, g.x);
+        R.ring_list_adddouble(item, g.y);
+        R.ring_list_adddouble(item, @floatFromInt(g.cluster));
+        R.ring_list_adddouble(item, g.pen);
+        R.ring_list_adddouble(item, g.adv);
+        R.ring_list_adddouble(item, @floatFromInt(g.cl_end));
+        R.ring_list_adddouble(item, @floatFromInt(g.level));
+        R.ring_list_adddouble(item, @floatFromInt(g.font));
+    }
+    R.ring_list_adddouble(out, layout.ascender);
+    R.ring_list_adddouble(out, layout.descender);
+    R.ring_list_adddouble(out, layout.line_gap);
+    R.ring_list_adddouble(out, if (layout.para_rtl) 1 else 0);
+    R.ring_list_adddouble(out, layout.ink_top);
+    R.ring_list_adddouble(out, layout.ink_bottom);
+    R.ring_list_adddouble(out, @floatFromInt(layout.fallback_glyphs));
+    R.ring_list_adddouble(out, @floatFromInt(layout.notdef_glyphs));
+    R.ring_list_adddouble(out, layout.height);
+    R.ring_list_adddouble(out, if (layout.vertical) 1 else 0);
     R.ring_vm_api_retlist(p, out);
 }
 
@@ -1132,6 +1176,22 @@ fn ring_SceneText(p: *anyopaque) callconv(.c) void {
         gn(p, 5),
         gn(p, 6),
         packedColor(p, 7),
+    )));
+}
+
+// SceneTextXT(nId, hFont, cStr, nX, nY, nSize, colour, bVertical) -- the
+// same text, flowing down a column when the last argument is 1.
+fn ring_SceneTextXT(p: *anyopaque) callconv(.c) void {
+    const str = getStr(p, 3);
+    rn(p, @floatFromInt(scene.sceneTextXT(
+        @intFromFloat(gn(p, 1)),
+        @intFromFloat(gn(p, 2)),
+        str,
+        gn(p, 4),
+        gn(p, 5),
+        gn(p, 6),
+        packedColor(p, 7),
+        gn(p, 8) != 0,
     )));
 }
 
@@ -1954,6 +2014,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpufontfree", .func = &ring_FontFree },
     .{ .name = "stzenginegpufontglyphcount", .func = &ring_FontGlyphCount },
     .{ .name = "stzenginegputextlayout", .func = &ring_TextLayout },
+    .{ .name = "stzenginegputextlayoutxt", .func = &ring_TextLayoutXT },
     .{ .name = "stzenginegputextrects", .func = &ring_TextRects },
     .{ .name = "stzenginegputextcaretrect", .func = &ring_TextCaretRect },
     .{ .name = "stzenginegputextindexat", .func = &ring_TextIndexAt },
@@ -1970,6 +2031,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuscenepolygon", .func = &ring_ScenePolygon },
     .{ .name = "stzenginegpuscenemesh", .func = &ring_SceneMesh },
     .{ .name = "stzenginegpuscenetext", .func = &ring_SceneText },
+    .{ .name = "stzenginegpuscenetextxt", .func = &ring_SceneTextXT },
     .{ .name = "stzenginegpuscenecommandcount", .func = &ring_SceneCommandCount },
     .{ .name = "stzenginegpuscenestats", .func = &ring_SceneStats },
     .{ .name = "stzenginegpuscenetosvg", .func = &ring_SceneToSvg },

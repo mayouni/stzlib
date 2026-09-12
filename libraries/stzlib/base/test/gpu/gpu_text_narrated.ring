@@ -68,7 +68,7 @@ aLat = StzEngineGpuTextLayout(hF, "Softanza", 32)
 # APPENDED, like every slot before them. A doorway that grows owes its guard
 # a line in the SAME commit -- this one drifted a month the last time it was
 # widened, and reported a regression in code that had got better.
-chk("layout answers width, runs, glyphs, metrics and what the chain did", len(aLat) = 11)
+chk("layout answers width, runs, glyphs, metrics, the chain and the flow", len(aLat) = 13)
 # both ink distances are POSITIVE, measured away from the baseline like the metrics
 chk("the ink band lies inside the em box: inkTop <= ascender, inkBottom <= descender", aLat[8] <= aLat[4] and aLat[9] <= aLat[5])
 aG = aLat[3]
@@ -304,6 +304,91 @@ else
     chk("with a chain in place, the Arabic word shapes exactly as it did without one",
         aAr[11] = 0 and aAr[10] = 0 and len(aAr[3]) = len(StzEngineGpuTextLayout(hF, cSoftanza, 24)[3]))
     StzEngineGpuFontFree(hKo)
+ok
+
+? ""
+? "-- Scene 11: the flow can be a COLUMN -- vertical writing (GR2d) --"
+#
+# Vertical is not a rotated line. It selects the font's VERTICAL metrics
+# and its vertical FORMS, which is why a comma sits in the corner a
+# vertical reader expects rather than under the character. HarfBuzz does
+# that from the direction alone -- the plan's claim that CJK vertical was
+# an opportunity bought with the shaper and no new vendor.
+
+aHz = StzEngineGpuTextLayout(hF, "Softanza", 32)
+aVt = StzEngineGpuTextLayoutXT(hF, "Softanza", 32, 1)
+chk("both answer 13 items now: the flow's own extent and which axis it is",
+    len(aHz) = 13 and len(aVt) = 13)
+chk("a horizontal layout fills the WIDTH and says it is not vertical",
+    aHz[1] > 0 and aHz[12] = 0 and aHz[13] = 0)
+chk("a vertical layout fills the HEIGHT instead, and says which it is",
+    aVt[12] > 0 and aVt[1] = 0 and aVt[13] = 1)
+chk("the same text, the same glyph count -- a column is a flow, not a filter",
+    len(aHz[3]) = len(aVt[3]))
+
+# THE PEN WALKS DOWN. The renderer draws at (y - glyph.y), so a column is
+# written as a DESCENDING y -- the same subtraction that lifts a mark above
+# a baseline walks a column down the page, which is why no renderer here
+# needed changing.
+aGv = aVt[3]
+bDown = TRUE
+bAdv = TRUE
+for iV = 2 to len(aGv)
+	if NOT (aGv[iV][3] < aGv[iV - 1][3])  bDown = FALSE  ok
+next
+for iV = 1 to len(aGv)
+	if NOT (aGv[iV][6] > 0)  bAdv = FALSE  ok
+next
+chk("every glyph sits below the one before it -- the pen walks DOWN the column", bDown)
+chk("...and each advance is a positive DISTANCE, not the shaper's own negative", bAdv)
+# the PEN, not the drawn y: a glyph's y carries its own vertical offset
+# (HarfBuzz places it against the vertical origin), so the drawn position
+# and the pen's travel are two different numbers and only one of them adds up
+chk("the column's height is exactly where the pen arrived: the last pen plus its advance",
+    fabs(aVt[12] - (aGv[len(aGv)][5] + aGv[len(aGv)][6])) < 0.01)
+
+# NEGATIVE: the horizontal layout of the same text does the opposite, so
+# neither assertion can be passing on something that never moved.
+aGh = aHz[3]
+bRight = TRUE
+bFlat = TRUE
+for iV = 2 to len(aGh)
+	if NOT (aGh[iV][2] > aGh[iV - 1][2])  bRight = FALSE  ok
+	if NOT (fabs(aGh[iV][3] - aGh[1][3]) < 0.01)  bFlat = FALSE  ok
+next
+chk("NEGATIVE: horizontally the same text walks RIGHT and stays on one baseline", bRight and bFlat)
+
+# THE VERTICAL FORMS are the point, and they need a font that has them.
+# This repository commits an Arabic subset, so the check names what it
+# skipped rather than passing quietly.
+cCjk = "C:/Windows/Fonts/malgun.ttf"
+if NOT fexists(cCjk)
+	? "   (SKIPPED, by name: the vertical FORMS need a CJK font and this"
+	? "    machine has no " + cCjk + ". The flow above was judged; the"
+	? "    substitution itself is UNJUDGED here rather than passed.)"
+else
+	hCjk = StzEngineGpuFontLoad(read(cCjk))
+	chk("the CJK font loads", hCjk > 0)
+	# a bracket and a comma: the two characters whose vertical forms differ
+	cBr = char(0xE3) + char(0x80) + char(0x8C)      # 「
+	cCm = char(0xE3) + char(0x80) + char(0x81)      # 、
+	cKa = char(0xE3) + char(0x81) + char(0x82)      # あ
+	cPunct = cBr + cKa + cCm + cKa
+	aPh = StzEngineGpuTextLayout(hCjk, cPunct, 32)
+	aPv = StzEngineGpuTextLayoutXT(hCjk, cPunct, 32, 1)
+	chk("the same characters, the same count, both ways",
+	    len(aPh[3]) = len(aPv[3]) and len(aPh[3]) = 4)
+	nSubst = 0
+	for iV = 1 to len(aPh[3])
+		if aPh[3][iV][1] != aPv[3][iV][1]  nSubst++  ok
+	next
+	? "   glyphs the vertical forms replaced : " + nSubst + " of " + len(aPh[3])
+	chk("THE VERTICAL FORMS FIRE: the bracket and the comma are different GLYPHS " +
+	    "down a column -- this is typography, not a rotation", nSubst = 2)
+	chk("...and the letter between them is the SAME glyph, so the substitution is " +
+	    "chosen per character and not applied to everything",
+	    aPh[3][2][1] = aPv[3][2][1] and aPh[3][4][1] = aPv[3][4][1])
+	StzEngineGpuFontFree(hCjk)
 ok
 
 StzEngineGpuFontFree(hF)
