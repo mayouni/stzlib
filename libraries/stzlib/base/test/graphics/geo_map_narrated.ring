@@ -112,6 +112,75 @@ chk("the map reaches the vector tier with its polygons, its circles and its line
     StzFindFirst("<circle", cSvg) > 0)
 
 ? ""
+? "-- 7. HEXAGONAL BINS: how many here, not where exactly --"
+# Ten thousand dots on a map are a stain. Binning counts them into cells,
+# and the cell is a HEXAGON because a square grid lies twice: its cells
+# touch diagonal neighbours at a point and orthogonal ones along an edge,
+# so "next to" means two distances.
+oHx = StzGeoMap(new stzGeoProjection(:EqualEarth), oF)
+oHx.Projection().FitToSphere(600, 300, 0)
+oHx.SetSource("Invented, for a guard")
+aPts = _GridPoints(-40, -20, 40, 20, 9)
+aB1 = oHx.HexBin(aPts, 12)
+aB2 = oHx.HexBin(aPts, 24)
+nSum = 0
+for i = 1 to len(aB1)  nSum += aB1[i][3]  next
+? "   " + (len(aPts) / 2) + " points -> " + len(aB1) + " cells at radius 12, " +
+  len(aB2) + " at radius 24"
+chk("EVERY POINT IS COUNTED ONCE: the bins' counts sum to the points given",
+    nSum = len(aPts) / 2)
+chk("...and a bigger cell means fewer of them, which is the only knob there is",
+    len(aB2) < len(aB1) and len(aB2) > 0)
+chk("a bin says where it is and how many it holds",
+    len(aB1[1]) = 3 and aB1[1][3] >= 1)
+chk("a hexagon has six corners, at the radius asked for",
+    len(StzEngineGeoHexagon(100, 100, 20)) = 12 and
+    fabs(sqrt(pow(StzEngineGeoHexagon(100, 100, 20)[1] - 100, 2) +
+              pow(StzEngineGeoHexagon(100, 100, 20)[2] - 100, 2)) - 20) < 0.001)
+chk("NEGATIVE: no points, no bins -- an empty cell is not a count of zero, " +
+    "it is a place nobody counted",
+    len(oHx.HexBin([], 12)) = 0)
+chk("BINNING CARRIES THE CHOROPLETH'S OWN LIE: cells of the paper stand for " +
+    "equal ground only on an equal-area projection, and the map says so",
+    _HasRule(_BinnedOn(:Mercator, oF).Findings(), "bins_need_an_equal_area_projection", "error"))
+chk("NEGATIVE: the same bins on an equal-area projection report nothing",
+    NOT _HasRule(_BinnedOn(:EqualEarth, oF).Findings(), "bins_need_an_equal_area_projection", "error"))
+
+? ""
+? "-- 8. NAMES TO SHAPES, WITHOUT VENDORING SHAPES (GE4) --"
+# The shapes are always the CALLER'S. What is added is the part that is
+# tedious and safe: folding case and accents, knowing that Burma and
+# Myanmar are one country, finding a code in a file that writes names.
+oAt = StzGeoAtlas(oF)
+chk("a name the file itself uses binds", oAt.IndexOf("Arda") = 1 and oAt.IndexOf("Berea") = 2)
+chk("case and punctuation are folded away",
+    oAt.IndexOf("ARDA") = 1 and oAt.IndexOf(" arda ") = 1)
+chk("an id the file wrote binds too -- a table of codes needs no names at all",
+    oAt.IndexOf("A") = 1 and oAt.IndexOf("B") = 2)
+chk("NEGATIVE: a name nothing in the file answers to binds to NOTHING -- it is " +
+    "reported, never guessed, because a map that colours Niger for Nigeria is " +
+    "worse than one with a hole",
+    oAt.IndexOf("Ardania") = 0 and oAt.IndexOf("Atlantis") = 0)
+chk("the normaliser folds accents, case, punctuation and a leading 'the'",
+    StzGeoNormalizeName("Cote d'Ivoire") = "cotedivoire" and
+    StzGeoNormalizeName("The Gambia") = "gambia" and
+    StzGeoNormalizeName("  ARDA  ") = "arda")
+aRows = [ [ "Arda", 10 ], [ "berea", 20 ], [ "Atlantis", 30 ] ]
+aV = oAt.ValuesFor(aRows)
+chk("A TABLE OF ROWS BECOMES ONE VALUE PER FEATURE, in the features' own order, " +
+    "which is what the map takes",
+    len(aV) = 2 and aV[1] = 10 and aV[2] = 20)
+chk("...and what did not bind is ANSWERED rather than swallowed",
+    len(oAt.Unresolved(aRows)) = 1 and oAt.Unresolved(aRows)[1] = "Atlantis")
+chk("...as is what the table said nothing about",
+    len(oAt.Uncovered([ [ "Arda", 1 ] ])) = 1 and oAt.Uncovered([ [ "Arda", 1 ] ])[1] = "Berea")
+chk("a shape and a point come back for a name, and they are the FILE'S",
+    len(oAt.ShapeOf("Arda")) = 2 and len(oAt.PointOf("Arda")) = 2)
+chk("NEGATIVE: and nothing at all comes back for a name that did not bind",
+    len(oAt.ShapeOf("Atlantis")) = 0 and len(oAt.PointOf("Atlantis")) = 0)
+chk("binding to something that is not a feature set is refused", _RefusesAtlas())
+
+? ""
 ? "-- 7. WHAT THE GATE OWES A MAP (GE3) --"
 # A map is not judged the way a diagram is. It reports itself, in the
 # house's unified finding shape, and stzRuleReport ingests it -- so a map
@@ -286,7 +355,7 @@ func _RefusesPalette paColours
 # makes the difference
 func _NoLakeJson
 	_c_ = read("fixtures/two_countries.geojson")
-	_a_ = JsonToList(StzJsonAsciiSafe(_c_))
+	_a_ = StzJsonToList(_c_)
 	_g_ = _a_[:features][1][:geometry]
 	_out_ = '{"type":"FeatureCollection","features":[{"type":"Feature","id":"A",' +
 		'"properties":{"name":"Arda"},"geometry":{"type":"Polygon","coordinates":[['
@@ -313,3 +382,30 @@ func _RuleSays paFindings, pcRule, pcText
 		if StzFindFirst(pcText, "" + paFindings[_i_][:subject]) > 0  return TRUE  ok
 	next
 	return FALSE
+
+# a grid of places, to be binned
+func _GridPoints pnL0, pnF0, pnL1, pnF1, pnN
+	_a_ = []
+	for _i_ = 0 to pnN - 1
+		for _j_ = 0 to pnN - 1
+			_a_ + (pnL0 + (pnL1 - pnL0) * _i_ / (pnN - 1))
+			_a_ + (pnF0 + (pnF1 - pnF0) * _j_ / (pnN - 1))
+		next
+	next
+	return _a_
+
+func _BinnedOn pKind, poF
+	_m_ = StzGeoMap(new stzGeoProjection(pKind), poF)
+	_m_.Projection().FitToSphere(600, 300, 0)
+	_m_.SetSource("x")
+	_m_.HexBin(_GridPoints(-40, -20, 40, 20, 5), 12)
+	return _m_
+
+func _RefusesAtlas
+	_b_ = FALSE
+	try
+		StzGeoAtlas("not a feature set")
+	catch
+		_b_ = TRUE
+	done
+	return _b_

@@ -1,3 +1,4 @@
+const std = @import("std");
 const j = @import("json.zig");
 const R = @import("ring_api.zig");
 
@@ -109,9 +110,95 @@ fn ring_EscapeNonAscii(p: *anyopaque) callconv(.c) void {
     rs2(p, out, @intCast(out_len));
 }
 
+// ---------------------------------------------------------------- to Ring
+//
+// JsonParse(cText) -> the whole document as Ring lists, in ONE crossing:
+// an object as a list of [ key, value ] pairs (which is what Ring's hash
+// syntax a[:key] reads), an array as a plain list, a string as a string, a
+// number as a number, true/false as 1/0 and null as "".
+//
+// WHY THIS EXISTS. Ring's own JsonToList is wrong on real documents in two
+// ways, both measured on the same 108 KB file:
+//
+//   IT LOSES ITS PLACE on a raw multibyte character. The world atlas has
+//   exactly two non-ASCII bytes in 107,760 -- the circumflex in one
+//   country's name -- and with them JsonToList answered NINE top-level
+//   arcs where the file holds 595, having picked up a value from inside a
+//   nested object. One ASCII substitution, nothing else changed, and it
+//   answered 595.
+//
+//   AND IT DOES NOT READ \uXXXX AT ALL. Given "t\u00f4u" it answers
+//   `tu00f4u`: the backslash is dropped and the digits kept. So escaping
+//   the document -- the first repair -- fixed the structure and left every
+//   accented name mangled, which is how "Cote d'Ivoire" stopped matching
+//   itself.
+//
+// Both are silent: a well-formed list, wrong. std.json is already linked
+// into this module, so the honest answer was always to parse here and hand
+// over the finished tree.
+fn emitJsonValue(list: *anyopaque, v: std.json.Value) void {
+    switch (v) {
+        .null => R.ring_list_addstring2(list, "", 0),
+        .bool => |b| R.ring_list_adddouble(list, if (b) 1 else 0),
+        .integer => |i| R.ring_list_adddouble(list, @floatFromInt(i)),
+        .float => |f| R.ring_list_adddouble(list, f),
+        .number_string => |sv| R.ring_list_addstring2(list, sv.ptr, @intCast(sv.len)),
+        .string => |sv| R.ring_list_addstring2(list, sv.ptr, @intCast(sv.len)),
+        .array => |arr| {
+            const sub = R.ring_list_newlist(list) orelse return;
+            for (arr.items) |item| emitJsonValue(sub, item);
+        },
+        .object => |obj| {
+            const sub = R.ring_list_newlist(list) orelse return;
+            var it = obj.iterator();
+            while (it.next()) |kv| {
+                // one PAIR per key: Ring reads [ [k, v], ... ] as a hash
+                const pair = R.ring_list_newlist(sub) orelse continue;
+                R.ring_list_addstring2(pair, kv.key_ptr.*.ptr, @intCast(kv.key_ptr.*.len));
+                emitJsonValue(pair, kv.value_ptr.*);
+            }
+        },
+    }
+}
+
+fn ring_JsonParseToList(p: *anyopaque) callconv(.c) void {
+    const n: usize = @intCast(gss(p, 1));
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    if (n == 0) {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    }
+    const src = gs(p, 1);
+    const parsed = std.json.parseFromSlice(std.json.Value, std.heap.c_allocator, src[0..n], .{}) catch {
+        R.ring_vm_api_retlist(p, out);
+        return;
+    };
+    defer parsed.deinit();
+    // THE DOCUMENT'S OWN TOP LEVEL IS THE ANSWER, not a wrapper round it:
+    // an object comes back as the list of pairs Ring reads with a[:key],
+    // an array as the list itself. That is exactly JsonToList's shape, so
+    // this is a drop-in for it and no caller has to be rewritten twice.
+    switch (parsed.value) {
+        .object => |obj| {
+            var it = obj.iterator();
+            while (it.next()) |kv| {
+                const pair = R.ring_list_newlist(out) orelse continue;
+                R.ring_list_addstring2(pair, kv.key_ptr.*.ptr, @intCast(kv.key_ptr.*.len));
+                emitJsonValue(pair, kv.value_ptr.*);
+            }
+        },
+        .array => |arr| {
+            for (arr.items) |item| emitJsonValue(out, item);
+        },
+        else => emitJsonValue(out, parsed.value),
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
 const regs = [_]R.Reg{
     .{ .name = "stzenginejsonparse", .func = &ring_Parse },
     .{ .name = "stzenginejsonescapenonascii", .func = &ring_EscapeNonAscii },
+    .{ .name = "stzenginejsonparsetolist", .func = &ring_JsonParseToList },
     .{ .name = "stzenginejsonfree", .func = &ring_Free },
     .{ .name = "stzenginejsonisvalid", .func = &ring_IsValid },
     .{ .name = "stzenginejsonisarray", .func = &ring_IsArray },

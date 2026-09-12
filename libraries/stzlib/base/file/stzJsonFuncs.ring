@@ -851,3 +851,34 @@ func _IsWhitespace(_cChar_)
 
 func _IsJsonDelimiter(_cChar_)
     return _cChar_ = "," or _cChar_ = "}" or _cChar_ = "]" or _IsWhitespace(_cChar_)
+
+# THE HOUSE'S JSON READER, and the reason it exists rather than Ring's.
+#
+# Ring's own JsonToList is wrong on real documents in two ways, both
+# measured on one 108 KB file:
+#
+#   IT LOSES ITS PLACE on a raw multibyte character. The world atlas has
+#   exactly two non-ASCII bytes in 107,760 -- the circumflex in one
+#   country's name -- and with them JsonToList answered NINE top-level
+#   arcs where the file holds 595, having picked up a value from inside a
+#   nested object. One ASCII substitution, nothing else changed, and it
+#   answered 595.
+#
+#   AND IT DOES NOT READ \uXXXX AT ALL. Given a name written with that
+#   escape it answers the digits with the backslash dropped, at any size.
+#
+# Both are SILENT: a well-formed list, wrong. This parses in the ENGINE,
+# with std.json, and hands back the same shape JsonToList promises -- an
+# object as the list of [ key, value ] pairs that a[:key] reads, an array
+# as a plain list -- so it is a drop-in wherever JsonToList is called.
+#
+# A document the parser refuses comes back as an EMPTY list.
+func StzJsonToList(pcJson)
+	return StzEngineJsonParseToList("" + pcJson)
+
+# ...and the half-repair that came before it, kept because a caller may
+# only need a document's SHAPE and not its accented strings: every
+# non-ASCII character as an escape. It fixes the structure and leaves the
+# strings mangled, which is exactly why StzJsonToList exists.
+func StzJsonAsciiSafe(pcJson)
+	return StzEngineJsonEscapeNonAscii("" + pcJson)

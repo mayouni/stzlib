@@ -36,8 +36,22 @@ const Json = struct {
 ///
 /// Escaping is SAFE ANYWHERE in the text because JSON outside a string
 /// literal is ASCII by definition, so a non-ASCII byte can only be inside
-/// one. A parser that already reads \uXXXX -- which Ring's does -- gets the
-/// same document back with the same meaning and nothing left to trip on.
+/// one.
+///
+/// AND IT IS ONLY HALF A REPAIR, which is written here because the first
+/// version of this comment claimed otherwise: "a parser that already reads
+/// \uXXXX -- which Ring's does". IT DOES NOT. Measured straight after:
+/// given `"t\u00f4u"` in a file, Ring answers `tu00f4u` -- it drops the
+/// backslash and keeps the rest, and it does that at any size. So this
+/// function makes a document's STRUCTURE readable and leaves every
+/// non-ASCII string value mangled. That was a claim made without checking,
+/// in the same hour as a defect found by checking.
+///
+/// The whole repair is stz_json_to_ring in the bridge, which parses with
+/// std.json and hands Ring the finished tree. This stays because it is a
+/// one-line rescue for existing JsonToList call sites that only need the
+/// shape, and because saying what it does NOT do is worth more than
+/// deleting it.
 ///
 /// Astral characters (an emoji in a name) become the surrogate PAIR the
 /// format specifies, which is what every JSON writer emits for them.

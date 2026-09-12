@@ -39,6 +39,15 @@ func StzGeoMap(poProjection, poFeatures)
 func StzGeoMapPaletteFor(pnClasses)
 	return StzChoroplethPaletteFor(pnClasses)
 
+# which class a bin's count falls in; 0 for none
+func _HexClassOf(pnV, paEdges)
+	_n_ = len(paEdges) - 1
+	for _c_ = 1 to _n_
+		if pnV >= paEdges[_c_] and pnV < paEdges[_c_ + 1]  return _c_  ok
+	next
+	if pnV >= paEdges[_n_ + 1]  return _n_  ok
+	return 0
+
 # EVERY MAP JUDGED AT ONCE, into the ONE report the whole library gates on.
 # Mirrors StzCheckPictures: [ [ name, oMap ], ... ] in, a stzRuleReport out,
 # and a map's findings arrive already in the unified shape so nothing has to
@@ -72,6 +81,7 @@ class stzGeoMap from stzObject
 	@aPalette = []
 	@cSource = ""
 	@cNoData = "#E8E8E8"
+	@bBinned = FALSE
 
 	def Bind(poProjection, poFeatures)
 		if NOT isObject(poProjection) or NOT isObject(poFeatures)
@@ -249,6 +259,52 @@ class stzGeoMap from stzObject
 		next
 		return [ _sx_ / _n_, _sy_ / _n_ ]
 
+	#-- hexagonal bins ------------------------------------------------------
+
+	# TEN THOUSAND DOTS ON A MAP ARE A STAIN, not a picture: they overplot,
+	# and the densest places look exactly like the merely busy ones. Binning
+	# answers the question the dots were asked -- HOW MANY HERE -- and the
+	# cell is a HEXAGON because a square grid lies twice: its cells touch
+	# their diagonal neighbours at a point and their orthogonal ones along an
+	# edge, so "next to" means two distances, and its rows line up into
+	# stripes the eye invents structure out of.
+	#
+	# The points arrive as longitude and latitude and are PROJECTED first,
+	# so the bins are cells of the paper. That is d3's choice too, and the
+	# map's own rules say what it costs on a projection that distorts area.
+	def HexBin(paLonLat, pnRadius)
+		_xy_ = []
+		for _i_ = 1 to len(paLonLat) - 1 step 2
+			_q_ = @oP.Project(paLonLat[_i_], paLonLat[_i_ + 1])
+			if len(_q_) = 2
+				_xy_ + _q_[1]
+				_xy_ + _q_[2]
+			ok
+		next
+		@bBinned = TRUE
+		return StzEngineGeoHexBin(_xy_, pnRadius)
+
+	# the bins drawn, each in the colour its COUNT earns from the edges
+	# given. A bin holding nothing is not drawn: an empty cell is not a
+	# quantity of zero, it is a place nobody counted.
+	def DrawHexBinsOn(poCanvas, paBins, pnRadius, paEdges, paPalette, pStroke)
+		for _i_ = 1 to len(paBins)
+			_b_ = paBins[_i_]
+			if _b_[3] <= 0  loop  ok
+			_c_ = _HexClassOf(_b_[3], paEdges)
+			if _c_ < 1  loop  ok
+			poCanvas.AddPolygonQ(StzEngineGeoHexagon(_b_[1], _b_[2], pnRadius)).
+				FillQ(paPalette[_c_]).Stroke(pStroke, 0.5)
+		next
+
+	# the biggest count in a set of bins -- what a legend's last edge wants
+	def HexBinMax(paBins)
+		_m_ = 0
+		for _i_ = 1 to len(paBins)
+			if paBins[_i_][3] > _m_  _m_ = paBins[_i_][3]  ok
+		next
+		return _m_
+
 	#-- flows ---------------------------------------------------------------
 
 	# A FLOW IS A GREAT CIRCLE, not a straight line on the paper: the route
@@ -353,6 +409,20 @@ class stzGeoMap from stzObject
 				:subject = _cM_, :where = @oP.Name(), :severity = "error",
 				:message = "the regions are coloured by a quantity but '" + @oP.Name() +
 					"' does not preserve area -- the picture argues against its own legend" ]
+		ok
+
+		# 1b. AND THE SAME REASONING REACHES THE BINS. A hexagon is a cell
+		# of the PAPER; it stands for an equal area on the ground only where
+		# the projection preserves area. On any other, a bin near the pole
+		# counts what happened over less ground than one at the equator
+		# while drawing the same size -- the choropleth's lie, told with
+		# hexagons. The caller declares a bin layer so the map can say so.
+		if @bBinned and NOT @oP.IsEqualArea()
+			_a_ + [ :rule = "bins_need_an_equal_area_projection",
+				:subject = _cM_, :where = @oP.Name(), :severity = "error",
+				:message = "the counts are binned into cells of the paper but '" + @oP.Name() +
+					"' does not preserve area -- a bin near the pole covers less ground " +
+					"than one at the equator and draws the same size" ]
 		ok
 
 		# 2. NORTH IS UP unless the map says otherwise. Turning the sphere to

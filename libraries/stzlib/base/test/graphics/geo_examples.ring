@@ -393,6 +393,109 @@ else
 	? "-> geo_rules.png   Mercator findings " + len(aF) + "   Equal Earth findings " + len(oEqe.Findings())
 ok
 
+# ---- 9. HEXAGONAL BINS: how many here, not where exactly ----------------
+# Ten thousand dots on a map are a stain. Binning answers the question the
+# dots were asked. The cell is a HEXAGON because a square grid lies twice:
+# its cells touch diagonal neighbours at a point and orthogonal ones along
+# an edge, so "next to" means two distances, and its rows line up into
+# stripes the eye invents structure out of. The points here are the atlas's
+# own coastline vertices -- nothing invented, no second file.
+
+if NOT fexists("atlas/countries-110m.json")
+	? "SKIPPED, by name: atlas/countries-110m.json is not present."
+else
+	oHw = StzGeoFeaturesFromTopoJson(read("atlas/countries-110m.json"), "countries")
+
+	# TWENTY THOUSAND POINTS, made from the atlas itself: every vertex of every
+	# coastline, which clusters exactly where coastline detail does. Nothing is
+	# invented and no second file is needed.
+	aHpts = oHw.AllPoints()
+	? "points to bin: " + (len(aHpts) / 2)
+
+	oHp = new stzGeoProjection(:EqualEarth)
+	oHp.FitSphereIn(20, 70, 1160, 560, 8)
+	oHm = StzGeoMap(oHp, oHw)
+	oHm.SetSource("Natural Earth 1:110m, public domain")
+	nHt = clock()
+	aHbins = oHm.HexBin(aHpts, 9)
+	? "binned into " + len(aHbins) + " cells in " + ((clock()-nHt)/clockspersecond()) + " s   busiest cell " + oHm.HexBinMax(aHbins)
+
+	oHc = new stzCanvas(1180, 640)
+	oHc.SetBackground("#FFFFFF")
+	oHc.SetFontQ(oFont, 22).AddTextQ("Every coastline vertex in the atlas, counted into hexagons", 24, 42).Fill("#111111")
+	oHp.DrawSphereOn(oHc, "#F7F9FD", "#B9C6D8", 1)
+	oHp.DrawGraticuleOn(oHc, 30, "#E4EAF2", 1)
+	aHe = [ 1, 3, 6, 12, 25, 400 ]
+	aHpal = StzGeoMapPaletteFor(5)
+	oHm.DrawHexBinsOn(oHc, aHbins, 9, aHe, aHpal, "#FFFFFF")
+	oHp.DrawOutlineOn(oHc, "#3B5B8C", 1.5)
+	nHy = 100
+	oHc.SetFontQ(oFont, 16).AddTextQ("vertices per cell", 1000, 80).Fill("#111111")
+	for c = 1 to 5
+		oHc.AddPolygonQ(StzEngineGeoHexagon(1014, nHy - 4, 11)).FillQ(aHpal[c]).Stroke("#888888", 1)
+		oHc.SetFontQ(oFont, 15).AddTextQ("" + aHe[c] + " - " + aHe[c+1], 1034, nHy).Fill("#333333")
+		nHy += 30
+	next
+	oHm.DrawCaptionOn(oHc, oFont, 24, 622)
+	oHc.ToPNG("geo_hexbin.png")
+	? "-> geo_hexbin.png   findings " + len(oHm.Findings())
+	for f in oHm.Findings()  ? "   [" + f[:severity] + "] " + f[:rule]  next
+ok
+
+# ---- 10. GE4: A TABLE OF NAMES BECOMES A MAP ----------------------------
+# The thing a business tool does, without the thing it does wrong. Names,
+# short names, codes, an old name -- all resolved to shapes the CALLER
+# loaded. What does not bind is REPORTED, never guessed: a map that quietly
+# colours Niger for Nigeria is worse than one with a hole in it.
+
+if NOT fexists("atlas/countries-110m.json")
+	? "SKIPPED, by name: atlas/countries-110m.json is not present."
+else
+	oAw = StzGeoFeaturesFromTopoJson(read("atlas/countries-110m.json"), "countries")
+	oAa = StzGeoAtlas(oAw)
+
+	# A TABLE, AS SOMEBODY WOULD ACTUALLY TYPE IT: full names, short names,
+	# codes, an old name, a misspelling, and one place that does not exist.
+	aArows = [
+		[ "USA",        338 ], [ "Brazil",     217 ], [ "Nigeria",    224 ],
+		[ "Burma",       54 ], [ "FR",          68 ], [ "DE",          84 ],
+		[ "Russia",     144 ], [ "Ivory Coast", 29 ], [ "Holland",     18 ],
+		[ "UK",          68 ], [ "Czechia",     11 ], [ "The Gambia",   3 ],
+		[ "250",         68 ], [ "Atlantis",     9 ], [ "Freedonia",    5 ],
+		[ "India",     1429 ], [ "China",      1426 ], [ "Japan",      123 ],
+		[ "Egypt",      113 ], [ "Turkey",       86 ], [ "Swaziland",    1 ] ]
+
+	aAvals = oAa.ValuesFor(aArows)
+	aAbad = oAa.Unresolved(aArows)
+	nAbound = 0
+	for i = 1 to len(aAvals)  if isNumber(aAvals[i])  nAbound++  ok  next
+	? "rows " + len(aArows) + "   bound " + nAbound + "   unresolved " + len(aAbad)
+	for i = 1 to len(aAbad)  ? "   unresolved: " + aAbad[i]  next
+
+	oAp = new stzGeoProjection(:EqualEarth)
+	oAp.FitSphereIn(20, 74, 880, 540, 8)
+	oAm = StzGeoMap(oAp, oAw)
+	oAm.SetValuesQ(aAvals).SetClassesQ([ 0, 50, 150, 500, 1500 ])
+	oAm.SetSource("Natural Earth 1:110m, public domain; population figures invented")
+
+	oAc = new stzCanvas(1180, 660)
+	oAc.SetBackground("#FFFFFF")
+	oAc.SetFontQ(oFont, 22).AddTextQ("A table of names becomes a map -- USA, FR, 250, Burma, Ivory Coast, The Gambia", 24, 42).Fill("#111111")
+	oAm.DrawOn(oAc)
+	nAy = oAm.DrawLegendOn(oAc, oFont, 930, 120, "millions")
+	oAc.SetFontQ(oFont, 16).AddTextQ("what did NOT bind:", 930, nAy + 16).Fill("#111111")
+	nAy += 44
+	for i = 1 to len(aAbad)
+		oAc.SetFontQ(oFont, 15).AddTextQ("  " + aAbad[i], 930, nAy).Fill("#B03030")
+		nAy += 24
+	next
+	oAc.SetFontQ(oFont, 14).AddTextQ("reported, never guessed", 930, nAy + 6).Fill("#777777")
+	oAm.DrawCaptionOn(oAc, oFont, 24, 642)
+	oAc.ToPNG("geo_table.png")
+	? "-> geo_table.png   findings " + len(oAm.Findings())
+	for f in oAm.Findings()  ? "   [" + f[:severity] + "] " + f[:rule] + " -- " + f[:where]  next
+ok
+
 # Ring runs top-level code only up to the first func, so the helpers
 # stand at the end of the file
 func CityDot(oC, oP, aCity, oFont, cInk)
