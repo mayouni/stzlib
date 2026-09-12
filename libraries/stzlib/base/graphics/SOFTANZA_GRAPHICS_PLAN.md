@@ -529,14 +529,63 @@ like success**, which is the shape of defect this plane exists to refuse.
 Clusters and cluster ends are mapped back to the caller's own bytes, and
 the guard asserts every one lands inside the caller's string.
 
+### The first version was wrong twice, and a reader found both
+
+**It shipped elongating every join the font allowed**, with a paragraph in
+this file calling that "legible and not yet beautiful". The Principal —
+who reads this script — marked the render up in red and corrected both the
+picture and the paragraph. Neither finding was visible in any number the
+guard produced; both were visible at a glance to somebody who reads
+Arabic. *The render is the instrument this plane keeps failing to consult
+early enough.*
+
+**1. A KASHIDA DOES NOT APPLY TO ALL LETTERS, ONLY TO THE ONE BEFORE THE
+LAST.** What the first version produced was not an elongated word; it was
+a word pulled apart at every seam. A word takes ONE elongation, at the
+join before its final letter, and a longer kashida is that one join drawn
+longer rather than five joins drawn a little longer. The word that settles
+it is one whose last two letters do NOT join while an earlier pair does:
+in برد the reh refuses to join forward, so the join before the last letter
+does not exist, while beh-to-reh does. The old rule stretched that word;
+the rule it has now gives it nothing, and the guard asserts exactly that
+pair.
+
+**2. THE SHADDA IS A LETTER AND MUST ALWAYS BE VISIBLE.** The render lost
+the shadda over the name of God: this face writes lam-lam-heh with a
+contextual glyph that CARRIES the mark, a tatweel between the letters
+stopped the rule matching, and the mark went away. A diacritic's absence
+changes the word, so no picture may lose one to fit a column.
+
+**And the test for it took two wrong answers, each costing a rebuild.**
+Asking *which glyph is the tatweel* fails — its cmap glyph is 65 on this
+face and the shaper draws 1190, because an elongation stroke takes a
+contextual form like any other letter; that test rejected every position
+and justification silently became space-stretching. Demanding that *every
+original glyph survive* also fails, and should: with a tatweel before it
+this face draws the last two letters of العالمين as 405 and 407 where it
+drew 836 and 844 — legitimate alternates, better fitted to a longer join.
+Forbidding those forbids justification.
+
+**What works is the INK.** A variant form is the same letter drawn
+differently and reaches about as far; a lost mark is ink that is no longer
+on the page. Measured at 32px: the natural word reaches **35.13px** above
+the baseline and the broken one **21.17px**. A candidate is refused when it
+reaches less far, above the baseline or below — and the question is asked
+of the **word**, because a line's ink is a maximum over all of it and
+another word reaching higher would hide exactly this loss. No table of
+ligatures is consulted, and a face that keeps its marks somewhere else
+entirely is judged by the same rule.
+
+A kashida also has a length past which it stops reading as writing: ten
+tatweels at one join, about two ems on this face, after which the spaces
+take the rest.
+
 ### What is NOT here, named rather than implied
 
-- **The classical PRIORITY of kashida positions** — after a kaf, before a
-  word's final letter, not in a line's first word, and the rest of the
-  tradition — is not implemented. Elongation is spread evenly over every
-  join the font allows. That is a **legible** line and not yet a
-  **beautiful** one, and the difference is a rule table somebody must
-  write with a typographer, not a thing to guess at here.
+- **The rest of the tradition's priority order** — which of several
+  eligible words should be stretched first, and by how much relative to
+  one another — is not modelled; eligible words take the elongation in
+  turn. That is the part a typographer would still change.
 - **Compression is refused outright.** A target no wider than the text
   returns the text and says `justified = 0`, rather than squeezing and
   looking normal.
@@ -557,14 +606,17 @@ field gets appended to one and forgotten in the other. That is the same
 class this desk found twice in the diagram domains the same week: *a thing
 written in two places is invisible until one of them moves.*
 
-*Guard:* `gpu_text_narrated.ring` scene 12, ten assertions — the exact
-landing on the target, that it is kashida and not merely wider spaces
-(the line grew GLYPHS), that the clusters survive, that the advances still
-sum to the width, Latin justified on spaces alone as the negative sibling,
-and the two refusals. Three shape pins widened in the commit that widens
-them: the layout answers 16 items now. Text guards **80** and **41**,
-scene 70, render lifecycle 74, GUI font 30, graphics gate **1670 ok, 0
-failed** — built and run in the build tree, on main's own sources.
+*Guard:* `gpu_text_narrated.ring` scene 12, thirteen assertions — the
+exact landing on the target, that it is kashida and not merely wider
+spaces (the line grew GLYPHS), **that برد and رب take nothing while بحر
+and الحمد take an elongation**, **that the name of God refuses to be
+elongated and keeps its ink to the hundredth of a pixel**, that the whole
+line loses no ink either, that the clusters survive, that the advances
+still sum to the width, Latin justified on spaces alone as the negative
+sibling, and the two refusals. Three shape pins widened in the commit that
+widens them: the layout answers 16 items now. Text guards **83** and
+**41**, scene 70, render lifecycle 74, GUI font 30, graphics gate **1670
+ok, 0 failed** — built and run in the build tree, on main's own sources.
 
 ## GR2d -- VERTICAL WRITING: the flow can be a column (2026-09-12, SHIPPED)
 
