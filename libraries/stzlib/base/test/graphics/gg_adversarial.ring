@@ -16448,6 +16448,33 @@ chk("EQUAL AREA IS A PROPERTY OF THE PROJECTION, and the projection says which i
     oGeS.IsEqualArea() and NOT (new stzGeoProjection(:Mercator)).IsEqualArea() and
     (new stzGeoProjection(:Mercator)).IsConformal())
 
+sec("-- 122. GE1: BOUNDARY DATA, WHOLE -- GeoJSON and TopoJSON -----------------")
+discharges("GE1")
+
+# geo_features_narrated.ring carries the twenty assertions. This is the
+# gate's own witness that the reader keeps what DN24b's drops, that the two
+# formats cannot disagree, and that a hole stays a hole. The fixtures are
+# two INVENTED countries: the plane's kill line is that this repository
+# vendors no boundary data, and a guard is not a way round it.
+
+oGfG = StzGeoFeaturesFromJson(read("fixtures/two_countries.geojson"))
+oGfT = StzGeoFeaturesFromTopoJson(read("fixtures/two_countries.topojson"), "land")
+chk("both formats give the same two features, and skip nothing",
+    oGfG.Count() = 2 and oGfT.Count() = 2 and oGfG.SkippedCount() = 0 and oGfT.SkippedCount() = 0)
+chk("the island and the hole are KEPT -- the two things a largest-ring reader drops",
+    oGfG.PartCount(2) = 2 and oGfG.HoleCountOf(1) = 1)
+chk("NEGATIVE: a place in the lake belongs to nobody, while the land around it " +
+    "belongs to Arda -- a hole is a hole and not a smaller country",
+    oGfG.IndexAt(2.5, 4.5) = 0 and oGfG.IndexAt(1, 1) = 1)
+oGfP = new stzGeoProjection(:Equirectangular)
+oGfP.FitToFeatures(oGfG, 400, 400, 10)
+chk("a polygon with a hole is drawn as ONE bridged ring that encloses less than " +
+    "its outer edge alone, and no hole is dropped",
+    len(oGfP.FilledPolygon(oGfG.RingsOf(1, 1))) = 1 and oGfP.HolesDropped() = 0 and
+    len(oGfP.FilledPolygon(oGfG.RingsOf(1, 1))[1]) > len(oGfP.FilledPolygon([ oGfG.OuterRingOf(1, 1) ])[1]))
+chk("a file read here becomes the regions DN24's own builder takes",
+    len(oGfG.AsRegions("pop")) = 2 and oGfG.AsRegions("pop")[1][2] = 4200)
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go

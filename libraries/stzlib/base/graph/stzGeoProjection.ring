@@ -94,6 +94,10 @@ func StzGeoArc(pnLon1, pnLat1, pnLon2, pnLat2, pnSteps)
 func StzGeoRingAreaKm2(paLonLat)
 	return fabs(StzEngineGeoRingArea(paLonLat)) * 6371 * 6371
 
+# is this place inside that ring, on the sphere?
+func StzGeoRingContains(paLonLat, pnLon, pnLat)
+	return StzEngineGeoRingContains(paLonLat, pnLon, pnLat) = 1
+
 func StzGeoDistanceKm(pnLon1, pnLat1, pnLon2, pnLat2)
 	return StzEngineGeoHaversine(pnLat1, pnLon1, pnLat2, pnLon2)
 
@@ -287,9 +291,19 @@ class stzGeoProjection from stzObject
 		_pp_ = This.Params()
 		return StzEngineGeoProjectLine(_pp_, paLonLat)
 
+	# a ring as the LINES it is: pieces, cut where the map cuts them
 	def Ring(paLonLat)
 		_pp_ = This.Params()
 		return StzEngineGeoProjectRing(_pp_, paLonLat)
+
+	# a ring as the POLYGONS it is (GE0c): the same pieces, rejoined along
+	# the map's own edge so each one closes and can be filled. A country
+	# across the antimeridian comes back as two polygons that meet the two
+	# seams; a continent around the pole comes back as one that runs along
+	# the bottom of the map.
+	def FilledRing(paLonLat)
+		_pp_ = This.Params()
+		return StzEngineGeoProjectRingFilled(_pp_, paLonLat)
 
 	def Graticule(pnStepDeg)
 		_pp_ = This.Params()
@@ -343,17 +357,95 @@ class stzGeoProjection from stzObject
 	# a ring, FILLED where it came back whole and stroked where the seam or
 	# the horizon cut it in two -- a cut piece is not a polygon and filling
 	# it would draw a shape the sphere does not have
+	# A RING, FILLED -- every piece of it. Since GE0c a cut ring comes back
+	# closed along the map's edge, so there is no longer a case where a
+	# region can only be outlined.
 	def DrawRingOn(poCanvas, paLonLat, pFill, pStroke, pnStrokeW)
+		_a_ = This.FilledRing(paLonLat)
+		for _i_ = 1 to len(_a_)
+			if len(_a_[_i_]) >= 6
+				poCanvas.AddPolygonQ(_a_[_i_]).FillQ(pFill).Stroke(pStroke, pnStrokeW)
+			ok
+		next
+
+	# A POLYGON -- an outer ring and its HOLES (GE1) -- closed on the paper.
+	# paRings[1] is the outer edge; every ring after it is a hole, bridged
+	# into it so a lake inside a country is not filled in as land.
+	def FilledPolygon(paRings)
+		_pp_ = This.Params()
+		return StzEngineGeoProjectPolygonFilled(_pp_, paRings)
+
+	# how many holes the last FilledPolygon could not give: a hole whose
+	# outer ring the map cut cannot carry a bridge, and it is counted
+	def HolesDropped()
+		return StzEngineGeoHolesDropped()
+
+	# ...and the same ring as an outline only, uncut and unfilled
+	def DrawRingOutlineOn(poCanvas, paLonLat, pStroke, pnStrokeW)
 		_a_ = This.Ring(paLonLat)
-		if len(_a_) = 1 and len(_a_[1]) >= 6
-			poCanvas.AddPolygonQ(_a_[1]).FillQ(pFill).Stroke(pStroke, pnStrokeW)
-			return
-		ok
 		for _i_ = 1 to len(_a_)
 			if len(_a_[_i_]) >= 4
 				poCanvas.AddPolylineQ(_a_[_i_]).Stroke(pStroke, pnStrokeW)
 			ok
 		next
+
+	#-- a whole feature, from a boundary file (GE1) -------------------------
+
+	# every part of it, each with its holes -- the islands DN24b's reader
+	# dropped and the lakes it filled in
+	def DrawFeatureOn(poCanvas, poFeatures, pnI, pFill, pStroke, pnStrokeW)
+		if poFeatures.KindOf(pnI) = "line"
+			_a_ = poFeatures.PartsOf(pnI)
+			for _i_ = 1 to len(_a_)
+				This.DrawLineOn(poCanvas, _a_[_i_][1], pStroke, pnStrokeW)
+			next
+			return
+		ok
+		if poFeatures.KindOf(pnI) = "point"
+			_a_ = poFeatures.PartsOf(pnI)
+			for _i_ = 1 to len(_a_)
+				_q_ = This.Project(_a_[_i_][1][1], _a_[_i_][1][2])
+				if len(_q_) = 2
+					poCanvas.AddCircleQ(_q_[1], _q_[2], pnStrokeW * 2).FillQ(pFill).Stroke(pStroke, 1)
+				ok
+			next
+			return
+		ok
+		# THE FILL IS THE BRIDGED POLYGON AND THE OUTLINE IS NOT. A hole is
+		# bridged into its outer ring by a channel cut between them, and a
+		# stroke that followed the bridged ring would draw that channel --
+		# a white scratch running from the lake to the coast, which is what
+		# the first GE1 picture showed. The rings are stroked as the rings
+		# they are, each on its own.
+		_a_ = poFeatures.PartsOf(pnI)
+		for _i_ = 1 to len(_a_)
+			_pcs_ = This.FilledPolygon(_a_[_i_])
+			for _k_ = 1 to len(_pcs_)
+				if len(_pcs_[_k_]) >= 6
+					poCanvas.AddPolygonQ(_pcs_[_k_]).Fill(pFill)
+				ok
+			next
+		next
+		if pnStrokeW > 0
+			for _i_ = 1 to len(_a_)
+				for _r_ = 1 to len(_a_[_i_])
+					This.DrawRingOutlineOn(poCanvas, _a_[_i_][_r_], pStroke, pnStrokeW)
+				next
+			next
+		ok
+
+	def DrawFeaturesOn(poCanvas, poFeatures, pFill, pStroke, pnStrokeW)
+		for _i_ = 1 to poFeatures.Count()
+			This.DrawFeatureOn(poCanvas, poFeatures, _i_, pFill, pStroke, pnStrokeW)
+		next
+
+	# fit the paper to everything a file holds
+	def FitToFeatures(poFeatures, pnW, pnH, pnPad)
+		This.FitToPoints(poFeatures.AllPoints(), pnW, pnH, pnPad)
+
+		def FitToFeaturesQ(poFeatures, pnW, pnH, pnPad)
+			This.FitToFeatures(poFeatures, pnW, pnH, pnPad)
+			return This
 
 	# TISSOT'S INDICATRIX: circles of one true size all over the sphere,
 	# projected. Where they stay round the projection keeps shapes; where

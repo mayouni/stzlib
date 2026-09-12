@@ -786,6 +786,559 @@ pub fn projectLine(p: *const Projection, lonlat: []const f64, out: *Pieces) !voi
     }
 }
 
+// ------------------------------------------------- GE0c: filling a cut ring
+//
+// A RING CUT BY THE EDGE OF THE MAP IS NO LONGER A POLYGON, and until now
+// this file said so and left it: a country crossing the antimeridian, or
+// lying half behind a globe, came back as loose pieces and could only be
+// stroked. Filling them needs the pieces REJOINED along the edge they were
+// cut on -- out of the map at one latitude and back in at another, with the
+// map's own border walked between.
+//
+// THE EDGE IS THE SAME OBJECT IN BOTH CASES, which is what makes one
+// algorithm serve both: for a globe it is the horizon circle, for a flat
+// map it is the outline -- the two seams and the two pole edges. Each is
+// walked with the drawable side on the LEFT and parameterised by one
+// number u in [0, 1), so the rejoin does not know or care which it has.
+//
+// AND THIS IS WHERE ANTARCTICA LIVES. A ring around the south pole crosses
+// the seam, leaves on one side and returns on the other, and the fill is
+// only right if the walk between them goes along the BOTTOM of the map
+// rather than straight across it. It does, because the pole edges are part
+// of the parameterisation -- so the continent fills to the bottom corners
+// the way an atlas draws it.
+//
+// NAMED, NOT DONE: holes (a ring inside a ring is drawn as its own
+// polygon, not subtracted), and a ring that wraps the sphere more than
+// once. Self-intersecting rings are the filler's problem, not this one's.
+
+fn latLimit(p: *const Projection) f64 {
+    return switch (p.kind) {
+        .conic_conformal => 80 * DEG,
+        .mercator, .transverse_mercator => MERCATOR_LIMIT,
+        else => HALF_PI - 1e-7,
+    };
+}
+
+const SEAM_EPS: f64 = 1e-7;
+
+/// The point at parameter u along the edge of the drawable region, in the
+/// ROTATED frame. u rises with the drawable side on the left.
+fn boundaryPoint(p: *const Projection, u: f64) [2]f64 {
+    const uu = u - @floor(u);
+    if (p.kind.isAzimuthal()) {
+        // the bearing runs BACKWARDS as u rises: a cap's rim walked
+        // north-east-south-west keeps the cap on the right, and the whole
+        // rejoin is written for the interior being on the left
+        const r = p.clip_angle;
+        const t = -uu * TAU;
+        return .{
+            math.atan2(@sin(t) * @sin(r), @cos(r)),
+            math.asin(math.clamp(@sin(r) * @cos(t), -1, 1)),
+        };
+    }
+    const l = latLimit(p);
+    const e = SEAM_EPS;
+    if (uu < 0.25) { // up the eastern seam
+        return .{ PI - e, -l + 2 * l * (uu / 0.25) };
+    } else if (uu < 0.5) { // west along the top
+        return .{ PI - e - (TAU - 2 * e) * ((uu - 0.25) / 0.25), l };
+    } else if (uu < 0.75) { // down the western seam
+        return .{ -PI + e, l - 2 * l * ((uu - 0.5) / 0.25) };
+    } else { // east along the bottom
+        return .{ -PI + e + (TAU - 2 * e) * ((uu - 0.75) / 0.25), -l };
+    }
+}
+
+/// ...and the parameter of a point already known to be ON that edge.
+fn boundaryParamOf(p: *const Projection, pt: [2]f64) f64 {
+    if (p.kind.isAzimuthal()) {
+        const t = math.atan2(@sin(pt[0]) * @cos(pt[1]), @sin(pt[1]));
+        var u = -t / TAU;
+        u -= @floor(u);
+        return u;
+    }
+    const l = latLimit(p);
+    const lat = math.clamp(pt[1], -l, l);
+    if (pt[0] > 0 and @abs(@abs(pt[0]) - PI) < 1e-4) return 0.25 * (lat + l) / (2 * l);
+    if (pt[0] < 0 and @abs(@abs(pt[0]) - PI) < 1e-4) return 0.5 + 0.25 * (l - lat) / (2 * l);
+    // a pole edge: east along the bottom, west along the top
+    if (pt[1] > 0) return 0.25 + 0.25 * ((PI - pt[0]) / TAU);
+    return 0.75 + 0.25 * ((pt[0] + PI) / TAU);
+}
+
+/// DOES THIS RING CONTAIN THIS PLACE? Count how often the ring crosses the
+/// half-meridian running NORTH from the place: an odd number means inside.
+///
+/// THE WHOLE DIFFICULTY IS THE WRAP, and the first version of this had it
+/// wrong in the way that is hardest to see. It wrapped each vertex's
+/// longitude difference into (-pi, pi] and then asked whether two
+/// consecutive ones straddled zero -- which says an edge running the short
+/// way ACROSS THE ANTIMERIDIAN crosses the place's meridian, because both
+/// its ends wrap to opposite signs. A globe seen from the north pole then
+/// reported the Antarctic cap as containing the pole, and filled the whole
+/// world blue.
+///
+/// The edge itself decides now: take the wrapped step from one vertex to
+/// the next, and the edge crosses the meridian only if the place's
+/// longitude lies ALONG that step. The crossing latitude is then the great
+/// circle's, not a straight line in longitude -- a coarse ring would put it
+/// in the wrong place otherwise.
+fn wrapPi(x: f64) f64 {
+    var r = x;
+    while (r > PI) r -= TAU;
+    while (r <= -PI) r += TAU;
+    return r;
+}
+
+pub fn ringContains(lonlat: []const f64, lon_deg: f64, lat_deg: f64) bool {
+    const n = lonlat.len / 2;
+    if (n < 3) return false;
+    const l0 = lon_deg * DEG;
+    const f0 = lat_deg * DEG;
+    var inside = false;
+    var i: usize = 0;
+    while (i < n) : (i += 1) {
+        const j = (i + 1) % n;
+        const la = lonlat[i * 2] * DEG;
+        const fa = lonlat[i * 2 + 1] * DEG;
+        const lb = lonlat[j * 2] * DEG;
+        const fb = lonlat[j * 2 + 1] * DEG;
+        const d = wrapPi(lb - la); // the step this edge actually takes
+        if (@abs(d) < 1e-12) continue;
+        const u = wrapPi(l0 - la); // how far the place is along that step
+        // HALF-OPEN, so a vertex sitting exactly on the meridian is counted
+        // ONCE and not twice or never. The cap round a pole has a vertex on
+        // every round longitude, so the strict form missed the crossing
+        // entirely and reported the pole as outside its own cap.
+        const on_it = if (d > 0) (u >= 0 and u < d) else (u <= 0 and u > d);
+        if (!on_it) continue;
+        // the latitude at which the great circle through a and b crosses
+        // the place's meridian
+        const sab = @sin(lb - la);
+        if (@abs(sab) < 1e-12) continue;
+        const tf = (@tan(fa) * @sin(lb - l0) + @tan(fb) * @sin(l0 - la)) / sab;
+        if (math.atan(tf) > f0) inside = !inside;
+    }
+    return inside;
+}
+
+const Seg = struct {
+    pts: std.ArrayList([2]f64) = .{},
+    entry: ?f64 = null, // u where it begins on the edge; null = began inside
+    exit: ?f64 = null, // u where it ends on the edge; null = ended inside
+    used: bool = false,
+
+    fn deinit(self: *Seg) void {
+        self.pts.deinit(alloc);
+    }
+};
+
+/// Where a segment leaves the drawable region between a (in) and b (out):
+/// bisection, the same instrument the line path uses for a horizon, and it
+/// finds the edge of the PROJECTION too -- a Mercator's 85th parallel is an
+/// edge exactly as a globe's horizon is.
+fn edgeBetween(p: *const Projection, a: [2]f64, b: [2]f64) [2]f64 {
+    return horizonBetween(p, a, b);
+}
+
+/// ONE RING, CUT AND REJOINED: closed polygons in the ROTATED frame, each
+/// ready to be projected and filled.
+fn cutAndRejoin(p: *const Projection, rot: []const [2]f64, out: *std.ArrayList(std.ArrayList([2]f64))) !void {
+    const n = rot.len;
+    if (n < 3) return;
+
+    // does anything happen at all?
+    var any_out = false;
+    var any_seam = false;
+    for (rot) |q| {
+        if (!visible(p, q[0], q[1])) any_out = true;
+    }
+    var i: usize = 0;
+    while (i < n) : (i += 1) {
+        const a = rot[i];
+        const b = rot[(i + 1) % n];
+        if (crossesSeam(p, a[0], b[0])) any_seam = true;
+    }
+    if (!any_out and !any_seam) {
+        var whole: std.ArrayList([2]f64) = .{};
+        try whole.appendSlice(alloc, rot);
+        try out.append(alloc, whole);
+        return;
+    }
+
+    var segs: std.ArrayList(Seg) = .{};
+    defer {
+        for (segs.items) |*sg| sg.deinit();
+        segs.deinit(alloc);
+    }
+
+    var cur: ?Seg = null;
+    if (visible(p, rot[0][0], rot[0][1])) {
+        cur = Seg{};
+        try cur.?.pts.append(alloc, rot[0]);
+    }
+
+    i = 0;
+    while (i < n) : (i += 1) {
+        const a = rot[i];
+        const b = rot[(i + 1) % n];
+        const a_in = visible(p, a[0], a[1]);
+        const b_in = visible(p, b[0], b[1]);
+        if (a_in and b_in) {
+            if (crossesSeam(p, a[0], b[0])) {
+                const x = seamBetween(a, b);
+                try cur.?.pts.append(alloc, x[0]);
+                cur.?.exit = boundaryParamOf(p, x[0]);
+                try segs.append(alloc, cur.?);
+                cur = Seg{ .entry = boundaryParamOf(p, x[1]) };
+                try cur.?.pts.append(alloc, x[1]);
+                try cur.?.pts.append(alloc, b);
+            } else {
+                try cur.?.pts.append(alloc, b);
+            }
+        } else if (a_in and !b_in) {
+            const h = edgeBetween(p, a, b);
+            try cur.?.pts.append(alloc, h);
+            cur.?.exit = boundaryParamOf(p, h);
+            try segs.append(alloc, cur.?);
+            cur = null;
+        } else if (!a_in and b_in) {
+            const h = edgeBetween(p, b, a);
+            cur = Seg{ .entry = boundaryParamOf(p, h) };
+            try cur.?.pts.append(alloc, h);
+            try cur.?.pts.append(alloc, b);
+        }
+    }
+
+    if (cur) |*c| {
+        // the walk ended inside: it is the same stretch segment 0 began,
+        // seen from the other end of the ring
+        if (segs.items.len > 0 and segs.items[0].entry == null) {
+            try c.pts.appendSlice(alloc, segs.items[0].pts.items);
+            c.exit = segs.items[0].exit;
+            segs.items[0].deinit();
+            segs.items[0] = c.*;
+        } else {
+            c.deinit();
+        }
+        cur = null;
+    }
+
+    // NOTHING SURVIVED, so the ring is wholly outside and nothing is drawn.
+    //
+    // AND THERE IS NO OTHER CASE, which is worth saying because the first
+    // version of this file believed there was and carried a branch for it:
+    // a ring lying entirely beyond the horizon that nevertheless SWALLOWS
+    // the whole visible world, to be answered with the disc itself. Under
+    // the rule this file actually uses -- INSIDE IS THE SMALLER OF THE TWO
+    // REGIONS A RING BOUNDS, counted by crossings of the meridian through
+    // the place -- that cannot happen: a ring wholly on the far side
+    // bounds its small region over there too. The branch was unreachable,
+    // and a picture proved it by drawing a whole globe blue when the test
+    // it rested on was wrong in the other direction.
+    //
+    // THE LIMIT THAT FOLLOWS IS NAMED RATHER THAN HIDDEN: a region LARGER
+    // than a hemisphere cannot be written as one ring here. GeoJSON's own
+    // rule would express it by winding -- interior on the left -- and real
+    // boundary files disagree about winding so often that this file
+    // normalises it away before doing anything else. Parity is the answer a
+    // reader expects of a simple ring, and it is the answer given.
+    if (segs.items.len == 0) return;
+
+    // REJOIN. From a segment's exit, walk the edge FORWARD -- the drawable
+    // side on the left -- to the next segment's entry, and keep going until
+    // the ring closes on itself.
+    var order = try alloc.alloc(usize, segs.items.len);
+    defer alloc.free(order);
+    for (order, 0..) |*o, k| o.* = k;
+    // insertion sort by entry u; a handful of segments, never a corpus
+    var a2: usize = 1;
+    while (a2 < order.len) : (a2 += 1) {
+        const key = order[a2];
+        const ku = segs.items[key].entry orelse 0;
+        var b2: usize = a2;
+        while (b2 > 0 and (segs.items[order[b2 - 1]].entry orelse 0) > ku) : (b2 -= 1) {
+            order[b2] = order[b2 - 1];
+        }
+        order[b2] = key;
+    }
+
+    const STEP: f64 = 1.0 / 720.0; // half a degree of the edge
+
+    for (0..segs.items.len) |start| {
+        if (segs.items[start].used) continue;
+        var poly: std.ArrayList([2]f64) = .{};
+        var at = start;
+        var guard: usize = 0;
+        while (guard < segs.items.len * 4) : (guard += 1) {
+            segs.items[at].used = true;
+            try poly.appendSlice(alloc, segs.items[at].pts.items);
+            const ex = segs.items[at].exit orelse break;
+            // the next entry going forward along the edge
+            var best: ?usize = null;
+            var best_gap: f64 = 2;
+            for (order) |k| {
+                const en = segs.items[k].entry orelse continue;
+                var gap = en - ex;
+                while (gap < 0) gap += 1;
+                if (gap < best_gap) {
+                    best_gap = gap;
+                    best = k;
+                }
+            }
+            const nxt = best orelse break;
+            // walk the edge from ex to the entry of nxt
+            var u = ex;
+            var walked: f64 = 0;
+            while (walked < best_gap) {
+                u += STEP;
+                walked += STEP;
+                if (walked >= best_gap) break;
+                try poly.append(alloc, boundaryPoint(p, u));
+            }
+            if (nxt == start) break;
+            at = nxt;
+        }
+        if (poly.items.len >= 3) {
+            try out.append(alloc, poly);
+        } else {
+            poly.deinit(alloc);
+        }
+    }
+}
+
+/// A RING, CLOSED ON THE PAPER. Answers polygons that can be FILLED: where
+/// the map cuts the ring, its pieces are rejoined along the map's own edge.
+///
+/// The ring is normalised counter-clockwise first, because the rejoin walks
+/// the edge with the drawable side on the left and a clockwise ring would
+/// walk it the wrong way -- and real boundary files disagree about winding
+/// whatever the GeoJSON specification says.
+pub fn projectRingFilled(p: *const Projection, lonlat: []const f64, out: *Pieces) !void {
+    var polys: std.ArrayList(std.ArrayList([2]f64)) = .{};
+    defer {
+        for (polys.items) |*pl| pl.deinit(alloc);
+        polys.deinit(alloc);
+    }
+    try rotateAndCut(p, lonlat, &polys);
+    for (polys.items) |pl| try emitPoly(p, pl.items, out);
+}
+
+// ----------------------------------------------------- GE1: a ring with holes
+//
+// A POLYGON IS AN OUTER RING AND THE HOLES IN IT -- Lesotho inside South
+// Africa, a lake inside a county -- and a filler that takes one simple
+// ring cannot express that. The standard repair is to BRIDGE: cut a
+// zero-width channel from the hole to the outer ring so the two become one
+// simple ring that the filler already handles, its inside still inside and
+// the hole still out.
+//
+// THE BRIDGE MUST NOT CROSS ANYTHING, which is the whole of the work. This
+// takes the hole's rightmost vertex and tries the outer ring's vertices
+// nearest to it, rejecting any pair whose segment crosses an edge of the
+// outer ring or of a hole, and takes the first that survives. It is a
+// search rather than the textbook's ray cast, and it is chosen for being
+// obviously correct rather than obviously fast: it runs once per holed
+// region per picture, and a region with a hole is a handful in any file.
+
+fn segsCross(a: [2]f64, b: [2]f64, c: [2]f64, d: [2]f64) bool {
+    const d1 = cross2(c, d, a);
+    const d2 = cross2(c, d, b);
+    const d3 = cross2(a, b, c);
+    const d4 = cross2(a, b, d);
+    return ((d1 > 0 and d2 < 0) or (d1 < 0 and d2 > 0)) and
+        ((d3 > 0 and d4 < 0) or (d3 < 0 and d4 > 0));
+}
+
+fn cross2(o: [2]f64, a: [2]f64, b: [2]f64) f64 {
+    return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+}
+
+/// Does the segment a-b cross any edge of `ring`, other than at the two
+/// vertices it is allowed to touch?
+fn hitsRing(ring: []const [2]f64, a: [2]f64, b: [2]f64, skip_i: usize, has_skip: bool) bool {
+    const n = ring.len;
+    for (0..n) |i| {
+        const j = (i + 1) % n;
+        if (has_skip and (i == skip_i or j == skip_i)) continue;
+        if (segsCross(a, b, ring[i], ring[j])) return true;
+    }
+    return false;
+}
+
+/// One hole, spliced into the outer ring. Answers the new outer ring, or
+/// null when no bridge could be found -- in which case the caller keeps the
+/// outer ring whole and says the hole was dropped.
+fn bridgeHole(outer: []const [2]f64, hole: []const [2]f64, others: []const []const [2]f64) !?[][2]f64 {
+    if (outer.len < 3 or hole.len < 3) return null;
+    // the hole's rightmost vertex: the one most likely to see the outside
+    var hm: usize = 0;
+    for (hole, 0..) |q, i| {
+        if (q[0] > hole[hm][0]) hm = i;
+    }
+    const m = hole[hm];
+
+    // the outer ring's vertices, nearest first
+    const order = try alloc.alloc(usize, outer.len);
+    defer alloc.free(order);
+    for (order, 0..) |*o, i| o.* = i;
+    const D = struct {
+        fn key(pt: [2]f64, q: [2]f64) f64 {
+            const dx = pt[0] - q[0];
+            const dy = pt[1] - q[1];
+            return dx * dx + dy * dy;
+        }
+    };
+    var a: usize = 1;
+    while (a < order.len) : (a += 1) {
+        const k = order[a];
+        const kk = D.key(m, outer[k]);
+        var b: usize = a;
+        while (b > 0 and D.key(m, outer[order[b - 1]]) > kk) : (b -= 1) order[b] = order[b - 1];
+        order[b] = k;
+    }
+
+    for (order) |vi| {
+        const v = outer[vi];
+        if (hitsRing(outer, m, v, vi, true)) continue;
+        if (hitsRing(hole, m, v, hm, true)) continue;
+        var bad = false;
+        for (others) |o| {
+            if (hitsRing(o, m, v, 0, false)) {
+                bad = true;
+                break;
+            }
+        }
+        if (bad) continue;
+        // splice: outer up to v, the hole from m all the way round, back to v
+        var outp = try alloc.alloc([2]f64, outer.len + hole.len + 2);
+        var w: usize = 0;
+        for (0..outer.len) |k| {
+            outp[w] = outer[(vi + k) % outer.len];
+            w += 1;
+        }
+        outp[w] = v;
+        w += 1;
+        // the hole is walked the OTHER way round, so its inside stays out
+        for (0..hole.len) |k| {
+            outp[w] = hole[(hm + hole.len - k) % hole.len];
+            w += 1;
+        }
+        outp[w] = m;
+        w += 1;
+        return outp[0..w];
+    }
+    return null;
+}
+
+/// How many holes the last polygon read could not be given. A record that
+/// drops counts what it dropped.
+var holes_dropped: u32 = 0;
+
+pub fn holesDropped() u32 {
+    return holes_dropped;
+}
+
+/// A POLYGON -- an outer ring and its holes -- closed on the paper.
+///
+/// The outer ring is cut and rejoined as always. A hole is bridged into it
+/// only when BOTH came through the cut whole; where the map cut either of
+/// them, the hole is dropped and counted, because a bridge across a piece
+/// that ends at the map's edge would run outside the picture. That case is
+/// a lake on the antimeridian, and it is named rather than guessed at.
+pub fn projectPolygonFilled(p: *const Projection, rings: []const []const f64, out: *Pieces) !void {
+    holes_dropped = 0;
+    if (rings.len == 0) return;
+    if (rings.len == 1) return projectRingFilled(p, rings[0], out);
+
+    var outer_polys: std.ArrayList(std.ArrayList([2]f64)) = .{};
+    defer {
+        for (outer_polys.items) |*pl| pl.deinit(alloc);
+        outer_polys.deinit(alloc);
+    }
+    try rotateAndCut(p, rings[0], &outer_polys);
+    if (outer_polys.items.len != 1) {
+        // the outer ring was cut: draw it, and say the holes were lost
+        holes_dropped = @intCast(rings.len - 1);
+        for (outer_polys.items) |pl| try emitPoly(p, pl.items, out);
+        return;
+    }
+
+    var holes: std.ArrayList(std.ArrayList([2]f64)) = .{};
+    defer {
+        for (holes.items) |*pl| pl.deinit(alloc);
+        holes.deinit(alloc);
+    }
+    for (rings[1..]) |r| {
+        var hp: std.ArrayList(std.ArrayList([2]f64)) = .{};
+        defer {
+            for (hp.items) |*pl| pl.deinit(alloc);
+            hp.deinit(alloc);
+        }
+        try rotateAndCut(p, r, &hp);
+        if (hp.items.len == 1) {
+            var keep: std.ArrayList([2]f64) = .{};
+            try keep.appendSlice(alloc, hp.items[0].items);
+            try holes.append(alloc, keep);
+        } else {
+            holes_dropped += 1;
+        }
+    }
+
+    var cur = try alloc.alloc([2]f64, outer_polys.items[0].items.len);
+    @memcpy(cur, outer_polys.items[0].items);
+    var owned = true;
+    defer if (owned) alloc.free(cur);
+
+    for (holes.items, 0..) |h, hi| {
+        var others: std.ArrayList([]const [2]f64) = .{};
+        defer others.deinit(alloc);
+        for (holes.items, 0..) |o, oi| {
+            if (oi != hi) try others.append(alloc, o.items);
+        }
+        const merged = try bridgeHole(cur, h.items, others.items);
+        if (merged) |mm| {
+            alloc.free(cur);
+            cur = mm;
+            owned = true;
+        } else {
+            holes_dropped += 1;
+        }
+    }
+    try emitPoly(p, cur, out);
+}
+
+/// the rotate-normalise-cut half of projectRingFilled, on its own so the
+/// polygon path can use it for an outer ring and for each hole
+fn rotateAndCut(p: *const Projection, lonlat: []const f64, out: *std.ArrayList(std.ArrayList([2]f64))) !void {
+    const n0 = lonlat.len / 2;
+    if (n0 < 3) return;
+    var n = n0;
+    if (lonlat[0] == lonlat[(n - 1) * 2] and lonlat[1] == lonlat[(n - 1) * 2 + 1]) n -= 1;
+    if (n < 3) return;
+    const ccw = ringArea(lonlat) >= 0;
+    const rot = try alloc.alloc([2]f64, n);
+    defer alloc.free(rot);
+    for (0..n) |i| {
+        const k = if (ccw) i else n - 1 - i;
+        rot[i] = rotate(p, lonlat[k * 2] * DEG, lonlat[k * 2 + 1] * DEG);
+    }
+    try cutAndRejoin(p, rot, out);
+}
+
+/// one closed rotated polygon, projected and resampled onto the paper
+fn emitPoly(p: *const Projection, pl: []const [2]f64, out: *Pieces) !void {
+    if (pl.len < 3) return;
+    try out.begin();
+    var s = Sampler{ .p = p, .out = out, .open = true };
+    try s.emit(pl[0]);
+    var i: usize = 1;
+    while (i <= pl.len) : (i += 1) {
+        try s.arc(pl[i - 1], pl[i % pl.len], 0);
+    }
+}
+
 /// A closed ring, projected AS A LINE. Its fill across a seam or a horizon
 /// is GE0c's problem and not solved here; what this guarantees is that
 /// every visible edge is drawn where it belongs.
@@ -1060,4 +1613,23 @@ test "interpolation stays on the sphere and ends where it should" {
     try std.testing.expectApproxEqAbs(@as(f64, 0), m[1], 1e-9);
     const e = interpolate(a, b, 1);
     try std.testing.expectApproxEqAbs(HALF_PI, e[0], 1e-9);
+}
+
+test "a ring contains what is inside it, and not what is outside" {
+    const box = [_]f64{ -10, -10, 10, -10, 10, 10, -10, 10 };
+    try std.testing.expect(ringContains(&box, 0, 0));
+    try std.testing.expect(!ringContains(&box, 20, 0));
+    try std.testing.expect(!ringContains(&box, 0, 20));
+}
+
+test "a ring that wraps the antimeridian does not swallow the far side" {
+    // the cap south of 60S, written as a closed ring of longitudes
+    var cap: [2 * 48]f64 = undefined;
+    for (0..48) |i| {
+        cap[i * 2] = -180 + 360 * @as(f64, @floatFromInt(i)) / 48;
+        cap[i * 2 + 1] = -60;
+    }
+    try std.testing.expect(ringContains(&cap, 0, -85)); // the south pole is in it
+    try std.testing.expect(!ringContains(&cap, 0, 85)); // the north pole is NOT
+    try std.testing.expect(!ringContains(&cap, 0, 0));
 }

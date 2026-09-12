@@ -163,6 +163,99 @@ oC3.ToPNG("geo_europe.png")
 ? "-> geo_europe.png"
 ? "   under the pixel at the centre of the sheet: " + oE.Invert(590, 400)[1] + "E " + oE.Invert(590, 400)[2] + "N"
 
+# ---- 5. GE0c: A RING THE MAP CUT STILL CLOSES ---------------------------
+# Until GE0c a region across the antimeridian, or half behind a globe, came
+# back as loose pieces and could only be stroked. The pieces are rejoined
+# along the map's own edge now -- the horizon of a globe or the outline of a
+# flat map, which is why one walk serves both -- so every region fills.
+
+aSeam  = _Box(150, -30, -150, 20)    # 60 degrees wide, straddling the antimeridian
+aCap   = _Cap(-60, 48)               # everything south of 60S
+aPlain = _Box(-20, 5, 35, 50)        # an ordinary ring, cut by nothing
+
+oC = new stzCanvas(1180, 800)
+oC.SetBackground("#FFFFFF")
+oC.SetFontQ(oFont, 22).AddTextQ("GE0c: a ring the map cuts is rejoined along the map's own edge -- and fills", 24, 40).Fill("#111111")
+
+oP = new stzGeoProjection(:NaturalEarth)
+oP.FitSphereIn(20, 62, 1160, 420, 8)
+oP.DrawSphereOn(oC, "#F4F7FC", "#3B5B8C", 1.5)
+oP.DrawGraticuleOn(oC, 30, "#D5DEEA", 1)
+oP.DrawRingOn(oC, aCap,   "#8FB4E3", "#2E4A73", 1.5)
+oP.DrawRingOn(oC, aSeam,  "#D9822B", "#8A4B12", 1.5)
+oP.DrawRingOn(oC, aPlain, "#7FBF7F", "#2E6B2E", 1.5)
+oC.SetFontQ(oFont, 15).AddTextQ("Natural Earth: orange straddles the antimeridian and comes back as TWO polygons, " +
+	"each meeting a seam; blue is everything south of 60S and runs along the bottom", 24, 446).Fill("#555555")
+
+oG = new stzGeoProjection(:Orthographic)
+oG.CenterOnQ(150, 0).FitSphereIn(40, 480, 360, 790, 6)
+oG.DrawSphereOn(oC, "#F4F7FC", "#3B5B8C", 1.5)
+oG.DrawGraticuleOn(oC, 30, "#D5DEEA", 1)
+oG.DrawRingOn(oC, aSeam, "#D9822B", "#8A4B12", 1.5)
+oC.SetFontQ(oFont, 15).AddTextQ("a globe centred on it: one polygon", 44, 790).Fill("#555555")
+
+oS = new stzGeoProjection(:AzimuthalEqualArea)
+oS.CenterOnQ(0, -90).FitSphereIn(420, 480, 740, 790, 6)
+oS.DrawSphereOn(oC, "#F4F7FC", "#3B5B8C", 1.5)
+oS.DrawGraticuleOn(oC, 30, "#D5DEEA", 1)
+oS.DrawRingOn(oC, aCap, "#8FB4E3", "#2E4A73", 1.5)
+oC.SetFontQ(oFont, 15).AddTextQ("the polar cap from above: a disc", 424, 790).Fill("#555555")
+
+oH = new stzGeoProjection(:Orthographic)
+oH.CenterOnQ(0, 90).FitSphereIn(800, 480, 1120, 790, 6)
+oH.DrawSphereOn(oC, "#F4F7FC", "#3B5B8C", 1.5)
+oH.DrawGraticuleOn(oC, 30, "#D5DEEA", 1)
+oH.DrawRingOn(oC, aCap, "#8FB4E3", "#2E4A73", 1.5)
+oH.DrawRingOn(oC, _Box(-40, 20, 60, 70), "#7FBF7F", "#2E6B2E", 1.5)
+oC.SetFontQ(oFont, 15).AddTextQ("from the north pole: the cap is wholly behind", 804, 790).Fill("#555555")
+
+? "flat: seam ring -> " + len(oP.FilledRing(aSeam)) + " polygons, cap -> " + len(oP.FilledRing(aCap)) +
+  ", plain -> " + len(oP.FilledRing(aPlain))
+? "globe on the seam: " + len(oG.FilledRing(aSeam)) + "   polar view of the cap: " + len(oS.FilledRing(aCap)) +
+  "   north view of the cap: " + len(oH.FilledRing(aCap))
+oC.ToPNG("geo_cut.png")
+? "-> geo_cut.png"
+
+# ---- 6. GE1: THE SAME COUNTRIES FROM BOTH FORMATS -----------------------
+# TopoJSON writes each shared border ONCE, as an arc, and a country as the
+# arcs that bound it; GeoJSON writes it twice in full. Read back they must
+# be the same numbers, and the two halves of this picture are that claim.
+# Arda has a lake -- a HOLE, bridged into its outer ring so it stays a hole
+# -- and Berea has an island, which is the part a largest-ring reader drops.
+
+oGjs = StzGeoFeaturesFromJson(read("fixtures/two_countries.geojson"))
+oTjs = StzGeoFeaturesFromTopoJson(read("fixtures/two_countries.topojson"), "land")
+oCG = new stzCanvas(1180, 560)
+oCG.SetBackground("#FFFFFF")
+oCG.SetFontQ(oFont, 22).AddTextQ("GE1: the same two countries, read from GeoJSON and from TopoJSON", 24, 40).Fill("#111111")
+
+aInk = [ "#8FB4E3", "#D9A05B" ]
+aEdg = [ "#2E4A73", "#8A5A18" ]
+
+oP = new stzGeoProjection(:Equirectangular)
+oP.FitToFeatures(oGjs, 560, 420, 40)
+oP.Translate([ oP.TranslateOf()[1] + 10, oP.TranslateOf()[2] + 70 ])
+for i = 1 to oGjs.Count()
+	oP.DrawFeatureOn(oC, oGjs, i, aInk[i], aEdg[i], 1.5)
+next
+oCG.SetFontQ(oFont, 16).AddTextQ("from GeoJSON -- 633 bytes", 40, 520).Fill("#555555")
+
+oQ = new stzGeoProjection(:Equirectangular)
+oQ.FitToFeatures(oTjs, 560, 420, 40)
+oQ.Translate([ oQ.TranslateOf()[1] + 600, oQ.TranslateOf()[2] + 70 ])
+for i = 1 to oTjs.Count()
+	oQ.DrawFeatureOn(oC, oTjs, i, aInk[i], aEdg[i], 1.5)
+next
+oCG.SetFontQ(oFont, 16).AddTextQ("from TopoJSON -- the shared border written ONCE, as arc 0", 620, 520).Fill("#555555")
+
+for i = 1 to oGjs.Count()
+	aB = oGjs.BoundsOf(i)
+	q = oP.Project((aB[1] + aB[3]) / 2, (aB[2] + aB[4]) / 2)
+	oCG.SetFontQ(oFont, 17).AddTextQ(oGjs.NameOf(i) + "  " + oGjs.PropertyOf(i, "pop"), q[1] - 24, q[2]).Fill("#1B2B44")
+next
+oCG.ToPNG("geo_formats.png")
+? "-> geo_formats.png"
+
 # Ring runs top-level code only up to the first func, so the helpers
 # stand at the end of the file
 func CityDot(oC, oP, aCity, oFont, cInk)
@@ -183,3 +276,26 @@ func Routes(oC, oP, aCities, aRoutes, cInk)
 		next
 	next
 
+func _Cap pnLat, pnSteps
+	_a_ = []
+	for _i_ = 0 to pnSteps - 1
+		_a_ + (-180 + 360 * _i_ / pnSteps)
+		_a_ + pnLat
+	next
+	return _a_
+
+func _Box pnL0, pnF0, pnL1, pnF1
+	_w_ = pnL1 - pnL0
+	if _w_ < 0  _w_ += 360  ok
+	_a_ = []
+	for _i_ = 0 to 24
+		_l_ = pnL0 + _w_ * _i_ / 24
+		if _l_ > 180  _l_ -= 360  ok
+		_a_ + _l_  _a_ + pnF0
+	next
+	for _i_ = 0 to 24
+		_l_ = pnL1 - _w_ * _i_ / 24
+		if _l_ < -180  _l_ += 360  ok
+		_a_ + _l_  _a_ + pnF1
+	next
+	return _a_
