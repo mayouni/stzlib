@@ -20,6 +20,88 @@ const Json = struct {
     error_len: usize,
 };
 
+/// EVERY NON-ASCII CHARACTER AS A \uXXXX ESCAPE, and the JSON otherwise
+/// byte for byte as it arrived. Answers an owned buffer; free it with
+/// stz_json_escape_free.
+///
+/// WHY THIS EXISTS, measured rather than assumed. Ring's own JsonToList
+/// LOSES ITS PLACE on a document holding a raw multibyte character: fed the
+/// world-atlas TopoJSON, whose only two non-ASCII bytes are the circumflex
+/// in "Cote d'Ivoire" at offset 6386, it answered NINE top-level arcs where
+/// the file holds 595 -- it had picked up a value from inside a nested
+/// object. Replacing that one character with an ASCII letter, and changing
+/// nothing else in 107,760 bytes, made the same call answer 595. The
+/// failure is silent: the list comes back well formed and wrong, which is
+/// the shape of defect this house refuses hardest.
+///
+/// Escaping is SAFE ANYWHERE in the text because JSON outside a string
+/// literal is ASCII by definition, so a non-ASCII byte can only be inside
+/// one. A parser that already reads \uXXXX -- which Ring's does -- gets the
+/// same document back with the same meaning and nothing left to trip on.
+///
+/// Astral characters (an emoji in a name) become the surrogate PAIR the
+/// format specifies, which is what every JSON writer emits for them.
+pub fn stz_json_escape_nonascii(data: [*c]const u8, data_len: usize, out_len: *usize) callconv(.c) [*c]u8 {
+    out_len.* = 0;
+    if (data == null) return null;
+    const src = data[0..data_len];
+    var out = std.ArrayList(u8){};
+    errdefer out.deinit(gpa);
+    var i: usize = 0;
+    while (i < src.len) {
+        const b = src[i];
+        if (b < 0x80) {
+            out.append(gpa, b) catch return null;
+            i += 1;
+            continue;
+        }
+        const n = std.unicode.utf8ByteSequenceLength(b) catch {
+            // NOT valid UTF-8: pass the byte through untouched rather than
+            // inventing a character for it. A reader that cared would have
+            // refused the document before this.
+            out.append(gpa, b) catch return null;
+            i += 1;
+            continue;
+        };
+        if (i + n > src.len) {
+            out.append(gpa, b) catch return null;
+            i += 1;
+            continue;
+        }
+        const cp = std.unicode.utf8Decode(src[i .. i + n]) catch {
+            out.append(gpa, b) catch return null;
+            i += 1;
+            continue;
+        };
+        i += n;
+        if (cp < 0x10000) {
+            appendEscape(&out, @intCast(cp)) catch return null;
+        } else {
+            const v = cp - 0x10000;
+            appendEscape(&out, @intCast(0xD800 + (v >> 10))) catch return null;
+            appendEscape(&out, @intCast(0xDC00 + (v & 0x3FF))) catch return null;
+        }
+    }
+    const owned = out.toOwnedSlice(gpa) catch return null;
+    out_len.* = owned.len;
+    return owned.ptr;
+}
+
+fn appendEscape(out: *std.ArrayList(u8), v: u16) !void {
+    const hex = "0123456789abcdef";
+    try out.append(gpa, '\\');
+    try out.append(gpa, 'u');
+    try out.append(gpa, hex[(v >> 12) & 0xF]);
+    try out.append(gpa, hex[(v >> 8) & 0xF]);
+    try out.append(gpa, hex[(v >> 4) & 0xF]);
+    try out.append(gpa, hex[v & 0xF]);
+}
+
+pub fn stz_json_escape_free(ptr: [*c]u8, len: usize) callconv(.c) void {
+    if (ptr == null or len == 0) return;
+    gpa.free(ptr[0..len]);
+}
+
 pub fn stz_json_parse(data: [*c]const u8, data_len: usize) callconv(.c) ?*Json {
     if (data == null or data_len == 0) return null;
     const src = gpa.dupe(u8, data[0..data_len]) catch return null;

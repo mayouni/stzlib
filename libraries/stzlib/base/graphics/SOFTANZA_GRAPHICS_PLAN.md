@@ -512,9 +512,9 @@ which exists.
 |---|---|---|---|
 | GE0 | the sphere: projections, rotation, resampling, cutting at the seam and the horizon, fit, invert, the measures | engine, `geo_projection.zig` in `stz_geo.dll`; face `stzGeoProjection.ring` | **GE0a and GE0c SHIPPED** below |
 | GE1 | data: GeoJSON complete (holes and islands KEPT — DN24b drops both) and a TopoJSON reader, features as first-class objects | Ring, `stzGeoFeatures.ring` | **SHIPPED** below |
-| GE2 | pictures: DN24 choropleth rebuilt as a consumer of GE0/GE1 with base layers under it; then SYMBOL map, FLOW map, HEAT/hex-bin. The globe is a projection choice, not a domain | math plane domains | open |
+| GE2 | pictures: base layers, choropleth, SYMBOL map, FLOW map, legend, caption | Ring, `stzGeoMap.ring` | **SHIPPED** below; hex-bin open |
 | GE3 | rules the gate owes: a choropleth on a projection that distorts area is a FINDING; symbols scale by AREA never radius; every map PRINTS its projection, parameters, source and vintage; north-up unless declared; a label sits in its region or is leadered | `stzPlasticRule` sets | open |
-| GE4 | names to shapes WITHOUT vendoring shapes: an ATLAS CONTRACT (`ShapeOf`, `PointOf`), a loader for the Natural Earth / world-atlas layout the caller downloads, ISO 3166 and name normalisation from the tables `stzLanguage` already holds. The kill line stands: boundary data carries a position on every disputed border, a vintage and a licence | Ring | open |
+| GE4 | names to shapes WITHOUT vendoring shapes: an ATLAS CONTRACT (`ShapeOf`, `PointOf`), ISO 3166 and name normalisation from the tables `stzLanguage` already holds. **The loader is done — GE1 reads world-atlas TopoJSON directly** and `atlas/README.md` carries the two commands. The kill line stands | Ring | open |
 | GE5 | hands: `RegionAt(x, y)` — invert, then contain on the sphere — for the GUI plane's tooltip and click | engine + GUI | open |
 
 **Order and value.** GE0 first, because every picture above it is only as
@@ -522,6 +522,84 @@ honest as the sphere underneath and its properties are the most assertable
 things in the plane. GE1 is small. GE2 pays DN24 back immediately. GE4 is
 where "mimics ThoughtSpot" is decided, and it is data hygiene once GE0–2
 stand.
+
+## GE2 -- A MAP MADE OF LAYERS, AND THE REAL WORLD ON IT (2026-09-12, SHIPPED)
+
+`stzGeoMap` composes a projection and a feature set into a picture: the
+sphere, the graticule, every feature in the colour its value earns, symbols,
+flows, a legend and a caption. DN24's choropleth stays what it is — a
+mathematical diagram over polygons already in map units, judged by the math
+plane's rules — and the two meet at `AsRegions()`, which turns a file read
+by GE1 into the regions that builder takes.
+
+**Two claims a map cannot be trusted without, and both are asserted:**
+
+- **A SYMBOL CARRIES ITS VALUE IN ITS AREA, NEVER ITS RADIUS.** Doubling a
+  radius quadruples the ink, so a symbol map scaled by radius overstates its
+  largest places fourfold — the oldest lie in the genre, and the one a
+  reader cannot see being told. Four times the value draws twice the radius.
+- **A MAP SAYS HOW IT WAS MADE.** `Caption()` gives the projection with its
+  parameters and whatever the caller said about where the boundaries came
+  from. A map with no source says **"source not stated"** rather than
+  nothing, because silence reads as authority. The class refuses to invent
+  one.
+
+And a flow is a **great circle**, resampled, not a straight line on the
+paper — a route drawn straight is a journey nobody takes.
+
+### The atlas is fetched, not vendored
+
+The Principal approved the download. `world-atlas` 2.0.2 is Natural Earth's
+public-domain data as TopoJSON — **108 KB for 177 countries at 1:110m** —
+and it lives in `base/test/graphics/atlas/`, which is **gitignored**. Only
+its README is committed, carrying the reason and the two `curl` commands.
+Every example and guard that uses it **names what it skipped** when it is
+absent; nothing required to run the geo guards depends on it.
+
+**THE AREAS ARE THE PROOF THE DATA IS BEING READ RIGHT**, and they need no
+second file: each country's area is measured from its own rings on the
+sphere, holes subtracted. The land comes to **147,255,221 km²** against the
+Earth's 148.9 million — 1.1% low, which is what 1:110m simplification costs
+— and Russia to **16,924,392 km²** against 17.1 million.
+
+### Three defects the real world found that the fixtures could not
+
+1. **RING'S OWN `JsonToList` LOSES ITS PLACE ON A RAW MULTIBYTE CHARACTER.**
+   The atlas has exactly **two non-ASCII bytes in 107,760** — the circumflex
+   in one country's name at offset 6386 — and with them the reader answered
+   **nine** top-level arcs where the file holds **595**: it had picked up a
+   value from inside a nested object. Replacing that one character with an
+   ASCII letter and changing nothing else made the same call answer 595. The
+   failure is silent: a well-formed list, wrong.
+   *The repair is `stz_json_escape_nonascii` in the engine* — every non-ASCII
+   character written as the `\uXXXX` escape the format already defines,
+   which is safe anywhere because JSON outside a string literal is ASCII by
+   definition. **This is a repair here and a defect everywhere else:** every
+   caller of `JsonToList` in this library reads real-world JSON through the
+   same hole, and the escape is public so they can use it.
+2. **THE ATLAS TOOK 52 SECONDS TO READ.** Not the parse — the arcs were
+   being passed down as a PARAMETER, and Ring passes lists by value, so ten
+   thousand points were copied once per country. Moved onto the object as
+   one flat list of numbers with an offset and a length per arc: **1.3
+   seconds**, 40× , same output. *This is the library's own documented law,
+   paid for again.*
+3. **SUDAN DREW WITH A TRIANGULAR WEDGE OF WHITE THROUGH IT.** Its long thin
+   spike reduces the remaining ring to a sliver in which every candidate
+   corner has some other vertex numerically inside it, so the ear clipper
+   ran out of ears and stopped — leaving a hole under a perfect outline. It
+   takes the **most convex corner anyway** now, so a polygon is always
+   covered, n−2 triangles every time; the price is paid where it is nothing,
+   since a corner no test accepts has almost no area. `forcedEars()` counts
+   them. **That is the third time this month the clipper stalled on a
+   degenerate vertex rather than a hard polygon.**
+
+*Witness:* `geo_world.png` (177 countries by measured area, with legend and
+caption) and `geo_symbols.png` (symbols by area on a globe, great-circle
+flows on Natural Earth). *Guard:* `geo_map_narrated.ring`, **20 assertions**
+— a value falls in its class and a feature without one draws as no data, not
+zero; four times the value is twice the radius and NOT four times; a route
+climbs north of both its ends while one along the equator does not; a map
+with no source says so; a feature's area takes its holes out. Gate §123.
 
 ## GE0c -- A RING THE MAP CUT STILL CLOSES (2026-09-12, SHIPPED)
 

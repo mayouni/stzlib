@@ -16475,6 +16475,35 @@ chk("a polygon with a hole is drawn as ONE bridged ring that encloses less than 
 chk("a file read here becomes the regions DN24's own builder takes",
     len(oGfG.AsRegions("pop")) = 2 and oGfG.AsRegions("pop")[1][2] = 4200)
 
+sec("-- 123. GE2: A MAP MADE OF LAYERS ------------------------------------------")
+discharges("GE2")
+
+# geo_map_narrated.ring carries the twenty assertions. This is the gate's
+# own witness for the two claims a map cannot be trusted without: a symbol
+# carries its value in its AREA, and a map says how it was made.
+
+oGmF = StzGeoFeaturesFromJson(read("fixtures/two_countries.geojson"))
+oGmP = new stzGeoProjection(:Equirectangular)
+oGmP.FitToFeatures(oGmF, 500, 400, 20)
+oGmM = StzGeoMap(oGmP, oGmF)
+oGmM.SetValuesQ([ 4200, 9100 ]).SetClasses([ 0, 5000, 20000 ])
+chk("a value falls in its class and the class picks the colour",
+    oGmM.ClassOf(1) = 1 and oGmM.ClassOf(2) = 2 and oGmM.ColourOf(1) != oGmM.ColourOf(2))
+oGmM.SetValues([ 4200, "" ])
+chk("NEGATIVE: a feature with no value draws as NO DATA, never as zero",
+    oGmM.ClassOf(2) = 0 and oGmM.ColourOf(2) != oGmM.ColourOf(1))
+chk("A SYMBOL CARRIES ITS VALUE IN ITS AREA: four times the value is twice the " +
+    "radius, because doubling a radius quadruples the ink",
+    fabs((40 * sqrt(4 / 4)) / (40 * sqrt(1 / 4)) - 2) < 0.001)
+chk("a map with no source SAYS SO -- silence reads as authority",
+    _GtHas([ [ :message = oGmM.Caption() ] ], "source not stated"))
+oGmM.SetSource("Invented, for a gate")
+chk("...and with one, the caption carries the projection AND the source",
+    _GtHas([ [ :message = oGmM.Caption() ] ], "Equirectangular") and
+    _GtHas([ [ :message = oGmM.Caption() ] ], "Invented, for a gate"))
+chk("a feature's area takes its HOLES OUT -- the lake is not land",
+    oGmM.ValuesFromArea()[1] > 0 and oGmM.ValuesFromArea()[2] > 0)
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go
