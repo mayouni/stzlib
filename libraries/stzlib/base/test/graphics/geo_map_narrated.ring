@@ -112,6 +112,91 @@ chk("the map reaches the vector tier with its polygons, its circles and its line
     StzFindFirst("<circle", cSvg) > 0)
 
 ? ""
+? "-- 7. WHAT THE GATE OWES A MAP (GE3) --"
+# A map is not judged the way a diagram is. It reports itself, in the
+# house's unified finding shape, and stzRuleReport ingests it -- so a map
+# joins the ONE gate instead of growing a second one. An ERROR is a picture
+# that argues against itself; a warning advises.
+oBad = StzGeoMap(new stzGeoProjection(:Mercator), oF)
+oBad.SetValuesQ([ 4200, 99999 ]).SetClasses([ 0, 5000, 20000, 30000 ])
+aBad = oBad.Findings()
+chk("A CHOROPLETH ON A PROJECTION THAT DISTORTS AREA IS AN ERROR -- it encodes " +
+    "a quantity as the colour of an area, so the picture argues against its own legend",
+    _HasRule(aBad, "choropleth_needs_an_equal_area_projection", "error"))
+chk("a value outside the classes is an ERROR, and the finding names the region " +
+    "and which end it fell off",
+    _HasRule(aBad, "values_fall_in_the_classes", "error") and
+    _RuleSays(aBad, "values_fall_in_the_classes", "Berea") and
+    _RuleSays(aBad, "values_fall_in_the_classes", "above the last class"))
+chk("a class that colours nothing WARNS -- the legend promises a shade the map " +
+    "never shows",
+    _HasRule(aBad, "every_class_colours_a_region", "warning"))
+chk("a map with no source WARNS rather than errors: the picture may be true, " +
+    "and what is missing is the means to check it",
+    _HasRule(aBad, "the_map_names_its_source", "warning"))
+chk("...and the verdict follows the house convention -- an error makes it unsound",
+    NOT oBad.IsSound())
+
+oGood = StzGeoMap(new stzGeoProjection(:EqualEarth), oF)
+oGood.SetValuesQ([ 4200, 9100 ]).SetClasses([ 0, 5000, 20000 ])
+oGood.SetSource("Invented, for a guard")
+chk("NEGATIVE: the same data on an equal-area projection, with its source named, " +
+    "reports NOTHING -- the rules are not firing on everything",
+    len(oGood.Findings()) = 0 and oGood.IsSound())
+
+oRolled = StzGeoMap(new stzGeoProjection(:Orthographic), oF)
+oRolled.Projection().Rotate([ 0, 0, 30 ])
+oRolled.SetSource("x")
+chk("NORTH IS UP: a rolled sphere is an ERROR, because a reader is given no way " +
+    "to know it is not",
+    _HasRule(oRolled.Findings(), "north_is_up", "error"))
+oTurned = StzGeoMap(new stzGeoProjection(:Orthographic), oF)
+oTurned.Projection().CenterOn(7, 25)
+oTurned.SetSource("x")
+chk("NEGATIVE: TURNING the sphere to centre a globe is ordinary and reports " +
+    "nothing -- it is the ROLL that hides which way is up",
+    NOT _HasRule(oTurned.Findings(), "north_is_up", "error"))
+
+oOff = StzGeoMap(new stzGeoProjection(:Orthographic), oF)
+oOff.Projection().CenterOn(-170, 0)
+oOff.SetSource("x")
+chk("a region the paper cannot show WARNS: it is counted in the legend and " +
+    "invisible to the reader",
+    _HasRule(oOff.Findings(), "the_data_fits_the_paper", "warning"))
+
+oRep = StzCheckGeoMaps([ [ "bad", oBad ], [ "good", oGood ] ])
+chk("several maps judged at once join the ONE report, each finding carrying the " +
+    "map it came from",
+    NOT oRep.IsSound() and len(oRep.Errors()) = 2 and
+    _RuleSays(oRep.Findings(), "choropleth_needs_an_equal_area_projection", "bad/map"))
+
+? ""
+? "-- 8. WHAT IS UNDER A PIXEL (GE5) --"
+# The projection is inverted to a place on the sphere and the place is asked
+# of the features. Nothing is special-cased: the same invert the sphere guard
+# asserts round-trips on all sixteen projections.
+oHit = StzGeoMap(new stzGeoProjection(:EqualEarth), oF)
+oHit.Projection().FitToFeatures(oF, 500, 400, 20)
+oHit.SetValuesQ([ 4200, 9100 ]).SetClasses([ 0, 5000, 20000 ])
+qA = oHit.Projection().Project(1, 1)
+qL = oHit.Projection().Project(2.5, 4.5)
+qS = oHit.Projection().Project(14.2, 5)
+chk("a pixel over a country answers that country, and its value with it",
+    oHit.NameAt(qA[1], qA[2]) = "Arda" and oHit.ValueAt(qA[1], qA[2]) = 4200)
+chk("NEGATIVE: a pixel over the LAKE answers nobody -- the hole is respected " +
+    "all the way from the file to the click",
+    oHit.FeatureAt(qL[1], qL[2]) = 0 and oHit.NameAt(qL[1], qL[2]) = "")
+chk("a pixel over the ISLAND answers the country it belongs to, not the mainland " +
+    "it is nowhere near",
+    oHit.NameAt(qS[1], qS[2]) = "Berea")
+chk("the place under a pixel is the place that pixel was drawn from, to the " +
+    "fourth decimal -- the invert is the sphere's own",
+    fabs(oHit.PlaceAt(qA[1], qA[2])[1] - 1) < 0.0001 and
+    fabs(oHit.PlaceAt(qA[1], qA[2])[2] - 1) < 0.0001)
+chk("NEGATIVE: a pixel off the map answers nothing rather than the nearest thing",
+    oHit.FeatureAt(-500, -500) = 0)
+
+? ""
 ? "-- 7. And on the real world, if it is here --"
 if NOT fexists("atlas/countries-110m.json")
 	? "   (SKIPPED, by name: atlas/countries-110m.json is not present. The"
@@ -212,3 +297,19 @@ func _NoLakeJson
 	next
 	_out_ += ']]}}]}'
 	return _out_
+
+func _HasRule paFindings, pcRule, pcSeverity
+	for _i_ = 1 to len(paFindings)
+		if paFindings[_i_][:rule] = pcRule and paFindings[_i_][:severity] = pcSeverity
+			return TRUE
+		ok
+	next
+	return FALSE
+
+func _RuleSays paFindings, pcRule, pcText
+	for _i_ = 1 to len(paFindings)
+		if paFindings[_i_][:rule] != pcRule  loop  ok
+		if StzFindFirst(pcText, "" + paFindings[_i_][:message]) > 0  return TRUE  ok
+		if StzFindFirst(pcText, "" + paFindings[_i_][:subject]) > 0  return TRUE  ok
+	next
+	return FALSE

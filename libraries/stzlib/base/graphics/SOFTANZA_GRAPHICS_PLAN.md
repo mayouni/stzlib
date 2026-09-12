@@ -513,15 +513,62 @@ which exists.
 | GE0 | the sphere: projections, rotation, resampling, cutting at the seam and the horizon, fit, invert, the measures | engine, `geo_projection.zig` in `stz_geo.dll`; face `stzGeoProjection.ring` | **GE0a and GE0c SHIPPED** below |
 | GE1 | data: GeoJSON complete (holes and islands KEPT — DN24b drops both) and a TopoJSON reader, features as first-class objects | Ring, `stzGeoFeatures.ring` | **SHIPPED** below |
 | GE2 | pictures: base layers, choropleth, SYMBOL map, FLOW map, legend, caption | Ring, `stzGeoMap.ring` | **SHIPPED** below; hex-bin open |
-| GE3 | rules the gate owes: a choropleth on a projection that distorts area is a FINDING; symbols scale by AREA never radius; every map PRINTS its projection, parameters, source and vintage; north-up unless declared; a label sits in its region or is leadered | `stzPlasticRule` sets | open |
+| GE3 | rules the gate owes, seven of them, reported in the house's unified finding shape | Ring, `stzGeoMap.Findings()` + `StzCheckGeoMaps` | **SHIPPED** below |
 | GE4 | names to shapes WITHOUT vendoring shapes: an ATLAS CONTRACT (`ShapeOf`, `PointOf`), ISO 3166 and name normalisation from the tables `stzLanguage` already holds. **The loader is done — GE1 reads world-atlas TopoJSON directly** and `atlas/README.md` carries the two commands. The kill line stands | Ring | open |
-| GE5 | hands: `RegionAt(x, y)` — invert, then contain on the sphere — for the GUI plane's tooltip and click | engine + GUI | open |
+| GE5 | hands: `PlaceAt` / `FeatureAt` / `NameAt` / `ValueAt` — invert, then contain on the sphere | Ring, `stzGeoMap` | **SHIPPED** below |
 
 **Order and value.** GE0 first, because every picture above it is only as
 honest as the sphere underneath and its properties are the most assertable
 things in the plane. GE1 is small. GE2 pays DN24 back immediately. GE4 is
 where "mimics ThoughtSpot" is decided, and it is data hygiene once GE0–2
 stand.
+
+## GE3 -- WHAT THE GATE OWES A MAP (2026-09-12, SHIPPED)
+
+**A map is not judged the way a diagram is.** DN24's choropleth is a
+mathematical picture with a substance the math governance can read; a map is
+a projection, a file and a set of values, and its mistakes are mistakes of
+ARGUMENT rather than of geometry. So it reports ITSELF, in the house's
+unified finding shape — `[ :rule, :subject, :where, :severity, :message ]` —
+which `stzRuleReport` ingests. **One gate, not two.**
+
+Severities follow the house convention: an **error** is a picture that
+argues against itself, a **warning** advises.
+
+| rule | severity | why |
+|---|---|---|
+| `choropleth_needs_an_equal_area_projection` | error | colour encodes a quantity as an AREA; on Mercator the picture argues against its own legend |
+| `north_is_up` | error | turning the sphere to centre a globe is ordinary; ROLLING it hides which way is up |
+| `values_fall_in_the_classes` | error | a value with no class has no colour, and the legend cannot explain it |
+| `the_map_names_its_source` | warning | the picture may be true; what is missing is the means to check it |
+| `every_class_colours_a_region` | warning | a shade the legend promises and the map never shows |
+| `every_region_has_a_value` | warning | the map is short — and says so, in the legend |
+| `the_data_fits_the_paper` | warning | a region that projects nowhere is counted in the legend and invisible |
+
+`StzCheckGeoMaps([ [ name, map ], ... ])` judges several at once and tags
+each finding with the map it came from, exactly as `StzCheckPictures` does.
+
+**The witness is the argument made visible:** `geo_rules.png` draws the same
+177 countries on Mercator and on Equal Earth. On the left the high latitudes
+are swollen and coloured as though they were large, and the gate says so by
+name; on the right, with its source stated, the same map reports nothing.
+
+## GE5 -- WHAT IS UNDER A PIXEL (2026-09-12, SHIPPED)
+
+`PlaceAt(x, y)`, `FeatureAt`, `NameAt`, `ValueAt`. The projection is inverted
+to a place on the sphere and the place is asked of the features — **nothing
+is special-cased**. It is the same invert §121 asserts round-trips on all
+sixteen projections, so a globe, a rotated sphere and a cut map all answer
+correctly without a line of code about any of them, **and a hole answers
+nobody** — the lake is respected all the way from the file to the click.
+
+*Measured:* 2.6 ms per hit test against 177 countries and 10,587 points, on
+a reader that walks every ring. Enough for a click, not for a hover at 60 Hz;
+the index that would fix it is the GUI plane's to want, and it is named here
+rather than built on a guess.
+
+*Guard:* the GE3 and GE5 sections of `geo_map_narrated.ring` bring it to
+**35 assertions**; gate §124 and §125.
 
 ## GE2 -- A MAP MADE OF LAYERS, AND THE REAL WORLD ON IT (2026-09-12, SHIPPED)
 

@@ -39,6 +39,31 @@ func StzGeoMap(poProjection, poFeatures)
 func StzGeoMapPaletteFor(pnClasses)
 	return StzChoroplethPaletteFor(pnClasses)
 
+# EVERY MAP JUDGED AT ONCE, into the ONE report the whole library gates on.
+# Mirrors StzCheckPictures: [ [ name, oMap ], ... ] in, a stzRuleReport out,
+# and a map's findings arrive already in the unified shape so nothing has to
+# be translated.
+func StzCheckGeoMaps(paMaps)
+	_oRep_ = new stzRuleReport("geomaps")
+	for _i_ = 1 to len(paMaps)
+		if NOT (isList(paMaps[_i_]) and len(paMaps[_i_]) >= 2)  loop  ok
+		if NOT isObject(paMaps[_i_][2])  loop  ok
+		_oRep_.Ingest(_GeoTagged(paMaps[_i_][2].Findings(), "" + paMaps[_i_][1]))
+	next
+	? "maps judged: " + len(paMaps) + " -- findings: " + len(_oRep_.Findings())
+	return _oRep_
+
+# the map's own name in front of the subject, so a report over several maps
+# says WHICH one spoke
+func _GeoTagged(paFindings, pcName)
+	_a_ = []
+	for _i_ = 1 to len(paFindings)
+		_f_ = paFindings[_i_]
+		_a_ + [ :rule = _f_[:rule], :subject = pcName + "/" + _f_[:subject],
+		        :where = _f_[:where], :severity = _f_[:severity], :message = _f_[:message] ]
+	next
+	return _a_
+
 class stzGeoMap from stzObject
 	@oP = NULL
 	@oF = NULL
@@ -292,3 +317,186 @@ class stzGeoMap from stzObject
 
 	def DrawCaptionOn(poCanvas, poFont, pnX, pnY)
 		poCanvas.SetFontQ(poFont, 15).AddTextQ(This.Caption(), pnX, pnY).Fill("#555555")
+
+	#-- WHAT THE GATE OWES A MAP (GE3) --------------------------------------
+	#
+	# A map is not judged the way a diagram is. DN24's choropleth is a
+	# mathematical picture with a substance the math governance can read; a
+	# map is a projection, a file and a set of values, and the mistakes it
+	# makes are mistakes of ARGUMENT rather than of geometry. So it reports
+	# itself, in the house's unified finding shape --
+	#
+	#     [ :rule, :subject, :where, :severity, :message ]
+	#
+	# -- which stzRuleReport ingests, so a map joins the one CI gate beside
+	# every other domain instead of growing a second one.
+	#
+	# The severities follow the house convention: an ERROR is a picture that
+	# ARGUES AGAINST ITSELF and a warning ADVISES. A map missing its source
+	# is a warning because the picture is still true; a choropleth on a
+	# projection that distorts area is an ERROR because the picture is not.
+
+	def Findings()
+		_a_ = []
+		_cM_ = "map"
+		_nF_ = @oF.Count()
+		_bChoro_ = len(@aEdges) >= 2 and len(@aValues) > 0
+
+		# 1. THE ONE A CHOROPLETH CANNOT SURVIVE. It encodes a quantity as
+		# the colour of an AREA, so on a projection that distorts area the
+		# picture argues against its own legend: on Mercator, Greenland
+		# reads as large as Africa while carrying a fourteenth of its
+		# people. This is DN24's own reasoning, enforced where the
+		# projection is finally a choice.
+		if _bChoro_ and NOT @oP.IsEqualArea()
+			_a_ + [ :rule = "choropleth_needs_an_equal_area_projection",
+				:subject = _cM_, :where = @oP.Name(), :severity = "error",
+				:message = "the regions are coloured by a quantity but '" + @oP.Name() +
+					"' does not preserve area -- the picture argues against its own legend" ]
+		ok
+
+		# 2. NORTH IS UP unless the map says otherwise. Turning the sphere to
+		# centre a globe is ordinary; ROLLING it puts north somewhere other
+		# than up, and every reader of this plane's pictures assumes it is
+		# not there.
+		if fabs(@oP.RotationOf()[3]) > 0.0001
+			_a_ + [ :rule = "north_is_up",
+				:subject = _cM_, :where = "roll " + @oP.RotationOf()[3],
+				:severity = "error",
+				:message = "the sphere is rolled by " + @oP.RotationOf()[3] +
+					" degrees, so north is not up -- a reader is given no way to know" ]
+		ok
+
+		# 3. A MAP SAYS ON WHOSE WORD ITS BORDERS ARE WHERE THEY ARE. It is a
+		# warning and not an error because the picture may be perfectly
+		# true; what is missing is the means to check it.
+		if @cSource = ""
+			_a_ + [ :rule = "the_map_names_its_source",
+				:subject = _cM_, :where = "caption", :severity = "warning",
+				:message = "no source is stated for the boundaries -- a map asserts " +
+					"where a border lies, and silence reads as authority" ]
+		ok
+
+		# 4. EVERY VALUE HAS A COLOUR. A value outside the classes is drawn
+		# as no data, which is a region the legend cannot explain.
+		if _bChoro_
+			_n_ = len(@aEdges) - 1
+			for _i_ = 1 to _nF_
+				_v_ = This.ValueOf(_i_)
+				if NOT isNumber(_v_)  loop  ok
+				if This.ClassOf(_i_) > 0  loop  ok
+				_side_ = "below the first class, which begins at " + StzFactNumText(@aEdges[1])
+				if _v_ > @aEdges[_n_ + 1]
+					_side_ = "above the last class, which ends at " + StzFactNumText(@aEdges[_n_ + 1])
+				ok
+				_a_ + [ :rule = "values_fall_in_the_classes",
+					:subject = _cM_, :where = @oF.NameOf(_i_), :severity = "error",
+					:message = "'" + @oF.NameOf(_i_) + "' is " + StzFactNumText(_v_) +
+						", " + _side_ + " -- it has no colour" ]
+			next
+		ok
+
+		# 5. A CLASS THAT COLOURS NOTHING is a shade the legend promises and
+		# the map never shows.
+		if _bChoro_
+			_n_ = len(@aEdges) - 1
+			_cnt_ = []
+			for _c_ = 1 to _n_  _cnt_ + 0  next
+			for _i_ = 1 to _nF_
+				_c_ = This.ClassOf(_i_)
+				if _c_ >= 1  _cnt_[_c_]++  ok
+			next
+			for _c_ = 1 to _n_
+				if _cnt_[_c_] > 0  loop  ok
+				_a_ + [ :rule = "every_class_colours_a_region",
+					:subject = _cM_, :where = "class " + _c_, :severity = "warning",
+					:message = "class " + _c_ + " (" + StzFactNumText(@aEdges[_c_]) + " - " +
+						StzFactNumText(@aEdges[_c_ + 1]) + ") colours no region -- the legend " +
+						"promises a shade the map never shows" ]
+			next
+		ok
+
+		# 6. A REGION WITH NO VALUE is a hole in the map. It is drawn as no
+		# data and said so in the legend, which is honest -- so it advises.
+		if _bChoro_
+			_nNo_ = 0
+			for _i_ = 1 to _nF_
+				if NOT isNumber(This.ValueOf(_i_))  _nNo_++  ok
+			next
+			if _nNo_ > 0
+				_a_ + [ :rule = "every_region_has_a_value",
+					:subject = _cM_, :where = "" + _nNo_ + " of " + _nF_, :severity = "warning",
+					:message = "" + _nNo_ + " of " + _nF_ + " regions carry no value and are " +
+						"drawn as no data -- the map is short, and says so" ]
+			ok
+		ok
+
+		# 7. A REGION THE PAPER CANNOT SHOW. A feature that projects nowhere
+		# -- behind the globe, or off the fitted extent -- is counted in the
+		# legend and invisible to the reader.
+		_nOff_ = 0
+		_cFirst_ = ""
+		for _i_ = 1 to _nF_
+			if This.IsOnPaper(_i_)  loop  ok
+			_nOff_++
+			if _cFirst_ = ""  _cFirst_ = @oF.NameOf(_i_)  ok
+		next
+		if _nOff_ > 0
+			_a_ + [ :rule = "the_data_fits_the_paper",
+				:subject = _cM_, :where = _cFirst_, :severity = "warning",
+				:message = "" + _nOff_ + " region(s) project nowhere on this map, beginning " +
+					"with '" + _cFirst_ + "' -- they are counted in the legend and cannot be seen" ]
+		ok
+
+		return _a_
+
+	# does any point of this feature reach the paper at all?
+	def IsOnPaper(pnI)
+		_p_ = @oF.PartsOf(pnI)
+		for _k_ = 1 to len(_p_)
+			_r_ = _p_[_k_][1]
+			_n_ = len(_r_) / 2
+			_step_ = 1
+			if _n_ > 40  _step_ = floor(_n_ / 40)  ok
+			for _j_ = 1 to _n_ step _step_
+				if len(@oP.Project(_r_[_j_ * 2 - 1], _r_[_j_ * 2])) = 2  return TRUE  ok
+			next
+		next
+		return FALSE
+
+	def IsSound()
+		_a_ = This.Findings()
+		for _i_ = 1 to len(_a_)
+			if _a_[_i_][:severity] = "error"  return FALSE  ok
+		next
+		return TRUE
+
+	#-- GE5: THE HANDS ------------------------------------------------------
+	#
+	# What a click is over. The projection is inverted to a place on the
+	# sphere and the place is asked of the features -- so the answer is
+	# right on a globe, on a cut map, and under any rotation, because none
+	# of that is special-cased: it is the same invert the guard asserts
+	# round-trips on all sixteen projections.
+
+	# [ lon, lat ] under a pixel, or [] off the sphere
+	def PlaceAt(pnX, pnY)
+		return @oP.Invert(pnX, pnY)
+
+	# the feature under a pixel, or 0 for the sea, the sky and the margin
+	def FeatureAt(pnX, pnY)
+		_g_ = @oP.Invert(pnX, pnY)
+		if len(_g_) < 2  return 0  ok
+		return @oF.IndexAt(_g_[1], _g_[2])
+
+	# ...and what it is called, or "" -- what a tooltip shows
+	def NameAt(pnX, pnY)
+		_i_ = This.FeatureAt(pnX, pnY)
+		if _i_ < 1  return ""  ok
+		return @oF.NameOf(_i_)
+
+	# ...and its value, or "" where it has none
+	def ValueAt(pnX, pnY)
+		_i_ = This.FeatureAt(pnX, pnY)
+		if _i_ < 1  return ""  ok
+		return This.ValueOf(_i_)
