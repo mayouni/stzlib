@@ -28,13 +28,55 @@ oSrv = new stzAppServer()
 oSrv.Observe(oMon)
 oSrv.Get_("/work", func oReq, oResp {
 	_s_ = ""
-	for _k_ = 1 to 30000
+	for _k_ = 1 to $nWork
 		_s_ += "x"
 	next
 	oResp.Text("done")
 })
 oSrv.Start(0, "127.0.0.1")
 oClient = new stzReactor()
+
+# HOW MUCH WORK IS ENOUGH IS A QUESTION ABOUT THE CLOCK, not a constant.
+# CPU time advances in TICKS -- 15.625 ms on Windows -- so a handler whose
+# work fits inside one leaves U, D and the CPU ceiling all reading zero,
+# and six assertions below fail on a runtime that is merely FAST. The 30000
+# that used to be here was sized for Ring; Ring++ finishes it in a fraction
+# of a tick.
+#
+# CALIBRATE A RATE, NOT A TICK. "Stop as soon as the clock has moved" is
+# not enough, and was tried: tick boundaries are asynchronous, so the clock
+# can advance after a single cheap round and the answer then describes the
+# tick rather than the work. This runs until the CPU clock has advanced far
+# enough to divide by -- three ticks -- so the granularity becomes a small
+# relative error, then reads off how many appends a CPU-millisecond buys.
+#
+# Bounded, so a stopped clock fails the assertions rather than spinning,
+# and floored at the original 30000, so it can never ask for LESS work
+# than it used to.
+$nWork = 30000
+_nUnit_ = 20000
+_nCpu0_ = StzEnginePerfCpuNs()
+_nDone_ = 0
+_nGuard_ = 0
+_nCpuMs_ = 0
+while _nGuard_ < 400 and _nCpuMs_ < 45
+	_t_ = ""
+	for _k_ = 1 to _nUnit_
+		_t_ += "x"
+	next
+	_nDone_ += _nUnit_
+	_nGuard_++
+	_nCpuMs_ = (StzEnginePerfCpuNs() - _nCpu0_) / 1000000
+end
+# About one tick of work per request, so the fifteen of them together leave
+# the interval a dozen ticks clear. Five was tried first and was too thin a
+# margin: one run in six still landed the whole interval on a single tick,
+# and the tick is what the assertions cannot survive.
+if _nCpuMs_ > 0
+	if floor((_nDone_ / _nCpuMs_) * 15) > $nWork
+		$nWork = floor((_nDone_ / _nCpuMs_) * 15)
+	ok
+ok
 
 oP = StzPerfProfile(oMon)
 for i = 1 to 15
