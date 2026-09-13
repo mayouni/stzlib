@@ -298,6 +298,11 @@ class stzGeoMap from stzObject
 	@cLabelMode = :Auto
 	@aRingCache = []
 	@aCentroidCache = []
+	@aInsets = []
+	@cInsetInk = "#5A6B7C"
+	@cInsetPaper = "#FFFFFF"
+	@nLblInset = 0
+	@bInsetsDrawn = FALSE
 	@nCell = 0
 	@nGx = 0
 	@nGy = 0
@@ -763,7 +768,8 @@ class stzGeoMap from stzObject
 	# the gate refuses it.
 	def LabelReport()
 		return [ :named = @nLblNamed, :numbered = @nLblNumbered,
-		         :dropped = @nLblDropped, :unlisted = @nKeyUnlisted ]
+		         :inset = @nLblInset, :dropped = @nLblDropped,
+		         :unlisted = @nKeyUnlisted ]
 
 	# where the key is written: [ x0, y0, x1, y1 ]. With no key box set, a
 	# region that cannot carry its own name is dropped -- a number with
@@ -862,6 +868,7 @@ class stzGeoMap from stzObject
 		@nKeyUnlisted = 0
 		@aPlaced = []
 		@nLblNamed = 0
+		@nLblInset = 0
 		@nLblNumbered = 0
 		@nLblDropped = 0
 		@aKey = []
@@ -869,6 +876,7 @@ class stzGeoMap from stzObject
 		if _nF_ = 0  return  ok
 		_sz_ = pnSize
 		if _sz_ < This.LabelFloor()  _sz_ = This.LabelFloor()  ok
+		This._ResolveInsets()
 		This._BuildLandGrid()
 		# the outlines, projected and thinned ONCE. Every anchor search and
 		# every number-against-the-edge search reads them, and projecting a
@@ -933,6 +941,14 @@ class stzGeoMap from stzObject
 		for _k_ = 1 to _nF_
 			_i_ = _ord_[_k_]
 			if NOT _aOk_[_i_]  loop  ok
+			# A REGION IS LABELLED IN EXACTLY ONE PLACE. What an inset has
+			# taken, the parent leaves alone -- otherwise the name appears
+			# twice, or the parent reports as DROPPED a region that is in
+			# fact named an inch away, which is the worse of the two.
+			if This.InsetHolding(_i_) > 0
+				@nLblInset++
+				loop
+			ok
 			if @cLabelMode = "numbers"
 				_rest_ + _i_
 				loop
@@ -1555,6 +1571,274 @@ class stzGeoMap from stzObject
 		if _x0_ > _x1_  return [ 0, 0, 0, 0 ]  ok
 		return [ _x0_, _y0_, _x1_, _y1_ ]
 
+	#-- insets ---------------------------------------------------------------
+	#
+	# AN INSET IS THE ATLAS'S ANSWER TO A PLACE TOO SMALL TO LABEL AT THE
+	# SHEET'S SCALE, and it is the answer because it is the only one that
+	# does not lie. The alternatives all cost something true: a leader line
+	# says "this name belongs over there" and clutters the sheet saying it;
+	# a number says "look this up" and spends the reader's attention; and
+	# dropping the name says nothing at all. An inset says "here is the same
+	# ground, larger", which is a statement a reader can check.
+	#
+	# Every one of the three sheets in this plane wanted one. Niger's Niamey
+	# is a capital district inside Tillaberi with no empty paper anywhere
+	# near it. Tunisia's Grand Tunis is three governorates inside one city
+	# -- Tunis, Ben Arous and Manubah, Natural Earth having folded Ariana
+	# into its neighbours, which is a fact about the FILE and not about
+	# Tunisia. France's Petite Couronne is four departments inside another
+	# city. Those are ALL of the regions those sheets could not label: the
+	# failure is not spread across the map, it is concentrated in one spot
+	# per country, which is exactly the shape an inset is for.
+	#
+	# THREE THINGS MAKE IT AN INSET RATHER THAN A SECOND MAP:
+	#
+	#   1. THE SAME PROJECTION, only larger. The inset takes a COPY of the
+	#      parent's projection and refits it -- same parallels, same
+	#      rotation, same family -- so a shape has the same shape in both
+	#      places and a reader comparing them is comparing like with like.
+	#      A fresh projection fitted to a small window would silently
+	#      re-derive its parallels and quietly change every shape in it.
+	#   2. THE SAME COLOURS. Values, class edges and palette are the
+	#      parent's, so a region that is dark on the main map is dark in the
+	#      inset. An inset with its own scale would be a different map
+	#      wearing this one's frame.
+	#   3. A LOCATOR ON THE PARENT. The frame round the inset and the
+	#      rectangle on the main map are drawn in one ink and one weight,
+	#      because that pairing is the only thing telling the reader WHERE
+	#      the inset is of. Without it an inset is a floating fragment.
+	#
+	# AND IT SAYS ITS SCALE. An inset drawn at six times the parent, with no
+	# word of it, tells the reader that Tunis is the size of Kairouan -- the
+	# same family of lie as colouring a count, and this file refuses that
+	# one too. The multiplier is measured from the two projections and
+	# printed; it is never taken on trust from the caller.
+	#
+	# AN INSET LABELS THE WAY ITS PARENT LABELS ITS UNITS -- names, or the
+	# parent's official codes where it has them, and never a sequential
+	# number, which would need a second key and a sheet with two keys has
+	# given up. If a mark still will not fit at the inset's scale it is
+	# REPORTED, and the answer is a larger box, not a cleverer placement.
+
+	def SetInsetInk(pInk)
+		@cInsetInk = pInk
+
+		def SetInsetInkQ(pInk)
+			This.SetInsetInk(pInk)
+			return This
+
+	def SetInsetPaper(pFill)
+		@cInsetPaper = pFill
+
+		def SetInsetPaperQ(pFill)
+			This.SetInsetPaper(pFill)
+			return This
+
+	# paWindow is the ground to magnify, [ lon0, lat0, lon1, lat1 ]; paBox is
+	# where it goes on the canvas, [ x0, y0, x1, y1 ].
+	def AddInset(paWindow, paBox)
+		This.AddInsetXT(paWindow, paBox, "")
+
+		def AddInsetQ(paWindow, paBox)
+			This.AddInset(paWindow, paBox)
+			return This
+
+	def AddInsetXT(paWindow, paBox, pcTitle)
+		if NOT (isList(paWindow) and len(paWindow) = 4)
+			stzraise("stzGeoMap.AddInset: the window is [ lon0, lat0, lon1, lat1 ].")
+		ok
+		if NOT (isList(paBox) and len(paBox) = 4)
+			stzraise("stzGeoMap.AddInset: the box on the canvas is [ x0, y0, x1, y1 ].")
+		ok
+		_w_ = paWindow
+		if _w_[1] > _w_[3]  _t_ = _w_[1]  _w_[1] = _w_[3]  _w_[3] = _t_  ok
+		if _w_[2] > _w_[4]  _t_ = _w_[2]  _w_[2] = _w_[4]  _w_[4] = _t_  ok
+		@aInsets + [ :window = _w_, :box = paBox, :title = "" + pcTitle,
+		             :idx = [], :count = 0, :scale = 0, :named = 0, :dropped = 0 ]
+
+		def AddInsetXTQ(paWindow, paBox, pcTitle)
+			This.AddInsetXT(paWindow, paBox, pcTitle)
+			return This
+
+	def Insets()
+		return @aInsets
+
+	# WHICH REGIONS EACH INSET HAS TAKEN, resolved ONCE and read by everyone.
+	#
+	# ONE DEFINITION OF "INSIDE THIS WINDOW", AND ONLY ONE. The first version
+	# had two: the parent asked whether a region's LABEL POINT fell in the
+	# window, and the inset drew whatever IndicesWithin returned, which tests
+	# the centre of the bounding BOX. Those are different points, so a region
+	# could be skipped by the parent as "the inset has it" and then not drawn
+	# by the inset -- a name lost between two pieces of code that each
+	# believed the other had it.
+	#
+	# That is the same shape as the two definitions of "centre" that put five
+	# names off their regions on an earlier sheet. The cure is not to make
+	# the two tests agree; it is to have ONE test, and let the other caller
+	# read its answer.
+	def _ResolveInsets()
+		for _k_ = 1 to len(@aInsets)
+			_w_ = @aInsets[_k_][:window]
+			@aInsets[_k_][:idx] = @oF.IndicesWithin(_w_[1], _w_[2], _w_[3], _w_[4])
+			@aInsets[_k_][:count] = len(@aInsets[_k_][:idx])
+		next
+
+	# the FIRST inset holding it, and not the nearest: two insets over the
+	# same ground is a mistake the caller should see, not a tie to break here
+	def InsetHolding(pnI)
+		for _k_ = 1 to len(@aInsets)
+			_x_ = @aInsets[_k_][:idx]
+			for _t_ = 1 to len(_x_)
+				if _x_[_t_] = pnI  return _k_  ok
+			next
+		next
+		return 0
+
+	def InsetReports()
+		_a_ = []
+		for _k_ = 1 to len(@aInsets)
+			_a_ + [ :title = @aInsets[_k_][:title], :count = @aInsets[_k_][:count],
+			        :scale = @aInsets[_k_][:scale], :named = @aInsets[_k_][:named],
+			        :dropped = @aInsets[_k_][:dropped] ]
+		next
+		return _a_
+
+	def DrawInsetsOn(poCanvas, poFont, pnSize, pInk)
+		if len(@aInsets) = 0  return  ok
+		@bInsetsDrawn = TRUE
+		This._ResolveInsets()
+		_sz_ = pnSize
+		if _sz_ < This.LabelFloor()  _sz_ = This.LabelFloor()  ok
+		_ink_ = @cInsetInk
+		for _k_ = 1 to len(@aInsets)
+			_w_ = @aInsets[_k_][:window]
+			_b_ = @aInsets[_k_][:box]
+			_idx_ = @aInsets[_k_][:idx]
+			if len(_idx_) = 0  loop  ok
+			_sub_ = @oF.Subset(_idx_)
+
+			# --- the locator on the parent, before the inset covers it ---
+			# each edge sampled, because a lon/lat rectangle is not a
+			# rectangle once a conic has had it
+			_loc_ = []
+			_n_ = 8
+			for _t_ = 0 to _n_
+				_loc_ = This._LocPush(_loc_, _w_[1] + (_w_[3] - _w_[1]) * _t_ / _n_, _w_[2])
+			next
+			for _t_ = 0 to _n_
+				_loc_ = This._LocPush(_loc_, _w_[3], _w_[2] + (_w_[4] - _w_[2]) * _t_ / _n_)
+			next
+			for _t_ = 0 to _n_
+				_loc_ = This._LocPush(_loc_, _w_[3] - (_w_[3] - _w_[1]) * _t_ / _n_, _w_[4])
+			next
+			for _t_ = 0 to _n_
+				_loc_ = This._LocPush(_loc_, _w_[1], _w_[4] - (_w_[4] - _w_[2]) * _t_ / _n_)
+			next
+			if len(_loc_) >= 6
+				# A LOCATOR SMALLER THAN THE PEN THAT DRAWS IT IS NOT A
+				# LOCATOR. Niamey is a capital district eight pixels across
+				# on a sheet of Niger, and its true outline came out as a
+				# smudge the reader could not find -- so the mark is grown
+				# to a minimum, about its own centre, the way every atlas
+				# gives a minimum size to a symbol that must be seen. It
+				# then overstates the window slightly, which is the honest
+				# trade: a mark that is a little too big is read, and a mark
+				# that is exactly right and invisible is not.
+				_loc_ = This._LocAtLeast(_loc_, 11)
+				_loc_ + _loc_[1]
+				_loc_ + _loc_[2]
+				poCanvas.AddPolylineQ(_loc_).Stroke(_ink_, 1.4)
+			ok
+
+			# --- the inset's own map: the parent's projection, enlarged ---
+			# Ring copies an object on assignment, which is usually the trap
+			# and is here the mechanism: the copy keeps the parallels and
+			# the rotation, and FitFeaturesIn touches only scale and
+			# translation.
+			_p_ = @oP
+			_p_.FitFeaturesIn(_sub_, _b_[1] + 6, _b_[2] + 6, _b_[3] - 6, _b_[4] - 6, 4)
+			@aInsets[_k_][:scale] = _p_.ScaleOf() / @oP.ScaleOf()
+
+			poCanvas.AddRectQ(_b_[1], _b_[2], _b_[3] - _b_[1], _b_[4] - _b_[2]).
+				FillQ(@cInsetPaper).Stroke("#00000000", 0)
+			_m_ = StzGeoMap(_p_, _sub_)
+			_v_ = []
+			for _t_ = 1 to len(_idx_)
+				if _idx_[_t_] <= len(@aValues)  _v_ + @aValues[_idx_[_t_]]  else  _v_ + ""  ok
+			next
+			if len(_v_) > 0  _m_.SetValues(_v_)  ok
+			if len(@aEdges) > 1  _m_.SetClasses(@aEdges)  ok
+			if len(@aPalette) > 0  _m_.SetPalette(@aPalette)  ok
+			_m_.SetPaper(_b_[1], _b_[2], _b_[3], _b_[4])
+			# AN INSET LABELS THE WAY ITS PARENT LABELS ITS UNITS. Where the
+			# parent numbers with OFFICIAL CODES, so does the inset: 75, 92,
+			# 93 and 94 are what a French reader calls those departments, so
+			# writing "Seine-Saint-Denis" there instead would be a different
+			# vocabulary on the same sheet -- and the code fits where the
+			# name does not, which is the whole difficulty. Otherwise the
+			# inset writes NAMES, because it exists so that names fit and a
+			# SEQUENTIAL number inside one would need a second key; a sheet
+			# with two keys has given up.
+			if @cKeyCode != ""
+				_m_.SetKeyCodes(@cKeyCode)
+				_m_.SetLabelMode(:Numbers)
+			else
+				_m_.SetLabelMode(:Names)
+			ok
+			_m_.DrawRegionsOn(poCanvas, "#FFFFFF", 0.8)
+			_m_.DrawLabelsOn(poCanvas, poFont, _sz_, pInk)
+			_r_ = _m_.LabelReport()
+			@aInsets[_k_][:named] = _r_[:named] + _r_[:numbered]
+			@aInsets[_k_][:dropped] = _r_[:dropped]
+
+			# --- the frame, and what the frame is of ---------------------
+			poCanvas.AddPolylineQ([ _b_[1], _b_[2], _b_[3], _b_[2], _b_[3], _b_[4],
+			                        _b_[1], _b_[4], _b_[1], _b_[2] ]).Stroke(_ink_, 1.4)
+			if @aInsets[_k_][:title] != ""
+				poCanvas.SetFontQ(poFont, _sz_).
+					AddTextQ(@aInsets[_k_][:title], _b_[1], _b_[2] - 6).Fill(pInk)
+			ok
+			poCanvas.SetFontQ(poFont, _sz_).
+				AddTextQ(This._InsetScaleText(@aInsets[_k_][:scale]),
+					_b_[1], _b_[4] + _sz_ + 4).Fill(pInk)
+		next
+		poCanvas.Flush()
+
+	def _LocAtLeast(paLoc, pnMin)
+		_n_ = len(paLoc) / 2
+		if _n_ < 2  return paLoc  ok
+		_x0_ = paLoc[1]  _x1_ = paLoc[1]
+		_y0_ = paLoc[2]  _y1_ = paLoc[2]
+		for _t_ = 2 to _n_
+			if paLoc[_t_ * 2 - 1] < _x0_  _x0_ = paLoc[_t_ * 2 - 1]  ok
+			if paLoc[_t_ * 2 - 1] > _x1_  _x1_ = paLoc[_t_ * 2 - 1]  ok
+			if paLoc[_t_ * 2] < _y0_  _y0_ = paLoc[_t_ * 2]  ok
+			if paLoc[_t_ * 2] > _y1_  _y1_ = paLoc[_t_ * 2]  ok
+		next
+		if _x1_ - _x0_ >= pnMin and _y1_ - _y0_ >= pnMin  return paLoc  ok
+		_cx_ = (_x0_ + _x1_) / 2
+		_cy_ = (_y0_ + _y1_) / 2
+		_h_ = pnMin / 2
+		return [ _cx_ - _h_, _cy_ - _h_, _cx_ + _h_, _cy_ - _h_,
+		         _cx_ + _h_, _cy_ + _h_, _cx_ - _h_, _cy_ + _h_ ]
+
+	def _LocPush(paOut, pnLon, pnLat)
+		_q_ = @oP.Project(pnLon, pnLat)
+		if len(_q_) < 2  return paOut  ok
+		_o_ = paOut
+		_o_ + _q_[1]
+		_o_ + _q_[2]
+		return _o_
+
+	# MEASURED FROM THE TWO PROJECTIONS, never taken from the caller. An
+	# inset whose caption disagrees with its own geometry is worse than one
+	# with no caption at all.
+	def _InsetScaleText(pnRatio)
+		if pnRatio <= 0  return "scale not measurable"  ok
+		if pnRatio >= 10  return "x" + floor(pnRatio + 0.5) + " the main map"  ok
+		return "x" + StzFactNumText(floor(pnRatio * 10 + 0.5) / 10) + " the main map"
+
 	#-- the legend and the caption -------------------------------------------
 
 	# THE LEGEND SAYS WHAT EVERY SHADE MEANS, and a class that colours
@@ -1723,6 +2007,50 @@ class stzGeoMap from stzObject
 					" entries, so " + @nKeyUnlisted + " number(s) are drawn on the map " +
 					"and appear nowhere in the key -- give the key box more room, or " +
 					"fewer numbers to carry" ]
+		ok
+
+		# 1c-quater. AN INSET IS OF SOMEWHERE, AND IT IS LARGER.
+		#
+		# Two ways to draw a box that is not an inset. A window catching no
+		# feature is a frame over nothing, and the locator rectangle on the
+		# parent then points at empty ground -- the reader hunts for what it
+		# marks and there is nothing there: ERROR. And a window drawn at the
+		# parent's own scale or smaller is not a magnification, it is the
+		# same picture again in a frame, which spends a reader's attention
+		# and returns nothing: ERROR, because the caller meant to magnify
+		# and did not.
+		if @bInsetsDrawn
+			for _k_ = 1 to len(@aInsets)
+				if @aInsets[_k_][:count] = 0
+					_a_ + [ :rule = "an_inset_is_of_somewhere",
+						:subject = _cM_, :where = "inset " + _k_,
+						:severity = "error",
+						:message = "inset " + _k_ + " has a window no region falls in, " +
+							"so its locator rectangle marks empty ground and its frame " +
+							"holds nothing" ]
+					loop
+				ok
+				if @aInsets[_k_][:dropped] > 0
+					_a_ + [ :rule = "an_inset_names_what_it_took",
+						:subject = _cM_, :where = "inset " + _k_,
+						:severity = "warning",
+						:message = "inset " + _k_ + " took " + @aInsets[_k_][:count] +
+							" region(s) off the main map and could name only " +
+							@aInsets[_k_][:named] + " of them -- the other " +
+							@aInsets[_k_][:dropped] + " are labelled NOWHERE on the " +
+							"sheet, because the parent left them to the inset. Give " +
+							"the inset box more room" ]
+				ok
+				if @aInsets[_k_][:scale] <= 1.05
+					_a_ + [ :rule = "an_inset_is_larger_than_the_map",
+						:subject = _cM_, :where = "inset " + _k_,
+						:severity = "error",
+						:message = "inset " + _k_ + " is drawn at " +
+							StzFactNumText(@aInsets[_k_][:scale]) + " times the main " +
+							"map's scale -- an inset exists to magnify, and one that " +
+							"does not is the same picture again inside a frame" ]
+				ok
+			next
 		ok
 
 		# 1d. THE EXTENT IS ONE PLACE, or the projection is fitted to the

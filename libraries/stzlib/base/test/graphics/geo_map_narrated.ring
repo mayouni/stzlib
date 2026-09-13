@@ -357,6 +357,49 @@ chk("NEGATIVE: a mode this file does not know is refused BY NAME, with the " +
     "three it does know printed in the refusal",
     _RefusesMode())
 
+? "-- 9d. AN INSET: THE SAME GROUND, LARGER, AND SAYING SO --"
+# The atlas answer to a place too small to label at the sheet's scale. It is
+# the only answer that costs nothing true: a leader says "this name belongs
+# over there", a number says "look this up", dropping says nothing at all,
+# and an inset says "here is the same ground, larger" -- which a reader can
+# check.
+oInF = StzGeoFeaturesFromJson(_CrowdJson())
+oInM = StzGeoMap(new stzGeoProjection(:Equirectangular), oInF)
+oInM.Projection().FitToFeatures(oInF, 300, 300, 10)
+oInM.SetSource("Invented, for a guard")
+oInM.SetPaper(0, 0, 320, 320)
+oInM.AddInsetXT([ 0, 0, 2, 2 ], [ 340, 20, 580, 260 ], "The crowded corner")
+oInC = new stzCanvas(600, 400)
+oInC.SetBackground("#FFFFFF")
+oInM.DrawLabelsXT(oInC, oFont, 13, "#000000", FALSE)
+oInM.DrawInsetsOn(oInC, oFont, 13, "#000000")
+rIn = oInM.LabelReport()
+aInR = oInM.InsetReports()
+? "   parent: named " + rIn[:named] + ", numbered " + rIn[:numbered] + ", inset " +
+  rIn[:inset] + ", unlabelled " + rIn[:dropped] +
+  "   -- inset: " + aInR[1][:count] + " regions at x" + StzFactNumText(aInR[1][:scale])
+chk("AN INSET TAKES ITS REGIONS OFF THE PARENT, which then leaves them alone " +
+    "-- a region is labelled in exactly ONE place, or it is named twice, or " +
+    "reported dropped while in fact named an inch away",
+    rIn[:inset] = 4 and aInR[1][:count] = 4)
+chk("...and the accounting still adds up: named plus numbered plus inset plus " +
+    "unlabelled is the feature count",
+    rIn[:named] + rIn[:numbered] + rIn[:inset] + rIn[:dropped] = oInF.Count())
+chk("THE INSET IS THE SAME PROJECTION, LARGER -- so a shape has the same shape " +
+    "in both places and the reader is comparing like with like",
+    aInR[1][:scale] > 1.5 and _InsetKeepsProjection(oInM))
+chk("...and it NAMES what it took, which is the whole reason it exists",
+    aInR[1][:named] = 4 and aInR[1][:dropped] = 0)
+chk("NEGATIVE: AN INSET WHOSE WINDOW CATCHES NOTHING is an ERROR -- its locator " +
+    "marks empty ground and its frame holds nothing",
+    _InsetOverNothing())
+chk("NEGATIVE: AN INSET AT THE PARENT'S OWN SCALE OR SMALLER is an ERROR -- it " +
+    "is not a magnification, it is the same picture again inside a frame",
+    _InsetNotLarger())
+chk("NEGATIVE: AN INSET THAT COULD NOT NAME WHAT IT TOOK WARNS, because those " +
+    "regions are then labelled NOWHERE: the parent left them to the inset",
+    _InsetTooSmall())
+
 ? "-- 9. THE SPATIAL JOIN: a table of places, counted into regions --"
 # THE POINTS ARE TAKEN FROM THE REGIONS THEMSELVES, not guessed at. The
 # first draft of this section wrote coordinates it believed were inside
@@ -755,7 +798,6 @@ func _CrowdJson
 	next
 	return _c_ + ']}'
 
-# no two placed boxes overlap: re-derive the boxes the engine would place
 # EVERY PAIR OF PLACED BOXES IS DISJOINT, tested on the boxes themselves.
 #
 # This used to answer "were fewer regions named than exist", which is TRUE
@@ -773,6 +815,46 @@ func _CrowdJson
 # the test recomputed the implementation's own mistake and then agreed with
 # it. A centre test has to derive the centre INDEPENDENTLY or it is checking
 # that the code equals itself.
+# THE INSET KEEPS THE PARENT'S PROJECTION FAMILY. Scale and translation are
+# refitted; everything that decides a SHAPE -- the kind, the rotation, the
+# standard parallels -- is the parent's, so the two pictures agree.
+func _InsetKeepsProjection poMap
+	_par_ = poMap.Projection()
+	_sub_ = poMap.Features().Within(0, 0, 2, 2)
+	_p_ = _par_
+	_p_.FitFeaturesIn(_sub_, 340, 20, 580, 260, 4)
+	if _p_.Name() != _par_.Name()  return FALSE  ok
+	if _p_.RotationOf()[1] != _par_.RotationOf()[1]  return FALSE  ok
+	return _p_.ScaleOf() > _par_.ScaleOf()
+
+func _InsetOverNothing
+	_m_ = _InsetProbe([ 40, 40, 41, 41 ], [ 340, 20, 580, 260 ])
+	return _HasFinding(_m_.Findings(), "an_inset_is_of_somewhere", "error")
+
+func _InsetNotLarger
+	# the whole extent, squeezed into a box smaller than the map itself
+	_m_ = _InsetProbe([ -1, -1, 5, 4 ], [ 340, 20, 420, 100 ])
+	return _HasFinding(_m_.Findings(), "an_inset_is_larger_than_the_map", "error")
+
+func _InsetTooSmall
+	# four regions with long names, into a box that cannot carry them
+	_m_ = _InsetProbe([ 0, 0, 2, 2 ], [ 340, 20, 392, 72 ])
+	if _m_.InsetReports()[1][:dropped] < 1  return FALSE  ok
+	return _HasFinding(_m_.Findings(), "an_inset_names_what_it_took", "warning")
+
+func _InsetProbe paWindow, paBox
+	_f_ = StzGeoFeaturesFromJson(_CrowdJson())
+	_m_ = StzGeoMap(new stzGeoProjection(:Equirectangular), _f_)
+	_m_.Projection().FitToFeatures(_f_, 300, 300, 10)
+	_m_.SetSource("Invented, for a guard")
+	_m_.SetPaper(0, 0, 320, 320)
+	_m_.AddInset(paWindow, paBox)
+	_c_ = new stzCanvas(600, 400)
+	_c_.SetBackground("#FFFFFF")
+	_m_.DrawLabelsXT(_c_, oFont, 13, "#000000", FALSE)
+	_m_.DrawInsetsOn(_c_, oFont, 13, "#000000")
+	return _m_
+
 func _TrueCentreOf poMap, pnI
 	_r_ = poMap.Features().OuterRingOf(pnI, poMap.Features().LargestPartOf(pnI))
 	_n_ = len(_r_) / 2

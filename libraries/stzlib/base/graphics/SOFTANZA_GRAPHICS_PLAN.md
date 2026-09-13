@@ -519,6 +519,7 @@ which exists.
 | GE6 | **inside a country**: admin-1 units, a conic per country, placed labels, and the SPATIAL JOIN | Ring + engine filter | **SHIPPED** below |
 | GE6b | **labels the way an atlas does them**: a name inside, else a number and a key. The leader lines are REMOVED | Ring, `stzGeoMap` | **SHIPPED** below |
 | GE6c | **three labelling modes**, and the centre of a region is its AREA CENTROID | Ring, `stzGeoMap` | **SHIPPED** below |
+| GE6d | **insets**: the same ground larger, with a locator, a measured scale, and three refusals | Ring, `stzGeoMap` | **SHIPPED** below |
 
 **Order and value.** GE0 first, because every picture above it is only as
 honest as the sphere underneath and its properties are the most assertable
@@ -630,6 +631,101 @@ assertions** — every name accounted for as inline, leadered or dropped; a
 margin turning drops into leaders; no two boxes overlapping; the ink
 flipping on a dark class; a ramp answering its own stops and refusing a
 name it does not know. Gate §127, **1711 ok, 0 failed**.
+
+## GE6d -- INSETS (2026-09-13, SHIPPED)
+
+*The one thing GE6b and GE6c both named as deliberately not built.*
+
+### Why it is the right answer and not just another one
+
+A place too small to label at the sheet's scale has four possible answers,
+and three of them cost something true:
+
+| answer | what it says to the reader |
+|---|---|
+| a leader line | "this name belongs over there" -- and clutters the sheet saying it. Removed in GE6b |
+| a number | "look this up" -- spends the reader's attention on an indirection |
+| dropping it | nothing at all |
+| **an inset** | **"here is the same ground, larger"** -- a statement the reader can check |
+
+And the failure this plane actually had was **concentrated, not spread**.
+Niger's one unlabelled region was Niamey, a capital district inside
+Tillaberi. Tunisia's were Grand Tunis. France's were the Petite Couronne.
+One knot per country, which is exactly the shape an inset is for -- had the
+unlabelled regions been scattered, an inset would have been the wrong tool
+and the honest answer would have stayed "drop and count".
+
+### Three things make it an inset and not a second map
+
+1. **The same projection, only larger.** The inset takes a *copy* of the
+   parent's projection and refits it, so the parallels, the rotation and
+   the family are the parent's and only scale and translation change. A
+   shape has the same shape in both places. (Ring copies an object on
+   assignment -- usually the trap this repository warns about, here the
+   mechanism. Verified before relying on it.)
+2. **The same colours.** Values, class edges and palette are the parent's,
+   so a region dark on the main map is dark in the inset.
+3. **A locator on the parent**, in one ink and one weight with the frame
+   round the inset. That pairing is the *only* thing telling the reader
+   where the inset is of; without it an inset is a floating fragment.
+
+**And it says its scale**, measured from the two projections and never taken
+from the caller. An inset at ×12 with no word of it tells the reader that
+Paris is the size of the Nord -- the same family of lie as colouring a
+count, which this file already refuses.
+
+**An inset labels the way its parent labels its units.** Names, or the
+parent's official codes where it has them -- France's inset writes 75, 92,
+93, 94, because that is what a French reader calls those departments *and*
+because the code fits where the name does not. Never a sequential number:
+that would need a second key, and a sheet with two keys has given up.
+
+### Two things the drawn sheets taught, both about interference
+
+- **A LOCATOR SMALLER THAN THE PEN THAT DRAWS IT IS NOT A LOCATOR.** Niamey
+  is eight pixels across on a sheet of Niger, and its true window came out
+  as a smudge nobody could find. The mark is grown to a minimum about its
+  own centre, the way an atlas gives a minimum size to any symbol that must
+  be seen. It then slightly overstates the window, which is the honest
+  trade: a mark a little too big is read; one exactly right and invisible
+  is not.
+- **THE PAPER STOPS WHERE THE INSET STARTS.** Labels are placed anywhere on
+  the paper and insets are drawn afterwards, so an inset standing on the
+  paper covers what was written under it -- the France sheet lost the "06"
+  of Alpes-Maritimes exactly that way before the paper was narrowed to the
+  map's own ground.
+
+### Three refusals
+
+| rule | severity | why |
+|---|---|---|
+| `an_inset_is_of_somewhere` | error | a window catching no region draws a frame over nothing, and its locator marks empty ground -- the reader hunts for what it points at |
+| `an_inset_is_larger_than_the_map` | error | an inset at the parent's scale or smaller is not a magnification, it is the same picture again in a frame |
+| `an_inset_names_what_it_took` | warning | the parent leaves an inset's regions alone, so what the inset cannot name is labelled **nowhere on the sheet**. The box needs more room |
+
+That last one is the accounting hole insets introduce, and it is worth
+naming: before it existed, `geo_inside.png` reported "0 dropped" while Ben
+Arous was unlabelled inside the inset -- the parent had handed it over and
+nobody counted the handover failing. `LabelReport()` carries `:inset` now,
+and the sheet prints in red what an inset could not name.
+
+### What the sheets do with it
+
+| sheet | inset | result |
+|---|---|---|
+| Niger | Niamey, ×18 | 1 of 1 named. The sheet drops nothing |
+| Tunisia | Grand Tunis, ×4.9 | 2 of 3 named -- "Ben Arous (Tunis Sud)" will not fit at that scale, and the sheet SAYS SO in red |
+| France | Paris and the Petite Couronne, ×11 | 4 of 4, on the codes 75 / 92 / 93 / 94 |
+
+Tunisia's is left failing on purpose: one sheet showing the positive and the
+negative is worth more than two sheets showing only the positive.
+
+*Note on the data:* Natural Earth's Tunisia has 23 governorates and no
+Ariana -- it is folded into its neighbours. Grand Tunis is three units in
+this file, which is a fact about the FILE and not about Tunisia, and the
+source says so rather than repeating the four-unit figure from elsewhere.
+
+*Guard:* `geo_map_narrated.ring` at **95 assertions**; gate section 127.
 
 ## GE6c -- THREE MODES, AND WHERE THE CENTRE ACTUALLY IS (2026-09-13, SHIPPED)
 

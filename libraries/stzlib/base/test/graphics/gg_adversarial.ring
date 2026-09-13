@@ -16707,6 +16707,43 @@ chk("EVERY MODE ACCOUNTS FOR EVERY REGION: named plus numbered plus unlabelled "
 chk("NEGATIVE: a labelling mode this file does not know is refused BY NAME",
     _G6RefusesMode())
 
+# AN INSET: the same ground, larger, and saying so. The atlas answer to a
+# place too small to label at the sheet's scale, and the only answer that
+# costs nothing true -- a leader says "this name belongs over there", a
+# number says "look this up", dropping says nothing, and an inset says
+# "here is the same ground, larger", which a reader can check.
+oG6In = StzGeoMap(new stzGeoProjection(:Equirectangular), oG6Cr)
+oG6In.Projection().FitToFeatures(oG6Cr, 300, 300, 10)
+oG6In.SetSource("Invented, for a gate")
+oG6In.SetPaper(0, 0, 320, 320)
+oG6In.AddInsetXT([ 0, 0, 2, 2 ], [ 340, 20, 580, 260 ], "The crowded corner")
+oG6InC = new stzCanvas(600, 400)
+oG6InC.SetBackground("#FFFFFF")
+oG6In.DrawLabelsXT(oG6InC, EFONT, 13, "#000000", FALSE)
+oG6In.DrawInsetsOn(oG6InC, EFONT, 13, "#000000")
+aG6InP = oG6In.LabelReport()
+aG6InR = oG6In.InsetReports()
+chk("AN INSET TAKES ITS REGIONS OFF THE PARENT and the accounting still adds " +
+    "up -- a region is labelled in exactly ONE place, never twice and never " +
+    "reported dropped while named an inch away",
+    aG6InP[:inset] = 4 and aG6InR[1][:count] = 4 and
+    aG6InP[:named] + aG6InP[:numbered] + aG6InP[:inset] + aG6InP[:dropped] =
+        oG6Cr.Count())
+chk("THE INSET IS THE SAME PROJECTION AT A LARGER SCALE, and the multiplier it " +
+    "prints is MEASURED from the two projections rather than taken on trust",
+    aG6InR[1][:scale] > 1.5 and _G6InsetMeasuresItsScale(oG6In))
+chk("NEGATIVE: an inset whose window catches NOTHING is an error",
+    _G6InsetFinding([ 40, 40, 41, 41 ], [ 340, 20, 580, 260 ],
+        "an_inset_is_of_somewhere", "error"))
+chk("NEGATIVE: an inset at the parent's own scale or smaller is an error -- not " +
+    "a magnification, just the same picture again inside a frame",
+    _G6InsetFinding([ -1, -1, 5, 4 ], [ 340, 20, 420, 100 ],
+        "an_inset_is_larger_than_the_map", "error"))
+chk("NEGATIVE: an inset that could not name what it TOOK warns, because the " +
+    "parent left those regions to it and they are then labelled nowhere",
+    _G6InsetFinding([ 0, 0, 2, 2 ], [ 340, 20, 392, 72 ],
+        "an_inset_names_what_it_took", "warning"))
+
 # THE RAMP A MAP IS COLOURED WITH is Brewer's, stated as data: five classes
 # out of a five-stop scheme must be his five colours and not five re-mixes.
 chk("a named ramp answers its own stops when the classes match them",
@@ -19821,6 +19858,33 @@ func _G6CrowdJson
 # the area centroid of feature 1 on the paper, by the shoelace formula and
 # NOT by asking the map -- a centre test that calls the code it is testing
 # proves only that the code equals itself
+# the printed multiplier equals the ratio the two projections actually have
+func _G6InsetMeasuresItsScale poMap
+	_par_ = poMap.Projection()
+	_p_ = _par_
+	_p_.FitFeaturesIn(poMap.Features().Within(0, 0, 2, 2), 346, 26, 574, 254, 4)
+	_want_ = _p_.ScaleOf() / _par_.ScaleOf()
+	return fabs(poMap.InsetReports()[1][:scale] - _want_) < 0.01
+
+func _G6InsetFinding paWindow, paBox, pcRule, pcSeverity
+	_f_ = StzGeoFeaturesFromJson(_G6CrowdJson())
+	_m_ = StzGeoMap(new stzGeoProjection(:Equirectangular), _f_)
+	_m_.Projection().FitToFeatures(_f_, 300, 300, 10)
+	_m_.SetSource("Invented, for a gate")
+	_m_.SetPaper(0, 0, 320, 320)
+	_m_.AddInset(paWindow, paBox)
+	_c_ = new stzCanvas(600, 400)
+	_c_.SetBackground("#FFFFFF")
+	_m_.DrawLabelsXT(_c_, EFONT, 13, "#000000", FALSE)
+	_m_.DrawInsetsOn(_c_, EFONT, 13, "#000000")
+	_a_ = _m_.Findings()
+	for _i_ = 1 to len(_a_)
+		if _a_[_i_][:rule] = pcRule and _a_[_i_][:severity] = pcSeverity
+			return TRUE
+		ok
+	next
+	return FALSE
+
 func _G6AtTheCentre poMap
 	_b_ = poMap.PlacedBoxes()
 	if len(_b_) < 1  return FALSE  ok
