@@ -496,134 +496,141 @@ else
 	for f in oAm.Findings()  ? "   [" + f[:severity] + "] " + f[:rule] + " -- " + f[:where]  next
 ok
 
-# ---- 11. GE6: INSIDE A COUNTRY ------------------------------------------
-# A country is not the unit anybody analyses. Niger has eight regions,
-# Tunisia twenty-three governorates, France ninety-six metropolitan
-# departments -- and each wants its OWN projection: a conic whose standard
-# parallels sit at a sixth and five sixths of its latitude span, which is
-# the cartographer's century-old rule and what an atlas does.
-#
-# The labels are placed, not centred: the mean of a ring falls outside it
-# whenever a region is a crescent, so a name that lands outside is moved to
-# the interior point furthest from the edge.
+# ---- 11. GE6: INSIDE A COUNTRY, AND NAMING WHAT IS IN IT ----------------
+# A country is not the unit anybody analyses. Each gets its OWN conic --
+# standard parallels at a sixth and five sixths of its latitude span -- and
+# every unit is named by a label engine that does what every serious one
+# does: measure the name as a BOX, let the biggest region speak first, lead
+# a name that will not fit OUT to the margin on an elbow, and say how many
+# it had to drop.
 
 if NOT fexists("atlas/admin1_niger.geojson")
 	? "SKIPPED, by name: atlas/admin1_*.geojson are not present --"
 	? "  see atlas/README.md for the one command that cuts them."
 else
-	aIjob = [
-		[ "niger",   "Niger -- 8 regions",            [],                     14 ],
-		[ "tunisia", "Tunisia -- 23 governorates",    [],                     13 ],
-		[ "france",  "France -- 96 departments",      [ -5.5, 41, 10, 51.5 ], 10 ] ]
-
-	oIc = new stzCanvas(1180, 620)
+	aIjob = [ [ "niger",   "Niger -- 8 regions",         [],                     13, 74 ],
+	         [ "tunisia", "Tunisia -- 23 governorates", [],                     12, 92 ],
+	         [ "france",  "France -- 96 departments",   [ -5.5, 41, 10, 51.5 ],  9, 110 ] ]
+	oIc = new stzCanvas(1180, 660)
 	oIc.SetBackground("#FFFFFF")
-	oIc.SetFontQ(oFont, 22).AddTextQ("Inside three countries -- the units an analyst actually works with", 24, 40).Fill("#111111")
+	oIc.SetFontQ(oFont, 22).AddTextQ("Inside three countries -- every unit named, or its name led out to the margin", 24, 40).Fill("#111111")
 
-
+	aIjob = [ [ "niger",   "Niger -- 8 regions",         [],                     13, 74 ],
+	         [ "tunisia", "Tunisia -- 23 governorates", [],                     12, 92 ],
+	         [ "france",  "France -- 96 departments",   [ -5.5, 41, 10, 51.5 ],  9, 110 ] ]
 	for c = 1 to len(aIjob)
 		cIf = "atlas/admin1_" + aIjob[c][1] + ".geojson"
-		if NOT fexists(cIf)  ? "SKIPPED: " + cIf  loop  ok
+		if NOT fexists(cIf)  ? "SKIPPED"  loop  ok
 		oIu = StzGeoFeaturesFromJson(read(cIf))
 		if len(aIjob[c][3]) = 4
 			oIu = oIu.Within(aIjob[c][3][1], aIjob[c][3][2], aIjob[c][3][3], aIjob[c][3][4])
 		ok
-		nIx = 20 + (c - 1) * 388
+		nIx0 = 20 + (c - 1) * 390
+		nImar = aIjob[c][5]
 		oIp = StzGeoConicFor(oIu, :ConicEqualArea)
-		oIp.FitFeaturesIn(oIu, nIx, 70, nIx + 368, 540, 10)
+		oIp.FitFeaturesIn(oIu, nIx0, 70, nIx0 + 370 - nImar, 560, 8)
 		oIm = StzGeoMap(oIp, oIu)
-		oIm.SetSource("Natural Earth 1:10m, public domain")
-		oIm.DrawRegionsOn(oIc, "#FFFFFF", 0.8)
-		oIm.DrawLabelsOn(oIc, oFont, aIjob[c][4], "#22303F")
-		oIc.SetFontQ(oFont, 17).AddTextQ(aIjob[c][2], nIx, 566).Fill("#111111")
-		oIc.SetFontQ(oFont, 13).AddTextQ(oIp.Caption(), nIx, 588).Fill("#777777")
-		? aIjob[c][2] + ": " + oIu.Count() + " units, findings " + len(oIm.Findings())
+		oIm.SetSource("Natural Earth 1:10m")
+		oIm.SetValuesQ(oIm.ValuesFromArea()).SetClassesQ([ 0, 2000, 8000, 25000, 80000, 900000 ])
+		oIm.SetRamp(:Blues)
+		oIm.DrawRegionsOn(oIc, "#FFFFFF", 0.7)
+		aImargin = []
+		if nImar > 0  aImargin = [ nIx0 + 370 - nImar + 10, 70, nIx0 + 372, 560 ]  ok
+		oIm.DrawLabelsXT(oIc, oFont, aIjob[c][4], "#22303F", aImargin, FALSE)
+		r = oIm.LabelReport()
+		oIc.SetFontQ(oFont, 16).AddTextQ(aIjob[c][2], nIx0, 590).Fill("#111111")
+		oIc.SetFontQ(oFont, 13).AddTextQ("inline " + r[:inline] + ", led out " + r[:leadered] +
+			", dropped " + r[:dropped], nIx0, 610).Fill("#777777")
+		? aIjob[c][2] + ": inline " + r[:inline] + "  leadered " + r[:leadered] + "  dropped " + r[:dropped]
 	next
 	oIc.ToPNG("geo_inside.png")
 	? "-> geo_inside.png"
 ok
 
 # ---- 12. GE6: THE SPATIAL JOIN ------------------------------------------
-# The first step of every spatial analysis: a table of places, each with a
-# longitude and a latitude, and the question "how many in each region".
-# The left half is what the observations look like -- a stain that says
-# where but not how many. The right is the answer, shaded by DENSITY,
-# because a count may not be coloured: a big region collects more of
-# anything, and that is the commonest lie in the genre after the radius one.
+# The first step of every spatial analysis: a table of places, and the
+# question "how many in each region". The left half is the observations --
+# a stain that says where but not how many. The right is the answer, shaded
+# by DENSITY, because a count may not be coloured: a big region collects
+# more of anything.
 
 if NOT fexists("atlas/admin1_tunisia.geojson")
 	? "SKIPPED, by name: atlas/admin1_tunisia.geojson is not present."
 else
 	oJu = StzGeoFeaturesFromJson(read("atlas/admin1_tunisia.geojson"))
 
-	# THREE THOUSAND INVENTED OBSERVATIONS, clustered the way people are: a
-	# coastal band and two inland towns. Nothing here is real data -- the point
-	# is the JOIN, and the caption says so.
-	# A FIXED PSEUDO-RANDOM SEQUENCE, written here rather than drawn from the
-	# library, so the picture is the SAME every time it is rendered -- a
-	# committed fixture that changes on every run is a diff nobody can read.
-	aJobs = []
-	nJseed = 20260913
-	aJhubs = [ [ 10.18, 36.80, 0.55 ], [ 10.63, 35.83, 0.45 ], [ 10.76, 34.74, 0.40 ],
-	          [ 9.00, 35.17, 0.60 ], [ 8.13, 34.42, 0.35 ], [ 11.10, 33.50, 0.55 ],
-	          [ 9.20, 36.50, 0.50 ], [ 10.10, 36.45, 0.30 ] ]
-	for i = 1 to 3000
-		h = aJhubs[(i % len(aJhubs)) + 1]
-		nJseed = (nJseed * 1103515245 + 12345) % 2147483648
-		x = h[1] + ((nJseed % 2001) - 1000) / 1000 * h[3] * 2.2
-		nJseed = (nJseed * 1103515245 + 12345) % 2147483648
-		y = h[2] + ((nJseed % 2001) - 1000) / 1000 * h[3] * 2.2
-		aJobs + x
-		aJobs + y
-	next
-
 	oJp = StzGeoConicFor(oJu, :ConicEqualArea)
-	oJp.FitFeaturesIn(oJu, 610, 80, 1150, 560, 10)
+	oJp.FitFeaturesIn(oJu, 610, 80, 1060, 560, 10)
 	oJm = StzGeoMap(oJp, oJu)
 	oJm.SetSource("Natural Earth 1:10m; the observations are INVENTED")
-
+	# INSIDE THE COUNTRY, AND NOT EVENLY. A uniform scatter is inside the
+	# borders and says nothing -- every governorate comes out the same shade.
+	# Real observations cluster, so the sample is thinned towards a few places
+	# people actually are: the coast, the capital, the phosphate towns. The
+	# thinning is the EXAMPLE'S, not the library's: invented data belongs in
+	# the script that invents it, and the caption says the word.
 	nJt = clock()
+	aJraw = oJm.SamplePointsInside(9000, 20260913)
+	aJhubs = [ [ 10.18, 36.80 ], [ 10.63, 35.83 ], [ 10.76, 34.74 ],
+	          [ 8.83, 35.17 ], [ 9.50, 33.88 ], [ 10.10, 36.45 ], [ 9.19, 36.55 ] ]
+	aJobs = []
+	nJs = 991
+	for i = 1 to len(aJraw) - 1 step 2
+		nJbest = 999
+		for h = 1 to len(aJhubs)
+			d = sqrt(pow(aJraw[i] - aJhubs[h][1], 2) + pow(aJraw[i+1] - aJhubs[h][2], 2))
+			if d < nJbest  nJbest = d  ok
+		next
+		nJs = (nJs * 1103515245 + 12345) % 2147483648
+		if (nJs % 1000) / 1000 < 1 / (1 + nJbest * nJbest * 3.5)
+			aJobs + aJraw[i]
+			aJobs + aJraw[i+1]
+		ok
+	next
+	? "" + (len(aJobs) / 2) + " observations, sampled INSIDE the country and thinned " +
+	  "towards seven places, in " + ((clock()-nJt)/clockspersecond()) + " s"
+
+	# ...and a handful deliberately over the border, to show they are reported
+	aJaout = [ 7.2, 34.0, 7.4, 35.2, 11.9, 33.2, 8.0, 36.9 ]
+	for i = 1 to len(aJaout)  aJobs + aJaout[i]  next
+
 	aJcount = oJm.CountPointsIn(aJobs)
 	nJout = oJm.PointsOutside(aJobs)
-	nJms = (clock() - nJt) / clockspersecond()
 	aJdens = oJm.DensityPointsIn(aJobs)
 	nJtot = 0
 	for i = 1 to len(aJcount)  nJtot += aJcount[i]  next
-	? "3000 observations joined to 23 governorates in " + nJms + " s"
-	? "   inside " + nJtot + ", outside every one " + nJout + "   (they add up: " + (nJtot + nJout) + ")"
-	nJhi = 1
-	for i = 2 to len(aJcount)  if aJcount[i] > aJcount[nJhi]  nJhi = i  ok  next
-	? "   most observations: " + oJu.NameOf(nJhi) + " with " + aJcount[nJhi]
+	? "   inside " + nJtot + ", outside " + nJout + " (the four put over the border on purpose)"
 	nJhd = 1
 	for i = 2 to len(aJdens)  if isNumber(aJdens[i]) and aJdens[i] > aJdens[nJhd]  nJhd = i  ok  next
-	? "   highest DENSITY: " + oJu.NameOf(nJhd) + " with " + aJdens[nJhd] + " per 10,000 km2"
+	? "   densest: " + oJu.NameOf(nJhd) + " with " + aJdens[nJhd] + " per 10,000 km2"
 
 	oJc = new stzCanvas(1180, 640)
 	oJc.SetBackground("#FFFFFF")
-	oJc.SetFontQ(oFont, 22).AddTextQ("Three thousand observations, and the governorates they fell in", 24, 40).Fill("#111111")
+	oJc.SetFontQ(oFont, 22).AddTextQ("Observations, and the governorates they fell in", 24, 40).Fill("#111111")
 
-	# left: the dots alone -- the stain
 	oJp2 = StzGeoConicFor(oJu, :ConicEqualArea)
-	oJp2.FitFeaturesIn(oJu, 30, 80, 570, 560, 10)
+	oJp2.FitFeaturesIn(oJu, 40, 80, 490, 560, 10)
 	oJm2 = StzGeoMap(oJp2, oJu)
-	oJm2.DrawRegionsOn(oJc, "#C8CED6", 0.8)
+	oJm2.DrawRegionsOn(oJc, "#B9C6D8", 0.8)
 	for i = 1 to len(aJobs) - 1 step 2
 		q = oJp2.Project(aJobs[i], aJobs[i+1])
-		if len(q) = 2  oJc.AddCircleQ(q[1], q[2], 1.6).FillQ("#C0392B66").Stroke("#00000000", 0)  ok
+		if len(q) = 2  oJc.AddCircleQ(q[1], q[2], 1.5).FillQ("#C0392B55").Stroke("#00000000", 0)  ok
 	next
-	oJc.SetFontQ(oFont, 16).AddTextQ("the observations: where, but not how many", 30, 586).Fill("#555555")
+	oJc.Flush()
+	oJc.SetFontQ(oFont, 16).AddTextQ("the observations: where, but not how many", 40, 588).Fill("#555555")
 
-	# right: joined, coloured by DENSITY, counts printed
-	oJm.SetValuesQ(aJdens).SetClasses([ 0, 20, 60, 150, 400, 4000 ])
-	oJm.DrawRegionsOn(oJc, "#FFFFFF", 0.8)
+	oJm.SetValuesQ(aJdens).SetClassesQ([ 0, 40, 90, 160, 260, 4000 ])
+	oJm.SetRamp(:YlOrRd)
+	oJm.SetPaper(610, 70, 1060, 570)
+	oJm.DrawRegionsOn(oJc, "#FFFFFF", 0.7)
 	oJm.SetValues(aJcount)
-	oJm.DrawLabelsWithValuesOn(oJc, oFont, 12, "#1B2B44")
+	oJm.DrawLabelsXT(oJc, oFont, 11, "#3A2A12", [ 1072, 80, 1170, 560 ], TRUE)
+	r = oJm.LabelReport()
 	oJm.SetValues(aJdens)
-	oJc.SetFontQ(oFont, 16).AddTextQ("joined: shaded by DENSITY, labelled with the count", 610, 586).Fill("#555555")
-	oJm.DrawCaptionOn(oJc, oFont, 30, 614)
+	oJc.SetFontQ(oFont, 16).AddTextQ("joined: shaded by DENSITY, labelled with the count", 610, 588).Fill("#555555")
+	oJm.DrawCaptionOn(oJc, oFont, 40, 616)
 	oJc.ToPNG("geo_join.png")
-	? "-> geo_join.png   findings " + len(oJm.Findings())
-	for f in oJm.Findings()  ? "   [" + f[:severity] + "] " + f[:rule]  next
+	? "-> geo_join.png   labels inline " + r[:inline] + ", led out " + r[:leadered] + ", dropped " + r[:dropped]
 ok
 
 # Ring runs top-level code only up to the first func, so the helpers
