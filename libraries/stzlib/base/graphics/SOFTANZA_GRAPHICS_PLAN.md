@@ -517,6 +517,7 @@ which exists.
 | GE4 | names to shapes WITHOUT vendoring shapes: `ShapeOf`, `PointOf`, `ValuesFor`, `Unresolved`, an alias table that is entirely facts about language | Ring, `stzGeoAtlas.ring` | **SHIPPED** below |
 | GE5 | hands: `PlaceAt` / `FeatureAt` / `NameAt` / `ValueAt` — invert, then contain on the sphere | Ring, `stzGeoMap` | **SHIPPED** below |
 | GE6 | **inside a country**: admin-1 units, a conic per country, placed labels, and the SPATIAL JOIN | Ring + engine filter | **SHIPPED** below |
+| GE6b | **labels the way an atlas does them**: a name inside, else a number and a key. The leader lines are REMOVED | Ring, `stzGeoMap` | **SHIPPED** below |
 
 **Order and value.** GE0 first, because every picture above it is only as
 honest as the sphere underneath and its properties are the most assertable
@@ -628,6 +629,124 @@ assertions** — every name accounted for as inline, leadered or dropped; a
 margin turning drops into leaders; no two boxes overlapping; the ink
 flipping on a dark class; a ramp answering its own stops and refusing a
 name it does not know. Gate §127, **1711 ok, 0 failed**.
+
+## GE6b -- A NAME INSIDE, OR A NUMBER AND A KEY (2026-09-13, SHIPPED)
+
+*Three pictures were returned before this one. The last verdict was one
+line: "these lines are a total mess ... find a solution similar to what best
+libraries do, or remove them completely."*
+
+### The leaders were mine, not the field's
+
+Every version of GE6's labelling until now drew LEADER LINES: a name that
+would not fit inside its region was parked in the nearest empty paper, or
+out in a side margin, with a rule drawn back to the region it belonged to.
+Each round made the rules smarter -- left regions leftward, right regions
+rightward, obliques when few, an elbow corridor when many -- and each round
+came back.
+
+**Asked what the best tools in the field actually do, the answer is that
+none of them does this for an AREA:**
+
+| tool | what it does with a name that will not fit |
+|---|---|
+| nivo, Datawrapper, Flourish, ThoughtSpot | draws it only where it FITS inside the region; otherwise nothing, and the name is a tooltip |
+| d3-geo's own examples | centroid text above an area threshold; the rest unlabelled |
+| QGIS (PAL), Mapbox GL, ArcGIS (Maplex) | collision placement by priority, and what does not fit is DROPPED at that scale |
+| ArcGIS Maplex, leader lines | offered for POINT features only, capped and short -- never a sheaf across a choropleth |
+| printed atlases (IGN, Michelin, National Geographic) | a NUMBER in the small unit and a KEY beside the map |
+
+"1 Tunis, 2 Ariana, 3 Ben Arous, 4 Manouba" is how a map of Tunisia has
+handled Grand Tunis for a century. **The Principal's instinct and the
+field's practice were the same thing, and three rounds of increasingly
+clever leader routing were spent finding that out.**
+
+### What the engine does now
+
+Two tiers and a key, and nothing else:
+
+1. **THE NAME INSIDE**, where its whole box lies within the region it names.
+2. **OTHERWISE A NUMBER** -- inside the region if the digits fit, and
+   otherwise in the empty paper **touching its border**. Touching is the
+   whole contract: with no line, what says the number belongs to this region
+   is that it sits against its edge and nothing else is nearer. Beyond
+   `KeyReachPixels()` (16 px, about a line of type) it is **dropped and
+   counted**, because a number floating in open paper is a riddle.
+3. **THE KEY** beside the map, numbered in **reading order** -- rows down
+   the sheet, west to east within a row -- so a reader looking for 17 walks
+   to it instead of hunting.
+
+`SetKeyCodes(property)` numbers with the code the units already carry.
+Natural Earth's `iso_3166_2` is `FR-59` for the Nord and `TN-83` for
+Tataouine, and the part after the dash is the number on every French plate.
+Off by default and deliberately: **official codes are not in reading order**,
+so "08" beside "59" helps only a reader who already knows them.
+
+### Four defects this found in code written the same morning
+
+**1. SAMPLING A SHAPE AT FIVE POINTS IS NOT A TEST OF THE SHAPE, and it was
+written twice, hours apart.** Both `_BoxOnEmpty` (is this paper clear of
+land?) and `_BoxInRegion` (is this box inside its own region?) asked four
+corners and a centre. A 45-pixel name laid over a 1-pixel border misses all
+five, so "Sousse" was written across the Cap Bon peninsula and "Zinder"
+across the line into Maradi. The emptiness test became a **raster** -- the
+paper rasterised once at 4 px a cell, every region's rings marking their
+cells, then flood-filled inward from the paper's own edge, which is the
+obstacle layer PAL and Maplex both keep; one pass over rings already drawn,
+and every later question is four integer comparisons. The in-region test
+became an adaptive **grid**, 8 px or finer. *Having written the sentence
+about the sea, I left the identical defect standing in the test beside it.*
+
+**2. THE BASELINE SAT ON THE BOTTOM EDGE OF THE BOX THAT WAS TESTED.** A box
+of height = type size holds an ascent of ~0.8em and a descent of ~0.2em, so
+every descender hung below the rectangle the containment test had certified
+clear. Baseline moved to 0.8 of the box.
+
+**3. A NUMBER PLACED FROM A BOUNDING BOX DRIFTS OFF ITS REGION.** Stepping
+outward from the centre of a ragged department's BOX put "75" and "74" in
+the Mediterranean, nearer Corsica than anything they named. `_FitBeside`
+walks the region's own **projected outline** now, offsetting sampled
+vertices along their outward normal, so every candidate is a few pixels from
+a point the reader can see belongs to that region.
+
+**4. THE KEY LOST ENTRIES IN SILENCE -- under a comment in the same file
+saying a key must never do that.** France numbered sequentially produces 75
+entries; the widest key box that sheet could spare carried 39. The other 36
+were numbers on the map appearing nowhere, and nothing said so. Counted now
+as `:unlisted`, and GE3 grew `the_key_lists_every_number` (error).
+
+### And two rules, one of them split
+
+- `every_number_has_a_key` -- **ERROR** when the marks are sequential, since
+  a sequential mark is an index into a key and nothing else; **WARNING**
+  when they are official codes, since "59" is the Nord to a French reader
+  and every road atlas of France is printed exactly that way. The only
+  reader it fails is the one from elsewhere.
+- `the_key_lists_every_number` -- **ERROR**, always.
+
+### A guard that had been dead, and an assertion that agreed by accident
+
+Fixing the labelling surfaced both. `_InkFlips` called `InkOver` with two
+arguments for a three-argument method and had been unreachable since the
+size parameter was added -- and its expectation was stale twice over, since
+`InkOver` answers `#000000` over a pale class rather than echoing the
+caller's `#111111`: **the contract promises contrast, not the caller's ink.**
+It asserts contrast now. `_NoOverlap` answered *"were fewer regions named
+than exist"*, which is true whenever the engine draws nothing at all;
+`PlacedBoxes()` was added so it can test every pair of boxes and prove them
+disjoint.
+
+*Witness:* `geo_inside.png` (Niger 5 named / 2 numbered / 1 dropped; Tunisia
+5 / 17 / 1), `geo_france.png` (24 named, 66 on their official codes, 6
+dropped -- and the sheet **prints its own gate findings** at the foot), and
+`geo_join.png` (3 named, 19 numbered with their counts in the key).
+*Guard:* `geo_map_narrated.ring` at **79 assertions**; gate section 127.
+
+**What is deliberately not here: INSETS.** Niger's dropped one is Niamey, a
+capital district inside Tillaberi with no empty paper to stand a number in;
+France's six are the Petite Couronne, four departments inside one city. A
+zoomed box at a larger scale is how an atlas rescues exactly those, and it
+is the next step.
 
 ## GE6 -- INSIDE A COUNTRY, AND THE SPATIAL JOIN (2026-09-13, SHIPPED)
 

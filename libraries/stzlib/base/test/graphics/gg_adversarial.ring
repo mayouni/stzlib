@@ -16614,27 +16614,53 @@ chk("A LABEL SITS IN ITS OWN REGION -- a name outside its region is a name on " 
     "somebody else's",
     oG6F.IndexAt(aG6L1[1], aG6L1[2]) = 1 and oG6F.IndexAt(aG6L2[1], aG6L2[2]) = 2)
 
-# AND A NAME THAT WILL NOT FIT GOES OUT, rather than lying across its
-# neighbours. Twelve crowded regions, more names than room: with no margin
-# the ones that cannot be placed are DROPPED AND COUNTED; given a margin
-# they are LED OUT to it. Every name is accounted for either way.
+# AND A NAME THAT WILL NOT FIT BECOMES A NUMBER, rather than lying across
+# its neighbours or trailing a leader line to a margin. Twelve crowded
+# regions, more names than room: with no key box the ones that cannot be
+# placed are DROPPED AND COUNTED; given one they are NUMBERED and listed.
+# Every name is accounted for either way.
+#
+# THE LEADER LINES THIS SECTION USED TO TEST ARE GONE. Three rounds of them
+# were drawn and returned -- "these lines are a total mess" -- and the field
+# agrees: nivo, Datawrapper, QGIS's PAL, Mapbox GL and Maplex all drop an
+# area name that will not fit, and every printed atlas numbers the unit and
+# keys it beside the map.
 oG6Cr = StzGeoFeaturesFromJson(_G6CrowdJson())
 oG6Lm = StzGeoMap(new stzGeoProjection(:Equirectangular), oG6Cr)
 oG6Lm.Projection().FitToFeatures(oG6Cr, 300, 300, 10)
 oG6Lm.SetSource("Invented, for a gate")
+oG6Lm.SetPaper(10, 10, 320, 390)
 oG6Cv = new stzCanvas(600, 400)
 oG6Cv.SetBackground("#FFFFFF")
-oG6Lm.DrawLabelsXT(oG6Cv, EFONT, 12, "#000000", [], FALSE)
+oG6Lm.DrawLabelsXT(oG6Cv, EFONT, 13, "#000000", FALSE)
 aG6R1 = oG6Lm.LabelReport()
 oG6Cv2 = new stzCanvas(600, 400)
 oG6Cv2.SetBackground("#FFFFFF")
-oG6Lm.DrawLabelsXT(oG6Cv2, EFONT, 12, "#000000", [ 320, 20, 590, 380 ], FALSE)
+oG6Lm.SetKeyBox(330, 20, 590, 380)
+oG6Lm.DrawLabelsXT(oG6Cv2, EFONT, 13, "#000000", FALSE)
+oG6Lm.DrawKeyOn(oG6Cv2, EFONT, 13, "#333333")
 aG6R2 = oG6Lm.LabelReport()
-chk("EVERY NAME IS ACCOUNTED FOR: placed inside, led out, or dropped and counted",
-    aG6R1[:inline] + aG6R1[:leadered] + aG6R1[:dropped] = oG6Cr.Count() and
-    aG6R2[:inline] + aG6R2[:leadered] + aG6R2[:dropped] = oG6Cr.Count())
-chk("GIVEN A MARGIN, a name that will not fit is LED OUT to it instead of dropped",
-    aG6R1[:dropped] > 0 and aG6R2[:leadered] > 0 and aG6R2[:dropped] < aG6R1[:dropped])
+chk("EVERY NAME IS ACCOUNTED FOR: named inside, numbered into the key, or " +
+    "dropped and counted",
+    aG6R1[:named] + aG6R1[:numbered] + aG6R1[:dropped] = oG6Cr.Count() and
+    aG6R2[:named] + aG6R2[:numbered] + aG6R2[:dropped] = oG6Cr.Count())
+chk("WITH NO KEY BOX nothing is numbered -- a number with nothing to look it " +
+    "up in is worse than a blank",
+    aG6R1[:numbered] = 0 and aG6R1[:dropped] > 0)
+chk("GIVEN A KEY BOX, a name that will not fit becomes a NUMBER instead of " +
+    "being dropped, and the key lists every one of them",
+    aG6R2[:numbered] > 0 and aG6R2[:dropped] < aG6R1[:dropped] and
+    len(oG6Lm.KeyEntries()) = aG6R2[:numbered] and aG6R2[:unlisted] = 0)
+chk("...and the marks run 1, 2, 3 in READING ORDER down the sheet, so a reader " +
+    "looking for an entry walks to it instead of hunting",
+    _G6KeyInOrder(oG6Lm))
+chk("NEGATIVE: TWO PLACED BOXES NEVER OVERLAP -- tested on the boxes themselves, " +
+    "every pair of them, not on a count that agrees by coincidence",
+    _G6NoOverlap(oG6Lm))
+chk("A KEY BOX WITH TOO LITTLE ROOM REPORTS WHAT IT COULD NOT LIST and the gate " +
+    "calls it an ERROR -- this plane's own France sheet drew 39 of 75 entries " +
+    "and lost 36 in silence",
+    _G6KeyOverflows(oG6Cr))
 
 # THE RAMP A MAP IS COLOURED WITH is Brewer's, stated as data: five classes
 # out of a five-stop scheme must be his five colours and not five re-mixes.
@@ -19746,6 +19772,46 @@ func _G6CrowdJson
 			_x_ + ',' + (_y_ + 1) + ']]]}}'
 	next
 	return _c_ + ']}'
+
+func _G6KeyInOrder poMap
+	_k_ = poMap.KeyEntries()
+	for _i_ = 1 to len(_k_)
+		if _k_[_i_][1] != "" + _i_  return FALSE  ok
+	next
+	return len(_k_) > 0
+
+func _G6NoOverlap poMap
+	_b_ = poMap.PlacedBoxes()
+	if len(_b_) < 2  return FALSE  ok
+	for _i_ = 1 to len(_b_) - 1
+		for _j_ = _i_ + 1 to len(_b_)
+			if _b_[_i_][1] < _b_[_j_][3] and _b_[_i_][3] > _b_[_j_][1] and
+			   _b_[_i_][2] < _b_[_j_][4] and _b_[_i_][4] > _b_[_j_][2]
+				return FALSE
+			ok
+		next
+	next
+	return TRUE
+
+func _G6KeyOverflows poF
+	_m_ = StzGeoMap(new stzGeoProjection(:Equirectangular), poF)
+	_m_.Projection().FitToFeatures(poF, 300, 300, 10)
+	_m_.SetSource("Invented, for a gate")
+	_m_.SetPaper(10, 10, 320, 390)
+	_m_.SetKeyBox(330, 20, 420, 60)
+	_c_ = new stzCanvas(600, 400)
+	_c_.SetBackground("#FFFFFF")
+	_m_.DrawLabelsXT(_c_, EFONT, 13, "#000000", FALSE)
+	_m_.DrawKeyOn(_c_, EFONT, 13, "#333333")
+	if _m_.LabelReport()[:unlisted] < 1  return FALSE  ok
+	_f_ = _m_.Findings()
+	for _i_ = 1 to len(_f_)
+		if _f_[_i_][:rule] = "the_key_lists_every_number" and
+		   _f_[_i_][:severity] = "error"
+			return TRUE
+		ok
+	next
+	return FALSE
 
 func _G6RefusesRamp
 	_b_ = FALSE
