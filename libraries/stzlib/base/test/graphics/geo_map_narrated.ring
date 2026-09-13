@@ -253,6 +253,110 @@ chk("...but only a WARNING when they are OFFICIAL CODES, which a reader at " +
     _HasFinding(oLbM.Findings(), "every_number_has_a_key", "warning"))
 oLbM.SetKeyCodes("")
 
+? "-- 9b. THE CENTRE FIRST, AND SOMEWHERE ROOMIER WHEN IT WILL NOT FIT --"
+# A reader expects a name in the middle of its region, so the middle is
+# tried first and only a name that will not FIT there is moved. The
+# fallback is the point furthest from any edge -- the centre of the largest
+# circle the region holds, which is what Mapbox's polylabel and QGIS use.
+oCnF = StzGeoFeaturesFromJson(_NoLakeJson())
+oCnM = StzGeoMap(new stzGeoProjection(:Equirectangular), oCnF)
+oCnM.Projection().FitToFeatures(oCnF, 400, 400, 20)
+oCnM.SetPaper(0, 0, 440, 440)
+oCnC = new stzCanvas(440, 440)
+oCnC.SetBackground("#FFFFFF")
+oCnM.DrawLabelsXT(oCnC, oFont, 13, "#000000", FALSE)
+aCnB = oCnM.PlacedBoxes()
+aCnG = _TrueCentreOf(oCnM, 1)
+? "   a region with room: its centre is " + StzFactNumText(aCnG[1]) + "," +
+  StzFactNumText(aCnG[2]) + "; the name went to " +
+  StzFactNumText((aCnB[1][1] + aCnB[1][3]) / 2) + "," +
+  StzFactNumText((aCnB[1][2] + aCnB[1][4]) / 2)
+chk("WHERE THERE IS ROOM, THE NAME IS PRINTED AT THE CENTRE OF THE REGION -- " +
+    "not near it, and not wherever a search happened to stop",
+    len(aCnB) > 0 and
+    fabs((aCnB[1][1] + aCnB[1][3]) / 2 - aCnG[1]) < 1 and
+    fabs((aCnB[1][2] + aCnB[1][4]) / 2 - aCnG[2]) < 1)
+
+oCrM = StzGeoMap(new stzGeoProjection(:Equirectangular), oCr)
+oCrM.Projection().FitToFeatures(oCr, 400, 400, 20)
+oCrM.SetPaper(0, 0, 440, 440)
+oCrC = new stzCanvas(440, 440)
+oCrC.SetBackground("#FFFFFF")
+oCrM.DrawLabelsXT(oCrC, oFont, 13, "#000000", FALSE)
+aCrB = oCrM.PlacedBoxes()
+aCrG = _TrueCentreOf(oCrM, 1)
+chk("NEGATIVE: ON A CRESCENT, WHOSE CENTRE IS NOT IN IT AT ALL, the name moves " +
+    "to the roomiest point that IS -- the centre is a preference and never a rule",
+    len(aCrB) > 0 and
+    fabs((aCrB[1][1] + aCrB[1][3]) / 2 - aCrG[1]) +
+    fabs((aCrB[1][2] + aCrB[1][4]) / 2 - aCrG[2]) > 2)
+chk("...and it is genuinely inside the crescent, tested on the sphere and not " +
+    "on the paper it was chosen on",
+    _BoxLandsInRegion(oCrM, oCr, aCrB[1]))
+
+? ""
+? "-- 9c. THREE LABELLING MODES, AND THE ENGINE PREFERS NONE OF THEM --"
+# :Names is what nivo and Datawrapper do; :Numbers is the atlas plate;
+# :Auto is the hybrid. Which one a sheet wants depends on who is reading
+# it, and that is not a fact about the geometry.
+oLbM.SetKeyBox(330, 20, 590, 380)
+aMd = [ :Names, :Numbers, :Auto ]
+aRep = []
+for iMd = 1 to 3
+	oMdC = new stzCanvas(600, 400)
+	oMdC.SetBackground("#FFFFFF")
+	oLbM.SetLabelMode(aMd[iMd])
+	oLbM.DrawLabelsXT(oMdC, oFont, 13, "#000000", FALSE)
+	oLbM.DrawKeyOn(oMdC, oFont, 13, "#333333")
+	aRep + oLbM.LabelReport()
+	? "   " + aMd[iMd] + ": named " + aRep[iMd][:named] + ", numbered " +
+	  aRep[iMd][:numbered] + ", unlabelled " + aRep[iMd][:dropped]
+next
+oLbM.SetLabelMode(:Auto)
+chk(":Names DRAWS NO NUMBER AT ALL -- a region whose name will not fit goes " +
+    "unlabelled, and the report says how many",
+    aRep[1][:numbered] = 0 and aRep[1][:dropped] > 0)
+chk(":Numbers DRAWS NO NAME AT ALL -- every region carries a mark and every " +
+    "name is in the key, so nothing is a special case",
+    aRep[2][:named] = 0 and aRep[2][:numbered] > 0)
+chk(":Auto NUMBERS WHAT :Names DROPS -- on a fixture where NO name fits, the " +
+    "hybrid and the numbers mode agree, and both label what :Names cannot",
+    aRep[3][:numbered] > 0 and aRep[3][:dropped] < aRep[1][:dropped])
+# AND THE OTHER HALF OF THE CLAIM, ON A FIXTURE WHERE NAMES DO FIT. The crowd
+# above is twelve regions too small to hold a name -- that is what it is for
+# -- so ":Auto draws both kinds of mark" cannot be shown on it, and asserting
+# it there would only have been a weaker assertion that happened to pass.
+oRmM = StzGeoMap(new stzGeoProjection(:Equirectangular), oF)
+oRmM.Projection().FitToFeatures(oF, 500, 400, 20)
+oRmM.SetPaper(0, 0, 540, 440)
+oRmM.SetKeyBox(545, 20, 700, 420)
+aRoom = []
+for iMd = 1 to 3
+	oRmC = new stzCanvas(720, 440)
+	oRmC.SetBackground("#FFFFFF")
+	oRmM.SetLabelMode(aMd[iMd])
+	oRmM.DrawLabelsXT(oRmC, oFont, 13, "#000000", FALSE)
+	oRmM.DrawKeyOn(oRmC, oFont, 13, "#333333")
+	aRoom + oRmM.LabelReport()
+next
+oRmM.SetLabelMode(:Auto)
+? "   with room -- names: " + aRoom[1][:named] + " named; numbers: " +
+  aRoom[2][:numbered] + " numbered; auto: " + aRoom[3][:named] + " named"
+chk("WHERE THERE IS ROOM the three modes differ exactly as advertised: :Names " +
+    "names every region, :Numbers numbers every region, and :Auto names them " +
+    "because the names fit",
+    aRoom[1][:named] = oF.Count() and aRoom[1][:numbered] = 0 and
+    aRoom[2][:named] = 0 and aRoom[2][:numbered] = oF.Count() and
+    aRoom[3][:named] = oF.Count())
+chk("ALL THREE ACCOUNT FOR EVERY REGION -- the three numbers add to the feature " +
+    "count in every mode, which is what stops a mode quietly losing one",
+    aRep[1][:named] + aRep[1][:numbered] + aRep[1][:dropped] = oLbF.Count() and
+    aRep[2][:named] + aRep[2][:numbered] + aRep[2][:dropped] = oLbF.Count() and
+    aRep[3][:named] + aRep[3][:numbered] + aRep[3][:dropped] = oLbF.Count())
+chk("NEGATIVE: a mode this file does not know is refused BY NAME, with the " +
+    "three it does know printed in the refusal",
+    _RefusesMode())
+
 ? "-- 9. THE SPATIAL JOIN: a table of places, counted into regions --"
 # THE POINTS ARE TAKEN FROM THE REGIONS THEMSELVES, not guessed at. The
 # first draft of this section wrote coordinates it believed were inside
@@ -659,6 +763,63 @@ func _CrowdJson
 # the truth by coincidence and would have gone on agreeing through any
 # regression that stopped placement working. PlacedBoxes() exists so this
 # can test the mechanism.
+# THE CENTRE OF A FEATURE ON THE PAPER -- its AREA centroid, by the shoelace
+# formula, computed here from the projected outline and NOT by calling
+# anything the engine uses.
+#
+# THE FIRST VERSION OF THIS AVERAGED THE OUTLINE'S POINTS, which is exactly
+# what the engine was doing wrong, so the assertion "the name is printed at
+# the centre" passed while every name on the real sheets sat off to one side:
+# the test recomputed the implementation's own mistake and then agreed with
+# it. A centre test has to derive the centre INDEPENDENTLY or it is checking
+# that the code equals itself.
+func _TrueCentreOf poMap, pnI
+	_r_ = poMap.Features().OuterRingOf(pnI, poMap.Features().LargestPartOf(pnI))
+	_n_ = len(_r_) / 2
+	_p_ = []
+	for _j_ = 1 to _n_
+		_q_ = poMap.Projection().Project(_r_[_j_ * 2 - 1], _r_[_j_ * 2])
+		if len(_q_) < 2  loop  ok
+		_p_ + _q_[1]
+		_p_ + _q_[2]
+	next
+	_m_ = len(_p_) / 2
+	if _m_ < 3  return [ 0, 0 ]  ok
+	_a2_ = 0  _cx_ = 0  _cy_ = 0
+	for _i_ = 1 to _m_
+		_j_ = _i_ + 1
+		if _j_ > _m_  _j_ = 1  ok
+		_cr_ = _p_[_i_ * 2 - 1] * _p_[_j_ * 2] - _p_[_j_ * 2 - 1] * _p_[_i_ * 2]
+		_a2_ += _cr_
+		_cx_ += (_p_[_i_ * 2 - 1] + _p_[_j_ * 2 - 1]) * _cr_
+		_cy_ += (_p_[_i_ * 2] + _p_[_j_ * 2]) * _cr_
+	next
+	if fabs(_a2_) < 0.000001  return [ 0, 0 ]  ok
+	return [ _cx_ / (3 * _a2_), _cy_ / (3 * _a2_) ]
+
+# INVERT THE BOX AND ASK THE SPHERE. The placement chose this box on the
+# paper; this checks the answer where the region actually lives.
+func _BoxLandsInRegion poMap, poF, paBox
+	_p_ = [ [ paBox[1], paBox[2] ], [ paBox[3], paBox[2] ],
+	        [ paBox[1], paBox[4] ], [ paBox[3], paBox[4] ],
+	        [ (paBox[1] + paBox[3]) / 2, (paBox[2] + paBox[4]) / 2 ] ]
+	for _t_ = 1 to len(_p_)
+		_g_ = poMap.Projection().Invert(_p_[_t_][1], _p_[_t_][2])
+		if len(_g_) < 2  return FALSE  ok
+		if NOT poF.Contains(1, _g_[1], _g_[2])  return FALSE  ok
+	next
+	return TRUE
+
+func _RefusesMode
+	_m_ = StzGeoMap(new stzGeoProjection(:Equirectangular),
+		StzGeoFeaturesFromJson(_NoLakeJson()))
+	try
+		_m_.SetLabelMode(:Sideways)
+	catch
+		return StzFindFirst(":Numbers", cCatchError) > 0
+	done
+	return FALSE
+
 func _NoOverlap poMap, poFont, pnSize
 	_c_ = new stzCanvas(600, 400)
 	_c_.SetBackground("#FFFFFF")

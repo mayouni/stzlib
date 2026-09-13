@@ -4,8 +4,8 @@ decimals(1)
 # GE6 -- WHEN THE UNITS ALREADY HAVE NUMBERS, AND WHEN A KEY CANNOT SAVE
 # YOU. France's departments are small and its names are long
 # ("Pyrenees-Atlantiques" is wider than the department it names), so on a
-# sheet this size twenty-four names fit inside their borders and
-# seventy-two do not.
+# sheet this size twenty-nine names fit inside their borders and sixty-seven
+# do not.
 #
 # THE KEY IS NOT THE ANSWER HERE, AND THAT IS A MEASURED CLAIM, taken from
 # this same picture before it was rewritten. Numbered sequentially it
