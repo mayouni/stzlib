@@ -55,10 +55,24 @@ chk("free is positive and below total", nFree > 0 and nFree < nTotal)
 # (wall-ish monotonic) advances through both.
 nCpu0 = StzEnginePerfCpuNs()
 nUp0 = StzEngineProcessUptimeNs()
+# BUSY UNTIL THE CPU CLOCK CAN SEE IT, rather than for a fixed count.
+# That clock advances in ticks -- 15.625 ms on Windows -- and a fast
+# runtime finishes 400,000 appends inside a single one, so the reading
+# came back zero and this scene measured the clock's granularity instead
+# of the work. Ring++ made exactly this loop about a hundred times faster
+# (in-place string append) and walked straight into it.
+# The rounds are bounded, so a stopped clock cannot hang the test, and _s_
+# is rebuilt each round rather than grown -- otherwise this would quietly
+# become a memory measurement for the scenes below.
 _s_ = ""
-for i = 1 to 400000
-	_s_ += "x"
-next
+_nRounds_ = 0
+while _nRounds_ < 200 and StzEnginePerfCpuNs() <= nCpu0
+	_s_ = ""
+	for i = 1 to 200000
+		_s_ += "x"
+	next
+	_nRounds_++
+end
 nCpu1 = StzEnginePerfCpuNs()
 chk("busy work advanced CPU time", nCpu1 > nCpu0)
 
