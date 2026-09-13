@@ -201,10 +201,21 @@ class stzGeoMap from stzObject
 	@cNoData = "#E8E8E8"
 	@bBinned = FALSE
 	@bLabelled = FALSE
-	@nLblInline = 0
-	@nLblLeader = 0
+	@nLblNamed = 0
+	@nLblNumbered = 0
 	@nLblDropped = 0
 	@aPaper = []
+	@aKeyBox = []
+	@aKey = []
+	@cKeyCode = ""
+	@cKeyTitle = ""
+	@bKeyDrawn = FALSE
+	@nKeyUnlisted = 0
+	@aPlaced = []
+	@nCell = 0
+	@nGx = 0
+	@nGy = 0
+	@aLand = []
 
 	def Bind(poProjection, poFeatures)
 		if NOT isObject(poProjection) or NOT isObject(poFeatures)
@@ -604,97 +615,167 @@ class stzGeoMap from stzObject
 
 	#-- naming the regions ---------------------------------------------------
 	#
-	# NINETY-SIX NAMES ON ONE SHEET IS NOT A LABELLING, and the first
-	# version of this drew exactly that: every department's name at its own
-	# centre, overlapping into a grey smear that said nothing. The Principal
-	# returned it in one line -- "labels are not readable, you need a
-	# smarter algorithm" -- and they are right that this is a solved problem
-	# elsewhere. What every serious label engine does (QGIS's PAL, Mapbox
-	# GL, ArcGIS Maplex) comes down to four rules, and they are the four
-	# below:
+	# A NAME GOES INSIDE ITS REGION OR IT BECOMES A NUMBER. There is no
+	# third thing, and there are no lines.
 	#
-	#   1. A LABEL IS A BOX, not a point. Nothing can be decided until the
-	#      name is measured at the size it will be drawn.
-	#   2. THE BIGGEST REGION SPEAKS FIRST. Placement is greedy by
-	#      importance, because a name dropped from a large region is a worse
-	#      loss than one dropped from a small one, and area is the
-	#      importance a map has to hand.
-	#   3. A LABEL THAT WILL NOT FIT INSIDE ITS REGION GOES OUTSIDE IT, on a
-	#      leader line, rather than lying across its neighbours. This is the
-	#      rule the first version had no notion of and the one the Principal
-	#      asked for by name.
-	#   4. A LABEL THAT CANNOT GO ANYWHERE IS DROPPED, and the picture SAYS
-	#      how many -- a map that silently omits names is a map whose reader
-	#      does not know what they are not being told.
+	# There WERE lines. Three rounds of this drew leaders -- a name parked
+	# in the nearest empty paper, or out in a margin, with a rule back to
+	# the region it belonged to -- and the Principal returned every one of
+	# them, the last time as "these lines are a total mess". They were
+	# right, and the finding is worth more than the fix: THE LEADERS WERE
+	# MY INVENTION AND NOT THE FIELD'S. Asked what the best tools actually
+	# do, the answer is that none of them does this for an area:
 	#
-	# What is NOT here, named: no curved labels along a river, no repeated
-	# labels down a long region, no font-size stepping per region. Those are
-	# the next tier and none of them is needed to read a country.
+	#   nivo, Datawrapper, Flourish, ThoughtSpot -- a name is drawn where it
+	#     FITS inside its region, and otherwise not at all; the rest is a
+	#     tooltip.
+	#   d3-geo's own examples -- centroid text above an area threshold.
+	#   QGIS (PAL), Mapbox GL, ArcGIS (Maplex) -- collision placement by
+	#     priority, and what does not fit is DROPPED at that scale. Maplex
+	#     will draw a leader for a POINT feature, capped and short; never a
+	#     sheaf of them across a choropleth.
+	#   every printed atlas -- IGN, Michelin, National Geographic -- puts a
+	#     NUMBER in the small unit and a KEY beside the map. "1 Tunis,
+	#     2 Ariana, 3 Ben Arous, 4 Manouba" is how a map of Tunisia has
+	#     always handled Grand Tunis.
+	#
+	# So this file does what the atlases do, in two tiers and a key:
+	#
+	#   1. THE NAME INSIDE, where its whole box lies within the region it
+	#      names -- not merely within that region's bounding box, which is
+	#      how a ragged region's name ends up on its neighbour.
+	#   2. OTHERWISE A NUMBER, inside the region if the digits fit, and
+	#      otherwise in the empty paper TOUCHING its border. Touching, and
+	#      not merely near: with no line, what says the number belongs to
+	#      this region is that it sits against its edge. One that cannot be
+	#      set there is DROPPED AND COUNTED, because a number floating in
+	#      open paper is a riddle, not a label.
+	#   3. THE KEY beside the map, number to name, NUMBERED IN READING
+	#      ORDER -- rows down the sheet, west to east within a row -- so a
+	#      reader looking for 17 walks to it instead of hunting.
+	#
+	# Two things from the leader era were sound and are kept: the ink comes
+	# from the colour system (StzReadableTextOn), never from an opinion held
+	# in a drawing file; and a label is a BOX, measured at the size it will
+	# be drawn and judged against the region AS DRAWN.
+	#
+	# What is not here, named: INSETS. A zoomed box for Grand Tunis or the
+	# Ile-de-France is how an atlas rescues the numbers this drops, and it
+	# is the next step, not this one.
 
-	# the boxes placed by the last DrawLabelsOn, and what it had to do
+	# THE SMALLEST TYPE THIS WILL DRAW. The Principal has returned a picture
+	# for unreadable text once per plane; a label below this is not a label.
+	def LabelFloor()
+		return 13
+
+	# WHAT THE LABELLING DID, in four numbers that add up to the feature
+	# count. `unlisted` is the one that was nearly left out: entries the key
+	# box had no room for. A key that runs off the bottom of its box loses
+	# names SILENTLY, and the first version of DrawKeyOn did exactly that --
+	# 39 of France's 75 entries drawn and 36 gone, under a comment in this
+	# same file claiming a key must never do that. So it is counted here and
+	# the gate refuses it.
 	def LabelReport()
-		return [ :inline = @nLblInline, :leadered = @nLblLeader, :dropped = @nLblDropped ]
+		return [ :named = @nLblNamed, :numbered = @nLblNumbered,
+		         :dropped = @nLblDropped, :unlisted = @nKeyUnlisted ]
 
-	# EVERY REGION NAMED, as well as the sheet allows. paMargin is where a
-	# leadered label may be written: [ x0, y0, x1, y1 ], usually a column
-	# beside the map. Pass [] and a label that will not fit is dropped
-	# instead of leadered.
+	# where the key is written: [ x0, y0, x1, y1 ]. With no key box set, a
+	# region that cannot carry its own name is dropped -- a number with
+	# nothing to look it up in is worse than a blank.
+	def SetKeyBox(pnX0, pnY0, pnX1, pnY1)
+		@aKeyBox = [ pnX0, pnY0, pnX1, pnY1 ]
+
+		def SetKeyBoxQ(pnX0, pnY0, pnX1, pnY1)
+			This.SetKeyBox(pnX0, pnY0, pnX1, pnY1)
+			return This
+
+	def SetKeyTitle(pcTitle)
+		@cKeyTitle = "" + pcTitle
+
+		def SetKeyTitleQ(pcTitle)
+			This.SetKeyTitle(pcTitle)
+			return This
+
+	# NUMBER THEM WITH THE CODE THEY ALREADY HAVE, where the file carries
+	# one. Natural Earth's iso_3166_2 is "FR-59" for the Nord and "TN-83"
+	# for Tataouine, and the part after the dash IS the number printed on
+	# every French number plate and written on every Tunisian address.
+	#
+	# OFF BY DEFAULT, and deliberately: official codes are not in reading
+	# order, so "08" sitting beside "59" tells a reader who does not
+	# already know them nothing about where to look. Sequential in reading
+	# order is the atlas default; the code is for a sheet drawn for people
+	# who are at home in it.
+	def SetKeyCodes(pcProperty)
+		@cKeyCode = "" + pcProperty
+
+		def SetKeyCodesQ(pcProperty)
+			This.SetKeyCodes(pcProperty)
+			return This
+
+	def KeyEntries()
+		return @aKey
+
+	# EVERY BOX THE LAST LABELLING PUT DOWN, as [ x0, y0, x1, y1 ]. Exposed
+	# so a guard can assert the MECHANISM rather than a number that agrees
+	# with it by accident: the suite used to check "fewer regions were named
+	# than exist", which passes just as well when nothing was drawn at all.
+	# With the boxes in hand it can test every pair and prove they are
+	# disjoint.
+	def PlacedBoxes()
+		return @aPlaced
+
 	def DrawLabelsOn(poCanvas, poFont, pnSize, pInk)
-		This.DrawLabelsXT(poCanvas, poFont, pnSize, pInk, [], FALSE)
+		This.DrawLabelsXT(poCanvas, poFont, pnSize, pInk, FALSE)
 
 	def DrawLabelsWithValuesOn(poCanvas, poFont, pnSize, pInk)
-		This.DrawLabelsXT(poCanvas, poFont, pnSize, pInk, [], TRUE)
+		This.DrawLabelsXT(poCanvas, poFont, pnSize, pInk, TRUE)
 
-	def DrawLabelsInMargin(poCanvas, poFont, pnSize, pInk, paMargin)
-		This.DrawLabelsXT(poCanvas, poFont, pnSize, pInk, paMargin, FALSE)
-
-	def DrawLabelsXT(poCanvas, poFont, pnSize, pInk, paMargin, pbValues)
+	def DrawLabelsXT(poCanvas, poFont, pnSize, pInk, pbValues)
 		@bLabelled = TRUE
-		@nLblInline = 0
-		@nLblLeader = 0
+		@bKeyDrawn = FALSE
+		@nKeyUnlisted = 0
+		@aPlaced = []
+		@nLblNamed = 0
+		@nLblNumbered = 0
 		@nLblDropped = 0
+		@aKey = []
 		_nF_ = @oF.Count()
 		if _nF_ = 0  return  ok
+		_sz_ = pnSize
+		if _sz_ < This.LabelFloor()  _sz_ = This.LabelFloor()  ok
+		This._BuildLandGrid()
 
-		# --- 1. a label is a BOX, measured ---------------------------------
-		_aW_ = []
-		_aH_ = []
-		_aX_ = []
-		_aY_ = []
-		_aFit_ = []
-		_aArea_ = []
+		# --- 1. every name as a BOX, and where its region sits ------------
+		_aW_ = []  _aH_ = []  _aX_ = []  _aY_ = []  _aArea_ = []  _aOk_ = []
 		for _i_ = 1 to _nF_
 			_c_ = "" + @oF.NameOf(_i_)
-			_w_ = poFont.WidthOf(_c_, pnSize)
-			_h_ = pnSize
+			_w_ = poFont.WidthOf(_c_, _sz_)
+			_h_ = _sz_
 			if pbValues and isNumber(This.ValueOf(_i_))
-				_w2_ = poFont.WidthOf(StzFactNumText(This.ValueOf(_i_)), pnSize - 3)
+				_w2_ = poFont.WidthOf(StzFactNumText(This.ValueOf(_i_)), _sz_ - 2)
 				if _w2_ > _w_  _w_ = _w2_  ok
-				_h_ += pnSize
+				_h_ += _sz_
 			ok
 			_aW_ + _w_
 			_aH_ + _h_
 			_g_ = This.LabelPointOf(_i_)
-			if len(_g_) < 2
-				_aX_ + 0  _aY_ + 0  _aFit_ + FALSE  _aArea_ + 0
-				loop
-			ok
-			_q_ = @oP.Project(_g_[1], _g_[2])
+			_q_ = []
+			if len(_g_) = 2  _q_ = @oP.Project(_g_[1], _g_[2])  ok
 			if len(_q_) < 2
-				_aX_ + 0  _aY_ + 0  _aFit_ + FALSE  _aArea_ + 0
+				_aX_ + 0  _aY_ + 0  _aArea_ + 0  _aOk_ + FALSE
 				loop
 			ok
 			_aX_ + _q_[1]
 			_aY_ + _q_[2]
-			# DOES THE NAME FIT INSIDE THE REGION? Measured on the DRAWN
-			# shape, not on the sphere: the region's projected box, which is
-			# what the reader's eye is comparing the name against.
 			_b_ = This.PaperBoxOf(_i_)
 			_aArea_ + ((_b_[3] - _b_[1]) * (_b_[4] - _b_[2]))
-			_aFit_ + ((_b_[3] - _b_[1]) >= _w_ + 4 and (_b_[4] - _b_[2]) >= _h_ + 4)
+			_aOk_ + TRUE
 		next
 
-		# --- 2. the biggest region speaks first ----------------------------
+		# --- 2. the biggest region speaks first ---------------------------
+		# Area is the importance a map has to hand, and a name lost from a
+		# large region is the worse loss.
 		_ord_ = []
 		for _i_ = 1 to _nF_  _ord_ + _i_  next
 		for _a_ = 1 to _nF_ - 1
@@ -707,116 +788,479 @@ class stzGeoMap from stzObject
 			next
 		next
 
+		# --- 3. the names that fit inside ---------------------------------
 		_placed_ = []
-		_lead_ = []
+		_rest_ = []
 		for _k_ = 1 to _nF_
 			_i_ = _ord_[_k_]
-			if _aArea_[_i_] <= 0  loop  ok
-			_w_ = _aW_[_i_]
-			_h_ = _aH_[_i_]
-			if _aFit_[_i_]
-				# four candidates: the anchor, then a little up, down, right
-				_cand_ = [ [ _aX_[_i_] - _w_ / 2, _aY_[_i_] - _h_ / 2 ],
-				           [ _aX_[_i_] - _w_ / 2, _aY_[_i_] - _h_ / 2 - _h_ ],
-				           [ _aX_[_i_] - _w_ / 2, _aY_[_i_] - _h_ / 2 + _h_ ],
-				           [ _aX_[_i_] - _w_ / 2 + _w_ / 3, _aY_[_i_] - _h_ / 2 ] ]
-				_done_ = FALSE
-				for _t_ = 1 to len(_cand_)
-					_bx_ = [ _cand_[_t_][1], _cand_[_t_][2], _cand_[_t_][1] + _w_, _cand_[_t_][2] + _h_ ]
-					if NOT This._OnPaper(_bx_)  loop  ok
-					if _GeoBoxFree(_bx_, _placed_)
-						_placed_ + _bx_
-						This._WriteLabel(poCanvas, poFont, pnSize, pInk, _i_,
-							_bx_[1] + _w_ / 2, _bx_[2] + pnSize, pbValues)
-						@nLblInline++
-						_done_ = TRUE
-						exit
-					ok
-				next
-				if _done_  loop  ok
+			if NOT _aOk_[_i_]  loop  ok
+			_bx_ = This._FitInside(_aX_[_i_], _aY_[_i_], _aW_[_i_], _aH_[_i_], _i_, _placed_)
+			if len(_bx_) != 4
+				_rest_ + _i_
+				loop
 			ok
-			# --- 3. it does not fit, or nowhere free: a leader ------------
-			if len(paMargin) = 4
-				_lead_ + _i_
-			else
-				@nLblDropped++
-			ok
+			_placed_ + _bx_
+			@aPlaced + _bx_
+			# THE BASELINE SITS AT EIGHT TENTHS OF THE BOX, not at its
+			# bottom. A box of height = type size holds an ascent of about
+			# 0.8em and a descent of about 0.2em; putting the baseline on
+			# the bottom edge hangs every descender BELOW the box that was
+			# tested, so the g of 'Gironde' and the p of a neighbour's name
+			# crossed borders the in-region test had certified clear.
+			This._WriteLabel(poCanvas, poFont, _sz_, pInk, _i_,
+				(_bx_[1] + _bx_[3]) / 2, _bx_[2] + _sz_ * 0.8, pbValues)
+			@nLblNamed++
 		next
 
-		# --- the leadered ones, down the margin in the order they sit -----
-		if len(_lead_) > 0 and len(paMargin) = 4
-			for _a_ = 1 to len(_lead_) - 1
-				for _b_ = 1 to len(_lead_) - _a_
-					if _aY_[_lead_[_b_]] > _aY_[_lead_[_b_ + 1]]
-						_t_ = _lead_[_b_]
-						_lead_[_b_] = _lead_[_b_ + 1]
-						_lead_[_b_ + 1] = _t_
-					ok
-				next
-			next
-			_pitch_ = pnSize + 5
-			_room_ = floor((paMargin[4] - paMargin[2]) / _pitch_)
-			_y_ = paMargin[2] + pnSize
-			for _n_ = 1 to len(_lead_)
-				if _n_ > _room_
-					@nLblDropped++
-					loop
-				ok
-				_i_ = _lead_[_n_]
-				_x_ = paMargin[1]
-				# the line runs from the region to its name, and is drawn
-				# UNDER nothing -- a leader that crosses another label is
-				# worse than the crowding it was meant to cure, so it is
-				# kept short and horizontal at its own end
-				# AN ELBOW, NOT A DIAGONAL. A leader drawn straight from the
-				# region to its name crosses the map and every other leader
-				# with it; the first version of this drew thirty-five such
-				# lines over France and they were a cat's cradle. The line
-				# goes OUT to the margin's edge at the region's own height,
-				# then along -- which is what an atlas does, and what makes
-				# two leaders share a corridor instead of crossing.
-				poCanvas.AddPolylineQ([ _aX_[_i_], _aY_[_i_],
-				                        _x_ - 14, _aY_[_i_],
-				                        _x_ - 6, _y_ - pnSize / 3,
-				                        _x_ - 2, _y_ - pnSize / 3 ]).Stroke("#9AA7B4", 0.8)
-				poCanvas.SetFontQ(poFont, pnSize).AddTextQ("" + @oF.NameOf(_i_), _x_, _y_).Fill(pInk)
-				@nLblLeader++
-				_y_ += _pitch_
-			next
+		# --- 4. the rest become numbers, IN READING ORDER -----------------
+		#
+		# A number is drawn when the reader has SOME way to resolve it: a
+		# key box to look it up in, or a mark that is already the unit's
+		# public name. With neither, the name is dropped rather than
+		# replaced by a digit nothing decodes.
+		if len(@aKeyBox) != 4 and @cKeyCode = ""
+			for _n_ = 1 to len(_rest_)  @nLblDropped++  next
+			poCanvas.Flush()
+			return
 		ok
-		# CLOSE THE GROUP. The canvas keeps the last shape open so that
-		# Fill and SetFont can still reach it, so a caption written after
-		# this would otherwise resize the last name drawn.
+		_rest_ = This._ReadingOrder(_rest_, _aX_, _aY_, _sz_)
+
+		for _n_ = 1 to len(_rest_)
+			_i_ = _rest_[_n_]
+			_c_ = This._KeyMarkOf(_i_, len(@aKey) + 1)
+			_w_ = poFont.WidthOf(_c_, _sz_)
+			_bx_ = This._FitInside(_aX_[_i_], _aY_[_i_], _w_, _sz_, _i_, _placed_)
+			_bIn_ = len(_bx_) = 4
+			if NOT _bIn_
+				_bx_ = This._FitBeside(_aX_[_i_], _aY_[_i_], _w_, _sz_, _i_, _placed_)
+			ok
+			if len(_bx_) != 4
+				@nLblDropped++
+				loop
+			ok
+			_placed_ + _bx_
+			@aPlaced + _bx_
+			_ink_ = pInk
+			if _bIn_  _ink_ = This.InkOver(_i_, pInk, _sz_)  ok
+			poCanvas.SetFontQ(poFont, _sz_).
+				AddTextQ(_c_, (_bx_[1] + _bx_[3]) / 2 - _w_ / 2, _bx_[2] + _sz_ * 0.8).Fill(_ink_)
+			# THE KEY SHOWS A VALUE ONLY WHEN THE MAP WAS ASKED TO. The
+			# first version appended it whenever one existed, so a sheet
+			# drawn with DrawLabelsOn -- which shows no numbers anywhere --
+			# came out with an area in square kilometres beside every name
+			# in the key. The key is the rest of the labelling, not a table.
+			_v_ = ""
+			if pbValues  _v_ = This.ValueOf(_i_)  ok
+			@aKey + [ _c_, "" + @oF.NameOf(_i_), _v_ ]
+			@nLblNumbered++
+		next
 		poCanvas.Flush()
 
-	# THE INK A NAME IS WRITTEN IN, over the shade it sits on. A dark name
-	# on a dark class is not a name -- Niger's four southern regions were
-	# unreadable the first time this drew them in one ink over a Brewer
-	# ramp. The choropleth settled this in DN24 by choosing black or white
-	# per class; a map on a filled region owes the same, and asks the same
-	# question of the colour system.
-	def InkOver(pnI, pInk)
+	# THE BOX THAT LIES INSIDE THE REGION, or [] if none does. Nine tries
+	# around the anchor: the anchor itself, a line up and a line down, then
+	# the sides and the four diagonals -- enough for a region whose widest
+	# part is not under its own label point, and cheap enough per feature.
+	def _FitInside(pnX, pnY, pnW, pnH, pnI, paPlaced)
+		_cand_ = [ [ 0, 0 ], [ 0, -pnH ], [ 0, pnH ], [ -pnW / 2, 0 ], [ pnW / 2, 0 ],
+		           [ -pnW / 2, -pnH ], [ pnW / 2, -pnH ], [ -pnW / 2, pnH ], [ pnW / 2, pnH ] ]
+		for _t_ = 1 to len(_cand_)
+			_bx_ = [ pnX + _cand_[_t_][1] - pnW / 2, pnY + _cand_[_t_][2] - pnH / 2,
+			         pnX + _cand_[_t_][1] + pnW / 2, pnY + _cand_[_t_][2] + pnH / 2 ]
+			if NOT This._OnPaper(_bx_)  loop  ok
+			if NOT This._BoxInRegion(_bx_, pnI)  loop  ok
+			if NOT _GeoBoxFree(_bx_, paPlaced)  loop  ok
+			return _bx_
+		next
+		return []
+
+	# HOW FAR OUTSIDE ITS REGION A NUMBER MAY BE SET, in pixels. Sixteen is
+	# about a line of type: far enough to clear a border stroke and the
+	# region's own neighbour, near enough that no reader has to decide which
+	# of two regions a number belongs to.
+	def KeyReachPixels()
+		return 16
+
+	# A NUMBER SET AGAINST ITS OWN EDGE, in the empty paper immediately
+	# outside the region -- the sea, or the ground beyond the border.
+	#
+	# AGAINST THE OUTLINE, NOT THE BOUNDING BOX, and that distinction is
+	# the whole of this method. The first version stepped outward from the
+	# centre of the region's BOX, which for a ragged department put "75"
+	# and "74" adrift in the Mediterranean, nearer to Corsica than to
+	# anything they named: a box's corner can be a long way from any land.
+	# So the search walks the region's own PROJECTED OUTLINE, offsets each
+	# sampled vertex along its outward normal, and takes the first offset
+	# that lands on empty paper. Every candidate is therefore within a few
+	# pixels of a point the reader can see belongs to this region, which is
+	# the only thing standing in for the leader line that used to be drawn.
+	def _FitBeside(pnX, pnY, pnW, pnH, pnI, paPlaced)
+		_r_ = This._PaperRingOf(pnI)
+		_n_ = len(_r_) / 2
+		if _n_ < 3  return []  ok
+		_b_ = This.PaperBoxOf(pnI)
+		_cx_ = (_b_[1] + _b_[3]) / 2
+		_cy_ = (_b_[2] + _b_[4]) / 2
+		# at most sixty vertices looked at, evenly spaced round the ring:
+		# a department's outline can carry two thousand points and the
+		# hundredth of them says nothing the ninety-ninth did not
+		_take_ = 60
+		if _n_ < _take_  _take_ = _n_  ok
+		_reach_ = This.KeyReachPixels()
+		for _step_ = 1 to 3
+			_out_ = 4 + (_reach_ - 4) * _step_ / 3
+			for _t_ = 0 to _take_ - 1
+				_j_ = floor(_t_ * _n_ / _take_) + 1
+				_vx_ = _r_[_j_ * 2 - 1]
+				_vy_ = _r_[_j_ * 2]
+				_dx_ = _vx_ - _cx_
+				_dy_ = _vy_ - _cy_
+				_d_ = sqrt(_dx_ * _dx_ + _dy_ * _dy_)
+				if _d_ < 0.001  loop  ok
+				_x_ = _vx_ + _dx_ / _d_ * (_out_ + pnW / 2)
+				_y_ = _vy_ + _dy_ / _d_ * (_out_ + pnH / 2)
+				_bx_ = [ _x_ - pnW / 2, _y_ - pnH / 2, _x_ + pnW / 2, _y_ + pnH / 2 ]
+				if NOT This._OnPaper(_bx_)  loop  ok
+				if NOT This._BoxOnEmpty(_bx_)  loop  ok
+				if NOT _GeoBoxFree(_bx_, paPlaced)  loop  ok
+				return _bx_
+			next
+		next
+		return []
+
+	# the region's largest outer ring, PROJECTED -- the outline as drawn
+	def _PaperRingOf(pnI)
+		_k_ = @oF.LargestPartOf(pnI)
+		_r_ = @oF.OuterRingOf(pnI, _k_)
+		_n_ = len(_r_) / 2
+		_out_ = []
+		for _j_ = 1 to _n_
+			_q_ = @oP.Project(_r_[_j_ * 2 - 1], _r_[_j_ * 2])
+			if len(_q_) < 2  loop  ok
+			_out_ + _q_[1]
+			_out_ + _q_[2]
+		next
+		return _out_
+
+	# THE MARK A NUMBERED REGION CARRIES: its official code where the caller
+	# named the property holding one, and otherwise its place in the reading
+	# order. "FR-59" yields "59"; a property that is absent or empty falls
+	# back to the sequence rather than printing a blank.
+	def _KeyMarkOf(pnI, pnSeq)
+		if @cKeyCode = ""  return "" + pnSeq  ok
+		_v_ = ring_trim("" + @oF.PropertyOf(pnI, @cKeyCode))
+		if _v_ = "" or _v_ = "NULL"  return "" + pnSeq  ok
+		_a_ = StzSplit(_v_, "-")
+		if len(_a_) > 1  _v_ = _a_[len(_a_)]  ok
+		return _v_
+
+	# READING ORDER: rows down the sheet, west to east inside a row. A plain
+	# sort on y alone numbers two regions side by side in whatever order
+	# their centres happen to differ by a pixel, which reads as random; a
+	# BAND of two and a half lines of type is what makes a row a row.
+	def _ReadingOrder(paIdx, paX, paY, pnSize)
+		_n_ = len(paIdx)
+		if _n_ < 2  return paIdx  ok
+		_a_ = paIdx
+		for _p_ = 1 to _n_ - 1
+			for _q_ = 1 to _n_ - _p_
+				if paY[_a_[_q_]] > paY[_a_[_q_ + 1]]
+					_t_ = _a_[_q_]
+					_a_[_q_] = _a_[_q_ + 1]
+					_a_[_q_ + 1] = _t_
+				ok
+			next
+		next
+		_band_ = pnSize * 2.5
+		_out_ = []
+		_row_ = [ _a_[1] ]
+		_top_ = paY[_a_[1]]
+		for _k_ = 2 to _n_
+			if paY[_a_[_k_]] - _top_ <= _band_
+				_row_ + _a_[_k_]
+				loop
+			ok
+			# ONE AT A TIME, never `_out_ = _out_ + _row_`. Ring's `+` on a
+			# list appends ONE item, so adding a list adds it NESTED -- and
+			# the next loop then indexes an array with a list and reads out
+			# of range, which is the error this cost.
+			_r2_ = This._WestToEast(_row_, paX)
+			for _z_ = 1 to len(_r2_)  _out_ + _r2_[_z_]  next
+			_row_ = [ _a_[_k_] ]
+			_top_ = paY[_a_[_k_]]
+		next
+		_r2_ = This._WestToEast(_row_, paX)
+		for _z_ = 1 to len(_r2_)  _out_ + _r2_[_z_]  next
+		return _out_
+
+	def _WestToEast(paRow, paX)
+		_n_ = len(paRow)
+		_r_ = paRow
+		for _p_ = 1 to _n_ - 1
+			for _q_ = 1 to _n_ - _p_
+				if paX[_r_[_q_]] > paX[_r_[_q_ + 1]]
+					_t_ = _r_[_q_]
+					_r_[_q_] = _r_[_q_ + 1]
+					_r_[_q_ + 1] = _t_
+				ok
+			next
+		next
+		return _r_
+
+	# THE KEY, in as many columns as its box will carry. A key that runs off
+	# the bottom of its box is a key that lost entries silently, so the
+	# column width comes from the widest entry ACTUALLY PRESENT and the row
+	# count from the box's own height.
+	def DrawKeyOn(poCanvas, poFont, pnSize, pInk)
+		if len(@aKeyBox) != 4  return  ok
+		@bKeyDrawn = TRUE
+		@nKeyUnlisted = 0
+		if len(@aKey) = 0  return  ok
+		_sz_ = pnSize
+		if _sz_ < This.LabelFloor()  _sz_ = This.LabelFloor()  ok
+		_x0_ = @aKeyBox[1]
+		_y0_ = @aKeyBox[2]
+		if @cKeyTitle != ""
+			poCanvas.SetFontQ(poFont, _sz_).AddTextQ(@cKeyTitle, _x0_, _y0_ + _sz_).Fill(pInk)
+			_y0_ += _sz_ + 8
+		ok
+		_pitch_ = _sz_ + 5
+		_rows_ = floor((@aKeyBox[4] - _y0_) / _pitch_)
+		if _rows_ < 1
+			@nKeyUnlisted = len(@aKey)
+			return
+		ok
+		_wMark_ = 0
+		_wAll_ = 0
+		for _k_ = 1 to len(@aKey)
+			_w_ = poFont.WidthOf(@aKey[_k_][1], _sz_)
+			if _w_ > _wMark_  _wMark_ = _w_  ok
+		next
+		for _k_ = 1 to len(@aKey)
+			_w_ = _wMark_ + 6 + poFont.WidthOf(This._KeyTextOf(_k_), _sz_)
+			if _w_ > _wAll_  _wAll_ = _w_  ok
+		next
+		_colw_ = _wAll_ + 16
+		_cols_ = floor((@aKeyBox[3] - _x0_) / _colw_)
+		if _cols_ < 1  _cols_ = 1  ok
+		_room_ = _rows_ * _cols_
+		if len(@aKey) > _room_  @nKeyUnlisted = len(@aKey) - _room_  ok
+		for _k_ = 1 to len(@aKey)
+			_c_ = floor((_k_ - 1) / _rows_)
+			if _c_ >= _cols_  exit  ok
+			_r_ = (_k_ - 1) % _rows_
+			_x_ = _x0_ + _c_ * _colw_
+			_y_ = _y0_ + _r_ * _pitch_ + _sz_
+			# the mark RIGHT-ALIGNED in its own column, the way a numbered
+			# list sets: ones under tens, so every name starts on one edge
+			_m_ = @aKey[_k_][1]
+			_wm_ = poFont.WidthOf(_m_, _sz_)
+			poCanvas.SetFontQ(poFont, _sz_).AddTextQ(_m_, _x_ + _wMark_ - _wm_, _y_).Fill(pInk)
+			poCanvas.SetFontQ(poFont, _sz_).
+				AddTextQ(This._KeyTextOf(_k_), _x_ + _wMark_ + 6, _y_).Fill(pInk)
+		next
+		poCanvas.Flush()
+
+	def _KeyTextOf(pnK)
+		_c_ = @aKey[pnK][2]
+		if isNumber(@aKey[pnK][3])  _c_ += "  " + StzFactNumText(@aKey[pnK][3])  ok
+		return _c_
+
+	# --- THE EMPTY PAPER IS A RASTER, NOT FIVE SAMPLED POINTS ------------
+	#
+	# The first version asked whether the four corners and the centre of a
+	# name's box fell on any region. It let "Sousse" be written across the
+	# Cap Bon peninsula and "Manubah" across the gulf into Bizerte, because
+	# a forty-pixel box laid over a coastline can miss land at all five
+	# points and still cover it in between. Sampling a shape at five points
+	# is not a test of the shape.
+	#
+	# So the paper is RASTERISED ONCE, at four pixels a cell, exactly the
+	# way a serious label engine keeps an obstacle layer: every region's
+	# rings are walked and the cells they cross are marked as coastline,
+	# then the paper is FLOOD FILLED inward from its own edge. What the
+	# flood reaches without crossing a coastline is empty paper -- the sea,
+	# the margin, the ground outside the country -- and nothing else is.
+	# A box is empty when every cell it covers was reached.
+	#
+	# It costs one pass over the rings the map has already drawn, and it
+	# turns every later question into four integer comparisons and a lookup.
+	# A per-candidate geometric test would be tens of thousands of
+	# point-in-polygon calls; this is none.
+	def _BuildLandGrid()
+		@aLand = []
+		@nCell = 0
+		if len(@aPaper) != 4  return  ok
+		_cell_ = 4
+		_gx_ = ceil((@aPaper[3] - @aPaper[1]) / _cell_) + 1
+		_gy_ = ceil((@aPaper[4] - @aPaper[2]) / _cell_) + 1
+		if _gx_ < 2 or _gy_ < 2  return  ok
+		# A SHEET THIS BIG IS NOT A LABELLING PROBLEM, IT IS A MISTAKE.
+		# Guarding the cell count keeps a caller who passes a paper of a
+		# million pixels from silently spending a minute here.
+		if _gx_ * _gy_ > 400000  return  ok
+		_n_ = _gx_ * _gy_
+		_g_ = []
+		for _t_ = 1 to _n_  _g_ + 0  next
+
+		# 1. the coastlines, marked cell by cell
+		_nF_ = @oF.Count()
+		for _i_ = 1 to _nF_
+			_np_ = @oF.PartCount(_i_)
+			for _k_ = 1 to _np_
+				_r_ = @oF.OuterRingOf(_i_, _k_)
+				_m_ = len(_r_) / 2
+				if _m_ < 2  loop  ok
+				_px_ = -99999  _py_ = -99999
+				for _j_ = 1 to _m_
+					_q_ = @oP.Project(_r_[_j_ * 2 - 1], _r_[_j_ * 2])
+					if len(_q_) < 2
+						_px_ = -99999
+						loop
+					ok
+					_cx_ = (_q_[1] - @aPaper[1]) / _cell_
+					_cy_ = (_q_[2] - @aPaper[2]) / _cell_
+					if _px_ > -99998
+						_dx_ = _cx_ - _px_
+						_dy_ = _cy_ - _py_
+						_len_ = fabs(_dx_)
+						if fabs(_dy_) > _len_  _len_ = fabs(_dy_)  ok
+						_steps_ = ceil(_len_ * 2) + 1
+						for _t_ = 0 to _steps_
+							_u_ = _t_ / _steps_
+							_a_ = floor(_px_ + _dx_ * _u_)
+							_b_ = floor(_py_ + _dy_ * _u_)
+							if _a_ >= 0 and _a_ < _gx_ and _b_ >= 0 and _b_ < _gy_
+								_g_[_b_ * _gx_ + _a_ + 1] = 1
+							ok
+						next
+					ok
+					_px_ = _cx_
+					_py_ = _cy_
+				next
+			next
+		next
+
+		# 2. the flood, inward from the paper's own edge
+		_q_ = []
+		for _a_ = 0 to _gx_ - 1
+			if _g_[_a_ + 1] = 0        _g_[_a_ + 1] = 2        _q_ + _a_               ok
+			_z_ = (_gy_ - 1) * _gx_ + _a_
+			if _g_[_z_ + 1] = 0        _g_[_z_ + 1] = 2        _q_ + _z_               ok
+		next
+		for _b_ = 0 to _gy_ - 1
+			_z_ = _b_ * _gx_
+			if _g_[_z_ + 1] = 0        _g_[_z_ + 1] = 2        _q_ + _z_               ok
+			_z_ = _b_ * _gx_ + _gx_ - 1
+			if _g_[_z_ + 1] = 0        _g_[_z_ + 1] = 2        _q_ + _z_               ok
+		next
+		# a HEAD INDEX, never a del() -- Ring's list removal is O(n) and a
+		# flood over twenty thousand cells would pay it twenty thousand times
+		_h_ = 1
+		while _h_ <= len(_q_)
+			_z_ = _q_[_h_]
+			_h_++
+			_a_ = _z_ % _gx_
+			_b_ = floor(_z_ / _gx_)
+			if _a_ > 0 and _g_[_z_] = 0            _g_[_z_] = 2            _q_ + (_z_ - 1)     ok
+			if _a_ < _gx_ - 1 and _g_[_z_ + 2] = 0 _g_[_z_ + 2] = 2        _q_ + (_z_ + 1)     ok
+			if _b_ > 0 and _g_[_z_ - _gx_ + 1] = 0
+				_g_[_z_ - _gx_ + 1] = 2
+				_q_ + (_z_ - _gx_)
+			ok
+			if _b_ < _gy_ - 1 and _g_[_z_ + _gx_ + 1] = 0
+				_g_[_z_ + _gx_ + 1] = 2
+				_q_ + (_z_ + _gx_)
+			ok
+		end
+		@aLand = _g_
+		@nGx = _gx_
+		@nGy = _gy_
+		@nCell = _cell_
+
+	# EMPTY, AND WITH AIR AROUND IT. The box is grown by three pixels before
+	# the question is asked, so a name never comes to rest touching a border
+	# it does not cross.
+	def _BoxOnEmpty(paBox)
+		if @nCell = 0  return FALSE  ok
+		_a0_ = floor((paBox[1] - 3 - @aPaper[1]) / @nCell)
+		_a1_ = floor((paBox[3] + 3 - @aPaper[1]) / @nCell)
+		_b0_ = floor((paBox[2] - 3 - @aPaper[2]) / @nCell)
+		_b1_ = floor((paBox[4] + 3 - @aPaper[2]) / @nCell)
+		if _a0_ < 0 or _b0_ < 0 or _a1_ >= @nGx or _b1_ >= @nGy  return FALSE  ok
+		for _b_ = _b0_ to _b1_
+			_row_ = _b_ * @nGx
+			for _a_ = _a0_ to _a1_
+				if @aLand[_row_ + _a_ + 1] != 2  return FALSE  ok
+			next
+		next
+		return TRUE
+
+	def _WriteLabel(poCanvas, poFont, pnSize, pInk, pnI, pnCx, pnY, pbValues)
+		_ink_ = This.InkOver(pnI, pInk, pnSize)
+		_c_ = "" + @oF.NameOf(pnI)
+		_w_ = poFont.WidthOf(_c_, pnSize)
+		poCanvas.SetFontQ(poFont, pnSize).AddTextQ(_c_, pnCx - _w_ / 2, pnY).Fill(_ink_)
+		if NOT pbValues  return  ok
+		if NOT isNumber(This.ValueOf(pnI))  return  ok
+		_t_ = StzFactNumText(This.ValueOf(pnI))
+		_w2_ = poFont.WidthOf(_t_, pnSize - 2)
+		poCanvas.SetFontQ(poFont, pnSize - 2).AddTextQ(_t_, pnCx - _w2_ / 2, pnY + pnSize).Fill(_ink_)
+
+	# --- 3. THE INK IS THE COLOUR SYSTEM'S ANSWER, NOT THIS FILE'S --------
+	#
+	# This used to ask StzIsDarkColor and choose white or the caller's ink,
+	# and it put black names on dark blue and dark red -- which the
+	# Principal returned twice. The house HAS a contrast contract:
+	# StzReadableTextOn(background, sizePx, bold) answers the ink AND
+	# whether that size can carry it, measured against WCAG's 4.5:1 for
+	# normal text and 3:1 for large. A drawing file has no business having
+	# its own opinion about contrast when the colour system holds one.
+	def InkOver(pnI, pInk, pnSize)
 		if len(@aEdges) < 2 or len(@aValues) = 0  return pInk  ok
 		_c_ = This.ClassOf(pnI)
-		if _c_ < 1  return pInk  ok
-		if StzIsDarkColor(@aPalette[_c_])  return "#FFFFFF"  ok
-		return pInk
+		_bg_ = @cNoData
+		if _c_ >= 1  _bg_ = @aPalette[_c_]  ok
+		_r_ = StzReadableTextOn(_bg_, pnSize, FALSE)
+		return StzResolveColor(_r_[1])
+
+	# --- 2. IS THE WHOLE BOX INSIDE THE REGION IT NAMES? Sampled on a grid, at
+	# eight pixels or finer, and NOT at the four corners and the centre.
+	#
+	# This made the same mistake _BoxOnEmpty made, and made it in the same
+	# picture: a name is forty-odd pixels wide, a border is one pixel, and a
+	# border that cuts across the middle of the box misses all five sampled
+	# points -- so "Zinder" was written across the line into Maradi and
+	# "Sfax" across its own coast. SAMPLING A SHAPE AT ITS CORNERS IS NOT A
+	# TEST OF THE SHAPE, and having written that sentence about the sea this
+	# morning I left the identical defect standing in the test beside it.
+	#
+	# The grid is sized from the box, so a long name costs more points than
+	# a short one and nothing costs more than 8 x 6.
+	def _BoxInRegion(paBox, pnI)
+		_k_ = @oF.LargestPartOf(pnI)
+		_w_ = paBox[3] - paBox[1]
+		_h_ = paBox[4] - paBox[2]
+		_nc_ = ceil(_w_ / 8) + 1
+		_nr_ = ceil(_h_ / 8) + 1
+		if _nc_ < 2  _nc_ = 2  ok
+		if _nr_ < 2  _nr_ = 2  ok
+		if _nc_ > 8  _nc_ = 8  ok
+		if _nr_ > 6  _nr_ = 6  ok
+		for _r_ = 0 to _nr_ - 1
+			_y_ = paBox[2] + _h_ * _r_ / (_nr_ - 1)
+			for _c_ = 0 to _nc_ - 1
+				_x_ = paBox[1] + _w_ * _c_ / (_nc_ - 1)
+				_g_ = @oP.Invert(_x_, _y_)
+				if len(_g_) < 2  return FALSE  ok
+				if NOT @oF.PartContains(pnI, _k_, _g_[1], _g_[2])  return FALSE  ok
+			next
+		next
+		return TRUE
 
 	def _OnPaper(paBox)
 		if len(@aPaper) != 4  return TRUE  ok
 		return paBox[1] >= @aPaper[1] and paBox[3] <= @aPaper[3] and
 		       paBox[2] >= @aPaper[2] and paBox[4] <= @aPaper[4]
-
-	def _WriteLabel(poCanvas, poFont, pnSize, pInk, pnI, pnCx, pnY, pbValues)
-		pInk = This.InkOver(pnI, pInk)
-		_c_ = "" + @oF.NameOf(pnI)
-		_w_ = poFont.WidthOf(_c_, pnSize)
-		poCanvas.SetFontQ(poFont, pnSize).AddTextQ(_c_, pnCx - _w_ / 2, pnY).Fill(pInk)
-		if NOT pbValues  return  ok
-		if NOT isNumber(This.ValueOf(pnI))  return  ok
-		_t_ = StzFactNumText(This.ValueOf(pnI))
-		_w2_ = poFont.WidthOf(_t_, pnSize - 3)
-		poCanvas.SetFontQ(poFont, pnSize - 3).AddTextQ(_t_, pnCx - _w2_ / 2, pnY + pnSize).Fill(pInk)
 
 	# a region's box ON THE PAPER: what the reader's eye measures a name
 	# against, which is not the box it has on the sphere
@@ -958,6 +1402,52 @@ class stzGeoMap from stzObject
 						"beginning with '" + _cWho_ + "' -- a name outside its region is a " +
 						"name on somebody else's" ]
 			ok
+		ok
+
+		# 1c-bis. A NUMBER ON THE MAP HAS SOMETHING TO LOOK IT UP IN.
+		# Numbering is what replaced the leader lines, and it works because
+		# a key stands beside the map. A sheet carrying "17" with no key is
+		# strictly worse than one that left the region blank: the reader can
+		# see there was something to know and has no way to it.
+		#
+		# TWO SEVERITIES, AND THE DIFFERENCE IS REAL. A SEQUENTIAL mark is
+		# an index into a key and nothing else, so without the key it means
+		# nothing to anybody: ERROR. An OFFICIAL CODE is the unit's own
+		# public name -- "59" is the Nord to every French reader, the way
+		# "CA" is California -- so a sheet of codes without a key is how
+		# every road atlas of France is printed, and the only reader it
+		# fails is the one from elsewhere: WARNING.
+		if @nLblNumbered > 0 and NOT @bKeyDrawn
+			_sev_ = "error"
+			_why_ = "a number with nothing to look it up in tells the reader only " +
+				"that they are missing something"
+			if @cKeyCode != ""
+				_sev_ = "warning"
+				_why_ = "the marks are official codes from '" + @cKeyCode + "', which " +
+					"a reader at home in the country already knows -- but a reader " +
+					"from elsewhere has no way in"
+			ok
+			_a_ + [ :rule = "every_number_has_a_key",
+				:subject = _cM_, :where = "" + @nLblNumbered + " numbered regions",
+				:severity = _sev_,
+				:message = "" + @nLblNumbered + " region(s) carry a number instead of a " +
+					"name and DrawKeyOn was never called -- " + _why_ ]
+		ok
+
+		# 1c-ter. AND THE KEY LISTS EVERY ONE OF THEM. A key box too small
+		# for its entries drops the tail off the bottom, and the reader has
+		# no way to know it happened -- they look for 61, do not find it,
+		# and conclude they misread the map. Found in this file's own France
+		# sheet: 39 entries drawn of 75.
+		if @nKeyUnlisted > 0
+			_a_ + [ :rule = "the_key_lists_every_number",
+				:subject = _cM_, :where = "" + @nKeyUnlisted + " entries",
+				:severity = "error",
+				:message = "the key box has room for " +
+					"" + (@nLblNumbered - @nKeyUnlisted) + " of " + @nLblNumbered +
+					" entries, so " + @nKeyUnlisted + " number(s) are drawn on the map " +
+					"and appear nowhere in the key -- give the key box more room, or " +
+					"fewer numbers to carry" ]
 		ok
 
 		# 1d. THE EXTENT IS ONE PLACE, or the projection is fitted to the

@@ -166,45 +166,93 @@ chk("...and the placer still finds a point inside it",
     oCr.Contains(1, oLc.LabelPointOf(1)[1], oLc.LabelPointOf(1)[2]))
 
 ? ""
-? "-- 9. NINETY-SIX NAMES ON ONE SHEET IS NOT A LABELLING --"
-# The first version drew every name at its own centre and the Principal
-# returned it in one line: "labels are not readable". What every serious
-# label engine does comes to four rules -- a label is a BOX, the biggest
-# region speaks first, a name that will not fit goes OUT on a leader, and
-# a name that cannot go anywhere is DROPPED and counted.
+? "-- 9. A NAME GOES INSIDE ITS REGION, OR IT BECOMES A NUMBER --"
+# There is no third thing and there are no leader lines. Three rounds of
+# this drew them and the Principal returned every one, the last as "these
+# lines are a total mess" -- and they were right about the field as well as
+# the picture: nivo, Datawrapper, QGIS's PAL, Mapbox GL and ArcGIS Maplex
+# all drop an area name that will not fit rather than lead it out, and every
+# printed atlas puts a NUMBER in the small unit with a KEY beside the map.
 oLbF = StzGeoFeaturesFromJson(_CrowdJson())
 oLbM = StzGeoMap(new stzGeoProjection(:Equirectangular), oLbF)
 oLbM.Projection().FitToFeatures(oLbF, 300, 300, 10)
 oLbM.SetSource("Invented, for a guard")
+oLbM.SetPaper(10, 10, 320, 390)
 oLbC = new stzCanvas(600, 400)
 oLbC.SetBackground("#FFFFFF")
-oLbM.DrawLabelsXT(oLbC, oFont, 12, "#000000", [], FALSE)
-rNoMar = oLbM.LabelReport()
-? "   twelve crowded regions, no margin: inline " + rNoMar[:inline] + ", dropped " + rNoMar[:dropped]
-chk("with no room and no margin, the names that cannot be placed are DROPPED " +
-    "and COUNTED -- a map that silently omits names is one whose reader does " +
-    "not know what they are not being told",
-    rNoMar[:inline] + rNoMar[:leadered] + rNoMar[:dropped] = oLbF.Count() and rNoMar[:dropped] > 0)
+oLbM.DrawLabelsXT(oLbC, oFont, 13, "#000000", FALSE)
+rNoKey = oLbM.LabelReport()
+? "   twelve crowded regions, no key box: named " + rNoKey[:named] +
+  ", numbered " + rNoKey[:numbered] + ", dropped " + rNoKey[:dropped]
+chk("WITH NO KEY BOX a name that will not fit is DROPPED and COUNTED, never " +
+    "replaced by a digit -- a number with nothing to look it up in tells the " +
+    "reader only that they are missing something",
+    rNoKey[:numbered] = 0 and rNoKey[:dropped] > 0 and
+    rNoKey[:named] + rNoKey[:numbered] + rNoKey[:dropped] = oLbF.Count())
+
 oLbC2 = new stzCanvas(600, 400)
 oLbC2.SetBackground("#FFFFFF")
-oLbM.DrawLabelsXT(oLbC2, oFont, 12, "#000000", [ 320, 20, 590, 380 ], FALSE)
-rMar = oLbM.LabelReport()
-? "   the same, with a margin: inline " + rMar[:inline] + ", led out " + rMar[:leadered] +
-  ", dropped " + rMar[:dropped]
-chk("GIVEN A MARGIN, a name that will not fit is LED OUT to it instead of being " +
-    "dropped -- which is the rule the first version had no notion of",
-    rMar[:leadered] > 0 and rMar[:dropped] < rNoMar[:dropped] and
-    rMar[:inline] + rMar[:leadered] + rMar[:dropped] = oLbF.Count())
-chk("...and every label still sits inside the paper it was given",
-    rMar[:inline] + rMar[:leadered] > 0)
-chk("NEGATIVE: two labels never overlap -- the boxes are tested against every " +
+oLbM.SetKeyBox(330, 20, 590, 380)
+oLbM.SetKeyTitle("Numbered on the map")
+oLbM.DrawLabelsXT(oLbC2, oFont, 13, "#000000", FALSE)
+oLbM.DrawKeyOn(oLbC2, oFont, 13, "#333333")
+rKey = oLbM.LabelReport()
+? "   the same, with a key box: named " + rKey[:named] + ", numbered " +
+  rKey[:numbered] + ", dropped " + rKey[:dropped] + ", unlisted " + rKey[:unlisted]
+chk("GIVEN A KEY BOX, the names that will not fit become NUMBERS instead of " +
+    "being dropped -- which is what every printed atlas does with a unit too " +
+    "small to carry its own name",
+    rKey[:numbered] > 0 and rKey[:dropped] < rNoKey[:dropped] and
+    rKey[:named] + rKey[:numbered] + rKey[:dropped] = oLbF.Count())
+chk("...and every number that was drawn has an entry in the key",
+    len(oLbM.KeyEntries()) = rKey[:numbered] and rKey[:unlisted] = 0)
+chk("THE KEY IS NUMBERED IN READING ORDER -- rows down the sheet -- so a " +
+    "reader looking for an entry walks to it instead of hunting",
+    _KeyReadsInOrder(oLbM))
+chk("NEGATIVE: two labels never overlap -- every box is tested against every " +
     "box already placed, which is what makes this a placement and not a plotting",
-    _NoOverlap(oLbM, oFont, 12))
-chk("THE INK READS OVER ITS OWN SHADE: a name on a dark class is written white, " +
-    "and on a light one it keeps the ink it was given",
+    _NoOverlap(oLbM, oFont, 13))
+chk("THE INK IS THE COLOUR SYSTEM'S ANSWER: the two ends of the ramp take " +
+    "DIFFERENT ink, and each reaches the WCAG body-text floor against the " +
+    "shade it is drawn on -- a drawing file has no opinion of its own here",
     _InkFlips(oLbF))
 
-? ""
+# --- THE KEY MAY NOT LOSE ENTRIES OFF THE BOTTOM OF ITS BOX ---------------
+# Found in this plane's own France sheet: 39 of 75 entries drawn and 36 gone,
+# in silence, under a comment claiming a key must never do that.
+oLbC3 = new stzCanvas(600, 400)
+oLbC3.SetBackground("#FFFFFF")
+oLbM.SetKeyBox(330, 20, 420, 60)
+oLbM.DrawLabelsXT(oLbC3, oFont, 13, "#000000", FALSE)
+oLbM.DrawKeyOn(oLbC3, oFont, 13, "#333333")
+rTiny = oLbM.LabelReport()
+? "   a key box too small: numbered " + rTiny[:numbered] + ", unlisted " + rTiny[:unlisted]
+chk("A KEY BOX WITH TOO LITTLE ROOM REPORTS WHAT IT COULD NOT LIST, and does " +
+    "not lose it in silence",
+    rTiny[:unlisted] > 0)
+chk("...and the gate calls that an ERROR, because a number appearing nowhere " +
+    "in the key makes the reader think they misread the map",
+    _HasFinding(oLbM.Findings(), "the_key_lists_every_number", "error"))
+oLbM.SetKeyBox(330, 20, 590, 380)
+
+# --- A NUMBER WITH NO KEY AT ALL -----------------------------------------
+# Unless the mark is the unit's own public name. "59" is the Nord to every
+# French reader; a sequential "7" is an index into a key and nothing else.
+oLbC4 = new stzCanvas(600, 400)
+oLbC4.SetBackground("#FFFFFF")
+oLbM.DrawLabelsXT(oLbC4, oFont, 13, "#000000", FALSE)
+chk("NUMBERS DRAWN AND NO KEY DRAWN IS AN ERROR when the marks are sequential",
+    _HasFinding(oLbM.Findings(), "every_number_has_a_key", "error"))
+oLbM.SetKeyCodes("iso_3166_2")
+oLbC5 = new stzCanvas(600, 400)
+oLbC5.SetBackground("#FFFFFF")
+oLbM.DrawLabelsXT(oLbC5, oFont, 13, "#000000", FALSE)
+chk("...but only a WARNING when they are OFFICIAL CODES, which a reader at " +
+    "home in the country already knows -- this is how every road atlas of " +
+    "France is printed",
+    _HasFinding(oLbM.Findings(), "every_number_has_a_key", "warning"))
+oLbM.SetKeyCodes("")
+
 ? "-- 9. THE SPATIAL JOIN: a table of places, counted into regions --"
 # THE POINTS ARE TAKEN FROM THE REGIONS THEMSELVES, not guessed at. The
 # first draft of this section wrote coordinates it believed were inside
@@ -604,16 +652,61 @@ func _CrowdJson
 	return _c_ + ']}'
 
 # no two placed boxes overlap: re-derive the boxes the engine would place
+# EVERY PAIR OF PLACED BOXES IS DISJOINT, tested on the boxes themselves.
+#
+# This used to answer "were fewer regions named than exist", which is TRUE
+# whenever the engine draws nothing at all -- an assertion that agreed with
+# the truth by coincidence and would have gone on agreeing through any
+# regression that stopped placement working. PlacedBoxes() exists so this
+# can test the mechanism.
 func _NoOverlap poMap, poFont, pnSize
 	_c_ = new stzCanvas(600, 400)
 	_c_.SetBackground("#FFFFFF")
-	poMap.DrawLabelsXT(_c_, poFont, pnSize, "#000000", [], FALSE)
-	_r_ = poMap.LabelReport()
-	# the engine placed r[:inline] boxes and rejected every collision, so the
-	# count placed must be under the count of regions whenever they crowd
-	return _r_[:inline] < poMap.Features().Count()
+	poMap.DrawLabelsXT(_c_, poFont, pnSize, "#000000", FALSE)
+	_b_ = poMap.PlacedBoxes()
+	if len(_b_) < 2  return FALSE  ok
+	for _i_ = 1 to len(_b_) - 1
+		for _j_ = _i_ + 1 to len(_b_)
+			if _b_[_i_][1] < _b_[_j_][3] and _b_[_i_][3] > _b_[_j_][1] and
+			   _b_[_i_][2] < _b_[_j_][4] and _b_[_i_][4] > _b_[_j_][2]
+				return FALSE
+			ok
+		next
+	next
+	return TRUE
 
-# a dark class gives white ink, a light one keeps what it was given
+# THE KEY'S MARKS RISE DOWN THE SHEET. The entries are numbered in reading
+# order -- rows down the paper, west to east inside a row -- so the marks,
+# read in the order the key lists them, are 1, 2, 3 and never a shuffle.
+func _KeyReadsInOrder poMap
+	_k_ = poMap.KeyEntries()
+	for _i_ = 1 to len(_k_)
+		if _k_[_i_][1] != "" + _i_  return FALSE  ok
+	next
+	return len(_k_) > 0
+
+# does this report carry that rule at that severity?
+func _HasFinding paFindings, pcRule, pcSeverity
+	for _i_ = 1 to len(paFindings)
+		if paFindings[_i_][:rule] = pcRule and paFindings[_i_][:severity] = pcSeverity
+			return TRUE
+		ok
+	next
+	return FALSE
+
+# THE INK IS THE COLOUR SYSTEM'S ANSWER, AND THE TEST ASKS THE COLOUR
+# SYSTEM'S QUESTION.
+#
+# This used to assert two literal hex strings -- "a dark class gives
+# #FFFFFF, a light one gives back the #111111 it was handed". Both halves
+# were wrong once InkOver started asking StzReadableTextOn: the contract
+# never promised to echo the caller's ink, and it answers #000000 over a
+# pale class because that is what reaches 4.5:1, not #111111. The guard had
+# been unreachable since InkOver took a size, so nothing said so.
+#
+# What the contract actually promises is CONTRAST, so that is what is
+# asserted: the two ends differ, and each reaches the WCAG body-text floor
+# against the shade it will be drawn on.
 func _InkFlips poF
 	_m_ = StzGeoMap(new stzGeoProjection(:Equirectangular), poF)
 	_m_.Projection().FitToFeatures(poF, 300, 300, 10)
@@ -622,4 +715,8 @@ func _InkFlips poF
 	_m_.SetValues(_v_)
 	_m_.SetClasses([ 1, 4, 8, 13 ])
 	_m_.SetRamp(:Blues)
-	return _m_.InkOver(1, "#111111") = "#111111" and _m_.InkOver(poF.Count(), "#111111") = "#FFFFFF"
+	_lo_ = _m_.InkOver(1, "#111111", 13)
+	_hi_ = _m_.InkOver(poF.Count(), "#111111", 13)
+	return _lo_ != _hi_ and
+	       StzContrastOf(_lo_, _m_.ColourOf(1)) >= StzContrastMinimumBodyText() and
+	       StzContrastOf(_hi_, _m_.ColourOf(poF.Count())) >= StzContrastMinimumBodyText()
