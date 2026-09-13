@@ -112,6 +112,117 @@ chk("the map reaches the vector tier with its polygons, its circles and its line
     StzFindFirst("<circle", cSvg) > 0)
 
 ? ""
+? "-- 7. INSIDE A COUNTRY: the units an analyst works with (GE6) --"
+# A country is not the unit anybody analyses. The file that holds every
+# province on Earth is 40 MB, so the match happens in the ENGINE and only
+# what was asked for is parsed. The projection is then a conic fitted to
+# that country alone.
+chk("a feature set can be cut down to a WINDOW, and the cut is a feature " +
+    "set like any other -- the map, the atlas and the rules all take it",
+    oF.Within(-1, -1, 8, 20).Count() = 1 and oF.Within(-1, -1, 8, 20).NameOf(1) = "Arda")
+chk("NEGATIVE: a window with nothing in it gives an EMPTY feature set, not a " +
+    "guess at what was meant",
+    oF.Within(100, 100, 110, 110).Count() = 0)
+chk("...and the file it was cut from is untouched", oF.Count() = 2)
+oCon = StzGeoConicFor(oF, :ConicEqualArea)
+aB = oF.Bounds()
+? "   the fixture spans " + StzFactNumText(aB[2]) + "N to " + StzFactNumText(aB[4]) +
+  "N; its conic takes " + StzFactNumText(oCon.Params()[5]) + "N and " +
+  StzFactNumText(oCon.Params()[6]) + "N"
+chk("THE CONIC AN ATLAS WOULD CHOOSE: standard parallels at a sixth and five " +
+    "sixths of the latitude span, the central meridian down the middle",
+    fabs(oCon.Params()[5] - (aB[2] + (aB[4] - aB[2]) / 6)) < 0.001 and
+    fabs(oCon.Params()[6] - (aB[2] + (aB[4] - aB[2]) * 5 / 6)) < 0.001 and
+    fabs(oCon.RotationOf()[1] + (aB[1] + aB[3]) / 2) < 0.001)
+chk("...and it is EQUAL-AREA by default, because a country map is nearly " +
+    "always a choropleth and the gate would refuse a conformal one under one",
+    oCon.IsEqualArea())
+chk("NEGATIVE: a caller who wants shapes over quantities asks by name",
+    (StzGeoConicFor(oF, :ConicConformal)).IsConformal())
+
+? ""
+? "-- 8. A LABEL SITS IN ITS OWN REGION --"
+# The mean of a ring falls outside it whenever the region is a crescent or a
+# horseshoe, and a name outside its region is a name on somebody else's.
+oLb = StzGeoMap(new stzGeoProjection(:Equirectangular), oF)
+oLb.Projection().FitToFeatures(oF, 500, 400, 20)
+oLb.SetSource("Invented, for a guard")
+bIn = TRUE
+for i = 1 to oF.Count()
+	g = oLb.LabelPointOf(i)
+	if len(g) < 2 or oF.IndexAt(g[1], g[2]) != i  bIn = FALSE  ok
+next
+chk("every label lands inside the region it names", bIn)
+oCr = StzGeoFeaturesFromJson(_CrescentJson())
+oLc = StzGeoMap(new stzGeoProjection(:Equirectangular), oCr)
+oLc.Projection().FitToFeatures(oCr, 400, 400, 20)
+aMean = _MeanOfRing(oCr.OuterRingOf(1, 1))
+? "   the crescent's MEAN is " + StzFactNumText(aMean[1]) + "," + StzFactNumText(aMean[2]) +
+  " -- inside it: " + oCr.Contains(1, aMean[1], aMean[2])
+chk("NEGATIVE: on a CRESCENT the mean of the ring is outside the region, which " +
+    "is the whole reason the placer exists",
+    NOT oCr.Contains(1, aMean[1], aMean[2]))
+chk("...and the placer still finds a point inside it",
+    oCr.Contains(1, oLc.LabelPointOf(1)[1], oLc.LabelPointOf(1)[2]))
+
+? ""
+? "-- 9. THE SPATIAL JOIN: a table of places, counted into regions --"
+# THE POINTS ARE TAKEN FROM THE REGIONS THEMSELVES, not guessed at. The
+# first draft of this section wrote coordinates it believed were inside
+# Berea and two of them were not -- the guard failed and the code was
+# right, which is the cheapest kind of wrong to be and still a waste. An
+# interior point is one the placer already knows how to find.
+oJn = StzGeoMap(new stzGeoProjection(:Equirectangular), oF)
+oJn.Projection().FitToFeatures(oF, 500, 400, 20)
+oJn.SetSource("Invented, for a guard")
+aIn1 = oJn.LabelPointOf(1)
+aIn2 = oJn.LabelPointOf(2)
+aPts = [ aIn1[1], aIn1[2], aIn1[1], aIn1[2], aIn1[1], aIn1[2],
+         aIn2[1], aIn2[2], aIn2[1], aIn2[2], 60, 60 ]
+aCnt = oJn.CountPointsIn(aPts)
+chk("every point is counted into the region it fell in",
+    len(aCnt) = 2 and aCnt[1] = 3 and aCnt[2] = 2)
+chk("A POINT OUTSIDE EVERY REGION IS REPORTED, never rounded to the nearest -- " +
+    "a well across the border belongs to the other side",
+    oJn.PointsOutside(aPts) = 1 and (aCnt[1] + aCnt[2] + oJn.PointsOutside(aPts)) = len(aPts) / 2)
+chk("...and AssignPoints says which region each one fell in, 0 for none",
+    len(oJn.AssignPoints(aPts)) = 6 and oJn.AssignPoints(aPts)[1] = 1 and
+    oJn.AssignPoints(aPts)[4] = 2 and oJn.AssignPoints(aPts)[6] = 0)
+aDn = oJn.DensityPointsIn(aPts)
+chk("A COUNT MAY NOT BE COLOURED AND A DENSITY MAY: a big region collects more " +
+    "of anything, so the join answers per-area too",
+    len(aDn) = 2 and aDn[1] > 0 and aDn[2] > 0 and
+    fabs(aDn[1] / aDn[2] - (aCnt[1] / oJn.ValuesFromArea()[1]) / (aCnt[2] / oJn.ValuesFromArea()[2])) < 0.001)
+# THE LIE A COUNT TELLS, shown on this fixture: Berea is the BIGGER of the
+# two -- 924,107 km2 against Arda's 531,683 -- so a count would rank it
+# first on any even scattering, while the density puts the smaller one
+# first. That is the whole reason the join answers both.
+aEq = [ aIn1[1], aIn1[2], aIn1[1], aIn1[2], aIn2[1], aIn2[2], aIn2[1], aIn2[2] ]
+aCe = oJn.CountPointsIn(aEq)
+aDe = oJn.DensityPointsIn(aEq)
+chk("NEGATIVE: with the SAME count each, the smaller region is the denser one -- " +
+    "a count would have called them equal",
+    aCe[1] = aCe[2] and oJn.ValuesFromArea()[2] > oJn.ValuesFromArea()[1] and aDe[1] > aDe[2])
+
+? ""
+? "-- 10. THE EXTENT IS ONE PLACE, or the projection is fitted to the sea --"
+# Natural Earth's France carries Reunion and Guyane beside the departments,
+# so its latitude span runs from -21 to 51 and a conic fitted to all of it
+# puts its parallels in the Atlantic.
+oFar = StzGeoFeaturesFromJson(_ScatteredJson())
+oMf = StzGeoMap(StzGeoConicFor(oFar, :ConicEqualArea), oFar)
+oMf.SetSource("Invented, for a guard")
+chk("a set whose extent is driven by ONE far-off member is caught, and the " +
+    "finding NAMES it so the caller can window it away",
+    _HasRule(oMf.Findings(), "the_extent_is_one_place", "warning") and
+    _RuleSays(oMf.Findings(), "the_extent_is_one_place", "Faraway"))
+oNear = oFar.Within(-5, -5, 15, 15)
+oMn = StzGeoMap(StzGeoConicFor(oNear, :ConicEqualArea), oNear)
+oMn.SetSource("Invented, for a guard")
+chk("NEGATIVE: windowed to the places that belong together, it reports nothing",
+    oNear.Count() = 5 and NOT _HasRule(oMn.Findings(), "the_extent_is_one_place", "warning"))
+
+? ""
 ? "-- 7. HEXAGONAL BINS: how many here, not where exactly --"
 # Ten thousand dots on a map are a stain. Binning counts them into cells,
 # and the cell is a HEXAGON because a square grid lies twice: its cells
@@ -409,3 +520,32 @@ func _RefusesAtlas
 		_b_ = TRUE
 	done
 	return _b_
+
+func _MeanOfRing paRing
+	_n_ = len(paRing) / 2
+	_sx_ = 0  _sy_ = 0
+	for _j_ = 1 to _n_
+		_sx_ += paRing[_j_ * 2 - 1]
+		_sy_ += paRing[_j_ * 2]
+	next
+	return [ _sx_ / _n_, _sy_ / _n_ ]
+
+# a C: the mean of its ring falls in the bite, not in the country
+func _CrescentJson
+	return '{"type":"FeatureCollection","features":[{"type":"Feature","id":"C",' +
+		'"properties":{"name":"Crescent"},"geometry":{"type":"Polygon","coordinates":[[' +
+		'[0,0],[10,0],[10,3],[3,3],[3,7],[10,7],[10,10],[0,10],[0,0]]]}}]}'
+
+# five places together and one far away, which is Natural Earth's France
+func _ScatteredJson
+	_c_ = '{"type":"FeatureCollection","features":['
+	for _i_ = 0 to 4
+		_y_ = _i_
+		_c_ += '{"type":"Feature","id":"N' + _i_ + '","properties":{"name":"Near' + _i_ +
+			'"},"geometry":{"type":"Polygon","coordinates":[[[' + _i_ + ',' + _y_ + '],[' +
+			(_i_ + 1) + ',' + _y_ + '],[' + (_i_ + 1) + ',' + (_y_ + 1) + '],[' + _i_ + ',' +
+			(_y_ + 1) + ']]]}},'
+	next
+	_c_ += '{"type":"Feature","id":"F","properties":{"name":"Faraway"},"geometry":' +
+		'{"type":"Polygon","coordinates":[[[0,-50],[1,-50],[1,-49],[0,-49]]]}}]}'
+	return _c_

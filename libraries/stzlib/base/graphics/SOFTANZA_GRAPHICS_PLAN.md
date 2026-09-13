@@ -516,6 +516,7 @@ which exists.
 | GE3 | rules the gate owes, seven of them, reported in the house's unified finding shape | Ring, `stzGeoMap.Findings()` + `StzCheckGeoMaps` | **SHIPPED** below |
 | GE4 | names to shapes WITHOUT vendoring shapes: `ShapeOf`, `PointOf`, `ValuesFor`, `Unresolved`, an alias table that is entirely facts about language | Ring, `stzGeoAtlas.ring` | **SHIPPED** below |
 | GE5 | hands: `PlaceAt` / `FeatureAt` / `NameAt` / `ValueAt` — invert, then contain on the sphere | Ring, `stzGeoMap` | **SHIPPED** below |
+| GE6 | **inside a country**: admin-1 units, a conic per country, placed labels, and the SPATIAL JOIN | Ring + engine filter | **SHIPPED** below |
 
 **Order and value.** GE0 first, because every picture above it is only as
 honest as the sphere underneath and its properties are the most assertable
@@ -553,6 +554,97 @@ them, counted into 713 cells in 0.1 s, the world's outline emerging from
 nothing but a count. *Guard:* the counts sum to the points given; a bigger
 cell means fewer of them; six corners at the radius asked for; no points, no
 bins; and the equal-area rule with its negative.
+
+## GE6 -- INSIDE A COUNTRY, AND THE SPATIAL JOIN (2026-09-13, SHIPPED)
+
+*Asked for directly: "I want the geo-atlas to zoom on the internal maps of
+countries, since Softanza is intended to do spatial analytics applications
+in countries like Niger, Tunisia, and France."*
+
+**A COUNTRY IS NOT THE UNIT ANYBODY ANALYSES.** Niger has 8 regions,
+Tunisia 23 governorates, France 96 metropolitan departments, and every real
+question -- clinics per region, rainfall by governorate, sales by department
+-- is asked of those and not of the country. Everything GE0 to GE5 built was
+the world seen from outside; this is the country seen from inside.
+
+### Four things it needed, and one it found
+
+**1. THE FILE IS 40 MB AND THE ANSWER IS 60 KB.** Natural Earth's admin-1
+file is every province on Earth -- 4,596 features, 121 properties each. A
+caller who wants the eight regions of Niger does not want the other 4,588
+crossing the bridge, and on this machine a Ring list of that tree is the
+"holds a large corpus in memory" hazard the house has a rule about. So
+`stz_json_filter_features` matches **in the engine**: 38.8 MB in, 60 KB out,
+under a second. `StzGeoFeaturesFromJsonWhere(json, "iso_a2", "NE")` is the
+whole call.
+
+**2. EVERY COUNTRY WANTS ITS OWN PROJECTION.** `StzGeoConicFor` gives it the
+one an atlas would: standard parallels at a sixth and five sixths of that
+country's own latitude span, central meridian down its middle — the
+cartographer's century-old rule. Niger gets 13.7N and 21.5N; Tunisia 31.4N
+and 36.2N; metropolitan France **43.0N and 49.5N**, which is within half a
+degree of the parallels the French national projection actually uses.
+Equal-area by default, because a country map is nearly always a choropleth
+and the gate would refuse a conformal one under one.
+
+**3. A LABEL IS PLACED, NOT CENTRED.** The mean of a ring falls outside it
+whenever a region is a crescent or a horseshoe, and *a name outside its
+region is a name on somebody else's*. The mean is tried; when it lands
+outside, the interior point furthest from the edge is searched for instead.
+On the real files the mean would have put one label outside its region in
+Niger and one in France; the placer puts none. **GE3 grew the rule it had
+named and left undone in its first table**, `a_label_sits_in_its_region`.
+
+**4. THE SPATIAL JOIN.** `CountPointsIn`, `DensityPointsIn`, `AssignPoints`
+— a table of places, each with a longitude and a latitude, counted into the
+regions they fell in. Two things it refuses: a point outside every region is
+**reported**, never rounded to the nearest, because a well across the border
+belongs to the other side; and a count is offered beside a DENSITY, because
+**a count may not be coloured** — a big region collects more of anything,
+which is the commonest lie in the genre after the radius one.
+
+**And the one it found.** Natural Earth's France carries Guyane, Réunion,
+Martinique, Guadeloupe and Mayotte beside the departments, so its latitude
+span runs from −21 to 51 — and the conic fitted to all of it put its
+standard parallels at **9S and 39N**, a projection for the Atlantic. The
+picture would not have been wrong; it would have been a map of mostly ocean
+with the subject in a corner. So `Within()` windows a file, and GE3 grew
+`the_extent_is_one_place`.
+
+**THAT RULE TOOK THREE TRIES AND THE FIRST TWO WERE WRITTEN BEFORE THE
+MEASUREMENT.** A decile spread cannot see one outlier among six. The largest
+GAP alone fires on Niger, which is one place with big regions. What
+separates them is the gap *together with* the bulk's own span:
+
+| set | n | span | largest gap | bulk span | fires |
+|---|---:|---:|---:|---:|:--:|
+| Niger | 8 | 6.25 | 3.28 | 2.97 | no |
+| Tunisia | 23 | 5.29 | 1.33 | 3.96 | no |
+| **France, all** | 101 | 71.64 | **25.70** | **8.65** | **yes** |
+| France, metropolitan | 96 | 8.65 | 0.55 | 8.10 | no |
+| the world | 177 | 146.28 | 22.74 | 123.54 | no |
+
+Ten degrees of empty latitude in one step, with the rest inside thirty, is
+one compact place plus some far-flung members. The world has the gap and not
+the compactness; Niger has neither.
+
+### And a measurement that earned a fix
+
+The join was **3.4 s for 3,000 observations over 23 governorates** — 1.1 ms
+a point, which is two minutes for a real 100,000-row table. It asks "is this
+point in that region" 69,000 times and almost every answer is no, so the
+reader now keeps each feature's **bounding box** and answers from four
+comparisons before walking a single ring. **0.6 s, 5.7×**, with the answers
+identical to the unit. The same cache took the world hit test from 2.6 ms to
+**0.38 ms**, which is the difference between a click and a hover — the index
+GE5 had named as the GUI plane's to want turned out to be four numbers.
+
+*Witness:* `geo_inside.png` (the three countries' own units, labelled) and
+`geo_join.png` (3,000 invented observations as a stain on the left, joined
+and shaded by density on the right). *Guard:* the GE6 sections bring
+`geo_map_narrated.ring` to **69 assertions**; gate §127. The admin-1 files
+are cut by `atlas/cut_admin1.ring`, which is committed; what it reads and
+writes is not.
 
 ## GE4 -- NAMES TO SHAPES, WITHOUT VENDORING SHAPES (2026-09-13, SHIPPED)
 
@@ -639,10 +731,13 @@ sixteen projections, so a globe, a rotated sphere and a cut map all answer
 correctly without a line of code about any of them, **and a hole answers
 nobody** — the lake is respected all the way from the file to the click.
 
-*Measured:* 2.6 ms per hit test against 177 countries and 10,587 points, on
-a reader that walks every ring. Enough for a click, not for a hover at 60 Hz;
-the index that would fix it is the GUI plane's to want, and it is named here
-rather than built on a guess.
+*Measured, then improved when a caller finally wanted it:* a hit test was
+**2.6 ms** against 177 countries and 10,587 points, on a reader that walked
+every ring. The spatial join of GE6 asks that question tens of thousands of
+times, so the reader now keeps each feature's BOUNDING BOX and answers from
+it first — four comparisons instead of a ring walk, for the pairs that do
+not match, which is almost all of them. **0.38 ms now, seven times**, and
+the same answers. That is the difference between a click and a hover.
 
 *Guard:* the GE3 and GE5 sections of `geo_map_narrated.ring` bring it to
 **35 assertions**; gate §124 and §125.

@@ -24,3 +24,26 @@ the packaging is Mike Bostock's, ISC.
 **Every example and every guard that uses it says what it skipped when the
 folder is empty.** Nothing here is required to run the geo guards -- those
 stand on the invented fixtures in `../fixtures`, which assert no border.
+
+## Inside a country: the admin-1 units
+
+The same refusal, the same source. Natural Earth's admin-1 file is the
+provinces, governorates, regions and departments inside every country --
+4,596 of them, **40 MB**, 121 properties each. Nobody wants that in memory
+to draw the eight regions of Niger, so it is fetched once, CUT, and thrown
+away:
+
+    curl -sSL -o _ne10_admin1.json       https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_admin_1_states_provinces.geojson
+
+then, from `base/test/graphics`:
+
+    ring atlas/cut_admin1.ring        # writes admin1_<country>.geojson here
+    rm atlas/_ne10_admin1.json
+
+The cutting is `StzEngineJsonFilterFeatures`, which matches **in the
+engine** so the other 4,588 features never cross into Ring. Niger comes to
+60 KB, Tunisia to 131 KB, France to 719 KB, in about half a second each.
+
+`nvkelso/natural-earth-vector` is Natural Earth's own repository; the data
+is public domain, the packaging CC0. Same licence envelope as the country
+file above, which is why this source and not one of the CC-BY atlases.
