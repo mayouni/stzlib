@@ -55,6 +55,81 @@ const Json = struct {
 ///
 /// Astral characters (an emoji in a name) become the surrogate PAIR the
 /// format specifies, which is what every JSON writer emits for them.
+/// A FEATURECOLLECTION, CUT DOWN TO THE FEATURES A PROPERTY PICKS, and
+/// written back out as JSON. Answers an owned buffer; free it with
+/// stz_json_escape_free.
+///
+/// WHY THIS IS IN THE ENGINE AND NOT IN RING. Natural Earth's admin-1 file
+/// -- the provinces, governorates and regions inside every country -- is
+/// 40 MB, 4,596 features, 121 properties each. A caller who wants the eight
+/// regions of Niger does not want the other 4,588 crossing the bridge, and
+/// on this machine a Ring list of that tree is the "holds a large corpus in
+/// memory" hazard the house has a rule about. So the whole file is parsed
+/// HERE, matched HERE, and what crosses is the 30 KB the caller asked for.
+///
+/// The match is on a property's string value, case-insensitively, and a
+/// number matches its own digits -- so "iso_a2" = "NE" and "adm0_a3" =
+/// "NER" both work, and so does an id written as 250 against "250".
+/// Everything the FeatureCollection carries besides its features is kept,
+/// so the answer is a FeatureCollection and not a bag of features.
+pub fn stz_json_filter_features(
+    data: [*c]const u8,
+    data_len: usize,
+    key: [*c]const u8,
+    key_len: usize,
+    value: [*c]const u8,
+    value_len: usize,
+    out_len: *usize,
+) callconv(.c) [*c]u8 {
+    out_len.* = 0;
+    if (data == null or key == null or value == null) return null;
+    const src = data[0..data_len];
+    const k = key[0..key_len];
+    const want = value[0..value_len];
+
+    const parsed = std.json.parseFromSlice(std.json.Value, gpa, src, .{}) catch return null;
+    defer parsed.deinit();
+    if (parsed.value != .object) return null;
+    const root = parsed.value.object;
+    const feats = root.get("features") orelse return null;
+    if (feats != .array) return null;
+
+    var kept = std.json.Array.init(gpa);
+    defer kept.deinit();
+    for (feats.array.items) |f| {
+        if (f != .object) continue;
+        const props = f.object.get("properties") orelse continue;
+        if (props != .object) continue;
+        const v = props.object.get(k) orelse continue;
+        const hit = switch (v) {
+            .string => |sv| std.ascii.eqlIgnoreCase(sv, want),
+            .integer => |iv| blk: {
+                var buf: [32]u8 = undefined;
+                const t = std.fmt.bufPrint(&buf, "{d}", .{iv}) catch break :blk false;
+                break :blk std.mem.eql(u8, t, want);
+            },
+            else => false,
+        };
+        if (hit) kept.append(f) catch return null;
+    }
+
+    // the SAME collection, with a shorter features array
+    var out_obj = std.json.ObjectMap.init(gpa);
+    defer out_obj.deinit();
+    var it = root.iterator();
+    while (it.next()) |kv| {
+        if (std.mem.eql(u8, kv.key_ptr.*, "features")) continue;
+        out_obj.put(kv.key_ptr.*, kv.value_ptr.*) catch return null;
+    }
+    out_obj.put("features", .{ .array = kept }) catch return null;
+
+    // the same serialiser the rest of this module uses, so one JSON writer
+    // and not two
+    const result = std.json.Stringify.valueAlloc(gpa, std.json.Value{ .object = out_obj }, .{}) catch return null;
+    out_len.* = result.len;
+    return @constCast(result.ptr);
+}
+
 pub fn stz_json_escape_nonascii(data: [*c]const u8, data_len: usize, out_len: *usize) callconv(.c) [*c]u8 {
     out_len.* = 0;
     if (data == null) return null;

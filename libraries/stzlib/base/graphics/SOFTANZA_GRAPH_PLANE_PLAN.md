@@ -171,6 +171,7 @@ general-tasks session's file and is routed to them, not fix them here.*
 | DN24 | closed | 118 |
 | DN24b | closed | 120 |
 | GE3 | closed | 124 |
+| GE6 | closed | 127 |
 | GE4 | closed | 126 |
 | GE5 | closed | 125 |
 | GE2 | closed | 123 |
@@ -4428,6 +4429,18 @@ it merely advises: a choropleth needs an equal-area projection; north is up
 unless said otherwise; the map names its source; every value falls in the
 classes; every class colours a region; every region has a value; the data
 fits the paper. `StzCheckGeoMaps()` judges several at once.
+
+## GE6 — INSIDE A COUNTRY, AND THE SPATIAL JOIN (2026-09-13, SHIPPED)
+
+**§127 discharges GE6.** A country is not the unit anybody analyses. The
+admin-1 file that holds every province on Earth is 40 MB, so
+`StzGeoFeaturesFromJsonWhere` matches **in the engine** and only the eight
+regions of Niger cross. `StzGeoConicFor` gives each country the projection
+an atlas would: standard parallels at a sixth and five sixths of its own
+latitude span, equal-area by default. Labels are PLACED, not centred.
+`CountPointsIn` / `DensityPointsIn` / `AssignPoints` are the spatial join,
+and a point outside every region is reported rather than rounded to the
+nearest. `Within()` windows a file that carries more than one place.
 
 ## GE4 — NAMES TO SHAPES, WITHOUT VENDORING SHAPES (2026-09-13, SHIPPED)
 

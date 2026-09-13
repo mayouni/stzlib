@@ -195,10 +195,32 @@ fn ring_JsonParseToList(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// JsonFilterFeatures(cJson, cKey, cValue) -> the same FeatureCollection
+// with only the features whose property cKey equals cValue. Matched in the
+// engine so a 40 MB world file never crosses the bridge.
+fn ring_FilterFeatures(p: *anyopaque) callconv(.c) void {
+    const n: usize = @intCast(gss(p, 1));
+    const kn: usize = @intCast(gss(p, 2));
+    const vn: usize = @intCast(gss(p, 3));
+    if (n == 0 or kn == 0) {
+        rs(p, "");
+        return;
+    }
+    var out_len: usize = 0;
+    const out = j.stz_json_filter_features(gs(p, 1), n, gs(p, 2), kn, gs(p, 3), vn, &out_len);
+    if (out == null) {
+        rs(p, "");
+        return;
+    }
+    defer j.stz_json_escape_free(out, out_len);
+    rs2(p, out, @intCast(out_len));
+}
+
 const regs = [_]R.Reg{
     .{ .name = "stzenginejsonparse", .func = &ring_Parse },
     .{ .name = "stzenginejsonescapenonascii", .func = &ring_EscapeNonAscii },
     .{ .name = "stzenginejsonparsetolist", .func = &ring_JsonParseToList },
+    .{ .name = "stzenginejsonfilterfeatures", .func = &ring_FilterFeatures },
     .{ .name = "stzenginejsonfree", .func = &ring_Free },
     .{ .name = "stzenginejsonisvalid", .func = &ring_IsValid },
     .{ .name = "stzenginejsonisarray", .func = &ring_IsArray },

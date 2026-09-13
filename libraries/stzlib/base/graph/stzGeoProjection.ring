@@ -105,6 +105,34 @@ func StzGeoDistanceKm(pnLon1, pnLat1, pnLon2, pnLat2)
 func StzGeoAngularDistance(pnLon1, pnLat1, pnLon2, pnLat2)
 	return StzEngineGeoHaversine(pnLat1, pnLon1, pnLat2, pnLon2) / 6371 * 180 / 3.141592653589793
 
+# THE PROJECTION AN ATLAS WOULD CHOOSE FOR ONE COUNTRY, and the reason it
+# is not the caller's problem. A country is a small piece of a sphere, so
+# the question is never "which of sixteen" but "where are its parallels":
+# a conic whose two standard parallels sit inside the country's own
+# latitude span is shape-true through the middle of it and wrong nowhere
+# anybody is looking.
+#
+# The rule is the cartographer's and is a century old: the parallels go at
+# a SIXTH and FIVE SIXTHS of the latitude span, and the central meridian at
+# the middle of the longitude span. For Niger that is 12.7N and 20.7N; for
+# Tunisia 31.7N and 36.4N; for France 43.1N and 49.4N.
+#
+# EQUAL-AREA BY DEFAULT, because a country map is nearly always a
+# choropleth and the gate would refuse a conformal one under one. A caller
+# who wants shapes over quantities asks for :ConicConformal by name.
+func StzGeoConicFor(poFeatures, pcKind)
+	_b_ = poFeatures.Bounds()
+	if len(_b_) < 4
+		stzraise("StzGeoConicFor: those features have no extent to fit a conic to.")
+	ok
+	_k_ = pcKind
+	if NOT (isString(_k_) and len(_k_) > 0)  _k_ = :ConicEqualArea  ok
+	_o_ = new stzGeoProjection(_k_)
+	_span_ = _b_[4] - _b_[2]
+	_o_.Parallels([ _b_[2] + _span_ / 6, _b_[2] + _span_ * 5 / 6 ])
+	_o_.Rotate([ -(_b_[1] + _b_[3]) / 2, 0, 0 ])
+	return _o_
+
 class stzGeoProjection from stzObject
 	@nKind = 0
 	@aRot = [ 0, 0, 0 ]
@@ -266,6 +294,55 @@ class stzGeoProjection from stzObject
 
 		def FitToPointsQ(paLonLat, pnW, pnH, pnPad)
 			This.FitToPoints(paLonLat, pnW, pnH, pnPad)
+			return This
+
+	# scale and place so ALL the features fill the box. This is what "draw
+	# Tunisia" means, and it is NOT FitToSphere -- which fits the whole
+	# globe and leaves a country a speck in the middle of it. The first
+	# sheet of the three countries was drawn that way and came out as three
+	# clusters of labels over nothing at all.
+	def FitFeaturesIn(poFeatures, pnX0, pnY0, pnX1, pnY1, pnPad)
+		_pp_ = This.Params()
+		_a_ = StzEngineGeoFitPoints(_pp_, poFeatures.AllPoints(), pnX0, pnY0, pnX1, pnY1, pnPad)
+		if len(_a_) < 3
+			stzraise("stzGeoProjection.FitFeaturesIn: none of those features project.")
+		ok
+		@nScale = _a_[1]
+		@nTx = _a_[2]
+		@nTy = _a_[3]
+
+		def FitFeaturesInQ(poFeatures, pnX0, pnY0, pnX1, pnY1, pnPad)
+			This.FitFeaturesIn(poFeatures, pnX0, pnY0, pnX1, pnY1, pnPad)
+			return This
+
+	def FitToFeatures(poFeatures, pnW, pnH, pnPad)
+		This.FitToPoints(poFeatures.AllPoints(), pnW, pnH, pnPad)
+
+		def FitToFeaturesQ(poFeatures, pnW, pnH, pnPad)
+			This.FitToFeatures(poFeatures, pnW, pnH, pnPad)
+			return This
+
+	# scale and place so ONE feature fills the box: what "zoom to Tunisia"
+	# means, and what a caller does before drawing its governorates
+	def FitToFeature(poFeatures, pnI, pnW, pnH, pnPad)
+		This.FitToPoints(poFeatures.PointsOf(pnI), pnW, pnH, pnPad)
+
+		def FitToFeatureQ(poFeatures, pnI, pnW, pnH, pnPad)
+			This.FitToFeature(poFeatures, pnI, pnW, pnH, pnPad)
+			return This
+
+	def FitFeatureIn(poFeatures, pnI, pnX0, pnY0, pnX1, pnY1, pnPad)
+		_pp_ = This.Params()
+		_a_ = StzEngineGeoFitPoints(_pp_, poFeatures.PointsOf(pnI), pnX0, pnY0, pnX1, pnY1, pnPad)
+		if len(_a_) < 3
+			stzraise("stzGeoProjection.FitFeatureIn: that feature projects nowhere.")
+		ok
+		@nScale = _a_[1]
+		@nTx = _a_[2]
+		@nTy = _a_[3]
+
+		def FitFeatureInQ(poFeatures, pnI, pnX0, pnY0, pnX1, pnY1, pnPad)
+			This.FitFeatureIn(poFeatures, pnI, pnX0, pnY0, pnX1, pnY1, pnPad)
 			return This
 
 	#-- the two questions ---------------------------------------------------
@@ -440,13 +517,6 @@ class stzGeoProjection from stzObject
 		next
 
 	# fit the paper to everything a file holds
-	def FitToFeatures(poFeatures, pnW, pnH, pnPad)
-		This.FitToPoints(poFeatures.AllPoints(), pnW, pnH, pnPad)
-
-		def FitToFeaturesQ(poFeatures, pnW, pnH, pnPad)
-			This.FitToFeatures(poFeatures, pnW, pnH, pnPad)
-			return This
-
 	# TISSOT'S INDICATRIX: circles of one true size all over the sphere,
 	# projected. Where they stay round the projection keeps shapes; where
 	# they stay the same size it keeps areas; where they do neither it says

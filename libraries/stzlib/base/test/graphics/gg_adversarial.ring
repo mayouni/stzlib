@@ -16586,6 +16586,41 @@ chk("THE HOUSE'S JSON READER KEEPS WHAT RING'S LOSES: a raw multibyte name " +
 chk("NEGATIVE: a document it cannot parse comes back EMPTY, not half-read",
     len(StzJsonToList("{not json at all")) = 0)
 
+sec("-- 127. GE6: INSIDE A COUNTRY, AND THE SPATIAL JOIN -------------------------")
+discharges("GE6")
+
+# A country is not the unit anybody analyses. geo_map_narrated.ring carries
+# these with their negatives; this is the gate's own witness for the three
+# claims a country-level analysis stands on.
+
+oG6F = StzGeoFeaturesFromJson(read("fixtures/two_countries.geojson"))
+chk("a feature set can be cut to a WINDOW, and the cut is a feature set like " +
+    "any other, leaving the file it came from untouched",
+    oG6F.Within(-1, -1, 8, 20).Count() = 1 and oG6F.Count() = 2)
+oG6C = StzGeoConicFor(oG6F, :ConicEqualArea)
+aG6B = oG6F.Bounds()
+chk("THE CONIC AN ATLAS WOULD CHOOSE: standard parallels at a sixth and five " +
+    "sixths of the latitude span, and equal-area, because a country map is " +
+    "nearly always a choropleth",
+    fabs(oG6C.Params()[5] - (aG6B[2] + (aG6B[4] - aG6B[2]) / 6)) < 0.001 and
+    fabs(oG6C.Params()[6] - (aG6B[2] + (aG6B[4] - aG6B[2]) * 5 / 6)) < 0.001 and
+    oG6C.IsEqualArea())
+oG6M = StzGeoMap(new stzGeoProjection(:Equirectangular), oG6F)
+oG6M.Projection().FitToFeatures(oG6F, 500, 400, 20)
+oG6M.SetSource("Invented, for a gate")
+aG6L1 = oG6M.LabelPointOf(1)
+aG6L2 = oG6M.LabelPointOf(2)
+chk("A LABEL SITS IN ITS OWN REGION -- a name outside its region is a name on " +
+    "somebody else's",
+    oG6F.IndexAt(aG6L1[1], aG6L1[2]) = 1 and oG6F.IndexAt(aG6L2[1], aG6L2[2]) = 2)
+aG6P = [ aG6L1[1], aG6L1[2], aG6L1[1], aG6L1[2], aG6L2[1], aG6L2[2], 60, 60 ]
+aG6N = oG6M.CountPointsIn(aG6P)
+chk("THE SPATIAL JOIN counts every place into the region it fell in",
+    aG6N[1] = 2 and aG6N[2] = 1)
+chk("NEGATIVE: a place outside every region is REPORTED, never rounded to the " +
+    "nearest -- a well across the border belongs to the other side",
+    oG6M.PointsOutside(aG6P) = 1 and (aG6N[1] + aG6N[2] + oG6M.PointsOutside(aG6P)) = 4)
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go

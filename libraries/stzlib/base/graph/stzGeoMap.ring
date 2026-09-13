@@ -40,6 +40,20 @@ func StzGeoMapPaletteFor(pnClasses)
 	return StzChoroplethPaletteFor(pnClasses)
 
 # which class a bin's count falls in; 0 for none
+# how far a place is from the nearest edge of a ring, in degrees. Crude on
+# purpose: a label only has to be comfortably inside, and an exact distance
+# to a polygon costs more than the picture is worth.
+func _GeoEdgeDistance(paRing, pnX, pnY)
+	_best_ = 1000000
+	_n_ = len(paRing) / 2
+	for _i_ = 1 to _n_
+		_dx_ = paRing[_i_ * 2 - 1] - pnX
+		_dy_ = paRing[_i_ * 2] - pnY
+		_d_ = _dx_ * _dx_ + _dy_ * _dy_
+		if _d_ < _best_  _best_ = _d_  ok
+	next
+	return sqrt(_best_)
+
 func _HexClassOf(pnV, paEdges)
 	_n_ = len(paEdges) - 1
 	for _c_ = 1 to _n_
@@ -82,6 +96,7 @@ class stzGeoMap from stzObject
 	@cSource = ""
 	@cNoData = "#E8E8E8"
 	@bBinned = FALSE
+	@bLabelled = FALSE
 
 	def Bind(poProjection, poFeatures)
 		if NOT isObject(poProjection) or NOT isObject(poFeatures)
@@ -325,6 +340,140 @@ class stzGeoMap from stzObject
 			next
 		next
 
+	#-- observations, joined to the regions they fell in ---------------------
+	#
+	# THIS IS THE SPATIAL JOIN, and it is the whole of spatial analytics'
+	# first step: a table of places -- wells, clinics, rain gauges, sales --
+	# each with a longitude and a latitude, and the question "how many in
+	# each region". Nothing about it is a picture yet.
+
+	# which feature each point fell in, one index per point, 0 for a point
+	# outside every one of them. A point outside is NOT an error and not
+	# rounded to the nearest region: it is reported as 0, because a well
+	# across the border belongs to the other side.
+	def AssignPoints(paLonLat)
+		_a_ = []
+		_n_ = len(paLonLat) / 2
+		for _i_ = 1 to _n_
+			_a_ + @oF.IndexAt(paLonLat[_i_ * 2 - 1], paLonLat[_i_ * 2])
+		next
+		return _a_
+
+	# how many points fell in each feature, in the features' own order --
+	# which is exactly the shape SetValues takes, so a table of coordinates
+	# becomes a choropleth in two calls
+	def CountPointsIn(paLonLat)
+		_a_ = []
+		for _i_ = 1 to @oF.Count()  _a_ + 0  next
+		_n_ = len(paLonLat) / 2
+		for _i_ = 1 to _n_
+			_k_ = @oF.IndexAt(paLonLat[_i_ * 2 - 1], paLonLat[_i_ * 2])
+			if _k_ > 0  _a_[_k_]++  ok
+		next
+		return _a_
+
+	# ...and how many fell outside every region, which a caller must be told
+	# rather than left to notice that their totals do not add up
+	def PointsOutside(paLonLat)
+		_c_ = 0
+		_n_ = len(paLonLat) / 2
+		for _i_ = 1 to _n_
+			if @oF.IndexAt(paLonLat[_i_ * 2 - 1], paLonLat[_i_ * 2]) = 0  _c_++  ok
+		next
+		return _c_
+
+	# the same counts, divided by each region's own area in square
+	# kilometres: a DENSITY, which is the number a choropleth may honestly
+	# colour. A count may not -- a big region collects more of anything --
+	# and that is the commonest lie in the genre after the radius one.
+	def DensityPointsIn(paLonLat)
+		_c_ = This.CountPointsIn(paLonLat)
+		_a_ = This.ValuesFromArea()
+		_d_ = []
+		for _i_ = 1 to len(_c_)
+			if _a_[_i_] > 0
+				_d_ + (_c_[_i_] / _a_[_i_] * 10000)
+			else
+				_d_ + ""
+			ok
+		next
+		return _d_
+
+	#-- labels ---------------------------------------------------------------
+
+	# WHERE A NAME GOES. The mean of a ring is not inside it whenever the
+	# region is a crescent, a horseshoe or a pair of islands -- and a label
+	# outside its own region is a label on somebody else's. So the mean is
+	# TRIED and, when it lands outside, an interior point is searched for:
+	# the point of a coarse grid that is inside and furthest from the edge,
+	# which is the pole of inaccessibility a cartographer would use, taken
+	# at a resolution a map at this size cannot tell from the exact one.
+	def LabelPointOf(pnI)
+		_k_ = @oF.LargestPartOf(pnI)
+		_r_ = @oF.OuterRingOf(pnI, _k_)
+		_n_ = len(_r_) / 2
+		if _n_ < 3  return []  ok
+		_sx_ = 0  _sy_ = 0
+		for _j_ = 1 to _n_
+			_sx_ += _r_[_j_ * 2 - 1]
+			_sy_ += _r_[_j_ * 2]
+		next
+		_cx_ = _sx_ / _n_
+		_cy_ = _sy_ / _n_
+		if @oF.PartContains(pnI, _k_, _cx_, _cy_)  return [ _cx_, _cy_ ]  ok
+
+		_b_ = @oF.BoundsOf(pnI)
+		_best_ = []
+		_bestd_ = -1
+		_steps_ = 24
+		for _a_ = 1 to _steps_ - 1
+			for _b2_ = 1 to _steps_ - 1
+				_x_ = _b_[1] + (_b_[3] - _b_[1]) * _a_ / _steps_
+				_y_ = _b_[2] + (_b_[4] - _b_[2]) * _b2_ / _steps_
+				if NOT @oF.PartContains(pnI, _k_, _x_, _y_)  loop  ok
+				_d_ = _GeoEdgeDistance(_r_, _x_, _y_)
+				if _d_ > _bestd_
+					_bestd_ = _d_
+					_best_ = [ _x_, _y_ ]
+				ok
+			next
+		next
+		if len(_best_) = 2  return _best_  ok
+		return [ _cx_, _cy_ ]
+
+	# every region named, where its name fits inside it
+	def DrawLabelsOn(poCanvas, poFont, pnSize, pInk)
+		@bLabelled = TRUE
+		for _i_ = 1 to @oF.Count()
+			_g_ = This.LabelPointOf(_i_)
+			if len(_g_) < 2  loop  ok
+			_q_ = @oP.Project(_g_[1], _g_[2])
+			if len(_q_) < 2  loop  ok
+			_c_ = @oF.NameOf(_i_)
+			_w_ = poFont.WidthOf(_c_, pnSize)
+			poCanvas.SetFontQ(poFont, pnSize).AddTextQ(_c_, _q_[1] - _w_ / 2, _q_[2]).Fill(pInk)
+		next
+
+	# ...and the same with each region's value under its name, which is what
+	# a country map of twenty-odd units is usually for
+	def DrawLabelsWithValuesOn(poCanvas, poFont, pnSize, pInk)
+		@bLabelled = TRUE
+		for _i_ = 1 to @oF.Count()
+			_g_ = This.LabelPointOf(_i_)
+			if len(_g_) < 2  loop  ok
+			_q_ = @oP.Project(_g_[1], _g_[2])
+			if len(_q_) < 2  loop  ok
+			_c_ = @oF.NameOf(_i_)
+			_w_ = poFont.WidthOf(_c_, pnSize)
+			poCanvas.SetFontQ(poFont, pnSize).AddTextQ(_c_, _q_[1] - _w_ / 2, _q_[2] - 2).Fill(pInk)
+			_v_ = This.ValueOf(_i_)
+			if isNumber(_v_)
+				_t_ = StzFactNumText(_v_)
+				_w2_ = poFont.WidthOf(_t_, pnSize - 3)
+				poCanvas.SetFontQ(poFont, pnSize - 3).AddTextQ(_t_, _q_[1] - _w2_ / 2, _q_[2] + pnSize).Fill(pInk)
+			ok
+		next
+
 	#-- the legend and the caption -------------------------------------------
 
 	# THE LEGEND SAYS WHAT EVERY SHADE MEANS, and a class that colours
@@ -423,6 +572,98 @@ class stzGeoMap from stzObject
 				:message = "the counts are binned into cells of the paper but '" + @oP.Name() +
 					"' does not preserve area -- a bin near the pole covers less ground " +
 					"than one at the equator and draws the same size" ]
+		ok
+
+		# 1c. A LABEL SITS IN ITS OWN REGION. This was named in GE3's first
+		# table and left undone; it is checkable now that a label has a
+		# place of its own. The mean of a ring falls outside it whenever the
+		# region is a crescent or a pair of islands, and a name outside its
+		# region is a name on somebody else's.
+		if @bLabelled
+			_nOut_ = 0
+			_cWho_ = ""
+			for _i_ = 1 to _nF_
+				_g_ = This.LabelPointOf(_i_)
+				if len(_g_) < 2  loop  ok
+				if @oF.IndexAt(_g_[1], _g_[2]) = _i_  loop  ok
+				_nOut_++
+				if _cWho_ = ""  _cWho_ = @oF.NameOf(_i_)  ok
+			next
+			if _nOut_ > 0
+				_a_ + [ :rule = "a_label_sits_in_its_region",
+					:subject = _cM_, :where = _cWho_, :severity = "warning",
+					:message = "" + _nOut_ + " label(s) fall outside the region they name, " +
+						"beginning with '" + _cWho_ + "' -- a name outside its region is a " +
+						"name on somebody else's" ]
+			ok
+		ok
+
+		# 1d. THE EXTENT IS ONE PLACE, or the projection is fitted to the
+		# sea between two. Natural Earth's France carries Guyane, Reunion,
+		# Martinique, Guadeloupe and Mayotte beside the departments, so its
+		# latitude span runs from -21 to 51 -- and a conic fitted to THAT
+		# put its standard parallels at 9S and 39N, a projection for the
+		# Atlantic. The picture would not be wrong; it would be a map of
+		# mostly ocean with the subject in a corner.
+		#
+		# TWO NUMBERS, AND BOTH WERE MEASURED BEFORE THE RULE WAS WRITTEN.
+		# The first draft used a spread and could not see one outlier among
+		# six; the second used the largest GAP alone and fired on Niger,
+		# which is one place with big regions. What separates them is the
+		# gap TOGETHER WITH the bulk's own span:
+		#
+		#     set                  n     span    gap    bulk span
+		#     Niger                8     6.25    3.28   2.97
+		#     Tunisia             23     5.29    1.33   3.96
+		#     France, all        101    71.64   25.70   8.65   <- fires
+		#     France, metro       96     8.65    0.55   8.10
+		#     the world          177   146.28   22.74   123.54
+		#
+		# Ten degrees of EMPTY latitude in one step, with the rest of the
+		# regions inside thirty, is one compact place plus some far-flung
+		# members. The world has the gap and not the compactness; Niger has
+		# neither.
+		if _nF_ >= 4
+			_lat_ = []
+			for _i_ = 1 to _nF_
+				_b_ = @oF.BoundsOf(_i_)
+				if len(_b_) >= 4  _lat_ + ((_b_[2] + _b_[4]) / 2)  ok
+			next
+			_lat_ = sort(_lat_)
+			_m_ = len(_lat_)
+			if _m_ >= 4
+				_gap_ = 0
+				_at_ = 0
+				for _i_ = 2 to _m_
+					if _lat_[_i_] - _lat_[_i_ - 1] > _gap_
+						_gap_ = _lat_[_i_] - _lat_[_i_ - 1]
+						_at_ = _i_
+					ok
+				next
+				_bLow_ = (_at_ - 1) <= (_m_ - _at_ + 1)
+				if _bLow_
+					_maj_ = _lat_[_m_] - _lat_[_at_]
+				else
+					_maj_ = _lat_[_at_ - 1] - _lat_[1]
+				ok
+				if _gap_ > 10 and _maj_ < 30
+					_who_ = ""
+					for _i_ = 1 to _nF_
+						_b_ = @oF.BoundsOf(_i_)
+						if len(_b_) < 4  loop  ok
+						_cy_ = (_b_[2] + _b_[4]) / 2
+						if _bLow_ and _cy_ <= _lat_[_at_ - 1]  _who_ = @oF.NameOf(_i_)  exit  ok
+						if NOT _bLow_ and _cy_ >= _lat_[_at_]  _who_ = @oF.NameOf(_i_)  exit  ok
+					next
+					_a_ + [ :rule = "the_extent_is_one_place",
+						:subject = _cM_, :where = _who_, :severity = "warning",
+						:message = "the regions leave " + StzFactNumText(_gap_) +
+							" degrees of latitude EMPTY in one step while the rest of them " +
+							"sit inside " + StzFactNumText(_maj_) + " -- '" + _who_ + "' and " +
+							"its like are a second cluster, and a projection fitted to both " +
+							"is fitted to the sea between" ]
+				ok
+			ok
 		ok
 
 		# 2. NORTH IS UP unless the map says otherwise. Turning the sphere to
