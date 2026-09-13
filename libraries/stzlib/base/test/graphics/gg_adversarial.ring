@@ -16613,6 +16613,36 @@ aG6L2 = oG6M.LabelPointOf(2)
 chk("A LABEL SITS IN ITS OWN REGION -- a name outside its region is a name on " +
     "somebody else's",
     oG6F.IndexAt(aG6L1[1], aG6L1[2]) = 1 and oG6F.IndexAt(aG6L2[1], aG6L2[2]) = 2)
+
+# AND A NAME THAT WILL NOT FIT GOES OUT, rather than lying across its
+# neighbours. Twelve crowded regions, more names than room: with no margin
+# the ones that cannot be placed are DROPPED AND COUNTED; given a margin
+# they are LED OUT to it. Every name is accounted for either way.
+oG6Cr = StzGeoFeaturesFromJson(_G6CrowdJson())
+oG6Lm = StzGeoMap(new stzGeoProjection(:Equirectangular), oG6Cr)
+oG6Lm.Projection().FitToFeatures(oG6Cr, 300, 300, 10)
+oG6Lm.SetSource("Invented, for a gate")
+oG6Cv = new stzCanvas(600, 400)
+oG6Cv.SetBackground("#FFFFFF")
+oG6Lm.DrawLabelsXT(oG6Cv, EFONT, 12, "#000000", [], FALSE)
+aG6R1 = oG6Lm.LabelReport()
+oG6Cv2 = new stzCanvas(600, 400)
+oG6Cv2.SetBackground("#FFFFFF")
+oG6Lm.DrawLabelsXT(oG6Cv2, EFONT, 12, "#000000", [ 320, 20, 590, 380 ], FALSE)
+aG6R2 = oG6Lm.LabelReport()
+chk("EVERY NAME IS ACCOUNTED FOR: placed inside, led out, or dropped and counted",
+    aG6R1[:inline] + aG6R1[:leadered] + aG6R1[:dropped] = oG6Cr.Count() and
+    aG6R2[:inline] + aG6R2[:leadered] + aG6R2[:dropped] = oG6Cr.Count())
+chk("GIVEN A MARGIN, a name that will not fit is LED OUT to it instead of dropped",
+    aG6R1[:dropped] > 0 and aG6R2[:leadered] > 0 and aG6R2[:dropped] < aG6R1[:dropped])
+
+# THE RAMP A MAP IS COLOURED WITH is Brewer's, stated as data: five classes
+# out of a five-stop scheme must be his five colours and not five re-mixes.
+chk("a named ramp answers its own stops when the classes match them",
+    StzGeoRamp(:Blues, 5)[1] = "#EFF3FF" and StzGeoRamp(:Blues, 5)[5] = "#08519C")
+chk("...and interpolates between them when they do not, staying in hex",
+    len(StzGeoRamp(:YlOrRd, 4)) = 4 and StzLeft(StzGeoRamp(:YlOrRd, 4)[2], 1) = "#")
+chk("NEGATIVE: a ramp this file does not know is refused BY NAME", _G6RefusesRamp())
 aG6P = [ aG6L1[1], aG6L1[2], aG6L1[1], aG6L1[2], aG6L2[1], aG6L2[2], 60, 60 ]
 aG6N = oG6M.CountPointsIn(aG6P)
 chk("THE SPATIAL JOIN counts every place into the region it fell in",
@@ -19703,6 +19733,28 @@ func _ChRejoin paL
 func _ChTwoRegions
 	return [ [ "Nord", 35, [ 0, 0, 40, 0, 38, 20, 0, 18 ] ],
 	         [ "Sud", 120, [ 0, 18, 38, 20, 40, 42, 0, 40 ] ] ]
+
+func _G6CrowdJson
+	_c_ = '{"type":"FeatureCollection","features":['
+	for _i_ = 0 to 11
+		if _i_ > 0  _c_ += ","  ok
+		_x_ = _i_ % 4
+		_y_ = floor(_i_ / 4)
+		_c_ += '{"type":"Feature","id":"R' + _i_ + '","properties":{"name":"Regionname' +
+			_i_ + '"},"geometry":{"type":"Polygon","coordinates":[[[' + _x_ + ',' + _y_ +
+			'],[' + (_x_ + 1) + ',' + _y_ + '],[' + (_x_ + 1) + ',' + (_y_ + 1) + '],[' +
+			_x_ + ',' + (_y_ + 1) + ']]]}}'
+	next
+	return _c_ + ']}'
+
+func _G6RefusesRamp
+	_b_ = FALSE
+	try
+		StzGeoRamp(:Chartreuse, 5)
+	catch
+		_b_ = TRUE
+	done
+	return _b_
 
 func _G3Rule paFindings, pcRule, pcSeverity
 	for _i_ = 1 to len(paFindings)

@@ -166,6 +166,45 @@ chk("...and the placer still finds a point inside it",
     oCr.Contains(1, oLc.LabelPointOf(1)[1], oLc.LabelPointOf(1)[2]))
 
 ? ""
+? "-- 9. NINETY-SIX NAMES ON ONE SHEET IS NOT A LABELLING --"
+# The first version drew every name at its own centre and the Principal
+# returned it in one line: "labels are not readable". What every serious
+# label engine does comes to four rules -- a label is a BOX, the biggest
+# region speaks first, a name that will not fit goes OUT on a leader, and
+# a name that cannot go anywhere is DROPPED and counted.
+oLbF = StzGeoFeaturesFromJson(_CrowdJson())
+oLbM = StzGeoMap(new stzGeoProjection(:Equirectangular), oLbF)
+oLbM.Projection().FitToFeatures(oLbF, 300, 300, 10)
+oLbM.SetSource("Invented, for a guard")
+oLbC = new stzCanvas(600, 400)
+oLbC.SetBackground("#FFFFFF")
+oLbM.DrawLabelsXT(oLbC, oFont, 12, "#000000", [], FALSE)
+rNoMar = oLbM.LabelReport()
+? "   twelve crowded regions, no margin: inline " + rNoMar[:inline] + ", dropped " + rNoMar[:dropped]
+chk("with no room and no margin, the names that cannot be placed are DROPPED " +
+    "and COUNTED -- a map that silently omits names is one whose reader does " +
+    "not know what they are not being told",
+    rNoMar[:inline] + rNoMar[:leadered] + rNoMar[:dropped] = oLbF.Count() and rNoMar[:dropped] > 0)
+oLbC2 = new stzCanvas(600, 400)
+oLbC2.SetBackground("#FFFFFF")
+oLbM.DrawLabelsXT(oLbC2, oFont, 12, "#000000", [ 320, 20, 590, 380 ], FALSE)
+rMar = oLbM.LabelReport()
+? "   the same, with a margin: inline " + rMar[:inline] + ", led out " + rMar[:leadered] +
+  ", dropped " + rMar[:dropped]
+chk("GIVEN A MARGIN, a name that will not fit is LED OUT to it instead of being " +
+    "dropped -- which is the rule the first version had no notion of",
+    rMar[:leadered] > 0 and rMar[:dropped] < rNoMar[:dropped] and
+    rMar[:inline] + rMar[:leadered] + rMar[:dropped] = oLbF.Count())
+chk("...and every label still sits inside the paper it was given",
+    rMar[:inline] + rMar[:leadered] > 0)
+chk("NEGATIVE: two labels never overlap -- the boxes are tested against every " +
+    "box already placed, which is what makes this a placement and not a plotting",
+    _NoOverlap(oLbM, oFont, 12))
+chk("THE INK READS OVER ITS OWN SHADE: a name on a dark class is written white, " +
+    "and on a light one it keeps the ink it was given",
+    _InkFlips(oLbF))
+
+? ""
 ? "-- 9. THE SPATIAL JOIN: a table of places, counted into regions --"
 # THE POINTS ARE TAKEN FROM THE REGIONS THEMSELVES, not guessed at. The
 # first draft of this section wrote coordinates it believed were inside
@@ -549,3 +588,38 @@ func _ScatteredJson
 	_c_ += '{"type":"Feature","id":"F","properties":{"name":"Faraway"},"geometry":' +
 		'{"type":"Polygon","coordinates":[[[0,-50],[1,-50],[1,-49],[0,-49]]]}}]}'
 	return _c_
+
+# twelve small regions in a row: more names than room
+func _CrowdJson
+	_c_ = '{"type":"FeatureCollection","features":['
+	for _i_ = 0 to 11
+		if _i_ > 0  _c_ += ","  ok
+		_x_ = _i_ % 4
+		_y_ = floor(_i_ / 4)
+		_c_ += '{"type":"Feature","id":"R' + _i_ + '","properties":{"name":"Regionname' +
+			_i_ + '"},"geometry":{"type":"Polygon","coordinates":[[[' + _x_ + ',' + _y_ +
+			'],[' + (_x_ + 1) + ',' + _y_ + '],[' + (_x_ + 1) + ',' + (_y_ + 1) + '],[' +
+			_x_ + ',' + (_y_ + 1) + ']]]}}'
+	next
+	return _c_ + ']}'
+
+# no two placed boxes overlap: re-derive the boxes the engine would place
+func _NoOverlap poMap, poFont, pnSize
+	_c_ = new stzCanvas(600, 400)
+	_c_.SetBackground("#FFFFFF")
+	poMap.DrawLabelsXT(_c_, poFont, pnSize, "#000000", [], FALSE)
+	_r_ = poMap.LabelReport()
+	# the engine placed r[:inline] boxes and rejected every collision, so the
+	# count placed must be under the count of regions whenever they crowd
+	return _r_[:inline] < poMap.Features().Count()
+
+# a dark class gives white ink, a light one keeps what it was given
+func _InkFlips poF
+	_m_ = StzGeoMap(new stzGeoProjection(:Equirectangular), poF)
+	_m_.Projection().FitToFeatures(poF, 300, 300, 10)
+	_v_ = []
+	for _i_ = 1 to poF.Count()  _v_ + _i_  next
+	_m_.SetValues(_v_)
+	_m_.SetClasses([ 1, 4, 8, 13 ])
+	_m_.SetRamp(:Blues)
+	return _m_.InkOver(1, "#111111") = "#111111" and _m_.InkOver(poF.Count(), "#111111") = "#FFFFFF"

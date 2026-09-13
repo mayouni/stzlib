@@ -125,6 +125,7 @@ class stzCanvas from stzObject
 		This.SetFont(poFont, pnSize)
 		return This
 
+
 	#-- adding shapes -------------------------------------------------------
 
 	def AddRect(pnX, pnY, pnW, pnH)
@@ -527,6 +528,14 @@ class stzCanvas from stzObject
 	# Post the pending shape by hand. Only a caller driving its own frame
 	# loop needs this (stzWindow.Draw does it); every Add* and every output
 	# method already calls it.
+	#
+	# AND A CALLER CLOSING A GROUP OF SHAPES, which is the second reason and
+	# was found the hard way. SetFont, Fill and Stroke are deliberately
+	# RETROACTIVE on a pending shape -- that is what makes
+	# AddTextQ(..).Fill(..) work -- so the LAST shape of a group stays open
+	# until something else is added. A label engine drew ninety-six names
+	# and then wrote a caption at another size, and the caption resized the
+	# ninety-sixth name. Flush() is how a group is closed on purpose.
 	def Flush()
 		This._Flush()
 

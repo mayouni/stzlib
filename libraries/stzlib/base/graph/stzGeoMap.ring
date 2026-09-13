@@ -33,11 +33,103 @@ func StzGeoMap(poProjection, poFeatures)
 	_o_.Bind(poProjection, poFeatures)
 	return _o_
 
-# THE LAND COLOUR RAMP a choropleth uses when the caller names none: the
-# primary hue from light to dark, the same ramp DN24 draws, so two maps of
-# the same data in the two planes read alike.
+# THE RAMP A MAP IS COLOURED WITH, and why it is not the diagram plane's.
+#
+# DN24 steps one hue from a pale tint to a deep shade, which is right for a
+# diagram of six regions read beside its legend. On a map of ninety-six it
+# reads as a wall: the eye cannot rank two shades of one hue that are four
+# per cent apart, and the Principal put it plainly the first time they saw
+# one -- "the blue color is not nice".
+#
+# These are CYNTHIA BREWER'S sequential schemes (ColorBrewer 2.0, five
+# classes), which exist because she measured what people can actually rank
+# on a map: the lightness falls evenly AND the hue turns as it goes, so a
+# step is legible twice over. They are stated as data, in full, rather than
+# computed from a hue -- a ramp that is generated is a ramp nobody checked.
+#
+# ColorBrewer is Cynthia Brewer, Mark Harrower and Penn State; the schemes
+# are published under the Apache licence and are a table of numbers, which
+# is a fact about perception and not a boundary claim.
+func StzGeoRamps()
+	return [
+		[ :Blues,   [ "#EFF3FF", "#BDD7E7", "#6BAED6", "#3182BD", "#08519C" ] ],
+		[ :YlOrRd,  [ "#FFFFB2", "#FECC5C", "#FD8D3C", "#F03B20", "#BD0026" ] ],
+		[ :YlGnBu,  [ "#FFFFCC", "#A1DAB4", "#41B6C4", "#2C7FB8", "#253494" ] ],
+		[ :Greens,  [ "#EDF8E9", "#BAE4B3", "#74C476", "#31A354", "#006D2C" ] ],
+		[ :Oranges, [ "#FEEDDE", "#FDBE85", "#FD8D3C", "#E6550D", "#A63603" ] ],
+		[ :Purples, [ "#F2F0F7", "#CBC9E2", "#9E9AC8", "#756BB1", "#54278F" ] ],
+		[ :Reds,    [ "#FEE5D9", "#FCAE91", "#FB6A4A", "#DE2D26", "#A50F15" ] ],
+		[ :BuPu,    [ "#EDF8FB", "#B3CDE3", "#8C96C6", "#8856A7", "#810F7C" ] ],
+		[ :Earth,   [ "#F6F1E5", "#DCCFA8", "#B8A165", "#8C6D36", "#5C4218" ] ]
+	]
+
+# A ramp by name, in as many classes as are asked for. Fewer than five takes
+# the ends and the middles; more than five interpolates between the stated
+# stops, which is what every serious atlas does rather than inventing new
+# ones.
+func StzGeoRamp(pName, pnClasses)
+	_c_ = StzLower(ring_trim("" + pName))
+	_a_ = StzGeoRamps()
+	_stops_ = []
+	for _i_ = 1 to len(_a_)
+		if StzLower("" + _a_[_i_][1]) = _c_  _stops_ = _a_[_i_][2]  exit  ok
+	next
+	if len(_stops_) = 0
+		stzraise("StzGeoRamp: '" + pName + "' is not a ramp this file knows -- " +
+			"Blues, YlOrRd, YlGnBu, Greens, Oranges, Purples, Reds, BuPu or Earth.")
+	ok
+	if pnClasses < 1  return []  ok
+	if pnClasses = 1  return [ _stops_[3] ]  ok
+	_out_ = []
+	_n_ = len(_stops_)
+	for _k_ = 1 to pnClasses
+		_t_ = (_k_ - 1) / (pnClasses - 1) * (_n_ - 1) + 1
+		_lo_ = floor(_t_)
+		if _lo_ < 1  _lo_ = 1  ok
+		if _lo_ > _n_ - 1  _lo_ = _n_ - 1  ok
+		_f_ = _t_ - _lo_
+		# EXACTLY ON A STOP MEANS THE STOP ITSELF. Five classes out of a
+		# five-stop scheme must be Brewer's own five colours and not five
+		# re-mixes of them; and the answer stays HEX throughout, because
+		# StzColorMix hands back a packed number and a ramp that is half
+		# strings and half integers is a ramp somebody will read wrong.
+		if _f_ < 0.000001
+			_out_ + _stops_[_lo_]
+		else
+			_out_ + _GeoMixHex(_stops_[_lo_], _stops_[_lo_ + 1], _f_)
+		ok
+	next
+	return _out_
+
+# two hex colours mixed, answered as hex
+func _GeoMixHex(pcA, pcB, pnT)
+	_r_ = _GeoHexByte(pcA, 1) + (_GeoHexByte(pcB, 1) - _GeoHexByte(pcA, 1)) * pnT
+	_g_ = _GeoHexByte(pcA, 3) + (_GeoHexByte(pcB, 3) - _GeoHexByte(pcA, 3)) * pnT
+	_b_ = _GeoHexByte(pcA, 5) + (_GeoHexByte(pcB, 5) - _GeoHexByte(pcA, 5)) * pnT
+	return "#" + _GeoHex2(_r_) + _GeoHex2(_g_) + _GeoHex2(_b_)
+
+func _GeoHexByte(pcHex, pnAt)
+	return _GeoHexDigit(pcHex[pnAt + 1]) * 16 + _GeoHexDigit(pcHex[pnAt + 2])
+
+func _GeoHexDigit(pcC)
+	_n_ = ascii(StzLower("" + pcC))
+	if _n_ >= 48 and _n_ <= 57  return _n_ - 48  ok
+	if _n_ >= 97 and _n_ <= 102  return _n_ - 87  ok
+	return 0
+
+func _GeoHex2(pnV)
+	_n_ = floor(pnV + 0.5)
+	if _n_ < 0  _n_ = 0  ok
+	if _n_ > 255  _n_ = 255  ok
+	_d_ = "0123456789ABCDEF"
+	return _d_[floor(_n_ / 16) + 1] + _d_[(_n_ % 16) + 1]
+
+# THE DEFAULT A MAP TAKES when the caller names no palette. Blues, because
+# it is the scheme a reader has seen on every population map ever printed
+# and the one whose steps are furthest apart at the light end, where a
+# choropleth spends most of its ink.
 func StzGeoMapPaletteFor(pnClasses)
-	return StzChoroplethPaletteFor(pnClasses)
+	return StzGeoRamp(:Blues, pnClasses)
 
 # which class a bin's count falls in; 0 for none
 # how far a place is from the nearest edge of a ring, in degrees. Crude on
@@ -53,6 +145,18 @@ func _GeoEdgeDistance(paRing, pnX, pnY)
 		if _d_ < _best_  _best_ = _d_  ok
 	next
 	return sqrt(_best_)
+
+# is this box clear of every box already placed? Axis-aligned overlap, with
+# a couple of pixels of air so two names never touch.
+func _GeoBoxFree(paBox, paPlaced)
+	for _i_ = 1 to len(paPlaced)
+		_p_ = paPlaced[_i_]
+		if paBox[1] < _p_[3] + 2 and paBox[3] + 2 > _p_[1] and
+		   paBox[2] < _p_[4] + 2 and paBox[4] + 2 > _p_[2]
+			return FALSE
+		ok
+	next
+	return TRUE
 
 func _HexClassOf(pnV, paEdges)
 	_n_ = len(paEdges) - 1
@@ -97,6 +201,10 @@ class stzGeoMap from stzObject
 	@cNoData = "#E8E8E8"
 	@bBinned = FALSE
 	@bLabelled = FALSE
+	@nLblInline = 0
+	@nLblLeader = 0
+	@nLblDropped = 0
+	@aPaper = []
 
 	def Bind(poProjection, poFeatures)
 		if NOT isObject(poProjection) or NOT isObject(poFeatures)
@@ -164,6 +272,18 @@ class stzGeoMap from stzObject
 			This.SetClasses(paEdges)
 			return This
 
+	# the palette by the name of a ramp, in the classes already set
+	def SetRamp(pName)
+		if len(@aEdges) < 2
+			stzraise("stzGeoMap.SetRamp: set the classes before the ramp -- a ramp " +
+				"has to know how many steps to give.")
+		ok
+		@aPalette = StzGeoRamp(pName, len(@aEdges) - 1)
+
+		def SetRampQ(pName)
+			This.SetRamp(pName)
+			return This
+
 	def SetPalette(paColours)
 		if len(paColours) != len(@aEdges) - 1
 			stzraise("stzGeoMap: " + (len(@aEdges) - 1) + " classes need " +
@@ -177,6 +297,17 @@ class stzGeoMap from stzObject
 
 	# where the boundaries came from and when. A map asserts where a border
 	# lies; this class will not invent the authority for it.
+	# THE BOX THE MAP WAS DRAWN IN, so a name cannot be written off the edge
+	# of it. Without this the label engine only knows where a region is, not
+	# where the sheet ends, and the first version wrote "Diffa" half into the
+	# margin beside it. Unset, nothing is clipped.
+	def SetPaper(pnX0, pnY0, pnX1, pnY1)
+		@aPaper = [ pnX0, pnY0, pnX1, pnY1 ]
+
+		def SetPaperQ(pnX0, pnY0, pnX1, pnY1)
+			This.SetPaper(pnX0, pnY0, pnX1, pnY1)
+			return This
+
 	def SetSource(pcSource)
 		@cSource = "" + pcSource
 
@@ -399,6 +530,36 @@ class stzGeoMap from stzObject
 		next
 		return _d_
 
+	# PLACES SCATTERED INSIDE THE REGIONS, for a demonstration or a
+	# rehearsal. REJECTION SAMPLING: a point is drawn in the bounding box and
+	# kept only if it falls in a region, which is the standard way and the
+	# only one that needs no assumption about the shape.
+	#
+	# The sequence is the caller's seed, so the same call gives the same
+	# places every time -- a committed picture that moves on every render is
+	# a diff nobody can read. And the answer is INVENTED DATA: the caller who
+	# draws it owes their reader that word, which is why the map's caption
+	# takes a source line.
+	def SamplePointsInside(pnHowMany, pnSeed)
+		_b_ = @oF.Bounds()
+		if len(_b_) < 4  return []  ok
+		_a_ = []
+		_s_ = pnSeed
+		_tries_ = 0
+		_cap_ = pnHowMany * 400 + 4000
+		while len(_a_) < pnHowMany * 2 and _tries_ < _cap_
+			_tries_++
+			_s_ = (_s_ * 1103515245 + 12345) % 2147483648
+			_x_ = _b_[1] + (_b_[3] - _b_[1]) * (_s_ % 100000) / 100000
+			_s_ = (_s_ * 1103515245 + 12345) % 2147483648
+			_y_ = _b_[2] + (_b_[4] - _b_[2]) * (_s_ % 100000) / 100000
+			if @oF.IndexAt(_x_, _y_) > 0
+				_a_ + _x_
+				_a_ + _y_
+			ok
+		end
+		return _a_
+
 	#-- labels ---------------------------------------------------------------
 
 	# WHERE A NAME GOES. The mean of a ring is not inside it whenever the
@@ -441,38 +602,239 @@ class stzGeoMap from stzObject
 		if len(_best_) = 2  return _best_  ok
 		return [ _cx_, _cy_ ]
 
-	# every region named, where its name fits inside it
+	#-- naming the regions ---------------------------------------------------
+	#
+	# NINETY-SIX NAMES ON ONE SHEET IS NOT A LABELLING, and the first
+	# version of this drew exactly that: every department's name at its own
+	# centre, overlapping into a grey smear that said nothing. The Principal
+	# returned it in one line -- "labels are not readable, you need a
+	# smarter algorithm" -- and they are right that this is a solved problem
+	# elsewhere. What every serious label engine does (QGIS's PAL, Mapbox
+	# GL, ArcGIS Maplex) comes down to four rules, and they are the four
+	# below:
+	#
+	#   1. A LABEL IS A BOX, not a point. Nothing can be decided until the
+	#      name is measured at the size it will be drawn.
+	#   2. THE BIGGEST REGION SPEAKS FIRST. Placement is greedy by
+	#      importance, because a name dropped from a large region is a worse
+	#      loss than one dropped from a small one, and area is the
+	#      importance a map has to hand.
+	#   3. A LABEL THAT WILL NOT FIT INSIDE ITS REGION GOES OUTSIDE IT, on a
+	#      leader line, rather than lying across its neighbours. This is the
+	#      rule the first version had no notion of and the one the Principal
+	#      asked for by name.
+	#   4. A LABEL THAT CANNOT GO ANYWHERE IS DROPPED, and the picture SAYS
+	#      how many -- a map that silently omits names is a map whose reader
+	#      does not know what they are not being told.
+	#
+	# What is NOT here, named: no curved labels along a river, no repeated
+	# labels down a long region, no font-size stepping per region. Those are
+	# the next tier and none of them is needed to read a country.
+
+	# the boxes placed by the last DrawLabelsOn, and what it had to do
+	def LabelReport()
+		return [ :inline = @nLblInline, :leadered = @nLblLeader, :dropped = @nLblDropped ]
+
+	# EVERY REGION NAMED, as well as the sheet allows. paMargin is where a
+	# leadered label may be written: [ x0, y0, x1, y1 ], usually a column
+	# beside the map. Pass [] and a label that will not fit is dropped
+	# instead of leadered.
 	def DrawLabelsOn(poCanvas, poFont, pnSize, pInk)
+		This.DrawLabelsXT(poCanvas, poFont, pnSize, pInk, [], FALSE)
+
+	def DrawLabelsWithValuesOn(poCanvas, poFont, pnSize, pInk)
+		This.DrawLabelsXT(poCanvas, poFont, pnSize, pInk, [], TRUE)
+
+	def DrawLabelsInMargin(poCanvas, poFont, pnSize, pInk, paMargin)
+		This.DrawLabelsXT(poCanvas, poFont, pnSize, pInk, paMargin, FALSE)
+
+	def DrawLabelsXT(poCanvas, poFont, pnSize, pInk, paMargin, pbValues)
 		@bLabelled = TRUE
-		for _i_ = 1 to @oF.Count()
-			_g_ = This.LabelPointOf(_i_)
-			if len(_g_) < 2  loop  ok
-			_q_ = @oP.Project(_g_[1], _g_[2])
-			if len(_q_) < 2  loop  ok
-			_c_ = @oF.NameOf(_i_)
+		@nLblInline = 0
+		@nLblLeader = 0
+		@nLblDropped = 0
+		_nF_ = @oF.Count()
+		if _nF_ = 0  return  ok
+
+		# --- 1. a label is a BOX, measured ---------------------------------
+		_aW_ = []
+		_aH_ = []
+		_aX_ = []
+		_aY_ = []
+		_aFit_ = []
+		_aArea_ = []
+		for _i_ = 1 to _nF_
+			_c_ = "" + @oF.NameOf(_i_)
 			_w_ = poFont.WidthOf(_c_, pnSize)
-			poCanvas.SetFontQ(poFont, pnSize).AddTextQ(_c_, _q_[1] - _w_ / 2, _q_[2]).Fill(pInk)
+			_h_ = pnSize
+			if pbValues and isNumber(This.ValueOf(_i_))
+				_w2_ = poFont.WidthOf(StzFactNumText(This.ValueOf(_i_)), pnSize - 3)
+				if _w2_ > _w_  _w_ = _w2_  ok
+				_h_ += pnSize
+			ok
+			_aW_ + _w_
+			_aH_ + _h_
+			_g_ = This.LabelPointOf(_i_)
+			if len(_g_) < 2
+				_aX_ + 0  _aY_ + 0  _aFit_ + FALSE  _aArea_ + 0
+				loop
+			ok
+			_q_ = @oP.Project(_g_[1], _g_[2])
+			if len(_q_) < 2
+				_aX_ + 0  _aY_ + 0  _aFit_ + FALSE  _aArea_ + 0
+				loop
+			ok
+			_aX_ + _q_[1]
+			_aY_ + _q_[2]
+			# DOES THE NAME FIT INSIDE THE REGION? Measured on the DRAWN
+			# shape, not on the sphere: the region's projected box, which is
+			# what the reader's eye is comparing the name against.
+			_b_ = This.PaperBoxOf(_i_)
+			_aArea_ + ((_b_[3] - _b_[1]) * (_b_[4] - _b_[2]))
+			_aFit_ + ((_b_[3] - _b_[1]) >= _w_ + 4 and (_b_[4] - _b_[2]) >= _h_ + 4)
 		next
 
-	# ...and the same with each region's value under its name, which is what
-	# a country map of twenty-odd units is usually for
-	def DrawLabelsWithValuesOn(poCanvas, poFont, pnSize, pInk)
-		@bLabelled = TRUE
-		for _i_ = 1 to @oF.Count()
-			_g_ = This.LabelPointOf(_i_)
-			if len(_g_) < 2  loop  ok
-			_q_ = @oP.Project(_g_[1], _g_[2])
-			if len(_q_) < 2  loop  ok
-			_c_ = @oF.NameOf(_i_)
-			_w_ = poFont.WidthOf(_c_, pnSize)
-			poCanvas.SetFontQ(poFont, pnSize).AddTextQ(_c_, _q_[1] - _w_ / 2, _q_[2] - 2).Fill(pInk)
-			_v_ = This.ValueOf(_i_)
-			if isNumber(_v_)
-				_t_ = StzFactNumText(_v_)
-				_w2_ = poFont.WidthOf(_t_, pnSize - 3)
-				poCanvas.SetFontQ(poFont, pnSize - 3).AddTextQ(_t_, _q_[1] - _w2_ / 2, _q_[2] + pnSize).Fill(pInk)
+		# --- 2. the biggest region speaks first ----------------------------
+		_ord_ = []
+		for _i_ = 1 to _nF_  _ord_ + _i_  next
+		for _a_ = 1 to _nF_ - 1
+			for _b_ = 1 to _nF_ - _a_
+				if _aArea_[_ord_[_b_]] < _aArea_[_ord_[_b_ + 1]]
+					_t_ = _ord_[_b_]
+					_ord_[_b_] = _ord_[_b_ + 1]
+					_ord_[_b_ + 1] = _t_
+				ok
+			next
+		next
+
+		_placed_ = []
+		_lead_ = []
+		for _k_ = 1 to _nF_
+			_i_ = _ord_[_k_]
+			if _aArea_[_i_] <= 0  loop  ok
+			_w_ = _aW_[_i_]
+			_h_ = _aH_[_i_]
+			if _aFit_[_i_]
+				# four candidates: the anchor, then a little up, down, right
+				_cand_ = [ [ _aX_[_i_] - _w_ / 2, _aY_[_i_] - _h_ / 2 ],
+				           [ _aX_[_i_] - _w_ / 2, _aY_[_i_] - _h_ / 2 - _h_ ],
+				           [ _aX_[_i_] - _w_ / 2, _aY_[_i_] - _h_ / 2 + _h_ ],
+				           [ _aX_[_i_] - _w_ / 2 + _w_ / 3, _aY_[_i_] - _h_ / 2 ] ]
+				_done_ = FALSE
+				for _t_ = 1 to len(_cand_)
+					_bx_ = [ _cand_[_t_][1], _cand_[_t_][2], _cand_[_t_][1] + _w_, _cand_[_t_][2] + _h_ ]
+					if NOT This._OnPaper(_bx_)  loop  ok
+					if _GeoBoxFree(_bx_, _placed_)
+						_placed_ + _bx_
+						This._WriteLabel(poCanvas, poFont, pnSize, pInk, _i_,
+							_bx_[1] + _w_ / 2, _bx_[2] + pnSize, pbValues)
+						@nLblInline++
+						_done_ = TRUE
+						exit
+					ok
+				next
+				if _done_  loop  ok
+			ok
+			# --- 3. it does not fit, or nowhere free: a leader ------------
+			if len(paMargin) = 4
+				_lead_ + _i_
+			else
+				@nLblDropped++
 			ok
 		next
+
+		# --- the leadered ones, down the margin in the order they sit -----
+		if len(_lead_) > 0 and len(paMargin) = 4
+			for _a_ = 1 to len(_lead_) - 1
+				for _b_ = 1 to len(_lead_) - _a_
+					if _aY_[_lead_[_b_]] > _aY_[_lead_[_b_ + 1]]
+						_t_ = _lead_[_b_]
+						_lead_[_b_] = _lead_[_b_ + 1]
+						_lead_[_b_ + 1] = _t_
+					ok
+				next
+			next
+			_pitch_ = pnSize + 5
+			_room_ = floor((paMargin[4] - paMargin[2]) / _pitch_)
+			_y_ = paMargin[2] + pnSize
+			for _n_ = 1 to len(_lead_)
+				if _n_ > _room_
+					@nLblDropped++
+					loop
+				ok
+				_i_ = _lead_[_n_]
+				_x_ = paMargin[1]
+				# the line runs from the region to its name, and is drawn
+				# UNDER nothing -- a leader that crosses another label is
+				# worse than the crowding it was meant to cure, so it is
+				# kept short and horizontal at its own end
+				# AN ELBOW, NOT A DIAGONAL. A leader drawn straight from the
+				# region to its name crosses the map and every other leader
+				# with it; the first version of this drew thirty-five such
+				# lines over France and they were a cat's cradle. The line
+				# goes OUT to the margin's edge at the region's own height,
+				# then along -- which is what an atlas does, and what makes
+				# two leaders share a corridor instead of crossing.
+				poCanvas.AddPolylineQ([ _aX_[_i_], _aY_[_i_],
+				                        _x_ - 14, _aY_[_i_],
+				                        _x_ - 6, _y_ - pnSize / 3,
+				                        _x_ - 2, _y_ - pnSize / 3 ]).Stroke("#9AA7B4", 0.8)
+				poCanvas.SetFontQ(poFont, pnSize).AddTextQ("" + @oF.NameOf(_i_), _x_, _y_).Fill(pInk)
+				@nLblLeader++
+				_y_ += _pitch_
+			next
+		ok
+		# CLOSE THE GROUP. The canvas keeps the last shape open so that
+		# Fill and SetFont can still reach it, so a caption written after
+		# this would otherwise resize the last name drawn.
+		poCanvas.Flush()
+
+	# THE INK A NAME IS WRITTEN IN, over the shade it sits on. A dark name
+	# on a dark class is not a name -- Niger's four southern regions were
+	# unreadable the first time this drew them in one ink over a Brewer
+	# ramp. The choropleth settled this in DN24 by choosing black or white
+	# per class; a map on a filled region owes the same, and asks the same
+	# question of the colour system.
+	def InkOver(pnI, pInk)
+		if len(@aEdges) < 2 or len(@aValues) = 0  return pInk  ok
+		_c_ = This.ClassOf(pnI)
+		if _c_ < 1  return pInk  ok
+		if StzIsDarkColor(@aPalette[_c_])  return "#FFFFFF"  ok
+		return pInk
+
+	def _OnPaper(paBox)
+		if len(@aPaper) != 4  return TRUE  ok
+		return paBox[1] >= @aPaper[1] and paBox[3] <= @aPaper[3] and
+		       paBox[2] >= @aPaper[2] and paBox[4] <= @aPaper[4]
+
+	def _WriteLabel(poCanvas, poFont, pnSize, pInk, pnI, pnCx, pnY, pbValues)
+		pInk = This.InkOver(pnI, pInk)
+		_c_ = "" + @oF.NameOf(pnI)
+		_w_ = poFont.WidthOf(_c_, pnSize)
+		poCanvas.SetFontQ(poFont, pnSize).AddTextQ(_c_, pnCx - _w_ / 2, pnY).Fill(pInk)
+		if NOT pbValues  return  ok
+		if NOT isNumber(This.ValueOf(pnI))  return  ok
+		_t_ = StzFactNumText(This.ValueOf(pnI))
+		_w2_ = poFont.WidthOf(_t_, pnSize - 3)
+		poCanvas.SetFontQ(poFont, pnSize - 3).AddTextQ(_t_, pnCx - _w2_ / 2, pnY + pnSize).Fill(pInk)
+
+	# a region's box ON THE PAPER: what the reader's eye measures a name
+	# against, which is not the box it has on the sphere
+	def PaperBoxOf(pnI)
+		_k_ = @oF.LargestPartOf(pnI)
+		_r_ = @oF.OuterRingOf(pnI, _k_)
+		_n_ = len(_r_) / 2
+		_x0_ = 1000000  _y0_ = 1000000  _x1_ = -1000000  _y1_ = -1000000
+		for _j_ = 1 to _n_
+			_q_ = @oP.Project(_r_[_j_ * 2 - 1], _r_[_j_ * 2])
+			if len(_q_) < 2  loop  ok
+			if _q_[1] < _x0_  _x0_ = _q_[1]  ok
+			if _q_[1] > _x1_  _x1_ = _q_[1]  ok
+			if _q_[2] < _y0_  _y0_ = _q_[2]  ok
+			if _q_[2] > _y1_  _y1_ = _q_[2]  ok
+		next
+		if _x0_ > _x1_  return [ 0, 0, 0, 0 ]  ok
+		return [ _x0_, _y0_, _x1_, _y1_ ]
 
 	#-- the legend and the caption -------------------------------------------
 

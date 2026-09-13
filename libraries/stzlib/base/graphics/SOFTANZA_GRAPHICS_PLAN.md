@@ -555,6 +555,80 @@ nothing but a count. *Guard:* the counts sum to the points given; a bigger
 cell means fewer of them; six corners at the radius asked for; no points, no
 bins; and the equal-area rule with its negative.
 
+## THE LABEL ENGINE, THE RAMPS, AND POINTS THAT ARE WHERE THEY SAY (2026-09-13)
+
+*Two lines from the Principal on the GE6 sheets, both right, both visible:*
+*"labels are not readable, you need a smarter algorithm ... small surfaces
+are leveraged with a line that writes the label outside the map"* and
+*"points are completely inaccurate and they are even painted outside the
+map!! also the blue color is not nice".*
+
+### The labels: four rules, which is what every serious engine does
+
+Ninety-six names drawn at ninety-six centres is not a labelling; it is a
+grey smear. QGIS's PAL, Mapbox GL and ArcGIS Maplex differ in a hundred
+details and agree on four things, which are now the four here:
+
+1. **A LABEL IS A BOX**, not a point — nothing can be decided before the
+   name is measured at the size it will be drawn.
+2. **THE BIGGEST REGION SPEAKS FIRST.** Placement is greedy by importance,
+   because a name dropped from a large region is a worse loss than one
+   dropped from a small one, and area is the importance a map has to hand.
+3. **A NAME THAT WILL NOT FIT GOES OUTSIDE**, on a leader, rather than
+   lying across its neighbours — the rule the first version had no notion
+   of. The leader is an **ELBOW**: out to the margin at the region's own
+   height, then along. Drawn as a diagonal, thirty-five of them over France
+   were a cat's cradle; sharing a corridor, they read.
+4. **A NAME THAT CANNOT GO ANYWHERE IS DROPPED, AND COUNTED.**
+   `LabelReport()` answers `inline / leadered / dropped`, and the examples
+   print it: Niger 5/3/0, Tunisia 16/7/0, France 13/35/48. *A map that
+   silently omits names is a map whose reader does not know what they are
+   not being told.*
+
+Two more that fell out of doing it: an inline label is kept inside the
+**paper** (`SetPaper`), after one wrote "Diffa" half into the margin; and
+the ink is chosen from the shade beneath it — **white on a dark class** —
+because Niger's four southern regions were unreadable in one ink over a
+Brewer ramp. The choropleth had settled that in DN24 and a map on filled
+regions owes the same.
+
+**And a canvas trap, found by walking into it.** `SetFont`, `Fill` and
+`Stroke` are deliberately RETROACTIVE on a pending shape — that is what
+makes `AddTextQ(..).Fill(..)` work — so the LAST shape of a group stays
+open. The label engine drew ninety-six names and then wrote a caption at
+another size, and *the caption resized the ninety-sixth name*. `Flush()`
+already existed for a different reason; it is documented for this one now.
+
+### The ramps: Brewer's, stated as data
+
+DN24 steps one hue from a pale tint to a deep shade, which is right for a
+diagram of six regions read beside its legend. On a map of ninety-six it is
+a wall — the eye cannot rank two shades of one hue four per cent apart.
+`StzGeoRamps()` carries **nine ColorBrewer sequential schemes** in full
+(Blues, YlOrRd, YlGnBu, Greens, Oranges, Purples, Reds, BuPu, Earth): the
+lightness falls evenly AND the hue turns, so a step is legible twice over.
+They are stated, not generated — *a ramp that is computed is a ramp nobody
+checked* — and five classes out of a five-stop scheme are Brewer's own five
+colours, not five re-mixes of them.
+
+### The points: inside the country, by rejection
+
+The observations were painted over Algeria and the sea because the example
+scattered them around hub coordinates with a radius that spilled across the
+border. `SamplePointsInside(n, seed)` does what every such demo should:
+**rejection sampling** — draw in the bounding box, keep only what falls in
+a region. Seeded, so the committed picture does not move between renders.
+The thinning towards inhabited places stays in the EXAMPLE, because
+invented data belongs in the script that invents it, and four points are
+still put over the border on purpose so that "reported, never rounded" has
+something to report.
+
+*Guard:* the label sections bring `geo_map_narrated.ring` to **74
+assertions** — every name accounted for as inline, leadered or dropped; a
+margin turning drops into leaders; no two boxes overlapping; the ink
+flipping on a dark class; a ramp answering its own stops and refusing a
+name it does not know. Gate §127, **1711 ok, 0 failed**.
+
 ## GE6 -- INSIDE A COUNTRY, AND THE SPATIAL JOIN (2026-09-13, SHIPPED)
 
 *Asked for directly: "I want the geo-atlas to zoom on the internal maps of
