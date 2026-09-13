@@ -47,25 +47,32 @@ oC.SetBackground("#FFFFFF")
 oC.SetFontQ(oFont, 24).AddTextQ("France -- 96 departments, numbered the way France numbers them", 30, 48).Fill("#111111")
 
 oP = StzGeoConicFor(oU, :ConicEqualArea)
-oP.FitFeaturesIn(oU, 50, 90, 950, 690, 8)
+oP.FitFeaturesIn(oU, 40, 90, 720, 690, 8)
 oM = StzGeoMap(oP, oU)
 oM.SetSource("Natural Earth 1:10m, public domain")
 oM.SetValuesQ(oM.ValuesFromArea()).SetClassesQ([ 0, 4000, 5500, 7000, 9000, 30000 ])
 oM.SetRamp(:Greens)
-oM.SetPaper(40, 80, 960, 700)
+# THE PAPER STOPS WHERE THE INSET STARTS. A label is placed anywhere on the
+# paper and the inset is drawn afterwards, so an inset standing on the paper
+# covers whatever was written under it -- this sheet lost the "06" of
+# Alpes-Maritimes that way. The paper is the map's own ground; the inset
+# lives beside it.
+oM.SetPaper(30, 80, 725, 700)
 oM.SetKeyCodes("iso_3166_2")
+# THE PETITE COURONNE: four departments inside one city, the six this sheet
+# used to drop. At the main map's scale they are a knot eight pixels across;
+# at the inset's they are four shapes with four numbers.
+oM.AddInsetXT([ 2.15, 48.7, 2.60, 49.0 ], [ 740, 430, 980, 670 ], "Paris and the Petite Couronne")
 oM.DrawRegionsOn(oC, "#FFFFFF", 0.7)
 oM.DrawLabelsOn(oC, oFont, 13, "#14301F")
+oM.DrawInsetsOn(oC, oFont, 13, "#14301F")
 r = oM.LabelReport()
 
 oC.SetFontQ(oFont, 14).AddTextQ("" + r[:named] + " departments carry their name; " +
-	r[:numbered] + " carry their official code; " + r[:dropped] +
-	" would fit neither inside their borders nor against them and are not " +
-	"drawn at all.", 30, 730).Fill("#333333")
-oC.SetFontQ(oFont, 13).AddTextQ("The ones left out are the Petite Couronne -- four departments" +
-	" inside one city, with no empty paper to stand a number in.", 30, 756).Fill("#777777")
-oC.SetFontQ(oFont, 13).AddTextQ("An atlas answers that with an INSET: a zoomed box for the " +
-	"Ile-de-France. That is the next step and is not in this picture.", 30, 778).Fill("#777777")
+	r[:numbered] + " carry their official code; " + r[:inset] +
+	" are in the inset; " + r[:dropped] + " fit nowhere at all.", 30, 730).Fill("#333333")
+oC.SetFontQ(oFont, 13).AddTextQ("The Petite Couronne -- four departments inside one city -- is " +
+	"the knot this sheet used to drop. It is the INSET now.", 30, 756).Fill("#777777")
 oM.DrawCaptionOn(oC, oFont, 30, 816)
 
 # THE GATE, PRINTED ON THE SHEET. A picture that shows its own findings is
@@ -81,7 +88,11 @@ oC.Flush()
 oC.ToPNG("geo_france.png")
 
 ? "France -- named " + r[:named] + "  numbered " + r[:numbered] +
-	"  dropped " + r[:dropped] + "  unlisted " + r[:unlisted]
+	"  inset " + r[:inset] + "  dropped " + r[:dropped]
+for q in oM.InsetReports()
+	? "   inset " + q[:title] + ": " + q[:count] + " regions, " + q[:named] +
+		" named, " + q[:dropped] + " not named, x" + q[:scale]
+next
 for i = 1 to len(aF)
 	? "   gate: " + aF[i][:severity] + " " + aF[i][:rule]
 next
