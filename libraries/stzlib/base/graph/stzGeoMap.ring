@@ -148,6 +148,89 @@ func _GeoEdgeDistance(paRing, pnX, pnY)
 
 # is this box clear of every box already placed? Axis-aligned overlap, with
 # a couple of pixels of air so two names never touch.
+# IS THIS PAPER POINT INSIDE THIS PAPER OUTLINE? An even-odd ray cast, the
+# textbook one, done here rather than through the features object because
+# the anchor search asks it a hundred times per region and each of those
+# would otherwise be an inverse projection followed by a crossing into the
+# engine. Everything this decides is re-checked exactly by _BoxInRegion.
+func _PaperPointIn(paRing, pnX, pnY)
+	_n_ = len(paRing) / 2
+	if _n_ < 3  return FALSE  ok
+	_in_ = FALSE
+	_j_ = _n_
+	for _i_ = 1 to _n_
+		_xi_ = paRing[_i_ * 2 - 1]
+		_yi_ = paRing[_i_ * 2]
+		_xj_ = paRing[_j_ * 2 - 1]
+		_yj_ = paRing[_j_ * 2]
+		if (_yi_ > pnY) != (_yj_ > pnY)
+			if pnX < (_xj_ - _xi_) * (pnY - _yi_) / (_yj_ - _yi_) + _xi_
+				_in_ = NOT _in_
+			ok
+		ok
+		_j_ = _i_
+	next
+	return _in_
+
+# THE CENTRE OF A REGION IS ITS AREA CENTROID, AND NOT THE MEAN OF ITS
+# OUTLINE'S POINTS. Those are two different places and the difference is
+# visible on every real map.
+#
+# A mean of vertices is a mean of the SAMPLING, not of the shape: a ragged
+# coast carries fifty points where a straight desert border carries two, so
+# the mean slides towards the coast and a name centred on it sits off to one
+# side of the region it names. The Principal marked five of them on one
+# sheet -- Agadez, Zinder, Diffa, Kebili and Tataouine -- each pulled a
+# different way, which is the signature of this and not of a placement bug.
+#
+# The area centroid is the shoelace formula, and it does not care how the
+# outline was sampled: a long straight edge of two points weighs exactly as
+# much as the area it bounds. A degenerate ring -- zero area, all points on
+# a line -- has no centroid, and falls back to the mean, which is then the
+# right answer for the only reason it is ever the right answer.
+func _PaperCentroid(paRing)
+	_n_ = len(paRing) / 2
+	if _n_ < 3  return []  ok
+	_a2_ = 0
+	_cx_ = 0
+	_cy_ = 0
+	for _i_ = 1 to _n_
+		_j_ = _i_ + 1
+		if _j_ > _n_  _j_ = 1  ok
+		_x1_ = paRing[_i_ * 2 - 1]
+		_y1_ = paRing[_i_ * 2]
+		_x2_ = paRing[_j_ * 2 - 1]
+		_y2_ = paRing[_j_ * 2]
+		_cr_ = _x1_ * _y2_ - _x2_ * _y1_
+		_a2_ += _cr_
+		_cx_ += (_x1_ + _x2_) * _cr_
+		_cy_ += (_y1_ + _y2_) * _cr_
+	next
+	if fabs(_a2_) < 0.000001
+		_sx_ = 0  _sy_ = 0
+		for _i_ = 1 to _n_
+			_sx_ += paRing[_i_ * 2 - 1]
+			_sy_ += paRing[_i_ * 2]
+		next
+		return [ _sx_ / _n_, _sy_ / _n_ ]
+	ok
+	return [ _cx_ / (3 * _a2_), _cy_ / (3 * _a2_) ]
+
+# HOW MUCH ROOM IS AROUND THIS POINT, in pixels: the distance to the nearest
+# vertex of the outline. Nearest VERTEX and not nearest EDGE, which is a
+# slight over-estimate on a long straight border -- and the right trade,
+# because this only RANKS candidates and _BoxInRegion is what decides.
+func _PaperEdgeDist(paRing, pnX, pnY)
+	_n_ = len(paRing) / 2
+	_best_ = 1000000000
+	for _i_ = 1 to _n_
+		_dx_ = paRing[_i_ * 2 - 1] - pnX
+		_dy_ = paRing[_i_ * 2] - pnY
+		_d_ = _dx_ * _dx_ + _dy_ * _dy_
+		if _d_ < _best_  _best_ = _d_  ok
+	next
+	return sqrt(_best_)
+
 func _GeoBoxFree(paBox, paPlaced)
 	for _i_ = 1 to len(paPlaced)
 		_p_ = paPlaced[_i_]
@@ -212,6 +295,9 @@ class stzGeoMap from stzObject
 	@bKeyDrawn = FALSE
 	@nKeyUnlisted = 0
 	@aPlaced = []
+	@cLabelMode = :Auto
+	@aRingCache = []
+	@aCentroidCache = []
 	@nCell = 0
 	@nGx = 0
 	@nGy = 0
@@ -585,13 +671,13 @@ class stzGeoMap from stzObject
 		_r_ = @oF.OuterRingOf(pnI, _k_)
 		_n_ = len(_r_) / 2
 		if _n_ < 3  return []  ok
-		_sx_ = 0  _sy_ = 0
-		for _j_ = 1 to _n_
-			_sx_ += _r_[_j_ * 2 - 1]
-			_sy_ += _r_[_j_ * 2]
-		next
-		_cx_ = _sx_ / _n_
-		_cy_ = _sy_ / _n_
+		# THE AREA CENTROID, never the mean of the outline's points -- see
+		# _PaperCentroid for why those differ and what it looked like when
+		# this said "mean". The same correction, on the sphere's side.
+		_g_ = _PaperCentroid(_r_)
+		if len(_g_) != 2  return []  ok
+		_cx_ = _g_[1]
+		_cy_ = _g_[2]
 		if @oF.PartContains(pnI, _k_, _cx_, _cy_)  return [ _cx_, _cy_ ]  ok
 
 		_b_ = @oF.BoundsOf(pnI)
@@ -713,6 +799,45 @@ class stzGeoMap from stzObject
 			This.SetKeyCodes(pcProperty)
 			return This
 
+	# --- THE THREE WAYS TO LABEL A MAP -----------------------------------
+	#
+	#   :Names    every region carries its NAME, or nothing at all. What
+	#             nivo, Datawrapper and Flourish do, and what a map with a
+	#             dozen big regions wants: no key to consult, no number to
+	#             decode, and the units too small to hold a name simply go
+	#             unlabelled. The report says how many.
+	#
+	#   :Numbers  every region carries a NUMBER and the key carries every
+	#             name. What an atlas plate does when the units are many or
+	#             uniformly small: the map reads as a clean figure and the
+	#             whole legend is in one ordered column. Nothing is treated
+	#             as a special case, so nothing looks like one.
+	#
+	#   :Auto     the hybrid, and the default: the name where it fits, a
+	#             number where it does not. Best when the regions differ
+	#             wildly in size -- Tunisia, where Tataouine has room for
+	#             its name ten times over and Tunis has room for none of it.
+	#
+	# THE MODE IS THE CALLER'S AND NEVER THE ENGINE'S, because the right
+	# answer depends on who is reading. A sheet for people who know the
+	# country wants :Names; a plate in a report wants :Numbers; a screen
+	# where one region is huge and its neighbour is a city wants :Auto.
+	def SetLabelMode(pcMode)
+		_m_ = StzLower(ring_trim("" + pcMode))
+		if _m_ != "auto" and _m_ != "names" and _m_ != "numbers"
+			stzraise("stzGeoMap.SetLabelMode: '" + pcMode + "' is not a labelling " +
+				"mode -- :Names (name or nothing), :Numbers (a number for every " +
+				"region, every name in the key), or :Auto (the name where it fits).")
+		ok
+		@cLabelMode = _m_
+
+		def SetLabelModeQ(pcMode)
+			This.SetLabelMode(pcMode)
+			return This
+
+	def LabelMode()
+		return @cLabelMode
+
 	def KeyEntries()
 		return @aKey
 
@@ -745,6 +870,16 @@ class stzGeoMap from stzObject
 		_sz_ = pnSize
 		if _sz_ < This.LabelFloor()  _sz_ = This.LabelFloor()  ok
 		This._BuildLandGrid()
+		# the outlines, projected and thinned ONCE. Every anchor search and
+		# every number-against-the-edge search reads them, and projecting a
+		# department's two thousand points per candidate is the shape of
+		# cost this file has paid before.
+		@aRingCache = []
+		@aCentroidCache = []
+		for _i_ = 1 to _nF_
+			@aRingCache + This._SimplePaperRingOf(_i_)
+			@aCentroidCache + This.PaperCentreOf(_i_)
+		next
 
 		# --- 1. every name as a BOX, and where its region sits ------------
 		_aW_ = []  _aH_ = []  _aX_ = []  _aY_ = []  _aArea_ = []  _aOk_ = []
@@ -789,12 +924,20 @@ class stzGeoMap from stzObject
 		next
 
 		# --- 3. the names that fit inside ---------------------------------
+		# In :Numbers every region is a number, so this tier is skipped
+		# whole rather than being run and then overridden -- a pass that
+		# draws and a pass that undraws is how two of this file's earlier
+		# defects got in.
 		_placed_ = []
 		_rest_ = []
 		for _k_ = 1 to _nF_
 			_i_ = _ord_[_k_]
 			if NOT _aOk_[_i_]  loop  ok
-			_bx_ = This._FitInside(_aX_[_i_], _aY_[_i_], _aW_[_i_], _aH_[_i_], _i_, _placed_)
+			if @cLabelMode = "numbers"
+				_rest_ + _i_
+				loop
+			ok
+			_bx_ = This._FitInside(_aW_[_i_], _aH_[_i_], _i_, _placed_)
 			if len(_bx_) != 4
 				_rest_ + _i_
 				loop
@@ -818,6 +961,15 @@ class stzGeoMap from stzObject
 		# key box to look it up in, or a mark that is already the unit's
 		# public name. With neither, the name is dropped rather than
 		# replaced by a digit nothing decodes.
+		#
+		# In :Names there is no second tier at all: a region whose name will
+		# not fit goes unlabelled, which is what every screen-charting
+		# library does and what a reader of a map with no key expects.
+		if @cLabelMode = "names"
+			for _n_ = 1 to len(_rest_)  @nLblDropped++  next
+			poCanvas.Flush()
+			return
+		ok
 		if len(@aKeyBox) != 4 and @cKeyCode = ""
 			for _n_ = 1 to len(_rest_)  @nLblDropped++  next
 			poCanvas.Flush()
@@ -829,10 +981,10 @@ class stzGeoMap from stzObject
 			_i_ = _rest_[_n_]
 			_c_ = This._KeyMarkOf(_i_, len(@aKey) + 1)
 			_w_ = poFont.WidthOf(_c_, _sz_)
-			_bx_ = This._FitInside(_aX_[_i_], _aY_[_i_], _w_, _sz_, _i_, _placed_)
+			_bx_ = This._FitInside(_w_, _sz_, _i_, _placed_)
 			_bIn_ = len(_bx_) = 4
 			if NOT _bIn_
-				_bx_ = This._FitBeside(_aX_[_i_], _aY_[_i_], _w_, _sz_, _i_, _placed_)
+				_bx_ = This._FitBeside(_w_, _sz_, _i_, _placed_)
 			ok
 			if len(_bx_) != 4
 				@nLblDropped++
@@ -856,16 +1008,20 @@ class stzGeoMap from stzObject
 		next
 		poCanvas.Flush()
 
-	# THE BOX THAT LIES INSIDE THE REGION, or [] if none does. Nine tries
-	# around the anchor: the anchor itself, a line up and a line down, then
-	# the sides and the four diagonals -- enough for a region whose widest
-	# part is not under its own label point, and cheap enough per feature.
-	def _FitInside(pnX, pnY, pnW, pnH, pnI, paPlaced)
-		_cand_ = [ [ 0, 0 ], [ 0, -pnH ], [ 0, pnH ], [ -pnW / 2, 0 ], [ pnW / 2, 0 ],
-		           [ -pnW / 2, -pnH ], [ pnW / 2, -pnH ], [ -pnW / 2, pnH ], [ pnW / 2, pnH ] ]
-		for _t_ = 1 to len(_cand_)
-			_bx_ = [ pnX + _cand_[_t_][1] - pnW / 2, pnY + _cand_[_t_][2] - pnH / 2,
-			         pnX + _cand_[_t_][1] + pnW / 2, pnY + _cand_[_t_][2] + pnH / 2 ]
+	# THE BOX THAT LIES INSIDE THE REGION, or [] if none does -- tried at
+	# the region's centre first and at its roomiest points after, which is
+	# what _AnchorsFor ranks them for.
+	#
+	# The nine fixed offsets this used to try were arbitrary: half a box
+	# left, half a box up, and so on, around whatever point the sphere-side
+	# search had produced. They found room by accident when they found it at
+	# all. A ranked list of interior points, measured for the room actually
+	# around them, is the same work spent on purpose.
+	def _FitInside(pnW, pnH, pnI, paPlaced)
+		_an_ = This._AnchorsFor(pnI)
+		for _t_ = 1 to len(_an_)
+			_bx_ = [ _an_[_t_][1] - pnW / 2, _an_[_t_][2] - pnH / 2,
+			         _an_[_t_][1] + pnW / 2, _an_[_t_][2] + pnH / 2 ]
 			if NOT This._OnPaper(_bx_)  loop  ok
 			if NOT This._BoxInRegion(_bx_, pnI)  loop  ok
 			if NOT _GeoBoxFree(_bx_, paPlaced)  loop  ok
@@ -893,16 +1049,14 @@ class stzGeoMap from stzObject
 	# that lands on empty paper. Every candidate is therefore within a few
 	# pixels of a point the reader can see belongs to this region, which is
 	# the only thing standing in for the leader line that used to be drawn.
-	def _FitBeside(pnX, pnY, pnW, pnH, pnI, paPlaced)
-		_r_ = This._PaperRingOf(pnI)
+	def _FitBeside(pnW, pnH, pnI, paPlaced)
+		_r_ = @aRingCache[pnI]
 		_n_ = len(_r_) / 2
 		if _n_ < 3  return []  ok
 		_b_ = This.PaperBoxOf(pnI)
 		_cx_ = (_b_[1] + _b_[3]) / 2
 		_cy_ = (_b_[2] + _b_[4]) / 2
-		# at most sixty vertices looked at, evenly spaced round the ring:
-		# a department's outline can carry two thousand points and the
-		# hundredth of them says nothing the ninety-ninth did not
+		# at most sixty vertices looked at, evenly spaced round the ring
 		_take_ = 60
 		if _n_ < _take_  _take_ = _n_  ok
 		_reach_ = This.KeyReachPixels()
@@ -927,19 +1081,140 @@ class stzGeoMap from stzObject
 		next
 		return []
 
-	# the region's largest outer ring, PROJECTED -- the outline as drawn
-	def _PaperRingOf(pnI)
+	# --- WHERE A LABEL GOES INSIDE ITS REGION ----------------------------
+	#
+	# AT THE CENTRE, AND SOMEWHERE BETTER WHEN THE CENTRE IS TOO NARROW FOR
+	# IT. Those are two different points and the order between them matters:
+	# a reader expects a name in the middle of its region, so the middle is
+	# tried first and only a name that will not FIT there is moved.
+	#
+	# The middle is the mean of the region's outline. When the box will not
+	# fit there -- an hourglass pinched at the waist, an L whose mean sits
+	# in the notch, a long thin department -- the fallback is the point
+	# FURTHEST FROM ANY EDGE, which is the centre of the largest circle the
+	# region will hold. That is the pole of inaccessibility, and it is what
+	# Mapbox's polylabel and QGIS both use for the same reason.
+	#
+	# Both are computed ON THE PAPER, not on the sphere, because the
+	# question is whether a box of pixels fits inside a shape of pixels. The
+	# old code searched in degrees and then asked a separate question in
+	# pixels, so the two never quite agreed.
+	#
+	# The search is a coarse grid refined twice, over a SIMPLIFIED outline
+	# of at most 200 points -- a department can carry two thousand and the
+	# hundredth says nothing the ninety-ninth did not. It ranks candidates
+	# rather than picking one, so a box that will not fit at the best point
+	# can try the second and the third before giving up. Everything it
+	# proposes is then checked EXACTLY, against the real outline, by
+	# _BoxInRegion -- so simplifying here costs accuracy nowhere.
+	def _AnchorsFor(pnI)
+		_r_ = @aRingCache[pnI]
+		_n_ = len(_r_) / 2
+		if _n_ < 3  return []  ok
+		_out_ = []
+
+		# 1. THE CENTRE, first and by right -- the AREA centroid, taken from
+		# the FULL outline and not the thinned one. Thinning is fine for
+		# ranking the fallbacks; the centre is the point a reader checks by
+		# eye, so it is computed exactly.
+		_g_ = @aCentroidCache[pnI]
+		if len(_g_) = 2 and _PaperPointIn(_r_, _g_[1], _g_[2])  _out_ + _g_  ok
+
+		# 2. the interior points furthest from any edge, ranked
+		_b_ = This.PaperBoxOf(pnI)
+		_w_ = _b_[3] - _b_[1]
+		_h_ = _b_[4] - _b_[2]
+		if _w_ <= 0 or _h_ <= 0  return _out_  ok
+		_cand_ = []
+		_steps_ = 10
+		for _a_ = 1 to _steps_ - 1
+			for _c_ = 1 to _steps_ - 1
+				_x_ = _b_[1] + _w_ * _a_ / _steps_
+				_y_ = _b_[2] + _h_ * _c_ / _steps_
+				if NOT _PaperPointIn(_r_, _x_, _y_)  loop  ok
+				_cand_ + [ _PaperEdgeDist(_r_, _x_, _y_), _x_, _y_ ]
+			next
+		next
+		if len(_cand_) = 0  return _out_  ok
+		for _p_ = 1 to len(_cand_) - 1
+			for _q_ = 1 to len(_cand_) - _p_
+				if _cand_[_q_][1] < _cand_[_q_ + 1][1]
+					_t_ = _cand_[_q_]
+					_cand_[_q_] = _cand_[_q_ + 1]
+					_cand_[_q_ + 1] = _t_
+				ok
+			next
+		next
+
+		# refine the best one twice, halving the step each round -- the
+		# coarse grid finds the right neighbourhood and this finds the point
+		_bx_ = _cand_[1][2]
+		_by_ = _cand_[1][3]
+		_bd_ = _cand_[1][1]
+		_sw_ = _w_ / _steps_
+		_sh_ = _h_ / _steps_
+		for _pass_ = 1 to 2
+			for _a_ = -2 to 2
+				for _c_ = -2 to 2
+					_x_ = _bx_ + _sw_ * _a_ / 2
+					_y_ = _by_ + _sh_ * _c_ / 2
+					if NOT _PaperPointIn(_r_, _x_, _y_)  loop  ok
+					_d_ = _PaperEdgeDist(_r_, _x_, _y_)
+					if _d_ > _bd_
+						_bd_ = _d_
+						_bx_ = _x_
+						_by_ = _y_
+					ok
+				next
+			next
+			_sw_ = _sw_ / 2
+			_sh_ = _sh_ / 2
+		next
+		_out_ + [ _bx_, _by_ ]
+		# and the next few of the coarse ranking, so a box too wide for the
+		# roundest part of the region can still try the long part
+		_take_ = 6
+		if len(_cand_) < _take_  _take_ = len(_cand_)  ok
+		for _t_ = 1 to _take_
+			_out_ + [ _cand_[_t_][2], _cand_[_t_][3] ]
+		next
+		return _out_
+
+	# THE CENTRE OF A REGION ON THE PAPER: the area centroid of its largest
+	# part's outline, projected. This is the point a name goes at when it
+	# fits there, and the point a reader checks the placement against.
+	def PaperCentreOf(pnI)
 		_k_ = @oF.LargestPartOf(pnI)
 		_r_ = @oF.OuterRingOf(pnI, _k_)
 		_n_ = len(_r_) / 2
-		_out_ = []
+		if _n_ < 3  return []  ok
+		_p_ = []
 		for _j_ = 1 to _n_
+			_q_ = @oP.Project(_r_[_j_ * 2 - 1], _r_[_j_ * 2])
+			if len(_q_) < 2  loop  ok
+			_p_ + _q_[1]
+			_p_ + _q_[2]
+		next
+		return _PaperCentroid(_p_)
+
+	# the region's outline as drawn, thinned to at most 200 points
+	def _SimplePaperRingOf(pnI)
+		_k_ = @oF.LargestPartOf(pnI)
+		_r_ = @oF.OuterRingOf(pnI, _k_)
+		_n_ = len(_r_) / 2
+		if _n_ < 3  return []  ok
+		_keep_ = 200
+		if _n_ < _keep_  _keep_ = _n_  ok
+		_out_ = []
+		for _t_ = 0 to _keep_ - 1
+			_j_ = floor(_t_ * _n_ / _keep_) + 1
 			_q_ = @oP.Project(_r_[_j_ * 2 - 1], _r_[_j_ * 2])
 			if len(_q_) < 2  loop  ok
 			_out_ + _q_[1]
 			_out_ + _q_[2]
 		next
 		return _out_
+
 
 	# THE MARK A NUMBERED REGION CARRIES: its official code where the caller
 	# named the property holding one, and otherwise its place in the reading

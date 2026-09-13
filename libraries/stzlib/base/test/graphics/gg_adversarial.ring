@@ -16662,6 +16662,51 @@ chk("A KEY BOX WITH TOO LITTLE ROOM REPORTS WHAT IT COULD NOT LIST and the gate 
     "and lost 36 in silence",
     _G6KeyOverflows(oG6Cr))
 
+# THE CENTRE OF A REGION IS ITS AREA CENTROID, and a name that fits there
+# is printed there. The mean of an outline's POINTS is a different place --
+# a ragged coast carries fifty vertices where a straight desert border
+# carries two, so the mean slides towards the coast -- and this file drew
+# five visibly off-centre names on one sheet before that was understood.
+oG6Cn = StzGeoFeaturesFromJson(_G6NoLakeJson())
+oG6CnM = StzGeoMap(new stzGeoProjection(:Equirectangular), oG6Cn)
+oG6CnM.Projection().FitToFeatures(oG6Cn, 400, 400, 20)
+oG6CnM.SetPaper(0, 0, 440, 440)
+oG6CnC = new stzCanvas(440, 440)
+oG6CnC.SetBackground("#FFFFFF")
+oG6CnM.DrawLabelsXT(oG6CnC, EFONT, 13, "#000000", FALSE)
+chk("WHERE THERE IS ROOM, A NAME IS PRINTED AT THE AREA CENTROID of its " +
+    "region -- derived here independently of the engine, so it cannot pass " +
+    "by recomputing the engine's own arithmetic",
+    _G6AtTheCentre(oG6CnM))
+chk("NEGATIVE: THE VERTEX MEAN IS A DIFFERENT PLACE, and on a region whose " +
+    "outline is sampled unevenly the two differ by more than a line of type " +
+    "-- which is why one of them is wrong to use",
+    _G6MeanDiffers(oG6CnM))
+
+# THE THREE MODES. Which one a sheet wants depends on who is reading it,
+# so the engine holds no opinion and the caller says.
+oG6Md = [ :Names, :Numbers, :Auto ]
+aG6MdR = []
+for iG6 = 1 to 3
+	oG6MdC = new stzCanvas(600, 400)
+	oG6MdC.SetBackground("#FFFFFF")
+	oG6Lm.SetLabelMode(oG6Md[iG6])
+	oG6Lm.DrawLabelsXT(oG6MdC, EFONT, 13, "#000000", FALSE)
+	oG6Lm.DrawKeyOn(oG6MdC, EFONT, 13, "#333333")
+	aG6MdR + oG6Lm.LabelReport()
+next
+oG6Lm.SetLabelMode(:Auto)
+chk(":Names DRAWS NO NUMBERS and :Numbers DRAWS NO NAMES -- the two pure modes " +
+    "each carry ONE kind of mark, which is the whole reason to want them",
+    aG6MdR[1][:numbered] = 0 and aG6MdR[2][:named] = 0 and aG6MdR[2][:numbered] > 0)
+chk("EVERY MODE ACCOUNTS FOR EVERY REGION: named plus numbered plus unlabelled " +
+    "is the feature count in all three, which is what stops a mode losing one",
+    aG6MdR[1][:named] + aG6MdR[1][:numbered] + aG6MdR[1][:dropped] = oG6Cr.Count() and
+    aG6MdR[2][:named] + aG6MdR[2][:numbered] + aG6MdR[2][:dropped] = oG6Cr.Count() and
+    aG6MdR[3][:named] + aG6MdR[3][:numbered] + aG6MdR[3][:dropped] = oG6Cr.Count())
+chk("NEGATIVE: a labelling mode this file does not know is refused BY NAME",
+    _G6RefusesMode())
+
 # THE RAMP A MAP IS COLOURED WITH is Brewer's, stated as data: five classes
 # out of a five-stop scheme must be his five colours and not five re-mixes.
 chk("a named ramp answers its own stops when the classes match them",
@@ -19772,6 +19817,79 @@ func _G6CrowdJson
 			_x_ + ',' + (_y_ + 1) + ']]]}}'
 	next
 	return _c_ + ']}'
+
+# the area centroid of feature 1 on the paper, by the shoelace formula and
+# NOT by asking the map -- a centre test that calls the code it is testing
+# proves only that the code equals itself
+func _G6AtTheCentre poMap
+	_b_ = poMap.PlacedBoxes()
+	if len(_b_) < 1  return FALSE  ok
+	_g_ = _G6Centroid(poMap)
+	return fabs((_b_[1][1] + _b_[1][3]) / 2 - _g_[1]) < 1 and
+	       fabs((_b_[1][2] + _b_[1][4]) / 2 - _g_[2]) < 1
+
+func _G6MeanDiffers poMap
+	_p_ = _G6PaperRing(poMap)
+	_n_ = len(_p_) / 2
+	_sx_ = 0  _sy_ = 0
+	for _i_ = 1 to _n_
+		_sx_ += _p_[_i_ * 2 - 1]
+		_sy_ += _p_[_i_ * 2]
+	next
+	_g_ = _G6Centroid(poMap)
+	return fabs(_sx_ / _n_ - _g_[1]) + fabs(_sy_ / _n_ - _g_[2]) > 13
+
+func _G6PaperRing poMap
+	_f_ = poMap.Features()
+	_r_ = _f_.OuterRingOf(1, _f_.LargestPartOf(1))
+	_n_ = len(_r_) / 2
+	_p_ = []
+	for _j_ = 1 to _n_
+		_q_ = poMap.Projection().Project(_r_[_j_ * 2 - 1], _r_[_j_ * 2])
+		if len(_q_) < 2  loop  ok
+		_p_ + _q_[1]
+		_p_ + _q_[2]
+	next
+	return _p_
+
+func _G6Centroid poMap
+	_p_ = _G6PaperRing(poMap)
+	_m_ = len(_p_) / 2
+	if _m_ < 3  return [ 0, 0 ]  ok
+	_a2_ = 0  _cx_ = 0  _cy_ = 0
+	for _i_ = 1 to _m_
+		_j_ = _i_ + 1
+		if _j_ > _m_  _j_ = 1  ok
+		_cr_ = _p_[_i_ * 2 - 1] * _p_[_j_ * 2] - _p_[_j_ * 2 - 1] * _p_[_i_ * 2]
+		_a2_ += _cr_
+		_cx_ += (_p_[_i_ * 2 - 1] + _p_[_j_ * 2 - 1]) * _cr_
+		_cy_ += (_p_[_i_ * 2] + _p_[_j_ * 2]) * _cr_
+	next
+	if fabs(_a2_) < 0.000001  return [ 0, 0 ]  ok
+	return [ _cx_ / (3 * _a2_), _cy_ / (3 * _a2_) ]
+
+# A SQUARE WITH ONE HEAVILY SAMPLED EDGE. The area is a plain rectangle, so
+# its centroid is obvious by inspection; the left edge carries thirty points
+# and the other three carry two each, so the MEAN of the points is dragged
+# well to the left of it. That gap is the defect this section guards.
+func _G6NoLakeJson
+	_c_ = '{"type":"FeatureCollection","features":[{"type":"Feature",' +
+		'"properties":{"name":"Slab"},"geometry":{"type":"Polygon","coordinates":[['
+	for _i_ = 0 to 30
+		_c_ += "[0," + (_i_ * 20 / 30) + "],"
+	next
+	_c_ += '[30,20],[30,0],[0,0]]]}}]}'
+	return _c_
+
+func _G6RefusesMode
+	_m_ = StzGeoMap(new stzGeoProjection(:Equirectangular),
+		StzGeoFeaturesFromJson(_G6NoLakeJson()))
+	try
+		_m_.SetLabelMode(:Sideways)
+	catch
+		return StzFindFirst(":Numbers", cCatchError) > 0
+	done
+	return FALSE
 
 func _G6KeyInOrder poMap
 	_k_ = poMap.KeyEntries()

@@ -518,6 +518,7 @@ which exists.
 | GE5 | hands: `PlaceAt` / `FeatureAt` / `NameAt` / `ValueAt` — invert, then contain on the sphere | Ring, `stzGeoMap` | **SHIPPED** below |
 | GE6 | **inside a country**: admin-1 units, a conic per country, placed labels, and the SPATIAL JOIN | Ring + engine filter | **SHIPPED** below |
 | GE6b | **labels the way an atlas does them**: a name inside, else a number and a key. The leader lines are REMOVED | Ring, `stzGeoMap` | **SHIPPED** below |
+| GE6c | **three labelling modes**, and the centre of a region is its AREA CENTROID | Ring, `stzGeoMap` | **SHIPPED** below |
 
 **Order and value.** GE0 first, because every picture above it is only as
 honest as the sphere underneath and its properties are the most assertable
@@ -629,6 +630,92 @@ assertions** — every name accounted for as inline, leadered or dropped; a
 margin turning drops into leaders; no two boxes overlapping; the ink
 flipping on a dark class; a ramp answering its own stops and refusing a
 name it does not know. Gate §127, **1711 ok, 0 failed**.
+
+## GE6c -- THREE MODES, AND WHERE THE CENTRE ACTUALLY IS (2026-09-13, SHIPPED)
+
+*Asked for in two lines: "the design allows three options: all numbers, all
+labels, and the current hybrid automatic mode", and "the labels or numbers
+are printed exactly at the center of the region, or at another better place
+when the center is not large enough."*
+
+### The three modes
+
+`SetLabelMode(:Names | :Numbers | :Auto)`.
+
+| mode | what it draws | when it is right |
+|---|---|---|
+| `:Names` | the name, or nothing at all | the reader knows the country, or only the big units matter. What nivo, Datawrapper and Flourish do |
+| `:Numbers` | a number for every region, every name in the key | the units are many or uniformly small. The atlas plate: one clean figure, one ordered legend, nothing a special case |
+| `:Auto` | the name where it fits, a number where it does not | the regions differ wildly in size -- Tunisia, where Tataouine has room for its name ten times over and Tunis has room for none of it |
+
+**The engine holds no opinion about which**, because the answer depends on
+who is reading the sheet, and that is not a fact about the geometry.
+`geo_modes.png` draws the same country three times so the difference is the
+labelling and nothing else: on Tunisia, `:Names` 8 named and 15 unlabelled,
+`:Numbers` 22 numbered and 1 unlabelled, `:Auto` 8 named and 14 numbered.
+All three account for all 23, and the gate asserts that in every mode.
+
+### The centre of a region is its AREA CENTROID
+
+The Principal marked five names on one sheet with a red cross each --
+Agadez, Zinder, Diffa, Kebili, Tataouine -- all visibly off-centre, and each
+pulled a **different** way. That pattern is the signature of a single
+arithmetic mistake and not of a placement bug.
+
+**The mean of an outline's points is a mean of the SAMPLING, not of the
+shape.** A ragged coast carries fifty vertices where a straight desert
+border carries two, so the mean slides towards the coast. The area centroid
+-- the shoelace formula -- does not care how the outline was sampled: an
+edge of two points weighs exactly as much as the area it bounds.
+
+Measured on Niger, the gap between the two, in paper pixels:
+
+| region | vertex mean | area centroid | apart |
+|---|---|---|---:|
+| Diffa | 422.9, 326.7 | 423.0, 292.1 | **34.7** |
+| Zinder | 329.5, 336.8 | 348.8, 314.8 | **29.3** |
+| Agadez | 367.5, 186.4 | 358.4, 205.0 | **20.7** |
+| Tillaberi | 162.1, 350.8 | 164.0, 332.7 | 18.2 |
+| Dosso | 187.8, 363.1 | 195.8, 357.3 | 9.8 |
+| Maradi | 290.6, 338.8 | 284.7, 336.2 | 6.4 |
+| Tahoua | 234.8, 293.5 | 236.8, 295.9 | 3.1 |
+| Niamey | 162.7, 348.8 | 162.4, 348.7 | 0.4 |
+
+Every one of the marked five is in the table's top three. Niamey, a small
+uniformly-sampled district, moves 0.4 px -- which is why this was invisible
+on a synthetic fixture and obvious on a real country.
+
+Placement is now: **the centroid first**, and when the box will not fit
+there -- an hourglass pinched at the waist, an L whose centre is in the
+notch -- the **pole of inaccessibility**, the centre of the largest circle
+the region holds, which is what Mapbox's polylabel and QGIS both use. Then
+the next-roomiest interior points, ranked. The nine fixed offsets that used
+to be tried around the anchor were arbitrary and are gone. Everything the
+paper-space search proposes is still verified exactly against the real
+outline by `_BoxInRegion`, so working in pixels costs accuracy nowhere.
+
+Side effect, unlooked-for: France names **29** departments inside their own
+borders where it named 24, and drops 5 where it dropped 6. A better centre
+is also a better-fitting one.
+
+### And a guard that agreed with the bug because it repeated it
+
+`_PaperCentroid` in the suite averaged the outline's points -- **exactly
+what the engine was doing wrong** -- so "the name is printed at the centre"
+passed while every name on the real sheets sat off to one side. The test
+recomputed the implementation's own mistake and then agreed with it.
+
+It derives the centroid independently now, by the shoelace formula, in both
+the suite and the gate. The gate's fixture is a rectangle with thirty points
+down one edge and two on each of the others, so its centroid is obvious by
+inspection and its vertex mean is nowhere near it; a NEGATIVE assertion
+pins the gap at more than a line of type, so the two definitions can never
+quietly become one again.
+
+**The transferable half: a test that computes the expected value the way the
+code computes it is checking that the code equals itself.** Derive it from
+the definition, or from a case whose answer you can state without running
+anything.
 
 ## GE6b -- A NAME INSIDE, OR A NUMBER AND A KEY (2026-09-13, SHIPPED)
 
