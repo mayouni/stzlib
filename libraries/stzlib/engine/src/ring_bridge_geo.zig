@@ -5,6 +5,7 @@ const gs = @import("geo_stats.zig");
 const gf = @import("geo_field.zig");
 const gi = @import("geo_interp.zig");
 const gg = @import("geo_geodesy.zig");
+const gpr = @import("geo_process.zig");
 const R = @import("ring_api.zig");
 
 const gn = R.ring_vm_api_getnumber;
@@ -1076,6 +1077,110 @@ fn ring_GeoGeodesicArea(p: *anyopaque) callconv(.c) void {
     retPair(p, r.area, r.perimeter);
 }
 
+
+// ------------------------------------------------ GE7d: point processes
+//
+// A PROCESS CROSSES AS ITS KIND AND THREE NUMBERS, the same way an
+// ellipsoid crosses as two and a projection as eleven: the Ring object owns
+// the parameters and gives them names, and nothing engine-side can go
+// stale behind it. The intensity SURFACE of an inhomogeneous process
+// crosses as a grid, because a callback into the Ring VM is not a thing
+// this engine does -- and GE7b's kernel density already produces exactly
+// such a grid, so estimating an intensity and simulating from it is two
+// calls with nothing in between.
+
+fn readProcess(p: *anyopaque, arg: c_int) gpr.Process {
+    const ki = argUsize(p, arg);
+    const k: gpr.Kind = if (ki <= 6) @enumFromInt(@as(u8, @intCast(ki))) else .poisson;
+    return .{ .kind = k, .a = gn(p, arg + 1), .b = gn(p, arg + 2), .c = gn(p, arg + 3) };
+}
+
+fn ring_GeoProcessCount(p: *anyopaque) callconv(.c) void {
+    rn(p, 7);
+}
+
+fn ring_GeoProcessName(p: *anyopaque) callconv(.c) void {
+    const i = argUsize(p, 1);
+    if (i < 1 or i > 7) return R.ring_vm_api_retstring(p, "");
+    const k: gpr.Kind = @enumFromInt(@as(u8, @intCast(i - 1)));
+    R.ring_vm_api_retstring(p, gpr.Kind.name(k).ptr);
+}
+
+// (kind, a, b, c, rings, box, areaKm2, boxAreaKm2, gridParams, gridValues, seed, cap)
+fn ring_GeoProcessGenerate(p: *anyopaque) callconv(.c) void {
+    const pr = readProcess(p, 1);
+    const wd = readWindow(p, 5, 6) orelse return retEmpty(p);
+    defer freeRings(wd.rr);
+    const g = readGrid(p, 9) orelse gf.Grid{ .lon0 = 0, .lat0 = 0, .dlon = 0, .dlat = 0, .nx = 0, .ny = 0 };
+    const lam = readPoints(p, 10) orelse alloc.alloc(f64, 0) catch return retEmpty(p);
+    defer alloc.free(lam);
+    var cap = argUsize(p, 12);
+    if (cap < 1) cap = 1;
+    if (cap > 2_000_000) cap = 2_000_000;
+    const out = alloc.alloc(f64, cap * 2) catch return retEmpty(p);
+    defer alloc.free(out);
+    const n = gpr.generate(alloc, &wd.w, pr, g, lam, gn(p, 7), gn(p, 8), argU64(p, 11), out) catch return retEmpty(p);
+    retF64s(p, out[0 .. n * 2]);
+}
+
+// (kind, a, b, c, gridValues, areaKm2, boxAreaKm2)
+fn ring_GeoProcessExpected(p: *anyopaque) callconv(.c) void {
+    const pr = readProcess(p, 1);
+    const lam = readPoints(p, 5) orelse alloc.alloc(f64, 0) catch return rn(p, 0);
+    defer alloc.free(lam);
+    rn(p, gpr.expectedCount(pr, lam, gn(p, 6), gn(p, 7)));
+}
+
+// (kind, a, b, c, rings, box, areaKm2, boxAreaKm2, gridParams, gridValues,
+//  radii, sims, seed, stat)
+fn ring_GeoProcessEnvelope(p: *anyopaque) callconv(.c) void {
+    const pr = readProcess(p, 1);
+    const wd = readWindow(p, 5, 6) orelse return retEmpty(p);
+    defer freeRings(wd.rr);
+    const g = readGrid(p, 9) orelse gf.Grid{ .lon0 = 0, .lat0 = 0, .dlon = 0, .dlat = 0, .nx = 0, .ny = 0 };
+    const lam = readPoints(p, 10) orelse alloc.alloc(f64, 0) catch return retEmpty(p);
+    defer alloc.free(lam);
+    const radii = readPoints(p, 11) orelse return retEmpty(p);
+    defer alloc.free(radii);
+    const sims = argUsize(p, 12);
+    const si = argUsize(p, 14);
+    const stat: gpr.Stat = if (si <= 2) @enumFromInt(@as(u8, @intCast(si))) else .k;
+    const out = alloc.alloc(f64, radii.len * 3) catch return retEmpty(p);
+    defer alloc.free(out);
+    _ = gpr.envelope(alloc, &wd.w, pr, g, lam, gn(p, 7), gn(p, 8), radii, sims, argU64(p, 13), stat, out) catch return retEmpty(p);
+    retF64s(p, out);
+}
+
+fn ring_GeoProcessThin(p: *anyopaque) callconv(.c) void {
+    const pts = readPoints(p, 1) orelse return retEmpty(p);
+    defer alloc.free(pts);
+    const out = alloc.alloc(f64, pts.len) catch return retEmpty(p);
+    defer alloc.free(out);
+    const n = gpr.thin(pts, gn(p, 2), argU64(p, 3), out);
+    retF64s(p, out[0 .. n * 2]);
+}
+
+fn ring_GeoProcessEscapes(p: *anyopaque) callconv(.c) void {
+    const obs = readPoints(p, 1) orelse return retEmpty(p);
+    defer alloc.free(obs);
+    const env = readPoints(p, 2) orelse return retEmpty(p);
+    defer alloc.free(env);
+    if (env.len < obs.len * 3) return retEmpty(p);
+    const out = alloc.alloc(f64, obs.len) catch return retEmpty(p);
+    defer alloc.free(out);
+    gpr.escapes(obs, env, out);
+    retF64s(p, out);
+}
+
+fn ring_GeoPoissonCount(p: *anyopaque) callconv(.c) void {
+    var prng = std.Random.DefaultPrng.init(argU64(p, 2));
+    rn(p, @floatFromInt(gpr.poissonCount(prng.random(), gn(p, 1))));
+}
+
+fn ring_GeoMaternIICeiling(p: *anyopaque) callconv(.c) void {
+    rn(p, gpr.maternIIIntensity(gn(p, 1), gn(p, 2)));
+}
+
 const regs = [_]R.Reg{
     .{ .name = "stzenginegeohaversine", .func = ring_Haversine },
     .{ .name = "stzenginegeohaversinemiles", .func = ring_HaversineMiles },
@@ -1162,6 +1267,16 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginegeotoenu", .func = ring_GeoToEnu },
     .{ .name = "stzenginegeofromenu", .func = ring_GeoFromEnu },
     .{ .name = "stzenginegeogeodesicarea", .func = ring_GeoGeodesicArea },
+    // GE7d
+    .{ .name = "stzenginegeoprocesscount", .func = ring_GeoProcessCount },
+    .{ .name = "stzenginegeoprocessname", .func = ring_GeoProcessName },
+    .{ .name = "stzenginegeoprocessgenerate", .func = ring_GeoProcessGenerate },
+    .{ .name = "stzenginegeoprocessexpected", .func = ring_GeoProcessExpected },
+    .{ .name = "stzenginegeoprocessenvelope", .func = ring_GeoProcessEnvelope },
+    .{ .name = "stzenginegeoprocessthin", .func = ring_GeoProcessThin },
+    .{ .name = "stzenginegeoprocessescapes", .func = ring_GeoProcessEscapes },
+    .{ .name = "stzenginegeopoissoncount", .func = ring_GeoPoissonCount },
+    .{ .name = "stzenginegeomaterniiceiling", .func = ring_GeoMaternIICeiling },
 };
 
 pub fn registerAll(state: *anyopaque) void {

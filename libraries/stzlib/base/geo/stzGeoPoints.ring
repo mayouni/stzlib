@@ -103,6 +103,24 @@ class stzGeoPoints from stzObject
 	def AreaKm2()
 		return @nArea
 
+	# THE WINDOW'S BOUNDING BOX, which is not the window. Every simulation
+	# in this plane places candidates in the box and rejects those outside
+	# the window, so the box is part of the engine's contract and a caller
+	# building a process needs it too.
+	def WindowBox()
+		return @aBox
+
+	# ...and how much ground the BOX covers, which a CLUSTER process needs
+	# and the window's own area cannot answer. Parents are drawn in the box
+	# rather than in the window on purpose: a cluster whose centre falls
+	# just outside still throws children in, and dropping those parents
+	# would leave the window's edge visibly emptier than its middle -- the
+	# same edge effect Ripley's K corrects for, met on the generating side.
+	def BoxAreaKm2()
+		if len(@aBox) < 4  return @nArea  ok
+		return StzGeoRingAreaKm2([ @aBox[1], @aBox[2], @aBox[3], @aBox[2],
+		                           @aBox[3], @aBox[4], @aBox[1], @aBox[4] ])
+
 	# the window's outline, km -- what Donnelly's edge correction needs
 	def PerimeterKm()
 		return @nPerimeter
