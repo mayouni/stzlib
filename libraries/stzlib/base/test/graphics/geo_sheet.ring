@@ -87,7 +87,15 @@ for m = 1 to 2
 	oM.SetPaper(40, nY0 - 10, 1260, nY0 + 430)
 	oM.SetValuesQ(aVals).SetClassesQ(aEdges)
 	oM.SetRamp(:YlOrRd)
-	oM.SetNoData("#FFFFFF")
+	oM.SetOpenTop(TRUE)
+	# NO DATA IS HATCHED, AND THE FILL UNDER THE HATCH IS NEARLY THE PAGE.
+	# The first version of this sheet said SetNoData("#FFFFFF") and stopped
+	# there: white on a white page, so the five unmeasured countries were
+	# indistinguishable from ocean and the legend advertised a category the
+	# map never showed. The hatch is what carries the meaning now; the fill
+	# only has to stay out of the ramp's way, which a near-white does and a
+	# grey does not -- a grey joins the bottom of the scale.
+	oM.SetNoData("#FCFCFC")
 	oM.SetInteractive(TRUE)
 
 	if m = 2
@@ -103,7 +111,7 @@ for m = 1 to 2
 	oC.SetFontQ(oFont, 13).AddTextQ(aPanel[m][2], 40, nY0 - 12).Fill("#888888")
 	oC.Flush()
 
-	nEnd = oM.DrawRampLegendOn(oC, oFont, 13, 330, nY0 + 452, 560, 22, cInk, TRUE)
+	nEnd = oM.DrawRampLegendOn(oC, oFont, 13, 330, nY0 + 452, 560, 22, cInk)
 
 	if m = 2
 		# a named country, with a halo, to show text over colour
