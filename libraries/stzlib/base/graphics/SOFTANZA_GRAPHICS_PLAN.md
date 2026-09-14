@@ -520,7 +520,7 @@ which exists.
 | GE6b | **labels the way an atlas does them**: a name inside, else a number and a key. The leader lines are REMOVED | Ring, `stzGeoMap` | **SHIPPED** below |
 | GE6c | **three labelling modes**, and the centre of a region is its AREA CENTROID | Ring, `stzGeoMap` | **SHIPPED** below |
 | GE6d | **insets**: the same ground larger, with a locator, a measured scale, and three refusals | Ring, `stzGeoMap` | **SHIPPED** below |
-| GE7 | **spatial statistics**: point patterns (K, L, G, F, Clark-Evans, envelopes by simulation), centres and ellipses, kernel density, contours, interpolation (IDW, kriging), point processes | engine, `geo_stats.zig` + `geo_field.zig`; face `stzGeoPoints`, `stzGeoField` | **GE7a, GE7b SHIPPED** below; GE7c next |
+| GE7 | **spatial statistics**: point patterns (K, L, G, F, Clark-Evans, envelopes by simulation), centres and ellipses, kernel density, contours, interpolation (IDW, kriging), point processes | engine, `geo_stats.zig` + `geo_field.zig` + `geo_interp.zig`; face `stzGeoPoints`, `stzGeoField`, `stzGeoSamples` | **GE7a, GE7b, GE7c SHIPPED** below; GE7d next |
 | GE8 | **geodesy on the ellipsoid**: Karney's geodesic on WGS84, ECEF and ENU frames, DMS, rhumb lines, a reference-ellipsoid table | engine, `geo_geodesy.zig` | PLAN |
 | GE9 | **the projection gallery**: from 16 to the ~50 with names people use, each with an inverse, plus local distortion measures from the Jacobian, and UTM zones | engine, `geo_projection.zig` | PLAN |
 | GE10 | **map furniture and the remaining plots**: scale bar, day-night terminator, vector and stream plots over a field, point-value small multiples | Ring, `stzGeoMap` | PLAN |
@@ -635,6 +635,102 @@ assertions** — every name accounted for as inline, leadered or dropped; a
 margin turning drops into leaders; no two boxes overlapping; the ink
 flipping on a dark class; a ramp answering its own stops and refusing a
 name it does not know. Gate §127, **1711 ok, 0 failed**.
+
+## GE7c -- INTERPOLATION: IDW, THE VARIOGRAM, KRIGING (2026-09-14, SHIPPED)
+
+*The third rung. GE7a asked whether a list of places is clustered; GE7b made
+a field by SMOOTHING a pattern. This has sixty rain gauges, each with a
+number, and asks what those two cannot: **how much rain fell where there is
+no gauge?***
+
+### Three answers, in the order an analyst uses them
+
+| | what it is | what it costs |
+|---|---|---|
+| `IDWField(cellKm, power)` | every gauge votes with weight 1/d^p | needs no model and **tells you nothing about how wrong it is**. Its one real virtue: a weighted average of measurements cannot leave their range, so it will never invent a reading nobody recorded |
+| `Variogram` / `FitVariogram` | half the mean squared difference of every pair, against distance | the diagnostic almost nobody outside geostatistics draws, and the reason the third is not guesswork |
+| `KrigeFields(cellKm)` | ordinary kriging | returns the estimate **and its variance, together, on purpose** |
+
+`stzGeoSamples` holds a measurement -- a place AND a number -- which is what
+makes it not a point pattern. It refuses a list of pairs, refuses a
+non-numeric reading (*a measurement that was not made is not a measurement
+of zero*), and refuses to exist without its window.
+
+### The four decisions in the engine
+
+1. **The kriging variance depends on the geometry and not on the values.**
+   Multiply every reading by ten and the variance surface does not move. It
+   is a function of WHERE the gauges are and of the variogram, and of
+   nothing else -- so it answers *how densely was this neighbourhood
+   sampled*, which is worth its own map and which no other method here will
+   answer. Pinned in the engine tests and again in the gate.
+2. **One factorisation for the whole grid.** The left-hand side is the
+   samples against each other and does not depend on where the prediction
+   is, so it is LU-factorised once and every grid node is a
+   back-substitution -- n² a node instead of n³.
+3. **LU with partial pivoting, not Cholesky.** The bordered variogram matrix
+   is symmetric but NOT positive definite -- conditionally negative definite
+   with a row and column of ones round it -- so a Cholesky fails at the
+   first pivot. This is the commonest mistake in a home-made kriging.
+4. **The range is fitted by search and the sills by algebra.** γ(h) = nugget
+   + sill·f(h/range) is linear in the two sills and non-linear only in the
+   range, so the range is swept and the sills solved exactly at each
+   candidate by a 2×2 normal equation. No optimiser, no starting guess, no
+   local minimum. A negative nugget or sill is clamped and the other
+   refitted, which is what every geostatistics package does.
+
+Exponential and gaussian use the **practical range** (95% of the sill), the
+convention every GIS prints and the only one that makes a range comparable
+between models.
+
+### Four rules
+
+`the_samples_are_in_their_window` (warning), `enough_samples_for_a_variogram`
+(warning below 20, *naming IDW as the honest tool at that size*),
+`the_range_is_inside_the_data` (**error** past the window's diagonal,
+warning past half of it), `the_variogram_found_structure` (warning when the
+nugget carries most of the sill -- *the data's answer, not a fault in the
+fit*). And `KrigeFields` **refuses outright** without a fitted curve: kriging
+is not a formula you apply to points, and refusing is the difference between
+a method and a guess.
+
+### What the run found
+
+- **My claim about the nugget was folk wisdom and the code was right.** The
+  first test asserted "a nugget makes kriging a smoother: it no longer
+  honours its own data", and failed. That is not what ordinary kriging does:
+  with a nugget the predictor is STILL EXACT at a sample and the surface
+  JUMPS the instant you step off it. Measured at a corner gauge, 200 m away:
+  nugget 0 gives 10.000 → 10.007 with variance 0.017; nugget 6 gives 10.000
+  → **15.510** with variance 8.69. That discontinuity *is* the nugget.
+- **A symmetric fixture defeated a test.** The middle sample of a linear ramp
+  IS the mean of its neighbours, so smoothing moves it nowhere; the corner
+  is where the effect lives.
+- **The demo's data was wrong, and the gate said so.** The first invented
+  rainfall was two wide humps over a country 800 km across, so the fitted
+  range came out at 825 km -- longer than the window's own diagonal -- and
+  the variance collapsed to zero everywhere. `the_range_is_inside_the_data`
+  fired correctly, on the DEMO rather than the engine. A field that smooth
+  is perfectly predictable from any few points. The balance was then
+  measured across four weightings: regional 150 against short-scale 110
+  gives a 76 km range, zero nugget, and no findings.
+- **Two assertions had thresholds I picked rather than measured**, and both
+  failed a correct engine: a variance field read at one gauge (it is a 25 km
+  raster -- `KrigeAt` is what proves the exact zero), and a gate threshold
+  of "> 1" at the emptiest interior place, where the true figure is 0.24
+  because with 60 gauges and a 351 km range nowhere inside is far from data.
+  Both are set from measurement now: 0.010 near against 0.314 far, and
+  0 / 0.24 / 42.2 at a gauge, in the gap, and outside the window.
+
+*Witness:* `geo_interp.png` -- 70 stations over Tunisia in four panels: the
+readings, IDW (with its bullseyes), the kriged estimate (without them), and
+the VARIANCE with the stations drawn on top, because the pale ground is
+exactly where they stand. Below it the variogram: the cloud, each dot sized
+by the pairs it rests on, the fitted curve through it, and the sill and
+range named on the plot. *Guard:* `geo_samples_narrated.ring` **26**,
+measuring both interpolators against a truth the guard itself writes down --
+IDW's mean absolute error 2.11, kriging's **0.05**, on a field spanning
+25.5. *Gate:* section 130.
 
 ## GE7b -- A FIELD: DENSITY, CONTOURS, THE RASTER, THE ESRI GRID (2026-09-14, SHIPPED)
 

@@ -383,6 +383,7 @@ ok
     load "graph/stzGeoMap.ring"
     load "graph/stzGeoPoints.ring"
     load "graph/stzGeoField.ring"
+    load "graph/stzGeoSamples.ring"
     load "graph/stzGeoAtlas.ring"
     load "graph/stzOrgChart.ring"
     # org-governance rules over the org chart's graph projection (phase 2b):
