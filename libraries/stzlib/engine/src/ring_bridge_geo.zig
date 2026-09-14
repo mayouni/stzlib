@@ -3,6 +3,7 @@ const geo = @import("geo.zig");
 const gp = @import("geo_projection.zig");
 const gs = @import("geo_stats.zig");
 const gf = @import("geo_field.zig");
+const gi = @import("geo_interp.zig");
 const R = @import("ring_api.zig");
 
 const gn = R.ring_vm_api_getnumber;
@@ -761,6 +762,200 @@ fn ring_GeoReadAsciiGrid(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, out);
 }
 
+// ------------------------------------------------ GE7c: interpolation
+//
+// SAMPLES CROSS AS A FLAT [ lon, lat, value, ... ] and a VARIOGRAM as five
+// numbers: [ model, nugget, sill, rangeKm, rss ]. Same discipline as the
+// projection's eleven and the grid's six -- the Ring object owns them, and
+// a caller can print the whole model and argue with it.
+
+fn readVariogram(p: *anyopaque, arg: c_int) ?gi.Variogram {
+    const v = readPoints(p, arg) orelse return null;
+    defer alloc.free(v);
+    if (v.len < 4) return null;
+    const mi: i64 = @intFromFloat(v[0]);
+    if (mi < 0 or mi > 2) return null;
+    return .{
+        .model = @enumFromInt(@as(u8, @intCast(mi))),
+        .nugget = v[1],
+        .sill = v[2],
+        .range_km = v[3],
+        .rss = if (v.len > 4) v[4] else 0,
+    };
+}
+
+fn retVariogram(p: *anyopaque, v: gi.Variogram) void {
+    retF64s(p, &.{ @floatFromInt(@intFromEnum(v.model)), v.nugget, v.sill, v.range_km, v.rss });
+}
+
+// GeoIdwField(aLonLatZ, aGrid, nPower, aRings, aBox) -> values, row 0 south
+fn ring_GeoIdwField(p: *anyopaque) callconv(.c) void {
+    const sm = readPoints(p, 1) orelse return retEmpty(p);
+    defer alloc.free(sm);
+    const g = readGrid(p, 2) orelse return retEmpty(p);
+    const power = gn(p, 3);
+    const out = alloc.alloc(f64, g.count()) catch return retEmpty(p);
+    defer alloc.free(out);
+    const wd: ?WindowRead = readWindow(p, 4, 5);
+    defer if (wd) |x| freeRings(x.rr);
+    for (0..g.ny) |j| {
+        const lat = g.latAt(j);
+        for (0..g.nx) |i| {
+            const lon = g.lonAt(i);
+            if (wd) |x| {
+                if (!x.w.contains(lon, lat)) {
+                    out[j * g.nx + i] = std.math.nan(f64);
+                    continue;
+                }
+            }
+            out[j * g.nx + i] = gi.idwAt(sm, lon, lat, power);
+        }
+    }
+    retValues(p, out);
+}
+
+// GeoVariogram(aLonLatZ, nLags, nMaxKm) -> [ [h, gamma, pairs], ... ]
+fn ring_GeoVariogram(p: *anyopaque) callconv(.c) void {
+    const sm = readPoints(p, 1) orelse return retEmpty(p);
+    defer alloc.free(sm);
+    var lags: usize = @intFromFloat(@max(gn(p, 2), 0));
+    if (lags == 0) lags = 12;
+    if (lags > 200) lags = 200;
+    const bins = alloc.alloc(gi.Bin, lags) catch return retEmpty(p);
+    defer alloc.free(bins);
+    const m = gi.empiricalVariogram(alloc, sm, lags, gn(p, 3), bins) catch return retEmpty(p);
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (0..m) |i| {
+        const row = R.ring_list_newlist(out) orelse continue;
+        R.ring_list_adddouble(row, bins[i].h_km);
+        R.ring_list_adddouble(row, bins[i].gamma);
+        R.ring_list_adddouble(row, @floatFromInt(bins[i].pairs));
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn readBins(p: *anyopaque, arg: c_int) ?[]gi.Bin {
+    if (R.il(p, arg) == 0) return null;
+    const lst = R.gl(p, arg) orelse return null;
+    const n: usize = @intCast(R.ringListSize(lst));
+    if (n == 0) return null;
+    const bins = alloc.alloc(gi.Bin, n) catch return null;
+    for (0..n) |i| {
+        const row = R.ring_list_getlist_gc(null, lst, @intCast(i + 1)) orelse {
+            bins[i] = .{ .h_km = 0, .gamma = 0, .pairs = 0 };
+            continue;
+        };
+        const v = readF64s(row) orelse {
+            bins[i] = .{ .h_km = 0, .gamma = 0, .pairs = 0 };
+            continue;
+        };
+        defer alloc.free(v);
+        bins[i] = .{
+            .h_km = if (v.len > 0) v[0] else 0,
+            .gamma = if (v.len > 1) v[1] else 0,
+            .pairs = if (v.len > 2) @intFromFloat(@max(v[2], 0)) else 0,
+        };
+    }
+    return bins;
+}
+
+// GeoFitVariogram(aBins, nModel) -> [ model, nugget, sill, rangeKm, rss ];
+// a model of -1 fits all three and answers the best
+fn ring_GeoFitVariogram(p: *anyopaque) callconv(.c) void {
+    const bins = readBins(p, 1) orelse return retEmpty(p);
+    defer alloc.free(bins);
+    const mi = gn(p, 2);
+    if (mi < 0) return retVariogram(p, gi.fitBest(bins));
+    const k: i64 = @intFromFloat(mi);
+    if (k > 2) return retEmpty(p);
+    retVariogram(p, gi.fitVariogram(bins, @enumFromInt(@as(u8, @intCast(k)))));
+}
+
+// GeoVariogramAt(aModel, nHkm) -> gamma(h)
+fn ring_GeoVariogramAt(p: *anyopaque) callconv(.c) void {
+    const v = readVariogram(p, 1) orelse return rn(p, 0);
+    rn(p, v.gamma(gn(p, 2)));
+}
+
+// GeoKrigeField(aLonLatZ, aModel, aGrid, aRings, aBox) -> [ aEstimate,
+// aVariance ], both laid out like a field's values. ONE factorisation for
+// the whole grid: the left-hand side is the samples against each other and
+// does not depend on where the prediction is.
+fn ring_GeoKrigeField(p: *anyopaque) callconv(.c) void {
+    const sm = readPoints(p, 1) orelse return retEmpty(p);
+    defer alloc.free(sm);
+    const n = sm.len / 3;
+    // A CAP, AND A NAMED ONE. The factorisation is n^3 and every node is
+    // n^2; at 1200 samples that is two seconds and 11 MB, which is the most
+    // this should spend without the caller having asked for it.
+    if (n < 2 or n > 1200) return retEmpty(p);
+    const v = readVariogram(p, 2) orelse return retEmpty(p);
+    const g = readGrid(p, 3) orelse return retEmpty(p);
+    const wd: ?WindowRead = readWindow(p, 4, 5);
+    defer if (wd) |x| freeRings(x.rr);
+
+    var kr = gi.prepare(alloc, sm, v) catch return retEmpty(p);
+    defer kr.deinit();
+    const est = alloc.alloc(f64, g.count()) catch return retEmpty(p);
+    defer alloc.free(est);
+    const vr = alloc.alloc(f64, g.count()) catch return retEmpty(p);
+    defer alloc.free(vr);
+    for (0..g.ny) |j| {
+        const lat = g.latAt(j);
+        for (0..g.nx) |i| {
+            const lon = g.lonAt(i);
+            const k = j * g.nx + i;
+            if (wd) |x| {
+                if (!x.w.contains(lon, lat)) {
+                    est[k] = std.math.nan(f64);
+                    vr[k] = std.math.nan(f64);
+                    continue;
+                }
+            }
+            const r = kr.at(lon, lat);
+            est[k] = r.estimate;
+            vr[k] = r.variance;
+        }
+    }
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const el = R.ring_list_newlist(out) orelse return;
+    for (est) |x| {
+        if (std.math.isNan(x)) R.ring_list_addstring(el, "") else R.ring_list_adddouble(el, x);
+    }
+    const vl = R.ring_list_newlist(out) orelse return;
+    for (vr) |x| {
+        if (std.math.isNan(x)) R.ring_list_addstring(vl, "") else R.ring_list_adddouble(vl, x);
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
+// GeoKrigeAt(aLonLatZ, aModel, nLon, nLat) -> [ estimate, variance ]
+fn ring_GeoKrigeAt(p: *anyopaque) callconv(.c) void {
+    const sm = readPoints(p, 1) orelse return retEmpty(p);
+    defer alloc.free(sm);
+    const n = sm.len / 3;
+    if (n < 2 or n > 1200) return retEmpty(p);
+    const v = readVariogram(p, 2) orelse return retEmpty(p);
+    var kr = gi.prepare(alloc, sm, v) catch return retEmpty(p);
+    defer kr.deinit();
+    const r = kr.at(gn(p, 3), gn(p, 4));
+    if (std.math.isNan(r.estimate)) return retEmpty(p);
+    retPair(p, r.estimate, r.variance);
+}
+
+// GeoCrossValidate(aLonLatZ, aModel) -> [ meanError, rmse ]
+fn ring_GeoCrossValidate(p: *anyopaque) callconv(.c) void {
+    const sm = readPoints(p, 1) orelse return retEmpty(p);
+    defer alloc.free(sm);
+    const n = sm.len / 3;
+    if (n < 3 or n > 400) return retEmpty(p);
+    const v = readVariogram(p, 2) orelse return retEmpty(p);
+    var me: f64 = 0;
+    var rmse: f64 = 0;
+    gi.crossValidate(alloc, sm, v, &me, &rmse) catch return retEmpty(p);
+    retPair(p, me, rmse);
+}
+
 const regs = [_]R.Reg{
     .{ .name = "stzenginegeohaversine", .func = ring_Haversine },
     .{ .name = "stzenginegeohaversinemiles", .func = ring_HaversineMiles },
@@ -821,6 +1016,14 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginegeocontour", .func = ring_GeoContour },
     .{ .name = "stzenginegeofieldimage", .func = ring_GeoFieldImage },
     .{ .name = "stzenginegeoreadasciigrid", .func = ring_GeoReadAsciiGrid },
+    // GE7c
+    .{ .name = "stzenginegeoidwfield", .func = ring_GeoIdwField },
+    .{ .name = "stzenginegeovariogram", .func = ring_GeoVariogram },
+    .{ .name = "stzenginegeofitvariogram", .func = ring_GeoFitVariogram },
+    .{ .name = "stzenginegeovariogramat", .func = ring_GeoVariogramAt },
+    .{ .name = "stzenginegeokrigefield", .func = ring_GeoKrigeField },
+    .{ .name = "stzenginegeokrigeat", .func = ring_GeoKrigeAt },
+    .{ .name = "stzenginegeocrossvalidate", .func = ring_GeoCrossValidate },
 };
 
 pub fn registerAll(state: *anyopaque) void {

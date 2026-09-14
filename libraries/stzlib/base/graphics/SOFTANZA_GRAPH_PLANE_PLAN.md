@@ -171,6 +171,7 @@ general-tasks session's file and is routed to them, not fix them here.*
 | DN24 | closed | 118 |
 | DN24b | closed | 120 |
 | GE3 | closed | 124 |
+| GE7c | closed | 130 |
 | GE7b | closed | 129 |
 | GE7a | closed | 128 |
 | GE6 | closed | 127 |
@@ -4431,6 +4432,23 @@ it merely advises: a choropleth needs an equal-area projection; north is up
 unless said otherwise; the map names its source; every value falls in the
 classes; every class colours a region; every region has a value; the data
 fits the paper. `StzCheckGeoMaps()` judges several at once.
+
+## GE7c — INTERPOLATION: IDW, THE VARIOGRAM, KRIGING (2026-09-14, SHIPPED)
+
+**§130 discharges GE7c.** The third spatial-statistics rung: what is the
+value where nobody measured? `stzGeoSamples` holds measurements — a place
+AND a number — and answers three ways. IDW, which needs no model and tells
+you nothing about how wrong it is, but cannot leave the data's range. The
+VARIOGRAM, the diagnostic almost nobody outside geostatistics draws, fitted
+to spherical, exponential or gaussian by sweeping the range and solving the
+two sills exactly at each. And ORDINARY KRIGING, which returns the estimate
+and its VARIANCE together on purpose, from one LU factorisation reused over
+the whole grid. The variance does not depend on the measured values at all —
+multiply every reading by ten and it does not move — so it answers how
+densely the ground was sampled, which is worth its own map. Four rules,
+including a refusal to krige without a fitted curve. The full account is in
+`SOFTANZA_GRAPHICS_PLAN.md` under GE7c; the guard is
+`geo_samples_narrated.ring` and the witness `geo_interp.png`.
 
 ## GE7b — A FIELD: DENSITY, CONTOURS, THE RASTER, THE ESRI GRID (2026-09-14, SHIPPED)
 

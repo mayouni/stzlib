@@ -16879,6 +16879,62 @@ chk("A PLACE ON THE MERIDIAN OF A RING'S WESTERN EXTREME, BEYOND THE RING, IS " 
     NOT StzGeoRingContains([ 0, 0, 4, 0, 4, 4, 0, 4, 0, 0 ], 4, 6) and
     StzGeoRingContains([ 0, 0, 4, 0, 4, 4, 0, 4, 0, 0 ], 2, 2))
 
+sec("-- 130. GE7c: INTERPOLATION -- IDW, the variogram, kriging -------------")
+discharges("GE7c")
+
+# What is the value where nobody measured? geo_samples_narrated.ring carries
+# the full narration; this is the gate's own witness, and its readings are
+# taken from a smooth function THIS FILE writes down, so the error of an
+# interpolation is measured and not admired.
+
+oG7cW = StzGeoFeaturesFromJson(_G7ArdaJson())
+oG7cP = StzGeoPoints([], oG7cW)
+aG7cPl = oG7cP.Sample(60, 20260914)
+aG7cG = []
+for iG7c = 1 to len(aG7cPl) / 2
+	xG7c = aG7cPl[iG7c * 2 - 1]
+	yG7c = aG7cPl[iG7c * 2]
+	aG7cG + xG7c  aG7cG + yG7c  aG7cG + _G7cTruth(xG7c, yG7c)
+next
+oG7cS = StzGeoSamples(aG7cG, oG7cW)
+
+chk("IDW IS EXACT AT A GAUGE AND CANNOT LEAVE THE DATA'S RANGE -- a weighted " +
+    "average of measurements lies between the smallest and the largest, so " +
+    "it will never invent a reading nobody recorded",
+    _G7cIdwHonest(oG7cS, aG7cG))
+aG7cB = oG7cS.Variogram(12, 0)
+aG7cF = oG7cS.FitVariogram(:Best)
+chk("THE VARIOGRAM RISES AND A MODEL IS FITTED TO IT: close gauges agree and " +
+    "distant ones do not, which is what makes interpolation possible at all",
+    aG7cB[1][2] < aG7cB[len(aG7cB)][2] * 0.5 and aG7cF[:sill] > 0 and
+    aG7cF[:range] > 0 and aG7cF[:nugget] >= 0)
+chk("...and the field is smooth by construction, so the fitted NUGGET is " +
+    "small -- the fit reports what the data is, not what it was asked for",
+    aG7cF[:nugget] < (aG7cF[:nugget] + aG7cF[:sill]) * 0.25)
+chk("NEGATIVE: kriging before a variogram is fitted is REFUSED by name -- it " +
+    "reads the range, the sill and the nugget off a curve, and without one " +
+    "it would be a formula applied to points",
+    _G7cRefusesUnfitted(oG7cS))
+oG7cS.FitAndUse(:Best)
+aG7cAt = oG7cS.KrigeAt(aG7cG[1], aG7cG[2])
+chk("KRIGING IS EXACT AT A GAUGE and its variance there is ZERO -- it honours " +
+    "what was actually measured",
+    fabs(aG7cAt[1] - aG7cG[3]) < 0.01 and aG7cAt[2] < 0.01)
+chk("THE KRIGING VARIANCE DOES NOT DEPEND ON THE MEASURED VALUES: multiply " +
+    "every reading by ten and it does not move, because it answers how " +
+    "densely the ground was sampled and nothing else",
+    _G7cVarianceIgnoresValues(oG7cS, oG7cW, aG7cG))
+chk("...and it RISES away from the gauges, which is what makes it the map of " +
+    "where the estimate is guesswork",
+    _G7cVarianceRises(oG7cS, aG7cG))
+chk("AGAINST THE TRUTH THIS SECTION INVENTED, kriging's error is a small " +
+    "part of the field's own spread -- an interpolator that beats knowing " +
+    "nothing, measured and not assumed",
+    _G7cBeatsIgnorance(oG7cS))
+chk("NEGATIVE: a range longer than the window is an ERROR, and all nugget " +
+    "and no sill is a warning -- both are the model confessing, not failing",
+    _G7cRangeTooLong(oG7cS) and _G7cAllNugget(oG7cS))
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go
@@ -19964,6 +20020,103 @@ func _ChTwoRegions
 
 # GE7a helpers
 # GE7b helpers
+# GE7c helpers
+func _G7cTruth pnLon, pnLat
+	return 50 + 30 * exp(-(pow(pnLon - 1.5, 2) + pow(pnLat - 3, 2)) / 6) +
+	            20 * exp(-(pow(pnLon - 3.5, 2) + pow(pnLat - 7.5, 2)) / 5)
+
+func _G7cIdwHonest poS, paG
+	_f_ = poS.IDWField(25, 2)
+	_s_ = _f_.Stats()
+	if _s_[:min] < poS.MinValue() - 0.001  return FALSE  ok
+	if _s_[:max] > poS.MaxValue() + 0.001  return FALSE  ok
+	return fabs(_f_.ValueAt(paG[1], paG[2]) - paG[3]) < 0.5
+
+func _G7cRefusesUnfitted poS
+	_o_ = StzGeoSamples(poS.Samples(), poS.Window())
+	try
+		_o_.KrigeFields(40)
+	catch
+		return StzFindFirst("variogram", cCatchError) > 0
+	done
+	return FALSE
+
+func _G7cVarianceIgnoresValues poS, poW, paG
+	_x_ = []
+	for _i_ = 1 to len(paG) / 3
+		_x_ + paG[_i_ * 3 - 2]
+		_x_ + paG[_i_ * 3 - 1]
+		_x_ + (paG[_i_ * 3] * 10 + 1000)
+	next
+	_o_ = StzGeoSamples(_x_, poW)
+	_o_.SetModel(poS.Model())
+	_a_ = poS.KrigeAt(2.4, 4.1)
+	_b_ = _o_.KrigeAt(2.4, 4.1)
+	if len(_a_) < 2 or len(_b_) < 2  return FALSE  ok
+	return fabs(_a_[2] - _b_[2]) < 0.000001 and fabs(_a_[1] - _b_[1]) > 1
+
+func _G7cVarianceRises poS, paG
+	# at a gauge, and at the place in the window furthest from every gauge
+	_atG_ = poS.KrigeAt(paG[1], paG[2])[2]
+	_far_ = -1  _fx_ = 0  _fy_ = 0
+	for _i_ = 1 to 10
+		for _j_ = 1 to 10
+			_x_ = 0.3 + 4.4 * _i_ / 11
+			_y_ = 0.5 + 9 * _j_ / 11
+			_m_ = 999999
+			for _k_ = 1 to len(paG) / 3
+				_d_ = StzGeoDistanceKm(_x_, _y_, paG[_k_ * 3 - 2], paG[_k_ * 3 - 1])
+				if _d_ < _m_  _m_ = _d_  ok
+			next
+			if _m_ > _far_  _far_ = _m_  _fx_ = _x_  _fy_ = _y_  ok
+		next
+	next
+	# THE THRESHOLDS ARE MEASURED, NOT PICKED. With 60 gauges over a window
+	# 555 by 1111 km and a fitted range of 351 km, NOWHERE inside is far
+	# from data: the emptiest interior place is 94 km from its nearest
+	# gauge and its variance is 0.24, not the "> 1" the first version of
+	# this assertion demanded. Outside the window, where there is nothing
+	# to lean on, it is 42. Those three numbers are the claim.
+	_atGap_ = poS.KrigeAt(_fx_, _fy_)[2]
+	_atOut_ = poS.KrigeAt(7, 5)[2]
+	return _atG_ < 0.01 and _atGap_ > 0.1 and _atOut_ > _atGap_ * 10
+
+func _G7cBeatsIgnorance poS
+	_e_ = poS.KrigeFields(25)[1]
+	_s_ = 0  _n_ = 0
+	for _i_ = 1 to 12
+		for _j_ = 1 to 12
+			_x_ = 0.3 + 4.4 * _i_ / 13
+			_y_ = 0.5 + 9 * _j_ / 13
+			_v_ = _e_.ValueAt(_x_, _y_)
+			if NOT isNumber(_v_)  loop  ok
+			_s_ += fabs(_v_ - _G7cTruth(_x_, _y_))
+			_n_++
+		next
+	next
+	if _n_ = 0  return FALSE  ok
+	return (_s_ / _n_) < (poS.MaxValue() - poS.MinValue()) * 0.2
+
+func _G7cRangeTooLong poS
+	_o_ = StzGeoSamples(poS.Samples(), poS.Window())
+	_o_.SetModel([ :model = "spherical", :nugget = 0, :sill = 10, :range = 99999, :rss = 0 ])
+	for _f_ in _o_.Findings()
+		if _f_[:rule] = "the_range_is_inside_the_data" and _f_[:severity] = "error"
+			return NOT _o_.IsSound()
+		ok
+	next
+	return FALSE
+
+func _G7cAllNugget poS
+	_o_ = StzGeoSamples(poS.Samples(), poS.Window())
+	_o_.SetModel([ :model = "spherical", :nugget = 9, :sill = 1, :range = 200, :rss = 0 ])
+	for _f_ in _o_.Findings()
+		if _f_[:rule] = "the_variogram_found_structure" and _f_[:severity] = "warning"
+			return TRUE
+		ok
+	next
+	return FALSE
+
 func _G7bCone
 	_a_ = []
 	for _j_ = 0 to 100
