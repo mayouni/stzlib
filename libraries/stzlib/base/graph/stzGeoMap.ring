@@ -281,6 +281,9 @@ class stzGeoMap from stzObject
 	@aEdges = []
 	@aPalette = []
 	@cSource = ""
+	@aGroups = []
+	@aGroupOf = []
+	@aUnresolved = []
 	@cNoData = "#E8E8E8"
 	@bBinned = FALSE
 	@bLabelled = FALSE
@@ -398,12 +401,114 @@ class stzGeoMap from stzObject
 			This.SetPaper(pnX0, pnY0, pnX1, pnY1)
 			return This
 
+	# THE COLOUR OF A REGION NO CLASS AND NO GROUP CLAIMS. It is a real
+	# statement -- "this one is not in the data" -- and a caller drawing a
+	# bloc map wants it quieter than the default, because on that sheet the
+	# unclaimed countries are most of the world.
+	def SetNoData(pColour)
+		@cNoData = pColour
+
+		def SetNoDataQ(pColour)
+			This.SetNoData(pColour)
+			return This
+
 	def SetSource(pcSource)
 		@cSource = "" + pcSource
 
 		def SetSourceQ(pcSource)
 			This.SetSource(pcSource)
 			return This
+
+	#-- MEMBERSHIP, WHICH IS NOT A QUANTITY --------------------------------
+	#
+	# A choropleth says HOW MUCH. This says WHICH ONE OF, and the two are
+	# different maps that happen to share a renderer. There is no scale, no
+	# ramp and no order: G7 is not more than BRICS, it is other than BRICS.
+	# So the colours are named by the caller rather than taken from a ramp,
+	# the legend is a KEY of names rather than a row of ranges, and nothing
+	# here interpolates between two groups.
+	#
+	# THE MEMBERS ARE NAMED, NOT INDEXED. A bloc is a list of country names,
+	# which is how anybody actually has one; the map resolves them through
+	# its own features. A name that matches nothing is REPORTED and never
+	# dropped, because a map of eleven members that silently draws ten is
+	# wrong about the thing it exists to show -- GE4's whole doctrine, and
+	# the reason StzGeoAtlas refuses fuzzy matching.
+	#
+	# paGroups is [ [ label, colour, [ member names ] ], ... ]. A country in
+	# two groups belongs to the FIRST that claims it, and that is reported
+	# too: overlapping blocs are a fact a reader must be told, not a tie for
+	# this file to break quietly.
+	def SetGroups(paGroups)
+		if NOT isList(paGroups) or len(paGroups) = 0
+			stzraise("stzGeoMap.SetGroups: the groups are " +
+				"[ [ label, colour, [ names ] ], ... ] -- a bloc is a list of " +
+				"country names, which is how anybody actually has one.")
+		ok
+		_n_ = @oF.Count()
+		@aGroups = []
+		@aGroupOf = []
+		@aUnresolved = []
+		for _i_ = 1 to _n_  @aGroupOf + 0  next
+		for _g_ = 1 to len(paGroups)
+			_row_ = paGroups[_g_]
+			if NOT (isList(_row_) and len(_row_) >= 3)
+				stzraise("stzGeoMap.SetGroups: group " + _g_ + " is not " +
+					"[ label, colour, [ names ] ].")
+			ok
+			@aGroups + [ :label = "" + _row_[1], :colour = _row_[2], :members = _row_[3],
+			             :found = 0, :taken = 0 ]
+			for _k_ = 1 to len(_row_[3])
+				_c_ = "" + _row_[3][_k_]
+				_i_ = @oF.IndexOfName(_c_)
+				if _i_ < 1
+					@aUnresolved + [ :group = "" + _row_[1], :name = _c_ ]
+					loop
+				ok
+				@aGroups[_g_][:found]++
+				if @aGroupOf[_i_] = 0
+					@aGroupOf[_i_] = _g_
+				else
+					@aGroups[_g_][:taken]++
+				ok
+			next
+		next
+
+		def SetGroupsQ(paGroups)
+			This.SetGroups(paGroups)
+			return This
+
+	def Groups()
+		return @aGroups
+
+	# which group claimed this feature, or 0 for none
+	def GroupOf(pnI)
+		if len(@aGroupOf) < pnI  return 0  ok
+		return @aGroupOf[pnI]
+
+	# [ [ :group, :name ], ... ] -- every member name that matched no feature
+	def UnresolvedMembers()
+		return @aUnresolved
+
+	def IsGrouped()
+		return len(@aGroups) > 0
+
+	# the key a membership map owes: one swatch and one label per group, with
+	# the count it actually DREW rather than the count it was handed
+	def DrawGroupKeyOn(poCanvas, poFont, pnSize, pnX, pnY, pInk)
+		if len(@aGroups) = 0  return pnY  ok
+		_sz_ = pnSize
+		if _sz_ < This.LabelFloor()  _sz_ = This.LabelFloor()  ok
+		_y_ = pnY
+		for _g_ = 1 to len(@aGroups)
+			poCanvas.AddRectQ(pnX, _y_ - _sz_ + 2, _sz_ + 4, _sz_).
+				FillQ(@aGroups[_g_][:colour]).Stroke("#FFFFFF", 0.8)
+			poCanvas.SetFontQ(poFont, _sz_).
+				AddTextQ(@aGroups[_g_][:label], pnX + _sz_ + 12, _y_).Fill(pInk)
+			_y_ += _sz_ + 10
+		next
+		poCanvas.Flush()
+		return _y_
 
 	def ClassOf(pnI)
 		_v_ = This.ValueOf(pnI)
@@ -416,6 +521,14 @@ class stzGeoMap from stzObject
 		return 0
 
 	def ColourOf(pnI)
+		# a group is MEMBERSHIP and outranks any numeric class: a map cannot
+		# be both "which bloc" and "how much" at once, and a caller who set
+		# groups meant the first
+		if len(@aGroups) > 0
+			_g_ = This.GroupOf(pnI)
+			if _g_ < 1  return @cNoData  ok
+			return @aGroups[_g_][:colour]
+		ok
 		_c_ = This.ClassOf(pnI)
 		if _c_ < 1  return @cNoData  ok
 		return @aPalette[_c_]
@@ -929,6 +1042,12 @@ class stzGeoMap from stzObject
 		for _k_ = 1 to _nF_
 			_i_ = _ord_[_k_]
 			if NOT _aOk_[_i_]  loop  ok
+			# A MEMBERSHIP MAP NAMES ITS MEMBERS AND NOTHING ELSE. Where
+			# groups are set, the map is ABOUT them: labelling the other
+			# hundred and fifty-nine countries of a world sheet would bury
+			# the eighteen it exists to show. A caller who wants every
+			# region named sets no groups.
+			if len(@aGroups) > 0 and This.GroupOf(_i_) = 0  loop  ok
 			# A REGION IS LABELLED IN EXACTLY ONE PLACE. What an inset has
 			# taken, the parent leaves alone -- otherwise the name appears
 			# twice, or the parent reports as DROPPED a region that is in
@@ -1913,6 +2032,53 @@ class stzGeoMap from stzObject
 					"' does not preserve area -- the picture argues against its own legend" ]
 		ok
 
+		# 1a-bis. A MEMBERSHIP MAP THAT LOST A MEMBER IS WRONG ABOUT THE
+		# ONE THING IT SHOWS. "BRICS -- 11 members" over ten painted
+		# countries is a false caption, and the failure is silent: the
+		# missing one just looks like everybody else. GE4 refuses fuzzy
+		# matching for this reason and this is the same refusal, enforced
+		# where the names are finally used.
+		if len(@aUnresolved) > 0
+			_who_ = @aUnresolved[1][:name]
+			_a_ + [ :rule = "every_named_member_was_found",
+				:subject = _cM_, :where = "" + len(@aUnresolved) + " name(s), from '" + _who_ + "'",
+				:severity = "error",
+				:message = "" + len(@aUnresolved) + " named member(s) matched no feature in " +
+					"this map, beginning with '" + _who_ + "' -- the map draws fewer " +
+					"members than its own key claims, and nothing on the sheet says so" ]
+		ok
+
+		# 1a-ter. TWO BLOCS CANNOT BOTH OWN A COUNTRY, and where a caller's
+		# lists overlap the first claims it. That is a real fact about the
+		# data -- a country in two blocs -- and the reader is owed it rather
+		# than a colour chosen by list order.
+		_dup_ = 0
+		for _g_ = 1 to len(@aGroups)  _dup_ += @aGroups[_g_][:taken]  next
+		if _dup_ > 0
+			_a_ + [ :rule = "a_country_belongs_to_one_group",
+				:subject = _cM_, :where = "" + _dup_ + " overlap(s)",
+				:severity = "warning",
+				:message = "" + _dup_ + " country(ies) are named in more than one group; " +
+					"each is drawn in the colour of the FIRST that claims it, which is " +
+					"list order and not a fact about the world" ]
+		ok
+
+		# 1a-quater. AND THE AREA RULE REACHES A BLOC MAP HARDEST OF ALL.
+		# A choropleth at least has a legend a reader can check a colour
+		# against. A membership map's whole rhetorical content is HOW MUCH
+		# OF THE WORLD each group covers -- that is the only quantity on the
+		# sheet, and it is read straight off the painted area. On Mercator,
+		# Russia and Canada are three times the ground they have, so the
+		# picture makes an argument about size that the projection invented.
+		if len(@aGroups) > 0 and NOT @oP.IsEqualArea()
+			_a_ + [ :rule = "a_membership_map_needs_an_equal_area_projection",
+				:subject = _cM_, :where = @oP.Name(), :severity = "error",
+				:message = "the regions are coloured by which group they belong to and '" +
+					@oP.Name() + "' does not preserve area -- the only quantity a bloc " +
+					"map carries is how much of the world each bloc covers, and this " +
+					"projection invents it" ]
+		ok
+
 		# 1b. AND THE SAME REASONING REACHES THE BINS. A hexagon is a cell
 		# of the PAPER; it stands for an equal area on the ground only where
 		# the projection preserves area. On any other, a bin near the pole
@@ -1936,6 +2102,13 @@ class stzGeoMap from stzObject
 			_nOut_ = 0
 			_cWho_ = ""
 			for _i_ = 1 to _nF_
+				# A RULE MUST JUDGE WHAT WAS DRAWN. Once a membership map
+				# labels only its members, this was accusing the other
+				# hundred and fifty-nine countries of a world sheet of
+				# mis-placed labels they never had -- a warning about work
+				# the map did not do, which is the kind that gets ignored
+				# and then hides a real one.
+				if len(@aGroups) > 0 and This.GroupOf(_i_) = 0  loop  ok
 				_g_ = This.LabelPointOf(_i_)
 				if len(_g_) < 2  loop  ok
 				if @oF.IndexAt(_g_[1], _g_[2]) = _i_  loop  ok

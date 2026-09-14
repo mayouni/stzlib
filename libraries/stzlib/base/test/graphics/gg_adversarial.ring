@@ -16935,6 +16935,42 @@ chk("NEGATIVE: a range longer than the window is an ERROR, and all nugget " +
     "and no sill is a warning -- both are the model confessing, not failing",
     _G7cRangeTooLong(oG7cS) and _G7cAllNugget(oG7cS))
 
+sec("-- 131. GE2b: MEMBERSHIP IS NOT A QUANTITY ----------------------------")
+discharges("GE2b")
+
+# A choropleth says HOW MUCH; a bloc map says WHICH ONE OF. The Principal
+# handed over a G7-vs-BRICS infographic and the plane had no way to draw it:
+# every colouring it owned was a ramp over a number. geo_map_narrated.ring
+# carries the full narration; this is the gate's own witness.
+
+oG2bF = StzGeoFeaturesFromJson(read("fixtures/two_countries.geojson"))
+oG2bM = StzGeoMap(new stzGeoProjection(:ConicEqualArea), oG2bF)
+oG2bM.Projection().FitToFeatures(oG2bF, 300, 300, 10)
+oG2bM.SetSource("Invented, for a gate")
+oG2bM.SetNoData("#CCCCCC")
+oG2bM.SetGroups([ [ "Blue bloc", "#1B3A73", [ oG2bF.NameOf(1) ] ] ])
+oG2bM.SetValuesQ([ 100, 200 ]).SetClasses([ 0, 150, 300 ])
+chk("MEMBERSHIP OUTRANKS ANY NUMERIC CLASS: a region takes its group's " +
+    "colour, one in no group takes the no-data colour, and setting values " +
+    "afterwards changes neither -- a map cannot be 'which bloc' and 'how " +
+    "much' at once",
+    oG2bM.ColourOf(1) = "#1B3A73" and oG2bM.ColourOf(2) = "#CCCCCC")
+chk("A MEMBER NAME THAT MATCHES NOTHING IS AN ERROR -- a key claiming three " +
+    "members over two painted countries is a false caption, and the failure " +
+    "is silent: the missing one just looks like everybody else",
+    _G2bUnresolved(oG2bF))
+chk("A COUNTRY NAMED IN TWO BLOCS is drawn in the FIRST's colour and the " +
+    "overlap is reported: list order is not a fact about the world",
+    _G2bOverlap(oG2bF))
+chk("A MEMBERSHIP MAP ON A NON-EQUAL-AREA PROJECTION IS AN ERROR, for a " +
+    "harder reason than a choropleth's -- a bloc map's only quantity is how " +
+    "much of the world each bloc covers, and it is read straight off the " +
+    "painted area with no legend to check it against",
+    _G2bMercator(oG2bF) and
+    NOT _G2bHas(oG2bM.Findings(), "a_membership_map_needs_an_equal_area_projection", "error"))
+chk("NEGATIVE: groups that are not [ label, colour, names ] are refused BY NAME",
+    _G2bRefuses(oG2bF))
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go
@@ -20021,6 +20057,47 @@ func _ChTwoRegions
 # GE7a helpers
 # GE7b helpers
 # GE7c helpers
+# GE2b helpers
+func _G2bMap poF, pcKind
+	_m_ = StzGeoMap(new stzGeoProjection(pcKind), poF)
+	_m_.Projection().FitToFeatures(poF, 300, 300, 10)
+	_m_.SetSource("Invented, for a gate")
+	return _m_
+
+func _G2bHas paF, pcRule, pcSev
+	for _i_ = 1 to len(paF)
+		if paF[_i_][:rule] = pcRule and paF[_i_][:severity] = pcSev  return TRUE  ok
+	next
+	return FALSE
+
+func _G2bUnresolved poF
+	_m_ = _G2bMap(poF, :ConicEqualArea)
+	_m_.SetGroups([ [ "Three", "#C0202A", [ poF.NameOf(1), poF.NameOf(2), "Freedonia" ] ] ])
+	if len(_m_.UnresolvedMembers()) != 1  return FALSE  ok
+	if _m_.UnresolvedMembers()[1][:name] != "Freedonia"  return FALSE  ok
+	return _G2bHas(_m_.Findings(), "every_named_member_was_found", "error")
+
+func _G2bOverlap poF
+	_m_ = _G2bMap(poF, :ConicEqualArea)
+	_m_.SetGroups([ [ "First", "#111111", [ poF.NameOf(1) ] ],
+	                [ "Second", "#222222", [ poF.NameOf(1), poF.NameOf(2) ] ] ])
+	if _m_.GroupOf(1) != 1 or _m_.GroupOf(2) != 2  return FALSE  ok
+	return _G2bHas(_m_.Findings(), "a_country_belongs_to_one_group", "warning")
+
+func _G2bMercator poF
+	_m_ = _G2bMap(poF, :Mercator)
+	_m_.SetGroups([ [ "Blue", "#1B3A73", [ poF.NameOf(1) ] ] ])
+	return _G2bHas(_m_.Findings(), "a_membership_map_needs_an_equal_area_projection", "error")
+
+func _G2bRefuses poF
+	_m_ = _G2bMap(poF, :ConicEqualArea)
+	try
+		_m_.SetGroups([ "not a row" ])
+	catch
+		return StzFindFirst("label, colour", cCatchError) > 0
+	done
+	return FALSE
+
 func _G7cTruth pnLon, pnLat
 	return 50 + 30 * exp(-(pow(pnLon - 1.5, 2) + pow(pnLat - 3, 2)) / 6) +
 	            20 * exp(-(pow(pnLon - 3.5, 2) + pow(pnLat - 7.5, 2)) / 5)
