@@ -1105,17 +1105,11 @@ class stzGeoMap from stzObject
 		_sz_ = pnSize
 		if _sz_ < This.LabelFloor()  _sz_ = This.LabelFloor()  ok
 		This._ResolveInsets()
-		This._BuildLandGrid()
-		# the outlines, projected and thinned ONCE. Every anchor search and
-		# every number-against-the-edge search reads them, and projecting a
-		# department's two thousand points per candidate is the shape of
-		# cost this file has paid before.
+		# the outlines, projected and thinned ONCE, through the one builder
+		# DrawNamedLabelOn also uses -- every anchor search reads them
 		@aRingCache = []
 		@aCentroidCache = []
-		for _i_ = 1 to _nF_
-			@aRingCache + This._SimplePaperRingOf(_i_)
-			@aCentroidCache + This.PaperCentreOf(_i_)
-		next
+		This._EnsureLabelCaches()
 
 		# --- 1. every name as a BOX, and where its region sits ------------
 		_aW_ = []  _aH_ = []  _aX_ = []  _aY_ = []  _aArea_ = []  _aOk_ = []
@@ -2291,6 +2285,58 @@ class stzGeoMap from stzObject
 	# under the text -- which is what every map library does and what the
 	# colour system cannot answer, since its question is "this ink on THAT
 	# background" and here there is no one background.
+	# ONE REGION'S LABEL, PLACED BY THE LABEL ENGINE AND NOT BY THE CALLER.
+	#
+	# The GE2c sheet wanted a single named country to show text over colour,
+	# and it wrote the label itself: it projected Niger's label point and
+	# nudged the text left by a hand-picked 26 pixels to centre it. Twenty-
+	# six was wrong -- the run is about seventy-eight pixels wide -- so the
+	# word started at x 642 while Niger begins at 650, and "Niger 19.46%"
+	# was printed across MALI, which on that sheet is hatched as no data.
+	# The Principal read exactly what the picture said: Niger drawn as a
+	# region with no data, next to its own number.
+	#
+	# The engine already answers this. _FitInside searches a region's
+	# anchors for a box that lies wholly INSIDE it -- the same test that
+	# stopped "Zinder" being written into Maradi -- and the caller had no
+	# business having a second opinion about where a label goes. It is the
+	# same defect as the hatch, one file later: a thing defined twice, and
+	# the second definition wrong.
+	#
+	# IT RETURNS FALSE AND DRAWS NOTHING rather than placing a label that
+	# does not fit. A name that will not fit inside its region lands on a
+	# neighbour, and a label on the wrong region is worse than no label --
+	# it is a false statement, where silence is only a missing one.
+	def DrawNamedLabelOn(poCanvas, poFont, pnSize, pnI, pcText, pInk, pHalo, pnR)
+		if pnI < 1 or pnI > @oF.Count()  return FALSE  ok
+		This._EnsureLabelCaches()
+		_t_ = "" + pcText
+		_w_ = poFont.WidthOf(_t_, pnSize)
+		_bx_ = This._FitInside(_w_, pnSize, pnI, [])
+		if len(_bx_) != 4  return FALSE  ok
+		# the baseline at eight tenths of the box, so the descenders stay
+		# inside the box _BoxInRegion just certified
+		This.DrawHaloTextOn(poCanvas, poFont, pnSize, _t_,
+			_bx_[1], _bx_[2] + pnSize * 0.8, pInk, pHalo, pnR)
+		return TRUE
+
+	# the projected outlines and centres every anchor search reads. Built
+	# ONCE -- projecting a region's two thousand points per candidate is a
+	# shape of cost this file has paid before -- and built in ONE place, so
+	# a caller who wants a single label does not have to know the label
+	# engine's setup in order to get the label engine's placement.
+	def _EnsureLabelCaches()
+		if len(@aRingCache) = @oF.Count() and len(@aCentroidCache) = @oF.Count()
+			return
+		ok
+		This._BuildLandGrid()
+		@aRingCache = []
+		@aCentroidCache = []
+		for _i_ = 1 to @oF.Count()
+			@aRingCache + This._SimplePaperRingOf(_i_)
+			@aCentroidCache + This.PaperCentreOf(_i_)
+		next
+
 	def DrawHaloTextOn(poCanvas, poFont, pnSize, pcText, pnX, pnY, pInk, pHalo, pnR)
 		_off_ = [ [ -1, 0 ], [ 1, 0 ], [ 0, -1 ], [ 0, 1 ],
 		          [ -0.7, -0.7 ], [ 0.7, -0.7 ], [ -0.7, 0.7 ], [ 0.7, 0.7 ] ]

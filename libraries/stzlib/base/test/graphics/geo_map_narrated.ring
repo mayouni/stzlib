@@ -585,6 +585,49 @@ chk("A LABEL OVER COLOUR GETS A HALO -- NINE runs of the same word, eight " +
     len(StzFindCS("<path", oShC4.ToSVG(), TRUE)) = 9 and
     len(StzFindCS("<path", oShC5.ToSVG(), TRUE)) = 1)
 
+# ...AND THE MAP PLACES THAT LABEL, NOT THE CALLER.
+#
+# The GE2c sheet placed its one halo label itself: it projected Niger's
+# label point and nudged the text left by a hand-picked 26 pixels to centre
+# it. The run is about 78 pixels wide, so it started at x 642 while Niger
+# begins at 650, and "Niger 19.46%" was printed across MALI -- which on
+# that sheet is hatched as no data. The Principal read what the picture
+# said: "niger is represented on the map as a no-data region although it
+# has label and value with it". The map was right and the label was a lie
+# laid over it.
+oLbC = new stzCanvas(400, 400)
+oLbC.SetBackground("#FFFFFF")
+bLbFits = oShM.DrawNamedLabelOn(oLbC, oFont, 11, 1, "Hi", "#FFFFFF", "#000000", 1.4)
+? "   a two-letter label inside region 1: " + bLbFits
+chk("A LABEL IS PLACED BY THE ENGINE, which searches the region's anchors " +
+    "for a box lying wholly INSIDE it -- the same test that stopped " +
+    "'Zinder' being written into Maradi",
+    bLbFits and len(StzFindCS("<path", oLbC.ToSVG(), TRUE)) = 9 and
+    _LabelInsideRegion(oShM, oLbC, 1))
+oLbD = new stzCanvas(400, 400)
+oLbD.SetBackground("#FFFFFF")
+bLbWide = oShM.DrawNamedLabelOn(oLbD, oFont, 11,
+    1, "a name far wider than any region on this paper", "#FFFFFF", "#000000", 1.4)
+chk("NEGATIVE: A LABEL THAT WILL NOT FIT IS NOT DRAWN AT ALL, and the " +
+    "caller is told. A name too wide for its region lands on a NEIGHBOUR, " +
+    "and a label on the wrong region is worse than no label -- it is a " +
+    "false statement where silence is only a missing one",
+    NOT bLbWide and len(StzFindCS("<path", oLbD.ToSVG(), TRUE)) = 0)
+
+# AND THE INSTRUMENT BITES. The assertion above is only worth its ink if
+# _LabelInsideRegion can FAIL, so it is handed the exact mistake it exists
+# to catch: a label drawn by hand, nudged sideways off its own region the
+# way the sheet's 26 pixels nudged "Niger" onto Mali.
+oLbE = new stzCanvas(400, 400)
+oLbE.SetBackground("#FFFFFF")
+aLbB = oShM.PaperBoxOf(1)
+oShM.DrawHaloTextOn(oLbE, oFont, 11, "Hi",
+    aLbB[1] - 40, (aLbB[2] + aLbB[4]) / 2, "#FFFFFF", "#000000", 1.4)
+chk("NEGATIVE, ON THE INSTRUMENT ITSELF: a label placed by hand FORTY " +
+    "PIXELS off its region is caught -- which is what makes the positive " +
+    "above a measurement rather than a coincidence",
+    NOT _LabelInsideRegion(oShM, oLbE, 1))
+
 ? "-- 9g. NO DATA IS A MARK, ON THE MAP AND IN THE LEGEND --"
 # The Principal read the first sheet and found two things: "there is no no
 # data illustrated in the map you made, and its rectangle in the legend is
@@ -1142,6 +1185,84 @@ func _IdentIsClean pcJson
 	if StzFindFirst("--", _c_) > 0  return FALSE  ok
 	if StzRight(_c_, 1) = "-"  return FALSE  ok
 	return len(_c_) > 4
+
+# EVERY GLYPH OF THE LABEL INSIDE THE REGION'S OWN PAPER BOX, read out of
+# the SVG. The box is the loose test -- a region is not its bounding box --
+# but it is the one that catches the defect that was here: a label starting
+# eight pixels to the left of the country it names.
+func _LabelInsideRegion poMap, poCanvas, pnI
+	_b_ = poMap.PaperBoxOf(pnI)
+	if len(_b_) != 4  return FALSE  ok
+	_a_ = StzSplit(poCanvas.ToSVG(), "<path d=" + char(34))
+	_seen_ = 0
+	for _k_ = 2 to len(_a_)
+		_d_ = StzSplit(_a_[_k_], char(34))[1]
+		_nums_ = _GeoNumsIn(_d_)
+		if len(_nums_) < 6  loop  ok
+		_seen_++
+		_i_ = 1
+		while _i_ + 1 <= len(_nums_)
+			if _nums_[_i_] < _b_[1] - 0.5 or _nums_[_i_] > _b_[3] + 0.5 or
+			   _nums_[_i_ + 1] < _b_[2] - 0.5 or _nums_[_i_ + 1] > _b_[4] + 0.5
+				? "   a glyph point at " + _nums_[_i_] + "," + _nums_[_i_ + 1] +
+				  " is OUTSIDE the region's box " + _b_[1] + ".." + _b_[3]
+				return FALSE
+			ok
+			_i_ += 2
+		end
+	next
+	return _seen_ > 0
+
+# THE NUMBERS IN A PATH'S d ATTRIBUTE. Two things in SVG's grammar make a
+# naive character scan wrong, and both were met here: "1.5.5" is TWO numbers
+# (a second dot begins a new one), and "10-4" is two as well (a minus is a
+# separator when it is not leading). A scanner that missed either handed
+# Ring an invalid numeric string and raised R41 inside the assertion.
+func _GeoNumsIn pcD
+	_o_ = []
+	_cur_ = ""
+	_dot_ = FALSE
+	_n_ = len(pcD)
+	for _k_ = 1 to _n_
+		# ASCII CODES, NOT STRING COMPARISON. Ring raises R41 on
+		# `"5" >= "0"` -- it reads both sides as numbers and "M" is not one.
+		# stzGeoAtlas learned this, IdentOf learned it again, and this
+		# scanner made it three: the trap is invisible until a non-digit
+		# arrives, and every test string in a hurry is digits.
+		_ch_ = pcD[_k_]
+		_a_ = ascii(_ch_)
+		if _a_ >= 48 and _a_ <= 57
+			_cur_ += _ch_
+			loop
+		ok
+		if _ch_ = "."
+			if _dot_
+				_o_ = _GeoPushNum(_o_, _cur_)
+				_cur_ = "0."
+			but _cur_ = "" or _cur_ = "-"
+				_cur_ += "0."
+			else
+				_cur_ += "."
+			ok
+			_dot_ = TRUE
+			loop
+		ok
+		if _ch_ = "-"
+			_o_ = _GeoPushNum(_o_, _cur_)
+			_cur_ = "-"
+			_dot_ = FALSE
+			loop
+		ok
+		_o_ = _GeoPushNum(_o_, _cur_)
+		_cur_ = ""
+		_dot_ = FALSE
+	next
+	return _GeoPushNum(_o_, _cur_)
+
+func _GeoPushNum paO, pcCur
+	if pcCur = "" or pcCur = "-" or pcCur = "0." or pcCur = "-0."  return paO  ok
+	paO + (0 + pcCur)
+	return paO
 
 func _NHatchLines paXY, nSp
 	_c_ = new stzCanvas(300, 300)

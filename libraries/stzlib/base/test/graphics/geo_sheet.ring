@@ -114,16 +114,46 @@ for m = 1 to 2
 	nEnd = oM.DrawRampLegendOn(oC, oFont, 13, 330, nY0 + 452, 560, 22, cInk)
 
 	if m = 2
-		# a named country, with a halo, to show text over colour
-		k = oW.IndexOfName("Niger")
-		if k > 0
-			g = oM.LabelPointOf(k)
-			q = oP.Project(g[1], g[2])
-			if len(q) = 2
-				oM.DrawHaloTextOn(oC, oFont, 13, "Niger  " + StzFactNumText(aVals[k]) + "%",
-					q[1] - 26, q[2], "#FFFFFF", "#33000088", 1.4)
+		# A NAMED COUNTRY, WITH A HALO, TO SHOW TEXT OVER COLOUR -- and the
+		# LABEL ENGINE places it, not this file.
+		#
+		# This file used to place it: it projected Niger's label point and
+		# nudged the text left by a hand-picked 26 pixels. The run is about
+		# seventy-eight pixels wide, so it started at x 642 while Niger
+		# begins at 650, and "Niger 19.46%" was printed across MALI -- which
+		# on this sheet is hatched as no data. The Principal read what the
+		# picture actually said: Niger shown as a region with no data, next
+		# to its own number. A drawing file has no business holding a second
+		# opinion about where a label goes when the map holds one.
+		# THE CALLER PROPOSES AND THE ENGINE DISPOSES. The first country
+		# tried here was Niger, and the engine refused it: the run is 78
+		# pixels wide and Niger is 36 pixels of paper on a world sheet, so
+		# no placement puts the text inside its own borders. That refusal
+		# is the whole point -- it is what the hand-placed version ignored
+		# when it spilled the label onto Mali. So the sheet offers the
+		# selected countries in turn and takes the first the engine accepts.
+		# Every selected country that its own borders can hold a label
+		# inside. Name AND value where the shape allows it, the name alone
+		# where it does not -- and nothing at all where even the name will
+		# not fit, because a country 30 pixels wide gets a label only by
+		# taking its neighbour's ground.
+		aHi = oM.Highlighted()
+		nBoth = 0
+		nName = 0
+		for h = 1 to len(aHi)
+			j = aHi[h]
+			if oM.DrawNamedLabelOn(oC, oFont, 13, j,
+				oW.NameOf(j) + "  " + StzFactNumText(aVals[j]) + "%",
+				"#FFFFFF", "#33000088", 1.4)
+				nBoth++
+			but oM.DrawNamedLabelOn(oC, oFont, 13, j, oW.NameOf(j),
+				"#FFFFFF", "#33000088", 1.4)
+				nName++
 			ok
-		ok
+		next
+		? "   of the " + len(aHi) + " selected countries, " + nBoth +
+			" can hold a name and its value, " + nName + " the name alone, " +
+			"and " + (len(aHi) - nBoth - nName) + " neither"
 		# UNDER the legend, not beside it: the ramp ends in an open-top
 		# arrow and a sentence set level with it runs into the point
 		oC.SetFontQ(oFont, 13).AddTextQ("" + len(oM.Highlighted()) + " countries fall in the " +
