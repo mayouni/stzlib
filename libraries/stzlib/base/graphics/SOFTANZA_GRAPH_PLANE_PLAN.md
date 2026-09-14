@@ -171,6 +171,7 @@ general-tasks session's file and is routed to them, not fix them here.*
 | DN24 | closed | 118 |
 | DN24b | closed | 120 |
 | GE2b | closed | 131 |
+| GE2c | closed | 132 |
 | GE3 | closed | 124 |
 | GE7c | closed | 130 |
 | GE7b | closed | 129 |
@@ -4439,6 +4440,25 @@ projection for a *harder* reason than a choropleth does: a choropleth has a
 legend a reader can check a colour against, while a bloc map's only quantity
 is how much of the world each bloc covers, and it is read straight off the
 painted area. Witness `geo_blocs.png`; the narration is the membership section of `geo_map_narrated.ring` (the § notation belongs to the gate suite, and using it for a narrated guard's own banner is what the plan checker caught here).
+
+## GE2c — THE SHEET A READER BELIEVES (2026-09-14, SHIPPED)
+
+**§132 discharges GE2c.** The Principal handed over two frames of an Our
+World in Data map and asked for that clarity. Four things the good
+statistical maps do: DARK HAIRLINE BORDERS, not white, because a white
+border between two pale classes erases the boundary where the map is working;
+a RAMP LEGEND with the numbers at the JOINS and a hatched no-data swatch, so
+"not measured" is visibly not a value and the top class ends in an arrow
+rather than a box it has no right to; a SELECTION THAT OUTLINES rather than
+recolours, since recolouring destroys the one thing the map encodes, framed
+in the legend and outlined on the map as one gesture; and a HALO on text over
+colour, because a name on a choropleth has no ONE background for the colour
+systems contract to answer against. Under them, SetInteractive gives every
+region an SVG id a script can address and a class a stylesheet can hover —
+the diagram planes DN3b mechanism, on the surface that wants it most. Text
+reaches the SVG as GLYPH OUTLINES, so meaning travels in the identities and
+never in the words: a tooltip is driven from the id. Witness
+`geo_sheet.png` and `geo_sheet.svg`.
 
 ## GE3 — WHAT THE GATE OWES A MAP (2026-09-12, SHIPPED)
 

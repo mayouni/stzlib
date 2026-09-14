@@ -483,6 +483,107 @@ chk("the key is a row of NAMES with their swatches, and it says where it ended",
 chk("NEGATIVE: groups that are not [ label, colour, names ] are refused BY NAME",
     _RefusesGroups(oGrF))
 
+? "-- 9f. THE SHEET A READER BELIEVES, AND ITS INTERACTIVE LAYER --"
+# The Principal handed over two frames of an Our World in Data map and asked
+# for that clarity. Four things the good statistical maps do, and one thing
+# under them: every region carries its own identity into the SVG, which is
+# what an interactive layer is made of.
+oShF = StzGeoFeaturesFromJson(read("fixtures/two_countries.geojson"))
+oShM = StzGeoMap(new stzGeoProjection(:ConicEqualArea), oShF)
+oShM.Projection().FitToFeatures(oShF, 300, 300, 10)
+oShM.SetSource("Invented, for a guard")
+oShM.SetValuesQ([ 3, 40 ]).SetClassesQ([ 0, 10, 50 ])
+oShM.SetRamp(:YlOrRd)
+
+? "   " + oShF.NameOf(1) + " takes the id " + oShM.IdentOf(1)
+chk("A REGION'S IDENT IS ITS NAME, usable as an SVG id: lowercase, and " +
+    "anything that is not a letter or a digit becomes one hyphen",
+    StzLeft(oShM.IdentOf(1), 4) = "geo-" and
+    StzFindFirst(" ", oShM.IdentOf(1)) = 0 and
+    StzFindFirst("--", oShM.IdentOf(1)) = 0)
+chk("...and an accented or punctuated name still gives a usable one, " +
+    "because the bytes that are not a-z0-9 collapse to a single hyphen",
+    _IdentIsClean(_NamedJson("Cote d'Ivoire")) and
+    _IdentIsClean(_NamedJson("Sao Tome & Principe")))
+
+oShC1 = new stzCanvas(400, 400)
+oShC1.SetBackground("#FFFFFF")
+oShM.SetInteractive(FALSE)
+oShM.DrawSheetOn(oShC1, "#4A4A4A", 0.5)
+cShPlain = oShC1.ToSVG()
+oShC2 = new stzCanvas(400, 400)
+oShC2.SetBackground("#FFFFFF")
+oShM.SetInteractive(TRUE)
+oShM.DrawSheetOn(oShC2, "#4A4A4A", 0.5)
+cShLive = oShC2.ToSVG()
+? "   the SVG carries " + len(StzFindCS("geo-region", cShLive, TRUE)) +
+  " region classes with SetInteractive, " + len(StzFindCS("geo-region", cShPlain, TRUE)) + " without"
+chk("SetInteractive PUTS EVERY REGION'S IDENTITY INTO THE SVG -- an id a " +
+    "script can address and a class a stylesheet can hover, which is the " +
+    "same mechanism the diagram plane has had since DN3b",
+    len(StzFindCS("geo-region", cShLive, TRUE)) >= 2 and
+    StzFindFirst(oShM.IdentOf(1), cShLive) > 0)
+chk("NEGATIVE: without it the SVG carries none of them -- identity is a " +
+    "thing a caller asks for, not a tax on every picture",
+    len(StzFindCS("geo-region", cShPlain, TRUE)) = 0)
+chk("...and a region's SVG class names the CLASS it fell in, so a " +
+    "stylesheet can dim everything outside one band without knowing the data",
+    StzFindFirst("geo-class-1", cShLive) > 0 and StzFindFirst("geo-class-2", cShLive) > 0)
+
+oShM.HighlightClass(2)
+? "   selecting class 2 picks " + len(oShM.Highlighted()) + " of " + oShF.Count() + " regions"
+chk("SELECTING A CLASS PICKS EXACTLY THE REGIONS IN IT -- which is what " +
+    "clicking a legend swatch means, and it OUTLINES them rather than " +
+    "recolouring: recolouring would destroy the one thing the map encodes",
+    len(oShM.Highlighted()) = 1 and oShM.IsHighlighted(2) and NOT oShM.IsHighlighted(1))
+oShM.SetHighlight([ oShF.NameOf(1) ])
+chk("...and a selection can be named directly too",
+    len(oShM.Highlighted()) = 1 and oShM.IsHighlighted(1))
+oShM.HighlightClass(0)
+chk("NEGATIVE: selecting no class clears it",
+    len(oShM.Highlighted()) = 0)
+
+oShC3 = new stzCanvas(700, 300)
+oShC3.SetBackground("#FFFFFF")
+nShEnd = oShM.DrawRampLegendOn(oShC3, oFont, 13, 40, 120, 400, 22, "#4A4A4A", TRUE)
+cShLeg = oShC3.ToSVG()
+# TEXT REACHES THE SVG AS GLYPH OUTLINES, NOT AS WORDS. The canvas emits a
+# <path> per text run, which is the right choice -- it needs no font at the
+# other end -- and it means grepping the SVG for "No data" finds nothing.
+# The first version of these two assertions did exactly that and failed a
+# correct engine, which is the fifth time this session the EXPECTATION was
+# wrong rather than the code. What is countable is the runs.
+#
+# The consequence is worth stating, because it shapes the interactive layer:
+# a script cannot read a label's words out of this SVG. Meaning travels in
+# the IDENTITIES -- #geo-niger and .geo-class-4 -- and a tooltip is driven
+# from the id, never from the text under the cursor.
+chk("THE RAMP LEGEND IS ONE BAR WITH THE NUMBERS AT THE JOINS -- a reader " +
+    "matches a colour to a position, and the numbers belong where the " +
+    "meaning changes -- one swatch per class, one label per edge, and it " +
+    "says where it ended",
+    nShEnd > 120 + 22 and
+    len(StzFindCS("<rect", cShLeg, TRUE)) >= 2 and
+    len(StzFindCS("<path", cShLeg, TRUE)) >= 3)
+chk("...and its open top is an ARROW and not a box, because '50 and over' " +
+    "has no right-hand edge and a box claims one",
+    _HasPolygon(cShLeg))
+
+oShC4 = new stzCanvas(400, 200)
+oShC4.SetBackground("#FFFFFF")
+oShM.DrawHaloTextOn(oShC4, oFont, 13, "Niger", 100, 100, "#FFFFFF", "#000000", 1.4)
+oShC5 = new stzCanvas(400, 200)
+oShC5.SetBackground("#FFFFFF")
+oShC5.SetFontQ(oFont, 13).AddTextQ("Niger", 100, 100).Fill("#000000")
+oShC5.Flush()
+? "   the halo draws " + len(StzFindCS("<path", oShC4.ToSVG(), TRUE)) +
+  " runs where a plain label draws " + len(StzFindCS("<path", oShC5.ToSVG(), TRUE))
+chk("A LABEL OVER COLOUR GETS A HALO -- NINE runs of the same word, eight " +
+    "offset underneath and one on top -- because a name on a choropleth has " +
+    "no ONE background for the colour system's contract to answer against",
+    len(StzFindCS("<path", oShC4.ToSVG(), TRUE)) = 9 and
+    len(StzFindCS("<path", oShC5.ToSVG(), TRUE)) = 1)
+
 ? "-- 9. THE SPATIAL JOIN: a table of places, counted into regions --"
 # THE POINTS ARE TAKEN FROM THE REGIONS THEMSELVES, not guessed at. The
 # first draft of this section wrote coordinates it believed were inside
@@ -937,6 +1038,23 @@ func _InsetProbe paWindow, paBox
 	_m_.DrawLabelsXT(_c_, oFont, 13, "#000000", FALSE)
 	_m_.DrawInsetsOn(_c_, oFont, 13, "#000000")
 	return _m_
+
+func _NamedJson pcName
+	return '{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"name":"' +
+		pcName + '"},"geometry":{"type":"Polygon","coordinates":[[[0,0],[2,0],[2,2],[0,2],[0,0]]]}}]}'
+
+func _IdentIsClean pcJson
+	_f_ = StzGeoFeaturesFromJson(pcJson)
+	_m_ = StzGeoMap(new stzGeoProjection(:ConicEqualArea), _f_)
+	_c_ = _m_.IdentOf(1)
+	if StzLeft(_c_, 4) != "geo-"  return FALSE  ok
+	if StzFindFirst(" ", _c_) > 0  return FALSE  ok
+	if StzFindFirst("--", _c_) > 0  return FALSE  ok
+	if StzRight(_c_, 1) = "-"  return FALSE  ok
+	return len(_c_) > 4
+
+func _HasPolygon pcSvg
+	return StzFindFirst("<polygon", pcSvg) > 0
 
 func _RefusesGroups poF
 	_m_ = StzGeoMap(new stzGeoProjection(:ConicEqualArea), poF)

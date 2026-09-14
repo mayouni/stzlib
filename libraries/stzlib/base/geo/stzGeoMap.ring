@@ -284,6 +284,9 @@ class stzGeoMap from stzObject
 	@aGroups = []
 	@aGroupOf = []
 	@aUnresolved = []
+	@aHighlit = []
+	@nHiClass = 0
+	@bIdentify = FALSE
 	@cNoData = "#E8E8E8"
 	@bBinned = FALSE
 	@bLabelled = FALSE
@@ -1945,6 +1948,233 @@ class stzGeoMap from stzObject
 		if pnRatio <= 0  return "scale not measurable"  ok
 		if pnRatio >= 10  return "x" + floor(pnRatio + 0.5) + " the main map"  ok
 		return "x" + StzFactNumText(floor(pnRatio * 10 + 0.5) / 10) + " the main map"
+
+	#-- THE SHEET A READER BELIEVES (GE2c) ----------------------------------
+	#
+	# Four things the good statistical maps do that this plane did not, all
+	# of them about whether a reader can READ the picture rather than about
+	# what it computes:
+	#
+	#   1. BORDERS ARE DARK AND THIN, NOT WHITE. A white border between two
+	#      pale classes erases the boundary exactly where the map is doing
+	#      its work; a hairline of the ink colour separates them at every
+	#      shade. Our World in Data, the Financial Times and the Economist
+	#      all stroke dark, and the reason is legibility at the light end.
+	#   2. THE LEGEND IS A RAMP WITH ITS EDGES LABELLED, not a stack of
+	#      "10 to 20" rows. A reader matches a colour to a position on a
+	#      bar, and the numbers belong at the JOINS because that is where
+	#      the meaning changes. It carries a NO-DATA swatch, hatched, so
+	#      "not measured" is visibly not a value.
+	#   3. WHAT IS SELECTED IS OUTLINED, NOT RECOLOURED. Recolouring a
+	#      selection destroys the one thing the map encodes. A heavy dark
+	#      outline says "this one" while leaving its class readable.
+	#   4. TEXT OVER COLOUR NEEDS A HALO. A white name on a mid-orange is
+	#      unreadable at every size; the same name with a thin dark halo is
+	#      readable on every shade in the ramp. This is the colour system's
+	#      contrast contract solved the way cartographers solve it, since a
+	#      label on a choropleth has no single background to contrast with.
+
+	# the regions to outline heavily: by name, or by class through
+	# HighlightClass below
+	def SetHighlight(paNames)
+		@aHighlit = []
+		for _i_ = 1 to len(paNames)
+			_k_ = @oF.IndexOfName("" + paNames[_i_])
+			if _k_ > 0  @aHighlit + _k_  ok
+		next
+
+		def SetHighlightQ(paNames)
+			This.SetHighlight(paNames)
+			return This
+
+	# SELECT A WHOLE CLASS, which is what clicking a legend swatch means:
+	# "show me everyone between 2 and 5 per cent". The class is outlined on
+	# the map AND framed in the legend, so the two read as one gesture.
+	def HighlightClass(pnClass)
+		@nHiClass = pnClass
+		@aHighlit = []
+		if pnClass < 1  return  ok
+		for _i_ = 1 to @oF.Count()
+			if This.ClassOf(_i_) = pnClass  @aHighlit + _i_  ok
+		next
+
+		def HighlightClassQ(pnClass)
+			This.HighlightClass(pnClass)
+			return This
+
+	def Highlighted()
+		return @aHighlit
+
+	def IsHighlighted(pnI)
+		for _i_ = 1 to len(@aHighlit)
+			if @aHighlit[_i_] = pnI  return TRUE  ok
+		next
+		return FALSE
+
+	# EVERY REGION CARRIES ITS OWN IDENTITY INTO THE SVG, which is what an
+	# interactive layer is made of: an id a script can address, a class a
+	# stylesheet can hover, and a <title> the browser shows as a tooltip
+	# with no script at all. The diagram plane has had this since DN3b; a
+	# map is the surface that wants it most, because a reader's first
+	# question of any choropleth is "which country is that and what is its
+	# number".
+	def SetInteractive(pbOn)
+		@bIdentify = pbOn
+
+		def SetInteractiveQ(pbOn)
+			This.SetInteractive(pbOn)
+			return This
+
+	def IsInteractive()
+		return @bIdentify
+
+	# the id a region takes in the SVG: its name, lowercased, with anything
+	# that is not a letter or a digit turned into a hyphen
+	def IdentOf(pnI)
+		# BYTES, DELIBERATELY, and the two are consistent: len() counts
+		# bytes and [] indexes them. Only a-z and 0-9 survive, so a
+		# multibyte letter splits into bytes that all become hyphens and
+		# collapse to one -- "Cote d'Ivoire" and "Côte d'Ivoire" both give
+		# a usable id. Mixing StzLen (codepoints) with [] (bytes) is the
+		# documented trap and is not what this does.
+		_c_ = StzLower("" + @oF.NameOf(pnI))
+		_o_ = ""
+		_n_ = len(_c_)
+		# ASCII CODES, NOT CHARACTER COMPARISON. Ring raises R41 "invalid
+		# numeric string" on `"a" >= "b"` -- it tries to read both sides as
+		# numbers. stzGeoAtlas.StzGeoNormalizeName already learned this and
+		# this method had to learn it again, which is the cost of two places
+		# normalising a name.
+		for _k_ = 1 to _n_
+			_a_ = ascii(_c_[_k_])
+			if (_a_ >= 97 and _a_ <= 122) or (_a_ >= 48 and _a_ <= 57)
+				_o_ += _c_[_k_]
+			but _o_ != "" and StzRight(_o_, 1) != "-"
+				_o_ += "-"
+			ok
+		next
+		if _o_ != "" and StzRight(_o_, 1) = "-"  _o_ = StzLeft(_o_, len(_o_) - 1)  ok
+		if _o_ = ""  _o_ = "region-" + pnI  ok
+		return "geo-" + _o_
+
+	# THE REGIONS, DRAWN THE WAY A STATISTICAL MAP DRAWS THEM: dark hairline
+	# borders, the highlighted ones outlined heavily on top, and each one
+	# carrying its identity when the map is interactive.
+	def DrawSheetOn(poCanvas, pInk, pnHairline)
+		_nF_ = @oF.Count()
+		for _i_ = 1 to _nF_
+			if @bIdentify
+				poCanvas.SetSvgIdent(This.IdentOf(_i_),
+					"geo-region " + This._IdentClassOf(_i_))
+			ok
+			@oP.DrawFeatureOn(poCanvas, @oF, _i_, This.ColourOf(_i_), pInk, pnHairline)
+		next
+		if @bIdentify  poCanvas.ClearSvgIdent()  ok
+		poCanvas.Flush()
+		This.DrawHighlightOn(poCanvas, "#1A1A1A", 2.2)
+
+	def _IdentClassOf(pnI)
+		if len(@aGroups) > 0
+			_g_ = This.GroupOf(pnI)
+			if _g_ < 1  return "geo-nogroup"  ok
+			return "geo-group-" + _g_
+		ok
+		_c_ = This.ClassOf(pnI)
+		if _c_ < 1  return "geo-nodata"  ok
+		return "geo-class-" + _c_
+
+	# the heavy outline, drawn OVER everything so a neighbour cannot cover it
+	def DrawHighlightOn(poCanvas, pInk, pnWidth)
+		if len(@aHighlit) = 0  return  ok
+		for _h_ = 1 to len(@aHighlit)
+			_i_ = @aHighlit[_h_]
+			for _k_ = 1 to @oF.PartCount(_i_)
+				for _r_ = 1 to len(@oF.RingsOf(_i_, _k_))
+					@oP.DrawRingOutlineOn(poCanvas, @oF.RingsOf(_i_, _k_)[_r_], pInk, pnWidth)
+				next
+			next
+		next
+		poCanvas.Flush()
+
+	# A NAME WITH A HALO, because a label on a choropleth has no single
+	# background to contrast with: the same word crosses a pale class and a
+	# dark one. The halo is the ink's opposite, drawn as eight offset copies
+	# under the text -- which is what every map library does and what the
+	# colour system cannot answer, since its question is "this ink on THAT
+	# background" and here there is no one background.
+	def DrawHaloTextOn(poCanvas, poFont, pnSize, pcText, pnX, pnY, pInk, pHalo, pnR)
+		_off_ = [ [ -1, 0 ], [ 1, 0 ], [ 0, -1 ], [ 0, 1 ],
+		          [ -0.7, -0.7 ], [ 0.7, -0.7 ], [ -0.7, 0.7 ], [ 0.7, 0.7 ] ]
+		for _k_ = 1 to len(_off_)
+			poCanvas.SetFontQ(poFont, pnSize).
+				AddTextQ(pcText, pnX + _off_[_k_][1] * pnR, pnY + _off_[_k_][2] * pnR).Fill(pHalo)
+		next
+		poCanvas.SetFontQ(poFont, pnSize).AddTextQ(pcText, pnX, pnY).Fill(pInk)
+		poCanvas.Flush()
+
+	# THE RAMP LEGEND: one bar, the classes butted together, the numbers at
+	# the JOINS, and a hatched no-data swatch to its left. Returns where it
+	# ended, so a caller can stack a caption under it.
+	#
+	# An open-ended top class is drawn as an ARROW rather than a box,
+	# because "20% and over" has no right-hand edge and a box claims one.
+	def DrawRampLegendOn(poCanvas, poFont, pnSize, pnX, pnY, pnW, pnH, pInk, pbOpenTop)
+		if len(@aEdges) < 2  return pnY  ok
+		_n_ = len(@aEdges) - 1
+		_sz_ = pnSize
+		if _sz_ < 11  _sz_ = 11  ok
+
+		# the no-data swatch: hatched, because "not measured" must not read
+		# as a pale value at the bottom of the scale
+		_nd_ = 46
+		poCanvas.SetFontQ(poFont, _sz_).
+			AddTextQ("No data", pnX, pnY - 6).Fill("#777777")
+		poCanvas.AddRectQ(pnX, pnY, _nd_, pnH).FillQ("#FFFFFF").Stroke(pInk, 0.9)
+		_k_ = 0
+		while _k_ < _nd_ + pnH
+			poCanvas.AddLineQ(pnX + _k_, pnY, pnX + _k_ - pnH, pnY + pnH).Stroke("#9EB6D8", 0.9)
+			_k_ += 5
+		end
+		poCanvas.AddRectQ(pnX, pnY, _nd_, pnH).FillQ("#00000000").Stroke(pInk, 0.9)
+
+		_x0_ = pnX + _nd_ + 16
+		_cw_ = pnW / _n_
+		for _c_ = 1 to _n_
+			_x_ = _x0_ + (_c_ - 1) * _cw_
+			if @bIdentify
+				poCanvas.SetSvgIdent("geo-legend-class-" + _c_, "geo-legend-swatch")
+			ok
+			if _c_ = _n_ and pbOpenTop
+				# the open top: a box with a point on it
+				poCanvas.AddPolygonQ([ _x_, pnY, _x_ + _cw_ * 0.55, pnY,
+				                       _x_ + _cw_, pnY + pnH / 2,
+				                       _x_ + _cw_ * 0.55, pnY + pnH, _x_, pnY + pnH ]).
+					FillQ(@aPalette[_c_]).Stroke(pInk, 0.9)
+			else
+				poCanvas.AddRectQ(_x_, pnY, _cw_, pnH).FillQ(@aPalette[_c_]).Stroke(pInk, 0.9)
+			ok
+		next
+		if @bIdentify  poCanvas.ClearSvgIdent()  ok
+
+		# THE SELECTED CLASS, FRAMED IN THE LEGEND. The map and the legend
+		# must show one gesture, or the reader has to work out that the
+		# heavy outlines and the framed swatch mean the same thing.
+		if @nHiClass >= 1 and @nHiClass <= _n_
+			_x_ = _x0_ + (@nHiClass - 1) * _cw_
+			poCanvas.AddRectQ(_x_ - 1, pnY - 1, _cw_ + 2, pnH + 2).
+				FillQ("#00000000").Stroke("#1A1A1A", 2.2)
+		ok
+		poCanvas.Flush()
+
+		# the numbers at the joins, every edge including both ends
+		for _c_ = 0 to _n_
+			_t_ = StzFactNumText(@aEdges[_c_ + 1])
+			_w_ = poFont.WidthOf(_t_, _sz_)
+			poCanvas.SetFontQ(poFont, _sz_).
+				AddTextQ(_t_, _x0_ + _c_ * _cw_ - _w_ / 2, pnY - 6).Fill("#555555")
+		next
+		poCanvas.Flush()
+		return pnY + pnH + _sz_ + 8
 
 	#-- the legend and the caption -------------------------------------------
 
