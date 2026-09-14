@@ -66,6 +66,14 @@ fn distKm(a: V3, b: V3) f64 {
     return 2 * EARTH_KM * std.math.asin(h);
 }
 
+/// great-circle distance in km between two places. The public door on the
+/// chord form above -- GE7b's fields ask it per cell per point, and a second
+/// implementation of one distance is the defect shape this plane has already
+/// met three times.
+pub fn distanceKm(lon1: f64, lat1: f64, lon2: f64, lat2: f64) f64 {
+    return distKm(unit(lon1, lat1), unit(lon2, lat2));
+}
+
 fn toUnits(alloc: std.mem.Allocator, lonlat: []const f64) ![]V3 {
     const n = lonlat.len / 2;
     const out = try alloc.alloc(V3, n);

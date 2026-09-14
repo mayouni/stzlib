@@ -2,6 +2,7 @@ const std = @import("std");
 const geo = @import("geo.zig");
 const gp = @import("geo_projection.zig");
 const gs = @import("geo_stats.zig");
+const gf = @import("geo_field.zig");
 const R = @import("ring_api.zig");
 
 const gn = R.ring_vm_api_getnumber;
@@ -577,6 +578,183 @@ fn ring_RadToDeg(p: *anyopaque) callconv(.c) void {
     rn(p, geo.geo_rad_to_deg(gn(p, 1)));
 }
 
+// ------------------------------------------------ GE7b: fields
+//
+// A GRID CROSSES THE BRIDGE AS SIX NUMBERS AND A FLAT LIST:
+//   [ lon0, lat0, dlon, dlat, nx, ny ]  and  values, row 0 SOUTH.
+// Same shape as the projection's eleven: the Ring object owns them, nothing
+// engine-side can go stale, and a caller can print the whole thing.
+//
+// An unknown value is NaN on this side and "" on the Ring side -- Ring has
+// no NaN literal, so the two readers below are where that translation is
+// done, once.
+
+fn readGrid(p: *anyopaque, arg: c_int) ?gf.Grid {
+    const v = readPoints(p, arg) orelse return null;
+    defer alloc.free(v);
+    if (v.len < 6) return null;
+    const nx: usize = @intFromFloat(@max(v[4], 0));
+    const ny: usize = @intFromFloat(@max(v[5], 0));
+    if (nx < 2 or ny < 2 or nx * ny > 40_000_000) return null;
+    return .{ .lon0 = v[0], .lat0 = v[1], .dlon = v[2], .dlat = v[3], .nx = nx, .ny = ny };
+}
+
+fn retGrid(p: *anyopaque, g: gf.Grid) void {
+    retF64s(p, &.{ g.lon0, g.lat0, g.dlon, g.dlat, @floatFromInt(g.nx), @floatFromInt(g.ny) });
+}
+
+/// a Ring list of values where a non-number means "not known"
+fn readValues(p: *anyopaque, arg: c_int) ?[]f64 {
+    if (R.il(p, arg) == 0) return null;
+    const lst = R.gl(p, arg) orelse return null;
+    const n: usize = @intCast(R.ringListSize(lst));
+    const buf = alloc.alloc(f64, n) catch return null;
+    for (0..n) |i| {
+        if (R.ring_list_isnumber_gc(null, lst, @intCast(i + 1)) == 0) {
+            buf[i] = std.math.nan(f64);
+            continue;
+        }
+        const item = R.ring_list_getitem_gc(null, lst, @intCast(i + 1)) orelse {
+            buf[i] = std.math.nan(f64);
+            continue;
+        };
+        buf[i] = R.ring_item_getnumber(item);
+    }
+    return buf;
+}
+
+/// NaN comes back as "", which is the value Ring's own no-data already uses
+fn retValues(p: *anyopaque, v: []const f64) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (v) |x| {
+        if (std.math.isNan(x)) R.ring_list_addstring(out, "") else R.ring_list_adddouble(out, x);
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
+// GeoGridOver(aBox, nCellKm) -> [ lon0, lat0, dlon, dlat, nx, ny ]
+fn ring_GeoGridOver(p: *anyopaque) callconv(.c) void {
+    const b = readPoints(p, 1) orelse return retEmpty(p);
+    defer alloc.free(b);
+    if (b.len < 4) return retEmpty(p);
+    retGrid(p, gf.gridOver(.{ b[0], b[1], b[2], b[3] }, gn(p, 2)));
+}
+
+// GeoGridMask(aGrid, aRings, aBox) -> 1 per node inside the window, 0 outside
+fn ring_GeoGridMask(p: *anyopaque) callconv(.c) void {
+    const g = readGrid(p, 1) orelse return retEmpty(p);
+    const wd = readWindow(p, 2, 3) orelse return retEmpty(p);
+    defer freeRings(wd.rr);
+    const m = alloc.alloc(bool, g.count()) catch return retEmpty(p);
+    defer alloc.free(m);
+    gf.maskInside(g, &wd.w, m);
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (m) |b| R.ring_list_adddouble(out, if (b) 1 else 0);
+    R.ring_vm_api_retlist(p, out);
+}
+
+// GeoKernelDensity(aLonLat, aGrid, nBandwidthKm, nKernel, aRings, aBox,
+//                  nEdgeCorrect) -> values, row 0 south. Pass [] for the
+// rings to leave the estimate unclipped.
+fn ring_GeoKernelDensity(p: *anyopaque) callconv(.c) void {
+    const pts = readPoints(p, 1) orelse return retEmpty(p);
+    defer alloc.free(pts);
+    const g = readGrid(p, 2) orelse return retEmpty(p);
+    const kind: gf.Kernel = if (gn(p, 4) >= 1) .gaussian else .quartic;
+    const out = alloc.alloc(f64, g.count()) catch return retEmpty(p);
+    defer alloc.free(out);
+
+    var mask: ?[]bool = null;
+    const wd: ?WindowRead = readWindow(p, 5, 6);
+    defer if (wd) |w| freeRings(w.rr);
+    if (wd) |w| {
+        const m = alloc.alloc(bool, g.count()) catch return retEmpty(p);
+        gf.maskInside(g, &w.w, m);
+        mask = m;
+    }
+    defer if (mask) |m| alloc.free(m);
+
+    gf.kernelDensity(alloc, pts, g, gn(p, 3), kind, mask, gn(p, 7) != 0, out) catch return retEmpty(p);
+    retValues(p, out);
+}
+
+// GeoFieldStats(aValues) -> [ min, max, known, unknown ]
+fn ring_GeoFieldStats(p: *anyopaque) callconv(.c) void {
+    const v = readValues(p, 1) orelse return retEmpty(p);
+    defer alloc.free(v);
+    const s = gf.stats(v);
+    retF64s(p, &.{ s.min, s.max, @floatFromInt(s.known), @floatFromInt(s.unknown) });
+}
+
+// GeoFieldAt(aValues, aGrid, nLon, nLat) -> the value there, or ""
+fn ring_GeoFieldAt(p: *anyopaque) callconv(.c) void {
+    const v = readValues(p, 1) orelse return R.ring_vm_api_retstring(p, "");
+    defer alloc.free(v);
+    const g = readGrid(p, 2) orelse return R.ring_vm_api_retstring(p, "");
+    const r = gf.sampleAt(v, g, gn(p, 3), gn(p, 4));
+    if (std.math.isNan(r)) return R.ring_vm_api_retstring(p, "");
+    rn(p, r);
+}
+
+// GeoContour(aValues, aGrid, nLevel) -> a list of flat lon/lat polylines
+fn ring_GeoContour(p: *anyopaque) callconv(.c) void {
+    const v = readValues(p, 1) orelse return retEmpty(p);
+    defer alloc.free(v);
+    const g = readGrid(p, 2) orelse return retEmpty(p);
+    if (v.len < g.count()) return retEmpty(p);
+    var pieces = gp.Pieces{};
+    defer pieces.deinit();
+    gf.contour(alloc, v, g, gn(p, 3), &pieces) catch return retEmpty(p);
+    retPieces(p, &pieces);
+}
+
+// GeoFieldImage(aProj, aValues, aGrid, nX0, nY0, nW, nH, aEdges, aPaletteRGB,
+//               nAlpha) -> an RGBA buffer of nW x nH, ready for AddImage
+fn ring_GeoFieldImage(p: *anyopaque) callconv(.c) void {
+    const pr = readProjection(p, 1) orelse return R.ring_vm_api_retstring(p, "");
+    const v = readValues(p, 2) orelse return R.ring_vm_api_retstring(p, "");
+    defer alloc.free(v);
+    const g = readGrid(p, 3) orelse return R.ring_vm_api_retstring(p, "");
+    const w: usize = @intFromFloat(@max(gn(p, 6), 0));
+    const h: usize = @intFromFloat(@max(gn(p, 7), 0));
+    if (w == 0 or h == 0 or w * h > 64_000_000) return R.ring_vm_api_retstring(p, "");
+    const edges = readPoints(p, 8) orelse return R.ring_vm_api_retstring(p, "");
+    defer alloc.free(edges);
+    const pal = readPoints(p, 9) orelse return R.ring_vm_api_retstring(p, "");
+    defer alloc.free(pal);
+    if (edges.len < 2 or pal.len < (edges.len - 1) * 3) return R.ring_vm_api_retstring(p, "");
+    const bytes = alloc.alloc(u8, pal.len) catch return R.ring_vm_api_retstring(p, "");
+    defer alloc.free(bytes);
+    for (pal, 0..) |x, i| bytes[i] = @intFromFloat(@min(@max(x, 0), 255));
+    const img = alloc.alloc(u8, w * h * 4) catch return R.ring_vm_api_retstring(p, "");
+    defer alloc.free(img);
+    const a: u8 = @intFromFloat(@min(@max(gn(p, 10), 0), 255));
+    gf.fieldImage(v, g, &pr, gn(p, 4), gn(p, 5), w, h, edges, bytes, a, img);
+    R.ring_vm_api_retstring2(p, img.ptr, @intCast(img.len));
+}
+
+// GeoReadAsciiGrid(cText) -> [ aGrid, aValues ], or [] when it will not read
+fn ring_GeoReadAsciiGrid(p: *anyopaque) callconv(.c) void {
+    if (R.ring_vm_api_isstring(p, 1) == 0) return retEmpty(p);
+    const txt = R.ring_vm_api_getstring(p, 1);
+    const len: usize = @intCast(R.ring_vm_api_getstringsize(p, 1));
+    const a = gf.readAsciiGrid(alloc, txt[0..len]) catch return retEmpty(p);
+    defer alloc.free(a.values);
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    const gl = R.ring_list_newlist(out) orelse return;
+    R.ring_list_adddouble(gl, a.g.lon0);
+    R.ring_list_adddouble(gl, a.g.lat0);
+    R.ring_list_adddouble(gl, a.g.dlon);
+    R.ring_list_adddouble(gl, a.g.dlat);
+    R.ring_list_adddouble(gl, @floatFromInt(a.g.nx));
+    R.ring_list_adddouble(gl, @floatFromInt(a.g.ny));
+    const vl = R.ring_list_newlist(out) orelse return;
+    for (a.values) |x| {
+        if (std.math.isNan(x)) R.ring_list_addstring(vl, "") else R.ring_list_adddouble(vl, x);
+    }
+    R.ring_vm_api_retlist(p, out);
+}
+
 const regs = [_]R.Reg{
     .{ .name = "stzenginegeohaversine", .func = ring_Haversine },
     .{ .name = "stzenginegeohaversinemiles", .func = ring_HaversineMiles },
@@ -628,6 +806,15 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginegeospatialmedian", .func = ring_GeoSpatialMedian },
     .{ .name = "stzenginegeoellipse", .func = ring_GeoEllipse },
     .{ .name = "stzenginegeoellipsering", .func = ring_GeoEllipseRing },
+    // GE7b
+    .{ .name = "stzenginegeogridover", .func = ring_GeoGridOver },
+    .{ .name = "stzenginegeogridmask", .func = ring_GeoGridMask },
+    .{ .name = "stzenginegeokerneldensity", .func = ring_GeoKernelDensity },
+    .{ .name = "stzenginegeofieldstats", .func = ring_GeoFieldStats },
+    .{ .name = "stzenginegeofieldat", .func = ring_GeoFieldAt },
+    .{ .name = "stzenginegeocontour", .func = ring_GeoContour },
+    .{ .name = "stzenginegeofieldimage", .func = ring_GeoFieldImage },
+    .{ .name = "stzenginegeoreadasciigrid", .func = ring_GeoReadAsciiGrid },
 };
 
 pub fn registerAll(state: *anyopaque) void {

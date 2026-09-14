@@ -520,7 +520,7 @@ which exists.
 | GE6b | **labels the way an atlas does them**: a name inside, else a number and a key. The leader lines are REMOVED | Ring, `stzGeoMap` | **SHIPPED** below |
 | GE6c | **three labelling modes**, and the centre of a region is its AREA CENTROID | Ring, `stzGeoMap` | **SHIPPED** below |
 | GE6d | **insets**: the same ground larger, with a locator, a measured scale, and three refusals | Ring, `stzGeoMap` | **SHIPPED** below |
-| GE7 | **spatial statistics**: point patterns (K, L, G, F, Clark-Evans, envelopes by simulation), centres and ellipses, kernel density, contours, interpolation (IDW, kriging), point processes | engine, `geo_stats.zig`; face `stzGeoPoints`, `stzGeoField` | **GE7a SHIPPED** below; GE7b next |
+| GE7 | **spatial statistics**: point patterns (K, L, G, F, Clark-Evans, envelopes by simulation), centres and ellipses, kernel density, contours, interpolation (IDW, kriging), point processes | engine, `geo_stats.zig` + `geo_field.zig`; face `stzGeoPoints`, `stzGeoField` | **GE7a, GE7b SHIPPED** below; GE7c next |
 | GE8 | **geodesy on the ellipsoid**: Karney's geodesic on WGS84, ECEF and ENU frames, DMS, rhumb lines, a reference-ellipsoid table | engine, `geo_geodesy.zig` | PLAN |
 | GE9 | **the projection gallery**: from 16 to the ~50 with names people use, each with an inverse, plus local distortion measures from the Jacobian, and UTM zones | engine, `geo_projection.zig` | PLAN |
 | GE10 | **map furniture and the remaining plots**: scale bar, day-night terminator, vector and stream plots over a field, point-value small multiples | Ring, `stzGeoMap` | PLAN |
@@ -635,6 +635,106 @@ assertions** — every name accounted for as inline, leadered or dropped; a
 margin turning drops into leaders; no two boxes overlapping; the ink
 flipping on a dark class; a ramp answering its own stops and refusing a
 name it does not know. Gate §127, **1711 ok, 0 failed**.
+
+## GE7b -- A FIELD: DENSITY, CONTOURS, THE RASTER, THE ESRI GRID (2026-09-14, SHIPPED)
+
+*The second rung. GE7a asked whether a LIST of places is clustered; this
+asks the other half of every spatial question -- rainfall, elevation, the
+smoothed intensity of an outbreak: a quantity that has a value everywhere.*
+
+### One substrate, three of Wolfram's plots
+
+| Wolfram | here | what it is |
+|---|---|---|
+| GeoSmoothHistogram | `StzGeoDensityField(points, cellKm, bandwidthKm)` | the kernel density of a pattern, in **places per km²** |
+| GeoDensityPlot | `field.DrawOn(canvas, projection, box)` | the field coloured, as ONE image resampled through the projection |
+| GeoContourPlot | `field.DrawContoursOn(canvas, projection, levels, ...)` | the field at levels, as LINES |
+
+Plus the door Wolfram's data services stand in front of: `StzGeoFieldFromAsciiGrid(text)`
+reads an ESRI ASCII grid, the format every GIS can write -- bring your own
+rainfall or elevation raster. This library vendors no data.
+
+### The decisions, each the standard one
+
+- **Density is an intensity, not a probability.** Places per km² is what a
+  legend can label; a statistics library's `density()` divides by n and
+  gives a number that integrates to 1 and means nothing on a map. The guard
+  checks the unit by computing n/area itself: on 400 uniform places it reads
+  650 per million km² and the field agrees.
+- **Quartic kernel by default**, compact support, so the cost is
+  points × cells-within-reach; Gaussian offered and truncated at 4h.
+- **Edge-corrected by Diggle's method**, integrated over the grid itself so
+  it is right on a ragged coast and not only a rectangle. Measured: the
+  border reads **488** uncorrected against **654** corrected, on a true 650.
+  Same bias GE7a met in Clark-Evans, same cure in a different costume.
+- **A cell's area is R² dlon dlat cos(lat)** -- every integral weighs by it.
+- **What is not known is NOT zero.** A node outside the window is unknown
+  (`""` on the Ring side, NaN in the engine); a node inside with no place
+  near it is a measured zero. A legend must not merge them.
+- **The raster is resampled through the projection into one image.** For
+  every pixel of the box, invert to a place, read the field, take the
+  class's colour -- how every GIS draws a raster under a projection. Forty
+  thousand quads would be forty thousand wrong shapes: a lon/lat cell is not
+  a rectangle once a conic has had it.
+- **Marching squares with the saddle resolved by the centre value**, and
+  segments joined **by the edge they cross** rather than by coordinate
+  tolerance -- two segments meet when they name the same edge, which is
+  exact. A cell with any unknown corner is skipped: a contour across
+  nodata is a line through ground nobody measured.
+- **The ESRI reader flips (first row is north) and half-shifts (xllcorner is
+  a corner, the node is its centre)**; NODATA becomes unknown. A truncated
+  or unreadable file is refused, never half-read.
+
+### Four rules
+
+`a_field_has_a_known_value` (error), `most_of_the_field_is_measured`
+(warning), `the_classes_reach_the_data` (error above the last edge -- the
+PEAK draws as a hole -- warning below the first), and
+`a_density_wants_an_equal_area_projection` (error): GE3's choropleth rule,
+kept for the raster.
+
+### What the first end-to-end run found
+
+- **A GE0 defect in the spherical ray cast, hiding since 2026-09-12.** The
+  density grid's first column sits on the window's western bound, and 51 of
+  its 99 nodes lit up as "inside" from top to bottom. `ringContains` was
+  half-open per edge in the edge's own direction -- include the start,
+  exclude the end -- which counts a vertex on the meridian exactly once
+  whichever way its edges run. Right for a vertex the ring passes THROUGH;
+  wrong for one it merely TOUCHES, where both edges leave the same way and
+  one crossing is odd parity. The rule is now *include the western
+  endpoint, exclude the eastern*: a touched western vertex counts twice, a
+  touched eastern one never, a crossed one once. The Ring side had hidden it
+  behind a strict bounding-box precheck, which is why `IndexAt` answered
+  correctly at the same places.
+- **The hex reader, reused to avoid a second definition, was called with the
+  wrong offsets** (0, 2, 4 for 1, 3, 5) and read the `#` into the red
+  channel: a ramp of warm yellows drew as a cyan fringe. Reusing the house
+  helper was right; not reading its contract first was not. A red/green
+  probe image ruled out the channel-order hypothesis before the real cause
+  was looked for.
+- **`DrawRegionsOn` FILLS.** The sheet drew the regions again after the
+  raster to get their borders back, and repainted the land grey over the
+  density. Borders are outlines now.
+- **Two guard assertions failed a correct engine.** One compared a single
+  corner sample to a single midpoint sample to detect a 35% bias, on a
+  kernel that holds sixteen places and swings by a third on Poisson noise
+  alone (interior readings of 510, 814, 938 around a true 650) -- it
+  averages over many places now. The other punched a hole ten nodes from
+  where the contour runs, then, corrected, asserted a closed ring with one
+  bite out of it "breaks into pieces": **it is one open arc**, and it takes
+  a second hole to make two. Both are the lesson of the day before: derive
+  the expectation from the geometry, and check that the assertion can see
+  the effect it names.
+- **`sampleAt` allowed half a cell of overhang** and painted a band of the
+  edge node's colour outside the grid. Strictly inside now; a hairline of
+  unpainted data at the very edge is the honest trade.
+
+*Witness:* `geo_field.png` -- 653 clustered places in Tunisia three ways:
+the dots, the intensity (hot where the clusters are), the contours at five
+levels agreeing with it. *Guard:* `geo_field_narrated.ring` **30**; gate
+section 129 (1740 in all). *Engine:* `geo_field.zig`, 22 standalone
+tests; `geo_projection.zig` gained the extreme-vertex regression.
 
 ## GE7a -- A POINT PATTERN AND ITS WINDOW (2026-09-14, SHIPPED)
 

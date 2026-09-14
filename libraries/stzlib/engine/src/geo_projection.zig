@@ -628,11 +628,11 @@ pub const Pieces = struct {
         self.xy.deinit(alloc);
         self.starts.deinit(alloc);
     }
-    fn begin(self: *Pieces) !void {
+    pub fn begin(self: *Pieces) !void {
         if (self.starts.items.len > 0 and self.starts.items[self.starts.items.len - 1] == self.xy.items.len) return;
         try self.starts.append(alloc, self.xy.items.len);
     }
-    fn point(self: *Pieces, xy: [2]f64) !void {
+    pub fn point(self: *Pieces, xy: [2]f64) !void {
         // never the same point twice in a row: a duplicate vertex is a
         // zero-length edge, and a filler downstream chokes on it
         const n = self.xy.items.len;
@@ -907,11 +907,24 @@ pub fn ringContains(lonlat: []const f64, lon_deg: f64, lat_deg: f64) bool {
         const d = wrapPi(lb - la); // the step this edge actually takes
         if (@abs(d) < 1e-12) continue;
         const u = wrapPi(l0 - la); // how far the place is along that step
-        // HALF-OPEN, so a vertex sitting exactly on the meridian is counted
-        // ONCE and not twice or never. The cap round a pole has a vertex on
-        // every round longitude, so the strict form missed the crossing
-        // entirely and reported the pole as outside its own cap.
-        const on_it = if (d > 0) (u >= 0 and u < d) else (u <= 0 and u > d);
+        // HALF-OPEN, AND OPEN ON THE SAME SIDE FOR EVERY EDGE: the WESTERN
+        // endpoint of an edge is on it, the eastern one is not.
+        //
+        // The first form here was "include the start, exclude the end" --
+        // half-open per edge, in the edge's own direction. That counts a
+        // vertex on the meridian exactly once whichever way its two edges
+        // run, which is right for a vertex the ring passes THROUGH and
+        // wrong for a vertex the ring merely TOUCHES: at a westernmost
+        // vertex both edges leave eastward, the ray grazes the ring without
+        // crossing it, and one crossing is odd parity -- so every place on
+        // that vertex's meridian, north or south of the whole ring, read as
+        // inside. GE7b's density grid starts exactly on a window's western
+        // bound, and its whole first column lit up. Including the western
+        // endpoint instead counts a touched western vertex twice, a touched
+        // eastern one never, and a crossed one once: parity is right in all
+        // three, and the pole cap that motivated the half-open form still
+        // reads as inside its own cap.
+        const on_it = if (d > 0) (u >= 0 and u < d) else (u >= d and u < 0);
         if (!on_it) continue;
         // the latitude at which the great circle through a and b crosses
         // the place's meridian
@@ -1712,6 +1725,24 @@ test "a ring contains what is inside it, and not what is outside" {
     try std.testing.expect(ringContains(&box, 0, 0));
     try std.testing.expect(!ringContains(&box, 20, 0));
     try std.testing.expect(!ringContains(&box, 0, 20));
+}
+
+test "a place on the meridian of a ring's extreme vertex, beyond the ring, is outside" {
+    // a square 0..4 E, 0..4 N: its westernmost meridian is 0 E and its
+    // easternmost 4 E. Places on those meridians but north or south of the
+    // square must be OUTSIDE -- the first ray cast read the western ones as
+    // inside, and a density grid whose first column sat on 0 E lit up
+    const sq = [_]f64{ 0, 0, 4, 0, 4, 4, 0, 4, 0, 0 };
+    try std.testing.expect(!ringContains(&sq, 0, 6));
+    try std.testing.expect(!ringContains(&sq, 0, -2));
+    try std.testing.expect(!ringContains(&sq, 4, 6));
+    try std.testing.expect(!ringContains(&sq, 4, -2));
+    try std.testing.expect(ringContains(&sq, 2, 2));
+    // and a triangle whose western extreme is a single vertex, not an edge
+    const tri = [_]f64{ 0, 2, 4, 0, 4, 4, 0, 2 };
+    try std.testing.expect(!ringContains(&tri, 0, 3.5));
+    try std.testing.expect(!ringContains(&tri, 0, 0.5));
+    try std.testing.expect(ringContains(&tri, 3, 2));
 }
 
 test "a ring that wraps the antimeridian does not swallow the far side" {

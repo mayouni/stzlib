@@ -94,6 +94,12 @@ class stzGeoPoints from stzObject
 	def Window()
 		return @oW
 
+	# the window as the engine takes it: every part's OUTER ring. Built once
+	# at birth and handed out rather than rebuilt, because GE7b's fields ask
+	# for it per call and rebuilding would be the same list twice.
+	def WindowRings()
+		return @aRings
+
 	def AreaKm2()
 		return @nArea
 
