@@ -1,6 +1,7 @@
 const std = @import("std");
 const geo = @import("geo.zig");
 const gp = @import("geo_projection.zig");
+const gs = @import("geo_stats.zig");
 const R = @import("ring_api.zig");
 
 const gn = R.ring_vm_api_getnumber;
@@ -145,36 +146,245 @@ fn ring_GeoRingContains(p: *anyopaque) callconv(.c) void {
 // one after it is a HOLE, bridged into it (GE1). GeoHolesDropped() says
 // how many holes the last call could not give -- a cut ring cannot carry
 // a bridge, and that is counted rather than hidden.
-fn ring_GeoProjectPolygonFilled(p: *anyopaque) callconv(.c) void {
-    const pr = readProjection(p, 1) orelse return retEmpty(p);
-    if (R.il(p, 2) == 0) return retEmpty(p);
-    const lst = R.gl(p, 2) orelse return retEmpty(p);
-    const n: usize = @intCast(R.ringListSize(lst));
-    if (n == 0) return retEmpty(p);
+/// a list of flat [lon,lat,...] rings, read as one owned block; free with
+/// freeRings. Written once for the polygon filler and read by every point
+/// pattern function since, because two readers of one shape drift.
+const Rings = struct { rings: [][]f64, view: [][]const f64 };
 
-    var rings = alloc.alloc([]f64, n) catch return retEmpty(p);
+fn readRings(p: *anyopaque, arg: c_int) ?Rings {
+    if (R.il(p, arg) == 0) return null;
+    const lst = R.gl(p, arg) orelse return null;
+    const n: usize = @intCast(R.ringListSize(lst));
+    if (n == 0) return null;
+    const rings = alloc.alloc([]f64, n) catch return null;
     var made: usize = 0;
-    defer {
-        for (0..made) |i| alloc.free(rings[i]);
-        alloc.free(rings);
-    }
     for (0..n) |i| {
         const item = R.ring_list_getlist_gc(null, lst, @intCast(i + 1)) orelse {
-            rings[i] = alloc.alloc(f64, 0) catch return retEmpty(p);
+            rings[i] = alloc.alloc(f64, 0) catch return null;
             made += 1;
             continue;
         };
-        rings[i] = readF64s(item) orelse (alloc.alloc(f64, 0) catch return retEmpty(p));
+        rings[i] = readF64s(item) orelse (alloc.alloc(f64, 0) catch return null);
         made += 1;
     }
-    const view = alloc.alloc([]const f64, n) catch return retEmpty(p);
-    defer alloc.free(view);
+    const view = alloc.alloc([]const f64, n) catch return null;
     for (0..n) |i| view[i] = rings[i];
+    return .{ .rings = rings, .view = view };
+}
 
+fn freeRings(r: Rings) void {
+    for (r.rings) |x| alloc.free(x);
+    alloc.free(r.rings);
+    alloc.free(r.view);
+}
+
+fn ring_GeoProjectPolygonFilled(p: *anyopaque) callconv(.c) void {
+    const pr = readProjection(p, 1) orelse return retEmpty(p);
+    const rr = readRings(p, 2) orelse return retEmpty(p);
+    defer freeRings(rr);
     var pieces = gp.Pieces{};
     defer pieces.deinit();
-    gp.projectPolygonFilled(&pr, view, &pieces) catch return retEmpty(p);
+    gp.projectPolygonFilled(&pr, rr.view, &pieces) catch return retEmpty(p);
     retPieces(p, &pieces);
+}
+
+// ------------------------------------------------ GE7a: point patterns
+//
+// A WINDOW CROSSES THE BRIDGE AS ITS OUTER RINGS AND ITS BOX: a list of
+// flat rings and [lon0, lat0, lon1, lat1]. Holes are not carried -- see
+// geo_stats.Window for what that costs, which is the area of a lake.
+
+const WindowRead = struct { rr: Rings, w: gs.Window };
+
+fn readWindow(p: *anyopaque, ringsArg: c_int, boxArg: c_int) ?WindowRead {
+    const rr = readRings(p, ringsArg) orelse return null;
+    const box = readPoints(p, boxArg) orelse {
+        freeRings(rr);
+        return null;
+    };
+    defer alloc.free(box);
+    if (box.len < 4) {
+        freeRings(rr);
+        return null;
+    }
+    return .{ .rr = rr, .w = .{ .rings = rr.view, .bbox = .{ box[0], box[1], box[2], box[3] } } };
+}
+
+fn retF64s(p: *anyopaque, v: []const f64) void {
+    const out = R.ring_vm_api_newlist(p) orelse return;
+    for (v) |x| R.ring_list_adddouble(out, x);
+    R.ring_vm_api_retlist(p, out);
+}
+
+fn argUsize(p: *anyopaque, arg: c_int) usize {
+    const v = gn(p, arg);
+    if (v < 0) return 0;
+    return @intFromFloat(v);
+}
+
+fn argU64(p: *anyopaque, arg: c_int) u64 {
+    const v = gn(p, arg);
+    if (v < 0) return 0;
+    return @intFromFloat(v);
+}
+
+// GeoNearestNeighbour(aLonLat) -> [d1, d2, ...] km, one per point
+fn ring_GeoNearestNeighbour(p: *anyopaque) callconv(.c) void {
+    const pts = readPoints(p, 1) orelse return retEmpty(p);
+    defer alloc.free(pts);
+    const n = pts.len / 2;
+    const out = alloc.alloc(f64, n) catch return retEmpty(p);
+    defer alloc.free(out);
+    gs.nearestNeighbourKm(alloc, pts, out) catch return retEmpty(p);
+    retF64s(p, out);
+}
+
+// GeoClarkEvans(aLonLat, nAreaKm2, nPerimeterKm) -> [R, z, observedKm, expectedKm];
+// a perimeter of 0 gives the uncorrected index
+fn ring_GeoClarkEvans(p: *anyopaque) callconv(.c) void {
+    const pts = readPoints(p, 1) orelse return retEmpty(p);
+    defer alloc.free(pts);
+    const n = pts.len / 2;
+    const nn = alloc.alloc(f64, n) catch return retEmpty(p);
+    defer alloc.free(nn);
+    gs.nearestNeighbourKm(alloc, pts, nn) catch return retEmpty(p);
+    const ce = gs.clarkEvans(nn, gn(p, 2), gn(p, 3));
+    retF64s(p, &.{ ce.r, ce.z, ce.observed_km, ce.expected_km });
+}
+
+// GeoRingLength(aLonLat) -> km along great circles, closed
+fn ring_GeoRingLength(p: *anyopaque) callconv(.c) void {
+    const pts = readPoints(p, 1) orelse return rn(p, 0);
+    defer alloc.free(pts);
+    rn(p, gs.ringLengthKm(pts));
+}
+
+// GeoRipleyK(aLonLat, nAreaKm2, aRadiiKm) -> [K(r1), K(r2), ...]
+fn ring_GeoRipleyK(p: *anyopaque) callconv(.c) void {
+    const pts = readPoints(p, 1) orelse return retEmpty(p);
+    defer alloc.free(pts);
+    const radii = readPoints(p, 3) orelse return retEmpty(p);
+    defer alloc.free(radii);
+    const out = alloc.alloc(f64, radii.len) catch return retEmpty(p);
+    defer alloc.free(out);
+    gs.ripleyK(alloc, pts, gn(p, 2), radii, out) catch return retEmpty(p);
+    retF64s(p, out);
+}
+
+// GeoGFunction(aLonLat, aRadiiKm) -> [G(r1), ...]: the nearest-neighbour distribution
+fn ring_GeoGFunction(p: *anyopaque) callconv(.c) void {
+    const pts = readPoints(p, 1) orelse return retEmpty(p);
+    defer alloc.free(pts);
+    const radii = readPoints(p, 2) orelse return retEmpty(p);
+    defer alloc.free(radii);
+    const n = pts.len / 2;
+    const nn = alloc.alloc(f64, n) catch return retEmpty(p);
+    defer alloc.free(nn);
+    gs.nearestNeighbourKm(alloc, pts, nn) catch return retEmpty(p);
+    const out = alloc.alloc(f64, radii.len) catch return retEmpty(p);
+    defer alloc.free(out);
+    gs.cdfAt(nn, radii, out);
+    retF64s(p, out);
+}
+
+// GeoFFunction(aLonLat, aRings, aBox, nTests, nSeed, aRadiiKm) -> [F(r1), ...]: empty space
+fn ring_GeoFFunction(p: *anyopaque) callconv(.c) void {
+    const pts = readPoints(p, 1) orelse return retEmpty(p);
+    defer alloc.free(pts);
+    const wd = readWindow(p, 2, 3) orelse return retEmpty(p);
+    defer freeRings(wd.rr);
+    const m = argUsize(p, 4);
+    const radii = readPoints(p, 6) orelse return retEmpty(p);
+    defer alloc.free(radii);
+    const es = alloc.alloc(f64, m) catch return retEmpty(p);
+    defer alloc.free(es);
+    const got = gs.emptySpaceKm(alloc, pts, &wd.w, m, argU64(p, 5), es) catch return retEmpty(p);
+    const out = alloc.alloc(f64, radii.len) catch return retEmpty(p);
+    defer alloc.free(out);
+    gs.cdfAt(es[0..got], radii, out);
+    retF64s(p, out);
+}
+
+// GeoKEnvelope(aRings, aBox, nPoints, nAreaKm2, aRadiiKm, nSims, nSeed) -> [lo, hi, mean] per radius, flat
+fn ring_GeoKEnvelope(p: *anyopaque) callconv(.c) void {
+    const wd = readWindow(p, 1, 2) orelse return retEmpty(p);
+    defer freeRings(wd.rr);
+    const n = argUsize(p, 3);
+    const radii = readPoints(p, 5) orelse return retEmpty(p);
+    defer alloc.free(radii);
+    const sims = argUsize(p, 6);
+    const out = alloc.alloc(f64, radii.len * 3) catch return retEmpty(p);
+    defer alloc.free(out);
+    gs.kEnvelope(alloc, &wd.w, n, gn(p, 4), radii, sims, argU64(p, 7), out) catch return retEmpty(p);
+    retF64s(p, out);
+}
+
+// GeoSampleInside(aRings, aBox, nHowMany, nSeed) -> flat lon/lat, uniform on the sphere
+fn ring_GeoSampleInside(p: *anyopaque) callconv(.c) void {
+    const wd = readWindow(p, 1, 2) orelse return retEmpty(p);
+    defer freeRings(wd.rr);
+    const n = argUsize(p, 3);
+    const out = alloc.alloc(f64, n * 2) catch return retEmpty(p);
+    defer alloc.free(out);
+    const got = gs.sampleInside(&wd.w, n, argU64(p, 4), out);
+    retF64s(p, out[0 .. got * 2]);
+}
+
+// GeoMaternCluster(aRings, aBox, nParents, nChildren, nRadiusKm, nSeed) -> flat lon/lat
+fn ring_GeoMaternCluster(p: *anyopaque) callconv(.c) void {
+    const wd = readWindow(p, 1, 2) orelse return retEmpty(p);
+    defer freeRings(wd.rr);
+    const parents = argUsize(p, 3);
+    const children = argUsize(p, 4);
+    const out = alloc.alloc(f64, parents * children * 2) catch return retEmpty(p);
+    defer alloc.free(out);
+    const got = gs.maternCluster(&wd.w, parents, children, gn(p, 5), argU64(p, 6), out);
+    retF64s(p, out[0 .. got * 2]);
+}
+
+// GeoHardCore(aRings, aBox, nHowMany, nMinKm, nSeed) -> flat lon/lat
+fn ring_GeoHardCore(p: *anyopaque) callconv(.c) void {
+    const wd = readWindow(p, 1, 2) orelse return retEmpty(p);
+    defer freeRings(wd.rr);
+    const n = argUsize(p, 3);
+    const out = alloc.alloc(f64, n * 2) catch return retEmpty(p);
+    defer alloc.free(out);
+    const got = gs.hardCore(alloc, &wd.w, n, gn(p, 4), argU64(p, 5), out) catch return retEmpty(p);
+    retF64s(p, out[0 .. got * 2]);
+}
+
+// GeoMeanCentre(aLonLat) -> [lon, lat]
+fn ring_GeoMeanCentre(p: *anyopaque) callconv(.c) void {
+    const pts = readPoints(p, 1) orelse return retEmpty(p);
+    defer alloc.free(pts);
+    const c = gs.meanCentre(pts);
+    retPair(p, c[0], c[1]);
+}
+
+// GeoSpatialMedian(aLonLat) -> [lon, lat]
+fn ring_GeoSpatialMedian(p: *anyopaque) callconv(.c) void {
+    const pts = readPoints(p, 1) orelse return retEmpty(p);
+    defer alloc.free(pts);
+    const c = gs.spatialMedian(alloc, pts) catch return retEmpty(p);
+    retPair(p, c[0], c[1]);
+}
+
+// GeoEllipse(aLonLat) -> [lon, lat, sdKm, majorKm, minorKm, bearingDeg]
+fn ring_GeoEllipse(p: *anyopaque) callconv(.c) void {
+    const pts = readPoints(p, 1) orelse return retEmpty(p);
+    defer alloc.free(pts);
+    const e = gs.ellipse(pts);
+    retF64s(p, &.{ e.lon, e.lat, e.sd_km, e.major_km, e.minor_km, e.bearing_deg });
+}
+
+// GeoEllipseRing(nLon, nLat, nMajorKm, nMinorKm, nBearingDeg, nPoints) -> flat lon/lat ring
+fn ring_GeoEllipseRing(p: *anyopaque) callconv(.c) void {
+    var n = argUsize(p, 6);
+    if (n < 3) n = 3;
+    const out = alloc.alloc(f64, n * 2) catch return retEmpty(p);
+    defer alloc.free(out);
+    gs.ellipseRing(gn(p, 1), gn(p, 2), gn(p, 3), gn(p, 4), gn(p, 5), n, out);
+    retF64s(p, out);
 }
 
 fn ring_GeoHolesDropped(p: *anyopaque) callconv(.c) void {
@@ -403,6 +613,21 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginegeokindcount", .func = ring_GeoKindCount },
     .{ .name = "stzenginegeokindname", .func = ring_GeoKindName },
     .{ .name = "stzenginegeokindtraits", .func = ring_GeoKindTraits },
+    // GE7a
+    .{ .name = "stzenginegeonearestneighbour", .func = ring_GeoNearestNeighbour },
+    .{ .name = "stzenginegeoclarkevans", .func = ring_GeoClarkEvans },
+    .{ .name = "stzenginegeoringlength", .func = ring_GeoRingLength },
+    .{ .name = "stzenginegeoripleyk", .func = ring_GeoRipleyK },
+    .{ .name = "stzenginegeogfunction", .func = ring_GeoGFunction },
+    .{ .name = "stzenginegeoffunction", .func = ring_GeoFFunction },
+    .{ .name = "stzenginegeokenvelope", .func = ring_GeoKEnvelope },
+    .{ .name = "stzenginegeosampleinside", .func = ring_GeoSampleInside },
+    .{ .name = "stzenginegeomaterncluster", .func = ring_GeoMaternCluster },
+    .{ .name = "stzenginegeohardcore", .func = ring_GeoHardCore },
+    .{ .name = "stzenginegeomeancentre", .func = ring_GeoMeanCentre },
+    .{ .name = "stzenginegeospatialmedian", .func = ring_GeoSpatialMedian },
+    .{ .name = "stzenginegeoellipse", .func = ring_GeoEllipse },
+    .{ .name = "stzenginegeoellipsering", .func = ring_GeoEllipseRing },
 };
 
 pub fn registerAll(state: *anyopaque) void {

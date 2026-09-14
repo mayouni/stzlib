@@ -1,5 +1,6 @@
 pub const geo = @import("geo.zig");
 pub const geo_projection = @import("geo_projection.zig");
+pub const geo_stats = @import("geo_stats.zig");
 pub const ring_bridge = @import("ring_bridge_geo.zig");
 
 comptime {
@@ -13,4 +14,5 @@ fn ringlib_init(pState: ?*anyopaque) callconv(.c) void {
 test {
     _ = geo;
     _ = geo_projection;
+    _ = geo_stats;
 }

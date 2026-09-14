@@ -466,6 +466,36 @@ class stzGeoFeatures from stzObject
 
 	# the biggest part by point count -- the mainland, and the only thing
 	# DN24b's reader ever kept
+	# A FEATURE'S AREA ON THE SPHERE, km2, with its holes taken out and all
+	# its parts added in. This lived in stzGeoMap.ValuesFromArea and moved
+	# here when the point patterns (GE7a) needed a window's area and the
+	# map's own copy would have been a second one -- duplicated logic
+	# diverges, and it diverges in cost first.
+	def AreaKm2Of(pn)
+		_s_ = 0
+		for _k_ = 1 to This.PartCount(pn)
+			_r_ = This.RingsOf(pn, _k_)
+			if len(_r_) = 0  loop  ok
+			_s_ += StzGeoRingAreaKm2(_r_[1])
+			for _h_ = 2 to len(_r_)
+				_s_ -= StzGeoRingAreaKm2(_r_[_h_])
+			next
+		next
+		return _s_
+
+	# every feature's area, in feature order
+	def AreasKm2()
+		_a_ = []
+		for _i_ = 1 to This.Count()  _a_ + This.AreaKm2Of(_i_)  next
+		return _a_
+
+	# the whole set's area: what a point pattern observed over all of it
+	# divides by
+	def AreaKm2()
+		_s_ = 0
+		for _i_ = 1 to This.Count()  _s_ += This.AreaKm2Of(_i_)  next
+		return _s_
+
 	def LargestPartOf(pn)
 		_a_ = @aFeat[pn][4]
 		_best_ = 1

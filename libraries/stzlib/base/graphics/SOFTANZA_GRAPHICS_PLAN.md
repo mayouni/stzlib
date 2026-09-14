@@ -520,6 +520,10 @@ which exists.
 | GE6b | **labels the way an atlas does them**: a name inside, else a number and a key. The leader lines are REMOVED | Ring, `stzGeoMap` | **SHIPPED** below |
 | GE6c | **three labelling modes**, and the centre of a region is its AREA CENTROID | Ring, `stzGeoMap` | **SHIPPED** below |
 | GE6d | **insets**: the same ground larger, with a locator, a measured scale, and three refusals | Ring, `stzGeoMap` | **SHIPPED** below |
+| GE7 | **spatial statistics**: point patterns (K, L, G, F, Clark-Evans, envelopes by simulation), centres and ellipses, kernel density, contours, interpolation (IDW, kriging), point processes | engine, `geo_stats.zig`; face `stzGeoPoints`, `stzGeoField` | **GE7a SHIPPED** below; GE7b next |
+| GE8 | **geodesy on the ellipsoid**: Karney's geodesic on WGS84, ECEF and ENU frames, DMS, rhumb lines, a reference-ellipsoid table | engine, `geo_geodesy.zig` | PLAN |
+| GE9 | **the projection gallery**: from 16 to the ~50 with names people use, each with an inverse, plus local distortion measures from the Jacobian, and UTM zones | engine, `geo_projection.zig` | PLAN |
+| GE10 | **map furniture and the remaining plots**: scale bar, day-night terminator, vector and stream plots over a field, point-value small multiples | Ring, `stzGeoMap` | PLAN |
 
 **Order and value.** GE0 first, because every picture above it is only as
 honest as the sphere underneath and its properties are the most assertable
@@ -631,6 +635,144 @@ assertions** — every name accounted for as inline, leadered or dropped; a
 margin turning drops into leaders; no two boxes overlapping; the ink
 flipping on a dark class; a ramp answering its own stops and refusing a
 name it does not know. Gate §127, **1711 ok, 0 failed**.
+
+## GE7a -- A POINT PATTERN AND ITS WINDOW (2026-09-14, SHIPPED)
+
+*The first of the four spatial-statistics rungs, and the one the stated
+purpose lives in: "are these clinics clustered?" is a point-pattern
+question.*
+
+### A pattern is its points AND its window
+
+`StzGeoPoints(lonlat, features)` refuses to exist without a window. Every
+honest measure divides by the window's area or leans on its outline: the
+same hundred wells in Tunisia and in Niger are one list and two opposite
+answers. The window crosses the bridge as its outer rings and its box (holes
+not carried -- wrong by the area of a lake, and said so). Points outside the
+window are **counted, never dropped**, and the gate warns: they stand in the
+density and on none of its area.
+
+### What it computes, and the standard each is held to
+
+| measure | standard | note |
+|---|---|---|
+| `ClarkEvans()` | Clark & Evans 1954 **with Donnelly's 1978 edge correction** | uncorrected, 500 uniform points in a country-shaped window read as DISPERSED at z = 2.01; corrected, z = 1.10. `ClarkEvansUncorrected()` is kept for the comparison |
+| `RipleyK(radii)`, `L(radii)` | Ripley's K, uncorrected, `A/(n(n-1))` | all pairs taken once and binned, so the cost is n²/2 distances, not n² × radii |
+| `Envelope(radii, sims, seed)` | **the null by simulation** -- spatstat's `envelope()` | 39 uniform patterns of the same count in the same window; the band they make has the data's own edge in it, so no correction formula is trusted |
+| `G(radii)`, `F(radii, tests, seed)` | nearest-neighbour and empty-space distributions | F's test points are uniform in the window, in the engine |
+| `MeanCentre()`, `SpatialMedian()` | normalised vector sum; Weiszfeld on the sphere | |
+| `Ellipse()`, `EllipseRing(n)` | the standard deviational ellipse, tangent plane about the mean centre, axes at √(2λ) | the convention every GIS prints, so a reader can compare |
+| `Sample`, `SampleClustered`, `SampleDispersed` | uniform **on the sphere** (sin-latitude), Matérn cluster, hard-core by sequential inhibition | seeded; the null models the measures are judged against, and how the guard makes patterns whose truth is known |
+
+Distances are great-circle from unit vectors by the **chord** form, because
+acos of a dot product loses every digit that matters at the small angles a
+nearest-neighbour distance is.
+
+### Four things the first end-to-end run found
+
+- **The edge bias is real and visible.** The first run read a uniform
+  pattern as dispersed. That is not a bug in the sampler; it is the textbook
+  bias of the uncorrected index, and Donnelly's terms in the window's
+  perimeter are the textbook cure. The guard now asserts the mechanism: same
+  observed distances, higher corrected expectation, lower corrected z.
+- **On the sphere the centre of a cross is not quite its crossing.** The
+  east-west pair's midpoint sits a hair poleward of their latitude (the
+  chord runs under the parallel): 0.0004° on the fixture. The guard had
+  asked for 0.0001 and failed a correct answer. Longitude is exact by
+  symmetry; latitude gets the sphere's tolerance.
+- **Ring's `=` between two lists is not element-wise.** The seeded-sampling
+  test compares element by element now.
+- **A negative assertion cost fifty seconds.** Asking a hard-core process
+  for a hundred thousand discs in a window that holds forty spent two
+  hundred million tries finding out. Sequential inhibition stops after
+  20,000 consecutive refusals now -- the standard termination -- and the
+  guard runs in 3.3 s.
+
+*Witness:* `geo_points.png` -- Tunisia three times: uniform (R 0.95,
+random), Matérn (R 0.30, clustered), hard-core (R 1.53, dispersed), each with
+its mean centre, its ellipse, and L(r) against the band of 39 nulls. The
+band itself falls at large r, which is the edge effect seen, and the reason
+the null is simulated. *Guard:* `geo_points_narrated.ring` **32**; gate
+section 128 (1733 in all). *Engine:* `geo_stats.zig`, 16 standalone
+tests via `zig test -j2 -lc`.
+
+## GE7 to GE10 -- THE WOLFRAM COMPARISON (2026-09-14, PLAN)
+
+*Asked for as: "compete with the best of Wolfram", with six guide pages.
+Both sides were read before this table was written -- Wolfram's from the
+pages, ours from the files -- because a comparison from memory is a
+comparison with a version of the competitor that does not exist.*
+
+### Where the plane stands against the six pages
+
+| Wolfram area | they have | we have | the gap, named |
+|---|---|---|---|
+| **Maps & cartography** | GeoGraphics, 150+ projections, grid lines, scale bar, range/centre/padding, styling, distortion measures | 16 projections with inverses, graticule, outline, fit, rotation, paper, labels, insets, legend, caption, Tissot | **scale bar**; **numeric distortion** (unit distance / area / angle -- we draw Tissot, we do not measure it); DMS; rhumb paths; the day-night terminator |
+| **Geo visualization** | 12 plot types | list, bubble (symbol), region-value (choropleth), histogram (hex-bin), graph (flows) -- 5 of 12 | **smooth histogram** (kernel density), **contour**, **density**, **vector and stream** plots, point-value small multiples -- 7 of 12 |
+| **Geodesy** | ellipsoidal distance / direction / destination / area, XYZ and ENU frames, DMS, datums, antipode, distance lists | spherical distance, bearing, destination, midpoint, angular distance, spherical area, arc | **the ellipsoid**: ours is a sphere, so every distance is ~0.3% off and every area a little more; XYZ / ENU frames; DMS; datums |
+| **Spatial statistics** | estimation (variogram, kriging), point data, randomness tests, centres and densities, K / G / F / pair-correlation, nine point processes | count and density per region, hex-bin, rejection sampling inside a region | **nearly everything** -- and this is the area the Principal's stated purpose ("spatial analytics applications") lives in |
+| **Projection gallery** | ~150 named | 16 | ~50 with names anyone uses (Robinson, Winkel tripel, Hammer, Aitoff, Bonne, Eckert IV, Goode, Miller, Van der Grinten, Cassini, Wagner VII, Kavrayskiy VII, Peirce quincuncial ...) |
+| **Core-areas page** | elevation, weather, satellite imagery, travel routing, curated entity data, planetary maps | GeoJSON, TopoJSON, an atlas that resolves NAMES without vendoring shapes | **not a gap -- a decision**, below |
+
+### The decision the table forces, stated once
+
+**Wolfram's core-areas page is half library and half DATA SERVICE, and we
+compete on the library half only.** Elevation, weather, satellite imagery,
+routing, and entity data are curated datasets served from Wolfram's
+machines. GE4 already ruled on this: the plane resolves names to shapes
+*without vendoring shapes*, and the atlas directory is gitignored with a
+README saying where the files come from. Vendoring the world is not a
+capability, it is a hosting bill. What the library owes instead is that
+bringing your own data is trivial -- readers for the formats analysts
+actually have, and a raster grid type for the ones that are fields.
+
+Interactivity -- DynamicGeoGraphics, tooltips, mouseover -- is the GUI
+plane's, and GE5's hands (`PlaceAt`, `FeatureAt`) are what it will build on.
+
+### The order, and why
+
+**GE7 first, because it is the largest gap and the whole stated purpose.**
+"Spatial analytics in Niger, Tunisia and France" means questions like *are
+these clinics clustered or scattered?*, *where is the density highest?*,
+*what is the rainfall between the stations we have?* -- and every one of
+those is a spatial statistic the plane cannot yet compute. The projection
+gallery is the most visible gap and the least consequential: nobody's
+analysis is wrong for want of Wagner VII.
+
+**GE7a -- point patterns.** A `stzGeoPoints` pattern bound to its window
+(the region it was observed in, which the plane already has as a feature
+set). Nearest-neighbour distances; the **Clark-Evans index** with its
+z-test, which is the first question an analyst asks; **Ripley's K and L**,
+the **G** function (nearest-neighbour distribution) and the **F** function
+(empty space, which needs random points inside the window -- and
+`SamplePointsInside` is exactly that). **Envelopes by simulation** rather
+than analytic edge correction: simulate the same count of uniform points in
+the same window many times and take the band, which is what spatstat's
+`envelope()` does and which subjects the null to the same edge effect as
+the data, so no correction formula has to be trusted. Mean centre, spatial
+median (Weiszfeld), standard distance and the standard deviational ellipse
+-- the "where is the middle of this and how is it spread" that a report
+opens with. All pairwise work in the engine; ten thousand points is fifty
+million distances and is fine.
+
+**GE7b -- fields.** A raster grid type. **Kernel density** onto the grid
+(the smooth histogram); **marching squares** over any grid (the contour
+plot); the grid coloured (the density plot). An ESRI ASCII-grid reader so a
+rainfall or elevation raster can be brought in.
+
+**GE7c -- interpolation.** IDW, then the empirical **variogram** with three
+fitted models and **ordinary kriging** with its variance surface, which is
+the estimate *and* the honest map of where the estimate is guesswork.
+
+**GE7d -- point processes**, seeded: homogeneous and inhomogeneous Poisson
+(by thinning), Matern cluster, hard-core. Null models and synthetic data.
+
+**GE8** because an analyst comparing our distances to a GPS or to
+Wolfram's will find them 0.3% short and will be right. Karney's geodesic is
+the standard and is one algorithm.
+
+**GE9 and GE10** last; visible, mechanical, and gated the same way as GE0:
+forward-inverse round trip and a Tissot sheet per projection.
 
 ## GE6d -- INSETS (2026-09-13, SHIPPED)
 

@@ -171,6 +171,7 @@ general-tasks session's file and is routed to them, not fix them here.*
 | DN24 | closed | 118 |
 | DN24b | closed | 120 |
 | GE3 | closed | 124 |
+| GE7a | closed | 128 |
 | GE6 | closed | 127 |
 | GE4 | closed | 126 |
 | GE5 | closed | 125 |
@@ -4429,6 +4430,24 @@ it merely advises: a choropleth needs an equal-area projection; north is up
 unless said otherwise; the map names its source; every value falls in the
 classes; every class colours a region; every region has a value; the data
 fits the paper. `StzCheckGeoMaps()` judges several at once.
+
+## GE7a — A POINT PATTERN AND ITS WINDOW (2026-09-14, SHIPPED)
+
+**§128 discharges GE7a.** The first of the spatial-statistics rungs the
+Wolfram comparison ordered, and the one the Principal's stated purpose lives
+in: "are these clinics clustered?" is a point-pattern question. A pattern is
+its points AND the window they were observed in — `StzGeoPoints(lonlat,
+features)` refuses to exist without one, because the same hundred wells in
+Tunisia and in Niger are one list and two opposite answers. Clark–Evans
+**with Donnelly's edge correction** (uncorrected, 500 uniform points in a
+country-shaped window read as dispersed at z = 2.0; corrected, 1.1);
+Ripley's K uncorrected and **the null by simulation** — 39 uniform patterns
+of the same count in the same window, so the edge effect is in the null and
+no correction formula is trusted; G and F; the mean centre, the spatial
+median and the standard deviational ellipse; seeded samplers, uniform ON THE
+SPHERE. All pairwise work in the engine (`geo_stats.zig`). The full account
+is in `SOFTANZA_GRAPHICS_PLAN.md` under GE7a; the guard is
+`geo_points_narrated.ring` and the witness `geo_points.png`.
 
 ## GE6 — INSIDE A COUNTRY, AND THE SPATIAL JOIN (2026-09-13, SHIPPED)
 
