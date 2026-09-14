@@ -231,6 +231,92 @@ func _PaperEdgeDist(paRing, pnX, pnY)
 	next
 	return sqrt(_best_)
 
+# HATCH A POLYGON, CLIPPED TO IT, at 45 degrees.
+#
+# Every point on one hatch line has the same x + y, so the family of lines
+# is just a sweep of that sum -- which turns "where does this diagonal cross
+# the shape" into the ordinary scanline question, asked along a rotated
+# axis. For each line the edges it crosses are found, the crossings sorted
+# along it, and the ODD spans drawn: inside, outside, inside, exactly as
+# even-odd filling works.
+#
+# It is written once and called by two things that must not drift apart --
+# the no-data countries on the map and the no-data swatch in the legend. A
+# reader has to recognise the second as the first.
+func _HatchPolygon(poCanvas, paXY, pnSpacing, pColour, pnWidth)
+	_n_ = len(paXY) / 2
+	if _n_ < 3 or pnSpacing <= 0  return  ok
+	_lo_ = paXY[1] + paXY[2]
+	_hi_ = _lo_
+	for _i_ = 2 to _n_
+		_u_ = paXY[_i_ * 2 - 1] + paXY[_i_ * 2]
+		if _u_ < _lo_  _lo_ = _u_  ok
+		if _u_ > _hi_  _hi_ = _u_  ok
+	next
+	# START ON A GLOBAL GRID, so two countries sharing a border carry one
+	# continuous hatch across it instead of two patterns meeting at an angle.
+	#
+	# The cost of a global grid is that a shape's phase is decided by where
+	# it happens to sit, and a shape narrower than the spacing can fall
+	# BETWEEN two grid lines and catch none -- which would leave a small
+	# country unhatched, silently, and put us back at "no data is invisible"
+	# for exactly the countries a reader is least able to identify. Measured
+	# on the world sheet before this line existed: Belgium took two lines in
+	# the upper panel and one in the lower, off nothing but the panel's y
+	# offset. So a shape that catches nothing is swept once through its
+	# middle: every no-data region carries at least one mark.
+	_c_ = floor(_lo_ / pnSpacing) * pnSpacing
+	_drawn_ = 0
+	while _c_ <= _hi_
+		_drawn_ += _HatchSweep(poCanvas, paXY, _n_, _c_, pColour, pnWidth)
+		_c_ += pnSpacing
+	end
+	if _drawn_ = 0
+		_HatchSweep(poCanvas, paXY, _n_, (_lo_ + _hi_) / 2, pColour, pnWidth)
+	ok
+
+# ONE HATCH LINE, clipped: the crossings of the diagonal x + y = pnC with the
+# polygon's edges, sorted along it, and the odd spans drawn. Returns how many
+# segments it drew, which is how _HatchPolygon knows a shape caught nothing.
+func _HatchSweep(poCanvas, paXY, pnN, pnC, pColour, pnWidth)
+	_xs_ = []
+	_j_ = pnN
+	for _i_ = 1 to pnN
+		_xi_ = paXY[_i_ * 2 - 1]
+		_yi_ = paXY[_i_ * 2]
+		_xj_ = paXY[_j_ * 2 - 1]
+		_yj_ = paXY[_j_ * 2]
+		_ui_ = _xi_ + _yi_
+		_uj_ = _xj_ + _yj_
+		if (_ui_ <= pnC) != (_uj_ <= pnC)
+			_t_ = (pnC - _ui_) / (_uj_ - _ui_)
+			_xs_ + (_xi_ + (_xj_ - _xi_) * _t_)
+		ok
+		_j_ = _i_
+	next
+	if len(_xs_) < 2  return 0  ok
+	for _a_ = 1 to len(_xs_) - 1
+		for _b_ = 1 to len(_xs_) - _a_
+			if _xs_[_b_] > _xs_[_b_ + 1]
+				_t_ = _xs_[_b_]
+				_xs_[_b_] = _xs_[_b_ + 1]
+				_xs_[_b_ + 1] = _t_
+			ok
+		next
+	next
+	_out_ = 0
+	_k_ = 1
+	while _k_ + 1 <= len(_xs_)
+		_x1_ = _xs_[_k_]
+		_x2_ = _xs_[_k_ + 1]
+		if _x2_ - _x1_ > 0.4
+			poCanvas.AddLineQ(_x1_, pnC - _x1_, _x2_, pnC - _x2_).Stroke(pColour, pnWidth)
+			_out_++
+		ok
+		_k_ += 2
+	end
+	return _out_
+
 func _GeoBoxFree(paBox, paPlaced)
 	for _i_ = 1 to len(paPlaced)
 		_p_ = paPlaced[_i_]
@@ -288,6 +374,8 @@ class stzGeoMap from stzObject
 	@nHiClass = 0
 	@bIdentify = FALSE
 	@cNoData = "#E8E8E8"
+	@cHatch = "#9EB6D8"
+	@bOpenTop = FALSE
 	@bBinned = FALSE
 	@bLabelled = FALSE
 	@nLblNamed = 0
@@ -415,6 +503,35 @@ class stzGeoMap from stzObject
 			This.SetNoData(pColour)
 			return This
 
+	# THE COLOUR OF THE HATCH THAT SAYS "NOT MEASURED", on the map and in the
+	# legend's swatch, which are one thing and read from one place. The
+	# default is a blue-grey: cool, so it cannot be mistaken for a step in a
+	# warm ramp, and light, so a hatched country does not out-shout a
+	# measured one.
+	def SetHatch(pColour)
+		@cHatch = pColour
+
+		def SetHatchQ(pColour)
+			This.SetHatch(pColour)
+			return This
+
+	def Hatch()
+		return @cHatch
+
+	# IS THE TOP CLASS OPEN -- "30 and over" rather than "20 to 30". It is a
+	# statement about the SCALE, so it lives with the scale and not in the
+	# legend's argument list: the classifier and the legend both read it, and
+	# a reader must never meet an arrow the map refused to fill.
+	def SetOpenTop(pbOn)
+		@bOpenTop = pbOn
+
+		def SetOpenTopQ(pbOn)
+			This.SetOpenTop(pbOn)
+			return This
+
+	def IsOpenTop()
+		return @bOpenTop
+
 	def SetSource(pcSource)
 		@cSource = "" + pcSource
 
@@ -521,6 +638,13 @@ class stzGeoMap from stzObject
 			if _v_ >= @aEdges[_c_] and _v_ < @aEdges[_c_ + 1]  return _c_  ok
 		next
 		if _v_ = @aEdges[_n_ + 1]  return _n_  ok
+		# ABOVE THE TOP EDGE, WHEN THE TOP IS DECLARED OPEN, IS THE TOP CLASS.
+		# The ramp legend can draw its last swatch as an arrow, which says to
+		# the reader "30 and over". If the classifier then answered 0 for a
+		# value of 35, the legend would promise a class the map refused to put
+		# anyone in -- and that country would be drawn as NO DATA, which is a
+		# lie about a number somebody measured.
+		if @bOpenTop and _v_ > @aEdges[_n_ + 1]  return _n_  ok
 		return 0
 
 	def ColourOf(pnI)
@@ -2071,6 +2195,17 @@ class stzGeoMap from stzObject
 		next
 		if @bIdentify  poCanvas.ClearSvgIdent()  ok
 		poCanvas.Flush()
+
+		# THE HATCH IS PART OF DRAWING THE SHEET, not something a caller
+		# remembers to add. The legend prints a no-data swatch whenever the
+		# map has unclassed regions, so the map owes the reader the matching
+		# mark -- and the first version of this sheet left it to the caller,
+		# who did not know they had been given the job.
+		#
+		# It goes on AFTER every fill, because a country drawn later would
+		# paint over a neighbour's hatching, and BEFORE the highlight, whose
+		# outlines must sit on top of everything.
+		This.DrawNoDataHatchOn(poCanvas, @cHatch, 0.8, 6)
 		This.DrawHighlightOn(poCanvas, "#1A1A1A", 2.2)
 
 	def _IdentClassOf(pnI)
@@ -2096,6 +2231,60 @@ class stzGeoMap from stzObject
 		next
 		poCanvas.Flush()
 
+	# NO DATA IS HATCHED, NOT COLOURED, and it is hatched ON THE MAP.
+	#
+	# The first version of this sheet filled unclassed countries white and
+	# left it there. On a white page that is invisible: the five countries
+	# with no value read as ocean, and the legend promised a category the
+	# map never showed. The Principal saw it at once -- "there is no no-data
+	# illustrated in the map you made".
+	#
+	# A colour cannot fix it either. Any colour put on an unclassed country
+	# joins the scale in the reader's eye: pale grey reads as "low", and
+	# anything warmer reads as a value. HATCHING is the only mark that says
+	# NOT MEASURED rather than MEASURED LOW, which is why every serious
+	# statistical map uses it -- Our World in Data hatch Greenland, and the
+	# reader knows instantly that it is a different kind of statement.
+	#
+	# The lines are CLIPPED TO THE SHAPE, by the same routine for a country
+	# and for the legend's own swatch. The first legend swatch drew its
+	# hatching as unclipped diagonals and they ran out of the box on both
+	# sides -- "its rectangle in the legend is not correct", which it was
+	# not. One clipper, two callers, and no second definition of a hatch.
+	def DrawNoDataHatchOn(poCanvas, pColour, pnWidth, pnSpacing)
+		_n_ = @oF.Count()
+		for _i_ = 1 to _n_
+			if NOT This.IsUnclassed(_i_)  loop  ok
+			if @bIdentify
+				poCanvas.SetSvgIdent(This.IdentOf(_i_) + "-hatch", "geo-nodata-hatch")
+			ok
+			for _k_ = 1 to @oF.PartCount(_i_)
+				_pcs_ = @oP.FilledPolygon(@oF.RingsOf(_i_, _k_))
+				for _p_ = 1 to len(_pcs_)
+					_HatchPolygon(poCanvas, _pcs_[_p_], pnSpacing, pColour, pnWidth)
+				next
+			next
+		next
+		if @bIdentify  poCanvas.ClearSvgIdent()  ok
+		poCanvas.Flush()
+
+	# NO DATA MEANS NO VALUE, and it does not mean "a value my scale has no
+	# box for". A country measured at 35 on a scale topping out at 30 is
+	# data -- badly classed data, which is the cartographer's problem and not
+	# the country's -- and hatching it would tell the reader nobody counted
+	# it. So this asks for the VALUE where the map is numeric, and for
+	# membership where the map is categorical, since a map cannot be both.
+	def IsUnclassed(pnI)
+		if len(@aGroups) > 0  return This.GroupOf(pnI) = 0  ok
+		return NOT isNumber(This.ValueOf(pnI))
+
+	def NoDataCount()
+		_n_ = 0
+		for _i_ = 1 to @oF.Count()
+			if This.IsUnclassed(_i_)  _n_++  ok
+		next
+		return _n_
+
 	# A NAME WITH A HALO, because a label on a choropleth has no single
 	# background to contrast with: the same word crosses a pale class and a
 	# dark one. The halo is the ink's opposite, drawn as eight offset copies
@@ -2118,24 +2307,32 @@ class stzGeoMap from stzObject
 	#
 	# An open-ended top class is drawn as an ARROW rather than a box,
 	# because "20% and over" has no right-hand edge and a box claims one.
-	def DrawRampLegendOn(poCanvas, poFont, pnSize, pnX, pnY, pnW, pnH, pInk, pbOpenTop)
+	#
+	# WHETHER THE TOP IS OPEN IS NOT AN ARGUMENT HERE. It used to be, and
+	# that made two places answer one question: the legend drew an arrow
+	# saying "30 and over" while the classifier, which had never been told,
+	# answered NOTHING for 35 and the map drew that country as no data. It is
+	# SetOpenTop now -- declared once with the scale, read by the classifier
+	# and by this method, and it cannot be set after the map is drawn.
+	def DrawRampLegendOn(poCanvas, poFont, pnSize, pnX, pnY, pnW, pnH, pInk)
 		if len(@aEdges) < 2  return pnY  ok
 		_n_ = len(@aEdges) - 1
 		_sz_ = pnSize
 		if _sz_ < 11  _sz_ = 11  ok
 
-		# the no-data swatch: hatched, because "not measured" must not read
-		# as a pale value at the bottom of the scale
+		# THE NO-DATA SWATCH, hatched with the same clipper the map uses, so
+		# the legend's mark and the country's mark are one thing. Drawn as a
+		# POLYGON handed to _HatchPolygon rather than as free diagonals: the
+		# first version ran its lines out of the box on both sides.
 		_nd_ = 46
 		poCanvas.SetFontQ(poFont, _sz_).
 			AddTextQ("No data", pnX, pnY - 6).Fill("#777777")
-		poCanvas.AddRectQ(pnX, pnY, _nd_, pnH).FillQ("#FFFFFF").Stroke(pInk, 0.9)
-		_k_ = 0
-		while _k_ < _nd_ + pnH
-			poCanvas.AddLineQ(pnX + _k_, pnY, pnX + _k_ - pnH, pnY + pnH).Stroke("#9EB6D8", 0.9)
-			_k_ += 5
-		end
+		poCanvas.Flush()
+		poCanvas.AddRectQ(pnX, pnY, _nd_, pnH).FillQ("#FFFFFF").Stroke("#00000000", 0)
+		_box_ = [ pnX, pnY, pnX + _nd_, pnY, pnX + _nd_, pnY + pnH, pnX, pnY + pnH ]
+		_HatchPolygon(poCanvas, _box_, 6, @cHatch, 0.9)
 		poCanvas.AddRectQ(pnX, pnY, _nd_, pnH).FillQ("#00000000").Stroke(pInk, 0.9)
+		poCanvas.Flush()
 
 		_x0_ = pnX + _nd_ + 16
 		_cw_ = pnW / _n_
@@ -2144,7 +2341,7 @@ class stzGeoMap from stzObject
 			if @bIdentify
 				poCanvas.SetSvgIdent("geo-legend-class-" + _c_, "geo-legend-swatch")
 			ok
-			if _c_ = _n_ and pbOpenTop
+			if _c_ = _n_ and @bOpenTop
 				# the open top: a box with a point on it
 				poCanvas.AddPolygonQ([ _x_, pnY, _x_ + _cw_ * 0.55, pnY,
 				                       _x_ + _cw_, pnY + pnH / 2,

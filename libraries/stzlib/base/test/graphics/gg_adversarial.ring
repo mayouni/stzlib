@@ -20134,7 +20134,8 @@ func _G2cHaloRuns poM
 func _G2cLegendOk poM
 	_c_ = new stzCanvas(700, 300)
 	_c_.SetBackground("#FFFFFF")
-	_n_ = poM.DrawRampLegendOn(_c_, EFONT, 13, 40, 120, 400, 22, "#4A4A4A", TRUE)
+	poM.SetOpenTop(TRUE)
+	_n_ = poM.DrawRampLegendOn(_c_, EFONT, 13, 40, 120, 400, 22, "#4A4A4A")
 	if _n_ <= 142  return FALSE  ok
 	return StzFindFirst("<polygon", _c_.ToSVG()) > 0
 

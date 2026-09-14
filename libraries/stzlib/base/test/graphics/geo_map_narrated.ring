@@ -545,7 +545,8 @@ chk("NEGATIVE: selecting no class clears it",
 
 oShC3 = new stzCanvas(700, 300)
 oShC3.SetBackground("#FFFFFF")
-nShEnd = oShM.DrawRampLegendOn(oShC3, oFont, 13, 40, 120, 400, 22, "#4A4A4A", TRUE)
+oShM.SetOpenTop(TRUE)
+nShEnd = oShM.DrawRampLegendOn(oShC3, oFont, 13, 40, 120, 400, 22, "#4A4A4A")
 cShLeg = oShC3.ToSVG()
 # TEXT REACHES THE SVG AS GLYPH OUTLINES, NOT AS WORDS. The canvas emits a
 # <path> per text run, which is the right choice -- it needs no font at the
@@ -583,6 +584,95 @@ chk("A LABEL OVER COLOUR GETS A HALO -- NINE runs of the same word, eight " +
     "no ONE background for the colour system's contract to answer against",
     len(StzFindCS("<path", oShC4.ToSVG(), TRUE)) = 9 and
     len(StzFindCS("<path", oShC5.ToSVG(), TRUE)) = 1)
+
+? "-- 9g. NO DATA IS A MARK, ON THE MAP AND IN THE LEGEND --"
+# The Principal read the first sheet and found two things: "there is no no
+# data illustrated in the map you made, and its rectangle in the legend is
+# not correct". Both were true, and they were ONE defect seen twice -- the
+# map left no-data to a colour (white, on a white page) while the legend
+# drew a hatch by hand, out of its own box. There is one hatch now, clipped
+# to whatever shape it is handed, and the map is one of its callers.
+
+# THE CLIPPER, ON SHAPES WHOSE ANSWER IS ARITHMETIC. A square's hatch count
+# is its diagonal span divided by the spacing, so halving the spacing must
+# double the lines -- a property no accident satisfies.
+n6 = _NHatchLines([ 50,50, 110,50, 110,110, 50,110 ], 6)
+n12 = _NHatchLines([ 50,50, 110,50, 110,110, 50,110 ], 12)
+? "   a 60x60 square takes " + n6 + " lines at spacing 6 and " + n12 + " at 12"
+chk("THE HATCH IS A SWEEP OF x+y, so a square takes exactly its diagonal " +
+    "span divided by the spacing -- 120/6 -- and halving the spacing " +
+    "doubles the count",
+    n6 = 20 and n12 = 10)
+chk("...and every endpoint lands ON the shape, which is what 'clipped' " +
+    "means and what the first legend swatch did not do: its diagonals ran " +
+    "out of the box on both sides",
+    _HatchStaysInside([ 50,50, 110,50, 110,110, 50,110 ], 6))
+chk("A HOLE STOPS THE HATCH -- a bridged ring is filled even-odd, so a line " +
+    "crossing a lake comes back as two segments and not one",
+    _NHatchLines([ 50,50, 110,50, 110,110, 50,110, 50,80,
+        70,80, 70,90, 90,90, 90,80, 70,80, 50,80 ], 6) > n6)
+
+# A GLOBAL GRID MAKES THE PHASE POSITIONAL, and that has a cost: a shape
+# narrower than the spacing can fall between two grid lines and catch none.
+# Measured on the world sheet before the fallback existed -- Belgium took
+# two lines in the upper panel and one in the lower, off nothing but the
+# panel's y offset. A country left unhatched is the original defect again,
+# for exactly the countries a reader is least able to name.
+chk("A SHAPE THAT FALLS BETWEEN TWO GRID LINES IS STILL HATCHED -- its " +
+    "u = x+y runs 200 to 202, between the lines at 198 and 204, and it " +
+    "gets one line swept through its middle",
+    _NHatchLines([ 100,100, 101,100, 101,101, 100,101 ], 6) = 1)
+chk("NEGATIVE: and the fallback does NOT double up on a shape the ordinary " +
+    "sweep already reached -- the same square moved onto a grid line still " +
+    "takes one line, not two",
+    _NHatchLines([ 101,101, 102,101, 102,102, 101,102 ], 6) = 1)
+chk("...and a sub-pixel sliver draws nothing, which is honest rather than " +
+    "broken: no mark inside a shape 0.2px wide can be seen by anybody",
+    _NHatchLines([ 100,100, 100.2,100, 100.2,100.2, 100,100.2 ], 6) = 0)
+
+# THE MAP DRAWS IT, and the caller is not asked to remember. The first
+# version left the hatch to whoever composed the sheet, who did not know
+# they had been given the job.
+oNdF = StzGeoFeaturesFromJson(read("fixtures/two_countries.geojson"))
+oNdM = StzGeoMap(new stzGeoProjection(:ConicEqualArea), oNdF)
+oNdM.Projection().FitToFeatures(oNdF, 300, 300, 10)
+oNdM.SetValuesQ([ 3, "" ]).SetClassesQ([ 0, 10, 50 ])
+oNdM.SetRamp(:YlOrRd)
+? "   " + oNdM.NoDataCount() + " of " + oNdF.Count() + " regions have no value"
+chk("A REGION WITH NO VALUE IS COUNTED AS NO DATA, and one with a value " +
+    "is not",
+    oNdM.NoDataCount() = 1 and oNdM.IsUnclassed(2) and NOT oNdM.IsUnclassed(1))
+oNdC = new stzCanvas(400, 400)
+oNdC.SetBackground("#FFFFFF")
+oNdM.SetInteractive(TRUE)
+oNdM.DrawSheetOn(oNdC, "#4A4A4A", 0.5)
+cNdSvg = oNdC.ToSVG()
+chk("DRAWING THE SHEET HATCHES IT -- the caller does not have to know that " +
+    "an unmeasured country needs a second pass, because the legend promises " +
+    "a no-data category on every sheet and the map must keep that promise",
+    StzFindFirst(oNdM.IdentOf(2) + "-hatch", cNdSvg) > 0 and
+    len(StzFindCS("geo-nodata-hatch", cNdSvg, TRUE)) = 1)
+chk("NEGATIVE: and the region that HAS a value is not hatched",
+    StzFindFirst(oNdM.IdentOf(1) + "-hatch", cNdSvg) = 0)
+
+# NO DATA MEANS NO VALUE. It does not mean "a number my scale has no box
+# for": a country measured above the top edge is data, badly classed, and
+# hatching it would tell the reader nobody counted it.
+oNdM.SetValuesQ([ 3, 90 ]).SetClassesQ([ 0, 10, 50 ])
+chk("A VALUE ABOVE THE TOP EDGE IS NOT NO DATA -- 90 on a scale ending at " +
+    "50 is a measurement, and the cartographer's problem is not the " +
+    "country's",
+    oNdM.NoDataCount() = 0 and NOT oNdM.IsUnclassed(2))
+oNdM.SetOpenTop(FALSE)
+chk("...though with a CLOSED top it still falls in no class, because a " +
+    "closed scale genuinely has no box for it",
+    oNdM.ClassOf(2) = 0)
+oNdM.SetOpenTop(TRUE)
+chk("AND AN OPEN TOP PUTS IT IN THE TOP CLASS, which is the only reading " +
+    "that matches the arrow the legend draws. The two used to be separate " +
+    "knobs -- the legend drew '50 and over' while the classifier, never " +
+    "told, answered 0 and the map drew that country as NO DATA.",
+    oNdM.ClassOf(2) = 2 and oNdM.IsOpenTop())
 
 ? "-- 9. THE SPATIAL JOIN: a table of places, counted into regions --"
 # THE POINTS ARE TAKEN FROM THE REGIONS THEMSELVES, not guessed at. The
@@ -1052,6 +1142,50 @@ func _IdentIsClean pcJson
 	if StzFindFirst("--", _c_) > 0  return FALSE  ok
 	if StzRight(_c_, 1) = "-"  return FALSE  ok
 	return len(_c_) > 4
+
+func _NHatchLines paXY, nSp
+	_c_ = new stzCanvas(300, 300)
+	_c_.SetBackground("#FFFFFF")
+	_HatchPolygon(_c_, paXY, nSp, "#9EB6D8", 0.9)
+	_c_.Flush()
+	return len(StzFindCS("<polyline", _c_.ToSVG(), TRUE))
+
+# EVERY ENDPOINT ON THE SHAPE, which is the property the first legend swatch
+# broke. Read out of the SVG rather than out of the routine's own arithmetic,
+# so the assertion checks what was DRAWN and not what was intended.
+func _HatchStaysInside paXY, nSp
+	_c_ = new stzCanvas(300, 300)
+	_c_.SetBackground("#FFFFFF")
+	_HatchPolygon(_c_, paXY, nSp, "#9EB6D8", 0.9)
+	_c_.Flush()
+	_x0_ = paXY[1]  _x1_ = paXY[1]  _y0_ = paXY[2]  _y1_ = paXY[2]
+	for _i_ = 2 to len(paXY) / 2
+		_x_ = paXY[_i_ * 2 - 1]
+		_y_ = paXY[_i_ * 2]
+		if _x_ < _x0_  _x0_ = _x_  ok
+		if _x_ > _x1_  _x1_ = _x_  ok
+		if _y_ < _y0_  _y0_ = _y_  ok
+		if _y_ > _y1_  _y1_ = _y_  ok
+	next
+	_a_ = StzSplit(_c_.ToSVG(), "points=" + char(34))
+	_bad_ = 0
+	_seen_ = 0
+	for _k_ = 2 to len(_a_)
+		_p_ = StzSplit(StzSplit(_a_[_k_], char(34))[1], " ")
+		for _q_ = 1 to len(_p_)
+			_xy_ = StzSplit(_p_[_q_], ",")
+			if len(_xy_) != 2  loop  ok
+			_seen_++
+			_px_ = 0 + _xy_[1]
+			_py_ = 0 + _xy_[2]
+			if _px_ < _x0_ - 0.01 or _px_ > _x1_ + 0.01 or
+			   _py_ < _y0_ - 0.01 or _py_ > _y1_ + 0.01
+				_bad_++
+			ok
+		next
+	next
+	? "   " + _seen_ + " hatch endpoints read back, " + _bad_ + " outside the shape"
+	return _seen_ > 0 and _bad_ = 0
 
 func _HasPolygon pcSvg
 	return StzFindFirst("<polygon", pcSvg) > 0
