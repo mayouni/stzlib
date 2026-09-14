@@ -16759,6 +16759,62 @@ chk("NEGATIVE: a place outside every region is REPORTED, never rounded to the " 
     "nearest -- a well across the border belongs to the other side",
     oG6M.PointsOutside(aG6P) = 1 and (aG6N[1] + aG6N[2] + oG6M.PointsOutside(aG6P)) = 4)
 
+sec("-- 128. GE7a: A POINT PATTERN AND ITS WINDOW ------------------------------")
+discharges("GE7a")
+
+# Clustered, scattered or random -- the first question asked of a table of
+# places, answered on patterns whose truth the gate made. The full narration
+# with its negatives is geo_points_narrated.ring; this is the gate's own
+# witness for the claims an analysis stands on.
+
+oG7W = StzGeoFeaturesFromJson(_G7ArdaJson())
+oG7 = StzGeoPoints([], oG7W)
+oG7R = oG7.With(oG7.Sample(500, 20260914))
+oG7C = oG7.With(oG7.SampleClustered(10, 50, 20, 20260914))
+oG7D = oG7.With(oG7.SampleDispersed(500, 15, 20260914))
+aG7r = oG7R.ClarkEvans()
+aG7c = oG7C.ClarkEvans()
+aG7d = oG7D.ClarkEvans()
+chk("THE THREE PATTERNS READ AS WHAT THEY WERE MADE TO BE -- uniform random, " +
+    "Matern clustered, hard-core dispersed -- and their R values order that way, " +
+    "which is the mechanism and not three verdicts each right by accident",
+    aG7r[:verdict] = "random" and aG7c[:verdict] = "clustered" and aG7d[:verdict] = "dispersed" and
+    aG7c[:r] < aG7r[:r] and aG7r[:r] < aG7d[:r])
+aG7u = oG7R.ClarkEvansUncorrected()
+chk("DONNELLY'S EDGE CORRECTION LOWERS z AND RAISES THE EXPECTATION on the same " +
+    "observed distances -- uncorrected, a uniform pattern in a window the shape " +
+    "of a country leans toward dispersed, and this gate saw it do so",
+    aG7r[:z] < aG7u[:z] and aG7r[:expected] > aG7u[:expected] and
+    fabs(aG7r[:observed] - aG7u[:observed]) < 0.000001)
+aG7rad = [ 10, 20, 30, 40, 60 ]
+aG7E = oG7R.EnvelopeL(aG7rad, 39, 20260914)
+aG7Lr = oG7R.L(aG7rad)
+aG7Lc = oG7C.L(aG7rad)
+aG7Ld = oG7D.L(aG7rad)
+chk("THE NULL IS SIMULATED, NOT ASSUMED: the uniform pattern's L stays inside " +
+    "the band of 39 nulls at every radius, the clustered rises above it, the " +
+    "dispersed falls below it",
+    _G7Inside(aG7Lr, aG7E) and (aG7Lc[2] > aG7E[2][2] or aG7Lc[3] > aG7E[3][2]) and
+    (aG7Ld[1] < aG7E[1][1] or aG7Ld[2] < aG7E[2][1]))
+chk("K at a small radius on a uniform pattern is close to pi r squared -- the " +
+    "estimator is Ripley's and not a re-invention",
+    fabs(oG7R.RipleyK([ 10 ])[1] / (3.14159265358979 * 100) - 1) < 0.2)
+chk("SEEDED SAMPLING: the same seed gives the same points, element by element",
+    _G7Same(oG7.Sample(40, 3), oG7.Sample(40, 3)) and NOT _G7Same(oG7.Sample(40, 3), oG7.Sample(40, 4)))
+oG7Out = oG7.With([ 2.5, 5, 40, 40 ])
+chk("NEGATIVE: a point outside the window is COUNTED, never dropped, and the " +
+    "gate warns -- it stands in the density and on none of its area",
+    oG7Out.Outside() = 1 and _G7Finding(oG7Out.Findings(), "the_points_are_in_their_window", "warning"))
+chk("NEGATIVE: a pattern without a window is refused -- the same hundred wells " +
+    "in Tunisia and in Niger are one list and two opposite answers",
+    _G7RefusesNoWindow())
+aG7ns = [ 2.5, 2, 2.5, 4, 2.5, 6, 2.5, 8 ]
+chk("THE ELLIPSE LIES ALONG THE SPREAD: a north-south line bears 0 with no " +
+    "minor axis, and the mean centre sits on its meridian",
+    oG7.With(aG7ns).Ellipse()[:minor] < 0.01 and
+    (oG7.With(aG7ns).Ellipse()[:bearing] < 0.01 or oG7.With(aG7ns).Ellipse()[:bearing] > 179.99) and
+    fabs(oG7.With(aG7ns).MeanCentre()[1] - 2.5) < 0.000000001)
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go
@@ -19841,6 +19897,38 @@ func _ChRejoin paL
 func _ChTwoRegions
 	return [ [ "Nord", 35, [ 0, 0, 40, 0, 38, 20, 0, 18 ] ],
 	         [ "Sud", 120, [ 0, 18, 38, 20, 40, 42, 0, 40 ] ] ]
+
+# GE7a helpers
+func _G7ArdaJson
+	return '{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"name":"Arda"},' +
+		'"geometry":{"type":"Polygon","coordinates":[[[0,0],[5,0],[5,10],[0,10],[0,0]]]}}]}'
+
+func _G7Inside paL, paE
+	for _i_ = 1 to len(paL)
+		if paL[_i_] < paE[_i_][1] - 0.000001 or paL[_i_] > paE[_i_][2] + 0.000001  return FALSE  ok
+	next
+	return TRUE
+
+func _G7Same paA, paB
+	if len(paA) != len(paB)  return FALSE  ok
+	for _i_ = 1 to len(paA)
+		if paA[_i_] != paB[_i_]  return FALSE  ok
+	next
+	return TRUE
+
+func _G7Finding paF, pcRule, pcSev
+	for _i_ = 1 to len(paF)
+		if paF[_i_][:rule] = pcRule and paF[_i_][:severity] = pcSev  return TRUE  ok
+	next
+	return FALSE
+
+func _G7RefusesNoWindow
+	try
+		StzGeoPoints([ 1, 1 ], "not a window")
+	catch
+		return StzFindFirst("window", cCatchError) > 0
+	done
+	return FALSE
 
 func _G6CrowdJson
 	_c_ = '{"type":"FeatureCollection","features":['

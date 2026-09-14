@@ -337,19 +337,7 @@ class stzGeoMap from stzObject
 	# SPHERE from its rings -- a value that needs no other file, and the
 	# one an equal-area projection can be checked against
 	def ValuesFromArea()
-		_a_ = []
-		for _i_ = 1 to @oF.Count()
-			_s_ = 0
-			for _k_ = 1 to @oF.PartCount(_i_)
-				_r_ = @oF.RingsOf(_i_, _k_)
-				_s_ += StzGeoRingAreaKm2(_r_[1])
-				for _h_ = 2 to len(_r_)
-					_s_ -= StzGeoRingAreaKm2(_r_[_h_])
-				next
-			next
-			_a_ + _s_
-		next
-		return _a_
+		return @oF.AreasKm2()
 
 	def ValueOf(pnI)
 		if pnI < 1 or pnI > len(@aValues)  return ""  ok
