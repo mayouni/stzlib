@@ -400,6 +400,7 @@ ok
     load "geo/stzGeoSamples.ring"
     load "geo/stzGeoAtlas.ring"
 load "geo/stzGeoEllipsoid.ring"
+load "geo/stzGeoProcess.ring"
     load "graph/stzOrgChart.ring"
     # org-governance rules over the org chart's graph projection (phase 2b):
     # the compliance bases carry these -- loaded after stzOrgChart (its bases

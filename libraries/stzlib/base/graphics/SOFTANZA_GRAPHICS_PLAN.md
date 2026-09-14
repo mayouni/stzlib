@@ -520,7 +520,7 @@ which exists.
 | GE6b | **labels the way an atlas does them**: a name inside, else a number and a key. The leader lines are REMOVED | Ring, `stzGeoMap` | **SHIPPED** below |
 | GE6c | **three labelling modes**, and the centre of a region is its AREA CENTROID | Ring, `stzGeoMap` | **SHIPPED** below |
 | GE6d | **insets**: the same ground larger, with a locator, a measured scale, and three refusals | Ring, `stzGeoMap` | **SHIPPED** below |
-| GE7 | **spatial statistics**: point patterns (K, L, G, F, Clark-Evans, envelopes by simulation), centres and ellipses, kernel density, contours, interpolation (IDW, kriging), point processes | engine, `geo_stats.zig` + `geo_field.zig` + `geo_interp.zig`; face `stzGeoPoints`, `stzGeoField`, `stzGeoSamples` | **GE7a, GE7b, GE7c SHIPPED** below; GE7d next |
+| GE7 | **spatial statistics**: point patterns (K, L, G, F, Clark-Evans, envelopes by simulation), centres and ellipses, kernel density, contours, interpolation (IDW, kriging), point processes | engine, `geo_stats.zig` + `geo_field.zig` + `geo_interp.zig` + `geo_process.zig`; face `stzGeoPoints`, `stzGeoField`, `stzGeoSamples`, `stzGeoProcess` | **GE7a-GE7d ALL SHIPPED** below |
 | GE8 | **geodesy on the ellipsoid**: the geodesic on WGS84, ECEF and ENU frames, DMS, rhumb lines, a reference-ellipsoid table, polygon area | engine, `geo_geodesy.zig`; face `stzGeoEllipsoid.ring` | **SHIPPED** below |
 | GE9 | **the projection gallery**: from 16 to the ~50 with names people use, each with an inverse, plus local distortion measures from the Jacobian, and UTM zones | engine, `geo_projection.zig` | PLAN |
 | GE10 | **map furniture and the remaining plots**: scale bar, day-night terminator, vector and stream plots over a field, point-value small multiples | Ring, `stzGeoMap` | PLAN |
@@ -988,8 +988,8 @@ rainfall or elevation raster can be brought in.
 fitted models and **ordinary kriging** with its variance surface, which is
 the estimate *and* the honest map of where the estimate is guesswork.
 
-**GE7d -- point processes**, seeded: homogeneous and inhomogeneous Poisson
-(by thinning), Matern cluster, hard-core. Null models and synthetic data.
+**GE7d -- point processes** (SHIPPED, see below): seven of them, each a
+mechanism, any of which can be the envelope's null model.
 
 **GE8** because an analyst comparing our distances to a GPS or to
 Wolfram's will find them 0.3% short and will be right. Karney's geodesic is
@@ -998,6 +998,108 @@ the standard and is one algorithm.
 **GE9 and GE10** last; visible, mechanical, and gated the same way as GE0:
 forward-inverse round trip and a Tissot sheet per projection.
 
+
+
+## GE7d -- POINT PROCESSES, AND A NULL MODEL THAT IS NOT CSR (2026-09-14, SHIPPED)
+
+*GE7a could already ask whether a pattern is clustered. It asked the wrong
+question.*
+
+It asked by simulating **complete spatial randomness** -- points scattered
+uniformly with no regard for one another -- and seeing whether the observed
+statistic escaped the band. That is the least interesting question in the
+subject. Almost nothing real is a uniform scatter: trees are clustered
+because seeds fall near their parent, clinics because people are,
+earthquakes because one triggers the next. **Rejecting CSR tells a reader
+the world is not a uniform scatter, which nobody thought it was.**
+
+The question worth asking is against a model that already explains
+something -- *"more clustered than seed dispersal alone?"*, *"clustered
+beyond where the people already are?"* -- and that needs a point process to
+be a **named, parameterised thing** a caller can hand to the envelope,
+rather than a generator buried inside one method.
+
+### Seven mechanisms, not seven shapes
+
+| kind | what it claims about the mechanism |
+|---|---|
+| `:Poisson` | no interaction at all; the COUNT is random, which is what makes it Poisson |
+| `:Binomial` | the same, conditioned on a fixed count -- **what GE7a was simulating all along without saying so**, and it has strictly less variance |
+| `:Inhomogeneous` | no interaction, varying intensity -- the null that says *the pattern follows the population* |
+| `:MaternCluster` | parents you never see, children uniform in a DISC: a range beyond which nothing goes |
+| `:Thomas` | the same with a GAUSSIAN scatter: a typical distance and no hard limit |
+| `:MaternII` | inhibition by DELETION -- propose, then remove anyone with an older neighbour too close |
+| `:SSI` | inhibition by REFUSAL -- propose one at a time, keep only those landing clear |
+
+**Matérn II and SSI look identical and are not**, which is why both are
+here. Matérn II thins a pattern that already exists, so it has a **ceiling**:
+past a point every extra proposed point deletes as many as it adds. Measured
+on a one-degree square with a 4 km core, raising the proposal rate a
+thousandfold moved the survivors from 157 to 258 and no further, while
+sequential inhibition packed 544 into the same window. The ceiling has a
+closed form, `(1 - exp(-t))/(pi r2)`, which predicted 155 against a measured
+157 -- an independent check on the simulator. **Reporting "a hard-core
+model" without saying which mechanism produced it is reporting a number
+without its units.**
+
+### The intensity surface crosses as a GRID, and that is not a workaround
+
+The engine takes no callback into the Ring VM, so an inhomogeneous
+process's intensity arrives as a field. GE7b's kernel density already
+**produces** exactly such a field, so the natural workflow -- estimate an
+intensity from one pattern, then ask whether a second is clustered beyond
+it -- is two calls with nothing in between.
+
+Sampling from it is Lewis and Shedler's thinning: generate at the highest
+intensity the surface reaches, keep each point with probability
+`lambda(x)/lambda_max`. What survives is exactly a Poisson process with
+intensity `lambda` -- a result, not an approximation.
+
+### The defect this plane would not otherwise have found
+
+**A process's own patterns must fall inside its own envelope at about the
+nominal rate.** With 39 simulations the band is the smallest and largest of
+39, so an independent 40th draw lands outside about one time in twenty.
+
+The first version failed at **one hundred per cent, on every process.**
+
+The cause was two definitions of L in one library: GE7a's `L()` answers the
+**centred** form, `sqrt(K/pi) - r`, and the new envelope answered the
+uncentred one -- so the observed value and the band were on scales that
+could never meet. Both halves read as entirely reasonable on their own.
+Every generated picture looked right. **Nothing but the self-consistency
+check would have found it**, and it is the reason that check is the one
+assertion in the file worth the most.
+
+After the fix: 0 to 6.25 per cent across all six testable processes.
+
+### What it buys, in one line each
+
+Judging the same 546-point Matérn cluster pattern:
+
+- **against CSR** -- *more clustered than Poisson at 1, 2, 4, 8, 16 and 32 km*. True, useless, and what every paper reports.
+- **against the process that made it** -- *consistent with MaternCluster at every scale tested*. The clustering is explained; there is nothing left.
+- **a genuinely tighter pattern, against that same null** -- *more clustered than MaternCluster at every scale*. So the null has not been made unfalsifiable by being made realistic, which is the thing to check whenever a null stops being CSR.
+
+### Two costs found and named
+
+**The Poisson count is drawn by Knuth's method** -- multiply uniforms until
+the product falls below `exp(-lambda)` -- which is exact, four lines, and
+readable against the definition. The fast alternatives are rejection schemes
+with transcribed constants, and this file takes the same view of those that
+`geo_geodesy.zig` takes of Karney's series. Knuth's underflows above
+`lambda` of about 700, handled by **splitting** rather than by an
+approximation: a Poisson variable is the sum of independent Poisson
+variables whose rates add, so a rate of 5000 is ten draws at 500. That
+identity is the definition, not a trick.
+
+**Matérn II's survival scan is gridded.** At a proposal rate well above the
+ceiling -- exactly where a caller goes to *see* the ceiling -- the test
+window takes a quarter of a million points, and comparing every pair is
+thirty billion distances: 1.9 seconds for one pattern. A point can only be
+killed by one within `min_km`, so it only looks at the nine cells around it.
+The gate's own section went 46.9 s -> 1.14 s once the extreme ask moved to
+the narrated guard, where it belongs.
 
 ## GE8 -- GEODESY ON THE ELLIPSOID (2026-09-14, SHIPPED)
 

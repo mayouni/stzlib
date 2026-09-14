@@ -17074,6 +17074,56 @@ chk("A TRAILING s IS SECONDS AND NOT SOUTH: 48d51m23.76s is a NORTHERN " +
     "answered a hundred degrees out from a string that looked fine",
     StzDmsToDeg("48d51m23.76s") > 0 and StzDmsToDeg("48 51 23.76 S") < 0)
 
+sec("-- 134. GE7d: POINT PROCESSES, AND A NULL THAT IS NOT CSR -------------")
+
+# GE7a could ask whether a pattern is clustered, and asked it against
+# COMPLETE SPATIAL RANDOMNESS -- the least interesting question in the
+# subject, because almost nothing real is a uniform scatter. GE7d makes a
+# process a NAMED THING that can be handed to the envelope, so the null can
+# be a model that already explains something. The full argument is
+# geo_process_narrated.ring; these are the ones the gate owes.
+
+chk("SEVEN PROCESSES, EACH A MECHANISM, and three of them place points " +
+    "without regard to one another while four have an interaction built in",
+    len(StzGeoProcesses()) = 7 and
+    NOT StzGeoProcess(:Poisson).HasInteraction() and
+    StzGeoProcess(:Thomas).IsClustering() and
+    StzGeoProcess(:SSI).IsInhibiting())
+chk("A POISSON COUNT HAS MEAN EQUAL TO ITS VARIANCE -- the identity that " +
+    "IS the distribution, and the one thing a wrong implementation cannot " +
+    "fake. Checked ABOVE 700 too, where exp(-lambda) underflows and the " +
+    "rate has to be split",
+    _P7dMomentsOk(5) and _P7dMomentsOk(900))
+oP7d = StzGeoPoints([ 0.5, 0.5 ], StzGeoFeaturesFromJson(_P7dSquare()))
+chk("A POISSON PROCESS'S COUNT IS RANDOM AND A BINOMIAL'S IS FIXED, which " +
+    "is the whole difference between them and means GE7a's envelope was " +
+    "always the narrower one",
+    _P7dSd(StzGeoCSR(0.02), oP7d) > 5 and _P7dSd(_P7dBinomial(), oP7d) = 0)
+chk("MATERN II SATURATES AND SSI DOES NOT -- inhibition by DELETION has a " +
+    "ceiling that inhibition by REFUSAL walks straight past, so the two " +
+    "are different models and not two names for one",
+    _P7dMean(_P7dMII(2), oP7d) < _P7dMean(_P7dMII(0.2), oP7d) * 1.15 and
+    _P7dMean(_P7dSSI(), oP7d) > _P7dMean(_P7dMII(2), oP7d) * 1.8)
+chk("...AND THE CEILING IS A CLOSED FORM, (1 - exp(-t))/(pi r2), which " +
+    "says where the saturation is without simulating a point",
+    fabs(StzGeoMaternIICeiling(2, 4) * oP7d.AreaKm2() -
+         _P7dMean(_P7dMII(2), oP7d)) / _P7dMean(_P7dMII(2), oP7d) < 0.1)
+chk("A PROCESS'S OWN PATTERNS FALL INSIDE ITS OWN BAND at about the " +
+    "nominal rate. THE FIRST VERSION FAILED AT ONE HUNDRED PER CENT: GE7a's " +
+    "L() is CENTRED, sqrt(K/pi) minus r, and the new envelope answered the " +
+    "uncentred form, so observed and band were on scales that could never " +
+    "meet. Both halves read as reasonable and every picture looked right",
+    _P7dSelfOk("MaternCluster"))
+chk("AGAINST CSR A CLUSTERED PATTERN IS 'SIGNIFICANTLY CLUSTERED' AT EVERY " +
+    "SCALE -- true, useless, and what every paper reports -- while against " +
+    "THE PROCESS THAT MADE IT the same pattern is consistent, which is the " +
+    "answer a reader can use",
+    _P7dVerdictsDiffer(oP7d))
+chk("NEGATIVE: a mechanism nobody named is REFUSED and not quietly " +
+    "Poisson, because substituting the weak null for a misspelt strong one " +
+    "would turn a careful test into the useless one and say nothing",
+    _P7dRefuses("Neyman"))
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go
@@ -22968,6 +23018,113 @@ func _G8EcefOk poE, pnLat, pnLon, pnH
 func _G8Refuses pcName
 	try
 		StzGeoEllipsoid(pcName)
+		return FALSE
+	catch
+		return TRUE
+	done
+
+func _P7dSquare()
+	return '{"type":"FeatureCollection","features":[{"type":"Feature",' +
+		'"properties":{"name":"Square"},"geometry":{"type":"Polygon",' +
+		'"coordinates":[[[0,0],[1,0],[1,1],[0,1],[0,0]]]}}]}'
+
+# THE GATE TAKES THE PROPERTY, NOT THE SAMPLE SIZE, and it demonstrates
+# Matern II's saturation at a HUNDREDFOLD rather than the thousandfold the
+# narrated guard uses. The extreme ask proposes a quarter of a million
+# points to keep 250, and the proposing -- not the survival scan, which is
+# gridded -- is what it costs. A hundredfold shows the same ceiling. The full calibration
+# lives in geo_process_narrated.ring, which runs 6000 draws per rate and 12
+# patterns per process against 39 simulations apiece. Repeating that here
+# cost 46.9 seconds for eight assertions -- 5.9 s each against this gate's
+# 0.16 s average -- and bought no coverage the narrated guard did not
+# already have. The tolerances below are widened to match the smaller
+# samples rather than left tight and made flaky, which is the other way a
+# diet goes wrong.
+func _P7dMomentsOk pnLambda
+	_s_ = 0
+	_q_ = 0
+	for _i_ = 1 to 1200
+		_k_ = StzPoissonCount(pnLambda, 700000 + _i_ * 7919)
+		_s_ += _k_
+		_q_ += _k_ * _k_
+	next
+	_m_ = _s_ / 1200
+	_v_ = _q_ / 1200 - _m_ * _m_
+	return fabs(_m_ - pnLambda) / pnLambda < 0.12 and
+	       fabs(_v_ - pnLambda) / pnLambda < 0.30
+
+func _P7dBinomial()
+	_o_ = StzGeoProcess(:Binomial)
+	_o_.SetCount(246)
+	return _o_
+
+func _P7dMII pnRate
+	_o_ = StzGeoProcess(:MaternII)
+	_o_.SetIntensityQ(pnRate).SetHardCoreKm(4)
+	return _o_
+
+func _P7dSSI()
+	_o_ = StzGeoProcess(:SSI)
+	_o_.SetCountQ(100000).SetHardCoreKm(4)
+	return _o_
+
+func _P7dSd poProc, poPts
+	_s_ = 0
+	_q_ = 0
+	for _i_ = 1 to 18
+		_n_ = len(poProc.GenerateIn(poPts, 300000 + _i_ * 104729)) / 2
+		_s_ += _n_
+		_q_ += _n_ * _n_
+	next
+	_m_ = _s_ / 18
+	_v_ = _q_ / 18 - _m_ * _m_
+	if _v_ < 0  _v_ = 0  ok
+	return sqrt(_v_)
+
+func _P7dMean poProc, poPts
+	_s_ = 0
+	for _i_ = 1 to 4
+		_s_ += len(poProc.GenerateIn(poPts, 22000 + _i_ * 6151)) / 2
+	next
+	return _s_ / 4
+
+func _P7dSelfOk pcKind
+	_w_ = StzGeoFeaturesFromJson(_P7dSquare())
+	_p_ = StzGeoPoints([ 0.5, 0.5 ], _w_)
+	_o_ = StzGeoProcess(pcKind)
+	if pcKind = "Poisson"
+		_o_.SetIntensity(0.02)
+	else
+		_o_.SetParentIntensityQ(0.0008).SetMeanChildrenQ(25).SetRadiusKm(8)
+	ok
+	_out_ = 0
+	_tot_ = 0
+	_r_ = [ 4, 16 ]
+	for _s_ = 1 to 4
+		_pts_ = _o_.GenerateIn(_p_, 1000 + _s_ * 37)
+		if len(_pts_) < 40  loop  ok
+		_e_ = _o_.EscapesOf(StzGeoPoints(_pts_, _w_), _r_, 19, 500000 + _s_ * 13, :L)
+		for _i_ = 1 to len(_e_)
+			_tot_++
+			if _e_[_i_] != 0  _out_++  ok
+		next
+	next
+	if _tot_ = 0  return FALSE  ok
+	return _out_ / _tot_ < 0.25
+
+func _P7dVerdictsDiffer poPts
+	_w_ = StzGeoFeaturesFromJson(_P7dSquare())
+	_m_ = StzGeoProcess(:MaternCluster)
+	_m_.SetParentIntensityQ(0.002).SetMeanChildrenQ(25).SetRadiusKm(8)
+	_obs_ = StzGeoPoints(_m_.GenerateIn(poPts, 4242), _w_)
+	_r_ = [ 4, 16 ]
+	_a_ = StzGeoCSR(_obs_.DensityPerKm2()).VerdictOn(_obs_, _r_, 19, 99, :L)
+	_b_ = _m_.VerdictOn(_obs_, _r_, 19, 99, :L)
+	return len(_a_[:above]) = len(_r_) and len(_b_[:above]) = 0 and len(_b_[:below]) = 0
+
+func _P7dRefuses pcName
+	try
+		StzGeoProcess(pcName)
 		return FALSE
 	catch
 		return TRUE
