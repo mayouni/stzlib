@@ -186,6 +186,29 @@ cSvg = oC.ToSVG()
 chk("the field reaches the canvas as ONE image and not forty thousand quads " +
     "-- a lon/lat cell is not a rectangle once a conic has had it",
     StzFindFirst("<image", cSvg) > 0)
+# THE CLIP IS THE POLYGON, AT PIXEL RESOLUTION, ANTIALIASED. The bytes are
+# read back from the engine's own buffer, on the TRIANGULAR window drawn
+# into a box that holds its whole bounding rectangle -- so the box has
+# ground that is inside it and outside the window: a pixel in the triangle
+# is opaque, one in the empty half is empty, and the pixels the hypotenuse
+# crosses are PARTLY covered, which is what an edge that is not a staircase
+# means. The first probe put its "outside" pixel beyond the image box, where
+# the index wrapped into the next row and read an inside pixel as 255.
+oTF.SetClassesEvery(3)
+oTP = new stzGeoProjection(:Equirectangular)
+oTP.FitFeaturesIn(StzGeoFeaturesFromJson(_ArdaJson()), 20, 20, 220, 420, 0)
+cImg = StzEngineGeoFieldImage(oTP.Params(), oTF.Values(), oTF.Grid(), 10, 10, 240, 440,
+	oTF.Classes(), [ 255, 255, 178, 253, 141, 60, 189, 0, 38 ], 255, oTF.Clip())
+qIn = oTP.Project(4, 3)
+qOut = oTP.Project(1, 8)
+nAin = _AlphaAt(cImg, 240, qIn[1] - 10, qIn[2] - 10)
+nAout = _AlphaAt(cImg, 240, qOut[1] - 10, qOut[2] - 10)
+nPartial = _PartialInImage(cImg, 240, 440)
+? "   alpha in the triangle " + nAin + ", in the empty half " + nAout + ", partly covered pixels " + nPartial
+chk("THE RASTER IS CLIPPED TO THE WINDOW AT PIXEL RESOLUTION: opaque inside, " +
+    "empty outside, and PARTLY covered where the border crosses a pixel -- " +
+    "an edge that is antialiased and not a staircase of cells",
+    nAin = 255 and nAout = 0 and nPartial >= 100)
 chk("the classes were taken from the field's own ends, so its peak is IN the " +
     "top class and not above the legend",
     len(oF.Classes()) = 6 and oF.Classes()[6] >= oF.Max() and
@@ -322,6 +345,25 @@ func _RefusesNoPattern
 		return StzFindFirst("window", cCatchError) > 0
 	done
 	return FALSE
+
+# the alpha byte of the pixel at (x, y) in a w-wide RGBA buffer
+func _AlphaAt pcImg, pnW, pnX, pnY
+	_i_ = (floor(pnY) * pnW + floor(pnX)) * 4 + 4
+	if _i_ < 1 or _i_ > len(pcImg)  return -1  ok
+	return ascii(pcImg[_i_])
+
+# how many pixels of the whole image are neither empty nor opaque
+func _PartialInImage pcImg, pnW, pnH
+	_n_ = 0
+	_len_ = len(pcImg)
+	for _k_ = 1 to pnW * pnH
+		_i_ = _k_ * 4
+		if _i_ <= _len_
+			_a_ = ascii(pcImg[_i_])
+			if _a_ > 0 and _a_ < 255  _n_++  ok
+		ok
+	next
+	return _n_
 
 func _RefusesNoClasses poF, poC, poP
 	_f_ = StzGeoField(poF.Grid(), poF.Values())
