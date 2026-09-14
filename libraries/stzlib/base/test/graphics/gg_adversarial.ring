@@ -16815,6 +16815,70 @@ chk("THE ELLIPSE LIES ALONG THE SPREAD: a north-south line bears 0 with no " +
     (oG7.With(aG7ns).Ellipse()[:bearing] < 0.01 or oG7.With(aG7ns).Ellipse()[:bearing] > 179.99) and
     fabs(oG7.With(aG7ns).MeanCentre()[1] - 2.5) < 0.000000001)
 
+sec("-- 129. GE7b: A FIELD -- density, contours, raster, ESRI grid ------------")
+discharges("GE7b")
+
+# A quantity that has a value everywhere. geo_field_narrated.ring carries
+# the full narration with its negatives; this is the gate's own witness for
+# the claims a field stands on -- and for the ray-cast defect it found in
+# GE0, which is pinned here where every later section will trip on it.
+
+oG7bW = StzGeoFeaturesFromJson(_G7ArdaJson())
+oG7bP = StzGeoPoints([], oG7bW)
+oG7bU = oG7bP.With(oG7bP.Sample(400, 20260914))
+oG7bF = StzGeoDensityField(oG7bU, 20, 90)
+chk("A KERNEL DENSITY IS AN INTENSITY IN PLACES PER KM2: on a uniform pattern " +
+    "it reads about n over the window's area, a number the engine never sees",
+    fabs(oG7bF.ValueAt(2.5, 5) / (400 / oG7bW.AreaKm2()) - 1) < 0.25 and
+    oG7bF.Unit() = "places per km2")
+# on a TRIANGULAR window, because a rectangle fills its own box and then no
+# grid node is outside it -- the guard's first version passed only through
+# the ray-cast defect this rung found, which put a whole boundary column
+# outside
+oG7bT = StzGeoPoints([], StzGeoFeaturesFromJson('{"type":"FeatureCollection","features":[{"type":"Feature",' +
+	'"properties":{"name":"Half"},"geometry":{"type":"Polygon","coordinates":[[[0,0],[5,0],[5,10],[0,0]]]}}]}'))
+oG7bTF = StzGeoDensityField(oG7bT.With(oG7bT.Sample(200, 3)), 25, 90)
+chk("WHAT IS NOT KNOWN IS NOT ZERO: a node outside the window is unknown, a " +
+    "node inside with no place near it is a measured zero",
+    oG7bTF.ValueAt(0.5, 9) = "" and oG7bTF.Stats()[:unknown] > 0 and
+    oG7bF.ValueAt(-3, 5) = "" and isNumber(oG7bF.ValueAt(2.5, 5)))
+oG7bC = StzGeoField([ -50, -50, 1, 1, 101, 101 ], _G7bCone())
+aG7bR = oG7bC.ContourAt(60)
+chk("THE CONTOUR OF A CONE IS A CIRCLE, closed, at the radius the level names " +
+    "-- an answer the geometry gives and the engine is checked against",
+    len(aG7bR) = 1 and _G7bOnCircle(aG7bR[1], 40, 0.6) and _G7bClosed(aG7bR[1]))
+aG7bH = _G7bCone()
+for iG7b = 8 to 13  aG7bH[50 * 101 + iG7b + 1] = ""  next
+aG7bO = StzGeoField([ -50, -50, 1, 1, 101, 101 ], aG7bH).ContourAt(60)
+chk("NEGATIVE: a hole in the field OPENS the ring rather than drawing a line " +
+    "across ground nobody measured",
+    len(aG7bO) = 1 and NOT _G7bClosed(aG7bO[1]) and len(aG7bO[1]) < len(aG7bR[1]))
+oG7bE = StzGeoFieldFromAsciiGrid("ncols 3" + nl + "nrows 2" + nl + "xllcorner 10.0" + nl +
+	"yllcorner 30.0" + nl + "cellsize 0.5" + nl + "NODATA_value -9999" + nl + "1 2 3" + nl + "4 -9999 6")
+chk("AN ESRI GRID IS FLIPPED (its first row is the north), HALF-SHIFTED (the " +
+    "corner is not the node), and its NODATA is unknown, never a number",
+    oG7bE.Values()[1] = 4 and oG7bE.Values()[2] = "" and oG7bE.Values()[4] = 1 and
+    fabs(oG7bE.Grid()[1] - 10.25) < 0.000001)
+oG7bM = new stzGeoProjection(:Mercator)
+oG7bM.FitFeaturesIn(oG7bW, 20, 20, 220, 420, 6)
+oG7bA = new stzGeoProjection(:ConicEqualArea)
+oG7bA.FitFeaturesIn(oG7bW, 20, 20, 220, 420, 6)
+chk("A DENSITY ON A NON-EQUAL-AREA PROJECTION IS AN ERROR and on an equal-area " +
+    "one it is not -- GE3's choropleth rule, kept for the raster",
+    _G7bFinding(oG7bF.FindingsOn(oG7bM), "a_density_wants_an_equal_area_projection", "error") and
+    NOT _G7bFinding(oG7bF.FindingsOn(oG7bA), "a_density_wants_an_equal_area_projection", "error"))
+# THE RAY-CAST DEFECT THIS RUNG FOUND IN GE0, pinned where the whole plane
+# will trip on it: a place on the meridian of a ring's western extreme, north
+# or south of the ring, read as INSIDE, because a vertex the ring merely
+# touches was counted once and once is odd.
+chk("A PLACE ON THE MERIDIAN OF A RING'S WESTERN EXTREME, BEYOND THE RING, IS " +
+    "OUTSIDE -- the first ray cast read it as inside, and a density grid " +
+    "whose first column sat on that meridian lit up from top to bottom",
+    NOT StzGeoRingContains([ 0, 0, 4, 0, 4, 4, 0, 4, 0, 0 ], 0, 6) and
+    NOT StzGeoRingContains([ 0, 0, 4, 0, 4, 4, 0, 4, 0, 0 ], 0, -2) and
+    NOT StzGeoRingContains([ 0, 0, 4, 0, 4, 4, 0, 4, 0, 0 ], 4, 6) and
+    StzGeoRingContains([ 0, 0, 4, 0, 4, 4, 0, 4, 0, 0 ], 2, 2))
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go
@@ -19899,6 +19963,35 @@ func _ChTwoRegions
 	         [ "Sud", 120, [ 0, 18, 38, 20, 40, 42, 0, 40 ] ] ]
 
 # GE7a helpers
+# GE7b helpers
+func _G7bCone
+	_a_ = []
+	for _j_ = 0 to 100
+		for _i_ = 0 to 100
+			_a_ + (100 - sqrt(pow(_i_ - 50, 2) + pow(_j_ - 50, 2)))
+		next
+	next
+	return _a_
+
+func _G7bOnCircle paRing, pnR, pnTol
+	_n_ = len(paRing) / 2
+	if _n_ < 20  return FALSE  ok
+	for _k_ = 1 to _n_
+		if fabs(sqrt(pow(paRing[_k_ * 2 - 1], 2) + pow(paRing[_k_ * 2], 2)) - pnR) > pnTol  return FALSE  ok
+	next
+	return TRUE
+
+func _G7bClosed paRing
+	_n_ = len(paRing) / 2
+	return fabs(paRing[1] - paRing[_n_ * 2 - 1]) < 0.000001 and
+	       fabs(paRing[2] - paRing[_n_ * 2]) < 0.000001
+
+func _G7bFinding paF, pcRule, pcSev
+	for _i_ = 1 to len(paF)
+		if paF[_i_][:rule] = pcRule and paF[_i_][:severity] = pcSev  return TRUE  ok
+	next
+	return FALSE
+
 func _G7ArdaJson
 	return '{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"name":"Arda"},' +
 		'"geometry":{"type":"Polygon","coordinates":[[[0,0],[5,0],[5,10],[0,10],[0,0]]]}}]}'

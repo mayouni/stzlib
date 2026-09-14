@@ -171,6 +171,7 @@ general-tasks session's file and is routed to them, not fix them here.*
 | DN24 | closed | 118 |
 | DN24b | closed | 120 |
 | GE3 | closed | 124 |
+| GE7b | closed | 129 |
 | GE7a | closed | 128 |
 | GE6 | closed | 127 |
 | GE4 | closed | 126 |
@@ -4430,6 +4431,20 @@ it merely advises: a choropleth needs an equal-area projection; north is up
 unless said otherwise; the map names its source; every value falls in the
 classes; every class colours a region; every region has a value; the data
 fits the paper. `StzCheckGeoMaps()` judges several at once.
+
+## GE7b — A FIELD: DENSITY, CONTOURS, THE RASTER, THE ESRI GRID (2026-09-14, SHIPPED)
+
+**§129 discharges GE7b.** The second spatial-statistics rung: a quantity
+that has a value everywhere. One type, `stzGeoField`, and three of Wolfram's
+plots on it — the kernel density of a pattern in PLACES PER KM² (edge-
+corrected by Diggle's method, integrated over the grid itself), the field
+coloured as ONE image resampled through the projection, and its contours by
+marching squares with segments joined by the edge they cross. An ESRI ASCII
+grid reader that flips, half-shifts and turns NODATA into unknown. Found and
+fixed a GE0 defect in the spherical ray cast: a vertex the ring merely
+touches was counted once, so a whole meridian read as inside. The full
+account is in `SOFTANZA_GRAPHICS_PLAN.md` under GE7b; the guard is
+`geo_field_narrated.ring` and the witness `geo_field.png`.
 
 ## GE7a — A POINT PATTERN AND ITS WINDOW (2026-09-14, SHIPPED)
 
