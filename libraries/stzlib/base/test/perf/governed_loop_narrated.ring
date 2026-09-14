@@ -31,13 +31,58 @@ oSrv = new stzAppServer()
 oSrv.Observe(oMon)
 oSrv.Get_("/work", func oReq, oResp {
 	_s_ = ""
-	for _k_ = 1 to 20000
+	for _k_ = 1 to $nWork
 		_s_ += "x"
 	next
 	oResp.Text("done")
 })
 oSrv.Start(0, "127.0.0.1")
 oClient = new stzReactor()
+
+# HOW MUCH WORK IS ENOUGH IS A QUESTION ABOUT THE CLOCK, not a constant --
+# the same calibration profile_narrated.ring scene 1 carries, and for the
+# same reason. LoadRatio is X/Xmax, Xmax is nCPU*1000/D, and D is the CPU
+# time the handler registers PER REQUEST. CPU time advances in TICKS --
+# 15.625 ms on Windows -- so when the ten requests together fit inside one,
+# D is 0, Xmax is 0, LoadRatio returns its "nothing measurable yet" 0, and
+# the two range assertions below fail. 20000 was sized for Ring: measured
+# here, that work costs Ring one whole tick and Ring++ zero.
+#
+# CALIBRATE A RATE, NOT A TICK. "Stop as soon as the clock has moved" is
+# not enough and was tried in profile: tick boundaries are asynchronous, so
+# the clock can advance after one cheap round and the answer then describes
+# the tick rather than the work. This runs until the CPU clock has advanced
+# far enough to divide by -- three ticks -- then reads off how many appends
+# a CPU-millisecond buys.
+#
+# Bounded, so a stopped clock fails the assertions rather than spinning,
+# and floored at the original 20000, so it can never ask for LESS work than
+# it used to.
+$nWork = 20000
+_nUnit_ = 20000
+_nCpu0_ = StzEnginePerfCpuNs()
+_nDone_ = 0
+_nGuard_ = 0
+_nCpuMs_ = 0
+while _nGuard_ < 400 and _nCpuMs_ < 45
+	_t_ = ""
+	for _k_ = 1 to _nUnit_
+		_t_ += "x"
+	next
+	_nDone_ += _nUnit_
+	_nGuard_++
+	_nCpuMs_ = (StzEnginePerfCpuNs() - _nCpu0_) / 1000000
+end
+# About one tick of work per request, so the ten of them leave the interval
+# several ticks clear of the granularity. A single-threaded handler cannot
+# push L past 1/nCPU, so the scaledown zone scene 2 asserts (L < 0.25) is
+# safe on any machine with five cores or more.
+if _nCpuMs_ > 0
+	if floor((_nDone_ / _nCpuMs_) * 15) > $nWork
+		$nWork = floor((_nDone_ / _nCpuMs_) * 15)
+	ok
+ok
+
 oP = StzPerfProfile(oMon)
 for i = 1 to 10
 	cReq = "GET /work HTTP/1.1" + $CRLF + "Host: local" + $CRLF + "Connection: close" + $CRLF + $CRLF
