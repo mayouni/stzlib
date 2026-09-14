@@ -471,6 +471,9 @@ class stzGeoFeatures from stzObject
 	# here when the point patterns (GE7a) needed a window's area and the
 	# map's own copy would have been a second one -- duplicated logic
 	# diverges, and it diverges in cost first.
+	# THE AREA OF A FEATURE, km2, ON WGS84 SINCE GE8 -- outer rings added
+	# and holes taken out, which is what makes a country with a lake come
+	# out as the land and not as the outline.
 	def AreaKm2Of(pn)
 		_s_ = 0
 		for _k_ = 1 to This.PartCount(pn)

@@ -521,7 +521,7 @@ which exists.
 | GE6c | **three labelling modes**, and the centre of a region is its AREA CENTROID | Ring, `stzGeoMap` | **SHIPPED** below |
 | GE6d | **insets**: the same ground larger, with a locator, a measured scale, and three refusals | Ring, `stzGeoMap` | **SHIPPED** below |
 | GE7 | **spatial statistics**: point patterns (K, L, G, F, Clark-Evans, envelopes by simulation), centres and ellipses, kernel density, contours, interpolation (IDW, kriging), point processes | engine, `geo_stats.zig` + `geo_field.zig` + `geo_interp.zig`; face `stzGeoPoints`, `stzGeoField`, `stzGeoSamples` | **GE7a, GE7b, GE7c SHIPPED** below; GE7d next |
-| GE8 | **geodesy on the ellipsoid**: Karney's geodesic on WGS84, ECEF and ENU frames, DMS, rhumb lines, a reference-ellipsoid table | engine, `geo_geodesy.zig` | PLAN |
+| GE8 | **geodesy on the ellipsoid**: the geodesic on WGS84, ECEF and ENU frames, DMS, rhumb lines, a reference-ellipsoid table, polygon area | engine, `geo_geodesy.zig`; face `stzGeoEllipsoid.ring` | **SHIPPED** below |
 | GE9 | **the projection gallery**: from 16 to the ~50 with names people use, each with an inverse, plus local distortion measures from the Jacobian, and UTM zones | engine, `geo_projection.zig` | PLAN |
 | GE10 | **map furniture and the remaining plots**: scale bar, day-night terminator, vector and stream plots over a field, point-value small multiples | Ring, `stzGeoMap` | PLAN |
 
@@ -997,6 +997,120 @@ the standard and is one algorithm.
 
 **GE9 and GE10** last; visible, mechanical, and gated the same way as GE0:
 forward-inverse round trip and a Tissot sheet per projection.
+
+
+## GE8 -- GEODESY ON THE ELLIPSOID (2026-09-14, SHIPPED)
+
+*Every measurement this plane made until now ran on a sphere.*
+
+**The sphere was 6371.0088 km and it was a real choice** -- the one whose
+volume matches the Earth's. It is still a sphere, and the Earth is flattened
+by about one part in 298, so a spherical distance is up to half a per cent
+out: a north-south line comes back long and an east-west line short. New
+York to London measured 5540.0 km on it and measures 5554.9 km on WGS84.
+**Fifteen kilometres, on a flight anybody can look up.**
+
+### The reduction, and why the integrals are quadrature
+
+A geodesic on an ellipsoid does not close on itself, is not planar, and has
+no elementary length formula. Bessel's reduction -- in the arrangement
+Karney gave it in 2013 -- maps each point to its **reduced latitude**,
+`tan(beta) = (1-f) tan(phi)`, under which a geodesic becomes a **great
+circle on an auxiliary sphere, exactly**. Spherical trigonometry then gives
+the angles for free and two integrals carry the length and the longitude
+back down.
+
+Karney expands those integrals as trigonometric series to sixth order --
+two dozen rational coefficients, which is what GeographicLib ships and is
+fast. **This engine evaluates them by Gauss-Legendre quadrature instead**,
+and the reason is not performance:
+
+> A single mistyped coefficient -- 205/1536 for 209/1536 -- yields distances
+> wrong in the eighth digit. No picture shows it, no round trip catches it,
+> and no reviewer sees it. The integrands are three lines each and can be
+> read against the derivation; the series cannot be eyeballed at all.
+
+The quadrature's own nodes are computed from the Legendre recurrence at
+startup rather than transcribed, so **nothing in the file is a constant
+somebody had to copy correctly** except each ellipsoid's defining `a` and
+`1/f`, which are four-digit numbers a reader checks in seconds. The cost is
+a few hundred square roots per solve instead of a few dozen multiplies --
+0.1 s to measure all 177 countries of the world file.
+
+**Two checks of the reduction, derived rather than remembered:** a meridian
+has `alpha0 = 0`, so the length becomes the standard closed form of the
+meridian arc in the parametric latitude; the equator has `alpha0 = 90`, so
+the integrals collapse and `s = a * lambda`, the one distance on this
+surface everybody already knows. Both agree to the millimetre.
+
+### The inverse problem is bracketed, not started from an astroid
+
+Karney solves for the departure azimuth by Newton from a carefully built
+starting guess -- the spherical answer usually, and the root of an
+**astroid** when the points are nearly antipodal, where the spherical guess
+is useless. That machinery exists to make Newton converge in two or three
+steps.
+
+This solves the same equation by **safeguarded bisection with a Newton step
+inside it** over `[0, pi]`, where `lambda12(alpha1)` rises monotonically
+from 0 to pi. The bracket is guaranteed and so is convergence -- including
+for the antipodal points that are the hard case, and where **Vincenty's
+method, the usual alternative, fails to converge at all.** It costs more
+iterations and cannot fail to terminate. Worst round-trip miss over seven
+cases including four near-antipodal ones: **7 nanometres.**
+
+### What shipped
+
+| thing | what it answers |
+|---|---|
+| reference table | 15 ellipsoids by name -- WGS84, GRS80, Airy 1830, Bessel 1841, Clarke, International 1924, Krassovsky, Everest, and **the sphere this plane used**, kept as a row so the gap stays measurable |
+| geodesic inverse | length, departure azimuth, arrival azimuth, reduced length, arc |
+| geodesic direct | where you arrive, and the bearing you arrive on |
+| geodesic line | the path as points, so a route bends honestly under a projection |
+| rhumb line | distance, the one constant bearing, destination, path |
+| meridian and parallel | the arc from the equator, its inverse, a parallel's length, a degree of latitude and of longitude AT a latitude |
+| ECEF / ENU | because latitude and longitude are angles and cannot be subtracted |
+| polygon area | a region whose edges are geodesics, which is what a country's area means |
+| DMS | parse and format, because a coordinate written by hand is degrees and minutes |
+
+### Three defects worth keeping
+
+**The area integral in sigma is a spike.** `d(lambda)/d(sigma)` for a nearly
+meridional edge is almost zero everywhere except a window of width
+`sin(alpha0)` around `sigma = pi/2`, where it rises to `1/sin(alpha0)`. Fixed
+quadrature steps straight over it: a quarter-hemisphere came out **3651
+times too small**, and the two edges that lost the area were the two that ran
+over the pole. Integrating in **omega**, the auxiliary sphere's own
+longitude, makes the same integrand flat -- `d(lambda)/d(omega)` stays
+between `1-f` and 1 for every geodesic there is.
+
+**Inverting omega needs the SIGN of sin(alpha0), not its magnitude.**
+`tan(sigma) = tan(omega)/sin(alpha0)` fixes sigma only up to half a turn.
+Without the sign, every **westward** edge got a latitude in the wrong
+hemisphere, so its zone area came back negated and a pair of edges that
+should have differenced to a thin strip summed to twice a hemisphere. A
+0.01-degree square measured **eleven thousand times its size**; a lune
+measured zero. One line, three symptoms.
+
+**A boundary that winds round a pole measures something else.** The integral
+answers "the area between this path and the equator". For an ordinary ring
+the ends cancel; for a ring that goes right round the world -- Antarctica's
+coast, in every world file there is -- they do not, and it returns the zone
+from the equator to the coast. Measured: **242,965,092 km2 for a continent
+of 12,236,255.** The winding is free (it is the sum of sweeps the edges
+already computed) and half the surface converts one into the other.
+
+### Where the sphere stays, and why that is said out loud
+
+**The spatial statistics still measure on it.** Ripley's K, the kernel
+densities, the edge corrections and the envelopes are every one of them
+built on a constant radius, and moving them to the ellipsoid is GE7's
+business. So `StzGeoDistanceKm` and `StzGeoRingAreaKm2` now answer on WGS84
+-- they are what a user asking "how far" means -- and the old answers stay
+reachable as `StzGeoDistanceOnSphereKm` and `StzGeoRingAreaOnSphereKm2`.
+Anything cross-checking the engine's statistics asks for them **by the name
+that says sphere**, which puts the boundary at every call site instead of in
+a note nobody reads.
 
 ## GE6d -- INSETS (2026-09-13, SHIPPED)
 

@@ -293,7 +293,7 @@ class stzGeoSamples from stzObject
 		# wearing a fitted curve.
 		_far_ = 0
 		_b_ = @aBox
-		_far_ = StzGeoDistanceKm(_b_[1], _b_[2], _b_[3], _b_[4])
+		_far_ = StzGeoDistanceOnSphereKm(_b_[1], _b_[2], _b_[3], _b_[4])
 		if @aModel[:range] > _far_
 			_a_ + [ :rule = "the_range_is_inside_the_data",
 				:subject = _c_, :where = "range " + StzFactNumText(@aModel[:range]) + " km",

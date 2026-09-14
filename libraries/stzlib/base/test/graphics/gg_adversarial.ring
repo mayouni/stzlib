@@ -17015,6 +17015,65 @@ chk("THE RAMP LEGEND says where it ended, and its open top is an ARROW and " +
     "not a box, because a top class with no upper edge must not claim one",
     _G2cLegendOk(oG2cM))
 
+sec("-- 133. GE8: GEODESY ON THE ELLIPSOID ---------------------------------")
+
+# A GEODESY LIBRARY IS THE EASIEST KIND TO GET SUBTLY AND INVISIBLY WRONG:
+# a distance right in six digits and wrong in the seventh looks correct in
+# every picture and survives every round trip. So none of this is checked
+# against a number the engine produced. The full argument -- published
+# constants, closed forms, Girard's theorem and round trips reported in
+# metres of miss -- is geo_ellipsoid_narrated.ring; these are the ones the
+# gate owes.
+
+oG8 = StzGeoWGS84()
+chk("WGS84 IS TWO DEFINING NUMBERS AND THE REST IS DERIVED, so no two " +
+    "quantities in this library can disagree about one ellipsoid",
+    oG8.EquatorialRadius() = 6378137 and
+    fabs(oG8.InverseFlattening() - 298.257223563) < 0.00000001 and
+    fabs(oG8.PolarRadius() - 6356752.3142) < 0.001)
+chk("THE POLE IS 10001.9657 km FROM THE EQUATOR -- the published quarter " +
+    "meridian, and the length the metre was defined from in 1793",
+    fabs(oG8.QuarterMeridianKm() - 10001.965729) < 0.000002)
+chk("A QUARTER OF THE EQUATOR IS a TIMES pi/2 TO THE MILLIMETRE. The " +
+    "equator is a geodesic whose length is a closed form, so any error in " +
+    "the machinery shows here before it shows anywhere else",
+    fabs(oG8.DistanceM(0, 0, 0, 90) - 6378137 * 3.141592653589793 / 2) < 0.001)
+chk("THE MERIDIAN MEASURED AS A GEODESIC AND AS AN ARC ARE ONE NUMBER, " +
+    "which they must be because they are one integral asked twice",
+    fabs(oG8.DistanceM(0, 0, 90, 0) - oG8.QuarterMeridianKm() * 1000) < 0.000001)
+chk("GOING BACK OUT THE WAY THE INVERSE SAID LANDS ON THE POINT, and the " +
+    "hard case is carried: NEARLY ANTIPODAL, where Vincenty's method -- " +
+    "the usual alternative -- does not converge at all",
+    _G8RoundTrip(oG8, 0, 0, 0.5, 179.5) < 0.000001 and
+    _G8RoundTrip(oG8, 30, 0, -30.1, 179.8) < 0.000001 and
+    _G8RoundTrip(oG8, 40.6413, -73.7781, 51.47, -0.4543) < 0.000001)
+chk("NEW YORK TO LONDON IS 15 km LONGER THAN THE SPHERE SAID, which is the " +
+    "whole of GE8 in one number a reader can look up",
+    fabs(oG8.DistanceKm(40.6413, -73.7781, 51.47, -0.4543) - 5554.9088) < 0.001 and
+    oG8.DistanceKm(40.6413, -73.7781, 51.47, -0.4543) -
+    StzGeoDistanceOnSphereKm(-73.7781, 40.6413, -0.4543, 51.47) > 14.8)
+chk("THE RHUMB IS LONGER AND ITS BEARING DOES NOT CHANGE, which is the " +
+    "definition of it and the reason it was the route that got sailed",
+    oG8.RhumbDistanceKm(40.6413, -73.7781, 51.47, -0.4543) >
+    oG8.DistanceKm(40.6413, -73.7781, 51.47, -0.4543) and
+    fabs(oG8.RhumbAzimuth(40.6413, -73.7781, 51.47, -0.4543) - 77.9684) < 0.001)
+chk("A LUNE IS ITS SHARE OF THE WHOLE SURFACE, to fourteen digits -- an " +
+    "expectation symmetry fixes whatever the meridian's shape, so the " +
+    "agreement belongs to the area routine and not to the test",
+    fabs(oG8.AreaKm2([ 0,-89.999999, 40,-89.999999, 40,89.999999, 0,89.999999 ]) -
+         oG8.SurfaceAreaKm2() * 40 / 360) / (oG8.SurfaceAreaKm2() * 40 / 360) < 0.000000000001)
+chk("ECEF ROUND-TRIPS TO A NANODEGREE, which is what lets a displacement " +
+    "be a subtraction instead of spherical trigonometry",
+    _G8EcefOk(oG8, 48.8566, 2.3522, 35))
+chk("NEGATIVE: AN ELLIPSOID NOBODY NAMED IS REFUSED and not quietly " +
+    "WGS84 -- a caller who asked for Bessel and silently got WGS84 would " +
+    "be hundreds of metres wrong and never told",
+    _G8Refuses("Hipparchus1900"))
+chk("A TRAILING s IS SECONDS AND NOT SOUTH: 48d51m23.76s is a NORTHERN " +
+    "latitude, and a parser reading its last letter as a hemisphere " +
+    "answered a hundred degrees out from a string that looked fine",
+    StzDmsToDeg("48d51m23.76s") > 0 and StzDmsToDeg("48 51 23.76 S") < 0)
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go
@@ -20223,7 +20282,7 @@ func _G7cVarianceRises poS, paG
 			_y_ = 0.5 + 9 * _j_ / 11
 			_m_ = 999999
 			for _k_ = 1 to len(paG) / 3
-				_d_ = StzGeoDistanceKm(_x_, _y_, paG[_k_ * 3 - 2], paG[_k_ * 3 - 1])
+				_d_ = StzGeoDistanceOnSphereKm(_x_, _y_, paG[_k_ * 3 - 2], paG[_k_ * 3 - 1])
 				if _d_ < _m_  _m_ = _d_  ok
 			next
 			if _m_ > _far_  _far_ = _m_  _fx_ = _x_  _fy_ = _y_  ok
@@ -22890,6 +22949,30 @@ func _TxFind pcHay, pcNeedle, pnFrom
 	next
 	return 0
 
+# THE GE8 HELPERS SIT HERE AND NOT AT THE END OF THE FILE, because this
+# file ENDS inside a class: a `func` written below that line is a method of
+# _FakeWin45 and is invisible to everything else. Appended there, the gate
+# died on "calling function without definition" for a function plainly in
+# the file. Every global helper has to come above the first `class`.
+func _G8RoundTrip poE, pn1, pn2, pn3, pn4
+	_r_ = poE.Between(pn1, pn2, pn3, pn4)
+	_d_ = poE.DestinationKm(pn1, pn2, _r_[:azimuth], _r_[:km])
+	return poE.DistanceM(_d_[1], _d_[2], pn3, pn4)
+
+func _G8EcefOk poE, pnLat, pnLon, pnH
+	_v_ = poE.ToEcef(pnLat, pnLon, pnH)
+	_b_ = poE.FromEcef(_v_[1], _v_[2], _v_[3])
+	return fabs(_b_[1] - pnLat) < 0.000000001 and
+	       fabs(_b_[2] - pnLon) < 0.000000001 and fabs(_b_[3] - pnH) < 0.000001
+
+func _G8Refuses pcName
+	try
+		StzGeoEllipsoid(pcName)
+		return FALSE
+	catch
+		return TRUE
+	done
+
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0
 
@@ -22905,3 +22988,4 @@ class _FakeWin45
 	def Draw(o)     @nDraws++  return 1
 	def Draws()     return @nDraws
 	def Polls()     return @nPolls
+

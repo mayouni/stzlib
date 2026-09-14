@@ -4,6 +4,7 @@ const gp = @import("geo_projection.zig");
 const gs = @import("geo_stats.zig");
 const gf = @import("geo_field.zig");
 const gi = @import("geo_interp.zig");
+const gg = @import("geo_geodesy.zig");
 const R = @import("ring_api.zig");
 
 const gn = R.ring_vm_api_getnumber;
@@ -956,6 +957,125 @@ fn ring_GeoCrossValidate(p: *anyopaque) callconv(.c) void {
     retPair(p, me, rmse);
 }
 
+
+// ------------------------------------------------ GE8: the ellipsoid
+//
+// THE ELLIPSOID CROSSES THE BRIDGE AS TWO NUMBERS, a and f, exactly as a
+// projection crosses as eleven: the Ring object that owns them is the one
+// source of truth, and nothing engine-side can go stale behind it. Every
+// other quantity -- b, the eccentricity, the surface area -- is DERIVED on
+// the far side rather than sent, so the two sides cannot disagree.
+//
+// Metres, degrees, and square metres. The rest of this plane speaks
+// kilometres because a map does; geodesy speaks metres because a survey
+// does, and the face converts rather than either side guessing.
+
+fn readEllipsoid(p: *anyopaque, arg: c_int) gg.Ellipsoid {
+    return .{ .a = gn(p, arg), .f = gn(p, arg + 1) };
+}
+
+fn ring_GeoEllipsoidCount(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(gg.table.len));
+}
+
+fn ring_GeoEllipsoidName(p: *anyopaque) callconv(.c) void {
+    const i = argUsize(p, 1);
+    if (i < 1 or i > gg.table.len) return R.ring_vm_api_retstring(p, "");
+    R.ring_vm_api_retstring(p, gg.table[i - 1].name.ptr);
+}
+
+fn ring_GeoEllipsoidAt(p: *anyopaque) callconv(.c) void {
+    const i = argUsize(p, 1);
+    if (i < 1 or i > gg.table.len) return retEmpty(p);
+    const e = gg.table[i - 1].e;
+    retF64s(p, &[_]f64{
+        e.a,               e.f,                 e.b(),
+        e.e2(),            e.ep2(),             e.thirdFlattening(),
+        e.surfaceArea(),   e.authalicRadius(),  gg.quarterMeridian(e),
+    });
+}
+
+fn ring_GeoGeodesicInverse(p: *anyopaque) callconv(.c) void {
+    const e = readEllipsoid(p, 1);
+    const r = gg.inverse(e, gn(p, 3), gn(p, 4), gn(p, 5), gn(p, 6));
+    retF64s(p, &[_]f64{ r.s12, r.azi1, r.azi2, r.m12, r.a12, @floatFromInt(r.iterations) });
+}
+
+fn ring_GeoGeodesicDirect(p: *anyopaque) callconv(.c) void {
+    const e = readEllipsoid(p, 1);
+    const r = gg.direct(e, gn(p, 3), gn(p, 4), gn(p, 5), gn(p, 6));
+    retF64s(p, &[_]f64{ r.lat2, r.lon2, r.azi2, r.m12, r.a12 });
+}
+
+fn ring_GeoGeodesicLine(p: *anyopaque) callconv(.c) void {
+    const e = readEllipsoid(p, 1);
+    var n = argUsize(p, 7);
+    if (n < 2) n = 2;
+    if (n > 100_000) n = 100_000;
+    const out = alloc.alloc(f64, n * 2) catch return retEmpty(p);
+    defer alloc.free(out);
+    const got = gg.line(e, gn(p, 3), gn(p, 4), gn(p, 5), gn(p, 6), n, out);
+    retF64s(p, out[0 .. got * 2]);
+}
+
+fn ring_GeoRhumbInverse(p: *anyopaque) callconv(.c) void {
+    const e = readEllipsoid(p, 1);
+    const r = gg.rhumbInverse(e, gn(p, 3), gn(p, 4), gn(p, 5), gn(p, 6));
+    retF64s(p, &[_]f64{ r.s12, r.azi12 });
+}
+
+fn ring_GeoRhumbDirect(p: *anyopaque) callconv(.c) void {
+    const e = readEllipsoid(p, 1);
+    const r = gg.rhumbDirect(e, gn(p, 3), gn(p, 4), gn(p, 5), gn(p, 6));
+    retPair(p, r[1], r[0]); // lat, lon -- the face's order everywhere
+}
+
+fn ring_GeoRhumbLine(p: *anyopaque) callconv(.c) void {
+    const e = readEllipsoid(p, 1);
+    var n = argUsize(p, 7);
+    if (n < 2) n = 2;
+    if (n > 100_000) n = 100_000;
+    const out = alloc.alloc(f64, n * 2) catch return retEmpty(p);
+    defer alloc.free(out);
+    const got = gg.rhumbLine(e, gn(p, 3), gn(p, 4), gn(p, 5), gn(p, 6), n, out);
+    retF64s(p, out[0 .. got * 2]);
+}
+
+fn ring_GeoMeridianArc(p: *anyopaque) callconv(.c) void {
+    rn(p, gg.meridianArc(readEllipsoid(p, 1), gn(p, 3)));
+}
+fn ring_GeoLatitudeAtArc(p: *anyopaque) callconv(.c) void {
+    rn(p, gg.inverseMeridianArc(readEllipsoid(p, 1), gn(p, 3)));
+}
+fn ring_GeoParallelLength(p: *anyopaque) callconv(.c) void {
+    rn(p, gg.parallelLength(readEllipsoid(p, 1), gn(p, 3)));
+}
+
+fn ring_GeoToEcef(p: *anyopaque) callconv(.c) void {
+    const v = gg.toEcef(readEllipsoid(p, 1), gn(p, 3), gn(p, 4), gn(p, 5));
+    retF64s(p, &v);
+}
+fn ring_GeoFromEcef(p: *anyopaque) callconv(.c) void {
+    const v = gg.fromEcef(readEllipsoid(p, 1), gn(p, 3), gn(p, 4), gn(p, 5));
+    retF64s(p, &v);
+}
+fn ring_GeoToEnu(p: *anyopaque) callconv(.c) void {
+    const v = gg.toEnu(readEllipsoid(p, 1), gn(p, 3), gn(p, 4), gn(p, 5), gn(p, 6), gn(p, 7), gn(p, 8));
+    retF64s(p, &v);
+}
+fn ring_GeoFromEnu(p: *anyopaque) callconv(.c) void {
+    const v = gg.fromEnu(readEllipsoid(p, 1), gn(p, 3), gn(p, 4), gn(p, 5), gn(p, 6), gn(p, 7), gn(p, 8));
+    retF64s(p, &v);
+}
+
+fn ring_GeoGeodesicArea(p: *anyopaque) callconv(.c) void {
+    const e = readEllipsoid(p, 1);
+    const pts = readPoints(p, 3) orelse return retEmpty(p);
+    defer alloc.free(pts);
+    const r = gg.polygonArea(e, pts);
+    retPair(p, r.area, r.perimeter);
+}
+
 const regs = [_]R.Reg{
     .{ .name = "stzenginegeohaversine", .func = ring_Haversine },
     .{ .name = "stzenginegeohaversinemiles", .func = ring_HaversineMiles },
@@ -1024,6 +1144,24 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginegeokrigefield", .func = ring_GeoKrigeField },
     .{ .name = "stzenginegeokrigeat", .func = ring_GeoKrigeAt },
     .{ .name = "stzenginegeocrossvalidate", .func = ring_GeoCrossValidate },
+    // GE8
+    .{ .name = "stzenginegeoellipsoidcount", .func = ring_GeoEllipsoidCount },
+    .{ .name = "stzenginegeoellipsoidname", .func = ring_GeoEllipsoidName },
+    .{ .name = "stzenginegeoellipsoidat", .func = ring_GeoEllipsoidAt },
+    .{ .name = "stzenginegeogeodesicinverse", .func = ring_GeoGeodesicInverse },
+    .{ .name = "stzenginegeogeodesicdirect", .func = ring_GeoGeodesicDirect },
+    .{ .name = "stzenginegeogeodesicline", .func = ring_GeoGeodesicLine },
+    .{ .name = "stzenginegeorhumbinverse", .func = ring_GeoRhumbInverse },
+    .{ .name = "stzenginegeorhumbdirect", .func = ring_GeoRhumbDirect },
+    .{ .name = "stzenginegeorhumbline", .func = ring_GeoRhumbLine },
+    .{ .name = "stzenginegeomeridianarc", .func = ring_GeoMeridianArc },
+    .{ .name = "stzenginegeolatitudeatarc", .func = ring_GeoLatitudeAtArc },
+    .{ .name = "stzenginegeoparallellength", .func = ring_GeoParallelLength },
+    .{ .name = "stzenginegeotoecef", .func = ring_GeoToEcef },
+    .{ .name = "stzenginegeofromecef", .func = ring_GeoFromEcef },
+    .{ .name = "stzenginegeotoenu", .func = ring_GeoToEnu },
+    .{ .name = "stzenginegeofromenu", .func = ring_GeoFromEnu },
+    .{ .name = "stzenginegeogeodesicarea", .func = ring_GeoGeodesicArea },
 };
 
 pub fn registerAll(state: *anyopaque) void {

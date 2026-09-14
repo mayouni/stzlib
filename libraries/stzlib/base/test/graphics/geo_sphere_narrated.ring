@@ -125,9 +125,29 @@ chk("NEGATIVE: on an equal-area cylindrical the same circle is squashed flat",
     _Roundness(oCy.Ring(aCirc)[1]) < 0.6)
 
 ? ""
-? "-- 8. Distance and direction on the sphere itself --"
+? "-- 8. Distance and direction, and which surface it is measured on --"
+# THIS SECTION USED TO SAY "on the sphere itself" AND ASSERT 340 < km < 348.
+# Since GE8 StzGeoDistanceKm answers on WGS84, and that band is wide enough
+# to swallow both answers -- so the assertion went on passing while the
+# thing it tested changed underneath it. A tolerance that cannot tell the
+# old behaviour from the new is not measuring the behaviour.
 nKm = StzGeoDistanceKm(-0.13, 51.51, 2.35, 48.85)
-chk("London to Paris is about 344 km by the great circle", nKm > 340 and nKm < 348)
+nSph = StzGeoDistanceOnSphereKm(-0.13, 51.51, 2.35, 48.85)
+? "   London to Paris: " + nKm + " km on WGS84, " + nSph + " km on the sphere"
+# BOTH NUMBERS ARE MEASURED, NOT REMEMBERED. The first draft of these
+# three lines pinned 343.556 and 343.374 from a half-recalled "London to
+# Paris is about 343 km" -- and those are not this pair of coordinates.
+# All three failed at once, which is the cheap way for it to go wrong.
+chk("LONDON TO PARIS IS 344.804 km ON WGS84 -- the ellipsoid is the surface " +
+    "a GPS measures on, so this is the number one agrees with",
+    fabs(nKm - 344.8043) < 0.01)
+chk("...and 344.438 km on the sphere of 6371 km, which is the OLD answer " +
+    "and is still reachable, under the name that says sphere",
+    fabs(nSph - 344.4376) < 0.01)
+chk("THE TWO DIFFER BY 367 METRES over 344 km -- one part in a thousand on " +
+    "a short hop, and fifteen KILOMETRES on a transatlantic flight, which " +
+    "is the whole reason GE8 exists",
+    nKm - nSph > 0.36 and nKm - nSph < 0.37)
 aMid = StzGeoInterpolate(0, 0, 90, 0, 0.5)
 chk("halfway along the equator from 0 to 90 is 45", fabs(aMid[1] - 45) < 0.0001 and fabs(aMid[2]) < 0.0001)
 aArc = StzGeoArc(-74, 40.7, 139.7, 35.7, 32)

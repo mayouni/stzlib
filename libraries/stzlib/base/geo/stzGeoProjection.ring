@@ -88,17 +88,65 @@ func StzGeoArc(pnLon1, pnLat1, pnLon2, pnLat2, pnSteps)
 	next
 	return _a_
 
-# the area of a ring on the sphere, in square kilometres (6371 km radius).
-# The ring's edges are taken as great circles, so a box drawn along
-# parallels must be densified first to measure as the box it is.
+# WGS84'S TWO DEFINING NUMBERS, read from the engine rather than written
+# here. A second copy of 6378137 and 1/298.257223563 in a Ring file is a
+# second place for them to be wrong, and this plane has paid for a duplicated
+# definition three times in one week.
+# ...and NOT cached in a global. The first version of these two put the
+# pair in $nStzGeoW84A/F on first use and every geo guard died on
+# "using uninitialized variable" -- Ring will not READ a global that has
+# not been written, so a lazily-filled one is a landmine under whichever
+# caller arrives first. A global would have been the wrong shape even
+# working: this repository has a standing rule against library code
+# reading a global a caller can overwrite, learned when a caller's `nL`
+# replaced the newline constant with a number. The lookup is a table read
+# behind a geodesic solve that costs a thousand times more.
+func StzGeoWGS84A()
+	return StzEngineGeoEllipsoidAt(1)[1]
+
+func StzGeoWGS84F()
+	return StzEngineGeoEllipsoidAt(1)[2]
+
+# THE AREA OF A RING, km2, ON THE ELLIPSOID -- WGS84, because that is what
+# the area of a country means and what every published figure is measured
+# on. Its edges are taken as GEODESICS, so a box drawn along parallels must
+# be densified first if it is to measure as the box somebody drew.
+#
+# THIS USED TO BE A SPHERE OF 6371 km AND THE CHANGE IS THE POINT OF GE8.
+# The spherical answer is still here, one function down, under a name that
+# says so -- so nothing is lost, the gap between the two can be measured,
+# and no caller gets the old number while reading a name that does not
+# mention a sphere. On the 110m world file the two differ by 108,000 km2
+# out of 147 million.
 func StzGeoRingAreaKm2(paLonLat)
+	return StzEngineGeoGeodesicArea(StzGeoWGS84A(), StzGeoWGS84F(), paLonLat)[1] / 1000000
+
+# ...and the same ring on the sphere this plane used until GE8, great
+# circles for edges and a radius of 6371 km. It is what the SPATIAL
+# STATISTICS still work on -- Ripley's K, the kernel densities, the
+# envelopes -- because every one of those estimators is built on a constant
+# radius, and moving them to the ellipsoid is GE7's business and not this
+# plane's. Naming it here is how that boundary stays visible.
+func StzGeoRingAreaOnSphereKm2(paLonLat)
 	return fabs(StzEngineGeoRingArea(paLonLat)) * 6371 * 6371
 
 # is this place inside that ring, on the sphere?
 func StzGeoRingContains(paLonLat, pnLon, pnLat)
 	return StzEngineGeoRingContains(paLonLat, pnLon, pnLat) = 1
 
+# HOW FAR APART TWO PLACES ARE, km, ALONG THE SHORTEST PATH ON WGS84.
+# From (-0.13, 51.51) to (2.35, 48.85) it is 344.804 km; the sphere said
+# 344.438, and a GPS agrees with the first. See StzGeoDistanceOnSphereKm
+# for the old answer, and the note there for why the spatial statistics
+# still measure with it.
 func StzGeoDistanceKm(pnLon1, pnLat1, pnLon2, pnLat2)
+	return StzEngineGeoGeodesicInverse(StzGeoWGS84A(), StzGeoWGS84F(),
+		pnLat1, pnLon1, pnLat2, pnLon2)[1] / 1000
+
+# the haversine on a sphere of 6371 km -- what the engine's spatial
+# statistics measure with, so anything cross-checking them must ask for it
+# BY THIS NAME rather than get it by accident
+func StzGeoDistanceOnSphereKm(pnLon1, pnLat1, pnLon2, pnLat2)
 	return StzEngineGeoHaversine(pnLat1, pnLon1, pnLat2, pnLon2)
 
 # the same distance as an angle at the centre of the sphere, degrees

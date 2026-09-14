@@ -239,7 +239,7 @@ func _MeanVarianceNear poVar, paG, pnLo, pnHi
 func _NearestGaugeKm paG, pnX, pnY
 	_m_ = 999999
 	for _i_ = 1 to len(paG) / 3
-		_d_ = StzGeoDistanceKm(pnX, pnY, paG[_i_ * 3 - 2], paG[_i_ * 3 - 1])
+		_d_ = StzGeoDistanceOnSphereKm(pnX, pnY, paG[_i_ * 3 - 2], paG[_i_ * 3 - 1])
 		if _d_ < _m_  _m_ = _d_  ok
 	next
 	return _m_
