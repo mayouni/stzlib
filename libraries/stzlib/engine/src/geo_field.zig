@@ -264,20 +264,23 @@ pub fn stats(values: []const f64) Stats {
     return s;
 }
 
-/// bilinear where all four neighbours are known, nearest where they are not,
-/// NaN off the grid or with no known neighbour at all
+/// BILINEAR OVER THE NEIGHBOURS THAT ARE KNOWN, with the weights renormalised
+/// to them. Off the grid, or with no known neighbour in the 4x4 block around
+/// the place, NaN.
+///
+/// The first version jumped to the NEAREST node when any of the four was
+/// unknown, and along a coast -- where half the neighbours are unknown --
+/// that turned a smooth field into a staircase of cell-sized steps, which
+/// the Principal saw as a border "not antialiased and non-continuous". A
+/// weighted average of what IS known keeps the surface continuous right up
+/// to the clip; the 4x4 fallback catches a peninsula thinner than a cell.
 pub fn sampleAt(values: []const f64, g: Grid, lon: f64, lat: f64) f64 {
     const fx = (lon - g.lon0) / g.dlon;
     const fy = (lat - g.lat0) / g.dlat;
-    // STRICTLY INSIDE THE GRID. The first version allowed half a cell of
-    // overhang and answered with the edge node there, which painted a band
-    // of colour along the western edge of a map where the grid's own border
-    // ran down the coast -- ground the field does not cover, drawn as
-    // though it did. A hairline of unpainted data at the very edge is the
-    // honest trade.
+    // STRICTLY INSIDE THE GRID: half a cell of overhang once painted a band
+    // of the edge node's colour down the western edge of a map
     if (fx < 0 or fy < 0) return std.math.nan(f64);
     if (fx > @as(f64, @floatFromInt(g.nx - 1)) or fy > @as(f64, @floatFromInt(g.ny - 1))) return std.math.nan(f64);
-    // i0/j0 would shadow Zig's i0 primitive
     var ci: i64 = @intFromFloat(@floor(fx));
     var cj: i64 = @intFromFloat(@floor(fy));
     if (ci < 0) ci = 0;
@@ -286,19 +289,43 @@ pub fn sampleAt(values: []const f64, g: Grid, lon: f64, lat: f64) f64 {
     if (cj > @as(i64, @intCast(g.ny)) - 2) cj = @as(i64, @intCast(g.ny)) - 2;
     const iu: usize = @intCast(ci);
     const ju: usize = @intCast(cj);
-    const a = values[ju * g.nx + iu];
-    const b = values[ju * g.nx + iu + 1];
-    const c = values[(ju + 1) * g.nx + iu];
-    const d = values[(ju + 1) * g.nx + iu + 1];
     const tx = fx - @as(f64, @floatFromInt(iu));
     const ty = fy - @as(f64, @floatFromInt(ju));
-    if (!std.math.isNan(a) and !std.math.isNan(b) and !std.math.isNan(c) and !std.math.isNan(d)) {
-        return (a * (1 - tx) + b * tx) * (1 - ty) + (c * (1 - tx) + d * tx) * ty;
+    const corners = [4]f64{
+        values[ju * g.nx + iu],
+        values[ju * g.nx + iu + 1],
+        values[(ju + 1) * g.nx + iu],
+        values[(ju + 1) * g.nx + iu + 1],
+    };
+    const weights = [4]f64{ (1 - tx) * (1 - ty), tx * (1 - ty), (1 - tx) * ty, tx * ty };
+    var acc: f64 = 0;
+    var wsum: f64 = 0;
+    for (corners, weights) |v, wgt| {
+        if (std.math.isNan(v)) continue;
+        acc += v * wgt;
+        wsum += wgt;
     }
-    // nearest of the four that is known
-    const ni: usize = if (tx < 0.5) iu else iu + 1;
-    const nj: usize = if (ty < 0.5) ju else ju + 1;
-    return values[nj * g.nx + ni];
+    if (wsum > 1e-12) return acc / wsum;
+    // nothing known among the four: the 4x4 block around them, by distance
+    var acc2: f64 = 0;
+    var w2: f64 = 0;
+    var jj: i64 = @as(i64, @intCast(ju)) - 1;
+    while (jj <= @as(i64, @intCast(ju)) + 2) : (jj += 1) {
+        if (jj < 0 or jj >= @as(i64, @intCast(g.ny))) continue;
+        var ii: i64 = @as(i64, @intCast(iu)) - 1;
+        while (ii <= @as(i64, @intCast(iu)) + 2) : (ii += 1) {
+            if (ii < 0 or ii >= @as(i64, @intCast(g.nx))) continue;
+            const v = values[@as(usize, @intCast(jj)) * g.nx + @as(usize, @intCast(ii))];
+            if (std.math.isNan(v)) continue;
+            const dx = @as(f64, @floatFromInt(ii)) - fx;
+            const dy = @as(f64, @floatFromInt(jj)) - fy;
+            const wgt = 1 / (dx * dx + dy * dy + 0.25);
+            acc2 += v * wgt;
+            w2 += wgt;
+        }
+    }
+    if (w2 > 0) return acc2 / w2;
+    return std.math.nan(f64);
 }
 
 // --------------------------------------------------------- the raster
@@ -316,6 +343,103 @@ pub fn classOf(v: f64, edges: []const f64) usize {
     return 0;
 }
 
+/// HOW MUCH OF EACH PIXEL THE WINDOW COVERS, in [0, 1] -- the antialiased
+/// clip of the raster to the ground it is a field OF.
+///
+/// The rings are projected once and scan-converted with FOUR SUB-ROWS per
+/// pixel row, even-odd, and each span adds its fractional horizontal
+/// overlap to the pixels it touches. So a pixel the coast crosses gets the
+/// fraction of it that is land, both ways, and the edge of the raster is
+/// the coastline at pixel resolution and not the grid's staircase of cells
+/// -- the first version clipped by the grid's own mask and the Principal
+/// read the coast as "not antialiased and non-continuous". It was neither.
+///
+/// One pass over the projected edges per sub-row: a country of five
+/// thousand vertices at six hundred rows is twelve million comparisons,
+/// which is tens of milliseconds. A per-pixel point-in-polygon would be a
+/// thousand times that. A window straddling the seam or the horizon is
+/// projected piecewise by `forward` and clipped as its visible vertices
+/// allow, which is right for every administrative window and not for a
+/// hemisphere; a hemisphere is not a window this file expects.
+pub fn polygonCoverage(
+    alloc: std.mem.Allocator,
+    rings: []const []const f64,
+    p: *const gp.Projection,
+    x0: f64,
+    y0: f64,
+    w: usize,
+    h: usize,
+    out: []f32,
+) !void {
+    @memset(out, 0);
+    // the rings on the paper, back to back, with where each begins
+    var xs = std.ArrayList(f64){};
+    defer xs.deinit(alloc);
+    var ys = std.ArrayList(f64){};
+    defer ys.deinit(alloc);
+    var starts = std.ArrayList(usize){};
+    defer starts.deinit(alloc);
+    for (rings) |r| {
+        try starts.append(alloc, xs.items.len);
+        const n = r.len / 2;
+        for (0..n) |k| {
+            const q = gp.forward(p, r[k * 2], r[k * 2 + 1]) orelse continue;
+            try xs.append(alloc, q[0]);
+            try ys.append(alloc, q[1]);
+        }
+    }
+    try starts.append(alloc, xs.items.len);
+    if (xs.items.len < 3) return;
+
+    const SS: usize = 4;
+    var xcross = std.ArrayList(f64){};
+    defer xcross.deinit(alloc);
+    const xr = x0 + @as(f64, @floatFromInt(w));
+
+    for (0..h) |py| {
+        for (0..SS) |k| {
+            const y = y0 + @as(f64, @floatFromInt(py)) + (@as(f64, @floatFromInt(k)) + 0.5) / @as(f64, @floatFromInt(SS));
+            xcross.clearRetainingCapacity();
+            for (0..starts.items.len - 1) |ri| {
+                const a = starts.items[ri];
+                const b = starts.items[ri + 1];
+                if (b - a < 3) continue;
+                var i = a;
+                while (i < b) : (i += 1) {
+                    const j = if (i + 1 < b) i + 1 else a;
+                    const ya = ys.items[i];
+                    const yb = ys.items[j];
+                    if ((ya <= y) == (yb <= y)) continue;
+                    const xa = xs.items[i];
+                    const xb = xs.items[j];
+                    try xcross.append(alloc, xa + (y - ya) * (xb - xa) / (yb - ya));
+                }
+            }
+            if (xcross.items.len < 2) continue;
+            std.mem.sort(f64, xcross.items, {}, std.sort.asc(f64));
+            var c: usize = 0;
+            while (c + 1 < xcross.items.len) : (c += 2) {
+                const xa = @max(xcross.items[c], x0);
+                const xb = @min(xcross.items[c + 1], xr);
+                if (xb <= xa) continue;
+                var px: usize = @intFromFloat(@floor(xa - x0));
+                const pe: usize = @intFromFloat(@floor(xb - x0));
+                while (px <= pe and px < w) : (px += 1) {
+                    const pl = x0 + @as(f64, @floatFromInt(px));
+                    const l = @max(xa, pl);
+                    const rr = @min(xb, pl + 1);
+                    if (rr > l) out[py * w + px] += @floatCast(rr - l);
+                }
+            }
+        }
+    }
+    const inv: f32 = 1.0 / @as(f32, @floatFromInt(SS));
+    for (out) |*v| {
+        v.* *= inv;
+        if (v.* > 1) v.* = 1;
+    }
+}
+
 /// THE FIELD AS A PICTURE, RESAMPLED THROUGH THE PROJECTION.
 ///
 /// One RGBA buffer the size of the box on the paper: for every pixel, invert
@@ -325,9 +449,14 @@ pub fn classOf(v: f64, edges: []const f64) usize {
 /// conic has had it -- and would need the caller to do the projection's job.
 /// Inverting per pixel is how every GIS draws a raster under a projection.
 ///
+/// `clip`, when given, is the window's rings: the picture is CLIPPED TO THEM
+/// AT PIXEL RESOLUTION, antialiased, by polygonCoverage above. Without it
+/// the picture is clipped only by where the field has a value.
+///
 /// `palette` is 3 bytes per class; a pixel with no class, no inverse, or no
 /// value is left fully transparent, so the map beneath shows through.
 pub fn fieldImage(
+    alloc: std.mem.Allocator,
     values: []const f64,
     g: Grid,
     p: *const gp.Projection,
@@ -338,23 +467,37 @@ pub fn fieldImage(
     edges: []const f64,
     palette: []const u8,
     alpha: u8,
+    clip: []const []const f64,
     out: []u8,
-) void {
+) !void {
     @memset(out, 0);
     const classes = if (edges.len >= 2) edges.len - 1 else 0;
+    var cover: ?[]f32 = null;
+    defer if (cover) |c| alloc.free(c);
+    if (clip.len > 0) {
+        const c = try alloc.alloc(f32, w * h);
+        try polygonCoverage(alloc, clip, p, x0, y0, w, h, c);
+        cover = c;
+    }
+    const af: f64 = @floatFromInt(alpha);
     for (0..h) |py| {
         const y = y0 + @as(f64, @floatFromInt(py)) + 0.5;
         for (0..w) |px| {
+            var cv: f64 = 1;
+            if (cover) |c| {
+                cv = c[py * w + px];
+                if (cv <= 0.002) continue;
+            }
             const x = x0 + @as(f64, @floatFromInt(px)) + 0.5;
             const gpos = gp.invert(p, x, y) orelse continue;
             const v = sampleAt(values, g, gpos[0], gpos[1]);
-            const c = classOf(v, edges);
-            if (c == 0 or c > classes) continue;
+            const cl = classOf(v, edges);
+            if (cl == 0 or cl > classes) continue;
             const o = (py * w + px) * 4;
-            out[o] = palette[(c - 1) * 3];
-            out[o + 1] = palette[(c - 1) * 3 + 1];
-            out[o + 2] = palette[(c - 1) * 3 + 2];
-            out[o + 3] = alpha;
+            out[o] = palette[(cl - 1) * 3];
+            out[o + 1] = palette[(cl - 1) * 3 + 1];
+            out[o + 2] = palette[(cl - 1) * 3 + 2];
+            out[o + 3] = @intFromFloat(@round(af * cv));
         }
     }
 }
@@ -753,15 +896,29 @@ test "the edge correction lifts the border and leaves the middle alone" {
     try kernelDensity(ta, pts[0 .. got * 2], g, 60, .quartic, mask, false, plain);
     try kernelDensity(ta, pts[0 .. got * 2], g, 60, .quartic, mask, true, fixed);
 
-    // a corner is short of density without the correction and closer with it
-    const c_plain = sampleAt(plain, g, 0.15, 0.15);
-    const c_fixed = sampleAt(fixed, g, 0.15, 0.15);
+    // JUDGED AGAINST THE TRUE INTENSITY, AVERAGED OVER THE FOUR CORNERS.
+    // One corner sample on a kernel holding thirty places swings by a
+    // sixth on Poisson noise alone, and a threshold of 1.5x on one reading
+    // was the number one run had given: when sampleAt stopped jumping to
+    // the nearest node the reading moved and a correct engine failed. The
+    // truth is n over the window's area, which this test computes itself.
+    const area = gp.ringArea(&ring) * EARTH_KM * EARTH_KM;
+    const truth = @as(f64, @floatFromInt(got)) / area;
+    const corners = [_][2]f64{ .{ 0.15, 0.15 }, .{ 3.85, 0.15 }, .{ 0.15, 3.85 }, .{ 3.85, 3.85 } };
+    var c_plain: f64 = 0;
+    var c_fixed: f64 = 0;
+    for (corners) |c| {
+        c_plain += sampleAt(plain, g, c[0], c[1]) / 4;
+        c_fixed += sampleAt(fixed, g, c[0], c[1]) / 4;
+    }
     const m_plain = sampleAt(plain, g, 2, 2);
     const m_fixed = sampleAt(fixed, g, 2, 2);
-    try testing.expect(c_fixed > c_plain * 1.5);
+    // uncorrected, a corner is well short of the truth; corrected, it is near it
+    try testing.expect(c_plain < truth * 0.8);
+    try testing.expect(@abs(c_fixed / truth - 1) < 0.15);
+    try testing.expect(c_fixed > c_plain * 1.15);
+    // and the middle, which was never short, is left alone
     try testing.expect(@abs(m_fixed / m_plain - 1) < 0.15);
-    // and the middle is nearer the true intensity than the corner was
-    try testing.expect(c_fixed / m_fixed > c_plain / m_plain);
 }
 
 test "a masked node is unknown, never zero" {
@@ -939,7 +1096,7 @@ test "the picture is painted only where the field has a class" {
     const pal = [_]u8{ 200, 100, 50 };
     const img = try ta.alloc(u8, 40 * 40 * 4);
     defer ta.free(img);
-    fieldImage(vals, g, &p, 0, 0, 40, 40, &edges, &pal, 255, img);
+    try fieldImage(ta, vals, g, &p, 0, 0, 40, 40, &edges, &pal, 255, &.{}, img);
     var painted: usize = 0;
     for (0..40 * 40) |k| {
         if (img[k * 4 + 3] != 0) {
@@ -951,6 +1108,71 @@ test "the picture is painted only where the field has a class" {
 
     // a value under every class paints nothing at all
     for (0..g.count()) |k| vals[k] = -5;
-    fieldImage(vals, g, &p, 0, 0, 40, 40, &edges, &pal, 255, img);
+    try fieldImage(ta, vals, g, &p, 0, 0, 40, 40, &edges, &pal, 255, &.{}, img);
     for (0..40 * 40) |k| try testing.expect(img[k * 4 + 3] == 0);
+}
+
+test "the clip is the polygon at pixel resolution, and its edge is antialiased" {
+    // a constant field over 0..4, drawn through a plain fit into a 40x40
+    // box, clipped to a triangle: inside is opaque, outside is empty, and
+    // the pixels the triangle's slanted edge crosses are PARTLY covered
+    const g = Grid{ .lon0 = 0, .lat0 = 0, .dlon = 1, .dlat = 1, .nx = 5, .ny = 5 };
+    const vals = try ta.alloc(f64, g.count());
+    defer ta.free(vals);
+    for (0..g.count()) |k| vals[k] = 5;
+    var p = gp.Projection.fromKind(.equirectangular);
+    _ = gp.fitPoints(&p, &.{ 0, 0, 4, 4 }, 0, 0, 40, 40, 0);
+    const edges = [_]f64{ 0, 10 };
+    const pal = [_]u8{ 200, 100, 50 };
+    const tri = [_]f64{ 0, 0, 4, 0, 4, 4, 0, 0 };
+    const clip = [_][]const f64{&tri};
+    const img = try ta.alloc(u8, 40 * 40 * 4);
+    defer ta.free(img);
+    try fieldImage(ta, vals, g, &p, 0, 0, 40, 40, &edges, &pal, 255, &clip, img);
+    var full: usize = 0;
+    var partial: usize = 0;
+    var empty: usize = 0;
+    for (0..40 * 40) |k| {
+        const a = img[k * 4 + 3];
+        if (a == 255) full += 1 else if (a == 0) empty += 1 else partial += 1;
+    }
+    // about half the box is the triangle, its diagonal runs through ~40 pixels
+    try testing.expect(full > 600 and full < 800);
+    try testing.expect(empty > 600 and empty < 800);
+    try testing.expect(partial >= 30 and partial <= 120);
+    // and the partial pixels sit ON the diagonal, not scattered
+    var on_diag: usize = 0;
+    for (0..40) |py| {
+        for (0..40) |px| {
+            const a = img[(py * 40 + px) * 4 + 3];
+            if (a > 0 and a < 255) {
+                // the diagonal in pixel space: x = 40 - y in this fit
+                const d = @abs(@as(f64, @floatFromInt(px)) - (39 - @as(f64, @floatFromInt(py))));
+                if (d <= 1.5) on_diag += 1;
+            }
+        }
+    }
+    try testing.expect(on_diag == partial);
+}
+
+test "sampling beside unknown nodes averages what is known, and does not jump" {
+    const g = Grid{ .lon0 = 0, .lat0 = 0, .dlon = 1, .dlat = 1, .nx = 2, .ny = 2 };
+    // three known corners of 10, one unknown
+    const vals = [_]f64{ 10, 10, 10, std.math.nan(f64) };
+    // the centre of the cell: the three known share the weight, answer 10
+    try testing.expect(@abs(sampleAt(&vals, g, 0.5, 0.5) - 10) < 1e-9);
+    // a mixed cell: the answer is BETWEEN the known values, never a jump
+    const mixed = [_]f64{ 0, 20, 0, std.math.nan(f64) };
+    const v = sampleAt(&mixed, g, 0.9, 0.9);
+    try testing.expect(v > 0 and v < 20);
+    // and a place whose four neighbours are all unknown still finds the
+    // block around it
+    const g4 = Grid{ .lon0 = 0, .lat0 = 0, .dlon = 1, .dlat = 1, .nx = 4, .ny = 4 };
+    var sparse: [16]f64 = undefined;
+    for (&sparse) |*x| x.* = std.math.nan(f64);
+    sparse[0] = 7; // the (0,0) corner only
+    try testing.expect(@abs(sampleAt(&sparse, g4, 1.5, 1.5) - 7) < 1e-9);
+    // nothing anywhere near: unknown
+    for (&sparse) |*x| x.* = std.math.nan(f64);
+    try testing.expect(std.math.isNan(sampleAt(&sparse, g4, 1.5, 1.5)));
 }

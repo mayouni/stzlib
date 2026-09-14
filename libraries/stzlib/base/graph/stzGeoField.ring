@@ -68,6 +68,7 @@ func StzGeoDensityFieldXT(poPoints, pnCellKm, pnBandwidthKm, pcKernel, pbEdgeCor
 	_v_ = StzEngineGeoKernelDensity(poPoints.Points(), _g_, pnBandwidthKm, _k_,
 		poPoints.WindowRings(), poPoints.Window().Bounds(), _e_)
 	_f_ = new stzGeoField(_g_, _v_)
+	_f_.SetClip(poPoints.WindowRings())
 	_f_.SetUnit("places per km2")
 	_f_.SetSource("kernel density, " + _c_ + " at " + pnBandwidthKm + " km")
 	return _f_
@@ -91,6 +92,7 @@ class stzGeoField from stzObject
 	@cSource = ""
 	@aEdges = []
 	@aPalette = []
+	@aClip = []
 
 	def init(paGrid, paValues)
 		if NOT (isList(paGrid) and len(paGrid) = 6)
@@ -254,6 +256,33 @@ class stzGeoField from stzObject
 	def Classes()
 		return @aEdges
 
+	# THE GROUND THE PICTURE IS CLIPPED TO, as lon/lat rings, at pixel
+	# resolution and antialiased -- so the raster's edge is the coastline and
+	# not the grid's staircase of cells. A density field takes its window's
+	# rings at birth; a raster read from a file has none until told.
+	def SetClip(paRings)
+		@aClip = paRings
+
+		def SetClipQ(paRings)
+			This.SetClip(paRings)
+			return This
+
+	def SetClipTo(poFeatures)
+		_a_ = []
+		for _i_ = 1 to poFeatures.Count()
+			for _k_ = 1 to poFeatures.PartCount(_i_)
+				_a_ + poFeatures.OuterRingOf(_i_, _k_)
+			next
+		next
+		@aClip = _a_
+
+		def SetClipToQ(poFeatures)
+			This.SetClipTo(poFeatures)
+			return This
+
+	def Clip()
+		return @aClip
+
 	def Palette()
 		return @aPalette
 
@@ -300,7 +329,7 @@ class stzGeoField from stzObject
 			_rgb_ + _GeoHexByte(_c_, 5)
 		next
 		_img_ = StzEngineGeoFieldImage(poProjection.Params(), @aVals, @aGrid,
-			pnX0, pnY0, _w_, _h_, @aEdges, _rgb_, pnAlpha)
+			pnX0, pnY0, _w_, _h_, @aEdges, _rgb_, pnAlpha, @aClip)
 		if len(_img_) < _w_ * _h_ * 4  return  ok
 		poCanvas.AddImage(pnX0, pnY0, _w_, _h_, _w_, _h_, _img_)
 

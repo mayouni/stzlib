@@ -709,7 +709,9 @@ fn ring_GeoContour(p: *anyopaque) callconv(.c) void {
 }
 
 // GeoFieldImage(aProj, aValues, aGrid, nX0, nY0, nW, nH, aEdges, aPaletteRGB,
-//               nAlpha) -> an RGBA buffer of nW x nH, ready for AddImage
+//               nAlpha, aClipRings) -> an RGBA buffer of nW x nH, ready for
+// AddImage. aClipRings ([] for none) clips the picture to those lon/lat
+// rings at pixel resolution, antialiased.
 fn ring_GeoFieldImage(p: *anyopaque) callconv(.c) void {
     const pr = readProjection(p, 1) orelse return R.ring_vm_api_retstring(p, "");
     const v = readValues(p, 2) orelse return R.ring_vm_api_retstring(p, "");
@@ -729,7 +731,11 @@ fn ring_GeoFieldImage(p: *anyopaque) callconv(.c) void {
     const img = alloc.alloc(u8, w * h * 4) catch return R.ring_vm_api_retstring(p, "");
     defer alloc.free(img);
     const a: u8 = @intFromFloat(@min(@max(gn(p, 10), 0), 255));
-    gf.fieldImage(v, g, &pr, gn(p, 4), gn(p, 5), w, h, edges, bytes, a, img);
+    const rr: ?Rings = readRings(p, 11);
+    defer if (rr) |x| freeRings(x);
+    const clip: []const []const f64 = if (rr) |x| x.view else &.{};
+    gf.fieldImage(alloc, v, g, &pr, gn(p, 4), gn(p, 5), w, h, edges, bytes, a, clip, img) catch
+        return R.ring_vm_api_retstring(p, "");
     R.ring_vm_api_retstring2(p, img.ptr, @intCast(img.len));
 }
 

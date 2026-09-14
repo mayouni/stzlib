@@ -730,6 +730,34 @@ kept for the raster.
   edge node's colour outside the grid. Strictly inside now; a hairline of
   unpainted data at the very edge is the honest trade.
 
+### And what the Principal saw in the first picture
+
+Three things, in one sentence: *"the border of the middle map is not
+antialiased and looks non continuous; inside the heat regions there are
+some lines; there is a lot of text under the maps, intersecting the
+legend."* All three were true.
+
+- **The coast was a staircase** because the raster was clipped by the
+  grid's own mask -- unknown nodes, at cell resolution, with binary alpha.
+  It is clipped to the WINDOW'S POLYGON now, at pixel resolution and
+  antialiased: the rings are projected once and scan-converted with four
+  sub-rows per pixel row, even-odd, each span adding its fractional
+  horizontal overlap -- a pixel the coast crosses gets the fraction of it
+  that is land, both ways. Twelve million edge comparisons for a country;
+  tens of milliseconds. A per-pixel point-in-polygon would have been a
+  thousand times that.
+- **The lines in the heat** were two things: the governorate borders the
+  sheet drew OVER the raster in white, which on a density map are lines
+  scored through the subject; and scalloped class boundaries from bilinear
+  sampling on 8 km cells at 9 px each, made worse by `sampleAt` jumping to
+  the NEAREST node wherever a neighbour was unknown -- along a coast that
+  is half the neighbours. The overlay is gone, the cells are 3 km, and
+  `sampleAt` is a bilinear over the KNOWN neighbours with renormalised
+  weights, so the surface is continuous to the clip.
+- **The text** was four sentences of explanation on the picture, running
+  into the legend. They were the file's header comment, printed twice. A
+  sheet carries its source and nothing it has to argue: one line now.
+
 *Witness:* `geo_field.png` -- 653 clustered places in Tunisia three ways:
 the dots, the intensity (hot where the clusters are), the contours at five
 levels agreeing with it. *Guard:* `geo_field_narrated.ring` **30**; gate

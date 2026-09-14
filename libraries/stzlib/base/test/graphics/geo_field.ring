@@ -38,12 +38,12 @@ nSeed = 20260914
 # clinics or boreholes looks like: not uniform, not one blob.
 aObs = oWin.SampleClustered(6, 140, 55, nSeed)
 oPat = oWin.With(aObs)
-oFld = StzGeoDensityField(oPat, 8, 45)
+oFld = StzGeoDensityField(oPat, 3, 45)
 aS = oFld.Stats()
 oFld.SetClassesEvery(6)
 oFld.SetRamp(:YlOrRd)
 
-oC = new stzCanvas(1200, 880)
+oC = new stzCanvas(1200, 870)
 oC.SetBackground("#FFFFFF")
 oC.SetFontQ(oFont, 23).AddTextQ("Where is it thickest? " + oPat.Count() +
 	" places, three ways", 30, 44).Fill("#111111")
@@ -68,20 +68,14 @@ for m = 1 to 3
 			if len(q) = 2  oC.AddCircleQ(q[1], q[2], 1.6).FillQ("#1B4F7299").Stroke("#00000000", 0)  ok
 		next
 	but m = 2
-		# THE RASTER GOES ON TOP OF THE LAND, AND NOTHING GOES ON TOP OF IT.
-		# The first version drew the regions again afterwards to get their
-		# borders back, and DrawRegionsOn FILLS -- so the land was repainted
-		# grey over the density and all that survived was a one-pixel fringe
-		# along the coast. The borders are drawn as OUTLINES instead.
-		oM.DrawRegionsOn(oC, "#FFFFFF", 0.5)
-		oFld.DrawXT(oC, oP, nX0 + 20, 125, nX0 + 370, 710, 235)
-		for iR = 1 to oU.Count()
-			for iK = 1 to oU.PartCount(iR)
-				for aPc in oP.Ring(oU.OuterRingOf(iR, iK))
-					if len(aPc) >= 4  oC.AddPolylineQ(aPc).Stroke("#FFFFFFAA", 0.6)  ok
-				next
-			next
-		next
+		# THE RASTER IS THE MAP HERE, AND NOTHING IS DRAWN OVER IT. The first
+		# version drew the regions again afterwards to get their borders
+		# back -- and DrawRegionsOn FILLS, so the land was repainted grey over
+		# the density. The second drew the borders as white outlines on top,
+		# and the Principal read them as lines scored through the heat. A
+		# density map's subject is the density; the internal borders belong
+		# on the other two panels, where they are the subject.
+		oFld.DrawXT(oC, oP, nX0 + 20, 125, nX0 + 370, 710, 245)
 	else
 		oM.DrawRegionsOn(oC, "#FFFFFF", 0.7)
 		aLev = oFld.LevelsEvery(5)
@@ -101,18 +95,14 @@ oBig = StzGeoField(oFld.Grid(), oFld.Values())
 oBig.SetClasses(aBig)
 oBig.SetPalette(oFld.Palette())
 oBig.SetUnit("places per million km2")
-oBig.DrawLegendOn(oC, oFont, 830, 752, "places per million km2")
+oBig.DrawLegendOn(oC, oFont, 850, 735, "places per million km2")
 
-oC.SetFontQ(oFont, 13).AddTextQ("" + aS[:known] + " of " + (aS[:known] + aS[:unknown]) +
-	" grid nodes stand on Tunisia; the rest are UNKNOWN, not zero -- 'no ground here' " +
-	"and 'no places here' are different statements.", 30, 800).Fill("#777777")
-oC.SetFontQ(oFont, 13).AddTextQ("The density is edge-corrected: without it the coast " +
-	"reads thin everywhere, because most of a kernel centred on the shore lands in the sea.",
-	30, 822).Fill("#777777")
-oC.SetFontQ(oFont, 13).AddTextQ("A contour is a LINE and never a fill -- the ground " +
-	"between two levels is not one value.", 30, 844).Fill("#777777")
-oC.SetFontQ(oFont, 13).AddTextQ("Natural Earth 1:10m; the places are INVENTED, seeded, " +
-	"and clustered on purpose so the density has something to find.", 30, 866).Fill("#777777")
+# ONE LINE UNDER THE MAPS, not four. The first version explained the edge
+# correction, the unknown nodes and the contour rule on the picture itself,
+# and the text ran into the legend. Those sentences are the file's header
+# now; a sheet carries its source and nothing it has to argue.
+oC.SetFontQ(oFont, 13).AddTextQ("Natural Earth 1:10m; the places are INVENTED, seeded, and clustered " +
+	"on purpose so the density has something to find.", 30, 850).Fill("#777777")
 oC.Flush()
 oC.ToPNG("geo_field.png")
 
