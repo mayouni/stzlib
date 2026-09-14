@@ -315,6 +315,30 @@ class stzGeoProjection from stzObject
 			This.FitFeaturesIn(poFeatures, pnX0, pnY0, pnX1, pnY1, pnPad)
 			return This
 
+	# THE SIBLING FitFeaturesIn AND FitFeatureIn ALREADY HAD, and the one a
+	# caller needs to fit a WINDOW OF THE WORLD into a box: Mercator runs to
+	# infinity at the poles, so a world sheet on it is fitted to a lon/lat
+	# box cut at about 83 degrees rather than to the features themselves.
+	#
+	# It exists because the first bloc sheet reached for FitToPoints and
+	# then Translate, and Translate REPLACES the translation the fit just
+	# computed rather than offsetting it -- so the map left the paper. A fit
+	# that takes its box is the method that was missing.
+	def FitPointsIn(paLonLat, pnX0, pnY0, pnX1, pnY1, pnPad)
+		_pp_ = This.Params()
+		_a_ = StzEngineGeoFitPoints(_pp_, paLonLat, pnX0, pnY0, pnX1, pnY1, pnPad)
+		if len(_a_) < 3
+			stzraise("stzGeoProjection.FitPointsIn: none of those points project " +
+				"with these parameters.")
+		ok
+		@nScale = _a_[1]
+		@nTx = _a_[2]
+		@nTy = _a_[3]
+
+		def FitPointsInQ(paLonLat, pnX0, pnY0, pnX1, pnY1, pnPad)
+			This.FitPointsIn(paLonLat, pnX0, pnY0, pnX1, pnY1, pnPad)
+			return This
+
 	def FitToFeatures(poFeatures, pnW, pnH, pnPad)
 		This.FitToPoints(poFeatures.AllPoints(), pnW, pnH, pnPad)
 

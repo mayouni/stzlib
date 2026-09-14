@@ -400,6 +400,89 @@ chk("NEGATIVE: AN INSET THAT COULD NOT NAME WHAT IT TOOK WARNS, because those " 
     "regions are then labelled NOWHERE: the parent left them to the inset",
     _InsetTooSmall())
 
+? "-- 9e. MEMBERSHIP IS NOT A QUANTITY --"
+# A choropleth says HOW MUCH; a bloc map says WHICH ONE OF. There is no
+# scale, no ramp and no order -- G7 is not more than BRICS, it is other than
+# BRICS -- so the colours are named by the caller and the legend is a KEY of
+# names. The members are given BY NAME, which is how anybody actually has a
+# bloc, and a name that matches nothing is reported rather than dropped.
+oGrF = StzGeoFeaturesFromJson(read("fixtures/two_countries.geojson"))
+oGrM = StzGeoMap(new stzGeoProjection(:ConicEqualArea), oGrF)
+oGrM.Projection().FitToFeatures(oGrF, 300, 300, 10)
+oGrM.SetSource("Invented, for a guard")
+oGrM.SetNoData("#CCCCCC")
+oGrM.SetGroups([ [ "Blue bloc", "#1B3A73", [ oGrF.NameOf(1) ] ] ])
+? "   " + oGrF.NameOf(1) + " is in group " + oGrM.GroupOf(1) + ", " +
+  oGrF.NameOf(2) + " in group " + oGrM.GroupOf(2)
+chk("A REGION TAKES ITS GROUP'S COLOUR, and one in no group takes the " +
+    "no-data colour -- membership OUTRANKS any numeric class, because a map " +
+    "cannot be 'which bloc' and 'how much' at once",
+    oGrM.GroupOf(1) = 1 and oGrM.GroupOf(2) = 0 and
+    oGrM.ColourOf(1) = "#1B3A73" and oGrM.ColourOf(2) = "#CCCCCC")
+oGrM.SetValuesQ([ 100, 200 ]).SetClasses([ 0, 150, 300 ])
+chk("...and setting values afterwards does NOT change the colours: the " +
+    "caller who set groups meant membership",
+    oGrM.ColourOf(1) = "#1B3A73" and oGrM.ColourOf(2) = "#CCCCCC")
+
+oGrBad = StzGeoMap(new stzGeoProjection(:ConicEqualArea), oGrF)
+oGrBad.Projection().FitToFeatures(oGrF, 300, 300, 10)
+oGrBad.SetSource("Invented, for a guard")
+oGrBad.SetGroups([ [ "Three members", "#C0202A",
+	[ oGrF.NameOf(1), oGrF.NameOf(2), "Freedonia" ] ] ])
+? "   a bloc of three in a world of two: " + len(oGrBad.UnresolvedMembers()) + " unresolved"
+chk("A MEMBER NAME THAT MATCHES NOTHING IS REPORTED, and the gate calls it " +
+    "an ERROR -- a key claiming three members over two painted countries is " +
+    "a false caption, and the failure is silent: the missing one just looks " +
+    "like everybody else",
+    len(oGrBad.UnresolvedMembers()) = 1 and
+    oGrBad.UnresolvedMembers()[1][:name] = "Freedonia" and
+    _HasFinding(oGrBad.Findings(), "every_named_member_was_found", "error"))
+chk("NEGATIVE: a bloc whose every name resolves reports nothing of the kind",
+    NOT _HasFinding(oGrM.Findings(), "every_named_member_was_found", "error"))
+
+oGrDup = StzGeoMap(new stzGeoProjection(:ConicEqualArea), oGrF)
+oGrDup.Projection().FitToFeatures(oGrF, 300, 300, 10)
+oGrDup.SetSource("Invented, for a guard")
+oGrDup.SetGroups([ [ "First", "#111111", [ oGrF.NameOf(1) ] ],
+                   [ "Second", "#222222", [ oGrF.NameOf(1), oGrF.NameOf(2) ] ] ])
+chk("A COUNTRY IN TWO BLOCS IS DRAWN IN THE FIRST'S COLOUR AND THE OVERLAP " +
+    "IS REPORTED -- list order is not a fact about the world, and the reader " +
+    "is owed the collision rather than a colour chosen by it",
+    oGrDup.GroupOf(1) = 1 and oGrDup.GroupOf(2) = 2 and
+    _HasFinding(oGrDup.Findings(), "a_country_belongs_to_one_group", "warning"))
+
+oGrMerc = StzGeoMap(new stzGeoProjection(:Mercator), oGrF)
+oGrMerc.Projection().FitToFeatures(oGrF, 300, 300, 10)
+oGrMerc.SetSource("Invented, for a guard")
+oGrMerc.SetGroups([ [ "Blue bloc", "#1B3A73", [ oGrF.NameOf(1) ] ] ])
+chk("A MEMBERSHIP MAP ON A NON-EQUAL-AREA PROJECTION IS AN ERROR, and for a " +
+    "harder reason than a choropleth's: a choropleth has a legend a reader " +
+    "can check a colour against, while a bloc map's ONLY quantity is how " +
+    "much of the world each bloc covers, read straight off the painted area",
+    _HasFinding(oGrMerc.Findings(), "a_membership_map_needs_an_equal_area_projection", "error"))
+chk("NEGATIVE: the same groups on the equal-area conic report nothing",
+    NOT _HasFinding(oGrM.Findings(), "a_membership_map_needs_an_equal_area_projection", "error"))
+
+oGrC = new stzCanvas(400, 400)
+oGrC.SetBackground("#FFFFFF")
+oGrM.SetLabelMode(:Names)
+oGrM.SetPaper(0, 0, 320, 320)
+oGrM.DrawLabelsXT(oGrC, oFont, 13, "#FFFFFF", FALSE)
+aGrR = oGrM.LabelReport()
+? "   with one member of two regions: named " + aGrR[:named] + ", unlabelled " + aGrR[:dropped]
+chk("A MEMBERSHIP MAP NAMES ITS MEMBERS AND NOTHING ELSE -- labelling the " +
+    "other hundred and fifty-nine countries of a world sheet would bury the " +
+    "eighteen it exists to show",
+    aGrR[:named] + aGrR[:dropped] = 1)
+chk("...and the label rule JUDGES ONLY WHAT COULD BE LABELLED: before this " +
+    "it accused every unlabelled region of a mis-placed label it never had",
+    NOT _HasFinding(oGrM.Findings(), "a_label_sits_in_its_region", "warning"))
+nGrY = oGrM.DrawGroupKeyOn(oGrC, oFont, 13, 340, 30, "#111111")
+chk("the key is a row of NAMES with their swatches, and it says where it ended",
+    nGrY > 30)
+chk("NEGATIVE: groups that are not [ label, colour, names ] are refused BY NAME",
+    _RefusesGroups(oGrF))
+
 ? "-- 9. THE SPATIAL JOIN: a table of places, counted into regions --"
 # THE POINTS ARE TAKEN FROM THE REGIONS THEMSELVES, not guessed at. The
 # first draft of this section wrote coordinates it believed were inside
@@ -854,6 +937,15 @@ func _InsetProbe paWindow, paBox
 	_m_.DrawLabelsXT(_c_, oFont, 13, "#000000", FALSE)
 	_m_.DrawInsetsOn(_c_, oFont, 13, "#000000")
 	return _m_
+
+func _RefusesGroups poF
+	_m_ = StzGeoMap(new stzGeoProjection(:ConicEqualArea), poF)
+	try
+		_m_.SetGroups([ "not a row" ])
+	catch
+		return StzFindFirst("label, colour", cCatchError) > 0
+	done
+	return FALSE
 
 func _TrueCentreOf poMap, pnI
 	_r_ = poMap.Features().OuterRingOf(pnI, poMap.Features().LargestPartOf(pnI))

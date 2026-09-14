@@ -170,6 +170,7 @@ general-tasks session's file and is routed to them, not fix them here.*
 | DN23 | closed | 117 |
 | DN24 | closed | 118 |
 | DN24b | closed | 120 |
+| GE2b | closed | 131 |
 | GE3 | closed | 124 |
 | GE7c | closed | 130 |
 | GE7b | closed | 129 |
@@ -4421,6 +4422,23 @@ that too.
 **State**: ten assertions folded into §118, green standalone first; gate
 **1670 ok, 0 failed**. No catalogue fixture moves — the witness title is
 short, so it is still one line and every swatch is where it was.
+
+## GE2b — MEMBERSHIP IS NOT A QUANTITY (2026-09-14, SHIPPED)
+
+**§131 discharges GE2b.** A choropleth says HOW MUCH; a bloc map says WHICH
+ONE OF, and the plane had no way to draw the second: every colouring it
+owned was a ramp over a number. `SetGroups([ [ label, colour, [ names ] ],
+... ])` colours by membership — no scale, no ramp, no order, colours named
+by the caller and members given BY NAME, which is how anybody actually has a
+bloc. A name that matches nothing is REPORTED and never dropped (GE4's
+doctrine, enforced where the names are finally used); a country in two blocs
+is drawn in the first's colour and the overlap is reported; and the label
+engine names the MEMBERS and leaves the rest of the world alone. Three
+rules, the sharpest of which is that a membership map needs an equal-area
+projection for a *harder* reason than a choropleth does: a choropleth has a
+legend a reader can check a colour against, while a bloc map's only quantity
+is how much of the world each bloc covers, and it is read straight off the
+painted area. Witness `geo_blocs.png`; the narration is the membership section of `geo_map_narrated.ring` (the § notation belongs to the gate suite, and using it for a narrated guard's own banner is what the plan checker caught here).
 
 ## GE3 — WHAT THE GATE OWES A MAP (2026-09-12, SHIPPED)
 
