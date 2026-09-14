@@ -2269,8 +2269,24 @@ class stzGeoMap from stzObject
 	# it. So this asks for the VALUE where the map is numeric, and for
 	# membership where the map is categorical, since a map cannot be both.
 	def IsUnclassed(pnI)
+		# A MAP WITH NO THEMATIC LAYER HAS NO NO-DATA. "Not measured" is a
+		# statement about a measurement that was supposed to exist, so it
+		# needs something to be missing FROM: where a caller set no values
+		# and no groups, the picture is a base map and every region is
+		# simply a region.
+		#
+		# Without this line the hatch fired on all 177 countries of the
+		# GE8 witness, which sets no values at all -- the whole world came
+		# out cross-hatched, and it was hard to read as anything but a
+		# rendering fault. That is the cost of asking "has this one got a
+		# value" without first asking "is anybody being valued here".
+		if NOT This.HasThematicLayer()  return FALSE  ok
 		if len(@aGroups) > 0  return This.GroupOf(pnI) = 0  ok
 		return NOT isNumber(This.ValueOf(pnI))
+
+	# is this map ABOUT something, or is it the ground under one?
+	def HasThematicLayer()
+		return len(@aGroups) > 0 or len(@aValues) > 0
 
 	def NoDataCount()
 		_n_ = 0
