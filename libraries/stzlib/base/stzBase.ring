@@ -377,14 +377,28 @@ ok
     load "graph/stzSeatingDiagram.ring"
     # a choropleth map is regions coloured by a value, with a legend (DN24)
     load "graph/stzChoroplethDiagram.ring"
-    load "graph/stzGeoRegions.ring"
-    load "graph/stzGeoProjection.ring"
-    load "graph/stzGeoFeatures.ring"
-    load "graph/stzGeoMap.ring"
-    load "graph/stzGeoPoints.ring"
-    load "graph/stzGeoField.ring"
-    load "graph/stzGeoSamples.ring"
-    load "graph/stzGeoAtlas.ring"
+
+    # THE GEOSPATIAL PLANE IS ITS OWN MODULE, not a member of graph/.
+    #
+    # graph/ is about NODES AND EDGES -- diagrams, org charts, workflows,
+    # Petri nets, knowledge graphs. The geo files are about the sphere: a
+    # projection, a feature set, a map, a point pattern, a field, a set of
+    # measurements, an atlas. They share no type with a diagram and no
+    # question with one, and by 2026-09-14 they were eight files and five
+    # thousand lines sitting under a heading that never described them.
+    # The Principal asked whether they wanted their own module; they did.
+    #
+    # stzGeoRegions is DN24b's two-projection reader and comes with them
+    # because it is named for the sphere, even though its one consumer is
+    # the diagram plane's choropleth above.
+    load "geo/stzGeoRegions.ring"
+    load "geo/stzGeoProjection.ring"
+    load "geo/stzGeoFeatures.ring"
+    load "geo/stzGeoMap.ring"
+    load "geo/stzGeoPoints.ring"
+    load "geo/stzGeoField.ring"
+    load "geo/stzGeoSamples.ring"
+    load "geo/stzGeoAtlas.ring"
     load "graph/stzOrgChart.ring"
     # org-governance rules over the org chart's graph projection (phase 2b):
     # the compliance bases carry these -- loaded after stzOrgChart (its bases

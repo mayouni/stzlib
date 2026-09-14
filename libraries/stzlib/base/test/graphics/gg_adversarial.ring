@@ -16971,6 +16971,50 @@ chk("A MEMBERSHIP MAP ON A NON-EQUAL-AREA PROJECTION IS AN ERROR, for a " +
 chk("NEGATIVE: groups that are not [ label, colour, names ] are refused BY NAME",
     _G2bRefuses(oG2bF))
 
+sec("-- 132. GE2c: THE SHEET A READER BELIEVES -----------------------------")
+discharges("GE2c")
+
+# Clean borders, a ramp legend, a selection that outlines rather than
+# recolours, a halo on text over colour -- and every region carrying its own
+# identity into the SVG, which is what an interactive layer is made of.
+# geo_map_narrated.ring carries the narration; this is the gate's witness.
+
+oG2cF = StzGeoFeaturesFromJson(read("fixtures/two_countries.geojson"))
+oG2cM = StzGeoMap(new stzGeoProjection(:ConicEqualArea), oG2cF)
+oG2cM.Projection().FitToFeatures(oG2cF, 300, 300, 10)
+oG2cM.SetSource("Invented, for a gate")
+oG2cM.SetValuesQ([ 3, 40 ]).SetClassesQ([ 0, 10, 50 ])
+oG2cM.SetRamp(:YlOrRd)
+oG2cC = new stzCanvas(400, 400)
+oG2cC.SetBackground("#FFFFFF")
+oG2cM.SetInteractive(TRUE)
+oG2cM.DrawSheetOn(oG2cC, "#4A4A4A", 0.5)
+cG2c = oG2cC.ToSVG()
+chk("EVERY REGION CARRIES ITS IDENTITY INTO THE SVG when the map is " +
+    "interactive -- an id a script can address and a class naming the band " +
+    "it fell in, which is what lets a stylesheet dim everything outside one " +
+    "class without knowing the data",
+    StzFindFirst(oG2cM.IdentOf(1), cG2c) > 0 and
+    StzFindFirst("geo-class-1", cG2c) > 0 and StzFindFirst("geo-class-2", cG2c) > 0)
+chk("NEGATIVE: and none of them without it -- identity is asked for, never " +
+    "a tax on every picture",
+    _G2cPlainHasNoIdents(oG2cF))
+chk("AN IDENT IS A USABLE SVG id: lowercase, no spaces, no doubled or " +
+    "trailing hyphen, even from a name full of accents and punctuation",
+    _G2cIdentClean("Cote d'Ivoire") and _G2cIdentClean("Sao Tome & Principe"))
+oG2cM.HighlightClass(2)
+chk("SELECTING A CLASS PICKS EXACTLY ITS REGIONS and OUTLINES them -- " +
+    "recolouring a selection would destroy the one thing the map encodes",
+    len(oG2cM.Highlighted()) = 1 and oG2cM.IsHighlighted(2) and
+    NOT oG2cM.IsHighlighted(1))
+chk("A HALO IS NINE RUNS OF THE WORD where a plain label is one -- a name " +
+    "on a choropleth has no ONE background for the contrast contract to " +
+    "answer against, so the cartographer's halo answers instead",
+    _G2cHaloRuns(oG2cM) = 9)
+chk("THE RAMP LEGEND says where it ended, and its open top is an ARROW and " +
+    "not a box, because a top class with no upper edge must not claim one",
+    _G2cLegendOk(oG2cM))
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go
@@ -20058,6 +20102,42 @@ func _ChTwoRegions
 # GE7b helpers
 # GE7c helpers
 # GE2b helpers
+# GE2c helpers
+func _G2cNamed pcName
+	return '{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"name":"' +
+		pcName + '"},"geometry":{"type":"Polygon","coordinates":[[[0,0],[2,0],[2,2],[0,2],[0,0]]]}}]}'
+
+func _G2cIdentClean pcName
+	_f_ = StzGeoFeaturesFromJson(_G2cNamed(pcName))
+	_c_ = StzGeoMap(new stzGeoProjection(:ConicEqualArea), _f_).IdentOf(1)
+	if StzLeft(_c_, 4) != "geo-"  return FALSE  ok
+	if StzFindFirst(" ", _c_) > 0  return FALSE  ok
+	if StzFindFirst("--", _c_) > 0  return FALSE  ok
+	if StzRight(_c_, 1) = "-"  return FALSE  ok
+	return len(_c_) > 4
+
+func _G2cPlainHasNoIdents poF
+	_m_ = StzGeoMap(new stzGeoProjection(:ConicEqualArea), poF)
+	_m_.Projection().FitToFeatures(poF, 300, 300, 10)
+	_m_.SetInteractive(FALSE)
+	_c_ = new stzCanvas(400, 400)
+	_c_.SetBackground("#FFFFFF")
+	_m_.DrawSheetOn(_c_, "#4A4A4A", 0.5)
+	return len(StzFindCS("geo-region", _c_.ToSVG(), TRUE)) = 0
+
+func _G2cHaloRuns poM
+	_c_ = new stzCanvas(400, 200)
+	_c_.SetBackground("#FFFFFF")
+	poM.DrawHaloTextOn(_c_, EFONT, 13, "Niger", 100, 100, "#FFFFFF", "#000000", 1.4)
+	return len(StzFindCS("<path", _c_.ToSVG(), TRUE))
+
+func _G2cLegendOk poM
+	_c_ = new stzCanvas(700, 300)
+	_c_.SetBackground("#FFFFFF")
+	_n_ = poM.DrawRampLegendOn(_c_, EFONT, 13, 40, 120, 400, 22, "#4A4A4A", TRUE)
+	if _n_ <= 142  return FALSE  ok
+	return StzFindFirst("<polygon", _c_.ToSVG()) > 0
+
 func _G2bMap poF, pcKind
 	_m_ = StzGeoMap(new stzGeoProjection(pcKind), poF)
 	_m_.Projection().FitToFeatures(poF, 300, 300, 10)
