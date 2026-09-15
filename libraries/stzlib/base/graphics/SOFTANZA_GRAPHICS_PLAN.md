@@ -1062,6 +1062,39 @@ so they are held to facts that need no almanac:
 The last is the one worth pausing on: the line the engine draws and the line
 in the definition are the same line, and nothing told it so.
 
+### Stream density -- the flow over its own magnitude (the last Wolfram gap)
+
+The one thing Wolfram's field plots did that this plane could not: put the
+streamlines on a continuous wash of colour, brightest where the flow is
+fastest. A streamline shows a DIRECTION and hides a SPEED -- two lines an
+inch apart carry the same shape whether the flow through them is a crawl or
+a gale -- so the density puts the speed on the GROUND, where the eye reads
+it before it reads a single line.
+
+**It is a composition and not a new thing, which is the whole point.** The
+scalar it shades is the speed, `sqrt(u^2+v^2)` at every node, and a scalar
+field is exactly what GE7b draws. So `DrawStreamDensityOn` builds a
+`stzGeoField` from the speed, hands it GE7b's raster and GE7b's
+marching-squares contours, and lays GE10's flow on top. Three planes the
+plane already had, joined in one call, nothing reimplemented -- which is
+also why **the density carries a real legend and Wolfram's does not.**
+
+Two details decide whether it reads:
+
+- **The lines are one dark ink, not the ramp.** The colour is in the ground
+  now, and a second colour scale on the lines would be two encodings of one
+  quantity fighting for the same eye. The flow's job over a density is the
+  shape; the ground carries the magnitude.
+- **A pale halo under each line.** A dark line over a full-range perceptual
+  ramp -- viridis, magma -- vanishes in the ramp's dark end, so each segment
+  gets a wider pale stroke under it first and then reads on the black corners
+  and the bright cores alike. The basemap lesson once more: a mark over a
+  ground it cannot predict has to carry its own contrast.
+
+**Three ramps came with it**, and their absence had been a real gap: Viridis,
+Magma and Cividis, the perceptually-uniform scientific standards -- Magma for
+a dark ground, Cividis built to look identical to a colour-blind reader.
+
 ### And the first rendering of both was not good enough
 
 The Principal looked at the witness and said the night and the flow were
