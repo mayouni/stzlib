@@ -1650,6 +1650,23 @@ fn ensureBuffer(cur: i64, bytes: usize) i64 {
 /// render pass. The target holds the result; nothing is read back here --
 /// so the two public tiers below each pay exactly one readback, never two.
 fn renderToTarget(s: *SceneSlot) !bool {
+    return renderToTargetSS(s, 1);
+}
+
+// SUPERSAMPLED RENDER: draw the same NDC geometry into a target `ss` times
+// larger each way, so a caller can box-average it down to a crisp image.
+//
+// 4x MSAA antialiases a shape's EDGES but samples a thin near-axis line
+// unevenly -- the fixed four-sample pattern catches a sub-pixel diagonal
+// more in some pixels than others, and the line beads light and dark along
+// its length. That bead is what reads as "rasterised" on a half-pixel
+// stroke, and no amount of MSAA fixes it because the samples are fixed.
+// Rendering at 2x and averaging gives sixteen effective samples where the
+// line is, which fills the coverage smoothly. The geometry is untouched:
+// vertices are already NDC, so a bigger target draws the same picture at a
+// higher resolution and the stroke widths -- built in scene pixels then
+// divided by the same fw -- scale with it.
+fn renderToTargetSS(s: *SceneSlot, ss: u32) !bool {
     if (gpu.stz_gpu_is_available() == 0) {
         gpu.countFallback();
         return false;
@@ -1672,8 +1689,8 @@ fn renderToTarget(s: *SceneSlot) !bool {
         // sized to the VIEW: a tile's target is one page, never the whole
         // picture -- which is the point, since the whole picture is what
         // does not fit
-        const tw: u32 = if (s.vw > 0) s.vw else s.w;
-        const th: u32 = if (s.vh > 0) s.vh else s.h;
+        const tw: u32 = (if (s.vw > 0) s.vw else s.w) * ss;
+        const th: u32 = (if (s.vh > 0) s.vh else s.h) * ss;
         if (s.target != 0 and (gpu.stz_gpu_texture_width(s.target) != @as(f64, @floatFromInt(tw)) or
             gpu.stz_gpu_texture_height(s.target) != @as(f64, @floatFromInt(th))))
         {
@@ -1831,17 +1848,70 @@ pub fn sceneSetView(id: i64, x: f64, y: f64, w: f64, h: f64) bool {
 }
 
 pub fn sceneToPixels(id: i64) !?[]u8 {
+    return sceneToPixelsSS(id, 1);
+}
+
+pub fn sceneToPixelsSS(id: i64, ss_in: u32) !?[]u8 {
     const slot = slotOf(id) orelse return null;
     const s = &scenes.items[slot];
-    if (!try renderToTarget(s)) return null;
+    var ss = ss_in;
+    if (ss < 1) ss = 1;
+    if (ss > 4) ss = 4;
     const rw: u32 = if (s.vw > 0) s.vw else s.w;
     const rh: u32 = if (s.vh > 0) s.vh else s.h;
-    const npix = @as(usize, rw) * rh * 4;
-    const out = try alloc.alloc(u8, npix);
-    errdefer alloc.free(out);
-    if (render.stz_gpu_target_read(s.target, out.ptr, @floatFromInt(npix)) != gpu.OK) {
-        alloc.free(out);
+    // an external target (a window) is drawn at its native size, never
+    // supersampled -- so its render never inflates and this asks for ss=1
+    if (s.ext_target != 0) ss = 1;
+
+    if (!try renderToTargetSS(s, ss)) return null;
+
+    if (ss == 1) {
+        const npix = @as(usize, rw) * rh * 4;
+        const out = try alloc.alloc(u8, npix);
+        errdefer alloc.free(out);
+        if (render.stz_gpu_target_read(s.target, out.ptr, @floatFromInt(npix)) != gpu.OK) {
+            alloc.free(out);
+            return null;
+        }
+        return out;
+    }
+
+    // read the big target, then BOX-AVERAGE ss x ss into the final image.
+    // The average is over the raw bytes: the target is linear RGBA8, and
+    // this is the same downsample a browser does for a 2x image, which is
+    // what a reader compares it against.
+    const bw = rw * ss;
+    const bh = rh * ss;
+    const big = try alloc.alloc(u8, @as(usize, bw) * bh * 4);
+    defer alloc.free(big);
+    if (render.stz_gpu_target_read(s.target, big.ptr, @floatFromInt(@as(usize, bw) * bh * 4)) != gpu.OK) {
         return null;
+    }
+    const out = try alloc.alloc(u8, @as(usize, rw) * rh * 4);
+    errdefer alloc.free(out);
+    const n: u32 = ss * ss;
+    var y: u32 = 0;
+    while (y < rh) : (y += 1) {
+        var x: u32 = 0;
+        while (x < rw) : (x += 1) {
+            var acc: [4]u32 = .{ 0, 0, 0, 0 };
+            var dy: u32 = 0;
+            while (dy < ss) : (dy += 1) {
+                var dx: u32 = 0;
+                while (dx < ss) : (dx += 1) {
+                    const bi = (@as(usize, (y * ss + dy)) * bw + (x * ss + dx)) * 4;
+                    acc[0] += big[bi];
+                    acc[1] += big[bi + 1];
+                    acc[2] += big[bi + 2];
+                    acc[3] += big[bi + 3];
+                }
+            }
+            const oi = (@as(usize, y) * rw + x) * 4;
+            out[oi] = @intCast((acc[0] + n / 2) / n);
+            out[oi + 1] = @intCast((acc[1] + n / 2) / n);
+            out[oi + 2] = @intCast((acc[2] + n / 2) / n);
+            out[oi + 3] = @intCast((acc[3] + n / 2) / n);
+        }
     }
     return out;
 }
@@ -1850,7 +1920,11 @@ pub fn sceneToPixels(id: i64) !?[]u8 {
 /// device -- and that refusal is COUNTED, so the face can fall to the SVG
 /// tier knowing why. Caller owns the returned bytes.
 pub fn sceneToPng(id: i64, level: i32) !?[]u8 {
-    const px = try sceneToPixels(id) orelse return null;
+    return sceneToPngSS(id, level, 1);
+}
+
+pub fn sceneToPngSS(id: i64, level: i32, ss: u32) !?[]u8 {
+    const px = try sceneToPixelsSS(id, ss) orelse return null;
     defer alloc.free(px);
     const slot = slotOf(id) orelse return null;
     const s = &scenes.items[slot];

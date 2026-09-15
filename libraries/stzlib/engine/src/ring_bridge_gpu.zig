@@ -1309,6 +1309,24 @@ fn ring_PngLastStat(p: *anyopaque) callconv(.c) void {
     R.ring_vm_api_retlist(p, lst);
 }
 
+// SceneToPngSS(id, level, ss) -> PNG bytes, supersampled ss times each way
+// and box-averaged down. ss=1 is the plain render.
+fn ring_SceneToPngSS(p: *anyopaque) callconv(.c) void {
+    var ss: i64 = @intFromFloat(gn(p, 3));
+    if (ss < 1) ss = 1;
+    if (ss > 4) ss = 4;
+    const png = scene.sceneToPngSS(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2)), @intCast(ss)) catch {
+        R.ring_vm_api_retstring2(p, "", 0);
+        return;
+    };
+    if (png) |b| {
+        defer allocator.free(b);
+        R.ring_vm_api_retstring2(p, b.ptr, @intCast(b.len));
+    } else {
+        R.ring_vm_api_retstring2(p, "", 0);
+    }
+}
+
 fn ring_SceneToPng(p: *anyopaque) callconv(.c) void {
     const png = scene.sceneToPng(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2))) catch {
         R.ring_vm_api_retstring2(p, "", 0);
@@ -1324,6 +1342,22 @@ fn ring_SceneToPng(p: *anyopaque) callconv(.c) void {
 
 // SceneToPixels(id) -> raw RGBA8 of the GPU tier (the parity witness:
 // the same bytes the PNG encodes, before compression can be blamed)
+fn ring_SceneToPixelsSS(p: *anyopaque) callconv(.c) void {
+    var ss: i64 = @intFromFloat(gn(p, 2));
+    if (ss < 1) ss = 1;
+    if (ss > 4) ss = 4;
+    const px = scene.sceneToPixelsSS(@intFromFloat(gn(p, 1)), @intCast(ss)) catch {
+        R.ring_vm_api_retstring2(p, "", 0);
+        return;
+    };
+    if (px) |b| {
+        defer allocator.free(b);
+        R.ring_vm_api_retstring2(p, b.ptr, @intCast(b.len));
+    } else {
+        R.ring_vm_api_retstring2(p, "", 0);
+    }
+}
+
 fn ring_SceneToPixels(p: *anyopaque) callconv(.c) void {
     const px = scene.sceneToPixels(@intFromFloat(gn(p, 1))) catch {
         R.ring_vm_api_retstring2(p, "", 0);
@@ -2058,12 +2092,14 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginegpuscenestats", .func = &ring_SceneStats },
     .{ .name = "stzenginegpuscenetosvg", .func = &ring_SceneToSvg },
     .{ .name = "stzenginegpuscenetopng", .func = &ring_SceneToPng },
+    .{ .name = "stzenginegpuscenetopngss", .func = &ring_SceneToPngSS },
     .{ .name = "stzenginepnglaststat", .func = &ring_PngLastStat },
     .{ .name = "stzenginegpuscenesetview", .func = &ring_SceneSetView },
     .{ .name = "stzenginegpuscenesetpicktag", .func = &ring_SceneSetPickTag },
     .{ .name = "stzenginegpuscenesetsvgident", .func = &ring_SceneSetSvgIdent },
     .{ .name = "stzenginegpuscenepick", .func = &ring_ScenePick },
     .{ .name = "stzenginegpuscenetopixels", .func = &ring_SceneToPixels },
+    .{ .name = "stzenginegpuscenetopixelsss", .func = &ring_SceneToPixelsSS },
     .{ .name = "stzenginegpuatlasstats", .func = &ring_AtlasStats },
     .{ .name = "stzenginegpuatlasreset", .func = &ring_AtlasReset },
     .{ .name = "stzenginegpucirclesegments", .func = &ring_CircleSegments },

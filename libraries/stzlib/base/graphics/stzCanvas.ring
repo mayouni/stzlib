@@ -500,12 +500,37 @@ class stzCanvas from stzObject
 		return This.ToPNGXT(pcPath, 4)
 
 	def ToPNGXT(pcPath, pnLevel)
+		return This._ToPNGSS(pcPath, pnLevel, 1)
+
+	# THE SAME PICTURE, SUPERSAMPLED -- rendered at pnScale times the size
+	# each way and box-averaged down, which is what turns a professional
+	# figure crisp.
+	#
+	# 4x MSAA antialiases a shape's edges and still beads a thin near-axis
+	# line light and dark along its length: its four samples are fixed, so a
+	# half-pixel diagonal catches them unevenly. Rendering at 2x gives
+	# sixteen effective samples where the line is and the bead fills in. It
+	# is not the default -- a test that compares rendered bytes wants the
+	# plain render, and a nine-hundred-file suite does not want to pay 4x
+	# the fill -- so a FIGURE meant to be shown asks for it and a check does
+	# not. Two is the knee; three and four are for print.
+	def ToPNGHiRes(pcPath)
+		return This._ToPNGSS(pcPath, 4, 2)
+
+	def ToPNGHiResXT(pcPath, pnLevel, pnScale)
+		return This._ToPNGSS(pcPath, pnLevel, pnScale)
+
+	def _ToPNGSS(pcPath, pnLevel, pnScale)
 		_nLv_ = pnLevel
 		if NOT isNumber(_nLv_)  _nLv_ = 4  ok
 		if _nLv_ < 1 or _nLv_ > 9  _nLv_ = 4  ok
+		_nSs_ = pnScale
+		if NOT isNumber(_nSs_)  _nSs_ = 1  ok
+		if _nSs_ < 1  _nSs_ = 1  ok
+		if _nSs_ > 4  _nSs_ = 4  ok
 		This._Flush()
 		StzGraphicsDevice()
-		_c_ = StzEngineGpuSceneToPng(@nId, _nLv_)
+		_c_ = StzEngineGpuSceneToPngSS(@nId, _nLv_, _nSs_)
 		if _c_ != "" and isString(pcPath) and pcPath != ""
 			write(pcPath, _c_)
 		ok
@@ -517,6 +542,15 @@ class stzCanvas from stzObject
 		This._Flush()
 		StzGraphicsDevice()
 		return StzEngineGpuSceneToPixels(@nId)
+
+	# ...and the supersampled pixels, box-averaged down: what ToPNGHiRes
+	# writes, for a caller that wants the bytes rather than a file.
+	def ToPixelsHiRes(pnScale)
+		_s_ = pnScale
+		if NOT isNumber(_s_)  _s_ = 2  ok
+		This._Flush()
+		StzGraphicsDevice()
+		return StzEngineGpuSceneToPixelsSS(@nId, _s_)
 
 	def CanDrawPixels()
 		return StzGraphicsDevice()

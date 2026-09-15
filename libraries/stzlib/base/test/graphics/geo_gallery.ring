@@ -82,7 +82,7 @@ for i = 1 to len(aK)
 	oC.Flush()
 next
 
-oC.ToPNG("geo_gallery.png")
+oC.ToPNGHiRes("geo_gallery.png")
 
 ? "-- the gallery, by what it costs --"
 aRow = []

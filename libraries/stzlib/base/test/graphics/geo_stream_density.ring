@@ -70,7 +70,7 @@ for f = 1 to len(aFields)
 	oC.Flush()
 next
 
-oC.ToPNG("geo_stream_density.png")
+oC.ToPNGHiRes("geo_stream_density.png")
 
 ? "-- stream density plots --"
 for f = 1 to len(aFields)
