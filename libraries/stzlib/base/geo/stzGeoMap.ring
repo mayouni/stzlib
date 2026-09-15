@@ -2757,9 +2757,15 @@ class stzGeoMap from stzObject
 	# thing a streamline cannot otherwise deny.
 	def DrawFlowOn(poCanvas, paGrid, paU, paV, pnSepDeg, pInk)
 		return This.DrawFlowOnXT(poCanvas, paGrid, paU, paV, pnSepDeg, pInk,
-			0.35, 1.9, 400)
+			pInk, 0.35, 1.9, 400)
 
-	def DrawFlowOnXT(poCanvas, paGrid, paU, paV, pnSepDeg, pInk, pnMinW, pnMaxW, pnMaxLines)
+	# THE HEAD TAKES ITS OWN COLOUR, because it is a different statement
+	# from the line. The line says WHERE the flow goes and the head says
+	# WHICH WAY -- two facts, and a reader separates them faster when the
+	# ink does. Blue lines with red heads is the pairing the Principal
+	# asked for and it is the right one: the path is the quiet layer and
+	# the direction is the loud one.
+	def DrawFlowOnXT(poCanvas, paGrid, paU, paV, pnSepDeg, pInk, pHeadInk, pnMinW, pnMaxW, pnMaxLines)
 		if len(paGrid) < 6  return 0  ok
 		_lon0_ = paGrid[1]
 		_lat0_ = paGrid[2]
@@ -2821,20 +2827,47 @@ class stzGeoMap from stzObject
 				@oP.DrawLineOn(poCanvas, _seg_, pInk, pnMinW + (pnMaxW - pnMinW) * _t_)
 				_i_ = _to_
 			end
-			# ARROWHEADS ALONG THE LINE, not one at its end.
+			# ARROWHEADS SPACED BY DISTANCE ON THE PAPER, not by how many
+			# points went by.
 			#
-			# A streamline without a head is a curve and not a flow: it
-			# shows the path and hides which way anything is going along
-			# it. But a head only at the END puts every head where a line
-			# happened to stop -- which under even spacing is wherever it
-			# ran into a neighbour, so the heads cluster along the seams
-			# BETWEEN lines and say nothing about the field. Spacing them
-			# along each line instead puts them where the reader's eye
-			# already is.
-			_at_ = _prev_ + 14
+			# A head only at the END puts every head where a line happened
+			# to stop -- under even spacing, wherever it ran into a
+			# neighbour -- so they cluster along the seams BETWEEN lines
+			# and say nothing about the field. Spacing them every so many
+			# POINTS fixes that and breaks something else: the integrator
+			# steps in degrees of ground, so a line curving tightly round a
+			# vortex packs many steps into few pixels, and twenty-six
+			# points can be four pixels. The heads then pile into a solid
+			# red chain, and at the centre of a tight vortex into a blob.
+			#
+			# So the walk accumulates PROJECTED distance and drops a head
+			# every so many pixels. The eye reads a head as a mark on the
+			# paper, so the paper is what has to space them.
+			_run_px_ = 0
+			_at_ = _prev_ + 3
+			_lastx_ = 0
+			_lasty_ = 0
+			_have_ = FALSE
 			while _at_ < _end_ - 2
-				This._FlowHeadOn(poCanvas, _f_, _base_, _at_, pInk)
-				_at_ += 26
+				_q_ = @oP.Project(_f_[_base_ + _at_ * 2 + 1], _f_[_base_ + _at_ * 2 + 2])
+				if len(_q_) = 2
+					if _have_
+						_d_ = sqrt(pow(_q_[1] - _lastx_, 2) + pow(_q_[2] - _lasty_, 2))
+						# A JUMP IS THE PROJECTION'S SEAM and not travel, so
+						# it resets rather than counting: without this a line
+						# cut at the antimeridian earns a head on both sides
+						# of the map for one step.
+						if _d_ < 40  _run_px_ += _d_  else  _run_px_ = 0  ok
+					ok
+					_lastx_ = _q_[1]
+					_lasty_ = _q_[2]
+					_have_ = TRUE
+					if _run_px_ >= 46
+						This._FlowHeadOn(poCanvas, _f_, _base_, _at_, pHeadInk)
+						_run_px_ = 0
+					ok
+				ok
+				_at_ += 2
 			end
 			_drawn_++
 			_prev_ = _end_
@@ -2858,7 +2891,9 @@ class stzGeoMap from stzObject
 		_dy_ /= _m_
 		_px_ = -_dy_
 		_py_ = _dx_
-		_L_ = 5.0
+		# SMALL, because a head is a mark ON a line and not a thing beside
+		# it: at five pixels on a 0.3-pixel stroke the head WAS the line.
+		_L_ = 3.6
 		poCanvas.AddPolygonQ([ _b_[1], _b_[2],
 			_b_[1] - _dx_ * _L_ + _px_ * _L_ * 0.45,
 			_b_[2] - _dy_ * _L_ + _py_ * _L_ * 0.45,

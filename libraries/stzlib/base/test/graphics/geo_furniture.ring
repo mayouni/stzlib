@@ -158,7 +158,7 @@ next
 # put the lines where the SEEDS were: crowded in the gyre centres, bald in
 # the drift between them, with no way to read a dense patch as fast flow
 # rather than as a lucky lattice.
-nLines = oM2.DrawFlowOn(oC, aG, aU, aV, 3.2, "#2F5D9E")
+nLines = oM2.DrawFlowOnXT(oC, aG, aU, aV, 3.2, "#2F5D9E", "#C0392B", 0.35, 1.9, 400)
 nArrows = 0
 
 oC.SetFontQ(oFont, 12).AddTextQ("" + nLines + " evenly-spaced streamlines over an " +

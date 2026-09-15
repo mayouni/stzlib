@@ -218,6 +218,20 @@ chk("EVENLY-SPACED STREAMLINES ARE AN ALGORITHM AND NOT A STYLING CHOICE. " +
     "existing one -- so the curves are that far apart EVERYWHERE, which is " +
     "what frees the shape to carry the meaning instead of the density",
     aFlow[1] > 10 and _FEvenlySpaced(aFlow, 4))
+chk("A CLOSED ORBIT STOPS AFTER ONE CIRCUIT. Every gyre and every vortex " +
+    "has orbits that close, and a line testing only against OTHER lines " +
+    "never stops on one: it comes back to where it began, meets no " +
+    "neighbour because it IS its own neighbour, and runs twenty laps of " +
+    "the same small circle inside its step budget. Nothing about the PATH " +
+    "shows it -- the laps land on top of each other -- and it was the " +
+    "ARROWHEADS that gave it away, spaced by distance travelled and so " +
+    "appearing twenty times round a circle that should carry two",
+    _FOrbitsClose())
+chk("...and the SINGLE-LINE api does NOT do that, on purpose. " +
+    "StreamlineFrom answers 'follow this particle for N steps', which is a " +
+    "question about the flow; the even-spacing routine answers 'draw this " +
+    "field', which is a question about the paper. One contract each",
+    len(oEE.StreamlineFrom(aG, aU, aV, 20, 0, 0.4, 3000)) / 2 = 3000)
 chk("NEGATIVE: and no two of them come closer than the separation allows, " +
     "which is the property the algorithm exists for and the one a grid of " +
     "seeds cannot give at any density",
@@ -465,6 +479,39 @@ func _FEvenlySpaced paFlow, pnSep
 	? "   the mean gap to the nearest other line is " + _mean_ +
 	  " degrees, against a separation of " + pnSep
 	return _mean_ > pnSep * 0.4 and _mean_ < pnSep * 1.8
+
+# A PURELY ROTATIONAL FIELD HAS NOTHING BUT CLOSED ORBITS, so every line
+# it draws must be about one circumference long and never many. Measured as
+# the path length against the distance from the seed to the centre: a line
+# that lapped would be several times its own circle.
+func _FOrbitsClose()
+	_m_ = StzGeoMap(new stzGeoProjection(:EqualEarth), StzGeoFeaturesFromJson(_FSquare()))
+	_g_ = _FGrid()
+	_f_ = StzEngineGeoEvenStreamlines(_g_, _FRotU(), _FRotV(), -35, -35, 35, 35, 5, 1.6, 900, 60)
+	if len(_f_) < 4  return FALSE  ok
+	_n_ = _f_[1]
+	if _n_ < 3  return FALSE  ok
+	_base_ = 1 + _n_
+	_worst_ = 0
+	_prev_ = 0
+	for _k_ = 1 to _n_
+		_end_ = _f_[1 + _k_]
+		_len_ = 0
+		_i_ = _prev_
+		while _i_ + 1 < _end_
+			_len_ += sqrt(pow(_f_[_base_ + (_i_+1) * 2 + 1] - _f_[_base_ + _i_ * 2 + 1], 2) +
+			              pow(_f_[_base_ + (_i_+1) * 2 + 2] - _f_[_base_ + _i_ * 2 + 2], 2))
+			_i_++
+		end
+		_r_ = sqrt(pow(_f_[_base_ + _prev_ * 2 + 1], 2) + pow(_f_[_base_ + _prev_ * 2 + 2], 2))
+		if _r_ > 3
+			_laps_ = _len_ / (2 * 3.141592653589793 * _r_)
+			if _laps_ > _worst_  _worst_ = _laps_  ok
+		ok
+		_prev_ = _end_
+	next
+	? "   the longest closed orbit runs " + _worst_ + " laps of its own circle"
+	return _worst_ < 1.4
 
 func _FNoneTooClose paFlow, pnSep
 	_n_ = paFlow[1]

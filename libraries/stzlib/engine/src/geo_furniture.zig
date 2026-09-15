@@ -519,12 +519,18 @@ pub fn evenStreamlines(
         // long curve gives the whole curve rather than half of it
         const start = written;
         var back: [2]usize = .{ 0, 0 };
-        back[0] = grow(g, u, v, seed, -step_deg, max_steps / 2, lon0, lat0, lon1, lat1, d_test, buckets, cell, nx, ny, near, out[written..]);
+        back[0] = grow(g, u, v, seed, -step_deg, max_steps / 2, lon0, lat0, lon1, lat1, d_test, buckets, cell, nx, ny, near, out[written..], out[0..0]);
         // the backward half comes out reversed; flip it so the line reads
         // from one end to the other
         reverseInPlace(out[written .. written + back[0] * 2]);
         written += back[0] * 2;
-        back[1] = grow(g, u, v, seed, step_deg, max_steps / 2, lon0, lat0, lon1, lat1, d_test, buckets, cell, nx, ny, near, out[written..]);
+        // THE FORWARD HALF IS SHOWN THE BACKWARD ONE. A line is grown both
+        // ways from its seed, and on a CLOSED orbit each half traverses the
+        // same circle -- so a pair that each stop after one lap draw the
+        // circle TWICE. Measured: 1.97 laps, which named the cause exactly.
+        // Handing the backward half in as prior points makes the forward
+        // one stop where it meets it, and the pair closes the loop once.
+        back[1] = grow(g, u, v, seed, step_deg, max_steps / 2, lon0, lat0, lon1, lat1, d_test, buckets, cell, nx, ny, near, out[written..], out[start..written]);
         written += back[1] * 2;
         const n = back[0] + back[1];
 
@@ -593,6 +599,8 @@ fn grow(
     ny: usize,
     comptime near: fn ([]std.ArrayListUnmanaged([2]f64), f64, f64, f64, f64, f64, f64, usize, usize) bool,
     out: []f64,
+    /// points already belonging to THIS line, from its other half
+    prior: []const f64,
 ) usize {
     var lon = seed[0];
     var lat = seed[1];
@@ -614,6 +622,58 @@ fn grow(
         lat += dlat;
         if (lon < lon0 or lon > lon1 or lat < lat0 or lat > lat1) break;
         if (n > 2 and near(buckets, lon, lat, d_test, lon0, lat0, cell, nx, ny)) break;
+
+        // A CLOSED STREAMLINE MUST STOP AFTER ONE CIRCUIT, and testing only
+        // against OTHER lines never stops it.
+        //
+        // Every gyre, every vortex, every cell of a periodic field has
+        // orbits that close. Such a line comes back to where it began,
+        // meets no neighbour because it is its own neighbour, and keeps
+        // integrating -- twenty laps of the same small circle inside its
+        // step budget. Nothing about the PATH shows it: the laps land on
+        // top of each other. What showed it was the arrowheads, which are
+        // spaced by distance travelled and so appeared twenty times round a
+        // circle that should carry two, turning it into a solid red ring.
+        //
+        // So the proximity test includes this line's own earlier samples,
+        // skipping the most recent few -- without that exclusion every line
+        // would stop on its second step, since the point behind it is
+        // always closer than d_test.
+        // THE EXCLUSION WINDOW IS A DISTANCE AND NOT A COUNT OF POINTS.
+        //
+        // A line must not stop on the point immediately behind it, so some
+        // of its own tail has to be excluded from the test. Written as a
+        // fixed twenty-four points that window is whatever the step size
+        // makes it -- at 1.6 degrees a step it is thirty-eight degrees of
+        // path, which on a small orbit is most of a lap, and the line
+        // overshoots by exactly that much. Measured: 1.61 laps where one
+        // was wanted, after the two halves were already sharing their
+        // points.
+        //
+        // What it has to be is a few multiples of d_test, since that is the
+        // distance the test itself works at -- so it is computed from the
+        // step and the tolerance rather than chosen.
+        const skip_f = d_test / @abs(step) + 2;
+        const skip: usize = if (skip_f < 3) 3 else @intFromFloat(@min(1000.0, skip_f));
+        if (n > skip) {
+            var q: usize = 0;
+            while (q + skip < n) : (q += 1) {
+                const ddl = out[q * 2] - lon;
+                const ddf = out[q * 2 + 1] - lat;
+                if (ddl * ddl + ddf * ddf < d_test * d_test) return n;
+            }
+        }
+        // ...and against the other half of this same line, with the same
+        // exclusion near the seed the two halves share
+        if (prior.len >= 2 and n > skip) {
+            const pn = prior.len / 2;
+            var q: usize = 0;
+            while (q + skip < pn) : (q += 1) {
+                const ddl = prior[q * 2] - lon;
+                const ddf = prior[q * 2 + 1] - lat;
+                if (ddl * ddl + ddf * ddf < d_test * d_test) return n;
+            }
+        }
     }
     return n;
 }
