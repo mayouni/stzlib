@@ -70,6 +70,14 @@ func StzGeoRamps()
 		# replaced can claim.
 		[ :Viridis, [ "#440154", "#3B528B", "#21918C", "#5EC962", "#FDE725" ] ],
 
+		# THE OTHER TWO PERCEPTUALLY-UNIFORM STANDARDS, which travel with
+		# Viridis for the same reasons and are chosen for different grounds:
+		# Magma reads on a DARK background where Viridis washes out, and
+		# Cividis is built to look the same to a colour-blind reader as to
+		# anyone else -- not merely legible, identical.
+		[ :Magma,   [ "#000004", "#3B0F70", "#8C2981", "#DE4968", "#FE9F6D" ] ],
+		[ :Cividis, [ "#00204D", "#31446B", "#666970", "#9C9078", "#FFE945" ] ],
+
 		# ...AND A RAMP FOR LINES ON A LIGHT GROUND, which the others are
 		# not. Every sequential ramp above is built for FILLED AREAS, so its
 		# pale end is nearly the paper -- correct for a choropleth, where a
@@ -2835,6 +2843,9 @@ class stzGeoMap from stzObject
 			pHeadInk, pnMinW, pnMaxW, pnMaxLines, [])
 
 	def _DrawFlowCore(poCanvas, paGrid, paU, paV, pnSepDeg, pInk, pHeadInk, pnMinW, pnMaxW, pnMaxLines, paRamp)
+		return This._DrawFlowCoreXT(poCanvas, paGrid, paU, paV, pnSepDeg, pInk, pHeadInk, pnMinW, pnMaxW, pnMaxLines, paRamp, "")
+
+	def _DrawFlowCoreXT(poCanvas, paGrid, paU, paV, pnSepDeg, pInk, pHeadInk, pnMinW, pnMaxW, pnMaxLines, paRamp, pHaloInk)
 		if len(paGrid) < 6  return 0  ok
 		_lon0_ = paGrid[1]
 		_lat0_ = paGrid[2]
@@ -2903,7 +2914,18 @@ class stzGeoMap from stzObject
 					if _b_ > len(paRamp)  _b_ = len(paRamp)  ok
 					_ink_ = paRamp[_b_]
 				ok
-				@oP.DrawLineOn(poCanvas, _seg_, _ink_, pnMinW + (pnMaxW - pnMinW) * _t_)
+				_wd_ = pnMinW + (pnMaxW - pnMinW) * _t_
+				# A LIGHT HALO UNDER THE LINE, where one is asked for. A dark
+				# line over a full-range perceptual ramp -- viridis, magma --
+				# vanishes in the ramp's dark end, so a stream-density plot
+				# lays a pale wider stroke under each segment first: the line
+				# then reads on the black corners and the bright cores alike.
+				# It is the basemap lesson once more -- a mark over a ground
+				# it cannot predict has to carry its own contrast.
+				if pHaloInk != ""
+					@oP.DrawLineOn(poCanvas, _seg_, pHaloInk, _wd_ + 1.6)
+				ok
+				@oP.DrawLineOn(poCanvas, _seg_, _ink_, _wd_)
 				_i_ = _to_
 			end
 			# ARROWHEADS SPACED BY DISTANCE ON THE PAPER, not by how many
@@ -2992,6 +3014,79 @@ class stzGeoMap from stzObject
 
 	def VectorsOf(paGrid, paU, paV, pnEvery)
 		return StzEngineGeoVectorField(paGrid, paU, paV, pnEvery)
+
+	# STREAM DENSITY: THE FLOW DRAWN OVER ITS OWN MAGNITUDE, which is the one
+	# thing Wolfram's field plots did that this plane could not.
+	#
+	# A streamline shows a DIRECTION and hides a SPEED -- two lines an inch
+	# apart carry the same shape whether the flow through them is a crawl or
+	# a gale. The stroke-and-colour of DrawFlowRampedOn puts the speed back
+	# ON the lines, which helps and which a reader still has to trace. A
+	# DENSITY behind them puts it on the GROUND: the whole field is a
+	# continuous wash of colour, brightest where the flow is fastest, and the
+	# eye reads the fast places before it reads a single line.
+	#
+	# THIS IS A COMPOSITION AND NOT A NEW THING. The scalar it shades is the
+	# SPEED, sqrt(u^2 + v^2) at every node, and a scalar field is exactly
+	# what GE7b draws -- so this builds a stzGeoField from the speed, hands
+	# it GE7b's own raster and GE7b's own marching-squares contours, and
+	# lays GE10's flow on top. Three planes the plane already had, joined in
+	# one call; nothing here reimplements any of them, which is why the
+	# density carries a real legend and Wolfram's does not.
+	#
+	# THE LINES ARE ONE DARK INK, not the ramp. The colour is in the ground
+	# now, and a second colour scale on the lines would be two encodings of
+	# one quantity fighting for the same eye. The flow's job over a density
+	# is to show the SHAPE; the ground shows the magnitude.
+	# THE SPEED AT EVERY NODE, sqrt(u^2 + v^2) -- the scalar a stream-density
+	# plot shades, exposed so a caller can hand it to a stzGeoField of their
+	# own, and so the property that the background IS the magnitude can be
+	# checked rather than trusted.
+	def SpeedField(paGrid, paU, paV)
+		_n_ = paGrid[5] * paGrid[6]
+		_s_ = []
+		for _i_ = 1 to _n_
+			_s_ + sqrt(paU[_i_] * paU[_i_] + paV[_i_] * paV[_i_])
+		next
+		return _s_
+
+	def DrawStreamDensityOn(poCanvas, paGrid, paU, paV, pnSepDeg, pcRamp)
+		return This.DrawStreamDensityOnXT(poCanvas, paGrid, paU, paV, pnSepDeg,
+			pcRamp, "#1A2A44", 20, 8, 800)
+
+	def DrawStreamDensityOnXT(poCanvas, paGrid, paU, paV, pnSepDeg, pcRamp, pLineInk, pnClasses, pnContours, pnMaxLines)
+		if len(paGrid) < 6  return 0  ok
+		_n_ = paGrid[5] * paGrid[6]
+		if len(paU) < _n_ or len(paV) < _n_  return 0  ok
+
+		# the speed at every node: the scalar the background shows, through
+		# the one helper so the density and any test read the same numbers
+		_fld_ = StzGeoField(paGrid, This.SpeedField(paGrid, paU, paV))
+		# THE CLASSES BEFORE THE RAMP, because a ramp has to know how many
+		# steps to give -- the field's own contract, met in the right order.
+		_fld_.SetClassesEvery(pnClasses)
+		_fld_.SetRamp(pcRamp)
+
+		_pp_ = @aPaper
+		if len(_pp_) != 4  _pp_ = This._FitBox()  ok
+
+		# 1. THE SHADED MAGNITUDE, GE7b's raster, fully opaque -- it is the
+		#    ground and there is nothing under it to show through
+		_fld_.DrawXT(poCanvas, @oP, _pp_[1], _pp_[2], _pp_[3], _pp_[4], 255)
+
+		# 2. ITS CONTOURS, faint and pale, so the reader can read a level off
+		#    the wash without the lines competing with the flow
+		if pnContours > 0
+			_lv_ = _fld_.LevelsEvery(pnContours)
+			if len(_lv_) > 0
+				_fld_.DrawContoursOn(poCanvas, @oP, _lv_, "#FFFFFF44", 0.6)
+			ok
+		ok
+
+		# 3. THE FLOW ON TOP, one dark ink over a pale halo so the lines read
+		#    on every part of the ramp, its head the same ink
+		return This._DrawFlowCoreXT(poCanvas, paGrid, paU, paV, pnSepDeg,
+			pLineInk, pLineInk, 0.5, 1.8, pnMaxLines, [], "#FFFFFFAA")
 
 	#-- the legend and the caption -------------------------------------------
 

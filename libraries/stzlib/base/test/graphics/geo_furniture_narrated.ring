@@ -245,6 +245,40 @@ chk("THE ARROWS COME BACK AS PLACE, COMPONENTS AND MAGNITUDE -- five " +
     "units are",
     len(aVec) % 5 = 0 and len(aVec) / 5 = 25 and _FMagnitudesRight(aVec))
 
+# ---------------------------------------------------------------------
+sec("STREAM DENSITY: the flow over its own magnitude")
+
+# The one thing Wolfram's field plots did that this plane could not: the
+# streamlines on a continuous wash of colour, brightest where the flow is
+# fastest. It is a COMPOSITION -- GE7b's scalar raster and contours under
+# GE10's flow -- and the scalar it shades is the SPEED, which is the
+# property to check.
+oSD = StzGeoMap(new stzGeoProjection(:EqualEarth), StzGeoFeaturesFromJson(_FSquare()))
+oSD.Projection().FitToSphere(300, 150, 4)
+aSDg = [ -40, -40, 1, 1, 81, 81 ]
+aSDu = _FRotU()
+aSDv = _FRotV()
+aSp = oSD.SpeedField(aSDg, aSDu, aSDv)
+? "   the speed field has " + len(aSp) + " nodes; its max is " + _FMaxOf(aSp)
+chk("THE SCALAR A STREAM-DENSITY PLOT SHADES IS THE SPEED, sqrt(u^2+v^2) at " +
+    "every node -- so the background IS the magnitude and not a decoration. " +
+    "Checked node for node against the field it came from",
+    len(aSp) = 81 * 81 and _FSpeedMatches(aSDg, aSDu, aSDv, aSp))
+oSDc = new stzCanvas(300, 300)
+oSDc.SetBackground("#FFFFFF")
+oSD.SetPaper(0, 0, 300, 300)
+nSD = oSD.DrawStreamDensityOnXT(oSDc, aSDg, aSDu, aSDv, 3, :Viridis, "#12203A", 16, 6, 200)
+? "   a stream-density plot drew " + nSD + " streamlines over the shaded speed"
+chk("IT COMPOSES AND DRAWS: a shaded raster, its contours, and the flow on " +
+    "top, all from pieces the plane already had -- nothing here reimplements " +
+    "the raster, the contours or the integrator",
+    nSD > 0)
+chk("THE THREE PERCEPTUALLY-UNIFORM RAMPS RESOLVE -- Viridis, Magma and " +
+    "Cividis, whose absence was a real gap: they are the scientific " +
+    "standards, and Cividis looks identical to a colour-blind reader",
+    len(StzGeoRamp(:Viridis, 5)) = 5 and len(StzGeoRamp(:Magma, 5)) = 5 and
+    len(StzGeoRamp(:Cividis, 9)) = 9)
+
 ? ""
 ? "=========================================================="
 ? " " + nOk + " ok, " + nBad + " failed"
@@ -540,6 +574,18 @@ func _FNoneTooClose paFlow, pnSep
 				_j_ += 2
 			end
 		next
+	next
+	return TRUE
+
+func _FMaxOf paList
+	_m_ = 0
+	for _i_ = 1 to len(paList)  if paList[_i_] > _m_  _m_ = paList[_i_]  ok  next
+	return _m_
+
+func _FSpeedMatches paGrid, paU, paV, paSpeed
+	for _i_ = 1 to len(paSpeed)
+		_want_ = sqrt(paU[_i_] * paU[_i_] + paV[_i_] * paV[_i_])
+		if fabs(paSpeed[_i_] - _want_) > 0.000001  return FALSE  ok
 	next
 	return TRUE
 
