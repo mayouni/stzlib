@@ -138,6 +138,36 @@ pub fn terminator(sun: Sun, angle_deg: f64, n: usize, out: []f64) usize {
     return n;
 }
 
+/// THE NIGHT SIDE AS A RING TO FILL, not as pixels to sample.
+///
+/// The first version of the witness shaded night by asking every sixth
+/// pixel whether the sun was up and painting a small rectangle if it was
+/// not. That is correct and it looks like what it is: a staircase along the
+/// terminator, two flat tones, and the land greyed rather than dimmed. The
+/// Principal said so at once.
+///
+/// The night is a SPHERICAL CAP -- every place more than ninety degrees
+/// from where the sun is overhead, which is the cap of radius ninety about
+/// the ANTIPODE of the subsolar point. A cap is a ring, and GE0c already
+/// closes a ring the projection cut along the map's own edge, so handing it
+/// to DrawRingOn gives a filled, antialiased region with no staircase and
+/// no decision about what "inside" means.
+///
+/// AND THE TWILIGHT BANDS ARE THE SAME CAP, SMALLER. The sun is 6 degrees
+/// below the horizon at 96 degrees from the subsolar point, which is 84
+/// from the antipode; nautical is 78 and astronomical 72. So four nested
+/// caps of 90, 84, 78 and 72 drawn one over the other give the gradient a
+/// reader actually sees at dusk, out of the same routine.
+pub fn nightCap(sun: Sun, below_horizon_deg: f64, n: usize, out: []f64) usize {
+    const anti = Sun{
+        .lat = -sun.lat,
+        .lon = wrap180(sun.lon + 180),
+        .declination = -sun.declination,
+        .equation_of_time = 0,
+    };
+    return terminator(anti, 90.0 - below_horizon_deg, n, out);
+}
+
 /// IS THE SUN UP at a place, at that moment? The angular distance from the
 /// subsolar point is the sun's zenith angle, so anything under ninety
 /// degrees is daylight -- which is the terminator restated as a question
@@ -356,6 +386,244 @@ fn derivAt(g: gf.Grid, u: []const f64, v: []const f64, lon: f64, lat: f64) ?[2]f
     const m = @sqrt(du * du + dv * dv);
     if (m < 1e-12) return .{ 0, 0 };
     return .{ du / m, dv / m };
+}
+
+/// EVENLY-SPACED STREAMLINES (Jobard and Lefebvre, 1997), which is the
+/// difference between a stream plot that reads and one that does not.
+///
+/// THE PROBLEM WITH SEEDING ON A GRID is that a streamline's density on the
+/// paper has nothing to do with the seed's density on the ground. Where the
+/// field is slow the lines are short and pile up; where it is fast they run
+/// long and leave holes. The first version of the GE10 witness seeded a
+/// regular lattice and integrated every line for the same number of steps,
+/// and it looked like what it was: crowded in the gyre centres, bald in the
+/// drift between them, with no way for a reader to tell whether a dense
+/// patch meant fast flow or just a lucky seed.
+///
+/// THE FIX IS NOT A STYLING CHOICE, IT IS AN ALGORITHM. Grow one streamline
+/// at a time and STOP INTEGRATING as soon as it comes within d_test of any
+/// line already drawn; then take the next seed from a point d_sep to the
+/// side of an existing line, and reject it if that point is already too
+/// close to something. What comes out is a set of curves separated by
+/// roughly d_sep everywhere -- so the spacing carries no information at
+/// all, which is exactly what lets the SHAPE carry it.
+///
+/// `out` receives the points of every line end to end; `ends` receives the
+/// index one past the last point of each, so a caller can cut them apart.
+/// Answers how many lines were grown.
+pub fn evenStreamlines(
+    alloc: std.mem.Allocator,
+    g: gf.Grid,
+    u: []const f64,
+    v: []const f64,
+    lon0: f64,
+    lat0: f64,
+    lon1: f64,
+    lat1: f64,
+    d_sep: f64,
+    step_deg: f64,
+    max_steps: usize,
+    out: []f64,
+    ends: []usize,
+) !usize {
+    if (d_sep <= 0 or step_deg <= 0 or ends.len == 0) return 0;
+    const d_test = d_sep * 0.5;
+
+    // A GRID OF WHAT HAS BEEN DRAWN, so "is anything near here" is a look
+    // at nine cells and not a walk of every point ever placed. Without it
+    // this is quadratic in the number of samples and a dense plot takes
+    // minutes.
+    const cell = d_sep;
+    const nx: usize = @max(1, @min(4096, @as(usize, @intFromFloat(@ceil((lon1 - lon0) / cell) + 1))));
+    const ny: usize = @max(1, @min(4096, @as(usize, @intFromFloat(@ceil((lat1 - lat0) / cell) + 1))));
+    var buckets = try alloc.alloc(std.ArrayListUnmanaged([2]f64), nx * ny);
+    defer {
+        for (buckets) |*b| b.deinit(alloc);
+        alloc.free(buckets);
+    }
+    for (buckets) |*b| b.* = .{};
+
+    const Helper = struct {
+        fn cellOf(lon: f64, lat: f64, l0: f64, a0: f64, c: f64, w: usize, h: usize) ?[2]usize {
+            if (lon < l0 or lat < a0) return null;
+            const i: usize = @intFromFloat((lon - l0) / c);
+            const j: usize = @intFromFloat((lat - a0) / c);
+            if (i >= w or j >= h) return null;
+            return .{ i, j };
+        }
+    };
+
+    // is any accepted sample within `d` of this place?
+    const near = struct {
+        fn f(bs: []std.ArrayListUnmanaged([2]f64), lon: f64, lat: f64, d: f64, l0: f64, a0: f64, c: f64, w: usize, h: usize) bool {
+            const ce = Helper.cellOf(lon, lat, l0, a0, c, w, h) orelse return false;
+            var dj: i64 = -1;
+            while (dj <= 1) : (dj += 1) {
+                const jj: i64 = @as(i64, @intCast(ce[1])) + dj;
+                if (jj < 0 or jj >= @as(i64, @intCast(h))) continue;
+                var di: i64 = -1;
+                while (di <= 1) : (di += 1) {
+                    const ii: i64 = @as(i64, @intCast(ce[0])) + di;
+                    if (ii < 0 or ii >= @as(i64, @intCast(w))) continue;
+                    for (bs[@intCast(jj * @as(i64, @intCast(w)) + ii)].items) |q| {
+                        const ddl = (q[0] - lon);
+                        const ddf = (q[1] - lat);
+                        if (ddl * ddl + ddf * ddf < d * d) return true;
+                    }
+                }
+            }
+            return false;
+        }
+    }.f;
+
+    var written: usize = 0;
+    var lines: usize = 0;
+    // the seeds still to try: the centre first, then points beside each
+    // line as it is accepted
+    // THE QUEUE IS PRIMED WITH A COARSE LATTICE AND NOT WITH ONE SEED.
+    //
+    // Jobard and Lefebvre start from a single point and grow outward, which
+    // is elegant and has a hole in it: if that point is a STAGNATION POINT
+    // the first line is zero steps long, no side-seeds are ever offered
+    // from it, and the plot comes back empty. The centre of the domain is
+    // exactly where a gyre puts its stagnation point, so the natural seed
+    // is the one most likely to fail -- the guard found it on a pure
+    // rotational field, which is the simplest flow there is.
+    //
+    // Priming with a lattice costs nothing and changes no output where the
+    // single seed would have worked: every candidate is still rejected
+    // unless it is a full separation from everything drawn, so the EVENNESS
+    // comes from that test and never from the order seeds arrive in. What
+    // the lattice buys is that a dead centre is no longer a dead plot.
+    var queue = std.ArrayListUnmanaged([2]f64){};
+    defer queue.deinit(alloc);
+    try queue.append(alloc, .{ (lon0 + lon1) / 2, (lat0 + lat1) / 2 });
+    const prime: usize = 7;
+    var pj: usize = 0;
+    while (pj < prime) : (pj += 1) {
+        var pi: usize = 0;
+        while (pi < prime) : (pi += 1) {
+            const fx = (@as(f64, @floatFromInt(pi)) + 0.5) / @as(f64, @floatFromInt(prime));
+            const fy = (@as(f64, @floatFromInt(pj)) + 0.5) / @as(f64, @floatFromInt(prime));
+            try queue.append(alloc, .{ lon0 + (lon1 - lon0) * fx, lat0 + (lat1 - lat0) * fy });
+        }
+    }
+
+    var head: usize = 0;
+    while (head < queue.items.len and lines < ends.len) : (head += 1) {
+        const seed = queue.items[head];
+        if (seed[0] < lon0 or seed[0] > lon1 or seed[1] < lat0 or seed[1] > lat1) continue;
+        if (near(buckets, seed[0], seed[1], d_sep, lon0, lat0, cell, nx, ny)) continue;
+
+        // grow it BOTH WAYS from the seed, so a seed in the middle of a
+        // long curve gives the whole curve rather than half of it
+        const start = written;
+        var back: [2]usize = .{ 0, 0 };
+        back[0] = grow(g, u, v, seed, -step_deg, max_steps / 2, lon0, lat0, lon1, lat1, d_test, buckets, cell, nx, ny, near, out[written..]);
+        // the backward half comes out reversed; flip it so the line reads
+        // from one end to the other
+        reverseInPlace(out[written .. written + back[0] * 2]);
+        written += back[0] * 2;
+        back[1] = grow(g, u, v, seed, step_deg, max_steps / 2, lon0, lat0, lon1, lat1, d_test, buckets, cell, nx, ny, near, out[written..]);
+        written += back[1] * 2;
+        const n = back[0] + back[1];
+
+        // A LINE OF THREE POINTS IS A SMUDGE, not a streamline. Dropping the
+        // short ones is what keeps a dense plot from filling with stubs
+        // where new seeds kept landing beside old lines.
+        if (n < 8) {
+            written = start;
+            continue;
+        }
+
+        // remember it, and offer seeds to either side of every few samples
+        var k: usize = 0;
+        while (k < n) : (k += 1) {
+            const lon = out[start + k * 2];
+            const lat = out[start + k * 2 + 1];
+            const ce = Helper.cellOf(lon, lat, lon0, lat0, cell, nx, ny) orelse continue;
+            try buckets[ce[1] * nx + ce[0]].append(alloc, .{ lon, lat });
+            if (k % 4 != 0 or k + 1 >= n) continue;
+            const dx = out[start + (k + 1) * 2] - lon;
+            const dy = out[start + (k + 1) * 2 + 1] - lat;
+            const m = @sqrt(dx * dx + dy * dy);
+            if (m < 1e-9) continue;
+            try queue.append(alloc, .{ lon - dy / m * d_sep, lat + dx / m * d_sep });
+            try queue.append(alloc, .{ lon + dy / m * d_sep, lat - dx / m * d_sep });
+        }
+        ends[lines] = written / 2;
+        lines += 1;
+        if (written + 4 * max_steps > out.len) break;
+    }
+    return lines;
+}
+
+fn reverseInPlace(xy: []f64) void {
+    const n = xy.len / 2;
+    var i: usize = 0;
+    while (i < n / 2) : (i += 1) {
+        const j = n - 1 - i;
+        const a = xy[i * 2];
+        const b = xy[i * 2 + 1];
+        xy[i * 2] = xy[j * 2];
+        xy[i * 2 + 1] = xy[j * 2 + 1];
+        xy[j * 2] = a;
+        xy[j * 2 + 1] = b;
+    }
+}
+
+/// one half of a streamline, stopping at the domain, at max_steps, or --
+/// and this is the part that makes the spacing even -- as soon as it comes
+/// within d_test of something already drawn
+fn grow(
+    g: gf.Grid,
+    u: []const f64,
+    v: []const f64,
+    seed: [2]f64,
+    step: f64,
+    max_steps: usize,
+    lon0: f64,
+    lat0: f64,
+    lon1: f64,
+    lat1: f64,
+    d_test: f64,
+    buckets: []std.ArrayListUnmanaged([2]f64),
+    cell: f64,
+    nx: usize,
+    ny: usize,
+    comptime near: fn ([]std.ArrayListUnmanaged([2]f64), f64, f64, f64, f64, f64, f64, usize, usize) bool,
+    out: []f64,
+) usize {
+    var lon = seed[0];
+    var lat = seed[1];
+    var n: usize = 0;
+    const cap = out.len / 2;
+    var s: usize = 0;
+    while (s < max_steps and n < cap) : (s += 1) {
+        out[n * 2] = lon;
+        out[n * 2 + 1] = lat;
+        n += 1;
+        const k1 = derivAt(g, u, v, lon, lat) orelse break;
+        const k2 = derivAt(g, u, v, lon + step * k1[0] / 2, lat + step * k1[1] / 2) orelse break;
+        const k3 = derivAt(g, u, v, lon + step * k2[0] / 2, lat + step * k2[1] / 2) orelse break;
+        const k4 = derivAt(g, u, v, lon + step * k3[0], lat + step * k3[1]) orelse break;
+        const dlon = step * (k1[0] + 2 * k2[0] + 2 * k3[0] + k4[0]) / 6;
+        const dlat = step * (k1[1] + 2 * k2[1] + 2 * k3[1] + k4[1]) / 6;
+        if (@abs(dlon) < 1e-12 and @abs(dlat) < 1e-12) break;
+        lon += dlon;
+        lat += dlat;
+        if (lon < lon0 or lon > lon1 or lat < lat0 or lat > lat1) break;
+        if (n > 2 and near(buckets, lon, lat, d_test, lon0, lat0, cell, nx, ny)) break;
+    }
+    return n;
+}
+
+/// THE SPEED ALONG A LINE, so a caller can vary the stroke with it. A
+/// streamline of constant width says every part of the flow is equally
+/// fast, which is the one thing a streamline cannot otherwise deny.
+pub fn speedAt(g: gf.Grid, u: []const f64, v: []const f64, lon: f64, lat: f64) f64 {
+    const w = sampleAt(g, u, v, lon, lat) orelse return 0;
+    return @sqrt(w[0] * w[0] + w[1] * w[1]);
 }
 
 /// THE ARROWS: one per grid node, as [ lon, lat, eastward, northward,

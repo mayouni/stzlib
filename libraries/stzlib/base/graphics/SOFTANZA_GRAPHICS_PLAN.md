@@ -1062,6 +1062,58 @@ so they are held to facts that need no almanac:
 The last is the one worth pausing on: the line the engine draws and the line
 in the definition are the same line, and nothing told it so.
 
+### And the first rendering of both was not good enough
+
+The Principal looked at the witness and said the night and the flow were
+not as precise or as beautiful as Wolfram's. Both were true, and they were
+different failures.
+
+**The night was sampled, not filled.** Every sixth pixel was asked whether
+the sun was up and a small rectangle painted if it was not — correct, and
+it looked like what it was: a staircase along the terminator, two flat
+tones, and the land greyed rather than dimmed. But **the night is a
+spherical cap** — every place more than ninety degrees from where the sun is
+overhead, which is the cap about the *antipode* of the subsolar point — and
+a cap is a ring. GE0c already closes a ring the projection cut along the
+map's own edge, so handing it to `DrawRingOn` gives a filled, antialiased
+region with no staircase and no decision about what "inside" means. Four
+nested caps at 90, 84, 78 and 72 degrees give the dusk gradient out of one
+routine.
+
+**And the day side needed its ocean drawn.** Without it the sea is the
+canvas showing through, which reads as a bright crescent against the shaded
+night — a halo the data does not have. Day and night have to be one
+*surface* for the terminator to be a line across it rather than an edge
+between two materials.
+
+**The flow was seeded on a grid**, which puts the lines where the seeds are
+and not where the paper has room: the field's slow places filled with short
+crowded curves and its fast places went bald, and a reader could not tell a
+dense patch from a lucky lattice. The fix is not styling, it is **Jobard and
+Lefebvre's evenly-spaced streamlines**: grow one line at a time, stop it the
+moment it comes within half a separation of any line already drawn, and take
+each new seed one separation to the side of an existing one. What comes out
+is a set of curves about `d_sep` apart everywhere — **so the spacing carries
+no information at all, which is exactly what frees the shape to carry it.**
+
+Three things went with it: the stroke thickens with local speed, because a
+streamline of constant width says every part of the flow is equally fast;
+arrowheads sit *along* each line rather than at its end, because under even
+spacing a line ends where it met a neighbour and that says nothing about the
+field; and the basemap's contrast is set against **what covers it** rather
+than against taste, since a basemap tuned to look right alone disappears
+under a hundred and forty-six lines.
+
+**One real bug came out of the guard.** Jobard and Lefebvre start from a
+single seed and grow outward. If that seed is a **stagnation point** the
+first line is zero steps long, no side-seeds are ever offered, and the plot
+comes back empty — and the centre of the domain is exactly where a gyre puts
+its stagnation point, so the natural seed is the one most likely to fail.
+The queue is primed with a coarse lattice now. It changes no output where
+the single seed would have worked, because every candidate is still rejected
+unless it is a full separation from everything drawn: **the evenness comes
+from that test and never from the order seeds arrive in.**
+
 ### Streamlines are RK4 because Euler lies in a way readers believe
 
 Arrows answer *what is happening here*; streamlines answer *where does this

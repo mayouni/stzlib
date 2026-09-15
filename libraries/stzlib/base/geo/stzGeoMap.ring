@@ -2611,6 +2611,38 @@ class stzGeoMap from stzObject
 		poCanvas.Flush()
 		return 1
 
+	# THE NIGHT SIDE, FILLED -- and this is the method that matters.
+	#
+	# The first witness shaded night by asking every sixth pixel whether the
+	# sun was up and painting a small rectangle if it was not. That is
+	# correct, and it looks like what it is: a staircase along the
+	# terminator, two flat tones, and the land greyed rather than dimmed.
+	#
+	# The night is a SPHERICAL CAP -- every place more than ninety degrees
+	# from where the sun is overhead -- and a cap is a ring. GE0c already
+	# closes a ring the projection cut along the map's own edge, so handing
+	# it to the projection gives a filled, antialiased region with no
+	# staircase and no decision about what "inside" means on a cut map.
+	#
+	# FOUR NESTED CAPS give the gradient a reader sees at dusk: the sun is
+	# 6 degrees below the horizon at 84 from the antipode, nautical at 78,
+	# astronomical at 72. Drawn outermost first, each translucent, so they
+	# ACCUMULATE -- the deepest night is four layers deep and full dark is
+	# reached gradually rather than in one step.
+	def DrawNightOn(poCanvas, pnYear, pnMonth, pnDay, pnHourUtc, pInk)
+		_s_ = This.SunAt(pnYear, pnMonth, pnDay, pnHourUtc)
+		if len(_s_) = 0  return 0  ok
+		_n_ = 0
+		aBelow = [ 0, 6, 12, 18 ]
+		for _i_ = 1 to len(aBelow)
+			_r_ = StzEngineGeoNightCap(_s_[:lat], _s_[:lon], aBelow[_i_], 361)
+			if len(_r_) < 6  loop  ok
+			@oP.DrawRingOn(poCanvas, _r_, pInk, "#00000000", 0)
+			_n_++
+		next
+		poCanvas.Flush()
+		return _n_
+
 	# ...and the twilight bands with it, each fainter than the last, which
 	# is what a day-night map actually looks like
 	def DrawTwilightOn(poCanvas, pnYear, pnMonth, pnDay, pnHourUtc, pInk)
@@ -2704,6 +2736,134 @@ class stzGeoMap from stzObject
 		next
 		poCanvas.Flush()
 		return _drawn_
+
+	# EVENLY-SPACED STREAMLINES, which is the difference between a stream
+	# plot that reads and one that does not.
+	#
+	# Seeding on a grid puts the lines where the SEEDS are, not where the
+	# paper has room: the field's slow places fill with short crowded curves
+	# and its fast places go bald, and a reader cannot tell a dense patch
+	# from a lucky lattice. Jobard and Lefebvre's method grows one line at a
+	# time, stops it the moment it comes within half a separation of any
+	# line already drawn, and takes the next seed from a point one
+	# separation to the side of an existing one.
+	#
+	# What comes out is a set of curves about d_sep apart EVERYWHERE -- so
+	# the spacing carries no information at all, which is exactly what frees
+	# the shape to carry it.
+	#
+	# The stroke then varies with SPEED, because a streamline of constant
+	# width says every part of the flow is equally fast, and that is the one
+	# thing a streamline cannot otherwise deny.
+	def DrawFlowOn(poCanvas, paGrid, paU, paV, pnSepDeg, pInk)
+		return This.DrawFlowOnXT(poCanvas, paGrid, paU, paV, pnSepDeg, pInk,
+			0.35, 1.9, 400)
+
+	def DrawFlowOnXT(poCanvas, paGrid, paU, paV, pnSepDeg, pInk, pnMinW, pnMaxW, pnMaxLines)
+		if len(paGrid) < 6  return 0  ok
+		_lon0_ = paGrid[1]
+		_lat0_ = paGrid[2]
+		_lon1_ = _lon0_ + paGrid[3] * (paGrid[5] - 1)
+		_lat1_ = _lat0_ + paGrid[4] * (paGrid[6] - 1)
+		_f_ = StzEngineGeoEvenStreamlines(paGrid, paU, paV,
+			_lon0_, _lat0_, _lon1_, _lat1_, pnSepDeg, pnSepDeg / 3, 600, pnMaxLines)
+		if len(_f_) < 4  return 0  ok
+		_n_ = _f_[1]
+		if _n_ < 1  return 0  ok
+
+		# the speed range, so the stroke can be scaled against it rather
+		# than against a number picked by hand
+		_smax_ = 0
+		_base_ = 1 + _n_
+		_prev_ = 0
+		for _k_ = 1 to _n_
+			_end_ = _f_[1 + _k_]
+			_i_ = _prev_
+			while _i_ < _end_
+				_sp_ = StzEngineGeoSpeedAt(paGrid, paU, paV,
+					_f_[_base_ + _i_ * 2 + 1], _f_[_base_ + _i_ * 2 + 2])
+				if _sp_ > _smax_  _smax_ = _sp_  ok
+				_i_ += 8
+			end
+			_prev_ = _end_
+		next
+		if _smax_ <= 0  _smax_ = 1  ok
+
+		# EACH LINE IS DRAWN IN SHORT RUNS, not as one polyline, because the
+		# width has to change along it. A single stroke can only have one
+		# width, so a plot whose stroke means something has to be cut into
+		# pieces short enough for the meaning to hold across each.
+		_drawn_ = 0
+		_prev_ = 0
+		for _k_ = 1 to _n_
+			_end_ = _f_[1 + _k_]
+			_cnt_ = _end_ - _prev_
+			if _cnt_ < 4
+				_prev_ = _end_
+				loop
+			ok
+			_run_ = 6
+			_i_ = _prev_
+			while _i_ + 1 < _end_
+				_to_ = _i_ + _run_
+				if _to_ > _end_ - 1  _to_ = _end_ - 1  ok
+				_seg_ = []
+				_j_ = _i_
+				while _j_ <= _to_
+					_seg_ + _f_[_base_ + _j_ * 2 + 1]
+					_seg_ + _f_[_base_ + _j_ * 2 + 2]
+					_j_++
+				end
+				_sp_ = StzEngineGeoSpeedAt(paGrid, paU, paV,
+					_f_[_base_ + _i_ * 2 + 1], _f_[_base_ + _i_ * 2 + 2])
+				_t_ = _sp_ / _smax_
+				if _t_ > 1  _t_ = 1  ok
+				@oP.DrawLineOn(poCanvas, _seg_, pInk, pnMinW + (pnMaxW - pnMinW) * _t_)
+				_i_ = _to_
+			end
+			# ARROWHEADS ALONG THE LINE, not one at its end.
+			#
+			# A streamline without a head is a curve and not a flow: it
+			# shows the path and hides which way anything is going along
+			# it. But a head only at the END puts every head where a line
+			# happened to stop -- which under even spacing is wherever it
+			# ran into a neighbour, so the heads cluster along the seams
+			# BETWEEN lines and say nothing about the field. Spacing them
+			# along each line instead puts them where the reader's eye
+			# already is.
+			_at_ = _prev_ + 14
+			while _at_ < _end_ - 2
+				This._FlowHeadOn(poCanvas, _f_, _base_, _at_, pInk)
+				_at_ += 26
+			end
+			_drawn_++
+			_prev_ = _end_
+		next
+		poCanvas.Flush()
+		return _drawn_
+
+	def _FlowHeadOn(poCanvas, paFlat, pnBase, pnAt, pInk)
+		if pnAt < 2  return  ok
+		_a_ = @oP.Project(paFlat[pnBase + (pnAt - 2) * 2 + 1], paFlat[pnBase + (pnAt - 2) * 2 + 2])
+		_b_ = @oP.Project(paFlat[pnBase + pnAt * 2 + 1], paFlat[pnBase + pnAt * 2 + 2])
+		if len(_a_) < 2 or len(_b_) < 2  return  ok
+		_dx_ = _b_[1] - _a_[1]
+		_dy_ = _b_[2] - _a_[2]
+		_m_ = sqrt(_dx_ * _dx_ + _dy_ * _dy_)
+		# A HEAD ON A SEGMENT THE PROJECTION CUT would point across the
+		# whole map, so a jump longer than a head is refused rather than
+		# drawn -- the same seam every line in this plane has to survive.
+		if _m_ < 0.5 or _m_ > 60  return  ok
+		_dx_ /= _m_
+		_dy_ /= _m_
+		_px_ = -_dy_
+		_py_ = _dx_
+		_L_ = 5.0
+		poCanvas.AddPolygonQ([ _b_[1], _b_[2],
+			_b_[1] - _dx_ * _L_ + _px_ * _L_ * 0.45,
+			_b_[2] - _dy_ * _L_ + _py_ * _L_ * 0.45,
+			_b_[1] - _dx_ * _L_ - _px_ * _L_ * 0.45,
+			_b_[2] - _dy_ * _L_ - _py_ * _L_ * 0.45 ]).FillQ(pInk).Stroke("#00000000", 0)
 
 	def StreamlineFrom(paGrid, paU, paV, pnLon, pnLat, pnStepDeg, pnSteps)
 		return StzEngineGeoStreamline(paGrid, paU, paV, pnLon, pnLat, pnStepDeg, pnSteps)
