@@ -2406,21 +2406,34 @@ class stzGeoMap from stzObject
 		_sz_ = pnSize
 		if _sz_ < 11  _sz_ = 11  ok
 
-		# THE NO-DATA SWATCH, hatched with the same clipper the map uses, so
-		# the legend's mark and the country's mark are one thing. Drawn as a
-		# POLYGON handed to _HatchPolygon rather than as free diagonals: the
-		# first version ran its lines out of the box on both sides.
-		_nd_ = 46
-		poCanvas.SetFontQ(poFont, _sz_).
-			AddTextQ("No data", pnX, pnY - 6).Fill("#777777")
-		poCanvas.Flush()
-		poCanvas.AddRectQ(pnX, pnY, _nd_, pnH).FillQ("#FFFFFF").Stroke("#00000000", 0)
-		_box_ = [ pnX, pnY, pnX + _nd_, pnY, pnX + _nd_, pnY + pnH, pnX, pnY + pnH ]
-		_HatchPolygon(poCanvas, _box_, 6, @cHatch, 0.9)
-		poCanvas.AddRectQ(pnX, pnY, _nd_, pnH).FillQ("#00000000").Stroke(pInk, 0.9)
-		poCanvas.Flush()
+		# THE NO-DATA SWATCH, DRAWN ONLY WHEN THERE IS NO DATA TO STAND FOR.
+		#
+		# A legend must not advertise a category the map does not use: on a
+		# sheet where every region carries a value, a hatched "No data"
+		# swatch is the same lie as a class that colours nothing, and the
+		# gate already forbids the second. The legend knows -- it can ask
+		# NoDataCount() -- so it omits the swatch when the answer is zero and
+		# starts the ramp at the left margin instead.
+		#
+		# Hatched with the same clipper the map uses, so the legend's mark
+		# and the country's are one thing; a POLYGON handed to _HatchPolygon
+		# rather than free diagonals, which the first version ran out of the
+		# box on both sides.
+		_nd_ = 0
+		if This.NoDataCount() > 0
+			_nd_ = 46
+			poCanvas.SetFontQ(poFont, _sz_).
+				AddTextQ("No data", pnX, pnY - 6).Fill("#777777")
+			poCanvas.Flush()
+			poCanvas.AddRectQ(pnX, pnY, _nd_, pnH).FillQ("#FFFFFF").Stroke("#00000000", 0)
+			_box_ = [ pnX, pnY, pnX + _nd_, pnY, pnX + _nd_, pnY + pnH, pnX, pnY + pnH ]
+			_HatchPolygon(poCanvas, _box_, 6, @cHatch, 0.9)
+			poCanvas.AddRectQ(pnX, pnY, _nd_, pnH).FillQ("#00000000").Stroke(pInk, 0.9)
+			poCanvas.Flush()
+		ok
 
-		_x0_ = pnX + _nd_ + 16
+		_x0_ = pnX + _nd_
+		if _nd_ > 0  _x0_ += 16  ok
 		_cw_ = pnW / _n_
 		for _c_ = 1 to _n_
 			_x_ = _x0_ + (_c_ - 1) * _cw_

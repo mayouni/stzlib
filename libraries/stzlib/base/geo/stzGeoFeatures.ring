@@ -72,8 +72,13 @@ func StzGeoFeaturesFromTopoJson(pcJson, pcObject)
 # would try them. A file that uses none of them is not broken -- the caller
 # names their own key with PropertyOf().
 func StzGeoNameKeys()
+	# geoBoundaries -- one of the most-used open boundary sources, and the
+	# UN's for humanitarian work -- calls the name shapeName, so a reader
+	# that did not know that key answered a country of blanks for the whole
+	# of Niger. Added where it is tried, not worked around at the call site.
 	return [ "name", "NAME", "Name", "nom", "admin", "ADMIN", "NAME_EN",
-	         "NAME_LONG", "name_en", "title", "label", "id" ]
+	         "NAME_LONG", "name_en", "shapeName", "shapeName_en",
+	         "title", "label", "id" ]
 
 class stzGeoFeatures from stzObject
 	@aFeat = []      # each: [ cKind, cId, aProps, aParts ]
