@@ -6,6 +6,7 @@ const gf = @import("geo_field.zig");
 const gi = @import("geo_interp.zig");
 const gg = @import("geo_geodesy.zig");
 const gpr = @import("geo_process.zig");
+const gdi = @import("geo_distortion.zig");
 const R = @import("ring_api.zig");
 
 const gn = R.ring_vm_api_getnumber;
@@ -41,7 +42,11 @@ fn readProjection(p: *anyopaque, arg: c_int) ?gp.Projection {
     defer alloc.free(v);
     if (v.len < 11) return null;
     const ki: i64 = @intFromFloat(v[0]);
-    if (ki < 0 or ki > 15) return null;
+    // ...AND THIS WAS THE THIRD COPY OF THE SAME LITERAL, and the one that
+    // mattered most: readProjection is what EVERY projection call goes
+    // through, so a kind past the sixteenth would have been refused at the
+    // bridge and every gallery projection would have drawn nothing at all.
+    if (ki < 0 or ki >= @as(i64, @intCast(@typeInfo(gp.Kind).@"enum".fields.len))) return null;
     var pr = gp.Projection.fromKind(@enumFromInt(@as(u8, @intCast(ki))));
     const deg = std.math.pi / 180.0;
     pr.rot = .{ v[1] * deg, v[2] * deg, v[3] * deg };
@@ -504,8 +509,16 @@ fn ring_GeoKindCount(p: *anyopaque) callconv(.c) void {
 }
 
 fn ring_GeoKindName(p: *anyopaque) callconv(.c) void {
+    // THE BOUND IS THE ENUM'S OWN LENGTH AND NOT A NUMBER TYPED HERE. It
+    // was 15, written when there were sixteen projections, and GE9's
+    // twenty-eight arrived to find KindCount answering 44 while KindName
+    // answered "" for everything past the sixteenth -- the Ring face built
+    // a gallery of 44 names of which 28 were empty, and said nothing. Two
+    // places knowing the same length is the defect shape; here one of them
+    // was a literal.
     const ki: i64 = @intFromFloat(gn(p, 1));
-    if (ki < 0 or ki > 15) {
+    const last: i64 = @intCast(@typeInfo(gp.Kind).@"enum".fields.len - 1);
+    if (ki < 0 or ki > last) {
         R.ring_vm_api_retstring(p, "");
         return;
     }
@@ -515,7 +528,8 @@ fn ring_GeoKindName(p: *anyopaque) callconv(.c) void {
 
 fn ring_GeoKindTraits(p: *anyopaque) callconv(.c) void {
     const ki: i64 = @intFromFloat(gn(p, 1));
-    if (ki < 0 or ki > 15) return retEmpty(p);
+    const last: i64 = @intCast(@typeInfo(gp.Kind).@"enum".fields.len - 1);
+    if (ki < 0 or ki > last) return retEmpty(p);
     const k: gp.Kind = @enumFromInt(@as(u8, @intCast(ki)));
     const out = R.ring_vm_api_newlist(p) orelse return;
     R.ring_list_adddouble(out, if (k.isEqualArea()) 1 else 0);
@@ -1181,6 +1195,89 @@ fn ring_GeoMaternIICeiling(p: *anyopaque) callconv(.c) void {
     rn(p, gpr.maternIIIntensity(gn(p, 1), gn(p, 2)));
 }
 
+
+// ------------------------------------------- GE9: the gallery's distortion
+//
+// A projection already crosses as eleven numbers, so these take one exactly
+// as every other projection call does. What comes back is the Tissot
+// indicatrix as numbers -- and, where a caller wants to DRAW it, as a ring.
+
+fn ring_GeoDistortionAt(p: *anyopaque) callconv(.c) void {
+    const pr = readProjection(p, 1) orelse return retEmpty(p);
+    const d = gdi.distortionAt(&pr, gn(p, 2), gn(p, 3));
+    if (!d.ok) return retEmpty(p);
+    retF64s(p, &[_]f64{ d.h, d.k, d.a, d.b, d.areal, d.angular, d.crossing });
+}
+
+fn ring_GeoDistortionSummary(p: *anyopaque) callconv(.c) void {
+    const pr = readProjection(p, 1) orelse return retEmpty(p);
+    var nx = argUsize(p, 2);
+    var ny = argUsize(p, 3);
+    if (nx < 2) nx = 2;
+    if (ny < 2) ny = 2;
+    if (nx > 2000) nx = 2000;
+    if (ny > 2000) ny = 2000;
+    const s2 = gdi.summarise(&pr, nx, ny);
+    retF64s(p, &[_]f64{
+        s2.areal_min, s2.areal_max,    s2.areal_mean,
+        s2.angular_max, s2.angular_mean, @floatFromInt(s2.sampled),
+    });
+}
+
+fn ring_GeoIndicatrix(p: *anyopaque) callconv(.c) void {
+    const pr = readProjection(p, 1) orelse return retEmpty(p);
+    var n = argUsize(p, 5);
+    if (n < 8) n = 8;
+    if (n > 4096) n = 4096;
+    const out = alloc.alloc(f64, n * 2) catch return retEmpty(p);
+    defer alloc.free(out);
+    const got = gdi.indicatrix(&pr, gn(p, 2), gn(p, 3), gn(p, 4), n, out);
+    retF64s(p, out[0 .. got * 2]);
+}
+
+fn ring_GeoUtmZone(p: *anyopaque) callconv(.c) void {
+    const u = gdi.utmZoneOf(gn(p, 1), gn(p, 2));
+    retF64s(p, &[_]f64{
+        @floatFromInt(u.zone),
+        if (u.north) 1 else 0,
+        u.central_meridian,
+        @floatFromInt(u.band),
+        gdi.utmFalseEasting(),
+        gdi.utmFalseNorthing(u.north),
+    });
+}
+
+fn ring_GeoUtmProjection(p: *anyopaque) callconv(.c) void {
+    var z = argUsize(p, 1);
+    if (z < 1) z = 1;
+    if (z > 60) z = 60;
+    const pr = gdi.utmProjection(@intCast(z));
+    const deg = 180.0 / std.math.pi;
+    retF64s(p, &[_]f64{
+        @floatFromInt(@intFromEnum(pr.kind)),
+        pr.rot[0] * deg, pr.rot[1] * deg, pr.rot[2] * deg,
+        pr.par[0] * deg, pr.par[1] * deg,
+        pr.scale,        pr.tx,           pr.ty,
+        pr.clip_angle * deg, pr.precision,
+    });
+}
+
+/// DOES THIS PROJECTION KEEP ITS OWN PROMISE, measured rather than declared?
+/// Answers [ equalArea, conformal, equatorSymmetric ] as the ENUM claims
+/// them, so a caller can hold the gallery to its word.
+fn ring_GeoKindClaims(p: *anyopaque) callconv(.c) void {
+    const i = argUsize(p, 1);
+    const n = @typeInfo(gp.Kind).@"enum".fields.len;
+    if (i < 1 or i > n) return retEmpty(p);
+    const k: gp.Kind = @enumFromInt(@as(u8, @intCast(i - 1)));
+    retF64s(p, &[_]f64{
+        if (k.isEqualArea()) 1 else 0,
+        if (k.isConformal()) 1 else 0,
+        if (k.isEquatorSymmetric()) 1 else 0,
+        if (k.isAzimuthal()) 1 else 0,
+    });
+}
+
 const regs = [_]R.Reg{
     .{ .name = "stzenginegeohaversine", .func = ring_Haversine },
     .{ .name = "stzenginegeohaversinemiles", .func = ring_HaversineMiles },
@@ -1277,6 +1374,13 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginegeoprocessescapes", .func = ring_GeoProcessEscapes },
     .{ .name = "stzenginegeopoissoncount", .func = ring_GeoPoissonCount },
     .{ .name = "stzenginegeomaterniiceiling", .func = ring_GeoMaternIICeiling },
+    // GE9
+    .{ .name = "stzenginegeodistortionat", .func = ring_GeoDistortionAt },
+    .{ .name = "stzenginegeodistortionsummary", .func = ring_GeoDistortionSummary },
+    .{ .name = "stzenginegeoindicatrix", .func = ring_GeoIndicatrix },
+    .{ .name = "stzenginegeoutmzone", .func = ring_GeoUtmZone },
+    .{ .name = "stzenginegeoutmprojection", .func = ring_GeoUtmProjection },
+    .{ .name = "stzenginegeokindclaims", .func = ring_GeoKindClaims },
 };
 
 pub fn registerAll(state: *anyopaque) void {

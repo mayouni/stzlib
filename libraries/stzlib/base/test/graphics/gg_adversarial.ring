@@ -16429,7 +16429,17 @@ discharges("GE0")
 # that the sphere is there and answers, in the four properties a picture
 # cannot do without. Nothing here reads an atlas or needs a device.
 
-chk("the engine knows sixteen projections by name", len(StzGeoProjectionKinds()) = 16)
+# THIS SAID SIXTEEN UNTIL GE9, in both this gate and the sphere's narrated
+# guard -- the same literal in two files, and the gallery broke both. A
+# count pinned by a number has to be repinned every time the thing it
+# counts grows; pinning the FIRST SIXTEEN BY NAME instead keeps what the
+# assertion was actually for, which is that the enum's order never shifts
+# under anybody's stored projection.
+chk("the engine knows forty-four projections by name, the first sixteen " +
+    "still at the positions they have always held",
+    len(StzGeoProjectionKinds()) = 44 and
+    StzGeoProjectionKinds()[1] = "Equirectangular" and
+    StzGeoProjectionKinds()[16] = "EqualEarth")
 oGeS = new stzGeoProjection(:Mollweide)
 oGeS.FitToSphere(800, 400, 0)
 aGeQ = oGeS.Project(12.5, 41.9)
@@ -17123,6 +17133,61 @@ chk("NEGATIVE: a mechanism nobody named is REFUSED and not quietly " +
     "Poisson, because substituting the weak null for a misspelt strong one " +
     "would turn a careful test into the useless one and say nothing",
     _P7dRefuses("Neyman"))
+
+sec("-- 135. GE9: THE PROJECTION GALLERY AND ITS DISTORTION --------------")
+
+# Sixteen projections became forty-four, and twenty-eight formulas were
+# written from books. A wrong coefficient in a projection makes a map that
+# LOOKS like a map -- continents in the right places, a smooth graticule,
+# areas quietly wrong forever. What adjudicates them is the JACOBIAN and
+# not the round trip: the inverse is Newton on the forward map, so a round
+# trip is consistent with whatever forward it was given. Full argument in
+# geo_gallery_narrated.ring; these are the ones the gate owes.
+
+aG9 = StzGeoProjectionKinds()
+chk("FORTY-FOUR PROJECTIONS, each named, the Ring face reading its length " +
+    "from the engine's own enum. THE BRIDGE HAD A LITERAL 15 IN IT in " +
+    "three places, one of them readProjection -- so every gallery " +
+    "projection would have been refused at the bridge and drawn nothing",
+    len(aG9) = 44 and _G9AllNamed(aG9))
+chk("EVERY PROJECTION HOLDS ITS OWN CLAIM: areal scale 1 everywhere on the " +
+    "nineteen that claim equal area, no angle bent anywhere on the four " +
+    "that claim conformality -- measured from the derivative, not from the " +
+    "formula's own arithmetic",
+    _G9AllHoldClaims())
+chk("NEGATIVE: AND THE CHECK CAN FAIL -- shown an equal-area projection " +
+    "mis-normalised by the eleven per cent that caught the sinu-Mollweide, " +
+    "it says so. A property test nobody has watched reject something is " +
+    "not a measurement",
+    NOT _G9AreaSurvives(0.89) and _G9AreaSurvives(1))
+chk("EVERY PROJECTION IS SYMMETRIC AS DECLARED -- about the central " +
+    "meridian always, about the equator except where it is a cone unrolled " +
+    "from a pole. It reaches the projections that claim no property at all, " +
+    "which the two above cannot",
+    _G9Symmetric("WinkelTripel") and _G9Symmetric("EckertIV") and
+    _G9Symmetric("Miller") and NOT _G9EquatorSym("Bonne"))
+chk("EVERY PROJECTION INVERTS, the twenty-eight with no closed form by " +
+    "Newton on the forward map -- and this tests the SOLVER, not whether a " +
+    "formula is the projection it names",
+    _G9Trips("WinkelTripel") and _G9Trips("Polyconic") and _G9Trips("Bonne"))
+chk("MERCATOR'S AREAL SCALE IS THE SQUARE OF THE SECANT OF THE LATITUDE, " +
+    "exactly 2 at 45 degrees -- a closed form this engine does not know, " +
+    "which the measured derivative agrees with. Greenland is drawn at ten " +
+    "times its area and that is now a number rather than an opinion",
+    _G9MercatorTissot())
+chk("EVERY INVERSE CHECKS ITS OWN ANSWER, closed form included. The " +
+    "orthographic replied (90, -45) for a click far outside the disc it " +
+    "draws and the Mollweide replied with a longitude of 7e19 -- both " +
+    "predating GE9, both reached by GE5's what-is-under-this-pixel, and " +
+    "both fixed by projecting the answer back and refusing it if it does " +
+    "not land where it was asked",
+    _G9RefusesOffMap("Orthographic") and _G9RefusesOffMap("Mollweide") and
+    _G9RefusesOffMap("Hammer"))
+chk("UTM IS SIXTY TRANSVERSE MERCATORS AND TWO EXCEPTIONS THAT ARE NOT " +
+    "TIDY: zone 32 widened in 1950 so south-west Norway is not cut in half, " +
+    "and Svalbard rearranged for the same reason. A library that computes " +
+    "the zone arithmetically and stops is wrong for two countries, silently",
+    _G9Utm())
 
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
@@ -23129,6 +23194,100 @@ func _P7dRefuses pcName
 	catch
 		return TRUE
 	done
+
+func _G9AllNamed paList
+	for _i_ = 1 to len(paList)
+		if ring_trim("" + paList[_i_]) = ""  return FALSE  ok
+	next
+	return TRUE
+
+func _G9AllHoldClaims()
+	_a_ = StzGeoProjectionKinds()
+	_n_ = 0
+	for _i_ = 1 to len(_a_)
+		_o_ = new stzGeoProjection(_a_[_i_])
+		if _o_.IsEqualArea()  _n_++  ok
+		if NOT _o_.HoldsItsClaim()  return FALSE  ok
+	next
+	return _n_ = 19
+
+func _G9AreaSurvives pnFactor
+	_o_ = new stzGeoProjection(:Mollweide)
+	_d_ = _o_.Distortion()
+	if len(_d_) = 0  return FALSE  ok
+	return fabs(_d_[:arealMin] * pnFactor - 1) < 0.0001 and
+	       fabs(_d_[:arealMax] * pnFactor - 1) < 0.0001
+
+func _G9EquatorSym pcKind
+	_a_ = StzGeoProjectionKinds()
+	for _i_ = 1 to len(_a_)
+		if _a_[_i_] = pcKind  return StzEngineGeoKindClaims(_i_)[3] = 1  ok
+	next
+	return TRUE
+
+func _G9Symmetric pcKind
+	_o_ = new stzGeoProjection(pcKind)
+	_o_.Scale(1)
+	_o_.Translate([ 0, 0 ])
+	_eq_ = _G9EquatorSym(pcKind)
+	for _a_ = 1 to 4
+		for _b_ = 1 to 4
+			_lon_ = 25 + 35 * (_a_ - 1)
+			_lat_ = 12 + 18 * (_b_ - 1)
+			_p1_ = _o_.Project(_lon_, _lat_)
+			_p2_ = _o_.Project(-_lon_, _lat_)
+			if len(_p1_) < 2 or len(_p2_) < 2  loop  ok
+			if fabs(_p1_[1] + _p2_[1]) > 0.000001  return FALSE  ok
+			if fabs(_p1_[2] - _p2_[2]) > 0.000001  return FALSE  ok
+			if _eq_
+				_p3_ = _o_.Project(_lon_, -_lat_)
+				if len(_p3_) < 2  loop  ok
+				if fabs(_p1_[2] + _p3_[2]) > 0.000001  return FALSE  ok
+			ok
+		next
+	next
+	return TRUE
+
+func _G9Trips pcKind
+	_o_ = new stzGeoProjection(pcKind)
+	_o_.FitToSphere(600, 400, 0)
+	for _a_ = 1 to 5
+		for _b_ = 1 to 5
+			_lon_ = -140 + 70 * (_a_ - 1)
+			_lat_ = -70 + 35 * (_b_ - 1)
+			_q_ = _o_.Project(_lon_, _lat_)
+			if len(_q_) < 2  loop  ok
+			_g_ = _o_.Invert(_q_[1], _q_[2])
+			if len(_g_) < 2  return FALSE  ok
+			if fabs(_g_[1] - _lon_) > 0.00001  return FALSE  ok
+			if fabs(_g_[2] - _lat_) > 0.00001  return FALSE  ok
+		next
+	next
+	return TRUE
+
+func _G9MercatorTissot()
+	_o_ = new stzGeoProjection(:Mercator)
+	_d_ = _o_.DistortionAt(0, 45)
+	if len(_d_) = 0  return FALSE  ok
+	if fabs(_d_[:h] - _d_[:k]) > 0.000001  return FALSE  ok
+	if _d_[:angular] > 0.0001  return FALSE  ok
+	if fabs(_d_[:areal] - 2) > 0.0001  return FALSE  ok
+	return _o_.ArealScaleAt(-40, 72) > 9 and _o_.ArealScaleAt(-40, 72) < 12
+
+func _G9RefusesOffMap pcKind
+	_o_ = new stzGeoProjection(pcKind)
+	_o_.FitToSphere(400, 400, 0)
+	return len(_o_.Invert(5000, 5000)) < 2
+
+func _G9Utm()
+	_p_ = StzGeoUtmZoneOf(2.35, 48.86)
+	if _p_[:zone] != 31 or _p_[:band] != "U"  return FALSE  ok
+	if _p_[:centralMeridian] != 3  return FALSE  ok
+	if StzGeoUtmZoneOf(5, 60)[:zone] != 32  return FALSE  ok
+	if StzGeoUtmZoneArithmetic(5) != 31  return FALSE  ok
+	if StzGeoUtmZoneOf(151.2, -33.87)[:falseNorthing] != 10000000  return FALSE  ok
+	_u_ = StzGeoUtmProjection(31)
+	return _u_.Name() = "TransverseMercator" and fabs(_u_.ScaleOf() - 0.9996) < 0.000001
 
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0

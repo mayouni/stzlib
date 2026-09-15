@@ -522,7 +522,7 @@ which exists.
 | GE6d | **insets**: the same ground larger, with a locator, a measured scale, and three refusals | Ring, `stzGeoMap` | **SHIPPED** below |
 | GE7 | **spatial statistics**: point patterns (K, L, G, F, Clark-Evans, envelopes by simulation), centres and ellipses, kernel density, contours, interpolation (IDW, kriging), point processes | engine, `geo_stats.zig` + `geo_field.zig` + `geo_interp.zig` + `geo_process.zig`; face `stzGeoPoints`, `stzGeoField`, `stzGeoSamples`, `stzGeoProcess` | **GE7a-GE7d ALL SHIPPED** below |
 | GE8 | **geodesy on the ellipsoid**: the geodesic on WGS84, ECEF and ENU frames, DMS, rhumb lines, a reference-ellipsoid table, polygon area | engine, `geo_geodesy.zig`; face `stzGeoEllipsoid.ring` | **SHIPPED** below |
-| GE9 | **the projection gallery**: from 16 to the ~50 with names people use, each with an inverse, plus local distortion measures from the Jacobian, and UTM zones | engine, `geo_projection.zig` | PLAN |
+| GE9 | **the projection gallery**: 16 to 44, each with an inverse, local distortion from the Jacobian, and UTM zones | engine, `geo_projection.zig` + `geo_distortion.zig` | **SHIPPED** below |
 | GE10 | **map furniture and the remaining plots**: scale bar, day-night terminator, vector and stream plots over a field, point-value small multiples | Ring, `stzGeoMap` | PLAN |
 
 **Order and value.** GE0 first, because every picture above it is only as
@@ -999,6 +999,105 @@ the standard and is one algorithm.
 forward-inverse round trip and a Tissot sheet per projection.
 
 
+
+
+## GE9 -- THE PROJECTION GALLERY, AND WHAT EACH ONE COSTS (2026-09-15, SHIPPED)
+
+*Sixteen projections became forty-four. The honest problem with that
+sentence is that twenty-eight formulas were written from books.*
+
+**A wrong coefficient in a projection makes a map that looks like a map.**
+The continents are in the right places, the graticule is smooth, nothing is
+upside down, and the areas are quietly wrong by a few per cent forever. This
+is the risk GE8 named about Karney's series, met again at thirty times the
+surface area.
+
+### The Jacobian adjudicates them, and the round trip does not
+
+Most of the gallery has no closed-form inverse -- the Winkel tripel famously
+has none, nor the Eckerts, the Aitoff or the polyconic without a page of
+algebra apiece. So the inverse is **Newton's method in two dimensions on the
+forward map**, using the projection's derivative. One mechanism, and adding a
+projection means adding one function.
+
+**Which is exactly why a round trip proves nothing about a new formula.** A
+generic inverse is consistent with whatever forward it was given, right or
+wrong. What tests the formulas is the derivative:
+
+| check | what it catches |
+|---|---|
+| **areal scale 1 everywhere** on the nineteen claiming equal area | a mistyped constant almost never survives it |
+| **zero angular deformation** on the four claiming conformality | the same, from the other side |
+| **symmetry** about the central meridian, and about the equator where the projection is not a cone unrolled from a pole | reaches the projections that claim no property at all |
+| the equator at `y = 0`, the central meridian at `x = 0` | the cheapest sanity there is |
+
+And for a projection claiming neither property -- Miller, Winkel Tripel,
+Fahey -- those are **necessary and not sufficient**. A wrong coefficient that
+keeps the symmetry survives them. That is a real limit of this gallery, and
+it is written into the source rather than left to be discovered.
+
+**The sweep caught two defects on its first run.** The sinu-Mollweide's
+Mollweide half was normalised with `2/sqrt(2 pi)` where the Mollweide uses
+`2 sqrt(2)/pi` -- 0.798 against 0.900 -- and it omitted the halving of the
+auxiliary angle; areal scale ran from 0 to 30.7 on a projection whose entire
+purpose is to be equal-area. The fix was not to correct the constants but to
+**call the Mollweide**, which was ten lines away. The second was a symmetry
+claim made for Collignon, which is a triangle with the pole at its apex: the
+check was right about the fact and wrong about the classification.
+
+### What the distortion buys
+
+Before GE9 this plane could say *which* lie a projection tells -- `IsEqualArea`,
+`IsConformal`, two booleans and a rule that reads them. Enough to refuse a
+choropleth on a Mercator; nowhere near enough to say that Greenland on that
+map is drawn at **ten times its area**, which the plane can now compute.
+
+```
+Mercator at 45 deg:  h 1.4142   k 1.4142   areal 2.0000   angular 0
+Mercator at 70 deg:  h 2.9238   k 2.9238   areal 8.5486   angular 0
+```
+
+`h = k` at every point is what conformality *means*; the areal scale is
+`sec^2(phi)` exactly, a closed form the engine does not know and the measured
+derivative agrees with. Averaged over the globe **by ground rather than by
+grid cell** -- an unweighted mean counts a polar row, a sliver, as heavily as
+an equatorial one, which flatters exactly the projections a reader most needs
+warning about -- Equal Earth bends 29 degrees and holds every area; Mercator
+bends nothing and spans a factor of 58 in area. There is no row with small
+numbers in both columns and there cannot be: that is Gauss, not a gap.
+
+### The defect in the ORIGINAL sixteen that GE9 surfaced
+
+**A closed-form inverse is algebra that assumed the point was on the map, and
+off it the algebra does not fail -- it answers.** The orthographic replied
+`(90, -45)` for a click far outside the disc it draws; the Mollweide replied
+with a longitude of `7e19`. Both predate GE9 and neither had ever been
+noticed, because nothing ever asked the answer to be *right*, only to exist.
+
+It reaches further than the gallery: **GE5's "what is under this pixel" runs
+on that function**, so a click on the ocean beside the map answered a place
+rather than nothing. One line fixes both and every future one -- project the
+answer and see whether it lands where it was asked to.
+
+### And a literal 15, in three places
+
+`KindCount` read the enum's length; `KindName`, `KindTraits` and
+`readProjection` each had `> 15` written in when there were sixteen. The
+gallery arrived to find the count answering 44 while the name answered `""`
+for everything past the sixteenth -- **and `readProjection` is what every
+projection call goes through**, so every gallery projection would have been
+refused at the bridge and drawn nothing at all. Two places knowing one length
+is the defect shape this plane has met all week; here one of them was a
+literal, three times over.
+
+### UTM, including the parts that are not tidy
+
+Sixty transverse Mercators, each on its own central meridian at 0.9996 --
+which *shares* the error between the middle of a zone and its edges rather
+than piling it at the edges, one part in 2500 across the zone. **Zone 32 was
+widened in 1950 so south-west Norway is not cut in half, and the Svalbard
+zones were rearranged for the same reason.** A library that computes the zone
+arithmetically and stops is wrong for two countries, and wrong silently.
 
 ## GE7d -- POINT PROCESSES, AND A NULL MODEL THAT IS NOT CSR (2026-09-14, SHIPPED)
 

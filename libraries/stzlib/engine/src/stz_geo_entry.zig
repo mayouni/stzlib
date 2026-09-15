@@ -5,6 +5,7 @@ pub const geo_field = @import("geo_field.zig");
 pub const geo_interp = @import("geo_interp.zig");
 pub const geo_geodesy = @import("geo_geodesy.zig");
 pub const geo_process = @import("geo_process.zig");
+pub const geo_distortion = @import("geo_distortion.zig");
 pub const ring_bridge = @import("ring_bridge_geo.zig");
 
 comptime {
@@ -23,4 +24,5 @@ test {
     _ = geo_interp;
     _ = geo_geodesy;
     _ = geo_process;
+    _ = geo_distortion;
 }

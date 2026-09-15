@@ -58,6 +58,37 @@ pub const Kind = enum(u8) {
     azimuthal_equal_area = 13,
     azimuthal_equidistant = 14,
     equal_earth = 15,
+    // GE9 -- the gallery. Every one below is a FORWARD formula only: the
+    // inverse comes from the shared Newton solver in geo_distortion.zig,
+    // which is the same Jacobian the distortion measures are built on.
+    miller = 16,
+    central_cylindrical = 17,
+    cassini = 18,
+    gall_stereographic = 19,
+    gall_peters = 20,
+    behrmann = 21,
+    hobo_dyer = 22,
+    eckert1 = 23,
+    eckert2 = 24,
+    eckert3 = 25,
+    eckert4 = 26,
+    eckert5 = 27,
+    eckert6 = 28,
+    wagner6 = 29,
+    kavrayskiy7 = 30,
+    winkel1 = 31,
+    aitoff = 32,
+    hammer = 33,
+    winkel_tripel = 34,
+    craster = 35,
+    collignon = 36,
+    bonne = 37,
+    werner = 38,
+    polyconic = 39,
+    loximuthal = 40,
+    bottomley = 41,
+    fahey = 42,
+    sinusoidal_mollweide = 43,
 
     pub fn name(k: Kind) [:0]const u8 {
         return switch (k) {
@@ -77,7 +108,41 @@ pub const Kind = enum(u8) {
             .azimuthal_equal_area => "AzimuthalEqualArea",
             .azimuthal_equidistant => "AzimuthalEquidistant",
             .equal_earth => "EqualEarth",
+            .miller => "Miller",
+            .central_cylindrical => "CentralCylindrical",
+            .cassini => "Cassini",
+            .gall_stereographic => "GallStereographic",
+            .gall_peters => "GallPeters",
+            .behrmann => "Behrmann",
+            .hobo_dyer => "HoboDyer",
+            .eckert1 => "EckertI",
+            .eckert2 => "EckertII",
+            .eckert3 => "EckertIII",
+            .eckert4 => "EckertIV",
+            .eckert5 => "EckertV",
+            .eckert6 => "EckertVI",
+            .wagner6 => "WagnerVI",
+            .kavrayskiy7 => "KavrayskiyVII",
+            .winkel1 => "WinkelI",
+            .aitoff => "Aitoff",
+            .hammer => "Hammer",
+            .winkel_tripel => "WinkelTripel",
+            .craster => "CrasterParabolic",
+            .collignon => "Collignon",
+            .bonne => "Bonne",
+            .werner => "Werner",
+            .polyconic => "Polyconic",
+            .loximuthal => "Loximuthal",
+            .bottomley => "Bottomley",
+            .fahey => "Fahey",
+            .sinusoidal_mollweide => "SinuMollweide",
         };
+    }
+
+    /// HOW MANY PROJECTIONS THIS ENGINE KNOWS. Asked of the enum so a
+    /// caller's gallery cannot drift from what is implemented.
+    pub fn count() usize {
+        return @typeInfo(Kind).@"enum".fields.len;
     }
 
     /// Azimuthal projections see ONE side of the sphere: what lies beyond
@@ -106,7 +171,16 @@ pub const Kind = enum(u8) {
     /// The property a choropleth cannot do without, and a rule will ask.
     pub fn isEqualArea(k: Kind) bool {
         return switch (k) {
-            .cylindrical_equal_area, .mollweide, .sinusoidal, .conic_equal_area, .azimuthal_equal_area, .equal_earth => true,
+            .cylindrical_equal_area, .mollweide, .sinusoidal, .conic_equal_area,
+            .azimuthal_equal_area, .equal_earth,
+            // GE9's equal-area additions. Each of these CLAIMS the property,
+            // and the gallery gate holds it to the claim: a projection whose
+            // areal scale is not 1 everywhere has a wrong formula, and that
+            // is how a transcribed constant gets caught here rather than in
+            // somebody's map.
+            .gall_peters, .behrmann, .hobo_dyer, .eckert2, .eckert4, .eckert6,
+            .craster, .collignon, .bonne, .werner, .hammer, .bottomley,
+            .sinusoidal_mollweide => true,
             else => false,
         };
     }
@@ -116,6 +190,32 @@ pub const Kind = enum(u8) {
         return switch (k) {
             .mercator, .transverse_mercator, .conic_conformal, .stereographic => true,
             else => false,
+        };
+    }
+
+    /// AN INTERRUPTED OR PSEUDOCONIC PROJECTION IS NOT A WORLD RECTANGLE,
+    /// and the gallery's symmetry checks do not apply to it: Bonne and
+    /// Werner are cones unrolled from a pole, so they are symmetric about
+    /// the central meridian but NOT about the equator, and a check that
+    /// assumed otherwise would fail a correct projection.
+    pub fn isEquatorSymmetric(k: Kind) bool {
+        return switch (k) {
+            .bonne, .werner, .polyconic, .loximuthal, .bottomley,
+            .conic_equal_area, .conic_conformal, .conic_equidistant,
+            .cassini,
+            // COLLIGNON IS A TRIANGLE WITH THE POLE AT ITS APEX, not a
+            // lens: y = sqrt(pi)(1 - sqrt(1 - sin phi)) puts the south pole
+            // at a different distance from the equator than the north. The
+            // gallery's symmetry check flagged it on the first run and the
+            // check was right about the FACT and wrong about the
+            // CLASSIFICATION -- this list was missing a row, the formula
+            // was correct.
+            .collignon,
+            // ...and the sinu-Mollweide is offset to make its two halves
+            // meet, which breaks the symmetry the same way and for a
+            // reason equally deliberate.
+            .sinusoidal_mollweide => false,
+            else => true,
         };
     }
 };
@@ -142,6 +242,17 @@ pub const Projection = struct {
         p.clip_angle = k.defaultClipAngle() * DEG;
         p.par = switch (k) {
             .conic_equal_area, .conic_conformal, .conic_equidistant => .{ 30 * DEG, 30 * DEG },
+            // THE CYLINDRICAL EQUAL-AREAS ARE ONE FORMULA AND A CHOICE OF
+            // STANDARD PARALLEL, and the names are what people argue about:
+            // Gall-Peters at 45, Behrmann at 30, Hobo-Dyer at 37.5. Naming
+            // them separately is not duplication -- it is the difference
+            // between a caller writing "GallPeters" and a caller having to
+            // know that Peters' map is Lambert's with a number in it.
+            .gall_peters => .{ 45 * DEG, 0 },
+            .behrmann => .{ 30 * DEG, 0 },
+            .hobo_dyer => .{ 37.5 * DEG, 0 },
+            .bonne => .{ 45 * DEG, 0 },
+            .winkel1 => .{ math.acos(2.0 / PI), 0 },
             else => .{ 0, 0 },
         };
         return p;
@@ -236,6 +347,15 @@ const MERCATOR_LIMIT: f64 = 85.0511287798 * DEG; // where Web Mercator stops
 
 fn rawForward(p: *const Projection, l: f64, f: f64) ?[2]f64 {
     switch (p.kind) {
+        // GE9's gallery is dispatched in ONE place, at the top, so the
+        // sixteen that came first keep their own arms untouched and a
+        // reader hunting a formula has exactly two places to look.
+        .miller, .central_cylindrical, .cassini, .gall_stereographic,
+        .gall_peters, .behrmann, .hobo_dyer, .eckert1, .eckert2, .eckert3,
+        .eckert4, .eckert5, .eckert6, .wagner6, .kavrayskiy7, .winkel1,
+        .aitoff, .hammer, .winkel_tripel, .craster, .collignon, .bonne,
+        .werner, .polyconic, .loximuthal, .bottomley, .fahey,
+        .sinusoidal_mollweide => return rawForwardGallery(p, l, f),
         .equirectangular => return .{ l, f },
         .mercator => {
             if (@abs(f) > MERCATOR_LIMIT) return null;
@@ -383,8 +503,278 @@ fn angAeqd(z: f64) f64 {
     return z;
 }
 
+
+// ------------------------------------------------------- GE9: the gallery
+//
+// FORWARD FORMULAS ONLY. Every projection below is inverted by the shared
+// Newton solver in geo_distortion.zig, which runs on the same Jacobian the
+// distortion measures come from -- so adding a projection is adding one
+// function, and the inverse and the Tissot indicatrix arrive with it.
+//
+// WHICH MEANS THE ROUND TRIP TESTS NOTHING ABOUT THESE FORMULAS, and that
+// has to be said plainly. A generic inverse is by construction consistent
+// with whatever forward it was given: it would round-trip a formula that is
+// not the projection it claims to be, just as happily. What tests them is
+// elsewhere:
+//
+//   * A PROJECTION THAT CLAIMS EQUAL AREA must have areal scale 1 at every
+//     point, computed from the Jacobian and not from the formula's own
+//     arithmetic. A mistyped constant almost never survives it.
+//   * A PROJECTION THAT CLAIMS CONFORMALITY must have zero angular
+//     deformation everywhere, by the same route.
+//   * SYMMETRY: x(-lambda) = -x(lambda) and, where the projection is not a
+//     cone unrolled from a pole, y(-phi) = -y(phi). Transcription errors
+//     break this far more often than they preserve it.
+//   * THE EQUATOR AT y = 0 and the central meridian at x = 0.
+//
+// AND FOR A PROJECTION THAT CLAIMS NEITHER PROPERTY -- Miller, Winkel
+// Tripel, Fahey -- those checks are NECESSARY AND NOT SUFFICIENT. A wrong
+// coefficient that keeps the symmetry survives them. That is an honest
+// limit of this gallery, stated here rather than left to be discovered.
+
+fn rawForwardGallery(p: *const Projection, l: f64, f: f64) ?[2]f64 {
+    switch (p.kind) {
+        // --- cylindrical -------------------------------------------------
+        .miller => {
+            // Mercator's stretch, slowed to four fifths so the poles exist
+            return .{ l, 1.25 * @log(@tan(PI / 4.0 + 0.4 * f)) };
+        },
+        .central_cylindrical => {
+            // the sphere projected from its centre onto a tangent cylinder.
+            // The poles are at infinity; it is here to be looked at.
+            if (@abs(f) > 1.4) return null;
+            return .{ l, @tan(f) };
+        },
+        .cassini => {
+            // the equirectangular turned on its side: distances are true
+            // along the CENTRAL MERIDIAN rather than along the equator,
+            // which is why it was the survey projection for tall countries
+            return .{ math.asin(math.clamp(@cos(f) * @sin(l), -1, 1)), math.atan2(@tan(f), @cos(l)) };
+        },
+        .gall_stereographic => {
+            const r = @sqrt(2.0);
+            return .{ l / r, (1.0 + r / 2.0) * @tan(f / 2.0) };
+        },
+        .gall_peters, .behrmann, .hobo_dyer => {
+            // ONE FORMULA, THREE NAMES, three standard parallels
+            const c = @cos(p.par[0]);
+            return .{ l * c, @sin(f) / c };
+        },
+        // --- pseudocylindrical -------------------------------------------
+        .eckert1 => {
+            const k = @sqrt(4.0 / (3.0 * PI));
+            return .{ k * l * (1 - @abs(f) / PI), k * f };
+        },
+        .eckert2 => {
+            const a = @sqrt(4.0 - 3.0 * @sin(@abs(f)));
+            const sg: f64 = if (f < 0) -1 else 1;
+            return .{ 2.0 / @sqrt(6.0 * PI) * l * a, sg * @sqrt(2.0 * PI / 3.0) * (2.0 - a) };
+        },
+        .eckert3 => {
+            const k = @sqrt(PI * (4.0 + PI));
+            const t = 2.0 * f / PI;
+            return .{ 2.0 / k * l * (1 + @sqrt(@max(0, 1 - t * t))), 4.0 / k * f };
+        },
+        .eckert4 => {
+            // solve t + sin t cos t + 2 sin t = (2 + pi/2) sin f
+            const k = (2.0 + HALF_PI) * @sin(f);
+            var t = f / 2.0;
+            var i: usize = 0;
+            while (i < 40) : (i += 1) {
+                const c = @cos(t);
+                const sn = @sin(t);
+                const den = 2 * c * (1 + c);
+                if (@abs(den) < 1e-14) break;
+                const d = (t + sn * c + 2 * sn - k) / den;
+                t -= d;
+                if (@abs(d) < 1e-14) break;
+            }
+            return .{ 2.0 / @sqrt(PI * (4.0 + PI)) * l * (1 + @cos(t)), 2.0 * @sqrt(PI / (4.0 + PI)) * @sin(t) };
+        },
+        .eckert5 => {
+            return .{ l * (1 + @cos(f)) / @sqrt(2.0 + PI), 2.0 * f / @sqrt(2.0 + PI) };
+        },
+        .eckert6 => {
+            // solve t + sin t = (1 + pi/2) sin f
+            const k = (1.0 + HALF_PI) * @sin(f);
+            var t = f;
+            var i: usize = 0;
+            while (i < 40) : (i += 1) {
+                const den = 1 + @cos(t);
+                if (@abs(den) < 1e-14) break;
+                const d = (t + @sin(t) - k) / den;
+                t -= d;
+                if (@abs(d) < 1e-14) break;
+            }
+            return .{ l * (1 + @cos(t)) / @sqrt(2.0 + PI), 2.0 * t / @sqrt(2.0 + PI) };
+        },
+        .wagner6 => {
+            const t = f / PI;
+            return .{ l * @sqrt(@max(0, 1 - 3 * t * t)), f };
+        },
+        .kavrayskiy7 => {
+            const t = f / PI;
+            return .{ 1.5 * l * @sqrt(@max(0, 1.0 / 3.0 - t * t)), f };
+        },
+        .winkel1 => {
+            return .{ l * (@cos(f) + @cos(p.par[0])) / 2.0, f };
+        },
+        .craster => {
+            const t = f / 3.0;
+            return .{ @sqrt(3.0 / PI) * l * (2 * @cos(2 * t) - 1), @sqrt(3.0 * PI) * @sin(t) };
+        },
+        .collignon => {
+            const a = @sqrt(@max(0, 1 - @sin(f)));
+            return .{ 2.0 / @sqrt(PI) * l * a, @sqrt(PI) * (1 - a) };
+        },
+        // --- lenticular ---------------------------------------------------
+        .aitoff => {
+            const a = aitoffAlpha(l, f);
+            const sc = sincInv(a);
+            return .{ 2 * @cos(f) * @sin(l / 2) * sc, @sin(f) * sc };
+        },
+        .hammer => {
+            // the Aitoff's construction on a LAMBERT azimuthal rather than
+            // an azimuthal equidistant, which is what makes it equal-area
+            const b = @sqrt(1 + @cos(f) * @cos(l / 2));
+            if (b == 0) return null;
+            return .{ 2 * @sqrt(2.0) * @cos(f) * @sin(l / 2) / b, @sqrt(2.0) * @sin(f) / b };
+        },
+        .winkel_tripel => {
+            // the arithmetic mean of the Aitoff and an equirectangular at
+            // acos(2/pi) -- "tripel" being three compromises at once
+            const a = aitoffAlpha(l, f);
+            const sc = sincInv(a);
+            const c0 = 2.0 / PI;
+            return .{ (2 * @cos(f) * @sin(l / 2) * sc + l * c0) / 2.0, (@sin(f) * sc + f) / 2.0 };
+        },
+        .bottomley => {
+            // Werner's heart, widened by a standard parallel
+            const sf = @sin(p.par[0]);
+            const den = if (@abs(sf) < 1e-12) 1.0 else sf;
+            const r = HALF_PI - f;
+            if (@abs(r) < 1e-12) return .{ 0, HALF_PI };
+            const e = l * @cos(f) / r * den;
+            return .{ r * @sin(e) / den, HALF_PI - r * @cos(e) };
+        },
+        // --- pseudoconic ---------------------------------------------------
+        .bonne, .werner => {
+            const f1 = if (p.kind == .werner) HALF_PI else p.par[0];
+            if (@abs(@sin(f1)) < 1e-12) return .{ l * @cos(f), f }; // degenerates to the sinusoidal
+            const cot = @cos(f1) / @sin(f1);
+            const r = cot + f1 - f;
+            if (@abs(r) < 1e-12) return .{ 0, cot };
+            const e = l * @cos(f) / r;
+            return .{ r * @sin(e), cot - r * @cos(e) };
+        },
+        .polyconic => {
+            if (@abs(f) < 1e-10) return .{ l, 0 };
+            const cot = @cos(f) / @sin(f);
+            const e = l * @sin(f);
+            return .{ cot * @sin(e), f + cot * (1 - @cos(e)) };
+        },
+        .loximuthal => {
+            // distances and directions from the CENTRE are true along
+            // RHUMB lines -- the projection for someone steering a compass
+            const f0 = p.par[0];
+            const df = f - f0;
+            if (@abs(df) < 1e-10) return .{ l * @cos(f0), df };
+            const a = @log(@tan(PI / 4.0 + f / 2)) - @log(@tan(PI / 4.0 + f0 / 2));
+            if (@abs(a) < 1e-12) return .{ l * @cos(f0), df };
+            return .{ l * df / a, df };
+        },
+        .fahey => {
+            const t = @tan(f / 2);
+            const k = @sqrt(@max(0, 1 - t * t));
+            return .{ l * k * 0.819152, 1.819152 * t };
+        },
+        .sinusoidal_mollweide => {
+            // sinusoidal below 40 deg 44 min and Mollweide above -- the two
+            // halves Goode cut his homolosine from, here uninterrupted
+            // THE MOLLWEIDE HALF IS THE MOLLWEIDE, not a second copy of it.
+            //
+            // The first version wrote its own -- and got two things wrong at
+            // once: it omitted the halving of the auxiliary angle and it
+            // used 2/sqrt(2 pi) where the Mollweide uses 2 sqrt(2)/pi,
+            // 0.798 against 0.900. Areal scale ran from 0 to 30.7 on a
+            // projection whose entire purpose is to be equal-area, and the
+            // gallery's property check caught it on its first run. A second
+            // copy of a formula is the defect shape this plane has met all
+            // week; here it took eleven per cent off a constant and nothing
+            // about the code looked wrong.
+            const break_lat = 0.7109307642;
+            if (@abs(f) <= break_lat) return .{ l * @cos(f), f };
+            const k = PI * @sin(f);
+            var t = f;
+            var i: usize = 0;
+            while (i < 40) : (i += 1) {
+                const den = 1 + @cos(t);
+                if (@abs(den) < 1e-14) break;
+                const d = (t + @sin(t) - k) / den;
+                t -= d;
+                if (@abs(d) < 1e-14) break;
+            }
+            t /= 2;
+            // the vertical shift that makes the two halves MEET. It changes
+            // no scale factor -- a translation is not a distortion -- and
+            // without it the map has a step in it at 40 deg 44 min.
+            const y0 = @sqrt(2.0) * @sin(mollweideTheta(break_lat)) - break_lat;
+            const sg: f64 = if (f < 0) -1 else 1;
+            return .{ 2 * @sqrt(2.0) / PI * l * @cos(t), @sqrt(2.0) * @sin(t) - sg * y0 };
+        },
+        else => return null,
+    }
+}
+
+/// the Mollweide's auxiliary angle at a latitude -- solve 2t + sin 2t =
+/// pi sin(phi) and halve. Here so the sinu-Mollweide's join can be computed
+/// from the same solution the projection itself uses.
+fn mollweideTheta(f: f64) f64 {
+    const k = PI * @sin(f);
+    var t = f;
+    var i: usize = 0;
+    while (i < 40) : (i += 1) {
+        const den = 1 + @cos(t);
+        if (@abs(den) < 1e-14) break;
+        const d = (t + @sin(t) - k) / den;
+        t -= d;
+        if (@abs(d) < 1e-14) break;
+    }
+    return t / 2;
+}
+
+/// the angular distance the Aitoff family is built on
+fn aitoffAlpha(l: f64, f: f64) f64 {
+    return math.acos(math.clamp(@cos(f) * @cos(l / 2), -1, 1));
+}
+
+/// alpha / sin(alpha), which is 1 at the origin rather than a division by
+/// zero -- the removable singularity the Aitoff and the Winkel tripel both
+/// sit on at the centre of the map
+fn sincInv(a: f64) f64 {
+    if (@abs(a) < 1e-9) return 1;
+    return a / @sin(a);
+}
+
 fn rawInvert(p: *const Projection, x: f64, y: f64) ?[2]f64 {
     switch (p.kind) {
+        // GE9'S GALLERY HAS NO CLOSED-FORM INVERSE HERE, and answering
+        // null is how it says so: invert() reads that as "ask the Newton
+        // solver" rather than as "off the map". Three of them DO have one
+        // -- the two cylindricals below and the cylindrical equal-areas --
+        // and they take it, because a closed form is exact where Newton is
+        // merely converged.
+        .cassini, .gall_stereographic, .eckert1, .eckert2, .eckert3,
+        .eckert4, .eckert5, .eckert6, .wagner6, .kavrayskiy7, .winkel1,
+        .aitoff, .hammer, .winkel_tripel, .craster, .collignon, .bonne,
+        .werner, .polyconic, .loximuthal, .bottomley, .fahey,
+        .sinusoidal_mollweide => return null,
+        .miller => return .{ x, 2.5 * (math.atan(@exp(0.8 * y)) - PI / 4.0) },
+        .central_cylindrical => return .{ x, math.atan(y) },
+        .gall_peters, .behrmann, .hobo_dyer => {
+            const c = @cos(p.par[0]);
+            return .{ x / c, math.asin(math.clamp(y * c, -1, 1)) };
+        },
         .equirectangular => return .{ x, y },
         .mercator => return .{ x, 2 * math.atan(@exp(y)) - HALF_PI },
         .transverse_mercator => return .{ -y, 2 * math.atan(@exp(x)) - HALF_PI },
@@ -514,15 +904,180 @@ pub fn forward(p: *const Projection, lon_deg: f64, lat_deg: f64) ?[2]f64 {
     return place(p, raw);
 }
 
+/// THE MAP WITHOUT THE PAPER: rotation and the projection's own formula,
+/// but not the fit's scale and translation. It is what a derivative should
+/// be taken of -- the fit is a similarity, so including it would make the
+/// same projection "more distorted" for being drawn larger, which is not a
+/// fact about the projection.
+pub fn forwardNoPlace(p: *const Projection, lon_deg: f64, lat_deg: f64) ?[2]f64 {
+    const r = rotate(p, lon_deg * DEG, lat_deg * DEG);
+    if (!visible(p, r[0], r[1])) return null;
+    return rawForward(p, r[0], r[1]);
+}
+
+/// THE STEP for a central difference. Truncation error falls as step^2 and
+/// cancellation rises as 1/step, so the optimum in double precision is
+/// about the cube root of the machine epsilon: 1e-6 radians. Taken in
+/// RADIANS so it is the same angular step for every projection rather than
+/// a different one per formula.
+const JSTEP: f64 = 1e-6;
+
+pub const Jacobian = struct {
+    /// d(x)/d(lambda), d(x)/d(phi), d(y)/d(lambda), d(y)/d(phi)
+    xl: f64,
+    xp: f64,
+    yl: f64,
+    yp: f64,
+    ok: bool,
+
+    pub fn det(self: Jacobian) f64 {
+        return self.xl * self.yp - self.xp * self.yl;
+    }
+};
+
+/// THE DERIVATIVE OF THE PROJECTION AT A PLACE, by central differences.
+///
+/// It is numerical on purpose, and it is the same choice geo_geodesy.zig
+/// made about Karney's series: analytic derivatives for forty-four
+/// projections would be forty-four more formulas to transcribe correctly,
+/// each able to be subtly wrong while looking right -- and there would be
+/// nothing independent left to check them against, because the distortion
+/// measures ARE the check on the forward formulas. A central difference is
+/// good to about twelve digits on a map this smooth, which is far past what
+/// any picture or any test here needs.
+pub fn jacobian(p: *const Projection, lon_deg: f64, lat_deg: f64) Jacobian {
+    const hs = JSTEP / DEG; // the step, in degrees
+    const a = forwardNoPlace(p, lon_deg - hs, lat_deg);
+    const b = forwardNoPlace(p, lon_deg + hs, lat_deg);
+    const c = forwardNoPlace(p, lon_deg, lat_deg - hs);
+    const d = forwardNoPlace(p, lon_deg, lat_deg + hs);
+    if (a == null or b == null or c == null or d == null) {
+        return .{ .xl = 0, .xp = 0, .yl = 0, .yp = 0, .ok = false };
+    }
+    const two = 2 * JSTEP;
+    return .{
+        .xl = (b.?[0] - a.?[0]) / two,
+        .xp = (d.?[0] - c.?[0]) / two,
+        .yl = (b.?[1] - a.?[1]) / two,
+        .yp = (d.?[1] - c.?[1]) / two,
+        .ok = true,
+    };
+}
+
+/// THE INVERSE OF ANY PROJECTION, by Newton in two dimensions on the
+/// forward map.
+///
+/// Most of GE9's gallery has no closed-form inverse: the Winkel tripel
+/// famously has none, and nor have the Eckerts, the Aitoff or the polyconic
+/// without a page of algebra apiece. Rather than write and check thirty
+/// more formulas, the inverse is solved -- stepping by the inverse of the
+/// Jacobian, which for a two-by-two is a division by its determinant.
+///
+/// THE STARTING GUESS IS THE HONEST DIFFICULTY. Every world projection
+/// folds somewhere, if only at a pole, so the equation has more than one
+/// root and Newton finds whichever it is nearest. The guess therefore comes
+/// from a COARSE SEARCH over the sphere -- project a grid, keep the nearest
+/// node -- which is slower than an analytic first guess and is what makes
+/// this converge on the whole gallery rather than on the easy half.
+pub fn invertNumeric(p: *const Projection, x: f64, y: f64) ?[2]f64 {
+    if (p.scale == 0) return null;
+    const tx = (x - p.tx) / p.scale;
+    const ty = (p.ty - y) / p.scale;
+
+    var best_l: f64 = 0;
+    var best_f: f64 = 0;
+    var best_d: f64 = math.inf(f64);
+    var j: usize = 0;
+    while (j <= 36) : (j += 1) {
+        const lat = -90 + 180 * @as(f64, @floatFromInt(j)) / 36.0;
+        var i: usize = 0;
+        while (i <= 72) : (i += 1) {
+            const lon = -180 + 360 * @as(f64, @floatFromInt(i)) / 72.0;
+            const r = forwardNoPlace(p, lon, lat) orelse continue;
+            const dx = r[0] - tx;
+            const dy = r[1] - ty;
+            const d = dx * dx + dy * dy;
+            if (d < best_d) {
+                best_d = d;
+                best_l = lon;
+                best_f = lat;
+            }
+        }
+    }
+    if (!math.isFinite(best_d)) return null;
+
+    var l = best_l;
+    var f = best_f;
+    var it: usize = 0;
+    while (it < 60) : (it += 1) {
+        const r = forwardNoPlace(p, l, f) orelse return null;
+        const ex = r[0] - tx;
+        const ey = r[1] - ty;
+        if (@abs(ex) < 1e-13 and @abs(ey) < 1e-13) break;
+        const jc = jacobian(p, l, f);
+        if (!jc.ok) return null;
+        const dt = jc.det();
+        if (@abs(dt) < 1e-14) return null; // the map is folded flat here
+        const dl = (jc.yp * ex - jc.xp * ey) / dt;
+        const df = (-jc.yl * ex + jc.xl * ey) / dt;
+        var nl = l - dl / DEG;
+        var nf = f - df / DEG;
+        if (nf > 90) nf = 90;
+        if (nf < -90) nf = -90;
+        if (nl > 180) nl = 180;
+        if (nl < -180) nl = -180;
+        const moved = @abs(nl - l) + @abs(nf - f);
+        l = nl;
+        f = nf;
+        if (moved < 1e-13) break;
+    }
+    // A POINT OFF THE MAP HAS NO PLACE, and Newton will happily answer with
+    // the nearest point that does rather than admit it. So the answer is
+    // projected back and checked: if it does not land where it was asked
+    // to, it is refused.
+    const chk = forwardNoPlace(p, l, f) orelse return null;
+    if (@abs(chk[0] - tx) > 1e-6 or @abs(chk[1] - ty) > 1e-6) return null;
+    return .{ l, f };
+}
+
 /// ...and back: pixels in, degrees out. Null off the sphere.
+///
+/// A projection with a closed-form inverse uses it; the rest fall through
+/// to the numeric solver above. The two are not alternatives a caller
+/// chooses between -- this is one contract with two implementations, and
+/// which one runs is the projection's business and not the caller's.
 pub fn invert(p: *const Projection, x: f64, y: f64) ?[2]f64 {
     const rx = (x - p.tx) / p.scale;
     const ry = (p.ty - y) / p.scale;
-    const r = rawInvert(p, rx, ry) orelse return null;
-    if (math.isNan(r[0]) or math.isNan(r[1])) return null;
+    const r = rawInvert(p, rx, ry) orelse return invertNumeric(p, x, y);
+    if (math.isNan(r[0]) or math.isNan(r[1])) return invertNumeric(p, x, y);
     if (!visible(p, r[0], r[1])) return null;
     const g = unrotate(p, r[0], r[1]);
-    return .{ g[0] / DEG, g[1] / DEG };
+    const out = [2]f64{ g[0] / DEG, g[1] / DEG };
+
+    // EVERY INVERSE CHECKS ITS OWN ANSWER, closed form included.
+    //
+    // A closed-form inverse is algebra that assumed the point was ON the
+    // map, and off it the algebra does not fail -- it answers. The
+    // orthographic replied (90, -45) for a click far outside the disc it
+    // draws, because clamping a value that was never in range gives a
+    // point on the limb; the Mollweide replied with a longitude of seven
+    // times ten to the nineteen, because it divides by a cosine that had
+    // gone to zero. Both predate GE9 and neither was ever noticed, since
+    // nothing asked the answer to be right -- only to exist.
+    //
+    // It matters beyond the gallery: GE5's "what is under this pixel"
+    // runs on this function, so a click on the ocean beside the map
+    // answered a PLACE rather than nothing.
+    //
+    // One line fixes both and every future one: project the answer and
+    // see whether it lands where it was asked to. The tolerance is in
+    // paper units and generous -- this is catching answers that are
+    // wrong by the width of a continent, not by a rounding.
+    const back = forward(p, out[0], out[1]) orelse return null;
+    const tol = 1e-6 * @max(1.0, @abs(p.scale));
+    if (@abs(back[0] - x) > tol or @abs(back[1] - y) > tol) return null;
+    return out;
 }
 
 // -------------------------------------------------- spherical geometry
