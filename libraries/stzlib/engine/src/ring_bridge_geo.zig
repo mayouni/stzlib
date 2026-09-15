@@ -7,6 +7,7 @@ const gi = @import("geo_interp.zig");
 const gg = @import("geo_geodesy.zig");
 const gpr = @import("geo_process.zig");
 const gdi = @import("geo_distortion.zig");
+const gfu = @import("geo_furniture.zig");
 const R = @import("ring_api.zig");
 
 const gn = R.ring_vm_api_getnumber;
@@ -1278,6 +1279,68 @@ fn ring_GeoKindClaims(p: *anyopaque) callconv(.c) void {
     });
 }
 
+
+// ---------------------------------------------- GE10: furniture and flow
+
+fn ring_GeoJulianDay(p: *anyopaque) callconv(.c) void {
+    rn(p, gfu.julianDay(@intFromFloat(gn(p, 1)), @intFromFloat(gn(p, 2)), @intFromFloat(gn(p, 3)), gn(p, 4)));
+}
+
+fn ring_GeoSunAt(p: *anyopaque) callconv(.c) void {
+    const sx = gfu.sunAt(gn(p, 1));
+    retF64s(p, &[_]f64{ sx.lat, sx.lon, sx.declination, sx.equation_of_time });
+}
+
+fn ring_GeoTerminator(p: *anyopaque) callconv(.c) void {
+    const sx = gfu.Sun{ .lat = gn(p, 1), .lon = gn(p, 2), .declination = gn(p, 1), .equation_of_time = 0 };
+    var n = argUsize(p, 4);
+    if (n < 8) n = 8;
+    if (n > 4096) n = 4096;
+    const out = alloc.alloc(f64, n * 2) catch return retEmpty(p);
+    defer alloc.free(out);
+    const got = gfu.terminator(sx, gn(p, 3), n, out);
+    retF64s(p, out[0 .. got * 2]);
+}
+
+fn ring_GeoSolarElevation(p: *anyopaque) callconv(.c) void {
+    const sx = gfu.Sun{ .lat = gn(p, 1), .lon = gn(p, 2), .declination = gn(p, 1), .equation_of_time = 0 };
+    rn(p, gfu.solarElevation(sx, gn(p, 3), gn(p, 4)));
+}
+
+fn ring_GeoScaleBar(p: *anyopaque) callconv(.c) void {
+    const pr = readProjection(p, 1) orelse return retEmpty(p);
+    const b = gfu.scaleBar(&pr, gn(p, 2), gn(p, 3), gn(p, 4), gn(p, 5), gn(p, 6), gn(p, 7), gn(p, 8));
+    retF64s(p, &[_]f64{ b.km, b.pixels, b.at_lat, b.variation });
+}
+
+fn ring_GeoStreamline(p: *anyopaque) callconv(.c) void {
+    const g = readGrid(p, 1) orelse return retEmpty(p);
+    const u = readPoints(p, 2) orelse return retEmpty(p);
+    defer alloc.free(u);
+    const v = readPoints(p, 3) orelse return retEmpty(p);
+    defer alloc.free(v);
+    var steps = argUsize(p, 7);
+    if (steps < 2) steps = 2;
+    if (steps > 200_000) steps = 200_000;
+    const out = alloc.alloc(f64, steps * 2) catch return retEmpty(p);
+    defer alloc.free(out);
+    const n = gfu.streamline(g, u, v, gn(p, 4), gn(p, 5), gn(p, 6), steps, out);
+    retF64s(p, out[0 .. n * 2]);
+}
+
+fn ring_GeoVectorField(p: *anyopaque) callconv(.c) void {
+    const g = readGrid(p, 1) orelse return retEmpty(p);
+    const u = readPoints(p, 2) orelse return retEmpty(p);
+    defer alloc.free(u);
+    const v = readPoints(p, 3) orelse return retEmpty(p);
+    defer alloc.free(v);
+    const cap = g.nx * g.ny + 8;
+    const out = alloc.alloc(f64, cap * 5) catch return retEmpty(p);
+    defer alloc.free(out);
+    const n = gfu.vectorField(g, u, v, argUsize(p, 4), out);
+    retF64s(p, out[0 .. n * 5]);
+}
+
 const regs = [_]R.Reg{
     .{ .name = "stzenginegeohaversine", .func = ring_Haversine },
     .{ .name = "stzenginegeohaversinemiles", .func = ring_HaversineMiles },
@@ -1381,6 +1444,14 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginegeoutmzone", .func = ring_GeoUtmZone },
     .{ .name = "stzenginegeoutmprojection", .func = ring_GeoUtmProjection },
     .{ .name = "stzenginegeokindclaims", .func = ring_GeoKindClaims },
+    // GE10
+    .{ .name = "stzenginegeojulianday", .func = ring_GeoJulianDay },
+    .{ .name = "stzenginegeosunat", .func = ring_GeoSunAt },
+    .{ .name = "stzenginegeoterminator", .func = ring_GeoTerminator },
+    .{ .name = "stzenginegeosolarelevation", .func = ring_GeoSolarElevation },
+    .{ .name = "stzenginegeoscalebar", .func = ring_GeoScaleBar },
+    .{ .name = "stzenginegeostreamline", .func = ring_GeoStreamline },
+    .{ .name = "stzenginegeovectorfield", .func = ring_GeoVectorField },
 };
 
 pub fn registerAll(state: *anyopaque) void {

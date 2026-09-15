@@ -2435,6 +2435,282 @@ class stzGeoMap from stzObject
 		poCanvas.Flush()
 		return pnY + pnH + _sz_ + 8
 
+	#-- GE10: THE FURNITURE, and the two plots a field still owed ----------
+
+	# A SCALE BAR THAT SAYS WHERE IT IS TRUE, or refuses to be drawn.
+	#
+	# A scale bar claims "this length is 500 km". On a world map that is
+	# true along ONE line and nowhere else: a Mercator's scale is nearly six
+	# times greater at 80 degrees than at the equator, so a bar drawn once
+	# is wrong by that factor at the top of the same sheet. Almost every
+	# world map carries one anyway, and almost every one is a lie.
+	#
+	# GE9 measured exactly that, so this can do the honest thing. It draws
+	# the bar at a STATED latitude and prints that latitude beside it, and
+	# it REFUSES ALTOGETHER when the scale varies across the sheet by more
+	# than the caller's tolerance -- answering 0 so a caller knows nothing
+	# was drawn. The default tolerance is 1.25: a quarter is about as much
+	# as a reader can be asked to forgive on something presented as a
+	# measurement.
+	#
+	# Answers the y it ended at, or 0 if it drew nothing.
+	def DrawScaleBarOn(poCanvas, poFont, pnSize, pnX, pnY, pnTargetPx, pnAtLat, pInk)
+		return This.DrawScaleBarOnXT(poCanvas, poFont, pnSize, pnX, pnY,
+			pnTargetPx, pnAtLat, pInk, 1.25)
+
+	def DrawScaleBarOnXT(poCanvas, poFont, pnSize, pnX, pnY, pnTargetPx, pnAtLat, pInk, pnTolerance)
+		_b_ = This._ScaleBarRaw(pnTargetPx, pnAtLat)
+		if len(_b_) < 4  return 0  ok
+		if _b_[1] <= 0 or _b_[2] <= 0  return 0  ok
+		# THE REFUSAL IS THE POINT. A caller who ignores the variation draws
+		# the lie; a face that draws it anyway makes the caller complicit
+		# without telling them.
+		if _b_[4] > pnTolerance  return 0  ok
+
+		_h_ = pnSize * 0.55
+		# the bar in two halves, light and dark, which is how an atlas draws
+		# one: a reader measures the half as easily as the whole
+		_half_ = _b_[2] / 2
+		poCanvas.AddRectQ(pnX, pnY, _half_, _h_).FillQ("#FFFFFF").Stroke(pInk, 0.9)
+		poCanvas.AddRectQ(pnX + _half_, pnY, _half_, _h_).FillQ(pInk).Stroke(pInk, 0.9)
+		poCanvas.Flush()
+		poCanvas.SetFontQ(poFont, pnSize).AddTextQ("0", pnX - 3, pnY - 4).Fill(pInk)
+		poCanvas.Flush()
+		_c_ = StzFactNumText(_b_[1] / 2)
+		poCanvas.SetFontQ(poFont, pnSize).AddTextQ(_c_, pnX + _half_ - 8, pnY - 4).Fill(pInk)
+		poCanvas.Flush()
+		_c2_ = StzFactNumText(_b_[1]) + " km"
+		poCanvas.SetFontQ(poFont, pnSize).AddTextQ(_c2_, pnX + _b_[2] - 12, pnY - 4).Fill(pInk)
+		poCanvas.Flush()
+		# ...AND THE LATITUDE IT IS TRUE AT, which is the whole difference
+		# between a scale bar and a scale bar somebody can rely on
+		_at_ = "true at " + StzFactNumText(fabs(pnAtLat)) + " degrees"
+		if pnAtLat > 0  _at_ += " north"  ok
+		if pnAtLat < 0  _at_ += " south"  ok
+		poCanvas.SetFontQ(poFont, pnSize - 2).
+			AddTextQ(_at_, pnX, pnY + _h_ + pnSize).Fill("#888888")
+		poCanvas.Flush()
+		return pnY + _h_ + pnSize + 6
+
+	# WOULD A SCALE BAR BE HONEST ON THIS MAP? The ratio of the largest
+	# local scale on the sheet to the smallest. 1 means a bar is true
+	# everywhere; anything much above it means the bar is decoration.
+	def ScaleVariation()
+		_b_ = This._ScaleBarRaw(100, 0)
+		if len(_b_) < 4  return 1  ok
+		return _b_[4]
+
+	def ScaleBarAt(pnTargetPx, pnAtLat)
+		_b_ = This._ScaleBarRaw(pnTargetPx, pnAtLat)
+		if len(_b_) < 4  return []  ok
+		return [ :km = _b_[1], :pixels = _b_[2], :atLat = _b_[3], :variation = _b_[4] ]
+
+	# THE SHEET IS WHAT THE VARIATION IS MEASURED OVER, so the paper
+	# rectangle has to reach the engine. SetPaper gives it where a caller
+	# set one; otherwise it is taken from the projection's own fit, which
+	# is the box the fit was asked to fill.
+	def _ScaleBarRaw(pnTargetPx, pnAtLat)
+		_p_ = @aPaper
+		if len(_p_) != 4  _p_ = This._FitBox()  ok
+		return StzEngineGeoScaleBar(@oP.Params(), pnTargetPx, pnAtLat, 0,
+			_p_[1], _p_[2], _p_[3], _p_[4])
+
+	# the box the projection was fitted into, recovered from its own
+	# translation and scale -- a projection remembers where it was put even
+	# when nobody called SetPaper
+	def _FitBox()
+		_t_ = @oP.TranslateOf()
+		_s_ = @oP.ScaleOf()
+		if len(_t_) < 2 or _s_ <= 0  return [ 0, 0, 1, 1 ]  ok
+		# a sphere of unit radius spans -pi..pi in x and -pi/2..pi/2 in y
+		# before the fit, so the fitted sheet is at most this wide
+		_w_ = 3.141592653589793 * _s_
+		_h_ = 1.570796326794897 * _s_
+		return [ _t_[1] - _w_, _t_[2] - _h_, _t_[1] + _w_, _t_[2] + _h_ ]
+
+	# NORTH, WHICH IS NOT ALWAYS UP. On most world projections it is, and
+	# the arrow is then decoration; on a rotated or oblique one it is not,
+	# and a reader has no other way to know. So the arrow is MEASURED --
+	# project a short step due north from the given place and draw where it
+	# actually went -- rather than drawn pointing up and hoped over.
+	def DrawNorthArrowOn(poCanvas, poFont, pnSize, pnX, pnY, pnLen, pnAtLon, pnAtLat, pInk)
+		_a_ = @oP.Project(pnAtLon, pnAtLat)
+		_b_ = @oP.Project(pnAtLon, pnAtLat + 0.5)
+		if len(_a_) < 2 or len(_b_) < 2  return 0  ok
+		_dx_ = _b_[1] - _a_[1]
+		_dy_ = _b_[2] - _a_[2]
+		_m_ = sqrt(_dx_ * _dx_ + _dy_ * _dy_)
+		if _m_ < 0.000001  return 0  ok
+		_dx_ /= _m_
+		_dy_ /= _m_
+		_tx_ = pnX + _dx_ * pnLen
+		_ty_ = pnY + _dy_ * pnLen
+		# the head, as two barbs off the shaft
+		_px_ = -_dy_
+		_py_ = _dx_
+		poCanvas.AddPolygonQ([ _tx_, _ty_,
+			_tx_ - _dx_ * pnLen * 0.3 + _px_ * pnLen * 0.15,
+			_ty_ - _dy_ * pnLen * 0.3 + _py_ * pnLen * 0.15,
+			_tx_ - _dx_ * pnLen * 0.3 - _px_ * pnLen * 0.15,
+			_ty_ - _dy_ * pnLen * 0.3 - _py_ * pnLen * 0.15 ]).FillQ(pInk).Stroke(pInk, 1)
+		poCanvas.AddLineQ(pnX, pnY, _tx_, _ty_).Stroke(pInk, 1.6)
+		poCanvas.Flush()
+		poCanvas.SetFontQ(poFont, pnSize).
+			AddTextQ("N", _tx_ + _dx_ * 10 - 4, _ty_ + _dy_ * 10 + 4).Fill(pInk)
+		poCanvas.Flush()
+		return 1
+
+	#-- day and night -------------------------------------------------------
+
+	# WHERE THE SUN IS OVERHEAD at a moment, as [ :lat, :lon, :declination,
+	# :equationOfTime ]. The latitude is the solar declination -- which IS
+	# the seasons -- and the longitude is simply where noon is.
+	def SunAt(pnYear, pnMonth, pnDay, pnHourUtc)
+		_jd_ = StzEngineGeoJulianDay(pnYear, pnMonth, pnDay, pnHourUtc)
+		_s_ = StzEngineGeoSunAt(_jd_)
+		if len(_s_) < 4  return []  ok
+		return [ :lat = _s_[1], :lon = _s_[2], :declination = _s_[3],
+		         :equationOfTime = _s_[4] ]
+
+	# THE LINE BETWEEN DAY AND NIGHT, as lon/lat: every place ninety degrees
+	# from the subsolar point, which is where the sun is exactly on the
+	# horizon.
+	def TerminatorAt(pnYear, pnMonth, pnDay, pnHourUtc)
+		return This.TwilightAt(pnYear, pnMonth, pnDay, pnHourUtc, 90)
+
+	# ...AND TWILIGHT IS THE SAME CIRCLE, FURTHER OUT: civil twilight ends
+	# with the sun 6 degrees below the horizon, nautical at 12 and
+	# astronomical at 18 -- so they are the circles at 96, 102 and 108. One
+	# routine draws all four because they are one thing.
+	def TwilightAt(pnYear, pnMonth, pnDay, pnHourUtc, pnAngleDeg)
+		_s_ = This.SunAt(pnYear, pnMonth, pnDay, pnHourUtc)
+		if len(_s_) = 0  return []  ok
+		return StzEngineGeoTerminator(_s_[:lat], _s_[:lon], pnAngleDeg, 181)
+
+	# HOW HIGH THE SUN IS at a place, degrees -- negative is night. It is
+	# the terminator asked as a question rather than drawn as a line, and
+	# is what SHADES a map rather than outlining it.
+	def SolarElevationAt(pnYear, pnMonth, pnDay, pnHourUtc, pnLon, pnLat)
+		_s_ = This.SunAt(pnYear, pnMonth, pnDay, pnHourUtc)
+		if len(_s_) = 0  return 0  ok
+		return StzEngineGeoSolarElevation(_s_[:lat], _s_[:lon], pnLon, pnLat)
+
+	def IsDaylightAt(pnYear, pnMonth, pnDay, pnHourUtc, pnLon, pnLat)
+		return This.SolarElevationAt(pnYear, pnMonth, pnDay, pnHourUtc, pnLon, pnLat) > 0
+
+	# THE NIGHT SIDE, drawn. The terminator is a great circle, so on most
+	# projections it is a curve that leaves the sheet at one edge and comes
+	# back at the other -- which is why it is drawn as a LINE over a
+	# shading rather than as a filled polygon: a polygon would have to
+	# decide what "inside" means on a projection that cuts it, and would
+	# get it wrong at exactly the two solstices.
+	def DrawTerminatorOn(poCanvas, pnYear, pnMonth, pnDay, pnHourUtc, pInk, pnWidth)
+		_a_ = This.TerminatorAt(pnYear, pnMonth, pnDay, pnHourUtc)
+		if len(_a_) < 6  return 0  ok
+		@oP.DrawLineOn(poCanvas, _a_, pInk, pnWidth)
+		poCanvas.Flush()
+		return 1
+
+	# ...and the twilight bands with it, each fainter than the last, which
+	# is what a day-night map actually looks like
+	def DrawTwilightOn(poCanvas, pnYear, pnMonth, pnDay, pnHourUtc, pInk)
+		_n_ = 0
+		aAng = [ 90, 96, 102, 108 ]
+		aWid = [ 1.6, 1.0, 0.8, 0.6 ]
+		for _i_ = 1 to len(aAng)
+			_a_ = This.TwilightAt(pnYear, pnMonth, pnDay, pnHourUtc, aAng[_i_])
+			if len(_a_) < 6  loop  ok
+			@oP.DrawLineOn(poCanvas, _a_, pInk, aWid[_i_])
+			_n_++
+		next
+		poCanvas.Flush()
+		return _n_
+
+	#-- a field that has a direction ----------------------------------------
+
+	# ARROWS ANSWER "WHAT IS HAPPENING HERE" and streamlines answer "WHERE
+	# DOES THIS GO". A field with two components usually needs both: the
+	# streamlines carry the shape, which the eye reads as motion at once,
+	# and the arrows carry the magnitude, which a streamline cannot.
+	#
+	# The arrow's length is a SCALE the caller sets, because this class does
+	# not know how big the paper is or what the field's units are.
+	def DrawVectorsOn(poCanvas, paGrid, paU, paV, pnEvery, pnPxPerUnit, pInk, pnWidth)
+		_a_ = StzEngineGeoVectorField(paGrid, paU, paV, pnEvery)
+		_n_ = len(_a_) / 5
+		_drawn_ = 0
+		for _i_ = 1 to _n_
+			_lon_ = _a_[_i_ * 5 - 4]
+			_lat_ = _a_[_i_ * 5 - 3]
+			_u_ = _a_[_i_ * 5 - 2]
+			_v_ = _a_[_i_ * 5 - 1]
+			_m_ = _a_[_i_ * 5]
+			if _m_ <= 0  loop  ok
+			_p_ = @oP.Project(_lon_, _lat_)
+			if len(_p_) < 2  loop  ok
+			# THE ARROW IS DRAWN IN THE PAPER'S DIRECTIONS AND NOT IN THE
+			# GLOBE'S. A vector pointing due east at 60 degrees north does
+			# not point right on most projections, so the heading is taken
+			# by projecting a short step ALONG the vector and seeing where
+			# it landed -- which costs a second projection and is the only
+			# way an arrow on a curved graticule can be right.
+			_step_ = 0.4
+			_cf_ = cos(_lat_ * 3.141592653589793 / 180)
+			if _cf_ < 0.01  _cf_ = 0.01  ok
+			_q_ = @oP.Project(_lon_ + _step_ * _u_ / _m_ / _cf_,
+			                  _lat_ + _step_ * _v_ / _m_)
+			if len(_q_) < 2  loop  ok
+			_dx_ = _q_[1] - _p_[1]
+			_dy_ = _q_[2] - _p_[2]
+			_d_ = sqrt(_dx_ * _dx_ + _dy_ * _dy_)
+			if _d_ < 0.000001  loop  ok
+			_len_ = _m_ * pnPxPerUnit
+			_ex_ = _p_[1] + _dx_ / _d_ * _len_
+			_ey_ = _p_[2] + _dy_ / _d_ * _len_
+			poCanvas.AddLineQ(_p_[1], _p_[2], _ex_, _ey_).Stroke(pInk, pnWidth)
+			# a head, at a fixed fraction of the shaft
+			_hx_ = _dx_ / _d_
+			_hy_ = _dy_ / _d_
+			_px_ = -_hy_
+			_py_ = _hx_
+			poCanvas.AddPolygonQ([ _ex_, _ey_,
+				_ex_ - _hx_ * _len_ * 0.35 + _px_ * _len_ * 0.18,
+				_ey_ - _hy_ * _len_ * 0.35 + _py_ * _len_ * 0.18,
+				_ex_ - _hx_ * _len_ * 0.35 - _px_ * _len_ * 0.18,
+				_ey_ - _hy_ * _len_ * 0.35 - _py_ * _len_ * 0.18 ]).
+				FillQ(pInk).Stroke("#00000000", 0)
+			_drawn_++
+		next
+		poCanvas.Flush()
+		return _drawn_
+
+	# STREAMLINES: a particle released at each seed and followed while the
+	# field carries it, integrated by fourth-order Runge-Kutta.
+	#
+	# Euler's method is three lines shorter and spirals OUTWARD on a field
+	# that rotates -- so a closed circular flow comes back as an opening
+	# spiral, which a reader takes for a real divergence rather than for the
+	# integrator's own error. RK4 costs four samples a step and holds the
+	# circle to a part in ten thousand over three thousand steps.
+	def DrawStreamlinesOn(poCanvas, paGrid, paU, paV, paSeeds, pnStepDeg, pnSteps, pInk, pnWidth)
+		_n_ = len(paSeeds) / 2
+		_drawn_ = 0
+		for _i_ = 1 to _n_
+			_line_ = StzEngineGeoStreamline(paGrid, paU, paV,
+				paSeeds[_i_ * 2 - 1], paSeeds[_i_ * 2], pnStepDeg, pnSteps)
+			if len(_line_) < 6  loop  ok
+			@oP.DrawLineOn(poCanvas, _line_, pInk, pnWidth)
+			_drawn_++
+		next
+		poCanvas.Flush()
+		return _drawn_
+
+	def StreamlineFrom(paGrid, paU, paV, pnLon, pnLat, pnStepDeg, pnSteps)
+		return StzEngineGeoStreamline(paGrid, paU, paV, pnLon, pnLat, pnStepDeg, pnSteps)
+
+	def VectorsOf(paGrid, paU, paV, pnEvery)
+		return StzEngineGeoVectorField(paGrid, paU, paV, pnEvery)
+
 	#-- the legend and the caption -------------------------------------------
 
 	# THE LEGEND SAYS WHAT EVERY SHADE MEANS, and a class that colours

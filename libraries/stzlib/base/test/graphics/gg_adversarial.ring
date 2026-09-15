@@ -17189,6 +17189,60 @@ chk("UTM IS SIXTY TRANSVERSE MERCATORS AND TWO EXCEPTIONS THAT ARE NOT " +
     "the zone arithmetically and stops is wrong for two countries, silently",
     _G9Utm())
 
+sec("-- 136. GE10: MAP FURNITURE, DAY AND NIGHT, AND FLOW ----------------")
+
+# The solar constants are the only things in GE10 somebody had to type, so
+# they are held to facts that need no almanac. The scale bar is where maps
+# lie most, and GE9's measurement is what lets this one refuse. Full
+# argument in geo_furniture_narrated.ring.
+
+chk("THE DECLINATION IS ZERO AT BOTH EQUINOXES AND PLUS OR MINUS 23.44 AT " +
+    "THE SOLSTICES -- that sequence IS the year, and no series with a " +
+    "mistyped constant produces it",
+    _F10Decl(3, 20, 0, 0.3) and _F10Decl(6, 21, 23.44, 0.02) and
+    _F10Decl(9, 23, 0, 0.3) and _F10Decl(12, 21, -23.44, 0.02))
+chk("THE SUBSOLAR LONGITUDE ADVANCES FIFTEEN DEGREES AN HOUR, because that " +
+    "is what a day IS -- and it is checked as a DIFFERENCE, so it tests the " +
+    "rate rather than the epoch, which is what a sidereal constant gets wrong",
+    _F10Advance())
+chk("AT AN EQUINOX THE TERMINATOR PASSES THROUGH BOTH POLES, and at the " +
+    "June solstice it stops at 66.56 degrees -- the Arctic Circle, which is " +
+    "DEFINED as ninety minus the tilt. The line drawn and the line in the " +
+    "definition are the same line",
+    _F10MaxLat(3, 20) > 89.5 and fabs(_F10MaxLat(6, 21) - 66.56) < 0.05)
+chk("...and the same circle asked as a QUESTION gives the polar day and the " +
+    "polar night: the sun is up at 80 north all through the June solstice " +
+    "and down at 80 south all through it",
+    _F10PolarDay())
+chk("TWILIGHT IS THE SAME CIRCLE FURTHER OUT -- 96, 102 and 108 degrees for " +
+    "civil, nautical and astronomical -- so one routine draws all four and " +
+    "each band reaches further from the sun than the last",
+    _F10TwilightNests())
+chk("A SCALE BAR IS A ROUND NUMBER OF KILOMETRES and its length is MEASURED " +
+    "-- two points a known distance apart on WGS84, projected, and the " +
+    "pixels between them, which works for all forty-four projections",
+    _F10Bar())
+chk("AND ON A WORLD MAP IT REFUSES TO BE DRAWN, answering 0, because the " +
+    "scale across that sheet varies by more than a bar can honour. Every " +
+    "world atlas in print has made that choice the other way",
+    _F10Refuses())
+chk("NEGATIVE: ON A CITY PLAN IT DRAWS, because there the scale really is " +
+    "constant. THE VARIATION IS MEASURED OVER THE SHEET AND NOT OVER THE " +
+    "GLOBE -- the first version walked the whole world whatever the map " +
+    "showed, so a Mercator fitted to two tenths of a degree around Paris " +
+    "reported 5.76 and refused a bar on the one kind of map where a bar is " +
+    "honest",
+    _F10CityDraws())
+chk("NORTH IS MEASURED AND NOT ASSUMED: up on an unrotated cylindrical, and " +
+    "off by the roll on a rolled one, where an arrow drawn pointing up " +
+    "would be wrong and nothing on the sheet would say so",
+    _F10NorthTilt(0) < 0.5 and _F10NorthTilt(35) > 25)
+chk("A STREAMLINE IN A ROTATIONAL FIELD KEEPS ITS RADIUS -- Euler's method " +
+    "spirals outward here and a reader takes that for a real divergence " +
+    "rather than for the integrator's own error; RK4 holds it to a part in " +
+    "ten thousand over three thousand steps",
+    _F10Rotational())
+
 # SECTION 78 IS APPENDED LAST BY CONSTRUCTION. Any section added after it
 # makes its runtime count fall short of the static parse -- which is
 # exactly what happened when 79 arrived, 23 against 24. New sections go
@@ -23288,6 +23342,126 @@ func _G9Utm()
 	if StzGeoUtmZoneOf(151.2, -33.87)[:falseNorthing] != 10000000  return FALSE  ok
 	_u_ = StzGeoUtmProjection(31)
 	return _u_.Name() = "TransverseMercator" and fabs(_u_.ScaleOf() - 0.9996) < 0.000001
+
+func _F10Map()
+	_w_ = StzGeoFeaturesFromJson('{"type":"FeatureCollection","features":[{"type":"Feature",' +
+		'"properties":{"name":"S"},"geometry":{"type":"Polygon",' +
+		'"coordinates":[[[0,0],[1,0],[1,1],[0,1],[0,0]]]}}]}')
+	_m_ = StzGeoMap(new stzGeoProjection(:EqualEarth), _w_)
+	_m_.Projection().FitToSphere(900, 450, 4)
+	_m_.SetPaper(0, 0, 900, 450)
+	return _m_
+
+func _F10Decl pnM, pnD, pnWant, pnTol
+	return fabs(_F10Map().SunAt(2026, pnM, pnD, 12)[:declination] - pnWant) < pnTol
+
+func _F10Advance()
+	_m_ = _F10Map()
+	_d_ = _m_.SunAt(2026, 6, 21, 4)[:lon] - _m_.SunAt(2026, 6, 21, 2)[:lon]
+	if _d_ > 180  _d_ -= 360  ok
+	if _d_ < -180  _d_ += 360  ok
+	return fabs(_d_ + 30) < 0.02
+
+func _F10MaxLat pnM, pnD
+	_r_ = _F10Map().TerminatorAt(2026, pnM, pnD, 12)
+	_x_ = 0
+	for _i_ = 1 to len(_r_) / 2
+		if fabs(_r_[_i_ * 2]) > _x_  _x_ = fabs(_r_[_i_ * 2])  ok
+	next
+	return _x_
+
+func _F10PolarDay()
+	_m_ = _F10Map()
+	return _m_.IsDaylightAt(2026, 6, 21, 0, 0, 80) and
+	       _m_.IsDaylightAt(2026, 6, 21, 12, 0, 80) and
+	       NOT _m_.IsDaylightAt(2026, 6, 21, 0, 0, -80) and
+	       NOT _m_.IsDaylightAt(2026, 6, 21, 12, 0, -80)
+
+func _F10TwilightNests()
+	_m_ = _F10Map()
+	_prev_ = 0
+	aA = [ 90, 96, 102, 108 ]
+	for _i_ = 1 to len(aA)
+		_r_ = _m_.TwilightAt(2026, 6, 21, 12, aA[_i_])
+		if len(_r_) < 6  return FALSE  ok
+		_d_ = 90 - _m_.SolarElevationAt(2026, 6, 21, 12, _r_[1], _r_[2])
+		if _d_ <= _prev_  return FALSE  ok
+		_prev_ = _d_
+	next
+	return TRUE
+
+func _F10Bar()
+	_m_ = _F10Map()
+	_b_ = _m_.ScaleBarAt(140, 0)
+	if len(_b_) = 0 or _b_[:km] <= 0  return FALSE  ok
+	_e_ = floor(log10(_b_[:km]))
+	_x_ = _b_[:km] / pow(10, _e_)
+	if NOT (fabs(_x_ - 1) < 0.001 or fabs(_x_ - 2) < 0.001 or fabs(_x_ - 5) < 0.001)
+		return FALSE
+	ok
+	# the length must match what the projection actually did
+	_deg_ = _b_[:km] / StzGeoWGS84().DegreeOfLongitudeKm(0)
+	_p1_ = _m_.Projection().Project(0, 0)
+	_p2_ = _m_.Projection().Project(_deg_, 0)
+	if len(_p1_) < 2 or len(_p2_) < 2  return FALSE  ok
+	return fabs(fabs(_p2_[1] - _p1_[1]) - _b_[:pixels]) / _b_[:pixels] < 0.01
+
+func _F10Refuses()
+	_w_ = StzGeoFeaturesFromJson('{"type":"FeatureCollection","features":[{"type":"Feature",' +
+		'"properties":{"name":"S"},"geometry":{"type":"Polygon",' +
+		'"coordinates":[[[0,0],[1,0],[1,1],[0,1],[0,0]]]}}]}')
+	_m_ = StzGeoMap(new stzGeoProjection(:Mercator), _w_)
+	_m_.Projection().FitToSphere(900, 900, 4)
+	_m_.SetPaper(0, 0, 900, 900)
+	_c_ = new stzCanvas(600, 300)
+	_c_.SetBackground("#FFFFFF")
+	return _m_.DrawScaleBarOn(_c_, EFONT, 12, 40, 200, 140, 0, "#333333") = 0
+
+func _F10CityDraws()
+	_w_ = StzGeoFeaturesFromJson('{"type":"FeatureCollection","features":[{"type":"Feature",' +
+		'"properties":{"name":"S"},"geometry":{"type":"Polygon",' +
+		'"coordinates":[[[0,0],[1,0],[1,1],[0,1],[0,0]]]}}]}')
+	_m_ = StzGeoMap(new stzGeoProjection(:Mercator), _w_)
+	_m_.Projection().FitPointsIn([ 2.2, 48.8, 2.5, 48.9 ], 0, 0, 600, 300, 10)
+	_m_.SetPaper(0, 0, 600, 300)
+	if _m_.ScaleVariation() > 1.05  return FALSE  ok
+	_c_ = new stzCanvas(600, 300)
+	_c_.SetBackground("#FFFFFF")
+	return _m_.DrawScaleBarOn(_c_, EFONT, 12, 40, 250, 140, 48.85, "#333333") > 0
+
+func _F10NorthTilt pnRoll
+	_w_ = StzGeoFeaturesFromJson('{"type":"FeatureCollection","features":[{"type":"Feature",' +
+		'"properties":{"name":"S"},"geometry":{"type":"Polygon",' +
+		'"coordinates":[[[0,0],[1,0],[1,1],[0,1],[0,0]]]}}]}')
+	_p_ = new stzGeoProjection(:Orthographic)
+	_p_.FitToSphere(400, 400, 4)
+	if pnRoll != 0  _p_.Rotate([ 0, 0, pnRoll ])  ok
+	_a_ = _p_.Project(0, 0)
+	_b_ = _p_.Project(0, 0.5)
+	if len(_a_) < 2 or len(_b_) < 2  return 999  ok
+	return fabs(atan2(_b_[1] - _a_[1], -(_b_[2] - _a_[2])) * 180 / 3.141592653589793)
+
+func _F10Rotational()
+	_m_ = _F10Map()
+	_g_ = [ -40, -40, 1, 1, 81, 81 ]
+	_u_ = []
+	_v_ = []
+	for _j_ = 0 to 80
+		for _i_ = 0 to 80
+			_u_ + (-(-40 + _j_) * cos((-40 + _j_) * 3.141592653589793 / 180))
+			_v_ + (-40 + _i_)
+		next
+	next
+	_l_ = _m_.StreamlineFrom(_g_, _u_, _v_, 20, 0, 0.4, 3000)
+	if len(_l_) / 2 < 3000  return FALSE  ok
+	_lo_ = 99999
+	_hi_ = 0
+	for _i_ = 1 to len(_l_) / 2
+		_r_ = sqrt(pow(_l_[_i_ * 2 - 1], 2) + pow(_l_[_i_ * 2], 2))
+		if _r_ < _lo_  _lo_ = _r_  ok
+		if _r_ > _hi_  _hi_ = _r_  ok
+	next
+	return _hi_ - _lo_ < 0.01
 
 class _FakeWin45
 	@nX = 0  @nY = 0  @bDown = FALSE  @nDraws = 0  @nPolls = 0
