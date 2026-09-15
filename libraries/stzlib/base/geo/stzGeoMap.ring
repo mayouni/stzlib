@@ -60,7 +60,23 @@ func StzGeoRamps()
 		[ :Purples, [ "#F2F0F7", "#CBC9E2", "#9E9AC8", "#756BB1", "#54278F" ] ],
 		[ :Reds,    [ "#FEE5D9", "#FCAE91", "#FB6A4A", "#DE2D26", "#A50F15" ] ],
 		[ :BuPu,    [ "#EDF8FB", "#B3CDE3", "#8C96C6", "#8856A7", "#810F7C" ] ],
-		[ :Earth,   [ "#F6F1E5", "#DCCFA8", "#B8A165", "#8C6D36", "#5C4218" ] ]
+		[ :Earth,   [ "#F6F1E5", "#DCCFA8", "#B8A165", "#8C6D36", "#5C4218" ] ],
+
+		# VIRIDIS, whose absence from this table was a real gap: it is the
+		# default scientific ramp almost everywhere, and the reason is that
+		# it is PERCEPTUALLY UNIFORM -- equal steps in the data are equal
+		# steps to the eye -- and it survives being printed in grey and
+		# being read by the colour-blind, neither of which the rainbow it
+		# replaced can claim.
+		[ :Viridis, [ "#440154", "#3B528B", "#21918C", "#5EC962", "#FDE725" ] ],
+
+		# ...AND A RAMP FOR LINES ON A LIGHT GROUND, which the others are
+		# not. Every sequential ramp above is built for FILLED AREAS, so its
+		# pale end is nearly the paper -- correct for a choropleth, where a
+		# light region still has an outline, and useless for a half-pixel
+		# stroke, which simply vanishes. This one stays dark enough to see
+		# at every speed and carries the magnitude in hue and depth at once.
+		[ :Flow,    [ "#9DB4CE", "#6B8CB8", "#42619E", "#3B3F8C", "#4A1F6B" ] ]
 	]
 
 # A ramp by name, in as many classes as are asked for. Fewer than five takes
@@ -2667,8 +2683,29 @@ class stzGeoMap from stzObject
 	#
 	# The arrow's length is a SCALE the caller sets, because this class does
 	# not know how big the paper is or what the field's units are.
+	# ...AND THE ARROWS CARRY MAGNITUDE TWICE, in length and in colour.
+	#
+	# An arrow's LENGTH is the natural encoding and it is a poor one at
+	# small sizes: a reader compares two short strokes by eye and gets the
+	# ordering, not the ratio. Colour gives the ratio. Wolfram's VectorPlot
+	# uses both together and that is why its fields read at a glance, so
+	# this does too -- and the two agreeing is what makes a long arrow read
+	# as fast rather than merely as long.
+	def DrawVectorsRampedOn(poCanvas, paGrid, paU, paV, pnEvery, pnPxPerUnit, pcRamp, pnWidth)
+		return This._DrawVectorsCore(poCanvas, paGrid, paU, paV, pnEvery,
+			pnPxPerUnit, "", pnWidth, StzGeoRamp(pcRamp, 9))
+
 	def DrawVectorsOn(poCanvas, paGrid, paU, paV, pnEvery, pnPxPerUnit, pInk, pnWidth)
+		return This._DrawVectorsCore(poCanvas, paGrid, paU, paV, pnEvery,
+			pnPxPerUnit, pInk, pnWidth, [])
+
+	def _DrawVectorsCore(poCanvas, paGrid, paU, paV, pnEvery, pnPxPerUnit, pInk, pnWidth, paRamp)
 		_a_ = StzEngineGeoVectorField(paGrid, paU, paV, pnEvery)
+		_mmax_ = 0
+		for _q_ = 1 to len(_a_) / 5
+			if _a_[_q_ * 5] > _mmax_  _mmax_ = _a_[_q_ * 5]  ok
+		next
+		if _mmax_ <= 0  _mmax_ = 1  ok
 		_n_ = len(_a_) / 5
 		_drawn_ = 0
 		for _i_ = 1 to _n_
@@ -2697,9 +2734,16 @@ class stzGeoMap from stzObject
 			_d_ = sqrt(_dx_ * _dx_ + _dy_ * _dy_)
 			if _d_ < 0.000001  loop  ok
 			_len_ = _m_ * pnPxPerUnit
+			_ink_ = pInk
+			if len(paRamp) > 0
+				_bb_ = floor(_m_ / _mmax_ * (len(paRamp) - 1)) + 1
+				if _bb_ < 1  _bb_ = 1  ok
+				if _bb_ > len(paRamp)  _bb_ = len(paRamp)  ok
+				_ink_ = paRamp[_bb_]
+			ok
 			_ex_ = _p_[1] + _dx_ / _d_ * _len_
 			_ey_ = _p_[2] + _dy_ / _d_ * _len_
-			poCanvas.AddLineQ(_p_[1], _p_[2], _ex_, _ey_).Stroke(pInk, pnWidth)
+			poCanvas.AddLineQ(_p_[1], _p_[2], _ex_, _ey_).Stroke(_ink_, pnWidth)
 			# a head, at a fixed fraction of the shaft
 			_hx_ = _dx_ / _d_
 			_hy_ = _dy_ / _d_
@@ -2710,7 +2754,7 @@ class stzGeoMap from stzObject
 				_ey_ - _hy_ * _len_ * 0.35 + _py_ * _len_ * 0.18,
 				_ex_ - _hx_ * _len_ * 0.35 - _px_ * _len_ * 0.18,
 				_ey_ - _hy_ * _len_ * 0.35 - _py_ * _len_ * 0.18 ]).
-				FillQ(pInk).Stroke("#00000000", 0)
+				FillQ(_ink_).Stroke("#00000000", 0)
 			_drawn_++
 		next
 		poCanvas.Flush()
@@ -2765,7 +2809,32 @@ class stzGeoMap from stzObject
 	# ink does. Blue lines with red heads is the pairing the Principal
 	# asked for and it is the right one: the path is the quiet layer and
 	# the direction is the loud one.
+	# ...AND THE SAME FLOW WITH SPEED AS COLOUR, which is the version that
+	# actually reads.
+	#
+	# The Principal put this beside Wolfram's stream plots and said theirs
+	# were more expressive. They are, and the reason is specific: Wolfram
+	# encodes magnitude as COLOUR. This encoded it as stroke width, from
+	# 0.3 pixels to 1.8 -- a range no eye resolves at this size, so the
+	# speed was present in the drawing and absent from the reading.
+	#
+	# Colour is the strongest channel there is for a scalar. Width is one
+	# of the weakest, and it is spent here anyway -- kept as a SECOND
+	# encoding of the same quantity, because the two agreeing is what makes
+	# a fast line read as fast rather than merely as orange.
+	def DrawFlowRampedOn(poCanvas, paGrid, paU, paV, pnSepDeg, pcRamp, pHeadInk)
+		return This.DrawFlowRampedOnXT(poCanvas, paGrid, paU, paV, pnSepDeg,
+			pcRamp, pHeadInk, 0.5, 2.2, 600)
+
+	def DrawFlowRampedOnXT(poCanvas, paGrid, paU, paV, pnSepDeg, pcRamp, pHeadInk, pnMinW, pnMaxW, pnMaxLines)
+		return This._DrawFlowCore(poCanvas, paGrid, paU, paV, pnSepDeg, "",
+			pHeadInk, pnMinW, pnMaxW, pnMaxLines, StzGeoRamp(pcRamp, 9))
+
 	def DrawFlowOnXT(poCanvas, paGrid, paU, paV, pnSepDeg, pInk, pHeadInk, pnMinW, pnMaxW, pnMaxLines)
+		return This._DrawFlowCore(poCanvas, paGrid, paU, paV, pnSepDeg, pInk,
+			pHeadInk, pnMinW, pnMaxW, pnMaxLines, [])
+
+	def _DrawFlowCore(poCanvas, paGrid, paU, paV, pnSepDeg, pInk, pHeadInk, pnMinW, pnMaxW, pnMaxLines, paRamp)
 		if len(paGrid) < 6  return 0  ok
 		_lon0_ = paGrid[1]
 		_lat0_ = paGrid[2]
@@ -2824,7 +2893,17 @@ class stzGeoMap from stzObject
 					_f_[_base_ + _i_ * 2 + 1], _f_[_base_ + _i_ * 2 + 2])
 				_t_ = _sp_ / _smax_
 				if _t_ > 1  _t_ = 1  ok
-				@oP.DrawLineOn(poCanvas, _seg_, pInk, pnMinW + (pnMaxW - pnMinW) * _t_)
+				# THE INK IS THE RAMP'S WHERE ONE WAS GIVEN, and the caller's
+				# single colour otherwise. Both paths run the same code, so a
+				# ramped flow and a plain one cannot drift apart.
+				_ink_ = pInk
+				if len(paRamp) > 0
+					_b_ = floor(_t_ * (len(paRamp) - 1)) + 1
+					if _b_ < 1  _b_ = 1  ok
+					if _b_ > len(paRamp)  _b_ = len(paRamp)  ok
+					_ink_ = paRamp[_b_]
+				ok
+				@oP.DrawLineOn(poCanvas, _seg_, _ink_, pnMinW + (pnMaxW - pnMinW) * _t_)
 				_i_ = _to_
 			end
 			# ARROWHEADS SPACED BY DISTANCE ON THE PAPER, not by how many
@@ -2862,7 +2941,12 @@ class stzGeoMap from stzObject
 					_lastx_ = _q_[1]
 					_lasty_ = _q_[2]
 					_have_ = TRUE
-					if _run_px_ >= 46
+					# DENSER THAN IT WAS. At one head every 46 pixels the
+					# direction was a mark here and there; Wolfram puts them
+					# close enough that a reader never has to look for the
+					# next one, and that is what makes a stream plot read as
+					# motion rather than as a set of curves.
+					if _run_px_ >= 24
 						This._FlowHeadOn(poCanvas, _f_, _base_, _at_, pHeadInk)
 						_run_px_ = 0
 					ok
@@ -2893,12 +2977,15 @@ class stzGeoMap from stzObject
 		_py_ = _dx_
 		# SMALL, because a head is a mark ON a line and not a thing beside
 		# it: at five pixels on a 0.3-pixel stroke the head WAS the line.
-		_L_ = 3.6
+		# SLIM, and aligned exactly with the line. A blunt head sits BESIDE
+		# a streamline; a slender one sits ON it, which at this density is
+		# the difference between arrows and a dotted overlay.
+		_L_ = 4.2
 		poCanvas.AddPolygonQ([ _b_[1], _b_[2],
-			_b_[1] - _dx_ * _L_ + _px_ * _L_ * 0.45,
-			_b_[2] - _dy_ * _L_ + _py_ * _L_ * 0.45,
-			_b_[1] - _dx_ * _L_ - _px_ * _L_ * 0.45,
-			_b_[2] - _dy_ * _L_ - _py_ * _L_ * 0.45 ]).FillQ(pInk).Stroke("#00000000", 0)
+			_b_[1] - _dx_ * _L_ + _px_ * _L_ * 0.30,
+			_b_[2] - _dy_ * _L_ + _py_ * _L_ * 0.30,
+			_b_[1] - _dx_ * _L_ - _px_ * _L_ * 0.30,
+			_b_[2] - _dy_ * _L_ - _py_ * _L_ * 0.30 ]).FillQ(pInk).Stroke("#00000000", 0)
 
 	def StreamlineFrom(paGrid, paU, paV, pnLon, pnLat, pnStepDeg, pnSteps)
 		return StzEngineGeoStreamline(paGrid, paU, paV, pnLon, pnLat, pnStepDeg, pnSteps)

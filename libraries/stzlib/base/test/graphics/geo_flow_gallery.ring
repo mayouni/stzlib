@@ -32,7 +32,7 @@ nGrid = 61
 nStep = 2 * nSpan / (nGrid - 1)
 
 aFields = [
-	[ "Two gyres",        "counter-rotating, as an ocean basin turns" ],
+	[ "Two gyres, as ARROWS", "what is happening HERE -- length and colour both carry speed" ],
 	[ "Saddle",           "u = x, v = -y: flow in on one axis, out on the other" ],
 	[ "Source and sink",  "a dipole -- everything leaves one and arrives at the other" ],
 	[ "Vortex pair",      "two opposite rotations; the pair drifts as one" ],
@@ -53,7 +53,7 @@ oC.SetBackground("#FFFFFF")
 oC.SetFontQ(oFont, 26).AddTextQ("Eight flows, drawn the same way", 40, 50).Fill("#1A1A1A")
 oC.Flush()
 oC.SetFontQ(oFont, 14).AddTextQ("evenly-spaced streamlines, the stroke thickening with " +
-	"speed, blue for the path and red for the direction", 40, 74).Fill("#777777")
+	"speed AND darkening with it, red for the direction", 40, 74).Fill("#777777")
 oC.Flush()
 oC.SetFontQ(oFont, 13).AddTextQ("these are the fields every textbook uses -- a reader " +
 	"who knows what a saddle looks like can see at once whether this draws one",
@@ -77,13 +77,23 @@ for f = 1 to len(aFields)
 
 	aG = [ -nSpan, -nSpan, nStep, nStep, nGrid, nGrid ]
 	aUV = _FieldOf(f, nSpan, nGrid, nStep)
-	n = oM.DrawFlowOnXT(oC, aG, aUV[1], aUV[2], 1.35, "#2F5D9E", "#C0392B", 0.3, 1.8, 600)
+	if f = 1
+		# THE SAME FIELD AS ARROWS, once, so the two forms can be compared
+		# on one sheet. Arrows answer "what is happening HERE" and
+		# streamlines answer "where does this GO", and a reader who has
+		# only ever seen one of them cannot tell which question they need.
+		n = oM.DrawVectorsRampedOn(oC, aG, aUV[1], aUV[2], 3, 13, :Flow, 1.1)
+	else
+		n = oM.DrawFlowRampedOnXT(oC, aG, aUV[1], aUV[2], 1.35, :Flow, "#C0392B", 0.5, 2.2, 600)
+	ok
 
 	oC.SetFontQ(oFont, 14).AddTextQ(aFields[f][1], nX, nY - 24).Fill("#1A1A1A")
 	oC.Flush()
 	oC.SetFontQ(oFont, 10).AddTextQ(aFields[f][2], nX, nY - 10).Fill("#999999")
 	oC.Flush()
-	oC.SetFontQ(oFont, 10).AddTextQ("" + n + " lines", nX, nY + nCell + 14).Fill("#AAAAAA")
+	cWhat = " lines"
+	if f = 1  cWhat = " arrows"  ok
+	oC.SetFontQ(oFont, 10).AddTextQ("" + n + cWhat, nX, nY + nCell + 14).Fill("#AAAAAA")
 	oC.Flush()
 next
 
@@ -108,7 +118,7 @@ for k = 1 to len(aSeps)
 	oM.SetPaper(nX, nY2, nX + nCell, nY2 + nCell)
 	aG = [ -nSpan, -nSpan, nStep, nStep, nGrid, nGrid ]
 	aUV = _FieldOf(4, nSpan, nGrid, nStep)
-	n = oM.DrawFlowOnXT(oC, aG, aUV[1], aUV[2], aSeps[k], "#2F5D9E", "#C0392B", 0.3, 1.8, 900)
+	n = oM.DrawFlowRampedOnXT(oC, aG, aUV[1], aUV[2], aSeps[k], :Flow, "#C0392B", 0.5, 2.2, 900)
 	oC.SetFontQ(oFont, 13).AddTextQ("separation " + aSeps[k] + " degrees", nX, nY2 - 12).Fill("#1A1A1A")
 	oC.Flush()
 	oC.SetFontQ(oFont, 10).AddTextQ("" + n + " lines", nX, nY2 + nCell + 14).Fill("#AAAAAA")

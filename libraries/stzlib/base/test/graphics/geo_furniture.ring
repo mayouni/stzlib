@@ -44,10 +44,15 @@ oM.SetSource("Natural Earth 110m; solar position from the Astronomical Almanac")
 # against the shaded night -- a halo the data does not have. Day and night
 # have to be one surface for the terminator to be a line across it rather
 # than an edge between two materials.
-oP.DrawSphereOn(oC, "#EEF1F4", "#00000000", 0)
+# THE LIT SIDE IS WHITE, and that is not a colour choice. A day-night map
+# has ONE light source in it, and if the half it falls on is a grey then
+# nothing on the sheet is lit -- the picture reads as two shades of dim and
+# the sun stops being a sun. So the sea under the sun is the paper itself
+# and the land is barely off it; everything darker than that is night.
+oP.DrawSphereOn(oC, "#FFFFFF", "#00000000", 0)
 oC.Flush()
-oM.SetNoData("#DCE2E8")
-oM.DrawSheetOn(oC, "#B8C2CC", 0.4)
+oM.SetNoData("#F7F4EE")
+oM.DrawSheetOn(oC, "#C6CDD4", 0.45)
 
 nYear = 2026  nMon = 6  nDay = 21  nHour = 12
 aSun = oM.SunAt(nYear, nMon, nDay, nHour)
@@ -57,7 +62,7 @@ aSun = oM.SunAt(nYear, nMon, nDay, nHour)
 # than a step. The first version of this sheet sampled every sixth pixel
 # and painted a rectangle, which gave a staircase along the terminator and
 # two flat tones; the Principal said so.
-oM.DrawNightOn(oC, nYear, nMon, nDay, nHour, "#16294715")
+oM.DrawNightOn(oC, nYear, nMon, nDay, nHour, "#14284A22")
 
 oM.DrawTwilightOn(oC, nYear, nMon, nDay, nHour, "#2C4A7A66")
 
@@ -158,7 +163,7 @@ next
 # put the lines where the SEEDS were: crowded in the gyre centres, bald in
 # the drift between them, with no way to read a dense patch as fast flow
 # rather than as a lucky lattice.
-nLines = oM2.DrawFlowOnXT(oC, aG, aU, aV, 3.2, "#2F5D9E", "#C0392B", 0.35, 1.9, 400)
+nLines = oM2.DrawFlowRampedOnXT(oC, aG, aU, aV, 3.2, :Flow, "#C0392B", 0.5, 2.2, 400)
 nArrows = 0
 
 oC.SetFontQ(oFont, 12).AddTextQ("" + nLines + " evenly-spaced streamlines over an " +
