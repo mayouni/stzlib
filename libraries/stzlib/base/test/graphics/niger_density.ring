@@ -87,28 +87,29 @@ for i = 1 to nN
 		"#5A4A2E", "#FFFFFFDD", 1.5)
 next
 
-# --- Niamey: the capital, off the scale, marked and called out ----------
+# --- Niamey: the capital, off the scale ---------------------------------
+# No leader line: the dot is labelled in place with its name only, and the
+# fact about it is set under the map rather than pointed at with a line.
 nNiamey = oW.IndexOfName("Niamey")
 if nNiamey > 0
 	g = oM.LabelPointOf(nNiamey)
 	q = oP.Project(g[1], g[2])
 	if len(q) = 2
-		# the capital is a physical dot -- marked, with a leader to a
-		# callout set in the empty south-west corner so nothing overlaps
-		nCx = 92
-		nCy = q[2] + 96
-		if nCy > 1120  nCy = q[2] - 96  ok
-		oC.AddLineQ(q[1], q[2], nCx + 4, nCy - 6).Stroke("#7A5A2E", 1.2)
 		oC.AddCircleQ(q[1], q[2], 6).FillQ("#7A1010").Stroke("#FFFFFF", 2)
 		oC.AddCircleQ(q[1], q[2], 2.4).FillQ("#FFFFFF").Stroke("#00000000", 0)
 		oC.Flush()
-		oC.SetFontQ(oBold, 17).AddTextQ("Niamey, the capital", nCx, nCy).Fill("#2A1C0A")
-		oC.Flush()
-		oC.SetFontQ(oFont, 14).AddTextQ("1,844 people per km" + "²" + " -- off the scale",
-			nCx, nCy + 20).Fill("#7A1010")
-		oC.Flush()
+		oM.DrawHaloTextOn(oC, oBold, 15, "Niamey",
+			q[1] - oBold.WidthOf("Niamey", 15) / 2, q[2] + 18, "#2A1C0A", "#FFFFFFDD", 1.7)
 	ok
 ok
+
+# the capital's fact, set under the map -- no line pointing at it
+cNiaLbl = "Niamey, the capital -- "
+oC.SetFontQ(oBold, 15).AddTextQ(cNiaLbl, 62, 1096).Fill("#2A1C0A")
+oC.Flush()
+oC.SetFontQ(oFont, 15).AddTextQ("1,844 people per km" + "²" + ", off the scale of the ramp",
+	62 + oBold.WidthOf(cNiaLbl, 15), 1096).Fill("#7A1010")
+oC.Flush()
 
 # --- the legend ----------------------------------------------------------
 nLegX = 1150
