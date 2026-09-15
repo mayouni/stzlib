@@ -180,7 +180,7 @@ oC.SetFontQ(oFont, 11).AddTextQ("radius, km -- the band is 39 simulations; " +
 	40, nY2 + nBH + 66).Fill("#999999")
 oC.Flush()
 
-oC.ToPNG("geo_processes.png")
+oC.ToPNGHiRes("geo_processes.png")
 
 ? "-- the seven, in one window of " + nArea + " km2 --"
 for p = 1 to len(aPanels)

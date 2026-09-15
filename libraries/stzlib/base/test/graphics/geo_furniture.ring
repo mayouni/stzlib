@@ -172,7 +172,7 @@ oC.SetFontQ(oFont, 12).AddTextQ("" + nLines + " evenly-spaced streamlines over a
 	"the stroke thickens with speed", 40, nY2 + 430).Fill("#888888")
 oC.Flush()
 
-oC.ToPNG("geo_furniture.png")
+oC.ToPNGHiRes("geo_furniture.png")
 
 ? "-- the sun, on the June solstice at " + nHour + ":00 UTC --"
 ? "  overhead at " + aSun[:lat] + ", " + aSun[:lon] +

@@ -166,7 +166,7 @@ next
 # ---- the interactive layer, written out and read back -------------------
 cSvg = oC.ToSVG()
 write("geo_sheet.svg", cSvg)
-oC.ToPNG("geo_sheet.png")
+oC.ToPNGHiRes("geo_sheet.png")
 
 nIds = len(StzFindCS("id=" + char(34) + "geo-", cSvg, TRUE))
 nRegionClass = len(StzFindCS("geo-region", cSvg, TRUE))

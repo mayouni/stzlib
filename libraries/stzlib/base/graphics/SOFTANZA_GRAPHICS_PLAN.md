@@ -1002,6 +1002,34 @@ forward-inverse round trip and a Tissot sheet per projection.
 
 
 
+## SUPERSAMPLED OUTPUT -- crisp lines for a figure meant to be shown (2026-09-15)
+
+The Principal, on the flow visuals: the lines seem rasterised, not clear;
+make the quality professional for ALL the visuals. It was one cause in one
+place -- the canvas rasteriser -- so it was one fix for every plane.
+
+**4x MSAA antialiases a shape's EDGES and still beads a thin near-axis
+line.** Its four samples are fixed, so a half-pixel diagonal catches them
+unevenly and the line runs light and dark along its length -- measured, the
+darkness variance along a 0.8px line was 2458. That bead is what reads as
+"rasterised", and no amount of MSAA fixes it, because the samples are fixed.
+
+**The fix is supersampling: render at 2x and box-average down.** Sixteen
+effective samples land where the line is and the bead fills in -- the same
+variance fell to 745, a 70% drop, with the line no fainter. It is contained
+to the output path (`sceneToPixelsSS`), touches no geometry -- the vertices
+are already NDC, so a bigger target draws the same picture at a higher
+resolution and stroke widths scale with it -- and lifts lines, text and
+curves at once.
+
+**It is opt-in, and that is deliberate.** `ToPNG` and `ToPNGXT` stay the
+plain render: a test that compares rendered bytes wants the plain path, and
+a nine-hundred-file suite must not pay 4x the fill for pixels nobody looks
+at. A FIGURE asks for it -- `ToPNGHiRes` (2x) or `ToPNGHiResXT(path, level,
+scale)` -- and every geo witness now does. Two is the knee; three and four
+are for print. Guarded in gg_supersample.ring, which MEASURES the bead
+rather than asserting it away.
+
 ## GE10 -- MAP FURNITURE, AND A FIELD THAT HAS A DIRECTION (2026-09-15, SHIPPED)
 
 *The things a map carries around it and over it. Two of them are where maps

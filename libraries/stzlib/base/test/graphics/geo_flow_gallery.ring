@@ -131,7 +131,7 @@ oC.SetFontQ(oFont, 12).AddTextQ("Every one of these is the same algorithm with o
 	"it is slow.", 40, nY2 + nCell + 44).Fill("#666666")
 oC.Flush()
 
-oC.ToPNG("geo_flow_gallery.png")
+oC.ToPNGHiRes("geo_flow_gallery.png")
 
 ? "-- eight flows --"
 for f = 1 to len(aFields)

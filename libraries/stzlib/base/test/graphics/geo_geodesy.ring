@@ -126,7 +126,7 @@ oC.SetFontQ(oFont, 13).AddTextQ("The bearing on a geodesic CHANGES the whole way
 	"why the rhumb was sailed instead.", 40, nRow + 42).Fill("#555555")
 oC.Flush()
 
-oC.ToPNG("geo_geodesy.png")
+oC.ToPNGHiRes("geo_geodesy.png")
 
 ? "-- the routes, on WGS84 --"
 for r = 1 to len(aRoutes)
