@@ -13,9 +13,23 @@ nOk = 0  nBad = 0
 ? "=========================================================="
 
 ? ""
-? "-- 1. The engine knows sixteen ways to flatten a sphere, by name --"
+? "-- 1. The engine knows forty-four ways to flatten a sphere, by name --"
+# THIS ASSERTION SAID SIXTEEN UNTIL GE9, and it said it with the number
+# written in: len(aK) = 16 and aK[16] = "EqualEarth". The gallery brought
+# twenty-eight more and the guard failed -- correctly, and on the
+# EXPECTATION rather than on the code, which is the sixth time in this
+# plane. A count pinned by a literal has to be repinned every time the
+# thing it counts grows, and the honest fix is not to loosen it: the first
+# sixteen are still checked BY NAME at their own positions, because their
+# order is the engine's enum and a reordering would break every stored
+# projection anybody has.
 aK = StzGeoProjectionKinds()
-chk("sixteen projections, each with a name", len(aK) = 16 and aK[1] = "Equirectangular" and aK[16] = "EqualEarth")
+? "   " + len(aK) + " of them"
+chk("FORTY-FOUR PROJECTIONS, each with a name, and the first sixteen still " +
+    "at the positions they have always had -- their order is the enum's, so " +
+    "a reordering would silently change every stored projection",
+    len(aK) = 44 and aK[1] = "Equirectangular" and aK[16] = "EqualEarth" and
+    aK[2] = "Mercator" and aK[len(aK)] = "SinuMollweide")
 chk("a projection is asked for by name, in any case", (new stzGeoProjection(:mercator)).Name() = "Mercator")
 chk("NEGATIVE: a projection the engine does not know is refused BY NAME", _Refuses(:Peters))
 

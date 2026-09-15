@@ -181,6 +181,55 @@ func StzGeoConicFor(poFeatures, pcKind)
 	_o_.Rotate([ -(_b_[1] + _b_[3]) / 2, 0, 0 ])
 	return _o_
 
+#----------------------------------------------------------------------#
+#  GE9 -- UTM: sixty transverse Mercators, and two that are not tidy    #
+#----------------------------------------------------------------------#
+
+# UTM IS THE PROJECTION EVERY SURVEY FALLS BACK TO. Sixty zones of six
+# degrees each, every one a transverse Mercator on its own central
+# meridian, every one scaled by 0.9996 so the error is SHARED between the
+# middle of the zone and its edges rather than piled at the edges. Within a
+# zone it is good to about one part in 2500, which is why a military map, a
+# cadastre and a GPS receiver all speak it.
+#
+# THE EXCEPTIONS ARE REAL AND ARE NOT TIDY. Zone 32 was widened in 1950 so
+# that south-west Norway is not cut in half, and the Svalbard zones were
+# rearranged for the same reason. A library that computes the zone
+# arithmetically and stops is wrong for two countries -- and wrong
+# silently, which is worse.
+#
+# Answers [ :zone, :band, :north, :centralMeridian, :falseEasting,
+#           :falseNorthing ]. The false easting and northing are a
+# coordinate CONVENTION rather than part of the projection: 500000 metres
+# so no easting is negative, and ten million in the south so no northing
+# is either. That is the whole reason they exist.
+func StzGeoUtmZoneOf(pnLon, pnLat)
+	_v_ = StzEngineGeoUtmZone(pnLon, pnLat)
+	if len(_v_) < 6  return []  ok
+	return [ :zone = _v_[1], :band = char(_v_[4]), :north = (_v_[2] = 1),
+	         :centralMeridian = _v_[3],
+	         :falseEasting = _v_[5], :falseNorthing = _v_[6] ]
+
+# ...and the projection for a zone, ready to use.
+func StzGeoUtmProjection(pnZone)
+	_v_ = StzEngineGeoUtmProjection(pnZone)
+	_p_ = new stzGeoProjection(:TransverseMercator)
+	if len(_v_) >= 11
+		_p_.Rotate([ _v_[2], _v_[3], _v_[4] ])
+		_p_.Scale(_v_[7])
+		_p_.Translate([ _v_[8], _v_[9] ])
+	ok
+	return _p_
+
+# the zone a longitude falls in by arithmetic alone, WITHOUT the Norway and
+# Svalbard exceptions -- here so a caller can see the gap for themselves
+# rather than take it on trust
+func StzGeoUtmZoneArithmetic(pnLon)
+	_l_ = pnLon
+	while _l_ < -180  _l_ += 360  end
+	while _l_ >= 180  _l_ -= 360  end
+	return floor((_l_ + 180) / 6) + 1
+
 class stzGeoProjection from stzObject
 	@nKind = 0
 	@aRot = [ 0, 0, 0 ]
@@ -214,6 +263,96 @@ class stzGeoProjection from stzObject
 	def Params()
 		return [ @nKind, @aRot[1], @aRot[2], @aRot[3], @aPar[1], @aPar[2],
 		         @nScale, @nTx, @nTy, @nClip, @nPrecision ]
+
+	#-- GE9: WHAT THE LIE MEASURES, not just what it is called --------------
+
+	# EVERY PROJECTION LIES, and until GE9 this plane could say only WHICH
+	# lie: IsEqualArea, IsConformal, two booleans and a rule that reads
+	# them. That is enough to refuse a choropleth on a Mercator and nowhere
+	# near enough to tell a reader that Greenland on that map is drawn at
+	# fourteen times its area.
+	#
+	# The Jacobian answers all of it. A projection is a map from (lon, lat)
+	# to (x, y); its derivative at a place is four numbers; and every
+	# classical distortion measure is a function of those four.
+	#
+	#   :h         the scale along the MERIDIAN, 1 meaning true
+	#   :k         the scale along the PARALLEL
+	#   :a, :b     the semi-axes of Tissot's indicatrix -- the greatest and
+	#              least scale in ANY direction. They are NOT h and k:
+	#              those are the scales along two particular directions,
+	#              which need not be the extremes, and confusing the pairs
+	#              is the classic error in this subject.
+	#   :areal     the area scale. 1 everywhere on an equal-area projection.
+	#   :angular   the largest angle this place bends, degrees. 0 everywhere
+	#              on a conformal one.
+	#   :crossing  the angle the meridian and parallel cross at on paper.
+	def DistortionAt(pnLon, pnLat)
+		_v_ = StzEngineGeoDistortionAt(This.Params(), pnLon, pnLat)
+		if len(_v_) < 7  return []  ok
+		return [ :h = _v_[1], :k = _v_[2], :a = _v_[3], :b = _v_[4],
+		         :areal = _v_[5], :angular = _v_[6], :crossing = _v_[7] ]
+
+	# HOW MUCH BIGGER OR SMALLER THIS PLACE IS DRAWN than it really is.
+	# On a Mercator at 70 degrees it is 8.5, which is the whole Greenland
+	# argument in one number.
+	def ArealScaleAt(pnLon, pnLat)
+		_v_ = StzEngineGeoDistortionAt(This.Params(), pnLon, pnLat)
+		if len(_v_) < 7  return 0  ok
+		return _v_[5]
+
+	def AngularDistortionAt(pnLon, pnLat)
+		_v_ = StzEngineGeoDistortionAt(This.Params(), pnLon, pnLat)
+		if len(_v_) < 7  return 0  ok
+		return _v_[6]
+
+	# THE WHOLE MAP AT ONCE, which is how two projections get compared.
+	#
+	# The means are weighted by GROUND -- cos(latitude) per cell -- because
+	# an unweighted average over a latitude grid counts the polar rows,
+	# which are slivers, as heavily as the equatorial ones, which are not.
+	# That flatters exactly the projections that are worst at the poles,
+	# which are the ones a reader most needs warning about.
+	def Distortion()
+		return This.DistortionXT(72, 36)
+
+	def DistortionXT(pnCols, pnRows)
+		_v_ = StzEngineGeoDistortionSummary(This.Params(), pnCols, pnRows)
+		if len(_v_) < 6  return []  ok
+		return [ :arealMin = _v_[1], :arealMax = _v_[2], :arealMean = _v_[3],
+		         :angularMax = _v_[4], :angularMean = _v_[5], :sampled = _v_[6] ]
+
+	# DOES THIS PROJECTION KEEP ITS OWN PROMISE, measured rather than
+	# declared? An equal-area projection whose areal scale is not 1
+	# everywhere has a wrong formula, and so does a conformal one that
+	# bends an angle. It is the check that caught two real defects the day
+	# this gallery was written -- a Mollweide half with the wrong
+	# normalisation, and a symmetry claim made for a projection that is a
+	# triangle.
+	def HoldsItsClaim()
+		_d_ = This.Distortion()
+		if len(_d_) = 0  return FALSE  ok
+		if This.IsEqualArea()
+			if fabs(_d_[:arealMin] - 1) > 0.0001  return FALSE  ok
+			if fabs(_d_[:arealMax] - 1) > 0.0001  return FALSE  ok
+		ok
+		if This.IsConformal()
+			if _d_[:angularMax] > 0.0001  return FALSE  ok
+		ok
+		return TRUE
+
+	# TISSOT'S INDICATRIX AS A RING TO DRAW, in the paper's own coordinates.
+	#
+	# It is built by PROJECTING A SMALL CIRCLE rather than by drawing the
+	# ellipse the numbers above describe. The two agree in the limit and
+	# the first is the honest one: it shows what the projection actually
+	# does to a circle of that size, including the bending an ellipse
+	# cannot represent -- which at a radius anybody can see is not nothing.
+	def IndicatrixAt(pnLon, pnLat, pnRadiusDeg)
+		return This.IndicatrixAtXT(pnLon, pnLat, pnRadiusDeg, 48)
+
+	def IndicatrixAtXT(pnLon, pnLat, pnRadiusDeg, pnPoints)
+		return StzEngineGeoIndicatrix(This.Params(), pnLon, pnLat, pnRadiusDeg, pnPoints)
 
 	#-- what kind of lie this projection tells -----------------------------
 
