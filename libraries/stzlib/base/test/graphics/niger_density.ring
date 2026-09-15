@@ -83,8 +83,8 @@ for i = 1 to nN
 	oM.DrawHaloTextOn(oC, oBold, 17, cN, q[1] - oBold.WidthOf(cN, 17) / 2, q[2] - 3,
 		"#2A1C0A", "#FFFFFFDD", 1.7)
 	cD = StzFactNumText(aDens[i]) + " /km" + "²"
-	oM.DrawHaloTextOn(oC, oFont, 15, cD, q[1] - oFont.WidthOf(cD, 15) / 2, q[2] + 17,
-		"#4A3A22", "#FFFFFFEE", 1.6)
+	oM.DrawHaloTextOn(oC, oFont, 17, cD, q[1] - oFont.WidthOf(cD, 17) / 2, q[2] + 19,
+		"#4A3A22", "#FFFFFFEE", 1.7)
 next
 
 # --- Niamey: the capital, off the scale ---------------------------------
@@ -98,25 +98,25 @@ if nNiamey > 0
 		oC.AddCircleQ(q[1], q[2], 6).FillQ("#7A1010").Stroke("#FFFFFF", 2)
 		oC.AddCircleQ(q[1], q[2], 2.4).FillQ("#FFFFFF").Stroke("#00000000", 0)
 		oC.Flush()
-		oM.DrawHaloTextOn(oC, oBold, 15, "Niamey",
-			q[1] - oBold.WidthOf("Niamey", 15) / 2, q[2] + 18, "#2A1C0A", "#FFFFFFDD", 1.7)
+		oM.DrawHaloTextOn(oC, oBold, 17, "Niamey",
+			q[1] - oBold.WidthOf("Niamey", 17) / 2, q[2] + 20, "#2A1C0A", "#FFFFFFDD", 1.7)
 	ok
 ok
 
 # the capital's fact, set under the map -- no line pointing at it
 cNiaLbl = "Niamey, the capital -- "
-oC.SetFontQ(oBold, 15).AddTextQ(cNiaLbl, 62, 1096).Fill("#2A1C0A")
+oC.SetFontQ(oBold, 17).AddTextQ(cNiaLbl, 62, 1096).Fill("#2A1C0A")
 oC.Flush()
-oC.SetFontQ(oFont, 15).AddTextQ("1,844 people per km" + "²" + ", off the scale of the ramp",
-	62 + oBold.WidthOf(cNiaLbl, 15), 1096).Fill("#7A1010")
+oC.SetFontQ(oFont, 17).AddTextQ("1,844 people per km" + "²" + ", off the scale of the ramp",
+	62 + oBold.WidthOf(cNiaLbl, 17), 1096).Fill("#7A1010")
 oC.Flush()
 
 # --- the legend ----------------------------------------------------------
 nLegX = 1150
 nLegY = 300
-oC.SetFontQ(oBold, 16).AddTextQ("people per km" + "²", nLegX, nLegY - 14).Fill("#1A1206")
+oC.SetFontQ(oBold, 17).AddTextQ("people per km" + "²", nLegX, nLegY - 14).Fill("#1A1206")
 oC.Flush()
-oM.DrawRampLegendOn(oC, oFont, 15, nLegX, nLegY + 30, 250, 26, "#4A3A22")
+oM.DrawRampLegendOn(oC, oFont, 17, nLegX, nLegY + 30, 250, 26, "#4A3A22")
 
 # --- the analytical callout: the headline fact --------------------------
 nCardY = 470
@@ -124,33 +124,33 @@ oC.AddRoundRectQ(nLegX, nCardY, 300, 250, 12).FillQ("#FFFFFF").Stroke("#E6DAC4",
 oC.Flush()
 oC.SetFontQ(oBold, 60).AddTextQ("52%", nLegX + 22, nCardY + 74).Fill("#BD3A0A")
 oC.Flush()
-oC.SetFontQ(oFont, 15).AddTextQ("of Niger's land is Agadez", nLegX + 24, nCardY + 104).Fill("#5A4A2E")
+oC.SetFontQ(oFont, 17).AddTextQ("of Niger's land is Agadez", nLegX + 24, nCardY + 104).Fill("#4A3A22")
 oC.Flush()
 oC.SetFontQ(oBold, 60).AddTextQ("2.8%", nLegX + 22, nCardY + 184).Fill("#7A5A1E")
 oC.Flush()
-oC.SetFontQ(oFont, 15).AddTextQ("of its people live there", nLegX + 24, nCardY + 214).Fill("#5A4A2E")
+oC.SetFontQ(oFont, 17).AddTextQ("of its people live there", nLegX + 24, nCardY + 214).Fill("#4A3A22")
 oC.Flush()
 
 # --- total, and the source line -----------------------------------------
-oC.SetFontQ(oBold, 15).AddTextQ("17.1 million people", nLegX, nCardY + 300).Fill("#5A4A2E")
+oC.SetFontQ(oBold, 17).AddTextQ("17.1 million people", nLegX, nCardY + 300).Fill("#4A3A22")
 oC.Flush()
-oC.SetFontQ(oFont, 15).AddTextQ("in 8 regions -- 2012 census", nLegX, nCardY + 322).Fill("#6A5A42")
+oC.SetFontQ(oFont, 17).AddTextQ("in 8 regions -- 2012 census", nLegX, nCardY + 324).Fill("#6A5A42")
 oC.Flush()
 
 # the sources: a readable size and a readable colour -- fine print in
 # Softanza is still meant to be read, so it is set at the body size and
 # told apart by weight and colour, not shrunk and greyed out
-oC.SetFontQ(oFont, 15).AddTextQ("Boundaries: geoBoundaries gbHumanitarian (UN OCHA / IGN " +
+oC.SetFontQ(oFont, 17).AddTextQ("Boundaries: geoBoundaries gbHumanitarian (UN OCHA / IGN " +
 	"Niger), ODbL.   Population: RGPH 2012, Institut National de la Statistique du Niger.",
-	62, nH - 68).Fill("#6A5A42")
+	62, nH - 70).Fill("#6A5A42")
 oC.Flush()
-oC.SetFontQ(oFont, 15).AddTextQ("Region areas measured on the WGS84 ellipsoid by Softanza's " +
+oC.SetFontQ(oFont, 17).AddTextQ("Region areas measured on the WGS84 ellipsoid by Softanza's " +
 	"GE8 geodesic engine (from the generalised boundary) -- the density is the library's own number.",
 	62, nH - 44).Fill("#6A5A42")
 oC.Flush()
 
 # the maker's mark
-oC.SetFontQ(oBold, 15).AddTextQ("made with Softanza", nW - 210, nH - 44).Fill("#BD3A0A")
+oC.SetFontQ(oBold, 17).AddTextQ("made with Softanza", nW - 220, nH - 44).Fill("#BD3A0A")
 oC.Flush()
 
 oC.ToPNGHiRes("niger_density.png")
