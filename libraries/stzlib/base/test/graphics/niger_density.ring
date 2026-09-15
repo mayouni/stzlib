@@ -48,7 +48,7 @@ next
 
 # --- the map -------------------------------------------------------------
 nW = 1500
-nH = 1180
+nH = 1240
 oC = new stzCanvas(nW, nH)
 oC.SetBackground("#FBF7F0")
 
@@ -56,7 +56,7 @@ oC.SetBackground("#FBF7F0")
 oC.SetFontQ(oBold, 40).AddTextQ("Where Niger lives", 60, 74).Fill("#1A1206")
 oC.Flush()
 oC.SetFontQ(oFont, 19).AddTextQ("Population density by region, 2012 -- the Sahara empties " +
-	"to the north, the Sahel fills to the south", 62, 106).Fill("#8A7A5E")
+	"to the north, the Sahel fills to the south", 62, 106).Fill("#6A5A42")
 oC.Flush()
 
 # the choropleth
@@ -83,8 +83,8 @@ for i = 1 to nN
 	oM.DrawHaloTextOn(oC, oBold, 17, cN, q[1] - oBold.WidthOf(cN, 17) / 2, q[2] - 3,
 		"#2A1C0A", "#FFFFFFDD", 1.7)
 	cD = StzFactNumText(aDens[i]) + " /km" + "²"
-	oM.DrawHaloTextOn(oC, oFont, 13, cD, q[1] - oFont.WidthOf(cD, 13) / 2, q[2] + 15,
-		"#5A4A2E", "#FFFFFFDD", 1.5)
+	oM.DrawHaloTextOn(oC, oFont, 15, cD, q[1] - oFont.WidthOf(cD, 15) / 2, q[2] + 17,
+		"#4A3A22", "#FFFFFFEE", 1.6)
 next
 
 # --- Niamey: the capital, off the scale ---------------------------------
@@ -116,7 +116,7 @@ nLegX = 1150
 nLegY = 300
 oC.SetFontQ(oBold, 16).AddTextQ("people per km" + "²", nLegX, nLegY - 14).Fill("#1A1206")
 oC.Flush()
-oM.DrawRampLegendOn(oC, oFont, 13, nLegX, nLegY + 30, 250, 26, "#5A3A1E")
+oM.DrawRampLegendOn(oC, oFont, 15, nLegX, nLegY + 30, 250, 26, "#4A3A22")
 
 # --- the analytical callout: the headline fact --------------------------
 nCardY = 470
@@ -134,20 +134,23 @@ oC.Flush()
 # --- total, and the source line -----------------------------------------
 oC.SetFontQ(oBold, 15).AddTextQ("17.1 million people", nLegX, nCardY + 300).Fill("#5A4A2E")
 oC.Flush()
-oC.SetFontQ(oFont, 14).AddTextQ("in 8 regions -- 2012 census", nLegX, nCardY + 322).Fill("#8A7A5E")
+oC.SetFontQ(oFont, 15).AddTextQ("in 8 regions -- 2012 census", nLegX, nCardY + 322).Fill("#6A5A42")
 oC.Flush()
 
-oC.SetFontQ(oFont, 12).AddTextQ("Boundaries: geoBoundaries gbHumanitarian (UN OCHA / IGN " +
+# the sources: a readable size and a readable colour -- fine print in
+# Softanza is still meant to be read, so it is set at the body size and
+# told apart by weight and colour, not shrunk and greyed out
+oC.SetFontQ(oFont, 15).AddTextQ("Boundaries: geoBoundaries gbHumanitarian (UN OCHA / IGN " +
 	"Niger), ODbL.   Population: RGPH 2012, Institut National de la Statistique du Niger.",
-	62, nH - 44).Fill("#A89A80")
+	62, nH - 68).Fill("#6A5A42")
 oC.Flush()
-oC.SetFontQ(oFont, 12).AddTextQ("Region areas measured on the WGS84 ellipsoid by Softanza's " +
+oC.SetFontQ(oFont, 15).AddTextQ("Region areas measured on the WGS84 ellipsoid by Softanza's " +
 	"GE8 geodesic engine (from the generalised boundary) -- the density is the library's own number.",
-	62, nH - 26).Fill("#A89A80")
+	62, nH - 44).Fill("#6A5A42")
 oC.Flush()
 
-# the small maker's mark
-oC.SetFontQ(oBold, 13).AddTextQ("made with Softanza", nW - 190, nH - 26).Fill("#BD3A0A")
+# the maker's mark
+oC.SetFontQ(oBold, 15).AddTextQ("made with Softanza", nW - 210, nH - 44).Fill("#BD3A0A")
 oC.Flush()
 
 oC.ToPNGHiRes("niger_density.png")
