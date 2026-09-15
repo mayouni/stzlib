@@ -523,7 +523,7 @@ which exists.
 | GE7 | **spatial statistics**: point patterns (K, L, G, F, Clark-Evans, envelopes by simulation), centres and ellipses, kernel density, contours, interpolation (IDW, kriging), point processes | engine, `geo_stats.zig` + `geo_field.zig` + `geo_interp.zig` + `geo_process.zig`; face `stzGeoPoints`, `stzGeoField`, `stzGeoSamples`, `stzGeoProcess` | **GE7a-GE7d ALL SHIPPED** below |
 | GE8 | **geodesy on the ellipsoid**: the geodesic on WGS84, ECEF and ENU frames, DMS, rhumb lines, a reference-ellipsoid table, polygon area | engine, `geo_geodesy.zig`; face `stzGeoEllipsoid.ring` | **SHIPPED** below |
 | GE9 | **the projection gallery**: 16 to 44, each with an inverse, local distortion from the Jacobian, and UTM zones | engine, `geo_projection.zig` + `geo_distortion.zig` | **SHIPPED** below |
-| GE10 | **map furniture and the remaining plots**: scale bar, day-night terminator, vector and stream plots over a field, point-value small multiples | Ring, `stzGeoMap` | PLAN |
+| GE10 | **map furniture and flow**: a scale bar that refuses, a measured north arrow, the day-night terminator with its twilight bands, vector and stream plots | engine, `geo_furniture.zig`; face `stzGeoMap` | **SHIPPED** below |
 
 **Order and value.** GE0 first, because every picture above it is only as
 honest as the sphere underneath and its properties are the most assertable
@@ -1000,6 +1000,85 @@ forward-inverse round trip and a Tissot sheet per projection.
 
 
 
+
+
+## GE10 -- MAP FURNITURE, AND A FIELD THAT HAS A DIRECTION (2026-09-15, SHIPPED)
+
+*The things a map carries around it and over it. Two of them are where maps
+lie most.*
+
+### A scale bar that refuses
+
+A scale bar says **"this length is 500 km"**, and on a world map that is
+true along one line and nowhere else. Almost every world map carries one
+anyway.
+
+GE9 measured exactly that variation, so this plane can do the honest thing:
+draw the bar at a **stated latitude**, print that latitude beside it, and
+**refuse to draw one at all** when the sheet cannot support it — answering
+0 so the caller knows nothing happened. A face that drew it anyway would
+make the caller complicit without telling them.
+
+Measured: a world Mercator's sheet varies by ×7.05 and the bar is refused;
+a Mercator fitted to two tenths of a degree around Paris varies by ×1.002
+and a 5 km bar draws. **The variation is measured over the SHEET and not
+over the globe** — the first version walked the whole world whatever the
+map showed, reported ×5.76 for the city plan, and refused a bar on the one
+kind of map where a bar is honest. It samples the paper rectangle and
+inverts each sample, which every projection can now answer because GE9 gave
+them all an inverse.
+
+The bar's length is **measured, not derived**: two points a known distance
+apart on WGS84, projected, and the pixels between them — so it works for all
+forty-four projections including the twenty-eight with no closed form, and
+it says what a GPS says.
+
+### A north arrow that is measured
+
+Usually drawn pointing up and hoped over. On a rotated or oblique
+projection north is not up and a reader has no other way to know, so it is
+measured: project a short step due north and draw where it actually went.
+Up on an unrotated cylindrical, off by 35 degrees on one rolled by 35.
+
+### Day and night, which is astronomy and checkable
+
+The terminator is the great circle ninety degrees from the point the sun is
+overhead, so all it needs is where that point is. **Twilight is the same
+circle further out** — civil at 6 degrees below the horizon, nautical at 12,
+astronomical at 18, so 96, 102 and 108 — which is why one routine draws all
+four.
+
+The solar series constants are the only things in GE10 somebody had to type,
+so they are held to facts that need no almanac:
+
+| fact | measured |
+|---|---|
+| declination at the equinoxes | −0.04 and −0.19 |
+| at the June and December solstices | +23.435 and −23.435 |
+| subsolar longitude per two hours | −29.9955 (want −30) |
+| terminator's reach at an equinox | 89.96 — both poles |
+| ...at the June solstice | **66.5649 — the Arctic Circle**, which is *defined* as 90 minus the tilt |
+
+The last is the one worth pausing on: the line the engine draws and the line
+in the definition are the same line, and nothing told it so.
+
+### Streamlines are RK4 because Euler lies in a way readers believe
+
+Arrows answer *what is happening here*; streamlines answer *where does this
+go*. A field usually needs both — the streamlines carry the shape, which the
+eye reads as motion at once, and the arrows carry the magnitude, which a
+streamline cannot.
+
+**Euler's method spirals outward on a field that rotates**, so a closed gyre
+comes back as an opening spiral — and a reader takes that for a real
+divergence rather than for the integrator's own error. RK4 costs four
+samples a step and holds a circular streamline's radius to 8e-4 over three
+thousand steps.
+
+And the step is in degrees with the eastward component divided by
+`cos(latitude)`, because a degree of longitude is not a degree of ground
+anywhere but the equator. Without it every streamline drifts east as it goes
+poleward, **at exactly the rate that looks like a real jet**.
 
 ## GE9 -- THE PROJECTION GALLERY, AND WHAT EACH ONE COSTS (2026-09-15, SHIPPED)
 
